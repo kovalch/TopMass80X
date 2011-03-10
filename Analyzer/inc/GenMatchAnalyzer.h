@@ -8,5 +8,5 @@ class GenMatchAnalyzer : public MassAnalyzer {
   
   public:
     GenMatchAnalyzer(TChain* chain) : MassAnalyzer(chain) {};
-    void Analyze(TString cuts);
+    void Analyze(TString cuts, int i, int j);
 };

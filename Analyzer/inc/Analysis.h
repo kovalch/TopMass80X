@@ -8,25 +8,29 @@
 #include "TROOT.h"
 #include "TStyle.h"
 
-#include "DummyAnalyzer.h"
 #include "GenMatchAnalyzer.h"
 
 class Analysis {
   private:
+    TString fFile;
+    TString fMethod;
+    MassAnalyzer* fAnalyzer;
     int fBins;
+    
     TChain* fChain;
     TH2F* hEntries;
-    TH2F* hMassMean;
-    TH2F* hMassMeanError;
+    TH2F* hMass;
+    TH2F* hMassError;
     TH2F* hMassSigma;
     
     void CreateHistos();
 
   public:
-    Analysis() { fBins = 8; }
-    void Print() const;
-    void SetBins(int x) { fBins = x; }
-    
+    Analysis(TString file, TString method, int bins) : fFile(file), fMethod(method), fBins(bins) {}
     void Analyze();
+    
+    TH2F* GetH2Mass();
+    TH2F* GetH2MassError();
+    TH2F* GetH2MassSigma();
 };
 

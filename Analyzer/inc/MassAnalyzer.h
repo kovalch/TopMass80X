@@ -15,7 +15,7 @@ class MassAnalyzer {
   public:
     MassAnalyzer(TChain* chain) { fChain = chain; };
     
-    virtual void Analyze(TString cuts) = 0;
+    virtual void Analyze(TString cuts, int i, int j) = 0;
     
     double GetMass();
     double GetMassError();
