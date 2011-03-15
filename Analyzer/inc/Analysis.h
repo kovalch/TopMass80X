@@ -9,9 +9,11 @@
 #include "TStyle.h"
 
 #include "GenMatchAnalyzer.h"
+#include "MVAAnalyzer.h"
 
 class Analysis {
   private:
+    TString fIdentifier;
     TString fFile;
     TString fMethod;
     MassAnalyzer* fAnalyzer;
@@ -26,11 +28,14 @@ class Analysis {
     void CreateHistos();
 
   public:
-    Analysis(TString file, TString method, int bins) : fFile(file), fMethod(method), fBins(bins) {}
+    Analysis(TString identifier, TString file, TString method, int bins) :
+      fIdentifier(identifier), fFile(file), fMethod(method), fBins(bins) {}
     void Analyze();
     
     TH2F* GetH2Mass();
     TH2F* GetH2MassError();
     TH2F* GetH2MassSigma();
+    
+    TString GetIdentifier();
 };
 

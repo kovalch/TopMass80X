@@ -1,12 +1,15 @@
-// Analysis.C:
 #include "Analysis.h"
 
 void Analysis::Analyze() {
-  std::cout << "Analyze..." << std::endl;
+  std::cout << "Analyze " << fMethod << std::endl;
   
   if (!strcmp(fMethod, "GenMatch")) {
     fChain = new TChain("analyzeGenMatch/eventTree");
-    fAnalyzer = new GenMatchAnalyzer(fChain);
+    fAnalyzer = new GenMatchAnalyzer(fIdentifier, fChain);
+  }
+  else if (!strcmp(fMethod, "MVA")) {
+    fChain = new TChain("analyzeMVADisc/eventTree");
+    fAnalyzer = new MVAAnalyzer(fIdentifier, fChain);
   }
   else {
     return;
@@ -23,10 +26,8 @@ void Analysis::Analyze() {
   canvas->cd();
   
   double smearBins = 1.;
+  double rangeX = 4.;
   double rangeY = 4.;
-  double rangeXstart = 0.;
-  double rangeXend = 4.;
-  double rangeX = rangeXend-rangeXstart;
 
   double smearX = smearBins/fBins*rangeX;
   double smearY = smearBins/fBins*rangeY;
@@ -38,28 +39,31 @@ void Analysis::Analyze() {
   
   CreateHistos();
   
-  for(int i = 0; i < fBins; i++) {
-    for(int j = 0; j < fBins; j++) {
+  for(int i = 1; i <= fBins; i++) {
+    for(int j = 1; j <= fBins; j++) {
       // calculate cuts
       TString cuts;
       std::stringstream stream;
-      stream << rangeXstart+(rangeX/fBins)*i-smearX << "<" << observableY << "&"
-             << observableY << "<" << rangeXstart+(rangeX/fBins)*(i+1)+smearX << " & "
-             << rangeY/fBins*j-smearY << "<" << observableX << "&" 
-             << observableX << "<" << rangeY/fBins*(j+1)+smearY
-             << " & genMatchDr < 1";
+      stream << (rangeX/fBins)*(i-1)-smearX << "<" << observableX << "&"
+             << observableX << "<" << (rangeX/fBins)*(i)+smearX << " & "
+             << rangeY/fBins*(j-1)-smearY << "<" << observableY << "&" 
+             << observableY << "<" << rangeY/fBins*(j)+smearY;
       cuts = stream.str();
+      
+      if (!strcmp(fMethod, "MVA")) {
+        cuts += " & mvaDisc > 0";
+      }
       
       int entries = fChain->GetEntries(cuts);
 
-      hEntries->Fill(rangeY/fBins*(j+0.5), rangeXstart+rangeX/fBins*(i+0.5), entries);
+      hEntries->SetCellContent(i, j, entries);
       
       if (entries > minEntries) {
         fAnalyzer->Analyze(cuts, i, j);
-        
-        hMass     ->Fill(rangeY/fBins*(j+0.5), rangeXstart+rangeX/fBins*(i+0.5), fAnalyzer->GetMass());
-        hMassError->Fill(rangeY/fBins*(j+0.5), rangeXstart+rangeX/fBins*(i+0.5), fAnalyzer->GetMassError());
-        hMassSigma->Fill(rangeY/fBins*(j+0.5), rangeXstart+rangeX/fBins*(i+0.5), fAnalyzer->GetMassSigma());
+
+        hMass     ->SetCellContent(i, j, fAnalyzer->GetMass());
+        hMassError->SetCellContent(i, j, fAnalyzer->GetMassError());
+        hMassSigma->SetCellContent(i, j, fAnalyzer->GetMassSigma());
       }
     }
   }
@@ -82,7 +86,8 @@ void Analysis::Analyze() {
   hMassSigma->Draw("COLZ,TEXT");
   hMassSigma->SetAxisRange(hMassSigma->GetMinimum(0), hMassSigma->GetMaximum(), "Z");
   
-  canvas->Print("plot/analyzeTop.ps");
+  TString path("plot/"); path += fMethod; path += "_"; path += fIdentifier; path += ".eps";
+  canvas->Print(path);
 }
 
 void Analysis::CreateHistos() {
@@ -133,8 +138,6 @@ TH2F* Analysis::GetH2MassSigma() {
   return hMassSigma;
 }
 
-int main(int argc, char** argv)
-{
-  Analysis* a = new Analysis("root/analyzeTop_1725.root", "GenMatch", 8);
-  a->Analyze();
+TString Analysis::GetIdentifier() {
+  return fIdentifier;
 }
