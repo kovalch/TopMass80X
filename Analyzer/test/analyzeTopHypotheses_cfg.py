@@ -112,7 +112,7 @@ process.load("TopMass.Analyzer.EventHypothesisAnalyzer_cff")
 
 # register TFileService
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('analyzeTop_1725.root')
+    fileName = cms.string('analyzeTop.root')
 )
 
 ## end path   
