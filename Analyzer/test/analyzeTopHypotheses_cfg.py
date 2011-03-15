@@ -101,7 +101,7 @@ process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_c
 process.ttSemiLepEvent.verbosity = 0
 ## change maximum number of jets taken into account per event (default: 4)
 from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff import *
-setForAllTtSemiLepHypotheses(process, "jets", "selectedPatJetsAK5PF")
+setForAllTtSemiLepHypotheses(process, "jets", "scaledJetEnergy:selectedPatJetsAK5PF")
 setForAllTtSemiLepHypotheses(process, "maxNComb", -1)
 
 process.TtSemiLepJetCombMVAFileSource = cms.ESSource("TtSemiLepJetCombMVAFileSource",
