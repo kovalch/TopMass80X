@@ -39,15 +39,15 @@ void Analysis::Analyze() {
   
   CreateHistos();
   
-  for(int i = 1; i <= fBins; i++) {
-    for(int j = 1; j <= fBins; j++) {
+  for(int i = 0; i < fBins; i++) {
+    for(int j = 0; j < fBins; j++) {
       // calculate cuts
       TString cuts;
       std::stringstream stream;
-      stream << (rangeX/fBins)*(i-1)-smearX << "<" << observableX << "&"
-             << observableX << "<" << (rangeX/fBins)*(i)+smearX << " & "
-             << rangeY/fBins*(j-1)-smearY << "<" << observableY << "&" 
-             << observableY << "<" << rangeY/fBins*(j)+smearY;
+      stream << (rangeX/fBins)*(i)-smearX << "<" << observableX << "&"
+             << observableX << "<" << (rangeX/fBins)*(i+1)+smearX << " & "
+             << rangeY/fBins*(j)-smearY << "<" << observableY << "&" 
+             << observableY << "<" << rangeY/fBins*(j+1)+smearY;
       cuts = stream.str();
       
       if (!strcmp(fMethod, "MVA")) {
@@ -56,14 +56,14 @@ void Analysis::Analyze() {
       
       int entries = fChain->GetEntries(cuts);
 
-      hEntries->SetCellContent(i, j, entries);
+      hEntries->SetCellContent(i+1, j+1, entries);
       
       if (entries > minEntries) {
         fAnalyzer->Analyze(cuts, i, j);
 
-        hMass     ->SetCellContent(i, j, fAnalyzer->GetMass());
-        hMassError->SetCellContent(i, j, fAnalyzer->GetMassError());
-        hMassSigma->SetCellContent(i, j, fAnalyzer->GetMassSigma());
+        hMass     ->SetCellContent(i+1, j+1, fAnalyzer->GetMass());
+        hMassError->SetCellContent(i+1, j+1, fAnalyzer->GetMassError());
+        hMassSigma->SetCellContent(i+1, j+1, fAnalyzer->GetMassSigma());
       }
     }
   }
@@ -124,6 +124,20 @@ void Analysis::CreateHistos() {
   hMassSigma->SetTitle("MassSigma");
   hMassSigma->SetXTitle(observableX);
   hMassSigma->SetYTitle(observableY);
+  
+  hMassCalibrated = new TH2F();
+  hMassCalibrated->SetBins(fBins, 0, rangeY, fBins, rangeXstart, rangeXend);
+  hMassCalibrated->SetStats(false);
+  hMassCalibrated->SetTitle("Mass (Calibrated)");
+  hMassCalibrated->SetXTitle(observableX);
+  hMassCalibrated->SetYTitle(observableY);
+  
+  hMassErrorCalibrated = new TH2F();
+  hMassErrorCalibrated->SetBins(fBins, 0, rangeY, fBins, rangeXstart, rangeXend);
+  hMassErrorCalibrated->SetStats(false);
+  hMassErrorCalibrated->SetTitle("MassError (Calibrated)");
+  hMassErrorCalibrated->SetXTitle(observableX);
+  hMassErrorCalibrated->SetYTitle(observableY);
 }
 
 TH2F* Analysis::GetH2Mass() {
@@ -136,6 +150,14 @@ TH2F* Analysis::GetH2MassError() {
 
 TH2F* Analysis::GetH2MassSigma() {
   return hMassSigma;
+}
+
+TH2F* Analysis::GetH2MassCalibrated() {
+  return hMassCalibrated;
+}
+
+TH2F* Analysis::GetH2MassErrorCalibrated() {
+  return hMassErrorCalibrated;
 }
 
 TString Analysis::GetIdentifier() {

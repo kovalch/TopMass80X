@@ -25,6 +25,9 @@ class Analysis {
     TH2F* hMassError;
     TH2F* hMassSigma;
     
+    TH2F* hMassCalibrated;
+    TH2F* hMassErrorCalibrated;
+    
     void CreateHistos();
 
   public:
@@ -35,6 +38,9 @@ class Analysis {
     TH2F* GetH2Mass();
     TH2F* GetH2MassError();
     TH2F* GetH2MassSigma();
+    
+    TH2F* GetH2MassCalibrated();
+    TH2F* GetH2MassErrorCalibrated();
     
     TString GetIdentifier();
 };

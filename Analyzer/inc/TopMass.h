@@ -6,16 +6,33 @@
 
 class TopMass {
   private:
+    TString fMethod;
     int fBins;
     
-    std::vector<Analysis*> analyses;
+    std::vector<Analysis*> calibrationAnalyses;
     std::vector<Analysis*>::const_iterator iAnalysis;
+    
+    Analysis* a1665;
+    Analysis* a1725;
+    Analysis* a1785;
+    
+    Analysis* a1665_jes_up;
+    Analysis* a1725_jes_up;
+    Analysis* a1785_jes_up;
+    
+    Analysis* a1665_jes_down;
+    Analysis* a1725_jes_down;
+    Analysis* a1785_jes_down;
+    
+    Analysis* aSim;
     
     double fCalibFitParameter[8][8][2];
     double fCalibFitParError[8][8][2];
   
   public:
-    TopMass(int bins) : fBins(bins) {};
-    void Calibrate(TString method);
-    void Measure(TString method);
+    TopMass(TString method, int bins);
+    
+    void Calibrate();
+    TH2F* Measure(Analysis* a);
+    void Systematics();
 };

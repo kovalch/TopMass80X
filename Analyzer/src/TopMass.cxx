@@ -1,17 +1,36 @@
 #include "TopMass.h"
 
-void TopMass::Calibrate(TString method) {
+TopMass::TopMass(TString method, int bins) : fMethod(method), fBins(bins) {
+
+  a1665 = new Analysis("1665", "root/analyzeTop_1665.root", fMethod, fBins);
+  a1725 = new Analysis("1725", "root/analyzeTop_1725.root", fMethod, fBins);
+  a1785 = new Analysis("1785", "root/analyzeTop_1785.root", fMethod, fBins);
+  
+  a1665_jes_up = new Analysis("1665_jes_up", "root/analyzeTop_1665_jes_up.root", fMethod, fBins);
+  a1725_jes_up = new Analysis("1725_jes_up", "root/analyzeTop_1725_jes_up.root", fMethod, fBins);
+  a1785_jes_up = new Analysis("1785_jes_up", "root/analyzeTop_1785_jes_up.root", fMethod, fBins);
+  
+  a1665_jes_down = new Analysis("1665_jes_down", "root/analyzeTop_1665_jes_down.root", fMethod, fBins);
+  a1725_jes_down = new Analysis("1725_jes_down", "root/analyzeTop_1725_jes_down.root", fMethod, fBins);
+  a1785_jes_down = new Analysis("1785_jes_down", "root/analyzeTop_1785_jes_down.root", fMethod, fBins);
+  
+  aSim = new Analysis("sim", "root/analyzeTop_1725.root", fMethod, fBins);
+  
+  Calibrate();
+  Measure(aSim);
+  Systematics();
+}
+
+
+
+void TopMass::Calibrate() {
  
-  std::vector<TH2F*> h2Mass;
-  std::vector<TH2F*> h2MassError;
+  std::vector<TH2F*> hMass;
+  std::vector<TH2F*> hMassError;
   
-  Analysis* a1665 = new Analysis("1665", "root/analyzeTop_1665.root", method, fBins);
-  Analysis* a1725 = new Analysis("1725", "root/analyzeTop_1725.root", method, fBins);
-  Analysis* a1785 = new Analysis("1785", "root/analyzeTop_1785.root", method, fBins);
-  
-  analyses.push_back(a1665);
-  analyses.push_back(a1725);
-  analyses.push_back(a1785);
+  calibrationAnalyses.push_back(a1665);
+  calibrationAnalyses.push_back(a1725);
+  calibrationAnalyses.push_back(a1785);
   
   TCanvas* canvasFit = new TCanvas("canvasFit", "hadronic top h2Mass", 500, 500);
   
@@ -21,9 +40,9 @@ void TopMass::Calibrate(TString method) {
   double hadTopMassError[3];
   
   for(int i = 0; i < 3; i++){
-    analyses.at(i)->Analyze();
-    h2Mass.push_back(analyses.at(i)->GetH2Mass());
-    h2MassError.push_back(analyses.at(i)->GetH2MassError());
+    calibrationAnalyses.at(i)->Analyze();
+    hMass.push_back(calibrationAnalyses.at(i)->GetH2Mass());
+    hMassError.push_back(calibrationAnalyses.at(i)->GetH2MassError());
   }
     
   canvasFit->cd();
@@ -34,17 +53,17 @@ void TopMass::Calibrate(TString method) {
   
   for (int i = 0; i < fBins; i++) {
     for (int j = 0; j < fBins; j++) {
-      if (h2Mass.at(0)->GetCellContent(i+1, j+1) > 0 && h2Mass.at(2)->GetCellContent(i+1, j+1) > 0) {
+      if (hMass.at(0)->GetCellContent(i+1, j+1) > 0 && hMass.at(2)->GetCellContent(i+1, j+1) > 0) {
         for (int k = 0; k < 3; k++) {
-          hadTopMass[k] = h2Mass.at(k)->GetCellContent(i+1, j+1);
-          hadTopMassError[k] = h2MassError.at(k)->GetCellContent(i+1, j+1);
+          hadTopMass[k] = hMass.at(k)->GetCellContent(i+1, j+1);
+          hadTopMassError[k] = hMassError.at(k)->GetCellContent(i+1, j+1);
         }
         ghadTopMass = new TGraphErrors(3, hadTopMass, genMass, hadTopMassError, genMassError);
         ghadTopMass->Draw("A*");
         
         ghadTopMass->Fit("linearFit");
         
-        TString path("plot/"); path += method; path += "/"; path += "fit_"; path += i; path += "_"; path += j; path += ".png";
+        TString path("plot/"); path += fMethod; path += "/"; path += "fit_"; path += i; path += "_"; path += j; path += ".png";
         canvasFit->Print(path);
         
         for (int l = 0; l < 2; l++) {
@@ -56,44 +75,65 @@ void TopMass::Calibrate(TString method) {
   }
 }
 
-void TopMass::Measure(TString method) {
-  Analysis* a = new Analysis("sim", "root/analyzeTop_1725.root", method, 8);
+
+
+TH2F* TopMass::Measure(Analysis* a) {
   a->Analyze();
   
-  TCanvas* canvasFit = new TCanvas("canvasFit", "hadronic top h2Mass", 500, 500);
+  TCanvas* canvas = new TCanvas("canvas", "Hadronic top mass", 1000, 500);
   
-  TH2F* h2Mass = a->GetH2Mass();
-  TH2F* h2MassError = a->GetH2MassError();
+  TH2F* hMass = a->GetH2Mass();
+  TH2F* hMassError = a->GetH2MassError();
 
-  TH2F* hMassCalibrated = new TH2F();
-  hMassCalibrated->SetBins(fBins, 0, 4, fBins, 0, 4);
-  hMassCalibrated->SetStats(false);
-  hMassCalibrated->SetTitle("Mass");
-  hMassCalibrated->SetXTitle("deltaRHadWHadB");
-  hMassCalibrated->SetYTitle("deltaRHadQHadQBar");
+  TH2F* hMassCalibrated = a->GetH2MassCalibrated();
+  TH2F* hMassErrorCalibrated = a->GetH2MassErrorCalibrated();
   
   for (int i = 0; i < fBins; i++) {
     for (int j = 0; j < fBins; j++) {
       if (fCalibFitParameter[i][j][0] && fCalibFitParameter[i][j][1]) {
-        double calib = 172.5 + fCalibFitParameter[i][j][0] + fCalibFitParameter[i][j][1] * (h2Mass->GetCellContent(i+1, j+1) - 172.5);
-        double caliberror = sqrt(pow(fCalibFitParError[i][j][0], 2) + pow((h2Mass->GetCellContent(i+1, j+1) - 172.5)*fCalibFitParError[i][j][1], 2) + pow(fCalibFitParameter[i][j][1]*h2MassError->GetCellContent(i+1, j+1), 2));
+        double calib = 172.5 + fCalibFitParameter[i][j][0] + fCalibFitParameter[i][j][1] * (hMass->GetCellContent(i+1, j+1) - 172.5);
+        double caliberror = sqrt(pow(fCalibFitParError[i][j][0], 2) + pow((hMass->GetCellContent(i+1, j+1) - 172.5)*fCalibFitParError[i][j][1], 2) + pow(fCalibFitParameter[i][j][1]*hMassError->GetCellContent(i+1, j+1), 2));
         
         std::cout << "Measured TopMass: " << calib << " +/- " << caliberror << " GeV" << std::endl;
         
-        hMassCalibrated->SetCellContent(i+1, j+1, caliberror);
+        hMassCalibrated->SetCellContent(i+1, j+1, calib);
+        hMassErrorCalibrated->SetCellContent(i+1, j+1, caliberror);
       }
     }
   }
   
+  canvas->Divide(2,1);
+  
+  canvas->cd(1);
   hMassCalibrated->Draw("COLZ,TEXT");
   hMassCalibrated->SetAxisRange(hMassCalibrated->GetMinimum(0), hMassCalibrated->GetMaximum(), "Z");
   
-  canvasFit->Print("test.eps");
+  canvas->cd(2);
+  hMassErrorCalibrated->Draw("COLZ,TEXT");
+  hMassErrorCalibrated->SetAxisRange(hMassErrorCalibrated->GetMinimum(0), hMassErrorCalibrated->GetMaximum(), "Z");
+  
+  TString path("plot/"); path += fMethod; path += "_sim_calibrated.eps";
+  canvas->Print(path);
+  
+  return hMassCalibrated;
+}
+
+
+void TopMass::Systematics() {
+  TH2F* hTest1 = Measure(a1725_jes_down);
+  TH2F* hTest2 = Measure(a1725);
+  TH2F* hTest3 = Measure(a1725_jes_up);
+  
+  hTest3->Add(hTest2, -0.999999);
+  
+  TCanvas* canvas = new TCanvas("canvas", "Hadronic top mass", 500, 500);
+  hTest3->Draw("TEXT,COLZ");
+  hTest3->SetAxisRange(hTest3->GetMinimum(0), hTest3->GetMaximum(), "Z");
+  std::cout << "JES error: " << hTest3->GetMinimum(0) << " - " << hTest3->GetMaximum() << std::endl;
+  canvas->Print("test.eps");
 }
 
 int main(int argc, char** argv)
-{
-  TopMass* top = new TopMass(8);
-  top->Calibrate("GenMatch");
-  top->Measure("GenMatch");
+{   
+  TopMass* top = new TopMass("GenMatch", 8);
 }
