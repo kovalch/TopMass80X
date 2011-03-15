@@ -1,5 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
+import FWCore.ParameterSet.VarParsing as VarParsing
+# setup 'standard' options
+options = VarParsing.VarParsing ('standard')
+# cone size variation
+options.register('jes','abs',VarParsing.VarParsing.multiplicity.singleton,
+VarParsing.VarParsing.varType.string   , "Jet Energy Scale")
+# get and parse the command line arguments
+options.parseArguments()
+
 process = cms.Process("TEST")
 
 ## configure message logger
@@ -73,6 +82,16 @@ process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
 process.load("TopAnalysis.TopFilter.sequences.semiLeptonicSelection_cff")
 
+## configure JetEnergyScale tool
+process.load("TopAnalysis.TopUtils.JetEnergyScale_cff")
+from TopAnalysis.TopUtils.JetEnergyScale_cff import *
+
+scaledJetEnergy.scaleType   = cms.string(options.jes)
+scaledJetEnergy.inputJets   = "selectedPatJetsAK5PF"
+#scaledJetEnergy.scaleFactor = 1.053
+#scaledJetEnergy.resolutionFactor = 1.1
+
+
 ## sequences for ttGenEvent and TtSemiLeptonicEvent
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
 
@@ -112,11 +131,12 @@ process.load("TopMass.Analyzer.EventHypothesisAnalyzer_cff")
 
 # register TFileService
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('analyzeTop_1725.root')
+    fileName = cms.string('analyzeTop.root')
 )
 
 ## end path   
-process.path = cms.Path(#process.patDefaultSequence *                   
+process.path = cms.Path(#process.patDefaultSequence *
+                        process.scaledJetEnergy *
                         process.semiLeptonicSelection *
                         process.semiLeptonicEvents *
                         process.makeGenEvt *
