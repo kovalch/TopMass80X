@@ -7,3 +7,4 @@
 \.eps$
 \.png$
 \.root$
+glob:Analyzer/TopMass
