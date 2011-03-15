@@ -7,7 +7,7 @@ ROOTLIBS   := $(shell root-config --libs)
 CXX_FILES := $(wildcard src/*.cxx)
 OBJ_FILES := $(patsubst src/%.cxx,obj/%.o,$(CXX_FILES))
 
-Analysis: $(OBJ_FILES)
+TopMass: $(OBJ_FILES)
 	$(C) $(ROOTLIBS) -o $@ $(OBJ_FILES)
 
 obj/%.o: src/%.cxx
