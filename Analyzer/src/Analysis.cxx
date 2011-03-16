@@ -7,13 +7,13 @@ void Analysis::Analyze(bool reanalyze) {
   }
 
   std::cout << "Analyze " << fIdentifier << " with method " << fMethod << std::endl;
+
+  fChain = new TChain("analyzeKinFit/eventTree");
   
   if (!strcmp(fMethod, "GenMatch")) {
-    fChain = new TChain("analyzeKinFit/eventTree");
     fAnalyzer = new GenMatchAnalyzer(fIdentifier, fChain);
   }
   else if (!strcmp(fMethod, "MVA")) {
-    fChain = new TChain("analyzeMVADisc/eventTree");
     fAnalyzer = new MVAAnalyzer(fIdentifier, fChain);
   }
   else {
