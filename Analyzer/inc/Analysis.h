@@ -19,6 +19,8 @@ class Analysis {
     MassAnalyzer* fAnalyzer;
     int fBins;
     
+    bool fAnalyzed;
+    
     TChain* fChain;
     TH2F* hEntries;
     TH2F* hMass;
@@ -33,7 +35,9 @@ class Analysis {
   public:
     Analysis(TString identifier, TString file, TString method, int bins) :
       fIdentifier(identifier), fFile(file), fMethod(method), fBins(bins) {}
-    void Analyze();
+    ~Analysis() { delete &fAnalyzed; }
+    
+    void Analyze(bool reanalyze = false);
     
     TH2F* GetH2Mass();
     TH2F* GetH2MassError();

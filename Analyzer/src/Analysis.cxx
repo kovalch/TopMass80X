@@ -1,7 +1,12 @@
 #include "Analysis.h"
 
-void Analysis::Analyze() {
-  std::cout << "Analyze " << fMethod << std::endl;
+void Analysis::Analyze(bool reanalyze) {
+  if (fAnalyzed) {
+    std::cout << "Analysis " << fIdentifier << " has already been done, no reanalyze forced" << std::endl;
+    return;
+  }
+
+  std::cout << "Analyze " << fIdentifier << " with method " << fMethod << std::endl;
   
   if (!strcmp(fMethod, "GenMatch")) {
     fChain = new TChain("analyzeGenMatch/eventTree");
@@ -88,6 +93,8 @@ void Analysis::Analyze() {
   
   TString path("plot/"); path += fMethod; path += "_"; path += fIdentifier; path += ".eps";
   canvas->Print(path);
+  
+  fAnalyzed = true;
 }
 
 void Analysis::CreateHistos() {
