@@ -120,17 +120,30 @@ TH2F* TopMass::Measure(Analysis* a) {
 
 
 void TopMass::Systematics() {
-  TH2F* hTest1 = Measure(a1725_jes_down);
-  TH2F* hTest2 = Measure(a1725);
-  TH2F* hTest3 = Measure(a1725_jes_up);
+  TH2F* hMassJESdown = Measure(a1725_jes_down);
+  TH2F* hMassJESnorm = Measure(a1725);
+  TH2F* hMassJESup   = Measure(a1725_jes_up);
   
-  hTest3->Add(hTest2, -0.999999);
+  hMassJESup->Add(hMassJESnorm, -1.000001);
+  hMassJESnorm->Add(hMassJESdown, -1.000001);
   
-  TCanvas* canvas = new TCanvas("canvas", "Hadronic top mass", 500, 500);
-  hTest3->Draw("TEXT,COLZ");
-  hTest3->SetAxisRange(hTest3->GetMinimum(0), hTest3->GetMaximum(), "Z");
-  std::cout << "JES error: " << hTest3->GetMinimum(0) << " - " << hTest3->GetMaximum() << std::endl;
-  canvas->Print("test.eps");
+  hMassJESup->SetTitle("JES up MassError (Calibrated)");
+  hMassJESnorm->SetTitle("JES down MassError (Calibrated)");
+  
+  TCanvas* canvas = new TCanvas("canvas", "Hadronic top mass JES error", 1000, 500);
+  
+  canvas->Divide(2,1);
+  
+  canvas->cd(1);
+  hMassJESnorm->Draw("COLZ,TEXT");
+  hMassJESnorm->SetAxisRange(hMassJESnorm->GetMinimum(0), hMassJESnorm->GetMaximum(), "Z");
+  
+  canvas->cd(2);
+  hMassJESup->Draw("COLZ,TEXT");
+  hMassJESup->SetAxisRange(hMassJESup->GetMinimum(0), hMassJESup->GetMaximum(), "Z");
+  
+  TString path("plot/"); path += fMethod; path += "_sim_jeserror.eps";
+  canvas->Print(path);
 }
 
 int main(int argc, char** argv)
