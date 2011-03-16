@@ -147,6 +147,11 @@ void TopMass::Systematics() {
 }
 
 int main(int argc, char** argv)
-{   
-  TopMass* top = new TopMass("GenMatch", 8);
+{
+  if (argc > 1) {
+    TopMass* top = new TopMass(argv[1], 8);
+  }
+  else {
+    TopMass* top = new TopMass("GenMatch", 8);
+  }
 }
