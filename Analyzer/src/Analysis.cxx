@@ -9,7 +9,7 @@ void Analysis::Analyze(bool reanalyze) {
   std::cout << "Analyze " << fIdentifier << " with method " << fMethod << std::endl;
   
   if (!strcmp(fMethod, "GenMatch")) {
-    fChain = new TChain("analyzeGenMatch/eventTree");
+    fChain = new TChain("analyzeKinFit/eventTree");
     fAnalyzer = new GenMatchAnalyzer(fIdentifier, fChain);
   }
   else if (!strcmp(fMethod, "MVA")) {
@@ -55,7 +55,10 @@ void Analysis::Analyze(bool reanalyze) {
              << observableY << "<" << rangeY/fBins*(j+1)+smearY;
       cuts = stream.str();
       
-      if (!strcmp(fMethod, "MVA")) {
+      if (!strcmp(fMethod, "GenMatch")) {
+        cuts += " & genMatchDr > 0";
+      }
+      else if (!strcmp(fMethod, "MVA")) {
         cuts += " & mvaDisc > 0";
       }
       
