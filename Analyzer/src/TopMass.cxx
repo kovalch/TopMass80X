@@ -49,11 +49,10 @@ void TopMass::Calibrate() {
 
   TGraphErrors* ghadTopMass;
   
-  TF1* linearFit = new TF1("linearFit", "172.5+[0]+(x-172.5)*[1]");
-  
   for (int i = 0; i < fBins; i++) {
     for (int j = 0; j < fBins; j++) {
-      if (hMass.at(0)->GetCellContent(i+1, j+1) > 0 && hMass.at(2)->GetCellContent(i+1, j+1) > 0) {
+      if (hMass.at(0)->GetCellContent(i+1, j+1) > 0 && hMass.at(2)->GetCellContent(i+1, j+1) > 0
+          && hMassError.at(0)->GetCellContent(i+1, j+1) > 0 && hMassError.at(2)->GetCellContent(i+1, j+1) > 0) {
         for (int k = 0; k < 3; k++) {
           hadTopMass[k] = hMass.at(k)->GetCellContent(i+1, j+1);
           hadTopMassError[k] = hMassError.at(k)->GetCellContent(i+1, j+1);
@@ -61,6 +60,7 @@ void TopMass::Calibrate() {
         ghadTopMass = new TGraphErrors(3, hadTopMass, genMass, hadTopMassError, genMassError);
         ghadTopMass->Draw("A*");
         
+        TF1* linearFit = new TF1("linearFit", "172.5+[0]+(x-172.5)*[1]");        
         ghadTopMass->Fit("linearFit");
         
         TString path("plot/"); path += fMethod; path += "/"; path += "fit_"; path += i; path += "_"; path += j; path += ".png";

@@ -1,10 +1,11 @@
 #include "MassAnalyzer.h"
 #include "TF1.h"
+#include "TH1F.h"
 #include "TCanvas.h"
+#include "TMath.h"
 
 class IdeogramAnalyzer : public MassAnalyzer {
   private:
-    TF1* gaus;
   
   public:
     IdeogramAnalyzer(TString identifier, TChain* chain) : MassAnalyzer(identifier, chain) {};

@@ -41,6 +41,10 @@ void Analysis::Analyze(bool reanalyze) {
   double smearY = smearBins/fBins*rangeY;
   
   double minEntries = 500;
+  
+  if (!strcmp(fMethod, "Ideogram")) {
+    minEntries = 8000;
+  }
 
   TString observableX = "deltaRHadWHadB";
   TString observableY = "deltaRHadQHadQBar";
