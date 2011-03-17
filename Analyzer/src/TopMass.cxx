@@ -14,10 +14,10 @@ TopMass::TopMass(TString method, int bins) : fMethod(method), fBins(bins) {
   a1725_jes_down = new Analysis("1725_jes_down", "root/analyzeTop_1725_jes_down.root", fMethod, fBins);
   a1785_jes_down = new Analysis("1785_jes_down", "root/analyzeTop_1785_jes_down.root", fMethod, fBins);
   
-  aSim = new Analysis("sim", "root/analyzeTop_1725.root", fMethod, fBins);
+  //aSim = new Analysis("sim", "root/analyzeTop_1725.root", fMethod, fBins);
   
   Calibrate();
-  Measure(aSim);
+  //Measure(aSim);
   Systematics();
 }
 
@@ -112,7 +112,7 @@ TH2F* TopMass::Measure(Analysis* a) {
   hMassErrorCalibrated->Draw("COLZ,TEXT");
   hMassErrorCalibrated->SetAxisRange(hMassErrorCalibrated->GetMinimum(0), hMassErrorCalibrated->GetMaximum(), "Z");
   
-  TString path("plot/"); path += fMethod; path += "_sim_calibrated.eps";
+  TString path("plot/"); path += fMethod; path += "_"; path += a->GetIdentifier(); path +="_calibrated.eps";
   canvas->Print(path);
   
   return hMassCalibrated;
@@ -127,8 +127,8 @@ void TopMass::Systematics() {
   hMassJESup->Add(hMassJESnorm, -1.000001);
   hMassJESnorm->Add(hMassJESdown, -1.000001);
   
-  hMassJESup->SetTitle("JES up MassError (Calibrated)");
-  hMassJESnorm->SetTitle("JES down MassError (Calibrated)");
+  hMassJESup->SetTitle("JES up MassError");
+  hMassJESnorm->SetTitle("JES down MassError");
   
   TCanvas* canvas = new TCanvas("canvas", "Hadronic top mass JES error", 1000, 500);
   
@@ -142,7 +142,7 @@ void TopMass::Systematics() {
   hMassJESup->Draw("COLZ,TEXT");
   hMassJESup->SetAxisRange(hMassJESup->GetMinimum(0), hMassJESup->GetMaximum(), "Z");
   
-  TString path("plot/"); path += fMethod; path += "_sim_jeserror.eps";
+  TString path("plot/"); path += fMethod; path += "_jeserror.eps";
   canvas->Print(path);
 }
 
