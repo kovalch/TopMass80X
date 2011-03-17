@@ -16,6 +16,9 @@ void Analysis::Analyze(bool reanalyze) {
   else if (!strcmp(fMethod, "MVA")) {
     fAnalyzer = new MVAAnalyzer(fIdentifier, fChain);
   }
+  else if (!strcmp(fMethod, "Ideogram")) {
+    fAnalyzer = new IdeogramAnalyzer(fIdentifier, fChain);
+  }
   else {
     return;
   }

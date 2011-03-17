@@ -10,6 +10,7 @@
 
 #include "GenMatchAnalyzer.h"
 #include "MVAAnalyzer.h"
+#include "IdeogramAnalyzer.h"
 
 class Analysis {
   private:
