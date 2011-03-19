@@ -5,23 +5,6 @@ double IdeogramAnalyzer::GetMass() {
 }
 
 void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
-/*  TCanvas* ctemp = new TCanvas("ctemp", "Top mass", 500, 500);
-  ctemp->cd();
-
-  gaus = new TF1("gaus", "gaus");
-
-  fChain->Draw("hadTopMass", cuts);
-
-  fChain->Fit("gaus", "hadTopMass", cuts);
-  
-  TString path("plot/Ideogram/"); path+= fIdentifier; path += "_"; path += i; path += "_"; path += j; path += ".png";
-  ctemp->Print(path);
-        
-  fMass      = gaus->GetParameter(1);
-  fMassError = gaus->GetParError(1);
-  fMassSigma = gaus->GetParameter(2);
-  
-  ==================================================*/
   
   TCanvas* ctemp = new TCanvas("ctemp", "Top mass", 500, 500);
   ctemp->cd();
@@ -35,15 +18,12 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   int bins = 50;
 
   TF1* model = new TF1("model",
-    "[2] * (TMath::Gaus([0],x,[1],1) + TMath::GammaDist([0], 2, -2451.53 + 29.2008*[0] - 0.0825*[0]^2, 1153.57 - 12.8479*[0] + 0.0370833*[0]^2))");
-  // TMath::Landau([0],190,28/190,1)
-  // TMath::GammaDist([0], 2, 1.3775 + 0.738333*[0], 51.0038 - 0.0541667*[0])
-  // TMath::GammaDist([0], 2, -2451.53 + 29.2008*[0] - 0.0825*[0]^2, 1153.57 - 12.8479*[0] + 0.0370833*[0]^2)
-  // TODO signal fraction
+    "[2] * 0.7 * (TMath::Gaus([0],x,[1],1) + 0.3 * 1/(3.5+1) * (3.5 * TMath::Gaus([0], (6.329e+01 + [0]*0.6317), 25, 1) + TMath::Gaus([0], 225, 46, 1)))");
+  // TODO? differential background
   TF1* para = new TF1("para", "abs([1])*(x-[0])^2+[2]");
   para->SetParLimits(0, firstbin, lastbin);
   para->SetParameter(0, (lastbin+firstbin)/2);
-  para->SetParLimits(1, 0.05, 10^6);
+  para->SetParLimits(1, 0.01, 10^6);
 
   TF1* null = new TF1("null", "0");
 
@@ -77,7 +57,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
 	      
 	      if (fitProb > 0.05) {
 	        weight = fitProb;
-	        model->SetParameters(hadTopMass,18,weight);
+	        model->SetParameters(hadTopMass,12,weight);
 	        sum->Eval(model, "A"); // add combi pdf
 	      }
       }
@@ -99,7 +79,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   para->SetParameter(2, logsum->GetMinimum(0));
   para->SetParameter(1, 1000);
   
-  para->SetRange(firstbin+(lastbin-firstbin)/bins*(logsum->GetMinimumBin()-5), firstbin+(lastbin-firstbin)/bins*(logsum->GetMinimumBin()+5));
+  para->SetRange(firstbin+(lastbin-firstbin)/bins*(logsum->GetMinimumBin()-6), firstbin+(lastbin-firstbin)/bins*(logsum->GetMinimumBin()+5));
 
   logsum->Fit("para","BWR");
   

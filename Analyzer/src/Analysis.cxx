@@ -43,7 +43,7 @@ void Analysis::Analyze(bool reanalyze) {
   double minEntries = 500;
   
   if (!strcmp(fMethod, "Ideogram")) {
-    minEntries = 8000;
+    minEntries = 3000;
   }
 
   TString observableX = "deltaThetaHadWHadB";
