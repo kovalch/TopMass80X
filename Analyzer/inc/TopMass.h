@@ -26,8 +26,8 @@ class TopMass {
     
     Analysis* aSim;
     
-    double fCalibFitParameter[8][8][2];
-    double fCalibFitParError[8][8][2];
+    double fCalibFitParameter[6][6][2];
+    double fCalibFitParError[6][6][2];
   
   public:
     TopMass(TString method, int bins);

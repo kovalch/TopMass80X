@@ -106,11 +106,11 @@ TH2F* TopMass::Measure(Analysis* a) {
   
   canvas->cd(1);
   hMassCalibrated->Draw("COLZ,TEXT");
-  hMassCalibrated->SetAxisRange(hMassCalibrated->GetMinimum(0), hMassCalibrated->GetMaximum(), "Z");
+  hMassCalibrated->SetAxisRange(hMassCalibrated->GetMinimum(150), hMassCalibrated->GetMaximum(200), "Z");
   
   canvas->cd(2);
   hMassErrorCalibrated->Draw("COLZ,TEXT");
-  hMassErrorCalibrated->SetAxisRange(hMassErrorCalibrated->GetMinimum(0), hMassErrorCalibrated->GetMaximum(), "Z");
+  hMassErrorCalibrated->SetAxisRange(0.05, 5, "Z");
   
   TString path("plot/"); path += fMethod; path += "_"; path += a->GetIdentifier(); path +="_calibrated.eps";
   canvas->Print(path);
@@ -136,11 +136,11 @@ void TopMass::Systematics() {
   
   canvas->cd(1);
   hMassJESnorm->Draw("COLZ,TEXT");
-  hMassJESnorm->SetAxisRange(hMassJESnorm->GetMinimum(0), hMassJESnorm->GetMaximum(), "Z");
+  hMassJESnorm->SetAxisRange(0.05, 5, "Z");
   
   canvas->cd(2);
   hMassJESup->Draw("COLZ,TEXT");
-  hMassJESup->SetAxisRange(hMassJESup->GetMinimum(0), hMassJESup->GetMaximum(), "Z");
+  hMassJESup->SetAxisRange(0.05, 5, "Z");
   
   TString path("plot/"); path += fMethod; path += "_jeserror.eps";
   canvas->Print(path);
@@ -149,9 +149,9 @@ void TopMass::Systematics() {
 int main(int argc, char** argv)
 {
   if (argc > 1) {
-    TopMass* top = new TopMass(argv[1], 8);
+    TopMass* top = new TopMass(argv[1], 6);
   }
   else {
-    TopMass* top = new TopMass("GenMatch", 8);
+    TopMass* top = new TopMass("GenMatch", 6);
   }
 }

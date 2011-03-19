@@ -34,8 +34,8 @@ void Analysis::Analyze(bool reanalyze) {
   canvas->cd();
   
   double smearBins = 1.;
-  double rangeX = 4.;
-  double rangeY = 4.;
+  double rangeX = 3.;
+  double rangeY = 3.;
 
   double smearX = smearBins/fBins*rangeX;
   double smearY = smearBins/fBins*rangeY;
@@ -46,8 +46,8 @@ void Analysis::Analyze(bool reanalyze) {
     minEntries = 8000;
   }
 
-  TString observableX = "deltaRHadWHadB";
-  TString observableY = "deltaRHadQHadQBar";
+  TString observableX = "deltaThetaHadWHadB";
+  TString observableY = "deltaThetaHadQHadQBar";
   
   CreateHistos();
   
@@ -91,15 +91,15 @@ void Analysis::Analyze(bool reanalyze) {
 
   canvas->cd(2);
   hMass->Draw("COLZ,TEXT");
-  hMass->SetAxisRange(hMass->GetMinimum(0), hMass->GetMaximum(), "Z");
+  hMass->SetAxisRange(hMass->GetMinimum(0.05), hMass->GetMaximum(), "Z");
 
   canvas->cd(3);
   hMassError->Draw("COLZ,TEXT");
-  hMassError->SetAxisRange(hMassError->GetMinimum(0), hMassError->GetMaximum(), "Z");
+  hMassError->SetAxisRange(0.05, 5, "Z");
   
   canvas->cd(4);
   hMassSigma->Draw("COLZ,TEXT");
-  hMassSigma->SetAxisRange(hMassSigma->GetMinimum(0), hMassSigma->GetMaximum(), "Z");
+  hMassSigma->SetAxisRange(hMassSigma->GetMinimum(0.05), hMassSigma->GetMaximum(), "Z");
   
   TString path("plot/"); path += fMethod; path += "_"; path += fIdentifier; path += ".eps";
   canvas->Print(path);
@@ -108,9 +108,9 @@ void Analysis::Analyze(bool reanalyze) {
 }
 
 void Analysis::CreateHistos() {
-  double rangeY = 4.;
+  double rangeY = 3.;
   double rangeXstart = 0.;
-  double rangeXend = 4.;
+  double rangeXend = 3.;
   TString observableX = "deltaRHadWHadB";
   TString observableY = "deltaRHadQHadQBar";
 
