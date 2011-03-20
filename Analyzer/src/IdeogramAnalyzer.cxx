@@ -17,22 +17,21 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
 
   int bins = 50;
 
-  TF1* model = new TF1("model",
+  TF1* combiLikelihood = new TF1("combiLikelihood",
     "[2] * 0.7 * (TMath::Gaus([0],x,[1],1) + 0.3 * 1/(3.5+1) * (3.5 * TMath::Gaus([0], (6.329e+01 + [0]*0.6317), 25, 1) + TMath::Gaus([0], 225, 46, 1)))");
-  // TODO? differential background
-  TF1* para = new TF1("para", "abs([1])*(x-[0])^2+[2]");
-  para->SetParLimits(0, firstbin, lastbin);
-  para->SetParameter(0, (lastbin+firstbin)/2);
-  para->SetParLimits(1, 0.01, 10^6);
+  TF1* fitParabola = new TF1("fitParabola", "abs([1])*(x-[0])^2+[2]");
+  fitParabola->SetParLimits(0, firstbin, lastbin);
+  fitParabola->SetParameter(0, (lastbin+firstbin)/2);
+  fitParabola->SetParLimits(1, 0.01, 10^6);
 
   TF1* null = new TF1("null", "0");
 
-  TH1F* sum = new TH1F("sum","sum", bins, firstbin, lastbin);
-  TH1F* logevent = new TH1F("logevent", "logevent", bins, firstbin, lastbin);
-  TH1F* logsum = new TH1F("logsum", "logsum", bins, firstbin, lastbin);
-  logsum->Eval(null);
+  TH1F* eventLikelihood = new TH1F("eventLikelihood","eventLikelihood", bins, firstbin, lastbin);
+  TH1F* logEventLikelihood = new TH1F("logEventLikelihood", "logEventLikelihood", bins, firstbin, lastbin);
+  TH1F* logSumLikelihood = new TH1F("logSumLikelihood", "logSumLikelihood", bins, firstbin, lastbin);
+  logSumLikelihood->Eval(null);
 
-  double hadTopMass, fitChi2, fitProb, weight, sumWeight;
+  double hadTopMass, fitChi2, fitProb, weight, eventLikelihoodWeight;
   fChain->SetBranchAddress("hadTopMass", &hadTopMass);
   fChain->SetBranchAddress("fitChi2", &fitChi2);
   fChain->SetBranchAddress("fitProb", &fitProb);
@@ -47,8 +46,8 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
     eventTree->GetEntry(ievent);
     if (combi!=0) continue;
     if (fitProb > 0.05) { // skip bad events
-      sumWeight = 1;
-      sum->Eval(null);
+      eventLikelihoodWeight = 1;
+      eventLikelihood->Eval(null);
  
       for (int icombi = 0; icombi < 12; icombi++) {
 	      eventTree->GetEntry(ievent + icombi);
@@ -57,35 +56,35 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
 	      
 	      if (fitProb > 0.05) {
 	        weight = fitProb;
-	        model->SetParameters(hadTopMass,12,weight);
-	        sum->Eval(model, "A"); // add combi pdf
+	        combiLikelihood->SetParameters(hadTopMass,12,weight);
+	        eventLikelihood->Eval(combiLikelihood, "A"); // add combi pdf
 	      }
       }
 
-      logevent->Eval(null);
+      logEventLikelihood->Eval(null);
 
       for (int i = 0; i<=bins; i++) {
-    	  logevent->SetBinContent(i, -2*TMath::Log(sum->GetBinContent(i)));
+    	  logEventLikelihood->SetBinContent(i, -2*TMath::Log(eventLikelihood->GetBinContent(i)));
       }
 
-      logsum->Add(logevent);
+      logSumLikelihood->Add(logEventLikelihood);
     }
 
   }
 
-  logsum->SetAxisRange(logsum->GetMinimum(0), logsum->GetMaximum(), "Y");
-  logsum->Draw();
+  logSumLikelihood->SetAxisRange(logSumLikelihood->GetMinimum(0), logSumLikelihood->GetMaximum(), "Y");
+  logSumLikelihood->Draw();
   
-  para->SetParameter(2, logsum->GetMinimum(0));
-  para->SetParameter(1, 1000);
+  fitParabola->SetParameter(2, logSumLikelihood->GetMinimum(0));
+  fitParabola->SetParameter(1, 1000);
   
-  para->SetRange(firstbin+(lastbin-firstbin)/bins*(logsum->GetMinimumBin()-6), firstbin+(lastbin-firstbin)/bins*(logsum->GetMinimumBin()+5));
+  fitParabola->SetRange(firstbin+(lastbin-firstbin)/bins*(logSumLikelihood->GetMinimumBin()-6), firstbin+(lastbin-firstbin)/bins*(logSumLikelihood->GetMinimumBin()+5));
 
-  logsum->Fit("para","BWR");
+  logSumLikelihood->Fit("fitParabola","BWR");
   
-  fMass      = para->GetParameter(0);
-  if (TMath::Sqrt(1/para->GetParameter(1)) < TMath::Sqrt(fMass)) {
-    fMassError = TMath::Sqrt(1/para->GetParameter(1));
+  fMass      = fitParabola->GetParameter(0);
+  if (TMath::Sqrt(1/fitParabola->GetParameter(1)) < TMath::Sqrt(fMass)) {
+    fMassError = TMath::Sqrt(1/fitParabola->GetParameter(1));
   }
   fMassSigma = 0;
   
