@@ -1,0 +1,9 @@
+Calibrate() mit Ensembletest:
+- Vielzahl von Analysen durchführen
+- Eingabe eines Lumi-Wertes
+- Tree vor dem eigentlichen Analyzer verkleinern
+- Pulldistribution zur Überprüfung des statistischen Fehlers
+
+Ideogram:
+- Likelihood-Funktion in Klasse auslagern
+- WJets fitten?
