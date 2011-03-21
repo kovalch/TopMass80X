@@ -10,7 +10,7 @@ class IdeogramAnalyzer : public MassAnalyzer {
   private:
   
   public:
-    IdeogramAnalyzer(TString identifier, TChain* chain) : MassAnalyzer(identifier, chain) {};
+    IdeogramAnalyzer(TString identifier, TTree* tree) : MassAnalyzer(identifier, tree) {};
     void Analyze(TString cuts, int i, int j);
     
     double GetMass();

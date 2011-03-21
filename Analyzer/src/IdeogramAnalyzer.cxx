@@ -33,17 +33,21 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   sumLogLikelihood->Eval(null);
 
   double hadTopMass, fitChi2, fitProb, weight, eventLikelihoodWeight;
-  fChain->SetBranchAddress("hadTopMass", &hadTopMass);
-  fChain->SetBranchAddress("fitChi2", &fitChi2);
-  fChain->SetBranchAddress("fitProb", &fitProb);
-  
   int combi;
-  fChain->SetBranchAddress("combi", &combi);
   
-  TTree* eventTree = fChain->CopyTree(cuts);
+  TTree* eventTree = fTree->CopyTree(cuts);
+  
+  eventTree->SetBranchAddress("hadTopMass", &hadTopMass);
+  eventTree->SetBranchAddress("fitChi2", &fitChi2);
+  eventTree->SetBranchAddress("fitProb", &fitProb);
+  eventTree->SetBranchAddress("combi", &combi);
+  
+//  fTree->Print();
+//  eventTree->Print();
   
   for (int iEntry = 0; iEntry < eventTree->GetEntries(); iEntry++) {
     eventTree->GetEntry(iEntry);
+    
     if (combi!=0) continue;
     
     if (fitProb > 0.05) { // skip bad events
@@ -51,6 +55,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
       eventLikelihood->Eval(null);
  
       for (int iComb = 0; iComb < 12; iComb++) {
+//        std::cout << combi << std::endl;
 	      eventTree->GetEntry(iEntry + iComb);
 	      
 	      if (iComb!=0 && combi==0 || fitProb < 0.05) break;

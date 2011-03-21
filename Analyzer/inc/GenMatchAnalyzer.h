@@ -7,7 +7,7 @@ class GenMatchAnalyzer : public MassAnalyzer {
     TF1* gaus;
   
   public:
-    GenMatchAnalyzer(TString identifier, TChain* chain) : MassAnalyzer(identifier, chain) {};
+    GenMatchAnalyzer(TString identifier, TTree* tree) : MassAnalyzer(identifier, tree) {};
     void Analyze(TString cuts, int i, int j);
     
     double GetMass();

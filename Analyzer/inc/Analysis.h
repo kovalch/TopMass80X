@@ -7,6 +7,8 @@
 #include "TF1.h"
 #include "TROOT.h"
 #include "TStyle.h"
+#include "TRandom3.h"
+#include "TFile.h"
 
 #include "GenMatchAnalyzer.h"
 #include "MVAAnalyzer.h"
@@ -19,10 +21,12 @@ class Analysis {
     TString fMethod;
     MassAnalyzer* fAnalyzer;
     int fBins;
+    double fLumi;
     
     bool fAnalyzed;
     
     TChain* fChain;
+    TTree* fTree;
     TH2F* hEntries;
     TH2F* hMass;
     TH2F* hMassError;
@@ -35,8 +39,8 @@ class Analysis {
     TTree* CreateRandomSubset();
 
   public:
-    Analysis(TString identifier, TString file, TString method, int bins) :
-      fIdentifier(identifier), fFile(file), fMethod(method), fBins(bins) {}
+    Analysis(TString identifier, TString file, TString method, int bins, double lumi) :
+      fIdentifier(identifier), fFile(file), fMethod(method), fBins(bins), fLumi(lumi) {}
     ~Analysis() { delete &fAnalyzed; }
     
     void Analyze(bool reanalyze = false);

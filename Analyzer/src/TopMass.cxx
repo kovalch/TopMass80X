@@ -1,18 +1,18 @@
 #include "TopMass.h"
 
-TopMass::TopMass(TString method, int bins) : fMethod(method), fBins(bins) {
+TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins(bins), fLumi(lumi) {
 
-  a1665 = new Analysis("1665", "root/analyzeTop_1665.root", fMethod, fBins);
-  a1725 = new Analysis("1725", "root/analyzeTop_1725.root", fMethod, fBins);
-  a1785 = new Analysis("1785", "root/analyzeTop_1785.root", fMethod, fBins);
+  a1665 = new Analysis("1665", "root/analyzeTop_1665.root", fMethod, fBins, fLumi);
+  a1725 = new Analysis("1725", "root/analyzeTop_1725.root", fMethod, fBins, fLumi);
+  a1785 = new Analysis("1785", "root/analyzeTop_1785.root", fMethod, fBins, fLumi);
   
-  a1665_jes_up = new Analysis("1665_jes_up", "root/analyzeTop_1665_jes_up.root", fMethod, fBins);
-  a1725_jes_up = new Analysis("1725_jes_up", "root/analyzeTop_1725_jes_up.root", fMethod, fBins);
-  a1785_jes_up = new Analysis("1785_jes_up", "root/analyzeTop_1785_jes_up.root", fMethod, fBins);
+  a1665_jes_up = new Analysis("1665_jes_up", "root/analyzeTop_1665_jes_up.root", fMethod, fBins, fLumi);
+  a1725_jes_up = new Analysis("1725_jes_up", "root/analyzeTop_1725_jes_up.root", fMethod, fBins, fLumi);
+  a1785_jes_up = new Analysis("1785_jes_up", "root/analyzeTop_1785_jes_up.root", fMethod, fBins, fLumi);
   
-  a1665_jes_down = new Analysis("1665_jes_down", "root/analyzeTop_1665_jes_down.root", fMethod, fBins);
-  a1725_jes_down = new Analysis("1725_jes_down", "root/analyzeTop_1725_jes_down.root", fMethod, fBins);
-  a1785_jes_down = new Analysis("1785_jes_down", "root/analyzeTop_1785_jes_down.root", fMethod, fBins);
+  a1665_jes_down = new Analysis("1665_jes_down", "root/analyzeTop_1665_jes_down.root", fMethod, fBins, fLumi);
+  a1725_jes_down = new Analysis("1725_jes_down", "root/analyzeTop_1725_jes_down.root", fMethod, fBins, fLumi);
+  a1785_jes_down = new Analysis("1785_jes_down", "root/analyzeTop_1785_jes_down.root", fMethod, fBins, fLumi);
   
   //aSim = new Analysis("sim", "root/analyzeTop_1725.root", fMethod, fBins);
   
@@ -149,9 +149,9 @@ void TopMass::Systematics() {
 int main(int argc, char** argv)
 {
   if (argc > 1) {
-    TopMass* top = new TopMass(argv[1], 6);
+    TopMass* top = new TopMass(argv[1], 6, 500);
   }
   else {
-    TopMass* top = new TopMass("GenMatch", 6);
+    TopMass* top = new TopMass("GenMatch", 6, 500);
   }
 }

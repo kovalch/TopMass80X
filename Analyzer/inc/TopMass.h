@@ -8,6 +8,7 @@ class TopMass {
   private:
     TString fMethod;
     int fBins;
+    double fLumi;
     
     std::vector<Analysis*> calibrationAnalyses;
     std::vector<Analysis*>::const_iterator iAnalysis;
@@ -30,7 +31,7 @@ class TopMass {
     double fCalibFitParError[6][6][2];
   
   public:
-    TopMass(TString method, int bins);
+    TopMass(TString method, int bins, double lumi);
     
     void Calibrate();
     TH2F* Measure(Analysis* a);

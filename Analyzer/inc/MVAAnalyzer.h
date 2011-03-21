@@ -7,7 +7,7 @@ class MVAAnalyzer : public MassAnalyzer {
     TF1* gaus;
   
   public:
-    MVAAnalyzer(TString identifier, TChain* chain) : MassAnalyzer(identifier, chain) {};
+    MVAAnalyzer(TString identifier, TTree* tree) : MassAnalyzer(identifier, tree) {};
     void Analyze(TString cuts, int i, int j);
     
     double GetMass();

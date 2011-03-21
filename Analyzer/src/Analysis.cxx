@@ -15,13 +15,13 @@ void Analysis::Analyze(bool reanalyze) {
   CreateRandomSubset();
   
   if (!strcmp(fMethod, "GenMatch")) {
-    fAnalyzer = new GenMatchAnalyzer(fIdentifier, fChain);
+    fAnalyzer = new GenMatchAnalyzer(fIdentifier, fTree);
   }
   else if (!strcmp(fMethod, "MVA")) {
-    fAnalyzer = new MVAAnalyzer(fIdentifier, fChain);
+    fAnalyzer = new MVAAnalyzer(fIdentifier, fTree);
   }
   else if (!strcmp(fMethod, "Ideogram")) {
-    fAnalyzer = new IdeogramAnalyzer(fIdentifier, fChain);
+    fAnalyzer = new IdeogramAnalyzer(fIdentifier, fTree);
   }
   else {
     return;
@@ -45,7 +45,7 @@ void Analysis::Analyze(bool reanalyze) {
   double minEntries = 500;
   
   if (!strcmp(fMethod, "Ideogram")) {
-    minEntries = 3000;
+    minEntries = 1500;
   }
 
   TString observableX = "deltaThetaHadWHadB";
@@ -71,7 +71,7 @@ void Analysis::Analyze(bool reanalyze) {
         cuts += " & mvaDisc > 0";
       }
       
-      int entries = fChain->GetEntries(cuts);
+      int entries = fTree->GetEntries(cuts);
 
       hEntries->SetCellContent(i+1, j+1, entries);
       
@@ -160,16 +160,37 @@ void Analysis::CreateHistos() {
 }
 
 TTree* Analysis::CreateRandomSubset() {
-  TTree* eventTree = fChain->CloneTree(0);
-  
-  for (int iEntry = 0; iEntry < fChain->GetEntries(); iEntry++) {
-    fChain->GetEntry(iEntry);
-    if (true) eventTree->Fill();
-  }
+  if (fLumi>0) {
+    TRandom3* random = new TRandom3(0);
+    double events = 208./35.*fLumi;
+    double fullEvents = fChain->GetEntries("combi==0");
 
-  eventTree->Print();
+    fTree = fChain->CloneTree(0);
+    
+    int combi;
+    fChain->SetBranchAddress("combi", &combi);
+    fTree->SetBranchAddress("combi", &combi);
+    
+    for (int iEntry = 0; iEntry < fChain->GetEntries(); iEntry++) {
+      fChain->GetEntry(iEntry);
+      if (combi!=0) continue;
+      if (random->Rndm() < events/fullEvents) {
+        for (int iComb = 0; iComb < 12; iComb++) {
+	        fChain->GetEntry(iEntry + iComb);
+	        
+          if (iComb != 0 && combi == 0) {
+            iEntry = iEntry + iComb - 1;
+            break;
+          }
+          
+          fTree->Fill();
+        }
+      }
+    }
+  }
+  else fTree = fChain->CloneTree();
   
-  return eventTree;
+  return fTree;
 }
 
 TH2F* Analysis::GetH2Mass() {

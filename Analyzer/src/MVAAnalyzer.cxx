@@ -10,9 +10,9 @@ void MVAAnalyzer::Analyze(TString cuts, int i, int j) {
 
   gaus = new TF1("gaus", "gaus");
 
-  fChain->Draw("hadTopMass", cuts);
+  fTree->Draw("hadTopMass", cuts);
 
-  fChain->Fit("gaus", "hadTopMass", cuts);
+  fTree->Fit("gaus", "hadTopMass", cuts);
   
   TString path("plot/MVA/"); path+= fIdentifier; path += "_"; path += i; path += "_"; path += j; path += ".png";
   ctemp->Print(path);

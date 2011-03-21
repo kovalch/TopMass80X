@@ -1,20 +1,20 @@
 #ifndef MASSANALYZER_H
 #define MASSANALYZER_H
 
-#include "TChain.h"
+#include "TTree.h"
 #include "TF1.h"
 
 class MassAnalyzer {
   protected:
     TString fIdentifier;
-    TChain* fChain;
+    TTree* fTree;
     double fEntries;
     double fMass;
     double fMassError;
     double fMassSigma;
   
   public:
-    MassAnalyzer(TString identifier, TChain* chain) : fIdentifier(identifier), fChain(chain) {};
+    MassAnalyzer(TString identifier, TTree* tree) : fIdentifier(identifier), fTree(tree) {};
     
     virtual void Analyze(TString cuts, int i, int j) = 0;
     
