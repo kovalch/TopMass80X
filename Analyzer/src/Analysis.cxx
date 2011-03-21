@@ -1,6 +1,7 @@
 #include "Analysis.h"
 
 void Analysis::Analyze(bool reanalyze) {
+
   if (fAnalyzed) {
     std::cout << "Analysis " << fIdentifier << " has already been done, no reanalyze forced" << std::endl;
     return;
@@ -9,6 +10,9 @@ void Analysis::Analyze(bool reanalyze) {
   std::cout << "Analyze " << fIdentifier << " with method " << fMethod << std::endl;
 
   fChain = new TChain("analyzeKinFit/eventTree");
+  fChain->Add(fFile);
+  
+  CreateRandomSubset();
   
   if (!strcmp(fMethod, "GenMatch")) {
     fAnalyzer = new GenMatchAnalyzer(fIdentifier, fChain);
@@ -22,8 +26,6 @@ void Analysis::Analyze(bool reanalyze) {
   else {
     return;
   }
-  
-  fChain->Add(fFile);
   
   gROOT ->SetStyle("Plain");
   gStyle->SetPalette(1);
@@ -155,6 +157,19 @@ void Analysis::CreateHistos() {
   hMassErrorCalibrated->SetTitle("MassError (Calibrated)");
   hMassErrorCalibrated->SetXTitle(observableX);
   hMassErrorCalibrated->SetYTitle(observableY);
+}
+
+TTree* Analysis::CreateRandomSubset() {
+  TTree* eventTree = fChain->CloneTree(0);
+  
+  for (int iEntry = 0; iEntry < fChain->GetEntries(); iEntry++) {
+    fChain->GetEntry(iEntry);
+    if (true) eventTree->Fill();
+  }
+
+  eventTree->Print();
+  
+  return eventTree;
 }
 
 TH2F* Analysis::GetH2Mass() {

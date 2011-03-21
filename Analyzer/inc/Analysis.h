@@ -32,6 +32,7 @@ class Analysis {
     TH2F* hMassErrorCalibrated;
     
     void CreateHistos();
+    TTree* CreateRandomSubset();
 
   public:
     Analysis(TString identifier, TString file, TString method, int bins) :
