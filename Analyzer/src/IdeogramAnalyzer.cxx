@@ -16,9 +16,10 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   int lastbin  = 200;
 
   int bins = 50;
+  
+  IdeogramCombLikelihood* fptr = new IdeogramCombLikelihood();
+  TF1* combLikelihood = new TF1("combLikelihood",fptr,&IdeogramCombLikelihood::Evaluate,150,200,3);
 
-  TF1* combLikelihood = new TF1("combLikelihood",
-    "[2] * 0.7 * (TMath::Gaus([0],x,[1],1) + 0.3 * 1/(3.5+1) * (3.5 * TMath::Gaus([0], (6.329e+01 + [0]*0.6317), 25, 1) + TMath::Gaus([0], 225, 46, 1)))");
   TF1* fitParabola = new TF1("fitParabola", "abs([1])*(x-[0])^2+[2]");
   fitParabola->SetParLimits(0, firstbin, lastbin);
   fitParabola->SetParameter(0, (lastbin+firstbin)/2);
@@ -40,19 +41,19 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   fChain->SetBranchAddress("combi", &combi);
   
   TTree* eventTree = fChain->CopyTree(cuts);
-
-  for (int ievent = 0; ievent < eventTree->GetEntries(); ievent++) {
-    if (ievent%1000==0) std::cout << "Processing ideogram combi " << ievent << std::endl;
-    eventTree->GetEntry(ievent);
+  
+  for (int iEntry = 0; iEntry < eventTree->GetEntries(); iEntry++) {
+    eventTree->GetEntry(iEntry);
     if (combi!=0) continue;
+    
     if (fitProb > 0.05) { // skip bad events
       eventLikelihoodWeight = 1;
       eventLikelihood->Eval(null);
  
-      for (int icombi = 0; icombi < 12; icombi++) {
-	      eventTree->GetEntry(ievent + icombi);
+      for (int iComb = 0; iComb < 12; iComb++) {
+	      eventTree->GetEntry(iEntry + iComb);
 	      
-	      if (icombi!=0 && combi==0 || fitProb < 0.05) break;
+	      if (iComb!=0 && combi==0 || fitProb < 0.05) break;
 	      
         weight = fitProb;
 	      combLikelihood->SetParameters(hadTopMass,12,weight);
@@ -67,7 +68,6 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
 
       sumLogLikelihood->Add(logEventLikelihood);
     }
-
   }
 
   sumLogLikelihood->SetAxisRange(sumLogLikelihood->GetMinimum(0), sumLogLikelihood->GetMaximum(), "Y");
@@ -78,7 +78,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   
   fitParabola->SetRange(sumLogLikelihood->GetBinCenter(sumLogLikelihood->GetMinimumBin()) - 2, sumLogLikelihood->GetBinCenter(sumLogLikelihood->GetMinimumBin()) + 2);
 
-  sumLogLikelihood->Fit("fitParabola","BWR");
+  sumLogLikelihood->Fit("fitParabola","QBWR");
   
   if (firstbin+1 < fitParabola->GetParameter(0) && fitParabola->GetParameter(0) < lastbin-1) {
     fMass = fitParabola->GetParameter(0);
@@ -95,4 +95,9 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   
   TString path("plot/Ideogram/"); path+= fIdentifier; path += "_"; path += i; path += "_"; path += j; path += ".png";
   ctemp->Print(path);
+  
+  delete ctemp;
+  delete eventLikelihood;
+  delete logEventLikelihood;
+  delete sumLogLikelihood;
 }
