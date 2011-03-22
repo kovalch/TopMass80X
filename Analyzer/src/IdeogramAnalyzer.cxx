@@ -99,7 +99,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   fMassSigma = -1;
   
   TString path("plot/Ideogram/"); path+= fIdentifier; path += "_"; path += i; path += "_"; path += j; path += ".png";
-  ctemp->Print(path);
+  //ctemp->Print(path);
   
   delete ctemp;
   delete eventLikelihood;

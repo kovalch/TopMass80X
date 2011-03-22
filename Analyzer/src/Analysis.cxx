@@ -104,7 +104,9 @@ void Analysis::Analyze(bool reanalyze) {
   hMassSigma->SetAxisRange(hMassSigma->GetMinimum(0.05), hMassSigma->GetMaximum(), "Z");
   
   TString path("plot/"); path += fMethod; path += "_"; path += fIdentifier; path += ".eps";
-  canvas->Print(path);
+  //canvas->Print(path);
+  
+  delete canvas;
   
   fAnalyzed = true;
 }

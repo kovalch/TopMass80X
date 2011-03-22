@@ -2,7 +2,7 @@
 
 TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins(bins), fLumi(lumi) {
 
-  a1665 = new Analysis("1665", "root/analyzeTop_1665.root", fMethod, fBins, fLumi);
+/*  a1665 = new Analysis("1665", "root/analyzeTop_1665.root", fMethod, fBins, fLumi);
   a1725 = new Analysis("1725", "root/analyzeTop_1725.root", fMethod, fBins, fLumi);
   a1785 = new Analysis("1785", "root/analyzeTop_1785.root", fMethod, fBins, fLumi);
   
@@ -12,15 +12,105 @@ TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins
   
   a1665_jes_down = new Analysis("1665_jes_down", "root/analyzeTop_1665_jes_down.root", fMethod, fBins, fLumi);
   a1725_jes_down = new Analysis("1725_jes_down", "root/analyzeTop_1725_jes_down.root", fMethod, fBins, fLumi);
-  a1785_jes_down = new Analysis("1785_jes_down", "root/analyzeTop_1785_jes_down.root", fMethod, fBins, fLumi);
+  a1785_jes_down = new Analysis("1785_jes_down", "root/analyzeTop_1785_jes_down.root", fMethod, fBins, fLumi);*/
   
   //aSim = new Analysis("sim", "root/analyzeTop_1725.root", fMethod, fBins);
   
-  Calibrate();
+  //Calibrate();
   //Measure(aSim);
-  Systematics();
+  //Systematics();
+  
+  WriteEnsembleTestTree();
+  //EvalEnsembleTest();
 }
 
+
+void TopMass::WriteEnsembleTestTree() {
+  // Ensemble test with 3 input masses, 2dim phase space, 3000 pseudo-experiments
+  //std::vector< std::vector< std::vector<TH1F*> > > hMass;
+  //std::vector< std::vector< std::vector<TH1F*> > > hMassError(3, std::vector<TH1F*>(fBins, std::vector<TH1F*>(fBins));;
+  
+//  std::vector<TH2F*> h2Mass;
+//  std::vector<TH2F*> h2MassError;
+  
+  int nEnsembles = 10;
+  
+  for (int i = 0; i < 3; i++) {
+    std::vector<Analysis*> massRow;
+    ensembleAnalyses.push_back(massRow);
+  }
+  
+  for (int i = 0; i < nEnsembles; i++) {
+    ensembleAnalyses[0].push_back(new Analysis("1665", "root/analyzeTop_1665.root", fMethod, fBins, fLumi));
+    ensembleAnalyses[1].push_back(new Analysis("1725", "root/analyzeTop_1725.root", fMethod, fBins, fLumi));
+    ensembleAnalyses[2].push_back(new Analysis("1785", "root/analyzeTop_1785.root", fMethod, fBins, fLumi));
+  }
+  
+  for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < nEnsembles; j++) {
+      ensembleAnalyses[i][j]->Analyze();
+    }
+  }
+  
+  TFile* ensembleFile = new TFile("ensemble.root","recreate");
+  TTree* tree = new TTree("tree","tree");
+  
+  int iMass;
+  double genMass;
+  TH2F* h2Mass = 0;
+  TH2F* h2MassError = 0;
+  
+  tree->Branch("iMass", &iMass, "iMass/I");
+  tree->Branch("genMass", &genMass, "genMass/D");
+  tree->Branch("h2Mass", &h2Mass);
+  tree->Branch("h2MassError", &h2MassError);
+  
+  for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < nEnsembles; j++) {
+      iMass = i;
+      genMass = ensembleAnalyses[i][j]->GetIdentifier().Atof()/10.;
+      h2Mass = ensembleAnalyses[i][j]->GetH2Mass();
+      h2MassError = ensembleAnalyses[i][j]->GetH2MassError();
+
+      tree->Fill();
+    }
+  }
+  
+  ensembleFile->Write();
+}
+
+void TopMass::EvalEnsembleTest() {
+
+  gROOT ->SetStyle("Plain");
+  gStyle->SetPalette(1);
+  gStyle->SetOptFit(1);
+  gStyle->SetPaintTextFormat(".2f");
+
+  TFile* ensembleFile = new TFile("ensemble.root");
+  TTree* tree = (TTree*) ensembleFile->Get("tree");
+  
+  double genMass;
+  tree->Branch("genMass", &genMass, "genMass/D");
+  
+  TH2F* h2Mass = 0;
+  tree->Branch("h2Mass", &h2Mass);
+  
+  TCanvas* canvas = new TCanvas("canvas", "hadronic top hMass", 500, 500);
+  
+  for (int i = 0; i < fBins; i++) {
+    for (int j = 0; j < fBins; j++) {
+      TF1* gaus = new TF1("gaus", "gaus");
+      TString getter("h2Mass.GetCellContent("); getter += i; getter += ","; getter += j; getter += ")";
+      
+      tree->Fit("gaus", getter, "genMass==172.5");
+      
+      if (gaus->GetParameter(1) > 150) {
+        TString path("plot/"); path += fMethod; path += "/"; path += "ensemble_1725_"; path += i; path += "_"; path += j; path += ".png";
+        canvas->Print(path);
+      }
+    }
+  }
+}
 
 
 void TopMass::Calibrate() {
