@@ -19,7 +19,7 @@ class Analysis {
     TString fIdentifier;
     TString fFile;
     TString fMethod;
-    MassAnalyzer* fAnalyzer;
+
     int fBins;
     double fLumi;
     

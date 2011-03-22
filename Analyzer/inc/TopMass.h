@@ -10,9 +10,6 @@ class TopMass {
     int fBins;
     double fLumi;
     
-    // Ensemble test with 3 input masses, 3000 pseudo-experiments, 2dim phase space
-    std::vector< std::vector<Analysis*> > ensembleAnalyses;
-    
     std::vector<Analysis*> calibrationAnalyses;
     std::vector<Analysis*>::const_iterator iAnalysis;
     

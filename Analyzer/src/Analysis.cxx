@@ -2,7 +2,7 @@
 
 void Analysis::Analyze(bool reanalyze) {
 
-  if (fAnalyzed) {
+  if (fAnalyzed && !reanalyze) {
     std::cout << "Analysis " << fIdentifier << " has already been done, no reanalyze forced" << std::endl;
     return;
   }
@@ -13,6 +13,8 @@ void Analysis::Analyze(bool reanalyze) {
   fChain->Add(fFile);
   
   CreateRandomSubset();
+  
+  MassAnalyzer* fAnalyzer;
   
   if (!strcmp(fMethod, "GenMatch")) {
     fAnalyzer = new GenMatchAnalyzer(fIdentifier, fTree);
@@ -51,7 +53,7 @@ void Analysis::Analyze(bool reanalyze) {
   TString observableX = "deltaThetaHadWHadB";
   TString observableY = "deltaThetaHadQHadQBar";
   
-  CreateHistos();
+  if (!fAnalyzed) CreateHistos();
   
   for(int i = 0; i < fBins; i++) {
     for(int j = 0; j < fBins; j++) {
@@ -107,6 +109,7 @@ void Analysis::Analyze(bool reanalyze) {
   //canvas->Print(path);
   
   delete canvas;
+  delete fAnalyzer;
   
   fAnalyzed = true;
 }
