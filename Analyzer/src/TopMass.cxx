@@ -2,10 +2,6 @@
 
 TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins(bins), fLumi(lumi) {
 
-  a1665 = new Analysis("1665", "root/analyzeTop_1665.root", fMethod, fBins, fLumi);
-  a1725 = new Analysis("1725", "root/analyzeTop_1725.root", fMethod, fBins, fLumi);
-  a1785 = new Analysis("1785", "root/analyzeTop_1785.root", fMethod, fBins, fLumi);
-  
 /*  a1665_jes_up = new Analysis("1665_jes_up", "root/analyzeTop_1665_jes_up.root", fMethod, fBins, fLumi);
   a1725_jes_up = new Analysis("1725_jes_up", "root/analyzeTop_1725_jes_up.root", fMethod, fBins, fLumi);
   a1785_jes_up = new Analysis("1785_jes_up", "root/analyzeTop_1785_jes_up.root", fMethod, fBins, fLumi);
@@ -26,10 +22,14 @@ TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins
 
 
 void TopMass::WriteEnsembleTestTree() {
+  a1665 = new Analysis("1665", "/scratch/hh/lustre/cms/user/mseidel/root/analyzeTop_1665.root", fMethod, fBins, fLumi);
+  a1725 = new Analysis("1725", "/scratch/hh/lustre/cms/user/mseidel/root/analyzeTop_1725.root", fMethod, fBins, fLumi);
+  a1785 = new Analysis("1785", "/scratch/hh/lustre/cms/user/mseidel/root/analyzeTop_1785.root", fMethod, fBins, fLumi);
+
   TFile* ensembleFile = new TFile("ensemble.root","recreate");
   TTree* tree = new TTree("tree","tree");
   
-  int nEnsembles = 10;
+  int nEnsembles = 1000;
   
   int iMass;
   double genMass;
@@ -48,6 +48,28 @@ void TopMass::WriteEnsembleTestTree() {
     genMass = 166.5;
     h2Mass = a1665->GetH2Mass();
     h2MassError = a1665->GetH2MassError();
+    
+    tree->Fill();
+  }
+  
+  for (int i = 0; i < nEnsembles; i++) {
+    a1725->Analyze(true);
+
+    iMass = 0;
+    genMass = 172.5;
+    h2Mass = a1725->GetH2Mass();
+    h2MassError = a1725->GetH2MassError();
+    
+    tree->Fill();
+  }
+  
+  for (int i = 0; i < nEnsembles; i++) {
+    a1785->Analyze(true);
+
+    iMass = 0;
+    genMass = 178.5;
+    h2Mass = a1785->GetH2Mass();
+    h2MassError = a1785->GetH2MassError();
     
     tree->Fill();
   }
