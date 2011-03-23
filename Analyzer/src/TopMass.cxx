@@ -29,7 +29,7 @@ void TopMass::WriteEnsembleTestTree() {
   TFile* ensembleFile = new TFile("ensemble.root","recreate");
   TTree* tree = new TTree("tree","tree");
   
-  int nEnsembles = 1000;
+  int nEnsembles = 100;
   
   int iMass;
   double genMass;
