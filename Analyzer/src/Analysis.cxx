@@ -1,5 +1,12 @@
 #include "Analysis.h"
 
+Analysis::Analysis(TString identifier, TString file, TString method, int bins, double lumi) :
+      fIdentifier(identifier), fFile(file), fMethod(method), fBins(bins), fLumi(lumi), fAnalyzed(false)
+{
+  fChain = new TChain("analyzeKinFit/eventTree");
+  fChain->Add(fFile);
+}
+
 void Analysis::Analyze(bool reanalyze) {
 
   if (fAnalyzed && !reanalyze) {
@@ -8,9 +15,6 @@ void Analysis::Analyze(bool reanalyze) {
   }
 
   std::cout << "Analyze " << fIdentifier << " with method " << fMethod << std::endl;
-
-  fChain = new TChain("analyzeKinFit/eventTree");
-  fChain->Add(fFile);
   
   CreateRandomSubset();
   
@@ -110,7 +114,7 @@ void Analysis::Analyze(bool reanalyze) {
   
   delete canvas;
   delete fAnalyzer;
-  
+
   fAnalyzed = true;
 }
 
@@ -164,7 +168,7 @@ void Analysis::CreateHistos() {
   hMassErrorCalibrated->SetYTitle(observableY);
 }
 
-TTree* Analysis::CreateRandomSubset() {
+void Analysis::CreateRandomSubset() {
   if (fLumi>0) {
     TRandom3* random = new TRandom3(0);
     double events = 208./35.*fLumi;
@@ -194,8 +198,6 @@ TTree* Analysis::CreateRandomSubset() {
     }
   }
   else fTree = fChain->CloneTree();
-  
-  return fTree;
 }
 
 TH2F* Analysis::GetH2Mass() {

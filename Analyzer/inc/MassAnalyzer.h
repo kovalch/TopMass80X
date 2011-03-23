@@ -15,7 +15,7 @@ class MassAnalyzer {
   
   public:
     MassAnalyzer(TString identifier, TTree* tree) : fIdentifier(identifier), fTree(tree) {};
-    ~MassAnalyzer() { std::cout << "deleting Analyzer..." << std::endl; delete fTree; }
+    ~MassAnalyzer() { delete fTree; }
     
     
     virtual void Analyze(TString cuts, int i, int j) = 0;

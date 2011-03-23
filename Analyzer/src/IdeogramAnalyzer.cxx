@@ -101,6 +101,10 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   TString path("plot/Ideogram/"); path+= fIdentifier; path += "_"; path += i; path += "_"; path += j; path += ".png";
   //ctemp->Print(path);
   
+  
+  delete fitParabola;
+  delete null;
+  delete eventTree;
   delete ctemp;
   delete eventLikelihood;
   delete logEventLikelihood;

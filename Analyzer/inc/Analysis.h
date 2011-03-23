@@ -36,11 +36,10 @@ class Analysis {
     TH2F* hMassErrorCalibrated;
     
     void CreateHistos();
-    TTree* CreateRandomSubset();
+    void CreateRandomSubset();
 
   public:
-    Analysis(TString identifier, TString file, TString method, int bins, double lumi) :
-      fIdentifier(identifier), fFile(file), fMethod(method), fBins(bins), fLumi(lumi) {}
+    Analysis(TString identifier, TString file, TString method, int bins, double lumi);
     ~Analysis() { delete &fAnalyzed; }
     
     void Analyze(bool reanalyze = false);
