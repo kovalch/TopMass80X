@@ -1,7 +1,5 @@
 Calibrate() mit Ensembletest:
-- Vielzahl von Analysen durchführen
-- Eingabe eines Lumi-Wertes
-- Tree vor dem eigentlichen Analyzer verkleinern
+- Speichern als TH3
 - Pulldistribution zur Überprüfung des statistischen Fehlers
 
 Ideogram:
