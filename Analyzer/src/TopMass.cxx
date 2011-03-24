@@ -2,6 +2,7 @@
 
 TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins(bins), fLumi(lumi) {
 
+
 /*  a1665_jes_up = new Analysis("1665_jes_up", "root/analyzeTop_1665_jes_up.root", fMethod, fBins, fLumi);
   a1725_jes_up = new Analysis("1725_jes_up", "root/analyzeTop_1725_jes_up.root", fMethod, fBins, fLumi);
   a1785_jes_up = new Analysis("1785_jes_up", "root/analyzeTop_1785_jes_up.root", fMethod, fBins, fLumi);
@@ -22,56 +23,31 @@ TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins
 
 
 void TopMass::WriteEnsembleTestTree() {
-  a1665 = new Analysis("1665", "/scratch/hh/lustre/cms/user/mseidel/root/analyzeTop_1665.root", fMethod, fBins, fLumi);
-  a1725 = new Analysis("1725", "/scratch/hh/lustre/cms/user/mseidel/root/analyzeTop_1725.root", fMethod, fBins, fLumi);
-  a1785 = new Analysis("1785", "/scratch/hh/lustre/cms/user/mseidel/root/analyzeTop_1785.root", fMethod, fBins, fLumi);
-
+  massPoint m1665(166.5, "1665");
+  massPoint m1725(172.5, "1725");
+  massPoint m1785(178.5, "1785");
+   
+  massPoints.push_back(m1665);
+  massPoints.push_back(m1725);
+  massPoints.push_back(m1785);
+  
   TFile* ensembleFile = new TFile("ensemble.root","recreate");
-  TTree* tree = new TTree("tree","tree");
   
   int nEnsembles = 100;
   
-  int iMass;
-  double genMass;
-  TH2F* h2Mass = 0;
-  TH2F* h2MassError = 0;
-  
-  tree->Branch("iMass", &iMass, "iMass/I");
-  tree->Branch("genMass", &genMass, "genMass/D");
-  tree->Branch("h2Mass", &h2Mass);
-  tree->Branch("h2MassError", &h2MassError);
-  
-  for (int i = 0; i < nEnsembles; i++) {
-    a1665->Analyze(true);
-
-    iMass = 0;
-    genMass = 166.5;
-    h2Mass = a1665->GetH2Mass();
-    h2MassError = a1665->GetH2MassError();
-    
-    tree->Fill();
-  }
-  
-  for (int i = 0; i < nEnsembles; i++) {
-    a1725->Analyze(true);
-
-    iMass = 0;
-    genMass = 172.5;
-    h2Mass = a1725->GetH2Mass();
-    h2MassError = a1725->GetH2MassError();
-    
-    tree->Fill();
-  }
-  
-  for (int i = 0; i < nEnsembles; i++) {
-    a1785->Analyze(true);
-
-    iMass = 0;
-    genMass = 178.5;
-    h2Mass = a1785->GetH2Mass();
-    h2MassError = a1785->GetH2MassError();
-    
-    tree->Fill();
+  for (iMassPoint = massPoints.begin(); iMassPoint != massPoints.end(); ++iMassPoint) {
+    iMassPoint->analysis = new Analysis(iMassPoint->identifier, iMassPoint->fileName, fMethod, fBins, fLumi);
+    iMassPoint->h3Mass = new TH3F("h3Mass", "h3Mass", fBins, 0, 3, fBins, 0, 3, 50, 150, 200);
+    for (int n = 0; n < nEnsembles; n++) {
+      iMassPoint->analysis->Analyze(true);
+      for (int i = 0; i < fBins; i++) {
+        for (int j = 0; j < fBins; j++) {
+          iMassPoint->h3Mass->Fill(3./fBins*i, 3./fBins*j, iMassPoint->analysis->GetH2Mass()->GetCellContent(i+1, j+1));
+        }
+      }
+    }
+    iMassPoint->h3Mass->Write("h3Mass_" + iMassPoint->identifier);
+    delete iMassPoint->h3Mass;
   }
 
   ensembleFile->Write();

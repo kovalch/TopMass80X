@@ -1,14 +1,44 @@
 #include <vector>
 #include <cmath>
+#include <fstream>
 
 #include "Analysis.h"
 #include "TGraphErrors.h"
+#include "TH3F.h"
+
+bool fexists(const char *filename)
+{
+  ifstream ifile(filename);
+  return ifile;
+}
+
+struct massPoint {
+  double genMass;
+  TString identifier;
+  TString fileName;
+  Analysis* analysis;
+  
+  TH3F* h3Mass;
+  
+  massPoint(double pGenMass, TString pIdentifier) :
+      genMass(pGenMass), identifier(pIdentifier) {
+    if (fexists("/scratch/hh/lustre/cms/user/mseidel/root/analyzeTop_1725.root")) {
+      fileName = "/scratch/hh/lustre/cms/user/mseidel/root/analyzeTop_";
+    }
+    else fileName = "root/analyzeTop_";
+    fileName += identifier;
+    fileName += ".root";
+  };
+};
 
 class TopMass {
   private:
     TString fMethod;
     int fBins;
     double fLumi;
+    
+    std::vector<massPoint> massPoints;
+    std::vector<massPoint>::iterator iMassPoint;
     
     std::vector<Analysis*> calibrationAnalyses;
     std::vector<Analysis*>::const_iterator iAnalysis;
