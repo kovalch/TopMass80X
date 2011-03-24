@@ -4,6 +4,7 @@
 
 #include "Analysis.h"
 #include "TGraphErrors.h"
+#include "TH1.h"
 #include "TH3F.h"
 
 bool fexists(const char *filename)

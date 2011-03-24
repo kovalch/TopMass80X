@@ -17,8 +17,8 @@ TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins
   //Measure(aSim);
   //Systematics();
   
-  WriteEnsembleTestTree();
-  //EvalEnsembleTest();
+  //WriteEnsembleTestTree();
+  EvalEnsembleTest();
 }
 
 
@@ -63,28 +63,52 @@ void TopMass::EvalEnsembleTest() {
   gStyle->SetPalette(1);
   gStyle->SetOptFit(1);
   gStyle->SetPaintTextFormat(".2f");
+  
+  massPoint m1665(166.5, "1665");
+  massPoint m1725(172.5, "1725");
+  massPoint m1785(178.5, "1785");
+   
+  massPoints.push_back(m1665);
+  massPoints.push_back(m1725);
+  massPoints.push_back(m1785);
+  
+  TCanvas* canvas = new TCanvas("canvas", "hadronic top hMass", 1000, 500);
+  canvas->Divide(2,1);
 
-  TFile* ensembleFile = new TFile("ensemble.root");
-  TTree* tree = (TTree*) ensembleFile->Get("tree");
+  TFile* ensembleFile = new TFile("root/ensemble10k_6.root");
   
-  double genMass;
-  tree->Branch("genMass", &genMass, "genMass/D");
-  
-  TH2F* h2Mass = 0;
-  tree->Branch("h2Mass", &h2Mass);
-  
-  TCanvas* canvas = new TCanvas("canvas", "hadronic top hMass", 500, 500);
-  
+  for (iMassPoint = massPoints.begin(); iMassPoint != massPoints.end(); ++iMassPoint) {
+    iMassPoint->h3Mass = (TH3F*) ensembleFile->Get("h3Mass_" + iMassPoint->identifier);
+    iMassPoint->h3MassPull = (TH3F*) ensembleFile->Get("h3MassPull_" + iMassPoint->identifier);
+  }
+    
   for (int i = 0; i < fBins; i++) {
     for (int j = 0; j < fBins; j++) {
-      TF1* gaus = new TF1("gaus", "gaus");
-      TString getter("h2Mass.GetCellContent("); getter += i; getter += ","; getter += j; getter += ")";
-      
-      tree->Fit("gaus", getter, "genMass==172.5");
-      
-      if (gaus->GetParameter(1) > 150) {
-        TString path("plot/"); path += fMethod; path += "/"; path += "ensemble_1725_"; path += i; path += "_"; path += j; path += ".png";
-        canvas->Print(path);
+      ghadTopMass = new TGraphErrors(3, hadTopMass, genMass, hadTopMassError, genMassError);
+        ghadTopMass->Draw("A*");
+        
+        TF1* linearFit = new TF1("linearFit", "172.5+[0]+(x-172.5)*[1]");        
+        ghadTopMass->Fit("linearFit");
+      for (iMassPoint = massPoints.begin(); iMassPoint != massPoints.end(); ++iMassPoint) {
+        iMassPoint->h3Mass = (TH3F*) ensembleFile->Get("h3Mass_" + iMassPoint->identifier);
+        iMassPoint->h3MassPull = (TH3F*) ensembleFile->Get("h3MassPull_" + iMassPoint->identifier);
+        
+        TH1* hMass = iMassPoint->h3Mass->ProjectionZ("hMass", i+1, i+1, j+1, j+1);
+        TH1* hMassPull = iMassPoint->h3MassPull->ProjectionZ("hMassPull", i+1, i+1, j+1, j+1);
+        
+        TF1* gaus = new TF1("gaus", "gaus");
+        TF1* gausPull = new TF1("gausPull", "gaus");
+        
+        canvas->cd(1);
+        hMass->Fit("gaus");
+        
+        canvas->cd(2);
+        hMassPull->Fit("gausPull");
+        
+        if (gaus->GetParameter(1) > 150) {
+          TString path("plot/"); path += fMethod; path += "/"; path += "ensemble_"; path += iMassPoint->identifier; path += "_"; path += i; path += "_"; path += j; path += ".png";
+          canvas->Print(path);
+        }
       }
     }
   }
