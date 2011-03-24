@@ -84,11 +84,11 @@ void TopMass::EvalEnsembleTest() {
     
   for (int i = 0; i < fBins; i++) {
     for (int j = 0; j < fBins; j++) {
-      ghadTopMass = new TGraphErrors(3, hadTopMass, genMass, hadTopMassError, genMassError);
-        ghadTopMass->Draw("A*");
-        
-        TF1* linearFit = new TF1("linearFit", "172.5+[0]+(x-172.5)*[1]");        
-        ghadTopMass->Fit("linearFit");
+      TVectorD genMass(massPoints.size());
+      TVectorD genMassError(massPoints.size());
+      TVectorD hadTopMass(massPoints.size());
+      TVectorD hadTopMassError(massPoints.size());
+      
       for (iMassPoint = massPoints.begin(); iMassPoint != massPoints.end(); ++iMassPoint) {
         iMassPoint->h3Mass = (TH3F*) ensembleFile->Get("h3Mass_" + iMassPoint->identifier);
         iMassPoint->h3MassPull = (TH3F*) ensembleFile->Get("h3MassPull_" + iMassPoint->identifier);
@@ -109,7 +109,24 @@ void TopMass::EvalEnsembleTest() {
           TString path("plot/"); path += fMethod; path += "/"; path += "ensemble_"; path += iMassPoint->identifier; path += "_"; path += i; path += "_"; path += j; path += ".png";
           canvas->Print(path);
         }
+        
+        genMass[iMassPoint - massPoints.begin()] = iMassPoint->genMass;
+        genMassError[iMassPoint - massPoints.begin()] = 0.001;
+        hadTopMass[iMassPoint - massPoints.begin()] = gaus->GetParameter(1);
+        hadTopMassError[iMassPoint - massPoints.begin()] = gaus->GetParError(1)*35;
       }
+      
+      TCanvas* canvasFit = new TCanvas("canvasFit", "hadronic top h2Mass", 500, 500);
+      canvasFit->cd();
+      
+      TGraphErrors* ghadTopMass = new TGraphErrors(genMass, hadTopMass, genMassError, hadTopMassError);
+      ghadTopMass->Draw("A*");
+      
+      TF1* linearFit = new TF1("linearFit", "172.5+[0]+(x-172.5)*[1]");        
+      ghadTopMass->Fit("linearFit");
+      
+      TString path("plot/"); path += fMethod; path += "/"; path += "fit_"; path += i; path += "_"; path += j; path += ".png";
+      canvasFit->Print(path);
     }
   }
 }

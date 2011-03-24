@@ -6,6 +6,7 @@
 #include "TGraphErrors.h"
 #include "TH1.h"
 #include "TH3F.h"
+#include "TVector.h"
 
 bool fexists(const char *filename)
 {
