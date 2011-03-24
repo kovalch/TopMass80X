@@ -19,6 +19,7 @@ struct massPoint {
   Analysis* analysis;
   
   TH3F* h3Mass;
+  TH3F* h3MassPull;
   
   massPoint(double pGenMass, TString pIdentifier) :
       genMass(pGenMass), identifier(pIdentifier) {

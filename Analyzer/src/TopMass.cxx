@@ -31,26 +31,30 @@ void TopMass::WriteEnsembleTestTree() {
   massPoints.push_back(m1725);
   massPoints.push_back(m1785);
   
-  TFile* ensembleFile = new TFile("ensemble.root","recreate");
-  
   int nEnsembles = 100;
   
   for (iMassPoint = massPoints.begin(); iMassPoint != massPoints.end(); ++iMassPoint) {
     iMassPoint->analysis = new Analysis(iMassPoint->identifier, iMassPoint->fileName, fMethod, fBins, fLumi);
-    iMassPoint->h3Mass = new TH3F("h3Mass", "h3Mass", fBins, 0, 3, fBins, 0, 3, 50, 150, 200);
+    iMassPoint->h3Mass = new TH3F("h3Mass_" + iMassPoint->identifier, "h3Mass_" + iMassPoint->identifier, fBins, 0, 3, fBins, 0, 3, 100, 150, 200);
+    iMassPoint->h3MassPull = new TH3F("h3MassPull_" + iMassPoint->identifier, "h3MassPull_" + iMassPoint->identifier, fBins, 0, 3, fBins, 0, 3, 100, -5, 5);
     for (int n = 0; n < nEnsembles; n++) {
       iMassPoint->analysis->Analyze(true);
       for (int i = 0; i < fBins; i++) {
         for (int j = 0; j < fBins; j++) {
           iMassPoint->h3Mass->Fill(3./fBins*i, 3./fBins*j, iMassPoint->analysis->GetH2Mass()->GetCellContent(i+1, j+1));
+          iMassPoint->h3MassPull->Fill(3./fBins*i, 3./fBins*j, (iMassPoint->analysis->GetH2Mass()->GetCellContent(i+1, j+1)-iMassPoint->genMass)/iMassPoint->analysis->GetH2MassError()->GetCellContent(i+1, j+1));
         }
       }
     }
-    iMassPoint->h3Mass->Write("h3Mass_" + iMassPoint->identifier);
-    delete iMassPoint->h3Mass;
-  }
 
-  ensembleFile->Write();
+  }
+  
+  TFile* ensembleFile = new TFile("ensemble.root","recreate");
+  
+  for (iMassPoint = massPoints.begin(); iMassPoint != massPoints.end(); ++iMassPoint) {
+    iMassPoint->h3Mass->Write();
+    iMassPoint->h3MassPull->Write();
+  }
 }
 
 void TopMass::EvalEnsembleTest() {
