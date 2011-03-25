@@ -65,12 +65,14 @@ class TopMass {
     
     double fCalibFitParameter[6][6][2];
     double fCalibFitParError[6][6][2];
+    
+    void LoadXML();
   
   public:
     TopMass(TString method, int bins, double lumi);
     
-    void WriteEnsembleTestTree();
-    void EvalEnsembleTest();
+    void WriteEnsembleTestTree(bool readCalibration = false);
+    void EvalEnsembleTest(bool writeCalibration = false);
     void Calibrate();
     TH2F* Measure(Analysis* a);
     void Systematics();

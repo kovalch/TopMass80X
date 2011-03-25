@@ -11,18 +11,20 @@ TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins
   a1725_jes_down = new Analysis("1725_jes_down", "root/analyzeTop_1725_jes_down.root", fMethod, fBins, fLumi);
   a1785_jes_down = new Analysis("1785_jes_down", "root/analyzeTop_1785_jes_down.root", fMethod, fBins, fLumi);*/
   
-  aSim = new Analysis("sim", "root/analyzeTop_1725.root", fMethod, fBins, fLumi);
+  //aSim = new Analysis("sim", "root/analyzeTop_1725.root", fMethod, fBins, fLumi);
   
   //Calibrate();
   //Systematics();
   
-  //WriteEnsembleTestTree();
-  EvalEnsembleTest();
-  Measure(aSim);
+  WriteEnsembleTestTree(true);
+  //EvalEnsembleTest();
+  //Measure(aSim);
 }
 
 
-void TopMass::WriteEnsembleTestTree() {
+void TopMass::WriteEnsembleTestTree(bool readCalibration) {
+  if (readCalibration) LoadXML();
+
   massPoint m1665(166.5, "1665");
   massPoint m1725(172.5, "1725");
   massPoint m1785(178.5, "1785");
@@ -41,8 +43,26 @@ void TopMass::WriteEnsembleTestTree() {
       iMassPoint->analysis->Analyze(true);
       for (int i = 0; i < fBins; i++) {
         for (int j = 0; j < fBins; j++) {
-          iMassPoint->h3Mass->Fill(3./fBins*i, 3./fBins*j, iMassPoint->analysis->GetH2Mass()->GetCellContent(i+1, j+1));
-          iMassPoint->h3MassPull->Fill(3./fBins*i, 3./fBins*j, (iMassPoint->analysis->GetH2Mass()->GetCellContent(i+1, j+1)-iMassPoint->genMass)/iMassPoint->analysis->GetH2MassError()->GetCellContent(i+1, j+1));
+          double mass = iMassPoint->analysis->GetH2Mass()->GetCellContent(i+1, j+1);
+          double massError = iMassPoint->analysis->GetH2MassError()->GetCellContent(i+1, j+1);
+          double massPull = (mass-iMassPoint->genMass)/massError;
+          
+          if (readCalibration) {
+            if (fCalibFitParameter[i][j][0] && fCalibFitParameter[i][j][1]) {
+              massError = sqrt(pow((1-fCalibFitParameter[i][j][1])*massError, 2) + pow(fCalibFitParError[i][j][0], 2) + pow(fCalibFitParError[i][j][1]*(172.5-mass), 2));
+              mass = mass - fCalibFitParameter[i][j][0] + (fCalibFitParameter[i][j][1]*(172.5-mass));
+              massPull = (mass-iMassPoint->genMass)/massError;
+            }
+            else {
+              mass = 0;
+              massError = 0;
+              massPull = 999;
+            }
+          }
+          
+          
+          iMassPoint->h3Mass->Fill(3./fBins*i, 3./fBins*j, mass);
+          iMassPoint->h3MassPull->Fill(3./fBins*i, 3./fBins*j, massPull);
         }
       }
     }
@@ -57,7 +77,14 @@ void TopMass::WriteEnsembleTestTree() {
   }
 }
 
-void TopMass::EvalEnsembleTest() {
+void TopMass::EvalEnsembleTest(bool writeCalibration) {
+  TiXmlDocument doc;
+  TiXmlDeclaration* decl = new TiXmlDeclaration( "1.0", "", "" );
+  doc.LinkEndChild( decl );
+  
+  TiXmlElement* calibration = new TiXmlElement( "calibration" );
+  doc.LinkEndChild( calibration );
+  
   int nEnsemble = 10000;
 
   gROOT ->SetStyle("Plain");
@@ -185,6 +212,17 @@ void TopMass::EvalEnsembleTest() {
           fCalibFitParameter[i][j][l] = linearFit->GetParameter(l);
           fCalibFitParError[i][j][l]  = linearFit->GetParError(l);
         }
+        
+        if (writeCalibration) {
+          TiXmlElement* bin = new TiXmlElement( "bin" );
+          calibration->LinkEndChild( bin );
+          bin->SetAttribute("binx", i);
+          bin->SetAttribute("biny", j);
+          bin->SetDoubleAttribute("p0", linearFit->GetParameter(0));
+          bin->SetDoubleAttribute("p0error", linearFit->GetParError(0));
+          bin->SetDoubleAttribute("p1", linearFit->GetParameter(1));
+          bin->SetDoubleAttribute("p1error", linearFit->GetParError(1));
+        }
       }
 
       delete canvas;
@@ -192,6 +230,8 @@ void TopMass::EvalEnsembleTest() {
   }
   
   ensembleFile->Close();
+  
+  if (writeCalibration) doc.SaveFile( "calibration.xml" );
 }
 
 
@@ -237,11 +277,6 @@ void TopMass::Calibrate() {
         
         TString path("plot/"); path += fMethod; path += "/"; path += "fit_"; path += i; path += "_"; path += j; path += ".png";
         canvasFit->Print(path);
-        
-        for (int l = 0; l < 2; l++) {
-          fCalibFitParameter[i][j][l] = linearFit->GetParameter(l);
-          fCalibFitParError[i][j][l]  = linearFit->GetParError(l);
-        }
       }
     }
   }
@@ -250,6 +285,8 @@ void TopMass::Calibrate() {
 
 
 TH2F* TopMass::Measure(Analysis* a) {
+  LoadXML();
+  
   a->Analyze();
   
   TCanvas* canvas = new TCanvas("canvas", "Hadronic top mass", 1000, 500);
@@ -316,6 +353,40 @@ void TopMass::Systematics() {
   
   TString path("plot/"); path += fMethod; path += "_jeserror.eps";
   canvas->Print(path);
+}
+
+void TopMass::LoadXML() {
+  TString xmlFileName;
+  if (fexists("/scratch/hh/lustre/cms/user/mseidel/calibration.xml")) {
+    xmlFileName = "/scratch/hh/lustre/cms/user/mseidel/calibration.xml";
+  }
+  else xmlFileName = "calibration.xml";
+
+  TiXmlDocument doc(xmlFileName);
+  bool loadOkay = doc.LoadFile();
+  
+  TiXmlElement *pRoot, *pParm;
+  
+  pRoot = doc.FirstChildElement( "calibration" );
+  
+  pParm = pRoot->FirstChildElement("bin");
+  while ( pParm ) {
+    int i, j;
+    double p0, p0error, p1, p1error;
+    pParm->Attribute("binx", &i);
+    pParm->Attribute("biny", &j);
+    pParm->Attribute("p0", &p0);
+    pParm->Attribute("p0error", &p0error);
+    pParm->Attribute("p1", &p1);
+    pParm->Attribute("p1error", &p1error);
+    
+    fCalibFitParameter[i][j][0] = p0;
+    fCalibFitParameter[i][j][1] = p1;
+    fCalibFitParError[i][j][0]  = p0error;
+    fCalibFitParError[i][j][1]  = p1error;
+    
+    pParm = pParm->NextSiblingElement( "bin" );
+  }
 }
 
 int main(int argc, char** argv)
