@@ -16,6 +16,7 @@ bool fexists(const char *filename)
 
 struct massPoint {
   double genMass;
+  double genLumi;
   TString identifier;
   TString fileName;
   Analysis* analysis;

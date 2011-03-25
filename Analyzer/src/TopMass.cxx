@@ -11,14 +11,14 @@ TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins
   a1725_jes_down = new Analysis("1725_jes_down", "root/analyzeTop_1725_jes_down.root", fMethod, fBins, fLumi);
   a1785_jes_down = new Analysis("1785_jes_down", "root/analyzeTop_1785_jes_down.root", fMethod, fBins, fLumi);*/
   
-  //aSim = new Analysis("sim", "root/analyzeTop_1725.root", fMethod, fBins);
+  aSim = new Analysis("sim", "root/analyzeTop_1725.root", fMethod, fBins, fLumi);
   
   //Calibrate();
-  //Measure(aSim);
   //Systematics();
   
   //WriteEnsembleTestTree();
   EvalEnsembleTest();
+  Measure(aSim);
 }
 
 
@@ -58,6 +58,7 @@ void TopMass::WriteEnsembleTestTree() {
 }
 
 void TopMass::EvalEnsembleTest() {
+  int nEnsemble = 10000;
 
   gROOT ->SetStyle("Plain");
   gStyle->SetPalette(1);
@@ -67,14 +68,15 @@ void TopMass::EvalEnsembleTest() {
   massPoint m1665(166.5, "1665");
   massPoint m1725(172.5, "1725");
   massPoint m1785(178.5, "1785");
+  
+  m1665.genLumi = 2250;
+  m1725.genLumi = 6100;
+  m1785.genLumi = 1900;
    
   massPoints.push_back(m1665);
   massPoints.push_back(m1725);
   massPoints.push_back(m1785);
   
-  TCanvas* canvas = new TCanvas("canvas", "hadronic top hMass", 1000, 500);
-  canvas->Divide(2,1);
-
   TFile* ensembleFile = new TFile("root/ensemble10k_6.root");
   
   for (iMassPoint = massPoints.begin(); iMassPoint != massPoints.end(); ++iMassPoint) {
@@ -84,12 +86,21 @@ void TopMass::EvalEnsembleTest() {
     
   for (int i = 0; i < fBins; i++) {
     for (int j = 0; j < fBins; j++) {
+      TCanvas* canvas = new TCanvas("canvas", "hadronic top hMass", 2000, 1000);
+      canvas->Divide(4,2);
+      
       TVectorD genMass(massPoints.size());
       TVectorD genMassError(massPoints.size());
-      TVectorD hadTopMass(massPoints.size());
+      TVectorD hadTopMassBias(massPoints.size());
       TVectorD hadTopMassError(massPoints.size());
+      TVectorD hadTopMassChi2NDF(massPoints.size());
+      
+      TVectorD hadTopMassPullWidth(massPoints.size());
+      TVectorD hadTopMassPullWidthError(massPoints.size());
       
       for (iMassPoint = massPoints.begin(); iMassPoint != massPoints.end(); ++iMassPoint) {
+        int k = iMassPoint - massPoints.begin();
+        
         iMassPoint->h3Mass = (TH3F*) ensembleFile->Get("h3Mass_" + iMassPoint->identifier);
         iMassPoint->h3MassPull = (TH3F*) ensembleFile->Get("h3MassPull_" + iMassPoint->identifier);
         
@@ -99,36 +110,88 @@ void TopMass::EvalEnsembleTest() {
         TF1* gaus = new TF1("gaus", "gaus");
         TF1* gausPull = new TF1("gausPull", "gaus");
         
-        canvas->cd(1);
+        gaus->SetLineWidth(1);
+        gaus->SetLineColor(kRed);
+        
+        gausPull->SetLineWidth(1);
+        gausPull->SetLineColor(kRed);
+        
+        canvas->cd(1+k);
         hMass->Fit("gaus");
         
-        canvas->cd(2);
+        canvas->cd(5+k);
         hMassPull->Fit("gausPull");
         
-        if (gaus->GetParameter(1) > 150) {
-          TString path("plot/"); path += fMethod; path += "/"; path += "ensemble_"; path += iMassPoint->identifier; path += "_"; path += i; path += "_"; path += j; path += ".png";
-          canvas->Print(path);
-        }
+        genMass[k] = gaus->GetParameter(1);
+        genMassError[k] = gaus->GetParError(1)*TMath::Sqrt(1+nEnsemble*fLumi/iMassPoint->genLumi);
+        hadTopMassBias[k] = gaus->GetParameter(1)-iMassPoint->genMass;
+        hadTopMassError[k] = gaus->GetParError(1)*TMath::Sqrt(1+nEnsemble*fLumi/iMassPoint->genLumi);
+        hadTopMassChi2NDF[k] = gaus->GetChisquare()/gaus->GetNDF();
         
-        genMass[iMassPoint - massPoints.begin()] = iMassPoint->genMass;
-        genMassError[iMassPoint - massPoints.begin()] = 0.001;
-        hadTopMass[iMassPoint - massPoints.begin()] = gaus->GetParameter(1);
-        hadTopMassError[iMassPoint - massPoints.begin()] = gaus->GetParError(1)*35;
+        hadTopMassPullWidth[k] = gausPull->GetParameter(2);
+        hadTopMassPullWidthError[k] = gausPull->GetParError(2)*TMath::Sqrt(1+nEnsemble*TMath::Power(fLumi/iMassPoint->genLumi, 2));        
       }
-      
-      TCanvas* canvasFit = new TCanvas("canvasFit", "hadronic top h2Mass", 500, 500);
-      canvasFit->cd();
-      
-      TGraphErrors* ghadTopMass = new TGraphErrors(genMass, hadTopMass, genMassError, hadTopMassError);
-      ghadTopMass->Draw("A*");
-      
-      TF1* linearFit = new TF1("linearFit", "172.5+[0]+(x-172.5)*[1]");        
-      ghadTopMass->Fit("linearFit");
-      
-      TString path("plot/"); path += fMethod; path += "/"; path += "fit_"; path += i; path += "_"; path += j; path += ".png";
-      canvasFit->Print(path);
+          
+      if (hadTopMassError > 0 && hadTopMassChi2NDF < 10) {
+        canvas->cd(4);
+        
+        TGraphErrors* gBias = new TGraphErrors(genMass, hadTopMassBias, genMassError, hadTopMassError);
+        if (hadTopMassBias.Min() > 0) {
+          gBias->GetYaxis()->SetRangeUser(0.5, hadTopMassBias.Max()+hadTopMassError.Max()+0.5);
+        }
+        else if (hadTopMassBias.Max() < 0) {
+          gBias->GetYaxis()->SetRangeUser(hadTopMassBias.Min()-hadTopMassError.Max()-0.5, 0.5);
+        }
+        gBias->SetMarkerStyle(2);
+        gBias->SetMarkerSize(0.4);
+        gBias->Draw("AP");
+        
+        TF1* zero_line = new TF1("zero_line", "0", 150, 200);
+        zero_line->SetLineWidth(1);
+        zero_line->SetLineStyle(3);
+        zero_line->SetLineColor(kBlack);
+        zero_line->Draw("SAME");
+        
+        TF1* linearFit = new TF1("linearFit", "[0]+(x-172.5)*[1]");      
+        linearFit->SetLineWidth(1);
+        linearFit->SetLineColor(kRed);
+        
+        gBias->Fit("linearFit");
+        
+        canvas->cd(8);
+        
+        TGraphErrors* gPull = new TGraphErrors(genMass, hadTopMassPullWidth, genMassError, hadTopMassPullWidthError);
+        gPull->GetYaxis()->SetRangeUser(0, 2);
+        gPull->SetMarkerStyle(2);
+        gPull->SetMarkerSize(0.4);
+        gPull->Draw("AP");
+        
+        TF1* unity_line = new TF1("unity_line", "1", 150, 200);
+        unity_line->SetLineWidth(1);
+        unity_line->SetLineStyle(3);
+        unity_line->SetLineColor(kBlack);
+        unity_line->Draw("SAME");
+        
+        TF1* constFit = new TF1("constFit", "[0]");
+        constFit->SetLineWidth(1);
+        constFit->SetLineColor(kRed);
+        
+        gPull->Fit("constFit");
+        
+        TString path("plot/"); path += fMethod; path += "/"; path += "ensembletest_"; path += i; path += "_"; path += j; path += "_uncalibrated.png";
+        canvas->Print(path);
+        
+        for (int l = 0; l < 2; l++) {
+          fCalibFitParameter[i][j][l] = linearFit->GetParameter(l);
+          fCalibFitParError[i][j][l]  = linearFit->GetParError(l);
+        }
+      }
+
+      delete canvas;
     }
   }
+  
+  ensembleFile->Close();
 }
 
 
@@ -200,8 +263,8 @@ TH2F* TopMass::Measure(Analysis* a) {
   for (int i = 0; i < fBins; i++) {
     for (int j = 0; j < fBins; j++) {
       if (fCalibFitParameter[i][j][0] && fCalibFitParameter[i][j][1]) {
-        double calib = 172.5 + fCalibFitParameter[i][j][0] + fCalibFitParameter[i][j][1] * (hMass->GetCellContent(i+1, j+1) - 172.5);
-        double caliberror = sqrt(pow(fCalibFitParError[i][j][0], 2) + pow((hMass->GetCellContent(i+1, j+1) - 172.5)*fCalibFitParError[i][j][1], 2) + pow(fCalibFitParameter[i][j][1]*hMassError->GetCellContent(i+1, j+1), 2));
+        double calib = hMass->GetCellContent(i+1, j+1) - fCalibFitParameter[i][j][0] + (fCalibFitParameter[i][j][1]*(172.5-hMass->GetCellContent(i+1, j+1)));
+        double caliberror = sqrt(pow((1-fCalibFitParameter[i][j][1])*hMassError->GetCellContent(i+1, j+1), 2) + pow(fCalibFitParError[i][j][0], 2) + pow(fCalibFitParError[i][j][1]*(172.5-hMass->GetCellContent(i+1, j+1)), 2));
         
         std::cout << "Measured TopMass: " << calib << " +/- " << caliberror << " GeV" << std::endl;
         
