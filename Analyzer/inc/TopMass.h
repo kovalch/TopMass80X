@@ -8,6 +8,8 @@
 #include "TH3F.h"
 #include "TVector.h"
 
+#include "tinyxml.h"
+
 bool fexists(const char *filename)
 {
   ifstream ifile(filename);
