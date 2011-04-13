@@ -10,6 +10,7 @@
 #include "TRandom3.h"
 #include "TFile.h"
 
+#include "Helper.h"
 #include "GenMatchAnalyzer.h"
 #include "MVAAnalyzer.h"
 #include "IdeogramAnalyzer.h"

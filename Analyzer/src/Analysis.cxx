@@ -37,6 +37,7 @@ void Analysis::Analyze(bool reanalyze) {
   gStyle->SetPalette(1);
   gStyle->SetOptFit(1);
   gStyle->SetPaintTextFormat(".2f");
+  gStyle->SetPadRightMargin(0.15);
   
   TCanvas* canvas = new TCanvas("canvas", "Top mass", 900, 600);
   canvas->cd();
@@ -110,7 +111,7 @@ void Analysis::Analyze(bool reanalyze) {
   hMassSigma->SetAxisRange(hMassSigma->GetMinimum(0.05), hMassSigma->GetMaximum(), "Z");
   
   TString path("plot/"); path += fMethod; path += "_"; path += fIdentifier; path += ".eps";
-  //canvas->Print(path);
+  canvas->Print(path);
   
   delete canvas;
   delete fAnalyzer;
@@ -119,53 +120,15 @@ void Analysis::Analyze(bool reanalyze) {
 }
 
 void Analysis::CreateHistos() {
-  double rangeY = 3.;
-  double rangeXstart = 0.;
-  double rangeXend = 3.;
-  TString observableX = "deltaRHadWHadB";
-  TString observableY = "deltaRHadQHadQBar";
+  Helper* helper = new Helper(fBins);
 
-  hEntries = new TH2F();
-  hEntries->SetBins(fBins, 0, rangeY, fBins, rangeXstart, rangeXend);
-  hEntries->SetStats(false);
-  hEntries->SetTitle("Entries");
-  hEntries->SetXTitle(observableX);
-  hEntries->SetYTitle(observableY);
+  hEntries = helper->GetH2("Entries");
+  hMass = helper->GetH2("Mass");
+  hMassError = helper->GetH2("MassError");
+  hMassSigma = helper->GetH2("MassSigma");
   
-  hMass = new TH2F();
-  hMass->SetBins(fBins, 0, rangeY, fBins, rangeXstart, rangeXend);
-  hMass->SetStats(false);
-  hMass->SetTitle("Mass");
-  hMass->SetXTitle(observableX);
-  hMass->SetYTitle(observableY);
-  
-  hMassError = new TH2F();
-  hMassError->SetBins(fBins, 0, rangeY, fBins, rangeXstart, rangeXend);
-  hMassError->SetStats(false);
-  hMassError->SetTitle("MassError");
-  hMassError->SetXTitle(observableX);
-  hMassError->SetYTitle(observableY);
-  
-  hMassSigma = new TH2F();
-  hMassSigma->SetBins(fBins, 0, rangeY, fBins, rangeXstart, rangeXend);
-  hMassSigma->SetStats(false);
-  hMassSigma->SetTitle("MassSigma");
-  hMassSigma->SetXTitle(observableX);
-  hMassSigma->SetYTitle(observableY);
-  
-  hMassCalibrated = new TH2F();
-  hMassCalibrated->SetBins(fBins, 0, rangeY, fBins, rangeXstart, rangeXend);
-  hMassCalibrated->SetStats(false);
-  hMassCalibrated->SetTitle("Mass (Calibrated)");
-  hMassCalibrated->SetXTitle(observableX);
-  hMassCalibrated->SetYTitle(observableY);
-  
-  hMassErrorCalibrated = new TH2F();
-  hMassErrorCalibrated->SetBins(fBins, 0, rangeY, fBins, rangeXstart, rangeXend);
-  hMassErrorCalibrated->SetStats(false);
-  hMassErrorCalibrated->SetTitle("MassError (Calibrated)");
-  hMassErrorCalibrated->SetXTitle(observableX);
-  hMassErrorCalibrated->SetYTitle(observableY);
+  hMassCalibrated = helper->GetH2("Mass (Calibrated)");
+  hMassErrorCalibrated = helper->GetH2("MassError (Calibrated)");
 }
 
 void Analysis::CreateRandomSubset() {

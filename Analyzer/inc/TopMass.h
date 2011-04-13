@@ -10,6 +10,8 @@
 
 #include "tinyxml.h"
 
+#include "Helper.h"
+
 bool fexists(const char *filename)
 {
   ifstream ifile(filename);
@@ -23,6 +25,8 @@ struct massPoint {
   TString fileName;
   Analysis* analysis;
   
+  TH2F* h2Mass;
+  TH2F* h2MassError;
   TH3F* h3Mass;
   TH3F* h3MassPull;
   
@@ -49,18 +53,6 @@ class TopMass {
     std::vector<Analysis*> calibrationAnalyses;
     std::vector<Analysis*>::const_iterator iAnalysis;
     
-    Analysis* a1665;
-    Analysis* a1725;
-    Analysis* a1785;
-    
-    Analysis* a1665_jes_up;
-    Analysis* a1725_jes_up;
-    Analysis* a1785_jes_up;
-    
-    Analysis* a1665_jes_down;
-    Analysis* a1725_jes_down;
-    Analysis* a1785_jes_down;
-    
     Analysis* aSim;
     
     double fCalibFitParameter[6][6][2];
@@ -71,9 +63,11 @@ class TopMass {
   public:
     TopMass(TString method, int bins, double lumi);
     
-    void WriteEnsembleTestTree(bool readCalibration = false);
+    void WriteEnsembleTest(bool readCalibration = false);
     void EvalEnsembleTest(bool writeCalibration = false);
-    void Calibrate();
+    
+    void QuickCalibration();
+    void QuickSystematics();
+    
     TH2F* Measure(Analysis* a);
-    void Systematics();
 };

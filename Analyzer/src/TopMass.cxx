@@ -1,28 +1,20 @@
 #include "TopMass.h"
 
 TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins(bins), fLumi(lumi) {
-
-
-/*  a1665_jes_up = new Analysis("1665_jes_up", "root/analyzeTop_1665_jes_up.root", fMethod, fBins, fLumi);
-  a1725_jes_up = new Analysis("1725_jes_up", "root/analyzeTop_1725_jes_up.root", fMethod, fBins, fLumi);
-  a1785_jes_up = new Analysis("1785_jes_up", "root/analyzeTop_1785_jes_up.root", fMethod, fBins, fLumi);
-  
-  a1665_jes_down = new Analysis("1665_jes_down", "root/analyzeTop_1665_jes_down.root", fMethod, fBins, fLumi);
-  a1725_jes_down = new Analysis("1725_jes_down", "root/analyzeTop_1725_jes_down.root", fMethod, fBins, fLumi);
-  a1785_jes_down = new Analysis("1785_jes_down", "root/analyzeTop_1785_jes_down.root", fMethod, fBins, fLumi);*/
   
   //aSim = new Analysis("sim", "root/analyzeTop_1725.root", fMethod, fBins, fLumi);
   
-  //Calibrate();
-  //Systematics();
+  QuickCalibration();
+  //LoadXML();
+  QuickSystematics();
   
-  WriteEnsembleTestTree(true);
+  //WriteEnsembleTestTree(true);
   //EvalEnsembleTest();
   //Measure(aSim);
 }
 
 
-void TopMass::WriteEnsembleTestTree(bool readCalibration) {
+void TopMass::WriteEnsembleTest(bool readCalibration) {
   if (readCalibration) LoadXML();
 
   massPoint m1665(166.5, "1665");
@@ -78,6 +70,8 @@ void TopMass::WriteEnsembleTestTree(bool readCalibration) {
 }
 
 void TopMass::EvalEnsembleTest(bool writeCalibration) {
+  Helper* helper = new Helper(fBins);
+
   TiXmlDocument doc;
   TiXmlDeclaration* decl = new TiXmlDeclaration( "1.0", "", "" );
   doc.LinkEndChild( decl );
@@ -85,8 +79,6 @@ void TopMass::EvalEnsembleTest(bool writeCalibration) {
   TiXmlElement* calibration = new TiXmlElement( "calibration" );
   doc.LinkEndChild( calibration );
   
-  int nEnsemble = 10000;
-
   gROOT ->SetStyle("Plain");
   gStyle->SetPalette(1);
   gStyle->SetOptFit(1);
@@ -96,6 +88,8 @@ void TopMass::EvalEnsembleTest(bool writeCalibration) {
   massPoint m1725(172.5, "1725");
   massPoint m1785(178.5, "1785");
   
+  int nEnsemble = 10000;
+  
   m1665.genLumi = 2250;
   m1725.genLumi = 6100;
   m1785.genLumi = 1900;
@@ -104,9 +98,11 @@ void TopMass::EvalEnsembleTest(bool writeCalibration) {
   massPoints.push_back(m1725);
   massPoints.push_back(m1785);
   
-  TFile* ensembleFile = new TFile("root/ensemble10k_6.root");
+  TFile* ensembleFile = new TFile("root/ensemble10k_6_calibrated.root");
   
   for (iMassPoint = massPoints.begin(); iMassPoint != massPoints.end(); ++iMassPoint) {
+    iMassPoint->h2Mass = helper->GetH2("Mass");
+    iMassPoint->h2MassError = helper->GetH2("MassError");
     iMassPoint->h3Mass = (TH3F*) ensembleFile->Get("h3Mass_" + iMassPoint->identifier);
     iMassPoint->h3MassPull = (TH3F*) ensembleFile->Get("h3MassPull_" + iMassPoint->identifier);
   }
@@ -116,10 +112,10 @@ void TopMass::EvalEnsembleTest(bool writeCalibration) {
       TCanvas* canvas = new TCanvas("canvas", "hadronic top hMass", 2000, 1000);
       canvas->Divide(4,2);
       
-      TVectorD genMass(massPoints.size());
-      TVectorD genMassError(massPoints.size());
-      TVectorD hadTopMassBias(massPoints.size());
+      TVectorD hadTopMass(massPoints.size());
+      TVectorD hadTopMassMeanError(massPoints.size());
       TVectorD hadTopMassError(massPoints.size());
+      TVectorD hadTopMassBias(massPoints.size());
       TVectorD hadTopMassChi2NDF(massPoints.size());
       
       TVectorD hadTopMassPullWidth(massPoints.size());
@@ -127,9 +123,6 @@ void TopMass::EvalEnsembleTest(bool writeCalibration) {
       
       for (iMassPoint = massPoints.begin(); iMassPoint != massPoints.end(); ++iMassPoint) {
         int k = iMassPoint - massPoints.begin();
-        
-        iMassPoint->h3Mass = (TH3F*) ensembleFile->Get("h3Mass_" + iMassPoint->identifier);
-        iMassPoint->h3MassPull = (TH3F*) ensembleFile->Get("h3MassPull_" + iMassPoint->identifier);
         
         TH1* hMass = iMassPoint->h3Mass->ProjectionZ("hMass", i+1, i+1, j+1, j+1);
         TH1* hMassPull = iMassPoint->h3MassPull->ProjectionZ("hMassPull", i+1, i+1, j+1, j+1);
@@ -149,25 +142,28 @@ void TopMass::EvalEnsembleTest(bool writeCalibration) {
         canvas->cd(5+k);
         hMassPull->Fit("gausPull");
         
-        genMass[k] = gaus->GetParameter(1);
-        genMassError[k] = gaus->GetParError(1)*TMath::Sqrt(1+nEnsemble*fLumi/iMassPoint->genLumi);
+        hadTopMass[k] = gaus->GetParameter(1);
+        hadTopMassMeanError[k] = gaus->GetParError(1)*TMath::Sqrt(1+nEnsemble*fLumi/iMassPoint->genLumi);
+        hadTopMassError[k] = gaus->GetParameter(2);
         hadTopMassBias[k] = gaus->GetParameter(1)-iMassPoint->genMass;
-        hadTopMassError[k] = gaus->GetParError(1)*TMath::Sqrt(1+nEnsemble*fLumi/iMassPoint->genLumi);
         hadTopMassChi2NDF[k] = gaus->GetChisquare()/gaus->GetNDF();
         
         hadTopMassPullWidth[k] = gausPull->GetParameter(2);
-        hadTopMassPullWidthError[k] = gausPull->GetParError(2)*TMath::Sqrt(1+nEnsemble*TMath::Power(fLumi/iMassPoint->genLumi, 2));        
+        hadTopMassPullWidthError[k] = gausPull->GetParError(2)*TMath::Sqrt(1+nEnsemble*TMath::Power(fLumi/iMassPoint->genLumi, 2));
+        
+        iMassPoint->h2Mass->SetCellContent(i+1, j+1, hadTopMass[k]);
+        iMassPoint->h2MassError->SetCellContent(i+1, j+1, hadTopMassError[k]);
       }
           
-      if (hadTopMassError > 0 && hadTopMassChi2NDF < 10) {
+      if (hadTopMassMeanError > 0 && hadTopMassChi2NDF < 10) {
         canvas->cd(4);
         
-        TGraphErrors* gBias = new TGraphErrors(genMass, hadTopMassBias, genMassError, hadTopMassError);
+        TGraphErrors* gBias = new TGraphErrors(hadTopMass, hadTopMassBias, hadTopMassMeanError, hadTopMassMeanError);
         if (hadTopMassBias.Min() > 0) {
-          gBias->GetYaxis()->SetRangeUser(0.5, hadTopMassBias.Max()+hadTopMassError.Max()+0.5);
+          gBias->GetYaxis()->SetRangeUser(0.5, hadTopMassBias.Max()+hadTopMassMeanError.Max()+0.5);
         }
         else if (hadTopMassBias.Max() < 0) {
-          gBias->GetYaxis()->SetRangeUser(hadTopMassBias.Min()-hadTopMassError.Max()-0.5, 0.5);
+          gBias->GetYaxis()->SetRangeUser(hadTopMassBias.Min()-hadTopMassMeanError.Max()-0.5, 0.5);
         }
         gBias->SetMarkerStyle(2);
         gBias->SetMarkerSize(0.4);
@@ -187,7 +183,7 @@ void TopMass::EvalEnsembleTest(bool writeCalibration) {
         
         canvas->cd(8);
         
-        TGraphErrors* gPull = new TGraphErrors(genMass, hadTopMassPullWidth, genMassError, hadTopMassPullWidthError);
+        TGraphErrors* gPull = new TGraphErrors(hadTopMass, hadTopMassPullWidth, hadTopMassMeanError, hadTopMassPullWidthError);
         gPull->GetYaxis()->SetRangeUser(0, 2);
         gPull->SetMarkerStyle(2);
         gPull->SetMarkerSize(0.4);
@@ -205,7 +201,7 @@ void TopMass::EvalEnsembleTest(bool writeCalibration) {
         
         gPull->Fit("constFit");
         
-        TString path("plot/"); path += fMethod; path += "/"; path += "ensembletest_"; path += i; path += "_"; path += j; path += "_uncalibrated.png";
+        TString path("plot/"); path += fMethod; path += "/"; path += "ensembletest_"; path += i; path += "_"; path += j; path += "_calibrated.png";
         canvas->Print(path);
         
         for (int l = 0; l < 2; l++) {
@@ -229,16 +225,37 @@ void TopMass::EvalEnsembleTest(bool writeCalibration) {
     }
   }
   
+  gStyle->SetPadRightMargin(0.15);
+  TCanvas* canvas = new TCanvas("canvas", "Top mass", 900, 450);
+  canvas->Divide(2,1);
+  
+  for (iMassPoint = massPoints.begin(); iMassPoint != massPoints.end(); ++iMassPoint) {
+    canvas->cd(1);
+    iMassPoint->h2Mass->Draw("COLZ, TEXT");
+    iMassPoint->h2Mass->SetAxisRange(160, 185, "Z");
+    
+    canvas->cd(2);
+    iMassPoint->h2MassError->Draw("COLZ, TEXT");
+    iMassPoint->h2MassError->SetAxisRange(0.05, 5, "Z");
+    
+    TString path("plot/"); path += fMethod; path += "_"; path += "ensembletest_"; path += iMassPoint->identifier; path += "_calibrated.eps";
+    canvas->Print(path);
+  }
+  
   ensembleFile->Close();
   
   if (writeCalibration) doc.SaveFile( "calibration.xml" );
 }
 
 
-void TopMass::Calibrate() {
+void TopMass::QuickCalibration() {
  
   std::vector<TH2F*> hMass;
   std::vector<TH2F*> hMassError;
+  
+  Analysis* a1665 = new Analysis("1665", "root/analyzeTop_1665.root", fMethod, fBins, 20000);
+  Analysis* a1725 = new Analysis("1725", "root/analyzeTop_1725.root", fMethod, fBins, 20000);
+  Analysis* a1785 = new Analysis("1785", "root/analyzeTop_1785.root", fMethod, fBins, 20000);
   
   calibrationAnalyses.push_back(a1665);
   calibrationAnalyses.push_back(a1725);
@@ -266,14 +283,19 @@ void TopMass::Calibrate() {
       if (hMass.at(0)->GetCellContent(i+1, j+1) > 0 && hMass.at(2)->GetCellContent(i+1, j+1) > 0
           && hMassError.at(0)->GetCellContent(i+1, j+1) > 0 && hMassError.at(2)->GetCellContent(i+1, j+1) > 0) {
         for (int k = 0; k < 3; k++) {
-          hadTopMass[k] = hMass.at(k)->GetCellContent(i+1, j+1);
+          hadTopMass[k] = hMass.at(k)->GetCellContent(i+1, j+1)-(166.5+k*6);
           hadTopMassError[k] = hMassError.at(k)->GetCellContent(i+1, j+1);
         }
-        ghadTopMass = new TGraphErrors(3, hadTopMass, genMass, hadTopMassError, genMassError);
+        ghadTopMass = new TGraphErrors(3, genMass, hadTopMass, genMassError, hadTopMassError);
         ghadTopMass->Draw("A*");
         
-        TF1* linearFit = new TF1("linearFit", "172.5+[0]+(x-172.5)*[1]");        
+        TF1* linearFit = new TF1("linearFit", "[0]+(x-172.5)*[1]");        
         ghadTopMass->Fit("linearFit");
+        
+        for (int l = 0; l < 2; l++) {
+          fCalibFitParameter[i][j][l] = linearFit->GetParameter(l);
+          fCalibFitParError[i][j][l]  = linearFit->GetParError(l);
+        }
         
         TString path("plot/"); path += fMethod; path += "/"; path += "fit_"; path += i; path += "_"; path += j; path += ".png";
         canvasFit->Print(path);
@@ -285,7 +307,6 @@ void TopMass::Calibrate() {
 
 
 TH2F* TopMass::Measure(Analysis* a) {
-  LoadXML();
   
   a->Analyze();
   
@@ -299,15 +320,29 @@ TH2F* TopMass::Measure(Analysis* a) {
   
   for (int i = 0; i < fBins; i++) {
     for (int j = 0; j < fBins; j++) {
+
+      
+      
+      double mass = hMass->GetCellContent(i+1, j+1);
+      double massError = hMassError->GetCellContent(i+1, j+1);
+      
+      std::cout << "Measured TopMass: " << mass << " +/- " << massError << " GeV" << std::endl;
+    
       if (fCalibFitParameter[i][j][0] && fCalibFitParameter[i][j][1]) {
-        double calib = hMass->GetCellContent(i+1, j+1) - fCalibFitParameter[i][j][0] + (fCalibFitParameter[i][j][1]*(172.5-hMass->GetCellContent(i+1, j+1)));
-        double caliberror = sqrt(pow((1-fCalibFitParameter[i][j][1])*hMassError->GetCellContent(i+1, j+1), 2) + pow(fCalibFitParError[i][j][0], 2) + pow(fCalibFitParError[i][j][1]*(172.5-hMass->GetCellContent(i+1, j+1)), 2));
+        massError = sqrt(pow((1-fCalibFitParameter[i][j][1])*massError, 2) + pow(fCalibFitParError[i][j][0], 2) + pow(fCalibFitParError[i][j][1]*(172.5-mass), 2));
+        mass = mass - fCalibFitParameter[i][j][0] + (fCalibFitParameter[i][j][1]*(172.5-mass));
         
-        std::cout << "Measured TopMass: " << calib << " +/- " << caliberror << " GeV" << std::endl;
-        
-        hMassCalibrated->SetCellContent(i+1, j+1, calib);
-        hMassErrorCalibrated->SetCellContent(i+1, j+1, caliberror);
+        std::cout << "Calibrated TopMass: " << mass << " +/- " << massError << " GeV" << std::endl;
       }
+      else {
+        mass = 0;
+        massError = 0;
+        std::cout << "No Calibration data available" << std::endl;
+      }
+        
+      hMassCalibrated->SetCellContent(i+1, j+1, mass);
+      hMassErrorCalibrated->SetCellContent(i+1, j+1, massError);
+      
     }
   }
   
@@ -328,7 +363,20 @@ TH2F* TopMass::Measure(Analysis* a) {
 }
 
 
-void TopMass::Systematics() {
+void TopMass::QuickSystematics() {
+
+  Analysis* a1665 = new Analysis("1665", "root/analyzeTop_1665.root", fMethod, fBins, 10000);
+  Analysis* a1725 = new Analysis("1725", "root/analyzeTop_1725.root", fMethod, fBins, 10000);
+  Analysis* a1785 = new Analysis("1785", "root/analyzeTop_1785.root", fMethod, fBins, 10000);
+
+  Analysis* a1665_jes_up = new Analysis("1665_jes_up", "root/analyzeTop_1665_jes_up.root", fMethod, fBins, 10000);
+  Analysis* a1725_jes_up = new Analysis("1725_jes_up", "root/analyzeTop_1725_jes_up.root", fMethod, fBins, 10000);
+  Analysis* a1785_jes_up = new Analysis("1785_jes_up", "root/analyzeTop_1785_jes_up.root", fMethod, fBins, 10000);
+  
+  Analysis* a1665_jes_down = new Analysis("1665_jes_down", "root/analyzeTop_1665_jes_down.root", fMethod, fBins, 10000);
+  Analysis* a1725_jes_down = new Analysis("1725_jes_down", "root/analyzeTop_1725_jes_down.root", fMethod, fBins, 10000);
+  Analysis* a1785_jes_down = new Analysis("1785_jes_down", "root/analyzeTop_1785_jes_down.root", fMethod, fBins, 10000);
+  
   TH2F* hMassJESdown = Measure(a1725_jes_down);
   TH2F* hMassJESnorm = Measure(a1725);
   TH2F* hMassJESup   = Measure(a1725_jes_up);
