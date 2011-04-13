@@ -88,6 +88,8 @@ from TopAnalysis.TopUtils.JetEnergyScale_cff import *
 
 scaledJetEnergy.scaleType   = cms.string(options.jes)
 scaledJetEnergy.inputJets   = "selectedPatJetsAK5PF"
+scaledJetEnergy.inputMETs   = "patMETsPF"
+scaledJetEnergy.scaleFactor = 1.0
 #scaledJetEnergy.scaleFactor = 1.053
 #scaledJetEnergy.resolutionFactor = 1.1
 
@@ -99,9 +101,11 @@ process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_c
 
 ## enable additional per-event printout from the TtSemiLeptonicEvent
 process.ttSemiLepEvent.verbosity = 0
-## change maximum number of jets taken into account per event (default: 4)
+
 from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff import *
 setForAllTtSemiLepHypotheses(process, "jets", "scaledJetEnergy:selectedPatJetsAK5PF")
+setForAllTtSemiLepHypotheses(process, "maxNJets", 5)
+setForAllTtSemiLepHypotheses(process, "mets", "scaledJetEnergy:patMETsPF")
 setForAllTtSemiLepHypotheses(process, "maxNComb", -1)
 
 process.TtSemiLepJetCombMVAFileSource = cms.ESSource("TtSemiLepJetCombMVAFileSource",
