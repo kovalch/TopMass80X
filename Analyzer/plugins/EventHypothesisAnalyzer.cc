@@ -138,9 +138,15 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     if (genHadW && genHadB) genDeltaThetaHadWHadB = ROOT::Math::VectorUtil::Angle(genHadW->polarP4(), genHadB->polarP4());
     deltaRLepBLepton      = ROOT::Math::VectorUtil::DeltaR(lepton->polarP4(), lepB->polarP4());
     deltaThetaLepBLepton  = ROOT::Math::VectorUtil::Angle(lepton->polarP4(), lepB->polarP4());
-  
+    
+    std::vector<int> jetLeptonCombinationCurrent1 = semiLepEvt->jetLeptonCombination(hypoClassKey, h);
+    std::vector<int> jetLeptonCombinationCurrent2 = semiLepEvt->jetLeptonCombination(hypoClassKey, h);
+    std::swap(jetLeptonCombinationCurrent1[0], jetLeptonCombinationCurrent1[1]);
+    std::vector<int> jetLeptonCombinationGenMatch = semiLepEvt->jetLeptonCombination("kGenMatch");
+    
     if (semiLepEvt->isHypoValid("kGenMatch") ) {
-      if (semiLepEvt->jetLeptonCombination(hypoClassKey, h) == semiLepEvt->jetLeptonCombination("kGenMatch")) {
+      if (jetLeptonCombinationCurrent1 == jetLeptonCombinationGenMatch ||
+          jetLeptonCombinationCurrent2 == jetLeptonCombinationGenMatch) {
         target = 1;
         genMatchDr = semiLepEvt->genMatchSumDR(h);
       }
@@ -151,6 +157,7 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     else {
       target = -1;
     }
+    //std::cout << "\ttarget: " << target <<std::endl;
     
     mvaDisc    = semiLepEvt->mvaDisc(h);
     fitChi2    = semiLepEvt->fitChi2(h);
