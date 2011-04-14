@@ -104,7 +104,7 @@ process.ttSemiLepEvent.verbosity = 0
 
 from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff import *
 setForAllTtSemiLepHypotheses(process, "jets", "scaledJetEnergy:selectedPatJetsAK5PF")
-setForAllTtSemiLepHypotheses(process, "maxNJets", 5)
+setForAllTtSemiLepHypotheses(process, "maxNJets", 4)
 setForAllTtSemiLepHypotheses(process, "mets", "scaledJetEnergy:patMETsPF")
 setForAllTtSemiLepHypotheses(process, "maxNComb", -1)
 
