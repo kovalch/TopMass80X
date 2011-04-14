@@ -6,7 +6,7 @@ TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins
   
   QuickCalibration();
   //LoadXML();
-  QuickSystematics();
+  //QuickSystematics();
   
   //WriteEnsembleTestTree(true);
   //EvalEnsembleTest();
@@ -297,11 +297,15 @@ void TopMass::QuickCalibration() {
           fCalibFitParError[i][j][l]  = linearFit->GetParError(l);
         }
         
-        TString path("plot/"); path += fMethod; path += "/"; path += "fit_"; path += i; path += "_"; path += j; path += ".png";
+        TString path("plot/"); path += fMethod; path += "/"; path += "fit_"; path += i; path += "_"; path += j; path += ".eps";
         canvasFit->Print(path);
       }
     }
   }
+  
+  Measure(a1665);
+  Measure(a1725);
+  Measure(a1785);
 }
 
 
@@ -350,7 +354,7 @@ TH2F* TopMass::Measure(Analysis* a) {
   
   canvas->cd(1);
   hMassCalibrated->Draw("COLZ,TEXT");
-  hMassCalibrated->SetAxisRange(hMassCalibrated->GetMinimum(150), hMassCalibrated->GetMaximum(200), "Z");
+  hMassCalibrated->SetAxisRange(160, 185, "Z");
   
   canvas->cd(2);
   hMassErrorCalibrated->Draw("COLZ,TEXT");
@@ -440,7 +444,7 @@ void TopMass::LoadXML() {
 int main(int argc, char** argv)
 {
   if (argc > 1) {
-    TopMass* top = new TopMass(argv[1], 6, 500);
+    TopMass* top = new TopMass(argv[1], 1, 500);
   }
   else {
     TopMass* top = new TopMass("GenMatch", 6, 500);
