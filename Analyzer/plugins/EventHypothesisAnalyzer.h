@@ -63,6 +63,7 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double hadTopPt;
   double hadTopEta;
   double hadTopMass;
+  double hadTopE;
   
   double genHadTopPt;
   double genHadTopEta;
@@ -80,6 +81,8 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double mvaDisc;
   double fitChi2;
   double fitProb;
+  
+  int target;
   
   TTree* eventTree;
 

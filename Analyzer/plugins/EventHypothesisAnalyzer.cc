@@ -123,6 +123,7 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     hadTopPt   = hadTop->pt();
     hadTopEta  = hadTop->eta();
     hadTopMass = hadTop->mass();
+    hadTopE    = hadTop->energy();
   
     if (genHadTop) {
       genHadTopPt   = genHadTop->pt();
@@ -138,7 +139,19 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     deltaRLepBLepton      = ROOT::Math::VectorUtil::DeltaR(lepton->polarP4(), lepB->polarP4());
     deltaThetaLepBLepton  = ROOT::Math::VectorUtil::Angle(lepton->polarP4(), lepB->polarP4());
   
-    genMatchDr = semiLepEvt->genMatchSumDR(h);
+    if (semiLepEvt->isHypoValid("kGenMatch") ) {
+      if (semiLepEvt->jetLeptonCombination(hypoClassKey, h) == semiLepEvt->jetLeptonCombination("kGenMatch")) {
+        target = 1;
+        genMatchDr = semiLepEvt->genMatchSumDR(h);
+      }
+      else {
+        target = 0;
+      }
+    }
+    else {
+      target = -1;
+    }
+    
     mvaDisc    = semiLepEvt->mvaDisc(h);
     fitChi2    = semiLepEvt->fitChi2(h);
     fitProb    = semiLepEvt->fitProb(h);
@@ -199,6 +212,7 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("hadTopPt", &hadTopPt, "hadTopPt/D");
   eventTree->Branch("hadTopEta", &hadTopEta, "hadTopEta/D");
   eventTree->Branch("hadTopMass", &hadTopMass, "hadTopMass/D");
+  eventTree->Branch("hadTopE", &hadTopE, "hadTopE/D");
   
   eventTree->Branch("genHadTopPt", &genHadTopPt, "genHadTopPt/D");
   eventTree->Branch("genHadTopEta", &genHadTopEta, "genHadTopEta/D");
@@ -216,6 +230,8 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("mvaDisc", &mvaDisc, "mvaDisc/D");
   eventTree->Branch("fitChi2", &fitChi2, "fitChi2/D");
   eventTree->Branch("fitProb", &fitProb, "fitProb/D");
+  
+  eventTree->Branch("target", &target, "target/I");
 
 }
 
