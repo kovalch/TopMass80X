@@ -42,37 +42,32 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   eventTree->SetBranchAddress("fitProb", &fitProb);
   eventTree->SetBranchAddress("combi", &combi);
   
-//  fTree->Print();
-//  eventTree->Print();
-  
+  // Build Likelihood
   for (int iEntry = 0; iEntry < eventTree->GetEntries(); iEntry++) {
     eventTree->GetEntry(iEntry);
     
     if (combi!=0) continue;
     
-    if (fitProb > 0.05) { // skip bad events
-      eventLikelihoodWeight = 1;
-      eventLikelihood->Eval(null);
- 
-      for (int iComb = 0; iComb < 12; iComb++) {
-//        std::cout << combi << std::endl;
-	      eventTree->GetEntry(iEntry + iComb);
-	      
-	      if (iComb!=0 && combi==0 || fitProb < 0.05) break;
-	      
-        weight = fitProb;
-	      combLikelihood->SetParameters(hadTopMass,12,weight);
-	      eventLikelihood->Eval(combLikelihood, "A"); // add combi pdf
-      }
+    eventLikelihoodWeight = 1;
+    eventLikelihood->Eval(null);
 
-      logEventLikelihood->Eval(null);
-
-      for (int i = 0; i<=bins; i++) {
-    	  logEventLikelihood->SetBinContent(i, -2*TMath::Log(eventLikelihood->GetBinContent(i)));
-      }
-
-      sumLogLikelihood->Add(logEventLikelihood);
+    for (int iComb = 0; iComb < 60; iComb++) {
+      eventTree->GetEntry(iEntry + iComb);
+      
+      if (iComb!=0 && combi==0) break;
+      
+      weight = fitProb;
+      combLikelihood->SetParameters(hadTopMass, fitProb);
+      eventLikelihood->Eval(combLikelihood, "A"); // add combi pdf
     }
+
+    logEventLikelihood->Eval(null);
+
+    for (int i = 0; i<=bins; i++) {
+  	  logEventLikelihood->SetBinContent(i, -2*TMath::Log(eventLikelihood->GetBinContent(i)));
+    }
+
+    sumLogLikelihood->Add(logEventLikelihood);
   }
 
   sumLogLikelihood->SetAxisRange(sumLogLikelihood->GetMinimum(0), sumLogLikelihood->GetMaximum(), "Y");

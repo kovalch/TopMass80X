@@ -289,6 +289,8 @@ void TopMass::QuickCalibration() {
         ghadTopMass = new TGraphErrors(3, genMass, hadTopMass, genMassError, hadTopMassError);
         ghadTopMass->Draw("A*");
         
+        //ghadTopMass->GetYaxis()->SetRangeUser(-6, 6);
+        
         TF1* linearFit = new TF1("linearFit", "[0]+(x-172.5)*[1]");        
         ghadTopMass->Fit("linearFit");
         

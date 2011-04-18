@@ -51,9 +51,9 @@ void Analysis::Analyze(bool reanalyze) {
   
   double minEntries = 500;
   
-  if (!strcmp(fMethod, "Ideogram")) {
+  /*if (!strcmp(fMethod, "Ideogram")) {
     minEntries = 1500;
-  }
+  }*/
 
   TString observableX = "deltaThetaHadWHadB";
   TString observableY = "deltaThetaHadQHadQBar";
