@@ -34,11 +34,15 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double hadQEta;
   double hadQMass;
   double hadQE;
+  double hadQBTCHE;
+  double hadQBVMVA;
   
   double hadQbarPt;
   double hadQbarEta;
   double hadQbarMass;
   double hadQbarE;
+  double hadQbarBTCHE;
+  double hadQbarBVMVA;
   
   double hadWPt;
   double hadWEta;
@@ -54,6 +58,15 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double hadBEta;
   double hadBMass;
   double hadBE;
+  double hadBBTCHE;
+  double hadBBVMVA;
+  
+  double lepBPt;
+  double lepBEta;
+  double lepBMass;
+  double lepBE;
+  double lepBBTCHE;
+  double lepBBVMVA;
   
   double genHadBPt;
   double genHadBEta;

@@ -14,6 +14,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiLepEvtPartons.h"
+#include <DataFormats/PatCandidates/interface/Jet.h>
 
 #include "TopMass/Analyzer/plugins/EventHypothesisAnalyzer.h"
 
@@ -37,6 +39,9 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
   edm::Handle<int> hypoClassKeyHandle;
   evt.getByLabel(hypoClassKey_, hypoClassKeyHandle);
   TtSemiLeptonicEvent::HypoClassKey& hypoClassKey = (TtSemiLeptonicEvent::HypoClassKey&) *hypoClassKeyHandle;
+  
+  edm::Handle<std::vector<pat::Jet> > jets;
+  evt.getByLabel("selectedPatJetsAK5PF", jets);
 
   for(unsigned h=0; h<semiLepEvt->numberOfAvailableHypos(hypoClassKey); h++) {
 
@@ -90,11 +95,15 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     hadQEta    = hadQ->eta();
     hadQMass   = hadQ->mass();
     hadQE      = hadQ->energy();
-    
+    hadQBTCHE  = jets->at(TtSemiLepEvtPartons::LightQ).bDiscriminator("trackCountingHighEffBJetTags");
+    hadQBVMVA  = jets->at(TtSemiLepEvtPartons::LightQ).bDiscriminator("combinedSecondaryVertexMVABJetTags");
+
     hadQbarPt     = hadQbar->pt();
     hadQbarEta    = hadQbar->eta();
     hadQbarMass   = hadQbar->mass();
     hadQbarE      = hadQbar->energy();
+    hadQbarBTCHE  = jets->at(TtSemiLepEvtPartons::LightQBar).bDiscriminator("trackCountingHighEffBJetTags");
+    hadQbarBVMVA  = jets->at(TtSemiLepEvtPartons::LightQBar).bDiscriminator("combinedSecondaryVertexMVABJetTags");
     
     hadWPt     = hadW->pt();
     hadWEta    = hadW->eta();
@@ -112,6 +121,15 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     hadBEta    = hadB->eta();
     hadBMass   = hadB->mass();
     hadBE      = hadB->energy();
+    hadBBTCHE  = jets->at(TtSemiLepEvtPartons::HadB).bDiscriminator("trackCountingHighEffBJetTags");
+    hadBBVMVA  = jets->at(TtSemiLepEvtPartons::HadB).bDiscriminator("combinedSecondaryVertexMVABJetTags");
+    
+    lepBPt     = hadB->pt();
+    lepBEta    = hadB->eta();
+    lepBMass   = hadB->mass();
+    lepBE      = hadB->energy();
+    lepBBTCHE  = jets->at(TtSemiLepEvtPartons::LepB).bDiscriminator("trackCountingHighEffBJetTags");
+    lepBBVMVA  = jets->at(TtSemiLepEvtPartons::LepB).bDiscriminator("combinedSecondaryVertexMVABJetTags");
   
     if (genHadB) {
       genHadBPt     = genHadB->pt();
@@ -190,11 +208,15 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("hadQEta", &hadQEta, "hadQEta/D");
   eventTree->Branch("hadQMass", &hadQMass, "hadQMass/D");
   eventTree->Branch("hadQE", &hadQE, "hadQE/D");
+  eventTree->Branch("hadQBTCHE", &hadQBTCHE, "hadQBTCHE/D");
+  eventTree->Branch("hadQBVMVA", &hadQBVMVA, "hadQBVMVA/D");
   
   eventTree->Branch("hadQbarPt", &hadQbarPt, "hadQbarPt/D");
   eventTree->Branch("hadQbarEta", &hadQbarEta, "hadQbarEta/D");
   eventTree->Branch("hadQbarMass", &hadQbarMass, "hadQbarMass/D");
   eventTree->Branch("hadQbarE", &hadQbarE, "hadQbarE/D");
+  eventTree->Branch("hadQbarBTCHE", &hadQbarBTCHE, "hadQbarBTCHE/D");
+  eventTree->Branch("hadQbarBVMVA", &hadQbarBVMVA, "hadQbarBVMVA/D");
   
   eventTree->Branch("hadWPt", &hadWPt, "hadWPt/D");
   eventTree->Branch("hadWEta", &hadWEta, "hadWEta/D");
@@ -210,6 +232,15 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("hadBEta", &hadBEta, "hadBEta/D");
   eventTree->Branch("hadBMass", &hadBMass, "hadBMass/D");
   eventTree->Branch("hadBE", &hadBE, "hadBE/D");
+  eventTree->Branch("hadBBTCHE", &hadBBTCHE, "hadBBTCHE/D");
+  eventTree->Branch("hadBBVMVA", &hadBBVMVA, "hadBBVMVA/D");
+  
+  eventTree->Branch("lepBPt", &lepBPt, "lepBPt/D");
+  eventTree->Branch("lepBEta", &lepBEta, "lepBEta/D");
+  eventTree->Branch("lepBMass", &lepBMass, "lepBMass/D");
+  eventTree->Branch("lepBE", &lepBE, "lepBE/D");
+  eventTree->Branch("lepBBTCHE", &lepBBTCHE, "lepBBTCHE/D");
+  eventTree->Branch("lepBBVMVA", &lepBBVMVA, "lepBBVMVA/D");
   
   eventTree->Branch("genHadBPt", &genHadBPt, "genHadBPt/D");
   eventTree->Branch("genHadBEta", &genHadBEta, "genHadBEta/D");
