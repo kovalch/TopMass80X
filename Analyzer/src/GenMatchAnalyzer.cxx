@@ -8,22 +8,15 @@ void GenMatchAnalyzer::Analyze(TString cuts, int i, int j) {
   TCanvas* ctemp = new TCanvas("ctemp", "Top mass", 500, 500);
   ctemp->cd();
 
-  gaus = new TF1("gaus", "gaus");
+  TF1* voigt = new TF1("voigt", "[0]*TMath::Voigt(x-[1], 12, 2)");
+  voigt->SetParameters(1000, 170);
 
-  fTree->Draw("hadTopMass", cuts);
-
-  fTree->Fit("gaus", "hadTopMass", cuts);
-  
-  if (gaus->GetChisquare()/gaus->GetNDF() > 3) {
-    gaus = new TF1("gaus", "gaus(0)+gaus(3)");
-    gaus->SetParameters(100, 170, 10, 10, 250, 50);
-    fTree->Fit("gaus", "hadTopMass", cuts);
-  }
+  fTree->Fit("voigt", "hadTopMass", cuts, "LEM");
   
   TString path("plot/GenMatch/"); path+= fIdentifier; path += "_"; path += i; path += "_"; path += j; path += ".png";
   ctemp->Print(path);
         
-  fMass      = gaus->GetParameter(1);
-  fMassError = gaus->GetParError(1);
-  fMassSigma = gaus->GetParameter(2);
+  fMass      = voigt->GetParameter(1);
+  fMassError = voigt->GetParError(1);
+  fMassSigma = voigt->GetParameter(2);
 }

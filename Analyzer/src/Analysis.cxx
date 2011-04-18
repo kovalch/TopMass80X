@@ -72,13 +72,14 @@ void Analysis::Analyze(bool reanalyze) {
       cuts = stream.str();
       
       if (!strcmp(fMethod, "GenMatch")) {
-        cuts += " & genMatchDr > 0";
+        cuts += " & target == 1";
       }
       else if (!strcmp(fMethod, "MVA")) {
         cuts += " & mvaDisc > 0";
       }
       
       int entries = fTree->GetEntries(cuts);
+      std::cout << entries << std::endl;
 
       hEntries->SetCellContent(i+1, j+1, entries);
       

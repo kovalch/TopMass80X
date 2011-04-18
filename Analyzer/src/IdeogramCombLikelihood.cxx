@@ -9,7 +9,7 @@ double IdeogramCombLikelihood::Evaluate(double *x, double *p) {
 double IdeogramCombLikelihood::Signal(double *x, double *p) {
   double xx = x[0];
   
-  return TMath::Gaus(p[0], xx+0.8, 12, 1);
+  return TMath::Voigt(p[0], xx, 12, 2);
 }
 
 double IdeogramCombLikelihood::CombBackground(double *x, double *p) {
