@@ -53,6 +53,26 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
       edm::LogInfo("EventHypothesisAnalyzer") << "Hypothesis not valid for this event";
       return;
     }
+    
+    std::vector<int> jetLeptonCombinationCurrent  = semiLepEvt->jetLeptonCombination(hypoClassKey, h);
+    std::vector<int> jetLeptonCombinationCurrent2 = semiLepEvt->jetLeptonCombination(hypoClassKey, h);
+    std::swap(jetLeptonCombinationCurrent2[0], jetLeptonCombinationCurrent2[1]);
+    std::vector<int> jetLeptonCombinationGenMatch = semiLepEvt->jetLeptonCombination("kGenMatch");
+    
+    if (semiLepEvt->isHypoValid("kGenMatch") ) {
+      if (jetLeptonCombinationCurrent  == jetLeptonCombinationGenMatch ||
+          jetLeptonCombinationCurrent2 == jetLeptonCombinationGenMatch) {
+        target = 1;
+        genMatchDr = semiLepEvt->genMatchSumDR(h);
+      }
+      else {
+        target = 0;
+      }
+    }
+    else {
+      target = -1;
+    }
+    //std::cout << "\ttarget: " << target <<std::endl;
 
     //////////////////////////////////////////////////////////////////////////////////////////////////
     // get event Id
@@ -95,15 +115,15 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     hadQEta    = hadQ->eta();
     hadQMass   = hadQ->mass();
     hadQE      = hadQ->energy();
-    hadQBTCHE  = jets->at(TtSemiLepEvtPartons::LightQ).bDiscriminator("trackCountingHighEffBJetTags");
-    hadQBVMVA  = jets->at(TtSemiLepEvtPartons::LightQ).bDiscriminator("combinedSecondaryVertexMVABJetTags");
+    hadQBTCHE  = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQ]).bDiscriminator("trackCountingHighEffBJetTags"); //TODO
+    hadQBVMVA  = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQ]).bDiscriminator("combinedSecondaryVertexMVABJetTags");
 
     hadQbarPt     = hadQbar->pt();
     hadQbarEta    = hadQbar->eta();
     hadQbarMass   = hadQbar->mass();
     hadQbarE      = hadQbar->energy();
-    hadQbarBTCHE  = jets->at(TtSemiLepEvtPartons::LightQBar).bDiscriminator("trackCountingHighEffBJetTags");
-    hadQbarBVMVA  = jets->at(TtSemiLepEvtPartons::LightQBar).bDiscriminator("combinedSecondaryVertexMVABJetTags");
+    hadQbarBTCHE  = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQBar]).bDiscriminator("trackCountingHighEffBJetTags");
+    hadQbarBVMVA  = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQBar]).bDiscriminator("combinedSecondaryVertexMVABJetTags");
     
     hadWPt     = hadW->pt();
     hadWEta    = hadW->eta();
@@ -121,15 +141,15 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     hadBEta    = hadB->eta();
     hadBMass   = hadB->mass();
     hadBE      = hadB->energy();
-    hadBBTCHE  = jets->at(TtSemiLepEvtPartons::HadB).bDiscriminator("trackCountingHighEffBJetTags");
-    hadBBVMVA  = jets->at(TtSemiLepEvtPartons::HadB).bDiscriminator("combinedSecondaryVertexMVABJetTags");
+    hadBBTCHE  = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::HadB]).bDiscriminator("trackCountingHighEffBJetTags");
+    hadBBVMVA  = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::HadB]).bDiscriminator("combinedSecondaryVertexMVABJetTags");
     
     lepBPt     = hadB->pt();
     lepBEta    = hadB->eta();
     lepBMass   = hadB->mass();
     lepBE      = hadB->energy();
-    lepBBTCHE  = jets->at(TtSemiLepEvtPartons::LepB).bDiscriminator("trackCountingHighEffBJetTags");
-    lepBBVMVA  = jets->at(TtSemiLepEvtPartons::LepB).bDiscriminator("combinedSecondaryVertexMVABJetTags");
+    lepBBTCHE  = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LepB]).bDiscriminator("trackCountingHighEffBJetTags");
+    lepBBVMVA  = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LepB]).bDiscriminator("combinedSecondaryVertexMVABJetTags");
   
     if (genHadB) {
       genHadBPt     = genHadB->pt();
@@ -156,26 +176,6 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     if (genHadW && genHadB) genDeltaThetaHadWHadB = ROOT::Math::VectorUtil::Angle(genHadW->polarP4(), genHadB->polarP4());
     deltaRLepBLepton      = ROOT::Math::VectorUtil::DeltaR(lepton->polarP4(), lepB->polarP4());
     deltaThetaLepBLepton  = ROOT::Math::VectorUtil::Angle(lepton->polarP4(), lepB->polarP4());
-    
-    std::vector<int> jetLeptonCombinationCurrent1 = semiLepEvt->jetLeptonCombination(hypoClassKey, h);
-    std::vector<int> jetLeptonCombinationCurrent2 = semiLepEvt->jetLeptonCombination(hypoClassKey, h);
-    std::swap(jetLeptonCombinationCurrent1[0], jetLeptonCombinationCurrent1[1]);
-    std::vector<int> jetLeptonCombinationGenMatch = semiLepEvt->jetLeptonCombination("kGenMatch");
-    
-    if (semiLepEvt->isHypoValid("kGenMatch") ) {
-      if (jetLeptonCombinationCurrent1 == jetLeptonCombinationGenMatch ||
-          jetLeptonCombinationCurrent2 == jetLeptonCombinationGenMatch) {
-        target = 1;
-        genMatchDr = semiLepEvt->genMatchSumDR(h);
-      }
-      else {
-        target = 0;
-      }
-    }
-    else {
-      target = -1;
-    }
-    //std::cout << "\ttarget: " << target <<std::endl;
     
     mvaDisc    = semiLepEvt->mvaDisc(h);
     fitChi2    = semiLepEvt->fitChi2(h);
