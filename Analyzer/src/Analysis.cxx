@@ -49,7 +49,7 @@ void Analysis::Analyze(bool reanalyze) {
   double smearX = smearBins/fBins*rangeX;
   double smearY = smearBins/fBins*rangeY;
   
-  double minEntries = 500;
+  double minEntries = 300;
   
   /*if (!strcmp(fMethod, "Ideogram")) {
     minEntries = 1500;
@@ -76,6 +76,9 @@ void Analysis::Analyze(bool reanalyze) {
       }
       else if (!strcmp(fMethod, "MVA")) {
         cuts += " & mvaDisc > 0";
+      }
+      else if (!strcmp(fMethod, "Ideogram")) {
+        cuts += " & fitProb != 0 & target > -2 & hadQBTCHE < 3 & hadQbarBTCHE < 3 & hadBBTCHE > 1 & lepBBTCHE > 1";
       }
       
       int entries = fTree->GetEntries(cuts);
