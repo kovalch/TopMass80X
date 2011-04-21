@@ -7,6 +7,7 @@
 
 class IdeogramAnalyzer : public MassAnalyzer {
   private:
+    double QBTagProbability(double bDiscriminator);
   
   public:
     IdeogramAnalyzer(TString identifier, TTree* tree) : MassAnalyzer(identifier, tree) {};

@@ -94,11 +94,14 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double mvaDisc;
   double fitChi2;
   double fitProb;
+  double bProb;
+  double hadBProb;
   
   int target;
   
   TTree* eventTree;
-
+  
+  double QBTagProbability(double bDiscriminator);
 };
 
 #endif

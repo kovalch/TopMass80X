@@ -1,9 +1,9 @@
 #include "IdeogramCombLikelihood.h"
 
 double IdeogramCombLikelihood::Evaluate(double *x, double *p) {
-  double fSig = 0.3;
+  double fSig = 0.;
 
-  return p[1] * fSig * Signal(x, p) + p[1] * (1.-fSig) * CombBackground(x, p);
+  return p[1] * (fSig * Signal(x, p) + (1.-fSig) * CombBackground(x, p));
 }
 
 double IdeogramCombLikelihood::Signal(double *x, double *p) {
@@ -16,16 +16,17 @@ double IdeogramCombLikelihood::CombBackground(double *x, double *p) {
 
   double xx = x[0];
   
-  /*
-  double p1 =  38.7578 + 0.756609 * xx;
-  double p2 = -46.8933 + 0.434875 * xx;
-  double p3 = -69.1613 + 1.86281  * xx;
-  double p4 = -102.014 + 0.916367 * xx;
+  ///*
+  double p0 = -2.23054 + 0.0245958 * xx;
+  double p1 =  40.3452 + 0.697798 * xx;
+  double p2 = -25.9087 + 0.272108 * xx;
+  double p4 = -22.7047 + 1.36774  * xx;
+  double p5 =  15.6014 + 0.167157 * xx;
   
-  return 2./3. * (TMath::Gaus(p[0], p1, p2, 1) + 1./2. * TMath::Gaus(p[0], p3, p4, 1));
+  return 1./(p0 + 1.) * (p0 * TMath::Gaus(p[0], p1, p2, 1) + TMath::Gaus(p[0], p4, p5, 1));
   //*/
   
-  ///*
+  /*
   double p0 =  1.20061 - 0.00383139 * xx;
   double p1 =  190.707 - 0.597429 * xx;
   double p2 = -148.767 + 1.43157 * xx;

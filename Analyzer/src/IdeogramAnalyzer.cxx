@@ -7,7 +7,7 @@ double IdeogramAnalyzer::GetMass() {
 void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
 
   bool debug = false;
-  int nDebug = 100;
+  int nDebug = 1;
   
   TCanvas* ctemp = new TCanvas("ctemp", "Top mass", 500, 500);
   ctemp->cd();
@@ -18,7 +18,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   int firstbin = 150;
   int lastbin  = 200;
 
-  int bins = 500;
+  int bins = 100;
   
   IdeogramCombLikelihood* fptr = new IdeogramCombLikelihood();
   TF1* combLikelihood = new TF1("combLikelihood",fptr,&IdeogramCombLikelihood::Evaluate,150,200,3);
@@ -39,12 +39,17 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   sumLogLikelihood->Eval(null);
 
   double hadTopMass, fitChi2, fitProb, weight;
+  double hadQBTCHE, hadQbarBTCHE, hadBBTCHE, lepBBTCHE;
   int event, currentEvent;
   int combi, previousCombi = -1;
   
   TTree* eventTree = fTree->CopyTree(cuts);
   
   eventTree->SetBranchAddress("hadTopMass", &hadTopMass);
+  eventTree->SetBranchAddress("hadQBTCHE", &hadQBTCHE);
+  eventTree->SetBranchAddress("hadQbarBTCHE", &hadQbarBTCHE);
+  eventTree->SetBranchAddress("hadBBTCHE", &hadBBTCHE);
+  eventTree->SetBranchAddress("lepBBTCHE", &lepBBTCHE);
   eventTree->SetBranchAddress("fitChi2", &fitChi2);
   eventTree->SetBranchAddress("fitProb", &fitProb);
   eventTree->SetBranchAddress("event", &event);
@@ -67,16 +72,25 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
       
       if (event != currentEvent) break;
       
+      double bProb = QBTagProbability(hadQBTCHE) * QBTagProbability(hadQbarBTCHE)
+                     * (1 - QBTagProbability(hadBBTCHE))
+                     * (1 - QBTagProbability(lepBBTCHE));
+      
       if (debug && iEntry%nDebug == 0) {
-        std::cout << "combi: " << combi << "\tmass: " << hadTopMass
-                  << "\tfitprob: " << fitProb << std::endl;
+        std::cout << "Combi: " << combi << "\tMass: " << hadTopMass
+                  << "\tbProb: " << bProb
+                  << "\tfitProb: " << fitProb << std::endl;
       }
       
-      weight += fitProb;
-      combLikelihood->SetParameters(hadTopMass, fitProb);
-      eventLikelihood->Eval(combLikelihood, "A"); // add combi pdf
+      if (bProb * fitProb > weight) weight = bProb * fitProb;
+      if (bProb * fitProb != 0) {
+        combLikelihood->SetParameters(hadTopMass, bProb * fitProb);
+        eventLikelihood->Eval(combLikelihood, "A"); // add combi pdf
+      }
     }
-
+    
+    if (weight == 0) continue;
+    
     logEventLikelihood->Eval(null);
 
     for (int i = 0; i<=bins; i++) {
@@ -108,7 +122,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   ctemp->cd();
   
   sumLogLikelihood->Add(hUnity, -sumLogLikelihood->GetMinimum(0));
-  sumLogLikelihood->SetAxisRange(0, 1000, "Y");
+  //sumLogLikelihood->SetAxisRange(0, 100, "Y");
   sumLogLikelihood->Draw();
   
   std::cout << "Minimum likelihood: " << sumLogLikelihood->GetMinimum(0) << "\tMaximum likelihood (in range): " << sumLogLikelihood->GetMaximum() << std::endl;
@@ -143,4 +157,15 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   delete eventLikelihood;
   delete logEventLikelihood;
   delete sumLogLikelihood;
+}
+
+double IdeogramAnalyzer::QBTagProbability(double bDiscriminator) {
+  if (bDiscriminator == -100) return 0.787115;
+  if (bDiscriminator < 0) return 1;
+  
+  double p0 = 5.91566e+00;
+  double p1 = 5.94611e-01;
+  double p2 = 3.53592e+00;
+  
+  return p0 * TMath::Voigt(bDiscriminator, p1, p2);
 }

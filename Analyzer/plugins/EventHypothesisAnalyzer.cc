@@ -17,6 +17,8 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiLepEvtPartons.h"
 #include <DataFormats/PatCandidates/interface/Jet.h>
 
+#include <TMath.h>
+
 #include "TopMass/Analyzer/plugins/EventHypothesisAnalyzer.h"
 
 EventHypothesisAnalyzer::EventHypothesisAnalyzer(const edm::ParameterSet& cfg):
@@ -180,6 +182,11 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     mvaDisc    = semiLepEvt->mvaDisc(h);
     fitChi2    = semiLepEvt->fitChi2(h);
     fitProb    = semiLepEvt->fitProb(h);
+    bProb      = QBTagProbability(hadQBTCHE) * QBTagProbability(hadQbarBTCHE)
+                 * (1 - QBTagProbability(hadBBTCHE))
+                 * (1 - QBTagProbability(lepBBTCHE));
+    hadBProb   = QBTagProbability(hadQBTCHE) * QBTagProbability(hadQbarBTCHE)
+                 * (1 - QBTagProbability(hadBBTCHE));
   
     eventTree -> Fill();
   
@@ -268,9 +275,22 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("mvaDisc", &mvaDisc, "mvaDisc/D");
   eventTree->Branch("fitChi2", &fitChi2, "fitChi2/D");
   eventTree->Branch("fitProb", &fitProb, "fitProb/D");
+  eventTree->Branch("bProb", &bProb, "bProb/D");
+  eventTree->Branch("hadBProb", &hadBProb, "hadBProb/D");
   
   eventTree->Branch("target", &target, "target/I");
 
+}
+
+double EventHypothesisAnalyzer::QBTagProbability(double bDiscriminator) {
+  if (bDiscriminator == -100) return 0.787115;
+  if (bDiscriminator < 0) return 1;
+  
+  double p0 = 5.91566e+00;
+  double p1 = 5.94611e-01;
+  double p2 = 3.53592e+00;
+  
+  return p0 * TMath::Voigt(bDiscriminator, p1, p2);
 }
 
 void
