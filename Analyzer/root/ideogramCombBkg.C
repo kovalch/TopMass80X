@@ -76,17 +76,6 @@ void ideogramCombBkg()
   gr->Fit("pol1");
 }
 
-double QBTagProbability(double bDiscriminator) {
-  if (bDiscriminator == -100) return 0.787115;
-  if (bDiscriminator < 0) return 1;
-  
-  double p0 = 5.91566e+00;
-  double p1 = 5.94611e-01;
-  double p2 = 3.53592e+00;
-  
-  return p0 * TMath::Voigt(bDiscriminator, p1, p2);
-}
-
 void FindParameters(TString filename, int i)
 {
 
@@ -105,13 +94,7 @@ void FindParameters(TString filename, int i)
   
   TH1F* hCombBkg;
   
-  double bProb = QBTagProbability(hadQBTCHE) * QBTagProbability(hadQbarBTCHE)
-                     * (1 - QBTagProbability(hadBBTCHE))
-                     * (1 - QBTagProbability(lepBBTCHE));
-  
-  eventTree->SetWeight(bProb);
-  
-  eventTree->Draw("hadTopMass >> hCombBkg(20, 100, 300)","fitProb*(target==0)");
+  eventTree->Draw("hadTopMass >> hCombBkg(20, 100, 300)","(bProb*fitProb)*(target==0)");
   
   TH1F *hCombBkg = (TH1F*)gDirectory->Get("hCombBkg");
   
