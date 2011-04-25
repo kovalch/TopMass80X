@@ -30,7 +30,7 @@ void ideogramCombBkg()
   gStyle->SetOptFit(1);
   
   TCanvas* canvas = new TCanvas("canvas", "canvas", 900, 900);
-  canvas->Divide(3,3);
+  canvas->Divide(3,2);
   
   canvas->cd(1);
   FindParameters("analyzeTop_1665.root", 0);
@@ -41,16 +41,17 @@ void ideogramCombBkg()
   
   canvas->cd(4);
   gr = new TGraphErrors(3,x,y0,ex,ey0);
-  gr->SetTitle("p0");
+  gr->SetTitle("p0/p3");
   gr->Draw("A*");
-  gr->Fit("pol1");
+  gr->Fit("pol1", "M");
   
   canvas->cd(5);
   gr = new TGraphErrors(3,x,y1,ex,ey1);
   gr->SetTitle("p1");
   gr->Draw("A*");
-  gr->Fit("pol1");
+  gr->Fit("pol1", "M");
   
+  /*
   canvas->cd(6);
   gr = new TGraphErrors(3,x,y2,ex,ey2);
   gr->SetTitle("p2");
@@ -62,18 +63,21 @@ void ideogramCombBkg()
   gr->SetTitle("p3");
   gr->Draw("A*");
   gr->Fit("pol1");
+  */
   
-  canvas->cd(8);
+  canvas->cd(6);
   gr = new TGraphErrors(3,x,y4,ex,ey4);
   gr->SetTitle("p4");
   gr->Draw("A*");
-  gr->Fit("pol1");
+  gr->Fit("pol1", "M");
   
+  /*
   canvas->cd(9);
   gr = new TGraphErrors(3,x,y5,ex,ey5);
   gr->SetTitle("p5");
   gr->Draw("A*");
   gr->Fit("pol1");
+  */
 }
 
 void FindParameters(TString filename, int i)
@@ -87,10 +91,10 @@ void FindParameters(TString filename, int i)
   
   gaus2->SetParLimits(0, 20, 1000000);
   gaus2->SetParLimits(1, 150, 200);
-  gaus2->SetParLimits(2, 10, 30);
+  gaus2->SetParLimits(2, 30, 30);
   gaus2->SetParLimits(3, 20, 1000000);
   gaus2->SetParLimits(4, 170, 300);
-  gaus2->SetParLimits(5, 30, 100);
+  gaus2->SetParLimits(5, 50, 50);
   
   TH1F* hCombBkg;
   

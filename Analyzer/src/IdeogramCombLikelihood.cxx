@@ -18,9 +18,11 @@ double IdeogramCombLikelihood::CombBackground(double *x, double *p) {
   
   ///* weight = bProb*fitProb
   double p0 =  5.64889e+00 - 2.89918e-02 * xx;
+  if (p0 < 0) p0 = 0;
   double p1 =  1.02840e+02 + 3.43613e-01 * xx;
   double p2 =  30.;
   double p4 =  2.44120e+02 - 1.97178e-01 * xx;
+  if (p4 < 0) p4 = 0;
   double p5 =  50.;
   //*/
   

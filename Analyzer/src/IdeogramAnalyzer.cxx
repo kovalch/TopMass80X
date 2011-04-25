@@ -6,7 +6,7 @@ double IdeogramAnalyzer::GetMass() {
 
 void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
 
-  bool debug = false;
+  bool debug = true;
   int nDebug = 1;
   int maxDebug = 1000;
   
@@ -16,8 +16,8 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   // S e t u p   c o m p o n e n t   p d f s 
   // ---------------------------------------
 
-  int firstbin = 150;
-  int lastbin  = 200;
+  int firstbin = 100;
+  int lastbin  = 300;
 
   int bins = 500;
   
@@ -28,6 +28,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   fitParabola->SetParLimits(0, firstbin, lastbin);
   fitParabola->SetParameter(0, (lastbin+firstbin)/2);
   fitParabola->SetParLimits(1, 0.01, 10^6);
+  fitParabola->SetLineColor(kRed+1);
 
   TF1* null = new TF1("null", "0");
   TF1* unity = new TF1("unity", "1");
@@ -63,7 +64,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
 
     if (event == currentEvent) continue;
     currentEvent = event;
-    if (debug && iEntry%nDebug == 0 && iEntry < maxDebug) std::cout << event << std::endl;
+    if (debug && iEntry%nDebug == 0 && iEntry < 100) std::cout << event << std::endl;
     
     eventLikelihood->Eval(null);
     weight = 0;
@@ -74,12 +75,13 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
       
       if (event != currentEvent) break;
       
-      if (debug && iEntry%nDebug == 0 && iEntry < maxDebug) {
+      if (debug && iEntry%nDebug == 0 && iEntry < 100) {
         std::cout << "Combi: " << combi << "\tMass: " << hadTopMass
                   << "\tbProb: " << bProb
                   << "\tfitProb: " << fitProb << std::endl;
       }
       
+      //if (bProb * fitProb < 1e-3) continue;
       if (bProb * fitProb > weight) weight = bProb * fitProb;
       if (bProb * fitProb != 0) {
         combLikelihood->SetParameters(hadTopMass, bProb * fitProb);
@@ -97,7 +99,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
 
     sumLogLikelihood->Add(logEventLikelihood, weight);
     
-    if (debug && iEntry%nDebug == 0 && iEntry < maxDebug) {
+    if (debug && iEntry%nDebug == 0 && iEntry < 100) {
       TCanvas* eventCanvas = new TCanvas("eventCanvas", "eventCanvas", 1200, 400);
       eventCanvas->Divide(3, 1);
       
@@ -121,6 +123,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   
   sumLogLikelihood->Add(hUnity, -sumLogLikelihood->GetMinimum(0));
   //sumLogLikelihood->SetAxisRange(0, 100, "Y");
+  sumLogLikelihood->SetAxisRange(sumLogLikelihood->GetBinCenter(sumLogLikelihood->GetMinimumBin()) - 10, sumLogLikelihood->GetBinCenter(sumLogLikelihood->GetMinimumBin()) + 10, "X");
   sumLogLikelihood->Draw();
   
   std::cout << "Minimum likelihood: " << sumLogLikelihood->GetMinimum(0) << "\tMaximum likelihood (in range): " << sumLogLikelihood->GetMaximum() << std::endl;
