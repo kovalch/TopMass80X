@@ -25,6 +25,8 @@ struct massPoint {
   TString fileName;
   Analysis* analysis;
   
+  TH1D* hMass;
+  TH1D* hMassPull;
   TH2F* h2Mass;
   TH2F* h2MassError;
   TH3F* h3Mass;

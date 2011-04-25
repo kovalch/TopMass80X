@@ -93,7 +93,7 @@ void TopMass::EvalEnsembleTest(bool writeCalibration) {
   massPoint m1725(172.5, "1725");
   massPoint m1785(178.5, "1785");
   
-  int nEnsemble = 10000;
+  int nEnsemble = 9600;
   
   m1665.genLumi = 2250;
   m1725.genLumi = 6100;
@@ -103,7 +103,7 @@ void TopMass::EvalEnsembleTest(bool writeCalibration) {
   massPoints.push_back(m1725);
   massPoints.push_back(m1785);
   
-  TFile* ensembleFile = new TFile("root/ensemble10k_6_calibrated.root");
+  TFile* ensembleFile = new TFile("root/ensemble9k_1.root");
   
   for (iMassPoint = massPoints.begin(); iMassPoint != massPoints.end(); ++iMassPoint) {
     iMassPoint->h2Mass = helper->GetH2("Mass");
@@ -129,8 +129,8 @@ void TopMass::EvalEnsembleTest(bool writeCalibration) {
       for (iMassPoint = massPoints.begin(); iMassPoint != massPoints.end(); ++iMassPoint) {
         int k = iMassPoint - massPoints.begin();
         
-        TH1* hMass = iMassPoint->h3Mass->ProjectionZ("hMass", i+1, i+1, j+1, j+1);
-        TH1* hMassPull = iMassPoint->h3MassPull->ProjectionZ("hMassPull", i+1, i+1, j+1, j+1);
+        iMassPoint->hMass = iMassPoint->h3Mass->ProjectionZ("hMass_" + iMassPoint->identifier, i+1, i+1, j+1, j+1);
+        iMassPoint->hMassPull = iMassPoint->h3MassPull->ProjectionZ("hMassPull_" + iMassPoint->identifier, i+1, i+1, j+1, j+1);
         
         TF1* gaus = new TF1("gaus", "gaus");
         TF1* gausPull = new TF1("gausPull", "gaus");
@@ -142,10 +142,10 @@ void TopMass::EvalEnsembleTest(bool writeCalibration) {
         gausPull->SetLineColor(kRed);
         
         canvas->cd(1+k);
-        hMass->Fit("gaus");
+        iMassPoint->hMass->Fit("gaus");
         
         canvas->cd(5+k);
-        hMassPull->Fit("gausPull");
+        iMassPoint->hMassPull->Fit("gausPull");
         
         hadTopMass[k] = gaus->GetParameter(1);
         hadTopMassMeanError[k] = gaus->GetParError(1)*TMath::Sqrt(1+nEnsemble*fLumi/iMassPoint->genLumi);
@@ -206,7 +206,7 @@ void TopMass::EvalEnsembleTest(bool writeCalibration) {
         
         gPull->Fit("constFit");
         
-        TString path("plot/"); path += fMethod; path += "/"; path += "ensembletest_"; path += i; path += "_"; path += j; path += "_calibrated.png";
+        TString path("plot/"); path += fMethod; path += "/"; path += "ensembletest_"; path += i; path += "_"; path += j; path += ".eps";
         canvas->Print(path);
         
         for (int l = 0; l < 2; l++) {
@@ -243,7 +243,7 @@ void TopMass::EvalEnsembleTest(bool writeCalibration) {
     iMassPoint->h2MassError->Draw("COLZ, TEXT");
     iMassPoint->h2MassError->SetAxisRange(0.05, 5, "Z");
     
-    TString path("plot/"); path += fMethod; path += "_"; path += "ensembletest_"; path += iMassPoint->identifier; path += "_calibrated.eps";
+    TString path("plot/"); path += fMethod; path += "_"; path += "ensembletest_"; path += iMassPoint->identifier; path += ".eps";
     canvas->Print(path);
   }
   
