@@ -91,7 +91,7 @@ scaledJetEnergy.inputJets   = "selectedPatJetsAK5PF"
 scaledJetEnergy.inputMETs   = "patMETsPF"
 scaledJetEnergy.scaleFactor = 1.0
 #scaledJetEnergy.scaleFactor = 1.053
-#scaledJetEnergy.resolutionFactor = 1.1
+scaledJetEnergy.resolutionFactor = 1.1
 
 
 ## sequences for ttGenEvent and TtSemiLeptonicEvent
