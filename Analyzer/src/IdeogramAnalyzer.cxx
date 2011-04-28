@@ -16,8 +16,8 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   // S e t u p   c o m p o n e n t   p d f s 
   // ---------------------------------------
 
-  int firstbin = 150;
-  int lastbin  = 200;
+  int firstbin = 100;
+  int lastbin  = 250;
 
   int bins = 500;
   
@@ -69,7 +69,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
     eventLikelihood->Eval(null);
     weight = 0;
 
-    for (int iComb = 0; iComb < 100; iComb++) {
+    for (int iComb = 0; iComb < 12; iComb++) {
       if (eventTree->GetEntries() < iEntry + iComb + 1) break;
       eventTree->GetEntry(iEntry + iComb);
       

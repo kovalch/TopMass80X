@@ -12,13 +12,15 @@ TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins
   //EvalEnsembleTest();
   //Measure(aSim);
   
-  ///*
+  /*
   Analysis* a1725 = new Analysis("1725", "root/analyzeTop_1725.root", fMethod, fBins, 36);
   Measure(a1725);
   //*/
   
-  /*Analysis* run2010B = new Analysis("run2010B", "root/analyzeTop_Run2010B.root", fMethod, fBins, 36);
-  Measure(run2010B);*/
+  ///*
+  Analysis* run2010B = new Analysis("run2010B", "root/analyzeTop_Run2010B.root", fMethod, fBins, 36);
+  Measure(run2010B);
+  //*/
   
 }
 

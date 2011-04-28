@@ -86,23 +86,20 @@ void FindParameters(TString filename, int i)
   TFile* file = new TFile(filename);
   analyzeKinFit->cd();
 
-  TF1 *gaus2 = new TF1("gaus2", "[3]/([0] + 1.) * ([0]*TMath::Gaus(x, [1], [2], 1) + TMath::Gaus(x, [4], [5], 1))");
-  gaus2->SetParameters(1.8,170,25,1000,235,50);
+  TF1 *gaus2 = new TF1("gaus2", "[0]*TMath::Gaus(x, [1], [2], 1)+[3]*TMath::Gaus(x, [4], [5], 1)");
+  gaus2->SetLineColor(kRed+1);
+  gaus2->SetParameters(100000,170,20,1000,250,50);
   
-  gaus2->SetParLimits(0, 0, 10);
+  gaus2->SetParLimits(0, 20, 1000000);
   gaus2->SetParLimits(1, 150, 200);
-  if (i == 2) {
-    gaus2->SetParLimits(1, 2*y1[1] - y1[0]-0.5, 2*y1[1] - y1[0]+0.5);
-    gaus2->SetParameter(1, 2*y1[1] - y1[0]);
-  }
-  gaus2->SetParLimits(2, 25, 25);
+  gaus2->SetParLimits(2, 20, 20);
   gaus2->SetParLimits(3, 20, 1000000);
-  gaus2->SetParLimits(4, 200, 250);
+  gaus2->SetParLimits(4, 170, 300);
   gaus2->SetParLimits(5, 50, 50);
   
   TH1F* hCombBkg;
   
-  eventTree->Draw("hadTopMass >> hCombBkg(20, 100, 300)","sqrt(bProb*fitProb)*(target==0 & bProb > 1e-2 & fitProb > 1e-2)");
+  eventTree->Draw("hadTopMass >> hCombBkg(20, 100, 300)","(bProb*fitProb)*(target==0)");
   
   TH1F *hCombBkg = (TH1F*)gDirectory->Get("hCombBkg");
   
@@ -110,12 +107,10 @@ void FindParameters(TString filename, int i)
   
   hCombBkg->Fit("gaus2","LEM");
 
-  y0 [i] = gaus2->GetParameter(0);
-  ey0[i] = gaus2->GetParError(0);
-  /*
+  y0 [i] = gaus2->GetParameter(0)/gaus2->GetParameter(3);;
+  //ey0[i] = gaus2->GetParError(0);
   ey0[i] = sqrt(pow(1/gaus2->GetParameter(3)*gaus2->GetParError(0), 2)
             + pow(gaus2->GetParameter(0)/pow(gaus2->GetParameter(3), 2)*gaus2->GetParError(3), 2));
-  */
   
   y1 [i] = gaus2->GetParameter(1);
   ey1[i] = gaus2->GetParError(1);
