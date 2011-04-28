@@ -12,9 +12,13 @@ TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins
   //EvalEnsembleTest();
   //Measure(aSim);
   
-  
+  ///*
   Analysis* a1725 = new Analysis("1725", "root/analyzeTop_1725.root", fMethod, fBins, 36);
   Measure(a1725);
+  //*/
+  
+  /*Analysis* run2010B = new Analysis("run2010B", "root/analyzeTop_Run2010B.root", fMethod, fBins, 36);
+  Measure(run2010B);*/
   
 }
 
@@ -258,9 +262,9 @@ void TopMass::QuickCalibration() {
   std::vector<TH2F*> hMass;
   std::vector<TH2F*> hMassError;
   
-  Analysis* a1665 = new Analysis("1665", "root/analyzeTop_1665.root", fMethod, fBins, 20000);
-  Analysis* a1725 = new Analysis("1725", "root/analyzeTop_1725.root", fMethod, fBins, 20000);
-  Analysis* a1785 = new Analysis("1785", "root/analyzeTop_1785.root", fMethod, fBins, 20000);
+  Analysis* a1665 = new Analysis("1665", "root/analyzeTop_1665.root", fMethod, fBins, 100000);
+  Analysis* a1725 = new Analysis("1725", "root/analyzeTop_1725.root", fMethod, fBins, 100000);
+  Analysis* a1785 = new Analysis("1785", "root/analyzeTop_1785.root", fMethod, fBins, 100000);
   
   calibrationAnalyses.push_back(a1665);
   calibrationAnalyses.push_back(a1725);
@@ -271,6 +275,7 @@ void TopMass::QuickCalibration() {
   double genMass[] = {166.5, 172.5, 178.5};
   double genMassError[] = {0.0001, 0.0001, 0.0001};
   double hadTopMass[3];
+  double hadTopMassBias[3];
   double hadTopMassError[3];
   
   for(int i = 0; i < 3; i++){
@@ -288,15 +293,16 @@ void TopMass::QuickCalibration() {
       if (hMass.at(0)->GetCellContent(i+1, j+1) > 0 && hMass.at(2)->GetCellContent(i+1, j+1) > 0
           && hMassError.at(0)->GetCellContent(i+1, j+1) > 0 && hMassError.at(2)->GetCellContent(i+1, j+1) > 0) {
         for (int k = 0; k < 3; k++) {
-          hadTopMass[k] = hMass.at(k)->GetCellContent(i+1, j+1)-(166.5+k*6);
+          hadTopMass[k] = hMass.at(k)->GetCellContent(i+1, j+1);
+          hadTopMassBias[k] = hMass.at(k)->GetCellContent(i+1, j+1) - genMass[k];
           hadTopMassError[k] = hMassError.at(k)->GetCellContent(i+1, j+1);
         }
-        ghadTopMass = new TGraphErrors(3, genMass, hadTopMass, genMassError, hadTopMassError);
+        ghadTopMass = new TGraphErrors(3, hadTopMass, hadTopMassBias, hadTopMassError, hadTopMassError);
         ghadTopMass->Draw("A*");
         
         //ghadTopMass->GetYaxis()->SetRangeUser(-6, 6);
         
-        TF1* linearFit = new TF1("linearFit", "[0]+(x-172.5)*[1]");        
+        TF1* linearFit = new TF1("linearFit", "[0]+(x-172.5)*[1]");    
         ghadTopMass->Fit("linearFit");
         
         for (int l = 0; l < 2; l++) {

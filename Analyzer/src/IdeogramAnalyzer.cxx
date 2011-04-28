@@ -6,7 +6,7 @@ double IdeogramAnalyzer::GetMass() {
 
 void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
 
-  bool debug = true;
+  bool debug = false;
   int nDebug = 1;
   int maxDebug = 1000;
   
@@ -16,8 +16,8 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   // S e t u p   c o m p o n e n t   p d f s 
   // ---------------------------------------
 
-  int firstbin = 100;
-  int lastbin  = 300;
+  int firstbin = 150;
+  int lastbin  = 200;
 
   int bins = 500;
   
@@ -27,7 +27,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   TF1* fitParabola = new TF1("fitParabola", "abs([1])*(x-[0])^2+[2]");
   fitParabola->SetParLimits(0, firstbin, lastbin);
   fitParabola->SetParameter(0, (lastbin+firstbin)/2);
-  fitParabola->SetParLimits(1, 0.01, 10^6);
+  fitParabola->SetParLimits(1, 0.001, 10^6);
   fitParabola->SetLineColor(kRed+1);
 
   TF1* null = new TF1("null", "0");
@@ -137,7 +137,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   
   if (firstbin+1 < fitParabola->GetParameter(0) && fitParabola->GetParameter(0) < lastbin-1) {
     fMass = fitParabola->GetParameter(0);
-    if (TMath::Sqrt(1/fitParabola->GetParameter(1)) < TMath::Sqrt(fMass)) {
+    if (TMath::Sqrt(1/fitParabola->GetParameter(1)) < 2*TMath::Sqrt(fMass)) {
       fMassError = TMath::Sqrt(1/fitParabola->GetParameter(1));
     }
     else fMassError = -1;

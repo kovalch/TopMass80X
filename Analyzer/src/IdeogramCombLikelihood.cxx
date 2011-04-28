@@ -1,7 +1,7 @@
 #include "IdeogramCombLikelihood.h"
 
 double IdeogramCombLikelihood::Evaluate(double *x, double *p) {
-  double fSig = 0.2;
+  double fSig = 1./12.;
 
   return p[1] * (fSig * Signal(x, p) + (1.-fSig) * CombBackground(x, p));
 }
@@ -9,7 +9,7 @@ double IdeogramCombLikelihood::Evaluate(double *x, double *p) {
 double IdeogramCombLikelihood::Signal(double *x, double *p) {
   double xx = x[0];
   
-  return TMath::Voigt(p[0] - xx + 0.7, 12, 2);
+  return TMath::Voigt(p[0] - xx + 0.7, 12*1.1, 2);
 }
 
 double IdeogramCombLikelihood::CombBackground(double *x, double *p) {
@@ -17,11 +17,11 @@ double IdeogramCombLikelihood::CombBackground(double *x, double *p) {
   double xx = x[0];
   
   ///* weight = bProb*fitProb
-  double p0 =  5.64889e+00 - 2.89918e-02 * xx;
+  double p0 =  5.499088e+00 - 2.810320e-02 * xx;
   if (p0 < 0) p0 = 0;
-  double p1 =  1.02840e+02 + 3.43613e-01 * xx;
-  double p2 =  30.;
-  double p4 =  2.44120e+02 - 1.97178e-01 * xx;
+  double p1 =  8.511500e+01 + 4.477732e-01 * xx;
+  double p2 =  20.;
+  double p4 =  2.545675e+02 - 2.649908e-01 * xx;
   if (p4 < 0) p4 = 0;
   double p5 =  50.;
   //*/
@@ -47,9 +47,9 @@ double IdeogramCombLikelihood::CombBackground(double *x, double *p) {
   //*/
   
   /*
-  double p0 =  1.20061 - 0.00383139 * xx;
-  double p1 =  190.707 - 0.597429 * xx;
-  double p2 = -148.767 + 1.43157 * xx;
+  double p0 =  2.136350e+00 - 9.930847e-03 * xx;
+  double p1 =  3.852494e+02 - 1.807005e+00 * xx;
+  double p2 = -3.029468e+02 + 2.404515e+00 * xx;
   
   return TMath::LogNormal(p[0], p0, p1, p2);
   //*/

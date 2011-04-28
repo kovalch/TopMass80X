@@ -5,6 +5,8 @@ Analysis::Analysis(TString identifier, TString file, TString method, int bins, d
 {
   fChain = new TChain("analyzeKinFit/eventTree");
   fChain->Add(fFile);
+  //fChain->Add("root/WJets.root");
+  //fChain->Add("root/VQQJets.root");
 }
 
 void Analysis::Analyze(bool reanalyze) {

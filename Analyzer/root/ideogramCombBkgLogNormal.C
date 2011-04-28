@@ -4,21 +4,21 @@
 #include "TF1.h"
 #include "TH1F.h"
 
-double x[5] = {166.5, 172.5, 172.5, 172.5, 178.5};
-double y0[5];
-double y1[5];
-double y2[5];
-double y3[5];
-double y4[5];
-double y5[5];
-double ex[5] = {0.001, 0.001, 0.001, 0.001, 0.001};
-double ey0[5];
-double ey1[5];
-double ey2[5];
-double ey3[5];
-double ey4[5];
-double ey5[5];
-double ey6[5];
+double x[3] = {166.5, 172.5, 178.5};
+double y0[3];
+double y1[3];
+double y2[3];
+double y3[3];
+double y4[3];
+double y5[3];
+double ex[3] = {0.001, 0.001, 0.001};
+double ey0[3];
+double ey1[3];
+double ey2[3];
+double ey3[3];
+double ey4[3];
+double ey5[3];
+double ey6[3];
 
 void ideogramCombBkgLogNormal()
 {
@@ -43,33 +43,33 @@ void ideogramCombBkgLogNormal()
   lognormal->Draw();*/
   
   TCanvas* canvas = new TCanvas("canvas", "canvas", 900, 900);
-  canvas->Divide(4,3);
+  canvas->Divide(3,2);
   
-  canvas->cd(5);
+  canvas->cd(1);
   FindParameters("analyzeTop_1665.root", 0);
   canvas->cd(2);
-  FindParameters("analyzeTop_1725_jes_up.root", 1);
-  canvas->cd(6);
-  FindParameters("analyzeTop_1725.root", 2);
+  //FindParameters("analyzeTop_1725_jes_up.root", 1);
+  canvas->cd(2);
+  FindParameters("analyzeTop_1725.root", 1);
   canvas->cd(10);
-  FindParameters("analyzeTop_1725_jes_down.root", 3);
-  canvas->cd(7);
-  FindParameters("analyzeTop_1785.root", 4);
+  //FindParameters("analyzeTop_1725_jes_down.root", 3);
+  canvas->cd(3);
+  FindParameters("analyzeTop_1785.root", 2);
   
   canvas->cd(4);
-  gr = new TGraphErrors(5,x,y0,ex,ey0);
+  gr = new TGraphErrors(3,x,y0,ex,ey0);
   gr->SetTitle("p0");
   gr->Draw("A*");
   gr->Fit("pol1");
   
-  canvas->cd(8);
-  gr = new TGraphErrors(5,x,y1,ex,ey1);
+  canvas->cd(5);
+  gr = new TGraphErrors(3,x,y1,ex,ey1);
   gr->SetTitle("p1");
   gr->Draw("A*");
   gr->Fit("pol1");
   
-  canvas->cd(12);
-  gr = new TGraphErrors(5,x,y2,ex,ey2);
+  canvas->cd(6);
+  gr = new TGraphErrors(3,x,y2,ex,ey2);
   gr->SetTitle("p2");
   gr->Draw("A*");
   gr->Fit("pol1");
@@ -85,16 +85,17 @@ void FindParameters(TString filename, int i)
   TFile* file = new TFile(filename);
   analyzeKinFit->cd();
 
-  TF1 *lognormal = new TF1("lognormal", "[3]*TMath::LogNormal(x, 0.5, [1], [2])", 100, 300);
-  lognormal->SetParameters(0.5, 100, 100, 10000);
+  TF1 *lognormal = new TF1("lognormal", "[3]*TMath::LogNormal(x, [0], [1], [2])", 100, 300);
+  lognormal->SetParameters(0.5, 80, 120, 10000);
   
   lognormal->SetParLimits(0, 0.3, 1);
+  if (i == 2) lognormal->SetParLimits(0, 0.3, y0[1]-0.05);
   lognormal->SetParLimits(1, 50, 200);
   lognormal->SetParLimits(2, 50, 200);
   
   TH1F* hCombBkg;
   
-  eventTree->Draw("hadTopMass >> hCombBkg(100, 100, 300)","fitProb*(target==0)");
+  eventTree->Draw("hadTopMass >> hCombBkg(20, 100, 300)","(bProb*fitProb)*(target==0 & bProb > 1e-2 & fitProb > 1e-2)");
   
   TH1F *hCombBkg = (TH1F*)gDirectory->Get("hCombBkg");
   
