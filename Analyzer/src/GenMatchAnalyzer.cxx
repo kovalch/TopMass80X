@@ -8,7 +8,7 @@ void GenMatchAnalyzer::Analyze(TString cuts, int i, int j) {
   TCanvas* ctemp = new TCanvas("ctemp", "Top mass", 500, 500);
   ctemp->cd();
 
-  TF1* voigt = new TF1("voigt", "[0]*TMath::Voigt(x-[1], 12, 2)");
+  TF1* voigt = new TF1("voigt", "[0]*TMath::Voigt(x-[1], 12*1.1, 2)");
   voigt->SetParameters(1000, 170);
 
   fTree->Fit("voigt", "hadTopMass", cuts, "LEM");

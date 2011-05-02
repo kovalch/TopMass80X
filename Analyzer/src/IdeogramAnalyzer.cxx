@@ -16,13 +16,14 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   // S e t u p   c o m p o n e n t   p d f s 
   // ---------------------------------------
 
-  int firstbin = 100;
-  int lastbin  = 250;
+  int firstbin = 150;
+  int lastbin  = 200;
 
-  int bins = 500;
+  int bins = 100;
   
   IdeogramCombLikelihood* fptr = new IdeogramCombLikelihood();
   TF1* combLikelihood = new TF1("combLikelihood",fptr,&IdeogramCombLikelihood::Evaluate,150,200,3);
+  //TF1* combBackground = new TF1("combBackground",fptr,&IdeogramCombLikelihood::CombBackground,150,200,3);
 
   TF1* fitParabola = new TF1("fitParabola", "abs([1])*(x-[0])^2+[2]");
   fitParabola->SetParLimits(0, firstbin, lastbin);
@@ -64,9 +65,10 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
 
     if (event == currentEvent) continue;
     currentEvent = event;
-    if (debug && iEntry%nDebug == 0 && iEntry < 100) std::cout << event << std::endl;
+    if (debug && iEntry%nDebug == 0 && iEntry < 100) std::cout << iEntry << " - " << event << std::endl;
     
     eventLikelihood->Eval(null);
+    eventLikelihood->SetFillColor(0);
     weight = 0;
 
     for (int iComb = 0; iComb < 12; iComb++) {
@@ -84,6 +86,9 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
       //if (bProb * fitProb < 1e-3) continue;
       if (bProb * fitProb > weight) weight = bProb * fitProb;
       if (bProb * fitProb != 0) {
+        //combBackground->SetParameter(0, hadTopMass);
+        //double bkgIntegral = combBackground->Integral(0, 10000);
+        
         combLikelihood->SetParameters(hadTopMass, bProb * fitProb);
         eventLikelihood->Eval(combLikelihood, "A"); // add combi pdf
       }
@@ -105,6 +110,10 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
       
       eventCanvas->cd(1);
       eventLikelihood->Draw();
+      if (weight > 1./16) eventLikelihood->SetFillColor(kGreen);
+      if (weight > 1./8) eventLikelihood->SetFillColor(kYellow);
+      if (weight > 1./4) eventLikelihood->SetFillColor(kOrange);
+      if (weight > 1./2) eventLikelihood->SetFillColor(kRed);
       
       eventCanvas->cd(2);
       logEventLikelihood->Draw();
@@ -131,7 +140,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   fitParabola->SetParameter(2, sumLogLikelihood->GetMinimum(0));
   fitParabola->SetParameter(1, 1000);
   
-  fitParabola->SetRange(sumLogLikelihood->GetBinCenter(sumLogLikelihood->GetMinimumBin()) - 2, sumLogLikelihood->GetBinCenter(sumLogLikelihood->GetMinimumBin()) + 2);
+  fitParabola->SetRange(sumLogLikelihood->GetBinCenter(sumLogLikelihood->GetMinimumBin()) - 3, sumLogLikelihood->GetBinCenter(sumLogLikelihood->GetMinimumBin()) + 3);
 
   sumLogLikelihood->Fit("fitParabola","QBWR");
   

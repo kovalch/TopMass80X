@@ -85,11 +85,12 @@ void FindParameters(TString filename, int i)
   TFile* file = new TFile(filename);
   analyzeKinFit->cd();
 
-  TF1 *lognormal = new TF1("lognormal", "[3]*TMath::LogNormal(x, [0], [1], [2])", 100, 300);
-  lognormal->SetParameters(0.5, 80, 120, 10000);
+  TF1 *lognormal = new TF1("lognormal", "[3]*TMath::LogNormal(x, [0], 75, [2])", 100, 300);
+  // TF1 *lognormal = new TF1("lognormal", "TMath::LogNormal([0], 0.789244-0.00208923*x, 75, 9.88908+0.589359*x)", 100, 300);
+  lognormal->SetParameters(0.5, 75, 120, 10000);
   
   lognormal->SetParLimits(0, 0.3, 1);
-  if (i == 2) lognormal->SetParLimits(0, 0.3, y0[1]-0.05);
+  if (i == 2) lognormal->SetParLimits(0, 0.3, y0[1]-0.01);
   lognormal->SetParLimits(1, 50, 200);
   lognormal->SetParLimits(2, 50, 200);
   
