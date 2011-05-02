@@ -4,12 +4,12 @@ TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins
   
   //aSim = new Analysis("sim", "root/analyzeTop_1725.root", fMethod, fBins, fLumi);
   
-  QuickCalibration();
+  //QuickCalibration();
   //LoadXML();
   //QuickSystematics();
   
-  //WriteEnsembleTestTree(true);
-  //EvalEnsembleTest();
+  WriteEnsembleTest(false);
+  //EvalEnsembleTest(true);
   //Measure(aSim);
   
   /*
@@ -17,7 +17,7 @@ TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins
   Measure(a1725);
   //*/
   
-  ///*
+  /*
   Analysis* run2010B = new Analysis("run2010B", "root/analyzeTop_Run2010B.root", fMethod, fBins, 36);
   Measure(run2010B);
   //*/
@@ -99,7 +99,7 @@ void TopMass::EvalEnsembleTest(bool writeCalibration) {
   massPoint m1725(172.5, "1725");
   massPoint m1785(178.5, "1785");
   
-  int nEnsemble = 9600;
+  int nEnsemble = 10000;
   
   m1665.genLumi = 2250;
   m1725.genLumi = 6100;
@@ -109,7 +109,7 @@ void TopMass::EvalEnsembleTest(bool writeCalibration) {
   massPoints.push_back(m1725);
   massPoints.push_back(m1785);
   
-  TFile* ensembleFile = new TFile("root/ensemble9k_1.root");
+  TFile* ensembleFile = new TFile("root/ensemble_10k_1.root");
   
   for (iMassPoint = massPoints.begin(); iMassPoint != massPoints.end(); ++iMassPoint) {
     iMassPoint->h2Mass = helper->GetH2("Mass");
