@@ -2,12 +2,14 @@ import FWCore.ParameterSet.Config as cms
 
 import FWCore.ParameterSet.VarParsing as VarParsing
 # setup 'standard' options
-options = VarParsing.VarParsing ('standard')
+#options = VarParsing.VarParsing ('standard')
 # cone size variation
-options.register('jes','abs',VarParsing.VarParsing.multiplicity.singleton,
-VarParsing.VarParsing.varType.string   , "Jet Energy Scale")
+#options.register('jes','abs',VarParsing.VarParsing.multiplicity.singleton,
+#VarParsing.VarParsing.varType.string   , "Jet Energy Scale")
 # get and parse the command line arguments
-options.parseArguments()
+#options.parseArguments()
+
+jes = '@jes@'
 
 process = cms.Process("TEST")
 
@@ -86,7 +88,7 @@ process.load("TopAnalysis.TopFilter.sequences.semiLeptonicSelection_cff")
 process.load("TopAnalysis.TopUtils.JetEnergyScale_cff")
 from TopAnalysis.TopUtils.JetEnergyScale_cff import *
 
-scaledJetEnergy.scaleType   = cms.string(options.jes)
+scaledJetEnergy.scaleType   = cms.string(jes)
 scaledJetEnergy.inputJets   = "selectedPatJetsAK5PF"
 scaledJetEnergy.inputMETs   = "patMETsPF"
 scaledJetEnergy.scaleFactor = 1.0
