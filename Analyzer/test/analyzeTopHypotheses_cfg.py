@@ -1,15 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-import FWCore.ParameterSet.VarParsing as VarParsing
-# setup 'standard' options
-#options = VarParsing.VarParsing ('standard')
-# cone size variation
-#options.register('jes','abs',VarParsing.VarParsing.multiplicity.singleton,
-#VarParsing.VarParsing.varType.string   , "Jet Energy Scale")
-# get and parse the command line arguments
-#options.parseArguments()
-
 jes = '@jes@'
+if jes.startswith('@'):
+  jes = 'abs'
 
 process = cms.Process("TEST")
 
