@@ -121,7 +121,7 @@ process.kinFitTtSemiLepEventHypothesis.constraints = 1, 2, 6
 
 ## choose which hypotheses to produce
 addTtSemiLepHypotheses(process,
-                       ["kMVADisc","kKinFit"]
+                       ["kKinFit"]
                        )
 #removeTtSemiLepHypGenMatch(process)
 
