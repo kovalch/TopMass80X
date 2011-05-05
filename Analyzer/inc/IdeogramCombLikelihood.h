@@ -9,4 +9,5 @@ class IdeogramCombLikelihood {
     
     double Evaluate(double *x, double *p);
     double CombBackground(double *x, double *p);
+    double CrystalBall(double *x, double *p);
 };

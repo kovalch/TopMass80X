@@ -51,19 +51,19 @@ void ideogramSig()
   gr = new TGraphErrors(3,x,y1,ex,ey1);
   gr->SetTitle("p1");
   gr->Draw("A*");
-  gr->Fit("pol1", "LEM");
+  gr->Fit("pol1", "EM");
   
   canvas->cd(5);
   gr = new TGraphErrors(3,x,y2,ex,ey2);
   gr->SetTitle("p2");
   gr->Draw("A*");
-  gr->Fit("pol1", "LEM");
+  gr->Fit("pol1", "EM");
   
   canvas->cd(6);
   gr = new TGraphErrors(3,x,y3,ex,ey3);
   gr->SetTitle("p3");
   gr->Draw("A*");
-  gr->Fit("pol1", "LEM");
+  gr->Fit("pol1", "EM");
   
   /*
   canvas->cd(6);
@@ -89,16 +89,16 @@ void FindParameters(TString filename, int i)
 
   TF1* voigt = new TF1("voigt", "[0]*TMath::Voigt(x-[1], [2], [3])");
   voigt->SetLineColor(kRed+1);
-  voigt->SetParameters(100000, 170, 15, 5);
+  voigt->SetParameters(100000, 170, 10, 2);
   
   voigt->SetParLimits(0, 20, 1000000);
   voigt->SetParLimits(1, 150, 200);
   voigt->SetParLimits(2, 5, 20);
-  voigt->SetParLimits(3, 1, 20);
+  voigt->SetParLimits(3, 2, 2);
   
   TH1F* hSig;
   
-  eventTree->Draw("hadTopMass >> hSig(50, 100, 250)","(bProb*fitProb)*(target==1)");
+  eventTree->Draw("hadTopMass >> hSig(50, 100, 250)", "(bProb*exp(-fitChi2))*(target==1 & bProb > 1e-3 & exp(-fitChi2) > 1e-3)");
   
   TH1F *hSig = (TH1F*)gDirectory->Get("hSig");
   

@@ -85,18 +85,18 @@ void FindParameters(TString filename, int i)
   TFile* file = new TFile(filename);
   analyzeKinFit->cd();
 
-  TF1 *lognormal = new TF1("lognormal", "[3]*TMath::LogNormal(x, [0], 75, [2])", 100, 300);
+  TF1 *lognormal = new TF1("lognormal", "[3]*TMath::LogNormal(x, [0], [1], [2])", 100, 300);
   // TF1 *lognormal = new TF1("lognormal", "TMath::LogNormal([0], 0.789244-0.00208923*x, 75, 9.88908+0.589359*x)", 100, 300);
   lognormal->SetParameters(0.5, 75, 120, 10000);
   
   lognormal->SetParLimits(0, 0.3, 1);
-  if (i == 2) lognormal->SetParLimits(0, 0.3, y0[1]-0.01);
+  //if (i == 2) lognormal->SetParLimits(0, 0.3, y0[1]-0.01);
   lognormal->SetParLimits(1, 50, 200);
   lognormal->SetParLimits(2, 50, 200);
   
   TH1F* hCombBkg;
   
-  eventTree->Draw("hadTopMass >> hCombBkg(20, 100, 300)","(bProb*fitProb)*(target==0 & bProb > 1e-2 & fitProb > 1e-2)");
+  eventTree->Draw("hadTopMass >> hCombBkg(20, 100, 300)","(hadBProb*exp(-fitChi2))*(target==0 & hadBProb > 1e-3 & exp(-fitChi2) > 1e-3)");
   
   TH1F *hCombBkg = (TH1F*)gDirectory->Get("hCombBkg");
   

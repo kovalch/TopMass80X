@@ -23,7 +23,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   
   IdeogramCombLikelihood* fptr = new IdeogramCombLikelihood();
   TF1* combLikelihood = new TF1("combLikelihood",fptr,&IdeogramCombLikelihood::Evaluate,150,200,3);
-  //TF1* combBackground = new TF1("combBackground",fptr,&IdeogramCombLikelihood::CombBackground,150,200,3);
+  //TF1* combBackground = new TF1("combBackground",fptr,&IdeogramCombLikelihood::CrystalBall,150,200,1);
 
   TF1* fitParabola = new TF1("fitParabola", "abs([1])*(x-[0])^2+[2]");
   fitParabola->SetParLimits(0, firstbin, lastbin);
@@ -41,10 +41,11 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   TH1D* sumLogLikelihood = new TH1D("sumLogLikelihood", "sumLogLikelihood", bins, firstbin, lastbin);
   sumLogLikelihood->Eval(null);
 
-  double hadTopMass, fitChi2, fitProb, bProb, weight;
+  double hadTopMass, fitChi2, fitProb, bProb, hadBProb, weight, currentWeight;
   double hadQBTCHE, hadQbarBTCHE, hadBBTCHE, lepBBTCHE;
   int event, currentEvent;
   int combi, previousCombi = -1;
+  int nEvents = 0;
   
   TTree* eventTree = fTree->CopyTree(cuts);
   
@@ -56,6 +57,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   eventTree->SetBranchAddress("fitChi2", &fitChi2);
   eventTree->SetBranchAddress("fitProb", &fitProb);
   eventTree->SetBranchAddress("bProb", &bProb);
+  eventTree->SetBranchAddress("hadBProb", &hadBProb);
   eventTree->SetBranchAddress("event", &event);
   eventTree->SetBranchAddress("combi", &combi);
   
@@ -65,11 +67,13 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
 
     if (event == currentEvent) continue;
     currentEvent = event;
+    nEvents++;
     if (debug && iEntry%nDebug == 0 && iEntry < 100) std::cout << iEntry << " - " << event << std::endl;
     
     eventLikelihood->Eval(null);
     eventLikelihood->SetFillColor(0);
     weight = 0;
+    currentWeight = 0;
 
     for (int iComb = 0; iComb < 12; iComb++) {
       if (eventTree->GetEntries() < iEntry + iComb + 1) break;
@@ -84,12 +88,15 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
       }
       
       //if (bProb * fitProb < 1e-3) continue;
-      if (bProb * fitProb > weight) weight = bProb * fitProb;
-      if (bProb * fitProb != 0) {
-        //combBackground->SetParameter(0, hadTopMass);
-        //double bkgIntegral = combBackground->Integral(0, 10000);
+      currentWeight = bProb * TMath::Exp(-fitChi2);
+      if (currentWeight > weight) weight = currentWeight;
+      if (currentWeight != 0) {
+        /*
+        combBackground->SetParameter(0, hadTopMass);
+        double bkgIntegral = combBackground->Integral(0, 10000);
+        //*/
         
-        combLikelihood->SetParameters(hadTopMass, bProb * fitProb);
+        combLikelihood->SetParameters(hadTopMass, currentWeight);
         eventLikelihood->Eval(combLikelihood, "A"); // add combi pdf
       }
     }
@@ -136,6 +143,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   sumLogLikelihood->Draw();
   
   std::cout << "Minimum likelihood: " << sumLogLikelihood->GetMinimum(0) << "\tMaximum likelihood (in range): " << sumLogLikelihood->GetMaximum() << std::endl;
+  std::cout << "Total number of events: " << nEvents << std::endl;
   
   fitParabola->SetParameter(2, sumLogLikelihood->GetMinimum(0));
   fitParabola->SetParameter(1, 1000);
