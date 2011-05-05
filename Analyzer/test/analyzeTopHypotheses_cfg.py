@@ -110,11 +110,8 @@ process.TtSemiLepJetCombMVAFileSource = cms.ESSource("TtSemiLepJetCombMVAFileSou
 ## change jet-parton matching algorithm
 process.ttSemiLepJetPartonMatch.algorithm = "unambiguousOnly"
 #process.ttSemiLepJetPartonMatch.maxDist   = 0.3
+process.ttSemiLepJetPartonMatch.maxNJets = -1
 
-process.ttSemiLepJetPartonMatch.maxNComb = -1
-#process.findTtSemiLepJetCombMVA.maxNComb = -1
-
-#process.kinFitTtSemiLepEventHypothesis.maxNComb = -1
 process.kinFitTtSemiLepEventHypothesis.useBTagging = False
 # 1: Whad-mass, 2: Wlep-mass, 3: thad-mass, 4: tlep-mass, 5: nu-mass, 6: equal t-masses
 process.kinFitTtSemiLepEventHypothesis.constraints = 1, 2, 6
