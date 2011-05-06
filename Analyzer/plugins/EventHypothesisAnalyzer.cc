@@ -56,26 +56,49 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
       return;
     }
     
-    std::vector<int> jetLeptonCombinationCurrent  = semiLepEvt->jetLeptonCombination(hypoClassKey, h);
+    std::vector<int> jetLeptonCombinationCurrent = semiLepEvt->jetLeptonCombination(hypoClassKey, h);
     
     if (semiLepEvt->isHypoValid("kGenMatch") ) {
-    std::vector<int> jetLeptonCombinationCurrent2 = semiLepEvt->jetLeptonCombination(hypoClassKey, h);
-    std::swap(jetLeptonCombinationCurrent2[0], jetLeptonCombinationCurrent2[1]);
-    std::vector<int> jetLeptonCombinationGenMatch = semiLepEvt->jetLeptonCombination("kGenMatch");
-    
-      if (jetLeptonCombinationCurrent  == jetLeptonCombinationGenMatch ||
+      std::vector<int> jetLeptonCombinationCurrent2 = semiLepEvt->jetLeptonCombination(hypoClassKey, h);
+      std::swap(jetLeptonCombinationCurrent2[0], jetLeptonCombinationCurrent2[1]);
+      std::vector<int> jetLeptonCombinationCurrentSorted = semiLepEvt->jetLeptonCombination(hypoClassKey, h);
+      std::sort(jetLeptonCombinationCurrentSorted.begin(), jetLeptonCombinationCurrentSorted.begin()+4);
+
+      std::vector<int> jetLeptonCombinationGenMatch = semiLepEvt->jetLeptonCombination("kGenMatch");
+      std::vector<int> jetLeptonCombinationGenMatchSorted = semiLepEvt->jetLeptonCombination("kGenMatch");
+      std::sort(jetLeptonCombinationGenMatchSorted.begin(), jetLeptonCombinationGenMatchSorted.begin()+4);
+
+      std::vector<int> intersection(4);
+      std::vector<int>::iterator intersection_it;
+
+      intersection_it = std::set_intersection(jetLeptonCombinationCurrentSorted.begin(), jetLeptonCombinationCurrentSorted.begin()+4, jetLeptonCombinationGenMatchSorted.begin(), jetLeptonCombinationGenMatchSorted.begin()+4, intersection.begin());
+
+      int maxNJets = 4;
+      int maxMatchedJet = *max_element(jetLeptonCombinationGenMatch.begin(), jetLeptonCombinationGenMatch.begin()+4);
+
+      // missing jet
+      if (maxMatchedJet >= maxNJets) {
+	target = -2;
+      }
+      // wrong jets
+      else if (int(intersection_it - intersection.begin()) != 4) {
+	target = -1;
+      }
+      // correct permutation
+      else if (jetLeptonCombinationCurrent  == jetLeptonCombinationGenMatch ||
           jetLeptonCombinationCurrent2 == jetLeptonCombinationGenMatch) {
         target = 1;
-        genMatchDr = semiLepEvt->genMatchSumDR(h);
       }
+      // wrong permutation of correct jets
       else {
         target = 0;
       }
+      genMatchDr = semiLepEvt->genMatchSumDR(h);
     }
     else {
-      target = -1;
+      target = -10;
     }
-    //std::cout << "\ttarget: " << target <<std::endl;
+    //std::cout << "\ttarget: " << target << " (" << hypoClassKey << ")" << std::endl;
 
     //////////////////////////////////////////////////////////////////////////////////////////////////
     // get event Id
