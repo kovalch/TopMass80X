@@ -170,10 +170,10 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     hadBBTCHE  = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::HadB]).bDiscriminator("trackCountingHighEffBJetTags");
     hadBBVMVA  = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::HadB]).bDiscriminator("combinedSecondaryVertexMVABJetTags");
     
-    lepBPt     = hadB->pt();
-    lepBEta    = hadB->eta();
-    lepBMass   = hadB->mass();
-    lepBE      = hadB->energy();
+    lepBPt     = lepB->pt();
+    lepBEta    = lepB->eta();
+    lepBMass   = lepB->mass();
+    lepBE      = lepB->energy();
     lepBBTCHE  = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LepB]).bDiscriminator("trackCountingHighEffBJetTags");
     lepBBVMVA  = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LepB]).bDiscriminator("combinedSecondaryVertexMVABJetTags");
   
