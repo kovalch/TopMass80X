@@ -77,17 +77,21 @@ process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
 process.load("TopAnalysis.TopFilter.sequences.semiLeptonicSelection_cff")
 
+## redefine veto jets to be sure it is also replaced when running on PF
+from TopAnalysis.TopFilter.sequences.jetSelection_cff import goodJets
+process.vetoJets.src="goodJetsPF30"
+process.vetoJets.cut=''
+
 ## configure JetEnergyScale tool
 process.load("TopAnalysis.TopUtils.JetEnergyScale_cff")
 from TopAnalysis.TopUtils.JetEnergyScale_cff import *
 
 scaledJetEnergy.scaleType   = cms.string(jes)
-scaledJetEnergy.inputJets   = "selectedPatJetsAK5PF"
+scaledJetEnergy.inputJets   = "goodJetsPF30"
 scaledJetEnergy.inputMETs   = "patMETsPF"
 scaledJetEnergy.scaleFactor = 1.0
 #scaledJetEnergy.scaleFactor = 1.053
 scaledJetEnergy.resolutionFactor = 1.1
-
 
 ## sequences for ttGenEvent and TtSemiLeptonicEvent
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
@@ -98,7 +102,7 @@ process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_c
 process.ttSemiLepEvent.verbosity = 0
 
 from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff import *
-setForAllTtSemiLepHypotheses(process, "jets", "scaledJetEnergy:selectedPatJetsAK5PF")
+setForAllTtSemiLepHypotheses(process, "jets", "scaledJetEnergy:goodJetsPF30")
 setForAllTtSemiLepHypotheses(process, "maxNJets", 4)
 setForAllTtSemiLepHypotheses(process, "mets", "scaledJetEnergy:patMETsPF")
 setForAllTtSemiLepHypotheses(process, "maxNComb", -1)
@@ -132,9 +136,9 @@ process.TFileService = cms.Service("TFileService",
 
 ## end path   
 process.path = cms.Path(#process.patDefaultSequence *
-                        process.scaledJetEnergy *
                         process.semiLeptonicSelection *
                         process.semiLeptonicEvents *
+                        process.scaledJetEnergy *
                         process.makeGenEvt *
                         process.makeTtSemiLepEvent *
                         process.analyzeHypotheses
