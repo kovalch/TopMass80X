@@ -80,7 +80,7 @@ void Analysis::Analyze(bool reanalyze) {
         cuts += " & mvaDisc > 0";
       }
       else if (!strcmp(fMethod, "Ideogram")) {
-        cuts += " & target > -11 & bProb > 1e-3 & exp(-fitChi2) > 1e-3";
+        cuts += " & target > -11 & bProb > 1e-3 & fitProb > 1e-3";
       }
       
       int entries = fTree->GetEntries(cuts);

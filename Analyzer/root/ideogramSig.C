@@ -98,7 +98,7 @@ void FindParameters(TString filename, int i)
   
   TH1F* hSig;
   
-  eventTree->Draw("hadTopMass >> hSig(50, 100, 250)", "(bProb*exp(-fitChi2))*(target==1 & bProb > 1e-3 & exp(-fitChi2) > 1e-3)");
+  eventTree->Draw("hadTopMass >> hSig(50, 100, 250)", "(bProb*fitProb)*(target==1 & bProb > 1e-3 & fitProb > 1e-3)");
   
   TH1F *hSig = (TH1F*)gDirectory->Get("hSig");
   
