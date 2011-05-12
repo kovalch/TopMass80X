@@ -94,6 +94,10 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double mvaDisc;
   double fitChi2;
   double fitProb;
+  double hitFitChi2;
+  double hitFitProb;
+  double hitFitMT;
+  double hitFitSigMT;
   double bProb;
   double hadBProb;
   

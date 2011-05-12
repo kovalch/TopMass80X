@@ -188,6 +188,9 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     hadTopEta  = hadTop->eta();
     hadTopMass = hadTop->mass();
     hadTopE    = hadTop->energy();
+    
+    //std::cout << hadB->resolM() << std::endl;
+    //std::cout << hadTop->resolM() << std::endl;
   
     if (genHadTop) {
       genHadTopPt   = genHadTop->pt();
@@ -206,6 +209,10 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     mvaDisc    = semiLepEvt->mvaDisc(h);
     fitChi2    = semiLepEvt->fitChi2(h);
     fitProb    = semiLepEvt->fitProb(h);
+    hitFitChi2 = semiLepEvt->hitFitChi2(h);
+    hitFitProb = semiLepEvt->hitFitProb(h);
+    hitFitMT   = semiLepEvt->hitFitMT(h);
+    hitFitSigMT= semiLepEvt->hitFitSigMT(h);
     bProb      = QBTagProbability(hadQBTCHE) * QBTagProbability(hadQbarBTCHE)
                  * (1 - QBTagProbability(hadBBTCHE))
                  * (1 - QBTagProbability(lepBBTCHE));
@@ -299,6 +306,10 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("mvaDisc", &mvaDisc, "mvaDisc/D");
   eventTree->Branch("fitChi2", &fitChi2, "fitChi2/D");
   eventTree->Branch("fitProb", &fitProb, "fitProb/D");
+  eventTree->Branch("hitFitChi2", &hitFitChi2, "hitFitChi2/D");
+  eventTree->Branch("hitFitProb", &hitFitProb, "hitFitProb/D");
+  eventTree->Branch("hitFitMT", &hitFitMT, "hitFitMT/D");
+  eventTree->Branch("hitFitSigMT", &hitFitSigMT, "hitFitSigMT/D");
   eventTree->Branch("bProb", &bProb, "bProb/D");
   eventTree->Branch("hadBProb", &hadBProb, "hadBProb/D");
   
