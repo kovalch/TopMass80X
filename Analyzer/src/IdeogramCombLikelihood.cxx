@@ -1,7 +1,7 @@
 #include "IdeogramCombLikelihood.h"
 
 double IdeogramCombLikelihood::Evaluate(double *x, double *p) {
-  double fSig = 1.;
+  double fSig = 0.8;
 
   return p[2] * (fSig * Signal(x, p) + (1.-fSig) * CrystalBall(x, p));
 }
@@ -59,8 +59,8 @@ double IdeogramCombLikelihood::CrystalBall(double* x, double* p)
 {
   double xx     = x[0];
   
-  double N      =  1;
-  double mu     =  8.11543e+01 + 4.61209e-01 * xx;
+  double N      =  0.01;
+  double mu     =  8.11043e+01 + 4.61495e-01 * xx;
   double sigma  =  25;
   double alpha  =  0.5;
   double power  =  10;
