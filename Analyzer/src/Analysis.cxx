@@ -3,7 +3,7 @@
 Analysis::Analysis(TString identifier, TString file, TString method, int bins, double lumi) :
       fIdentifier(identifier), fFile(file), fMethod(method), fBins(bins), fLumi(lumi), fAnalyzed(false)
 {
-  fChain = new TChain("analyzeKinFit/eventTree");
+  fChain = new TChain("analyzeHitFit/eventTree");
   fChain->Add(fFile);
   //fChain->Add("root/WJets.root");
   //fChain->Add("root/VQQJets.root");
@@ -80,7 +80,9 @@ void Analysis::Analyze(bool reanalyze) {
         cuts += " & mvaDisc > 0";
       }
       else if (!strcmp(fMethod, "Ideogram")) {
-        cuts += " & target > -11 & bProb > 1e-3 & fitProb > 1e-3";
+        //cuts += " & target == 1 & bProb > 1e-3 & hitFitProb > 1e-3";
+        //cuts += " & (target==0 | target==-2) & bProb > 1e-3 & hitFitProb > 1e-3";
+        cuts += " & bProb > 1e-3 & hitFitProb > 1e-3";
       }
       
       int entries = fTree->GetEntries(cuts);

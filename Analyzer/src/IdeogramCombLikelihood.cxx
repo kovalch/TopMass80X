@@ -1,19 +1,15 @@
 #include "IdeogramCombLikelihood.h"
 
 double IdeogramCombLikelihood::Evaluate(double *x, double *p) {
-  double fSig = 0.8;
+  double fSig = 1.;
 
-  return p[1] * (fSig * Signal(x, p) + (1.-fSig) * CrystalBall(x, p));
+  return p[2] * (fSig * Signal(x, p) + (1.-fSig) * CrystalBall(x, p));
 }
 
 double IdeogramCombLikelihood::Signal(double *x, double *p) {
   double xx = x[0];
   
-  double p0 =  3.66078e+00 + 9.77323e-01 * xx;
-  double p1 =  9.32202e-01 + 5.38295e-02 * xx;
-  double p2 =  2;
-  
-  return TMath::Voigt(p[0] - xx, 10, p2);
+  return TMath::Voigt(p[0] - xx, p[1], 2);
 }
 
 double IdeogramCombLikelihood::CombBackground(double *x, double *p) {
@@ -63,13 +59,11 @@ double IdeogramCombLikelihood::CrystalBall(double* x, double* p)
 {
   double xx     = x[0];
   
-  double N      = 1.14854e-01 - 3.40230e-04 * xx;
-  if (N < 0) N = 0;
-  double mu     = 9.78275e+01 + 3.85478e-01 * xx;
-  double sigma  = 25;
-  double alpha  = 1.72738e+00 - 6.79937e-03 * xx;
-  if (alpha < 0.01) alpha = 0.01;
-  double power  = 5;
+  double N      =  1;
+  double mu     =  8.11543e+01 + 4.61209e-01 * xx;
+  double sigma  =  25;
+  double alpha  =  0.5;
+  double power  =  10;
   double t = (p[0] - mu) / sigma;
 
   if(t < alpha)

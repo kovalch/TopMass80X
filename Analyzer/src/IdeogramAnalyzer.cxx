@@ -22,13 +22,12 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   int bins = 100;
   
   IdeogramCombLikelihood* fptr = new IdeogramCombLikelihood();
-  TF1* combLikelihood = new TF1("combLikelihood",fptr,&IdeogramCombLikelihood::Evaluate,150,200,3);
+  TF1* combLikelihood = new TF1("combLikelihood",fptr,&IdeogramCombLikelihood::Evaluate,150,200,4);
   //TF1* combBackground = new TF1("combBackground",fptr,&IdeogramCombLikelihood::CrystalBall,150,200,1);
 
   TF1* fitParabola = new TF1("fitParabola", "abs([1])*(x-[0])^2+[2]");
   fitParabola->SetParLimits(0, firstbin, lastbin);
-  fitParabola->SetParameter(0, (lastbin+firstbin)/2);
-  fitParabola->SetParLimits(1, 0.001, 10^6);
+  fitParabola->SetParLimits(1, 0.001, 100);
   fitParabola->SetLineColor(kRed+1);
 
   TF1* null = new TF1("null", "0");
@@ -42,6 +41,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   sumLogLikelihood->Eval(null);
 
   double hadTopMass, fitChi2, fitProb, bProb, hadBProb, weight, currentWeight;
+  double hitFitProb, hitFitMT, hitFitSigMT;
   double hadQBTCHE, hadQbarBTCHE, hadBBTCHE, lepBBTCHE;
   int event, currentEvent;
   int combi, previousCombi = -1;
@@ -56,6 +56,9 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   eventTree->SetBranchAddress("lepBBTCHE", &lepBBTCHE);
   eventTree->SetBranchAddress("fitChi2", &fitChi2);
   eventTree->SetBranchAddress("fitProb", &fitProb);
+  eventTree->SetBranchAddress("hitFitProb", &hitFitProb);
+  eventTree->SetBranchAddress("hitFitMT", &hitFitMT);
+  eventTree->SetBranchAddress("hitFitSigMT", &hitFitSigMT);
   eventTree->SetBranchAddress("bProb", &bProb);
   eventTree->SetBranchAddress("hadBProb", &hadBProb);
   eventTree->SetBranchAddress("event", &event);
@@ -75,7 +78,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
     weight = 0;
     currentWeight = 0;
 
-    for (int iComb = 0; iComb < 12; iComb++) {
+    for (int iComb = 0; iComb < 24; iComb++) {
       if (eventTree->GetEntries() < iEntry + iComb + 1) break;
       eventTree->GetEntry(iEntry + iComb);
       
@@ -83,12 +86,12 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
       
       if (debug && iEntry%nDebug == 0 && iEntry < 100) {
         std::cout << "Combi: " << combi << "\tMass: " << hadTopMass
-                  << "\tbProb: " << bProb
-                  << "\tfitProb: " << fitProb << std::endl;
+                  << "\thitFitProb: " << hitFitProb
+                  << "\tbProb: " << bProb << std::endl;
       }
       
       //if (bProb * fitProb < 1e-3) continue;
-      currentWeight = bProb * fitProb;
+      currentWeight = bProb * hitFitProb;
       if (currentWeight > weight) weight = currentWeight;
       if (currentWeight != 0) {
         /*
@@ -96,7 +99,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
         double bkgIntegral = combBackground->Integral(0, 10000);
         //*/
         
-        combLikelihood->SetParameters(hadTopMass, currentWeight);
+        combLikelihood->SetParameters(hadTopMass, hitFitSigMT, currentWeight);
         eventLikelihood->Eval(combLikelihood, "A"); // add combi pdf
       }
     }
@@ -109,7 +112,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   	  logEventLikelihood->SetBinContent(i, -2*TMath::Log(eventLikelihood->GetBinContent(i)));
     }
 
-    sumLogLikelihood->Add(logEventLikelihood, weight);
+    sumLogLikelihood->Add(logEventLikelihood, weight); // add weight here
     
     if (debug && iEntry%nDebug == 0 && iEntry < 100) {
       TCanvas* eventCanvas = new TCanvas("eventCanvas", "eventCanvas", 1200, 400);
@@ -146,11 +149,11 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   std::cout << "Total number of events: " << nEvents << std::endl;
   
   fitParabola->SetParameter(2, sumLogLikelihood->GetMinimum(0));
-  fitParabola->SetParameter(1, 1000);
+  fitParabola->SetParameter(1, 100);
   
   fitParabola->SetRange(sumLogLikelihood->GetBinCenter(sumLogLikelihood->GetMinimumBin()) - 3, sumLogLikelihood->GetBinCenter(sumLogLikelihood->GetMinimumBin()) + 3);
 
-  sumLogLikelihood->Fit("fitParabola","QBWR");
+  sumLogLikelihood->Fit("fitParabola","WEMR");
   
   if (firstbin+1 < fitParabola->GetParameter(0) && fitParabola->GetParameter(0) < lastbin-1) {
     fMass = fitParabola->GetParameter(0);
