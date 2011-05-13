@@ -58,6 +58,11 @@ process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
 process.load("TopAnalysis.TopFilter.sequences.semiLeptonicSelection_cff")
 
+## redefine veto jets to be sure it is also replaced when running on PF
+from TopAnalysis.TopFilter.sequences.jetSelection_cff import goodJets
+process.vetoJets.src="goodJetsPF30"
+process.vetoJets.cut=''
+
 ## sequences for TtSemiLeptonicEvent
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff")
 
@@ -65,7 +70,7 @@ process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_c
 process.ttSemiLepEvent.verbosity = 0
 
 from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff import *
-setForAllTtSemiLepHypotheses(process, "jets", "selectedPatJetsAK5PF")
+setForAllTtSemiLepHypotheses(process, "jets", "goodJetsPF30")
 setForAllTtSemiLepHypotheses(process, "maxNJets", 4)
 setForAllTtSemiLepHypotheses(process, "mets", "patMETsPF")
 setForAllTtSemiLepHypotheses(process, "maxNComb", -1)
@@ -85,7 +90,7 @@ process.kinFitTtSemiLepEventHypothesis.constraints = 1, 2, 6
 
 ## choose which hypotheses to produce
 addTtSemiLepHypotheses(process,
-                       ["kKinFit"]
+                       ["kKinFit", "kHitFit"]
                        )
 removeTtSemiLepHypGenMatch(process)
 
