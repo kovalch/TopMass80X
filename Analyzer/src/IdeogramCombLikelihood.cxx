@@ -60,8 +60,8 @@ double IdeogramCombLikelihood::CrystalBall(double* x, double* p)
   double xx     = x[0];
   
   double N      =  0.01;
-  double mu     =  8.11043e+01 + 4.61495e-01 * xx;
-  double sigma  =  25;
+  double mu     =  6.36074e+01 + 5.52213e-01 * xx;
+  double sigma  =  23.5;
   double alpha  =  0.5;
   double power  =  10;
   double t = (p[0] - mu) / sigma;

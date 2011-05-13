@@ -91,7 +91,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
       }
       
       //if (bProb * fitProb < 1e-3) continue;
-      currentWeight = bProb * hitFitProb;
+      currentWeight = pow(bProb, 1./4.) * hitFitProb;
       if (currentWeight > weight) weight = currentWeight;
       if (currentWeight != 0) {
         /*
