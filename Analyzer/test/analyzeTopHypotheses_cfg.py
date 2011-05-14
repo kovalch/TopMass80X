@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 jes = '@jes@'
 if jes.startswith('@'):
-  jes = 'abs'
+  jes = 'jes:up'
 
 process = cms.Process("TEST")
 
@@ -87,11 +87,13 @@ process.load("TopAnalysis.TopUtils.JetEnergyScale_cff")
 from TopAnalysis.TopUtils.JetEnergyScale_cff import *
 
 scaledJetEnergy.scaleType   = cms.string(jes)
-scaledJetEnergy.inputJets   = "goodJetsPF30"
+scaledJetEnergy.inputJets   = "selectedPatJetsAK5PF"
 scaledJetEnergy.inputMETs   = "patMETsPF"
 scaledJetEnergy.scaleFactor = 1.0
 #scaledJetEnergy.scaleFactor = 1.053
 scaledJetEnergy.resolutionFactor = 1.1
+
+process.noOverlapJetsPF.src = "scaledJetEnergy:selectedPatJetsAK5PF"
 
 ## sequences for ttGenEvent and TtSemiLeptonicEvent
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
@@ -102,9 +104,9 @@ process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_c
 process.ttSemiLepEvent.verbosity = 0
 
 from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff import *
-setForAllTtSemiLepHypotheses(process, "jets", "scaledJetEnergy:goodJetsPF30")
+setForAllTtSemiLepHypotheses(process, "jets", "goodJetsPF30")
 setForAllTtSemiLepHypotheses(process, "maxNJets", 4)
-setForAllTtSemiLepHypotheses(process, "mets", "scaledJetEnergy:patMETsPF")
+setForAllTtSemiLepHypotheses(process, "mets", "patMETsPF")
 setForAllTtSemiLepHypotheses(process, "maxNComb", -1)
 
 process.TtSemiLepJetCombMVAFileSource = cms.ESSource("TtSemiLepJetCombMVAFileSource",
@@ -136,9 +138,9 @@ process.TFileService = cms.Service("TFileService",
 
 ## end path   
 process.path = cms.Path(#process.patDefaultSequence *
+                        process.scaledJetEnergy *
                         process.semiLeptonicSelection *
                         process.semiLeptonicEvents *
-                        process.scaledJetEnergy *
                         process.makeGenEvt *
                         process.makeTtSemiLepEvent *
                         process.analyzeHypotheses
