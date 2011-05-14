@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 jes = '@jes@'
 if jes.startswith('@'):
-  jes = 'jes:up'
+  jes = 'abs'
 
 process = cms.Process("TEST")
 
