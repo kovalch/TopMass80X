@@ -8,7 +8,7 @@ void ideogramBT()
 {
 
   TFile* file = new TFile("analyzeTop_1725.root");
-  analyzeKinFit->cd();
+  analyzeGenMatch->cd();
   
   /*
   TF1 *gaus2 = new TF1("gaus2", "[0]*TMath::Gaus(x, [1], [2], 1)+[3]*TMath::Gaus(x, [4], [5], 1)");
@@ -26,10 +26,10 @@ void ideogramBT()
   
   int bins = 150;
   
-  eventTree->Draw("hadQBTCHE >> hHadQBTCHE(150, -100, 50)","target==1");
-  eventTree->Draw("hadQbarBTCHE >> hHadQbarBTCHE(150, -100, 50)","target==1");
-  eventTree->Draw("hadBBTCHE >> hHadBBTCHE(150, -100, 50)","target==1");
-  eventTree->Draw("lepBBTCHE >> hLepBBTCHE(150, -100, 50)","target==1");
+  eventTree->Draw("hadQBTCHE >> hHadQBTCHE(150, -100, 50)");
+  eventTree->Draw("hadQbarBTCHE >> hHadQbarBTCHE(150, -100, 50)");
+  eventTree->Draw("hadBBTCHE >> hHadBBTCHE(150, -100, 50)");
+  eventTree->Draw("lepBBTCHE >> hLepBBTCHE(150, -100, 50)");
   
   TH1F *hHadQBTCHE = (TH1F*)gDirectory->Get("hHadQBTCHE");
   TH1F *hHadQbarBTCHE = (TH1F*)gDirectory->Get("hHadQbarBTCHE");

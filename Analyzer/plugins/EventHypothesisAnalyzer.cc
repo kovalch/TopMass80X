@@ -23,7 +23,8 @@
 
 EventHypothesisAnalyzer::EventHypothesisAnalyzer(const edm::ParameterSet& cfg):
   semiLepEvt_  (cfg.getParameter<edm::InputTag>("semiLepEvent")),
-  hypoClassKey_(cfg.getParameter<edm::InputTag>("hypoClassKey"))
+  hypoClassKey_(cfg.getParameter<edm::InputTag>("hypoClassKey")),
+  jets_        (cfg.getParameter<edm::InputTag>("jets"))
 {
 }
 
@@ -43,7 +44,7 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
   TtSemiLeptonicEvent::HypoClassKey& hypoClassKey = (TtSemiLeptonicEvent::HypoClassKey&) *hypoClassKeyHandle;
   
   edm::Handle<std::vector<pat::Jet> > jets;
-  evt.getByLabel("selectedPatJetsAK5PF", jets);
+  evt.getByLabel(jets_, jets);
 
   for(unsigned h=0; h<semiLepEvt->numberOfAvailableHypos(hypoClassKey); h++) {
 
@@ -143,6 +144,7 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     hadQE      = hadQ->energy();
     hadQBTCHE  = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQ]).bDiscriminator("trackCountingHighEffBJetTags");
     hadQBVMVA  = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQ]).bDiscriminator("combinedSecondaryVertexMVABJetTags");
+    hadQBSSV   = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQ]).bDiscriminator("simpleSecondaryVertexHighEffBJetTags");
 
     hadQbarPt     = hadQbar->pt();
     hadQbarEta    = hadQbar->eta();
@@ -150,6 +152,7 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     hadQbarE      = hadQbar->energy();
     hadQbarBTCHE  = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQBar]).bDiscriminator("trackCountingHighEffBJetTags");
     hadQbarBVMVA  = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQBar]).bDiscriminator("combinedSecondaryVertexMVABJetTags");
+    hadQbarBSSV   = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQBar]).bDiscriminator("simpleSecondaryVertexHighEffBJetTags");
     
     hadWPt     = hadW->pt();
     hadWEta    = hadW->eta();
@@ -169,6 +172,7 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     hadBE      = hadB->energy();
     hadBBTCHE  = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::HadB]).bDiscriminator("trackCountingHighEffBJetTags");
     hadBBVMVA  = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::HadB]).bDiscriminator("combinedSecondaryVertexMVABJetTags");
+    hadBBSSV   = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::HadB]).bDiscriminator("simpleSecondaryVertexHighEffBJetTags");
     
     lepBPt     = lepB->pt();
     lepBEta    = lepB->eta();
@@ -176,6 +180,7 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     lepBE      = lepB->energy();
     lepBBTCHE  = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LepB]).bDiscriminator("trackCountingHighEffBJetTags");
     lepBBVMVA  = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LepB]).bDiscriminator("combinedSecondaryVertexMVABJetTags");
+    lepBBSSV   = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LepB]).bDiscriminator("simpleSecondaryVertexHighEffBJetTags");
   
     if (genHadB) {
       genHadBPt     = genHadB->pt();
@@ -218,6 +223,11 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
                  * (1 - QBTagProbability(lepBBTCHE));
     hadBProb   = QBTagProbability(hadQBTCHE) * QBTagProbability(hadQbarBTCHE)
                  * (1 - QBTagProbability(hadBBTCHE));
+    bProbSSV   = QBTagProbabilitySSV(hadQBSSV) * QBTagProbabilitySSV(hadQbarBSSV)
+                 * (1 - QBTagProbabilitySSV(hadBBSSV))
+                 * (1 - QBTagProbabilitySSV(lepBBSSV));
+    hadBProbSSV= QBTagProbabilitySSV(hadQBSSV) * QBTagProbabilitySSV(hadQbarBSSV)
+                 * (1 - QBTagProbabilitySSV(hadBBSSV));
   
     eventTree -> Fill();
   
@@ -248,6 +258,7 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("hadQE", &hadQE, "hadQE/D");
   eventTree->Branch("hadQBTCHE", &hadQBTCHE, "hadQBTCHE/D");
   eventTree->Branch("hadQBVMVA", &hadQBVMVA, "hadQBVMVA/D");
+  eventTree->Branch("hadQBSSV", &hadQBSSV, "hadQBSSV/D");
   
   eventTree->Branch("hadQbarPt", &hadQbarPt, "hadQbarPt/D");
   eventTree->Branch("hadQbarEta", &hadQbarEta, "hadQbarEta/D");
@@ -255,6 +266,7 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("hadQbarE", &hadQbarE, "hadQbarE/D");
   eventTree->Branch("hadQbarBTCHE", &hadQbarBTCHE, "hadQbarBTCHE/D");
   eventTree->Branch("hadQbarBVMVA", &hadQbarBVMVA, "hadQbarBVMVA/D");
+  eventTree->Branch("hadQbarBSSV", &hadQbarBSSV, "hadQbarBSSV/D");
   
   eventTree->Branch("hadWPt", &hadWPt, "hadWPt/D");
   eventTree->Branch("hadWEta", &hadWEta, "hadWEta/D");
@@ -272,6 +284,7 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("hadBE", &hadBE, "hadBE/D");
   eventTree->Branch("hadBBTCHE", &hadBBTCHE, "hadBBTCHE/D");
   eventTree->Branch("hadBBVMVA", &hadBBVMVA, "hadBBVMVA/D");
+  eventTree->Branch("hadBBSSV", &hadBBSSV, "hadBBSSV/D");
   
   eventTree->Branch("lepBPt", &lepBPt, "lepBPt/D");
   eventTree->Branch("lepBEta", &lepBEta, "lepBEta/D");
@@ -279,6 +292,7 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("lepBE", &lepBE, "lepBE/D");
   eventTree->Branch("lepBBTCHE", &lepBBTCHE, "lepBBTCHE/D");
   eventTree->Branch("lepBBVMVA", &lepBBVMVA, "lepBBVMVA/D");
+  eventTree->Branch("lepBBSSV", &lepBBSSV, "lepBBSSV/D");
   
   eventTree->Branch("genHadBPt", &genHadBPt, "genHadBPt/D");
   eventTree->Branch("genHadBEta", &genHadBEta, "genHadBEta/D");
@@ -312,6 +326,8 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("hitFitSigMT", &hitFitSigMT, "hitFitSigMT/D");
   eventTree->Branch("bProb", &bProb, "bProb/D");
   eventTree->Branch("hadBProb", &hadBProb, "hadBProb/D");
+  eventTree->Branch("bProbSSV", &bProbSSV, "bProbSSV/D");
+  eventTree->Branch("hadBProbSSV", &hadBProbSSV, "hadBProbSSV/D");
   
   eventTree->Branch("target", &target, "target/I");
 
@@ -326,6 +342,15 @@ double EventHypothesisAnalyzer::QBTagProbability(double bDiscriminator) {
   double p2 = 3.53592e+00;
   
   return p0 * TMath::Voigt(bDiscriminator, p1, p2);
+}
+
+double EventHypothesisAnalyzer::QBTagProbabilitySSV(double bDiscriminator) {
+  double qProb = 0;
+
+  if (bDiscriminator == -1) qProb = 0.75;
+  if (bDiscriminator > 0)   qProb = 0;
+
+  return qProb;
 }
 
 void

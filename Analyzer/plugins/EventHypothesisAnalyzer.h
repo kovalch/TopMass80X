@@ -24,6 +24,7 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
 
   edm::InputTag semiLepEvt_;
   edm::InputTag hypoClassKey_;
+  edm::InputTag jets_;
 
   int run;
   int luminosityBlock;
@@ -36,6 +37,7 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double hadQE;
   double hadQBTCHE;
   double hadQBVMVA;
+  double hadQBSSV;
   
   double hadQbarPt;
   double hadQbarEta;
@@ -43,6 +45,7 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double hadQbarE;
   double hadQbarBTCHE;
   double hadQbarBVMVA;
+  double hadQbarBSSV;
   
   double hadWPt;
   double hadWEta;
@@ -60,6 +63,7 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double hadBE;
   double hadBBTCHE;
   double hadBBVMVA;
+  double hadBBSSV;
   
   double lepBPt;
   double lepBEta;
@@ -67,6 +71,7 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double lepBE;
   double lepBBTCHE;
   double lepBBVMVA;
+  double lepBBSSV;
   
   double genHadBPt;
   double genHadBEta;
@@ -100,12 +105,15 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double hitFitSigMT;
   double bProb;
   double hadBProb;
+  double bProbSSV;
+  double hadBProbSSV;
   
   int target;
   
   TTree* eventTree;
   
   double QBTagProbability(double bDiscriminator);
+  double QBTagProbabilitySSV(double bDiscriminator);
 };
 
 #endif
