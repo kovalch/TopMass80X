@@ -82,7 +82,7 @@ void Analysis::Analyze(bool reanalyze) {
       else if (!strcmp(fMethod, "Ideogram")) {
         //cuts += " & target == 1 & bProb > 1e-3 & hitFitProb > 1e-3";
         //cuts += " & (target==0 | target==-2) & bProb > 1e-3 & hitFitProb > 1e-3";
-        cuts += " & bProb > 1e-3 & hitFitProb > 1e-3";
+        //cuts += " & pow(bProb, 1./4.) > 1e-3 & hitFitProb > 1e-3";
       }
       
       int entries = fTree->GetEntries(cuts);
