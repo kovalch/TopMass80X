@@ -345,12 +345,12 @@ double EventHypothesisAnalyzer::QBTagProbability(double bDiscriminator) {
 }
 
 double EventHypothesisAnalyzer::QBTagProbabilitySSV(double bDiscriminator) {
-  double qProb = 0;
+  if (bDiscriminator < 1) return 0.7555;
 
-  if (bDiscriminator == -1) qProb = 0.75;
-  if (bDiscriminator > 0)   qProb = 0;
+  double p0 =  3.66166e-01;
+  double p1 = -1.11745e+00;
 
-  return qProb;
+  return exp(p0+p1*bDiscriminator);
 }
 
 void
