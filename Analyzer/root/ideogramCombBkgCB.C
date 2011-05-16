@@ -114,17 +114,17 @@ void FindParameters(TString filename, int i)
   TF1* cb = new TF1("cb", crystalBall, 0, 1000, 5);
   cb->SetLineColor(kRed+1);
   
-  cb->SetParameters(1, 170, 25, 0.5, 10);
+  cb->SetParameters(1, 170, 29, 0.5, 30);
   
   cb->SetParLimits(0, 0, 1000000);
   cb->SetParLimits(1, 150, 200);
-  cb->SetParLimits(2, 25, 25);
+  cb->SetParLimits(2, 29, 29);
   cb->SetParLimits(3, 0.5, 0.5);
-  cb->SetParLimits(4, 10, 10);
+  cb->SetParLimits(4, 30, 30);
   
   TH1F* hCombBkg;
   
-  eventTree->Draw("hadTopMass >> hCombBkg(80, 100, 500)","(bProb*hitFitProb)*((target==0 | target==-2) & bProb > 1e-3 & hitFitProb > 1e-3)");
+  eventTree->Draw("hadTopMass >> hCombBkg(80, 100, 500)","(bProb*hitFitProb)*(target==0 | target==-2)");
   
   TH1F *hCombBkg = (TH1F*)gDirectory->Get("hCombBkg");
   

@@ -40,7 +40,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   TH1D* sumLogLikelihood = new TH1D("sumLogLikelihood", "sumLogLikelihood", bins, firstbin, lastbin);
   sumLogLikelihood->Eval(null);
 
-  double hadTopMass, fitChi2, fitProb, bProb, hadBProb, weight, currentWeight;
+  double hadTopMass, fitChi2, fitProb, bProb, hadBProb, bProbSSV, weight, currentWeight;
   double hitFitProb, hitFitMT, hitFitSigMT;
   double hadQBTCHE, hadQbarBTCHE, hadBBTCHE, lepBBTCHE;
   int event, currentEvent;
@@ -61,6 +61,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   eventTree->SetBranchAddress("hitFitSigMT", &hitFitSigMT);
   eventTree->SetBranchAddress("bProb", &bProb);
   eventTree->SetBranchAddress("hadBProb", &hadBProb);
+  eventTree->SetBranchAddress("bProbSSV", &bProbSSV);
   eventTree->SetBranchAddress("event", &event);
   eventTree->SetBranchAddress("combi", &combi);
   
@@ -91,7 +92,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
       }
       
       //if (bProb * fitProb < 1e-3) continue;
-      currentWeight = pow(bProb, 1./4.) * hitFitProb;
+      currentWeight = bProb * hitFitProb;
       if (currentWeight > weight) weight = currentWeight;
       if (currentWeight != 0) {
         /*
