@@ -85,7 +85,7 @@ void FindParameters(TString filename, int i)
 {
 
   TFile* file = new TFile(filename);
-  analyzeKinFit->cd();
+  analyzeHitFit->cd();
 
   TF1* voigt = new TF1("voigt", "[0]*TMath::Voigt(x-[1], [2], [3])");
   voigt->SetLineColor(kRed+1);
@@ -98,7 +98,7 @@ void FindParameters(TString filename, int i)
   
   TH1F* hSig;
   
-  eventTree->Draw("hadTopMass >> hSig(50, 100, 250)", "(bProb*hitFitProb)*(target==1 & bProb > 1e-3 & hitFitProb > 1e-3)");
+  eventTree->Draw("hadTopMass >> hSig(50, 100, 250)", "sqrt(bProb*hitFitProb)*(target==1 & bProb > 1e-2 & hitFitProb > 1e-2)");
   
   TH1F *hSig = (TH1F*)gDirectory->Get("hSig");
   

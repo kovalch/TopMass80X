@@ -42,7 +42,6 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
 
   double hadTopMass, fitChi2, fitProb, bProb, hadBProb, bProbSSV, weight, currentWeight;
   double hitFitProb, hitFitMT, hitFitSigMT;
-  double hadQBTCHE, hadQbarBTCHE, hadBBTCHE, lepBBTCHE;
   int event, currentEvent;
   int combi, previousCombi = -1;
   int nEvents = 0;
@@ -50,10 +49,6 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   TTree* eventTree = fTree->CopyTree(cuts);
   
   eventTree->SetBranchAddress("hadTopMass", &hadTopMass);
-  eventTree->SetBranchAddress("hadQBTCHE", &hadQBTCHE);
-  eventTree->SetBranchAddress("hadQbarBTCHE", &hadQbarBTCHE);
-  eventTree->SetBranchAddress("hadBBTCHE", &hadBBTCHE);
-  eventTree->SetBranchAddress("lepBBTCHE", &lepBBTCHE);
   eventTree->SetBranchAddress("fitChi2", &fitChi2);
   eventTree->SetBranchAddress("fitProb", &fitProb);
   eventTree->SetBranchAddress("hitFitProb", &hitFitProb);
@@ -92,7 +87,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
       }
       
       //if (bProb * fitProb < 1e-3) continue;
-      currentWeight = bProb * hitFitProb;
+      currentWeight = sqrt(bProb * hitFitProb);
       if (currentWeight > weight) weight = currentWeight;
       if (currentWeight != 0) {
         /*

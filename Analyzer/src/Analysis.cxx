@@ -80,9 +80,9 @@ void Analysis::Analyze(bool reanalyze) {
         cuts += " & mvaDisc > 0";
       }
       else if (!strcmp(fMethod, "Ideogram")) {
-        //cuts += " & target == 1 & bProb > 1e-3 & hitFitProb > 1e-3";
-        //cuts += " & (target==0 | target==-2) & bProb > 1e-3 & hitFitProb > 1e-3";
-        //cuts += " & pow(bProb, 1./4.) > 1e-3 & hitFitProb > 1e-3";
+        //cuts += " & target == 1 & bProb > 1e-2 & hitFitProb > 1e-2";
+        //cuts += " & (target==0 | target==-2) & bProb > 1e-2 & hitFitProb > 1e-2";
+        cuts += " & bProb > 1e-2 & hitFitProb > 1e-2";
       }
       
       int entries = fTree->GetEntries(cuts);
@@ -140,6 +140,21 @@ void Analysis::CreateHistos() {
 }
 
 void Analysis::CreateRandomSubset() {
+  fChain->SetBranchStatus("*",0);
+  fChain->SetBranchStatus("hadTopMass", 1);
+  fChain->SetBranchStatus("fitChi2", 1);
+  fChain->SetBranchStatus("fitProb", 1);
+  fChain->SetBranchStatus("hitFitProb", 1);
+  fChain->SetBranchStatus("hitFitMT", 1);
+  fChain->SetBranchStatus("hitFitSigMT", 1);
+  fChain->SetBranchStatus("bProb", 1);
+  fChain->SetBranchStatus("hadBProb", 1);
+  fChain->SetBranchStatus("bProbSSV", 1);
+  fChain->SetBranchStatus("event", 1);
+  fChain->SetBranchStatus("combi", 1);
+  fChain->SetBranchStatus("deltaThetaHadWHadB", 1);
+  fChain->SetBranchStatus("deltaThetaHadQHadQBar", 1);
+
   if (fLumi>0) {
     TRandom3* random = new TRandom3(0);
     double events = 208./35.*fLumi;
@@ -149,16 +164,15 @@ void Analysis::CreateRandomSubset() {
     
     int combi;
     fChain->SetBranchAddress("combi", &combi);
-    fTree->SetBranchAddress("combi", &combi);
     
     for (int iEntry = 0; iEntry < fChain->GetEntries(); iEntry++) {
       fChain->GetEntry(iEntry);
       if (combi!=0) continue;
       if (random->Rndm() < events/fullEvents) {
-        for (int iComb = 0; iComb < 12; iComb++) {
+        for (int iComb = 0; iComb < 24; iComb++) {
 	        fChain->GetEntry(iEntry + iComb);
 	        
-          if (iComb != 0 && combi == 0) {
+          if ((iComb != 0 && combi == 0)) {
             iEntry = iEntry + iComb - 1;
             break;
           }
@@ -168,7 +182,9 @@ void Analysis::CreateRandomSubset() {
       }
     }
   }
-  else fTree = fChain->CloneTree();
+  else {
+    fTree = fChain->CloneTree();
+  }
 }
 
 TH2F* Analysis::GetH2Mass() {

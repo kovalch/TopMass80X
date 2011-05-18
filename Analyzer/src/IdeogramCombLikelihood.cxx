@@ -9,7 +9,9 @@ double IdeogramCombLikelihood::Evaluate(double *x, double *p) {
 double IdeogramCombLikelihood::Signal(double *x, double *p) {
   double xx = x[0];
   
-  return TMath::Voigt(p[0] - xx, p[1], 2);
+  double p0 = 1.53934e+01 + 9.00913e-01 * xx;
+  
+  return TMath::Voigt(p[0] - p0, p[1], 2);
 }
 
 double IdeogramCombLikelihood::CombBackground(double *x, double *p) {
@@ -60,10 +62,10 @@ double IdeogramCombLikelihood::CrystalBall(double* x, double* p)
   double xx     = x[0];
   
   double N      =  0.01;
-  double mu     =  7.77989e+01 + 5.20560e-01 * xx;
-  double sigma  =  29;
-  double alpha  =  0.5;
-  double power  =  30;
+  double mu     =  7.07876e+01 + 5.33197e-01 * xx;
+  double sigma  =  25;
+  double alpha  =  0.45;
+  double power  =  10;
   double t = (p[0] - mu) / sigma;
 
   if(t < alpha)
