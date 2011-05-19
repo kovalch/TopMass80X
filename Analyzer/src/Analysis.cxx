@@ -141,6 +141,7 @@ void Analysis::CreateHistos() {
 
 void Analysis::CreateRandomSubset() {
   fChain->SetBranchStatus("*",0);
+  fChain->SetBranchStatus("target", 1);
   fChain->SetBranchStatus("hadTopMass", 1);
   fChain->SetBranchStatus("fitChi2", 1);
   fChain->SetBranchStatus("fitProb", 1);
