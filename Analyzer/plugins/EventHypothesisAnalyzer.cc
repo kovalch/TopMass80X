@@ -43,6 +43,11 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
   evt.getByLabel(hypoClassKey_, hypoClassKeyHandle);
   TtSemiLeptonicEvent::HypoClassKey& hypoClassKey = (TtSemiLeptonicEvent::HypoClassKey&) *hypoClassKeyHandle;
   
+  TtSemiLeptonicEvent::HypoClassKey hypoClassKeyGenMatch = (TtSemiLeptonicEvent::HypoClassKey) 3;
+  TtSemiLeptonicEvent::HypoClassKey hypoClassKeyMVA      = (TtSemiLeptonicEvent::HypoClassKey) 4;
+  TtSemiLeptonicEvent::HypoClassKey hypoClassKeyKinFit   = (TtSemiLeptonicEvent::HypoClassKey) 5;
+  TtSemiLeptonicEvent::HypoClassKey hypoClassKeyHitFit   = (TtSemiLeptonicEvent::HypoClassKey) 8;
+  
   edm::Handle<std::vector<pat::Jet> > jets;
   evt.getByLabel(jets_, jets);
 
@@ -56,6 +61,13 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
       edm::LogInfo("EventHypothesisAnalyzer") << "Hypothesis not valid for this event";
       return;
     }
+    
+    int hGenMatch = semiLepEvt->correspondingHypo(hypoClassKey, h, hypoClassKeyGenMatch);
+    int hMVA      = semiLepEvt->correspondingHypo(hypoClassKey, h, hypoClassKeyMVA);
+    int hKinFit   = semiLepEvt->correspondingHypo(hypoClassKey, h, hypoClassKeyKinFit);
+    int hHitFit;
+    if (hypoClassKey == hypoClassKeyHitFit) hHitFit = h;
+    else hHitFit  = semiLepEvt->correspondingHypo(hypoClassKey, h, hypoClassKeyHitFit);
     
     std::vector<int> jetLeptonCombinationCurrent = semiLepEvt->jetLeptonCombination(hypoClassKey, h);
     
@@ -94,10 +106,11 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
       else {
         target = 0;
       }
-      genMatchDr = semiLepEvt->genMatchSumDR(h);
+      genMatchDr = semiLepEvt->genMatchSumDR(hGenMatch);
     }
     else {
       target = -10;
+      genMatchDr = -10;
     }
     //std::cout << "\ttarget: " << target << " (" << hypoClassKey << ")" << std::endl;
 
@@ -211,13 +224,13 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     deltaRLepBLepton      = ROOT::Math::VectorUtil::DeltaR(lepton->polarP4(), lepB->polarP4());
     deltaThetaLepBLepton  = ROOT::Math::VectorUtil::Angle(lepton->polarP4(), lepB->polarP4());
     
-    mvaDisc    = semiLepEvt->mvaDisc(h);
-    fitChi2    = semiLepEvt->fitChi2(h);
-    fitProb    = semiLepEvt->fitProb(h);
-    hitFitChi2 = semiLepEvt->hitFitChi2(h);
-    hitFitProb = semiLepEvt->hitFitProb(h);
-    hitFitMT   = semiLepEvt->hitFitMT(h);
-    hitFitSigMT= semiLepEvt->hitFitSigMT(h);
+    mvaDisc    = semiLepEvt->mvaDisc(hMVA);
+    fitChi2    = semiLepEvt->fitChi2(hKinFit);
+    fitProb    = semiLepEvt->fitProb(hKinFit);
+    hitFitChi2 = semiLepEvt->hitFitChi2(hHitFit);
+    hitFitProb = semiLepEvt->hitFitProb(hHitFit);
+    hitFitMT   = semiLepEvt->hitFitMT(hHitFit);
+    hitFitSigMT= semiLepEvt->hitFitSigMT(hHitFit);
     bProb      = QBTagProbability(hadQBTCHE) * QBTagProbability(hadQbarBTCHE)
                  * (1 - QBTagProbability(hadBBTCHE))
                  * (1 - QBTagProbability(lepBBTCHE));
