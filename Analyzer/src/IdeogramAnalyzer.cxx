@@ -18,8 +18,13 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
 
   int firstbin = 150;
   int lastbin  = 200;
-
   int bins = 100;
+  
+  if (debug) {
+    int firstbin = 100;
+    int lastbin  = 600;
+    int bins = 1000;
+  }
   
   IdeogramCombLikelihood* fptr = new IdeogramCombLikelihood();
   TF1* combLikelihood = new TF1("combLikelihood",fptr,&IdeogramCombLikelihood::Evaluate,150,200,4);
@@ -83,12 +88,12 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
       if (debug && iEntry%nDebug == 0 && iEntry < 100) {
         std::cout << "Combi: " << combi << "\tMass: " << hadTopMass
                   << "\thitFitProb: " << hitFitProb
-                  << "\tbProb: " << bProb << std::endl;
+                  << "\tbProbSSV: " << bProbSSV << std::endl;
       }
       
       //if (bProb * fitProb < 1e-3) continue;
-      currentWeight = sqrt(bProb * hitFitProb);
-      if (currentWeight > weight) weight = currentWeight;
+      currentWeight = (bProbSSV * hitFitProb);
+      //if (currentWeight > weight) weight = currentWeight;
       if (currentWeight != 0) {
         /*
         combBackground->SetParameter(0, hadTopMass);
@@ -108,7 +113,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   	  logEventLikelihood->SetBinContent(i, -2*TMath::Log(eventLikelihood->GetBinContent(i)));
     }
 
-    sumLogLikelihood->Add(logEventLikelihood, weight); // add weight here
+    sumLogLikelihood->Add(logEventLikelihood); // add weight here
     
     if (debug && iEntry%nDebug == 0 && iEntry < 100) {
       TCanvas* eventCanvas = new TCanvas("eventCanvas", "eventCanvas", 1200, 400);

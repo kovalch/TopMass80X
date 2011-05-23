@@ -9,7 +9,7 @@ double IdeogramCombLikelihood::Evaluate(double *x, double *p) {
 double IdeogramCombLikelihood::Signal(double *x, double *p) {
   double xx = x[0];
   
-  double p0 = 1.53934e+01 + 9.00913e-01 * xx;
+  double p0 = 1.05229e+01 + 9.31167e-01 * xx;
   
   return TMath::Voigt(p[0] - p0, p[1], 2);
 }
@@ -61,15 +61,23 @@ double IdeogramCombLikelihood::CrystalBall(double* x, double* p)
 {
   double xx     = x[0];
   
-  double N      =  0.01;
-  double mu     =  7.07876e+01 + 5.33197e-01 * xx;
+  double N      =  1./0.01;
+  double mu     =  6.13126e+01 + 5.98451e-01 * xx;
   double sigma  =  25;
   double alpha  =  0.45;
   double power  =  10;
   double t = (p[0] - mu) / sigma;
+  
+  /*
+  double N1 = -sqrt(TMath::PiOver2()) * sigma * (-1+TMath::Erf(-sigma*alpha)/(sqrt(2)*sigma));
+  double N2 = cb::A(alpha,power) * sigma/(-1.+power) * ( 0. + //lim(x->inf)
+                pow(((cb::B(alpha,power) * sigma - sigma*alpha)/sigma), (1. - power))
+              );
+  N = N1 + N2;
+  */
 
   if(t < alpha)
-    return N * TMath::Exp(-t*t/2);
+    return 1./N * TMath::Exp(-t*t/2);
   else
-    return N * cb::A(alpha,power) * TMath::Power(cb::B(alpha,power) + t, -power);
+    return 1./N * cb::A(alpha,power) * TMath::Power(cb::B(alpha,power) + t, -power);
 }
