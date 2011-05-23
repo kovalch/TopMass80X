@@ -8,11 +8,11 @@ import FWCore.ParameterSet.Config as cms
 
 # initialize analyzers
 from TopMass.Analyzer.EventHypothesisAnalyzer_cfi import *
-#analyzeMVADisc       = analyzeHypothesis.clone(hypoClassKey = "ttSemiLepHypMVADisc:Key")
+analyzeMVADisc       = analyzeHypothesis.clone(hypoClassKey = "ttSemiLepHypMVADisc:Key")
 analyzeKinFit        = analyzeHypothesis.clone(hypoClassKey = "ttSemiLepHypKinFit:Key")
 analyzeHitFit        = analyzeHypothesis.clone(hypoClassKey = "ttSemiLepHypHitFit:Key")
 
 # define sequence
-analyzeHypotheses = cms.Sequence(#analyzeMVADisc *
+analyzeHypotheses = cms.Sequence(analyzeMVADisc *
                                  analyzeKinFit *
                                  analyzeHitFit)
