@@ -51,7 +51,7 @@ void Analysis::Analyze(bool reanalyze) {
   double smearX = smearBins/fBins*rangeX;
   double smearY = smearBins/fBins*rangeY;
   
-  double minEntries = 100;
+  double minEntries = 50;
   
   /*if (!strcmp(fMethod, "Ideogram")) {
     minEntries = 1500;
@@ -80,9 +80,9 @@ void Analysis::Analyze(bool reanalyze) {
         cuts += " & mvaDisc > 0";
       }
       else if (!strcmp(fMethod, "Ideogram")) {
-        //cuts += " & target == 1 & bProb > 1e-2 & hitFitProb > 1e-2";
-        //cuts += " & (target==0 | target==-2) & bProb > 1e-2 & hitFitProb > 1e-2";
-        cuts += " & bProb > 1e-2 & hitFitProb > 1e-2";
+        //cuts += " & target == 1";
+        //cuts += " & (target == 0 | target == -2)";
+        cuts += " & (bProbSSV * hitFitProb) > 0.01";
       }
       
       int entries = fTree->GetEntries(cuts);
@@ -141,6 +141,7 @@ void Analysis::CreateHistos() {
 
 void Analysis::CreateRandomSubset() {
   fChain->SetBranchStatus("*",0);
+  fChain->SetBranchStatus("target", 1);
   fChain->SetBranchStatus("hadTopMass", 1);
   fChain->SetBranchStatus("fitChi2", 1);
   fChain->SetBranchStatus("fitProb", 1);

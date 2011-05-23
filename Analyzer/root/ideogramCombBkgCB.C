@@ -39,7 +39,17 @@ double crystalBall(const double* x, const double* p)
   double alpha = p[3];
   double power = p[4];
   double t = (x[0] - mu) / sigma;
-
+  
+  /*
+  double N1 = -sqrt(TMath::PiOver2()) * sigma * (-1+TMath::Erf(-sigma*alpha)/(sqrt(2)*sigma));
+  std::cout << "N1: " << N1 << std::endl;
+  double N2 = cb::A(alpha,power) * sigma/(-1.+power) * ( 0. + //lim(x->inf)
+                pow(((cb::B(alpha,power) * sigma - sigma*alpha)/sigma), (1. - power))
+              );
+  std::cout << "N2: " << N2 << std::endl;
+  N = N1 + N2;
+  //*/
+  
   if(t < alpha)
     return N * TMath::Exp(-t*t/2);
   else
@@ -114,22 +124,22 @@ void FindParameters(TString filename, int i)
   TF1* cb = new TF1("cb", crystalBall, 0, 1000, 5);
   cb->SetLineColor(kRed+1);
   
-  cb->SetParameters(1, 170, 25, 0.45, 10);
+  cb->SetParameters(1, 170, 25, 0.45, 15);
   
   cb->SetParLimits(0, 0, 1000000);
   cb->SetParLimits(1, 150, 200);
-  cb->SetParLimits(2, 25, 25);
-  cb->SetParLimits(3, 0.45, 0.45);
-  cb->SetParLimits(4, 10, 10);
+  cb->SetParLimits(2, 20, 30);
+  cb->SetParLimits(3, 0.05, 0.95);
+  cb->SetParLimits(4, 5, 5);
   
   TH1F* hCombBkg;
   
-  eventTree->Draw("hadTopMass >> hCombBkg(80, 100, 500)","sqrt(bProb*hitFitProb)*((target==0 | target==-2) & bProb > 1e-2 & hitFitProb > 1e-2)");
+  eventTree->Draw("hadTopMass >> hCombBkg(80, 100, 500)", "(bProbSSV*hitFitProb)*((target==0 | target==-2) & (bProbSSV * hitFitProb) > 0.01)");
   
   TH1F *hCombBkg = (TH1F*)gDirectory->Get("hCombBkg");
   
   double integral = hCombBkg->Integral();
-  //integral = 1;
+  integral = 1;
   hCombBkg->Scale(1/integral);
   
   hCombBkg->Fit("cb","WEM");

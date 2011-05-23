@@ -88,9 +88,11 @@ process.kinFitTtSemiLepEventHypothesis.useBTagging = False
 # 1: Whad-mass, 2: Wlep-mass, 3: thad-mass, 4: tlep-mass, 5: nu-mass, 6: equal t-masses
 process.kinFitTtSemiLepEventHypothesis.constraints = 1, 2, 6
 
+findTtSemiLepJetCombMVA.maxNComb = 1;
+
 ## choose which hypotheses to produce
 addTtSemiLepHypotheses(process,
-                       ["kKinFit", "kHitFit"]
+                       ["kKinFit", "kHitFit", "kMVADisc"]
                        )
 removeTtSemiLepHypGenMatch(process)
 
