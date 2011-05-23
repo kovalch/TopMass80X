@@ -62,19 +62,19 @@ double IdeogramCombLikelihood::CrystalBall(double* x, double* p)
   double xx     = x[0];
   
   double N      =  1./0.01;
-  double mu     =  6.13126e+01 + 5.98451e-01 * xx;
-  double sigma  =  25;
-  double alpha  =  0.45;
+  double mu     =  2.64170e+01 + 7.95658e-01 * xx;
+  double sigma  = -3.20208e+01 + 3.24407e-01 * xx;
+  double alpha  = -2.42539e-01 + 3.81855e-03 * xx;
   double power  =  10;
   double t = (p[0] - mu) / sigma;
   
-  /*
+  //*
   double N1 = -sqrt(TMath::PiOver2()) * sigma * (-1+TMath::Erf(-sigma*alpha)/(sqrt(2)*sigma));
   double N2 = cb::A(alpha,power) * sigma/(-1.+power) * ( 0. + //lim(x->inf)
                 pow(((cb::B(alpha,power) * sigma - sigma*alpha)/sigma), (1. - power))
               );
   N = N1 + N2;
-  */
+  //*/
 
   if(t < alpha)
     return 1./N * TMath::Exp(-t*t/2);
