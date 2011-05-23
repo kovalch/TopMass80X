@@ -164,6 +164,7 @@ void Analysis::CreateRandomSubset() {
     
     int combi;
     fChain->SetBranchAddress("combi", &combi);
+    fTree->SetBranchAddress("combi", &combi);
     
     for (int iEntry = 0; iEntry < fChain->GetEntries(); iEntry++) {
       fChain->GetEntry(iEntry);
