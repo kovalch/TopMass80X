@@ -21,9 +21,9 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   int bins = 100;
   
   if (debug) {
-    int firstbin = 100;
-    int lastbin  = 600;
-    int bins = 1000;
+    firstbin = 100;
+    lastbin  = 600;
+    bins = 1000;
   }
   
   IdeogramCombLikelihood* fptr = new IdeogramCombLikelihood();
@@ -93,7 +93,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
       
       //if (bProb * fitProb < 1e-3) continue;
       currentWeight = (bProbSSV * hitFitProb);
-      //if (currentWeight > weight) weight = currentWeight;
+      if (currentWeight > weight) weight = currentWeight;
       if (currentWeight != 0) {
         /*
         combBackground->SetParameter(0, hadTopMass);
