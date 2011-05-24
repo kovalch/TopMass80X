@@ -134,7 +134,7 @@ void FindParameters(TString filename, int i)
   
   TH1F* hCombBkg;
   
-  eventTree->Draw("hadTopMass >> hCombBkg(80, 100, 500)", "(bProbSSV*hitFitProb)*((target==0 | target==-2) & (bProbSSV * hitFitProb) > 0.01)");
+  eventTree->Draw("hadTopMass >> hCombBkg(80, 100, 500)", "(bProbSSV*hitFitProb)*((target == 0 | target == -2 | target == -10) & (bProbSSV * hitFitProb) > 0.05)");
   
   TH1F *hCombBkg = (TH1F*)gDirectory->Get("hCombBkg");
   
