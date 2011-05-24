@@ -142,7 +142,7 @@ void FindParameters(TString filename, int i)
   integral = 1;
   hCombBkg->Scale(1/integral);
   
-  hCombBkg->Fit("cb","WEM");
+  hCombBkg->Fit("cb","LEM");
 
   y0 [i] = cb->GetParameter(0);
   ey0[i] = cb->GetParError(0)/sqrt(integral);
