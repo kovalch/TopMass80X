@@ -22,8 +22,8 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   
   if (debug) {
     firstbin = 100;
-    lastbin  = 600;
-    bins = 1000;
+    lastbin  = 350;
+    bins = 500;
   }
   
   IdeogramCombLikelihood* fptr = new IdeogramCombLikelihood();
@@ -78,22 +78,36 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
     eventLikelihood->SetFillColor(0);
     weight = 0;
     currentWeight = 0;
-
+    
+    if (debug && iEntry%nDebug == 0 && iEntry < 100) {
+    std::cout << std::setiosflags(std::ios::left)
+              << std::setw(04) << "i"
+              << std::setw(10) << "Mass"
+              << std::setw(12) << "fitProb"
+              << std::setw(11) << "bProb"
+              << std::setw(11) << "weight"
+              << std::endl;
+    }
+    
     for (int iComb = 0; iComb < 24; iComb++) {
       if (eventTree->GetEntries() < iEntry + iComb + 1) break;
       eventTree->GetEntry(iEntry + iComb);
       
       if (event != currentEvent) break;
       
-      if (debug && iEntry%nDebug == 0 && iEntry < 100) {
-        std::cout << "Combi: " << combi << "\tMass: " << hadTopMass
-                  << "\thitFitProb: " << hitFitProb
-                  << "\tbProbSSV: " << bProbSSV << std::endl;
-      }
-      
       //if (bProb * fitProb < 1e-3) continue;
       currentWeight = (bProbSSV * hitFitProb);
       if (currentWeight > weight) weight = currentWeight;
+      
+      if (debug && iEntry%nDebug == 0 && iEntry < 100) {
+        std::cout << std::setw(04) << combi
+                  << std::setw(10) << hadTopMass
+                  << std::setw(12) << hitFitProb
+                  << std::setw(11) << bProbSSV
+                  << std::setw(11) << currentWeight
+                  << std::endl;
+      }
+      
       if (currentWeight != 0) {
         /*
         combBackground->SetParameter(0, hadTopMass);
@@ -118,6 +132,13 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
     if (debug && iEntry%nDebug == 0 && iEntry < 100) {
       TCanvas* eventCanvas = new TCanvas("eventCanvas", "eventCanvas", 1200, 400);
       eventCanvas->Divide(3, 1);
+      
+      eventLikelihood->SetTitle("L(x|m_{t})");
+      eventLikelihood->SetXTitle("m_{t}");
+      logEventLikelihood->SetTitle("-2#upointln{L(x|m_{t})}");
+      logEventLikelihood->SetXTitle("m_{t}");
+      sumLogLikelihood->SetTitle("-2#upointln{L(data|m_{t})}");
+      sumLogLikelihood->SetXTitle("m_{t}");
       
       eventCanvas->cd(1);
       eventLikelihood->Draw();

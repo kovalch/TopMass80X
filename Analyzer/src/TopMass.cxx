@@ -40,7 +40,7 @@ void TopMass::WriteEnsembleTest(bool readCalibration) {
   
   for (iMassPoint = massPoints.begin(); iMassPoint != massPoints.end(); ++iMassPoint) {
     iMassPoint->analysis = new Analysis(iMassPoint->identifier, iMassPoint->fileName, fMethod, fBins, fLumi);
-    iMassPoint->h3Mass = new TH3F("h3Mass_" + iMassPoint->identifier, "h3Mass_" + iMassPoint->identifier, fBins, 0, 3, fBins, 0, 3, 100, 150, 200);
+    iMassPoint->h3Mass = new TH3F("h3Mass_" + iMassPoint->identifier, "h3Mass_" + iMassPoint->identifier, fBins, 0, 3, fBins, 0, 3, 200, 150, 200);
     iMassPoint->h3MassPull = new TH3F("h3MassPull_" + iMassPoint->identifier, "h3MassPull_" + iMassPoint->identifier, fBins, 0, 3, fBins, 0, 3, 100, -5, 5);
     for (int n = 0; n < nEnsembles; n++) {
       iMassPoint->analysis->Analyze(true);
@@ -109,7 +109,7 @@ void TopMass::EvalEnsembleTest(bool writeCalibration) {
   massPoints.push_back(m1725);
   massPoints.push_back(m1785);
   
-  TFile* ensembleFile = new TFile("root/ensemble_10k_1.root");
+  TFile* ensembleFile = new TFile("root/ensemble.root");
   
   for (iMassPoint = massPoints.begin(); iMassPoint != massPoints.end(); ++iMassPoint) {
     iMassPoint->h2Mass = helper->GetH2("Mass");
@@ -176,6 +176,7 @@ void TopMass::EvalEnsembleTest(bool writeCalibration) {
         else if (hadTopMassBias.Max() < 0) {
           gBias->GetYaxis()->SetRangeUser(hadTopMassBias.Min()-hadTopMassMeanError.Max()-0.5, 0.5);
         }
+        gBias->GetYaxis()->SetRangeUser(-6, 6);
         gBias->SetMarkerStyle(2);
         gBias->SetMarkerSize(0.4);
         gBias->Draw("AP");
@@ -212,7 +213,7 @@ void TopMass::EvalEnsembleTest(bool writeCalibration) {
         
         gPull->Fit("constFit");
         
-        TString path("plot/"); path += fMethod; path += "/"; path += "ensembletest_"; path += i; path += "_"; path += j; path += ".eps";
+        TString path("plot/"); path += fMethod; path += "/"; path += "ensembletest_"; path += i; path += "_"; path += j; path += ".png";
         canvas->Print(path);
         
         for (int l = 0; l < 2; l++) {
@@ -302,7 +303,7 @@ void TopMass::QuickCalibration() {
         ghadTopMass = new TGraphErrors(3, hadTopMass, hadTopMassBias, hadTopMassError, hadTopMassError);
         ghadTopMass->Draw("A*");
         
-        //ghadTopMass->GetYaxis()->SetRangeUser(-6, 6);
+        ghadTopMass->GetYaxis()->SetRangeUser(-6, 6);
         
         TF1* linearFit = new TF1("linearFit", "[0]+(x-172.5)*[1]");    
         ghadTopMass->Fit("linearFit");

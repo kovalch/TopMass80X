@@ -1,6 +1,8 @@
 #include "MassAnalyzer.h"
 #include "IdeogramCombLikelihood.h"
 
+#include <iomanip>
+
 #include "TH1D.h"
 #include "TCanvas.h"
 #include "TMath.h"
