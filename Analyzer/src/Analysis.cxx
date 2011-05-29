@@ -37,9 +37,11 @@ void Analysis::Analyze(bool reanalyze) {
   
   gROOT ->SetStyle("Plain");
   gStyle->SetPalette(1);
+  gStyle->SetOptStat(0);
   gStyle->SetOptFit(1);
   gStyle->SetPaintTextFormat(".2f");
   gStyle->SetPadRightMargin(0.15);
+  gStyle->SetTitleBorderSize(0);
   
   TCanvas* canvas = new TCanvas("canvas", "Top mass", 900, 600);
   canvas->cd();
@@ -82,7 +84,7 @@ void Analysis::Analyze(bool reanalyze) {
       else if (!strcmp(fMethod, "Ideogram")) {
         //cuts += " & target == 1";
         //cuts += " & (target == 0 | target == -2)";
-        cuts += " & (bProbSSV * hitFitProb) > 0.01";
+        cuts += " & (bProbSSV * hitFitProb) > 0.05";
       }
       
       int entries = fTree->GetEntries(cuts);

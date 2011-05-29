@@ -6,6 +6,8 @@
 
 void ideogramBTSSV()
 {
+  gStyle->SetOptTitle(0);
+  gStyle->SetOptStat(0);
 
   TFile* file = new TFile("analyzeTop_1725.root");
   analyzeGenMatch->cd();
@@ -49,13 +51,14 @@ void ideogramBTSSV()
   hQProb->Divide(hQSum, hQBSum);
   
   hQProb->Draw();
-  
-  TF1 *voigt = new TF1("voigt", "[0]*TMath::Voigt(x, [1], [2])", 0, 50);
-  voigt->SetParameters(7, 2, 3);
 
   TF1 *exponential = new TF1("exponential", "exp([0]+[1]*x)", 1.25, 5);
+  exponential->SetLineColor(kRed+1);
   
   hQProb->Fit("exponential", "WREM");
+  
+  hQProb->GetXaxis()->SetTitle("B_{SSVHE}");
+  hQProb->GetYaxis()->SetTitle("P_{lq}(B)");
   
   //hCombBkg->Scale(1/hCombBkg->Integral());
   /*

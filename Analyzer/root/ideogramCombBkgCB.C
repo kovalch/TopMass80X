@@ -21,6 +21,8 @@ double ey4[3];
 double ey5[3];
 double ey6[3];
 
+TF1* func;
+
 namespace cb {
   double A(const double alpha, const double power) {
     return TMath::Power(power / TMath::Abs(alpha), power) * TMath::Exp(-alpha*alpha/2);
@@ -64,10 +66,12 @@ void ideogramCombBkgCB()
 //  file1785 = new TFile("TopMass/Analyzer/root/analyzeTop_1785.root");
   gROOT->SetStyle("Plain");
   gStyle->SetPalette(1);
-  gStyle->SetOptFit(1);
+  gStyle->SetOptFit(1); 
+  gStyle->SetOptTitle(0);
+  gStyle->SetOptStat(0);
   
-  TCanvas* canvas = new TCanvas("canvas", "canvas", 900, 900);
-  canvas->Divide(3,3);
+  TCanvas* canvas = new TCanvas("canvas", "canvas", 900, 600);
+  canvas->Divide(3,2);
   
   canvas->cd(1);
   FindParameters("analyzeTop_1665.root", 0);
@@ -76,35 +80,54 @@ void ideogramCombBkgCB()
   canvas->cd(3);
   FindParameters("analyzeTop_1785.root", 2);
   
+  /*
   canvas->cd(4);
   gr = new TGraphErrors(3,x,y0,ex,ey0);
   gr->SetTitle("p0");
   gr->Draw("A*");
   gr->Fit("pol1", "M");
+  */
   
-  canvas->cd(5);
+  canvas->cd(4);
   gr = new TGraphErrors(3,x,y1,ex,ey1);
   gr->SetTitle("p1");
   gr->Draw("A*");
   gr->Fit("pol1", "M");
   
-  canvas->cd(6);
+  func = gr->GetFunction("pol1");
+  func->SetLineColor(kRed+1);
+  gr->GetXaxis()->SetTitle("m_{t,gen}");
+  gr->GetYaxis()->SetTitle("#mu");
+  
+  canvas->cd(5);
   gr = new TGraphErrors(3,x,y2,ex,ey2);
   gr->SetTitle("p2");
   gr->Draw("A*");
   gr->Fit("pol1", "M");
   
-  canvas->cd(7);
+  func = gr->GetFunction("pol1");
+  func->SetLineColor(kRed+1);
+  gr->GetXaxis()->SetTitle("m_{t,gen}");
+  gr->GetYaxis()->SetTitle("#sigma");
+  
+  canvas->cd(6);
   gr = new TGraphErrors(3,x,y3,ex,ey3);
   gr->SetTitle("p3");
   gr->Draw("A*");
   gr->Fit("pol1", "M");
   
+  func = gr->GetFunction("pol1");
+  func->SetLineColor(kRed+1);
+  gr->GetXaxis()->SetTitle("m_{t,gen}");
+  gr->GetYaxis()->SetTitle("#alpha");
+  
+  /*
   canvas->cd(8);
   gr = new TGraphErrors(3,x,y4,ex,ey4);
   gr->SetTitle("p4");
   gr->Draw("A*");
   gr->Fit("pol1", "M");
+  */
   
   /*
   canvas->cd(9);
@@ -124,6 +147,7 @@ void FindParameters(TString filename, int i)
   TF1* cb = new TF1("cb", crystalBall, 0, 1000, 5);
   cb->SetLineColor(kRed+1);
   
+  cb->SetParNames("N", "#mu", "#sigma", "#alpha", "power");
   cb->SetParameters(1, 170, 25, 0.45, 15);
   
   cb->SetParLimits(0, 0, 1000000);
@@ -134,15 +158,17 @@ void FindParameters(TString filename, int i)
   
   TH1F* hCombBkg;
   
-  eventTree->Draw("hadTopMass >> hCombBkg(80, 100, 500)", "(bProbSSV*hitFitProb)*((target==0 | target==-2) & (bProbSSV * hitFitProb) > 0.01)");
+  eventTree->Draw("hadTopMass >> hCombBkg(80, 100, 500)", "(bProbSSV*hitFitProb)*((target == 0 | target == -2 | target == -10) & (bProbSSV * hitFitProb) > 0.05)");
   
   TH1F *hCombBkg = (TH1F*)gDirectory->Get("hCombBkg");
+  
+  hCombBkg->GetXaxis()->SetTitle("m_{t,rec}");
   
   double integral = hCombBkg->Integral();
   integral = 1;
   hCombBkg->Scale(1/integral);
   
-  hCombBkg->Fit("cb","WEM");
+  hCombBkg->Fit("cb","LEM");
 
   y0 [i] = cb->GetParameter(0);
   ey0[i] = cb->GetParError(0)/sqrt(integral);

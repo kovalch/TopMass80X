@@ -26,10 +26,12 @@ struct massPoint {
   Analysis* analysis;
   
   TH1D* hMass;
+  TH1D* hMassError;
   TH1D* hMassPull;
   TH2F* h2Mass;
   TH2F* h2MassError;
   TH3F* h3Mass;
+  TH3F* h3MassError;
   TH3F* h3MassPull;
   
   massPoint(double pGenMass, TString pIdentifier) :
