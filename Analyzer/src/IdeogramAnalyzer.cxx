@@ -46,7 +46,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   sumLogLikelihood->Eval(null);
 
   double hadTopMass, fitChi2, fitProb, bProb, hadBProb, bProbSSV, weight, currentWeight;
-  double hitFitProb, hitFitMT, hitFitSigMT;
+  double hitFitChi2, hitFitProb, hitFitMT, hitFitSigMT;
   int event, currentEvent;
   int combi, previousCombi = -1;
   int nEvents = 0;
@@ -56,6 +56,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   eventTree->SetBranchAddress("hadTopMass", &hadTopMass);
   eventTree->SetBranchAddress("fitChi2", &fitChi2);
   eventTree->SetBranchAddress("fitProb", &fitProb);
+  eventTree->SetBranchAddress("hitFitChi2", &hitFitChi2);
   eventTree->SetBranchAddress("hitFitProb", &hitFitProb);
   eventTree->SetBranchAddress("hitFitMT", &hitFitMT);
   eventTree->SetBranchAddress("hitFitSigMT", &hitFitSigMT);
