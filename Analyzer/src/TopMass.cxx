@@ -351,7 +351,7 @@ TH2F* TopMass::Measure(Analysis* a) {
       
       std::cout << "Measured TopMass: " << mass << " +/- " << massError << " GeV" << std::endl;
     
-      if (fCalibFitParameter[i][j][0] && fCalibFitParameter[i][j][1]) {
+      if (fCalibFitParameter[i][j][0] && fCalibFitParameter[i][j][1] && mass > 0) {
         massError = sqrt(pow((1-fCalibFitParameter[i][j][1])*massError, 2) + pow(fCalibFitParError[i][j][0], 2) + pow(fCalibFitParError[i][j][1]*(172.5-mass), 2));
         mass = mass - fCalibFitParameter[i][j][0] + (fCalibFitParameter[i][j][1]*(172.5-mass));
         
@@ -360,7 +360,7 @@ TH2F* TopMass::Measure(Analysis* a) {
       else {
         mass = 0;
         massError = 0;
-        std::cout << "No Calibration data available" << std::endl;
+        std::cout << "No Calibration data or mass available" << std::endl;
       }
         
       hMassCalibrated->SetCellContent(i+1, j+1, mass);

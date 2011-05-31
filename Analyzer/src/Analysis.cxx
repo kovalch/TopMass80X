@@ -147,6 +147,7 @@ void Analysis::CreateRandomSubset() {
   fChain->SetBranchStatus("hadTopMass", 1);
   fChain->SetBranchStatus("fitChi2", 1);
   fChain->SetBranchStatus("fitProb", 1);
+  fChain->SetBranchStatus("hitFitChi2", 1);
   fChain->SetBranchStatus("hitFitProb", 1);
   fChain->SetBranchStatus("hitFitMT", 1);
   fChain->SetBranchStatus("hitFitSigMT", 1);
