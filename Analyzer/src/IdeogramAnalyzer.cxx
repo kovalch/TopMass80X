@@ -44,6 +44,13 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   TH1D* logEventLikelihood = new TH1D("logEventLikelihood", "logEventLikelihood", bins, firstbin, lastbin);
   TH1D* sumLogLikelihood = new TH1D("sumLogLikelihood", "sumLogLikelihood", bins, firstbin, lastbin);
   sumLogLikelihood->Eval(null);
+  
+  eventLikelihood->SetTitle("L(x|m_{t})");
+  eventLikelihood->SetXTitle("m_{t}");
+  logEventLikelihood->SetTitle("-2#upointln{L(x|m_{t})}");
+  logEventLikelihood->SetXTitle("m_{t}");
+  sumLogLikelihood->SetTitle("-2#upointln{L(data|m_{t})}");
+  sumLogLikelihood->SetXTitle("m_{t}");
 
   double hadTopMass, fitChi2, fitProb, bProb, hadBProb, bProbSSV, weight, currentWeight;
   double hitFitProb, hitFitMT, hitFitSigMT;
@@ -133,13 +140,6 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
       TCanvas* eventCanvas = new TCanvas("eventCanvas", "eventCanvas", 1200, 400);
       eventCanvas->Divide(3, 1);
       
-      eventLikelihood->SetTitle("L(x|m_{t})");
-      eventLikelihood->SetXTitle("m_{t}");
-      logEventLikelihood->SetTitle("-2#upointln{L(x|m_{t})}");
-      logEventLikelihood->SetXTitle("m_{t}");
-      sumLogLikelihood->SetTitle("-2#upointln{L(data|m_{t})}");
-      sumLogLikelihood->SetXTitle("m_{t}");
-      
       eventCanvas->cd(1);
       eventLikelihood->Draw();
       if (weight > 1./16) eventLikelihood->SetFillColor(kGreen);
@@ -162,10 +162,13 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   
   ctemp->cd();
   
-  sumLogLikelihood->Add(hUnity, -sumLogLikelihood->GetMinimum(0));
+  sumLogLikelihood->Add(hUnity, -sumLogLikelihood->GetMinimum(0) + 1e-2);
   //sumLogLikelihood->SetAxisRange(0, 100, "Y");
   sumLogLikelihood->SetAxisRange(sumLogLikelihood->GetBinCenter(sumLogLikelihood->GetMinimumBin()) - 10, sumLogLikelihood->GetBinCenter(sumLogLikelihood->GetMinimumBin()) + 10, "X");
-  sumLogLikelihood->Draw();
+  
+  sumLogLikelihood->SetMarkerStyle(20);
+  sumLogLikelihood->SetMarkerColor(kRed+1);
+  sumLogLikelihood->Draw("P");
   
   std::cout << "Minimum likelihood: " << sumLogLikelihood->GetMinimum(0) << "\tMaximum likelihood (in range): " << sumLogLikelihood->GetMaximum() << std::endl;
   std::cout << "Total number of events: " << nEvents << std::endl;
@@ -175,7 +178,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   
   fitParabola->SetRange(sumLogLikelihood->GetBinCenter(sumLogLikelihood->GetMinimumBin()) - 3, sumLogLikelihood->GetBinCenter(sumLogLikelihood->GetMinimumBin()) + 3);
 
-  sumLogLikelihood->Fit("fitParabola","WEMR");
+  sumLogLikelihood->Fit("fitParabola","WEMR0");
   
   if (firstbin+1 < fitParabola->GetParameter(0) && fitParabola->GetParameter(0) < lastbin-1) {
     fMass = fitParabola->GetParameter(0);
