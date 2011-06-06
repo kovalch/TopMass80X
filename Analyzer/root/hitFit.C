@@ -340,8 +340,8 @@ void hitFit()
   tH->Draw("hadTopMass >> hHHadTopMassCombi0(50, 100, 250)", "combi==0 & hitFitProb > 0.05");
   tK->Draw("hadTopMass >> hKHadTopMassCombi0(50, 100, 250)", "combi==0 & fitProb > 0.05");
   
-  hHHadTopMassCombi0->Scale(1./hHHadTopMassCombi0);
-  hKHadTopMassCombi0->Scale(1./hKHadTopMassCombi0);
+  hHHadTopMassCombi0->Scale(1./hHHadTopMassCombi0->Integral());
+  hKHadTopMassCombi0->Scale(1./hKHadTopMassCombi0->Integral());
   
   hHHadTopMassCombi0->SetLineColor(color_[kSig]);
   hKHadTopMassCombi0->SetLineColor(color_[kWjets]);
@@ -354,8 +354,8 @@ void hitFit()
   tH->Draw("hadTopMass >> hHHadTopMassCombi0B1(50, 100, 250)", "combi==0 & bProbSSV > 0.1 & hitFitProb > 0.05");
   tK->Draw("hadTopMass >> hKHadTopMassCombi0B1(50, 100, 250)", "combi==0 & bProbSSV > 0.1 & fitProb > 0.05");
   
-  hHHadTopMassCombi0B1->Scale(1./hHHadTopMassCombi0B1);
-  hKHadTopMassCombi0B1->Scale(1./hKHadTopMassCombi0B1);
+  hHHadTopMassCombi0B1->Scale(1./hHHadTopMassCombi0B1->Integral());
+  hKHadTopMassCombi0B1->Scale(1./hKHadTopMassCombi0B1->Integral());
   
   hHHadTopMassCombi0B1->SetLineColor(color_[kSig]);
   hKHadTopMassCombi0B1->SetLineColor(color_[kWjets]);
@@ -368,8 +368,8 @@ void hitFit()
   tH->Draw("hadTopMass >> hHHadTopMassCombi0B2(50, 100, 250)", "combi==0 & bProbSSV > 0.3 & hitFitProb > 0.05");
   tK->Draw("hadTopMass >> hKHadTopMassCombi0B2(50, 100, 250)", "combi==0 & bProbSSV > 0.3 & fitProb > 0.05");
   
-  hHHadTopMassCombi0B2->Scale(1./hHHadTopMassCombi0B2);
-  hKHadTopMassCombi0B2->Scale(1./hKHadTopMassCombi0B2);
+  hHHadTopMassCombi0B2->Scale(1./hHHadTopMassCombi0B2->Integral());
+  hKHadTopMassCombi0B2->Scale(1./hKHadTopMassCombi0B2->Integral());
   
   hHHadTopMassCombi0B2->SetLineColor(color_[kSig]);
   hKHadTopMassCombi0B2->SetLineColor(color_[kWjets]);
