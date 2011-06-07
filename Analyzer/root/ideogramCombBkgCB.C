@@ -4,7 +4,7 @@
 #include "TF1.h"
 #include "TH1F.h"
 
-#include "../inc/Helper.h"
+#include "tdrstyle.C"
 
 double x[3] = {166.5, 172.5, 178.5};
 double y0[3];
@@ -63,9 +63,7 @@ double crystalBall(const double* x, const double* p)
 
 void ideogramCombBkgCB()
 {
-  Helper* helper = new Helper(fBins);
-  helper->SetTDRStyle();
-  
+  setTDRStyle();
   gStyle->SetOptFit(0); 
   
   TCanvas* canvas = new TCanvas("canvas", "canvas", 600, 600);
