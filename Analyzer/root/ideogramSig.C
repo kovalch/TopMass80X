@@ -4,6 +4,8 @@
 #include "TF1.h"
 #include "TH1F.h"
 
+#include "../inc/Helper.h"
+
 double x[3] = {166.5, 172.5, 178.5};
 double y0[3];
 double y1[3];
@@ -22,76 +24,75 @@ double ey6[3];
 
 void ideogramSig()
 {
-  // open input file/directory
-//  file1725 = new TFile("TopMass/Analyzer/root/analyzeTop_1725.root");
-//  file1785 = new TFile("TopMass/Analyzer/root/analyzeTop_1785.root");
-  gROOT->SetStyle("Plain");
-  gStyle->SetPalette(1);
+  Helper* helper = new Helper(fBins);
+  helper->SetTDRStyle();
+  
+  gStyle->SetOptFit(0); 
+    
+  TCanvas* canvas = new TCanvas("canvas", "canvas", 600, 600);
+  
+  canvas->cd();
+  
+  TH1F* h1665 = FindParameters("analyzeTop_1665.root", 0);
+  TH1F* h1725 = FindParameters("analyzeTop_1725.root", 1);
+  TH1F* h1785 = FindParameters("analyzeTop_1785.root", 2);
+  
+  h1665->Draw();
+  h1725->Draw("SAME");
+  h1785->Draw("SAME");
+  
+  // ---
+  //    create legend
+  // ---
+  TLegend *leg0 = new TLegend(0.65, 0.7, 0.95, 0.9);
+  leg0->SetFillStyle(0);
+  leg0->SetBorderSize(0);
+  leg0->AddEntry( h1665 , "m_{t,gen} = 166.5 GeV", "F");
+  leg0->AddEntry( h1725 , "m_{t,gen} = 172.5 GeV", "F" );
+  leg0->AddEntry( h1785 , "m_{t,gen} = 178.5 GeV", "F" );
+  
+  leg0->Draw();
+  
   gStyle->SetOptFit(1);
   
-  TCanvas* canvas = new TCanvas("canvas", "canvas", 900, 900);
-  canvas->Divide(3,2);
+  TCanvas* canvasPar = new TCanvas("canvasPar", "canvasPar", 600, 300);
+  canvasPar->Divide(2,1);
   
-  canvas->cd(1);
-  FindParameters("analyzeTop_1665.root", 0);
-  canvas->cd(2);
-  FindParameters("analyzeTop_1725.root", 1);
-  canvas->cd(3);
-  FindParameters("analyzeTop_1785.root", 2);
-  
-  /*
-  canvas->cd(4);
-  gr = new TGraphErrors(3,x,y0,ex,ey0);
-  gr->SetTitle("p0");
-  gr->Draw("A*");
-  gr->Fit("pol1", "M");
-  */
-  
-  canvas->cd(4);
+  canvasPar->cd(1);
   gr = new TGraphErrors(3,x,y1,ex,ey1);
   gr->SetTitle("p1");
   gr->Draw("A*");
   gr->Fit("pol1", "EM");
   
-  canvas->cd(5);
+  func = gr->GetFunction("pol1");
+  func->SetLineColor(kRed+1);
+  gr->GetXaxis()->SetTitle("m_{t,gen}");
+  gr->GetYaxis()->SetTitle("#mu");
+  
+  canvasPar->cd(2);
   gr = new TGraphErrors(3,x,y2,ex,ey2);
   gr->SetTitle("p2");
   gr->Draw("A*");
   gr->Fit("pol1", "EM");
   
-  canvas->cd(6);
-  gr = new TGraphErrors(3,x,y3,ex,ey3);
-  gr->SetTitle("p3");
-  gr->Draw("A*");
-  gr->Fit("pol1", "EM");
-  
-  /*
-  canvas->cd(6);
-  gr = new TGraphErrors(3,x,y4,ex,ey4);
-  gr->SetTitle("p4");
-  gr->Draw("A*");
-  gr->Fit("pol1", "M");
-  
-  /*
-  canvas->cd(9);
-  gr = new TGraphErrors(3,x,y5,ex,ey5);
-  gr->SetTitle("p5");
-  gr->Draw("A*");
-  gr->Fit("pol1");
-  */
+  func = gr->GetFunction("pol1");
+  func->SetLineColor(kRed+1);
+  gr->GetXaxis()->SetTitle("m_{t,gen}");
+  gr->GetYaxis()->SetTitle("#sigma");
 }
 
-void FindParameters(TString filename, int i)
+TH1F* FindParameters(TString filename, int i)
 {
 
   TFile* file = new TFile(filename);
   analyzeHitFit->cd();
 
   TF1* voigt = new TF1("voigt", "[0]*TMath::Voigt(x-[1], [2], [3])");
-  voigt->SetLineColor(kRed+1);
+  voigt->SetLineColor(kBlack);
+  voigt->SetLineWidth(2);
   voigt->SetParameters(100000, 170, 10, 2);
   
-  voigt->SetParLimits(0, 20, 1000000);
+  voigt->SetParLimits(0, 1, 1000000);
   voigt->SetParLimits(1, 150, 200);
   voigt->SetParLimits(2, 5, 20);
   voigt->SetParLimits(3, 2, 2);
@@ -102,7 +103,9 @@ void FindParameters(TString filename, int i)
   
   TH1F *hSig = (TH1F*)gDirectory->Get("hSig");
   
-  //hSig->Scale(1/hSig->Integral());
+  hSig->GetXaxis()->SetTitle("m_{i}");
+  hSig->GetYaxis()->SetTitle("Fraction of entries / 3 GeV");
+  hSig->SetFillColor(kRed-8-i);
   
   hSig->Fit("voigt","LEM");
 
@@ -117,5 +120,9 @@ void FindParameters(TString filename, int i)
   
   y3 [i] = voigt->GetParameter(3);
   ey3[i] = voigt->GetParError(3);
-
+  
+  hSig->Scale(1/hSig->Integral());
+  hSig->Fit("voigt","L");
+  
+  return hSig;
 }

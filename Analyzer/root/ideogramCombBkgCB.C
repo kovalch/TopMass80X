@@ -4,6 +4,8 @@
 #include "TF1.h"
 #include "TH1F.h"
 
+#include "../inc/Helper.h"
+
 double x[3] = {166.5, 172.5, 178.5};
 double y0[3];
 double y1[3];
@@ -61,34 +63,41 @@ double crystalBall(const double* x, const double* p)
 
 void ideogramCombBkgCB()
 {
-  // open input file/directory
-//  file1725 = new TFile("TopMass/Analyzer/root/analyzeTop_1725.root");
-//  file1785 = new TFile("TopMass/Analyzer/root/analyzeTop_1785.root");
-  gROOT->SetStyle("Plain");
-  gStyle->SetPalette(1);
-  gStyle->SetOptFit(1); 
-  gStyle->SetOptTitle(0);
-  gStyle->SetOptStat(0);
+  Helper* helper = new Helper(fBins);
+  helper->SetTDRStyle();
   
-  TCanvas* canvas = new TCanvas("canvas", "canvas", 900, 600);
-  canvas->Divide(3,2);
+  gStyle->SetOptFit(0); 
   
-  canvas->cd(1);
-  FindParameters("analyzeTop_1665.root", 0);
-  canvas->cd(2);
-  FindParameters("analyzeTop_1725.root", 1);
-  canvas->cd(3);
-  FindParameters("analyzeTop_1785.root", 2);
+  TCanvas* canvas = new TCanvas("canvas", "canvas", 600, 600);
   
-  /*
-  canvas->cd(4);
-  gr = new TGraphErrors(3,x,y0,ex,ey0);
-  gr->SetTitle("p0");
-  gr->Draw("A*");
-  gr->Fit("pol1", "M");
-  */
+  canvas->cd();
   
-  canvas->cd(4);
+  TH1F* h1665 = FindParameters("analyzeTop_1665.root", 0);
+  TH1F* h1725 = FindParameters("analyzeTop_1725.root", 1);
+  TH1F* h1785 = FindParameters("analyzeTop_1785.root", 2);
+  
+  h1665->Draw();
+  h1665->GetXaxis()->SetRangeUser(100, 250);
+  h1725->Draw("SAME");
+  h1785->Draw("SAME");
+  
+  // ---
+  //    create legend
+  // ---
+  TLegend *leg0 = new TLegend(0.65, 0.7, 0.95, 0.9);
+  leg0->SetFillStyle(0);
+  leg0->SetBorderSize(0);
+  leg0->AddEntry( h1665 , "m_{t,gen} = 166.5 GeV", "F");
+  leg0->AddEntry( h1725 , "m_{t,gen} = 172.5 GeV", "F" );
+  leg0->AddEntry( h1785 , "m_{t,gen} = 178.5 GeV", "F" );
+  leg0->Draw();
+  
+  gStyle->SetOptFit(1);
+  
+  TCanvas* canvasPar = new TCanvas("canvasPar", "canvasPar", 900, 300);
+  canvasPar->Divide(3,1);
+  
+  canvasPar->cd(1);
   gr = new TGraphErrors(3,x,y1,ex,ey1);
   gr->SetTitle("p1");
   gr->Draw("A*");
@@ -99,7 +108,7 @@ void ideogramCombBkgCB()
   gr->GetXaxis()->SetTitle("m_{t,gen}");
   gr->GetYaxis()->SetTitle("#mu");
   
-  canvas->cd(5);
+  canvasPar->cd(2);
   gr = new TGraphErrors(3,x,y2,ex,ey2);
   gr->SetTitle("p2");
   gr->Draw("A*");
@@ -110,7 +119,7 @@ void ideogramCombBkgCB()
   gr->GetXaxis()->SetTitle("m_{t,gen}");
   gr->GetYaxis()->SetTitle("#sigma");
   
-  canvas->cd(6);
+  canvasPar->cd(3);
   gr = new TGraphErrors(3,x,y3,ex,ey3);
   gr->SetTitle("p3");
   gr->Draw("A*");
@@ -120,49 +129,37 @@ void ideogramCombBkgCB()
   func->SetLineColor(kRed+1);
   gr->GetXaxis()->SetTitle("m_{t,gen}");
   gr->GetYaxis()->SetTitle("#alpha");
-  
-  /*
-  canvas->cd(8);
-  gr = new TGraphErrors(3,x,y4,ex,ey4);
-  gr->SetTitle("p4");
-  gr->Draw("A*");
-  gr->Fit("pol1", "M");
-  */
-  
-  /*
-  canvas->cd(9);
-  gr = new TGraphErrors(3,x,y5,ex,ey5);
-  gr->SetTitle("p5");
-  gr->Draw("A*");
-  gr->Fit("pol1");
-  */
 }
 
-void FindParameters(TString filename, int i)
+TH1F* FindParameters(TString filename, int i)
 {
 
   TFile* file = new TFile(filename);
   analyzeKinFit->cd();
 
   TF1* cb = new TF1("cb", crystalBall, 0, 1000, 5);
-  cb->SetLineColor(kRed+1);
+  cb->SetLineColor(kBlack);
+  cb->SetLineWidth(2);
   
   cb->SetParNames("N", "#mu", "#sigma", "#alpha", "power");
   cb->SetParameters(1, 170, 25, 0.45, 15);
   
   cb->SetParLimits(0, 0, 1000000);
   cb->SetParLimits(1, 150, 200);
-  cb->SetParLimits(2, 20, 30);
+  cb->SetParLimits(2, 15, 30);
   cb->SetParLimits(3, 0.05, 0.95);
   cb->SetParLimits(4, 5, 5);
   
   TH1F* hCombBkg;
   
-  eventTree->Draw("hadTopMass >> hCombBkg(80, 100, 500)", "(bProbSSV*hitFitProb)*((target == 0 | target == -2 | target == -10) & (bProbSSV * hitFitProb) > 0.05)");
+  eventTree->Draw("hadTopMass >> hCombBkg(80, 100, 500)", "(bProbSSV*hitFitProb)*((target == 0) & (bProbSSV * hitFitProb) > 0.05)");
+  //eventTree->Draw("hadTopMass >> hCombBkg(80, 100, 500)", "(bProbSSV*hitFitProb)*((target == -2 | target == -10) & (bProbSSV * hitFitProb) > 0.05)");
   
   TH1F *hCombBkg = (TH1F*)gDirectory->Get("hCombBkg");
   
-  hCombBkg->GetXaxis()->SetTitle("m_{t,rec}");
+  hCombBkg->GetXaxis()->SetTitle("m_{i}");
+  hCombBkg->GetYaxis()->SetTitle("Fraction of entries / 5 GeV");
+  hCombBkg->SetFillColor(kRed-8-i);
   
   double integral = hCombBkg->Integral();
   integral = 1;
@@ -188,5 +185,10 @@ void FindParameters(TString filename, int i)
   
   y4 [i] = cb->GetParameter(4);
   ey4[i] = cb->GetParError(4)/sqrt(integral);
+  
+  hCombBkg->Scale(1/hCombBkg->Integral());
+  hCombBkg->Fit("cb","LEM");
+  
+  return hCombBkg;
 
 }

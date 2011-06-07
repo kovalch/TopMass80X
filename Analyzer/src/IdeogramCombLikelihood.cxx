@@ -3,9 +3,9 @@
 double IdeogramCombLikelihood::Evaluate(double *x, double *p) {
   
   //* worst case, improvable by f(w_i)
-  double fCP = 0.40;
-  double fWP = 0.25;
-  double fMJ = 0.35;
+  double fCP = 0.404;
+  double fWP = 0.246;
+  double fMJ = 0.350;
   //*/
 
   return p[2] * (fCP * PCP(x, p) + fWP * PWP(x, p) + fMJ * PMJ(x, p));

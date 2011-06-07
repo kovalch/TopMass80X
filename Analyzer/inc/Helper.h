@@ -2,6 +2,7 @@
 #define HELPER_H
 
 #include "TH2F.h"
+#include "TStyle.h"
 
 class Helper {
   private:
@@ -12,6 +13,7 @@ class Helper {
     ~Helper();
     
     TH2F* GetH2(TString title);
+    void SetTDRStyle();
 };
 
 #endif

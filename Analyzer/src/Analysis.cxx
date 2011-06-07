@@ -34,14 +34,9 @@ void Analysis::Analyze(bool reanalyze) {
   else {
     return;
   }
-  
-  gROOT ->SetStyle("Plain");
-  gStyle->SetPalette(1);
-  gStyle->SetOptStat(0);
-  gStyle->SetOptFit(1);
-  gStyle->SetPaintTextFormat(".2f");
-  gStyle->SetPadRightMargin(0.15);
-  gStyle->SetTitleBorderSize(0);
+   
+  Helper* helper = new Helper(fBins);
+  helper->SetTDRStyle();
   
   TCanvas* canvas = new TCanvas("canvas", "Top mass", 900, 600);
   canvas->cd();

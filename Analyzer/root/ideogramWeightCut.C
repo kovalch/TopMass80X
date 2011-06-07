@@ -66,20 +66,12 @@ void ideogramWeightCut()
     if (idx==kWjets) lumiweight_.push_back(21./35.9*luminosity);
   }
 
-  for (unsigned int idx=0; idx<3; ++idx) {
-    //trees_[idx]->Draw("bProbSSV*hitFitProb >> prob(150, -100, 50)");
-    
-    //TH1F *prob = (TH1F*) gDirectory->Get("prob");
-    
-    //prob->Draw();
-  }
+  tT->Draw("log10(bProbSSV*hitFitProb) >> hTSig(40, -5, 0)", "(target==1)");
+  tT->Draw("log10(bProbSSV*hitFitProb) >> hTBkg(40, -5, 0)", "(target!=1)");
+  tW->Draw("log10(bProbSSV*hitFitProb) >> hW   (40, -5, 0)", "");
+  tD->Draw("log10(bProbSSV*hitFitProb) >> hD   (40, -5, 0)", "");
   
-  tT->Draw("log10(bProbSSV*hitFitProb) >> hTSig(40, -10, 0)", "target==1");
-  tT->Draw("log10(bProbSSV*hitFitProb) >> hTBkg(40, -10, 0)", "target!=1");
-  tW->Draw("log10(bProbSSV*hitFitProb) >> hW   (40, -10, 0)");
-  tD->Draw("log10(bProbSSV*hitFitProb) >> hD   (40, -10, 0)");
-  
-  TH1F* hNull = new TH1F("null", "", 40, -10, 0);
+  TH1F* hNull = new TH1F("null", "", 40, -5, 0);
   hNull->GetYaxis()->SetRangeUser(0.1, 1000);
   hNull->GetXaxis()->SetTitle("log(w_{i})");
   
@@ -105,7 +97,6 @@ void ideogramWeightCut()
   // ---
   //    create legend
   // ---
-  // samples: separate canvas
   TLegend *leg0 = new TLegend(0.6, 0.7, 0.85, 0.9);
   leg0->SetFillStyle(0);
   leg0->SetBorderSize(0);

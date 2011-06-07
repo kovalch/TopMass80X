@@ -45,11 +45,11 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   TH1D* sumLogLikelihood = new TH1D("sumLogLikelihood", "sumLogLikelihood", bins, firstbin, lastbin);
   sumLogLikelihood->Eval(null);
   
-  eventLikelihood->SetTitle("L(x|m_{t})");
+  eventLikelihood->SetYTitle("L(m_{t}|event)");
   eventLikelihood->SetXTitle("m_{t}");
-  logEventLikelihood->SetTitle("-2#upointln{L(x|m_{t})}");
+  logEventLikelihood->SetYTitle("-2#upointln{L(m_{t}|event)}");
   logEventLikelihood->SetXTitle("m_{t}");
-  sumLogLikelihood->SetTitle("-2#upointln{L(data|m_{t})}");
+  sumLogLikelihood->SetYTitle("-2#upointln{L(m_{t}|sample)}");
   sumLogLikelihood->SetXTitle("m_{t}");
 
   double hadTopMass, fitChi2, fitProb, bProb, hadBProb, bProbSSV, weight, currentWeight;
@@ -143,10 +143,13 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
       
       eventCanvas->cd(1);
       eventLikelihood->Draw();
+      eventLikelihood->SetFillColor(kRed+1);
+      /*
       if (weight > 1./16) eventLikelihood->SetFillColor(kGreen);
       if (weight > 1./8) eventLikelihood->SetFillColor(kYellow);
       if (weight > 1./4) eventLikelihood->SetFillColor(kOrange);
       if (weight > 1./2) eventLikelihood->SetFillColor(kRed);
+      */
       
       eventCanvas->cd(2);
       logEventLikelihood->Draw();
@@ -165,7 +168,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   
   sumLogLikelihood->Add(hUnity, -sumLogLikelihood->GetMinimum(0) + 1e-2);
   //sumLogLikelihood->SetAxisRange(0, 100, "Y");
-  sumLogLikelihood->SetAxisRange(sumLogLikelihood->GetBinCenter(sumLogLikelihood->GetMinimumBin()) - 10, sumLogLikelihood->GetBinCenter(sumLogLikelihood->GetMinimumBin()) + 10, "X");
+  sumLogLikelihood->SetAxisRange(sumLogLikelihood->GetBinCenter(sumLogLikelihood->GetMinimumBin()) - 6, sumLogLikelihood->GetBinCenter(sumLogLikelihood->GetMinimumBin()) + 6.5, "X");
   
   sumLogLikelihood->SetMarkerStyle(20);
   sumLogLikelihood->SetMarkerColor(kRed+1);

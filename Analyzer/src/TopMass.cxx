@@ -36,11 +36,11 @@ void TopMass::WriteEnsembleTest(bool readCalibration) {
   massPoints.push_back(m1725);
   massPoints.push_back(m1785);
   
-  int nEnsembles = 100;
+  int nEnsembles = 10;
   
   for (iMassPoint = massPoints.begin(); iMassPoint != massPoints.end(); ++iMassPoint) {
     iMassPoint->analysis = new Analysis(iMassPoint->identifier, iMassPoint->fileName, fMethod, fBins, fLumi);
-    iMassPoint->h3Mass = new TH3F("h3Mass_" + iMassPoint->identifier, "h3Mass_" + iMassPoint->identifier, fBins, 0, 3, fBins, 0, 3, 200, 150, 200);
+    iMassPoint->h3Mass = new TH3F("h3Mass_" + iMassPoint->identifier, "h3Mass_" + iMassPoint->identifier, fBins, 0, 3, fBins, 0, 3, 100, 150, 200);
     iMassPoint->h3MassError = new TH3F("h3MassError_" + iMassPoint->identifier, "h3MassError_" + iMassPoint->identifier, fBins, 0, 3, fBins, 0, 3, 100, 0, 10);
     iMassPoint->h3MassPull = new TH3F("h3MassPull_" + iMassPoint->identifier, "h3MassPull_" + iMassPoint->identifier, fBins, 0, 3, fBins, 0, 3, 100, -5, 5);
     for (int n = 0; n < nEnsembles; n++) {
@@ -85,6 +85,8 @@ void TopMass::WriteEnsembleTest(bool readCalibration) {
 
 void TopMass::EvalEnsembleTest(bool writeCalibration) {
   Helper* helper = new Helper(fBins);
+  helper->SetTDRStyle();
+  gStyle->SetOptFit(0);
 
   TiXmlDocument doc;
   TiXmlDeclaration* decl = new TiXmlDeclaration( "1.0", "", "" );
@@ -93,16 +95,11 @@ void TopMass::EvalEnsembleTest(bool writeCalibration) {
   TiXmlElement* calibration = new TiXmlElement( "calibration" );
   doc.LinkEndChild( calibration );
   
-  gROOT ->SetStyle("Plain");
-  gStyle->SetPalette(1);
-  gStyle->SetOptFit(1);
-  gStyle->SetPaintTextFormat(".2f");
-  
   massPoint m1665(166.5, "1665");
   massPoint m1725(172.5, "1725");
   massPoint m1785(178.5, "1785");
   
-  int nEnsemble = 10000;
+  int nEnsemble = 1000;
   
   m1665.genLumi = 2250;
   m1725.genLumi = 6100;
@@ -123,8 +120,8 @@ void TopMass::EvalEnsembleTest(bool writeCalibration) {
     
   for (int i = 0; i < fBins; i++) {
     for (int j = 0; j < fBins; j++) {
-      TCanvas* canvas = new TCanvas("canvas", "hadronic top hMass", 2000, 1000);
-      canvas->Divide(4,2);
+      TCanvas* canvas = new TCanvas("canvas", "hadronic top hMass", 1000, 1000);
+      canvas->Divide(2,2);
       
       TVectorD hadTopMass(massPoints.size());
       TVectorD hadTopMassMeanError(massPoints.size());
@@ -136,24 +133,36 @@ void TopMass::EvalEnsembleTest(bool writeCalibration) {
       TVectorD hadTopMassPullWidthError(massPoints.size());
       
       for (iMassPoint = massPoints.begin(); iMassPoint != massPoints.end(); ++iMassPoint) {
+        TCanvas* canvasTemp = new TCanvas("canvasTemp", "hadronic top hMass");
+        canvasTemp->cd();
+        
         int k = iMassPoint - massPoints.begin();
         
         iMassPoint->hMass = iMassPoint->h3Mass->ProjectionZ("hMass_" + iMassPoint->identifier, i+1, i+1, j+1, j+1);
+        iMassPoint->hMass->Rebin(2);
+        iMassPoint->hMass->GetXaxis()->SetTitle("m_{t}");
+        iMassPoint->hMass->GetYaxis()->SetTitle("Pseudo-experiments");
+        iMassPoint->hMass->SetFillColor(kRed - 11 + massPoints.size() - k);
+        
         iMassPoint->hMassPull = iMassPoint->h3MassPull->ProjectionZ("hMassPull_" + iMassPoint->identifier, i+1, i+1, j+1, j+1);
+        iMassPoint->hMassPull->Rebin(2);
+        iMassPoint->hMassPull->GetXaxis()->SetTitle("m_{t} pull");
+        iMassPoint->hMassPull->GetYaxis()->SetTitle("Pseudo-experiments");
+        iMassPoint->hMassPull->SetFillColor(kRed - 11 + massPoints.size() - k);
         
         TF1* gaus = new TF1("gaus", "gaus");
         TF1* gausPull = new TF1("gausPull", "gaus");
         
         gaus->SetLineWidth(1);
-        gaus->SetLineColor(kRed);
+        gaus->SetLineColor(kBlack);
+        gaus->SetLineWidth(2);
         
         gausPull->SetLineWidth(1);
-        gausPull->SetLineColor(kRed);
+        gausPull->SetLineColor(kBlack);
+        gausPull->SetLineWidth(2);
         
-        canvas->cd(1+k);
         iMassPoint->hMass->Fit("gaus");
         
-        canvas->cd(5+k);
         iMassPoint->hMassPull->Fit("gausPull");
         
         hadTopMass[k] = gaus->GetParameter(1);
@@ -170,7 +179,40 @@ void TopMass::EvalEnsembleTest(bool writeCalibration) {
       }
           
       if (hadTopMassMeanError > 0 && hadTopMassChi2NDF < 10) {
-        canvas->cd(4);
+        canvas->cd(1);
+        
+        TLegend *leg0 = new TLegend(0.65, 0.7, 0.95, 0.9);
+        leg0->SetFillStyle(0);
+        leg0->SetBorderSize(0);
+        
+        for (iMassPoint = massPoints.begin(); iMassPoint != massPoints.end(); ++iMassPoint) {
+          if (iMassPoint == massPoints.begin()) {
+            iMassPoint->hMass->Draw();
+          }
+          else {
+            iMassPoint->hMass->Draw("SAME");
+          }
+          TString legend("m_{t,gen} = "); legend += iMassPoint->genMass; legend += " GeV";
+          leg0->AddEntry( iMassPoint->hMass, legend, "F");
+        }
+        
+        leg0->Draw();
+        
+        canvas->cd(3);
+        for (iMassPoint = massPoints.begin(); iMassPoint != massPoints.end(); ++iMassPoint) {
+          if (iMassPoint == massPoints.begin()) {
+            iMassPoint->hMassPull->Draw();
+          }
+          else {
+            iMassPoint->hMassPull->Draw("SAME");
+          }
+        }
+        
+        leg0->Draw();
+        
+        gStyle->SetOptFit(1);
+        
+        canvas->cd(2);
         
         TGraphErrors* gBias = new TGraphErrors(hadTopMass, hadTopMassBias, hadTopMassMeanError, hadTopMassMeanError);
         if (hadTopMassBias.Min() > 0) {
@@ -179,7 +221,9 @@ void TopMass::EvalEnsembleTest(bool writeCalibration) {
         else if (hadTopMassBias.Max() < 0) {
           gBias->GetYaxis()->SetRangeUser(hadTopMassBias.Min()-hadTopMassMeanError.Max()-0.5, 0.5);
         }
+        gBias->GetXaxis()->SetTitle("m_{t}");
         gBias->GetYaxis()->SetRangeUser(-6, 6);
+        gBias->GetYaxis()->SetTitle("bias");
         gBias->SetMarkerStyle(2);
         gBias->SetMarkerSize(0.4);
         gBias->Draw("AP");
@@ -196,10 +240,12 @@ void TopMass::EvalEnsembleTest(bool writeCalibration) {
         
         gBias->Fit("linearFit");
         
-        canvas->cd(8);
+        canvas->cd(4);
         
         TGraphErrors* gPull = new TGraphErrors(hadTopMass, hadTopMassPullWidth, hadTopMassMeanError, hadTopMassPullWidthError);
-        gPull->GetYaxis()->SetRangeUser(0, 2);
+        gPull->GetXaxis()->SetTitle("m_{t}");
+        gPull->GetYaxis()->SetRangeUser(0.75, 1.25);
+        gPull->GetYaxis()->SetTitle("pull width");
         gPull->SetMarkerStyle(2);
         gPull->SetMarkerSize(0.4);
         gPull->Draw("AP");

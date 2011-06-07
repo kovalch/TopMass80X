@@ -7,6 +7,7 @@
 #include "TH1.h"
 #include "TH3F.h"
 #include "TVector.h"
+#include "TLegend.h"
 
 #include "tinyxml.h"
 
