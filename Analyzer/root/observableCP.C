@@ -22,14 +22,14 @@ double ey4[3];
 double ey5[3];
 double ey6[3];
 
-void ideogramSig()
+void observableCP()
 {
   setTDRStyle();
   gStyle->SetOptFit(0); 
     
-  TCanvas* canvas = new TCanvas("canvas", "canvas", 600, 600);
+  TCanvas* cObservableCP = new TCanvas("cObservableCP", "cObservableCP", 600, 600);
   
-  canvas->cd();
+  cObservableCP->cd();
   
   TH1F* h1665 = FindParameters("analyzeTop_1665.root", 0);
   TH1F* h1725 = FindParameters("analyzeTop_1725.root", 1);
@@ -53,10 +53,10 @@ void ideogramSig()
   
   gStyle->SetOptFit(1);
   
-  TCanvas* canvasPar = new TCanvas("canvasPar", "canvasPar", 600, 300);
-  canvasPar->Divide(2,1);
+  TCanvas* cObservableCPPar = new TCanvas("cObservableCPPar", "cObservableCPPar", 1200, 600);
+  cObservableCPPar->Divide(2,1);
   
-  canvasPar->cd(1);
+  cObservableCPPar->cd(1);
   gr = new TGraphErrors(3,x,y1,ex,ey1);
   gr->SetTitle("p1");
   gr->Draw("A*");
@@ -64,10 +64,11 @@ void ideogramSig()
   
   func = gr->GetFunction("pol1");
   func->SetLineColor(kRed+1);
+  func->SetLineWidth(2);
   gr->GetXaxis()->SetTitle("m_{t,gen}");
   gr->GetYaxis()->SetTitle("#mu");
   
-  canvasPar->cd(2);
+  cObservableCPPar->cd(2);
   gr = new TGraphErrors(3,x,y2,ex,ey2);
   gr->SetTitle("p2");
   gr->Draw("A*");
@@ -75,6 +76,7 @@ void ideogramSig()
   
   func = gr->GetFunction("pol1");
   func->SetLineColor(kRed+1);
+  func->SetLineWidth(2);
   gr->GetXaxis()->SetTitle("m_{t,gen}");
   gr->GetYaxis()->SetTitle("#sigma");
 }

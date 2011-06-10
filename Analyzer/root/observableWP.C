@@ -61,14 +61,14 @@ double crystalBall(const double* x, const double* p)
 }
 
 
-void ideogramCombBkgCB()
+void observableWP()
 {
   setTDRStyle();
   gStyle->SetOptFit(0); 
   
-  TCanvas* canvas = new TCanvas("canvas", "canvas", 600, 600);
+  TCanvas* cObservableWP = new TCanvas("cObservableWP", "cObservableWP", 600, 600);
   
-  canvas->cd();
+  cObservableWP->cd();
   
   TH1F* h1665 = FindParameters("analyzeTop_1665.root", 0);
   TH1F* h1725 = FindParameters("analyzeTop_1725.root", 1);
@@ -92,10 +92,10 @@ void ideogramCombBkgCB()
   
   gStyle->SetOptFit(1);
   
-  TCanvas* canvasPar = new TCanvas("canvasPar", "canvasPar", 900, 300);
-  canvasPar->Divide(3,1);
+  TCanvas* cObservableWPPar = new TCanvas("cObservableWPPar", "cObservableWPPar", 1200, 1200);
+  cObservableWPPar->Divide(2,2);
   
-  canvasPar->cd(1);
+  cObservableWPPar->cd(1);
   gr = new TGraphErrors(3,x,y1,ex,ey1);
   gr->SetTitle("p1");
   gr->Draw("A*");
@@ -106,7 +106,7 @@ void ideogramCombBkgCB()
   gr->GetXaxis()->SetTitle("m_{t,gen}");
   gr->GetYaxis()->SetTitle("#mu");
   
-  canvasPar->cd(2);
+  cObservableWPPar->cd(2);
   gr = new TGraphErrors(3,x,y2,ex,ey2);
   gr->SetTitle("p2");
   gr->Draw("A*");
@@ -117,7 +117,7 @@ void ideogramCombBkgCB()
   gr->GetXaxis()->SetTitle("m_{t,gen}");
   gr->GetYaxis()->SetTitle("#sigma");
   
-  canvasPar->cd(3);
+  cObservableWPPar->cd(3);
   gr = new TGraphErrors(3,x,y3,ex,ey3);
   gr->SetTitle("p3");
   gr->Draw("A*");
@@ -144,14 +144,13 @@ TH1F* FindParameters(TString filename, int i)
   
   cb->SetParLimits(0, 0, 1000000);
   cb->SetParLimits(1, 150, 200);
-  cb->SetParLimits(2, 15, 30);
+  cb->SetParLimits(2, 20, 30);
   cb->SetParLimits(3, 0.05, 0.95);
   cb->SetParLimits(4, 5, 5);
   
   TH1F* hCombBkg;
   
   eventTree->Draw("hadTopMass >> hCombBkg(80, 100, 500)", "(bProbSSV*hitFitProb)*((target == 0) & (bProbSSV * hitFitProb) > 0.05)");
-  //eventTree->Draw("hadTopMass >> hCombBkg(80, 100, 500)", "(bProbSSV*hitFitProb)*((target == -2 | target == -10) & (bProbSSV * hitFitProb) > 0.05)");
   
   TH1F *hCombBkg = (TH1F*)gDirectory->Get("hCombBkg");
   
@@ -185,7 +184,7 @@ TH1F* FindParameters(TString filename, int i)
   ey4[i] = cb->GetParError(4)/sqrt(integral);
   
   hCombBkg->Scale(1/hCombBkg->Integral());
-  hCombBkg->Fit("cb","LEM");
+  hCombBkg->Fit("cb","EM");
   
   return hCombBkg;
 

@@ -18,11 +18,11 @@ void drawcutline(double cutval, double maximum)
   cut->DrawLine(cutval, 0.,cutval, maximum);
 }
 
-void ideogramWeightCut()
+void permutationWeights()
 {
-  TCanvas* canvas = new TCanvas("canvas", "canvas");
-  canvas->SetLogy(1);
-  canvas->cd();
+  TCanvas* cPermutationWeights = new TCanvas("cPermutationWeights", "cPermutationWeights");
+  cPermutationWeights->SetLogy(1);
+  cPermutationWeights->cd();
   
   gStyle->SetOptStat(0);
   
