@@ -35,22 +35,24 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double hadQEta;
   double hadQMass;
   double hadQE;
-  double hadQBTCHE;
-  double hadQBVMVA;
   double hadQBSSV;
   
-  double hadQbarPt;
-  double hadQbarEta;
-  double hadQbarMass;
-  double hadQbarE;
-  double hadQbarBTCHE;
-  double hadQbarBVMVA;
-  double hadQbarBSSV;
+  double hadQRawE;
+  
+  double hadQBarPt;
+  double hadQBarEta;
+  double hadQBarMass;
+  double hadQBarE;
+  double hadQBarBSSV;
+  
+  double hadQBarRawE;
   
   double hadWPt;
   double hadWEta;
   double hadWMass;
   double hadWE;
+  
+  double hadWRawMass;
   
   double genHadWPt;
   double genHadWEta;
@@ -61,17 +63,17 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double hadBEta;
   double hadBMass;
   double hadBE;
-  double hadBBTCHE;
-  double hadBBVMVA;
   double hadBBSSV;
+  
+  double hadBRawE;
   
   double lepBPt;
   double lepBEta;
   double lepBMass;
   double lepBE;
-  double lepBBTCHE;
-  double lepBBVMVA;
   double lepBBSSV;
+  
+  double lepBRawE;
   
   double genHadBPt;
   double genHadBEta;
@@ -82,6 +84,8 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double hadTopEta;
   double hadTopMass;
   double hadTopE;
+  
+  double hadTopRawMass;
   
   double genHadTopPt;
   double genHadTopEta;
@@ -112,7 +116,6 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   
   TTree* eventTree;
   
-  double QBTagProbability(double bDiscriminator);
   double QBTagProbabilitySSV(double bDiscriminator);
 };
 

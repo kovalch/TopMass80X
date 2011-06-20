@@ -69,6 +69,11 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     if (hypoClassKey == hypoClassKeyHitFit) hHitFit = h;
     else hHitFit  = semiLepEvt->correspondingHypo(hypoClassKey, h, hypoClassKeyHitFit);
     
+    if( !semiLepEvt->isHypoValid(hypoClassKeyMVA, hMVA) ){
+      edm::LogInfo("EventHypothesisAnalyzer") << "MVA Hypothesis not valid for this event";
+      return;
+    }
+    
     std::vector<int> jetLeptonCombinationCurrent = semiLepEvt->jetLeptonCombination(hypoClassKey, h);
     
     if (semiLepEvt->isHypoValid("kGenMatch") ) {
@@ -126,19 +131,25 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     //////////////////////////////////////////////////////////////////////////////////////////////////
     // get reconstructed particles from the hypothesis
     //////////////////////////////////////////////////////////////////////////////////////////////////
-
-    const reco::Candidate* hadTop   = semiLepEvt->hadronicDecayTop       (hypoClassKey, h);
-    const reco::Candidate* hadW     = semiLepEvt->hadronicDecayW         (hypoClassKey, h);
-    const reco::Candidate* hadB     = semiLepEvt->hadronicDecayB         (hypoClassKey, h);
-    const reco::Candidate* hadQ     = semiLepEvt->hadronicDecayQuark     (hypoClassKey, h);
-    const reco::Candidate* hadQbar  = semiLepEvt->hadronicDecayQuarkBar  (hypoClassKey, h);
+    
+    const reco::Candidate* hadTop     = semiLepEvt->hadronicDecayTop       (hypoClassKey, h);
+    const reco::Candidate* hadTopRaw  = semiLepEvt->hadronicDecayTop       (hypoClassKeyMVA, hMVA);
+    const reco::Candidate* hadW       = semiLepEvt->hadronicDecayW         (hypoClassKey, h);
+    const reco::Candidate* hadWRaw    = semiLepEvt->hadronicDecayW         (hypoClassKeyMVA, hMVA);
+    const reco::Candidate* hadB       = semiLepEvt->hadronicDecayB         (hypoClassKey, h);
+    const reco::Candidate* hadBRaw    = semiLepEvt->hadronicDecayB         (hypoClassKeyMVA, hMVA);
+    const reco::Candidate* hadQ       = semiLepEvt->hadronicDecayQuark     (hypoClassKey, h);
+    const reco::Candidate* hadQRaw    = semiLepEvt->hadronicDecayQuark     (hypoClassKeyMVA, hMVA);
+    const reco::Candidate* hadQBar    = semiLepEvt->hadronicDecayQuarkBar  (hypoClassKey, h);
+    const reco::Candidate* hadQBarRaw = semiLepEvt->hadronicDecayQuarkBar  (hypoClassKeyMVA, hMVA);
     
     //const reco::Candidate* lepTop   = semiLepEvt->leptonicDecayTop       (hypoClassKey, h);
     //const reco::Candidate* lepW     = semiLepEvt->leptonicDecayW         (hypoClassKey, h);
     const reco::Candidate* lepB     = semiLepEvt->leptonicDecayB         (hypoClassKey, h);
+    const reco::Candidate* lepBRaw  = semiLepEvt->leptonicDecayB         (hypoClassKeyMVA, hMVA);
     const reco::Candidate* lepton   = semiLepEvt->singleLepton           (hypoClassKey, h);
     //const reco::Candidate* neutrino = semiLepEvt->singleNeutrino         (hypoClassKey, h);
-
+    
     //////////////////////////////////////////////////////////////////////////////////////////////////
     // get genParticles
     //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -150,27 +161,29 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     //////////////////////////////////////////////////////////////////////////////////////////////////
     // fill eventTree with pt, eta and the masses of the reconstructed particles
     //////////////////////////////////////////////////////////////////////////////////////////////////
-  
+    
     hadQPt     = hadQ->pt();
     hadQEta    = hadQ->eta();
     hadQMass   = hadQ->mass();
     hadQE      = hadQ->energy();
-    hadQBTCHE  = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQ]).bDiscriminator("trackCountingHighEffBJetTags");
-    hadQBVMVA  = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQ]).bDiscriminator("combinedSecondaryVertexMVABJetTags");
     hadQBSSV   = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQ]).bDiscriminator("simpleSecondaryVertexHighEffBJetTags");
-
-    hadQbarPt     = hadQbar->pt();
-    hadQbarEta    = hadQbar->eta();
-    hadQbarMass   = hadQbar->mass();
-    hadQbarE      = hadQbar->energy();
-    hadQbarBTCHE  = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQBar]).bDiscriminator("trackCountingHighEffBJetTags");
-    hadQbarBVMVA  = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQBar]).bDiscriminator("combinedSecondaryVertexMVABJetTags");
-    hadQbarBSSV   = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQBar]).bDiscriminator("simpleSecondaryVertexHighEffBJetTags");
+    
+    hadQRawE   = hadQRaw->energy();
+    
+    hadQBarPt     = hadQBar->pt();
+    hadQBarEta    = hadQBar->eta();
+    hadQBarMass   = hadQBar->mass();
+    hadQBarE      = hadQBar->energy();
+    hadQBarBSSV   = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQBar]).bDiscriminator("simpleSecondaryVertexHighEffBJetTags");
+    
+    hadQBarRawE   = hadQBarRaw->energy();
     
     hadWPt     = hadW->pt();
     hadWEta    = hadW->eta();
     hadWMass   = hadW->mass();
     hadWE      = hadW->energy();
+    
+    hadWRawMass   = hadWRaw->mass();
   
     if (genHadW) {
       genHadWPt     = genHadW->pt();
@@ -183,17 +196,17 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     hadBEta    = hadB->eta();
     hadBMass   = hadB->mass();
     hadBE      = hadB->energy();
-    hadBBTCHE  = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::HadB]).bDiscriminator("trackCountingHighEffBJetTags");
-    hadBBVMVA  = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::HadB]).bDiscriminator("combinedSecondaryVertexMVABJetTags");
     hadBBSSV   = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::HadB]).bDiscriminator("simpleSecondaryVertexHighEffBJetTags");
+    
+    hadBRawE   = hadBRaw->energy();
     
     lepBPt     = lepB->pt();
     lepBEta    = lepB->eta();
     lepBMass   = lepB->mass();
     lepBE      = lepB->energy();
-    lepBBTCHE  = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LepB]).bDiscriminator("trackCountingHighEffBJetTags");
-    lepBBVMVA  = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LepB]).bDiscriminator("combinedSecondaryVertexMVABJetTags");
     lepBBSSV   = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LepB]).bDiscriminator("simpleSecondaryVertexHighEffBJetTags");
+    
+    lepBRawE   = lepBRaw->energy();
   
     if (genHadB) {
       genHadBPt     = genHadB->pt();
@@ -207,8 +220,7 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     hadTopMass = hadTop->mass();
     hadTopE    = hadTop->energy();
     
-    //std::cout << hadB->resolM() << std::endl;
-    //std::cout << hadTop->resolM() << std::endl;
+    hadTopRawMass = hadTopRaw->mass();
   
     if (genHadTop) {
       genHadTopPt   = genHadTop->pt();
@@ -216,8 +228,8 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
       genHadTopMass = genHadTop->mass();
     }
     
-    deltaRHadQHadQBar     = ROOT::Math::VectorUtil::DeltaR(hadQ->polarP4(), hadQbar->polarP4());
-    deltaThetaHadQHadQBar = ROOT::Math::VectorUtil::Angle(hadQ->polarP4(), hadQbar->polarP4());
+    deltaRHadQHadQBar     = ROOT::Math::VectorUtil::DeltaR(hadQ->polarP4(), hadQBar->polarP4());
+    deltaThetaHadQHadQBar = ROOT::Math::VectorUtil::Angle(hadQ->polarP4(), hadQBar->polarP4());
     deltaRHadWHadB        = ROOT::Math::VectorUtil::DeltaR(hadW->polarP4(), hadB->polarP4());
     deltaThetaHadWHadB    = ROOT::Math::VectorUtil::Angle(hadW->polarP4(), hadB->polarP4());
     if (genHadW && genHadB) genDeltaThetaHadWHadB = ROOT::Math::VectorUtil::Angle(genHadW->polarP4(), genHadB->polarP4());
@@ -231,15 +243,11 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     hitFitProb = semiLepEvt->hitFitProb(hHitFit);
     hitFitMT   = semiLepEvt->hitFitMT(hHitFit);
     hitFitSigMT= semiLepEvt->hitFitSigMT(hHitFit);
-    bProb      = QBTagProbability(hadQBTCHE) * QBTagProbability(hadQbarBTCHE)
-                 * (1 - QBTagProbability(hadBBTCHE))
-                 * (1 - QBTagProbability(lepBBTCHE));
-    hadBProb   = QBTagProbability(hadQBTCHE) * QBTagProbability(hadQbarBTCHE)
-                 * (1 - QBTagProbability(hadBBTCHE));
-    bProbSSV   = QBTagProbabilitySSV(hadQBSSV) * QBTagProbabilitySSV(hadQbarBSSV)
+
+    bProbSSV   = QBTagProbabilitySSV(hadQBSSV) * QBTagProbabilitySSV(hadQBarBSSV)
                  * (1 - QBTagProbabilitySSV(hadBBSSV))
                  * (1 - QBTagProbabilitySSV(lepBBSSV));
-    hadBProbSSV= QBTagProbabilitySSV(hadQBSSV) * QBTagProbabilitySSV(hadQbarBSSV)
+    hadBProbSSV= QBTagProbabilitySSV(hadQBSSV) * QBTagProbabilitySSV(hadQBarBSSV)
                  * (1 - QBTagProbabilitySSV(hadBBSSV));
   
     eventTree -> Fill();
@@ -269,22 +277,24 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("hadQEta", &hadQEta, "hadQEta/D");
   eventTree->Branch("hadQMass", &hadQMass, "hadQMass/D");
   eventTree->Branch("hadQE", &hadQE, "hadQE/D");
-  eventTree->Branch("hadQBTCHE", &hadQBTCHE, "hadQBTCHE/D");
-  eventTree->Branch("hadQBVMVA", &hadQBVMVA, "hadQBVMVA/D");
   eventTree->Branch("hadQBSSV", &hadQBSSV, "hadQBSSV/D");
   
-  eventTree->Branch("hadQbarPt", &hadQbarPt, "hadQbarPt/D");
-  eventTree->Branch("hadQbarEta", &hadQbarEta, "hadQbarEta/D");
-  eventTree->Branch("hadQbarMass", &hadQbarMass, "hadQbarMass/D");
-  eventTree->Branch("hadQbarE", &hadQbarE, "hadQbarE/D");
-  eventTree->Branch("hadQbarBTCHE", &hadQbarBTCHE, "hadQbarBTCHE/D");
-  eventTree->Branch("hadQbarBVMVA", &hadQbarBVMVA, "hadQbarBVMVA/D");
-  eventTree->Branch("hadQbarBSSV", &hadQbarBSSV, "hadQbarBSSV/D");
+  eventTree->Branch("hadQRawE", &hadQRawE, "hadQRawE/D");
+  
+  eventTree->Branch("hadQBarPt", &hadQBarPt, "hadQBarPt/D");
+  eventTree->Branch("hadQBarEta", &hadQBarEta, "hadQBarEta/D");
+  eventTree->Branch("hadQBarMass", &hadQBarMass, "hadQBarMass/D");
+  eventTree->Branch("hadQBarE", &hadQBarE, "hadQBarE/D");
+  eventTree->Branch("hadQBarBSSV", &hadQBarBSSV, "hadQBarBSSV/D");
+  
+  eventTree->Branch("hadQBarRawE", &hadQBarRawE, "hadQBarRawE/D");
   
   eventTree->Branch("hadWPt", &hadWPt, "hadWPt/D");
   eventTree->Branch("hadWEta", &hadWEta, "hadWEta/D");
   eventTree->Branch("hadWMass", &hadWMass, "hadWMass/D");
   eventTree->Branch("hadWE", &hadWE, "hadWE/D");
+  
+  eventTree->Branch("hadWRawMass", &hadWRawMass, "hadWRawMass/D");
   
   eventTree->Branch("genHadWPt", &genHadWPt, "genHadWPt/D");
   eventTree->Branch("genHadWEta", &genHadWEta, "genHadWEta/D");
@@ -295,17 +305,17 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("hadBEta", &hadBEta, "hadBEta/D");
   eventTree->Branch("hadBMass", &hadBMass, "hadBMass/D");
   eventTree->Branch("hadBE", &hadBE, "hadBE/D");
-  eventTree->Branch("hadBBTCHE", &hadBBTCHE, "hadBBTCHE/D");
-  eventTree->Branch("hadBBVMVA", &hadBBVMVA, "hadBBVMVA/D");
   eventTree->Branch("hadBBSSV", &hadBBSSV, "hadBBSSV/D");
+  
+  eventTree->Branch("hadBRawE", &hadBRawE, "hadBRawE/D");
   
   eventTree->Branch("lepBPt", &lepBPt, "lepBPt/D");
   eventTree->Branch("lepBEta", &lepBEta, "lepBEta/D");
   eventTree->Branch("lepBMass", &lepBMass, "lepBMass/D");
   eventTree->Branch("lepBE", &lepBE, "lepBE/D");
-  eventTree->Branch("lepBBTCHE", &lepBBTCHE, "lepBBTCHE/D");
-  eventTree->Branch("lepBBVMVA", &lepBBVMVA, "lepBBVMVA/D");
   eventTree->Branch("lepBBSSV", &lepBBSSV, "lepBBSSV/D");
+  
+  eventTree->Branch("lepBRawE", &lepBRawE, "lepBRawE/D");
   
   eventTree->Branch("genHadBPt", &genHadBPt, "genHadBPt/D");
   eventTree->Branch("genHadBEta", &genHadBEta, "genHadBEta/D");
@@ -316,6 +326,8 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("hadTopEta", &hadTopEta, "hadTopEta/D");
   eventTree->Branch("hadTopMass", &hadTopMass, "hadTopMass/D");
   eventTree->Branch("hadTopE", &hadTopE, "hadTopE/D");
+  
+  eventTree->Branch("hadTopRawMass", &hadTopRawMass, "hadTopRawMass/D");
   
   eventTree->Branch("genHadTopPt", &genHadTopPt, "genHadTopPt/D");
   eventTree->Branch("genHadTopEta", &genHadTopEta, "genHadTopEta/D");
@@ -337,24 +349,11 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("hitFitProb", &hitFitProb, "hitFitProb/D");
   eventTree->Branch("hitFitMT", &hitFitMT, "hitFitMT/D");
   eventTree->Branch("hitFitSigMT", &hitFitSigMT, "hitFitSigMT/D");
-  eventTree->Branch("bProb", &bProb, "bProb/D");
-  eventTree->Branch("hadBProb", &hadBProb, "hadBProb/D");
   eventTree->Branch("bProbSSV", &bProbSSV, "bProbSSV/D");
   eventTree->Branch("hadBProbSSV", &hadBProbSSV, "hadBProbSSV/D");
   
   eventTree->Branch("target", &target, "target/I");
 
-}
-
-double EventHypothesisAnalyzer::QBTagProbability(double bDiscriminator) {
-  if (bDiscriminator == -100) return 0.787115;
-  if (bDiscriminator < 0) return 1;
-  
-  double p0 = 5.91566e+00;
-  double p1 = 5.94611e-01;
-  double p2 = 3.53592e+00;
-  
-  return p0 * TMath::Voigt(bDiscriminator, p1, p2);
 }
 
 double EventHypothesisAnalyzer::QBTagProbabilitySSV(double bDiscriminator) {

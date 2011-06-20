@@ -109,9 +109,9 @@ setForAllTtSemiLepHypotheses(process, "maxNJets", 4)
 setForAllTtSemiLepHypotheses(process, "mets", "patMETsPF")
 setForAllTtSemiLepHypotheses(process, "maxNComb", -1)
 
-process.TtSemiLepJetCombMVAFileSource = cms.ESSource("TtSemiLepJetCombMVAFileSource",
-  ttSemiLepJetCombMVA = cms.FileInPath('TopMass/Configuration/data/TtSemiLepJetComb.mva')
-)
+#process.TtSemiLepJetCombMVAFileSource = cms.ESSource("TtSemiLepJetCombMVAFileSource",
+#  ttSemiLepJetCombMVA = cms.FileInPath('TopMass/Configuration/data/TtSemiLepJetComb.mva')
+#)
 
 ## change jet-parton matching algorithm
 process.ttSemiLepJetPartonMatch.algorithm = "unambiguousOnly"
@@ -127,11 +127,11 @@ process.kinFitTtSemiLepEventHypothesis.maxNrIter = 10000
 process.kinFitTtSemiLepEventHypothesis.maxDeltaS = 0.01
 process.kinFitTtSemiLepEventHypothesis.maxF      = 0.01
 
-findTtSemiLepJetCombMVA.maxNComb = 1;
+#findTtSemiLepJetCombMVA.maxNComb = 1;
 
 ## choose which hypotheses to produce
 addTtSemiLepHypotheses(process,
-                       ["kKinFit", "kHitFit", "kMVADisc"]
+                       ["kHitFit", "kMVADisc"]
                        )
 #removeTtSemiLepHypGenMatch(process)
 
