@@ -25,6 +25,7 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   edm::InputTag semiLepEvt_;
   edm::InputTag hypoClassKey_;
   edm::InputTag jets_;
+  edm::InputTag leps_;
 
   int run;
   int luminosityBlock;
@@ -36,6 +37,7 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double hadQMass;
   double hadQE;
   double hadQBSSV;
+  double hadQJC;
   
   double hadQRawE;
   
@@ -44,6 +46,7 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double hadQBarMass;
   double hadQBarE;
   double hadQBarBSSV;
+  double hadQBarJC;
   
   double hadQBarRawE;
   
@@ -53,6 +56,7 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double hadWE;
   
   double hadWRawMass;
+  double hadWRawSigM;
   
   double genHadWPt;
   double genHadWEta;
@@ -64,14 +68,19 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double hadBMass;
   double hadBE;
   double hadBBSSV;
+  double hadBJC;
   
   double hadBRawE;
+  
+  double leptonPt;
+  double leptonC;
   
   double lepBPt;
   double lepBEta;
   double lepBMass;
   double lepBE;
   double lepBBSSV;
+  double lepBJC;
   
   double lepBRawE;
   
@@ -86,6 +95,13 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double hadTopE;
   
   double hadTopRawMass;
+  
+  double lepTopPt;
+  double lepTopEta;
+  double lepTopMass;
+  double lepTopE;
+  
+  double lepTopRawMass;
   
   double genHadTopPt;
   double genHadTopEta;

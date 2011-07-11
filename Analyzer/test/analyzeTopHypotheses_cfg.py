@@ -1,8 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-jes = '@jes@'
-if jes.startswith('@'):
-  jes = 'abs'
+lJesFactor = '@lJesFactor@'
+if lJesFactor.startswith('@'):
+  lJesFactor = '1.0'
+
+bJesFactor = '@bJesFactor@'
+if bJesFactor.startswith('@'):
+  bJesFactor = '1.0'
 
 process = cms.Process("TEST")
 
@@ -20,36 +24,9 @@ readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
-#       '/store/user/snaumann/TTJets_TuneD6T_7TeV-madgraph-tauola/SingleMuSkim_1/77c3ad1ea85046d30b430315aa7f3138/PAT_9_1_CJg.root',
-#       '/store/user/snaumann/TTJets_TuneD6T_7TeV-madgraph-tauola/SingleMuSkim_1/77c3ad1ea85046d30b430315aa7f3138/PAT_8_1_wR2.root',
-#       '/store/user/snaumann/TTJets_TuneD6T_7TeV-madgraph-tauola/SingleMuSkim_1/77c3ad1ea85046d30b430315aa7f3138/PAT_7_1_E8P.root',
-       '/store/user/snaumann/TTJets_TuneD6T_7TeV-madgraph-tauola/SingleMuSkim_1/77c3ad1ea85046d30b430315aa7f3138/PAT_6_1_nVC.root',
-       '/store/user/snaumann/TTJets_TuneD6T_7TeV-madgraph-tauola/SingleMuSkim_1/77c3ad1ea85046d30b430315aa7f3138/PAT_5_1_3U0.root',
-       '/store/user/snaumann/TTJets_TuneD6T_7TeV-madgraph-tauola/SingleMuSkim_1/77c3ad1ea85046d30b430315aa7f3138/PAT_4_1_trz.root',
-       '/store/user/snaumann/TTJets_TuneD6T_7TeV-madgraph-tauola/SingleMuSkim_1/77c3ad1ea85046d30b430315aa7f3138/PAT_3_1_bG3.root',
-       '/store/user/snaumann/TTJets_TuneD6T_7TeV-madgraph-tauola/SingleMuSkim_1/77c3ad1ea85046d30b430315aa7f3138/PAT_30_1_Iz0.root',
-       '/store/user/snaumann/TTJets_TuneD6T_7TeV-madgraph-tauola/SingleMuSkim_1/77c3ad1ea85046d30b430315aa7f3138/PAT_2_1_2Fs.root',
-       '/store/user/snaumann/TTJets_TuneD6T_7TeV-madgraph-tauola/SingleMuSkim_1/77c3ad1ea85046d30b430315aa7f3138/PAT_29_1_5n5.root',
-       '/store/user/snaumann/TTJets_TuneD6T_7TeV-madgraph-tauola/SingleMuSkim_1/77c3ad1ea85046d30b430315aa7f3138/PAT_28_1_rvr.root',
-       '/store/user/snaumann/TTJets_TuneD6T_7TeV-madgraph-tauola/SingleMuSkim_1/77c3ad1ea85046d30b430315aa7f3138/PAT_27_1_kh4.root',
-       '/store/user/snaumann/TTJets_TuneD6T_7TeV-madgraph-tauola/SingleMuSkim_1/77c3ad1ea85046d30b430315aa7f3138/PAT_26_1_o23.root',
-       '/store/user/snaumann/TTJets_TuneD6T_7TeV-madgraph-tauola/SingleMuSkim_1/77c3ad1ea85046d30b430315aa7f3138/PAT_25_1_FNk.root',
-       '/store/user/snaumann/TTJets_TuneD6T_7TeV-madgraph-tauola/SingleMuSkim_1/77c3ad1ea85046d30b430315aa7f3138/PAT_24_1_lZT.root',
-       '/store/user/snaumann/TTJets_TuneD6T_7TeV-madgraph-tauola/SingleMuSkim_1/77c3ad1ea85046d30b430315aa7f3138/PAT_23_1_DYq.root',
-       '/store/user/snaumann/TTJets_TuneD6T_7TeV-madgraph-tauola/SingleMuSkim_1/77c3ad1ea85046d30b430315aa7f3138/PAT_22_1_qOI.root',
-       '/store/user/snaumann/TTJets_TuneD6T_7TeV-madgraph-tauola/SingleMuSkim_1/77c3ad1ea85046d30b430315aa7f3138/PAT_21_1_4UB.root',
-       '/store/user/snaumann/TTJets_TuneD6T_7TeV-madgraph-tauola/SingleMuSkim_1/77c3ad1ea85046d30b430315aa7f3138/PAT_20_1_m9t.root',
-       '/store/user/snaumann/TTJets_TuneD6T_7TeV-madgraph-tauola/SingleMuSkim_1/77c3ad1ea85046d30b430315aa7f3138/PAT_1_1_lrs.root',
-       '/store/user/snaumann/TTJets_TuneD6T_7TeV-madgraph-tauola/SingleMuSkim_1/77c3ad1ea85046d30b430315aa7f3138/PAT_19_1_dNE.root',
-       '/store/user/snaumann/TTJets_TuneD6T_7TeV-madgraph-tauola/SingleMuSkim_1/77c3ad1ea85046d30b430315aa7f3138/PAT_18_1_q7z.root',
-       '/store/user/snaumann/TTJets_TuneD6T_7TeV-madgraph-tauola/SingleMuSkim_1/77c3ad1ea85046d30b430315aa7f3138/PAT_17_1_BYv.root',
-       '/store/user/snaumann/TTJets_TuneD6T_7TeV-madgraph-tauola/SingleMuSkim_1/77c3ad1ea85046d30b430315aa7f3138/PAT_16_1_TTE.root',
-       '/store/user/snaumann/TTJets_TuneD6T_7TeV-madgraph-tauola/SingleMuSkim_1/77c3ad1ea85046d30b430315aa7f3138/PAT_15_1_0Pf.root',
-       '/store/user/snaumann/TTJets_TuneD6T_7TeV-madgraph-tauola/SingleMuSkim_1/77c3ad1ea85046d30b430315aa7f3138/PAT_14_1_rj6.root',
-       '/store/user/snaumann/TTJets_TuneD6T_7TeV-madgraph-tauola/SingleMuSkim_1/77c3ad1ea85046d30b430315aa7f3138/PAT_13_1_Zp3.root',
-       '/store/user/snaumann/TTJets_TuneD6T_7TeV-madgraph-tauola/SingleMuSkim_1/77c3ad1ea85046d30b430315aa7f3138/PAT_12_1_KtO.root',
-       '/store/user/snaumann/TTJets_TuneD6T_7TeV-madgraph-tauola/SingleMuSkim_1/77c3ad1ea85046d30b430315aa7f3138/PAT_11_1_ljE.root',
-       '/store/user/snaumann/TTJets_TuneD6T_7TeV-madgraph-tauola/SingleMuSkim_1/77c3ad1ea85046d30b430315aa7f3138/PAT_10_1_MRa.root' ] );
+       '/store/user/eschliec/TTJets_TuneD6T_7TeV-madgraph-tauola/PATWithPF_v4/e59efddd8a1547799dca5b47d5556447/patTuple_39_1_4mM.root'
+] );
+
 
 
 
@@ -63,14 +40,14 @@ process.maxEvents = cms.untracked.PSet(
 
 ## configure process options
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(False)
+    wantSummary = cms.untracked.bool(True)
 )
 
 ## configure geometry & conditions
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('MC_38Y_V14::All')
+process.GlobalTag.globaltag = cms.string('START41_V0::All')
 
 ## std sequence for pat
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
@@ -82,19 +59,6 @@ from TopAnalysis.TopFilter.sequences.jetSelection_cff import goodJets
 process.vetoJets.src="goodJetsPF30"
 process.vetoJets.cut=''
 
-## configure JetEnergyScale tool
-process.load("TopAnalysis.TopUtils.JetEnergyScale_cff")
-from TopAnalysis.TopUtils.JetEnergyScale_cff import *
-
-scaledJetEnergy.scaleType   = cms.string(jes)
-scaledJetEnergy.inputJets   = "selectedPatJetsAK5PF"
-scaledJetEnergy.inputMETs   = "patMETsPF"
-scaledJetEnergy.scaleFactor = 1.0
-#scaledJetEnergy.scaleFactor = 1.053
-scaledJetEnergy.resolutionFactor = 1.1
-
-process.noOverlapJetsPF.src = "scaledJetEnergy:selectedPatJetsAK5PF"
-
 ## sequences for ttGenEvent and TtSemiLeptonicEvent
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
 
@@ -105,29 +69,13 @@ process.ttSemiLepEvent.verbosity = 0
 
 from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff import *
 setForAllTtSemiLepHypotheses(process, "jets", "goodJetsPF30")
+setForAllTtSemiLepHypotheses(process, "leps", "tightMuons")
 setForAllTtSemiLepHypotheses(process, "maxNJets", 4)
 setForAllTtSemiLepHypotheses(process, "mets", "patMETsPF")
 setForAllTtSemiLepHypotheses(process, "maxNComb", -1)
 
-#process.TtSemiLepJetCombMVAFileSource = cms.ESSource("TtSemiLepJetCombMVAFileSource",
-#  ttSemiLepJetCombMVA = cms.FileInPath('TopMass/Configuration/data/TtSemiLepJetComb.mva')
-#)
-
 ## change jet-parton matching algorithm
 process.ttSemiLepJetPartonMatch.algorithm = "unambiguousOnly"
-#process.ttSemiLepJetPartonMatch.maxDist   = 0.3
-#process.ttSemiLepJetPartonMatch.maxNJets = -1
-#process.ttSemiLepJetPartonMatch.partonsToIgnore = ["LightQ", "LightQBar", "HadB", "LepB"]
-
-process.kinFitTtSemiLepEventHypothesis.useBTagging = False
-# 1: Whad-mass, 2: Wlep-mass, 3: thad-mass, 4: tlep-mass, 5: nu-mass, 6: equal t-masses
-process.kinFitTtSemiLepEventHypothesis.constraints = 1, 2, 6
-
-process.kinFitTtSemiLepEventHypothesis.maxNrIter = 10000
-process.kinFitTtSemiLepEventHypothesis.maxDeltaS = 0.01
-process.kinFitTtSemiLepEventHypothesis.maxF      = 0.01
-
-#findTtSemiLepJetCombMVA.maxNComb = 1;
 
 ## choose which hypotheses to produce
 addTtSemiLepHypotheses(process,
@@ -138,17 +86,58 @@ addTtSemiLepHypotheses(process,
 ## load HypothesisAnalyzer
 process.load("TopMass.Analyzer.EventHypothesisAnalyzer_cff")
 
+## configure JetEnergyScale
+process.hitFitTtSemiLepEventHypothesis.jes  = float(lJesFactor)
+process.hitFitTtSemiLepEventHypothesis.jesB = float(bJesFactor)
+
 # register TFileService
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('analyzeTop.root')
 )
 
+from HLTrigger.HLTfilters.hltHighLevel_cfi import *
+process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::REDIGI311X", HLTPaths = ["HLT_Mu15_v*"], throw=True)
+
+process.leadingJetSelection.src = 'tightLeadingPFJets'
+process.bottomJetSelection.src  = 'tightBottomPFJets'
+
 ## end path   
 process.path = cms.Path(#process.patDefaultSequence *
-                        process.scaledJetEnergy *
+                        process.hltFilter *
                         process.semiLeptonicSelection *
                         process.semiLeptonicEvents *
                         process.makeGenEvt *
                         process.makeTtSemiLepEvent *
                         process.analyzeHypotheses
                         )
+
+process.path.remove(process.centralJets)
+process.path.remove(process.reliableJets)
+process.path.remove(process.goodJets)
+process.path.remove(process.trackCountingHighPurBJets)
+process.path.remove(process.trackCountingHighEffBJets)
+process.path.remove(process.tightLeadingJets)
+process.path.remove(process.tightBottomJets)
+process.path.remove(process.unconvTightElectronsEJ)
+process.path.remove(process.goodElectronsEJ)
+process.path.remove(process.looseElectronsEJ)
+process.path.remove(process.tightElectronsEJ)
+                        
+from TopAnalysis.TopUtils.usePatTupleWithParticleFlow_cff import prependPF2PATSequence
+prependPF2PATSequence(process, options = {'runOnOLDcfg': True, 'runOnMC': True, 'electronIDs': '', 'switchOffEmbedding': False, 'skipIfNoPFMuon': True})
+
+## adaptions (re-aranging of modules) to speed up processing
+pathnames = process.paths_().keys()
+for pathname in pathnames:
+    ## move the ttGenEvent filter to the beginning of the sequence
+    getattr(process, pathname).remove(process.genEvt)
+    getattr(process, pathname).insert(0,process.genEvt)
+    getattr(process, pathname).remove(process.decaySubset)
+    getattr(process, pathname).insert(0,process.decaySubset)
+    getattr(process, pathname).remove(process.initSubset)
+    getattr(process, pathname).insert(0,process.initSubset)
+    ## move the trigger to the beginning of the sequence
+    getattr(process, pathname).remove(process.hltFilter)
+    getattr(process, pathname).insert(0,process.hltFilter)
+
+

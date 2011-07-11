@@ -48,7 +48,7 @@ void Analysis::Analyze(bool reanalyze) {
   double smearX = smearBins/fBins*rangeX;
   double smearY = smearBins/fBins*rangeY;
   
-  double minEntries = 50;
+  double minEntries = 25;
   
   /*if (!strcmp(fMethod, "Ideogram")) {
     minEntries = 1500;
@@ -77,7 +77,7 @@ void Analysis::Analyze(bool reanalyze) {
         cuts += " & mvaDisc > 0";
       }
       else if (!strcmp(fMethod, "Ideogram")) {
-        //cuts += " & target == 1";
+        cuts += " & target == 1";
         //cuts += " & (target == 0 | target == -2)";
         cuts += " & (bProbSSV * hitFitProb) > 0.05";
       }
@@ -140,14 +140,16 @@ void Analysis::CreateRandomSubset() {
   fChain->SetBranchStatus("*",0);
   fChain->SetBranchStatus("target", 1);
   fChain->SetBranchStatus("hadTopMass", 1);
+  fChain->SetBranchStatus("hadTopPt", 1);
+  fChain->SetBranchStatus("lepTopPt", 1);
+  fChain->SetBranchStatus("hadWRawMass", 1);
+  fChain->SetBranchStatus("hadWRawSigM", 1);
   fChain->SetBranchStatus("fitChi2", 1);
   fChain->SetBranchStatus("fitProb", 1);
   fChain->SetBranchStatus("hitFitChi2", 1);
   fChain->SetBranchStatus("hitFitProb", 1);
   fChain->SetBranchStatus("hitFitMT", 1);
   fChain->SetBranchStatus("hitFitSigMT", 1);
-  fChain->SetBranchStatus("bProb", 1);
-  fChain->SetBranchStatus("hadBProb", 1);
   fChain->SetBranchStatus("bProbSSV", 1);
   fChain->SetBranchStatus("event", 1);
   fChain->SetBranchStatus("combi", 1);

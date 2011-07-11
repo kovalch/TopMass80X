@@ -16,20 +16,7 @@ readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
-       '/store/user/snaumann/TTJets_TuneD6T_7TeV-madgraph-tauola/SingleMuSkim_1/77c3ad1ea85046d30b430315aa7f3138/PAT_9_1_CJg.root',
-       '/store/user/snaumann/Mu/SingleMuSkim-Run2010B-Nov4ReReco_Mu15_2/1bfce60840ad652d060bf69d2d1ff328/PAT_9_1_dqi.root',
-       '/store/user/snaumann/Mu/SingleMuSkim-Run2010B-Nov4ReReco_Mu15_2/1bfce60840ad652d060bf69d2d1ff328/PAT_8_3_1Py.root',
-       '/store/user/snaumann/Mu/SingleMuSkim-Run2010B-Nov4ReReco_Mu15_2/1bfce60840ad652d060bf69d2d1ff328/PAT_7_1_6CQ.root',
-       '/store/user/snaumann/Mu/SingleMuSkim-Run2010B-Nov4ReReco_Mu15_2/1bfce60840ad652d060bf69d2d1ff328/PAT_6_3_JEo.root',
-       '/store/user/snaumann/Mu/SingleMuSkim-Run2010B-Nov4ReReco_Mu15_2/1bfce60840ad652d060bf69d2d1ff328/PAT_5_1_6so.root',
-       '/store/user/snaumann/Mu/SingleMuSkim-Run2010B-Nov4ReReco_Mu15_2/1bfce60840ad652d060bf69d2d1ff328/PAT_4_1_mQd.root',
-       '/store/user/snaumann/Mu/SingleMuSkim-Run2010B-Nov4ReReco_Mu15_2/1bfce60840ad652d060bf69d2d1ff328/PAT_3_1_RMF.root',
-       '/store/user/snaumann/Mu/SingleMuSkim-Run2010B-Nov4ReReco_Mu15_2/1bfce60840ad652d060bf69d2d1ff328/PAT_2_3_7oC.root',
-       '/store/user/snaumann/Mu/SingleMuSkim-Run2010B-Nov4ReReco_Mu15_2/1bfce60840ad652d060bf69d2d1ff328/PAT_1_3_3cA.root',
-       '/store/user/snaumann/Mu/SingleMuSkim-Run2010B-Nov4ReReco_Mu15_2/1bfce60840ad652d060bf69d2d1ff328/PAT_13_1_0Y9.root',
-       '/store/user/snaumann/Mu/SingleMuSkim-Run2010B-Nov4ReReco_Mu15_2/1bfce60840ad652d060bf69d2d1ff328/PAT_12_1_tlA.root',
-       '/store/user/snaumann/Mu/SingleMuSkim-Run2010B-Nov4ReReco_Mu15_2/1bfce60840ad652d060bf69d2d1ff328/PAT_11_1_ySV.root',
-       '/store/user/snaumann/Mu/SingleMuSkim-Run2010B-Nov4ReReco_Mu15_2/1bfce60840ad652d060bf69d2d1ff328/PAT_10_3_CGj.root'
+       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/160/406/50A4D30B-5A4F-E011-AAD8-0030487CD906.root'
        ] );
 
 
@@ -44,14 +31,14 @@ process.maxEvents = cms.untracked.PSet(
 
 ## configure process options
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(False)
+    wantSummary = cms.untracked.bool(True)
 )
 
 ## configure geometry & conditions
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('MC_38Y_V14::All')
+process.GlobalTag.globaltag = cms.string('GR_R_41_V0::All')
 
 ## std sequence for pat
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
@@ -74,25 +61,11 @@ setForAllTtSemiLepHypotheses(process, "jets", "goodJetsPF30")
 setForAllTtSemiLepHypotheses(process, "maxNJets", 4)
 setForAllTtSemiLepHypotheses(process, "mets", "patMETsPF")
 setForAllTtSemiLepHypotheses(process, "maxNComb", -1)
-
-process.TtSemiLepJetCombMVAFileSource = cms.ESSource("TtSemiLepJetCombMVAFileSource",
-  ttSemiLepJetCombMVA = cms.FileInPath('TopMass/Configuration/data/TtSemiLepJetComb.mva')
-)
-
-## change jet-parton matching algorithm
-process.ttSemiLepJetPartonMatch.algorithm = "unambiguousOnly"
-#process.ttSemiLepJetPartonMatch.maxDist   = 0.3
-process.ttSemiLepJetPartonMatch.maxNJets = -1
-
-process.kinFitTtSemiLepEventHypothesis.useBTagging = False
-# 1: Whad-mass, 2: Wlep-mass, 3: thad-mass, 4: tlep-mass, 5: nu-mass, 6: equal t-masses
-process.kinFitTtSemiLepEventHypothesis.constraints = 1, 2, 6
-
-findTtSemiLepJetCombMVA.maxNComb = 1;
+#setForAllTtSemiLepHypotheses(process, "jetCorrectionLevel", "L2L3Residual")
 
 ## choose which hypotheses to produce
 addTtSemiLepHypotheses(process,
-                       ["kKinFit", "kHitFit", "kMVADisc"]
+                       ["kHitFit", "kMVADisc"]
                        )
 removeTtSemiLepHypGenMatch(process)
 
@@ -104,10 +77,41 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('analyzeTop.root')
 )
 
+from HLTrigger.HLTfilters.hltHighLevel_cfi import *
+process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", HLTPaths = ["HLT_IsoMu17_v*"], throw=True)
+
+process.leadingJetSelection.src = 'tightLeadingPFJets'
+process.bottomJetSelection.src  = 'tightBottomPFJets'
+
 ## end path   
 process.path = cms.Path(#process.patDefaultSequence *
+                        process.hltFilter *
                         process.semiLeptonicSelection *
                         process.semiLeptonicEvents *
                         process.makeTtSemiLepEvent *
                         process.analyzeHypotheses
                         )
+
+process.path.remove(process.centralJets)
+process.path.remove(process.reliableJets)
+process.path.remove(process.goodJets)
+process.path.remove(process.trackCountingHighPurBJets)
+process.path.remove(process.trackCountingHighEffBJets)
+process.path.remove(process.tightLeadingJets)
+process.path.remove(process.tightBottomJets)
+process.path.remove(process.unconvTightElectronsEJ)
+process.path.remove(process.goodElectronsEJ)
+process.path.remove(process.looseElectronsEJ)
+process.path.remove(process.tightElectronsEJ)
+                        
+from TopAnalysis.TopUtils.usePatTupleWithParticleFlow_cff import prependPF2PATSequence
+prependPF2PATSequence(process, options = {'runOnOLDcfg': True, 'runOnMC': False, 'electronIDs': '', 'switchOffEmbedding': False, 'skipIfNoPFMuon': True})
+
+## adaptions (re-aranging of modules) to speed up processing
+pathnames = process.paths_().keys()
+for pathname in pathnames:
+    ## move the trigger to the beginning of the sequence
+    getattr(process, pathname).remove(process.hltFilter)
+    getattr(process, pathname).insert(0,process.hltFilter)
+
+

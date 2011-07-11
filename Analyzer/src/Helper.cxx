@@ -40,8 +40,8 @@ void Helper::SetTDRStyle() {
   tdrStyle->SetPadRightMargin(0.25);
   // tdrStyle->SetPadBorderSize(Width_t size = 1);
   tdrStyle->SetPadColor(kWhite);
-  tdrStyle->SetPadGridX(false);
-  tdrStyle->SetPadGridY(false);
+  tdrStyle->SetPadGridX(true);
+  tdrStyle->SetPadGridY(true);
   tdrStyle->SetGridColor(0);
   tdrStyle->SetGridStyle(3);
   tdrStyle->SetGridWidth(1);
@@ -101,7 +101,7 @@ void Helper::SetTDRStyle() {
   tdrStyle->SetPadTopMargin(0.05);
   tdrStyle->SetPadBottomMargin(0.13);
   tdrStyle->SetPadLeftMargin(0.16);
-  tdrStyle->SetPadRightMargin(0.02);
+  tdrStyle->SetPadRightMargin(0.16);
 
 // For the Global title:
 

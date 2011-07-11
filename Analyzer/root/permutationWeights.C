@@ -36,9 +36,9 @@ void permutationWeights()
   // ---
   //    open input files
   // ---
-  TFile* fTTJets = new TFile("./analyzeTop_1725.root");
-  TFile* fWJets  = new TFile("./WJets.root");
-  TFile* fData   = new TFile("./analyzeTop_Run2010B.root");
+  TFile* fTTJets = new TFile("/scratch/hh/current/cms/user/mseidel/TTJets1725_1.0/analyzeTop.root");
+  TFile* fWJets  = new TFile("/scratch/hh/current/cms/user/mseidel/WJets_abs/WJets.root");
+  TFile* fData   = new TFile("/scratch/hh/current/cms/user/mseidel/Run2010B_abs/analyzeTop_Run2010B.root");
   
   // ---
   //    Get trees
@@ -102,8 +102,8 @@ void permutationWeights()
   leg0->SetBorderSize(0);
   leg0->AddEntry( hD , "Data (23 pb ^{-1})"       , "PL");
   leg0->AddEntry( hW , "W#rightarrowl#nu"              , "F" );
-  leg0->AddEntry( hTBkg , "t#bar{t} wp"                , "F" );
-  leg0->AddEntry( hTSig , "t#bar{t} cp"  , "F" );
+  leg0->AddEntry( hTBkg , "t#bar{t} wrong & unmatched"                , "F" );
+  leg0->AddEntry( hTSig , "t#bar{t} correct"  , "F" );
 
   hNull->Draw();
   stack->Draw("SAME");

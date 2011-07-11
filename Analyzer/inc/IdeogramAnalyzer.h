@@ -4,6 +4,8 @@
 #include <iomanip>
 
 #include "TH1D.h"
+#include "TH2D.h"
+#include "TF2.h"
 #include "TCanvas.h"
 #include "TMath.h"
 

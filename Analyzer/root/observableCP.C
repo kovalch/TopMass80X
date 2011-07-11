@@ -121,8 +121,10 @@ TH1F* FindParameters(TString filename, int i)
   y3 [i] = voigt->GetParameter(3);
   ey3[i] = voigt->GetParError(3);
   
+  TF1 *fit = hSig->GetFunction("voigt");
+
+  fit->SetParameter(0, fit->GetParameter(0)/hSig->Integral());
   hSig->Scale(1/hSig->Integral());
-  hSig->Fit("voigt","L");
   
   return hSig;
 }

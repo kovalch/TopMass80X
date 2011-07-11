@@ -7,6 +7,7 @@ analyzeHypothesis = cms.EDAnalyzer("EventHypothesisAnalyzer",
     semiLepEvent = cms.InputTag("ttSemiLepEvent"),
     hypoClassKey = cms.InputTag("ttSemiLepHypMaxSumPtWMass","Key"),
     jets         = cms.InputTag("goodJetsPF30"),
+    leps         = cms.InputTag("tightMuons")
 )
 
 

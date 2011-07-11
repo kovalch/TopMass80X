@@ -9,6 +9,8 @@
 #include "TH1F.h"
 #include "THStack.h"
 
+#include "tdrstyle.C"
+
 void drawcutline(double cutval, double maximum)
 {
   TLine *cut = new TLine();
@@ -18,19 +20,36 @@ void drawcutline(double cutval, double maximum)
   cut->DrawLine(cutval, 0.,cutval, maximum);
 }
 
-void hitFit()
-{  
-  gStyle->SetOptStat(0);
+void setHistStyle(TH1* hist, int kStyle) {
+  enum styles             { kHitFit, kKinFit  };
+  int color_      [ 2 ] = { kRed+1,  kGreen-3 };
+  int fillStyle_  [ 2 ] = { 3654,    3645     };
   
-  enum styles             {kSig,   kBkg,   kWjets,   kData,  };
-  int color_      [ 4 ] = {kRed+1, kRed-7, kGreen-3, kBlack, };
-  int markerStyle_[ 4 ] = {20,     22,     23,       20,     };
+  if (kStyle == kHitFit) hist->Scale(1./2);
+  hist->SetLineColor(color_[kStyle]);
+  hist->SetLineWidth(2);
+  /*
+  hist->SetFillColor(color_[kStyle]);
+  hist->SetFillStyle(fillStyle_[kStyle]);
+  */
+  hist->GetYaxis()->SetTitle("Number of permutations");
+  hist->GetXaxis()->SetTitle("Permutation type");
+}
 
+void hitFit()
+{
+  enum styles             { kHitFit, kKinFit  };
+  int color_      [ 2 ] = { kRed+1,  kGreen-3 };
+  int fillStyle_  [ 2 ] = { 3654,    3645     };
   
+  setTDRStyle();
+  //gStyle->SetPadLeftMargin(0.2);
+  //gStyle->SetTitleYOffset(1.75);
+
   // ---
   //    open input file
   // ---
-  TFile* fTTJets = new TFile("./analyzeTop_1725.root");
+  TFile* fTTJets = new TFile("/scratch/hh/current/cms/user/mseidel/TTJets1725_abs_test/analyzeTop_1725.root");
   
   // ---
   //    Get trees
@@ -38,388 +57,159 @@ void hitFit()
   TTree* tH = (TTree*) fTTJets->Get("analyzeHitFit/eventTree");
   TTree* tK = (TTree*) fTTJets->Get("analyzeKinFit/eventTree");
   
+  //*
+  TCanvas* cEfficiency = new TCanvas("cEfficiency", "cEfficiency", 450, 450);
+  cEfficiency->cd();
+  cEfficiency->SetLogy(1);
+  
+  TMultiGraph *mg = new TMultiGraph();
+  mg->SetTitle("Kinematic Fit Efficiency;Correct permutation efficiency;Bad permutation efficiency");
+  
+  double aHSigEfficiency[100];
+  double aHBkgEfficiency[100];
+  double aKSigEfficiency[100];
+  double aKBkgEfficiency[100];
+  
+  double bins = 100;
+  
+  for (int i = 1; i < bins; i++) {
+    TString sHSig("target == 1 & hitFitProb > "); sHSig+= 1./bins * (double)i;
+    TString sHBkg("target != 1 & hitFitProb > "); sHBkg+= 1./bins * (double)i;
+    TString sKSig("target == 1 & fitProb > ");    sKSig+= 1./bins * (double)i;
+    TString sKBkg("target != 1 & fitProb > ");    sKBkg+= 1./bins * (double)i;
+    
+    std::cout << sHSig << std::endl;
+    
+    aHSigEfficiency[i-1] = (double)tH->GetEntries(sHSig)/(double)tH->GetEntries("target == 1");
+    aHBkgEfficiency[i-1] = (double)tH->GetEntries(sHBkg)/(double)tH->GetEntries("target != 1");
+    
+    aKSigEfficiency[i-1] = (double)tK->GetEntries(sKSig)/(double)tK->GetEntries("target == 1");
+    aKBkgEfficiency[i-1] = (double)tK->GetEntries(sKBkg)/(double)tK->GetEntries("target != 1");
+  }
+  
+  gH = new TGraph(bins-1, aHSigEfficiency, aHBkgEfficiency);
+  gH->SetLineColor(color_[kHitFit]);
+  gH->SetLineWidth(2);
+  mg->Add(gH);
+  gK = new TGraph(bins-1, aKSigEfficiency, aKBkgEfficiency);
+  gK->SetLineColor(color_[kKinFit]);
+  gK->SetLineWidth(2);
+  mg->Add(gK);
+  
+  mg->Draw("AC");
+  
+  TLegend *legEfficiency = new TLegend(0.25, 0.75, 0.55, 0.9);
+  legEfficiency->SetFillStyle(0);
+  legEfficiency->SetBorderSize(0);
+  legEfficiency->AddEntry( gH, "HitFit"   , "L");
+  legEfficiency->AddEntry( gK, "KinFitter", "L");
+  legEfficiency->Draw();
+  //*/
+    
+  /*
   // target
   
-  TCanvas* cTarget = new TCanvas("cTarget", "cTarget", 1000, 400);
-  cTarget->Divide(3,1);
+  TCanvas* cTarget = new TCanvas("cTarget", "cTarget", 450, 450);
   
-  cTarget->cd(1);
-  
-  tH->Draw("target >> hHTarget(30, -12, 3)");
-  tK->Draw("target >> hKTarget(30, -12, 3)");
-  
-  hHTarget->Scale(1./2);
-  
-  hHTarget->SetLineColor(color_[kSig]);
-  hKTarget->SetLineColor(color_[kWjets]);
-  
-  hHTarget->Draw();
-  hKTarget->Draw("SAME");
-  
-  cTarget->cd(2);
+  cTarget->cd();
   
   tH->Draw("target >> hHTargetB1(30, -12, 3)", "bProbSSV > 0.1");
   tK->Draw("target >> hKTargetB1(30, -12, 3)", "bProbSSV > 0.1");
   
-  hHTargetB1->Scale(1./2);
+  setHistStyle(hHTargetB1, kHitFit);
+  setHistStyle(hKTargetB1, kKinFit);
   
-  hHTargetB1->SetLineColor(color_[kSig]);
-  hKTargetB1->SetLineColor(color_[kWjets]);
+  hKTargetB1->Draw();
+  hHTargetB1->Draw("SAME");
   
-  hHTargetB1->Draw();
-  hKTargetB1->Draw("SAME");
+  TLegend *leg0 = new TLegend(0.7, 0.8, 0.95, 0.9);
+  leg0->SetFillStyle(0);
+  leg0->SetBorderSize(0);
+  leg0->AddEntry( hHTargetB1 , "HitFit"   , "F");
+  leg0->AddEntry( hKTargetB1 , "KinFitter", "F");
   
-  cTarget->cd(3);
-  
-  tH->Draw("target >> hHTargetB2(30, -12, 3)", "bProbSSV > 0.3");
-  tK->Draw("target >> hKTargetB2(30, -12, 3)", "bProbSSV > 0.3");
-  
-  hHTargetB2->Scale(1./2);
-  
-  hHTargetB2->SetLineColor(color_[kSig]);
-  hKTargetB2->SetLineColor(color_[kWjets]);
-  
-  hHTargetB2->Draw();
-  hKTargetB2->Draw("SAME");
+  leg0->Draw();
   
   // target, best permutation
   
-  TCanvas* cTargetCombi0 = new TCanvas("cTargetCombi0", "cTargetCombi0", 1000, 400);
-  cTargetCombi0->Divide(3,1);
+  TCanvas* cTargetCombi0 = new TCanvas("cTargetCombi0", "cTargetCombi0", 450, 450);
   
-  cTargetCombi0->cd(1);
+  cTargetCombi0->cd();
   
-  tH->Draw("target >> hHTargetCombi0(30, -12, 3)", "combi==0");
-  tK->Draw("target >> hKTargetCombi0(30, -12, 3)", "combi==0");
-  
-  hHTargetCombi0->SetLineColor(color_[kSig]);
-  hKTargetCombi0->SetLineColor(color_[kWjets]);
-  
-  hHTargetCombi0->Draw();
-  hKTargetCombi0->Draw("SAME");
-  
-  cTargetCombi0->cd(2);
-  
-  tH->Draw("target >> hHTargetCombi0B1(30, -12, 3)", "combi==0 & bProbSSV > 0.1");
+  tH->Draw("target >> hHTargetCombi0B1(30, -12, 3)", "(combi==0 || combi==1) & bProbSSV > 0.1");
   tK->Draw("target >> hKTargetCombi0B1(30, -12, 3)", "combi==0 & bProbSSV > 0.1");
   
-  hHTargetCombi0B1->SetLineColor(color_[kSig]);
-  hKTargetCombi0B1->SetLineColor(color_[kWjets]);
+  setHistStyle(hHTargetCombi0B1, kHitFit);
+  setHistStyle(hKTargetCombi0B1, kKinFit);
   
-  hHTargetCombi0B1->Draw();
-  hKTargetCombi0B1->Draw("SAME");
-  
-  cTargetCombi0->cd(3);
-  
-  tH->Draw("target >> hHTargetCombi0B2(30, -12, 3)", "combi==0 & bProbSSV > 0.3");
-  tK->Draw("target >> hKTargetCombi0B2(30, -12, 3)", "combi==0 & bProbSSV > 0.3");
-  
-  hHTargetCombi0B2->SetLineColor(color_[kSig]);
-  hKTargetCombi0B2->SetLineColor(color_[kWjets]);
-  
-  hHTargetCombi0B2->Draw();
-  hKTargetCombi0B2->Draw("SAME");
+  hKTargetCombi0B1->Draw();
+  hHTargetCombi0B1->Draw("SAME");
+  leg0->Draw();
   
   // target, best permutation, cut on fit prob
   
-  TCanvas* cTargetCombi0FitProb = new TCanvas("cTargetCombi0FitProb", "cTargetCombi0FitProb", 1000, 400);
-  cTargetCombi0FitProb->Divide(3,1);
+  TCanvas* cTargetCombi0FitProb = new TCanvas("cTargetCombi0FitProb", "cTargetCombi0FitProb", 450, 450);
   
-  cTargetCombi0FitProb->cd(1);
+  cTargetCombi0FitProb->cd();
   
-  tH->Draw("target >> hHTargetCombi0FitProb(30, -12, 3)", "combi==0 & hitFitProb > 0.05");
-  tK->Draw("target >> hKTargetCombi0FitProb(30, -12, 3)", "combi==0 & fitProb > 0.05");
+  tH->Draw("target >> hHTargetCombi0FitProbB1(30, -12, 3)", "(combi==0 || combi==1) & bProbSSV > 0.1 & hitFitProb > 0.05");
+  tK->Draw("target >> hKTargetCombi0FitProbB1(30, -12, 3)", "combi==0 & bProbSSV > 0.1 & fitProb > 0.40");
   
-  hHTargetCombi0FitProb->SetLineColor(color_[kSig]);
-  hKTargetCombi0FitProb->SetLineColor(color_[kWjets]);
+  setHistStyle(hHTargetCombi0FitProbB1, kHitFit);
+  setHistStyle(hKTargetCombi0FitProbB1, kKinFit);
   
-  hHTargetCombi0FitProb->GetYaxis()->SetRangeUser(0, 20000);
+  hKTargetCombi0FitProbB1->Draw();
+  hHTargetCombi0FitProbB1->Draw("SAME");
+  leg0->Draw();
   
-  hHTargetCombi0FitProb->Draw();
-  hKTargetCombi0FitProb->Draw("SAME");
+  // target, weight and cut on fit prob
   
-  cTargetCombi0FitProb->cd(2);
+  TCanvas* cTargetFitProbWeighted = new TCanvas("cTargetFitProbWeighted", "cTargetFitProbWeighted", 450, 450);
   
-  tH->Draw("target >> hHTargetCombi0FitProbB1(30, -12, 3)", "combi==0 & bProbSSV > 0.1 & hitFitProb > 0.05");
-  tK->Draw("target >> hKTargetCombi0FitProbB1(30, -12, 3)", "combi==0 & bProbSSV > 0.1 & fitProb > 0.05");
+  cTargetFitProbWeighted->cd();
   
-  hHTargetCombi0FitProbB1->SetLineColor(color_[kSig]);
-  hKTargetCombi0FitProbB1->SetLineColor(color_[kWjets]);
+  tH->Draw("target >> hHTargetFitProbWeightedB1(30, -12, 3)", "(hitFitProb)*(bProbSSV > 0.1 & hitFitProb > 0.05)");
+  tK->Draw("target >> hKTargetFitProbWeightedB1(30, -12, 3)", "(fitProb)*(bProbSSV > 0.1 & fitProb > 0.4)");
   
-  hHTargetCombi0FitProbB1->GetYaxis()->SetRangeUser(0, 8000);
+  setHistStyle(hHTargetFitProbWeightedB1, kHitFit);
+  setHistStyle(hKTargetFitProbWeightedB1, kKinFit);
   
-  hHTargetCombi0FitProbB1->Draw();
-  hKTargetCombi0FitProbB1->Draw("SAME");
+  //hKTargetFitProbWeightedB1->GetYaxis()->SetRangeUser(0, 0.6);
   
-  cTargetCombi0FitProb->cd(3);
-  
-  tH->Draw("target >> hHTargetCombi0FitProbB2(30, -12, 3)", "combi==0 & bProbSSV > 0.3 & hitFitProb > 0.05");
-  tK->Draw("target >> hKTargetCombi0FitProbB2(30, -12, 3)", "combi==0 & bProbSSV > 0.3 & fitProb > 0.05");
-  
-  hHTargetCombi0FitProbB2->SetLineColor(color_[kSig]);
-  hKTargetCombi0FitProbB2->SetLineColor(color_[kWjets]);
-  
-  hHTargetCombi0FitProbB2->Draw();
-  hKTargetCombi0FitProbB2->Draw("SAME");
-  
-  
-  /*
-  // fitProb
-  
-  TCanvas* cFitProb = new TCanvas("cFitProb", "cFitProb", 1000, 400);
-  cFitProb->Divide(4,1);
-  
-  cFitProb->cd(1);
-  
-  tH->Draw("hitFitProb >> hHFitProbCombi0(30, 0, 1)", "combi==0");
-  tK->Draw("fitProb >> hKFitProbCombi0(30, 0, 1)", "combi==0");
-  
-  hHFitProbCombi0->SetLineColor(color_[kSig]);
-  hKFitProbCombi0->SetLineColor(color_[kWjets]);
-  
-  hHFitProbCombi0->Draw();
-  hKFitProbCombi0->Draw("SAME");
-  
-  cFitProb->cd(2);
-  
-  tH->Draw("hitFitProb >> hHFitProbCombi0B1(30, 0, 1)", "combi==0 & bProbSSV > 0.1");
-  tK->Draw("fitProb >> hKFitProbCombi0B1(30, 0, 1)", "combi==0 & bProbSSV > 0.1");
-  
-  hHFitProbCombi0B1->SetLineColor(color_[kSig]);
-  hKFitProbCombi0B1->SetLineColor(color_[kWjets]);
-  
-  hHFitProbCombi0B1->Draw();
-  hKFitProbCombi0B1->Draw("SAME");
-  
-  cFitProb->cd(3);
-  
-  tH->Draw("hitFitProb >> hHFitProbCombi0B2(30, 0, 1)", "combi==0 & bProbSSV > 0.3");
-  tK->Draw("fitProb >> hKFitProbCombi0B2(30, 0, 1)", "combi==0 & bProbSSV > 0.3");
-  
-  hHFitProbCombi0B2->SetLineColor(color_[kSig]);
-  hKFitProbCombi0B2->SetLineColor(color_[kWjets]);
-  
-  hHFitProbCombi0B2->Draw();
-  hKFitProbCombi0B2->Draw("SAME");
-  
-  cFitProb->cd(4);
-  
-  tH->Draw("hitFitProb >> hHFitProbTarget1(30, 0, 1)", "target==1");
-  tK->Draw("fitProb >> hKFitProbTarget1(30, 0, 1)", "target==1");
-  
-  hHFitProbTarget1->Scale(1./2);
-  
-  hHFitProbTarget1->SetLineColor(color_[kSig]);
-  hKFitProbTarget1->SetLineColor(color_[kWjets]);
-  
-  hHFitProbTarget1->Draw();
-  hKFitProbTarget1->Draw("SAME");
-  */
-  
-  /*
-  // top pt
-  
-  TCanvas* cHadTopPt = new TCanvas("cHadTopPt", "cHadTopPt", 1000, 400);
-  cHadTopPt->Divide(4,1);
-  
-  cHadTopPt->cd(1);
-  
-  tH->Draw("hadTopPt >> hHHadTopPtCombi0(30, 0, 300)", "combi==0 & hitFitProb > 0.05");
-  tK->Draw("hadTopPt >> hKHadTopPtCombi0(30, 0, 300)", "combi==0 & fitProb > 0.05");
-  
-  hHHadTopPtCombi0->Scale(1./hHHadTopPtCombi0->Integral());
-  hKHadTopPtCombi0->Scale(1./hKHadTopPtCombi0->Integral());
-  
-  hHHadTopPtCombi0->SetLineColor(color_[kSig]);
-  hKHadTopPtCombi0->SetLineColor(color_[kWjets]);
-  
-  hHHadTopPtCombi0->Draw();
-  hKHadTopPtCombi0->Draw("SAME");
-  
-  cHadTopPt->cd(2);
-  
-  tH->Draw("hadTopPt >> hHHadTopPtCombi0B1(30, 0, 300)", "combi==0 & bProbSSV > 0.1 & hitFitProb > 0.05");
-  tK->Draw("hadTopPt >> hKHadTopPtCombi0B1(30, 0, 300)", "combi==0 & bProbSSV > 0.1 & fitProb > 0.05");
-  
-  hHHadTopPtCombi0B1->Scale(1./hHHadTopPtCombi0B1->Integral());
-  hKHadTopPtCombi0B1->Scale(1./hKHadTopPtCombi0B1->Integral());
-  
-  hHHadTopPtCombi0B1->SetLineColor(color_[kSig]);
-  hKHadTopPtCombi0B1->SetLineColor(color_[kWjets]);
-  
-  hHHadTopPtCombi0B1->Draw();
-  hKHadTopPtCombi0B1->Draw("SAME");
-  
-  cHadTopPt->cd(3);
-  
-  tH->Draw("hadTopPt >> hHHadTopPtCombi0B2(30, 0, 300)", "combi==0 & bProbSSV > 0.3 & hitFitProb > 0.05");
-  tK->Draw("hadTopPt >> hKHadTopPtCombi0B2(30, 0, 300)", "combi==0 & bProbSSV > 0.3 & fitProb > 0.05");
-  
-  hHHadTopPtCombi0B2->Scale(1./hHHadTopPtCombi0B2->Integral());
-  hKHadTopPtCombi0B2->Scale(1./hKHadTopPtCombi0B2->Integral());
-  
-  hHHadTopPtCombi0B2->SetLineColor(color_[kSig]);
-  hKHadTopPtCombi0B2->SetLineColor(color_[kWjets]);
-  
-  hHHadTopPtCombi0B2->Draw();
-  hKHadTopPtCombi0B2->Draw("SAME");
-  
-  cHadTopPt->cd(4);
-  
-  tH->Draw("hadTopPt >> hHHadTopPtTarget1(30, 0, 300)", "target==1");
-  tK->Draw("hadTopPt >> hKHadTopPtTarget1(30, 0, 300)", "target==1");
-  
-  hHHadTopPtTarget1->Scale(1./hHHadTopPtTarget1->Integral());
-  hKHadTopPtTarget1->Scale(1./hKHadTopPtTarget1->Integral());
-  
-  hHHadTopPtTarget1->SetLineColor(color_[kSig]);
-  hKHadTopPtTarget1->SetLineColor(color_[kWjets]);
-  
-  hHHadTopPtTarget1->Draw();
-  hKHadTopPtTarget1->Draw("SAME");
-  
-  // top eta
-  
-  TCanvas* cHadTopPt = new TCanvas("cHadTopEta", "cHadTopEta", 1000, 400);
-  cHadTopEta->Divide(4,1);
-  
-  cHadTopEta->cd(1);
-  
-  tH->Draw("hadTopEta >> hHHadTopEtaCombi0(30, -3, 3)", "combi==0 & hitFitProb > 0.05");
-  tK->Draw("hadTopEta >> hKHadTopEtaCombi0(30, -3, 3)", "combi==0 & fitProb > 0.05");
-  
-  hHHadTopEtaCombi0->SetLineColor(color_[kSig]);
-  hKHadTopEtaCombi0->SetLineColor(color_[kWjets]);
-  
-  hHHadTopEtaCombi0->Draw();
-  hKHadTopEtaCombi0->Draw("SAME");
-  
-  cHadTopEta->cd(2);
-  
-  tH->Draw("hadTopEta >> hHHadTopEtaCombi0B1(30, -3, 3)", "combi==0 & bProbSSV > 0.1 & hitFitProb > 0.05");
-  tK->Draw("hadTopEta >> hKHadTopEtaCombi0B1(30, -3, 3)", "combi==0 & bProbSSV > 0.1 & fitProb > 0.05");
-  
-  hHHadTopEtaCombi0B1->SetLineColor(color_[kSig]);
-  hKHadTopEtaCombi0B1->SetLineColor(color_[kWjets]);
-  
-  hHHadTopEtaCombi0B1->Draw();
-  hKHadTopEtaCombi0B1->Draw("SAME");
-  
-  cHadTopEta->cd(3);
-  
-  tH->Draw("hadTopEta >> hHHadTopEtaCombi0B2(30, -3, 3)", "combi==0 & bProbSSV > 0.3 & hitFitProb > 0.05");
-  tK->Draw("hadTopEta >> hKHadTopEtaCombi0B2(30, -3, 3)", "combi==0 & bProbSSV > 0.3 & fitProb > 0.05");
-  
-  hHHadTopEtaCombi0B2->SetLineColor(color_[kSig]);
-  hKHadTopEtaCombi0B2->SetLineColor(color_[kWjets]);
-  
-  hHHadTopEtaCombi0B2->Draw();
-  hKHadTopEtaCombi0B2->Draw("SAME");
-  
-  cHadTopEta->cd(4);
-  
-  tH->Draw("hadTopEta >> hHHadTopEtaTarget1(30, -3, 3)", "target==1");
-  tK->Draw("hadTopEta >> hKHadTopEtaTarget1(30, -3, 3)", "target==1");
-  
-  hHHadTopEtaTarget1->Scale(1./2);
-  
-  hHHadTopEtaTarget1->SetLineColor(color_[kSig]);
-  hKHadTopEtaTarget1->SetLineColor(color_[kWjets]);
-  
-  hHHadTopEtaTarget1->Draw();
-  hKHadTopEtaTarget1->Draw("SAME");
+  hKTargetFitProbWeightedB1->Draw();
+  hHTargetFitProbWeightedB1->Draw("SAME");
+  leg0->Draw();
   */
   
   // top mass
   
-  TCanvas* cHadTopMass = new TCanvas("cHadTopMass", "cHadTopMass", 1000, 400);
-  cHadTopMass->Divide(4,1);
+  TCanvas* cHadTopMass = new TCanvas("cHadTopMass", "cHadTopMass", 450, 450);
   
-  cHadTopMass->cd(1);
+  cHadTopMass->cd();
   
-  tH->Draw("hadTopMass >> hHHadTopMassCombi0(50, 100, 250)", "combi==0 & hitFitProb > 0.05");
-  tK->Draw("hadTopMass >> hKHadTopMassCombi0(50, 100, 250)", "combi==0 & fitProb > 0.05");
+  tH->Draw("hadTopMass >> hHHadTopMass(100, 100, 250)", "target==1");
+  tK->Draw("hadTopMass >> hKHadTopMass(100, 100, 250)", "target==1");
   
-  hHHadTopMassCombi0->Scale(1./hHHadTopMassCombi0->Integral());
-  hKHadTopMassCombi0->Scale(1./hKHadTopMassCombi0->Integral());
+  setHistStyle(hHHadTopMass, kHitFit);
+  setHistStyle(hKHadTopMass, kKinFit);
   
-  hHHadTopMassCombi0->SetLineColor(color_[kSig]);
-  hKHadTopMassCombi0->SetLineColor(color_[kWjets]);
+  hHHadTopMass->GetXaxis()->SetTitle("m_{i}");
+  hKHadTopMass->GetXaxis()->SetTitle("m_{i}");
   
-  hHHadTopMassCombi0->Draw();
-  hKHadTopMassCombi0->Draw("SAME");
+  //hKHadTopMass->GetYaxis()->SetRangeUser(0, 0.085);
   
-  cHadTopMass->cd(2);
+  hKHadTopMass->Draw();
+  hHHadTopMass->Draw("SAME");
   
-  tH->Draw("hadTopMass >> hHHadTopMassCombi0B1(50, 100, 250)", "combi==0 & bProbSSV > 0.1 & hitFitProb > 0.05");
-  tK->Draw("hadTopMass >> hKHadTopMassCombi0B1(50, 100, 250)", "combi==0 & bProbSSV > 0.1 & fitProb > 0.05");
+  TLegend *leg0 = new TLegend(0.7, 0.8, 0.95, 0.9);
+  leg0->SetFillStyle(0);
+  leg0->SetBorderSize(0);
+  leg0->AddEntry( hHHadTopMass , "HitFit"   , "F");
+  leg0->AddEntry( hKHadTopMass , "KinFitter", "F");
+  leg0->Draw();
   
-  hHHadTopMassCombi0B1->Scale(1./hHHadTopMassCombi0B1->Integral());
-  hKHadTopMassCombi0B1->Scale(1./hKHadTopMassCombi0B1->Integral());
-  
-  hHHadTopMassCombi0B1->SetLineColor(color_[kSig]);
-  hKHadTopMassCombi0B1->SetLineColor(color_[kWjets]);
-  
-  hHHadTopMassCombi0B1->Draw();
-  hKHadTopMassCombi0B1->Draw("SAME");
-  
-  cHadTopMass->cd(3);
-  
-  tH->Draw("hadTopMass >> hHHadTopMassCombi0B2(50, 100, 250)", "combi==0 & bProbSSV > 0.3 & hitFitProb > 0.05");
-  tK->Draw("hadTopMass >> hKHadTopMassCombi0B2(50, 100, 250)", "combi==0 & bProbSSV > 0.3 & fitProb > 0.05");
-  
-  hHHadTopMassCombi0B2->Scale(1./hHHadTopMassCombi0B2->Integral());
-  hKHadTopMassCombi0B2->Scale(1./hKHadTopMassCombi0B2->Integral());
-  
-  hHHadTopMassCombi0B2->SetLineColor(color_[kSig]);
-  hKHadTopMassCombi0B2->SetLineColor(color_[kWjets]);
-  
-  hHHadTopMassCombi0B2->Draw();
-  hKHadTopMassCombi0B2->Draw("SAME");
-  
-  cHadTopMass->cd(4);
-  
-  tH->Draw("hadTopMass >> hHHadTopMassTarget1(50, 100, 250)", "target==1");
-  tK->Draw("hadTopMass >> hKHadTopMassTarget1(50, 100, 250)", "target==1");
-  
-  hHHadTopMassTarget1->Scale(1./2);
-  
-  hHHadTopMassTarget1->SetLineColor(color_[kSig]);
-  hKHadTopMassTarget1->SetLineColor(color_[kWjets]);
-  
-  hHHadTopMassTarget1->Draw();
-  hKHadTopMassTarget1->Draw("SAME");
-
   
   /*
-  tT->Draw("log10(bProbSSV*hitFitProb) >> hTSig(40, -10, 0)", "target==1");
-  tT->Draw("log10(bProbSSV*hitFitProb) >> hTBkg(40, -10, 0)", "target!=1");
-  tW->Draw("log10(bProbSSV*hitFitProb) >> hW   (40, -10, 0)");
-  tD->Draw("log10(bProbSSV*hitFitProb) >> hD   (40, -10, 0)");
-  
-  TH1F* hNull = new TH1F("null", "", 40, -10, 0);
-  hNull->GetYaxis()->SetRangeUser(0.1, 1000);
-  hNull->GetXaxis()->SetTitle("log(w_{i})");
-  
-  TH1F* hTSig = (TH1F*) gDirectory->Get("hTSig");
-  TH1F* hTBkg = (TH1F*) gDirectory->Get("hTBkg");
-  TH1F* hW    = (TH1F*) gDirectory->Get("hW");
-  TH1F* hD    = (TH1F*) gDirectory->Get("hD");
-  
-  hTBkg->Scale(1/normalization * 188/35.9*luminosity);
-  hTSig->Scale(1/normalization * 188/35.9*luminosity);
-  hW   ->Scale(1/hW->Integral() *  21/35.9*luminosity);
-  
-  hTSig->SetFillColor(color_[kSig]);
-  hTBkg->SetFillColor(color_[kBkg]);
-  hW   ->SetFillColor(color_[kWjets]);
-  hD   ->SetMarkerStyle(markerStyle_[kData]);
-  
-  THStack* stack = new THStack("stack", "");
-  stack->Add(hW);
-  stack->Add(hTSig);
-  stack->Add(hTBkg);
-  
   // ---
   //    create legend
   // ---
