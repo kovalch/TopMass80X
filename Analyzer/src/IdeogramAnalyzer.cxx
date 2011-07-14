@@ -142,8 +142,8 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
         double bkgIntegral = combBackground->Integral(0, 10000);
         //*/
         
-        combLikelihood->SetParameters(hadTopMass, hitFitSigMT, currentWeight, hadTopPt-lepTopPt, hadWRawSigM);
-        //combLikelihood->SetParameters(hadTopMass, hitFitSigMT, currentWeight, hadWRawMass, hadWRawSigM);
+        //combLikelihood->SetParameters(hadTopMass, hitFitSigMT, currentWeight, hadTopPt-lepTopPt, hadWRawSigM);
+        combLikelihood->SetParameters(hadTopMass, hitFitSigMT, currentWeight, hadWRawMass, hadWRawSigM);
         eventLikelihood->Eval(combLikelihood, "A"); // add combi pdf
       }
     }

@@ -77,7 +77,7 @@ void Analysis::Analyze(bool reanalyze) {
         cuts += " & mvaDisc > 0";
       }
       else if (!strcmp(fMethod, "Ideogram")) {
-        cuts += " & target == 1";
+        //cuts += " & target == 1";
         //cuts += " & (target == 0 | target == -2)";
         cuts += " & (bProbSSV * hitFitProb) > 0.05";
       }

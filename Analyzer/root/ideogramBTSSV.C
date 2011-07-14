@@ -9,7 +9,7 @@ void ideogramBTSSV()
   gStyle->SetOptTitle(0);
   gStyle->SetOptStat(0);
 
-  TFile* file = new TFile("analyzeTop_1725.root");
+  TFile* file = new TFile("/scratch/hh/current/cms/user/mseidel/TTJets1725_1.00/analyzeTop.root");
   analyzeGenMatch->cd();
   
   /*
@@ -29,17 +29,17 @@ void ideogramBTSSV()
   int bins = 60;
   
   eventTree->Draw("hadQBSSV >> hHadQBSSV(60, -1, 5)");
-  eventTree->Draw("hadQbarBSSV >> hHadQbarBSSV(60, -1, 5)");
+  eventTree->Draw("hadQBarBSSV >> hHadQBarBSSV(60, -1, 5)");
   eventTree->Draw("hadBBSSV >> hHadBBSSV(60, -1, 5)");
   eventTree->Draw("lepBBSSV >> hLepBBSSV(60, -1, 5)");
   
   TH1F *hHadQBSSV = (TH1F*)gDirectory->Get("hHadQBSSV");
-  TH1F *hHadQbarBSSV = (TH1F*)gDirectory->Get("hHadQbarBSSV");
+  TH1F *hHadQBarBSSV = (TH1F*)gDirectory->Get("hHadQBarBSSV");
   TH1F *hHadBBSSV = (TH1F*)gDirectory->Get("hHadBBSSV");
   TH1F *hLepBBSSV = (TH1F*)gDirectory->Get("hLepBBSSV");
   
   TH1F *hQSum = new TH1F("hQSum", "hQSum", bins, -1, 5);
-  hQSum->Add(hHadQBSSV, hHadQbarBSSV);
+  hQSum->Add(hHadQBSSV, hHadQBarBSSV);
   
   TH1F *hBSum = new TH1F("hBSum", "hBSum", bins, -1, 5);
   hBSum->Add(hHadBBSSV, hLepBBSSV);

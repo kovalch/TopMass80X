@@ -6,7 +6,7 @@
 
 #include "tdrstyle.C"
 
-int target = 1;
+int target = -10;
 
 double x[3] = {166.5, 172.5, 178.5};
 double y0[3];
@@ -176,7 +176,7 @@ TH1F* FindParameters(TString filename, int i)
   TH1F* hSig;
   
   TString sCutAndWeight("(bProbSSV*hitFitProb)*(target=="); sCutAndWeight += target; sCutAndWeight += " & (bProbSSV * hitFitProb) > 0.05)";
-  sCutAndWeight = "target==1";
+  //sCutAndWeight = "target==1";
   
   // Get observable
   eventTree->Draw("hadTopMass >> hSig(160, 100, 500)", sCutAndWeight);

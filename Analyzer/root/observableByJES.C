@@ -6,8 +6,8 @@
 
 #include "tdrstyle.C"
 
-int target = 0;
-int obs    = 2; // 0: hadTopMass, 1: hadWRawMass, 2: hadTopPt-lepTopPt
+int target = -10;
+int obs    = 1; // 0: hadTopMass, 1: hadWRawMass, 2: hadTopPt-lepTopPt
 
 double x[3] = {0.96, 1.00, 1.04};
 double y0[3];
@@ -262,6 +262,19 @@ TH1F* FindParameters(TString filename, int i)
     fit->SetParLimits(3, 0.05, 2);
     fit->SetParLimits(4, 3, 3);
   }
+  
+  else if (obs == 3) {
+    fit = new TF1("fit", "[0]*TMath::Voigt(x-[1], [2], [3])");
+    //fit = new TF1("fit", "gaus");
+    fit->SetLineColor(kBlack);
+    fit->SetLineWidth(2);
+    fit->SetParameters(100000, 0.5, 0.1, 0.1);
+    
+    fit->SetParLimits(0, 1, 1000000);
+    fit->SetParLimits(1, 0, 0.1);
+    fit->SetParLimits(2, 0.02, 0.05);
+    fit->SetParLimits(3, 0, 1);
+  }
 
   
   TH1F* hSig;
@@ -269,7 +282,7 @@ TH1F* FindParameters(TString filename, int i)
   TString sObservable;
   switch(obs) {
     case 0: {
-      sObservable = "hadTopMass >> h1(80, 100, 500)";
+      sObservable = "hadTopMass >> h1(160, 100, 500)";
       break;
     }
     case 1: {
@@ -281,9 +294,14 @@ TH1F* FindParameters(TString filename, int i)
       sObservable = "hadTopPt-lepTopPt >> h1(25, -50, 50)";
       break;
     }
+    case 3: {
+      sObservable = "(hadTopPt-lepTopPt)/(hadTopPt+lepTopPt) >> h1(100, -0.5, 0.5)";
+      break;
+    }
   }
-  TString sCutAndWeight("(bProbSSV*hitFitProb)*(target=="); sCutAndWeight += target; sCutAndWeight += " & (bProbSSV*hitFitProb) > 0.05)";
-
+  //TString sCutAndWeight("(bProbSSV*hitFitProb)*(target=="); sCutAndWeight += target; sCutAndWeight += " & (bProbSSV*hitFitProb) > 0.05 & (hadBPt/lepBPt > 2 | lepBPt/hadBPt > 2))";
+  TString sCutAndWeight("(bProbSSV*hitFitProb)*(target=="); sCutAndWeight += target; sCutAndWeight += " & (bProbSSV*hitFitProb) > 0.05 )";
+  
   std::cout << sCutAndWeight << std::endl;
   
   // Get observable
