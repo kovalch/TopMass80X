@@ -6,7 +6,7 @@
 
 #include "tdrstyle.C"
 
-int target = -10;
+int target = 1;
 
 double x[3] = {166.5, 172.5, 178.5};
 double y0[3];
@@ -36,17 +36,24 @@ namespace cb {
 // 7 parameters: [0] -> [6]
 double crystalBall(const double* x, const double* p)
 {
-  double N     = p[0];
+  double M     = p[0];
   double mu    = p[1];
   double sigma = p[2];
   double alpha = p[3];
   double power = p[4];
   double t = (x[0] - mu) / sigma;
   
+  double N1 = -sqrt(TMath::PiOver2()) * sigma * (TMath::Erf(-alpha/sqrt(2)) - TMath::Erf(mu/(sqrt(2)*sigma)));
+  double N2 = cb::A(alpha,power) / (-1.+power) * (
+                (-cb::B(alpha,power)*sigma+mu-10000) * TMath::Power(cb::B(alpha,power)+(-mu+10000)/sigma, -power)
+               -(-cb::B(alpha,power)*sigma-sigma*alpha) * TMath::Power(cb::B(alpha,power)+(sigma*alpha)/sigma, -power)
+              );
+  double N = N1 + N2;
+  
   if(t < alpha)
-    return N * TMath::Exp(-t*t/2);
+    return M * 1./N * TMath::Exp(-t*t/2);
   else
-    return N * cb::A(alpha,power) * TMath::Power(cb::B(alpha,power) + t, -power);
+    return M * 1./N * cb::A(alpha,power) * TMath::Power(cb::B(alpha,power) + t, -power);
 }
 
 void observableByMT()
@@ -62,9 +69,9 @@ void observableByMT()
   linearFit->SetLineWidth(2);
   linearFit->SetLineColor(kRed+1);
   
-  TH1F* h1665 = FindParameters("/scratch/hh/current/cms/user/mseidel/TTJets1665_1.00/analyzeTop.root", 0);
-  TH1F* h1725 = FindParameters("/scratch/hh/current/cms/user/mseidel/TTJets1725_1.00/analyzeTop.root", 1);
-  TH1F* h1785 = FindParameters("/scratch/hh/current/cms/user/mseidel/TTJets1785_1.00/analyzeTop.root", 2);
+  TH1F* h1665 = FindParameters("/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1665_1.00_1.00/analyzeTop.root", 0);
+  TH1F* h1725 = FindParameters("/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_1.00_1.00/analyzeTop.root", 1);
+  TH1F* h1785 = FindParameters("/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1785_1.00_1.00/analyzeTop.root", 2);
   
   h1665->Draw();
   h1665->GetXaxis()->SetRangeUser(100, 250);
@@ -179,7 +186,7 @@ TH1F* FindParameters(TString filename, int i)
   //sCutAndWeight = "target==1";
   
   // Get observable
-  eventTree->Draw("hadTopMass >> hSig(160, 100, 500)", sCutAndWeight);
+  eventTree->Draw("hadTopMass >> hSig(80, 100, 500)", sCutAndWeight);
   
   TH1F *hSig = (TH1F*)gDirectory->Get("hSig");
   

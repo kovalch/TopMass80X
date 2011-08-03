@@ -16,7 +16,8 @@ readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
-       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/160/406/50A4D30B-5A4F-E011-AAD8-0030487CD906.root'
+       '/store/data/Run2011A/SingleMu/AOD/May10ReReco-v1/0000/00454769-577B-E011-ACCD-001E0B49808A.root',
+       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v4/000/166/462/8A8DCE75-8190-E011-B082-001D09F2915A.root'
        ] );
 
 
@@ -38,7 +39,7 @@ process.options = cms.untracked.PSet(
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('GR_R_41_V0::All')
+process.GlobalTag.globaltag = cms.string('GR_R_42_V19::All')
 
 ## std sequence for pat
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
@@ -61,7 +62,7 @@ setForAllTtSemiLepHypotheses(process, "jets", "goodJetsPF30")
 setForAllTtSemiLepHypotheses(process, "maxNJets", 4)
 setForAllTtSemiLepHypotheses(process, "mets", "patMETsPF")
 setForAllTtSemiLepHypotheses(process, "maxNComb", -1)
-#setForAllTtSemiLepHypotheses(process, "jetCorrectionLevel", "L2L3Residual")
+setForAllTtSemiLepHypotheses(process, "jetCorrectionLevel", "L2L3Residual")
 
 ## choose which hypotheses to produce
 addTtSemiLepHypotheses(process,
@@ -105,7 +106,12 @@ process.path.remove(process.looseElectronsEJ)
 process.path.remove(process.tightElectronsEJ)
                         
 from TopAnalysis.TopUtils.usePatTupleWithParticleFlow_cff import prependPF2PATSequence
-prependPF2PATSequence(process, options = {'runOnOLDcfg': True, 'runOnMC': False, 'electronIDs': '', 'switchOffEmbedding': False, 'skipIfNoPFMuon': True})
+prependPF2PATSequence(process, options = {'runOnOLDcfg': True,
+                                          'runOnMC': False,
+                                          'runOnAOD': True,
+                                          'electronIDs': '',
+                                          'switchOffEmbedding': False,
+                                          'skipIfNoPFMuon': True})
 
 ## adaptions (re-aranging of modules) to speed up processing
 pathnames = process.paths_().keys()

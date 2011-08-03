@@ -155,6 +155,7 @@ void Analysis::CreateRandomSubset() {
   fChain->SetBranchStatus("combi", 1);
   fChain->SetBranchStatus("deltaThetaHadWHadB", 1);
   fChain->SetBranchStatus("deltaThetaHadQHadQBar", 1);
+  fChain->SetBranchStatus("PUWeight", 1);
 
   if (fLumi>0) {
     TRandom3* random = new TRandom3(0);

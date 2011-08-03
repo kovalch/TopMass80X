@@ -45,9 +45,9 @@ TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins
   Measure(a1725_094);
   //*/
   
-  //*
-  Analysis* a1725_096 = new Analysis("1725_096", "/scratch/hh/current/cms/user/mseidel/TTJets1725_0.96/analyzeTop.root", fMethod, fBins, 20000);
-  Measure(a1725_096);
+  /*
+  Analysis* a1725_100_096 = new Analysis("1725_100_096", "/scratch/hh/current/cms/user/mseidel/TTJets1725_1.00_0.96/analyzeTop.root", fMethod, fBins, 20000);
+  Measure(a1725_100_096);
   //*/
   
   /*
@@ -55,9 +55,9 @@ TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins
   Measure(a1725_098);
   //*/
   
-  //*
-  Analysis* a1725_100 = new Analysis("1725_100", "/scratch/hh/current/cms/user/mseidel/TTJets1725_1.00/analyzeTop.root", fMethod, fBins, 20000);
-  Measure(a1725_100);
+  /*
+  Analysis* a1725_100_100 = new Analysis("1725_100_100", "/scratch/hh/current/cms/user/mseidel/TTJets1725_1.00_1.00/analyzeTop.root", fMethod, fBins, 20000);
+  Measure(a1725_100_100);
   //*/
   
   /*
@@ -65,9 +65,9 @@ TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins
   Measure(a1725_102);
   //*/
   
-  //*
-  Analysis* a1725_104 = new Analysis("1725_104", "/scratch/hh/current/cms/user/mseidel/TTJets1725_1.04/analyzeTop.root", fMethod, fBins, 20000);
-  Measure(a1725_104);
+  /*
+  Analysis* a1725_100_104 = new Analysis("1725_100_104", "/scratch/hh/current/cms/user/mseidel/TTJets1725_1.00_1.04/analyzeTop.root", fMethod, fBins, 20000);
+  Measure(a1725_100_104);
   //*/
   
   /*
@@ -114,13 +114,56 @@ TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins
   Analysis* a1785_105 = new Analysis("1785_105", "/scratch/hh/current/cms/user/mseidel/TTJets1785_1.05/analyzeTop.root", fMethod, fBins, 20000);
   Measure(a1785_105);
   //*/
+	
+  /*
+  Analysis* aRun2011A4 = new Analysis("Run2011A4", "/scratch/hh/current/cms/user/mseidel/Run2011A4/analyzeTop.root", fMethod, fBins, 20000);
+  Measure(aRun2011A4);
+  //*/
   
+  /*
+  Analysis* a1665_100 = new Analysis("1665_100", "/scratch/hh/current/cms/user/mseidel/TTJets1665_1.00/analyzeTop.root", fMethod, fBins, 20000);
+  Measure(a1665_100);
+  
+  Analysis* a1785_100 = new Analysis("1785_100", "/scratch/hh/current/cms/user/mseidel/TTJets1785_1.00/analyzeTop.root", fMethod, fBins, 20000);
+  Measure(a1785_100);
+  //*/
+  
+  /*
+  Analysis* a1725_096_S4 = new Analysis("1725_096_S4", "/scratch/hh/current/cms/user/mseidel/TTJets1725-S4_0.96_1.00/analyzeTop.root", fMethod, fBins, 20000);
+  Measure(a1725_096_S4);
+  //*/
+  
+  //*
+  Analysis* a1725_097_S4 = new Analysis("1725_097_S4", "/scratch/hh/current/cms/user/mseidel/TTJets1725-S4_1.00_0.97/analyzeTop.root", fMethod, fBins, 20000);
+  Measure(a1725_097_S4);
+  //*/
+  
+  /*
+  Analysis* a1725_100_S4 = new Analysis("1725_100_S4", "/scratch/hh/current/cms/user/mseidel/TTJets1725-S4_1.00_1.00/analyzeTop.root", fMethod, fBins, 20000);
+  Measure(a1725_100_S4);
+  //*/
+  
+  //*
+  Analysis* a1725_103_S4 = new Analysis("1725_103_S4", "/scratch/hh/current/cms/user/mseidel/TTJets1725-S4_1.00_1.03/analyzeTop.root", fMethod, fBins, 20000);
+  Measure(a1725_103_S4);
+  //*/
+  
+  /*
+  Analysis* a1725_104_S4 = new Analysis("1725_104_S4", "/scratch/hh/current/cms/user/mseidel/TTJets1725-S4_1.04_1.00/analyzeTop.root", fMethod, fBins, 20000);
+  Measure(a1725_104_S4);
+  //*/
+  
+  /*
+  Analysis* aRun2011A = new Analysis("Run2011A", "/scratch/hh/current/cms/user/mseidel/Run2011A.root", fMethod, fBins, 20000);
+  Measure(aRun2011A);
+  //*/
 }
 
 
 void TopMass::WriteEnsembleTest(bool readCalibration) {
   if (readCalibration) LoadXML();
 
+  /*
   massPoint m1665(166.5, "1665");
   massPoint m1725(172.5, "1725");
   massPoint m1785(178.5, "1785");
@@ -128,6 +171,10 @@ void TopMass::WriteEnsembleTest(bool readCalibration) {
   massPoints.push_back(m1665);
   massPoints.push_back(m1725);
   massPoints.push_back(m1785);
+  */
+  
+  massPoint m1725_S4(172.5, "1725_S4");
+  massPoints.push_back(m1725_S4);
   
   int nEnsembles = 10;
   
@@ -602,7 +649,7 @@ void TopMass::LoadXML() {
 int main(int argc, char** argv)
 {
   if (argc > 1) {
-    TopMass* top = new TopMass(argv[1], 1, 21);
+    TopMass* top = new TopMass(argv[1], 1, 1000);
   }
   else {
     TopMass* top = new TopMass("GenMatch", 6, 500);

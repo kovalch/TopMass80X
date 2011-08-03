@@ -9,7 +9,7 @@ void ideogramBTSSV()
   gStyle->SetOptTitle(0);
   gStyle->SetOptStat(0);
 
-  TFile* file = new TFile("/scratch/hh/current/cms/user/mseidel/TTJets1725_1.00/analyzeTop.root");
+  TFile* file = new TFile("/scratch/hh/current/cms/user/mseidel/TTJets1725-S4_1.00_1.00/analyzeTop.root");
   analyzeGenMatch->cd();
   
   /*

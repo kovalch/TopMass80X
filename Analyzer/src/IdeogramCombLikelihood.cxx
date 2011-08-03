@@ -8,17 +8,29 @@ double IdeogramCombLikelihood::Evaluate(double *x, double *p) {
   double fUN = 0.375;
   //*/
   
-  //std::cout << "x[0]: " << x[0] << " x[1]: " << x[1] << std::endl;
-  //std::cout << p[2] * (fCP * PCP(x, p) + fWP * PWP(x, p) + fUN * PUN(x, p)) << std::endl;
+  /*
+  fWP = 0;
+  fUN = 0;
+  //*/
   
-  //return p[2] * (fCP * PCP(x, p) + fWP * PWP(x, p) + fUN * PUN(x, p));
+  double Spring11MassOffset = 0.31;
+  double Spring11MassSlope  = 0.4/6.;
+  double Spring11JESOffset  = 0.0033;
+  double Spring11JESSlope   = 0;
+  
+  double Summer11MassOffset = 1.5;
+  double Summer11JESOffset  = 0.022;
+  
+  x[0] = x[0] - Spring11MassOffset - Spring11MassSlope * (x[0]-172.5) - Summer11MassOffset;
+  x[1] = x[1] - Spring11JESOffset  - Spring11JESSlope  * (x[1]-1.)    - Summer11JESOffset;
+  
   return p[2] * (fCP * PCP(x, p) * PCPJES(x, p) + fWP * PWP(x, p) * PWPJES(x, p) + fUN * PUN(x, p) * PUNJES(x, p));
 }
 
 
 double IdeogramCombLikelihood::PCP(double *x, double *p) {
   double mu       = 1.72119e+02 + 9.36446e-01 * (x[0]-172.5) + 7.91540e+01 * (x[1]-1.);
-  double sigma    = p[1];
+  double sigma    = 1.00849e+01 + 8.67187e-02 * (x[0]-172.5) + 1.00582e+01 * (x[1]-1.);
   
   return TMath::Voigt(p[0] - mu, sigma, 2);
 }
@@ -44,9 +56,10 @@ double IdeogramCombLikelihood::PWP(double* x, double* p)
   double t = (p[0] - mu) / sigma;
   
   //*
-  double N1 = -sqrt(TMath::PiOver2()) * sigma * (-1+TMath::Erf(-sigma*alpha)/(sqrt(2)*sigma));
-  double N2 = cb::A(alpha,power) * sigma/(-1.+power) * ( 0. + //lim(x->inf)
-                pow(((cb::B(alpha,power) * sigma - sigma*alpha)/sigma), (1. - power))
+  double N1 = -sqrt(TMath::PiOver2()) * sigma * (TMath::Erf(-alpha/sqrt(2)) - TMath::Erf(mu/(sqrt(2)*sigma)));
+  double N2 = cb::A(alpha,power) / (-1.+power) * (
+                (-cb::B(alpha,power)*sigma+mu-10000) * TMath::Power(cb::B(alpha,power)+(-mu+10000)/sigma, -power)
+               -(-cb::B(alpha,power)*sigma-sigma*alpha) * TMath::Power(cb::B(alpha,power)+(sigma*alpha)/sigma, -power)
               );
   N = N1 + N2;
   //*/
@@ -70,9 +83,10 @@ double IdeogramCombLikelihood::PUN(double* x, double* p)
   double t = (p[0] - mu) / sigma;
   
   //*
-  double N1 = -sqrt(TMath::PiOver2()) * sigma * (-1+TMath::Erf(-sigma*alpha)/(sqrt(2)*sigma));
-  double N2 = cb::A(alpha,power) * sigma/(-1.+power) * ( 0. + //lim(x->inf)
-                pow(((cb::B(alpha,power) * sigma - sigma*alpha)/sigma), (1. - power))
+  double N1 = -sqrt(TMath::PiOver2()) * sigma * (TMath::Erf(-alpha/sqrt(2)) - TMath::Erf(mu/(sqrt(2)*sigma)));
+  double N2 = cb::A(alpha,power) / (-1.+power) * (
+                (-cb::B(alpha,power)*sigma+mu-10000) * TMath::Power(cb::B(alpha,power)+(-mu+10000)/sigma, -power)
+               -(-cb::B(alpha,power)*sigma-sigma*alpha) * TMath::Power(cb::B(alpha,power)+(sigma*alpha)/sigma, -power)
               );
   N = N1 + N2;
   //*/

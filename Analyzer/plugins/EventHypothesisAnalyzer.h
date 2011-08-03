@@ -26,6 +26,8 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   edm::InputTag hypoClassKey_;
   edm::InputTag jets_;
   edm::InputTag leps_;
+  edm::InputTag VertexSrc_;
+  edm::InputTag PUWeightSrc_;
 
   int run;
   int luminosityBlock;
@@ -114,6 +116,15 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double genDeltaThetaHadWHadB;
   double deltaRLepBLepton;
   double deltaThetaLepBLepton;
+  double deltaRHadBLepB;
+  double deltaThetaHadBLepB;
+  
+  ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > sumB;
+  double sumBPt;
+  
+  ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > TTBar;
+  double TTBarPt;
+  double TTBarMass;
   
   double genMatchDr;
   double mvaDisc;
@@ -127,12 +138,17 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double hadBProb;
   double bProbSSV;
   double hadBProbSSV;
+  double cProb;
+  
+  int nVertex;
+  double PUWeight;
   
   int target;
   
   TTree* eventTree;
   
   double QBTagProbabilitySSV(double bDiscriminator);
+  double QBTagProbabilitySSVHEM(double bDiscriminator);
 };
 
 #endif

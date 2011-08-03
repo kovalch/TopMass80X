@@ -17,6 +17,8 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiLepEvtPartons.h"
 #include <DataFormats/PatCandidates/interface/Jet.h>
 #include <DataFormats/PatCandidates/interface/Muon.h>
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 #include <TMath.h>
 
@@ -26,7 +28,9 @@ EventHypothesisAnalyzer::EventHypothesisAnalyzer(const edm::ParameterSet& cfg):
   semiLepEvt_  (cfg.getParameter<edm::InputTag>("semiLepEvent")),
   hypoClassKey_(cfg.getParameter<edm::InputTag>("hypoClassKey")),
   jets_        (cfg.getParameter<edm::InputTag>("jets")),
-  leps_        (cfg.getParameter<edm::InputTag>("leps"))
+  leps_        (cfg.getParameter<edm::InputTag>("leps")),
+  VertexSrc_   (cfg.getParameter<edm::InputTag>("VertexSrc")),
+  PUWeightSrc_ (cfg.getParameter<edm::InputTag>("PUWeightSrc"))
 {
 }
 
@@ -55,6 +59,15 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
   
   edm::Handle<std::vector<pat::Muon> > leps;
   evt.getByLabel(leps_, leps);
+  
+  edm::Handle<std::vector<reco::Vertex> > vertecies_h;
+  evt.getByLabel(VertexSrc_, vertecies_h);
+  nVertex = vertecies_h.isValid() ? vertecies_h->size() : -1;
+  
+  edm::Handle<double> PUWeightSrc_h;
+  evt.getByLabel(PUWeightSrc_, PUWeightSrc_h);
+  PUWeight = PUWeightSrc_h.isValid() ? *PUWeightSrc_h : -100.;
+
 
   for(unsigned h=0; h<semiLepEvt->numberOfAvailableHypos(hypoClassKey); h++) {
 
@@ -155,6 +168,7 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     const reco::Candidate* lepBRaw  = semiLepEvt->leptonicDecayB         (hypoClassKeyMVA, hMVA);
     const reco::Candidate* lepton   = semiLepEvt->singleLepton           (hypoClassKey, h);
     //const reco::Candidate* neutrino = semiLepEvt->singleNeutrino         (hypoClassKey, h);
+
     
     //////////////////////////////////////////////////////////////////////////////////////////////////
     // get genParticles
@@ -273,6 +287,15 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     if (genHadW && genHadB) genDeltaThetaHadWHadB = ROOT::Math::VectorUtil::Angle(genHadW->polarP4(), genHadB->polarP4());
     deltaRLepBLepton      = ROOT::Math::VectorUtil::DeltaR(lepton->polarP4(), lepB->polarP4());
     deltaThetaLepBLepton  = ROOT::Math::VectorUtil::Angle(lepton->polarP4(), lepB->polarP4());
+    deltaRHadBLepB        = ROOT::Math::VectorUtil::DeltaR(hadB->polarP4(), lepB->polarP4());;
+    deltaThetaHadBLepB    = ROOT::Math::VectorUtil::Angle(hadB->polarP4(), lepB->polarP4());;
+    
+    sumB   = hadB->polarP4() + lepB->polarP4();
+    sumBPt = sumB.pt();
+    
+    TTBar     = hadTop->polarP4() + lepTop->polarP4();
+    TTBarPt   = TTBar.pt();
+    TTBarMass = TTBar.mass();
     
     mvaDisc    = semiLepEvt->mvaDisc(hMVA);
     fitChi2    = semiLepEvt->fitChi2(hKinFit);
@@ -287,7 +310,10 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
                  * (1 - QBTagProbabilitySSV(lepBBSSV));
     hadBProbSSV= QBTagProbabilitySSV(hadQBSSV) * QBTagProbabilitySSV(hadQBarBSSV)
                  * (1 - QBTagProbabilitySSV(hadBBSSV));
-  
+    
+    double c = fabs(leptonC + lepBJC);
+    cProb = TMath::Max(5.35127e-04 + 9.94457e-02 * c - 1.42802e-01 * c*c + 7.77414e-02 * c*c*c - 1.54590e-02 * c*c*c*c, 0.);
+    
     eventTree -> Fill();
   
   }
@@ -393,6 +419,12 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("genDeltaThetaHadWHadB", &genDeltaThetaHadWHadB, "genDeltaThetaHadWHadB/D");
   eventTree->Branch("deltaRLepBLepton", &deltaRLepBLepton, "deltaRLepBLepton/D");
   eventTree->Branch("deltaThetaLepBLepton", &deltaThetaLepBLepton, "deltaThetaLepBLepton/D");
+  eventTree->Branch("deltaRHadBLepB", &deltaRHadBLepB, "deltaRHadBLepB/D");
+  eventTree->Branch("deltaThetaHadBLepB", &deltaThetaHadBLepB, "deltaThetaHadBLepB/D");
+  
+  eventTree->Branch("sumBPt", &sumBPt, "sumBPt/D");
+  eventTree->Branch("TTBarPt", &TTBarPt, "TTBarPt/D");
+  eventTree->Branch("TTBarMass", &TTBarMass, "TTBarMass/D");
   
   eventTree->Branch("genMatchDr", &genMatchDr, "genMatchDr/D");
   eventTree->Branch("mvaDisc", &mvaDisc, "mvaDisc/D");
@@ -404,6 +436,10 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("hitFitSigMT", &hitFitSigMT, "hitFitSigMT/D");
   eventTree->Branch("bProbSSV", &bProbSSV, "bProbSSV/D");
   eventTree->Branch("hadBProbSSV", &hadBProbSSV, "hadBProbSSV/D");
+  eventTree->Branch("cProb", &cProb, "cProb/D");
+  
+  eventTree->Branch("nVertex", &nVertex, "nVertex/I");
+  eventTree->Branch("PUWeight", &PUWeight, "PUWeight/D");
   
   eventTree->Branch("target", &target, "target/I");
 
@@ -416,6 +452,19 @@ double EventHypothesisAnalyzer::QBTagProbabilitySSV(double bDiscriminator) {
   double p1 = -1.11745e+00;
 
   return exp(p0+p1*bDiscriminator);
+}
+
+double EventHypothesisAnalyzer::QBTagProbabilitySSVHEM(double bDiscriminator) {
+  //TODO e(pt, eta) aus DB?
+  double eb = 0.405;
+  double el = 0.0084;
+  
+  if (bDiscriminator > 1.74) {
+    return el/(eb+el);
+  }
+  else {
+    return (1-el)/((1-eb)+(1-el));
+  }
 }
 
 void

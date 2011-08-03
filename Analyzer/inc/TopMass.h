@@ -37,12 +37,12 @@ struct massPoint {
   
   massPoint(double pGenMass, TString pIdentifier) :
       genMass(pGenMass), identifier(pIdentifier) {
-    if (fexists("/scratch/hh/lustre/cms/user/mseidel/root/analyzeTop_1725.root")) {
-      fileName = "/scratch/hh/lustre/cms/user/mseidel/root/analyzeTop_";
+    if (fexists("/scratch/hh/lustre/cms/user/mseidel/TTJets1725_1.00/analyzeTop.root")) {
+      fileName = "/scratch/hh/lustre/cms/user/mseidel/TTJets";
     }
     else fileName = "root/analyzeTop_";
     fileName += identifier;
-    fileName += ".root";
+    fileName += "_1.00/analyzeTop.root";
   };
 };
 

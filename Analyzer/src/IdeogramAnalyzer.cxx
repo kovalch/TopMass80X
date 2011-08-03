@@ -8,7 +8,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
 
   bool debug = false;
   int nDebug = 1;
-  int maxDebug = 1000;
+  int maxDebug = 200;
   
   TCanvas* ctemp = new TCanvas("ctemp", "Top mass", 500, 500);
   ctemp->cd();
@@ -16,23 +16,26 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   // S e t u p   c o m p o n e n t   p d f s 
   // ---------------------------------------
 
-  double firstBinMass = 160;
+  double firstBinMass = 165;
   double lastBinMass  = 180;
-  int binsMass     = 40;
+  int binsMass     = 30;
   
-  double firstBinJes = 0.9;
-  double lastBinJes  = 1.1;
-  int binsJes        = 40;
+  double firstBinJes = 0.95;
+  double lastBinJes  = 1.05;
+  int binsJes        = 20;
+  
+  double pullWidth   = 0.715;
+  //gStyle->SetOptFit(0);
   
   //*
   if (debug) {
     firstBinMass = 100;
-    lastBinMass  = 250;
-    binsMass     = 150;
+    lastBinMass  = 350;
+    binsMass     = 500;
     
     firstBinJes = 0.5;
     lastBinJes  = 1.5;
-    binsJes     = 50;
+    binsJes     = 100;
   }
   //*/
   
@@ -40,13 +43,19 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   TF2* combLikelihood = new TF2("combLikelihood",fptr,&IdeogramCombLikelihood::Evaluate, firstBinMass, lastBinMass, firstBinJes, lastBinJes, 5, "IdeogramCombLikelihood", "Evaluate");
   //TF1* combBackground = new TF1("combBackground",fptr,&IdeogramCombLikelihood::CrystalBall,150,200,1);
 
-  TF2* fitParabola = new TF2("fitParabola", "abs([1])*(x-[0])^2 + abs([4])*(y-[3])^2 + [5]*(x-[0])*(y-[3])");
-  fitParabola->SetParNames("mass", "massCurv", "offset", "jes", "jesCurv", "correlation");
+  TF2* fitParabola = new TF2("fitParabola", "abs([1])*((x-[0])*cos([4])-(y-[2])*sin([4]))^2 + abs([3])*((x-[0])*sin([4])+(y-[2])*cos([4]))^2");
+  //TF2* fitParabola = new TF2("fitParabola", "abs([1])*(x-[0])^2 + abs([3])*(y-[2])^2 + [4]*(x-[0])*(y-[2])");
+  fitParabola->SetNpx(300);
+  fitParabola->SetNpy(300);
+  fitParabola->SetParNames("mass", "massCurv", "jes", "jesCurv", "alpha");
   fitParabola->SetParLimits(0, firstBinMass, lastBinMass);
   fitParabola->SetParLimits(1, 0.0001, 1000);
-  fitParabola->SetParLimits(3, 0.5, 1.5);
-  fitParabola->SetParLimits(4, 1, 10000000);
+  fitParabola->SetParLimits(2, 0.5, 1.5);
+  fitParabola->SetParLimits(3, 1, 10000000);
+  fitParabola->SetParLimits(4, 0, 6.3);
+  fitParabola->SetParameter(4, 1.5);
   fitParabola->SetLineColor(kWhite);
+  fitParabola->SetLineWidth(2.5);
 
   TF2* null = new TF2("null", "0 + 0*x + 0*y");
   TF2* unity = new TF2("unity", "1 + 0*x + 0*y");
@@ -69,7 +78,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   sumLogLikelihood->SetYTitle("JES");
 
   double hadTopMass, hadTopPt, lepTopPt, hadWRawMass, hadWRawSigM, fitChi2, fitProb, bProbSSV, weight, currentWeight;
-  double hitFitChi2, hitFitProb, hitFitMT, hitFitSigMT;
+  double hitFitChi2, hitFitProb, hitFitMT, hitFitSigMT, PUWeight;
   int event, currentEvent;
   int combi, previousCombi = -1;
   int nEvents = 0;
@@ -90,6 +99,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   eventTree->SetBranchAddress("bProbSSV", &bProbSSV);
   eventTree->SetBranchAddress("event", &event);
   eventTree->SetBranchAddress("combi", &combi);
+  eventTree->SetBranchAddress("PUWeight", &PUWeight);
   
   // Build Likelihood
   for (int iEntry = 0; iEntry < eventTree->GetEntries(); iEntry++) {
@@ -98,17 +108,18 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
     if (event == currentEvent) continue;
     currentEvent = event;
     nEvents++;
-    if ((debug && iEntry%nDebug == 0 && iEntry < 100) || iEntry%1000 == 0) std::cout << iEntry << " - " << event << std::endl;
+    if ((debug && iEntry%nDebug == 0 && iEntry < maxDebug) || iEntry%1000 == 0) std::cout << iEntry << " - " << event << std::endl;
     
     eventLikelihood->Eval(null);
     eventLikelihood->SetFillColor(0);
     weight = 0;
     currentWeight = 0;
     
-    if (debug && iEntry%nDebug == 0 && iEntry < 100) {
+    if (debug && iEntry%nDebug == 0 && iEntry < maxDebug) {
     std::cout << std::setiosflags(std::ios::left)
               << std::setw(04) << "i"
-              << std::setw(10) << "Mass"
+              << std::setw(10) << "mt"
+              << std::setw(10) << "mW"
               << std::setw(12) << "fitProb"
               << std::setw(11) << "bProb"
               << std::setw(11) << "weight"
@@ -122,17 +133,19 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
       if (event != currentEvent) break;
       
       //if (bProb * fitProb < 1e-3) continue;
-      currentWeight = (bProbSSV * hitFitProb);
+      if (PUWeight < 0) PUWeight = 1;
+      //std::cout << PUWeight << std::endl;
+      currentWeight = bProbSSV * hitFitProb;// * PUWeight;
       //if (currentWeight > weight) weight = currentWeight;
       weight += currentWeight;
       
-      if (debug && iEntry%nDebug == 0 && iEntry < 100) {
+      if (debug && iEntry%nDebug == 0 && iEntry < maxDebug) {
         std::cout << std::setw(04) << combi
                   << std::setw(10) << hadTopMass
+                  << std::setw(10) << hadWRawMass
                   << std::setw(12) << hitFitProb
                   << std::setw(11) << bProbSSV
                   << std::setw(11) << currentWeight
-                  << std::setw(05) << event
                   << std::endl;
       }
       
@@ -158,9 +171,9 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
     	}
     }
 
-    sumLogLikelihood->Add(logEventLikelihood, weight); // add weight here
+    sumLogLikelihood->Add(logEventLikelihood, weight/(pullWidth*pullWidth)); // add weight here
     
-    if (debug && iEntry%nDebug == 0 && iEntry < 100) {
+    if (debug && iEntry%nDebug == 0 && iEntry < maxDebug) {
       TCanvas* eventCanvas = new TCanvas("eventCanvas", "eventCanvas", 1200, 400);
       eventCanvas->Divide(3, 1);
       
@@ -183,7 +196,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
       eventLikelihood->SetEntries(1);
       sumLogLikelihood->Draw("COLZ");
       
-      TString eventPath("plot/Ideogram/"); eventPath += fIdentifier; eventPath += "_"; eventPath += iEntry; eventPath += "_"; eventPath += currentEvent; eventPath += ".png";
+      TString eventPath("plot/Ideogram/"); eventPath += fIdentifier; eventPath += "_"; eventPath += iEntry; eventPath += "_"; eventPath += currentEvent; eventPath += ".eps";
       eventCanvas->Print(eventPath);
       
       delete eventCanvas;
@@ -212,7 +225,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   //*
   sumLogLikelihood->SetAxisRange(minMass - 3, minMass + 3, "X");
   sumLogLikelihood->SetAxisRange(minJes - 0.03, minJes + 0.03, "Y");
-  sumLogLikelihood->SetAxisRange(0, 200, "Z");
+  sumLogLikelihood->SetAxisRange(0, 20, "Z");
   //*/
   
   //sumLogLikelihood->SetAxisRange(0, 20, "Z");
@@ -224,13 +237,10 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   std::cout << "Minimum likelihood: " << sumLogLikelihood->GetMinimum(0) << "\tMaximum likelihood (in range): " << sumLogLikelihood->GetMaximum() << std::endl;
   std::cout << "Total number of events: " << nEvents << std::endl;
   
-  //fitParabola->SetParLimits(0, firstBinMass, lastBinMass);
+  fitParabola->SetParLimits(0, minMass-1, minMass+1);
   fitParabola->SetParameter(0, minMass);
-  fitParabola->SetParameter(2, 0);
-  fitParabola->SetParameter(3, minJes);
-  fitParabola->SetParameter(4, 100000);
-  fitParabola->SetParameter(5, 10000);
-  
+  fitParabola->SetParameter(2, minJes);
+  fitParabola->SetParameter(3, 1000000);
   
   //fitParabola->SetRange(minMass - 1, minJes - 0.01, minMass + 1, minJes + 0.01);
   fitParabola->SetRange(minMass - 4, minJes - 0.04, minMass + 4, minJes + 0.04);
@@ -246,7 +256,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   if (firstBinMass+1 < fitParabola->GetParameter(0) && fitParabola->GetParameter(0) < lastBinMass-1) {
     fMass = fitParabola->GetParameter(0);
     if (TMath::Sqrt(1/fitParabola->GetParameter(1)) < 2*TMath::Sqrt(fMass)) {
-      fMassError = TMath::Sqrt(1/fitParabola->GetParameter(1) + pow(2.*70., 2)/fitParabola->GetParameter(4));
+      fMassError = TMath::Sqrt(1/fitParabola->GetParameter(1));
     }
     else fMassError = -1;
   }

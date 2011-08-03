@@ -6,7 +6,7 @@ if lJesFactor.startswith('@'):
 
 bJesFactor = '@bJesFactor@'
 if bJesFactor.startswith('@'):
-  bJesFactor = '1.0'
+  bJesFactor = '1.03'
 
 process = cms.Process("TEST")
 
@@ -24,7 +24,7 @@ readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
-       '/store/user/eschliec/TTJets_TuneD6T_7TeV-madgraph-tauola/PATWithPF_v4/e59efddd8a1547799dca5b47d5556447/patTuple_39_1_4mM.root'
+       '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/02719D6B-1398-E011-AA71-001A92971B94.root'
 ] );
 
 
@@ -47,7 +47,7 @@ process.options = cms.untracked.PSet(
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('START41_V0::All')
+process.GlobalTag.globaltag = cms.string('START42_V13::All')
 
 ## std sequence for pat
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
@@ -58,6 +58,19 @@ process.load("TopAnalysis.TopFilter.sequences.semiLeptonicSelection_cff")
 from TopAnalysis.TopFilter.sequences.jetSelection_cff import goodJets
 process.vetoJets.src="goodJetsPF30"
 process.vetoJets.cut=''
+
+## configure JetEnergyScale tool
+process.load("TopAnalysis.TopUtils.JetEnergyScale_cff")
+from TopAnalysis.TopUtils.JetEnergyScale_cff import *
+
+scaledJetEnergy.scaleType    = "abs"
+scaledJetEnergy.inputJets    = "selectedPatJetsAK5PF"
+scaledJetEnergy.inputMETs    = "patMETsPF"
+scaledJetEnergy.scaleFactor  = float(lJesFactor)
+scaledJetEnergy.scaleFactorB = float(bJesFactor)
+scaledJetEnergy.resolutionFactors = [1.1]
+
+process.noOverlapJetsPF.src = "scaledJetEnergy:selectedPatJets"
 
 ## sequences for ttGenEvent and TtSemiLeptonicEvent
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
@@ -86,9 +99,10 @@ addTtSemiLepHypotheses(process,
 ## load HypothesisAnalyzer
 process.load("TopMass.Analyzer.EventHypothesisAnalyzer_cff")
 
-## configure JetEnergyScale
-process.hitFitTtSemiLepEventHypothesis.jes  = float(lJesFactor)
-process.hitFitTtSemiLepEventHypothesis.jesB = float(bJesFactor)
+## PU reweighting
+process.load("TopAnalysis.TopUtils.EventWeightPU_cfi")
+process.eventWeightPU = process.eventWeightPU.clone()
+process.eventWeightPU.DataFile = "TopAnalysis/TopUtils/data/Data_PUDist_160404-166861_7TeV_PromptReco_Collisions11.root"
 
 # register TFileService
 process.TFileService = cms.Service("TFileService",
@@ -96,7 +110,7 @@ process.TFileService = cms.Service("TFileService",
 )
 
 from HLTrigger.HLTfilters.hltHighLevel_cfi import *
-process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::REDIGI311X", HLTPaths = ["HLT_Mu15_v*"], throw=True)
+process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", HLTPaths = ["HLT_Mu15_v*"], throw=True)
 
 process.leadingJetSelection.src = 'tightLeadingPFJets'
 process.bottomJetSelection.src  = 'tightBottomPFJets'
@@ -104,8 +118,10 @@ process.bottomJetSelection.src  = 'tightBottomPFJets'
 ## end path   
 process.path = cms.Path(#process.patDefaultSequence *
                         process.hltFilter *
+                        process.scaledJetEnergy *
                         process.semiLeptonicSelection *
                         process.semiLeptonicEvents *
+                        process.eventWeightPU *
                         process.makeGenEvt *
                         process.makeTtSemiLepEvent *
                         process.analyzeHypotheses
@@ -124,7 +140,12 @@ process.path.remove(process.looseElectronsEJ)
 process.path.remove(process.tightElectronsEJ)
                         
 from TopAnalysis.TopUtils.usePatTupleWithParticleFlow_cff import prependPF2PATSequence
-prependPF2PATSequence(process, options = {'runOnOLDcfg': True, 'runOnMC': True, 'electronIDs': '', 'switchOffEmbedding': False, 'skipIfNoPFMuon': True})
+prependPF2PATSequence(process, options = {'runOnOLDcfg': True,
+                                          'runOnMC': True,
+                                          'runOnAOD': True,
+                                          'electronIDs': '',
+                                          'switchOffEmbedding': False,
+                                          'skipIfNoPFMuon': True})
 
 ## adaptions (re-aranging of modules) to speed up processing
 pathnames = process.paths_().keys()
