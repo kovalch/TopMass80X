@@ -24,7 +24,7 @@ double IdeogramCombLikelihood::Evaluate(double *x, double *p) {
   x[0] = x[0] - Spring11MassOffset - Spring11MassSlope * (x[0]-172.5) - Summer11MassOffset;
   x[1] = x[1] - Spring11JESOffset  - Spring11JESSlope  * (x[1]-1.)    - Summer11JESOffset;
   
-  return p[2] * (fCP * PCP(x, p) * PCPJES(x, p) + fWP * PWP(x, p) * PWPJES(x, p) + fUN * PUN(x, p) * PUNJES(x, p));
+  return p[0] * (fCP * PCP(x, p) * PCPJES(x, p) + fWP * PWP(x, p) * PWPJES(x, p) + fUN * PUN(x, p) * PUNJES(x, p));
 }
 
 
@@ -32,7 +32,7 @@ double IdeogramCombLikelihood::PCP(double *x, double *p) {
   double mu       = 1.72119e+02 + 9.36446e-01 * (x[0]-172.5) + 7.91540e+01 * (x[1]-1.);
   double sigma    = 1.00849e+01 + 8.67187e-02 * (x[0]-172.5) + 1.00582e+01 * (x[1]-1.);
   
-  return TMath::Voigt(p[0] - mu, sigma, 2);
+  return TMath::Voigt(p[1] - mu, sigma, 2);
 }
 
 
@@ -53,7 +53,7 @@ double IdeogramCombLikelihood::PWP(double* x, double* p)
   double sigma  =  2.41622e+01 + 4.69440e-01 * (x[0]-172.5) + 3.54726e+01 * (x[1]-1.);
   double alpha  =  4.34182e-01 + 4.35156e-03 * (x[0]-172.5) + 4.09760e-01 * (x[1]-1.);
   double power  =  15;
-  double t = (p[0] - mu) / sigma;
+  double t = (p[1] - mu) / sigma;
   
   //*
   double N1 = -sqrt(TMath::PiOver2()) * sigma * (TMath::Erf(-alpha/sqrt(2)) - TMath::Erf(mu/(sqrt(2)*sigma)));
@@ -80,7 +80,7 @@ double IdeogramCombLikelihood::PUN(double* x, double* p)
   double sigma  =  2.18236e+01 + 2.38588e-01 * (x[0]-172.5) + 2.76385e+01 * (x[1]-1.);
   double alpha  =  7.09159e-01 + 7.24736e-03 * (x[0]-172.5) + 3.67483e-01 * (x[1]-1.);
   double power  =  5;
-  double t = (p[0] - mu) / sigma;
+  double t = (p[1] - mu) / sigma;
   
   //*
   double N1 = -sqrt(TMath::PiOver2()) * sigma * (TMath::Erf(-alpha/sqrt(2)) - TMath::Erf(mu/(sqrt(2)*sigma)));
@@ -106,8 +106,8 @@ double IdeogramCombLikelihood::PCPJES(double* x, double* p)
   double sigma1 =  5.65204e+00 + 1.15149e+01 * (x[1]-1.);
   double sigma2 =  7.21349e+00 - 2.84521e+00 * (x[1]-1.);
     
-  double t1     =  (p[3] - mu) / sigma1;
-  double t2     =  (p[3] - mu) / sigma2;
+  double t1     =  (p[2] - mu) / sigma1;
+  double t2     =  (p[2] - mu) / sigma2;
   
   double N1     =  sqrt(2*sigma1*sigma1);
   double N2     =  sqrt(2*sigma2*sigma2);
@@ -126,7 +126,7 @@ double IdeogramCombLikelihood::PCPJES(double* x, double* p)
   double sigma  =  1.74507e+01 + 1.75185e+01 * (x[1]-1.);
   double alpha  =  1.38928e+00;
   double power  =  3;
-  double t = (p[3] - mu) / sigma;
+  double t = (p[2] - mu) / sigma;
   
   double N1 = -sqrt(TMath::PiOver2()) * sigma * (-1+TMath::Erf(-sigma*alpha)/(sqrt(2)*sigma));
   double N2 = cb::A(alpha,power) * sigma/(-1.+power) * ( 0. + //lim(x->inf)
@@ -149,8 +149,8 @@ double IdeogramCombLikelihood::PWPJES(double* x, double* p)
   double sigma1 =  5.55929e+00 + 7.91431e+00 * (x[1]-1.);
   double sigma2 =  7.49184e+00 - 5.54074e+00 * (x[1]-1.);
     
-  double t1     =  (p[3] - mu) / sigma1;
-  double t2     =  (p[3] - mu) / sigma2;
+  double t1     =  (p[2] - mu) / sigma1;
+  double t2     =  (p[2] - mu) / sigma2;
   
   double N1     =  sqrt(2*sigma1*sigma1);
   double N2     =  sqrt(2*sigma2*sigma2);
@@ -171,8 +171,8 @@ double IdeogramCombLikelihood::PUNJES(double* x, double* p)
   double sigma1 =  5.72921e+00 + 7.09411e+00 * (x[1]-1.);
   double sigma2 =  8.34403e+00 - 6.50901e+00 * (x[1]-1.);
     
-  double t1     =  (p[3] - mu) / sigma1;
-  double t2     =  (p[3] - mu) / sigma2;
+  double t1     =  (p[2] - mu) / sigma1;
+  double t2     =  (p[2] - mu) / sigma2;
   
   double N1     =  sqrt(2*sigma1*sigma1);
   double N2     =  sqrt(2*sigma2*sigma2);

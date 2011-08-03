@@ -77,10 +77,10 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   sumLogLikelihood->SetXTitle("m_{t}");
   sumLogLikelihood->SetYTitle("JES");
 
-  double hadTopMass, hadTopPt, lepTopPt, hadWRawMass, hadWRawSigM, fitChi2, fitProb, bProbSSV, weight, currentWeight;
-  double hitFitChi2, hitFitProb, hitFitMT, hitFitSigMT, PUWeight;
+  double hadTopMass, hadTopPt, lepTopPt, hadWRawMass, topPtAsymmetry;
+  double hitFitChi2, hitFitProb, PUWeight, bProbSSV, weight, currentWeight;
   int event, currentEvent;
-  int combi, previousCombi = -1;
+  int combi;
   int nEvents = 0;
   
   TTree* eventTree = fTree->CopyTree(cuts);
@@ -89,13 +89,8 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   eventTree->SetBranchAddress("hadTopPt", &hadTopPt);
   eventTree->SetBranchAddress("lepTopPt", &lepTopPt);
   eventTree->SetBranchAddress("hadWRawMass", &hadWRawMass);
-  eventTree->SetBranchAddress("hadWRawSigM", &hadWRawSigM);
-  eventTree->SetBranchAddress("fitChi2", &fitChi2);
-  eventTree->SetBranchAddress("fitProb", &fitProb);
   eventTree->SetBranchAddress("hitFitChi2", &hitFitChi2);
   eventTree->SetBranchAddress("hitFitProb", &hitFitProb);
-  eventTree->SetBranchAddress("hitFitMT", &hitFitMT);
-  eventTree->SetBranchAddress("hitFitSigMT", &hitFitSigMT);
   eventTree->SetBranchAddress("bProbSSV", &bProbSSV);
   eventTree->SetBranchAddress("event", &event);
   eventTree->SetBranchAddress("combi", &combi);
@@ -150,14 +145,12 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
       }
       
       if (currentWeight != 0) {
-        /*
-        combBackground->SetParameter(0, hadTopMass);
-        double bkgIntegral = combBackground->Integral(0, 10000);
-        //*/
+        topPtAsymmetry = (hadTopPt-lepTopPt)/(hadTopPt+lepTopPt);
         
-        //combLikelihood->SetParameters(hadTopMass, hitFitSigMT, currentWeight, hadTopPt-lepTopPt, hadWRawSigM);
-        combLikelihood->SetParameters(hadTopMass, hitFitSigMT, currentWeight, hadWRawMass, hadWRawSigM);
-        eventLikelihood->Eval(combLikelihood, "A"); // add combi pdf
+        combLikelihood->SetParameters(currentWeight, hadTopMass, hadWRawMass, topPtAsymmetry);
+        
+        // add permutation to event likelihood
+        eventLikelihood->Eval(combLikelihood, "A");
       }
     }
     
