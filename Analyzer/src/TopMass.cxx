@@ -13,51 +13,18 @@ TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins
   //Measure(aSim);
   
   /*
-  Analysis* a1665_094 = new Analysis("1665_094", "/scratch/hh/current/cms/user/mseidel/TTJets1665_0.94/analyzeTop.root", fMethod, fBins, 20000);
-  Measure(a1665_094);
+  Analysis* aSpring11_1725_100_096 = new Analysis("Spring11_1725_100_096", "/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_1.00_0.96/analyzeTop.root", fMethod, fBins, 20000);
+  Measure(aSpring11_1725_100_096);
+  //*/
   
-  Analysis* a1665_096 = new Analysis("1665_096", "/scratch/hh/current/cms/user/mseidel/TTJets1665_0.96/analyzeTop.root", fMethod, fBins, 20000);
-  Measure(a1665_096);
-  
-  Analysis* a1665_098 = new Analysis("1665_098",  "/scratch/hh/current/cms/user/mseidel/TTJets1665_0.98/analyzeTop.root", fMethod, fBins, 20000);
-  Measure(a1665_098);
-  
-  Analysis* a1665_100 = new Analysis("1665_100", "/scratch/hh/current/cms/user/mseidel/TTJets1665_1.0/analyzeTop.root", fMethod, fBins, 20000);
-  Measure(a1665_100);
-  
-  Analysis* a1665_102 = new Analysis("1665_102",  "/scratch/hh/current/cms/user/mseidel/TTJets1665_1.02/analyzeTop.root", fMethod, fBins, 20000);
-  Measure(a1665_102);
-  
-  Analysis* a1665_104 = new Analysis("1665_104", "/scratch/hh/current/cms/user/mseidel/TTJets1665_1.04/analyzeTop.root", fMethod, fBins, 20000);
-  Measure(a1665_104);
-  
-  Analysis* a1665_106 = new Analysis("1665_106",  "/scratch/hh/current/cms/user/mseidel/TTJets1665_1.06/analyzeTop.root", fMethod, fBins, 20000);
-  Measure(a1665_106);
-  */
-  
-  /*
-  Analysis* a1725_090 = new Analysis("1725_090", "/scratch/hh/current/cms/user/mseidel/TTJets1725_0.9/analyzeTop.root", fMethod, fBins, 20000);
-  Measure(a1725_090);
+  //*
+  Analysis* aSpring11_1725_100_100 = new Analysis("Spring11_1725_100_100", "/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_1.00_1.00/analyzeTop.root", fMethod, fBins, 1000);
+  Measure(aSpring11_1725_100_100);
   //*/
   
   /*
-  Analysis* a1725_094 = new Analysis("1725_094", "/scratch/hh/current/cms/user/mseidel/TTJets1725_0.94/analyzeTop.root", fMethod, fBins, 20000);
-  Measure(a1725_094);
-  //*/
-  
-  /*
-  Analysis* a1725_100_096 = new Analysis("1725_100_096", "/scratch/hh/current/cms/user/mseidel/TTJets1725_1.00_0.96/analyzeTop.root", fMethod, fBins, 20000);
-  Measure(a1725_100_096);
-  //*/
-  
-  /*
-  Analysis* a1725_098 = new Analysis("1725_098",  "/scratch/hh/current/cms/user/mseidel/TTJets1725_0.98/analyzeTop.root", fMethod, fBins, 20000);
-  Measure(a1725_098);
-  //*/
-  
-  /*
-  Analysis* a1725_100_100 = new Analysis("1725_100_100", "/scratch/hh/current/cms/user/mseidel/TTJets1725_1.00_1.00/analyzeTop.root", fMethod, fBins, 20000);
-  Measure(a1725_100_100);
+  Analysis* aSpring11_1725_100_104 = new Analysis("Spring11_1725_100_104", "/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_1.00_1.04/analyzeTop.root", fMethod, fBins, 20000);
+  Measure(aSpring11_1725_100_104);
   //*/
   
   /*
@@ -133,7 +100,7 @@ TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins
   Measure(a1725_096_S4);
   //*/
   
-  //*
+  /*
   Analysis* a1725_097_S4 = new Analysis("1725_097_S4", "/scratch/hh/current/cms/user/mseidel/TTJets1725-S4_1.00_0.97/analyzeTop.root", fMethod, fBins, 20000);
   Measure(a1725_097_S4);
   //*/
@@ -143,7 +110,7 @@ TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins
   Measure(a1725_100_S4);
   //*/
   
-  //*
+  /*
   Analysis* a1725_103_S4 = new Analysis("1725_103_S4", "/scratch/hh/current/cms/user/mseidel/TTJets1725-S4_1.00_1.03/analyzeTop.root", fMethod, fBins, 20000);
   Measure(a1725_103_S4);
   //*/

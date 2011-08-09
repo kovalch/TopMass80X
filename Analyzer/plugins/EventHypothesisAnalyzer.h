@@ -58,7 +58,6 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double hadWE;
   
   double hadWRawMass;
-  double hadWRawSigM;
   
   double genHadWPt;
   double genHadWEta;
@@ -75,7 +74,18 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double hadBRawE;
   
   double leptonPt;
+  double leptonE;
   double leptonC;
+  
+  double neutrinoPt;
+  double neutrinoE;
+  
+  double lepWPt;
+  double lepWEta;
+  double lepWMass;
+  double lepWE;
+  
+  double lepWRawMass;
   
   double lepBPt;
   double lepBEta;

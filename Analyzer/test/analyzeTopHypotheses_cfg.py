@@ -6,7 +6,7 @@ if lJesFactor.startswith('@'):
 
 bJesFactor = '@bJesFactor@'
 if bJesFactor.startswith('@'):
-  bJesFactor = '1.03'
+  bJesFactor = '1.0'
 
 process = cms.Process("TEST")
 

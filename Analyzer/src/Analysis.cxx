@@ -78,7 +78,8 @@ void Analysis::Analyze(bool reanalyze) {
       }
       else if (!strcmp(fMethod, "Ideogram")) {
         //cuts += " & target == 1";
-        //cuts += " & (target == 0 | target == -2)";
+        //cuts += " & (target == 0 | target == 1)";
+        cuts += " & sumBPt > 50 & TTBarPt < 50";
         cuts += " & (bProbSSV * hitFitProb) > 0.05";
       }
       
@@ -142,14 +143,11 @@ void Analysis::CreateRandomSubset() {
   fChain->SetBranchStatus("hadTopMass", 1);
   fChain->SetBranchStatus("hadTopPt", 1);
   fChain->SetBranchStatus("lepTopPt", 1);
+  fChain->SetBranchStatus("sumBPt", 1);
+  fChain->SetBranchStatus("TTBarPt", 1);
   fChain->SetBranchStatus("hadWRawMass", 1);
-  fChain->SetBranchStatus("hadWRawSigM", 1);
-  fChain->SetBranchStatus("fitChi2", 1);
-  fChain->SetBranchStatus("fitProb", 1);
   fChain->SetBranchStatus("hitFitChi2", 1);
   fChain->SetBranchStatus("hitFitProb", 1);
-  fChain->SetBranchStatus("hitFitMT", 1);
-  fChain->SetBranchStatus("hitFitSigMT", 1);
   fChain->SetBranchStatus("bProbSSV", 1);
   fChain->SetBranchStatus("event", 1);
   fChain->SetBranchStatus("combi", 1);

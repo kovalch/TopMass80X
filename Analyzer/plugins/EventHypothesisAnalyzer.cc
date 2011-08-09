@@ -163,11 +163,12 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     
     const reco::Candidate* lepTop   = semiLepEvt->leptonicDecayTop       (hypoClassKey, h);
     const reco::Candidate* lepTopRaw= semiLepEvt->leptonicDecayTop       (hypoClassKeyMVA, hMVA);
-    //const reco::Candidate* lepW     = semiLepEvt->leptonicDecayW         (hypoClassKey, h);
+    const reco::Candidate* lepW     = semiLepEvt->leptonicDecayW         (hypoClassKey, h);
+    const reco::Candidate* lepWRaw  = semiLepEvt->leptonicDecayW         (hypoClassKeyMVA, hMVA);
     const reco::Candidate* lepB     = semiLepEvt->leptonicDecayB         (hypoClassKey, h);
     const reco::Candidate* lepBRaw  = semiLepEvt->leptonicDecayB         (hypoClassKeyMVA, hMVA);
     const reco::Candidate* lepton   = semiLepEvt->singleLepton           (hypoClassKey, h);
-    //const reco::Candidate* neutrino = semiLepEvt->singleNeutrino         (hypoClassKey, h);
+    const reco::Candidate* neutrino = semiLepEvt->singleNeutrino         (hypoClassKey, h);
 
     
     //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -243,6 +244,16 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     
     leptonPt   = lepton->pt();
     leptonC    = leps->at(0).charge();
+    
+    neutrinoPt = neutrino->pt();
+    neutrinoE  = neutrino->energy();
+    
+    lepWPt     = lepW->pt();
+    lepWEta    = lepW->eta();
+    lepWMass   = lepW->mass();
+    lepWE      = lepW->energy();
+    
+    lepWRawMass  = lepWRaw->mass();
     
     lepBPt     = lepB->pt();
     lepBEta    = lepB->eta();
@@ -361,7 +372,6 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("hadWE", &hadWE, "hadWE/D");
   
   eventTree->Branch("hadWRawMass", &hadWRawMass, "hadWRawMass/D");
-  eventTree->Branch("hadWRawSigM", &hadWRawSigM, "hadWRawSigM/D");
   
   eventTree->Branch("genHadWPt", &genHadWPt, "genHadWPt/D");
   eventTree->Branch("genHadWEta", &genHadWEta, "genHadWEta/D");
@@ -378,7 +388,18 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("hadBRawE", &hadBRawE, "hadBRawE/D");
   
   eventTree->Branch("leptonPt", &leptonPt, "leptonPt/D");
+  eventTree->Branch("leptonE", &leptonE, "leptonE/D");
   eventTree->Branch("leptonC", &leptonC, "leptonC/D");
+  
+  eventTree->Branch("neutrinoPt", &neutrinoPt, "neutrinoPt/D");
+  eventTree->Branch("neutrinoE", &neutrinoE, "neutrinoE/D");
+  
+  eventTree->Branch("lepWPt", &lepWPt, "lepWPt/D");
+  eventTree->Branch("lepWEta", &lepWEta, "lepWEta/D");
+  eventTree->Branch("lepWMass", &lepWMass, "lepWMass/D");
+  eventTree->Branch("lepWE", &lepWE, "lepWE/D");
+  
+  eventTree->Branch("lepWRawMass", &lepWRawMass, "lepWRawMass/D");
   
   eventTree->Branch("lepBPt", &lepBPt, "lepBPt/D");
   eventTree->Branch("lepBEta", &lepBEta, "lepBEta/D");

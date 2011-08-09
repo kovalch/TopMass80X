@@ -18,11 +18,13 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
 
   double firstBinMass = 165;
   double lastBinMass  = 180;
-  int binsMass     = 30;
+  double resolMass    = 0.25;
+  int binsMass     = (lastBinMass-firstBinMass)/resolMass;
   
-  double firstBinJes = 0.95;
-  double lastBinJes  = 1.05;
-  int binsJes        = 20;
+  double firstBinJes = 0.9;
+  double lastBinJes  = 1.1;
+  double resolJes    = 0.005;
+  int binsJes        = (lastBinJes-firstBinJes)/resolJes;
   
   double pullWidth   = 0.715;
   //gStyle->SetOptFit(0);
@@ -75,7 +77,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   logEventLikelihood->SetYTitle("JES");
   sumLogLikelihood->SetTitle("-2#upointln{L(m_{t}|sample)}");
   sumLogLikelihood->SetXTitle("m_{t}");
-  sumLogLikelihood->SetYTitle("JES");
+  sumLogLikelihood->SetYTitle("bJES");
 
   double hadTopMass, hadTopPt, lepTopPt, hadWRawMass, topPtAsymmetry;
   double hitFitChi2, hitFitProb, PUWeight, bProbSSV, weight, currentWeight;
@@ -215,13 +217,13 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   std::cout << "minMass: " << minMass << std::endl;
   std::cout << "minJes: " << minJes << std::endl;
   
-  //*
+  /*
   sumLogLikelihood->SetAxisRange(minMass - 3, minMass + 3, "X");
   sumLogLikelihood->SetAxisRange(minJes - 0.03, minJes + 0.03, "Y");
   sumLogLikelihood->SetAxisRange(0, 20, "Z");
   //*/
   
-  //sumLogLikelihood->SetAxisRange(0, 20, "Z");
+  sumLogLikelihood->SetAxisRange(0, 100, "Z");
   
   //sumLogLikelihood->SetMarkerStyle(20);
   //sumLogLikelihood->SetMarkerColor(kRed+1);

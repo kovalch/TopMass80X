@@ -6,8 +6,8 @@
 
 #include "tdrstyle.C"
 
-int target = -10;
-int obs    = 3; // 0: hadTopMass, 1: hadWRawMass, 2: hadTopPt-lepTopPt
+int target = 1;
+int obs    = 5; // 0: hadTopMass, 1: hadWRawMass, 2: hadTopPt-lepTopPt
 
 double x[3] = {0.96, 1.00, 1.04};
 double y0[3];
@@ -83,13 +83,13 @@ void observableByJES()
   linearFit->SetLineWidth(2);
   linearFit->SetLineColor(kRed+1);
   
-  /* lJES test
+  //* lJES test
   TH1F* h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_0.96_1.00/analyzeTop.root", 0);
   TH1F* h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_1.00_1.00/analyzeTop.root", 1);
   TH1F* h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_1.04_1.00/analyzeTop.root", 2);
   //*/
   
-  //* bJES test
+  /* bJES test
   TH1F* h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_1.00_0.96/analyzeTop.root", 0);
   TH1F* h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_1.00_1.00/analyzeTop.root", 1);
   TH1F* h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_1.00_1.04/analyzeTop.root", 2);
@@ -281,9 +281,9 @@ TH1F* FindParameters(TString filename, int i)
     fit->SetParameters(100000, 0.5, 0.1, 0.09);
     
     fit->SetParLimits(0, 1, 1000000);
-    fit->SetParLimits(1, 0, 0.1);
-    fit->SetParLimits(2, 0.02, 0.05);
-    fit->SetParLimits(3, 0.01, 0.3);
+    fit->SetParLimits(1, -0.1, 0.1);
+    fit->SetParLimits(2, 0.02, 0.2);
+    fit->SetParLimits(3, 0.01, 0.5);
   }
   
   else if (obs == 4) {
@@ -306,12 +306,12 @@ TH1F* FindParameters(TString filename, int i)
 
     fit->SetLineColor(kBlack);
     fit->SetLineWidth(2);
-    fit->SetParameters(100000, 0.0, 1, 20);
+    fit->SetParameters(100000, 0.0, 0.001, 1.35);
     
     fit->SetParLimits(0, 1, 1000000);
-    fit->SetParLimits(1, -50, 50);
-    fit->SetParLimits(2, 0, 100);
-    fit->SetParLimits(3, 50, 50);
+    fit->SetParLimits(1, 0, 2);
+    fit->SetParLimits(2, 0.001, 0.001);
+    fit->SetParLimits(3, 0, 10);
   }
 
   
@@ -329,11 +329,11 @@ TH1F* FindParameters(TString filename, int i)
       break;
     }
     case 2: {
-      sObservable = "hadTopPt-lepTopPt >> h1(25, -10, 10)";
+      sObservable = "hadTopPt-lepTopPt >> h1(25, -100, 100)";
       break;
     }
     case 3: {
-      sObservable = "(hadTopPt-lepTopPt)/(hadTopPt+lepTopPt) >> h1(50, -0.5, 0.5)";
+      sObservable = "(hadTopPt-lepTopPt)/(hadTopPt+lepTopPt) >> h1(100, -1, 1)";
       break;
     }
     case 4: {
@@ -341,12 +341,12 @@ TH1F* FindParameters(TString filename, int i)
       break;
     }
     case 5: {
-      sObservable = "(lepBPt-hadBPt)/leptonPt >> h1(100, -5, 5)";
+      sObservable = "-(hadWPt-lepWPt)/(hadBPt-lepBPt) >> h1(50, -5, 5)";
       break;
     }
   }
   //TString sCutAndWeight("(bProbSSV*hitFitProb)*(target=="); sCutAndWeight += target; sCutAndWeight += " & (bProbSSV*hitFitProb) > 0.05 & (hadBPt/lepBPt > 2 | lepBPt/hadBPt > 2))";
-  TString sCutAndWeight("(bProbSSV*hitFitProb)*(target=="); sCutAndWeight += target; sCutAndWeight += " & (bProbSSV*hitFitProb) > 0.05 & sumBPt > 50)";
+  TString sCutAndWeight("(bProbSSV*hitFitProb)*(target=="); sCutAndWeight += target; sCutAndWeight += " & (bProbSSV*hitFitProb) > 0.05 & sumBPt > 50 & TTBarPt < 500)";
   
   std::cout << sCutAndWeight << std::endl;
   
