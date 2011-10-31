@@ -6,6 +6,7 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/Utilities"/>
 <use   name="root"/>
+<use   name="lhapdf"/>
 <library   file="*.cc" name="TopMassAnalyzerPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

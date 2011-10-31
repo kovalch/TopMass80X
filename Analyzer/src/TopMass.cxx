@@ -4,7 +4,7 @@ TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins
   
   //aSim = new Analysis("sim", "root/analyzeTop_1725.root", fMethod, fBins, fLumi);
   
-  //QuickCalibration();
+  QuickCalibration();
   //LoadXML();
   //QuickSystematics();
   
@@ -17,14 +17,34 @@ TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins
   Measure(aSpring11_1725_100_096);
   //*/
   
-  //*
+  /*
+  Analysis* aSpring11_1725_100_104 = new Analysis("Spring11_1725_100_104", "/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_1.00_1.04/analyzeTop.root", fMethod, fBins, 20000);
+  Measure(aSpring11_1725_100_104);
+  //*/
+  
+  /*
+  Analysis* aSpring11_1665_100_100 = new Analysis("Spring11_1665_100_100", "/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1665_1.00_1.00/analyzeTop.root", fMethod, fBins, 20000);
+  Measure(aSpring11_1665_100_100);
+  //*/
+
+  /*
   Analysis* aSpring11_1725_100_100 = new Analysis("Spring11_1725_100_100", "/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_1.00_1.00/analyzeTop.root", fMethod, fBins, 1000);
   Measure(aSpring11_1725_100_100);
   //*/
   
   /*
-  Analysis* aSpring11_1725_100_104 = new Analysis("Spring11_1725_100_104", "/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_1.00_1.04/analyzeTop.root", fMethod, fBins, 20000);
-  Measure(aSpring11_1725_100_104);
+  Analysis* aSpring11_1725_100_100_2b = new Analysis("Spring11_1725_100_100_2b", "/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_1.00_1.00_2b/analyzeTop.root", fMethod, fBins, 100000);
+  Measure(aSpring11_1725_100_100_2b);
+  //*/
+
+  /*
+  Analysis* aSpring11_1785_100_100 = new Analysis("Spring11_1785_100_100", "/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1785_1.00_1.00/analyzeTop.root", fMethod, fBins, 20000);
+  Measure(aSpring11_1785_100_100);
+  //*/
+	
+  /*
+  Analysis* aSpring11_1725_Z2_100_100_2b = new Analysis("Spring11_1725_Z2_100_100_2b", "/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_Z2_1.00_1.00_2b/analyzeTop.root", fMethod, fBins, 100000);
+  Measure(aSpring11_1725_Z2_100_100_2b);
   //*/
   
   /*
@@ -124,6 +144,126 @@ TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins
   Analysis* aRun2011A = new Analysis("Run2011A", "/scratch/hh/current/cms/user/mseidel/Run2011A.root", fMethod, fBins, 20000);
   Measure(aRun2011A);
   //*/
+	
+  /*
+  Analysis* a1725_096_S4_2b = new Analysis("1725_096_S4_2b", "/scratch/hh/current/cms/user/mseidel/TTJets1725-S4_0.96_1.00_2b/analyzeTop.root", fMethod, fBins, 20000);
+  Measure(a1725_096_S4_2b);
+  //*/
+	
+  /* Summer11 central
+  Analysis* aSummer11_1725_100_2b = new Analysis("Summer11_1725_100_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00_2b/analyzeTop.root", fMethod, fBins, 200000000);
+  Measure(aSummer11_1725_100_2b);
+  //*/
+
+  /*
+  Analysis* a1725_100_S4_metdown_2b = new Analysis("1725_100_S4_metdown_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_1.00_1.00_1.0_0.9_2b/analyzeTop.root", fMethod, fBins, 20000000);
+  Measure(a1725_100_S4_metdown_2b);
+  //*/
+
+  /*
+  Analysis* a1725_100_S4_metup_2b = new Analysis("1725_100_S4_metup_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_1.00_1.00_1.0_1.1_2b/analyzeTop.root", fMethod, fBins, 20000000);
+  Measure(a1725_100_S4_metup_2b);
+  //*/
+	
+  /*
+  Analysis* a1725_104_S4_2b = new Analysis("1725_104_S4_2b", "/scratch/hh/current/cms/user/mseidel/TTJets1725-S4_1.04_1.00_2b/analyzeTop.root", fMethod, fBins, 20000);
+  Measure(a1725_104_S4_2b);
+  //*/
+	
+  /*
+  Analysis* a1725_100_S4_flavorup_2b = new Analysis("1725_100_S4_flavorup_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_flavor:up_2b/analyzeTop.root", fMethod, fBins, 200000);
+  Measure(a1725_100_S4_flavorup_2b);
+  //*/
+  
+  /*
+  Analysis* a1725_100_S4_flavordown_2b = new Analysis("1725_100_S4_flavordown_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_flavor:down_2b/analyzeTop.root", fMethod, fBins, 200000);
+  Measure(a1725_100_S4_flavordown_2b);
+  //*/
+  
+  /*
+  Analysis* a1725_100_S4_jesup_2b = new Analysis("1725_100_S4_jesup_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_jes:up_2b/analyzeTop.root", fMethod, fBins, 200000);
+  Measure(a1725_100_S4_jesup_2b);
+  //*/
+  
+  /*
+  Analysis* a1725_100_S4_jesdown_2b = new Analysis("1725_100_S4_jesdown_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_jes:down_2b/analyzeTop.root", fMethod, fBins, 200000);
+  Measure(a1725_100_S4_jesdown_2b);
+  //*/
+  
+  /*
+  Analysis* a1725_100_S4_105_2b = new Analysis("1725_100_S4_105_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_1.00_1.00_1.05_2b/analyzeTop.root", fMethod, fBins, 200000);
+  Measure(a1725_100_S4_105_2b);
+  //*/
+  
+  /*
+  Analysis* a1725_100_S4_115_2b = new Analysis("1725_100_S4_115_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_1.00_1.00_1.15_2b/analyzeTop.root", fMethod, fBins, 200000);
+  Measure(a1725_100_S4_115_2b);
+  //*/
+	
+  /* Data, remember run cut!
+  Analysis* aRun2011A_2b = new Analysis("Run2011A_2b", "/scratch/hh/current/cms/user/mseidel/Run2011A_2b.root", fMethod, fBins, 20000);
+  Measure(aRun2011A_2b);
+  //*/
+	
+  /*
+  Analysis* aFall10_1725_2b = new Analysis("Fall10_1725_2b", "/scratch/hh/current/cms/user/mseidel/Fall10_TTJets1725/analyzeTop.root", fMethod, fBins, 200000);
+  Measure(aFall10_1725_2b);
+  //*/
+	
+  /*
+  Analysis* aFall10_1725_largerISRFSR_2b = new Analysis("Fall10_1725_largerISRFSR_2b", "/scratch/hh/current/cms/user/mseidel/Fall10_TTJets1725_largerISRFSR/analyzeTop.root", fMethod, fBins, 200000);
+  Measure(aFall10_1725_largerISRFSR_2b);
+  //*/
+	
+  /*
+  Analysis* aFall10_1725_smallerISRFSR_2b = new Analysis("Fall10_1725_smallerISRFSR_2b", "/scratch/hh/current/cms/user/mseidel/Fall10_TTJets1725_smallerISRFSR/analyzeTop.root", fMethod, fBins, 200000);
+  Measure(aFall10_1725_smallerISRFSR_2b);
+  //*/
+	
+	/*
+  Analysis* aFall10_1725_matchingdown_2b = new Analysis("Fall10_1725_matchingdown_2b", "/scratch/hh/current/cms/user/mseidel/Fall10_TTJets1725_matchingdown/analyzeTop.root", fMethod, fBins, 200000);
+  Measure(aFall10_1725_matchingdown_2b);
+  //*/
+	
+	/*
+  Analysis* aFall10_1725_matchingup_2b = new Analysis("Fall10_1725_matchingup_2b", "/scratch/hh/current/cms/user/mseidel/Fall10_TTJets1725_matchingup/analyzeTop.root", fMethod, fBins, 200000);
+  Measure(aFall10_1725_matchingup_2b);
+  //*/
+	
+	/*
+  Analysis* aFall10_1725_scaledown_2b = new Analysis("Fall10_1725_scaledown_2b", "/scratch/hh/current/cms/user/mseidel/Fall10_TTJets1725_scaledown/analyzeTop.root", fMethod, fBins, 200000);
+  Measure(aFall10_1725_scaledown_2b);
+  //*/
+	
+	/*
+  Analysis* aFall10_1725_scaleup_2b = new Analysis("Fall10_1725_scaleup_2b", "/scratch/hh/current/cms/user/mseidel/Fall10_TTJets1725_scaleup/analyzeTop.root", fMethod, fBins, 200000);
+  Measure(aFall10_1725_scaleup_2b);
+  //*/
+  
+  /*
+  Analysis* aSummer11_1725_matchingdown_2b = new Analysis("Summer11_1725_matchingdown_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_matchingdown_1.00_2b/analyzeTop.root", fMethod, fBins, 200000);
+  Measure(aSummer11_1725_matchingdown_2b);
+  //*/
+	
+	/*
+  Analysis* aSummer11_1725_matchingup_2b = new Analysis("Summer11_1725_matchingup_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_matchingup_1.00_2b/analyzeTop.root", fMethod, fBins, 200000);
+  Measure(aSummer11_1725_matchingup_2b);
+  //*/
+	
+	/*
+  Analysis* aSummer11_1725_scaledown_2b = new Analysis("Summer11_1725_scaledown_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_scaledown_1.00_2b/analyzeTop.root", fMethod, fBins, 200000);
+  Measure(aSummer11_1725_scaledown_2b);
+  //*/
+	
+	/*
+  Analysis* aSummer11_1725_scaleup_2b = new Analysis("Summer11_1725_scaleup_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_scaleup_1.00_2b/analyzeTop.root", fMethod, fBins, 200000);
+  Measure(aSummer11_1725_scaleup_2b);
+  //*/
+  
+  /*
+  Analysis* aSummer11_1725_pdf_2b = new Analysis("Summer11_1725_pdf_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_pdf_1.00_2b/analyzeTop.root", fMethod, fBins, 200000);
+  Measure(aSummer11_1725_pdf_2b);
+  //*/
 }
 
 
@@ -140,10 +280,10 @@ void TopMass::WriteEnsembleTest(bool readCalibration) {
   massPoints.push_back(m1785);
   */
   
-  massPoint m1725_S4(172.5, "1725_S4");
-  massPoints.push_back(m1725_S4);
+  massPoint m1725(172.5, "1725");
+  massPoints.push_back(m1725);
   
-  int nEnsembles = 10;
+  int nEnsembles = 50;
   
   for (iMassPoint = massPoints.begin(); iMassPoint != massPoints.end(); ++iMassPoint) {
     iMassPoint->analysis = new Analysis(iMassPoint->identifier, iMassPoint->fileName, fMethod, fBins, fLumi);
@@ -417,67 +557,318 @@ void TopMass::EvalEnsembleTest(bool writeCalibration) {
 
 
 void TopMass::QuickCalibration() {
- 
-  std::vector<TH2F*> hMass;
-  std::vector<TH2F*> hMassError;
+	enum styles          { kDown, kNominal, kUp};
+	int color_   [ 3 ] = { kRed+1, kBlue+1, kGreen+1};
+	int marker_  [ 3 ] = { 23, 20, 22};
+	
+  Helper* helper = new Helper(fBins);
+  helper->SetTDRStyle();  
   
-  Analysis* a1665 = new Analysis("1665", "root/analyzeTop_1665.root", fMethod, fBins, 100000);
-  Analysis* a1725 = new Analysis("1725", "root/analyzeTop_1725.root", fMethod, fBins, 100000);
-  Analysis* a1785 = new Analysis("1785", "root/analyzeTop_1785.root", fMethod, fBins, 100000);
+  std::vector< std::vector<TH2F*> > hMass;
+  std::vector< std::vector<TH2F*> > hMassError;
   
-  calibrationAnalyses.push_back(a1665);
-  calibrationAnalyses.push_back(a1725);
-  calibrationAnalyses.push_back(a1785);
+  std::vector< std::vector<TH2F*> > hJES;
+  std::vector< std::vector<TH2F*> > hJESError;
+  
+  for (int i = 0; i < 3; i++) {
+    calibrationAnalyses.push_back(std::vector<Analysis*>());
+    hMass              .push_back(std::vector<TH2F*>());
+    hMassError         .push_back(std::vector<TH2F*>());
+    hJES               .push_back(std::vector<TH2F*>());
+    hJESError          .push_back(std::vector<TH2F*>());
+  }
+  
+	
+  Analysis* a1615_096 = new Analysis("1615_096", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1615_0.96_2b/analyzeTop.root", fMethod, fBins, 100000);
+	Analysis* a1635_096 = new Analysis("1635_096", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1635_0.96_2b/analyzeTop.root", fMethod, fBins, 100000);
+	Analysis* a1665_096 = new Analysis("1665_096", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1665_0.96_2b/analyzeTop.root", fMethod, fBins, 100000);
+	Analysis* a1695_096 = new Analysis("1695_096", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1695_0.96_2b/analyzeTop.root", fMethod, fBins, 100000);
+  Analysis* a1725_096 = new Analysis("1725_096", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_0.96_2b/analyzeTop.root", fMethod, fBins, 100000);
+	Analysis* a1755_096 = new Analysis("1755_096", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1755_0.96_2b/analyzeTop.root", fMethod, fBins, 100000);
+  Analysis* a1785_096 = new Analysis("1785_096", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1785_0.96_2b/analyzeTop.root", fMethod, fBins, 100000);
+	Analysis* a1815_096 = new Analysis("1815_096", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1815_0.96_2b/analyzeTop.root", fMethod, fBins, 100000);
+	Analysis* a1845_096 = new Analysis("1845_096", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1845_0.96_2b/analyzeTop.root", fMethod, fBins, 100000);
+  
+  Analysis* a1615_100 = new Analysis("1615_100", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1615_1.00_2b/analyzeTop.root", fMethod, fBins, 100000);
+	Analysis* a1635_100 = new Analysis("1635_100", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1635_1.00_2b/analyzeTop.root", fMethod, fBins, 100000);
+	Analysis* a1665_100 = new Analysis("1665_100", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1665_1.00_2b/analyzeTop.root", fMethod, fBins, 100000);
+	Analysis* a1695_100 = new Analysis("1695_100", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1695_1.00_2b/analyzeTop.root", fMethod, fBins, 100000);
+  Analysis* a1725_100 = new Analysis("1725_100", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00_2b/analyzeTop.root", fMethod, fBins, 100000);
+	Analysis* a1755_100 = new Analysis("1755_100", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1755_1.00_2b/analyzeTop.root", fMethod, fBins, 100000);
+  Analysis* a1785_100 = new Analysis("1785_100", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1785_1.00_2b/analyzeTop.root", fMethod, fBins, 100000);
+	Analysis* a1815_100 = new Analysis("1815_100", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1815_1.00_2b/analyzeTop.root", fMethod, fBins, 100000);
+	Analysis* a1845_100 = new Analysis("1845_100", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1845_1.00_2b/analyzeTop.root", fMethod, fBins, 100000);
+  
+  Analysis* a1615_104 = new Analysis("1615_104", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1615_1.04_2b/analyzeTop.root", fMethod, fBins, 100000);
+	Analysis* a1635_104 = new Analysis("1635_104", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1635_1.04_2b/analyzeTop.root", fMethod, fBins, 100000);
+	Analysis* a1665_104 = new Analysis("1665_104", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1665_1.04_2b/analyzeTop.root", fMethod, fBins, 100000);
+	Analysis* a1695_104 = new Analysis("1695_104", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1695_1.04_2b/analyzeTop.root", fMethod, fBins, 100000);
+  Analysis* a1725_104 = new Analysis("1725_104", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.04_2b/analyzeTop.root", fMethod, fBins, 100000);
+	Analysis* a1755_104 = new Analysis("1755_104", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1755_1.04_2b/analyzeTop.root", fMethod, fBins, 100000);
+  Analysis* a1785_104 = new Analysis("1785_104", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1785_1.04_2b/analyzeTop.root", fMethod, fBins, 100000);
+	Analysis* a1815_104 = new Analysis("1815_104", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1815_1.04_2b/analyzeTop.root", fMethod, fBins, 100000);
+	Analysis* a1845_104 = new Analysis("1845_104", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1845_1.04_2b/analyzeTop.root", fMethod, fBins, 100000);
+	  
+  calibrationAnalyses[0].push_back(a1615_096);
+  calibrationAnalyses[0].push_back(a1635_096);
+  calibrationAnalyses[0].push_back(a1665_096);
+  calibrationAnalyses[0].push_back(a1695_096);
+  calibrationAnalyses[0].push_back(a1725_096);
+  calibrationAnalyses[0].push_back(a1755_096);
+  calibrationAnalyses[0].push_back(a1785_096);
+  calibrationAnalyses[0].push_back(a1815_096);
+  calibrationAnalyses[0].push_back(a1845_096);
+  
+  calibrationAnalyses[1].push_back(a1615_100);
+  calibrationAnalyses[1].push_back(a1635_100);
+  calibrationAnalyses[1].push_back(a1665_100);
+  calibrationAnalyses[1].push_back(a1695_100);
+  calibrationAnalyses[1].push_back(a1725_100);
+  calibrationAnalyses[1].push_back(a1755_100);
+  calibrationAnalyses[1].push_back(a1785_100);
+  calibrationAnalyses[1].push_back(a1815_100);
+  calibrationAnalyses[1].push_back(a1845_100);
+  
+  calibrationAnalyses[2].push_back(a1615_104);
+  calibrationAnalyses[2].push_back(a1635_104);
+  calibrationAnalyses[2].push_back(a1665_104);
+  calibrationAnalyses[2].push_back(a1695_104);
+  calibrationAnalyses[2].push_back(a1725_104);
+  calibrationAnalyses[2].push_back(a1755_104);
+  calibrationAnalyses[2].push_back(a1785_104);
+  calibrationAnalyses[2].push_back(a1815_104);
+  calibrationAnalyses[2].push_back(a1845_104);
+  
+  std::cout << "vectors filled" << std::endl;
   
   TCanvas* canvasFit = new TCanvas("canvasFit", "hadronic top h2Mass", 500, 500);
   
-  double genMass[] = {166.5, 172.5, 178.5};
-  double genMassError[] = {0.0001, 0.0001, 0.0001};
-  double hadTopMass[3];
-  double hadTopMassBias[3];
-  double hadTopMassError[3];
+  double genMass[]      = {161.5, 163.5, 166.5, 169.5, 172.5, 175.5, 178.5, 181.5, 184.5};
+  double genMassError[] = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
   
-  for(int i = 0; i < 3; i++){
-    calibrationAnalyses.at(i)->Analyze();
-    hMass.push_back(calibrationAnalyses.at(i)->GetH2Mass());
-    hMassError.push_back(calibrationAnalyses.at(i)->GetH2MassError());
+  double genJES[]       = {0.96, 1.00, 1.04};
+  double genJESError[]  = {1e-6, 1e-6, 1e-6};
+  
+  double hadTopMass[3][9];
+  double hadTopMassBias[3][9];
+  double hadTopMassError[3][9];
+  
+  double JES[9][3];
+  double JESBias[9][3];
+  double JESError[9][3];
+  
+  for(int iJES = 0; iJES < 3; iJES++) {
+    for(int iMass = 0; iMass < 9; iMass++) {
+      calibrationAnalyses[iJES][iMass]->Analyze();
+			
+      hMass[iJES].push_back(calibrationAnalyses[iJES][iMass]->GetH2Mass());
+      hMassError[iJES].push_back(calibrationAnalyses[iJES][iMass]->GetH2MassError());
+			
+			hJES[iJES].push_back(calibrationAnalyses[iJES][iMass]->GetH2JES());
+      hJESError[iJES].push_back(calibrationAnalyses[iJES][iMass]->GetH2JESError());
+    }
   }
     
   canvasFit->cd();
 
-  TGraphErrors* ghadTopMass;
+  std::vector<TGraphErrors*> gMass;
+	std::vector<TGraphErrors*> gJES;
+
   
   for (int i = 0; i < fBins; i++) {
     for (int j = 0; j < fBins; j++) {
-      if (hMass.at(0)->GetCellContent(i+1, j+1) > 0 && hMass.at(2)->GetCellContent(i+1, j+1) > 0
-          && hMassError.at(0)->GetCellContent(i+1, j+1) > 0 && hMassError.at(2)->GetCellContent(i+1, j+1) > 0) {
-        for (int k = 0; k < 3; k++) {
-          hadTopMass[k] = hMass.at(k)->GetCellContent(i+1, j+1);
-          hadTopMassBias[k] = hMass.at(k)->GetCellContent(i+1, j+1) - genMass[k];
-          hadTopMassError[k] = hMassError.at(k)->GetCellContent(i+1, j+1);
-        }
-        ghadTopMass = new TGraphErrors(3, hadTopMass, hadTopMassBias, hadTopMassError, hadTopMassError);
-        ghadTopMass->Draw("A*");
-        
-        ghadTopMass->GetYaxis()->SetRangeUser(-6, 6);
-        
-        TF1* linearFit = new TF1("linearFit", "[0]+(x-172.5)*[1]");    
-        ghadTopMass->Fit("linearFit");
-        
-        for (int l = 0; l < 2; l++) {
-          fCalibFitParameter[i][j][l] = linearFit->GetParameter(l);
-          fCalibFitParError[i][j][l]  = linearFit->GetParError(l);
+      if (   hMass[0][0]->GetCellContent(i+1, j+1) > 0      && hMass[2][2]->GetCellContent(i+1, j+1) > 0
+          && hMassError[0][0]->GetCellContent(i+1, j+1) > 0 && hMassError[2][2]->GetCellContent(i+1, j+1) > 0) {
+        for (int iJES = 0; iJES < 3; iJES++) {
+          for (int iMass = 0; iMass < 9; iMass++) {
+            hadTopMass[iJES][iMass]      = genMass[iMass];
+            hadTopMassBias[iJES][iMass]  = hMass[iJES][iMass]->GetCellContent(i+1, j+1) - genMass[iMass];
+            hadTopMassError[iJES][iMass] = hMassError[iJES][iMass]->GetCellContent(i+1, j+1);
+            
+            JES[iMass][iJES]      = genJES[iJES];
+            JESBias[iMass][iJES]  = hJES[iJES][iMass]->GetCellContent(i+1, j+1) - genJES[iJES];
+            JESError[iMass][iJES] = hJESError[iJES][iMass]->GetCellContent(i+1, j+1);
+          }
         }
         
-        TString path("plot/"); path += fMethod; path += "/"; path += "fit_"; path += i; path += "_"; path += j; path += ".eps";
+				TMultiGraph *mgJES = new TMultiGraph();
+				mgJES->SetTitle(";JES_{gen};JES_{meas}-JES_{gen}");
+				
+				for (int iMass_ = 0; iMass_ < 9; iMass_++) {
+					if (!(iMass_ == 2 || iMass_ == 4 || iMass_ == 6)) continue;
+					int iMass = (iMass_-2)/2;
+					double genJESmod[3];
+					for (int i = 0; i < 3; i++) {
+						genJESmod[i] = genJES[i] + 0.002*(iMass-1);
+					}
+					
+        	gJES.push_back(new TGraphErrors(3, genJESmod, JESBias[iMass_], genJESError, JESError[iMass_]));
+					
+					gJES[iMass]->SetMarkerStyle(marker_[iMass]);
+					gJES[iMass]->SetMarkerColor(color_ [iMass]);
+					gJES[iMass]->SetLineColor  (color_ [iMass]);
+										
+					TString sFit("[0]+(x-1.0-"); sFit += 0.002*(iMass-1); sFit += ")*[1]";
+					
+        	TF1* linearFit = new TF1("linearFit", sFit);
+        	linearFit->SetParLimits(1, -1, 1);
+					linearFit->SetParNames("offset", "slope");
+					linearFit->SetLineColor(color_[iMass]);
+        	gJES[iMass]->Fit("linearFit", "EM");
+					
+					mgJES->Add(gJES[iMass]);
+
+					/*
+        	for (int l = 0; l < 2; l++) {
+          	fCalibFitParameter[i][j][l] = linearFit->GetParameter(l);
+          	fCalibFitParError[i][j][l]  = linearFit->GetParError(l);
+        	}
+					*/
+        }
+				
+				mgJES->SetMinimum(-0.05);
+				mgJES->SetMaximum( 0.05);
+				
+				mgJES->Draw("AP");
+				
+        canvasFit->Update();
+        TPaveStats* stats0 = (TPaveStats*) gJES[0]->GetListOfFunctions()->FindObject("stats");
+        stats0->SetTextColor(color_[0]);
+        stats0->SetX1NDC(0.16);
+        stats0->SetY1NDC(0.7);
+        stats0->SetX2NDC(0.4233);
+        stats0->SetY2NDC(0.825);
+        TPaveStats* stats1 = (TPaveStats*) gJES[1]->GetListOfFunctions()->FindObject("stats");
+        stats1->SetTextColor(color_[1]);
+        stats1->SetX1NDC(0.4233);
+        stats1->SetY1NDC(0.7);
+        stats1->SetX2NDC(0.6867);
+        stats1->SetY2NDC(0.825);
+        TPaveStats* statsGlobal = (TPaveStats*) gJES[2]->GetListOfFunctions()->FindObject("stats");
+        TPaveStats* stats2 = (TPaveStats*) statsGlobal->Clone();
+        stats2->SetTextColor(color_[2]);
+        stats2->SetX1NDC(0.6867);
+        stats2->SetY1NDC(0.7);
+        stats2->SetX2NDC(0.95);
+        stats2->SetY2NDC(0.825);
+        stats2->Draw();
+        canvasFit->Modified();
+				
+				TLegend *leg = new TLegend(0.16, 0.825, 0.555, 0.95);
+        leg->SetFillColor(kWhite);
+        leg->SetBorderSize(1);
+        leg->AddEntry( gJES[0], "m_{t,gen}=166.5 GeV", "LEP");
+        leg->AddEntry( gJES[1], "m_{t,gen}=172.5 GeV", "LEP");
+				leg->AddEntry( gJES[2], "m_{t,gen}=178.5 GeV", "LEP");
+        leg->Draw();
+				
+				TF1* constFit = new TF1("constFit", "[0]");
+				constFit->SetParNames("offset");
+				constFit->SetLineColor(kBlack);
+				constFit->SetLineWidth(3);
+				constFit->SetLineStyle(7);
+				mgJES->Fit("constFit", "EM");
+				
+        statsGlobal->SetX1NDC(0.555);
+        statsGlobal->SetY1NDC(0.825);
+        statsGlobal->SetX2NDC(0.95);
+        statsGlobal->SetY2NDC(0.95);
+				
+				TString path("plot/"); path += fMethod; path += "/ensembletest/"; path += "fit_JES_"; path += i; path += "_"; path += j; path += ".eps";
+        canvasFit->Print(path);
+        
+        canvasFit->Clear();
+        
+        TMultiGraph *mgMass = new TMultiGraph();
+				mgMass->SetTitle("m_{t} bias;m_{t,gen};m_{t,meas}-m_{t,gen}");
+								
+				for (int iJES = 0; iJES < 3; iJES++) {
+					double genMassMod[9];
+					for (int i = 0; i < 9; i++) {
+						genMassMod[i] = genMass[i] + 0.2*(iJES-1);
+					}
+					
+        	gMass.push_back(new TGraphErrors(9, genMassMod, hadTopMassBias[iJES], genMassError, hadTopMassError[iJES]));
+					
+					gMass[iJES]->SetMarkerStyle(marker_[iJES]);
+					gMass[iJES]->SetMarkerColor(color_ [iJES]);
+					gMass[iJES]->SetLineColor  (color_ [iJES]);
+										
+					TString sFit("[0]+(x-172.5-"); sFit += 0.2*(iJES-1); sFit += ")*[1]";
+					
+        	TF1* linearFit = new TF1("linearFit", sFit);
+        	linearFit->SetParLimits(1, -1, 1);
+					linearFit->SetParNames("offset", "slope");
+					linearFit->SetLineColor(color_[iJES]);
+        	gMass[iJES]->Fit("linearFit", "EM");
+					
+					mgMass->Add(gMass[iJES]);
+
+					/*
+        	for (int l = 0; l < 2; l++) {
+          	fCalibFitParameter[i][j][l] = linearFit->GetParameter(l);
+          	fCalibFitParError[i][j][l]  = linearFit->GetParError(l);
+        	}
+					*/
+        }
+				
+				//mgJES->GetXaxis()->SetLimits( 0.95, 1.05);
+				//mgJES->GetYaxis()->SetLimits(-0.05, 0.05);
+				
+				mgMass->SetMinimum(-5);
+				mgMass->SetMaximum( 5);
+				
+				mgMass->Draw("AP");
+				
+        canvasFit->Update();
+        TPaveStats* statsMass0 = (TPaveStats*) gMass[0]->GetListOfFunctions()->FindObject("stats");
+        statsMass0->SetTextColor(color_[0]);
+        statsMass0->SetX1NDC(0.16);
+        statsMass0->SetY1NDC(0.7);
+        statsMass0->SetX2NDC(0.4233);
+        statsMass0->SetY2NDC(0.825);
+        TPaveStats* statsMass1 = (TPaveStats*) gMass[1]->GetListOfFunctions()->FindObject("stats");
+        statsMass1->SetTextColor(color_[1]);
+        statsMass1->SetX1NDC(0.4233);
+        statsMass1->SetY1NDC(0.7);
+        statsMass1->SetX2NDC(0.6867);
+        statsMass1->SetY2NDC(0.825);
+        TPaveStats* statsMassGlobal = (TPaveStats*) gMass[2]->GetListOfFunctions()->FindObject("stats");
+        TPaveStats* statsMass2 = (TPaveStats*) statsMassGlobal->Clone();
+        statsMass2->SetTextColor(color_[2]);
+        statsMass2->SetX1NDC(0.6867);
+        statsMass2->SetY1NDC(0.7);
+        statsMass2->SetX2NDC(0.95);
+        statsMass2->SetY2NDC(0.825);
+        statsMass2->Draw();
+        canvasFit->Modified();
+				
+				TLegend *legMass = new TLegend(0.16, 0.825, 0.555, 0.95);
+        legMass->SetFillColor(kWhite);
+        legMass->SetBorderSize(1);
+        legMass->AddEntry( gMass[0], "JES=0.96", "LEP");
+        legMass->AddEntry( gMass[1], "JES=1.00", "LEP");
+				legMass->AddEntry( gMass[2], "JES=1.04", "LEP");
+        legMass->Draw();
+				
+				mgMass->Fit("constFit", "EM");
+				
+        statsMassGlobal->SetX1NDC(0.555);
+        statsMassGlobal->SetY1NDC(0.825);
+        statsMassGlobal->SetX2NDC(0.95);
+        statsMassGlobal->SetY2NDC(0.95);
+				
+				path = "plot/"; path += fMethod; path += "/ensembletest/"; path += "fit_Mass_"; path += i; path += "_"; path += j; path += ".eps";
         canvasFit->Print(path);
       }
     }
   }
   
+  /*
   Measure(a1665);
   Measure(a1725);
   Measure(a1785);
+  */
 }
 
 
@@ -490,19 +881,25 @@ TH2F* TopMass::Measure(Analysis* a) {
   
   TH2F* hMass = a->GetH2Mass();
   TH2F* hMassError = a->GetH2MassError();
+  
+  TH2F* hJES = a->GetH2JES();
+  TH2F* hJESError = a->GetH2JESError();
 
   TH2F* hMassCalibrated = a->GetH2MassCalibrated();
   TH2F* hMassErrorCalibrated = a->GetH2MassErrorCalibrated();
   
   for (int i = 0; i < fBins; i++) {
     for (int j = 0; j < fBins; j++) {
-
-      
       
       double mass = hMass->GetCellContent(i+1, j+1);
       double massError = hMassError->GetCellContent(i+1, j+1);
       
-      std::cout << "Measured TopMass: " << mass << " +/- " << massError << " GeV" << std::endl;
+      std::cout << "Measured mass: " << mass << " +/- " << massError << " GeV" << std::endl;
+      
+      double JES = hJES->GetCellContent(i+1, j+1);
+      double JESError = hJESError->GetCellContent(i+1, j+1);
+      
+      std::cout << "Measured JES: " << JES << " +/- " << JESError << " GeV" << std::endl;
     
       if (fCalibFitParameter[i][j][0] && fCalibFitParameter[i][j][1] && mass > 0) {
         massError = sqrt(pow((1-fCalibFitParameter[i][j][1])*massError, 2) + pow(fCalibFitParError[i][j][0], 2) + pow(fCalibFitParError[i][j][1]*(172.5-mass), 2));
@@ -616,7 +1013,7 @@ void TopMass::LoadXML() {
 int main(int argc, char** argv)
 {
   if (argc > 1) {
-    TopMass* top = new TopMass(argv[1], 1, 1000);
+    TopMass* top = new TopMass(argv[1], 1, 1100);
   }
   else {
     TopMass* top = new TopMass("GenMatch", 6, 500);

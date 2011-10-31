@@ -11,3 +11,11 @@ double MassAnalyzer::GetMassError() {
 double MassAnalyzer::GetMassSigma() {
   return fMassSigma;
 }
+
+double MassAnalyzer::GetJES() {
+  return fJES;
+}
+
+double MassAnalyzer::GetJESError() {
+  return fJESError;
+}

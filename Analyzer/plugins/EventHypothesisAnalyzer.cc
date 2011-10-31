@@ -19,6 +19,7 @@
 #include <DataFormats/PatCandidates/interface/Muon.h>
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "LHAPDF/LHAPDF.h"
 
 #include <TMath.h>
 
@@ -28,15 +29,44 @@ EventHypothesisAnalyzer::EventHypothesisAnalyzer(const edm::ParameterSet& cfg):
   semiLepEvt_  (cfg.getParameter<edm::InputTag>("semiLepEvent")),
   hypoClassKey_(cfg.getParameter<edm::InputTag>("hypoClassKey")),
   jets_        (cfg.getParameter<edm::InputTag>("jets")),
+	noPtEtaJets_ (cfg.getParameter<edm::InputTag>("noPtEtaJets")),
   leps_        (cfg.getParameter<edm::InputTag>("leps")),
   VertexSrc_   (cfg.getParameter<edm::InputTag>("VertexSrc")),
-  PUWeightSrc_ (cfg.getParameter<edm::InputTag>("PUWeightSrc"))
+  PUWeightSrc_ (cfg.getParameter<edm::InputTag>("PUWeightSrc")),
+	PUWeightUpSrc_  (cfg.getParameter<edm::InputTag>("PUWeightUpSrc")),
+	PUWeightDownSrc_(cfg.getParameter<edm::InputTag>("PUWeightDownSrc")),
+  bWeightSrc_  (cfg.getParameter<edm::InputTag>("bWeightSrc")),
+  bWeightSrc_bTagSFUp_    (cfg.getParameter<edm::InputTag>("bWeightSrc_bTagSFUp")),
+  bWeightSrc_bTagSFDown_  (cfg.getParameter<edm::InputTag>("bWeightSrc_bTagSFDown")),
+  bWeightSrc_misTagSFUp_  (cfg.getParameter<edm::InputTag>("bWeightSrc_misTagSFUp")),
+  bWeightSrc_misTagSFDown_(cfg.getParameter<edm::InputTag>("bWeightSrc_misTagSFDown")),
+  muWeightSrc_ (cfg.getParameter<edm::InputTag>("muWeightSrc")),
+  savePDFWeights_(cfg.getParameter<bool>("savePDFWeights" ))
 {
 }
 
 void
 EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
 {
+  if(savePDFWeights_) {
+    edm::Handle<GenEventInfoProduct> pdfstuff;
+    evt.getByLabel("generator", pdfstuff);
+    float Q   = pdfstuff->pdf()->scalePDF;
+    int id1   = pdfstuff->pdf()->id.first;
+    int id2   = pdfstuff->pdf()->id.second;
+    double x1 = pdfstuff->pdf()->x.first;
+    double x2 = pdfstuff->pdf()->x.second;
+    double w0 = 0.;
+    for(unsigned i=0; i <=44; ++i) {
+      LHAPDF::usePDFMember(1,i);
+      double xpdf1 = LHAPDF::xfx(1, x1, Q, id1);
+      double xpdf2 = LHAPDF::xfx(1, x2, Q, id2);
+      if(i<1)
+	      w0 = xpdf1 * xpdf2;
+      else
+	      pdfWeights[i-1] = xpdf1 * xpdf2 / w0;
+    }
+  }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // get a handle for the TtSemiLeptonicEvent and a key to the hypothesis
@@ -56,6 +86,61 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
   
   edm::Handle<std::vector<pat::Jet> > jets;
   evt.getByLabel(jets_, jets);
+  jetMultiplicity = jets.isValid() ? jets->size() : -1;
+	
+	/*
+	std::cout << "Selected jets" << std::endl;
+	for (int i = 0; i < jetMultiplicity; i++) {
+		std::cout << jets->at(i).pt() << "\t" << jets->at(i).eta() << "\t" << jets->at(i).phi() << std::endl; 
+	}
+	//*/
+	
+	edm::Handle<std::vector<pat::Jet> > noPtEtaJets;
+  evt.getByLabel(noPtEtaJets_, noPtEtaJets);
+	noPtEtaJetMultiplicity = noPtEtaJets.isValid() ? noPtEtaJets->size() : -1;
+	
+	/*
+	std::cout << "All jets" << std::endl;
+	for (int i = 0; i < noPtEtaJetMultiplicity; i++) {
+		std::cout << noPtEtaJets->at(i).pt() << "\t" << noPtEtaJets->at(i).eta() << "\t" << noPtEtaJets->at(i).phi() << std::endl; 
+	}
+	//*/
+	
+	nlJetPt = 0;
+	
+  for (int i = 0; i < noPtEtaJetMultiplicity; i++) {
+    int match = -1;
+    for (int j = 0; j < 4; j++) {
+      if (abs(noPtEtaJets->at(i).pt() - jets->at(j).pt()) < 0.01) {
+        //std::cout << "match = " << j << std::endl;
+        match = j;
+      }			
+    }
+    if (match == -1) {
+      //std::cout << "no match" << std::endl;
+      nlJetPt  = noPtEtaJets->at(i).pt();
+      nlJetEta = noPtEtaJets->at(i).eta();
+      //std::cout << "Found NLJet " << i << std::endl;
+      //std::cout << noPtEtaJets->at(i).pt() << "\t" << noPtEtaJets->at(i).eta() << "\t" << noPtEtaJets->at(i).phi() << std::endl;
+      break;
+    }
+  }
+	
+	noPtEtaJetPt = 0;
+	leadingJetPt = 0;
+	
+  for (int i = 0; i < noPtEtaJetMultiplicity; i++) {
+    int match = -1;
+    for (int j = 0; j < 4; j++) {
+      if (abs(noPtEtaJets->at(i).pt() - jets->at(j).pt()) < 0.01) {
+        match = j;
+      }			
+    }
+    if (match == -1) {
+      noPtEtaJetPt += noPtEtaJets->at(i).pt();
+    }
+    else leadingJetPt += noPtEtaJets->at(i).pt();
+  }
   
   edm::Handle<std::vector<pat::Muon> > leps;
   evt.getByLabel(leps_, leps);
@@ -67,7 +152,40 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
   edm::Handle<double> PUWeightSrc_h;
   evt.getByLabel(PUWeightSrc_, PUWeightSrc_h);
   PUWeight = PUWeightSrc_h.isValid() ? *PUWeightSrc_h : -100.;
-
+	
+	edm::Handle<double> PUWeightUpSrc_h;
+  evt.getByLabel(PUWeightUpSrc_, PUWeightUpSrc_h);
+  PUWeightUp = PUWeightUpSrc_h.isValid() ? *PUWeightUpSrc_h : -100.;
+	
+	edm::Handle<double> PUWeightDownSrc_h;
+  evt.getByLabel(PUWeightDownSrc_, PUWeightDownSrc_h);
+  PUWeightDown = PUWeightDownSrc_h.isValid() ? *PUWeightDownSrc_h : -100.;
+  
+  edm::Handle<double> bWeightSrc_h;
+  evt.getByLabel(bWeightSrc_, bWeightSrc_h);
+  bWeight = bWeightSrc_h.isValid() ? *bWeightSrc_h : -100.;
+  
+  edm::Handle<double> bWeightSrc_bTagSFUp_h;
+  evt.getByLabel(bWeightSrc_bTagSFUp_, bWeightSrc_bTagSFUp_h);
+  bWeight_bTagSFUp = bWeightSrc_bTagSFUp_h.isValid() ? *bWeightSrc_bTagSFUp_h : -100.;
+  
+  edm::Handle<double> bWeightSrc_bTagSFDown_h;
+  evt.getByLabel(bWeightSrc_bTagSFDown_, bWeightSrc_bTagSFDown_h);
+  bWeight_bTagSFDown = bWeightSrc_bTagSFDown_h.isValid() ? *bWeightSrc_bTagSFDown_h : -100.;
+  
+  edm::Handle<double> bWeightSrc_misTagSFUp_h;
+  evt.getByLabel(bWeightSrc_misTagSFUp_, bWeightSrc_misTagSFUp_h);
+  bWeight_misTagSFUp = bWeightSrc_misTagSFUp_h.isValid() ? *bWeightSrc_misTagSFUp_h : -100.;
+  
+  edm::Handle<double> bWeightSrc_misTagSFDown_h;
+  evt.getByLabel(bWeightSrc_misTagSFDown_, bWeightSrc_misTagSFDown_h);
+  bWeight_misTagSFDown = bWeightSrc_misTagSFDown_h.isValid() ? *bWeightSrc_misTagSFDown_h : -100.;
+  
+  edm::Handle<double> muWeightSrc_h;
+  evt.getByLabel(muWeightSrc_, muWeightSrc_h);
+  muWeight = muWeightSrc_h.isValid() ? *muWeightSrc_h : -100.;
+  
+  MCWeight = PUWeightSrc_h.isValid() ? PUWeight * bWeight * muWeight : 1;
 
   for(unsigned h=0; h<semiLepEvt->numberOfAvailableHypos(hypoClassKey); h++) {
 
@@ -114,15 +232,15 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
 
       // missing jet
       if (maxMatchedJet >= maxNJets) {
-	target = -2;
+        target = -2;
       }
       // wrong jets
       else if (int(intersection_it - intersection.begin()) != 4) {
-	target = -1;
+        target = -1;
       }
       // correct permutation
       else if (jetLeptonCombinationCurrent  == jetLeptonCombinationGenMatch ||
-          jetLeptonCombinationCurrent2 == jetLeptonCombinationGenMatch) {
+        jetLeptonCombinationCurrent2 == jetLeptonCombinationGenMatch) {
         target = 1;
       }
       // wrong permutation of correct jets
@@ -161,14 +279,16 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     const reco::Candidate* hadQBar    = semiLepEvt->hadronicDecayQuarkBar  (hypoClassKey, h);
     const reco::Candidate* hadQBarRaw = semiLepEvt->hadronicDecayQuarkBar  (hypoClassKeyMVA, hMVA);
     
-    const reco::Candidate* lepTop   = semiLepEvt->leptonicDecayTop       (hypoClassKey, h);
-    const reco::Candidate* lepTopRaw= semiLepEvt->leptonicDecayTop       (hypoClassKeyMVA, hMVA);
-    const reco::Candidate* lepW     = semiLepEvt->leptonicDecayW         (hypoClassKey, h);
-    const reco::Candidate* lepWRaw  = semiLepEvt->leptonicDecayW         (hypoClassKeyMVA, hMVA);
-    const reco::Candidate* lepB     = semiLepEvt->leptonicDecayB         (hypoClassKey, h);
-    const reco::Candidate* lepBRaw  = semiLepEvt->leptonicDecayB         (hypoClassKeyMVA, hMVA);
-    const reco::Candidate* lepton   = semiLepEvt->singleLepton           (hypoClassKey, h);
-    const reco::Candidate* neutrino = semiLepEvt->singleNeutrino         (hypoClassKey, h);
+    const reco::Candidate* lepTop      = semiLepEvt->leptonicDecayTop       (hypoClassKey, h);
+    const reco::Candidate* lepTopRaw   = semiLepEvt->leptonicDecayTop       (hypoClassKeyMVA, hMVA);
+    const reco::Candidate* lepW        = semiLepEvt->leptonicDecayW         (hypoClassKey, h);
+    const reco::Candidate* lepWRaw     = semiLepEvt->leptonicDecayW         (hypoClassKeyMVA, hMVA);
+    const reco::Candidate* lepB        = semiLepEvt->leptonicDecayB         (hypoClassKey, h);
+    const reco::Candidate* lepBRaw     = semiLepEvt->leptonicDecayB         (hypoClassKeyMVA, hMVA);
+    const reco::Candidate* lepton      = semiLepEvt->singleLepton           (hypoClassKey, h);
+    const reco::Candidate* leptonRaw   = semiLepEvt->singleLepton           (hypoClassKeyMVA, hMVA);
+    const reco::Candidate* neutrino    = semiLepEvt->singleNeutrino         (hypoClassKey, h);
+    const reco::Candidate* neutrinoRaw = semiLepEvt->singleNeutrino         (hypoClassKeyMVA, hMVA);
 
     
     //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -177,6 +297,7 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
 
     const reco::Candidate* genHadTop = semiLepEvt->hadronicDecayTop();
     const reco::Candidate* genHadW   = semiLepEvt->hadronicDecayW();
+    const reco::Candidate* genHadQ   = semiLepEvt->hadronicDecayQuark();
     const reco::Candidate* genHadB   = semiLepEvt->hadronicDecayB();
 
     //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -190,7 +311,11 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     hadQBSSV   = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQ]).bDiscriminator("simpleSecondaryVertexHighEffBJetTags");
     hadQJC     = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQ]).jetCharge();
     
-    hadQRawE   = hadQRaw->energy();
+    hadQRawPt  = hadQRaw->pt();
+    
+    if (genHadQ) {
+      genHadQPt  = genHadQ->pt();
+    }
     
     hadQBarPt     = hadQBar->pt();
     hadQBarEta    = hadQBar->eta();
@@ -199,7 +324,7 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     hadQBarBSSV   = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQBar]).bDiscriminator("simpleSecondaryVertexHighEffBJetTags");
     hadQBarJC     = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQBar]).jetCharge();
     
-    hadQBarRawE   = hadQBarRaw->energy();
+    hadQBarRawPt  = hadQBarRaw->pt();
     
     hadWPt     = hadW->pt();
     hadWEta    = hadW->eta();
@@ -207,6 +332,7 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     hadWE      = hadW->energy();
     
     hadWRawMass  = hadWRaw->mass();
+    hadWRawPt    = hadWRaw->pt();
     
     /*
     double T     = ROOT::Math::VectorUtil::Angle(hadQRaw->polarP4(), hadQBarRaw->polarP4());
@@ -240,13 +366,18 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     hadBBSSV   = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::HadB]).bDiscriminator("simpleSecondaryVertexHighEffBJetTags");
     hadBJC     = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::HadB]).jetCharge();
     
-    hadBRawE   = hadBRaw->energy();
+    hadBRawPt  = hadBRaw->pt();
     
     leptonPt   = lepton->pt();
+    leptonEta  = lepton->eta();
     leptonC    = leps->at(0).charge();
+    
+    leptonRawPt = leptonRaw->pt();
     
     neutrinoPt = neutrino->pt();
     neutrinoE  = neutrino->energy();
+    
+    neutrinoRawPt = neutrinoRaw->pt();
     
     lepWPt     = lepW->pt();
     lepWEta    = lepW->eta();
@@ -277,6 +408,8 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     hadTopE    = hadTop->energy();
     
     hadTopRawMass = hadTopRaw->mass();
+    hadTopRawPt   = hadTopRaw->pt();
+    hadTopRawEta  = hadTopRaw->eta();
   
     if (genHadTop) {
       genHadTopPt   = genHadTop->pt();
@@ -355,7 +488,8 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("hadQBSSV", &hadQBSSV, "hadQBSSV/D");
   eventTree->Branch("hadQJC", &hadQJC, "hadQJC/D");
   
-  eventTree->Branch("hadQRawE", &hadQRawE, "hadQRawE/D");
+  eventTree->Branch("hadQRawPt", &hadQRawPt, "hadQRawPt/D");
+  eventTree->Branch("genHadQPt", &genHadQPt, "genHadQPt/D");
   
   eventTree->Branch("hadQBarPt", &hadQBarPt, "hadQBarPt/D");
   eventTree->Branch("hadQBarEta", &hadQBarEta, "hadQBarEta/D");
@@ -364,7 +498,7 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("hadQBarBSSV", &hadQBarBSSV, "hadQBarBSSV/D");
   eventTree->Branch("hadQBarJC", &hadQBarJC, "hadQBarJC/D");
   
-  eventTree->Branch("hadQBarRawE", &hadQBarRawE, "hadQBarRawE/D");
+  eventTree->Branch("hadQBarRawPt", &hadQBarRawPt, "hadQBarRawPt/D");
   
   eventTree->Branch("hadWPt", &hadWPt, "hadWPt/D");
   eventTree->Branch("hadWEta", &hadWEta, "hadWEta/D");
@@ -372,6 +506,7 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("hadWE", &hadWE, "hadWE/D");
   
   eventTree->Branch("hadWRawMass", &hadWRawMass, "hadWRawMass/D");
+  eventTree->Branch("hadWRawPt", &hadWRawPt, "hadWRawPt/D");
   
   eventTree->Branch("genHadWPt", &genHadWPt, "genHadWPt/D");
   eventTree->Branch("genHadWEta", &genHadWEta, "genHadWEta/D");
@@ -385,14 +520,18 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("hadBBSSV", &hadBBSSV, "hadBBSSV/D");
   eventTree->Branch("hadBJC", &hadBJC, "hadBJC/D");
   
-  eventTree->Branch("hadBRawE", &hadBRawE, "hadBRawE/D");
+  eventTree->Branch("hadBRawPt", &hadBRawPt, "hadBRawPt/D");
   
   eventTree->Branch("leptonPt", &leptonPt, "leptonPt/D");
-  eventTree->Branch("leptonE", &leptonE, "leptonE/D");
+  eventTree->Branch("leptonEta", &leptonEta, "leptonEta/D");
   eventTree->Branch("leptonC", &leptonC, "leptonC/D");
+  
+  eventTree->Branch("leptonRawPt", &leptonRawPt, "leptonRawPt/D");
   
   eventTree->Branch("neutrinoPt", &neutrinoPt, "neutrinoPt/D");
   eventTree->Branch("neutrinoE", &neutrinoE, "neutrinoE/D");
+  
+  eventTree->Branch("neutrinoRawPt", &neutrinoRawPt, "neutrinoRawPt/D");
   
   eventTree->Branch("lepWPt", &lepWPt, "lepWPt/D");
   eventTree->Branch("lepWEta", &lepWEta, "lepWEta/D");
@@ -421,6 +560,8 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("hadTopE", &hadTopE, "hadTopE/D");
   
   eventTree->Branch("hadTopRawMass", &hadTopRawMass, "hadTopRawMass/D");
+  eventTree->Branch("hadTopRawPt", &hadTopRawPt, "hadTopRawPt/D");
+  eventTree->Branch("hadTopRawEta", &hadTopRawEta, "hadTopRawEta/D");
   
   eventTree->Branch("lepTopPt", &lepTopPt, "lepTopPt/D");
   eventTree->Branch("lepTopEta", &lepTopEta, "lepTopEta/D");
@@ -447,6 +588,15 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("TTBarPt", &TTBarPt, "TTBarPt/D");
   eventTree->Branch("TTBarMass", &TTBarMass, "TTBarMass/D");
   
+  eventTree->Branch("jetMultiplicity", &jetMultiplicity, "jetMultiplicity/I");
+	eventTree->Branch("noPtEtaJetMultiplicity", &noPtEtaJetMultiplicity, "noPtEtaJetMultiplicity/I");
+	
+	eventTree->Branch("noPtEtaJetPt", &noPtEtaJetPt, "noPtEtaJetPt/D");
+	eventTree->Branch("leadingJetPt", &leadingJetPt, "leadingJetPt/D");
+	
+	eventTree->Branch("nlJetPt", &nlJetPt, "nlJetPt/D");
+	eventTree->Branch("nlJetEta", &nlJetEta, "nlJetEta/D");
+  
   eventTree->Branch("genMatchDr", &genMatchDr, "genMatchDr/D");
   eventTree->Branch("mvaDisc", &mvaDisc, "mvaDisc/D");
   eventTree->Branch("fitChi2", &fitChi2, "fitChi2/D");
@@ -461,6 +611,19 @@ EventHypothesisAnalyzer::beginJob()
   
   eventTree->Branch("nVertex", &nVertex, "nVertex/I");
   eventTree->Branch("PUWeight", &PUWeight, "PUWeight/D");
+	eventTree->Branch("PUWeightUp", &PUWeightUp, "PUWeightUp/D");
+	eventTree->Branch("PUWeightDown", &PUWeightDown, "PUWeightDown/D");
+  eventTree->Branch("bWeight", &bWeight, "bWeight/D");
+  eventTree->Branch("bWeight_bTagSFUp", &bWeight_bTagSFUp, "bWeight_bTagSFUp/D");
+  eventTree->Branch("bWeight_bTagSFDown", &bWeight_bTagSFDown, "bWeight_bTagSFDown/D");
+  eventTree->Branch("bWeight_misTagSFUp", &bWeight_misTagSFUp, "bWeight_misTagSFUp/D");
+  eventTree->Branch("bWeight_misTagSFDown", &bWeight_misTagSFDown, "bWeight_misTagSFDown/D");
+  eventTree->Branch("muWeight", &muWeight, "muWeight/D");
+  eventTree->Branch("MCWeight", &MCWeight, "MCWeight/D");
+  if(savePDFWeights_) {
+    LHAPDF::initPDFSet(1, "cteq66.LHgrid");
+    eventTree->Branch("pdfWeights", &pdfWeights, "pdfWeights[44]/D");
+  }
   
   eventTree->Branch("target", &target, "target/I");
 

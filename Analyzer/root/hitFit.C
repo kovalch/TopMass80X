@@ -11,6 +11,9 @@
 
 #include "tdrstyle.C"
 
+enum styles             { kHitFit, kKinFit, kGenMatch, kMVADisc};
+int color_      [ 4 ] = { kRed,    kGreen,  kBlack,    kGray};
+
 void drawcutline(double cutval, double maximum)
 {
   TLine *cut = new TLine();
@@ -20,28 +23,24 @@ void drawcutline(double cutval, double maximum)
   cut->DrawLine(cutval, 0.,cutval, maximum);
 }
 
-void setHistStyle(TH1* hist, int kStyle) {
-  enum styles             { kHitFit, kKinFit  };
-  int color_      [ 2 ] = { kRed+1,  kGreen-3 };
-  int fillStyle_  [ 2 ] = { 3654,    3645     };
+void setHistStyle(TString titleX, TH1* hist, int kStyle, int col) {
+  hist->Scale(1./hist->Integral());
   
-  if (kStyle == kHitFit) hist->Scale(1./2);
-  hist->SetLineColor(color_[kStyle]);
+  hist->SetLineColor(col);
   hist->SetLineWidth(2);
-  /*
-  hist->SetFillColor(color_[kStyle]);
-  hist->SetFillStyle(fillStyle_[kStyle]);
-  */
-  hist->GetYaxis()->SetTitle("Number of permutations");
-  hist->GetXaxis()->SetTitle("Permutation type");
+  
+  if (kStyle == kGenMatch) {
+    hist->SetLineStyle(7);
+    hist->SetLineWidth(4);
+  }
+  
+  //hist->GetYaxis()->SetTitle("Fraction of permutations");
+  hist->GetXaxis()->SetTitle(titleX);
+  hist->GetYaxis()->SetTitle("Fraction of permutations");
 }
 
 void hitFit()
 {
-  enum styles             { kHitFit, kKinFit  };
-  int color_      [ 2 ] = { kRed+1,  kGreen-3 };
-  int fillStyle_  [ 2 ] = { 3654,    3645     };
-  
   setTDRStyle();
   //gStyle->SetPadLeftMargin(0.2);
   //gStyle->SetTitleYOffset(1.75);
@@ -49,15 +48,16 @@ void hitFit()
   // ---
   //    open input file
   // ---
-  TFile* fTTJets = new TFile("/scratch/hh/current/cms/user/mseidel/TTJets1725_abs_test/analyzeTop_1725.root");
+  TFile* fTTJets = new TFile("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00_2b/analyzeTop.root");
   
   // ---
   //    Get trees
   // ---
   TTree* tH = (TTree*) fTTJets->Get("analyzeHitFit/eventTree");
-  TTree* tK = (TTree*) fTTJets->Get("analyzeKinFit/eventTree");
+  TTree* tG = (TTree*) fTTJets->Get("analyzeGenMatch/eventTree");
   
-  //*
+  //* efficiency
+  
   TCanvas* cEfficiency = new TCanvas("cEfficiency", "cEfficiency", 450, 450);
   cEfficiency->cd();
   cEfficiency->SetLogy(1);
@@ -65,36 +65,25 @@ void hitFit()
   TMultiGraph *mg = new TMultiGraph();
   mg->SetTitle("Kinematic Fit Efficiency;Correct permutation efficiency;Bad permutation efficiency");
   
-  double aHSigEfficiency[100];
-  double aHBkgEfficiency[100];
-  double aKSigEfficiency[100];
-  double aKBkgEfficiency[100];
+  double aHSigEfficiency[10];
+  double aHBkgEfficiency[10];
   
-  double bins = 100;
+  double bins = 10;
   
   for (int i = 1; i < bins; i++) {
     TString sHSig("target == 1 & hitFitProb > "); sHSig+= 1./bins * (double)i;
     TString sHBkg("target != 1 & hitFitProb > "); sHBkg+= 1./bins * (double)i;
-    TString sKSig("target == 1 & fitProb > ");    sKSig+= 1./bins * (double)i;
-    TString sKBkg("target != 1 & fitProb > ");    sKBkg+= 1./bins * (double)i;
     
     std::cout << sHSig << std::endl;
     
     aHSigEfficiency[i-1] = (double)tH->GetEntries(sHSig)/(double)tH->GetEntries("target == 1");
     aHBkgEfficiency[i-1] = (double)tH->GetEntries(sHBkg)/(double)tH->GetEntries("target != 1");
-    
-    aKSigEfficiency[i-1] = (double)tK->GetEntries(sKSig)/(double)tK->GetEntries("target == 1");
-    aKBkgEfficiency[i-1] = (double)tK->GetEntries(sKBkg)/(double)tK->GetEntries("target != 1");
   }
   
   gH = new TGraph(bins-1, aHSigEfficiency, aHBkgEfficiency);
   gH->SetLineColor(color_[kHitFit]);
   gH->SetLineWidth(2);
   mg->Add(gH);
-  gK = new TGraph(bins-1, aKSigEfficiency, aKBkgEfficiency);
-  gK->SetLineColor(color_[kKinFit]);
-  gK->SetLineWidth(2);
-  mg->Add(gK);
   
   mg->Draw("AC");
   
@@ -102,7 +91,6 @@ void hitFit()
   legEfficiency->SetFillStyle(0);
   legEfficiency->SetBorderSize(0);
   legEfficiency->AddEntry( gH, "HitFit"   , "L");
-  legEfficiency->AddEntry( gK, "KinFitter", "L");
   legEfficiency->Draw();
   //*/
     
@@ -181,53 +169,151 @@ void hitFit()
   leg0->Draw();
   */
   
-  // top mass
+  /* top mass resolution
+  
+  TCanvas* cHadTopMassRes = new TCanvas("cHadTopMassRes", "cHadTopMassRes", 450, 450);
+  
+  cHadTopMassRes->cd();
+  
+  tH->Draw("hadTopMass-genHadTopMass >> hHHadTopMassRes(25, -100, 100)", "target==1");
+  tG->Draw("hadTopMass-genHadTopMass >> hGHadTopMassRes(25, -100, 100)", "");
+  
+  setHistStyle("m_{t,rec}-m_{t,gen}", hHHadTopMassRes, kHitFit, 0);
+  setHistStyle("m_{t,rec}-m_{t,gen}", hGHadTopMassRes, kGenMatch, 0);
+  
+  hHHadTopMassRes->Draw("C");
+  hGHadTopMassRes->Draw("C,SAME");
+  
+  TLegend *leg0 = new TLegend(0.65, 0.55, 0.95, 0.9);
+  leg0->SetFillStyle(0);
+  leg0->SetBorderSize(0);
+  leg0->AddEntry( hHHadTopMassRes , "HitFit", "F");
+  leg0->AddEntry( hGHadTopMassRes , "GenMatch", "F");
+  leg0->Draw();
+  //*/
+  
+  //* top mass bias
   
   TCanvas* cHadTopMass = new TCanvas("cHadTopMass", "cHadTopMass", 450, 450);
   
   cHadTopMass->cd();
   
-  tH->Draw("hadTopMass >> hHHadTopMass(100, 100, 250)", "target==1");
-  tK->Draw("hadTopMass >> hKHadTopMass(100, 100, 250)", "target==1");
+  tH->Draw("hadTopMass-genHadTopMass >> hHTHadTopMass(25, -100, 100)", "target==1");
+  tH->Draw("hadTopMass-genHadTopMass >> hHPHadTopMass(25, -100, 100)", "hitFitProb>0.2");
+  tH->Draw("hadTopMass-genHadTopMass >> hHBHadTopMass(25, -100, 100)", "combi==0");
+  tH->Draw("hadTopMass-genHadTopMass >> hHAHadTopMass(25, -100, 100)", "");
+  tH->Draw("hadTopRawMass-genHadTopMass >> hHRHadTopMass(25, -100, 100)", "");
+  tG->Draw("hadTopMass-genHadTopMass >> hGHadTopMass(25, -100, 100)", "");
   
-  setHistStyle(hHHadTopMass, kHitFit);
-  setHistStyle(hKHadTopMass, kKinFit);
+  setHistStyle("m_{t,rec}-m_{t,gen}", hHTHadTopMass, kHitFit, kRed+1);
+  setHistStyle("m_{t,rec}-m_{t,gen}", hHPHadTopMass, kHitFit, kMagenta+1);
+  setHistStyle("m_{t,rec}-m_{t,gen}", hHBHadTopMass, kHitFit, kBlue+1);
+  setHistStyle("m_{t,rec}-m_{t,gen}", hHAHadTopMass, kHitFit, kGreen+1);
+  setHistStyle("m_{t,rec}-m_{t,gen}", hHRHadTopMass, kHitFit, kYellow+1);
+  setHistStyle("m_{t,rec}-m_{t,gen}", hGHadTopMass, kGenMatch, kBlack);
   
-  hHHadTopMass->GetXaxis()->SetTitle("m_{i}");
-  hKHadTopMass->GetXaxis()->SetTitle("m_{i}");
+  hHTHadTopMass->Draw("C");
+  hHPHadTopMass->Draw("C,SAME");
+  hHBHadTopMass->Draw("C,SAME");
+  hHAHadTopMass->Draw("C,SAME");
+  hHRHadTopMass->Draw("C,SAME");
+  hGHadTopMass->Draw("C,SAME");
   
-  //hKHadTopMass->GetYaxis()->SetRangeUser(0, 0.085);
-  
-  hKHadTopMass->Draw();
-  hHHadTopMass->Draw("SAME");
-  
-  TLegend *leg0 = new TLegend(0.7, 0.8, 0.95, 0.9);
+  TLegend *leg0 = new TLegend(0.65, 0.55, 0.95, 0.9);
   leg0->SetFillStyle(0);
   leg0->SetBorderSize(0);
-  leg0->AddEntry( hHHadTopMass , "HitFit"   , "F");
-  leg0->AddEntry( hKHadTopMass , "KinFitter", "F");
+  
+  leg0->AddEntry( hHTHadTopMass , "HitFit correct", "F");
+  leg0->AddEntry( hHPHadTopMass , "HitFit P_{fit}>0.2", "F");
+  leg0->AddEntry( hHBHadTopMass , "HitFit lowest #chi^{2}", "F");
+  leg0->AddEntry( hHAHadTopMass , "HitFit all", "F");
+  leg0->AddEntry( hHRHadTopMass , "No kinematic fit", "F");
+  leg0->AddEntry( hGHadTopMass  , "GenMatch", "F");
+  
   leg0->Draw();
+  //*/
   
+  //* top pt bias
   
-  /*
-  // ---
-  //    create legend
-  // ---
-  // samples: separate canvas
-  TLegend *leg0 = new TLegend(0.6, 0.7, 0.85, 0.9);
+  TCanvas* cHadTopPt = new TCanvas("cHadTopPt", "cHadTopPt", 450, 450);
+  
+  cHadTopPt->cd();
+  
+  tH->Draw("hadTopPt-genHadTopPt >> hHTHadTopPt(25, -100, 100)", "target==1");
+  tH->Draw("hadTopPt-genHadTopPt >> hHPHadTopPt(25, -100, 100)", "hitFitProb>0.2");
+  tH->Draw("hadTopPt-genHadTopPt >> hHBHadTopPt(25, -100, 100)", "combi==0");
+  tH->Draw("hadTopPt-genHadTopPt >> hHAHadTopPt(25, -100, 100)", "");
+  tH->Draw("hadTopRawPt-genHadTopPt >> hHRHadTopPt(25, -100, 100)", "");
+  tG->Draw("hadTopPt-genHadTopPt >> hGHadTopPt(25, -100, 100)", "");
+  
+  setHistStyle("p_{T,t,rec}-p_{T,t,gen}", hHTHadTopPt, kHitFit, kRed+1);
+  setHistStyle("p_{T,t,rec}-p_{T,t,gen}", hHPHadTopPt, kHitFit, kMagenta+1);
+  setHistStyle("p_{T,t,rec}-p_{T,t,gen}", hHBHadTopPt, kHitFit, kBlue+1);
+  setHistStyle("p_{T,t,rec}-p_{T,t,gen}", hHAHadTopPt, kHitFit, kGreen+1);
+  setHistStyle("p_{T,t,rec}-p_{T,t,gen}", hHRHadTopPt, kHitFit, kYellow+1);
+  setHistStyle("p_{T,t,rec}-p_{T,t,gen}", hGHadTopPt , kGenMatch, kBlack);
+  
+  hHTHadTopPt->Draw("C");
+  hHPHadTopPt->Draw("C,SAME");
+  hHBHadTopPt->Draw("C,SAME");
+  hHAHadTopPt->Draw("C,SAME");
+  hHRHadTopPt->Draw("C,SAME");
+  hGHadTopPt->Draw("C,SAME");
+  
+  TLegend *leg0 = new TLegend(0.65, 0.55, 0.95, 0.9);
   leg0->SetFillStyle(0);
   leg0->SetBorderSize(0);
-  leg0->AddEntry( hD , "Data (23 pb ^{-1})"       , "PL");
-  leg0->AddEntry( hW , "W#rightarrowl#nu"              , "F" );
-  leg0->AddEntry( hTBkg , "t#bar{t} wp"                , "F" );
-  leg0->AddEntry( hTSig , "t#bar{t} cp"  , "F" );
+  
+  leg0->AddEntry( hHTHadTopPt , "HitFit correct", "F");
+  leg0->AddEntry( hHPHadTopPt , "HitFit P_{fit}>0.2", "F");
+  leg0->AddEntry( hHBHadTopPt , "HitFit lowest #chi^{2}", "F");
+  leg0->AddEntry( hHAHadTopPt , "HitFit all", "F");
+  leg0->AddEntry( hHRHadTopPt , "No kinematic fit", "F");
+  leg0->AddEntry( hGHadTopPt  , "GenMatch", "F");
+  
+  leg0->Draw();
+  //*/
+  
+  //* top eta bias
+  
+  TCanvas* cHadTopEta = new TCanvas("cHadTopEta", "cHadTopEta", 450, 450);
+  
+  cHadTopEta->cd();
+  
+  tH->Draw("hadTopEta-genHadTopEta >> hHTHadTopEta(25, -0.5, 0.5)", "target==1");
+  tH->Draw("hadTopEta-genHadTopEta >> hHPHadTopEta(25, -0.5, 0.5)", "hitFitProb>0.2");
+  tH->Draw("hadTopEta-genHadTopEta >> hHBHadTopEta(25, -0.5, 0.5)", "combi==0");
+  tH->Draw("hadTopEta-genHadTopEta >> hHAHadTopEta(25, -0.5, 0.5)", "");
+  tH->Draw("hadTopRawEta-genHadTopEta >> hHRHadTopEta(25, -0.5, 0.5)", "");
+  tG->Draw("hadTopEta-genHadTopEta >> hGHadTopEta(25, -0.5, 0.5)", "");
+  
+  setHistStyle("#eta_{t,rec}-#eta_{t,gen}", hHTHadTopEta, kHitFit, kRed+1);
+  setHistStyle("#eta_{t,rec}-#eta_{t,gen}", hHPHadTopEta, kHitFit, kMagenta+1);
+  setHistStyle("#eta_{t,rec}-#eta_{t,gen}", hHBHadTopEta, kHitFit, kBlue+1);
+  setHistStyle("#eta_{t,rec}-#eta_{t,gen}", hHAHadTopEta, kHitFit, kGreen+1);
+  setHistStyle("#eta_{t,rec}-#eta_{t,gen}", hHRHadTopEta, kHitFit, kYellow+1);
+  setHistStyle("#eta_{t,rec}-#eta_{t,gen}", hGHadTopEta, kGenMatch, kBlack);
+  
+  hHTHadTopEta->Draw("C");
+  hHPHadTopEta->Draw("C,SAME");
+  hHBHadTopEta->Draw("C,SAME");
+  hHAHadTopEta->Draw("C,SAME");
+  hHRHadTopEta->Draw("C,SAME");
+  hGHadTopEta->Draw("C,SAME");
+  
+  TLegend *leg0 = new TLegend(0.65, 0.55, 0.95, 0.9);
+  leg0->SetFillStyle(0);
+  leg0->SetBorderSize(0);
+  
+  leg0->AddEntry( hHTHadTopEta , "HitFit correct", "F");
+  leg0->AddEntry( hHPHadTopEta , "HitFit P_{fit}>0.2", "F");
+  leg0->AddEntry( hHBHadTopEta , "HitFit lowest #chi^{2}", "F");
+  leg0->AddEntry( hHAHadTopEta , "HitFit all", "F");
+  leg0->AddEntry( hHRHadTopEta , "No kinematic fit", "F");
+  leg0->AddEntry( hGHadTopEta  , "GenMatch", "F");
+  
+  leg0->Draw();
+  //*/
 
-  hNull->Draw();
-  stack->Draw("SAME");
-  hD   ->Draw("E,SAME");
-  leg0->Draw("");
-  
-  drawcutline(-1.3, 100);
-  
-  */
+
 }

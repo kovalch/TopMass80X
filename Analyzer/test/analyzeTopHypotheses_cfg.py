@@ -1,5 +1,36 @@
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.VarParsing as VarParsing
+import os
+import sys
+options = VarParsing.VarParsing ('standard')
 
+# for summer11 MC one can choose: ttbar, wjets, zjets, singleAntiTopS, singleTopT, singleAntiTopT, singleTopTw, singleAntiTopTw, WW, WZ, qcd (for muon channel);
+# still missing: ZZ, singleTopS
+options.register('sample', 'none',VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "chosen sample")
+
+# define the syntax for parsing
+# you need to enter in the cfg file:
+# search for arguments entered after cmsRun
+if( hasattr(sys, "argv") ):
+    # split arguments by comma - seperating different variables
+    for args in sys.argv :
+        arg = args.split(',')
+        # split further by = to separate variable name and value
+        for val in arg:
+            val = val.split('=')
+            # set variable var to value val (expected crab syntax: var=val)
+            if(len(val)==2):
+                setattr(options,val[0], val[1])
+
+# print chosen sample (e.g. ttbar)
+# value is known from external parsing
+# if set, switches runOnAOD in PF2PAT to true
+print "Chosen sample to run over: ", options.sample
+
+## top mass measurement
+process = cms.Process("topMass")
+
+## grid control parameters
 lJesFactor = '@lJesFactor@'
 if lJesFactor.startswith('@'):
   lJesFactor = '1.0'
@@ -8,7 +39,17 @@ bJesFactor = '@bJesFactor@'
 if bJesFactor.startswith('@'):
   bJesFactor = '1.0'
 
-process = cms.Process("TEST")
+METFactor = '@METFactor@'
+if METFactor.startswith('@'):
+  METFactor = '1.0'
+
+scaleType = '@scaleType@'
+if scaleType.startswith('@'):
+  scaleType = 'abs'
+
+resolutionFactor = '@resolutionFactor@'
+if resolutionFactor.startswith('@'):
+  resolutionFactor = '1.1'
 
 ## configure message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -23,12 +64,16 @@ process.MessageLogger.cerr.TtSemiLeptonicEvent = cms.untracked.PSet(
 readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
-readFiles.extend( [
-       '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/02719D6B-1398-E011-AA71-001A92971B94.root'
-] );
-
-
-
+if os.getenv('CMSSW_VERSION').startswith('CMSSW_4_1_'):
+  readFiles.extend( [
+         '/store/user/eschliec/TTJets_TuneD6T_7TeV-madgraph-tauola/PATWithPF_v4/e59efddd8a1547799dca5b47d5556447/patTuple_9_1_Nb0.root'
+  ] )
+else:
+  readFiles.extend( [
+          '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/FEEE3638-F297-E011-AAF8-00304867BEC0.root',
+  #       '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/02719D6B-1398-E011-AA71-001A92971B94.root',
+  #       '/store/mc/Summer11/WJetsToLNu_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/0004EB5E-64AC-E011-B046-003048678FDE.root',
+  ] )
 
 secFiles.extend( [
                ] )
@@ -47,7 +92,10 @@ process.options = cms.untracked.PSet(
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('START42_V13::All')
+if os.getenv('CMSSW_VERSION').startswith('CMSSW_4_1_'):
+  process.GlobalTag.globaltag = cms.string('START41_V0::All')
+else:
+  process.GlobalTag.globaltag = cms.string('START42_V13::All')
 
 ## std sequence for pat
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
@@ -63,12 +111,13 @@ process.vetoJets.cut=''
 process.load("TopAnalysis.TopUtils.JetEnergyScale_cff")
 from TopAnalysis.TopUtils.JetEnergyScale_cff import *
 
-scaledJetEnergy.scaleType    = "abs"
+scaledJetEnergy.scaleType    = scaleType
 scaledJetEnergy.inputJets    = "selectedPatJetsAK5PF"
 scaledJetEnergy.inputMETs    = "patMETsPF"
 scaledJetEnergy.scaleFactor  = float(lJesFactor)
 scaledJetEnergy.scaleFactorB = float(bJesFactor)
-scaledJetEnergy.resolutionFactors = [1.1]
+scaledJetEnergy.scaleFactorMET    = float(METFactor)
+scaledJetEnergy.resolutionFactors = [float(resolutionFactor)]
 
 process.noOverlapJetsPF.src = "scaledJetEnergy:selectedPatJets"
 
@@ -80,17 +129,37 @@ process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_c
 ## enable additional per-event printout from the TtSemiLeptonicEvent
 process.ttSemiLepEvent.verbosity = 0
 
-from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff import *
-setForAllTtSemiLepHypotheses(process, "jets", "goodJetsPF30")
-setForAllTtSemiLepHypotheses(process, "leps", "tightMuons")
-setForAllTtSemiLepHypotheses(process, "maxNJets", 4)
-setForAllTtSemiLepHypotheses(process, "mets", "patMETsPF")
-setForAllTtSemiLepHypotheses(process, "maxNComb", -1)
+## selection
+from HLTrigger.HLTfilters.hltHighLevel_cfi import *
+if os.getenv('CMSSW_VERSION').startswith('CMSSW_4_1_'):
+  process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::REDIGI311X", HLTPaths = ["HLT_Mu15_v*"], throw=True)
+else:
+  process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", HLTPaths = ["HLT_Mu15_v*"], throw=True)
+
+process.leadingJetSelection.src = 'tightLeadingPFJets'
+process.bottomJetSelection.src  = 'tightBottomPFJets'
+
+## b-tag selection
+process.tightBottomPFJets.cut = 'bDiscriminator("simpleSecondaryVertexHighEffBJetTags") > 1.74';
+process.bottomJetSelection.minNumber = 2;
 
 ## change jet-parton matching algorithm
 process.ttSemiLepJetPartonMatch.algorithm = "unambiguousOnly"
 
 ## choose which hypotheses to produce
+from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff import *
+setForAllTtSemiLepHypotheses(process, "jets", "goodJetsPF30")
+setForAllTtSemiLepHypotheses(process, "leps", "tightMuons")
+setForAllTtSemiLepHypotheses(process, "maxNJets", 4)
+setForAllTtSemiLepHypotheses(process, "mets", "scaledJetEnergy:patMETs")
+setForAllTtSemiLepHypotheses(process, "maxNComb", -1)
+
+# consider b-tagging in event reconstruction
+process.hitFitTtSemiLepEventHypothesis.bTagAlgo = "simpleSecondaryVertexHighEffBJetTags"
+process.hitFitTtSemiLepEventHypothesis.minBDiscBJets     = 1.74
+process.hitFitTtSemiLepEventHypothesis.maxBDiscLightJets = 1.74
+process.hitFitTtSemiLepEventHypothesis.useBTagging       = True
+
 addTtSemiLepHypotheses(process,
                        ["kHitFit", "kMVADisc"]
                        )
@@ -101,19 +170,80 @@ process.load("TopMass.Analyzer.EventHypothesisAnalyzer_cff")
 
 ## PU reweighting
 process.load("TopAnalysis.TopUtils.EventWeightPU_cfi")
-process.eventWeightPU = process.eventWeightPU.clone()
-process.eventWeightPU.DataFile = "TopAnalysis/TopUtils/data/Data_PUDist_160404-166861_7TeV_PromptReco_Collisions11.root"
+process.eventWeightPU.MCSampleFile = cms.FileInPath("TopAnalysis/TopUtils/data/MC_PUDist_Summer11_TTJets_TuneZ2_7TeV_madgraph_tauola.root")
+if(options.sample=="ttbar"):
+    process.eventWeightPU.MCSampleFile = cms.FileInPath("TopAnalysis/TopUtils/data/MC_PUDist_Summer11_TTJets_TuneZ2_7TeV_madgraph_tauola.root")
+if(options.sample=="wjets"):
+    process.eventWeightPU.MCSampleFile = cms.FileInPath("TopAnalysis/TopUtils/data/MC_PUDist_Summer11_WJetsToLNu_TuneZ2_7TeV_madgraph_tauola.root")
+if(options.sample=="zjets"):
+    process.eventWeightPU.MCSampleFile = cms.FileInPath("TopAnalysis/TopUtils/data/MC_PUDist_Summer11_DYJetsToLL_TuneZ2_M_50_7TeV_madgraph_tauola.root")
+if(options.sample=="singleTopS"):
+    process.eventWeightPU.MCSampleFile = cms.FileInPath("TopAnalysis/TopUtils/data/MC_PUDist_Summer11_SingleTop_TuneZ2_s_channel_7TeV_powheg_tauola.root")
+if(options.sample=="singleAntiTopS"):
+    process.eventWeightPU.MCSampleFile = cms.FileInPath("TopAnalysis/TopUtils/data/MC_PUDist_Summer11_SingleAntiTop_TuneZ2_s_channel_7TeV_powheg_tauola.root")
+if(options.sample=="singleTopT"):
+    process.eventWeightPU.MCSampleFile = cms.FileInPath("TopAnalysis/TopUtils/data/MC_PUDist_Summer11_SingleTop_TuneZ2_t_channel_7TeV_powheg_tauola.root")
+if(options.sample=="singleAntiTopT"):
+    process.eventWeightPU.MCSampleFile = cms.FileInPath("TopAnalysis/TopUtils/data/MC_PUDist_Summer11_SingleAntiTop_TuneZ2_t_channel_7TeV_powheg_tauola.root")
+if(options.sample=="singleTopTw"):
+    process.eventWeightPU.MCSampleFile = cms.FileInPath("TopAnalysis/TopUtils/data/MC_PUDist_Summer11_SingleTop_TuneZ2_tW_channel_DR_7TeV_powheg_tauola.root")
+if(options.sample=="singleAntiTopTw"):
+    process.eventWeightPU.MCSampleFile = cms.FileInPath("TopAnalysis/TopUtils/data/MC_PUDist_Summer11_SingleAntiTop_TuneZ2_tW_channel_DR_7TeV_powheg_tauola.root")
+if(options.sample=="qcd"):
+    process.eventWeightPU.MCSampleFile = cms.FileInPath("TopAnalysis/TopUtils/data/MC_PUDist_Summer11_QCD_Pt_20_MuEnrichedPt_15_TuneZ2_7TeV_pythia6.root")
+if(options.sample=="WW"):
+    process.eventWeightPU.MCSampleFile = cms.FileInPath("TopAnalysis/TopUtils/data/MC_PUDist_Summer11_WW_TuneZ2_7TeV_pythia6_tauola.root")
+if(options.sample=="WZ"):
+    process.eventWeightPU.MCSampleFile = cms.FileInPath("TopAnalysis/TopUtils/data/MC_PUDist_Summer11_WZ_TuneZ2_7TeV_pythia6_tauola.root")
+if(options.sample=="ZZ"):
+    process.eventWeightPU.MCSampleFile = cms.FileInPath("TopAnalysis/TopUtils/data/MC_PUDist_Summer11_ZZ_TuneZ2_7TeV_pythia6_tauola.root")
+    
+process.eventWeightPU.DataFile = cms.FileInPath("TopAnalysis/TopUtils/data/Data_PUDist_160404-163869_7TeV_May10ReReco_Collisions11_v2_and_165088-167913_7TeV_PromptReco_Collisions11.root")
+PUweight=cms.InputTag("eventWeightPU","eventWeightPU")
+PUweightUp=cms.InputTag("eventWeightPU","eventWeightPUUp")
+PUweightDown=cms.InputTag("eventWeightPU","eventWeightPUDown")
+
+
+## ---
+##    MC B-tag reweighting
+## ---
+## load BTV database
+process.load ("RecoBTag.PerformanceDB.PoolBTagPerformanceDB1107")
+process.load ("RecoBTag.PerformanceDB.BTagPerformanceDB1107")
+
+process.load("TopAnalysis.TopUtils.BTagSFEventWeight_cfi")
+process.bTagSFEventWeight.jets     = "tightLeadingPFJets"
+process.bTagSFEventWeight.bTagAlgo = "SSVHEM"
+process.bTagSFEventWeight.sysVar   = "" # bTagSFUp, bTagSFDown, misTagSFUp, misTagSFDown possible;
+process.bTagSFEventWeight.filename = "TopAnalysis/Configuration/data/analyzeBTagEfficiency.root"
+process.bTagSFEventWeight.verbose  = 0
+
+process.bTagSFEventWeightBTagSFUp     = process.bTagSFEventWeight.clone(sysVar = "bTagSFUp")
+process.bTagSFEventWeightBTagSFDown   = process.bTagSFEventWeight.clone(sysVar = "bTagSFDown")
+process.bTagSFEventWeightMisTagSFUp   = process.bTagSFEventWeight.clone(sysVar = "misTagSFUp")
+process.bTagSFEventWeightMisTagSFDown = process.bTagSFEventWeight.clone(sysVar = "misTagSFDown")
+
+
+## ---
+##    MC eff SF reweighting
+## ---
+## scale factor for trigger and lepton selection efficiency
+process.load("TopAnalysis.TopUtils.EffSFMuonEventWeight_cfi")
+process.effSFMuonEventWeight.particles             = "tightMuons"
+process.effSFMuonEventWeight.sysVar                = ""
+process.effSFMuonEventWeight.filename              = "TopAnalysis/Configuration/data/efficiencyIsoMu17Combined_tapTrigger_SF_Eta.root"
+process.effSFMuonEventWeight.verbose               = 0
+process.effSFMuonEventWeight.additionalFactor      = 0.9990 ## lepton selection eff. SF
+process.effSFMuonEventWeight.additionalFactorErr   = 0.03 ## 3% sys error to account for selection difference Z - ttbar
+process.effSFMuonEventWeight.meanTriggerEffSF      = 0.9905
+process.effSFMuonEventWeight.shapeDistortionFactor = 0.5
+
+
 
 # register TFileService
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('analyzeTop.root')
 )
-
-from HLTrigger.HLTfilters.hltHighLevel_cfi import *
-process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", HLTPaths = ["HLT_Mu15_v*"], throw=True)
-
-process.leadingJetSelection.src = 'tightLeadingPFJets'
-process.bottomJetSelection.src  = 'tightBottomPFJets'
 
 ## end path   
 process.path = cms.Path(#process.patDefaultSequence *
@@ -122,6 +252,12 @@ process.path = cms.Path(#process.patDefaultSequence *
                         process.semiLeptonicSelection *
                         process.semiLeptonicEvents *
                         process.eventWeightPU *
+                        process.bTagSFEventWeight *
+                        process.bTagSFEventWeightBTagSFUp *
+                        process.bTagSFEventWeightBTagSFDown *
+                        process.bTagSFEventWeightMisTagSFUp *
+                        process.bTagSFEventWeightMisTagSFDown *
+                        process.effSFMuonEventWeight *
                         process.makeGenEvt *
                         process.makeTtSemiLepEvent *
                         process.analyzeHypotheses
@@ -138,14 +274,16 @@ process.path.remove(process.unconvTightElectronsEJ)
 process.path.remove(process.goodElectronsEJ)
 process.path.remove(process.looseElectronsEJ)
 process.path.remove(process.tightElectronsEJ)
-                        
+
 from TopAnalysis.TopUtils.usePatTupleWithParticleFlow_cff import prependPF2PATSequence
 prependPF2PATSequence(process, options = {'runOnOLDcfg': True,
                                           'runOnMC': True,
                                           'runOnAOD': True,
                                           'electronIDs': '',
                                           'switchOffEmbedding': False,
-                                          'skipIfNoPFMuon': True})
+                                          'skipIfNoPFMuon': True,
+                                          'METCorrectionLevel': 2,
+                                          })
 
 ## adaptions (re-aranging of modules) to speed up processing
 pathnames = process.paths_().keys()

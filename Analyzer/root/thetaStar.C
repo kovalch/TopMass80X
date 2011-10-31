@@ -36,33 +36,26 @@ namespace cb {
 // 7 parameters: [0] -> [6]
 double crystalBall(const double* x, const double* p)
 {
-  double M     = p[0];
+  double N     = p[0];
   double mu    = p[1];
   double sigma = p[2];
   double alpha = p[3];
   double power = p[4];
   double t = (x[0] - mu) / sigma;
   
-  double N1 = -sqrt(TMath::PiOver2()) * sigma * (TMath::Erf(-alpha/sqrt(2)) - TMath::Erf(mu/(sqrt(2)*sigma)));
-  double N2 = cb::A(alpha,power) / (-1.+power) * (
-                (-cb::B(alpha,power)*sigma+mu-10000) * TMath::Power(cb::B(alpha,power)+(-mu+10000)/sigma, -power)
-               -(-cb::B(alpha,power)*sigma-sigma*alpha) * TMath::Power(cb::B(alpha,power)+(sigma*alpha)/sigma, -power)
-              );
-  double N = N1 + N2;
-  
   if(t < alpha)
-    return M * 1./N * TMath::Exp(-t*t/2);
+    return N * TMath::Exp(-t*t/2);
   else
-    return M * 1./N * cb::A(alpha,power) * TMath::Power(cb::B(alpha,power) + t, -power);
+    return N * cb::A(alpha,power) * TMath::Power(cb::B(alpha,power) + t, -power);
 }
 
-void observableByMT()
+void thetaStar()
 {
   setTDRStyle();
   gStyle->SetOptFit(0); 
     
   TCanvas* cObservable = new TCanvas("cObservable", "cObservable", 600, 600);
-  
+  //cObservable->SetLogy(1);  
   cObservable->cd();
   
   TF1* linearFit = new TF1("linearFit", "[0]+(x-172.5)*[1]");
@@ -74,7 +67,7 @@ void observableByMT()
   TH1F* h1785 = FindParameters("/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1785_1.00_1.00/analyzeTop.root", 2);
   
   h1665->Draw();
-  h1665->GetXaxis()->SetRangeUser(100, 250);
+  //h1665->GetXaxis()->SetRangeUser(100, 250);
   h1725->Draw("SAME");
   h1785->Draw("SAME");
   
@@ -129,70 +122,27 @@ TH1F* FindParameters(TString filename, int i)
   TFile* file = new TFile(filename);
   analyzeHitFit->cd();
   
-  TF1* fit;
-  
-  switch(target) {
-    case   1: {
-      fit = new TF1("fit", "[0]*TMath::Voigt(x-[1], [2], [3])");
-      fit->SetLineColor(kBlack);
-      fit->SetLineWidth(2);
-      fit->SetParameters(100000, 170, 10, 2);
-      
-      fit->SetParLimits(0, 1, 1000000);
-      fit->SetParLimits(1, 150, 200);
-      fit->SetParLimits(2, 5, 20);
-      fit->SetParLimits(3, 2, 2);
-      
-      break;
-    }
-    case   0: {
-      fit = new TF1("fit", crystalBall, 0, 1000, 5);
-      fit->SetLineColor(kBlack);
-      fit->SetLineWidth(2);
-      
-      fit->SetParNames("N", "#mu", "#sigma", "#alpha", "power");
-      fit->SetParameters(1, 170, 25, 0.45, 15);
-      
-      fit->SetParLimits(0, 0, 1000000);
-      fit->SetParLimits(1, 150, 200);
-      fit->SetParLimits(2, 15, 30);
-      fit->SetParLimits(3, 0.05, 0.95);
-      fit->SetParLimits(4, 15, 15);
-      
-      break;
-    }
-    case -10: {
-      fit = new TF1("fit", crystalBall, 0, 1000, 5);
-      fit->SetLineColor(kBlack);
-      fit->SetLineWidth(2);
-      
-      fit->SetParNames("N", "#mu", "#sigma", "#alpha", "power");
-      fit->SetParameters(1, 170, 25, 0.45, 5);
-      
-      fit->SetParLimits(0, 0, 1000000);
-      fit->SetParLimits(1, 150, 200);
-      fit->SetParLimits(2, 15, 30);
-      fit->SetParLimits(3, 0.05, 0.95);
-      fit->SetParLimits(4, 5, 5);
-      
-      break;
-    }
-  }
-
+  TF1* fit = new TF1("fit", "landau");
+  fit->SetLineColor(kRed+4-2*i);
+  fit->SetLineWidth(2);
   
   TH1F* hSig;
   
-  TString sCutAndWeight("(bProbSSV*hitFitProb)*(target=="); sCutAndWeight += target; sCutAndWeight += " & (bProbSSV*hitFitProb) > 0.05 & sumBPt > 50)";
+  TString sCutAndWeight("(bProbSSV*hitFitProb)*(target=="); sCutAndWeight += target; sCutAndWeight += " & (bProbSSV * hitFitProb) > 0.05)";
   //sCutAndWeight = "target==1";
   
   // Get observable
-  eventTree->Draw("hadTopMass >> hSig(80, 100, 500)", sCutAndWeight);
+  //eventTree->Draw("cos( asin( sqrt( pow(sin(deltaThetaHadWHadB),2)*pow(172.5,2) / pow(1/2*(pow(172.5,2)-pow(80.4,2))/(hadWE-sqrt(pow(hadWE,2) - pow(80.4,2))) - (hadWE-(hadWE-sqrt(pow(hadWE,2) - pow(80.4,2)))*cos(deltaThetaHadWHadB))*cos(deltaThetaHadWHadB),2) + 1/pow(((hadWE-(hadWE-sqrt(pow(hadWE,2) - pow(80.4,2)))*cos(deltaThetaHadWHadB)))/172.5,2)) ) ) >> hSig(30, 0, 1.2)", sCutAndWeight);
+  //eventTree->Draw("cos( asin( sqrt( pow(sin(deltaThetaHadWHadB),2)*pow(172.5,2) / pow(1/2*(pow(172.5,2)-pow(80.4,2))/(hadWE-sqrt(pow(hadWE,2) - pow(80.4,2))) - (hadWE-sqrt(pow(hadWE,2) - pow(80.4,2))*cos(deltaThetaHadWHadB))*cos(deltaThetaHadWHadB),2) + 1/pow(((hadWE-(sqrt(pow(hadWE,2) - pow(80.4,2)))*cos(deltaThetaHadWHadB)))/172.5,2)) ) ) >> hSig(30, 0, 1.2)", sCutAndWeight);
+  eventTree->Draw("( ( sqrt( pow(sin(deltaThetaHadWHadB),2)*pow(172.5,2) / pow(1/2*(pow(172.5,2)-pow(80.4,2))/(hadWE-sqrt(pow(hadWE,2) - pow(80.4,2))) - (hadWE-sqrt(pow(hadWE,2) - pow(80.4,2))*cos(deltaThetaHadWHadB))*cos(deltaThetaHadWHadB),2) + 1/pow(((hadWE-(sqrt(pow(hadWE,2) - pow(80.4,2)))*cos(deltaThetaHadWHadB)))/172.5,2)) ) ) >> hSig(15, 0, 6)", sCutAndWeight);
   
   TH1F *hSig = (TH1F*)gDirectory->Get("hSig");
   
-  hSig->GetXaxis()->SetTitle("m_{i}");
-  hSig->GetYaxis()->SetTitle("Fraction of entries / 5 GeV");
-  hSig->SetFillColor(kRed-8-i);
+  hSig->GetXaxis()->SetTitle("sin(#theta*)");
+  hSig->GetYaxis()->SetTitle("Fraction of entries / 0.04");
+  hSig->SetLineColor(kRed+4-2*i);
+  hSig->SetLineWidth(2);
+  
   
   hSig->Fit("fit","LEM");
 
@@ -211,6 +161,7 @@ TH1F* FindParameters(TString filename, int i)
   TF1 *fitted = hSig->GetFunction("fit");
 
   fitted->SetParameter(0, fitted->GetParameter(0)/hSig->Integral());
+  
   hSig->Scale(1/hSig->Integral());
   
   return hSig;

@@ -9,7 +9,7 @@
 #include "tdrstyle.C"
 
 int target = 1;
-int obs    = 6; // 0: hadTopMass, 1: hadWRawMass, 2: hadTopPt-lepTopPt
+int obs    = 4; // 0: hadTopMass, 1: hadWRawMass, 2: hadTopPt-lepTopPt
 int test   = 0; // 0: mt,gen, 1: JES, 2: bJES
 
 TString sX0[3];
@@ -77,28 +77,39 @@ double asymGaus(const double* x, const double* p)
     return 1./N * p[0] * TMath::Exp(-t2*t2/2);
 }
 
-void observableByJES()
+void observable()
 {
   setTDRStyle();
   gStyle->SetOptFit(0); 
+  
+  TH1::SetDefaultSumw2();
     
   TCanvas* cObservable = new TCanvas("cObservable", "cObservable", 600, 600);
   
   cObservable->cd();
   
-  TF1* linearFit = new TF1("linearFit", "[0]+(x-1)*[1]");
+  TF1* linearFit;
+  switch(test) {
+    case 0: {
+      linearFit = new TF1("linearFit", "[0]+(x-172.5)*[1]");
+      break;
+    }
+    default: {
+      linearFit = new TF1("linearFit", "[0]+(x-1)*[1]");
+    }
+  }
   linearFit->SetLineWidth(2);
   linearFit->SetLineColor(kRed+1);
   
   switch(obs) {
     case 0: {
       sObservableShort = "m_{t}";
-      sObservable = "hadTopMass >> h1(80, 100, 500)";
+      sObservable = "hadTopMass >> h1(400, 100, 500)";
       break;
     }
     case 1: {
       sObservableShort = "m_{W}";
-      sObservable = "hadWRawMass >> h1(30, 60, 120)";
+      sObservable = "hadWRawMass >> h1(120, 60, 120)";
       break;
     }
     case 2: {
@@ -108,7 +119,7 @@ void observableByJES()
     }
     case 3: {
       sObservableShort = "A_{p_{T}}";
-      sObservable = "(hadTopPt-lepTopPt)/(hadTopPt+lepTopPt) >> h1(100, -1, 1)";
+      sObservable = "(hadTopPt-lepTopPt)/(hadTopPt+lepTopPt) >> h1(1000, -0.2, 0.2)";
       break;
     }
     case 4: {
@@ -118,7 +129,7 @@ void observableByJES()
     }
     case 5: {
       sObservableShort = "S'";
-      sObservable = "-(hadWPt-lepWPt)/(hadBPt-lepBPt) >> h1(40, -3, 5)";
+      sObservable = "-(hadWPt-lepWPt)/(hadBPt-lepBPt) >> h1(800, -3, 5)";
       break;
     }
     case 6: {
@@ -134,15 +145,15 @@ void observableByJES()
   
   switch(test) {
     case 0: {
-      h0 = FindParameters("/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1665_1.00_1.00/analyzeTop.root", 0);
-      h1 = FindParameters("/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_1.00_1.00/analyzeTop.root", 1);
-      h2 = FindParameters("/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1785_1.00_1.00/analyzeTop.root", 2);
+      h0 = FindParameters("/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1665_1.00_1.00_2b/analyzeTop.root", 0);
+      h1 = FindParameters("/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_1.00_1.00_2b/analyzeTop.root", 1);
+      h2 = FindParameters("/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1785_1.00_1.00_2b/analyzeTop.root", 2);
       break;
     }
     case 1: {
-      h0 = FindParameters("/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_0.96_1.00/analyzeTop.root", 0);
-      h1 = FindParameters("/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_1.00_1.00/analyzeTop.root", 1);
-      h2 = FindParameters("/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_1.04_1.00/analyzeTop.root", 2);
+      h0 = FindParameters("/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_0.96_1.00_2b/analyzeTop.root", 0);
+      h1 = FindParameters("/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_1.00_1.00_2b/analyzeTop.root", 1);
+      h2 = FindParameters("/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_1.04_1.00_2b/analyzeTop.root", 2);
       break;
     }
     case 2: {
@@ -164,9 +175,9 @@ void observableByJES()
       break;
     }
     default: {
-      sX0[0] = " +4%";
+      sX0[0] = " -4%";
       sX0[1] = "";
-      sX0[2] = " -4%";
+      sX0[2] = " +4%";
       
       x0[0] = 0.96;
       x0[1] = 1.00;
@@ -246,22 +257,23 @@ void observableByJES()
   gr = new TGraphErrors(3,x0,y3,ex,ey3);
   gr->SetTitle("p3");
   gr->Draw("A*");
-  gr->Fit("linearFit", "M");
+  gr->Fit("linearFit", "EM");
   
   gr->GetXaxis()->SetTitle(sTest);
   if (obs == 0) gr->GetYaxis()->SetTitle("#alpha");
   if (obs == 1) gr->GetYaxis()->SetTitle("#sigma2");
+	gr->GetYaxis()->SetTitle("#alpha");
   
-  if (target!=1 || obs==2) {
+  //if (target!=1 || obs==2) {
     cObservablePar->cd(4);
     gr = new TGraphErrors(3,x0,y4,ex,ey4);
     gr->SetTitle("p4");
     gr->Draw("A*");
-    gr->Fit("linearFit", "M");
+    gr->Fit("linearFit", "EM");
     
   gr->GetXaxis()->SetTitle(sTest);
     gr->GetYaxis()->SetTitle("power");
-  }
+  //}
 }
 
 TH1F* FindParameters(TString filename, int i)
@@ -297,7 +309,7 @@ TH1F* FindParameters(TString filename, int i)
         
         fit->SetParLimits(0, 0, 1000000);
         fit->SetParLimits(1, 150, 200);
-        fit->SetParLimits(2, 15, 30);
+        fit->SetParLimits(2, 15, 50);
         fit->SetParLimits(3, 0.05, 0.95);
         fit->SetParLimits(4, 15, 15);
         
@@ -384,13 +396,13 @@ TH1F* FindParameters(TString filename, int i)
     fit->SetLineWidth(2);
     
     fit->SetParNames("N", "#mu", "#sigma", "#alpha", "power");
-    fit->SetParameters(1, 0, 1, 0.45, 3);
+    fit->SetParameters(1, 0, 1, 2, 3);
     
     fit->SetParLimits(0, 0, 1000000);
     fit->SetParLimits(1, 0.5, 2);
     fit->SetParLimits(2, 0.2, 2);
-    fit->SetParLimits(3, 0.05, 10);
-    fit->SetParLimits(4, 3, 3);
+    fit->SetParLimits(3, 2, 2);
+    fit->SetParLimits(4, 0, 20);
   }
   
   else if (obs == 5) {
@@ -398,30 +410,35 @@ TH1F* FindParameters(TString filename, int i)
 
     fit->SetLineColor(kBlack);
     fit->SetLineWidth(2);
-    fit->SetParameters(100000, 0.0, 0.001, 1.35);
+    fit->SetParameters(100000, 0.0, 0.001, 1.55);
     
     fit->SetParLimits(0, 1, 1000000);
     fit->SetParLimits(1, 0, 2);
     fit->SetParLimits(2, 0.001, 0.001);
-    fit->SetParLimits(3, 0, 10);
+    fit->SetParLimits(3, 1., 1.5);
   }
   
   else if (obs == 6) {
-    fit = new TF1("fit", "[0]*TMath::Landau(x, [1], [2])");
+    fit = new TF1("fit", crystalBall, 0, 1000, 5);
     fit->SetLineColor(kBlack);
     fit->SetLineWidth(2);
     
-    fit->SetParameters(1000, 1, 0.3);
+    fit->SetParNames("N", "#mu", "#sigma", "#alpha", "power");
+    fit->SetParameters(1, 0, 1, 0.45, 10);
     
-    fit->SetParLimits(2, 0.3, 0.3);
+    fit->SetParLimits(0, 0, 1000000);
+    fit->SetParLimits(1, 0.5, 2);
+    fit->SetParLimits(2, 0.2, 2);
+    fit->SetParLimits(3, 0.05, 10);
+    fit->SetParLimits(4, 10, 10);
   }
 
   
   TH1F* hSig;
   
 
-  //TString sCutAndWeight("(bProbSSV*hitFitProb)*(target=="); sCutAndWeight += target; sCutAndWeight += " & (bProbSSV*hitFitProb) > 0.05)";
-  TString sCutAndWeight("(bProbSSV*hitFitProb)*(target=="); sCutAndWeight += target; sCutAndWeight += " & (bProbSSV*hitFitProb) > 0.05 & sumBPt > 50)";
+  TString sCutAndWeight("(hitFitProb*MCWeight)*(target=="); sCutAndWeight += target; sCutAndWeight += " & (hitFitProb) > 0.2)";
+  //TString sCutAndWeight("(bProbSSV*hitFitProb*PUWeight)*(target=="); sCutAndWeight += target; sCutAndWeight += " & (bProbSSV*hitFitProb) > 0.05 & sumBPt > 50)";
   
   std::cout << sObservableShort << std::endl;
   std::cout << sObservable << std::endl;
@@ -435,8 +452,12 @@ TH1F* FindParameters(TString filename, int i)
   h1->GetXaxis()->SetTitle(sObservableShort);
   h1->GetYaxis()->SetTitle("Fraction of entries");
   h1->SetFillColor(kRed-4-i);
+  h1->SetLineColor(kRed-4-i);
+  h1->SetMarkerColor(kRed-4-i);
+  h1->SetMarkerStyle(2);
+  //fit->SetLineColor(kRed-4-i);
   
-  h1->Fit("fit","LEM");
+  h1->Fit("fit","WLEM");
 
   y0 [i] = fit->GetParameter(0);
   ey0[i] = fit->GetParError(0);

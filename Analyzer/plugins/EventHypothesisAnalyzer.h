@@ -25,9 +25,20 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   edm::InputTag semiLepEvt_;
   edm::InputTag hypoClassKey_;
   edm::InputTag jets_;
+	edm::InputTag noPtEtaJets_;
   edm::InputTag leps_;
   edm::InputTag VertexSrc_;
   edm::InputTag PUWeightSrc_;
+	edm::InputTag PUWeightUpSrc_;
+	edm::InputTag PUWeightDownSrc_;
+  edm::InputTag bWeightSrc_;
+  edm::InputTag bWeightSrc_bTagSFUp_;
+  edm::InputTag bWeightSrc_bTagSFDown_;
+  edm::InputTag bWeightSrc_misTagSFUp_;
+  edm::InputTag bWeightSrc_misTagSFDown_;
+  edm::InputTag muWeightSrc_;
+  
+  bool savePDFWeights_;
 
   int run;
   int luminosityBlock;
@@ -41,7 +52,8 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double hadQBSSV;
   double hadQJC;
   
-  double hadQRawE;
+  double hadQRawPt;
+  double genHadQPt;
   
   double hadQBarPt;
   double hadQBarEta;
@@ -50,7 +62,7 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double hadQBarBSSV;
   double hadQBarJC;
   
-  double hadQBarRawE;
+  double hadQBarRawPt;
   
   double hadWPt;
   double hadWEta;
@@ -58,6 +70,7 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double hadWE;
   
   double hadWRawMass;
+  double hadWRawPt;
   
   double genHadWPt;
   double genHadWEta;
@@ -71,14 +84,18 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double hadBBSSV;
   double hadBJC;
   
-  double hadBRawE;
+  double hadBRawPt;
   
   double leptonPt;
-  double leptonE;
   double leptonC;
+	double leptonEta;
+  
+  double leptonRawPt;
   
   double neutrinoPt;
   double neutrinoE;
+  
+  double neutrinoRawPt;
   
   double lepWPt;
   double lepWEta;
@@ -107,6 +124,8 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double hadTopE;
   
   double hadTopRawMass;
+  double hadTopRawPt;
+  double hadTopRawEta;
   
   double lepTopPt;
   double lepTopEta;
@@ -136,6 +155,15 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double TTBarPt;
   double TTBarMass;
   
+  int jetMultiplicity;
+  int noPtEtaJetMultiplicity;
+  
+  double noPtEtaJetPt;
+  double leadingJetPt;
+  
+  double nlJetPt;
+  double nlJetEta;
+  
   double genMatchDr;
   double mvaDisc;
   double fitChi2;
@@ -152,6 +180,16 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   
   int nVertex;
   double PUWeight;
+	double PUWeightUp;
+	double PUWeightDown;
+  double bWeight;
+  double bWeight_bTagSFUp;
+  double bWeight_bTagSFDown;
+  double bWeight_misTagSFUp;
+  double bWeight_misTagSFDown;
+  double muWeight;
+  double MCWeight;
+  double pdfWeights[44];
   
   int target;
   

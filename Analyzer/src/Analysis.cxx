@@ -5,14 +5,15 @@ Analysis::Analysis(TString identifier, TString file, TString method, int bins, d
 {
   fChain = new TChain("analyzeHitFit/eventTree");
   fChain->Add(fFile);
-  //fChain->Add("root/WJets.root");
+  //fChain->Add("/scratch/hh/current/cms/user/mseidel/STop.root");
+  //fChain->Add("/scratch/hh/current/cms/user/mseidel/Summer11_WJets_1.00_1.00_2b/analyzeTop.root");
   //fChain->Add("root/VQQJets.root");
 }
 
 void Analysis::Analyze(bool reanalyze) {
 
   if (fAnalyzed && !reanalyze) {
-    std::cout << "Analysis " << fIdentifier << " has already been done, no reanalyze forced" << std::endl;
+    std::cout << "Analysis " << fIdentifier << " has already been done, no reanalyzing forced" << std::endl;
     return;
   }
 
@@ -79,8 +80,15 @@ void Analysis::Analyze(bool reanalyze) {
       else if (!strcmp(fMethod, "Ideogram")) {
         //cuts += " & target == 1";
         //cuts += " & (target == 0 | target == 1)";
-        cuts += " & sumBPt > 50 & TTBarPt < 50";
-        cuts += " & (bProbSSV * hitFitProb) > 0.05";
+        //cuts += " & sumBPt > 50";
+        //cuts += " & TTBarPt < 50";
+        //cuts += " & jetMultiplicity == 4";
+        cuts += " & hitFitProb > 0.2";
+        //cuts += " & bProbSSV > 0.3";
+        //cuts += " & bProbSSV*hitFitProb > 0.05";
+        //cuts += " & hadQBSSV<1.74 & hadQBarBSSV<1.74 & hadBBSSV>1.74 & lepBBSSV>1.74";
+        //cuts += " & run < 168000";
+        //cuts += " & nlJetPt/(hadQPt+hadQBarPt)>0.3";
       }
       
       int entries = fTree->GetEntries(cuts);
@@ -94,6 +102,8 @@ void Analysis::Analyze(bool reanalyze) {
         hMass     ->SetCellContent(i+1, j+1, fAnalyzer->GetMass());
         hMassError->SetCellContent(i+1, j+1, fAnalyzer->GetMassError());
         hMassSigma->SetCellContent(i+1, j+1, fAnalyzer->GetMassSigma());
+        hJES      ->SetCellContent(i+1, j+1, fAnalyzer->GetJES());
+        hJESError ->SetCellContent(i+1, j+1, fAnalyzer->GetJESError());
       }
     }
   }
@@ -133,6 +143,9 @@ void Analysis::CreateHistos() {
   hMassError = helper->GetH2("MassError");
   hMassSigma = helper->GetH2("MassSigma");
   
+  hJES = helper->GetH2("JES");
+  hJESError = helper->GetH2("JESError");
+  
   hMassCalibrated = helper->GetH2("Mass (Calibrated)");
   hMassErrorCalibrated = helper->GetH2("MassError (Calibrated)");
 }
@@ -140,12 +153,23 @@ void Analysis::CreateHistos() {
 void Analysis::CreateRandomSubset() {
   fChain->SetBranchStatus("*",0);
   fChain->SetBranchStatus("target", 1);
+  fChain->SetBranchStatus("run", 1);
   fChain->SetBranchStatus("hadTopMass", 1);
-  fChain->SetBranchStatus("hadTopPt", 1);
+  /*
+	fChain->SetBranchStatus("hadTopPt", 1);
   fChain->SetBranchStatus("lepTopPt", 1);
   fChain->SetBranchStatus("sumBPt", 1);
   fChain->SetBranchStatus("TTBarPt", 1);
+  fChain->SetBranchStatus("hadWPt", 1);
+  fChain->SetBranchStatus("hadWE", 1);
+  fChain->SetBranchStatus("lepWPt", 1);
+  fChain->SetBranchStatus("hadBPt", 1);
+  fChain->SetBranchStatus("lepBPt", 1);
+	*/
   fChain->SetBranchStatus("hadWRawMass", 1);
+  fChain->SetBranchStatus("nlJetPt", 1);
+  fChain->SetBranchStatus("hadQPt", 1);
+  fChain->SetBranchStatus("hadQBarPt", 1);
   fChain->SetBranchStatus("hitFitChi2", 1);
   fChain->SetBranchStatus("hitFitProb", 1);
   fChain->SetBranchStatus("bProbSSV", 1);
@@ -154,10 +178,27 @@ void Analysis::CreateRandomSubset() {
   fChain->SetBranchStatus("deltaThetaHadWHadB", 1);
   fChain->SetBranchStatus("deltaThetaHadQHadQBar", 1);
   fChain->SetBranchStatus("PUWeight", 1);
+  fChain->SetBranchStatus("PUWeightUp", 1);
+  fChain->SetBranchStatus("PUWeightDown", 1);
+  fChain->SetBranchStatus("muWeight", 1);
+  fChain->SetBranchStatus("bWeight", 1);
+  fChain->SetBranchStatus("bWeight_bTagSFUp", 1);
+  fChain->SetBranchStatus("bWeight_bTagSFDown", 1);
+  fChain->SetBranchStatus("bWeight_misTagSFUp", 1);
+  fChain->SetBranchStatus("bWeight_misTagSFDown", 1);
+  fChain->SetBranchStatus("jetMultiplicity", 1);
+  
+  fChain->SetBranchStatus("pdfWeights", 1);
+  
+  fChain->SetBranchStatus("hadQBSSV", 1);
+  fChain->SetBranchStatus("hadQBarBSSV", 1);
+  fChain->SetBranchStatus("hadBBSSV", 1);
+  fChain->SetBranchStatus("lepBBSSV", 1);
 
   if (fLumi>0) {
     TRandom3* random = new TRandom3(0);
-    double events = 208./35.*fLumi;
+    double events = 2942./1140.*fLumi;
+    //double events = 235./36.*fLumi;
     double fullEvents = fChain->GetEntries("combi==0");
 
     fTree = fChain->CloneTree(0);
@@ -198,6 +239,14 @@ TH2F* Analysis::GetH2MassError() {
 
 TH2F* Analysis::GetH2MassSigma() {
   return hMassSigma;
+}
+
+TH2F* Analysis::GetH2JES() {
+  return hJES;
+}
+
+TH2F* Analysis::GetH2JESError() {
+  return hJESError;
 }
 
 TH2F* Analysis::GetH2MassCalibrated() {

@@ -2,13 +2,13 @@
 
 double IdeogramCombLikelihood::Evaluate(double *x, double *p) {
   bool onlyCP   = false;
-  bool Spring11 = true;
-  bool useCalib = true;
+  bool Spring11 = false;
+  bool useCalib = false;
   
   //* worst case, improvable by f(w_i)
-  double fCP = 0.390;
-  double fWP = 0.235;
-  double fUN = 0.375;
+  double fCP = 0.441627218;
+  double fWP = 0.216458497;
+  double fUN = 0.341913779;
   //*/
   
   if (onlyCP) {
@@ -16,24 +16,12 @@ double IdeogramCombLikelihood::Evaluate(double *x, double *p) {
     fUN = 0;
   }
   
-  //fUN = 0;
-  
-  double Spring11MassOffset = 0;
-  double Spring11MassSlope  = 0.4/6.;
-  double Spring11JESOffset  = 0.0;
-  double Spring11JESSlope   = 0.0/0.04;
-  
-  double Summer11MassOffset = 1.5;
-  double Summer11JESOffset  = 0.022;
-  
-  if (Spring11) {
-    Summer11MassOffset = 0;
-    Summer11JESOffset  = 0;
-  }
+  double MassOffset    = -0.1438;
+  double MassSlope     = 0.016;
   
   if (useCalib) {
-    x[0] = x[0] - Spring11MassOffset - Spring11MassSlope * (x[0]-172.5) - Summer11MassOffset;
-    x[1] = x[1] - Spring11JESOffset  - Spring11JESSlope  * (x[1]-1.)    - Summer11JESOffset;
+    x[1] = x[1];
+    x[0] = x[0] + MassOffset + MassSlope * (x[0]-172.5);
   }
   
   //return p[0] * (fCP * PCP(x, p) + fWP * PWP(x, p) + fUN * PUN(x, p));
@@ -42,10 +30,19 @@ double IdeogramCombLikelihood::Evaluate(double *x, double *p) {
 
 
 double IdeogramCombLikelihood::PCP(double *x, double *p) {
-  double mu       = 1.72119e+02 + 9.36446e-01 * (x[0]-172.5) + 7.91540e+01 * (x[1]-1.);
-  double sigma    = 1.00849e+01 + 8.67187e-02 * (x[0]-172.5) + 1.00582e+01 * (x[1]-1.);
+  //* hadTopMass
+  double mu       = 1.70405e+02 + 9.92056e-01 * (x[0]-172.5) + (7.49913e+01 + 6.49044e-01 * (x[0]-172.5)) * (x[1]-1.);
+  double sigma    = 9.33475e+00 + 7.75056e-02 * (x[0]-172.5) + (8.32606e+00 + 8.20724e-02 * (x[0]-172.5)) * (x[1]-1.);
   
   return TMath::Voigt(p[1] - mu, sigma, 2);
+  //*/
+  
+  /* sin(theta*)
+  double mu       = 1.13011e+00 - 1.15254e-02 * (x[0]-172.5) - 5.50104e-01 * (x[1]-1.);
+  double sigma    = 0.3;
+  
+  return TMath::Landau(p[1], mu, sigma, true);
+  //*/
 }
 
 
@@ -62,9 +59,9 @@ namespace cb {
 double IdeogramCombLikelihood::PWP(double* x, double* p)
 {
   double N      =  1./0.01;
-  double mu     =  1.68182e+02 + 9.81981e-01 * (x[0]-172.5) + 1.10020e+02 * (x[1]-1.);
-  double sigma  =  2.41622e+01 + 4.69440e-01 * (x[0]-172.5) + 3.54726e+01 * (x[1]-1.);
-  double alpha  =  4.34182e-01 + 4.35156e-03 * (x[0]-172.5) + 4.09760e-01 * (x[1]-1.);
+  double mu     =  1.73308e+02 + 7.49383e-01 * (x[0]-172.5) + (8.54287e+01 + 7.46879e-01 * (x[0]-172.5)) * (x[1]-1.);
+  double sigma  =  2.83223e+01 + 2.90576e-01 * (x[0]-172.5) + (2.45982e+01 + 3.59995e-01 * (x[0]-172.5)) * (x[1]-1.);
+  double alpha  =  4.73189e-01 + 2.59135e-03 * (x[0]-172.5) + (2.35905e-01 + 4.44735e-03 * (x[0]-172.5)) * (x[1]-1.);
   double power  =  15;
   double t = (p[1] - mu) / sigma;
   
@@ -89,9 +86,9 @@ double IdeogramCombLikelihood::PUN(double* x, double* p)
   double xx     = x[0];
   
   double N      =  1./0.01;
-  double mu     =  1.68631e+02 + 7.65029e-01 * (x[0]-172.5) + 7.77693e+01 * (x[1]-1.);
-  double sigma  =  2.18236e+01 + 2.38588e-01 * (x[0]-172.5) + 2.76385e+01 * (x[1]-1.);
-  double alpha  =  7.09159e-01 + 7.24736e-03 * (x[0]-172.5) + 3.67483e-01 * (x[1]-1.);
+  double mu     =  1.67963e+02 + 8.88558e-01 * (x[0]-172.5) + (6.99475e+01 + 5.12963e-01 * (x[0]-172.5)) * (x[1]-1.);
+  double sigma  =  1.94761e+01 + 2.12050e-01 * (x[0]-172.5) + (1.28031e+01 + 2.11590e-01 * (x[0]-172.5)) * (x[1]-1.);
+  double alpha  =  7.07848e-01 + 6.83509e-03 * (x[0]-172.5) + (2.39630e-01 + -1.83753e-02 * (x[0]-172.5)) * (x[1]-1.);
   double power  =  5;
   double t = (p[1] - mu) / sigma;
   
@@ -112,12 +109,12 @@ double IdeogramCombLikelihood::PUN(double* x, double* p)
 
 double IdeogramCombLikelihood::PCPJES(double* x, double* p)
 {
-  /* W Mass
+  //* W Mass
   double N      =  1;
   
-  double mu     =  8.25053e+01 + 4.63537e+01 * (x[1]-1.);
-  double sigma1 =  5.65204e+00 + 1.15149e+01 * (x[1]-1.);
-  double sigma2 =  7.21349e+00 - 2.84521e+00 * (x[1]-1.);
+  double mu     =  8.19330e+01 + 1.32156e-02 * (x[0]-172.5) + (4.98160e+01 + -5.74705e-02 * (x[0]-172.5)) * (x[1]-1.);
+  double sigma1 =  5.25837e+00 + 4.22011e-03 * (x[0]-172.5) + (1.39652e+01 + 2.21730e-02 * (x[0]-172.5)) * (x[1]-1.);
+  double sigma2 =  6.89876e+00 + -4.83107e-03 * (x[0]-172.5) + (-6.31495e+00 + 5.16539e-02 * (x[0]-172.5)) * (x[1]-1.);
     
   double t1     =  (p[2] - mu) / sigma1;
   double t2     =  (p[2] - mu) / sigma2;
@@ -133,7 +130,7 @@ double IdeogramCombLikelihood::PCPJES(double* x, double* p)
     return 1./N * TMath::Exp(-t2*t2/2);
   //*/
   
-  //* pt balance
+  /* pt balance
   double mu       = 1.36597e-02 - 1.00417e-01 * (x[1]-1.);
   double sigma    = 4.41279e-02 + 3.22201e-02 * (x[1]-1.);
   double width    = 6.67793e-02 - 4.12224e-02 * (x[1]-1.);
@@ -144,16 +141,24 @@ double IdeogramCombLikelihood::PCPJES(double* x, double* p)
 	/* Constraint
 	return TMath::Gaus(x[1], 1, 0.1, kTRUE);
 	//*/
+	
+	/* b scale estimator
+  double mu       = 1.23115e+00 - 4.21823e-03 * (x[0]-172.5) + (-1.48697e+00 - 4.92782e-03 * (x[0]-172.5)) * (x[1]-1.);
+  double sigma    = 0.001;
+  double width    = 1.29952e+00 + 1.10928e-02 * (x[0]-172.5) + (-1.14917e+00 - 3.74889e-02 * (x[0]-172.5)) * (x[1]-1.);
+  
+  return TMath::Voigt(p[3] - mu, sigma, width);
+  //*/
 }
 
 double IdeogramCombLikelihood::PWPJES(double* x, double* p)
 {
-  /* W Mass
+  //* W Mass
   double N      =  1;
   
-  double mu     =  8.24119e+01 + 3.67810e+01 * (x[1]-1.);
-  double sigma1 =  5.55929e+00 + 7.91431e+00 * (x[1]-1.);
-  double sigma2 =  7.49184e+00 - 5.54074e+00 * (x[1]-1.);
+  double mu     =  8.19273e+01 + 1.85945e-02 * (x[0]-172.5) + (5.00479e+01 + 2.54104e-02 * (x[0]-172.5)) * (x[1]-1.);
+  double sigma1 =  5.27086e+00 + 4.13471e-03 * (x[0]-172.5) + (1.49531e+01 + -3.77382e-03 * (x[0]-172.5)) * (x[1]-1.);
+  double sigma2 =  7.00045e+00 + -1.26969e-02 * (x[0]-172.5) + (-9.94848e+00 + 9.85874e-03 * (x[0]-172.5)) * (x[1]-1.);
     
   double t1     =  (p[2] - mu) / sigma1;
   double t2     =  (p[2] - mu) / sigma2;
@@ -169,10 +174,18 @@ double IdeogramCombLikelihood::PWPJES(double* x, double* p)
     return 1./N * TMath::Exp(-t2*t2/2);
   //*/
   
-  //* pt balance
+  /* pt balance
   double mu       = 1.94840e-02 - 5.30632e-02 * (x[1]-1.);
   double sigma    = 5.86415e-02 + 2.58850e-02 * (x[1]-1.);
   double width    = 1.22249e-01 - 1.36272e-01 * (x[1]-1.);
+  
+  return TMath::Voigt(p[3] - mu, sigma, width);
+  //*/
+  
+  /* b scale estimator
+  double mu       = 7.18283e-02 + 1.68825e-01 * (x[1]-1.);
+  double sigma    = 9.92390e-01 - 8.84443e-01 * (x[1]-1.);
+  double width    = 2.15202e+00 - 2.33270e+00 * (x[1]-1.);
   
   return TMath::Voigt(p[3] - mu, sigma, width);
   //*/
@@ -180,12 +193,12 @@ double IdeogramCombLikelihood::PWPJES(double* x, double* p)
 
 double IdeogramCombLikelihood::PUNJES(double* x, double* p)
 {
-  /* W Mass
+  //* W Mass
   double N      =  1;
   
-  double mu     =  8.20562e+01 + 2.18725e+01 * (x[1]-1.);
-  double sigma1 =  5.72921e+00 + 7.09411e+00 * (x[1]-1.);
-  double sigma2 =  8.34403e+00 - 6.50901e+00 * (x[1]-1.);
+  double mu     =  8.16296e+01 + -4.31147e-03 * (x[0]-172.5) + (3.06442e+01 + -2.97603e-01 * (x[0]-172.5)) * (x[1]-1.);
+  double sigma1 =  5.64817e+00 + -2.59493e-03 * (x[0]-172.5) + (1.18064e+01 + -1.32256e-01 * (x[0]-172.5)) * (x[1]-1.);
+  double sigma2 =  8.38621e+00 + 9.86496e-03 * (x[0]-172.5) + (-9.85783e+00 + 1.69717e-01 * (x[0]-172.5)) * (x[1]-1.);
     
   double t1     =  (p[2] - mu) / sigma1;
   double t2     =  (p[2] - mu) / sigma2;
@@ -201,10 +214,18 @@ double IdeogramCombLikelihood::PUNJES(double* x, double* p)
     return 1./N * TMath::Exp(-t2*t2/2);
   //*/
   
-  //* pt balance
+  /* pt balance
   double mu       = 9.99882e-03 + 2.33525e-02 * (x[1]-1.);
   double sigma    = 5.51757e-02 - 2.62315e-02 * (x[1]-1.);
   double width    = 1.35272e-01 - 3.44117e-03 * (x[1]-1.);
+  
+  return TMath::Voigt(p[3] - mu, sigma, width);
+  //*/
+  
+  /* b scale estimator
+  double mu       = 9.45273e-01 - 1.07859e+00 * (x[1]-1.) - 0.2;
+  double sigma    = 0.001;
+  double width    = 2.14746e+00 - 2.29404e+00 * (x[1]-1.);
   
   return TMath::Voigt(p[3] - mu, sigma, width);
   //*/

@@ -9,6 +9,7 @@
 #include "TCanvas.h"
 #include "TMath.h"
 #include "TStyle.h"
+#include "TLegend.h"
 
 class IdeogramAnalyzer : public MassAnalyzer {
   private:

@@ -12,6 +12,8 @@ class MassAnalyzer {
     double fMass;
     double fMassError;
     double fMassSigma;
+    double fJES;
+    double fJESError;
   
   public:
     MassAnalyzer(TString identifier, TTree* tree) : fIdentifier(identifier), fTree(tree) {};
@@ -23,6 +25,8 @@ class MassAnalyzer {
     double GetMass();
     double GetMassError();
     double GetMassSigma();
+    double GetJES();
+    double GetJESError();
 };
 
 #endif

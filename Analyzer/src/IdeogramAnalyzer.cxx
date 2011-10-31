@@ -16,9 +16,9 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   // S e t u p   c o m p o n e n t   p d f s 
   // ---------------------------------------
 
-  double firstBinMass = 165;
-  double lastBinMass  = 180;
-  double resolMass    = 0.25;
+  double firstBinMass = 154;
+  double lastBinMass  = 190;
+  double resolMass    = 1.;
   int binsMass     = (lastBinMass-firstBinMass)/resolMass;
   
   double firstBinJes = 0.9;
@@ -26,18 +26,18 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   double resolJes    = 0.005;
   int binsJes        = (lastBinJes-firstBinJes)/resolJes;
   
-  double pullWidth   = 0.715;
+  double pullWidth   = 1.37068*1.07696;//1.24956e+00; //0.715;
   //gStyle->SetOptFit(0);
   
   //*
   if (debug) {
     firstBinMass = 100;
     lastBinMass  = 350;
-    binsMass     = 500;
+    binsMass     = 250;
     
-    firstBinJes = 0.5;
-    lastBinJes  = 1.5;
-    binsJes     = 100;
+    firstBinJes = 0.7;
+    lastBinJes  = 1.3;
+    binsJes     = 60;
   }
   //*/
   
@@ -46,7 +46,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   //TF1* combBackground = new TF1("combBackground",fptr,&IdeogramCombLikelihood::CrystalBall,150,200,1);
 
   TF2* fitParabola = new TF2("fitParabola", "abs([1])*((x-[0])*cos([4])-(y-[2])*sin([4]))^2 + abs([3])*((x-[0])*sin([4])+(y-[2])*cos([4]))^2");
-  //TF2* fitParabola = new TF2("fitParabola", "abs([1])*(x-[0])^2 + abs([3])*(y-[2])^2 + [4]*(x-[0])*(y-[2])");
+  TF2* systParabola = new TF2("systParabola", "abs([1])*((x-[0])*cos([4])-(y-[2])*sin([4]))^2 + abs([3])*((x-[0])*sin([4])+(y-[2])*cos([4]))^2");
   fitParabola->SetNpx(300);
   fitParabola->SetNpy(300);
   fitParabola->SetParNames("mass", "massCurv", "jes", "jesCurv", "alpha");
@@ -57,7 +57,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   fitParabola->SetParLimits(4, 0, 6.3);
   fitParabola->SetParameter(4, 1.5);
   fitParabola->SetLineColor(kWhite);
-  fitParabola->SetLineWidth(2.5);
+  fitParabola->SetLineWidth(3);
 
   TF2* null = new TF2("null", "0 + 0*x + 0*y");
   TF2* unity = new TF2("unity", "1 + 0*x + 0*y");
@@ -77,10 +77,12 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   logEventLikelihood->SetYTitle("JES");
   sumLogLikelihood->SetTitle("-2#upointln{L(m_{t}|sample)}");
   sumLogLikelihood->SetXTitle("m_{t}");
-  sumLogLikelihood->SetYTitle("bJES");
+  sumLogLikelihood->SetYTitle("JES");
 
-  double hadTopMass, hadTopPt, lepTopPt, hadWRawMass, topPtAsymmetry;
-  double hitFitChi2, hitFitProb, PUWeight, bProbSSV, weight, currentWeight;
+  double hadTopMass, hadTopPt, lepTopPt, hadWPt, lepWPt, hadBPt, lepBPt, hadWRawMass, topPtAsymmetry, bScaleEstimator;
+  double hadWE, deltaThetaHadWHadB, sinThetaStar;
+  double hitFitChi2, hitFitProb, MCWeight, PUWeight, muWeight, bWeight, bWeight_bTagSFUp, bWeight_bTagSFDown, bWeight_misTagSFUp, bWeight_misTagSFDown, weight, currentWeight;
+  double pdfWeights[44];
   int event, currentEvent;
   int combi;
   int nEvents = 0;
@@ -88,15 +90,20 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   TTree* eventTree = fTree->CopyTree(cuts);
   
   eventTree->SetBranchAddress("hadTopMass", &hadTopMass);
-  eventTree->SetBranchAddress("hadTopPt", &hadTopPt);
-  eventTree->SetBranchAddress("lepTopPt", &lepTopPt);
   eventTree->SetBranchAddress("hadWRawMass", &hadWRawMass);
+  eventTree->SetBranchAddress("deltaThetaHadWHadB", &deltaThetaHadWHadB);
   eventTree->SetBranchAddress("hitFitChi2", &hitFitChi2);
   eventTree->SetBranchAddress("hitFitProb", &hitFitProb);
-  eventTree->SetBranchAddress("bProbSSV", &bProbSSV);
   eventTree->SetBranchAddress("event", &event);
   eventTree->SetBranchAddress("combi", &combi);
   eventTree->SetBranchAddress("PUWeight", &PUWeight);
+  eventTree->SetBranchAddress("muWeight", &muWeight);
+  eventTree->SetBranchAddress("bWeight", &bWeight);
+  eventTree->SetBranchAddress("bWeight_bTagSFUp", &bWeight_bTagSFUp);
+  eventTree->SetBranchAddress("bWeight_bTagSFDown", &bWeight_bTagSFDown);
+  eventTree->SetBranchAddress("bWeight_misTagSFUp", &bWeight_misTagSFUp);
+  eventTree->SetBranchAddress("bWeight_misTagSFDown", &bWeight_misTagSFDown);
+  eventTree->SetBranchAddress("pdfWeights", &pdfWeights);
   
   // Build Likelihood
   for (int iEntry = 0; iEntry < eventTree->GetEntries(); iEntry++) {
@@ -129,11 +136,9 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
       
       if (event != currentEvent) break;
       
-      //if (bProb * fitProb < 1e-3) continue;
-      if (PUWeight < 0) PUWeight = 1;
-      //std::cout << PUWeight << std::endl;
-      currentWeight = bProbSSV * hitFitProb;// * PUWeight;
-      //if (currentWeight > weight) weight = currentWeight;
+      MCWeight = (PUWeight != -100.) ? PUWeight * muWeight * bWeight : 1;
+      //std::cout << MCWeight << std::endl;
+      currentWeight = hitFitProb * MCWeight;
       weight += currentWeight;
       
       if (debug && iEntry%nDebug == 0 && iEntry < maxDebug) {
@@ -141,15 +146,21 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
                   << std::setw(10) << hadTopMass
                   << std::setw(10) << hadWRawMass
                   << std::setw(12) << hitFitProb
-                  << std::setw(11) << bProbSSV
                   << std::setw(11) << currentWeight
                   << std::endl;
       }
       
       if (currentWeight != 0) {
-        topPtAsymmetry = (hadTopPt-lepTopPt)/(hadTopPt+lepTopPt);
+        /*
+        topPtAsymmetry  = (hadTopPt-lepTopPt)/(hadTopPt+lepTopPt);
+        bScaleEstimator = -(hadWPt-lepWPt)/(hadBPt-lepBPt);
+        sinThetaStar    = sqrt( pow(sin(deltaThetaHadWHadB),2)*pow(172.5,2) / pow(1/2*(pow(172.5,2)-pow(80.4,2))/(hadWE-sqrt(pow(hadWE,2) - pow(80.4,2))) - (hadWE-sqrt(pow(hadWE,2) - pow(80.4,2))*cos(deltaThetaHadWHadB))*cos(deltaThetaHadWHadB),2) + 1/pow(((hadWE-(sqrt(pow(hadWE,2) - pow(80.4,2)))*cos(deltaThetaHadWHadB)))/172.5,2));
+        //std::cout << sinThetaStar << std::endl;
+        */
+        bScaleEstimator = 1;
         
-        combLikelihood->SetParameters(currentWeight, hadTopMass, hadWRawMass, topPtAsymmetry);
+        // Set Likelihood parameters
+        combLikelihood->SetParameters(currentWeight, hadTopMass, hadWRawMass, bScaleEstimator);
         
         // add permutation to event likelihood
         eventLikelihood->Eval(combLikelihood, "A");
@@ -232,7 +243,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   std::cout << "Minimum likelihood: " << sumLogLikelihood->GetMinimum(0) << "\tMaximum likelihood (in range): " << sumLogLikelihood->GetMaximum() << std::endl;
   std::cout << "Total number of events: " << nEvents << std::endl;
   
-  fitParabola->SetParLimits(0, minMass-1, minMass+1);
+  fitParabola->SetParLimits(0, minMass-2*resolMass, minMass+2*resolMass);
   fitParabola->SetParameter(0, minMass);
   fitParabola->SetParameter(2, minJes);
   fitParabola->SetParameter(3, 1000000);
@@ -243,15 +254,18 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
 
   sumLogLikelihood->Fit("fitParabola","WEMR0");
   
-  double contours[3] = {1, 4, 9};
-  //double contours[7] = {1, 4, 9, 25, 49, 81, 121};
-  fitParabola->SetContour(3, contours);
-  fitParabola->Draw("cont3 same");
+  double semiMajor, semiMinor, alpha;
   
   if (firstBinMass+1 < fitParabola->GetParameter(0) && fitParabola->GetParameter(0) < lastBinMass-1) {
     fMass = fitParabola->GetParameter(0);
+    fJES  = fitParabola->GetParameter(2);
     if (TMath::Sqrt(1/fitParabola->GetParameter(1)) < 2*TMath::Sqrt(fMass)) {
-      fMassError = TMath::Sqrt(1/fitParabola->GetParameter(1));
+      semiMajor = TMath::Sqrt(1/fitParabola->GetParameter(1));
+      semiMinor = TMath::Sqrt(1/fitParabola->GetParameter(3));
+      alpha     = fitParabola->GetParameter(4);
+      
+      fMassError = sqrt(pow(semiMajor * cos(alpha), 2) + pow(semiMinor * sin(alpha), 2));
+      fJESError  = sqrt(pow(semiMajor * sin(alpha), 2) + pow(semiMinor * cos(alpha), 2));
     }
     else fMassError = -1;
   }
@@ -260,6 +274,60 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
     fMassError = -1;
   }
   fMassSigma = -1;
+  
+  // Fit again with previous result as range
+  //fitParabola->SetRange(fMass - 4*fMassError, fJES - 4*fJESError, minMass + 4*fMassError, fJES + 4*fJESError);
+	fitParabola->SetRange(fMass - 8*fMassError, fJES - 8*fJESError, minMass + 8*fMassError, fJES + 8*fJESError);
+
+  sumLogLikelihood->Fit("fitParabola","WEMR0");
+  
+  double contours[3] = {1, 4, 9};
+  fitParabola->SetContour(3, contours);
+  fitParabola->Draw("cont3 same");
+  
+  if (firstBinMass+1 < fitParabola->GetParameter(0) && fitParabola->GetParameter(0) < lastBinMass-1) {
+    fMass = fitParabola->GetParameter(0);
+    fJES  = fitParabola->GetParameter(2);
+    if (TMath::Sqrt(1/fitParabola->GetParameter(1)) < 2*TMath::Sqrt(fMass)) {
+      semiMajor = TMath::Sqrt(1/fitParabola->GetParameter(1));
+      semiMinor = TMath::Sqrt(1/fitParabola->GetParameter(3));
+      alpha     = fitParabola->GetParameter(4);
+      
+      fMassError = sqrt(pow(semiMajor * cos(alpha), 2) + pow(semiMinor * sin(alpha), 2));
+      fJESError  = sqrt(pow(semiMajor * sin(alpha), 2) + pow(semiMinor * cos(alpha), 2));
+    }
+    else fMassError = -1;
+  }
+  else {
+    fMass = -1;
+    fMassError = -1;
+  }
+  fMassSigma = -1;
+  
+  // stat+syst ellipsis  
+  double mSyst = 1.2;
+  double jSyst = 0.010;
+  
+  double sm2 = fMassError*fMassError + mSyst*mSyst;
+  double sj2 = fJESError*fJESError + jSyst*jSyst;
+  
+  fitParabola->Copy(*systParabola);
+  systParabola->SetRange(fMass - 40, fJES - 0.4, minMass + 40, fJES + 0.4);
+  systParabola->SetParameter(1, 2*cos(2*alpha)/(sm2 - sj2 + sj2*cos(2*alpha) + sm2*cos(2*alpha)));
+  systParabola->SetParameter(3, 2*cos(2*alpha)/(sj2 - sm2 + sj2*cos(2*alpha) + sm2*cos(2*alpha)));
+  systParabola->SetLineColor(kBlack);
+  systParabola->SetLineWidth(5);
+  systParabola->Draw("cont3 same");
+  fitParabola->Draw("cont3 same");
+  
+  // create legend
+  TLegend *leg0 = new TLegend(0.2, 0.15, 0.45, 0.25);
+  leg0->SetFillStyle(0);
+  leg0->SetBorderSize(0);
+  //leg0->AddEntry((TObject*)0, "1, 2, 3#sigma", "");
+  leg0->AddEntry(fitParabola, "stat", "L");
+  leg0->AddEntry(systParabola, "stat + syst", "L");
+  leg0->Draw();
   
   std::cout << "fMassError: " << fMassError << std::endl;
   

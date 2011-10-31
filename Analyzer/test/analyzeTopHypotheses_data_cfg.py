@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("TEST")
+process = cms.Process("topMass")
 
 ## configure message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -17,7 +17,8 @@ secFiles = cms.untracked.vstring()
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
        '/store/data/Run2011A/SingleMu/AOD/May10ReReco-v1/0000/00454769-577B-E011-ACCD-001E0B49808A.root',
-       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v4/000/166/462/8A8DCE75-8190-E011-B082-001D09F2915A.root'
+#       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v4/000/166/462/8A8DCE75-8190-E011-B082-001D09F2915A.root'
+#       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v6/000/172/620/24054E7E-17C0-E011-AA64-001D09F28D4A.root'
        ] );
 
 
@@ -57,12 +58,29 @@ process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_c
 ## enable additional per-event printout from the TtSemiLeptonicEvent
 process.ttSemiLepEvent.verbosity = 0
 
+## selection
+from HLTrigger.HLTfilters.hltHighLevel_cfi import *
+process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", HLTPaths = ["HLT_IsoMu17_v*"], throw=True)
+
+process.leadingJetSelection.src = 'tightLeadingPFJets'
+process.bottomJetSelection.src  = 'tightBottomPFJets'
+
+## b-tag selection
+process.tightBottomPFJets.cut = 'bDiscriminator("simpleSecondaryVertexHighEffBJetTags") > 1.74';
+process.bottomJetSelection.minNumber = 2;
+
 from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff import *
 setForAllTtSemiLepHypotheses(process, "jets", "goodJetsPF30")
 setForAllTtSemiLepHypotheses(process, "maxNJets", 4)
 setForAllTtSemiLepHypotheses(process, "mets", "patMETsPF")
 setForAllTtSemiLepHypotheses(process, "maxNComb", -1)
 setForAllTtSemiLepHypotheses(process, "jetCorrectionLevel", "L2L3Residual")
+
+# consider b-tagging in event reconstruction
+process.hitFitTtSemiLepEventHypothesis.bTagAlgo = "simpleSecondaryVertexHighEffBJetTags"
+process.hitFitTtSemiLepEventHypothesis.minBDiscBJets     = 1.74
+process.hitFitTtSemiLepEventHypothesis.maxBDiscLightJets = 1.74
+process.hitFitTtSemiLepEventHypothesis.useBTagging       = True
 
 ## choose which hypotheses to produce
 addTtSemiLepHypotheses(process,
@@ -77,12 +95,6 @@ process.load("TopMass.Analyzer.EventHypothesisAnalyzer_data_cff")
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('analyzeTop.root')
 )
-
-from HLTrigger.HLTfilters.hltHighLevel_cfi import *
-process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", HLTPaths = ["HLT_IsoMu17_v*"], throw=True)
-
-process.leadingJetSelection.src = 'tightLeadingPFJets'
-process.bottomJetSelection.src  = 'tightBottomPFJets'
 
 ## end path   
 process.path = cms.Path(#process.patDefaultSequence *
@@ -111,7 +123,9 @@ prependPF2PATSequence(process, options = {'runOnOLDcfg': True,
                                           'runOnAOD': True,
                                           'electronIDs': '',
                                           'switchOffEmbedding': False,
-                                          'skipIfNoPFMuon': True})
+                                          'skipIfNoPFMuon': True,
+                                          'METCorrectionLevel': 2,
+                                          })
 
 ## adaptions (re-aranging of modules) to speed up processing
 pathnames = process.paths_().keys()
