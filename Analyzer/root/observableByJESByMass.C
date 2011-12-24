@@ -7,9 +7,9 @@
 #include "tdrstyle.C"
 
 int target = 1;
-int obs    = 1; // 0: hadTopMass, 1: hadWRawMass
+int obs    = 4; // 0: hadTopMass, 1: hadWRawMass
 
-bool plotByMass = true;
+bool plotByMass = false;
 
 TString sObs[] = {"m_{t}", "m_{W}^{raw}"};
 
@@ -140,6 +140,7 @@ void observableByJESByMass() {
   gr = new TGraphErrors(9,X,Y10,eX,eY10);
   gr->SetTitle("10");
   gr->Draw("A*");
+  //linearFit->SetParNames("p_{#mu}^{const}", "p_{#mu}^{m_{t}}");
   gr->Fit("linearFit", "EM");
   
   gr->GetXaxis()->SetTitle("m_{t}");
@@ -150,6 +151,7 @@ void observableByJESByMass() {
   gr = new TGraphErrors(9,X,Y11,eX,eY11);
   gr->SetTitle("11");
   gr->Draw("A*");
+  //linearFit->SetParNames("p_{#mu}^{JES}", "p_{#mu}^{m_{t},JES}");
   gr->Fit("linearFit", "EM");
   
   gr->GetXaxis()->SetTitle("m_{t}");
@@ -160,6 +162,7 @@ void observableByJESByMass() {
   gr = new TGraphErrors(9,X,Y20,eX,eY20);
   gr->SetTitle("20");
   gr->Draw("A*");
+  //linearFit->SetParNames("p_{#sigma}^{const}", "p_{#sigma}^{m_{t}}");
   gr->Fit("linearFit", "EM");
   
   gr->GetXaxis()->SetTitle("m_{t}");
@@ -179,6 +182,7 @@ void observableByJESByMass() {
   gr = new TGraphErrors(9,X,Y21,eX,eY21);
   gr->SetTitle("21");
   gr->Draw("A*");
+  //linearFit->SetParNames("p_{#sigma}^{JES}", "p_{#sigma}^{m_{t},JES}");
   gr->Fit("linearFit", "EM");
   
   gr->GetXaxis()->SetTitle("m_{t}");
@@ -475,6 +479,21 @@ TH1F* FindParameters(TString filename, int i)
     fit->SetParLimits(3, 0, 10);
   }
   
+  else if (obs == 4) {
+    fit = new TF1("fit", crystalBall, 0, 1000, 5);
+    fit->SetLineColor(kBlack);
+    fit->SetLineWidth(2);
+    
+    fit->SetParNames("N", "#mu", "#sigma", "#alpha", "power");
+    fit->SetParameters(1, 0, 1, 2, 3);
+    
+    fit->SetParLimits(0, 0, 1000000);
+    fit->SetParLimits(1, 0.5, 2);
+    fit->SetParLimits(2, 0.2, 2);
+    fit->SetParLimits(3, 0, 2);
+    fit->SetParLimits(4, 0, 20);
+  }
+  
   else if (obs == 5) {
     fit = new TF1("fit", "[0]*TMath::Voigt(x-[1], [2], [3])");
 
@@ -501,6 +520,11 @@ TH1F* FindParameters(TString filename, int i)
       sObservable = "hadWRawMass >> h1(100, 50, 150)";
       break;
     }
+    case 4: {
+      sObservableShort = "#DeltaR";
+      sObservable = "deltaRHadWHadB/deltaRHadQHadQBar >> h1(40, 0, 4)";
+      break;
+    }
     case 5: {
       sObservable = "-(hadWPt-lepWPt)/(hadBPt-lepBPt) >> h1(50, -5, 5)";
       break;
@@ -516,7 +540,8 @@ TH1F* FindParameters(TString filename, int i)
   TH1F *h1 = (TH1F*)gDirectory->Get("h1");
   
   h1->GetXaxis()->SetTitle("m_{i}");
-  h1->GetYaxis()->SetTitle("Fraction of entries / 5 GeV");
+  //h1->GetXaxis()->SetTitle("#DeltaR^{decay}_{t}/#DeltaR^{decay}_{W}");
+  h1->GetYaxis()->SetTitle("Fraction of entries");
   h1->SetFillColor(color_[i]);
   h1->SetLineColor(color_[i]);
   h1->SetMarkerColor(color_[i]);

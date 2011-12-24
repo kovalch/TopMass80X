@@ -1,5 +1,6 @@
 #include "MassAnalyzer.h"
 #include "IdeogramCombLikelihood.h"
+#include "Helper.h"
 
 #include <iomanip>
 
@@ -10,10 +11,13 @@
 #include "TMath.h"
 #include "TStyle.h"
 #include "TLegend.h"
+#include "TDirectory.h"
 
 class IdeogramAnalyzer : public MassAnalyzer {
   private:
     double QBTagProbability(double bDiscriminator);
+    double mWnVertex();
+    double mTnVertex();
   
   public:
     IdeogramAnalyzer(TString identifier, TTree* tree) : MassAnalyzer(identifier, tree) {};

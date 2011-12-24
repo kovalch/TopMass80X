@@ -28,21 +28,81 @@
 EventHypothesisAnalyzer::EventHypothesisAnalyzer(const edm::ParameterSet& cfg):
   semiLepEvt_  (cfg.getParameter<edm::InputTag>("semiLepEvent")),
   hypoClassKey_(cfg.getParameter<edm::InputTag>("hypoClassKey")),
+  
   jets_        (cfg.getParameter<edm::InputTag>("jets")),
 	noPtEtaJets_ (cfg.getParameter<edm::InputTag>("noPtEtaJets")),
   leps_        (cfg.getParameter<edm::InputTag>("leps")),
+  
   VertexSrc_   (cfg.getParameter<edm::InputTag>("VertexSrc")),
+  
   PUWeightSrc_ (cfg.getParameter<edm::InputTag>("PUWeightSrc")),
 	PUWeightUpSrc_  (cfg.getParameter<edm::InputTag>("PUWeightUpSrc")),
 	PUWeightDownSrc_(cfg.getParameter<edm::InputTag>("PUWeightDownSrc")),
+	
+	/*
+	PUWeightSrc_A_ (cfg.getParameter<edm::InputTag>("PUWeightSrc_A")),
+	PUWeightUpSrc_A_  (cfg.getParameter<edm::InputTag>("PUWeightUpSrc_A")),
+	PUWeightDownSrc_A_(cfg.getParameter<edm::InputTag>("PUWeightDownSrc_A")),
+	*/
+	/*
+	PUWeightSrc_B_ (cfg.getParameter<edm::InputTag>("PUWeightSrc_A")),
+	PUWeightUpSrc_B_  (cfg.getParameter<edm::InputTag>("PUWeightUpSrc_A")),
+	PUWeightDownSrc_B_(cfg.getParameter<edm::InputTag>("PUWeightDownSrc_A")),
+	*/
+	
   bWeightSrc_  (cfg.getParameter<edm::InputTag>("bWeightSrc")),
   bWeightSrc_bTagSFUp_    (cfg.getParameter<edm::InputTag>("bWeightSrc_bTagSFUp")),
   bWeightSrc_bTagSFDown_  (cfg.getParameter<edm::InputTag>("bWeightSrc_bTagSFDown")),
   bWeightSrc_misTagSFUp_  (cfg.getParameter<edm::InputTag>("bWeightSrc_misTagSFUp")),
   bWeightSrc_misTagSFDown_(cfg.getParameter<edm::InputTag>("bWeightSrc_misTagSFDown")),
+  
   muWeightSrc_ (cfg.getParameter<edm::InputTag>("muWeightSrc")),
+  
   savePDFWeights_(cfg.getParameter<bool>("savePDFWeights" ))
 {
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+  // 4-vectors
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+
+  hadTop_     = new TLorentzVector();
+  hadTopRaw_  = new TLorentzVector();
+  hadTopGen_  = new TLorentzVector();
+
+  hadB_       = new TLorentzVector();
+  hadBRaw_    = new TLorentzVector();
+  hadBGen_    = new TLorentzVector();
+
+  hadW_       = new TLorentzVector();
+  hadWRaw_    = new TLorentzVector();
+  hadWGen_    = new TLorentzVector();
+
+  hadQ_       = new TLorentzVector();
+  hadQRaw_    = new TLorentzVector();
+  hadQGen_    = new TLorentzVector();
+
+  hadQBar_    = new TLorentzVector();
+  hadQBarRaw_ = new TLorentzVector();
+  hadQBarGen_ = new TLorentzVector();
+
+  lepTop_     = new TLorentzVector();
+  lepTopRaw_  = new TLorentzVector();
+  lepTopGen_  = new TLorentzVector();
+
+  lepB_       = new TLorentzVector();
+  lepBRaw_    = new TLorentzVector();
+  lepBGen_    = new TLorentzVector();
+
+  lepW_       = new TLorentzVector();
+  lepWRaw_    = new TLorentzVector();
+  lepWGen_    = new TLorentzVector();
+
+  lepton_     = new TLorentzVector();
+  leptonRaw_  = new TLorentzVector();
+  leptonGen_  = new TLorentzVector();
+
+  nu_         = new TLorentzVector();
+  nuRaw_      = new TLorentzVector();
+  nuGen_      = new TLorentzVector();
 }
 
 void
@@ -106,8 +166,15 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
 	}
 	//*/
 	
-	nlJetPt = 0;
+	edm::Handle<std::vector<pat::Jet> > bottomSSVJets;
+  evt.getByLabel("tightBottomSSVPFJets", bottomSSVJets);
+	bottomSSVJetMultiplicity = bottomSSVJets.isValid() ? bottomSSVJets->size() : -1;
 	
+	edm::Handle<std::vector<pat::Jet> > bottomCSVJets;
+  evt.getByLabel("tightBottomCSVPFJets", bottomCSVJets);
+	bottomCSVJetMultiplicity = bottomCSVJets.isValid() ? bottomCSVJets->size() : -1;
+	
+	nlJetPt = 0;
   for (int i = 0; i < noPtEtaJetMultiplicity; i++) {
     int match = -1;
     for (int j = 0; j < 4; j++) {
@@ -128,7 +195,6 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
 	
 	noPtEtaJetPt = 0;
 	leadingJetPt = 0;
-	
   for (int i = 0; i < noPtEtaJetMultiplicity; i++) {
     int match = -1;
     for (int j = 0; j < 4; j++) {
@@ -160,7 +226,46 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
 	edm::Handle<double> PUWeightDownSrc_h;
   evt.getByLabel(PUWeightDownSrc_, PUWeightDownSrc_h);
   PUWeightDown = PUWeightDownSrc_h.isValid() ? *PUWeightDownSrc_h : -100.;
+/////////  
+  /*
+  edm::Handle<double> PUAWeightSrc_h;
+  evt.getByLabel("eventWeightPUA", "eventWeightPU3D", PUAWeightSrc_h);
+  PUAWeight = PUAWeightSrc_h.isValid() ? *PUAWeightSrc_h : -100.;
   
+  edm::Handle<double> PUAWeightUpSrc_h;
+  evt.getByLabel("eventWeightPUA", "eventWeightPU3DUp", PUAWeightUpSrc_h);
+  PUAWeightUp = PUAWeightUpSrc_h.isValid() ? *PUAWeightUpSrc_h : -100.;
+	
+	edm::Handle<double> PUAWeightDownSrc_h;
+  evt.getByLabel("eventWeightPUA", "eventWeightPU3DDown", PUAWeightDownSrc_h);
+  PUAWeightDown = PUAWeightDownSrc_h.isValid() ? *PUAWeightDownSrc_h : -100.;
+  
+  edm::Handle<double> PUBWeightSrc_h;
+  evt.getByLabel("eventWeightPUB", "eventWeightPU3D", PUBWeightSrc_h);
+  PUBWeight = PUBWeightSrc_h.isValid() ? *PUBWeightSrc_h : -100.;
+  
+  edm::Handle<double> PUBWeightUpSrc_h;
+  evt.getByLabel("eventWeightPUB", "eventWeightPU3DUp", PUBWeightUpSrc_h);
+  PUBWeightUp = PUBWeightUpSrc_h.isValid() ? *PUBWeightUpSrc_h : -100.;
+	
+	edm::Handle<double> PUBWeightDownSrc_h;
+  evt.getByLabel("eventWeightPUB", "eventWeightPU3DDown", PUBWeightDownSrc_h);
+  PUBWeightDown = PUBWeightDownSrc_h.isValid() ? *PUBWeightDownSrc_h : -100.;
+  */
+  
+  edm::Handle<double> PUABWeightSrc_h;
+  evt.getByLabel("eventWeightPUAB", "eventWeightPU3D", PUABWeightSrc_h);
+  PUABWeight = PUABWeightSrc_h.isValid() ? *PUABWeightSrc_h : -100.;
+  
+  edm::Handle<double> PUABWeightUpSrc_h;
+  evt.getByLabel("eventWeightPUAB", "eventWeightPU3DUp", PUABWeightUpSrc_h);
+  PUABWeightUp = PUABWeightUpSrc_h.isValid() ? *PUABWeightUpSrc_h : -100.;
+	
+	edm::Handle<double> PUABWeightDownSrc_h;
+  evt.getByLabel("eventWeightPUAB", "eventWeightPU3DDown", PUABWeightDownSrc_h);
+  PUABWeightDown = PUABWeightDownSrc_h.isValid() ? *PUABWeightDownSrc_h : -100.;
+
+/////////  
   edm::Handle<double> bWeightSrc_h;
   evt.getByLabel(bWeightSrc_, bWeightSrc_h);
   bWeight = bWeightSrc_h.isValid() ? *bWeightSrc_h : -100.;
@@ -287,19 +392,70 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     const reco::Candidate* lepBRaw     = semiLepEvt->leptonicDecayB         (hypoClassKeyMVA, hMVA);
     const reco::Candidate* lepton      = semiLepEvt->singleLepton           (hypoClassKey, h);
     const reco::Candidate* leptonRaw   = semiLepEvt->singleLepton           (hypoClassKeyMVA, hMVA);
-    const reco::Candidate* neutrino    = semiLepEvt->singleNeutrino         (hypoClassKey, h);
-    const reco::Candidate* neutrinoRaw = semiLepEvt->singleNeutrino         (hypoClassKeyMVA, hMVA);
+    const reco::Candidate* nu          = semiLepEvt->singleNeutrino         (hypoClassKey, h);
+    const reco::Candidate* nuRaw       = semiLepEvt->singleNeutrino         (hypoClassKeyMVA, hMVA);
 
     
     //////////////////////////////////////////////////////////////////////////////////////////////////
     // get genParticles
     //////////////////////////////////////////////////////////////////////////////////////////////////
 
-    const reco::Candidate* genHadTop = semiLepEvt->hadronicDecayTop();
-    const reco::Candidate* genHadW   = semiLepEvt->hadronicDecayW();
-    const reco::Candidate* genHadQ   = semiLepEvt->hadronicDecayQuark();
-    const reco::Candidate* genHadB   = semiLepEvt->hadronicDecayB();
+    const reco::Candidate* hadTopGen  = semiLepEvt->hadronicDecayTop();
+    const reco::Candidate* hadBGen    = semiLepEvt->hadronicDecayB();
+    const reco::Candidate* hadWGen    = semiLepEvt->hadronicDecayW();
+    const reco::Candidate* hadQGen    = semiLepEvt->hadronicDecayQuark();
+    const reco::Candidate* hadQBarGen = semiLepEvt->hadronicDecayQuarkBar();
+    
+    const reco::Candidate* lepTopGen  = semiLepEvt->leptonicDecayTop();
+    const reco::Candidate* lepBGen    = semiLepEvt->leptonicDecayB();
+    const reco::Candidate* lepWGen    = semiLepEvt->leptonicDecayW();
+    const reco::Candidate* leptonGen  = semiLepEvt->singleLepton();
+    const reco::Candidate* nuGen      = semiLepEvt->singleNeutrino();
 
+    //////////////////////////////////////////////////////////////////////////////////////////////////
+    // fill eventTree with 4-vectors
+    //////////////////////////////////////////////////////////////////////////////////////////////////
+    
+    hadTop_       ->SetPxPyPzE(hadTop->px(), hadTop->py(), hadTop->pz(), hadTop->energy());
+    hadTopRaw_    ->SetPxPyPzE(hadTopRaw->px(), hadTopRaw->py(), hadTopRaw->pz(), hadTopRaw->energy());
+    if (hadTopGen) hadTopGen_   ->SetPxPyPzE(hadTopGen->px(), hadTopGen->py(), hadTopGen->pz(), hadTopGen->energy());
+    
+    hadB_       ->SetPxPyPzE(hadB->px(), hadB->py(), hadB->pz(), hadB->energy());
+    hadBRaw_    ->SetPxPyPzE(hadBRaw->px(), hadBRaw->py(), hadBRaw->pz(), hadBRaw->energy());
+    if (hadBGen) hadBGen_       ->SetPxPyPzE(hadBGen->px(), hadBGen->py(), hadBGen->pz(), hadBGen->energy());
+    
+    hadW_       ->SetPxPyPzE(hadW->px(), hadW->py(), hadW->pz(), hadW->energy());
+    hadWRaw_    ->SetPxPyPzE(hadWRaw->px(), hadWRaw->py(), hadWRaw->pz(), hadWRaw->energy());
+    if (hadWGen) hadWGen_       ->SetPxPyPzE(hadWGen->px(), hadWGen->py(), hadWGen->pz(), hadWGen->energy());
+    
+    hadQ_       ->SetPxPyPzE(hadQ->px(), hadQ->py(), hadQ->pz(), hadQ->energy());
+    hadQRaw_    ->SetPxPyPzE(hadQRaw->px(), hadQRaw->py(), hadQRaw->pz(), hadQRaw->energy());
+    if (hadQGen) hadQGen_       ->SetPxPyPzE(hadQGen->px(), hadQGen->py(), hadQGen->pz(), hadQGen->energy());
+    
+    hadQBar_    ->SetPxPyPzE(hadQBar->px(), hadQBar->py(), hadQBar->pz(), hadQBar->energy());
+    hadQBarRaw_ ->SetPxPyPzE(hadQBarRaw->px(), hadQBarRaw->py(), hadQBarRaw->pz(), hadQBarRaw->energy());
+    if (hadQBarGen) hadQBarGen_ ->SetPxPyPzE(hadQBarGen->px(), hadQBarGen->py(), hadQBarGen->pz(), hadQBarGen->energy());
+    
+    lepTop_       ->SetPxPyPzE(lepTop->px(), lepTop->py(), lepTop->pz(), lepTop->energy());
+    lepTopRaw_    ->SetPxPyPzE(lepTopRaw->px(), lepTopRaw->py(), lepTopRaw->pz(), lepTopRaw->energy());
+    if (lepTopGen) lepTopGen_   ->SetPxPyPzE(lepTopGen->px(), lepTopGen->py(), lepTopGen->pz(), lepTopGen->energy());
+    
+    lepB_       ->SetPxPyPzE(lepB->px(), lepB->py(), lepB->pz(), lepB->energy());
+    lepBRaw_    ->SetPxPyPzE(lepBRaw->px(), lepBRaw->py(), lepBRaw->pz(), lepBRaw->energy());
+    if (lepBGen) lepBGen_       ->SetPxPyPzE(lepBGen->px(), lepBGen->py(), lepBGen->pz(), lepBGen->energy());
+    
+    lepW_       ->SetPxPyPzE(lepW->px(), lepW->py(), lepW->pz(), lepW->energy());
+    lepWRaw_    ->SetPxPyPzE(lepWRaw->px(), lepWRaw->py(), lepWRaw->pz(), lepWRaw->energy());
+    if (lepWGen) lepWGen_       ->SetPxPyPzE(lepWGen->px(), lepWGen->py(), lepWGen->pz(), lepWGen->energy());
+    
+    lepton_       ->SetPxPyPzE(lepton->px(), lepton->py(), lepton->pz(), lepton->energy());
+    leptonRaw_    ->SetPxPyPzE(leptonRaw->px(), leptonRaw->py(), leptonRaw->pz(), leptonRaw->energy());
+    if (leptonGen) leptonGen_   ->SetPxPyPzE(leptonGen->px(), leptonGen->py(), leptonGen->pz(), leptonGen->energy());
+    
+    nu_       ->SetPxPyPzE(nu->px(), nu->py(), nu->pz(), nu->energy());
+    nuRaw_    ->SetPxPyPzE(nuRaw->px(), nuRaw->py(), nuRaw->pz(), nuRaw->energy());
+    if (nuGen) nuGen_           ->SetPxPyPzE(nuGen->px(), nuGen->py(), nuGen->pz(), nuGen->energy());
+    
     //////////////////////////////////////////////////////////////////////////////////////////////////
     // fill eventTree with pt, eta and the masses of the reconstructed particles
     //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -309,12 +465,13 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     hadQMass   = hadQ->mass();
     hadQE      = hadQ->energy();
     hadQBSSV   = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQ]).bDiscriminator("simpleSecondaryVertexHighEffBJetTags");
+    hadQBCSV   = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQ]).bDiscriminator("combinedSecondaryVertexBJetTags");
     hadQJC     = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQ]).jetCharge();
     
     hadQRawPt  = hadQRaw->pt();
     
-    if (genHadQ) {
-      genHadQPt  = genHadQ->pt();
+    if (hadQGen) {
+      hadQGenPt  = hadQGen->pt();
     }
     
     hadQBarPt     = hadQBar->pt();
@@ -322,6 +479,7 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     hadQBarMass   = hadQBar->mass();
     hadQBarE      = hadQBar->energy();
     hadQBarBSSV   = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQBar]).bDiscriminator("simpleSecondaryVertexHighEffBJetTags");
+    hadQBarBCSV   = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQBar]).bDiscriminator("combinedSecondaryVertexBJetTags");
     hadQBarJC     = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQBar]).jetCharge();
     
     hadQBarRawPt  = hadQBarRaw->pt();
@@ -332,6 +490,7 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     hadWE      = hadW->energy();
     
     hadWRawMass  = hadWRaw->mass();
+    hadWRawMass0 = sqrt(2*(hadQRaw->energy()*hadQBarRaw->energy() - hadQRaw->px()*hadQBarRaw->px() - hadQRaw->py()*hadQBarRaw->py() - hadQRaw->pz()*hadQBarRaw->pz()));
     hadWRawPt    = hadWRaw->pt();
     
     /*
@@ -352,11 +511,11 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
                    //std::cout << hadWRawSigM << std::endl;
     */
   
-    if (genHadW) {
-      genHadWPt     = genHadW->pt();
-      genHadWEta    = genHadW->eta();
-      genHadWMass   = genHadW->mass();
-      genHadWE      = genHadW->energy();
+    if (hadWGen) {
+      hadWGenPt     = hadWGen->pt();
+      hadWGenEta    = hadWGen->eta();
+      hadWGenMass   = hadWGen->mass();
+      hadWGenE      = hadWGen->energy();
     }
   
     hadBPt     = hadB->pt();
@@ -364,6 +523,7 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     hadBMass   = hadB->mass();
     hadBE      = hadB->energy();
     hadBBSSV   = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::HadB]).bDiscriminator("simpleSecondaryVertexHighEffBJetTags");
+    hadBBCSV   = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::HadB]).bDiscriminator("combinedSecondaryVertexBJetTags");
     hadBJC     = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::HadB]).jetCharge();
     
     hadBRawPt  = hadBRaw->pt();
@@ -374,10 +534,10 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     
     leptonRawPt = leptonRaw->pt();
     
-    neutrinoPt = neutrino->pt();
-    neutrinoE  = neutrino->energy();
+    nuPt = nu->pt();
+    nuE  = nu->energy();
     
-    neutrinoRawPt = neutrinoRaw->pt();
+    nuRawPt = nuRaw->pt();
     
     lepWPt     = lepW->pt();
     lepWEta    = lepW->eta();
@@ -391,15 +551,16 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     lepBMass   = lepB->mass();
     lepBE      = lepB->energy();
     lepBBSSV   = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LepB]).bDiscriminator("simpleSecondaryVertexHighEffBJetTags");
+    lepBBCSV   = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LepB]).bDiscriminator("combinedSecondaryVertexBJetTags");
     lepBJC     = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LepB]).jetCharge();
     
     lepBRawE   = lepBRaw->energy();
   
-    if (genHadB) {
-      genHadBPt     = genHadB->pt();
-      genHadBEta    = genHadB->eta();
-      genHadBMass   = genHadB->mass();
-      genHadBE      = genHadB->energy();
+    if (hadBGen) {
+      hadBGenPt     = hadBGen->pt();
+      hadBGenEta    = hadBGen->eta();
+      hadBGenMass   = hadBGen->mass();
+      hadBGenE      = hadBGen->energy();
     }
   
     hadTopPt   = hadTop->pt();
@@ -411,10 +572,10 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     hadTopRawPt   = hadTopRaw->pt();
     hadTopRawEta  = hadTopRaw->eta();
   
-    if (genHadTop) {
-      genHadTopPt   = genHadTop->pt();
-      genHadTopEta  = genHadTop->eta();
-      genHadTopMass = genHadTop->mass();
+    if (hadTopGen) {
+      hadTopGenPt   = hadTopGen->pt();
+      hadTopGenEta  = hadTopGen->eta();
+      hadTopGenMass = hadTopGen->mass();
     }
     
     lepTopPt   = lepTop->pt();
@@ -428,11 +589,11 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     deltaThetaHadQHadQBar = ROOT::Math::VectorUtil::Angle(hadQ->polarP4(), hadQBar->polarP4());
     deltaRHadWHadB        = ROOT::Math::VectorUtil::DeltaR(hadW->polarP4(), hadB->polarP4());
     deltaThetaHadWHadB    = ROOT::Math::VectorUtil::Angle(hadW->polarP4(), hadB->polarP4());
-    if (genHadW && genHadB) genDeltaThetaHadWHadB = ROOT::Math::VectorUtil::Angle(genHadW->polarP4(), genHadB->polarP4());
+    if (hadWGen && hadBGen) genDeltaThetaHadWHadB = ROOT::Math::VectorUtil::Angle(hadWGen->polarP4(), hadBGen->polarP4());
     deltaRLepBLepton      = ROOT::Math::VectorUtil::DeltaR(lepton->polarP4(), lepB->polarP4());
     deltaThetaLepBLepton  = ROOT::Math::VectorUtil::Angle(lepton->polarP4(), lepB->polarP4());
-    deltaRHadBLepB        = ROOT::Math::VectorUtil::DeltaR(hadB->polarP4(), lepB->polarP4());;
-    deltaThetaHadBLepB    = ROOT::Math::VectorUtil::Angle(hadB->polarP4(), lepB->polarP4());;
+    deltaRHadBLepB        = ROOT::Math::VectorUtil::DeltaR(hadB->polarP4(), lepB->polarP4());
+    deltaThetaHadBLepB    = ROOT::Math::VectorUtil::Angle(hadB->polarP4(), lepB->polarP4());
     
     sumB   = hadB->polarP4() + lepB->polarP4();
     sumBPt = sumB.pt();
@@ -480,22 +641,66 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("luminosityBlock", &luminosityBlock, "luminosityBlock/I");
   eventTree->Branch("event", &event, "event/I");
   eventTree->Branch("combi", &combi, "combi/I");
-      
+  
+  //*
+  eventTree->Branch("hadTop", "TLorentzVector", &hadTop_);
+  eventTree->Branch("hadTopRaw", "TLorentzVector", &hadTopRaw_);
+  eventTree->Branch("hadTopGen", "TLorentzVector", &hadTopGen_);
+  
+  eventTree->Branch("hadB.", "TLorentzVector", &hadB_);
+  eventTree->Branch("hadBRaw.", "TLorentzVector", &hadBRaw_);
+  eventTree->Branch("hadBGen.", "TLorentzVector", &hadBGen_);
+
+  eventTree->Branch("hadW.", "TLorentzVector", &hadW_);
+  eventTree->Branch("hadWRaw.", "TLorentzVector", &hadWRaw_);
+  eventTree->Branch("hadWGen.", "TLorentzVector", &hadWGen_);
+  
+  eventTree->Branch("hadQ.", "TLorentzVector", &hadQ_);
+  eventTree->Branch("hadQRaw.", "TLorentzVector", &hadQRaw_);
+  eventTree->Branch("hadQGen.", "TLorentzVector", &hadQGen_);
+  
+  eventTree->Branch("hadQBar.", "TLorentzVector", &hadQBar_);
+  eventTree->Branch("hadQBarRaw.", "TLorentzVector", &hadQBarRaw_);
+  eventTree->Branch("hadQBarGen.", "TLorentzVector", &hadQBarGen_);
+  
+  eventTree->Branch("lepTop.", "TLorentzVector", &lepTop_);
+  eventTree->Branch("lepTopRaw.", "TLorentzVector", &lepTopRaw_);
+  eventTree->Branch("lepTopGen.", "TLorentzVector", &lepTopGen_);
+  
+  eventTree->Branch("lepB.", "TLorentzVector", &lepB_);
+  eventTree->Branch("lepBRaw.", "TLorentzVector", &lepBRaw_);
+  eventTree->Branch("lepBGen.", "TLorentzVector", &lepBGen_);
+
+  eventTree->Branch("lepW.", "TLorentzVector", &lepW_);
+  eventTree->Branch("lepWRaw.", "TLorentzVector", &lepWRaw_);
+  eventTree->Branch("lepWGen.", "TLorentzVector", &lepWGen_);
+  
+  eventTree->Branch("lepton.", "TLorentzVector", &lepton_);
+  eventTree->Branch("leptonRaw.", "TLorentzVector", &leptonRaw_);
+  eventTree->Branch("leptonGen.", "TLorentzVector", &leptonGen_);
+  
+  eventTree->Branch("nu.", "TLorentzVector", &nu_);
+  eventTree->Branch("nuRaw.", "TLorentzVector", &nuRaw_);
+  eventTree->Branch("nuGen.", "TLorentzVector", &nuGen_);
+  //*/
+  
   eventTree->Branch("hadQPt", &hadQPt, "hadQPt/D");
   eventTree->Branch("hadQEta", &hadQEta, "hadQEta/D");
   eventTree->Branch("hadQMass", &hadQMass, "hadQMass/D");
   eventTree->Branch("hadQE", &hadQE, "hadQE/D");
   eventTree->Branch("hadQBSSV", &hadQBSSV, "hadQBSSV/D");
+  eventTree->Branch("hadQBCSV", &hadQBCSV, "hadQBCSV/D");
   eventTree->Branch("hadQJC", &hadQJC, "hadQJC/D");
   
   eventTree->Branch("hadQRawPt", &hadQRawPt, "hadQRawPt/D");
-  eventTree->Branch("genHadQPt", &genHadQPt, "genHadQPt/D");
+  eventTree->Branch("hadQGenPt", &hadQGenPt, "hadQGenPt/D");
   
   eventTree->Branch("hadQBarPt", &hadQBarPt, "hadQBarPt/D");
   eventTree->Branch("hadQBarEta", &hadQBarEta, "hadQBarEta/D");
   eventTree->Branch("hadQBarMass", &hadQBarMass, "hadQBarMass/D");
   eventTree->Branch("hadQBarE", &hadQBarE, "hadQBarE/D");
   eventTree->Branch("hadQBarBSSV", &hadQBarBSSV, "hadQBarBSSV/D");
+  eventTree->Branch("hadQBarBCSV", &hadQBarBCSV, "hadQBarBCSV/D");
   eventTree->Branch("hadQBarJC", &hadQBarJC, "hadQBarJC/D");
   
   eventTree->Branch("hadQBarRawPt", &hadQBarRawPt, "hadQBarRawPt/D");
@@ -506,18 +711,20 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("hadWE", &hadWE, "hadWE/D");
   
   eventTree->Branch("hadWRawMass", &hadWRawMass, "hadWRawMass/D");
+  eventTree->Branch("hadWRawMass0", &hadWRawMass0, "hadWRawMass0/D");
   eventTree->Branch("hadWRawPt", &hadWRawPt, "hadWRawPt/D");
   
-  eventTree->Branch("genHadWPt", &genHadWPt, "genHadWPt/D");
-  eventTree->Branch("genHadWEta", &genHadWEta, "genHadWEta/D");
-  eventTree->Branch("genHadWMass", &genHadWMass, "genHadWMass/D");
-  eventTree->Branch("genHadWE", &genHadWE, "genHadWE/D");
+  eventTree->Branch("hadWGenPt", &hadWGenPt, "hadWGenPt/D");
+  eventTree->Branch("hadWGenEta", &hadWGenEta, "hadWGenEta/D");
+  eventTree->Branch("hadWGenMass", &hadWGenMass, "hadWGenMass/D");
+  eventTree->Branch("hadWGenE", &hadWGenE, "hadWGenE/D");
   
   eventTree->Branch("hadBPt", &hadBPt, "hadBPt/D");
   eventTree->Branch("hadBEta", &hadBEta, "hadBEta/D");
   eventTree->Branch("hadBMass", &hadBMass, "hadBMass/D");
   eventTree->Branch("hadBE", &hadBE, "hadBE/D");
   eventTree->Branch("hadBBSSV", &hadBBSSV, "hadBBSSV/D");
+  eventTree->Branch("hadBBCSV", &hadBBCSV, "hadBBCSV/D");
   eventTree->Branch("hadBJC", &hadBJC, "hadBJC/D");
   
   eventTree->Branch("hadBRawPt", &hadBRawPt, "hadBRawPt/D");
@@ -528,10 +735,10 @@ EventHypothesisAnalyzer::beginJob()
   
   eventTree->Branch("leptonRawPt", &leptonRawPt, "leptonRawPt/D");
   
-  eventTree->Branch("neutrinoPt", &neutrinoPt, "neutrinoPt/D");
-  eventTree->Branch("neutrinoE", &neutrinoE, "neutrinoE/D");
+  eventTree->Branch("nuPt", &nuPt, "nuPt/D");
+  eventTree->Branch("nuE", &nuE, "nuE/D");
   
-  eventTree->Branch("neutrinoRawPt", &neutrinoRawPt, "neutrinoRawPt/D");
+  eventTree->Branch("nuRawPt", &nuRawPt, "nuRawPt/D");
   
   eventTree->Branch("lepWPt", &lepWPt, "lepWPt/D");
   eventTree->Branch("lepWEta", &lepWEta, "lepWEta/D");
@@ -545,14 +752,15 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("lepBMass", &lepBMass, "lepBMass/D");
   eventTree->Branch("lepBE", &lepBE, "lepBE/D");
   eventTree->Branch("lepBBSSV", &lepBBSSV, "lepBBSSV/D");
+  eventTree->Branch("lepBBCSV", &lepBBCSV, "lepBBCSV/D");
   eventTree->Branch("lepBJC", &lepBJC, "lepBJC/D");
   
   eventTree->Branch("lepBRawE", &lepBRawE, "lepBRawE/D");
   
-  eventTree->Branch("genHadBPt", &genHadBPt, "genHadBPt/D");
-  eventTree->Branch("genHadBEta", &genHadBEta, "genHadBEta/D");
-  eventTree->Branch("genHadBMass", &genHadBMass, "genHadBMass/D");
-  eventTree->Branch("genHadBE", &genHadBE, "genHadBE/D");
+  eventTree->Branch("hadBGenPt", &hadBGenPt, "hadBGenPt/D");
+  eventTree->Branch("hadBGenEta", &hadBGenEta, "hadBGenEta/D");
+  eventTree->Branch("hadBGenMass", &hadBGenMass, "hadBGenMass/D");
+  eventTree->Branch("hadBGenE", &hadBGenE, "hadBGenE/D");
   
   eventTree->Branch("hadTopPt", &hadTopPt, "hadTopPt/D");
   eventTree->Branch("hadTopEta", &hadTopEta, "hadTopEta/D");
@@ -570,9 +778,9 @@ EventHypothesisAnalyzer::beginJob()
   
   eventTree->Branch("lepTopRawMass", &lepTopRawMass, "lepTopRawMass/D");
   
-  eventTree->Branch("genHadTopPt", &genHadTopPt, "genHadTopPt/D");
-  eventTree->Branch("genHadTopEta", &genHadTopEta, "genHadTopEta/D");
-  eventTree->Branch("genHadTopMass", &genHadTopMass, "genHadTopMass/D");
+  eventTree->Branch("hadTopGenPt", &hadTopGenPt, "hadTopGenPt/D");
+  eventTree->Branch("hadTopGenEta", &hadTopGenEta, "hadTopGenEta/D");
+  eventTree->Branch("hadTopGenMass", &hadTopGenMass, "hadTopGenMass/D");
   
   eventTree->Branch("deltaRHadQHadQBar", &deltaRHadQHadQBar, "deltaRHadQHadQBar/D");
   eventTree->Branch("deltaThetaHadQHadQBar", &deltaThetaHadQHadQBar, "deltaThetaHadQHadQBar/D");
@@ -590,6 +798,8 @@ EventHypothesisAnalyzer::beginJob()
   
   eventTree->Branch("jetMultiplicity", &jetMultiplicity, "jetMultiplicity/I");
 	eventTree->Branch("noPtEtaJetMultiplicity", &noPtEtaJetMultiplicity, "noPtEtaJetMultiplicity/I");
+	eventTree->Branch("bottomSSVJetMultiplicity", &bottomSSVJetMultiplicity, "bottomSSVJetMultiplicity/I");
+	eventTree->Branch("bottomCSVJetMultiplicity", &bottomCSVJetMultiplicity, "bottomCSVJetMultiplicity/I");
 	
 	eventTree->Branch("noPtEtaJetPt", &noPtEtaJetPt, "noPtEtaJetPt/D");
 	eventTree->Branch("leadingJetPt", &leadingJetPt, "leadingJetPt/D");
@@ -610,23 +820,40 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("cProb", &cProb, "cProb/D");
   
   eventTree->Branch("nVertex", &nVertex, "nVertex/I");
+  
   eventTree->Branch("PUWeight", &PUWeight, "PUWeight/D");
 	eventTree->Branch("PUWeightUp", &PUWeightUp, "PUWeightUp/D");
 	eventTree->Branch("PUWeightDown", &PUWeightDown, "PUWeightDown/D");
+	
+	/*
+	eventTree->Branch("PUAWeight", &PUAWeight, "PUAWeight/D");
+	eventTree->Branch("PUAWeightUp", &PUAWeightUp, "PUAWeightUp/D");
+	eventTree->Branch("PUAWeightDown", &PUAWeightDown, "PUAWeightDown/D");
+	
+	eventTree->Branch("PUBWeight", &PUBWeight, "PUBWeight/D");
+	eventTree->Branch("PUBWeightUp", &PUBWeightUp, "PUBWeightUp/D");
+	eventTree->Branch("PUBWeightDown", &PUBWeightDown, "PUBWeightDown/D");
+	*/
+	
+	eventTree->Branch("PUABWeight", &PUABWeight, "PUABWeight/D");
+	eventTree->Branch("PUABWeightUp", &PUABWeightUp, "PUABWeightUp/D");
+	eventTree->Branch("PUABWeightDown", &PUABWeightDown, "PUABWeightDown/D");
+	
   eventTree->Branch("bWeight", &bWeight, "bWeight/D");
   eventTree->Branch("bWeight_bTagSFUp", &bWeight_bTagSFUp, "bWeight_bTagSFUp/D");
   eventTree->Branch("bWeight_bTagSFDown", &bWeight_bTagSFDown, "bWeight_bTagSFDown/D");
   eventTree->Branch("bWeight_misTagSFUp", &bWeight_misTagSFUp, "bWeight_misTagSFUp/D");
   eventTree->Branch("bWeight_misTagSFDown", &bWeight_misTagSFDown, "bWeight_misTagSFDown/D");
+  
   eventTree->Branch("muWeight", &muWeight, "muWeight/D");
   eventTree->Branch("MCWeight", &MCWeight, "MCWeight/D");
+  
   if(savePDFWeights_) {
     LHAPDF::initPDFSet(1, "cteq66.LHgrid");
     eventTree->Branch("pdfWeights", &pdfWeights, "pdfWeights[44]/D");
   }
   
   eventTree->Branch("target", &target, "target/I");
-
 }
 
 double EventHypothesisAnalyzer::QBTagProbabilitySSV(double bDiscriminator) {
@@ -654,6 +881,52 @@ double EventHypothesisAnalyzer::QBTagProbabilitySSVHEM(double bDiscriminator) {
 void
 EventHypothesisAnalyzer::endJob() 
 {
+}
+
+EventHypothesisAnalyzer::~EventHypothesisAnalyzer() {
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+  // 4-vectors
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+
+  delete hadTop_;
+  delete hadTopRaw_;
+  delete hadTopGen_;
+
+  delete hadB_;
+  delete hadBRaw_;
+  delete hadBGen_;
+
+  delete hadW_;
+  delete hadWRaw_;
+  delete hadWGen_;
+
+  delete hadQ_;
+  delete hadQRaw_;
+  delete hadQGen_;
+
+  delete hadQBar_;
+  delete hadQBarRaw_;
+  delete hadQBarGen_;
+
+  delete lepTop_;
+  delete lepTopRaw_;
+  delete lepTopGen_;
+
+  delete lepB_;
+  delete lepBRaw_;
+  delete lepBGen_;
+
+  delete lepW_;
+  delete lepWRaw_;
+  delete lepWGen_;
+
+  delete lepton_;
+  delete leptonRaw_;
+  delete leptonGen_;
+
+  delete nu_;
+  delete nuRaw_;
+  delete nuGen_;
 }
 
 //define this as a plug-in

@@ -26,14 +26,16 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   double resolJes    = 0.005;
   int binsJes        = (lastBinJes-firstBinJes)/resolJes;
   
-  double pullWidth   = 1.37068*1.07696;//1.24956e+00; //0.715;
-  //gStyle->SetOptFit(0);
+  double pullWidth   = 1.365*1.07; //*1.053; //1.37068*1.07696;//1.24956e+00; //0.715;
+  
+  // Pile up corrections
+  double mWnVertex   = 0.; // IdeogramAnalyzer::mWnVertex() - 0.1;
   
   //*
   if (debug) {
     firstBinMass = 100;
     lastBinMass  = 350;
-    binsMass     = 250;
+    binsMass     = 125;
     
     firstBinJes = 0.7;
     lastBinJes  = 1.3;
@@ -42,7 +44,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   //*/
   
   IdeogramCombLikelihood* fptr = new IdeogramCombLikelihood();
-  TF2* combLikelihood = new TF2("combLikelihood",fptr,&IdeogramCombLikelihood::Evaluate, firstBinMass, lastBinMass, firstBinJes, lastBinJes, 5, "IdeogramCombLikelihood", "Evaluate");
+  TF2* combLikelihood = new TF2("combLikelihood",fptr,&IdeogramCombLikelihood::Evaluate, firstBinMass, lastBinMass, firstBinJes, lastBinJes, 4, "IdeogramCombLikelihood", "Evaluate");
   //TF1* combBackground = new TF1("combBackground",fptr,&IdeogramCombLikelihood::CrystalBall,150,200,1);
 
   TF2* fitParabola = new TF2("fitParabola", "abs([1])*((x-[0])*cos([4])-(y-[2])*sin([4]))^2 + abs([3])*((x-[0])*sin([4])+(y-[2])*cos([4]))^2");
@@ -83,7 +85,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   double hadWE, deltaThetaHadWHadB, sinThetaStar;
   double hitFitChi2, hitFitProb, MCWeight, PUWeight, muWeight, bWeight, bWeight_bTagSFUp, bWeight_bTagSFDown, bWeight_misTagSFUp, bWeight_misTagSFDown, weight, currentWeight;
   double pdfWeights[44];
-  int event, currentEvent;
+  int event, currentEvent, nVertex;
   int combi;
   int nEvents = 0;
   
@@ -103,6 +105,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   eventTree->SetBranchAddress("bWeight_bTagSFDown", &bWeight_bTagSFDown);
   eventTree->SetBranchAddress("bWeight_misTagSFUp", &bWeight_misTagSFUp);
   eventTree->SetBranchAddress("bWeight_misTagSFDown", &bWeight_misTagSFDown);
+  eventTree->SetBranchAddress("nVertex", &nVertex);
   eventTree->SetBranchAddress("pdfWeights", &pdfWeights);
   
   // Build Likelihood
@@ -139,6 +142,7 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
       MCWeight = (PUWeight != -100.) ? PUWeight * muWeight * bWeight : 1;
       //std::cout << MCWeight << std::endl;
       currentWeight = hitFitProb * MCWeight;
+      //currentWeight = hitFitProb * PUWeight * bWeight * muWeight;
       weight += currentWeight;
       
       if (debug && iEntry%nDebug == 0 && iEntry < maxDebug) {
@@ -276,8 +280,10 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   fMassSigma = -1;
   
   // Fit again with previous result as range
-  //fitParabola->SetRange(fMass - 4*fMassError, fJES - 4*fJESError, minMass + 4*fMassError, fJES + 4*fJESError);
-	fitParabola->SetRange(fMass - 8*fMassError, fJES - 8*fJESError, minMass + 8*fMassError, fJES + 8*fJESError);
+  double sigmaLevel = 4;
+  if (3*fMassError < resolMass) sigmaLevel = 8;
+	fitParabola->SetRange(fMass - sigmaLevel*fMassError, fJES - sigmaLevel*fJESError,
+	                      minMass + sigmaLevel*fMassError, fJES + sigmaLevel*fJESError);
 
   sumLogLikelihood->Fit("fitParabola","WEMR0");
   
@@ -305,8 +311,8 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   fMassSigma = -1;
   
   // stat+syst ellipsis  
-  double mSyst = 1.2;
-  double jSyst = 0.010;
+  double mSyst = 1.07;
+  double jSyst = 0.009;
   
   double sm2 = fMassError*fMassError + mSyst*mSyst;
   double sj2 = fJESError*fJESError + jSyst*jSyst;
@@ -355,3 +361,17 @@ double IdeogramAnalyzer::QBTagProbability(double bDiscriminator) {
   
   return p0 * TMath::Voigt(bDiscriminator, p1, p2);
 }
+
+double IdeogramAnalyzer::mWnVertex() {
+  TF1* linearFit = new TF1("linearFit", "[0]+(x-0.)*[1]");
+  
+  fTree->Draw("hadWRawMass:nVertex >> h2(15, 0, 15, 100, 50, 150)", "(hitFitProb>0.2)");
+  TH2D* h2 = (TH2D*)gDirectory->Get("h2");
+  h2->FitSlicesY();
+  TH1D *h2_1 = (TH1D*)gDirectory->Get("h2_1");
+  h2_1->Fit("linearFit");
+
+  return linearFit->GetParameter(1);
+}
+
+

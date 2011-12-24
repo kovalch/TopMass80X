@@ -1,4 +1,6 @@
 import FWCore.ParameterSet.Config as cms
+import os
+import sys
 
 process = cms.Process("topMass")
 
@@ -16,7 +18,9 @@ readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
-       '/store/data/Run2011A/SingleMu/AOD/May10ReReco-v1/0000/00454769-577B-E011-ACCD-001E0B49808A.root',
+       '/store/data/Run2011A/SingleMu/AOD/May10ReReco-v1/0004/BA357784-557D-E011-A636-0017A477000C.root'
+#       '/store/data/Run2011B/SingleMu/AOD/PromptReco-v1/000/175/832/22EBE93E-B1DB-E011-9C16-BCAEC518FF8A.root',
+#       '/store/data/Run2011A/SingleMu/AOD/May10ReReco-v1/0000/00454769-577B-E011-ACCD-001E0B49808A.root',
 #       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v4/000/166/462/8A8DCE75-8190-E011-B082-001D09F2915A.root'
 #       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v6/000/172/620/24054E7E-17C0-E011-AA64-001D09F28D4A.root'
        ] );
@@ -60,14 +64,14 @@ process.ttSemiLepEvent.verbosity = 0
 
 ## selection
 from HLTrigger.HLTfilters.hltHighLevel_cfi import *
-process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", HLTPaths = ["HLT_IsoMu17_v*"], throw=True)
+process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", HLTPaths = ["HLT_IsoMu17_v*","HLT_IsoMu24_v*","HLT_IsoMu24_eta2p1_v*"], throw=False)
 
 process.leadingJetSelection.src = 'tightLeadingPFJets'
 process.bottomJetSelection.src  = 'tightBottomPFJets'
 
 ## b-tag selection
 process.tightBottomPFJets.cut = 'bDiscriminator("simpleSecondaryVertexHighEffBJetTags") > 1.74';
-process.bottomJetSelection.minNumber = 2;
+process.bottomJetSelection.minNumber = 0;
 
 from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff import *
 setForAllTtSemiLepHypotheses(process, "jets", "goodJetsPF30")
@@ -80,7 +84,7 @@ setForAllTtSemiLepHypotheses(process, "jetCorrectionLevel", "L2L3Residual")
 process.hitFitTtSemiLepEventHypothesis.bTagAlgo = "simpleSecondaryVertexHighEffBJetTags"
 process.hitFitTtSemiLepEventHypothesis.minBDiscBJets     = 1.74
 process.hitFitTtSemiLepEventHypothesis.maxBDiscLightJets = 1.74
-process.hitFitTtSemiLepEventHypothesis.useBTagging       = True
+process.hitFitTtSemiLepEventHypothesis.useBTagging       = False
 
 ## choose which hypotheses to produce
 addTtSemiLepHypotheses(process,
@@ -123,6 +127,8 @@ prependPF2PATSequence(process, options = {'runOnOLDcfg': True,
                                           'runOnAOD': True,
                                           'electronIDs': '',
                                           'switchOffEmbedding': False,
+                                          'pfIsoConeMuon': 0.4,
+                                          'pfIsoConeElec': 0.4,
                                           'skipIfNoPFMuon': True,
                                           'METCorrectionLevel': 2,
                                           })

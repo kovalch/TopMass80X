@@ -6,6 +6,7 @@
 #include "TTree.h"
 
 #include "Math/VectorUtil.h"
+#include "TLorentzVector.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
@@ -14,7 +15,7 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
  public:
 
   explicit EventHypothesisAnalyzer(const edm::ParameterSet&);
-  ~EventHypothesisAnalyzer(){};
+  ~EventHypothesisAnalyzer();
   
  private:
 
@@ -24,21 +25,39 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
 
   edm::InputTag semiLepEvt_;
   edm::InputTag hypoClassKey_;
+  
   edm::InputTag jets_;
 	edm::InputTag noPtEtaJets_;
   edm::InputTag leps_;
+  
   edm::InputTag VertexSrc_;
+  
   edm::InputTag PUWeightSrc_;
 	edm::InputTag PUWeightUpSrc_;
 	edm::InputTag PUWeightDownSrc_;
+	
+	edm::InputTag PUAWeightSrc_;
+	edm::InputTag PUAWeightUpSrc_;
+	edm::InputTag PUAWeightDownSrc_;
+	
+	edm::InputTag PUBWeightSrc_;
+	edm::InputTag PUBWeightUpSrc_;
+	edm::InputTag PUBWeightDownSrc_;
+	
+	edm::InputTag PUABWeightSrc_;
+	edm::InputTag PUABWeightUpSrc_;
+	edm::InputTag PUABWeightDownSrc_;
+	
   edm::InputTag bWeightSrc_;
   edm::InputTag bWeightSrc_bTagSFUp_;
   edm::InputTag bWeightSrc_bTagSFDown_;
   edm::InputTag bWeightSrc_misTagSFUp_;
   edm::InputTag bWeightSrc_misTagSFDown_;
+  
   edm::InputTag muWeightSrc_;
   
   bool savePDFWeights_;
+  bool data_;
 
   int run;
   int luminosityBlock;
@@ -50,16 +69,18 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double hadQMass;
   double hadQE;
   double hadQBSSV;
+  double hadQBCSV;
   double hadQJC;
   
   double hadQRawPt;
-  double genHadQPt;
+  double hadQGenPt;
   
   double hadQBarPt;
   double hadQBarEta;
   double hadQBarMass;
   double hadQBarE;
   double hadQBarBSSV;
+  double hadQBarBCSV;
   double hadQBarJC;
   
   double hadQBarRawPt;
@@ -70,18 +91,20 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double hadWE;
   
   double hadWRawMass;
+  double hadWRawMass0;
   double hadWRawPt;
   
-  double genHadWPt;
-  double genHadWEta;
-  double genHadWMass;
-  double genHadWE;
+  double hadWGenPt;
+  double hadWGenEta;
+  double hadWGenMass;
+  double hadWGenE;
   
   double hadBPt;
   double hadBEta;
   double hadBMass;
   double hadBE;
   double hadBBSSV;
+  double hadBBCSV;
   double hadBJC;
   
   double hadBRawPt;
@@ -92,10 +115,10 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   
   double leptonRawPt;
   
-  double neutrinoPt;
-  double neutrinoE;
+  double nuPt;
+  double nuE;
   
-  double neutrinoRawPt;
+  double nuRawPt;
   
   double lepWPt;
   double lepWEta;
@@ -109,14 +132,15 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double lepBMass;
   double lepBE;
   double lepBBSSV;
+  double lepBBCSV;
   double lepBJC;
   
   double lepBRawE;
   
-  double genHadBPt;
-  double genHadBEta;
-  double genHadBMass;
-  double genHadBE;
+  double hadBGenPt;
+  double hadBGenEta;
+  double hadBGenMass;
+  double hadBGenE;
   
   double hadTopPt;
   double hadTopEta;
@@ -134,9 +158,9 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   
   double lepTopRawMass;
   
-  double genHadTopPt;
-  double genHadTopEta;
-  double genHadTopMass;
+  double hadTopGenPt;
+  double hadTopGenEta;
+  double hadTopGenMass;
   
   double deltaRHadQHadQBar;
   double deltaThetaHadQHadQBar;
@@ -157,6 +181,8 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   
   int jetMultiplicity;
   int noPtEtaJetMultiplicity;
+  int bottomSSVJetMultiplicity;
+  int bottomCSVJetMultiplicity;
   
   double noPtEtaJetPt;
   double leadingJetPt;
@@ -179,16 +205,33 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double cProb;
   
   int nVertex;
+  
   double PUWeight;
 	double PUWeightUp;
 	double PUWeightDown;
+	
+	double PUAWeight;
+	double PUAWeightUp;
+	double PUAWeightDown;
+	
+	double PUBWeight;
+	double PUBWeightUp;
+	double PUBWeightDown;
+	
+	double PUABWeight;
+	double PUABWeightUp;
+	double PUABWeightDown;
+	
   double bWeight;
   double bWeight_bTagSFUp;
   double bWeight_bTagSFDown;
   double bWeight_misTagSFUp;
   double bWeight_misTagSFDown;
+  
   double muWeight;
+  
   double MCWeight;
+  
   double pdfWeights[44];
   
   int target;
@@ -197,6 +240,48 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   
   double QBTagProbabilitySSV(double bDiscriminator);
   double QBTagProbabilitySSVHEM(double bDiscriminator);
+  
+  TLorentzVector* vec;
+  
+  TLorentzVector* hadTop_;
+  TLorentzVector* hadTopRaw_;
+  TLorentzVector* hadTopGen_;
+  
+  TLorentzVector* hadB_;
+  TLorentzVector* hadBRaw_;
+  TLorentzVector* hadBGen_;
+  
+  TLorentzVector* hadW_;
+  TLorentzVector* hadWRaw_;
+  TLorentzVector* hadWGen_;
+  
+  TLorentzVector* hadQ_;
+  TLorentzVector* hadQRaw_;
+  TLorentzVector* hadQGen_;
+  
+  TLorentzVector* hadQBar_;
+  TLorentzVector* hadQBarRaw_;
+  TLorentzVector* hadQBarGen_;
+  
+  TLorentzVector* lepTop_;
+  TLorentzVector* lepTopRaw_;
+  TLorentzVector* lepTopGen_;
+  
+  TLorentzVector* lepB_;
+  TLorentzVector* lepBRaw_;
+  TLorentzVector* lepBGen_;
+  
+  TLorentzVector* lepW_;
+  TLorentzVector* lepWRaw_;
+  TLorentzVector* lepWGen_;
+  
+  TLorentzVector* lepton_;
+  TLorentzVector* leptonRaw_;
+  TLorentzVector* leptonGen_;
+  
+  TLorentzVector* nu_;
+  TLorentzVector* nuRaw_;
+  TLorentzVector* nuGen_;
 };
 
 #endif

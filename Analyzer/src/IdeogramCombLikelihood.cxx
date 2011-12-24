@@ -1,9 +1,10 @@
 #include "IdeogramCombLikelihood.h"
 
 double IdeogramCombLikelihood::Evaluate(double *x, double *p) {
-  bool onlyCP   = false;
+  bool onlyCP   = true;
   bool Spring11 = false;
-  bool useCalib = false;
+  bool useCalib = true;
+  bool useFix   = true;
   
   //* worst case, improvable by f(w_i)
   double fCP = 0.441627218;
@@ -16,16 +17,25 @@ double IdeogramCombLikelihood::Evaluate(double *x, double *p) {
     fUN = 0;
   }
   
+  double JESOffset     = -0.001952;
   double MassOffset    = -0.1438;
   double MassSlope     = 0.016;
   
+  double JESFix  = 0.00333;
+  double MassFix = -0.249;
+  
   if (useCalib) {
-    x[1] = x[1];
-    x[0] = x[0] + MassOffset + MassSlope * (x[0]-172.5);
+    x[1] = x[1] + JESOffset;
+    x[0] = x[0] + MassOffset; // + MassSlope * (x[0]-172.5);
+  }
+  
+  if (useFix) {
+    x[1] = x[1] + JESFix;
+    x[0] = x[0] + MassFix; // + MassSlope * (x[0]-172.5);
   }
   
   //return p[0] * (fCP * PCP(x, p) + fWP * PWP(x, p) + fUN * PUN(x, p));
-  return p[0] * (fCP * PCP(x, p) * PCPJES(x, p) + fWP * PWP(x, p) * PWPJES(x, p) + fUN * PUN(x, p) * PUNJES(x, p));
+  return p[0] * (fCP * PCP(x, p) * PCPJES(x, p) + fWP * PWP(x, p) * PWPJES(x, p) + fUN * PUN(x, p) * PUNJES(x, p)); // * TMath::Gaus(x[1], 1, 0.01, kTRUE);
 }
 
 
@@ -59,7 +69,7 @@ namespace cb {
 double IdeogramCombLikelihood::PWP(double* x, double* p)
 {
   double N      =  1./0.01;
-  double mu     =  1.73308e+02 + 7.49383e-01 * (x[0]-172.5) + (8.54287e+01 + 7.46879e-01 * (x[0]-172.5)) * (x[1]-1.);
+  double mu     =  1.73308e+02 + 7.49383e-01 * (x[0]-172.5) + (8.54287e+01 + 7.46879e-01 * (x[0]-172.5)) * (x[1]-1.); // * (1. + p[4]*p[5]);
   double sigma  =  2.83223e+01 + 2.90576e-01 * (x[0]-172.5) + (2.45982e+01 + 3.59995e-01 * (x[0]-172.5)) * (x[1]-1.);
   double alpha  =  4.73189e-01 + 2.59135e-03 * (x[0]-172.5) + (2.35905e-01 + 4.44735e-03 * (x[0]-172.5)) * (x[1]-1.);
   double power  =  15;
@@ -110,6 +120,7 @@ double IdeogramCombLikelihood::PUN(double* x, double* p)
 double IdeogramCombLikelihood::PCPJES(double* x, double* p)
 {
   //* W Mass
+  //std::cout << p[4] << " ";
   double N      =  1;
   
   double mu     =  8.19330e+01 + 1.32156e-02 * (x[0]-172.5) + (4.98160e+01 + -5.74705e-02 * (x[0]-172.5)) * (x[1]-1.);

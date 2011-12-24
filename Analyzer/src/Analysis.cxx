@@ -86,9 +86,12 @@ void Analysis::Analyze(bool reanalyze) {
         cuts += " & hitFitProb > 0.2";
         //cuts += " & bProbSSV > 0.3";
         //cuts += " & bProbSSV*hitFitProb > 0.05";
-        //cuts += " & hadQBSSV<1.74 & hadQBarBSSV<1.74 & hadBBSSV>1.74 & lepBBSSV>1.74";
+        cuts += " & hadQBSSV<1.74 & hadQBarBSSV<1.74 & hadBBSSV>1.74 & lepBBSSV>1.74";
         //cuts += " & run < 168000";
         //cuts += " & nlJetPt/(hadQPt+hadQBarPt)>0.3";
+        cuts += " & leptonPt > 30";
+        //cuts += " & nVertex >= 5";
+        //cuts += " & nVertex <= 5";
       }
       
       int entries = fTree->GetEntries(cuts);
@@ -170,6 +173,7 @@ void Analysis::CreateRandomSubset() {
   fChain->SetBranchStatus("nlJetPt", 1);
   fChain->SetBranchStatus("hadQPt", 1);
   fChain->SetBranchStatus("hadQBarPt", 1);
+  fChain->SetBranchStatus("leptonPt", 1);
   fChain->SetBranchStatus("hitFitChi2", 1);
   fChain->SetBranchStatus("hitFitProb", 1);
   fChain->SetBranchStatus("bProbSSV", 1);
@@ -187,6 +191,7 @@ void Analysis::CreateRandomSubset() {
   fChain->SetBranchStatus("bWeight_misTagSFUp", 1);
   fChain->SetBranchStatus("bWeight_misTagSFDown", 1);
   fChain->SetBranchStatus("jetMultiplicity", 1);
+  fChain->SetBranchStatus("nVertex", 1);
   
   fChain->SetBranchStatus("pdfWeights", 1);
   
@@ -197,7 +202,7 @@ void Analysis::CreateRandomSubset() {
 
   if (fLumi>0) {
     TRandom3* random = new TRandom3(0);
-    double events = 2942./1140.*fLumi;
+    double events = 2422./1132.*fLumi;
     //double events = 235./36.*fLumi;
     double fullEvents = fChain->GetEntries("combi==0");
 

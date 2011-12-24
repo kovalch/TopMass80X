@@ -39,17 +39,9 @@ bJesFactor = '@bJesFactor@'
 if bJesFactor.startswith('@'):
   bJesFactor = '1.0'
 
-METFactor = '@METFactor@'
-if METFactor.startswith('@'):
-  METFactor = '1.0'
-
 scaleType = '@scaleType@'
 if scaleType.startswith('@'):
   scaleType = 'abs'
-
-resolutionFactor = '@resolutionFactor@'
-if resolutionFactor.startswith('@'):
-  resolutionFactor = '1.1'
 
 ## configure message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -70,8 +62,9 @@ if os.getenv('CMSSW_VERSION').startswith('CMSSW_4_1_'):
   ] )
 else:
   readFiles.extend( [
-          '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/FEEE3638-F297-E011-AAF8-00304867BEC0.root',
-  #       '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/02719D6B-1398-E011-AA71-001A92971B94.root',
+  #       '/store/data/Run2011A/SingleMu/AOD/May10ReReco-v1/0000/00454769-577B-E011-ACCD-001E0B49808A.root',
+         '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/FEEE3638-F297-E011-AAF8-00304867BEC0.root',
+  #        '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/02719D6B-1398-E011-AA71-001A92971B94.root',
   #       '/store/mc/Summer11/WJetsToLNu_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/0004EB5E-64AC-E011-B046-003048678FDE.root',
   ] )
 
@@ -116,8 +109,11 @@ scaledJetEnergy.inputJets    = "selectedPatJetsAK5PF"
 scaledJetEnergy.inputMETs    = "patMETsPF"
 scaledJetEnergy.scaleFactor  = float(lJesFactor)
 scaledJetEnergy.scaleFactorB = float(bJesFactor)
-scaledJetEnergy.scaleFactorMET    = float(METFactor)
-scaledJetEnergy.resolutionFactors = [float(resolutionFactor)]
+#scaledJetEnergy.resolutionFactors   = [0.994 , 1.126   , 1.006   , 0.961  ]
+scaledJetEnergy.resolutionFactors   = [1.066 , 1.191   , 1.096   , 1.166  ]
+#scaledJetEnergy.resolutionFactors   = [1.140 , 1.258   , 1.190   , 1.370  ]
+scaledJetEnergy.resolutionEtaRanges = [0, 1.1, 1.1, 1.7, 1.7, 2.3, 2.3, -1]
+
 
 process.noOverlapJetsPF.src = "scaledJetEnergy:selectedPatJets"
 
@@ -134,14 +130,14 @@ from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 if os.getenv('CMSSW_VERSION').startswith('CMSSW_4_1_'):
   process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::REDIGI311X", HLTPaths = ["HLT_Mu15_v*"], throw=True)
 else:
-  process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", HLTPaths = ["HLT_Mu15_v*"], throw=True)
+  process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", HLTPaths = ["HLT_IsoMu17_v*"], throw=True)
 
 process.leadingJetSelection.src = 'tightLeadingPFJets'
 process.bottomJetSelection.src  = 'tightBottomPFJets'
 
 ## b-tag selection
 process.tightBottomPFJets.cut = 'bDiscriminator("simpleSecondaryVertexHighEffBJetTags") > 1.74';
-process.bottomJetSelection.minNumber = 2;
+process.bottomJetSelection.minNumber = 0;
 
 ## change jet-parton matching algorithm
 process.ttSemiLepJetPartonMatch.algorithm = "unambiguousOnly"
@@ -158,7 +154,7 @@ setForAllTtSemiLepHypotheses(process, "maxNComb", -1)
 process.hitFitTtSemiLepEventHypothesis.bTagAlgo = "simpleSecondaryVertexHighEffBJetTags"
 process.hitFitTtSemiLepEventHypothesis.minBDiscBJets     = 1.74
 process.hitFitTtSemiLepEventHypothesis.maxBDiscLightJets = 1.74
-process.hitFitTtSemiLepEventHypothesis.useBTagging       = True
+process.hitFitTtSemiLepEventHypothesis.useBTagging       = False
 
 addTtSemiLepHypotheses(process,
                        ["kHitFit", "kMVADisc"]
@@ -169,8 +165,9 @@ addTtSemiLepHypotheses(process,
 process.load("TopMass.Analyzer.EventHypothesisAnalyzer_cff")
 
 ## PU reweighting
+from TopAnalysis.TopUtils.EventWeightPU_cfi import *
 process.load("TopAnalysis.TopUtils.EventWeightPU_cfi")
-process.eventWeightPU.MCSampleFile = cms.FileInPath("TopAnalysis/TopUtils/data/MC_PUDist_Summer11_TTJets_TuneZ2_7TeV_madgraph_tauola.root")
+process.eventWeightPU.MCSampleFile     = cms.FileInPath("TopAnalysis/TopUtils/data/MC_PUDist_Summer11_TTJets_TuneZ2_7TeV_madgraph_tauola.root")
 if(options.sample=="ttbar"):
     process.eventWeightPU.MCSampleFile = cms.FileInPath("TopAnalysis/TopUtils/data/MC_PUDist_Summer11_TTJets_TuneZ2_7TeV_madgraph_tauola.root")
 if(options.sample=="wjets"):
@@ -199,9 +196,9 @@ if(options.sample=="ZZ"):
     process.eventWeightPU.MCSampleFile = cms.FileInPath("TopAnalysis/TopUtils/data/MC_PUDist_Summer11_ZZ_TuneZ2_7TeV_pythia6_tauola.root")
     
 process.eventWeightPU.DataFile = cms.FileInPath("TopAnalysis/TopUtils/data/Data_PUDist_160404-163869_7TeV_May10ReReco_Collisions11_v2_and_165088-167913_7TeV_PromptReco_Collisions11.root")
-PUweight=cms.InputTag("eventWeightPU","eventWeightPU")
-PUweightUp=cms.InputTag("eventWeightPU","eventWeightPUUp")
-PUweightDown=cms.InputTag("eventWeightPU","eventWeightPUDown")
+
+process.eventWeightPUAB = eventWeightPU.clone(DataHistoName = "pileup71")
+process.eventWeightPUAB.DataFile = cms.FileInPath("TopMass/Configuration/PU/PU_Run2011AB.root")
 
 
 ## ---
@@ -252,6 +249,7 @@ process.path = cms.Path(#process.patDefaultSequence *
                         process.semiLeptonicSelection *
                         process.semiLeptonicEvents *
                         process.eventWeightPU *
+                        process.eventWeightPUAB *
                         process.bTagSFEventWeight *
                         process.bTagSFEventWeightBTagSFUp *
                         process.bTagSFEventWeightBTagSFDown *
@@ -281,6 +279,8 @@ prependPF2PATSequence(process, options = {'runOnOLDcfg': True,
                                           'runOnAOD': True,
                                           'electronIDs': '',
                                           'switchOffEmbedding': False,
+                                          'pfIsoConeMuon': 0.4,
+                                          'pfIsoConeElec': 0.4,
                                           'skipIfNoPFMuon': True,
                                           'METCorrectionLevel': 2,
                                           })
