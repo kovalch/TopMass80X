@@ -5,6 +5,12 @@ double IdeogramAnalyzer::GetMass() {
 }
 
 void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
+  Scan(cuts, i, j, 154, 190, 2, 0.9, 1.1, 0.02);
+  Scan(cuts, i, j, fMass-4, fMass+4, 0.25, fJES-0.03, fJES+0.03, 0.0015);
+}
+
+void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, double lastBinMass,
+              double resolMass, double firstBinJes, double lastBinJes, double resolJes) {
 
   bool debug = false;
   int nDebug = 1;
@@ -16,22 +22,13 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   // S e t u p   c o m p o n e n t   p d f s 
   // ---------------------------------------
 
-  double firstBinMass = 154;
-  double lastBinMass  = 190;
-  double resolMass    = 1.;
   int binsMass     = (lastBinMass-firstBinMass)/resolMass;
   
-  double firstBinJes = 0.9;
-  double lastBinJes  = 1.1;
-  double resolJes    = 0.005;
   int binsJes        = (lastBinJes-firstBinJes)/resolJes;
   
-  double pullWidth   = 1.365*1.07; //*1.053; //1.37068*1.07696;//1.24956e+00; //0.715;
+  double pullWidth   = 1.22; //*1.053; //1.37068*1.07696;//1.24956e+00; //0.715;
   
-  // Pile up corrections
-  double mWnVertex   = 0.; // IdeogramAnalyzer::mWnVertex() - 0.1;
-  
-  //*
+  /*
   if (debug) {
     firstBinMass = 100;
     lastBinMass  = 350;
@@ -89,24 +86,28 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   int combi;
   int nEvents = 0;
   
+  //TFile* file = new TFile("tree.root", "UPDATE");
   TTree* eventTree = fTree->CopyTree(cuts);
+  //file->Write();
   
   eventTree->SetBranchAddress("hadTopMass", &hadTopMass);
   eventTree->SetBranchAddress("hadWRawMass", &hadWRawMass);
-  eventTree->SetBranchAddress("deltaThetaHadWHadB", &deltaThetaHadWHadB);
-  eventTree->SetBranchAddress("hitFitChi2", &hitFitChi2);
+  //eventTree->SetBranchAddress("deltaThetaHadWHadB", &deltaThetaHadWHadB);
+  //eventTree->SetBranchAddress("hitFitChi2", &hitFitChi2);
   eventTree->SetBranchAddress("hitFitProb", &hitFitProb);
   eventTree->SetBranchAddress("event", &event);
   eventTree->SetBranchAddress("combi", &combi);
   eventTree->SetBranchAddress("PUWeight", &PUWeight);
   eventTree->SetBranchAddress("muWeight", &muWeight);
   eventTree->SetBranchAddress("bWeight", &bWeight);
+  /*
   eventTree->SetBranchAddress("bWeight_bTagSFUp", &bWeight_bTagSFUp);
   eventTree->SetBranchAddress("bWeight_bTagSFDown", &bWeight_bTagSFDown);
   eventTree->SetBranchAddress("bWeight_misTagSFUp", &bWeight_misTagSFUp);
   eventTree->SetBranchAddress("bWeight_misTagSFDown", &bWeight_misTagSFDown);
   eventTree->SetBranchAddress("nVertex", &nVertex);
   eventTree->SetBranchAddress("pdfWeights", &pdfWeights);
+  //*/
   
   // Build Likelihood
   for (int iEntry = 0; iEntry < eventTree->GetEntries(); iEntry++) {
@@ -349,29 +350,6 @@ void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   delete sumLogLikelihood;
   
   std::cout << "IdeogramAnalyzer done" << std::endl;
-}
-
-double IdeogramAnalyzer::QBTagProbability(double bDiscriminator) {
-  if (bDiscriminator == -100) return 0.787115;
-  if (bDiscriminator < 0) return 1;
-  
-  double p0 = 5.91566e+00;
-  double p1 = 5.94611e-01;
-  double p2 = 3.53592e+00;
-  
-  return p0 * TMath::Voigt(bDiscriminator, p1, p2);
-}
-
-double IdeogramAnalyzer::mWnVertex() {
-  TF1* linearFit = new TF1("linearFit", "[0]+(x-0.)*[1]");
-  
-  fTree->Draw("hadWRawMass:nVertex >> h2(15, 0, 15, 100, 50, 150)", "(hitFitProb>0.2)");
-  TH2D* h2 = (TH2D*)gDirectory->Get("h2");
-  h2->FitSlicesY();
-  TH1D *h2_1 = (TH1D*)gDirectory->Get("h2_1");
-  h2_1->Fit("linearFit");
-
-  return linearFit->GetParameter(1);
 }
 
 

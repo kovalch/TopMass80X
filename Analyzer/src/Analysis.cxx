@@ -134,6 +134,7 @@ void Analysis::Analyze(bool reanalyze) {
   
   delete canvas;
   delete fAnalyzer;
+  delete tempFile;
 
   fAnalyzed = true;
 }
@@ -156,7 +157,7 @@ void Analysis::CreateHistos() {
 void Analysis::CreateRandomSubset() {
   fChain->SetBranchStatus("*",0);
   fChain->SetBranchStatus("target", 1);
-  fChain->SetBranchStatus("run", 1);
+  //fChain->SetBranchStatus("run", 1);
   fChain->SetBranchStatus("hadTopMass", 1);
   /*
 	fChain->SetBranchStatus("hadTopPt", 1);
@@ -170,54 +171,59 @@ void Analysis::CreateRandomSubset() {
   fChain->SetBranchStatus("lepBPt", 1);
 	*/
   fChain->SetBranchStatus("hadWRawMass", 1);
-  fChain->SetBranchStatus("nlJetPt", 1);
-  fChain->SetBranchStatus("hadQPt", 1);
-  fChain->SetBranchStatus("hadQBarPt", 1);
+  //fChain->SetBranchStatus("nlJetPt", 1);
+  //fChain->SetBranchStatus("hadQPt", 1);
+  //fChain->SetBranchStatus("hadQBarPt", 1);
   fChain->SetBranchStatus("leptonPt", 1);
-  fChain->SetBranchStatus("hitFitChi2", 1);
+  //fChain->SetBranchStatus("hitFitChi2", 1);
   fChain->SetBranchStatus("hitFitProb", 1);
-  fChain->SetBranchStatus("bProbSSV", 1);
+  //fChain->SetBranchStatus("bProbSSV", 1);
   fChain->SetBranchStatus("event", 1);
   fChain->SetBranchStatus("combi", 1);
   fChain->SetBranchStatus("deltaThetaHadWHadB", 1);
   fChain->SetBranchStatus("deltaThetaHadQHadQBar", 1);
   fChain->SetBranchStatus("PUWeight", 1);
-  fChain->SetBranchStatus("PUWeightUp", 1);
-  fChain->SetBranchStatus("PUWeightDown", 1);
+  //fChain->SetBranchStatus("PUWeightUp", 1);
+  //fChain->SetBranchStatus("PUWeightDown", 1);
   fChain->SetBranchStatus("muWeight", 1);
   fChain->SetBranchStatus("bWeight", 1);
-  fChain->SetBranchStatus("bWeight_bTagSFUp", 1);
-  fChain->SetBranchStatus("bWeight_bTagSFDown", 1);
-  fChain->SetBranchStatus("bWeight_misTagSFUp", 1);
-  fChain->SetBranchStatus("bWeight_misTagSFDown", 1);
-  fChain->SetBranchStatus("jetMultiplicity", 1);
-  fChain->SetBranchStatus("nVertex", 1);
+  //fChain->SetBranchStatus("bWeight_bTagSFUp", 1);
+  //fChain->SetBranchStatus("bWeight_bTagSFDown", 1);
+  //fChain->SetBranchStatus("bWeight_misTagSFUp", 1);
+  //fChain->SetBranchStatus("bWeight_misTagSFDown", 1);
+  //fChain->SetBranchStatus("jetMultiplicity", 1);
+  fChain->SetBranchStatus("bottomSSVJetMultiplicity", 1);
+  //fChain->SetBranchStatus("nVertex", 1);
   
-  fChain->SetBranchStatus("pdfWeights", 1);
+  //fChain->SetBranchStatus("pdfWeights", 1);
   
   fChain->SetBranchStatus("hadQBSSV", 1);
   fChain->SetBranchStatus("hadQBarBSSV", 1);
   fChain->SetBranchStatus("hadBBSSV", 1);
   fChain->SetBranchStatus("lepBBSSV", 1);
+  
+  TTree* tempTree = fChain->CopyTree("leptonPt>30 & bottomSSVJetMultiplicity > 1");
+  
+  tempFile = new TFile("tempTree.root", "UPDATE");
 
   if (fLumi>0) {
     TRandom3* random = new TRandom3(0);
-    double events = 2422./1132.*fLumi;
+    double events = 9716./4700.*fLumi;
     //double events = 235./36.*fLumi;
-    double fullEvents = fChain->GetEntries("combi==0");
+    double fullEvents = tempTree->GetEntries("combi==0");
 
-    fTree = fChain->CloneTree(0);
+    fTree = tempTree->CloneTree(0);
     
     int combi;
-    fChain->SetBranchAddress("combi", &combi);
+    tempTree->SetBranchAddress("combi", &combi);
     fTree->SetBranchAddress("combi", &combi);
     
-    for (int iEntry = 0; iEntry < fChain->GetEntries(); iEntry++) {
-      fChain->GetEntry(iEntry);
+    for (int iEntry = 0; iEntry < tempTree->GetEntries(); iEntry++) {
+      tempTree->GetEntry(iEntry);
       if (combi!=0) continue;
       if (random->Rndm() < events/fullEvents) {
         for (int iComb = 0; iComb < 24; iComb++) {
-	        fChain->GetEntry(iEntry + iComb);
+	        tempTree->GetEntry(iEntry + iComb);
 	        
           if ((iComb != 0 && combi == 0)) {
             iEntry = iEntry + iComb - 1;
@@ -230,8 +236,13 @@ void Analysis::CreateRandomSubset() {
     }
   }
   else {
-    fTree = fChain->CloneTree();
+    fTree = tempTree->CloneTree();
   }
+  
+  //tempFile->Write();
+  
+  delete tempTree;
+  //delete file;
 }
 
 TH2F* Analysis::GetH2Mass() {

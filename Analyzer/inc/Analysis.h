@@ -28,6 +28,7 @@ class Analysis {
     
     TChain* fChain;
     TTree* fTree;
+    TFile* tempFile;
     TH2F* hEntries;
     TH2F* hMass;
     TH2F* hMassError;

@@ -226,46 +226,7 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
 	edm::Handle<double> PUWeightDownSrc_h;
   evt.getByLabel(PUWeightDownSrc_, PUWeightDownSrc_h);
   PUWeightDown = PUWeightDownSrc_h.isValid() ? *PUWeightDownSrc_h : -100.;
-/////////  
-  /*
-  edm::Handle<double> PUAWeightSrc_h;
-  evt.getByLabel("eventWeightPUA", "eventWeightPU3D", PUAWeightSrc_h);
-  PUAWeight = PUAWeightSrc_h.isValid() ? *PUAWeightSrc_h : -100.;
   
-  edm::Handle<double> PUAWeightUpSrc_h;
-  evt.getByLabel("eventWeightPUA", "eventWeightPU3DUp", PUAWeightUpSrc_h);
-  PUAWeightUp = PUAWeightUpSrc_h.isValid() ? *PUAWeightUpSrc_h : -100.;
-	
-	edm::Handle<double> PUAWeightDownSrc_h;
-  evt.getByLabel("eventWeightPUA", "eventWeightPU3DDown", PUAWeightDownSrc_h);
-  PUAWeightDown = PUAWeightDownSrc_h.isValid() ? *PUAWeightDownSrc_h : -100.;
-  
-  edm::Handle<double> PUBWeightSrc_h;
-  evt.getByLabel("eventWeightPUB", "eventWeightPU3D", PUBWeightSrc_h);
-  PUBWeight = PUBWeightSrc_h.isValid() ? *PUBWeightSrc_h : -100.;
-  
-  edm::Handle<double> PUBWeightUpSrc_h;
-  evt.getByLabel("eventWeightPUB", "eventWeightPU3DUp", PUBWeightUpSrc_h);
-  PUBWeightUp = PUBWeightUpSrc_h.isValid() ? *PUBWeightUpSrc_h : -100.;
-	
-	edm::Handle<double> PUBWeightDownSrc_h;
-  evt.getByLabel("eventWeightPUB", "eventWeightPU3DDown", PUBWeightDownSrc_h);
-  PUBWeightDown = PUBWeightDownSrc_h.isValid() ? *PUBWeightDownSrc_h : -100.;
-  */
-  
-  edm::Handle<double> PUABWeightSrc_h;
-  evt.getByLabel("eventWeightPUAB", "eventWeightPU3D", PUABWeightSrc_h);
-  PUABWeight = PUABWeightSrc_h.isValid() ? *PUABWeightSrc_h : -100.;
-  
-  edm::Handle<double> PUABWeightUpSrc_h;
-  evt.getByLabel("eventWeightPUAB", "eventWeightPU3DUp", PUABWeightUpSrc_h);
-  PUABWeightUp = PUABWeightUpSrc_h.isValid() ? *PUABWeightUpSrc_h : -100.;
-	
-	edm::Handle<double> PUABWeightDownSrc_h;
-  evt.getByLabel("eventWeightPUAB", "eventWeightPU3DDown", PUABWeightDownSrc_h);
-  PUABWeightDown = PUABWeightDownSrc_h.isValid() ? *PUABWeightDownSrc_h : -100.;
-
-/////////  
   edm::Handle<double> bWeightSrc_h;
   evt.getByLabel(bWeightSrc_, bWeightSrc_h);
   bWeight = bWeightSrc_h.isValid() ? *bWeightSrc_h : -100.;
@@ -824,20 +785,6 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("PUWeight", &PUWeight, "PUWeight/D");
 	eventTree->Branch("PUWeightUp", &PUWeightUp, "PUWeightUp/D");
 	eventTree->Branch("PUWeightDown", &PUWeightDown, "PUWeightDown/D");
-	
-	/*
-	eventTree->Branch("PUAWeight", &PUAWeight, "PUAWeight/D");
-	eventTree->Branch("PUAWeightUp", &PUAWeightUp, "PUAWeightUp/D");
-	eventTree->Branch("PUAWeightDown", &PUAWeightDown, "PUAWeightDown/D");
-	
-	eventTree->Branch("PUBWeight", &PUBWeight, "PUBWeight/D");
-	eventTree->Branch("PUBWeightUp", &PUBWeightUp, "PUBWeightUp/D");
-	eventTree->Branch("PUBWeightDown", &PUBWeightDown, "PUBWeightDown/D");
-	*/
-	
-	eventTree->Branch("PUABWeight", &PUABWeight, "PUABWeight/D");
-	eventTree->Branch("PUABWeightUp", &PUABWeightUp, "PUABWeightUp/D");
-	eventTree->Branch("PUABWeightDown", &PUABWeightDown, "PUABWeightDown/D");
 	
   eventTree->Branch("bWeight", &bWeight, "bWeight/D");
   eventTree->Branch("bWeight_bTagSFUp", &bWeight_bTagSFUp, "bWeight_bTagSFUp/D");

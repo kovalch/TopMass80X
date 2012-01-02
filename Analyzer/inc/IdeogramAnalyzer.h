@@ -12,12 +12,15 @@
 #include "TStyle.h"
 #include "TLegend.h"
 #include "TDirectory.h"
+#include "TFile.h"
 
 class IdeogramAnalyzer : public MassAnalyzer {
   private:
     double QBTagProbability(double bDiscriminator);
     double mWnVertex();
     double mTnVertex();
+    void Scan(TString cuts, int i, int j, double firstBinMass, double lastBinMass,
+              double resolMass, double firstBinJes, double lastBinJes, double resolJes);
   
   public:
     IdeogramAnalyzer(TString identifier, TTree* tree) : MassAnalyzer(identifier, tree) {};

@@ -39,6 +39,10 @@ bJesFactor = '@bJesFactor@'
 if bJesFactor.startswith('@'):
   bJesFactor = '1.0'
 
+resolution = '@resolution@'
+if resolution.startswith('@'):
+  resolution = 'nominal'
+
 scaleType = '@scaleType@'
 if scaleType.startswith('@'):
   scaleType = 'abs'
@@ -64,7 +68,7 @@ else:
   readFiles.extend( [
   #       '/store/data/Run2011A/SingleMu/AOD/May10ReReco-v1/0000/00454769-577B-E011-ACCD-001E0B49808A.root',
          '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/FEEE3638-F297-E011-AAF8-00304867BEC0.root',
-  #        '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/02719D6B-1398-E011-AA71-001A92971B94.root',
+         '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/02719D6B-1398-E011-AA71-001A92971B94.root',
   #       '/store/mc/Summer11/WJetsToLNu_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/0004EB5E-64AC-E011-B046-003048678FDE.root',
   ] )
 
@@ -109,10 +113,13 @@ scaledJetEnergy.inputJets    = "selectedPatJetsAK5PF"
 scaledJetEnergy.inputMETs    = "patMETsPF"
 scaledJetEnergy.scaleFactor  = float(lJesFactor)
 scaledJetEnergy.scaleFactorB = float(bJesFactor)
-#scaledJetEnergy.resolutionFactors   = [0.994 , 1.126   , 1.006   , 0.961  ]
-scaledJetEnergy.resolutionFactors   = [1.066 , 1.191   , 1.096   , 1.166  ]
-#scaledJetEnergy.resolutionFactors   = [1.140 , 1.258   , 1.190   , 1.370  ]
-scaledJetEnergy.resolutionEtaRanges = [0, 1.1, 1.1, 1.7, 1.7, 2.3, 2.3, -1]
+if (resolution=='down'):
+  scaledJetEnergy.resolutionFactors   = [0.994, 1.126, 1.006, 0.961]
+if (resolution=='nominal'):
+  scaledJetEnergy.resolutionFactors   = [1.066, 1.191, 1.096, 1.166]
+if (resolution=='up'):
+  scaledJetEnergy.resolutionFactors   = [1.140, 1.258, 1.190, 1.370]
+scaledJetEnergy.resolutionEtaRanges   = [0, 1.1, 1.1, 1.7, 1.7, 2.3, 2.3, -1]
 
 
 process.noOverlapJetsPF.src = "scaledJetEnergy:selectedPatJets"
@@ -195,10 +202,14 @@ if(options.sample=="WZ"):
 if(options.sample=="ZZ"):
     process.eventWeightPU.MCSampleFile = cms.FileInPath("TopAnalysis/TopUtils/data/MC_PUDist_Summer11_ZZ_TuneZ2_7TeV_pythia6_tauola.root")
     
-process.eventWeightPU.DataFile = cms.FileInPath("TopAnalysis/TopUtils/data/Data_PUDist_160404-163869_7TeV_May10ReReco_Collisions11_v2_and_165088-167913_7TeV_PromptReco_Collisions11.root")
+process.eventWeightPU.DataFile = cms.FileInPath("TopMass/Configuration/PU/PU_Run2011_finebin.root")
+process.eventWeightPU.DataHistoName = "pileup"
 
-process.eventWeightPUAB = eventWeightPU.clone(DataHistoName = "pileup71")
-process.eventWeightPUAB.DataFile = cms.FileInPath("TopMass/Configuration/PU/PU_Run2011AB.root")
+process.eventWeightPU.CreateWeight3DHisto = True
+#process.eventWeightPU.Weight3DHistoFile   = cms.FileInPath("TopMass/Configuration/PU/Weight3D.root")
+
+#process.eventWeightPUAB = eventWeightPU.clone() #DataHistoName = "pileup71")
+#process.eventWeightPUAB.DataFile = cms.FileInPath("TopMass/Configuration/PU/PU_Run2011AB.root")
 
 
 ## ---
@@ -249,7 +260,6 @@ process.path = cms.Path(#process.patDefaultSequence *
                         process.semiLeptonicSelection *
                         process.semiLeptonicEvents *
                         process.eventWeightPU *
-                        process.eventWeightPUAB *
                         process.bTagSFEventWeight *
                         process.bTagSFEventWeightBTagSFUp *
                         process.bTagSFEventWeightBTagSFDown *

@@ -2,8 +2,6 @@
 
 TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins(bins), fLumi(lumi) {
   
-  //aSim = new Analysis("sim", "root/analyzeTop_1725.root", fMethod, fBins, fLumi);
-  
   //QuickCalibration();
   //LoadXML();
   //QuickSystematics();
@@ -12,13 +10,24 @@ TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins
   //EvalEnsembleTest(true);
   //Measure(aSim);
   
+  //analyses.push_back(new Analysis("1725_100_S4_flavordown", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_flavor:down/analyzeTop.root", fMethod, fBins, 0));
+  //analyses.push_back(new Analysis("1725_100_S4_flavorup", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_flavor:up/analyzeTop.root", fMethod, fBins, 0));
+  analyses.push_back(new Analysis("1725_100_S4_jesdown", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_jes:down/analyzeTop.root", fMethod, fBins, 0));
+  analyses.push_back(new Analysis("1725_100_S4_jesup", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_jes:up/analyzeTop.root", fMethod, fBins, 0));
+  analyses.push_back(new Analysis("1725_100_S4_resdown", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_res:down/analyzeTop.root", fMethod, fBins, 0));
+  analyses.push_back(new Analysis("1725_100_S4_resup", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_res:up/analyzeTop.root", fMethod, fBins, 0));
+  
+  for (int i = 0; i < analyses.size(); i++) {
+    Measure(analyses[i]);
+  }
+  
   /*
-  Analysis* aSpring11_1725_100_100_2b = new Analysis("Spring11_1725_100_100_2b", "/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_1.00_1.00_2b/analyzeTop.root", fMethod, fBins, 100000);
+  Analysis* aSpring11_1725_100_100_2b = new Analysis("Spring11_1725_100_100_2b", "/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_1.00_1.00/analyzeTop.root", fMethod, fBins, 100000);
   Measure(aSpring11_1725_100_100_2b);
   //*/
   
   /*
-  Analysis* aSpring11_1725_Z2_2b = new Analysis("Spring11_1725_Z2_2b", "/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_Z2_2b/analyzeTop.root", fMethod, fBins, 100000);
+  Analysis* aSpring11_1725_Z2_2b = new Analysis("Spring11_1725_Z2_2b", "/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_Z2/analyzeTop.root", fMethod, fBins, 100000);
   Measure(aSpring11_1725_Z2_2b);
   //*/
   
@@ -121,77 +130,57 @@ TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins
   //*/
 	
   /*
-  Analysis* a1725_096_S4_2b = new Analysis("1725_096_S4_2b", "/scratch/hh/current/cms/user/mseidel/TTJets1725-S4_0.96_1.00_2b/analyzeTop.root", fMethod, fBins, 20000);
+  Analysis* a1725_096_S4_2b = new Analysis("1725_096_S4_2b", "/scratch/hh/current/cms/user/mseidel/TTJets1725-S4_0.96_1.00/analyzeTop.root", fMethod, fBins, 20000);
   Measure(a1725_096_S4_2b);
   //*/
 	
   /* Summer11 central
-  Analysis* aSummer11_1725_100_2b = new Analysis("Summer11_1725_100_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00_2b/analyzeTop.root", fMethod, fBins, 200000000);
-  Measure(aSummer11_1725_100_2b);
-  //*/
-  
-  /* Summer11 central, Mu15
-  Analysis* aSummer11_1725_100_2b_Mu15 = new Analysis("Summer11_1725_100_2b_Mu15", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00_2b_Mu15/analyzeTop.root", fMethod, fBins, 200000000);
-  Measure(aSummer11_1725_100_2b_Mu15);
-  //*/
-  
-  /* Summer11 central, IsoMu17
-  Analysis* aSummer11_1725_100_2b_IsoMu17 = new Analysis("Summer11_1725_100_2b_IsoMu17", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00_2b_IsoMu17/analyzeTop.root", fMethod, fBins, 200000000);
-  Measure(aSummer11_1725_100_2b_IsoMu17);
-  //*/
-
-  /* Summer11 central, Mu17_TriCentralJet30
-  Analysis* aSummer11_1725_100_2b_Mu17_TriCentralJet30 = new Analysis("Summer11_1725_100_2b_Mu17_TriCentralJet30", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00_2b_Mu17_TriCentralJet30/analyzeTop.root", fMethod, fBins, 200000000);
-  Measure(aSummer11_1725_100_2b_Mu17_TriCentralJet30);
-  //*/
-  
-  /* Summer11 btag
-  Analysis* aSummer11_1725_100_btag_2b = new Analysis("Summer11_1725_100_btag_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00_2b_btag/analyzeTop.root", fMethod, fBins, 200000000);
-  Measure(aSummer11_1725_100_btag_2b);
+  Analysis* aSummer11_1725_100 = new Analysis("Summer11_1725_100", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00/analyzeTop.root", fMethod, fBins, 0);
+  Measure(aSummer11_1725_100);
   //*/
 
   /*
-  Analysis* a1725_100_S4_metdown_2b = new Analysis("1725_100_S4_metdown_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_1.00_1.00_1.0_0.9_2b/analyzeTop.root", fMethod, fBins, 20000000);
+  Analysis* a1725_100_S4_metdown_2b = new Analysis("1725_100_S4_metdown_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_1.00_1.00_1.0_0.9/analyzeTop.root", fMethod, fBins, 20000000);
   Measure(a1725_100_S4_metdown_2b);
   //*/
 
   /*
-  Analysis* a1725_100_S4_metup_2b = new Analysis("1725_100_S4_metup_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_1.00_1.00_1.0_1.1_2b/analyzeTop.root", fMethod, fBins, 20000000);
+  Analysis* a1725_100_S4_metup_2b = new Analysis("1725_100_S4_metup_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_1.00_1.00_1.0_1.1/analyzeTop.root", fMethod, fBins, 20000000);
   Measure(a1725_100_S4_metup_2b);
   //*/
 	
   /*
-  Analysis* a1725_104_S4_2b = new Analysis("1725_104_S4_2b", "/scratch/hh/current/cms/user/mseidel/TTJets1725-S4_1.04_1.00_2b/analyzeTop.root", fMethod, fBins, 20000);
+  Analysis* a1725_104_S4_2b = new Analysis("1725_104_S4_2b", "/scratch/hh/current/cms/user/mseidel/TTJets1725-S4_1.04_1.00/analyzeTop.root", fMethod, fBins, 20000);
   Measure(a1725_104_S4_2b);
   //*/
 	
   /*
-  Analysis* a1725_100_S4_flavorup_2b = new Analysis("1725_100_S4_flavorup_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_flavor:up_2b_IsoMu17/analyzeTop.root", fMethod, fBins, 200000);
+  Analysis* a1725_100_S4_flavorup = new Analysis("1725_100_S4_flavorup", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_flavor:up/analyzeTop.root", fMethod, fBins, 0);
   Measure(a1725_100_S4_flavorup_2b);
   //*/
   
   /*
-  Analysis* a1725_100_S4_flavordown_2b = new Analysis("1725_100_S4_flavordown_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_flavor:down_2b_IsoMu17/analyzeTop.root", fMethod, fBins, 200000);
+  Analysis* a1725_100_S4_flavordown = new Analysis("1725_100_S4_flavordown", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_flavor:down/analyzeTop.root", fMethod, fBins, 0);
   Measure(a1725_100_S4_flavordown_2b);
   //*/
   
   /*
-  Analysis* a1725_100_S4_jesup_2b = new Analysis("1725_100_S4_jesup_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_jes:up_2b/analyzeTop.root", fMethod, fBins, 200000);
+  Analysis* a1725_100_S4_jesup_2b = new Analysis("1725_100_S4_jesup_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_jes:up/analyzeTop.root", fMethod, fBins, 200000);
   Measure(a1725_100_S4_jesup_2b);
   //*/
   
   /*
-  Analysis* a1725_100_S4_jesdown_2b = new Analysis("1725_100_S4_jesdown_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_jes:down_2b/analyzeTop.root", fMethod, fBins, 200000);
+  Analysis* a1725_100_S4_jesdown_2b = new Analysis("1725_100_S4_jesdown_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_jes:down/analyzeTop.root", fMethod, fBins, 200000);
   Measure(a1725_100_S4_jesdown_2b);
   //*/
   
   /*
-  Analysis* a1725_100_S4_105_2b = new Analysis("1725_100_S4_105_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_1.00_1.00_1.05_2b/analyzeTop.root", fMethod, fBins, 200000);
+  Analysis* a1725_100_S4_105_2b = new Analysis("1725_100_S4_105_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_1.00_1.00_1.05/analyzeTop.root", fMethod, fBins, 200000);
   Measure(a1725_100_S4_105_2b);
   //*/
   
   /*
-  Analysis* a1725_100_S4_115_2b = new Analysis("1725_100_S4_115_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_1.00_1.00_1.15_2b/analyzeTop.root", fMethod, fBins, 200000);
+  Analysis* a1725_100_S4_115_2b = new Analysis("1725_100_S4_115_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_1.00_1.00_1.15/analyzeTop.root", fMethod, fBins, 200000);
   Measure(a1725_100_S4_115_2b);
   //*/
 	
@@ -205,13 +194,13 @@ TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins
   Measure(aRun2011A_2b_IsoMu17);
   //*/
   
-  //* DATA, full 2011
+  /* DATA, full 2011
   Analysis* aRun2011_2b = new Analysis("Run2011_2b", "/scratch/hh/current/cms/user/mseidel/Run2011_2b.root", fMethod, fBins, 20000);
   Measure(aRun2011_2b);
   //*/
   
-  //* DATA, full 2011
-  Analysis* aRun2011 = new Analysis("Run2011", "/scratch/hh/current/cms/user/mseidel/Run2011.root", fMethod, fBins, 200000);
+  /* DATA, full 2011
+  Analysis* aRun2011 = new Analysis("Run2011", "/scratch/hh/current/cms/user/mseidel/Run2011.root", fMethod, fBins, 0);
   Measure(aRun2011);
   //*/
 	
@@ -251,37 +240,37 @@ TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins
   //*/
   
   /*
-  Analysis* aSummer11_1725_matchingdown_2b = new Analysis("Summer11_1725_matchingdown_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_matchingdown_1.00_2b/analyzeTop.root", fMethod, fBins, 200000);
-  Measure(aSummer11_1725_matchingdown_2b);
+  Analysis* aSummer11_1725_matchingdown = new Analysis("Summer11_1725_matchingdown", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_matchingdown/analyzeTop.root", fMethod, fBins, 0);
+  Measure(aSummer11_1725_matchingdown);
   //*/
 	
   /*
-  Analysis* aSummer11_1725_matchingup_2b = new Analysis("Summer11_1725_matchingup_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_matchingup_1.00_2b/analyzeTop.root", fMethod, fBins, 200000);
-  Measure(aSummer11_1725_matchingup_2b);
+  Analysis* aSummer11_1725_matchingup = new Analysis("Summer11_1725_matchingup", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_matchingup/analyzeTop.root", fMethod, fBins, 0);
+  Measure(aSummer11_1725_matchingup);
   //*/
 	
 	/*
-  Analysis* aSummer11_1725_scaledown_2b = new Analysis("Summer11_1725_scaledown_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_scaledown_1.00_2b/analyzeTop.root", fMethod, fBins, 200000);
-  Measure(aSummer11_1725_scaledown_2b);
+  Analysis* aSummer11_1725_scaledown = new Analysis("Summer11_1725_scaledown", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_scaledown/analyzeTop.root", fMethod, fBins, 0);
+  Measure(aSummer11_1725_scaledown);
   //*/
 	
 	/*
-  Analysis* aSummer11_1725_scaleup_2b = new Analysis("Summer11_1725_scaleup_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_scaleup_1.00_2b/analyzeTop.root", fMethod, fBins, 200000);
-  Measure(aSummer11_1725_scaleup_2b);
+  Analysis* aSummer11_1725_scaleup = new Analysis("Summer11_1725_scaleup", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_scaleup/analyzeTop.root", fMethod, fBins, 0);
+  Measure(aSummer11_1725_scaleup);
   //*/
   
   /*
-  Analysis* aSummer11_1725_pdf_2b = new Analysis("Summer11_1725_pdf_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_pdf_1.00_2b/analyzeTop.root", fMethod, fBins, 200000);
+  Analysis* aSummer11_1725_pdf_2b = new Analysis("Summer11_1725_pdf_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_pdf_1.00/analyzeTop.root", fMethod, fBins, 200000);
   Measure(aSummer11_1725_pdf_2b);
   //*/
   
   /*
-  Analysis* aSummer11_1725_jerdown_2b = new Analysis("Summer11_1725_jerdown_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00_jer:down_2b/analyzeTop.root", fMethod, fBins, 200000);
+  Analysis* aSummer11_1725_jerdown_2b = new Analysis("Summer11_1725_jerdown_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00_jer:down/analyzeTop.root", fMethod, fBins, 200000);
   Measure(aSummer11_1725_jerdown_2b);
   //*/
   
   /*
-  Analysis* aSummer11_1725_jerup_2b = new Analysis("Summer11_1725_jerup_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00_jer:up_2b/analyzeTop.root", fMethod, fBins, 200000);
+  Analysis* aSummer11_1725_jerup_2b = new Analysis("Summer11_1725_jerup_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00_jer:up/analyzeTop.root", fMethod, fBins, 200000);
   Measure(aSummer11_1725_jerup_2b);
   //*/
 }
@@ -303,7 +292,7 @@ void TopMass::WriteEnsembleTest(bool readCalibration) {
   massPoint m1725(172.5, "1725");
   massPoints.push_back(m1725);
   
-  int nEnsembles = 50;
+  int nEnsembles = 5;
   
   for (iMassPoint = massPoints.begin(); iMassPoint != massPoints.end(); ++iMassPoint) {
     iMassPoint->analysis = new Analysis(iMassPoint->identifier, iMassPoint->fileName, fMethod, fBins, fLumi);
@@ -599,35 +588,35 @@ void TopMass::QuickCalibration() {
   }
   
 	
-  Analysis* a1615_096 = new Analysis("1615_096", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1615_0.96_2b/analyzeTop.root", fMethod, fBins, 100000);
-	Analysis* a1635_096 = new Analysis("1635_096", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1635_0.96_2b/analyzeTop.root", fMethod, fBins, 100000);
-	Analysis* a1665_096 = new Analysis("1665_096", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1665_0.96_2b/analyzeTop.root", fMethod, fBins, 100000);
-	Analysis* a1695_096 = new Analysis("1695_096", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1695_0.96_2b/analyzeTop.root", fMethod, fBins, 100000);
-  Analysis* a1725_096 = new Analysis("1725_096", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_0.96_2b/analyzeTop.root", fMethod, fBins, 100000);
-	Analysis* a1755_096 = new Analysis("1755_096", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1755_0.96_2b/analyzeTop.root", fMethod, fBins, 100000);
-  Analysis* a1785_096 = new Analysis("1785_096", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1785_0.96_2b/analyzeTop.root", fMethod, fBins, 100000);
-	Analysis* a1815_096 = new Analysis("1815_096", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1815_0.96_2b/analyzeTop.root", fMethod, fBins, 100000);
-	Analysis* a1845_096 = new Analysis("1845_096", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1845_0.96_2b/analyzeTop.root", fMethod, fBins, 100000);
+  Analysis* a1615_096 = new Analysis("1615_096", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1615_0.96/analyzeTop.root", fMethod, fBins, 0);
+	Analysis* a1635_096 = new Analysis("1635_096", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1635_0.96/analyzeTop.root", fMethod, fBins, 0);
+	Analysis* a1665_096 = new Analysis("1665_096", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1665_0.96/analyzeTop.root", fMethod, fBins, 0);
+	Analysis* a1695_096 = new Analysis("1695_096", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1695_0.96/analyzeTop.root", fMethod, fBins, 0);
+  Analysis* a1725_096 = new Analysis("1725_096", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_0.96/analyzeTop.root", fMethod, fBins, 0);
+	Analysis* a1755_096 = new Analysis("1755_096", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1755_0.96/analyzeTop.root", fMethod, fBins, 0);
+  Analysis* a1785_096 = new Analysis("1785_096", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1785_0.96/analyzeTop.root", fMethod, fBins, 0);
+	Analysis* a1815_096 = new Analysis("1815_096", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1815_0.96/analyzeTop.root", fMethod, fBins, 0);
+	Analysis* a1845_096 = new Analysis("1845_096", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1845_0.96/analyzeTop.root", fMethod, fBins, 0);
   
-  Analysis* a1615_100 = new Analysis("1615_100", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1615_1.00_2b/analyzeTop.root", fMethod, fBins, 100000);
-	Analysis* a1635_100 = new Analysis("1635_100", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1635_1.00_2b/analyzeTop.root", fMethod, fBins, 100000);
-	Analysis* a1665_100 = new Analysis("1665_100", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1665_1.00_2b/analyzeTop.root", fMethod, fBins, 100000);
-	Analysis* a1695_100 = new Analysis("1695_100", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1695_1.00_2b/analyzeTop.root", fMethod, fBins, 100000);
-  Analysis* a1725_100 = new Analysis("1725_100", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00_2b/analyzeTop.root", fMethod, fBins, 100000);
-	Analysis* a1755_100 = new Analysis("1755_100", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1755_1.00_2b/analyzeTop.root", fMethod, fBins, 100000);
-  Analysis* a1785_100 = new Analysis("1785_100", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1785_1.00_2b/analyzeTop.root", fMethod, fBins, 100000);
-	Analysis* a1815_100 = new Analysis("1815_100", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1815_1.00_2b/analyzeTop.root", fMethod, fBins, 100000);
-	Analysis* a1845_100 = new Analysis("1845_100", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1845_1.00_2b/analyzeTop.root", fMethod, fBins, 100000);
+  Analysis* a1615_100 = new Analysis("1615_100", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1615_1.00/analyzeTop.root", fMethod, fBins, 0);
+	Analysis* a1635_100 = new Analysis("1635_100", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1635_1.00/analyzeTop.root", fMethod, fBins, 0);
+	Analysis* a1665_100 = new Analysis("1665_100", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1665_1.00/analyzeTop.root", fMethod, fBins, 0);
+	Analysis* a1695_100 = new Analysis("1695_100", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1695_1.00/analyzeTop.root", fMethod, fBins, 0);
+  Analysis* a1725_100 = new Analysis("1725_100", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00/analyzeTop.root", fMethod, fBins, 0);
+	Analysis* a1755_100 = new Analysis("1755_100", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1755_1.00/analyzeTop.root", fMethod, fBins, 0);
+  Analysis* a1785_100 = new Analysis("1785_100", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1785_1.00/analyzeTop.root", fMethod, fBins, 0);
+	Analysis* a1815_100 = new Analysis("1815_100", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1815_1.00/analyzeTop.root", fMethod, fBins, 0);
+	Analysis* a1845_100 = new Analysis("1845_100", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1845_1.00/analyzeTop.root", fMethod, fBins, 0);
   
-  Analysis* a1615_104 = new Analysis("1615_104", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1615_1.04_2b/analyzeTop.root", fMethod, fBins, 100000);
-	Analysis* a1635_104 = new Analysis("1635_104", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1635_1.04_2b/analyzeTop.root", fMethod, fBins, 100000);
-	Analysis* a1665_104 = new Analysis("1665_104", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1665_1.04_2b/analyzeTop.root", fMethod, fBins, 100000);
-	Analysis* a1695_104 = new Analysis("1695_104", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1695_1.04_2b/analyzeTop.root", fMethod, fBins, 100000);
-  Analysis* a1725_104 = new Analysis("1725_104", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.04_2b/analyzeTop.root", fMethod, fBins, 100000);
-	Analysis* a1755_104 = new Analysis("1755_104", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1755_1.04_2b/analyzeTop.root", fMethod, fBins, 100000);
-  Analysis* a1785_104 = new Analysis("1785_104", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1785_1.04_2b/analyzeTop.root", fMethod, fBins, 100000);
-	Analysis* a1815_104 = new Analysis("1815_104", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1815_1.04_2b/analyzeTop.root", fMethod, fBins, 100000);
-	Analysis* a1845_104 = new Analysis("1845_104", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1845_1.04_2b/analyzeTop.root", fMethod, fBins, 100000);
+  Analysis* a1615_104 = new Analysis("1615_104", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1615_1.04/analyzeTop.root", fMethod, fBins, 0);
+	Analysis* a1635_104 = new Analysis("1635_104", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1635_1.04/analyzeTop.root", fMethod, fBins, 0);
+	Analysis* a1665_104 = new Analysis("1665_104", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1665_1.04/analyzeTop.root", fMethod, fBins, 0);
+	Analysis* a1695_104 = new Analysis("1695_104", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1695_1.04/analyzeTop.root", fMethod, fBins, 0);
+  Analysis* a1725_104 = new Analysis("1725_104", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.04/analyzeTop.root", fMethod, fBins, 0);
+	Analysis* a1755_104 = new Analysis("1755_104", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1755_1.04/analyzeTop.root", fMethod, fBins, 0);
+  Analysis* a1785_104 = new Analysis("1785_104", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1785_1.04/analyzeTop.root", fMethod, fBins, 0);
+	Analysis* a1815_104 = new Analysis("1815_104", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1815_1.04/analyzeTop.root", fMethod, fBins, 0);
+	Analysis* a1845_104 = new Analysis("1845_104", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1845_1.04/analyzeTop.root", fMethod, fBins, 0);
 	  
   calibrationAnalyses[0].push_back(a1615_096);
   calibrationAnalyses[0].push_back(a1635_096);
@@ -957,9 +946,9 @@ TH2F* TopMass::Measure(Analysis* a) {
 
 void TopMass::QuickSystematics() {
 
-  Analysis* a1725 = new Analysis("1725", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00_2b/analyzeTop.root", fMethod, fBins, 100000);
-  Analysis* a1725_jes_up = new Analysis("1725_jes_up", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_flavor:up_2b/analyzeTop.root", fMethod, fBins, 100000);
-  Analysis* a1725_jes_down = new Analysis("1725_jes_down", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_flavor:down_2b/analyzeTop.root", fMethod, fBins, 100000);
+  Analysis* a1725 = new Analysis("1725", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00/analyzeTop.root", fMethod, fBins, 100000);
+  Analysis* a1725_jes_up = new Analysis("1725_jes_up", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_flavor:up/analyzeTop.root", fMethod, fBins, 100000);
+  Analysis* a1725_jes_down = new Analysis("1725_jes_down", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_flavor:down/analyzeTop.root", fMethod, fBins, 100000);
   
   TH2F* hMassJESdown = Measure(a1725_jes_down);
   TH2F* hMassJESnorm = Measure(a1725);
@@ -1026,7 +1015,7 @@ void TopMass::LoadXML() {
 int main(int argc, char** argv)
 {
   if (argc > 1) {
-    TopMass* top = new TopMass(argv[1], 1, 1100);
+    TopMass* top = new TopMass(argv[1], 1, 4700);
   }
   else {
     TopMass* top = new TopMass("GenMatch", 6, 500);

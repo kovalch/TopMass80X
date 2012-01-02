@@ -6,8 +6,8 @@
 
 #include "tdrstyle.C"
 
-int target = 1;
-int obs    = 4; // 0: hadTopMass, 1: hadWRawMass
+int target = -10;
+int obs    = 1; // 0: hadTopMass, 1: hadWRawMass
 
 bool plotByMass = false;
 
@@ -119,8 +119,8 @@ void observableByJESByMass() {
   setTDRStyle();
   TH1::SetDefaultSumw2();
 
-  for (int i=4; i<5; i++) {
-	  std::cout << "### FindParametersMass(i); ###" << std::endl;
+  for (int i=0; i<9; i++) {
+	  std::cout << "### FindParametersMass(" << i << "); ###" << std::endl;
     FindParametersMass(i);
 		/*
 		mypause();
@@ -254,69 +254,69 @@ void FindParametersMass(int iMass)
   if (!plotByMass) {
     switch(iMass) {
       case 0: {
-        TH1F* h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1615_0.96_2b/analyzeTop.root", 0);
-        TH1F* h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1615_1.00_2b/analyzeTop.root", 1);
-        TH1F* h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1615_1.04_2b/analyzeTop.root", 2);
+        TH1F* h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1615_0.96/analyzeTop.root", 0);
+        TH1F* h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1615_1.00/analyzeTop.root", 1);
+        TH1F* h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1615_1.04/analyzeTop.root", 2);
         break;
       }
       case 1: {
-        TH1F* h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1635_0.96_2b/analyzeTop.root", 0);
-        TH1F* h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1635_1.00_2b/analyzeTop.root", 1);
-        TH1F* h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1635_1.04_2b/analyzeTop.root", 2);
+        TH1F* h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1635_0.96/analyzeTop.root", 0);
+        TH1F* h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1635_1.00/analyzeTop.root", 1);
+        TH1F* h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1635_1.04/analyzeTop.root", 2);
         break;
       }
 		  case 2: {
-        TH1F* h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1665_0.96_2b/analyzeTop.root", 0);
-        TH1F* h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1665_1.00_2b/analyzeTop.root", 1);
-        TH1F* h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1665_1.04_2b/analyzeTop.root", 2);
+        TH1F* h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1665_0.96/analyzeTop.root", 0);
+        TH1F* h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1665_1.00/analyzeTop.root", 1);
+        TH1F* h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1665_1.04/analyzeTop.root", 2);
         break;
       }
 		  case 3: {
-        TH1F* h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1695_0.96_2b/analyzeTop.root", 0);
-        TH1F* h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1695_1.00_2b/analyzeTop.root", 1);
-        TH1F* h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1695_1.04_2b/analyzeTop.root", 2);
+        TH1F* h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1695_0.96/analyzeTop.root", 0);
+        TH1F* h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1695_1.00/analyzeTop.root", 1);
+        TH1F* h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1695_1.04/analyzeTop.root", 2);
         break;
       }
 		  case 4: {
-        TH1F* h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_0.96_2b/analyzeTop.root", 0);
-        TH1F* h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00_2b/analyzeTop.root", 1);
-        TH1F* h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.04_2b/analyzeTop.root", 2);
+        TH1F* h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_0.96/analyzeTop.root", 0);
+        TH1F* h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00/analyzeTop.root", 1);
+        TH1F* h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.04/analyzeTop.root", 2);
         break;
       }
 		  case 5: {
-        TH1F* h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1755_0.96_2b/analyzeTop.root", 0);
-        TH1F* h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1755_1.00_2b/analyzeTop.root", 1);
-        TH1F* h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1755_1.04_2b/analyzeTop.root", 2);
+        TH1F* h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1755_0.96/analyzeTop.root", 0);
+        TH1F* h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1755_1.00/analyzeTop.root", 1);
+        TH1F* h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1755_1.04/analyzeTop.root", 2);
         break;
       }
 		  case 6: {
-        TH1F* h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1785_0.96_2b/analyzeTop.root", 0);
-        TH1F* h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1785_1.00_2b/analyzeTop.root", 1);
-        TH1F* h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1785_1.04_2b/analyzeTop.root", 2);
+        TH1F* h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1785_0.96/analyzeTop.root", 0);
+        TH1F* h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1785_1.00/analyzeTop.root", 1);
+        TH1F* h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1785_1.04/analyzeTop.root", 2);
         break;
       }
 		  case 7: {
-        TH1F* h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1815_0.96_2b/analyzeTop.root", 0);
-        TH1F* h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1815_1.00_2b/analyzeTop.root", 1);
-        TH1F* h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1815_1.04_2b/analyzeTop.root", 2);
+        TH1F* h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1815_0.96/analyzeTop.root", 0);
+        TH1F* h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1815_1.00/analyzeTop.root", 1);
+        TH1F* h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1815_1.04/analyzeTop.root", 2);
         break;
       }
 		  case 8: {
-        TH1F* h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1845_0.96_2b/analyzeTop.root", 0);
-        TH1F* h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1845_1.00_2b/analyzeTop.root", 1);
-        TH1F* h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1845_1.04_2b/analyzeTop.root", 2);
+        TH1F* h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1845_0.96/analyzeTop.root", 0);
+        TH1F* h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1845_1.00/analyzeTop.root", 1);
+        TH1F* h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1845_1.04/analyzeTop.root", 2);
         break;
       }
     }
   }
   else {
-    TH1F* h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1665_1.00_2b/analyzeTop.root", 0);
-    TH1F* h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00_2b/analyzeTop.root", 1);
-    TH1F* h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1785_1.00_2b/analyzeTop.root", 2); 
+    TH1F* h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1665_1.00/analyzeTop.root", 0);
+    TH1F* h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00/analyzeTop.root", 1);
+    TH1F* h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1785_1.00/analyzeTop.root", 2); 
   }
   
   h096->Draw();
-  if (obs == 0) h096->GetXaxis()->SetRangeUser(100, 250);
+  if (obs == 0) h096->GetXaxis()->SetRangeUser(100, 350);
   if (obs == 1) h096->GetXaxis()->SetRangeUser(50, 150);
   h100->Draw("SAME");
   h104->Draw("SAME");
@@ -530,7 +530,7 @@ TH1F* FindParameters(TString filename, int i)
       break;
     }
   }
-  TString sCutAndWeight("(hitFitProb*MCWeight)*(target=="); sCutAndWeight += target; sCutAndWeight += " & (hitFitProb) > 0.2)";
+  TString sCutAndWeight("(hitFitProb*MCWeight)*(target=="); sCutAndWeight += target; sCutAndWeight += " & hitFitProb > 0.2 & leptonPt > 30 & hadBBSSV>1.74 & lepBBSSV>1.74 & hadQBSSV<1.74 & hadQBarBSSV<1.74)";
 
   std::cout << sCutAndWeight << std::endl;
   

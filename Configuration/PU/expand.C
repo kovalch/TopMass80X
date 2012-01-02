@@ -22,8 +22,8 @@ void expand(TString sFile)
   pileup = (TH1F*) file->Get("pileup");
   TH1F* pileup71 = new TH1F("pileup71", "data-derived pileup distrubution", 71, -0.5, 70.5);
   
-  for (int i=0; i<71; i++) {
-    pileup71->SetBinContent(i, pileup->GetBinContent(i));
+  for (int i=1; i<71; i++) {
+    pileup71->SetBinContent(i, pileup->GetBinContent(i-1));
   }
   
   pileup71->Draw();

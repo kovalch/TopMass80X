@@ -40,12 +40,12 @@ struct massPoint {
   
   massPoint(double pGenMass, TString pIdentifier) :
       genMass(pGenMass), identifier(pIdentifier) {
-    if (fexists("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00_2b/analyzeTop.root")) {
+    if (fexists("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00/analyzeTop.root")) {
       fileName = "/scratch/hh/lustre/cms/user/mseidel/Summer11_TTJets";
     }
     else fileName = "root/analyzeTop_";
     fileName += identifier;
-    fileName += "_1.00_2b/analyzeTop.root";
+    fileName += "_1.00/analyzeTop.root";
   };
 };
 
@@ -59,7 +59,9 @@ class TopMass {
     std::vector<massPoint>::iterator iMassPoint;
     
     std::vector< std::vector<Analysis*> > calibrationAnalyses;
-    //std::vector<Analysis*>::const_iterator iAnalysis;
+    
+    std::vector<Analysis*> analyses;
+    std::vector<Analysis*>::iterator iAnalysis;
     
     Analysis* aSim;
     
