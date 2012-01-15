@@ -95,6 +95,7 @@ void Analysis::Analyze(bool reanalyze) {
       }
       
       int entries = fTree->GetEntries(cuts);
+      std::cout << cuts << std::endl;
       std::cout << entries << std::endl;
 
       hEntries->SetCellContent(i+1, j+1, entries);
@@ -183,8 +184,8 @@ void Analysis::CreateRandomSubset() {
   fChain->SetBranchStatus("deltaThetaHadWHadB", 1);
   fChain->SetBranchStatus("deltaThetaHadQHadQBar", 1);
   fChain->SetBranchStatus("PUWeight", 1);
-  //fChain->SetBranchStatus("PUWeightUp", 1);
-  //fChain->SetBranchStatus("PUWeightDown", 1);
+  fChain->SetBranchStatus("PUWeightUp", 1);
+  fChain->SetBranchStatus("PUWeightDown", 1);
   fChain->SetBranchStatus("muWeight", 1);
   fChain->SetBranchStatus("bWeight", 1);
   //fChain->SetBranchStatus("bWeight_bTagSFUp", 1);
@@ -203,6 +204,7 @@ void Analysis::CreateRandomSubset() {
   fChain->SetBranchStatus("lepBBSSV", 1);
   
   TTree* tempTree = fChain->CopyTree("leptonPt>30 & bottomSSVJetMultiplicity > 1");
+  //TTree* tempTree = fChain->CopyTree("leptonPt>30"); // CMSSW 4.1.4, no b-jets in selection code
   
   tempFile = new TFile("tempTree.root", "UPDATE");
 
@@ -239,7 +241,7 @@ void Analysis::CreateRandomSubset() {
     fTree = tempTree->CloneTree();
   }
   
-  //tempFile->Write();
+  tempFile->Write();
   
   delete tempTree;
   //delete file;

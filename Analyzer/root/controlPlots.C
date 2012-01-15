@@ -167,6 +167,7 @@ void controlPlots()
     lumiWeight.push_back(luminosity*crossSection/sampleSize);
   }
   
+  
   //* Test
   //makeControlPlot("event", "jetMultiplicity", "Number of jets", "jetMultiplicity", 5, 4, 9, kEvent2b);
   //makeControlPlot("event", "bottomSSVJetMultiplicity", "Number of b-jets", "bottomSSVJetMultiplicity", 5, 0, 5, kEvent);
@@ -175,74 +176,42 @@ void controlPlots()
   //makeControlPlot("test", "hadTopMass", "m_{t}^{fit} [GeV]", "hadTopMass", 35, 50, 400, kEvent2b);
   //makeControlPlot("permutation", "hitFitProb", "P_{fit}", "hitFitProb", 20, 0, 1, kPerm2b, true, 0.2);
   //makeControlPlot("permutation", "hitFitChi2", "#chi^{2}_{fit}", "hitFitChi2", 20, 0, 10, kPerm2b, false, 3.218875825);
+  //makeControlPlot("permutation", "hadTopRawMass", "m_{t,had}^{raw} [GeV]", "hadTopRawMass", 35, 50, 400, kPerm2b);
   //*/
   
   /* Event
-  makeControlPlot("event", "jetMultiplicity", "Number of jets", "jetMultiplicity_event", 5, 4, 9, false, -999, false, true);
-  makeControlPlot("event", "nVertex", "Number of vertices", "nVertex_event", 16, 0, 16, false, -999, false, true);
+  makeControlPlot("event", "jetMultiplicity", "Number of jets", "jetMultiplicity_event", 5, 4, 9, kEvent2b);
+  makeControlPlot("event", "nVertex", "Number of vertices", "nVertex_event", 25, 0, 25, kEvent2b);
   
-  makeControlPlot("muon", "leptonPt", "p_{T,#mu} [GeV]", "leptonPt_event", 50, 0, 200, false, -999, false, true);
-  makeControlPlot("muon", "leptonEta", "#eta_{#mu}", "leptonEta_event", 25, -2.5, 2.5, false, -999, false, true);
-  makeControlPlot("event", "nuRawPt", "MET [GeV]", "nuRawPt_event", 50, 0, 200, false, -999, false, true);
+  makeControlPlot("muon", "leptonPt", "p_{T,#mu} [GeV]", "leptonPt_event", 50, 0, 200, kEvent2b);
+  makeControlPlot("muon", "leptonEta", "#eta_{#mu}", "leptonEta_event", 25, -2.5, 2.5, kEvent2b);
+  makeControlPlot("event", "nuRawPt", "MET [GeV]", "nuRawPt_event", 50, 0, 200, kEvent2b);
   
-  makeControlPlot("jet", "hadBRawPt", "p_{T,b} [GeV]", "BRawPt_event", 20, 0, 200, false, -999, false, true, true);
-  makeControlPlot("jet", "hadQRawPt", "p_{T,q} [GeV]", "QRawPt_event", 20, 0, 200, false, -999, false, true);
-  makeControlPlot("jet", "hadQBarRawPt", "p_{T,#bar{q}} [GeV]", "QBarRawPt_event", 20, 0, 200, false, -999, false, true);
-  makeControlPlot("jet", "hadBEta", "#eta_{b}", "BEta_event", 25, -2.5, 2.5, false, -999, false, true, true);
-  makeControlPlot("jet", "hadQEta", "#eta_{q}", "QEta_event", 25, -2.5, 2.5, false, -999, false, true);
-  makeControlPlot("jet", "hadBBSSV", "b-disc (SSVHE)", "hadBBSSV_event", 30, 1, 7, true, -999, false, true, true);
+  makeControlPlot("jet", "hadBRawPt", "p_{T,b} [GeV]", "BRawPt_event", 20, 0, 200, kEvent2b);
+  makeControlPlot("jet", "hadQRawPt", "p_{T,q} [GeV]", "QRawPt_event", 20, 0, 200, kEvent2b);
+  makeControlPlot("jet", "hadQBarRawPt", "p_{T,#bar{q}} [GeV]", "QBarRawPt_event", 20, 0, 200, kEvent2b);
+  makeControlPlot("jet", "hadBEta", "#eta_{b}", "BEta_event", 25, -2.5, 2.5, kEvent2b);
+  makeControlPlot("jet", "hadQEta", "#eta_{q}", "QEta_event", 25, -2.5, 2.5, kEvent2b);
+  makeControlPlot("jet", "hadBBSSV", "b-disc (SSVHE)", "hadBBSSV_event", 30, 1, 7, kEvent2b);
   //*/
   
-  /* Raw
-  makeControlPlot("hadWRawMass", "m_{W,had}^{raw} [GeV]", "hadWRawMass", 30, 0, 300);
-  makeControlPlot("lepWRawMass", "m_{W,lep}^{raw} [GeV]", "lepWRawMass", 30, 0, 300);
-  makeControlPlot("hadBBSSV", "b-disc (SSVHE)", "hadBBSSV", 30, 1, 7, true);
-  makeControlPlot("hadTopRawMass", "m_{t,had}^{raw} [GeV]", "hadTopRawMass", 35, 50, 400);
-  makeControlPlot("lepTopRawMass", "m_{t,lep}^{raw} [GeV]", "lepTopRawMass", 35, 50, 400);
-  makeControlPlot("jetMultiplicity", "Number of jets", "jetMultiplicity", 5, 4, 9);
-  makeControlPlot("nVertex", "Number of vertices", "nVertex", 16, 0, 16);
-  
-  makeControlPlot("hadBRawPt", "p_{T,b} [GeV]", "BRawPt", 20, 0, 200);
-  makeControlPlot("hadQRawPt", "p_{T,q} [GeV]", "QRawPt", 20, 0, 200);
-  makeControlPlot("hadQBarRawPt", "p_{T,#bar{q}} [GeV]", "QBarRawPt", 20, 0, 200);
-  makeControlPlot("nuRawPt", "MET [GeV]", "nuRawPt", 50, 0, 200);
+  /* Permutation
+  makeControlPlot("permutation", "hadWRawMass", "m_{W,had}^{raw} [GeV]", "hadWRawMass", 30, 0, 300, kPerm2b);
+  makeControlPlot("permutation", "lepWRawMass", "m_{W,lep}^{raw} [GeV]", "lepWRawMass", 30, 0, 300, kPerm2b);
+  makeControlPlot("permutation", "hadTopRawMass", "m_{t,had}^{raw} [GeV]", "hadTopRawMass", 35, 50, 400, kPerm2b);
+  makeControlPlot("permutation", "lepTopRawMass", "m_{t,lep}^{raw} [GeV]", "lepTopRawMass", 35, 50, 400, kPerm2b);
+  makeControlPlot("permutation", "hadTopMass", "m_{t}^{fit} [GeV]", "hadTopMass", 35, 50, 400, kPerm2b);
+  makeControlPlot("permutation", "hitFitProb", "P_{fit}", "hitFitProb", 20, 0, 1, kPerm2b, true, 0.2);
+  makeControlPlot("permutation", "hitFitChi2", "#chi^{2}_{fit}", "hitFitChi2", 20, 0, 10, kPerm2b, false, 3.218875825);
   //*/
   
-  /* Fitted
-  makeControlPlot("hadBPt", "p_{T,b} [GeV]", "BPt", 20, 0, 200);
-  makeControlPlot("hadBEta", "#eta_{b}", "BEta", 25, -2.5, 2.5);
-  makeControlPlot("hadQPt", "p_{T,q} [GeV]", "QPt", 20, 0, 200);
-  makeControlPlot("hadQEta", "#eta_{q}", "QEta", 25, -2.5, 2.5);
-  
-  makeControlPlot("leptonPt", "p_{T,#mu} [GeV]", "leptonPt", 50, 0, 200);
-  makeControlPlot("leptonEta", "#eta_{#mu}", "leptonEta", 25, -2.5, 2.5);
-  makeControlPlot("nuPt", "p_{T,#nu} [GeV]", "nuPt", 50, 0, 200);
-  
-  makeControlPlot("deltaRHadQHadQBar", "#DeltaR(q,#bar{q}) [GeV]", "deltaRHadQHadQBar", 20, 0, 5);
-  makeControlPlot("deltaRHadWHadB", "#DeltaR(W_{had},b_{had}) [GeV]", "deltaRHadWHadB", 20, 0, 5);
-  makeControlPlot("deltaRLepBLepton", "#DeltaR(b_{lep},#mu) [GeV]", "deltaRLepBLepton", 20, 0, 5);
-  
-  makeControlPlot("hadTopMass", "m_{t}^{fit} [GeV]", "hadTopMass", 35, 50, 400);
-  makeControlPlot("hadTopPt", "p_{T,t,had} [GeV]", "hadTopPt", 20, 0, 200);
-  makeControlPlot("hadTopEta", "#eta_{t,had}", "hadTopEta", 25, -2.5, 2.5);
-  makeControlPlot("TTBarMass", "m_{tt} [GeV]", "TTBarMass", 50, 100, 1300);
-  makeControlPlot("hitFitProb", "P_{fit}", "hitFitProb", 20, 0, 1, true, 0.2);
-  makeControlPlot("hitFitChi2", "#chi^{2}_{fit}", "hitFitChi2", 20, 0, 10, false, 3.218875825);
+  /* Permutation, weighted
+  makeControlPlot("permutation", "hadWRawMass", "m_{W,had}^{raw} [GeV]", "hadWRawMass_weighted", 30, 0, 300, kPerm2bW);
+  makeControlPlot("permutation", "lepWRawMass", "m_{W,lep}^{raw} [GeV]", "lepWRawMass_weighted", 30, 0, 300, kPerm2bW);
+  makeControlPlot("permutation", "hadTopRawMass", "m_{t,had}^{raw} [GeV]", "hadTopRawMass_weighted", 35, 50, 400, kPerm2bW);
+  makeControlPlot("permutation", "lepTopRawMass", "m_{t,lep}^{raw} [GeV]", "lepTopRawMass_weighted", 35, 50, 400, kPerm2bW);
+  makeControlPlot("permutation", "hadTopMass", "m_{t}^{fit} [GeV]", "hadTopMass_weighted", 35, 50, 400, kPerm2bW);
   //*/
-  
-  /* cut&weight
-  makeControlPlot("hadBPt", "p_{T,b} [GeV]", "BPt_weighted", 20, 0, 200, false, -999, true);
-  makeControlPlot("hadBEta", "#eta_{b}", "BEta_weighted", 25, -2.5, 2.5, false, -999, true);
-  makeControlPlot("hadQPt", "p_{T,q} [GeV]", "QPt_weighted", 20, 0, 200, false, -999, true);
-  makeControlPlot("hadQEta", "#eta_{q}", "QEta_weighted", 25, -2.5, 2.5, false, -999, true);
-  
-  makeControlPlot("hadTopMass", "m_{t}^{fit} [GeV]", "hadTopMass_weighted", 35, 50, 400, false, -999, true);
-  makeControlPlot("hadWRawMass", "m_{W}^{raw} [GeV]", "hadWRawMass_weighted", 30, 0, 300, false, -999, true);
-  makeControlPlot("hadTopPt", "p_{T,t,had} [GeV]", "hadTopPt_weighted", 20, 0, 200, false, -999, true);
-  makeControlPlot("hadTopEta", "#eta_{t,had}", "hadTopEta_weighted", 25, -2.5, 2.5, false, -999, true);
-  makeControlPlot("TTBarMass", "m_{tt} [GeV]", "TTBarMass_weighted", 30, 100, 1300, false, -999, true);
-  //*/
-
 }
 
 void makeControlPlot(TString typeForTitle, TString sObservable, TString sObservableShort, TString sFileName,

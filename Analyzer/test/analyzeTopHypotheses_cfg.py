@@ -92,7 +92,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 if os.getenv('CMSSW_VERSION').startswith('CMSSW_4_1_'):
   process.GlobalTag.globaltag = cms.string('START41_V0::All')
 else:
-  process.GlobalTag.globaltag = cms.string('START42_V13::All')
+  process.GlobalTag.globaltag = cms.string('START42_V17::All')
 
 ## std sequence for pat
 process.load("PhysicsTools.PatAlgos.patSequences_cff")

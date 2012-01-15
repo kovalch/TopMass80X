@@ -428,6 +428,7 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     hadQBSSV   = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQ]).bDiscriminator("simpleSecondaryVertexHighEffBJetTags");
     hadQBCSV   = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQ]).bDiscriminator("combinedSecondaryVertexBJetTags");
     hadQJC     = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQ]).jetCharge();
+    hadQF      = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQ]).partonFlavour();
     
     hadQRawPt  = hadQRaw->pt();
     
@@ -442,6 +443,7 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     hadQBarBSSV   = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQBar]).bDiscriminator("simpleSecondaryVertexHighEffBJetTags");
     hadQBarBCSV   = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQBar]).bDiscriminator("combinedSecondaryVertexBJetTags");
     hadQBarJC     = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQBar]).jetCharge();
+    hadQBarF      = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LightQBar]).partonFlavour();
     
     hadQBarRawPt  = hadQBarRaw->pt();
     
@@ -486,6 +488,7 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     hadBBSSV   = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::HadB]).bDiscriminator("simpleSecondaryVertexHighEffBJetTags");
     hadBBCSV   = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::HadB]).bDiscriminator("combinedSecondaryVertexBJetTags");
     hadBJC     = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::HadB]).jetCharge();
+    hadBF      = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::HadB]).partonFlavour();
     
     hadBRawPt  = hadBRaw->pt();
     
@@ -514,6 +517,7 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     lepBBSSV   = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LepB]).bDiscriminator("simpleSecondaryVertexHighEffBJetTags");
     lepBBCSV   = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LepB]).bDiscriminator("combinedSecondaryVertexBJetTags");
     lepBJC     = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LepB]).jetCharge();
+    lepBF      = jets->at(jetLeptonCombinationCurrent[TtSemiLepEvtPartons::LepB]).partonFlavour();
     
     lepBRawE   = lepBRaw->energy();
   
@@ -652,6 +656,7 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("hadQBSSV", &hadQBSSV, "hadQBSSV/D");
   eventTree->Branch("hadQBCSV", &hadQBCSV, "hadQBCSV/D");
   eventTree->Branch("hadQJC", &hadQJC, "hadQJC/D");
+  eventTree->Branch("hadQF", &hadQF, "hadQF/D");
   
   eventTree->Branch("hadQRawPt", &hadQRawPt, "hadQRawPt/D");
   eventTree->Branch("hadQGenPt", &hadQGenPt, "hadQGenPt/D");
@@ -663,6 +668,7 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("hadQBarBSSV", &hadQBarBSSV, "hadQBarBSSV/D");
   eventTree->Branch("hadQBarBCSV", &hadQBarBCSV, "hadQBarBCSV/D");
   eventTree->Branch("hadQBarJC", &hadQBarJC, "hadQBarJC/D");
+  eventTree->Branch("hadQBarF", &hadQBarF, "hadQBarF/D");
   
   eventTree->Branch("hadQBarRawPt", &hadQBarRawPt, "hadQBarRawPt/D");
   
@@ -687,6 +693,7 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("hadBBSSV", &hadBBSSV, "hadBBSSV/D");
   eventTree->Branch("hadBBCSV", &hadBBCSV, "hadBBCSV/D");
   eventTree->Branch("hadBJC", &hadBJC, "hadBJC/D");
+  eventTree->Branch("hadBF", &hadBF, "hadBF/D");
   
   eventTree->Branch("hadBRawPt", &hadBRawPt, "hadBRawPt/D");
   
@@ -715,6 +722,7 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("lepBBSSV", &lepBBSSV, "lepBBSSV/D");
   eventTree->Branch("lepBBCSV", &lepBBCSV, "lepBBCSV/D");
   eventTree->Branch("lepBJC", &lepBJC, "lepBJC/D");
+  eventTree->Branch("lepBF", &lepBF, "lepBF/D");
   
   eventTree->Branch("lepBRawE", &lepBRawE, "lepBRawE/D");
   

@@ -6,12 +6,28 @@
 
 #include "tdrstyle.C"
 
-int target = -10;
-int obs    = 1; // 0: hadTopMass, 1: hadWRawMass
+int target = 1;
+int obs    = 0; // 0: hadTopMass, 1: hadWRawMass
+
+int iMax = 9;
 
 bool plotByMass = false;
 
 TString sObs[] = {"m_{t}", "m_{W}^{raw}"};
+
+TGraphErrors* gr1[9];
+TGraphErrors* gr2[9];
+TGraphErrors* gr3[9];
+
+TString sX[9] = {"m_{t,gen} = 161.5 GeV",
+                 "m_{t,gen} = 163.5 GeV",
+                 "m_{t,gen} = 166.5 GeV",
+                 "m_{t,gen} = 169.5 GeV",
+                 "m_{t,gen} = 172.5 GeV",
+                 "m_{t,gen} = 175.5 GeV",
+                 "m_{t,gen} = 178.5 GeV",
+                 "m_{t,gen} = 181.5 GeV",
+                 "m_{t,gen} = 184.5 GeV"}
 
 double X[9] = {161.5, 163.5, 166.5, 169.5, 172.5, 175.5, 178.5, 181.5, 184.5};
 double Y10[9];
@@ -45,6 +61,8 @@ double ey3[3];
 double ey4[3];
 double ey5[3];
 double ey6[3];
+
+double params[12];
 
 #include <stdio.h>
 
@@ -119,7 +137,7 @@ void observableByJESByMass() {
   setTDRStyle();
   TH1::SetDefaultSumw2();
 
-  for (int i=0; i<9; i++) {
+  for (int i=0; i<iMax; i++) {
 	  std::cout << "### FindParametersMass(" << i << "); ###" << std::endl;
     FindParametersMass(i);
 		/*
@@ -142,6 +160,9 @@ void observableByJESByMass() {
   gr->Draw("A*");
   //linearFit->SetParNames("p_{#mu}^{const}", "p_{#mu}^{m_{t}}");
   gr->Fit("linearFit", "EM");
+  std::cout << linearFit->GetParameter(0) << " " << linearFit->GetParameter(1) << std::endl;
+  params[0] = linearFit->GetParameter(0);
+  params[1] = linearFit->GetParameter(1);
   
   gr->GetXaxis()->SetTitle("m_{t}");
   gr->GetYaxis()->SetTitle("#mu const");
@@ -153,6 +174,8 @@ void observableByJESByMass() {
   gr->Draw("A*");
   //linearFit->SetParNames("p_{#mu}^{JES}", "p_{#mu}^{m_{t},JES}");
   gr->Fit("linearFit", "EM");
+  params[2] = linearFit->GetParameter(0);
+  params[3] = linearFit->GetParameter(1);
   
   gr->GetXaxis()->SetTitle("m_{t}");
   gr->GetYaxis()->SetTitle("#mu slope");
@@ -164,6 +187,8 @@ void observableByJESByMass() {
   gr->Draw("A*");
   //linearFit->SetParNames("p_{#sigma}^{const}", "p_{#sigma}^{m_{t}}");
   gr->Fit("linearFit", "EM");
+  params[4] = linearFit->GetParameter(0);
+  params[5] = linearFit->GetParameter(1);
   
   gr->GetXaxis()->SetTitle("m_{t}");
   switch(obs) {
@@ -184,6 +209,8 @@ void observableByJESByMass() {
   gr->Draw("A*");
   //linearFit->SetParNames("p_{#sigma}^{JES}", "p_{#sigma}^{m_{t},JES}");
   gr->Fit("linearFit", "EM");
+  params[6] = linearFit->GetParameter(0);
+  params[7] = linearFit->GetParameter(1);
   
   gr->GetXaxis()->SetTitle("m_{t}");
   switch(obs) {
@@ -203,6 +230,8 @@ void observableByJESByMass() {
   gr->SetTitle("30");
   gr->Draw("A*");
   gr->Fit("linearFit", "EM");
+  params[8] = linearFit->GetParameter(0);
+  params[9] = linearFit->GetParameter(1);
   
   gr->GetXaxis()->SetTitle("m_{t}");
   switch(obs) {
@@ -222,6 +251,8 @@ void observableByJESByMass() {
   gr->SetTitle("31");
   gr->Draw("A*");
   gr->Fit("linearFit", "EM");
+  params[10] = linearFit->GetParameter(0);
+  params[11] = linearFit->GetParameter(1);
   
   gr->GetXaxis()->SetTitle("m_{t}");
   switch(obs) {
@@ -234,6 +265,51 @@ void observableByJESByMass() {
       break;
     }
   }
+  
+  gStyle->SetOptStat(0);
+  gStyle->SetOptFit(0);
+  
+  TCanvas* cSetOfCurves = new TCanvas("cSetOfCurves", "cSetOfCurves", 1600, 400);
+  cSetOfCurves->Divide(4,1);
+  
+  cSetOfCurves->cd(1);
+  
+  TMultiGraph *mg1 = new TMultiGraph();
+  for (int i=0; i<iMax; i++) {
+    mg1->Add(gr1[i]);
+  }
+  
+  mg1->SetTitle("#mu;JES;#mu");
+  mg1->Draw("A*");
+  
+  cSetOfCurves->cd(2);
+  
+  TMultiGraph *mg2 = new TMultiGraph();
+  for (int i=0; i<iMax; i++) {
+    mg2->Add(gr2[i]);
+  }
+  
+  mg2->SetTitle("#sigma;JES;#sigma");
+  mg2->Draw("A*");
+  
+  cSetOfCurves->cd(3);
+  
+  TLegend *leg1 = new TLegend(0.1, 0.1, 0.9, 0.9);
+  leg1->SetFillStyle(0);
+  leg1->SetBorderSize(0);
+  for (int i=0; i<iMax; i++) {
+    leg1->AddEntry( gr1[i], sX[i], "L" );
+  }
+  
+  leg1->Draw();
+  
+  cSetOfCurves->Print("setOfCurves.eps");
+  
+  std::cout << "Parameters for IdeogramCombLikelihood.cxx:" << std::endl;
+  for (int i=0; i<12; i++) {
+    std::cout << params[i] << ", ";
+  }
+  std::cout << std::endl;
 }
 
 void FindParametersMass(int iMass)
@@ -346,13 +422,15 @@ void FindParametersMass(int iMass)
   cObservablePar->Divide(4,1);
   
   cObservablePar->cd(1);
-  gr = new TGraphErrors(3,x,y1,ex,ey1);
-  gr->SetTitle("p1");
-  gr->Draw("A*");
-  gr->Fit("linearFit", "EM");
+  gr1[iMass] = new TGraphErrors(3,x,y1,ex,ey1);
+  gr1[iMass]->SetTitle("p1");
+  gr1[iMass]->SetLineColor(iMass+1);
+  linearFit->SetLineColor(iMass+1);
+  gr1[iMass]->Draw("A*");
+  gr1[iMass]->Fit("linearFit", "EM");
   
-  gr->GetXaxis()->SetTitle("JES");
-  gr->GetYaxis()->SetTitle("#mu");
+  gr1[iMass]->GetXaxis()->SetTitle("JES");
+  gr1[iMass]->GetYaxis()->SetTitle("#mu");
   
   Y10 [iMass] = linearFit->GetParameter(0);
   eY10[iMass] = linearFit->GetParError(0);
@@ -362,13 +440,15 @@ void FindParametersMass(int iMass)
   
   
   cObservablePar->cd(2);
-  gr = new TGraphErrors(3,x,y2,ex,ey2);
-  gr->SetTitle("p2");
-  gr->Draw("A*");
-  gr->Fit("linearFit", "EM");
+  gr2[iMass] = new TGraphErrors(3,x,y2,ex,ey2);
+  gr2[iMass]->SetTitle("p2");
+  gr2[iMass]->SetLineColor(iMass+1);
+  linearFit->SetLineColor(iMass+1);
+  gr2[iMass]->Draw("A*");
+  gr2[iMass]->Fit("linearFit", "EM");
   
-  gr->GetXaxis()->SetTitle("JES");
-  gr->GetYaxis()->SetTitle("#sigma");
+  gr2[iMass]->GetXaxis()->SetTitle("JES");
+  gr2[iMass]->GetYaxis()->SetTitle("#sigma");
   
   Y20 [iMass] = linearFit->GetParameter(0);
   eY20[iMass] = linearFit->GetParError(0);

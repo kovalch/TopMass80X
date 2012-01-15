@@ -10,12 +10,21 @@ TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins
   //EvalEnsembleTest(true);
   //Measure(aSim);
   
-  //analyses.push_back(new Analysis("1725_100_S4_flavordown", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_flavor:down/analyzeTop.root", fMethod, fBins, 0));
-  //analyses.push_back(new Analysis("1725_100_S4_flavorup", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_flavor:up/analyzeTop.root", fMethod, fBins, 0));
+  //analyses.push_back(new Analysis("Summer11_1725_100", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00/analyzeTop.root", fMethod, fBins, 0));
+  
+  /*  Systematic samples
+  analyses.push_back(new Analysis("1725_100_S4_flavordown", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_flavor:down/analyzeTop.root", fMethod, fBins, 0));
+  analyses.push_back(new Analysis("1725_100_S4_flavorup", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_flavor:up/analyzeTop.root", fMethod, fBins, 0));
   analyses.push_back(new Analysis("1725_100_S4_jesdown", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_jes:down/analyzeTop.root", fMethod, fBins, 0));
   analyses.push_back(new Analysis("1725_100_S4_jesup", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_jes:up/analyzeTop.root", fMethod, fBins, 0));
   analyses.push_back(new Analysis("1725_100_S4_resdown", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_res:down/analyzeTop.root", fMethod, fBins, 0));
   analyses.push_back(new Analysis("1725_100_S4_resup", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_res:up/analyzeTop.root", fMethod, fBins, 0));
+  //*/
+  
+  /*  Spring11
+  analyses.push_back(new Analysis("Spring11_D6T", "/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_D6T/analyzeTop.root", fMethod, fBins, 0));
+  analyses.push_back(new Analysis("Spring11_Z2", "/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_Z2/analyzeTop.root", fMethod, fBins, 0));
+  //*/
   
   for (int i = 0; i < analyses.size(); i++) {
     Measure(analyses[i]);
@@ -199,7 +208,7 @@ TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins
   Measure(aRun2011_2b);
   //*/
   
-  /* DATA, full 2011
+  //* DATA, full 2011
   Analysis* aRun2011 = new Analysis("Run2011", "/scratch/hh/current/cms/user/mseidel/Run2011.root", fMethod, fBins, 0);
   Measure(aRun2011);
   //*/
@@ -292,7 +301,7 @@ void TopMass::WriteEnsembleTest(bool readCalibration) {
   massPoint m1725(172.5, "1725");
   massPoints.push_back(m1725);
   
-  int nEnsembles = 5;
+  int nEnsembles = 10;
   
   for (iMassPoint = massPoints.begin(); iMassPoint != massPoints.end(); ++iMassPoint) {
     iMassPoint->analysis = new Analysis(iMassPoint->identifier, iMassPoint->fileName, fMethod, fBins, fLumi);
@@ -781,7 +790,7 @@ void TopMass::QuickCalibration() {
         statsGlobal->SetX2NDC(0.95);
         statsGlobal->SetY2NDC(0.95);
 				
-				TString path("plot/"); path += fMethod; path += "/ensembletest/"; path += "fit_JES_"; path += i; path += "_"; path += j; path += ".eps";
+				TString path("plot/"); path += fMethod; path += "/ensembletest/"; path += "fit_JES_"; path += i; path += "_"; path += j; path += ".root";
         canvasFit->Print(path);
         
         canvasFit->Clear();
@@ -865,7 +874,7 @@ void TopMass::QuickCalibration() {
         statsMassGlobal->SetX2NDC(0.95);
         statsMassGlobal->SetY2NDC(0.95);
 				
-				path = "plot/"; path += fMethod; path += "/ensembletest/"; path += "fit_Mass_"; path += i; path += "_"; path += j; path += ".eps";
+				path = "plot/"; path += fMethod; path += "/ensembletest/"; path += "fit_Mass_"; path += i; path += "_"; path += j; path += ".root";
         canvasFit->Print(path);
       }
     }

@@ -7,11 +7,17 @@ double IdeogramAnalyzer::GetMass() {
 void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   Scan(cuts, i, j, 154, 190, 2, 0.9, 1.1, 0.02);
   Scan(cuts, i, j, fMass-4, fMass+4, 0.25, fJES-0.03, fJES+0.03, 0.0015);
+  
+  //Scan(cuts, i, j, 170, 176, 0.1, 0.999, 1.001, 0.0001);
 }
 
 void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, double lastBinMass,
               double resolMass, double firstBinJes, double lastBinJes, double resolJes) {
-
+  //*
+  gStyle->SetOptStat(0);
+  gStyle->SetOptFit(0);
+  //*/
+  
   bool debug = false;
   int nDebug = 1;
   int maxDebug = 200;
@@ -26,7 +32,7 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
   
   int binsJes        = (lastBinJes-firstBinJes)/resolJes;
   
-  double pullWidth   = 1.22; //*1.053; //1.37068*1.07696;//1.24956e+00; //0.715;
+  double pullWidth   = 1.22;
   
   /*
   if (debug) {
@@ -312,8 +318,8 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
   fMassSigma = -1;
   
   // stat+syst ellipsis  
-  double mSyst = 1.07;
-  double jSyst = 0.009;
+  double mSyst = 1.01;
+  double jSyst = 0.015;
   
   double sm2 = fMassError*fMassError + mSyst*mSyst;
   double sj2 = fJESError*fJESError + jSyst*jSyst;
@@ -324,7 +330,7 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
   systParabola->SetParameter(3, 2*cos(2*alpha)/(sj2 - sm2 + sj2*cos(2*alpha) + sm2*cos(2*alpha)));
   systParabola->SetLineColor(kBlack);
   systParabola->SetLineWidth(5);
-  systParabola->Draw("cont3 same");
+  //systParabola->Draw("cont3 same");
   fitParabola->Draw("cont3 same");
   
   // create legend
@@ -333,7 +339,7 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
   leg0->SetBorderSize(0);
   //leg0->AddEntry((TObject*)0, "1, 2, 3#sigma", "");
   leg0->AddEntry(fitParabola, "stat", "L");
-  leg0->AddEntry(systParabola, "stat + syst", "L");
+  //leg0->AddEntry(systParabola, "stat + syst", "L");
   leg0->Draw();
   
   std::cout << "fMassError: " << fMassError << std::endl;
