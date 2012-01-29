@@ -93,8 +93,8 @@ void controlPlots_PU()
   */
   tData   = (TTree*) fData  ->Get("analyzeHitFit/eventTree");
   
-  makeControlPlot("hadWRawMass", "m_{W}^{raw} [GeV]", "hadWRawMass", 80, 95);
-  //makeControlPlot("hadTopMass", "m_{t}^{fit} [GeV]", "hadTopMass", 165, 190);
+  //makeControlPlot("hadWRawMass", "m_{W}^{raw} [GeV]", "hadWRawMass", 80, 95);
+  makeControlPlot("hadTopMass", "m_{t}^{fit} [GeV]", "hadTopMass", 165, 190);
 }
 
 void makeControlPlot(TString sObservable, TString sObservableShort, TString sFileName,
@@ -106,9 +106,11 @@ void makeControlPlot(TString sObservable, TString sObservableShort, TString sFil
   fitTTJets->SetLineWidth(2);
   fitTTJets->SetLineColor(color_[kSigCP]);
   
-  TF1* fitData = new TF1("fitData", "[0]+(x-7)*[1]");
+  TF1* fitData = new TF1("fitData", "[0]+(x-7)*[1]", 3, 15);
   fitData->SetLineWidth(2);
   fitData->SetLineColor(color_[kData]);
+  fitData->SetParameter(1, 0);
+  fitData->SetParLimits(1, -1, 1);
   
   TF1* fitDataUp = new TF1("fitDataUp", "[0]+(x-7)*[1]+sqrt([2]^2+((x-7)*[3])^2)", 0, 15);
   TF1* fitDataDown = new TF1("fitDataDown", "[0]+(x-7)*[1]-sqrt([2]^2+((x-7)*[3])^2)", 0, 15);
@@ -143,7 +145,7 @@ void makeControlPlot(TString sObservable, TString sObservableShort, TString sFil
   //hData->ProfileX("pDataW");
   hData_1->GetYaxis()->SetRangeUser(ylow, yup);
   hData_1->SetMarkerStyle(marker_[kData]);
-  hData_1->Fit("fitData", "EM");
+  hData_1->Fit("fitData", "EMR");
 
   gPad->Update();
   
@@ -164,6 +166,9 @@ void makeControlPlot(TString sObservable, TString sObservableShort, TString sFil
   
   hData_1->Draw();
   hTTJets_1->Draw("same");
+  
+  fitData->SetRange(0, 15);
+  fitData->Draw("same");
   
   fitDataUp->SetParameters(fitData->GetParameter(0), fitData->GetParameter(1), fitData->GetParError(0), fitData->GetParError(1));
   fitDataUp->SetLineColor(color_[kData]);

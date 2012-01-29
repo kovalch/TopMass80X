@@ -13,6 +13,7 @@
 #include "TLegend.h"
 #include "TDirectory.h"
 #include "TFile.h"
+#include "TColor.h"
 
 class IdeogramAnalyzer : public MassAnalyzer {
   private:

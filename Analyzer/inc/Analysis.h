@@ -28,6 +28,7 @@ class Analysis {
     
     TChain* fChain;
     TTree* fTree;
+    TTree* tTree;
     TFile* tempFile;
     TH2F* hEntries;
     TH2F* hMass;
@@ -45,7 +46,7 @@ class Analysis {
 
   public:
     Analysis(TString identifier, TString file, TString method, int bins, double lumi);
-    ~Analysis() { delete &fAnalyzed; }
+    ~Analysis() { delete &fAnalyzed;  }
     
     void Analyze(bool reanalyze = false);
     

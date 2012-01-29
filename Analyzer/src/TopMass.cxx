@@ -6,19 +6,26 @@ TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins
   //LoadXML();
   //QuickSystematics();
   
-  //WriteEnsembleTest(false);
+  WriteEnsembleTest(false);
   //EvalEnsembleTest(true);
   //Measure(aSim);
   
   //analyses.push_back(new Analysis("Summer11_1725_100", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00/analyzeTop.root", fMethod, fBins, 0));
   
   /*  Systematic samples
-  analyses.push_back(new Analysis("1725_100_S4_flavordown", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_flavor:down/analyzeTop.root", fMethod, fBins, 0));
-  analyses.push_back(new Analysis("1725_100_S4_flavorup", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_flavor:up/analyzeTop.root", fMethod, fBins, 0));
-  analyses.push_back(new Analysis("1725_100_S4_jesdown", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_jes:down/analyzeTop.root", fMethod, fBins, 0));
-  analyses.push_back(new Analysis("1725_100_S4_jesup", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_jes:up/analyzeTop.root", fMethod, fBins, 0));
-  analyses.push_back(new Analysis("1725_100_S4_resdown", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_res:down/analyzeTop.root", fMethod, fBins, 0));
-  analyses.push_back(new Analysis("1725_100_S4_resup", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_res:up/analyzeTop.root", fMethod, fBins, 0));
+  analyses.push_back(new Analysis("1725_flavordown", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_flavor:down/analyzeTop.root", fMethod, fBins, 0));
+  analyses.push_back(new Analysis("1725_flavorup", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_flavor:up/analyzeTop.root", fMethod, fBins, 0));
+  analyses.push_back(new Analysis("1725_jesdown", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_jes:down/analyzeTop.root", fMethod, fBins, 0));
+  analyses.push_back(new Analysis("1725_jesup", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_jes:up/analyzeTop.root", fMethod, fBins, 0));
+  analyses.push_back(new Analysis("1725_resdown", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_res:down/analyzeTop.root", fMethod, fBins, 0));
+  analyses.push_back(new Analysis("1725_resup", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_res:up/analyzeTop.root", fMethod, fBins, 0));
+  //*/
+  
+  /*  Uncorrelated systematic samples
+  analyses.push_back(new Analysis("1725_scaledown", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_scaledown/analyzeTop.root", fMethod, fBins, 0));
+  analyses.push_back(new Analysis("1725_scaleup", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_scaleup/analyzeTop.root", fMethod, fBins, 0));
+  analyses.push_back(new Analysis("1725_matchingdown", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_matchingdown/analyzeTop.root", fMethod, fBins, 0));
+  analyses.push_back(new Analysis("1725_matchingup", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_matchingup/analyzeTop.root", fMethod, fBins, 0));
   //*/
   
   /*  Spring11
@@ -29,292 +36,66 @@ TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins
   for (int i = 0; i < analyses.size(); i++) {
     Measure(analyses[i]);
   }
-  
-  /*
-  Analysis* aSpring11_1725_100_100_2b = new Analysis("Spring11_1725_100_100_2b", "/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_1.00_1.00/analyzeTop.root", fMethod, fBins, 100000);
-  Measure(aSpring11_1725_100_100_2b);
-  //*/
-  
-  /*
-  Analysis* aSpring11_1725_Z2_2b = new Analysis("Spring11_1725_Z2_2b", "/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_Z2/analyzeTop.root", fMethod, fBins, 100000);
-  Measure(aSpring11_1725_Z2_2b);
-  //*/
-  
-  /*
-  Analysis* a1725_102 = new Analysis("1725_102",  "/scratch/hh/current/cms/user/mseidel/TTJets1725_1.02/analyzeTop.root", fMethod, fBins, 20000);
-  Measure(a1725_102);
-  //*/
-  
-  /*
-  Analysis* a1725_100_104 = new Analysis("1725_100_104", "/scratch/hh/current/cms/user/mseidel/TTJets1725_1.00_1.04/analyzeTop.root", fMethod, fBins, 20000);
-  Measure(a1725_100_104);
-  //*/
-  
-  /*
-  Analysis* a1725_106 = new Analysis("1725_106",  "/scratch/hh/current/cms/user/mseidel/TTJets1725_1.06/analyzeTop.root", fMethod, fBins, 20000);
-  Measure(a1725_106);
-  //*/
-  
-  /*
-  Analysis* a1725_110 = new Analysis("1725_110", "/scratch/hh/current/cms/user/mseidel/TTJets1725_1.1/analyzeTop.root", fMethod, fBins, 20000);
-  Measure(a1725_110);
-  //*/
-  
-  /*
-  Analysis* run2010B = new Analysis("run2010B", "/scratch/hh/current/cms/user/mseidel/Run2010B_abs/analyzeTop_Run2010B.root", fMethod, fBins, 36);
-  Measure(run2010B);
-  //*/
-  
-  /*
-  Analysis* a1665_095 = new Analysis("1665_095", "/scratch/hh/current/cms/user/mseidel/TTJets1665_0.95/analyzeTop.root", fMethod, fBins, 50000);
-  Measure(a1665_095);
-  //*/
-  
-  /*
-  Analysis* a1665_100 = new Analysis("1665_100", "/scratch/hh/current/cms/user/mseidel/TTJets1665_1.0/analyzeTop.root", fMethod, fBins, 50000);
-  Measure(a1665_100);
-  //*/
-  
-  /*
-  Analysis* a1665_105 = new Analysis("1665_105", "/scratch/hh/current/cms/user/mseidel/TTJets1665_1.05/analyzeTop.root", fMethod, fBins, 50000);
-  Measure(a1665_105);
-  //*/
-  
-  /*
-  Analysis* a1785_095 = new Analysis("1785_095", "/scratch/hh/current/cms/user/mseidel/TTJets1785_0.95/analyzeTop.root", fMethod, fBins, 20000);
-  Measure(a1785_095);
-  //*/
-  
-  /*
-  Analysis* a1785_100 = new Analysis("1785_100", "/scratch/hh/current/cms/user/mseidel/TTJets1785_1.0/analyzeTop.root", fMethod, fBins, 20000);
-  Measure(a1785_100);
-  //*/
-  
-  /*
-  Analysis* a1785_105 = new Analysis("1785_105", "/scratch/hh/current/cms/user/mseidel/TTJets1785_1.05/analyzeTop.root", fMethod, fBins, 20000);
-  Measure(a1785_105);
-  //*/
-	
-  /*
-  Analysis* aRun2011A4 = new Analysis("Run2011A4", "/scratch/hh/current/cms/user/mseidel/Run2011A4/analyzeTop.root", fMethod, fBins, 20000);
-  Measure(aRun2011A4);
-  //*/
-  
-  /*
-  Analysis* a1665_100 = new Analysis("1665_100", "/scratch/hh/current/cms/user/mseidel/TTJets1665_1.00/analyzeTop.root", fMethod, fBins, 20000);
-  Measure(a1665_100);
-  
-  Analysis* a1785_100 = new Analysis("1785_100", "/scratch/hh/current/cms/user/mseidel/TTJets1785_1.00/analyzeTop.root", fMethod, fBins, 20000);
-  Measure(a1785_100);
-  //*/
-  
-  /*
-  Analysis* a1725_096_S4 = new Analysis("1725_096_S4", "/scratch/hh/current/cms/user/mseidel/TTJets1725-S4_0.96_1.00/analyzeTop.root", fMethod, fBins, 20000);
-  Measure(a1725_096_S4);
-  //*/
-  
-  /*
-  Analysis* a1725_097_S4 = new Analysis("1725_097_S4", "/scratch/hh/current/cms/user/mseidel/TTJets1725-S4_1.00_0.97/analyzeTop.root", fMethod, fBins, 20000);
-  Measure(a1725_097_S4);
-  //*/
-  
-  /*
-  Analysis* a1725_100_S4 = new Analysis("1725_100_S4", "/scratch/hh/current/cms/user/mseidel/TTJets1725-S4_1.00_1.00/analyzeTop.root", fMethod, fBins, 20000);
-  Measure(a1725_100_S4);
-  //*/
-  
-  /*
-  Analysis* a1725_103_S4 = new Analysis("1725_103_S4", "/scratch/hh/current/cms/user/mseidel/TTJets1725-S4_1.00_1.03/analyzeTop.root", fMethod, fBins, 20000);
-  Measure(a1725_103_S4);
-  //*/
-  
-  /*
-  Analysis* a1725_104_S4 = new Analysis("1725_104_S4", "/scratch/hh/current/cms/user/mseidel/TTJets1725-S4_1.04_1.00/analyzeTop.root", fMethod, fBins, 20000);
-  Measure(a1725_104_S4);
-  //*/
-  
-  /*
-  Analysis* aRun2011A = new Analysis("Run2011A", "/scratch/hh/current/cms/user/mseidel/Run2011A.root", fMethod, fBins, 20000);
-  Measure(aRun2011A);
-  //*/
-	
-  /*
-  Analysis* a1725_096_S4_2b = new Analysis("1725_096_S4_2b", "/scratch/hh/current/cms/user/mseidel/TTJets1725-S4_0.96_1.00/analyzeTop.root", fMethod, fBins, 20000);
-  Measure(a1725_096_S4_2b);
-  //*/
-	
-  /* Summer11 central
-  Analysis* aSummer11_1725_100 = new Analysis("Summer11_1725_100", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00/analyzeTop.root", fMethod, fBins, 0);
-  Measure(aSummer11_1725_100);
-  //*/
 
-  /*
-  Analysis* a1725_100_S4_metdown_2b = new Analysis("1725_100_S4_metdown_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_1.00_1.00_1.0_0.9/analyzeTop.root", fMethod, fBins, 20000000);
-  Measure(a1725_100_S4_metdown_2b);
-  //*/
-
-  /*
-  Analysis* a1725_100_S4_metup_2b = new Analysis("1725_100_S4_metup_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_1.00_1.00_1.0_1.1/analyzeTop.root", fMethod, fBins, 20000000);
-  Measure(a1725_100_S4_metup_2b);
-  //*/
-	
-  /*
-  Analysis* a1725_104_S4_2b = new Analysis("1725_104_S4_2b", "/scratch/hh/current/cms/user/mseidel/TTJets1725-S4_1.04_1.00/analyzeTop.root", fMethod, fBins, 20000);
-  Measure(a1725_104_S4_2b);
-  //*/
-	
-  /*
-  Analysis* a1725_100_S4_flavorup = new Analysis("1725_100_S4_flavorup", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_flavor:up/analyzeTop.root", fMethod, fBins, 0);
-  Measure(a1725_100_S4_flavorup_2b);
-  //*/
-  
-  /*
-  Analysis* a1725_100_S4_flavordown = new Analysis("1725_100_S4_flavordown", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_flavor:down/analyzeTop.root", fMethod, fBins, 0);
-  Measure(a1725_100_S4_flavordown_2b);
-  //*/
-  
-  /*
-  Analysis* a1725_100_S4_jesup_2b = new Analysis("1725_100_S4_jesup_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_jes:up/analyzeTop.root", fMethod, fBins, 200000);
-  Measure(a1725_100_S4_jesup_2b);
-  //*/
-  
-  /*
-  Analysis* a1725_100_S4_jesdown_2b = new Analysis("1725_100_S4_jesdown_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_jes:down/analyzeTop.root", fMethod, fBins, 200000);
-  Measure(a1725_100_S4_jesdown_2b);
-  //*/
-  
-  /*
-  Analysis* a1725_100_S4_105_2b = new Analysis("1725_100_S4_105_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_1.00_1.00_1.05/analyzeTop.root", fMethod, fBins, 200000);
-  Measure(a1725_100_S4_105_2b);
-  //*/
-  
-  /*
-  Analysis* a1725_100_S4_115_2b = new Analysis("1725_100_S4_115_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_1.00_1.00_1.15/analyzeTop.root", fMethod, fBins, 200000);
-  Measure(a1725_100_S4_115_2b);
-  //*/
-	
-  /* DATA, Run2011A
-  Analysis* aRun2011A_2b = new Analysis("Run2011A_2b", "/scratch/hh/current/cms/user/mseidel/Run2011A_2b.root", fMethod, fBins, 20000);
-  Measure(aRun2011A_2b);
-  //*/
-
-  /* DATA IsoMu17
-  Analysis* aRun2011A_2b_IsoMu17 = new Analysis("Run2011A_2b_IsoMu17", "/scratch/hh/current/cms/user/mseidel/Run2011A_2b_IsoMu17.root", fMethod, fBins, 20000);
-  Measure(aRun2011A_2b_IsoMu17);
-  //*/
-  
   /* DATA, full 2011
-  Analysis* aRun2011_2b = new Analysis("Run2011_2b", "/scratch/hh/current/cms/user/mseidel/Run2011_2b.root", fMethod, fBins, 20000);
-  Measure(aRun2011_2b);
-  //*/
-  
-  //* DATA, full 2011
-  Analysis* aRun2011 = new Analysis("Run2011", "/scratch/hh/current/cms/user/mseidel/Run2011.root", fMethod, fBins, 0);
+  Analysis* aRun2011 = new Analysis("Run2011", "/scratch/hh/current/cms/user/mseidel/Run2011/analyzeTop.root", fMethod, fBins, 0);
   Measure(aRun2011);
-  //*/
-	
-  /*
-  Analysis* aFall10_1725_2b = new Analysis("Fall10_1725_2b", "/scratch/hh/current/cms/user/mseidel/Fall10_TTJets1725/analyzeTop.root", fMethod, fBins, 200000);
-  Measure(aFall10_1725_2b);
-  //*/
-	
-  /*
-  Analysis* aFall10_1725_largerISRFSR_2b = new Analysis("Fall10_1725_largerISRFSR_2b", "/scratch/hh/current/cms/user/mseidel/Fall10_TTJets1725_largerISRFSR/analyzeTop.root", fMethod, fBins, 200000);
-  Measure(aFall10_1725_largerISRFSR_2b);
-  //*/
-	
-  /*
-  Analysis* aFall10_1725_smallerISRFSR_2b = new Analysis("Fall10_1725_smallerISRFSR_2b", "/scratch/hh/current/cms/user/mseidel/Fall10_TTJets1725_smallerISRFSR/analyzeTop.root", fMethod, fBins, 200000);
-  Measure(aFall10_1725_smallerISRFSR_2b);
-  //*/
-	
-	/*
-  Analysis* aFall10_1725_matchingdown_2b = new Analysis("Fall10_1725_matchingdown_2b", "/scratch/hh/current/cms/user/mseidel/Fall10_TTJets1725_matchingdown/analyzeTop.root", fMethod, fBins, 200000);
-  Measure(aFall10_1725_matchingdown_2b);
-  //*/
-	
-	/*
-  Analysis* aFall10_1725_matchingup_2b = new Analysis("Fall10_1725_matchingup_2b", "/scratch/hh/current/cms/user/mseidel/Fall10_TTJets1725_matchingup/analyzeTop.root", fMethod, fBins, 200000);
-  Measure(aFall10_1725_matchingup_2b);
-  //*/
-	
-	/*
-  Analysis* aFall10_1725_scaledown_2b = new Analysis("Fall10_1725_scaledown_2b", "/scratch/hh/current/cms/user/mseidel/Fall10_TTJets1725_scaledown/analyzeTop.root", fMethod, fBins, 200000);
-  Measure(aFall10_1725_scaledown_2b);
-  //*/
-	
-	/*
-  Analysis* aFall10_1725_scaleup_2b = new Analysis("Fall10_1725_scaleup_2b", "/scratch/hh/current/cms/user/mseidel/Fall10_TTJets1725_scaleup/analyzeTop.root", fMethod, fBins, 200000);
-  Measure(aFall10_1725_scaleup_2b);
-  //*/
-  
-  /*
-  Analysis* aSummer11_1725_matchingdown = new Analysis("Summer11_1725_matchingdown", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_matchingdown/analyzeTop.root", fMethod, fBins, 0);
-  Measure(aSummer11_1725_matchingdown);
-  //*/
-	
-  /*
-  Analysis* aSummer11_1725_matchingup = new Analysis("Summer11_1725_matchingup", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_matchingup/analyzeTop.root", fMethod, fBins, 0);
-  Measure(aSummer11_1725_matchingup);
-  //*/
-	
-	/*
-  Analysis* aSummer11_1725_scaledown = new Analysis("Summer11_1725_scaledown", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_scaledown/analyzeTop.root", fMethod, fBins, 0);
-  Measure(aSummer11_1725_scaledown);
-  //*/
-	
-	/*
-  Analysis* aSummer11_1725_scaleup = new Analysis("Summer11_1725_scaleup", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_scaleup/analyzeTop.root", fMethod, fBins, 0);
-  Measure(aSummer11_1725_scaleup);
-  //*/
-  
-  /*
-  Analysis* aSummer11_1725_pdf_2b = new Analysis("Summer11_1725_pdf_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_pdf_1.00/analyzeTop.root", fMethod, fBins, 200000);
-  Measure(aSummer11_1725_pdf_2b);
-  //*/
-  
-  /*
-  Analysis* aSummer11_1725_jerdown_2b = new Analysis("Summer11_1725_jerdown_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00_jer:down/analyzeTop.root", fMethod, fBins, 200000);
-  Measure(aSummer11_1725_jerdown_2b);
-  //*/
-  
-  /*
-  Analysis* aSummer11_1725_jerup_2b = new Analysis("Summer11_1725_jerup_2b", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00_jer:up/analyzeTop.root", fMethod, fBins, 200000);
-  Measure(aSummer11_1725_jerup_2b);
   //*/
 }
 
 
 void TopMass::WriteEnsembleTest(bool readCalibration) {
   if (readCalibration) LoadXML();
-
-  /*
-  massPoint m1665(166.5, "1665");
-  massPoint m1725(172.5, "1725");
-  massPoint m1785(178.5, "1785");
-   
-  massPoints.push_back(m1665);
-  massPoints.push_back(m1725);
-  massPoints.push_back(m1785);
-  */
   
-  massPoint m1725(172.5, "1725");
-  massPoints.push_back(m1725);
+  massPoint m1665j096(166.5, 0.96, "1665_0.96"); massPoints.push_back(m1665j096);
+  massPoint m1665j100(166.5, 1.00, "1665_1.00"); massPoints.push_back(m1665j100);
+  massPoint m1665j104(166.5, 1.04, "1665_1.04"); massPoints.push_back(m1665j104);
   
-  int nEnsembles = 10;
+  massPoint m1725j096(172.5, 0.96, "1725_0.96"); massPoints.push_back(m1725j096);
+  massPoint m1725j100(172.5, 1.00, "1725_1.00"); massPoints.push_back(m1725j100);
+  massPoint m1725j104(172.5, 1.04, "1725_1.04"); massPoints.push_back(m1725j104);
+  
+  massPoint m1785j096(178.5, 0.96, "1785_0.96"); massPoints.push_back(m1785j096);
+  massPoint m1785j100(178.5, 1.00, "1785_1.00"); massPoints.push_back(m1785j100);
+  massPoint m1785j104(178.5, 1.04, "1785_1.04"); massPoints.push_back(m1785j104);
+  
+  int nEnsembles = 4;
+  
+  double genMass, mass, massError, massPull, genJES, JES, JESError, JESPull;
+  TTree* tree = new TTree("tree", "tree");
+  tree->Branch("genMass", &genMass, "genMass/D");
+  tree->Branch("mass", &mass, "mass/D");
+  tree->Branch("massError", &massError, "massError/D");
+  tree->Branch("massPull", &massPull, "massPull/D");
+  tree->Branch("genJES", &genJES, "genJES/D");
+  tree->Branch("JES", &JES, "JES/D");
+  tree->Branch("JESError", &JESError, "JESError/D");
+  tree->Branch("JESPull", &JESPull, "JESPull/D");
   
   for (iMassPoint = massPoints.begin(); iMassPoint != massPoints.end(); ++iMassPoint) {
     iMassPoint->analysis = new Analysis(iMassPoint->identifier, iMassPoint->fileName, fMethod, fBins, fLumi);
+    
     iMassPoint->h3Mass = new TH3F("h3Mass_" + iMassPoint->identifier, "h3Mass_" + iMassPoint->identifier, fBins, 0, 3, fBins, 0, 3, 100, 150, 200);
     iMassPoint->h3MassError = new TH3F("h3MassError_" + iMassPoint->identifier, "h3MassError_" + iMassPoint->identifier, fBins, 0, 3, fBins, 0, 3, 200, 0, 2);
     iMassPoint->h3MassPull = new TH3F("h3MassPull_" + iMassPoint->identifier, "h3MassPull_" + iMassPoint->identifier, fBins, 0, 3, fBins, 0, 3, 100, -5, 5);
+    
+    iMassPoint->h3JES = new TH3F("h3JES_" + iMassPoint->identifier, "h3JES_" + iMassPoint->identifier, fBins, 0, 3, fBins, 0, 3, 100, 0.9, 1.1);
+    iMassPoint->h3JESError = new TH3F("h3JESError_" + iMassPoint->identifier, "h3JESError_" + iMassPoint->identifier, fBins, 0, 3, fBins, 0, 3, 200, 0, 0.02);
+    iMassPoint->h3JESPull = new TH3F("h3JESPull_" + iMassPoint->identifier, "h3JESPull_" + iMassPoint->identifier, fBins, 0, 3, fBins, 0, 3, 100, -5, 5);
+    
     for (int n = 0; n < nEnsembles; n++) {
       iMassPoint->analysis->Analyze(true);
       for (int i = 0; i < fBins; i++) {
         for (int j = 0; j < fBins; j++) {
-          double mass = iMassPoint->analysis->GetH2Mass()->GetCellContent(i+1, j+1);
-          double massError = iMassPoint->analysis->GetH2MassError()->GetCellContent(i+1, j+1);
-          double massPull = (mass-iMassPoint->genMass)/massError;
+          genMass   = iMassPoint->genMass;
+          mass      = iMassPoint->analysis->GetH2Mass()->GetCellContent(i+1, j+1);
+          massError = iMassPoint->analysis->GetH2MassError()->GetCellContent(i+1, j+1);
+          massPull  = (mass - genMass)/massError;
+          
+          genJES    = iMassPoint->genJES;
+          JES       = iMassPoint->analysis->GetH2JES()->GetCellContent(i+1, j+1);
+          JESError  = iMassPoint->analysis->GetH2JESError()->GetCellContent(i+1, j+1);
+          JESPull   = (JES - genJES)/JESError;
           
           if (readCalibration) {
             if (fCalibFitParameter[i][j][0] && fCalibFitParameter[i][j][1]) {
@@ -333,6 +114,12 @@ void TopMass::WriteEnsembleTest(bool readCalibration) {
           iMassPoint->h3Mass->Fill(3./fBins*i, 3./fBins*j, mass);
           iMassPoint->h3MassError->Fill(3./fBins*i, 3./fBins*j, massError);
           iMassPoint->h3MassPull->Fill(3./fBins*i, 3./fBins*j, massPull);
+          
+          iMassPoint->h3JES->Fill(3./fBins*i, 3./fBins*j, JES);
+          iMassPoint->h3JESError->Fill(3./fBins*i, 3./fBins*j, JESError);
+          iMassPoint->h3JESPull->Fill(3./fBins*i, 3./fBins*j, JESPull);
+          
+          tree->Fill();
         }
       }
     }
@@ -345,7 +132,13 @@ void TopMass::WriteEnsembleTest(bool readCalibration) {
     iMassPoint->h3Mass->Write();
     iMassPoint->h3MassError->Write();
     iMassPoint->h3MassPull->Write();
+    
+    iMassPoint->h3JES->Write();
+    iMassPoint->h3JESError->Write();
+    iMassPoint->h3JESPull->Write();
   }
+  
+  tree->Write();
 }
 
 void TopMass::EvalEnsembleTest(bool writeCalibration) {
@@ -360,9 +153,9 @@ void TopMass::EvalEnsembleTest(bool writeCalibration) {
   TiXmlElement* calibration = new TiXmlElement( "calibration" );
   doc.LinkEndChild( calibration );
   
-  massPoint m1665(166.5, "1665");
-  massPoint m1725(172.5, "1725");
-  massPoint m1785(178.5, "1785");
+  massPoint m1665(166.5, 1., "1665");
+  massPoint m1725(172.5, 1., "1725");
+  massPoint m1785(178.5, 1., "1785");
   
   int nEnsemble = 1000;
   
@@ -675,6 +468,7 @@ void TopMass::QuickCalibration() {
   double JESBias[3][9];
   double JESError[3][9];
   
+  //*
   for(int iJES = 0; iJES < 3; iJES++) {
     for(int iMass = 0; iMass < 9; iMass++) {
       calibrationAnalyses[iJES][iMass]->Analyze();
@@ -686,15 +480,31 @@ void TopMass::QuickCalibration() {
       hJESError[iJES].push_back(calibrationAnalyses[iJES][iMass]->GetH2JESError());
     }
   }
-    
+  //*/
+  
+  /* TEST
+  calibrationAnalyses[1][2]->Analyze();
+  for(int iJES = 0; iJES < 3; iJES++) {
+    for(int iMass = 0; iMass < 9; iMass++) {
+      hMass[iJES].push_back(calibrationAnalyses[1][2]->GetH2Mass());
+      hMassError[iJES].push_back(calibrationAnalyses[1][2]->GetH2MassError());
+			
+			hJES[iJES].push_back(calibrationAnalyses[1][2]->GetH2JES());
+      hJESError[iJES].push_back(calibrationAnalyses[1][2]->GetH2JESError());
+    }
+  }
+  //*/
+  
   canvasFit->cd();
 
   std::vector<TGraphErrors*> gMass;
 	std::vector<TGraphErrors*> gJES;
-
+	
+  gStyle->SetOptFit(1);
   
   for (int i = 0; i < fBins; i++) {
     for (int j = 0; j < fBins; j++) {
+      //*
       if (   hMass[0][0]->GetCellContent(i+1, j+1) > 0      && hMass[2][2]->GetCellContent(i+1, j+1) > 0
           && hMassError[0][0]->GetCellContent(i+1, j+1) > 0 && hMassError[2][2]->GetCellContent(i+1, j+1) > 0) {
         for (int iJES = 0; iJES < 3; iJES++) {
@@ -708,7 +518,8 @@ void TopMass::QuickCalibration() {
             JESError[iJES][iMass] = hJESError[iJES][iMass]->GetCellContent(i+1, j+1);
           }
         }
-        
+        //*/
+      
 				TMultiGraph *mgJES = new TMultiGraph();
 				mgJES->SetTitle(";m_{t,gen};JES_{meas}-JES_{gen}");
 				
@@ -741,26 +552,30 @@ void TopMass::QuickCalibration() {
         	}
 					*/
         }
-				
+        
 				mgJES->SetMinimum(-0.05);
 				mgJES->SetMaximum( 0.05);
 				
 				mgJES->Draw("AP");
 				
         canvasFit->Update();
+        
         TPaveStats* stats0 = (TPaveStats*) gJES[0]->GetListOfFunctions()->FindObject("stats");
         stats0->SetTextColor(color_[0]);
         stats0->SetX1NDC(0.16);
         stats0->SetY1NDC(0.7);
         stats0->SetX2NDC(0.4233);
         stats0->SetY2NDC(0.825);
+        
         TPaveStats* stats1 = (TPaveStats*) gJES[1]->GetListOfFunctions()->FindObject("stats");
         stats1->SetTextColor(color_[1]);
         stats1->SetX1NDC(0.4233);
         stats1->SetY1NDC(0.7);
         stats1->SetX2NDC(0.6867);
         stats1->SetY2NDC(0.825);
+        
         TPaveStats* statsGlobal = (TPaveStats*) gJES[2]->GetListOfFunctions()->FindObject("stats");
+        
         TPaveStats* stats2 = (TPaveStats*) statsGlobal->Clone();
         stats2->SetTextColor(color_[2]);
         stats2->SetX1NDC(0.6867);
@@ -768,8 +583,9 @@ void TopMass::QuickCalibration() {
         stats2->SetX2NDC(0.95);
         stats2->SetY2NDC(0.825);
         stats2->Draw();
+        
         canvasFit->Modified();
-				
+        
 				TLegend *leg = new TLegend(0.16, 0.825, 0.555, 0.95);
         leg->SetFillColor(kWhite);
         leg->SetBorderSize(1);
@@ -777,7 +593,7 @@ void TopMass::QuickCalibration() {
         leg->AddEntry( gJES[1], "JES=1.00", "LEP");
 				leg->AddEntry( gJES[2], "JES=1.04", "LEP");
         leg->Draw();
-				
+        
 				TF1* constFit = new TF1("constFit", "[0]");
 				constFit->SetParNames("offset");
 				constFit->SetLineColor(kBlack);
@@ -790,7 +606,7 @@ void TopMass::QuickCalibration() {
         statsGlobal->SetX2NDC(0.95);
         statsGlobal->SetY2NDC(0.95);
 				
-				TString path("plot/"); path += fMethod; path += "/ensembletest/"; path += "fit_JES_"; path += i; path += "_"; path += j; path += ".root";
+				TString path("plot/"); path += fMethod; path += "/ensembletest/"; path += "fit_JES_"; path += i; path += "_"; path += j; path += ".eps";
         canvasFit->Print(path);
         
         canvasFit->Clear();
@@ -874,7 +690,7 @@ void TopMass::QuickCalibration() {
         statsMassGlobal->SetX2NDC(0.95);
         statsMassGlobal->SetY2NDC(0.95);
 				
-				path = "plot/"; path += fMethod; path += "/ensembletest/"; path += "fit_Mass_"; path += i; path += "_"; path += j; path += ".root";
+				path = "plot/"; path += fMethod; path += "/ensembletest/"; path += "fit_Mass_"; path += i; path += "_"; path += j; path += ".eps";
         canvasFit->Print(path);
       }
     }
@@ -904,6 +720,8 @@ TH2F* TopMass::Measure(Analysis* a) {
   TH2F* hMassCalibrated = a->GetH2MassCalibrated();
   TH2F* hMassErrorCalibrated = a->GetH2MassErrorCalibrated();
   
+  std::cout << "================================================" << std::endl;
+  
   for (int i = 0; i < fBins; i++) {
     for (int j = 0; j < fBins; j++) {
       
@@ -926,7 +744,6 @@ TH2F* TopMass::Measure(Analysis* a) {
       else {
         mass = 0;
         massError = 0;
-        std::cout << "No Calibration data or mass available" << std::endl;
       }
         
       hMassCalibrated->SetCellContent(i+1, j+1, mass);
@@ -934,6 +751,8 @@ TH2F* TopMass::Measure(Analysis* a) {
       
     }
   }
+  
+  std::cout << "================================================" << std::endl;
   
   canvas->Divide(2,1);
   

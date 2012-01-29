@@ -86,7 +86,8 @@ void Analysis::Analyze(bool reanalyze) {
         cuts += " & hitFitProb > 0.2";
         //cuts += " & bProbSSV > 0.3";
         //cuts += " & bProbSSV*hitFitProb > 0.05";
-        cuts += " & hadQBSSV<1.74 & hadQBarBSSV<1.74 & hadBBSSV>1.74 & lepBBSSV>1.74";
+        cuts += " & hadQBSSV<1.74 & hadQBarBSSV<1.74 & hadBBSSV>1.74 & lepBBSSV>1.74";   // b-TAG
+        //cuts += " & abs(hadQF)!=5 & abs(hadQBarF)!=5 & abs(hadBF)==5 & abs(lepBF)==5";   // b-TRUTH
         //cuts += " & run < 168000";
         //cuts += " & nlJetPt/(hadQPt+hadQBarPt)>0.3";
         cuts += " & leptonPt > 30";
@@ -136,6 +137,7 @@ void Analysis::Analyze(bool reanalyze) {
   delete canvas;
   delete fAnalyzer;
   delete tempFile;
+  
 
   fAnalyzed = true;
 }
@@ -203,47 +205,53 @@ void Analysis::CreateRandomSubset() {
   fChain->SetBranchStatus("hadBBSSV", 1);
   fChain->SetBranchStatus("lepBBSSV", 1);
   
-  TTree* tempTree = fChain->CopyTree("leptonPt>30 & bottomSSVJetMultiplicity > 1");
-  //TTree* tempTree = fChain->CopyTree("leptonPt>30"); // CMSSW 4.1.4, no b-jets in selection code
-  
-  tempFile = new TFile("tempTree.root", "UPDATE");
+  fChain->SetBranchStatus("hadQF", 1);
+  fChain->SetBranchStatus("hadQBarF", 1);
+  fChain->SetBranchStatus("hadBF", 1);
+  fChain->SetBranchStatus("lepBF", 1);
 
   if (fLumi>0) {
+    TTree* tempTree = fChain->CopyTree("leptonPt>30 & bottomSSVJetMultiplicity > 1");
+    //TTree* tempTree = fChain->CopyTree("leptonPt>30"); // CMSSW 4.1.4, no b-jets in selection code
+    
+    tempFile = new TFile("tempTree.root", "RECREATE");
+    
     TRandom3* random = new TRandom3(0);
-    double events = 9716./4700.*fLumi;
-    //double events = 235./36.*fLumi;
-    double fullEvents = tempTree->GetEntries("combi==0");
 
+    int eventsPE = random->Poisson(9716./4700.*fLumi); // add poisson
+    int permsMC = tempTree->GetEntries("");
+    int eventsDrawn = 0;
+    
     fTree = tempTree->CloneTree(0);
     
     int combi;
     tempTree->SetBranchAddress("combi", &combi);
     fTree->SetBranchAddress("combi", &combi);
     
-    for (int iEntry = 0; iEntry < tempTree->GetEntries(); iEntry++) {
-      tempTree->GetEntry(iEntry);
-      if (combi!=0) continue;
-      if (random->Rndm() < events/fullEvents) {
+    while (eventsDrawn < eventsPE) {
+      int drawn = random->Rndm()*permsMC;
+      tempTree->GetEntry(drawn);
+      if (combi == 0) {
         for (int iComb = 0; iComb < 24; iComb++) {
-	        tempTree->GetEntry(iEntry + iComb);
+	        tempTree->GetEntry(drawn + iComb);
 	        
           if ((iComb != 0 && combi == 0)) {
-            iEntry = iEntry + iComb - 1;
             break;
           }
           
           fTree->Fill();
         }
+        eventsDrawn++;
+        //std::cout << eventsDrawn << std::endl;
       }
-    }
+    }  
+    tempFile->Write();
+    tempFile = new TFile("tempTree.root", "RECREATE");
+    delete tempTree;
   }
   else {
-    fTree = tempTree->CloneTree();
+    fTree = fChain;
   }
-  
-  tempFile->Write();
-  
-  delete tempTree;
   //delete file;
 }
 

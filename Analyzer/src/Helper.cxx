@@ -171,3 +171,21 @@ void Helper::SetTDRStyle() {
   tdrStyle->cd();
 
 }
+
+void Helper::DrawLabel(TString text, const double x1, const double y1, const double x2, Color_t color = kBlack)
+{
+  // function to directly draw a label into the active canvas
+  double y2 = y1 + 0.05;
+  double yOffset = 0.02;
+  TPaveLabel *label = new TPaveLabel(x1, y1+yOffset, x2, y2+yOffset, text, "br NDC");
+  label->SetFillStyle(0);
+  label->SetBorderSize(0);
+  label->SetTextSize(0.75);
+  label->SetTextAlign(12);
+  label->SetTextColor(color);
+  label->Draw("same");
+}
+
+void Helper::DrawCMSPrel() {
+  DrawLabel("CMS preliminary, 4.7 fb^{ -1},  #sqrt{s}=7 TeV", 0.2, 0.93, 0.9);
+}

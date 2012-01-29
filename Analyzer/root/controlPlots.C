@@ -15,6 +15,8 @@ TTree* tTTJets;
 TTree* tTTJetsCP;
 TTree* tTTJetsWP;
 TTree* tTTJetsUN;
+TTree* tTTUp;
+TTree* tTTDown;
 TTree* tQCD;
 TTree* tWJets;
 TTree* tZJets;
@@ -26,13 +28,18 @@ TTree* tSTopt;
 TTree* tSToptW;
 TTree* tData;
 
+bool upDown = false;
+bool qcd = false;
+//TString sTree("analyzeHitFit/eventTree");
+TString sTree("analyzeHitFit/eventTree");
+
 std::vector<double> lumiWeight;
 
-enum plotType   {kEvent, kEvent2b, kPerm2b, kPerm2bW};
+enum plotType   {kEvent, kEvent2b, kEvent2bW, kPerm2b, kPerm2bW};
 
-enum samples    {kSigCP, kSigWP, kSigUN,  kSig  , kZjets  , kWjets  , kQCD   , kSTop   , kDiBos, kData , kWW, kWZ, kZZ, kSAntiTops, kSAntiTopt, kSAntiToptW, kSTops  , kSTopt  , kSToptW };
-int color_ [] = {kRed+1, kRed-7, kRed-10, kGray , kAzure-2, kGreen-3, kYellow, kMagenta, 10    , kBlack, 10 , 10 , 10 , kMagenta  , kMagenta  , kMagenta   , kMagenta, kMagenta, kMagenta};
-int marker_[] = {20,     22,     22,      20,     29      , 23      , 21     , 27      , 28    , 20    , 28 , 28 , 28 , 27        , 27        , 27         , 27      , 27      , 27      };
+enum samples    {kSigCP, kSigWP, kSigUN,  kSig  , kUp     , kDown  , kZjets  , kWjets  , kQCD   , kSTop   , kDiBos, kData , kWW, kWZ, kZZ, kSAntiTops, kSAntiTopt, kSAntiToptW, kSTops  , kSTopt  , kSToptW };
+int color_ [] = {kRed+1, kRed-7, kRed-10, kGray , kGreen+1, kRed+1 , kAzure-2, kGreen-3, kYellow, kMagenta, 10    , kBlack, 10 , 10 , 10 , kMagenta  , kMagenta  , kMagenta   , kMagenta, kMagenta, kMagenta};
+int marker_[] = {20,     22,     22,      20,     22      , 23     , 29      , 23      , 21     , 27      , 28    , 20    , 28 , 28 , 28 , 27        , 27        , 27         , 27      , 27      , 27      };
 
 
 void drawcutline(double cutval, double maximum)
@@ -62,7 +69,9 @@ void controlPlots()
   //    open input files
   // ---
   TFile* fTTJets = new TFile("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00/analyzeTop.root");
-  TFile* fQCD    = new TFile("/scratch/hh/current/cms/user/mseidel/Summer11_QCD/analyzeTop.root");
+  TFile* fTTUp   = new TFile("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_scaleup/analyzeTop.root");
+  TFile* fTTDown = new TFile("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_scaledown/analyzeTop.root");
+  if (qcd) TFile* fQCD    = new TFile("/scratch/hh/current/cms/user/mseidel/Summer11_QCD/analyzeTop.root");
   TFile* fWJets  = new TFile("/scratch/hh/current/cms/user/mseidel/Summer11_WJets/analyzeTop.root");
   TFile* fZJets  = new TFile("/scratch/hh/current/cms/user/mseidel/Summer11_ZJets/analyzeTop.root");
   TFile* fSAntiTops  = new TFile("/scratch/hh/current/cms/user/mseidel/Summer11_Tbar_s-channel/analyzeTop.root");
@@ -71,24 +80,24 @@ void controlPlots()
   TFile* fSTops  = new TFile("/scratch/hh/current/cms/user/mseidel/Summer11_T_s-channel/analyzeTop.root");
   TFile* fSTopt  = new TFile("/scratch/hh/current/cms/user/mseidel/Summer11_T_t-channel/analyzeTop.root");
   TFile* fSToptW = new TFile("/scratch/hh/current/cms/user/mseidel/Summer11_T_tW-channel/analyzeTop.root");
-  //TFile* fData   = new TFile("/scratch/hh/current/cms/user/mseidel/Run2011_2b.root");
-  TFile* fData   = new TFile("/scratch/hh/current/cms/user/mseidel/Run2011.root");
+  TFile* fData   = new TFile("/scratch/hh/current/cms/user/mseidel/Run2011/analyzeTop.root");
   
   // ---
   //    Get trees
   // ---
-  tTTJets = (TTree*) fTTJets->Get("analyzeHitFit/eventTree");
-  tQCD    = (TTree*) fQCD   ->Get("analyzeHitFit/eventTree");
-  tWJets  = (TTree*) fWJets ->Get("analyzeHitFit/eventTree");
-  tZJets  = (TTree*) fZJets ->Get("analyzeHitFit/eventTree");
-  tSAntiTops  = (TTree*) fSAntiTops ->Get("analyzeHitFit/eventTree");
-  tSAntiTopt  = (TTree*) fSAntiTopt ->Get("analyzeHitFit/eventTree");
-  tSAntiToptW = (TTree*) fSAntiToptW->Get("analyzeHitFit/eventTree");
-  tSTops  = (TTree*) fSTops ->Get("analyzeHitFit/eventTree");
-  tSTopt  = (TTree*) fSTopt ->Get("analyzeHitFit/eventTree");
-  tSToptW = (TTree*) fSToptW->Get("analyzeHitFit/eventTree");
-  
-  tData   = (TTree*) fData  ->Get("analyzeHitFit/eventTree");
+  tTTJets = (TTree*) fTTJets->Get(sTree);
+  tTTUp   = (TTree*) fTTUp  ->Get(sTree);
+  tTTDown = (TTree*) fTTDown->Get(sTree);
+  if (qcd) tQCD    = (TTree*) fQCD   ->Get(sTree);
+  tWJets  = (TTree*) fWJets ->Get(sTree);
+  tZJets  = (TTree*) fZJets ->Get(sTree);
+  tSAntiTops  = (TTree*) fSAntiTops ->Get(sTree);
+  tSAntiTopt  = (TTree*) fSAntiTopt ->Get(sTree);
+  tSAntiToptW = (TTree*) fSAntiToptW->Get(sTree);
+  tSTops  = (TTree*) fSTops ->Get(sTree);
+  tSTopt  = (TTree*) fSTopt ->Get(sTree);
+  tSToptW = (TTree*) fSToptW->Get(sTree);
+  tData   = (TTree*) fData  ->Get(sTree);
 
   // ---
   // define weights concerning luminosity
@@ -100,7 +109,7 @@ void controlPlots()
   double sampleSize   = 0;
 
   // 7 TeV Monte Carlo samples
-  for(unsigned int idx=0; idx<19; ++idx) {
+  for(unsigned int idx=0; idx<21; ++idx) {
     switch(idx) {
       case kSigCP:
       case kSigWP:
@@ -112,6 +121,18 @@ void controlPlots()
       case kSig: {
         crossSection = 158.; // combined 2010 CMS XSec + uncertainty
         sampleSize   = 3701947.; // Summer11
+        break;
+      }
+      case kUp: {
+        crossSection = 158.; // combined 2010 CMS XSec + uncertainty
+        //sampleSize   = 1062792.; // matching
+        sampleSize   = 930483.; // scale 
+        break;
+      }
+      case kDown: {
+        crossSection = 158.; // combined 2010 CMS XSec + uncertainty
+        //sampleSize   = 1065323.; // matching
+        sampleSize   = 967055.; // scale 
         break;
       }
       case kQCD: {
@@ -169,17 +190,15 @@ void controlPlots()
   
   
   //* Test
+  //makeControlPlot("jet", "hadBBSSV", "b-disc (SSVHE)", "hadBBSSV_event", 30, 1, 7, kEvent2b, true);
   //makeControlPlot("event", "jetMultiplicity", "Number of jets", "jetMultiplicity", 5, 4, 9, kEvent2b);
-  //makeControlPlot("event", "bottomSSVJetMultiplicity", "Number of b-jets", "bottomSSVJetMultiplicity", 5, 0, 5, kEvent);
-  //makeControlPlot("event", "nuRawPt", "MET [GeV]", "nuRawPt_event", 50, 0, 500, kEvent2b, true);
-  makeControlPlot("event", "nVertex", "Number of vertices", "nVertex_event", 25, 0, 25, kEvent2b);
-  //makeControlPlot("test", "hadTopMass", "m_{t}^{fit} [GeV]", "hadTopMass", 35, 50, 400, kEvent2b);
-  //makeControlPlot("permutation", "hitFitProb", "P_{fit}", "hitFitProb", 20, 0, 1, kPerm2b, true, 0.2);
-  //makeControlPlot("permutation", "hitFitChi2", "#chi^{2}_{fit}", "hitFitChi2", 20, 0, 10, kPerm2b, false, 3.218875825);
-  //makeControlPlot("permutation", "hadTopRawMass", "m_{t,had}^{raw} [GeV]", "hadTopRawMass", 35, 50, 400, kPerm2b);
+  makeControlPlot("event", "bottomSSVJetMultiplicity", "Number of b-jets", "bottomSSVJetMultiplicity", 5, 0, 5, kEvent);
+  //makeControlPlot("event", "nVertex", "Number of vertices", "nVertex_event", 25, 0, 25, kEvent2b);
   //*/
   
   /* Event
+  makeControlPlot("event", "bottomSSVJetMultiplicity", "Number of b-jets", "bottomSSVJetMultiplicity", 5, 0, 5, kEvent);
+  makeControlPlot("event", "bottomSSVJetMultiplicity", "Number of b-jets", "bottomSSVJetMultiplicity_event", 5, 0, 5, kEvent2b);
   makeControlPlot("event", "jetMultiplicity", "Number of jets", "jetMultiplicity_event", 5, 4, 9, kEvent2b);
   makeControlPlot("event", "nVertex", "Number of vertices", "nVertex_event", 25, 0, 25, kEvent2b);
   
@@ -192,25 +211,31 @@ void controlPlots()
   makeControlPlot("jet", "hadQBarRawPt", "p_{T,#bar{q}} [GeV]", "QBarRawPt_event", 20, 0, 200, kEvent2b);
   makeControlPlot("jet", "hadBEta", "#eta_{b}", "BEta_event", 25, -2.5, 2.5, kEvent2b);
   makeControlPlot("jet", "hadQEta", "#eta_{q}", "QEta_event", 25, -2.5, 2.5, kEvent2b);
-  makeControlPlot("jet", "hadBBSSV", "b-disc (SSVHE)", "hadBBSSV_event", 30, 1, 7, kEvent2b);
+  makeControlPlot("jet", "hadBBSSV", "b-disc (SSVHE)", "hadBBSSV_event", 30, 1, 7, kEvent2b, true);
   //*/
   
-  /* Permutation
-  makeControlPlot("permutation", "hadWRawMass", "m_{W,had}^{raw} [GeV]", "hadWRawMass", 30, 0, 300, kPerm2b);
-  makeControlPlot("permutation", "lepWRawMass", "m_{W,lep}^{raw} [GeV]", "lepWRawMass", 30, 0, 300, kPerm2b);
-  makeControlPlot("permutation", "hadTopRawMass", "m_{t,had}^{raw} [GeV]", "hadTopRawMass", 35, 50, 400, kPerm2b);
-  makeControlPlot("permutation", "lepTopRawMass", "m_{t,lep}^{raw} [GeV]", "lepTopRawMass", 35, 50, 400, kPerm2b);
-  makeControlPlot("permutation", "hadTopMass", "m_{t}^{fit} [GeV]", "hadTopMass", 35, 50, 400, kPerm2b);
+  //* Permutation
+  makeControlPlot("permutation", "hadWRawMass", "m_{W,had}^{raw} [GeV]", "hadWRawMass", 60, 0, 300, kPerm2b);
+  makeControlPlot("permutation", "lepWRawMass", "m_{W,lep}^{raw} [GeV]", "lepWRawMass", 60, 0, 300, kPerm2b);
+  makeControlPlot("permutation", "hadTopRawMass", "m_{t,had}^{raw} [GeV]", "hadTopRawMass", 70, 50, 400, kPerm2b);
+  makeControlPlot("permutation", "lepTopRawMass", "m_{t,lep}^{raw} [GeV]", "lepTopRawMass", 70, 50, 400, kPerm2b);
+  makeControlPlot("permutation", "hadTopMass", "m_{t}^{fit} [GeV]", "hadTopMass", 70, 50, 400, kPerm2b);
   makeControlPlot("permutation", "hitFitProb", "P_{fit}", "hitFitProb", 20, 0, 1, kPerm2b, true, 0.2);
   makeControlPlot("permutation", "hitFitChi2", "#chi^{2}_{fit}", "hitFitChi2", 20, 0, 10, kPerm2b, false, 3.218875825);
   //*/
   
-  /* Permutation, weighted
-  makeControlPlot("permutation", "hadWRawMass", "m_{W,had}^{raw} [GeV]", "hadWRawMass_weighted", 30, 0, 300, kPerm2bW);
-  makeControlPlot("permutation", "lepWRawMass", "m_{W,lep}^{raw} [GeV]", "lepWRawMass_weighted", 30, 0, 300, kPerm2bW);
-  makeControlPlot("permutation", "hadTopRawMass", "m_{t,had}^{raw} [GeV]", "hadTopRawMass_weighted", 35, 50, 400, kPerm2bW);
-  makeControlPlot("permutation", "lepTopRawMass", "m_{t,lep}^{raw} [GeV]", "lepTopRawMass_weighted", 35, 50, 400, kPerm2bW);
-  makeControlPlot("permutation", "hadTopMass", "m_{t}^{fit} [GeV]", "hadTopMass_weighted", 35, 50, 400, kPerm2bW);
+  //* Permutation, weighted
+  makeControlPlot("permutation", "hadWRawMass", "m_{W,had}^{raw} [GeV]", "hadWRawMass_weighted", 60, 0, 300, kPerm2bW);
+  makeControlPlot("permutation", "lepWRawMass", "m_{W,lep}^{raw} [GeV]", "lepWRawMass_weighted", 60, 0, 300, kPerm2bW);
+  makeControlPlot("permutation", "hadTopRawMass", "m_{t,had}^{raw} [GeV]", "hadTopRawMass_weighted", 70, 50, 400, kPerm2bW);
+  makeControlPlot("permutation", "lepTopRawMass", "m_{t,lep}^{raw} [GeV]", "lepTopRawMass_weighted", 70, 50, 400, kPerm2bW);
+  makeControlPlot("permutation", "hadTopMass", "m_{t}^{fit} [GeV]", "hadTopMass_weighted", 70, 50, 400, kPerm2bW);
+  //*/
+  
+  /* Systematics up/down
+  makeControlPlot("event", "jetMultiplicity", "Number of jets", "jetMultiplicity_scale", 5, 4, 9, kEvent2b);
+  makeControlPlot("event", "hadWRawMass", "m_{W,had}^{raw} [GeV]", "hadWRawMass_scale", 30, 0, 300, kEvent2b);
+  makeControlPlot("event", "hadTopMass", "m_{t}^{fit} [GeV]", "hadTopMass_scale", 35, 50, 400, kEvent2b);
   //*/
 }
 
@@ -230,6 +255,10 @@ void makeControlPlot(TString typeForTitle, TString sObservable, TString sObserva
     sTTJetsUN += ","; sTTJetsUN += xlow; sTTJetsUN += ","; sTTJetsUN += xup; sTTJetsUN += ")";
   TString sTTJets = sObservable; sTTJets += " >> hTTJets("; sTTJets += nbinsx;
     sTTJets += ","; sTTJets += xlow; sTTJets += ","; sTTJets += xup; sTTJets += ")";
+  TString sTTUp = sObservable; sTTUp += " >> hTTUp("; sTTUp += nbinsx;
+    sTTUp += ","; sTTUp += xlow; sTTUp += ","; sTTUp += xup; sTTUp += ")";
+  TString sTTDown = sObservable; sTTDown += " >> hTTDown("; sTTDown += nbinsx;
+    sTTDown += ","; sTTDown += xlow; sTTDown += ","; sTTDown += xup; sTTDown += ")";
   
   TString sQCD = sObservable; sQCD += " >> hQCD("; sQCD += nbinsx;
     sQCD += ","; sQCD += xlow; sQCD += ","; sQCD += xup; sQCD += ")";
@@ -262,7 +291,11 @@ void makeControlPlot(TString typeForTitle, TString sObservable, TString sObserva
       break;
     }
     case kEvent2b: {
-      sCut += "(MCWeight)*(leptonPt > 30 & combi == 0 & hadBBSSV>1.74 & lepBBSSV>1.74 & hadQBSSV<1.74 & hadQBarBSSV<1.74)";
+      sCut += "(MCWeight)*(leptonPt > 30)";
+      break;
+    }
+    case kEvent2bW: {
+      sCut += "(MCWeight)*(leptonPt > 30 & combi == 0 & bottomSSVJetMultiplicity>1 & hitFitProb>0.2)";
       break;
     }
     case kPerm2b: {
@@ -270,7 +303,7 @@ void makeControlPlot(TString typeForTitle, TString sObservable, TString sObserva
       break;
     }
     case kPerm2bW: {
-      sCut += "(MCWeight*hitFitProb)*(leptonPt > 30 & hadBBSSV>1.74 & lepBBSSV>1.74 & hadQBSSV<1.74 & hadQBarBSSV<1.74 & hitFitProb>0.2)";
+      sCut += "(MCWeight)*(leptonPt > 30 & hadBBSSV>1.74 & lepBBSSV>1.74 & hadQBSSV<1.74 & hadQBarBSSV<1.74 & hitFitProb>0.2)";
       break;
     }
   }
@@ -284,7 +317,10 @@ void makeControlPlot(TString typeForTitle, TString sObservable, TString sObserva
   tTTJets     ->Draw(sTTJetsWP,   sCutWP);
   tTTJets     ->Draw(sTTJetsUN,   sCutUN);
   tTTJets     ->Draw(sTTJets,     sCut);
-  tQCD        ->Draw(sQCD,        sCut);
+  tTTUp       ->Draw(sTTUp,       sCut);
+  tTTDown     ->Draw(sTTDown,     sCut);
+  if (qcd)  tQCD        ->Draw(sQCD,        sCut);
+  else TH1F* hQCD = new TH1F("hQCD", "hQCD", nbinsx, xlow, xup);
   tWJets      ->Draw(sWJets,      sCut);
   tZJets      ->Draw(sZJets,      sCut);
   tSAntiTops  ->Draw(sSAntiTops,  sCut);
@@ -294,7 +330,14 @@ void makeControlPlot(TString typeForTitle, TString sObservable, TString sObserva
   tSTopt      ->Draw(sSTopt,      sCut);
   tSToptW     ->Draw(sSToptW,     sCut);
   tData       ->Draw(sData,       sCut);
-
+  
+  // Double bin error due to correlations
+  if (plot == kPerm2b || plot == kPerm2bW) {
+    for (int i = 0; i < hData->GetNbinsX(); i++) {
+      int binError = hData->GetBinError(i);
+      hData->SetBinError(i, binError * 2);
+    }
+  }
   
   TH1F* hNull = new TH1F("null", "", nbinsx, xlow, xup);
   
@@ -321,7 +364,9 @@ void makeControlPlot(TString typeForTitle, TString sObservable, TString sObserva
   hTTJetsWP->Scale(lumiWeight[kSigWP]);
   hTTJetsUN->Scale(lumiWeight[kSigUN]);
   hTTJets  ->Scale(lumiWeight[kSig]);
-  hQCD     ->Scale(lumiWeight[kQCD]);
+  hTTUp    ->Scale(lumiWeight[kUp]);
+  hTTDown  ->Scale(lumiWeight[kDown]);
+  if (qcd) hQCD     ->Scale(lumiWeight[kQCD]);
   hWJets   ->Scale(lumiWeight[kWjets]);
   hZJets   ->Scale(lumiWeight[kZjets]);
   hSAntiTops   ->Scale(lumiWeight[kSAntiTops]);
@@ -342,16 +387,44 @@ void makeControlPlot(TString typeForTitle, TString sObservable, TString sObserva
                         );
   }
   
-  TH1F* hMC = new TH1F("hMC", "", nbinsx, xlow, xup);
+  TH1F* hMC = new TH1F("hMC", "", nbinsx, xlow, xup); 
   for (int i = 0; i < nbinsx+2; i++) {
     hMC  ->SetBinContent(i, (hTTJets->GetBinContent(i)
+                          + hQCD   ->GetBinContent(i)
                           + hWJets ->GetBinContent(i)
-                          + hSTop  ->GetBinContent(i)) * 177./158.
+                          + hZJets ->GetBinContent(i)
+                          + hSTop  ->GetBinContent(i))
                         );
   }
-  hMC->SetFillColor(kBlack);
-  hMC->SetFillStyle(3004);
-  hMC->SetLineColor(0);
+  if (!upDown) {
+    hMC->SetFillColor(kBlack);
+    hMC->SetFillStyle(3004);
+    hMC->SetLineColor(0);
+    hMC->Scale(177./158.);
+  }
+  
+  TH1F* hMCUp = new TH1F("hMCUp", "", nbinsx, xlow, xup);
+  TH1F* hMCDown = new TH1F("hMCDown", "", nbinsx, xlow, xup);
+  for (int i = 0; i < nbinsx+2; i++) {
+    hMCUp->SetBinContent(i, (hTTUp->GetBinContent(i)
+                          + hQCD   ->GetBinContent(i)
+                          + hWJets ->GetBinContent(i)
+                          + hZJets ->GetBinContent(i)
+                          + hSTop  ->GetBinContent(i))
+                        );
+    hMCDown->SetBinContent(i, (hTTDown->GetBinContent(i)
+                          + hQCD   ->GetBinContent(i)
+                          + hWJets ->GetBinContent(i)
+                          + hZJets ->GetBinContent(i)
+                          + hSTop  ->GetBinContent(i))
+                        );
+  }
+  hMCUp    ->SetLineColor(color_[kUp]);
+  hMCUp    ->SetMarkerColor(color_[kUp]);
+  hMCUp    ->SetMarkerStyle(marker_[kUp]);
+  hMCDown  ->SetLineColor(color_[kDown]);
+  hMCDown  ->SetMarkerColor(color_[kDown]);
+  hMCDown  ->SetMarkerStyle(marker_[kDown]);
   
   hTTJetsCP->SetFillColor(color_[kSigCP]);
   hTTJetsWP->SetFillColor(color_[kSigWP]);
@@ -382,24 +455,33 @@ void makeControlPlot(TString typeForTitle, TString sObservable, TString sObserva
   TLegend *leg0 = new TLegend(0.25, 0.75, 0.55, 0.925);
   leg0->SetFillStyle(0);
   leg0->SetBorderSize(0);
-  if (plot == kPerm2b || plot == kPerm2bW) {
+  if (upDown) {
+    leg0->AddEntry( hMC,     "nominal", "F" );
+    leg0->AddEntry( hMCUp,   "scale up", "PL" );
+    leg0->AddEntry( hMCDown, "scale down", "PL" );
+  }
+  else {
+    if (plot == kPerm2b || plot == kPerm2bW) {
     leg0->AddEntry( hTTJetsCP, "t#bar{t} correct", "F" );
     leg0->AddEntry( hTTJetsWP, "t#bar{t} wrong", "F" );
     leg0->AddEntry( hTTJetsUN, "t#bar{t} unmatched", "F" );
+    }
+    else {
+      leg0->SetY1(0.8);
+      leg0->AddEntry( hTTJets, "t#bar{t}", "F" );
+    }
+    leg0->AddEntry( hMC,     "t#bar{t} + 1#sigma", "F" );
   }
-  else {
-    leg0->SetY1(0.8);
-    leg0->AddEntry( hTTJets, "t#bar{t}", "F" );
-  }
-  leg0->AddEntry( hMC,       "t#bar{t} + 1#sigma", "F" );
   
   TLegend *leg1 = new TLegend(0.6, 0.75, 0.9, 0.925);
   leg1->SetFillStyle(0);
   leg1->SetBorderSize(0);
-  leg1->AddEntry( hQCD, "QCD", "F" );
-  leg1->AddEntry( hWJets, "W#rightarrowl#nu", "F" );
-  leg1->AddEntry( hZJets, "Z+jets", "F" );
-  leg1->AddEntry( hSTop, "single top", "F" );
+  if (!upDown) {
+    leg1->AddEntry( hQCD, "QCD", "F" );
+    leg1->AddEntry( hWJets, "W#rightarrowl#nu", "F" );
+    leg1->AddEntry( hZJets, "Z+jets", "F" );
+    leg1->AddEntry( hSTop, "single top", "F" );
+  }
   leg1->AddEntry( hData, "Data (4.7 fb ^{-1})", "PL");
 
   TPaveText *pt = new TPaveText(0.6, 0.7, 0.9, 0.75, "NDC");
@@ -410,14 +492,35 @@ void makeControlPlot(TString typeForTitle, TString sObservable, TString sObserva
   
   hNull->Draw();
   hMC  ->Draw("SAME");
-  stack->Draw("SAME");
+  if (!upDown) stack->Draw("SAME");
+  else {
+    hMCDown->Draw("E,SAME");
+    hMCUp->Draw("E,SAME");
+  }
   hData->Draw("E,SAME");
   leg0->Draw("");
   leg1->Draw();
-  //pt->Draw();
     
   if (cut != -999) drawcutline(cut, hData->GetMaximum());
   
+  gPad->RedrawAxis();
+  
+  DrawCMSPrel();
+  
   TString path("controlPlots/"); path+= sFileName; path += ".eps";
   cControlPlots->Print(path);
+  
+  std::cout << "=============== Event yields ===============" << std::endl;
+  std::cout << "tt: "     << hTTJets->Integral()  << std::endl;
+  std::cout << "QCD: "    << hQCD->Integral()     << std::endl;
+  std::cout << "Z+jets: " << hZJets->Integral()   << std::endl;
+  std::cout << "W+jets: " << hWJets->Integral()   << std::endl;
+  std::cout << "st: "     << hSTop->Integral()    << std::endl;
+  std::cout << "mc: "     << hTTJets->Integral()
+                           + hQCD->Integral()
+                           + hZJets->Integral()
+                           + hWJets->Integral()
+                           + hSTop->Integral()    << std::endl;
+  std::cout << "data: "   << hData->Integral()    << std::endl;
+  
 }

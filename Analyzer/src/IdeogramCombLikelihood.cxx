@@ -17,8 +17,8 @@ double IdeogramCombLikelihood::Evaluate(double *x, double *p) {
     fUN = 0;
   }
   
-  double JESOffset     = -0.002026;
-  double MassOffset    = -0.3623;
+  double JESOffset     = -0.002048;
+  double MassOffset    = -0.2359;
   double MassSlope     = 0.016;
   
   double JESFix  = 0.00333;
@@ -40,9 +40,10 @@ double IdeogramCombLikelihood::Evaluate(double *x, double *p) {
 
 
 double IdeogramCombLikelihood::PCP(double *x, double *p) {
+  double q[8] = {170.84, 0.989457, 81.547, 0.704955, 9.82681, 0.0838884, 9.9775, 0.0157692};
   //* hadTopMass
-  double mu       = 1.70821e+02 + 9.91801e-01 * (x[0]-172.5) + (8.15982e+01 + 6.84800e-01 * (x[0]-172.5)) * (x[1]-1.);
-  double sigma    = 9.75238e+00 + 8.29301e-02 * (x[0]-172.5) + (9.65337e+00 + 3.52131e-02 * (x[0]-172.5)) * (x[1]-1.);
+  double mu       = q[0] + q[1] * (x[0]-172.5) + (q[2] + q[3] * (x[0]-172.5)) * (x[1]-1.);
+  double sigma    = q[4] + q[5] * (x[0]-172.5) + (q[6] + q[7] * (x[0]-172.5)) * (x[1]-1.);
   
   return TMath::Voigt(p[1] - mu, sigma, 2);
   //*/
@@ -68,10 +69,12 @@ namespace cb {
 
 double IdeogramCombLikelihood::PWP(double* x, double* p)
 {
+  double q[12] = {173.608, 0.894004, 97.1005, -0.0998495, 28.4438, 0.412437, 32.6795, -0.303578, 0.469723, 0.0054029, 0.301859, -0.0225543};
+  
   double N      =  1./0.01;
-  double mu     =  1.77356e+02 + 1.03758e+00 * (x[0]-172.5) + (9.51202e+01 - 6.67208e-01 * (x[0]-172.5)) * (x[1]-1.);
-  double sigma  =  2.90139e+01 + 4.20973e-01 * (x[0]-172.5) + (2.83814e+01 - 8.44371e-01 * (x[0]-172.5)) * (x[1]-1.);
-  double alpha  =  4.77378e-01 + 5.26067e-03 * (x[0]-172.5) + (2.03662e-01 - 3.60043e-02 * (x[0]-172.5)) * (x[1]-1.);
+  double mu     = q[0] + q[1] * (x[0]-172.5) + (q[2] + q[3] * (x[0]-172.5)) * (x[1]-1.);
+  double sigma  = q[4] + q[5] * (x[0]-172.5) + (q[6] + q[7] * (x[0]-172.5)) * (x[1]-1.);
+  double alpha  = q[8] + q[9] * (x[0]-172.5) + (q[10] + q[11] * (x[0]-172.5)) * (x[1]-1.);
   double power  =  15;
   double t = (p[1] - mu) / sigma;
   
@@ -93,12 +96,12 @@ double IdeogramCombLikelihood::PWP(double* x, double* p)
 
 double IdeogramCombLikelihood::PUN(double* x, double* p)
 {
-  double xx     = x[0];
+  double q[12] = {168.429, 0.886587, 76.829, 0.410293, 20.0262, 0.283559, 14.3808, 0.0718494, 0.712514, 0.00938252, 0.257174, -0.0138846};
   
   double N      =  1./0.01;
-  double mu     =  1.68434e+02 + 8.99773e-01 * (x[0]-172.5) + (7.70014e+01 + 3.51422e-01 * (x[0]-172.5)) * (x[1]-1.);
-  double sigma  =  1.97809e+01 + 2.77859e-01 * (x[0]-172.5) + (1.42499e+01 + 1.39767e-01 * (x[0]-172.5)) * (x[1]-1.);
-  double alpha  =  7.04974e-01 + 9.32045e-03 * (x[0]-172.5) + (2.85543e-01 - 1.64546e-02 * (x[0]-172.5)) * (x[1]-1.);
+  double mu     = q[0] + q[1] * (x[0]-172.5) + (q[2] + q[3] * (x[0]-172.5)) * (x[1]-1.);
+  double sigma  = q[4] + q[5] * (x[0]-172.5) + (q[6] + q[7] * (x[0]-172.5)) * (x[1]-1.);
+  double alpha  = q[8] + q[9] * (x[0]-172.5) + (q[10] + q[11] * (x[0]-172.5)) * (x[1]-1.);
   double power  =  5;
   double t = (p[1] - mu) / sigma;
   
@@ -119,14 +122,16 @@ double IdeogramCombLikelihood::PUN(double* x, double* p)
 
 double IdeogramCombLikelihood::PCPJES(double* x, double* p)
 {
+  double q[12] = {82.5221, 0.0399054, 54.3144, 0.0392853, 5.69942, 0.0102082, 15.3069, 0.132278, 7.33692, -0.0179312, -6.52142, 0.0764738};
+  
   //* W Mass
   //std::cout << p[4] << " ";
   double N      =  1;
   
-  double mu     =  8.23959e+01 + 4.59395e-02 * (x[0]-172.5) + (5.12109e+01 + 5.77990e-02 * (x[0]-172.5)) * (x[1]-1.);
-  double sigma1 =  5.41708e+00 + 1.57805e-02 * (x[0]-172.5) + (1.44012e+01 + 1.43676e-01 * (x[0]-172.5)) * (x[1]-1.);
-  double sigma2 =  7.03401e+00 - 1.99430e-02 * (x[0]-172.5) + (-6.85933e+00 + 7.15651e-02 * (x[0]-172.5)) * (x[1]-1.);
-    
+  double mu     = q[0] + q[1] * (x[0]-172.5) + (q[2] + q[3] * (x[0]-172.5)) * (x[1]-1.);
+  double sigma1 = q[4] + q[5] * (x[0]-172.5) + (q[6] + q[7] * (x[0]-172.5)) * (x[1]-1.);
+  double sigma2 = q[8] + q[9] * (x[0]-172.5) + (q[10] + q[11] * (x[0]-172.5)) * (x[1]-1.);
+   
   double t1     =  (p[2] - mu) / sigma1;
   double t2     =  (p[2] - mu) / sigma2;
   
@@ -164,13 +169,15 @@ double IdeogramCombLikelihood::PCPJES(double* x, double* p)
 
 double IdeogramCombLikelihood::PWPJES(double* x, double* p)
 {
+  double q[12] = {82.6462, 0.0144639, 49.5497, 0.610081, 5.82214, -0.00653639, 13.7762, 0.377077, 7.29829, -0.0180972, -6.60668, -0.194419};
+  
   //* W Mass
   double N      =  1;
   
-  double mu     =  8.29371e+01 + 4.36646e-03 * (x[0]-172.5) + (4.17956e+01 + 4.02124e-01 * (x[0]-172.5)) * (x[1]-1.);
-  double sigma1 =  5.76377e+00 - 1.28977e-02 * (x[0]-172.5) + (9.09588e+00 + 2.28455e-01 * (x[0]-172.5)) * (x[1]-1.);
-  double sigma2 =  6.69985e+00 - 1.11469e-02 * (x[0]-172.5) + (-3.44082e+00 - 2.47573e-03 * (x[0]-172.5)) * (x[1]-1.);
-    
+  double mu     = q[0] + q[1] * (x[0]-172.5) + (q[2] + q[3] * (x[0]-172.5)) * (x[1]-1.);
+  double sigma1 = q[4] + q[5] * (x[0]-172.5) + (q[6] + q[7] * (x[0]-172.5)) * (x[1]-1.);
+  double sigma2 = q[8] + q[9] * (x[0]-172.5) + (q[10] + q[11] * (x[0]-172.5)) * (x[1]-1.);
+      
   double t1     =  (p[2] - mu) / sigma1;
   double t2     =  (p[2] - mu) / sigma2;
   
@@ -204,12 +211,14 @@ double IdeogramCombLikelihood::PWPJES(double* x, double* p)
 
 double IdeogramCombLikelihood::PUNJES(double* x, double* p)
 {
+  double q[12] = {81.7715, -0.0109833, 30.4207, -0.43322, 5.98524, -0.00907275, 10.8053, -0.234624, 9.08632, 0.02322, -9.62397, 0.311713};
+
   //* W Mass
   double N      =  1;
   
-  double mu     =  8.18050e+01 - 1.70440e-02 * (x[0]-172.5) + (2.84184e+01 - 3.79385e-01 * (x[0]-172.5)) * (x[1]-1.);
-  double sigma1 =  5.70154e+00 - 1.29138e-02 * (x[0]-172.5) + (1.01906e+01 - 2.63053e-01 * (x[0]-172.5)) * (x[1]-1.);
-  double sigma2 =  8.45273e+00 + 2.61732e-02 * (x[0]-172.5) + (-8.36431e+00 + 2.19731e-01 * (x[0]-172.5)) * (x[1]-1.);
+  double mu     = q[0] + q[1] * (x[0]-172.5) + (q[2] + q[3] * (x[0]-172.5)) * (x[1]-1.);
+  double sigma1 = q[4] + q[5] * (x[0]-172.5) + (q[6] + q[7] * (x[0]-172.5)) * (x[1]-1.);
+  double sigma2 = q[8] + q[9] * (x[0]-172.5) + (q[10] + q[11] * (x[0]-172.5)) * (x[1]-1.);
     
   double t1     =  (p[2] - mu) / sigma1;
   double t2     =  (p[2] - mu) / sigma2;

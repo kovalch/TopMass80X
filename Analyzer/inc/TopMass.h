@@ -24,6 +24,7 @@ bool fexists(const char *filename)
 
 struct massPoint {
   double genMass;
+  double genJES;
   double genLumi;
   TString identifier;
   TString fileName;
@@ -37,15 +38,18 @@ struct massPoint {
   TH3F* h3Mass;
   TH3F* h3MassError;
   TH3F* h3MassPull;
+  TH3F* h3JES;
+  TH3F* h3JESError;
+  TH3F* h3JESPull;
   
-  massPoint(double pGenMass, TString pIdentifier) :
-      genMass(pGenMass), identifier(pIdentifier) {
+  massPoint(double pGenMass, double pGenJES, TString pIdentifier) :
+      genMass(pGenMass), genJES(pGenJES), identifier(pIdentifier) {
     if (fexists("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00/analyzeTop.root")) {
       fileName = "/scratch/hh/lustre/cms/user/mseidel/Summer11_TTJets";
     }
     else fileName = "root/analyzeTop_";
     fileName += identifier;
-    fileName += "_1.00/analyzeTop.root";
+    fileName += "/analyzeTop.root";
   };
 };
 

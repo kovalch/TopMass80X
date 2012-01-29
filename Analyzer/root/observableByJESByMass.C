@@ -6,12 +6,14 @@
 
 #include "tdrstyle.C"
 
-int target = 1;
+int target = -10;
 int obs    = 0; // 0: hadTopMass, 1: hadWRawMass
 
-int iMax = 9;
+int iMassMin = 4;
+int iMassMax = 5;
 
 bool plotByMass = false;
+bool pas = true;
 
 TString sObs[] = {"m_{t}", "m_{W}^{raw}"};
 
@@ -137,7 +139,7 @@ void observableByJESByMass() {
   setTDRStyle();
   TH1::SetDefaultSumw2();
 
-  for (int i=0; i<iMax; i++) {
+  for (int i = iMassMin; i<iMassMax; i++) {
 	  std::cout << "### FindParametersMass(" << i << "); ###" << std::endl;
     FindParametersMass(i);
 		/*
@@ -275,7 +277,7 @@ void observableByJESByMass() {
   cSetOfCurves->cd(1);
   
   TMultiGraph *mg1 = new TMultiGraph();
-  for (int i=0; i<iMax; i++) {
+  for (int i = iMassMin; i<iMassMax; i++) {
     mg1->Add(gr1[i]);
   }
   
@@ -285,7 +287,7 @@ void observableByJESByMass() {
   cSetOfCurves->cd(2);
   
   TMultiGraph *mg2 = new TMultiGraph();
-  for (int i=0; i<iMax; i++) {
+  for (int i = iMassMin; i<iMassMax; i++) {
     mg2->Add(gr2[i]);
   }
   
@@ -297,7 +299,7 @@ void observableByJESByMass() {
   TLegend *leg1 = new TLegend(0.1, 0.1, 0.9, 0.9);
   leg1->SetFillStyle(0);
   leg1->SetBorderSize(0);
-  for (int i=0; i<iMax; i++) {
+  for (int i = iMassMin; i<iMassMax; i++) {
     leg1->AddEntry( gr1[i], sX[i], "L" );
   }
   
@@ -397,6 +399,8 @@ void FindParametersMass(int iMass)
   h100->Draw("SAME");
   h104->Draw("SAME");
   
+  if (pas) h100->Draw();
+  
   // ---
   //    create legend
   // ---
@@ -414,7 +418,9 @@ void FindParametersMass(int iMass)
     leg0->AddEntry( h104 , "m_{t,gen} = 178.5 GeV", "F");
   }
   
-  leg0->Draw();
+  if (!pas) leg0->Draw();
+
+  DrawCMSSim();
   
   gStyle->SetOptFit(1);
   
@@ -619,7 +625,7 @@ TH1F* FindParameters(TString filename, int i)
   
   TH1F *h1 = (TH1F*)gDirectory->Get("h1");
   
-  h1->GetXaxis()->SetTitle("m_{i}");
+  h1->GetXaxis()->SetTitle("m_{i} [GeV]");
   //h1->GetXaxis()->SetTitle("#DeltaR^{decay}_{t}/#DeltaR^{decay}_{W}");
   h1->GetYaxis()->SetTitle("Fraction of entries");
   h1->SetFillColor(color_[i]);

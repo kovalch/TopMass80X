@@ -59,7 +59,7 @@ void ensemble()
   
   //// Get histos
   
-  TFile* fEnsemble = new TFile("/scratch/hh/current/cms/user/mseidel/topmass_120106_1725/ensemble.root");
+  TFile* fEnsemble = new TFile("/scratch/hh/current/cms/user/mseidel/topmass_120120_corrected/ensemble.root");
   h3MassError_1725 = (TH3F*) fEnsemble->Get("h3MassError_1725");
   h3MassPull_1725 = (TH3F*) fEnsemble->Get("h3MassPull_1725");
   
@@ -79,13 +79,13 @@ void ensemble()
   TCanvas* cError = new TCanvas("cError", "cError", 600, 600);
   
   //hError->Rebin(4);
-  hError->GetXaxis()->SetRangeUser(0.55, 0.75);
-  hError->GetYaxis()->SetRangeUser(0, 1000);
+  hError->GetXaxis()->SetRangeUser(0.6, 0.8);
+  hError->GetYaxis()->SetRangeUser(0, 1500);
   hError->Draw();
-  drawArrow(0.635532, 900);
+  drawArrow(0.70, 1300);
   DrawLabel("4.7 fb^{-1} collision data", 0.36, 0.85, 0.46, kRed+1);
   
-  //*
+  /*
   TCanvas* cPull = new TCanvas("cPull", "cPull", 600, 600);
   
   //hPull->Rebin(4);
