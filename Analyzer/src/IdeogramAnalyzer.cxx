@@ -44,7 +44,7 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
   
   int binsJes        = (lastBinJes-firstBinJes)/resolJes;
   
-  double pullWidth   = 1.; //1.46;
+  double pullWidth   = 1.;//06; //1.46;
   
   /*
   if (debug) {
@@ -104,9 +104,10 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
 
   double hadTopMass, hadTopPt, lepTopPt, hadWPt, lepWPt, hadBPt, lepBPt, hadWRawMass, topPtAsymmetry, bScaleEstimator;
   double hadWE, deltaThetaHadWHadB, sinThetaStar;
-  double hitFitChi2, hitFitProb, MCWeight, PUWeight, muWeight, bWeight, bWeight_bTagSFUp, bWeight_bTagSFDown, bWeight_misTagSFUp, bWeight_misTagSFDown, weight, currentWeight, fitWeight;
+  double hitFitChi2, hitFitProb, MCWeight, PUWeight, muWeight, bWeight, bWeight_bTagSFUp, sumMCWeight, meanMCWeight, bWeight_bTagSFDown, bWeight_misTagSFUp, bWeight_misTagSFDown, weight, currentWeight, fitWeight;
+  double eventWeight;
   double pdfWeights[44];
-  int event, currentEvent, nVertex;
+  int event, currentEvent, nVertex, run, luminosityBlock;
   int combi;
   int nEvents = 0;
   double productWeights = 1.;
@@ -121,6 +122,9 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
   //eventTree->SetBranchAddress("deltaThetaHadWHadB", &deltaThetaHadWHadB);
   //eventTree->SetBranchAddress("hitFitChi2", &hitFitChi2);
   eventTree->SetBranchAddress("hitFitProb", &hitFitProb);
+  
+  eventTree->SetBranchAddress("run", &run);
+  eventTree->SetBranchAddress("luminosityBlock", &luminosityBlock);
   eventTree->SetBranchAddress("event", &event);
   eventTree->SetBranchAddress("combi", &combi);
   eventTree->SetBranchAddress("PUWeight", &PUWeight);
@@ -166,12 +170,6 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
       eventTree->GetEntry(iEntry + iComb);
       
       if (event != currentEvent) break;
-      
-      MCWeight = (PUWeight != -100.) ? PUWeight * muWeight * bWeight : 1;
-      //std::cout << MCWeight << std::endl;
-      currentWeight = hitFitProb * MCWeight;
-      //currentWeight = hitFitProb * PUWeight * bWeight * muWeight;
-      weight += currentWeight;
       fitWeight += hitFitProb;
       
       if (debug && iEntry%nDebug == 0 && iEntry < maxDebug) {
@@ -183,24 +181,18 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
                   << std::endl;
       }
       
-      if (currentWeight != 0) {
-        /*
-        topPtAsymmetry  = (hadTopPt-lepTopPt)/(hadTopPt+lepTopPt);
-        bScaleEstimator = -(hadWPt-lepWPt)/(hadBPt-lepBPt);
-        sinThetaStar    = sqrt( pow(sin(deltaThetaHadWHadB),2)*pow(172.5,2) / pow(1/2*(pow(172.5,2)-pow(80.4,2))/(hadWE-sqrt(pow(hadWE,2) - pow(80.4,2))) - (hadWE-sqrt(pow(hadWE,2) - pow(80.4,2))*cos(deltaThetaHadWHadB))*cos(deltaThetaHadWHadB),2) + 1/pow(((hadWE-(sqrt(pow(hadWE,2) - pow(80.4,2)))*cos(deltaThetaHadWHadB)))/172.5,2));
-        //std::cout << sinThetaStar << std::endl;
-        */
+      if (hitFitProb != 0) {
         bScaleEstimator = 1;
         
         // Set Likelihood parameters
-        combLikelihood->SetParameters(currentWeight, hadTopMass, hadWRawMass, bScaleEstimator);
+        combLikelihood->SetParameters(hitFitProb, hadTopMass, hadWRawMass, bScaleEstimator);
         
         // add permutation to event likelihood
         eventLikelihood->Eval(combLikelihood, "A");
       }
     }
     
-    //eventLikelihood->Scale(1./fitWeight);
+    eventLikelihood->Scale(1./fitWeight);
     sumWeights += fitWeight;
     //if (weight == 0) continue;
     
@@ -211,8 +203,15 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
     	  logEventLikelihood->SetBinContent(i, j, -2*TMath::Log(eventLikelihood->GetBinContent(i, j)));
     	}
     }
-
-    sumLogLikelihood->Add(logEventLikelihood, weight/(pullWidth*pullWidth)); // add weight here
+    
+    TString sEvent("(run=="); sEvent += run; sEvent += " & luminosityBlock=="; 
+    sEvent += luminosityBlock; sEvent += " & event=="; sEvent += event; sEvent += ")";
+    
+    TString sEventWeighted = sEvent; sEventWeighted += "*("; sEventWeighted += "1"; sEventWeighted += ")";
+    
+    //double eventWeight = eventTree->GetEntries(sEventWeighted)/eventTree->GetEntries(sEvent);
+    
+    sumLogLikelihood->Add(logEventLikelihood, fitWeight/(pullWidth*pullWidth)); // add weight here
     
     if (debug && iEntry%nDebug == 0 && iEntry < maxDebug) {
       TCanvas* eventCanvas = new TCanvas("eventCanvas", "eventCanvas", 1200, 400);
@@ -250,7 +249,7 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
   
   std::cout << "Sum of weights: " << sumWeights << std::endl;
   std::cout << "Total number of events: " << nEvents << std::endl;
-  //sumLogLikelihood->Scale(nEvents/sumWeights);
+  sumLogLikelihood->Scale(nEvents/sumWeights);
   
   int minBinX;
   int minBinY;

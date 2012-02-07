@@ -3,7 +3,7 @@
 double IdeogramCombLikelihood::Evaluate(double *x, double *p) {
   bool onlyCP   = false;
   bool Spring11 = false;
-  bool useCalib = true;
+  bool useCalib = false;
   bool useFix   = false;
   
   //* worst case, improvable by f(w_i)

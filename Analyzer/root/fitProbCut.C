@@ -62,28 +62,28 @@ void fitProbCut()
   //cEfficiency->SetLogy(1);
   
   TMultiGraph *mg = new TMultiGraph();
-  mg->SetTitle("#chi^{2} Cut;#chi^{2} cut;S / #sqrt{S+B}");
+  mg->SetTitle("P_{fit} Cut;P_{fit} cut;S / B");
   
-  double aSB[10];
-  double aCut[10];
+  double aSB[100];
+  double aCut[100];
   
-  double bins = 10;
+  double bins = 100;
   
   for (int i = 1; i < bins; i++) {
-    aCut[i-1] = 2*i;
+    aCut[i-1] = 0.01*i;
     
-    TString sHSig("(MCWeight)*(target==1 & leptonPt > 30 & hadBBSSV>1.74 & lepBBSSV>1.74 & hadQBSSV<1.74 & hadQBarBSSV<1.74 & hitFitChi2 < "); sHSig+= aCut[i-1]; sHSig+= ")";
-    TString sHBkg("(MCWeight)*(target!=1 & leptonPt > 30 & hadBBSSV>1.74 & lepBBSSV>1.74 & hadQBSSV<1.74 & hadQBarBSSV<1.74 & hitFitChi2 < "); sHBkg+= aCut[i-1]; sHBkg+= ")";
+    TString sHSig("(MCWeight)*(target==1 & leptonPt > 30 & hadBBSSV>1.74 & lepBBSSV>1.74 & hadQBSSV<1.74 & hadQBarBSSV<1.74 & hitFitProb > "); sHSig+= aCut[i-1]; sHSig+= ")";
+    TString sHBkg("(MCWeight)*(target!=1 & leptonPt > 30 & hadBBSSV>1.74 & lepBBSSV>1.74 & hadQBSSV<1.74 & hadQBarBSSV<1.74 & hitFitProb > "); sHBkg+= aCut[i-1]; sHBkg+= ")";
     
     std::cout << sHSig << std::endl;
     
     double nSig = tH->GetEntries(sHSig);
     double nBkg = tH->GetEntries(sHBkg);
     
-    aSB[i-1] = nSig/sqrt(nSig+nBkg);
+    aSB[i-1] = nSig/nBkg;
     std::cout << "nSig: " << nSig << std::endl;
     std::cout << "nBkg: " << nBkg << std::endl;
-    std::cout << "S/sqrt(S+B): " << aSB[i-1] << std::endl;
+    std::cout << "S/B: " << aSB[i-1] << std::endl;
   }
   
   gH = new TGraph(bins-1, aCut, aSB);

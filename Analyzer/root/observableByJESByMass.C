@@ -1,25 +1,35 @@
+#include <stdio.h>
+
 #include "TFile.h"
 #include "TCanvas.h"
 #include "TAxis.h"
 #include "TF1.h"
 #include "TH1F.h"
+#include "TGraphErrors.h"
+#include "TMath.h"
+#include "TMultiGraph.h"
+#include "TLegend.h"
+#include "TTree.h"
+#include "TString.h"
+#include "TFitResult.h"
 
 #include "tdrstyle.C"
 
-int target = -10;
+int target = 0;
 int obs    = 0; // 0: hadTopMass, 1: hadWRawMass
 
 int iMassMin = 4;
 int iMassMax = 5;
 
 bool plotByMass = false;
-bool pas = true;
+bool pas = false;
 
 TString sObs[] = {"m_{t}", "m_{W}^{raw}"};
 
 TGraphErrors* gr1[9];
 TGraphErrors* gr2[9];
 TGraphErrors* gr3[9];
+TGraphErrors* gr4[9];
 
 TString sX[9] = {"m_{t,gen} = 161.5 GeV",
                  "m_{t,gen} = 163.5 GeV",
@@ -29,7 +39,7 @@ TString sX[9] = {"m_{t,gen} = 161.5 GeV",
                  "m_{t,gen} = 175.5 GeV",
                  "m_{t,gen} = 178.5 GeV",
                  "m_{t,gen} = 181.5 GeV",
-                 "m_{t,gen} = 184.5 GeV"}
+                 "m_{t,gen} = 184.5 GeV"};
 
 double X[9] = {161.5, 163.5, 166.5, 169.5, 172.5, 175.5, 178.5, 181.5, 184.5};
 double Y10[9];
@@ -47,9 +57,9 @@ double eY21[9];
 double eY30[9];
 double eY31[9];
 
-double x[3] = {0.96, 1.0, 1.04};
-double y0[3];
-double y1[3];
+double xJES[3] = {0.96, 1.0, 1.04};
+double y00[3];
+double y01[3];
 double y2[3];
 double y3[3];
 double y4[3];
@@ -66,29 +76,13 @@ double ey6[3];
 
 double params[12];
 
-#include <stdio.h>
-
 enum styles          { kDown, kNominal, kUp};
 int color_   [ 3 ] = { kRed+1, kBlue+1, kGreen+1};
 int marker_  [ 3 ] = { 23, 20, 22};
+int line_    [ 3 ] = { 7, 1, 9};
 
-void myflush ( FILE *in )
-{
-  int ch;
-
-  do
-    ch = fgetc ( in ); 
-  while ( ch != EOF && ch != '\n' ); 
-
-  clearerr ( in );
-}
-
-void mypause ( void ) 
-{ 
-  printf ( "Press [Enter] to continue . . ." );
-  fflush ( stdout );
-  getchar();
-} 
+void FindParametersMass(int iMass);
+TH1F* FindParameters(TString filename, int i);
 
 namespace cb {
   double A(const double alpha, const double power) {
@@ -100,14 +94,14 @@ namespace cb {
 }
 
 // 7 parameters: [0] -> [6]
-double crystalBall(const double* x, const double* p)
+double crystalBall(const double* xx, const double* p)
 {
   double N     = p[0];
   double mu    = p[1];
   double sigma = p[2];
   double alpha = p[3];
   double power = p[4];
-  double t = (x[0] - mu) / sigma;
+  double t = (xx[0] - mu) / sigma;
   
   if(t < alpha)
     return N * TMath::Exp(-t*t/2);
@@ -115,27 +109,30 @@ double crystalBall(const double* x, const double* p)
     return N * cb::A(alpha,power) * TMath::Power(cb::B(alpha,power) + t, -power);
 }
 
-double asymGaus(const double* x, const double* p)
+double asymGaus(const double* xx, const double* p)
 {
   double N      = p[0];
   double mu     = p[1];
   double sigma1 = p[2];
   double sigma2 = p[3];
-  double t1     = (x[0] - mu) / sigma1;
-  double t2     = (x[0] - mu) / sigma2;
+  double t1     = (xx[0] - mu) / sigma1;
+  double t2     = (xx[0] - mu) / sigma2;
   
   double N1     = 1./sqrt(2*sigma1*sigma1);
   double N2     = 1./sqrt(2*sigma2*sigma2);
   
   N = (N1+N2)/2. * p[0];
   
-  if(x[0] < mu)
+  if(xx[0] < mu)
     return N * TMath::Exp(-t1*t1/2);
   else
     return N * TMath::Exp(-t2*t2/2);
 }
 
-void observableByJESByMass() {
+void observableByJESByMass(int pTarget = 1, int pObs = 0) {
+  target = pTarget;
+  obs    = pObs;
+  
   setTDRStyle();
   TH1::SetDefaultSumw2();
 
@@ -157,7 +154,7 @@ void observableByJESByMass() {
   
   cByMass->cd(1);
   
-  gr = new TGraphErrors(9,X,Y10,eX,eY10);
+  TGraphErrors* gr = new TGraphErrors(9,X,Y10,eX,eY10);
   gr->SetTitle("10");
   gr->Draw("A*");
   //linearFit->SetParNames("p_{#mu}^{const}", "p_{#mu}^{m_{t}}");
@@ -328,73 +325,77 @@ void FindParametersMass(int iMass)
   linearFit->SetLineColor(kRed+1);
 	linearFit->SetParLimits(1, -50, 200);
 	linearFit->SetParameters(100, 50);
+	
+	TH1F* h096;
+  TH1F* h100;
+  TH1F* h104;
   
   if (!plotByMass) {
     switch(iMass) {
       case 0: {
-        TH1F* h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1615_0.96/analyzeTop.root", 0);
-        TH1F* h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1615_1.00/analyzeTop.root", 1);
-        TH1F* h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1615_1.04/analyzeTop.root", 2);
+        h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1615_0.96/analyzeTop.root", 0);
+        h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1615_1.00/analyzeTop.root", 1);
+        h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1615_1.04/analyzeTop.root", 2);
         break;
       }
       case 1: {
-        TH1F* h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1635_0.96/analyzeTop.root", 0);
-        TH1F* h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1635_1.00/analyzeTop.root", 1);
-        TH1F* h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1635_1.04/analyzeTop.root", 2);
+        h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1635_0.96/analyzeTop.root", 0);
+        h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1635_1.00/analyzeTop.root", 1);
+        h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1635_1.04/analyzeTop.root", 2);
         break;
       }
 		  case 2: {
-        TH1F* h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1665_0.96/analyzeTop.root", 0);
-        TH1F* h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1665_1.00/analyzeTop.root", 1);
-        TH1F* h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1665_1.04/analyzeTop.root", 2);
+        h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1665_0.96/analyzeTop.root", 0);
+        h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1665_1.00/analyzeTop.root", 1);
+        h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1665_1.04/analyzeTop.root", 2);
         break;
       }
 		  case 3: {
-        TH1F* h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1695_0.96/analyzeTop.root", 0);
-        TH1F* h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1695_1.00/analyzeTop.root", 1);
-        TH1F* h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1695_1.04/analyzeTop.root", 2);
+        h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1695_0.96/analyzeTop.root", 0);
+        h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1695_1.00/analyzeTop.root", 1);
+        h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1695_1.04/analyzeTop.root", 2);
         break;
       }
 		  case 4: {
-        TH1F* h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_0.96/analyzeTop.root", 0);
-        TH1F* h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00/analyzeTop.root", 1);
-        TH1F* h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.04/analyzeTop.root", 2);
+        h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_0.96/analyzeTop.root", 0);
+        h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00/analyzeTop.root", 1);
+        h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.04/analyzeTop.root", 2);
         break;
       }
 		  case 5: {
-        TH1F* h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1755_0.96/analyzeTop.root", 0);
-        TH1F* h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1755_1.00/analyzeTop.root", 1);
-        TH1F* h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1755_1.04/analyzeTop.root", 2);
+        h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1755_0.96/analyzeTop.root", 0);
+        h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1755_1.00/analyzeTop.root", 1);
+        h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1755_1.04/analyzeTop.root", 2);
         break;
       }
 		  case 6: {
-        TH1F* h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1785_0.96/analyzeTop.root", 0);
-        TH1F* h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1785_1.00/analyzeTop.root", 1);
-        TH1F* h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1785_1.04/analyzeTop.root", 2);
+        h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1785_0.96/analyzeTop.root", 0);
+        h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1785_1.00/analyzeTop.root", 1);
+        h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1785_1.04/analyzeTop.root", 2);
         break;
       }
 		  case 7: {
-        TH1F* h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1815_0.96/analyzeTop.root", 0);
-        TH1F* h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1815_1.00/analyzeTop.root", 1);
-        TH1F* h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1815_1.04/analyzeTop.root", 2);
+        h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1815_0.96/analyzeTop.root", 0);
+        h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1815_1.00/analyzeTop.root", 1);
+        h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1815_1.04/analyzeTop.root", 2);
         break;
       }
 		  case 8: {
-        TH1F* h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1845_0.96/analyzeTop.root", 0);
-        TH1F* h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1845_1.00/analyzeTop.root", 1);
-        TH1F* h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1845_1.04/analyzeTop.root", 2);
+        h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1845_0.96/analyzeTop.root", 0);
+        h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1845_1.00/analyzeTop.root", 1);
+        h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1845_1.04/analyzeTop.root", 2);
         break;
       }
     }
   }
   else {
-    TH1F* h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1665_1.00/analyzeTop.root", 0);
-    TH1F* h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00/analyzeTop.root", 1);
-    TH1F* h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1785_1.00/analyzeTop.root", 2); 
+    h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1665_1.00/analyzeTop.root", 0);
+    h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00/analyzeTop.root", 1);
+    h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1785_1.00/analyzeTop.root", 2); 
   }
   
   h096->Draw();
-  if (obs == 0) h096->GetXaxis()->SetRangeUser(100, 350);
+  if (obs == 0) h096->GetXaxis()->SetRangeUser(100, 400);
   if (obs == 1) h096->GetXaxis()->SetRangeUser(50, 150);
   h100->Draw("SAME");
   h104->Draw("SAME");
@@ -408,14 +409,14 @@ void FindParametersMass(int iMass)
   leg0->SetFillStyle(0);
   leg0->SetBorderSize(0);
   if (!plotByMass) {
-    leg0->AddEntry( h096 , "JES = 0.96", "F");
-    leg0->AddEntry( h100 , "JES = 1.00", "F");
-    leg0->AddEntry( h104 , "JES = 1.04", "F");
+    leg0->AddEntry( h096, "JES = 0.96", "PL");
+    leg0->AddEntry( h100, "JES = 1.00", "PL");
+    leg0->AddEntry( h104, "JES = 1.04", "PL");
   }
   else {
-    leg0->AddEntry( h096 , "m_{t,gen} = 166.5 GeV", "F");
-    leg0->AddEntry( h100 , "m_{t,gen} = 172.5 GeV", "F");
-    leg0->AddEntry( h104 , "m_{t,gen} = 178.5 GeV", "F");
+    leg0->AddEntry( h096, "m_{t,gen} = 166.5 GeV", "PL");
+    leg0->AddEntry( h100, "m_{t,gen} = 172.5 GeV", "PL");
+    leg0->AddEntry( h104, "m_{t,gen} = 178.5 GeV", "PL");
   }
   
   if (!pas) leg0->Draw();
@@ -427,8 +428,12 @@ void FindParametersMass(int iMass)
   TCanvas* cObservablePar = new TCanvas("cObservablePar", "cObservablePar", 1600, 400);
   cObservablePar->Divide(4,1);
   
+  std::cout << "TEST 1" << std::endl;
+  
   cObservablePar->cd(1);
-  gr1[iMass] = new TGraphErrors(3,x,y1,ex,ey1);
+  std::cout << "TEST 2" << std::endl;
+  gr1[iMass] = new TGraphErrors(3,xJES,y01,ex,ey1);
+  std::cout << "TEST 3" << std::endl;
   gr1[iMass]->SetTitle("p1");
   gr1[iMass]->SetLineColor(iMass+1);
   linearFit->SetLineColor(iMass+1);
@@ -446,7 +451,7 @@ void FindParametersMass(int iMass)
   
   
   cObservablePar->cd(2);
-  gr2[iMass] = new TGraphErrors(3,x,y2,ex,ey2);
+  gr2[iMass] = new TGraphErrors(3,xJES,y2,ex,ey2);
   gr2[iMass]->SetTitle("p2");
   gr2[iMass]->SetLineColor(iMass+1);
   linearFit->SetLineColor(iMass+1);
@@ -464,14 +469,14 @@ void FindParametersMass(int iMass)
   
   
   cObservablePar->cd(3);
-  gr = new TGraphErrors(3,x,y3,ex,ey3);
-  gr->SetTitle("p3");
-  gr->Draw("A*");
-  gr->Fit("linearFit", "EM");
+  gr3[iMass] = new TGraphErrors(3,xJES,y3,ex,ey3);
+  gr3[iMass]->SetTitle("p3");
+  gr3[iMass]->Draw("A*");
+  gr3[iMass]->Fit("linearFit", "EM");
   
-  gr->GetXaxis()->SetTitle("JES");
-  if (obs == 0) gr->GetYaxis()->SetTitle("#alpha");
-  if (obs == 1) gr->GetYaxis()->SetTitle("#sigma2");
+  gr3[iMass]->GetXaxis()->SetTitle("JES");
+  if (obs == 0) gr3[iMass]->GetYaxis()->SetTitle("#alpha");
+  if (obs == 1) gr3[iMass]->GetYaxis()->SetTitle("#sigma2");
   
   Y30 [iMass] = linearFit->GetParameter(0);
   eY30[iMass] = linearFit->GetParError(0);
@@ -481,13 +486,13 @@ void FindParametersMass(int iMass)
   
   if (target!=1) {
     cObservablePar->cd(4);
-    gr = new TGraphErrors(3,x,y4,ex,ey4);
-    gr->SetTitle("p4");
-    gr->Draw("A*");
-    gr->Fit("linearFit", "EM");
+    gr4[iMass] = new TGraphErrors(3,xJES,y4,ex,ey4);
+    gr4[iMass]->SetTitle("p4");
+    gr4[iMass]->Draw("A*");
+    gr4[iMass]->Fit("linearFit", "EM");
     
-    gr->GetXaxis()->SetTitle("JES");
-    gr->GetYaxis()->SetTitle("power");
+    gr4[iMass]->GetXaxis()->SetTitle("JES");
+    gr4[iMass]->GetYaxis()->SetTitle("power");
   }
 }
 
@@ -497,14 +502,15 @@ TH1F* FindParameters(TString filename, int i)
 {
 
   TFile* file = new TFile(filename);
-  analyzeHitFit->cd();
+  
+  TTree* eventTree = (TTree*) file->Get("analyzeHitFit/eventTree");
   
   TF1* fit;
   
   if (obs == 0) {
     switch(target) {
       case   1: {
-        fit = new TF1("fit", "[0]*TMath::Voigt(x-[1], [2], [3])");
+        fit = new TF1("fit", "[0]*TMath::Voigt(x-[1], [2], [3])", 100, 400);
         fit->SetLineColor(kBlack);
         fit->SetLineWidth(2);
         fit->SetParameters(100000, 170, 10, 2);
@@ -517,34 +523,38 @@ TH1F* FindParameters(TString filename, int i)
         break;
       }
       case   0: {
-        fit = new TF1("fit", crystalBall, 0, 1000, 5);
+        fit = new TF1("fit", crystalBall, 100, 400, 5);
         fit->SetLineColor(kBlack);
         fit->SetLineWidth(2);
         
+        double power = 15.;
+        
         fit->SetParNames("N", "#mu", "#sigma", "#alpha", "power");
-        fit->SetParameters(1, 170, 25, 0.45, 15);
+        fit->SetParameters(1, 170, 25, 0.45, power);
         
         fit->SetParLimits(0, 0, 1000000);
         fit->SetParLimits(1, 150, 200);
         fit->SetParLimits(2, 15, 40);
         fit->SetParLimits(3, 0.3, 0.95);
-        fit->SetParLimits(4, 15, 15);
+        fit->SetParLimits(4, power, power);
         
         break;
       }
       case -10: {
-        fit = new TF1("fit", crystalBall, 0, 1000, 5);
+        fit = new TF1("fit", crystalBall, 100, 400, 5);
         fit->SetLineColor(kBlack);
         fit->SetLineWidth(2);
         
+        double power = 3.;
+        
         fit->SetParNames("N", "#mu", "#sigma", "#alpha", "power");
-        fit->SetParameters(1, 170, 25, 0.45, 5);
+        fit->SetParameters(1, 170, 15, 0.45, power);
         
         fit->SetParLimits(0, 0, 1000000);
         fit->SetParLimits(1, 150, 200);
-        fit->SetParLimits(2, 15, 30);
+        fit->SetParLimits(2, 10, 30);
         fit->SetParLimits(3, 0.05, 1.95);
-        fit->SetParLimits(4, 5, 5);
+        fit->SetParLimits(4, power, power);
         
         break;
       }
@@ -592,14 +602,26 @@ TH1F* FindParameters(TString filename, int i)
     fit->SetParLimits(2, 0.001, 0.001);
     fit->SetParLimits(3, 0, 10);
   }
-
   
-  TH1F* hSig;
+  fit->SetNpx(300);
   
   TString sObservable;
   switch(obs) {
     case 0: {
-      sObservable = "hadTopMass >> h1(250, 100, 500)";
+      switch(target) {
+        case   1: {
+          sObservable = "hadTopMass >> h1(30, 100, 250)";
+          break;
+        }
+        case   0: {
+          sObservable = "hadTopMass >> h1(30, 100, 400)";
+          break;
+        }
+        case -10: {
+          sObservable = "hadTopMass >> h1(30, 100, 400)";
+          break;
+        }
+      }
       break;
     }
     case 1: {
@@ -607,7 +629,6 @@ TH1F* FindParameters(TString filename, int i)
       break;
     }
     case 4: {
-      sObservableShort = "#DeltaR";
       sObservable = "deltaRHadWHadB/deltaRHadQHadQBar >> h1(40, 0, 4)";
       break;
     }
@@ -631,15 +652,18 @@ TH1F* FindParameters(TString filename, int i)
   h1->SetFillColor(color_[i]);
   h1->SetLineColor(color_[i]);
   h1->SetMarkerColor(color_[i]);
-  h1->SetMarkerStyle(2);
+  h1->SetMarkerStyle(marker_[i]);
   fit->SetLineColor(color_[i]);
+  fit->SetLineStyle(line_[i]);
   
-  h1->Fit("fit","WLEM");
+  TFitResultPtr r = h1->Fit("fit","WEMSR");
+  
+  std::cout << "chi2/ndf = " << r->Chi2() << "/" << r->Ndf() << std::endl;
 
-  y0 [i] = fit->GetParameter(0);
+  y00[i] = fit->GetParameter(0);
   ey0[i] = fit->GetParError(0);
  
-  y1 [i] = fit->GetParameter(1);
+  y01[i] = fit->GetParameter(1);
   ey1[i] = fit->GetParError(1);
   
   y2 [i] = fit->GetParameter(2);

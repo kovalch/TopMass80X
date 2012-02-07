@@ -1,21 +1,41 @@
 #include "Analysis.h"
 
-Analysis::Analysis(TString identifier, TString file, TString method, int bins, double lumi) :
-      fIdentifier(identifier), fFile(file), fMethod(method), fBins(bins), fLumi(lumi), fAnalyzed(false)
-{
+Analysis::Analysis(po::variables_map vm) {
+  fMethod = vm["method"].as<std::string>();
+  fLumi   = vm["lumi"].as<double>();
+  fBins   = vm["bins"].as<int>();
+  fIdentifier = vm["input"].as<std::string>();
+
+  fFile = "/scratch/hh/lustre/cms/user/mseidel/";
+  fFile += fIdentifier;
+  fFile += "/analyzeTop.root";
+    
   fChain = new TChain("analyzeHitFit/eventTree");
   fChain->Add(fFile);
   //fChain->Add("/scratch/hh/current/cms/user/mseidel/STop.root");
   //fChain->Add("/scratch/hh/current/cms/user/mseidel/Summer11_WJets_1.00_1.00_2b/analyzeTop.root");
   //fChain->Add("root/VQQJets.root");
+  
+  CreateHistos();
 }
 
-void Analysis::Analyze(bool reanalyze) {
+Analysis::Analysis(TString identifier, TString file, TString method, int bins, double lumi) :
+      fIdentifier(identifier), fMethod(method), fBins(bins), fLumi(lumi)
+{
+  fFile = "/scratch/hh/lustre/cms/user/mseidel/";
+  fFile += fIdentifier;
+  fFile += "/analyzeTop.root";
+    
+  fChain = new TChain("analyzeHitFit/eventTree");
+  fChain->Add(fFile);
+  //fChain->Add("/scratch/hh/current/cms/user/mseidel/STop.root");
+  //fChain->Add("/scratch/hh/current/cms/user/mseidel/Summer11_WJets_1.00_1.00_2b/analyzeTop.root");
+  //fChain->Add("root/VQQJets.root");
+  
+  CreateHistos();
+}
 
-  if (fAnalyzed && !reanalyze) {
-    std::cout << "Analysis " << fIdentifier << " has already been done, no reanalyzing forced" << std::endl;
-    return;
-  }
+void Analysis::Analyze(po::variables_map vm) {
 
   std::cout << "Analyze " << fIdentifier << " with method " << fMethod << std::endl;
   
@@ -57,8 +77,6 @@ void Analysis::Analyze(bool reanalyze) {
 
   TString observableX = "deltaThetaHadWHadB";
   TString observableY = "deltaThetaHadQHadQBar";
-  
-  if (!fAnalyzed) CreateHistos();
   
   for(int i = 0; i < fBins; i++) {
     for(int j = 0; j < fBins; j++) {
@@ -109,6 +127,11 @@ void Analysis::Analyze(bool reanalyze) {
         hMassSigma->SetCellContent(i+1, j+1, fAnalyzer->GetMassSigma());
         hJES      ->SetCellContent(i+1, j+1, fAnalyzer->GetJES());
         hJESError ->SetCellContent(i+1, j+1, fAnalyzer->GetJESError());
+        
+        std::cout << "Measured mass: " << fAnalyzer->GetMass() << " +/- "
+                  << fAnalyzer->GetMassError() << " GeV" << std::endl;
+        std::cout << "Measured JES: " << fAnalyzer->GetJES() << " +/- "
+                  << fAnalyzer->GetJESError() << " " << std::endl;
       }
     }
   }
@@ -137,9 +160,6 @@ void Analysis::Analyze(bool reanalyze) {
   delete canvas;
   delete fAnalyzer;
   delete tempFile;
-  
-
-  fAnalyzed = true;
 }
 
 void Analysis::CreateHistos() {
@@ -181,6 +201,8 @@ void Analysis::CreateRandomSubset() {
   //fChain->SetBranchStatus("hitFitChi2", 1);
   fChain->SetBranchStatus("hitFitProb", 1);
   //fChain->SetBranchStatus("bProbSSV", 1);
+  fChain->SetBranchStatus("run", 1);
+  fChain->SetBranchStatus("luminosityBlock", 1);
   fChain->SetBranchStatus("event", 1);
   fChain->SetBranchStatus("combi", 1);
   fChain->SetBranchStatus("deltaThetaHadWHadB", 1);
@@ -196,7 +218,7 @@ void Analysis::CreateRandomSubset() {
   //fChain->SetBranchStatus("bWeight_misTagSFDown", 1);
   //fChain->SetBranchStatus("jetMultiplicity", 1);
   fChain->SetBranchStatus("bottomSSVJetMultiplicity", 1);
-  //fChain->SetBranchStatus("nVertex", 1);
+  fChain->SetBranchStatus("nVertex", 1);
   
   //fChain->SetBranchStatus("pdfWeights", 1);
   
@@ -211,14 +233,20 @@ void Analysis::CreateRandomSubset() {
   fChain->SetBranchStatus("lepBF", 1);
 
   if (fLumi>0) {
-    TTree* tempTree = fChain->CopyTree("leptonPt>30 & bottomSSVJetMultiplicity > 1");
+    TTree* tempTree = fChain->CopyTree("leptonPt>30 & bottomSSVJetMultiplicity > 1 & hitFitProb>0.2");
     //TTree* tempTree = fChain->CopyTree("leptonPt>30"); // CMSSW 4.1.4, no b-jets in selection code
     
     tempFile = new TFile("tempTree.root", "RECREATE");
     
     TRandom3* random = new TRandom3(0);
+    
+    double maxPUWeight = tempTree->GetMaximum("PUWeight");
+    
+    // DATA
+    // eventTree->GetEntries("leptonPt>30 & bottomSSVJetMultiplicity > 1 & hitFitProb>0.2 & combi==0")
+    // (Long64_t)5144
 
-    int eventsPE = random->Poisson(9716./4700.*fLumi); // add poisson
+    int eventsPE = random->Poisson(5144./4700.*fLumi); // add poisson
     int permsMC = tempTree->GetEntries("");
     int eventsDrawn = 0;
     
@@ -228,21 +256,27 @@ void Analysis::CreateRandomSubset() {
     tempTree->SetBranchAddress("combi", &combi);
     fTree->SetBranchAddress("combi", &combi);
     
+    double PUWeight;
+    tempTree->SetBranchAddress("PUWeight", &PUWeight);
+    fTree->SetBranchAddress("PUWeight", &PUWeight);
+    
     while (eventsDrawn < eventsPE) {
-      int drawn = random->Rndm()*permsMC;
+      int drawn = random->Integer(permsMC);
       tempTree->GetEntry(drawn);
       if (combi == 0) {
-        for (int iComb = 0; iComb < 24; iComb++) {
-	        tempTree->GetEntry(drawn + iComb);
-	        
-          if ((iComb != 0 && combi == 0)) {
-            break;
+        if (PUWeight > random->Uniform(0, maxPUWeight)) {
+          for (int iComb = 0; iComb < 24; iComb++) {
+	          tempTree->GetEntry(drawn + iComb);
+	          
+            if ((iComb != 0 && combi == 0)) {
+              break;
+            }
+            
+            fTree->Fill();
           }
-          
-          fTree->Fill();
+          eventsDrawn++;
+          //std::cout << eventsDrawn << std::endl;
         }
-        eventsDrawn++;
-        //std::cout << eventsDrawn << std::endl;
       }
     }  
     tempFile->Write();

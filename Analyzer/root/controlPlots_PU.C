@@ -74,7 +74,7 @@ void controlPlots_PU()
   TFile* fSTopt  = new TFile("/scratch/hh/current/cms/user/mseidel/Summer11_T_t-channel/analyzeTop.root");
   TFile* fSToptW = new TFile("/scratch/hh/current/cms/user/mseidel/Summer11_T_tW-channel/analyzeTop.root");
   */
-  TFile* fData   = new TFile("/scratch/hh/current/cms/user/mseidel/Run2011.root");
+  TFile* fData   = new TFile("/scratch/hh/current/cms/user/mseidel/Run2011/analyzeTop.root");
   
   // ---
   //    Get trees
@@ -93,8 +93,8 @@ void controlPlots_PU()
   */
   tData   = (TTree*) fData  ->Get("analyzeHitFit/eventTree");
   
-  //makeControlPlot("hadWRawMass", "m_{W}^{raw} [GeV]", "hadWRawMass", 80, 95);
-  makeControlPlot("hadTopMass", "m_{t}^{fit} [GeV]", "hadTopMass", 165, 190);
+  makeControlPlot("hadWRawMass0", "m_{W}^{raw} [GeV]", "hadWRawMass0", 70, 95);
+  //makeControlPlot("hadTopMass", "m_{t}^{fit} [GeV]", "hadTopMass", 165, 190);
 }
 
 void makeControlPlot(TString sObservable, TString sObservableShort, TString sFileName,

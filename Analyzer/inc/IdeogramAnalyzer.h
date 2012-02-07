@@ -14,6 +14,7 @@
 #include "TDirectory.h"
 #include "TFile.h"
 #include "TColor.h"
+#include "TRandom3.h"
 
 class IdeogramAnalyzer : public MassAnalyzer {
   private:

@@ -10,7 +10,7 @@ OBJ_FILES := $(patsubst src/%.cxx,obj/%.o,$(CXX_FILES))
 OBJCPP_FILES := $(patsubst src/%.cpp,obj/%.o,$(CPP_FILES))
 
 TopMass: $(OBJ_FILES) $(OBJCPP_FILES)
-	$(C) $(ROOTLIBS) -o $@ $(OBJ_FILES) $(OBJCPP_FILES)
+	$(C) $(ROOTLIBS) -lboost_program_options -o $@ $(OBJ_FILES) $(OBJCPP_FILES)
 
 obj/%.o: src/%.cxx
 	$(L) $(ROOTCFLAGS) -Iinc/ -c -o $@ $<

@@ -1,6 +1,8 @@
 #include <vector>
 #include <cmath>
 #include <fstream>
+#include <time.h>
+#include <boost/program_options.hpp>
 
 #include "Analysis.h"
 #include "TGraphErrors.h"
@@ -15,6 +17,9 @@
 #include "tinyxml.h"
 
 #include "Helper.h"
+
+namespace po = boost::program_options;
+
 
 bool fexists(const char *filename)
 {
@@ -41,16 +46,6 @@ struct massPoint {
   TH3F* h3JES;
   TH3F* h3JESError;
   TH3F* h3JESPull;
-  
-  massPoint(double pGenMass, double pGenJES, TString pIdentifier) :
-      genMass(pGenMass), genJES(pGenJES), identifier(pIdentifier) {
-    if (fexists("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00/analyzeTop.root")) {
-      fileName = "/scratch/hh/lustre/cms/user/mseidel/Summer11_TTJets";
-    }
-    else fileName = "root/analyzeTop_";
-    fileName += identifier;
-    fileName += "/analyzeTop.root";
-  };
 };
 
 class TopMass {
@@ -58,9 +53,6 @@ class TopMass {
     TString fMethod;
     int fBins;
     double fLumi;
-    
-    std::vector<massPoint> massPoints;
-    std::vector<massPoint>::iterator iMassPoint;
     
     std::vector< std::vector<Analysis*> > calibrationAnalyses;
     
@@ -75,13 +67,10 @@ class TopMass {
     void LoadXML();
   
   public:
-    TopMass(TString method, int bins, double lumi);
+    TopMass(po::variables_map vm);
     
-    void WriteEnsembleTest(bool readCalibration = false);
-    void EvalEnsembleTest(bool writeCalibration = false);
+    void WriteEnsembleTest(po::variables_map vm);
     
-    void QuickCalibration();
-    void QuickSystematics();
-    
-    TH2F* Measure(Analysis* a);
+    void QuickCalibration(po::variables_map vm);
+    void QuickSystematics(po::variables_map vm);
 };

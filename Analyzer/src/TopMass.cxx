@@ -1,373 +1,133 @@
 #include "TopMass.h"
 
-TopMass::TopMass(TString method, int bins, double lumi) : fMethod(method), fBins(bins), fLumi(lumi) {
+TopMass::TopMass(po::variables_map vm) {
+  fMethod = vm["method"].as<std::string>();
+  fBins   = vm["bins"].as<int>();
+  fLumi   = vm["lumi"].as<double>();
   
   //QuickCalibration();
   //LoadXML();
   //QuickSystematics();
   
-  WriteEnsembleTest(false);
-  //EvalEnsembleTest(true);
-  //Measure(aSim);
-  
-  //analyses.push_back(new Analysis("Summer11_1725_100", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00/analyzeTop.root", fMethod, fBins, 0));
-  
-  /*  Systematic samples
-  analyses.push_back(new Analysis("1725_flavordown", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_flavor:down/analyzeTop.root", fMethod, fBins, 0));
-  analyses.push_back(new Analysis("1725_flavorup", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_flavor:up/analyzeTop.root", fMethod, fBins, 0));
-  analyses.push_back(new Analysis("1725_jesdown", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_jes:down/analyzeTop.root", fMethod, fBins, 0));
-  analyses.push_back(new Analysis("1725_jesup", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_jes:up/analyzeTop.root", fMethod, fBins, 0));
-  analyses.push_back(new Analysis("1725_resdown", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_res:down/analyzeTop.root", fMethod, fBins, 0));
-  analyses.push_back(new Analysis("1725_resup", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_res:up/analyzeTop.root", fMethod, fBins, 0));
-  //*/
-  
-  /*  Uncorrelated systematic samples
-  analyses.push_back(new Analysis("1725_scaledown", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_scaledown/analyzeTop.root", fMethod, fBins, 0));
-  analyses.push_back(new Analysis("1725_scaleup", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_scaleup/analyzeTop.root", fMethod, fBins, 0));
-  analyses.push_back(new Analysis("1725_matchingdown", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_matchingdown/analyzeTop.root", fMethod, fBins, 0));
-  analyses.push_back(new Analysis("1725_matchingup", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_matchingup/analyzeTop.root", fMethod, fBins, 0));
-  //*/
-  
-  /*  Spring11
-  analyses.push_back(new Analysis("Spring11_D6T", "/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_D6T/analyzeTop.root", fMethod, fBins, 0));
-  analyses.push_back(new Analysis("Spring11_Z2", "/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_Z2/analyzeTop.root", fMethod, fBins, 0));
-  //*/
-  
-  for (int i = 0; i < analyses.size(); i++) {
-    Measure(analyses[i]);
+  if (!vm["task"].as<std::string>().compare("pe")) {
+    WriteEnsembleTest(vm);
   }
+  
+  else if (!vm["task"].as<std::string>().compare("sm")) {
+    Analysis* analysis = new Analysis(vm);
+    analysis->Analyze(vm);
+  }
+  
+  else if (!vm["task"].as<std::string>().compare("hc")) {
+  
+    /*  Systematic samples
+    analyses.push_back(new Analysis("1725_flavordown", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_flavor:down/analyzeTop.root", fMethod, fBins, 0));
+    analyses.push_back(new Analysis("1725_flavorup", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_flavor:up/analyzeTop.root", fMethod, fBins, 0));
+    analyses.push_back(new Analysis("1725_jesdown", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_jes:down/analyzeTop.root", fMethod, fBins, 0));
+    analyses.push_back(new Analysis("1725_jesup", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_jes:up/analyzeTop.root", fMethod, fBins, 0));
+    analyses.push_back(new Analysis("1725_resdown", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_res:down/analyzeTop.root", fMethod, fBins, 0));
+    analyses.push_back(new Analysis("1725_resup", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_res:up/analyzeTop.root", fMethod, fBins, 0));
+    //*/
+    
+    /*  Uncorrelated systematic samples
+    analyses.push_back(new Analysis("1725_scaledown", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_scaledown/analyzeTop.root", fMethod, fBins, 0));
+    analyses.push_back(new Analysis("1725_scaleup", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_scaleup/analyzeTop.root", fMethod, fBins, 0));
+    analyses.push_back(new Analysis("1725_matchingdown", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_matchingdown/analyzeTop.root", fMethod, fBins, 0));
+    analyses.push_back(new Analysis("1725_matchingup", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_matchingup/analyzeTop.root", fMethod, fBins, 0));
+    //*/
+    
+    /*  Spring11
+    analyses.push_back(new Analysis("Spring11_D6T", "/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_D6T/analyzeTop.root", fMethod, fBins, 0));
+    analyses.push_back(new Analysis("Spring11_Z2", "/scratch/hh/current/cms/user/mseidel/Spring11_TTJets1725_Z2/analyzeTop.root", fMethod, fBins, 0));
+    //*/
+    
+    for (int i = 0; i < analyses.size(); i++) {
+      analyses[i]->Analyze(vm);
+    }
 
-  /* DATA, full 2011
-  Analysis* aRun2011 = new Analysis("Run2011", "/scratch/hh/current/cms/user/mseidel/Run2011/analyzeTop.root", fMethod, fBins, 0);
-  Measure(aRun2011);
-  //*/
+    /* DATA, full 2011
+    Analysis* aRun2011 = new Analysis("Run2011", "/scratch/hh/current/cms/user/mseidel/Run2011/analyzeTop.root", fMethod, fBins, 0);
+    Measure(aRun2011);
+    //*/
+  
+  }
 }
 
 
-void TopMass::WriteEnsembleTest(bool readCalibration) {
-  if (readCalibration) LoadXML();
+void TopMass::WriteEnsembleTest(po::variables_map vm) {
+  time_t start, end;
+  time(&start);
+  time(&end);
   
-  massPoint m1665j096(166.5, 0.96, "1665_0.96"); massPoints.push_back(m1665j096);
-  massPoint m1665j100(166.5, 1.00, "1665_1.00"); massPoints.push_back(m1665j100);
-  massPoint m1665j104(166.5, 1.04, "1665_1.04"); massPoints.push_back(m1665j104);
+  //if (readCalibration) LoadXML();
   
-  massPoint m1725j096(172.5, 0.96, "1725_0.96"); massPoints.push_back(m1725j096);
-  massPoint m1725j100(172.5, 1.00, "1725_1.00"); massPoints.push_back(m1725j100);
-  massPoint m1725j104(172.5, 1.04, "1725_1.04"); massPoints.push_back(m1725j104);
-  
-  massPoint m1785j096(178.5, 0.96, "1785_0.96"); massPoints.push_back(m1785j096);
-  massPoint m1785j100(178.5, 1.00, "1785_1.00"); massPoints.push_back(m1785j100);
-  massPoint m1785j104(178.5, 1.04, "1785_1.04"); massPoints.push_back(m1785j104);
-  
-  int nEnsembles = 4;
+  int nEnsembles = vm["number"].as<int>();
+  int n = 0;
   
   double genMass, mass, massError, massPull, genJES, JES, JESError, JESPull;
-  TTree* tree = new TTree("tree", "tree");
-  tree->Branch("genMass", &genMass, "genMass/D");
-  tree->Branch("mass", &mass, "mass/D");
-  tree->Branch("massError", &massError, "massError/D");
-  tree->Branch("massPull", &massPull, "massPull/D");
-  tree->Branch("genJES", &genJES, "genJES/D");
-  tree->Branch("JES", &JES, "JES/D");
-  tree->Branch("JESError", &JESError, "JESError/D");
-  tree->Branch("JESPull", &JESPull, "JESPull/D");
+  TFile* ensembleFile;
+  TTree* tree;
   
-  for (iMassPoint = massPoints.begin(); iMassPoint != massPoints.end(); ++iMassPoint) {
-    iMassPoint->analysis = new Analysis(iMassPoint->identifier, iMassPoint->fileName, fMethod, fBins, fLumi);
+  ensembleFile = new TFile("ensemble.root", "UPDATE");
+  ensembleFile->GetObject("tree", tree);
+  
+  if (!tree) {
+    tree = new TTree("tree", "tree");
+    tree->Branch("genMass", &genMass, "genMass/D");
+    tree->Branch("mass", &mass, "mass/D");
+    tree->Branch("massError", &massError, "massError/D");
+    tree->Branch("massPull", &massPull, "massPull/D");
+    tree->Branch("genJES", &genJES, "genJES/D");
+    tree->Branch("JES", &JES, "JES/D");
+    tree->Branch("JESError", &JESError, "JESError/D");
+    tree->Branch("JESPull", &JESPull, "JESPull/D");
+  }
+  else {
+    tree->SetBranchAddress("genMass", &genMass);
+    tree->SetBranchAddress("mass", &mass);
+    tree->SetBranchAddress("massError", &massError);
+    tree->SetBranchAddress("massPull", &massPull);
+    tree->SetBranchAddress("genJES", &genJES);
+    tree->SetBranchAddress("JES", &JES);
+    tree->SetBranchAddress("JESError", &JESError);
+    tree->SetBranchAddress("JESPull", &JESPull);
+  }
+  
+  Analysis* analysis = new Analysis(vm);
+  
+  while (difftime(end, start) < vm["walltime"].as<int>() * 60 && n < nEnsembles) {
+    std::cout << "\n- - - - - - - - - - " << n << " - - - - - - - - - -\n" << std::endl;
     
-    iMassPoint->h3Mass = new TH3F("h3Mass_" + iMassPoint->identifier, "h3Mass_" + iMassPoint->identifier, fBins, 0, 3, fBins, 0, 3, 100, 150, 200);
-    iMassPoint->h3MassError = new TH3F("h3MassError_" + iMassPoint->identifier, "h3MassError_" + iMassPoint->identifier, fBins, 0, 3, fBins, 0, 3, 200, 0, 2);
-    iMassPoint->h3MassPull = new TH3F("h3MassPull_" + iMassPoint->identifier, "h3MassPull_" + iMassPoint->identifier, fBins, 0, 3, fBins, 0, 3, 100, -5, 5);
+    analysis->Analyze(vm);
     
-    iMassPoint->h3JES = new TH3F("h3JES_" + iMassPoint->identifier, "h3JES_" + iMassPoint->identifier, fBins, 0, 3, fBins, 0, 3, 100, 0.9, 1.1);
-    iMassPoint->h3JESError = new TH3F("h3JESError_" + iMassPoint->identifier, "h3JESError_" + iMassPoint->identifier, fBins, 0, 3, fBins, 0, 3, 200, 0, 0.02);
-    iMassPoint->h3JESPull = new TH3F("h3JESPull_" + iMassPoint->identifier, "h3JESPull_" + iMassPoint->identifier, fBins, 0, 3, fBins, 0, 3, 100, -5, 5);
+    std::cout << "branching finished" << std::endl;
     
-    for (int n = 0; n < nEnsembles; n++) {
-      iMassPoint->analysis->Analyze(true);
-      for (int i = 0; i < fBins; i++) {
-        for (int j = 0; j < fBins; j++) {
-          genMass   = iMassPoint->genMass;
-          mass      = iMassPoint->analysis->GetH2Mass()->GetCellContent(i+1, j+1);
-          massError = iMassPoint->analysis->GetH2MassError()->GetCellContent(i+1, j+1);
-          massPull  = (mass - genMass)/massError;
-          
-          genJES    = iMassPoint->genJES;
-          JES       = iMassPoint->analysis->GetH2JES()->GetCellContent(i+1, j+1);
-          JESError  = iMassPoint->analysis->GetH2JESError()->GetCellContent(i+1, j+1);
-          JESPull   = (JES - genJES)/JESError;
-          
-          if (readCalibration) {
-            if (fCalibFitParameter[i][j][0] && fCalibFitParameter[i][j][1]) {
-              massError = sqrt(pow((1-fCalibFitParameter[i][j][1])*massError, 2) + pow(fCalibFitParError[i][j][0], 2) + pow(fCalibFitParError[i][j][1]*(172.5-mass), 2));
-              mass = mass - fCalibFitParameter[i][j][0] + (fCalibFitParameter[i][j][1]*(172.5-mass));
-              massPull = (mass-iMassPoint->genMass)/massError;
-            }
-            else {
-              mass = 0;
-              massError = 0;
-              massPull = 999;
-            }
-          }
-          
-          
-          iMassPoint->h3Mass->Fill(3./fBins*i, 3./fBins*j, mass);
-          iMassPoint->h3MassError->Fill(3./fBins*i, 3./fBins*j, massError);
-          iMassPoint->h3MassPull->Fill(3./fBins*i, 3./fBins*j, massPull);
-          
-          iMassPoint->h3JES->Fill(3./fBins*i, 3./fBins*j, JES);
-          iMassPoint->h3JESError->Fill(3./fBins*i, 3./fBins*j, JESError);
-          iMassPoint->h3JESPull->Fill(3./fBins*i, 3./fBins*j, JESPull);
-          
-          tree->Fill();
-        }
+    for (int i = 0; i < fBins; i++) {
+      for (int j = 0; j < fBins; j++) {
+        genMass   = vm["mass"].as<double>();
+        mass      = analysis->GetH2Mass()->GetCellContent(i+1, j+1);
+        massError = analysis->GetH2MassError()->GetCellContent(i+1, j+1);
+        massPull  = (mass - genMass)/massError;
+        
+        genJES    = vm["jes" ].as<double>();
+        JES       = analysis->GetH2JES()->GetCellContent(i+1, j+1);
+        JESError  = analysis->GetH2JESError()->GetCellContent(i+1, j+1);
+        JESPull   = (JES - genJES)/JESError;
+        
+        tree->Fill();
       }
     }
-
-  }
-  
-  TFile* ensembleFile = new TFile("ensemble.root","recreate");
-  
-  for (iMassPoint = massPoints.begin(); iMassPoint != massPoints.end(); ++iMassPoint) {
-    iMassPoint->h3Mass->Write();
-    iMassPoint->h3MassError->Write();
-    iMassPoint->h3MassPull->Write();
     
-    iMassPoint->h3JES->Write();
-    iMassPoint->h3JESError->Write();
-    iMassPoint->h3JESPull->Write();
-  }
-  
-  tree->Write();
-}
-
-void TopMass::EvalEnsembleTest(bool writeCalibration) {
-  Helper* helper = new Helper(fBins);
-  helper->SetTDRStyle();
-  gStyle->SetOptFit(0);
-
-  TiXmlDocument doc;
-  TiXmlDeclaration* decl = new TiXmlDeclaration( "1.0", "", "" );
-  doc.LinkEndChild( decl );
-  
-  TiXmlElement* calibration = new TiXmlElement( "calibration" );
-  doc.LinkEndChild( calibration );
-  
-  massPoint m1665(166.5, 1., "1665");
-  massPoint m1725(172.5, 1., "1725");
-  massPoint m1785(178.5, 1., "1785");
-  
-  int nEnsemble = 1000;
-  
-  m1665.genLumi = 2250;
-  m1725.genLumi = 6100;
-  m1785.genLumi = 1900;
-   
-  massPoints.push_back(m1665);
-  massPoints.push_back(m1725);
-  massPoints.push_back(m1785);
-  
-  TFile* ensembleFile = new TFile("root/ensemble.root");
-  
-  for (iMassPoint = massPoints.begin(); iMassPoint != massPoints.end(); ++iMassPoint) {
-    iMassPoint->h2Mass = helper->GetH2("Mass");
-    iMassPoint->h2MassError = helper->GetH2("MassError");
-    iMassPoint->h3Mass = (TH3F*) ensembleFile->Get("h3Mass_" + iMassPoint->identifier);
-    iMassPoint->h3MassPull = (TH3F*) ensembleFile->Get("h3MassPull_" + iMassPoint->identifier);
-  }
+    std::cout << "fill finished" << std::endl;
     
-  for (int i = 0; i < fBins; i++) {
-    for (int j = 0; j < fBins; j++) {
-      TCanvas* canvas = new TCanvas("canvas", "hadronic top hMass", 1000, 1000);
-      canvas->Divide(2,2);
-      
-      TVectorD hadTopMass(massPoints.size());
-      TVectorD hadTopMassMeanError(massPoints.size());
-      TVectorD hadTopMassError(massPoints.size());
-      TVectorD hadTopMassBias(massPoints.size());
-      TVectorD hadTopMassChi2NDF(massPoints.size());
-      
-      TVectorD hadTopMassPullWidth(massPoints.size());
-      TVectorD hadTopMassPullWidthError(massPoints.size());
-      
-      for (iMassPoint = massPoints.begin(); iMassPoint != massPoints.end(); ++iMassPoint) {
-        TCanvas* canvasTemp = new TCanvas("canvasTemp", "hadronic top hMass");
-        canvasTemp->cd();
-        
-        int k = iMassPoint - massPoints.begin();
-        
-        iMassPoint->hMass = iMassPoint->h3Mass->ProjectionZ("hMass_" + iMassPoint->identifier, i+1, i+1, j+1, j+1);
-        iMassPoint->hMass->Rebin(2);
-        iMassPoint->hMass->GetXaxis()->SetTitle("m_{t}");
-        iMassPoint->hMass->GetYaxis()->SetTitle("Pseudo-experiments");
-        iMassPoint->hMass->SetFillColor(kRed - 11 + massPoints.size() - k);
-        
-        iMassPoint->hMassPull = iMassPoint->h3MassPull->ProjectionZ("hMassPull_" + iMassPoint->identifier, i+1, i+1, j+1, j+1);
-        iMassPoint->hMassPull->Rebin(2);
-        iMassPoint->hMassPull->GetXaxis()->SetTitle("m_{t} pull");
-        iMassPoint->hMassPull->GetYaxis()->SetTitle("Pseudo-experiments");
-        iMassPoint->hMassPull->SetFillColor(kRed - 11 + massPoints.size() - k);
-        
-        TF1* gaus = new TF1("gaus", "gaus");
-        TF1* gausPull = new TF1("gausPull", "gaus");
-        
-        gaus->SetLineWidth(1);
-        gaus->SetLineColor(kBlack);
-        gaus->SetLineWidth(2);
-        
-        gausPull->SetLineWidth(1);
-        gausPull->SetLineColor(kBlack);
-        gausPull->SetLineWidth(2);
-        
-        iMassPoint->hMass->Fit("gaus");
-        
-        iMassPoint->hMassPull->Fit("gausPull");
-        
-        hadTopMass[k] = gaus->GetParameter(1);
-        hadTopMassMeanError[k] = gaus->GetParError(1)*TMath::Sqrt(1+nEnsemble*fLumi/iMassPoint->genLumi);
-        hadTopMassError[k] = gaus->GetParameter(2);
-        hadTopMassBias[k] = gaus->GetParameter(1)-iMassPoint->genMass;
-        hadTopMassChi2NDF[k] = gaus->GetChisquare()/gaus->GetNDF();
-        
-        hadTopMassPullWidth[k] = gausPull->GetParameter(2);
-        hadTopMassPullWidthError[k] = gausPull->GetParError(2)*TMath::Sqrt(1+nEnsemble*TMath::Power(fLumi/iMassPoint->genLumi, 2));
-        
-        iMassPoint->h2Mass->SetCellContent(i+1, j+1, hadTopMass[k]);
-        iMassPoint->h2MassError->SetCellContent(i+1, j+1, hadTopMassError[k]);
-      }
-          
-      if (hadTopMassMeanError > 0 && hadTopMassChi2NDF < 10) {
-        canvas->cd(1);
-        
-        TLegend *leg0 = new TLegend(0.65, 0.7, 0.95, 0.9);
-        leg0->SetFillStyle(0);
-        leg0->SetBorderSize(0);
-        
-        for (iMassPoint = massPoints.begin(); iMassPoint != massPoints.end(); ++iMassPoint) {
-          if (iMassPoint == massPoints.begin()) {
-            iMassPoint->hMass->Draw();
-          }
-          else {
-            iMassPoint->hMass->Draw("SAME");
-          }
-          TString legend("m_{t,gen} = "); legend += iMassPoint->genMass; legend += " GeV";
-          leg0->AddEntry( iMassPoint->hMass, legend, "F");
-        }
-        
-        leg0->Draw();
-        
-        canvas->cd(3);
-        for (iMassPoint = massPoints.begin(); iMassPoint != massPoints.end(); ++iMassPoint) {
-          if (iMassPoint == massPoints.begin()) {
-            iMassPoint->hMassPull->Draw();
-          }
-          else {
-            iMassPoint->hMassPull->Draw("SAME");
-          }
-        }
-        
-        leg0->Draw();
-        
-        gStyle->SetOptFit(1);
-        
-        canvas->cd(2);
-        
-        TGraphErrors* gBias = new TGraphErrors(hadTopMass, hadTopMassBias, hadTopMassMeanError, hadTopMassMeanError);
-        if (hadTopMassBias.Min() > 0) {
-          gBias->GetYaxis()->SetRangeUser(0.5, hadTopMassBias.Max()+hadTopMassMeanError.Max()+0.5);
-        }
-        else if (hadTopMassBias.Max() < 0) {
-          gBias->GetYaxis()->SetRangeUser(hadTopMassBias.Min()-hadTopMassMeanError.Max()-0.5, 0.5);
-        }
-        gBias->GetXaxis()->SetTitle("m_{t}");
-        gBias->GetYaxis()->SetRangeUser(-6, 6);
-        gBias->GetYaxis()->SetTitle("bias");
-        gBias->SetMarkerStyle(2);
-        gBias->SetMarkerSize(0.4);
-        gBias->Draw("AP");
-        
-        TF1* zero_line = new TF1("zero_line", "0", 150, 200);
-        zero_line->SetLineWidth(1);
-        zero_line->SetLineStyle(3);
-        zero_line->SetLineColor(kBlack);
-        zero_line->Draw("SAME");
-        
-        TF1* linearFit = new TF1("linearFit", "[0]+(x-172.5)*[1]");      
-        linearFit->SetLineWidth(1);
-        linearFit->SetLineColor(kRed);
-        
-        gBias->Fit("linearFit");
-        
-        canvas->cd(4);
-        
-        TGraphErrors* gPull = new TGraphErrors(hadTopMass, hadTopMassPullWidth, hadTopMassMeanError, hadTopMassPullWidthError);
-        gPull->GetXaxis()->SetTitle("m_{t}");
-        gPull->GetYaxis()->SetRangeUser(0.75, 1.25);
-        gPull->GetYaxis()->SetTitle("pull width");
-        gPull->SetMarkerStyle(2);
-        gPull->SetMarkerSize(0.4);
-        gPull->Draw("AP");
-        
-        TF1* unity_line = new TF1("unity_line", "1", 150, 200);
-        unity_line->SetLineWidth(1);
-        unity_line->SetLineStyle(3);
-        unity_line->SetLineColor(kBlack);
-        unity_line->Draw("SAME");
-        
-        TF1* constFit = new TF1("constFit", "[0]");
-        constFit->SetLineWidth(1);
-        constFit->SetLineColor(kRed);
-        
-        gPull->Fit("constFit");
-        
-        TString path("plot/"); path += fMethod; path += "/"; path += "ensembletest_"; path += i; path += "_"; path += j; path += ".png";
-        canvas->Print(path);
-        
-        for (int l = 0; l < 2; l++) {
-          fCalibFitParameter[i][j][l] = linearFit->GetParameter(l);
-          fCalibFitParError[i][j][l]  = linearFit->GetParError(l);
-        }
-        
-        if (writeCalibration) {
-          TiXmlElement* bin = new TiXmlElement( "bin" );
-          calibration->LinkEndChild( bin );
-          bin->SetAttribute("binx", i);
-          bin->SetAttribute("biny", j);
-          bin->SetDoubleAttribute("p0", linearFit->GetParameter(0));
-          bin->SetDoubleAttribute("p0error", linearFit->GetParError(0));
-          bin->SetDoubleAttribute("p1", linearFit->GetParameter(1));
-          bin->SetDoubleAttribute("p1error", linearFit->GetParError(1));
-        }
-      }
-
-      delete canvas;
-    }
+    n++;
+    time(&end);
   }
-  
-  gStyle->SetPadRightMargin(0.15);
-  TCanvas* canvas = new TCanvas("canvas", "Top mass", 900, 450);
-  canvas->Divide(2,1);
-  
-  for (iMassPoint = massPoints.begin(); iMassPoint != massPoints.end(); ++iMassPoint) {
-    canvas->cd(1);
-    iMassPoint->h2Mass->Draw("COLZ, TEXT");
-    iMassPoint->h2Mass->SetAxisRange(160, 185, "Z");
-    
-    canvas->cd(2);
-    iMassPoint->h2MassError->Draw("COLZ, TEXT");
-    iMassPoint->h2MassError->SetAxisRange(0.05, 5, "Z");
-    
-    TString path("plot/"); path += fMethod; path += "_"; path += "ensembletest_"; path += iMassPoint->identifier; path += ".eps";
-    canvas->Print(path);
-  }
-  
+  tree->GetCurrentFile()->Write();
   ensembleFile->Close();
-  
-  if (writeCalibration) doc.SaveFile( "calibration.xml" );
 }
 
-
-void TopMass::QuickCalibration() {
+void TopMass::QuickCalibration(po::variables_map vm) {
 	enum styles          { kDown, kNominal, kUp};
 	int color_   [ 3 ] = { kRed+1, kBlue+1, kGreen+1};
 	int marker_  [ 3 ] = { 23, 20, 22};
@@ -471,7 +231,7 @@ void TopMass::QuickCalibration() {
   //*
   for(int iJES = 0; iJES < 3; iJES++) {
     for(int iMass = 0; iMass < 9; iMass++) {
-      calibrationAnalyses[iJES][iMass]->Analyze();
+      calibrationAnalyses[iJES][iMass]->Analyze(vm);
 			
       hMass[iJES].push_back(calibrationAnalyses[iJES][iMass]->GetH2Mass());
       hMassError[iJES].push_back(calibrationAnalyses[iJES][iMass]->GetH2MassError());
@@ -704,83 +464,19 @@ void TopMass::QuickCalibration() {
 }
 
 
-
-TH2F* TopMass::Measure(Analysis* a) {
-  
-  a->Analyze();
-  
-  TCanvas* canvas = new TCanvas("canvas", "Hadronic top mass", 1000, 500);
-  
-  TH2F* hMass = a->GetH2Mass();
-  TH2F* hMassError = a->GetH2MassError();
-  
-  TH2F* hJES = a->GetH2JES();
-  TH2F* hJESError = a->GetH2JESError();
-
-  TH2F* hMassCalibrated = a->GetH2MassCalibrated();
-  TH2F* hMassErrorCalibrated = a->GetH2MassErrorCalibrated();
-  
-  std::cout << "================================================" << std::endl;
-  
-  for (int i = 0; i < fBins; i++) {
-    for (int j = 0; j < fBins; j++) {
-      
-      double mass = hMass->GetCellContent(i+1, j+1);
-      double massError = hMassError->GetCellContent(i+1, j+1);
-      
-      std::cout << "Measured mass: " << mass << " +/- " << massError << " GeV" << std::endl;
-      
-      double JES = hJES->GetCellContent(i+1, j+1);
-      double JESError = hJESError->GetCellContent(i+1, j+1);
-      
-      std::cout << "Measured JES: " << JES << " +/- " << JESError << " " << std::endl;
-    
-      if (fCalibFitParameter[i][j][0] && fCalibFitParameter[i][j][1] && mass > 0) {
-        massError = sqrt(pow((1-fCalibFitParameter[i][j][1])*massError, 2) + pow(fCalibFitParError[i][j][0], 2) + pow(fCalibFitParError[i][j][1]*(172.5-mass), 2));
-        mass = mass - fCalibFitParameter[i][j][0] + (fCalibFitParameter[i][j][1]*(172.5-mass));
-        
-        std::cout << "Calibrated TopMass: " << mass << " +/- " << massError << " GeV" << std::endl;
-      }
-      else {
-        mass = 0;
-        massError = 0;
-      }
-        
-      hMassCalibrated->SetCellContent(i+1, j+1, mass);
-      hMassErrorCalibrated->SetCellContent(i+1, j+1, massError);
-      
-    }
-  }
-  
-  std::cout << "================================================" << std::endl;
-  
-  canvas->Divide(2,1);
-  
-  canvas->cd(1);
-  hMassCalibrated->Draw("COLZ,TEXT");
-  hMassCalibrated->SetAxisRange(160, 185, "Z");
-  
-  canvas->cd(2);
-  hMassErrorCalibrated->Draw("COLZ,TEXT");
-  hMassErrorCalibrated->SetAxisRange(0.05, 5, "Z");
-  
-  TString path("plot/"); path += fMethod; path += "_"; path += a->GetIdentifier(); path +="_calibrated.eps";
-  canvas->Print(path);
-  
-  //return hMassCalibrated;
-  return hMass;
-}
-
-
-void TopMass::QuickSystematics() {
+void TopMass::QuickSystematics(po::variables_map vm) {
 
   Analysis* a1725 = new Analysis("1725", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00/analyzeTop.root", fMethod, fBins, 100000);
   Analysis* a1725_jes_up = new Analysis("1725_jes_up", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_flavor:up/analyzeTop.root", fMethod, fBins, 100000);
   Analysis* a1725_jes_down = new Analysis("1725_jes_down", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_flavor:down/analyzeTop.root", fMethod, fBins, 100000);
   
-  TH2F* hMassJESdown = Measure(a1725_jes_down);
-  TH2F* hMassJESnorm = Measure(a1725);
-  TH2F* hMassJESup   = Measure(a1725_jes_up);
+  a1725_jes_down->Analyze(vm);
+  a1725         ->Analyze(vm);
+  a1725_jes_up  ->Analyze(vm);
+  
+  TH2F* hMassJESdown = a1725_jes_down->GetH2Mass();
+  TH2F* hMassJESnorm = a1725         ->GetH2Mass();
+  TH2F* hMassJESup   = a1725_jes_up  ->GetH2Mass();
   
   hMassJESup->Add(hMassJESnorm, -1.000000);
   hMassJESnorm->Add(hMassJESdown, -1.000000);
@@ -840,12 +536,49 @@ void TopMass::LoadXML() {
   }
 }
 
-int main(int argc, char** argv)
+int main(int ac, char** av)
 {
-  if (argc > 1) {
-    TopMass* top = new TopMass(argv[1], 1, 4700);
+  // Declare the supported options.
+  po::options_description desc("Allowed options");
+  desc.add_options()
+    ("help,h", "produce help message")
+    ("method,m", po::value<std::string>()->default_value("Ideogram"),
+      "Top mass measurement method\n"
+      "  GenMatch: \tGaussian fit of correct permutations (MC only)\n"
+      "  Ideogram: \tJoint likelihood fit of mt and JES given data sample"
+    )
+    ("task,t", po::value<std::string>()->default_value("sm"),
+      "Task to be done\n"
+      "  sm: \tSingle measurement based on input parameters\n"
+      "  pe: \tPerform pseudo-experiments, additional settings necessary\n"
+      "  hc: \tPerform any hardcoded tasks in TopMass constructor"
+    )
+    ("input,i", po::value<std::string>()->default_value("Summer11_TTJets1725_1.00", "1725_1.00"),
+      "Identifier of input file to be analyzed")
+    ("bins,b", po::value<int>()->default_value(1), "Number of phasespace bins")
+    ("weight,w", po::value<int>()->default_value(0), "Weight type -> think, document")
+    ("mass,M", po::value<double>()->default_value(172.5), "Input top mass for pseudo-experiments")
+    ("jes,J", po::value<double>()->default_value(1.0), "Input JES for pseudo-experiments")
+    ("lumi,L", po::value<double>()->default_value(4700.0), "Luminosity for each pseudo-experiment")
+    ("number,N", po::value<int>()->default_value(10000), "Number of pseudo-experiments per job")
+    ("walltime,W", po::value<int>()->default_value(10), "set walltime limit for pseudo-experiments in minutes")
+  ;
+
+  po::variables_map vm;
+  po::store(po::parse_command_line(ac, av, desc), vm);
+  po::notify(vm);    
+
+  if (vm.count("help")) {
+      std::cout << desc << "\n";
+      return 1;
   }
-  else {
-    TopMass* top = new TopMass("GenMatch", 6, 500);
+
+  if (vm.count("compression")) {
+      std::cout << "Compression level was set to " 
+   << vm["compression"].as<int>() << ".\n";
+  } else {
+      std::cout << "Compression level was not set.\n";
   }
+  
+  TopMass* top = new TopMass(vm);
 }

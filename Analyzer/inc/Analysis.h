@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream> 
+#include <boost/program_options.hpp>
 
 #include "TCanvas.h"
 #include "TChain.h"
@@ -15,6 +16,8 @@
 #include "MVAAnalyzer.h"
 #include "IdeogramAnalyzer.h"
 
+namespace po = boost::program_options;
+
 class Analysis {
   private:
     TString fIdentifier;
@@ -23,8 +26,6 @@ class Analysis {
 
     int fBins;
     double fLumi;
-    
-    bool fAnalyzed;
     
     TChain* fChain;
     TTree* fTree;
@@ -45,10 +46,11 @@ class Analysis {
     void CreateRandomSubset();
 
   public:
+    Analysis(po::variables_map vm);
     Analysis(TString identifier, TString file, TString method, int bins, double lumi);
-    ~Analysis() { delete &fAnalyzed;  }
+    ~Analysis() {}
     
-    void Analyze(bool reanalyze = false);
+    void Analyze(po::variables_map vm);
     
     TH2F* GetH2Mass();
     TH2F* GetH2MassError();
