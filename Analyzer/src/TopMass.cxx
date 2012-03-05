@@ -9,7 +9,11 @@ TopMass::TopMass(po::variables_map vm) {
   //LoadXML();
   //QuickSystematics();
   
-  if (!vm["task"].as<std::string>().compare("pe")) {
+  if (!vm["task"].as<std::string>().compare("cal")) {
+    QuickCalibration(vm);
+  }
+  
+  else if (!vm["task"].as<std::string>().compare("pe")) {
     WriteEnsembleTest(vm);
   }
   

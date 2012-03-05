@@ -44,7 +44,7 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
   
   int binsJes        = (lastBinJes-firstBinJes)/resolJes;
   
-  double pullWidth   = 1.;//06; //1.46;
+  double pullWidth   = 1.03;//06; //1.46;
   
   /*
   if (debug) {

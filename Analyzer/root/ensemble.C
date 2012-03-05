@@ -57,15 +57,17 @@ void ensemble()
 {
   setTDRStyle();
   tdrStyle->SetNdivisions(505, "X");
+  tdrStyle->SetPadLeftMargin(0.2);
+  tdrStyle->SetTitleYOffset(1.8);
   
   //// Get histos
   
-  TFile* fEnsemble = new TFile("/scratch/hh/current/cms/user/mseidel/topmass_120129_1653/ensemble.root");
+  TFile* fEnsemble = new TFile("/scratch/hh/current/cms/user/mseidel/topmass_120207_1618/ensemble.root");
   h3MassError_1725 = (TH3F*) fEnsemble->Get("h3MassError_1725");
   h3MassPull_1725 = (TH3F*) fEnsemble->Get("h3MassPull_1725");
   tree = (TTree*) fEnsemble->Get("tree");
   
-  hError = new TH1D("hError", "hError", 400, 0, 1);
+  hError = new TH1D("hError", "hError", 500, 0, 1);
   hPull  = new TH1D("hPull", "hPull", 100, -5, 5);
   
   /*
@@ -76,12 +78,19 @@ void ensemble()
   double massError;
   tree->SetBranchAddress("massError", &massError);
   
+  double genMass;
+  tree->SetBranchAddress("genMass", &genMass);
+  
+  double genJES;
+  tree->SetBranchAddress("genJES", &genJES);
+  
   for (int i = 0; i < tree->GetEntries(); i++) {
     tree->GetEntry(i);
-    hError->Fill(massError * 1.06);
+    if (massError>0 && genMass==172.5 && genJES==1.) hError->Fill(massError * 1.03);
   }
   
-  hError->GetYaxis()->SetTitle("Number of pseudo-experiments");
+  hError->GetYaxis()->SetTitle("Number of pseudo-experiments / 2 MeV");
+  hError->GetYaxis()->SetTitleSize(0.05);
   hError->GetXaxis()->SetTitle("#sigma(m_{t}) [GeV]");
   hPull->GetYaxis()->SetTitle("Number of pseudo-experiments");
   hPull->GetXaxis()->SetTitle("Mass pull");
@@ -91,10 +100,10 @@ void ensemble()
   TCanvas* cError = new TCanvas("cError", "cError", 600, 600);
   
   //hError->Rebin(4);
-  hError->GetXaxis()->SetRangeUser(0.55, 0.65);
-  hError->GetYaxis()->SetRangeUser(0, 1500);
+  hError->GetXaxis()->SetRangeUser(0.525, 0.625);
+  hError->GetYaxis()->SetRangeUser(0, 1100);
   hError->Draw();
-  drawArrow(0.60, 1300);
+  drawArrow(0.567, 950);
   DrawLabel("4.7 fb^{-1} collision data", 0.36, 0.85, 0.46, kRed+1);
   
   DrawCMSPrel();

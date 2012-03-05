@@ -12,6 +12,7 @@
 #include "TTree.h"
 #include "TString.h"
 #include "TFitResult.h"
+#include "TLine.h"
 
 #include "tdrstyle.C"
 
@@ -127,6 +128,15 @@ double asymGaus(const double* xx, const double* p)
     return N * TMath::Exp(-t1*t1/2);
   else
     return N * TMath::Exp(-t2*t2/2);
+}
+
+void DrawCutLine(double cutval, double maximum)
+{
+  TLine *cut = new TLine();
+  cut->SetLineWidth(2);
+  cut->SetLineStyle(7);
+  cut->SetLineColor(1);
+  cut->DrawLine(cutval, 1e-6,cutval, maximum);
 }
 
 void observableByJESByMass(int pTarget = 1, int pObs = 0) {
@@ -395,8 +405,16 @@ void FindParametersMass(int iMass)
   }
   
   h096->Draw();
-  if (obs == 0) h096->GetXaxis()->SetRangeUser(100, 400);
-  if (obs == 1) h096->GetXaxis()->SetRangeUser(50, 150);
+  if (obs == 0) {
+    h096->GetXaxis()->SetRangeUser(100, 240);
+    h100->GetXaxis()->SetRangeUser(100, 240);
+    h104->GetXaxis()->SetRangeUser(100, 240);
+  }
+  if (obs == 1) {
+    h096->GetXaxis()->SetRangeUser(60, 110);
+    h100->GetXaxis()->SetRangeUser(60, 110);
+    h104->GetXaxis()->SetRangeUser(60, 110);
+  }
   h100->Draw("SAME");
   h104->Draw("SAME");
   
@@ -405,7 +423,7 @@ void FindParametersMass(int iMass)
   // ---
   //    create legend
   // ---
-  TLegend *leg0 = new TLegend(0.65, 0.7, 0.95, 0.9);
+  TLegend *leg0 = new TLegend(0.65, 0.75, 0.95, 0.94);
   leg0->SetFillStyle(0);
   leg0->SetBorderSize(0);
   if (!plotByMass) {
@@ -423,17 +441,17 @@ void FindParametersMass(int iMass)
 
   DrawCMSSim();
   
+  h096->GetYaxis()->SetRangeUser(0, h096->GetMaximum()*1.2);
+  if (obs==0) DrawCutLine(172.5, h096->GetMaximum());
+  else DrawCutLine(80.4, h096->GetMaximum());
+  
   gStyle->SetOptFit(1);
   
   TCanvas* cObservablePar = new TCanvas("cObservablePar", "cObservablePar", 1600, 400);
   cObservablePar->Divide(4,1);
   
-  std::cout << "TEST 1" << std::endl;
-  
   cObservablePar->cd(1);
-  std::cout << "TEST 2" << std::endl;
   gr1[iMass] = new TGraphErrors(3,xJES,y01,ex,ey1);
-  std::cout << "TEST 3" << std::endl;
   gr1[iMass]->SetTitle("p1");
   gr1[iMass]->SetLineColor(iMass+1);
   linearFit->SetLineColor(iMass+1);
@@ -456,6 +474,7 @@ void FindParametersMass(int iMass)
   gr2[iMass]->SetLineColor(iMass+1);
   linearFit->SetLineColor(iMass+1);
   gr2[iMass]->Draw("A*");
+  linearFit->SetParameters(100, 50);
   gr2[iMass]->Fit("linearFit", "EM");
   
   gr2[iMass]->GetXaxis()->SetTitle("JES");
@@ -472,6 +491,7 @@ void FindParametersMass(int iMass)
   gr3[iMass] = new TGraphErrors(3,xJES,y3,ex,ey3);
   gr3[iMass]->SetTitle("p3");
   gr3[iMass]->Draw("A*");
+  linearFit->SetParameters(100, 50);
   gr3[iMass]->Fit("linearFit", "EM");
   
   gr3[iMass]->GetXaxis()->SetTitle("JES");
@@ -489,6 +509,7 @@ void FindParametersMass(int iMass)
     gr4[iMass] = new TGraphErrors(3,xJES,y4,ex,ey4);
     gr4[iMass]->SetTitle("p4");
     gr4[iMass]->Draw("A*");
+    linearFit->SetParameters(100, 50);
     gr4[iMass]->Fit("linearFit", "EM");
     
     gr4[iMass]->GetXaxis()->SetTitle("JES");
@@ -572,7 +593,7 @@ TH1F* FindParameters(TString filename, int i)
     fit->SetParLimits(0, 800, 1000000);
     fit->SetParLimits(1, 50, 150);
     fit->SetParLimits(2, 0, 10);
-    fit->SetParLimits(3, 0, 10);
+    fit->SetParLimits(3, 0, 15);
   }
   
   else if (obs == 4) {
@@ -625,7 +646,7 @@ TH1F* FindParameters(TString filename, int i)
       break;
     }
     case 1: {
-      sObservable = "hadWRawMass >> h1(100, 50, 150)";
+      sObservable = "hadWRawMass >> h1(30, 60, 120)";
       break;
     }
     case 4: {
@@ -646,9 +667,32 @@ TH1F* FindParameters(TString filename, int i)
   
   TH1F *h1 = (TH1F*)gDirectory->Get("h1");
   
-  h1->GetXaxis()->SetTitle("m_{i} [GeV]");
-  //h1->GetXaxis()->SetTitle("#DeltaR^{decay}_{t}/#DeltaR^{decay}_{W}");
-  h1->GetYaxis()->SetTitle("Fraction of entries");
+  switch(obs) {
+    case 0: {
+      switch(target) {
+        case   1: {
+          h1->GetYaxis()->SetTitle("Fraction of entries / 5 GeV");
+          break;
+        }
+        case   0: {
+          h1->GetYaxis()->SetTitle("Fraction of entries / 10 GeV");
+          break;
+        }
+        case -10: {
+          h1->GetYaxis()->SetTitle("Fraction of entries / 10 GeV");
+          break;
+        }
+      }
+      h1->GetXaxis()->SetTitle("m_{t,i}^{fit} [GeV]");
+      break;
+    }
+    case 1: {
+      h1->GetYaxis()->SetTitle("Fraction of entries / 2 GeV");
+      h1->GetXaxis()->SetTitle("m_{W,i}^{reco} [GeV]");
+      break;
+    }
+  }
+  
   h1->SetFillColor(color_[i]);
   h1->SetLineColor(color_[i]);
   h1->SetMarkerColor(color_[i]);
@@ -661,20 +705,20 @@ TH1F* FindParameters(TString filename, int i)
   std::cout << "chi2/ndf = " << r->Chi2() << "/" << r->Ndf() << std::endl;
 
   y00[i] = fit->GetParameter(0);
-  ey0[i] = fit->GetParError(0);
+  ey0[i] = 2*fit->GetParError(0);
  
   y01[i] = fit->GetParameter(1);
-  ey1[i] = fit->GetParError(1);
+  ey1[i] = 2*fit->GetParError(1);
   
   y2 [i] = fit->GetParameter(2);
-  ey2[i] = fit->GetParError(2);
+  ey2[i] = 2*fit->GetParError(2);
   if (ey2[i] == 0) ey2[i] = 0.001;
   
   y3 [i] = fit->GetParameter(3);
-  ey3[i] = fit->GetParError(3);
+  ey3[i] = 2*fit->GetParError(3);
   
   y4 [i] = fit->GetParameter(4);
-  ey4[i] = fit->GetParError(4);
+  ey4[i] = 2*fit->GetParError(4);
   
   TF1 *fitted = h1->GetFunction("fit");
 

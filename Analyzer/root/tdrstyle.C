@@ -14,7 +14,7 @@
 //  gPad->RedrawAxis();
 //}
 
-void setTDRStyle() {
+TStyle* setTDRStyle() {
   TStyle *tdrStyle = new TStyle("tdrStyle","Style for P-TDR");
 
 // For the canvas:
@@ -154,7 +154,7 @@ void setTDRStyle() {
   // tdrStyle->SetHistMinimumZero(kTRUE);
 
   tdrStyle->cd();
-
+  return tdrStyle;
 }
 
 void DrawLabel(TString text, const double x1, const double y1, const double x2, Color_t color = kBlack)
@@ -172,7 +172,11 @@ void DrawLabel(TString text, const double x1, const double y1, const double x2, 
 }
 
 void DrawCMSPrel() {
-  DrawLabel("CMS preliminary, 4.7 fb^{-1},  #sqrt{s}=7 TeV", 0.2, 0.93, 0.9);
+  DrawLabel("CMS preliminary, 4.9 fb^{-1},  #sqrt{s}=7 TeV", 0.2, 0.93, 0.9);
+}
+
+void DrawCMSPrel50() {
+  DrawLabel("CMS preliminary, 5.0 fb^{-1},  #sqrt{s}=7 TeV", 0.2, 0.93, 0.9);
 }
 
 void DrawCMSSim() {

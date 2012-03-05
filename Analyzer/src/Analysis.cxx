@@ -110,7 +110,7 @@ void Analysis::Analyze(po::variables_map vm) {
         //cuts += " & nlJetPt/(hadQPt+hadQBarPt)>0.3";
         cuts += " & leptonPt > 30";
         //cuts += " & nVertex >= 5";
-        //cuts += " & nVertex <= 5";
+        //cuts += " & noPtEtaJetPt < 50";
       }
       
       int entries = fTree->GetEntries(cuts);
@@ -178,6 +178,7 @@ void Analysis::CreateHistos() {
 }
 
 void Analysis::CreateRandomSubset() {
+  std::cout << "Create random subset..." << std::endl;
   fChain->SetBranchStatus("*",0);
   fChain->SetBranchStatus("target", 1);
   //fChain->SetBranchStatus("run", 1);
@@ -212,13 +213,15 @@ void Analysis::CreateRandomSubset() {
   fChain->SetBranchStatus("PUWeightDown", 1);
   fChain->SetBranchStatus("muWeight", 1);
   fChain->SetBranchStatus("bWeight", 1);
+  fChain->SetBranchStatus("MCWeight", 1);
   //fChain->SetBranchStatus("bWeight_bTagSFUp", 1);
   //fChain->SetBranchStatus("bWeight_bTagSFDown", 1);
   //fChain->SetBranchStatus("bWeight_misTagSFUp", 1);
   //fChain->SetBranchStatus("bWeight_misTagSFDown", 1);
-  //fChain->SetBranchStatus("jetMultiplicity", 1);
+  fChain->SetBranchStatus("jetMultiplicity", 1);
   fChain->SetBranchStatus("bottomSSVJetMultiplicity", 1);
   fChain->SetBranchStatus("nVertex", 1);
+  fChain->SetBranchStatus("noPtEtaJetPt", 1);
   
   //fChain->SetBranchStatus("pdfWeights", 1);
   
@@ -240,7 +243,9 @@ void Analysis::CreateRandomSubset() {
     
     TRandom3* random = new TRandom3(0);
     
-    double maxPUWeight = tempTree->GetMaximum("PUWeight");
+    double maxMCWeight = tempTree->GetMaximum("MCWeight");
+    
+    if (maxMCWeight == -1) { std::cout << "Running over data?" << std::endl; }
     
     // DATA
     // eventTree->GetEntries("leptonPt>30 & bottomSSVJetMultiplicity > 1 & hitFitProb>0.2 & combi==0")
@@ -256,15 +261,15 @@ void Analysis::CreateRandomSubset() {
     tempTree->SetBranchAddress("combi", &combi);
     fTree->SetBranchAddress("combi", &combi);
     
-    double PUWeight;
-    tempTree->SetBranchAddress("PUWeight", &PUWeight);
-    fTree->SetBranchAddress("PUWeight", &PUWeight);
+    double MCWeight;
+    tempTree->SetBranchAddress("MCWeight", &MCWeight);
+    fTree->SetBranchAddress("MCWeight", &MCWeight);
     
     while (eventsDrawn < eventsPE) {
       int drawn = random->Integer(permsMC);
       tempTree->GetEntry(drawn);
       if (combi == 0) {
-        if (PUWeight > random->Uniform(0, maxPUWeight)) {
+        if (MCWeight > random->Uniform(0, maxMCWeight)) {
           for (int iComb = 0; iComb < 24; iComb++) {
 	          tempTree->GetEntry(drawn + iComb);
 	          
@@ -286,6 +291,7 @@ void Analysis::CreateRandomSubset() {
   else {
     fTree = fChain;
   }
+  std::cout << "Created random subset." << std::endl;
   //delete file;
 }
 

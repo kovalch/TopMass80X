@@ -3,8 +3,7 @@
 double IdeogramCombLikelihood::Evaluate(double *x, double *p) {
   bool onlyCP   = false;
   bool Spring11 = false;
-  bool useCalib = false;
-  bool useFix   = false;
+  bool useCalib = true;
   
   //* worst case, improvable by f(w_i)
   double fCP = 0.444401948;
@@ -17,21 +16,13 @@ double IdeogramCombLikelihood::Evaluate(double *x, double *p) {
     fUN = 0;
   }
   
-  double JESOffset     = -0.002048;
-  double MassOffset    = -0.2359;
-  double MassSlope     = 0.016;
-  
-  double JESFix  = 0.00333;
-  double MassFix = -0.249;
+  double JESOffset     = -1.54751e-03;
+  double MassOffset    = -3.22790e-01;
+
   
   if (useCalib) {
     x[1] = x[1] + JESOffset;
     x[0] = x[0] + MassOffset; // + MassSlope * (x[0]-172.5);
-  }
-  
-  if (useFix) {
-    x[1] = x[1] + JESFix;
-    x[0] = x[0] + MassFix; // + MassSlope * (x[0]-172.5);
   }
   
   //return p[0] * (fCP * PCP(x, p) + fWP * PWP(x, p) + fUN * PUN(x, p));
@@ -40,7 +31,7 @@ double IdeogramCombLikelihood::Evaluate(double *x, double *p) {
 
 
 double IdeogramCombLikelihood::PCP(double *x, double *p) {
-  double q[8] = {170.84, 0.989457, 81.547, 0.704955, 9.82681, 0.0838884, 9.9775, 0.0157692};
+  double q[8] = {171.189, 1.0094, 81.1057, 0.596593, 9.54616, 0.0691975, 9.59467, 0.0108478};
   //* hadTopMass
   double mu       = q[0] + q[1] * (x[0]-172.5) + (q[2] + q[3] * (x[0]-172.5)) * (x[1]-1.);
   double sigma    = q[4] + q[5] * (x[0]-172.5) + (q[6] + q[7] * (x[0]-172.5)) * (x[1]-1.);
@@ -69,7 +60,7 @@ namespace cb {
 
 double IdeogramCombLikelihood::PWP(double* x, double* p)
 {
-  double q[12] = {173.608, 0.894004, 97.1005, -0.0998495, 28.4438, 0.412437, 32.6795, -0.303578, 0.469723, 0.0054029, 0.301859, -0.0225543};
+  double q[12] = {172.191, 1.01483, 94.6122, 0.00545882, 28.7017, 0.507458, 33.0115, -0.461288, 0.439903, 0.00973399, 0.524969, -0.00801577};
   
   double N      =  1./0.01;
   double mu     = q[0] + q[1] * (x[0]-172.5) + (q[2] + q[3] * (x[0]-172.5)) * (x[1]-1.);
@@ -96,7 +87,7 @@ double IdeogramCombLikelihood::PWP(double* x, double* p)
 
 double IdeogramCombLikelihood::PUN(double* x, double* p)
 {
-  double q[12] = {168.429, 0.886587, 76.829, 0.410293, 20.0262, 0.283559, 14.3808, 0.0718494, 0.712514, 0.00938252, 0.257174, -0.0138846};
+  double q[12] = {169.211, 0.903487, 76.6112, 0.761535, 18.442, 0.256215, 8.32219, 0.283657, 0.836701, 0.0116863, 0.391304, -0.0263217};
   
   double N      =  1./0.01;
   double mu     = q[0] + q[1] * (x[0]-172.5) + (q[2] + q[3] * (x[0]-172.5)) * (x[1]-1.);
@@ -122,7 +113,7 @@ double IdeogramCombLikelihood::PUN(double* x, double* p)
 
 double IdeogramCombLikelihood::PCPJES(double* x, double* p)
 {
-  double q[12] = {82.5221, 0.0399054, 54.3144, 0.0392853, 5.69942, 0.0102082, 15.3069, 0.132278, 7.33692, -0.0179312, -6.52142, 0.0764738};
+  double q[12] = {82.8659, 0.0433722, 48.8973, 0.0894715, 6.07451, 0.0132705, 13.6937, 0.179653, 7.2574, -0.0242158, -0.219997, 0.0349708};
   
   //* W Mass
   //std::cout << p[4] << " ";
@@ -169,7 +160,7 @@ double IdeogramCombLikelihood::PCPJES(double* x, double* p)
 
 double IdeogramCombLikelihood::PWPJES(double* x, double* p)
 {
-  double q[12] = {82.6462, 0.0144639, 49.5497, 0.610081, 5.82214, -0.00653639, 13.7762, 0.377077, 7.29829, -0.0180972, -6.60668, -0.194419};
+  double q[12] = {82.6936, 0.0346344, 48.8385, -0.0190015, 6.05854, 0.00234967, 13.8404, -0.165184, 7.22946, -0.0192187, -3.36387, 0.193612};
   
   //* W Mass
   double N      =  1;
@@ -211,7 +202,7 @@ double IdeogramCombLikelihood::PWPJES(double* x, double* p)
 
 double IdeogramCombLikelihood::PUNJES(double* x, double* p)
 {
-  double q[12] = {81.7715, -0.0109833, 30.4207, -0.43322, 5.98524, -0.00907275, 10.8053, -0.234624, 9.08632, 0.02322, -9.62397, 0.311713};
+  double q[12] = {82.2445, 0.0302847, 31.7762, -0.578096, 6.60226, 0.0200799, 12.458, -0.416957, 9.2043, -0.00850388, -12.228, 0.566409};
 
   //* W Mass
   double N      =  1;
