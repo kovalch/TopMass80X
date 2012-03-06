@@ -70,9 +70,10 @@ if(options.sample=="ttbarFall11"):
   ] )
 else:
   readFiles.extend( [
+  #       'rfio:/scratch/hh/current/cms/user/stadie/AODIntegrationTestWithHLT.root',
   #       '/store/data/Run2011A/SingleMu/AOD/May10ReReco-v1/0000/00454769-577B-E011-ACCD-001E0B49808A.root',
          '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/FEEE3638-F297-E011-AAF8-00304867BEC0.root',
-         '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/02719D6B-1398-E011-AA71-001A92971B94.root',
+  #       '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/02719D6B-1398-E011-AA71-001A92971B94.root',
   #       '/store/mc/Summer11/WJetsToLNu_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/0004EB5E-64AC-E011-B046-003048678FDE.root',
   ] )
 
@@ -136,18 +137,26 @@ process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_c
 ## enable additional per-event printout from the TtSemiLeptonicEvent
 process.ttSemiLepEvent.verbosity = 0
 
-## selection
+## TRIGGER
 from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 if os.getenv('CMSSW_VERSION').startswith('CMSSW_4_1_'):
   process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::REDIGI311X", HLTPaths = ["HLT_Mu15_v*"], throw=True)
 else:
   process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", HLTPaths = ["HLT_IsoMu17_v*"], throw=True)
 
-process.leadingJetSelection.src = 'tightLeadingPFJets'
-process.bottomJetSelection.src  = 'tightBottomPFJets'
+## JET selection
+#process.tightBottomPFJets.cut = 'bDiscriminator("simpleSecondaryVertexHighEffBJetTags") > 1.74';
 
-## b-tag selection
-process.tightBottomPFJets.cut = 'bDiscriminator("simpleSecondaryVertexHighEffBJetTags") > 1.74';
+process.tightBottomSSVPFJets  = process.selectedPatJets.clone(src = 'goodJetsPF30',
+                                           cut='bDiscriminator(\"simpleSecondaryVertexHighEffBJetTags\") > 1.74'
+                                           )
+process.tightBottomCSVPFJets  = process.selectedPatJets.clone(src = 'goodJetsPF30',
+                                           cut='bDiscriminator(\"combinedSecondaryVertexBJetTags\") > 0.679'
+                                           )
+
+process.leadingJetSelection.src = 'tightLeadingPFJets'
+
+process.bottomJetSelection.src  = 'tightBottomPFJets'
 process.bottomJetSelection.minNumber = 0;
 
 ## change jet-parton matching algorithm
@@ -175,50 +184,49 @@ addTtSemiLepHypotheses(process,
 ## load HypothesisAnalyzer
 process.load("TopMass.Analyzer.EventHypothesisAnalyzer_cff")
 
-## PU reweighting
-from TopAnalysis.TopUtils.EventWeightPU_cfi import *
+## ============================
+##  MC PU reweighting
+## ============================
+
 process.load("TopAnalysis.TopUtils.EventWeightPU_cfi")
-process.eventWeightPU.MCSampleFile     = cms.FileInPath("TopAnalysis/TopUtils/data/MC_PUDist_Summer11_TTJets_TuneZ2_7TeV_madgraph_tauola.root")
-if(options.sample=="ttbar"):
-    process.eventWeightPU.MCSampleFile = cms.FileInPath("TopAnalysis/TopUtils/data/MC_PUDist_Summer11_TTJets_TuneZ2_7TeV_madgraph_tauola.root")
-if(options.sample=="ttbarFall11"):
-    process.eventWeightPU.MCSampleFile = cms.FileInPath("TopAnalysis/TopUtils/data/Fall11/MC_PUDist_Fall11_TTJets_TuneZ2_7TeV_MadGraph.root")
-if(options.sample=="ttbarFall11MCatNLO"):
-    process.eventWeightPU.MCSampleFile = cms.FileInPath("TopAnalysis/TopUtils/data/Fall11/MC_PUDist_Fall11_TTJets_TuneZ2_7TeV_MCatNLO.root")
-if(options.sample=="wjets"):
-    process.eventWeightPU.MCSampleFile = cms.FileInPath("TopAnalysis/TopUtils/data/MC_PUDist_Summer11_WJetsToLNu_TuneZ2_7TeV_madgraph_tauola.root")
-if(options.sample=="zjets"):
-    process.eventWeightPU.MCSampleFile = cms.FileInPath("TopAnalysis/TopUtils/data/MC_PUDist_Summer11_DYJetsToLL_TuneZ2_M_50_7TeV_madgraph_tauola.root")
-if(options.sample=="singleTopS"):
-    process.eventWeightPU.MCSampleFile = cms.FileInPath("TopAnalysis/TopUtils/data/MC_PUDist_Summer11_SingleTop_TuneZ2_s_channel_7TeV_powheg_tauola.root")
-if(options.sample=="singleAntiTopS"):
-    process.eventWeightPU.MCSampleFile = cms.FileInPath("TopAnalysis/TopUtils/data/MC_PUDist_Summer11_SingleAntiTop_TuneZ2_s_channel_7TeV_powheg_tauola.root")
-if(options.sample=="singleTopT"):
-    process.eventWeightPU.MCSampleFile = cms.FileInPath("TopAnalysis/TopUtils/data/MC_PUDist_Summer11_SingleTop_TuneZ2_t_channel_7TeV_powheg_tauola.root")
-if(options.sample=="singleAntiTopT"):
-    process.eventWeightPU.MCSampleFile = cms.FileInPath("TopAnalysis/TopUtils/data/MC_PUDist_Summer11_SingleAntiTop_TuneZ2_t_channel_7TeV_powheg_tauola.root")
-if(options.sample=="singleTopTw"):
-    process.eventWeightPU.MCSampleFile = cms.FileInPath("TopAnalysis/TopUtils/data/MC_PUDist_Summer11_SingleTop_TuneZ2_tW_channel_DR_7TeV_powheg_tauola.root")
-if(options.sample=="singleAntiTopTw"):
-    process.eventWeightPU.MCSampleFile = cms.FileInPath("TopAnalysis/TopUtils/data/MC_PUDist_Summer11_SingleAntiTop_TuneZ2_tW_channel_DR_7TeV_powheg_tauola.root")
-if(options.sample=="qcd"):
-    process.eventWeightPU.MCSampleFile = cms.FileInPath("TopAnalysis/TopUtils/data/MC_PUDist_Summer11_QCD_Pt_20_MuEnrichedPt_15_TuneZ2_7TeV_pythia6.root")
-if(options.sample=="WW"):
-    process.eventWeightPU.MCSampleFile = cms.FileInPath("TopAnalysis/TopUtils/data/MC_PUDist_Summer11_WW_TuneZ2_7TeV_pythia6_tauola.root")
-if(options.sample=="WZ"):
-    process.eventWeightPU.MCSampleFile = cms.FileInPath("TopAnalysis/TopUtils/data/MC_PUDist_Summer11_WZ_TuneZ2_7TeV_pythia6_tauola.root")
-if(options.sample=="ZZ"):
-    process.eventWeightPU.MCSampleFile = cms.FileInPath("TopAnalysis/TopUtils/data/MC_PUDist_Summer11_ZZ_TuneZ2_7TeV_pythia6_tauola.root")
-    
-process.eventWeightPU.DataFile = cms.FileInPath("TopMass/Configuration/PU/PU_Run2011_finebin.root")
-process.eventWeightPU.DataHistoName = "pileup"
 
-process.eventWeightPU.CreateWeight3DHisto = True
-#process.eventWeightPU.Weight3DHistoFile   = cms.FileInPath("TopMass/Configuration/PU/Weight3D.root")
+process.eventWeightPU        = process.eventWeightPU.clone()
+process.eventWeightPUsysUp   = process.eventWeightPU.clone()
+process.eventWeightPUsysDown = process.eventWeightPU.clone()
 
-#process.eventWeightPUAB = eventWeightPU.clone() #DataHistoName = "pileup71")
-#process.eventWeightPUAB.DataFile = cms.FileInPath("TopMass/Configuration/PU/PU_Run2011AB.root")
+#### Configuration for Nominal PU Weights
 
+process.eventWeightPU.WeightName          = "eventWeightPU"
+process.eventWeightPU.Weight3DName        = "eventWeightPU3D"
+process.eventWeightPU.DataFile            = "TopAnalysis/TopUtils/data/Data_PUDist_2011Full.root"
+process.eventWeightPU.Data3DFile          = "TopAnalysis/TopUtils/data/Data_PUDist_2011Full.root"
+
+process.eventWeightPU.CreateWeight3DHisto = False
+process.eventWeightPU.Weight3DHistoFile   = "TopAnalysis/TopUtils/data/DefaultWeight3D.root"
+
+#### Configuration for PU Up Variations
+
+process.eventWeightPUsysUp.WeightName          = "eventWeightPUUp"
+process.eventWeightPUsysUp.Weight3DName        = "eventWeightPU3DUp"
+process.eventWeightPUsysUp.DataFile            = "TopAnalysis/TopUtils/data/Data_PUDist_sysUp_2011Full.root"
+process.eventWeightPUsysUp.Data3DFile          = "TopAnalysis/TopUtils/data/Data_PUDist_sysUp_2011Full.root"
+
+process.eventWeightPUsysUp.CreateWeight3DHisto = False
+process.eventWeightPUsysUp.Weight3DHistoFile   = "TopAnalysis/TopUtils/data/DefaultWeight3DUp.root"
+
+#### Configuration for PU Down Variations
+
+process.eventWeightPUsysDown.WeightName          = "eventWeightPUDown"
+process.eventWeightPUsysDown.Weight3DName        = "eventWeightPU3DDown"
+process.eventWeightPUsysDown.DataFile            = "TopAnalysis/TopUtils/data/Data_PUDist_sysDown_2011Full.root"
+process.eventWeightPUsysDown.Data3DFile          = "TopAnalysis/TopUtils/data/Data_PUDist_sysDown_2011Full.root"
+
+process.eventWeightPUsysDown.CreateWeight3DHisto = False
+process.eventWeightPUsysDown.Weight3DHistoFile   = "TopAnalysis/TopUtils/data/DefaultWeight3DDown.root"
+
+process.makeEventWeightsPU = cms.Sequence(process.eventWeightPU        *
+                                          process.eventWeightPUsysUp   *
+                                          process.eventWeightPUsysDown  )
 
 ## ---
 ##    MC B-tag reweighting
@@ -266,8 +274,10 @@ process.path = cms.Path(#process.patDefaultSequence *
                         process.hltFilter *
                         process.scaledJetEnergy *
                         process.semiLeptonicSelection *
+                        process.tightBottomSSVPFJets *
+                        process.tightBottomCSVPFJets *
                         process.semiLeptonicEvents *
-                        process.eventWeightPU *
+                        process.makeEventWeightsPU *
                         process.bTagSFEventWeight *
                         process.bTagSFEventWeightBTagSFUp *
                         process.bTagSFEventWeightBTagSFDown *

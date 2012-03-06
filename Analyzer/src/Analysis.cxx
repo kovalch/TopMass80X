@@ -109,6 +109,7 @@ void Analysis::Analyze(po::variables_map vm) {
         //cuts += " & run < 168000";
         //cuts += " & nlJetPt/(hadQPt+hadQBarPt)>0.3";
         cuts += " & leptonPt > 30";
+        //cuts += " & leptonC == 1";
         //cuts += " & nVertex >= 5";
         //cuts += " & noPtEtaJetPt < 50";
       }
@@ -199,6 +200,7 @@ void Analysis::CreateRandomSubset() {
   //fChain->SetBranchStatus("hadQPt", 1);
   //fChain->SetBranchStatus("hadQBarPt", 1);
   fChain->SetBranchStatus("leptonPt", 1);
+  fChain->SetBranchStatus("leptonC", 1);
   //fChain->SetBranchStatus("hitFitChi2", 1);
   fChain->SetBranchStatus("hitFitProb", 1);
   //fChain->SetBranchStatus("bProbSSV", 1);

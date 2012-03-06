@@ -66,6 +66,8 @@ process.ttSemiLepEvent.verbosity = 0
 from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", HLTPaths = ["HLT_IsoMu17_v*", "HLT_IsoMu17_TriCentralJet30_v*", "HLT_IsoMu17_eta2p1_TriCentralJet30_v*", "HLT_IsoMu17_eta2p1_TriCentralPFJet30_v*"]
 
+# ["HLT_Mu17_TriCentralJet30_v*", "HLT_IsoMu17_TriCentralJet30_v*", "HLT_IsoMu17_eta2p1_TriCentralJet30_v1", "HLT_IsoMu17_eta2p1_TriCentralPFJet30_v2", "HLT_IsoMu17_eta2p1_TriCentralPFJet30_v3"], throw=False)
+
 process.leadingJetSelection.src = 'tightLeadingPFJets'
 process.bottomJetSelection.src  = 'tightBottomPFJets'
 
