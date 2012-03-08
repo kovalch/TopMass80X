@@ -13,9 +13,9 @@ analyzeHypothesis = cms.EDAnalyzer("EventHypothesisAnalyzer",
     
     VertexSrc    = cms.InputTag("goodOfflinePrimaryVertices"),
     
-    PUWeightSrc  = cms.InputTag("eventWeightPU", "eventWeightPU3D"),
-    PUWeightUpSrc  = cms.InputTag("eventWeightPUsysUp", "eventWeightPU3DUp"),
-    PUWeightDownSrc  = cms.InputTag("eventWeightPUsysDown", "eventWeightPU3DDown"),
+    PUWeightSrc  = cms.InputTag("eventWeightPUsysNo", "eventWeightPU"),
+    PUWeightUpSrc  = cms.InputTag("eventWeightPUsysUp", "eventWeightPUUp"),
+    PUWeightDownSrc  = cms.InputTag("eventWeightPUsysDown", "eventWeightPUDown"),
     
     bWeightSrc   = cms.InputTag("bTagSFEventWeight"),
     bWeightSrc_bTagSFUp     = cms.InputTag("bTagSFEventWeightBTagSFUp"),

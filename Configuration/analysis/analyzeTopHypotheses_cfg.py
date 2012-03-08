@@ -4,9 +4,9 @@ import os
 import sys
 options = VarParsing.VarParsing ('standard')
 
-# for summer11 MC one can choose: ttbar, wjets, zjets, singleAntiTopS, singleTopT, singleAntiTopT, singleTopTw, singleAntiTopTw, WW, WZ, qcd (for muon channel);
-# still missing: ZZ, singleTopS
+ # for Summer11/Fall11 MC one can choose: ttbar, wjets, zjets, singleAntiTopS, singleTopT, singleAntiTopT, singleTopTw, singleAntiTopTw, singleTopS WW, WZ, ZZ, qcd (for muon channel); qcdEM1, qcdEM2, qcdEM3, qcdBCE1, qcdBCE2, qcdBCE3 (for electron channel), zprime_m500gev_w5000mev, zprime_m750gev_w7500mev
 options.register('sample', 'none',VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "chosen sample")
+options.register('mcversion', 'unset',VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "mcversion of chosen sample")
 # create lepton channel label 
 options.register('lepton', 'unset',VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "chosen decay channel")
 
@@ -28,6 +28,14 @@ if( hasattr(sys, "argv") ):
 # value is known from external parsing
 # if set, switches runOnAOD in PF2PAT to true
 print "Chosen sample to run over: ", options.sample
+
+## version of the MC (important for trigger)
+## This parameter is also used to select the correct procedure for PU event reweighting
+if(options.mcversion=='unset'): 
+  MCversion = 'Summer11'
+else:
+  MCversion = options.mcversion
+print "used mcversion: "+MCversion
 
 ## choose the semileptonic decay channel (electron or muon)
 #decayChannel=options.lepton
@@ -204,41 +212,47 @@ process.load("TopMass.Analyzer.EventHypothesisAnalyzer_cff")
 
 process.load("TopAnalysis.TopUtils.EventWeightPU_cfi")
 
-process.eventWeightPU        = process.eventWeightPU.clone()
+## Apply common setting before module is cloned for systematic studies
+
+process.eventWeightPU.MCSampleTag = MCversion
+
+if (MCversion == "Fall11"):
+    process.eventWeightPU.MCSampleHistoName        = "histo_Fall11_true"
+    process.eventWeightPU.DataHistoName            = "histoData_true"
+elif (MCversion == "Summer11"):    
+    process.eventWeightPU.MCSampleHistoName        = "histoSummer11_flat_true"
+    process.eventWeightPU.DataHistoName            = "histoData_true_fineBinning"
+
+process.eventWeightPUsysNo   = process.eventWeightPU.clone()
 process.eventWeightPUsysUp   = process.eventWeightPU.clone()
 process.eventWeightPUsysDown = process.eventWeightPU.clone()
 
+#### Parameters 'CreateWeight3DHisto' and 'Weight3DHistoFile' required for cff-file, but actually not used for Fall11 samples
+    
 #### Configuration for Nominal PU Weights
 
-process.eventWeightPU.WeightName          = "eventWeightPU"
-process.eventWeightPU.Weight3DName        = "eventWeightPU3D"
-process.eventWeightPU.DataFile            = "TopAnalysis/TopUtils/data/Data_PUDist_2011Full.root"
-process.eventWeightPU.Data3DFile          = "TopAnalysis/TopUtils/data/Data_PUDist_2011Full.root"
-
-process.eventWeightPU.CreateWeight3DHisto = False
-process.eventWeightPU.Weight3DHistoFile   = "TopAnalysis/TopUtils/data/DefaultWeight3D.root"
+process.eventWeightPUsysNo.WeightName          = "eventWeightPU"
+process.eventWeightPUsysNo.DataFile            = "TopAnalysis/TopUtils/data/Data_PUDist_2011Full.root"
+process.eventWeightPUsysNo.CreateWeight3DHisto = False 
+process.eventWeightPUsysNo.Weight3DHistoFile   = "TopAnalysis/TopUtils/data/DefaultWeight3D.root"
 
 #### Configuration for PU Up Variations
 
 process.eventWeightPUsysUp.WeightName          = "eventWeightPUUp"
-process.eventWeightPUsysUp.Weight3DName        = "eventWeightPU3DUp"
 process.eventWeightPUsysUp.DataFile            = "TopAnalysis/TopUtils/data/Data_PUDist_sysUp_2011Full.root"
-process.eventWeightPUsysUp.Data3DFile          = "TopAnalysis/TopUtils/data/Data_PUDist_sysUp_2011Full.root"
-
 process.eventWeightPUsysUp.CreateWeight3DHisto = False
 process.eventWeightPUsysUp.Weight3DHistoFile   = "TopAnalysis/TopUtils/data/DefaultWeight3DUp.root"
 
 #### Configuration for PU Down Variations
 
 process.eventWeightPUsysDown.WeightName          = "eventWeightPUDown"
-process.eventWeightPUsysDown.Weight3DName        = "eventWeightPU3DDown"
 process.eventWeightPUsysDown.DataFile            = "TopAnalysis/TopUtils/data/Data_PUDist_sysDown_2011Full.root"
-process.eventWeightPUsysDown.Data3DFile          = "TopAnalysis/TopUtils/data/Data_PUDist_sysDown_2011Full.root"
-
 process.eventWeightPUsysDown.CreateWeight3DHisto = False
 process.eventWeightPUsysDown.Weight3DHistoFile   = "TopAnalysis/TopUtils/data/DefaultWeight3DDown.root"
 
-process.makeEventWeightsPU = cms.Sequence(process.eventWeightPU        *
+#### event weight sequence
+
+process.makeEventWeightsPU = cms.Sequence(process.eventWeightPUsysNo   *
                                           process.eventWeightPUsysUp   *
                                           process.eventWeightPUsysDown  )
 
