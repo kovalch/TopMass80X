@@ -342,7 +342,7 @@ process.path.remove(process.tightBottomJets)
 
 ## switch to from muon to electron collections
 if (decayChannel=="electron"):
-    process.TFileService.fileName = "analyzeTop_electron.root"
+    process.TFileService.fileName = "analyzeTop.root"
     # adpat trigger
     process.hltFilter.HLTPaths=["HLT_Ele25_CaloIdVT_TrkIdT_CentralTriJet30_v*"]
     ## lepton-jet veto
