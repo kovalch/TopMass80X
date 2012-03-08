@@ -208,7 +208,7 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     else leadingJetPt += noPtEtaJets->at(i).pt();
   }
   
-  edm::Handle<std::vector<pat::Muon> > leps;
+  edm::Handle< edm::View<reco::RecoCandidate> > leps;
   evt.getByLabel(leps_, leps);
   
   edm::Handle<std::vector<reco::Vertex> > vertecies_h;

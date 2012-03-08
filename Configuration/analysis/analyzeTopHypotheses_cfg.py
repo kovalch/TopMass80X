@@ -7,6 +7,8 @@ options = VarParsing.VarParsing ('standard')
 # for summer11 MC one can choose: ttbar, wjets, zjets, singleAntiTopS, singleTopT, singleAntiTopT, singleTopTw, singleAntiTopTw, WW, WZ, qcd (for muon channel);
 # still missing: ZZ, singleTopS
 options.register('sample', 'none',VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "chosen sample")
+# create lepton channel label 
+options.register('lepton', 'unset',VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "chosen decay channel")
 
 # define the syntax for parsing
 # you need to enter in the cfg file:
@@ -26,6 +28,15 @@ if( hasattr(sys, "argv") ):
 # value is known from external parsing
 # if set, switches runOnAOD in PF2PAT to true
 print "Chosen sample to run over: ", options.sample
+
+## choose the semileptonic decay channel (electron or muon)
+#decayChannel=options.lepton
+if(options.lepton=='unset'): 
+    if(not globals().has_key('decayChannel')):
+        decayChannel = 'muon' # 'electron'
+else:
+    decayChannel=options.lepton
+print "used lepton decay channel: "+decayChannel
 
 ## top mass measurement
 process = cms.Process("topMass")
@@ -70,10 +81,10 @@ if(options.sample=="ttbarFall11"):
   ] )
 else:
   readFiles.extend( [
-  #       'rfio:/scratch/hh/current/cms/user/stadie/AODIntegrationTestWithHLT.root',
+  #       'file:/scratch/hh/current/cms/user/stadie/2011/production/TT_TuneZ2_7TeV_pythia6_FASTSIM/TT_TuneZ2_7TeV_pythia6_FASTSIM_0.root',
   #       '/store/data/Run2011A/SingleMu/AOD/May10ReReco-v1/0000/00454769-577B-E011-ACCD-001E0B49808A.root',
-         '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/FEEE3638-F297-E011-AAF8-00304867BEC0.root',
-  #       '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/02719D6B-1398-E011-AA71-001A92971B94.root',
+  #       '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/FEEE3638-F297-E011-AAF8-00304867BEC0.root',
+         '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/02719D6B-1398-E011-AA71-001A92971B94.root',
   #       '/store/mc/Summer11/WJetsToLNu_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/0004EB5E-64AC-E011-B046-003048678FDE.root',
   ] )
 
@@ -87,7 +98,8 @@ process.maxEvents = cms.untracked.PSet(
 
 ## configure process options
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(True)
+    wantSummary = cms.untracked.bool(True),
+    SkipEvent = cms.untracked.vstring('ProductNotFound')
 )
 
 ## configure geometry & conditions
@@ -135,7 +147,7 @@ process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff")
 
 ## enable additional per-event printout from the TtSemiLeptonicEvent
-process.ttSemiLepEvent.verbosity = 0
+process.ttSemiLepEvent.verbosity = 100
 
 ## TRIGGER
 from HLTrigger.HLTfilters.hltHighLevel_cfi import *
@@ -164,8 +176,10 @@ process.ttSemiLepJetPartonMatch.algorithm = "unambiguousOnly"
 
 ## choose which hypotheses to produce
 from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff import *
-setForAllTtSemiLepHypotheses(process, "jets", "goodJetsPF30")
 setForAllTtSemiLepHypotheses(process, "leps", "tightMuons")
+if (decayChannel=='electron'):
+  useElectronsForAllTtSemiLepHypotheses(process, 'goodElectronsEJ')
+setForAllTtSemiLepHypotheses(process, "jets", "goodJetsPF30")
 setForAllTtSemiLepHypotheses(process, "maxNJets", 4)
 setForAllTtSemiLepHypotheses(process, "mets", "scaledJetEnergy:patMETs")
 setForAllTtSemiLepHypotheses(process, "maxNComb", -1)
@@ -262,6 +276,15 @@ process.effSFMuonEventWeight.additionalFactorErr   = 0.03 ## 3% sys error to acc
 process.effSFMuonEventWeight.meanTriggerEffSF      = 0.9905
 process.effSFMuonEventWeight.shapeDistortionFactor = 0.5
 
+process.load("TopAnalysis.TopUtils.EffSFElectronEventWeight_cfi")
+process.effSFElectronEventWeight.particles=cms.InputTag("goodElectronsEJ")
+process.effSFElectronEventWeight.sysVar   = cms.string("")
+process.effSFElectronEventWeight.verbose=cms.int32(0)
+process.effSFElectronEventWeight.additionalFactor=1. ## lepton selection eff. SF
+process.effSFElectronEventWeight.additionalFactorErr=0.03 ## 3% sys error to account for selection difference Z - ttbar
+process.effSFElectronEventWeight.meanTriggerEffSF=1.
+process.effSFElectronEventWeight.meanTriggerEffSFErr=0.01
+process.effSFElectronEventWeight.shapeDistortionFactor=2.
 
 
 # register TFileService
@@ -296,20 +319,74 @@ process.path.remove(process.trackCountingHighPurBJets)
 process.path.remove(process.trackCountingHighEffBJets)
 process.path.remove(process.tightLeadingJets)
 process.path.remove(process.tightBottomJets)
-process.path.remove(process.unconvTightElectronsEJ)
-process.path.remove(process.goodElectronsEJ)
-process.path.remove(process.looseElectronsEJ)
-process.path.remove(process.tightElectronsEJ)
+#process.path.remove(process.unconvTightElectronsEJ)
+#process.path.remove(process.goodElectronsEJ)
+#process.path.remove(process.looseElectronsEJ)
+#process.path.remove(process.tightElectronsEJ)
+
+
+
+## switch to from muon to electron collections
+if (decayChannel=="electron"):
+    process.TFileService.fileName = "analyzeTop_electron.root"
+    # adpat trigger
+    process.hltFilter.HLTPaths=["HLT_Ele25_CaloIdVT_TrkIdT_CentralTriJet30_v*"]
+    ## lepton-jet veto
+    from PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi import *
+    from PhysicsTools.PatAlgos.cleaningLayer1.jetCleaner_cfi import *
+    process.noOverlapJetsPFelec = cleanPatJets.clone(
+        src = cms.InputTag("scaledJetEnergy:selectedPatJets"),
+        preselection = cms.string(''),
+        checkOverlaps = cms.PSet(
+          electrons = cms.PSet(
+            src       = cms.InputTag("tightElectronsEJ"),
+            algorithm = cms.string("byDeltaR"),
+            preselection        = cms.string(''),
+            deltaR              = cms.double(0.3),
+            checkRecoComponents = cms.bool(False), # don't check if they share some AOD object ref
+            pairCut             = cms.string(""),
+            requireNoOverlaps   = cms.bool(True), # overlaps don't cause the jet to be discared
+            )
+          ),
+        finalCut = cms.string(''),
+        )
+    process.goodJetsPF20.src  ='noOverlapJetsPFelec'
+    process.centralJetsPF.src ='noOverlapJetsPFelec'
+    process.reliableJetsPF.src='noOverlapJetsPFelec'
+    process.noEtaJetsPF.src   ='noOverlapJetsPFelec'
+    process.noPtJetsPF.src    ='noOverlapJetsPFelec'
+    process.noConstJetsPF.src ='noOverlapJetsPFelec'
+    process.noCEFJetsPF.src   ='noOverlapJetsPFelec'
+    process.noNHFJetsPF.src   ='noOverlapJetsPFelec'
+    process.noNEFJetsPF .src  ='noOverlapJetsPFelec'
+    process.noCHFJetsPF.src   ='noOverlapJetsPFelec'
+    process.noNCHJetsPF.src   ='noOverlapJetsPFelec'
+    
+    from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag
+    pathnames = process.paths_().keys()
+    for pathname in pathnames:
+      # replace jet lepton veto
+      getattr(process, pathname).replace(process.noOverlapJetsPF, process.noOverlapJetsPFelec)
+      # replace muon selection
+      getattr(process, pathname).replace(process.muonSelection, process.electronSelection)
+      getattr(process, pathname).remove(process.secondMuonVeto)
+      getattr(process, pathname).remove(process.electronVeto)
+      ## replace effSF
+      getattr(process, pathname).replace(process.effSFMuonEventWeight, process.effSFElectronEventWeight)
+      # replace muon by electron in (remaining) kinfit analyzers
+      massSearchReplaceAnyInputTag(getattr(process, pathname), 'tightMuons', 'goodElectronsEJ')
+
+
 
 from TopAnalysis.TopUtils.usePatTupleWithParticleFlow_cff import prependPF2PATSequence
 prependPF2PATSequence(process, options = {'runOnOLDcfg': True,
                                           'runOnMC': True,
                                           'runOnAOD': True,
-                                          'electronIDs': '',
+                                          'electronIDs': ['CiC','classical'],
                                           'switchOffEmbedding': False,
                                           'pfIsoConeMuon': 0.4,
                                           'pfIsoConeElec': 0.4,
-                                          'skipIfNoPFMuon': True,
+                                          #'skipIfNoPFMuon': True,
                                           'METCorrectionLevel': 2,
                                           })
 
