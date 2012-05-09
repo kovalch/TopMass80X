@@ -5,10 +5,30 @@ double IdeogramCombLikelihood::Evaluate(double *x, double *p) {
   bool Spring11 = false;
   bool useCalib = true;
   
-  //* worst case, improvable by f(w_i)
-  double fCP = 0.444401948;
-  double fWP = 0.21610251;
-  double fUN = 0.339498595;
+  //* Fall11
+  double fCP = 0.438236;
+  double fWP = 0.207301;
+  double fUN = 0.354463;
+  //*/
+  
+  //* Fall11 electrons
+  if (p[3] == 11) {
+    fCP = 0.439947;
+    fWP = 0.205682;
+    fUN = 0.354370;
+  }
+  //*
+  
+  /* Fall11 P11
+  double fCP = 0.415661;
+  double fWP = 0.201059;
+  double fUN = 0.38328;
+  //*/
+  
+  /* worst case, improvable by f(w_i)
+  double fCP = 0.439252;
+  double fWP = 0.211647;
+  double fUN = 0.349102;
   //*/
   
   if (onlyCP) {
@@ -16,13 +36,34 @@ double IdeogramCombLikelihood::Evaluate(double *x, double *p) {
     fUN = 0;
   }
   
-  double JESOffset     = -1.54751e-03;
-  double MassOffset    = -3.22790e-01;
-
+  double MassOffset       = -9.58404e-02;
+  double MassSlopeMass    = -1.82737e-02;
+  double MassSlopeJES     =  5.25560e+00;
+  double MassSlopeMassJES = -7.13269e-02;
+                            
+  double JESOffset        = -3.06117e-03;
+  double JESSlopeMass     =  2.87550e-04;
+  double JESSlopeJES      = -3.89880e-02;
+  double JESSlopeMassJES  =  1.19222e-03;
+  
+  if (p[3] == 11) {
+    MassOffset       = -3.60599e-01;
+    MassSlopeMass    = -2.26131e-03;
+    MassSlopeJES     = -2.66705e+00;
+    MassSlopeMassJES = -1.84892e-01;
+                       
+    JESOffset        = -1.58004e-03;
+    JESSlopeMass     = -7.27182e-05;
+    JESSlopeJES      =  1.24220e-02;
+    JESSlopeMassJES  =  8.35960e-04;
+  }
+  
+  double m = x[0];
+  double j = x[1];
   
   if (useCalib) {
-    x[1] = x[1] + JESOffset;
-    x[0] = x[0] + MassOffset; // + MassSlope * (x[0]-172.5);
+    x[1] = j + JESOffset + JESSlopeMass*(m-172.5) + JESSlopeJES*(j-1.) + JESSlopeMassJES*(m-172.5)*(j-1.);
+    x[0] = m + MassOffset + MassSlopeMass*(m-172.5) + MassSlopeJES*(j-1.) + MassSlopeMassJES*(m-172.5)*(j-1.);
   }
   
   //return p[0] * (fCP * PCP(x, p) + fWP * PWP(x, p) + fUN * PUN(x, p));
@@ -31,7 +72,10 @@ double IdeogramCombLikelihood::Evaluate(double *x, double *p) {
 
 
 double IdeogramCombLikelihood::PCP(double *x, double *p) {
-  double q[8] = {171.189, 1.0094, 81.1057, 0.596593, 9.54616, 0.0691975, 9.59467, 0.0108478};
+  double q[12] = {170.729, 0.980962, 86.9952, 0.810794, 10.193, 0.0739653, 10.589, -0.103049, 0, 0, 0, 0};
+  double e[12] = {170.772, 0.950394, 87.4086, 0.776666, 10.1953, 0.0950286, 11.012, 0.195389, 0, 0, 0, 0};
+  if (p[3] == 11) for (int i = 0; i<12; ++i) q[i] = e[i];
+  
   //* hadTopMass
   double mu       = q[0] + q[1] * (x[0]-172.5) + (q[2] + q[3] * (x[0]-172.5)) * (x[1]-1.);
   double sigma    = q[4] + q[5] * (x[0]-172.5) + (q[6] + q[7] * (x[0]-172.5)) * (x[1]-1.);
@@ -60,7 +104,9 @@ namespace cb {
 
 double IdeogramCombLikelihood::PWP(double* x, double* p)
 {
-  double q[12] = {172.191, 1.01483, 94.6122, 0.00545882, 28.7017, 0.507458, 33.0115, -0.461288, 0.439903, 0.00973399, 0.524969, -0.00801577};
+  double q[12] = {172.06, 0.720447, 90.3707, -0.860654, 27.934, 0.311025, 29.8054, -1.07054, 0.426473, 0.00193419, 0.125964, 0.00822953};
+  double e[12] = {174.123, 0.620424, 96.8582, 0.885688, 29.0981, 0.140688, 30.3437, 0.734781, 0.435573, -0.0022993, 0.123777, -0.0108803};
+  if (p[3] == 11) for (int i = 0; i<12; ++i) q[i] = e[i];
   
   double N      =  1./0.01;
   double mu     = q[0] + q[1] * (x[0]-172.5) + (q[2] + q[3] * (x[0]-172.5)) * (x[1]-1.);
@@ -87,7 +133,9 @@ double IdeogramCombLikelihood::PWP(double* x, double* p)
 
 double IdeogramCombLikelihood::PUN(double* x, double* p)
 {
-  double q[12] = {169.211, 0.903487, 76.6112, 0.761535, 18.442, 0.256215, 8.32219, 0.283657, 0.836701, 0.0116863, 0.391304, -0.0263217};
+  double q[12] = {168.581, 0.887245, 87.4702, 0.645641, 20.4999, 0.249314, 18.5896, 0.155375, 0.876613, 0.00951753, 0.319, 0.00182893};
+  double e[12] = {168.562, 0.842331, 86.132, 0.77473, 20.4059, 0.250519, 18.0985, 0.442554, 0.864017, 0.00832897, 0.218885, 0.0219663};
+  if (p[3] == 11) for (int i = 0; i<12; ++i) q[i] = e[i];
   
   double N      =  1./0.01;
   double mu     = q[0] + q[1] * (x[0]-172.5) + (q[2] + q[3] * (x[0]-172.5)) * (x[1]-1.);
@@ -113,7 +161,9 @@ double IdeogramCombLikelihood::PUN(double* x, double* p)
 
 double IdeogramCombLikelihood::PCPJES(double* x, double* p)
 {
-  double q[12] = {82.8659, 0.0433722, 48.8973, 0.0894715, 6.07451, 0.0132705, 13.6937, 0.179653, 7.2574, -0.0242158, -0.219997, 0.0349708};
+  double q[12] = {82.7622, 0.0296313, 54.7387, 0.261219, 5.7984, 0.002663, 15.5537, 0.186603, 7.23293, -0.0154696, -7.29268, -0.0437143};
+  double e[12] = {82.8179, -0.0130562, 54.298, 0.26241, 5.79095, -0.0144692, 15.1857, 0.157664, 7.23174, 0.0149186, -6.9936, -0.240175};
+  if (p[3] == 11) for (int i = 0; i<12; ++i) q[i] = e[i];
   
   //* W Mass
   //std::cout << p[4] << " ";
@@ -160,7 +210,9 @@ double IdeogramCombLikelihood::PCPJES(double* x, double* p)
 
 double IdeogramCombLikelihood::PWPJES(double* x, double* p)
 {
-  double q[12] = {82.6936, 0.0346344, 48.8385, -0.0190015, 6.05854, 0.00234967, 13.8404, -0.165184, 7.22946, -0.0192187, -3.36387, 0.193612};
+  double q[12] = {82.5335, 0.0134514, 52.2913, 0.215036, 5.78653, -0.0171043, 15.1453, 0.010765, 7.46176, -0.0201443, -9.53141, 0.100091};
+  double e[12] = {82.5788, 0.0143882, 53.0209, 0.00501586, 5.73298, 0.00455929, 15.6096, -0.0153593, 7.43306, -0.0127021, -9.1285, 0.0178314};
+  if (p[3] == 11) for (int i = 0; i<12; ++i) q[i] = e[i];
   
   //* W Mass
   double N      =  1;
@@ -202,7 +254,9 @@ double IdeogramCombLikelihood::PWPJES(double* x, double* p)
 
 double IdeogramCombLikelihood::PUNJES(double* x, double* p)
 {
-  double q[12] = {82.2445, 0.0302847, 31.7762, -0.578096, 6.60226, 0.0200799, 12.458, -0.416957, 9.2043, -0.00850388, -12.228, 0.566409};
+  double q[12] = {82.2989, 0.0220154, 32.6116, -0.218329, 6.23978, 0.00696407, 11.4367, -0.0979023, 8.74599, -0.00031112, -10.8387, 0.0516436};
+  double e[12] = {82.3831, 0.00858293, 31.3081, 1.05433, 6.274, -0.00778027, 10.5673, 0.575389, 8.77308, -0.0075097, -9.95694, -0.571045};
+  if (p[3] == 11) for (int i = 0; i<12; ++i) q[i] = e[i];
 
   //* W Mass
   double N      =  1;

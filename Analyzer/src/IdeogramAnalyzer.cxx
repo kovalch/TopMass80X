@@ -6,8 +6,9 @@ double IdeogramAnalyzer::GetMass() {
 
 void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   Scan(cuts, i, j, 154, 190, 2, 0.9, 1.1, 0.02);
-  Scan(cuts, i, j, fMass-4, fMass+4, 0.25, fJES-0.03, fJES+0.03, 0.0015);
+  Scan(cuts, i, j, fMass-2, fMass+2, 0.25, fJES-0.015, fJES+0.015, 0.0015);
   
+  //Scan(cuts, i, j, fMass-2, fMass+2, 0.1, fJES-0.015, fJES+0.015, 0.0005);
   //Scan(cuts, i, j, 170, 176, 0.1, 0.999, 1.001, 0.0001);
 }
 
@@ -29,6 +30,7 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
   bool blackWhite = false;
   bool syst       = false;
   bool cmsPrel    = true;
+  bool useWeight  = false;
   
   bool debug = false;
   int nDebug = 1;
@@ -44,7 +46,7 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
   
   int binsJes        = (lastBinJes-firstBinJes)/resolJes;
   
-  double pullWidth   = 1.03;//06; //1.46;
+  double pullWidth   = 1.;//1.02;//06; //1.46;
   
   /*
   if (debug) {
@@ -107,7 +109,7 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
   double hitFitChi2, hitFitProb, MCWeight, PUWeight, muWeight, bWeight, bWeight_bTagSFUp, sumMCWeight, meanMCWeight, bWeight_bTagSFDown, bWeight_misTagSFUp, bWeight_misTagSFDown, weight, currentWeight, fitWeight;
   double eventWeight;
   double pdfWeights[44];
-  int event, currentEvent, nVertex, run, luminosityBlock;
+  int event, currentEvent, nVertex, run, luminosityBlock, leptonId;
   int combi;
   int nEvents = 0;
   double productWeights = 1.;
@@ -130,6 +132,7 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
   eventTree->SetBranchAddress("PUWeight", &PUWeight);
   eventTree->SetBranchAddress("muWeight", &muWeight);
   eventTree->SetBranchAddress("bWeight", &bWeight);
+  eventTree->SetBranchAddress("leptonId", &leptonId);
   /*
   eventTree->SetBranchAddress("bWeight_bTagSFUp", &bWeight_bTagSFUp);
   eventTree->SetBranchAddress("bWeight_bTagSFDown", &bWeight_bTagSFDown);
@@ -182,10 +185,8 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
       }
       
       if (hitFitProb != 0) {
-        bScaleEstimator = 1;
-        
         // Set Likelihood parameters
-        combLikelihood->SetParameters(hitFitProb, hadTopMass, hadWRawMass, bScaleEstimator);
+        combLikelihood->SetParameters(hitFitProb, hadTopMass, hadWRawMass, leptonId);
         
         // add permutation to event likelihood
         eventLikelihood->Eval(combLikelihood, "A");
@@ -211,7 +212,20 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
     
     //double eventWeight = eventTree->GetEntries(sEventWeighted)/eventTree->GetEntries(sEvent);
     
-    sumLogLikelihood->Add(logEventLikelihood, fitWeight/(pullWidth*pullWidth)); // add weight here
+    useWeight ? MCWeight = PUWeight*muWeight*bWeight : MCWeight = 1;
+    
+    switch(leptonId) {
+      case 11:
+        pullWidth = 1.04847e+00;
+        break;
+      case 13:
+        pullWidth = 1.00543e+00;
+        break;
+      default:
+        pullWidth = 1.;
+    }
+    
+    sumLogLikelihood->Add(logEventLikelihood, fitWeight*MCWeight/(pullWidth*pullWidth)); // add weight here
     
     if (debug && iEntry%nDebug == 0 && iEntry < maxDebug) {
       TCanvas* eventCanvas = new TCanvas("eventCanvas", "eventCanvas", 1200, 400);

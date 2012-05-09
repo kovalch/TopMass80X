@@ -62,7 +62,7 @@ void controlPlots_PU()
   // ---
   //    open input files
   // ---
-  TFile* fTTJets = new TFile("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_1.00/analyzeTop.root");
+  TFile* fTTJets = new TFile("/scratch/hh/current/cms/user/mseidel/Fall11_TTJets1725_v2_1.00_muon/analyzeTop.root");
   /*
   TFile* fQCD    = new TFile("/scratch/hh/current/cms/user/mseidel/Summer11_QCD/analyzeTop.root");
   TFile* fWJets  = new TFile("/scratch/hh/current/cms/user/mseidel/Summer11_WJets/analyzeTop.root");
@@ -74,7 +74,7 @@ void controlPlots_PU()
   TFile* fSTopt  = new TFile("/scratch/hh/current/cms/user/mseidel/Summer11_T_t-channel/analyzeTop.root");
   TFile* fSToptW = new TFile("/scratch/hh/current/cms/user/mseidel/Summer11_T_tW-channel/analyzeTop.root");
   */
-  TFile* fData   = new TFile("/scratch/hh/current/cms/user/mseidel/Run2011/analyzeTop.root");
+  TFile* fData   = new TFile("/scratch/hh/current/cms/user/mseidel/Run2011_muon/analyzeTop.root");
   
   // ---
   //    Get trees
@@ -93,8 +93,8 @@ void controlPlots_PU()
   */
   tData   = (TTree*) fData  ->Get("analyzeHitFit/eventTree");
   
-  makeControlPlot("hadWRawMass0", "m_{W}^{raw} [GeV]", "hadWRawMass0", 70, 95);
-  //makeControlPlot("hadTopMass", "m_{t}^{fit} [GeV]", "hadTopMass", 165, 190);
+  makeControlPlot("hadWRawMass", "m_{W}^{raw} [GeV]", "hadWRawMass", 80, 95);
+  makeControlPlot("hadTopMass", "m_{t}^{fit} [GeV]", "hadTopMass", 165, 190);
 }
 
 void makeControlPlot(TString sObservable, TString sObservableShort, TString sFileName,

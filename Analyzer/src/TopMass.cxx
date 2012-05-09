@@ -559,8 +559,18 @@ int main(int ac, char** av)
     )
     ("input,i", po::value<std::string>()->default_value("Summer11_TTJets1725_1.00", "1725_1.00"),
       "Identifier of input file to be analyzed")
+    ("lepton,l", po::value<std::string>()->default_value("all"),
+      "Lepton+jets channel\n"
+      "  electron \t\n"
+      "  muon \t\n"
+      "  all: \telectron+muon"
+    )
     ("bins,b", po::value<int>()->default_value(1), "Number of phasespace bins")
-    ("weight,w", po::value<int>()->default_value(0), "Weight type -> think, document")
+    //("weight,w", po::value<int>()->default_value(0), "Weight type -> think, document")
+    ("weight,w", po::value<std::string>()->default_value("muWeight*bWeight*PUWeight"),
+      "Event weight used in pseudo-experiments")
+    ("fsig,f", po::value<double>()->default_value(1.0), "Signal fraction used in pseudo-experiments")
+    ("bdisc,B", po::value<double>()->default_value(0.679), "Threshold for b-jets")
     ("mass,M", po::value<double>()->default_value(172.5), "Input top mass for pseudo-experiments")
     ("jes,J", po::value<double>()->default_value(1.0), "Input JES for pseudo-experiments")
     ("lumi,L", po::value<double>()->default_value(4700.0), "Luminosity for each pseudo-experiment")
@@ -575,13 +585,6 @@ int main(int ac, char** av)
   if (vm.count("help")) {
       std::cout << desc << "\n";
       return 1;
-  }
-
-  if (vm.count("compression")) {
-      std::cout << "Compression level was set to " 
-   << vm["compression"].as<int>() << ".\n";
-  } else {
-      std::cout << "Compression level was not set.\n";
   }
   
   TopMass* top = new TopMass(vm);

@@ -153,6 +153,8 @@ TStyle* setTDRStyle() {
   // tdrStyle->SetTimeOffset(Double_t toffset);
   // tdrStyle->SetHistMinimumZero(kTRUE);
 
+  tdrStyle->SetPalette(1);
+
   tdrStyle->cd();
   return tdrStyle;
 }
@@ -172,13 +174,29 @@ void DrawLabel(TString text, const double x1, const double y1, const double x2, 
 }
 
 void DrawCMSPrel() {
-  DrawLabel("CMS preliminary, 4.9 fb^{-1},  #sqrt{s}=7 TeV", 0.2, 0.93, 0.9);
+  DrawLabel("CMS, 5.0 fb^{-1},  #sqrt{s}=7 TeV", 0.2, 0.93, 0.9);
+}
+
+void DrawCMSPrelElectron() {
+  DrawLabel("CMS, 5.0 fb^{-1},  #sqrt{s}=7 TeV, e+jets", 0.2, 0.93, 0.9);
+}
+
+void DrawCMSPrelMuon() {
+  DrawLabel("CMS, 5.0 fb^{-1},  #sqrt{s}=7 TeV, #mu+jets", 0.2, 0.93, 0.9);
 }
 
 void DrawCMSPrel50() {
-  DrawLabel("CMS preliminary, 5.0 fb^{-1},  #sqrt{s}=7 TeV", 0.2, 0.93, 0.9);
+  DrawLabel("CMS, 5.0 fb^{-1},  #sqrt{s}=7 TeV", 0.2, 0.93, 0.9);
 }
 
 void DrawCMSSim() {
   DrawLabel("CMS simulation,  #sqrt{s}=7 TeV", 0.2, 0.93, 0.9);
+}
+
+void DrawCMSSimElectron() {
+  DrawLabel("CMS simulation,  #sqrt{s}=7 TeV, e+jets", 0.2, 0.93, 0.9);
+}
+
+void DrawCMSSimMuon() {
+  DrawLabel("CMS simulation,  #sqrt{s}=7 TeV, #mu+jets", 0.2, 0.93, 0.9);
 }

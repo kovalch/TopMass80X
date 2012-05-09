@@ -16,8 +16,6 @@
 enum styles             { kStat,  kOverall, kTev};
 int color_      [ 4 ] = { kRed+1, kBlack  , kGray};
 
-TH3F* h3MassError_1725;
-TH3F* h3MassPull_1725;
 TH1D* hError;
 TH1D* hPull;
 TTree* tree;
@@ -62,18 +60,11 @@ void ensemble()
   
   //// Get histos
   
-  TFile* fEnsemble = new TFile("/scratch/hh/current/cms/user/mseidel/topmass_120207_1618/ensemble.root");
-  h3MassError_1725 = (TH3F*) fEnsemble->Get("h3MassError_1725");
-  h3MassPull_1725 = (TH3F*) fEnsemble->Get("h3MassPull_1725");
+  TFile* fEnsemble = new TFile("/scratch/hh/current/cms/user/mseidel/topmass_120412_2120cp/all/Fall11_TTJets1725_1.00/ensemble.root");
   tree = (TTree*) fEnsemble->Get("tree");
   
   hError = new TH1D("hError", "hError", 500, 0, 1);
   hPull  = new TH1D("hPull", "hPull", 100, -5, 5);
-  
-  /*
-  h3MassError_1725->ProjectionZ("hError");
-  h3MassPull_1725->ProjectionZ("hPull");
-  */
   
   double massError;
   tree->SetBranchAddress("massError", &massError);
@@ -86,7 +77,7 @@ void ensemble()
   
   for (int i = 0; i < tree->GetEntries(); i++) {
     tree->GetEntry(i);
-    if (massError>0 && genMass==172.5 && genJES==1.) hError->Fill(massError * 1.03);
+    if (massError>0 && genMass==172.5 && genJES==1.) hError->Fill(massError * 1.02);
   }
   
   hError->GetYaxis()->SetTitle("Number of pseudo-experiments / 2 MeV");
@@ -100,11 +91,11 @@ void ensemble()
   TCanvas* cError = new TCanvas("cError", "cError", 600, 600);
   
   //hError->Rebin(4);
-  hError->GetXaxis()->SetRangeUser(0.525, 0.625);
-  hError->GetYaxis()->SetRangeUser(0, 1100);
+  hError->GetXaxis()->SetRangeUser(0.4, 0.47);
+  hError->GetYaxis()->SetRangeUser(0, 400);
   hError->Draw();
-  drawArrow(0.567, 950);
-  DrawLabel("4.7 fb^{-1} collision data", 0.36, 0.85, 0.46, kRed+1);
+  drawArrow(0.428136, 350);
+  DrawLabel("5.0 fb^{-1} collision data", 0.36, 0.85, 0.46, kRed+1);
   
   DrawCMSPrel();
   

@@ -1,6 +1,9 @@
 #include <iostream>
 #include <sstream> 
 #include <boost/program_options.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
+#include <vector>
 
 #include "TCanvas.h"
 #include "TChain.h"
@@ -21,15 +24,23 @@ namespace po = boost::program_options;
 class Analysis {
   private:
     TString fIdentifier;
-    TString fFile;
+    TString fLepton;
+    TString fFileElectron;
+    TString fFileMuon;
     TString fMethod;
-
+    std::string fWeight;
+    
     int fBins;
     double fLumi;
+    double fSig;
     
     TChain* fChain;
     TTree* fTree;
     TTree* tTree;
+    
+    TChain* fChainB;
+    TTree* tTreeB;
+    
     TFile* tempFile;
     TH2F* hEntries;
     TH2F* hMass;

@@ -9,6 +9,9 @@ options.register('sample', 'none',VarParsing.VarParsing.multiplicity.singleton,V
 options.register('mcversion', 'unset',VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "mcversion of chosen sample")
 # create lepton channel label 
 options.register('lepton', 'unset',VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "chosen decay channel")
+options.register('metcl', 2, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.int, "MET correction level")
+options.register('pdf', False, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.bool, "Calculate PDF weights")
+
 
 # define the syntax for parsing
 # you need to enter in the cfg file:
@@ -83,9 +86,9 @@ if os.getenv('CMSSW_VERSION').startswith('CMSSW_4_1_'):
   readFiles.extend( [
          '/store/user/eschliec/TTJets_TuneD6T_7TeV-madgraph-tauola/PATWithPF_v4/e59efddd8a1547799dca5b47d5556447/patTuple_9_1_Nb0.root'
   ] )
-if(options.sample=="ttbarFall11"):
+if (MCversion == "Fall11"):
   readFiles.extend( [
-         '/store/user/eschliec/TTJets_TuneD6T_7TeV-madgraph-tauola/PATWithPF_v4/e59efddd8a1547799dca5b47d5556447/patTuple_9_1_Nb0.root'
+         '/store/mc/Fall11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S6_START42_V14B-v1/0000/00CAD0AC-17FA-E011-A4F4-00304867905A.root'
   ] )
 else:
   readFiles.extend( [
@@ -155,17 +158,19 @@ process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff")
 
 ## enable additional per-event printout from the TtSemiLeptonicEvent
-process.ttSemiLepEvent.verbosity = 100
+process.ttSemiLepEvent.verbosity = 0
 
 ## TRIGGER
 from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 if os.getenv('CMSSW_VERSION').startswith('CMSSW_4_1_'):
-  process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::REDIGI311X", HLTPaths = ["HLT_Mu15_v*"], throw=True)
+    process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::REDIGI311X", HLTPaths = ["HLT_Mu15_v*"], throw=True)
 else:
-  process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", HLTPaths = ["HLT_IsoMu17_v*"], throw=True)
+    process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", HLTPaths = ["HLT_IsoMu24_eta2p1_v*"], throw=True)
+if(MCversion=="Summer11"):
+    process.hltFilter.HLTPaths=["HLT_IsoMu24_v*"]
 
 ## JET selection
-#process.tightBottomPFJets.cut = 'bDiscriminator("simpleSecondaryVertexHighEffBJetTags") > 1.74';
+process.tightBottomPFJets.cut = 'bDiscriminator("combinedSecondaryVertexBJetTags") > 0.5';
 
 process.tightBottomSSVPFJets  = process.selectedPatJets.clone(src = 'goodJetsPF30',
                                            cut='bDiscriminator(\"simpleSecondaryVertexHighEffBJetTags\") > 1.74'
@@ -173,11 +178,14 @@ process.tightBottomSSVPFJets  = process.selectedPatJets.clone(src = 'goodJetsPF3
 process.tightBottomCSVPFJets  = process.selectedPatJets.clone(src = 'goodJetsPF30',
                                            cut='bDiscriminator(\"combinedSecondaryVertexBJetTags\") > 0.679'
                                            )
+process.looseBottomCSVPFJets  = process.selectedPatJets.clone(src = 'goodJetsPF30',
+                                           cut='bDiscriminator(\"combinedSecondaryVertexBJetTags\") > 0.5'
+                                           )
 
 process.leadingJetSelection.src = 'tightLeadingPFJets'
 
-process.bottomJetSelection.src  = 'tightBottomPFJets'
-process.bottomJetSelection.minNumber = 0;
+process.bottomJetSelection.src  = 'looseBottomCSVPFJets'
+process.bottomJetSelection.minNumber = 2;
 
 ## change jet-parton matching algorithm
 process.ttSemiLepJetPartonMatch.algorithm = "unambiguousOnly"
@@ -193,10 +201,10 @@ setForAllTtSemiLepHypotheses(process, "mets", "scaledJetEnergy:patMETs")
 setForAllTtSemiLepHypotheses(process, "maxNComb", -1)
 
 # consider b-tagging in event reconstruction
-process.hitFitTtSemiLepEventHypothesis.bTagAlgo = "simpleSecondaryVertexHighEffBJetTags"
-process.hitFitTtSemiLepEventHypothesis.minBDiscBJets     = 1.74
-process.hitFitTtSemiLepEventHypothesis.maxBDiscLightJets = 1.74
-process.hitFitTtSemiLepEventHypothesis.useBTagging       = False
+process.hitFitTtSemiLepEventHypothesis.bTagAlgo = "combinedSecondaryVertexBJetTags"
+process.hitFitTtSemiLepEventHypothesis.minBDiscBJets     = 0.5
+process.hitFitTtSemiLepEventHypothesis.maxBDiscLightJets = 0.85
+process.hitFitTtSemiLepEventHypothesis.useBTagging       = True
 
 addTtSemiLepHypotheses(process,
                        ["kHitFit", "kMVADisc"]
@@ -205,6 +213,8 @@ addTtSemiLepHypotheses(process,
 
 ## load HypothesisAnalyzer
 process.load("TopMass.Analyzer.EventHypothesisAnalyzer_cff")
+
+process.analyzeHitFit.savePDFWeights = options.pdf
 
 ## ============================
 ##  MC PU reweighting
@@ -232,23 +242,23 @@ process.eventWeightPUsysDown = process.eventWeightPU.clone()
 #### Configuration for Nominal PU Weights
 
 process.eventWeightPUsysNo.WeightName          = "eventWeightPU"
-process.eventWeightPUsysNo.DataFile            = "TopAnalysis/TopUtils/data/Data_PUDist_2011Full.root"
-process.eventWeightPUsysNo.CreateWeight3DHisto = False 
-process.eventWeightPUsysNo.Weight3DHistoFile   = "TopAnalysis/TopUtils/data/DefaultWeight3D.root"
+process.eventWeightPUsysNo.DataFile            = "TopAnalysis/TopUtils/data/Data_PUDist_sysNo_68000_2011Full.root"
+process.eventWeightPUsysNo.CreateWeight3DHisto = False
+process.eventWeightPUsysNo.Weight3DHistoFile   = "TopMass/Configuration/data/Weight3D.root"
 
 #### Configuration for PU Up Variations
 
 process.eventWeightPUsysUp.WeightName          = "eventWeightPUUp"
-process.eventWeightPUsysUp.DataFile            = "TopAnalysis/TopUtils/data/Data_PUDist_sysUp_2011Full.root"
+process.eventWeightPUsysUp.DataFile            = "TopAnalysis/TopUtils/data/Data_PUDist_sysUp_71400_2011Full.root"
 process.eventWeightPUsysUp.CreateWeight3DHisto = False
-process.eventWeightPUsysUp.Weight3DHistoFile   = "TopAnalysis/TopUtils/data/DefaultWeight3DUp.root"
+process.eventWeightPUsysUp.Weight3DHistoFile   = "TopMass/Configuration/data/Weight3DUp.root"
 
 #### Configuration for PU Down Variations
 
 process.eventWeightPUsysDown.WeightName          = "eventWeightPUDown"
-process.eventWeightPUsysDown.DataFile            = "TopAnalysis/TopUtils/data/Data_PUDist_sysDown_2011Full.root"
+process.eventWeightPUsysDown.DataFile            = "TopAnalysis/TopUtils/data/Data_PUDist_sysDown_64600_2011Full.root"
 process.eventWeightPUsysDown.CreateWeight3DHisto = False
-process.eventWeightPUsysDown.Weight3DHistoFile   = "TopAnalysis/TopUtils/data/DefaultWeight3DDown.root"
+process.eventWeightPUsysDown.Weight3DHistoFile   = "TopMass/Configuration/data/Weight3DDown.root"
 
 #### event weight sequence
 
@@ -265,9 +275,10 @@ process.load ("RecoBTag.PerformanceDB.BTagPerformanceDB1107")
 
 process.load("TopAnalysis.TopUtils.BTagSFEventWeight_cfi")
 process.bTagSFEventWeight.jets     = "tightLeadingPFJets"
-process.bTagSFEventWeight.bTagAlgo = "SSVHEM"
+process.bTagSFEventWeight.bTagAlgo = "CSVM"
+process.bTagSFEventWeight.version  = "11-004"
 process.bTagSFEventWeight.sysVar   = "" # bTagSFUp, bTagSFDown, misTagSFUp, misTagSFDown possible;
-process.bTagSFEventWeight.filename = "TopAnalysis/Configuration/data/analyzeBTagEfficiency.root"
+process.bTagSFEventWeight.filename = "TopAnalysis/Configuration/data/analyzeBTagEfficiencyCSVM.root"
 process.bTagSFEventWeight.verbose  = 0
 
 process.bTagSFEventWeightBTagSFUp     = process.bTagSFEventWeight.clone(sysVar = "bTagSFUp")
@@ -283,28 +294,34 @@ process.bTagSFEventWeightMisTagSFDown = process.bTagSFEventWeight.clone(sysVar =
 process.load("TopAnalysis.TopUtils.EffSFMuonEventWeight_cfi")
 process.effSFMuonEventWeight.particles             = "tightMuons"
 process.effSFMuonEventWeight.sysVar                = ""
-process.effSFMuonEventWeight.filename              = "TopAnalysis/Configuration/data/efficiencyIsoMu17Combined_tapTrigger_SF_Eta.root"
+process.effSFMuonEventWeight.filename              = "TopAnalysis/Configuration/data/MuonEffSF2011.root"
 process.effSFMuonEventWeight.verbose               = 0
-process.effSFMuonEventWeight.additionalFactor      = 0.9990 ## lepton selection eff. SF
-process.effSFMuonEventWeight.additionalFactorErr   = 0.03 ## 3% sys error to account for selection difference Z - ttbar
-process.effSFMuonEventWeight.meanTriggerEffSF      = 0.9905
-process.effSFMuonEventWeight.shapeDistortionFactor = 0.5
+process.effSFMuonEventWeight.additionalFactor      = 1. ## lepton selection and trigger eff. SF both included in loaded histo
+process.effSFMuonEventWeight.additionalFactorErr   = 0.01 ## 1% sys error to account for non-flatness
+process.effSFMuonEventWeight.meanTriggerEffSF      = 0.9824
+process.effSFMuonEventWeight.shapeDistortionFactor = -1
 
 process.load("TopAnalysis.TopUtils.EffSFElectronEventWeight_cfi")
-process.effSFElectronEventWeight.particles=cms.InputTag("goodElectronsEJ")
+process.effSFElectronEventWeight.electrons=cms.InputTag("goodElectronsEJ")
+process.effSFElectronEventWeight.jets=cms.InputTag("tightLeadingPFJets")
 process.effSFElectronEventWeight.sysVar   = cms.string("")
 process.effSFElectronEventWeight.verbose=cms.int32(0)
+process.effSFElectronEventWeight.filenameJetLeg="TopAnalysis/Configuration/data/JetLegTriggerEfficiencyIsoLepTriJetJetMult4.root"
 process.effSFElectronEventWeight.additionalFactor=1. ## lepton selection eff. SF
-process.effSFElectronEventWeight.additionalFactorErr=0.03 ## 3% sys error to account for selection difference Z - ttbar
-process.effSFElectronEventWeight.meanTriggerEffSF=1.
-process.effSFElectronEventWeight.meanTriggerEffSFErr=0.01
-process.effSFElectronEventWeight.shapeDistortionFactor=2.
+process.effSFElectronEventWeight.additionalFactorErr=0.02 ## 2% sys error to account for selection difference Z - ttbar
+process.effSFElectronEventWeight.meanTriggerEffSF=0.968
+process.effSFElectronEventWeight.meanTriggerEffSFErr=0.004
+process.effSFElectronEventWeight.shapeDistortionErr=0.02
+process.effSFElectronEventWeight.jetTriggerEffsSFNormSysErr =0.01
+process.effSFElectronEventWeight.jetTriggerEffsSFShapeSysErr=0.005
 
 
 # register TFileService
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('analyzeTop.root')
 )
+
+#process.MessageLogger = cms.Service("MessageLogger")
 
 ## end path   
 process.path = cms.Path(#process.patDefaultSequence *
@@ -313,6 +330,7 @@ process.path = cms.Path(#process.patDefaultSequence *
                         process.semiLeptonicSelection *
                         process.tightBottomSSVPFJets *
                         process.tightBottomCSVPFJets *
+                        process.looseBottomCSVPFJets *
                         process.semiLeptonicEvents *
                         process.makeEventWeightsPU *
                         process.bTagSFEventWeight *
@@ -344,7 +362,10 @@ process.path.remove(process.tightBottomJets)
 if (decayChannel=="electron"):
     process.TFileService.fileName = "analyzeTop.root"
     # adpat trigger
-    process.hltFilter.HLTPaths=["HLT_Ele25_CaloIdVT_TrkIdT_CentralTriJet30_v*"]
+    if (MCversion == "Fall11"):
+        process.hltFilter.HLTPaths=["HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TriCentralJet30_v*"]
+    else:
+        process.hltFilter.HLTPaths=["HLT_Ele25_CaloIdVT_TrkIdT_CentralTriJet30_v*"]
     ## lepton-jet veto
     from PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi import *
     from PhysicsTools.PatAlgos.cleaningLayer1.jetCleaner_cfi import *
@@ -389,6 +410,8 @@ if (decayChannel=="electron"):
       getattr(process, pathname).replace(process.effSFMuonEventWeight, process.effSFElectronEventWeight)
       # replace muon by electron in (remaining) kinfit analyzers
       massSearchReplaceAnyInputTag(getattr(process, pathname), 'tightMuons', 'goodElectronsEJ')
+      massSearchReplaceAnyInputTag(getattr(process, pathname), 'noOverlapJetsPF', 'noOverlapJetsPFelec')
+      massSearchReplaceAnyInputTag(getattr(process, pathname), 'effSFMuonEventWeight', 'effSFElectronEventWeight')
 
 
 
@@ -401,7 +424,7 @@ prependPF2PATSequence(process, options = {'runOnOLDcfg': True,
                                           'pfIsoConeMuon': 0.4,
                                           'pfIsoConeElec': 0.4,
                                           #'skipIfNoPFMuon': True,
-                                          'METCorrectionLevel': 2,
+                                          'METCorrectionLevel': options.metcl,
                                           })
 
 ## adaptions (re-aranging of modules) to speed up processing

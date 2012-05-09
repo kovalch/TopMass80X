@@ -30,6 +30,7 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
 	edm::InputTag noPtEtaJets_;
   edm::InputTag leps_;
   
+  edm::InputTag PUSrc_;
   edm::InputTag VertexSrc_;
   
   edm::InputTag PUWeightSrc_;
@@ -115,6 +116,7 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double leptonPt;
   double leptonC;
 	double leptonEta;
+	int leptonId;
   
   double leptonRawPt;
   
@@ -184,6 +186,9 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double TTBarMass;
   
   int jetMultiplicity;
+  double jetsPt[4];
+  double jetsEta[4];
+  double jetsPhi[4];
   int noPtEtaJetMultiplicity;
   int bottomSSVJetMultiplicity;
   int bottomCSVJetMultiplicity;
@@ -208,6 +213,7 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double hadBProbSSV;
   double cProb;
   
+  int nPU[3];
   int nVertex;
   
   double PUWeight;

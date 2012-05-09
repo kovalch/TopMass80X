@@ -17,6 +17,8 @@ class Helper {
     TH2F* GetH2(TString title);
     void SetTDRStyle();
     void DrawCMSPrel();
+    void DrawCMSPrelElectron();
+    void DrawCMSPrelMuon();
     void DrawCMSSim();
 };
 

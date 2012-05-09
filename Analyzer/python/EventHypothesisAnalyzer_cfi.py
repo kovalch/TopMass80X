@@ -11,6 +11,8 @@ analyzeHypothesis = cms.EDAnalyzer("EventHypothesisAnalyzer",
     noPtEtaJets  = cms.InputTag("noPtEtaJetsPF"),
     leps         = cms.InputTag("tightMuons"),
     
+    PUSrc        = cms.InputTag("addPileupInfo"),
+    
     VertexSrc    = cms.InputTag("goodOfflinePrimaryVertices"),
     
     PUWeightSrc  = cms.InputTag("eventWeightPUsysNo", "eventWeightPU"),

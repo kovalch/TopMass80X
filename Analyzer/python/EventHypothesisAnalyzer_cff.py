@@ -14,5 +14,5 @@ analyzeHitFit        = analyzeHypothesis.clone(hypoClassKey = "ttSemiLepHypHitFi
 
 # define sequence
 analyzeHypotheses = cms.Sequence(analyzeGenMatch *
-                                 analyzeMVADisc *
+                                 #analyzeMVADisc *
                                  analyzeHitFit)

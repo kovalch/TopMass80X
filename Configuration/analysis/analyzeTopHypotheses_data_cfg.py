@@ -106,12 +106,20 @@ process.ttSemiLepEvent.verbosity = 0
 from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 process.hltFilter = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", HLTPaths = ["HLT_IsoMu17_v*","HLT_IsoMu24_v*","HLT_IsoMu24_eta2p1_v*"], throw=False)
 
+## JET selection
+process.tightBottomSSVPFJets  = process.selectedPatJets.clone(src = 'goodJetsPF30',
+                                           cut='bDiscriminator(\"simpleSecondaryVertexHighEffBJetTags\") > 1.74'
+                                           )
+process.tightBottomCSVPFJets  = process.selectedPatJets.clone(src = 'goodJetsPF30',
+                                           cut='bDiscriminator(\"combinedSecondaryVertexBJetTags\") > 0.679'
+                                           )
+
 process.leadingJetSelection.src = 'tightLeadingPFJets'
 process.bottomJetSelection.src  = 'tightBottomPFJets'
 
 ## b-tag selection
-process.tightBottomPFJets.cut = 'bDiscriminator("simpleSecondaryVertexHighEffBJetTags") > 1.74';
-process.bottomJetSelection.minNumber = 0;
+process.tightBottomPFJets.cut = 'bDiscriminator("combinedSecondaryVertexBJetTags") > 0.679';
+process.bottomJetSelection.minNumber = 2;
 
 ## choose which hypotheses to produce
 from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff import *
@@ -125,10 +133,10 @@ setForAllTtSemiLepHypotheses(process, "maxNComb", -1)
 setForAllTtSemiLepHypotheses(process, "jetCorrectionLevel", "L2L3Residual")
 
 # consider b-tagging in event reconstruction
-process.hitFitTtSemiLepEventHypothesis.bTagAlgo = "simpleSecondaryVertexHighEffBJetTags"
-process.hitFitTtSemiLepEventHypothesis.minBDiscBJets     = 1.74
-process.hitFitTtSemiLepEventHypothesis.maxBDiscLightJets = 1.74
-process.hitFitTtSemiLepEventHypothesis.useBTagging       = False
+process.hitFitTtSemiLepEventHypothesis.bTagAlgo = "combinedSecondaryVertexBJetTags"
+process.hitFitTtSemiLepEventHypothesis.minBDiscBJets     = 0.679
+process.hitFitTtSemiLepEventHypothesis.maxBDiscLightJets = 0.679
+process.hitFitTtSemiLepEventHypothesis.useBTagging       = True
 
 addTtSemiLepHypotheses(process,
                        ["kHitFit", "kMVADisc"]
@@ -147,6 +155,8 @@ process.TFileService = cms.Service("TFileService",
 process.path = cms.Path(#process.patDefaultSequence *
                         process.hltFilter *
                         process.semiLeptonicSelection *
+                        process.tightBottomSSVPFJets *
+                        process.tightBottomCSVPFJets *
                         process.semiLeptonicEvents *
                         process.makeTtSemiLepEvent *
                         process.analyzeHypotheses

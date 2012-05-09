@@ -33,23 +33,13 @@ EventHypothesisAnalyzer::EventHypothesisAnalyzer(const edm::ParameterSet& cfg):
 	noPtEtaJets_ (cfg.getParameter<edm::InputTag>("noPtEtaJets")),
   leps_        (cfg.getParameter<edm::InputTag>("leps")),
   
+  PUSrc_       (cfg.getParameter<edm::InputTag>("PUSrc")),
   VertexSrc_   (cfg.getParameter<edm::InputTag>("VertexSrc")),
   
   PUWeightSrc_ (cfg.getParameter<edm::InputTag>("PUWeightSrc")),
 	PUWeightUpSrc_  (cfg.getParameter<edm::InputTag>("PUWeightUpSrc")),
 	PUWeightDownSrc_(cfg.getParameter<edm::InputTag>("PUWeightDownSrc")),
-	
-	/*
-	PUWeightSrc_A_ (cfg.getParameter<edm::InputTag>("PUWeightSrc_A")),
-	PUWeightUpSrc_A_  (cfg.getParameter<edm::InputTag>("PUWeightUpSrc_A")),
-	PUWeightDownSrc_A_(cfg.getParameter<edm::InputTag>("PUWeightDownSrc_A")),
-	*/
-	/*
-	PUWeightSrc_B_ (cfg.getParameter<edm::InputTag>("PUWeightSrc_A")),
-	PUWeightUpSrc_B_  (cfg.getParameter<edm::InputTag>("PUWeightUpSrc_A")),
-	PUWeightDownSrc_B_(cfg.getParameter<edm::InputTag>("PUWeightDownSrc_A")),
-	*/
-	
+		
   bWeightSrc_  (cfg.getParameter<edm::InputTag>("bWeightSrc")),
   bWeightSrc_bTagSFUp_    (cfg.getParameter<edm::InputTag>("bWeightSrc_bTagSFUp")),
   bWeightSrc_bTagSFDown_  (cfg.getParameter<edm::InputTag>("bWeightSrc_bTagSFDown")),
@@ -147,6 +137,12 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
   edm::Handle<std::vector<pat::Jet> > jets;
   evt.getByLabel(jets_, jets);
   jetMultiplicity = jets.isValid() ? jets->size() : -1;
+  
+  for (int i = 0; i < 4; ++i) {
+    jetsPt[i]   = jets->at(i).pt();
+    jetsEta[i]  = jets->at(i).eta();
+    jetsPhi[i]  = jets->at(i).phi();
+  }
 	
 	/*
 	std::cout << "Selected jets" << std::endl;
@@ -210,6 +206,19 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
   
   edm::Handle< edm::View<reco::RecoCandidate> > leps;
   evt.getByLabel(leps_, leps);
+  
+  edm::Handle<edm::View<PileupSummaryInfo> > PU_h;
+  evt.getByLabel(PUSrc_, PU_h);
+  
+  if(PU_h.isValid()){
+    for(edm::View<PileupSummaryInfo>::const_iterator iterPU = PU_h->begin(); iterPU != PU_h->end(); ++iterPU){  // vector size is 3
+      int BX = iterPU->getBunchCrossing(); // -1: previous BX, 0: current BX,  1: next BX
+      
+      if      (BX == -1) nPU[0] = iterPU->getPU_NumInteractions();
+	    else if (BX ==  0) nPU[1] = iterPU->getPU_NumInteractions();
+	    else if (BX ==  1) nPU[2] = iterPU->getPU_NumInteractions();
+    }
+  }
   
   edm::Handle<std::vector<reco::Vertex> > vertecies_h;
   evt.getByLabel(VertexSrc_, vertecies_h);
@@ -314,6 +323,14 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
         target = 0;
       }
       genMatchDr = semiLepEvt->genMatchSumDR(hGenMatch);
+      
+      /* Permutation monitoring
+      std::cout << "\nevent=" << evt.eventAuxiliary().event() << " hypoClassKey=" << hypoClassKey << " combi=" << h << " target=" << target << std::endl;
+      std::cout << "jetLeptonCombinationGenMatch " << "jetLeptonCombinationCurrent[i] " << "jetLeptonCombinationCurrent2[i] " << "CSV " << std::endl;
+      for (int i = 0; i < 4; ++i) {
+        std::cout << jetLeptonCombinationGenMatch[i] << " " << jetLeptonCombinationCurrent[i] << " " << jetLeptonCombinationCurrent2[i] << " " << jets->at(i).bDiscriminator("combinedSecondaryVertexBJetTags") << std::endl;
+      }
+      //*/
     }
     else {
       target = -10;
@@ -495,6 +512,7 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     leptonPt   = lepton->pt();
     leptonEta  = lepton->eta();
     leptonC    = leps->at(0).charge();
+    leptonId   = (!leps_.label().compare("tightMuons"))?13:11;
     
     leptonRawPt = leptonRaw->pt();
     
@@ -700,6 +718,7 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("leptonPt", &leptonPt, "leptonPt/D");
   eventTree->Branch("leptonEta", &leptonEta, "leptonEta/D");
   eventTree->Branch("leptonC", &leptonC, "leptonC/D");
+  eventTree->Branch("leptonId", &leptonId, "leptonId/I");
   
   eventTree->Branch("leptonRawPt", &leptonRawPt, "leptonRawPt/D");
   
@@ -766,6 +785,9 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("TTBarMass", &TTBarMass, "TTBarMass/D");
   
   eventTree->Branch("jetMultiplicity", &jetMultiplicity, "jetMultiplicity/I");
+  eventTree->Branch("jetsPt", &jetsPt, "jetsPt[4]/D");
+  eventTree->Branch("jetsEta", &jetsEta, "jetsEta[4]/D");
+  eventTree->Branch("jetsPhi", &jetsPhi, "jetsPhi[4]/D");
 	eventTree->Branch("noPtEtaJetMultiplicity", &noPtEtaJetMultiplicity, "noPtEtaJetMultiplicity/I");
 	eventTree->Branch("bottomSSVJetMultiplicity", &bottomSSVJetMultiplicity, "bottomSSVJetMultiplicity/I");
 	eventTree->Branch("bottomCSVJetMultiplicity", &bottomCSVJetMultiplicity, "bottomCSVJetMultiplicity/I");
@@ -788,6 +810,7 @@ EventHypothesisAnalyzer::beginJob()
   eventTree->Branch("hadBProbSSV", &hadBProbSSV, "hadBProbSSV/D");
   eventTree->Branch("cProb", &cProb, "cProb/D");
   
+  eventTree->Branch("nPU", &nPU, "nPU[3]/I");
   eventTree->Branch("nVertex", &nVertex, "nVertex/I");
   
   eventTree->Branch("PUWeight", &PUWeight, "PUWeight/D");

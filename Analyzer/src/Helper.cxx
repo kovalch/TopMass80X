@@ -187,5 +187,13 @@ void Helper::DrawLabel(TString text, const double x1, const double y1, const dou
 }
 
 void Helper::DrawCMSPrel() {
-  DrawLabel("CMS preliminary, 4.7 fb^{ -1},  #sqrt{s}=7 TeV", 0.2, 0.93, 0.9);
+  DrawLabel("CMS, 5.0 fb^{-1},  #sqrt{s}=7 TeV", 0.2, 0.93, 0.9);
+}
+
+void Helper::DrawCMSPrelElectron() {
+  DrawLabel("CMS, 5.0 fb^{-1},  #sqrt{s}=7 TeV, e+jets", 0.2, 0.93, 0.9);
+}
+
+void Helper::DrawCMSPrelMuon() {
+  DrawLabel("CMS, 5.0 fb^{-1},  #sqrt{s}=7 TeV, #mu+jets", 0.2, 0.93, 0.9);
 }
