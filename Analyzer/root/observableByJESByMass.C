@@ -23,10 +23,11 @@ int lepton = 0;
 int iMassMin = 4;
 int iMassMax = 5;
 
-bool plotByMass = false;
+bool plotByMass = true;
 bool pas = false;
 
-TString sObs[] = {"m_{t}", "m_{W}^{reco}"};
+TString sTarget[] = {"wp", "cp", "un"};
+TString sObs[]    = {"m_{t}", "m_{W}^{reco}"};
 TString sLepton[] = {"electron", "muon"};
 
 TGraphErrors* gr1[9];
@@ -80,9 +81,10 @@ double ey6[3];
 double params[12];
 
 enum styles          { kDown, kNominal, kUp};
-int color_   [ 3 ] = { kRed+1, kBlue+1, kGreen+1};
-int marker_  [ 3 ] = { 23, 20, 22};
-int line_    [ 3 ] = { 7, 1, 9};
+int color_   [ 5 ] = { kRed+1, kBlue+1, kGreen+1, kViolet-2, kCyan-3};
+int marker_  [ 5 ] = { 23, 20, 22, 25, 26};
+int line_    [ 5 ] = { 7, 1, 9, 4, 10};
+int width_   [ 5 ] = { 2, 3, 2, 2, 2};
 
 void FindParametersMass(int iMass);
 TH1F* FindParameters(TString filename, int i);
@@ -342,8 +344,10 @@ void FindParametersMass(int iMass)
 	TH1F* h096;
   TH1F* h100;
   TH1F* h104;
+  TH1F* h166;
+  TH1F* h178;
   
-  if (!plotByMass) {
+  if (!pas && !plotByMass) {
     switch(iMass) {
       case 0: {
         h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Fall11_TTJets1615_0.96", 0);
@@ -401,10 +405,17 @@ void FindParametersMass(int iMass)
       }
     }
   }
-  else {
+  else if (plotByMass) {
     h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1665_1.00", 0);
     h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Fall11_TTJets1725_1.00", 1);
-    h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1785_1.00", 2); 
+    h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1785_1.00", 2);
+  }
+  else {
+    if (obs==0) h166 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1665_1.00", 3);
+    h096 = FindParameters("/scratch/hh/current/cms/user/mseidel/Fall11_TTJets1725_0.96", 0);
+    h100 = FindParameters("/scratch/hh/current/cms/user/mseidel/Fall11_TTJets1725_1.00", 1);
+    h104 = FindParameters("/scratch/hh/current/cms/user/mseidel/Fall11_TTJets1725_1.04", 2);
+    if (obs==0) h178 = FindParameters("/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1785_1.00", 4); 
   }
   
   h096->Draw();
@@ -412,6 +423,10 @@ void FindParametersMass(int iMass)
     h096->GetXaxis()->SetRangeUser(100, 240);
     h100->GetXaxis()->SetRangeUser(100, 240);
     h104->GetXaxis()->SetRangeUser(100, 240);
+    if (pas) {
+      h166->GetXaxis()->SetRangeUser(100, 240);
+      h178->GetXaxis()->SetRangeUser(100, 240);
+    }
   }
   if (obs == 1) {
     h096->GetXaxis()->SetRangeUser(60, 110);
@@ -421,7 +436,10 @@ void FindParametersMass(int iMass)
   h100->Draw("SAME");
   h104->Draw("SAME");
   
-  if (pas) h100->Draw();
+  if (pas && obs==0) {
+    h166->Draw("SAME");
+    h178->Draw("SAME");
+  }
   
   // ---
   //    create legend
@@ -429,20 +447,27 @@ void FindParametersMass(int iMass)
   TLegend *leg0 = new TLegend(0.65, 0.75, 0.95, 0.94);
   leg0->SetFillStyle(0);
   leg0->SetBorderSize(0);
-  if (!plotByMass) {
+  if (!pas && !plotByMass) {
     leg0->AddEntry( h096, "JES = 0.96", "PL");
     leg0->AddEntry( h100, "JES = 1.00", "PL");
     leg0->AddEntry( h104, "JES = 1.04", "PL");
   }
-  else {
+  else if (plotByMass) {
     leg0->AddEntry( h096, "m_{t,gen} = 166.5 GeV", "PL");
     leg0->AddEntry( h100, "m_{t,gen} = 172.5 GeV", "PL");
     leg0->AddEntry( h104, "m_{t,gen} = 178.5 GeV", "PL");
   }
+  else {
+    if (obs==0) leg0->AddEntry( h166, "m_{t,gen} = 166.5 GeV", "PL");
+    leg0->AddEntry( h096, "m_{t,gen} = 172.5 GeV, JES -4%", "PL");
+    leg0->AddEntry( h100, "m_{t,gen} = 172.5 GeV", "PL");
+    leg0->AddEntry( h104, "m_{t,gen} = 172.5 GeV, JES +4%", "PL");
+    if (obs==0) leg0->AddEntry( h178, "m_{t,gen} = 178.5 GeV", "PL");
+  }
   
-  if (!pas) leg0->Draw();
+  leg0->Draw();
 
-  DrawCMSSim();
+  DrawCMSSim(1);
   
   h096->GetYaxis()->SetRangeUser(0, h096->GetMaximum()*1.2);
   if (obs==0) DrawCutLine(172.5, h096->GetMaximum());
@@ -536,7 +561,7 @@ TH1F* FindParameters(TString filename, int i)
       case   1: {
         fit = new TF1("fit", "[0]*TMath::Voigt(x-[1], [2], [3])", 100, 400);
         fit->SetLineColor(kBlack);
-        fit->SetLineWidth(2);
+        fit->SetLineWidth(width_[i]);
         fit->SetParameters(100000, 170, 10, 2);
         
         fit->SetParLimits(0, 1, 1000000);
@@ -549,7 +574,7 @@ TH1F* FindParameters(TString filename, int i)
       case   0: {
         fit = new TF1("fit", crystalBall, 100, 400, 5);
         fit->SetLineColor(kBlack);
-        fit->SetLineWidth(2);
+        fit->SetLineWidth(width_[i]);
         
         double power = 15.;
         
@@ -567,7 +592,7 @@ TH1F* FindParameters(TString filename, int i)
       case -10: {
         fit = new TF1("fit", crystalBall, 100, 400, 5);
         fit->SetLineColor(kBlack);
-        fit->SetLineWidth(2);
+        fit->SetLineWidth(width_[i]);
         
         double power = 3.;
         
@@ -588,7 +613,7 @@ TH1F* FindParameters(TString filename, int i)
   else if (obs == 1) {
     fit = new TF1("fit", asymGaus, 0, 1000, 4);
     fit->SetLineColor(kBlack);
-    fit->SetLineWidth(2);
+    fit->SetLineWidth(width_[i]);
     
     fit->SetParNames("N", "#mu", "#sigma1", "#sigma2");
     fit->SetParameters(1000, 80, 5, 5);
@@ -602,7 +627,7 @@ TH1F* FindParameters(TString filename, int i)
   else if (obs == 4) {
     fit = new TF1("fit", crystalBall, 0, 1000, 5);
     fit->SetLineColor(kBlack);
-    fit->SetLineWidth(2);
+    fit->SetLineWidth(width_[i]);
     
     fit->SetParNames("N", "#mu", "#sigma", "#alpha", "power");
     fit->SetParameters(1, 0, 1, 2, 3);
@@ -618,7 +643,7 @@ TH1F* FindParameters(TString filename, int i)
     fit = new TF1("fit", "[0]*TMath::Voigt(x-[1], [2], [3])");
 
     fit->SetLineColor(kBlack);
-    fit->SetLineWidth(2);
+    fit->SetLineWidth(width_[i]);
     fit->SetParameters(100000, 0.0, 1e-12, 1.35);
     
     fit->SetParLimits(0, 1, 1000000);
@@ -686,12 +711,12 @@ TH1F* FindParameters(TString filename, int i)
           break;
         }
       }
-      h1->GetXaxis()->SetTitle("m_{t,i}^{fit} [GeV]");
+      h1->GetXaxis()->SetTitle("m_{t," + sTarget[abs(target%8)] + "}^{fit} [GeV]");
       break;
     }
     case 1: {
       h1->GetYaxis()->SetTitle("Fraction of entries / 2 GeV");
-      h1->GetXaxis()->SetTitle("m_{W,i}^{reco} [GeV]");
+      h1->GetXaxis()->SetTitle("m_{W," + sTarget[abs(target%8)] + "}^{reco} [GeV]");
       break;
     }
   }

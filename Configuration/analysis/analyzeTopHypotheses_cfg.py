@@ -69,6 +69,28 @@ scaleType = '@scaleType@'
 if scaleType.startswith('@'):
   scaleType = 'abs'
 
+mesShift = '@mesShift@'
+if mesShift.startswith('@'):
+  mesShift = '0.0'
+if (mesShift == 'down'):
+  mesShift = '-1.0'
+if (mesShift == 'up'):
+  mesShift = '1.0'
+
+print mesShift
+
+eesShift = '@eesShift@'
+if eesShift.startswith('@'):
+  eesShift = '0.0'
+if (eesShift == 'down'):
+  eesShift = '-1.0'
+if (eesShift == "up"):
+  eesShift = '1.0'
+
+uncFactor = '@uncFactor@'
+if uncFactor.startswith('@'):
+  uncFactor = '1.0'
+
 ## configure message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
@@ -149,8 +171,35 @@ if (resolution=='up'):
   scaledJetEnergy.resolutionFactors   = [1.140, 1.258, 1.190, 1.370]
 scaledJetEnergy.resolutionEtaRanges   = [0, 1.1, 1.1, 1.7, 1.7, 2.3, 2.3, -1]
 
-
 process.noOverlapJetsPF.src = "scaledJetEnergy:selectedPatJets"
+
+## electron shift
+process.load("TopAnalysis.TopUtils.ElectronEnergyScale_cfi")
+from TopAnalysis.TopUtils.MuonEnergyScale_cfi import *
+
+process.scaledElectronEnergy.src      = "selectedPatElectrons"
+process.scaledElectronEnergy.mets     = "scaledJetEnergy:patMETs"
+process.scaledElectronEnergy.shiftBy  = float(eesShift)
+process.vertexSelectedElectrons.src   = "scaledElectronEnergy:selectedPatElectrons"
+
+## muon shift
+process.load("TopAnalysis.TopUtils.MuonEnergyScale_cfi")
+from TopAnalysis.TopUtils.MuonEnergyScale_cfi import *
+
+process.scaledMuonEnergy.src      = "selectedPatMuons"
+process.scaledMuonEnergy.mets     = "scaledElectronEnergy:METs"
+process.scaledMuonEnergy.shiftBy  = float(mesShift)
+process.vertexSelectedMuons.src   = "scaledMuonEnergy:selectedPatMuons"
+
+## unclustered energy scale
+process.load("TopAnalysis.TopUtils.UnclusteredMETScale_cfi")
+from TopAnalysis.TopUtils.UnclusteredMETScale_cfi import *
+
+process.scaledMET.inputJets       = "scaledJetEnergy:selectedPatJets"
+process.scaledMET.inputMETs       = "scaledMuonEnergy:METs"
+process.scaledMET.inputElectrons  = "scaledElectronEnergy:selectedPatElectrons"
+process.scaledMET.inputMuons      = "scaledMuonEnergy:selectedPatMuons"
+process.scaledMET.scaleFactor     = float(uncFactor)
 
 ## sequences for ttGenEvent and TtSemiLeptonicEvent
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
@@ -197,7 +246,7 @@ if (decayChannel=='electron'):
   useElectronsForAllTtSemiLepHypotheses(process, 'goodElectronsEJ')
 setForAllTtSemiLepHypotheses(process, "jets", "goodJetsPF30")
 setForAllTtSemiLepHypotheses(process, "maxNJets", 4)
-setForAllTtSemiLepHypotheses(process, "mets", "scaledJetEnergy:patMETs")
+setForAllTtSemiLepHypotheses(process, "mets", "scaledMET:scaledMETs")
 setForAllTtSemiLepHypotheses(process, "maxNComb", -1)
 
 # consider b-tagging in event reconstruction
@@ -322,11 +371,17 @@ process.TFileService = cms.Service("TFileService",
 )
 
 #process.MessageLogger = cms.Service("MessageLogger")
+process.content = cms.EDAnalyzer("EventContentAnalyzer")
 
 ## end path   
 process.path = cms.Path(#process.patDefaultSequence *
                         process.hltFilter *
                         process.scaledJetEnergy *
+                        process.scaledElectronEnergy *
+                        #process.content *
+                        process.scaledMuonEnergy *
+                        #process.content *
+                        process.scaledMET *
                         process.semiLeptonicSelection *
                         process.tightBottomSSVPFJets *
                         process.tightBottomCSVPFJets *

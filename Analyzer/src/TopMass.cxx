@@ -68,10 +68,11 @@ void TopMass::WriteEnsembleTest(po::variables_map vm) {
   int nEnsembles = vm["number"].as<int>();
   int n = 0;
   
-  double genMass, mass, massError, massPull, genJES, JES, JESError, JESPull;
+  double genMass, mass, massError, massPull, genJES, JES, JESError, JESPull, massAlt, massAltError;
   TFile* ensembleFile;
   TTree* tree;
   
+  TFile* tempFile = new TFile("temp.root", "RECREATE");
   ensembleFile = new TFile("ensemble.root", "UPDATE");
   ensembleFile->GetObject("tree", tree);
   
@@ -85,6 +86,8 @@ void TopMass::WriteEnsembleTest(po::variables_map vm) {
     tree->Branch("JES", &JES, "JES/D");
     tree->Branch("JESError", &JESError, "JESError/D");
     tree->Branch("JESPull", &JESPull, "JESPull/D");
+    tree->Branch("massAlt", &massAlt, "massAlt/D");
+    tree->Branch("massAltError", &massAltError, "massAltError/D");
   }
   else {
     tree->SetBranchAddress("genMass", &genMass);
@@ -95,16 +98,20 @@ void TopMass::WriteEnsembleTest(po::variables_map vm) {
     tree->SetBranchAddress("JES", &JES);
     tree->SetBranchAddress("JESError", &JESError);
     tree->SetBranchAddress("JESPull", &JESPull);
+    tree->SetBranchAddress("massAlt", &massAlt);
+    tree->SetBranchAddress("massAltError", &massAltError);
   }
   
+  tempFile->cd();
   Analysis* analysis = new Analysis(vm);
   
   while (difftime(end, start) < vm["walltime"].as<int>() * 60 && n < nEnsembles) {
     std::cout << "\n- - - - - - - - - - " << n << " - - - - - - - - - -\n" << std::endl;
     
+    tempFile->cd();
     analysis->Analyze(vm);
     
-    std::cout << "branching finished" << std::endl;
+    ensembleFile->cd();
     
     for (int i = 0; i < fBins; i++) {
       for (int j = 0; j < fBins; j++) {
@@ -112,6 +119,8 @@ void TopMass::WriteEnsembleTest(po::variables_map vm) {
         mass      = analysis->GetH2Mass()->GetCellContent(i+1, j+1);
         massError = analysis->GetH2MassError()->GetCellContent(i+1, j+1);
         massPull  = (mass - genMass)/massError;
+        massAlt   = analysis->GetH2MassAlt()->GetCellContent(i+1, j+1);
+        massAltError = analysis->GetH2MassAltError()->GetCellContent(i+1, j+1);
         
         genJES    = vm["jes" ].as<double>();
         JES       = analysis->GetH2JES()->GetCellContent(i+1, j+1);
@@ -129,6 +138,8 @@ void TopMass::WriteEnsembleTest(po::variables_map vm) {
   }
   tree->GetCurrentFile()->Write();
   ensembleFile->Close();
+  tempFile = new TFile("temp.root", "RECREATE");
+  tempFile->Close();
 }
 
 void TopMass::QuickCalibration(po::variables_map vm) {

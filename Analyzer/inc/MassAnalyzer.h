@@ -12,6 +12,8 @@ class MassAnalyzer {
     double fMass;
     double fMassError;
     double fMassSigma;
+    double fMassAlt;
+    double fMassAltError;
     double fJES;
     double fJESError;
   
@@ -25,6 +27,8 @@ class MassAnalyzer {
     double GetMass();
     double GetMassError();
     double GetMassSigma();
+    double GetMassAlt();
+    double GetMassAltError();
     double GetJES();
     double GetJESError();
 };

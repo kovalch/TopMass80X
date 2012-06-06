@@ -22,7 +22,8 @@ class IdeogramAnalyzer : public MassAnalyzer {
     double mWnVertex();
     double mTnVertex();
     void Scan(TString cuts, int i, int j, double firstBinMass, double lastBinMass,
-              double resolMass, double firstBinJes, double lastBinJes, double resolJes);
+              double resolMass, double firstBinJes, double lastBinJes, double resolJes,
+              bool fit2D = true);
   
   public:
     IdeogramAnalyzer(TString identifier, TTree* tree) : MassAnalyzer(identifier, tree) {};

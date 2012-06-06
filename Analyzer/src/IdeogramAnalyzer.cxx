@@ -7,13 +7,16 @@ double IdeogramAnalyzer::GetMass() {
 void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   Scan(cuts, i, j, 154, 190, 2, 0.9, 1.1, 0.02);
   Scan(cuts, i, j, fMass-2, fMass+2, 0.25, fJES-0.015, fJES+0.015, 0.0015);
+  double epsilon = 1e-6;
+  //Scan(cuts, i, j, 154, 190, 2, 0.99, 1.01, 0.01);
+  Scan(cuts, i, j, fMass-5, fMass+5, 0.25, 1.-epsilon, 1.+epsilon, epsilon, false);
   
   //Scan(cuts, i, j, fMass-2, fMass+2, 0.1, fJES-0.015, fJES+0.015, 0.0005);
   //Scan(cuts, i, j, 170, 176, 0.1, 0.999, 1.001, 0.0001);
 }
 
 void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, double lastBinMass,
-              double resolMass, double firstBinJes, double lastBinJes, double resolJes) {
+              double resolMass, double firstBinJes, double lastBinJes, double resolJes, bool fit2D) {
   //*
   gStyle->SetOptStat(0);
   gStyle->SetOptFit(0);
@@ -62,6 +65,7 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
   
   IdeogramCombLikelihood* fptr = new IdeogramCombLikelihood();
   TF2* combLikelihood = new TF2("combLikelihood",fptr,&IdeogramCombLikelihood::Evaluate, firstBinMass, lastBinMass, firstBinJes, lastBinJes, 4, "IdeogramCombLikelihood", "Evaluate");
+  TF2* gausJESConstraint = new TF2("gausJESConstraint", "1./(sqrt(2.*TMath::Pi())*0.01) * TMath::Gaus(y, 1, 0.01) + x*0", firstBinMass, lastBinMass, firstBinJes, lastBinJes);
   //TF1* combBackground = new TF1("combBackground",fptr,&IdeogramCombLikelihood::CrystalBall,150,200,1);
 
   TF1* fitParabola = new TF1("fitParabola", "abs([1])*(x-[0])^2+[2]");
@@ -103,6 +107,10 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
   sumLogLikelihood->SetTitle("-2#upointln{L(m_{t}|sample)}");
   sumLogLikelihood->SetXTitle("m_{t} [GeV]");
   sumLogLikelihood->SetYTitle("JES");
+  
+  eventLikelihood->Eval(gausJESConstraint);
+  eventLikelihood->Draw("COLZ");
+  ctemp->Print("plot/Ideogram/gausJESConstraint.eps");
 
   double hadTopMass, hadTopPt, lepTopPt, hadWPt, lepWPt, hadBPt, lepBPt, hadWRawMass, topPtAsymmetry, bScaleEstimator;
   double hadWE, deltaThetaHadWHadB, sinThetaStar;
@@ -214,6 +222,7 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
     
     useWeight ? MCWeight = PUWeight*muWeight*bWeight : MCWeight = 1;
     
+    //*
     switch(leptonId) {
       case 11:
         pullWidth = 1.04847e+00;
@@ -224,6 +233,7 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
       default:
         pullWidth = 1.;
     }
+    //*/
     
     sumLogLikelihood->Add(logEventLikelihood, fitWeight*MCWeight/(pullWidth*pullWidth)); // add weight here
     
@@ -264,6 +274,14 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
   std::cout << "Sum of weights: " << sumWeights << std::endl;
   std::cout << "Total number of events: " << nEvents << std::endl;
   sumLogLikelihood->Scale(nEvents/sumWeights);
+  /*
+  eventLikelihood->Eval(gausJESConstraint);
+  for (int i = 0; i<=binsMass; i++) {
+      for (int j = 0; j<=binsJes; j++) {
+      sumLogLikelihood->SetBinContent(i, j, sumLogLikelihood->GetBinContent(i, j) -20*TMath::Log(eventLikelihood->GetBinContent(i, j)));
+    }
+  }
+  */
   
   int minBinX;
   int minBinY;
@@ -288,134 +306,145 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
   
   std::cout << "Minimum likelihood: " << sumLogLikelihood->GetMinimum(0) << "\tMaximum likelihood (in range): " << sumLogLikelihood->GetMaximum() << std::endl;
   
-  fitParaboloid->SetParLimits(0, minMass-2*resolMass, minMass+2*resolMass);
-  fitParaboloid->SetParameter(0, minMass);
-  fitParaboloid->SetParLimits(2, minJes-2*resolJes, minJes+2*resolJes);
-  fitParaboloid->SetParameter(2, minJes);
-  fitParaboloid->SetParameter(3, 1000000);
-  fitParaboloid->SetParLimits(5, sumLogLikelihood->GetMinimum(0), sumLogLikelihood->GetMinimum(0));
-  fitParaboloid->SetParameter(5, sumLogLikelihood->GetMinimum(0));
-  
-  //fitParaboloid->SetRange(minMass - 1, minJes - 0.01, minMass + 1, minJes + 0.01);
-  fitParaboloid->SetRange(minMass - 4, minJes - 0.04, minMass + 4, minJes + 0.04);
-  //fitParaboloid->SetRange(minMass - 20, minJes - 0.2, minMass + 20, minJes + 0.2);
-
-  sumLogLikelihood->Fit("fitParaboloid","EMR0");
-  
-  double semiMajor, semiMinor, alpha;
-  
-  if (firstBinMass+1 < fitParaboloid->GetParameter(0) && fitParaboloid->GetParameter(0) < lastBinMass-1) {
-    fMass = fitParaboloid->GetParameter(0);
-    fJES  = fitParaboloid->GetParameter(2);
-    if (TMath::Sqrt(1/fitParaboloid->GetParameter(1)) < 2*TMath::Sqrt(fMass)) {
-      semiMajor = TMath::Sqrt(1/fitParaboloid->GetParameter(1));
-      semiMinor = TMath::Sqrt(1/fitParaboloid->GetParameter(3));
-      alpha     = fitParaboloid->GetParameter(4);
-      
-      fMassError = sqrt(pow(semiMajor * cos(alpha), 2) + pow(semiMinor * sin(alpha), 2));
-      fJESError  = sqrt(pow(semiMajor * sin(alpha), 2) + pow(semiMinor * cos(alpha), 2));
-    }
-    else fMassError = -1;
-  }
-  else {
-    fMass = -1;
-    fMassError = -1;
-  }
-  fMassSigma = -1;
-  
-  // Fit again with previous result as range
-  double sigmaLevel = 4;
-  if (3*fMassError < resolMass) sigmaLevel = 8;
-	fitParaboloid->SetRange(fMass - sigmaLevel*fMassError, fJES - sigmaLevel*fJESError,
-	                      minMass + sigmaLevel*fMassError, fJES + sigmaLevel*fJESError);
-
-  sumLogLikelihood->Fit("fitParaboloid","EMR0");
-  
-  double contours[3] = {1, 4, 9};
-  fitParaboloid->SetContour(3, contours);
-  
-  if (firstBinMass+1 < fitParaboloid->GetParameter(0) && fitParaboloid->GetParameter(0) < lastBinMass-1) {
-    fMass = fitParaboloid->GetParameter(0);
-    fJES  = fitParaboloid->GetParameter(2);
-    if (TMath::Sqrt(1/fitParaboloid->GetParameter(1)) < 2*TMath::Sqrt(fMass)) {
-      semiMajor = TMath::Sqrt(1/fitParaboloid->GetParameter(1));
-      semiMinor = TMath::Sqrt(1/fitParaboloid->GetParameter(3));
-      alpha     = fitParaboloid->GetParameter(4);
-      
-      fMassError = sqrt(pow(semiMajor * cos(alpha), 2) + pow(semiMinor * sin(alpha), 2));
-      fJESError  = sqrt(pow(semiMajor * sin(alpha), 2) + pow(semiMinor * cos(alpha), 2));
-    }
-    else fMassError = -1;
-  }
-  else {
-    fMass = -1;
-    fMassError = -1;
-  }
-  fMassSigma = -1;
-  
-  fitParaboloid->SetParameter(5, 0);
-  
-  // stat+syst ellipsis  
-  double mSyst = 1.18;
-  double jSyst = 0.012;
-  
-  double sm2 = fMassError*fMassError + mSyst*mSyst;
-  double sj2 = fJESError*fJESError + jSyst*jSyst;
-  
-  fitParaboloid->Copy(*systParaboloid);
-  systParaboloid->SetRange(fMass - 40, fJES - 0.4, minMass + 40, fJES + 0.4);
-  systParaboloid->SetParameter(1, 2*cos(2*alpha)/(sm2 - sj2 + sj2*cos(2*alpha) + sm2*cos(2*alpha)));
-  systParaboloid->SetParameter(3, 2*cos(2*alpha)/(sj2 - sm2 + sj2*cos(2*alpha) + sm2*cos(2*alpha)));
-  systParaboloid->SetLineColor(kBlack);
-  systParaboloid->SetLineStyle(7);
-  //systParaboloid->SetLineWidth(5);
-  
-  //* Set minL to 0
-  sumLogLikelihood->Add(hUnity, -sumLogLikelihood->GetMinimum(0) + 1e-2);
-  sumLogLikelihood->SetAxisRange(0, 25, "Z");
-  if (blackWhite) sumLogLikelihood->Draw("AXIG");
-  else sumLogLikelihood->Draw("COLZ");
-  if (syst) systParaboloid->Draw("cont3 same");
-  fitParaboloid->Draw("cont3 same");
-  //*/
-  
-  // create legend
-  TLegend *leg0 = new TLegend(0.2, 0.15, 0.45, 0.25);
-  leg0->SetFillStyle(0);
-  leg0->SetBorderSize(0);
-  //leg0->AddEntry((TObject*)0, "1, 2, 3#sigma", "");
-  leg0->AddEntry(fitParaboloid, "stat", "L");
-  if (syst)    leg0->AddEntry(systParaboloid, "stat + syst", "L");
-  leg0->Draw();
-  
   Helper* helper = new Helper(1);
-  helper->DrawCMSPrel();
   
-  std::cout << "fMassError: " << fMassError << std::endl;
+  if (fit2D) {  
   
-  TString path("plot/Ideogram/"); path+= fIdentifier; path += "_"; path += i; path += "_"; path += j; path += ".eps";
-  ctemp->Print(path);
-  
-  TH1D* sumLogLikelihood1D = sumLogLikelihood->ProjectionX("sumLogLikelihood1D", sumLogLikelihood->GetYaxis()->FindBin(1.), sumLogLikelihood->GetYaxis()->FindBin(1.));
-  sumLogLikelihood1D->Draw("E");
-  
-  fitParabola->SetParameter(2, sumLogLikelihood1D->GetMinimum(0));
-  fitParabola->SetParameter(1, 100);
-  
-  //fitParabola->SetRange(sumLogLikelihood1D->GetBinCenter(sumLogLikelihood->GetMinimumBin()) - 3, sumLogLikelihood->GetBinCenter(sumLogLikelihood->GetMinimumBin()) + 3);
+    fitParaboloid->SetParLimits(0, minMass-2*resolMass, minMass+2*resolMass);
+    fitParaboloid->SetParameter(0, minMass);
+    fitParaboloid->SetParLimits(2, minJes-2*resolJes, minJes+2*resolJes);
+    fitParaboloid->SetParameter(2, minJes);
+    fitParaboloid->SetParameter(3, 1000000);
+    fitParaboloid->SetParLimits(5, sumLogLikelihood->GetMinimum(0), sumLogLikelihood->GetMinimum(0));
+    fitParaboloid->SetParameter(5, sumLogLikelihood->GetMinimum(0));
+    
+    //fitParaboloid->SetRange(minMass - 1, minJes - 0.01, minMass + 1, minJes + 0.01);
+    fitParaboloid->SetRange(minMass - 4, minJes - 0.04, minMass + 4, minJes + 0.04);
+    //fitParaboloid->SetRange(minMass - 20, minJes - 0.2, minMass + 20, minJes + 0.2);
 
-  sumLogLikelihood1D->Fit("fitParabola","EM");
+    sumLogLikelihood->Fit("fitParaboloid","EMR0");
+    
+    double semiMajor, semiMinor, alpha;
   
-  std::cout << "Fixed JES: m_t = ";
-  std::cout << fitParabola->GetParameter(0) << " +/- ";
-  std::cout << TMath::Sqrt(1/fitParabola->GetParameter(1)) << std::endl;
+    if (firstBinMass+1 < fitParaboloid->GetParameter(0) && fitParaboloid->GetParameter(0) < lastBinMass-1) {
+      fMass = fitParaboloid->GetParameter(0);
+      fJES  = fitParaboloid->GetParameter(2);
+      if (TMath::Sqrt(1/fitParaboloid->GetParameter(1)) < 2*TMath::Sqrt(fMass)) {
+        semiMajor = TMath::Sqrt(1/fitParaboloid->GetParameter(1));
+        semiMinor = TMath::Sqrt(1/fitParaboloid->GetParameter(3));
+        alpha     = fitParaboloid->GetParameter(4);
+        
+        fMassError = sqrt(pow(semiMajor * cos(alpha), 2) + pow(semiMinor * sin(alpha), 2));
+        fJESError  = sqrt(pow(semiMajor * sin(alpha), 2) + pow(semiMinor * cos(alpha), 2));
+      }
+      else fMassError = -1;
+    }
+    else {
+      fMass = -1;
+      fMassError = -1;
+    }
+    fMassSigma = -1;
   
-  helper->DrawCMSPrel();
+    // Fit again with previous result as range
+    double sigmaLevel = 4;
+    if (3*fMassError < resolMass) sigmaLevel = 8;
+	  fitParaboloid->SetRange(fMass - sigmaLevel*fMassError, fJES - sigmaLevel*fJESError,
+	                        minMass + sigmaLevel*fMassError, fJES + sigmaLevel*fJESError);
+
+    sumLogLikelihood->Fit("fitParaboloid","EMR0");
+    
+    double contours[3] = {1, 4, 9};
+    fitParaboloid->SetContour(3, contours);
+    
+    if (firstBinMass+1 < fitParaboloid->GetParameter(0) && fitParaboloid->GetParameter(0) < lastBinMass-1) {
+      fMass = fitParaboloid->GetParameter(0);
+      fJES  = fitParaboloid->GetParameter(2);
+      if (TMath::Sqrt(1/fitParaboloid->GetParameter(1)) < 2*TMath::Sqrt(fMass)) {
+        semiMajor = TMath::Sqrt(1/fitParaboloid->GetParameter(1));
+        semiMinor = TMath::Sqrt(1/fitParaboloid->GetParameter(3));
+        alpha     = fitParaboloid->GetParameter(4);
+        
+        fMassError = sqrt(pow(semiMajor * cos(alpha), 2) + pow(semiMinor * sin(alpha), 2));
+        fJESError  = sqrt(pow(semiMajor * sin(alpha), 2) + pow(semiMinor * cos(alpha), 2));
+      }
+      else fMassError = -1;
+    }
+    else {
+      fMass = -1;
+      fMassError = -1;
+    }
+    fMassSigma = -1;
+    
+    fitParaboloid->SetParameter(5, 0);
+    
+    // stat+syst ellipsis  
+    double mSyst = 1.18;
+    double jSyst = 0.012;
+    
+    double sm2 = fMassError*fMassError + mSyst*mSyst;
+    double sj2 = fJESError*fJESError + jSyst*jSyst;
+    
+    fitParaboloid->Copy(*systParaboloid);
+    systParaboloid->SetRange(fMass - 40, fJES - 0.4, minMass + 40, fJES + 0.4);
+    systParaboloid->SetParameter(1, 2*cos(2*alpha)/(sm2 - sj2 + sj2*cos(2*alpha) + sm2*cos(2*alpha)));
+    systParaboloid->SetParameter(3, 2*cos(2*alpha)/(sj2 - sm2 + sj2*cos(2*alpha) + sm2*cos(2*alpha)));
+    systParaboloid->SetLineColor(kBlack);
+    systParaboloid->SetLineStyle(7);
+    //systParaboloid->SetLineWidth(5);
+    
+    //* Set minL to 0
+    sumLogLikelihood->Add(hUnity, -sumLogLikelihood->GetMinimum(0) + 1e-2);
+    sumLogLikelihood->SetAxisRange(0, 25, "Z");
+    if (blackWhite) sumLogLikelihood->Draw("AXIG");
+    else sumLogLikelihood->Draw("COLZ");
+    if (syst) systParaboloid->Draw("cont3 same");
+    fitParaboloid->Draw("cont3 same");
+    //*/
+    
+    // create legend
+    TLegend *leg0 = new TLegend(0.2, 0.15, 0.45, 0.25);
+    leg0->SetFillStyle(0);
+    leg0->SetBorderSize(0);
+    //leg0->AddEntry((TObject*)0, "1, 2, 3#sigma", "");
+    leg0->AddEntry(fitParaboloid, "stat", "L");
+    if (syst)    leg0->AddEntry(systParaboloid, "stat + syst", "L");
+    leg0->Draw();
+    
+    helper->DrawCMSPrel();
+    
+    TString path("plot/Ideogram/"); path+= fIdentifier; path += "_"; path += i; path += "_"; path += j; path += ".eps";
+    ctemp->Print(path);
+  }
   
-  TString path1D("plot/Ideogram/"); path1D+= fIdentifier; path1D += "_"; path1D += i; path1D += "_"; path1D += j; path1D += "_1D.eps";
-  ctemp->Print(path1D);
+  // 1D top mass
   
-  sumLogLikelihood1D->Delete();
+  if (!fit2D) {
+  
+    TH1D* sumLogLikelihood1D = sumLogLikelihood->ProjectionX("sumLogLikelihood1D", sumLogLikelihood->GetYaxis()->FindBin(1.), sumLogLikelihood->GetYaxis()->FindBin(1.));
+    sumLogLikelihood1D->Draw("E");
+    
+    fitParabola->SetParameter(2, sumLogLikelihood1D->GetMinimum(0));
+    fitParabola->SetParameter(1, 100);
+    fitParabola->SetRange(minMass - 2, minMass + 2);
+
+    sumLogLikelihood1D->Fit("fitParabola","EMR");
+    
+    if (firstBinMass+1 < fitParabola->GetParameter(0) && fitParabola->GetParameter(0) < lastBinMass-1) {
+      fMassAlt      = fitParabola->GetParameter(0);
+      fMassAltError = TMath::Sqrt(1/fitParabola->GetParameter(1));
+    }
+    else {
+      fMassAlt      = -1;
+      fMassAltError = -1;
+    }
+    
+    helper->DrawCMSPrel();
+    
+    TString path1D("plot/Ideogram/"); path1D+= fIdentifier; path1D += "_"; path1D += i; path1D += "_"; path1D += j; path1D += "_1D.eps";
+    ctemp->Print(path1D);
+    
+    sumLogLikelihood1D->Delete();
+  }
   
   delete fitParaboloid;
   delete null;

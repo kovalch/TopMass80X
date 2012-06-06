@@ -67,7 +67,7 @@ double IdeogramCombLikelihood::Evaluate(double *x, double *p) {
   }
   
   //return p[0] * (fCP * PCP(x, p) + fWP * PWP(x, p) + fUN * PUN(x, p));
-  return p[0] * (fCP * PCP(x, p) * PCPJES(x, p) + fWP * PWP(x, p) * PWPJES(x, p) + fUN * PUN(x, p) * PUNJES(x, p));// * TMath::Gaus(x[1], 1, 0.01, kTRUE);
+  return p[0] * (fCP * PCP(x, p) * PCPJES(x, p) + fWP * PWP(x, p) * PWPJES(x, p) + fUN * PUN(x, p) * PUNJES(x, p));
 }
 
 

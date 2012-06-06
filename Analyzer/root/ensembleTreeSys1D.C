@@ -23,7 +23,7 @@
 enum lepton           { kElectron, kMuon, kAll};
 TString lepton_ [3] = { "electron", "muon", "all"};
 
-int channel = 0;
+int channel = 2;
 
 struct ensemble {
   const char* file;
@@ -44,7 +44,7 @@ struct staticUncertainty {
   : name(n), massUncertainty(mu), jesUncertainty(ju) {}
 };
 
-TString globalPath("/scratch/hh/current/cms/user/mseidel/topmass_120412_2120cp/");
+TString globalPath("/scratch/hh/current/cms/user/mseidel/topmass_120522_1120_cp1D/");
 
 double genMass[]      = {161.5, 163.5, 166.5, 169.5, 172.5, 175.5, 178.5, 181.5, 184.5};
 double genMassError[] = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
@@ -59,7 +59,7 @@ std::vector<TFile*> files;
 std::vector<TTree*> trees;
 
 
-void ensembleTreeSys()
+void ensembleTreeSys1D()
 {
   TString sPath = globalPath; sPath += lepton_[channel]; sPath += "/";
   
@@ -67,7 +67,6 @@ void ensembleTreeSys()
   std::vector<staticUncertainty> staticUncertainties;
   
   double totalMassUncertainty2 = 0;
-  double totalJESUncertainty2  = 0;
   
   switch(channel) {
     case kElectron:
@@ -80,13 +79,16 @@ void ensembleTreeSys()
       break;
     case kAll:
       staticUncertainties.push_back(staticUncertainty("Calibration", 0.06, 0.001));
+      staticUncertainties.push_back(staticUncertainty("b-tagging", 0.12, 0.001));
+      staticUncertainties.push_back(staticUncertainty("LES", 0.02, 0.001));
+      staticUncertainties.push_back(staticUncertainty("MET", 0.06, 0.001));
+      staticUncertainties.push_back(staticUncertainty("Background", 0.01, 0.001));
+      staticUncertainties.push_back(staticUncertainty("PU", 0.07, 0.001));
       staticUncertainties.push_back(staticUncertainty("PDF", 0.07, 0.001));
       break;
   }
   
   ensembles.push_back(ensemble("Fall11_TTJets1725_1.00/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_flavor:down/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_flavor:up/ensemble.root"));
   ensembles.push_back(ensemble("Fall11_TTJets1725_jes:down/ensemble.root", true, 0.984));
   ensembles.push_back(ensemble("Fall11_TTJets1725_jes:up/ensemble.root", true, 1.016));
   ensembles.push_back(ensemble("Fall11_TTJets1725_jer:down/ensemble.root"));
@@ -102,10 +104,10 @@ void ensembleTreeSys()
   //*
   ensembles.push_back(ensemble("Fall11_TTJets1725_P11/ensemble.root"));
   ensembles.push_back(ensemble("Fall11_TTJets1725_P11/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_P11noCR/ensemble.root", true, 0., 11));
+  ensembles.push_back(ensemble("Fall11_TTJets1725_P11noCR/ensemble.root", true, 0., 9));
   ensembles.push_back(ensemble("Fall11_TTJets1725_P11noCR/ensemble.root"));
   //*/
-  //*
+  /*
   ensembles.push_back(ensemble("muWeight-bWeight-PUWeightDown/ensemble.root"));
   ensembles.push_back(ensemble("muWeight-bWeight-PUWeightUp/ensemble.root"));
   ensembles.push_back(ensemble("fSig_0.92/ensemble.root"));
@@ -128,11 +130,8 @@ void ensembleTreeSys()
   for (int i = 0; i < (int) ensembles.size(); ++i) {
     TF1* gaus = new TF1("gaus", "gaus");
     
-    trees[i]->Fit("gaus", "mass", "mass>0 & JES>0 & genMass==172.5 & genJES==1", "EMQ0");
+    trees[i]->Fit("gaus", "massAlt", "massAlt>0 & genMass==172.5", "EMQ0");
     ensembles[i].mass = gaus->GetParameter(1);
-    
-    trees[i]->Fit("gaus", "JES", "mass>0 & JES>0 & genMass==172.5 & genJES==1", "EMQ0");
-    ensembles[i].jes = gaus->GetParameter(1);
   }
   
   for (int i = 1; i < (int) ensembles.size(); i+=2) {
@@ -144,33 +143,16 @@ void ensembleTreeSys()
     printf("\tLargest uncertainty: %4.2f GeV / Mean uncertainty: %4.2f GeV \n", largestDM, meanDM);
     
     (ensembles[i].takeLargest) ? totalMassUncertainty2 += largestDM*largestDM : totalMassUncertainty2 += meanDM*meanDM;
-    
-    printf("\t- %4.4f / o %4.4f / + %4.4f \n", ensembles[i].jes, ensembles[0].jes, ensembles[i+1].jes);
-    double largestDJ = 0;
-    double meanDJ    = 0;
-    if (ensembles[i].expectedJES > 0) {
-      largestDJ = max(abs(ensembles[i].expectedJES-ensembles[i].jes), abs(ensembles[i+1].expectedJES-ensembles[i+1].jes));
-      meanDJ    = (abs(ensembles[i].expectedJES-ensembles[i].jes) + abs(ensembles[i+1].expectedJES-ensembles[i+1].jes))/2;
-    }
-    else {
-      largestDJ = max(abs(ensembles[ensembles[i].reference].jes-ensembles[i].jes), abs(ensembles[ensembles[i].reference].jes-ensembles[i+1].jes));
-      meanDJ    = (abs(ensembles[ensembles[i].reference].jes-ensembles[i].jes) + abs(ensembles[ensembles[i].reference].jes-ensembles[i+1].jes))/2;
-    }
-    printf("\tLargest uncertainty: %4.3f / Mean uncertainty: %4.3f \n\n", largestDJ, meanDJ);
-    
-    (ensembles[i].takeLargest) ? totalJESUncertainty2 += largestDJ*largestDJ : totalJESUncertainty2 += meanDJ*meanDJ;
   }
   
   for (int i = 0; i < (int) staticUncertainties.size(); ++i) {
     std::cout << staticUncertainties[i].name << std::endl;
-    printf("\tMass uncertainty: %4.2f / JES uncertainty: %4.3f \n\n", staticUncertainties[i].massUncertainty, staticUncertainties[i].jesUncertainty);
+    printf("\tMass uncertainty: %4.2f \n\n", staticUncertainties[i].massUncertainty);
     
     totalMassUncertainty2 += staticUncertainties[i].massUncertainty*staticUncertainties[i].massUncertainty;
-    totalJESUncertainty2 += staticUncertainties[i].jesUncertainty*staticUncertainties[i].jesUncertainty;
   }
   
   printf("Systematic uncertainty on top mass: %4.2f GeV \n", sqrt(totalMassUncertainty2));
-  printf("Systematic uncertainty on JES     : %4.3f \n", sqrt(totalJESUncertainty2));
 }
 
 
