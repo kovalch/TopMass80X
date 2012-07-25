@@ -17,7 +17,7 @@
 #include "tdrstyle.C"
 
 int target = 0;
-int obs    = 0; // 0: hadTopMass, 1: hadWRawMass
+int obs    = 1; // 0: hadTopMass, 1: hadWRawMass
 int lepton = 0;
 
 int iMassMin = 4;
@@ -725,6 +725,7 @@ TH1F* FindParameters(TString filename, int i)
   h1->SetLineColor(color_[i]);
   h1->SetMarkerColor(color_[i]);
   h1->SetMarkerStyle(marker_[i]);
+  h1->SetMarkerSize(1.5);
   fit->SetLineColor(color_[i]);
   fit->SetLineStyle(line_[i]);
   

@@ -59,7 +59,7 @@ std::vector<sample>::iterator it;
 
 TProfile* responseProfile(TString sDraw, TChain* chain, TString label) {
   sDraw += " >> h2"; sDraw += label; sDraw += sDraw(1, 7); sDraw += "(5, 0, 200, 100, 0, 2)";
-  chain->Draw(sDraw, "(leptonPt > 30 & hadQBCSV<0.679 & hadQBarBCSV<0.679 & hadBBCSV>0.679 & lepBBCSV>0.679 & hitFitProb>0.2)*(MCWeight*hitFitProb)");
+  chain->Draw(sDraw); //, "(leptonPt > 30 & hadQBCSV<0.679 & hadQBarBCSV<0.679 & hadBBCSV>0.679 & lepBBCSV>0.679 & hitFitProb>0.2)*(MCWeight*hitFitProb)");
   TString sH2("h2"); sH2 += label; sH2 += sDraw(1, 7);
   TH2F* h2 = (TH2F*) gDirectory->Get(sH2);
   h2->ProfileX();
@@ -150,8 +150,8 @@ void jetresponse()
   samples.push_back(sample(tTTJets100, "Z2", kBlue+1));
   //samples.push_back(sample(tTTJets096, "Z2, JES -4%", kRed+1));
   //samples.push_back(sample(tTTJets104, "Z2, JES +4%", kGreen+1));
-  samples.push_back(sample(tTTJetsFlavorDown, "Z2, b-JES down", kRed));
-  samples.push_back(sample(tTTJetsFlavorUp, "Z2, b-JES up", kGreen));
+  samples.push_back(sample(tTTJetsFlavorDown, "Z2_bDown", kRed));
+  samples.push_back(sample(tTTJetsFlavorUp, "Z2_bUp", kGreen));
   samples.push_back(sample(tTTJetsP11, "P11", kMagenta+1));
   samples.push_back(sample(tTTJetsP11noCR, "P11noCR", kYellow+1));
   
@@ -159,14 +159,14 @@ void jetresponse()
   
   for (it = samples.begin(); it != samples.end(); ++it) {
     
-    //it->profile  = responseProfile("(hadQRaw.Pt()/hadQGen.Pt() + hadQBarRaw.Pt()/hadQBarGen.Pt())/2:(hadQGen.Pt()+hadQBarGen.Pt())/2", it->chain, it->label);
-    it->profile  = responseProfile("(hadQRaw.Pt()+hadQBarRaw.Pt())/(hadQGen.Pt()+hadQBarGen.Pt()):(hadQGen.Pt()+hadQBarGen.Pt())", it->chain, it->label);
-    //it->profileB = responseProfile("(lepBRaw.Pt()/lepBGen.Pt() + hadBRaw.Pt()/hadBGen.Pt())/2:(hadBGen.Pt()+lepBGen.Pt())/2", it->chain, it->label);
+    it->profile  = responseProfile("(hadQRaw.Pt()/hadQGen.Pt() + hadQBarRaw.Pt()/hadQBarGen.Pt())/2:(hadQGen.Pt()+hadQBarGen.Pt())/2", it->chain, it->label);
+    //it->profile  = responseProfile("(hadQRaw.Pt()+hadQBarRaw.Pt())/(hadQGen.Pt()+hadQBarGen.Pt()):(hadQGen.Pt()+hadQBarGen.Pt())/2", it->chain, it->label);
+    it->profileB = responseProfile("(lepBRaw.Pt()/lepBGen.Pt() + hadBRaw.Pt()/hadBGen.Pt())/2:(hadBGen.Pt()+lepBGen.Pt())/2", it->chain, it->label);
     
     //it->profile  = responseProfile("hadQRaw.Pt()/hadQGen.Pt():hadQGen.Pt()", it->chain, it->label);
-    //it->profile  = responseProfile("hadQBarRaw.Pt()/hadQBarGen.Pt():hadQBarGen.Pt()", it->chain, it->label);
-    it->profileB = responseProfile("hadBRaw.Pt()/hadBGen.Pt():hadBGen.Pt()", it->chain, it->label);
-    //it->profileB = responseProfile("lepBRaw.Pt()/lepBGen.Pt():lepBGen.Pt()", it->chain, it->label);
+    //it->profile  = responseProfile("hadWRaw.E()/hadWGen.E():hadWGen.Pt()", it->chain, it->label);
+    //it->profileB = responseProfile("(hadBRaw.Pt()/hadBGen.Pt()):hadBGen.Pt()", it->chain, it->label);
+    //it->profileB = responseProfile("(lepBRaw.Pt()/lepBGen.Pt()):lepBGen.Pt()", it->chain, it->label);
   }
   
   TMultiGraph *mg = new TMultiGraph();
@@ -189,7 +189,7 @@ void jetresponse()
   canvas->cd();
   
   mg->Draw("AP");
-  //*
+  /*
   mg->SetMinimum(0.98);
   mg->SetMaximum(1.02);
   //*/

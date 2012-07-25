@@ -96,6 +96,7 @@ void controlPlots()
   gStyle->SetNdivisions(505, "X");
 	gStyle->SetTitleYOffset(1.75);
   gStyle->SetOptStat(0);
+  gStyle->SetHatchesLineWidth(1.5);
   
   //TH1::SetDefaultSumw2(true);
 
@@ -281,11 +282,13 @@ void controlPlots()
   
   /* Test
   //makeControlPlot("jet", "hadBBSSV", "b-disc (SSVHE)", "", "hadBBSSV_event", 30, 1, 7, kEvent2b, true);
-  makeControlPlot("event", "jetMultiplicity", "Number of jets", "", "jetMultiplicity_test", 15, 0, 15, kEvent2b);
+  //makeControlPlot("event", "jetMultiplicity", "Number of jets", "", "jetMultiplicity_test", 15, 0, 15, kEvent2b);
   //makeControlPlot("event", "bottomSSVJetMultiplicity", "Number of b-jets", "", "bottomSSVJetMultiplicity", 5, 0, 5, kEvent);
   //makeControlPlot("event", "nVertex", "Number of vertices", "", "nVertex_test", 25, 0, 25, kEvent2b);
   //makeControlPlot("jet", "hadBBCSV", "b-disc (CSV)", "", "hadBBCSV_event", 50, 0.5, 1, kEvent2b, true);
-  //makeControlPlot("permutation", "hadTopMass", "m_{t}^{fit}","GeV", "hadTopMass_weighted", 70, 50, 400, kPerm2bW);
+  makeControlPlot("permutation", "hadTopMass", "m_{t}^{fit}","GeV", "hadTopMass_weighted", 70, 50, 400, kPerm2bW);
+  //makeControlPlot("permutation", "hadWRawMass", "m_{W}^{reco}", "GeV", "hadWRawMass", 60, 0, 300, kPerm2b);
+  //makeControlPlot("permutation", "hadWRawMass", "m_{W}^{reco}", "GeV", "hadWRawMass_weighted", 60, 0, 300, kPerm2bW);
   //*/
   
   /* Event
@@ -308,17 +311,17 @@ void controlPlots()
   //*/
   
   //* Permutation
-  makeControlPlot("permutation", "hadWRawMass", "m_{W,had}^{reco}", "GeV", "hadWRawMass", 60, 0, 300, kPerm2b);
+  makeControlPlot("permutation", "hadWRawMass", "m_{W}^{reco}", "GeV", "hadWRawMass", 60, 0, 300, kPerm2b);
   makeControlPlot("permutation", "lepWRawMass", "m_{W,lep}^{reco}", "GeV", "lepWRawMass", 60, 0, 300, kPerm2b);
   makeControlPlot("permutation", "hadTopRawMass", "m_{t,had}^{reco}", "GeV", "hadTopRawMass", 70, 50, 400, kPerm2b);
   makeControlPlot("permutation", "lepTopRawMass", "m_{t,lep}^{reco}", "GeV", "lepTopRawMass", 70, 50, 400, kPerm2b);
   makeControlPlot("permutation", "hadTopMass", "m_{t}^{fit}", "GeV", "hadTopMass", 70, 50, 400, kPerm2b);
-  makeControlPlot("permutation", "hitFitProb", "P_{fit}", "", "hitFitProb", 20, 0, 1, kPerm2b, true, 0.2);
+  makeControlPlot("permutation", "hitFitProb", "P_{gof}", "", "hitFitProb", 20, 0, 1, kPerm2b, true, 0.2);
   makeControlPlot("permutation", "hitFitChi2", "#chi^{2}_{fit}", "", "hitFitChi2", 20, 0, 10, kPerm2b, false, 3.218875825);
   //*/
   
   //* Permutation, weighted
-  makeControlPlot("permutation", "hadWRawMass", "m_{W,had}^{reco}", "GeV", "hadWRawMass_weighted", 60, 0, 300, kPerm2bW);
+  makeControlPlot("permutation", "hadWRawMass", "m_{W}^{reco}", "GeV", "hadWRawMass_weighted", 60, 0, 300, kPerm2bW);
   makeControlPlot("permutation", "lepWRawMass", "m_{W,lep}^{reco}", "GeV", "lepWRawMass_weighted", 60, 0, 300, kPerm2bW);
   makeControlPlot("permutation", "hadTopRawMass", "m_{t,had}^{reco}","GeV", "hadTopRawMass_weighted", 70, 50, 400, kPerm2bW);
   makeControlPlot("permutation", "lepTopRawMass", "m_{t,lep}^{reco}","GeV", "lepTopRawMass_weighted", 70, 50, 400, kPerm2bW);
@@ -554,7 +557,7 @@ void makeControlPlot(TString typeForTitle, TString sObservable, TString sObserva
   }
   hMC->SetFillColor(kBlack);
   //hMC->SetLineColor(kWhite);
-  hMC->SetFillStyle(3004);
+  hMC->SetFillStyle(3254);
   hMC->SetMarkerStyle(0);
   
   hTTJetsCP->SetFillColor(color_[kSigCP]);
@@ -599,9 +602,9 @@ void makeControlPlot(TString typeForTitle, TString sObservable, TString sObserva
   leg0->SetFillStyle(0);
   leg0->SetBorderSize(0);
   if (plot == kPerm2b || plot == kPerm2bW) {
-    leg0->AddEntry( hTTJetsCP, "t#bar{t} correct", "F" );
-    leg0->AddEntry( hTTJetsWP, "t#bar{t} wrong", "F" );
     leg0->AddEntry( hTTJetsUN, "t#bar{t} unmatched", "F" );
+    leg0->AddEntry( hTTJetsWP, "t#bar{t} wrong", "F" );
+    leg0->AddEntry( hTTJetsCP, "t#bar{t} correct", "F" );
     leg0->AddEntry( hMC,   "t#bar{t} uncertainty", "F" );
   }
   else {
@@ -665,5 +668,14 @@ void makeControlPlot(TString typeForTitle, TString sObservable, TString sObserva
   std::cout << "data: "   << hData->Integral()    << std::endl;
   
   std::cout << "Global chi2: " << chi2 << std::endl;
+  std::cout << "KS prob: " << hData->KolmogorovTest(hMC) << std::endl;
+  std::cout << "KS prob (N): " << hData->KolmogorovTest(hMC, "N") << std::endl;
+  
+  for (int i = 0; i < nbinsx+2; i++) {
+    hMC  ->SetBinError(i, 1e-3);
+  }
+  
+  std::cout << "KS prob (2): " << hData->KolmogorovTest(hMC) << std::endl;
+  std::cout << "KS prob (N2): " << hData->KolmogorovTest(hMC, "N") << std::endl;
   
 }

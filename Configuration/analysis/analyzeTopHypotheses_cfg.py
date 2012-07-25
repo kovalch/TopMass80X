@@ -116,9 +116,10 @@ else:
   readFiles.extend( [
   #       'file:/scratch/hh/current/cms/user/stadie/2011/production/TT_TuneZ2_7TeV_pythia6_FASTSIM/TT_TuneZ2_7TeV_pythia6_FASTSIM_0.root',
   #       '/store/data/Run2011A/SingleMu/AOD/May10ReReco-v1/0000/00454769-577B-E011-ACCD-001E0B49808A.root',
-  #       '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/FEEE3638-F297-E011-AAF8-00304867BEC0.root',
-         '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/02719D6B-1398-E011-AA71-001A92971B94.root',
+         '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/FEEE3638-F297-E011-AAF8-00304867BEC0.root',
+  #       '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/02719D6B-1398-E011-AA71-001A92971B94.root',
   #       '/store/mc/Summer11/WJetsToLNu_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/0004EB5E-64AC-E011-B046-003048678FDE.root',
+  #       '/store/mc/Fall11/TT_TuneZ2_7TeV-mcatnlo/AODSIM/PU_S6_START42_V14B-v1/0001/FED956DF-7F2A-E111-8124-002618943958.root'
   ] )
 
 secFiles.extend( [
@@ -263,7 +264,11 @@ addTtSemiLepHypotheses(process,
 ## load HypothesisAnalyzer
 process.load("TopMass.Analyzer.EventHypothesisAnalyzer_cff")
 
+## PDF weights
 process.analyzeHitFit.savePDFWeights = options.pdf
+
+## MC weights
+process.load("TopAnalysis.TopUtils.EventWeightMC_cfi")
 
 ## ============================
 ##  MC PU reweighting
@@ -387,6 +392,7 @@ process.path = cms.Path(#process.patDefaultSequence *
                         process.tightBottomCSVPFJets *
                         process.looseBottomCSVPFJets *
                         process.semiLeptonicEvents *
+                        process.eventWeightMC *
                         process.makeEventWeightsPU *
                         process.bTagSFEventWeight *
                         process.bTagSFEventWeightBTagSFUp *

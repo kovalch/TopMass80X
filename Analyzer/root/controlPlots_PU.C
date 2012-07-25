@@ -62,7 +62,7 @@ void controlPlots_PU()
   // ---
   //    open input files
   // ---
-  TFile* fTTJets = new TFile("/scratch/hh/current/cms/user/mseidel/Fall11_TTJets1725_v2_1.00_muon/analyzeTop.root");
+  TFile* fTTJets = new TFile("/scratch/hh/current/cms/user/mseidel/Fall11_TTJets1725_1.00_muon/analyzeTop.root");
   /*
   TFile* fQCD    = new TFile("/scratch/hh/current/cms/user/mseidel/Summer11_QCD/analyzeTop.root");
   TFile* fWJets  = new TFile("/scratch/hh/current/cms/user/mseidel/Summer11_WJets/analyzeTop.root");

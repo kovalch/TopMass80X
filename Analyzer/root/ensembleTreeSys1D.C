@@ -85,6 +85,7 @@ void ensembleTreeSys1D()
       staticUncertainties.push_back(staticUncertainty("Background", 0.01, 0.001));
       staticUncertainties.push_back(staticUncertainty("PU", 0.07, 0.001));
       staticUncertainties.push_back(staticUncertainty("PDF", 0.07, 0.001));
+      staticUncertainties.push_back(staticUncertainty("Tune", 0.151, 0.0003));
       break;
   }
   

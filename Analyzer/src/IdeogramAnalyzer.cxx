@@ -7,6 +7,7 @@ double IdeogramAnalyzer::GetMass() {
 void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
   Scan(cuts, i, j, 154, 190, 2, 0.9, 1.1, 0.02);
   Scan(cuts, i, j, fMass-2, fMass+2, 0.25, fJES-0.015, fJES+0.015, 0.0015);
+  //Scan(cuts, i, j, fMass-2, fMass+2, 0.1, fJES-0.015, fJES+0.015, 0.00075);
   double epsilon = 1e-6;
   //Scan(cuts, i, j, 154, 190, 2, 0.99, 1.01, 0.01);
   Scan(cuts, i, j, fMass-5, fMass+5, 0.25, 1.-epsilon, 1.+epsilon, epsilon, false);
@@ -65,7 +66,7 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
   
   IdeogramCombLikelihood* fptr = new IdeogramCombLikelihood();
   TF2* combLikelihood = new TF2("combLikelihood",fptr,&IdeogramCombLikelihood::Evaluate, firstBinMass, lastBinMass, firstBinJes, lastBinJes, 4, "IdeogramCombLikelihood", "Evaluate");
-  TF2* gausJESConstraint = new TF2("gausJESConstraint", "1./(sqrt(2.*TMath::Pi())*0.01) * TMath::Gaus(y, 1, 0.01) + x*0", firstBinMass, lastBinMass, firstBinJes, lastBinJes);
+  TF2* gausJESConstraint = new TF2("gausJESConstraint", "x*0 + ((y-2+0.995811)/0.016)**2", firstBinMass, lastBinMass, firstBinJes, lastBinJes);
   //TF1* combBackground = new TF1("combBackground",fptr,&IdeogramCombLikelihood::CrystalBall,150,200,1);
 
   TF1* fitParabola = new TF1("fitParabola", "abs([1])*(x-[0])^2+[2]");
@@ -107,10 +108,6 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
   sumLogLikelihood->SetTitle("-2#upointln{L(m_{t}|sample)}");
   sumLogLikelihood->SetXTitle("m_{t} [GeV]");
   sumLogLikelihood->SetYTitle("JES");
-  
-  eventLikelihood->Eval(gausJESConstraint);
-  eventLikelihood->Draw("COLZ");
-  ctemp->Print("plot/Ideogram/gausJESConstraint.eps");
 
   double hadTopMass, hadTopPt, lepTopPt, hadWPt, lepWPt, hadBPt, lepBPt, hadWRawMass, topPtAsymmetry, bScaleEstimator;
   double hadWE, deltaThetaHadWHadB, sinThetaStar;
@@ -273,15 +270,17 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
   
   std::cout << "Sum of weights: " << sumWeights << std::endl;
   std::cout << "Total number of events: " << nEvents << std::endl;
+  
   sumLogLikelihood->Scale(nEvents/sumWeights);
-  /*
+  
+  /* JES constraint
   eventLikelihood->Eval(gausJESConstraint);
   for (int i = 0; i<=binsMass; i++) {
-      for (int j = 0; j<=binsJes; j++) {
-      sumLogLikelihood->SetBinContent(i, j, sumLogLikelihood->GetBinContent(i, j) -20*TMath::Log(eventLikelihood->GetBinContent(i, j)));
+    for (int j = 0; j<=binsJes; j++) {
+      sumLogLikelihood->SetBinContent(i, j, sumLogLikelihood->GetBinContent(i, j) + eventLikelihood->GetBinContent(i, j));
     }
   }
-  */
+  //*/
   
   int minBinX;
   int minBinY;
@@ -396,7 +395,10 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
     sumLogLikelihood->Add(hUnity, -sumLogLikelihood->GetMinimum(0) + 1e-2);
     sumLogLikelihood->SetAxisRange(0, 25, "Z");
     if (blackWhite) sumLogLikelihood->Draw("AXIG");
-    else sumLogLikelihood->Draw("COLZ");
+    else {
+      sumLogLikelihood->Draw("COLZ");
+      //sumLogLikelihood->Draw("CONT3, SAME");
+    }
     if (syst) systParaboloid->Draw("cont3 same");
     fitParaboloid->Draw("cont3 same");
     //*/
@@ -408,7 +410,7 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
     //leg0->AddEntry((TObject*)0, "1, 2, 3#sigma", "");
     leg0->AddEntry(fitParaboloid, "stat", "L");
     if (syst)    leg0->AddEntry(systParaboloid, "stat + syst", "L");
-    leg0->Draw();
+    //leg0->Draw();
     
     helper->DrawCMSPrel();
     

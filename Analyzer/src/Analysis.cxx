@@ -268,14 +268,14 @@ void Analysis::CreateRandomSubset() {
     
     if (!strcmp(fLepton, "muon") || !strcmp(fLepton, "all")) {
       DrawEvents(fTreeTTmu, eventsPEMuon*fSig);
-      DrawEvents(fTreeWmu,  eventsPEMuon*(1.-fSig)*1./3.);
-      DrawEvents(fTreeSTmu, eventsPEMuon*(1.-fSig)*2./3.);
+      DrawEvents(fTreeWmu,  eventsPEMuon*(1.-fSig)*3./3.);
+      DrawEvents(fTreeSTmu, eventsPEMuon*(1.-fSig)*0./3.);
     }
     
     if (!strcmp(fLepton, "electron") || !strcmp(fLepton, "all")) {
       DrawEvents(fTreeTTe, eventsPEElectron*fSig);
-      DrawEvents(fTreeWe,  eventsPEElectron*(1.-fSig)*1./3.);
-      DrawEvents(fTreeSTe, eventsPEElectron*(1.-fSig)*2./3.);
+      DrawEvents(fTreeWe,  eventsPEElectron*(1.-fSig)*3./3.);
+      DrawEvents(fTreeSTe, eventsPEElectron*(1.-fSig)*0./3.);
     }
     
     time(&end);
@@ -412,6 +412,8 @@ TTree* Analysis::PrepareTree(TString file) {
   chain->SetBranchStatus("lepBBCSV", 1);
   chain->SetBranchStatus("jetsPt", 1);
   chain->SetBranchStatus("pdfWeights", 1);
+  
+  std::cout << file << ": " << chain->GetEntries("leptonPt>30 & hadQBCSV<0.679 & hadQBarBCSV<0.679 & hadBBCSV>0.679 & lepBBCSV>0.679 & hitFitProb>0.2 & combi==0") << " events" << std::endl;
   
   return chain->CopyTree("leptonPt>30 & hadQBCSV<0.679 & hadQBarBCSV<0.679 & hadBBCSV>0.679 & lepBBCSV>0.679 & hitFitProb>0.2");
 }

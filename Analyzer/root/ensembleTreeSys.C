@@ -23,7 +23,7 @@
 enum lepton           { kElectron, kMuon, kAll};
 TString lepton_ [3] = { "electron", "muon", "all"};
 
-int channel = 0;
+int channel = 2;
 
 struct ensemble {
   const char* file;
@@ -73,14 +73,19 @@ void ensembleTreeSys()
     case kElectron:
       staticUncertainties.push_back(staticUncertainty("Calibration", 0.09, 0.001));
       staticUncertainties.push_back(staticUncertainty("PDF", 0.07, 0.001));
+      staticUncertainties.push_back(staticUncertainty("UE", 0.244, 0.0011));
       break;
     case kMuon:
       staticUncertainties.push_back(staticUncertainty("Calibration", 0.08, 0.001));
       staticUncertainties.push_back(staticUncertainty("PDF", 0.07, 0.001));
+      staticUncertainties.push_back(staticUncertainty("UE", 0.256, 0.0025));
       break;
     case kAll:
       staticUncertainties.push_back(staticUncertainty("Calibration", 0.06, 0.001));
       staticUncertainties.push_back(staticUncertainty("PDF", 0.07, 0.001));
+      staticUncertainties.push_back(staticUncertainty("UE", 0.153, 0.0018));
+      staticUncertainties.push_back(staticUncertainty("Background", 0.13, 0.001));
+      //staticUncertainties.push_back(staticUncertainty("Statistical", 0.43, 0.003));
       break;
   }
   
@@ -95,21 +100,18 @@ void ensembleTreeSys()
   ensembles.push_back(ensemble("Fall11_TTJets1725_matchingup/ensemble.root"));
   ensembles.push_back(ensemble("Fall11_TTJets1725_scaledown/ensemble.root"));
   ensembles.push_back(ensemble("Fall11_TTJets1725_scaleup/ensemble.root"));
+  ensembles.push_back(ensemble("Fall11_TTJets1725_P11noCR/ensemble.root", true, 0., 12));
+  ensembles.push_back(ensemble("Fall11_TTJets1725_P11/ensemble.root"));
   /*
-  ensembles.push_back(ensemble("Fall11_TTJets1725_METCL1/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_METCL1/ensemble.root"));
-  */
-  //*
-  ensembles.push_back(ensemble("Fall11_TTJets1725_P11/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_P11/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_P11noCR/ensemble.root", true, 0., 11));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_P11noCR/ensemble.root"));
+  ensembles.push_back(ensemble("Fall11_TTJets1725_powheg/ensemble.root"));
+  ensembles.push_back(ensemble("Fall11_TTJets1725_powheg/ensemble.root"));
+  //*/
   //*/
   //*
   ensembles.push_back(ensemble("muWeight-bWeight-PUWeightDown/ensemble.root"));
   ensembles.push_back(ensemble("muWeight-bWeight-PUWeightUp/ensemble.root"));
-  ensembles.push_back(ensemble("fSig_0.92/ensemble.root"));
-  ensembles.push_back(ensemble("fSig_1.00/ensemble.root"));
+  //ensembles.push_back(ensemble("fSig_0.92_st/ensemble.root"));
+  //ensembles.push_back(ensemble("fSig_0.84_st/ensemble.root"));
   ensembles.push_back(ensemble("bDisc_0.61/ensemble.root"));
   ensembles.push_back(ensemble("bDisc_0.75/ensemble.root"));
   ensembles.push_back(ensemble("Fall11_TTJets1725_EES_down/ensemble.root"));

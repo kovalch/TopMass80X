@@ -24,8 +24,8 @@
 enum lepton           { kElectron, kMuon, kAll};
 TString lepton_ [3] = { "electron", "muon", "all"};
 
-int channel = 0;
-TString suffix = "c";
+int channel = 1;
+TString suffix = "";
 
 Long64_t nentries = 1000000000; //1000*27;
 Long64_t firstentry = nentries*0 + 0;
@@ -130,6 +130,8 @@ void ensembleTree()
   canvasFit->cd();
   
   //// Get histos
+  // topmass_120503_2140
+  // topmass_120530_0840
   TString sFile("/scratch/hh/current/cms/user/mseidel/topmass_120503_2140"); sFile += suffix; sFile += "/"; sFile += lepton_[channel]; sFile += "/ensemble.root";
   switch(channel) {
     case kElectron:
@@ -151,7 +153,7 @@ void ensembleTree()
   mgMass->SetTitle(";m_{t,gen} [GeV];m_{t,meas}-m_{t,gen} [GeV]");
   
   TMultiGraph *mgJES = new TMultiGraph();
-  mgJES->SetTitle(";m_{t,gen} [GeV];JES_{meas}-JES_{gen}");
+  mgJES->SetTitle(";m_{t,gen} [GeV];JES_{meas}-JES");
   
   TMultiGraph *mgMassPull = new TMultiGraph();
   mgMassPull->SetTitle(";m_{t,gen} [GeV];mass pull width");
@@ -164,6 +166,7 @@ void ensembleTree()
   
   for (int iJES = 0; iJES < 3; iJES++) {
     for (int iMass = 0; iMass < 9; iMass++) {
+      
       TString sel("mass>0 & JES>0 & genMass=="); sel+=genMass[iMass]; sel+=" & genJES=="; sel+=genJES[iJES];
       double entries = tree->GetEntries(sel);
       /*
@@ -186,6 +189,13 @@ void ensembleTree()
       JES[iJES][iMass]          = genJES[iJES];
       JESBias[iJES][iMass]      = gausJESBias->GetParameter(1) - genJES[iJES];
       JESBiasError[iJES][iMass] = gausJESBias->GetParameter(2) / sqrt(genMassN[iMass]/(crossSection*peLumi*maxMCWeight[iMass]));
+      
+      //* TEST
+      if (iMass == 4) {
+        massBiasError[iJES][iMass] = 1000.;
+        JESBiasError [iJES][iMass] = 1000.;
+      }
+      //*/
       
       // Fill calibration histos
       //*

@@ -126,7 +126,7 @@ void Helper::SetTDRStyle() {
   // tdrStyle->SetTitleXSize(Float_t size = 0.02); // Another way to set the size?
   // tdrStyle->SetTitleYSize(Float_t size = 0.02);
   tdrStyle->SetTitleXOffset(0.9);
-  tdrStyle->SetTitleYOffset(1.25);
+  tdrStyle->SetTitleYOffset(1.3);
   // tdrStyle->SetTitleOffset(1.1, "Y"); // Another way to set the Offset
 
 // For the axis labels:
@@ -187,13 +187,13 @@ void Helper::DrawLabel(TString text, const double x1, const double y1, const dou
 }
 
 void Helper::DrawCMSPrel() {
-  DrawLabel("CMS, 5.0 fb^{-1},  #sqrt{s}=7 TeV", 0.2, 0.93, 0.9);
+  DrawLabel("CMS, 5.0 fb^{-1},  #sqrt{s} = 7 TeV, l+jets", 0.2, 0.93, 0.9);
 }
 
 void Helper::DrawCMSPrelElectron() {
-  DrawLabel("CMS, 5.0 fb^{-1},  #sqrt{s}=7 TeV, e+jets", 0.2, 0.93, 0.9);
+  DrawLabel("CMS, 5.0 fb^{-1},  #sqrt{s} = 7 TeV, e+jets", 0.2, 0.93, 0.9);
 }
 
 void Helper::DrawCMSPrelMuon() {
-  DrawLabel("CMS, 5.0 fb^{-1},  #sqrt{s}=7 TeV, #mu+jets", 0.2, 0.93, 0.9);
+  DrawLabel("CMS, 5.0 fb^{-1},  #sqrt{s} = 7 TeV, #mu+jets", 0.2, 0.93, 0.9);
 }

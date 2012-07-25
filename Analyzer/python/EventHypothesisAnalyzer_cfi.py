@@ -8,8 +8,10 @@ analyzeHypothesis = cms.EDAnalyzer("EventHypothesisAnalyzer",
     hypoClassKey = cms.InputTag("ttSemiLepHypMaxSumPtWMass","Key"),
     
     jets         = cms.InputTag("goodJetsPF30"),
+    allJets      = cms.InputTag("patJets"),
     noPtEtaJets  = cms.InputTag("noPtEtaJetsPF"),
     leps         = cms.InputTag("tightMuons"),
+    mets         = cms.InputTag("scaledMET:scaledMETs"),
     
     PUSrc        = cms.InputTag("addPileupInfo"),
     
@@ -26,6 +28,7 @@ analyzeHypothesis = cms.EDAnalyzer("EventHypothesisAnalyzer",
     bWeightSrc_misTagSFDown = cms.InputTag("bTagSFEventWeightMisTagSFDown"),
     
     muWeightSrc  = cms.InputTag("effSFMuonEventWeight"),
+    mcWeightSrc  = cms.InputTag("eventWeightMC"),
     
     savePDFWeights = cms.bool(False),
 )

@@ -46,7 +46,7 @@ readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
-       '/store/data/Run2011A/SingleMu/AOD/May10ReReco-v1/0004/BA357784-557D-E011-A636-0017A477000C.root'
+#       '/store/data/Run2011A/SingleMu/AOD/May10ReReco-v1/0004/BA357784-557D-E011-A636-0017A477000C.root'
 #       '/store/data/Run2011B/SingleMu/AOD/PromptReco-v1/000/175/832/22EBE93E-B1DB-E011-9C16-BCAEC518FF8A.root',
 #       '/store/data/Run2011A/SingleMu/AOD/May10ReReco-v1/0000/00454769-577B-E011-ACCD-001E0B49808A.root',
 #       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v4/000/166/462/8A8DCE75-8190-E011-B082-001D09F2915A.root'
@@ -59,8 +59,8 @@ if (decayChannel=='electron'):
   ] )
 else:
   readFiles.extend( [
-         '/store/data/Run2011A/SingleMu/AOD/May10ReReco-v1/0004/BA357784-557D-E011-A636-0017A477000C.root'
-  #       '/store/data/Run2011B/SingleMu/AOD/PromptReco-v1/000/175/832/22EBE93E-B1DB-E011-9C16-BCAEC518FF8A.root',
+  #       '/store/data/Run2011A/SingleMu/AOD/May10ReReco-v1/0004/BA357784-557D-E011-A636-0017A477000C.root'
+         '/store/data/Run2011B/SingleMu/AOD/PromptReco-v1/000/175/832/22EBE93E-B1DB-E011-9C16-BCAEC518FF8A.root',
   #       '/store/data/Run2011A/SingleMu/AOD/May10ReReco-v1/0000/00454769-577B-E011-ACCD-001E0B49808A.root',
   #       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v4/000/166/462/8A8DCE75-8190-E011-B082-001D09F2915A.root'
   #       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v6/000/172/620/24054E7E-17C0-E011-AA64-001D09F28D4A.root'

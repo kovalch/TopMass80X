@@ -6,9 +6,14 @@
 #include "TTree.h"
 
 #include "Math/VectorUtil.h"
+#include "Math/GenVector/LorentzVector.h"
 #include "TLorentzVector.h"
+#include <Math/Boost.h>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+
+typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >	PxPyPzEVector;
+typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> >	PtEtaPhiMVector;
 
 class EventHypothesisAnalyzer : public edm::EDAnalyzer {
 
@@ -27,28 +32,30 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   edm::InputTag hypoClassKey_;
   
   edm::InputTag jets_;
-	edm::InputTag noPtEtaJets_;
+  edm::InputTag allJets_;
+  edm::InputTag noPtEtaJets_;
   edm::InputTag leps_;
-  
+  edm::InputTag mets_;
+
   edm::InputTag PUSrc_;
   edm::InputTag VertexSrc_;
-  
+
   edm::InputTag PUWeightSrc_;
-	edm::InputTag PUWeightUpSrc_;
-	edm::InputTag PUWeightDownSrc_;
-	
-	edm::InputTag PUAWeightSrc_;
-	edm::InputTag PUAWeightUpSrc_;
-	edm::InputTag PUAWeightDownSrc_;
-	
-	edm::InputTag PUBWeightSrc_;
-	edm::InputTag PUBWeightUpSrc_;
-	edm::InputTag PUBWeightDownSrc_;
-	
-	edm::InputTag PUABWeightSrc_;
-	edm::InputTag PUABWeightUpSrc_;
-	edm::InputTag PUABWeightDownSrc_;
-	
+  edm::InputTag PUWeightUpSrc_;
+  edm::InputTag PUWeightDownSrc_;
+
+  edm::InputTag PUAWeightSrc_;
+  edm::InputTag PUAWeightUpSrc_;
+  edm::InputTag PUAWeightDownSrc_;
+
+  edm::InputTag PUBWeightSrc_;
+  edm::InputTag PUBWeightUpSrc_;
+  edm::InputTag PUBWeightDownSrc_;
+
+  edm::InputTag PUABWeightSrc_;
+  edm::InputTag PUABWeightUpSrc_;
+  edm::InputTag PUABWeightDownSrc_;
+
   edm::InputTag bWeightSrc_;
   edm::InputTag bWeightSrc_bTagSFUp_;
   edm::InputTag bWeightSrc_bTagSFDown_;
@@ -56,6 +63,7 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   edm::InputTag bWeightSrc_misTagSFDown_;
   
   edm::InputTag muWeightSrc_;
+  edm::InputTag mcWeightSrc_;
   
   bool savePDFWeights_;
   bool data_;
@@ -115,8 +123,8 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   
   double leptonPt;
   double leptonC;
-	double leptonEta;
-	int leptonId;
+  double leptonEta;
+  int leptonId;
   
   double leptonRawPt;
   
@@ -186,12 +194,25 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double TTBarMass;
   
   int jetMultiplicity;
-  double jetsPt[4];
-  double jetsEta[4];
-  double jetsPhi[4];
+  double jetsBCSV[6];
+  int permutation[4];
   int noPtEtaJetMultiplicity;
   int bottomSSVJetMultiplicity;
   int bottomCSVJetMultiplicity;
+  double jetsPt [6];
+  double jetsEta[6];
+  double jetsPhi[6];
+
+  int allJetMultiplicity;
+  int inWJetMultiplicity;
+  double inWJetsPt [100];
+  double inWJetsEta[100];
+  double inWJetsPhi[100];
+  double inWJetsDRQ[100];
+  double inWJetsDRQBar[100];
+  double inWJetsCHM[100];
+  double inWJetsNC [100];
+  int inWContamination;
   
   double noPtEtaJetPt;
   double leadingJetPt;
@@ -213,25 +234,33 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double hadBProbSSV;
   double cProb;
   
+  double amwtHadQ;
+  double amwtHadQBar;
+  double amwtLepton;
+  
+  double inWEta;
+  double inWPhi;
+  double inWdR;
+  
   int nPU[3];
   int nVertex;
   
   double PUWeight;
-	double PUWeightUp;
-	double PUWeightDown;
-	
-	double PUAWeight;
-	double PUAWeightUp;
-	double PUAWeightDown;
-	
-	double PUBWeight;
-	double PUBWeightUp;
-	double PUBWeightDown;
-	
-	double PUABWeight;
-	double PUABWeightUp;
-	double PUABWeightDown;
-	
+  double PUWeightUp;
+  double PUWeightDown;
+
+  double PUAWeight;
+  double PUAWeightUp;
+  double PUAWeightDown;
+
+  double PUBWeight;
+  double PUBWeightUp;
+  double PUBWeightDown;
+
+  double PUABWeight;
+  double PUABWeightUp;
+  double PUABWeightDown;
+
   double bWeight;
   double bWeight_bTagSFUp;
   double bWeight_bTagSFDown;
@@ -239,6 +268,7 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double bWeight_misTagSFDown;
   
   double muWeight;
+  double mcWeight;
   
   double MCWeight;
   
@@ -251,47 +281,46 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   double QBTagProbabilitySSV(double bDiscriminator);
   double QBTagProbabilitySSVHEM(double bDiscriminator);
   
-  TLorentzVector* vec;
+  PxPyPzEVector hadTop_;
+  PxPyPzEVector hadTopRaw_;
+  PxPyPzEVector hadTopGen_;
   
-  TLorentzVector* hadTop_;
-  TLorentzVector* hadTopRaw_;
-  TLorentzVector* hadTopGen_;
+  PxPyPzEVector hadB_;
+  PxPyPzEVector hadBRaw_;
+  PxPyPzEVector hadBGen_;
   
-  TLorentzVector* hadB_;
-  TLorentzVector* hadBRaw_;
-  TLorentzVector* hadBGen_;
+  PxPyPzEVector hadW_;
+  PxPyPzEVector hadWRaw_;
+  PxPyPzEVector hadWGen_;
+  PtEtaPhiMVector hadWGeom_;
   
-  TLorentzVector* hadW_;
-  TLorentzVector* hadWRaw_;
-  TLorentzVector* hadWGen_;
+  PxPyPzEVector hadQ_;
+  PxPyPzEVector hadQRaw_;
+  PxPyPzEVector hadQGen_;
   
-  TLorentzVector* hadQ_;
-  TLorentzVector* hadQRaw_;
-  TLorentzVector* hadQGen_;
+  PxPyPzEVector hadQBar_;
+  PxPyPzEVector hadQBarRaw_;
+  PxPyPzEVector hadQBarGen_;
   
-  TLorentzVector* hadQBar_;
-  TLorentzVector* hadQBarRaw_;
-  TLorentzVector* hadQBarGen_;
+  PxPyPzEVector lepTop_;
+  PxPyPzEVector lepTopRaw_;
+  PxPyPzEVector lepTopGen_;
   
-  TLorentzVector* lepTop_;
-  TLorentzVector* lepTopRaw_;
-  TLorentzVector* lepTopGen_;
+  PxPyPzEVector lepB_;
+  PxPyPzEVector lepBRaw_;
+  PxPyPzEVector lepBGen_;
   
-  TLorentzVector* lepB_;
-  TLorentzVector* lepBRaw_;
-  TLorentzVector* lepBGen_;
+  PxPyPzEVector lepW_;
+  PxPyPzEVector lepWRaw_;
+  PxPyPzEVector lepWGen_;
   
-  TLorentzVector* lepW_;
-  TLorentzVector* lepWRaw_;
-  TLorentzVector* lepWGen_;
+  PxPyPzEVector lepton_;
+  PxPyPzEVector leptonRaw_;
+  PxPyPzEVector leptonGen_;
   
-  TLorentzVector* lepton_;
-  TLorentzVector* leptonRaw_;
-  TLorentzVector* leptonGen_;
-  
-  TLorentzVector* nu_;
-  TLorentzVector* nuRaw_;
-  TLorentzVector* nuGen_;
+  PxPyPzEVector nu_;
+  PxPyPzEVector nuRaw_;
+  PxPyPzEVector nuGen_;
 };
 
 #endif
