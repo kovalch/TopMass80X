@@ -37,7 +37,7 @@ class Analysis {
     double fSig;
     
     int target, run, luminosityBlock, event, combi, nVertex, leptonId;
-    double hadTopMass, hadWRawMass, leptonPt, leptonC, hitFitProb, deltaThetaHadWHadB, deltaThetaHadQHadQBar, PUWeight, PUWeightUp, PUWeightDown, muWeight, bWeight, bWeight_bTagSFUp, bWeight_bTagSFDown, bWeight_misTagSFUp, bWeight_misTagSFDown, MCWeight, hadQBCSV, hadQBarBCSV, hadBBCSV, lepBBCSV;
+    double hadTopMass, hadWRawMass, leptonPt, leptonC, hitFitProb, deltaThetaHadWHadB, deltaThetaHadQHadQBar, PUWeight, PUWeightUp, PUWeightDown, muWeight, bWeight, bWeight_bTagSFUp, bWeight_bTagSFDown, bWeight_misTagSFUp, bWeight_misTagSFDown, MCWeight, mcWeight, hadQBCSV, hadQBarBCSV, hadBBCSV, lepBBCSV;
     double jetsPt[4];
     double pdfWeights[44];
 

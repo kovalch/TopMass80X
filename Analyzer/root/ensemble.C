@@ -95,9 +95,9 @@ void ensemble()
   hError->GetYaxis()->SetRangeUser(0, 5000);
   hError->Draw();
   drawArrow(0.428136, 4500);
-  DrawLabel("This measurement (5.0 fb^{-1})", 0.36, 0.85, 0.46, kRed+1);
+  DrawLabel("This measurement", 0.36, 0.85, 0.46, kRed+1);
   
-  DrawCMS();
+  DrawCMS50();
   
   /*
   TCanvas* cPull = new TCanvas("cPull", "cPull", 600, 600);

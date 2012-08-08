@@ -119,6 +119,7 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
   int nEvents = 0;
   double productWeights = 1.;
   double sumWeights = 0.;
+  double mcWeight = 1;
   
   //TFile* file = new TFile("tree.root", "UPDATE");
   TTree* eventTree = fTree->CopyTree(cuts);
@@ -135,6 +136,7 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
   eventTree->SetBranchAddress("event", &event);
   eventTree->SetBranchAddress("combi", &combi);
   eventTree->SetBranchAddress("PUWeight", &PUWeight);
+  eventTree->SetBranchAddress("mcWeight", &mcWeight);
   eventTree->SetBranchAddress("muWeight", &muWeight);
   eventTree->SetBranchAddress("bWeight", &bWeight);
   eventTree->SetBranchAddress("leptonId", &leptonId);
@@ -232,7 +234,9 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
     }
     //*/
     
-    sumLogLikelihood->Add(logEventLikelihood, fitWeight*MCWeight/(pullWidth*pullWidth)); // add weight here
+    //std::cout << "mcWeight: " << mcWeight << std::endl;
+    
+    sumLogLikelihood->Add(logEventLikelihood, fitWeight*MCWeight/(pullWidth*pullWidth) * mcWeight/fabs(mcWeight)); // add weight here
     
     if (debug && iEntry%nDebug == 0 && iEntry < maxDebug) {
       TCanvas* eventCanvas = new TCanvas("eventCanvas", "eventCanvas", 1200, 400);

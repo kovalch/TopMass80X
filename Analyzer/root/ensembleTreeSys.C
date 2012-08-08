@@ -27,13 +27,17 @@ int channel = 2;
 
 struct ensemble {
   const char* file;
+  double size; // EFFECTIVE sample size
+  bool correlated;
   bool takeLargest;
   double expectedJES;
   int reference;
   double mass;
+  double massWidth;
   double jes;
-  ensemble(const char* f, bool t = true, double j = 0, int r = 0)
-  : file(f), takeLargest(t), expectedJES(j), reference(r) {}
+  double jesWidth;
+  ensemble(const char* f, double s, bool c = true, bool t = true, double j = 0, int r = 0)
+  : file(f), size(s), correlated(c), takeLargest(t), expectedJES(j), reference(r) {}
 };
 
 struct staticUncertainty {
@@ -83,43 +87,45 @@ void ensembleTreeSys()
     case kAll:
       staticUncertainties.push_back(staticUncertainty("Calibration", 0.06, 0.001));
       staticUncertainties.push_back(staticUncertainty("PDF", 0.07, 0.001));
-      staticUncertainties.push_back(staticUncertainty("UE", 0.153, 0.0018));
-      staticUncertainties.push_back(staticUncertainty("Background", 0.13, 0.001));
-      //staticUncertainties.push_back(staticUncertainty("Statistical", 0.43, 0.003));
+      staticUncertainties.push_back(staticUncertainty("UE", 0.187, 0.0018)); // 0.153 +/- 0.187
+      staticUncertainties.push_back(staticUncertainty("Background", 0.126, 0.001));
+      staticUncertainties.push_back(staticUncertainty("Statistical", 0.428, 0.003));
       break;
   }
   
-  ensembles.push_back(ensemble("Fall11_TTJets1725_1.00/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_flavor:down/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_flavor:up/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_jes:down/ensemble.root", true, 0.984));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_jes:up/ensemble.root", true, 1.016));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_jer:down/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_jer:up/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_matchingup/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_matchingup/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_scaledown/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_scaleup/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_P11noCR/ensemble.root", true, 0., 12));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_P11/ensemble.root"));
+  ensembles.push_back(ensemble("Fall11_TTJets1725_1.00/ensemble.root", 59613991./1.7));
+  ensembles.push_back(ensemble("Fall11_TTJets1725_flavor:down/ensemble.root", 59613991./1.7));
+  ensembles.push_back(ensemble("Fall11_TTJets1725_flavor:up/ensemble.root", 59613991./1.7));
+  ensembles.push_back(ensemble("Fall11_TTJets1725_jes:down/ensemble.root", 59613991./1.7, true, true, 0.984));
+  ensembles.push_back(ensemble("Fall11_TTJets1725_jes:up/ensemble.root", 59613991./1.7, true, true, 1.016));
+  ensembles.push_back(ensemble("Fall11_TTJets1725_jer:down/ensemble.root", 59613991./1.7));
+  ensembles.push_back(ensemble("Fall11_TTJets1725_jer:up/ensemble.root", 59613991./1.7));
+  ensembles.push_back(ensemble("Fall11_TTJets1725_matchingup/ensemble.root", 4029823./1.7, false));
+  ensembles.push_back(ensemble("Fall11_TTJets1725_matchingup/ensemble.root", 4029823./1.7, false));
+  ensembles.push_back(ensemble("Fall11_TTJets1725_scaledown/ensemble.root", 4004587./1.7, false));
+  ensembles.push_back(ensemble("Fall11_TTJets1725_scaleup/ensemble.root", 3696269./1.7, false));
+  ensembles.push_back(ensemble("Fall11_TTJets1725_P11noCR/ensemble.root", 8841768./1.7, false, true, 0., 12));
+  ensembles.push_back(ensemble("Fall11_TTJets1725_P11/ensemble.root", 8621453./1.7, false));
   /*
   ensembles.push_back(ensemble("Fall11_TTJets1725_powheg/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_powheg/ensemble.root"));
+  ensembles.push_back(ensemble("Fall11_TTJets1725_mcatnlo/ensemble.root"));
   //*/
   //*/
   //*
-  ensembles.push_back(ensemble("muWeight-bWeight-PUWeightDown/ensemble.root"));
-  ensembles.push_back(ensemble("muWeight-bWeight-PUWeightUp/ensemble.root"));
-  //ensembles.push_back(ensemble("fSig_0.92_st/ensemble.root"));
-  //ensembles.push_back(ensemble("fSig_0.84_st/ensemble.root"));
-  ensembles.push_back(ensemble("bDisc_0.61/ensemble.root"));
-  ensembles.push_back(ensemble("bDisc_0.75/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_EES_down/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_EES_up/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_MES_down/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_MES_up/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_UNC_0.9/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_UNC_1.1/ensemble.root"));
+  ensembles.push_back(ensemble("muWeight-bWeight-PUWeightDown/ensemble.root", 59613991./1.7));
+  ensembles.push_back(ensemble("muWeight-bWeight-PUWeightUp/ensemble.root", 59613991./1.7));
+  if (!(channel == kAll)) {
+    ensembles.push_back(ensemble("fSig_0.92/ensemble.root", 59613991./1.7));
+    ensembles.push_back(ensemble("fSig_0.84/ensemble.root", 59613991./1.7));
+  }
+  ensembles.push_back(ensemble("bDisc_0.61/ensemble.root", 59613991./1.7));
+  ensembles.push_back(ensemble("bDisc_0.75/ensemble.root", 59613991./1.7));
+  ensembles.push_back(ensemble("Fall11_TTJets1725_EES_down/ensemble.root", 59613991./1.7));
+  ensembles.push_back(ensemble("Fall11_TTJets1725_EES_up/ensemble.root", 59613991./1.7));
+  ensembles.push_back(ensemble("Fall11_TTJets1725_MES_down/ensemble.root", 59613991./1.7));
+  ensembles.push_back(ensemble("Fall11_TTJets1725_MES_up/ensemble.root", 59613991./1.7));
+  ensembles.push_back(ensemble("Fall11_TTJets1725_UNC_0.9/ensemble.root", 59613991./1.7));
+  ensembles.push_back(ensemble("Fall11_TTJets1725_UNC_1.1/ensemble.root", 59613991./1.7));
   //*/
   
   for (int i = 0; i < (int) ensembles.size(); ++i) {
@@ -132,18 +138,24 @@ void ensembleTreeSys()
     
     trees[i]->Fit("gaus", "mass", "mass>0 & JES>0 & genMass==172.5 & genJES==1", "EMQ0");
     ensembles[i].mass = gaus->GetParameter(1);
+    ensembles[i].massWidth = gaus->GetParameter(2);
     
     trees[i]->Fit("gaus", "JES", "mass>0 & JES>0 & genMass==172.5 & genJES==1", "EMQ0");
     ensembles[i].jes = gaus->GetParameter(1);
+    ensembles[i].jesWidth = gaus->GetParameter(2);
   }
   
   for (int i = 1; i < (int) ensembles.size(); i+=2) {
-    std::cout << ensembles[i].file << " / " << ensembles[i+1].file << std::endl;
+    std::cout << "\n" << ensembles[i].file << " / " << ensembles[i+1].file << std::endl;
     
     printf("\t- %4.3f GeV / o %4.3f GeV / + %4.3f GeV \n", ensembles[i].mass, ensembles[0].mass, ensembles[i+1].mass);
     double largestDM = max(abs(ensembles[ensembles[i].reference].mass-ensembles[i].mass), abs(ensembles[ensembles[i].reference].mass-ensembles[i+1].mass));
     double meanDM    = (abs(ensembles[ensembles[i].reference].mass-ensembles[i].mass) + abs(ensembles[ensembles[i].reference].mass-ensembles[i+1].mass))/2;
-    printf("\tLargest uncertainty: %4.2f GeV / Mean uncertainty: %4.2f GeV \n", largestDM, meanDM);
+    printf("\tLargest uncertainty: %4.2f GeV / Mean uncertainty: %4.2f GeV", largestDM, meanDM);
+    
+    double statDM = sqrt(pow(ensembles[ensembles[i].reference].massWidth / sqrt(ensembles[ensembles[i].reference].size/(crossSection*peLumi)), 2) + pow(ensembles[i].massWidth / sqrt(ensembles[i].size/(crossSection*peLumi)), 2));
+    printf(" / Statistical precision: %4.2f GeV \n", statDM);
+    if (statDM > largestDM && !ensembles[i].correlated) largestDM = statDM;
     
     (ensembles[i].takeLargest) ? totalMassUncertainty2 += largestDM*largestDM : totalMassUncertainty2 += meanDM*meanDM;
     
@@ -158,14 +170,18 @@ void ensembleTreeSys()
       largestDJ = max(abs(ensembles[ensembles[i].reference].jes-ensembles[i].jes), abs(ensembles[ensembles[i].reference].jes-ensembles[i+1].jes));
       meanDJ    = (abs(ensembles[ensembles[i].reference].jes-ensembles[i].jes) + abs(ensembles[ensembles[i].reference].jes-ensembles[i+1].jes))/2;
     }
-    printf("\tLargest uncertainty: %4.3f / Mean uncertainty: %4.3f \n\n", largestDJ, meanDJ);
+    printf("\tLargest uncertainty: %4.3f / Mean uncertainty: %4.3f", largestDJ, meanDJ);
+    
+    double statDJ = sqrt(pow(ensembles[ensembles[i].reference].jesWidth / sqrt(ensembles[ensembles[i].reference].size/(crossSection*peLumi)), 2) + pow(ensembles[i].jesWidth / sqrt(ensembles[i].size/(crossSection*peLumi)), 2));
+    printf(" / Statistical precision: %4.3f \n", statDJ);
+    if (statDJ > largestDJ && !ensembles[i].correlated) largestDJ = statDJ;
     
     (ensembles[i].takeLargest) ? totalJESUncertainty2 += largestDJ*largestDJ : totalJESUncertainty2 += meanDJ*meanDJ;
   }
   
   for (int i = 0; i < (int) staticUncertainties.size(); ++i) {
     std::cout << staticUncertainties[i].name << std::endl;
-    printf("\tMass uncertainty: %4.2f / JES uncertainty: %4.3f \n\n", staticUncertainties[i].massUncertainty, staticUncertainties[i].jesUncertainty);
+    printf("\n\tMass uncertainty: %4.2f / JES uncertainty: %4.3f \n\n", staticUncertainties[i].massUncertainty, staticUncertainties[i].jesUncertainty);
     
     totalMassUncertainty2 += staticUncertainties[i].massUncertainty*staticUncertainties[i].massUncertainty;
     totalJESUncertainty2 += staticUncertainties[i].jesUncertainty*staticUncertainties[i].jesUncertainty;

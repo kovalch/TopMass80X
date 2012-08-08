@@ -103,7 +103,14 @@ process.MessageLogger.cerr.TtSemiLeptonicEvent = cms.untracked.PSet(
 ## define input
 readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
-process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
+process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles,
+                              dropDescendantsOfDroppedBranches=cms.untracked.bool(False),
+                              inputCommands=cms.untracked.vstring(
+                                      'keep *',
+                                      'drop LHERunInfoProduct_*_*_*'
+                              )
+                              #,skipEvents=cms.untracked.uint32(4000)
+)
 if os.getenv('CMSSW_VERSION').startswith('CMSSW_4_1_'):
   readFiles.extend( [
          '/store/user/eschliec/TTJets_TuneD6T_7TeV-madgraph-tauola/PATWithPF_v4/e59efddd8a1547799dca5b47d5556447/patTuple_9_1_Nb0.root'
@@ -116,10 +123,12 @@ else:
   readFiles.extend( [
   #       'file:/scratch/hh/current/cms/user/stadie/2011/production/TT_TuneZ2_7TeV_pythia6_FASTSIM/TT_TuneZ2_7TeV_pythia6_FASTSIM_0.root',
   #       '/store/data/Run2011A/SingleMu/AOD/May10ReReco-v1/0000/00454769-577B-E011-ACCD-001E0B49808A.root',
-         '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/FEEE3638-F297-E011-AAF8-00304867BEC0.root',
+         #'/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/FEEE3638-F297-E011-AAF8-00304867BEC0.root',
   #       '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/02719D6B-1398-E011-AA71-001A92971B94.root',
   #       '/store/mc/Summer11/WJetsToLNu_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/0004EB5E-64AC-E011-B046-003048678FDE.root',
   #       '/store/mc/Fall11/TT_TuneZ2_7TeV-mcatnlo/AODSIM/PU_S6_START42_V14B-v1/0001/FED956DF-7F2A-E111-8124-002618943958.root'
+          '/store/user/mgosseli/mc/TT_TuneZ2_7TeV_madgraph_FASTSIM_172_5GeV_matchingdown_v1/TT_TuneZ2_7TeV_madgraph_FASTSIM_172_5GeV_matchingdown_v1_139.root',
+          '/store/user/mgosseli/mc/TT_TuneZ2_7TeV_madgraph_FASTSIM_172_5GeV_matchingdown_v1/TT_TuneZ2_7TeV_madgraph_FASTSIM_172_5GeV_matchingdown_v1_683.root'
   ] )
 
 secFiles.extend( [

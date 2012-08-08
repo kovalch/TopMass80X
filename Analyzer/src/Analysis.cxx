@@ -243,6 +243,7 @@ void Analysis::CreateRandomSubset() {
     fTree->Branch("bWeight_misTagSFUp", &bWeight_misTagSFUp, "bWeight_misTagSFUp/D");
     fTree->Branch("bWeight_misTagSFDown", &bWeight_misTagSFDown, "bWeight_misTagSFDown/D");
     fTree->Branch("MCWeight", &MCWeight, "MCWeight/D");
+    fTree->Branch("mcWeight", &mcWeight, "mcWeight/D");
     fTree->Branch("hadQBCSV", &hadQBCSV, "hadQBCSV/D");
     fTree->Branch("hadQBarBCSV", &hadQBarBCSV, "hadQBarBCSV/D");
     fTree->Branch("hadBBCSV", &hadBBCSV, "hadBBCSV/D");
@@ -299,6 +300,8 @@ void Analysis::CreateRandomSubset() {
   
 void Analysis::DrawEvents(TTree* tempTree, double nEventsPE) {
   std::cout << "nEventsPE: " << nEventsPE << std::endl;
+  
+  mcWeight = 1;
   
   fTree->CopyAddresses(tempTree);
   
@@ -366,8 +369,17 @@ void Analysis::DrawEvents(TTree* tempTree, double nEventsPE) {
           
           fTree->Fill();
         }
-        ++eventsDrawn;
-        ++progress;
+        
+        //std::cout << "mcWeight: " << mcWeight << std::endl;
+        
+        if (mcWeight < 0) {
+          eventsDrawn += -1;
+          //progress    += -1;
+        }
+        else {
+          ++eventsDrawn;
+          ++progress;
+        }
       }
     }
   }
@@ -405,6 +417,7 @@ TTree* Analysis::PrepareTree(TString file) {
   chain->SetBranchStatus("bWeight_misTagSFUp", 1);
   chain->SetBranchStatus("bWeight_misTagSFDown", 1);
   chain->SetBranchStatus("MCWeight", 1);
+  chain->SetBranchStatus("mcWeight", 1);
   chain->SetBranchStatus("nVertex", 1);
   chain->SetBranchStatus("hadQBCSV", 1);
   chain->SetBranchStatus("hadQBarBCSV", 1);

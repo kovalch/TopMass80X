@@ -208,3 +208,9 @@ void DrawCMS(int channel = 2) {
   TString sLabel("CMS,  #sqrt{s} = 7 TeV, "); sLabel += lepton_[channel];
   DrawLabel(sLabel, 0.2, 0.93, 0.9);
 }
+
+void DrawCMS50(int channel = 2) {
+  TString lepton_[3] = { "e+jets", "#mu+jets", "l+jets"};
+  TString sLabel("CMS, 5.0 fb^{-1},  #sqrt{s} = 7 TeV, "); sLabel += lepton_[channel];
+  DrawLabel(sLabel, 0.2, 0.93, 0.9);
+}

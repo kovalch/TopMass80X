@@ -24,8 +24,8 @@
 enum lepton           { kElectron, kMuon, kAll};
 TString lepton_ [3] = { "electron", "muon", "all"};
 
-int channel = 1;
-TString suffix = "";
+int channel = 2;
+TString suffix = "c";
 
 Long64_t nentries = 1000000000; //1000*27;
 Long64_t firstentry = nentries*0 + 0;
@@ -132,7 +132,8 @@ void ensembleTree()
   //// Get histos
   // topmass_120503_2140
   // topmass_120530_0840
-  TString sFile("/scratch/hh/current/cms/user/mseidel/topmass_120503_2140"); sFile += suffix; sFile += "/"; sFile += lepton_[channel]; sFile += "/ensemble.root";
+  // topmass_120412_2120cp
+  TString sFile("/scratch/hh/current/cms/user/mseidel/topmass_120530_0840"); sFile += suffix; sFile += "/"; sFile += lepton_[channel]; sFile += "/ensemble.root";
   switch(channel) {
     case kElectron:
       eff = 0.003022831;
@@ -190,7 +191,7 @@ void ensembleTree()
       JESBias[iJES][iMass]      = gausJESBias->GetParameter(1) - genJES[iJES];
       JESBiasError[iJES][iMass] = gausJESBias->GetParameter(2) / sqrt(genMassN[iMass]/(crossSection*peLumi*maxMCWeight[iMass]));
       
-      //* TEST
+      /* TEST
       if (iMass == 4) {
         massBiasError[iJES][iMass] = 1000.;
         JESBiasError [iJES][iMass] = 1000.;
