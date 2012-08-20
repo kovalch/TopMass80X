@@ -23,6 +23,8 @@ TChain* tTTJetsQ2Up;
 TChain* tTTJetsQ2Down;
 TChain* tTTJetsMatchingUp;
 TChain* tTTJetsMatchingDown;
+TChain* tTTJetsPowheg;
+TChain* tTTJetsMcatnlo;
 TChain* tTTFast100;
 TChain* tTTFastMatchingDown;
 
@@ -31,10 +33,18 @@ TString lepton_ [3] = { "electron", "muon", "all"};
 
 int channel = 2;
 
+/*
 int nbins = 6;
 double xfirst = 4;
 double xlast  = 10;
 TString sObs("jetMultiplicity");
+//*/
+//*
+int nbins = 10;
+double xfirst = 0;
+double xlast  = 200;
+TString sObs("hadBRawPt");
+//*/
 
 int color_ [] =  {kRed+1, kRed-7, kRed-10, kGray , kGreen+1, kRed+1 , kAzure-2, kGreen-3, 
                  kYellow , kMagenta, 10      , kBlack  , 
@@ -136,6 +146,8 @@ void theoryUncertainties()
   tTTJetsQ2Down       = new TChain(sTree);
   tTTJetsMatchingUp   = new TChain(sTree);
   tTTJetsMatchingDown = new TChain(sTree);
+  tTTJetsPowheg       = new TChain(sTree);
+  tTTJetsMcatnlo      = new TChain(sTree);
   tTTFast100          = new TChain(sTree);
   tTTFastMatchingDown = new TChain(sTree);
   
@@ -145,20 +157,24 @@ void theoryUncertainties()
   if (channel == kMuon || channel == kAll) {
     tData               ->Add("/scratch/hh/current/cms/user/mseidel/Run2011_CRStudy_muon/analyzeTop.root");
     tTTJets100          ->Add("/scratch/hh/current/cms/user/mseidel/Fall11_TTJets1725_1.00_muon/analyzeTop.root");
-    tTTJetsQ2Up         ->Add("/scratch/hh/current/cms/user/mseidel/Fall11_TTJets1725_scaleup_muon/analyzeTop.root");
-    tTTJetsQ2Down       ->Add("/scratch/hh/current/cms/user/mseidel/Fall11_TTJets1725_scaledown_muon/analyzeTop.root");
+    tTTJetsQ2Up         ->Add("/scratch/hh/current/cms/user/mseidel/Fall11_TTJets1725_1.04_muon/analyzeTop.root");
+    tTTJetsQ2Down       ->Add("/scratch/hh/current/cms/user/mseidel/Fall11_TTJets1725_0.96_muon/analyzeTop.root");
     tTTJetsMatchingUp   ->Add("/scratch/hh/current/cms/user/mseidel/Fall11_TTJets1725_matchingup_muon/analyzeTop.root");
     tTTJetsMatchingDown ->Add("/scratch/hh/current/cms/user/mseidel/Fall11_TTJets1725_matchingdown_muon/analyzeTop.root");
+    tTTJetsPowheg       ->Add("/scratch/hh/current/cms/user/mseidel/Fall11_TTJets1725_powheg_muon/analyzeTop.root");
+    tTTJetsMcatnlo      ->Add("/scratch/hh/current/cms/user/mseidel/Fall11_TTJets1725_mcatnlo_muon/analyzeTop.root");
     tTTFast100          ->Add("/scratch/hh/current/cms/user/mseidel/TT_FASTSIM_TuneZ2_madgraph_muon/analyzeTop.root");
     tTTFastMatchingDown ->Add("/scratch/hh/current/cms/user/mseidel/TT_FASTSIM_Z2_matchingdown_madgraph_muon/analyzeTop.root");
   }
   if (channel == kElectron || channel == kAll) {
     tData               ->Add("/scratch/hh/current/cms/user/mseidel/Run2011_CRStudy_electron/analyzeTop.root");
     tTTJets100          ->Add("/scratch/hh/current/cms/user/mseidel/Fall11_TTJets1725_1.00_electron/analyzeTop.root");
-    tTTJetsQ2Up         ->Add("/scratch/hh/current/cms/user/mseidel/Fall11_TTJets1725_scaleup_electron/analyzeTop.root");
-    tTTJetsQ2Down       ->Add("/scratch/hh/current/cms/user/mseidel/Fall11_TTJets1725_scaledown_electron/analyzeTop.root");
+    tTTJetsQ2Up         ->Add("/scratch/hh/current/cms/user/mseidel/Fall11_TTJets1725_1.04_electron/analyzeTop.root");
+    tTTJetsQ2Down       ->Add("/scratch/hh/current/cms/user/mseidel/Fall11_TTJets1725_0.96_electron/analyzeTop.root");
     tTTJetsMatchingUp   ->Add("/scratch/hh/current/cms/user/mseidel/Fall11_TTJets1725_matchingup_electron/analyzeTop.root");
     tTTJetsMatchingDown ->Add("/scratch/hh/current/cms/user/mseidel/Fall11_TTJets1725_matchingdown_electron/analyzeTop.root");
+    tTTJetsPowheg       ->Add("/scratch/hh/current/cms/user/mseidel/Fall11_TTJets1725_powheg_electron/analyzeTop.root");
+    tTTJetsMcatnlo      ->Add("/scratch/hh/current/cms/user/mseidel/Fall11_TTJets1725_mcatnlo_electron/analyzeTop.root");
     tTTFast100          ->Add("/scratch/hh/current/cms/user/mseidel/TT_FASTSIM_TuneZ2_madgraph_electron/analyzeTop.root");
     tTTFastMatchingDown ->Add("/scratch/hh/current/cms/user/mseidel/TT_FASTSIM_Z2_matchingdown_madgraph_electron/analyzeTop.root");
   }
@@ -166,10 +182,16 @@ void theoryUncertainties()
   samples.push_back(sample(tTTJets100, "Z2", kRed+1));
   samples.push_back(sample(tTTJetsQ2Up, "Q2 up", kGreen+1));
   samples.push_back(sample(tTTJetsQ2Down, "Q2 down", kBlue+1));
+  /*
   samples.push_back(sample(tTTJetsMatchingUp, "MEPS up", kMagenta+1));
   samples.push_back(sample(tTTJetsMatchingDown, "MEPS down", kCyan+1));
+  */
+  samples.push_back(sample(tTTJetsPowheg, "Powheg", kMagenta+1));
+  samples.push_back(sample(tTTJetsMcatnlo, "MCatNLO", kCyan+1));
+  /*
   samples.push_back(sample(tTTFast100, "Fast Z2", kRed-7, 2));
   samples.push_back(sample(tTTFastMatchingDown, "Fast MEPS down", kCyan-7, 2));
+  */
   samples.push_back(sample(tData, "Data", kBlack));
     
   //"[0] + exp([1]+[2]*x)"

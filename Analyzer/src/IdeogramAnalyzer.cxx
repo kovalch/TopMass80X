@@ -318,7 +318,7 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
     fitParaboloid->SetParLimits(2, minJes-2*resolJes, minJes+2*resolJes);
     fitParaboloid->SetParameter(2, minJes);
     fitParaboloid->SetParameter(3, 1000000);
-    fitParaboloid->SetParLimits(5, sumLogLikelihood->GetMinimum(0), sumLogLikelihood->GetMinimum(0));
+    fitParaboloid->SetParLimits(5, sumLogLikelihood->GetMinimum(0)-1., sumLogLikelihood->GetMinimum(0)+1.);
     fitParaboloid->SetParameter(5, sumLogLikelihood->GetMinimum(0));
     
     //fitParaboloid->SetRange(minMass - 1, minJes - 0.01, minMass + 1, minJes + 0.01);
