@@ -5,12 +5,15 @@ double IdeogramAnalyzer::GetMass() {
 }
 
 void IdeogramAnalyzer::Analyze(TString cuts, int i, int j) {
+  //Scan(cuts, i, j, 100, 350, 10, 0.7, 1.3, 0.025);
+  //*
   Scan(cuts, i, j, 154, 190, 2, 0.9, 1.1, 0.02);
   Scan(cuts, i, j, fMass-2, fMass+2, 0.25, fJES-0.015, fJES+0.015, 0.0015);
   //Scan(cuts, i, j, fMass-2, fMass+2, 0.1, fJES-0.015, fJES+0.015, 0.00075);
   double epsilon = 1e-6;
   //Scan(cuts, i, j, 154, 190, 2, 0.99, 1.01, 0.01);
   Scan(cuts, i, j, fMass-5, fMass+5, 0.25, 1.-epsilon, 1.+epsilon, epsilon, false);
+  //*/
   
   //Scan(cuts, i, j, fMass-2, fMass+2, 0.1, fJES-0.015, fJES+0.015, 0.0005);
   //Scan(cuts, i, j, 170, 176, 0.1, 0.999, 1.001, 0.0001);
@@ -46,10 +49,8 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
   // S e t u p   c o m p o n e n t   p d f s 
   // ---------------------------------------
 
-  int binsMass     = (lastBinMass-firstBinMass)/resolMass;
-  
+  int binsMass       = (lastBinMass-firstBinMass)/resolMass;
   int binsJes        = (lastBinJes-firstBinJes)/resolJes;
-  
   double pullWidth   = 1.;//1.02;//06; //1.46;
   
   /*
@@ -97,6 +98,7 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
   TH2D* eventLikelihood = new TH2D("eventLikelihood","eventLikelihood", binsMass, firstBinMass, lastBinMass, binsJes, firstBinJes, lastBinJes);
   TH2D* logEventLikelihood = new TH2D("logEventLikelihood", "logEventLikelihood", binsMass, firstBinMass, lastBinMass, binsJes, firstBinJes, lastBinJes);
   TH2D* sumLogLikelihood = new TH2D("sumLogLikelihood", "sumLogLikelihood", binsMass, firstBinMass, lastBinMass, binsJes, firstBinJes, lastBinJes);
+  TH2D* productLikelihood = new TH2D("productLikelihood", "productLikelihood", binsMass, firstBinMass, lastBinMass, binsJes, firstBinJes, lastBinJes);
   sumLogLikelihood->Eval(null);
   
   eventLikelihood->SetTitle("L(m_{t}|event)");
@@ -108,6 +110,9 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
   sumLogLikelihood->SetTitle("-2#upointln{L(m_{t}|sample)}");
   sumLogLikelihood->SetXTitle("m_{t} [GeV]");
   sumLogLikelihood->SetYTitle("JES");
+  productLikelihood->SetTitle("-2#upointln{L(m_{t}|sample)}");
+  productLikelihood->SetXTitle("m_{t} [GeV]");
+  productLikelihood->SetYTitle("JES");
 
   double hadTopMass, hadTopPt, lepTopPt, hadWPt, lepWPt, hadBPt, lepBPt, hadWRawMass, topPtAsymmetry, bScaleEstimator;
   double hadWE, deltaThetaHadWHadB, sinThetaStar;
@@ -418,8 +423,21 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
     
     helper->DrawCMSPrel();
     
-    TString path("plot/Ideogram/"); path+= fIdentifier; path += "_"; path += i; path += "_"; path += j; path += ".eps";
+    TString path("plot/Ideogram/"); path += fIdentifier; path += "_"; path += i; path += ".eps";
     ctemp->Print(path);
+    
+    if (debug) {
+      for (int i = 0; i<=binsMass; i++) {
+        for (int j = 0; j<=binsJes; j++) {
+          productLikelihood->SetBinContent(i, j, TMath::Max(TMath::Exp(-1./2. * sumLogLikelihood->GetBinContent(i, j)), 0.));
+        }
+      }
+    
+      productLikelihood->SetAxisRange(0, 1, "Z");
+      productLikelihood->Draw("COLZ");
+      TString path2("plot/Ideogram/"); path2 += fIdentifier; path2 += "_"; path2 += i; path2 += "_exp.eps";
+      ctemp->Print(path2);
+    }
   }
   
   // 1D top mass
@@ -446,7 +464,7 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
     
     helper->DrawCMSPrel();
     
-    TString path1D("plot/Ideogram/"); path1D+= fIdentifier; path1D += "_"; path1D += i; path1D += "_"; path1D += j; path1D += "_1D.eps";
+    TString path1D("plot/Ideogram/"); path1D+= fIdentifier; path1D += "_"; path1D += i; path1D += "_"; path1D += "_1D.eps";
     ctemp->Print(path1D);
     
     sumLogLikelihood1D->Delete();

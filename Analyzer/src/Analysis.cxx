@@ -1,9 +1,11 @@
 #include "Analysis.h"
 
-Analysis::Analysis(po::variables_map vm) {
+Analysis::Analysis(po::variables_map vm, std::vector<float> v)
+  : vBinning(v) {
   fMethod = vm["method"].as<std::string>();
   fLumi   = vm["lumi"].as<double>();
-  fBins   = vm["bins"].as<int>();
+  fBins   = 1;
+  fBinning = vm["binning"].as<std::string>();
   fWeight = vm["weight"].as<std::string>();
   fSig    = vm["fsig"].as<double>();
   fIdentifier = vm["input"].as<std::string>();
@@ -73,118 +75,103 @@ void Analysis::Analyze(po::variables_map vm) {
     return;
   }
    
-  Helper* helper = new Helper(fBins);
+  Helper* helper = new Helper(fBins, fBinning, vBinning);
   helper->SetTDRStyle();
   
   TCanvas* canvas = new TCanvas("canvas", "Top mass", 900, 600);
   canvas->cd();
   
-  double smearBins = 1.;
-  double rangeX = 3.;
-  double rangeY = 3.;
-
-  double smearX = smearBins/fBins*rangeX;
-  double smearY = smearBins/fBins*rangeY;
-  
-  double minEntries = 25;
-  
-  /*if (!strcmp(fMethod, "Ideogram")) {
-    minEntries = 1500;
-  }*/
-
-  TString observableX = "deltaThetaHadWHadB";
-  TString observableY = "deltaThetaHadQHadQBar";
   double bdisc = vm["bdisc"].as<double>();
   
-  for(int i = 0; i < fBins; i++) {
-    for(int j = 0; j < fBins; j++) {
-      // calculate cuts
-      TString cuts;
-      std::stringstream stream;
-      stream << (rangeX/fBins)*(i)-smearX << "<" << observableX << "&"
-             << observableX << "<" << (rangeX/fBins)*(i+1)+smearX << " & "
-             << rangeY/fBins*(j)-smearY << "<" << observableY << "&" 
-             << observableY << "<" << rangeY/fBins*(j+1)+smearY;
-      cuts = stream.str();
-      
-      if (!strcmp(fMethod, "GenMatch")) {
-        cuts += " & target == 1";
-      }
-      else if (!strcmp(fMethod, "MVA")) {
-        cuts += " & mvaDisc > 0";
-      }
-      else if (!strcmp(fMethod, "Ideogram")) {
-        //cuts += " & target == 1";
-        //cuts += " & (target == 0 | target == 1)";
-        //cuts += " & sumBPt > 50";
-        //cuts += " & TTBarPt < 50";
-        //cuts += " & jetMultiplicity != 4";
-        cuts += " & hitFitProb > 0.2";
-        //cuts += " & bProbSSV > 0.3";
-        //cuts += " & bProbSSV*hitFitProb > 0.05";
-        //cuts += " & hadQBSSV<1.74 & hadQBarBSSV<1.74 & hadBBSSV>1.74 & lepBBSSV>1.74";   // b-TAG
-        cuts += " & hadQBCSV<"; cuts += bdisc;
-        cuts += " & hadQBarBCSV<"; cuts += bdisc;
-        cuts += " & hadBBCSV>"; cuts += bdisc;
-        cuts += " & lepBBCSV>"; cuts += bdisc;   // b-TAG
-        //cuts += " & abs(hadQF)!=5 & abs(hadQBarF)!=5 & abs(hadBF)==5 & abs(lepBF)==5";   // b-TRUTH
-        //cuts += " & hadQPt>33 & hadBPt>33 & lepBPt>33";
-        //cuts += " & run < 168000";
-        //cuts += " & nlJetPt/(hadQPt+hadQBarPt)>0.3";
-        cuts += " & leptonPt > 30";
-        //cuts += " & jetsPt[2] > 50";
-        //cuts += " & leptonC == 1";
-        //cuts += " & nVertex >= 5";
-        //cuts += " & noPtEtaJetPt < 50";
-      }
-      
-      int entries = fTree->GetEntries(cuts);
-      std::cout << cuts << std::endl;
-      std::cout << entries << std::endl;
-
-      hEntries->SetCellContent(i+1, j+1, entries);
-      
-      if (entries > minEntries) {
-        fAnalyzer->Analyze(cuts, i, j);
-
-        hMass     ->SetCellContent(i+1, j+1, fAnalyzer->GetMass());
-        hMassError->SetCellContent(i+1, j+1, fAnalyzer->GetMassError());
-        hMassSigma->SetCellContent(i+1, j+1, fAnalyzer->GetMassSigma());
-        hMassAlt  ->SetCellContent(i+1, j+1, fAnalyzer->GetMassAlt());
-        hMassAltError->SetCellContent(i+1, j+1, fAnalyzer->GetMassAltError());
-        hJES      ->SetCellContent(i+1, j+1, fAnalyzer->GetJES());
-        hJESError ->SetCellContent(i+1, j+1, fAnalyzer->GetJESError());
-        
-        std::cout << "Measured mass: " << fAnalyzer->GetMass() << " +/- "
-                  << fAnalyzer->GetMassError() << " GeV" << std::endl;
-        std::cout << "Measured JES: " << fAnalyzer->GetJES() << " +/- "
-                  << fAnalyzer->GetJESError() << " " << std::endl;
-        std::cout << "Measured mass (alt): " << fAnalyzer->GetMassAlt() << " +/- "
-                  << fAnalyzer->GetMassAltError() << " GeV" << std::endl;
-      }
+  for(int i = 0; i < vBinning.size()-1; i++) {
+    // calculate cuts
+    TString cuts;
+    std::stringstream stream;
+    stream << vBinning[i] << " < " << fBinning << " & "
+           << fBinning << " < " << vBinning[i+1];
+    cuts = stream.str();
+    
+    if (!strcmp(fMethod, "GenMatch")) {
+      cuts += " & target == 1";
     }
+    else if (!strcmp(fMethod, "MVA")) {
+      cuts += " & mvaDisc > 0";
+    }
+    else if (!strcmp(fMethod, "Ideogram")) {
+      //cuts += " & target == 1";
+      //cuts += " & (target == 0 | target == 1)";
+      //cuts += " & sumBPt > 50";
+      //cuts += " & TTBarPt < 50";
+      //cuts += " & jetMultiplicity != 4";
+      cuts += " & hitFitProb > 0.2";
+      //cuts += " & bProbSSV > 0.3";
+      //cuts += " & bProbSSV*hitFitProb > 0.05";
+      //cuts += " & hadQBSSV<1.74 & hadQBarBSSV<1.74 & hadBBSSV>1.74 & lepBBSSV>1.74";   // b-TAG
+      cuts += " & hadQBCSV<"; cuts += bdisc;
+      cuts += " & hadQBarBCSV<"; cuts += bdisc;
+      cuts += " & hadBBCSV>"; cuts += bdisc;
+      cuts += " & lepBBCSV>"; cuts += bdisc;   // b-TAG
+      //cuts += " & abs(hadQF)!=5 & abs(hadQBarF)!=5 & abs(hadBF)==5 & abs(lepBF)==5";   // b-TRUTH
+      //cuts += " & hadQPt>33 & hadBPt>33 & lepBPt>33";
+      //cuts += " & run < 168000";
+      //cuts += " & nlJetPt/(hadQPt+hadQBarPt)>0.3";
+      cuts += " & leptonPt > 30";
+      //cuts += " & jetsPt[2] > 50";
+      //cuts += " & leptonC == 1";
+      //cuts += " & nVertex >= 5";
+      //cuts += " & noPtEtaJetPt < 50";
+    }
+    
+    int entries = fTree->GetEntries(cuts);
+    std::cout << cuts << std::endl;
+    std::cout << entries << std::endl;
+
+    hEntries->SetBinContent(i+1, entries);
+    
+    fAnalyzer->Analyze(cuts, i, 0);
+
+    hMass         ->SetBinContent (i+1, fAnalyzer->GetMass());
+    hMass         ->SetBinError   (i+1, fAnalyzer->GetMassError());
+    hMassError    ->SetBinContent (i+1, fAnalyzer->GetMassError());
+    hMassSigma    ->SetBinContent (i+1, fAnalyzer->GetMassSigma());
+    hMassAlt      ->SetBinContent (i+1, fAnalyzer->GetMassAlt());
+    hMassAlt      ->SetBinError   (i+1, fAnalyzer->GetMassAltError());
+    hMassAltError ->SetBinContent (i+1, fAnalyzer->GetMassAltError());
+    hJES          ->SetBinContent (i+1, fAnalyzer->GetJES());
+    hJES          ->SetBinError   (i+1, fAnalyzer->GetJESError());
+    hJESError     ->SetBinContent (i+1, fAnalyzer->GetJESError());
+    
+    std::cout << "Measured mass: " << fAnalyzer->GetMass() << " +/- "
+              << fAnalyzer->GetMassError() << " GeV" << std::endl;
+    std::cout << "Measured JES: " << fAnalyzer->GetJES() << " +/- "
+              << fAnalyzer->GetJESError() << " " << std::endl;
+    std::cout << "Measured mass (alt): " << fAnalyzer->GetMassAlt() << " +/- "
+              << fAnalyzer->GetMassAltError() << " GeV" << std::endl;
   }
   
   canvas->Clear();
   canvas->Divide(2,2);
   
   canvas->cd(1);
-  hEntries->Draw("COLZ");
+  hEntries->Draw("E1");
 
   canvas->cd(2);
-  hMass->Draw("COLZ,TEXT");
-  hMass->SetAxisRange(hMass->GetMinimum(0.05), hMass->GetMaximum(), "Z");
+  hMass->Draw("E1");
+  hMass->Fit("pol0");
 
   canvas->cd(3);
-  hMassError->Draw("COLZ,TEXT");
-  hMassError->SetAxisRange(0.05, 5, "Z");
+  hMassAlt->Draw("E1");
+  hMassAlt->Fit("pol0");
   
   canvas->cd(4);
-  hMassSigma->Draw("COLZ,TEXT");
-  hMassSigma->SetAxisRange(hMassSigma->GetMinimum(0.05), hMassSigma->GetMaximum(), "Z");
+  hJES->Draw("E1");
+  hJES->Fit("pol0");
   
-  TString path("plot/"); path += fMethod; path += "_"; path += fIdentifier; path += ".eps";
+  TString path("plot/"); path += fMethod; path += "_"; path += fIdentifier; path += "_"; path += fBinning; path += ".eps";
   canvas->Print(path);
+  
+  TString pathr("plot/"); pathr += fMethod; pathr += "_"; pathr += fIdentifier; pathr += "_"; pathr += fBinning; pathr += ".root";
+  canvas->Print(pathr);
   
   delete canvas;
   delete fAnalyzer;
@@ -192,20 +179,20 @@ void Analysis::Analyze(po::variables_map vm) {
 }
 
 void Analysis::CreateHistos() {
-  Helper* helper = new Helper(fBins);
+  Helper* helper = new Helper(fBins, fBinning, vBinning);
 
-  hEntries = helper->GetH2("Entries");
-  hMass = helper->GetH2("Mass");
-  hMassError = helper->GetH2("MassError");
-  hMassSigma = helper->GetH2("MassSigma");
-  hMassAlt = helper->GetH2("MassAlt");
-  hMassAltError = helper->GetH2("MassAltError");
+  hEntries = helper->GetH1("Entries");
+  hMass = helper->GetH1("Mass");
+  hMassError = helper->GetH1("MassError");
+  hMassSigma = helper->GetH1("MassSigma");
+  hMassAlt = helper->GetH1("MassAlt");
+  hMassAltError = helper->GetH1("MassAltError");
   
-  hJES = helper->GetH2("JES");
-  hJESError = helper->GetH2("JESError");
+  hJES = helper->GetH1("JES");
+  hJESError = helper->GetH1("JESError");
   
-  hMassCalibrated = helper->GetH2("Mass (Calibrated)");
-  hMassErrorCalibrated = helper->GetH2("MassError (Calibrated)");
+  hMassCalibrated = helper->GetH1("Mass (Calibrated)");
+  hMassErrorCalibrated = helper->GetH1("MassError (Calibrated)");
 }
 
 void Analysis::CreateRandomSubset() {  
@@ -331,7 +318,7 @@ void Analysis::DrawEvents(TTree* tempTree, double nEventsPE) {
   int eventsDrawn = 0;
   int nAttempts = 0;
   
-  boost::progress_display progress(nEventsPE, std::cout);
+  boost::progress_display progress((int)nEventsPE, std::cout);
   
   while (eventsDrawn < (int)nEventsPE) {
     int drawn = random->Integer(permsMC);
@@ -431,39 +418,39 @@ TTree* Analysis::PrepareTree(TString file) {
   return chain->CopyTree("leptonPt>30 & hadQBCSV<0.679 & hadQBarBCSV<0.679 & hadBBCSV>0.679 & lepBBCSV>0.679 & hitFitProb>0.2");
 }
 
-TH2F* Analysis::GetH2Mass() {
+TH1F* Analysis::GetH1Mass() {
   return hMass;
 }
 
-TH2F* Analysis::GetH2MassError() {
+TH1F* Analysis::GetH1MassError() {
   return hMassError;
 }
 
-TH2F* Analysis::GetH2MassAlt() {
+TH1F* Analysis::GetH1MassAlt() {
   return hMassAlt;
 }
 
-TH2F* Analysis::GetH2MassAltError() {
+TH1F* Analysis::GetH1MassAltError() {
   return hMassAltError;
 }
 
-TH2F* Analysis::GetH2MassSigma() {
+TH1F* Analysis::GetH1MassSigma() {
   return hMassSigma;
 }
 
-TH2F* Analysis::GetH2JES() {
+TH1F* Analysis::GetH1JES() {
   return hJES;
 }
 
-TH2F* Analysis::GetH2JESError() {
+TH1F* Analysis::GetH1JESError() {
   return hJESError;
 }
 
-TH2F* Analysis::GetH2MassCalibrated() {
+TH1F* Analysis::GetH1MassCalibrated() {
   return hMassCalibrated;
 }
 
-TH2F* Analysis::GetH2MassErrorCalibrated() {
+TH1F* Analysis::GetH1MassErrorCalibrated() {
   return hMassErrorCalibrated;
 }
 

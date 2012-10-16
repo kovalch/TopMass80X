@@ -54,23 +54,10 @@ class TopMass {
     int fBins;
     double fLumi;
     
-    std::vector< std::vector<Analysis*> > calibrationAnalyses;
-    
-    std::vector<Analysis*> analyses;
-    std::vector<Analysis*>::iterator iAnalysis;
-    
     Analysis* aSim;
-    
-    double fCalibFitParameter[6][6][2];
-    double fCalibFitParError[6][6][2];
-    
-    void LoadXML();
-  
+      
   public:
     TopMass(po::variables_map vm);
     
-    void WriteEnsembleTest(po::variables_map vm);
-    
-    void QuickCalibration(po::variables_map vm);
-    void QuickSystematics(po::variables_map vm);
+    void WriteEnsembleTest(po::variables_map vm, std::vector<float> vBinning);
 };

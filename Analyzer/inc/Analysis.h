@@ -25,16 +25,13 @@ namespace po = boost::program_options;
 
 class Analysis {
   private:
-    TString fIdentifier;
-    TString fLepton;
-    TString fFileElectron;
-    TString fFileMuon;
-    TString fMethod;
+    TString fIdentifier, fLepton, fFileElectron, fFileMuon, fMethod, fBinning;
     std::string fWeight;
     
     int fBins;
     double fLumi;
     double fSig;
+    std::vector<float> vBinning;
     
     int target, run, luminosityBlock, event, combi, nVertex, leptonId;
     double hadTopMass, hadWRawMass, leptonPt, leptonC, hitFitProb, deltaThetaHadWHadB, deltaThetaHadQHadQBar, PUWeight, PUWeightUp, PUWeightDown, muWeight, bWeight, bWeight_bTagSFUp, bWeight_bTagSFDown, bWeight_misTagSFUp, bWeight_misTagSFDown, MCWeight, mcWeight, hadQBCSV, hadQBarBCSV, hadBBCSV, lepBBCSV;
@@ -52,18 +49,18 @@ class Analysis {
     TTree* fTreeSTe;
     
     TFile* tempFile;
-    TH2F* hEntries;
-    TH2F* hMass;
-    TH2F* hMassError;
-    TH2F* hMassSigma;
-    TH2F* hMassAlt;
-    TH2F* hMassAltError;
+    TH1F* hEntries;
+    TH1F* hMass;
+    TH1F* hMassError;
+    TH1F* hMassSigma;
+    TH1F* hMassAlt;
+    TH1F* hMassAltError;
     
-    TH2F* hJES;
-    TH2F* hJESError;
+    TH1F* hJES;
+    TH1F* hJESError;
     
-    TH2F* hMassCalibrated;
-    TH2F* hMassErrorCalibrated;
+    TH1F* hMassCalibrated;
+    TH1F* hMassErrorCalibrated;
     
     void CreateHistos();
     void CreateRandomSubset();
@@ -71,23 +68,23 @@ class Analysis {
     TTree* PrepareTree(TString file);
 
   public:
-    Analysis(po::variables_map vm);
+    Analysis(po::variables_map vm, std::vector<float> v);
     Analysis(TString identifier, TString file, TString method, int bins, double lumi);
     ~Analysis() {}
     
     void Analyze(po::variables_map vm);
     
-    TH2F* GetH2Mass();
-    TH2F* GetH2MassError();
-    TH2F* GetH2MassSigma();
-    TH2F* GetH2MassAlt();
-    TH2F* GetH2MassAltError();
+    TH1F* GetH1Mass();
+    TH1F* GetH1MassError();
+    TH1F* GetH1MassSigma();
+    TH1F* GetH1MassAlt();
+    TH1F* GetH1MassAltError();
     
-    TH2F* GetH2JES();
-    TH2F* GetH2JESError();
+    TH1F* GetH1JES();
+    TH1F* GetH1JESError();
     
-    TH2F* GetH2MassCalibrated();
-    TH2F* GetH2MassErrorCalibrated();
+    TH1F* GetH1MassCalibrated();
+    TH1F* GetH1MassErrorCalibrated();
     
     TString GetIdentifier();
 };

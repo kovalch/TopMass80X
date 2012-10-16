@@ -1,5 +1,16 @@
 #include "Helper.h"
 
+TH1F* Helper::GetH1(TString title) {
+  const float* array = &vBinning[0];
+
+  TH1F* hHelper = new TH1F(title, title, vBinning.size()-1, array);
+  hHelper->SetStats(false);
+  hHelper->SetXTitle(fBinning);
+  hHelper->SetYTitle(title);
+
+  return hHelper;
+}
+
 TH2F* Helper::GetH2(TString title) {
   TH2F* hHelper = new TH2F();
   hHelper->SetBins(fBins, 0, 3, fBins, 0, 3);
@@ -58,6 +69,7 @@ void Helper::SetTDRStyle() {
 // For the histo:
   // tdrStyle->SetHistFillColor(1);
   // tdrStyle->SetHistFillStyle(0);
+  
   tdrStyle->SetHistLineColor(1);
   tdrStyle->SetHistLineStyle(0);
   tdrStyle->SetHistLineWidth(1);
@@ -66,7 +78,7 @@ void Helper::SetTDRStyle() {
 
   tdrStyle->SetEndErrorSize(2);
 //  tdrStyle->SetErrorMarker(20);
-  tdrStyle->SetErrorX(0.);
+  //tdrStyle->SetErrorX(0.);
   
   tdrStyle->SetMarkerStyle(20);
 
