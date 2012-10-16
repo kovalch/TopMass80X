@@ -24,8 +24,8 @@
 enum lepton           { kElectron, kMuon, kAll};
 TString lepton_ [3] = { "electron", "muon", "all"};
 
-int channel = 2;
-TString suffix = "c";
+int channel = 1;
+TString suffix = "";
 
 Long64_t nentries = 1000000000; //1000*27;
 Long64_t firstentry = nentries*0 + 0;
@@ -80,14 +80,24 @@ TF1* linearFitJES;
 TFitResultPtr fitResult;
 
 
-void DrawLegend() {
+void DrawLegend(bool bwlines = false) {
   double y1 = 0.915; double y2 = 0.955;
   int textsize = 8;
-  TLegend *leg1 = new TLegend(0.20, y1, 0.44, y2);
+  TLegend *leg1 = new TLegend(0.20, y1, 0.92, y2);
+  leg1->SetNColumns(3);
   leg1->SetTextSizePixels(textsize);
   leg1->SetFillColor(kWhite);
   leg1->SetBorderSize(0);
-  leg1->AddEntry( gMass[0], "JES=0.96", "EP");
+  if (bwlines) {
+    leg1->AddEntry( linearFit096, "JES=0.96", "LP");
+    leg1->AddEntry( linearFit100, "JES=1.00", "LP");
+    leg1->AddEntry( linearFit104, "JES=1.04", "LP");
+  }
+  else {
+    leg1->AddEntry( linearFit096, "JES=0.96", "P");
+    leg1->AddEntry( linearFit100, "JES=1.00", "P");
+    leg1->AddEntry( linearFit104, "JES=1.04", "P");
+  }
   /*
   leg->AddEntry( constFit, "Const. fit", "L");
   char chi2[6]; sprintf(chi2, "%3.1f", fitResult->Chi2());
@@ -96,19 +106,23 @@ void DrawLegend() {
   */
   leg1->Draw();
   
+  /*
   TLegend *leg2 = new TLegend(0.44, y1, 0.68, y2);
   leg2->SetTextSizePixels(textsize);
   leg2->SetFillColor(kWhite);
   leg2->SetBorderSize(0);
-  leg2->AddEntry( gMass[1], "JES=1.00", "EP");
+  if (bwlines) leg2->AddEntry( linearFit100, "JES=1.00", "LP");
+  else         leg2->AddEntry( linearFit100, "JES=1.00", "P");
   leg2->Draw();
   
   TLegend *leg3 = new TLegend(0.68, y1, 0.92, y2);
   leg3->SetTextSizePixels(textsize);
   leg3->SetFillColor(kWhite);
   leg3->SetBorderSize(0);
-  leg3->AddEntry( gMass[2], "JES=1.04", "EP");
+  if (bwlines) leg3->AddEntry( linearFit104, "JES=1.04", "LP");
+  else         leg3->AddEntry( linearFit104, "JES=1.04", "P");
   leg3->Draw();
+  */
 }
 
 void ensembleTree()
@@ -130,10 +144,10 @@ void ensembleTree()
   canvasFit->cd();
   
   //// Get histos
-  // topmass_120503_2140
-  // topmass_120530_0840
+  // topmass_120503_2140 - e mu
+  // topmass_120530_0840 - all
   // topmass_120412_2120cp
-  TString sFile("/scratch/hh/current/cms/user/mseidel/topmass_120530_0840"); sFile += suffix; sFile += "/"; sFile += lepton_[channel]; sFile += "/ensemble.root";
+  TString sFile("/scratch/hh/current/cms/user/mseidel/topmass_120503_2140"); sFile += suffix; sFile += "/"; sFile += lepton_[channel]; sFile += "/ensemble.root";
   switch(channel) {
     case kElectron:
       eff = 0.003022831;
@@ -151,16 +165,21 @@ void ensembleTree()
   tree = (TTree*) fEnsemble->Get("tree");
   
   TMultiGraph *mgMass = new TMultiGraph();
-  mgMass->SetTitle(";m_{t,gen} [GeV];m_{t,meas}-m_{t,gen} [GeV]");
+  mgMass->SetTitle(";m_{t,gen} [GeV];<m_{t,extr}-m_{t,gen}> [GeV]");
   
   TMultiGraph *mgJES = new TMultiGraph();
-  mgJES->SetTitle(";m_{t,gen} [GeV];JES_{meas}-JES");
+  mgJES->SetTitle(";m_{t,gen} [GeV];<JES_{extr}-JES>");
+  
+  if (channel == 2) {
+    mgMass->SetTitle(";m_{t,gen} [GeV];<m_{t,cal}-m_{t,gen}> [GeV]");
+    mgJES->SetTitle(";m_{t,gen} [GeV];<JES_{cal}-JES>");
+  }
   
   TMultiGraph *mgMassPull = new TMultiGraph();
-  mgMassPull->SetTitle(";m_{t,gen} [GeV];mass pull width");
+  mgMassPull->SetTitle(";m_{t,gen} [GeV];Width of mass pull ");
   
   TMultiGraph *mgJESPull = new TMultiGraph();
-  mgJESPull->SetTitle(";m_{t,gen} [GeV];JES pull width");
+  mgJESPull->SetTitle(";m_{t,gen} [GeV];Width of JES pull ");
   
   TH2D* h2Mass = new TH2D("h2Mass", "h2Mass", 1000, 150, 200, 1000, 0.9, 1.1);
   TH2D* h2JES = new TH2D("h2JES", "h2JES", 1000, 150, 200, 1000, 0.9, 1.1);
@@ -255,27 +274,33 @@ void ensembleTree()
   constFit = new TF1("constFit", "[0]");
   constFit->SetParNames("offset");
   constFit->SetLineColor(kBlack);
-  constFit->SetLineWidth(3);
-  constFit->SetLineStyle(7);
+  constFit->SetLineWidth(2);
+  constFit->SetLineStyle(1);
   
   linearFit096 = new TF1("linearFit096", "[0]+[1]*(x-172.5)");
   linearFit096->SetParNames("offset", "slope");
   linearFit096->SetLineColor(color_[0]);
-  linearFit096->SetLineWidth(1);
-  linearFit096->SetLineStyle(7);
+  linearFit096->SetLineWidth(2);
+  linearFit096->SetLineStyle(9);
+  linearFit096->SetMarkerStyle(marker_[0]);
+  linearFit096->SetMarkerColor(color_ [0]);
   
   linearFit100 = new TF1("linearFit100", "[0]+[1]*(x-172.5)");
   linearFit100->SetParNames("offset", "slope");
   linearFit100->SetLineColor(color_[1]);
-  linearFit100->SetLineWidth(1);
-  linearFit100->SetLineStyle(7);
+  linearFit100->SetLineWidth(3);
+  linearFit100->SetLineStyle(2);
+  linearFit100->SetMarkerStyle(marker_[1]);
+  linearFit100->SetMarkerColor(color_ [1]);
   
   linearFit104 = new TF1("linearFit104", "[0]+[1]*(x-172.5)");
   linearFit104->SetParNames("offset", "slope");
   linearFit104->SetLineColor(color_[2]);
-  linearFit104->SetLineWidth(1);
-  linearFit104->SetLineStyle(7);
-
+  linearFit104->SetLineWidth(2);
+  linearFit104->SetLineStyle(5);
+  linearFit104->SetMarkerStyle(marker_[2]);
+  linearFit104->SetMarkerColor(color_ [2]);
+  
   linearFitJES = new TF1("linearFitJES", "[0]+[1]*(x-1.0)");
   linearFitJES->SetParNames("offset", "slope");
 
@@ -326,7 +351,7 @@ void ensembleTree()
   
   canvasFit->cd(0);
   DrawCMSSim(channel);
-  DrawLegend();
+  DrawLegend(true);
   
   TString sFitMass("fit_Bias_"); sFitMass += lepton_[channel]; sFitMass += suffix; sFitMass += ".eps";
   canvasFit->Print(sFitMass);

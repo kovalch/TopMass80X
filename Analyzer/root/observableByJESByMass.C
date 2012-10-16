@@ -23,10 +23,11 @@ int lepton = 0;
 int iMassMin = 4;
 int iMassMax = 5;
 
-bool plotByMass = true;
+bool plotByMass = false;
 bool pas = false;
 
 TString sTarget[] = {"wp", "cp", "un"};
+TString sFObs[]   = {"mt", "mW"};
 TString sObs[]    = {"m_{t}", "m_{W}^{reco}"};
 TString sLepton[] = {"electron", "muon"};
 
@@ -444,18 +445,20 @@ void FindParametersMass(int iMass)
   // ---
   //    create legend
   // ---
-  TLegend *leg0 = new TLegend(0.65, 0.75, 0.95, 0.94);
+  TLegend *leg0 = new TLegend(0.5, 0.7, 0.95, 0.92);
   leg0->SetFillStyle(0);
   leg0->SetBorderSize(0);
   if (!pas && !plotByMass) {
     leg0->AddEntry( h096, "JES = 0.96", "PL");
     leg0->AddEntry( h100, "JES = 1.00", "PL");
     leg0->AddEntry( h104, "JES = 1.04", "PL");
+    leg0->AddEntry((TObject*)0, "m_{t,gen} = 172.5 GeV", "");
   }
   else if (plotByMass) {
     leg0->AddEntry( h096, "m_{t,gen} = 166.5 GeV", "PL");
     leg0->AddEntry( h100, "m_{t,gen} = 172.5 GeV", "PL");
     leg0->AddEntry( h104, "m_{t,gen} = 178.5 GeV", "PL");
+    leg0->AddEntry((TObject*)0, "JES = 1.00", "");
   }
   else {
     if (obs==0) leg0->AddEntry( h166, "m_{t,gen} = 166.5 GeV", "PL");
@@ -469,11 +472,17 @@ void FindParametersMass(int iMass)
 
   DrawCMSSim(1);
   
-  h096->GetYaxis()->SetRangeUser(0, h096->GetMaximum()*1.2);
-  if (obs==0) DrawCutLine(172.5, h096->GetMaximum());
-  else DrawCutLine(80.4, h096->GetMaximum());
+  if (obs==0) DrawCutLine(172.5, h096->GetMaximum()*1.1);
+  else DrawCutLine(80.4, h096->GetMaximum()*1.1);
+  h096->GetYaxis()->SetRangeUser(0, h096->GetMaximum()*1.5);
   
   gStyle->SetOptFit(1);
+  
+  TString path("observables/"); path+= sFObs[obs]; path += "_";
+  if (plotByMass) path += "mass";
+  else            path += "jes";
+  path += "_"; path += sTarget[abs(target%8)]; path += ".eps";
+  cObservable->Print(path);
   
   TCanvas* cObservablePar = new TCanvas("cObservablePar", "cObservablePar", 1600, 400);
   cObservablePar->Divide(4,1);

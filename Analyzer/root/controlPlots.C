@@ -286,9 +286,9 @@ void controlPlots()
   //makeControlPlot("event", "bottomSSVJetMultiplicity", "Number of b-jets", "", "bottomSSVJetMultiplicity", 5, 0, 5, kEvent);
   //makeControlPlot("event", "nVertex", "Number of vertices", "", "nVertex_test", 25, 0, 25, kEvent2b);
   //makeControlPlot("jet", "hadBBCSV", "b-disc (CSV)", "", "hadBBCSV_event", 50, 0.5, 1, kEvent2b, true);
-  makeControlPlot("permutation", "hadTopMass", "m_{t}^{fit}","GeV", "hadTopMass_weighted", 70, 50, 400, kPerm2bW);
-  //makeControlPlot("permutation", "hadWRawMass", "m_{W}^{reco}", "GeV", "hadWRawMass", 60, 0, 300, kPerm2b);
-  //makeControlPlot("permutation", "hadWRawMass", "m_{W}^{reco}", "GeV", "hadWRawMass_weighted", 60, 0, 300, kPerm2bW);
+  makeControlPlot("Permutation", "hadTopMass", "m_{t}^{fit}","GeV", "hadTopMass_weighted", 70, 50, 400, kPerm2bW);
+  //makeControlPlot("Permutation", "hadWRawMass", "m_{W}^{reco}", "GeV", "hadWRawMass", 60, 0, 300, kPerm2b);
+  //makeControlPlot("Permutation", "hadWRawMass", "m_{W}^{reco}", "GeV", "hadWRawMass_weighted", 60, 0, 300, kPerm2bW);
   //*/
   
   /* Event
@@ -310,22 +310,29 @@ void controlPlots()
   makeControlPlot("jet", "hadBBCSV", "b-disc (CSV)", "", "hadBBCSV_event", 50, 0.5, 1, kEvent2b, true);
   //*/
   
-  //* Permutation
-  makeControlPlot("permutation", "hadWRawMass", "m_{W}^{reco}", "GeV", "hadWRawMass", 60, 0, 300, kPerm2b);
-  makeControlPlot("permutation", "lepWRawMass", "m_{W,lep}^{reco}", "GeV", "lepWRawMass", 60, 0, 300, kPerm2b);
-  makeControlPlot("permutation", "hadTopRawMass", "m_{t,had}^{reco}", "GeV", "hadTopRawMass", 70, 50, 400, kPerm2b);
-  makeControlPlot("permutation", "lepTopRawMass", "m_{t,lep}^{reco}", "GeV", "lepTopRawMass", 70, 50, 400, kPerm2b);
-  makeControlPlot("permutation", "hadTopMass", "m_{t}^{fit}", "GeV", "hadTopMass", 70, 50, 400, kPerm2b);
-  makeControlPlot("permutation", "hitFitProb", "P_{gof}", "", "hitFitProb", 20, 0, 1, kPerm2b, true, 0.2);
-  makeControlPlot("permutation", "hitFitChi2", "#chi^{2}_{fit}", "", "hitFitChi2", 20, 0, 10, kPerm2b, false, 3.218875825);
+  /* Permutation
+  makeControlPlot("Permutation", "hadWRawMass", "m_{W}^{reco}", "GeV", "hadWRawMass", 60, 0, 300, kPerm2b);
+  makeControlPlot("Permutation", "lepWRawMass", "m_{W,lep}^{reco}", "GeV", "lepWRawMass", 60, 0, 300, kPerm2b);
+  makeControlPlot("Permutation", "hadTopRawMass", "m_{t}^{reco}", "GeV", "hadTopRawMass", 70, 50, 400, kPerm2b);
+  makeControlPlot("Permutation", "lepTopRawMass", "m_{t,lep}^{reco}", "GeV", "lepTopRawMass", 70, 50, 400, kPerm2b);
+  makeControlPlot("Permutation", "hadTopMass", "m_{t}^{fit}", "GeV", "hadTopMass", 70, 50, 400, kPerm2b);
+  makeControlPlot("Permutation", "hitFitProb", "P_{gof}", "", "hitFitProb", 20, 0, 1, kPerm2b, true, 0.2);
+  makeControlPlot("Permutation", "hitFitChi2", "#chi^{2}_{fit}", "", "hitFitChi2", 20, 0, 10, kPerm2b, false, 3.218875825);
   //*/
   
-  //* Permutation, weighted
-  makeControlPlot("permutation", "hadWRawMass", "m_{W}^{reco}", "GeV", "hadWRawMass_weighted", 60, 0, 300, kPerm2bW);
-  makeControlPlot("permutation", "lepWRawMass", "m_{W,lep}^{reco}", "GeV", "lepWRawMass_weighted", 60, 0, 300, kPerm2bW);
-  makeControlPlot("permutation", "hadTopRawMass", "m_{t,had}^{reco}","GeV", "hadTopRawMass_weighted", 70, 50, 400, kPerm2bW);
-  makeControlPlot("permutation", "lepTopRawMass", "m_{t,lep}^{reco}","GeV", "lepTopRawMass_weighted", 70, 50, 400, kPerm2bW);
-  makeControlPlot("permutation", "hadTopMass", "m_{t}^{fit}","GeV", "hadTopMass_weighted", 70, 50, 400, kPerm2bW);
+  /* Permutation, weighted
+  makeControlPlot("Permutation", "hadWRawMass", "m_{W}^{reco}", "GeV", "hadWRawMass_weighted", 60, 0, 300, kPerm2bW);
+  makeControlPlot("Permutation", "lepWRawMass", "m_{W,lep}^{reco}", "GeV", "lepWRawMass_weighted", 60, 0, 300, kPerm2bW);
+  makeControlPlot("Permutation", "hadTopRawMass", "m_{t}^{reco}","GeV", "hadTopRawMass_weighted", 70, 50, 400, kPerm2bW);
+  makeControlPlot("Permutation", "lepTopRawMass", "m_{t,lep}^{reco}","GeV", "lepTopRawMass_weighted", 70, 50, 400, kPerm2bW);
+  makeControlPlot("Permutation", "hadTopMass", "m_{t}^{fit}","GeV", "hadTopMass_weighted", 70, 50, 400, kPerm2bW);
+  //*/
+  
+  //* Paper
+  makeControlPlot("Permutation", "hadWRawMass", "m_{W}^{reco}", "GeV", "hadWRawMass", 60, 0, 300, kPerm2b);
+  makeControlPlot("Permutation", "hadTopRawMass", "m_{t}^{reco}", "GeV", "hadTopRawMass", 70, 50, 400, kPerm2b);
+  makeControlPlot("Permutation", "hadWRawMass", "m_{W}^{reco}", "GeV", "hadWRawMass_weighted", 60, 0, 300, kPerm2bW);
+  makeControlPlot("Permutation", "hadTopMass", "m_{t}^{fit}","GeV", "hadTopMass_weighted", 70, 50, 400, kPerm2bW);
   //*/
   
   /* Systematics up/down
@@ -477,10 +484,11 @@ void makeControlPlot(TString typeForTitle, TString sObservable, TString sObserva
 	TString sBinning(""); sBinning += (xup-xlow)/nbinsx;
 	if (sBinning.Length() > 6) sBinning.Resize(4);
 	if (plot == kPerm2bW) {
-	  TString sTitle = "Sum of "; sTitle += typeForTitle; sTitle += " weights";
+	  typeForTitle->ToLower();
+	  TString sTitle("Sum of "); sTitle += typeForTitle; sTitle += " weights";
 	}
 	else {
-	  TString sTitle = "Number of "; sTitle += typeForTitle; sTitle += "s";
+	  TString sTitle = typeForTitle; sTitle += "s";
 	}
 	sTitle += " / "; sTitle += sBinning; sTitle+= " "; sTitle += sUnit;
 	hNull->GetYaxis()->SetTitle(sTitle);
@@ -611,7 +619,7 @@ void makeControlPlot(TString typeForTitle, TString sObservable, TString sObserva
     //leg0->SetY1(0.8);
     leg0->AddEntry( hTTJets, "t#bar{t}", "F" );
     leg0->AddEntry( hMC,   "t#bar{t} uncertainty", "F" );
-    leg0->AddEntry( hData, "Data (5.0 fb ^{-1})", "PL");
+    leg0->AddEntry( hData, "Data (5.0 fb ^{-1})", "P");
   }
   
   TLegend *leg1 = new TLegend(0.6, 0.75, 0.9, 0.925);
@@ -619,10 +627,10 @@ void makeControlPlot(TString typeForTitle, TString sObservable, TString sObserva
   leg1->SetFillStyle(0);
   leg1->SetBorderSize(0);
   if (qcd) leg1->AddEntry( hQCD, "QCD", "F" );
-  leg1->AddEntry( hWJets, "W+jets", "F" );
   leg1->AddEntry( hZJets, "Z+jets", "F" );
+  leg1->AddEntry( hWJets, "W+jets", "F" );
   leg1->AddEntry( hSTop, "single top", "F" );
-  if (plot == kPerm2b || plot == kPerm2bW) leg1->AddEntry( hData, "Data (5.0 fb ^{-1})", "PL");
+  if (plot == kPerm2b || plot == kPerm2bW) leg1->AddEntry( hData, "Data (5.0 fb ^{-1})", "P");
 
   TPaveText *pt = new TPaveText(0.6, 0.7, 0.9, 0.75, "NDC");
   pt->SetBorderSize(0);

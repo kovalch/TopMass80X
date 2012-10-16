@@ -1,3 +1,5 @@
+// Current state: Use largest of sys/stat
+
 #include <vector>
 #include <iostream>
 
@@ -87,9 +89,9 @@ void ensembleTreeSys()
     case kAll:
       staticUncertainties.push_back(staticUncertainty("Calibration", 0.06, 0.001));
       staticUncertainties.push_back(staticUncertainty("PDF", 0.07, 0.001));
-      staticUncertainties.push_back(staticUncertainty("UE", 0.187, 0.0018)); // 0.153 +/- 0.187
+      staticUncertainties.push_back(staticUncertainty("UE", 0.153, 0.0018)); // 0.153 +/- 0.187
       staticUncertainties.push_back(staticUncertainty("Background", 0.126, 0.001));
-      staticUncertainties.push_back(staticUncertainty("Statistical", 0.428, 0.003));
+      //staticUncertainties.push_back(staticUncertainty("Statistical", 0.428, 0.003));
       break;
   }
   
@@ -107,8 +109,8 @@ void ensembleTreeSys()
   ensembles.push_back(ensemble("Fall11_TTJets1725_P11noCR/ensemble.root", 8841768./1.7, false, true, 0., 12));
   ensembles.push_back(ensemble("Fall11_TTJets1725_P11/ensemble.root", 8621453./1.7, false));
   /*
-  ensembles.push_back(ensemble("Fall11_TTJets1725_powheg/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_mcatnlo/ensemble.root"));
+  ensembles.push_back(ensemble("Fall11_TTJets1725_powheg/ensemble.root", 8000000./1.7));
+  ensembles.push_back(ensemble("Fall11_TTJets1725_mcatnlo/ensemble.root", 20000000./1.7));
   //*/
   //*/
   //*

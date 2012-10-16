@@ -80,10 +80,10 @@ void ensemble()
     if (massError>0 && genMass==172.5 && genJES==1.) hError->Fill(massError * 1.02);
   }
   
-  hError->GetYaxis()->SetTitle("Number of pseudo-experiments / 2 MeV");
+  hError->GetYaxis()->SetTitle("Pseudo-experiments / 2 MeV");
   hError->GetYaxis()->SetTitleSize(0.05);
-  hError->GetXaxis()->SetTitle("#sigma(m_{t}) [GeV]");
-  hPull->GetYaxis()->SetTitle("Number of pseudo-experiments");
+  hError->GetXaxis()->SetTitle("Statistical uncertainty of m_{t} [GeV]");
+  hPull->GetYaxis()->SetTitle("Pseudo-experiments");
   hPull->GetXaxis()->SetTitle("Mass pull");
   
   //// Do something :)
