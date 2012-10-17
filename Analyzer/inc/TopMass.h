@@ -1,3 +1,6 @@
+#ifndef TOPMASS_H
+#define TOPMASS_H
+
 #include <vector>
 #include <cmath>
 #include <fstream>
@@ -21,11 +24,8 @@
 namespace po = boost::program_options;
 
 
-bool fexists(const char *filename)
-{
-  ifstream ifile(filename);
-  return ifile;
-}
+bool fexists(const char *filename);
+
 
 struct massPoint {
   double genMass;
@@ -54,10 +54,27 @@ class TopMass {
     int fBins;
     double fLumi;
     
+    std::vector< std::vector<Analysis*> > calibrationAnalyses;
+    
+    std::vector<Analysis*> analyses;
+    std::vector<Analysis*>::iterator iAnalysis;
+    
     Analysis* aSim;
-      
+    
+    double fCalibFitParameter[6][6][2];
+    double fCalibFitParError[6][6][2];
+    
+    void LoadXML();
+  
   public:
     TopMass(po::variables_map vm);
     
-    void WriteEnsembleTest(po::variables_map vm, std::vector<float> vBinning);
+    void WriteEnsembleTest(po::variables_map vm);
+    
+    void QuickCalibration(po::variables_map vm);
+    void QuickSystematics(po::variables_map vm);
+
+    void AvoidCompilerWarning(){}
 };
+
+#endif

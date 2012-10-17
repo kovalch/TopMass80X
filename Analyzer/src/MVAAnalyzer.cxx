@@ -4,7 +4,7 @@ double MVAAnalyzer::GetMass() {
   return fMass;
 }
 
-void MVAAnalyzer::Analyze(TString cuts, int i, int j) {
+void MVAAnalyzer::Analyze(const TString& cuts, int i, int j) {
   TCanvas* ctemp = new TCanvas("ctemp", "Top mass", 500, 500);
   ctemp->cd();
 
@@ -19,5 +19,5 @@ void MVAAnalyzer::Analyze(TString cuts, int i, int j) {
         
   fMass      = gaus->GetParameter(1);
   fMassError = gaus->GetParError(1);
-  fMassSigma = gaus->GetParameter(2);
+  //fMassSigma = gaus->GetParameter(2);
 }

@@ -1,21 +1,12 @@
 #include "Helper.h"
 
-TH1F* Helper::GetH1(TString title) {
-  const float* array = &vBinning[0];
-
-  TH1F* hHelper = new TH1F(title, title, vBinning.size()-1, array);
-  hHelper->SetStats(false);
-  hHelper->SetXTitle(fBinning);
-  hHelper->SetYTitle(title);
-
-  return hHelper;
+Helper::~Helper()
+{
 }
 
 TH2F* Helper::GetH2(TString title) {
-  TH2F* hHelper = new TH2F();
-  hHelper->SetBins(fBins, 0, 3, fBins, 0, 3);
+  TH2F* hHelper = new TH2F(title,title,fBins, 0, 3, fBins, 0, 3);
   hHelper->SetStats(false);
-  hHelper->SetTitle(title);
   hHelper->SetXTitle("#theta^{decay}_{t}");
   hHelper->SetYTitle("#theta^{decay}_{W}");
 
@@ -69,7 +60,6 @@ void Helper::SetTDRStyle() {
 // For the histo:
   // tdrStyle->SetHistFillColor(1);
   // tdrStyle->SetHistFillStyle(0);
-  
   tdrStyle->SetHistLineColor(1);
   tdrStyle->SetHistLineStyle(0);
   tdrStyle->SetHistLineWidth(1);
@@ -78,7 +68,7 @@ void Helper::SetTDRStyle() {
 
   tdrStyle->SetEndErrorSize(2);
 //  tdrStyle->SetErrorMarker(20);
-  //tdrStyle->SetErrorX(0.);
+  tdrStyle->SetErrorX(0.);
   
   tdrStyle->SetMarkerStyle(20);
 
@@ -138,7 +128,7 @@ void Helper::SetTDRStyle() {
   // tdrStyle->SetTitleXSize(Float_t size = 0.02); // Another way to set the size?
   // tdrStyle->SetTitleYSize(Float_t size = 0.02);
   tdrStyle->SetTitleXOffset(0.9);
-  tdrStyle->SetTitleYOffset(1.3);
+  tdrStyle->SetTitleYOffset(1.25);
   // tdrStyle->SetTitleOffset(1.1, "Y"); // Another way to set the Offset
 
 // For the axis labels:
@@ -184,7 +174,7 @@ void Helper::SetTDRStyle() {
 
 }
 
-void Helper::DrawLabel(TString text, const double x1, const double y1, const double x2, Color_t color = kBlack)
+void Helper::DrawLabel(TString text, const double x1, const double y1, const double x2, Color_t color)
 {
   // function to directly draw a label into the active canvas
   double y2 = y1 + 0.05;
@@ -199,13 +189,5 @@ void Helper::DrawLabel(TString text, const double x1, const double y1, const dou
 }
 
 void Helper::DrawCMSPrel() {
-  DrawLabel("CMS, 5.0 fb^{-1},  #sqrt{s} = 7 TeV, l+jets", 0.2, 0.93, 0.9);
-}
-
-void Helper::DrawCMSPrelElectron() {
-  DrawLabel("CMS, 5.0 fb^{-1},  #sqrt{s} = 7 TeV, e+jets", 0.2, 0.93, 0.9);
-}
-
-void Helper::DrawCMSPrelMuon() {
-  DrawLabel("CMS, 5.0 fb^{-1},  #sqrt{s} = 7 TeV, #mu+jets", 0.2, 0.93, 0.9);
+  DrawLabel("CMS Preliminary, 3.54 fb^{ -1},  #sqrt{s}=7 TeV", 0.2, 0.93, 0.9);
 }

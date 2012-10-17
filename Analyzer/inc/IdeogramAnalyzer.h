@@ -1,33 +1,23 @@
+#ifndef IDEOGRAMANALYZER_H
+#define IDEOGRAMANALYZER_H
+
+#include <iostream>
+
 #include "MassAnalyzer.h"
-#include "IdeogramCombLikelihood.h"
-#include "Helper.h"
 
-#include <iomanip>
-
-#include "TH1D.h"
-#include "TH2D.h"
-#include "TF2.h"
-#include "TCanvas.h"
-#include "TMath.h"
-#include "TStyle.h"
-#include "TLegend.h"
-#include "TDirectory.h"
-#include "TFile.h"
-#include "TColor.h"
-#include "TRandom3.h"
-
-class IdeogramAnalyzer : public MassAnalyzer {
-  private:
-    double QBTagProbability(double bDiscriminator);
-    double mWnVertex();
-    double mTnVertex();
-    void Scan(TString cuts, int i, int j, double firstBinMass, double lastBinMass,
-              double resolMass, double firstBinJes, double lastBinJes, double resolJes,
-              bool fit2D = true);
-  
-  public:
-    IdeogramAnalyzer(TString identifier, TTree* tree) : MassAnalyzer(identifier, tree) {};
-    void Analyze(TString cuts, int i, int j);
+class IdeogramAnalyzer : public MassAnalyzer { 
+ public:
+  IdeogramAnalyzer(const TString& identifier, TTree* tree) : MassAnalyzer(identifier, tree) {};
+  void Analyze(const TString& cuts, int i, int j) { std::cout << "Function Analyze(const TString& cuts, int i, int j) not defined for Class IdeogramAnalyzer!" << std::endl; };
+  void Analyze(const TString& cuts, int i, int j, po::variables_map vm);
     
-    double GetMass();
+ private:
+  double QBTagProbability(double bDiscriminator);
+  double mWnVertex();
+  double mTnVertex();
+  void Scan(const TString& cuts, int i, int j, double firstBinMass, double lastBinMass,
+	    double resolMass, double firstBinJes, double lastBinJes, double resolJes, po::variables_map vm, bool fit2D = true);
+  
 };
+
+#endif

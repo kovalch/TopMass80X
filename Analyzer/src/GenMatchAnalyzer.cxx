@@ -4,7 +4,7 @@ double GenMatchAnalyzer::GetMass() {
   return fMass;
 }
 
-void GenMatchAnalyzer::Analyze(TString cuts, int i, int j) {
+void GenMatchAnalyzer::Analyze(const TString& cuts, int i, int j) {
   TCanvas* ctemp = new TCanvas("ctemp", "Top mass", 500, 500);
   ctemp->cd();
 
@@ -18,5 +18,5 @@ void GenMatchAnalyzer::Analyze(TString cuts, int i, int j) {
         
   fMass      = voigt->GetParameter(1);
   fMassError = voigt->GetParError(1);
-  fMassSigma = voigt->GetParameter(2);
+  //fMassSigma = voigt->GetParameter(2);
 }
