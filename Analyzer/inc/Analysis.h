@@ -81,7 +81,6 @@ class Analysis {
 
   //enum enumForPUWeights {kSummer11, kSummer11Plus05, kSummer11Minus05, kFall11, kFall11Plus05, kFall11Minus05, kFall10};
   void AddWeights  (TTree* tempTree, bool isData=false); //, enumForPUWeights whichSample, int whichPDF = 0);
-  void AdaptBkgTree(TTree* tempTreeBkg);
     
   TH2F* GetH2Mass();
   TH2F* GetH2MassError();

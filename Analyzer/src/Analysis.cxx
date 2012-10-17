@@ -349,88 +349,88 @@ void Analysis::CreateRandomSubset() {
       std::cout << "Creating: " << tempFile->GetName() << std::endl;
 
       if(!tTree){
-	fChain->Draw(">>selectedEvents",sel+triggerUncertainty,"goff");
-	TEventList* selectedEvents = (TEventList*)gDirectory->Get("selectedEvents");
-      
-	fChain->SetBranchAddress("nCombos", &nCombos);
-	fChain->SetBranchAddress("comboTypes", comboTypes);
-	fChain->SetBranchAddress("topMasses", topMasses);
-	fChain->SetBranchAddress("topMass", &topMass);
-	fChain->SetBranchAddress("w1Mass", w1Masses);
-	fChain->SetBranchAddress("w2Mass", w2Masses);
-	fChain->SetBranchAddress("probs", probs);
-	fChain->SetBranchAddress("prob", &prob);
-	fChain->SetBranchAddress("dRbb", &dRbb);
-  
-	fChain->SetBranchAddress("Njet", &Njet);
-	fChain->SetBranchAddress("jets", &jets);
-	//fChain->SetBranchAddress("bTag_CSV", bTag);
-	fChain->SetBranchAddress("partonFlavour", pdgId);
-  
-	fChain->SetBranchAddress("runNumber", &runNumber);
-	fChain->SetBranchAddress("luminosityBlockNumber", &luminosityBlockNumber);
-	fChain->SetBranchAddress("eventNumber", &eventNumber);
-  
-	fChain->SetBranchAddress("dRbb", &dRbb);
-  
-	fChain->SetBranchAddress("nPU", &nPU);
-	fChain->SetBranchAddress("nPUTru", &nPUTru);
-  
-	fChain->SetBranchAddress("MCweight", &MCweight);
-  
-	if(fFile.Contains("PDF")){
-	  fChain->SetBranchAddress("id1", &id1);
-	  fChain->SetBranchAddress("id2", &id2);
-	  fChain->SetBranchAddress("x1", &x1);
-	  fChain->SetBranchAddress("x2", &x2);
-	  fChain->SetBranchAddress("Q", &Q);
-	}
+        fChain->Draw(">>selectedEvents",sel+triggerUncertainty,"goff");
+        TEventList* selectedEvents = (TEventList*)gDirectory->Get("selectedEvents");
 
-	tTree = fChain->CloneTree(0);
-	tTree->SetName(TString("fullTree_")+fIdentifier);
-      
-	for(int idx = 0 , l = selectedEvents->GetN(); idx < l; ++idx){
-	  fChain->GetEntry(selectedEvents->GetEntry(idx));
-	  nCombos = 1;
-	  tTree->Fill();
-	}
-	AddWeights(tTree);
-	tTree->Write(0,TObject::kOverwrite);
-	delete tTree;
+        fChain->SetBranchAddress("nCombos", &nCombos);
+        fChain->SetBranchAddress("comboTypes", comboTypes);
+        fChain->SetBranchAddress("topMasses", topMasses);
+        fChain->SetBranchAddress("topMass", &topMass);
+        fChain->SetBranchAddress("w1Mass", w1Masses);
+        fChain->SetBranchAddress("w2Mass", w2Masses);
+        fChain->SetBranchAddress("probs", probs);
+        fChain->SetBranchAddress("prob", &prob);
+        fChain->SetBranchAddress("dRbb", &dRbb);
+
+        fChain->SetBranchAddress("Njet", &Njet);
+        fChain->SetBranchAddress("jets", &jets);
+        //fChain->SetBranchAddress("bTag_CSV", bTag);
+        fChain->SetBranchAddress("partonFlavour", pdgId);
+
+        fChain->SetBranchAddress("runNumber", &runNumber);
+        fChain->SetBranchAddress("luminosityBlockNumber", &luminosityBlockNumber);
+        fChain->SetBranchAddress("eventNumber", &eventNumber);
+
+        fChain->SetBranchAddress("dRbb", &dRbb);
+
+        fChain->SetBranchAddress("nPU", &nPU);
+        fChain->SetBranchAddress("nPUTru", &nPUTru);
+
+        fChain->SetBranchAddress("MCweight", &MCweight);
+
+        if(fFile.Contains("PDF")){
+          fChain->SetBranchAddress("id1", &id1);
+          fChain->SetBranchAddress("id2", &id2);
+          fChain->SetBranchAddress("x1", &x1);
+          fChain->SetBranchAddress("x2", &x2);
+          fChain->SetBranchAddress("Q", &Q);
+        }
+
+        tTree = fChain->CloneTree(0);
+        tTree->SetName(TString("fullTree_")+fIdentifier);
+
+        for(int idx = 0 , l = selectedEvents->GetN(); idx < l; ++idx){
+          fChain->GetEntry(selectedEvents->GetEntry(idx));
+          nCombos = 1;
+          tTree->Fill();
+        }
+        AddWeights(tTree);
+        tTree->Write(0,TObject::kOverwrite);
+        delete tTree;
       }
 
       if(!tTreeBkg){
-	TFile * fileBkg = TFile::Open(samplePath+TString("QCDEstimationMix_2011_skimmed2.root"));
-	if(TString(fileBkg->GetName()).Contains("_skimmed")) tTreeBkg = (TTree*)fileBkg->Get("tree");
-	else  tTreeBkg = (TTree*)fileBkg->Get("analyzeFullHadEventMixer/tree");
-    
-	tTreeBkg->SetBranchStatus("*",0);
-	tTreeBkg->SetBranchStatus("topMasses", 1);
-	tTreeBkg->SetBranchStatus("topMass", 1);
-	tTreeBkg->SetBranchStatus("w1Mass", 1);
-	tTreeBkg->SetBranchStatus("w2Mass", 1);
-	tTreeBkg->SetBranchStatus("probs", 1);
-	tTreeBkg->SetBranchStatus("prob", 1);
-	tTreeBkg->SetBranchStatus("dRbb", 1);
-    
-	tTreeBkg->SetBranchStatus("jets", 1);
-    
-	tTreeBkg->SetBranchStatus("runNumber", 1);
-	tTreeBkg->SetBranchStatus("luminosityBlockNumber", 1);
-	tTreeBkg->SetBranchStatus("eventNumber", 1);
-    
-	tempFile->cd();
-    
-	TString selBkg = sel; selBkg.ReplaceAll("dRbb","dRbb[0]");
-	TTree* tempTreeBkg = tTreeBkg->CopyTree(selBkg);
-	tempTreeBkg->SetName("fullTreeBkg");
-	AddWeights(tempTreeBkg,true);
-	tempTreeBkg->Write(0,TObject::kOverwrite);
-	delete tempTreeBkg;
+        TFile * fileBkg = TFile::Open(samplePath+TString("QCDEstimationMix_2011_skimmed2.root"));
+        if(TString(fileBkg->GetName()).Contains("_skimmed")) tTreeBkg = (TTree*)fileBkg->Get("tree");
+        else  tTreeBkg = (TTree*)fileBkg->Get("analyzeFullHadEventMixer/tree");
 
-	delete tTreeBkg;
-	fileBkg->Close();
-	delete fileBkg;
+        tTreeBkg->SetBranchStatus("*",0);
+        tTreeBkg->SetBranchStatus("topMasses", 1);
+        tTreeBkg->SetBranchStatus("topMass", 1);
+        tTreeBkg->SetBranchStatus("w1Mass", 1);
+        tTreeBkg->SetBranchStatus("w2Mass", 1);
+        tTreeBkg->SetBranchStatus("probs", 1);
+        tTreeBkg->SetBranchStatus("prob", 1);
+        tTreeBkg->SetBranchStatus("dRbb", 1);
+
+        tTreeBkg->SetBranchStatus("jets", 1);
+
+        tTreeBkg->SetBranchStatus("runNumber", 1);
+        tTreeBkg->SetBranchStatus("luminosityBlockNumber", 1);
+        tTreeBkg->SetBranchStatus("eventNumber", 1);
+
+        tempFile->cd();
+
+        TString selBkg = sel; selBkg.ReplaceAll("dRbb","dRbb[0]");
+        TTree* tempTreeBkg = tTreeBkg->CopyTree(selBkg);
+        tempTreeBkg->SetName("fullTreeBkg");
+        AddWeights(tempTreeBkg,true);
+        tempTreeBkg->Write(0,TObject::kOverwrite);
+        delete tempTreeBkg;
+
+        delete tTreeBkg;
+        fileBkg->Close();
+        delete fileBkg;
       }
 
       tempFile->Close();
@@ -499,7 +499,7 @@ void Analysis::CreateRandomSubset() {
 
     if (maxMCWeight == -1) { std::cout << "Running over data?" << std::endl; }
     
-    double fSig = 0.539; // 0.504; // 
+    double fSig = 0.504; // 0.539; //
     if(fFile.Contains("fSig_Up"))
       fSig += 0.10;
     else if(fFile.Contains("fSig_Down"))
@@ -558,54 +558,54 @@ void Analysis::CreateRandomSubset() {
     if(fLumi>0) {
       //int drawCounter = 0;
       while (eventsDrawn < eventsPE) {
-	double fSigRndm = myRandom->Uniform(0.,1.);
-	if(fSigRndm < fSig){
-	  int oldEventsDrawn = eventsDrawn;
-	  do {
-	    int drawn = myRandom->Integer(permsMC);
-	    //++drawCounter;
-	    tTree->GetEntry(drawn);
-	    //std::cout << CombinedWeight << " " << maxMCWeight << std::endl;
-	    if (CombinedWeight > myRandom->Uniform(0., maxMCWeight)) {
-	      // reduce size of tree before filling
-	      nCombos = 1;
-	      //if(fTree->Fill() == -1) std::cout << eventsDrawn << " " << meanWMass << " " << topMasses[0] << " " << topMass << " " << w1Masses[0] << " " << w2Masses[0] << " " << probs[0] << " " << prob << " " << dRbb << " " << nCombos << " " << comboTypes[0] << " " << runNumber << " " << luminosityBlockNumber << " " << eventNumber << " " << std::endl;
-	      fTree->Fill();
+        double fSigRndm = myRandom->Uniform(0.,1.);
+        if(fSigRndm < fSig){
+          int oldEventsDrawn = eventsDrawn;
+          do {
+            int drawn = myRandom->Integer(permsMC);
+            //++drawCounter;
+            tTree->GetEntry(drawn);
+            //std::cout << CombinedWeight << " " << maxMCWeight << std::endl;
+            if (CombinedWeight > myRandom->Uniform(0., maxMCWeight)) {
+              // reduce size of tree before filling
+              nCombos = 1;
+              //if(fTree->Fill() == -1) std::cout << eventsDrawn << " " << meanWMass << " " << topMasses[0] << " " << topMass << " " << w1Masses[0] << " " << w2Masses[0] << " " << probs[0] << " " << prob << " " << dRbb << " " << nCombos << " " << comboTypes[0] << " " << runNumber << " " << luminosityBlockNumber << " " << eventNumber << " " << std::endl;
+              fTree->Fill();
 
-	      ++eventsDrawn;
-	      ++signalDrawn;
-	    }
-	  }
-	  while(oldEventsDrawn == eventsDrawn);
-	}
-	else{
-	  int drawn = myRandom->Integer(permsBkg);
-	  //++drawCounter;
-	  tTreeBkg->GetEntry(drawn);
-	  // reduce size of tree before filling
-	  nCombos = 1;
-	  // set missing variable for background tree
-	  comboTypes[0] = 0;
-	  //if(fTree->Fill() == -1) std::cout << eventsDrawn << " " << meanWMass << " " << topMasses[0] << " " << topMass << " " << w1Masses[0] << " " << w2Masses[0] << " " << probs[0] << " " << prob << " " << dRbb << " " << nCombos << " " << comboTypes[0] << " " << runNumber << " " << luminosityBlockNumber << " " << eventNumber << " " << std::endl;
-	  fTree->Fill();
-	  ++eventsDrawn;
-	  ++backgroundDrawn;
-	}
+              ++eventsDrawn;
+              ++signalDrawn;
+            }
+          }
+          while(oldEventsDrawn == eventsDrawn);
+        }
+        else{
+          int drawn = myRandom->Integer(permsBkg);
+          //++drawCounter;
+          tTreeBkg->GetEntry(drawn);
+          // reduce size of tree before filling
+          nCombos = 1;
+          // set missing variable for background tree
+          comboTypes[0] = 0;
+          //if(fTree->Fill() == -1) std::cout << eventsDrawn << " " << meanWMass << " " << topMasses[0] << " " << topMass << " " << w1Masses[0] << " " << w2Masses[0] << " " << probs[0] << " " << prob << " " << dRbb << " " << nCombos << " " << comboTypes[0] << " " << runNumber << " " << luminosityBlockNumber << " " << eventNumber << " " << std::endl;
+          fTree->Fill();
+          ++eventsDrawn;
+          ++backgroundDrawn;
+        }
       }
       //std::cout << "DRAWCOUNTER: " << drawCounter << std::endl;
     }
     else {
       for(int ev = 0; ev < permsMC; ++ev){
-	tTree->GetEntry(ev);
-	fTree->Fill();
-	++signalDrawn;
+        tTree->GetEntry(ev);
+        fTree->Fill();
+        ++signalDrawn;
       }
       std::cout << "wanted / available events: " << permsMC*((1.-fSig)/fSig) << " / " << permsBkg << std::endl;
       for(int ev = 0; ev < permsMC*((1.-fSig)/fSig); ++ev){
-	int drawn = myRandom->Integer(permsBkg);
-      	tTreeBkg->GetEntry(drawn);
-      	fTree->Fill();
-	++backgroundDrawn;
+        int drawn = myRandom->Integer(permsBkg);
+        tTreeBkg->GetEntry(drawn);
+        fTree->Fill();
+        ++backgroundDrawn;
       }
     }
     fTree->Write(0,TObject::kOverwrite);
@@ -750,28 +750,6 @@ void Analysis::AddWeights(TTree* tempTree, bool isData) { //, enumForPUWeights w
   std::cout << "Adapted  " << tempTree->GetName();
   if(!isData) std::cout << " and added  combined weight";
   std::cout << " ..." << std::endl;
-}
-
-void Analysis::AdaptBkgTree(TTree* tempTreeBkg) {
-  std::cout << "ADAPTING BACKGROUND TREE" << std::endl;
-  
-  double CombinedWeight = 1.;
-  //const unsigned int kMAXCombo = 12000;
-  //float* dRbbOLD = new float[kMAXCombo];
-  //float dRbb;
-  TBranch * br1 = tempTreeBkg->Branch("CombinedWeight", &CombinedWeight, "CombinedWeight/D");
-  //TBranch * br2 = tempTreeBkg->Branch("dRbbNEW", &dRbb, "dRbb/F");
-  //tempTreeBkg->SetBranchAddress("dRbb", dRbbOLD);
-  for(int i = 0; i < tempTreeBkg->GetEntries(); ++i){
-    tempTreeBkg->GetEntry(i);
-    //dRbb = dRbbOLD[0];
-    br1->Fill();
-    //br2->Fill();
-  }
-  //tempTreeBkg->SetBranchStatus("dRbb", 0);
-  //br2->SetName("dRbb");
-
-  std::cout << "ADAPTED  BACKGROUND TREE" << std::endl;
 }
 
 TH2F* Analysis::GetH2Mass() {
