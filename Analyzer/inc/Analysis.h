@@ -7,6 +7,7 @@
 #include "TH2F.h"
 #include "TF1.h"
 #include "TROOT.h"
+#include "TString.h"
 #include "TStyle.h"
 #include "TRandom3.h"
 #include "TFile.h"
@@ -36,8 +37,10 @@ class Analysis {
   TTree* fTree;
   TTree* tTree;
   TTree* tTreeBkg;
-  TFile* tempFile;
   TH2F* hEntries;
+
+  TString tempFilePath;
+  TFile* tempFile;
 
   TH2F* hMass;
   TH2F* hMassError;

@@ -13,6 +13,7 @@ int main(int ac, char** av)
       "Top mass measurement method\n"
       "  GenMatch: \tGaussian fit of correct permutations (MC only)\n"
       "  Ideogram: \tJoint likelihood fit of mt and JES given data sample"
+      "  RooFit:   \tTemplate fit of mt (JES, fSig) given data sample using RooFit"
     )
     ("task,t", po::value<std::string>()->default_value("sm"),
       "Task to be done\n"
@@ -46,7 +47,8 @@ int main(int ac, char** av)
   if (vm.count("compression")) {
       std::cout << "Compression level was set to " 
    << vm["compression"].as<int>() << ".\n";
-  } else {
+  }
+  else {
     //std::cout << "Compression level was not set.\n";
   }
   

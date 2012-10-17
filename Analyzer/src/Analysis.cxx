@@ -6,36 +6,44 @@
 #include "LHAPDF/LHAPDF.h"
 #include <string>
 
-Analysis::Analysis(po::variables_map vm) {
-  fMethod = vm["method"].as<std::string>();
-  fLumi   = vm["lumi"].as<double>();
-  fBins   = vm["bins"].as<int>();
-  fIdentifier = vm["input"].as<std::string>();
-
-  samplePath = "/scratch/hh/lustre/cms/user/eschliec/TopMass/19/";
-  //samplePath = "/scratch/hh/dust/naf/cms/user/eschliec/TopMass/19/";
+Analysis::Analysis(po::variables_map vm) :
+  samplePath("/scratch/hh/lustre/cms/user/eschliec/TopMass/19/"),
+  //samplePath"/scratch/hh/dust/naf/cms/user/eschliec/TopMass/19/"),
+  fIdentifier(vm["input"].as<std::string>()),
+  fMethod    (vm["method"].as<std::string>()),
+  fBins      (vm["bins"  ].as<int>()),
+  fLumi      (vm["lumi"  ].as<double>()),
+  fTree(0),
+  tTree(0),
+  tTreeBkg(0),
+  tempFilePath(gSystem->Getenv("TMPDIR")),
+  tempFile(0)
+{
   fFile += samplePath;
   fFile += fIdentifier;
   fFile += ".root";
-  
+
   fChain = new TChain("FullHadTreeWriter/tree");
   fChain->Add(fFile);
-  
+
   CreateHistos();
 }
 
 Analysis::Analysis(TString identifier, TString file, TString method, int bins, double lumi) :
-      fIdentifier(identifier), fMethod(method), fBins(bins), fLumi(lumi)
+  samplePath("/scratch/hh/lustre/cms/user/eschliec/TopMass/19/"),
+  //samplePath"/scratch/hh/dust/naf/cms/user/eschliec/TopMass/19/"),
+  fIdentifier(identifier), fMethod(method), fBins(bins), fLumi(lumi),
+  fTree(0), tTree(0), tTreeBkg(0),
+  tempFilePath(gSystem->Getenv("TMPDIR")),
+  tempFile(0)
 {
-  samplePath = "/scratch/hh/lustre/cms/user/eschliec/TopMass/19/";
-  //samplePath = "/scratch/hh/dust/naf/cms/user/eschliec/TopMass/19/";
   fFile += samplePath;
   fFile += fIdentifier;
   fFile += ".root";
-    
+
   fChain = new TChain("FullHadTreeWriter/tree");
   fChain->Add(fFile);
-  
+
   CreateHistos();
 }
 
@@ -74,11 +82,11 @@ Analysis::~Analysis()
 void Analysis::Analyze(po::variables_map vm) {
 
   std::cout << "Analyze " << fIdentifier << " with method " << fMethod << std::endl;
-  
+
   CreateRandomSubset();
-  
+
   MassAnalyzer* fAnalyzer = 0;
-  
+
   if (!strcmp(fMethod, "GenMatch")) {
     fAnalyzer = new GenMatchAnalyzer(fIdentifier, fTree);
   }
@@ -88,46 +96,46 @@ void Analysis::Analyze(po::variables_map vm) {
   else if (!strcmp(fMethod, "Ideogram")) {
     fAnalyzer = new IdeogramAnalyzer(fIdentifier, fTree);
   }
-  else if (!strcmp(fMethod, "RooFitTemplate")) {
+  else if (!strcmp(fMethod, "RooFit")) {
     fAnalyzer = new RooFitTemplateAnalyzer(fIdentifier, fTree);
   }
   else {
     return;
   }
-  
+
   Helper* helper = new Helper(fBins);
   helper->SetTDRStyle();
   delete helper;
 
   TCanvas* canvas = new TCanvas("canvas", "Top mass", 900, 600);
   canvas->cd();
-  
+
   double smearBins = 1.;
   double rangeX = 10.;
   double rangeY = 10.;
 
   double smearX = smearBins/fBins*rangeX;
   double smearY = smearBins/fBins*rangeY;
-  
+
   double minEntries = 25;
-  
+
   /*if (!strcmp(fMethod, "Ideogram")) {
     minEntries = 1500;
   }*/
 
   TString observableX = "dRbb";
   TString observableY = "dRbb";
-  
+
   for(int i = 0; i < fBins; i++) {
     for(int j = 0; j < fBins; j++) {
       // calculate cuts
       std::stringstream stream;
       stream << (rangeX/fBins)*(i)-smearX << "<" << observableX << "&"
              << observableX << "<" << (rangeX/fBins)*(i+1)+smearX << " & "
-             << rangeY/fBins*(j)-smearY << "<" << observableY << "&" 
+             << rangeY/fBins*(j)-smearY << "<" << observableY << "&"
              << observableY << "<" << rangeY/fBins*(j+1)+smearY;
       TString cuts(stream.str());
-      
+
       if (!strcmp(fMethod, "GenMatch")) {
         cuts += " & comboType == 1";
       }
@@ -135,22 +143,24 @@ void Analysis::Analyze(po::variables_map vm) {
         cuts += " & mvaDisc > 0";
       }
       else if (!strcmp(fMethod, "Ideogram")) {
-        //cuts += " & target == 1";
-        //cuts += " & (target == 0 | target == 1)";
-        //cuts += " & Njet == 6";
-        cuts += " & probs[0] > 0.09";
-	cuts += " & dRbb > 1.5";
-        //cuts += " & nVertex >= 5";
-        //cuts += " & nVertex <= 5";
-	cuts += " & topMasses[0] > 100. & topMasses[0] < 550.";
+//        //cuts += " & target == 1";
+//        //cuts += " & (target == 0 | target == 1)";
+//        //cuts += " & Njet == 6";
+//        cuts += " & probs[0] > 0.09";
+//        cuts += " & dRbb > 1.5";
+//        //cuts += " & nVertex >= 5";
+//        //cuts += " & nVertex <= 5";
+//        cuts += " & topMasses[0] > 100. & topMasses[0] < 550.";
       }
-      
+      else if (!strcmp(fMethod, "RooFit")) {
+      }
+
       int entries = fTree->GetEntries(cuts);
       std::cout << cuts << std::endl;
       std::cout << entries << std::endl;
 
       hEntries->SetCellContent(i+1, j+1, entries);
-      
+
       if (entries > minEntries) {
         fAnalyzer->Analyze(cuts, i, j, vm);
 
@@ -169,30 +179,30 @@ void Analysis::Analyze(po::variables_map vm) {
         //hMassfSigSigma->SetCellContent(i+1, j+1, fAnalyzer->GetMassfSigSigma());
         hJESfSig      ->SetCellContent(i+1, j+1, fAnalyzer->GetJESfSig());
         hJESfSigError ->SetCellContent(i+1, j+1, fAnalyzer->GetJESfSigError());
-        
-	std::cout << std::endl;
+
+        std::cout << std::endl;
         std::cout << "Measured 1D mass: " << fAnalyzer->GetMassConstJES() << " +/- "
                   << fAnalyzer->GetMassConstJESError() << " GeV" << std::endl;
-	std::cout << std::endl;
+        std::cout << std::endl;
         std::cout << "Measured 2D mass: " << fAnalyzer->GetMass() << " +/- "
                   << fAnalyzer->GetMassError() << " GeV" << std::endl;
         std::cout << "Measured 2D JES: " << fAnalyzer->GetJES() << " +/- "
                   << fAnalyzer->GetJESError() << " " << std::endl;
-	std::cout << std::endl;
+        std::cout << std::endl;
         std::cout << "Measured 3D mass: " << fAnalyzer->GetMassfSig() << " +/- "
                   << fAnalyzer->GetMassfSigError() << " GeV" << std::endl;
         std::cout << "Measured 3D JES: " << fAnalyzer->GetJESfSig() << " +/- "
-                  << fAnalyzer->GetJESfSigError() << " " << std::endl; 
+                  << fAnalyzer->GetJESfSigError() << " " << std::endl;
         std::cout << "Measured 3D fSig: " << fAnalyzer->GetFSig() << " +/- "
                   << fAnalyzer->GetFSigError() << " GeV" << std::endl;
-	std::cout << std::endl;
+        std::cout << std::endl;
       }
     }
   }
-  
+
   canvas->Clear();
   canvas->Divide(2,2);
-  
+
   canvas->cd(1);
   hEntries->Draw("COLZ");
 
@@ -203,14 +213,14 @@ void Analysis::Analyze(po::variables_map vm) {
   canvas->cd(3);
   hMassError->Draw("COLZ,TEXT");
   hMassError->SetAxisRange(0.05, 5, "Z");
-  
+
   //canvas->cd(4);
   //hMassSigma->Draw("COLZ,TEXT");
   //hMassSigma->SetAxisRange(hMassSigma->GetMinimum(0.05), hMassSigma->GetMaximum(), "Z");
-  
+
   TString path("plot/"); path += fMethod; path += "_"; path += fIdentifier; path += ".eps";
   canvas->Print(path);
-  
+
   delete canvas;
   delete fAnalyzer;
 }
@@ -329,13 +339,13 @@ void Analysis::CreateRandomSubset() {
   if(fIdentifier.Contains("jet6_10")) triggerUncertainty += " & jets[5].Pt() > 50.";
 
   if (fLumi!=0) {
-    tempFile = TFile::Open(TString(gSystem->Getenv("TMPDIR"))+TString("/tempTree.root"), "READ");
+    tempFile = TFile::Open(tempFilePath+TString("/tempTree.root"), "READ");
     if(tempFile && !tempFile->IsZombie()){
       tTree    = (TTree*)tempFile->Get(TString("fullTree_")+fIdentifier);
       tTreeBkg = (TTree*)tempFile->Get("fullTreeBkg");
     }
     if(!tempFile || tempFile->IsZombie() || !tTree || !tTreeBkg){
-      tempFile = TFile::Open(TString(gSystem->Getenv("TMPDIR"))+TString("/tempTree.root"), "RECREATE", "", 0);
+      tempFile = TFile::Open(tempFilePath+TString("/tempTree.root"), "RECREATE", "", 0);
       std::cout << "Creating: " << tempFile->GetName() << std::endl;
 
       if(!tTree){
@@ -424,7 +434,7 @@ void Analysis::CreateRandomSubset() {
       }
 
       tempFile->Close();
-      tempFile = TFile::Open(TString(gSystem->Getenv("TMPDIR"))+TString("/tempTree.root"),"READ");
+      tempFile = TFile::Open(tempFilePath+TString("/tempTree.root"),"READ");
       tTree    = (TTree*)tempFile->Get(TString("fullTree_")+fIdentifier);
       tTreeBkg = (TTree*)tempFile->Get("fullTreeBkg");
     }
@@ -604,19 +614,19 @@ void Analysis::CreateRandomSubset() {
     delete tTree;
     delete tTreeBkg;
     tempFile->Close();
-    tempFile = TFile::Open(TString(gSystem->Getenv("TMPDIR"))+TString("/tempTree.root"));
+    tempFile = TFile::Open(tempFilePath+TString("/tempTree.root"));
     fTree = (TTree*)tempFile->Get("tree");
     delete myRandom;
   }
   else {
-    tempFile = new TFile(TString(gSystem->Getenv("TMPDIR"))+TString("/tempTree.root"), "RECREATE");
+    tempFile = new TFile(tempFilePath+TString("/tempTree.root"), "RECREATE");
     tempFile->cd();
     tTree = fChain->CopyTree(sel);
     AddWeights(tTree,true);
     tempFile->Write(0,TObject::kOverwrite);
     delete tTree;
     tempFile->Close();
-    tempFile = TFile::Open(TString(gSystem->Getenv("TMPDIR"))+TString("/tempTree.root"));
+    tempFile = TFile::Open(tempFilePath+TString("/tempTree.root"));
     fTree = (TTree*)tempFile->Get("tree");
   }
   delete[] topMasses;
