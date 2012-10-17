@@ -44,31 +44,23 @@ class Analysis {
 
   TH2F* hMass;
   TH2F* hMassError;
-  //TH2F* hMassSigma;
   TH2F* hJES;
   TH2F* hJESError;
     
   TH2F* hMassConstJES;
   TH2F* hMassConstJESError;
-  //TH2F* hMassConstJESSigma;
 
   TH2F* hFSig;
   TH2F* hFSigError;
   TH2F* hMassfSig;
   TH2F* hMassfSigError;
-  //TH2F* hMassfSigSigma;
   TH2F* hJESfSig;
   TH2F* hJESfSigError;
 
-  //TH1F * bTagEffScaleFactor;
-  
   TH2F * bTagEff;
   TH2F * cTagEff;
   TH2F * lTagEff;
 
-  //TH2F* hMassCalibrated;
-  //TH2F* hMassErrorCalibrated;
-    
   void CreateHistos();
   void CreateRandomSubset();
 
@@ -79,29 +71,22 @@ class Analysis {
     
   void Analyze(po::variables_map vm);
 
-  //enum enumForPUWeights {kSummer11, kSummer11Plus05, kSummer11Minus05, kFall11, kFall11Plus05, kFall11Minus05, kFall10};
-  void AddWeights  (TTree* tempTree, bool isData=false); //, enumForPUWeights whichSample, int whichPDF = 0);
+  void AddWeights  (TTree* tempTree, bool isData=false);
     
   TH2F* GetH2Mass();
   TH2F* GetH2MassError();
-  //TH2F* GetH2MassSigma();
   TH2F* GetH2JES();
   TH2F* GetH2JESError();
     
   TH2F* GetH2MassConstJES();
   TH2F* GetH2MassConstJESError();
-  //TH2F* GetH2MassConstJESSigma();
     
   TH2F* GetH2FSig();
   TH2F* GetH2FSigError();
   TH2F* GetH2MassfSig();
   TH2F* GetH2MassfSigError();
-  //TH2F* GetH2MassfSigSigma();
   TH2F* GetH2JESfSig();
   TH2F* GetH2JESfSigError();
-    
-  //TH2F* GetH2MassCalibrated();
-  //TH2F* GetH2MassErrorCalibrated();
     
   TString GetIdentifier();
 

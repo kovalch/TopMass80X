@@ -57,24 +57,19 @@ Analysis::~Analysis()
   delete hEntries;
   delete hMass;
   delete hMassError;
-  //delete hMassSigma;
   delete hJES;
   delete hJESError;
   delete hMassConstJES;
   delete hMassConstJESError;
-  //delete hMassConstJESSigma;
   delete hFSig;
   delete hFSigError;
   delete hMassfSig;
   delete hMassfSigError;
-  //delete hMassfSigSigma;
   delete hJESfSig;
   delete hJESfSigError;
   delete bTagEff;
   delete cTagEff;
   delete lTagEff;
-  //delete hMassCalibrated;
-  //delete hMassErrorCalibrated;
   tempFile->Close();
   delete tempFile;
 }
@@ -119,10 +114,6 @@ void Analysis::Analyze(po::variables_map vm) {
 
   double minEntries = 25;
 
-  /*if (!strcmp(fMethod, "Ideogram")) {
-    minEntries = 1500;
-  }*/
-
   TString observableX = "dRbb";
   TString observableY = "dRbb";
 
@@ -166,17 +157,14 @@ void Analysis::Analyze(po::variables_map vm) {
 
         hMass     ->SetCellContent(i+1, j+1, fAnalyzer->GetMass());
         hMassError->SetCellContent(i+1, j+1, fAnalyzer->GetMassError());
-        //hMassSigma->SetCellContent(i+1, j+1, fAnalyzer->GetMassSigma());
         hJES      ->SetCellContent(i+1, j+1, fAnalyzer->GetJES());
         hJESError ->SetCellContent(i+1, j+1, fAnalyzer->GetJESError());
         hMassConstJES     ->SetCellContent(i+1, j+1, fAnalyzer->GetMassConstJES());
         hMassConstJESError->SetCellContent(i+1, j+1, fAnalyzer->GetMassConstJESError());
-        //hMassConstJESSigma->SetCellContent(i+1, j+1, fAnalyzer->GetMassConstJESSigma());
         hFSig     ->SetCellContent(i+1, j+1, fAnalyzer->GetFSig());
         hFSigError->SetCellContent(i+1, j+1, fAnalyzer->GetFSigError());
         hMassfSig     ->SetCellContent(i+1, j+1, fAnalyzer->GetMassfSig());
         hMassfSigError->SetCellContent(i+1, j+1, fAnalyzer->GetMassfSigError());
-        //hMassfSigSigma->SetCellContent(i+1, j+1, fAnalyzer->GetMassfSigSigma());
         hJESfSig      ->SetCellContent(i+1, j+1, fAnalyzer->GetJESfSig());
         hJESfSigError ->SetCellContent(i+1, j+1, fAnalyzer->GetJESfSigError());
 
@@ -214,10 +202,6 @@ void Analysis::Analyze(po::variables_map vm) {
   hMassError->Draw("COLZ,TEXT");
   hMassError->SetAxisRange(0.05, 5, "Z");
 
-  //canvas->cd(4);
-  //hMassSigma->Draw("COLZ,TEXT");
-  //hMassSigma->SetAxisRange(hMassSigma->GetMinimum(0.05), hMassSigma->GetMaximum(), "Z");
-
   TString path("plot/"); path += fMethod; path += "_"; path += fIdentifier; path += ".eps";
   canvas->Print(path);
 
@@ -232,25 +216,19 @@ void Analysis::CreateHistos() {
 
   hMass = helper->GetH2("Mass");
   hMassError = helper->GetH2("MassError");
-  //hMassSigma = helper->GetH2("MassSigma");
   hJES = helper->GetH2("JES");
   hJESError = helper->GetH2("JESError");
   
   hMassConstJES = helper->GetH2("MassConstJES");
   hMassConstJESError = helper->GetH2("MassConstJESError");
-  //hMassConstJESSigma = helper->GetH2("MassConstJESSigma");
   
   hFSig = helper->GetH2("fSig");
   hFSigError = helper->GetH2("fSigError");
   hMassfSig = helper->GetH2("MassfSig");
   hMassfSigError = helper->GetH2("MassfSigError");
-  //hMassfSigSigma = helper->GetH2("MassfSigSigma");
   hJESfSig = helper->GetH2("JESfSig");
   hJESfSigError = helper->GetH2("JESfSigError");
   
-  //hMassCalibrated = helper->GetH2("Mass (Calibrated)");
-  //hMassErrorCalibrated = helper->GetH2("MassError (Calibrated)");
-
   TFile * bTagFile = TFile::Open(samplePath+TString("bTagFile.root"));
   gROOT->cd();
   bTagEff = (TH2F*)bTagFile->Get("histb")->Clone();
@@ -639,7 +617,7 @@ void Analysis::CreateRandomSubset() {
   std::cout << "Created random subset." << std::endl;
 }
 
-void Analysis::AddWeights(TTree* tempTree, bool isData) { //, enumForPUWeights whichSample, int whichPDF) {
+void Analysis::AddWeights(TTree* tempTree, bool isData) {
   std::cout << "Adapting " << tempTree->GetName();
   if(!isData) std::cout << " and adding combined weight";
   std::cout << " ..." << std::endl;
@@ -689,7 +667,6 @@ void Analysis::AddWeights(TTree* tempTree, bool isData) { //, enumForPUWeights w
   tempTree->SetBranchAddress("w1Mass",w1Masses);
   tempTree->SetBranchAddress("w2Mass",w2Masses);
 
-  //tempTree->SetBranchStatus("*",0);
   double meanWMass      = -1.;
   double CombinedWeight = -1.;
   double PUWeight       = -1.;
@@ -702,11 +679,7 @@ void Analysis::AddWeights(TTree* tempTree, bool isData) { //, enumForPUWeights w
   int id1,id2;
   TBranch * br = 0;
   if(!isData) br = tempTree->Branch("CombinedWeight", &CombinedWeight, "CombinedWeight/D");
-  TBranch * br5 = tempTree->Branch("meanWMass", &meanWMass, "meanWMass/D");
-  //TBranch * br1 = tempTree->Branch("PUWeight"      , &PUWeight      , "PUWeight/D");
-  ////TBranch * br2 = tempTree->Branch("MCWeight"      , &MCWeight      , "MCWeight/D");
-  //TBranch * br3 = tempTree->Branch("PDFWeight"     , &PDFWeight     , "PDFWeight/D");
-  //TBranch * br4 = tempTree->Branch("BTagWeight"    , &BTagWeight    , "BTagWeight/D");
+  TBranch * br2 = tempTree->Branch("meanWMass", &meanWMass, "meanWMass/D");
   if(!isData){
     if(whichSample == kSummer11 || whichSample == kSummer11Plus05 || whichSample == kSummer11Minus05){
       tempTree->SetBranchStatus("nPUTru", 0);
@@ -738,11 +711,7 @@ void Analysis::AddWeights(TTree* tempTree, bool isData) { //, enumForPUWeights w
       br->Fill();
     }
     meanWMass = (w1Masses[0]+w2Masses[0])/2.0;
-    br5->Fill();
-    //br1->Fill();
-    ////br2->Fill();
-    //br3->Fill();
-    //br4->Fill();
+    br2->Fill();
   }
   jets->Delete();
   delete[] w1Masses;
@@ -760,10 +729,6 @@ TH2F* Analysis::GetH2MassError() {
   return hMassError;
 }
 
-//TH2F* Analysis::GetH2MassSigma() {
-//  return hMassSigma;
-//}
-
 TH2F* Analysis::GetH2JES() {
   return hJES;
 }
@@ -779,10 +744,6 @@ TH2F* Analysis::GetH2MassConstJES() {
 TH2F* Analysis::GetH2MassConstJESError() {
   return hMassConstJESError;
 }
-
-//TH2F* Analysis::GetH2MassConstJESSigma() {
-//  return hMassConstJESSigma;
-//}
 
 TH2F* Analysis::GetH2FSig() {
   return hFSig;
@@ -800,10 +761,6 @@ TH2F* Analysis::GetH2MassfSigError() {
   return hMassfSigError;
 }
 
-//TH2F* Analysis::GetH2MassfSigSigma() {
-//  return hMassfSigSigma;
-//}
-
 TH2F* Analysis::GetH2JESfSig() {
   return hJESfSig;
 }
@@ -811,14 +768,6 @@ TH2F* Analysis::GetH2JESfSig() {
 TH2F* Analysis::GetH2JESfSigError() {
   return hJESfSigError;
 }
-
-//TH2F* Analysis::GetH2MassCalibrated() {
-//  return hMassCalibrated;
-//}
-//
-//TH2F* Analysis::GetH2MassErrorCalibrated() {
-//  return hMassErrorCalibrated;
-//}
 
 TString Analysis::GetIdentifier() {
   return fIdentifier;
@@ -904,11 +853,10 @@ double Analysis::calcPDFWeight_(int whichPDFUncertainty, bool upVariation, doubl
 double Analysis::calcBTagWeight_(int Njet, short * pdgId, TClonesArray * jets)
 {
   double bTaggingEfficiency = 0., bTaggingEfficiency_scaled = 0.;
-  //double bTaggingEfficiency_scaled_EffUp = 0., bTaggingEfficiency_scaled_EffDown = 0., bTaggingEfficiency_scaled_MisUp = 0., bTaggingEfficiency_scaled_MisDown = 0.;
-  double pt, eta, eff, effyScale_pt; //, effVariation_pt, misTagScale_pt, misVariation_pt;
+  double pt, eta, eff, effyScale_pt;
 
-  std::vector<double> oneMinusBEffies(0) , oneMinusBEffies_scaled(0) ; //, oneMinusBEffies_scaled_EffUp(0) , oneMinusBEffies_scaled_EffDown(0) ;
-  std::vector<double> oneMinusBMistags(0), oneMinusBMistags_scaled(0); //, oneMinusBMistags_scaled_MisUp(0), oneMinusBMistags_scaled_MisDown(0);
+  std::vector<double> oneMinusBEffies(0) , oneMinusBEffies_scaled(0) ;
+  std::vector<double> oneMinusBMistags(0), oneMinusBMistags_scaled(0);
   for(int i = 0; i < Njet; ++i){
     pt  = ((TLorentzVector*)jets->At(i))->Pt();
     eta = ((TLorentzVector*)jets->At(i))->Eta();
@@ -919,77 +867,26 @@ double Analysis::calcBTagWeight_(int Njet, short * pdgId, TClonesArray * jets)
       effyScale_pt    = 0.901615*((1.+(0.552628*30.))/(1.+(0.547195*30.)));
     else
       effyScale_pt    = 0.901615*((1.+(0.552628*pt))/(1.+(0.547195*pt)));
-    //effVariation_pt = bTagEffScaleFactor->GetBinError(bTagEffScaleFactor->FindBin(pt));
 
     if(pdgId[i] == 5 || pdgId[i] == -5){
       eff = bTagEff->GetBinContent(bTagEff->FindBin(pt,std::abs(eta)));
-      oneMinusBEffies               .push_back(1.- eff);
-      oneMinusBEffies_scaled        .push_back(1.-(eff* effyScale_pt));
-      //if(isDefaultSample){
-      //  oneMinusBEffies_scaled_EffUp  .push_back(1.-(eff*(effyScale_pt+effVariation_pt)));
-      //  oneMinusBEffies_scaled_EffDown.push_back(1.-(eff*(effyScale_pt-effVariation_pt)));
-      //}
+      oneMinusBEffies       .push_back(1.- eff);
+      oneMinusBEffies_scaled.push_back(1.-(eff*effyScale_pt));
     }
     else if(pdgId[i] == 4 || pdgId[i] == -4){
       eff = cTagEff->GetBinContent(cTagEff->FindBin(pt,std::abs(eta)));
-      oneMinusBMistags               .push_back(1.- eff);
-      oneMinusBMistags_scaled        .push_back(1.-(eff* effyScale_pt));
-      //if(pt<240){
-      //	oneMinusBMistags_scaled_MisUp  .push_back(1.-(eff*(effyScale_pt+(2*effVariation_pt))));
-      //	oneMinusBMistags_scaled_MisDown.push_back(1.-(eff*(effyScale_pt-(2*effVariation_pt))));
-      //}
-      //else{
-      //	oneMinusBMistags_scaled_MisUp  .push_back(1.-(eff*(effyScale_pt+effVariation_pt)));
-      //	oneMinusBMistags_scaled_MisDown.push_back(1.-(eff*(effyScale_pt-effVariation_pt)));
-      //}
+      oneMinusBMistags       .push_back(1.- eff);
+      oneMinusBMistags_scaled.push_back(1.-(eff*effyScale_pt));
     }
     else{
       eff = lTagEff->GetBinContent(lTagEff->FindBin(pt,std::abs(eta)));
-      oneMinusBMistags               .push_back(1.- eff);
-      oneMinusBMistags_scaled        .push_back(1.-(eff* (((0.948463+(0.00288102*pt))+(-7.98091e-06*(pt*pt)))+(5.50157e-09*(pt*(pt*pt)))) ));
-      //if(isDefaultSample){
-      //  oneMinusBMistags_scaled_MisUp  .push_back(1.-(eff* (((0.997077+(0.00473953*pt))+(-1.34985e-05*(pt*pt)))+(1.0032e-08*(pt*(pt*pt)))) ));
-      //  oneMinusBMistags_scaled_MisDown.push_back(1.-(eff* (((0.899715+(0.00102278*pt))+(-2.46335e-06*(pt*pt)))+(9.71143e-10*(pt*(pt*pt)))) ));
-      //}
+      oneMinusBMistags       .push_back(1.- eff);
+      oneMinusBMistags_scaled.push_back(1.-(eff*(((0.948463+(0.00288102*pt))+(-7.98091e-06*(pt*pt)))+(5.50157e-09*(pt*(pt*pt)))) ));
     }
   }
   bTaggingEfficiency        = eventBTagProbability_(oneMinusBEffies       , oneMinusBMistags       );
   bTaggingEfficiency_scaled = eventBTagProbability_(oneMinusBEffies_scaled, oneMinusBMistags_scaled);
 
-  //if(bTaggingEfficiency_scaled/bTaggingEfficiency > 5.){
-  //  std::cout << "Ratio: " << bTaggingEfficiency_scaled/bTaggingEfficiency << " !!!" << std::endl;
-  //  std::cout << "Eff for: " << Njet << std::endl;
-  //  for(int i = 0; i < Njet; ++i)
-  //    std::cout << pdgId[i] << ", ";
-  //  std::cout << std::endl;
-  //  std::cout << "(1-eff " << effyScale_pt << "): ";
-  //  for(std::vector<double>::const_iterator i = oneMinusBEffies.begin(); i != oneMinusBEffies.end(); ++i)
-  //    std::cout << (*i) << ", ";
-  //  std::cout << std::endl;
-  //  std::cout << "(1-eff scaled): ";
-  //  for(std::vector<double>::const_iterator i = oneMinusBEffies_scaled.begin(); i != oneMinusBEffies_scaled.end(); ++i)
-  //    std::cout << (*i) << ", ";
-  //  std::cout << std::endl;
-  //  std::cout << "(1-mis): ";
-  //  for(std::vector<double>::const_iterator i = oneMinusBMistags.begin(); i != oneMinusBMistags.end(); ++i)
-  //    std::cout << (*i) << ", ";
-  //  std::cout << std::endl;
-  //  std::cout << "(1-mis scaled): ";
-  //  for(std::vector<double>::const_iterator i = oneMinusBMistags_scaled.begin(); i != oneMinusBMistags_scaled.end(); ++i)
-  //    std::cout << (*i) << ", ";
-  //  std::cout << std::endl;
-  //  bTaggingEfficiency        = eventBTagProbability_(oneMinusBEffies       , oneMinusBMistags       , true);
-  //  std::cout << "Scaled Eff: " << std::endl;
-  //  bTaggingEfficiency_scaled = eventBTagProbability_(oneMinusBEffies_scaled, oneMinusBMistags_scaled, true);
-  //}
-
-  //if(isDefaultSample){
-  //  bTaggingEfficiency_scaled_EffUp   += eventBTagProbability_(oneMinusBEffies_scaled_EffUp  , oneMinusBMistags_scaled        );
-  //  bTaggingEfficiency_scaled_EffDown += eventBTagProbability_(oneMinusBEffies_scaled_EffDown, oneMinusBMistags_scaled        );
-  //  bTaggingEfficiency_scaled_MisUp   += eventBTagProbability_(oneMinusBEffies_scaled        , oneMinusBMistags_scaled_MisUp  );
-  //  bTaggingEfficiency_scaled_MisDown += eventBTagProbability_(oneMinusBEffies_scaled        , oneMinusBMistags_scaled_MisDown);
-  //}
-  //std::cout << bTaggingEfficiency << " " << bTaggingEfficiency_scaled << " " << bTaggingEfficiency_scaled/bTaggingEfficiency << std::endl;
   return bTaggingEfficiency_scaled/bTaggingEfficiency;
 }
 
