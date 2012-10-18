@@ -8,3 +8,4 @@
 \.png$
 \.root$
 \.project$
+-glob:Analyzer/TopMass
