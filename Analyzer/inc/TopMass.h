@@ -17,12 +17,12 @@
 #include "TVector.h"
 #include "TLegend.h"
 
-#include "tinyxml.h"
+#include "tinyxml2.h"
 
 #include "Helper.h"
 
 namespace po = boost::program_options;
-
+namespace xml = tinyxml2;
 
 bool fexists(const char *filename);
 

@@ -584,10 +584,10 @@ void TopMass::LoadXML() {
   }
   else xmlFileName = "calibration.xml";
 
-  TiXmlDocument doc(xmlFileName);
+  xml::XMLDocument doc(xmlFileName);
   //bool loadOkay = doc.LoadFile();
   
-  TiXmlElement *pRoot, *pParm;
+  xml::XMLElement *pRoot, *pParm;
   
   pRoot = doc.FirstChildElement( "calibration" );
   
@@ -595,12 +595,12 @@ void TopMass::LoadXML() {
   while ( pParm ) {
     int i, j;
     double p0, p0error, p1, p1error;
-    pParm->Attribute("binx", &i);
-    pParm->Attribute("biny", &j);
-    pParm->Attribute("p0", &p0);
-    pParm->Attribute("p0error", &p0error);
-    pParm->Attribute("p1", &p1);
-    pParm->Attribute("p1error", &p1error);
+    i = pParm->IntAttribute("binx");
+    j = pParm->IntAttribute("biny");
+    p0      = pParm->DoubleAttribute("p0");
+    p0error = pParm->DoubleAttribute("p0error");
+    p1      = pParm->DoubleAttribute("p1");
+    p1error = pParm->DoubleAttribute("p1error");
     
     fCalibFitParameter[i][j][0] = p0;
     fCalibFitParameter[i][j][1] = p1;
