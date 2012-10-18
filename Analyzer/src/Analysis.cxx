@@ -321,10 +321,15 @@ void Analysis::CreateRandomSubset() {
     if(tempFile && !tempFile->IsZombie()){
       tTree    = (TTree*)tempFile->Get(TString("fullTree_")+fIdentifier);
       tTreeBkg = (TTree*)tempFile->Get("fullTreeBkg");
+      std::cout << "Reading: " << tempFile->GetName() << std::endl;
     }
-    if(!tempFile || tempFile->IsZombie() || !tTree || !tTreeBkg){
+    else{
       tempFile = TFile::Open(tempFilePath+TString("/tempTree.root"), "RECREATE", "", 0);
       std::cout << "Creating: " << tempFile->GetName() << std::endl;
+    }
+    if(!tTree || !tTreeBkg){
+      tempFile->ReOpen("UPDATE");
+      std::cout << "Updating: " << tempFile->GetName() << std::endl;
 
       if(!tTree){
         fChain->Draw(">>selectedEvents",sel+triggerUncertainty,"goff");
