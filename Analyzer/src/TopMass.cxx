@@ -2,13 +2,6 @@
 #include "TSystem.h"
 #include "TString.h"
 
-bool fexists(const char *filename)
-{
-  ifstream ifile(filename);
-  return ifile;
-}
-
-
 TopMass::TopMass(po::variables_map vm) :
   fMethod(vm["method"].as<std::string>()),
   fBins  (vm["bins"  ].as<int>()),
@@ -611,3 +604,7 @@ void TopMass::LoadXML() {
   }
 }
 
+bool TopMass::fexists(const char *filename) {
+  ifstream ifile(filename);
+  return ifile;
+}

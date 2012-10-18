@@ -24,9 +24,6 @@
 namespace po = boost::program_options;
 namespace xml = tinyxml2;
 
-bool fexists(const char *filename);
-
-
 struct massPoint {
   double genMass;
   double genJES;
@@ -65,6 +62,7 @@ class TopMass {
     double fCalibFitParError[6][6][2];
     
     void LoadXML();
+    bool fexists(const char *filename);
   
   public:
     TopMass(po::variables_map vm);
