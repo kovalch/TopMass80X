@@ -27,6 +27,7 @@ Analysis::Analysis(po::variables_map vm) :
   fChain->Add(fFile);
 
   CreateHistos();
+  ReadConfigFromXMLFile();
 }
 
 Analysis::Analysis(TString identifier, TString file, TString method, int bins, double lumi) :
@@ -45,6 +46,7 @@ Analysis::Analysis(TString identifier, TString file, TString method, int bins, d
   fChain->Add(fFile);
 
   CreateHistos();
+  ReadConfigFromXMLFile();
 }
 
 Analysis::~Analysis()
@@ -937,4 +939,13 @@ Analysis::eventBTagProbability_(std::vector<double> &oneMinusBEffies, std::vecto
   if(verbose) std::cout << bTaggingEfficiency << std::endl;
 
   return bTaggingEfficiency;
+}
+
+xml::XMLDocument* Analysis::config(0);
+
+void
+Analysis::ReadConfigFromXMLFile(){
+  if(!config){
+    config = new xml::XMLDocument("path/to/config/file");
+  }
 }

@@ -586,14 +586,14 @@ void TopMass::LoadXML() {
   
   pParm = pRoot->FirstChildElement("bin");
   while ( pParm ) {
-    int i, j;
+    int i = -1, j = -1;
     double p0, p0error, p1, p1error;
-    i = pParm->IntAttribute("binx");
-    j = pParm->IntAttribute("biny");
-    p0      = pParm->DoubleAttribute("p0");
-    p0error = pParm->DoubleAttribute("p0error");
-    p1      = pParm->DoubleAttribute("p1");
-    p1error = pParm->DoubleAttribute("p1error");
+    pParm->QueryIntAttribute("binx", &i);
+    pParm->QueryIntAttribute("biny", &j);
+    pParm->QueryDoubleAttribute("p0", &p0);
+    pParm->QueryDoubleAttribute("p0error", &p0error);
+    pParm->QueryDoubleAttribute("p1", &p1);
+    pParm->QueryDoubleAttribute("p1error", &p1error);
     
     fCalibFitParameter[i][j][0] = p0;
     fCalibFitParameter[i][j][1] = p1;

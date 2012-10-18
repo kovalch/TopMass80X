@@ -21,7 +21,10 @@
 #include "IdeogramAnalyzer.h"
 #include "RooFitTemplateAnalyzer.h"
 
+#include "tinyxml2.h"
+
 namespace po = boost::program_options;
+namespace xml = tinyxml2;
 
 class Analysis {
  private:
@@ -57,12 +60,15 @@ class Analysis {
   TH2F* hJESfSig;
   TH2F* hJESfSigError;
 
-  TH2F * bTagEff;
-  TH2F * cTagEff;
-  TH2F * lTagEff;
+  TH2F* bTagEff;
+  TH2F* cTagEff;
+  TH2F* lTagEff;
+
+  static xml::XMLDocument* config;
 
   void CreateHistos();
   void CreateRandomSubset();
+  void ReadConfigFromXMLFile();
 
  public:
   Analysis(po::variables_map vm);
@@ -95,6 +101,6 @@ class Analysis {
   double calcPUWeight_(enum enumForPUWeights sample, short nPU);
   double calcPDFWeight_(int whichPDFUncertainty, bool upVariation, double x1, int id1, float Q, double x2, int id2);
   double eventBTagProbability_(std::vector<double> &oneMinusBEffies, std::vector<double> &oneMinusBMistags, bool verbose = false);
-  double calcBTagWeight_(int Njet=0, short * pdgId=0, TClonesArray * jets=0);
+  double calcBTagWeight_(int Njet=0, short* pdgId=0, TClonesArray* jets=0);
 };
 
