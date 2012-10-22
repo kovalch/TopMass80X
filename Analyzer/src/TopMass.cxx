@@ -2,7 +2,6 @@
 
 TopMass::TopMass(po::variables_map vm) {
   fMethod = vm["method"].as<std::string>();
-  fBins   = 1;
   fLumi   = vm["lumi"].as<double>();
   
   // Define binning
@@ -78,6 +77,7 @@ void TopMass::WriteEnsembleTest(po::variables_map vm, std::vector<float> vBinnin
   int n = 0;
   
   double genMass, mass, massError, massPull, genJES, JES, JESError, JESPull, massAlt, massAltError;
+  int bin;
   TFile* ensembleFile;
   TTree* tree;
   
@@ -97,6 +97,7 @@ void TopMass::WriteEnsembleTest(po::variables_map vm, std::vector<float> vBinnin
     tree->Branch("JESPull", &JESPull, "JESPull/D");
     tree->Branch("massAlt", &massAlt, "massAlt/D");
     tree->Branch("massAltError", &massAltError, "massAltError/D");
+    tree->Branch("bin", &bin, "bin/I");
   }
   else {
     tree->SetBranchAddress("genMass", &genMass);
@@ -109,6 +110,7 @@ void TopMass::WriteEnsembleTest(po::variables_map vm, std::vector<float> vBinnin
     tree->SetBranchAddress("JESPull", &JESPull);
     tree->SetBranchAddress("massAlt", &massAlt);
     tree->SetBranchAddress("massAltError", &massAltError);
+    tree->SetBranchAddress("bin", &bin);
   }
   
   tempFile->cd();
@@ -122,7 +124,7 @@ void TopMass::WriteEnsembleTest(po::variables_map vm, std::vector<float> vBinnin
     
     ensembleFile->cd();
     
-    for (int i = 0; i < fBins; i++) {
+    for (int i = 0; i < vBinning.size()-1; i++) {
       // add bin to tree
       genMass   = vm["mass"].as<double>();
       mass      = analysis->GetH1Mass()->GetBinContent(i+1);
@@ -136,6 +138,8 @@ void TopMass::WriteEnsembleTest(po::variables_map vm, std::vector<float> vBinnin
       JESError  = analysis->GetH1JESError()->GetBinContent(i+1);
       JESPull   = (JES - genJES)/JESError;
       
+      bin       = i+1;
+      
       tree->Fill();
     }
     
@@ -145,6 +149,11 @@ void TopMass::WriteEnsembleTest(po::variables_map vm, std::vector<float> vBinnin
     time(&end);
   }
   tree->GetCurrentFile()->Write();
+  
+  Helper* helper = new Helper(vm["binning"].as<std::string>(), vBinning);
+  TH1F* hBinning = helper->GetH1("hBinning");
+  hBinning->Write();
+  
   ensembleFile->Close();
   tempFile = new TFile("temp.root", "RECREATE");
   tempFile->Close();

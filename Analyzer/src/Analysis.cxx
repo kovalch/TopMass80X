@@ -4,7 +4,6 @@ Analysis::Analysis(po::variables_map vm, std::vector<float> v)
   : vBinning(v) {
   fMethod = vm["method"].as<std::string>();
   fLumi   = vm["lumi"].as<double>();
-  fBins   = 1;
   fBinning = vm["binning"].as<std::string>();
   fWeight = vm["weight"].as<std::string>();
   fSig    = vm["fsig"].as<double>();
@@ -31,26 +30,6 @@ Analysis::Analysis(po::variables_map vm, std::vector<float> v)
     fTreeSTe  = PrepareTree("/scratch/hh/lustre/cms/user/mseidel/Fall11_T_electron/analyzeTop.root");
   }
   
-  //fChainB->Add("/scratch/hh/current/cms/user/mseidel/Summer11_sT_muon/analyzeTop.root");
-  //fChain->Add("/scratch/hh/current/cms/user/mseidel/Summer11_WJets_1.00_1.00_2b/analyzeTop.root");
-  //fChain->Add("root/VQQJets.root");
-  
-  CreateHistos();
-}
-
-Analysis::Analysis(TString identifier, TString file, TString method, int bins, double lumi) :
-      fIdentifier(identifier), fMethod(method), fBins(bins), fLumi(lumi)
-{
-  fFileMuon = "/scratch/hh/lustre/cms/user/mseidel/";
-  fFileMuon += fIdentifier;
-  fFileMuon += "/analyzeTop.root";
-    
-  fChain = new TChain("analyzeHitFit/eventTree");
-  fChain->Add(fFileMuon);
-  //fChain->Add("/scratch/hh/current/cms/user/mseidel/STop.root");
-  //fChain->Add("/scratch/hh/current/cms/user/mseidel/Summer11_WJets_1.00_1.00_2b/analyzeTop.root");
-  //fChain->Add("root/VQQJets.root");
-  
   CreateHistos();
 }
 
@@ -75,7 +54,7 @@ void Analysis::Analyze(po::variables_map vm) {
     return;
   }
    
-  Helper* helper = new Helper(fBins, fBinning, vBinning);
+  Helper* helper = new Helper(fBinning, vBinning);
   helper->SetTDRStyle();
   
   TCanvas* canvas = new TCanvas("canvas", "Top mass", 900, 600);
@@ -179,7 +158,7 @@ void Analysis::Analyze(po::variables_map vm) {
 }
 
 void Analysis::CreateHistos() {
-  Helper* helper = new Helper(fBins, fBinning, vBinning);
+  Helper* helper = new Helper(fBinning, vBinning);
 
   hEntries = helper->GetH1("Entries");
   hMass = helper->GetH1("Mass");
@@ -256,14 +235,14 @@ void Analysis::CreateRandomSubset() {
     
     if (!strcmp(fLepton, "muon") || !strcmp(fLepton, "all")) {
       DrawEvents(fTreeTTmu, eventsPEMuon*fSig);
-      DrawEvents(fTreeWmu,  eventsPEMuon*(1.-fSig)*3./3.);
-      DrawEvents(fTreeSTmu, eventsPEMuon*(1.-fSig)*0./3.);
+      DrawEvents(fTreeWmu,  eventsPEMuon*(1.-fSig)*1./4.);
+      DrawEvents(fTreeSTmu, eventsPEMuon*(1.-fSig)*3./4.);
     }
     
     if (!strcmp(fLepton, "electron") || !strcmp(fLepton, "all")) {
       DrawEvents(fTreeTTe, eventsPEElectron*fSig);
-      DrawEvents(fTreeWe,  eventsPEElectron*(1.-fSig)*3./3.);
-      DrawEvents(fTreeSTe, eventsPEElectron*(1.-fSig)*0./3.);
+      DrawEvents(fTreeWe,  eventsPEElectron*(1.-fSig)*1./4.);
+      DrawEvents(fTreeSTe, eventsPEElectron*(1.-fSig)*3./4.);
     }
     
     time(&end);

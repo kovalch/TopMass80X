@@ -28,7 +28,6 @@ class Analysis {
     TString fIdentifier, fLepton, fFileElectron, fFileMuon, fMethod, fBinning;
     std::string fWeight;
     
-    int fBins;
     double fLumi;
     double fSig;
     std::vector<float> vBinning;
@@ -69,7 +68,6 @@ class Analysis {
 
   public:
     Analysis(po::variables_map vm, std::vector<float> v);
-    Analysis(TString identifier, TString file, TString method, int bins, double lumi);
     ~Analysis() {}
     
     void Analyze(po::variables_map vm);

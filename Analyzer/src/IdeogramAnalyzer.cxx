@@ -314,7 +314,7 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
   
   std::cout << "Minimum likelihood: " << sumLogLikelihood->GetMinimum(0) << "\tMaximum likelihood (in range): " << sumLogLikelihood->GetMaximum() << std::endl;
   
-  Helper* helper = new Helper(1);
+  Helper* helper = new Helper();
   
   if (fit2D) {  
   
