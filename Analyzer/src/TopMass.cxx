@@ -9,16 +9,17 @@ TopMass::TopMass(po::variables_map vm) :
 {
   // check existence of a temp directory and create one if not available
   TString tempDir(gSystem->Getenv("TMPDIR"));
-  if(tempDir.IsNull()){
-    gSystem->Setenv("TMPDIR", gSystem->GetFromPipe("mktemp -d"));
+  if(tempDir.IsNull() || !tempDir.Length()){
+    tempDir = gSystem->GetFromPipe("mktemp -d");
+    gSystem->Setenv("TMPDIR", tempDir);
   }
   std::cout << "Directory to be used for temporary files: " << tempDir << std::endl;
 
   // set environment variables needed for LHAPDF
-  TString LDLibraryPath(gSystem->Getenv("LD_LIBRARY_PATH"));
-  LDLibraryPath = "/afs/naf.desy.de/user/e/eschliec/wd/LHAPDF/lib:"+LDLibraryPath;
+  //TString LDLibraryPath(gSystem->Getenv("LD_LIBRARY_PATH"));
+  //LDLibraryPath = "/afs/naf.desy.de/user/e/eschliec/wd/LHAPDF/lib:"+LDLibraryPath;
   gSystem->Setenv("LHAPATH", "/afs/naf.desy.de/user/e/eschliec/wd/LHAPDF/share/lhapdf/PDFsets");
-  gSystem->Setenv("LD_LIBRARY_PATH", LDLibraryPath);
+  //gSystem->Setenv("LD_LIBRARY_PATH", LDLibraryPath);
 
   //QuickCalibration();
   //LoadXML();

@@ -5,45 +5,46 @@
 
 #include "LHAPDF/LHAPDF.h"
 #include <string>
+#include <stdlib.h>
 
 Analysis::Analysis(po::variables_map vm) :
-  samplePath("/scratch/hh/lustre/cms/user/eschliec/TopMass/19/"),
+  _samplePath("/scratch/hh/lustre/cms/user/eschliec/TopMass/19/"),
   //samplePath"/scratch/hh/dust/naf/cms/user/eschliec/TopMass/19/"),
-  fIdentifier(vm["input"].as<std::string>()),
-  fMethod    (vm["method"].as<std::string>()),
-  fBins      (vm["bins"  ].as<int>()),
-  fLumi      (vm["lumi"  ].as<double>()),
-  fTree(0),
-  tTree(0),
-  tTreeBkg(0),
-  tempFilePath(gSystem->Getenv("TMPDIR")),
-  tempFile(0)
+  _fIdentifier(vm["input"].as<std::string>()),
+  _fMethod    (vm["method"].as<std::string>()),
+  _fBins      (vm["bins"  ].as<int>()),
+  _fLumi      (vm["lumi"  ].as<double>()),
+  _fTree(0),
+  _tTree(0),
+  _tTreeBkg(0),
+  _tempFilePath(gSystem->Getenv("TMPDIR")),
+  _tempFile(0)
 {
-  fFile += samplePath;
-  fFile += fIdentifier;
-  fFile += ".root";
+  _fFile += _samplePath;
+  _fFile += _fIdentifier;
+  _fFile += ".root";
 
-  fChain = new TChain("FullHadTreeWriter/tree");
-  fChain->Add(fFile);
+  _fChain = new TChain("FullHadTreeWriter/tree");
+  _fChain->Add(_fFile);
 
   CreateHistos();
   ReadConfigFromXMLFile();
 }
 
 Analysis::Analysis(TString identifier, TString file, TString method, int bins, double lumi) :
-  samplePath("/scratch/hh/lustre/cms/user/eschliec/TopMass/19/"),
+  _samplePath("/scratch/hh/lustre/cms/user/eschliec/TopMass/19/"),
   //samplePath"/scratch/hh/dust/naf/cms/user/eschliec/TopMass/19/"),
-  fIdentifier(identifier), fMethod(method), fBins(bins), fLumi(lumi),
-  fTree(0), tTree(0), tTreeBkg(0),
-  tempFilePath(gSystem->Getenv("TMPDIR")),
-  tempFile(0)
+  _fIdentifier(identifier), _fMethod(method), _fBins(bins), _fLumi(lumi),
+  _fTree(0), _tTree(0), _tTreeBkg(0),
+  _tempFilePath(gSystem->Getenv("TMPDIR")),
+  _tempFile(0)
 {
-  fFile += samplePath;
-  fFile += fIdentifier;
-  fFile += ".root";
+  _fFile += _samplePath;
+  _fFile += _fIdentifier;
+  _fFile += ".root";
 
-  fChain = new TChain("FullHadTreeWriter/tree");
-  fChain->Add(fFile);
+  _fChain = new TChain("FullHadTreeWriter/tree");
+  _fChain->Add(_fFile);
 
   CreateHistos();
   ReadConfigFromXMLFile();
@@ -51,56 +52,56 @@ Analysis::Analysis(TString identifier, TString file, TString method, int bins, d
 
 Analysis::~Analysis()
 {
-  delete fChain;
+  delete _fChain;
 
-  delete fTree;
-  delete tTree;
-  delete tTreeBkg;
-  delete hEntries;
-  delete hMass;
-  delete hMassError;
-  delete hJES;
-  delete hJESError;
-  delete hMassConstJES;
-  delete hMassConstJESError;
-  delete hFSig;
-  delete hFSigError;
-  delete hMassfSig;
-  delete hMassfSigError;
-  delete hJESfSig;
-  delete hJESfSigError;
-  delete bTagEff;
-  delete cTagEff;
-  delete lTagEff;
-  tempFile->Close();
-  delete tempFile;
+  delete _fTree;
+  delete _tTree;
+  delete _tTreeBkg;
+  delete _hEntries;
+  delete _hMass;
+  delete _hMassError;
+  delete _hJES;
+  delete _hJESError;
+  delete _hMassConstJES;
+  delete _hMassConstJESError;
+  delete _hFSig;
+  delete _hFSigError;
+  delete _hMassfSig;
+  delete _hMassfSigError;
+  delete _hJESfSig;
+  delete _hJESfSigError;
+  delete _bTagEff;
+  delete _cTagEff;
+  delete _lTagEff;
+  _tempFile->Close();
+  delete _tempFile;
 }
 
 void Analysis::Analyze(po::variables_map vm) {
 
-  std::cout << "Analyze " << fIdentifier << " with method " << fMethod << std::endl;
+  std::cout << "Analyze " << _fIdentifier << " with method " << _fMethod << std::endl;
 
   CreateRandomSubset();
 
   MassAnalyzer* fAnalyzer = 0;
 
-  if (!strcmp(fMethod, "GenMatch")) {
-    fAnalyzer = new GenMatchAnalyzer(fIdentifier, fTree);
+  if (!strcmp(_fMethod, "GenMatch")) {
+    fAnalyzer = new GenMatchAnalyzer(_fIdentifier, _fTree);
   }
-  else if (!strcmp(fMethod, "MVA")) {
-    fAnalyzer = new MVAAnalyzer(fIdentifier, fTree);
+  else if (!strcmp(_fMethod, "MVA")) {
+    fAnalyzer = new MVAAnalyzer(_fIdentifier, _fTree);
   }
-  else if (!strcmp(fMethod, "Ideogram")) {
-    fAnalyzer = new IdeogramAnalyzer(fIdentifier, fTree);
+  else if (!strcmp(_fMethod, "Ideogram")) {
+    fAnalyzer = new IdeogramAnalyzer(_fIdentifier, _fTree);
   }
-  else if (!strcmp(fMethod, "RooFit")) {
-    fAnalyzer = new RooFitTemplateAnalyzer(fIdentifier, fTree);
+  else if (!strcmp(_fMethod, "RooFit")) {
+    fAnalyzer = new RooFitTemplateAnalyzer(_fIdentifier, _fTree);
   }
   else {
     return;
   }
 
-  Helper* helper = new Helper(fBins);
+  Helper* helper = new Helper(_fBins);
   helper->SetTDRStyle();
   delete helper;
 
@@ -111,31 +112,31 @@ void Analysis::Analyze(po::variables_map vm) {
   double rangeX = 10.;
   double rangeY = 10.;
 
-  double smearX = smearBins/fBins*rangeX;
-  double smearY = smearBins/fBins*rangeY;
+  double smearX = smearBins/_fBins*rangeX;
+  double smearY = smearBins/_fBins*rangeY;
 
   double minEntries = 25;
 
   TString observableX = "dRbb";
   TString observableY = "dRbb";
 
-  for(int i = 0; i < fBins; i++) {
-    for(int j = 0; j < fBins; j++) {
+  for(int i = 0; i < _fBins; i++) {
+    for(int j = 0; j < _fBins; j++) {
       // calculate cuts
       std::stringstream stream;
-      stream << (rangeX/fBins)*(i)-smearX << "<" << observableX << "&"
-             << observableX << "<" << (rangeX/fBins)*(i+1)+smearX << " & "
-             << rangeY/fBins*(j)-smearY << "<" << observableY << "&"
-             << observableY << "<" << rangeY/fBins*(j+1)+smearY;
+      stream << (rangeX/_fBins)*(i)-smearX << "<" << observableX << "&"
+             << observableX << "<" << (rangeX/_fBins)*(i+1)+smearX << " & "
+             << rangeY/_fBins*(j)-smearY << "<" << observableY << "&"
+             << observableY << "<" << rangeY/_fBins*(j+1)+smearY;
       TString cuts(stream.str());
 
-      if (!strcmp(fMethod, "GenMatch")) {
+      if (!strcmp(_fMethod, "GenMatch")) {
         cuts += " & comboType == 1";
       }
-      else if (!strcmp(fMethod, "MVA")) {
+      else if (!strcmp(_fMethod, "MVA")) {
         cuts += " & mvaDisc > 0";
       }
-      else if (!strcmp(fMethod, "Ideogram")) {
+      else if (!strcmp(_fMethod, "Ideogram")) {
 //        //cuts += " & target == 1";
 //        //cuts += " & (target == 0 | target == 1)";
 //        //cuts += " & Njet == 6";
@@ -145,30 +146,30 @@ void Analysis::Analyze(po::variables_map vm) {
 //        //cuts += " & nVertex <= 5";
 //        cuts += " & topMasses[0] > 100. & topMasses[0] < 550.";
       }
-      else if (!strcmp(fMethod, "RooFit")) {
+      else if (!strcmp(_fMethod, "RooFit")) {
       }
 
-      int entries = fTree->GetEntries(cuts);
+      int entries = _fTree->GetEntries(cuts);
       std::cout << cuts << std::endl;
       std::cout << entries << std::endl;
 
-      hEntries->SetCellContent(i+1, j+1, entries);
+      _hEntries->SetCellContent(i+1, j+1, entries);
 
       if (entries > minEntries) {
         fAnalyzer->Analyze(cuts, i, j, vm);
 
-        hMass     ->SetCellContent(i+1, j+1, fAnalyzer->GetMass());
-        hMassError->SetCellContent(i+1, j+1, fAnalyzer->GetMassError());
-        hJES      ->SetCellContent(i+1, j+1, fAnalyzer->GetJES());
-        hJESError ->SetCellContent(i+1, j+1, fAnalyzer->GetJESError());
-        hMassConstJES     ->SetCellContent(i+1, j+1, fAnalyzer->GetMassConstJES());
-        hMassConstJESError->SetCellContent(i+1, j+1, fAnalyzer->GetMassConstJESError());
-        hFSig     ->SetCellContent(i+1, j+1, fAnalyzer->GetFSig());
-        hFSigError->SetCellContent(i+1, j+1, fAnalyzer->GetFSigError());
-        hMassfSig     ->SetCellContent(i+1, j+1, fAnalyzer->GetMassfSig());
-        hMassfSigError->SetCellContent(i+1, j+1, fAnalyzer->GetMassfSigError());
-        hJESfSig      ->SetCellContent(i+1, j+1, fAnalyzer->GetJESfSig());
-        hJESfSigError ->SetCellContent(i+1, j+1, fAnalyzer->GetJESfSigError());
+        _hMass     ->SetCellContent(i+1, j+1, fAnalyzer->GetMass());
+        _hMassError->SetCellContent(i+1, j+1, fAnalyzer->GetMassError());
+        _hJES      ->SetCellContent(i+1, j+1, fAnalyzer->GetJES());
+        _hJESError ->SetCellContent(i+1, j+1, fAnalyzer->GetJESError());
+        _hMassConstJES     ->SetCellContent(i+1, j+1, fAnalyzer->GetMassConstJES());
+        _hMassConstJESError->SetCellContent(i+1, j+1, fAnalyzer->GetMassConstJESError());
+        _hFSig     ->SetCellContent(i+1, j+1, fAnalyzer->GetFSig());
+        _hFSigError->SetCellContent(i+1, j+1, fAnalyzer->GetFSigError());
+        _hMassfSig     ->SetCellContent(i+1, j+1, fAnalyzer->GetMassfSig());
+        _hMassfSigError->SetCellContent(i+1, j+1, fAnalyzer->GetMassfSigError());
+        _hJESfSig      ->SetCellContent(i+1, j+1, fAnalyzer->GetJESfSig());
+        _hJESfSigError ->SetCellContent(i+1, j+1, fAnalyzer->GetJESfSigError());
 
         std::cout << std::endl;
         std::cout << "Measured 1D mass: " << fAnalyzer->GetMassConstJES() << " +/- "
@@ -194,17 +195,17 @@ void Analysis::Analyze(po::variables_map vm) {
   canvas->Divide(2,2);
 
   canvas->cd(1);
-  hEntries->Draw("COLZ");
+  _hEntries->Draw("COLZ");
 
   canvas->cd(2);
-  hMass->Draw("COLZ,TEXT");
-  hMass->SetAxisRange(hMass->GetMinimum(0.05), hMass->GetMaximum(), "Z");
+  _hMass->Draw("COLZ,TEXT");
+  _hMass->SetAxisRange(_hMass->GetMinimum(0.05), _hMass->GetMaximum(), "Z");
 
   canvas->cd(3);
-  hMassError->Draw("COLZ,TEXT");
-  hMassError->SetAxisRange(0.05, 5, "Z");
+  _hMassError->Draw("COLZ,TEXT");
+  _hMassError->SetAxisRange(0.05, 5, "Z");
 
-  TString path("plot/"); path += fMethod; path += "_"; path += fIdentifier; path += ".eps";
+  TString path("plot/"); path += _fMethod; path += "_"; path += _fIdentifier; path += ".eps";
   canvas->Print(path);
 
   delete canvas;
@@ -212,30 +213,30 @@ void Analysis::Analyze(po::variables_map vm) {
 }
 
 void Analysis::CreateHistos() {
-  Helper* helper = new Helper(fBins);
+  Helper* helper = new Helper(_fBins);
 
-  hEntries = helper->GetH2("Entries");
+  _hEntries = helper->GetH2("Entries");
 
-  hMass = helper->GetH2("Mass");
-  hMassError = helper->GetH2("MassError");
-  hJES = helper->GetH2("JES");
-  hJESError = helper->GetH2("JESError");
+  _hMass = helper->GetH2("Mass");
+  _hMassError = helper->GetH2("MassError");
+  _hJES = helper->GetH2("JES");
+  _hJESError = helper->GetH2("JESError");
   
-  hMassConstJES = helper->GetH2("MassConstJES");
-  hMassConstJESError = helper->GetH2("MassConstJESError");
+  _hMassConstJES = helper->GetH2("MassConstJES");
+  _hMassConstJESError = helper->GetH2("MassConstJESError");
   
-  hFSig = helper->GetH2("fSig");
-  hFSigError = helper->GetH2("fSigError");
-  hMassfSig = helper->GetH2("MassfSig");
-  hMassfSigError = helper->GetH2("MassfSigError");
-  hJESfSig = helper->GetH2("JESfSig");
-  hJESfSigError = helper->GetH2("JESfSigError");
+  _hFSig = helper->GetH2("fSig");
+  _hFSigError = helper->GetH2("fSigError");
+  _hMassfSig = helper->GetH2("MassfSig");
+  _hMassfSigError = helper->GetH2("MassfSigError");
+  _hJESfSig = helper->GetH2("JESfSig");
+  _hJESfSigError = helper->GetH2("JESfSigError");
   
-  TFile * bTagFile = TFile::Open(samplePath+TString("bTagFile.root"));
+  TFile * bTagFile = TFile::Open(_samplePath+TString("bTagFile.root"));
   gROOT->cd();
-  bTagEff = (TH2F*)bTagFile->Get("histb")->Clone();
-  cTagEff = (TH2F*)bTagFile->Get("histc")->Clone();
-  lTagEff = (TH2F*)bTagFile->Get("histl")->Clone();
+  _bTagEff = (TH2F*)bTagFile->Get("histb")->Clone();
+  _cTagEff = (TH2F*)bTagFile->Get("histc")->Clone();
+  _lTagEff = (TH2F*)bTagFile->Get("histl")->Clone();
   bTagFile->Close();
 
   delete bTagFile;
@@ -244,40 +245,41 @@ void Analysis::CreateHistos() {
 
 void Analysis::CreateRandomSubset() {
   std::cout << "Create random subset..." << std::endl;
-  fChain->SetBranchStatus("*",0);
-  fChain->SetBranchStatus("nCombos", 1);
-  fChain->SetBranchStatus("comboTypes", 1);
-  fChain->SetBranchStatus("topMasses", 1);
-  fChain->SetBranchStatus("topMass", 1);
-  fChain->SetBranchStatus("w1Mass", 1);
-  fChain->SetBranchStatus("w2Mass", 1);
-  fChain->SetBranchStatus("probs", 1);
-  fChain->SetBranchStatus("prob", 1);
-  fChain->SetBranchStatus("dRbb", 1);
+  SetBranchStatuses(_fChain);
+  /*
+  _fChain->SetBranchStatus("*",0);
+  _fChain->SetBranchStatus("nCombos", 1);
+  _fChain->SetBranchStatus("comboTypes", 1);
+  _fChain->SetBranchStatus("topMasses", 1);
+  _fChain->SetBranchStatus("topMass", 1);
+  _fChain->SetBranchStatus("w1Mass", 1);
+  _fChain->SetBranchStatus("w2Mass", 1);
+  _fChain->SetBranchStatus("probs", 1);
+  _fChain->SetBranchStatus("prob", 1);
+  _fChain->SetBranchStatus("dRbb", 1);
   
-  fChain->SetBranchStatus("Njet", 1);
-  fChain->SetBranchStatus("jets", 1);
-  //fChain->SetBranchStatus("bTag_CSV", 1);
-  fChain->SetBranchStatus("partonFlavour", 1);
+  _fChain->SetBranchStatus("Njet", 1);
+  _fChain->SetBranchStatus("jets", 1);
+  //_fChain->SetBranchStatus("bTag_CSV", 1);
+  _fChain->SetBranchStatus("partonFlavour", 1);
 
-  fChain->SetBranchStatus("runNumber", 1);
-  fChain->SetBranchStatus("luminosityBlockNumber", 1);
-  fChain->SetBranchStatus("eventNumber", 1);
+  _fChain->SetBranchStatus("runNumber", 1);
+  _fChain->SetBranchStatus("luminosityBlockNumber", 1);
+  _fChain->SetBranchStatus("eventNumber", 1);
 
-  fChain->SetBranchStatus("dRbb", 1);
+  _fChain->SetBranchStatus("nPU", 1);
+  _fChain->SetBranchStatus("nPUTru", 1);
 
-  fChain->SetBranchStatus("nPU", 1);
-  fChain->SetBranchStatus("nPUTru", 1);
-
-  fChain->SetBranchStatus("MCweight", 1);
+  _fChain->SetBranchStatus("MCweight", 1);
   
-  if(fFile.Contains("PDF")){
-    fChain->SetBranchStatus("id1", 1);
-    fChain->SetBranchStatus("id2", 1);
-    fChain->SetBranchStatus("x1", 1);
-    fChain->SetBranchStatus("x2", 1);
-    fChain->SetBranchStatus("Q", 1);
+  if(_fFile.Contains("PDF")){
+    _fChain->SetBranchStatus("id1", 1);
+    _fChain->SetBranchStatus("id2", 1);
+    _fChain->SetBranchStatus("x1", 1);
+    _fChain->SetBranchStatus("x2", 1);
+    _fChain->SetBranchStatus("Q", 1);
   }
+  */
   const short kMAXCombos = 12000;
   const short kMAXNJets  = 50;
 
@@ -306,241 +308,240 @@ void Analysis::CreateRandomSubset() {
   float Q = -1.;
   int id1 = 0, id2 = 0;  
 
-  TString sel = "probs[0]>0.09 && dRbb>1.5 && topMasses[0] > 100. && topMasses[0] < 550.";
   TString triggerUncertainty = "";
-  if(fIdentifier.Contains("jet4_02")) triggerUncertainty += " & jets[3].Pt() > 62.";
-  if(fIdentifier.Contains("jet4_05")) triggerUncertainty += " & jets[3].Pt() > 65.";
-  if(fIdentifier.Contains("jet4_10")) triggerUncertainty += " & jets[3].Pt() > 70.";
-  if(fIdentifier.Contains("jet5_02")) triggerUncertainty += " & jets[4].Pt() > 52.";
-  if(fIdentifier.Contains("jet5_05")) triggerUncertainty += " & jets[4].Pt() > 55.";
-  if(fIdentifier.Contains("jet5_10")) triggerUncertainty += " & jets[4].Pt() > 60.";
-  if(fIdentifier.Contains("jet6_02")) triggerUncertainty += " & jets[5].Pt() > 42.";
-  if(fIdentifier.Contains("jet6_05")) triggerUncertainty += " & jets[5].Pt() > 45.";
-  if(fIdentifier.Contains("jet6_10")) triggerUncertainty += " & jets[5].Pt() > 50.";
+  if(_fIdentifier.Contains("jet4_02")) triggerUncertainty += " & jets[3].Pt() > 62.";
+  if(_fIdentifier.Contains("jet4_05")) triggerUncertainty += " & jets[3].Pt() > 65.";
+  if(_fIdentifier.Contains("jet4_10")) triggerUncertainty += " & jets[3].Pt() > 70.";
+  if(_fIdentifier.Contains("jet5_02")) triggerUncertainty += " & jets[4].Pt() > 52.";
+  if(_fIdentifier.Contains("jet5_05")) triggerUncertainty += " & jets[4].Pt() > 55.";
+  if(_fIdentifier.Contains("jet5_10")) triggerUncertainty += " & jets[4].Pt() > 60.";
+  if(_fIdentifier.Contains("jet6_02")) triggerUncertainty += " & jets[5].Pt() > 42.";
+  if(_fIdentifier.Contains("jet6_05")) triggerUncertainty += " & jets[5].Pt() > 45.";
+  if(_fIdentifier.Contains("jet6_10")) triggerUncertainty += " & jets[5].Pt() > 50.";
 
-  if (fLumi!=0) {
-    tempFile = TFile::Open(tempFilePath+TString("/tempTree.root"), "READ");
-    if(tempFile && !tempFile->IsZombie()){
-      tTree    = (TTree*)tempFile->Get(TString("fullTree_")+fIdentifier);
-      tTreeBkg = (TTree*)tempFile->Get("fullTreeBkg");
-      std::cout << "Reading: " << tempFile->GetName() << std::endl;
+  if (_fLumi!=0) {
+    _tempFile = TFile::Open(_tempFilePath+TString("/tempTree.root"), "READ");
+    if(_tempFile && !_tempFile->IsZombie()){
+      _tTree    = (TTree*)_tempFile->Get(TString("fullTree_")+_fIdentifier);
+      _tTreeBkg = (TTree*)_tempFile->Get("fullTreeBkg");
+      std::cout << "Reading: " << _tempFile->GetName() << std::endl;
     }
     else{
-      tempFile = TFile::Open(tempFilePath+TString("/tempTree.root"), "RECREATE", "", 0);
-      std::cout << "Creating: " << tempFile->GetName() << std::endl;
+      _tempFile = TFile::Open(_tempFilePath+TString("/tempTree.root"), "RECREATE", "", 0);
+      std::cout << "Creating: " << _tempFile->GetName() << std::endl;
     }
-    if(!tTree || !tTreeBkg){
-      tempFile->ReOpen("UPDATE");
-      std::cout << "Updating: " << tempFile->GetName() << std::endl;
+    if(!_tTree || !_tTreeBkg){
+      _tempFile->ReOpen("UPDATE");
+      std::cout << "Updating: " << _tempFile->GetName() << std::endl;
 
-      if(!tTree){
-        fChain->Draw(">>selectedEvents",sel+triggerUncertainty,"goff");
+      if(!_tTree){
+        _fChain->Draw(">>selectedEvents",_selection+triggerUncertainty,"goff");
         TEventList* selectedEvents = (TEventList*)gDirectory->Get("selectedEvents");
 
-        fChain->SetBranchAddress("nCombos", &nCombos);
-        fChain->SetBranchAddress("comboTypes", comboTypes);
-        fChain->SetBranchAddress("topMasses", topMasses);
-        fChain->SetBranchAddress("topMass", &topMass);
-        fChain->SetBranchAddress("w1Mass", w1Masses);
-        fChain->SetBranchAddress("w2Mass", w2Masses);
-        fChain->SetBranchAddress("probs", probs);
-        fChain->SetBranchAddress("prob", &prob);
-        fChain->SetBranchAddress("dRbb", &dRbb);
+        _fChain->SetBranchAddress("nCombos", &nCombos);
+        _fChain->SetBranchAddress("comboTypes", comboTypes);
+        _fChain->SetBranchAddress("topMasses", topMasses);
+        _fChain->SetBranchAddress("topMass", &topMass);
+        _fChain->SetBranchAddress("w1Mass", w1Masses);
+        _fChain->SetBranchAddress("w2Mass", w2Masses);
+        _fChain->SetBranchAddress("probs", probs);
+        _fChain->SetBranchAddress("prob", &prob);
+        _fChain->SetBranchAddress("dRbb", &dRbb);
 
-        fChain->SetBranchAddress("Njet", &Njet);
-        fChain->SetBranchAddress("jets", &jets);
+        _fChain->SetBranchAddress("Njet", &Njet);
+        _fChain->SetBranchAddress("jets", &jets);
         //fChain->SetBranchAddress("bTag_CSV", bTag);
-        fChain->SetBranchAddress("partonFlavour", pdgId);
+        _fChain->SetBranchAddress("partonFlavour", pdgId);
 
-        fChain->SetBranchAddress("runNumber", &runNumber);
-        fChain->SetBranchAddress("luminosityBlockNumber", &luminosityBlockNumber);
-        fChain->SetBranchAddress("eventNumber", &eventNumber);
+        _fChain->SetBranchAddress("runNumber", &runNumber);
+        _fChain->SetBranchAddress("luminosityBlockNumber", &luminosityBlockNumber);
+        _fChain->SetBranchAddress("eventNumber", &eventNumber);
 
-        fChain->SetBranchAddress("dRbb", &dRbb);
+        _fChain->SetBranchAddress("dRbb", &dRbb);
 
-        fChain->SetBranchAddress("nPU", &nPU);
-        fChain->SetBranchAddress("nPUTru", &nPUTru);
+        _fChain->SetBranchAddress("nPU", &nPU);
+        _fChain->SetBranchAddress("nPUTru", &nPUTru);
 
-        fChain->SetBranchAddress("MCweight", &MCweight);
+        _fChain->SetBranchAddress("MCweight", &MCweight);
 
-        if(fFile.Contains("PDF")){
-          fChain->SetBranchAddress("id1", &id1);
-          fChain->SetBranchAddress("id2", &id2);
-          fChain->SetBranchAddress("x1", &x1);
-          fChain->SetBranchAddress("x2", &x2);
-          fChain->SetBranchAddress("Q", &Q);
+        if(_fFile.Contains("PDF")){
+          _fChain->SetBranchAddress("id1", &id1);
+          _fChain->SetBranchAddress("id2", &id2);
+          _fChain->SetBranchAddress("x1", &x1);
+          _fChain->SetBranchAddress("x2", &x2);
+          _fChain->SetBranchAddress("Q", &Q);
         }
 
-        tTree = fChain->CloneTree(0);
-        tTree->SetName(TString("fullTree_")+fIdentifier);
+        _tTree = _fChain->CloneTree(0);
+        _tTree->SetName(TString("fullTree_")+_fIdentifier);
 
         for(int idx = 0 , l = selectedEvents->GetN(); idx < l; ++idx){
-          fChain->GetEntry(selectedEvents->GetEntry(idx));
+          _fChain->GetEntry(selectedEvents->GetEntry(idx));
           nCombos = 1;
-          tTree->Fill();
+          _tTree->Fill();
         }
-        AddWeights(tTree);
-        tTree->Write(0,TObject::kOverwrite);
-        delete tTree;
+        AddWeights(_tTree);
+        _tTree->Write(0,TObject::kOverwrite);
+        delete _tTree;
       }
 
-      if(!tTreeBkg){
-        TFile * fileBkg = TFile::Open(samplePath+TString("QCDEstimationMix_2011_skimmed2.root"));
-        if(TString(fileBkg->GetName()).Contains("_skimmed")) tTreeBkg = (TTree*)fileBkg->Get("tree");
-        else  tTreeBkg = (TTree*)fileBkg->Get("analyzeFullHadEventMixer/tree");
+      if(!_tTreeBkg){
+        TFile * fileBkg = TFile::Open(_samplePath+TString("QCDEstimationMix_2011_skimmed2.root"));
+        if(TString(fileBkg->GetName()).Contains("_skimmed")) _tTreeBkg = (TTree*)fileBkg->Get("tree");
+        else  _tTreeBkg = (TTree*)fileBkg->Get("analyzeFullHadEventMixer/tree");
 
-        tTreeBkg->SetBranchStatus("*",0);
-        tTreeBkg->SetBranchStatus("topMasses", 1);
-        tTreeBkg->SetBranchStatus("topMass", 1);
-        tTreeBkg->SetBranchStatus("w1Mass", 1);
-        tTreeBkg->SetBranchStatus("w2Mass", 1);
-        tTreeBkg->SetBranchStatus("probs", 1);
-        tTreeBkg->SetBranchStatus("prob", 1);
-        tTreeBkg->SetBranchStatus("dRbb", 1);
+        _tTreeBkg->SetBranchStatus("*",0);
+        _tTreeBkg->SetBranchStatus("topMasses", 1);
+        _tTreeBkg->SetBranchStatus("topMass", 1);
+        _tTreeBkg->SetBranchStatus("w1Mass", 1);
+        _tTreeBkg->SetBranchStatus("w2Mass", 1);
+        _tTreeBkg->SetBranchStatus("probs", 1);
+        _tTreeBkg->SetBranchStatus("prob", 1);
+        _tTreeBkg->SetBranchStatus("dRbb", 1);
 
-        tTreeBkg->SetBranchStatus("jets", 1);
+        _tTreeBkg->SetBranchStatus("jets", 1);
 
-        tTreeBkg->SetBranchStatus("runNumber", 1);
-        tTreeBkg->SetBranchStatus("luminosityBlockNumber", 1);
-        tTreeBkg->SetBranchStatus("eventNumber", 1);
+        _tTreeBkg->SetBranchStatus("runNumber", 1);
+        _tTreeBkg->SetBranchStatus("luminosityBlockNumber", 1);
+        _tTreeBkg->SetBranchStatus("eventNumber", 1);
 
-        tempFile->cd();
+        _tempFile->cd();
 
-        TString selBkg = sel; selBkg.ReplaceAll("dRbb","dRbb[0]");
-        TTree* tempTreeBkg = tTreeBkg->CopyTree(selBkg);
+        TString selBkg = _selection; selBkg.ReplaceAll("dRbb","dRbb[0]");
+        TTree* tempTreeBkg = _tTreeBkg->CopyTree(selBkg);
         tempTreeBkg->SetName("fullTreeBkg");
         AddWeights(tempTreeBkg,true);
         tempTreeBkg->Write(0,TObject::kOverwrite);
         delete tempTreeBkg;
 
-        delete tTreeBkg;
+        delete _tTreeBkg;
         fileBkg->Close();
         delete fileBkg;
       }
 
-      tempFile->Close();
-      tempFile = TFile::Open(tempFilePath+TString("/tempTree.root"),"READ");
-      tTree    = (TTree*)tempFile->Get(TString("fullTree_")+fIdentifier);
-      tTreeBkg = (TTree*)tempFile->Get("fullTreeBkg");
+      _tempFile->Close();
+      _tempFile = TFile::Open(_tempFilePath+TString("/tempTree.root"),"READ");
+      _tTree    = (TTree*)_tempFile->Get(TString("fullTree_")+_fIdentifier);
+      _tTreeBkg = (TTree*)_tempFile->Get("fullTreeBkg");
     }
 
     TRandom3* myRandom = new TRandom3(0);
     std::cout << "Random seed: " << myRandom->GetSeed() << std::endl;
 
-    tTree   ->SetCacheSize(10000000000);
-    tTreeBkg->SetCacheSize(10000000000);
+    _tTree   ->SetCacheSize(10000000000);
+    _tTreeBkg->SetCacheSize(10000000000);
 
-    tTree->SetBranchStatus("*",0);
-    tTree->SetBranchStatus("CombinedWeight",1);
-    tTree->SetBranchStatus("meanWMass",1);
-    tTree->SetBranchStatus("topMasses",1);
-    tTree->SetBranchStatus("topMass",1);
-    tTree->SetBranchStatus("w1Mass",1);
-    tTree->SetBranchStatus("w2Mass",1);
-    tTree->SetBranchStatus("probs",1);
-    tTree->SetBranchStatus("prob",1);
-    tTree->SetBranchStatus("dRbb",1);
-    tTree->SetBranchStatus("jets",1);
-    tTree->SetBranchStatus("nCombos",1);
-    tTree->SetBranchStatus("comboTypes",1);
-    tTree->SetBranchStatus("runNumber", 1);
-    tTree->SetBranchStatus("luminosityBlockNumber", 1);
-    tTree->SetBranchStatus("eventNumber", 1);
+    _tTree->SetBranchStatus("*",0);
+    _tTree->SetBranchStatus("CombinedWeight",1);
+    _tTree->SetBranchStatus("meanWMass",1);
+    _tTree->SetBranchStatus("topMasses",1);
+    _tTree->SetBranchStatus("topMass",1);
+    _tTree->SetBranchStatus("w1Mass",1);
+    _tTree->SetBranchStatus("w2Mass",1);
+    _tTree->SetBranchStatus("probs",1);
+    _tTree->SetBranchStatus("prob",1);
+    _tTree->SetBranchStatus("dRbb",1);
+    _tTree->SetBranchStatus("jets",1);
+    _tTree->SetBranchStatus("nCombos",1);
+    _tTree->SetBranchStatus("comboTypes",1);
+    _tTree->SetBranchStatus("runNumber", 1);
+    _tTree->SetBranchStatus("luminosityBlockNumber", 1);
+    _tTree->SetBranchStatus("eventNumber", 1);
 
-    tTree->SetBranchAddress("CombinedWeight",&CombinedWeight);
-    tTree->SetBranchAddress("meanWMass",&meanWMass);
-    tTree->SetBranchAddress("topMasses",topMasses);
-    tTree->SetBranchAddress("topMass",&topMass);
-    tTree->SetBranchAddress("w1Mass",w1Masses);
-    tTree->SetBranchAddress("w2Mass",w2Masses);
-    tTree->SetBranchAddress("probs",probs);
-    tTree->SetBranchAddress("prob",&prob);
-    tTree->SetBranchAddress("dRbb",&dRbb);
-    tTree->GetBranch("jets")->SetAutoDelete(kFALSE);
-    tTree->SetBranchAddress("jets", &jets);
-    tTree->SetBranchAddress("nCombos",&nCombos);
-    tTree->SetBranchAddress("comboTypes",comboTypes);
-    tTree->SetBranchAddress("runNumber", &runNumber);
-    tTree->SetBranchAddress("luminosityBlockNumber", &luminosityBlockNumber);
-    tTree->SetBranchAddress("eventNumber", &eventNumber);
+    _tTree->SetBranchAddress("CombinedWeight",&CombinedWeight);
+    _tTree->SetBranchAddress("meanWMass",&meanWMass);
+    _tTree->SetBranchAddress("topMasses",topMasses);
+    _tTree->SetBranchAddress("topMass",&topMass);
+    _tTree->SetBranchAddress("w1Mass",w1Masses);
+    _tTree->SetBranchAddress("w2Mass",w2Masses);
+    _tTree->SetBranchAddress("probs",probs);
+    _tTree->SetBranchAddress("prob",&prob);
+    _tTree->SetBranchAddress("dRbb",&dRbb);
+    _tTree->GetBranch("jets")->SetAutoDelete(kFALSE);
+    _tTree->SetBranchAddress("jets", &jets);
+    _tTree->SetBranchAddress("nCombos",&nCombos);
+    _tTree->SetBranchAddress("comboTypes",comboTypes);
+    _tTree->SetBranchAddress("runNumber", &runNumber);
+    _tTree->SetBranchAddress("luminosityBlockNumber", &luminosityBlockNumber);
+    _tTree->SetBranchAddress("eventNumber", &eventNumber);
 
-    tTreeBkg->SetBranchAddress("meanWMass",&meanWMass);
-    tTreeBkg->SetBranchAddress("topMasses", topMasses);
-    tTreeBkg->SetBranchAddress("topMass", &topMass);
-    tTreeBkg->SetBranchAddress("w1Mass", w1Masses);
-    tTreeBkg->SetBranchAddress("w2Mass", w2Masses);
-    tTreeBkg->SetBranchAddress("probs", probs);
-    tTreeBkg->SetBranchAddress("prob", &prob);
-    tTreeBkg->SetBranchAddress("dRbb", &dRbb);
-    tTreeBkg->GetBranch("jets")->SetAutoDelete(kFALSE);
-    tTreeBkg->SetBranchAddress("jets", &jets);
-    tTreeBkg->SetBranchAddress("nCombos",&nCombos);
+    _tTreeBkg->SetBranchAddress("meanWMass",&meanWMass);
+    _tTreeBkg->SetBranchAddress("topMasses", topMasses);
+    _tTreeBkg->SetBranchAddress("topMass", &topMass);
+    _tTreeBkg->SetBranchAddress("w1Mass", w1Masses);
+    _tTreeBkg->SetBranchAddress("w2Mass", w2Masses);
+    _tTreeBkg->SetBranchAddress("probs", probs);
+    _tTreeBkg->SetBranchAddress("prob", &prob);
+    _tTreeBkg->SetBranchAddress("dRbb", &dRbb);
+    _tTreeBkg->GetBranch("jets")->SetAutoDelete(kFALSE);
+    _tTreeBkg->SetBranchAddress("jets", &jets);
+    _tTreeBkg->SetBranchAddress("nCombos",&nCombos);
     
-    tTreeBkg->SetBranchAddress("runNumber", &runNumber);
-    tTreeBkg->SetBranchAddress("luminosityBlockNumber", &luminosityBlockNumber);
-    tTreeBkg->SetBranchAddress("eventNumber", &eventNumber);
+    _tTreeBkg->SetBranchAddress("runNumber", &runNumber);
+    _tTreeBkg->SetBranchAddress("luminosityBlockNumber", &luminosityBlockNumber);
+    _tTreeBkg->SetBranchAddress("eventNumber", &eventNumber);
     
-    double maxMCWeight = tTree->GetMaximum("CombinedWeight");
+    double maxMCWeight = _tTree->GetMaximum("CombinedWeight");
 
     if (maxMCWeight == -1) { std::cout << "Running over data?" << std::endl; }
     
     double fSig = 0.504; // 0.539; //
-    if(fFile.Contains("fSig_Up"))
+    if(_fFile.Contains("fSig_Up"))
       fSig += 0.10;
-    else if(fFile.Contains("fSig_Down"))
+    else if(_fFile.Contains("fSig_Down"))
       fSig -= 0.10;
-    else if(fFile.Contains("BJES_Up"))
+    else if(_fFile.Contains("BJES_Up"))
       fSig *= 1.0124;
-    else if(fFile.Contains("BJES_Down"))
+    else if(_fFile.Contains("BJES_Down"))
       fSig *= 0.9895;
-    else if(fFile.Contains("JES_Up"))
+    else if(_fFile.Contains("JES_Up"))
       fSig *= 1.1042;
-    else if(fFile.Contains("JES_Down"))
+    else if(_fFile.Contains("JES_Down"))
       fSig *= 0.8967;
-    else if(fFile.Contains("JER_Up"))
+    else if(_fFile.Contains("JER_Up"))
       fSig *= 0.9816;
-    else if(fFile.Contains("JER_Down"))
+    else if(_fFile.Contains("JER_Down"))
       fSig *= 1.0192;
-    else if(fFile.Contains("BTAG_Up"))
+    else if(_fFile.Contains("BTAG_Up"))
       fSig *= 1.0509;
-    else if(fFile.Contains("BTAG_Down"))
+    else if(_fFile.Contains("BTAG_Down"))
       fSig *= 0.9565;
-    else if(fFile.Contains("Scale_Up"))
+    else if(_fFile.Contains("Scale_Up"))
       fSig *= 0.8726;
-    else if(fFile.Contains("Scale_Down"))
+    else if(_fFile.Contains("Scale_Down"))
       fSig *= 1.1184;
-    else if(fFile.Contains("Matching_Up"))
+    else if(_fFile.Contains("Matching_Up"))
       fSig *= 0.9718;
-    else if(fFile.Contains("P11_NoCR"))
+    else if(_fFile.Contains("P11_NoCR"))
       fSig *= 1.0294;
-    else if(fFile.Contains("P11mpiHi"))
+    else if(_fFile.Contains("P11mpiHi"))
       fSig *= 1.0202;
-    else if(fFile.Contains("P11TeV"))
+    else if(_fFile.Contains("P11TeV"))
       fSig *= 1.0234;
-    else if(fFile.Contains("jet4_02"))
+    else if(_fFile.Contains("jet4_02"))
       fSig *= 0.9256;
-    else if(fFile.Contains("jet5_02"))
+    else if(_fFile.Contains("jet5_02"))
       fSig *= 0.9431;
-    else if(fFile.Contains("jet6_02"))
+    else if(_fFile.Contains("jet6_02"))
       fSig *= 0.9305;
 
-    int permsMC  = tTree   ->GetEntries();
-    int permsBkg = tTreeBkg->GetEntries();
-    int eventsPE = myRandom->Poisson(2410./3544.844*fLumi); // add poisson 
+    int permsMC  = _tTree   ->GetEntries();
+    int permsBkg = _tTreeBkg->GetEntries();
+    int eventsPE = myRandom->Poisson(2410./3544.844*_fLumi); // add poisson 
     int eventsDrawn = 0;
     
-    tempFile->ReOpen("UPDATE");
-    fTree = tTree->CloneTree(0);
-    fTree->SetName("tree");
+    _tempFile->ReOpen("UPDATE");
+    _fTree = _tTree->CloneTree(0);
+    _fTree->SetName("tree");
     // remove unnecessary branches from fTree
-    fTree->SetBranchStatus("CombinedWeight",0);
-    fTree->SetBranchStatus("jets",0);
+    _fTree->SetBranchStatus("CombinedWeight",0);
+    _fTree->SetBranchStatus("jets",0);
     //fTree->SetBranchStatus("runNumber", 0);
     //fTree->SetBranchStatus("luminosityBlockNumber", 0);
     //fTree->SetBranchStatus("eventNumber", 0);
 
     int signalDrawn = 0, backgroundDrawn = 0;
-    if(fLumi>0) {
+    if(_fLumi>0) {
       //int drawCounter = 0;
       while (eventsDrawn < eventsPE) {
         double fSigRndm = myRandom->Uniform(0.,1.);
@@ -549,13 +550,13 @@ void Analysis::CreateRandomSubset() {
           do {
             int drawn = myRandom->Integer(permsMC);
             //++drawCounter;
-            tTree->GetEntry(drawn);
+            _tTree->GetEntry(drawn);
             //std::cout << CombinedWeight << " " << maxMCWeight << std::endl;
             if (CombinedWeight > myRandom->Uniform(0., maxMCWeight)) {
               // reduce size of tree before filling
               nCombos = 1;
               //if(fTree->Fill() == -1) std::cout << eventsDrawn << " " << meanWMass << " " << topMasses[0] << " " << topMass << " " << w1Masses[0] << " " << w2Masses[0] << " " << probs[0] << " " << prob << " " << dRbb << " " << nCombos << " " << comboTypes[0] << " " << runNumber << " " << luminosityBlockNumber << " " << eventNumber << " " << std::endl;
-              fTree->Fill();
+              _fTree->Fill();
 
               ++eventsDrawn;
               ++signalDrawn;
@@ -566,13 +567,13 @@ void Analysis::CreateRandomSubset() {
         else{
           int drawn = myRandom->Integer(permsBkg);
           //++drawCounter;
-          tTreeBkg->GetEntry(drawn);
+          _tTreeBkg->GetEntry(drawn);
           // reduce size of tree before filling
           nCombos = 1;
           // set missing variable for background tree
           comboTypes[0] = 0;
           //if(fTree->Fill() == -1) std::cout << eventsDrawn << " " << meanWMass << " " << topMasses[0] << " " << topMass << " " << w1Masses[0] << " " << w2Masses[0] << " " << probs[0] << " " << prob << " " << dRbb << " " << nCombos << " " << comboTypes[0] << " " << runNumber << " " << luminosityBlockNumber << " " << eventNumber << " " << std::endl;
-          fTree->Fill();
+          _fTree->Fill();
           ++eventsDrawn;
           ++backgroundDrawn;
         }
@@ -581,38 +582,38 @@ void Analysis::CreateRandomSubset() {
     }
     else {
       for(int ev = 0; ev < permsMC; ++ev){
-        tTree->GetEntry(ev);
-        fTree->Fill();
+        _tTree->GetEntry(ev);
+        _fTree->Fill();
         ++signalDrawn;
       }
       std::cout << "wanted / available events: " << permsMC*((1.-fSig)/fSig) << " / " << permsBkg << std::endl;
       for(int ev = 0; ev < permsMC*((1.-fSig)/fSig); ++ev){
         int drawn = myRandom->Integer(permsBkg);
-        tTreeBkg->GetEntry(drawn);
-        fTree->Fill();
+        _tTreeBkg->GetEntry(drawn);
+        _fTree->Fill();
         ++backgroundDrawn;
       }
     }
-    fTree->Write(0,TObject::kOverwrite);
+    _fTree->Write(0,TObject::kOverwrite);
     std::cout << "Events drawn: " << eventsDrawn << " (sig: " << signalDrawn << ", bkg: " << backgroundDrawn << ") -> fSig: " << double(signalDrawn)/double(signalDrawn+backgroundDrawn) << " (default: " << fSig << ")" << std::endl;
-    delete fTree;
-    delete tTree;
-    delete tTreeBkg;
-    tempFile->Close();
-    tempFile = TFile::Open(tempFilePath+TString("/tempTree.root"));
-    fTree = (TTree*)tempFile->Get("tree");
+    delete _fTree;
+    delete _tTree;
+    delete _tTreeBkg;
+    _tempFile->Close();
+    _tempFile = TFile::Open(_tempFilePath+TString("/tempTree.root"));
+    _fTree = (TTree*)_tempFile->Get("tree");
     delete myRandom;
   }
   else {
-    tempFile = new TFile(tempFilePath+TString("/tempTree.root"), "RECREATE");
-    tempFile->cd();
-    tTree = fChain->CopyTree(sel);
-    AddWeights(tTree,true);
-    tempFile->Write(0,TObject::kOverwrite);
-    delete tTree;
-    tempFile->Close();
-    tempFile = TFile::Open(tempFilePath+TString("/tempTree.root"));
-    fTree = (TTree*)tempFile->Get("tree");
+    _tempFile = new TFile(_tempFilePath+TString("/tempTree.root"), "RECREATE");
+    _tempFile->cd();
+    _tTree = _fChain->CopyTree(_selection);
+    AddWeights(_tTree,true);
+    _tempFile->Write(0,TObject::kOverwrite);
+    delete _tTree;
+    _tempFile->Close();
+    _tempFile = TFile::Open(_tempFilePath+TString("/tempTree.root"));
+    _fTree = (TTree*)_tempFile->Get("tree");
   }
   delete[] topMasses;
   delete[] w1Masses;
@@ -631,22 +632,22 @@ void Analysis::AddWeights(TTree* tempTree, bool isData) {
 
   enumForPUWeights whichSample = kFall10;
   if(!isData){
-    if     (fFile.Contains("S11"        )) whichSample = kSummer11;
-    else if(fFile.Contains("FAST"       )) whichSample = kFall10;
-    else if(fFile.Contains("F11_PU_Up"  )) whichSample = kFall11Plus05;
-    else if(fFile.Contains("F11_PU_Down")) whichSample = kFall11Minus05;
-    else if(fFile.Contains("F11"        )) whichSample = kFall11;
+    if     (_fFile.Contains("S11"        )) whichSample = kSummer11;
+    else if(_fFile.Contains("FAST"       )) whichSample = kFall10;
+    else if(_fFile.Contains("F11_PU_Up"  )) whichSample = kFall11Plus05;
+    else if(_fFile.Contains("F11_PU_Down")) whichSample = kFall11Minus05;
+    else if(_fFile.Contains("F11"        )) whichSample = kFall11;
   }
   int whichPDFUncertainty = -1;
   bool upVariation = true; // value does not matter as long as _whichPDFUncertainty_==-1
   if(!isData){
-    if(fFile.Contains("PDF")){
-      TString pdfUncert = fFile;
+    if(_fFile.Contains("PDF")){
+      TString pdfUncert = _fFile;
       upVariation = pdfUncert.Contains("Up") ? true : false;
       pdfUncert = TString(pdfUncert(pdfUncert.Index("PDF",TString::kIgnoreCase)+3,2).Data());
       whichPDFUncertainty = pdfUncert.Atoi();
     }
-    std::cout << "whichPDFUncertainty: " << whichPDFUncertainty << " (" << fFile << ")" << std::endl;
+    std::cout << "whichPDFUncertainty: " << whichPDFUncertainty << " (" << _fFile << ")" << std::endl;
   }
 
   const int kMAX_(50);
@@ -729,55 +730,55 @@ void Analysis::AddWeights(TTree* tempTree, bool isData) {
 }
 
 TH2F* Analysis::GetH2Mass() {
-  return hMass;
+  return _hMass;
 }
 
 TH2F* Analysis::GetH2MassError() {
-  return hMassError;
+  return _hMassError;
 }
 
 TH2F* Analysis::GetH2JES() {
-  return hJES;
+  return _hJES;
 }
 
 TH2F* Analysis::GetH2JESError() {
-  return hJESError;
+  return _hJESError;
 }
 
 TH2F* Analysis::GetH2MassConstJES() {
-  return hMassConstJES;
+  return _hMassConstJES;
 }
 
 TH2F* Analysis::GetH2MassConstJESError() {
-  return hMassConstJESError;
+  return _hMassConstJESError;
 }
 
 TH2F* Analysis::GetH2FSig() {
-  return hFSig;
+  return _hFSig;
 }
 
 TH2F* Analysis::GetH2FSigError() {
-  return hFSigError;
+  return _hFSigError;
 }
 
 TH2F* Analysis::GetH2MassfSig() {
-  return hMassfSig;
+  return _hMassfSig;
 }
 
 TH2F* Analysis::GetH2MassfSigError() {
-  return hMassfSigError;
+  return _hMassfSigError;
 }
 
 TH2F* Analysis::GetH2JESfSig() {
-  return hJESfSig;
+  return _hJESfSig;
 }
 
 TH2F* Analysis::GetH2JESfSigError() {
-  return hJESfSigError;
+  return _hJESfSigError;
 }
 
 TString Analysis::GetIdentifier() {
-  return fIdentifier;
+  return _fIdentifier;
 }
 
 // return the PU weights for the different samples
@@ -876,17 +877,17 @@ double Analysis::calcBTagWeight_(int Njet, short * pdgId, TClonesArray * jets)
       effyScale_pt    = 0.901615*((1.+(0.552628*pt))/(1.+(0.547195*pt)));
 
     if(pdgId[i] == 5 || pdgId[i] == -5){
-      eff = bTagEff->GetBinContent(bTagEff->FindBin(pt,std::abs(eta)));
+      eff = _bTagEff->GetBinContent(_bTagEff->FindBin(pt,std::abs(eta)));
       oneMinusBEffies       .push_back(1.- eff);
       oneMinusBEffies_scaled.push_back(1.-(eff*effyScale_pt));
     }
     else if(pdgId[i] == 4 || pdgId[i] == -4){
-      eff = cTagEff->GetBinContent(cTagEff->FindBin(pt,std::abs(eta)));
+      eff = _cTagEff->GetBinContent(_cTagEff->FindBin(pt,std::abs(eta)));
       oneMinusBMistags       .push_back(1.- eff);
       oneMinusBMistags_scaled.push_back(1.-(eff*effyScale_pt));
     }
     else{
-      eff = lTagEff->GetBinContent(lTagEff->FindBin(pt,std::abs(eta)));
+      eff = _lTagEff->GetBinContent(_lTagEff->FindBin(pt,std::abs(eta)));
       oneMinusBMistags       .push_back(1.- eff);
       oneMinusBMistags_scaled.push_back(1.-(eff*(((0.948463+(0.00288102*pt))+(-7.98091e-06*(pt*pt)))+(5.50157e-09*(pt*(pt*pt)))) ));
     }
@@ -941,11 +942,197 @@ Analysis::eventBTagProbability_(std::vector<double> &oneMinusBEffies, std::vecto
   return bTaggingEfficiency;
 }
 
-xml::XMLDocument* Analysis::config(0);
+xml::XMLDocument* Analysis::_config(0);
 
 void
 Analysis::ReadConfigFromXMLFile(){
-  if(!config){
-    config = new xml::XMLDocument("path/to/config/file");
+  if(!_config){
+    _config = new xml::XMLDocument();
+    TString xmlFilePath = "/afs/naf.desy.de/group/cms/scratch/eschliec/TopMass_hg_devel/Analyzer/Configuration_alljets.xml";
+    int errorID = _config->LoadFile(xmlFilePath);
+    if(errorID) {
+      std::cout << "Parsing of XML file (" << xmlFilePath << ") failed with error " << errorID << "!" << std::endl;
+      assert(!errorID);
+    }
+    xml::XMLNode *analysisConfiguration = 0;
+    xml::XMLElement *configParameter = 0;
+
+    analysisConfiguration = _config->FirstChild();
+    while(!TString(analysisConfiguration->Value()).EqualTo("analysisConfig")){
+      analysisConfiguration = analysisConfiguration->NextSibling();
+    }
+    if(analysisConfiguration->NoChildren()){
+      std::cout << "No configuration contained in *" << analysisConfiguration->Value() << "* object in XMLFile:\n" << xmlFilePath << std::endl;
+      assert(0);
+    }
+    do{
+      if(!configParameter) configParameter = analysisConfiguration->FirstChildElement();
+      else       configParameter = configParameter->NextSiblingElement();
+      std::cout << "child: " << configParameter->Value() << std::endl;
+      if(TString(configParameter->Value()).EqualTo("selection")) _selection = configParameter->GetText();
+      if(TString(configParameter->Value()).EqualTo("treeVariables")){
+        xml::XMLElement *variable = 0;
+        do{
+          if(!variable) variable = configParameter->FirstChildElement();
+          else          variable = variable->NextSiblingElement();
+
+          TString variableType = variable->Value();
+
+          //std::cout << variableType << ": " << variable->GetText() << std::endl;
+
+          /*
+          if     (variableType.EqualTo("short" )) _shortVariables [variable->GetText()] = -1;
+          else if(variableType.EqualTo("int"   )) _intVariables   [variable->GetText()] = -1;
+          else if(variableType.EqualTo("float" )) _floatVariables [variable->GetText()] = -1.;
+          else if(variableType.EqualTo("double")) _doubleVariables[variable->GetText()] = -1.;
+          else if(variableType.EqualTo("uint"  )) _uintVariables  [variable->GetText()] =  0;
+          else if(variableType.EqualTo("array")){
+            xml::XMLElement *ushortArray = variable->FirstChildElement("ushort");
+            xml::XMLElement *shortArray  = variable->FirstChildElement("short");
+            xml::XMLElement *doubleArray = variable->FirstChildElement("double");
+            int arrayLength = atoi(variable->FirstChildElement("length")->GetText());
+            if     (ushortArray) _ushortArrayVariables[ushortArray->GetText()] = new unsigned short[arrayLength];
+            else if(shortArray ) _shortArrayVariables [ shortArray->GetText()] = new short[arrayLength];
+            else if(doubleArray) _doubleArrayVariables[doubleArray->GetText()] = new double[arrayLength];
+          }
+          else if(variableType.EqualTo("TClonesArray")){
+            xml::XMLElement *lorentzVectorArray = variable->FirstChildElement("TLorentzVector");
+            if(lorentzVectorArray) _TClonesArrayVariables[lorentzVectorArray->GetText()] = new TClonesArray("TLorentzVector");
+          }
+          */
+
+          if(variableType.EqualTo("short") || variableType.EqualTo("int") ||
+             variableType.EqualTo("float") || variableType.EqualTo("double")) _variables[variableType][variable->GetText()] = -1.;
+          else if(variableType.EqualTo("uint")) _variables[variableType][variable->GetText()] =  0;
+          else if(variableType.EqualTo("array")){
+            xml::XMLElement *ushortArray = variable->FirstChildElement("ushort");
+            xml::XMLElement *shortArray  = variable->FirstChildElement("short");
+            xml::XMLElement *doubleArray = variable->FirstChildElement("double");
+            TString length = variable->FirstChildElement("length")->GetText();
+            int arrayLength = atoi(variable->FirstChildElement("maxlength")->GetText());
+            if     (ushortArray) _variables[variableType+TString("_ushort_")+length][ushortArray->GetText()] = new unsigned short[arrayLength];
+            else if(shortArray ) _variables[variableType+TString("_short_" )+length][ shortArray->GetText()] = new short[arrayLength];
+            else if(doubleArray) _variables[variableType+TString("_double_")+length][doubleArray->GetText()] = new double[arrayLength];
+          }
+          else if(variableType.EqualTo("TClonesArray")){
+            xml::XMLElement *lorentzVectorArray = variable->FirstChildElement("TLorentzVector");
+            if(lorentzVectorArray) _variables[variableType+TString("_TLorentzVector")][lorentzVectorArray->GetText()] = new TClonesArray("TLorentzVector");
+          }
+
+        }
+        while(variable != configParameter->LastChildElement());
+      }
+    }
+    while(configParameter != analysisConfiguration->LastChild());
+
+    std::cout << "_selection = " << _selection << std::endl;
+
+    /*
+    for(std::map<TString, short>::const_iterator it = _shortVariables.begin(); it != _shortVariables.end(); ++it){
+      std::cout << "short: " << it->first << " = " << it->second << std::endl;
+    }
+    for(std::map<TString, int>::const_iterator it = _intVariables.begin(); it != _intVariables.end(); ++it){
+      std::cout << "int: " << it->first << " = " << it->second << std::endl;
+    }
+    for(std::map<TString, float>::const_iterator it = _floatVariables.begin(); it != _floatVariables.end(); ++it){
+      std::cout << "float: " << it->first << " = " << it->second << std::endl;
+    }
+    for(std::map<TString, double>::const_iterator it = _doubleVariables.begin(); it != _doubleVariables.end(); ++it){
+      std::cout << "double: " << it->first << " = " << it->second << std::endl;
+    }
+    for(std::map<TString, unsigned int>::const_iterator it = _uintVariables.begin(); it != _uintVariables.end(); ++it){
+      std::cout << "uint: " << it->first << " = " << it->second << std::endl;
+    }
+    for(std::map<TString, unsigned short*>::const_iterator it = _ushortArrayVariables.begin(); it != _ushortArrayVariables.end(); ++it){
+      std::cout << "ushort: " << it->first << " <- Array" << std::endl;
+    }
+    for(std::map<TString, short*>::const_iterator it = _shortArrayVariables.begin(); it != _shortArrayVariables.end(); ++it){
+      std::cout << "short: " << it->first << " <- Array" << std::endl;
+    }
+    for(std::map<TString, double*>::const_iterator it = _doubleArrayVariables.begin(); it != _doubleArrayVariables.end(); ++it){
+      std::cout << "double: " << it->first << " <- Array" << std::endl;
+    }
+    for(std::map<TString, TClonesArray*>::const_iterator it = _TClonesArrayVariables.begin(); it != _TClonesArrayVariables.end(); ++it){
+      std::cout << "TClonesArray: " << it->first << " <- Array"<< std::endl;
+    }
+    */
+
+    /*
+    TTree * testTree = new TTree("testTree","testTree");
+    for(std::map<TString, std::map<TString, variableTypes> >::iterator it1 = _variables.begin(); it1 != _variables.end(); ++it1){
+      for(std::map<TString, variableTypes>::iterator it2 = it1->second.begin(); it2 != it1->second.end(); ++it2){
+        std::cout << it1->first <<  ": " << it2->first << " = " << it2->second << std::endl;
+        TBranch* br = 0;
+        if     (it1->first.EqualTo("double")){ br = testTree->Branch(it2->first, &it2->second, it2->first+TString("/D")); }
+        else if(it1->first.EqualTo("float" )){ br = testTree->Branch(it2->first, &it2->second, it2->first+TString("/F")); }
+        else if(it1->first.EqualTo("int"   )){ br = testTree->Branch(it2->first, &it2->second, it2->first+TString("/I")); }
+        else if(it1->first.EqualTo("uint"  )){ br = testTree->Branch(it2->first, &it2->second, it2->first+TString("/i")); }
+        else if(it1->first.EqualTo("short" )){ br = testTree->Branch(it2->first, &it2->second, it2->first+TString("/S")); }
+        else if(it1->first.Contains("array")){
+          TString length = it1->first(it1->first.Last('_')+1, it1->first.Length());
+          TString branchName = it2->first+TString("[")+length+TString("]");
+          std::cout << branchName << " " << length << std::endl;
+          if(it1->first.Contains("ushort")){
+            br = testTree->Branch(it2->first, &it2->second, branchName+TString("/s"));
+          }
+          else if(it1->first.Contains("short")){
+            br = testTree->Branch(it2->first, &it2->second, branchName+TString("/S"));
+          }
+          else if(it1->first.Contains("double")){
+            br = testTree->Branch(it2->first, &it2->second, branchName+TString("/D"));
+          }
+        }
+        else if(it1->first.Contains("TClonesArray")){
+          if(it1->first.Contains("TLorentzVector")){
+            std::cout << it1->first << std::endl;
+          }
+        }
+        if(br) std::cout << br->GetTitle() << std::endl;
+      }
+    }
+*/
+
   }
+}
+
+void
+Analysis::SetBranchStatuses(TTree* tree){
+  tree->SetBranchStatus("*", 0);
+  for(std::map<TString, std::map<TString, variableTypes> >::iterator it1 = _variables.begin(); it1 != _variables.end(); ++it1){
+    for(std::map<TString, variableTypes>::iterator it2 = it1->second.begin(); it2 != it1->second.end(); ++it2){
+      std::cout << it1->first <<  ": " << it2->first << " = " << it2->second << std::endl;
+      tree->SetBranchStatus(it2->first, 1);
+    }
+  }
+}
+
+void
+Analysis::SetBranchAddresses(TTree* tree){
+
+  for(std::map<TString, std::map<TString, variableTypes> >::iterator it1 = _variables.begin(); it1 != _variables.end(); ++it1){
+    for(std::map<TString, variableTypes>::iterator it2 = it1->second.begin(); it2 != it1->second.end(); ++it2){
+      if     (it1->first.EqualTo("double")){ tree->SetBranchAddress(it2->first, &it2->second); }
+      else if(it1->first.EqualTo("float" )){ tree->SetBranchAddress(it2->first, &it2->second); }
+      else if(it1->first.EqualTo("int"   )){ tree->SetBranchAddress(it2->first, &it2->second); }
+      else if(it1->first.EqualTo("uint"  )){ tree->SetBranchAddress(it2->first, &it2->second); }
+      else if(it1->first.EqualTo("short" )){ tree->SetBranchAddress(it2->first, &it2->second); }
+      else if(it1->first.Contains("array")){
+        if(it1->first.Contains("ushort")){
+          tree->SetBranchAddress(it2->first, boost::get<unsigned short*>(it2->second));
+        }
+        else if(it1->first.Contains("short")){
+          tree->SetBranchAddress(it2->first, boost::get<short*>(it2->second));
+        }
+        else if(it1->first.Contains("double")){
+          tree->SetBranchAddress(it2->first, boost::get<double*>(it2->second));
+        }
+      }
+      else if(it1->first.Contains("TClonesArray")){
+        if(it1->first.Contains("TLorentzVector")){
+          tree->SetBranchAddress(it2->first, &it2->second);
+        }
+      }
+    }
+  }
+
 }

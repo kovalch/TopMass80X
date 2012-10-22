@@ -1,6 +1,7 @@
 #include <iostream>
-#include <sstream> 
-#include <boost/program_options.hpp>
+#include <sstream>
+#include "boost/program_options.hpp"
+#include "boost/variant.hpp"
 
 #include "TCanvas.h"
 #include "TChain.h"
@@ -28,47 +29,78 @@ namespace xml = tinyxml2;
 
 class Analysis {
  private:
-  TString samplePath;
-  TString fIdentifier;
-  TString fFile;
-  TString fMethod;
+  TString _samplePath;
+  TString _fIdentifier;
+  TString _fFile;
+  TString _fMethod;
 
-  int fBins;
-  double fLumi;
+  TString _selection;
+
+  int _fBins;
+  double _fLumi;
     
-  TChain* fChain;
-  TTree* fTree;
-  TTree* tTree;
-  TTree* tTreeBkg;
-  TH2F* hEntries;
+  TChain* _fChain;
+  TTree* _fTree;
+  TTree* _tTree;
+  TTree* _tTreeBkg;
+  TH2F* _hEntries;
 
-  TString tempFilePath;
-  TFile* tempFile;
+  TString _tempFilePath;
+  TFile* _tempFile;
 
-  TH2F* hMass;
-  TH2F* hMassError;
-  TH2F* hJES;
-  TH2F* hJESError;
+  TH2F* _hMass;
+  TH2F* _hMassError;
+  TH2F* _hJES;
+  TH2F* _hJESError;
     
-  TH2F* hMassConstJES;
-  TH2F* hMassConstJESError;
+  TH2F* _hMassConstJES;
+  TH2F* _hMassConstJESError;
 
-  TH2F* hFSig;
-  TH2F* hFSigError;
-  TH2F* hMassfSig;
-  TH2F* hMassfSigError;
-  TH2F* hJESfSig;
-  TH2F* hJESfSigError;
+  TH2F* _hFSig;
+  TH2F* _hFSigError;
+  TH2F* _hMassfSig;
+  TH2F* _hMassfSigError;
+  TH2F* _hJESfSig;
+  TH2F* _hJESfSigError;
 
-  TH2F* bTagEff;
-  TH2F* cTagEff;
-  TH2F* lTagEff;
+  TH2F* _bTagEff;
+  TH2F* _cTagEff;
+  TH2F* _lTagEff;
 
-  static xml::XMLDocument* config;
+  /*
+  std::map<TString, short>        _shortVariables;
+  std::map<TString, int>          _intVariables;
+  std::map<TString, float>        _floatVariables;
+  std::map<TString, double>       _doubleVariables;
+  std::map<TString, unsigned int> _uintVariables;
+
+  std::map<TString, unsigned short*> _ushortArrayVariables;
+  std::map<TString, short*>          _shortArrayVariables;
+  std::map<TString, double*>         _doubleArrayVariables;
+
+  std::map<TString, TClonesArray*> _TClonesArrayVariables;
+  */
+
+  typedef boost::variant< short, int, float, double, unsigned int, unsigned short*, short*, double*, TClonesArray*> variableTypes;
+
+  //std::map<TString, variableTypes> _variables;
+  std::map<TString, std::map<TString, variableTypes> > _variables;
+
+  static xml::XMLDocument* _config;
 
   void CreateHistos();
   void CreateRandomSubset();
   void ReadConfigFromXMLFile();
+
+  void SetBranchStatuses(TTree* tree);
+  void SetBranchAddresses(TTree* tree);
+
+  // return the PU weights for the different samples
+  enum enumForPUWeights {kSummer11, kSummer11Plus05, kSummer11Minus05, kFall11, kFall11Plus05, kFall11Minus05, kFall10};
+  double calcPUWeight_(enum enumForPUWeights sample, short nPU);
+  double calcPDFWeight_(int whichPDFUncertainty, bool upVariation, double x1, int id1, float Q, double x2, int id2);
+  double eventBTagProbability_(std::vector<double> &oneMinusBEffies, std::vector<double> &oneMinusBMistags, bool verbose = false);
+  double calcBTagWeight_(int Njet=0, short* pdgId=0, TClonesArray* jets=0);
 
  public:
   Analysis(po::variables_map vm);
@@ -77,7 +109,7 @@ class Analysis {
     
   void Analyze(po::variables_map vm);
 
-  void AddWeights  (TTree* tempTree, bool isData=false);
+  void AddWeights(TTree* tempTree, bool isData=false);
     
   TH2F* GetH2Mass();
   TH2F* GetH2MassError();
@@ -96,11 +128,20 @@ class Analysis {
     
   TString GetIdentifier();
 
-  // return the PU weights for the different samples
-  enum enumForPUWeights {kSummer11, kSummer11Plus05, kSummer11Minus05, kFall11, kFall11Plus05, kFall11Minus05, kFall10};
-  double calcPUWeight_(enum enumForPUWeights sample, short nPU);
-  double calcPDFWeight_(int whichPDFUncertainty, bool upVariation, double x1, int id1, float Q, double x2, int id2);
-  double eventBTagProbability_(std::vector<double> &oneMinusBEffies, std::vector<double> &oneMinusBMistags, bool verbose = false);
-  double calcBTagWeight_(int Njet=0, short* pdgId=0, TClonesArray* jets=0);
+  /*
+  template <class objectType>
+  class variable_visitor : public boost::static_visitor<objectType>
+  {
+    public:
+      objectType operator()(objectType& operand) const
+      {
+        return operand;
+      }
+      objectType* operator()(objectType* operand) const
+      {
+        return operand;
+      }
+  };
+  */
 };
 
