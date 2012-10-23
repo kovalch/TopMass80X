@@ -28,8 +28,7 @@ class Analysis {
     TString fIdentifier, fLepton, fFileElectron, fFileMuon, fMethod, fBinning;
     std::string fWeight;
     
-    double fLumi;
-    double fSig;
+    double fLumi, fSig, fBDisc;
     std::vector<float> vBinning;
     
     int target, run, luminosityBlock, event, combi, nVertex, leptonId;

@@ -7,6 +7,7 @@ Analysis::Analysis(po::variables_map vm, std::vector<float> v)
   fBinning = vm["binning"].as<std::string>();
   fWeight = vm["weight"].as<std::string>();
   fSig    = vm["fsig"].as<double>();
+  fBDisc  = vm["bdisc"].as<double>();
   fIdentifier = vm["input"].as<std::string>();
   fLepton = vm["lepton"].as<std::string>();
   
@@ -60,8 +61,6 @@ void Analysis::Analyze(po::variables_map vm) {
   TCanvas* canvas = new TCanvas("canvas", "Top mass", 900, 600);
   canvas->cd();
   
-  double bdisc = vm["bdisc"].as<double>();
-  
   for(int i = 0; i < vBinning.size()-1; i++) {
     // calculate cuts
     TString cuts;
@@ -86,10 +85,10 @@ void Analysis::Analyze(po::variables_map vm) {
       //cuts += " & bProbSSV > 0.3";
       //cuts += " & bProbSSV*hitFitProb > 0.05";
       //cuts += " & hadQBSSV<1.74 & hadQBarBSSV<1.74 & hadBBSSV>1.74 & lepBBSSV>1.74";   // b-TAG
-      cuts += " & hadQBCSV<"; cuts += bdisc;
-      cuts += " & hadQBarBCSV<"; cuts += bdisc;
-      cuts += " & hadBBCSV>"; cuts += bdisc;
-      cuts += " & lepBBCSV>"; cuts += bdisc;   // b-TAG
+      cuts += " & hadQBCSV<"; cuts += fBDisc;
+      cuts += " & hadQBarBCSV<"; cuts += fBDisc;
+      cuts += " & hadBBCSV>"; cuts += fBDisc;
+      cuts += " & lepBBCSV>"; cuts += fBDisc;   // b-TAG
       //cuts += " & abs(hadQF)!=5 & abs(hadQBarF)!=5 & abs(hadBF)==5 & abs(lepBF)==5";   // b-TRUTH
       //cuts += " & hadQPt>33 & hadBPt>33 & lepBPt>33";
       //cuts += " & run < 168000";
@@ -392,9 +391,15 @@ TTree* Analysis::PrepareTree(TString file) {
   chain->SetBranchStatus("jetsPt", 1);
   chain->SetBranchStatus("pdfWeights", 1);
   
-  std::cout << file << ": " << chain->GetEntries("leptonPt>30 & hadQBCSV<0.679 & hadQBarBCSV<0.679 & hadBBCSV>0.679 & lepBBCSV>0.679 & hitFitProb>0.2 & combi==0") << " events" << std::endl;
+  TString selection("leptonPt>30 & hitFitProb>0.2");
+  selection += " & hadQBCSV<";    selection += fBDisc;
+  selection += " & hadQBarBCSV<"; selection += fBDisc;
+  selection += " & hadBBCSV>";    selection += fBDisc;
+  selection += " & lepBBCSV>";    selection += fBDisc;
   
-  return chain->CopyTree("leptonPt>30 & hadQBCSV<0.679 & hadQBarBCSV<0.679 & hadBBCSV>0.679 & lepBBCSV>0.679 & hitFitProb>0.2");
+  std::cout << file << ": " << chain->GetEntries(selection + " & combi==0") << " events" << std::endl;
+  
+  return chain->CopyTree(selection);
 }
 
 TH1F* Analysis::GetH1Mass() {
