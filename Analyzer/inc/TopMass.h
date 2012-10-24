@@ -22,7 +22,6 @@
 #include "Helper.h"
 
 namespace po = boost::program_options;
-namespace xml = tinyxml2;
 
 struct massPoint {
   double genMass;
@@ -61,7 +60,7 @@ class TopMass {
     double fCalibFitParameter[6][6][2];
     double fCalibFitParError[6][6][2];
     
-    void LoadXML();
+    //void LoadXML();
     bool fexists(const char *filename);
   
   public:

@@ -1,7 +1,11 @@
 #include "TopMass.h"
+#include "XMLConfigReader.h"
+
 #include <boost/program_options.hpp>
 
 #include <iostream>
+
+typedef XMLConfigReader xml;
 
 int main(int ac, char** av)
 {
@@ -52,6 +56,8 @@ int main(int ac, char** av)
     //std::cout << "Compression level was not set.\n";
   }
   
+  xml::XMLConfigReader xmlConfig = xml::XMLConfigReader();
+
   TopMass* top = new TopMass(vm);
   top->AvoidCompilerWarning();
 }

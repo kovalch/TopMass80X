@@ -571,6 +571,7 @@ void TopMass::QuickSystematics(po::variables_map vm) {
   canvas->Print(path);
 }
 
+/*
 void TopMass::LoadXML() {
   TString xmlFileName;
   if (fexists("/scratch/hh/lustre/cms/user/mseidel/calibration.xml")) {
@@ -604,6 +605,7 @@ void TopMass::LoadXML() {
     pParm = pParm->NextSiblingElement( "bin" );
   }
 }
+*/
 
 bool TopMass::fexists(const char *filename) {
   ifstream ifile(filename);
