@@ -1,94 +1,83 @@
 #include "Analysis.h"
 
 #include <string>
-#include <stdlib.h>
 
-#include "TSystem.h"
-#include "TEventList.h"
+#include "TCanvas.h"
+#include "TROOT.h"
 
-#include "XMLConfigReader.h"
-#include "Helper.h"
 #include "GenMatchAnalyzer.h"
-#include "MVAAnalyzer.h"
+#include "Helper.h"
 #include "IdeogramAnalyzer.h"
-#include "RooFitTemplateAnalyzer.h"
-
+#include "MVAAnalyzer.h"
 #include "RandomSubsetCreatorAllJets.h"
+#include "RooFitTemplateAnalyzer.h"
+#include "XMLConfigReader.h"
 
 #include "LHAPDF/LHAPDF.h"
 
 typedef XMLConfigReader xml;
 
 Analysis::Analysis(po::variables_map vm) :
-  _fIdentifier(vm["input" ].as<std::string>()),
-  _fMethod    (vm["method"].as<std::string>()),
-  _fBins      (vm["bins"  ].as<int>()),
-  _fChannel("alljets"),
-  _fTree(0)
+  fIdentifier_(vm["input" ].as<std::string>()),
+  fMethod_    (vm["method"].as<std::string>()),
+  fBins_      (vm["bins"  ].as<int>()),
+  fChannel_(xml::GetParameter("decayChannel")),
+  fTree_(0)
 {
-  CreateHistos();
-
-  _fChannel = xml::GetParameter("decayChannel");
 }
 
 Analysis::Analysis(TString identifier, TString file, TString method, int bins, double lumi) :
-  _fIdentifier(identifier),
-  _fMethod(method), _fBins(bins),
-  _fTree(0)
+  fIdentifier_(identifier),
+  fMethod_(method), fBins_(bins),
+  fChannel_(xml::GetParameter("decayChannel")),
+  fTree_(0)
 {
-  CreateHistos();
-
-  _fChannel = xml::GetParameter("decayChannel");
 }
 
 Analysis::~Analysis()
 {
-  delete _fTree;
-  delete _hEntries;
-  delete _hMass;
-  delete _hMassError;
-  delete _hJES;
-  delete _hJESError;
-  delete _hMassConstJES;
-  delete _hMassConstJESError;
-  delete _hFSig;
-  delete _hFSigError;
-  delete _hMassfSig;
-  delete _hMassfSigError;
-  delete _hJESfSig;
-  delete _hJESfSigError;
+  for(std::map<TString, TH2F*>::iterator hist = histograms_.begin(); hist != histograms_.end(); ++hist){
+    delete hist->second;
+  }
+  histograms_.clear();
+  //delete fTree_; // deletion is taken care of by MassAnalyzer
 }
 
 void Analysis::Analyze(po::variables_map vm) {
 
-  std::cout << "Analyze " << _fIdentifier << " with method " << _fMethod << std::endl;
+  std::cout << "Analyze " << fIdentifier_ << " with method " << fMethod_ << std::endl;
 
   // random subset creation
   RandomSubsetCreator* fCreator = 0;
-  if (!strcmp(_fChannel, "AllJets")) {
+  if (!strcmp(fChannel_, "AllJets")) {
     fCreator = new RandomSubsetCreatorAllJets(vm);
   }
-  _fTree = fCreator->CreateRandomSubset();
+  else {
+    std::cerr << "Stopping analysis! Specified decay channel *" << fChannel_ << "* not known!" << std::endl;
+    return;
+  }
+  fTree_ = fCreator->CreateRandomSubset();
 
   MassAnalyzer* fAnalyzer = 0;
 
-  if (!strcmp(_fMethod, "GenMatch")) {
-    fAnalyzer = new GenMatchAnalyzer(_fIdentifier, _fTree);
+  if (!strcmp(fMethod_, "GenMatch")) {
+    fAnalyzer = new GenMatchAnalyzer(fIdentifier_, fTree_);
   }
-  else if (!strcmp(_fMethod, "MVA")) {
-    fAnalyzer = new MVAAnalyzer(_fIdentifier, _fTree);
+  else if (!strcmp(fMethod_, "MVA")) {
+    fAnalyzer = new MVAAnalyzer(fIdentifier_, fTree_);
   }
-  else if (!strcmp(_fMethod, "Ideogram")) {
-    fAnalyzer = new IdeogramAnalyzer(_fIdentifier, _fTree);
+  else if (!strcmp(fMethod_, "Ideogram")) {
+    fAnalyzer = new IdeogramAnalyzer(fIdentifier_, fTree_);
   }
-  else if (!strcmp(_fMethod, "RooFit")) {
-    fAnalyzer = new RooFitTemplateAnalyzer(_fIdentifier, _fTree);
+  else if (!strcmp(fMethod_, "RooFit")) {
+    fAnalyzer = new RooFitTemplateAnalyzer(fIdentifier_, fTree_);
   }
   else {
+    std::cerr << "Stopping analysis! Specified analysis method *" << fMethod_ << "* not known!" << std::endl;
     return;
   }
 
-  Helper* helper = new Helper(_fBins);
+  Helper* helper = new Helper(fBins_);
   helper->SetTDRStyle();
   delete helper;
 
@@ -99,31 +88,31 @@ void Analysis::Analyze(po::variables_map vm) {
   double rangeX = 10.;
   double rangeY = 10.;
 
-  double smearX = smearBins/_fBins*rangeX;
-  double smearY = smearBins/_fBins*rangeY;
+  double smearX = smearBins/fBins_*rangeX;
+  double smearY = smearBins/fBins_*rangeY;
 
   double minEntries = 25;
 
   TString observableX = "dRbb";
   TString observableY = "dRbb";
 
-  for(int i = 0; i < _fBins; i++) {
-    for(int j = 0; j < _fBins; j++) {
+  for(int i = 0; i < fBins_; i++) {
+    for(int j = 0; j < fBins_; j++) {
       // calculate cuts
       std::stringstream stream;
-      stream << (rangeX/_fBins)*(i)-smearX << "<" << observableX << "&"
-             << observableX << "<" << (rangeX/_fBins)*(i+1)+smearX << " & "
-             << rangeY/_fBins*(j)-smearY << "<" << observableY << "&"
-             << observableY << "<" << rangeY/_fBins*(j+1)+smearY;
+      stream << (rangeX/fBins_)*(i)-smearX << "<" << observableX << "&"
+             << observableX << "<" << (rangeX/fBins_)*(i+1)+smearX << " & "
+             << rangeY/fBins_*(j)-smearY << "<" << observableY << "&"
+             << observableY << "<" << rangeY/fBins_*(j+1)+smearY;
       TString cuts(stream.str());
 
-      if (!strcmp(_fMethod, "GenMatch")) {
+      if (!strcmp(fMethod_, "GenMatch")) {
         cuts += " & comboType == 1";
       }
-      else if (!strcmp(_fMethod, "MVA")) {
+      else if (!strcmp(fMethod_, "MVA")) {
         cuts += " & mvaDisc > 0";
       }
-      else if (!strcmp(_fMethod, "Ideogram")) {
+      else if (!strcmp(fMethod_, "Ideogram")) {
 //        //cuts += " & target == 1";
 //        //cuts += " & (target == 0 | target == 1)";
 //        //cuts += " & Njet == 6";
@@ -133,46 +122,34 @@ void Analysis::Analyze(po::variables_map vm) {
 //        //cuts += " & nVertex <= 5";
 //        cuts += " & topMasses[0] > 100. & topMasses[0] < 550.";
       }
-      else if (!strcmp(_fMethod, "RooFit")) {
+      else if (!strcmp(fMethod_, "RooFit")) {
       }
 
-      int entries = _fTree->GetEntries(cuts);
+      int entries = fTree_->GetEntries(cuts);
       std::cout << cuts << std::endl;
       std::cout << entries << std::endl;
 
-      _hEntries->SetCellContent(i+1, j+1, entries);
+      CreateHisto("Entries");
+      GetH2("Entries")->SetCellContent(i+1, j+1, entries);
 
       if (entries > minEntries) {
         fAnalyzer->Analyze(cuts, i, j, vm);
+        const std::map<TString, std::pair<double, double> > values = fAnalyzer->GetValues();
 
-        _hMass     ->SetCellContent(i+1, j+1, fAnalyzer->GetMass());
-        _hMassError->SetCellContent(i+1, j+1, fAnalyzer->GetMassError());
-        _hJES      ->SetCellContent(i+1, j+1, fAnalyzer->GetJES());
-        _hJESError ->SetCellContent(i+1, j+1, fAnalyzer->GetJESError());
-        _hMassConstJES     ->SetCellContent(i+1, j+1, fAnalyzer->GetMassConstJES());
-        _hMassConstJESError->SetCellContent(i+1, j+1, fAnalyzer->GetMassConstJESError());
-        _hFSig     ->SetCellContent(i+1, j+1, fAnalyzer->GetFSig());
-        _hFSigError->SetCellContent(i+1, j+1, fAnalyzer->GetFSigError());
-        _hMassfSig     ->SetCellContent(i+1, j+1, fAnalyzer->GetMassfSig());
-        _hMassfSigError->SetCellContent(i+1, j+1, fAnalyzer->GetMassfSigError());
-        _hJESfSig      ->SetCellContent(i+1, j+1, fAnalyzer->GetJESfSig());
-        _hJESfSigError ->SetCellContent(i+1, j+1, fAnalyzer->GetJESfSigError());
-
+        for(std::map<TString, std::pair<double, double> >::const_iterator value = values.begin(); value != values.end(); ++value){
+          CreateHisto(value->first);
+          CreateHisto(value->first+TString("_Error"));
+          CreateHisto(value->first+TString("_Pull")); //FIXME this dummy histogram has to be ALPHABETICALLY after the two others (like it is now)
+        }
         std::cout << std::endl;
-        std::cout << "Measured 1D mass: " << fAnalyzer->GetMassConstJES() << " +/- "
-                  << fAnalyzer->GetMassConstJESError() << " GeV" << std::endl;
-        std::cout << std::endl;
-        std::cout << "Measured 2D mass: " << fAnalyzer->GetMass() << " +/- "
-                  << fAnalyzer->GetMassError() << " GeV" << std::endl;
-        std::cout << "Measured 2D JES: " << fAnalyzer->GetJES() << " +/- "
-                  << fAnalyzer->GetJESError() << " " << std::endl;
-        std::cout << std::endl;
-        std::cout << "Measured 3D mass: " << fAnalyzer->GetMassfSig() << " +/- "
-                  << fAnalyzer->GetMassfSigError() << " GeV" << std::endl;
-        std::cout << "Measured 3D JES: " << fAnalyzer->GetJESfSig() << " +/- "
-                  << fAnalyzer->GetJESfSigError() << " " << std::endl;
-        std::cout << "Measured 3D fSig: " << fAnalyzer->GetFSig() << " +/- "
-                  << fAnalyzer->GetFSigError() << " GeV" << std::endl;
+        for(std::map<TString, std::pair<double, double> >::const_iterator value = values.begin(); value != values.end(); ++value){
+          double val      = value->second.first;
+          double valError = value->second.second;
+          GetH2(value->first                 ) ->SetCellContent(i+1, j+1, val);
+          GetH2(value->first+TString("_Error"))->SetCellContent(i+1, j+1, valError);
+          GetH2(value->first+TString("_Pull" ))->SetCellContent(i+1, j+1, -1.); //FIXME dummy histogram needed in top mass
+          std::cout << "Measured " << value->first << ": " << val << " +/- " << valError << std::endl;
+        }
         std::cout << std::endl;
       }
     }
@@ -182,17 +159,17 @@ void Analysis::Analyze(po::variables_map vm) {
   canvas->Divide(2,2);
 
   canvas->cd(1);
-  _hEntries->Draw("COLZ");
+  GetH2("Entries")->Draw("COLZ");
 
   canvas->cd(2);
-  _hMass->Draw("COLZ,TEXT");
-  _hMass->SetAxisRange(_hMass->GetMinimum(0.05), _hMass->GetMaximum(), "Z");
+  GetH2("mass_mTop_JES")->Draw("COLZ,TEXT");
+  GetH2("mass_mTop_JES")->SetAxisRange(GetH2("mass_mTop_JES")->GetMinimum(0.05), GetH2("mass_mTop_JES")->GetMaximum(), "Z");
 
   canvas->cd(3);
-  _hMassError->Draw("COLZ,TEXT");
-  _hMassError->SetAxisRange(0.05, 5, "Z");
+  GetH2("mass_mTop_JES_Error")->Draw("COLZ,TEXT");
+  GetH2("mass_mTop_JES_Error")->SetAxisRange(0.05, 5, "Z");
 
-  TString path("plot/"); path += _fMethod; path += "_"; path += _fIdentifier; path += ".eps";
+  TString path("plot/"); path += fMethod_; path += "_"; path += fIdentifier_; path += ".eps";
   canvas->Print(path);
 
   delete canvas;
@@ -200,77 +177,41 @@ void Analysis::Analyze(po::variables_map vm) {
   delete fCreator;
 }
 
-void Analysis::CreateHistos() {
-  Helper* helper = new Helper(_fBins);
-
-  _hEntries = helper->GetH2("Entries");
-
-  _hMass = helper->GetH2("Mass");
-  _hMassError = helper->GetH2("MassError");
-  _hJES = helper->GetH2("JES");
-  _hJESError = helper->GetH2("JESError");
-  
-  _hMassConstJES = helper->GetH2("MassConstJES");
-  _hMassConstJESError = helper->GetH2("MassConstJESError");
-  
-  _hFSig = helper->GetH2("fSig");
-  _hFSigError = helper->GetH2("fSigError");
-  _hMassfSig = helper->GetH2("MassfSig");
-  _hMassfSigError = helper->GetH2("MassfSigError");
-  _hJESfSig = helper->GetH2("JESfSig");
-  _hJESfSigError = helper->GetH2("JESfSigError");
-
-  delete helper;
+void Analysis::CreateHisto(TString name) {
+  std::map<TString, TH2F*>::iterator hist = histograms_.find(name);
+  if(hist != histograms_.end()){
+    hist->second->Reset();
+  }
+  else{
+    gROOT->cd();
+    Helper* helper = new Helper(fBins_);
+    SetH2(name, helper->GetH2(name));
+    delete helper;
+  }
 }
 
-TH2F* Analysis::GetH2Mass() {
-  return _hMass;
+TH2F*
+Analysis::GetH2(TString histName){
+  std::map<TString, TH2F*>::const_iterator hist_iterator = histograms_.find(histName);
+  if(hist_iterator != histograms_.end()){
+    return hist_iterator->second;
+  }
+  else{
+    std::cerr << "The searched histogram *" << histName << "* does not exist!" << std::endl;
+    assert(0);
+  }
+  return 0;
 }
 
-TH2F* Analysis::GetH2MassError() {
-  return _hMassError;
+const std::map<TString, TH2F*>
+Analysis::GetH2s() const{
+  return histograms_;
 }
 
-TH2F* Analysis::GetH2JES() {
-  return _hJES;
-}
-
-TH2F* Analysis::GetH2JESError() {
-  return _hJESError;
-}
-
-TH2F* Analysis::GetH2MassConstJES() {
-  return _hMassConstJES;
-}
-
-TH2F* Analysis::GetH2MassConstJESError() {
-  return _hMassConstJESError;
-}
-
-TH2F* Analysis::GetH2FSig() {
-  return _hFSig;
-}
-
-TH2F* Analysis::GetH2FSigError() {
-  return _hFSigError;
-}
-
-TH2F* Analysis::GetH2MassfSig() {
-  return _hMassfSig;
-}
-
-TH2F* Analysis::GetH2MassfSigError() {
-  return _hMassfSigError;
-}
-
-TH2F* Analysis::GetH2JESfSig() {
-  return _hJESfSig;
-}
-
-TH2F* Analysis::GetH2JESfSigError() {
-  return _hJESfSigError;
+void Analysis::SetH2(TString histName, TH2F* hist){
+  histograms_[histName] = hist;
 }
 
 TString Analysis::GetIdentifier() {
-  return _fIdentifier;
+  return fIdentifier_;
 }

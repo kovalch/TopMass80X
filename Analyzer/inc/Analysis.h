@@ -2,50 +2,28 @@
 #include <sstream>
 #include "boost/program_options.hpp"
 
-#include "TCanvas.h"
-#include "TChain.h"
 #include "TH2F.h"
-#include "TF1.h"
-#include "TROOT.h"
 #include "TString.h"
-#include "TStyle.h"
-#include "TRandom3.h"
-#include "TFile.h"
-
-#include "TClonesArray.h"
-#include "TLorentzVector.h"
+#include "TTree.h"
 
 namespace po = boost::program_options;
 
 class Analysis {
  private:
-  TString _samplePath;
-  TString _fIdentifier;
-  TString _fMethod;
+  TString samplePath_;
+  TString fIdentifier_;
+  TString fMethod_;
 
-  int _fBins;
+  int fBins_;
 
-  TString _fChannel;
+  TString fChannel_;
 
-  TTree* _fTree;
-  TH2F* _hEntries;
+  TTree* fTree_;
 
-  TH2F* _hMass;
-  TH2F* _hMassError;
-  TH2F* _hJES;
-  TH2F* _hJESError;
-    
-  TH2F* _hMassConstJES;
-  TH2F* _hMassConstJESError;
+  std::map<TString, TH2F*> histograms_;
 
-  TH2F* _hFSig;
-  TH2F* _hFSigError;
-  TH2F* _hMassfSig;
-  TH2F* _hMassfSigError;
-  TH2F* _hJESfSig;
-  TH2F* _hJESfSigError;
-
-  void CreateHistos();
+  void SetH2(TString histName, TH2F* hist);
+  void CreateHisto(TString name);
 
  public:
   Analysis(po::variables_map vm);
@@ -54,21 +32,9 @@ class Analysis {
     
   void Analyze(po::variables_map vm);
 
-  TH2F* GetH2Mass();
-  TH2F* GetH2MassError();
-  TH2F* GetH2JES();
-  TH2F* GetH2JESError();
-    
-  TH2F* GetH2MassConstJES();
-  TH2F* GetH2MassConstJESError();
-    
-  TH2F* GetH2FSig();
-  TH2F* GetH2FSigError();
-  TH2F* GetH2MassfSig();
-  TH2F* GetH2MassfSigError();
-  TH2F* GetH2JESfSig();
-  TH2F* GetH2JESfSigError();
-    
+  TH2F* GetH2(TString histName);
+  const std::map<TString, TH2F*> GetH2s() const;
+
   TString GetIdentifier();
 
 };
