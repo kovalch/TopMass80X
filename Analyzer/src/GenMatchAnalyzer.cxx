@@ -1,8 +1,6 @@
 #include "GenMatchAnalyzer.h"
 
-double GenMatchAnalyzer::GetMass() {
-  return fMass;
-}
+#include "TCanvas.h"
 
 void GenMatchAnalyzer::Analyze(const TString& cuts, int i, int j) {
   TCanvas* ctemp = new TCanvas("ctemp", "Top mass", 500, 500);
@@ -11,12 +9,10 @@ void GenMatchAnalyzer::Analyze(const TString& cuts, int i, int j) {
   TF1* voigt = new TF1("voigt", "[0]*TMath::Voigt(x-[1], 12*1.1, 2)");
   voigt->SetParameters(1000, 170);
 
-  fTree->Fit("voigt", "hadTopMass", cuts, "LEM");
+  fTree_->Fit("voigt", "hadTopMass", cuts, "LEM");
   
-  TString path("plot/GenMatch/"); path+= fIdentifier; path += "_"; path += i; path += "_"; path += j; path += ".png";
+  TString path("plot/GenMatch/"); path+= fIdentifier_; path += "_"; path += i; path += "_"; path += j; path += ".png";
   ctemp->Print(path);
         
-  fMass      = voigt->GetParameter(1);
-  fMassError = voigt->GetParError(1);
-  //fMassSigma = voigt->GetParameter(2);
+  SetValue("mass", voigt->GetParameter(1), voigt->GetParError (1));
 }

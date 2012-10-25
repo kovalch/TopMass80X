@@ -2,27 +2,15 @@
 #define TOPMASS_H
 
 #include <vector>
-#include <cmath>
-#include <fstream>
-#include <time.h>
 #include <boost/program_options.hpp>
 
+#include "TString.h"
+
 #include "Analysis.h"
-#include "TGraphErrors.h"
-#include "TMultiGraph.h"
-#include "TPaveStats.h"
-#include "TLatex.h"
-#include "TH1.h"
-#include "TH3F.h"
-#include "TVector.h"
-#include "TLegend.h"
-
-#include "tinyxml2.h"
-
-#include "Helper.h"
 
 namespace po = boost::program_options;
 
+/*
 struct massPoint {
   double genMass;
   double genJES;
@@ -43,12 +31,13 @@ struct massPoint {
   TH3F* h3JESError;
   TH3F* h3JESPull;
 };
+*/
 
 class TopMass {
   private:
-    TString fMethod;
-    int fBins;
-    double fLumi;
+    TString fMethod_;
+    int fBins_;
+    double fLumi_;
     
     std::vector< std::vector<Analysis*> > calibrationAnalyses;
     
@@ -71,7 +60,7 @@ class TopMass {
     void QuickCalibration(po::variables_map vm);
     void QuickSystematics(po::variables_map vm);
 
-    void AvoidCompilerWarning(){}
+    //void AvoidCompilerWarning(){}
 };
 
 #endif

@@ -1,5 +1,8 @@
 #include "Helper.h"
 
+#include "TStyle.h"
+#include "TPaveLabel.h"
+
 Helper::~Helper()
 {
 }

@@ -16,24 +16,24 @@ XMLConfigReader::XMLConfigReader() {
 }
 
 XMLConfigReader::~XMLConfigReader() {
-  delete _config;
+  delete config_;
 }
 
-txml::XMLDocument* XMLConfigReader::_config(0);
+txml::XMLDocument* XMLConfigReader::config_(0);
 
 void
 XMLConfigReader::ReadConfigFromXMLFile(){
-  if(!_config){
-    _config = new txml::XMLDocument();
+  if(!config_){
+    config_ = new txml::XMLDocument();
     TString xmlFilePath = "/afs/naf.desy.de/group/cms/scratch/eschliec/TopMass_hg_devel/Analyzer/Configuration_alljets.xml";
-    int errorID = _config->LoadFile(xmlFilePath);
+    int errorID = config_->LoadFile(xmlFilePath);
     if(errorID) {
       std::cerr << "Parsing of XML file (" << xmlFilePath << ") failed with error " << errorID << "!" << std::endl;
       assert(!errorID);
     }
     txml::XMLElement *analysisConfiguration = 0;
 
-    analysisConfiguration = _config->FirstChildElement("analysisConfig");
+    analysisConfiguration = config_->FirstChildElement("analysisConfig");
     if(!analysisConfiguration){
       std::cerr << "No *analysisConfig* object contained in XMLFile:\n" << xmlFilePath << std::endl;
       assert(0);
@@ -47,7 +47,7 @@ XMLConfigReader::ReadConfigFromXMLFile(){
 
 const txml::XMLNode*
 XMLConfigReader::GetConfig(){
-  return _config->FirstChildElement("analysisConfig");
+  return config_->FirstChildElement("analysisConfig");
 }
 
 TString

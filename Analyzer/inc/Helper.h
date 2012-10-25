@@ -2,8 +2,7 @@
 #define HELPER_H
 
 #include "TH2F.h"
-#include "TStyle.h"
-#include "TPaveLabel.h"
+#include "TString.h"
 
 class Helper {
   private:

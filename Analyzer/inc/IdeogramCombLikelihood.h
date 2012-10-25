@@ -1,9 +1,7 @@
 #ifndef IDEOGRAMCOMBLIKELIHOO_H
 #define IDEOGRAMCOMBLIKELIHOO_H
-#include <iostream>
 #include <map>
-
-#include "TMath.h"
+#include <utility>
 
 class IdeogramCombLikelihood {
 private:

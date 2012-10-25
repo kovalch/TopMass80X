@@ -23,7 +23,7 @@ public:
   static TString GetParameter(TString whichParameter);
 
 private:
-  static txml::XMLDocument* _config;
+  static txml::XMLDocument* config_;
   void ReadConfigFromXMLFile();
 
 };

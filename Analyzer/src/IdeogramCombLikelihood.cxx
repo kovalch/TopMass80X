@@ -1,6 +1,9 @@
 #include "IdeogramCombLikelihood.h"
 
+//#include <iostream>
+
 #include "TF1.h"
+#include "TMath.h"
 
 double IdeogramCombLikelihood::Evaluate(double *x, double *p) {
   bool onlyCP   = false;

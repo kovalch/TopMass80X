@@ -1,8 +1,6 @@
 #ifndef IDEOGRAMANALYZER_H
 #define IDEOGRAMANALYZER_H
 
-#include <iostream>
-
 #include "MassAnalyzer.h"
 
 class IdeogramAnalyzer : public MassAnalyzer { 
