@@ -13,11 +13,11 @@
 //#include "boost/variant.hpp"
 #include "boost/program_options.hpp"
 
-#include "TH2F.h"
-#include "TFile.h"
-#include "TChain.h"
-#include "TString.h"
 #include "TClonesArray.h"
+#include "TFile.h"
+#include "TH2F.h"
+#include "TString.h"
+#include "TTree.h"
 
 namespace po = boost::program_options;
 
@@ -31,6 +31,7 @@ private:
   TString samplePath_;
 
   double fLumi_;
+  double fSig_;
 
   TString fIdentifier_;
   TString fFile_;

@@ -12,11 +12,12 @@
 
 #include <iostream>
 
-#include "TROOT.h"
-#include "TSystem.h"
-#include "TRandom3.h"
+#include "TChain.h"
 #include "TEventList.h"
 #include "TLorentzVector.h"
+#include "TRandom3.h"
+#include "TROOT.h"
+#include "TSystem.h"
 
 #include "LHAPDF/LHAPDF.h"
 
@@ -26,6 +27,7 @@ RandomSubsetCreatorAllJets::RandomSubsetCreatorAllJets(po::variables_map vm) :
 selection_ (xml::GetParameter("selection" )), // filled from xml file
 samplePath_(xml::GetParameter("samplePath")), // filled from xml file
 fLumi_      (vm["lumi" ].as<double>()), //needs vm to be constructed -> leave in constructor
+fSig_       (vm["fsig" ].as<double>()), //needs vm to be constructed -> leave in constructor
 fIdentifier_(vm["input"].as<std::string>()),
 fFile_(samplePath_+fIdentifier_+TString(".root")),
 tmpFile_(0), //has to survive until destructor is called
@@ -308,7 +310,7 @@ RandomSubsetCreatorAllJets::CreateRandomSubset() {
 
     if (maxMCWeight == -1) { std::cout << "Running over data?" << std::endl; }
 
-    double fSig = 0.504; // 0.539; //
+    double fSig = fSig_; // 0.504; // 0.539; //
     if(fFile_.Contains("fSig_Up"))
       fSig += 0.10;
     else if(fFile_.Contains("fSig_Down"))
@@ -720,8 +722,6 @@ RandomSubsetCreatorAllJets::eventBTagProbability_(std::vector<double> &oneMinusB
 
   return bTaggingEfficiency;
 }
-
-//xml::XMLDocument* RandomSubsetCreatorAllJets::_config(0);
 
 /*
 void
