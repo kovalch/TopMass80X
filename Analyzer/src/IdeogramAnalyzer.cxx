@@ -1,27 +1,32 @@
 #include "IdeogramAnalyzer.h"
+
 #include "IdeogramCombLikelihood.h"
 #include "Helper.h"
 
 #include <iomanip>
 
+#include "TCanvas.h"
+//#include "TColor.h"
+#include "TF2.h"
+#include "TFile.h"
 #include "TH1D.h"
 #include "TH2D.h"
-#include "TF2.h"
-#include "TCanvas.h"
+#include "TLegend.h"
 #include "TMath.h"
 #include "TStyle.h"
-#include "TLegend.h"
-#include "TDirectory.h"
-#include "TFile.h"
-#include "TColor.h"
-#include "TRandom3.h"
 #include "TSystem.h"
 
 void IdeogramAnalyzer::Analyze(const TString& cuts, int i, int j, po::variables_map vm) {
   Scan(cuts, i, j, 155, 190, 2, 0.9, 1.1, 0.02, vm);
-  Scan(cuts, i, j, fMass-4 , fMass+4 , 0.5, fJES-0.03, fJES+0.03, 0.003, vm);
+
+  double mass = GetValue("mass_mTop_JES").first;
+  double JES  = GetValue("JES_mTop_JES" ).first;
+  Scan(cuts, i, j, mass-4 , mass+4 , 0.5, JES-0.03, JES+0.03, 0.003, vm);
+
   double epsilon = 1e-6;
-  Scan(cuts, i, j, fMass-10, fMass+10, 0.1 , 1.-epsilon, 1.+epsilon, epsilon, vm, false);
+  mass = GetValue("mass_mTop_JES").first;
+  JES  = GetValue("JES_mTop_JES" ).first;
+  Scan(cuts, i, j, mass-10, mass+10, 0.1 , 1.-epsilon, 1.+epsilon, epsilon, vm, false);
 }
 
 
@@ -137,11 +142,11 @@ void IdeogramAnalyzer::Scan(const TString& cuts, int i, int j, double firstBinMa
   //double productWeights = 1.;
   double sumWeights = 0.;
 
-  std::cout << "fTree: " << fTree->GetEntries() << std::endl;
+  std::cout << "fTree: " << fTree_->GetEntries() << std::endl;
   TFile * tempFile = new TFile(TString(gSystem->Getenv("TMPDIR"))+TString("/tempFile.root"), "RECREATE");
   tempFile->cd();
   //TTree* eventTree = fTree->CopyTree(cuts);
-  TTree* eventTree = fTree->CloneTree();
+  TTree* eventTree = fTree_->CloneTree();
 
   eventTree->SetBranchAddress("nCombos", &nCombos);
   eventTree->SetBranchAddress("comboTypes", comboTypes);
@@ -278,7 +283,7 @@ void IdeogramAnalyzer::Scan(const TString& cuts, int i, int j, double firstBinMa
       eventLikelihood->SetEntries(1);
       sumLogLikelihood->Draw("COLZ");
       
-      TString eventPath("plot/Ideogram/"); eventPath += fIdentifier; eventPath += "_"; eventPath += iEntry; eventPath += "_"; eventPath += event; eventPath += ".eps";
+      TString eventPath("plot/Ideogram/"); eventPath += fIdentifier_; eventPath += "_"; eventPath += iEntry; eventPath += "_"; eventPath += event; eventPath += ".eps";
       std::cout << eventPath << std::endl;
       eventCanvas->Print(eventPath);
       
@@ -351,67 +356,81 @@ void IdeogramAnalyzer::Scan(const TString& cuts, int i, int j, double firstBinMa
     sumLogLikelihood->Fit("fitParaboloid","EMR0");
   
     double semiMajor, semiMinor, alpha = 0;;
-  
+
+    double mass = -1;
+    double JES  = -1;
+    double massError = -1;
+    double JESError  = -1;
     if (firstBinMass+1 < fitParaboloid->GetParameter(0) && fitParaboloid->GetParameter(0) < lastBinMass-1) {
-      fMass = fitParaboloid->GetParameter(0);
-      fJES  = fitParaboloid->GetParameter(2);
-      if (TMath::Sqrt(1/fitParaboloid->GetParameter(1)) < 2*TMath::Sqrt(fMass)) {
-	semiMajor = TMath::Sqrt(1/fitParaboloid->GetParameter(1));
-	semiMinor = TMath::Sqrt(1/fitParaboloid->GetParameter(3));
-	alpha     = fitParaboloid->GetParameter(4);
-      
-	fMassError = sqrt(pow(semiMajor * cos(alpha), 2) + pow(semiMinor * sin(alpha), 2));
-	fJESError  = sqrt(pow(semiMajor * sin(alpha), 2) + pow(semiMinor * cos(alpha), 2));
+      mass = fitParaboloid->GetParameter(0);
+      JES  = fitParaboloid->GetParameter(2);
+      if (TMath::Sqrt(1/fitParaboloid->GetParameter(1)) < 2*TMath::Sqrt(mass)) {
+        semiMajor = TMath::Sqrt(1/fitParaboloid->GetParameter(1));
+        semiMinor = TMath::Sqrt(1/fitParaboloid->GetParameter(3));
+        alpha     = fitParaboloid->GetParameter(4);
+
+        massError = sqrt(pow(semiMajor * cos(alpha), 2) + pow(semiMinor * sin(alpha), 2));
+        JESError  = sqrt(pow(semiMajor * sin(alpha), 2) + pow(semiMinor * cos(alpha), 2));
       }
-      else fMassError = -1;
+      else {
+        massError = -1;
+        JESError  = -1;
+      }
     }
     else {
-      fMass = -1;
-      fMassError = -1;
+      mass      = -1;
+      massError = -1;
+      JES       = -1;
+      JESError  = -1;
     }
-    //fMassSigma = -1;
-  
+
     // Fit again with previous result as range
     double sigmaLevel = 4;
-    if (3*fMassError < resolMass) sigmaLevel = 8;
-    fitParaboloid->SetRange(fMass - sigmaLevel*fMassError, fJES - sigmaLevel*fJESError,
-			    minMass + sigmaLevel*fMassError, fJES + sigmaLevel*fJESError);
+    if (3*massError < resolMass) sigmaLevel = 8;
+    fitParaboloid->SetRange(mass - sigmaLevel*massError, JES - sigmaLevel*JESError,
+			                mass + sigmaLevel*massError, JES + sigmaLevel*JESError);
 
     sumLogLikelihood->Fit("fitParaboloid","EMR0");
   
     double contours[3] = {1, 4, 9};
     fitParaboloid->SetContour(3, contours);
-  
+
     if (firstBinMass+1 < fitParaboloid->GetParameter(0) && fitParaboloid->GetParameter(0) < lastBinMass-1) {
-      fMass = fitParaboloid->GetParameter(0);
-      fJES  = fitParaboloid->GetParameter(2);
-      if (TMath::Sqrt(1/fitParaboloid->GetParameter(1)) < 2*TMath::Sqrt(fMass)) {
-	semiMajor = TMath::Sqrt(1/fitParaboloid->GetParameter(1));
-	semiMinor = TMath::Sqrt(1/fitParaboloid->GetParameter(3));
-	alpha     = fitParaboloid->GetParameter(4);
-      
-	fMassError = sqrt(pow(semiMajor * cos(alpha), 2) + pow(semiMinor * sin(alpha), 2));
-	fJESError  = sqrt(pow(semiMajor * sin(alpha), 2) + pow(semiMinor * cos(alpha), 2));
+      mass = fitParaboloid->GetParameter(0);
+      JES  = fitParaboloid->GetParameter(2);
+      if (TMath::Sqrt(1/fitParaboloid->GetParameter(1)) < 2*TMath::Sqrt(mass)) {
+        semiMajor = TMath::Sqrt(1/fitParaboloid->GetParameter(1));
+        semiMinor = TMath::Sqrt(1/fitParaboloid->GetParameter(3));
+        alpha     = fitParaboloid->GetParameter(4);
+
+        massError = sqrt(pow(semiMajor * cos(alpha), 2) + pow(semiMinor * sin(alpha), 2));
+        JESError  = sqrt(pow(semiMajor * sin(alpha), 2) + pow(semiMinor * cos(alpha), 2));
       }
-      else fMassError = -1;
+      else{
+        massError = -1;
+        JESError  = -1;
+      }
     }
     else {
-      fMass = -1;
-      fMassError = -1;
+      mass      = -1;
+      JES       = -1;
+      massError = -1;
+      JESError  = -1;
     }
-    //fMassSigma = -1;
-  
+    SetValue("mass_mTop_JES", mass, massError);
+    SetValue("JES_mTop_JES" , JES , JESError );
+
     fitParaboloid->SetParameter(5, 0);
-  
+
     // stat+syst ellipsis  
     double mSyst = 1.18;
     double jSyst = 0.012;
   
-    double sm2 = fMassError*fMassError + mSyst*mSyst;
-    double sj2 = fJESError*fJESError + jSyst*jSyst;
+    double sm2 = massError*massError + mSyst*mSyst;
+    double sj2 = JESError *JESError  + jSyst*jSyst;
   
     fitParaboloid->Copy(*systParaboloid);
-    systParaboloid->SetRange(fMass - 40, fJES - 0.4, minMass + 40, fJES + 0.4);
+    systParaboloid->SetRange(mass - 40, JES - 0.4, mass + 40, JES + 0.4);
     systParaboloid->SetParameter(1, 2*cos(2*alpha)/(sm2 - sj2 + sj2*cos(2*alpha) + sm2*cos(2*alpha)));
     systParaboloid->SetParameter(3, 2*cos(2*alpha)/(sj2 - sm2 + sj2*cos(2*alpha) + sm2*cos(2*alpha)));
     systParaboloid->SetLineColor(kBlack);
@@ -439,9 +458,9 @@ void IdeogramAnalyzer::Scan(const TString& cuts, int i, int j, double firstBinMa
     //Helper* helper = new Helper(1);
     helper->DrawCMSPrel();
   
-    std::cout << "fMassError: " << fMassError << std::endl;
+    std::cout << "massError: " << massError << std::endl;
   
-    TString path("plot/Ideogram/"); path+= fIdentifier; path += "_"; path += i; path += "_"; path += j; path += ".eps";
+    TString path("plot/Ideogram/"); path+= fIdentifier_; path += "_"; path += i; path += "_"; path += j; path += ".eps";
     ctemp->Print(path);
     delete leg0;
   }
@@ -475,20 +494,24 @@ void IdeogramAnalyzer::Scan(const TString& cuts, int i, int j, double firstBinMa
     //sumLogLikelihood1D->GetXaxis()->SetRangeUser(sumLogLikelihood->GetXaxis()->GetBinLowEdge(1), sumLogLikelihood->GetXaxis()->GetBinLowEdge(sumLogLikelihood->GetNbinsX()+1));
     sumLogLikelihood1D->GetXaxis()->SetRangeUser(minMass - 3, minMass + 3);
  
+    double massConstJES      = -1;
+    double massConstJESError = -1;
     if (firstBinMass+1 < fitParabola->GetParameter(0) && fitParabola->GetParameter(0) < lastBinMass-1) {
-      fMassConstJES = fitParabola->GetParameter(0);
-      fMassConstJESError = TMath::Sqrt(1/fitParabola->GetParameter(1));
+      massConstJES      = fitParabola->GetParameter(0);
+      massConstJESError = TMath::Sqrt(1/fitParabola->GetParameter(1));
     }
     else {
-      fMassConstJES      = -1;
-      fMassConstJESError = -1;
+      massConstJES      = -1;
+      massConstJESError = -1;
     }
+    SetValue("mass_mTop", massConstJES, massConstJESError);
+
     std::cout << "Fixed JES: m_t = ";
-    std::cout << fMassConstJES << " +/- " << fMassConstJESError << std::endl;
+    std::cout << massConstJES << " +/- " << massConstJESError << std::endl;
 
     helper->DrawCMSPrel();
   
-    TString path1D("plot/Ideogram/"); path1D+= fIdentifier; path1D += "_"; path1D += i; path1D += "_"; path1D += j; path1D += "_1D.eps";
+    TString path1D("plot/Ideogram/"); path1D+= fIdentifier_; path1D += "_"; path1D += i; path1D += "_"; path1D += j; path1D += "_1D.eps";
     ctemp->Print(path1D);
   
     //sumLogLikelihood1D->Delete();

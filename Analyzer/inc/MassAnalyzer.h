@@ -2,6 +2,8 @@
 #define MASSANALYZER_H
 
 #include <iostream>
+#include <map>
+#include <utility>
 
 #include "TString.h"
 #include "TTree.h"
@@ -13,51 +15,22 @@ namespace po = boost::program_options;
 class MassAnalyzer {
 public:
   MassAnalyzer(const TString& identifier, TTree* tree);
-  virtual ~MassAnalyzer() { delete fTree; }
+  virtual ~MassAnalyzer() { delete fTree_; }
   
   
   virtual void Analyze(const TString& cuts, int i, int j) = 0;
   virtual void Analyze(const TString& cuts, int i, int j, po::variables_map vm) = 0;
-  
-  double GetMass() const;
-  double GetMassError() const;
-  //double GetMassSigma() const;
-  double GetJES() const;
-  double GetJESError() const;
 
-  double GetMassConstJES() const;
-  double GetMassConstJESError() const;
-  //double GetMassConstJESSigma() const;
+  std::pair<double, double> GetValue(TString whichValue) const;
+  std::map<TString, std::pair<double, double> > GetValues() const;
 
-  double GetFSig() const;
-  double GetFSigError() const;
-  double GetMassfSig() const;
-  double GetMassfSigError() const;
-  //double GetMassfSigSigma() const;
-  double GetJESfSig() const;
-  double GetJESfSigError() const;
-  
 protected:
-  TString fIdentifier;
-  TTree* fTree;
-  double fEntries;
-  double fMass;
-  double fMassError;
-  //double fMassSigma;
-  double fJES;
-  double fJESError;
+  void SetValue(TString whichValue, double val, double valError);
 
-  double fMassConstJES;
-  double fMassConstJESError;
-  //double fMassConstJESSigma;
+  TString fIdentifier_;
+  TTree* fTree_;
 
-  double ffSig;
-  double ffSigError;
-  double fMassfSig;
-  double fMassfSigError;
-  //double fMassfSigSigma;
-  double fJESfSig;
-  double fJESfSigError;
+  std::map<TString, std::pair<double, double> > values_;
 };
 
 #endif

@@ -1,75 +1,29 @@
 #include "MassAnalyzer.h"
 
 MassAnalyzer::MassAnalyzer(const TString& identifier, TTree* tree) : 
-  fIdentifier(identifier), fTree(tree), fEntries(-10.),
-  fMass(-10.), fMassError(-10.), //fMassSigma(-10.),
-  fJES(-10.), fJESError(-10.),
-  fMassConstJES(-10.), fMassConstJESError(-10.), //fMassConstJESSigma(-10.),
-  ffSig(-10.), ffSigError(-10.),
-  fMassfSig(-10.), fMassfSigError(-10.), //fMassfSigSigma(-10.),
-  fJESfSig(-10.), fJESfSigError(-10.)  
+  fIdentifier_(identifier), fTree_(tree)
 {
 }
 
-double MassAnalyzer::GetMass() const {
-  return fMass;
+std::pair<double, double>
+MassAnalyzer::GetValue(TString whichValue) const {
+  std::map<TString, std::pair<double, double> >::const_iterator value_iterator = values_.find(whichValue);
+  if(value_iterator != values_.end()){
+    return value_iterator->second;
+  }
+  else{
+    std::cerr << "WARNING: The searched value *" << whichValue << "* does not exist!" << std::endl;
+    assert(0);
+  }
+  return std::make_pair(-1, -1.);
 }
 
-double MassAnalyzer::GetMassError() const{
-  return fMassError;
+std::map<TString, std::pair<double, double> >
+MassAnalyzer::GetValues() const{
+  return values_;
 }
 
-//double MassAnalyzer::GetMassSigma() const{
-//  return fMassSigma;
-//}
-
-double MassAnalyzer::GetJES() const{
-  return fJES;
+void
+MassAnalyzer::SetValue(TString whichValue, double val, double valError){
+  values_[whichValue] = std::make_pair(val, valError);
 }
-
-double MassAnalyzer::GetJESError() const {
-  return fJESError;
-}
-
-
-double MassAnalyzer::GetMassConstJES() const {
-  return fMassConstJES;
-}
-
-double MassAnalyzer::GetMassConstJESError() const{
-  return fMassConstJESError;
-}
-
-//double MassAnalyzer::GetMassConstJESSigma() const{
-//  return fMassConstJESSigma;
-//}
-
-
-double MassAnalyzer::GetFSig() const {
-  return ffSig;
-}
-
-double MassAnalyzer::GetFSigError() const {
-  return ffSigError;
-}
-
-double MassAnalyzer::GetMassfSig() const {
-  return fMassfSig;
-}
-
-double MassAnalyzer::GetMassfSigError() const {
-  return fMassfSigError;
-}
-
-//double MassAnalyzer::GetMassfSigSigma() const {
-//  return fMassfSigSigma;
-//}
-
-double MassAnalyzer::GetJESfSig() const {
-  return fJESfSig;
-}
-
-double MassAnalyzer::GetJESfSigError() const {
-  return fJESfSigError;
-}
- 
