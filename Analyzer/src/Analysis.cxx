@@ -141,15 +141,22 @@ void Analysis::Analyze() {
         for(std::map<TString, std::pair<double, double> >::const_iterator value = values.begin(); value != values.end(); ++value){
           CreateHisto(value->first);
           CreateHisto(value->first+TString("_Error"));
-          CreateHisto(value->first+TString("_Pull")); //FIXME this dummy histogram has to be ALPHABETICALLY after the two others (like it is now)
+          CreateHisto(value->first+TString("_Pull"));
         }
         std::cout << std::endl;
+        double genMass   = po::GetOption<double>("mass");
+        double genJES    = po::GetOption<double>("jes" );
+        double genfSig   = po::GetOption<double>("fsig");
         for(std::map<TString, std::pair<double, double> >::const_iterator value = values.begin(); value != values.end(); ++value){
           double val      = value->second.first;
           double valError = value->second.second;
+          double gen = 0;
+          if     (value->first.BeginsWith("mass")) gen = genMass;
+          else if(value->first.BeginsWith("JES" )) gen = genJES;
+          else if(value->first.BeginsWith("fSig")) gen = genfSig;
           GetH2(value->first                 ) ->SetCellContent(i+1, j+1, val);
           GetH2(value->first+TString("_Error"))->SetCellContent(i+1, j+1, valError);
-          GetH2(value->first+TString("_Pull" ))->SetCellContent(i+1, j+1, -1.); //FIXME dummy histogram needed in top mass
+          GetH2(value->first+TString("_Pull" ))->SetCellContent(i+1, j+1, (val - gen)/valError);
           std::cout << "Measured " << value->first << ": " << val << " +/- " << valError << std::endl;
         }
         std::cout << std::endl;

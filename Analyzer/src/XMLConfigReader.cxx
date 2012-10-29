@@ -8,8 +8,10 @@
 #include <assert.h>
 #include <iostream>
 
+#include "ProgramOptionsReader.h"
 #include "XMLConfigReader.h"
 
+typedef ProgramOptionsReader po;
 
 XMLConfigReader::XMLConfigReader() {
   ReadConfigFromXMLFile();
@@ -25,7 +27,7 @@ void
 XMLConfigReader::ReadConfigFromXMLFile(){
   if(!config_){
     config_ = new txml::XMLDocument();
-    TString xmlFilePath = "/afs/naf.desy.de/group/cms/scratch/eschliec/TopMass_hg_devel/Analyzer/Configuration_alljets.xml";
+    TString xmlFilePath = po::GetOption<std::string>("xmlconfig");
     int errorID = config_->LoadFile(xmlFilePath);
     if(errorID) {
       std::cerr << "Parsing of XML file (" << xmlFilePath << ") failed with error " << errorID << "!" << std::endl;

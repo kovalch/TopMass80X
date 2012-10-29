@@ -150,25 +150,8 @@ void TopMass::WriteEnsembleTest() {
 
     for (int i = 0; i < fBins_; i++) {
       for (int j = 0; j < fBins_; j++) {
-        genMass   = po::GetOption<double>("mass");
-        genJES    = po::GetOption<double>("jes" );
-        genfSig   = po::GetOption<double>("fsig");
-
         for(std::map<TString, TH2F*>::const_iterator hist = histograms.begin(); hist != histograms.end(); ++hist){
-          if(hist->first.Contains("Pull")){
-            TString histName = hist->first; histName.ReplaceAll("_Pull","");
-            TString histNameError = histName + TString("_Error");
-            double val = histograms.find(histName     )->second->GetCellContent(i+1, j+1);
-            double err = histograms.find(histNameError)->second->GetCellContent(i+1, j+1);
-            double gen = 0;
-            if     (histName.BeginsWith("mass")) gen = genMass;
-            else if(histName.BeginsWith("JES" )) gen = genJES;
-            else if(histName.BeginsWith("fSig")) gen = genfSig;
-            values[hist->first] = (val - gen)/err;
-          }
-          else{
-            values[hist->first] = hist->second->GetCellContent(i+1, j+1);
-          }
+          values[hist->first] = hist->second->GetCellContent(i+1, j+1);
         }
         tree->Fill();
       }
