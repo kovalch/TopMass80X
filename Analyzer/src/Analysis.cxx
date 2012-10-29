@@ -9,18 +9,20 @@
 #include "Helper.h"
 #include "IdeogramAnalyzer.h"
 #include "MVAAnalyzer.h"
+#include "ProgramOptionsReader.h"
 #include "RandomSubsetCreatorAllJets.h"
 #include "RooFitTemplateAnalyzer.h"
 #include "XMLConfigReader.h"
 
 #include "LHAPDF/LHAPDF.h"
 
+typedef ProgramOptionsReader po;
 typedef XMLConfigReader xml;
 
-Analysis::Analysis(po::variables_map vm) :
-  fIdentifier_(vm["input" ].as<std::string>()),
-  fMethod_    (vm["method"].as<std::string>()),
-  fBins_      (vm["bins"  ].as<int>()),
+Analysis::Analysis() :
+  fIdentifier_(po::GetOption<std::string>("input" )),
+  fMethod_    (po::GetOption<std::string>("method")),
+  fBins_      (po::GetOption<int        >("bins"  )),
   fChannel_(xml::GetParameter("decayChannel")),
   fTree_(0)
 {
@@ -43,14 +45,14 @@ Analysis::~Analysis()
   //delete fTree_; // deletion is taken care of by MassAnalyzer
 }
 
-void Analysis::Analyze(po::variables_map vm) {
+void Analysis::Analyze() {
 
   std::cout << "Analyze " << fIdentifier_ << " with method " << fMethod_ << std::endl;
 
   // random subset creation
   RandomSubsetCreator* fCreator = 0;
   if (!strcmp(fChannel_, "AllJets")) {
-    fCreator = new RandomSubsetCreatorAllJets(vm);
+    fCreator = new RandomSubsetCreatorAllJets();
   }
   else {
     std::cerr << "Stopping analysis! Specified decay channel *" << fChannel_ << "* not known!" << std::endl;
@@ -133,7 +135,7 @@ void Analysis::Analyze(po::variables_map vm) {
       GetH2("Entries")->SetCellContent(i+1, j+1, entries);
 
       if (entries > minEntries) {
-        fAnalyzer->Analyze(cuts, i, j, vm);
+        fAnalyzer->Analyze(cuts, i, j);
         const std::map<TString, std::pair<double, double> > values = fAnalyzer->GetValues();
 
         for(std::map<TString, std::pair<double, double> >::const_iterator value = values.begin(); value != values.end(); ++value){

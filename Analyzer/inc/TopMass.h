@@ -2,13 +2,10 @@
 #define TOPMASS_H
 
 #include <vector>
-#include <boost/program_options.hpp>
 
 #include "TString.h"
 
 #include "Analysis.h"
-
-namespace po = boost::program_options;
 
 /*
 struct massPoint {
@@ -44,7 +41,7 @@ class TopMass {
     std::vector<Analysis*> analyses;
     std::vector<Analysis*>::iterator iAnalysis;
     
-    Analysis* aSim;
+    //Analysis* aSim;
     
     double fCalibFitParameter[6][6][2];
     double fCalibFitParError[6][6][2];
@@ -53,12 +50,12 @@ class TopMass {
     bool fexists(const char *filename);
   
   public:
-    TopMass(po::variables_map vm);
+    TopMass();
     
-    void WriteEnsembleTest(po::variables_map vm);
+    void WriteEnsembleTest();
     
-    void QuickCalibration(po::variables_map vm);
-    void QuickSystematics(po::variables_map vm);
+    void QuickCalibration();
+    void QuickSystematics();
 
     //void AvoidCompilerWarning(){}
 };

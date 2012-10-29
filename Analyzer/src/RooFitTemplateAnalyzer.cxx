@@ -1,5 +1,7 @@
 #include "RooFitTemplateAnalyzer.h"
+
 #include "Helper.h"
+#include "ProgramOptionsReader.h"
 
 #include "TCanvas.h"
 #include "TFile.h"
@@ -16,14 +18,16 @@
 #include "RooProdPdf.h"
 #include "RooRealVar.h"
 
-void RooFitTemplateAnalyzer::Analyze(const TString& cuts, int i, int j, po::variables_map vm) {
-  Scan(cuts, i, j, vm, "mTop_JES_fSig");
-  Scan(cuts, i, j, vm, "mTop_fSig");
-  Scan(cuts, i, j, vm, "mTop_JES");
-  Scan(cuts, i, j, vm, "mTop");
+typedef ProgramOptionsReader po;
+
+void RooFitTemplateAnalyzer::Analyze(const TString& cuts, int i, int j) {
+  Scan(cuts, i, j, "mTop_JES_fSig");
+  Scan(cuts, i, j, "mTop_fSig");
+  Scan(cuts, i, j, "mTop_JES");
+  Scan(cuts, i, j, "mTop");
 }
 
-void RooFitTemplateAnalyzer::Scan(const TString& cuts, int i, int j, po::variables_map vm, TString variables) 
+void RooFitTemplateAnalyzer::Scan(const TString& cuts, int i, int j, TString variables)
 {
   const int nTemplTypes = 2;
   const int nComboTypes = 3;
@@ -220,7 +224,7 @@ void RooFitTemplateAnalyzer::Scan(const TString& cuts, int i, int j, po::variabl
     }
   }
   
-  if(!vm["task"].as<std::string>().compare("sm")){
+  if(!po::GetOption<std::string>("task").compare("sm")){
     TCanvas* canvas1 = new TCanvas("canvas1", "canvas1", 1, 1, 600, 600);
     canvas1->cd();
     RooPlot* frame1 = MTOP.frame(RooFit::Range(100,350));

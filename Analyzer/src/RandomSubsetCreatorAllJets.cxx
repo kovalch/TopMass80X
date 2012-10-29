@@ -8,6 +8,7 @@
 #include "RandomSubsetCreatorAllJets.h"
 
 #include "Analysis.h"
+#include "ProgramOptionsReader.h"
 #include "XMLConfigReader.h"
 
 #include <iostream>
@@ -21,14 +22,15 @@
 
 #include "LHAPDF/LHAPDF.h"
 
+typedef ProgramOptionsReader po;
 typedef XMLConfigReader xml;
 
-RandomSubsetCreatorAllJets::RandomSubsetCreatorAllJets(po::variables_map vm) :
+RandomSubsetCreatorAllJets::RandomSubsetCreatorAllJets() :
 selection_ (xml::GetParameter("selection" )), // filled from xml file
 samplePath_(xml::GetParameter("samplePath")), // filled from xml file
-fLumi_      (vm["lumi" ].as<double>()), //needs vm to be constructed -> leave in constructor
-fSig_       (vm["fsig" ].as<double>()), //needs vm to be constructed -> leave in constructor
-fIdentifier_(vm["input"].as<std::string>()),
+fLumi_      (po::GetOption<double     >("lumi" )), //needs vm to be constructed -> leave in constructor
+fSig_       (po::GetOption<double     >("fsig" )), //needs vm to be constructed -> leave in constructor
+fIdentifier_(po::GetOption<std::string>("input")),
 fFile_(samplePath_+fIdentifier_+TString(".root")),
 tmpFile_(0), //has to survive until destructor is called
 bTagEff_(0), //filled in CreateHistos

@@ -11,7 +11,6 @@
 #include "RandomSubsetCreator.h"
 
 //#include "boost/variant.hpp"
-#include "boost/program_options.hpp"
 
 #include "TClonesArray.h"
 #include "TFile.h"
@@ -19,11 +18,9 @@
 #include "TString.h"
 #include "TTree.h"
 
-namespace po = boost::program_options;
-
 class RandomSubsetCreatorAllJets : public RandomSubsetCreator {
 public:
-  RandomSubsetCreatorAllJets(po::variables_map vm);
+  RandomSubsetCreatorAllJets();
   virtual ~RandomSubsetCreatorAllJets();
 
 private:

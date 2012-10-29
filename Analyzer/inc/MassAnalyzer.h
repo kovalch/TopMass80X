@@ -1,16 +1,13 @@
 #ifndef MASSANALYZER_H
 #define MASSANALYZER_H
 
+#include <assert.h>
 #include <iostream>
 #include <map>
 #include <utility>
 
 #include "TString.h"
 #include "TTree.h"
-
-#include <boost/program_options.hpp>
-
-namespace po = boost::program_options;
 
 class MassAnalyzer {
 public:
@@ -19,7 +16,6 @@ public:
   
   
   virtual void Analyze(const TString& cuts, int i, int j) = 0;
-  virtual void Analyze(const TString& cuts, int i, int j, po::variables_map vm) = 0;
 
   std::pair<double, double> GetValue(TString whichValue) const;
   std::map<TString, std::pair<double, double> > GetValues() const;

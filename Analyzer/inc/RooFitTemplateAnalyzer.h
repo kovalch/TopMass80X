@@ -9,14 +9,13 @@ class RooFitTemplateAnalyzer : public MassAnalyzer {
  public:
   RooFitTemplateAnalyzer(const TString& identifier, TTree* tree);
   ~RooFitTemplateAnalyzer();
-  void Analyze(const TString& cuts, int i, int j) { std::cout << "Function Analyze(const TString& cuts, int i, int j) not defined for Class RooFitTemplateAnalyzer!" << std::endl; };
-  void Analyze(const TString& cuts, int i, int j, po::variables_map vm);
+  void Analyze(const TString& cuts, int i, int j);
     
  private:
   double QBTagProbability(double bDiscriminator);
   double mWnVertex();
   double mTnVertex();
-  void Scan(const TString& cuts, int i, int j, po::variables_map vm, TString variables);
+  void Scan(const TString& cuts, int i, int j, TString variables);
   
   static RooWorkspace* workspace;
 };

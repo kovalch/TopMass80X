@@ -1,12 +1,9 @@
 #include <iostream>
 #include <sstream>
-#include "boost/program_options.hpp"
 
 #include "TH2F.h"
 #include "TString.h"
 #include "TTree.h"
-
-namespace po = boost::program_options;
 
 class Analysis {
  private:
@@ -26,11 +23,11 @@ class Analysis {
   void CreateHisto(TString name);
 
  public:
-  Analysis(po::variables_map vm);
+  Analysis();
   Analysis(TString identifier, TString file, TString method, int bins, double lumi);
   ~Analysis();
     
-  void Analyze(po::variables_map vm);
+  void Analyze();
 
   TH2F* GetH2(TString histName);
   const std::map<TString, TH2F*> GetH2s() const;

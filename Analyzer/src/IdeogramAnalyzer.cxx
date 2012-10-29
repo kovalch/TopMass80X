@@ -2,6 +2,7 @@
 
 #include "IdeogramCombLikelihood.h"
 #include "Helper.h"
+#include "ProgramOptionsReader.h"
 
 #include <iomanip>
 
@@ -16,22 +17,24 @@
 #include "TStyle.h"
 #include "TSystem.h"
 
-void IdeogramAnalyzer::Analyze(const TString& cuts, int i, int j, po::variables_map vm) {
-  Scan(cuts, i, j, 155, 190, 2, 0.9, 1.1, 0.02, vm);
+typedef ProgramOptionsReader po;
+
+void IdeogramAnalyzer::Analyze(const TString& cuts, int i, int j) {
+  Scan(cuts, i, j, 155, 190, 2, 0.9, 1.1, 0.02);
 
   double mass = GetValue("mass_mTop_JES").first;
   double JES  = GetValue("JES_mTop_JES" ).first;
-  Scan(cuts, i, j, mass-4 , mass+4 , 0.5, JES-0.03, JES+0.03, 0.003, vm);
+  Scan(cuts, i, j, mass-4 , mass+4 , 0.5, JES-0.03, JES+0.03, 0.003);
 
   double epsilon = 1e-6;
   mass = GetValue("mass_mTop_JES").first;
   JES  = GetValue("JES_mTop_JES" ).first;
-  Scan(cuts, i, j, mass-10, mass+10, 0.1 , 1.-epsilon, 1.+epsilon, epsilon, vm, false);
+  Scan(cuts, i, j, mass-10, mass+10, 0.1 , 1.-epsilon, 1.+epsilon, epsilon, false);
 }
 
 
 void IdeogramAnalyzer::Scan(const TString& cuts, int i, int j, double firstBinMass, double lastBinMass,
-			    double resolMass, double firstBinJes, double lastBinJes, double resolJes, po::variables_map vm, bool fit2D) 
+			    double resolMass, double firstBinJes, double lastBinJes, double resolJes, bool fit2D)
 {
   //*
   gStyle->SetOptStat(0);
@@ -165,9 +168,9 @@ void IdeogramAnalyzer::Scan(const TString& cuts, int i, int j, double firstBinMa
   //else
   //  CombinedWeight = 1.;
   
-  double isFastSim                     = vm["fastsim"].as<int>();
-  double shapeSystematic               = vm["shape"  ].as<double>();
-  double permutationFractionSystematic = vm["permu"  ].as<double>();
+  double isFastSim                     = po::GetOption<int   >("fastsim");
+  double shapeSystematic               = po::GetOption<double>("shape"  );
+  double permutationFractionSystematic = po::GetOption<double>("permu"  );
 
   // Build Likelihood
   for (int iEntry = 0, length = eventTree->GetEntries(); iEntry < length; ++iEntry) {

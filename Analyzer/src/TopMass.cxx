@@ -16,12 +16,14 @@
 #include "TSystem.h"
 
 #include "Helper.h"
-//#include "tinyxml2.h"
+#include "ProgramOptionsReader.h"
 
-TopMass::TopMass(po::variables_map vm) :
-  fMethod_(vm["method"].as<std::string>()),
-  fBins_  (vm["bins"  ].as<int>()),
-  fLumi_  (vm["lumi"  ].as<double>())
+typedef ProgramOptionsReader po;
+
+TopMass::TopMass() :
+  fMethod_(po::GetOption<std::string>("method")),
+  fBins_  (po::GetOption<int        >("bins")),
+  fLumi_  (po::GetOption<double     >("lumi"))
 {
   // check existence of a temp directory and create one if not available
   TString tempDir(gSystem->Getenv("TMPDIR"));
@@ -38,20 +40,20 @@ TopMass::TopMass(po::variables_map vm) :
   //LoadXML();
   //QuickSystematics();
   
-  if (!vm["task"].as<std::string>().compare("cal")) {
-    QuickCalibration(vm);
+  if (!po::GetOption<std::string>("task").compare("cal")) {
+    QuickCalibration();
   }
   
-  else if (!vm["task"].as<std::string>().compare("pe")) {
-    WriteEnsembleTest(vm);
+  else if (!po::GetOption<std::string>("task").compare("pe")) {
+    WriteEnsembleTest();
   }
   
-  else if (!vm["task"].as<std::string>().compare("sm")) {
-    Analysis* analysis = new Analysis(vm);
-    analysis->Analyze(vm);
+  else if (!po::GetOption<std::string>("task").compare("sm")) {
+    Analysis* analysis = new Analysis();
+    analysis->Analyze();
   }
   
-  else if (!vm["task"].as<std::string>().compare("hc")) {
+  else if (!po::GetOption<std::string>("task").compare("hc")) {
   
     /*  Systematic samples
     analyses.push_back(new Analysis("1725_flavordown", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725_flavor:down/analyzeTop.root", fMethod, fBins, 0));
@@ -75,7 +77,7 @@ TopMass::TopMass(po::variables_map vm) :
     //*/
     
     for (unsigned int i = 0; i < analyses.size(); i++) {
-      analyses[i]->Analyze(vm);
+      analyses[i]->Analyze();
     }
 
     /* DATA, full 2011
@@ -87,14 +89,14 @@ TopMass::TopMass(po::variables_map vm) :
 }
 
 
-void TopMass::WriteEnsembleTest(po::variables_map vm) {
+void TopMass::WriteEnsembleTest() {
   time_t start, end;
   time(&start);
   time(&end);
   
   //if (readCalibration) LoadXML();
   
-  int nEnsembles = vm["number"].as<int>();
+  int nEnsembles = po::GetOption<int>("number");
   int n = 0;
   
   double genMass, genJES, genfSig;
@@ -106,12 +108,12 @@ void TopMass::WriteEnsembleTest(po::variables_map vm) {
   TFile* ensembleFile = new TFile("ensemble.root", "UPDATE");
   ensembleFile->GetObject("tree", tree);
   
-  Analysis* analysis = new Analysis(vm);
+  Analysis* analysis = new Analysis();
   
-  while (difftime(end, start) < vm["walltime"].as<double>() * 60 && n < nEnsembles) {
+  while (difftime(end, start) < po::GetOption<double>("walltime") * 60 && n < nEnsembles) {
     std::cout << "\n- - - - - - - - - - " << n << " - - - - - - - - - -\n" << std::endl;
     
-    analysis->Analyze(vm);
+    analysis->Analyze();
 
     const std::map<TString, TH2F*> histograms = analysis->GetH2s();
 
@@ -148,9 +150,9 @@ void TopMass::WriteEnsembleTest(po::variables_map vm) {
 
     for (int i = 0; i < fBins_; i++) {
       for (int j = 0; j < fBins_; j++) {
-        genMass   = vm["mass"].as<double>();
-        genJES    = vm["jes" ].as<double>();
-        genfSig   = vm["fsig"].as<double>();
+        genMass   = po::GetOption<double>("mass");
+        genJES    = po::GetOption<double>("jes" );
+        genfSig   = po::GetOption<double>("fsig");
 
         for(std::map<TString, TH2F*>::const_iterator hist = histograms.begin(); hist != histograms.end(); ++hist){
           if(hist->first.Contains("Pull")){
@@ -183,7 +185,7 @@ void TopMass::WriteEnsembleTest(po::variables_map vm) {
   ensembleFile->Close();
 }
 
-void TopMass::QuickCalibration(po::variables_map vm) {
+void TopMass::QuickCalibration() {
 
   std::cerr << "Please don't use TopMass::QuickCalibration, as it is not usable currently!!!" << std::endl;
   return;
@@ -296,7 +298,7 @@ void TopMass::QuickCalibration(po::variables_map vm) {
   //*
   for(int iJES = 0; iJES < 3; iJES++) {
     for(int iMass = 0; iMass < numberOfMasses; iMass++) {
-      calibrationAnalyses[iJES][iMass]->Analyze(vm);
+      calibrationAnalyses[iJES][iMass]->Analyze();
 
       hMass[iJES].push_back(calibrationAnalyses[iJES][iMass]->GetH2("mass"));
       hMassError[iJES].push_back(calibrationAnalyses[iJES][iMass]->GetH2("massError"));
@@ -529,7 +531,7 @@ void TopMass::QuickCalibration(po::variables_map vm) {
 }
 
 
-void TopMass::QuickSystematics(po::variables_map vm) {
+void TopMass::QuickSystematics() {
 
   std::cerr << "Please don't use TopMass::QuickSystematics, as it is not usable currently!!!" << std::endl;
   return;
@@ -538,9 +540,9 @@ void TopMass::QuickSystematics(po::variables_map vm) {
   Analysis* a1725_jes_up = new Analysis("1725_jes_up", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_flavor:up/analyzeTop.root", fMethod_, fBins_, 100000);
   Analysis* a1725_jes_down = new Analysis("1725_jes_down", "/scratch/hh/current/cms/user/mseidel/Summer11_TTJets1725-S4_flavor:down/analyzeTop.root", fMethod_, fBins_, 100000);
   
-  a1725_jes_down->Analyze(vm);
-  a1725         ->Analyze(vm);
-  a1725_jes_up  ->Analyze(vm);
+  a1725_jes_down->Analyze();
+  a1725         ->Analyze();
+  a1725_jes_up  ->Analyze();
   
   TH2F* hMassJESdown = a1725_jes_down->GetH2("mass");
   TH2F* hMassJESnorm = a1725         ->GetH2("mass");
