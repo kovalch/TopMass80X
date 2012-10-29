@@ -28,7 +28,7 @@ typedef XMLConfigReader xml;
 RandomSubsetCreatorAllJets::RandomSubsetCreatorAllJets() :
 selection_ (xml::GetParameter("selection" )), // filled from xml file
 samplePath_(xml::GetParameter("samplePath")), // filled from xml file
-fIdentifier_(po::GetOption<std::string>("input")),
+fIdentifier_(po::GetOption<std::string>("input")), // filled from program options
 fFile_(samplePath_+fIdentifier_+TString(".root")),
 tmpFile_(0), // has to survive until destructor is called
 bTagEff_(0), // filled in FetchBTagEfficiencyHistograms
