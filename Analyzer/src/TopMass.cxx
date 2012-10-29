@@ -17,8 +17,10 @@
 
 #include "Helper.h"
 #include "ProgramOptionsReader.h"
+#include "XMLConfigReader.h"
 
 typedef ProgramOptionsReader po;
+typedef XMLConfigReader xml;
 
 TopMass::TopMass() :
   fMethod_(po::GetOption<std::string>("method")),
@@ -194,8 +196,7 @@ void TopMass::QuickCalibration() {
     hJESError          .push_back(std::vector<TH2F*>());
   }
 
-  //TString path = "/scratch/hh/current/cms/user/eschliec/TopMass/19/";
-  TString path = "/scratch/hh/dust/naf/cms/user/eschliec/TopMass/19/";
+  TString path = xml::GetParameter("samplePath");
 
   Analysis* a1615_096 = new Analysis("Z2_S11_ABS_JES_Down_161_5_sig", path+TString("Z2_S11_ABS_JES_Down_161_5_sig.root"), fMethod_, fBins_, 0.0);
   Analysis* a1635_096 = new Analysis("Z2_S11_ABS_JES_Down_163_5_sig", path+TString("Z2_S11_ABS_JES_Down_163_5_sig.root"), fMethod_, fBins_, 0.0);
