@@ -27,9 +27,6 @@ private:
   TString selection_;
   TString samplePath_;
 
-  double fLumi_;
-  double fSig_;
-
   TString fIdentifier_;
   TString fFile_;
 

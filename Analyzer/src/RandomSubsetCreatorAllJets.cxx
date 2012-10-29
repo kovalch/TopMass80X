@@ -28,18 +28,13 @@ typedef XMLConfigReader xml;
 RandomSubsetCreatorAllJets::RandomSubsetCreatorAllJets() :
 selection_ (xml::GetParameter("selection" )), // filled from xml file
 samplePath_(xml::GetParameter("samplePath")), // filled from xml file
-fLumi_      (po::GetOption<double     >("lumi" )), //needs vm to be constructed -> leave in constructor
-fSig_       (po::GetOption<double     >("fsig" )), //needs vm to be constructed -> leave in constructor
 fIdentifier_(po::GetOption<std::string>("input")),
 fFile_(samplePath_+fIdentifier_+TString(".root")),
-tmpFile_(0), //has to survive until destructor is called
-bTagEff_(0), //filled in CreateHistos
-cTagEff_(0), //filled in CreateHistos
-lTagEff_(0)  //filled in CreateHistos
+tmpFile_(0), // has to survive until destructor is called
+bTagEff_(0), // filled in FetchBTagEfficiencyHistograms
+cTagEff_(0), // filled in FetchBTagEfficiencyHistograms
+lTagEff_(0)  // filled in FetchBTagEfficiencyHistograms
 {
-  std::cout << "selection: "  << selection_  << std::endl;
-  std::cout << "samplePath: " << samplePath_ << std::endl;
-
   FetchBTagEfficiencyHistograms();
 }
 
@@ -146,7 +141,8 @@ RandomSubsetCreatorAllJets::CreateRandomSubset() {
   TTree *tmpTreeSig = 0, *tmpTreeBkg = 0, *returnedTree = 0;
 
   TString tmpFilePath = gSystem->Getenv("TMPDIR");
-  if (fLumi_!=0) {
+  double lumi = po::GetOption<double>("lumi");
+  if (lumi!=0) {
     tmpFile_ = TFile::Open(tmpFilePath+TString("/tempTree.root"), "READ");
     if(tmpFile_ && !tmpFile_->IsZombie()){
       tmpTreeSig = (TTree*)tmpFile_->Get(TString("fullTree_")+fIdentifier_);
@@ -312,7 +308,7 @@ RandomSubsetCreatorAllJets::CreateRandomSubset() {
 
     if (maxMCWeight == -1) { std::cout << "Running over data?" << std::endl; }
 
-    double fSig = fSig_; // 0.504; // 0.539; //
+    double fSig = po::GetOption<double>("fsig"); // 0.504; // 0.539; //
     if(fFile_.Contains("fSig_Up"))
       fSig += 0.10;
     else if(fFile_.Contains("fSig_Down"))
@@ -354,7 +350,7 @@ RandomSubsetCreatorAllJets::CreateRandomSubset() {
 
     int permsMC  = tmpTreeSig   ->GetEntries();
     int permsBkg = tmpTreeBkg->GetEntries();
-    int eventsPE = myRandom->Poisson(2410./3544.844*fLumi_); // add poisson
+    int eventsPE = myRandom->Poisson(2410./3544.844*lumi); // add poisson
     int eventsDrawn = 0;
 
     tmpFile_->ReOpen("UPDATE");
@@ -370,7 +366,7 @@ RandomSubsetCreatorAllJets::CreateRandomSubset() {
     //double& CombinedWeight = GetVariable("CombinedWeight");
 
     int signalDrawn = 0, backgroundDrawn = 0;
-    if(fLumi_>0) {
+    if(lumi>0) {
       //int drawCounter = 0;
       while (eventsDrawn < eventsPE) {
         double fSigRndm = myRandom->Uniform(0.,1.);

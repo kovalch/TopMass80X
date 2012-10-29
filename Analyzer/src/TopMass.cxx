@@ -150,6 +150,9 @@ void TopMass::WriteEnsembleTest() {
       std::cout << "branching finished" << std::endl;
     }
 
+    genMass   = po::GetOption<double>("mass");
+    genJES    = po::GetOption<double>("jes" );
+    genfSig   = po::GetOption<double>("fsig");
     for (int i = 0; i < fBins_; i++) {
       for (int j = 0; j < fBins_; j++) {
         for(std::map<TString, TH2F*>::const_iterator hist = histograms.begin(); hist != histograms.end(); ++hist){
