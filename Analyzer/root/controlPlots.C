@@ -667,11 +667,12 @@ void makeControlPlot(TString typeForTitle, TString sObservable, TString sObserva
   double eMC = sqrt(pow(hTTJets->Integral()*uTTJets, 2) + pow(hQCD->Integral()*uQCD, 2) + pow(hZJets->Integral()*uZJets, 2) + pow(hWJets->Integral()*uWJets, 2) + pow(hSTop->Integral()*uSTop, 2));
   
   std::cout << "=============== Event yields ===============" << std::endl;
-  std::cout << "tt: "     << hTTJets->Integral()  << " +/- " << hTTJets->Integral()*uTTJets << std::endl;
+  std::cout << "tt: "     << hTTJets->Integral()  << " +/- " << hTTJets->Integral()*uTTJets << " (" << hTTJets->Integral()/iMC << "%)" << std::endl;
   std::cout << "QCD: "    << hQCD->Integral()     << " +/- " << hQCD->Integral()*uQCD << std::endl;
   std::cout << "Z+jets: " << hZJets->Integral()   << " +/- " << hZJets->Integral()*uZJets << std::endl;
   std::cout << "W+jets: " << hWJets->Integral()   << " +/- " << hWJets->Integral()*uWJets << std::endl;
   std::cout << "st: "     << hSTop->Integral()    << " +/- " << hSTop->Integral()*uSTop << std::endl;
+  std::cout << "background: " << iMC - hTTJets->Integral() << " (" << (iMC - hTTJets->Integral())/iMC << "%)" << std::endl;
   std::cout << "mc: "     << iMC                  << " +/- " << eMC << std::endl;
   std::cout << "data: "   << hData->Integral()    << std::endl;
   
