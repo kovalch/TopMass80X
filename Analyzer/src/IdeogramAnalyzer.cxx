@@ -24,6 +24,7 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
   //*
   gStyle->SetOptStat(0);
   gStyle->SetOptFit(0);
+  gStyle->SetPadRightMargin(0.185);
   //*/
   
   /*
@@ -110,6 +111,7 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
   sumLogLikelihood->SetTitle("-2#upointln{L(m_{t}|sample)}");
   sumLogLikelihood->SetXTitle("m_{t} [GeV]");
   sumLogLikelihood->SetYTitle("JES");
+  sumLogLikelihood->SetZTitle("-2 #Delta log(L)");
   productLikelihood->SetTitle("-2#upointln{L(m_{t}|sample)}");
   productLikelihood->SetXTitle("m_{t} [GeV]");
   productLikelihood->SetYTitle("JES");
@@ -357,7 +359,7 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
     double sigmaLevel = 4;
     if (3*fMassError < resolMass) sigmaLevel = 8;
 	  fitParaboloid->SetRange(fMass - sigmaLevel*fMassError, fJES - sigmaLevel*fJESError,
-	                        minMass + sigmaLevel*fMassError, fJES + sigmaLevel*fJESError);
+	                          fMass + sigmaLevel*fMassError, fJES + sigmaLevel*fJESError);
 
     sumLogLikelihood->Fit("fitParaboloid","EMR0");
     
@@ -393,7 +395,7 @@ void IdeogramAnalyzer::Scan(TString cuts, int i, int j, double firstBinMass, dou
     double sj2 = fJESError*fJESError + jSyst*jSyst;
     
     fitParaboloid->Copy(*systParaboloid);
-    systParaboloid->SetRange(fMass - 40, fJES - 0.4, minMass + 40, fJES + 0.4);
+    systParaboloid->SetRange(fMass - 40, fJES - 0.4, fMass + 40, fJES + 0.4);
     systParaboloid->SetParameter(1, 2*cos(2*alpha)/(sm2 - sj2 + sj2*cos(2*alpha) + sm2*cos(2*alpha)));
     systParaboloid->SetParameter(3, 2*cos(2*alpha)/(sj2 - sm2 + sj2*cos(2*alpha) + sm2*cos(2*alpha)));
     systParaboloid->SetLineColor(kBlack);
