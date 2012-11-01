@@ -19,10 +19,11 @@
 typedef ProgramOptionsReader po;
 typedef XMLConfigReader xml;
 
-Analysis::Analysis() :
+Analysis::Analysis(std::vector<float> v):
   fIdentifier_(po::GetOption<std::string>("input" )),
   fMethod_    (po::GetOption<std::string>("method")),
-  fBins_      (po::GetOption<int        >("bins"  )),
+  fBinning_   (po::GetOption<std::string>("binning")),
+  vBinning_   (v),
   fChannel_(xml::GetParameter("decayChannel")),
   fTree_(0)
 {
@@ -30,7 +31,7 @@ Analysis::Analysis() :
 
 Analysis::~Analysis()
 {
-  for(std::map<TString, TH2F*>::iterator hist = histograms_.begin(); hist != histograms_.end(); ++hist){
+  for(std::map<TString, TH1F*>::iterator hist = histograms_.begin(); hist != histograms_.end(); ++hist){
     delete hist->second;
   }
   histograms_.clear();
@@ -71,19 +72,19 @@ void Analysis::Analyze() {
     return;
   }
    
-  Helper* helper = new Helper(fBinning, vBinning);
+  Helper* helper = new Helper(fBinning_, vBinning_);
   helper->SetTDRStyle();
   delete helper;
 
   TCanvas* canvas = new TCanvas("canvas", "Top mass", 900, 600);
   canvas->cd();
   
-  for(int i = 0; i < vBinning.size()-1; i++) {
+  for(unsigned int i = 0; i < vBinning_.size()-1; i++) {
     // calculate cuts
     TString cuts;
     std::stringstream stream;
-    stream << vBinning[i] << " < " << fBinning << " & "
-           << fBinning << " < " << vBinning[i+1];
+    stream << vBinning_[i] << " < " << fBinning_ << " & "
+           << fBinning_ << " < " << vBinning_[i+1];
     cuts = stream.str();
     
     if (!strcmp(fMethod_, "GenMatch")) {
@@ -102,7 +103,7 @@ void Analysis::Analyze() {
     std::cout << entries << std::endl;
 
     CreateHisto("Entries");
-    GetH1("Entries")->SetCellContent(i+1, j+1, entries);
+    GetH1("Entries")->SetBinContent(i+1, entries);
 
     if (entries > 25) {
       fAnalyzer->Analyze(cuts, i, 0);
@@ -125,8 +126,8 @@ void Analysis::Analyze() {
         else if(value->first.BeginsWith("JES" )) gen = genJES;
         else if(value->first.BeginsWith("fSig")) gen = genfSig;
         GetH1(value->first                 ) ->SetBinContent(i+1, val);
-        GetH1(value->first+TString("_Error"))->SetCellContent(i+1, valError);
-        GetH1(value->first+TString("_Pull" ))->SetCellContent(i+1, (val - gen)/valError);
+        GetH1(value->first+TString("_Error"))->SetBinContent(i+1, valError);
+        GetH1(value->first+TString("_Pull" ))->SetBinContent(i+1, (val - gen)/valError);
         std::cout << "Measured " << value->first << ": " << val << " +/- " << valError << std::endl;
       }
       std::cout << std::endl;
@@ -141,7 +142,7 @@ void Analysis::Analyze() {
 
   canvas->cd(2);
   GetH1("mass_mTop_JES")->Draw("E1");
-  GetH2("mass_mTop_JES")->SetAxisRange(GetH1("mass_mTop_JES")->GetMinimum(0.05), GetH2("mass_mTop_JES")->GetMaximum(), "Z");
+  GetH1("mass_mTop_JES")->SetAxisRange(GetH1("mass_mTop_JES")->GetMinimum(0.05), GetH1("mass_mTop_JES")->GetMaximum(), "Z");
   GetH1("mass_mTop_JES")->Fit("pol0");
 
   canvas->cd(3);
@@ -154,7 +155,7 @@ void Analysis::Analyze() {
   hJES->Draw("E1");
   hJES->Fit("pol0");
   */
-  TString path("plot/"); path += fMethod_; path += "_"; path += fIdentifier_; path += ".eps";
+  TString path("plot/"); path += fMethod_; path += "_"; path += fIdentifier_; path += "_"; path += fBinning_; path += ".eps";
   canvas->Print(path);
   
   TString pathr("plot/"); pathr += fMethod_; pathr += "_"; pathr += fIdentifier_; pathr += "_"; pathr += fBinning_; pathr += ".root";
@@ -166,14 +167,14 @@ void Analysis::Analyze() {
 }
 
 void Analysis::CreateHisto(TString name) {
-  std::map<TString, TH2F*>::iterator hist = histograms_.find(name);
+  std::map<TString, TH1F*>::iterator hist = histograms_.find(name);
   if(hist != histograms_.end()){
     hist->second->Reset();
   }
   else{
     gROOT->cd();
-    Helper* helper = new Helper(fBins_);
-    SetH2(name, helper->GetH2(name));
+    Helper* helper = new Helper(fBinning_, vBinning_);
+    SetH1(name, helper->GetH1(name));
     delete helper;
   }
 }
@@ -191,7 +192,7 @@ Analysis::GetH1(TString histName){
   return 0;
 }
 
-const std::map<TString, TH2F*>
+const std::map<TString, TH1F*>
 Analysis::GetH1s() const{
   return histograms_;
 }

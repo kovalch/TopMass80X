@@ -1,5 +1,8 @@
 #include "Helper.h"
 
+#include "TStyle.h"
+#include "TPaveLabel.h"
+
 TH1F* Helper::GetH1(TString title) {
   const float* array = &vBinning[0];
 

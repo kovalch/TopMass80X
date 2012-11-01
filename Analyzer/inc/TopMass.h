@@ -10,6 +10,7 @@
 class TopMass {
   private:
     TString fMethod_;
+    TString fBinning_;
     double fLumi_;
 
     bool fexists(const char *filename);

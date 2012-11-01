@@ -56,6 +56,7 @@ void IdeogramAnalyzer::Scan(const TString& cuts, int i, int j, double firstBinMa
   
   bool debug = false;
   int nDebug = 1;
+  int minDebug = 0;
   int maxDebug = 200;
   
   TCanvas* ctemp = new TCanvas("ctemp", "Top mass", 500, 500);

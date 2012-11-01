@@ -1,7 +1,7 @@
 #ifndef HELPER_H
 #define HELPER_H
 
-#include "TH2F.h"
+#include "TH1F.h"
 #include "TString.h"
 
 class Helper {
@@ -11,9 +11,10 @@ class Helper {
     void DrawLabel(TString text, const double x1, const double y1, const double x2, Color_t color = kBlack);
 
   public:
+    Helper() {};
     Helper(TString binning, std::vector<float> v)
       : fBinning(binning), vBinning(v) {};
-    ~Helper();
+    ~Helper() {};
     
     TH1F* GetH1(TString title);
     void SetTDRStyle();

@@ -14,6 +14,7 @@
 #include "TPaveStats.h"
 #include "TStyle.h"
 #include "TSystem.h"
+#include "TMath.h"
 
 #include "Helper.h"
 #include "ProgramOptionsReader.h"
@@ -23,9 +24,9 @@ typedef ProgramOptionsReader po;
 typedef XMLConfigReader xml;
 
 TopMass::TopMass() :
-  fMethod_(po::GetOption<std::string>("method")),
-  fBins_  (po::GetOption<int        >("bins")),
-  fLumi_  (po::GetOption<double     >("lumi"))
+  fMethod_ (po::GetOption<std::string>("method")),
+  fBinning_(po::GetOption<std::string>("binning")),
+  fLumi_   (po::GetOption<double     >("lumi"))
 {
   // check existence of a temp directory and create one if not available
   TString tempDir(gSystem->Getenv("TMPDIR"));
@@ -42,47 +43,47 @@ TopMass::TopMass() :
   
   std::vector<float> vBinning;
   
-  if (!vm["binning"].as<std::string>().compare("deltaThetaHadWHadB")) {
+  if (!po::GetOption<std::string>("binning").compare("deltaThetaHadWHadB")) {
       float xbins[] = {0, TMath::Pi()};
       vBinning.assign(xbins, xbins + sizeof(xbins) / sizeof(xbins[0]));
   }
   
-  else if (!vm["binning"].as<std::string>().compare("hadTopPt")) {
+  else if (!po::GetOption<std::string>("binning").compare("hadTopPt")) {
       float xbins[] = {0, 50, 75, 100, 125, 150, 200, 400};
       vBinning.assign(xbins, xbins + sizeof(xbins) / sizeof(xbins[0]));
   }
   
-  else if (!vm["binning"].as<std::string>().compare("hadTopEta")) {
+  else if (!po::GetOption<std::string>("binning").compare("hadTopEta")) {
       float xbins[] = {-5, -2, -1, -0.3, 0.3, 1, 2, 5};
       vBinning.assign(xbins, xbins + sizeof(xbins) / sizeof(xbins[0]));
   }
   
-  else if (!vm["binning"].as<std::string>().compare("hadBPt")) {
+  else if (!po::GetOption<std::string>("binning").compare("hadBPt")) {
       float xbins[] = {0, 50, 75, 100, 125, 400};
       vBinning.assign(xbins, xbins + sizeof(xbins) / sizeof(xbins[0]));
   }
   
-  else if (!vm["binning"].as<std::string>().compare("hadBEta")) {
+  else if (!po::GetOption<std::string>("binning").compare("hadBEta")) {
       float xbins[] = {-2.5, -1, -0.3, 0.3, 1, 2.5};
       vBinning.assign(xbins, xbins + sizeof(xbins) / sizeof(xbins[0]));
   }
   
-  else if (!vm["binning"].as<std::string>().compare("TTBarMass")) {
+  else if (!po::GetOption<std::string>("binning").compare("TTBarMass")) {
       float xbins[] = {200, 400, 450, 500, 550, 700 ,1000};
       vBinning.assign(xbins, xbins + sizeof(xbins) / sizeof(xbins[0]));
   }
   
-  else if (!vm["binning"].as<std::string>().compare("TTBarPt")) {
+  else if (!po::GetOption<std::string>("binning").compare("TTBarPt")) {
       float xbins[] = {0, 20, 30, 40, 50, 100, 250};
       vBinning.assign(xbins, xbins + sizeof(xbins) / sizeof(xbins[0]));
   }
   
-  else if (!vm["binning"].as<std::string>().compare("deltaRHadQHadQBar")) {
+  else if (!po::GetOption<std::string>("binning").compare("deltaRHadQHadQBar")) {
       float xbins[] = {0.5, 1.25, 1.5, 1.75, 2, 3, 6};
       vBinning.assign(xbins, xbins + sizeof(xbins) / sizeof(xbins[0]));
   }
   
-  else if (!vm["binning"].as<std::string>().compare("deltaRHadBLepB")) {
+  else if (!po::GetOption<std::string>("binning").compare("deltaRHadBLepB")) {
       float xbins[] = {0.5, 1.25, 2, 2.5, 3, 6};
       vBinning.assign(xbins, xbins + sizeof(xbins) / sizeof(xbins[0]));
   }
@@ -126,11 +127,11 @@ void TopMass::WriteEnsembleTest(std::vector<float> vBinning) {
     
     analysis->Analyze();
     
-    const std::map<TString, TH2F*> histograms = analysis->GetH2s();
+    const std::map<TString, TH1F*> histograms = analysis->GetH1s();
 
     if(!treeCreated){
 
-      for(std::map<TString, TH2F*>::const_iterator hist = histograms.begin(); hist != histograms.end(); ++hist){
+      for(std::map<TString, TH1F*>::const_iterator hist = histograms.begin(); hist != histograms.end(); ++hist){
         values[hist->first] = -1;
       }
 
@@ -142,7 +143,7 @@ void TopMass::WriteEnsembleTest(std::vector<float> vBinning) {
         tree->Branch("genfSig", &genfSig, "genfSig/D");
         tree->Branch("bin", &bin, "bin/I");
 
-        for(std::map<TString, TH2F*>::const_iterator hist = histograms.begin(); hist != histograms.end(); ++hist){
+        for(std::map<TString, TH1F*>::const_iterator hist = histograms.begin(); hist != histograms.end(); ++hist){
           TString leafName = hist->first +TString("/D");
           tree->Branch(hist->first, &values[hist->first], leafName);
         }
@@ -153,39 +154,20 @@ void TopMass::WriteEnsembleTest(std::vector<float> vBinning) {
         tree->SetBranchAddress("genfSig", &genfSig);
         tree->SetBranchAddress("bin", &bin);
 
-        for(std::map<TString, TH2F*>::const_iterator hist = histograms.begin(); hist != histograms.end(); ++hist){
+        for(std::map<TString, TH1F*>::const_iterator hist = histograms.begin(); hist != histograms.end(); ++hist){
           tree->SetBranchAddress(hist->first, &values[hist->first]);
         }
       }
       treeCreated = true;
       std::cout << "branching finished" << std::endl;
     }
-    
-    for (int i = 0; i < vBinning.size()-1; i++) {
-      // add bin to tree
-      genMass   = vm["mass"].as<double>();
-      mass      = analysis->GetH1Mass()->GetBinContent(i+1);
-      massError = analysis->GetH1MassError()->GetBinContent(i+1);
-      massPull  = (mass - genMass)/massError;
-      massAlt   = analysis->GetH1MassAlt()->GetBinContent(i+1);
-      massAltError = analysis->GetH1MassAltError()->GetBinContent(i+1);
-      
-      genJES    = vm["jes" ].as<double>();
-      JES       = analysis->GetH1JES()->GetBinContent(i+1);
-      JESError  = analysis->GetH1JESError()->GetBinContent(i+1);
-      JESPull   = (JES - genJES)/JESError;
-      
-      bin       = i+1;
-      
-      tree->Fill();
-    }
 
     genMass   = po::GetOption<double>("mass");
     genJES    = po::GetOption<double>("jes" );
     genfSig   = po::GetOption<double>("fsig");
-    for (int i = 0; i < vBinning.size()-1; i++) {
-      for(std::map<TString, TH2F*>::const_iterator hist = histograms.begin(); hist != histograms.end(); ++hist){
-        values[hist->first] = hist->second->GetCellContent(i+1, j+1);
+    for (unsigned int i = 0; i < vBinning.size()-1; i++) {
+      for(std::map<TString, TH1F*>::const_iterator hist = histograms.begin(); hist != histograms.end(); ++hist){
+        values[hist->first] = hist->second->GetBinContent(i+1);
       }
 
       bin       = i+1;
@@ -202,15 +184,14 @@ void TopMass::WriteEnsembleTest(std::vector<float> vBinning) {
 
   tree->GetCurrentFile()->Write();
   
-  Helper* helper = new Helper(vm["binning"].as<std::string>(), vBinning);
+  Helper* helper = new Helper(po::GetOption<std::string>("binning"), vBinning);
   TH1F* hBinning = helper->GetH1("hBinning");
   hBinning->Write();
   
   ensembleFile->Close();
-  tempFile = new TFile("temp.root", "RECREATE");
-  tempFile->Close();
 }
 
+/*
 int main(int ac, char** av)
 {
   // Declare the supported options.
@@ -264,6 +245,7 @@ int main(int ac, char** av)
   
   TopMass* top = new TopMass(vm);
 }
+*/
 
 bool TopMass::fexists(const char *filename) {
   ifstream ifile(filename);
