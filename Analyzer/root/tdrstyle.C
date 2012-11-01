@@ -153,8 +153,6 @@ TStyle* setTDRStyle() {
   // tdrStyle->SetTimeOffset(Double_t toffset);
   // tdrStyle->SetHistMinimumZero(kTRUE);
 
-  tdrStyle->SetPalette(1);
-
   tdrStyle->cd();
   return tdrStyle;
 }
@@ -174,43 +172,13 @@ void DrawLabel(TString text, const double x1, const double y1, const double x2, 
 }
 
 void DrawCMSPrel() {
-  DrawLabel("CMS,  #sqrt{s} = 7 TeV, l+jets", 0.2, 0.93, 0.9);
+  DrawLabel("CMS Preliminary, 3.54 fb^{-1},  #sqrt{s}=7 TeV", 0.2, 0.93, 0.9);
 }
 
-void DrawCMSPrelElectron() {
-  DrawLabel("CMS,  #sqrt{s} = 7 TeV, e+jets", 0.2, 0.93, 0.9);
-}
+//void DrawCMSPrel50() {
+//  DrawLabel("CMS Preliminary, 5.0 fb^{-1},  #sqrt{s}=7 TeV", 0.2, 0.93, 0.9);
+//}
 
-void DrawCMSPrelMuon() {
-  DrawLabel("CMS,  #sqrt{s} = 7 TeV, #mu+jets", 0.2, 0.93, 0.9);
-}
-
-void DrawCMSPrel50() {
-  DrawLabel("CMS,  #sqrt{s} = 7 TeV", 0.2, 0.93, 0.9);
-}
-
-void DrawCMSSim(int channel = 2) {
-  TString lepton_[3] = { "e+jets", "#mu+jets", "l+jets"};
-  TString sLabel("CMS simulation,  #sqrt{s} = 7 TeV, "); sLabel += lepton_[channel];
-  DrawLabel(sLabel, 0.2, 0.93, 0.9);
-}
-
-void DrawCMSSimElectron() {
-  DrawLabel("CMS simulation,  #sqrt{s} = 7 TeV, e+jets", 0.2, 0.93, 0.9);
-}
-
-void DrawCMSSimMuon() {
-  DrawLabel("CMS simulation,  #sqrt{s} = 7 TeV, #mu+jets", 0.2, 0.93, 0.9);
-}
-
-void DrawCMS(int channel = 2) {
-  TString lepton_[3] = { "e+jets", "#mu+jets", "l+jets"};
-  TString sLabel("CMS,  #sqrt{s} = 7 TeV, "); sLabel += lepton_[channel];
-  DrawLabel(sLabel, 0.2, 0.93, 0.9);
-}
-
-void DrawCMS50(int channel = 2) {
-  TString lepton_[3] = { "e+jets", "#mu+jets", "l+jets"};
-  TString sLabel("CMS, 5.0 fb^{-1},  #sqrt{s} = 7 TeV, "); sLabel += lepton_[channel];
-  DrawLabel(sLabel, 0.2, 0.93, 0.9);
+void DrawCMSSim() {
+  DrawLabel("CMS Simulation Preliminary,  #sqrt{s}=7 TeV", 0.2, 0.93, 0.9);
 }

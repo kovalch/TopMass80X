@@ -173,7 +173,7 @@ void Helper::SetTDRStyle() {
 
 }
 
-void Helper::DrawLabel(TString text, const double x1, const double y1, const double x2, Color_t color = kBlack)
+void Helper::DrawLabel(TString text, const double x1, const double y1, const double x2, Color_t color)
 {
   // function to directly draw a label into the active canvas
   double y2 = y1 + 0.05;

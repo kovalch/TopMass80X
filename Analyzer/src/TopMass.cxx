@@ -1,8 +1,42 @@
 #include "TopMass.h"
 
-TopMass::TopMass(po::variables_map vm) {
-  fMethod = vm["method"].as<std::string>();
-  fLumi   = vm["lumi"].as<double>();
+#include <cmath>
+#include <fstream>
+#include <map>
+#include <string>
+#include <time.h>
+
+#include "TCanvas.h"
+#include "TFile.h"
+#include "TGraphErrors.h"
+#include "TLegend.h"
+#include "TMultiGraph.h"
+#include "TPaveStats.h"
+#include "TStyle.h"
+#include "TSystem.h"
+
+#include "Helper.h"
+#include "ProgramOptionsReader.h"
+#include "XMLConfigReader.h"
+
+typedef ProgramOptionsReader po;
+typedef XMLConfigReader xml;
+
+TopMass::TopMass() :
+  fMethod_(po::GetOption<std::string>("method")),
+  fBins_  (po::GetOption<int        >("bins")),
+  fLumi_  (po::GetOption<double     >("lumi"))
+{
+  // check existence of a temp directory and create one if not available
+  TString tempDir(gSystem->Getenv("TMPDIR"));
+  if(tempDir.IsNull() || !tempDir.Length()){
+    tempDir = gSystem->GetFromPipe("mktemp -d");
+    gSystem->Setenv("TMPDIR", tempDir);
+  }
+  std::cout << "Directory to be used for temporary files: " << tempDir << std::endl;
+
+  // set environment variables needed for LHAPDF
+  gSystem->Setenv("LHAPATH", "/afs/naf.desy.de/user/e/eschliec/wd/LHAPDF/share/lhapdf/PDFsets");
   
   // Define binning
   
@@ -55,74 +89,77 @@ TopMass::TopMass(po::variables_map vm) {
   
   // Start task
   
-  if (!vm["task"].as<std::string>().compare("pe")) {
-    WriteEnsembleTest(vm, vBinning);
+  if (!po::GetOption<std::string>("task").compare("pe")) {
+    WriteEnsembleTest(vBinning);
   }
   
-  else if (!vm["task"].as<std::string>().compare("sm")) {
-    Analysis* analysis = new Analysis(vm, vBinning);
-    analysis->Analyze(vm);
+  else if (!po::GetOption<std::string>("task").compare("sm")) {
+    Analysis* analysis = new Analysis(vBinning);
+    analysis->Analyze();
   }
 }
 
 
-void TopMass::WriteEnsembleTest(po::variables_map vm, std::vector<float> vBinning) {
+void TopMass::WriteEnsembleTest(std::vector<float> vBinning) {
   time_t start, end;
   time(&start);
   time(&end);
   
   //if (readCalibration) LoadXML();
   
-  int nEnsembles = vm["number"].as<int>();
+  int nEnsembles = po::GetOption<int>("number");
   int n = 0;
   
-  double genMass, mass, massError, massPull, genJES, JES, JESError, JESPull, massAlt, massAltError;
+  double genMass, genJES, genfSig;
   int bin;
-  TFile* ensembleFile;
-  TTree* tree;
-  
-  TFile* tempFile = new TFile("temp.root", "RECREATE");
-  ensembleFile = new TFile("ensemble.root", "UPDATE");
+  std::map<TString, double> values;
+
+  bool treeCreated = false;
+  TTree* tree = 0;
+  TFile* ensembleFile = new TFile("ensemble.root", "UPDATE");
   ensembleFile->GetObject("tree", tree);
   
-  if (!tree) {
-    tree = new TTree("tree", "tree");
-    tree->Branch("genMass", &genMass, "genMass/D");
-    tree->Branch("mass", &mass, "mass/D");
-    tree->Branch("massError", &massError, "massError/D");
-    tree->Branch("massPull", &massPull, "massPull/D");
-    tree->Branch("genJES", &genJES, "genJES/D");
-    tree->Branch("JES", &JES, "JES/D");
-    tree->Branch("JESError", &JESError, "JESError/D");
-    tree->Branch("JESPull", &JESPull, "JESPull/D");
-    tree->Branch("massAlt", &massAlt, "massAlt/D");
-    tree->Branch("massAltError", &massAltError, "massAltError/D");
-    tree->Branch("bin", &bin, "bin/I");
-  }
-  else {
-    tree->SetBranchAddress("genMass", &genMass);
-    tree->SetBranchAddress("mass", &mass);
-    tree->SetBranchAddress("massError", &massError);
-    tree->SetBranchAddress("massPull", &massPull);
-    tree->SetBranchAddress("genJES", &genJES);
-    tree->SetBranchAddress("JES", &JES);
-    tree->SetBranchAddress("JESError", &JESError);
-    tree->SetBranchAddress("JESPull", &JESPull);
-    tree->SetBranchAddress("massAlt", &massAlt);
-    tree->SetBranchAddress("massAltError", &massAltError);
-    tree->SetBranchAddress("bin", &bin);
-  }
+  Analysis* analysis = new Analysis(vBinning);
   
-  tempFile->cd();
-  Analysis* analysis = new Analysis(vm, vBinning);
-  
-  while (difftime(end, start) < vm["walltime"].as<int>() * 60 && n < nEnsembles) {
+  while (difftime(end, start) < po::GetOption<double>("walltime") * 60 && n < nEnsembles) {
     std::cout << "\n- - - - - - - - - - " << n << " - - - - - - - - - -\n" << std::endl;
     
-    tempFile->cd();
-    analysis->Analyze(vm);
+    analysis->Analyze();
     
-    ensembleFile->cd();
+    const std::map<TString, TH2F*> histograms = analysis->GetH2s();
+
+    if(!treeCreated){
+
+      for(std::map<TString, TH2F*>::const_iterator hist = histograms.begin(); hist != histograms.end(); ++hist){
+        values[hist->first] = -1;
+      }
+
+      if (!tree) {
+        ensembleFile->cd();
+        tree = new TTree("tree", "tree");
+        tree->Branch("genMass", &genMass, "genMass/D");
+        tree->Branch("genJES" , &genJES , "genJES/D" );
+        tree->Branch("genfSig", &genfSig, "genfSig/D");
+        tree->Branch("bin", &bin, "bin/I");
+
+        for(std::map<TString, TH2F*>::const_iterator hist = histograms.begin(); hist != histograms.end(); ++hist){
+          TString leafName = hist->first +TString("/D");
+          tree->Branch(hist->first, &values[hist->first], leafName);
+        }
+      }
+      else {
+        tree->SetBranchAddress("genMass", &genMass);
+        tree->SetBranchAddress("genJES" , &genJES );
+        tree->SetBranchAddress("genfSig", &genfSig);
+        tree->SetBranchAddress("bin", &bin);
+
+        for(std::map<TString, TH2F*>::const_iterator hist = histograms.begin(); hist != histograms.end(); ++hist){
+          tree->SetBranchAddress(hist->first, &values[hist->first]);
+        }
+      }
+      treeCreated = true;
+      std::cout << "branching finished" << std::endl;
+    }
     
     for (int i = 0; i < vBinning.size()-1; i++) {
       // add bin to tree
@@ -142,12 +179,27 @@ void TopMass::WriteEnsembleTest(po::variables_map vm, std::vector<float> vBinnin
       
       tree->Fill();
     }
+
+    genMass   = po::GetOption<double>("mass");
+    genJES    = po::GetOption<double>("jes" );
+    genfSig   = po::GetOption<double>("fsig");
+    for (int i = 0; i < vBinning.size()-1; i++) {
+      for(std::map<TString, TH2F*>::const_iterator hist = histograms.begin(); hist != histograms.end(); ++hist){
+        values[hist->first] = hist->second->GetCellContent(i+1, j+1);
+      }
+
+      bin       = i+1;
+
+      tree->Fill();
+    }
     
     std::cout << "fill finished" << std::endl;
     
-    n++;
+    ++n;
     time(&end);
   }
+  delete analysis;
+
   tree->GetCurrentFile()->Write();
   
   Helper* helper = new Helper(vm["binning"].as<std::string>(), vBinning);
@@ -211,4 +263,9 @@ int main(int ac, char** av)
   }
   
   TopMass* top = new TopMass(vm);
+}
+
+bool TopMass::fexists(const char *filename) {
+  ifstream ifile(filename);
+  return ifile;
 }

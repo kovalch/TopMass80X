@@ -1,36 +1,32 @@
 #ifndef MASSANALYZER_H
 #define MASSANALYZER_H
 
+#include <assert.h>
+#include <iostream>
+#include <map>
+#include <utility>
+
+#include "TString.h"
 #include "TTree.h"
-#include "TF1.h"
 
 class MassAnalyzer {
-  protected:
-    TString fIdentifier;
-    TTree* fTree;
-    double fEntries;
-    double fMass;
-    double fMassError;
-    double fMassSigma;
-    double fMassAlt;
-    double fMassAltError;
-    double fJES;
-    double fJESError;
+public:
+  MassAnalyzer(const TString& identifier, TTree* tree);
+  virtual ~MassAnalyzer() { delete fTree_; }
   
-  public:
-    MassAnalyzer(TString identifier, TTree* tree) : fIdentifier(identifier), fTree(tree) {};
-    ~MassAnalyzer() { delete fTree; }
-    
-    
-    virtual void Analyze(TString cuts, int i, int j) = 0;
-    
-    double GetMass();
-    double GetMassError();
-    double GetMassSigma();
-    double GetMassAlt();
-    double GetMassAltError();
-    double GetJES();
-    double GetJESError();
+  
+  virtual void Analyze(const TString& cuts, int i, int j) = 0;
+
+  std::pair<double, double> GetValue(TString whichValue) const;
+  std::map<TString, std::pair<double, double> > GetValues() const;
+
+protected:
+  void SetValue(TString whichValue, double val, double valError);
+
+  TString fIdentifier_;
+  TTree* fTree_;
+
+  std::map<TString, std::pair<double, double> > values_;
 };
 
 #endif

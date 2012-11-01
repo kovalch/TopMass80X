@@ -1,23 +1,19 @@
 #include "MVAAnalyzer.h"
 
-double MVAAnalyzer::GetMass() {
-  return fMass;
-}
+#include "TCanvas.h"
 
-void MVAAnalyzer::Analyze(TString cuts, int i, int j) {
+void MVAAnalyzer::Analyze(const TString& cuts, int i, int j) {
   TCanvas* ctemp = new TCanvas("ctemp", "Top mass", 500, 500);
   ctemp->cd();
 
   gaus = new TF1("gaus", "gaus");
 
-  fTree->Draw("hadTopMass", cuts);
+  fTree_->Draw("hadTopMass", cuts);
 
-  fTree->Fit("gaus", "hadTopMass", cuts);
+  fTree_->Fit("gaus", "hadTopMass", cuts);
   
-  TString path("plot/MVA/"); path+= fIdentifier; path += "_"; path += i; path += "_"; path += j; path += ".png";
+  TString path("plot/MVA/"); path+= fIdentifier_; path += "_"; path += i; path += "_"; path += j; path += ".png";
   ctemp->Print(path);
         
-  fMass      = gaus->GetParameter(1);
-  fMassError = gaus->GetParError(1);
-  fMassSigma = gaus->GetParameter(2);
+  SetValue("mass", gaus->GetParameter(1), gaus->GetParError (1));
 }

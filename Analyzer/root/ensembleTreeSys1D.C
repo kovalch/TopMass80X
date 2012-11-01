@@ -20,11 +20,6 @@
 
 #include "tdrstyle.C"
 
-enum lepton           { kElectron, kMuon, kAll};
-TString lepton_ [3] = { "electron", "muon", "all"};
-
-int channel = 2;
-
 struct ensemble {
   const char* file;
   bool takeLargest;
@@ -44,15 +39,17 @@ struct staticUncertainty {
   : name(n), massUncertainty(mu), jesUncertainty(ju) {}
 };
 
-TString globalPath("/scratch/hh/current/cms/user/mseidel/topmass_120522_1120_cp1D/");
+//TString globalPath("/scratch/hh/current/cms/user/eschliec/topmass_120615_1502k/");
+//TString globalPath("/scratch/hh/current/cms/user/eschliec/topmass_120810_1202d/");
+TString globalPath("/scratch/hh/current/cms/user/eschliec/topmass_121004_2002a/");
 
 double genMass[]      = {161.5, 163.5, 166.5, 169.5, 172.5, 175.5, 178.5, 181.5, 184.5};
 double genMassError[] = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
 double genMassN[]     = {1620072, 1633197, 1669034, 1606570, 59613991, 1538301, 1648519, 1665350, 1671859};
 //double genMassN[]     = {1620072, 1.5, 1.5, 1.5, 59613991, 1.5, 1.5, 1.5, 1.5};
-double maxMCWeight[]  = {1.7, 2.2, 2.2, 2.2, 1.7, 2.2, 2.2, 2.2, 1.7};
+double maxMCWeight[]  = {1.7, 1.7, 1.7, 1.7, 1.7, 1.7, 1.7, 1.7, 1.7};
 double crossSection   = 164.4;
-double peLumi         = 5000.;
+double peLumi         = 3544.844;
   
 
 std::vector<TFile*> files;
@@ -61,68 +58,164 @@ std::vector<TTree*> trees;
 
 void ensembleTreeSys1D()
 {
-  TString sPath = globalPath; sPath += lepton_[channel]; sPath += "/";
+  TString sPath = globalPath;
   
   std::vector<ensemble> ensembles;
   std::vector<staticUncertainty> staticUncertainties;
   
   double totalMassUncertainty2 = 0;
   
-  switch(channel) {
-    case kElectron:
-      staticUncertainties.push_back(staticUncertainty("Calibration", 0.09, 0.001));
-      staticUncertainties.push_back(staticUncertainty("PDF", 0.07, 0.001));
-      break;
-    case kMuon:
-      staticUncertainties.push_back(staticUncertainty("Calibration", 0.08, 0.001));
-      staticUncertainties.push_back(staticUncertainty("PDF", 0.07, 0.001));
-      break;
-    case kAll:
-      staticUncertainties.push_back(staticUncertainty("Calibration", 0.06, 0.001));
-      staticUncertainties.push_back(staticUncertainty("b-tagging", 0.12, 0.001));
-      staticUncertainties.push_back(staticUncertainty("LES", 0.02, 0.001));
-      staticUncertainties.push_back(staticUncertainty("MET", 0.06, 0.001));
-      staticUncertainties.push_back(staticUncertainty("Background", 0.01, 0.001));
-      staticUncertainties.push_back(staticUncertainty("PU", 0.07, 0.001));
-      staticUncertainties.push_back(staticUncertainty("PDF", 0.07, 0.001));
-      staticUncertainties.push_back(staticUncertainty("Tune", 0.151, 0.0003));
-      break;
-  }
+  //staticUncertainties.push_back(staticUncertainty("Calibration", 0.13, 0.000));
+  ////staticUncertainties.push_back(staticUncertainty("b-tagging", 0.00, 0.000));
+  ////staticUncertainties.push_back(staticUncertainty("Background", 0.00, 0.000));
+  ////staticUncertainties.push_back(staticUncertainty("PU", 0.00, 0.000));
+  //staticUncertainties.push_back(staticUncertainty("PDF", 0.03, 0.000));
   
-  ensembles.push_back(ensemble("Fall11_TTJets1725_1.00/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_jes:down/ensemble.root", true, 0.984));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_jes:up/ensemble.root", true, 1.016));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_jer:down/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_jer:up/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_matchingup/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_matchingup/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_scaledown/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_scaleup/ensemble.root"));
-  /*
-  ensembles.push_back(ensemble("Fall11_TTJets1725_METCL1/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_METCL1/ensemble.root"));
-  */
-  //*
-  ensembles.push_back(ensemble("Fall11_TTJets1725_P11/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_P11/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_P11noCR/ensemble.root", true, 0., 9));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_P11noCR/ensemble.root"));
-  //*/
-  /*
-  ensembles.push_back(ensemble("muWeight-bWeight-PUWeightDown/ensemble.root"));
-  ensembles.push_back(ensemble("muWeight-bWeight-PUWeightUp/ensemble.root"));
-  ensembles.push_back(ensemble("fSig_0.92/ensemble.root"));
-  ensembles.push_back(ensemble("fSig_1.00/ensemble.root"));
-  ensembles.push_back(ensemble("bDisc_0.61/ensemble.root"));
-  ensembles.push_back(ensemble("bDisc_0.75/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_EES_down/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_EES_up/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_MES_down/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_MES_up/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_UNC_0.9/ensemble.root"));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_UNC_1.1/ensemble.root"));
-  //*/
-  
+  ensembles.push_back(ensemble("ensemble_F11_1725_100.root"));
+  ensembles.push_back(ensemble("ensemble_F11_jes_down.root"));//, true, 0.993));
+  ensembles.push_back(ensemble("ensemble_F11_jes_up.root"));//, true, 1.007));
+  ensembles.push_back(ensemble("ensemble_F11_jer_down.root"));
+  ensembles.push_back(ensemble("ensemble_F11_jer_up.root"));
+  ensembles.push_back(ensemble("ensemble_F11_match_up.root"));
+  ensembles.push_back(ensemble("ensemble_F11_match_up.root"));
+  ensembles.push_back(ensemble("ensemble_F11_scale_down.root"));
+  ensembles.push_back(ensemble("ensemble_F11_scale_up.root"));
+  ensembles.push_back(ensemble("ensemble_F11_pu_down.root"));
+  ensembles.push_back(ensemble("ensemble_F11_pu_up.root"));
+  ensembles.push_back(ensemble("ensemble_F11_bjes_down.root"));
+  ensembles.push_back(ensemble("ensemble_F11_bjes_up.root"));
+  ensembles.push_back(ensemble("ensemble_F11_btag_down.root"));
+  ensembles.push_back(ensemble("ensemble_F11_btag_up.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_P11.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_P11.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_shape_095.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_shape_105.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_shape_090.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_shape_110.root"));
+  ensembles.push_back(ensemble("ensemble_F11_fsig_up.root"));
+  ensembles.push_back(ensemble("ensemble_F11_fsig_down.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_permu_+10.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_permu_+10.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_permu_-10.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_permu_-10.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_permu_+20.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_permu_+20.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_permu_-20.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_permu_-20.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_permu_+30.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_permu_+30.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_permu_-30.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_permu_-30.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_permu_+40.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_permu_+40.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_permu_-40.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_permu_-40.root"));
+  //ensembles.push_back(ensemble("ensemble_S11.root"));
+  //ensembles.push_back(ensemble("ensemble_S11.root"));
+  ensembles.push_back(ensemble("ensemble_F11_POWHEG.root"));
+  ensembles.push_back(ensemble("ensemble_F11_POWHEG.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_MCNLO.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_MCNLO.root"));
+  ensembles.push_back(ensemble("ensemble_F11_jet4_02.root"));
+  ensembles.push_back(ensemble("ensemble_F11_jet4_02.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_jet4_05.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_jet4_05.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_jet4_10.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_jet4_10.root"));
+  ensembles.push_back(ensemble("ensemble_F11_jet5_02.root"));
+  ensembles.push_back(ensemble("ensemble_F11_jet5_02.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_jet5_05.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_jet5_05.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_jet5_10.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_jet5_10.root"));
+  ensembles.push_back(ensemble("ensemble_F11_jet6_02.root"));
+  ensembles.push_back(ensemble("ensemble_F11_jet6_02.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_jet6_05.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_jet6_05.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_jet6_10.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_jet6_10.root"));
+
+  //ensembles.push_back(ensemble("ensemble_F11_1725_100.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_BackgroundModel.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_BackgroundModel.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_BackgroundModel2.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_BackgroundModel2.root"));
+
+  //ensembles.push_back(ensemble("ensemble_F11_P11.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_P11_NoCR.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_P11_NoCR.root"));  
+
+  //ensembles.push_back(ensemble("ensemble_F11_P11_FAST.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_P11mpiHi_FAST.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_P11mpiHi_FAST.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_P11TeV_FAST.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_P11TeV_FAST.root"));
+
+  //ensembles.push_back(ensemble("ensemble_F11_P11_FAST_v3.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_P11mpiHi_FAST_v3.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_P11mpiHi_FAST_v3.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_P11TeV_FAST_v3.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_P11TeV_FAST_v3.root"));
+
+  //ensembles.push_back(ensemble("ensemble_F11_Z2_FAST.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_Z2_Matching_Down_FAST.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_Z2_Matching_Down_FAST.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_Z2_096_FAST.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_Z2_096_FAST.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_Z2_104_FAST.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_Z2_104_FAST.root"));
+  ////ensembles.push_back(ensemble("ensemble_F11_Z2_fragCor_FAST.root"));
+  ////ensembles.push_back(ensemble("ensemble_F11_Z2_fragCor_FAST.root"));
+  ////ensembles.push_back(ensemble("ensemble_F11_Z2_fragP11_FAST.root"));
+  ////ensembles.push_back(ensemble("ensemble_F11_Z2_fragP11_FAST.root"));
+
+  //ensembles.push_back(ensemble("ensemble_F11_1725_100.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1615_096.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1615_098.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1615_100.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1615_102.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1615_104.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1635_096.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1635_098.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1635_100.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1635_102.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1635_104.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1665_096.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1665_098.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1665_100.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1665_102.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1665_104.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1695_096.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1695_098.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1695_100.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1695_102.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1695_104.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1725_096.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1725_098.root"));
+  ////ensembles.push_back(ensemble("ensemble_F11_1725_100.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1725_102.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1725_104.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1755_096.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1755_098.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1755_100.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1755_102.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1755_104.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1785_096.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1785_098.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1785_100.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1785_102.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1785_104.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1815_096.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1815_098.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1815_100.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1815_102.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1815_104.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1845_096.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1845_098.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1845_100.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1845_102.root"));
+  //ensembles.push_back(ensemble("ensemble_F11_1845_104.root"));
+
   for (int i = 0; i < (int) ensembles.size(); ++i) {
     files.push_back(new TFile(sPath + ensembles[i].file));
     trees.push_back((TTree*) files[i]->Get("tree"));
@@ -131,7 +224,8 @@ void ensembleTreeSys1D()
   for (int i = 0; i < (int) ensembles.size(); ++i) {
     TF1* gaus = new TF1("gaus", "gaus");
     
-    trees[i]->Fit("gaus", "massAlt", "massAlt>0 & genMass==172.5", "EMQ0");
+    trees[i]->Fit("gaus", "massConstJES", "massConstJES>0 & genMass==172.5", "EMQ0");
+    //trees[i]->Fit("gaus", "massConstJES", "massConstJES>0", "EMQ0");
     ensembles[i].mass = gaus->GetParameter(1);
   }
   
@@ -155,5 +249,4 @@ void ensembleTreeSys1D()
   
   printf("Systematic uncertainty on top mass: %4.2f GeV \n", sqrt(totalMassUncertainty2));
 }
-
 

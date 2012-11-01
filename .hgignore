@@ -7,4 +7,5 @@
 \.eps$
 \.png$
 \.root$
-glob:Analyzer/TopMass
+\.project$
+-glob:Analyzer/TopMass

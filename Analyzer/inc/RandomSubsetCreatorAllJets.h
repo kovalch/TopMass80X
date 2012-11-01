@@ -1,0 +1,65 @@
+/*
+ * RandomSubsetCreatorAllJets.h
+ *
+ *  Created on: Oct 23, 2012
+ *      Author: eschliec
+ */
+
+#ifndef RANDOMSUBSETCREATORALLJETS_H_
+#define RANDOMSUBSETCREATORALLJETS_H_
+
+#include "RandomSubsetCreator.h"
+
+//#include "boost/variant.hpp"
+
+#include "TClonesArray.h"
+#include "TFile.h"
+#include "TH2F.h"
+#include "TString.h"
+#include "TTree.h"
+
+class RandomSubsetCreatorAllJets : public RandomSubsetCreator {
+public:
+  RandomSubsetCreatorAllJets();
+  virtual ~RandomSubsetCreatorAllJets();
+
+private:
+  TString selection_;
+  TString samplePath_;
+
+  TString fIdentifier_;
+  TString fFile_;
+
+  TFile* tmpFile_;
+
+  TH2F* bTagEff_;
+  TH2F* cTagEff_;
+  TH2F* lTagEff_;
+
+  //typedef boost::variant< short, int, float, double, unsigned int, unsigned short*, short*, double*, TClonesArray*> variableTypes;
+
+  //std::map<TString, std::map<TString, variableTypes> > _variables;
+
+  //static xml::XMLDocument* _config;
+
+  void FetchBTagEfficiencyHistograms();
+  //void ReadConfigFromXMLFile();
+
+  TTree* CreateRandomSubset();
+
+  //variableTypes& GetVariable(TString variableName);
+
+  //void SetBranchStatuses(TTree* tree);
+  //void SetBranchAddresses(TTree* tree);
+
+  // return the PU weights for the different samples
+  enum enumForPUWeights {kSummer11, kSummer11Plus05, kSummer11Minus05, kFall11, kFall11Plus05, kFall11Minus05, kFall10};
+  double calcPUWeight_(enum enumForPUWeights sample, short nPU);
+  double calcPDFWeight_(int whichPDFUncertainty, bool upVariation, double x1, int id1, float Q, double x2, int id2);
+  double eventBTagProbability_(std::vector<double> &oneMinusBEffies, std::vector<double> &oneMinusBMistags, bool verbose = false);
+  double calcBTagWeight_(int Njet=0, short* pdgId=0, TClonesArray* jets=0);
+
+  void AddWeights(TTree* tempTree, bool isData=false);
+};
+
+#endif /* RANDOMSUBSETCREATORALLJETS_H_ */

@@ -1,0 +1,16 @@
+#! /bin/bash
+
+## location where we are working
+export TOPMASS_PROJECT_PATH=/afs/naf.desy.de/group/cms/scratch/eschliec/TopMass_hg_devel
+
+## just the needed lines from /afs/desy.de/project/glite/UI/etc/profile.d/grid-env-3.1.sh
+source /afs/desy.de/project/glite/glite-UI-3.1.45-0/external/etc/profile.d/grid-env.sh
+export GRID_SECURITY_DIR=/afs/desy.de/group/grid/www/html/etc/grid-security
+export X509_CERT_DIR=${GRID_SECURITY_DIR}/certificates
+export X509_VOMS_DIR=${GRID_SECURITY_DIR}/vomsdir
+export X509_USER_PROXY=${HOME}/k5-ca-proxy.pem
+export VOMS_USERCONF=/afs/desy.de/group/grid/www/html/etc/vomses/vomses
+export MYPROXY_SERVER=grid-px.desy.de
+
+## run make remotely on the NAF with ROOT 5.32 loaded, all arguments of this script are passed to 'make'
+gsissh cms.naf.desy.de "export ROOTSYS=/afs/naf.desy.de/products/root/amd64_rhel50/5.32.00; export LD_LIBRARY_PATH=/opt/d-cache/dcap/lib64:/afs/naf.desy.de/products/root/amd64_rhel50/5.32.00/lib; export PATH=/afs/naf.desy.de/products/root/amd64_rhel50/5.32.00/bin:/usr/local/bin:/bin:/usr/bin:/afs/naf.desy.de/user/e/eschliec/bin:/usr/gridengine/bin/lx26-amd64:/opt/dell/srvadmin/bin; echo "TopMass project directory: "$TOPMASS_PROJECT_PATH; cd $TOPMASS_PROJECT_PATH/Analyzer/; echo making ${@:1}; make ${@:1}"

@@ -1,41 +1,23 @@
+#ifndef TOPMASS_H
+#define TOPMASS_H
+
 #include <vector>
-#include <cmath>
-#include <fstream>
-#include <time.h>
-#include <boost/program_options.hpp>
+
+#include "TString.h"
 
 #include "Analysis.h"
-#include "TGraphErrors.h"
-#include "TMultiGraph.h"
-#include "TPaveStats.h"
-#include "TLatex.h"
-#include "TH1.h"
-#include "TH3F.h"
-#include "TVector.h"
-#include "TLegend.h"
-
-#include "tinyxml.h"
-
-#include "Helper.h"
-
-namespace po = boost::program_options;
-
-
-bool fexists(const char *filename)
-{
-  ifstream ifile(filename);
-  return ifile;
-}
 
 class TopMass {
   private:
-    TString fMethod;
-    double fLumi;
-    
-    Analysis* aSim;
+    TString fMethod_;
+    double fLumi_;
+
+    bool fexists(const char *filename);
       
   public:
-    TopMass(po::variables_map vm);
+    TopMass();
     
-    void WriteEnsembleTest(po::variables_map vm, std::vector<float> vBinning);
+    void WriteEnsembleTest(std::vector<float> vBinning);
 };
+
+#endif
