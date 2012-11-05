@@ -57,18 +57,6 @@ void RooFitTemplateAnalyzer::Scan(const TString& cuts, int i, int j, TString var
   workspace->var("JESSlopeJES"     )->setVal(0.0);
   workspace->var("JESSlopeMassJES" )->setVal(0.0);
   */
-
-  // parametrization of mean and constant width
-  workspace->var("MassOffset"      )->setVal( 8.43067e-01);
-  workspace->var("MassSlopeMass"   )->setVal( 1.11208e-02);
-  workspace->var("MassSlopeJES"    )->setVal(-8.57688e+00);
-  workspace->var("MassSlopeMassJES")->setVal(-3.33429e-01);
-
-  workspace->var("JESOffset"       )->setVal(-1.06016e-02);
-  workspace->var("JESSlopeMass"    )->setVal( 3.05550e-05);
-  workspace->var("JESSlopeJES"     )->setVal( 8.41141e-02);
-  workspace->var("JESSlopeMassJES" )->setVal( 3.29863e-03);
-
   /*
   // parametrization of mean and width independent
   workspace->var("MassOffset"      )->setVal( 4.29624e-01+1.01432e-01);
@@ -92,7 +80,18 @@ void RooFitTemplateAnalyzer::Scan(const TString& cuts, int i, int j, TString var
   workspace->var("JESSlopeJES"     )->setVal( 1.19464e-01);
   workspace->var("JESSlopeMassJES" )->setVal( 3.07011e-03);
   */
-  
+  // parametrization of mean and constant width
+  workspace->var("MassOffset"      )->setVal( 8.43067e-01);
+  workspace->var("MassSlopeMass"   )->setVal( 1.11208e-02);
+  workspace->var("MassSlopeJES"    )->setVal(-8.57688e+00);
+  workspace->var("MassSlopeMassJES")->setVal(-3.33429e-01);
+
+  workspace->var("JESOffset"       )->setVal(-1.06016e-02);
+  workspace->var("JESSlopeMass"    )->setVal( 3.05550e-05);
+  workspace->var("JESSlopeJES"     )->setVal( 8.41141e-02);
+  workspace->var("JESSlopeMassJES" )->setVal( 3.29863e-03);
+
+
   topAdd = (RooAddPdf*)workspace->pdf("mTopPDF");
   wAdd   = (RooAddPdf*)workspace->pdf("mWPDF"  );
   
@@ -205,7 +204,7 @@ void RooFitTemplateAnalyzer::Scan(const TString& cuts, int i, int j, TString var
       SetValue("fSig_mTop_fSig", -1., -1.);
     }
   }
-  if(!variables.Contains("JES") && variables.Contains("JES") && variables.Contains("mTop")){
+  if(!variables.Contains("fSig") && variables.Contains("JES") && variables.Contains("mTop")){
     if(fitStatus == 0){
       SetValue("mass_mTop_JES", workspace->var("mTop")->getVal(), workspace->var("mTop")->getError());
       SetValue("JES_mTop_JES" , workspace->var("JES" )->getVal(), workspace->var("JES" )->getError());
