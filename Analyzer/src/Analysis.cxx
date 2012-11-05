@@ -10,6 +10,7 @@
 #include "IdeogramAnalyzer.h"
 #include "MVAAnalyzer.h"
 #include "ProgramOptionsReader.h"
+#include "RandomSubsetCreatorLeptonJets.h"
 #include "RandomSubsetCreatorAllJets.h"
 #include "RooFitTemplateAnalyzer.h"
 #include "XMLConfigReader.h"
@@ -24,7 +25,7 @@ Analysis::Analysis(std::vector<float> v):
   fMethod_    (po::GetOption<std::string>("method")),
   fBinning_   (po::GetOption<std::string>("binning")),
   vBinning_   (v),
-  fChannel_(xml::GetParameter("decayChannel")),
+  fChannel_(po::GetOption<std::string>("channel")),
   fTree_(0)
 {
 }
@@ -44,7 +45,10 @@ void Analysis::Analyze() {
 
   // random subset creation
   RandomSubsetCreator* fCreator = 0;
-  if (!strcmp(fChannel_, "AllJets")) {
+  if (!strcmp(fChannel_, "electron") || !strcmp(fChannel_, "muon") || !strcmp(fChannel_, "all")) {
+    fCreator = new RandomSubsetCreatorLeptonJets();
+  }
+  else if (!strcmp(fChannel_, "AllJets")) {
     fCreator = new RandomSubsetCreatorAllJets();
   }
   else {

@@ -41,12 +41,12 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("input,i", boost::program_options::value<std::string>()->default_value("writeFullHadTree_data_2011"),
             "Identifier of input file to be analyzed: Z2_F11_172_5_sig"
         )
-        ("lepton,l", boost::program_options::value<std::string>()->default_value("all"),
+        ("channel,c", boost::program_options::value<std::string>()->default_value("AllJets"),
           "Channel\n"
           "  electron \t\n"
           "  muon \t\n"
           "  all: \telectron+muon"
-          "  none: \tallhadronic"
+          "  AllJets: \tallhadronic"
         )
         ("binning,b", boost::program_options::value<std::string>()->default_value("deltaThetaHadWHadB"),
           "Phasespace binning\n"

@@ -27,7 +27,16 @@ void
 XMLConfigReader::ReadConfigFromXMLFile(){
   if(!config_){
     config_ = new txml::XMLDocument();
-    TString xmlFilePath = po::GetOption<std::string>("xmlconfig");
+
+    TString xmlFilePath;
+    TString channel = po::GetOption<std::string>("channel");
+    if (!strcmp(channel, "electron") || !strcmp(channel, "muon") || !strcmp(channel, "all")) {
+      xmlFilePath = "/afs/naf.desy.de/user/m/mseidel/scratch/TopMass/Analyzer/Configuration_LeptonJets.xml";
+    }
+    else if (!strcmp(channel, "AllJets")) {
+      xmlFilePath = "/afs/naf.desy.de/group/cms/scratch/eschliec/TopMass_hg_devel/Analyzer/Configuration_alljets.xml";
+    }
+
     int errorID = config_->LoadFile(xmlFilePath);
     if(errorID) {
       std::cerr << "Parsing of XML file (" << xmlFilePath << ") failed with error " << errorID << "!" << std::endl;

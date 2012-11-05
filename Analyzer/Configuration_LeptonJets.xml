@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<analysisConfig>
+  <selection>leptonPt &gt; 30 &amp; hitFitProb &gt; 0.2</selection>
+  <samplePath>/scratch/hh/lustre/cms/user/mseidel/</samplePath>
+  <decayChannel>all</decayChannel>
+</analysisConfig>
