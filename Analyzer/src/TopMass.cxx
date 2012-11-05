@@ -191,62 +191,6 @@ void TopMass::WriteEnsembleTest(std::vector<float> vBinning) {
   ensembleFile->Close();
 }
 
-/*
-int main(int ac, char** av)
-{
-  // Declare the supported options.
-  po::options_description desc("Allowed options");
-  desc.add_options()
-    ("help,h", "produce help message")
-    ("method,m", po::value<std::string>()->default_value("Ideogram"),
-      "Top mass measurement method\n"
-      "  GenMatch: \tGaussian fit of correct permutations (MC only)\n"
-      "  Ideogram: \tJoint likelihood fit of mt and JES given data sample"
-    )
-    ("task,t", po::value<std::string>()->default_value("sm"),
-      "Task to be done\n"
-      "  sm: \tSingle measurement based on input parameters\n"
-      "  pe: \tPerform pseudo-experiments, additional settings necessary\n"
-      "  diff: \tDifferential top mass, specify binning option"
-    )
-    ("input,i", po::value<std::string>()->default_value("Summer11_TTJets1725_1.00", "1725_1.00"),
-      "Identifier of input file to be analyzed")
-    ("lepton,l", po::value<std::string>()->default_value("all"),
-      "Lepton+jets channel\n"
-      "  electron \t\n"
-      "  muon \t\n"
-      "  all: \telectron+muon"
-    )
-    ("binning,b", po::value<std::string>()->default_value("deltaThetaHadWHadB"),
-      "Phasespace binning\n"
-      "  deltaThetaHadWHadB\n"
-      "  hadTopPt\n"
-      "  hadBEta"
-    )
-    ("weight,w", po::value<std::string>()->default_value("muWeight*bWeight*PUWeight"),
-      "Event weight used in pseudo-experiments")
-    ("fsig,f", po::value<double>()->default_value(1.0), "Signal fraction used in pseudo-experiments")
-    ("bdisc,B", po::value<double>()->default_value(0.679), "Threshold for b-jets")
-    ("mass,M", po::value<double>()->default_value(172.5), "Input top mass for pseudo-experiments")
-    ("jes,J", po::value<double>()->default_value(1.0), "Input JES for pseudo-experiments")
-    ("lumi,L", po::value<double>()->default_value(4700.0), "Luminosity for each pseudo-experiment")
-    ("number,N", po::value<int>()->default_value(10000), "Number of pseudo-experiments per job")
-    ("walltime,W", po::value<int>()->default_value(10), "set walltime limit for pseudo-experiments in minutes")
-  ;
-
-  po::variables_map vm;
-  po::store(po::parse_command_line(ac, av, desc), vm);
-  po::notify(vm);    
-
-  if (vm.count("help")) {
-      std::cout << desc << "\n";
-      return 1;
-  }
-  
-  TopMass* top = new TopMass(vm);
-}
-*/
-
 bool TopMass::fexists(const char *filename) {
   ifstream ifile(filename);
   return ifile;

@@ -36,14 +36,29 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
             "  sm: \tSingle measurement based on input parameters\n"
             "  pe: \tPerform pseudo-experiments, additional settings necessary\n"
             "  hc: \tPerform any hardcoded tasks in TopMass constructor"
+            "  diff: \tDifferential top mass, specify binning option"
         )
         ("input,i", boost::program_options::value<std::string>()->default_value("writeFullHadTree_data_2011"),
             "Identifier of input file to be analyzed: Z2_F11_172_5_sig"
         )
-        ("bins,b", boost::program_options::value<int>()->default_value(1), "Number of phasespace bins")
-        ("weight,w", boost::program_options::value<int>()->default_value(0), "Weight type -> think, document")
+        ("lepton,l", boost::program_options::value<std::string>()->default_value("all"),
+          "Channel\n"
+          "  electron \t\n"
+          "  muon \t\n"
+          "  all: \telectron+muon"
+          "  none: \tallhadronic"
+        )
+        ("binning,b", boost::program_options::value<std::string>()->default_value("deltaThetaHadWHadB"),
+          "Phasespace binning\n"
+          "  deltaThetaHadWHadB\n"
+          "  hadTopPt\n"
+          "  hadBEta"
+        )
+        ("weight,w", boost::program_options::value<std::string>()->default_value("muWeight*bWeight*PUWeight"),
+                "Event weight used in pseudo-experiments")
         ("mass,M", boost::program_options::value<double>()->default_value(172.5), "Input top mass for pseudo-experiments")
         ("jes,J", boost::program_options::value<double>()->default_value(1.0), "Input JES for pseudo-experiments")
+        ("bdisc,B", boost::program_options::value<double>()->default_value(0.679), "Threshold for b-jets")
         ("fsig,f", boost::program_options::value<double>()->default_value(0.504), "Input signal fraction for pseudo-experiments")
         ("lumi,L", boost::program_options::value<double>()->default_value(0.0), "Luminosity for each pseudo-experiment")
         ("number,N", boost::program_options::value<int>()->default_value(10000), "Number of pseudo-experiments per job")
