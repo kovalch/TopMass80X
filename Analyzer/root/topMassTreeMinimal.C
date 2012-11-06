@@ -63,7 +63,7 @@ void topMassTreeMinimal() {
     eventTree->GetEntry(i);
     
     // Use only permutations passing the CSVM working point
-    if (hadQBCSV < 0.679 && hadQBarBCSV < 0.679 && hadBBCSV > 0.679 && lepBBCSV > 0.679) continue;
+    if (hadQBCSV > 0.679 && hadQBarBCSV > 0.679 && hadBBCSV < 0.679 && lepBBCSV < 0.679) continue;
     
     // Print
     std::cout << hadTop->M() << std::endl;
