@@ -58,6 +58,7 @@ private:
   double calcPDFWeight_(int whichPDFUncertainty, bool upVariation, double x1, int id1, float Q, double x2, int id2);
   double eventBTagProbability_(std::vector<double> &oneMinusBEffies, std::vector<double> &oneMinusBMistags, bool verbose = false);
   double calcBTagWeight_(int Njet=0, short* pdgId=0, TClonesArray* jets=0);
+  double L7PartonCorrection(double pt);
 
   void AddWeights(TTree* tempTree, bool isData=false);
 };

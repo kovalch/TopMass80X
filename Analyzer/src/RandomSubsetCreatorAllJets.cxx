@@ -478,26 +478,27 @@ RandomSubsetCreatorAllJets::AddWeights(TTree* tempTree, bool isData) {
     std::cout << "whichPDFUncertainty: " << whichPDFUncertainty << " (" << fFile_ << ")" << std::endl;
   }
 
-  const int kMAX_(50);
-  TString bTagAlgo_ = "CSV";
+  const int kMAXNJets(50);
+  TString bTagAlgo = "CSV";
   int Njet;
   if(!isData) tempTree->SetBranchStatus ("Njet", 1);
   if(!isData) tempTree->SetBranchAddress("Njet", &Njet);
-  //float bTag[kMAX_];
-  //if(!isData) tempTree->SetBranchStatus (TString("bTag_")+bTagAlgo_, 1);
-  //if(!isData) tempTree->SetBranchAddress(TString("bTag_")+bTagAlgo_, &bTag );
-  short pdgId[kMAX_];
+  //float bTag[kMAXNJets];
+  //if(!isData) tempTree->SetBranchStatus (TString("bTag_")+bTagAlgo, 1);
+  //if(!isData) tempTree->SetBranchAddress(TString("bTag_")+bTagAlgo, &bTag );
+  short pdgId[kMAXNJets];
   if(!isData) tempTree->SetBranchStatus ("partonFlavour", 1);       // pdgId  *or*  partonFlavour
   if(!isData) tempTree->SetBranchAddress("partonFlavour", &pdgId); //  pdgId  *or*  partonFlavour
   TClonesArray * jets = new TClonesArray("TLorentzVector");
-  if(!isData) tempTree->SetBranchStatus("jets", 1);
-  if(!isData) tempTree->GetBranch("jets")->SetAutoDelete(kFALSE);
-  if(!isData) tempTree->SetBranchAddress("jets", &jets);
+  tempTree->SetBranchStatus("jets", 1);
+  tempTree->GetBranch("jets")->SetAutoDelete(kFALSE);
+  tempTree->SetBranchAddress("jets", &jets);
   //unsigned int nCombos  = 0;
   //tempTree->SetBranchStatus ("nCombos", 1);
   //tempTree->SetBranchAddress("nCombos", &nCombos);
-  double * w1Masses  = new double[12000];
-  double * w2Masses  = new double[12000];
+  int kMAXCombos = 12000;
+  double * w1Masses  = new double[kMAXCombos];
+  double * w2Masses  = new double[kMAXCombos];
   tempTree->SetBranchStatus("w1Mass", 1);
   tempTree->SetBranchStatus("w2Mass", 1);
   tempTree->SetBranchAddress("w1Mass",w1Masses);
@@ -546,7 +547,26 @@ RandomSubsetCreatorAllJets::AddWeights(TTree* tempTree, bool isData) {
       //std::cout << CombinedWeight << " ";
       br->Fill();
     }
-    meanWMass = (w1Masses[0]+w2Masses[0])/2.0;
+//    if(samplePath_.EndsWith("/20/")){
+//      TLorentzVector lQ    = *((TLorentzVector*)jets->At(0));
+//      TLorentzVector lQBar = *((TLorentzVector*)jets->At(1));
+//      TLorentzVector lP    = *((TLorentzVector*)jets->At(3));
+//      TLorentzVector lPBar = *((TLorentzVector*)jets->At(4));
+//      double lQPt    = lQ   .Pt();
+//      double lQBarPt = lQBar.Pt();
+//      double lPPt    = lP   .Pt();
+//      double lPBarPt = lPBar.Pt();
+//      lQ    = lQ    * L7PartonCorrection(lQPt);
+//      lQBar = lQBar * L7PartonCorrection(lQBarPt);
+//      lP    = lP    * L7PartonCorrection(lPPt);
+//      lPBar = lPBar * L7PartonCorrection(lPBarPt);
+//      double mW1 = (lQ + lQBar).M();
+//      double mW2 = (lP + lPBar).M();
+//      meanWMass = (mW1+mW2)/2.;
+//    }
+//    else{
+      meanWMass = (w1Masses[0]+w2Masses[0])/2.0;
+//    }
     br2->Fill();
   }
   jets->Delete();
@@ -719,6 +739,17 @@ RandomSubsetCreatorAllJets::eventBTagProbability_(std::vector<double> &oneMinusB
   if(verbose) std::cout << bTaggingEfficiency << std::endl;
 
   return bTaggingEfficiency;
+}
+
+double RandomSubsetCreatorAllJets::L7PartonCorrection(double pt)
+{
+  double mW = 80.4;
+  double p0 = 90.9183;
+  double p1 = 4.21458e-2;
+  double p2 = -1.62001;
+  double xi = 1.01988005;
+
+  return ((mW*xi)/(p0+p1*pt+p2*log(pt)));
 }
 
 /*

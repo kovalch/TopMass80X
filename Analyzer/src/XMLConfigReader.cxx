@@ -11,6 +11,8 @@
 #include "ProgramOptionsReader.h"
 #include "XMLConfigReader.h"
 
+#include "TSystem.h"
+
 typedef ProgramOptionsReader po;
 
 XMLConfigReader::XMLConfigReader() {
@@ -28,14 +30,15 @@ XMLConfigReader::ReadConfigFromXMLFile(){
   if(!config_){
     config_ = new txml::XMLDocument();
 
-    TString xmlFilePath;
+    TString xmlFilePath = gSystem->pwd();
     TString channel = po::GetOption<std::string>("channel");
     if (!strcmp(channel, "electron") || !strcmp(channel, "muon") || !strcmp(channel, "all")) {
-      xmlFilePath = "/afs/naf.desy.de/user/m/mseidel/scratch/TopMass/Analyzer/Configuration_LeptonJets.xml";
+      xmlFilePath += "/Configuration_LeptonJets.xml";
     }
     else if (!strcmp(channel, "AllJets")) {
-      xmlFilePath = "/afs/naf.desy.de/group/cms/scratch/eschliec/TopMass_hg_devel/Analyzer/Configuration_alljets.xml";
+      xmlFilePath += "/Configuration_alljets.xml";
     }
+    std::cout << "Getting XML file from: " << xmlFilePath << std::endl;
 
     int errorID = config_->LoadFile(xmlFilePath);
     if(errorID) {
