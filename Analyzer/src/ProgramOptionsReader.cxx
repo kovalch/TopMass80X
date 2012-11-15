@@ -66,9 +66,9 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("shape,S", boost::program_options::value<double>()->default_value(1.0), "Background shape scaling factor for gamma")
         ("permu,P", boost::program_options::value<double>()->default_value(0.0), "Change permutation fractions by: fUN-P, fWP+0.5P, fCP+0.5P")
         ("fastsim,F", boost::program_options::value<int>()->default_value(0), "use additional calibration for FastSim")
-        ("xmlconfig,X", boost::program_options::value<std::string>()->default_value("/afs/naf.desy.de/group/cms/scratch/eschliec/TopMass_hg_devel/Analyzer/Configuration_alljets.xml"),
-            "path to the XML configuration file"
-        )
+        //("xmlconfig,X", boost::program_options::value<std::string>()->default_value("/afs/naf.desy.de/group/cms/scratch/eschliec/TopMass_hg_devel/Analyzer/Configuration_alljets.xml"),
+        //    "path to the XML configuration file"
+        //)
         ;
 
     boost::program_options::store(boost::program_options::parse_command_line(ac, av, desc), *programOptions_);

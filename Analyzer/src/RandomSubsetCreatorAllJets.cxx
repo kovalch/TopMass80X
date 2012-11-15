@@ -348,7 +348,7 @@ RandomSubsetCreatorAllJets::CreateRandomSubset() {
     else if(fFile_.Contains("jet6_02"))
       fSig *= 0.9305;
 
-    int permsMC  = tmpTreeSig   ->GetEntries();
+    int permsMC  = tmpTreeSig->GetEntries();
     int permsBkg = tmpTreeBkg->GetEntries();
     int eventsPE = myRandom->Poisson(2410./3544.844*lumi); // add poisson
     int eventsDrawn = 0;
