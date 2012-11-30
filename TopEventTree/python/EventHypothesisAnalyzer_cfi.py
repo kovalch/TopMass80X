@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # module to make simple analyses of top event hypothese
 #
 analyzeHypothesis = cms.EDAnalyzer("EventHypothesisAnalyzer",
-    semiLepEvent = cms.InputTag("ttSemiLepEvent"),
+    ttEvent = cms.InputTag("ttSemiLepEvent"),
     hypoClassKey = cms.InputTag("ttSemiLepHypMaxSumPtWMass","Key"),
     
     jets         = cms.InputTag("goodJetsPF30"),
@@ -31,6 +31,8 @@ analyzeHypothesis = cms.EDAnalyzer("EventHypothesisAnalyzer",
     mcWeightSrc  = cms.InputTag("eventWeightMC"),
     
     savePDFWeights = cms.bool(False),
+    
+    maxNJets = cms.int32(10)
 )
 
 
