@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <analysisConfig>
   <selection>probs[0] &gt; 0.09 &amp;&amp; dRbb &gt; 1.5 &amp;&amp; topMasses[0] &gt; 100.0 &amp;&amp; topMasses[0] &lt; 550.0</selection>
-  <samplePath>/scratch/hh/lustre/cms/user/eschliec/TopMass/19/</samplePath>
+  <samplePath>/scratch/hh/lustre/cms/user/eschliec/TopMass/21/</samplePath>
   <decayChannel>AllJets</decayChannel>
 <!--
   <treeVariables>

@@ -41,7 +41,9 @@ struct staticUncertainty {
 
 //TString globalPath("/scratch/hh/current/cms/user/eschliec/topmass_120615_1502k/");
 //TString globalPath("/scratch/hh/current/cms/user/eschliec/topmass_120810_1202d/");
-TString globalPath("/scratch/hh/current/cms/user/eschliec/topmass_121004_2002a/");
+//TString globalPath("/scratch/hh/current/cms/user/eschliec/topmass_121004_2002a/");
+//TString globalPath("/scratch/hh/current/cms/user/eschliec/topmass_121114_1901a/");
+TString globalPath("/scratch/hh/current/cms/user/eschliec/topmass_121126_1601a/");
 
 double genMass[]      = {161.5, 163.5, 166.5, 169.5, 172.5, 175.5, 178.5, 181.5, 184.5};
 double genMassError[] = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
@@ -114,8 +116,8 @@ void ensembleTreeSys1D()
   //ensembles.push_back(ensemble("ensemble_S11.root"));
   ensembles.push_back(ensemble("ensemble_F11_POWHEG.root"));
   ensembles.push_back(ensemble("ensemble_F11_POWHEG.root"));
-  //ensembles.push_back(ensemble("ensemble_F11_MCNLO.root"));
-  //ensembles.push_back(ensemble("ensemble_F11_MCNLO.root"));
+  ensembles.push_back(ensemble("ensemble_F11_MCNLO.root"));
+  ensembles.push_back(ensemble("ensemble_F11_MCNLO.root"));
   ensembles.push_back(ensemble("ensemble_F11_jet4_02.root"));
   ensembles.push_back(ensemble("ensemble_F11_jet4_02.root"));
   //ensembles.push_back(ensemble("ensemble_F11_jet4_05.root"));
@@ -150,7 +152,7 @@ void ensembleTreeSys1D()
   //ensembles.push_back(ensemble("ensemble_F11_P11mpiHi_FAST.root"));
   //ensembles.push_back(ensemble("ensemble_F11_P11TeV_FAST.root"));
   //ensembles.push_back(ensemble("ensemble_F11_P11TeV_FAST.root"));
-
+  //ensembles.push_back(ensemble("ensemble_F11_P11_FAST_v3.root"));
   //ensembles.push_back(ensemble("ensemble_F11_P11_FAST_v3.root"));
   //ensembles.push_back(ensemble("ensemble_F11_P11mpiHi_FAST_v3.root"));
   //ensembles.push_back(ensemble("ensemble_F11_P11mpiHi_FAST_v3.root"));
@@ -224,8 +226,8 @@ void ensembleTreeSys1D()
   for (int i = 0; i < (int) ensembles.size(); ++i) {
     TF1* gaus = new TF1("gaus", "gaus");
     
-    trees[i]->Fit("gaus", "massConstJES", "massConstJES>0 & genMass==172.5", "EMQ0");
-    //trees[i]->Fit("gaus", "massConstJES", "massConstJES>0", "EMQ0");
+    trees[i]->Fit("gaus", "mass_mTop", "mass_mTop>0 & genMass==172.5", "EMQ0");
+    //trees[i]->Fit("gaus", "mass_mTop", "mass_mTop>0", "EMQ0");
     ensembles[i].mass = gaus->GetParameter(1);
   }
   

@@ -136,7 +136,7 @@ void IdeogramAnalyzer::Scan(const TString& cuts, int i, int j, double firstBinMa
   const int kMAXCombo = 12000;
 
   unsigned int nCombos;
-  unsigned short* comboTypes = new unsigned short[kMAXCombo];
+  short* comboTypes = new short[kMAXCombo];
 
   double* topMasses = new double[kMAXCombo];
   double* w1Mass = new double[kMAXCombo];
@@ -229,8 +229,6 @@ void IdeogramAnalyzer::Scan(const TString& cuts, int i, int j, double firstBinMa
       //bScaleEstimator = 1;
         
       // Set Likelihood parameters
-      //double TEST0 = ((topMasses[0]-173.8)*0.992869875)+173.9;
-      //double TEST1 = (((w1Mass[0]+w2Mass[0])/2.0-86.68)*1.005532297)+86.62;
       combLikelihood->SetParameters(probs[0], topMasses[0], (w1Mass[0]+w2Mass[0])/2.0, 1., shapeSystematic, permutationFractionSystematic, isFastSim);
       //combLikelihood->SetParameters(probs[0], topMasses[0], (w1Mass[0]+w2Mass[0])/2.0, 1., shapeSystematic, permutationFractionSystematic, isFastSim);
       // add permutation to event likelihood
@@ -464,7 +462,6 @@ void IdeogramAnalyzer::Scan(const TString& cuts, int i, int j, double firstBinMa
     if (syst)    leg0->AddEntry(systParaboloid, "stat + syst", "L");
     leg0->Draw();
   
-    //Helper* helper = new Helper(1);
     helper->DrawCMSPrel();
   
     std::cout << "massError: " << massError << std::endl;
@@ -542,6 +539,7 @@ void IdeogramAnalyzer::Scan(const TString& cuts, int i, int j, double firstBinMa
   delete eventLikelihood;
   delete logEventLikelihood;
   delete sumLogLikelihood;
+  delete productLikelihood;
   delete combLikelihood;
 
   delete hUnity;

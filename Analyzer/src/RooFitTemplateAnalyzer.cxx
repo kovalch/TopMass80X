@@ -6,6 +6,7 @@
 #include "TCanvas.h"
 #include "TFile.h"
 #include "TROOT.h"
+#include "TSystem.h"
 
 #include "RooAddPdf.h"
 #include "RooBifurGauss.h"
@@ -45,7 +46,12 @@ void RooFitTemplateAnalyzer::Scan(const TString& cuts, int i, int j, TString var
   
   TString name = "";
 
-  /*
+  // set permutation fractions
+  workspace->var("fCP")->setVal(2.31859251856803894e-01);
+  workspace->var("fWP")->setVal(4.23728721216320992e-03+9.87463630735874176e-04+2.18985587358474731e-01);
+  workspace->var("fUN")->setVal(5.43930411338806152e-01);
+
+
   // no calibration
   workspace->var("MassOffset"      )->setVal(0.0);
   workspace->var("MassSlopeMass"   )->setVal(0.0);
@@ -56,6 +62,18 @@ void RooFitTemplateAnalyzer::Scan(const TString& cuts, int i, int j, TString var
   workspace->var("JESSlopeMass"    )->setVal(0.0);
   workspace->var("JESSlopeJES"     )->setVal(0.0);
   workspace->var("JESSlopeMassJES" )->setVal(0.0);
+
+  /*
+  // test calibration
+  workspace->var("MassOffset"      )->setVal( 4.77254e-01);
+  workspace->var("MassSlopeMass"   )->setVal( 2.54275e-02);
+  workspace->var("MassSlopeJES"    )->setVal(-4.13860e-01);
+  workspace->var("MassSlopeMassJES")->setVal(-4.93806e-01);
+
+  workspace->var("JESOffset"       )->setVal(-3.55015e-03);
+  workspace->var("JESSlopeMass"    )->setVal(-7.87469e-05);
+  workspace->var("JESSlopeJES"     )->setVal(-5.19422e-02);
+  workspace->var("JESSlopeMassJES" )->setVal( 4.41256e-03);
   */
   /*
   // parametrization of mean and width independent
@@ -80,6 +98,7 @@ void RooFitTemplateAnalyzer::Scan(const TString& cuts, int i, int j, TString var
   workspace->var("JESSlopeJES"     )->setVal( 1.19464e-01);
   workspace->var("JESSlopeMassJES" )->setVal( 3.07011e-03);
   */
+  /*
   // parametrization of mean and constant width
   workspace->var("MassOffset"      )->setVal( 8.43067e-01);
   workspace->var("MassSlopeMass"   )->setVal( 1.11208e-02);
@@ -90,7 +109,7 @@ void RooFitTemplateAnalyzer::Scan(const TString& cuts, int i, int j, TString var
   workspace->var("JESSlopeMass"    )->setVal( 3.05550e-05);
   workspace->var("JESSlopeJES"     )->setVal( 8.41141e-02);
   workspace->var("JESSlopeMassJES" )->setVal( 3.29863e-03);
-
+  */
 
   topAdd = (RooAddPdf*)workspace->pdf("mTopPDF");
   wAdd   = (RooAddPdf*)workspace->pdf("mWPDF"  );
@@ -103,10 +122,12 @@ void RooFitTemplateAnalyzer::Scan(const TString& cuts, int i, int j, TString var
   for(int templType = 0; templType < nTemplTypes; ++templType){
     for(int comboType = 0; comboType < nComboTypes; ++comboType){
       int h = nComboTypes*templType + comboType;
-      //const unsigned nAlpha = (templType == 0 && comboType == 0) ? 2 : 3;
       const unsigned nAlpha = (templType == 0 && comboType == 0) ? 2 : ((templType == 1) ? 3 : 4);
-      const unsigned n4ParVars = (templType == 0 && comboType != 0) ? 2 : 1;
-      const unsigned nPar   = 4*n4ParVars + nAlpha-n4ParVars;
+      const unsigned nPar   = 4*nAlpha;
+      ////const unsigned nAlpha = (templType == 0 && comboType == 0) ? 2 : 3;
+      //const unsigned nAlpha = (templType == 0 && comboType == 0) ? 2 : ((templType == 1) ? 3 : 4);
+      //const unsigned n4ParVars = (templType == 0 && comboType != 0) ? 2 : 1;
+      //const unsigned nPar   = 4*n4ParVars + nAlpha-n4ParVars;
       for(unsigned p=0; p<nPar; ++p) {
         name = "par_"; name += h; name += "_"; name += p;
         workspace->var(name)->setConstant(true);
@@ -116,24 +137,24 @@ void RooFitTemplateAnalyzer::Scan(const TString& cuts, int i, int j, TString var
     }
   }
 
-  RooRealVar topBKGGammaNorm  = RooRealVar("topBKGGammaNorm" , "topBKGGammaNorm" ,  0.848667);
-  RooRealVar topBKGGammaGamma = RooRealVar("topBKGGammaGamma", "topBKGGammaGamma",  4.14752 );
-  RooRealVar topBKGGammaBeta  = RooRealVar("topBKGGammaBeta" , "topBKGGammaBeta" , 33.7793  );
-  RooRealVar topBKGGammaMu    = RooRealVar("topBKGGammaMu"   , "topBKGGammaMu"   , 89.6645  );
+  RooRealVar topBKGGammaNorm  = RooRealVar("topBKGGammaNorm" , "topBKGGammaNorm" ,  0.852647/*0.848667*/);
+  RooRealVar topBKGGammaGamma = RooRealVar("topBKGGammaGamma", "topBKGGammaGamma",  3.88501/*4.14752*/  );
+  RooRealVar topBKGGammaBeta  = RooRealVar("topBKGGammaBeta" , "topBKGGammaBeta" , 33.7309/*33.7793*/   );
+  RooRealVar topBKGGammaMu    = RooRealVar("topBKGGammaMu"   , "topBKGGammaMu"   , 93.2179/*89.6645*/   );
   RooGamma   topBKGGamma      = RooGamma  ("topBKGGamma"     , "topBKGGamma"     , MTOP, topBKGGammaGamma, topBKGGammaBeta, topBKGGammaMu);
   topBKGGamma.setNormRange("mTopFitRange");
   
-  RooRealVar topBKGLandauMean  = RooRealVar("topBKGLandauMean" , "topBKGLandauMean" , 217.114 );
-  RooRealVar topBKGLandauSigma = RooRealVar("topBKGLandauSigma", "topBKGLandauSigma",  27.6076);
+  RooRealVar topBKGLandauMean  = RooRealVar("topBKGLandauMean" , "topBKGLandauMean" , 206.862/*217.114*/ );
+  RooRealVar topBKGLandauSigma = RooRealVar("topBKGLandauSigma", "topBKGLandauSigma",  25.7198/*27.6076*/);
   RooLandau  topBKGLandau      = RooLandau ("topBKGLandau"     , "topBKGLandau"     , MTOP, topBKGLandauMean, topBKGLandauSigma);
   topBKGLandau.setNormRange("mTopFitRange");
   
   RooAddPdf topBKG = RooAddPdf("topBKG", "topBKG", topBKGGamma, topBKGLandau, topBKGGammaNorm);
   topBKG.setNormRange("mTopFitRange");
   
-  RooRealVar wBKGMean       = RooRealVar("wBKGMean"      , "wBKGMean"      , 86.9853 );
-  RooRealVar wBKGSigmaLeft  = RooRealVar("wBKGSigmaLeft" , "wBKGSigmaLeft" ,  5.78569);
-  RooRealVar wBKGSigmaRight = RooRealVar("wBKGSigmaRight", "wBKGSigmaRight",  7.12755);
+  RooRealVar wBKGMean       = RooRealVar("wBKGMean"      , "wBKGMean"      , 91.9298/*86.9853*/ );
+  RooRealVar wBKGSigmaLeft  = RooRealVar("wBKGSigmaLeft" , "wBKGSigmaLeft" ,  6.23531/*5.78569*/);
+  RooRealVar wBKGSigmaRight = RooRealVar("wBKGSigmaRight", "wBKGSigmaRight",  8.12332/*7.12755*/);
   RooBifurGauss wBKG        = RooBifurGauss("wBKG", "wBKG", meanMW, wBKGMean, wBKGSigmaLeft, wBKGSigmaRight);
   wBKG.setNormRange("mTopFitRange");
 
@@ -237,7 +258,7 @@ void RooFitTemplateAnalyzer::Scan(const TString& cuts, int i, int j, TString var
     //workspace->pdf("sig_1")   ->plotOn(frame1, RooFit::LineColor(kRed+2), RooFit::Normalization(1./*fSig.getVal()*workspace->var("fWP")->getVal()*/));
     //workspace->pdf("sig_2")   ->plotOn(frame1, RooFit::LineColor(kRed+3), RooFit::Normalization(1./*fSig.getVal()*workspace->var("fUN")->getVal()*/));
     frame1->Draw();
-    TString path("plot/RooFitTemplate/mTop_"); path+= fIdentifier_; path += "_"; path += i; path += "_"; path += j; path += "_"; path += variables; path += ".eps";
+    TString path("plot/RooFit/mTop_"); path+= fIdentifier_; path += "_"; path += i; path += "_"; path += j; path += "_"; path += variables; path += ".eps";
     canvas1->Print(path);
   
     /*
@@ -285,7 +306,7 @@ void RooFitTemplateAnalyzer::Scan(const TString& cuts, int i, int j, TString var
     //workspace->pdf("sig_4")   ->plotOn(frame5, RooFit::LineColor(kRed+2), RooFit::Normalization(1./*fSig.getVal()*workspace->var("fWP")->getVal()*/));
     //workspace->pdf("sig_5")   ->plotOn(frame5, RooFit::LineColor(kRed+3), RooFit::Normalization(1./*fSig.getVal()*workspace->var("fUN")->getVal()*/));
     frame5->Draw();
-    path = "plot/RooFitTemplate/mW_"; path+= fIdentifier_; path += "_"; path += i; path += "_"; path += j; path += "_"; path += variables; path += ".eps";
+    path = "plot/RooFit/mW_"; path+= fIdentifier_; path += "_"; path += i; path += "_"; path += j; path += "_"; path += variables; path += ".eps";
     canvas5->Print(path);
   
     delete canvas1;
@@ -308,9 +329,8 @@ RooWorkspace* RooFitTemplateAnalyzer::workspace(0);
 RooFitTemplateAnalyzer::RooFitTemplateAnalyzer(const TString& identifier, TTree* tree) : MassAnalyzer(identifier, tree)
 {
   if(!workspace){
-    //std::cout << "!!! Reading in ROOWORKSPACE from file !!!" << std::endl;
-    TFile * workspaceFile = TFile::Open("/afs/naf.desy.de/user/e/eschliec/wd/TopMass/RooFitCalibration.root");
-    //workspaceFile->ls();
+    TString workspaceFilePath = TString(gSystem->pwd()) + TString("/RooFitCalibration.root");
+    TFile * workspaceFile = TFile::Open(workspaceFilePath);
     gROOT->cd();
     workspace = (RooWorkspace*)((RooWorkspace*)workspaceFile->Get("workspaceMtop"))->Clone();
     workspaceFile->Close();

@@ -114,7 +114,7 @@ RandomSubsetCreatorAllJets::CreateRandomSubset() {
   //float * bTag = new float[kMAXNJets];
   float dRbb            = -1.;
   unsigned int nCombos  =  0;
-  unsigned short * comboTypes = new unsigned short[kMAXCombos];
+  short * comboTypes = new short[kMAXCombos];
   short * pdgId = new short[kMAXNJets];
   unsigned int runNumber             = 0;
   unsigned int luminosityBlockNumber = 0;
@@ -350,7 +350,7 @@ RandomSubsetCreatorAllJets::CreateRandomSubset() {
 
     int permsMC  = tmpTreeSig->GetEntries();
     int permsBkg = tmpTreeBkg->GetEntries();
-    int eventsPE = myRandom->Poisson(2410./3544.844*lumi); // add poisson
+    int eventsPE = myRandom->Poisson(2767./3544.844*lumi); // add poisson
     int eventsDrawn = 0;
 
     tmpFile_->ReOpen("UPDATE");

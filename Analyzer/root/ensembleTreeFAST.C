@@ -69,9 +69,10 @@ void ensembleTreeFAST()
   //*/
   
   //// Get histos
-  TString sFile("/scratch/hh/current/cms/user/eschliec/TopMass/");
+
+  TString sFile("/scratch/hh/current/cms/user/eschliec/TopMass/21/ensemble/");
   //TString sFile("/scratch/hh/dust/naf/cms/user/eschliec/TopMass/");
-  sFile += "ensemble_F11_FAST_ROOFIT_Calibrated_BUGFIXED_3JES.root";
+  sFile += "ensemble_F11_Ideogram_Calibrated_1_FAST.root";
   TFile* fEnsemble = new TFile(sFile);
   
   TTree* tree = (TTree*) fEnsemble->Get("tree");
@@ -83,18 +84,18 @@ void ensembleTreeFAST()
   TH1F * hJESPull = new TH1F("hJESPull", "hJESPull", 1000, 0.95, 1.05);
 
   for (int iJES = 0; iJES < nJES; iJES++) {
-    TString sel("mass>0 & JES>0 & abs(massPull)<100 & genMass=="); sel+=genMass; sel+=" & genJES=="; sel+=genJES[iJES];
+    TString sel("mass_mTop_JES>0 & JES_mTop_JES>0 & abs(mass_mTop_JES_Pull)<100 & genMass=="); sel+=genMass; sel+=" & genJES=="; sel+=genJES[iJES];
     double entries = tree->GetEntries(sel);
       
     TF1* gausMassBias = new TF1("gausMassBias", "gaus");
-    tree->Fit("gausMassBias", "mass", sel, "Q0");
+    tree->Fit("gausMassBias", "mass_mTop_JES", sel, "Q0");
       
     mass[iJES]          = genMass;
     massBias[iJES]      = gausMassBias->GetParameter(1) - genMass;
     massBiasError[iJES] = gausMassBias->GetParameter(2) / sqrt(genMassN/(crossSection*peLumi*maxMCWeight));
         
     TF1* gausJESBias = new TF1("gausJESBias", "gaus");
-    tree->Fit("gausJESBias", "JES", sel, "Q0");
+    tree->Fit("gausJESBias", "JES_mTop_JES", sel, "Q0");
       
     JES[iJES]          = genJES[iJES];
     JESBias[iJES]      = gausJESBias->GetParameter(1) - genJES[iJES];
@@ -103,7 +104,7 @@ void ensembleTreeFAST()
     // Fill calibration histos
       
     TF1* gausMassPull = new TF1("gausMassPull", "gaus");
-    tree->Fit("gausMassPull", "massPull", sel, "Q0");
+    tree->Fit("gausMassPull", "mass_mTop_JES_Pull", sel, "Q0");
       
     double eff = 0.00135403611570646;
     massPull[iJES]      = gausMassPull->GetParameter(2);
@@ -112,7 +113,7 @@ void ensembleTreeFAST()
     //std::cout << sqrt(1./2. * (1./(5144.*genMassN[iMass])+1./2000)) << std::endl;
         
     TF1* gausJESPull = new TF1("gausJESPull", "gaus");
-    tree->Fit("gausJESPull", "JESPull", sel, "Q0");
+    tree->Fit("gausJESPull", "JES_mTop_JES_Pull", sel, "Q0");
       
     JESPull[iJES]      = gausJESPull->GetParameter(2);
     JESPullError[iJES] = sqrt(1./2. * maxMCWeight/(genMassN*eff) + 1./entries);

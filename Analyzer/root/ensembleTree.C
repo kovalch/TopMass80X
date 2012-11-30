@@ -128,7 +128,7 @@ void DrawLegend() {
 */
 void DrawLegend() {
   double y1 = 0.915; double y2 = 0.955;
-  int textsize = 8;
+  int textsize = 7;
   TLegend *leg1 = new TLegend(0.170, y1, 0.334, y2);
   leg1->SetTextSizePixels(textsize);
   leg1->SetFillColor(kWhite);
@@ -193,7 +193,7 @@ void ensembleTree()
   canvasFit->cd();
   
   //// Get histos
-  TString sFile("/scratch/hh/current/cms/user/eschliec/TopMass/");
+  TString sFile("/scratch/hh/current/cms/user/eschliec/TopMass/21/ensemble/");
   //TString sFile("/scratch/hh/dust/naf/cms/user/eschliec/TopMass/");
   //sFile += "ensemble_F11_NEWTEMPLATES_Calibrated_NoCorrelation.root";
   //sFile += "ensemble_F11_ROOFIT_Uncalibrated.root";
@@ -215,8 +215,12 @@ void ensembleTree()
   //sFile += "ensemble_F11_TemplateRooFit_Calibrated.root";
   //sFile += "ensemble_F11_TemplateRooFit_Recalibrated.root";
   //sFile += "ensemble_F11_TemplateRooFit_New_Uncalibrated.root";
-  sFile += "ensemble_F11_TemplateRooFit_New_Calibrated.root";
+  //sFile += "ensemble_F11_TemplateRooFit_New_Calibrated.root";
   //sFile += "ensemble_F11_TemplateRooFit_New_Recalibrated.root";
+  //sFile += "ensemble_F11_Ideogram_Uncalibrated_1.root";
+  sFile += "ensemble_F11_Ideogram_Calibrated_1.root";
+
+  std::cout << "Doing calibration on: " << sFile << std::endl;
   TFile* fEnsemble = new TFile(sFile);
   
   tree = (TTree*) fEnsemble->Get("tree");
@@ -240,20 +244,18 @@ void ensembleTree()
   
   for (int iJES = 0; iJES < nJES; iJES++) {
     for (int iMass = 0; iMass < nMasses; iMass++) {
-      TString sel("mass>0 & JES>0 & JESError>0.005 & JESError<0.25 & massError>0.5 & massError<2.5 & abs(massPull)<100 & genMass=="); sel+=genMass[iMass]; sel+=" & genJES=="; sel+=genJES[iJES];
+      TString sel("mass_mTop_JES>0 & JES_mTop_JES>0 & JES_mTop_JES_Error>0.005 & JES_mTop_JES_Error<0.25 & mass_mTop_JES_Error>0.5 & mass_mTop_JES_Error<2.5 & abs(mass_mTop_JES_Pull)<100 & genMass=="); sel+=genMass[iMass]; sel+=" & genJES=="; sel+=genJES[iJES];
       double entries = tree->GetEntries(sel);
       
       TF1* gausMassBias = new TF1("gausMassBias", "gaus");
-      tree->Fit("gausMassBias", "mass", sel, "Q0");
-      //tree->Fit("gausMassBias", "mass+2.25341e-01+0.2/0.04*(1-JES)", sel, "Q0");
+      tree->Fit("gausMassBias", "mass_mTop_JES", sel, "Q0");
       
       mass[iJES][iMass]          = genMass[iMass];
       massBias[iJES][iMass]      = gausMassBias->GetParameter(1) - genMass[iMass];
       massBiasError[iJES][iMass] = gausMassBias->GetParameter(2) / sqrt(genMassN[iMass]/(crossSection*peLumi*maxMCWeight[iMass]));
         
       TF1* gausJESBias = new TF1("gausJESBias", "gaus");
-      tree->Fit("gausJESBias", "JES", sel, "Q0");
-      //tree->Fit("gausJESBias", "JES + 2.66486e-03 + 0.002/0.035*(JES-1)", sel, "Q0");
+      tree->Fit("gausJESBias", "JES_mTop_JES", sel, "Q0");
       
       JES[iJES][iMass]          = genJES[iJES];
       JESBias[iJES][iMass]      = gausJESBias->GetParameter(1) - genJES[iJES];
@@ -268,16 +270,14 @@ void ensembleTree()
       h2JES->SetBinError(h2JES->FindBin(gausMassBias->GetParameter(1), gausJESBias->GetParameter(1)), JESBiasError[iJES][iMass]);
       
       TF1* gausMassPull = new TF1("gausMassPull", "gaus");
-      tree->Fit("gausMassPull", "massPull", sel, "Q0");
+      tree->Fit("gausMassPull", "mass_mTop_JES_Pull", sel, "Q0");
       
       double eff = 0.00135403611570646;
       massPull[iJES][iMass]      = gausMassPull->GetParameter(2);
       massPullError[iJES][iMass] = sqrt(1./2. * (maxMCWeight[iMass]/(genMassN[iMass]*eff) + 1./(entries-1.)));
       
-      //std::cout << sqrt(1./2. * (1./(5144.*genMassN[iMass])+1./2000)) << std::endl;
-        
       TF1* gausJESPull = new TF1("gausJESPull", "gaus");
-      tree->Fit("gausJESPull", "JESPull", sel, "Q0");
+      tree->Fit("gausJESPull", "JES_mTop_JES_Pull", sel, "Q0");
       
       JESPull[iJES][iMass]      = gausJESPull->GetParameter(2);
       JESPullError[iJES][iMass] = sqrt(1./2. * maxMCWeight[iMass]/(genMassN[iMass]*eff) + 1./entries);
@@ -601,8 +601,8 @@ void ensembleTree()
     gMass[1]    ->Fit("constFit", "EM");
     gMassPull[1]->Fit("constFit", "EM");
   }
-  std::cout << "topmass 1D calibration uncertainty: " << std::sqrt(     pow(topMass1DUncertaintyFit->GetParError(0),2) +      pow((173.49-172.50)*topMass1DUncertaintyFit->GetParError(1),2)) << std::endl;
-  std::cout << "topmass 2D calibration uncertainty: " << std::sqrt(nJES*pow(topMass2DUncertaintyFit->GetParError(0),2) + nJES*pow((174.28-172.50)*topMass2DUncertaintyFit->GetParError(1),2)) << std::endl;
-  std::cout << "JES        calibration uncertainty: " << std::sqrt(nJES*pow(      jesUncertaintyFit->GetParError(0),2) + nJES*pow((174.28-172.50)*      jesUncertaintyFit->GetParError(1),2)) << std::endl;
+  std::cout << "topmass 1D calibration uncertainty: " << std::sqrt(     pow(topMass1DUncertaintyFit->GetParError(0),2) +      pow((174.04-172.50)*topMass1DUncertaintyFit->GetParError(1),2)) << std::endl;
+  std::cout << "topmass 2D calibration uncertainty: " << std::sqrt(nJES*pow(topMass2DUncertaintyFit->GetParError(0),2) + nJES*pow((174.64-172.50)*topMass2DUncertaintyFit->GetParError(1),2)) << std::endl;
+  std::cout << "JES        calibration uncertainty: " << std::sqrt(nJES*pow(      jesUncertaintyFit->GetParError(0),2) + nJES*pow((174.64-172.50)*      jesUncertaintyFit->GetParError(1),2)) << std::endl;
 }
 
