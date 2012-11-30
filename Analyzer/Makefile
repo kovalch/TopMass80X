@@ -28,7 +28,7 @@ libTopMass.so:	obj $(OBJ_FILES)
 # export LD_LIBRARY_PATH=/afs/naf.desy.de/user/e/eschliec/wd/LHAPDF/lib:$LD_LIBRARY_PATH
 TopMass: obj  $(OBJ_FILES) obj/main.o
 	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) -Wl,-rpath -Wl,lib -lboost_program_options -L/afs/naf.desy.de/user/e/eschliec/wd/LHAPDF/lib -lLHAPDF -o $@ obj/main.o $(OBJ_FILES)
-	@echo "done"
+	@echo "Compiling successfully done"
 
 #obj/%.o: src/%.cxx
 #	$(C) $(ROOTCFLAGS) -Iinc/ -c -o $@ $<

@@ -14,7 +14,7 @@ class Analysis {
   TString fBinning_;
   std::vector<float> vBinning_;
 
-  int fBins_;
+  //int fBins_;
 
   TString fChannel_;
 

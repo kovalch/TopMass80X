@@ -88,6 +88,11 @@ TopMass::TopMass() :
       vBinning.assign(xbins, xbins + sizeof(xbins) / sizeof(xbins[0]));
   }
   
+  else if (!po::GetOption<std::string>("binning").compare("topMass")) {
+      float xbins[] = {100, 550};
+      vBinning.assign(xbins, xbins + sizeof(xbins) / sizeof(xbins[0]));
+  }
+
   // Start task
   
   if (!po::GetOption<std::string>("task").compare("pe")) {
