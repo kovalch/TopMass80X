@@ -119,6 +119,10 @@ if (MCversion == "Fall11"):
   readFiles.extend( [
          '/store/mc/Fall11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S6_START42_V14B-v1/0000/00CAD0AC-17FA-E011-A4F4-00304867905A.root'
   ] )
+if (MCversion == "Summer12"):
+  readFiles.extend( [
+         '/store/mc/Summer12_DR53X/TTJets_SemiLeptMGDecays_8TeV-madgraph/AODSIM/PU_S10_START53_V7A-v1/00001/FC5CECAE-8B14-E211-8578-0025B3E0652A.root'
+  ] )
 else:
   readFiles.extend( [
   #       'file:/scratch/hh/current/cms/user/stadie/2011/production/TT_TuneZ2_7TeV_pythia6_FASTSIM/TT_TuneZ2_7TeV_pythia6_FASTSIM_0.root',
@@ -146,13 +150,15 @@ process.options = cms.untracked.PSet(
 )
 
 ## configure geometry & conditions
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 if os.getenv('CMSSW_VERSION').startswith('CMSSW_4_1_'):
   process.GlobalTag.globaltag = cms.string('START41_V0::All')
-else:
+elif os.getenv('CMSSW_VERSION').startswith('CMSSW_4_1_'):
   process.GlobalTag.globaltag = cms.string('START42_V17::All')
+elif os.getenv('CMSSW_VERSION').startswith('CMSSW_5_3_'):
+  process.GlobalTag.globaltag = cms.string('START53_V7A::All')
 
 ## std sequence for pat
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
@@ -246,9 +252,6 @@ process.leadingJetSelection.src = 'tightLeadingPFJets'
 process.bottomJetSelection.src  = 'looseBottomCSVPFJets'
 process.bottomJetSelection.minNumber = 2;
 
-## change jet-parton matching algorithm
-process.ttSemiLepJetPartonMatch.algorithm = "unambiguousOnly"
-
 ## choose which hypotheses to produce
 from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff import *
 setForAllTtSemiLepHypotheses(process, "leps", "tightMuons")
@@ -258,6 +261,10 @@ setForAllTtSemiLepHypotheses(process, "jets", "goodJetsPF30")
 setForAllTtSemiLepHypotheses(process, "maxNJets", 4)
 setForAllTtSemiLepHypotheses(process, "mets", "scaledMET:scaledMETs")
 setForAllTtSemiLepHypotheses(process, "maxNComb", -1)
+
+## change jet-parton matching algorithm
+process.ttSemiLepJetPartonMatch.algorithm = "unambiguousOnly"
+process.ttSemiLepJetPartonMatch.maxNJets  = -1
 
 # consider b-tagging in event reconstruction
 process.hitFitTtSemiLepEventHypothesis.bTagAlgo = "combinedSecondaryVertexBJetTags"
@@ -271,7 +278,7 @@ addTtSemiLepHypotheses(process,
 #removeTtSemiLepHypGenMatch(process)
 
 ## load HypothesisAnalyzer
-process.load("TopMass.Analyzer.EventHypothesisAnalyzer_cff")
+process.load("TopMass.TopEventTree.EventHypothesisAnalyzer_cff")
 
 ## PDF weights
 process.analyzeHitFit.savePDFWeights = options.pdf
@@ -307,21 +314,21 @@ process.eventWeightPUsysDown = process.eventWeightPU.clone()
 process.eventWeightPUsysNo.WeightName          = "eventWeightPU"
 process.eventWeightPUsysNo.DataFile            = "TopAnalysis/TopUtils/data/Data_PUDist_sysNo_68000_2011Full.root"
 process.eventWeightPUsysNo.CreateWeight3DHisto = False
-process.eventWeightPUsysNo.Weight3DHistoFile   = "TopMass/Configuration/data/Weight3D.root"
+#process.eventWeightPUsysNo.Weight3DHistoFile   = "TopMass/Configuration/data/Weight3D.root"
 
 #### Configuration for PU Up Variations
 
 process.eventWeightPUsysUp.WeightName          = "eventWeightPUUp"
 process.eventWeightPUsysUp.DataFile            = "TopAnalysis/TopUtils/data/Data_PUDist_sysUp_71400_2011Full.root"
 process.eventWeightPUsysUp.CreateWeight3DHisto = False
-process.eventWeightPUsysUp.Weight3DHistoFile   = "TopMass/Configuration/data/Weight3DUp.root"
+#process.eventWeightPUsysUp.Weight3DHistoFile   = "TopMass/Configuration/data/Weight3DUp.root"
 
 #### Configuration for PU Down Variations
 
 process.eventWeightPUsysDown.WeightName          = "eventWeightPUDown"
 process.eventWeightPUsysDown.DataFile            = "TopAnalysis/TopUtils/data/Data_PUDist_sysDown_64600_2011Full.root"
 process.eventWeightPUsysDown.CreateWeight3DHisto = False
-process.eventWeightPUsysDown.Weight3DHistoFile   = "TopMass/Configuration/data/Weight3DDown.root"
+#process.eventWeightPUsysDown.Weight3DHistoFile   = "TopMass/Configuration/data/Weight3DDown.root"
 
 #### event weight sequence
 
@@ -401,8 +408,8 @@ process.path = cms.Path(#process.patDefaultSequence *
                         process.tightBottomCSVPFJets *
                         process.looseBottomCSVPFJets *
                         process.semiLeptonicEvents *
-                        process.eventWeightMC *
-                        process.makeEventWeightsPU *
+                        #process.eventWeightMC *
+                        #process.makeEventWeightsPU *
                         process.bTagSFEventWeight *
                         process.bTagSFEventWeightBTagSFUp *
                         process.bTagSFEventWeightBTagSFDown *

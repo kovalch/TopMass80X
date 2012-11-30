@@ -5,8 +5,10 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/Utilities"/>
+<use   name="TopMass/TopEventTree"/>
 <use   name="root"/>
 <use   name="lhapdf"/>
-<library   file="*.cc" name="TopMassAnalyzerPlugins">
+
+<library   file="*.cc" name="TopMassTopTreePlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
