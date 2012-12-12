@@ -78,6 +78,10 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   // max possible number of permutations per event
   //const int kMAXCombo;
 
+  // tree to append the information of this analyzer to
+  // (if left empty a new tree will be created)
+  std::string treeToAppend_;
+
   int nJet;
   int permutation[4];
   int noPtEtaJetMultiplicity;

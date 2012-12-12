@@ -28,6 +28,7 @@
 #include "TopMass/TopEventTree/plugins/EventHypothesisAnalyzer.h"
 
 EventHypothesisAnalyzer::EventHypothesisAnalyzer(const edm::ParameterSet& cfg):
+  eventTree(0),
   ttEvent_  (cfg.getParameter<edm::InputTag>("ttEvent")),
   hypoClassKey_(cfg.getParameter<edm::InputTag>("hypoClassKey")),
   
@@ -54,7 +55,9 @@ EventHypothesisAnalyzer::EventHypothesisAnalyzer(const edm::ParameterSet& cfg):
   mcWeightSrc_ (cfg.getParameter<edm::InputTag>("mcWeightSrc")),
   savePDFWeights_(cfg.getParameter<bool>("savePDFWeights" )),
   
-  kJetMAX(cfg.getParameter<int>("maxNJets" ))
+  kJetMAX(cfg.getParameter<int>("maxNJets" )),
+
+  treeToAppend_(cfg.getParameter<std::string>("treeToAppend"))
 {
 }
 
@@ -253,9 +256,12 @@ EventHypothesisAnalyzer::beginJob()
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // get tree
   //////////////////////////////////////////////////////////////////////////////////////////////////
+  if(treeToAppend_.size()) eventTree = (TTree*)fs->file().Get(treeToAppend_.c_str());
 
-  eventTree = (TTree*)fs->file().Get(TString("createEventTree")+TString("/")+TString("eventTree"));
-  //eventTree = fs->getObject<TTree>("eventTree", "EventTreeCreator");
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+  // create tree in case no tree was found
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+  if(!eventTree) eventTree = fs->make<TTree>("eventTree", "Tree for UHH top-quark analysis\nParticles are in order {TTBar, HadTop, LepTop, HadW, LepW, HadB, LightQ, LightQBar, LepB, Lepton, Neutrino}");
 
   eventTree->Branch("top", top); //, 32000, -1);
 }
