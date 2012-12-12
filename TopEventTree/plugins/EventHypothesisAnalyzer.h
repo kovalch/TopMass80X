@@ -32,12 +32,6 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   
   TTree* eventTree;
   
-  // max possible number of jets in events
-  const int kJetMAX;
-
-  // max possible number of permutations per event
-  //const int kMAXCombo;
-
   edm::InputTag ttEvent_;
   edm::InputTag hypoClassKey_;
   
@@ -77,6 +71,12 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   
   bool savePDFWeights_;
   bool data_;
+
+  // max possible number of jets in events
+  const int kJetMAX;
+
+  // max possible number of permutations per event
+  //const int kMAXCombo;
 
   int nJet;
   int permutation[4];

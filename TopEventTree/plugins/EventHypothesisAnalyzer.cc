@@ -251,12 +251,13 @@ EventHypothesisAnalyzer::beginJob()
   top = new TopEvent();
   
   //////////////////////////////////////////////////////////////////////////////////////////////////
-  // book tree
+  // get tree
   //////////////////////////////////////////////////////////////////////////////////////////////////
-   
-  eventTree = fs->make<TTree>("eventTree", "Tree for UHH top-quark analysis\nParticles are in order {TTBar, HadTop, LepTop, HadW, LepW, HadB, LightQ, LightQBar, LepB, Lepton, Neutrino}"); 
 
-  eventTree->Branch("top", &top);//, 32000, -1);
+  eventTree = (TTree*)fs->file().Get(TString("createEventTree")+TString("/")+TString("eventTree"));
+  //eventTree = fs->getObject<TTree>("eventTree", "EventTreeCreator");
+
+  eventTree->Branch("top", top); //, 32000, -1);
 }
 
 std::vector<TLorentzVector> EventHypothesisAnalyzer::getPartons(edm::Handle<TtSemiLeptonicEvent> ttEvent, TtSemiLeptonicEvent::HypoClassKey hypoClassKey, unsigned int h) {
