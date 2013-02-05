@@ -1,5 +1,6 @@
 <use name="root"/>
 <use name="rootgpad"/>
+<use name="CommonTools/UtilAlgos"/>
 <use name="FWCore/MessageLogger"/>
 <use name="PhysicsTools/CandUtils"/>
 <use name="PhysicsTools/PatAlgos"/>

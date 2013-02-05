@@ -391,6 +391,11 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('analyzeTop.root')
 )
 
+# register TreeRegistryService
+process.load("TopMass.TopEventTree.TreeRegistryService_cfi")
+process.TreeRegistryService.treeName  = "eventTree"
+process.TreeRegistryService.treeTitle = "Tree for UHH top-quark analysis\nParticles are in order {TTBar, HadTop, LepTop, HadW, LepW, HadB, LightQ, LightQBar, LepB, Lepton, Neutrino}"
+
 #process.MessageLogger = cms.Service("MessageLogger")
 process.content = cms.EDAnalyzer("EventContentAnalyzer")
 
@@ -496,7 +501,7 @@ from TopAnalysis.TopUtils.usePatTupleWithParticleFlow_cff import prependPF2PATSe
 prependPF2PATSequence(process, options = {'runOnOLDcfg': True,
                                           'runOnMC': True,
                                           'runOnAOD': True,
-                                          'electronIDs': ['CiC','classical'],
+                                          'electronIDs': ['CiC','classical','MVA'],
                                           'switchOffEmbedding': False,
                                           'pfIsoConeMuon': 0.4,
                                           'pfIsoConeElec': 0.4,

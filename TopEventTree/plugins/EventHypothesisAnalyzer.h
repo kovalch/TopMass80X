@@ -7,10 +7,11 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtFullHadronicEvent.h"
 #include "TopMass/TopEventTree/interface/TopEvent.h"
 
-typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >   PxPyPzEVector;
-typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > PtEtaPhiEVector;
+//typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >   PxPyPzEVector;
+//typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > PtEtaPhiEVector;
 
 class EventHypothesisAnalyzer : public edm::EDAnalyzer {
 
@@ -19,8 +20,8 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   explicit EventHypothesisAnalyzer(const edm::ParameterSet&);
   ~EventHypothesisAnalyzer();
   
-  enum { TTBar, HadTop, LepTop, HadW, LepW, HadB, LightQ, LightQBar, LepB, Lepton, Neutrino };
-  enum { TTBar0, Top1, Top2, W1, W2, B1, LightQ1, LightQBar1, B2, LightQ2, LightQBar2 };
+  enum semiLepParticles{ TTBar, HadTop, LepTop, HadW, LepW, HadB, LightQ, LightQBar, LepB, Lepton, Neutrino };
+  enum fullHadParticles{ TTBar0, Top1, Top2, W1, W2, B1, LightQ1, LightQBar1, B2, LightQ2, LightQBar2 };
   
  private:
 
@@ -28,9 +29,13 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
   
-  std::vector<TLorentzVector> getPartons(edm::Handle<TtSemiLeptonicEvent> ttEvent, TtSemiLeptonicEvent::HypoClassKey hypoClassKey, unsigned int h);
+  std::vector<TLorentzVector> getPartons(const TtSemiLeptonicEvent *ttEvent, TtEvent::HypoClassKey hypoClassKey, unsigned int h);
+  std::vector<TLorentzVector> getPartons(const TtFullHadronicEvent *ttEvent, TtEvent::HypoClassKey hypoClassKey, unsigned int h);
   
+  edm::Service<TreeRegistryService> trs;
+
   TTree* eventTree;
+  TBranch* hypoBranch;
   
   edm::InputTag ttEvent_;
   edm::InputTag hypoClassKey_;
@@ -73,14 +78,10 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   bool data_;
 
   // max possible number of jets in events
-  const int kJetMAX;
+  const int kJetMAX_;
 
   // max possible number of permutations per event
-  //const int kMAXCombo;
-
-  // tree to append the information of this analyzer to
-  // (if left empty a new tree will be created)
-  std::string treeToAppend_;
+  const unsigned int kMAXCombo_;
 
   int nJet;
   int permutation[4];

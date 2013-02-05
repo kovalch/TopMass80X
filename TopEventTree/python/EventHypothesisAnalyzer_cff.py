@@ -6,9 +6,6 @@ import FWCore.ParameterSet.Config as cms
 # an MVA discriminator based event hypothesis
 #
 
-# initialize tree creator
-createEventTree = cms.EDAnalyzer("EventTreeCreator")
-
 # initialize analyzers
 from TopMass.TopEventTree.EventHypothesisAnalyzer_cfi import *
 analyzeGenMatch      = analyzeHypothesis.clone(hypoClassKey = "ttSemiLepHypGenMatch:Key")
@@ -16,8 +13,7 @@ analyzeMVADisc       = analyzeHypothesis.clone(hypoClassKey = "ttSemiLepHypMVADi
 analyzeHitFit        = analyzeHypothesis.clone(hypoClassKey = "ttSemiLepHypHitFit:Key")
 
 # define sequence
-analyzeHypotheses = cms.Sequence(createEventTree
-                                 #*analyzeGenMatch
+analyzeHypotheses = cms.Sequence(#analyzeGenMatch
                                  #*analyzeMVADisc
-                                 *analyzeHitFit
+                                 analyzeHitFit
                                  )

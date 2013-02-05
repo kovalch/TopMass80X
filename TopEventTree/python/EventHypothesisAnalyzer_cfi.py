@@ -33,8 +33,7 @@ analyzeHypothesis = cms.EDAnalyzer("EventHypothesisAnalyzer",
     savePDFWeights = cms.bool(False),
     
     maxNJets = cms.int32(10),
-    
-    treeToAppend = cms.string("createEventTree/eventTree")
+    maxCombo = cms.int32(10000)
 )
 
 
