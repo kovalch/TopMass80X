@@ -17,19 +17,15 @@ public:
 
   ClassDef(TopEvent,1);
 
-  // Event data
+  // TopEvent data
   
   int run;
   int lumiBlock;
   int event;
   
-  std::vector<TLorentzVector> genparton;
+  int decayChannel;
   std::vector<int> genpartonJetIdx;
-  
-  std::vector<TLorentzVector> jet;
-  std::vector<double> jetCharge;
-  std::vector<double> jetFlavour;
-  std::vector<double> jetCSV;
+  std::vector<TLorentzVector> genparton;
   
   std::vector<TLorentzVector> recoTTBar;
   std::vector<TLorentzVector> recoHadTop;

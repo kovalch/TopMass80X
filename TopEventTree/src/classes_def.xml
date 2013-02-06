@@ -3,4 +3,5 @@
   <class name="std::vector<std::vector<TLorentzVector> >"/>
   
   <class name="TopEvent"/>
+  <class name="JetEvent"/>
 </lcgdict>

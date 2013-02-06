@@ -36,13 +36,9 @@ TopEvent::TopEvent() {
 void TopEvent::init() {
   run = -1; lumiBlock = -1; event = -1;
   
-  genparton.clear();
+  decayChannel = -10;
   genpartonJetIdx.clear();
-  
-  jet.clear();
-  jetCharge.clear();
-  jetFlavour.clear();
-  jetCSV.clear();
+  genparton.clear();
   
   recoTTBar    .clear();
   recoHadTop   .clear();
@@ -73,6 +69,7 @@ void TopEvent::init() {
   fitLepB     .clear();
   fitLepton   .clear();
   fitNeutrino .clear();
+
   fitProb.clear();
   fitChi2.clear();
 }
