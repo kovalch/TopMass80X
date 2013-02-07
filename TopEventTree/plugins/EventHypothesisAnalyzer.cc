@@ -11,9 +11,6 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiLepEvtPartons.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtFullHadEvtPartons.h"
 //#include "DataFormats/PatCandidates/interface/Muon.h"
-//#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
-//#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
-//#include "LHAPDF/LHAPDF.h"
 
 #include "TopMass/TopEventTree/plugins/EventHypothesisAnalyzer.h"
 
@@ -23,25 +20,8 @@ hypoClassKey_(cfg.getParameter<edm::InputTag>("hypoClassKey")),
 
 //leps_        (cfg.getParameter<edm::InputTag>("leps")),
 //mets_        (cfg.getParameter<edm::InputTag>("mets")),
-//
-//PUSrc_       (cfg.getParameter<edm::InputTag>("PUSrc")),
-//VertexSrc_   (cfg.getParameter<edm::InputTag>("VertexSrc")),
-//
-//PUWeightSrc_ (cfg.getParameter<edm::InputTag>("PUWeightSrc")),
-//PUWeightUpSrc_  (cfg.getParameter<edm::InputTag>("PUWeightUpSrc")),
-//PUWeightDownSrc_(cfg.getParameter<edm::InputTag>("PUWeightDownSrc")),
-//
-//bWeightSrc_  (cfg.getParameter<edm::InputTag>("bWeightSrc")),
-//bWeightSrc_bTagSFUp_    (cfg.getParameter<edm::InputTag>("bWeightSrc_bTagSFUp")),
-//bWeightSrc_bTagSFDown_  (cfg.getParameter<edm::InputTag>("bWeightSrc_bTagSFDown")),
-//bWeightSrc_misTagSFUp_  (cfg.getParameter<edm::InputTag>("bWeightSrc_misTagSFUp")),
-//bWeightSrc_misTagSFDown_(cfg.getParameter<edm::InputTag>("bWeightSrc_misTagSFDown")),
-//
-//muWeightSrc_ (cfg.getParameter<edm::InputTag>("muWeightSrc")),
-//mcWeightSrc_ (cfg.getParameter<edm::InputTag>("mcWeightSrc")),
-//savePDFWeights_(cfg.getParameter<bool>("savePDFWeights")),
 
-kJetMAX_(cfg.getParameter<int>("maxNJets")),
+//kJetMAX_(cfg.getParameter<int>("maxNJets")),
 kMAXCombo_(cfg.getParameter<int>("maxCombo"))
 {
 }
@@ -60,8 +40,10 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
   top->event     = evt.eventAuxiliary().event();
 
   //////////////////////////////////////////////////////////////////////////////
-  // get a handle for the TtSemiLeptonicEvent and a key to the hypothesis
-  ////////////////////////////////////////////////////////////////////////////
+  // get a handle for
+  // TtSemiLeptonicEvent / TtFullHadronicEvent
+  // and a key to the hypothesis
+  //////////////////////////////////////////////////////////////////////////
 
   edm::Handle<TtSemiLeptonicEvent> hSemiLepTtEvent;
   edm::Handle<TtFullHadronicEvent> hFullHadTtEvent;
@@ -94,6 +76,9 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
   //////////////////////////////////////////////////////////////////////////////
   // Ratteldiekatz (c) Martin Görner
   ////////////////////////////////////////////////////////////////////////////
+  // Sorry Markus, mir ist da gerade nichts eingefallen,
+  // daher habe ich einen Kommentar dazu von Martin eingefügt
+  /////////////////////////////////////////////////////////////////////////
 
   if(semiLepTtEvent){
     if (semiLepTtEvent->isHypoValid(TtEvent::kGenMatch)) {
@@ -145,7 +130,7 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  // FIT AND RECO
+  // FIT & RECO
   ////////////////////////////////////////////////////////////////////////////
 
   for (unsigned int h = 0, maxHypos = std::min(ttEvent->numberOfAvailableHypos(hypoClassKey), kMAXCombo_); h < maxHypos; ++h) {
@@ -203,7 +188,9 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
       top->recoJetIdxNeutrino.push_back(0);
 
 
+      //////////////////////////////////////////////////////////////////////////////
       // Fetch reconstructed permutations without fit solution
+      ////////////////////////////////////////////////////////////////////////////
 
       for (unsigned int h = 0; h < ttEvent->numberOfAvailableHypos(TtEvent::kMVADisc); ++h) {
         if (!ttEvent->isHypoValid(TtEvent::kMVADisc, h)) break;
@@ -541,7 +528,8 @@ EventHypothesisAnalyzer::endJob()
 {
 }
 
-EventHypothesisAnalyzer::~EventHypothesisAnalyzer() {
+EventHypothesisAnalyzer::~EventHypothesisAnalyzer()
+{
 }
 
 //define this as a plug-in

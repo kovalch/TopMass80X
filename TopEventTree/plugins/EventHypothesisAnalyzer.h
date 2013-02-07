@@ -38,39 +38,10 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   //edm::InputTag leps_;
   //edm::InputTag mets_;
   //
-  //edm::InputTag PUSrc_;
-  //edm::InputTag VertexSrc_;
-  //
-  //edm::InputTag PUWeightSrc_;
-  //edm::InputTag PUWeightUpSrc_;
-  //edm::InputTag PUWeightDownSrc_;
-  //
-  //edm::InputTag PUAWeightSrc_;
-  //edm::InputTag PUAWeightUpSrc_;
-  //edm::InputTag PUAWeightDownSrc_;
-  //
-  //edm::InputTag PUBWeightSrc_;
-  //edm::InputTag PUBWeightUpSrc_;
-  //edm::InputTag PUBWeightDownSrc_;
-  //
-  //edm::InputTag PUABWeightSrc_;
-  //edm::InputTag PUABWeightUpSrc_;
-  //edm::InputTag PUABWeightDownSrc_;
-  //
-  //edm::InputTag bWeightSrc_;
-  //edm::InputTag bWeightSrc_bTagSFUp_;
-  //edm::InputTag bWeightSrc_bTagSFDown_;
-  //edm::InputTag bWeightSrc_misTagSFUp_;
-  //edm::InputTag bWeightSrc_misTagSFDown_;
-  //
-  //edm::InputTag muWeightSrc_;
-  //edm::InputTag mcWeightSrc_;
-  //
-  //bool savePDFWeights_;
   //bool data_;
 
   // max possible number of jets in events
-  const int kJetMAX_;
+  //const int kJetMAX_;
 
   // max possible number of permutations per event
   const unsigned int kMAXCombo_;

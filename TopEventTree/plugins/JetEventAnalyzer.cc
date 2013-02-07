@@ -43,6 +43,8 @@ JetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
   evt.getByLabel(jets_, jets);
 
   for(std::vector< pat::Jet >::const_iterator ijet = jets->begin(); ijet != jets->end(); ++ijet) {
+    // write only kJetMAX_ jets into the event
+    if(ijet - jets->begin() == kJetMAX_) break;
 
     jet->jet.push_back(TLorentzVector(ijet->px(), ijet->py(), ijet->pz(), ijet->energy()));
 
@@ -68,7 +70,8 @@ JetEventAnalyzer::endJob()
 {
 }
 
-JetEventAnalyzer::~JetEventAnalyzer() {
+JetEventAnalyzer::~JetEventAnalyzer()
+{
 }
 
 //define this as a plug-in

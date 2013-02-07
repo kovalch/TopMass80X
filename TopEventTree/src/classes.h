@@ -16,6 +16,7 @@
 #include "TLorentzVector.h"
 #include "TopMass/TopEventTree/interface/TopEvent.h"
 #include "TopMass/TopEventTree/interface/JetEvent.h"
+#include "TopMass/TopEventTree/interface/WeightEvent.h"
 
 namespace {
   struct dictionary {
@@ -24,5 +25,6 @@ namespace {
     
     TopEvent te;
     JetEvent je;
+    WeightEvent we;
   };
 }
