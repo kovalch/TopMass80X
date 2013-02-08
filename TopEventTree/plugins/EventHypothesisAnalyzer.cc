@@ -213,7 +213,7 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
       top->recoJetIdxLepton   .push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtFullHadEvtPartons::LightP   ]);
       top->recoJetIdxNeutrino .push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtFullHadEvtPartons::LightPBar]);
 
-      //FIXME get cases where genMatch and / or genMatch2 are not valid
+      // get 2. genMatch to see if the case is ambiguous or unmatchable
       edm::Handle<TtFullHadronicEvent> hFullHadTtEvent2;
       evt.getByLabel(ttEventGen2_, hFullHadTtEvent2);
       bool genMatch1Valid = fullHadTtEvent->isHypoValid(TtEvent::kGenMatch);
