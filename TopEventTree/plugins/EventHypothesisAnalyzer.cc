@@ -15,8 +15,9 @@
 #include "TopMass/TopEventTree/plugins/EventHypothesisAnalyzer.h"
 
 EventHypothesisAnalyzer::EventHypothesisAnalyzer(const edm::ParameterSet& cfg):
-ttEvent_  (cfg.getParameter<edm::InputTag>("ttEvent")),
+ttEvent_     (cfg.getParameter<edm::InputTag>("ttEvent")),
 hypoClassKey_(cfg.getParameter<edm::InputTag>("hypoClassKey")),
+ttEventGen2_ (cfg.getParameter<edm::InputTag>("ttEventGen2")),
 
 //leps_        (cfg.getParameter<edm::InputTag>("leps")),
 //mets_        (cfg.getParameter<edm::InputTag>("mets")),
@@ -180,14 +181,57 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
       top->recoLepton   .push_back(hreco[Lepton   ]);
       top->recoNeutrino .push_back(hreco[Neutrino ]);
 
-      top->recoJetIdxHadB.push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtSemiLepEvtPartons::HadB]);
-      top->recoJetIdxLightQ.push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtSemiLepEvtPartons::LightQ]);
+      top->recoJetIdxHadB     .push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtSemiLepEvtPartons::HadB     ]);
+      top->recoJetIdxLightQ   .push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtSemiLepEvtPartons::LightQ   ]);
       top->recoJetIdxLightQBar.push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtSemiLepEvtPartons::LightQBar]);
-      top->recoJetIdxLepB.push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtSemiLepEvtPartons::LepB]);
-      top->recoJetIdxLepton.push_back(0);
-      top->recoJetIdxNeutrino.push_back(0);
+      top->recoJetIdxLepB     .push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtSemiLepEvtPartons::LepB     ]);
+      top->recoJetIdxLepton   .push_back(0);
+      top->recoJetIdxNeutrino .push_back(0);
+    }
+    else if(fullHadTtEvent){
 
+      //TODO still needs some kind of implementation in CMSSW
+      // or a hand-made version in here using the jet index
 
+      //std::vector<TLorentzVector> hreco = getPartons(fullHadTtEvent, hypoClassKey, h);
+      //top->recoTTBar    .push_back(hreco[TTBar    ]);
+      //top->recoHadTop   .push_back(hreco[HadTop   ]);
+      //top->recoLepTop   .push_back(hreco[LepTop   ]);
+      //top->recoHadW     .push_back(hreco[HadW     ]);
+      //top->recoLepW     .push_back(hreco[LepW     ]);
+      //top->recoHadB     .push_back(hreco[HadB     ]);
+      //top->recoLightQ   .push_back(hreco[LightQ   ]);
+      //top->recoLightQBar.push_back(hreco[LightQBar]);
+      //top->recoLepB     .push_back(hreco[LepB     ]);
+      //top->recoLepton   .push_back(hreco[Lepton   ]);
+      //top->recoNeutrino .push_back(hreco[Neutrino ]);
+
+      top->recoJetIdxHadB     .push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtFullHadEvtPartons::B        ]);
+      top->recoJetIdxLightQ   .push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtFullHadEvtPartons::LightQ   ]);
+      top->recoJetIdxLightQBar.push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtFullHadEvtPartons::LightQBar]);
+      top->recoJetIdxLepB     .push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtFullHadEvtPartons::BBar     ]);
+      top->recoJetIdxLepton   .push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtFullHadEvtPartons::LightP   ]);
+      top->recoJetIdxNeutrino .push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtFullHadEvtPartons::LightPBar]);
+
+      //FIXME get cases where genMatch and / or genMatch2 are not valid
+      edm::Handle<TtFullHadronicEvent> hFullHadTtEvent2;
+      evt.getByLabel(ttEventGen2_, hFullHadTtEvent2);
+      bool genMatch1Valid = fullHadTtEvent->isHypoValid(TtEvent::kGenMatch);
+      bool genMatch2Valid = (hFullHadTtEvent2.isValid() && hFullHadTtEvent2->isHypoValid(TtEvent::kGenMatch));
+
+      if( genMatch1Valid ){
+        top->combinationType.push_back(comboTypeFullHad());
+      }
+      else{
+        if( genMatch2Valid ){
+          top->combinationType.push_back(5);
+        }
+        else{
+          top->combinationType.push_back(6);
+        }
+      }
+    }
+    if(semiLepTtEvent){
       //////////////////////////////////////////////////////////////////////////////
       // Fetch reconstructed permutations without fit solution
       ////////////////////////////////////////////////////////////////////////////
@@ -209,12 +253,12 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
         top->recoLepton   .push_back(hreco[Lepton   ]);
         top->recoNeutrino .push_back(hreco[Neutrino ]);
 
-        top->recoJetIdxHadB.push_back(ttEvent->jetLeptonCombination(TtEvent::kMVADisc, h)[TtSemiLepEvtPartons::HadB]);
-        top->recoJetIdxLightQ.push_back(ttEvent->jetLeptonCombination(TtEvent::kMVADisc, h)[TtSemiLepEvtPartons::LightQ]);
+        top->recoJetIdxHadB     .push_back(ttEvent->jetLeptonCombination(TtEvent::kMVADisc, h)[TtSemiLepEvtPartons::HadB]);
+        top->recoJetIdxLightQ   .push_back(ttEvent->jetLeptonCombination(TtEvent::kMVADisc, h)[TtSemiLepEvtPartons::LightQ]);
         top->recoJetIdxLightQBar.push_back(ttEvent->jetLeptonCombination(TtEvent::kMVADisc, h)[TtSemiLepEvtPartons::LightQBar]);
-        top->recoJetIdxLepB.push_back(ttEvent->jetLeptonCombination(TtEvent::kMVADisc, h)[TtSemiLepEvtPartons::LepB]);
-        top->recoJetIdxLepton.push_back(0);
-        top->recoJetIdxNeutrino.push_back(0);
+        top->recoJetIdxLepB     .push_back(ttEvent->jetLeptonCombination(TtEvent::kMVADisc, h)[TtSemiLepEvtPartons::LepB]);
+        top->recoJetIdxLepton   .push_back(0);
+        top->recoJetIdxNeutrino .push_back(0);
       }
     }
   }
@@ -521,6 +565,129 @@ EventHypothesisAnalyzer::fillGenPartons(const TtGenEvent *genEvent)
     }
   }
   return decayChannel;
+}
+
+/// function to find types of jet-combinations in KinFits (1 right, 2 one branche right, other branch inner-branch mixup, 3 both branches inner-branch mixup, 4 cross-branch mixup, -1 to -6 number of falsely picked jets)
+short
+EventHypothesisAnalyzer::comboTypeFullHad()
+{
+  short comboTypeID = comboTypeIDCalculator();
+  //std::cout << "ID: " << comboTypeID << std::endl;
+  // falsely picked jets
+  if(comboTypeID < 0)
+    return comboTypeID;
+
+  // correct permutations
+  if(comboTypeID ==   0 || comboTypeID ==   1 || comboTypeID ==  24 || comboTypeID ==  25 ||
+     comboTypeID == 450 || comboTypeID == 451 || comboTypeID == 474 || comboTypeID == 475)
+    return 1;
+
+  // one branch mixup
+  if((comboTypeID >=   2 && comboTypeID <=   5) || (comboTypeID >=  26 && comboTypeID <=  29) ||
+      comboTypeID == 120 || comboTypeID == 121  ||  comboTypeID == 144 || comboTypeID == 145  ||
+      comboTypeID == 240 || comboTypeID == 241  ||  comboTypeID == 264 || comboTypeID == 265  ||
+     (comboTypeID >= 452 && comboTypeID <= 455) || (comboTypeID >= 476 && comboTypeID <= 479) ||
+      comboTypeID == 570 || comboTypeID == 571  ||  comboTypeID == 594 || comboTypeID == 595  ||
+      comboTypeID == 690 || comboTypeID == 691  ||  comboTypeID == 714 || comboTypeID == 715)
+    return 2;
+
+  // both branches mixup
+  if((comboTypeID >= 122 && comboTypeID <= 125) || (comboTypeID >= 146 && comboTypeID <= 149) ||
+     (comboTypeID >= 242 && comboTypeID <= 245) || (comboTypeID >= 266 && comboTypeID <= 269) ||
+     (comboTypeID >= 572 && comboTypeID <= 575) || (comboTypeID >= 596 && comboTypeID <= 599) ||
+     (comboTypeID >= 692 && comboTypeID <= 695) || (comboTypeID >= 716 && comboTypeID <= 719))
+    return 3;
+
+  // mixup cross branches
+  if((comboTypeID >=   6 && comboTypeID <=  23) || (comboTypeID >=  30 && comboTypeID <= 119) ||
+     (comboTypeID >= 126 && comboTypeID <= 143) || (comboTypeID >= 150 && comboTypeID <= 239) ||
+     (comboTypeID >= 246 && comboTypeID <= 263) || (comboTypeID >= 270 && comboTypeID <= 449) ||
+     (comboTypeID >= 456 && comboTypeID <= 473) || (comboTypeID >= 480 && comboTypeID <= 569) ||
+     (comboTypeID >= 576 && comboTypeID <= 593) || (comboTypeID >= 600 && comboTypeID <= 689) ||
+     (comboTypeID >= 696 && comboTypeID <= 713) )
+    return 4;
+
+  return -37;
+}
+
+/// assign unique ID to every permutation type
+short
+EventHypothesisAnalyzer::comboTypeIDCalculator()
+{
+  /// vector to store the jet indices
+  std::vector<int> jetIndexFit;
+  std::vector<int> jetIndexGen;
+
+  jetIndexFit.push_back(top->recoJetIdxHadB     .back());
+  jetIndexFit.push_back(top->recoJetIdxLightQ   .back());
+  jetIndexFit.push_back(top->recoJetIdxLightQBar.back());
+  jetIndexFit.push_back(top->recoJetIdxLepB     .back());
+  jetIndexFit.push_back(top->recoJetIdxLepton   .back());
+  jetIndexFit.push_back(top->recoJetIdxNeutrino .back());
+
+  jetIndexGen.push_back(top->genpartonJetIdx[B1        ]);
+  jetIndexGen.push_back(top->genpartonJetIdx[LightQ1   ]);
+  jetIndexGen.push_back(top->genpartonJetIdx[LightQBar1]);
+  jetIndexGen.push_back(top->genpartonJetIdx[B2        ]);
+  jetIndexGen.push_back(top->genpartonJetIdx[LightQ2   ]);
+  jetIndexGen.push_back(top->genpartonJetIdx[LightQBar2]);
+
+  //std::cout << "fit: " << jetIndexFit[0] << " " << jetIndexFit[1] << " " << jetIndexFit[2] << " " << jetIndexFit[3] << " " << jetIndexFit[4] << " " << jetIndexFit[5] << std::endl;
+  //std::cout << "gen: " << jetIndexGen[0] << " " << jetIndexGen[1] << " " << jetIndexGen[2] << " " << jetIndexGen[3] << " " << jetIndexGen[4] << " " << jetIndexGen[5] << std::endl;
+
+  return comboTypeAlgo(jetIndexFit, jetIndexGen);
+}
+
+short
+EventHypothesisAnalyzer::comboTypeAlgo(std::vector<int> jetIndexFit, std::vector<int> jetIndexGen)
+{
+  short result = 0;
+  short wrongJets = 0;
+  for(unsigned short iFit = 0; iFit < jetIndexFit.size(); ++iFit){
+    short fact = TMath::Factorial(jetIndexFit.size()-iFit-1);
+    //std::cout << "result = " << result;
+    bool foundPair = false;
+    for(unsigned short jGen = 0, jGenCount = 0; jGen < jetIndexGen.size(); ++jGen, ++jGenCount){
+      if(jetIndexGen.at(jGen) == -37){
+    --jGenCount;
+    continue;
+      }
+      if(jetIndexFit.at(iFit) == jetIndexGen.at(jGen)){
+    foundPair = true;
+    result += fact*(jGenCount);
+    //std::cout << " (" << iFit << "," << jGen << "," << jGenCount << ")";
+    jetIndexGen[jGen] = -37;
+      }
+    }
+    if(!foundPair){
+      ++wrongJets;
+    }
+    //std::cout << " -> " << result << std::endl;
+  }
+  if(wrongJets){
+    result = 0-wrongJets;
+  }
+
+  //std::cout << "result: " << result << std::endl;
+
+  return result;
+}
+
+std::vector<short>
+EventHypothesisAnalyzer::comboTypeAlgoInverted(std::vector<int> jetIndexGen, short comboType)
+{
+  unsigned short lGen = jetIndexGen.size();
+  if(comboType<0 || comboType>=TMath::Factorial(lGen)) return std::vector<short>(0);
+  std::vector<short> result(lGen);
+  for(unsigned short iGen = 0; iGen < lGen; ++iGen){
+    short idx = lGen-iGen-1;
+    short fact = TMath::Factorial(idx);
+    short calc = comboType/fact;
+    result[iGen] = jetIndexGen.at(calc);
+    jetIndexGen.erase(jetIndexGen.begin()+calc);
+    comboType -= calc*fact;
+  }
+  return result;
 }
 
 void

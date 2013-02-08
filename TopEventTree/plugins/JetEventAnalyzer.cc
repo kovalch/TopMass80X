@@ -22,7 +22,10 @@ JetEventAnalyzer::JetEventAnalyzer(const edm::ParameterSet& cfg):
 jets_        (cfg.getParameter<edm::InputTag>("jets")),
 //allJets_     (cfg.getParameter<edm::InputTag>("allJets")),
 //noPtEtaJets_ (cfg.getParameter<edm::InputTag>("noPtEtaJets")),
-kJetMAX_(cfg.getParameter<int>("maxNJets"))
+gluonTagSrc_ (cfg.getParameter<edm::InputTag>("gluonTagSrc")),
+kJetMAX_(cfg.getParameter<int>("maxNJets")),
+checkedJERSF(false), checkedJESSF(false), checkedTotalSF(false), checkedQGTag(false),
+    hasJERSF(false),     hasJESSF(false),     hasTotalSF(false),     hasQGTag(false)
 {
 }
 
@@ -42,15 +45,33 @@ JetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
   edm::Handle<std::vector<pat::Jet> > jets;
   evt.getByLabel(jets_, jets);
 
-  for(std::vector< pat::Jet >::const_iterator ijet = jets->begin(); ijet != jets->end(); ++ijet) {
+  edm::Handle<edm::ValueMap<float> >  QGTagsHandleLikelihood;
+  evt.getByLabel(gluonTagSrc_, QGTagsHandleLikelihood);
+
+  unsigned short jetIndex = 0;
+  for(std::vector< pat::Jet >::const_iterator ijet = jets->begin(); ijet != jets->end(); ++ijet, ++jetIndex) {
     // write only kJetMAX_ jets into the event
-    if(ijet - jets->begin() == kJetMAX_) break;
+    if(jetIndex == kJetMAX_) break;
 
     jet->jet.push_back(TLorentzVector(ijet->px(), ijet->py(), ijet->pz(), ijet->energy()));
 
-    jet->jetCharge.push_back(ijet->jetCharge());
-    jet->jetFlavour.push_back(ijet->partonFlavour());
-    jet->jetCSV.push_back(ijet->bDiscriminator("combinedSecondaryVertexBJetTags"));
+    jet->charge .push_back(ijet->jetCharge());
+    jet->flavour.push_back(ijet->partonFlavour());
+    jet->bTagCSV.push_back(ijet->bDiscriminator("combinedSecondaryVertexBJetTags"));
+
+    // check only once per module run if the needed collections are available
+    if(!checkedQGTag  ) { checkedQGTag   = true; if(QGTagsHandleLikelihood.isValid()) hasQGTag   = true; }
+    if(!checkedJERSF  ) { checkedJERSF   = true; if(ijet->hasUserFloat("jerSF"     )) hasJERSF   = true; }
+    if(!checkedJESSF  ) { checkedJESSF   = true; if(ijet->hasUserFloat("jesSF"     )) hasJESSF   = true; }
+    if(!checkedTotalSF) { checkedTotalSF = true; if(ijet->hasUserFloat("totalSF"   )) hasTotalSF = true; }
+
+    if(hasQGTag){
+      edm::RefToBase<pat::Jet> jetRef(edm::Ref<std::vector<pat::Jet> >(jets, jetIndex));
+      jet->gluonTag.push_back((*QGTagsHandleLikelihood)[jetRef]);
+    }
+    if(hasJERSF  ) jet->jerSF  .push_back(ijet->userFloat("jerSF"  ));
+    if(hasJESSF  ) jet->jesSF  .push_back(ijet->userFloat("jesSF"  ));
+    if(hasTotalSF) jet->totalSF.push_back(ijet->userFloat("totalSF"));
   }
 
   trs->Fill();

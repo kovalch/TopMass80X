@@ -70,6 +70,8 @@ void TopEvent::init() {
   fitLepton   .clear();
   fitNeutrino .clear();
 
+  combinationType.clear();
+
   fitProb.clear();
   fitChi2.clear();
 }

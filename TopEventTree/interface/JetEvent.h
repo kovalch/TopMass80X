@@ -26,9 +26,13 @@ public:
   // JetEvent data
 
   std::vector<TLorentzVector> jet;
-  std::vector<double> jetCharge;
-  std::vector<double> jetFlavour;
-  std::vector<double> jetCSV;
+  std::vector<double> charge;
+  std::vector<double> flavour;
+  std::vector<double> bTagCSV;
+  std::vector<double> gluonTag;
+  std::vector<double> jerSF;
+  std::vector<double> jesSF;
+  std::vector<double> totalSF;
 
 
 private:

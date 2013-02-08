@@ -15,7 +15,11 @@ JetEvent::JetEvent()
 void JetEvent::init()
 {
   jet.clear();
-  jetCharge.clear();
-  jetFlavour.clear();
-  jetCSV.clear();
+  charge.clear();
+  flavour.clear();
+  bTagCSV.clear();
+  gluonTag.clear();
+  jerSF.clear();
+  jesSF.clear();
+  totalSF.clear();
 }

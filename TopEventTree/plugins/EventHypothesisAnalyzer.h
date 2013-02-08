@@ -30,10 +30,16 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   // fills vector of genPartons, returns ID for the decay channel
   int fillGenPartons(const TtGenEvent *genEvent);
 
+  short comboTypeFullHad();
+  short comboTypeIDCalculator();
+  short comboTypeAlgo(std::vector<int> jetIndexFit, std::vector<int> jetIndexGen);
+  std::vector<short> comboTypeAlgoInverted(std::vector<int> jetIndexGen, short comboType);
+
   edm::Service<TreeRegistryService> trs;
 
   edm::InputTag ttEvent_;
   edm::InputTag hypoClassKey_;
+  edm::InputTag ttEventGen2_;
   
   //edm::InputTag leps_;
   //edm::InputTag mets_;

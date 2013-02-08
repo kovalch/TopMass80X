@@ -23,12 +23,18 @@ class JetEventAnalyzer : public edm::EDAnalyzer {
   edm::InputTag jets_;
   //edm::InputTag allJets_;
   //edm::InputTag noPtEtaJets_;
+  edm::InputTag gluonTagSrc_;
 
   // max possible number of jets in events
   const int kJetMAX_;
 
   // THE JetEvent to store the information
   JetEvent* jet;
+
+  // check only once per module run if the needed collections are available
+  bool checkedJERSF, checkedJESSF, checkedTotalSF, checkedQGTag;
+  bool     hasJERSF,     hasJESSF,     hasTotalSF,     hasQGTag;
+
 };
 
 #endif

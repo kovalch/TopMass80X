@@ -87,6 +87,8 @@ public:
   std::vector<TLorentzVector> *fitLightQ2;
   std::vector<TLorentzVector> *fitLightQBar2;
 
+  std::vector<int> combinationType;
+
   std::vector<double> fitProb;
   std::vector<double> fitChi2;
 

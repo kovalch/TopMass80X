@@ -7,5 +7,6 @@ analyzeJets = cms.EDAnalyzer("JetEventAnalyzer",
     jets         = cms.InputTag("goodJetsPF30"),
     #allJets      = cms.InputTag("patJets"),
     #noPtEtaJets  = cms.InputTag("noPtEtaJetsPF"),
+    gluonTagSrc  = cms.InputTag(""),
     maxNJets = cms.int32(20)
 )
