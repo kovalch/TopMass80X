@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "TopMass/TopEventTree/interface/JetEvent.h"
 
+//#include <utility>
 
 class JetEventAnalyzer : public edm::EDAnalyzer {
 
@@ -17,6 +18,8 @@ class JetEventAnalyzer : public edm::EDAnalyzer {
   virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
+
+  std::pair<TVector2, TVector2> getPullVector( std::vector<pat::Jet>::const_iterator patJet );
 
   edm::Service<TreeRegistryService> trs;
 

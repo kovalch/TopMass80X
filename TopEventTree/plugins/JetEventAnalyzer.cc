@@ -55,9 +55,21 @@ JetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
 
     jet->jet.push_back(TLorentzVector(ijet->px(), ijet->py(), ijet->pz(), ijet->energy()));
 
-    jet->charge .push_back(ijet->jetCharge());
-    jet->flavour.push_back(ijet->partonFlavour());
-    jet->bTagCSV.push_back(ijet->bDiscriminator("combinedSecondaryVertexBJetTags"));
+    jet->fChargedHadron .push_back(ijet->chargedHadronEnergyFraction());
+    jet->fNeutralHadron .push_back(ijet->neutralHadronEnergyFraction());
+    jet->fElectron      .push_back(ijet->electronEnergyFraction());
+    jet->fPhoton        .push_back(ijet->photonEnergyFraction());
+    jet->fMuon          .push_back(ijet->muonEnergyFraction());
+    jet->nConstituents  .push_back(ijet->nConstituents());
+    jet->nChargedHadrons.push_back(ijet->chargedHadronMultiplicity());
+    jet->nNeutralHadrons.push_back(ijet->neutralHadronMultiplicity());
+    jet->nElectrons     .push_back(ijet->electronMultiplicity());
+    jet->nPhotons       .push_back(ijet->photonMultiplicity());
+    jet->nMuons         .push_back(ijet->muonMultiplicity());
+
+    jet->charge         .push_back(ijet->jetCharge());
+    jet->flavour        .push_back(ijet->partonFlavour());
+    jet->bTagCSV        .push_back(ijet->bDiscriminator("combinedSecondaryVertexBJetTags"));
 
     // check only once per module run if the needed collections are available
     if(!checkedQGTag  ) { checkedQGTag   = true; if(QGTagsHandleLikelihood.isValid()) hasQGTag   = true; }
@@ -72,6 +84,10 @@ JetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
     if(hasJERSF  ) jet->jerSF  .push_back(ijet->userFloat("jerSF"  ));
     if(hasJESSF  ) jet->jesSF  .push_back(ijet->userFloat("jesSF"  ));
     if(hasTotalSF) jet->totalSF.push_back(ijet->userFloat("totalSF"));
+
+    std::pair<TVector2, TVector2> pulls = getPullVector( ijet );
+    jet->pull       .push_back(pulls.first );
+    jet->pullCharged.push_back(pulls.second);
   }
 
   trs->Fill();
@@ -93,6 +109,55 @@ JetEventAnalyzer::endJob()
 
 JetEventAnalyzer::~JetEventAnalyzer()
 {
+}
+
+std::pair<TVector2, TVector2>
+JetEventAnalyzer::getPullVector( std::vector<pat::Jet>::const_iterator patJet )
+{
+  TVector2 null(0,0);
+
+  if (patJet->isPFJet() == false) {
+    return std::make_pair(null,null);
+  }
+
+  //re-reconstruct the jet direction with the charged tracks
+  TLorentzVector chargedJet(0,0,0,0);
+  TLorentzVector constituent(0,0,0,0);
+  unsigned int nCharged = 0;
+
+  std::vector<reco::PFCandidatePtr> constituents = patJet->getPFConstituents();
+  for(size_t idx = 0, length = constituents.size(); idx < length; ++idx){
+    if( constituents.at(idx)->charge() != 0 ){
+      constituent.SetPtEtaPhiE( constituents.at(idx)->pt(), constituents.at(idx)->eta(), constituents.at(idx)->phi(), constituents.at(idx)->energy() );
+      chargedJet += constituent;
+      ++nCharged;
+    }
+  }
+
+  double jetPt        = patJet   ->pt(), jetPhi        = patJet   ->phi(), jetRapidity        = patJet   ->rapidity();
+  double jetPtCharged = chargedJet.Pt(), jetPhiCharged = chargedJet.Phi(), jetRapidityCharged = chargedJet.Rapidity();
+  TVector2 r(0,0);
+  TVector2 pullAll(0,0);
+  TVector2 pullCharged(0,0);
+
+  for(size_t idx = 0, length = constituents.size(); idx < length; ++idx){
+    double constituentPt       = constituents.at(idx)->pt();
+    double constituentPhi      = constituents.at(idx)->phi();
+    double constituentRapidity = constituents.at(idx)->rapidity();
+    r.Set( constituentRapidity - jetRapidity, TVector2::Phi_mpi_pi( constituentPhi - jetPhi ) );
+    pullAll += ( constituentPt / jetPt ) * r.Mod() * r;
+    //calculate TVector using only charged tracks
+    if( constituents.at(idx)->charge() != 0  )
+      r.Set( constituentRapidity - jetRapidityCharged, TVector2::Phi_mpi_pi( constituentPhi - jetPhiCharged ) );
+      pullCharged += ( constituentPt / jetPtCharged ) * r.Mod() * r;
+  }
+
+  // if there are less than two charged tracks do not calculate the pull (there is not enough info), return null vector
+  //TODO really needed???????
+  if( nCharged < 2 )
+    pullCharged = null;
+
+  return std::make_pair(pullAll, pullCharged);
 }
 
 //define this as a plug-in
