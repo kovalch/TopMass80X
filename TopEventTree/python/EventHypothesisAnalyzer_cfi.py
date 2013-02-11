@@ -7,6 +7,7 @@ analyzeHypothesis = cms.EDAnalyzer("EventHypothesisAnalyzer",
     ttEvent      = cms.InputTag("ttSemiLepEvent"),
     hypoClassKey = cms.InputTag("ttSemiLepHypMaxSumPtWMass","Key"),
     ttEventGen2  = cms.InputTag(""),
+    jets         = cms.InputTag("goodJetsPF30"), # needed in fullHad channel for reco masses
    
     #leps         = cms.InputTag("tightMuons"),
     #mets         = cms.InputTag("scaledMET:scaledMETs"),

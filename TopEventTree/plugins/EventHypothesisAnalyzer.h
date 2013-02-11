@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtFullHadronicEvent.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
 #include "TopMass/TopEventTree/interface/TopEvent.h"
 
 
@@ -26,7 +27,9 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   // get vector of partons from the hypothesis
   std::vector<TLorentzVector> getPartons(const TtSemiLeptonicEvent *ttEvent, TtEvent::HypoClassKey hypoClassKey, unsigned int h);
   std::vector<TLorentzVector> getPartons(const TtFullHadronicEvent *ttEvent, TtEvent::HypoClassKey hypoClassKey, unsigned int h);
-  
+  // needed in fullHad channel for reco masses
+  std::vector<TLorentzVector> getPartons(const std::vector<pat::Jet> *jets);
+
   // fills vector of genPartons, returns ID for the decay channel
   int fillGenPartons(const TtGenEvent *genEvent);
 
@@ -40,6 +43,7 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   edm::InputTag ttEvent_;
   edm::InputTag hypoClassKey_;
   edm::InputTag ttEventGen2_;
+  edm::InputTag jets_;
   
   //edm::InputTag leps_;
   //edm::InputTag mets_;

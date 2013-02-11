@@ -19,6 +19,7 @@ ttEvent_     (cfg.getParameter<edm::InputTag>("ttEvent")),
 hypoClassKey_(cfg.getParameter<edm::InputTag>("hypoClassKey")),
 ttEventGen2_ (cfg.getParameter<edm::InputTag>("ttEventGen2")),
 
+jets_        (cfg.getParameter<edm::InputTag>("jets")), // needed in fullHad channel for reco masses
 //leps_        (cfg.getParameter<edm::InputTag>("leps")),
 //mets_        (cfg.getParameter<edm::InputTag>("mets")),
 
@@ -52,6 +53,10 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
   const TtFullHadronicEvent *fullHadTtEvent = 0;
   const TtEvent *ttEvent = 0;
 
+  // needed in fullHad channel for reco masses
+  edm::Handle<std::vector<pat::Jet> > hJets;
+  const std::vector<pat::Jet> *jets = 0;
+
   if(ttEvent_.label().find("SemiLep")!=std::string::npos){
     evt.getByLabel(ttEvent_, hSemiLepTtEvent);
     semiLepTtEvent = hSemiLepTtEvent.product();
@@ -61,6 +66,8 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     evt.getByLabel(ttEvent_, hFullHadTtEvent);
     fullHadTtEvent = hFullHadTtEvent.product();
     ttEvent = fullHadTtEvent;
+    evt.getByLabel(jets_, hJets);
+    jets = hJets.product();
   }
   else{
     std::cout << "The given 'ttEvent' label (" << ttEvent_.label() << ") is not allowed.\n"
@@ -167,6 +174,13 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     }
 
     if(semiLepTtEvent){
+      top->recoJetIdxHadB     .push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtSemiLepEvtPartons::HadB     ]);
+      top->recoJetIdxLightQ   .push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtSemiLepEvtPartons::LightQ   ]);
+      top->recoJetIdxLightQBar.push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtSemiLepEvtPartons::LightQBar]);
+      top->recoJetIdxLepB     .push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtSemiLepEvtPartons::LepB     ]);
+      top->recoJetIdxLepton   .push_back(0);
+      top->recoJetIdxNeutrino .push_back(0);
+
       std::vector<TLorentzVector> hreco = getPartons(semiLepTtEvent, TtEvent::kMVADisc,
           ttEvent->correspondingHypo(hypoClassKey, h, TtEvent::kMVADisc));
       top->recoTTBar    .push_back(hreco[TTBar    ]);
@@ -180,38 +194,28 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
       top->recoLepB     .push_back(hreco[LepB     ]);
       top->recoLepton   .push_back(hreco[Lepton   ]);
       top->recoNeutrino .push_back(hreco[Neutrino ]);
-
-      top->recoJetIdxHadB     .push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtSemiLepEvtPartons::HadB     ]);
-      top->recoJetIdxLightQ   .push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtSemiLepEvtPartons::LightQ   ]);
-      top->recoJetIdxLightQBar.push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtSemiLepEvtPartons::LightQBar]);
-      top->recoJetIdxLepB     .push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtSemiLepEvtPartons::LepB     ]);
-      top->recoJetIdxLepton   .push_back(0);
-      top->recoJetIdxNeutrino .push_back(0);
     }
     else if(fullHadTtEvent){
-
-      //TODO still needs some kind of implementation in CMSSW
-      // or a hand-made version in here using the jet index
-
-      //std::vector<TLorentzVector> hreco = getPartons(fullHadTtEvent, hypoClassKey, h);
-      //top->recoTTBar    .push_back(hreco[TTBar    ]);
-      //top->recoHadTop   .push_back(hreco[HadTop   ]);
-      //top->recoLepTop   .push_back(hreco[LepTop   ]);
-      //top->recoHadW     .push_back(hreco[HadW     ]);
-      //top->recoLepW     .push_back(hreco[LepW     ]);
-      //top->recoHadB     .push_back(hreco[HadB     ]);
-      //top->recoLightQ   .push_back(hreco[LightQ   ]);
-      //top->recoLightQBar.push_back(hreco[LightQBar]);
-      //top->recoLepB     .push_back(hreco[LepB     ]);
-      //top->recoLepton   .push_back(hreco[Lepton   ]);
-      //top->recoNeutrino .push_back(hreco[Neutrino ]);
-
       top->recoJetIdxHadB     .push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtFullHadEvtPartons::B        ]);
       top->recoJetIdxLightQ   .push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtFullHadEvtPartons::LightQ   ]);
       top->recoJetIdxLightQBar.push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtFullHadEvtPartons::LightQBar]);
       top->recoJetIdxLepB     .push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtFullHadEvtPartons::BBar     ]);
       top->recoJetIdxLepton   .push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtFullHadEvtPartons::LightP   ]);
       top->recoJetIdxNeutrino .push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtFullHadEvtPartons::LightPBar]);
+
+      // do this AFTER *recoJetIdx*'s have been filled, values are used here !!!
+      std::vector<TLorentzVector> hreco = getPartons(jets);
+      top->recoTTBar    .push_back(hreco[TTBar    ]);
+      top->recoHadTop   .push_back(hreco[HadTop   ]);
+      top->recoLepTop   .push_back(hreco[LepTop   ]);
+      top->recoHadW     .push_back(hreco[HadW     ]);
+      top->recoLepW     .push_back(hreco[LepW     ]);
+      top->recoHadB     .push_back(hreco[HadB     ]);
+      top->recoLightQ   .push_back(hreco[LightQ   ]);
+      top->recoLightQBar.push_back(hreco[LightQBar]);
+      top->recoLepB     .push_back(hreco[LepB     ]);
+      top->recoLepton   .push_back(hreco[Lepton   ]);
+      top->recoNeutrino .push_back(hreco[Neutrino ]);
 
       // get 2. genMatch to see if the case is ambiguous or unmatchable
       edm::Handle<TtFullHadronicEvent> hFullHadTtEvent2;
@@ -220,6 +224,7 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
       bool genMatch2Valid = (hFullHadTtEvent2.isValid() && hFullHadTtEvent2->isHypoValid(TtEvent::kGenMatch));
 
       if( genMatch1Valid ){
+        // do this AFTER *recoJetIdx* have been filled, values are used here !!!
         top->combinationType.push_back(comboTypeFullHad());
       }
       else{
@@ -234,7 +239,8 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     if(semiLepTtEvent){
       //////////////////////////////////////////////////////////////////////////////
       // Fetch reconstructed permutations without fit solution
-      ////////////////////////////////////////////////////////////////////////////
+      // not implemented for fullHad version up to now
+      ///////////////////////////////////////////////////////////////////////////
 
       for (unsigned int h = 0; h < ttEvent->numberOfAvailableHypos(TtEvent::kMVADisc); ++h) {
         if (!ttEvent->isHypoValid(TtEvent::kMVADisc, h)) break;
@@ -274,7 +280,8 @@ EventHypothesisAnalyzer::beginJob()
   trs->Branch("top", top);
 }
 
-std::vector<TLorentzVector> EventHypothesisAnalyzer::getPartons(const TtSemiLeptonicEvent *ttEvent, TtEvent::HypoClassKey hypoClassKey, unsigned int h) {
+std::vector<TLorentzVector> EventHypothesisAnalyzer::getPartons(const TtSemiLeptonicEvent *ttEvent, TtEvent::HypoClassKey hypoClassKey, unsigned int h)
+{
   // TODO: validate hypo, catch h=-1
   std::vector<TLorentzVector> parton;
 
@@ -320,7 +327,8 @@ std::vector<TLorentzVector> EventHypothesisAnalyzer::getPartons(const TtSemiLept
   return parton;
 }
 
-std::vector<TLorentzVector> EventHypothesisAnalyzer::getPartons(const TtFullHadronicEvent *ttEvent, TtEvent::HypoClassKey hypoClassKey, unsigned int h) {
+std::vector<TLorentzVector> EventHypothesisAnalyzer::getPartons(const TtFullHadronicEvent *ttEvent, TtEvent::HypoClassKey hypoClassKey, unsigned int h)
+{
   // TODO: validate hypo, catch h=-1
   std::vector<TLorentzVector> parton;
 
@@ -365,6 +373,53 @@ std::vector<TLorentzVector> EventHypothesisAnalyzer::getPartons(const TtFullHadr
 
   return parton;
 }
+
+std::vector<TLorentzVector> EventHypothesisAnalyzer::getPartons(const std::vector<pat::Jet> *jets)
+{
+  int idxB1         = top->recoJetIdxHadB     .back();
+  int idxLightQ1    = top->recoJetIdxLightQ   .back();
+  int idxLightQBar1 = top->recoJetIdxLightQBar.back();
+  int idxB2         = top->recoJetIdxLepB     .back();
+  int idxLightQ2    = top->recoJetIdxLepton   .back();
+  int idxLightQBar2 = top->recoJetIdxNeutrino .back();
+
+  // TODO: validate hypo, catch h=-1
+  std::vector<TLorentzVector> parton;
+
+  parton.push_back(TLorentzVector(
+      jets->at(idxB1).px()     + jets->at(idxLightQ1).px()     + jets->at(idxLightQBar1).px()     +  jets->at(idxB2).px()     + jets->at(idxLightQ2).px()     + jets->at(idxLightQBar2).px(),
+      jets->at(idxB1).py()     + jets->at(idxLightQ1).py()     + jets->at(idxLightQBar1).py()     +  jets->at(idxB2).py()     + jets->at(idxLightQ2).py()     + jets->at(idxLightQBar2).py(),
+      jets->at(idxB1).pz()     + jets->at(idxLightQ1).pz()     + jets->at(idxLightQBar1).pz()     +  jets->at(idxB2).pz()     + jets->at(idxLightQ2).pz()     + jets->at(idxLightQBar2).pz(),
+      jets->at(idxB1).energy() + jets->at(idxLightQ1).energy() + jets->at(idxLightQBar1).energy() +  jets->at(idxB2).energy() + jets->at(idxLightQ2).energy() + jets->at(idxLightQBar2).energy()));
+
+  parton.push_back(TLorentzVector(
+      jets->at(idxB1).px()     + jets->at(idxLightQ1).px()     + jets->at(idxLightQBar1).px(),
+      jets->at(idxB1).py()     + jets->at(idxLightQ1).py()     + jets->at(idxLightQBar1).py(),
+      jets->at(idxB1).pz()     + jets->at(idxLightQ1).pz()     + jets->at(idxLightQBar1).pz(),
+      jets->at(idxB1).energy() + jets->at(idxLightQ1).energy() + jets->at(idxLightQBar1).energy()));
+  parton.push_back(TLorentzVector(
+      jets->at(idxB2).px()     + jets->at(idxLightQ2).px()     + jets->at(idxLightQBar2).px(),
+      jets->at(idxB2).py()     + jets->at(idxLightQ2).py()     + jets->at(idxLightQBar2).py(),
+      jets->at(idxB2).pz()     + jets->at(idxLightQ2).pz()     + jets->at(idxLightQBar2).pz(),
+      jets->at(idxB2).energy() + jets->at(idxLightQ2).energy() + jets->at(idxLightQBar2).energy()));
+
+  parton.push_back(TLorentzVector(
+      jets->at(idxLightQ1).px() + jets->at(idxLightQBar1).px(), jets->at(idxLightQ1).py()     + jets->at(idxLightQBar1).py(),
+      jets->at(idxLightQ1).pz() + jets->at(idxLightQBar1).pz(), jets->at(idxLightQ1).energy() + jets->at(idxLightQBar1).energy()));
+  parton.push_back(TLorentzVector(
+      jets->at(idxLightQ2).px() + jets->at(idxLightQBar2).px(), jets->at(idxLightQ2).py()     + jets->at(idxLightQBar2).py(),
+      jets->at(idxLightQ2).pz() + jets->at(idxLightQBar2).pz(), jets->at(idxLightQ2).energy() + jets->at(idxLightQBar2).energy()));
+
+  parton.push_back(TLorentzVector(jets->at(idxB1        ).px(), jets->at(idxB1        ).py(), jets->at(idxB1        ).pz(), jets->at(idxB1        ).energy()));
+  parton.push_back(TLorentzVector(jets->at(idxLightQ1   ).px(), jets->at(idxLightQ1   ).py(), jets->at(idxLightQ1   ).pz(), jets->at(idxLightQ1   ).energy()));
+  parton.push_back(TLorentzVector(jets->at(idxLightQBar1).px(), jets->at(idxLightQBar1).py(), jets->at(idxLightQBar1).pz(), jets->at(idxLightQBar1).energy()));
+  parton.push_back(TLorentzVector(jets->at(idxB2        ).px(), jets->at(idxB2        ).py(), jets->at(idxB2        ).pz(), jets->at(idxB2        ).energy()));
+  parton.push_back(TLorentzVector(jets->at(idxLightQ2   ).px(), jets->at(idxLightQ2   ).py(), jets->at(idxLightQ2   ).pz(), jets->at(idxLightQ2   ).energy()));
+  parton.push_back(TLorentzVector(jets->at(idxLightQBar2).px(), jets->at(idxLightQBar2).py(), jets->at(idxLightQBar2).pz(), jets->at(idxLightQBar2).energy()));
+
+  return parton;
+}
+
 
 //////////////////////////////////////////////////////////////////////////////////
 // GENPARTON SEMI-LEP
