@@ -37,6 +37,10 @@ void JetEvent::init()
   jesSF.clear();
   totalSF.clear();
 
+  // CINT does not like vectors of TVector2s
+  // But if you don't tell ROOT, what they are, it works :D
+#ifndef __CINT__
   pull.clear();
   pullCharged.clear();
+#endif
 }
