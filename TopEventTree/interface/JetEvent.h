@@ -39,7 +39,7 @@ public:
     TString ptot2 = "(TMath::Sqrt("+p1+"*"+p2+"))";
     TString dot   = "(("+TString(vec1)+".X()*"+TString(vec2)+".X()) + ("+TString(vec1)+".Y()*"+TString(vec2)+".Y()) + ("+TString(vec1)+".Z()*"+TString(vec2)+".Z()))";
     TString arg   = "TMath::ACos("+dot+"/"+ptot2+")";
-    std::cout << arg << std::endl;
+    //std::cout << arg << std::endl;
     return arg;
   }
   ClassDef(JetEvent,1);
