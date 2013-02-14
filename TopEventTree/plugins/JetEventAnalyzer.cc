@@ -24,8 +24,8 @@ jets_        (cfg.getParameter<edm::InputTag>("jets")),
 //noPtEtaJets_ (cfg.getParameter<edm::InputTag>("noPtEtaJets")),
 gluonTagSrc_ (cfg.getParameter<edm::InputTag>("gluonTagSrc")),
 kJetMAX_(cfg.getParameter<int>("maxNJets")),
-checkedJERSF(false), checkedJESSF(false), checkedTotalSF(false), checkedQGTag(false),
-    hasJERSF(false),     hasJESSF(false),     hasTotalSF(false),     hasQGTag(false)
+checkedIsPFJet(false), checkedJERSF(false), checkedJESSF(false), checkedTotalSF(false), checkedQGTag(false),
+isPFJet(false),     hasJERSF(false),     hasJESSF(false),     hasTotalSF(false),     hasQGTag(false)
 {
 }
 
@@ -55,27 +55,29 @@ JetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
 
     jet->jet.push_back(TLorentzVector(ijet->px(), ijet->py(), ijet->pz(), ijet->energy()));
 
-    jet->fChargedHadron .push_back(ijet->chargedHadronEnergyFraction());
-    jet->fNeutralHadron .push_back(ijet->neutralHadronEnergyFraction());
-    jet->fElectron      .push_back(ijet->electronEnergyFraction());
-    jet->fPhoton        .push_back(ijet->photonEnergyFraction());
-    jet->fMuon          .push_back(ijet->muonEnergyFraction());
-    jet->nConstituents  .push_back(ijet->nConstituents());
-    jet->nChargedHadrons.push_back(ijet->chargedHadronMultiplicity());
-    jet->nNeutralHadrons.push_back(ijet->neutralHadronMultiplicity());
-    jet->nElectrons     .push_back(ijet->electronMultiplicity());
-    jet->nPhotons       .push_back(ijet->photonMultiplicity());
-    jet->nMuons         .push_back(ijet->muonMultiplicity());
-
-    jet->charge         .push_back(ijet->jetCharge());
-    jet->flavour        .push_back(ijet->partonFlavour());
-    jet->bTagCSV        .push_back(ijet->bDiscriminator("combinedSecondaryVertexBJetTags"));
-
     // check only once per module run if the needed collections are available
+    if(!checkedIsPFJet) { checkedIsPFJet = true; isPFJet = ijet->isPFJet(); }
     if(!checkedQGTag  ) { checkedQGTag   = true; if(QGTagsHandleLikelihood.isValid()) hasQGTag   = true; }
     if(!checkedJERSF  ) { checkedJERSF   = true; if(ijet->hasUserFloat("jerSF"     )) hasJERSF   = true; }
     if(!checkedJESSF  ) { checkedJESSF   = true; if(ijet->hasUserFloat("jesSF"     )) hasJESSF   = true; }
     if(!checkedTotalSF) { checkedTotalSF = true; if(ijet->hasUserFloat("totalSF"   )) hasTotalSF = true; }
+
+    if(isPFJet){
+      jet->fChargedHadron .push_back(ijet->chargedHadronEnergyFraction());
+      jet->fNeutralHadron .push_back(ijet->neutralHadronEnergyFraction());
+      jet->fElectron      .push_back(ijet->electronEnergyFraction());
+      jet->fPhoton        .push_back(ijet->photonEnergyFraction());
+      jet->fMuon          .push_back(ijet->muonEnergyFraction());
+      jet->nConstituents  .push_back(ijet->nConstituents());
+      jet->nChargedHadrons.push_back(ijet->chargedHadronMultiplicity());
+      jet->nNeutralHadrons.push_back(ijet->neutralHadronMultiplicity());
+      jet->nElectrons     .push_back(ijet->electronMultiplicity());
+      jet->nPhotons       .push_back(ijet->photonMultiplicity());
+      jet->nMuons         .push_back(ijet->muonMultiplicity());
+    }
+    jet->charge         .push_back(ijet->jetCharge());
+    jet->flavour        .push_back(ijet->partonFlavour());
+    jet->bTagCSV        .push_back(ijet->bDiscriminator("combinedSecondaryVertexBJetTags"));
 
     if(hasQGTag){
       edm::RefToBase<pat::Jet> jetRef(edm::Ref<std::vector<pat::Jet> >(jets, jetIndex));
@@ -149,7 +151,7 @@ JetEventAnalyzer::getPullVector( std::vector<pat::Jet>::const_iterator patJet )
     //calculate TVector using only charged tracks
     if( constituents.at(idx)->charge() != 0  )
       r.Set( constituentRapidity - jetRapidityCharged, TVector2::Phi_mpi_pi( constituentPhi - jetPhiCharged ) );
-      pullCharged += ( constituentPt / jetPtCharged ) * r.Mod() * r;
+    pullCharged += ( constituentPt / jetPtCharged ) * r.Mod() * r;
   }
 
   // if there are less than two charged tracks do not calculate the pull (there is not enough info), return null vector

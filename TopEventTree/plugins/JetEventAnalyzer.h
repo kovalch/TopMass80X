@@ -35,8 +35,8 @@ class JetEventAnalyzer : public edm::EDAnalyzer {
   JetEvent* jet;
 
   // check only once per module run if the needed collections are available
-  bool checkedJERSF, checkedJESSF, checkedTotalSF, checkedQGTag;
-  bool     hasJERSF,     hasJESSF,     hasTotalSF,     hasQGTag;
+  bool checkedIsPFJet, checkedJERSF, checkedJESSF, checkedTotalSF, checkedQGTag;
+  bool        isPFJet,     hasJERSF,     hasJESSF,     hasTotalSF,     hasQGTag;
 
 };
 
