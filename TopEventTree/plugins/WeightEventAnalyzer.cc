@@ -59,19 +59,20 @@ WeightEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
   ////////////////////////////////////////////////////////////////////////
 
   edm::Handle<GenEventInfoProduct> genEventInfo_h;
-  evt.getByLabel(genEventSrc_, genEventInfo_h);
+  if(!genEventSrc_.label().empty()) evt.getByLabel(genEventSrc_, genEventInfo_h);
 
-  weight->mcWeight = genEventInfo_h->weight();
+  if(genEventInfo_h.isValid()){
+    weight->mcWeight = genEventInfo_h->weight();
 
-  if(savePDFWeights_){
-    // variables needed for PDF uncertainties
-    weight->x1  = genEventInfo_h->pdf()->x.first;
-    weight->x2  = genEventInfo_h->pdf()->x.second;
-    weight->Q   = genEventInfo_h->pdf()->scalePDF;
-    weight->id1 = genEventInfo_h->pdf()->id.first;
-    weight->id2 = genEventInfo_h->pdf()->id.second;
+    if(savePDFWeights_){
+      // variables needed for PDF uncertainties
+      weight->x1  = genEventInfo_h->pdf()->x.first;
+      weight->x2  = genEventInfo_h->pdf()->x.second;
+      weight->Q   = genEventInfo_h->pdf()->scalePDF;
+      weight->id1 = genEventInfo_h->pdf()->id.first;
+      weight->id2 = genEventInfo_h->pdf()->id.second;
+    }
   }
-
   //////////////////////////////////////////////////////////////////////////
   // PU weights & control variables
   ////////////////////////////////////////////////////////////////////////
