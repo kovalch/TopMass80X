@@ -15,6 +15,8 @@ JetEvent::JetEvent()
 void JetEvent::init()
 {
   jet.clear();
+  genJet.clear();
+  genParton.clear();
 
   nConstituents.clear();
   nChargedHadrons.clear();

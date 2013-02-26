@@ -51,6 +51,10 @@ JetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
     if(jetIndex == kJetMAX_) break;
 
     jet->jet.push_back(TLorentzVector(ijet->px(), ijet->py(), ijet->pz(), ijet->energy()));
+    if(ijet->genJet()) jet->genJet.push_back(TLorentzVector(ijet->genJet()->px(), ijet->genJet()->py(), ijet->genJet()->pz(), ijet->genJet()->energy()));
+    else               jet->genJet.push_back(TLorentzVector(0,0,0,-1));
+    if(ijet->genParton()) jet->genParton.push_back(TLorentzVector(ijet->genParton()->px(), ijet->genParton()->py(), ijet->genParton()->pz(), ijet->genParton()->energy()));
+    else                  jet->genParton.push_back(TLorentzVector(0,0,0,-1));
 
     // check only once per module run if the needed collections are available
     if(!checkedIsPFJet) { checkedIsPFJet = true; isPFJet = ijet->isPFJet(); }

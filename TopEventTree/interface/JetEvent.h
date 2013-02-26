@@ -25,6 +25,8 @@ public:
   // JetEvent data
 
   std::vector<TLorentzVector> jet;
+  std::vector<TLorentzVector> genJet;
+  std::vector<TLorentzVector> genParton;
 
   std::vector<int> nConstituents;
   std::vector<int> nChargedHadrons;
