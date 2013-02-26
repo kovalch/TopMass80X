@@ -49,11 +49,11 @@ JetEventMixer::produce(edm::Event& evt, const edm::EventSetup& setup)
   if(!oriPatJets_.size())
     getEvents(evt);
 
-  unsigned int cSize = combo_.size();
-  std::cout << cSize << ", Mix: ";
-  for(unsigned int i = 0; i < cSize; ++i)
-    std::cout << combo_[i] << " ";
-  std::cout << std::endl;
+  //unsigned int cSize = combo_.size();
+  //std::cout << cSize << ", Mix: ";
+  //for(unsigned int i = 0; i < cSize; ++i)
+  //  std::cout << combo_[i] << " ";
+  //std::cout << std::endl;
 
   putOneEvent(evt);
 
@@ -90,9 +90,9 @@ JetEventMixer::getEvents(edm::Event& evt)
 void
 JetEventMixer::processOneEvent(edm::EventPrincipal const& eventPrincipal, edm::Event& evt)
 {
-  std::cout << "Run: "     << eventPrincipal.aux().run()             << " -> " << evt.eventAuxiliary().run()             ;
-  std::cout << ", Lumi: "  << eventPrincipal.aux().luminosityBlock() << " -> " << evt.eventAuxiliary().luminosityBlock() ;
-  std::cout << ", Event: " << eventPrincipal.aux().event()           << " -> " << evt.eventAuxiliary().event()           << std::endl;
+  //std::cout << "Run: "     << eventPrincipal.aux().run()             << " -> " << evt.eventAuxiliary().run()             ;
+  //std::cout << ", Lumi: "  << eventPrincipal.aux().luminosityBlock() << " -> " << evt.eventAuxiliary().luminosityBlock() ;
+  //std::cout << ", Event: " << eventPrincipal.aux().event()           << " -> " << evt.eventAuxiliary().event()           << std::endl;
 
   //for(edm::Principal::const_iterator it = eventPrincipal.begin(), itEnd = eventPrincipal.end(); it != itEnd; ++it){
   //  std::cout << (*it)->moduleLabel() << " : " << (*it)->productInstanceName() << " : " << (*it)->processName() << " : " << (*it)->productType().className() << std::endl;
