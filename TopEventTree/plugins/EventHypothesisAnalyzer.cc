@@ -24,7 +24,8 @@ jets_        (cfg.getParameter<edm::InputTag>("jets")), // needed in fullHad cha
 //mets_        (cfg.getParameter<edm::InputTag>("mets")),
 
 //kJetMAX_(cfg.getParameter<int>("maxNJets")),
-kMAXCombo_(cfg.getParameter<int>("maxCombo"))
+kMAXCombo_(cfg.getParameter<int>("maxCombo")),
+top(0)
 {
 }
 
@@ -104,7 +105,9 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
         case LepB:
           top->genpartonJetIdx.push_back(semiLepTtEvent->jetLeptonCombination(TtEvent::kGenMatch)[TtSemiLepEvtPartons::LepB]);
           break;
-        default: top->genpartonJetIdx.push_back(-1);
+        default:
+          top->genpartonJetIdx.push_back(-1);
+          break;
         }
       }
     }
@@ -131,7 +134,9 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
         case LightQBar2:
           top->genpartonJetIdx.push_back(fullHadTtEvent->jetLeptonCombination(TtEvent::kGenMatch)[TtFullHadEvtPartons::LightPBar]);
           break;
-        default: top->genpartonJetIdx.push_back(-1);
+        default:
+          top->genpartonJetIdx.push_back(-1);
+          break;
         }
       }
     }

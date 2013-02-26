@@ -24,6 +24,7 @@ jets_        (cfg.getParameter<edm::InputTag>("jets")),
 //noPtEtaJets_ (cfg.getParameter<edm::InputTag>("noPtEtaJets")),
 gluonTagName_  (cfg.getParameter<edm::InputTag>("gluonTagSrc").encode()),
 kJetMAX_(cfg.getParameter<int>("maxNJets")),
+jet(0),
 checkedIsPFJet(false), checkedJERSF(false), checkedJESSF(false), checkedTotalSF(false), checkedQGTag(false),
        isPFJet(false),     hasJERSF(false),     hasJESSF(false),     hasTotalSF(false),     hasQGTag(false)
 {

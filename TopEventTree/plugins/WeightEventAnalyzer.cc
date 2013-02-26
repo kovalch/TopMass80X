@@ -41,7 +41,8 @@ muWeightSrc_ (cfg.getParameter<edm::InputTag>("muWeightSrc")),
 elWeightSrc_ (cfg.getParameter<edm::InputTag>("elWeightSrc")),
 
 genEventSrc_   (cfg.getParameter<edm::InputTag>("genEventSrc")),
-savePDFWeights_(cfg.getParameter<bool>("savePDFWeights"))
+savePDFWeights_(cfg.getParameter<bool>("savePDFWeights")),
+weight(0)
 {
 }
 
