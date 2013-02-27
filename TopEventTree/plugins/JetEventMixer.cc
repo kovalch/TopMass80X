@@ -75,9 +75,20 @@ JetEventMixer::getEvents(edm::Event& evt)
   for(unsigned int iEvt = 0; iEvt < nMix_; ++iEvt){
     //std::vector< std::string > wantedBranches;
     //eventSrc_->dropUnwantedBranches(wantedBranches);
-    //int i =
-    eventSrc_->loopSequential(1, boost::bind(&JetEventMixer::processOneEvent, this, _1, boost::ref(evt)));
-    //std::cout << iEvt << " " << i << std::endl;
+
+    // exit program gracefully once less then nMix events are available
+    if(!eventSrc_->loopSequential(1, boost::bind(&JetEventMixer::processOneEvent, this, _1, boost::ref(evt)))){
+      cleanUp();
+      std::stringstream errorMessage;
+      errorMessage << "Less than nMix (" << nMix_ << ") events left in source to be processed." << "\n" << "Terminating program!";
+      throw edm::Exception( edm::errors::UnimplementedFeature, errorMessage.str() );
+      //edm::LogWarning("EOF") << __FILE__ << ":" << "\n"
+      //                       << __FUNCTION__ << ":" << __LINE__ << "\n"
+      //                       << "Less than nMix (" << nMix_ << ") events left in source to be processed." << "\n"
+      //                       << "Terminating program!";
+      //kill(getpid(),SIGINT);
+      break;
+    }
   }
   for(unsigned int iEvt = 0; iEvt < nMix_; ++iEvt){
     if(oriPatJets_[iEvt].size() < iEvt+1){
@@ -245,6 +256,7 @@ JetEventMixer::cleanUp()
     oriPFCandidates_.clear();
     oriPUInfos_     .clear();
   }
+  combo_.clear();
 }
 
 //define this as a plug-in
