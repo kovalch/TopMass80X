@@ -81,7 +81,8 @@ JetEventMixer::getEvents(edm::Event& evt)
       cleanUp();
       std::stringstream errorMessage;
       errorMessage << "Less than nMix (" << nMix_ << ") events left in source to be processed." << "\n" << "Terminating program!";
-      throw edm::Exception( edm::errors::UnimplementedFeature, errorMessage.str() );
+      //throw edm::Exception( edm::errors::UnimplementedFeature, errorMessage.str() );
+      throw NotEnoughEventsLeftException("EOF", errorMessage.str());
       //edm::LogWarning("EOF") << __FILE__ << ":" << "\n"
       //                       << __FUNCTION__ << ":" << __LINE__ << "\n"
       //                       << "Less than nMix (" << nMix_ << ") events left in source to be processed." << "\n"
