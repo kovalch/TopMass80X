@@ -9,4 +9,7 @@
 \.png$
 \.root$
 \.project$
+\.autotools$
+\.cproject$
+\.pydevproject$
 -glob:Analyzer/TopMass
