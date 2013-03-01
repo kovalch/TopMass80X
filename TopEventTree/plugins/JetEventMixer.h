@@ -19,13 +19,16 @@ private:
 
   void getEvents(edm::Event& evt);
   void processOneEvent(edm::EventPrincipal const& eventPrincipal, edm::Event& evt);
+  void fillCombos();
   void putOneEvent(edm::Event& evt);
   void cleanUp();
 
   edm::VectorInputSource *eventSrc_;
 
-  const unsigned int nMix_;
-  std::vector<unsigned int> combo_;
+  const unsigned int nMix_, nMixMin_, speedUp_;
+  unsigned int comboIndex_;
+  std::vector<std::vector<char> > combos_;
+  std::vector<std::vector<char> > validCombos_;
 
   std::vector<std::vector<pat::Jet         > > oriPatJets_;
   //std::vector<std::vector<reco::GenJet     > > oriGenJets_;

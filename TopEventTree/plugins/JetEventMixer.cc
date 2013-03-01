@@ -7,12 +7,18 @@
 #include <algorithm>
 #include "boost/bind.hpp"
 
+#include "TRandom3.h"
+
 #include "TopMass/TopEventTree/plugins/JetEventMixer.h"
 
 JetEventMixer::JetEventMixer(const edm::ParameterSet& cfg) :
 eventSrc_(0),
-nMix_(cfg.getParameter<int>("nMix")),
-combo_(0),
+nMix_   (cfg.getParameter<int>("nMix")),
+nMixMin_(cfg.getParameter<int>("nMixMin")),
+speedUp_(cfg.getParameter<int>("speedUp")),
+comboIndex_(0),
+combos_(0),
+validCombos_(0),
 oriPatJets_(0),
 //oriGenJets_(0),
 oriPFCandidates_(0),
@@ -49,18 +55,11 @@ JetEventMixer::produce(edm::Event& evt, const edm::EventSetup& setup)
   if(!oriPatJets_.size())
     getEvents(evt);
 
-  //unsigned int cSize = combo_.size();
-  //std::cout << cSize << ", Mix: ";
-  //for(unsigned int i = 0; i < cSize; ++i)
-  //  std::cout << combo_[i] << " ";
-  //std::cout << std::endl;
-
   putOneEvent(evt);
-
-  bool nextCombo = std::next_permutation(combo_.begin(), combo_.end());
+  ++comboIndex_;
 
   // clean up everything before putting new stuff into the event
-  if(!nextCombo){
+  if(comboIndex_ == combos_.size()){
     cleanUp();
     getEvents(evt);
   }
@@ -69,9 +68,6 @@ JetEventMixer::produce(edm::Event& evt, const edm::EventSetup& setup)
 void
 JetEventMixer::getEvents(edm::Event& evt)
 {
-  combo_.clear();
-  for(unsigned int i = 0; i < nMix_; ++i)
-    combo_.push_back(i);
   for(unsigned int iEvt = 0; iEvt < nMix_; ++iEvt){
     //std::vector< std::string > wantedBranches;
     //eventSrc_->dropUnwantedBranches(wantedBranches);
@@ -91,12 +87,7 @@ JetEventMixer::getEvents(edm::Event& evt)
       break;
     }
   }
-  for(unsigned int iEvt = 0; iEvt < nMix_; ++iEvt){
-    if(oriPatJets_[iEvt].size() < iEvt+1){
-      combo_.erase(combo_.begin()+iEvt, combo_.end());
-      break;
-    }
-  }
+  fillCombos();
 }
 
 void
@@ -142,9 +133,71 @@ JetEventMixer::processOneEvent(edm::EventPrincipal const& eventPrincipal, edm::E
   oriPUInfos_.push_back(pPileupSummaryInfos);
 }
 
+int factorial(int n)
+{
+  if(n > 12 || n < 0) return -1;
+
+  int fact=1;
+  for (int i=1; i<=n; ++i)
+    fact*=i;
+  return fact;
+}
+
+void
+JetEventMixer::fillCombos()
+{
+  comboIndex_ = 0;
+  validCombos_.clear();
+  static unsigned int maxCombosToSave = factorial(nMixMin_) / speedUp_;
+  static TRandom3 rand(0);
+
+  std::vector<char> nJets(0);
+  for(std::vector<std::vector<pat::Jet> >::const_iterator jets = oriPatJets_.begin(), endJets = oriPatJets_.end(); jets != endJets; ++jets)
+    nJets.push_back(jets->size());
+
+  //std::cout << "maxCombosToSave: " << maxCombosToSave << ", rand: " << rand.Uniform() << ", nJets.size(): " << nJets.size() << ": ";
+  int maxNJets = 0;
+  for(std::vector<char>::const_iterator n = nJets.begin(); n < nJets.end(); ++n){
+    //std::cout << int(*n) << ", ";
+    if(*n > maxNJets) maxNJets = *n;
+  }
+  maxNJets = std::min(maxNJets, int(nMix_));
+  //std::cout << maxNJets << std::endl;
+
+  std::vector<char> comb(0);
+  for(unsigned int i = 0; i < nMix_; ++i)
+    comb.push_back(i);
+  comb.erase(comb.begin()+maxNJets,comb.end());
+
+  do{
+    for(char i = 0; i < maxNJets; ++i){
+      if     (comb[i] >= nJets[comb[i]] && i+1 <  int(nMixMin_)) continue;
+      else if(comb[i] >= nJets[comb[i]] && i+1 >= int(nMixMin_)){
+        std::vector<char> tmpComb(comb.begin(), comb.begin()+i+1);
+        validCombos_.push_back(tmpComb);
+        break;
+      }
+      else if(maxNJets-1 == i){
+        validCombos_.push_back(comb);
+      }
+    }
+  } while(std::next_permutation(comb.begin(), comb.end()));
+
+  //std::cout << "before: " << validCombos_.size() << std::flush;
+  do{
+    int size = validCombos_.size();
+    int idx  = rand.Integer(size);
+    combos_.push_back(validCombos_[idx]);
+    std::swap(validCombos_[idx], validCombos_[size-1]);
+    validCombos_.pop_back();
+  } while(combos_.size() < maxCombosToSave);
+  //std::cout << ", after: " << validCombos_.size() << ", combos_.size(): " << combos_.size() << std::endl;
+}
+
 void
 JetEventMixer::putOneEvent(edm::Event& evt)
 {
+  std::vector<char> combo = combos_[comboIndex_];
   std::auto_ptr< std::vector<pat::Jet> > patJets ( new std::vector<pat::Jet>() );
 
   //std::auto_ptr<reco::GenJetCollection > genJetsOut ( new reco::GenJetCollection() );
@@ -177,13 +230,13 @@ JetEventMixer::putOneEvent(edm::Event& evt)
         std::cout << "Something went wrong, jetIdx (" << jetIdx << ") >= nJets (" << oriPatJets_[i].size() << ")!" << std::endl;
         break;
       }
-      //if( combo_[i] == jetIdx ){
-        pfCandidatesOut->push_back( *iPart );
-        edm::Ref<reco::PFCandidateCollection> pfCollectionRef( h_pfCandidatesOut, pfCandidatesOut->size() - 1);
-        edm::Ptr<reco::PFCandidate> pfForwardRef( h_pfCandidatesOut.id(), pfCollectionRef.key(),  h_pfCandidatesOut.productGetter() );
-        oriPatJets_[i][jetIdx].updateFwdPFCandidateFwdPtr(pfCandidateIndex, pfForwardRef);
-        std::vector<edm::FwdPtr<reco::PFCandidate> > emptyDummy(0);
-        oriPatJets_[i][jetIdx].setPFCandidates(emptyDummy);
+      //if( combo[i] == jetIdx ){
+      pfCandidatesOut->push_back( *iPart );
+      edm::Ref<reco::PFCandidateCollection> pfCollectionRef( h_pfCandidatesOut, pfCandidatesOut->size() - 1);
+      edm::Ptr<reco::PFCandidate> pfForwardRef( h_pfCandidatesOut.id(), pfCollectionRef.key(),  h_pfCandidatesOut.productGetter() );
+      oriPatJets_[i][jetIdx].updateFwdPFCandidateFwdPtr(pfCandidateIndex, pfForwardRef);
+      std::vector<edm::FwdPtr<reco::PFCandidate> > emptyDummy(0);
+      oriPatJets_[i][jetIdx].setPFCandidates(emptyDummy);
       //}
     }
 
@@ -229,16 +282,16 @@ JetEventMixer::putOneEvent(edm::Event& evt)
   puInfos->push_back(PileupSummaryInfo(nPU1, zpositions, sumpT_lowpT, sumpT_highpT, ntrks_lowpT, ntrks_highpT,  0, nPUTrue1));
   puInfos->push_back(PileupSummaryInfo(nPU2, zpositions, sumpT_lowpT, sumpT_highpT, ntrks_lowpT, ntrks_highpT, +1, nPUTrue2));
 
-  if(combo_.size() > 0 && oriPatJets_[combo_[0]].size() > 0) patJets->push_back(oriPatJets_[combo_[0]][0]);
-  if(combo_.size() > 1 && oriPatJets_[combo_[1]].size() > 1) patJets->push_back(oriPatJets_[combo_[1]][1]);
-  if(combo_.size() > 2 && oriPatJets_[combo_[2]].size() > 2) patJets->push_back(oriPatJets_[combo_[2]][2]);
-  if(combo_.size() > 3 && oriPatJets_[combo_[3]].size() > 3) patJets->push_back(oriPatJets_[combo_[3]][3]);
-  if(combo_.size() > 4 && oriPatJets_[combo_[4]].size() > 4) patJets->push_back(oriPatJets_[combo_[4]][4]);
-  if(combo_.size() > 5 && oriPatJets_[combo_[5]].size() > 5) patJets->push_back(oriPatJets_[combo_[5]][5]);
-  if(combo_.size() > 6 && oriPatJets_[combo_[6]].size() > 6) patJets->push_back(oriPatJets_[combo_[6]][6]);
-  if(combo_.size() > 7 && oriPatJets_[combo_[7]].size() > 7) patJets->push_back(oriPatJets_[combo_[7]][7]);
-  if(combo_.size() > 8 && oriPatJets_[combo_[8]].size() > 8) patJets->push_back(oriPatJets_[combo_[8]][8]);
-  if(combo_.size() > 9 && oriPatJets_[combo_[9]].size() > 9) patJets->push_back(oriPatJets_[combo_[9]][9]);
+  if(combo.size() > 0 && oriPatJets_[combo[0]].size() > 0) patJets->push_back(oriPatJets_[combo[0]][0]);
+  if(combo.size() > 1 && oriPatJets_[combo[1]].size() > 1) patJets->push_back(oriPatJets_[combo[1]][1]);
+  if(combo.size() > 2 && oriPatJets_[combo[2]].size() > 2) patJets->push_back(oriPatJets_[combo[2]][2]);
+  if(combo.size() > 3 && oriPatJets_[combo[3]].size() > 3) patJets->push_back(oriPatJets_[combo[3]][3]);
+  if(combo.size() > 4 && oriPatJets_[combo[4]].size() > 4) patJets->push_back(oriPatJets_[combo[4]][4]);
+  if(combo.size() > 5 && oriPatJets_[combo[5]].size() > 5) patJets->push_back(oriPatJets_[combo[5]][5]);
+  if(combo.size() > 6 && oriPatJets_[combo[6]].size() > 6) patJets->push_back(oriPatJets_[combo[6]][6]);
+  if(combo.size() > 7 && oriPatJets_[combo[7]].size() > 7) patJets->push_back(oriPatJets_[combo[7]][7]);
+  if(combo.size() > 8 && oriPatJets_[combo[8]].size() > 8) patJets->push_back(oriPatJets_[combo[8]][8]);
+  if(combo.size() > 9 && oriPatJets_[combo[9]].size() > 9) patJets->push_back(oriPatJets_[combo[9]][9]);
   evt.put(patJets, "");
   //evt.put(genJetsOut, "genJets");
   //evt.put(caloTowersOut, "caloTowers");
@@ -257,7 +310,7 @@ JetEventMixer::cleanUp()
     oriPFCandidates_.clear();
     oriPUInfos_     .clear();
   }
-  combo_.clear();
+  combos_.clear();
 }
 
 //define this as a plug-in
