@@ -17,10 +17,10 @@
 #include "TMath.h"
 
 #include "Helper.h"
-#include "ProgramOptionsReader.h"
+#include "CommandLineOptionsReader.h"
 #include "XMLConfigReader.h"
 
-typedef ProgramOptionsReader po;
+typedef CommandLineOptionsReader po;
 typedef XMLConfigReader xml;
 
 TopMass::TopMass() :

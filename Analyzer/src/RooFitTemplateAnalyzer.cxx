@@ -1,7 +1,7 @@
 #include "RooFitTemplateAnalyzer.h"
 
 #include "Helper.h"
-#include "ProgramOptionsReader.h"
+#include "CommandLineOptionsReader.h"
 
 #include "TCanvas.h"
 #include "TFile.h"
@@ -19,7 +19,7 @@
 #include "RooProdPdf.h"
 #include "RooRealVar.h"
 
-typedef ProgramOptionsReader po;
+typedef CommandLineOptionsReader po;
 
 void RooFitTemplateAnalyzer::Analyze(const TString& cuts, int i, int j) {
   Scan(cuts, i, j, "mTop_JES_fSig");

@@ -1,12 +1,12 @@
 #include "TopMass.h"
+#include "CommandLineOptionsReader.h"
 #include "XMLConfigReader.h"
-#include "ProgramOptionsReader.h"
 
 #include <iostream>
 
 int main(int ac, char** av)
 {
-  ProgramOptionsReader vm = ProgramOptionsReader(ac,av);
+  CommandLineOptionsReader vm = CommandLineOptionsReader(ac,av);
   XMLConfigReader xmlConfig = XMLConfigReader();
 
   TopMass* top = new TopMass();

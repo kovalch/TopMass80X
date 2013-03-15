@@ -8,7 +8,7 @@
 #include "RandomSubsetCreatorAllJets.h"
 
 #include "Analysis.h"
-#include "ProgramOptionsReader.h"
+#include "CommandLineOptionsReader.h"
 #include "XMLConfigReader.h"
 
 #include <iostream>
@@ -22,7 +22,7 @@
 
 #include "LHAPDF/LHAPDF.h"
 
-typedef ProgramOptionsReader po;
+typedef CommandLineOptionsReader po;
 typedef XMLConfigReader xml;
 
 RandomSubsetCreatorAllJets::RandomSubsetCreatorAllJets() :

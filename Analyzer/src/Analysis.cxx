@@ -9,7 +9,7 @@
 #include "Helper.h"
 #include "IdeogramAnalyzer.h"
 #include "MVAAnalyzer.h"
-#include "ProgramOptionsReader.h"
+#include "CommandLineOptionsReader.h"
 #include "RandomSubsetCreatorLeptonJets.h"
 #include "RandomSubsetCreatorAllJets.h"
 #include "RooFitTemplateAnalyzer.h"
@@ -17,7 +17,7 @@
 
 #include "LHAPDF/LHAPDF.h"
 
-typedef ProgramOptionsReader po;
+typedef CommandLineOptionsReader po;
 typedef XMLConfigReader xml;
 
 Analysis::Analysis(std::vector<float> v):

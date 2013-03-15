@@ -1,7 +1,7 @@
 #include "RandomSubsetCreatorLeptonJets.h"
 
 #include "Analysis.h"
-#include "ProgramOptionsReader.h"
+#include "CommandLineOptionsReader.h"
 #include "XMLConfigReader.h"
 
 #include <iostream>
@@ -19,7 +19,7 @@
 
 #include "LHAPDF/LHAPDF.h"
 
-typedef ProgramOptionsReader po;
+typedef CommandLineOptionsReader po;
 typedef XMLConfigReader xml;
 
 RandomSubsetCreatorLeptonJets::RandomSubsetCreatorLeptonJets() :
@@ -146,9 +146,9 @@ void RandomSubsetCreatorLeptonJets::DrawEvents(TTree* tempTree, double nEventsPE
   boost::split( vWeight, fWeight, boost::is_any_of("-*"));
 
   double maxMCWeight = 1.; // calculate upper bound for combined MCWeight
-  double maxMCWeightB = 1.;
+  //double maxMCWeightB = 1.;
 
-  for (int i = 0; i < vWeight.size(); ++i) {
+  for (unsigned int i = 0; i < vWeight.size(); ++i) {
     std::cout << vWeight[i] << std::endl;
     if (strncmp((TString) vWeight[i], "pdfWeights", 10)) maxMCWeight *= tempTree->GetMaximum((TString) vWeight[i]);
     else maxMCWeight *= tempTree->GetMaximum("pdfWeights");
@@ -173,7 +173,7 @@ void RandomSubsetCreatorLeptonJets::DrawEvents(TTree* tempTree, double nEventsPE
     //if (combi != 0) tempTree->GetEntry(drawn-combi); // Biases towards events with more combis
     if (combi == 0) {
       double eventWeight = 1.;
-      for (int i = 0; i < vWeight.size(); ++i) {
+      for (unsigned int i = 0; i < vWeight.size(); ++i) {
         if (!strcmp((TString) vWeight[i], "MCWeight")) eventWeight *= MCWeight;
         else if (!strcmp((TString) vWeight[i], "muWeight")) eventWeight *= muWeight;
         else if (!strcmp((TString) vWeight[i], "PUWeight")) eventWeight *= PUWeight;

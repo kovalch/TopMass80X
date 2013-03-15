@@ -8,34 +8,29 @@
 #ifndef PROGRAMOPTIONSREADER_H_
 #define PROGRAMOPTIONSREADER_H_
 
-#include <assert.h>
-#include <iostream>
-#include <string>
-
-#include <boost/program_options.hpp>
+#include "CommandLineOptionsReader.h"
+#include "XMLConfigReader.h"
 
 class ProgramOptionsReader {
 public:
   ProgramOptionsReader(int ac, char** av);
   virtual ~ProgramOptionsReader();
 
-  static const boost::program_options::variables_map* GetProgramOptions();
   template <class T>
   static T GetOption(std::string whichParameter);
 
 private:
-  static boost::program_options::variables_map* programOptions_;
-  void ReadProgramOptions(int ac, char** av);
+  static CommandLineOptionsReader* vm_;
+  static XMLConfigReader* xmlConfig_;
 };
 
 template <class T>
 T
 ProgramOptionsReader::GetOption(std::string whichParameter){
-  if (programOptions_->count(whichParameter)){
-    return programOptions_->operator[](whichParameter).as<T>();
-  }
+  if(vm_->GetOption<T>(whichParameter)) return *vm_->GetOption<T>(whichParameter);
+  else if(xmlConfig_->GetParameter(whichParameter)) return *xmlConfig_->GetParameter(whichParameter.c_str());
   else{
-    std::cerr << "Program option *" << whichParameter << "* not found!" << std::endl;
+    std::cerr << "Parameter *" << whichParameter << "* neither found in command line nor in XML configuration!" << std::endl;
     assert(0);
   }
 }
