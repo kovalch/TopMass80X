@@ -8,8 +8,7 @@
 #include "RandomSubsetCreatorAllJets.h"
 
 #include "Analysis.h"
-#include "CommandLineOptionsReader.h"
-#include "XMLConfigReader.h"
+#include "ProgramOptionsReader.h"
 
 #include <iostream>
 
@@ -22,12 +21,12 @@
 
 #include "LHAPDF/LHAPDF.h"
 
-typedef CommandLineOptionsReader po;
-typedef XMLConfigReader xml;
+typedef ProgramOptionsReader po;
+//typedef XMLConfigReader xml;
 
 RandomSubsetCreatorAllJets::RandomSubsetCreatorAllJets() :
-selection_ (xml::GetParameter("selection" )), // filled from xml file
-samplePath_(xml::GetParameter("samplePath")), // filled from xml file
+selection_  (po::GetOption<std::string>("analysisConfig.selection" )), // filled from program options
+samplePath_ (po::GetOption<std::string>("analysisConfig.samplePath")), // filled from program options
 fIdentifier_(po::GetOption<std::string>("input")), // filled from program options
 fFile_(samplePath_+fIdentifier_+TString(".root")),
 tmpFile_(0), // has to survive until destructor is called

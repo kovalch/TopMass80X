@@ -2,7 +2,7 @@
 
 #include "IdeogramCombLikelihood.h"
 #include "Helper.h"
-#include "CommandLineOptionsReader.h"
+#include "ProgramOptionsReader.h"
 
 #include <iomanip>
 
@@ -17,7 +17,7 @@
 #include "TStyle.h"
 #include "TSystem.h"
 
-typedef CommandLineOptionsReader po;
+typedef ProgramOptionsReader po;
 
 void IdeogramAnalyzer::Analyze(const TString& cuts, int i, int j) {
   Scan(cuts, i, j, 154, 190, 2, 0.9, 1.1, 0.02);

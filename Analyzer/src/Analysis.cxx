@@ -9,16 +9,14 @@
 #include "Helper.h"
 #include "IdeogramAnalyzer.h"
 #include "MVAAnalyzer.h"
-#include "CommandLineOptionsReader.h"
+#include "ProgramOptionsReader.h"
 #include "RandomSubsetCreatorLeptonJets.h"
 #include "RandomSubsetCreatorAllJets.h"
 #include "RooFitTemplateAnalyzer.h"
-#include "XMLConfigReader.h"
 
 #include "LHAPDF/LHAPDF.h"
 
-typedef CommandLineOptionsReader po;
-typedef XMLConfigReader xml;
+typedef ProgramOptionsReader po;
 
 Analysis::Analysis(std::vector<float> v):
   fIdentifier_(po::GetOption<std::string>("input" )),
@@ -45,10 +43,10 @@ void Analysis::Analyze() {
 
   // random subset creation
   RandomSubsetCreator* fCreator = 0;
-  if (!strcmp(fChannel_, "electron") || !strcmp(fChannel_, "muon") || !strcmp(fChannel_, "all")) {
+  if (!strcmp(fChannel_, "electron") || !strcmp(fChannel_, "muon") || !strcmp(fChannel_, "lepton")) {
     fCreator = new RandomSubsetCreatorLeptonJets();
   }
-  else if (!strcmp(fChannel_, "AllJets")) {
+  else if (!strcmp(fChannel_, "alljets")) {
     fCreator = new RandomSubsetCreatorAllJets();
   }
   else {

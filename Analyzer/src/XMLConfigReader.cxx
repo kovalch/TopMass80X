@@ -8,12 +8,12 @@
 #include <assert.h>
 #include <iostream>
 
-#include "CommandLineOptionsReader.h"
+#include "ProgramOptionsReader.h"
 #include "XMLConfigReader.h"
 
 #include "TSystem.h"
 
-typedef CommandLineOptionsReader po;
+typedef ProgramOptionsReader po;
 
 XMLConfigReader::XMLConfigReader() {
   ReadConfigFromXMLFile();

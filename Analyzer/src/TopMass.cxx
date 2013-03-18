@@ -17,11 +17,9 @@
 #include "TMath.h"
 
 #include "Helper.h"
-#include "CommandLineOptionsReader.h"
-#include "XMLConfigReader.h"
+#include "ProgramOptionsReader.h"
 
-typedef CommandLineOptionsReader po;
-typedef XMLConfigReader xml;
+typedef ProgramOptionsReader po;
 
 TopMass::TopMass() :
   fMethod_ (po::GetOption<std::string>("method")),

@@ -1,8 +1,7 @@
 #include "RandomSubsetCreatorLeptonJets.h"
 
 #include "Analysis.h"
-#include "CommandLineOptionsReader.h"
-#include "XMLConfigReader.h"
+#include "ProgramOptionsReader.h"
 
 #include <iostream>
 #include <boost/program_options.hpp>
@@ -19,17 +18,16 @@
 
 #include "LHAPDF/LHAPDF.h"
 
-typedef CommandLineOptionsReader po;
-typedef XMLConfigReader xml;
+typedef ProgramOptionsReader po;
 
 RandomSubsetCreatorLeptonJets::RandomSubsetCreatorLeptonJets() :
-selection_ (xml::GetParameter("selection" )), // filled from xml file
-samplePath_(xml::GetParameter("samplePath")), // filled from xml file
+selection_  (po::GetOption<std::string>("analysisConfig.selection" )), // filled from program options
+samplePath_ (po::GetOption<std::string>("analysisConfig.samplePath")), // filled from program options
 fIdentifier_(po::GetOption<std::string>("input")), // filled from program options
-fChannel_(po::GetOption<std::string>("channel")),
-fLumi(po::GetOption<double>("lumi")),
-fSig(po::GetOption<double>("fsig")),
-fBDisc(po::GetOption<double>("bdisc")),
+fChannel_   (po::GetOption<std::string>("channel")),
+fLumi  (po::GetOption<double>("lumi")),
+fSig   (po::GetOption<double>("fsig")),
+fBDisc (po::GetOption<double>("bdisc")),
 fWeight(po::GetOption<std::string>("weight"))
 {
   if (!strcmp(fChannel_, "muon") || !strcmp(fChannel_, "all")) {
