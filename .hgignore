@@ -12,4 +12,8 @@
 \.autotools$
 \.cproject$
 \.pydevproject$
+\_dict.h$
 -glob:Analyzer/TopMass
+
+syntax: regexp
+^Analyzer/TopMass$

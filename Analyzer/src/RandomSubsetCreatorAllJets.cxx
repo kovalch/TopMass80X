@@ -22,7 +22,6 @@
 #include "LHAPDF/LHAPDF.h"
 
 typedef ProgramOptionsReader po;
-//typedef XMLConfigReader xml;
 
 RandomSubsetCreatorAllJets::RandomSubsetCreatorAllJets() :
 selection_  (po::GetOption<std::string>("analysisConfig.selection" )), // filled from program options
@@ -67,6 +66,7 @@ RandomSubsetCreatorAllJets::CreateRandomSubset() {
   tmpChainSig->SetBranchStatus("*",0);
   tmpChainSig->SetBranchStatus("nCombos", 1);
   tmpChainSig->SetBranchStatus("comboTypes", 1);
+  tmpChainSig->SetBranchStatus("fitAssigns", 1);
   tmpChainSig->SetBranchStatus("topMasses", 1);
   tmpChainSig->SetBranchStatus("topMass", 1);
   tmpChainSig->SetBranchStatus("w1Mass", 1);
@@ -115,6 +115,7 @@ RandomSubsetCreatorAllJets::CreateRandomSubset() {
   unsigned int nCombos  =  0;
   short * comboTypes = new short[kMAXCombos];
   short * pdgId = new short[kMAXNJets];
+  short * fitAssigns = new short[6];
   unsigned int runNumber             = 0;
   unsigned int luminosityBlockNumber = 0;
   unsigned int eventNumber           = 0;
@@ -162,6 +163,7 @@ RandomSubsetCreatorAllJets::CreateRandomSubset() {
 
         tmpChainSig->SetBranchAddress("nCombos", &nCombos);
         tmpChainSig->SetBranchAddress("comboTypes", comboTypes);
+        tmpChainSig->SetBranchAddress("fitAssigns", fitAssigns);
         tmpChainSig->SetBranchAddress("topMasses", topMasses);
         tmpChainSig->SetBranchAddress("topMass", &topMass);
         tmpChainSig->SetBranchAddress("w1Mass", w1Masses);
@@ -266,6 +268,7 @@ RandomSubsetCreatorAllJets::CreateRandomSubset() {
     tmpTreeSig->SetBranchStatus("jets",1);
     tmpTreeSig->SetBranchStatus("nCombos",1);
     tmpTreeSig->SetBranchStatus("comboTypes",1);
+    tmpTreeSig->SetBranchStatus("fitAssigns",1);
     tmpTreeSig->SetBranchStatus("runNumber", 1);
     tmpTreeSig->SetBranchStatus("luminosityBlockNumber", 1);
     tmpTreeSig->SetBranchStatus("eventNumber", 1);
@@ -283,6 +286,7 @@ RandomSubsetCreatorAllJets::CreateRandomSubset() {
     tmpTreeSig->SetBranchAddress("jets", &jets);
     tmpTreeSig->SetBranchAddress("nCombos",&nCombos);
     tmpTreeSig->SetBranchAddress("comboTypes",comboTypes);
+    tmpTreeSig->SetBranchAddress("fitAssigns",fitAssigns);
     tmpTreeSig->SetBranchAddress("runNumber", &runNumber);
     tmpTreeSig->SetBranchAddress("luminosityBlockNumber", &luminosityBlockNumber);
     tmpTreeSig->SetBranchAddress("eventNumber", &eventNumber);
@@ -429,10 +433,19 @@ RandomSubsetCreatorAllJets::CreateRandomSubset() {
     delete myRandom;
   }
   else {
+    TFile* myFile = TFile::Open(fFile_, "READ");
+    TTree* myTree = (TTree*)myFile->Get("analyzeKinFit/eventTree");
+
     tmpFile_ = new TFile(tmpFilePath+TString("/tempTree.root"), "RECREATE");
     tmpFile_->cd();
     tmpTreeSig = tmpChainSig->CopyTree(selection_);
     AddWeights(tmpTreeSig,true);
+
+    myTree = myTree->CopyTree("fitProb[0] > 0.09 && fitTop1[0].M() > 100.0 && fitTop2[0].M() < 550.0");
+    myTree->SetName("eventTreeNew");
+
+    tmpTreeSig->AddFriend("eventTreeNew");
+
     tmpFile_->Write(0,TObject::kOverwrite);
     delete tmpTreeSig;
     tmpFile_->Close();
@@ -445,6 +458,7 @@ RandomSubsetCreatorAllJets::CreateRandomSubset() {
   delete[] w2Masses;
   delete[] probs;
   delete[] comboTypes;
+  delete[] fitAssigns;
   delete[] pdgId;
   jets->Delete();
   std::cout << "Created random subset." << std::endl;
@@ -502,6 +516,9 @@ RandomSubsetCreatorAllJets::AddWeights(TTree* tempTree, bool isData) {
   tempTree->SetBranchStatus("w2Mass", 1);
   tempTree->SetBranchAddress("w1Mass",w1Masses);
   tempTree->SetBranchAddress("w2Mass",w2Masses);
+  short * fitAssigns = new short[6];
+  tempTree->SetBranchStatus("fitAssigns", 1);
+  tempTree->SetBranchAddress("fitAssigns",fitAssigns);
 
   double meanWMass      = -1.;
   double CombinedWeight = -1.;
@@ -546,26 +563,26 @@ RandomSubsetCreatorAllJets::AddWeights(TTree* tempTree, bool isData) {
       //std::cout << CombinedWeight << " ";
       br->Fill();
     }
-//    if(samplePath_.EndsWith("/20/")){
-//      TLorentzVector lQ    = *((TLorentzVector*)jets->At(0));
-//      TLorentzVector lQBar = *((TLorentzVector*)jets->At(1));
-//      TLorentzVector lP    = *((TLorentzVector*)jets->At(3));
-//      TLorentzVector lPBar = *((TLorentzVector*)jets->At(4));
-//      double lQPt    = lQ   .Pt();
-//      double lQBarPt = lQBar.Pt();
-//      double lPPt    = lP   .Pt();
-//      double lPBarPt = lPBar.Pt();
-//      lQ    = lQ    * L7PartonCorrection(lQPt);
-//      lQBar = lQBar * L7PartonCorrection(lQBarPt);
-//      lP    = lP    * L7PartonCorrection(lPPt);
-//      lPBar = lPBar * L7PartonCorrection(lPBarPt);
-//      double mW1 = (lQ + lQBar).M();
-//      double mW2 = (lP + lPBar).M();
-//      meanWMass = (mW1+mW2)/2.;
-//    }
-//    else{
+    ////if(samplePath_.EndsWith("/20/")){
+    //  TLorentzVector lQ    = *((TLorentzVector*)jets->At(fitAssigns[0]));
+    //  TLorentzVector lQBar = *((TLorentzVector*)jets->At(fitAssigns[1]));
+    //  TLorentzVector lP    = *((TLorentzVector*)jets->At(fitAssigns[3]));
+    //  TLorentzVector lPBar = *((TLorentzVector*)jets->At(fitAssigns[4]));
+    //  //double lQPt    = lQ   .Pt();
+    //  //double lQBarPt = lQBar.Pt();
+    //  //double lPPt    = lP   .Pt();
+    //  //double lPBarPt = lPBar.Pt();
+    //  //lQ    = lQ    * L7PartonCorrection(lQPt);
+    //  //lQBar = lQBar * L7PartonCorrection(lQBarPt);
+    //  //lP    = lP    * L7PartonCorrection(lPPt);
+    //  //lPBar = lPBar * L7PartonCorrection(lPBarPt);
+    //  double mW1 = (lQ + lQBar).M();
+    //  double mW2 = (lP + lPBar).M();
+    //  meanWMass = (mW1+mW2)/2.;
+    ////}
+    ////else{
       meanWMass = (w1Masses[0]+w2Masses[0])/2.0;
-//    }
+    ////}
     br2->Fill();
   }
   jets->Delete();
@@ -750,204 +767,3 @@ double RandomSubsetCreatorAllJets::L7PartonCorrection(double pt)
 
   return ((mW*xi)/(p0+p1*pt+p2*log(pt)));
 }
-
-/*
-void
-RandomSubsetCreatorAllJets::ReadConfigFromXMLFile(){
-  if(!_config){
-    _config = new xml::XMLDocument();
-    TString xmlFilePath = "/afs/naf.desy.de/group/cms/scratch/eschliec/TopMass_hg_devel/Analyzer/Configuration_alljets.xml";
-    int errorID = _config->LoadFile(xmlFilePath);
-    if(errorID) {
-      std::cout << "Parsing of XML file (" << xmlFilePath << ") failed with error " << errorID << "!" << std::endl;
-      assert(!errorID);
-    }
-    xml::XMLNode *analysisConfiguration = 0;
-    xml::XMLElement *configParameter = 0;
-
-    analysisConfiguration = _config->FirstChild();
-    while(!TString(analysisConfiguration->Value()).EqualTo("analysisConfig")){
-      analysisConfiguration = analysisConfiguration->NextSibling();
-    }
-    if(analysisConfiguration->NoChildren()){
-      std::cout << "No configuration contained in *" << analysisConfiguration->Value() << "* object in XMLFile:\n" << xmlFilePath << std::endl;
-      assert(0);
-    }
-
-    do{
-      if(!configParameter) configParameter = analysisConfiguration->FirstChildElement();
-      else       configParameter = configParameter->NextSiblingElement();
-      if(TString(configParameter->Value()).EqualTo("selection" )) _selection  = configParameter->GetText();
-      if(TString(configParameter->Value()).EqualTo("samplePath")) _samplePath = configParameter->GetText();
-
-      if(TString(configParameter->Value()).EqualTo("treeVariables")){
-        xml::XMLElement *variable = 0;
-        do{
-          if(!variable) variable = configParameter->FirstChildElement();
-          else          variable = variable->NextSiblingElement();
-
-          TString variableType = variable->Value();
-
-          //std::cout << variableType << ": " << variable->GetText() << std::endl;
-
-          if     (variableType.EqualTo("short" )) _variables[variableType][variable->GetText()] = (short) -1;
-          else if(variableType.EqualTo("int"   )) _variables[variableType][variable->GetText()] = (int)   -1;
-          else if(variableType.EqualTo("float" )) _variables[variableType][variable->GetText()] = (float) -1.;
-          else if(variableType.EqualTo("double")) _variables[variableType][variable->GetText()] = (double)-1.;
-          else if(variableType.EqualTo("uint"  )) _variables[variableType][variable->GetText()] = (unsigned int)0;
-          else if(variableType.EqualTo("array")){
-            xml::XMLElement *ushortArray = variable->FirstChildElement("ushort");
-            xml::XMLElement *shortArray  = variable->FirstChildElement("short");
-            xml::XMLElement *doubleArray = variable->FirstChildElement("double");
-            TString length = variable->FirstChildElement("length")->GetText();
-            int arrayLength = atoi(variable->FirstChildElement("maxlength")->GetText());
-            if     (ushortArray) _variables[variableType+TString("_ushort_")+length][ushortArray->GetText()] = new unsigned short[arrayLength];
-            else if(shortArray ) _variables[variableType+TString("_short_" )+length][ shortArray->GetText()] = new short[arrayLength];
-            else if(doubleArray) _variables[variableType+TString("_double_")+length][doubleArray->GetText()] = new double[arrayLength];
-          }
-          else if(variableType.EqualTo("TClonesArray")){
-            xml::XMLElement *lorentzVectorArray = variable->FirstChildElement("TLorentzVector");
-            if(lorentzVectorArray) _variables[variableType+TString("_TLorentzVector")][lorentzVectorArray->GetText()] = new TClonesArray("TLorentzVector");
-          }
-
-        }
-        while(variable != configParameter->LastChildElement());
-      }
-
-    }
-    while(configParameter != analysisConfiguration->LastChild());
-
-    std::cout << "_selection  = " << _selection  << std::endl;
-    std::cout << "_samplePath = " << _samplePath << std::endl;
-
-
-    for(std::map<TString, short>::const_iterator it = _shortVariables.begin(); it != _shortVariables.end(); ++it){
-      std::cout << "short: " << it->first << " = " << it->second << std::endl;
-    }
-    for(std::map<TString, int>::const_iterator it = _intVariables.begin(); it != _intVariables.end(); ++it){
-      std::cout << "int: " << it->first << " = " << it->second << std::endl;
-    }
-    for(std::map<TString, float>::const_iterator it = _floatVariables.begin(); it != _floatVariables.end(); ++it){
-      std::cout << "float: " << it->first << " = " << it->second << std::endl;
-    }
-    for(std::map<TString, double>::const_iterator it = _doubleVariables.begin(); it != _doubleVariables.end(); ++it){
-      std::cout << "double: " << it->first << " = " << it->second << std::endl;
-    }
-    for(std::map<TString, unsigned int>::const_iterator it = _uintVariables.begin(); it != _uintVariables.end(); ++it){
-      std::cout << "uint: " << it->first << " = " << it->second << std::endl;
-    }
-    for(std::map<TString, unsigned short*>::const_iterator it = _ushortArrayVariables.begin(); it != _ushortArrayVariables.end(); ++it){
-      std::cout << "ushort: " << it->first << " <- Array" << std::endl;
-    }
-    for(std::map<TString, short*>::const_iterator it = _shortArrayVariables.begin(); it != _shortArrayVariables.end(); ++it){
-      std::cout << "short: " << it->first << " <- Array" << std::endl;
-    }
-    for(std::map<TString, double*>::const_iterator it = _doubleArrayVariables.begin(); it != _doubleArrayVariables.end(); ++it){
-      std::cout << "double: " << it->first << " <- Array" << std::endl;
-    }
-    for(std::map<TString, TClonesArray*>::const_iterator it = _TClonesArrayVariables.begin(); it != _TClonesArrayVariables.end(); ++it){
-      std::cout << "TClonesArray: " << it->first << " <- Array"<< std::endl;
-    }
-
-
-
-    TTree * testTree = new TTree("testTree","testTree");
-    for(std::map<TString, std::map<TString, variableTypes> >::iterator it1 = _variables.begin(); it1 != _variables.end(); ++it1){
-      for(std::map<TString, variableTypes>::iterator it2 = it1->second.begin(); it2 != it1->second.end(); ++it2){
-        std::cout << it1->first <<  ": " << it2->first << " = " << it2->second << std::endl;
-        TBranch* br = 0;
-        if     (it1->first.EqualTo("double")){ br = testTree->Branch(it2->first, &it2->second, it2->first+TString("/D")); }
-        else if(it1->first.EqualTo("float" )){ br = testTree->Branch(it2->first, &it2->second, it2->first+TString("/F")); }
-        else if(it1->first.EqualTo("int"   )){ br = testTree->Branch(it2->first, &it2->second, it2->first+TString("/I")); }
-        else if(it1->first.EqualTo("uint"  )){ br = testTree->Branch(it2->first, &it2->second, it2->first+TString("/i")); }
-        else if(it1->first.EqualTo("short" )){ br = testTree->Branch(it2->first, &it2->second, it2->first+TString("/S")); }
-        else if(it1->first.Contains("array")){
-          TString length = it1->first(it1->first.Last('_')+1, it1->first.Length());
-          TString branchName = it2->first+TString("[")+length+TString("]");
-          std::cout << branchName << " " << length << std::endl;
-          if(it1->first.Contains("ushort")){
-            br = testTree->Branch(it2->first, &it2->second, branchName+TString("/s"));
-          }
-          else if(it1->first.Contains("short")){
-            br = testTree->Branch(it2->first, &it2->second, branchName+TString("/S"));
-          }
-          else if(it1->first.Contains("double")){
-            br = testTree->Branch(it2->first, &it2->second, branchName+TString("/D"));
-          }
-        }
-        else if(it1->first.Contains("TClonesArray")){
-          if(it1->first.Contains("TLorentzVector")){
-            std::cout << it1->first << std::endl;
-          }
-        }
-        if(br) std::cout << br->GetTitle() << std::endl;
-      }
-    }
-
-
-  }
-}
-*/
-
-/*
-RandomSubsetCreatorAllJets::variableTypes&
-RandomSubsetCreatorAllJets::GetVariable(TString variableName)
-{
-  for(std::map<TString, std::map<TString, variableTypes> >::iterator it1 = _variables.begin(); it1 != _variables.end(); ++it1){
-    for(std::map<TString, variableTypes>::iterator it2 = it1->second.begin(); it2 != it1->second.end(); ++it2){
-      if(variableName.EqualTo(it2->first)) return it2->second;
-    }
-  }
-  TString errorMessage = TString("Variable *") + variableName + TString("* not found!");
-  throw errorMessage;
-  //variableTypes errorReturn = 0;
-  //return errorReturn;
-}
-*/
-
-/*
-void
-RandomSubsetCreatorAllJets::SetBranchStatuses(TTree* tree){
-  tree->SetBranchStatus("*", 0);
-  for(std::map<TString, std::map<TString, variableTypes> >::iterator it1 = _variables.begin(); it1 != _variables.end(); ++it1){
-    for(std::map<TString, variableTypes>::iterator it2 = it1->second.begin(); it2 != it1->second.end(); ++it2){
-      std::cout << it1->first <<  ": " << it2->first << " = " << it2->second << std::endl;
-      tree->SetBranchStatus(it2->first, 1);
-    }
-  }
-}
-*/
-
-/*
-void
-RandomSubsetCreatorAllJets::SetBranchAddresses(TTree* tree){
-
-  for(std::map<TString, std::map<TString, variableTypes> >::iterator it1 = _variables.begin(); it1 != _variables.end(); ++it1){
-    for(std::map<TString, variableTypes>::iterator it2 = it1->second.begin(); it2 != it1->second.end(); ++it2){
-      if     (it1->first.EqualTo("double")){ tree->SetBranchAddress(it2->first, &it2->second); }
-      else if(it1->first.EqualTo("float" )){ tree->SetBranchAddress(it2->first, &it2->second); }
-      else if(it1->first.EqualTo("int"   )){ tree->SetBranchAddress(it2->first, &it2->second); }
-      else if(it1->first.EqualTo("uint"  )){ tree->SetBranchAddress(it2->first, &it2->second); }
-      else if(it1->first.EqualTo("short" )){ tree->SetBranchAddress(it2->first, &it2->second); }
-      else if(it1->first.Contains("array")){
-        if(it1->first.Contains("ushort")){
-          tree->SetBranchAddress(it2->first, boost::get<unsigned short*>(it2->second));
-        }
-        else if(it1->first.Contains("short")){
-          tree->SetBranchAddress(it2->first, boost::get<short*>(it2->second));
-        }
-        else if(it1->first.Contains("double")){
-          tree->SetBranchAddress(it2->first, boost::get<double*>(it2->second));
-        }
-      }
-      else if(it1->first.Contains("TClonesArray")){
-        if(it1->first.Contains("TLorentzVector")){
-          tree->GetBranch(it2->first)->SetAutoDelete(kFALSE);
-          tree->SetBranchAddress(it2->first, &it2->second);
-        }
-      }
-    }
-  }
-
-}
-*/

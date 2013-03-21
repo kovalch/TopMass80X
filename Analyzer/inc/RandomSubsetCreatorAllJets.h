@@ -10,8 +10,6 @@
 
 #include "RandomSubsetCreator.h"
 
-//#include "boost/variant.hpp"
-
 #include "TClonesArray.h"
 #include "TFile.h"
 #include "TH2F.h"
@@ -36,21 +34,9 @@ private:
   TH2F* cTagEff_;
   TH2F* lTagEff_;
 
-  //typedef boost::variant< short, int, float, double, unsigned int, unsigned short*, short*, double*, TClonesArray*> variableTypes;
-
-  //std::map<TString, std::map<TString, variableTypes> > _variables;
-
-  //static xml::XMLDocument* _config;
-
   void FetchBTagEfficiencyHistograms();
-  //void ReadConfigFromXMLFile();
 
   TTree* CreateRandomSubset();
-
-  //variableTypes& GetVariable(TString variableName);
-
-  //void SetBranchStatuses(TTree* tree);
-  //void SetBranchAddresses(TTree* tree);
 
   // return the PU weights for the different samples
   enum enumForPUWeights {kSummer11, kSummer11Plus05, kSummer11Minus05, kFall11, kFall11Plus05, kFall11Minus05, kFall10};

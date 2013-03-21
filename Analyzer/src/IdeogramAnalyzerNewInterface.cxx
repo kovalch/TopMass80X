@@ -1,4 +1,4 @@
-#include "IdeogramAnalyzer.h"
+#include "IdeogramAnalyzerNewInterface.h"
 
 #include "IdeogramCombLikelihood.h"
 #include "Helper.h"
@@ -17,12 +17,12 @@
 #include "TStyle.h"
 #include "TSystem.h"
 
-//#include "TopMass/TopEventTree/interface/TopEvent.h"
-//#include "TopMass/TopEventTree/interface/WeightEvent.h"
+#include "TopMass/TopEventTree/interface/TopEvent.h"
+#include "TopMass/TopEventTree/interface/WeightEvent.h"
 
 typedef ProgramOptionsReader po;
 
-void IdeogramAnalyzer::Analyze(const TString& cuts, int i, int j) {
+void IdeogramAnalyzerNewInterface::Analyze(const TString& cuts, int i, int j) {
   Scan(cuts, i, j, 154, 190, 2, 0.9, 1.1, 0.02);
 
   double mass = GetValue("mass_mTop_JES").first;
@@ -36,7 +36,7 @@ void IdeogramAnalyzer::Analyze(const TString& cuts, int i, int j) {
 }
 
 
-void IdeogramAnalyzer::Scan(const TString& cuts, int i, int j, double firstBinMass, double lastBinMass,
+void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, double firstBinMass, double lastBinMass,
 			    double resolMass, double firstBinJes, double lastBinJes, double resolJes, bool fit2D)
 {
   //*
@@ -137,22 +137,9 @@ void IdeogramAnalyzer::Scan(const TString& cuts, int i, int j, double firstBinMa
   productLikelihood->SetXTitle("m_{t} [GeV]");
   productLikelihood->SetYTitle("JES");
 
-  //TopEvent* topEvent = new TopEvent();
-  //WeightEvent* weightEvent = new WeightEvent();
+  TopEvent* topEvent = new TopEvent();
+  WeightEvent* weightEvent = new WeightEvent();
 
-  const int kMAXCombo = 12000;
-
-  unsigned int nCombos;
-  short* comboTypes = new short[kMAXCombo];
-
-  double* topMasses = new double[kMAXCombo];
-  double* w1Mass = new double[kMAXCombo];
-  double* w2Mass = new double[kMAXCombo];
-  double* probs = new double[kMAXCombo];
-  float dRbb = 0.;
-  double meanWMass = 0.;
-
-  unsigned int event = 0;
   double fitWeight;
   int nEvents = 0;
   double sumWeights = 0.;
@@ -160,21 +147,9 @@ void IdeogramAnalyzer::Scan(const TString& cuts, int i, int j, double firstBinMa
   std::cout << "fTree: " << fTree_->GetEntries() << std::endl;
   //TFile * tempFile = new TFile(TString(gSystem->Getenv("TMPDIR"))+TString("/tempFile.root"), "RECREATE");
   //tempFile->cd();
-  //TTree* fTree_ = fTree->CopyTree(cuts);
-  //TTree* fTree_ = fTree_->CloneTree();
 
-  //fTree_->SetBranchAddress("top", &topEvent);
-  //fTree_->SetBranchAddress("weight", &weightEvent);
-
-  fTree_->SetBranchAddress("nCombos", &nCombos);
-  fTree_->SetBranchAddress("comboTypes", comboTypes);
-  fTree_->SetBranchAddress("topMasses", topMasses);
-  fTree_->SetBranchAddress("w1Mass", w1Mass);
-  fTree_->SetBranchAddress("w2Mass", w2Mass);
-  fTree_->SetBranchAddress("probs", probs);
-  fTree_->SetBranchAddress("dRbb", &dRbb);
-  fTree_->SetBranchAddress("meanWMass", &meanWMass);
-  fTree_->SetBranchAddress("eventNumber", &event);
+  fTree_->SetBranchAddress("top", &topEvent);
+  fTree_->SetBranchAddress("weight", &weightEvent);
 
   double isFastSim                     = po::GetOption<int   >("fastsim");
   double shapeSystematic               = po::GetOption<double>("shape"  );
@@ -183,14 +158,14 @@ void IdeogramAnalyzer::Scan(const TString& cuts, int i, int j, double firstBinMa
   // Build Likelihood
   for (int iEntry = 0, length = fTree_->GetEntries(); iEntry < length; ++iEntry) {
   //for (int iEntry = 0; iEntry < 100; ++iEntry) {
-    //topEvent->init();
-    //weightEvent->init();
+    topEvent->init();
+    weightEvent->init();
     fTree_->GetEntry(iEntry);
 
     //if (event == currentEvent) continue;
     //currentEvent = event;
     ++nEvents;
-    if ((debug && iEntry%nDebug == 0 && iEntry > minDebug && iEntry < maxDebug) || iEntry%1000 == 0) std::cout << iEntry << " - " << event << std::endl;
+    if ((debug && iEntry%nDebug == 0 && iEntry > minDebug && iEntry < maxDebug) || iEntry%1000 == 0) std::cout << iEntry << " - " << topEvent->event << std::endl;
     
     //std::cout << "eventLikelihood: " << eventLikelihood->GetEntries() << std::endl;
     eventLikelihood->Eval(null);
@@ -216,66 +191,25 @@ void IdeogramAnalyzer::Scan(const TString& cuts, int i, int j, double firstBinMa
     //  fTree_->GetEntry(iEntry + iComb);
     //  
     //  if (event != currentEvent) break;
-    fitWeight += probs[0]; //*CombinedWeight;
+    fitWeight += topEvent->fitProb[0]; //*CombinedWeight;
       
     if (debug && iEntry%nDebug == 0 && iEntry > minDebug && iEntry < maxDebug) {
-      std::cout << std::setw(04) << nCombos
-		<< std::setw(10) << topMasses[0]
-		<< std::setw(10) << w1Mass[0]
-		<< std::setw(10) << w2Mass[0]
-		<< std::setw(12) << probs[0]
-		<< std::setw(11) << dRbb
-	//<< std::setw(11) << currentWeight
+      std::cout << std::setw(04) << topEvent->fitProb.size()
+		<< std::setw(10) << topEvent->fitHadTop[0].M()
+		<< std::setw(10) << topEvent->recoHadW[0].M()
+		<< std::setw(10) << topEvent->recoLepW[0].M()
+		<< std::setw(12) << topEvent->fitProb[0]
+		//<< std::setw(11) << dRbb
 		<< std::endl;
-      //std::cout << std::setw(04) << topEvent->fitProb.size()
-      //  << std::setw(10) << topEvent->fitHadTop[0].M()
-      //  << std::setw(10) << topEvent->recoHadW[0].M()
-      //  << std::setw(10) << topEvent->recoLepW[0].M()
-      //  << std::setw(12) << topEvent->fitProb[0]
-      //  //<< std::setw(11) << dRbb
-      //  << std::endl;
     }
       
-    if (probs[0] != 0) {
+    if (topEvent->fitProb[0] != 0) {
       //bScaleEstimator = 1;
-
-      //double top1 = floor((1000000.*topMasses[0]              )+0.5)/1000000.;
-      //double top2 = floor((1000000.*topEvent->fitHadTop[0].M())+0.5)/1000000.;
-      //
-      //if(nCombos != topEvent->fitProb.size())
-      //  std::cout << "nCombos differ: " << nCombos << " != " << topEvent->fitProb.size() << std::endl;
-      ////if(topMasses[0] != topEvent->fitHadTop[0].M()){
-      ////  static int counter = 0;
-      ////  std::cout << "topMass differ: " << topMasses[0] << " != " << topEvent->fitHadTop[0].M() << " " << ++counter << std::endl;
-      ////}
-      //if(top1 != top2){
-      //  static int counter = 0;
-      //  //std::cout << "topMass differ: " << top1 << " != " << top2 << " " << ++counter << std::endl;
-      //}
-      //if(w1Mass[0] != topEvent->recoHadW[0].M())
-      //  std::cout << "w1Mass differ: " << w1Mass[0] << " != " << topEvent->recoHadW[0].M() << std::endl;
-      //if(w2Mass[0] != topEvent->recoLepW[0].M())
-      //  std::cout << "w2Mass differ: " << w2Mass[0] << " != " << topEvent->recoLepW[0].M() << std::endl;
-      //if(probs[0] != topEvent->fitProb[0])
-      //  std::cout << "prob differ: " << probs[0] << " != " << topEvent->fitProb[0] << std::endl;
-
+        
       // Set Likelihood parameters
-      combLikelihood->SetParameters(probs[0], topMasses[0], (w1Mass[0]+w2Mass[0])/2.0, 1., shapeSystematic, permutationFractionSystematic, isFastSim);
-      //combLikelihood->SetParameters(probs[0], topMasses[0], meanWMass, 1., shapeSystematic, permutationFractionSystematic, isFastSim);
-      //combLikelihood->SetParameters(topEvent->fitProb[0], topEvent->fitHadTop[0].M(), (topEvent->recoHadW[0].M()+topEvent->recoLepW[0].M())/2.0, 1., shapeSystematic, permutationFractionSystematic, isFastSim);
-      //combLikelihood->SetParameters(probs[0], top1, meanWMass, 1., shapeSystematic, permutationFractionSystematic, isFastSim);
+      combLikelihood->SetParameters(topEvent->fitProb[0], topEvent->fitHadTop[0].M(), (topEvent->recoHadW[0].M()+topEvent->recoLepW[0].M())/2.0, 1., shapeSystematic, permutationFractionSystematic, isFastSim);
       // add permutation to event likelihood
       eventLikelihood->Eval(combLikelihood, "A");
-
-      //// Set Likelihood parameters
-      //combLikelihood->SetParameters(probs[0], topMasses[0], w1Mass[0], 1);
-      //// add permutation to event likelihood
-      //eventLikelihood->Eval(combLikelihood, "A");
-      //
-      //// Set Likelihood parameters
-      //combLikelihood->SetParameters(probs[0], topMasses[0], w2Mass[0], 0);
-      //// add permutation to event likelihood
-      //eventLikelihood->Eval(combLikelihood, "A");
     }
     //}
     
@@ -323,18 +257,13 @@ void IdeogramAnalyzer::Scan(const TString& cuts, int i, int j, double firstBinMa
       eventLikelihood->SetEntries(1);
       sumLogLikelihood->Draw("COLZ");
       
-      TString eventPath("plot/Ideogram/"); eventPath += fIdentifier_; eventPath += "_"; eventPath += iEntry; eventPath += "_"; eventPath += event; eventPath += ".eps";
+      TString eventPath("plot/Ideogram/"); eventPath += fIdentifier_; eventPath += "_"; eventPath += iEntry; eventPath += "_"; eventPath += topEvent->event; eventPath += ".eps";
       std::cout << eventPath << std::endl;
       eventCanvas->Print(eventPath);
       
       delete eventCanvas;
     }
   }
-  delete[] comboTypes;
-  delete[] topMasses;
-  delete[] w1Mass;
-  delete[] w2Mass;
-  delete[] probs;
   
   ctemp->cd();
   
@@ -578,12 +507,13 @@ void IdeogramAnalyzer::Scan(const TString& cuts, int i, int j, double firstBinMa
   delete fptr;
   delete helper;
 
-  //tempFile->Close();
-  //tempFile = new TFile("tempFile.root", "RECREATE");
+  delete topEvent;
+  delete weightEvent;
+
   //tempFile->Close();
   //delete tempFile;
   
-  std::cout << "IdeogramAnalyzer done" << std::endl;
+  std::cout << "IdeogramAnalyzerNewInterface done" << std::endl;
 }
 
 

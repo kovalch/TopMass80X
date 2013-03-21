@@ -8,10 +8,12 @@
 #include "GenMatchAnalyzer.h"
 #include "Helper.h"
 #include "IdeogramAnalyzer.h"
+#include "IdeogramAnalyzerNewInterface.h"
 #include "MVAAnalyzer.h"
 #include "ProgramOptionsReader.h"
 #include "RandomSubsetCreatorLeptonJets.h"
 #include "RandomSubsetCreatorAllJets.h"
+#include "RandomSubsetCreatorNewInterface.h"
 #include "RooFitTemplateAnalyzer.h"
 
 #include "LHAPDF/LHAPDF.h"
@@ -47,7 +49,12 @@ void Analysis::Analyze() {
     fCreator = new RandomSubsetCreatorLeptonJets();
   }
   else if (!strcmp(fChannel_, "alljets")) {
-    fCreator = new RandomSubsetCreatorAllJets();
+    if (!strcmp(fMethod_, "IdeogramNew")) {
+      fCreator = new RandomSubsetCreatorNewInterface();
+    }
+    else{
+      fCreator = new RandomSubsetCreatorAllJets();
+    }
   }
   else {
     std::cerr << "Stopping analysis! Specified decay channel *" << fChannel_ << "* not known!" << std::endl;
@@ -65,6 +72,9 @@ void Analysis::Analyze() {
   }
   else if (!strcmp(fMethod_, "Ideogram")) {
     fAnalyzer = new IdeogramAnalyzer(fIdentifier_, fTree_);
+  }
+  else if (!strcmp(fMethod_, "IdeogramNew")) {
+    fAnalyzer = new IdeogramAnalyzerNewInterface(fIdentifier_, fTree_);
   }
   else if (!strcmp(fMethod_, "RooFit")) {
     fAnalyzer = new RooFitTemplateAnalyzer(fIdentifier_, fTree_);
