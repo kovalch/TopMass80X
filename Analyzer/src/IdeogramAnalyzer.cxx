@@ -266,16 +266,6 @@ void IdeogramAnalyzer::Scan(const TString& cuts, int i, int j, double firstBinMa
       //combLikelihood->SetParameters(probs[0], top1, meanWMass, 1., shapeSystematic, permutationFractionSystematic, isFastSim);
       // add permutation to event likelihood
       eventLikelihood->Eval(combLikelihood, "A");
-
-      //// Set Likelihood parameters
-      //combLikelihood->SetParameters(probs[0], topMasses[0], w1Mass[0], 1);
-      //// add permutation to event likelihood
-      //eventLikelihood->Eval(combLikelihood, "A");
-      //
-      //// Set Likelihood parameters
-      //combLikelihood->SetParameters(probs[0], topMasses[0], w2Mass[0], 0);
-      //// add permutation to event likelihood
-      //eventLikelihood->Eval(combLikelihood, "A");
     }
     //}
     
@@ -287,10 +277,10 @@ void IdeogramAnalyzer::Scan(const TString& cuts, int i, int j, double firstBinMa
 
     for (int i = 0; i<=binsMass; i++) {
       for (int j = 0; j<=binsJes; j++) {
-	logEventLikelihood->SetBinContent(i, j, -2*TMath::Log(eventLikelihood->GetBinContent(i, j)));
+        logEventLikelihood->SetBinContent(i, j, -2*TMath::Log(eventLikelihood->GetBinContent(i, j)));
       }
     }
-    
+
     //TString sEvent("(run=="); sEvent += run; sEvent += " & luminosityBlock=="; 
     //sEvent += luminosityBlock; sEvent += " & event=="; sEvent += event; sEvent += ")";
     

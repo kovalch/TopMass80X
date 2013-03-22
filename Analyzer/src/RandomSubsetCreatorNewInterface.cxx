@@ -29,8 +29,8 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface() :
     fLumi_  (po::GetOption<double>("lumi")),
     fSig_   (po::GetOption<double>("fsig")),
     fBDisc_ (po::GetOption<double>("bdisc")),
-    topEvent_(0),
-    weightEvent_(0),
+    topEvent_(new TopEvent()),
+    weightEvent_(new WeightEvent()),
     random_(0)
 {
   if      (!strcmp(fChannel_, "alljets" )) channelID_ = kAllJets;

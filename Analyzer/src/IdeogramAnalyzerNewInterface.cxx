@@ -199,7 +199,7 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
 		<< std::setw(10) << topEvent->recoHadW[0].M()
 		<< std::setw(10) << topEvent->recoLepW[0].M()
 		<< std::setw(12) << topEvent->fitProb[0]
-		//<< std::setw(11) << dRbb
+		<< std::setw(11) << topEvent->fitHadB[0].DeltaR(topEvent->fitLepB[0])
 		<< std::endl;
     }
       
@@ -221,10 +221,10 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
 
     for (int i = 0; i<=binsMass; i++) {
       for (int j = 0; j<=binsJes; j++) {
-	logEventLikelihood->SetBinContent(i, j, -2*TMath::Log(eventLikelihood->GetBinContent(i, j)));
+        logEventLikelihood->SetBinContent(i, j, -2*TMath::Log(eventLikelihood->GetBinContent(i, j)));
       }
     }
-    
+
     //TString sEvent("(run=="); sEvent += run; sEvent += " & luminosityBlock=="; 
     //sEvent += luminosityBlock; sEvent += " & event=="; sEvent += event; sEvent += ")";
     
