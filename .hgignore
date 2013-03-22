@@ -17,3 +17,4 @@
 
 syntax: regexp
 ^Analyzer/TopMass$
+^Analyzer/Calibration$
