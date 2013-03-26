@@ -31,13 +31,13 @@ private:
   // do all the calculation
   void rooFitTopMass_();
 
-  // return the PU weights for the different samples
-  enum enumForPUWeights {kSummer11, kSummer11Plus05, kSummer11Minus05, kFall11, kFall11Plus05, kFall11Minus05, kFall10, kSummer12};
-  double calcPUWeight_(enum enumForPUWeights sample, short nPU);
-
-  // calculate the probability of b-tagging one event with 2 b-tags
-  double eventBTagProbability_(std::vector<double> &oneMinusBEffies, std::vector<double> &oneMinusBMistags);
-  double calcBTagWeight_(int Njet, float * bTag, short * pdgId, TClonesArray * jets);
+  //// return the PU weights for the different samples
+  //enum enumForPUWeights {kSummer11, kSummer11Plus05, kSummer11Minus05, kFall11, kFall11Plus05, kFall11Minus05, kFall10, kSummer12};
+  //double calcPUWeight_(enum enumForPUWeights sample, short nPU);
+  //
+  //// calculate the probability of b-tagging one event with 2 b-tags
+  //double eventBTagProbability_(std::vector<double> &oneMinusBEffies, std::vector<double> &oneMinusBMistags);
+  //double calcBTagWeight_(int Njet, float * bTag, short * pdgId, TClonesArray * jets);
 
   // because RooFit only likes plain trees with standard data types (int, float, double, ...)
   // the original tree has to be adapted for the new content
