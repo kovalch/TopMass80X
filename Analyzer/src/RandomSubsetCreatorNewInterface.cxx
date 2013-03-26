@@ -1,6 +1,7 @@
 #include "RandomSubsetCreatorNewInterface.h"
 
 #include "Analysis.h"
+#include "Helper.h"
 #include "ProgramOptionsReader.h"
 
 #include <iostream>
@@ -24,7 +25,7 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface() :
     selection_  (po::GetOption<std::string>("analysisConfig.selection")),
     samplePath_ (po::GetOption<std::string>("analysisConfig.samplePath")),
     fIdentifier_(po::GetOption<std::string>("input")),
-    fChannel_   (po::GetOption<std::string>("channel")),
+    //fChannel_   (po::GetOption<std::string>("channel")),
     fWeight_    (po::GetOption<std::string>("weight")),
     fLumi_  (po::GetOption<double>("lumi")),
     fSig_   (po::GetOption<double>("fsig")),
@@ -33,17 +34,13 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface() :
     weightEvent_(new WeightEvent()),
     random_(0)
 {
-  if      (!strcmp(fChannel_, "alljets" )) channelID_ = kAllJets;
-  else if (!strcmp(fChannel_, "muon"    )) channelID_ = kMuonJets;
-  else if (!strcmp(fChannel_, "electron")) channelID_ = kElectronJets;
-  else if (!strcmp(fChannel_, "lepton"  )) channelID_ = kLeptonJets;
-  else UnknownChannelAbort();
+  channelID_ = Helper::channelID();
 
-  if (channelID_ == kAllJets) {
+  if (channelID_ == Helper::kAllJets) {
     fTreesSig_.push_back(PrepareTree(samplePath_+fIdentifier_+TString(".root")));
     if(fLumi_>0) fTreesBkg_.push_back(PrepareTree(samplePath_+"QCDEstimationMix.root"));
   }
-  if (channelID_ == kMuonJets || channelID_ == kLeptonJets) {
+  if (channelID_ == Helper::kMuonJets || channelID_ == Helper::kLeptonJets) {
     fTreesSig_.push_back(PrepareTree(samplePath_+fIdentifier_+TString("_muon/analyzeTop.root")));
     if(fLumi_>0) {
       fTreesBkg_.push_back(PrepareTree("/scratch/hh/lustre/cms/user/mseidel/Fall11_Wbb_muon/analyzeTop.root"));
@@ -53,7 +50,7 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface() :
     //fTreeWmu  = PrepareTree("/scratch/hh/lustre/cms/user/mseidel/Fall11_Wbb_muon/analyzeTop.root");
     //fTreeSTmu = PrepareTree("/scratch/hh/lustre/cms/user/mseidel/Fall11_T_muon/analyzeTop.root");
   }
-  if (channelID_ == kElectronJets || channelID_ == kLeptonJets) {
+  if (channelID_ == Helper::kElectronJets || channelID_ == Helper::kLeptonJets) {
     fTreesSig_.push_back(PrepareTree(samplePath_+fIdentifier_+TString("_electron/analyzeTop.root")));
     if(fLumi_>0) {
       fTreesBkg_.push_back(PrepareTree("/scratch/hh/lustre/cms/user/mseidel/Fall11_Wbb_electron/analyzeTop.root"));
@@ -91,18 +88,18 @@ TTree* RandomSubsetCreatorNewInterface::CreateRandomSubset() {
     int eventsPEMuon     = random_->Poisson(nEventsDataMuon    /5000.000*fLumi_);
     int eventsPEElectron = random_->Poisson(nEventsDataElectron/5000.000*fLumi_);
 
-    if (channelID_ == kAllJets) {
+    if (channelID_ == Helper::kAllJets) {
       DrawEvents(fTreesSig_[0], eventsPEAllJets*    fSig_ );
       DrawEvents(fTreesBkg_[0], eventsPEAllJets*(1.-fSig_));
     }
-    if (channelID_ == kMuonJets || channelID_ == kLeptonJets) {
+    if (channelID_ == Helper::kMuonJets || channelID_ == Helper::kLeptonJets) {
       DrawEvents(fTreesSig_[0], eventsPEMuon*    fSig_       );
       DrawEvents(fTreesBkg_[0], eventsPEMuon*(1.-fSig_)*1./4.);
       DrawEvents(fTreesBkg_[1], eventsPEMuon*(1.-fSig_)*3./4.);
     }
-    if (channelID_ == kElectronJets || channelID_ == kLeptonJets) {
+    if (channelID_ == Helper::kElectronJets || channelID_ == Helper::kLeptonJets) {
       short offset = 0;
-      if(channelID_ == kLeptonJets) offset = 1;
+      if(channelID_ == Helper::kLeptonJets) offset = 1;
       DrawEvents(fTreesSig_[  offset+0], eventsPEElectron*    fSig_       );
       DrawEvents(fTreesBkg_[2*offset+0], eventsPEElectron*(1.-fSig_)*1./4.);
       DrawEvents(fTreesBkg_[2*offset+1], eventsPEElectron*(1.-fSig_)*3./4.);
@@ -115,7 +112,7 @@ TTree* RandomSubsetCreatorNewInterface::CreateRandomSubset() {
     TList treeList;
 
     treeList.Add(fTreesSig_[0]);
-    if (channelID_ == kLeptonJets) treeList.Add(fTreesSig_[1]);
+    if (channelID_ == Helper::kLeptonJets) treeList.Add(fTreesSig_[1]);
 
     fTree_ = TTree::MergeTrees(&treeList);
   }
@@ -205,9 +202,4 @@ TTree* RandomSubsetCreatorNewInterface::PrepareTree(TString file) {
   std::cout << file << ": " << chain->GetEntries(selection) << " events" << std::endl;
 
   return chain->CopyTree(selection);
-}
-
-void RandomSubsetCreatorNewInterface::UnknownChannelAbort(){
-  std::cout << "Channel name *" << fChannel_ << "* not know! Aborting program execution!" << std::endl;
-  exit(1);
 }

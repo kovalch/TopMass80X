@@ -1,7 +1,33 @@
 #include "Helper.h"
 
+#include "ProgramOptionsReader.h"
+
 #include "TStyle.h"
 #include "TPaveLabel.h"
+
+#include <iostream>
+
+typedef ProgramOptionsReader po;
+
+void Helper::init()
+{
+  channelID_ = channelIDFromString(po::GetOption<std::string>("channel"));
+  energy_ = po::GetOption<int>("cmsenergy");
+}
+
+int Helper::channelIDFromString(std::string channel)
+{
+  if      (!strcmp(channel.c_str(), "alljets" )) return kAllJets;
+  else if (!strcmp(channel.c_str(), "muon"    )) return kMuonJets;
+  else if (!strcmp(channel.c_str(), "electron")) return kElectronJets;
+  else if (!strcmp(channel.c_str(), "lepton"  )) return kLeptonJets;
+  else {
+    std::cout << "Channel name *" << channel << "* not know! Aborting program execution!" << std::endl;
+    exit(1);
+    return kMaxChannels;
+  }
+}
+
 
 TH1F* Helper::GetH1(TString title) {
   const float* array = &vBinning[0];
@@ -190,14 +216,60 @@ void Helper::DrawLabel(TString text, const double x1, const double y1, const dou
   label->Draw("same");
 }
 
-void Helper::DrawCMSPrel() {
-  DrawLabel("CMS, 5.0 fb^{-1},  #sqrt{s} = 7 TeV, l+jets", 0.2, 0.93, 0.9);
+void Helper::DrawCMS(int channelID, int energy) {
+  if(channelID < 0) channelID = channelID_;
+  if(energy    < 0) energy    = energy_;
+  if(energy == 7){
+    if(po::GetOption<int>("preliminary")){
+      if     (channelID == kAllJets     ) DrawLabel("CMS Preliminary, 3.54 fb^{-1},  #sqrt{s} = 7 TeV"         , 0.2, 0.93, 0.9);
+      else if(channelID == kLeptonJets  ) DrawLabel("CMS Preliminary, 5.0 fb^{-1},  #sqrt{s} = 7 TeV, l+jets"  , 0.2, 0.93, 0.9);
+      else if(channelID == kElectronJets) DrawLabel("CMS Preliminary, 5.0 fb^{-1},  #sqrt{s} = 7 TeV, e+jets"  , 0.2, 0.93, 0.9);
+      else if(channelID == kMuonJets    ) DrawLabel("CMS Preliminary, 5.0 fb^{-1},  #sqrt{s} = 7 TeV, #mu+jets", 0.2, 0.93, 0.9);
+    }
+    else{
+      if     (channelID == kAllJets     ) DrawLabel("CMS, 3.54 fb^{-1},  #sqrt{s} = 7 TeV"         , 0.2, 0.93, 0.9);
+      else if(channelID == kLeptonJets  ) DrawLabel("CMS, 5.0 fb^{-1},  #sqrt{s} = 7 TeV, l+jets"  , 0.2, 0.93, 0.9);
+      else if(channelID == kElectronJets) DrawLabel("CMS, 5.0 fb^{-1},  #sqrt{s} = 7 TeV, e+jets"  , 0.2, 0.93, 0.9);
+      else if(channelID == kMuonJets    ) DrawLabel("CMS, 5.0 fb^{-1},  #sqrt{s} = 7 TeV, #mu+jets", 0.2, 0.93, 0.9);
+    }
+  }
+  else if(energy == 8){
+    if(po::GetOption<int>("preliminary")){
+      if     (channelID == kAllJets     ) DrawLabel("CMS Preliminary, X.X fb^{-1},  #sqrt{s} = 8 TeV"         , 0.2, 0.93, 0.9);
+      else if(channelID == kLeptonJets  ) DrawLabel("CMS Preliminary, X.X fb^{-1},  #sqrt{s} = 8 TeV, l+jets"  , 0.2, 0.93, 0.9);
+      else if(channelID == kElectronJets) DrawLabel("CMS Preliminary, X.X fb^{-1},  #sqrt{s} = 8 TeV, e+jets"  , 0.2, 0.93, 0.9);
+      else if(channelID == kMuonJets    ) DrawLabel("CMS Preliminary, X.X fb^{-1},  #sqrt{s} = 8 TeV, #mu+jets", 0.2, 0.93, 0.9);
+    }
+    else{
+      if     (channelID == kAllJets     ) DrawLabel("CMS, X.X fb^{-1},  #sqrt{s} = 8 TeV"         , 0.2, 0.93, 0.9);
+      else if(channelID == kLeptonJets  ) DrawLabel("CMS, X.X fb^{-1},  #sqrt{s} = 8 TeV, l+jets"  , 0.2, 0.93, 0.9);
+      else if(channelID == kElectronJets) DrawLabel("CMS, X.X fb^{-1},  #sqrt{s} = 8 TeV, e+jets"  , 0.2, 0.93, 0.9);
+      else if(channelID == kMuonJets    ) DrawLabel("CMS, X.X fb^{-1},  #sqrt{s} = 8 TeV, #mu+jets", 0.2, 0.93, 0.9);
+    }
+  }
 }
 
-void Helper::DrawCMSPrelElectron() {
-  DrawLabel("CMS, 5.0 fb^{-1},  #sqrt{s} = 7 TeV, e+jets", 0.2, 0.93, 0.9);
+void Helper::DrawCMSSim(int energy) {
+  if(energy < 0) energy = energy_;
+  if(energy == 7){
+    if(po::GetOption<int>("preliminary")){
+      DrawLabel("CMS Simulation Preliminary,  #sqrt{s} = 7 TeV", 0.2, 0.93, 0.9);
+    }
+    else{
+      DrawLabel("CMS Simulation,  #sqrt{s} = 7 TeV", 0.2, 0.93, 0.9);
+    }
+  }
+  else if(energy == 8){
+    if(po::GetOption<int>("preliminary")){
+      DrawLabel("CMS Simulation Preliminary,  #sqrt{s} = 8 TeV", 0.2, 0.93, 0.9);
+    }
+    else{
+      DrawLabel("CMS Simulation,  #sqrt{s} = 8 TeV", 0.2, 0.93, 0.9);
+    }
+  }
 }
 
-void Helper::DrawCMSPrelMuon() {
-  DrawLabel("CMS, 5.0 fb^{-1},  #sqrt{s} = 7 TeV, #mu+jets", 0.2, 0.93, 0.9);
+int Helper::channelID()
+{
+  return channelIDFromString(po::GetOption<std::string>("channel"));
 }

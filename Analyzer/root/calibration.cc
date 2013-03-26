@@ -3,7 +3,7 @@
 //#include "TArrow.h"
 #include "TAxis.h"
 #include "TCanvas.h"
-//#include "TF1.h"
+#include "TF1.h"
 //#include "TF2.h"
 #include "TFile.h"
 //#include "TGraphErrors.h"
@@ -64,7 +64,7 @@ TopMassCalibration::TopMassCalibration() :
     samplePath_ (po::GetOption<std::string>("analysisConfig.samplePath")),
     fChannel_   (po::GetOption<std::string>("channel")),
     doCalibration_(true),
-    fitBackground_(false),
+    fitBackground_(true),
     doMeasurement_(false)
 {
   if      (!strcmp(fChannel_, "alljets" )) channelID_ = kAllJets;
@@ -189,7 +189,8 @@ TopMassCalibration::rooFitTopMass_()
       for(unsigned int iJES = 0; iJES < nJES; ++iJES){
         TString fileName;
         if(channelID_ == kAllJets){
-          fileName += "Z2_S12_ABS_JES";
+          fileName += "Z2_F11_ABS_JES";
+          //FIXME fileName += "Z2_S12_ABS_JES";
           if     (iJES  == 0) fileName += "_096_";
           else if(iJES  == 1) fileName += "_098_";
           else if(iJES  == 2) fileName += "_100_";
@@ -209,7 +210,8 @@ TopMassCalibration::rooFitTopMass_()
         std::cout << "Creating RooDataSet for: " << fileName << std::endl;
 
         TFile *file = TFile::Open(samplePath_+TString(fileName));
-        TTree *tree = (TTree*)file->Get("analyzeKinFit/eventTree");
+        //FIXME TTree *tree = (TTree*)file->Get("analyzeKinFit/eventTree");
+        TTree *tree = (TTree*)file->Get("FullHadTreeWriter/tree");
         tmpFile->cd();
         tree = modifiedTree_(tree); //, minComboType, maxComboType);
         file->Close();
@@ -234,7 +236,6 @@ TopMassCalibration::rooFitTopMass_()
       }
     }
 
-    //RooWorkspace* workspace[1];
     RooSimWSTool* simWST[nPDFs];
     RooSimultaneous* sim[nPDFs];
     RooNLLVar* nll[nPDFs][nTemplates];
@@ -282,8 +283,8 @@ TopMassCalibration::rooFitTopMass_()
         RooRealVar *meanWMass = new RooRealVar("meanWMass", "m_{W}^{rec}",   0., 7000., "GeV");
         RooRealVar *var = 0;
         TString comboRangeName = "";
-        std::vector<RooRealVar> par;
-        std::vector<RooFormulaVar> alpha;
+        std::vector<RooRealVar*> par;
+        std::vector<RooFormulaVar*> alpha;
         std::vector<double> iniPar;
 
         if(channelID_ == kAllJets){
@@ -293,49 +294,70 @@ TopMassCalibration::rooFitTopMass_()
 
           if(templType == 0){
             if (comboType == 0){ // mTop, correct
-              double a[] = {172.351, 0.994749 , 85.8624 , 0.819629 ,
-                            7.31249, 0.0549339,  6.80791, 0.0648612};
+              double a[] = {172.328, 0.982351 , 85.7756 , 0.871109,
+                            7.17985, 0.0687401,  6.68148, 0.281139};
+                            //172.351, 0.994749 , 85.8624 , 0.819629 ,
+                            //7.31249, 0.0549339,  6.80791, 0.0648612};
               iniPar = std::vector<double>(a,a+sizeof(a)/sizeof(double));
             }
             else if (comboType == 1){ // mTop, wrong
-              double a[] = {177.506,  0.72069   , 72.7239 , 0.,
-                            23.0854,  0.141175  ,  4.41442, 0.,
-                             8.21835, -0.00774364, -2.46418, 0.};
+              double a[] = {182.221,  0.180998 , 35.0042 ,  0.701448,
+                            172.565,  1.0841   , 99.7299 ,  0.226163,
+                            24.3286, -0.0251085, -6.24156,  0.392888,
+                            8.87901, -0.072422 ,  7.45875, -1.6491};
+                            //177.506,  0.72069   , 72.7239 , 0.,
+                            //172.351, 0.994749 , 85.8624 , 0.819629 ,
+                            //23.0854,  0.141175  ,  4.41442, 0.,
+                            //8.21835, -0.00774364, -2.46418, 0.};
               iniPar = std::vector<double>(a,a+sizeof(a)/sizeof(double));
             }
             else if(comboType == 2){ // mTop, unmatched
-              double a[] = {176.206,  0.697207 , 69.1265, 0.,
-                            22.2574,  0.18319  , 16.9791, 0.,
-                            9.61471, -0.0348847, 1.59068, 0.};
+              double a[] = {178.206, 0.26746    , 35.9815  , 1.50419 ,
+                            174.467, 0.991727   , 88.1759  , 0.991246,
+                            21.9042, 0.0375821  ,  3.86448 , 1.34186 ,
+                             8.9953, 0.000352339,  0.885277, 0.126578};
+                            //176.206,  0.697207 , 69.1265, 0.,
+                            //172.351,  0.994749 , 85.8624 , 0.819629 ,
+                            //22.2574,  0.18319  , 16.9791, 0.,
+                            //9.61471, -0.0348847, 1.59068, 0.};
               iniPar = std::vector<double>(a,a+sizeof(a)/sizeof(double));
             }
           }
           else if(templType == 1){
             if (comboType == 0){ // mW, correct
-              double a[] = {84.4836 , -0.00235611, 57.7472 ,  0.260235,
-                             4.3087 , -0.00226071, 12.085  ,  0.108488,
-                             5.43718, -0.0112025 , -7.38103, -0.125601};
+              double a[] = {84.4714 , -0.00288904, 57.2879 ,  0.221738 ,
+                             4.25403,  0.00163248, 11.8082 ,  0.0886389,
+                             5.43406, -0.00640861, -6.93172, -0.0742648};
+                             //84.4836 , -0.00235611, 57.7472 ,  0.260235,
+                             //4.3087 , -0.00226071, 12.085  ,  0.108488,
+                             //5.43718, -0.0112025 , -7.38103, -0.125601};
               iniPar = std::vector<double>(a,a+sizeof(a)/sizeof(double));
             }
             else if (comboType == 1){ // mW, wrong
-              double a[] = {84.0586 ,  0.0314863 , 28.6706 , -0.524549,
-                             4.31361,  0.00693565,  5.86459, -0.361966,
-                             6.27985, -0.0230866 , -6.57438,  0.40124};
+              double a[] = {84.059 ,  0.00363846, 27.6651, -0.0122909,
+                            4.28601, -0.0106779 ,  5.2756, -0.18915  ,
+                            6.2658 , -0.0133067 , -6.2384,  0.0742743};
+                            //84.0586 ,  0.0314863 , 28.6706 , -0.524549,
+                            // 4.31361,  0.00693565,  5.86459, -0.361966,
+                            // 6.27985, -0.0230866 , -6.57438,  0.40124};
               iniPar = std::vector<double>(a,a+sizeof(a)/sizeof(double));
             }
             else if(comboType == 2){ // mW, unmatched
-              double a[] = {84.7383 , 0.00308977, 16.0727 ,  0.38017,
-                             4.84492, 0.00678078,  2.43329,  0.14005,
-                             7.04282, 0.00211119, -6.0521 , -0.17391};
+              double a[] = {84.6333,  0.0205799 , 16.0275, -0.280052,
+                            4.76909,  0.018934  , 2.18012, -0.12839 ,
+                            7.08441, -0.00812571, -6.2732,  0.22637 };
+                            //84.7383 , 0.00308977, 16.0727 ,  0.38017,
+                            // 4.84492, 0.00678078,  2.43329,  0.14005,
+                            // 7.04282, 0.00211119, -6.0521 , -0.17391};
               iniPar = std::vector<double>(a,a+sizeof(a)/sizeof(double));
             }
           }
 
           for(unsigned p=0; p<iniPar.size(); ++p){
-            std::cout << iniPar[p] << ", ";
+            //std::cout << iniPar[p] << ", ";
             name = "par_"; name += h; name += "_"; name += p;
-            par.push_back(RooRealVar(name, name, iniPar[p]));
-            par.back().setConstant(kFALSE);
+            RooRealVar *myVar = new RooRealVar(name, name, iniPar[p]); myVar->setConstant(kFALSE);
+            par.push_back(myVar);
           }
           std::cout << std::endl;
           name = "sig_"; name += h;
@@ -343,42 +365,42 @@ TopMassCalibration::rooFitTopMass_()
           if(templType == 0){
             var = topMass;
             if(comboType == 0) {
-              fillAlpha(alpha, h, RooArgSet(par[0], par[1], par[2], par[3], mTop_corrected, JES_corrected));
-              fillAlpha(alpha, h, RooArgSet(par[4], par[5], par[6], par[7], mTop_corrected, JES_corrected));
+              fillAlpha(alpha, h, RooArgSet(*par[0], *par[1], *par[2], *par[3], mTop_corrected, JES_corrected));
+              fillAlpha(alpha, h, RooArgSet(*par[4], *par[5], *par[6], *par[7], mTop_corrected, JES_corrected));
               varName = "width_"; varName += h;
-              RooRealVar width = RooRealVar(varName, varName, 2.0);
-              width.setConstant(kTRUE);
-              RooVoigtian voigt = RooVoigtian(name, name, *var, alpha[0], width, alpha[1]);
+              RooRealVar *width = new RooRealVar(varName, varName, 2.0);
+              width->setConstant(kTRUE);
+              RooVoigtian voigt = RooVoigtian(name, name, *var, *alpha[0], *width, *alpha[1]);
               workspace[0]->import(voigt);
             }
             else if(comboType == 1 || comboType == 2) {
               varName = "ratio_"; varName += h;
-              RooRealVar ratio = RooRealVar(varName, varName, 0.0, 1.0);
-              if     (comboType == 1) ratio.setVal(0.820546);
-              else if(comboType == 2) ratio.setVal(0.758690);
-              ratio.setConstant(kTRUE);
-              fillAlpha(alpha, h, RooArgSet(par[0], par[1], par[ 2], par[ 3], mTop_corrected, JES_corrected));
-              fillAlpha(alpha, h, RooArgSet(par[8], par[9], par[10], par[11], mTop_corrected, JES_corrected));
+              RooRealVar *ratio = new RooRealVar(varName, varName, 0.0, 1.0);
+              if     (comboType == 1) ratio->setVal(0.820546);
+              else if(comboType == 2) ratio->setVal(0.758690);
+              ratio->setConstant(kTRUE);
+              fillAlpha(alpha, h, RooArgSet(*par[0], *par[1], *par[ 2], *par[ 3], mTop_corrected, JES_corrected));
+              fillAlpha(alpha, h, RooArgSet(*par[8], *par[9], *par[10], *par[11], mTop_corrected, JES_corrected));
               varName = "landau_"; varName += h;
-              RooLandau landau = RooLandau(varName, varName, *var, alpha[0], alpha[1]);
-              fillAlpha(alpha, h, RooArgSet(par[ 4], par[ 5], par[ 6], par[ 7], mTop_corrected, JES_corrected));
-              fillAlpha(alpha, h, RooArgSet(par[12], par[13], par[14], par[15], mTop_corrected, JES_corrected));
+              RooLandau *landau = new RooLandau(varName, varName, *var, *alpha[0], *alpha[1]);
+              fillAlpha(alpha, h, RooArgSet(*par[ 4], *par[ 5], *par[ 6], *par[ 7], mTop_corrected, JES_corrected));
+              fillAlpha(alpha, h, RooArgSet(*par[12], *par[13], *par[14], *par[15], mTop_corrected, JES_corrected));
               varName = "width_"; varName += h;
-              RooRealVar width = RooRealVar(varName, varName, 2.0);
-              width.setConstant(kTRUE);
+              RooRealVar *width = new RooRealVar(varName, varName, 2.0);
+              width->setConstant(kTRUE);
               varName = "voigt_"; varName += h;
-              RooVoigtian voigt = RooVoigtian(varName, varName, *var, alpha[2], width, alpha[3]);
-              RooAddPdf add = RooAddPdf(name, name, landau, voigt, ratio);
-              workspace[0]->import(add);
+              RooVoigtian *voigt = new RooVoigtian(varName, varName, *var, *alpha[2], *width, *alpha[3]);
+              RooAddPdf *add = new RooAddPdf(name, name, *landau, *voigt, *ratio);
+              workspace[0]->import(*add);
             }
           }
           else if(templType == 1){
             var = meanWMass;
-            fillAlpha(alpha, h, RooArgSet(par[0], par[1], par[ 2], par[ 3], mTop_corrected, JES_corrected));
-            fillAlpha(alpha, h, RooArgSet(par[4], par[5], par[ 6], par[ 7], mTop_corrected, JES_corrected));
-            fillAlpha(alpha, h, RooArgSet(par[8], par[9], par[10], par[11], mTop_corrected, JES_corrected));
-            RooBifurGauss asymGaus = RooBifurGauss(name, name, *var, alpha[0], alpha[1], alpha[2]);
-            workspace[0]->import(asymGaus);
+            fillAlpha(alpha, h, RooArgSet(*par[0], *par[1], *par[ 2], *par[ 3], mTop_corrected, JES_corrected));
+            fillAlpha(alpha, h, RooArgSet(*par[4], *par[5], *par[ 6], *par[ 7], mTop_corrected, JES_corrected));
+            fillAlpha(alpha, h, RooArgSet(*par[8], *par[9], *par[10], *par[11], mTop_corrected, JES_corrected));
+            RooBifurGauss *asymGaus = new RooBifurGauss(name, name, *var, *alpha[0], *alpha[1], *alpha[2]);
+            workspace[0]->import(*asymGaus);
           }
         }
         simWST[h] = new RooSimWSTool(*workspace[0]);
@@ -407,8 +429,6 @@ TopMassCalibration::rooFitTopMass_()
         gStyle->SetOptTitle(1);
         // perform the fit
         RooMinuit minuit(*nllSim[h]);
-        //minuit.setStrategy(0);
-        //minuit.simplex();
         minuit.setStrategy(2);
         minuit.migrad();
         minuit.improve();
@@ -418,7 +438,7 @@ TopMassCalibration::rooFitTopMass_()
         workspace[0]->import(*result);
 
         /// control plots
-        TString outDir = "rooFitTopMassPlots";
+        TString outDir = "plot/calibration";
 
         RooPlot* frame = 0;
         TCanvas* canvas = new TCanvas("canvas", "canvas", 10, 10, 600, 600);
@@ -560,44 +580,44 @@ TopMassCalibration::rooFitTopMass_()
         std::cout << "old: ";
         for(unsigned int i = 0; i < iniPar.size(); ++i){
           std::cout << iniPar[i];
-          if(i != iniPar.size()-1) vars << ", ";
+          if(i != iniPar.size()-1) std::cout << ", ";
         }
         std::cout << std::endl;
         //}
       }
     }
 
-    RooRealVar fCP = RooRealVar("fCP", "fCP", 2.79599875211715698e-01);
-    fCP.setConstant(kTRUE);
-    RooRealVar fWP = RooRealVar("fWP", "fWP", 4.28881868720054626e-03+1.13365799188613892e-03+2.13942706584930420e-01);
-    fWP.setConstant(kTRUE);
-    RooRealVar fUN = RooRealVar("fUN", "fUN", 5.01034975051879883e-01);
-    fUN.setConstant(kTRUE);
-    RooArgSet permutationFractions = RooArgSet(fCP,fWP,fUN,"permutationFractions");
+    RooRealVar *fCP = new RooRealVar("fCP", "fCP", 2.79599875211715698e-01);
+    fCP->setConstant(kTRUE);
+    RooRealVar *fWP = new RooRealVar("fWP", "fWP", 4.28881868720054626e-03+1.13365799188613892e-03+2.13942706584930420e-01);
+    fWP->setConstant(kTRUE);
+    RooRealVar *fUN = new RooRealVar("fUN", "fUN", 5.01034975051879883e-01);
+    fUN->setConstant(kTRUE);
+    RooArgSet permutationFractions = RooArgSet(*fCP,*fWP,*fUN,"permutationFractions");
 
-    RooAbsPdf* topCP = workspace[0]->pdf("sig_0");
-    RooAbsPdf* topWP = workspace[0]->pdf("sig_1");
-    RooAbsPdf* topUN = workspace[0]->pdf("sig_2");
+    RooAbsPdf *topCP = workspace[0]->pdf("sig_0");
+    RooAbsPdf *topWP = workspace[0]->pdf("sig_1");
+    RooAbsPdf *topUN = workspace[0]->pdf("sig_2");
     topCP->setNormRange("mTopFitRange");
     topWP->setNormRange("mTopFitRange");
     topUN->setNormRange("mTopFitRange");
     RooArgSet topPDFs =  RooArgSet(*topCP,*topWP,*topUN,"topPDFs");
     topAdd = new RooAddPdf("mTopPDF", "mTopPDF", topPDFs, permutationFractions);
     topAdd->setNormRange("mTopFitRange");
-    workspace[0]->import(*topAdd);
+    //workspace[0]->import(*topAdd);
 
-    RooAbsPdf* wCP = workspace[0]->pdf("sig_3");
-    RooAbsPdf* wWP = workspace[0]->pdf("sig_4");
-    RooAbsPdf* wUN = workspace[0]->pdf("sig_5");
+    RooAbsPdf *wCP = workspace[0]->pdf("sig_3");
+    RooAbsPdf *wWP = workspace[0]->pdf("sig_4");
+    RooAbsPdf *wUN = workspace[0]->pdf("sig_5");
     wCP->setNormRange("mTopFitRange");
     wWP->setNormRange("mTopFitRange");
     wUN->setNormRange("mTopFitRange");
     RooArgSet wPDFs =  RooArgSet(*wCP,*wWP,*wUN,"wPDFs");
     wAdd = new RooAddPdf("mWPDF", "mWPDF", wPDFs, permutationFractions);
     wAdd->setNormRange("mTopFitRange");
-    workspace[0]->import(*wAdd);
+    //workspace[0]->import(*wAdd);
 
-    RooDataSet* BKG = 0;
+    RooDataSet *BKG = 0;
     if(fitBackground_){
       std::cout << "Creating BKG dataset" << std::endl;
 
@@ -605,88 +625,93 @@ TopMassCalibration::rooFitTopMass_()
       TFile* file = TFile::Open(samplePath_+fileName);
       TTree* oldTree = (TTree*)file->Get("tree");
       tmpFile->cd();
-      TTree* tree = modifiedTree_(oldTree);
+      //FIXME TTree* tree = modifiedTree_(oldTree);
+      TTree* tree = modifiedTree_(oldTree, -1, 10, true);
 
       BKG = new RooDataSet("BKG","BKG",varSet,RooFit::Import(*tree),RooFit::WeightVar("prob"));
 
       std::cout << "Creating BKG PDFs" << std::endl;
     }
 
-    RooRealVar topBKGGammaNorm  = RooRealVar("topBKGGammaNorm" , "topBKGGammaNorm" ,  0.848667);
-    RooRealVar topBKGGammaGamma = RooRealVar("topBKGGammaGamma", "topBKGGammaGamma",  4.14752 );
-    RooRealVar topBKGGammaBeta  = RooRealVar("topBKGGammaBeta" , "topBKGGammaBeta" , 33.7793  );
-    RooRealVar topBKGGammaMu    = RooRealVar("topBKGGammaMu"   , "topBKGGammaMu"   , 89.6645  );
-    RooGamma topBKGGamma = RooGamma("topBKGGamma","topBKGGamma",MTOP,topBKGGammaGamma,topBKGGammaBeta,topBKGGammaMu);
-    topBKGGamma.setNormRange("mTopFitRange");
+    RooRealVar *topBKGGammaNorm  = new RooRealVar("topBKGGammaNorm" , "topBKGGammaNorm" ,  0.848667);
+    RooRealVar *topBKGGammaGamma = new RooRealVar("topBKGGammaGamma", "topBKGGammaGamma",  4.14752 );
+    RooRealVar *topBKGGammaBeta  = new RooRealVar("topBKGGammaBeta" , "topBKGGammaBeta" , 33.7793  );
+    RooRealVar *topBKGGammaMu    = new RooRealVar("topBKGGammaMu"   , "topBKGGammaMu"   , 89.6645  );
+    RooGamma *topBKGGamma = new RooGamma("topBKGGamma","topBKGGamma",MTOP,*topBKGGammaGamma,*topBKGGammaBeta,*topBKGGammaMu);
+    topBKGGamma->setNormRange("mTopFitRange");
 
-    RooRealVar topBKGLandauMean  = RooRealVar("topBKGLandauMean" , "topBKGLandauMean" , 217.114 );
-    RooRealVar topBKGLandauSigma = RooRealVar("topBKGLandauSigma", "topBKGLandauSigma",  27.6076);
-    RooLandau topBKGLandau = RooLandau("topBKGLandau","topBKGLandau",MTOP,topBKGLandauMean,topBKGLandauSigma);
-    topBKGLandau.setNormRange("mTopFitRange");
+    RooRealVar *topBKGLandauMean  = new RooRealVar("topBKGLandauMean" , "topBKGLandauMean" , 217.114 );
+    RooRealVar *topBKGLandauSigma = new RooRealVar("topBKGLandauSigma", "topBKGLandauSigma",  27.6076);
+    RooLandau *topBKGLandau = new RooLandau("topBKGLandau","topBKGLandau",MTOP,*topBKGLandauMean,*topBKGLandauSigma);
+    topBKGLandau->setNormRange("mTopFitRange");
 
-    RooAddPdf topBKG = RooAddPdf("topBKG", "topBKG", topBKGGamma, topBKGLandau, topBKGGammaNorm);
-    topBKG.setNormRange("mTopFitRange");
+    RooAddPdf *topBKG = new RooAddPdf("topBKG", "topBKG", *topBKGGamma, *topBKGLandau, *topBKGGammaNorm);
+    topBKG->setNormRange("mTopFitRange");
 
     if(fitBackground_){
-      topBKGGammaNorm  .setConstant(kFALSE);
-      topBKGGammaGamma .setConstant(kFALSE);
-      topBKGGammaBeta  .setConstant(kFALSE);
-      topBKGGammaMu    .setConstant(kFALSE);
-      topBKGLandauMean .setConstant(kFALSE);
-      topBKGLandauSigma.setConstant(kFALSE);
+      topBKGGammaNorm  ->setConstant(kFALSE);
+      topBKGGammaGamma ->setConstant(kFALSE);
+      topBKGGammaBeta  ->setConstant(kFALSE);
+      topBKGGammaMu    ->setConstant(kFALSE);
+      topBKGLandauMean ->setConstant(kFALSE);
+      topBKGLandauSigma->setConstant(kFALSE);
 
-      RooAbsReal* nllTopBKG = topBKG.createNLL(*BKG);
+      RooAbsReal* nllTopBKG = topBKG->createNLL(*BKG);
       RooMinuit miniTopBKG(*nllTopBKG);
       miniTopBKG.setStrategy(2);
       miniTopBKG.migrad();
       miniTopBKG.improve();
       miniTopBKG.hesse();
+      RooFitResult* result = miniTopBKG.save();
+      workspace[0]->import(*result);
 
-      topBKGGammaNorm  .setConstant(kTRUE);
-      topBKGGammaGamma .setConstant(kTRUE);
-      topBKGGammaBeta  .setConstant(kTRUE);
-      topBKGGammaMu    .setConstant(kTRUE);
-      topBKGLandauMean .setConstant(kTRUE);
-      topBKGLandauSigma.setConstant(kTRUE);
+      topBKGGammaNorm  ->setConstant(kTRUE);
+      topBKGGammaGamma ->setConstant(kTRUE);
+      topBKGGammaBeta  ->setConstant(kTRUE);
+      topBKGGammaMu    ->setConstant(kTRUE);
+      topBKGLandauMean ->setConstant(kTRUE);
+      topBKGLandauSigma->setConstant(kTRUE);
     }
-    workspace[0]->import(topBKG);
+    //workspace[0]->import(topBKG);
 
-    RooRealVar wBKGMean       = RooRealVar("wBKGMean"      , "wBKGMean"      , 86.9853 );
-    RooRealVar wBKGSigmaLeft  = RooRealVar("wBKGSigmaLeft" , "wBKGSigmaLeft" ,  5.78569);
-    RooRealVar wBKGSigmaRight = RooRealVar("wBKGSigmaRight", "wBKGSigmaRight",  7.12755);
-    RooBifurGauss wBKG = RooBifurGauss("wBKG", "wBKG", meanMW, wBKGMean, wBKGSigmaLeft, wBKGSigmaRight);
-    wBKG.setNormRange("mTopFitRange");
+    RooRealVar *wBKGMean       = new RooRealVar("wBKGMean"      , "wBKGMean"      , 86.9853 );
+    RooRealVar *wBKGSigmaLeft  = new RooRealVar("wBKGSigmaLeft" , "wBKGSigmaLeft" ,  5.78569);
+    RooRealVar *wBKGSigmaRight = new RooRealVar("wBKGSigmaRight", "wBKGSigmaRight",  7.12755);
+    RooBifurGauss *wBKG = new RooBifurGauss("wBKG", "wBKG", meanMW, *wBKGMean, *wBKGSigmaLeft, *wBKGSigmaRight);
+    wBKG->setNormRange("mTopFitRange");
 
     if(fitBackground_){
-      wBKGMean      .setConstant(kFALSE);
-      wBKGSigmaLeft .setConstant(kFALSE);
-      wBKGSigmaRight.setConstant(kFALSE);
+      wBKGMean      ->setConstant(kFALSE);
+      wBKGSigmaLeft ->setConstant(kFALSE);
+      wBKGSigmaRight->setConstant(kFALSE);
 
-      RooAbsReal* nllWBKG = wBKG.createNLL(*BKG);
+      RooAbsReal* nllWBKG = wBKG->createNLL(*BKG);
       RooMinuit miniWBKG(*nllWBKG);
       miniWBKG.setStrategy(2);
       miniWBKG.migrad();
       miniWBKG.improve();
       miniWBKG.hesse();
+      RooFitResult* result = miniWBKG.save();
+      workspace[0]->import(*result);
 
-      wBKGMean      .setConstant(kTRUE);
-      wBKGSigmaLeft .setConstant(kTRUE);
-      wBKGSigmaRight.setConstant(kTRUE);
+      wBKGMean      ->setConstant(kTRUE);
+      wBKGSigmaLeft ->setConstant(kTRUE);
+      wBKGSigmaRight->setConstant(kTRUE);
     }
-    workspace[0]->import(wBKG);
+    //workspace[0]->import(wBKG);
 
-    RooRealVar fSig = RooRealVar("fSig", "fSig", 0.539, 0, 1);
+    RooRealVar *fSig = new RooRealVar("fSig", "fSig", 0.539, 0, 1);
 
-    RooAddPdf topModel = RooAddPdf("topModel", "topModel", *topAdd, topBKG, fSig);
-    RooAddPdf wModel   = RooAddPdf("wModel"  , "wModel"  , *wAdd  , wBKG  , fSig);
-    topModel.setNormRange("mTopFitRange");
-    wModel  .setNormRange("mTopFitRange");
-    workspace[0]->import(topModel);
-    workspace[0]->import(wModel);
+    RooAddPdf *topModel = new RooAddPdf("topModel", "topModel", *topAdd, *topBKG, *fSig);
+    RooAddPdf *wModel   = new RooAddPdf("wModel"  , "wModel"  , *wAdd  , *wBKG  , *fSig);
+    topModel->setNormRange("mTopFitRange");
+    wModel  ->setNormRange("mTopFitRange");
+    //workspace[0]->import(topModel);
+    //workspace[0]->import(wModel);
 
-    RooProdPdf model = RooProdPdf("model", "model", topModel, wModel);
-    model.setNormRange("mTopFitRange");
-    workspace[0]->import(model);
+    RooProdPdf *model = new RooProdPdf("model", "model", *topModel, *wModel);
+    model->setNormRange("mTopFitRange");
+    workspace[0]->import(*model);
 
     workspace[0]->var("JES" )->setConstant(kFALSE);
     workspace[0]->var("mTop")->setConstant(kFALSE);
@@ -821,196 +846,311 @@ TopMassCalibration::rooFitTopMass_()
   }
 }
 
-//// return the PU weights for the different samples
-//double
-//TopMassCalibration::calcPUWeight_(enum enumForPUWeights sample, short nPU)
-//{
-//  // ----
-//  // default weight to be used for fall11 samples with S6 PU scenario
-//  // ----
-//  // 3.54fb-1 !!! precale weighted !!! 73.5mb
-//  //double weightsPUFall11[] = {0.0953411, 0.0209421, 0.0389577, 0.355278, 1.3007, 1.8981, 1.95124, 1.81828, 1.63994, 1.55631, 1.54116, 1.44885, 1.24065, 0.915466, 0.580092, 0.350426, 0.209707, 0.113744, 0.0509568, 0.0183767, 0.0054363, 0.00141399, 0.000360394, 0.000106747, 3.96548e-05, 1.65259e-05, 6.57705e-06, 2.32168e-06, 7.15271e-07, 1.99901e-07, 5.67217e-08, 1.86344e-08, 7.44984e-09, 3.25689e-09, 1.39639e-09, 5.58487e-10, 2.00145e-10, 6.60545e-11, 1.89381e-11, 4.82982e-12, 1.12634e-12, 2.21706e-13, 4.06965e-14, 6.1115e-15, 9.20171e-16, 1.05937e-16, 1.38254e-17, 1.14592e-18, 1.13769e-19, 43889.5};
-//  // 3.54fb-1 !!! precale weighted !!! 68mb
-//  double weightsPUFall11[] = {0.0956436, 0.0219907, 0.0713245, 0.735605, 1.85831, 2.19452, 2.04027, 1.76898, 1.58702, 1.53704, 1.45119, 1.24648, 0.904423, 0.552217, 0.319224, 0.179453, 0.0864062, 0.0326249, 0.0095542, 0.00229068, 0.000501167, 0.000121599, 3.80191e-05, 1.3964e-05, 4.89459e-06, 1.48493e-06, 3.82906e-07, 8.94646e-08, 2.18024e-08, 6.46154e-09, 2.31321e-09, 8.61013e-10, 3.0218e-10, 9.44128e-11, 2.57874e-11, 6.17332e-12, 1.27288e-12, 2.34488e-13, 3.65422e-14, 4.94041e-15, 5.96064e-16, 5.92555e-17, 5.36326e-18, 3.87753e-19, 2.74435e-20, 1.45014e-21, 8.48143e-23, 3.07617e-24, 1.3049e-25, 58771.4};
-//  // ----
-//  // fall11 weight with S6 PU scenario shifted up by 5%
-//  // ----
-//  // 3.54fb-1 !!! precale weighted !!! 68mb
-//  double weightsPUFall11Plus05[] = {0.0954358, 0.020682, 0.0484447, 0.47369, 1.50053, 2.01825, 1.99328, 1.80561, 1.61769, 1.54968, 1.51784, 1.3867, 1.12852, 0.773361, 0.467097, 0.277645, 0.157531, 0.0761859, 0.02937, 0.00905285, 0.00233558, 0.000560472, 0.00014654, 4.85625e-05, 1.90022e-05, 7.38414e-06, 2.54485e-06, 7.59523e-07, 2.01995e-07, 5.28236e-08, 1.59273e-08, 5.8689e-09, 2.42327e-09, 9.83602e-10, 3.67109e-10, 1.23672e-10, 3.6646e-11, 9.87495e-12, 2.28817e-12, 4.67308e-13, 8.65061e-14, 1.34004e-14, 1.91938e-15, 2.23009e-16, 2.57593e-17, 2.25592e-18, 2.2207e-19, 1.37666e-20, 1.01363e-21, 50283.5};
-//
-//  // ----
-//  // fall11 weight with S6 PU scenario shifted down by 5%
-//  // ----
-//  // 3.54fb-1 !!! precale weighted !!! 68mb
-//  double weightsPUFall11Minus05[] = {0.0962068, 0.0254305, 0.10942, 1.09375, 2.23819, 2.34231, 2.05248, 1.72372, 1.56859, 1.50191, 1.34308, 1.04368, 0.658236, 0.373059, 0.206629, 0.0997198, 0.0369724, 0.0103136, 0.00227993, 0.000454437, 0.000101297, 3.00008e-05, 1.01979e-05, 3.2025e-06, 8.38403e-07, 1.8544e-07, 3.81727e-08, 8.90286e-09, 2.62892e-09, 8.75387e-10, 2.83582e-10, 8.20241e-11, 2.07262e-11, 4.47805e-12, 8.2373e-13, 1.30017e-13, 1.73391e-14, 2.0282e-15, 1.9709e-16, 1.63193e-17, 1.18443e-18, 6.95731e-20, 3.6548e-21, 1.50639e-22, 5.9703e-24, 1.73528e-25, 5.48351e-27, 1.0555e-28, 2.33406e-30, 73177.8};
-//
-//  // ----
-//  // default weight to be used for summer11 samples with S4 PU scenario
-//  // ----
-//  // 3.54 fb-1 !!! precale weighted !!! 73.5mb
-//  //double weightsPUSummer11[] = {0.015788, 0.168999, 0.398126, 0.720134, 1.04936, 1.31397, 1.48381, 1.5613, 1.57478, 1.54969, 1.50736, 1.46098, 1.41641, 1.3734, 1.33783, 1.30218, 1.26742, 1.23224, 1.19459, 1.15701, 1.11803, 1.07132, 1.02626, 0.982213, 0.936123, 0.886997, 0.840387, 0.783362, 0.7366, 0.697965, 0.645112, 0.586587, 0.536603, 0.514893, 0.46368};
-//  // 3.54fb-1 !!! precale weighted !!! 68mb
-//  double weightsPUSummer11[] = {0.022778, 0.231718, 0.517403, 0.888432, 1.23288, 1.47585, 1.59957, 1.62107, 1.57897, 1.50264, 1.41361, 1.32374, 1.23758, 1.15455, 1.07948, 1.00629, 0.936187, 0.868571, 0.802406, 0.739714, 0.679652, 0.618656, 0.562462, 0.510472, 0.460945, 0.413436, 0.370475, 0.326335, 0.289734, 0.259019, 0.225714, 0.193379, 0.166592, 0.150473, 0.127517};
-//  // ----
-//  // summer11 weight with S6 PU scenario shifted up by 5%
-//  // ----
-//  // 3.54fb-1 !!! precale weighted !!! 68mb
-//  double weightsPUSummer11Plus05[] = {0.0181301, 0.190491, 0.439904, 0.780434, 1.11676, 1.37519, 1.52946, 1.58712, 1.58037, 1.53624, 1.47625, 1.4131, 1.35212, 1.29288, 1.24081, 1.18892, 1.13828, 1.08789, 1.03619, 0.985577, 0.93491, 0.879107, 0.82611, 0.775364, 0.724452, 0.67272, 0.624431, 0.570059, 0.524814, 0.486735, 0.440211, 0.391576, 0.350349, 0.32874, 0.289457};
-//
-//  // ----
-//  // summer11 weight with S6 PU scenario shifted down by 5%
-//  // ----
-//  // 3.54fb-1 !!! precale weighted !!! 68mb
-//  double weightsPUSummer11Minus05[] = {0.0285702, 0.28113, 0.606747, 1.0079, 1.35549, 1.57602, 1.66289, 1.64388, 1.56397, 1.45448, 1.33669, 1.22153, 1.11292, 1.01022, 0.917654, 0.829964, 0.748293, 0.672149, 0.600689, 0.535311, 0.475158, 0.417591, 0.366348, 0.320643, 0.279063, 0.241112, 0.208012, 0.176312, 0.150554, 0.12939, 0.108351, 0.0891757, 0.0737799, 0.0639892, 0.0520639};
-//
-//  switch(sample){
-//  case kFall11:
-//    return (nPU < int(sizeof(weightsPUFall11)/sizeof(double)) && nPU > -1) ? weightsPUFall11[nPU] : 0. ;
-//  case kFall11Plus05:
-//    return (nPU < int(sizeof(weightsPUFall11Plus05)/sizeof(double)) && nPU > -1) ? weightsPUFall11Plus05[nPU] : 0. ;
-//  case kFall11Minus05:
-//    return (nPU < int(sizeof(weightsPUFall11Minus05)/sizeof(double)) && nPU > -1) ? weightsPUFall11Minus05[nPU] : 0. ;
-//  case kSummer11:
-//    return (nPU < int(sizeof(weightsPUSummer11)/sizeof(double)) && nPU > -1) ? weightsPUSummer11[nPU] : 0. ;
-//  case kSummer11Plus05:
-//    return (nPU < int(sizeof(weightsPUSummer11Plus05)/sizeof(double)) && nPU > -1) ? weightsPUSummer11Plus05[nPU] : 0. ;
-//  case kSummer11Minus05:
-//    return (nPU < int(sizeof(weightsPUSummer11Minus05)/sizeof(double)) && nPU > -1) ? weightsPUSummer11Minus05[nPU] : 0. ;
-//  case kFall10:
-//    return 1.;
-//  case kSummer12:
-//    return -1.;
-//  default:
-//    return -1.;
-//  }
-//}
-//
-//// calculate the probability of b-tagging one event with 2 b-tags
-//double
-//TopMassCalibration::eventBTagProbability_(std::vector<double> &oneMinusBEffies, std::vector<double> &oneMinusBMistags){
-//  double bTaggingEfficiency = 1.;
-//  double tmp = 1.;
-//
-//  //std::cout << bTaggingEfficiency << std::endl;
-//
-//  // subtract probability that no jet is tagged
-//  for(std::vector<double>::const_iterator eff = oneMinusBEffies.begin(); eff != oneMinusBEffies.end(); ++eff)
-//    tmp *= (*eff);
-//  for(std::vector<double>::const_iterator mis = oneMinusBMistags.begin(); mis != oneMinusBMistags.end(); ++mis)
-//    tmp *= (*mis);
-//  bTaggingEfficiency -= tmp;
-//
-//  //std::cout << bTaggingEfficiency << std::endl;
-//
-//  // subtract probability that 1 bJet is tagged
-//  for(std::vector<double>::const_iterator eff = oneMinusBEffies.begin(); eff != oneMinusBEffies.end(); ++eff){
-//    tmp = 1.-(*eff);
-//    for(std::vector<double>::const_iterator eff2 = oneMinusBEffies.begin(); eff2 != oneMinusBEffies.end(); ++eff2)
-//      if(eff != eff2) tmp *= (*eff2);
-//    for(std::vector<double>::const_iterator mis = oneMinusBMistags.begin(); mis != oneMinusBMistags.end(); ++mis)
-//      tmp *= (*mis);
-//    bTaggingEfficiency -= tmp;
-//  }
-//
-//  //std::cout << bTaggingEfficiency << std::endl;
-//
-//  // subtract probability that 1 non-bJet is tagged
-//  for(std::vector<double>::const_iterator mis = oneMinusBMistags.begin(); mis != oneMinusBMistags.end(); ++mis){
-//    tmp = 1.-(*mis);
-//    for(std::vector<double>::const_iterator eff = oneMinusBEffies.begin(); eff != oneMinusBEffies.end(); ++eff)
-//      tmp *= (*eff);
-//    for(std::vector<double>::const_iterator mis2 = oneMinusBMistags.begin(); mis2 != oneMinusBMistags.end(); ++mis2)
-//      if(mis != mis2) tmp *= (*mis2);
-//    bTaggingEfficiency -= tmp;
-//  }
-//
-//  //std::cout << bTaggingEfficiency << std::endl;
-//
-//  return bTaggingEfficiency;
-//}
-//
-//double
-//TopMassCalibration::calcBTagWeight_(int Njet, float *bTag, short *pdgId, TClonesArray *jets)
-//{
-//  double bTaggingEfficiency = 0., bTaggingEfficiency_scaled = 0.;
-//  //double bTaggingEfficiency_scaled_EffUp = 0., bTaggingEfficiency_scaled_EffDown = 0., bTaggingEfficiency_scaled_MisUp = 0., bTaggingEfficiency_scaled_MisDown = 0.;
-//  double pt, eta, eff, effyScale_pt; //, effVariation_pt, misTagScale_pt, misVariation_pt;
-//
-//  std::vector<double> oneMinusBEffies(0) , oneMinusBEffies_scaled(0) ; //, oneMinusBEffies_scaled_EffUp(0) , oneMinusBEffies_scaled_EffDown(0) ;
-//  std::vector<double> oneMinusBMistags(0), oneMinusBMistags_scaled(0); //, oneMinusBMistags_scaled_MisUp(0), oneMinusBMistags_scaled_MisDown(0);
-//  for(int i = 0; i < Njet; ++i){
-//    pt  = ((TLorentzVector*)jets->At(i))->Pt();
-//    eta = ((TLorentzVector*)jets->At(i))->Eta();
-//
-//    if(pt > 670.)
-//      effyScale_pt    = 0.901615*((1.+(0.552628*670.))/(1.+(0.547195*670.)));
-//    if(pt < 30.)
-//      effyScale_pt    = 0.901615*((1.+(0.552628*30.))/(1.+(0.547195*30.)));
-//    else
-//      effyScale_pt    = 0.901615*((1.+(0.552628*pt))/(1.+(0.547195*pt)));
-//    //effVariation_pt = bTagEffScaleFactor->GetBinError(bTagEffScaleFactor->FindBin(pt));
-//
-//    if(pdgId[i] == 5 || pdgId[i] == -5){
-//      eff = bTagEff_->GetBinContent(bTagEff_->FindBin(pt,std::abs(eta)));
-//      oneMinusBEffies               .push_back(1.- eff);
-//      oneMinusBEffies_scaled        .push_back(1.-(eff* effyScale_pt));
-//      //if(isDefaultSample){
-//      //  oneMinusBEffies_scaled_EffUp  .push_back(1.-(eff*(effyScale_pt+effVariation_pt)));
-//      //  oneMinusBEffies_scaled_EffDown.push_back(1.-(eff*(effyScale_pt-effVariation_pt)));
-//      //}
-//    }
-//    else if(pdgId[i] == 4 || pdgId[i] == -4){
-//      eff = cTagEff_->GetBinContent(cTagEff_->FindBin(pt,std::abs(eta)));
-//      oneMinusBMistags               .push_back(1.- eff);
-//      oneMinusBMistags_scaled        .push_back(1.-(eff* effyScale_pt));
-//      //if(pt<240){
-//      //	oneMinusBMistags_scaled_MisUp  .push_back(1.-(eff*(effyScale_pt+(2*effVariation_pt))));
-//      //	oneMinusBMistags_scaled_MisDown.push_back(1.-(eff*(effyScale_pt-(2*effVariation_pt))));
-//      //}
-//      //else{
-//      //	oneMinusBMistags_scaled_MisUp  .push_back(1.-(eff*(effyScale_pt+effVariation_pt)));
-//      //	oneMinusBMistags_scaled_MisDown.push_back(1.-(eff*(effyScale_pt-effVariation_pt)));
-//      //}
-//    }
-//    else{
-//      eff = lTagEff_->GetBinContent(lTagEff_->FindBin(pt,std::abs(eta)));
-//      oneMinusBMistags               .push_back(1.- eff);
-//      oneMinusBMistags_scaled        .push_back(1.-(eff* (((0.948463+(0.00288102*pt))+(-7.98091e-06*(pt*pt)))+(5.50157e-09*(pt*(pt*pt)))) ));
-//      //if(isDefaultSample){
-//      //  oneMinusBMistags_scaled_MisUp  .push_back(1.-(eff* (((0.997077+(0.00473953*pt))+(-1.34985e-05*(pt*pt)))+(1.0032e-08*(pt*(pt*pt)))) ));
-//      //  oneMinusBMistags_scaled_MisDown.push_back(1.-(eff* (((0.899715+(0.00102278*pt))+(-2.46335e-06*(pt*pt)))+(9.71143e-10*(pt*(pt*pt)))) ));
-//      //}
-//    }
-//  }
-//  bTaggingEfficiency        = eventBTagProbability_(oneMinusBEffies       , oneMinusBMistags       );
-//  bTaggingEfficiency_scaled = eventBTagProbability_(oneMinusBEffies_scaled, oneMinusBMistags_scaled);
-//  //if(isDefaultSample){
-//  //  bTaggingEfficiency_scaled_EffUp   += eventBTagProbability_(oneMinusBEffies_scaled_EffUp  , oneMinusBMistags_scaled        );
-//  //  bTaggingEfficiency_scaled_EffDown += eventBTagProbability_(oneMinusBEffies_scaled_EffDown, oneMinusBMistags_scaled        );
-//  //  bTaggingEfficiency_scaled_MisUp   += eventBTagProbability_(oneMinusBEffies_scaled        , oneMinusBMistags_scaled_MisUp  );
-//  //  bTaggingEfficiency_scaled_MisDown += eventBTagProbability_(oneMinusBEffies_scaled        , oneMinusBMistags_scaled_MisDown);
-//  //}
-//  //std::cout << bTaggingEfficiency << " " << bTaggingEfficiency_scaled << " " << bTaggingEfficiency_scaled/bTaggingEfficiency << std::endl;
-//  return bTaggingEfficiency_scaled/bTaggingEfficiency;
-//}
-
-// because RooFit only likes plain trees with standard data types (int, float, double, ...)
-// the original tree has to be adapted for the new content
-TTree*
-TopMassCalibration::modifiedTree_(TTree *tree, int minComboType, int maxComboType, bool isData)
+// return the PU weights for the different samples
+double
+TopMassCalibration::calcPUWeight_(enum enumForPUWeights sample, short nPU)
 {
-  tree = tree->CopyTree(selection_);
+  // ----
+  // default weight to be used for fall11 samples with S6 PU scenario
+  // ----
+  // 3.54fb-1 !!! precale weighted !!! 73.5mb
+  //double weightsPUFall11[] = {0.0953411, 0.0209421, 0.0389577, 0.355278, 1.3007, 1.8981, 1.95124, 1.81828, 1.63994, 1.55631, 1.54116, 1.44885, 1.24065, 0.915466, 0.580092, 0.350426, 0.209707, 0.113744, 0.0509568, 0.0183767, 0.0054363, 0.00141399, 0.000360394, 0.000106747, 3.96548e-05, 1.65259e-05, 6.57705e-06, 2.32168e-06, 7.15271e-07, 1.99901e-07, 5.67217e-08, 1.86344e-08, 7.44984e-09, 3.25689e-09, 1.39639e-09, 5.58487e-10, 2.00145e-10, 6.60545e-11, 1.89381e-11, 4.82982e-12, 1.12634e-12, 2.21706e-13, 4.06965e-14, 6.1115e-15, 9.20171e-16, 1.05937e-16, 1.38254e-17, 1.14592e-18, 1.13769e-19, 43889.5};
+  // 3.54fb-1 !!! precale weighted !!! 68mb
+  double weightsPUFall11[] = {0.0956436, 0.0219907, 0.0713245, 0.735605, 1.85831, 2.19452, 2.04027, 1.76898, 1.58702, 1.53704, 1.45119, 1.24648, 0.904423, 0.552217, 0.319224, 0.179453, 0.0864062, 0.0326249, 0.0095542, 0.00229068, 0.000501167, 0.000121599, 3.80191e-05, 1.3964e-05, 4.89459e-06, 1.48493e-06, 3.82906e-07, 8.94646e-08, 2.18024e-08, 6.46154e-09, 2.31321e-09, 8.61013e-10, 3.0218e-10, 9.44128e-11, 2.57874e-11, 6.17332e-12, 1.27288e-12, 2.34488e-13, 3.65422e-14, 4.94041e-15, 5.96064e-16, 5.92555e-17, 5.36326e-18, 3.87753e-19, 2.74435e-20, 1.45014e-21, 8.48143e-23, 3.07617e-24, 1.3049e-25, 58771.4};
+  // ----
+  // fall11 weight with S6 PU scenario shifted up by 5%
+  // ----
+  // 3.54fb-1 !!! precale weighted !!! 68mb
+  double weightsPUFall11Plus05[] = {0.0954358, 0.020682, 0.0484447, 0.47369, 1.50053, 2.01825, 1.99328, 1.80561, 1.61769, 1.54968, 1.51784, 1.3867, 1.12852, 0.773361, 0.467097, 0.277645, 0.157531, 0.0761859, 0.02937, 0.00905285, 0.00233558, 0.000560472, 0.00014654, 4.85625e-05, 1.90022e-05, 7.38414e-06, 2.54485e-06, 7.59523e-07, 2.01995e-07, 5.28236e-08, 1.59273e-08, 5.8689e-09, 2.42327e-09, 9.83602e-10, 3.67109e-10, 1.23672e-10, 3.6646e-11, 9.87495e-12, 2.28817e-12, 4.67308e-13, 8.65061e-14, 1.34004e-14, 1.91938e-15, 2.23009e-16, 2.57593e-17, 2.25592e-18, 2.2207e-19, 1.37666e-20, 1.01363e-21, 50283.5};
 
-  JetEvent    *jetEvent    = new JetEvent();
-  TopEvent    *topEvent    = new TopEvent();
-  WeightEvent *weightEvent = new WeightEvent();
+  // ----
+  // fall11 weight with S6 PU scenario shifted down by 5%
+  // ----
+  // 3.54fb-1 !!! precale weighted !!! 68mb
+  double weightsPUFall11Minus05[] = {0.0962068, 0.0254305, 0.10942, 1.09375, 2.23819, 2.34231, 2.05248, 1.72372, 1.56859, 1.50191, 1.34308, 1.04368, 0.658236, 0.373059, 0.206629, 0.0997198, 0.0369724, 0.0103136, 0.00227993, 0.000454437, 0.000101297, 3.00008e-05, 1.01979e-05, 3.2025e-06, 8.38403e-07, 1.8544e-07, 3.81727e-08, 8.90286e-09, 2.62892e-09, 8.75387e-10, 2.83582e-10, 8.20241e-11, 2.07262e-11, 4.47805e-12, 8.2373e-13, 1.30017e-13, 1.73391e-14, 2.0282e-15, 1.9709e-16, 1.63193e-17, 1.18443e-18, 6.95731e-20, 3.6548e-21, 1.50639e-22, 5.9703e-24, 1.73528e-25, 5.48351e-27, 1.0555e-28, 2.33406e-30, 73177.8};
 
-  tree->SetBranchAddress("jet"   , jetEvent);
-  tree->SetBranchAddress("top"   , topEvent);
-  tree->SetBranchAddress("weight", weightEvent);
+  // ----
+  // default weight to be used for summer11 samples with S4 PU scenario
+  // ----
+  // 3.54 fb-1 !!! precale weighted !!! 73.5mb
+  //double weightsPUSummer11[] = {0.015788, 0.168999, 0.398126, 0.720134, 1.04936, 1.31397, 1.48381, 1.5613, 1.57478, 1.54969, 1.50736, 1.46098, 1.41641, 1.3734, 1.33783, 1.30218, 1.26742, 1.23224, 1.19459, 1.15701, 1.11803, 1.07132, 1.02626, 0.982213, 0.936123, 0.886997, 0.840387, 0.783362, 0.7366, 0.697965, 0.645112, 0.586587, 0.536603, 0.514893, 0.46368};
+  // 3.54fb-1 !!! precale weighted !!! 68mb
+  double weightsPUSummer11[] = {0.022778, 0.231718, 0.517403, 0.888432, 1.23288, 1.47585, 1.59957, 1.62107, 1.57897, 1.50264, 1.41361, 1.32374, 1.23758, 1.15455, 1.07948, 1.00629, 0.936187, 0.868571, 0.802406, 0.739714, 0.679652, 0.618656, 0.562462, 0.510472, 0.460945, 0.413436, 0.370475, 0.326335, 0.289734, 0.259019, 0.225714, 0.193379, 0.166592, 0.150473, 0.127517};
+  // ----
+  // summer11 weight with S6 PU scenario shifted up by 5%
+  // ----
+  // 3.54fb-1 !!! precale weighted !!! 68mb
+  double weightsPUSummer11Plus05[] = {0.0181301, 0.190491, 0.439904, 0.780434, 1.11676, 1.37519, 1.52946, 1.58712, 1.58037, 1.53624, 1.47625, 1.4131, 1.35212, 1.29288, 1.24081, 1.18892, 1.13828, 1.08789, 1.03619, 0.985577, 0.93491, 0.879107, 0.82611, 0.775364, 0.724452, 0.67272, 0.624431, 0.570059, 0.524814, 0.486735, 0.440211, 0.391576, 0.350349, 0.32874, 0.289457};
+
+  // ----
+  // summer11 weight with S6 PU scenario shifted down by 5%
+  // ----
+  // 3.54fb-1 !!! precale weighted !!! 68mb
+  double weightsPUSummer11Minus05[] = {0.0285702, 0.28113, 0.606747, 1.0079, 1.35549, 1.57602, 1.66289, 1.64388, 1.56397, 1.45448, 1.33669, 1.22153, 1.11292, 1.01022, 0.917654, 0.829964, 0.748293, 0.672149, 0.600689, 0.535311, 0.475158, 0.417591, 0.366348, 0.320643, 0.279063, 0.241112, 0.208012, 0.176312, 0.150554, 0.12939, 0.108351, 0.0891757, 0.0737799, 0.0639892, 0.0520639};
+
+  switch(sample){
+  case kFall11:
+    return (nPU < int(sizeof(weightsPUFall11)/sizeof(double)) && nPU > -1) ? weightsPUFall11[nPU] : 0. ;
+  case kFall11Plus05:
+    return (nPU < int(sizeof(weightsPUFall11Plus05)/sizeof(double)) && nPU > -1) ? weightsPUFall11Plus05[nPU] : 0. ;
+  case kFall11Minus05:
+    return (nPU < int(sizeof(weightsPUFall11Minus05)/sizeof(double)) && nPU > -1) ? weightsPUFall11Minus05[nPU] : 0. ;
+  case kSummer11:
+    return (nPU < int(sizeof(weightsPUSummer11)/sizeof(double)) && nPU > -1) ? weightsPUSummer11[nPU] : 0. ;
+  case kSummer11Plus05:
+    return (nPU < int(sizeof(weightsPUSummer11Plus05)/sizeof(double)) && nPU > -1) ? weightsPUSummer11Plus05[nPU] : 0. ;
+  case kSummer11Minus05:
+    return (nPU < int(sizeof(weightsPUSummer11Minus05)/sizeof(double)) && nPU > -1) ? weightsPUSummer11Minus05[nPU] : 0. ;
+  case kFall10:
+    return 1.;
+  case kSummer12:
+    return -1.;
+  default:
+    return -1.;
+  }
+}
+
+// calculate the probability of b-tagging one event with 2 b-tags
+double
+TopMassCalibration::eventBTagProbability_(std::vector<double> &oneMinusBEffies, std::vector<double> &oneMinusBMistags){
+  double bTaggingEfficiency = 1.;
+  double tmp = 1.;
+
+  //std::cout << bTaggingEfficiency << std::endl;
+
+  // subtract probability that no jet is tagged
+  for(std::vector<double>::const_iterator eff = oneMinusBEffies.begin(); eff != oneMinusBEffies.end(); ++eff)
+    tmp *= (*eff);
+  for(std::vector<double>::const_iterator mis = oneMinusBMistags.begin(); mis != oneMinusBMistags.end(); ++mis)
+    tmp *= (*mis);
+  bTaggingEfficiency -= tmp;
+
+  //std::cout << bTaggingEfficiency << std::endl;
+
+  // subtract probability that 1 bJet is tagged
+  for(std::vector<double>::const_iterator eff = oneMinusBEffies.begin(); eff != oneMinusBEffies.end(); ++eff){
+    tmp = 1.-(*eff);
+    for(std::vector<double>::const_iterator eff2 = oneMinusBEffies.begin(); eff2 != oneMinusBEffies.end(); ++eff2)
+      if(eff != eff2) tmp *= (*eff2);
+    for(std::vector<double>::const_iterator mis = oneMinusBMistags.begin(); mis != oneMinusBMistags.end(); ++mis)
+      tmp *= (*mis);
+    bTaggingEfficiency -= tmp;
+  }
+
+  //std::cout << bTaggingEfficiency << std::endl;
+
+  // subtract probability that 1 non-bJet is tagged
+  for(std::vector<double>::const_iterator mis = oneMinusBMistags.begin(); mis != oneMinusBMistags.end(); ++mis){
+    tmp = 1.-(*mis);
+    for(std::vector<double>::const_iterator eff = oneMinusBEffies.begin(); eff != oneMinusBEffies.end(); ++eff)
+      tmp *= (*eff);
+    for(std::vector<double>::const_iterator mis2 = oneMinusBMistags.begin(); mis2 != oneMinusBMistags.end(); ++mis2)
+      if(mis != mis2) tmp *= (*mis2);
+    bTaggingEfficiency -= tmp;
+  }
+
+  //std::cout << bTaggingEfficiency << std::endl;
+
+  return bTaggingEfficiency;
+}
+
+double
+TopMassCalibration::calcBTagWeight_(int Njet, float *bTag, short *pdgId, TClonesArray *jets)
+{
+  double bTaggingEfficiency = 0., bTaggingEfficiency_scaled = 0.;
+  //double bTaggingEfficiency_scaled_EffUp = 0., bTaggingEfficiency_scaled_EffDown = 0., bTaggingEfficiency_scaled_MisUp = 0., bTaggingEfficiency_scaled_MisDown = 0.;
+  double pt, eta, eff, effyScale_pt; //, effVariation_pt, misTagScale_pt, misVariation_pt;
+
+  std::vector<double> oneMinusBEffies(0) , oneMinusBEffies_scaled(0) ; //, oneMinusBEffies_scaled_EffUp(0) , oneMinusBEffies_scaled_EffDown(0) ;
+  std::vector<double> oneMinusBMistags(0), oneMinusBMistags_scaled(0); //, oneMinusBMistags_scaled_MisUp(0), oneMinusBMistags_scaled_MisDown(0);
+  for(int i = 0; i < Njet; ++i){
+    pt  = ((TLorentzVector*)jets->At(i))->Pt();
+    eta = ((TLorentzVector*)jets->At(i))->Eta();
+
+    if(pt > 670.)
+      effyScale_pt    = 0.901615*((1.+(0.552628*670.))/(1.+(0.547195*670.)));
+    if(pt < 30.)
+      effyScale_pt    = 0.901615*((1.+(0.552628*30.))/(1.+(0.547195*30.)));
+    else
+      effyScale_pt    = 0.901615*((1.+(0.552628*pt))/(1.+(0.547195*pt)));
+    //effVariation_pt = bTagEffScaleFactor->GetBinError(bTagEffScaleFactor->FindBin(pt));
+
+    if(pdgId[i] == 5 || pdgId[i] == -5){
+      eff = bTagEff_->GetBinContent(bTagEff_->FindBin(pt,std::abs(eta)));
+      oneMinusBEffies               .push_back(1.- eff);
+      oneMinusBEffies_scaled        .push_back(1.-(eff* effyScale_pt));
+      //if(isDefaultSample){
+      //  oneMinusBEffies_scaled_EffUp  .push_back(1.-(eff*(effyScale_pt+effVariation_pt)));
+      //  oneMinusBEffies_scaled_EffDown.push_back(1.-(eff*(effyScale_pt-effVariation_pt)));
+      //}
+    }
+    else if(pdgId[i] == 4 || pdgId[i] == -4){
+      eff = cTagEff_->GetBinContent(cTagEff_->FindBin(pt,std::abs(eta)));
+      oneMinusBMistags               .push_back(1.- eff);
+      oneMinusBMistags_scaled        .push_back(1.-(eff* effyScale_pt));
+      //if(pt<240){
+      //	oneMinusBMistags_scaled_MisUp  .push_back(1.-(eff*(effyScale_pt+(2*effVariation_pt))));
+      //	oneMinusBMistags_scaled_MisDown.push_back(1.-(eff*(effyScale_pt-(2*effVariation_pt))));
+      //}
+      //else{
+      //	oneMinusBMistags_scaled_MisUp  .push_back(1.-(eff*(effyScale_pt+effVariation_pt)));
+      //	oneMinusBMistags_scaled_MisDown.push_back(1.-(eff*(effyScale_pt-effVariation_pt)));
+      //}
+    }
+    else{
+      eff = lTagEff_->GetBinContent(lTagEff_->FindBin(pt,std::abs(eta)));
+      oneMinusBMistags               .push_back(1.- eff);
+      oneMinusBMistags_scaled        .push_back(1.-(eff* (((0.948463+(0.00288102*pt))+(-7.98091e-06*(pt*pt)))+(5.50157e-09*(pt*(pt*pt)))) ));
+      //if(isDefaultSample){
+      //  oneMinusBMistags_scaled_MisUp  .push_back(1.-(eff* (((0.997077+(0.00473953*pt))+(-1.34985e-05*(pt*pt)))+(1.0032e-08*(pt*(pt*pt)))) ));
+      //  oneMinusBMistags_scaled_MisDown.push_back(1.-(eff* (((0.899715+(0.00102278*pt))+(-2.46335e-06*(pt*pt)))+(9.71143e-10*(pt*(pt*pt)))) ));
+      //}
+    }
+  }
+  bTaggingEfficiency        = eventBTagProbability_(oneMinusBEffies       , oneMinusBMistags       );
+  bTaggingEfficiency_scaled = eventBTagProbability_(oneMinusBEffies_scaled, oneMinusBMistags_scaled);
+  //if(isDefaultSample){
+  //  bTaggingEfficiency_scaled_EffUp   += eventBTagProbability_(oneMinusBEffies_scaled_EffUp  , oneMinusBMistags_scaled        );
+  //  bTaggingEfficiency_scaled_EffDown += eventBTagProbability_(oneMinusBEffies_scaled_EffDown, oneMinusBMistags_scaled        );
+  //  bTaggingEfficiency_scaled_MisUp   += eventBTagProbability_(oneMinusBEffies_scaled        , oneMinusBMistags_scaled_MisUp  );
+  //  bTaggingEfficiency_scaled_MisDown += eventBTagProbability_(oneMinusBEffies_scaled        , oneMinusBMistags_scaled_MisDown);
+  //}
+  //std::cout << bTaggingEfficiency << " " << bTaggingEfficiency_scaled << " " << bTaggingEfficiency_scaled/bTaggingEfficiency << std::endl;
+  return bTaggingEfficiency_scaled/bTaggingEfficiency;
+}
+
+//FIXME because RooFit only likes plain trees with standard data types (int, float, double, ...)
+// the original tree has to be adapted for the new content
+//TTree*
+//TopMassCalibration::modifiedTree_(TTree *tree, int minComboType, int maxComboType, bool isData)
+//{
+//  tree = tree->CopyTree(selection_);
+//
+//  JetEvent    *jetEvent    = new JetEvent();
+//  TopEvent    *topEvent    = new TopEvent();
+//  WeightEvent *weightEvent = new WeightEvent();
+//
+//  tree->SetBranchAddress("jet"   , jetEvent);
+//  tree->SetBranchAddress("top"   , topEvent);
+//  tree->SetBranchAddress("weight", weightEvent);
+//
+//  double prob,dRbb,topMass,meanWMass,combinedWeight,comboType; //w1Mass,w2Mass;
+//  TTree *newTree = new TTree("tree","tree");
+//  newTree->Branch("prob", &prob, "prob/D");
+//  newTree->Branch("topMass", &topMass, "topMass/D");
+//  newTree->Branch("meanWMass", &meanWMass, "meanWMass/D");
+//  if(!isData){
+//    newTree->Branch("combinedWeight", &combinedWeight, "combinedWeight/D");
+//    newTree->Branch("comboType"     , &comboType     , "comboType/D");
+//  }
+//  //newTree->Branch("dRbb", &dRbb, "dRbb/D");
+//  //newTree->Branch("w1Mass", &w1Mass, "w1Mass/D");
+//  //newTree->Branch("w2Mass", &w2Mass, "w2Mass/D");
+//  //newTree->Branch("", &);
+//
+//  for(int i = 0, l = tree->GetEntries(); i < l; ++i){
+//    tree->GetEntry(i);
+//    if(!isData && topEvent->combinationType[0] < minComboType) continue;
+//    if(!isData && topEvent->combinationType[0] > maxComboType) continue;
+//    prob = topEvent->fitProb[0];
+//    dRbb = topEvent->fitHadB[0].DeltaR(topEvent->fitLepB[0]);
+//    topMass = topEvent->fitHadTop[0].M();
+//    meanWMass = (topEvent->fitHadW[0].M()+topEvent->fitLepW[0].M())/2.;
+//    if(!isData){
+//      //double PUWeight   = weightEvent->puWeight;
+//      //double BTagWeight = weightEvent->bTagEffWeight; // calcBTagWeight_(Njet, bTag, pdgId, jets);
+//      //double MCWeight   = weightEvent->mcWeight;
+//      //combinedWeight = prob * PUWeight * MCWeight * BTagWeight;
+//      combinedWeight = prob * weightEvent->combinedWeight;
+//      comboType = topEvent->combinationType[0];
+//    }
+//    //combinedWeight = 1.;
+//    //w1Mass = w1Masses[0];
+//    //w2Mass = w2Masses[0];
+//    newTree->Fill();
+//  }
+//  return newTree;
+//}
+
+TTree*
+TopMassCalibration::modifiedTree_(TTree * tree, int minComboType, int maxComboType, bool isData)
+{
+  tree->SetBranchStatus("*", 0);
+  tree->SetBranchStatus("probs", 1);
+  tree->SetBranchStatus("dRbb", 1);
+  tree->SetBranchStatus("topMasses", 1);
+  tree->SetBranchStatus("w1Mass", 1);
+  tree->SetBranchStatus("w2Mass", 1);
+  tree->SetBranchStatus("Njet", 1);
+  tree->SetBranchStatus("jets", 1);
+  tree->SetBranchStatus("bTag_CSV", 1);
+  if(!isData){
+    tree->SetBranchStatus("comboTypes", 1);
+    tree->SetBranchStatus("partonFlavour", 1);
+  }
+  //tree->SetBranchStatus("", 1);
+
+  const int kMAX = 10000;
+  double * probs     = new double[kMAX];
+  double * topMasses = new double[kMAX];
+  double * w1Masses  = new double[kMAX];
+  double * w2Masses  = new double[kMAX];
+  float dRbbs;
+  unsigned short * comboTypes = new unsigned short[kMAX];
+  short nPU = -1;
+
+  const int kMAX_(50);
+  TString bTagAlgo_ = "CSV";
+  int Njet;
+  tree->SetBranchStatus ("Njet", 1);
+  tree->SetBranchAddress("Njet", &Njet );
+  float bTag[kMAX_];
+  tree->SetBranchStatus (TString("bTag_")+bTagAlgo_, 1);
+  tree->SetBranchAddress(TString("bTag_")+bTagAlgo_, &bTag );
+  short pdgId[kMAX_];
+  if(!isData){
+    tree->SetBranchStatus ("partonFlavour", 1);       // pdgId  *or*  partonFlavour
+    tree->SetBranchAddress("partonFlavour", &pdgId); //  pdgId  *or*  partonFlavour
+  }
+  TClonesArray * jets = new TClonesArray("TLorentzVector");
+  tree->SetBranchStatus("jets", 1);
+  tree->GetBranch("jets")->SetAutoDelete(kFALSE);
+  tree->SetBranchAddress("jets", &jets);
+
+  double PUWeight = 1.;
+  double MCWeight = 1.;
+  double BTagWeight = 1.;
+
+  tree->SetBranchAddress("probs",probs);
+  tree->SetBranchAddress("dRbb",&dRbbs);
+  tree->SetBranchAddress("topMasses",topMasses);
+  tree->SetBranchAddress("w1Mass",w1Masses);
+  tree->SetBranchAddress("w2Mass",w2Masses);
+  if(!isData){
+    tree->SetBranchAddress("comboTypes",comboTypes);
+  }
+  //tree->SetBranchAddress("",);
+
+  // event weights
+  TString filename = tree->GetCurrentFile()->GetName();
+  enumForPUWeights whichSample = kFall10;
+  if(filename.Contains("S11")) whichSample = kSummer11;
+  else if(filename.Contains("F11")) whichSample = kFall11;
+
+  if(whichSample == kSummer11){
+    tree->SetBranchStatus("nPU", 1);
+    tree->SetBranchAddress("nPU", &nPU);
+  }
+  else if(whichSample == kFall11){
+    tree->SetBranchStatus("nPUTru", 1);
+    tree->SetBranchAddress("nPUTru", &nPU);
+  }
+  tree->SetBranchStatus("MCweight", 1);
+  tree->SetBranchAddress("MCweight", &MCWeight);
+
 
   double prob,dRbb,topMass,meanWMass,combinedWeight,comboType; //w1Mass,w2Mass;
-  TTree *newTree = new TTree("tree","tree");
+  TTree * newTree = new TTree("tree","tree");
   newTree->Branch("prob", &prob, "prob/D");
   newTree->Branch("topMass", &topMass, "topMass/D");
   newTree->Branch("meanWMass", &meanWMass, "meanWMass/D");
@@ -1025,19 +1165,21 @@ TopMassCalibration::modifiedTree_(TTree *tree, int minComboType, int maxComboTyp
 
   for(int i = 0, l = tree->GetEntries(); i < l; ++i){
     tree->GetEntry(i);
-    if(!isData && topEvent->combinationType[0] < minComboType) continue;
-    if(!isData && topEvent->combinationType[0] > maxComboType) continue;
-    prob = topEvent->fitProb[0];
-    dRbb = topEvent->fitHadB[0].DeltaR(topEvent->fitLepB[0]);
-    topMass = topEvent->fitHadTop[0].M();
-    meanWMass = (topEvent->fitHadW[0].M()+topEvent->fitLepW[0].M())/2.;
+    if(probs[0] < 0.09) continue;
+    if(dRbbs < 1.5) continue;
+    if(topMasses[0] < 100.0) continue;
+    if(topMasses[0] > 550.0) continue;
+    if(!isData && comboTypes[0] < minComboType) continue;
+    if(!isData && comboTypes[0] > maxComboType) continue;
+    prob = probs[0];
+    dRbb = dRbbs;
+    topMass = topMasses[0];
+    meanWMass = (w1Masses[0]+w2Masses[0])/2.;
     if(!isData){
-      //double PUWeight   = weightEvent->puWeight;
-      //double BTagWeight = weightEvent->bTagEffWeight; // calcBTagWeight_(Njet, bTag, pdgId, jets);
-      //double MCWeight   = weightEvent->mcWeight;
-      //combinedWeight = prob * PUWeight * MCWeight * BTagWeight;
-      combinedWeight = prob * weightEvent->combinedWeight;
-      comboType = topEvent->combinationType[0];
+      PUWeight = calcPUWeight_(whichSample, nPU);
+      BTagWeight = calcBTagWeight_(Njet, bTag, pdgId, jets);
+      combinedWeight = probs[0] * PUWeight * MCWeight * BTagWeight;
+      comboType = comboTypes[0];
     }
     //combinedWeight = 1.;
     //w1Mass = w1Masses[0];
@@ -1068,8 +1210,8 @@ void TopMassCalibration::UnknownChannelAbort(){
   exit(1);
 }
 
-void TopMassCalibration::fillAlpha(std::vector<RooFormulaVar>& alpha, int& h, RooArgSet argSet){
+void TopMassCalibration::fillAlpha(std::vector<RooFormulaVar*>& alpha, int& h, RooArgSet argSet){
   static TString formula_alpha = "@0+@1*(@4-172.5)+(@2+@3*(@4-172.5))*(@5-1.)";
   TString varName = "alpha_"; varName += h; varName += "_"; varName += alpha.size();
-  alpha.push_back(RooFormulaVar(varName, varName, formula_alpha, argSet));
+  alpha.push_back(new RooFormulaVar(varName, varName, formula_alpha, argSet));
 }

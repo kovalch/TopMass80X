@@ -22,10 +22,9 @@ private:
   const TString selection_;
   const TString samplePath_;
   const TString fIdentifier_;
-  const TString fChannel_;
+  //const TString fChannel_;
   const std::string fWeight_;
   const double fLumi_, fSig_, fBDisc_;
-  enum channelID {kAllJets, kMuonJets, kElectronJets, kLeptonJets, kMaxChannels};
   int channelID_;
 
   TString fFile_;
@@ -41,7 +40,6 @@ private:
   TTree* CreateRandomSubset();
   void DrawEvents(TTree* tempTree, double nEventsPE);
   TTree* PrepareTree(TString file);
-  void UnknownChannelAbort();
 };
 
 #endif /* RANDOMSUBSETCREATORNEWINTERFACE_H_ */

@@ -68,6 +68,8 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("shape,S", boost::program_options::value<double>()->default_value(1.0), "Background shape scaling factor for gamma")
         ("permu,P", boost::program_options::value<double>()->default_value(0.0), "Change permutation fractions by: fUN-P, fWP+0.5P, fCP+0.5P")
         ("fastsim,F", boost::program_options::value<int>()->default_value(0), "use additional calibration for FastSim")
+        ("preliminary,p", boost::program_options::value<int>()->default_value(1), "use \"Preliminary\" label for plots")
+        ("cmsenergy,e", boost::program_options::value<int>()->default_value(7), "cms energy to be used (for example for plots)")
         ("analysisConfig.selection", boost::program_options::value<std::string>())
         ("analysisConfig.samplePath", boost::program_options::value<std::string>())
         ;

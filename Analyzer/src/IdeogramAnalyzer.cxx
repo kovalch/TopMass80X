@@ -1,6 +1,6 @@
 #include "IdeogramAnalyzer.h"
 
-#include "IdeogramCombLikelihood.h"
+#include "IdeogramCombLikelihoodAllJets.h"
 #include "Helper.h"
 #include "ProgramOptionsReader.h"
 
@@ -85,8 +85,8 @@ void IdeogramAnalyzer::Scan(const TString& cuts, int i, int j, double firstBinMa
   }
   //*/
   
-  IdeogramCombLikelihood* fptr = new IdeogramCombLikelihood();
-  TF2* combLikelihood = new TF2("combLikelihood",fptr,&IdeogramCombLikelihood::Evaluate, firstBinMass, lastBinMass, firstBinJes, lastBinJes, 7, "IdeogramCombLikelihood", "Evaluate");
+  IdeogramCombLikelihoodAllJets* fptr = new IdeogramCombLikelihoodAllJets();
+  TF2* combLikelihood = new TF2("combLikelihood",fptr,&IdeogramCombLikelihoodAllJets::Evaluate, firstBinMass, lastBinMass, firstBinJes, lastBinJes, 7, "IdeogramCombLikelihoodAllJets", "Evaluate");
   //TF2* gausJESConstraint = new TF2("gausJESConstraint", "x*0 +((y-1.)/0.013)**2", firstBinMass, lastBinMass, firstBinJes,lastBinJes);
 
   //TF1* combBackground = new TF1("combBackground",fptr,&IdeogramCombLikelihood::CrystalBall,150,200,1);
@@ -485,7 +485,7 @@ void IdeogramAnalyzer::Scan(const TString& cuts, int i, int j, double firstBinMa
     if (syst)    leg0->AddEntry(systParaboloid, "stat + syst", "L");
     leg0->Draw();
   
-    helper->DrawCMSPrel();
+    helper->DrawCMS();
   
     std::cout << "massError: " << massError << std::endl;
   
@@ -538,7 +538,7 @@ void IdeogramAnalyzer::Scan(const TString& cuts, int i, int j, double firstBinMa
     std::cout << "Fixed JES: m_t = ";
     std::cout << massConstJES << " +/- " << massConstJESError << std::endl;
 
-    helper->DrawCMSPrel();
+    helper->DrawCMS();
   
     TString path1D("plot/Ideogram/"); path1D+= fIdentifier_; path1D += "_"; path1D += i; path1D += "_"; path1D += j; path1D += "_1D.eps";
     ctemp->Print(path1D);
