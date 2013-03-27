@@ -25,7 +25,8 @@ Analysis::Analysis(std::vector<float> v):
   fMethod_    (po::GetOption<std::string>("method")),
   fBinning_   (po::GetOption<std::string>("binning")),
   vBinning_   (v),
-  fChannel_(po::GetOption<std::string>("channel")),
+  fChannelID_ (Helper::channelID()),
+  fMethodID_  (Helper::methodID()),
   fTree_(0)
 {
 }
@@ -45,11 +46,11 @@ void Analysis::Analyze() {
 
   // random subset creation
   RandomSubsetCreator* fCreator = 0;
-  if (!strcmp(fChannel_, "electron") || !strcmp(fChannel_, "muon") || !strcmp(fChannel_, "lepton")) {
+  if (fChannelID_ == Helper::kElectronJets || fChannelID_ == Helper::kMuonJets || fChannelID_ == Helper::kLeptonJets) {
     fCreator = new RandomSubsetCreatorLeptonJets();
   }
-  else if (!strcmp(fChannel_, "alljets")) {
-    if (!strcmp(fMethod_, "IdeogramNew")) {
+  else if (fChannelID_ == Helper::kAllJets) {
+    if (fMethodID_ == Helper::kIdeogramNew) {
       fCreator = new RandomSubsetCreatorNewInterface();
     }
     else{
@@ -57,28 +58,18 @@ void Analysis::Analyze() {
     }
   }
   else {
-    std::cerr << "Stopping analysis! Specified decay channel *" << fChannel_ << "* not known!" << std::endl;
+    std::cerr << "Stopping analysis! Specified decay channel *" << po::GetOption<std::string>("channel") << "* not known!" << std::endl;
     return;
   }
   fTree_ = fCreator->CreateRandomSubset();
 
   MassAnalyzer* fAnalyzer = 0;
 
-  if (!strcmp(fMethod_, "GenMatch")) {
-    fAnalyzer = new GenMatchAnalyzer(fIdentifier_, fTree_);
-  }
-  else if (!strcmp(fMethod_, "MVA")) {
-    fAnalyzer = new MVAAnalyzer(fIdentifier_, fTree_);
-  }
-  else if (!strcmp(fMethod_, "Ideogram")) {
-    fAnalyzer = new IdeogramAnalyzer(fIdentifier_, fTree_);
-  }
-  else if (!strcmp(fMethod_, "IdeogramNew")) {
-    fAnalyzer = new IdeogramAnalyzerNewInterface(fIdentifier_, fTree_);
-  }
-  else if (!strcmp(fMethod_, "RooFit")) {
-    fAnalyzer = new RooFitTemplateAnalyzer(fIdentifier_, fTree_);
-  }
+  if      (fMethodID_ == Helper::kGenMatch   ) fAnalyzer = new GenMatchAnalyzer            (fIdentifier_, fTree_);
+  else if (fMethodID_ == Helper::kMVA        ) fAnalyzer = new MVAAnalyzer                 (fIdentifier_, fTree_);
+  else if (fMethodID_ == Helper::kIdeogram   ) fAnalyzer = new IdeogramAnalyzer            (fIdentifier_, fTree_);
+  else if (fMethodID_ == Helper::kIdeogramNew) fAnalyzer = new IdeogramAnalyzerNewInterface(fIdentifier_, fTree_);
+  else if (fMethodID_ == Helper::kRooFit     ) fAnalyzer = new RooFitTemplateAnalyzer      (fIdentifier_, fTree_);
   else {
     std::cerr << "Stopping analysis! Specified analysis method *" << fMethod_ << "* not known!" << std::endl;
     return;
@@ -99,15 +90,17 @@ void Analysis::Analyze() {
            << fBinning_ << " < " << vBinning_[i+1];
     cuts = stream.str();
     
-    if (!strcmp(fMethod_, "GenMatch")) {
+    if (fMethodID_ == Helper::kGenMatch) {
       cuts += " & target == 1";
     }
-    else if (!strcmp(fMethod_, "MVA")) {
+    else if (fMethodID_ == Helper::kMVA) {
       cuts += " & mvaDisc > 0";
     }
-    else if (!strcmp(fMethod_, "Ideogram")) {
+    else if (fMethodID_ == Helper::kIdeogram) {
     }
-    else if (!strcmp(fMethod_, "RooFit")) {
+    else if (fMethodID_ == Helper::kIdeogramNew) {
+    }
+    else if (fMethodID_ == Helper::kRooFit) {
     }
 
     int entries = fTree_->GetEntries(cuts);
@@ -127,9 +120,9 @@ void Analysis::Analyze() {
         CreateHisto(value->first+TString("_Pull"));
       }
       std::cout << std::endl;
-      double genMass   = po::GetOption<double>("mass");
-      double genJES    = po::GetOption<double>("jes" );
-      double genfSig   = po::GetOption<double>("fsig");
+      double genMass = po::GetOption<double>("mass");
+      double genJES  = po::GetOption<double>("jes" );
+      double genfSig = po::GetOption<double>("fsig");
       for(std::map<TString, std::pair<double, double> >::const_iterator value = values.begin(); value != values.end(); ++value){
         double val      = value->second.first;
         double valError = value->second.second;
@@ -167,10 +160,14 @@ void Analysis::Analyze() {
   hJES->Draw("E1");
   hJES->Fit("pol0");
   */
-  TString path("plot/"); path += fMethod_; path += "_"; path += fIdentifier_; path += "_"; path += fBinning_; path += ".eps";
+  // clean binning to give a proper path
+  TString binningForPath = fBinning_;
+  binningForPath.ReplaceAll("[","_"); binningForPath.ReplaceAll("]","_"); binningForPath.ReplaceAll("(","_"); binningForPath.ReplaceAll(")","_");
+  binningForPath.ReplaceAll(".","_"); binningForPath.ReplaceAll("/","_");
+  TString path("plot/"); path += fMethod_; path += "_"; path += fIdentifier_; path += "_"; path += binningForPath; path += ".eps";
   canvas->Print(path);
   
-  TString pathr("plot/"); pathr += fMethod_; pathr += "_"; pathr += fIdentifier_; pathr += "_"; pathr += fBinning_; pathr += ".root";
+  TString pathr("plot/"); pathr += fMethod_; pathr += "_"; pathr += fIdentifier_; pathr += "_"; pathr += binningForPath; pathr += ".root";
   canvas->Print(pathr);
   
   delete canvas;

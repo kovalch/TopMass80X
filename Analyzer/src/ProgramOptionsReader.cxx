@@ -24,7 +24,7 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
   if(!programOptions_){
     programOptions_ = new boost::program_options::variables_map();
     // Declare the supported options
-    boost::program_options::options_description desc("Allowed options");
+    boost::program_options::options_description desc("Allowed options", 150);
     desc.add_options()
         ("help,h", "produce help message")
         ("method,m", boost::program_options::value<std::string>()->default_value("Ideogram"),

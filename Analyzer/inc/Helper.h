@@ -12,6 +12,7 @@ private:
   std::vector<float> vBinning;
   void init();
   static int channelIDFromString(std::string channel);
+  static int methodIDFromString(std::string method);
   int energyFromString(std::string sample);
   void DrawLabel(TString text, const double x1, const double y1, const double x2, Color_t color = kBlack);
   int channelID_;
@@ -29,6 +30,8 @@ public:
 
   enum channelID {kAllJets, kMuonJets, kElectronJets, kLeptonJets, kMaxChannels};
   static int channelID();
+  enum methodID {kGenMatch, kMVA, kIdeogram, kIdeogramNew, kRooFit, kMaxMethods};
+  static int methodID();
 };
 
 #endif

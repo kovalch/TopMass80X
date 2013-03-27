@@ -8,15 +8,9 @@
 class Analysis {
  private:
 
-  TString samplePath_;
-  TString fIdentifier_;
-  TString fMethod_;
-  TString fBinning_;
+  const TString samplePath_, fIdentifier_, fMethod_, fBinning_;
   std::vector<float> vBinning_;
-
-  //int fBins_;
-
-  TString fChannel_;
+  const int fChannelID_, fMethodID_;
 
   TTree* fTree_;
 

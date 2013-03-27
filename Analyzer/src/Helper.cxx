@@ -22,12 +22,25 @@ int Helper::channelIDFromString(std::string channel)
   else if (!strcmp(channel.c_str(), "electron")) return kElectronJets;
   else if (!strcmp(channel.c_str(), "lepton"  )) return kLeptonJets;
   else {
-    std::cout << "Channel name *" << channel << "* not know! Aborting program execution!" << std::endl;
+    std::cerr << "Channel name *" << channel << "* not know! Aborting program execution!" << std::endl;
     exit(1);
     return kMaxChannels;
   }
 }
 
+int Helper::methodIDFromString(std::string method)
+{
+  if      (!strcmp(method.c_str(), "GenMatch"   )) return kGenMatch;
+  else if (!strcmp(method.c_str(), "MVA"        )) return kMVA;
+  else if (!strcmp(method.c_str(), "Ideogram"   )) return kIdeogram;
+  else if (!strcmp(method.c_str(), "IdeogramNew")) return kIdeogramNew;
+  else if (!strcmp(method.c_str(), "RooFit"     )) return kRooFit;
+  else {
+    std::cerr << "Stopping analysis! Specified analysis method *" << method << "* not known!" << std::endl;
+    exit(1);
+    return kMaxMethods;
+  }
+}
 
 TH1F* Helper::GetH1(TString title) {
   const float* array = &vBinning[0];
@@ -272,4 +285,9 @@ void Helper::DrawCMSSim(int energy) {
 int Helper::channelID()
 {
   return channelIDFromString(po::GetOption<std::string>("channel"));
+}
+
+int Helper::methodID()
+{
+  return methodIDFromString(po::GetOption<std::string>("method"));
 }

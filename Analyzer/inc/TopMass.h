@@ -9,16 +9,13 @@
 
 class TopMass {
   private:
-    TString fMethod_;
-    TString fBinning_;
-    double fLumi_;
-
     bool fexists(const char *filename);
+    void WriteEnsembleTest(std::vector<float> vBinning);
       
+    const TString fBinning_, fTask_;
+
   public:
     TopMass();
-    
-    void WriteEnsembleTest(std::vector<float> vBinning);
 };
 
 #endif
