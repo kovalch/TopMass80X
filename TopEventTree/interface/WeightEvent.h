@@ -38,8 +38,11 @@ public:
   // bTag efficiency and mistag rate weights
   std::vector<double> bTagEffJetWeight;
   std::vector<double> lTagEffJetWeight;
-  double bTagEffWeight;
-  double lTagEffWeight;
+  double bTagWeight;
+  double bTagWeight_bTagSFUp;
+  double bTagWeight_bTagSFDown;
+  double bTagWeight_misTagSFUp;
+  double bTagWeight_misTagSFDown;
 
   // lepton weights
   double muWeight;

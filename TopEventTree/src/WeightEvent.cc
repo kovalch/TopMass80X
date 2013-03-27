@@ -25,8 +25,11 @@ void WeightEvent::init()
 
   bTagEffJetWeight.clear();
   lTagEffJetWeight.clear();
-  bTagEffWeight = -1.;
-  lTagEffWeight = -1.;
+  bTagWeight              = -1.;
+  bTagWeight_bTagSFUp     = -1.;
+  bTagWeight_bTagSFDown   = -1.;
+  bTagWeight_misTagSFUp   = -1.;
+  bTagWeight_misTagSFDown = -1.;
 
   muWeight = -1.;
   elWeight = -1.;

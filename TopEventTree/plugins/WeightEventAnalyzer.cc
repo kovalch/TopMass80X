@@ -81,18 +81,6 @@ WeightEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
   edm::Handle<edm::View<PileupSummaryInfo> > pu_h;
   evt.getByLabel(puSrc_, pu_h);
 
-  edm::Handle<std::vector<reco::Vertex> > vertecies_h;
-  evt.getByLabel(vertexSrc_, vertecies_h);
-
-  edm::Handle<double> puWeight_h;
-  evt.getByLabel(puWeightSrc_, puWeight_h);
-
-  edm::Handle<double> puWeightUp_h;
-  evt.getByLabel(puWeightUpSrc_, puWeightUp_h);
-
-  edm::Handle<double> puWeightDown_h;
-  evt.getByLabel(puWeightDownSrc_, puWeightDown_h);
-
   if(pu_h.isValid()){
     weight->nPU.resize(3);
     for(edm::View<PileupSummaryInfo>::const_iterator iterPU = pu_h->begin(); iterPU != pu_h->end(); ++iterPU){
@@ -105,12 +93,46 @@ WeightEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
     }
   }
 
+  edm::Handle<std::vector<reco::Vertex> > vertecies_h;
+  evt.getByLabel(vertexSrc_, vertecies_h);
+
   if(vertecies_h.isValid()) weight->nVertex = vertecies_h->size();
+
+  edm::Handle<double> puWeight_h;
+  evt.getByLabel(puWeightSrc_, puWeight_h);
+
+  edm::Handle<double> puWeightUp_h;
+  evt.getByLabel(puWeightUpSrc_, puWeightUp_h);
+
+  edm::Handle<double> puWeightDown_h;
+  evt.getByLabel(puWeightDownSrc_, puWeightDown_h);
 
   if(puWeight_h    .isValid()) weight->puWeight     = *puWeight_h    ;
   if(puWeightUp_h  .isValid()) weight->puWeightUp   = *puWeightUp_h  ;
   if(puWeightDown_h.isValid()) weight->puWeightDown = *puWeightDown_h;
 
+  edm::Handle<double> bWeight_h;
+  evt.getByLabel(bWeightSrc_, bWeight_h);
+
+  edm::Handle<double> bWeight_bTagSFUp_h;
+  evt.getByLabel(bWeightSrc_bTagSFUp_, bWeight_bTagSFUp_h);
+
+  edm::Handle<double> bWeight_bTagSFDown_h;
+  evt.getByLabel(bWeightSrc_bTagSFDown_, bWeight_bTagSFDown_h);
+
+  edm::Handle<double> bWeight_misTagSFUp_h;
+  evt.getByLabel(bWeightSrc_misTagSFUp_, bWeight_misTagSFUp_h);
+
+  edm::Handle<double> bWeight_misTagSFDown_h;
+  evt.getByLabel(bWeightSrc_misTagSFDown_, bWeight_misTagSFDown_h);
+
+  if(bWeight_h             .isValid()) weight->bTagWeight              = *bWeight_h             ;
+  if(bWeight_bTagSFUp_h    .isValid()) weight->bTagWeight_bTagSFUp     = *bWeight_bTagSFUp_h    ;
+  if(bWeight_bTagSFDown_h  .isValid()) weight->bTagWeight_bTagSFDown   = *bWeight_bTagSFDown_h  ;
+  if(bWeight_misTagSFUp_h  .isValid()) weight->bTagWeight_misTagSFUp   = *bWeight_misTagSFUp_h  ;
+  if(bWeight_misTagSFDown_h.isValid()) weight->bTagWeight_misTagSFDown = *bWeight_misTagSFDown_h;
+
+  weight->combinedWeight = weight->puWeight * weight->bTagWeight;
 
   trs->Fill();
 }
