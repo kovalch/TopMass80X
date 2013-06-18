@@ -66,6 +66,7 @@ WeightEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
 
   if(genEventInfo_h.isValid()){
     weight->mcWeight = genEventInfo_h->weight();
+    if(weight->mcWeight < 0.) weight->combinedWeight *= -1.;
 
     if(savePDFWeights_){
       // variables needed for PDF uncertainties
