@@ -44,6 +44,9 @@ public:
   double bTagWeight_misTagSFUp;
   double bTagWeight_misTagSFDown;
 
+  // trigger weight
+  double triggerWeight;
+
   // lepton weights
   double muWeight;
   double elWeight;

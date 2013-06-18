@@ -31,6 +31,8 @@ void WeightEvent::init()
   bTagWeight_misTagSFUp   = -1.;
   bTagWeight_misTagSFDown = -1.;
 
+  triggerWeight = -1.;
+
   muWeight = -1.;
   elWeight = -1.;
 
