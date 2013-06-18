@@ -24,8 +24,43 @@ public:
   int event;
   
   int decayChannel;
-  std::vector<int> genpartonJetIdx;
-  std::vector<TLorentzVector> genparton;
+  
+  TLorentzVector genpartonTTBar;
+  TLorentzVector genpartonHadTop;
+  TLorentzVector genpartonLepTop;
+  TLorentzVector genpartonHadW;
+  TLorentzVector genpartonLepW;
+  TLorentzVector genpartonHadB;
+  TLorentzVector genpartonLightQ;
+  TLorentzVector genpartonLightQBar;
+  TLorentzVector genpartonLepB;
+  TLorentzVector genpartonLepton;
+  TLorentzVector genpartonNeutrino;
+  
+  TLorentzVector *genpartonTop1;
+  TLorentzVector *genpartonTop2;
+  TLorentzVector *genpartonW1;
+  TLorentzVector *genpartonW2;
+  TLorentzVector *genpartonB1;
+  TLorentzVector *genpartonLightQ1;
+  TLorentzVector *genpartonLightQBar1;
+  TLorentzVector *genpartonB2;
+  TLorentzVector *genpartonLightQ2;
+  TLorentzVector *genpartonLightQBar2;
+  
+  int genpartonJetIdxHadB;
+  int genpartonJetIdxLightQ;
+  int genpartonJetIdxLightQBar;
+  int genpartonJetIdxLepB;
+  int genpartonJetIdxLepton;
+  int genpartonJetIdxNeutrino;
+  
+  int genpartonJetIdxB1;
+  int genpartonJetIdxLightQ1;
+  int genpartonJetIdxLightQBar1;
+  int genpartonJetIdxB2;
+  int genpartonJetIdxLightQ2;
+  int genpartonJetIdxLightQBar2;
   
   std::vector<TLorentzVector> recoTTBar;
   std::vector<TLorentzVector> recoHadTop;
