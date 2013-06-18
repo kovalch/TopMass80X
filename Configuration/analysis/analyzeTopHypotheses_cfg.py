@@ -281,7 +281,7 @@ addTtSemiLepHypotheses(process,
 process.load("TopMass.TopEventTree.EventHypothesisAnalyzer_cff")
 
 ## PDF weights
-process.analyzeHitFit.savePDFWeights = options.pdf
+#process.analyzeHitFit.savePDFWeights = options.pdf
 
 ## MC weights
 process.load("TopAnalysis.TopUtils.EventWeightMC_cfi")
