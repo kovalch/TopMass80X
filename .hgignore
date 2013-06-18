@@ -6,6 +6,7 @@
 ~$
 \.ps$
 \.eps$
+\.pdf$
 \.png$
 \.root$
 \.project$
@@ -13,6 +14,7 @@
 \.cproject$
 \.pydevproject$
 \_dict.h$
+test.prof
 -glob:Analyzer/TopMass
 
 syntax: regexp
