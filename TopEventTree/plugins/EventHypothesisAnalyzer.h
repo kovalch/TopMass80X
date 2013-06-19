@@ -31,7 +31,9 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   int fillGenPartons(const TtGenEvent *genEvent);
 
   short comboTypeFullHad();
-  short comboTypeIDCalculator();
+  short comboTypeSemiLep();
+  short comboTypeIDCalculatorFullHad();
+  short comboTypeIDCalculatorSemiLep();
   short comboTypeAlgo(std::vector<int> jetIndexFit, std::vector<int> jetIndexGen);
   std::vector<short> comboTypeAlgoInverted(std::vector<int> jetIndexGen, short comboType);
 
