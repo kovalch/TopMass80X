@@ -165,6 +165,13 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
       top->recoLepB     .push_back(hreco[TopEvent::LepB     ]);
       top->recoLepton   .push_back(hreco[TopEvent::Lepton   ]);
       top->recoNeutrino .push_back(hreco[TopEvent::Neutrino ]);
+      
+      if(semiLepTtEvent->isHypoValid(TtEvent::kGenMatch)){
+        top->combinationType.push_back(comboTypeSemiLep());
+      }
+      else{
+        top->combinationType.push_back(6);
+      }
     }
     else if(fullHadTtEvent){
       top->recoJetIdxHadB     .push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtFullHadEvtPartons::B        ]);
@@ -613,7 +620,7 @@ EventHypothesisAnalyzer::fillGenPartons(const TtGenEvent *genEvent)
 short
 EventHypothesisAnalyzer::comboTypeFullHad()
 {
-  short comboTypeID = comboTypeIDCalculator();
+  short comboTypeID = comboTypeIDCalculatorFullHad();
   //std::cout << "ID: " << comboTypeID << std::endl;
   // falsely picked jets
   if(comboTypeID < 0)
@@ -652,9 +659,38 @@ EventHypothesisAnalyzer::comboTypeFullHad()
   return -37;
 }
 
+short
+EventHypothesisAnalyzer::comboTypeSemiLep()
+{
+  short comboTypeID = comboTypeIDCalculatorSemiLep();
+  //std::cout << "ID: " << comboTypeID << std::endl;
+  // falsely picked jets
+  if(comboTypeID < 0)
+    return comboTypeID;
+
+  // correct permutations
+  if(comboTypeID ==  0 || comboTypeID ==  2)
+    return 1;
+  
+  // hadronic branch mixup (correct tops)
+  if(comboTypeID ==  6 || comboTypeID ==  8 || comboTypeID == 12 || comboTypeID == 14)
+    return 2;
+  
+  // swapped b-quarks (correct W)
+  if(comboTypeID == 21 || comboTypeID == 23)
+    return 3;
+  
+  // other mixups (complete mess)
+  if(comboTypeID >=  0 && comboTypeID <= 23)
+    return 4;
+  
+  // error
+  return -37;
+}
+
 /// assign unique ID to every permutation type
 short
-EventHypothesisAnalyzer::comboTypeIDCalculator()
+EventHypothesisAnalyzer::comboTypeIDCalculatorFullHad()
 {
   /// vector to store the jet indices
   std::vector<int> jetIndexFit;
@@ -667,15 +703,6 @@ EventHypothesisAnalyzer::comboTypeIDCalculator()
   jetIndexFit.push_back(top->recoJetIdxLepton   .back());
   jetIndexFit.push_back(top->recoJetIdxNeutrino .back());
   
-  /*
-  jetIndexGen.push_back(top->genpartonJetIdxHadB);
-  jetIndexGen.push_back(top->genpartonJetIdxLightQ);
-  jetIndexGen.push_back(top->genpartonJetIdxLightQBar);
-  jetIndexGen.push_back(top->genpartonJetIdxLepB);
-  jetIndexGen.push_back(top->genpartonJetIdxLepton);
-  jetIndexGen.push_back(top->genpartonJetIdxNeutrino);
-  */
-  
   jetIndexGen.push_back(top->genpartonJetIdxB1);
   jetIndexGen.push_back(top->genpartonJetIdxLightQ1);
   jetIndexGen.push_back(top->genpartonJetIdxLightQBar1);
@@ -686,6 +713,26 @@ EventHypothesisAnalyzer::comboTypeIDCalculator()
   //std::cout << "fit: " << jetIndexFit[0] << " " << jetIndexFit[1] << " " << jetIndexFit[2] << " " << jetIndexFit[3] << " " << jetIndexFit[4] << " " << jetIndexFit[5] << std::endl;
   //std::cout << "gen: " << jetIndexGen[0] << " " << jetIndexGen[1] << " " << jetIndexGen[2] << " " << jetIndexGen[3] << " " << jetIndexGen[4] << " " << jetIndexGen[5] << std::endl;
 
+  return comboTypeAlgo(jetIndexFit, jetIndexGen);
+}
+
+short
+EventHypothesisAnalyzer::comboTypeIDCalculatorSemiLep()
+{
+  /// vector to store the jet indices
+  std::vector<int> jetIndexFit;
+  std::vector<int> jetIndexGen;
+
+  jetIndexFit.push_back(top->recoJetIdxHadB     .back());
+  jetIndexFit.push_back(top->recoJetIdxLightQ   .back());
+  jetIndexFit.push_back(top->recoJetIdxLightQBar.back());
+  jetIndexFit.push_back(top->recoJetIdxLepB     .back());
+  
+  jetIndexGen.push_back(top->genpartonJetIdxHadB);
+  jetIndexGen.push_back(top->genpartonJetIdxLightQ);
+  jetIndexGen.push_back(top->genpartonJetIdxLightQBar);
+  jetIndexGen.push_back(top->genpartonJetIdxLepB);
+  
   return comboTypeAlgo(jetIndexFit, jetIndexGen);
 }
 
