@@ -25,8 +25,8 @@ jets_        (cfg.getParameter<edm::InputTag>("jets")),
 gluonTagName_  (cfg.getParameter<edm::InputTag>("gluonTagSrc").encode()),
 kJetMAX_(cfg.getParameter<int>("maxNJets")),
 jet(0),
-checkedIsPFJet(false), checkedJERSF(false), checkedJESSF(false), checkedTotalSF(false), checkedQGTag(false),
-       isPFJet(false),     hasJERSF(false),     hasJESSF(false),     hasTotalSF(false),     hasQGTag(false)
+checkedIsPFJet(false), checkedJERSF(false), checkedJESSF(false), checkedTotalSF(false), checkedQGTag(false), checkedBReg(false),
+       isPFJet(false),     hasJERSF(false),     hasJESSF(false),     hasTotalSF(false),     hasQGTag(false),     hasBReg(false)
 {
 }
 
@@ -63,6 +63,7 @@ JetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
     if(!checkedJERSF  ) { checkedJERSF   = true; if(ijet->hasUserFloat("jerSF"      )) hasJERSF   = true; }
     if(!checkedJESSF  ) { checkedJESSF   = true; if(ijet->hasUserFloat("jesSF"      )) hasJESSF   = true; }
     if(!checkedTotalSF) { checkedTotalSF = true; if(ijet->hasUserFloat("totalSF"    )) hasTotalSF = true; }
+    if(!checkedBReg   ) { checkedBReg    = true; if(ijet->hasUserFloat("BRegResult"    )) hasBReg    = true; }
 
     if(isPFJet){
       jet->fChargedHadron .push_back(ijet->chargedHadronEnergyFraction());
@@ -76,6 +77,9 @@ JetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
       jet->nElectrons     .push_back(ijet->electronMultiplicity());
       jet->nPhotons       .push_back(ijet->photonMultiplicity());
       jet->nMuons         .push_back(ijet->muonMultiplicity());
+      //cross-check (would fail in HF as of now)
+      assert(jet->nConstituents  .back()== jet->nChargedHadrons.back() + jet->nNeutralHadrons.back() + jet->nElectrons     .back() + jet->nPhotons       .back() + jet->nMuons         .back() );
+
     }
     jet->charge         .push_back(ijet->jetCharge());
     jet->flavour        .push_back(ijet->partonFlavour());
@@ -85,6 +89,7 @@ JetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
     if(hasJERSF  ) jet->jerSF   .push_back(ijet->userFloat("jerSF"      ));
     if(hasJESSF  ) jet->jesSF   .push_back(ijet->userFloat("jesSF"      ));
     if(hasTotalSF) jet->totalSF .push_back(ijet->userFloat("totalSF"    ));
+    if(hasBReg   ) jet->breg    .push_back(ijet->userFloat("BRegResult" ));
 
     std::pair<TVector2, TVector2> pulls = getPullVector( ijet );
     jet->pull       .push_back(pulls.first );

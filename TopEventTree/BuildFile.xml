@@ -10,6 +10,9 @@
 <use name="RecoBTag/PerformanceDB"/>
 <use name="RecoBTag/Records"/>
 <use name="AnalysisDataFormats/TopObjects"/>
+<use name="FWCore/Framework"/>
+<use name="RecoBTau/JetTagComputer"/>
+
 
 <export>
    <lib name="TopMassTopEventTree"/>

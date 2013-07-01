@@ -16,6 +16,7 @@
 #include "TLorentzVector.h"
 #include "TopMass/TopEventTree/interface/TopEvent.h"
 #include "TopMass/TopEventTree/interface/JetEvent.h"
+#include "TopMass/TopEventTree/interface/BRegJetEvent.h"
 #include "TopMass/TopEventTree/interface/WeightEvent.h"
 
 namespace {
@@ -23,8 +24,9 @@ namespace {
     std::vector<TLorentzVector> vlv;
     std::vector<std::vector<TLorentzVector> > vvlv;
     
-    TopEvent te;
-    JetEvent je;
-    WeightEvent we;
+    TopEvent     te;
+    JetEvent     je;
+    BRegJetEvent BRegje;
+    WeightEvent  we;
   };
 }

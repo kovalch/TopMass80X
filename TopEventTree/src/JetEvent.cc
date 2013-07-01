@@ -38,6 +38,7 @@ void JetEvent::init()
   jerSF.clear();
   jesSF.clear();
   totalSF.clear();
+  breg.clear();
 
   // CINT does not like vectors of TVector2s
   // But if you don't tell ROOT, what they are, it works :D

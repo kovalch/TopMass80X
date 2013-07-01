@@ -4,5 +4,6 @@
   
   <class name="TopEvent"/>
   <class name="JetEvent"/>
+  <class name="BRegJetEvent"/>
   <class name="WeightEvent"/>
 </lcgdict>

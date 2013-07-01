@@ -48,6 +48,7 @@ public:
   std::vector<double> jerSF;
   std::vector<double> jesSF;
   std::vector<double> totalSF;
+  std::vector<double> breg;
 
   std::vector<TVector2> pull;
   std::vector<TVector2> pullCharged;
