@@ -37,6 +37,8 @@ bWeightSrc_bTagSFDown_  (cfg.getParameter<edm::InputTag>("bWeightSrc_bTagSFDown"
 bWeightSrc_misTagSFUp_  (cfg.getParameter<edm::InputTag>("bWeightSrc_misTagSFUp")),
 bWeightSrc_misTagSFDown_(cfg.getParameter<edm::InputTag>("bWeightSrc_misTagSFDown")),
 
+triggerWeightSrc_ (cfg.getParameter<edm::InputTag>("triggerWeightSrc")),
+
 muWeightSrc_ (cfg.getParameter<edm::InputTag>("muWeightSrc")),
 elWeightSrc_ (cfg.getParameter<edm::InputTag>("elWeightSrc")),
 
@@ -64,6 +66,7 @@ WeightEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
 
   if(genEventInfo_h.isValid()){
     weight->mcWeight = genEventInfo_h->weight();
+    if(weight->mcWeight < 0.) weight->combinedWeight *= -1.;
 
     if(savePDFWeights_){
       // variables needed for PDF uncertainties
@@ -107,9 +110,9 @@ WeightEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
   edm::Handle<double> puWeightDown_h;
   evt.getByLabel(puWeightDownSrc_, puWeightDown_h);
 
-  if(puWeight_h    .isValid()) weight->puWeight     = *puWeight_h    ;
-  if(puWeightUp_h  .isValid()) weight->puWeightUp   = *puWeightUp_h  ;
-  if(puWeightDown_h.isValid()) weight->puWeightDown = *puWeightDown_h;
+  if(puWeight_h    .isValid()) { weight->puWeight     = *puWeight_h    ; weight->combinedWeight *= weight->puWeight; }
+  if(puWeightUp_h  .isValid())   weight->puWeightUp   = *puWeightUp_h  ;
+  if(puWeightDown_h.isValid())   weight->puWeightDown = *puWeightDown_h;
 
   edm::Handle<double> bWeight_h;
   evt.getByLabel(bWeightSrc_, bWeight_h);
@@ -126,13 +129,15 @@ WeightEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
   edm::Handle<double> bWeight_misTagSFDown_h;
   evt.getByLabel(bWeightSrc_misTagSFDown_, bWeight_misTagSFDown_h);
 
-  if(bWeight_h             .isValid()) weight->bTagWeight              = *bWeight_h             ;
-  if(bWeight_bTagSFUp_h    .isValid()) weight->bTagWeight_bTagSFUp     = *bWeight_bTagSFUp_h    ;
-  if(bWeight_bTagSFDown_h  .isValid()) weight->bTagWeight_bTagSFDown   = *bWeight_bTagSFDown_h  ;
-  if(bWeight_misTagSFUp_h  .isValid()) weight->bTagWeight_misTagSFUp   = *bWeight_misTagSFUp_h  ;
-  if(bWeight_misTagSFDown_h.isValid()) weight->bTagWeight_misTagSFDown = *bWeight_misTagSFDown_h;
+  if(bWeight_h             .isValid()) { weight->bTagWeight              = *bWeight_h             ; weight->combinedWeight *= weight->bTagWeight; }
+  if(bWeight_bTagSFUp_h    .isValid())   weight->bTagWeight_bTagSFUp     = *bWeight_bTagSFUp_h    ;
+  if(bWeight_bTagSFDown_h  .isValid())   weight->bTagWeight_bTagSFDown   = *bWeight_bTagSFDown_h  ;
+  if(bWeight_misTagSFUp_h  .isValid())   weight->bTagWeight_misTagSFUp   = *bWeight_misTagSFUp_h  ;
+  if(bWeight_misTagSFDown_h.isValid())   weight->bTagWeight_misTagSFDown = *bWeight_misTagSFDown_h;
 
-  weight->combinedWeight = weight->puWeight * weight->bTagWeight;
+  edm::Handle<double> triggerWeight_h;
+  evt.getByLabel(triggerWeightSrc_, triggerWeight_h);
+  if(triggerWeight_h.isValid()) { weight->triggerWeight = *triggerWeight_h; weight->combinedWeight *= weight->triggerWeight; }
 
   trs->Fill();
 }

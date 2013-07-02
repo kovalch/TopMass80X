@@ -36,6 +36,8 @@ class WeightEventAnalyzer : public edm::EDAnalyzer {
   edm::InputTag bWeightSrc_misTagSFUp_;
   edm::InputTag bWeightSrc_misTagSFDown_;
 
+  edm::InputTag triggerWeightSrc_;
+
   edm::InputTag muWeightSrc_;
   edm::InputTag elWeightSrc_;
 

@@ -458,7 +458,7 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
     TF1* unity1D = new TF1("unity1D", "1 + 0*x");
     TH1D* hUnity1D = new TH1D("hUnity1D","hUnity1D", binsMass, firstBinMass, lastBinMass);
     hUnity1D->Eval(unity1D);
-    sumLogLikelihood1D->Add(hUnity1D, -sumLogLikelihood1D->GetMinimum() + 1e-1);
+    sumLogLikelihood1D->Add(hUnity1D, -sumLogLikelihood1D->GetMinimum() + 1e-2);
 
     sumLogLikelihood1D->Draw("E");
   

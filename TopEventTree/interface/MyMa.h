@@ -23,3 +23,10 @@ static TString deltaAlpha(const char* vec1, const char* vec2)
   return arcos;
 }
 }
+
+// invariant mass
+
+//sqrt(pow(fitVecs[0].E () + fitVecs[1].E () + jets[fitAssigns[2]].E (), 2) - pow(fitVecs[0].Px() + fitVecs[1].Px() + jets[fitAssigns[2]].Px(), 2) - pow(fitVecs[0].Py() + fitVecs[1].Py() + jets[fitAssigns[2]].Py(), 2) - pow(fitVecs[0].Pz() + fitVecs[1].Pz() + jets[fitAssigns[2]].Pz(), 2))
+
+//sqrt(pow(fitVecs[3].E () + fitVecs[4].E () + jets[fitAssigns[5]].E (), 2) - pow(fitVecs[3].Px() + fitVecs[4].Px() + jets[fitAssigns[5]].Px(), 2) - pow(fitVecs[3].Py() + fitVecs[4].Py() + jets[fitAssigns[5]].Py(), 2) - pow(fitVecs[3].Pz() + fitVecs[4].Pz() + jets[fitAssigns[5]].Pz(), 2))
+
