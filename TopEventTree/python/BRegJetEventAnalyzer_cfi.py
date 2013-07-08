@@ -9,9 +9,9 @@ analyzeBRegJets = cms.EDAnalyzer("BRegJetEventAnalyzer",
     #noPtEtaJets  = cms.InputTag("noPtEtaJetsPF"),
     rho_tag      = cms.InputTag('kt6PFJetsUsePATWithPFlow','rho'),
     rho25_tag    = cms.InputTag('rho25kt6PFJets','rho'),
-    mva_name     = cms.string("BDTG"),
-    mva_path     = cms.string("/afs/naf.desy.de/user/k/kirschen/scratch/2013_02_TMVA_BJets/weights/TMVARegression_BDTG.weights.xml"),
-    writeOutVariables = cms.bool(False),
+    mva_name     = cms.string("BDT::BDTG"),
+    mva_path     = cms.string("/afs/naf.desy.de/user/k/kirschen/scratch/2013_05_TopMass/CMSSW_5_3_9/src/TopMass/TopEventTree/plugins/TMVARegression_BDTG.weights.xml"),
+    writeOutVariables = cms.bool(True),
     gluonTagSrc  = cms.InputTag(""),
     maxNJets = cms.int32(20)
 )
