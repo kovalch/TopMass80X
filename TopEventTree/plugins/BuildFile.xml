@@ -9,6 +9,7 @@
 <use   name="FWCore/Sources"/>
 <use   name="TopMass/TopEventTree"/>
 <use   name="root"/>
+<use   name="roottmva"/>
 <use   name="xerces-c"/>
 <use   name="lhapdf"/>
 

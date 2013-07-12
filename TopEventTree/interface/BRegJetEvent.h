@@ -18,16 +18,17 @@ public:
   BRegJetEvent();
   void init();
 
-  unsigned int nJet() { return fChargedHadron.size(); }
+  unsigned int nJet() { return EtWeightedSigmaPhi.size(); }
 
   ClassDef(BRegJetEvent,1);
 
   // BRegJetEvent data
 
-  std::vector<double> fChargedHadron;
+//  std::vector<double> fChargedHadron;
   std::vector<double> EtWeightedSigmaPhi;
   std::vector<double> EtWeightedSigmaEta;
   std::vector<double> jesTotUnc;
+  std::vector<double> jetPtRaw;
   std::vector<double> jetArea;
   std::vector<int>    nChargedPFConstituents;
   std::vector<double> leadingChargedConstPt;
@@ -39,6 +40,21 @@ public:
   std::vector<double> SVPt;
   std::vector<double> Rho;
   std::vector<double> Rho25;
+
+  std::vector<int>    nSoftMuons;
+  std::vector<int>    nSoftElectrons;
+  std::vector<double> SoftMuonPt;
+  std::vector<double> SoftMuonPtRel;         // transverse momentum wrt. the jet axis
+  std::vector<double> SoftMuonRatioRel;         // momentum parallel to jet axis over jet energy
+  std::vector<double> SoftMuonDeltaR;// (pseudo)angular distance to jet axis
+//  std::vector<double> SoftMuonJet_idx;
+  std::vector<double> SoftElectronPt;
+  std::vector<double> SoftElectronPtRel;             // transverse momentum wrt. the jet axis
+  std::vector<double> SoftElectronRatioRel;             // momentum parallel to jet axis over jet energy
+  std::vector<double> SoftElectronDeltaR;// (pseudo)angular distance to jet axis
+//  std::vector<double> SoftElectronJet_idx;
+
+  std::vector<double> BRegResult;
 
 
 private:

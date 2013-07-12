@@ -55,6 +55,9 @@ class BRegJetEventAnalyzer : public edm::EDAnalyzer {
   TMVA::Reader *reader_;
   std::string mva_name_,mva_path_;
 
+
+
+
   bool writeOutVariables_;
   /// jet output collection 
   std::string outputJets_;
@@ -62,6 +65,16 @@ class BRegJetEventAnalyzer : public edm::EDAnalyzer {
   // check only once per module run if the needed collections are available
   bool checkedIsPFJet, checkedJERSF, checkedJESSF, checkedTotalSF, checkedQGTag, checkedJESTotUnc;
   bool        isPFJet,     hasJERSF,     hasJESSF,     hasTotalSF,     hasQGTag,     hasJESTotUnc;
+
+  float tempJetPtCorr_,tempJetMt_,tempJetEta_,
+  tempfChargedHadrons_,tempfElectrons_, tempfMuons_,
+  tempBTagCSV_;
+  float tempnChargedHadrons_,tempnPFConstituents_ ;
+
+  float readerJetPtRaw_, readerJetArea_, readerJetEtWEightedSigmaPhi_,
+  	  readerJesUncert_, readerSVtx3dLength_, readerSVtx3dLengthError_,
+  	  readerSVtxMass_, readerSVtxPt_, readerlChTrackPt_, readerRho25_;
+
 
 };
 
