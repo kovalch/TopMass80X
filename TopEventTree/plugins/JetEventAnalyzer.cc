@@ -77,8 +77,11 @@ JetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
       jet->nElectrons     .push_back(ijet->electronMultiplicity());
       jet->nPhotons       .push_back(ijet->photonMultiplicity());
       jet->nMuons         .push_back(ijet->muonMultiplicity());
-      //cross-check (would fail in HF as of now)
-      assert(jet->nConstituents  .back()== jet->nChargedHadrons.back() + jet->nNeutralHadrons.back() + jet->nElectrons     .back() + jet->nPhotons       .back() + jet->nMuons         .back() );
+      // cross-check (would fail in HF as of now)
+      // why does the code have to crash, when at least
+      // one constituent of a jet is in the HF ???
+      // as this may happen for jets at eta = 2.4 ...
+      //assert(jet->nConstituents.back()== jet->nChargedHadrons.back() + jet->nNeutralHadrons.back() + jet->nElectrons.back() + jet->nPhotons.back() + jet->nMuons.back());
 
     }
     jet->charge         .push_back(ijet->jetCharge());
