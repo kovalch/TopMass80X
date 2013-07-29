@@ -4,10 +4,10 @@ import FWCore.ParameterSet.Config as cms
 # module to make event weights for the analysis
 #
 analyzeWeights = cms.EDAnalyzer("WeightEventAnalyzer",
-    mcWeightSrc  = cms.InputTag("eventWeightMC"),
+    mcWeight  = cms.double(1.0),
 
-    puSrc        = cms.InputTag("addPileupInfo"),
-    vertexSrc    = cms.InputTag("goodOfflinePrimaryVertices"),
+    puSrc     = cms.InputTag("addPileupInfo"),
+    vertexSrc = cms.InputTag("goodOfflinePrimaryVertices"),
     
     puWeightSrc  = cms.InputTag("eventWeightPUsysNo", "eventWeightPU"),
     puWeightUpSrc  = cms.InputTag("eventWeightPUsysUp", "eventWeightPUUp"),

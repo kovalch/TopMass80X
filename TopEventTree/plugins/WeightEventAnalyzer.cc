@@ -22,7 +22,7 @@
 #include "TopMass/TopEventTree/plugins/WeightEventAnalyzer.h"
 
 WeightEventAnalyzer::WeightEventAnalyzer(const edm::ParameterSet& cfg):
-mcWeightSrc_ (cfg.getParameter<edm::InputTag>("mcWeightSrc")),
+mcWeight_    (cfg.getParameter<double>("mcWeight")),
 puSrc_       (cfg.getParameter<edm::InputTag>("puSrc")),
 vertexSrc_   (cfg.getParameter<edm::InputTag>("vertexSrc")),
 
@@ -64,9 +64,14 @@ WeightEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
   edm::Handle<GenEventInfoProduct> genEventInfo_h;
   if(!genEventSrc_.label().empty()) evt.getByLabel(genEventSrc_, genEventInfo_h);
 
+  weight->mcWeight = mcWeight_;
+  weight->combinedWeight *= weight->mcWeight;
   if(genEventInfo_h.isValid()){
-    weight->mcWeight = genEventInfo_h->weight();
-    if(weight->mcWeight < 0.) weight->combinedWeight *= -1.;
+    //weight->mcWeight = genEventInfo_h->weight();
+    if(genEventInfo_h->weight() < 0.) {
+      weight->mcWeight       *= -1.;
+      weight->combinedWeight *= -1.;
+    }
 
     if(savePDFWeights_){
       // variables needed for PDF uncertainties

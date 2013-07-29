@@ -20,7 +20,7 @@ class WeightEventAnalyzer : public edm::EDAnalyzer {
 
   edm::Service<TreeRegistryService> trs;
 
-  edm::InputTag mcWeightSrc_;
+  double mcWeight_;
 
   edm::InputTag puSrc_;
   edm::InputTag vertexSrc_;
