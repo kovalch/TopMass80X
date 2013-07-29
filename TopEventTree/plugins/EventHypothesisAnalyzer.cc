@@ -132,6 +132,7 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     if(hypoClassKey == TtEvent::kHitFit){
       top->fitProb.push_back(ttEvent->hitFitProb(h));
       top->fitChi2.push_back(ttEvent->hitFitChi2(h));
+      top->fitSigMT.push_back(ttEvent->hitFitSigMT(h));
     }
     else if(hypoClassKey == TtEvent::kKinFit){
       top->fitProb.push_back(ttEvent->fitProb(h));
