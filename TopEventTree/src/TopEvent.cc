@@ -97,4 +97,5 @@ void TopEvent::init()
 
   fitProb.clear();
   fitChi2.clear();
+  fitSigMT.clear();
 }

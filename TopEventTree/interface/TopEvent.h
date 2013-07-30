@@ -125,6 +125,7 @@ public:
 
   std::vector<double> fitProb;
   std::vector<double> fitChi2;
+  std::vector<double> fitSigMT;
 
 
 private:
