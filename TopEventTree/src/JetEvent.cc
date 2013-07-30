@@ -6,8 +6,9 @@
  */
 
 #include "TopMass/TopEventTree/interface/JetEvent.h"
+#include "TopMass/TopEventTree/interface/JetEvent_LinkDef.h"
 
-JetEvent::JetEvent()
+JetEvent::JetEvent() : TObject()
 {
   init();
 }

@@ -6,8 +6,9 @@
  */
 
 #include "TopMass/TopEventTree/interface/WeightEvent.h"
+#include "TopMass/TopEventTree/interface/WeightEvent_LinkDef.h"
 
-WeightEvent::WeightEvent()
+WeightEvent::WeightEvent() : TObject()
 {
   init();
 }

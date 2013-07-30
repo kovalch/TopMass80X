@@ -5,7 +5,6 @@
 #include "TLorentzVector.h"
 #include <vector>
 
-
 class TopEvent : public TObject {
 public:
 

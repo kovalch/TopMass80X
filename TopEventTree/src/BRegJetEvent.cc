@@ -6,11 +6,11 @@
  */
 
 #include "TopMass/TopEventTree/interface/BRegJetEvent.h"
+#include "TopMass/TopEventTree/interface/BRegJetEvent_LinkDef.h"
 
-BRegJetEvent::BRegJetEvent()
+BRegJetEvent::BRegJetEvent() : TObject()
 {
   init();
-
 }
 
 void BRegJetEvent::init()
@@ -46,5 +46,4 @@ void BRegJetEvent::init()
 //  SoftElectronJet_idx .clear();
 
   BRegResult.clear();
-
 }

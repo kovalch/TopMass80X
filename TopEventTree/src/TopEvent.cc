@@ -1,6 +1,8 @@
 #include "TopMass/TopEventTree/interface/TopEvent.h"
+#include "TopMass/TopEventTree/interface/TopEvent_LinkDef.h"
 
-TopEvent::TopEvent() {
+TopEvent::TopEvent() : TObject()
+{
   genpartonTop1       = &genpartonHadTop;
   genpartonTop2       = &genpartonLepTop;
   genpartonW1         = &genpartonHadW;
@@ -44,7 +46,8 @@ TopEvent::TopEvent() {
   init();
 }
 
-void TopEvent::init() {
+void TopEvent::init()
+{
   run = -1; lumiBlock = -1; event = -1;
   
   decayChannel = -10;
@@ -95,4 +98,3 @@ void TopEvent::init() {
   fitProb.clear();
   fitChi2.clear();
 }
-
