@@ -15,7 +15,7 @@ public:
   TopEvent();
   void init();
 
-  ClassDef(TopEvent,1);
+  ClassDef(TopEvent,2);
 
   // TopEvent data
   
