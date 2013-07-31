@@ -153,7 +153,7 @@ WeightEventAnalyzer::beginJob()
   if( !trs ) throw edm::Exception( edm::errors::Configuration, "TreeRegistryService is not registered in cfg file!" );
 
   weight = new WeightEvent();
-  trs->Branch("weight", weight);
+  trs->Branch("weight.", weight);
 }
 
 void

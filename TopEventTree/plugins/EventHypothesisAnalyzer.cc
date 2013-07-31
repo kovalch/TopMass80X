@@ -256,7 +256,7 @@ EventHypothesisAnalyzer::beginJob()
   if( !trs ) throw edm::Exception( edm::errors::Configuration, "TreeRegistryService is not registered in cfg file!" );
 
   top = new TopEvent();
-  trs->Branch("top", top);
+  trs->Branch("top.", top);
 }
 
 std::vector<TLorentzVector> EventHypothesisAnalyzer::getPartons(const TtSemiLeptonicEvent *ttEvent, TtEvent::HypoClassKey hypoClassKey, unsigned int h)

@@ -407,7 +407,7 @@ BRegJetEventAnalyzer::beginJob()
 	if( !trs ) throw edm::Exception( edm::errors::Configuration, "TreeRegistryService is not registered in cfg file!" );
 
 	BRegJet = new BRegJetEvent();
-	trs->Branch("BRegJet", BRegJet);
+	trs->Branch("BRegJet.", BRegJet);
 }
 
 void

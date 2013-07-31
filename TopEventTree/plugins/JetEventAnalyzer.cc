@@ -108,7 +108,7 @@ JetEventAnalyzer::beginJob()
   if( !trs ) throw edm::Exception( edm::errors::Configuration, "TreeRegistryService is not registered in cfg file!" );
 
   jet = new JetEvent();
-  trs->Branch("jet", jet);
+  trs->Branch("jet.", jet);
 }
 
 void
