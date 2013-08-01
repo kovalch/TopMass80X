@@ -69,11 +69,15 @@ class BRegJetEventAnalyzer : public edm::EDAnalyzer {
   float tempJetPtCorr_,tempJetMt_,tempJetEta_,
   tempfChargedHadrons_,tempfElectrons_, tempfMuons_,
   tempBTagCSV_;
-  float tempnChargedHadrons_,tempnPFConstituents_ ;
+  float tempnChargedHadrons_,tempnChargedPFConstituents_,tempnPFConstituents_ ;
 
   float readerJetPtRaw_, readerJetArea_, readerJetEtWEightedSigmaPhi_,
   	  readerJesUncert_, readerSVtx3dLength_, readerSVtx3dLengthError_,
   	  readerSVtxMass_, readerSVtxPt_, readerlChTrackPt_, readerRho25_;
+
+  float readerSoftMuonPt_, readerSoftMuonRatioRel_, readerSoftMuonDeltaR_,
+  	  readerSoftElectronPt_, readerSoftElectronRatioRel_,
+  	  readerSoftElectronDeltaR_;
 
 
 };

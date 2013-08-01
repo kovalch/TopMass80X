@@ -45,5 +45,12 @@ void BRegJetEvent::init()
   SoftElectronDeltaR  .clear();
 //  SoftElectronJet_idx .clear();
 
+  jetPtCorr     .clear();
+  jetEta        .clear();
+  jetMt         .clear();
+  genJetPt      .clear();
+  genPartonPt   .clear();
+
+
   BRegResult.clear();
 }

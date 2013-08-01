@@ -20,7 +20,7 @@ public:
 
   unsigned int nJet() { return EtWeightedSigmaPhi.size(); }
 
-  ClassDef(BRegJetEvent,1);
+  ClassDef(BRegJetEvent,2);
 
   // BRegJetEvent data
 
@@ -53,6 +53,14 @@ public:
   std::vector<double> SoftElectronRatioRel;             // momentum parallel to jet axis over jet energy
   std::vector<double> SoftElectronDeltaR;// (pseudo)angular distance to jet axis
 //  std::vector<double> SoftElectronJet_idx;
+
+
+  std::vector<double> jetPtCorr;
+  std::vector<double> jetEta;
+  std::vector<double> jetMt;
+  std::vector<double> genJetPt;
+  std::vector<double> genPartonPt;
+
 
   std::vector<double> BRegResult;
 
