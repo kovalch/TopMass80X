@@ -355,7 +355,6 @@ std::vector<TLorentzVector> EventHypothesisAnalyzer::getPartons(const TtFullHadr
 
 std::vector<TLorentzVector> EventHypothesisAnalyzer::getPartons(const std::vector<pat::Jet> *jets)
 {
-  // TODO crashes for unknown reason
   int idxB1         = top->recoJetIdxB1        ().back();
   int idxLightQ1    = top->recoJetIdxLightQ1   ().back();
   int idxLightQBar1 = top->recoJetIdxLightQBar1().back();
