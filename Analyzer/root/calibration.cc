@@ -1166,19 +1166,19 @@ TopMassCalibration::modifiedTree_(TTree *tree, int minComboType, int maxComboTyp
 
   for(int i = 0, l = tree->GetEntries(); i < l; ++i){
     tree->GetEntry(i);
-    if(!isData && topEvent->combinationType[0] < minComboType) continue;
-    if(!isData && topEvent->combinationType[0] > maxComboType) continue;
-    prob = topEvent->fitProb[0];
-    dRbb = topEvent->fitHadB[0].DeltaR(topEvent->fitLepB[0]);
-    topMass = topEvent->fitHadTop[0].M();
-    meanWMass = (topEvent->fitHadW[0].M()+topEvent->fitLepW[0].M())/2.;
+    if(!isData && topEvent->combinationType()[0] < minComboType) continue;
+    if(!isData && topEvent->combinationType()[0] > maxComboType) continue;
+    prob = topEvent->fitProb()[0];
+    dRbb = topEvent->fitB1()[0].DeltaR(topEvent->fitB2()[0]);
+    topMass = topEvent->fitTop1()[0].M();
+    meanWMass = (topEvent->fitW1()[0].M()+topEvent->fitW2()[0].M())/2.;
     if(!isData){
       //double PUWeight   = weightEvent->puWeight;
       //double BTagWeight = weightEvent->bTagEffWeight; // calcBTagWeight_(Njet, bTag, pdgId, jets);
       //double MCWeight   = weightEvent->mcWeight;
       //combinedWeight = prob * PUWeight * MCWeight * BTagWeight;
       combinedWeight = prob * weightEvent->combinedWeight;
-      comboType = topEvent->combinationType[0];
+      comboType = topEvent->combinationType()[0];
     }
     //combinedWeight = 1.;
     //w1Mass = w1Masses[0];

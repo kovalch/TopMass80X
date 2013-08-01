@@ -38,9 +38,9 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
 
   top->init();
 
-  top->run       = evt.eventAuxiliary().run();
-  top->lumiBlock = evt.eventAuxiliary().luminosityBlock();
-  top->event     = evt.eventAuxiliary().event();
+  top->run      () = evt.eventAuxiliary().run();
+  top->lumiBlock() = evt.eventAuxiliary().luminosityBlock();
+  top->event    () = evt.eventAuxiliary().event();
 
   //////////////////////////////////////////////////////////////////////////////
   // get a handle for
@@ -75,7 +75,7 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
         << "It has to contain either 'SemiLep' or 'FullHad'!" << std::endl;
   }
 
-  top->decayChannel = fillGenPartons(ttEvent->genEvent().get());
+  top->decayChannel() = fillGenPartons(ttEvent->genEvent().get());
 
   edm::Handle<int> hypoClassKeyHandle;
   evt.getByLabel(hypoClassKey_, hypoClassKeyHandle);
@@ -91,20 +91,20 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
 
   if(semiLepTtEvent){
     if (semiLepTtEvent->isHypoValid(TtEvent::kGenMatch)) {
-      top->genpartonJetIdxHadB      = semiLepTtEvent->jetLeptonCombination(TtEvent::kGenMatch)[TtSemiLepEvtPartons::HadB];
-      top->genpartonJetIdxLightQ    = semiLepTtEvent->jetLeptonCombination(TtEvent::kGenMatch)[TtSemiLepEvtPartons::LightQ];
-      top->genpartonJetIdxLightQBar = semiLepTtEvent->jetLeptonCombination(TtEvent::kGenMatch)[TtSemiLepEvtPartons::LightQBar];
-      top->genpartonJetIdxLepB      = semiLepTtEvent->jetLeptonCombination(TtEvent::kGenMatch)[TtSemiLepEvtPartons::LepB];
+      top->genpartonJetIdxHadB     () = semiLepTtEvent->jetLeptonCombination(TtEvent::kGenMatch)[TtSemiLepEvtPartons::HadB];
+      top->genpartonJetIdxLightQ   () = semiLepTtEvent->jetLeptonCombination(TtEvent::kGenMatch)[TtSemiLepEvtPartons::LightQ];
+      top->genpartonJetIdxLightQBar() = semiLepTtEvent->jetLeptonCombination(TtEvent::kGenMatch)[TtSemiLepEvtPartons::LightQBar];
+      top->genpartonJetIdxLepB     () = semiLepTtEvent->jetLeptonCombination(TtEvent::kGenMatch)[TtSemiLepEvtPartons::LepB];
     }
   }
   else if(fullHadTtEvent){
     if (fullHadTtEvent->isHypoValid(TtEvent::kGenMatch)) {
-      top->genpartonJetIdxB1          = fullHadTtEvent->jetLeptonCombination(TtEvent::kGenMatch)[TtFullHadEvtPartons::B];
-      top->genpartonJetIdxLightQ1     = fullHadTtEvent->jetLeptonCombination(TtEvent::kGenMatch)[TtFullHadEvtPartons::LightQ];
-      top->genpartonJetIdxLightQBar1  = fullHadTtEvent->jetLeptonCombination(TtEvent::kGenMatch)[TtFullHadEvtPartons::LightQBar];
-      top->genpartonJetIdxB2          = fullHadTtEvent->jetLeptonCombination(TtEvent::kGenMatch)[TtFullHadEvtPartons::BBar];
-      top->genpartonJetIdxLightQ2     = fullHadTtEvent->jetLeptonCombination(TtEvent::kGenMatch)[TtFullHadEvtPartons::LightP];
-      top->genpartonJetIdxLightQBar2  = fullHadTtEvent->jetLeptonCombination(TtEvent::kGenMatch)[TtFullHadEvtPartons::LightPBar];
+      top->genpartonJetIdxB1        ()  = fullHadTtEvent->jetLeptonCombination(TtEvent::kGenMatch)[TtFullHadEvtPartons::B];
+      top->genpartonJetIdxLightQ1   ()  = fullHadTtEvent->jetLeptonCombination(TtEvent::kGenMatch)[TtFullHadEvtPartons::LightQ];
+      top->genpartonJetIdxLightQBar1()  = fullHadTtEvent->jetLeptonCombination(TtEvent::kGenMatch)[TtFullHadEvtPartons::LightQBar];
+      top->genpartonJetIdxB2        ()  = fullHadTtEvent->jetLeptonCombination(TtEvent::kGenMatch)[TtFullHadEvtPartons::BBar];
+      top->genpartonJetIdxLightQ2   ()  = fullHadTtEvent->jetLeptonCombination(TtEvent::kGenMatch)[TtFullHadEvtPartons::LightP];
+      top->genpartonJetIdxLightQBar2()  = fullHadTtEvent->jetLeptonCombination(TtEvent::kGenMatch)[TtFullHadEvtPartons::LightPBar];
     }
   }
 
@@ -117,26 +117,26 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     std::vector<TLorentzVector> hfit;
     if     (semiLepTtEvent) hfit = getPartons(semiLepTtEvent, hypoClassKey, h);
     else if(fullHadTtEvent) hfit = getPartons(fullHadTtEvent, hypoClassKey, h);
-    top->fitTTBar    .push_back(hfit[TopEvent::TTBar    ]);
-    top->fitHadTop   .push_back(hfit[TopEvent::HadTop   ]);
-    top->fitLepTop   .push_back(hfit[TopEvent::LepTop   ]);
-    top->fitHadW     .push_back(hfit[TopEvent::HadW     ]);
-    top->fitLepW     .push_back(hfit[TopEvent::LepW     ]);
-    top->fitHadB     .push_back(hfit[TopEvent::HadB     ]);
-    top->fitLightQ   .push_back(hfit[TopEvent::LightQ   ]);
-    top->fitLightQBar.push_back(hfit[TopEvent::LightQBar]);
-    top->fitLepB     .push_back(hfit[TopEvent::LepB     ]);
-    top->fitLepton   .push_back(hfit[TopEvent::Lepton   ]);
-    top->fitNeutrino .push_back(hfit[TopEvent::Neutrino ]);
+    top->fitTTBar    ().push_back(hfit[TopEvent::TTBar    ]);
+    top->fitHadTop   ().push_back(hfit[TopEvent::HadTop   ]);
+    top->fitLepTop   ().push_back(hfit[TopEvent::LepTop   ]);
+    top->fitHadW     ().push_back(hfit[TopEvent::HadW     ]);
+    top->fitLepW     ().push_back(hfit[TopEvent::LepW     ]);
+    top->fitHadB     ().push_back(hfit[TopEvent::HadB     ]);
+    top->fitLightQ   ().push_back(hfit[TopEvent::LightQ   ]);
+    top->fitLightQBar().push_back(hfit[TopEvent::LightQBar]);
+    top->fitLepB     ().push_back(hfit[TopEvent::LepB     ]);
+    top->fitLepton   ().push_back(hfit[TopEvent::Lepton   ]);
+    top->fitNeutrino ().push_back(hfit[TopEvent::Neutrino ]);
 
     if(hypoClassKey == TtEvent::kHitFit){
-      top->fitProb.push_back(ttEvent->hitFitProb(h));
-      top->fitChi2.push_back(ttEvent->hitFitChi2(h));
-      top->fitSigMT.push_back(ttEvent->hitFitSigMT(h));
+      top->fitProb ().push_back(ttEvent->hitFitProb(h));
+      top->fitChi2 ().push_back(ttEvent->hitFitChi2(h));
+      top->fitSigMT().push_back(ttEvent->hitFitSigMT(h));
     }
     else if(hypoClassKey == TtEvent::kKinFit){
-      top->fitProb.push_back(ttEvent->fitProb(h));
-      top->fitChi2.push_back(ttEvent->fitChi2(h));
+      top->fitProb().push_back(ttEvent->fitProb(h));
+      top->fitChi2().push_back(ttEvent->fitChi2(h));
     }
     else{
       std::cout << "The given 'hypoClassKey' (" << hypoClassKey << ") is not allowed.\n"
@@ -146,55 +146,55 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     }
 
     if(semiLepTtEvent){
-      top->recoJetIdxHadB     .push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtSemiLepEvtPartons::HadB     ]);
-      top->recoJetIdxLightQ   .push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtSemiLepEvtPartons::LightQ   ]);
-      top->recoJetIdxLightQBar.push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtSemiLepEvtPartons::LightQBar]);
-      top->recoJetIdxLepB     .push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtSemiLepEvtPartons::LepB     ]);
-      top->recoJetIdxLepton   .push_back(0);
-      top->recoJetIdxNeutrino .push_back(0);
+      top->recoJetIdxHadB     ().push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtSemiLepEvtPartons::HadB     ]);
+      top->recoJetIdxLightQ   ().push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtSemiLepEvtPartons::LightQ   ]);
+      top->recoJetIdxLightQBar().push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtSemiLepEvtPartons::LightQBar]);
+      top->recoJetIdxLepB     ().push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtSemiLepEvtPartons::LepB     ]);
+      top->recoJetIdxLepton   ().push_back(0);
+      top->recoJetIdxNeutrino ().push_back(0);
 
       std::vector<TLorentzVector> hreco = getPartons(semiLepTtEvent, TtEvent::kMVADisc,
           ttEvent->correspondingHypo(hypoClassKey, h, TtEvent::kMVADisc));
-      top->recoTTBar    .push_back(hreco[TopEvent::TTBar    ]);
-      top->recoHadTop   .push_back(hreco[TopEvent::HadTop   ]);
-      top->recoLepTop   .push_back(hreco[TopEvent::LepTop   ]);
-      top->recoHadW     .push_back(hreco[TopEvent::HadW     ]);
-      top->recoLepW     .push_back(hreco[TopEvent::LepW     ]);
-      top->recoHadB     .push_back(hreco[TopEvent::HadB     ]);
-      top->recoLightQ   .push_back(hreco[TopEvent::LightQ   ]);
-      top->recoLightQBar.push_back(hreco[TopEvent::LightQBar]);
-      top->recoLepB     .push_back(hreco[TopEvent::LepB     ]);
-      top->recoLepton   .push_back(hreco[TopEvent::Lepton   ]);
-      top->recoNeutrino .push_back(hreco[TopEvent::Neutrino ]);
+      top->recoTTBar    ().push_back(hreco[TopEvent::TTBar    ]);
+      top->recoHadTop   ().push_back(hreco[TopEvent::HadTop   ]);
+      top->recoLepTop   ().push_back(hreco[TopEvent::LepTop   ]);
+      top->recoHadW     ().push_back(hreco[TopEvent::HadW     ]);
+      top->recoLepW     ().push_back(hreco[TopEvent::LepW     ]);
+      top->recoHadB     ().push_back(hreco[TopEvent::HadB     ]);
+      top->recoLightQ   ().push_back(hreco[TopEvent::LightQ   ]);
+      top->recoLightQBar().push_back(hreco[TopEvent::LightQBar]);
+      top->recoLepB     ().push_back(hreco[TopEvent::LepB     ]);
+      top->recoLepton   ().push_back(hreco[TopEvent::Lepton   ]);
+      top->recoNeutrino ().push_back(hreco[TopEvent::Neutrino ]);
       
       if(semiLepTtEvent->isHypoValid(TtEvent::kGenMatch)){
-        top->combinationType.push_back(comboTypeSemiLep());
+        top->combinationType().push_back(comboTypeSemiLep());
       }
       else{
-        top->combinationType.push_back(6);
+        top->combinationType().push_back(6);
       }
     }
     else if(fullHadTtEvent){
-      top->recoJetIdxHadB     .push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtFullHadEvtPartons::B        ]);
-      top->recoJetIdxLightQ   .push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtFullHadEvtPartons::LightQ   ]);
-      top->recoJetIdxLightQBar.push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtFullHadEvtPartons::LightQBar]);
-      top->recoJetIdxLepB     .push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtFullHadEvtPartons::BBar     ]);
-      top->recoJetIdxLepton   .push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtFullHadEvtPartons::LightP   ]);
-      top->recoJetIdxNeutrino .push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtFullHadEvtPartons::LightPBar]);
+      top->recoJetIdxB1        ().push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtFullHadEvtPartons::B        ]);
+      top->recoJetIdxLightQ1   ().push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtFullHadEvtPartons::LightQ   ]);
+      top->recoJetIdxLightQBar1().push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtFullHadEvtPartons::LightQBar]);
+      top->recoJetIdxB2        ().push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtFullHadEvtPartons::BBar     ]);
+      top->recoJetIdxLightQ2   ().push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtFullHadEvtPartons::LightP   ]);
+      top->recoJetIdxLightQBar2().push_back(ttEvent->jetLeptonCombination(hypoClassKey, h)[TtFullHadEvtPartons::LightPBar]);
 
       // do this AFTER *recoJetIdx*'s have been filled, values are used here !!!
       std::vector<TLorentzVector> hreco = getPartons(jets);
-      top->recoTTBar    .push_back(hreco[TopEvent::TTBar    ]);
-      top->recoHadTop   .push_back(hreco[TopEvent::HadTop   ]);
-      top->recoLepTop   .push_back(hreco[TopEvent::LepTop   ]);
-      top->recoHadW     .push_back(hreco[TopEvent::HadW     ]);
-      top->recoLepW     .push_back(hreco[TopEvent::LepW     ]);
-      top->recoHadB     .push_back(hreco[TopEvent::HadB     ]);
-      top->recoLightQ   .push_back(hreco[TopEvent::LightQ   ]);
-      top->recoLightQBar.push_back(hreco[TopEvent::LightQBar]);
-      top->recoLepB     .push_back(hreco[TopEvent::LepB     ]);
-      top->recoLepton   .push_back(hreco[TopEvent::Lepton   ]);
-      top->recoNeutrino .push_back(hreco[TopEvent::Neutrino ]);
+      top->recoTTBar     ().push_back(hreco[TopEvent::TTBar    ]);
+      top->recoTop1      ().push_back(hreco[TopEvent::HadTop   ]);
+      top->recoTop2      ().push_back(hreco[TopEvent::LepTop   ]);
+      top->recoW1        ().push_back(hreco[TopEvent::HadW     ]);
+      top->recoW2        ().push_back(hreco[TopEvent::LepW     ]);
+      top->recoB1        ().push_back(hreco[TopEvent::HadB     ]);
+      top->recoLightQ1   ().push_back(hreco[TopEvent::LightQ   ]);
+      top->recoLightQBar1().push_back(hreco[TopEvent::LightQBar]);
+      top->recoB2        ().push_back(hreco[TopEvent::LepB     ]);
+      top->recoLightQ2   ().push_back(hreco[TopEvent::Lepton   ]);
+      top->recoLightQBar2().push_back(hreco[TopEvent::Neutrino ]);
 
       // get 2. genMatch to see if the case is ambiguous or unmatchable
       edm::Handle<TtFullHadronicEvent> hFullHadTtEvent2;
@@ -204,14 +204,14 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
 
       if( genMatch1Valid ){
         // do this AFTER *recoJetIdx* have been filled, values are used here !!!
-        top->combinationType.push_back(comboTypeFullHad());
+        top->combinationType().push_back(comboTypeFullHad());
       }
       else{
         if( genMatch2Valid ){
-          top->combinationType.push_back(5);
+          top->combinationType().push_back(5);
         }
         else{
-          top->combinationType.push_back(6);
+          top->combinationType().push_back(6);
         }
       }
     }
@@ -226,24 +226,24 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
         if ( ttEvent->correspondingHypo(TtEvent::kMVADisc, h, hypoClassKey) > -1) continue;
 
         std::vector<TLorentzVector> hreco = getPartons(semiLepTtEvent, TtEvent::kMVADisc, h);
-        top->recoTTBar    .push_back(hreco[TopEvent::TTBar    ]);
-        top->recoHadTop   .push_back(hreco[TopEvent::HadTop   ]);
-        top->recoLepTop   .push_back(hreco[TopEvent::LepTop   ]);
-        top->recoHadW     .push_back(hreco[TopEvent::HadW     ]);
-        top->recoLepW     .push_back(hreco[TopEvent::LepW     ]);
-        top->recoHadB     .push_back(hreco[TopEvent::HadB     ]);
-        top->recoLightQ   .push_back(hreco[TopEvent::LightQ   ]);
-        top->recoLightQBar.push_back(hreco[TopEvent::LightQBar]);
-        top->recoLepB     .push_back(hreco[TopEvent::LepB     ]);
-        top->recoLepton   .push_back(hreco[TopEvent::Lepton   ]);
-        top->recoNeutrino .push_back(hreco[TopEvent::Neutrino ]);
+        top->recoTTBar    ().push_back(hreco[TopEvent::TTBar    ]);
+        top->recoHadTop   ().push_back(hreco[TopEvent::HadTop   ]);
+        top->recoLepTop   ().push_back(hreco[TopEvent::LepTop   ]);
+        top->recoHadW     ().push_back(hreco[TopEvent::HadW     ]);
+        top->recoLepW     ().push_back(hreco[TopEvent::LepW     ]);
+        top->recoHadB     ().push_back(hreco[TopEvent::HadB     ]);
+        top->recoLightQ   ().push_back(hreco[TopEvent::LightQ   ]);
+        top->recoLightQBar().push_back(hreco[TopEvent::LightQBar]);
+        top->recoLepB     ().push_back(hreco[TopEvent::LepB     ]);
+        top->recoLepton   ().push_back(hreco[TopEvent::Lepton   ]);
+        top->recoNeutrino ().push_back(hreco[TopEvent::Neutrino ]);
 
-        top->recoJetIdxHadB     .push_back(ttEvent->jetLeptonCombination(TtEvent::kMVADisc, h)[TtSemiLepEvtPartons::HadB]);
-        top->recoJetIdxLightQ   .push_back(ttEvent->jetLeptonCombination(TtEvent::kMVADisc, h)[TtSemiLepEvtPartons::LightQ]);
-        top->recoJetIdxLightQBar.push_back(ttEvent->jetLeptonCombination(TtEvent::kMVADisc, h)[TtSemiLepEvtPartons::LightQBar]);
-        top->recoJetIdxLepB     .push_back(ttEvent->jetLeptonCombination(TtEvent::kMVADisc, h)[TtSemiLepEvtPartons::LepB]);
-        top->recoJetIdxLepton   .push_back(0);
-        top->recoJetIdxNeutrino .push_back(0);
+        top->recoJetIdxHadB     ().push_back(ttEvent->jetLeptonCombination(TtEvent::kMVADisc, h)[TtSemiLepEvtPartons::HadB]);
+        top->recoJetIdxLightQ   ().push_back(ttEvent->jetLeptonCombination(TtEvent::kMVADisc, h)[TtSemiLepEvtPartons::LightQ]);
+        top->recoJetIdxLightQBar().push_back(ttEvent->jetLeptonCombination(TtEvent::kMVADisc, h)[TtSemiLepEvtPartons::LightQBar]);
+        top->recoJetIdxLepB     ().push_back(ttEvent->jetLeptonCombination(TtEvent::kMVADisc, h)[TtSemiLepEvtPartons::LepB]);
+        top->recoJetIdxLepton   ().push_back(0);
+        top->recoJetIdxNeutrino ().push_back(0);
       }
     }
   }
@@ -355,12 +355,13 @@ std::vector<TLorentzVector> EventHypothesisAnalyzer::getPartons(const TtFullHadr
 
 std::vector<TLorentzVector> EventHypothesisAnalyzer::getPartons(const std::vector<pat::Jet> *jets)
 {
-  int idxB1         = top->recoJetIdxHadB     .back();
-  int idxLightQ1    = top->recoJetIdxLightQ   .back();
-  int idxLightQBar1 = top->recoJetIdxLightQBar.back();
-  int idxB2         = top->recoJetIdxLepB     .back();
-  int idxLightQ2    = top->recoJetIdxLepton   .back();
-  int idxLightQBar2 = top->recoJetIdxNeutrino .back();
+  // TODO crashes for unknown reason
+  int idxB1         = top->recoJetIdxB1        ().back();
+  int idxLightQ1    = top->recoJetIdxLightQ1   ().back();
+  int idxLightQBar1 = top->recoJetIdxLightQBar1().back();
+  int idxB2         = top->recoJetIdxB2        ().back();
+  int idxLightQ2    = top->recoJetIdxLightQ2   ().back();
+  int idxLightQBar2 = top->recoJetIdxLightQBar2().back();
 
   // TODO: validate hypo, catch h=-1
   std::vector<TLorentzVector> parton;
@@ -456,90 +457,90 @@ EventHypothesisAnalyzer::fillGenPartons(const TtGenEvent *genEvent)
   // now we are sure to have a ttbar event
   else{
     if(  genEvent->isFullHadronic() ) {
-      top->genpartonTTBar.SetPxPyPzE(
+      top->genpartonTTBar().SetPxPyPzE(
           genEvent->top()->px()     + genEvent->topBar()->px(),
           genEvent->top()->py()     + genEvent->topBar()->py(),
           genEvent->top()->pz()     + genEvent->topBar()->pz(),
           genEvent->top()->energy() + genEvent->topBar()->energy());
 
-      top->genpartonHadTop.SetPxPyPzE(
+      top->genpartonTop1().SetPxPyPzE(
           genEvent->top()->px(), genEvent->top()->py(),
           genEvent->top()->pz(), genEvent->top()->energy());
-      top->genpartonLepTop.SetPxPyPzE(
+      top->genpartonTop2().SetPxPyPzE(
           genEvent->topBar()->px(), genEvent->topBar()->py(),
           genEvent->topBar()->pz(), genEvent->topBar()->energy());
 
-      top->genpartonHadW.SetPxPyPzE(
+      top->genpartonW1().SetPxPyPzE(
           genEvent->wPlus()->px(), genEvent->wPlus()->py(),
           genEvent->wPlus()->pz(), genEvent->wPlus()->energy());
-      top->genpartonLepW.SetPxPyPzE(
+      top->genpartonW2().SetPxPyPzE(
           genEvent->wMinus()->px(), genEvent->wMinus()->py(),
           genEvent->wMinus()->pz(), genEvent->wMinus()->energy());
 
-      top->genpartonHadB.SetPxPyPzE(
+      top->genpartonB1().SetPxPyPzE(
           genEvent->b()->px(), genEvent->b()->py(),
           genEvent->b()->pz(), genEvent->b()->energy());
 
-      top->genpartonLightQ.SetPxPyPzE(
+      top->genpartonLightQ1().SetPxPyPzE(
           genEvent->daughterQuarkOfWPlus()->px(), genEvent->daughterQuarkOfWPlus()->py(),
           genEvent->daughterQuarkOfWPlus()->pz(), genEvent->daughterQuarkOfWPlus()->energy());
-      top->genpartonLightQBar.SetPxPyPzE(
+      top->genpartonLightQBar1().SetPxPyPzE(
           genEvent->daughterQuarkBarOfWPlus()->px(), genEvent->daughterQuarkBarOfWPlus()->py(),
           genEvent->daughterQuarkBarOfWPlus()->pz(), genEvent->daughterQuarkBarOfWPlus()->energy());
 
-      top->genpartonLepB.SetPxPyPzE(
+      top->genpartonB2().SetPxPyPzE(
           genEvent->bBar()->px(), genEvent->bBar()->py(),
           genEvent->bBar()->pz(), genEvent->bBar()->energy());
 
-      top->genpartonLepton.SetPxPyPzE(
+      top->genpartonLightQ2().SetPxPyPzE(
           genEvent->daughterQuarkOfWMinus()->px(), genEvent->daughterQuarkOfWMinus()->py(),
           genEvent->daughterQuarkOfWMinus()->pz(), genEvent->daughterQuarkOfWMinus()->energy());
-      top->genpartonNeutrino.SetPxPyPzE(
+      top->genpartonLightQBar2().SetPxPyPzE(
           genEvent->daughterQuarkBarOfWMinus()->px(), genEvent->daughterQuarkBarOfWMinus()->py(),
           genEvent->daughterQuarkBarOfWMinus()->pz(), genEvent->daughterQuarkBarOfWMinus()->energy());
 
       decayChannel =  1;
     }
     else if(  genEvent->isSemiLeptonic() ) {
-      top->genpartonTTBar.SetPxPyPzE(
+      top->genpartonTTBar().SetPxPyPzE(
           genEvent->hadronicDecayTop()->px()     + genEvent->leptonicDecayTop()->px(),
           genEvent->hadronicDecayTop()->py()     + genEvent->leptonicDecayTop()->py(),
           genEvent->hadronicDecayTop()->pz()     + genEvent->leptonicDecayTop()->pz(),
           genEvent->hadronicDecayTop()->energy() + genEvent->leptonicDecayTop()->energy());
 
-      top->genpartonHadTop.SetPxPyPzE(
+      top->genpartonHadTop().SetPxPyPzE(
           genEvent->hadronicDecayTop()->px(), genEvent->hadronicDecayTop()->py(),
           genEvent->hadronicDecayTop()->pz(), genEvent->hadronicDecayTop()->energy());
-      top->genpartonLepTop.SetPxPyPzE(
+      top->genpartonLepTop().SetPxPyPzE(
           genEvent->leptonicDecayTop()->px(), genEvent->leptonicDecayTop()->py(),
           genEvent->leptonicDecayTop()->pz(), genEvent->leptonicDecayTop()->energy());
 
-      top->genpartonHadW.SetPxPyPzE(
+      top->genpartonHadW().SetPxPyPzE(
           genEvent->hadronicDecayW()->px(), genEvent->hadronicDecayW()->py(),
           genEvent->hadronicDecayW()->pz(), genEvent->hadronicDecayW()->energy());
-      top->genpartonLepW.SetPxPyPzE(
+      top->genpartonLepW().SetPxPyPzE(
           genEvent->leptonicDecayW()->px(), genEvent->leptonicDecayW()->py(),
           genEvent->leptonicDecayW()->pz(), genEvent->leptonicDecayW()->energy());
 
-      top->genpartonHadB.SetPxPyPzE(
+      top->genpartonHadB().SetPxPyPzE(
           genEvent->hadronicDecayB()->px(), genEvent->hadronicDecayB()->py(),
           genEvent->hadronicDecayB()->pz(), genEvent->hadronicDecayB()->energy());
 
-      top->genpartonLightQ.SetPxPyPzE(
+      top->genpartonLightQ().SetPxPyPzE(
           genEvent->hadronicDecayQuark()->px(), genEvent->hadronicDecayQuark()->py(),
           genEvent->hadronicDecayQuark()->pz(), genEvent->hadronicDecayQuark()->energy());
-      top->genpartonLightQBar.SetPxPyPzE(
+      top->genpartonLightQBar().SetPxPyPzE(
           genEvent->hadronicDecayQuarkBar()->px(), genEvent->hadronicDecayQuarkBar()->py(),
           genEvent->hadronicDecayQuarkBar()->pz(), genEvent->hadronicDecayQuarkBar()->energy());
 
-      top->genpartonLepB.SetPxPyPzE(
+      top->genpartonLepB().SetPxPyPzE(
           genEvent->leptonicDecayB()->px(), genEvent->leptonicDecayB()->py(),
           genEvent->leptonicDecayB()->pz(), genEvent->leptonicDecayB()->energy());
 
-      top->genpartonLepton.SetPxPyPzE(
+      top->genpartonLepton().SetPxPyPzE(
           genEvent->singleLepton()->px(), genEvent->singleLepton()->py(),
           genEvent->singleLepton()->pz(), genEvent->singleLepton()->energy());
-      top->genpartonNeutrino.SetPxPyPzE(
+      top->genpartonNeutrino().SetPxPyPzE(
           genEvent->singleNeutrino()->px(), genEvent->singleNeutrino()->py(),
           genEvent->singleNeutrino()->pz(), genEvent->singleNeutrino()->energy());
 
@@ -551,45 +552,45 @@ EventHypothesisAnalyzer::fillGenPartons(const TtGenEvent *genEvent)
       }
     }
     else if( genEvent->isFullLeptonic() ) {
-      top->genpartonTTBar.SetPxPyPzE(
+      top->genpartonTTBar().SetPxPyPzE(
           genEvent->top()->px()     + genEvent->topBar()->px(),
           genEvent->top()->py()     + genEvent->topBar()->py(),
           genEvent->top()->pz()     + genEvent->topBar()->pz(),
           genEvent->top()->energy() + genEvent->topBar()->energy());
 
-      top->genpartonHadTop.SetPxPyPzE(
+      top->genpartonTop1().SetPxPyPzE(
           genEvent->top()->px(), genEvent->top()->py(),
           genEvent->top()->pz(), genEvent->top()->energy());
-      top->genpartonLepTop.SetPxPyPzE(
+      top->genpartonTop2().SetPxPyPzE(
           genEvent->topBar()->px(), genEvent->topBar()->py(),
           genEvent->topBar()->pz(), genEvent->topBar()->energy());
 
-      top->genpartonHadW.SetPxPyPzE(
+      top->genpartonW1().SetPxPyPzE(
           genEvent->wPlus()->px(), genEvent->wPlus()->py(),
           genEvent->wPlus()->pz(), genEvent->wPlus()->energy());
-      top->genpartonLepW.SetPxPyPzE(
+      top->genpartonW2().SetPxPyPzE(
           genEvent->wMinus()->px(), genEvent->wMinus()->py(),
           genEvent->wMinus()->pz(), genEvent->wMinus()->energy());
 
-      top->genpartonHadB.SetPxPyPzE(
+      top->genpartonB1().SetPxPyPzE(
           genEvent->b()->px(), genEvent->b()->py(),
           genEvent->b()->pz(), genEvent->b()->energy());
 
-      top->genpartonLightQ.SetPxPyPzE(
+      top->genpartonLepton1().SetPxPyPzE(
           genEvent->leptonBar()->px(), genEvent->leptonBar()->py(),
           genEvent->leptonBar()->pz(), genEvent->leptonBar()->energy());
-      top->genpartonLightQBar.SetPxPyPzE(
+      top->genpartonNeutrino1().SetPxPyPzE(
           genEvent->neutrino()->px(), genEvent->neutrino()->py(),
           genEvent->neutrino()->pz(), genEvent->neutrino()->energy());
 
-      top->genpartonLepB.SetPxPyPzE(
+      top->genpartonB2().SetPxPyPzE(
           genEvent->bBar()->px(), genEvent->bBar()->py(),
           genEvent->bBar()->pz(), genEvent->bBar()->energy());
 
-      top->genpartonLepton.SetPxPyPzE(
+      top->genpartonLepton2().SetPxPyPzE(
           genEvent->lepton()->px(), genEvent->lepton()->py(),
           genEvent->lepton()->pz(), genEvent->lepton()->energy());
-      top->genpartonNeutrino.SetPxPyPzE(
+      top->genpartonNeutrino2().SetPxPyPzE(
           genEvent->neutrinoBar()->px(), genEvent->neutrinoBar()->py(),
           genEvent->neutrinoBar()->pz(), genEvent->neutrinoBar()->energy());
 
@@ -697,19 +698,19 @@ EventHypothesisAnalyzer::comboTypeIDCalculatorFullHad()
   std::vector<int> jetIndexFit;
   std::vector<int> jetIndexGen;
 
-  jetIndexFit.push_back(top->recoJetIdxHadB     .back());
-  jetIndexFit.push_back(top->recoJetIdxLightQ   .back());
-  jetIndexFit.push_back(top->recoJetIdxLightQBar.back());
-  jetIndexFit.push_back(top->recoJetIdxLepB     .back());
-  jetIndexFit.push_back(top->recoJetIdxLepton   .back());
-  jetIndexFit.push_back(top->recoJetIdxNeutrino .back());
+  jetIndexFit.push_back(top->recoJetIdxB1        ().back());
+  jetIndexFit.push_back(top->recoJetIdxLightQ1   ().back());
+  jetIndexFit.push_back(top->recoJetIdxLightQBar1().back());
+  jetIndexFit.push_back(top->recoJetIdxB2        ().back());
+  jetIndexFit.push_back(top->recoJetIdxLightQ2   ().back());
+  jetIndexFit.push_back(top->recoJetIdxLightQBar2().back());
   
-  jetIndexGen.push_back(top->genpartonJetIdxB1);
-  jetIndexGen.push_back(top->genpartonJetIdxLightQ1);
-  jetIndexGen.push_back(top->genpartonJetIdxLightQBar1);
-  jetIndexGen.push_back(top->genpartonJetIdxB2);
-  jetIndexGen.push_back(top->genpartonJetIdxLightQ2);
-  jetIndexGen.push_back(top->genpartonJetIdxLightQBar2);
+  jetIndexGen.push_back(top->genpartonJetIdxB1        ());
+  jetIndexGen.push_back(top->genpartonJetIdxLightQ1   ());
+  jetIndexGen.push_back(top->genpartonJetIdxLightQBar1());
+  jetIndexGen.push_back(top->genpartonJetIdxB2        ());
+  jetIndexGen.push_back(top->genpartonJetIdxLightQ2   ());
+  jetIndexGen.push_back(top->genpartonJetIdxLightQBar2());
   
   //std::cout << "fit: " << jetIndexFit[0] << " " << jetIndexFit[1] << " " << jetIndexFit[2] << " " << jetIndexFit[3] << " " << jetIndexFit[4] << " " << jetIndexFit[5] << std::endl;
   //std::cout << "gen: " << jetIndexGen[0] << " " << jetIndexGen[1] << " " << jetIndexGen[2] << " " << jetIndexGen[3] << " " << jetIndexGen[4] << " " << jetIndexGen[5] << std::endl;
@@ -724,15 +725,15 @@ EventHypothesisAnalyzer::comboTypeIDCalculatorSemiLep()
   std::vector<int> jetIndexFit;
   std::vector<int> jetIndexGen;
 
-  jetIndexFit.push_back(top->recoJetIdxHadB     .back());
-  jetIndexFit.push_back(top->recoJetIdxLightQ   .back());
-  jetIndexFit.push_back(top->recoJetIdxLightQBar.back());
-  jetIndexFit.push_back(top->recoJetIdxLepB     .back());
+  jetIndexFit.push_back(top->recoJetIdxHadB     ().back());
+  jetIndexFit.push_back(top->recoJetIdxLightQ   ().back());
+  jetIndexFit.push_back(top->recoJetIdxLightQBar().back());
+  jetIndexFit.push_back(top->recoJetIdxLepB     ().back());
   
-  jetIndexGen.push_back(top->genpartonJetIdxHadB);
-  jetIndexGen.push_back(top->genpartonJetIdxLightQ);
-  jetIndexGen.push_back(top->genpartonJetIdxLightQBar);
-  jetIndexGen.push_back(top->genpartonJetIdxLepB);
+  jetIndexGen.push_back(top->genpartonJetIdxHadB     ());
+  jetIndexGen.push_back(top->genpartonJetIdxLightQ   ());
+  jetIndexGen.push_back(top->genpartonJetIdxLightQBar());
+  jetIndexGen.push_back(top->genpartonJetIdxLepB     ());
   
   return comboTypeAlgo(jetIndexFit, jetIndexGen);
 }
