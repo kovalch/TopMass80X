@@ -22,6 +22,16 @@ static TString deltaAlpha(const char* vec1, const char* vec2)
   //std::cout << arg << std::endl;
   return arcos;
 }
+
+static TString invariantMass(const char* vec1, const char* vec2, TString scalingFactorVec2 = "1."){
+
+	TString EnergySquared = "TMath::Power(" + TString(vec1)+".E() + " + TString(scalingFactorVec2) + "*" + TString(vec2)+".E(),2)";
+	TString PtSquared = "(TMath::Power(" + TString(vec1)+".Px() + " + TString(scalingFactorVec2) + "*" + TString(vec2)+".Px(),2) + TMath::Power(" + TString(vec1)+".Py() + " + TString(scalingFactorVec2) + "*" + TString(vec2)+".Py(),2) + TMath::Power(" + TString(vec1)+".Pz() + " + TString(scalingFactorVec2) + "*" + TString(vec2)+".Pz(),2))";
+	TString InvMass = "TMath::Sqrt("+ EnergySquared + " - " + PtSquared + ")";
+
+	return	InvMass;
+}
+
 }
 
 // invariant mass
