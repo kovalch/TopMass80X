@@ -177,7 +177,7 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
     //if (event == currentEvent) continue;
     //currentEvent = event;
     ++nEvents;
-    if ((debug && iEntry%nDebug == 0 && iEntry > minDebug && iEntry < maxDebug) || iEntry%1000 == 0) std::cout << iEntry << " - " << topEvent->event() << std::endl;
+    if ((debug && iEntry%nDebug == 0 && iEntry > minDebug && iEntry < maxDebug) || iEntry%1000 == 0) std::cout << iEntry << " - " << topEvent->event << std::endl;
     
     //std::cout << "eventLikelihood: " << eventLikelihood->GetEntries() << std::endl;
     eventLikelihood->Eval(null);
@@ -203,23 +203,23 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
     //  fTree_->GetEntry(iEntry + iComb);
     //  
     //  if (event != currentEvent) break;
-    fitWeight += topEvent->fitProb()[0]; //*CombinedWeight;
+    fitWeight += topEvent->fitProb[0]; //*CombinedWeight;
       
     if (debug && iEntry%nDebug == 0 && iEntry > minDebug && iEntry < maxDebug) {
-      std::cout << std::setw(04) << topEvent->fitProb().size()
-		<< std::setw(10) << topEvent->fitTop1()[0].M()
-		<< std::setw(10) << topEvent->recoW1()[0].M()
-		<< std::setw(10) << topEvent->recoW2()[0].M()
-		<< std::setw(12) << topEvent->fitProb()[0]
-		<< std::setw(11) << topEvent->fitB1()[0].DeltaR(topEvent->fitB2()[0])
+      std::cout << std::setw(04) << topEvent->fitProb.size()
+		<< std::setw(10) << topEvent->fitTop1[0].M()
+		<< std::setw(10) << topEvent->recoW1[0].M()
+		<< std::setw(10) << topEvent->recoW2[0].M()
+		<< std::setw(12) << topEvent->fitProb[0]
+		<< std::setw(11) << topEvent->fitB1[0].DeltaR(topEvent->fitB2[0])
 		<< std::endl;
     }
       
-    if (topEvent->fitProb()[0] != 0) {
+    if (topEvent->fitProb[0] != 0) {
       //bScaleEstimator = 1;
 
       // Set Likelihood parameters
-      combLikelihood_->SetParameters(topEvent->fitProb()[0], topEvent->fitTop1()[0].M(), (topEvent->recoW1()[0].M()+topEvent->recoW2()[0].M())/2.0, 1., shapeSystematic, permutationFractionSystematic, isFastSim);
+      combLikelihood_->SetParameters(topEvent->fitProb[0], topEvent->fitTop1[0].M(), (topEvent->recoW1[0].M()+topEvent->recoW2[0].M())/2.0, 1., shapeSystematic, permutationFractionSystematic, isFastSim);
       // add permutation to event likelihood
       eventLikelihood->Eval(combLikelihood_, "A");
     }
@@ -269,7 +269,7 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
       eventLikelihood->SetEntries(1);
       sumLogLikelihood->Draw("COLZ");
       
-      TString eventPath(plotPath); eventPath += fIdentifier_; eventPath += "_"; eventPath += iEntry; eventPath += "_"; eventPath += topEvent->event(); eventPath += ".eps";
+      TString eventPath(plotPath); eventPath += fIdentifier_; eventPath += "_"; eventPath += iEntry; eventPath += "_"; eventPath += topEvent->event; eventPath += ".eps";
       std::cout << eventPath << std::endl;
       eventCanvas->Print(eventPath);
       

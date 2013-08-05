@@ -8,53 +8,53 @@ TopEvent::TopEvent() : TObject()
 
 void TopEvent::init()
 {
-  _run = -1; _lumiBlock = -1; _event = -1;
+  run = -1; lumiBlock = -1; event = -1;
   
-  _decayChannel = -10;
+  decayChannel = -10;
   
-  _genpartonTTBar = TLorentzVector();
-  _genpartonTop1  = TLorentzVector(); _genpartonTop2    = TLorentzVector();
-  _genpartonW1    = TLorentzVector(); _genpartonW2      = TLorentzVector();
-  _genpartonB1    = TLorentzVector(); _genpartonW1Prod1 = TLorentzVector(); _genpartonW1Prod2 = TLorentzVector();
-  _genpartonB2    = TLorentzVector(); _genpartonW2Prod1 = TLorentzVector(); _genpartonW2Prod2 = TLorentzVector();
+  genpartonTTBar = TLorentzVector();
+  genpartonTop1  = TLorentzVector(); genpartonTop2    = TLorentzVector();
+  genpartonW1    = TLorentzVector(); genpartonW2      = TLorentzVector();
+  genpartonB1    = TLorentzVector(); genpartonW1Prod1 = TLorentzVector(); genpartonW1Prod2 = TLorentzVector();
+  genpartonB2    = TLorentzVector(); genpartonW2Prod1 = TLorentzVector(); genpartonW2Prod2 = TLorentzVector();
   
-  _genpartonJetIdxB1 = -1; _genpartonJetIdxW1Prod1 = -1; _genpartonJetIdxW1Prod2 = -1;
-  _genpartonJetIdxB2 = -1; _genpartonJetIdxW2Prod1 = -1; _genpartonJetIdxW2Prod2 = -1;
+  genpartonJetIdxB1 = -1; genpartonJetIdxW1Prod1 = -1; genpartonJetIdxW1Prod2 = -1;
+  genpartonJetIdxB2 = -1; genpartonJetIdxW2Prod1 = -1; genpartonJetIdxW2Prod2 = -1;
   
-  _recoTTBar  .clear();
-  _recoTop1   .clear();
-  _recoTop2   .clear();
-  _recoW1     .clear();
-  _recoW2     .clear();
-  _recoB1     .clear();
-  _recoW1Prod1.clear();
-  _recoW1Prod2.clear();
-  _recoB2     .clear();
-  _recoW2Prod1.clear();
-  _recoW2Prod2.clear();
+  recoTTBar  .clear();
+  recoTop1   .clear();
+  recoTop2   .clear();
+  recoW1     .clear();
+  recoW2     .clear();
+  recoB1     .clear();
+  recoW1Prod1.clear();
+  recoW1Prod2.clear();
+  recoB2     .clear();
+  recoW2Prod1.clear();
+  recoW2Prod2.clear();
 
-  _recoJetIdxB1     .clear();
-  _recoJetIdxW1Prod1.clear();
-  _recoJetIdxW1Prod2.clear();
-  _recoJetIdxB2     .clear();
-  _recoJetIdxW2Prod1.clear();
-  _recoJetIdxW2Prod2.clear();
+  recoJetIdxB1     .clear();
+  recoJetIdxW1Prod1.clear();
+  recoJetIdxW1Prod2.clear();
+  recoJetIdxB2     .clear();
+  recoJetIdxW2Prod1.clear();
+  recoJetIdxW2Prod2.clear();
   
-  _fitTTBar    .clear();
-  _fitTop1   .clear();
-  _fitTop2   .clear();
-  _fitW1     .clear();
-  _fitW2     .clear();
-  _fitB1     .clear();
-  _fitW1Prod1.clear();
-  _fitW1Prod2.clear();
-  _fitB2     .clear();
-  _fitW2Prod1.clear();
-  _fitW2Prod2.clear();
+  fitTTBar    .clear();
+  fitTop1   .clear();
+  fitTop2   .clear();
+  fitW1     .clear();
+  fitW2     .clear();
+  fitB1     .clear();
+  fitW1Prod1.clear();
+  fitW1Prod2.clear();
+  fitB2     .clear();
+  fitW2Prod1.clear();
+  fitW2Prod2.clear();
 
-  _combinationType.clear();
+  combinationType.clear();
 
-  _fitProb .clear();
-  _fitChi2 .clear();
-  _fitSigMT.clear();
+  fitProb .clear();
+  fitChi2 .clear();
+  fitSigMT.clear();
 }
