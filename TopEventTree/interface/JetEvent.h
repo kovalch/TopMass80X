@@ -18,7 +18,7 @@ public:
   JetEvent();
   void init();
 
-  unsigned int nJet() { return jet.size(); }
+  unsigned int nJet() const { return jet.size(); }
 
   ClassDef(JetEvent,1);
 
