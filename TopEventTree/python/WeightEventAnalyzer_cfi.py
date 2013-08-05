@@ -20,7 +20,7 @@ analyzeWeights = cms.EDAnalyzer("WeightEventAnalyzer",
     bWeightSrc_misTagSFUp   = cms.InputTag("bTagSFEventWeightMisTagSFUp"),
     bWeightSrc_misTagSFDown = cms.InputTag("bTagSFEventWeightMisTagSFDown"),
     
-    triggerWeightSrc  = cms.InputTag(""),
+    triggerWeightSrc  = cms.InputTag("effSFMuonEventWeight"),
     
     muWeightSrc  = cms.InputTag("effSFMuonEventWeight"),
     elWeightSrc  = cms.InputTag("effSFElectronEventWeight"),
