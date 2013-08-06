@@ -216,40 +216,40 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
         }
       }
     }
-    if(semiLepTtEvent){
-      //////////////////////////////////////////////////////////////////////////////
-      // Fetch reconstructed permutations without fit solution, get leptonFlavour
-      // not implemented for fullHad version up to now
-      ///////////////////////////////////////////////////////////////////////////
-      
-      top->leptonFlavour = -lepton_ * semiLepTtEvent->singleLepton(TtEvent::kMVADisc)->charge();
-      
-      std::cout << "leptonFlavour: " << top->leptonFlavour << std::endl;
-      
-      for (unsigned int h = 0; h < ttEvent->numberOfAvailableHypos(TtEvent::kMVADisc); ++h) {
-        if (!ttEvent->isHypoValid(TtEvent::kMVADisc, h)) break;
-        if ( ttEvent->correspondingHypo(TtEvent::kMVADisc, h, hypoClassKey) > -1) continue;
+  }
+  if(semiLepTtEvent){
+    //////////////////////////////////////////////////////////////////////////////
+    // Fetch reconstructed permutations without fit solution, get leptonFlavour
+    // not implemented for fullHad version up to now
+    ///////////////////////////////////////////////////////////////////////////
+    
+    top->leptonFlavour = -lepton_ * semiLepTtEvent->singleLepton(TtEvent::kMVADisc)->charge();
+    
+    std::cout << "leptonFlavour: " << top->leptonFlavour << std::endl;
+    
+    for (unsigned int h = 0; h < ttEvent->numberOfAvailableHypos(TtEvent::kMVADisc); ++h) {
+      if (!ttEvent->isHypoValid(TtEvent::kMVADisc, h)) break;
+      if ( ttEvent->correspondingHypo(TtEvent::kMVADisc, h, hypoClassKey) > -1) continue;
 
-        std::vector<TLorentzVector> hreco = getPartons(semiLepTtEvent, TtEvent::kMVADisc, h);
-        top->recoTTBar  .push_back(hreco[TopEvent::TTBar    ]);
-        top->recoTop1   .push_back(hreco[TopEvent::HadTop   ]);
-        top->recoTop2   .push_back(hreco[TopEvent::LepTop   ]);
-        top->recoW1     .push_back(hreco[TopEvent::HadW     ]);
-        top->recoW2     .push_back(hreco[TopEvent::LepW     ]);
-        top->recoB1     .push_back(hreco[TopEvent::HadB     ]);
-        top->recoW1Prod1.push_back(hreco[TopEvent::LightQ   ]);
-        top->recoW1Prod2.push_back(hreco[TopEvent::LightQBar]);
-        top->recoB2     .push_back(hreco[TopEvent::LepB     ]);
-        top->recoW2Prod1.push_back(hreco[TopEvent::Lepton   ]);
-        top->recoW2Prod2.push_back(hreco[TopEvent::Neutrino ]);
+      std::vector<TLorentzVector> hreco = getPartons(semiLepTtEvent, TtEvent::kMVADisc, h);
+      top->recoTTBar  .push_back(hreco[TopEvent::TTBar    ]);
+      top->recoTop1   .push_back(hreco[TopEvent::HadTop   ]);
+      top->recoTop2   .push_back(hreco[TopEvent::LepTop   ]);
+      top->recoW1     .push_back(hreco[TopEvent::HadW     ]);
+      top->recoW2     .push_back(hreco[TopEvent::LepW     ]);
+      top->recoB1     .push_back(hreco[TopEvent::HadB     ]);
+      top->recoW1Prod1.push_back(hreco[TopEvent::LightQ   ]);
+      top->recoW1Prod2.push_back(hreco[TopEvent::LightQBar]);
+      top->recoB2     .push_back(hreco[TopEvent::LepB     ]);
+      top->recoW2Prod1.push_back(hreco[TopEvent::Lepton   ]);
+      top->recoW2Prod2.push_back(hreco[TopEvent::Neutrino ]);
 
-        top->recoJetIdxB1     .push_back(ttEvent->jetLeptonCombination(TtEvent::kMVADisc, h)[TtSemiLepEvtPartons::HadB]);
-        top->recoJetIdxW1Prod1.push_back(ttEvent->jetLeptonCombination(TtEvent::kMVADisc, h)[TtSemiLepEvtPartons::LightQ]);
-        top->recoJetIdxW1Prod2.push_back(ttEvent->jetLeptonCombination(TtEvent::kMVADisc, h)[TtSemiLepEvtPartons::LightQBar]);
-        top->recoJetIdxB2     .push_back(ttEvent->jetLeptonCombination(TtEvent::kMVADisc, h)[TtSemiLepEvtPartons::LepB]);
-        top->recoJetIdxW2Prod1.push_back(0);
-        top->recoJetIdxW2Prod2.push_back(0);
-      }
+      top->recoJetIdxB1     .push_back(ttEvent->jetLeptonCombination(TtEvent::kMVADisc, h)[TtSemiLepEvtPartons::HadB]);
+      top->recoJetIdxW1Prod1.push_back(ttEvent->jetLeptonCombination(TtEvent::kMVADisc, h)[TtSemiLepEvtPartons::LightQ]);
+      top->recoJetIdxW1Prod2.push_back(ttEvent->jetLeptonCombination(TtEvent::kMVADisc, h)[TtSemiLepEvtPartons::LightQBar]);
+      top->recoJetIdxB2     .push_back(ttEvent->jetLeptonCombination(TtEvent::kMVADisc, h)[TtSemiLepEvtPartons::LepB]);
+      top->recoJetIdxW2Prod1.push_back(0);
+      top->recoJetIdxW2Prod2.push_back(0);
     }
   }
   trs->Fill();
