@@ -11,6 +11,7 @@ void TopEvent::init()
   run = -1; lumiBlock = -1; event = -1;
   
   decayChannel = -10;
+  leptonFlavour = 0;
   
   genpartonTTBar = TLorentzVector();
   genpartonTop1  = TLorentzVector(); genpartonTop2    = TLorentzVector();
@@ -40,7 +41,7 @@ void TopEvent::init()
   recoJetIdxW2Prod1.clear();
   recoJetIdxW2Prod2.clear();
   
-  fitTTBar    .clear();
+  fitTTBar  .clear();
   fitTop1   .clear();
   fitTop2   .clear();
   fitW1     .clear();

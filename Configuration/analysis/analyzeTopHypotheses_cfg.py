@@ -386,6 +386,7 @@ process.path.remove(process.tightBottomJets)
 
 ## switch to from muon to electron collections
 if (options.lepton=="electron"):
+    process.analyzeHitFit.lepton = 11
     process.TFileService.fileName = "analyzeTop.root"
     # adpat trigger
     if (options.mcversion == "Fall11"):

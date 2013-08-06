@@ -44,6 +44,8 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   edm::InputTag ttEventGen2_;
   edm::InputTag jets_;
   
+  int lepton_;
+  
   //edm::InputTag leps_;
   //edm::InputTag mets_;
   //

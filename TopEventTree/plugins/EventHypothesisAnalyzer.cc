@@ -20,6 +20,7 @@ hypoClassKey_(cfg.getParameter<edm::InputTag>("hypoClassKey")),
 ttEventGen2_ (cfg.getParameter<edm::InputTag>("ttEventGen2")),
 
 jets_        (cfg.getParameter<edm::InputTag>("jets")), // needed in fullHad channel for reco masses
+lepton_      (cfg.getParameter<int>("lepton")),
 //leps_        (cfg.getParameter<edm::InputTag>("leps")),
 //mets_        (cfg.getParameter<edm::InputTag>("mets")),
 
@@ -217,10 +218,14 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     }
     if(semiLepTtEvent){
       //////////////////////////////////////////////////////////////////////////////
-      // Fetch reconstructed permutations without fit solution
+      // Fetch reconstructed permutations without fit solution, get leptonFlavour
       // not implemented for fullHad version up to now
       ///////////////////////////////////////////////////////////////////////////
-
+      
+      top->leptonFlavour = -lepton_ * semiLepTtEvent->singleLepton(TtEvent::kMVADisc)->charge();
+      
+      std::cout << "leptonFlavour: " << top->leptonFlavour << std::endl;
+      
       for (unsigned int h = 0; h < ttEvent->numberOfAvailableHypos(TtEvent::kMVADisc); ++h) {
         if (!ttEvent->isHypoValid(TtEvent::kMVADisc, h)) break;
         if ( ttEvent->correspondingHypo(TtEvent::kMVADisc, h, hypoClassKey) > -1) continue;

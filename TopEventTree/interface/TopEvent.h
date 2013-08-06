@@ -14,7 +14,7 @@ public:
   TopEvent();
   void init();
 
-  ClassDef(TopEvent,4);
+  ClassDef(TopEvent,5);
 
   // TopEvent data
   
@@ -23,6 +23,7 @@ public:
   int event;
 
   int decayChannel;
+  int leptonFlavour;
 
   TLorentzVector genpartonTTBar;
   TLorentzVector genpartonTop1;
