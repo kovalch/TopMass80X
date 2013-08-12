@@ -76,8 +76,8 @@ TTree* RandomSubsetCreatorNewInterface::CreateRandomSubset() {
     time(&end);
 
     fTree_ = new TTree("fTree", "fTree");
-    fTree_->Branch("top", topEvent_);
-    fTree_->Branch("weight", weightEvent_);
+    fTree_->Branch("top.", topEvent_);
+    fTree_->Branch("weight.", weightEvent_);
 
     // DATA
     double nEventsDataAllJets  = 2767.;
@@ -125,7 +125,7 @@ void RandomSubsetCreatorNewInterface::DrawEvents(TTree* tempTree, double nEvents
 
   fTree_->CopyAddresses(tempTree);
 
-  int permsMC  = tempTree->GetEntries("");
+  int permsMC = tempTree->GetEntries("");
 
   std::vector<std::string> vWeight;
   boost::split( vWeight, fWeight_, boost::is_any_of("-*"));
