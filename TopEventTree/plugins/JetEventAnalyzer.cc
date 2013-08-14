@@ -106,10 +106,10 @@ JetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
     evt.getByLabel(alternativeJets_, alternativeJets);
 
     unsigned short alternativeJetIndex = 0;
-    for(auto &altJet : *alternativeJets) {
+    for(const auto &altJet : *alternativeJets) {
       jet->alternativeJet.push_back(TLorentzVector(altJet.px(), altJet.py(), altJet.pz(), altJet.energy()));
-      ++alternativeJetIndex;
       if(alternativeJetIndex == 5) break;
+      ++alternativeJetIndex;
     }
   }
   trs->Fill();
