@@ -118,17 +118,17 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     std::vector<TLorentzVector> hfit;
     if     (semiLepTtEvent) hfit = getPartons(semiLepTtEvent, hypoClassKey, h);
     else if(fullHadTtEvent) hfit = getPartons(fullHadTtEvent, hypoClassKey, h);
-    top->fitTTBar  .push_back(hfit[TopEvent::TTBar    ]);
-    top->fitTop1   .push_back(hfit[TopEvent::HadTop   ]);
-    top->fitTop2   .push_back(hfit[TopEvent::LepTop   ]);
-    top->fitW1     .push_back(hfit[TopEvent::HadW     ]);
-    top->fitW2     .push_back(hfit[TopEvent::LepW     ]);
-    top->fitB1     .push_back(hfit[TopEvent::HadB     ]);
-    top->fitW1Prod1.push_back(hfit[TopEvent::LightQ   ]);
-    top->fitW1Prod2.push_back(hfit[TopEvent::LightQBar]);
-    top->fitB2     .push_back(hfit[TopEvent::LepB     ]);
-    top->fitW2Prod1.push_back(hfit[TopEvent::Lepton   ]);
-    top->fitW2Prod2.push_back(hfit[TopEvent::Neutrino ]);
+    top->fitTTBar  .push_back(hfit[TTBar    ]);
+    top->fitTop1   .push_back(hfit[HadTop   ]);
+    top->fitTop2   .push_back(hfit[LepTop   ]);
+    top->fitW1     .push_back(hfit[HadW     ]);
+    top->fitW2     .push_back(hfit[LepW     ]);
+    top->fitB1     .push_back(hfit[HadB     ]);
+    top->fitW1Prod1.push_back(hfit[LightQ   ]);
+    top->fitW1Prod2.push_back(hfit[LightQBar]);
+    top->fitB2     .push_back(hfit[LepB     ]);
+    top->fitW2Prod1.push_back(hfit[Lepton   ]);
+    top->fitW2Prod2.push_back(hfit[Neutrino ]);
 
     if(hypoClassKey == TtEvent::kHitFit){
       top->fitProb .push_back(ttEvent->hitFitProb(h));
@@ -156,17 +156,17 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
 
       std::vector<TLorentzVector> hreco = getPartons(semiLepTtEvent, TtEvent::kMVADisc,
           ttEvent->correspondingHypo(hypoClassKey, h, TtEvent::kMVADisc));
-      top->recoTTBar  .push_back(hreco[TopEvent::TTBar    ]);
-      top->recoTop1   .push_back(hreco[TopEvent::HadTop   ]);
-      top->recoTop2   .push_back(hreco[TopEvent::LepTop   ]);
-      top->recoW1     .push_back(hreco[TopEvent::HadW     ]);
-      top->recoW2     .push_back(hreco[TopEvent::LepW     ]);
-      top->recoB1     .push_back(hreco[TopEvent::HadB     ]);
-      top->recoW1Prod1.push_back(hreco[TopEvent::LightQ   ]);
-      top->recoW1Prod2.push_back(hreco[TopEvent::LightQBar]);
-      top->recoB2     .push_back(hreco[TopEvent::LepB     ]);
-      top->recoW2Prod1.push_back(hreco[TopEvent::Lepton   ]);
-      top->recoW2Prod2.push_back(hreco[TopEvent::Neutrino ]);
+      top->recoTTBar  .push_back(hreco[TTBar    ]);
+      top->recoTop1   .push_back(hreco[HadTop   ]);
+      top->recoTop2   .push_back(hreco[LepTop   ]);
+      top->recoW1     .push_back(hreco[HadW     ]);
+      top->recoW2     .push_back(hreco[LepW     ]);
+      top->recoB1     .push_back(hreco[HadB     ]);
+      top->recoW1Prod1.push_back(hreco[LightQ   ]);
+      top->recoW1Prod2.push_back(hreco[LightQBar]);
+      top->recoB2     .push_back(hreco[LepB     ]);
+      top->recoW2Prod1.push_back(hreco[Lepton   ]);
+      top->recoW2Prod2.push_back(hreco[Neutrino ]);
       
       if(semiLepTtEvent->isHypoValid(TtEvent::kGenMatch)){
         top->combinationType.push_back(comboTypeSemiLep());
@@ -185,17 +185,17 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
 
       // do this AFTER *recoJetIdx*'s have been filled, values are used here !!!
       std::vector<TLorentzVector> hreco = getPartons(jets);
-      top->recoTTBar  .push_back(hreco[TopEvent::TTBar    ]);
-      top->recoTop1   .push_back(hreco[TopEvent::HadTop   ]);
-      top->recoTop2   .push_back(hreco[TopEvent::LepTop   ]);
-      top->recoW1     .push_back(hreco[TopEvent::HadW     ]);
-      top->recoW2     .push_back(hreco[TopEvent::LepW     ]);
-      top->recoB1     .push_back(hreco[TopEvent::HadB     ]);
-      top->recoW1Prod1.push_back(hreco[TopEvent::LightQ   ]);
-      top->recoW1Prod2.push_back(hreco[TopEvent::LightQBar]);
-      top->recoB2     .push_back(hreco[TopEvent::LepB     ]);
-      top->recoW2Prod1.push_back(hreco[TopEvent::Lepton   ]);
-      top->recoW2Prod2.push_back(hreco[TopEvent::Neutrino ]);
+      top->recoTTBar  .push_back(hreco[TTBar    ]);
+      top->recoTop1   .push_back(hreco[HadTop   ]);
+      top->recoTop2   .push_back(hreco[LepTop   ]);
+      top->recoW1     .push_back(hreco[HadW     ]);
+      top->recoW2     .push_back(hreco[LepW     ]);
+      top->recoB1     .push_back(hreco[HadB     ]);
+      top->recoW1Prod1.push_back(hreco[LightQ   ]);
+      top->recoW1Prod2.push_back(hreco[LightQBar]);
+      top->recoB2     .push_back(hreco[LepB     ]);
+      top->recoW2Prod1.push_back(hreco[Lepton   ]);
+      top->recoW2Prod2.push_back(hreco[Neutrino ]);
 
       // get 2. genMatch to see if the case is ambiguous or unmatchable
       edm::Handle<TtFullHadronicEvent> hFullHadTtEvent2;
@@ -222,32 +222,32 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
     // Fetch reconstructed permutations without fit solution, get leptonFlavour
     // not implemented for fullHad version up to now
     ///////////////////////////////////////////////////////////////////////////
-    
+
     top->leptonFlavour = -lepton_ * semiLepTtEvent->singleLepton(TtEvent::kMVADisc)->charge();
-    
-    std::cout << "leptonFlavour: " << top->leptonFlavour << std::endl;
-    
+
+    //std::cout << "leptonFlavour: " << top->leptonFlavour << std::endl;
+
     for (unsigned int h = 0; h < ttEvent->numberOfAvailableHypos(TtEvent::kMVADisc); ++h) {
       if (!ttEvent->isHypoValid(TtEvent::kMVADisc, h)) break;
       if ( ttEvent->correspondingHypo(TtEvent::kMVADisc, h, hypoClassKey) > -1) continue;
 
       std::vector<TLorentzVector> hreco = getPartons(semiLepTtEvent, TtEvent::kMVADisc, h);
-      top->recoTTBar  .push_back(hreco[TopEvent::TTBar    ]);
-      top->recoTop1   .push_back(hreco[TopEvent::HadTop   ]);
-      top->recoTop2   .push_back(hreco[TopEvent::LepTop   ]);
-      top->recoW1     .push_back(hreco[TopEvent::HadW     ]);
-      top->recoW2     .push_back(hreco[TopEvent::LepW     ]);
-      top->recoB1     .push_back(hreco[TopEvent::HadB     ]);
-      top->recoW1Prod1.push_back(hreco[TopEvent::LightQ   ]);
-      top->recoW1Prod2.push_back(hreco[TopEvent::LightQBar]);
-      top->recoB2     .push_back(hreco[TopEvent::LepB     ]);
-      top->recoW2Prod1.push_back(hreco[TopEvent::Lepton   ]);
-      top->recoW2Prod2.push_back(hreco[TopEvent::Neutrino ]);
+      top->recoTTBar  .push_back(hreco[TTBar    ]);
+      top->recoTop1   .push_back(hreco[HadTop   ]);
+      top->recoTop2   .push_back(hreco[LepTop   ]);
+      top->recoW1     .push_back(hreco[HadW     ]);
+      top->recoW2     .push_back(hreco[LepW     ]);
+      top->recoB1     .push_back(hreco[HadB     ]);
+      top->recoW1Prod1.push_back(hreco[LightQ   ]);
+      top->recoW1Prod2.push_back(hreco[LightQBar]);
+      top->recoB2     .push_back(hreco[LepB     ]);
+      top->recoW2Prod1.push_back(hreco[Lepton   ]);
+      top->recoW2Prod2.push_back(hreco[Neutrino ]);
 
-      top->recoJetIdxB1     .push_back(ttEvent->jetLeptonCombination(TtEvent::kMVADisc, h)[TtSemiLepEvtPartons::HadB]);
-      top->recoJetIdxW1Prod1.push_back(ttEvent->jetLeptonCombination(TtEvent::kMVADisc, h)[TtSemiLepEvtPartons::LightQ]);
+      top->recoJetIdxB1     .push_back(ttEvent->jetLeptonCombination(TtEvent::kMVADisc, h)[TtSemiLepEvtPartons::HadB     ]);
+      top->recoJetIdxW1Prod1.push_back(ttEvent->jetLeptonCombination(TtEvent::kMVADisc, h)[TtSemiLepEvtPartons::LightQ   ]);
       top->recoJetIdxW1Prod2.push_back(ttEvent->jetLeptonCombination(TtEvent::kMVADisc, h)[TtSemiLepEvtPartons::LightQBar]);
-      top->recoJetIdxB2     .push_back(ttEvent->jetLeptonCombination(TtEvent::kMVADisc, h)[TtSemiLepEvtPartons::LepB]);
+      top->recoJetIdxB2     .push_back(ttEvent->jetLeptonCombination(TtEvent::kMVADisc, h)[TtSemiLepEvtPartons::LepB     ]);
       top->recoJetIdxW2Prod1.push_back(0);
       top->recoJetIdxW2Prod2.push_back(0);
     }
@@ -677,19 +677,19 @@ EventHypothesisAnalyzer::comboTypeSemiLep()
   // correct permutations
   if(comboTypeID ==  0 || comboTypeID ==  2)
     return 1;
-  
+
   // hadronic branch mixup (correct tops)
   if(comboTypeID ==  6 || comboTypeID ==  8 || comboTypeID == 12 || comboTypeID == 14)
     return 2;
-  
+
   // swapped b-quarks (correct W)
   if(comboTypeID == 21 || comboTypeID == 23)
     return 3;
-  
+
   // other mixups (complete mess)
   if(comboTypeID >=  0 && comboTypeID <= 23)
     return 4;
-  
+
   // error
   return -37;
 }
@@ -708,14 +708,14 @@ EventHypothesisAnalyzer::comboTypeIDCalculatorFullHad()
   jetIndexFit.push_back(top->recoJetIdxB2     .back());
   jetIndexFit.push_back(top->recoJetIdxW2Prod1.back());
   jetIndexFit.push_back(top->recoJetIdxW2Prod2.back());
-  
+
   jetIndexGen.push_back(top->genpartonJetIdxB1     );
   jetIndexGen.push_back(top->genpartonJetIdxW1Prod1);
   jetIndexGen.push_back(top->genpartonJetIdxW1Prod2);
   jetIndexGen.push_back(top->genpartonJetIdxB2     );
   jetIndexGen.push_back(top->genpartonJetIdxW2Prod1);
   jetIndexGen.push_back(top->genpartonJetIdxW2Prod2);
-  
+
   //std::cout << "fit: " << jetIndexFit[0] << " " << jetIndexFit[1] << " " << jetIndexFit[2] << " " << jetIndexFit[3] << " " << jetIndexFit[4] << " " << jetIndexFit[5] << std::endl;
   //std::cout << "gen: " << jetIndexGen[0] << " " << jetIndexGen[1] << " " << jetIndexGen[2] << " " << jetIndexGen[3] << " " << jetIndexGen[4] << " " << jetIndexGen[5] << std::endl;
 
@@ -733,12 +733,12 @@ EventHypothesisAnalyzer::comboTypeIDCalculatorSemiLep()
   jetIndexFit.push_back(top->recoJetIdxW1Prod1.back());
   jetIndexFit.push_back(top->recoJetIdxW1Prod2.back());
   jetIndexFit.push_back(top->recoJetIdxB2     .back());
-  
+
   jetIndexGen.push_back(top->genpartonJetIdxB1     );
   jetIndexGen.push_back(top->genpartonJetIdxW1Prod1);
   jetIndexGen.push_back(top->genpartonJetIdxW1Prod2);
   jetIndexGen.push_back(top->genpartonJetIdxB2     );
-  
+
   return comboTypeAlgo(jetIndexFit, jetIndexGen);
 }
 
@@ -753,14 +753,14 @@ EventHypothesisAnalyzer::comboTypeAlgo(std::vector<int> jetIndexFit, std::vector
     bool foundPair = false;
     for(unsigned short jGen = 0, jGenCount = 0; jGen < jetIndexGen.size(); ++jGen, ++jGenCount){
       if(jetIndexGen.at(jGen) == -37){
-    --jGenCount;
-    continue;
+        --jGenCount;
+        continue;
       }
       if(jetIndexFit.at(iFit) == jetIndexGen.at(jGen)){
-    foundPair = true;
-    result += fact*(jGenCount);
-    //std::cout << " (" << iFit << "," << jGen << "," << jGenCount << ")";
-    jetIndexGen[jGen] = -37;
+        foundPair = true;
+        result += fact*(jGenCount);
+        //std::cout << " (" << iFit << "," << jGen << "," << jGenCount << ")";
+        jetIndexGen[jGen] = -37;
       }
     }
     if(!foundPair){

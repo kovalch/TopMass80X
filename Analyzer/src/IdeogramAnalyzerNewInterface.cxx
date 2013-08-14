@@ -160,8 +160,8 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
 
   std::cout << "fTree: " << fTree_->GetEntries() << std::endl;
 
-  fTree_->SetBranchAddress("top", &topEvent);
-  fTree_->SetBranchAddress("weight", &weightEvent);
+  fTree_->SetBranchAddress("top.", &topEvent);
+  fTree_->SetBranchAddress("weight.", &weightEvent);
 
   double isFastSim                     = po::GetOption<int   >("fastsim");
   double shapeSystematic               = po::GetOption<double>("shape"  );

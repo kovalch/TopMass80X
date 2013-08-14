@@ -85,7 +85,7 @@ IdeogramCombLikelihoodAllJets::IdeogramCombLikelihoodAllJets() :
 }
 
 double IdeogramCombLikelihoodAllJets::Evaluate(double *x, double *p) {
-  bool useCalib = true;
+  bool useCalib   = true;
   bool onlyCP     = false;
   bool onlySIG    = false;
   bool fSigOfMtop = false;

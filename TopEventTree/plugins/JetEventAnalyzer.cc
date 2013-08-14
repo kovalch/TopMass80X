@@ -63,7 +63,7 @@ JetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
     if(!checkedJERSF  ) { checkedJERSF   = true; if(ijet->hasUserFloat("jerSF"      )) hasJERSF   = true; }
     if(!checkedJESSF  ) { checkedJESSF   = true; if(ijet->hasUserFloat("jesSF"      )) hasJESSF   = true; }
     if(!checkedTotalSF) { checkedTotalSF = true; if(ijet->hasUserFloat("totalSF"    )) hasTotalSF = true; }
-    if(!checkedBReg   ) { checkedBReg    = true; if(ijet->hasUserFloat("BRegResult"    )) hasBReg    = true; }
+    if(!checkedBReg   ) { checkedBReg    = true; if(ijet->hasUserFloat("BRegResult" )) hasBReg    = true; }
 
     if(isPFJet){
       jet->fChargedHadron .push_back(ijet->chargedHadronEnergyFraction());
@@ -84,9 +84,9 @@ JetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
       //assert(jet->nConstituents.back()== jet->nChargedHadrons.back() + jet->nNeutralHadrons.back() + jet->nElectrons.back() + jet->nPhotons.back() + jet->nMuons.back());
 
     }
-    jet->charge         .push_back(ijet->jetCharge());
-    jet->flavour        .push_back(ijet->partonFlavour());
-    jet->bTagCSV        .push_back(ijet->bDiscriminator("combinedSecondaryVertexBJetTags"));
+    jet->charge .push_back(ijet->jetCharge());
+    jet->flavour.push_back(ijet->partonFlavour());
+    jet->bTagCSV.push_back(ijet->bDiscriminator("combinedSecondaryVertexBJetTags"));
 
     if(hasQGTag  ) jet->gluonTag.push_back(ijet->userFloat(gluonTagName_));
     if(hasJERSF  ) jet->jerSF   .push_back(ijet->userFloat("jerSF"      ));

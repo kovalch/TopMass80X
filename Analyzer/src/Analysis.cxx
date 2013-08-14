@@ -82,7 +82,7 @@ void Analysis::Analyze() {
   TCanvas* canvas = new TCanvas("canvas", "Top mass", 900, 600);
   canvas->cd();
   
-  for(unsigned int i = 0; i < vBinning_.size()-1; i++) {
+  for(unsigned int i = 0; i < vBinning_.size()-1; ++i) {
     // calculate cuts
     TString cuts;
     std::stringstream stream;
