@@ -24,6 +24,7 @@ class JetEventAnalyzer : public edm::EDAnalyzer {
   edm::Service<TreeRegistryService> trs;
 
   edm::InputTag jets_;
+  edm::InputTag alternativeJets_;
   //edm::InputTag allJets_;
   //edm::InputTag noPtEtaJets_;
   std::string gluonTagName_;
@@ -37,6 +38,7 @@ class JetEventAnalyzer : public edm::EDAnalyzer {
   // check only once per module run if the needed collections are available
   bool checkedIsPFJet, checkedJERSF, checkedJESSF, checkedTotalSF, checkedQGTag, checkedBReg;
   bool        isPFJet,     hasJERSF,     hasJESSF,     hasTotalSF,     hasQGTag,     hasBReg;
+  bool alternativeJetsAvailable;
 
 };
 

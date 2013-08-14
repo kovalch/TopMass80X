@@ -27,6 +27,7 @@ public:
   std::vector<TLorentzVector> jet;
   std::vector<TLorentzVector> genJet;
   std::vector<TLorentzVector> genParton;
+  std::vector<TLorentzVector> alternativeJet;
 
   std::vector<int> nConstituents;
   std::vector<int> nChargedHadrons;

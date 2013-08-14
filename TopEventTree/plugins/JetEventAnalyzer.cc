@@ -19,14 +19,16 @@
 #include "TopMass/TopEventTree/plugins/JetEventAnalyzer.h"
 
 JetEventAnalyzer::JetEventAnalyzer(const edm::ParameterSet& cfg):
-jets_        (cfg.getParameter<edm::InputTag>("jets")),
-//allJets_     (cfg.getParameter<edm::InputTag>("allJets")),
-//noPtEtaJets_ (cfg.getParameter<edm::InputTag>("noPtEtaJets")),
-gluonTagName_  (cfg.getParameter<edm::InputTag>("gluonTagSrc").encode()),
+jets_           (cfg.getParameter<edm::InputTag>("jets")),
+alternativeJets_(cfg.getParameter<edm::InputTag>("alternativeJets")),
+//allJets_       (cfg.getParameter<edm::InputTag>("allJets")),
+//noPtEtaJets_   (cfg.getParameter<edm::InputTag>("noPtEtaJets")),
+gluonTagName_   (cfg.getParameter<edm::InputTag>("gluonTagSrc").encode()),
 kJetMAX_(cfg.getParameter<int>("maxNJets")),
 jet(0),
 checkedIsPFJet(false), checkedJERSF(false), checkedJESSF(false), checkedTotalSF(false), checkedQGTag(false), checkedBReg(false),
-       isPFJet(false),     hasJERSF(false),     hasJESSF(false),     hasTotalSF(false),     hasQGTag(false),     hasBReg(false)
+       isPFJet(false),     hasJERSF(false),     hasJESSF(false),     hasTotalSF(false),     hasQGTag(false),     hasBReg(false),
+alternativeJetsAvailable(alternativeJets_.label().size())
 {
 }
 
@@ -99,6 +101,17 @@ JetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
     jet->pullCharged.push_back(pulls.second);
   }
 
+  if(alternativeJetsAvailable){
+    edm::Handle<std::vector<pat::Jet> > alternativeJets;
+    evt.getByLabel(alternativeJets_, alternativeJets);
+
+    unsigned short alternativeJetIndex = 0;
+    for(auto &altJet : *alternativeJets) {
+      jet->alternativeJet.push_back(TLorentzVector(altJet.px(), altJet.py(), altJet.pz(), altJet.energy()));
+      ++alternativeJetIndex;
+      if(alternativeJetIndex == 5) break;
+    }
+  }
   trs->Fill();
 }
 
