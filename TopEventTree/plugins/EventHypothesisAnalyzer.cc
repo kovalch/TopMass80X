@@ -208,11 +208,23 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
         top->combinationType.push_back(comboTypeFullHad());
       }
       else{
+        // classify as ambiguous
         if( genMatch2Valid ){
           top->combinationType.push_back(5);
         }
         else{
-          top->combinationType.push_back(6);
+          // classify as unmatched on signal
+          if(top->decayChannel == 1)
+            top->combinationType.push_back(6);
+          // classify as data
+          else if(top->decayChannel == 0)
+            top->combinationType.push_back(0);
+          // classify as ttbar background
+          else if(top->decayChannel > 1)
+            top->combinationType.push_back(7);
+          // classify as unknown
+          else
+            top->combinationType.push_back(10);
         }
       }
     }
