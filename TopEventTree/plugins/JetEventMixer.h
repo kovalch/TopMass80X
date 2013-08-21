@@ -35,14 +35,14 @@ private:
   std::vector<std::vector<reco::PFCandidate> > oriPFCandidates_;
   std::vector<std::vector<PileupSummaryInfo> > oriPUInfos_;
 
-  class NotEnoughEventsLeftException : public cms::Exception {
-
-  public:
-    NotEnoughEventsLeftException(std::string category, std::string message) : cms::Exception(category, message) {}
-
-  private:
-    virtual int returnCode_ () { return 0; }
-  };
+  //class NotEnoughEventsLeftException : public cms::Exception {
+  //
+  //public:
+  //  NotEnoughEventsLeftException(std::string category, std::string message) : cms::Exception(category, message) {}
+  //
+  //private:
+  //  virtual int returnCode_ () { return 0; }
+  //};
 };
 
 #endif
