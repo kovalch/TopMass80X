@@ -6,11 +6,11 @@ namespace MyMa{
 
 static TString deltaR(const char* vec1, const char* vec2)
 {
-  return TString("sqrt(pow("+TString(vec1)+".Eta()-"+TString(vec2)+".Eta(),2) + pow(TVector2::Phi_mpi_pi("+TString(vec1)+".Phi()-"+TString(vec2)+".Phi())+TMath::Pi(),2))");
+  return TString("sqrt(pow("+TString(vec1)+".Eta()-"+TString(vec2)+".Eta(),2) + pow(TVector2::Phi_mpi_pi("+TString(vec1)+".Phi()-"+TString(vec2)+".Phi()),2))");
 }
 static TString deltaPhi(const char* vec1, const char* vec2)
 {
-  return TString("TVector2::Phi_mpi_pi("+TString(vec1)+".Phi()-"+TString(vec2)+".Phi())+TMath::Pi()");
+  return TString("abs(TVector2::Phi_mpi_pi("+TString(vec1)+".Phi()-"+TString(vec2)+".Phi()))");
 }
 static TString deltaAlpha(const char* vec1, const char* vec2)
 {
