@@ -5,6 +5,7 @@ import sys
 options = VarParsing.VarParsing ('standard')
 
 options.register('mcversion', 'Summer12', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "MC campaign or data")
+options.register('mcWeight', 1.0 , VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.float, "MC sample event weight")
 options.register('lepton', 'muon', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "Lepton+jets channel")
 options.register('metcl', 1, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.int, "MET correction level")
 
@@ -242,6 +243,7 @@ from TopMass.TopEventTree.JetEventAnalyzer_cfi import analyzeJets
 process.analyzeJets = analyzeJets.clone()
 from TopMass.TopEventTree.WeightEventAnalyzer_cfi import analyzeWeights
 process.analyzeWeights = analyzeWeights.clone(
+                                              mcWeight        = options.mcWeight,
                                               puWeightSrc     = cms.InputTag("eventWeightPUsysNo"  , "eventWeightPU"),
                                               puWeightUpSrc   = cms.InputTag("eventWeightPUsysUp"  , "eventWeightPU"),
                                               puWeightDownSrc = cms.InputTag("eventWeightPUsysDown", "eventWeightPU"),
@@ -434,7 +436,6 @@ if (options.lepton=="electron"):
     from PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi import *
     from PhysicsTools.PatAlgos.cleaningLayer1.jetCleaner_cfi import *
     process.noOverlapJetsPFelec = cleanPatJets.clone(
-        src = cms.InputTag("scaledJetEnergy:selectedPatJets"),
         preselection = cms.string(''),
         checkOverlaps = cms.PSet(
           electrons = cms.PSet(
@@ -449,6 +450,7 @@ if (options.lepton=="electron"):
           ),
         finalCut = cms.string(''),
         )
+    if not data: process.noOverlapJetsPFelec.src = cms.InputTag("scaledJetEnergy:selectedPatJets")
     process.goodJetsPF20.src  ='noOverlapJetsPFelec'
     process.centralJetsPF.src ='noOverlapJetsPFelec'
     process.reliableJetsPF.src='noOverlapJetsPFelec'
@@ -471,7 +473,7 @@ if (options.lepton=="electron"):
       getattr(process, pathname).remove(process.secondMuonVeto)
       getattr(process, pathname).remove(process.electronVeto)
       ## replace effSF
-      getattr(process, pathname).replace(process.effSFMuonEventWeight, process.effSFElectronEventWeight)
+      if not data: getattr(process, pathname).replace(process.effSFMuonEventWeight, process.effSFElectronEventWeight)
       # replace muon by electron in (remaining) kinfit analyzers
       massSearchReplaceAnyInputTag(getattr(process, pathname), 'tightMuons', 'goodElectronsEJ')
       massSearchReplaceAnyInputTag(getattr(process, pathname), 'noOverlapJetsPF', 'noOverlapJetsPFelec')
