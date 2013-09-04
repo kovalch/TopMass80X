@@ -208,11 +208,23 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
         top->combinationType.push_back(comboTypeFullHad());
       }
       else{
+        // classify as ambiguous
         if( genMatch2Valid ){
           top->combinationType.push_back(5);
         }
         else{
-          top->combinationType.push_back(6);
+          // classify as unmatched on signal
+          if(top->decayChannel == 1)
+            top->combinationType.push_back(6);
+          // classify as data
+          else if(top->decayChannel == 0)
+            top->combinationType.push_back(0);
+          // classify as ttbar background
+          else if(top->decayChannel > 1)
+            top->combinationType.push_back(7);
+          // classify as unknown
+          else
+            top->combinationType.push_back(10);
         }
       }
     }
@@ -482,8 +494,8 @@ EventHypothesisAnalyzer::fillGenPartons(const TtGenEvent *genEvent)
           genEvent->wMinus()->pz(), genEvent->wMinus()->energy());
 
       top->genpartonB1.SetPxPyPzE(
-          genEvent->b()->px(), genEvent->b()->py(),
-          genEvent->b()->pz(), genEvent->b()->energy());
+          genEvent->daughterQuarkOfTop()->px(), genEvent->daughterQuarkOfTop()->py(),
+          genEvent->daughterQuarkOfTop()->pz(), genEvent->daughterQuarkOfTop()->energy());
 
       top->genpartonW1Prod1.SetPxPyPzE(
           genEvent->daughterQuarkOfWPlus()->px(), genEvent->daughterQuarkOfWPlus()->py(),
@@ -493,8 +505,8 @@ EventHypothesisAnalyzer::fillGenPartons(const TtGenEvent *genEvent)
           genEvent->daughterQuarkBarOfWPlus()->pz(), genEvent->daughterQuarkBarOfWPlus()->energy());
 
       top->genpartonB2.SetPxPyPzE(
-          genEvent->bBar()->px(), genEvent->bBar()->py(),
-          genEvent->bBar()->pz(), genEvent->bBar()->energy());
+          genEvent->daughterQuarkOfTopBar()->px(), genEvent->daughterQuarkOfTopBar()->py(),
+          genEvent->daughterQuarkOfTopBar()->pz(), genEvent->daughterQuarkOfTopBar()->energy());
 
       top->genpartonW2Prod1.SetPxPyPzE(
           genEvent->daughterQuarkOfWMinus()->px(), genEvent->daughterQuarkOfWMinus()->py(),
@@ -506,6 +518,7 @@ EventHypothesisAnalyzer::fillGenPartons(const TtGenEvent *genEvent)
       decayChannel =  1;
     }
     else if(  genEvent->isSemiLeptonic() ) {
+      bool topDecayToBQuark = true;
       top->genpartonTTBar.SetPxPyPzE(
           genEvent->hadronicDecayTop()->px()     + genEvent->leptonicDecayTop()->px(),
           genEvent->hadronicDecayTop()->py()     + genEvent->leptonicDecayTop()->py(),
@@ -526,9 +539,22 @@ EventHypothesisAnalyzer::fillGenPartons(const TtGenEvent *genEvent)
           genEvent->leptonicDecayW()->px(), genEvent->leptonicDecayW()->py(),
           genEvent->leptonicDecayW()->pz(), genEvent->leptonicDecayW()->energy());
 
-      top->genpartonB1.SetPxPyPzE(
-          genEvent->hadronicDecayB()->px(), genEvent->hadronicDecayB()->py(),
-          genEvent->hadronicDecayB()->pz(), genEvent->hadronicDecayB()->energy());
+      if(genEvent->hadronicDecayB()){
+        top->genpartonB1.SetPxPyPzE(
+            genEvent->hadronicDecayB()->px(), genEvent->hadronicDecayB()->py(),
+            genEvent->hadronicDecayB()->pz(), genEvent->hadronicDecayB()->energy());
+      }
+      else{
+        topDecayToBQuark = false;
+        if(genEvent->hadronicDecayTop()->charge() > 0)
+          top->genpartonB1.SetPxPyPzE(
+              genEvent->daughterQuarkOfTop()->px(), genEvent->daughterQuarkOfTop()->py(),
+              genEvent->daughterQuarkOfTop()->pz(), genEvent->daughterQuarkOfTop()->energy());
+        else
+          top->genpartonB1.SetPxPyPzE(
+              genEvent->daughterQuarkOfTopBar()->px(), genEvent->daughterQuarkOfTopBar()->py(),
+              genEvent->daughterQuarkOfTopBar()->pz(), genEvent->daughterQuarkOfTopBar()->energy());
+      }
 
       top->genpartonW1Prod1.SetPxPyPzE(
           genEvent->hadronicDecayQuark()->px(), genEvent->hadronicDecayQuark()->py(),
@@ -537,9 +563,22 @@ EventHypothesisAnalyzer::fillGenPartons(const TtGenEvent *genEvent)
           genEvent->hadronicDecayQuarkBar()->px(), genEvent->hadronicDecayQuarkBar()->py(),
           genEvent->hadronicDecayQuarkBar()->pz(), genEvent->hadronicDecayQuarkBar()->energy());
 
-      top->genpartonB2.SetPxPyPzE(
-          genEvent->leptonicDecayB()->px(), genEvent->leptonicDecayB()->py(),
-          genEvent->leptonicDecayB()->pz(), genEvent->leptonicDecayB()->energy());
+      if(genEvent->leptonicDecayB()){
+        top->genpartonB2.SetPxPyPzE(
+            genEvent->leptonicDecayB()->px(), genEvent->leptonicDecayB()->py(),
+            genEvent->leptonicDecayB()->pz(), genEvent->leptonicDecayB()->energy());
+      }
+      else{
+        topDecayToBQuark = false;
+        if(genEvent->leptonicDecayTop()->charge() > 0)
+          top->genpartonB2.SetPxPyPzE(
+              genEvent->daughterQuarkOfTop()->px(), genEvent->daughterQuarkOfTop()->py(),
+              genEvent->daughterQuarkOfTop()->pz(), genEvent->daughterQuarkOfTop()->energy());
+        else
+          top->genpartonB2.SetPxPyPzE(
+              genEvent->daughterQuarkOfTopBar()->px(), genEvent->daughterQuarkOfTopBar()->py(),
+              genEvent->daughterQuarkOfTopBar()->pz(), genEvent->daughterQuarkOfTopBar()->energy());
+      }
 
       top->genpartonW2Prod1.SetPxPyPzE(
           genEvent->singleLepton()->px(), genEvent->singleLepton()->py(),
@@ -554,6 +593,7 @@ EventHypothesisAnalyzer::fillGenPartons(const TtGenEvent *genEvent)
       case WDecay::kTau  : decayChannel = 23; break;
       default            : decayChannel =  2; break;
       }
+      if(!topDecayToBQuark) decayChannel += 10;
     }
     else if( genEvent->isFullLeptonic() ) {
       top->genpartonTTBar.SetPxPyPzE(
@@ -577,8 +617,8 @@ EventHypothesisAnalyzer::fillGenPartons(const TtGenEvent *genEvent)
           genEvent->wMinus()->pz(), genEvent->wMinus()->energy());
 
       top->genpartonB1.SetPxPyPzE(
-          genEvent->b()->px(), genEvent->b()->py(),
-          genEvent->b()->pz(), genEvent->b()->energy());
+          genEvent->daughterQuarkOfTop()->px(), genEvent->daughterQuarkOfTop()->py(),
+          genEvent->daughterQuarkOfTop()->pz(), genEvent->daughterQuarkOfTop()->energy());
 
       top->genpartonW1Prod1.SetPxPyPzE(
           genEvent->leptonBar()->px(), genEvent->leptonBar()->py(),
@@ -588,8 +628,8 @@ EventHypothesisAnalyzer::fillGenPartons(const TtGenEvent *genEvent)
           genEvent->neutrino()->pz(), genEvent->neutrino()->energy());
 
       top->genpartonB2.SetPxPyPzE(
-          genEvent->bBar()->px(), genEvent->bBar()->py(),
-          genEvent->bBar()->pz(), genEvent->bBar()->energy());
+          genEvent->daughterQuarkOfTopBar()->px(), genEvent->daughterQuarkOfTopBar()->py(),
+          genEvent->daughterQuarkOfTopBar()->pz(), genEvent->daughterQuarkOfTopBar()->energy());
 
       top->genpartonW2Prod1.SetPxPyPzE(
           genEvent->lepton()->px(), genEvent->lepton()->py(),

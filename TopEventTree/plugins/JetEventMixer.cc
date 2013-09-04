@@ -3,8 +3,10 @@
 #include "FWCore/Sources/interface/VectorInputSourceFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/TypeID.h"
+//#include "FWCore/Utilities/interface/EDMException.h"
 
 #include <algorithm>
+#include <csignal>
 #include "boost/bind.hpp"
 
 #include "TRandom3.h"
@@ -75,16 +77,17 @@ JetEventMixer::getEvents(edm::Event& evt)
     // exit program gracefully once less then nMix events are available
     if(!eventSrc_->loopSequential(1, boost::bind(&JetEventMixer::processOneEvent, this, _1, boost::ref(evt)))){
       cleanUp();
-      std::stringstream errorMessage;
-      errorMessage << "Less than nMix (" << nMix_ << ") events left in source to be processed." << "\n" << "Terminating program!";
+      //std::stringstream errorMessage;
+      //errorMessage << "Less than nMix (" << nMix_ << ") events left in source to be processed." << "\n" << "Terminating program!";
       //throw edm::Exception( edm::errors::UnimplementedFeature, errorMessage.str() );
-      throw NotEnoughEventsLeftException("EOF", errorMessage.str());
-      //edm::LogWarning("EOF") << __FILE__ << ":" << "\n"
-      //                       << __FUNCTION__ << ":" << __LINE__ << "\n"
-      //                       << "Less than nMix (" << nMix_ << ") events left in source to be processed." << "\n"
-      //                       << "Terminating program!";
+      //throw NotEnoughEventsLeftException("NotEnoughEventsLeftException", errorMessage.str());
+      edm::LogWarning("NotEnoughEventsLeftException") << __FILE__ << ":" << "\n"
+          << __FUNCTION__ << ":" << __LINE__ << "\n"
+          << "Less than nMix (" << nMix_ << ") events left in source to be processed." << "\n"
+          << "Terminating program!";
+      kill(getpid(),SIGUSR2);
       //kill(getpid(),SIGINT);
-      break;
+      return;
     }
   }
   fillCombos();
@@ -128,9 +131,11 @@ JetEventMixer::processOneEvent(edm::EventPrincipal const& eventPrincipal, edm::E
 
   //edm::BasicHandle hPileupSummaryInfos = eventPrincipal.getByLabel(edm::TypeID(typeid(std::vector<reco::PileupSummaryInfo>)), "tightLeadingJets", "pfCandidates", "FullHadTreeWriter", cachedOffset, fillCount);
   edm::BasicHandle hPileupSummaryInfos = eventPrincipal.getByType(edm::TypeID(typeid(std::vector<PileupSummaryInfo>)));
-  edm::Wrapper<std::vector<PileupSummaryInfo> > const* wPileupSummaryInfos = static_cast<edm::Wrapper<std::vector<PileupSummaryInfo> > const*>(hPileupSummaryInfos.wrapper());
-  std::vector<PileupSummaryInfo> pPileupSummaryInfos = *wPileupSummaryInfos->product();
-  oriPUInfos_.push_back(pPileupSummaryInfos);
+  if(hPileupSummaryInfos.isValid()){
+    edm::Wrapper<std::vector<PileupSummaryInfo> > const* wPileupSummaryInfos = static_cast<edm::Wrapper<std::vector<PileupSummaryInfo> > const*>(hPileupSummaryInfos.wrapper());
+    std::vector<PileupSummaryInfo> pPileupSummaryInfos = *wPileupSummaryInfos->product();
+    oriPUInfos_.push_back(pPileupSummaryInfos);
+  }
 }
 
 int factorial(int n)
@@ -262,25 +267,29 @@ JetEventMixer::putOneEvent(edm::Event& evt)
     }
 
     // create new PileupSummaryInfo for the combined event
-    for(std::vector<PileupSummaryInfo>::const_iterator iterPU = oriPUInfos_[i].begin(), iterEnd = oriPUInfos_[i].end(); iterPU != iterEnd; ++iterPU){
-      // vector size is 3
-      // -1: previous BX, 0: current BX,  1: next BX
-      if     (iterPU->getBunchCrossing()==-1) { nPU0 += iterPU->getPU_NumInteractions(); nPUTrue0 += iterPU->getTrueNumInteractions(); }
-      else if(iterPU->getBunchCrossing()== 0) { nPU1 += iterPU->getPU_NumInteractions(); nPUTrue1 += iterPU->getTrueNumInteractions(); }
-      else if(iterPU->getBunchCrossing()== 1) { nPU2 += iterPU->getPU_NumInteractions(); nPUTrue2 += iterPU->getTrueNumInteractions(); }
+    if(oriPUInfos_.size()){
+      for(std::vector<PileupSummaryInfo>::const_iterator iterPU = oriPUInfos_[i].begin(), iterEnd = oriPUInfos_[i].end(); iterPU != iterEnd; ++iterPU){
+        // vector size is 3
+        // -1: previous BX, 0: current BX,  1: next BX
+        if     (iterPU->getBunchCrossing()==-1) { nPU0 += iterPU->getPU_NumInteractions(); nPUTrue0 += iterPU->getTrueNumInteractions(); }
+        else if(iterPU->getBunchCrossing()== 0) { nPU1 += iterPU->getPU_NumInteractions(); nPUTrue1 += iterPU->getTrueNumInteractions(); }
+        else if(iterPU->getBunchCrossing()== 1) { nPU2 += iterPU->getPU_NumInteractions(); nPUTrue2 += iterPU->getTrueNumInteractions(); }
+      }
     }
   }
-  nPU0 /= nMix_;
-  nPU1 /= nMix_;
-  nPU2 /= nMix_;
-  nPUTrue0 /= nMix_;
-  nPUTrue1 /= nMix_;
-  nPUTrue2 /= nMix_;
-  std::vector< float > zpositions, sumpT_lowpT, sumpT_highpT;
-  std::vector< int > ntrks_lowpT, ntrks_highpT;
-  puInfos->push_back(PileupSummaryInfo(nPU0, zpositions, sumpT_lowpT, sumpT_highpT, ntrks_lowpT, ntrks_highpT, -1, nPUTrue0));
-  puInfos->push_back(PileupSummaryInfo(nPU1, zpositions, sumpT_lowpT, sumpT_highpT, ntrks_lowpT, ntrks_highpT,  0, nPUTrue1));
-  puInfos->push_back(PileupSummaryInfo(nPU2, zpositions, sumpT_lowpT, sumpT_highpT, ntrks_lowpT, ntrks_highpT, +1, nPUTrue2));
+  if(oriPUInfos_.size()){
+    nPU0 /= nMix_;
+    nPU1 /= nMix_;
+    nPU2 /= nMix_;
+    nPUTrue0 /= nMix_;
+    nPUTrue1 /= nMix_;
+    nPUTrue2 /= nMix_;
+    std::vector< float > zpositions, sumpT_lowpT, sumpT_highpT;
+    std::vector< int > ntrks_lowpT, ntrks_highpT;
+    puInfos->push_back(PileupSummaryInfo(nPU0, zpositions, sumpT_lowpT, sumpT_highpT, ntrks_lowpT, ntrks_highpT, -1, nPUTrue0));
+    puInfos->push_back(PileupSummaryInfo(nPU1, zpositions, sumpT_lowpT, sumpT_highpT, ntrks_lowpT, ntrks_highpT,  0, nPUTrue1));
+    puInfos->push_back(PileupSummaryInfo(nPU2, zpositions, sumpT_lowpT, sumpT_highpT, ntrks_lowpT, ntrks_highpT, +1, nPUTrue2));
+  }
 
   if(combo.size() > 0 && oriPatJets_[combo[0]].size() > 0) patJets->push_back(oriPatJets_[combo[0]][0]);
   if(combo.size() > 1 && oriPatJets_[combo[1]].size() > 1) patJets->push_back(oriPatJets_[combo[1]][1]);
@@ -297,7 +306,7 @@ JetEventMixer::putOneEvent(edm::Event& evt)
   //evt.put(caloTowersOut, "caloTowers");
   evt.put(pfCandidatesOut, "pfCandidates");
   //evt.put(tagInfosOut, "tagInfos");
-  evt.put(puInfos, "addPileupInfo");
+  if(oriPUInfos_.size()) evt.put(puInfos, "addPileupInfo");
 }
 
 void
