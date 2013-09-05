@@ -2,6 +2,7 @@
 #define ROOFITTOPMASS_C
 
 #include "TTree.h"
+#include "TChain.h"
 #include "TH2F.h"
 
 #include "RooFormulaVar.h"
@@ -41,10 +42,10 @@ private:
 
   // because RooFit only likes plain trees with standard data types (int, float, double, ...)
   // the original tree has to be adapted for the new content
-  TTree* modifiedTree_(TTree *tree);
-  TTree* modifiedTree_(TTree *tree, int comboType);
-  TTree* modifiedTree_(TTree *tree, int minComboType, int maxComboType);
-  TTree* modifiedTree_(TTree *tree, int minComboType, int maxComboType, bool isData);
+  TTree* modifiedTree_(TChain *tree);
+  TTree* modifiedTree_(TChain *tree, int comboType);
+  TTree* modifiedTree_(TChain *tree, int minComboType, int maxComboType);
+  TTree* modifiedTree_(TChain *tree, int minComboType, int maxComboType, bool isData);
   void UnknownChannelAbort();
 
   void fillAlpha(std::vector<RooFormulaVar*>& alpha, int& h, RooArgSet argSet);

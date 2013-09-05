@@ -1,8 +1,8 @@
-C := g++ -g -Wall -fPIC
+C := g++ -g -Wall -fPIC -std=c++0x
 L := g++ -g
 
 ROOTCFLAGS  := $(shell root-config --cflags)
-ROOTLIBS    := $(shell root-config --libs) -lRooFit
+ROOTLIBS    := $(shell root-config --libs) -lRooFit -lRooFitCore -lTreePlayer
 ROOTLDFLAGS := $(shell root-config --ldflags)
 
 # files for TopMassAnalyzer
@@ -33,16 +33,16 @@ obj:
 	@mkdir -p obj/3
 
 TopMass: obj $(OBJ_FILES) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT) obj/1/main.o
-	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) -Wl,-rpath -Wl,lib -lboost_program_options -L/afs/naf.desy.de/user/e/eschliec/wd/LHAPDF/lib -lLHAPDF -o $@ obj/1/main.o $(OBJ_FILES) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
+	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) -Wl,-rpath -Wl,lib -L/afs/naf.desy.de/group/cms/sw/slc5_amd64_gcc462/external/boost/1.50.0-cms2/lib -lboost_program_options -L/afs/naf.desy.de/user/e/eschliec/wd/LHAPDF/lib -lLHAPDF -o $@ obj/1/main.o $(OBJ_FILES) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
 	@echo -e "\033[32m\033[1mSuccessfully compiled TopMass\033[0m"
 
 Calibration: obj $(OBJ_FILES_CALIBRATION) $(OBJ_FILES) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT) obj/3/calibration_main.o
-	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) -Wl,-rpath -Wl,lib -lboost_program_options -L/afs/naf.desy.de/user/e/eschliec/wd/LHAPDF/lib -lLHAPDF -o $@ obj/3/calibration_main.o $(OBJ_FILES_CALIBRATION) $(OBJ_FILES) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
+	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) -Wl,-rpath -Wl,lib -L/afs/naf.desy.de/group/cms/sw/slc5_amd64_gcc462/external/boost/1.50.0-cms2/lib -lboost_program_options -L/afs/naf.desy.de/user/e/eschliec/wd/LHAPDF/lib -lLHAPDF -o $@ obj/3/calibration_main.o $(OBJ_FILES_CALIBRATION) $(OBJ_FILES) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
 	@echo -e "\033[32m\033[1mSuccessfully compiled Calibration\033[0m"
 
 #rules
 obj/1/%.o: src/%.cxx
-	$(C) $(ROOTCFLAGS) -I../.. -Iinc/ -I/afs/naf.desy.de/user/e/eschliec/wd/LHAPDF/include -MMD -c -o $@ $<
+	$(C) $(ROOTCFLAGS) -I/afs/naf.desy.de/group/cms/sw/slc5_amd64_gcc462/external/boost/1.50.0-cms2/include -I../.. -Iinc/ -I/afs/naf.desy.de/user/e/eschliec/wd/LHAPDF/include -MMD -c -o $@ $<
 #@sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
 #     -e '/^$$/ d' -e 's/$$/ :/' < $*.d >> $*.d
 
@@ -52,7 +52,7 @@ obj/2/%_dict.cc: ../TopEventTree/interface/%.h ../TopEventTree/interface/%_LinkD
 obj/2/%_dict.o: obj/2/%_dict.cc
 	$(C) $(ROOTCFLAGS) -I../.. -I. -MMD -c $< -o $@
 
-obj/2/%.o: ../TopEventTree/src/%.cc
+obj/2/%.o: ../TopEventTree/src/%.cc ../TopEventTree/interface/%.h
 	$(C) $(ROOTCFLAGS) -I../.. -MMD -c -o $@ $<
 
 obj/3/%.o: root/%.cc
