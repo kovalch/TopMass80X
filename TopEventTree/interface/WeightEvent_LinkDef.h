@@ -5,5 +5,6 @@
 #pragma link off all functions;
 
 #pragma link C++ class WeightEvent+;
+#pragma link C++ class vector<int>+;
 
 #endif

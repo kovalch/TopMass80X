@@ -248,13 +248,13 @@ void Helper::DrawCMS(int channelID, int energy) {
   }
   else if(energy == 8){
     if(po::GetOption<int>("preliminary")){
-      if     (channelID == kAllJets     ) DrawLabel("CMS Preliminary, X.X fb^{-1},  #sqrt{s} = 8 TeV"         , 0.2, 0.93, 0.9);
+      if     (channelID == kAllJets     ) DrawLabel("CMS Preliminary, 18.3 fb^{-1},  #sqrt{s} = 8 TeV"         , 0.2, 0.93, 0.9);
       else if(channelID == kLeptonJets  ) DrawLabel("CMS Preliminary, X.X fb^{-1},  #sqrt{s} = 8 TeV, l+jets"  , 0.2, 0.93, 0.9);
       else if(channelID == kElectronJets) DrawLabel("CMS Preliminary, X.X fb^{-1},  #sqrt{s} = 8 TeV, e+jets"  , 0.2, 0.93, 0.9);
       else if(channelID == kMuonJets    ) DrawLabel("CMS Preliminary, X.X fb^{-1},  #sqrt{s} = 8 TeV, #mu+jets", 0.2, 0.93, 0.9);
     }
     else{
-      if     (channelID == kAllJets     ) DrawLabel("CMS, X.X fb^{-1},  #sqrt{s} = 8 TeV"         , 0.2, 0.93, 0.9);
+      if     (channelID == kAllJets     ) DrawLabel("CMS, 18.3 fb^{-1},  #sqrt{s} = 8 TeV"         , 0.2, 0.93, 0.9);
       else if(channelID == kLeptonJets  ) DrawLabel("CMS, X.X fb^{-1},  #sqrt{s} = 8 TeV, l+jets"  , 0.2, 0.93, 0.9);
       else if(channelID == kElectronJets) DrawLabel("CMS, X.X fb^{-1},  #sqrt{s} = 8 TeV, e+jets"  , 0.2, 0.93, 0.9);
       else if(channelID == kMuonJets    ) DrawLabel("CMS, X.X fb^{-1},  #sqrt{s} = 8 TeV, #mu+jets", 0.2, 0.93, 0.9);

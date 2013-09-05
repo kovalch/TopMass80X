@@ -41,7 +41,7 @@ TopMass::TopMass() :
   std::vector<float> vBinning;
   
   if (!fBinning_.CompareTo("deltaThetaHadWHadB")) {
-      float xbins[] = {0, TMath::Pi()};
+      float xbins[] = {0, float(TMath::Pi())};
       vBinning.assign(xbins, xbins + sizeof(xbins) / sizeof(xbins[0]));
   }
   else if (!fBinning_.CompareTo("hadTopPt")) {
@@ -80,7 +80,7 @@ TopMass::TopMass() :
       float xbins[] = {100, 550};
       vBinning.assign(xbins, xbins + sizeof(xbins) / sizeof(xbins[0]));
   }
-  else if (!fBinning_.CompareTo("fitTop1[0].M()")) {
+  else if (!fBinning_.CompareTo("top.fitTop1[0].M()")) {
       float xbins[] = {100, 550};
       vBinning.assign(xbins, xbins + sizeof(xbins) / sizeof(xbins[0]));
   }

@@ -3,6 +3,8 @@
 #include <string>
 
 #include "TCanvas.h"
+#include "TChain.h"
+#include "TEntryList.h"
 #include "TROOT.h"
 
 #include "GenMatchAnalyzer.h"
@@ -27,6 +29,7 @@ Analysis::Analysis(std::vector<float> v):
   vBinning_   (v),
   fChannelID_ (Helper::channelID()),
   fMethodID_  (Helper::methodID()),
+  fCreator_(0),
   fTree_(0)
 {
 }
@@ -38,6 +41,7 @@ Analysis::~Analysis()
   }
   histograms_.clear();
   //delete fTree_; // deletion is taken care of by MassAnalyzer
+  delete fCreator_;
 }
 
 void Analysis::Analyze() {
@@ -45,23 +49,24 @@ void Analysis::Analyze() {
   std::cout << "Analyze " << fIdentifier_ << " with method " << fMethod_ << std::endl;
 
   // random subset creation
-  RandomSubsetCreator* fCreator = 0;
-  if (fChannelID_ == Helper::kElectronJets || fChannelID_ == Helper::kMuonJets || fChannelID_ == Helper::kLeptonJets) {
-    fCreator = new RandomSubsetCreatorLeptonJets();
-  }
-  else if (fChannelID_ == Helper::kAllJets) {
-    if (fMethodID_ == Helper::kIdeogramNew) {
-      fCreator = new RandomSubsetCreatorNewInterface();
+  if(!fCreator_){
+    if (fChannelID_ == Helper::kElectronJets || fChannelID_ == Helper::kMuonJets || fChannelID_ == Helper::kLeptonJets) {
+      fCreator_ = new RandomSubsetCreatorLeptonJets();
     }
-    else{
-      fCreator = new RandomSubsetCreatorAllJets();
+    else if (fChannelID_ == Helper::kAllJets) {
+      if (fMethodID_ == Helper::kIdeogramNew) {
+        fCreator_ = new RandomSubsetCreatorNewInterface();
+      }
+      else{
+        fCreator_ = new RandomSubsetCreatorAllJets();
+      }
+    }
+    else {
+      std::cerr << "Stopping analysis! Specified decay channel *" << po::GetOption<std::string>("channel") << "* not known!" << std::endl;
+      return;
     }
   }
-  else {
-    std::cerr << "Stopping analysis! Specified decay channel *" << po::GetOption<std::string>("channel") << "* not known!" << std::endl;
-    return;
-  }
-  fTree_ = fCreator->CreateRandomSubset();
+  fTree_ = fCreator_->CreateRandomSubset();
 
   MassAnalyzer* fAnalyzer = 0;
 
@@ -84,11 +89,10 @@ void Analysis::Analyze() {
   
   for(unsigned int i = 0; i < vBinning_.size()-1; ++i) {
     // calculate cuts
-    TString cuts;
     std::stringstream stream;
     stream << vBinning_[i] << " < " << fBinning_ << " & "
            << fBinning_ << " < " << vBinning_[i+1];
-    cuts = stream.str();
+    TString cuts = stream.str();
     
     if (fMethodID_ == Helper::kGenMatch) {
       cuts += " & target == 1";
@@ -103,7 +107,17 @@ void Analysis::Analyze() {
     else if (fMethodID_ == Helper::kRooFit) {
     }
 
-    int entries = fTree_->GetEntries(cuts);
+    std::cout << fTree_->GetEntryList()->GetN() << std::endl;
+
+    TCanvas* canvDummy = new TCanvas();
+    fTree_->Draw("top.fitTop1[0].M()");
+    canvDummy->Print("canvDummy.eps");
+
+    fTree_->Draw(">>selectedEventsBin",cuts,"entrylist");
+    TEntryList *selectedEventsBin = (TEntryList*)gDirectory->Get("selectedEventsBin");
+    fTree_->SetEntryList(selectedEventsBin);
+
+    int entries = selectedEventsBin->GetN();
     std::cout << cuts << std::endl;
     std::cout << entries << std::endl;
 
@@ -112,18 +126,18 @@ void Analysis::Analyze() {
 
     if (entries > 25) {
       fAnalyzer->Analyze(cuts, i, 0);
-      const std::map<TString, std::pair<double, double> > values = fAnalyzer->GetValues();
+      const std::map<TString, std::pair<double, double>> values = fAnalyzer->GetValues();
 
-      for(std::map<TString, std::pair<double, double> >::const_iterator value = values.begin(); value != values.end(); ++value){
+      for(std::map<TString, std::pair<double, double>>::const_iterator value = values.begin(); value != values.end(); ++value){
         CreateHisto(value->first);
         CreateHisto(value->first+TString("_Error"));
         CreateHisto(value->first+TString("_Pull"));
       }
-      std::cout << std::endl;
+
       double genMass = po::GetOption<double>("mass");
       double genJES  = po::GetOption<double>("jes" );
       double genfSig = po::GetOption<double>("fsig");
-      for(std::map<TString, std::pair<double, double> >::const_iterator value = values.begin(); value != values.end(); ++value){
+      for(std::map<TString, std::pair<double, double>>::const_iterator value = values.begin(); value != values.end(); ++value){
         double val      = value->second.first;
         double valError = value->second.second;
         double gen = 0;
@@ -164,15 +178,15 @@ void Analysis::Analyze() {
   TString binningForPath = fBinning_;
   binningForPath.ReplaceAll("[","_"); binningForPath.ReplaceAll("]","_"); binningForPath.ReplaceAll("(","_"); binningForPath.ReplaceAll(")","_");
   binningForPath.ReplaceAll(".","_"); binningForPath.ReplaceAll("/","_");
-  TString path("plot/"); path += fMethod_; path += "_"; path += fIdentifier_; path += "_"; path += binningForPath; path += ".eps";
+  TString localIdentifier = fIdentifier_; localIdentifier.ReplaceAll("*","_"); localIdentifier.ReplaceAll("/","_");
+  TString path("plot/"); path += fMethod_; path += "_"; path += localIdentifier; path += "_"; path += binningForPath; path += ".eps";
   canvas->Print(path);
   
-  TString pathr("plot/"); pathr += fMethod_; pathr += "_"; pathr += fIdentifier_; pathr += "_"; pathr += binningForPath; pathr += ".root";
+  TString pathr("plot/"); pathr += fMethod_; pathr += "_"; pathr += localIdentifier; pathr += "_"; pathr += binningForPath; pathr += ".root";
   canvas->Print(pathr);
   
   delete canvas;
   delete fAnalyzer;
-  delete fCreator;
 }
 
 void Analysis::CreateHisto(TString name) {
@@ -196,7 +210,7 @@ Analysis::GetH1(TString histName){
   }
   else{
     std::cerr << "The searched histogram *" << histName << "* does not exist!" << std::endl;
-    assert(0);
+    raise(SIGINT);
   }
   return 0;
 }

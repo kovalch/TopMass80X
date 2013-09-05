@@ -5,12 +5,15 @@
 #include "TString.h"
 #include "TTree.h"
 
+class RandomSubsetCreator;
+
 class Analysis {
  private:
 
   const TString samplePath_, fIdentifier_, fMethod_, fBinning_;
   std::vector<float> vBinning_;
   const int fChannelID_, fMethodID_;
+  RandomSubsetCreator* fCreator_;
 
   TTree* fTree_;
 
@@ -31,4 +34,3 @@ class Analysis {
   TString GetIdentifier();
 
 };
-

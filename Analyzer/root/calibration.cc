@@ -20,6 +20,7 @@
 //#include "TSystem.h"
 #include "TLorentzVector.h"
 #include "TClonesArray.h"
+#include "TEventList.h"
 
 #include "RooAddition.h"
 #include "RooAddPdf.h"
@@ -64,7 +65,7 @@ TopMassCalibration::TopMassCalibration() :
     samplePath_ (po::GetOption<std::string>("analysisConfig.samplePath")),
     fChannel_   (po::GetOption<std::string>("channel")),
     doCalibration_(true),
-    fitBackground_(true),
+    fitBackground_(false),
     doMeasurement_(false)
 {
   if      (!strcmp(fChannel_, "alljets" )) channelID_ = kAllJets;
@@ -163,20 +164,21 @@ TopMassCalibration::rooFitTopMass_()
   RooDataSet *reducedDataset[nTemplates];
   //RooDataHist* hist[1][nTemplates];
 
-  RooRealVar comboTypeVar   = RooRealVar("comboType"     ,"comboType"  ,  0.,   7.,"");
-  RooRealVar prob           = RooRealVar("prob"          ,"P(#chi^{2})",  0.,   1.,"");
+  RooRealVar comboTypeVar   = RooRealVar("comboType"     ,"comboType"  ,  -10.,   6.9,"");
+  //RooRealVar prob           = RooRealVar("prob"          ,"P(#chi^{2})",  0.,   1.,"");
   RooRealVar MTOP           = RooRealVar("topMass"       ,"m_{t}^{fit}",100., 550.,"GeV");
-  RooRealVar meanMW         = RooRealVar("meanWMass"     ,"m_{W}^{rec}",  0.,7000.,"GeV");
+  RooRealVar meanMW         = RooRealVar("meanWMass"     ,"m_{W}^{rec}", 50., 300.,"GeV");
   RooRealVar combinedWeight = RooRealVar("combinedWeight","weight"     ,  0., 100.,"");
 
   if(channelID_ == kAllJets){
     comboTypeVar.setRange("R1",0.9,1.1);
-    comboTypeVar.setRange("R4",1.9,4.1);
-    comboTypeVar.setRange("R5",4.9,6.1);
+    comboTypeVar.setRange("R4",-9.9,-0.1);
+    comboTypeVar.setRange("R5",1.9,6.1);
   }
-  MTOP.setRange("mTopFitRange",100.,550.);
+  MTOP  .setRange("mTopFitRange",100.,550.);
+  meanMW.setRange("mWFitRange", 50.,300.);
 
-  RooArgSet varSet = RooArgSet(comboTypeVar,prob,MTOP,meanMW,combinedWeight,"varSet");
+  RooArgSet varSet = RooArgSet(comboTypeVar,/*prob,*/MTOP,meanMW,combinedWeight,"varSet");
 
   RooAddPdf *topAdd = 0;
   RooAddPdf   *wAdd = 0;
@@ -190,7 +192,8 @@ TopMassCalibration::rooFitTopMass_()
         TString fileName;
         if(channelID_ == kAllJets){
           //fileName += "Z2_F11_ABS_JES";
-          fileName += "Z2_S12_ABS_JES";
+          //fileName += "Z2_S12_ABS_JES";
+          fileName += "TopMassTreeWriter_02_MC01/Z2_S12_ABS_JES";
           if     (iJES  == 0) fileName += "_096_";
           else if(iJES  == 1) fileName += "_098_";
           else if(iJES  == 2) fileName += "_100_";
@@ -205,23 +208,41 @@ TopMassCalibration::rooFitTopMass_()
           else if(iMass == 6) fileName += "178_5";
           else if(iMass == 7) fileName += "181_5";
           else if(iMass == 8) fileName += "184_5";
-          fileName += "_sig.root";
+          fileName += "_sig/*.root";
+          //fileName += "_sig.root";
         }
-        std::cout << "Creating RooDataSet for: " << fileName << std::endl;
+        std::cout << "Creating RooDataSet for: " << fileName;
 
-        TFile *file = TFile::Open(samplePath_+TString(fileName));
-        TTree *tree = (TTree*)file->Get("analyzeKinFit/eventTree");
+        //TFile *file = TFile::Open(samplePath_+TString(fileName));
+        //TTree *tree = (TTree*)file->Get("analyzeKinFit/eventTree");
+        TChain *chain = new TChain("analyzeKinFit/eventTree");
+        if(iMass == 4) {
+          TString whichJES;
+          if     (iJES  == 0) whichJES += "_096_";
+          else if(iJES  == 1) whichJES += "_098_";
+          else if(iJES  == 2) whichJES += "_100_";
+          else if(iJES  == 3) whichJES += "_102_";
+          else if(iJES  == 4) whichJES += "_104_";
+          std::cout << " (nFiles: " << chain->Add(samplePath_+TString("TopMassTreeWriter_02_MC01/Z2_S12_Had1_ABS_JES")+whichJES+TString("172_5_sig/*.root"))
+                                     + chain->Add(samplePath_+TString("TopMassTreeWriter_02_MC01/Z2_S12_Had2_ABS_JES")+whichJES+TString("172_5_sig/*.root"))
+                                     + chain->Add(samplePath_+TString("TopMassTreeWriter_02_MC01/Z2_S12_Semi_ABS_JES")+whichJES+TString("172_5_sig/*.root"))
+                                     + chain->Add(samplePath_+TString("TopMassTreeWriter_02_MC01/Z2_S12_Lept_ABS_JES")+whichJES+TString("172_5_sig/*.root"))
+                                    << ")" << std::endl;
+        }
+        else {
+          std::cout << " (nFiles: " << chain->Add(samplePath_+TString(fileName)) << ")" << std::endl;
+        }
         //TTree *tree = (TTree*)file->Get("FullHadTreeWriter/tree");
         tmpFile->cd();
-        tree = modifiedTree_(tree); //, minComboType, maxComboType);
-        file->Close();
+        TTree* tree = modifiedTree_(chain); //, minComboType, maxComboType);
+        //file->Close();
         int iTempl = iMass*nJES+iJES;
         name = "dataset_"; name += iTempl;
 
         // needed to avoid a crash
-        double co, pr, mt, mw, cw;
+        double co, /*pr,*/ mt, mw, cw;
         tree->SetBranchAddress("comboType", &co);
-        tree->SetBranchAddress("prob", &pr);
+        //tree->SetBranchAddress("prob", &pr);
         tree->SetBranchAddress("topMass", &mt);
         tree->SetBranchAddress("meanWMass", &mw);
         tree->SetBranchAddress("combinedWeight", &cw);
@@ -251,14 +272,14 @@ TopMassCalibration::rooFitTopMass_()
 
         int h = nComboTypes*templType + comboType;
 
-        RooRealVar MassOffset       = RooRealVar("MassOffset"      ,"MassOffset"      , 0.); MassOffset      .setConstant(kTRUE);
-        RooRealVar MassSlopeMass    = RooRealVar("MassSlopeMass"   ,"MassSlopeMass"   , 0.); MassSlopeMass   .setConstant(kTRUE);
-        RooRealVar MassSlopeJES     = RooRealVar("MassSlopeJES"    ,"MassSlopeJES"    , 0.); MassSlopeJES    .setConstant(kTRUE);
-        RooRealVar MassSlopeMassJES = RooRealVar("MassSlopeMassJES","MassSlopeMassJES", 0.); MassSlopeMassJES.setConstant(kTRUE);
-        RooRealVar JESOffset        = RooRealVar("JESOffset"       ,"JESOffset"       , 0.); JESOffset       .setConstant(kTRUE);
-        RooRealVar JESSlopeMass     = RooRealVar("JESSlopeMass"    ,"JESSlopeMass"    , 0.); JESSlopeMass    .setConstant(kTRUE);
-        RooRealVar JESSlopeJES      = RooRealVar("JESSlopeJES"     ,"JESSlopeJES"     , 0.); JESSlopeJES     .setConstant(kTRUE);
-        RooRealVar JESSlopeMassJES  = RooRealVar("JESSlopeMassJES" ,"JESSlopeMassJES" , 0.); JESSlopeMassJES .setConstant(kTRUE);
+        RooRealVar MassOffset        = RooRealVar("MassOffset"       ,"MassOffset"       , 0.); MassOffset       .setConstant(kTRUE);
+        RooRealVar MassSlopeMass     = RooRealVar("MassSlopeMass"    ,"MassSlopeMass"    , 0.); MassSlopeMass    .setConstant(kTRUE);
+        RooRealVar MassSlopeJES      = RooRealVar("MassSlopeJES"     ,"MassSlopeJES"     , 0.); MassSlopeJES     .setConstant(kTRUE);
+        RooRealVar MassSlopeMassJES  = RooRealVar("MassSlopeMassJES" ,"MassSlopeMassJES" , 0.); MassSlopeMassJES .setConstant(kTRUE);
+        RooRealVar JESOffset         = RooRealVar("JESOffset"        ,"JESOffset"        , 0.); JESOffset        .setConstant(kTRUE);
+        RooRealVar JESSlopeMass      = RooRealVar("JESSlopeMass"     ,"JESSlopeMass"     , 0.); JESSlopeMass     .setConstant(kTRUE);
+        RooRealVar JESSlopeJES       = RooRealVar("JESSlopeJES"      ,"JESSlopeJES"      , 0.); JESSlopeJES      .setConstant(kTRUE);
+        RooRealVar JESSlopeMassJES   = RooRealVar("JESSlopeMassJES"  ,"JESSlopeMassJES"  , 0.); JESSlopeMassJES  .setConstant(kTRUE);
         RooRealVar MassOffset2       = RooRealVar("MassOffset2"      ,"MassOffset2"      , 0.); MassOffset2      .setConstant(kTRUE);
         RooRealVar MassSlopeMass2    = RooRealVar("MassSlopeMass2"   ,"MassSlopeMass2"   , 0.); MassSlopeMass2   .setConstant(kTRUE);
         RooRealVar MassSlopeJES2     = RooRealVar("MassSlopeJES2"    ,"MassSlopeJES2"    , 0.); MassSlopeJES2    .setConstant(kTRUE);
@@ -280,7 +301,7 @@ TopMassCalibration::rooFitTopMass_()
         RooFormulaVar  JES_corrected = RooFormulaVar(name, name, formula_JES , RooArgSet(JES_intermediate, mTop_intermediate,  JESOffset2,  JESSlopeMass2,  JESSlopeJES2,  JESSlopeMassJES2));
 
         RooRealVar *topMass   = new RooRealVar("topMass"  , "m_{t}^{fit}", 100.,  550., "GeV");
-        RooRealVar *meanWMass = new RooRealVar("meanWMass", "m_{W}^{rec}",   0., 7000., "GeV");
+        RooRealVar *meanWMass = new RooRealVar("meanWMass", "m_{W}^{rec}",  50.,  300., "GeV");
         RooRealVar *var = 0;
         TString comboRangeName = "";
         std::vector<RooRealVar*> par;
@@ -294,62 +315,62 @@ TopMassCalibration::rooFitTopMass_()
 
           if(templType == 0){
             if (comboType == 0){ // mTop, correct
-              double a[] = {172.328, 0.982351 , 85.7756 , 0.871109,
-                            7.17985, 0.0687401,  6.68148, 0.281139};
-                            //172.351, 0.994749 , 85.8624 , 0.819629 ,
-                            //7.31249, 0.0549339,  6.80791, 0.0648612};
-              iniPar = std::vector<double>(a,a+sizeof(a)/sizeof(double));
+              //double a[] = {172.328, 0.982351 , 85.7756 , 0.871109,
+              //              7.17985, 0.0687401,  6.68148, 0.281139};
+              //iniPar = std::vector<double>(a,a+sizeof(a)/sizeof(double));
+              iniPar = {172.478, 0.980786 , 79.2462 ,  0.724549,
+                        7.88763, 0.0719042,  6.25116, -0.0799414};
             }
             else if (comboType == 1){ // mTop, wrong
               double a[] = {182.221,  0.180998 , 35.0042 ,  0.701448,
                             172.565,  1.0841   , 99.7299 ,  0.226163,
                             24.3286, -0.0251085, -6.24156,  0.392888,
                             8.87901, -0.072422 ,  7.45875, -1.6491};
-                            //177.506,  0.72069   , 72.7239 , 0.,
-                            //172.351, 0.994749 , 85.8624 , 0.819629 ,
-                            //23.0854,  0.141175  ,  4.41442, 0.,
-                            //8.21835, -0.00774364, -2.46418, 0.};
               iniPar = std::vector<double>(a,a+sizeof(a)/sizeof(double));
+              //iniPar = {171.534 , 0.36392  , 50.5469 ,  0.885869,
+              //          174.476 , 0.967762 , 84.2048 , -0.469726,
+              //           20.2423, 0.0825402, 15.4528 ,  1.20711,
+              //           12.4386, 0.0652505,  7.62482,  0.000278128};
             }
             else if(comboType == 2){ // mTop, unmatched
-              double a[] = {178.206, 0.26746    , 35.9815  , 1.50419 ,
-                            174.467, 0.991727   , 88.1759  , 0.991246,
-                            21.9042, 0.0375821  ,  3.86448 , 1.34186 ,
-                             8.9953, 0.000352339,  0.885277, 0.126578};
-                            //176.206,  0.697207 , 69.1265, 0.,
-                            //172.351,  0.994749 , 85.8624 , 0.819629 ,
-                            //22.2574,  0.18319  , 16.9791, 0.,
-                            //9.61471, -0.0348847, 1.59068, 0.};
-              iniPar = std::vector<double>(a,a+sizeof(a)/sizeof(double));
+              //double a[] = {178.206, 0.26746    , 35.9815  , 1.50419 ,
+              //              174.467, 0.991727   , 88.1759  , 0.991246,
+              //              21.9042, 0.0375821  ,  3.86448 , 1.34186 ,
+              //               8.9953, 0.000352339,  0.885277, 0.126578};
+              //iniPar = std::vector<double>(a,a+sizeof(a)/sizeof(double));
+              iniPar = {178.883, 0.306507 , 40.7573 ,  0.445759,
+                        174.681, 1.06829  , 83.8601 ,  0.280563,
+                         22.065, 0.0542991,  4.93823,  0.3491,
+                          9.74 , 0.0548014,  2.31277, -0.181041};
             }
           }
           else if(templType == 1){
             if (comboType == 0){ // mW, correct
-              double a[] = {84.4714 , -0.00288904, 57.2879 ,  0.221738 ,
-                             4.25403,  0.00163248, 11.8082 ,  0.0886389,
-                             5.43406, -0.00640861, -6.93172, -0.0742648};
-                             //84.4836 , -0.00235611, 57.7472 ,  0.260235,
-                             //4.3087 , -0.00226071, 12.085  ,  0.108488,
-                             //5.43718, -0.0112025 , -7.38103, -0.125601};
-              iniPar = std::vector<double>(a,a+sizeof(a)/sizeof(double));
+              //double a[] = {84.4714 , -0.00288904, 57.2879 ,  0.221738 ,
+              //               4.25403,  0.00163248, 11.8082 ,  0.0886389,
+              //               5.43406, -0.00640861, -6.93172, -0.0742648};
+              //iniPar = std::vector<double>(a,a+sizeof(a)/sizeof(double));
+              iniPar = {84.5861, -0.00713988, 82.7429, -0.196859,
+                        5.20718, -0.000562235, 21.8792, -0.13701,
+                        6.76429, 0.000500302, -17.8822, 0.0366887};
             }
             else if (comboType == 1){ // mW, wrong
-              double a[] = {84.059 ,  0.00363846, 27.6651, -0.0122909,
-                            4.28601, -0.0106779 ,  5.2756, -0.18915  ,
-                            6.2658 , -0.0133067 , -6.2384,  0.0742743};
-                            //84.0586 ,  0.0314863 , 28.6706 , -0.524549,
-                            // 4.31361,  0.00693565,  5.86459, -0.361966,
-                            // 6.27985, -0.0230866 , -6.57438,  0.40124};
-              iniPar = std::vector<double>(a,a+sizeof(a)/sizeof(double));
+              //double a[] = {84.059 ,  0.00363846, 27.6651, -0.0122909,
+              //              4.28601, -0.0106779 ,  5.2756, -0.18915  ,
+              //              6.2658 , -0.0133067 , -6.2384,  0.0742743};
+              //iniPar = std::vector<double>(a,a+sizeof(a)/sizeof(double));
+              iniPar = {85.2743, -0.0165617, 26.6677, -0.332143,
+                        5.58215, -0.0131054, 6.19793, -0.200832,
+                        7.56877, 0.00863095, -9.94996, 0.100932};
             }
             else if(comboType == 2){ // mW, unmatched
-              double a[] = {84.6333,  0.0205799 , 16.0275, -0.280052,
-                            4.76909,  0.018934  , 2.18012, -0.12839 ,
-                            7.08441, -0.00812571, -6.2732,  0.22637 };
-                            //84.7383 , 0.00308977, 16.0727 ,  0.38017,
-                            // 4.84492, 0.00678078,  2.43329,  0.14005,
-                            // 7.04282, 0.00211119, -6.0521 , -0.17391};
-              iniPar = std::vector<double>(a,a+sizeof(a)/sizeof(double));
+              //double a[] = {84.6333,  0.0205799 , 16.0275, -0.280052,
+              //              4.76909,  0.018934  , 2.18012, -0.12839 ,
+              //              7.08441, -0.00812571, -6.2732,  0.22637 };
+              //iniPar = std::vector<double>(a,a+sizeof(a)/sizeof(double));
+              iniPar = {86.6185, -0.0184471, 32.1242, 0.0815632,
+                        6.48169, -0.0108763, 7.37265, 0.0139849,
+                        7.91363, 0.00815331, -17.3423, -0.00100213};
             }
           }
 
@@ -376,9 +397,10 @@ TopMassCalibration::rooFitTopMass_()
             else if(comboType == 1 || comboType == 2) {
               varName = "ratio_"; varName += h;
               RooRealVar *ratio = new RooRealVar(varName, varName, 0.0, 1.0);
-              if     (comboType == 1) ratio->setVal(0.820546);
-              else if(comboType == 2) ratio->setVal(0.758690);
+              if     (comboType == 1) ratio->setVal(0.662784); //0.820546);
+              else if(comboType == 2) ratio->setVal(0.774588); //0.758690);
               ratio->setConstant(kTRUE);
+              //ratio->setConstant(kFALSE);
               fillAlpha(alpha, h, RooArgSet(*par[0], *par[1], *par[ 2], *par[ 3], mTop_corrected, JES_corrected));
               fillAlpha(alpha, h, RooArgSet(*par[8], *par[9], *par[10], *par[11], mTop_corrected, JES_corrected));
               varName = "landau_"; varName += h;
@@ -418,6 +440,7 @@ TopMassCalibration::rooFitTopMass_()
           //  nll[h][t] = new RooNLLVar(name, name, *workspace[0]->pdf(name_pdf), *hist[h][t], RooFit::NumCPU(1), RooFit::Range(100., 550.));
           //else
           reducedDataset[t] = (RooDataSet*)dataset[t]->reduce(RooFit::CutRange(comboRangeName));
+          std::cout << "Entries in " << name << ": " << reducedDataset[t]->numEntries() << std::endl;
           nll[h][t] = new RooNLLVar(name, name, *workspace[0]->pdf(name_pdf), *reducedDataset[t], RooFit::NumCPU(1), RooFit::Range("mTopFitRange"));
         }
         name = "nllSim_"; name += h;
@@ -445,8 +468,9 @@ TopMassCalibration::rooFitTopMass_()
         TString figName = "";
         for(unsigned t=0; t<nTemplates; ++t) {
           //frame = var_mass[h]->frame();
-          if     (templType == 0) frame = var->frame(RooFit::Range(100., 250.));
-          else if(templType == 1) frame = var->frame(RooFit::Range( 50., 120.));
+          if     (templType == 0 && comboType == 0) frame = var->frame(RooFit::Range(100., 250.));
+          else if(templType == 0)                   frame = var->frame(RooFit::Range(100., 550.));
+          else if(templType == 1)                   frame = var->frame(RooFit::Range( 50., 120.));
           //if(! binnedTemplates) {
           reducedDataset[t]->statOn(frame, RooFit::Layout(.6, .9, .9));
           reducedDataset[t]->plotOn(frame);
@@ -456,6 +480,7 @@ TopMassCalibration::rooFitTopMass_()
           //  hist[h][t]->plotOn(frame);
           //}
           name_pdf = "sig_"; name_pdf += h; name_pdf += "_"+templ[t];
+          std::cout << "PDF Name: " << name_pdf << std::endl;
           workspace[0]->pdf(name_pdf)->plotOn(frame, RooFit::FillColor(kGray), RooFit::VisualizeError(*result));
           workspace[0]->pdf(name_pdf)->plotOn(frame, RooFit::LineColor(kRed+1));
           frame->SetMinimum(.0);
@@ -469,8 +494,9 @@ TopMassCalibration::rooFitTopMass_()
         //const int redPalette[9] = {kRed-9, kRed-8, kRed-7, kRed-6, kRed-5, kRed-4, kRed-3, kRed-2, kRed-1};
         // show functions for different JES values
         //frame = var_mass[h]->frame();
-        if     (templType == 0) frame = var->frame(RooFit::Range(100., 250.));
-        else if(templType == 1) frame = var->frame(RooFit::Range( 50., 120.));
+        if     (templType == 0 && comboType == 0) frame = var->frame(RooFit::Range(100., 250.));
+        else if(templType == 0)                   frame = var->frame(RooFit::Range(100., 550.));
+        else if(templType == 1)                   frame = var->frame(RooFit::Range( 50., 120.));
         for(unsigned t=20; t<25; ++t) {
           name_pdf = "sig_"; name_pdf += h; name_pdf += "_"+templ[t];
           //std::cout << name_pdf << std::endl;
@@ -486,8 +512,9 @@ TopMassCalibration::rooFitTopMass_()
         canvas->Print(outDir + "/catalog.ps");
         // show functions for different mTop values
         //frame = var_mass[h]->frame();
-        if     (templType == 0) frame = var->frame(RooFit::Range(100., 250.));
-        else if(templType == 1) frame = var->frame(RooFit::Range( 50., 120.));
+        if     (templType == 0 && comboType == 0) frame = var->frame(RooFit::Range(100., 250.));
+        else if(templType == 0)                   frame = var->frame(RooFit::Range(100., 550.));
+        else if(templType == 1)                   frame = var->frame(RooFit::Range( 50., 120.));
         //name_pdf = "sig_"; name_pdf += h; name_pdf += "_"+templ[2];
         //workspace[h]->pdf(name_pdf)->plotOn(frame, RooFit::LineColor(kRed+1));
         for(unsigned t=1, i=0; t<nTemplates; t+=5, ++i) {
@@ -622,13 +649,15 @@ TopMassCalibration::rooFitTopMass_()
       std::cout << "Creating BKG dataset" << std::endl;
 
       TString fileName = "QCDEstimationMix_2011_NEW_skimmed2.root";
-      TFile* file = TFile::Open(samplePath_+fileName);
-      TTree* oldTree = (TTree*)file->Get("tree");
+      //TFile* file = TFile::Open(samplePath_+fileName);
+      //TTree* oldTree = (TTree*)file->Get("tree");
+      TChain* oldTree = new TChain("tree");
+      oldTree->Add(samplePath_+fileName);
       tmpFile->cd();
       TTree* tree = modifiedTree_(oldTree);
       //TTree* tree = modifiedTree_(oldTree, -1, 10, true);
 
-      BKG = new RooDataSet("BKG","BKG",varSet,RooFit::Import(*tree),RooFit::WeightVar("prob"));
+      BKG = new RooDataSet("BKG","BKG",varSet,RooFit::Import(*tree));//,RooFit::WeightVar("prob"));
 
       std::cout << "Creating BKG PDFs" << std::endl;
     }
@@ -757,17 +786,19 @@ TopMassCalibration::rooFitTopMass_()
     topAdd = (RooAddPdf*)workspace[0]->pdf("mTopPDF");
     wAdd   = (RooAddPdf*)workspace[0]->pdf("mWPDF"  );
 
-    varSet  = RooArgSet(prob,MTOP,meanMW,"varSet");
+    varSet  = RooArgSet(/*prob,*/MTOP,meanMW,"varSet");
 
     TString fileName = "writeFullHadTree_data_2011.root";
     //TString fileName = "Z2_F11_172_5_sig.root";
-    TFile* file = TFile::Open(samplePath_+fileName);
-    TTree* oldTree = (TTree*)file->Get("FullHadTreeWriter/tree");
+    //TFile* file = TFile::Open(samplePath_+fileName);
+    //TTree* oldTree = (TTree*)file->Get("FullHadTreeWriter/tree");
+    TChain* oldTree = new TChain("FullHadTreeWriter/tree");
+    oldTree->Add(samplePath_+fileName);
     tmpFile->cd();
     bool isData = fileName.Contains("data") ? true : false;
     TTree* tree = modifiedTree_(oldTree, -10, 10, isData);
 
-    RooDataSet* data = new RooDataSet("data","data",varSet,RooFit::Import(*tree),RooFit::WeightVar("prob"));
+    RooDataSet* data = new RooDataSet("data","data",varSet,RooFit::Import(*tree));//,RooFit::WeightVar("prob"));
 
     name = "";
 
@@ -1138,21 +1169,28 @@ TopMassCalibration::rooFitTopMass_()
 // because RooFit only likes plain trees with standard data types (int, float, double, ...)
 // the original tree has to be adapted for the new content
 TTree*
-TopMassCalibration::modifiedTree_(TTree *tree, int minComboType, int maxComboType, bool isData)
+TopMassCalibration::modifiedTree_(TChain *tree, int minComboType, int maxComboType, bool isData)
 {
-  tree = tree->CopyTree(selection_);
+  //TTree* treeCopy = tree->CopyTree(selection_,"",1000);
+  tree->Draw(">>selectedEntries", selection_); //,"",100000);
+  TEventList *selectedEntries = (TEventList*)gDirectory->Get("selectedEntries");
 
-  JetEvent    *jetEvent    = new JetEvent();
+  tree->SetBranchStatus("*", 0);
+  //tree->SetBranchStatus("jet.*"   , 1);
+  tree->SetBranchStatus("top.*"   , 1);
+  tree->SetBranchStatus("weight.*", 1);
+
+  //JetEvent    *jetEvent    = new JetEvent();
   TopEvent    *topEvent    = new TopEvent();
   WeightEvent *weightEvent = new WeightEvent();
 
-  tree->SetBranchAddress("jet"   , jetEvent);
-  tree->SetBranchAddress("top"   , topEvent);
-  tree->SetBranchAddress("weight", weightEvent);
+  //tree->SetBranchAddress("jet."   , &jetEvent);
+  tree->SetBranchAddress("top."   , &topEvent);
+  tree->SetBranchAddress("weight.", &weightEvent);
 
-  double prob,dRbb,topMass,meanWMass,combinedWeight,comboType; //w1Mass,w2Mass;
+  double /*prob,dRbb,*/topMass,meanWMass,combinedWeight,comboType; //w1Mass,w2Mass;
   TTree *newTree = new TTree("tree","tree");
-  newTree->Branch("prob", &prob, "prob/D");
+  //newTree->Branch("prob", &prob, "prob/D");
   newTree->Branch("topMass", &topMass, "topMass/D");
   newTree->Branch("meanWMass", &meanWMass, "meanWMass/D");
   if(!isData){
@@ -1164,44 +1202,50 @@ TopMassCalibration::modifiedTree_(TTree *tree, int minComboType, int maxComboTyp
   //newTree->Branch("w2Mass", &w2Mass, "w2Mass/D");
   //newTree->Branch("", &);
 
-  for(int i = 0, l = tree->GetEntries(); i < l; ++i){
-    tree->GetEntry(i);
-    if(!isData && topEvent->combinationType[0] < minComboType) continue;
-    if(!isData && topEvent->combinationType[0] > maxComboType) continue;
-    prob = topEvent->fitProb[0];
-    dRbb = topEvent->fitB1[0].DeltaR(topEvent->fitB2[0]);
+  //for(int i = 0, l = tree->GetEntries(); i < l; ++i){
+  for(int i = 0, l = selectedEntries->GetN(); i < l; ++i){
+    //jetEvent->init();
+    topEvent->init();
+    weightEvent->init();
+    tree->GetEntry(selectedEntries->GetEntry(i));
+    //selectedEntries->Next();
+    //if(!isData && topEvent->combinationType[0] < minComboType) continue;
+    //if(!isData && topEvent->combinationType[0] > maxComboType) continue;
+    //prob = topEvent->fitProb[0];
+    //dRbb = topEvent->fitB1[0].DeltaR(topEvent->fitB2[0]);
     topMass = topEvent->fitTop1[0].M();
-    meanWMass = (topEvent->fitW1[0].M()+topEvent->fitW2[0].M())/2.;
+    meanWMass = (topEvent->recoW1[0].M()+topEvent->recoW2[0].M())/2.;
     if(!isData){
       //double PUWeight   = weightEvent->puWeight;
       //double BTagWeight = weightEvent->bTagEffWeight; // calcBTagWeight_(Njet, bTag, pdgId, jets);
       //double MCWeight   = weightEvent->mcWeight;
       //combinedWeight = prob * PUWeight * MCWeight * BTagWeight;
-      combinedWeight = prob * weightEvent->combinedWeight;
+      combinedWeight = /*prob * */weightEvent->combinedWeight;
       comboType = topEvent->combinationType[0];
     }
     //combinedWeight = 1.;
     //w1Mass = w1Masses[0];
     //w2Mass = w2Masses[0];
+    //std::cout << comboType << " " << topMass << " " << meanWMass << std::endl;
     newTree->Fill();
   }
   return newTree;
 }
 
 TTree*
-TopMassCalibration::modifiedTree_(TTree *tree, int minComboType, int maxComboType)
+TopMassCalibration::modifiedTree_(TChain *tree, int minComboType, int maxComboType)
 {
   return modifiedTree_(tree, minComboType, maxComboType, false);
 }
 TTree*
-TopMassCalibration::modifiedTree_(TTree *tree, int comboType)
+TopMassCalibration::modifiedTree_(TChain *tree, int comboType)
 {
   return modifiedTree_(tree, comboType, comboType);
 }
 TTree*
-TopMassCalibration::modifiedTree_(TTree *tree)
+TopMassCalibration::modifiedTree_(TChain *tree)
 {
-  return modifiedTree_(tree, -1, 10);
+  return modifiedTree_(tree, -10, 10);
 }
 
 void TopMassCalibration::UnknownChannelAbort(){

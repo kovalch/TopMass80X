@@ -8,6 +8,7 @@
 
 #include "TCanvas.h"
 //#include "TColor.h"
+#include "TEntryList.h"
 #include "TF2.h"
 #include "TFile.h"
 #include "TH1D.h"
@@ -17,9 +18,6 @@
 #include "TROOT.h"
 #include "TStyle.h"
 #include "TSystem.h"
-
-#include "TopMass/TopEventTree/interface/TopEvent.h"
-#include "TopMass/TopEventTree/interface/WeightEvent.h"
 
 typedef ProgramOptionsReader po;
 
@@ -41,7 +39,7 @@ void IdeogramAnalyzerNewInterface::Analyze(const TString& cuts, int i, int j) {
   double epsilon = 1e-6;
   mass = GetValue("mass_mTop_JES").first;
   JES  = GetValue("JES_mTop_JES" ).first;
-  Scan(cuts, i, j, mass-10, mass+10, 0.1 , 1.-epsilon, 1.+epsilon, epsilon, false);
+  Scan(cuts, i, j, mass-10, mass+10, 0.1 , 1.-(0.5*epsilon), 1.+(0.5*epsilon), epsilon, false);
 }
 
 
@@ -151,17 +149,20 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
   productLikelihood->SetXTitle("m_{t} [GeV]");
   productLikelihood->SetYTitle("JES");
 
-  TopEvent    *topEvent    = new TopEvent();
-  WeightEvent *weightEvent = new WeightEvent();
+  //TopEvent    *topEvent    = new TopEvent();
+  //WeightEvent *weightEvent = new WeightEvent();
 
   double fitWeight;
   int nEvents = 0;
   double sumWeights = 0.;
 
-  std::cout << "fTree: " << fTree_->GetEntries() << std::endl;
+  //TEntryList *selectedEvents = fTree_->GetEntryList();
+  //std::cout << "fTree: " << selectedEvents->GetN() << std::endl;
 
-  fTree_->SetBranchAddress("top.", &topEvent);
-  fTree_->SetBranchAddress("weight.", &weightEvent);
+  std::cout << "fTree: " <<  << std::endl;
+
+  //fTree_->SetBranchAddress("top.", &topEvent);
+  //fTree_->SetBranchAddress("weight.", &weightEvent);
 
   double isFastSim                     = po::GetOption<int   >("fastsim");
   double shapeSystematic               = po::GetOption<double>("shape"  );
@@ -169,10 +170,13 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
 
   TString plotPath("plot/Ideogram/");
   // Build Likelihood
-  for (int iEntry = 0, length = fTree_->GetEntries(); iEntry < length; ++iEntry) {
+  for (int iEntry = 0, length = selectedEvents->GetN(); iEntry < length; ++iEntry) {
     topEvent->init();
     weightEvent->init();
-    fTree_->GetEntry(iEntry);
+    int treeNumber = 0;
+    int chainEntry = selectedEvents->GetEntryAndTree(iEntry,treeNumber);
+    chainEntry += ((TChain*)fTree_)->GetTreeOffset()[treeNumber];
+    fTree_->GetEntry(chainEntry);
 
     //if (event == currentEvent) continue;
     //currentEvent = event;
@@ -269,7 +273,8 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
       eventLikelihood->SetEntries(1);
       sumLogLikelihood->Draw("COLZ");
       
-      TString eventPath(plotPath); eventPath += fIdentifier_; eventPath += "_"; eventPath += iEntry; eventPath += "_"; eventPath += topEvent->event; eventPath += ".eps";
+      TString localIdentifier = fIdentifier_; localIdentifier.ReplaceAll("*","_"); localIdentifier.ReplaceAll("/","_");
+      TString eventPath(plotPath); eventPath += localIdentifier; eventPath += "_"; eventPath += iEntry; eventPath += "_"; eventPath += topEvent->event; eventPath += ".eps";
       std::cout << eventPath << std::endl;
       eventCanvas->Print(eventPath);
       
@@ -439,7 +444,8 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
   
     std::cout << "massError: " << massError << std::endl;
   
-    TString path(plotPath); path+= fIdentifier_; path += "_"; path += i; path += "_"; path += j; path += ".eps";
+    TString localIdentifier = fIdentifier_; localIdentifier.ReplaceAll("*","_"); localIdentifier.ReplaceAll("/","_");
+    TString path(plotPath); path+= localIdentifier; path += "_"; path += i; path += "_"; path += j; path += ".eps";
     ctemp->Print(path);
     delete leg0;
   }
@@ -490,7 +496,8 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
 
     helper->DrawCMS();
   
-    TString path1D(plotPath); path1D+= fIdentifier_; path1D += "_"; path1D += i; path1D += "_"; path1D += j; path1D += "_1D.eps";
+    TString localIdentifier = fIdentifier_; localIdentifier.ReplaceAll("*","_"); localIdentifier.ReplaceAll("/","_");
+    TString path1D(plotPath); path1D+= localIdentifier; path1D += "_"; path1D += i; path1D += "_"; path1D += j; path1D += "_1D.eps";
     ctemp->Print(path1D);
   
     //sumLogLikelihood1D->Delete();

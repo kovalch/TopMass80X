@@ -72,6 +72,9 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("cmsenergy,e", boost::program_options::value<int>()->default_value(7), "cms energy to be used (for example for plots)")
         ("analysisConfig.selection", boost::program_options::value<std::string>())
         ("analysisConfig.samplePath", boost::program_options::value<std::string>())
+        ("analysisConfig.var1", boost::program_options::value<std::string>())
+        ("analysisConfig.var2", boost::program_options::value<std::string>())
+        ("analysisConfig.var3", boost::program_options::value<std::string>())
         ;
 
     boost::program_options::store(boost::program_options::parse_command_line(ac, av, desc), *programOptions_);
