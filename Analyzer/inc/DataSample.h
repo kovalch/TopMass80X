@@ -7,20 +7,30 @@ class DataSample
 {
 public:
 
+  struct SimpleEvent
+  {
+    struct Permutation
+    {
+      double topMass;
+      double wMass;
+      double prob;
+    };
+
+    std::vector<Permutation> permutations;
+    double weight;
+  };
+
   void Clear();
-  void Fill(double topMass, double wMass, double prob, double weight, unsigned char index);
-  template<class T> void Fill(double topMass, double wMass, double prob, double weight, T index) = delete;
+  void Fill(double topMass, double wMass, double prob, double weight, int index);
+  //template<class T> void Fill(double topMass, double wMass, double prob, double weight, T index) = delete;
+  void AddEvent(const SimpleEvent& event);
 
   DataSample& operator+=(const DataSample& sample);
 
   int nEvents;
   double maxWeight;
 
-  std::vector<double> topMasses;
-  std::vector<double> wMasses;
-  std::vector<double> fitProbs;
-  std::vector<double> weights;
-  std::vector<unsigned char> indices;
+  std::vector<SimpleEvent> events;
 };
 
 #endif

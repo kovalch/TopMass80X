@@ -75,6 +75,7 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("analysisConfig.var1", boost::program_options::value<std::string>())
         ("analysisConfig.var2", boost::program_options::value<std::string>())
         ("analysisConfig.var3", boost::program_options::value<std::string>())
+        ("analysisConfig.activeBranches", boost::program_options::value<std::string>()->default_value("*"))
         ;
 
     boost::program_options::store(boost::program_options::parse_command_line(ac, av, desc), *programOptions_);

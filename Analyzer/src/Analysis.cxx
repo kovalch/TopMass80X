@@ -73,7 +73,7 @@ void Analysis::Analyze() {
   if      (fMethodID_ == Helper::kGenMatch   ) fAnalyzer = new GenMatchAnalyzer            (fIdentifier_, fTree_);
   else if (fMethodID_ == Helper::kMVA        ) fAnalyzer = new MVAAnalyzer                 (fIdentifier_, fTree_);
   else if (fMethodID_ == Helper::kIdeogram   ) fAnalyzer = new IdeogramAnalyzer            (fIdentifier_, fTree_);
-  else if (fMethodID_ == Helper::kIdeogramNew) fAnalyzer = new IdeogramAnalyzerNewInterface(fIdentifier_, fTree_);
+  else if (fMethodID_ == Helper::kIdeogramNew) fAnalyzer = new IdeogramAnalyzerNewInterface(fIdentifier_, fTree_, ((RandomSubsetCreatorNewInterface*)fCreator_)->GetDataSample());
   else if (fMethodID_ == Helper::kRooFit     ) fAnalyzer = new RooFitTemplateAnalyzer      (fIdentifier_, fTree_);
   else {
     std::cerr << "Stopping analysis! Specified analysis method *" << fMethod_ << "* not known!" << std::endl;
@@ -107,19 +107,9 @@ void Analysis::Analyze() {
     else if (fMethodID_ == Helper::kRooFit) {
     }
 
-    std::cout << fTree_->GetEntryList()->GetN() << std::endl;
-
-    TCanvas* canvDummy = new TCanvas();
-    fTree_->Draw("top.fitTop1[0].M()");
-    canvDummy->Print("canvDummy.eps");
-
-    fTree_->Draw(">>selectedEventsBin",cuts,"entrylist");
-    TEntryList *selectedEventsBin = (TEntryList*)gDirectory->Get("selectedEventsBin");
-    fTree_->SetEntryList(selectedEventsBin);
-
-    int entries = selectedEventsBin->GetN();
-    std::cout << cuts << std::endl;
-    std::cout << entries << std::endl;
+    // FIXME DUMMY
+    // binning not yet implemented, still needs some time idea ...
+    int entries = 26;
 
     CreateHisto("Entries");
     GetH1("Entries")->SetBinContent(i+1, entries);

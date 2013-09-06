@@ -5,20 +5,12 @@
 #include "ProgramOptionsReader.h"
 
 #include <iostream>
-#include <boost/program_options.hpp>
+#include <boost/progress.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
-#include <boost/progress.hpp>
 
-//#include "TCanvas.h"
 #include "TChain.h"
-//#include "TEntryList.h"
-//#include "TLorentzVector.h"
-#include "TROOT.h"
-//#include "TSystem.h"
 #include "TTreeFormula.h"
-
-//#include "LHAPDF/LHAPDF.h"
 
 typedef ProgramOptionsReader po;
 
@@ -32,41 +24,21 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface() :
     fVar2_      (po::GetOption<std::string>("analysisConfig.var2")),
     fVar3_      (po::GetOption<std::string>("analysisConfig.var3")),
     fWeight_    (po::GetOption<std::string>("weight")),
+    activeBranches_(po::GetOption<std::string>("analysisConfig.activeBranches")),
     fLumi_  (po::GetOption<double>("lumi")),
     fSig_   (po::GetOption<double>("fsig")),
     fBDisc_ (po::GetOption<double>("bdisc")),
-    //topEvent_(new TopEvent()),
-    //weightEvent_(new WeightEvent()),
-    //fChain_(0),
     random_(0)
 {
   channelID_ = Helper::channelID();
 
-  //if (channelID_ == Helper::kAllJets) {
-  //  fChainsSig_.push_back(PrepareEvents(samplePath_+fIdentifier_+TString(".root")));
-  //  //if(fLumi_>0) fChainsBkg_.push_back(PrepareChain(samplePath_+"QCDEstimationMix.root"));
-  //  if(fLumi_>0) fChainsBkg_.push_back(PrepareEvents(samplePath_+"QCDMixing_MJPS12*_data.root"));
-  //}
-  //if (channelID_ == Helper::kMuonJets || channelID_ == Helper::kLeptonJets) {
-  //  fChainsSig_.push_back(PrepareEvents(samplePath_+fIdentifier_+TString("_muon/analyzeTop.root")));
-  //  if(fLumi_>0) {
-  //    fChainsBkg_.push_back(PrepareEvents("/scratch/hh/lustre/cms/user/mseidel/Fall11_Wbb_muon/analyzeTop.root"));
-  //    fChainsBkg_.push_back(PrepareEvents("/scratch/hh/lustre/cms/user/mseidel/Fall11_T_muon/analyzeTop.root"));
-  //  }
-  //  //fTreeTTmu = PrepareTree(samplePath_+fIdentifier_+TString("_muon/analyzeTop.root"));
-  //  //fTreeWmu  = PrepareTree("/scratch/hh/lustre/cms/user/mseidel/Fall11_Wbb_muon/analyzeTop.root");
-  //  //fTreeSTmu = PrepareTree("/scratch/hh/lustre/cms/user/mseidel/Fall11_T_muon/analyzeTop.root");
-  //}
-  //if (channelID_ == Helper::kElectronJets || channelID_ == Helper::kLeptonJets) {
-  //  fChainsSig_.push_back(PrepareEvents(samplePath_+fIdentifier_+TString("_electron/analyzeTop.root")));
-  //  if(fLumi_>0) {
-  //    fChainsBkg_.push_back(PrepareEvents("/scratch/hh/lustre/cms/user/mseidel/Fall11_Wbb_electron/analyzeTop.root"));
-  //    fChainsBkg_.push_back(PrepareEvents("/scratch/hh/lustre/cms/user/mseidel/Fall11_T_electron/analyzeTop.root"));
-  //  }
-  //  //fTreeTTe  = PrepareTree(samplePath_+fIdentifier_+TString("_electron/analyzeTop.root"));
-  //  //fTreeWe   = PrepareTree("/scratch/hh/lustre/cms/user/mseidel/Fall11_Wbb_electron/analyzeTop.root");
-  //  //fTreeSTe  = PrepareTree("/scratch/hh/lustre/cms/user/mseidel/Fall11_T_electron/analyzeTop.root");
-  //}
+  std::cout << "Reading data from disk ..." << std::endl;
+  std::cout << "Event selection: " << selection_ << std::endl;
+
+  time_t start, end;
+  time(&start);
+  time(&end);
+
   if (channelID_ == Helper::kAllJets) {
     PrepareEvents(samplePath_+fIdentifier_+TString(".root"));
     if(fLumi_>0) PrepareEvents(samplePath_+"QCDMixing_MJPS12*_data.root");
@@ -85,6 +57,9 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface() :
       PrepareEvents("/scratch/hh/lustre/cms/user/mseidel/Fall11_T_electron/analyzeTop.root");
     }
   }
+  time(&end);
+  std::cout << "Read data from disk in " << difftime(end, start) << " seconds." << std::endl;
+
   random_ = new TRandom3(0);
   std::cout << "Random seed: " << random_->GetSeed() << std::endl;
 }
@@ -102,8 +77,6 @@ TTree* RandomSubsetCreatorNewInterface::CreateRandomSubset() {
     time_t start, end;
     time(&start);
     time(&end);
-
-    //fChain_ = new TChain("analyzeKinFit/eventTree");
 
     // DATA
     double nEventsDataAllJets  = 11428.;
@@ -146,29 +119,7 @@ TTree* RandomSubsetCreatorNewInterface::CreateRandomSubset() {
 void RandomSubsetCreatorNewInterface::DrawEvents(const DataSample& sample, double nEventsPE) {
   std::cout << "nEventsPE: " << nEventsPE << std::endl;
 
-  //currentChain->SetBranchStatus("*",0);
-  //currentChain->SetBranchStatus("top.*",1);
-  //currentChain->SetBranchStatus("weight.*",1);
-  //
-  //currentChain->SetBranchAddress("top."   , &topEvent_);
-  //currentChain->SetBranchAddress("weight.", &weightEvent_);
-  //
-  //TEntryList *selectedEvents   = currentChain->GetEntryList();
-  //TEntryList *selectedEventsPE = new TEntryList(currentChain);
-
   int perms = sample.nEvents;
-
-  //std::vector<std::string> vWeight;
-  ////FIXME still needs to be implemented correctly, seems to work somehow
-  //boost::split( vWeight, fWeight_, boost::is_any_of("-*"));
-  //
-  //double maxMCWeight = 1.; // calculate upper bound for combined MCWeight
-  //
-  //for (unsigned int i = 0; i < vWeight.size(); ++i) {
-  //  std::cout << vWeight[i] << std::endl;
-  //  if (strncmp((TString) vWeight[i], "weight.pdfWeights", 17)) maxMCWeight *= currentChain->GetMaximum((TString) vWeight[i]);
-  //  else maxMCWeight *= currentChain->GetMaximum("weight.pdfWeights");
-  //}
 
   double maxMCWeight = sample.maxWeight;
 
@@ -186,79 +137,36 @@ void RandomSubsetCreatorNewInterface::DrawEvents(const DataSample& sample, doubl
 
   while (eventsDrawn < (int)nEventsPE) {
     int drawn = random_->Integer(perms);
+    ++nAttempts;
 
-    //topEvent_->init();
-    //weightEvent_->init();
-    //
-    //int treeNumber = 0;
-    //int chainEntry = selectedEvents->GetEntryAndTree(drawn,treeNumber);
-    //chainEntry += currentChain->GetTreeOffset()[treeNumber];
-    //currentChain->GetEntry(chainEntry);
-    //
-    //++nAttempts;
-    //double eventWeight = 1.;
-    //for (unsigned int i = 0; i < vWeight.size(); ++i) {
-    //  if      (!strcmp ((TString) vWeight[i], "weight.combinedWeight"         )) eventWeight *= weightEvent_->combinedWeight;
-    //  else if (!strcmp ((TString) vWeight[i], "weight.mcWeight"               )) eventWeight *= weightEvent_->mcWeight;
-    //  else if (!strcmp ((TString) vWeight[i], "weight.muWeight"               )) eventWeight *= weightEvent_->muWeight;
-    //  else if (!strcmp ((TString) vWeight[i], "weight.puWeight"               )) eventWeight *= weightEvent_->puWeight;
-    //  else if (!strcmp ((TString) vWeight[i], "weight.puWeightUp"             )) eventWeight *= weightEvent_->puWeightUp;
-    //  else if (!strcmp ((TString) vWeight[i], "weight.puWeightDown"           )) eventWeight *= weightEvent_->puWeightDown;
-    //  else if (!strcmp ((TString) vWeight[i], "weight.bTagWeight"             )) eventWeight *= weightEvent_->bTagWeight;
-    //  else if (!strcmp ((TString) vWeight[i], "weight.bTagWeight_bTagSFUp"    )) eventWeight *= weightEvent_->bTagWeight_bTagSFUp;
-    //  else if (!strcmp ((TString) vWeight[i], "weight.bTagWeight_bTagSFDown"  )) eventWeight *= weightEvent_->bTagWeight_bTagSFDown;
-    //  else if (!strcmp ((TString) vWeight[i], "weight.bTagWeight_misTagSFUp"  )) eventWeight *= weightEvent_->bTagWeight_misTagSFUp;
-    //  else if (!strcmp ((TString) vWeight[i], "weight.bTagWeight_misTagSFDown")) eventWeight *= weightEvent_->bTagWeight_misTagSFDown;
-    //  else if (!strncmp((TString) vWeight[i], "weight.pdfWeights", 17)) {
-    //    std::string sub = vWeight[i].substr(11);
-    //    int pdfWeightN = atol(sub.c_str());
-    //    //std::cout << "pdfWeightN: " << pdfWeightN << std::endl;
-    //    eventWeight *= weightEvent_->pdfWeight[pdfWeightN];
-    //  }
-    //}
-    //
-    //if (eventWeight > random_->Uniform(0, maxMCWeight)) {
-    //  if(selectedEventsPE->Enter(chainEntry, currentChain)){
-    //    if (weightEvent_->mcWeight < 0) {
-    //      eventsDrawn += -1;
-    //      //progress    += -1;
-    //    }
-    //    else {
-    //      ++eventsDrawn;
-    //      ++progress;
-    //    }
-    //  }
-    //}
-
-    if (std::abs(sample.weights.at(drawn)) > random_->Uniform(0, maxMCWeight)) {
-        if (sample.weights.at(drawn) < 0) {
-          eventsDrawn += -1;
-          //progress    += -1;
-        }
-        else {
-          ++eventsDrawn;
-          ++progress;
+    if (std::abs(sample.events.at(drawn).weight) > random_->Uniform(0, maxMCWeight)) {
+      subset_.AddEvent(sample.events.at(drawn));
+      if (sample.events.at(drawn).weight < 0) {
+        eventsDrawn += -1;
+        //progress    += -1;
+      }
+      else {
+        ++eventsDrawn;
+        ++progress;
       }
     }
   }
-
-  //fChain_->Add(currentChain);
-  //TEntryList* entryList = fChain_->GetEntryList();
-  //if(entryList){
-  //  entryList->Add(selectedEventsPE);
-  //  fChain_->SetEntryList(entryList);
-  //}
-  //else{
-  //  fChain_->SetEntryList(selectedEventsPE);
-  //}
 
   std::cout << eventsDrawn << " events drawn in " << nAttempts << " attempts." << std::endl;
 }
 
 void RandomSubsetCreatorNewInterface::PrepareEvents(TString file) {
+
   TChain* chain = new TChain("analyzeKinFit/eventTree");
   int nFiles = chain->Add(file);
   std::cout << "Adding " << nFiles << " files for " << file << std::flush;
+
+  chain->SetBranchStatus("*", 0);
+  std::vector<std::string> vActiveBanches;
+  boost::split( vActiveBanches, activeBranches_, boost::is_any_of("|"));
+  for(auto branch : vActiveBanches){
+    chain->SetBranchStatus(branch.c_str(), 1);
+  }
 
   TTreeFormula *f1     = new TTreeFormula("f1"    , fVar1_  .c_str(), chain);
   TTreeFormula *f2     = new TTreeFormula("f2"    , fVar2_  .c_str(), chain);
@@ -272,29 +180,27 @@ void RandomSubsetCreatorNewInterface::PrepareEvents(TString file) {
   int selected = 0;
   for(int i = 0; ; ++i){
     if(chain->LoadTree(i) < 0) break;
+    if(chain->LoadTree(i) == 0){
+      f1    ->UpdateFormulaLeaves();
+      f2    ->UpdateFormulaLeaves();
+      f3    ->UpdateFormulaLeaves();
+      weight->UpdateFormulaLeaves();
+      index ->UpdateFormulaLeaves();
+      sel   ->UpdateFormulaLeaves();
+    }
     if(!sel->GetNdata()) continue;
-    //std::cout << f1->GetNdata() << " " << f2->GetNdata() << " " << f3->GetNdata() << " " << weight->GetNdata() << " " << index->GetNdata() << " " << sel->GetNdata() << std::endl;
-    //std::cout << f1->GetExpFormula() << " " << f2->GetExpFormula() << " " << f3->GetExpFormula() << " " << weight->GetExpFormula() << " " << index->GetExpFormula() << " " << sel->GetExpFormula() << std::endl;
-    //std::cout << f1->EvalInstance(0) << " " << f2->EvalInstance(0) << " " << f3->EvalInstance(0) << " " << weight->EvalInstance(0) << " " << index->EvalInstance(0) << " " << sel->EvalInstance(0) << std::endl;
-    for(unsigned char j = 0, l = index->GetNdata(); j < l; ++j)
-      sample.Fill(f1->EvalInstance(j), f2->EvalInstance(j), f3->EvalInstance(j), weight->EvalInstance(j), (unsigned char)(index->EvalInstance(j)));
+    if(!sel->EvalInstance(0)) continue;
+    for(int j = 0, l = index->GetNdata(); j < l; ++j){
+      if(!sel->EvalInstance(j)) continue;
+      sample.Fill(f1->EvalInstance(j), f2->EvalInstance(j), f3->EvalInstance(j), weight->EvalInstance(j), (int)(index->EvalInstance(j)));
+      //if(i < 10) std::cout << f1->EvalInstance(j) << " " << f2->EvalInstance(j) << " " << f3->EvalInstance(j) << std::endl;
+    }
     ++selected;
   }
 
   sample.nEvents = selected;
-  std::cout << ": " << selected << " events \n(" << selection_ << ")" << std::endl;
-
-  //TString selectionName = file;
-  //selectionName.ReplaceAll("*","");
-  //selectionName.ReplaceAll("/","");
-  //selectionName.ReplaceAll(".","");
-  //
-  //chain->Draw(">>selectedEvents_"+selectionName,selection_,"entrylist");
-  //TEntryList *selectedEvents = (TEntryList*)gDirectory->Get("selectedEvents_"+selectionName);
-  //std::cout << ": " << selectedEvents->GetN() << " events \n(" << selection_ << ")" << std::endl;
-  //chain->SetEntryList(selectedEvents);
+  std::cout << ": " << selected << " events" << std::endl;
 
   events_.push_back(sample);
-
-  //return chain;
+  delete chain;
 }

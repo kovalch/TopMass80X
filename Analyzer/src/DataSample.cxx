@@ -5,21 +5,25 @@ void DataSample::Clear()
   nEvents = 0;
   maxWeight = 0;
 
-  topMasses.clear();
-  wMasses  .clear();
-  fitProbs .clear();
-  weights  .clear();
-  indices  .clear();
+  events.clear();
 }
 
-void DataSample::Fill(double topMass, double wMass, double prob, double weight, unsigned char index)
+void DataSample::Fill(double topMass, double wMass, double prob, double weight, int index)
 {
-  topMasses.push_back(topMass);
-  wMasses  .push_back(wMass);
-  fitProbs .push_back(prob);
-  weights  .push_back(weight);
-  indices  .push_back(index);
-  if(weight > maxWeight) maxWeight = weight;
+  if(index == 0){
+    events.push_back(SimpleEvent());
+    events.back().weight = weight;
+    if(weight > maxWeight) maxWeight = weight;
+    ++nEvents;
+  }
+  events.back().permutations.push_back({topMass, wMass, prob});
+}
+
+void DataSample::AddEvent(const SimpleEvent& event)
+{
+  events.push_back(event);
+  if(event.weight > maxWeight) maxWeight = event.weight;
+  ++nEvents;
 }
 
 DataSample& DataSample::operator+=(const DataSample& sample)
@@ -27,11 +31,7 @@ DataSample& DataSample::operator+=(const DataSample& sample)
   nEvents += sample.nEvents;
   if(sample.maxWeight > maxWeight) maxWeight = sample.maxWeight;
 
-  topMasses.insert(topMasses.end(),sample.topMasses.begin(),sample.topMasses.end());
-  wMasses  .insert(wMasses  .end(),sample.wMasses  .begin(),sample.wMasses  .end());
-  fitProbs .insert(fitProbs .end(),sample.fitProbs .begin(),sample.fitProbs .end());
-  weights  .insert(weights  .end(),sample.weights  .begin(),sample.weights  .end());
-  indices  .insert(indices  .end(),sample.indices  .begin(),sample.indices  .end());
+  events.insert(events.end(),sample.events.begin(),sample.events.end());
 
   return *this;
 }
