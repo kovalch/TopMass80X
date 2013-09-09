@@ -15,7 +15,6 @@
 #include "TH1D.h"
 #include "TH2D.h"
 #include "TLegend.h"
-#include "TMath.h"
 #include "TROOT.h"
 #include "TStyle.h"
 #include "TSystem.h"
@@ -24,19 +23,14 @@ typedef ProgramOptionsReader po;
 
 IdeogramAnalyzerNewInterface::IdeogramAnalyzerNewInterface(const TString& identifier, TTree* tree) :
     MassAnalyzer(identifier, tree),
-    sample_(DataSample()),
+    sample_(*(new DataSample())),
     fptr_(0),
     combLikelihood_(0),
-    channelID_(Helper::channelID())
-{
-}
-
-IdeogramAnalyzerNewInterface::IdeogramAnalyzerNewInterface(const TString& identifier, TTree* tree, const DataSample& sample) :
-    MassAnalyzer(identifier, tree),
-    sample_(sample),
-    fptr_(0),
-    combLikelihood_(0),
-    channelID_(Helper::channelID())
+    channelID_(Helper::channelID()),
+    pullWidth_                    (po::GetOption<double>("pullWidth")),
+    isFastSim_                    (po::GetOption<int   >("fastsim"  )),
+    shapeSystematic_              (po::GetOption<double>("shape"    )),
+    permutationFractionSystematic_(po::GetOption<double>("permu"    ))
 {
 }
 
@@ -58,7 +52,7 @@ void IdeogramAnalyzerNewInterface::Analyze(const TString& cuts, int i, int j) {
   Scan(cuts, i, j, mass-10, mass+10, 0.1 , 1.-(0.5*epsilon), 1.+(0.5*epsilon), epsilon, false);
 
   time(&end);
-  std::cout << "Finished IdeogramAnalyzer in " << difftime(end, start) << "seconds." << std::endl;
+  std::cout << "Finished IdeogramAnalyzer in " << difftime(end, start) << " seconds." << std::endl;
 }
 
 
@@ -81,7 +75,6 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
 
   bool blackWhite = false;
   bool syst       = false;
-  //bool cmsPrel    = true;
 
   bool debug = false;
   int nDebug = 1;
@@ -96,20 +89,6 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
 
   int binsMass = int((lastBinMass-firstBinMass)/resolMass);
   int binsJes  = int((lastBinJes -firstBinJes )/resolJes );
-
-  double pullWidth = 1.;
-
-  /*
-  if (debug) {
-    firstBinMass = 100;
-    lastBinMass  = 350;
-    binsMass     = 125;
-
-    firstBinJes = 0.7;
-    lastBinJes  = 1.3;
-    binsJes     = 60;
-  }
-  //*/
 
   if(!combLikelihood_ || !fptr_){
     if(channelID_ == Helper::kAllJets){
@@ -129,7 +108,8 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
   fitParabola->SetLineColor(kRed+1);
 
   TF2* fitParaboloid  = new TF2("fitParaboloid" , "abs([1])*((x-[0])*cos([4])-(y-[2])*sin([4]))^2 + abs([3])*((x-[0])*sin([4])+(y-[2])*cos([4]))^2 + [5]");
-  TF2* systParaboloid = new TF2("systParaboloid", "abs([1])*((x-[0])*cos([4])-(y-[2])*sin([4]))^2 + abs([3])*((x-[0])*sin([4])+(y-[2])*cos([4]))^2 + [5]");
+  TF2* systParaboloid = 0;
+  if (syst) systParaboloid = new TF2("systParaboloid", "abs([1])*((x-[0])*cos([4])-(y-[2])*sin([4]))^2 + abs([3])*((x-[0])*sin([4])+(y-[2])*cos([4]))^2 + [5]");
   fitParaboloid->SetNpx(300);
   fitParaboloid->SetNpy(300);
   fitParaboloid->SetParNames("mass", "massCurv", "jes", "jesCurv", "alpha", "minL");
@@ -151,7 +131,7 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
   TH2D* eventLikelihood    = new TH2D("eventLikelihood"   , "eventLikelihood"   , binsMass, firstBinMass, lastBinMass, binsJes, firstBinJes, lastBinJes);
   TH2D* logEventLikelihood = new TH2D("logEventLikelihood", "logEventLikelihood", binsMass, firstBinMass, lastBinMass, binsJes, firstBinJes, lastBinJes);
   TH2D* sumLogLikelihood   = new TH2D("sumLogLikelihood"  , "sumLogLikelihood"  , binsMass, firstBinMass, lastBinMass, binsJes, firstBinJes, lastBinJes);
-  TH2D* productLikelihood  = new TH2D("productLikelihood" , "productLikelihood" , binsMass, firstBinMass, lastBinMass, binsJes, firstBinJes, lastBinJes);
+  //TH2D* productLikelihood  = new TH2D("productLikelihood" , "productLikelihood" , binsMass, firstBinMass, lastBinMass, binsJes, firstBinJes, lastBinJes);
   sumLogLikelihood->Eval(null);
 
   eventLikelihood->SetTitle("L(m_{t}|event)");
@@ -164,9 +144,9 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
   sumLogLikelihood->SetXTitle("m_{t} [GeV]");
   sumLogLikelihood->SetYTitle("JES");
   sumLogLikelihood->SetZTitle("-2 #Delta log(L)");
-  productLikelihood->SetTitle("-2#upointln{L(m_{t}|sample)}");
-  productLikelihood->SetXTitle("m_{t} [GeV]");
-  productLikelihood->SetYTitle("JES");
+  //productLikelihood->SetTitle("-2#upointln{L(m_{t}|sample)}");
+  //productLikelihood->SetXTitle("m_{t} [GeV]");
+  //productLikelihood->SetYTitle("JES");
 
   double fitWeight;
   int nEvents = sample_.nEvents;
@@ -174,111 +154,102 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
 
   std::cout << "nEvents: " << nEvents << std::endl;
 
-  double isFastSim                     = po::GetOption<int   >("fastsim");
-  double shapeSystematic               = po::GetOption<double>("shape"  );
-  double permutationFractionSystematic = po::GetOption<double>("permu"  );
-
   TString plotPath("plot/Ideogram/");
-  // Build Likelihood
-  //for (int iEntry = 0, length = sample_->nEvents; iEntry < length; ++iEntry) {
-  boost::progress_display progress((int)nEvents, std::cout);
-  int iEntry = -1;
-  for (const auto& event : sample_.events) {
-    ++iEntry;
-    ++progress;
+  {
+    // Build Likelihood
+    //for (int iEntry = 0, length = sample_->nEvents; iEntry < length; ++iEntry) {
+    boost::progress_display progress((int)nEvents, std::cout);
+    int iEntry = -1;
+    for (const auto& event : sample_.events) {
+      ++iEntry;
+      ++progress;
 
-    eventLikelihood->Eval(null);
-    eventLikelihood->SetFillColor(0);
-    //weight = 0;
-    fitWeight = 0;
-    //currentWeight = 0;
+      eventLikelihood->Eval(null);
+      eventLikelihood->SetFillColor(0);
+      //weight = 0;
+      fitWeight = 0;
+      //currentWeight = 0;
 
-    if (debug && iEntry%nDebug == 0 && iEntry > minDebug && iEntry < maxDebug) {
-      std::cout << std::setiosflags(std::ios::left)
-      << std::setw(04) << "n"
-      << std::setw(10) << "mt"
-      << std::setw(10) << "mW"
-      << std::setw(12) << "fitProb"
-      << std::endl;
-    }
-
-    for (int iComb = 0, maxComb = event.permutations.size(); iComb < maxComb; iComb++) {
-      double topMass = event.permutations.at(iComb).topMass;
-      double wMass   = event.permutations.at(iComb).wMass;
-      double prob    = event.permutations.at(iComb).prob;
-
-      fitWeight += prob; //*CombinedWeight;
-
-     if (debug && iEntry%nDebug == 0 && iEntry > minDebug && iEntry < maxDebug) {
-        std::cout << std::setw(04) << iComb
-            << std::setw(10) << topMass
-            << std::setw(10) << wMass
-            << std::setw(12) << prob
-            << std::endl;
+      if (debug && iEntry%nDebug == 0 && iEntry > minDebug && iEntry < maxDebug) {
+        std::cout << std::setiosflags(std::ios::left)
+        << std::setw(04) << "n"
+        << std::setw(10) << "mt"
+        << std::setw(10) << "mW"
+        << std::setw(12) << "prob"
+        << std::endl;
       }
 
-      if (prob != 0) {
-        //bScaleEstimator = 1;
+      for (int iComb = 0, maxComb = event.permutations.size(); iComb < maxComb; ++iComb) {
+        double topMass = event.permutations.at(iComb).topMass;
+        double wMass   = event.permutations.at(iComb).wMass;
+        double prob    = event.permutations.at(iComb).prob;
 
-        // Set Likelihood parameters
-        combLikelihood_->SetParameters(prob, topMass, wMass, 1., shapeSystematic, permutationFractionSystematic, isFastSim);
-        // add permutation to event likelihood
-        eventLikelihood->Eval(combLikelihood_, "A");
+        fitWeight += prob; //*CombinedWeight;
+
+        if (debug && iEntry%nDebug == 0 && iEntry > minDebug && iEntry < maxDebug) {
+          std::cout << std::setw(04) << iComb
+              << std::setw(10) << topMass
+              << std::setw(10) << wMass
+              << std::setw(12) << prob
+              << std::endl;
+        }
+
+        if (prob != 0) {
+          // Set Likelihood parameters
+          combLikelihood_->SetParameters(prob, topMass, wMass, 1., shapeSystematic_, permutationFractionSystematic_, isFastSim_);
+          // add permutation to event likelihood
+          eventLikelihood->Eval(combLikelihood_, "A");
+        }
       }
-    }
 
-    eventLikelihood->Scale(1./fitWeight);
-    sumWeights += fitWeight;
-    //if (weight == 0) continue;
+      eventLikelihood->Scale(1./fitWeight);
+      sumWeights += fitWeight;
+      //if (weight == 0) continue;
 
-    logEventLikelihood->Eval(null);
+      logEventLikelihood->Eval(null);
 
-    for (int i = 0; i<=binsMass; i++) {
-      for (int j = 0; j<=binsJes; j++) {
-        logEventLikelihood->SetBinContent(i, j, -2*TMath::Log(eventLikelihood->GetBinContent(i, j)));
+      for (int i = 0; i<=binsMass; i++) {
+        for (int j = 0; j<=binsJes; j++) {
+          logEventLikelihood->SetBinContent(i, j, -2*log(eventLikelihood->GetBinContent(i, j)));
+        }
       }
-    }
 
-    //TString sEvent("(run=="); sEvent += run; sEvent += " & luminosityBlock==";
-    //sEvent += luminosityBlock; sEvent += " & event=="; sEvent += event; sEvent += ")";
+      sumLogLikelihood->Add(logEventLikelihood, fitWeight/(pullWidth_*pullWidth_)); // add weight here
 
-    //TString sEventWeighted = sEvent; sEventWeighted += "*("; sEventWeighted += "CombinedWeight"; sEventWeighted += ")";
+      if (debug && iEntry%nDebug == 0 && iEntry > minDebug && iEntry < maxDebug) {
+        TCanvas* eventCanvas = new TCanvas("eventCanvas", "eventCanvas", 1200, 400);
+        eventCanvas->Divide(3, 1);
 
-    //double eventWeight = fTree_->GetEntries(sEventWeighted)/fTree_->GetEntries(sEvent);
+        eventCanvas->cd(1);
+        eventLikelihood->SetEntries(1);
+        eventLikelihood->Draw("COLZ");
+        eventLikelihood->SetFillColor(kRed+1);
+        /*
+        if (weight > 1./16) eventLikelihood->SetFillColor(kGreen);
+        if (weight > 1./8 ) eventLikelihood->SetFillColor(kYellow);
+        if (weight > 1./4 ) eventLikelihood->SetFillColor(kOrange);
+        if (weight > 1./2 ) eventLikelihood->SetFillColor(kRed);
+        */
 
-    sumLogLikelihood->Add(logEventLikelihood, fitWeight/(pullWidth*pullWidth)); // add weight here
+        eventCanvas->cd(2);
+        eventLikelihood->SetEntries(1);
+        logEventLikelihood->Draw("COLZ");
 
-    if (debug && iEntry%nDebug == 0 && iEntry > minDebug && iEntry < maxDebug) {
-      TCanvas* eventCanvas = new TCanvas("eventCanvas", "eventCanvas", 1200, 400);
-      eventCanvas->Divide(3, 1);
+        eventCanvas->cd(3);
+        eventLikelihood->SetEntries(1);
+        sumLogLikelihood->Draw("COLZ");
 
-      eventCanvas->cd(1);
-      eventLikelihood->SetEntries(1);
-      eventLikelihood->Draw("COLZ");
-      eventLikelihood->SetFillColor(kRed+1);
-      /*
-      if (weight > 1./16) eventLikelihood->SetFillColor(kGreen);
-      if (weight > 1./8) eventLikelihood->SetFillColor(kYellow);
-      if (weight > 1./4) eventLikelihood->SetFillColor(kOrange);
-      if (weight > 1./2) eventLikelihood->SetFillColor(kRed);
-       */
+        TString localIdentifier = fIdentifier_; localIdentifier.ReplaceAll("*","_"); localIdentifier.ReplaceAll("/","_");
+        TString eventPath(plotPath); eventPath += localIdentifier; eventPath += "_"; eventPath += iEntry; eventPath += "_"; eventPath += iEntry; eventPath += ".eps";
+        std::cout << eventPath << std::endl;
+        eventCanvas->Print(eventPath);
 
-      eventCanvas->cd(2);
-      eventLikelihood->SetEntries(1);
-      logEventLikelihood->Draw("COLZ");
-
-      eventCanvas->cd(3);
-      eventLikelihood->SetEntries(1);
-      sumLogLikelihood->Draw("COLZ");
-
-      TString localIdentifier = fIdentifier_; localIdentifier.ReplaceAll("*","_"); localIdentifier.ReplaceAll("/","_");
-      TString eventPath(plotPath); eventPath += localIdentifier; eventPath += "_"; eventPath += iEntry; eventPath += "_"; eventPath += iEntry; eventPath += ".eps";
-      std::cout << eventPath << std::endl;
-      eventCanvas->Print(eventPath);
-
-      delete eventCanvas;
-    }
+        delete eventCanvas;
+      }
+    } // end for
   }
+  delete eventLikelihood;
+  delete logEventLikelihood;
 
   ctemp->cd();
 
@@ -305,6 +276,7 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
 
   double minMass = sumLogLikelihood->GetXaxis()->GetBinCenter(minBinX);
   double minJes  = sumLogLikelihood->GetYaxis()->GetBinCenter(minBinY);
+  double minLike = sumLogLikelihood->GetMinimum(0);
 
   std::cout << "minMass: " << minMass << ", minJes: " << minJes << std::endl;
 
@@ -317,7 +289,7 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
   //sumLogLikelihood->SetMarkerStyle(20);
   //sumLogLikelihood->SetMarkerColor(kRed+1);
 
-  std::cout << "Minimum likelihood: " << sumLogLikelihood->GetMinimum(0) << "\tMaximum likelihood (in range): " << sumLogLikelihood->GetMaximum() << std::endl;
+  std::cout << "Minimum likelihood: " << minLike << "\tMaximum likelihood (in range): " << sumLogLikelihood->GetMaximum() << std::endl;
 
   Helper* helper = new Helper();
 
@@ -325,11 +297,12 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
 
     fitParaboloid->SetParLimits(0, minMass-2*resolMass, minMass+2*resolMass);
     fitParaboloid->SetParameter(0, minMass);
+    fitParaboloid->SetParameter(1, 100);
     fitParaboloid->SetParLimits(2, minJes-2*resolJes, minJes+2*resolJes);
     fitParaboloid->SetParameter(2, minJes);
     fitParaboloid->SetParameter(3, 1000000);
-    fitParaboloid->SetParLimits(5, sumLogLikelihood->GetMinimum(0)-10., sumLogLikelihood->GetMinimum(0)+10.);
-    fitParaboloid->SetParameter(5, sumLogLikelihood->GetMinimum(0));
+    fitParaboloid->SetParLimits(5, minLike-10., minLike+10.);
+    fitParaboloid->SetParameter(5, minLike);
 
     //fitParaboloid->SetRange(minMass - 1, minJes - 0.01, minMass + 1, minJes + 0.01);
     fitParaboloid->SetRange(minMass - 4, minJes - 0.04, minMass + 4, minJes + 0.04);
@@ -338,18 +311,17 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
     //std::cout << "sumLogLikelihood: " << sumLogLikelihood << std::endl;
     sumLogLikelihood->Fit("fitParaboloid","EMR0");
 
-    double semiMajor, semiMinor, alpha = 0;
+    double semiMajor, semiMinor, alpha;
 
-    double mass = -1;
+    double mass = fitParaboloid->GetParameter(0);
     double JES  = -1;
     double massError = -1;
     double JESError  = -1;
-    if (firstBinMass+1 < fitParaboloid->GetParameter(0) && fitParaboloid->GetParameter(0) < lastBinMass-1) {
-      mass = fitParaboloid->GetParameter(0);
+    if (firstBinMass+1 < mass && mass < lastBinMass-1) {
       JES  = fitParaboloid->GetParameter(2);
-      if (TMath::Sqrt(1/fitParaboloid->GetParameter(1)) < 2*TMath::Sqrt(mass)) {
-        semiMajor = TMath::Sqrt(1/fitParaboloid->GetParameter(1));
-        semiMinor = TMath::Sqrt(1/fitParaboloid->GetParameter(3));
+      if (sqrt(1./fitParaboloid->GetParameter(1)) < 2*sqrt(mass)) {
+        semiMajor = sqrt(1./fitParaboloid->GetParameter(1));
+        semiMinor = sqrt(1./fitParaboloid->GetParameter(3));
         alpha     = fitParaboloid->GetParameter(4);
 
         massError = sqrt(pow(semiMajor * cos(alpha), 2) + pow(semiMinor * sin(alpha), 2));
@@ -378,12 +350,12 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
     double contours[3] = {1, 4, 9};
     fitParaboloid->SetContour(3, contours);
 
-    if (firstBinMass+1 < fitParaboloid->GetParameter(0) && fitParaboloid->GetParameter(0) < lastBinMass-1) {
-      mass = fitParaboloid->GetParameter(0);
+    mass = fitParaboloid->GetParameter(0);
+    if (firstBinMass+1 < mass && mass < lastBinMass-1) {
       JES  = fitParaboloid->GetParameter(2);
-      if (TMath::Sqrt(1/fitParaboloid->GetParameter(1)) < 2*TMath::Sqrt(mass)) {
-        semiMajor = TMath::Sqrt(1/fitParaboloid->GetParameter(1));
-        semiMinor = TMath::Sqrt(1/fitParaboloid->GetParameter(3));
+      if (sqrt(1./fitParaboloid->GetParameter(1)) < 2*sqrt(mass)) {
+        semiMajor = sqrt(1./fitParaboloid->GetParameter(1));
+        semiMinor = sqrt(1./fitParaboloid->GetParameter(3));
         alpha     = fitParaboloid->GetParameter(4);
 
         massError = sqrt(pow(semiMajor * cos(alpha), 2) + pow(semiMinor * sin(alpha), 2));
@@ -403,6 +375,9 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
     SetValue("mass_mTop_JES", mass, massError);
     SetValue("JES_mTop_JES" , JES , JESError );
 
+    std::cout << "m_t = " << mass << " +/- " << massError << std::endl;
+    std::cout << "JES = " << JES  << " +/- " <<  JESError << std::endl;
+
     fitParaboloid->SetParameter(5, 0);
 
     // stat+syst ellipsis
@@ -412,16 +387,18 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
     double sm2 = massError*massError + mSyst*mSyst;
     double sj2 = JESError *JESError  + jSyst*jSyst;
 
-    fitParaboloid->Copy(*systParaboloid);
-    systParaboloid->SetRange(mass - 40, JES - 0.4, mass + 40, JES + 0.4);
-    systParaboloid->SetParameter(1, 2*cos(2*alpha)/(sm2 - sj2 + sj2*cos(2*alpha) + sm2*cos(2*alpha)));
-    systParaboloid->SetParameter(3, 2*cos(2*alpha)/(sj2 - sm2 + sj2*cos(2*alpha) + sm2*cos(2*alpha)));
-    systParaboloid->SetLineColor(kBlack);
-    systParaboloid->SetLineStyle(7);
-    //systParaboloid->SetLineWidth(5);
+    if (syst) {
+      fitParaboloid->Copy(*systParaboloid);
+      systParaboloid->SetRange(mass - 40, JES - 0.4, mass + 40, JES + 0.4);
+      systParaboloid->SetParameter(1, 2*cos(2*alpha)/(sm2 - sj2 + sj2*cos(2*alpha) + sm2*cos(2*alpha)));
+      systParaboloid->SetParameter(3, 2*cos(2*alpha)/(sj2 - sm2 + sj2*cos(2*alpha) + sm2*cos(2*alpha)));
+      systParaboloid->SetLineColor(kBlack);
+      systParaboloid->SetLineStyle(7);
+      //systParaboloid->SetLineWidth(5);
+    }
 
     //* Set minL to 0
-    sumLogLikelihood->Add(hUnity, -sumLogLikelihood->GetMinimum(0) + 1e-2);
+    sumLogLikelihood->Add(hUnity, -minLike + 1e-2);
     sumLogLikelihood->SetAxisRange(0, 25, "Z");
     if (blackWhite) sumLogLikelihood->Draw("AXIG");
     else sumLogLikelihood->Draw("COLZ");
@@ -430,17 +407,17 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
     //*/
 
     // create legend
-    TLegend *leg0 = new TLegend(0.2, 0.15, 0.45, 0.25);
+    //TLegend *leg0 = new TLegend(0.2, 0.15, 0.45, 0.25);
+    TLegend *leg0 = new TLegend(0.185, 0.135, 0.435, 0.235);
     leg0->SetFillStyle(0);
     leg0->SetBorderSize(0);
     //leg0->AddEntry((TObject*)0, "1, 2, 3#sigma", "");
-    leg0->AddEntry(fitParaboloid, "stat", "L");
+    //leg0->AddEntry(fitParaboloid, "stat", "L");
+    leg0->AddEntry(fitParaboloid, "#splitline{1#sigma, 2#sigma, 3#sigma}{contours}", "L");
     if (syst)    leg0->AddEntry(systParaboloid, "stat + syst", "L");
     leg0->Draw();
 
     helper->DrawCMS();
-
-    std::cout << "massError: " << massError << std::endl;
 
     TString localIdentifier = fIdentifier_; localIdentifier.ReplaceAll("*","_"); localIdentifier.ReplaceAll("/","_");
     TString path(plotPath); path+= localIdentifier; path += "_"; path += i; path += "_"; path += j; path += ".eps";
@@ -466,7 +443,7 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
 
     sumLogLikelihood1D->Draw("E");
 
-    fitParabola->SetParameter(2, sumLogLikelihood1D->GetMinimum(0));
+    fitParabola->SetParameter(2, 0);
     fitParabola->SetParameter(1, 100);
     fitParabola->SetRange(minMass - 2, minMass + 2);
 
@@ -477,11 +454,10 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
     //sumLogLikelihood1D->GetXaxis()->SetRangeUser(sumLogLikelihood->GetXaxis()->GetBinLowEdge(1), sumLogLikelihood->GetXaxis()->GetBinLowEdge(sumLogLikelihood->GetNbinsX()+1));
     sumLogLikelihood1D->GetXaxis()->SetRangeUser(minMass - 3, minMass + 3);
 
-    double massConstJES      = -1;
+    double massConstJES      = fitParabola->GetParameter(0);
     double massConstJESError = -1;
-    if (firstBinMass+1 < fitParabola->GetParameter(0) && fitParabola->GetParameter(0) < lastBinMass-1) {
-      massConstJES      = fitParabola->GetParameter(0);
-      massConstJESError = TMath::Sqrt(1/fitParabola->GetParameter(1));
+    if (firstBinMass+1 < massConstJES && massConstJES < lastBinMass-1) {
+      massConstJESError = sqrt(1./fitParabola->GetParameter(1));
     }
     else {
       massConstJES      = -1;
@@ -489,8 +465,7 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
     }
     SetValue("mass_mTop", massConstJES, massConstJESError);
 
-    std::cout << "Fixed JES: m_t = ";
-    std::cout << massConstJES << " +/- " << massConstJESError << std::endl;
+    std::cout << "Fixed JES: m_t = " << massConstJES << " +/- " << massConstJESError << std::endl;
 
     helper->DrawCMS();
 
@@ -513,16 +488,11 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
   delete null;
   delete unity;
   delete ctemp;
-  delete eventLikelihood;
-  delete logEventLikelihood;
   delete sumLogLikelihood;
-  delete productLikelihood;
+  //delete productLikelihood;
 
   delete hUnity;
   delete helper;
-
-  //delete topEvent;
-  //delete weightEvent;
 
   std::cout << "Fitting done" << std::endl;
 }

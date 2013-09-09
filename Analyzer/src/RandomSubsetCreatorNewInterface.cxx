@@ -117,23 +117,23 @@ TTree* RandomSubsetCreatorNewInterface::CreateRandomSubset() {
 }
 
 void RandomSubsetCreatorNewInterface::DrawEvents(const DataSample& sample, double nEventsPE) {
-  std::cout << "nEventsPE: " << nEventsPE << std::endl;
+  //std::cout << "nEventsPE: " << nEventsPE << std::endl;
 
   int perms = sample.nEvents;
 
   double maxMCWeight = sample.maxWeight;
 
-  std::cout << "maxMCWeight(" << fWeight_ << "):" << maxMCWeight  << std::endl;
+  std::cout << "maxMCWeight(" << fWeight_ << "): " << maxMCWeight  << std::endl;
 
   if (maxMCWeight ==  0) { std::cout << "Weight not active?" << std::endl; }
   if (maxMCWeight == -1) { std::cout << "Running over data?" << std::endl; }
 
-  std::cout << "while (eventsDrawn < nEventsPE)..." << std::endl;
+  //std::cout << "while (eventsDrawn < nEventsPE)..." << std::endl;
 
   int eventsDrawn = 0;
   int nAttempts = 0;
 
-  boost::progress_display progress((int)nEventsPE, std::cout);
+  //boost::progress_display progress((int)nEventsPE, std::cout);
 
   while (eventsDrawn < (int)nEventsPE) {
     int drawn = random_->Integer(perms);
@@ -147,7 +147,7 @@ void RandomSubsetCreatorNewInterface::DrawEvents(const DataSample& sample, doubl
       }
       else {
         ++eventsDrawn;
-        ++progress;
+        //++progress;
       }
     }
   }
@@ -163,7 +163,7 @@ void RandomSubsetCreatorNewInterface::PrepareEvents(TString file) {
 
   chain->SetBranchStatus("*", 0);
   std::vector<std::string> vActiveBanches;
-  boost::split( vActiveBanches, activeBranches_, boost::is_any_of("|"));
+  boost::split(vActiveBanches, activeBranches_, boost::is_any_of("|"));
   for(auto branch : vActiveBanches){
     chain->SetBranchStatus(branch.c_str(), 1);
   }
@@ -179,8 +179,9 @@ void RandomSubsetCreatorNewInterface::PrepareEvents(TString file) {
 
   int selected = 0;
   for(int i = 0; ; ++i){
-    if(chain->LoadTree(i) < 0) break;
-    if(chain->LoadTree(i) == 0){
+    long entry = chain->LoadTree(i);
+    if(entry  < 0) break;
+    if(entry == 0){
       f1    ->UpdateFormulaLeaves();
       f2    ->UpdateFormulaLeaves();
       f3    ->UpdateFormulaLeaves();
@@ -193,7 +194,6 @@ void RandomSubsetCreatorNewInterface::PrepareEvents(TString file) {
     for(int j = 0, l = index->GetNdata(); j < l; ++j){
       if(!sel->EvalInstance(j)) continue;
       sample.Fill(f1->EvalInstance(j), f2->EvalInstance(j), f3->EvalInstance(j), weight->EvalInstance(j), (int)(index->EvalInstance(j)));
-      //if(i < 10) std::cout << f1->EvalInstance(j) << " " << f2->EvalInstance(j) << " " << f3->EvalInstance(j) << std::endl;
     }
     ++selected;
   }

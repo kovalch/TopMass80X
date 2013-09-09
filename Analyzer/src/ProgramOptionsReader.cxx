@@ -70,6 +70,7 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("fastsim,F", boost::program_options::value<int>()->default_value(0), "use additional calibration for FastSim")
         ("preliminary,p", boost::program_options::value<int>()->default_value(1), "use \"Preliminary\" label for plots")
         ("cmsenergy,e", boost::program_options::value<int>()->default_value(7), "cms energy to be used (for example for plots)")
+        ("pullWidth", boost::program_options::value<double>()->default_value(1.0), "pull width correction factor")
         ("analysisConfig.selection", boost::program_options::value<std::string>())
         ("analysisConfig.samplePath", boost::program_options::value<std::string>())
         ("analysisConfig.var1", boost::program_options::value<std::string>())

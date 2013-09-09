@@ -12,9 +12,9 @@
 class IdeogramAnalyzerNewInterface : public MassAnalyzer {
  public:
   IdeogramAnalyzerNewInterface(const TString& identifier, TTree* tree);
-  IdeogramAnalyzerNewInterface(const TString& identifier, TTree* tree, const DataSample& sample);
   ~IdeogramAnalyzerNewInterface();
   void Analyze(const TString& cuts, int i, int j);
+  void SetDataSample(const DataSample& sample) {sample_ = sample;}
     
  private:
   double QBTagProbability(double bDiscriminator);
@@ -23,10 +23,15 @@ class IdeogramAnalyzerNewInterface : public MassAnalyzer {
   void Scan(const TString& cuts, int i, int j, double firstBinMass, double lastBinMass,
 	        double resolMass, double firstBinJes, double lastBinJes, double resolJes, bool fit2D = true);
   
-  const DataSample& sample_;
+  DataSample& sample_;
   IdeogramCombLikelihood* fptr_;
   TF2* combLikelihood_;
   int channelID_;
+  double pullWidth_;
+  double isFastSim_;
+  double shapeSystematic_;
+  double permutationFractionSystematic_;
+
 };
 
 #endif
