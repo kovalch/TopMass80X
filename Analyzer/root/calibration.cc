@@ -288,7 +288,7 @@ TopMassCalibration::rooFitTopMass_()
         RooRealVar JESSlopeMass2     = RooRealVar("JESSlopeMass2"    ,"JESSlopeMass2"    , 0.); JESSlopeMass2    .setConstant(kTRUE);
         RooRealVar JESSlopeJES2      = RooRealVar("JESSlopeJES2"     ,"JESSlopeJES2"     , 0.); JESSlopeJES2     .setConstant(kTRUE);
         RooRealVar JESSlopeMassJES2  = RooRealVar("JESSlopeMassJES2" ,"JESSlopeMassJES2" , 0.); JESSlopeMassJES2 .setConstant(kTRUE);
-        // 0 = JES, 1 = mTop, 2 = JESOffset, 3 = JESSlopeMass, 4 = JESSlopeJES, 5 = JESSlopeMassJES
+        // 0 = JES, 1 = mTop, 2 = Offset, 3 = SlopeMass, 4 = SlopeJES, 5 = SlopeMassJES
         TString formula_mTop = "@1+@2+@3*(@1-172.5)+@4*(@0-1.0)+@5*(@1-172.5)*(@0-1.0)";
         TString formula_JES  = "@0+@2+@3*(@1-172.5)+@4*(@0-1.0)+@5*(@1-172.5)*(@0-1.0)";
         name = "mTop_intermediate_"; name += h;
