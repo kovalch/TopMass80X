@@ -5,6 +5,7 @@
 #include "TString.h"
 #include "TTree.h"
 
+class MassAnalyzer;
 class RandomSubsetCreator;
 
 class Analysis {
@@ -13,6 +14,7 @@ class Analysis {
   const TString samplePath_, fIdentifier_, fMethod_, fBinning_;
   std::vector<float> vBinning_;
   const int fChannelID_, fMethodID_;
+  MassAnalyzer* fAnalyzer_;
   RandomSubsetCreator* fCreator_;
 
   TTree* fTree_;

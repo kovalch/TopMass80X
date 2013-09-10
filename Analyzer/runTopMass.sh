@@ -1,6 +1,7 @@
-TOPMASSPATH=/afs/naf.desy.de/group/cms/scratch/eschliec/Releases/Selection/CMSSW_5_3_5/src/TopMass/Analyzer
-source $TOPMASSPATH/setup_env.sh
+source setup_env.sh
 #echo "LHAPATH = " $LHAPATH
+LD_LIBRARY_PATH=/cvmfs/cms.cern.ch/slc5_amd64_gcc462/external/gcc/4.6.2/lib64/:$LD_LIBRARY_PATH
 echo "LD_LIBRARY_PATH = " $LD_LIBRARY_PATH
-#ldd $TOPMASSPATH/TopMass
-$TOPMASSPATH/TopMass $*
+ldd TopMass
+./TopMass $*
+

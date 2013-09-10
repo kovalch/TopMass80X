@@ -18,7 +18,7 @@
 #include "RandomSubsetCreatorNewInterface.h"
 #include "RooFitTemplateAnalyzer.h"
 
-#include "LHAPDF/LHAPDF.h"
+//#include "LHAPDF/LHAPDF.h"
 
 typedef ProgramOptionsReader po;
 
@@ -29,6 +29,7 @@ Analysis::Analysis(std::vector<float> v):
   vBinning_   (v),
   fChannelID_ (Helper::channelID()),
   fMethodID_  (Helper::methodID()),
+  fAnalyzer_(0),
   fCreator_(0),
   fTree_(0)
 {
@@ -41,6 +42,7 @@ Analysis::~Analysis()
   }
   histograms_.clear();
   //delete fTree_; // deletion is taken care of by MassAnalyzer
+  delete fAnalyzer_;
   delete fCreator_;
 }
 
@@ -68,13 +70,11 @@ void Analysis::Analyze() {
   }
   fTree_ = fCreator_->CreateRandomSubset();
 
-  MassAnalyzer* fAnalyzer = 0;
-
-  if      (fMethodID_ == Helper::kGenMatch   ) fAnalyzer = new GenMatchAnalyzer            (fIdentifier_, fTree_);
-  else if (fMethodID_ == Helper::kMVA        ) fAnalyzer = new MVAAnalyzer                 (fIdentifier_, fTree_);
-  else if (fMethodID_ == Helper::kIdeogram   ) fAnalyzer = new IdeogramAnalyzer            (fIdentifier_, fTree_);
-  else if (fMethodID_ == Helper::kIdeogramNew) fAnalyzer = new IdeogramAnalyzerNewInterface(fIdentifier_, fTree_);
-  else if (fMethodID_ == Helper::kRooFit     ) fAnalyzer = new RooFitTemplateAnalyzer      (fIdentifier_, fTree_);
+  if      (fMethodID_ == Helper::kGenMatch   ) fAnalyzer_ = new GenMatchAnalyzer            (fIdentifier_, fTree_);
+  else if (fMethodID_ == Helper::kMVA        ) fAnalyzer_ = new MVAAnalyzer                 (fIdentifier_, fTree_);
+  else if (fMethodID_ == Helper::kIdeogram   ) fAnalyzer_ = new IdeogramAnalyzer            (fIdentifier_, fTree_);
+  else if (fMethodID_ == Helper::kIdeogramNew) fAnalyzer_ = new IdeogramAnalyzerNewInterface(fIdentifier_, fTree_);
+  else if (fMethodID_ == Helper::kRooFit     ) fAnalyzer_ = new RooFitTemplateAnalyzer      (fIdentifier_, fTree_);
   else {
     std::cerr << "Stopping analysis! Specified analysis method *" << fMethod_ << "* not known!" << std::endl;
     return;
@@ -107,26 +107,17 @@ void Analysis::Analyze() {
     else if (fMethodID_ == Helper::kRooFit) {
     }
 
-    std::cout << fTree_->GetEntryList()->GetN() << std::endl;
-
-    TCanvas* canvDummy = new TCanvas();
-    fTree_->Draw("top.fitTop1[0].M()");
-    canvDummy->Print("canvDummy.eps");
-
-    fTree_->Draw(">>selectedEventsBin",cuts,"entrylist");
-    TEntryList *selectedEventsBin = (TEntryList*)gDirectory->Get("selectedEventsBin");
-    fTree_->SetEntryList(selectedEventsBin);
-
-    int entries = selectedEventsBin->GetN();
-    std::cout << cuts << std::endl;
-    std::cout << entries << std::endl;
+    // FIXME DUMMY
+    // binning not yet implemented, still needs some time idea ...
+    int entries = 26;
 
     CreateHisto("Entries");
     GetH1("Entries")->SetBinContent(i+1, entries);
 
     if (entries > 25) {
-      fAnalyzer->Analyze(cuts, i, 0);
-      const std::map<TString, std::pair<double, double>> values = fAnalyzer->GetValues();
+      if (fMethodID_ == Helper::kIdeogramNew) ((IdeogramAnalyzerNewInterface*)fAnalyzer_)->SetDataSample(((RandomSubsetCreatorNewInterface*)fCreator_)->GetDataSample());
+      fAnalyzer_->Analyze(cuts, i, 0);
+      const std::map<TString, std::pair<double, double>> values = fAnalyzer_->GetValues();
 
       for(std::map<TString, std::pair<double, double>>::const_iterator value = values.begin(); value != values.end(); ++value){
         CreateHisto(value->first);
@@ -186,7 +177,6 @@ void Analysis::Analyze() {
   canvas->Print(pathr);
   
   delete canvas;
-  delete fAnalyzer;
 }
 
 void Analysis::CreateHisto(TString name) {

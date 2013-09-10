@@ -40,7 +40,7 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
             "  hc: \tPerform any hardcoded tasks in TopMass constructor\n"
             "  diff: \tDifferential top mass, specify binning option"
         )
-        ("input,i", boost::program_options::value<std::string>()->default_value("writeFullHadTree_data_2011"),
+        ("input,i", boost::program_options::value<std::string>()->default_value("MJP12*_v1_data"),
             "Identifier of input file to be analyzed: Z2_F11_172_5_sig"
         )
         ("channel,c", boost::program_options::value<std::string>()->default_value("alljets"),
@@ -61,7 +61,7 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("mass,M", boost::program_options::value<double>()->default_value(172.5), "Input top mass for pseudo-experiments")
         ("jes,J", boost::program_options::value<double>()->default_value(1.0), "Input JES for pseudo-experiments")
         ("bdisc,B", boost::program_options::value<double>()->default_value(0.679), "Threshold for b-jets")
-        ("fsig,f", boost::program_options::value<double>()->default_value(0.564944173), "Input signal fraction for pseudo-experiments")
+        ("fsig,f", boost::program_options::value<double>()->default_value(0.460272275), "Input signal fraction for pseudo-experiments")
         ("lumi,L", boost::program_options::value<double>()->default_value(0.0), "Luminosity for each pseudo-experiment")
         ("number,N", boost::program_options::value<int>()->default_value(10000), "Number of pseudo-experiments per job")
         ("walltime,W", boost::program_options::value<double>()->default_value(10), "set walltime limit for pseudo-experiments in minutes")
@@ -70,11 +70,13 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("fastsim,F", boost::program_options::value<int>()->default_value(0), "use additional calibration for FastSim")
         ("preliminary,p", boost::program_options::value<int>()->default_value(1), "use \"Preliminary\" label for plots")
         ("cmsenergy,e", boost::program_options::value<int>()->default_value(7), "cms energy to be used (for example for plots)")
+        ("pullWidth", boost::program_options::value<double>()->default_value(1.0), "pull width correction factor")
         ("analysisConfig.selection", boost::program_options::value<std::string>())
         ("analysisConfig.samplePath", boost::program_options::value<std::string>())
         ("analysisConfig.var1", boost::program_options::value<std::string>())
         ("analysisConfig.var2", boost::program_options::value<std::string>())
         ("analysisConfig.var3", boost::program_options::value<std::string>())
+        ("analysisConfig.activeBranches", boost::program_options::value<std::string>()->default_value("*"))
         ;
 
     boost::program_options::store(boost::program_options::parse_command_line(ac, av, desc), *programOptions_);
