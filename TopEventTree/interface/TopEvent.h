@@ -11,13 +11,13 @@ public:
   TopEvent();
   void init();
 
-  ClassDef(TopEvent,5);
+  ClassDef(TopEvent,6);
 
   // TopEvent data
   
-  int run;
-  int lumiBlock;
-  int event;
+  unsigned int run;
+  unsigned int lumiBlock;
+  unsigned int event;
 
   int decayChannel;
   int leptonFlavour;
