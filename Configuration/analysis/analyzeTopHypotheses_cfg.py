@@ -132,12 +132,12 @@ if not data:
     scaledJetEnergy.scaleFactor  = options.lJesFactor
     scaledJetEnergy.scaleFactorB = options.bJesFactor
     if (options.resolution=='down'):
-      scaledJetEnergy.resolutionFactors   = [0.994, 1.126, 1.006, 0.961]
+      scaledJetEnergy.resolutionFactors   = [0.990 , 1.001 , 1.032 , 1.042 , 1.089]
     if (options.resolution=='nominal'):
-      scaledJetEnergy.resolutionFactors   = [1.066, 1.191, 1.096, 1.166]
+      scaledJetEnergy.resolutionFactors   = [1.052 , 1.057 , 1.096 , 1.134 , 1.288]
     if (options.resolution=='up'):
-      scaledJetEnergy.resolutionFactors   = [1.140, 1.258, 1.190, 1.370]
-    scaledJetEnergy.resolutionEtaRanges   = [0, 1.1, 1.1, 1.7, 1.7, 2.3, 2.3, -1]
+      scaledJetEnergy.resolutionFactors   = [1.115 , 1.114 , 1.161 , 1.228 , 1.488]
+    scaledJetEnergy.resolutionEtaRanges   = [0.0,0.5,0.5,1.1,1.1,1.7,1.7,2.3,2.3,-1.]
 
     scaledJetEnergy.inputJets    = "selectedPatJets"
     scaledJetEnergy.inputMETs    = "patMETs"
