@@ -107,7 +107,7 @@ if os.getenv('CMSSW_VERSION').startswith('CMSSW_4_1_'):
 elif os.getenv('CMSSW_VERSION').startswith('CMSSW_4_1_'):
   process.GlobalTag.globaltag = cms.string('START42_V17::All')
 elif os.getenv('CMSSW_VERSION').startswith('CMSSW_5_3_'):
-  process.GlobalTag.globaltag = cms.string('START53_V7A::All')
+  process.GlobalTag.globaltag = cms.string('START53_V23::All')
 if data:
   process.GlobalTag.globaltag = cms.string('FT_53_V21_AN5::All')
 
@@ -127,7 +127,7 @@ if not data:
     from TopAnalysis.TopUtils.JetEnergyScale_cff import *
 
     scaledJetEnergy.scaleType    = options.scaleType
-    scaledJetEnergy.JECUncSrcFile= "TopAnalysis/TopUtils/data/Fall12_V7_DATA_UncertaintySources_AK5PFchs.txt"
+    scaledJetEnergy.JECUncSrcFile= "TopAnalysis/TopUtils/data/Summer13_V4_DATA_UncertaintySources_AK5PFchs.txt"
     scaledJetEnergy.sourceName   = options.jessource
     scaledJetEnergy.scaleFactor  = options.lJesFactor
     scaledJetEnergy.scaleFactorB = options.bJesFactor
