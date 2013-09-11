@@ -168,8 +168,15 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
       top->recoW2Prod1.push_back(hreco[Lepton   ]);
       top->recoW2Prod2.push_back(hreco[Neutrino ]);
       
+      // get 2. genMatch to see if hadronic top quark can be matched
+      edm::Handle<TtSemiLeptonicEvent> hSemiLepTtEvent2;
+      evt.getByLabel(ttEventGen2_, hSemiLepTtEvent2);
+      
       if(semiLepTtEvent->isHypoValid(TtEvent::kGenMatch)){
         top->combinationType.push_back(comboTypeSemiLep());
+      }
+      else if(hSemiLepTtEvent2.isValid() && hSemiLepTtEvent2->isHypoValid(TtEvent::kGenMatch)){
+        top->combinationType.push_back(5);
       }
       else{
         top->combinationType.push_back(6);

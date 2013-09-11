@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 analyzeHypothesis = cms.EDAnalyzer("EventHypothesisAnalyzer",
     ttEvent      = cms.InputTag("ttSemiLepEvent"),
     hypoClassKey = cms.InputTag("ttSemiLepHypMaxSumPtWMass","Key"),
-    ttEventGen2  = cms.InputTag(""),
+    ttEventGen2  = cms.InputTag("ttSemiLepEvent2"),
     jets         = cms.InputTag("goodJetsPF30"), # needed in fullHad channel for reco masses
     
     lepton       = cms.int32(13), # (positive) pdgId
