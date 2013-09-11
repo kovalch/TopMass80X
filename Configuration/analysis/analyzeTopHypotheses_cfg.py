@@ -218,7 +218,7 @@ setForAllTtSemiLepHypotheses(process, "maxNJets", 4)
 setForAllTtSemiLepHypotheses(process, "mets", "scaledMET:scaledMETs")
 setForAllTtSemiLepHypotheses(process, "maxNComb", -1)
 if data:
-    setForAllTtSemiLepHypotheses(process, "mets", "patMETsPF")
+    setForAllTtSemiLepHypotheses(process, "mets", "patMETs")
     setForAllTtSemiLepHypotheses(process, "jetCorrectionLevel", "L2L3Residual")
 
 ## change jet-parton matching algorithm
