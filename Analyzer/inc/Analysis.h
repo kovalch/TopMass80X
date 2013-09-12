@@ -1,6 +1,3 @@
-#include <iostream>
-#include <sstream>
-
 #include "TH1F.h"
 #include "TString.h"
 #include "TTree.h"
@@ -12,7 +9,7 @@ class Analysis {
  private:
 
   const TString samplePath_, fIdentifier_, fMethod_, fBinning_;
-  std::vector<float> vBinning_;
+  const std::vector<float> vBinning_;
   const int fChannelID_, fMethodID_;
   MassAnalyzer* fAnalyzer_;
   RandomSubsetCreator* fCreator_;
@@ -25,7 +22,7 @@ class Analysis {
   void CreateHisto(TString name);
 
  public:
-  Analysis(std::vector<float> v);
+  Analysis(const std::vector<float>& v);
   ~Analysis();
     
   void Analyze();

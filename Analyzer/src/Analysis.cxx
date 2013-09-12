@@ -1,10 +1,10 @@
 #include "Analysis.h"
 
+#include <iostream>
+#include <sstream>
 #include <string>
 
 #include "TCanvas.h"
-#include "TChain.h"
-#include "TEntryList.h"
 #include "TROOT.h"
 
 #include "GenMatchAnalyzer.h"
@@ -18,11 +18,9 @@
 #include "RandomSubsetCreatorNewInterface.h"
 #include "RooFitTemplateAnalyzer.h"
 
-//#include "LHAPDF/LHAPDF.h"
-
 typedef ProgramOptionsReader po;
 
-Analysis::Analysis(std::vector<float> v):
+Analysis::Analysis(const std::vector<float>& v):
   fIdentifier_(po::GetOption<std::string>("input" )),
   fMethod_    (po::GetOption<std::string>("method")),
   fBinning_   (po::GetOption<std::string>("binning")),
@@ -42,7 +40,7 @@ Analysis::~Analysis()
   }
   histograms_.clear();
   //delete fTree_; // deletion is taken care of by MassAnalyzer
-  delete fAnalyzer_;
+  if (fMethodID_ == Helper::kIdeogramNew) delete fAnalyzer_;
   delete fCreator_;
 }
 
@@ -73,7 +71,7 @@ void Analysis::Analyze() {
   if      (fMethodID_ == Helper::kGenMatch   ) fAnalyzer_ = new GenMatchAnalyzer            (fIdentifier_, fTree_);
   else if (fMethodID_ == Helper::kMVA        ) fAnalyzer_ = new MVAAnalyzer                 (fIdentifier_, fTree_);
   else if (fMethodID_ == Helper::kIdeogram   ) fAnalyzer_ = new IdeogramAnalyzer            (fIdentifier_, fTree_);
-  else if (fMethodID_ == Helper::kIdeogramNew) fAnalyzer_ = new IdeogramAnalyzerNewInterface(fIdentifier_, fTree_);
+  else if (fMethodID_ == Helper::kIdeogramNew) { if(!fAnalyzer_) { fAnalyzer_ = new IdeogramAnalyzerNewInterface(fIdentifier_, fTree_); } }
   else if (fMethodID_ == Helper::kRooFit     ) fAnalyzer_ = new RooFitTemplateAnalyzer      (fIdentifier_, fTree_);
   else {
     std::cerr << "Stopping analysis! Specified analysis method *" << fMethod_ << "* not known!" << std::endl;
@@ -107,9 +105,12 @@ void Analysis::Analyze() {
     else if (fMethodID_ == Helper::kRooFit) {
     }
 
-    // FIXME DUMMY
-    // binning not yet implemented, still needs some time idea ...
-    int entries = 26;
+    // FIXME binning not yet implemented, still needs some implementation ...
+    int entries = -1;
+    if(fTree_)
+      entries = fTree_->GetEntries();
+    else
+      entries = ((RandomSubsetCreatorNewInterface*)fCreator_)->GetDataSample().nEvents;
 
     CreateHisto("Entries");
     GetH1("Entries")->SetBinContent(i+1, entries);
@@ -119,26 +120,26 @@ void Analysis::Analyze() {
       fAnalyzer_->Analyze(cuts, i, 0);
       const std::map<TString, std::pair<double, double>> values = fAnalyzer_->GetValues();
 
-      for(std::map<TString, std::pair<double, double>>::const_iterator value = values.begin(); value != values.end(); ++value){
-        CreateHisto(value->first);
-        CreateHisto(value->first+TString("_Error"));
-        CreateHisto(value->first+TString("_Pull"));
+      for(const auto& value: values){
+        CreateHisto(value.first);
+        CreateHisto(value.first+TString("_Error"));
+        CreateHisto(value.first+TString("_Pull"));
       }
 
       double genMass = po::GetOption<double>("mass");
       double genJES  = po::GetOption<double>("jes" );
       double genfSig = po::GetOption<double>("fsig");
-      for(std::map<TString, std::pair<double, double>>::const_iterator value = values.begin(); value != values.end(); ++value){
-        double val      = value->second.first;
-        double valError = value->second.second;
+      for(const auto& value: values){
+        double val      = value.second.first;
+        double valError = value.second.second;
         double gen = 0;
-        if     (value->first.BeginsWith("mass")) gen = genMass;
-        else if(value->first.BeginsWith("JES" )) gen = genJES;
-        else if(value->first.BeginsWith("fSig")) gen = genfSig;
-        GetH1(value->first                 ) ->SetBinContent(i+1, val);
-        GetH1(value->first+TString("_Error"))->SetBinContent(i+1, valError);
-        GetH1(value->first+TString("_Pull" ))->SetBinContent(i+1, (val - gen)/valError);
-        std::cout << "Measured " << value->first << ": " << val << " +/- " << valError << std::endl;
+        if     (value.first.BeginsWith("mass")) gen = genMass;
+        else if(value.first.BeginsWith("JES" )) gen = genJES;
+        else if(value.first.BeginsWith("fSig")) gen = genfSig;
+        GetH1(value.first                 ) ->SetBinContent(i+1, val);
+        GetH1(value.first+TString("_Error"))->SetBinContent(i+1, valError);
+        GetH1(value.first+TString("_Pull" ))->SetBinContent(i+1, (val - gen)/valError);
+        std::cout << "Measured " << value.first << ": " << val << " +/- " << valError << std::endl;
       }
       std::cout << std::endl;
     }
@@ -177,6 +178,7 @@ void Analysis::Analyze() {
   canvas->Print(pathr);
   
   delete canvas;
+  if (fMethodID_ != Helper::kIdeogramNew) delete fAnalyzer_;
 }
 
 void Analysis::CreateHisto(TString name) {

@@ -4,20 +4,17 @@
 #include "Helper.h"
 #include "ProgramOptionsReader.h"
 
+#include <cmath>
 #include <iomanip>
 #include <boost/progress.hpp>
 
 #include "TCanvas.h"
 //#include "TColor.h"
-#include "TEntryList.h"
 #include "TF2.h"
-#include "TFile.h"
 #include "TH1D.h"
 #include "TH2D.h"
 #include "TLegend.h"
-#include "TROOT.h"
 #include "TStyle.h"
-#include "TSystem.h"
 
 typedef ProgramOptionsReader po;
 
@@ -48,7 +45,7 @@ void IdeogramAnalyzerNewInterface::Analyze(const TString& cuts, int i, int j) {
 
   double epsilon = 1e-6;
   mass = GetValue("mass_mTop_JES").first;
-  JES  = GetValue("JES_mTop_JES" ).first;
+  //JES  = GetValue("JES_mTop_JES" ).first;
   Scan(cuts, i, j, mass-10, mass+10, 0.1 , 1.-(0.5*epsilon), 1.+(0.5*epsilon), epsilon, false);
 
   time(&end);
@@ -245,7 +242,7 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
         eventCanvas->Print(eventPath);
 
         delete eventCanvas;
-      }
+      } // end if debug
     } // end for
   }
   delete eventLikelihood;
@@ -294,7 +291,6 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
   Helper* helper = new Helper();
 
   if (fit2D) {
-
     fitParaboloid->SetParLimits(0, minMass-2*resolMass, minMass+2*resolMass);
     fitParaboloid->SetParameter(0, minMass);
     fitParaboloid->SetParameter(1, 100);
@@ -414,7 +410,7 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
     //leg0->AddEntry((TObject*)0, "1, 2, 3#sigma", "");
     //leg0->AddEntry(fitParaboloid, "stat", "L");
     leg0->AddEntry(fitParaboloid, "#splitline{1#sigma, 2#sigma, 3#sigma}{contours}", "L");
-    if (syst)    leg0->AddEntry(systParaboloid, "stat + syst", "L");
+    if (syst) leg0->AddEntry(systParaboloid, "stat + syst", "L");
     leg0->Draw();
 
     helper->DrawCMS();
@@ -425,7 +421,6 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
     delete leg0;
   }
   else{
-
     double leftMargin  = ctemp->GetLeftMargin();
     double rightMargin = ctemp->GetRightMargin();
     ctemp->SetLeftMargin (0.20);

@@ -4,8 +4,7 @@
 #include "RandomSubsetCreator.h"
 #include "DataSample.h"
 
-#include "TRandom3.h"
-#include "TString.h"
+class TRandom3;
 
 class RandomSubsetCreatorNewInterface : public RandomSubsetCreator {
 public:
@@ -14,10 +13,9 @@ public:
   const DataSample& GetDataSample() const { return subset_; }
 
 private:
-  const TString selection_;
-  const TString samplePath_;
-  const TString fIdentifier_;
-  //const TString fChannel_;
+  const std::string selection_;
+  const std::string samplePath_;
+  const std::string fIdentifier_;
   const std::string fVar1_;
   const std::string fVar2_;
   const std::string fVar3_;
@@ -33,7 +31,7 @@ private:
 
   TTree* CreateRandomSubset();
   void DrawEvents(const DataSample& sample, double nEventsPE);
-  void PrepareEvents(TString file);
+  void PrepareEvents(const TString& file);
 };
 
 #endif /* RANDOMSUBSETCREATORNEWINTERFACE_H_ */

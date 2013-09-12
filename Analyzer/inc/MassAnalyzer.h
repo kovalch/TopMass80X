@@ -17,11 +17,11 @@ public:
   
   virtual void Analyze(const TString& cuts, int i, int j) = 0;
 
-  std::pair<double, double> GetValue(TString whichValue) const;
+  std::pair<double, double> GetValue(const TString& whichValue) const;
   std::map<TString, std::pair<double, double> > GetValues() const;
 
 protected:
-  void SetValue(TString whichValue, double val, double valError);
+  void SetValue(const TString& whichValue, double val, double valError);
 
   TString fIdentifier_;
   TTree* fTree_;

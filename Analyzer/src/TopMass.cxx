@@ -1,21 +1,14 @@
 #include "TopMass.h"
 
 #include <cmath>
-#include <fstream>
+//#include <fstream>
 #include <map>
 #include <string>
 #include <time.h>
 
-#include "TCanvas.h"
 #include "TFile.h"
-#include "TGraphErrors.h"
-#include "TLegend.h"
-#include "TMultiGraph.h"
-#include "TPaveStats.h"
-#include "TStyle.h"
-#include "TSystem.h"
-#include "TMath.h"
 
+#include "Analysis.h"
 #include "Helper.h"
 #include "ProgramOptionsReader.h"
 
@@ -25,64 +18,45 @@ TopMass::TopMass() :
   fBinning_(po::GetOption<std::string>("binning")),
   fTask_   (po::GetOption<std::string>("task"))
 {
-  // check existence of a temp directory and create one if not available
-  TString tempDir(gSystem->Getenv("TMPDIR"));
-  if(tempDir.IsNull() || !tempDir.Length()){
-    tempDir = gSystem->GetFromPipe("mktemp -d");
-    gSystem->Setenv("TMPDIR", tempDir);
-  }
-  std::cout << "Directory to be used for temporary files: " << tempDir << std::endl;
-
   // set environment variables needed for LHAPDF
-  gSystem->Setenv("LHAPATH", "/afs/naf.desy.de/user/e/eschliec/wd/LHAPDF/share/lhapdf/PDFsets");
+  //gSystem->Setenv("LHAPATH", "/afs/naf.desy.de/user/e/eschliec/wd/LHAPDF/share/lhapdf/PDFsets");
   
   // Define binning
   
   std::vector<float> vBinning;
   
   if (!fBinning_.CompareTo("deltaThetaHadWHadB")) {
-      float xbins[] = {0, float(TMath::Pi())};
-      vBinning.assign(xbins, xbins + sizeof(xbins) / sizeof(xbins[0]));
+    vBinning = {0, float(M_PI)};
   }
   else if (!fBinning_.CompareTo("hadTopPt")) {
-      float xbins[] = {0, 50, 75, 100, 125, 150, 200, 400};
-      vBinning.assign(xbins, xbins + sizeof(xbins) / sizeof(xbins[0]));
+    vBinning = {0, 50, 75, 100, 125, 150, 200, 400};
   }
   else if (!fBinning_.CompareTo("hadTopEta")) {
-      float xbins[] = {-5, -2, -1, -0.3, 0.3, 1, 2, 5};
-      vBinning.assign(xbins, xbins + sizeof(xbins) / sizeof(xbins[0]));
+    vBinning = {-5, -2, -1, -0.3, 0.3, 1, 2, 5};
   }
   else if (!fBinning_.CompareTo("hadBPt")) {
-      float xbins[] = {0, 50, 75, 100, 125, 400};
-      vBinning.assign(xbins, xbins + sizeof(xbins) / sizeof(xbins[0]));
+    vBinning = {0, 50, 75, 100, 125, 400};
   }
   else if (!fBinning_.CompareTo("hadBEta")) {
-      float xbins[] = {-2.5, -1, -0.3, 0.3, 1, 2.5};
-      vBinning.assign(xbins, xbins + sizeof(xbins) / sizeof(xbins[0]));
+    vBinning = {-2.5, -1, -0.3, 0.3, 1, 2.5};
   }
   else if (!fBinning_.CompareTo("TTBarMass")) {
-      float xbins[] = {200, 400, 450, 500, 550, 700 ,1000};
-      vBinning.assign(xbins, xbins + sizeof(xbins) / sizeof(xbins[0]));
+    vBinning = {200, 400, 450, 500, 550, 700 ,1000};
   }
   else if (!fBinning_.CompareTo("TTBarPt")) {
-      float xbins[] = {0, 20, 30, 40, 50, 100, 250};
-      vBinning.assign(xbins, xbins + sizeof(xbins) / sizeof(xbins[0]));
+    vBinning = {0, 20, 30, 40, 50, 100, 250};
   }
   else if (!fBinning_.CompareTo("deltaRHadQHadQBar")) {
-      float xbins[] = {0.5, 1.25, 1.5, 1.75, 2, 3, 6};
-      vBinning.assign(xbins, xbins + sizeof(xbins) / sizeof(xbins[0]));
+    vBinning = {0.5, 1.25, 1.5, 1.75, 2, 3, 6};
   }
   else if (!fBinning_.CompareTo("deltaRHadBLepB")) {
-      float xbins[] = {0.5, 1.25, 2, 2.5, 3, 6};
-      vBinning.assign(xbins, xbins + sizeof(xbins) / sizeof(xbins[0]));
+    vBinning = {0.5, 1.25, 2, 2.5, 3, 6};
   }
   else if (!fBinning_.CompareTo("topMass")) {
-      float xbins[] = {100, 550};
-      vBinning.assign(xbins, xbins + sizeof(xbins) / sizeof(xbins[0]));
+    vBinning = {100, 550};
   }
   else if (!fBinning_.CompareTo("top.fitTop1[0].M()")) {
-      float xbins[] = {100, 550};
-      vBinning.assign(xbins, xbins + sizeof(xbins) / sizeof(xbins[0]));
+    vBinning = {100, 550};
   }
 
   // Start task
@@ -94,11 +68,12 @@ TopMass::TopMass() :
   else if (!fTask_.CompareTo("sm")) {
     Analysis* analysis = new Analysis(vBinning);
     analysis->Analyze();
+    delete analysis;
   }
 }
 
 
-void TopMass::WriteEnsembleTest(std::vector<float> vBinning) {
+void TopMass::WriteEnsembleTest(const std::vector<float>& vBinning) {
   time_t start, end;
   time(&start);
   time(&end);
@@ -186,10 +161,10 @@ void TopMass::WriteEnsembleTest(std::vector<float> vBinning) {
   TH1F* hBinning = helper->GetH1("hBinning");
   hBinning->Write();
   
-  ensembleFile->Close();
+  ensembleFile->Close("R");
 }
 
-bool TopMass::fexists(const char *filename) {
-  ifstream ifile(filename);
-  return ifile;
-}
+//bool TopMass::fexists(const char *filename) {
+//  ifstream ifile(filename);
+//  return ifile;
+//}
