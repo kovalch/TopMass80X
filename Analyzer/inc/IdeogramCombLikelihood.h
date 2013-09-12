@@ -1,7 +1,5 @@
 #ifndef IDEOGRAMCOMBLIKELIHOOD_H
 #define IDEOGRAMCOMBLIKELIHOOD_H
-#include <map>
-#include <utility>
 
 class IdeogramCombLikelihood {
 public:

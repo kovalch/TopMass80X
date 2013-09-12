@@ -2,6 +2,7 @@
 #define IDEOGRAMCOMBLIKELIHOODALLJETS_H
 #include <map>
 #include <utility>
+#include <vector>
 
 #include "IdeogramCombLikelihood.h"
 
@@ -13,41 +14,44 @@ private:
   double PWP(double *x, double *p);
   double PUN(double *x, double *p);
   
-  double PJES(double *x, double *p, double *q);
-  //double PCPJES(double *x, double *p, double *q);
-  //double PWPJES(double *x, double *p, double *q);
-  //double PUNJES(double *x, double *p, double *q);
+  double PJES(double *x, double *p, const std::vector<double> &q);
   
   double PCPJES1(double *x, double *p);
   double PWPJES1(double *x, double *p);
   double PUNJES1(double *x, double *p);
   
-  //double PCPJES2(double *x, double *p);
-  //double PWPJES2(double *x, double *p);
-  //double PUNJES2(double *x, double *p);
-  
   double PBKG(double *x, double *p);
-  double PBKGJES(double *x, double *p, double *q);
+  double PBKGJES(double *x, double *p, const std::vector<double> &q);
   double PBKGJES1(double *x, double *p);
-  //double PBKGJES2(double *x, double *p);
   
-  double *parsCP_;
-  double *parsWP_;
-  double *parsUN_;
-  double *parsCPJES_;
-  double *parsWPJES_;
-  double *parsUNJES_;
-  double *parsBKG_;
-  double *parsBKGJES_;
+  std::vector<double> readParameters(const char *whichParameter);
 
-  double fSig_, fCP_, fWP_, fUN_;
+  static std::vector<double> parsCP_;
+  static std::vector<double> parsWP_;
+  static std::vector<double> parsUN_;
+  static std::vector<double> parsCPJES_;
+  static std::vector<double> parsWPJES_;
+  static std::vector<double> parsUNJES_;
+  static std::vector<double> parsBKG_;
+  static std::vector<double> parsBKGJES_;
 
-  double PBKGintegral_;
+  static std::vector<double> massOffset_;
+  static std::vector<double> massSlopeMass_;
+  static std::vector<double> massSlopeJES_;
+  static std::vector<double> massSlopeMassJES_;
+  static std::vector<double> jesOffset_;
+  static std::vector<double> jesSlopeMass_;
+  static std::vector<double> jesSlopeJES_;
+  static std::vector<double> jesSlopeMassJES_;
+
+  static double fSig_, fCP_, fWP_, fUN_;
+
+  static double PBKGintegral_;
   
   typedef std::pair<double,double> ScanPoint;
   typedef std::map<ScanPoint,double> ScanPointMap; 
-  ScanPointMap PWPintegrals_;
-  ScanPointMap PUNintegrals_;
+  static ScanPointMap PWPintegrals_;
+  static ScanPointMap PUNintegrals_;
 
   class MyFunctions {
   public:
