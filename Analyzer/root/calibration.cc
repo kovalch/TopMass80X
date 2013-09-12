@@ -177,6 +177,7 @@ TopMassCalibration::rooFitTopMass_()
   RooAddPdf   *wAdd = 0;
 
   TString name = "";
+  TString outDir = "plot/calibration";
 
   if(doCalibration_){
     RooCategory* cat_templ = new RooCategory("cat_templ", "cat_templ");
@@ -445,7 +446,6 @@ TopMassCalibration::rooFitTopMass_()
         workspace[0]->import(*result);
 
         /// control plots
-        TString outDir = "plot/calibration";
 
         RooPlot* frame = 0;
         TCanvas* canvas = new TCanvas("canvas", "canvas", 10, 10, 600, 600);
@@ -577,8 +577,10 @@ TopMassCalibration::rooFitTopMass_()
           RooRealVar* curPar = workspace[0]->var(varName);
           curPar->setConstant(kTRUE);
           vars << curPar->getVal();
-          if(i != par.size()-1) vars << ", ";
+          if(i != par.size()-1) vars << "|";
         }
+        if(templType == 0 && comboType == 1) vars << "|" << workspace[0]->var("ratio_1");
+        if(templType == 0 && comboType == 2) vars << "|" << workspace[0]->var("ratio_2");
         std::cout << vars.str();
         std::cout << std::endl;
 
@@ -590,7 +592,7 @@ TopMassCalibration::rooFitTopMass_()
         std::cout << "old: ";
         for(unsigned int i = 0; i < iniPar.size(); ++i){
           std::cout << iniPar[i];
-          if(i != iniPar.size()-1) std::cout << ", ";
+          if(i != iniPar.size()-1) std::cout << "|";
         }
         std::cout << std::endl;
         //}
@@ -602,11 +604,11 @@ TopMassCalibration::rooFitTopMass_()
     workspace[0] = (RooWorkspace*)calibrationFile->Get("workspaceMtop")->Clone();
   }
 
-  RooRealVar *fCP = new RooRealVar("fCP", "fCP", 2.79599875211715698e-01);
+  RooRealVar *fCP = new RooRealVar("fCP", "fCP", 0.254136);
   fCP->setConstant(kTRUE);
-  RooRealVar *fWP = new RooRealVar("fWP", "fWP", 4.28881868720054626e-03+1.13365799188613892e-03+2.13942706584930420e-01);
+  RooRealVar *fWP = new RooRealVar("fWP", "fWP", 6.90155e-06+0.000212875+0.00280065+0.0244401+0.0921562);
   fWP->setConstant(kTRUE);
-  RooRealVar *fUN = new RooRealVar("fUN", "fUN", 5.01034975051879883e-01);
+  RooRealVar *fUN = new RooRealVar("fUN", "fUN", 0.00541135+3.66988e-05+0.0570029+0.000743396+0.563053);
   fUN->setConstant(kTRUE);
   RooArgSet permutationFractions = RooArgSet(*fCP,*fWP,*fUN,"permutationFractions");
 
@@ -692,6 +694,12 @@ TopMassCalibration::rooFitTopMass_()
   }
   //workspace[0]->import(topBKG);
 
+  std::ofstream myfile;
+  myfile.open(outDir + "/variables.txt", std::ios::out | std::ios::app);
+  myfile << "Template Type: background top mass" << "\n";
+  myfile << topBKGGammaNorm->getVal() << "|" << topBKGGammaGamma->getVal() << "|" << topBKGGammaMu->getVal() << "|" << topBKGGammaBeta->getVal() << "|" << topBKGLandauMean->getVal() << "|" << topBKGLandauSigma->getVal() << "\n";
+  myfile.close();
+
   RooRealVar *wBKGMean       = new RooRealVar("wBKGMean"      , "wBKGMean"      , 86.9853 );
   RooRealVar *wBKGSigmaLeft  = new RooRealVar("wBKGSigmaLeft" , "wBKGSigmaLeft" ,  5.78569);
   RooRealVar *wBKGSigmaRight = new RooRealVar("wBKGSigmaRight", "wBKGSigmaRight",  7.12755);
@@ -718,7 +726,12 @@ TopMassCalibration::rooFitTopMass_()
   }
   //workspace[0]->import(wBKG);
 
-  RooRealVar *fSig = new RooRealVar("fSig", "fSig", 0.539, 0, 1);
+  myfile.open(outDir + "/variables.txt", std::ios::out | std::ios::app);
+  myfile << "Template Type: background W mass" << "\n";
+  myfile << wBKGMean->getVal() << "|" << wBKGSigmaLeft->getVal() << "|" << wBKGSigmaRight->getVal() << "\n";
+  myfile.close();
+
+  RooRealVar *fSig = new RooRealVar("fSig", "fSig", 0.460, 0, 1);
 
   RooAddPdf *topModel = new RooAddPdf("topModel", "topModel", *topAdd, *topBKG, *fSig);
   RooAddPdf *wModel   = new RooAddPdf("wModel"  , "wModel"  , *wAdd  , *wBKG  , *fSig);

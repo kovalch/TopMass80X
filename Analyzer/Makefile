@@ -1,5 +1,5 @@
-C := g++ -g -Wall -fPIC -std=c++0x
-L := g++ -g
+C := g++ -O3 -Wall -fPIC -std=c++0x
+L := g++ -O3
 
 ROOTCFLAGS  := $(shell root-config --cflags)
 ROOTLIBS    := $(shell root-config --libs) -lRooFit -lRooFitCore -lTreePlayer
