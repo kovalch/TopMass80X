@@ -139,10 +139,10 @@ if not data:
       scaledJetEnergy.resolutionFactors   = [1.140, 1.258, 1.190, 1.370]
     scaledJetEnergy.resolutionEtaRanges   = [0, 1.1, 1.1, 1.7, 1.7, 2.3, 2.3, -1]
 
-    scaledJetEnergy.inputJets    = "selectedPatJetsAK5PF"
-    scaledJetEnergy.inputMETs    = "patMETsPF"
+    scaledJetEnergy.inputJets    = "selectedPatJets"
+    scaledJetEnergy.inputMETs    = "patMETs"
 
-    process.noOverlapJetsPF.src = "scaledJetEnergy:selectedPatJets"
+    process.goodJetsPF.src = "scaledJetEnergy:selectedPatJets"
 
     ## electron shift
     process.load("TopAnalysis.TopUtils.ElectronEnergyScale_cfi")
@@ -476,22 +476,40 @@ if (options.lepton=="electron"):
       if not data: getattr(process, pathname).replace(process.effSFMuonEventWeight, process.effSFElectronEventWeight)
       # replace muon by electron in (remaining) kinfit analyzers
       massSearchReplaceAnyInputTag(getattr(process, pathname), 'tightMuons', 'goodElectronsEJ')
-      massSearchReplaceAnyInputTag(getattr(process, pathname), 'noOverlapJetsPF', 'noOverlapJetsPFelec')
       massSearchReplaceAnyInputTag(getattr(process, pathname), 'effSFMuonEventWeight', 'effSFElectronEventWeight')
 
 
 
 from TopAnalysis.TopUtils.usePatTupleWithParticleFlow_cff import prependPF2PATSequence
-prependPF2PATSequence(process, options = {'runOnOLDcfg': True,
-                                          'runOnMC': not data,
-                                          'runOnAOD': True,
-                                          'electronIDs': ['CiC','classical','MVA'],
-                                          'switchOffEmbedding': False,
-                                          'pfIsoConeMuon': 0.4,
-                                          'pfIsoConeElec': 0.4,
-                                          #'skipIfNoPFMuon': True,
-                                          'METCorrectionLevel': options.metcl,
-                                          })
+PFoptions = {
+        'runOnMC': not data,
+        'runOnAOD': True,
+        'switchOffEmbedding': False,
+        'addResolutions': True,
+        'resolutionsVersion': 'fall11',
+        'runOnOLDcfg': True,
+        'cutsMuon': 'pt > 10. & abs(eta) < 2.5',
+        'cutsElec': 'et > 20. & abs(eta) < 2.5',
+        'cutsJets': 'pt > 10 & abs(eta) < 5.0', 
+        'electronIDs': ['CiC','classical','MVA'],
+        'pfIsoConeMuon': 0.4,
+        'pfIsoConeElec': 0.3,
+        'pfIsoValMuon': 0.2,
+        'pfIsoValElec': 0.15,
+        'doDeltaBetaCorrMuon' : True,
+        'doDeltaBetaCorrElec' : True,
+        'skipIfNoPFMuon': False,
+        'skipIfNoPFElec': False,
+        'addNoCutPFMuon': False,
+        'addNoCutPFElec': False,
+        'noMuonTopProjection': False,
+        'noElecTopProjection': False,
+        'analyzersBeforeMuonIso':cms.Sequence(),
+        'analyzersBeforeElecIso':cms.Sequence(),
+        'excludeElectronsFromWsFromGenJets': True,
+        'METCorrectionLevel': options.metcl,
+        }
+prependPF2PATSequence(process, options = PFoptions)
 
 ## adaptions (re-aranging of modules) to speed up processing
 pathnames = process.paths_().keys()
