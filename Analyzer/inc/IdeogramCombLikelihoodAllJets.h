@@ -50,29 +50,26 @@ private:
   
   typedef std::pair<double,double> ScanPoint;
   typedef std::map<ScanPoint,double> ScanPointMap; 
-  static ScanPointMap PWPintegrals_;
-  static ScanPointMap PUNintegrals_;
+  static ScanPointMap PWPnormalizations_;
+  static ScanPointMap PUNnormalizations_;
 
-  class MyFunctions {
-  public:
-    static double langau(Double_t *x, Double_t *p) {
-      return p[0]*(p[4]*TMath::Landau(x[0],p[1],p[2],true)+(1-p[4])*TMath::Gaus(x[0],p[1],p[3],true));
-    }
-    static double lanvog(Double_t *x, Double_t *p) {
-      return p[0]*(p[5]*TMath::Landau(x[0],p[1],p[3],true)+(1-p[5])*TMath::Gaus(x[0],p[2],p[4],true));
-    }
-    static double gamma(Double_t *x, Double_t *p) {
-      if(x[0] < p[1]) return 0.;
-      else return (TMath::GammaDist(x[0],p[0],p[1],p[2]));
-    }
-    static double landau(Double_t *x, Double_t *p) {
-      return (TMath::Landau(x[0],p[0],p[1]));
-    }
-    static double gammaland(Double_t *x, Double_t *p) {
-      if(x[0] < p[2]) return 0.;
-      else return (p[0]/p[6]*TMath::GammaDist(x[0],p[1],p[2],p[3])+(1-p[0])/p[7]*TMath::Landau(x[0],p[4],p[5]));
-    }
-  };
+  static double langau(Double_t *x, Double_t *p) {
+    return p[0]*(p[4]*TMath::Landau(x[0],p[1],p[2],true)+(1-p[4])*TMath::Gaus(x[0],p[1],p[3],true));
+  }
+  static double lanvog(Double_t *x, Double_t *p) {
+    return p[0]*(p[5]*TMath::Landau(x[0],p[1],p[3],true)+(1-p[5])*TMath::Gaus(x[0],p[2],p[4],true));
+  }
+  static double gamma(Double_t *x, Double_t *p) {
+    if(x[0] < p[1]) return 0.;
+    else return (TMath::GammaDist(x[0],p[0],p[1],p[2]));
+  }
+  static double landau(Double_t *x, Double_t *p) {
+    return (TMath::Landau(x[0],p[0],p[1]));
+  }
+  static double gammaland(Double_t *x, Double_t *p) {
+    if(x[0] < p[2]) return 0.;
+    else return (p[0]/p[6]*TMath::GammaDist(x[0],p[1],p[2],p[3])+(1-p[0])/p[7]*TMath::Landau(x[0],p[4],p[5]));
+  }
 
 public:
   IdeogramCombLikelihoodAllJets();

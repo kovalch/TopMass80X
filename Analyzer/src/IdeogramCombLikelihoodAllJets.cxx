@@ -8,7 +8,6 @@
 #include <boost/algorithm/string/classification.hpp>
 
 #include "TF1.h"
-#include "TFile.h"
 
 typedef ProgramOptionsReader po;
 
@@ -37,8 +36,8 @@ double IdeogramCombLikelihoodAllJets::fUN_ (-1.);
 
 double IdeogramCombLikelihoodAllJets::PBKGintegral_(-1);
 
-IdeogramCombLikelihoodAllJets::ScanPointMap IdeogramCombLikelihoodAllJets::PWPintegrals_;
-IdeogramCombLikelihoodAllJets::ScanPointMap IdeogramCombLikelihoodAllJets::PUNintegrals_;
+IdeogramCombLikelihoodAllJets::ScanPointMap IdeogramCombLikelihoodAllJets::PWPnormalizations_;
+IdeogramCombLikelihoodAllJets::ScanPointMap IdeogramCombLikelihoodAllJets::PUNnormalizations_;
 
 IdeogramCombLikelihoodAllJets::IdeogramCombLikelihoodAllJets()
 {
@@ -245,24 +244,22 @@ double IdeogramCombLikelihoodAllJets::PWP(double* x, double* p)
 
   double ratio  = q[16];
 
-  //TF1 func = TF1("func", MyFunctions::langau, 100., 550., 5);
-  TF1 func = TF1("func", MyFunctions::lanvog, 100., 550., 6);
-  
-  func.SetParameters(1., muL, muG, sigmaL, sigmaG, ratio);
+  double funcPars[] = {1., muL, muG, sigmaL, sigmaG, ratio};
     
   ScanPoint currentPoint = std::make_pair(x[0],x[1]);
-  ScanPointMap::const_iterator iter = PWPintegrals_.find(currentPoint);
-  double currentIntegral = -1.;
-  if(iter == PWPintegrals_.end()){
-    currentIntegral = func.Integral(100.,550.);
-    PWPintegrals_[currentPoint] = currentIntegral;
+  ScanPointMap::const_iterator iter = PWPnormalizations_.find(currentPoint);
+  double currentNormalization = -1.;
+  if(iter == PWPnormalizations_.end()){
+    //TF1 func = TF1("func", langau, 100., 550., 5);
+    TF1 func = TF1("func", lanvog, 100., 550., 6);
+    func.SetParameters(funcPars);
+    currentNormalization = func.Integral(100.,550.);
+    PWPnormalizations_[currentPoint] = 1. / currentNormalization;
   }
   else{
-    currentIntegral = iter->second;
+    currentNormalization = iter->second;
   }
-  double N = 1. / currentIntegral;
-
-  return N*func.Eval(p[1]);
+  return currentNormalization*lanvog(&p[1],&funcPars[0]);
 }
 
 double IdeogramCombLikelihoodAllJets::PUN(double* x, double* p)
@@ -278,24 +275,22 @@ double IdeogramCombLikelihoodAllJets::PUN(double* x, double* p)
 
   double ratio  = q[16];
 
-  //TF1 func = TF1("func", MyFunctions::langau, 100., 550., 5);
-  TF1 func = TF1("func", MyFunctions::lanvog, 100., 550., 6);
-
-  func.SetParameters(1., muL, muG, sigmaL, sigmaG, ratio);
+  double funcPars[] = {1., muL, muG, sigmaL, sigmaG, ratio};
     
   ScanPoint currentPoint = std::make_pair(x[0],x[1]);
-  ScanPointMap::const_iterator iter = PUNintegrals_.find(currentPoint);
-  double currentIntegral = -1.;
-  if(iter == PUNintegrals_.end()){
-    currentIntegral = func.Integral(100.,550.);
-    PUNintegrals_[currentPoint] = currentIntegral;
+  ScanPointMap::const_iterator iter = PUNnormalizations_.find(currentPoint);
+  double currentNormalization = -1.;
+  if(iter == PUNnormalizations_.end()){
+    //TF1 func = TF1("func", langau, 100., 550., 5);
+    TF1 func = TF1("func", lanvog, 100., 550., 6);
+    func.SetParameters(funcPars);
+    currentNormalization = func.Integral(100.,550.);
+    PUNnormalizations_[currentPoint] = 1. / currentNormalization;
   }
   else{
-    currentIntegral = iter->second;
+    currentNormalization = iter->second;
   }
-  double N = 1. / currentIntegral;
-
-  return N*func.Eval(p[1]);
+  return currentNormalization*lanvog(&p[1],&funcPars[0]);
 }
 
 double IdeogramCombLikelihoodAllJets::PCPJES1(double *x, double *p)
@@ -354,30 +349,27 @@ double IdeogramCombLikelihoodAllJets::PBKG(double *x, double *p)
   std::vector<double> &q = parsBKG_;
 
   if(q[6] < 0.){
-    TF1 funcGamma = TF1("funcGamma", MyFunctions::gamma, 100., 550., 3);
+    TF1 funcGamma = TF1("funcGamma", gamma, 100., 550., 3);
     funcGamma.SetParameter(0, q[1]);
     funcGamma.SetParameter(1, q[2]);
     funcGamma.SetParameter(2, q[3]);
     q[6] = funcGamma.Integral(100.,550.);
   }
   if(q[7] < 0.){
-    TF1 funcLandau = TF1("funcLandau", MyFunctions::landau, 100., 550., 2);
+    TF1 funcLandau = TF1("funcLandau", landau, 100., 550., 2);
     funcLandau.SetParameter(0, q[4]);
     funcLandau.SetParameter(1, q[5]);
     q[7] = funcLandau.Integral(100.,550.);
   }
 
-  TF1 func = TF1("func", MyFunctions::gammaland, 100., 550., 8);
-  
-  func.SetParameters(&q.at(0));
-  func.SetParameter(1, p[4]*q[1]);
-    
   if(PBKGintegral_ < 0.){
-    PBKGintegral_ = func.Integral(100.,550.);
+    TF1 func = TF1("func", gammaland, 100., 550., 8);
+    q.at(1) = p[4]*q.at(1);
+    func.SetParameters(&q.at(0));
+    PBKGintegral_ = 1. / func.Integral(100.,550.);
   }
-  double N = 1. / PBKGintegral_;
 
-  return N*func.Eval(p[1]);
+  return PBKGintegral_*gammaland(&p[1],&q.at(0));
 }
 
 double IdeogramCombLikelihoodAllJets::PBKGJES1(double *x, double *p)
