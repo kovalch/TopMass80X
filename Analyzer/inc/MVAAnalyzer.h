@@ -6,7 +6,7 @@ class MVAAnalyzer : public MassAnalyzer {
     TF1* gaus;
   
   public:
-    MVAAnalyzer(const TString& identifier, TTree* tree) : MassAnalyzer(identifier, tree), gaus(0) {};
-    void Analyze(const TString& cuts, int i, int j);
+    MVAAnalyzer(const std::string& identifier, TTree* tree) : MassAnalyzer(identifier, tree), gaus(0) {};
+    void Analyze(const std::string& cuts, int i, int j);
 
 };

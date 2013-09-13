@@ -3,7 +3,6 @@
 #include <cmath>
 //#include <fstream>
 #include <map>
-#include <string>
 #include <time.h>
 
 #include "TFile.h"
@@ -25,47 +24,47 @@ TopMass::TopMass() :
   
   std::vector<float> vBinning;
   
-  if (!fBinning_.CompareTo("deltaThetaHadWHadB")) {
+  if (!strcmp(fBinning_.c_str(),"deltaThetaHadWHadB")) {
     vBinning = {0, float(M_PI)};
   }
-  else if (!fBinning_.CompareTo("hadTopPt")) {
+  else if (!strcmp(fBinning_.c_str(),"hadTopPt")) {
     vBinning = {0, 50, 75, 100, 125, 150, 200, 400};
   }
-  else if (!fBinning_.CompareTo("hadTopEta")) {
+  else if (!strcmp(fBinning_.c_str(),"hadTopEta")) {
     vBinning = {-5, -2, -1, -0.3, 0.3, 1, 2, 5};
   }
-  else if (!fBinning_.CompareTo("hadBPt")) {
+  else if (!strcmp(fBinning_.c_str(),"hadBPt")) {
     vBinning = {0, 50, 75, 100, 125, 400};
   }
-  else if (!fBinning_.CompareTo("hadBEta")) {
+  else if (!strcmp(fBinning_.c_str(),"hadBEta")) {
     vBinning = {-2.5, -1, -0.3, 0.3, 1, 2.5};
   }
-  else if (!fBinning_.CompareTo("TTBarMass")) {
+  else if (!strcmp(fBinning_.c_str(),"TTBarMass")) {
     vBinning = {200, 400, 450, 500, 550, 700 ,1000};
   }
-  else if (!fBinning_.CompareTo("TTBarPt")) {
+  else if (!strcmp(fBinning_.c_str(),"TTBarPt")) {
     vBinning = {0, 20, 30, 40, 50, 100, 250};
   }
-  else if (!fBinning_.CompareTo("deltaRHadQHadQBar")) {
+  else if (!strcmp(fBinning_.c_str(),"deltaRHadQHadQBar")) {
     vBinning = {0.5, 1.25, 1.5, 1.75, 2, 3, 6};
   }
-  else if (!fBinning_.CompareTo("deltaRHadBLepB")) {
+  else if (!strcmp(fBinning_.c_str(),"deltaRHadBLepB")) {
     vBinning = {0.5, 1.25, 2, 2.5, 3, 6};
   }
-  else if (!fBinning_.CompareTo("topMass")) {
+  else if (!strcmp(fBinning_.c_str(),"topMass")) {
     vBinning = {100, 550};
   }
-  else if (!fBinning_.CompareTo("top.fitTop1[0].M()")) {
+  else if (!strcmp(fBinning_.c_str(),"top.fitTop1[0].M()")) {
     vBinning = {100, 550};
   }
 
   // Start task
   
-  if (!fTask_.CompareTo("pe")) {
+  if (!strcmp(fTask_.c_str(),"pe")) {
     WriteEnsembleTest(vBinning);
   }
   
-  else if (!fTask_.CompareTo("sm")) {
+  else if (!strcmp(fTask_.c_str(),"sm")) {
     Analysis* analysis = new Analysis(vBinning);
     analysis->Analyze();
     delete analysis;
@@ -87,7 +86,7 @@ void TopMass::WriteEnsembleTest(const std::vector<float>& vBinning) {
 
   double genMass, genJES, genfSig;
   int bin;
-  std::map<TString, double> values;
+  std::map<std::string, double> values;
 
   bool treeCreated = false;
   TTree* tree = 0;
@@ -102,11 +101,11 @@ void TopMass::WriteEnsembleTest(const std::vector<float>& vBinning) {
     
     analysis->Analyze();
     
-    const std::map<TString, TH1F*> histograms = analysis->GetH1s();
+    const std::map<std::string, TH1F*> histograms = analysis->GetH1s();
 
     if(!treeCreated){
 
-      for(std::map<TString, TH1F*>::const_iterator hist = histograms.begin(); hist != histograms.end(); ++hist){
+      for(std::map<std::string, TH1F*>::const_iterator hist = histograms.begin(); hist != histograms.end(); ++hist){
         values[hist->first] = -1;
       }
 
@@ -118,9 +117,9 @@ void TopMass::WriteEnsembleTest(const std::vector<float>& vBinning) {
         tree->Branch("genfSig", &genfSig, "genfSig/D");
         tree->Branch("bin", &bin, "bin/I");
 
-        for(std::map<TString, TH1F*>::const_iterator hist = histograms.begin(); hist != histograms.end(); ++hist){
-          TString leafName = hist->first+TString("/D");
-          tree->Branch(hist->first, &values[hist->first], leafName);
+        for(std::map<std::string, TH1F*>::const_iterator hist = histograms.begin(); hist != histograms.end(); ++hist){
+          std::string leafName = hist->first+std::string("/D");
+          tree->Branch(hist->first.c_str(), &values[hist->first], leafName.c_str());
         }
       }
       else {
@@ -129,8 +128,8 @@ void TopMass::WriteEnsembleTest(const std::vector<float>& vBinning) {
         tree->SetBranchAddress("genfSig", &genfSig);
         tree->SetBranchAddress("bin", &bin);
 
-        for(std::map<TString, TH1F*>::const_iterator hist = histograms.begin(); hist != histograms.end(); ++hist){
-          tree->SetBranchAddress(hist->first, &values[hist->first]);
+        for(std::map<std::string, TH1F*>::const_iterator hist = histograms.begin(); hist != histograms.end(); ++hist){
+          tree->SetBranchAddress(hist->first.c_str(), &values[hist->first]);
         }
       }
       treeCreated = true;
@@ -141,7 +140,7 @@ void TopMass::WriteEnsembleTest(const std::vector<float>& vBinning) {
     genJES  = genJESRead ;
     genfSig = genfSigRead;
     for (unsigned int i = 0; i < vBinning.size()-1; i++) {
-      for(std::map<TString, TH1F*>::const_iterator hist = histograms.begin(); hist != histograms.end(); ++hist){
+      for(std::map<std::string, TH1F*>::const_iterator hist = histograms.begin(); hist != histograms.end(); ++hist){
         values[hist->first] = hist->second->GetBinContent(i+1);
       }
       bin = i+1;

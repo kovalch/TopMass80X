@@ -15,7 +15,7 @@ void Helper::init()
   energy_ = po::GetOption<int>("cmsenergy");
 }
 
-int Helper::channelIDFromString(std::string channel)
+int Helper::channelIDFromString(const std::string& channel)
 {
   if      (!strcmp(channel.c_str(), "alljets" )) return kAllJets;
   else if (!strcmp(channel.c_str(), "muon"    )) return kMuonJets;
@@ -28,7 +28,7 @@ int Helper::channelIDFromString(std::string channel)
   }
 }
 
-int Helper::methodIDFromString(std::string method)
+int Helper::methodIDFromString(const std::string& method)
 {
   if      (!strcmp(method.c_str(), "GenMatch"   )) return kGenMatch;
   else if (!strcmp(method.c_str(), "MVA"        )) return kMVA;
@@ -42,13 +42,13 @@ int Helper::methodIDFromString(std::string method)
   }
 }
 
-TH1F* Helper::GetH1(TString title) {
+TH1F* Helper::GetH1(const std::string& title) {
   const float* array = &vBinning[0];
 
-  TH1F* hHelper = new TH1F(title, title, vBinning.size()-1, array);
+  TH1F* hHelper = new TH1F(title.c_str(), title.c_str(), vBinning.size()-1, array);
   hHelper->SetStats(false);
-  hHelper->SetXTitle(fBinning);
-  hHelper->SetYTitle(title);
+  hHelper->SetXTitle(fBinning.c_str());
+  hHelper->SetYTitle(title.c_str());
 
   return hHelper;
 }
@@ -215,12 +215,12 @@ void Helper::SetTDRStyle() {
 
 }
 
-void Helper::DrawLabel(TString text, const double x1, const double y1, const double x2, Color_t color)
+void Helper::DrawLabel(const std::string& text, const double x1, const double y1, const double x2, Color_t color)
 {
   // function to directly draw a label into the active canvas
   double y2 = y1 + 0.05;
   double yOffset = 0.02;
-  TPaveLabel *label = new TPaveLabel(x1, y1+yOffset, x2, y2+yOffset, text, "br NDC");
+  TPaveLabel *label = new TPaveLabel(x1, y1+yOffset, x2, y2+yOffset, text.c_str(), "br NDC");
   label->SetFillStyle(0);
   label->SetBorderSize(0);
   label->SetTextSize(0.75);

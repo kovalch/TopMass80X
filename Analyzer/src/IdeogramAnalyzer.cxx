@@ -6,6 +6,8 @@
 
 #include <iomanip>
 
+#include <boost/lexical_cast.hpp>
+
 #include "TCanvas.h"
 //#include "TColor.h"
 #include "TF2.h"
@@ -19,7 +21,7 @@
 
 typedef ProgramOptionsReader po;
 
-void IdeogramAnalyzer::Analyze(const TString& cuts, int i, int j) {
+void IdeogramAnalyzer::Analyze(const std::string& cuts, int i, int j) {
   Scan(cuts, i, j, 154, 190, 2, 0.9, 1.1, 0.02);
 
   double mass = GetValue("mass_mTop_JES").first;
@@ -33,7 +35,7 @@ void IdeogramAnalyzer::Analyze(const TString& cuts, int i, int j) {
 }
 
 
-void IdeogramAnalyzer::Scan(const TString& cuts, int i, int j, double firstBinMass, double lastBinMass,
+void IdeogramAnalyzer::Scan(const std::string& cuts, int i, int j, double firstBinMass, double lastBinMass,
 			    double resolMass, double firstBinJes, double lastBinJes, double resolJes, bool fit2D)
 {
   //*
@@ -237,10 +239,10 @@ void IdeogramAnalyzer::Scan(const TString& cuts, int i, int j, double firstBinMa
       }
     }
 
-    //TString sEvent("(run=="); sEvent += run; sEvent += " & luminosityBlock=="; 
+    //std::string sEvent("(run=="); sEvent += run; sEvent += " & luminosityBlock==";
     //sEvent += luminosityBlock; sEvent += " & event=="; sEvent += event; sEvent += ")";
     
-    //TString sEventWeighted = sEvent; sEventWeighted += "*("; sEventWeighted += "CombinedWeight"; sEventWeighted += ")";
+    //std::string sEventWeighted = sEvent; sEventWeighted += "*("; sEventWeighted += "CombinedWeight"; sEventWeighted += ")";
     
     //double eventWeight = fTree_->GetEntries(sEventWeighted)/fTree_->GetEntries(sEvent);
 
@@ -269,9 +271,9 @@ void IdeogramAnalyzer::Scan(const TString& cuts, int i, int j, double firstBinMa
       eventLikelihood->SetEntries(1);
       sumLogLikelihood->Draw("COLZ");
       
-      TString eventPath("plot/Ideogram/"); eventPath += fIdentifier_; eventPath += "_"; eventPath += iEntry; eventPath += "_"; eventPath += event; eventPath += ".eps";
+      std::string eventPath("plot/Ideogram/"); eventPath += fIdentifier_; eventPath += std::string("_"); eventPath += boost::lexical_cast<std::string>(iEntry); eventPath += std::string("_"); eventPath += boost::lexical_cast<std::string>(event); eventPath += std::string(".eps");
       std::cout << eventPath << std::endl;
-      eventCanvas->Print(eventPath);
+      eventCanvas->Print(eventPath.c_str());
       
       delete eventCanvas;
     }
@@ -445,8 +447,8 @@ void IdeogramAnalyzer::Scan(const TString& cuts, int i, int j, double firstBinMa
   
     std::cout << "massError: " << massError << std::endl;
   
-    TString path("plot/Ideogram/"); path+= fIdentifier_; path += "_"; path += i; path += "_"; path += j; path += ".eps";
-    ctemp->Print(path);
+    std::string path("plot/Ideogram/"); path+= fIdentifier_; path += std::string("_"); path += boost::lexical_cast<std::string>(i); path += std::string("_"); path += boost::lexical_cast<std::string>(j); path += std::string(".eps");
+    ctemp->Print(path.c_str());
     delete leg0;
   }
   else{
@@ -496,8 +498,8 @@ void IdeogramAnalyzer::Scan(const TString& cuts, int i, int j, double firstBinMa
 
     helper->DrawCMS();
   
-    TString path1D("plot/Ideogram/"); path1D+= fIdentifier_; path1D += "_"; path1D += i; path1D += "_"; path1D += j; path1D += "_1D.eps";
-    ctemp->Print(path1D);
+    std::string path1D("plot/Ideogram/"); path1D+= fIdentifier_; path1D += std::string("_"); path1D += boost::lexical_cast<std::string>(i); path1D += std::string("_"); path1D += boost::lexical_cast<std::string>(j); path1D += std::string("_1D.eps");
+    ctemp->Print(path1D.c_str());
   
     //sumLogLikelihood1D->Delete();
     ctemp->SetLeftMargin(leftMargin);

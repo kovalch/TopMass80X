@@ -3,6 +3,8 @@
 #include "Helper.h"
 #include "ProgramOptionsReader.h"
 
+#include <boost/lexical_cast.hpp>
+
 #include "TCanvas.h"
 #include "TFile.h"
 #include "TROOT.h"
@@ -21,14 +23,14 @@
 
 typedef ProgramOptionsReader po;
 
-void RooFitTemplateAnalyzer::Analyze(const TString& cuts, int i, int j) {
+void RooFitTemplateAnalyzer::Analyze(const std::string& cuts, int i, int j) {
   Scan(cuts, i, j, "mTop_JES_fSig");
   Scan(cuts, i, j, "mTop_fSig");
   Scan(cuts, i, j, "mTop_JES");
   Scan(cuts, i, j, "mTop");
 }
 
-void RooFitTemplateAnalyzer::Scan(const TString& cuts, int i, int j, TString variables)
+void RooFitTemplateAnalyzer::Scan(const std::string& cuts, int i, int j, TString variables)
 {
   const int nTemplTypes = 2;
   const int nComboTypes = 3;
@@ -44,7 +46,7 @@ void RooFitTemplateAnalyzer::Scan(const TString& cuts, int i, int j, TString var
   RooAddPdf* topAdd = 0;
   RooAddPdf*   wAdd = 0;
   
-  TString name = "";
+  std::string name = "";
 
   // set permutation fractions
   workspace->var("fCP")->setVal(2.31859251856803894e-01);
@@ -130,7 +132,7 @@ void RooFitTemplateAnalyzer::Scan(const TString& cuts, int i, int j, TString var
       //const unsigned nPar   = 4*n4ParVars + nAlpha-n4ParVars;
       for(unsigned p=0; p<nPar; ++p) {
         name = "par_"; name += h; name += "_"; name += p;
-        workspace->var(name)->setConstant(true);
+        workspace->var(name.c_str())->setConstant(true);
         //workspace->var(name)->removeError();
         //workspace->var(name)->removeAsymError();
       }
@@ -258,8 +260,8 @@ void RooFitTemplateAnalyzer::Scan(const TString& cuts, int i, int j, TString var
     //workspace->pdf("sig_1")   ->plotOn(frame1, RooFit::LineColor(kRed+2), RooFit::Normalization(1./*fSig.getVal()*workspace->var("fWP")->getVal()*/));
     //workspace->pdf("sig_2")   ->plotOn(frame1, RooFit::LineColor(kRed+3), RooFit::Normalization(1./*fSig.getVal()*workspace->var("fUN")->getVal()*/));
     frame1->Draw();
-    TString path("plot/RooFit/mTop_"); path+= fIdentifier_; path += "_"; path += i; path += "_"; path += j; path += "_"; path += variables; path += ".eps";
-    canvas1->Print(path);
+    std::string path("plot/RooFit/mTop_"); path+= fIdentifier_; path += std::string("_"); path += boost::lexical_cast<std::string>(i); path += std::string("_"); path += boost::lexical_cast<std::string>(j); path += std::string("_"); path += variables; path += std::string(".eps");
+    canvas1->Print(path.c_str());
   
     /*
     //TCanvas* canvas2 = new TCanvas("canvas2", "canvas2", 641, 1, 600, 600);
@@ -306,8 +308,8 @@ void RooFitTemplateAnalyzer::Scan(const TString& cuts, int i, int j, TString var
     //workspace->pdf("sig_4")   ->plotOn(frame5, RooFit::LineColor(kRed+2), RooFit::Normalization(1./*fSig.getVal()*workspace->var("fWP")->getVal()*/));
     //workspace->pdf("sig_5")   ->plotOn(frame5, RooFit::LineColor(kRed+3), RooFit::Normalization(1./*fSig.getVal()*workspace->var("fUN")->getVal()*/));
     frame5->Draw();
-    path = "plot/RooFit/mW_"; path+= fIdentifier_; path += "_"; path += i; path += "_"; path += j; path += "_"; path += variables; path += ".eps";
-    canvas5->Print(path);
+    path = "plot/RooFit/mW_"; path+= fIdentifier_; path += std::string("_"); path += boost::lexical_cast<std::string>(i); path += std::string("_"); path += boost::lexical_cast<std::string>(j); path += std::string("_"); path += variables; path += std::string(".eps");
+    canvas5->Print(path.c_str());
   
     delete canvas1;
     delete canvas5;
@@ -326,11 +328,11 @@ void RooFitTemplateAnalyzer::Scan(const TString& cuts, int i, int j, TString var
 
 RooWorkspace* RooFitTemplateAnalyzer::workspace(0);
 
-RooFitTemplateAnalyzer::RooFitTemplateAnalyzer(const TString& identifier, TTree* tree) : MassAnalyzer(identifier, tree)
+RooFitTemplateAnalyzer::RooFitTemplateAnalyzer(const std::string& identifier, TTree* tree) : MassAnalyzer(identifier, tree)
 {
   if(!workspace){
-    TString workspaceFilePath = TString(gSystem->pwd()) + TString("/RooFitCalibration.root");
-    TFile * workspaceFile = TFile::Open(workspaceFilePath);
+    std::string workspaceFilePath = std::string(gSystem->pwd()) + std::string("/RooFitCalibration.root");
+    TFile * workspaceFile = TFile::Open(workspaceFilePath.c_str());
     gROOT->cd();
     workspace = (RooWorkspace*)((RooWorkspace*)workspaceFile->Get("workspaceMtop"))->Clone();
     workspaceFile->Close();

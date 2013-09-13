@@ -6,7 +6,7 @@ class GenMatchAnalyzer : public MassAnalyzer {
     TF1* gaus;
   
   public:
-    GenMatchAnalyzer(const TString& identifier, TTree* tree) : MassAnalyzer(identifier, tree), gaus(0) {};
-    void Analyze(const TString& cuts, int i, int j);
+    GenMatchAnalyzer(const std::string& identifier, TTree* tree) : MassAnalyzer(identifier, tree), gaus(0) {};
+    void Analyze(const std::string& cuts, int i, int j);
 
 };

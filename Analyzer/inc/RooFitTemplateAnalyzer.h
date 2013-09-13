@@ -5,17 +5,19 @@
 
 #include "RooWorkspace.h"
 
+#include "TString.h"
+
 class RooFitTemplateAnalyzer : public MassAnalyzer { 
  public:
-  RooFitTemplateAnalyzer(const TString& identifier, TTree* tree);
+  RooFitTemplateAnalyzer(const std::string& identifier, TTree* tree);
   ~RooFitTemplateAnalyzer();
-  void Analyze(const TString& cuts, int i, int j);
+  void Analyze(const std::string& cuts, int i, int j);
     
  private:
   double QBTagProbability(double bDiscriminator);
   double mWnVertex();
   double mTnVertex();
-  void Scan(const TString& cuts, int i, int j, TString variables);
+  void Scan(const std::string& cuts, int i, int j, TString variables);
   
   static RooWorkspace* workspace;
 };

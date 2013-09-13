@@ -4,29 +4,29 @@
 #include <assert.h>
 #include <iostream>
 #include <map>
+#include <string>
 #include <utility>
 
-#include "TString.h"
 #include "TTree.h"
 
 class MassAnalyzer {
 public:
-  MassAnalyzer(const TString& identifier, TTree* tree);
+  MassAnalyzer(const std::string& identifier, TTree* tree);
   virtual ~MassAnalyzer() { delete fTree_; }
   
   
-  virtual void Analyze(const TString& cuts, int i, int j) = 0;
+  virtual void Analyze(const std::string& cuts, int i, int j) = 0;
 
-  std::pair<double, double> GetValue(const TString& whichValue) const;
-  std::map<TString, std::pair<double, double> > GetValues() const;
+  std::pair<double, double> GetValue(const std::string& whichValue) const;
+  std::map<std::string, std::pair<double, double> > GetValues() const;
 
 protected:
-  void SetValue(const TString& whichValue, double val, double valError);
+  void SetValue(const std::string& whichValue, double val, double valError);
 
-  TString fIdentifier_;
+  std::string fIdentifier_;
   TTree* fTree_;
 
-  std::map<TString, std::pair<double, double> > values_;
+  std::map<std::string, std::pair<double, double> > values_;
 };
 
 #endif

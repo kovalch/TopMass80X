@@ -1,5 +1,6 @@
+#include <string>
+
 #include "TH1F.h"
-#include "TString.h"
 #include "TTree.h"
 
 class MassAnalyzer;
@@ -8,7 +9,7 @@ class RandomSubsetCreator;
 class Analysis {
  private:
 
-  const TString samplePath_, fIdentifier_, fMethod_, fBinning_;
+  const std::string samplePath_, fIdentifier_, fMethod_, fBinning_;
   const std::vector<float> vBinning_;
   const int fChannelID_, fMethodID_;
   MassAnalyzer* fAnalyzer_;
@@ -16,10 +17,10 @@ class Analysis {
 
   TTree* fTree_;
 
-  std::map<TString, TH1F*> histograms_;
+  std::map<std::string, TH1F*> histograms_;
 
-  void SetH1(TString histName, TH1F* hist);
-  void CreateHisto(TString name);
+  void SetH1(std::string histName, TH1F* hist);
+  void CreateHisto(std::string name);
 
  public:
   Analysis(const std::vector<float>& v);
@@ -27,9 +28,9 @@ class Analysis {
     
   void Analyze();
 
-  TH1F* GetH1(TString histName);
-  const std::map<TString, TH1F*> GetH1s() const;
+  TH1F* GetH1(std::string histName);
+  const std::map<std::string, TH1F*> GetH1s() const;
 
-  TString GetIdentifier();
+  std::string GetIdentifier();
 
 };

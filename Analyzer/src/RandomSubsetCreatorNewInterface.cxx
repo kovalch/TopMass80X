@@ -40,18 +40,18 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface() :
   time(&end);
 
   if (channelID_ == Helper::kAllJets) {
-    PrepareEvents(samplePath_+fIdentifier_+TString(".root"));
+    PrepareEvents(samplePath_+fIdentifier_+std::string(".root"));
     if(fLumi_>0) PrepareEvents(samplePath_+"QCDMixing_MJPS12*_data.root");
   }
   if (channelID_ == Helper::kMuonJets || channelID_ == Helper::kLeptonJets) {
-    PrepareEvents(samplePath_+fIdentifier_+TString("_muon/analyzeTop.root"));
+    PrepareEvents(samplePath_+fIdentifier_+std::string("_muon/analyzeTop.root"));
     if(fLumi_>0) {
       PrepareEvents("/scratch/hh/lustre/cms/user/mseidel/Fall11_Wbb_muon/analyzeTop.root");
       PrepareEvents("/scratch/hh/lustre/cms/user/mseidel/Fall11_T_muon/analyzeTop.root");
     }
   }
   if (channelID_ == Helper::kElectronJets || channelID_ == Helper::kLeptonJets) {
-    PrepareEvents(samplePath_+fIdentifier_+TString("_electron/analyzeTop.root"));
+    PrepareEvents(samplePath_+fIdentifier_+std::string("_electron/analyzeTop.root"));
     if(fLumi_>0) {
       PrepareEvents("/scratch/hh/lustre/cms/user/mseidel/Fall11_Wbb_electron/analyzeTop.root");
       PrepareEvents("/scratch/hh/lustre/cms/user/mseidel/Fall11_T_electron/analyzeTop.root");
@@ -155,10 +155,10 @@ void RandomSubsetCreatorNewInterface::DrawEvents(const DataSample& sample, doubl
   std::cout << eventsDrawn << " events drawn in " << nAttempts << " attempts." << std::endl;
 }
 
-void RandomSubsetCreatorNewInterface::PrepareEvents(const TString& file) {
+void RandomSubsetCreatorNewInterface::PrepareEvents(const std::string& file) {
 
   TChain* chain = new TChain("analyzeKinFit/eventTree");
-  int nFiles = chain->Add(file);
+  int nFiles = chain->Add(file.c_str());
   std::cout << "Adding " << nFiles << " files for " << file << std::flush;
 
   chain->SetBranchStatus("*", 0);

@@ -2,10 +2,10 @@
 
 #include <iostream>
 #include <sstream>
-#include <string>
 
 #include "TCanvas.h"
 #include "TROOT.h"
+#include "TString.h"
 
 #include "GenMatchAnalyzer.h"
 #include "Helper.h"
@@ -35,7 +35,7 @@ Analysis::Analysis(const std::vector<float>& v):
 
 Analysis::~Analysis()
 {
-  for(std::map<TString, TH1F*>::iterator hist = histograms_.begin(); hist != histograms_.end(); ++hist){
+  for(std::map<std::string, TH1F*>::iterator hist = histograms_.begin(); hist != histograms_.end(); ++hist){
     delete hist->second;
   }
   histograms_.clear();
@@ -90,7 +90,7 @@ void Analysis::Analyze() {
     std::stringstream stream;
     stream << vBinning_[i] << " < " << fBinning_ << " & "
            << fBinning_ << " < " << vBinning_[i+1];
-    TString cuts = stream.str();
+    std::string cuts = stream.str();
     
     if (fMethodID_ == Helper::kGenMatch) {
       cuts += " & target == 1";
@@ -118,12 +118,12 @@ void Analysis::Analyze() {
     if (entries > 25) {
       if (fMethodID_ == Helper::kIdeogramNew) ((IdeogramAnalyzerNewInterface*)fAnalyzer_)->SetDataSample(((RandomSubsetCreatorNewInterface*)fCreator_)->GetDataSample());
       fAnalyzer_->Analyze(cuts, i, 0);
-      const std::map<TString, std::pair<double, double>> values = fAnalyzer_->GetValues();
+      const std::map<std::string, std::pair<double, double>> values = fAnalyzer_->GetValues();
 
       for(const auto& value: values){
         CreateHisto(value.first);
-        CreateHisto(value.first+TString("_Error"));
-        CreateHisto(value.first+TString("_Pull"));
+        CreateHisto(value.first+std::string("_Error"));
+        CreateHisto(value.first+std::string("_Pull"));
       }
 
       double genMass = po::GetOption<double>("mass");
@@ -133,12 +133,12 @@ void Analysis::Analyze() {
         double val      = value.second.first;
         double valError = value.second.second;
         double gen = 0;
-        if     (value.first.BeginsWith("mass")) gen = genMass;
-        else if(value.first.BeginsWith("JES" )) gen = genJES;
-        else if(value.first.BeginsWith("fSig")) gen = genfSig;
+        if     (!strncmp(value.first.c_str(),"mass",4)) gen = genMass;
+        else if(!strncmp(value.first.c_str(),"JES" ,3)) gen = genJES;
+        else if(!strncmp(value.first.c_str(),"fSig",4)) gen = genfSig;
         GetH1(value.first                 ) ->SetBinContent(i+1, val);
-        GetH1(value.first+TString("_Error"))->SetBinContent(i+1, valError);
-        GetH1(value.first+TString("_Pull" ))->SetBinContent(i+1, (val - gen)/valError);
+        GetH1(value.first+std::string("_Error"))->SetBinContent(i+1, valError);
+        GetH1(value.first+std::string("_Pull" ))->SetBinContent(i+1, (val - gen)/valError);
         std::cout << "Measured " << value.first << ": " << val << " +/- " << valError << std::endl;
       }
       std::cout << std::endl;
@@ -171,18 +171,18 @@ void Analysis::Analyze() {
   binningForPath.ReplaceAll("[","_"); binningForPath.ReplaceAll("]","_"); binningForPath.ReplaceAll("(","_"); binningForPath.ReplaceAll(")","_");
   binningForPath.ReplaceAll(".","_"); binningForPath.ReplaceAll("/","_");
   TString localIdentifier = fIdentifier_; localIdentifier.ReplaceAll("*","_"); localIdentifier.ReplaceAll("/","_");
-  TString path("plot/"); path += fMethod_; path += "_"; path += localIdentifier; path += "_"; path += binningForPath; path += ".eps";
-  canvas->Print(path);
+  std::string path("plot/"); path += fMethod_; path += "_"; path += localIdentifier; path += "_"; path += binningForPath; path += ".eps";
+  canvas->Print(path.c_str());
   
-  TString pathr("plot/"); pathr += fMethod_; pathr += "_"; pathr += localIdentifier; pathr += "_"; pathr += binningForPath; pathr += ".root";
-  canvas->Print(pathr);
+  std::string pathr("plot/"); pathr += fMethod_; pathr += "_"; pathr += localIdentifier; pathr += "_"; pathr += binningForPath; pathr += ".root";
+  canvas->Print(pathr.c_str());
   
   delete canvas;
   if (fMethodID_ != Helper::kIdeogramNew) delete fAnalyzer_;
 }
 
-void Analysis::CreateHisto(TString name) {
-  std::map<TString, TH1F*>::iterator hist = histograms_.find(name);
+void Analysis::CreateHisto(std::string name) {
+  std::map<std::string, TH1F*>::iterator hist = histograms_.find(name);
   if(hist != histograms_.end()){
     hist->second->Reset();
   }
@@ -195,8 +195,8 @@ void Analysis::CreateHisto(TString name) {
 }
 
 TH1F*
-Analysis::GetH1(TString histName){
-  std::map<TString, TH1F*>::const_iterator hist_iterator = histograms_.find(histName);
+Analysis::GetH1(std::string histName){
+  std::map<std::string, TH1F*>::const_iterator hist_iterator = histograms_.find(histName);
   if(hist_iterator != histograms_.end()){
     return hist_iterator->second;
   }
@@ -207,15 +207,15 @@ Analysis::GetH1(TString histName){
   return 0;
 }
 
-const std::map<TString, TH1F*>
+const std::map<std::string, TH1F*>
 Analysis::GetH1s() const{
   return histograms_;
 }
 
-void Analysis::SetH1(TString histName, TH1F* hist){
+void Analysis::SetH1(std::string histName, TH1F* hist){
   histograms_[histName] = hist;
 }
 
-TString Analysis::GetIdentifier() {
+std::string Analysis::GetIdentifier() {
   return fIdentifier_;
 }

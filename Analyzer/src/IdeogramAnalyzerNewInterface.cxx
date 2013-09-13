@@ -7,6 +7,7 @@
 #include <cmath>
 #include <iomanip>
 #include <boost/progress.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "TCanvas.h"
 //#include "TColor.h"
@@ -18,7 +19,7 @@
 
 typedef ProgramOptionsReader po;
 
-IdeogramAnalyzerNewInterface::IdeogramAnalyzerNewInterface(const TString& identifier, TTree* tree) :
+IdeogramAnalyzerNewInterface::IdeogramAnalyzerNewInterface(const std::string& identifier, TTree* tree) :
     MassAnalyzer(identifier, tree),
     sample_(*(new DataSample())),
     fptr_(0),
@@ -31,7 +32,7 @@ IdeogramAnalyzerNewInterface::IdeogramAnalyzerNewInterface(const TString& identi
 {
 }
 
-void IdeogramAnalyzerNewInterface::Analyze(const TString& cuts, int i, int j) {
+void IdeogramAnalyzerNewInterface::Analyze(const std::string& cuts, int i, int j) {
   std::cout << "Starting IdeogramAnalyzer ..." << std::endl;
   time_t start, end;
   time(&start);
@@ -53,7 +54,7 @@ void IdeogramAnalyzerNewInterface::Analyze(const TString& cuts, int i, int j) {
 }
 
 
-void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, double firstBinMass, double lastBinMass,
+void IdeogramAnalyzerNewInterface::Scan(const std::string& cuts, int i, int j, double firstBinMass, double lastBinMass,
     double resolMass, double firstBinJes, double lastBinJes, double resolJes, bool fit2D)
 {
   //*
@@ -151,7 +152,7 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
 
   std::cout << "nEvents: " << nEvents << std::endl;
 
-  TString plotPath("plot/Ideogram/");
+  std::string plotPath("plot/Ideogram/");
   {
     // Build Likelihood
     //for (int iEntry = 0, length = sample_->nEvents; iEntry < length; ++iEntry) {
@@ -237,9 +238,9 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
         sumLogLikelihood->Draw("COLZ");
 
         TString localIdentifier = fIdentifier_; localIdentifier.ReplaceAll("*","_"); localIdentifier.ReplaceAll("/","_");
-        TString eventPath(plotPath); eventPath += localIdentifier; eventPath += "_"; eventPath += iEntry; eventPath += "_"; eventPath += iEntry; eventPath += ".eps";
+        std::string eventPath(plotPath); eventPath += localIdentifier; eventPath += std::string("_"); eventPath += boost::lexical_cast<std::string>(iEntry); eventPath += std::string(".eps");
         std::cout << eventPath << std::endl;
-        eventCanvas->Print(eventPath);
+        eventCanvas->Print(eventPath.c_str());
 
         delete eventCanvas;
       } // end if debug
@@ -416,8 +417,8 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
     helper->DrawCMS();
 
     TString localIdentifier = fIdentifier_; localIdentifier.ReplaceAll("*","_"); localIdentifier.ReplaceAll("/","_");
-    TString path(plotPath); path+= localIdentifier; path += "_"; path += i; path += "_"; path += j; path += ".eps";
-    ctemp->Print(path);
+    std::string path(plotPath); path+= localIdentifier; path += "_"; path += boost::lexical_cast<std::string>(i); path += std::string("_"); path += boost::lexical_cast<std::string>(j); path += std::string(".eps");
+    ctemp->Print(path.c_str());
     delete leg0;
   }
   else{
@@ -465,8 +466,8 @@ void IdeogramAnalyzerNewInterface::Scan(const TString& cuts, int i, int j, doubl
     helper->DrawCMS();
 
     TString localIdentifier = fIdentifier_; localIdentifier.ReplaceAll("*","_"); localIdentifier.ReplaceAll("/","_");
-    TString path1D(plotPath); path1D+= localIdentifier; path1D += "_"; path1D += i; path1D += "_"; path1D += j; path1D += "_1D.eps";
-    ctemp->Print(path1D);
+    std::string path1D(plotPath); path1D+= localIdentifier; path1D += std::string("_"); path1D += boost::lexical_cast<std::string>(i); path1D += std::string("_"); path1D += boost::lexical_cast<std::string>(j); path1D += std::string("_1D.eps");
+    ctemp->Print(path1D.c_str());
 
     //sumLogLikelihood1D->Delete();
     ctemp->SetLeftMargin(leftMargin);
