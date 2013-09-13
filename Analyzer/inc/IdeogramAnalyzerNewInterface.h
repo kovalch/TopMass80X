@@ -3,11 +3,10 @@
 
 #include "MassAnalyzer.h"
 
-#include "IdeogramCombLikelihood.h"
-
 #include "DataSample.h"
 
-#include "TF2.h"
+class TF2;
+class IdeogramCombLikelihood;
 
 class IdeogramAnalyzerNewInterface : public MassAnalyzer {
  public:

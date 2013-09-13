@@ -8,8 +8,8 @@
 
 class Helper {
 private:
-  TString fBinning;
-  std::vector<float> vBinning;
+  const TString fBinning;
+  const std::vector<float> vBinning;
   void init();
   static int channelIDFromString(std::string channel);
   static int methodIDFromString(std::string method);
@@ -20,7 +20,7 @@ private:
 
 public:
   Helper() {init();};
-  Helper(TString binning, std::vector<float> v) : fBinning(binning), vBinning(v) {init();};
+  Helper(const TString& binning, const std::vector<float>& v) : fBinning(binning), vBinning(v) {init();};
   ~Helper() {};
 
   TH1F* GetH1(TString title);

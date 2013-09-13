@@ -6,7 +6,7 @@ MassAnalyzer::MassAnalyzer(const TString& identifier, TTree* tree) :
 }
 
 std::pair<double, double>
-MassAnalyzer::GetValue(TString whichValue) const {
+MassAnalyzer::GetValue(const TString& whichValue) const {
   std::map<TString, std::pair<double, double> >::const_iterator value_iterator = values_.find(whichValue);
   if(value_iterator != values_.end()){
     return value_iterator->second;
@@ -24,6 +24,6 @@ MassAnalyzer::GetValues() const{
 }
 
 void
-MassAnalyzer::SetValue(TString whichValue, double val, double valError){
+MassAnalyzer::SetValue(const TString& whichValue, double val, double valError){
   values_[whichValue] = std::make_pair(val, valError);
 }

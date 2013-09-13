@@ -152,10 +152,6 @@ void IdeogramAnalyzer::Scan(const TString& cuts, int i, int j, double firstBinMa
   double sumWeights = 0.;
 
   std::cout << "fTree: " << fTree_->GetEntries() << std::endl;
-  //TFile * tempFile = new TFile(TString(gSystem->Getenv("TMPDIR"))+TString("/tempFile.root"), "RECREATE");
-  //tempFile->cd();
-  //TTree* fTree_ = fTree->CopyTree(cuts);
-  //TTree* fTree_ = fTree_->CloneTree();
 
   fTree_->SetBranchAddress("nCombos", &nCombos);
   fTree_->SetBranchAddress("comboTypes", comboTypes);

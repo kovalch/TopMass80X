@@ -1,15 +1,16 @@
 #include "RandomSubsetCreatorNewInterface.h"
 
-#include "Analysis.h"
+//#include "Analysis.h"
 #include "Helper.h"
 #include "ProgramOptionsReader.h"
 
 #include <iostream>
-#include <boost/progress.hpp>
+//#include <boost/progress.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
 
 #include "TChain.h"
+#include "TRandom3.h"
 #include "TTreeFormula.h"
 
 typedef ProgramOptionsReader po;
@@ -19,7 +20,6 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface() :
     selection_  (po::GetOption<std::string>("analysisConfig.selection")),
     samplePath_ (po::GetOption<std::string>("analysisConfig.samplePath")),
     fIdentifier_(po::GetOption<std::string>("input")),
-    //fChannel_   (po::GetOption<std::string>("channel")),
     fVar1_      (po::GetOption<std::string>("analysisConfig.var1")),
     fVar2_      (po::GetOption<std::string>("analysisConfig.var2")),
     fVar3_      (po::GetOption<std::string>("analysisConfig.var3")),
@@ -155,7 +155,7 @@ void RandomSubsetCreatorNewInterface::DrawEvents(const DataSample& sample, doubl
   std::cout << eventsDrawn << " events drawn in " << nAttempts << " attempts." << std::endl;
 }
 
-void RandomSubsetCreatorNewInterface::PrepareEvents(TString file) {
+void RandomSubsetCreatorNewInterface::PrepareEvents(const TString& file) {
 
   TChain* chain = new TChain("analyzeKinFit/eventTree");
   int nFiles = chain->Add(file);
@@ -164,16 +164,16 @@ void RandomSubsetCreatorNewInterface::PrepareEvents(TString file) {
   chain->SetBranchStatus("*", 0);
   std::vector<std::string> vActiveBanches;
   boost::split(vActiveBanches, activeBranches_, boost::is_any_of("|"));
-  for(auto branch : vActiveBanches){
+  for(const auto& branch : vActiveBanches){
     chain->SetBranchStatus(branch.c_str(), 1);
   }
 
-  TTreeFormula *f1     = new TTreeFormula("f1"    , fVar1_  .c_str(), chain);
-  TTreeFormula *f2     = new TTreeFormula("f2"    , fVar2_  .c_str(), chain);
-  TTreeFormula *f3     = new TTreeFormula("f3"    , fVar3_  .c_str(), chain);
-  TTreeFormula *weight = new TTreeFormula("weight", fWeight_.c_str(), chain);
-  TTreeFormula *index  = new TTreeFormula("index" , "Iteration$"    , chain);
-  TTreeFormula *sel    = new TTreeFormula("sel"   , selection_      , chain);
+  TTreeFormula *f1     = new TTreeFormula("f1"    , fVar1_    .c_str(), chain);
+  TTreeFormula *f2     = new TTreeFormula("f2"    , fVar2_    .c_str(), chain);
+  TTreeFormula *f3     = new TTreeFormula("f3"    , fVar3_    .c_str(), chain);
+  TTreeFormula *weight = new TTreeFormula("weight", fWeight_  .c_str(), chain);
+  TTreeFormula *sel    = new TTreeFormula("sel"   , selection_.c_str(), chain);
+  TTreeFormula *index  = new TTreeFormula("index" , "Iteration$"      , chain);
 
   DataSample sample;
 
@@ -203,4 +203,10 @@ void RandomSubsetCreatorNewInterface::PrepareEvents(TString file) {
 
   events_.push_back(sample);
   delete chain;
+  delete f1;
+  delete f2;
+  delete f3;
+  delete weight;
+  delete sel;
+  delete index;
 }

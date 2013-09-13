@@ -140,7 +140,14 @@ RandomSubsetCreatorAllJets::CreateRandomSubset() {
 
   TTree *tmpTreeSig = 0, *tmpTreeBkg = 0, *returnedTree = 0;
 
-  TString tmpFilePath = gSystem->Getenv("TMPDIR");
+  // check existence of a temp directory and create one if not available
+  TString tmpFilePath(gSystem->Getenv("TMPDIR"));
+  if(tmpFilePath.IsNull() || !tmpFilePath.Length()){
+    tmpFilePath = gSystem->GetFromPipe("mktemp -d");
+    gSystem->Setenv("TMPDIR", tmpFilePath);
+  }
+  std::cout << "Directory to be used for temporary files: " << tmpFilePath << std::endl;
+
   double lumi = po::GetOption<double>("lumi");
   if (lumi!=0) {
     tmpFile_ = TFile::Open(tmpFilePath+TString("/tempTree.root"), "READ");
