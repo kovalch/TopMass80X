@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <csignal>
 
 #include "TCanvas.h"
 #include "TROOT.h"

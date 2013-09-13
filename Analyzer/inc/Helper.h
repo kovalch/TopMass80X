@@ -1,10 +1,12 @@
 #ifndef HELPER_H
 #define HELPER_H
 
-#include "TH1F.h"
-
 #include <string>
 #include <vector>
+
+#include "Rtypes.h" // needed for Color_t and kBlack
+
+class TH1F;
 
 class Helper {
 private:

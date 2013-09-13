@@ -19,7 +19,7 @@
 #include "TROOT.h"
 #include "TSystem.h"
 
-#include "LHAPDF/LHAPDF.h"
+//#include "LHAPDF/LHAPDF.h"
 
 typedef ProgramOptionsReader po;
 
@@ -668,15 +668,16 @@ RandomSubsetCreatorAllJets::calcPDFWeight_(int whichPDFUncertainty, bool upVaria
   if(whichPDFUncertainty < 0)
     return 1.;
 
-  const std::string NAME = "cteq6mE";
-  LHAPDF::initPDFSetM(1, NAME, LHAPDF::LHGRID);
-  LHAPDF::initPDFSetM(2, NAME, LHAPDF::LHGRID);
-
-  LHAPDF::initPDFM(1, 0);
-  if(upVariation) LHAPDF::initPDFM(2, 2*whichPDFUncertainty-1);
-  else            LHAPDF::initPDFM(2, 2*whichPDFUncertainty);
-  //std::cout << whichPDFUncertainty << ": " << LHAPDF::xfxM(2, x1, Q, id1) << " " << LHAPDF::xfxM(2, x2, Q, id2) << " " << LHAPDF::xfxM(1, x1, Q, id1) << " " << LHAPDF::xfxM(1, x2, Q, id2) << std::endl;
-  return (LHAPDF::xfxM(2, x1, Q, id1)*LHAPDF::xfxM(2, x2, Q, id2)/(LHAPDF::xfxM(1, x1, Q, id1)*LHAPDF::xfxM(1, x2, Q, id2)));
+  //const std::string NAME = "cteq6mE";
+  //LHAPDF::initPDFSetM(1, NAME, LHAPDF::LHGRID);
+  //LHAPDF::initPDFSetM(2, NAME, LHAPDF::LHGRID);
+  //
+  //LHAPDF::initPDFM(1, 0);
+  //if(upVariation) LHAPDF::initPDFM(2, 2*whichPDFUncertainty-1);
+  //else            LHAPDF::initPDFM(2, 2*whichPDFUncertainty);
+  ////std::cout << whichPDFUncertainty << ": " << LHAPDF::xfxM(2, x1, Q, id1) << " " << LHAPDF::xfxM(2, x2, Q, id2) << " " << LHAPDF::xfxM(1, x1, Q, id1) << " " << LHAPDF::xfxM(1, x2, Q, id2) << std::endl;
+  //return (LHAPDF::xfxM(2, x1, Q, id1)*LHAPDF::xfxM(2, x2, Q, id2)/(LHAPDF::xfxM(1, x1, Q, id1)*LHAPDF::xfxM(1, x2, Q, id2)));
+  return 1.0;
 }
 
 double

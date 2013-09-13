@@ -2,6 +2,7 @@
 
 #include "ProgramOptionsReader.h"
 
+#include "TH1F.h"
 #include "TStyle.h"
 #include "TPaveLabel.h"
 

@@ -16,8 +16,6 @@
 #include "TROOT.h"
 #include "TSystem.h"
 
-#include "LHAPDF/LHAPDF.h"
-
 typedef ProgramOptionsReader po;
 
 RandomSubsetCreatorLeptonJets::RandomSubsetCreatorLeptonJets() :

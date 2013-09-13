@@ -33,7 +33,7 @@ obj:
 	@mkdir -p obj/3
 
 TopMass: obj $(OBJ_FILES) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT) obj/1/main.o
-	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) -Wl,-rpath -Wl,lib -L/afs/naf.desy.de/group/cms/sw/slc5_amd64_gcc462/external/boost/1.50.0-cms2/lib -lboost_program_options -L/afs/naf.desy.de/user/e/eschliec/wd/LHAPDF/lib -lLHAPDF -o $@ obj/1/main.o $(OBJ_FILES) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
+	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) -Wl,-rpath -Wl,lib -L/afs/naf.desy.de/group/cms/sw/slc5_amd64_gcc462/external/boost/1.50.0-cms2/lib -lboost_program_options -o $@ obj/1/main.o $(OBJ_FILES) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
 	@echo -e "\033[32m\033[1mSuccessfully compiled TopMass\033[0m"
 
 Calibration: obj $(OBJ_FILES_CALIBRATION) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT) obj/3/calibration_main.o
@@ -42,7 +42,7 @@ Calibration: obj $(OBJ_FILES_CALIBRATION) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_D
 
 #rules
 obj/1/%.o: src/%.cxx
-	$(C) $(ROOTCFLAGS) -I/afs/naf.desy.de/group/cms/sw/slc5_amd64_gcc462/external/boost/1.50.0-cms2/include -I../.. -Iinc/ -I/afs/naf.desy.de/user/e/eschliec/wd/LHAPDF/include -MMD -c -o $@ $<
+	$(C) $(ROOTCFLAGS) -I/afs/naf.desy.de/group/cms/sw/slc5_amd64_gcc462/external/boost/1.50.0-cms2/include -I../.. -Iinc/ -MMD -c -o $@ $<
 #@sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
 #     -e '/^$$/ d' -e 's/$$/ :/' < $*.d >> $*.d
 
