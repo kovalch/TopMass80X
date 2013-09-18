@@ -53,4 +53,5 @@ void BRegJetEvent::init()
 
 
   BRegResult.clear();
+  BRegGBRTrainResult.clear();
 }

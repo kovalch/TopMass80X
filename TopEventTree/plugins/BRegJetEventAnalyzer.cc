@@ -36,6 +36,7 @@ kJetMAX_(cfg.getParameter<int>("maxNJets")),
 BRegJet(0),
 mva_name_(cfg.getParameter<std::string>("mva_name")),
 mva_path_(cfg.getParameter<std::string>("mva_path")),
+GBRmva_path_(cfg.getParameter<std::string>("GBRmva_path")),
 writeOutVariables_(cfg.getParameter<bool>("writeOutVariables")),
 checkedIsPFJet(false), checkedJERSF(false), checkedJESSF(false), checkedTotalSF(false), checkedQGTag(false), checkedJESTotUnc(false),
 isPFJet(false),     hasJERSF(false),     hasJESSF(false),     hasTotalSF(false),     hasQGTag(false),     hasJESTotUnc(false),
@@ -51,10 +52,15 @@ readerSoftElectronDeltaR_(0)
 
 {
 
+	TFile *fgbropt = new TFile(GBRmva_path_.c_str(),"READ");;
+	gbropt_ = (GBRForest*)fgbropt->Get("gbrtrain");
+	varlist_ = (std::vector<std::string>*)fgbropt->Get("varlist");
+
+
 	//Initialize reader (adjusted with weight-files during first create)
 	if(mva_path_!=""){
-	        reader_ = new TMVA::Reader( "!Color:Silent" );
-	  //		reader_ = new TMVA::Reader( "!Color" );
+		reader_ = new TMVA::Reader( "!Color:Silent" );
+		//		reader_ = new TMVA::Reader( "!Color" );
 
 //		reader_->AddVariable( "Tlj_jetpt",                       &readerJetPtRaw_                    );
 //		reader_->AddVariable( "Tlj_l1l2l3jetpt",                 &tempJetPtCorr_                     );
@@ -77,37 +83,89 @@ readerSoftElectronDeltaR_(0)
 //		reader_->AddVariable( "Tlj_NChargedHadrons",             &tempnChargedHadrons_               );
 //		reader_->AddVariable( "Tlj_NChargedPFConst",             &tempnPFConstituents_               );
 
-		reader_->AddVariable( "BRegJet.jetPtRaw",                &readerJetPtRaw_                    );//ok
-		reader_->AddVariable( "BRegJet.jetPtCorr",               &tempJetPtCorr_                     );//ok
-		reader_->AddVariable( "BRegJet.jetMt",                   &tempJetMt_                         );//ok
-		reader_->AddVariable( "BRegJet.jetEta",                  &tempJetEta_                        );//ok
-		reader_->AddVariable( "BRegJet.jetArea",                 &readerJetArea_                     );//ok, was wrong
-		reader_->AddVariable( "BRegJet.EtWeightedSigmaPhi",      &readerJetEtWEightedSigmaPhi_       );//ok
-		reader_->AddVariable( "BRegJet.jesTotUnc",               &readerJesUncert_                   );//ok
-		reader_->AddVariable( "BRegJet.SV3DLength",              &readerSVtx3dLength_                );//ok
-		reader_->AddVariable( "BRegJet.SV3DLengthError",         &readerSVtx3dLengthError_           );//ok
-		reader_->AddVariable( "BRegJet.SVMass",                  &readerSVtxMass_                    );//ok
-		reader_->AddVariable( "BRegJet.SVPt",                    &readerSVtxPt_                      );//ok
-		reader_->AddVariable( "BRegJet.leadingChargedConstPt",   &readerlChTrackPt_                  );//ok
-		reader_->AddVariable( "jet.fChargedHadron",              &tempfChargedHadrons_               );//ok
-		reader_->AddVariable( "jet.fElectron",                   &tempfElectrons_                    );//ok
-		reader_->AddVariable( "jet.fMuon",                       &tempfMuons_                        );//ok
-		reader_->AddVariable( "jet.bTagCSV",                     &tempBTagCSV_                       );//ok
-		reader_->AddVariable( "jet.nConstituents",               &tempnPFConstituents_               );//ok
-		reader_->AddVariable( "BRegJet.Rho25",                   &readerRho25_                       );//ok, was wrong
-		reader_->AddVariable( "jet.nChargedHadrons",             &tempnChargedHadrons_               );//ok
-		reader_->AddVariable( "BRegJet.nChargedPFConstituents",  &tempnChargedPFConstituents_        );//ok
 
-		reader_->AddVariable( "BRegJet.SoftMuonPt",              &readerSoftMuonPt_             );  //added in recently
-		reader_->AddVariable( "BRegJet.SoftMuonRatioRel",        &readerSoftMuonRatioRel_       );  //added in recently
-		reader_->AddVariable( "BRegJet.SoftMuonDeltaR",          &readerSoftMuonDeltaR_         );  //added in recently
-		reader_->AddVariable( "BRegJet.SoftElectronPt",          &readerSoftElectronPt_         );  //added in recently
-		reader_->AddVariable( "BRegJet.SoftElectronRatioRel",    &readerSoftElectronRatioRel_   );  //added in recently
-		reader_->AddVariable( "BRegJet.SoftElectronDeltaR",      &readerSoftElectronDeltaR_     );  //added in recently
+//		std::vector <float*> variablePointer_;//needs to be in sync with varlist from files
+
+
+		variablePointer_.push_back(  &tempJetPtCorr_                     );//ok
+		variablePointer_.push_back(  &tempJetEta_                        );//ok
+		variablePointer_.push_back(  &readerRho25_                       );//ok, was wrong
+		variablePointer_.push_back(  &readerJetArea_                     );//ok, was wrong
+		variablePointer_.push_back(  &readerJetEtWEightedSigmaPhi_       );//ok
+		//5 width and PU
+		variablePointer_.push_back(  &readerlChTrackPt_                  );//ok
+		variablePointer_.push_back(  &tempfChargedHadrons_               );//ok
+		variablePointer_.push_back(  &tempfElectrons_                    );//ok
+		variablePointer_.push_back(  &tempfMuons_                        );//ok
+		//9 charged constituents
+		variablePointer_.push_back(  &readerSVtx3dLength_                );//ok
+		variablePointer_.push_back(  &readerSVtx3dLengthError_           );//ok
+		variablePointer_.push_back(  &readerSVtxMass_                    );//ok
+		variablePointer_.push_back(  &readerSVtxPt_                      );//ok
+		variablePointer_.push_back(  &tempBTagCSV_                       );//ok
+		//14 SVtx and btag
+		variablePointer_.push_back(  &readerSoftMuonPt_             );  //added in recently
+		variablePointer_.push_back(  &readerSoftMuonRatioRel_       );  //added in recently
+		variablePointer_.push_back(  &readerSoftMuonDeltaR_         );  //added in recently
+		variablePointer_.push_back(  &readerSoftElectronPt_         );  //added in recently
+		variablePointer_.push_back(  &readerSoftElectronRatioRel_   );  //added in recently
+		variablePointer_.push_back(  &readerSoftElectronDeltaR_     );  //added in recently
+		//20 soft lepton variables
+		variablePointer_.push_back(  &readerJetPtRaw_                    );//ok
+		variablePointer_.push_back(  &tempJetMt_                         );//ok
+		variablePointer_.push_back(  &readerJesUncert_                   );//ok
+		variablePointer_.push_back(  &tempnPFConstituents_               );//ok
+		variablePointer_.push_back(  &tempnChargedHadrons_               );//ok
+		variablePointer_.push_back(  &tempnChargedPFConstituents_        );//ok
+
+		UInt_t nvars = varlist_->size();
+
+		assert(varlist_->size()==variablePointer_.size());
+
+
+		vals_ = new Float_t[nvars];
+
+
+		for (UInt_t ivar=0; ivar<varlist_->size(); ++ivar) {
+			reader_->AddVariable( varlist_->at(ivar),                variablePointer_.at(ivar));//ok
+		}
+		reader_->AddSpectator("BRegJet.genJetPt",/*dummy*/variablePointer_.at(0));
+		reader_->AddSpectator("BRegJet.genPartonPt",/*dummy*/variablePointer_.at(0));
+
+
+//		reader_->AddVariable( "BRegJet.jetPtRaw",                &readerJetPtRaw_                    );//ok
+//		reader_->AddVariable( "BRegJet.jetPtCorr",               &tempJetPtCorr_                     );//ok
+//		reader_->AddVariable( "BRegJet.jetMt",                   &tempJetMt_                         );//ok
+//		reader_->AddVariable( "BRegJet.jetEta",                  &tempJetEta_                        );//ok
+//		reader_->AddVariable( "BRegJet.jetArea",                 &readerJetArea_                     );//ok, was wrong
+//		reader_->AddVariable( "BRegJet.EtWeightedSigmaPhi",      &readerJetEtWEightedSigmaPhi_       );//ok
+//		reader_->AddVariable( "BRegJet.jesTotUnc",               &readerJesUncert_                   );//ok
+//		reader_->AddVariable( "BRegJet.SV3DLength",              &readerSVtx3dLength_                );//ok
+//		reader_->AddVariable( "BRegJet.SV3DLengthError",         &readerSVtx3dLengthError_           );//ok
+//		reader_->AddVariable( "BRegJet.SVMass",                  &readerSVtxMass_                    );//ok
+//		reader_->AddVariable( "BRegJet.SVPt",                    &readerSVtxPt_                      );//ok
+//		reader_->AddVariable( "BRegJet.leadingChargedConstPt",   &readerlChTrackPt_                  );//ok
+//		reader_->AddVariable( "jet.fChargedHadron",              &tempfChargedHadrons_               );//ok
+//		reader_->AddVariable( "jet.fElectron",                   &tempfElectrons_                    );//ok
+//		reader_->AddVariable( "jet.fMuon",                       &tempfMuons_                        );//ok
+//		reader_->AddVariable( "jet.bTagCSV",                     &tempBTagCSV_                       );//ok
+//		reader_->AddVariable( "jet.nConstituents",               &tempnPFConstituents_               );//ok
+//		reader_->AddVariable( "BRegJet.Rho25",                   &readerRho25_                       );//ok, was wrong
+//		reader_->AddVariable( "jet.nChargedHadrons",             &tempnChargedHadrons_               );//ok
+//		reader_->AddVariable( "BRegJet.nChargedPFConstituents",  &tempnChargedPFConstituents_        );//ok
+//
+//		reader_->AddVariable( "BRegJet.SoftMuonPt",              &readerSoftMuonPt_             );  //added in recently
+//		reader_->AddVariable( "BRegJet.SoftMuonRatioRel",        &readerSoftMuonRatioRel_       );  //added in recently
+//		reader_->AddVariable( "BRegJet.SoftMuonDeltaR",          &readerSoftMuonDeltaR_         );  //added in recently
+//		reader_->AddVariable( "BRegJet.SoftElectronPt",          &readerSoftElectronPt_         );  //added in recently
+//		reader_->AddVariable( "BRegJet.SoftElectronRatioRel",    &readerSoftElectronRatioRel_   );  //added in recently
+//		reader_->AddVariable( "BRegJet.SoftElectronDeltaR",      &readerSoftElectronDeltaR_     );  //added in recently
 
 		reader_->BookMVA(mva_name_,mva_path_);
 	}
 	else reader_=0;
+
+
 
 
 }
@@ -187,8 +245,8 @@ BRegJetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setu
 		}//end isPFJet
 		else{
 //			BRegJet->fChargedHadron          .push_back(-1);
-    		        tempnChargedPFConstituents_ = -1;
-			readerlChTrackPt_ =  -1;
+    		        tempnChargedPFConstituents_ = -999;
+			readerlChTrackPt_ =  -999;
 			
 		}
 		BRegJet->nChargedPFConstituents  .push_back(tempnChargedPFConstituents_);
@@ -228,17 +286,17 @@ BRegJetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setu
 			  readerSVtxMass_= vars.get(reco::btau::vertexMass);
 
 			}
-			else  readerSVtxMass_= -9999; 
+			else  readerSVtxMass_= -999;
 
 			const reco::Vertex &vertex = svTagInfo.secondaryVertex(0);
 			readerSVtxPt_ =  vertex.p4().pt();
 		}
 		else{
-			BRegJet->SVChi2.push_back          ( -1);
-			readerSVtx3dLength_ = -1;
-			readerSVtx3dLengthError_ = -1;
-			readerSVtxMass_ = -1;
-			readerSVtxPt_ = -1;
+			BRegJet->SVChi2.push_back          ( -999);
+			readerSVtx3dLength_ = -999;
+			readerSVtx3dLengthError_ = -999;
+			readerSVtxMass_ = -999;
+			readerSVtxPt_ = -999;
 			
 		}
 
@@ -252,14 +310,14 @@ BRegJetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setu
 		  readerJetEtWEightedSigmaPhi_= ijet->phiphiMoment() > 0 ? sqrt(ijet->phiphiMoment()) : 0;
 		  BRegJet->EtWeightedSigmaEta.push_back( ijet->etaetaMoment() > 0 ? sqrt(ijet->etaetaMoment()) : 0);
 		} else {
-		  readerJetEtWEightedSigmaPhi_= 0;
-		  BRegJet->EtWeightedSigmaEta.push_back( 0);
+		  readerJetEtWEightedSigmaPhi_= -999;
+		  BRegJet->EtWeightedSigmaEta.push_back( -999);
 		}
 		BRegJet->EtWeightedSigmaPhi.push_back( readerJetEtWEightedSigmaPhi_);
 
 		//JESUncertainty
 		if(hasJESTotUnc  ) readerJesUncert_=ijet->userFloat("jesTotUnc"      );
-		else readerJesUncert_ = -1;
+		else readerJesUncert_ = -999;
 		BRegJet->jesTotUnc   .push_back(readerJesUncert_);
 
 		//rho and rho25
@@ -326,14 +384,15 @@ BRegJetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setu
 			const reco::Muon * mu =  it->second;
 
 			//filling additional variables for leading muon
-			readerSoftMuonPt_ = softMuonTagInfo.lepton(tagInfoMap[mu])->pt();
-			readerSoftMuonRatioRel_ = softMuonTagInfo.properties(tagInfoMap[mu]).ratioRel;
-			readerSoftMuonDeltaR_ = softMuonTagInfo.properties(tagInfoMap[mu]).deltaR;
+			//reader variables set consistently later
+//			readerSoftMuonPt_ = softMuonTagInfo.lepton(tagInfoMap[mu])->pt();
+//			readerSoftMuonRatioRel_ = softMuonTagInfo.properties(tagInfoMap[mu]).ratioRel;
+//			readerSoftMuonDeltaR_ = softMuonTagInfo.properties(tagInfoMap[mu]).deltaR;
 
-			BRegJet->SoftMuonPt        .push_back(readerSoftMuonPt_);
+			BRegJet->SoftMuonPt        .push_back(softMuonTagInfo.lepton(tagInfoMap[mu])->pt());
 			BRegJet->SoftMuonPtRel     .push_back(softMuonTagInfo.properties(tagInfoMap[mu]).ptRel);
-			BRegJet->SoftMuonRatioRel  .push_back(readerSoftMuonRatioRel_);
-			BRegJet->SoftMuonDeltaR    .push_back(readerSoftMuonDeltaR_);
+			BRegJet->SoftMuonRatioRel  .push_back(softMuonTagInfo.properties(tagInfoMap[mu]).ratioRel);
+			BRegJet->SoftMuonDeltaR    .push_back(softMuonTagInfo.properties(tagInfoMap[mu]).deltaR);
 
 			if(softMuonTagInfo.leptons()>1){
 				it++;
@@ -344,12 +403,17 @@ BRegJetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setu
 			}
 		}
 		else{
-			BRegJet->nSoftMuons.push_back( 0);
-			BRegJet->SoftMuonPt        .push_back( 0);
-			BRegJet->SoftMuonPtRel     .push_back( 0);
-			BRegJet->SoftMuonRatioRel  .push_back( 0);
-			BRegJet->SoftMuonDeltaR    .push_back( 0);
+			BRegJet->nSoftMuons.push_back( -999);
+			BRegJet->SoftMuonPt        .push_back( -999);
+			BRegJet->SoftMuonPtRel     .push_back( -999);
+			BRegJet->SoftMuonRatioRel  .push_back( -999);
+			BRegJet->SoftMuonDeltaR    .push_back( -999);
 		}
+
+		readerSoftMuonPt_ = BRegJet->SoftMuonPt.back();
+		readerSoftMuonRatioRel_ = BRegJet->SoftMuonRatioRel.back();
+		readerSoftMuonDeltaR_ = BRegJet->SoftMuonDeltaR.back();
+
 
 
 		if(softElectronTagInfo.leptons()>0){
@@ -398,14 +462,15 @@ BRegJetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setu
 		    const reco::GsfElectron * el =  it->second;
 
 			//filling additional variables for leading electron
-		    readerSoftElectronPt_ = softElectronTagInfo.lepton(tagInfoMap[el])->pt();
-		    readerSoftElectronRatioRel_ = softElectronTagInfo.properties(tagInfoMap[el]).ratioRel;
-		    readerSoftElectronDeltaR_ = softElectronTagInfo.properties(tagInfoMap[el]).deltaR;
+		    // reader variables set consistently after if/else
+//		    readerSoftElectronPt_ = softElectronTagInfo.lepton(tagInfoMap[el])->pt();
+//		    readerSoftElectronRatioRel_ = softElectronTagInfo.properties(tagInfoMap[el]).ratioRel;
+//		    readerSoftElectronDeltaR_ = softElectronTagInfo.properties(tagInfoMap[el]).deltaR;
 
-			BRegJet->SoftElectronPt        .push_back(readerSoftElectronPt_);
+			BRegJet->SoftElectronPt        .push_back(softElectronTagInfo.lepton(tagInfoMap[el])->pt());
 			BRegJet->SoftElectronPtRel     .push_back(softElectronTagInfo.properties(tagInfoMap[el]).ptRel);
-			BRegJet->SoftElectronRatioRel  .push_back(readerSoftElectronRatioRel_);
-			BRegJet->SoftElectronDeltaR    .push_back(readerSoftElectronDeltaR_);
+			BRegJet->SoftElectronRatioRel  .push_back(softElectronTagInfo.properties(tagInfoMap[el]).ratioRel);
+			BRegJet->SoftElectronDeltaR    .push_back(softElectronTagInfo.properties(tagInfoMap[el]).deltaR);
 
 
 			if(softElectronTagInfo.leptons()>1){
@@ -418,18 +483,24 @@ BRegJetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setu
 
 		}
 		else{
-			BRegJet->nSoftElectrons.push_back( 0);
-			BRegJet->SoftElectronPt        .push_back( 0);
-			BRegJet->SoftElectronPtRel     .push_back( 0);
-			BRegJet->SoftElectronRatioRel  .push_back( 0);
-			BRegJet->SoftElectronDeltaR    .push_back( 0);
+			BRegJet->nSoftElectrons.push_back( -999);
+			BRegJet->SoftElectronPt        .push_back( -999);
+			BRegJet->SoftElectronPtRel     .push_back( -999);
+			BRegJet->SoftElectronRatioRel  .push_back( -999);
+			BRegJet->SoftElectronDeltaR    .push_back( -999);
 		}
 
+	    readerSoftElectronPt_ = BRegJet->SoftElectronPt.back();
+	    readerSoftElectronRatioRel_ = BRegJet->SoftElectronRatioRel.back();
+	    readerSoftElectronDeltaR_ = BRegJet->SoftElectronDeltaR.back();
+
+
+
 		if(ijet->genJet())BRegJet->genJetPt.push_back(ijet->genJet()->pt());
-		else BRegJet->genJetPt.push_back(-10000000);
+		else BRegJet->genJetPt.push_back(-999);
 
 		if(ijet->genParton())BRegJet->genPartonPt.push_back(ijet->genParton()->pt());
-		else BRegJet->genPartonPt.push_back(-10000000);
+		else BRegJet->genPartonPt.push_back(-999);
 
 
 		//temporary variables needed to calculate b-regression result
@@ -456,6 +527,14 @@ BRegJetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setu
 
 		Double_t mvaValue = (reader_->EvaluateRegression(mva_name_))[0];
 		BRegJet->BRegResult.push_back(mvaValue);
+		for (UInt_t ivar=0; ivar<variablePointer_.size(); ++ivar) {
+			vals_[ivar]=*variablePointer_.at(ivar);
+			std::cout << varlist_->at(ivar) <<  ": " << *variablePointer_.at(ivar) << std::endl;
+
+		}
+
+		BRegJet->BRegGBRTrainResult.push_back(gbropt_->GetResponse(vals_));
+std::cout << "mvaValue: " << mvaValue << " BRegJet->BRegGBRTrainResult.back(): " << BRegJet->BRegGBRTrainResult.back() << std::endl;
 
 	}
 
@@ -486,6 +565,10 @@ BRegJetEventAnalyzer::endJob()
 BRegJetEventAnalyzer::~BRegJetEventAnalyzer()
 {
 	delete reader_;
+	delete	gbropt_;
+	delete vals_;
+	delete varlist_;
+
 }
 
 //define this as a plug-in

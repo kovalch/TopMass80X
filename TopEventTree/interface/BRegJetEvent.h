@@ -63,6 +63,7 @@ public:
 
 
   std::vector<double> BRegResult;
+  std::vector<double> BRegGBRTrainResult;
 
 
 private:

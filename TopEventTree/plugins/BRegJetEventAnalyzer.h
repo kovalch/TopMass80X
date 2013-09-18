@@ -20,6 +20,11 @@
 #include "TMVA/Tools.h"
 #include "TMVA/Reader.h"
 
+//GBRTrain
+#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+
+
+#include "TFile.h"
 
 //#include <utility>
 
@@ -53,8 +58,7 @@ class BRegJetEventAnalyzer : public edm::EDAnalyzer {
 
   //TMVA reader to determine b-regression result
   TMVA::Reader *reader_;
-  std::string mva_name_,mva_path_;
-
+  std::string mva_name_,mva_path_,GBRmva_path_;
 
 
 
@@ -79,6 +83,10 @@ class BRegJetEventAnalyzer : public edm::EDAnalyzer {
   	  readerSoftElectronPt_, readerSoftElectronRatioRel_,
   	  readerSoftElectronDeltaR_;
 
+  GBRForest *gbropt_;
+  std::vector <float*> variablePointer_;
+  Float_t *vals_;
+  std::vector<std::string> *varlist_;
 
 };
 
