@@ -70,21 +70,21 @@ class BRegJetEventAnalyzer : public edm::EDAnalyzer {
   bool checkedIsPFJet, checkedJERSF, checkedJESSF, checkedTotalSF, checkedQGTag, checkedJESTotUnc;
   bool        isPFJet,     hasJERSF,     hasJESSF,     hasTotalSF,     hasQGTag,     hasJESTotUnc;
 
-  float tempJetPtCorr_,tempJetMt_,tempJetEta_,
+  double tempJetPtCorr_,tempJetMt_,tempJetEta_,
   tempfChargedHadrons_,tempfElectrons_, tempfMuons_,
   tempBTagCSV_;
-  float tempnChargedHadrons_,tempnChargedPFConstituents_,tempnPFConstituents_ ;
+  double tempnChargedHadrons_,tempnChargedPFConstituents_,tempnPFConstituents_ ;
 
-  float readerJetPtRaw_, readerJetArea_, readerJetEtWEightedSigmaPhi_,
+  double readerJetPtRaw_, readerJetArea_, readerJetEtWEightedSigmaPhi_,
   	  readerJesUncert_, readerSVtx3dLength_, readerSVtx3dLengthError_,
   	  readerSVtxMass_, readerSVtxPt_, readerlChTrackPt_, readerRho25_;
 
-  float readerSoftMuonPt_, readerSoftMuonRatioRel_, readerSoftMuonDeltaR_,
+  double readerSoftMuonPt_, readerSoftMuonRatioRel_, readerSoftMuonDeltaR_,
   	  readerSoftElectronPt_, readerSoftElectronRatioRel_,
   	  readerSoftElectronDeltaR_;
 
   GBRForest *gbropt_;
-  std::vector <float*> variablePointer_;
+  std::vector <double*> variablePointer_;
   Float_t *vals_;
   std::vector<std::string> *varlist_;
 

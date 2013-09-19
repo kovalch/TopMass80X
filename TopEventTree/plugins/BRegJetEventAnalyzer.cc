@@ -127,10 +127,13 @@ readerSoftElectronDeltaR_(0)
 
 
 		for (UInt_t ivar=0; ivar<varlist_->size(); ++ivar) {
-			reader_->AddVariable( varlist_->at(ivar),                variablePointer_.at(ivar));//ok
+//reader does not accept double			reader_->AddVariable( varlist_->at(ivar),                variablePointer_.at(ivar));//ok
+			reader_->AddVariable( varlist_->at(ivar),                &vals_[ivar]);//ok
 		}
-		reader_->AddSpectator("BRegJet.genJetPt",/*dummy*/variablePointer_.at(0));
-		reader_->AddSpectator("BRegJet.genPartonPt",/*dummy*/variablePointer_.at(0));
+//reader does not accept double		reader_->AddSpectator("BRegJet.genJetPt",/*dummy*/variablePointer_.at(0));
+//reader does not accept double		reader_->AddSpectator("BRegJet.genPartonPt",/*dummy*/variablePointer_.at(0));
+		reader_->AddSpectator("BRegJet.genJetPt",/*dummy*/&vals_[0]);
+		reader_->AddSpectator("BRegJet.genPartonPt",/*dummy*/&vals_[0]);
 
 
 //		reader_->AddVariable( "BRegJet.jetPtRaw",                &readerJetPtRaw_                    );//ok
@@ -525,16 +528,58 @@ BRegJetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setu
 		//		   factory->AddVariable( "Tlj_NChargedHadrons", "NCh", "units", 'F' );
 
 
-		Double_t mvaValue = (reader_->EvaluateRegression(mva_name_))[0];
-		BRegJet->BRegResult.push_back(mvaValue);
+//
+//		assert(tempJetPtCorr_==BRegJet->jetPtCorr.back());
+//		assert(tempJetEta_==BRegJet->jetEta.back());
+//		assert(readerRho25_==BRegJet->Rho25 .back());
+//		assert(readerJetArea_==BRegJet->jetArea.back());
+//		assert(readerJetEtWEightedSigmaPhi_==BRegJet->EtWeightedSigmaPhi.back());
+//
+//		assert(readerlChTrackPt_==BRegJet->leadingChargedConstPt .back());
+//		assert(tempfChargedHadrons_ == ijet->chargedHadronEnergyFraction());
+////		ijet->chargedHadronEnergyFraction()
+//		assert(tempfElectrons_ == ijet->electronEnergyFraction());
+//		//      jet->fElectron      .push_back(ijet->electronEnergyFraction());
+//		assert(tempfMuons_     == ijet->muonEnergyFraction());
+//		//      jet->fMuon          .push_back(ijet->muonEnergyFraction());
+//
+//		assert(readerSVtx3dLength_ == BRegJet->SV3DLength.back());
+//		assert(readerSVtx3dLengthError_ == BRegJet->SV3DLengthError.back());
+//		assert(readerSVtxMass_ == BRegJet->SVMass.back());
+//		assert(readerSVtxPt_ == BRegJet->SVPt.back());
+//		assert(tempBTagCSV_ == ijet->bDiscriminator("combinedSecondaryVertexBJetTags"));
+//		//ijet->bDiscriminator("combinedSecondaryVertexBJetTags")
+//		std::cout << BRegJet->SoftMuonPt.back() << " readerSoftMuonPt_: " << readerSoftMuonPt_ << std::endl;
+//		assert(readerSoftMuonPt_ == BRegJet->SoftMuonPt.back());
+//		assert(readerSoftMuonRatioRel_ == BRegJet->SoftMuonRatioRel.back());
+//		assert(readerSoftMuonDeltaR_ == BRegJet->SoftMuonDeltaR .back());
+//		assert(readerSoftElectronPt_ == BRegJet->SoftElectronPt.back());
+//		assert(readerSoftElectronRatioRel_ == BRegJet->SoftElectronRatioRel.back());
+//		assert(readerSoftElectronDeltaR_ == BRegJet->SoftElectronDeltaR .back());
+//
+//		assert(readerJetPtRaw_ == BRegJet->jetPtRaw.back());
+//		assert(tempJetMt_ == BRegJet->jetMt.back());
+//		assert(readerJesUncert_ == 		BRegJet->jesTotUnc   .back());
+//		assert(tempnPFConstituents_ == (ijet->chargedHadronMultiplicity () +ijet->neutralHadronMultiplicity ()
+//				+ijet->photonMultiplicity ()  +ijet->electronMultiplicity () +ijet->muonMultiplicity ()
+//				+ijet->HFHadronMultiplicity ()  +ijet->HFEMMultiplicity () ));
+//		assert(tempnPFConstituents_ == ijet->nConstituents());//extra
+//		assert(tempnChargedHadrons_ == ijet->chargedHadronMultiplicity ());
+//		//ijet->chargedHadronMultiplicity()
+//		assert(tempnChargedPFConstituents_ == BRegJet->nChargedPFConstituents  .back());
+
+
+
 		for (UInt_t ivar=0; ivar<variablePointer_.size(); ++ivar) {
-			vals_[ivar]=*variablePointer_.at(ivar);
-			std::cout << varlist_->at(ivar) <<  ": " << *variablePointer_.at(ivar) << std::endl;
+			vals_[ivar]=(float) *variablePointer_.at(ivar);
+//			std::cout << varlist_->at(ivar) <<  ": " << (float) *variablePointer_.at(ivar) << std::endl;
 
 		}
+		Double_t mvaValue = (reader_->EvaluateRegression(mva_name_))[0];
+		BRegJet->BRegResult.push_back(mvaValue);
 
 		BRegJet->BRegGBRTrainResult.push_back(gbropt_->GetResponse(vals_));
-std::cout << "mvaValue: " << mvaValue << " BRegJet->BRegGBRTrainResult.back(): " << BRegJet->BRegGBRTrainResult.back() << std::endl;
+//std::cout << "mvaValue: " << mvaValue << " BRegJet->BRegGBRTrainResult.back(): " << BRegJet->BRegGBRTrainResult.back() << std::endl;
 
 	}
 
