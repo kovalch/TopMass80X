@@ -23,6 +23,8 @@
 //GBRTrain
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "TopMass/TopEventTree/interface/TreeRegistryService.h"
 
 #include "TFile.h"
 
@@ -34,6 +36,10 @@ class BRegJetEventAnalyzer : public edm::EDAnalyzer {
 
   explicit BRegJetEventAnalyzer(const edm::ParameterSet&);
   ~BRegJetEventAnalyzer();
+
+  void fillBRegJet(const edm::Event&, const edm::EventSetup&);
+  std::vector<double> fillBRegJetAndReturnGBRResults(const edm::Event&, const edm::EventSetup&);
+  void iniBRegEvent();
 
  private:
 
@@ -67,8 +73,8 @@ class BRegJetEventAnalyzer : public edm::EDAnalyzer {
   std::string outputJets_;
 
   // check only once per module run if the needed collections are available
-  bool checkedIsPFJet, checkedJERSF, checkedJESSF, checkedTotalSF, checkedQGTag, checkedJESTotUnc;
-  bool        isPFJet,     hasJERSF,     hasJESSF,     hasTotalSF,     hasQGTag,     hasJESTotUnc;
+  bool checkedIsPFJet, checkedJERSF, checkedJESSF, checkedTotalSF, checkedQGTag, checkedJESTotUnc,  checkedBRegResult;
+  bool        isPFJet,     hasJERSF,     hasJESSF,     hasTotalSF,     hasQGTag,     hasJESTotUnc,      hasBRegResult;
 
   double tempJetPtCorr_,tempJetMt_,tempJetEta_,
   tempfChargedHadrons_,tempfElectrons_, tempfMuons_,

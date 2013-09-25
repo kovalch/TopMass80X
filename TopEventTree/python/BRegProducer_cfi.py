@@ -1,12 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-#
-# module to add extra information for b-regression studies
-#
-analyzeBRegJets = cms.EDAnalyzer("BRegJetEventAnalyzer",
-    jets         = cms.InputTag("goodJetsPF30"),
-    #allJets      = cms.InputTag("patJets"),
-    #noPtEtaJets  = cms.InputTag("noPtEtaJetsPF"),
+addBRegProducer = cms.EDProducer("BRegProducer",
+    jets            = cms.InputTag("selectedPatJets"),
     rho_tag      = cms.InputTag('kt6PFJets','rho'),
     rho25_tag    = cms.InputTag('rho25kt6PFJets','rho'),
     mva_name     = cms.string("BDT::BDTG"),

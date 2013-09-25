@@ -14,10 +14,10 @@
 #include "TMVA/Reader.h"
 // user include files
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "TopMass/TopEventTree/interface/TreeRegistryService.h"
+
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -38,8 +38,8 @@ mva_name_(cfg.getParameter<std::string>("mva_name")),
 mva_path_(cfg.getParameter<std::string>("mva_path")),
 GBRmva_path_(cfg.getParameter<std::string>("GBRmva_path")),
 writeOutVariables_(cfg.getParameter<bool>("writeOutVariables")),
-checkedIsPFJet(false), checkedJERSF(false), checkedJESSF(false), checkedTotalSF(false), checkedQGTag(false), checkedJESTotUnc(false),
-isPFJet(false),     hasJERSF(false),     hasJESSF(false),     hasTotalSF(false),     hasQGTag(false),     hasJESTotUnc(false),
+checkedIsPFJet(false), checkedJERSF(false), checkedJESSF(false), checkedTotalSF(false), checkedQGTag(false), checkedJESTotUnc(false), checkedBRegResult(false),
+isPFJet(false),     hasJERSF(false),     hasJESSF(false),     hasTotalSF(false),     hasQGTag(false),     hasJESTotUnc(false), hasBRegResult(false),
 tempJetPtCorr_(0),tempJetMt_(0),tempJetEta_(0),
 tempfChargedHadrons_(0),tempfElectrons_(0), tempfMuons_(0),
 tempBTagCSV_(0), tempnChargedHadrons_(0),tempnChargedPFConstituents_(0),tempnPFConstituents_(0),
@@ -121,11 +121,12 @@ readerSoftElectronDeltaR_(0)
 
 }
 
-void
-BRegJetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
-{
+std::vector<double> BRegJetEventAnalyzer::fillBRegJetAndReturnGBRResults(const edm::Event& evt, const edm::EventSetup& setup){
+	fillBRegJet(evt, setup);
+	return BRegJet->BRegGBRTrainResult;
+}
 
-
+void BRegJetEventAnalyzer::fillBRegJet(const edm::Event& evt, const edm::EventSetup& setup){
 
 
 
@@ -167,6 +168,7 @@ BRegJetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setu
 		// check only once per module run if the needed collections are available
 		if(!checkedIsPFJet) { checkedIsPFJet = true; isPFJet = ijet->isPFJet(); }
 		if(!checkedJESTotUnc  ) { checkedJESTotUnc   = true; if(ijet->hasUserFloat("jesTotUnc"      )) hasJESTotUnc   = true; }
+		if(!checkedBRegResult ) { checkedBRegResult  = true; if(ijet->hasUserFloat("BRegResult"     )) hasBRegResult  = true; }
 
 		if(isPFJet){
 //			BRegJet->fChargedHadron .push_back(ijet->chargedHadronEnergyFraction());
@@ -466,9 +468,31 @@ BRegJetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setu
 		BRegJet->BRegResult.push_back(mvaValue);
 
 		BRegJet->BRegGBRTrainResult.push_back(gbropt_->GetResponse(vals_));
-//std::cout << "mvaValue: " << mvaValue << " BRegJet->BRegGBRTrainResult.back(): " << BRegJet->BRegGBRTrainResult.back() << std::endl;
 
+//		if(hasBRegResult)std::cout << " BRegJet->BRegGBRTrainResult.back(): " << BRegJet->BRegGBRTrainResult.back() << " ijet->userFloat(BRegResult); " << ijet->userFloat("BRegResult"      ) << std::endl;
+
+		if(hasBRegResult&&(float)BRegJet->BRegGBRTrainResult.back()!=ijet->userFloat("BRegResult")){
+		    edm::LogError msg("BRegression");
+		    msg << "B regression result stored in jet and recalculated do not match. Please check your configuration accordingly \n";
+		    throw cms::Exception("Configuration Error");
+//
+//			assert(BRegJet->BRegGBRTrainResult.back()==ijet->userFloat(BRegResult));
+		}
+//		std::cout << " ->BRegGBRTrainResult: " << BRegJet->BRegGBRTrainResult.back() << " >userFloat(BRegResult); " << ijet->userFloat("BRegResult") << ">userFloat(jesTotUnc)" << ijet->userFloat("jesTotUnc"      ) << " jetPtCorr " << BRegJet->jetPtCorr.back()  << " jetEta " << BRegJet->jetEta.back() << std::endl;
 	}
+
+
+}
+
+
+void
+BRegJetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
+{
+
+//	 std::cout << "==============================running analyze, before fill====================================" << std::endl;
+	 fillBRegJet(evt,  setup);
+//	 std::cout << "==============================running analyze, after fill ====================================" << std::endl;
+
 
 	if(writeOutVariables_)trs->Fill();
 	else{
@@ -481,12 +505,20 @@ BRegJetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setu
 	}
 }
 
+// new BRegJetEvent is instantiated (should only be done once per job)
+void
+BRegJetEventAnalyzer::iniBRegEvent()
+{
+	BRegJet = new BRegJetEvent();
+}
+
 void
 BRegJetEventAnalyzer::beginJob()
 {
 	if( !trs ) throw edm::Exception( edm::errors::Configuration, "TreeRegistryService is not registered in cfg file!" );
 
-	BRegJet = new BRegJetEvent();
+	iniBRegEvent();
+	//BRegJet = new BRegJetEvent();
 	trs->Branch("BRegJet.", BRegJet);
 }
 

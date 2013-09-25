@@ -1,0 +1,78 @@
+#include <algorithm>
+
+#include "TopMass/TopEventTree/plugins/BRegProducer.h"
+
+
+
+#include "CommonTools/Utils/interface/PtComparator.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+
+BRegProducer::BRegProducer(const edm::ParameterSet& cfg):
+  inputJets_           (cfg.getParameter<edm::InputTag>("jets"           ))
+{
+	if(inputJets_.instance()==""){
+		outputJets_ = inputJets_.label();// + "DummyBReg";
+	}
+	else outputJets_ = inputJets_.instance();// + "DummyBReg";
+	std::cout << "inputJets_.label() " << inputJets_.label() << " inputJets_.instance(): " << inputJets_.instance() << " outputJets; " << outputJets_.c_str() << std::endl;
+
+	bRegAnalyzer = new BRegJetEventAnalyzer(cfg);
+	std::cout << "defined a BRegJetEventAnalyzer object (with all necessary configs)" << std::endl;
+
+
+	produces<std::vector<pat::Jet> >(outputJets_);
+
+}
+
+void
+BRegProducer::beginJob()
+{ 
+	bRegAnalyzer->iniBRegEvent();
+}
+
+///function to sort any auto_ptr to a vector of anything which has a pt function
+template<typename T>
+void sortByPt(std::auto_ptr<std::vector<T> > &collection) {
+  std::sort(collection->begin(), collection->end(), GreaterByPt<T>());
+}
+
+void
+BRegProducer::produce(edm::Event& event, const edm::EventSetup& setup)
+{
+  // access jets
+  edm::Handle<std::vector<pat::Jet> > jets;
+  event.getByLabel(inputJets_, jets);
+
+//  std::cout << "inputJets_.label() " << inputJets_.label() << " inputJets_.instance() " << inputJets_.instance() << " inputJets_.process() " << inputJets_.process() << std::endl;
+
+  std::auto_ptr<std::vector<pat::Jet> > pJets(new std::vector<pat::Jet>);
+
+  std::vector<double> tempBRegGBRTrainResultCrossCheck = 	bRegAnalyzer->fillBRegJetAndReturnGBRResults(event,  setup);
+
+unsigned int jet_i =0;
+  for(std::vector<pat::Jet>::const_iterator jet=jets->begin(); jet!=jets->end(); ++jet){
+    pat::Jet scaledJet = *jet;
+//	std::cout <<   tempBRegGBRTrainResultCrossCheck.at(jet_i) << std::endl;
+//    scaledJet.addUserFloat("jesTotUnc" , jesTotalUncertainty);
+	scaledJet.addUserFloat("BRegResult" , tempBRegGBRTrainResultCrossCheck.at(jet_i));
+    pJets->push_back( scaledJet );
+    jet_i++;
+  }
+//
+//  //p4 changes might have changed the pt order, so need to sort the new collections
+//  sortByPt(pJets);
+
+//std::cout << "------------------------------ pJets.size() "<< pJets->size() << "--------------------------------------" << std::endl;
+//std::cout << "------------------------------trying to put new jets " << outputJets_ << " into event----------------------------" << std::endl;
+event.put(pJets, outputJets_);
+
+}
+
+
