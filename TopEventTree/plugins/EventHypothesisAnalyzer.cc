@@ -20,6 +20,7 @@ hypoClassKey_(cfg.getParameter<edm::InputTag>("hypoClassKey")),
 ttEventGen2_ (cfg.getParameter<edm::InputTag>("ttEventGen2")),
 
 jets_        (cfg.getParameter<edm::InputTag>("jets")), // needed in fullHad channel for reco masses
+topBranchName_(cfg.getParameter<std::string>("topBranchName")), // set name of branch to be used to save
 lepton_      (cfg.getParameter<int>("lepton")),
 //leps_        (cfg.getParameter<edm::InputTag>("leps")),
 //mets_        (cfg.getParameter<edm::InputTag>("mets")),
@@ -273,7 +274,8 @@ EventHypothesisAnalyzer::beginJob()
   if( !trs ) throw edm::Exception( edm::errors::Configuration, "TreeRegistryService is not registered in cfg file!" );
 
   top = new TopEvent();
-  trs->Branch("top.", top);
+//  trs->Branch("top.", top);
+  trs->Branch(topBranchName_.c_str(), top);
 }
 
 std::vector<TLorentzVector> EventHypothesisAnalyzer::getPartons(const TtSemiLeptonicEvent *ttEvent, TtEvent::HypoClassKey hypoClassKey, unsigned int h)

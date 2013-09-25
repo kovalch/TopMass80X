@@ -46,6 +46,7 @@ class EventHypothesisAnalyzer : public edm::EDAnalyzer {
   edm::InputTag hypoClassKey_;
   edm::InputTag ttEventGen2_;
   edm::InputTag jets_;
+  std::string topBranchName_;
   
   int lepton_;
   
