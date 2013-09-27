@@ -26,32 +26,32 @@ private:
   
   std::vector<double> readParameters(const char *whichParameter);
 
-  static std::vector<double> parsCP_;
-  static std::vector<double> parsWP_;
-  static std::vector<double> parsUN_;
-  static std::vector<double> parsCPJES_;
-  static std::vector<double> parsWPJES_;
-  static std::vector<double> parsUNJES_;
-  static std::vector<double> parsBKG_;
-  static std::vector<double> parsBKGJES_;
+  std::vector<double> parsCP_;
+  std::vector<double> parsWP_;
+  std::vector<double> parsUN_;
+  std::vector<double> parsCPJES_;
+  std::vector<double> parsWPJES_;
+  std::vector<double> parsUNJES_;
+  std::vector<double> parsBKG_;
+  std::vector<double> parsBKGJES_;
 
-  static std::vector<double> massOffset_;
-  static std::vector<double> massSlopeMass_;
-  static std::vector<double> massSlopeJES_;
-  static std::vector<double> massSlopeMassJES_;
-  static std::vector<double> jesOffset_;
-  static std::vector<double> jesSlopeMass_;
-  static std::vector<double> jesSlopeJES_;
-  static std::vector<double> jesSlopeMassJES_;
+  std::vector<double> massOffset_;
+  std::vector<double> massSlopeMass_;
+  std::vector<double> massSlopeJES_;
+  std::vector<double> massSlopeMassJES_;
+  std::vector<double> jesOffset_;
+  std::vector<double> jesSlopeMass_;
+  std::vector<double> jesSlopeJES_;
+  std::vector<double> jesSlopeMassJES_;
 
-  static double fSig_, fCP_, fWP_, fUN_;
+  double fSig_, fCP_, fWP_, fUN_;
 
-  static double PBKGintegral_;
+  double PBKGintegral_;
   
   typedef std::pair<double,double> ScanPoint;
   typedef std::map<ScanPoint,double> ScanPointMap; 
-  static ScanPointMap PWPnormalizations_;
-  static ScanPointMap PUNnormalizations_;
+  ScanPointMap PWPnormalizations_;
+  ScanPointMap PUNnormalizations_;
 
   static double langau(Double_t *x, Double_t *p) {
     return p[0]*(p[4]*TMath::Landau(x[0],p[1],p[2],true)+(1-p[4])*TMath::Gaus(x[0],p[1],p[3],true));
