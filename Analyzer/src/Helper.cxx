@@ -248,7 +248,13 @@ void Helper::DrawCMS(int channelID, int energy) {
     }
   }
   else if(energy == 8){
-    if(po::GetOption<int>("preliminary")){
+    if(po::GetOption<int>("preliminary") == 2){
+      if     (channelID == kAllJets     ) DrawLabel("PRIVATE WORK, 18.3 fb^{-1},  #sqrt{s} = 8 TeV"         , 0.2, 0.93, 0.9);
+      else if(channelID == kLeptonJets  ) DrawLabel("PRIVATE WORK, X.X fb^{-1},  #sqrt{s} = 8 TeV, l+jets"  , 0.2, 0.93, 0.9);
+      else if(channelID == kElectronJets) DrawLabel("PRIVATE WORK, X.X fb^{-1},  #sqrt{s} = 8 TeV, e+jets"  , 0.2, 0.93, 0.9);
+      else if(channelID == kMuonJets    ) DrawLabel("PRIVATE WORK, X.X fb^{-1},  #sqrt{s} = 8 TeV, #mu+jets", 0.2, 0.93, 0.9);
+    }
+    else if(po::GetOption<int>("preliminary") == 1){
       if     (channelID == kAllJets     ) DrawLabel("CMS Preliminary, 18.3 fb^{-1},  #sqrt{s} = 8 TeV"         , 0.2, 0.93, 0.9);
       else if(channelID == kLeptonJets  ) DrawLabel("CMS Preliminary, X.X fb^{-1},  #sqrt{s} = 8 TeV, l+jets"  , 0.2, 0.93, 0.9);
       else if(channelID == kElectronJets) DrawLabel("CMS Preliminary, X.X fb^{-1},  #sqrt{s} = 8 TeV, e+jets"  , 0.2, 0.93, 0.9);
@@ -274,7 +280,10 @@ void Helper::DrawCMSSim(int energy) {
     }
   }
   else if(energy == 8){
-    if(po::GetOption<int>("preliminary")){
+    if(po::GetOption<int>("preliminary") == 2){
+      DrawLabel("PRIVATE WORK,  #sqrt{s} = 8 TeV", 0.2, 0.93, 0.9);
+    }
+    else if(po::GetOption<int>("preliminary") == 1){
       DrawLabel("CMS Simulation Preliminary,  #sqrt{s} = 8 TeV", 0.2, 0.93, 0.9);
     }
     else{
