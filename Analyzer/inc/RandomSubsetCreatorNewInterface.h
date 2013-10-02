@@ -24,6 +24,7 @@ private:
   const std::string fWeight_;
   const std::string activeBranches_;
   const double fLumi_, fSig_, fBDisc_;
+  const int maxPermutations_;
   int channelID_;
 
   TRandom3* random_;

@@ -76,6 +76,7 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("analysisConfig.var1", boost::program_options::value<std::string>())
         ("analysisConfig.var2", boost::program_options::value<std::string>())
         ("analysisConfig.var3", boost::program_options::value<std::string>())
+        ("analysisConfig.maxPermutations", boost::program_options::value<int>())
         ("analysisConfig.activeBranches", boost::program_options::value<std::string>()->default_value("*"))
         ("templates.fSig", boost::program_options::value<double>()->default_value(0.0))
         ("templates.fCP", boost::program_options::value<double>()->default_value(0.0))
