@@ -52,7 +52,12 @@ void Analysis::Analyze() {
   // random subset creation
   if(!fCreator_){
     if (fChannelID_ == Helper::kElectronJets || fChannelID_ == Helper::kMuonJets || fChannelID_ == Helper::kLeptonJets) {
-      fCreator_ = new RandomSubsetCreatorLeptonJets();
+      if (fMethodID_ == Helper::kIdeogramNew) {
+        fCreator_ = new RandomSubsetCreatorNewInterface();
+      }
+      else{
+        fCreator_ = new RandomSubsetCreatorLeptonJets();
+      }
     }
     else if (fChannelID_ == Helper::kAllJets) {
       if (fMethodID_ == Helper::kIdeogramNew) {

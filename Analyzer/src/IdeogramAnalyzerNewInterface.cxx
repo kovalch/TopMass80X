@@ -1,6 +1,7 @@
 #include "IdeogramAnalyzerNewInterface.h"
 
 #include "IdeogramCombLikelihoodAllJets.h"
+#include "IdeogramCombLikelihoodLeptonJets.h"
 #include "Helper.h"
 #include "ProgramOptionsReader.h"
 
@@ -93,6 +94,11 @@ void IdeogramAnalyzerNewInterface::Scan(const std::string& cuts, int i, int j, d
       IdeogramCombLikelihoodAllJets *fptrAllJets = new IdeogramCombLikelihoodAllJets();
       fptr_ = fptrAllJets;
       combLikelihood_ = new TF2("combLikelihood",fptrAllJets,&IdeogramCombLikelihoodAllJets::Evaluate, firstBinMass, lastBinMass, firstBinJes, lastBinJes, 7, "IdeogramCombLikelihoodAllJets", "Evaluate");
+    }
+    else {
+      IdeogramCombLikelihoodLeptonJets *fptrLeptonJets = new IdeogramCombLikelihoodLeptonJets();
+      fptr_ = fptrLeptonJets;
+      combLikelihood_ = new TF2("combLikelihood",fptrLeptonJets,&IdeogramCombLikelihoodLeptonJets::Evaluate, firstBinMass, lastBinMass, firstBinJes, lastBinJes, 7, "IdeogramCombLikelihoodLeptonJets", "Evaluate");
     }
   }
   //TF2* gausJESConstraint = new TF2("gausJESConstraint", "x*0 +((y-1.)/0.013)**2", firstBinMass, lastBinMass, firstBinJes,lastBinJes);
@@ -194,6 +200,8 @@ void IdeogramAnalyzerNewInterface::Scan(const std::string& cuts, int i, int j, d
 
         if (prob != 0) {
           // Set Likelihood parameters
+          // TODO electron channel
+          //if(channelID_ == Helper::kAllJets){
           combLikelihood_->SetParameters(prob, topMass, wMass, 1., shapeSystematic_, permutationFractionSystematic_, isFastSim_);
           // add permutation to event likelihood
           eventLikelihood->Eval(combLikelihood_, "A");

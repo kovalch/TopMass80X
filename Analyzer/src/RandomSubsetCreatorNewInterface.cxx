@@ -44,14 +44,14 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface() :
     if(fLumi_>0) PrepareEvents(samplePath_+"QCDMixing_MJPS12*_data.root");
   }
   if (channelID_ == Helper::kMuonJets || channelID_ == Helper::kLeptonJets) {
-    PrepareEvents(samplePath_+fIdentifier_+std::string("_muon/analyzeTop.root"));
+    PrepareEvents(samplePath_+fIdentifier_+std::string("_muon/job_*.root"));
     if(fLumi_>0) {
       PrepareEvents("/scratch/hh/lustre/cms/user/mseidel/Fall11_Wbb_muon/analyzeTop.root");
       PrepareEvents("/scratch/hh/lustre/cms/user/mseidel/Fall11_T_muon/analyzeTop.root");
     }
   }
   if (channelID_ == Helper::kElectronJets || channelID_ == Helper::kLeptonJets) {
-    PrepareEvents(samplePath_+fIdentifier_+std::string("_electron/analyzeTop.root"));
+    PrepareEvents(samplePath_+fIdentifier_+std::string("_electron/job_*.root"));
     if(fLumi_>0) {
       PrepareEvents("/scratch/hh/lustre/cms/user/mseidel/Fall11_Wbb_electron/analyzeTop.root");
       PrepareEvents("/scratch/hh/lustre/cms/user/mseidel/Fall11_T_electron/analyzeTop.root");
@@ -157,7 +157,13 @@ void RandomSubsetCreatorNewInterface::DrawEvents(const DataSample& sample, doubl
 
 void RandomSubsetCreatorNewInterface::PrepareEvents(const std::string& file) {
 
-  TChain* chain = new TChain("analyzeKinFit/eventTree");
+  TChain* chain;
+  if (channelID_ == Helper::kAllJets) {
+    chain = new TChain("analyzeKinFit/eventTree");
+  }
+  else {
+    chain = new TChain("analyzeHitFit/eventTree");
+  }
   int nFiles = chain->Add(file.c_str());
   std::cout << "Adding " << nFiles << " files for " << file << std::flush;
 
