@@ -432,42 +432,10 @@ if (options.lepton=="electron"):
         process.hltFilter.HLTPaths=["HLT_Ele27_WP80_v*"]
     elif data:
         process.hltFilter.HLTPaths=["HLT_Ele27_WP80_v*"]
-    ## lepton-jet veto
-    from PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi import *
-    from PhysicsTools.PatAlgos.cleaningLayer1.jetCleaner_cfi import *
-    process.noOverlapJetsPFelec = cleanPatJets.clone(
-        preselection = cms.string(''),
-        checkOverlaps = cms.PSet(
-          electrons = cms.PSet(
-            src       = cms.InputTag("tightElectronsEJ"),
-            algorithm = cms.string("byDeltaR"),
-            preselection        = cms.string(''),
-            deltaR              = cms.double(0.3),
-            checkRecoComponents = cms.bool(False), # don't check if they share some AOD object ref
-            pairCut             = cms.string(""),
-            requireNoOverlaps   = cms.bool(True), # overlaps don't cause the jet to be discared
-            )
-          ),
-        finalCut = cms.string(''),
-        )
-    if not data: process.noOverlapJetsPFelec.src = cms.InputTag("scaledJetEnergy:selectedPatJets")
-    process.goodJetsPF20.src  ='noOverlapJetsPFelec'
-    process.centralJetsPF.src ='noOverlapJetsPFelec'
-    process.reliableJetsPF.src='noOverlapJetsPFelec'
-    process.noEtaJetsPF.src   ='noOverlapJetsPFelec'
-    process.noPtJetsPF.src    ='noOverlapJetsPFelec'
-    process.noConstJetsPF.src ='noOverlapJetsPFelec'
-    process.noCEFJetsPF.src   ='noOverlapJetsPFelec'
-    process.noNHFJetsPF.src   ='noOverlapJetsPFelec'
-    process.noNEFJetsPF .src  ='noOverlapJetsPFelec'
-    process.noCHFJetsPF.src   ='noOverlapJetsPFelec'
-    process.noNCHJetsPF.src   ='noOverlapJetsPFelec'
     
     from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag
     pathnames = process.paths_().keys()
     for pathname in pathnames:
-      # replace jet lepton veto
-      getattr(process, pathname).replace(process.noOverlapJetsPF, process.noOverlapJetsPFelec)
       # replace muon selection
       getattr(process, pathname).replace(process.muonSelection, process.electronSelection)
       getattr(process, pathname).remove(process.secondMuonVeto)
