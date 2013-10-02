@@ -27,7 +27,7 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface() :
     activeBranches_(po::GetOption<std::string>("analysisConfig.activeBranches")),
     fLumi_  (po::GetOption<double>("lumi")),
     fSig_   (po::GetOption<double>("fsig")),
-    fBDisc_ (po::GetOption<double>("bdisc")),
+    //fBDisc_ (po::GetOption<double>("bdisc")),
     maxPermutations_(po::GetOption<int>("analysisConfig.maxPermutations")),
     random_(0)
 {
@@ -35,6 +35,12 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface() :
 
   std::cout << "Reading data from disk ..." << std::endl;
   std::cout << "Event selection: " << selection_ << std::endl;
+  std::cout << "Variable 1: " << fVar1_ << std::endl;
+  std::cout << "Variable 2: " << fVar2_ << std::endl;
+  std::cout << "Variable 3: " << fVar3_ << std::endl;
+  std::cout << "Weight: " << fWeight_ << std::endl;
+  std::cout << "Lumi: " << fLumi_ << std::endl;
+  std::cout << "Signal Fraction: " << fSig_ << std::endl;
 
   time_t start, end;
   time(&start);

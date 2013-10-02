@@ -247,7 +247,7 @@ void IdeogramAnalyzerNewInterface::Scan(const std::string& cuts, int i, int j, d
 
         TString localIdentifier = fIdentifier_; localIdentifier.ReplaceAll("*","_"); localIdentifier.ReplaceAll("/","_");
         std::string eventPath(plotPath); eventPath += localIdentifier; eventPath += std::string("_"); eventPath += boost::lexical_cast<std::string>(iEntry); eventPath += std::string(".eps");
-        std::cout << eventPath << std::endl;
+        //std::cout << eventPath << std::endl; //Print does this all by itself ...
         eventCanvas->Print(eventPath.c_str());
 
         delete eventCanvas;
@@ -306,7 +306,7 @@ void IdeogramAnalyzerNewInterface::Scan(const std::string& cuts, int i, int j, d
     fitParaboloid->SetParLimits(2, minJes-2*resolJes, minJes+2*resolJes);
     fitParaboloid->SetParameter(2, minJes);
     fitParaboloid->SetParameter(3, 1000000);
-    fitParaboloid->SetParLimits(5, minLike-10., minLike+10.);
+    fitParaboloid->SetParLimits(5, 0.95*minLike, 1.05*minLike);
     fitParaboloid->SetParameter(5, minLike);
 
     //fitParaboloid->SetRange(minMass - 1, minJes - 0.01, minMass + 1, minJes + 0.01);
