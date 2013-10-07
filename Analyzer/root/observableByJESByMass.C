@@ -511,7 +511,8 @@ void FindParametersMass(int iMass)
     path += "jes";
     path += X[iMass];
   }
-  path += "_"; path += sTarget[abs(target%8)]; path += ".eps";
+  path += "_"; path += sTarget[abs(target%8)];
+  path += "_"; path += sLepton[lepton]; path += ".eps";
   cObservable->Print(path);
   
   TCanvas* cObservablePar = new TCanvas("cObservablePar", "cObservablePar", 1600, 400);
