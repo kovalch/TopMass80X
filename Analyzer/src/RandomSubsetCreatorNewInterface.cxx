@@ -179,7 +179,6 @@ void RandomSubsetCreatorNewInterface::PrepareEvents(const std::string& file) {
   TTreeFormula *f3     = new TTreeFormula("f3"    , fVar3_    .c_str(), chain);
   TTreeFormula *weight = new TTreeFormula("weight", fWeight_  .c_str(), chain);
   TTreeFormula *sel    = new TTreeFormula("sel"   , selection_.c_str(), chain);
-  TTreeFormula *index  = new TTreeFormula("index" , "Iteration$"      , chain);
 
   DataSample sample;
 
@@ -192,14 +191,19 @@ void RandomSubsetCreatorNewInterface::PrepareEvents(const std::string& file) {
       f2    ->UpdateFormulaLeaves();
       f3    ->UpdateFormulaLeaves();
       weight->UpdateFormulaLeaves();
-      index ->UpdateFormulaLeaves();
       sel   ->UpdateFormulaLeaves();
     }
+    
+    if(!f1->GetNdata()) continue;
+    if(!f2->GetNdata()) continue;
+    if(!f3->GetNdata()) continue;
+    if(!weight->GetNdata()) continue;
     if(!sel->GetNdata()) continue;
+    
     if(!sel->EvalInstance(0)) continue;
-    for(int j = 0, l = index->GetNdata(); j < l; ++j){
+    for(int j = 0, l = f1->GetNdata(); j < l; ++j){
       if(!sel->EvalInstance(j)) continue;
-      sample.Fill(f1->EvalInstance(j), f2->EvalInstance(j), f3->EvalInstance(j), weight->EvalInstance(j), (int)(index->EvalInstance(j)));
+      sample.Fill(f1->EvalInstance(j), f2->EvalInstance(j), f3->EvalInstance(j), weight->EvalInstance(j), j);
     }
     ++selected;
   }
@@ -214,5 +218,4 @@ void RandomSubsetCreatorNewInterface::PrepareEvents(const std::string& file) {
   delete f3;
   delete weight;
   delete sel;
-  delete index;
 }
