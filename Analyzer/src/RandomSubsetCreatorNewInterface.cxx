@@ -87,11 +87,11 @@ TTree* RandomSubsetCreatorNewInterface::CreateRandomSubset() {
 
     // DATA
     double nEventsDataAllJets  = 11428.;
-    double nEventsDataMuon     = 2906.;
+    double nEventsDataMuon     = 15172.;
     double nEventsDataElectron = 2268.;
 
     int eventsPEAllJets  = random_->Poisson(nEventsDataAllJets /18352.0 *fLumi_);
-    int eventsPEMuon     = random_->Poisson(nEventsDataMuon    /5000.000*fLumi_);
+    int eventsPEMuon     = random_->Poisson(nEventsDataMuon    /19712.000*fLumi_);
     int eventsPEElectron = random_->Poisson(nEventsDataElectron/5000.000*fLumi_);
 
     if (channelID_ == Helper::kAllJets) {
