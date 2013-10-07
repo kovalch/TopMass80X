@@ -53,8 +53,8 @@ int marker_[] = { 23, 23, 20, 22, 22 };
 double genJES[]       = {0.96, 0.98, 1.00, 1.02, 1.04};
 //double genJESError[]  = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
 double genMass[]      = {161.5, 163.5, 166.5, 169.5, 172.5, 175.5, 178.5, 181.5, 184.5};
-//double genMassError[] = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
-double genMassN[]     = {5000000, 5000000, 5000000, 5000000, 60000000, 5000000, 5000000, 5000000, 5000000}; //{1620072, 1633197, 1669034, 1606570, 59613991, 1538301, 1648519, 1665350, 1671859};
+double genMassError[] = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
+double genMassN[]     = {5000000, 5000000, 5000000, 5000000, 90000000, 5000000, 5000000, 5000000, 5000000}; //{1620072, 1633197, 1669034, 1606570, 59613991, 1538301, 1648519, 1665350, 1671859};
 double maxMCWeight[]  = {1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8};
 
 //double genMassN[]     = {1620072, 1.5, 1.5, 1.5, 59613991, 1.5, 1.5, 1.5, 1.5};
@@ -193,7 +193,7 @@ void ensembleTree()
   canvasFit->cd();
   
   //// Get histos
-  TString sFile("/scratch/hh/dust/naf/cms/user/eschliec/TopMass/topmass_130913_1901/");
+  TString sFile("/scratch/hh/dust/naf/cms/user/eschliec/TopMass/topmass_131004_1201/");
   //TString sFile("/scratch/hh/current/cms/user/eschliec/TopMass/21/ensemble/");
   //TString sFile("/scratch/hh/dust/naf/cms/user/eschliec/TopMass/");
   //sFile += "ensemble_F11_NEWTEMPLATES_Calibrated_NoCorrelation.root";
@@ -220,6 +220,7 @@ void ensembleTree()
   //sFile += "ensemble_F11_TemplateRooFit_New_Recalibrated.root";
   //sFile += "ensemble_F11_Ideogram_Uncalibrated_1.root";
   //sFile += "ensemble_F11_Ideogram_Calibrated_1.root";
+  //sFile += "ensemble_S12_Uncalibrated.root";
   sFile += "ensemble_S12_Calibrated.root";
 
   std::cout << "Doing calibration on: " << sFile << std::endl;
