@@ -46,6 +46,7 @@ genEventSrc_   (cfg.getParameter<edm::InputTag>("genEventSrc")),
 savePDFWeights_(cfg.getParameter<bool>("savePDFWeights")),
 weight(0)
 {
+  //LHAPDF::initPDFSet(1, "cteq66.LHgrid");
 }
 
 void
@@ -80,6 +81,18 @@ WeightEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
       weight->Q   = genEventInfo_h->pdf()->scalePDF;
       weight->id1 = genEventInfo_h->pdf()->id.first;
       weight->id2 = genEventInfo_h->pdf()->id.second;
+/*
+      double w0 = 0.;
+      for(unsigned i=0; i <=44; ++i) {
+        LHAPDF::usePDFMember(1,i);
+        double xpdf1 = LHAPDF::xfx(1, weight->x1, weight->Q, weight->id1);
+        double xpdf2 = LHAPDF::xfx(1, weight->x2, weight->Q, weight->id2);
+        if(i<1)
+          w0 = xpdf1 * xpdf2;
+        else
+          weight->pdfWeight.push_back(xpdf1 * xpdf2 / w0);
+      }
+*/
     }
   }
   //////////////////////////////////////////////////////////////////////////

@@ -27,13 +27,20 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface() :
     activeBranches_(po::GetOption<std::string>("analysisConfig.activeBranches")),
     fLumi_  (po::GetOption<double>("lumi")),
     fSig_   (po::GetOption<double>("fsig")),
-    fBDisc_ (po::GetOption<double>("bdisc")),
+    //fBDisc_ (po::GetOption<double>("bdisc")),
+    maxPermutations_(po::GetOption<int>("analysisConfig.maxPermutations")),
     random_(0)
 {
   channelID_ = Helper::channelID();
 
   std::cout << "Reading data from disk ..." << std::endl;
   std::cout << "Event selection: " << selection_ << std::endl;
+  std::cout << "Variable 1: " << fVar1_ << std::endl;
+  std::cout << "Variable 2: " << fVar2_ << std::endl;
+  std::cout << "Variable 3: " << fVar3_ << std::endl;
+  std::cout << "Weight: " << fWeight_ << std::endl;
+  std::cout << "Lumi: " << fLumi_ << std::endl;
+  std::cout << "Signal Fraction: " << fSig_ << std::endl;
 
   time_t start, end;
   time(&start);
@@ -193,19 +200,17 @@ void RandomSubsetCreatorNewInterface::PrepareEvents(const std::string& file) {
       weight->UpdateFormulaLeaves();
       sel   ->UpdateFormulaLeaves();
     }
-    
-    if(!f1->GetNdata()) continue;
-    if(!f2->GetNdata()) continue;
-    if(!f3->GetNdata()) continue;
+    if(!f1    ->GetNdata()) continue;
+    if(!f2    ->GetNdata()) continue;
+    if(!f3    ->GetNdata()) continue;
     if(!weight->GetNdata()) continue;
-    if(!sel->GetNdata()) continue;
-    
-    if(!sel->EvalInstance(0)) continue;
-    for(int j = 0, l = f1->GetNdata(); j < l; ++j){
+    if(!sel   ->GetNdata()) continue;
+    int filledPermutations = 0;
+    for(int j = 0, l = std::min(maxPermutations_, sel->GetNdata()); j < l; ++j){
       if(!sel->EvalInstance(j)) continue;
-      sample.Fill(f1->EvalInstance(j), f2->EvalInstance(j), f3->EvalInstance(j), weight->EvalInstance(j), j);
+      sample.Fill(f1->EvalInstance(j), f2->EvalInstance(j), f3->EvalInstance(j), weight->EvalInstance(j), filledPermutations++);
     }
-    ++selected;
+    if(filledPermutations) ++selected;
   }
 
   sample.nEvents = selected;
