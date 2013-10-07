@@ -7,6 +7,8 @@
 
 #include "RooFormulaVar.h"
 
+#include <string>
+
 class TopMassCalibration {
 public:
   TopMassCalibration();
@@ -15,7 +17,10 @@ public:
 private:
   TH2F *bTagEff_, *cTagEff_, *lTagEff_;
 
-  TString selection_, samplePath_, fChannel_;
+  TString selection_, samplePath_, fVar1_, fVar2_, fVar3_, fWeight_, fChannel_;
+  std::string activeBranches_;
+
+  int maxPermutations_;
 
   enum channelID {kAllJets, kMuonJets, kElectronJets, kLeptonJets, kMaxChannels};
   int channelID_;

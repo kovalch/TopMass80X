@@ -21,6 +21,7 @@
 #include "TLorentzVector.h"
 #include "TClonesArray.h"
 #include "TEventList.h"
+#include "TTreeFormula.h"
 
 #include "RooAddition.h"
 #include "RooAddPdf.h"
@@ -53,6 +54,9 @@
 #include "fstream"
 #include "sstream"
 
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
+
 typedef ProgramOptionsReader po;
 
 TopMassCalibration::TopMassCalibration() :
@@ -63,7 +67,13 @@ TopMassCalibration::TopMassCalibration() :
     //samplePath_("/scratch/hh/lustre/cms/user/eschliec/TopMass/19/"),
     selection_  (po::GetOption<std::string>("analysisConfig.selection")),
     samplePath_ (po::GetOption<std::string>("analysisConfig.samplePath")),
+    fVar1_      (po::GetOption<std::string>("analysisConfig.var1")),
+    fVar2_      (po::GetOption<std::string>("analysisConfig.var2")),
+    fVar3_      (po::GetOption<std::string>("analysisConfig.var3")),
+    fWeight_    (po::GetOption<std::string>("weight")),
     fChannel_   (po::GetOption<std::string>("channel")),
+    activeBranches_(po::GetOption<std::string>("analysisConfig.activeBranches")),
+    maxPermutations_(po::GetOption<int>("analysisConfig.maxPermutations")),
     doCalibration_(false),
     fitBackground_(true),
     doMeasurement_(false)
@@ -166,15 +176,15 @@ TopMassCalibration::rooFitTopMass_()
   if(channelID_ == kAllJets){
     comboTypeVar.setRange("R1",0.9,1.1);
     comboTypeVar.setRange("R4",-9.9,-0.1);
-    comboTypeVar.setRange("R5",1.9,6.1);
+    comboTypeVar.setRange("R5",1.9,10.1);
   }
   MTOP  .setRange("mTopFitRange",100.,550.);
   meanMW.setRange("mWFitRange", 50.,300.);
 
   RooArgSet varSet = RooArgSet(comboTypeVar,/*prob,*/MTOP,meanMW,combinedWeight,"varSet");
 
-  RooAddPdf *topAdd = 0;
-  RooAddPdf   *wAdd = 0;
+  //RooAddPdf *topAdd = 0;
+  //RooAddPdf   *wAdd = 0;
 
   TString name = "";
   TString outDir = "plot/calibration";
@@ -193,12 +203,12 @@ TopMassCalibration::rooFitTopMass_()
         if(channelID_ == kAllJets){
           //fileName += "Z2_F11_ABS_JES";
           //fileName += "Z2_S12_ABS_JES";
-          fileName += "Z2_S12*ABS_JES";
-          if     (iJES  == 0) fileName += "_096_";
-          else if(iJES  == 1) fileName += "_098_";
-          else if(iJES  == 2) fileName += "_100_";
-          else if(iJES  == 3) fileName += "_102_";
-          else if(iJES  == 4) fileName += "_104_";
+          fileName += "Z2_S12_";
+          if     (iJES  == 0) fileName += "ABS_JES_096_";
+          else if(iJES  == 1) fileName += "ABS_JES_098_";
+          else if(iJES  == 2) fileName += "ABS_JES_100_";
+          else if(iJES  == 3) fileName += "ABS_JES_102_";
+          else if(iJES  == 4) fileName += "ABS_JES_104_";
           if     (iMass == 0) fileName += "161_5";
           else if(iMass == 1) fileName += "163_5";
           else if(iMass == 2) fileName += "166_5";
@@ -215,7 +225,7 @@ TopMassCalibration::rooFitTopMass_()
         //TFile *file = TFile::Open(samplePath_+TString(fileName));
         //TTree *tree = (TTree*)file->Get("analyzeKinFit/eventTree");
         TChain *chain = new TChain("analyzeKinFit/eventTree");
-        std::cout << " (nFiles: " << chain->Add(samplePath_+TString(fileName)) << ")" << std::endl;
+        std::cout << " (nFiles: " << chain->Add(samplePath_+TString(fileName)) << ") "; // << std::endl;
 
         //TTree *tree = (TTree*)file->Get("FullHadTreeWriter/tree");
         tmpFile->cd();
@@ -579,8 +589,8 @@ TopMassCalibration::rooFitTopMass_()
           vars << curPar->getVal();
           if(i != par.size()-1) vars << "|";
         }
-        if(templType == 0 && comboType == 1) vars << "|" << workspace[0]->var("ratio_1");
-        if(templType == 0 && comboType == 2) vars << "|" << workspace[0]->var("ratio_2");
+        if(templType == 0 && comboType == 1) vars << "|" << workspace[0]->var("ratio_1")->getVal();
+        if(templType == 0 && comboType == 2) vars << "|" << workspace[0]->var("ratio_2")->getVal();
         std::cout << vars.str();
         std::cout << std::endl;
 
@@ -603,6 +613,8 @@ TopMassCalibration::rooFitTopMass_()
     TFile* calibrationFile = TFile::Open("RooWorkspace_TEST.root");
     workspace[0] = (RooWorkspace*)calibrationFile->Get("workspaceMtop")->Clone();
   }
+
+  /*
 
   RooRealVar *fCP = new RooRealVar("fCP", "fCP", 0.254136);
   fCP->setConstant(kTRUE);
@@ -634,6 +646,8 @@ TopMassCalibration::rooFitTopMass_()
   wAdd->setNormRange("mTopFitRange");
   //workspace[0]->import(*wAdd);
 
+  */
+
   RooDataSet *BKG = 0;
   if(fitBackground_){
     std::cout << "Creating BKG dataset" << std::endl;
@@ -648,27 +662,28 @@ TopMassCalibration::rooFitTopMass_()
     TTree* tree = modifiedTree_(oldTree);
     //TTree* tree = modifiedTree_(oldTree, -1, 10, true);
 
-    BKG = new RooDataSet("BKG","BKG",varSet,RooFit::Import(*tree));//,RooFit::WeightVar("prob"));
+    //BKG = new RooDataSet("BKG","BKG",varSet,RooFit::Import(*tree));//,RooFit::WeightVar("prob"));
+    BKG = new RooDataSet("BKG","BKG",varSet,RooFit::Import(*tree),RooFit::WeightVar("combinedWeight"));
 
     std::cout << "Creating BKG PDFs" << std::endl;
-  }
+    //}
 
-  RooRealVar *topBKGGammaNorm  = new RooRealVar("topBKGGammaNorm" , "topBKGGammaNorm" ,  0.848667);
-  RooRealVar *topBKGGammaGamma = new RooRealVar("topBKGGammaGamma", "topBKGGammaGamma",  4.14752 );
-  RooRealVar *topBKGGammaBeta  = new RooRealVar("topBKGGammaBeta" , "topBKGGammaBeta" , 33.7793  );
-  RooRealVar *topBKGGammaMu    = new RooRealVar("topBKGGammaMu"   , "topBKGGammaMu"   , 89.6645  );
-  RooGamma *topBKGGamma = new RooGamma("topBKGGamma","topBKGGamma",MTOP,*topBKGGammaGamma,*topBKGGammaBeta,*topBKGGammaMu);
-  topBKGGamma->setNormRange("mTopFitRange");
+    RooRealVar *topBKGGammaNorm  = new RooRealVar("topBKGGammaNorm" , "topBKGGammaNorm" ,  0.848667,  0, 1);
+    RooRealVar *topBKGGammaGamma = new RooRealVar("topBKGGammaGamma", "topBKGGammaGamma",  4.14752 ,  0, 8);
+    RooRealVar *topBKGGammaBeta  = new RooRealVar("topBKGGammaBeta" , "topBKGGammaBeta" , 33.7793  ,  0, 60);
+    RooRealVar *topBKGGammaMu    = new RooRealVar("topBKGGammaMu"   , "topBKGGammaMu"   , 89.6645  , 85, 120);
+    RooGamma *topBKGGamma = new RooGamma("topBKGGamma","topBKGGamma",MTOP,*topBKGGammaGamma,*topBKGGammaBeta,*topBKGGammaMu);
+    topBKGGamma->setNormRange("mTopFitRange");
 
-  RooRealVar *topBKGLandauMean  = new RooRealVar("topBKGLandauMean" , "topBKGLandauMean" , 217.114 );
-  RooRealVar *topBKGLandauSigma = new RooRealVar("topBKGLandauSigma", "topBKGLandauSigma",  27.6076);
-  RooLandau *topBKGLandau = new RooLandau("topBKGLandau","topBKGLandau",MTOP,*topBKGLandauMean,*topBKGLandauSigma);
-  topBKGLandau->setNormRange("mTopFitRange");
+    RooRealVar *topBKGLandauMean  = new RooRealVar("topBKGLandauMean" , "topBKGLandauMean" , 217.114 , 100, 300);
+    RooRealVar *topBKGLandauSigma = new RooRealVar("topBKGLandauSigma", "topBKGLandauSigma",  27.6076,   0,  50);
+    RooLandau *topBKGLandau = new RooLandau("topBKGLandau","topBKGLandau",MTOP,*topBKGLandauMean,*topBKGLandauSigma);
+    topBKGLandau->setNormRange("mTopFitRange");
 
-  RooAddPdf *topBKG = new RooAddPdf("topBKG", "topBKG", *topBKGGamma, *topBKGLandau, *topBKGGammaNorm);
-  topBKG->setNormRange("mTopFitRange");
+    RooAddPdf *topBKG = new RooAddPdf("topBKG", "topBKG", *topBKGGamma, *topBKGLandau, *topBKGGammaNorm);
+    topBKG->setNormRange("mTopFitRange");
 
-  if(fitBackground_){
+  //if(fitBackground_){
     topBKGGammaNorm  ->setConstant(kFALSE);
     topBKGGammaGamma ->setConstant(kFALSE);
     topBKGGammaBeta  ->setConstant(kFALSE);
@@ -691,22 +706,22 @@ TopMassCalibration::rooFitTopMass_()
     topBKGGammaMu    ->setConstant(kTRUE);
     topBKGLandauMean ->setConstant(kTRUE);
     topBKGLandauSigma->setConstant(kTRUE);
-  }
-  //workspace[0]->import(topBKG);
+    //}
+    workspace[0]->import(*topBKG);
 
-  std::ofstream myfile;
-  myfile.open(outDir + "/variables.txt", std::ios::out | std::ios::app);
-  myfile << "Template Type: background top mass" << "\n";
-  myfile << topBKGGammaNorm->getVal() << "|" << topBKGGammaGamma->getVal() << "|" << topBKGGammaMu->getVal() << "|" << topBKGGammaBeta->getVal() << "|" << topBKGLandauMean->getVal() << "|" << topBKGLandauSigma->getVal() << "\n";
-  myfile.close();
+    std::ofstream myfile;
+    myfile.open(outDir + "/variables.txt", std::ios::out | std::ios::app);
+    myfile << "Template Type: background top mass" << "\n";
+    myfile << topBKGGammaNorm->getVal() << "|" << topBKGGammaGamma->getVal() << "|" << topBKGGammaMu->getVal() << "|" << topBKGGammaBeta->getVal() << "|" << topBKGLandauMean->getVal() << "|" << topBKGLandauSigma->getVal() << "\n";
+    myfile.close();
 
-  RooRealVar *wBKGMean       = new RooRealVar("wBKGMean"      , "wBKGMean"      , 86.9853 );
-  RooRealVar *wBKGSigmaLeft  = new RooRealVar("wBKGSigmaLeft" , "wBKGSigmaLeft" ,  5.78569);
-  RooRealVar *wBKGSigmaRight = new RooRealVar("wBKGSigmaRight", "wBKGSigmaRight",  7.12755);
-  RooBifurGauss *wBKG = new RooBifurGauss("wBKG", "wBKG", meanMW, *wBKGMean, *wBKGSigmaLeft, *wBKGSigmaRight);
-  wBKG->setNormRange("mTopFitRange");
+    RooRealVar *wBKGMean       = new RooRealVar("wBKGMean"      , "wBKGMean"      , 86.9853 , 50, 120);
+    RooRealVar *wBKGSigmaLeft  = new RooRealVar("wBKGSigmaLeft" , "wBKGSigmaLeft" ,  5.78569, 0, 20);
+    RooRealVar *wBKGSigmaRight = new RooRealVar("wBKGSigmaRight", "wBKGSigmaRight",  7.12755, 0, 30);
+    RooBifurGauss *wBKG = new RooBifurGauss("wBKG", "wBKG", meanMW, *wBKGMean, *wBKGSigmaLeft, *wBKGSigmaRight);
+    wBKG->setNormRange("mTopFitRange");
 
-  if(fitBackground_){
+  //if(fitBackground_){
     wBKGMean      ->setConstant(kFALSE);
     wBKGSigmaLeft ->setConstant(kFALSE);
     wBKGSigmaRight->setConstant(kFALSE);
@@ -717,19 +732,22 @@ TopMassCalibration::rooFitTopMass_()
     miniWBKG.migrad();
     miniWBKG.improve();
     miniWBKG.hesse();
-    RooFitResult* result = miniWBKG.save();
+    //RooFitResult* result = miniWBKG.save();
+    result = miniWBKG.save();
     workspace[0]->import(*result);
 
     wBKGMean      ->setConstant(kTRUE);
     wBKGSigmaLeft ->setConstant(kTRUE);
     wBKGSigmaRight->setConstant(kTRUE);
-  }
-  //workspace[0]->import(wBKG);
+    //}
+    workspace[0]->import(*wBKG);
 
-  myfile.open(outDir + "/variables.txt", std::ios::out | std::ios::app);
-  myfile << "Template Type: background W mass" << "\n";
-  myfile << wBKGMean->getVal() << "|" << wBKGSigmaLeft->getVal() << "|" << wBKGSigmaRight->getVal() << "\n";
-  myfile.close();
+    myfile.open(outDir + "/variables.txt", std::ios::out | std::ios::app);
+    myfile << "Template Type: background W mass" << "\n";
+    myfile << wBKGMean->getVal() << "|" << wBKGSigmaLeft->getVal() << "|" << wBKGSigmaRight->getVal() << "\n";
+    myfile.close();
+
+  /*
 
   RooRealVar *fSig = new RooRealVar("fSig", "fSig", 0.460, 0, 1);
 
@@ -748,134 +766,138 @@ TopMassCalibration::rooFitTopMass_()
   workspace[0]->var("mTop")->setConstant(kFALSE);
   workspace[0]->var("fSig")->setConstant(kTRUE);
 
+  */
+
+  }
+
   workspace[0]->writeToFile("RooWorkspace_TEST.root");
 
-  if(doMeasurement_){
-    TFile * workspaceFile = TFile::Open("RooWorkspace_TEST.root");
-    workspace[0] = (RooWorkspace*)workspaceFile->Get("workspaceMtop");
-
-    //MassOffset       = *workspace[0]->var("MassOffset"      ); MassOffset      .setVal( 1.05709e-02);
-    //MassSlopeMass    = *workspace[0]->var("MassSlopeMass"   ); MassSlopeMass   .setVal( 6.41444e-02);
-    //MassSlopeJES     = *workspace[0]->var("MassSlopeJES"    ); MassSlopeJES    .setVal(-4.61594e+00);
-    //MassSlopeMassJES = *workspace[0]->var("MassSlopeMassJES"); MassSlopeMassJES.setVal( 0.         );
-    //JESOffset        = *workspace[0]->var("JESOffset"       ); JESOffset       .setVal(-3.76801e-03);
-    //JESSlopeMass     = *workspace[0]->var("JESSlopeMass"    ); JESSlopeMass    .setVal(-1.50418e-04);
-    //JESSlopeJES      = *workspace[0]->var("JESSlopeJES"     ); JESSlopeJES     .setVal( 4.60147e-02);
-    //JESSlopeMassJES  = *workspace[0]->var("JESSlopeMassJES" ); JESSlopeMassJES .setVal( 0.         );
-
-    //workspace[0]->var("MassOffset"      )->setVal( 1.05709e-02);
-    //workspace[0]->var("MassSlopeMass"   )->setVal( 6.41444e-02);
-    //workspace[0]->var("MassSlopeJES"    )->setVal(-4.61594e+00);
-    //workspace[0]->var("MassSlopeMassJES")->setVal( 0.         );
-    //workspace[0]->var("JESOffset"       )->setVal(-3.76801e-03);
-    //workspace[0]->var("JESSlopeMass"    )->setVal(-1.50418e-04);
-    //workspace[0]->var("JESSlopeJES"     )->setVal( 4.60147e-02);
-    //workspace[0]->var("JESSlopeMassJES" )->setVal( 0.         );
-
-    //workspace[0]->var("MassOffset"      )->setVal( -0.71);
-    //workspace[0]->var("MassSlopeMass"   )->setVal(  0.  );
-    //workspace[0]->var("MassSlopeJES"    )->setVal( 12.59);
-    //workspace[0]->var("MassSlopeMassJES")->setVal(  0.  );
-    //workspace[0]->var("JESOffset"       )->setVal( 0.0199);
-    //workspace[0]->var("JESSlopeMass"    )->setVal( 0.    );
-    //workspace[0]->var("JESSlopeJES"     )->setVal( 0.8281);
-    //workspace[0]->var("JESSlopeMassJES" )->setVal( 0.    );
-
-    //mTop_corrected   = *(RooFormulaVar*)workspace[0]->var("mTop_corrected");
-    //JES_corrected    = *(RooFormulaVar*)workspace[0]->var( "JES_corrected");
-
-    topAdd = (RooAddPdf*)workspace[0]->pdf("mTopPDF");
-    wAdd   = (RooAddPdf*)workspace[0]->pdf("mWPDF"  );
-
-    varSet  = RooArgSet(/*prob,*/MTOP,meanMW,"varSet");
-
-    TString fileName = "writeFullHadTree_data_2011.root";
-    //TString fileName = "Z2_F11_172_5_sig.root";
-    //TFile* file = TFile::Open(samplePath_+fileName);
-    //TTree* oldTree = (TTree*)file->Get("FullHadTreeWriter/tree");
-    TChain* oldTree = new TChain("FullHadTreeWriter/tree");
-    oldTree->Add(samplePath_+fileName);
-    tmpFile->cd();
-    bool isData = fileName.Contains("data") ? true : false;
-    TTree* tree = modifiedTree_(oldTree, -10, 10, isData);
-
-    RooDataSet* data = new RooDataSet("data","data",varSet,RooFit::Import(*tree));//,RooFit::WeightVar("prob"));
-
-    name = "";
-
-    RooAbsPdf* model  = workspace[0]->pdf("model");
-    RooAbsPdf* topBKG = workspace[0]->pdf("topBKG");
-    RooAbsPdf* wBKG   = workspace[0]->pdf("wBKG");
-
-    RooAbsReal* fSig = workspace[0]->var("fSig");
-
-    RooAbsReal* nll = model->createNLL(*data);
-    RooMinuit mini(*nll);
-    mini.setStrategy(2);
-    mini.migrad();
-    mini.improve();
-    mini.hesse();
-
-    TCanvas* canvas1 = new TCanvas("canvas1", "canvas1", 1, 1, 600, 600);
-    canvas1->cd();
-    RooPlot* frame1 = MTOP.frame(RooFit::Range(100,350));
-    data  ->statOn (frame1, RooFit::Layout(.5, .9, .9));
-    model ->paramOn(frame1, RooFit::Layout(.5, .9, .7));
-    data  ->plotOn(frame1);
-    model ->plotOn(frame1, RooFit::LineColor(8));
-    topAdd->plotOn(frame1, RooFit::LineColor(kRed) , RooFit::Normalization(   fSig->getVal()));
-    topBKG->plotOn(frame1, RooFit::LineColor(kBlue), RooFit::Normalization(1.-fSig->getVal()));
-    //workspace[0]->pdf("sig_0")   ->plotOn(frame1, RooFit::LineColor(kRed+1), RooFit::Normalization(1./*fSig.getVal()*workspace[0]->var("fCP")->getVal()*/));
-    //workspace[0]->pdf("sig_1")   ->plotOn(frame1, RooFit::LineColor(kRed+2), RooFit::Normalization(1./*fSig.getVal()*workspace[0]->var("fWP")->getVal()*/));
-    //workspace[0]->pdf("sig_2")   ->plotOn(frame1, RooFit::LineColor(kRed+3), RooFit::Normalization(1./*fSig.getVal()*workspace[0]->var("fUN")->getVal()*/));
-    frame1->Draw();
-
-    //TCanvas* canvas2 = new TCanvas("canvas2", "canvas2", 641, 1, 600, 600);
-    //canvas2->cd();
-    //
-    //RooPlot* frame2 = fSig.frame();
-    ////nll->plotOn(frame2,RooFit::ShiftToZero());
-    //
-    //RooAbsReal* pll_fSig = nll->createProfile(fSig);
-    //pll_fSig->plotOn(frame2,RooFit::LineColor(kRed));
-    //frame2->Draw();
-    //
-    //TCanvas* canvas3 = new TCanvas("canvas3", "canvas3", 641, 1, 600, 600);
-    //canvas3->cd();
-    //
-    //RooPlot* frame3 = workspace[0]->var("mTop")->frame();//RooFit::Bins(100),RooFit::Range(172,175));
-    ////nll->plotOn(frame3,RooFit::ShiftToZero());
-    //
-    //RooAbsReal* pll_mTop = nll->createProfile(*workspace[0]->var("mTop"));
-    //pll_mTop->plotOn(frame3,RooFit::LineColor(kRed));
-    //frame3->Draw();
-    //
-    //TCanvas* canvas4 = new TCanvas("canvas4", "canvas4", 641, 1, 600, 600);
-    //canvas4->cd();
-    //
-    //RooPlot* frame4 = workspace[0]->var("JES")->frame();//RooFit::Bins(100),RooFit::Range(172,175));
-    ////nll->plotOn(frame4,RooFit::ShiftToZero());
-    //
-    //RooAbsReal* pll_JES = nll->createProfile(*workspace[0]->var("JES"));
-    //pll_JES->plotOn(frame4,RooFit::LineColor(kRed));
-    //frame4->Draw();
-
-    TCanvas* canvas5 = new TCanvas("canvas5", "canvas5", 641, 1, 600, 600);
-    canvas5->cd();
-    RooPlot* frame5 = meanMW.frame(RooFit::Range(60,140));
-    data ->statOn (frame5, RooFit::Layout(.5, .9, .9));
-    model->paramOn(frame5, RooFit::Layout(.5, .9, .7));
-    data ->plotOn(frame5);
-    model->plotOn(frame5, RooFit::LineColor(8));
-    wAdd ->plotOn(frame5, RooFit::LineColor(kRed) , RooFit::Normalization(   fSig->getVal()));
-    wBKG ->plotOn(frame5, RooFit::LineColor(kBlue), RooFit::Normalization(1.-fSig->getVal()));
-    //workspace[0]->pdf("sig_3")   ->plotOn(frame5, RooFit::LineColor(kRed+1), RooFit::Normalization(1./*fSig.getVal()*workspace[0]->var("fCP")->getVal()*/));
-    //workspace[0]->pdf("sig_4")   ->plotOn(frame5, RooFit::LineColor(kRed+2), RooFit::Normalization(1./*fSig.getVal()*workspace[0]->var("fWP")->getVal()*/));
-    //workspace[0]->pdf("sig_5")   ->plotOn(frame5, RooFit::LineColor(kRed+3), RooFit::Normalization(1./*fSig.getVal()*workspace[0]->var("fUN")->getVal()*/));
-    frame5->Draw();
-
-    //tmpFile->Close();
-  }
+//  if(doMeasurement_){
+//    TFile * workspaceFile = TFile::Open("RooWorkspace_TEST.root");
+//    workspace[0] = (RooWorkspace*)workspaceFile->Get("workspaceMtop");
+//
+//    //MassOffset       = *workspace[0]->var("MassOffset"      ); MassOffset      .setVal( 1.05709e-02);
+//    //MassSlopeMass    = *workspace[0]->var("MassSlopeMass"   ); MassSlopeMass   .setVal( 6.41444e-02);
+//    //MassSlopeJES     = *workspace[0]->var("MassSlopeJES"    ); MassSlopeJES    .setVal(-4.61594e+00);
+//    //MassSlopeMassJES = *workspace[0]->var("MassSlopeMassJES"); MassSlopeMassJES.setVal( 0.         );
+//    //JESOffset        = *workspace[0]->var("JESOffset"       ); JESOffset       .setVal(-3.76801e-03);
+//    //JESSlopeMass     = *workspace[0]->var("JESSlopeMass"    ); JESSlopeMass    .setVal(-1.50418e-04);
+//    //JESSlopeJES      = *workspace[0]->var("JESSlopeJES"     ); JESSlopeJES     .setVal( 4.60147e-02);
+//    //JESSlopeMassJES  = *workspace[0]->var("JESSlopeMassJES" ); JESSlopeMassJES .setVal( 0.         );
+//
+//    //workspace[0]->var("MassOffset"      )->setVal( 1.05709e-02);
+//    //workspace[0]->var("MassSlopeMass"   )->setVal( 6.41444e-02);
+//    //workspace[0]->var("MassSlopeJES"    )->setVal(-4.61594e+00);
+//    //workspace[0]->var("MassSlopeMassJES")->setVal( 0.         );
+//    //workspace[0]->var("JESOffset"       )->setVal(-3.76801e-03);
+//    //workspace[0]->var("JESSlopeMass"    )->setVal(-1.50418e-04);
+//    //workspace[0]->var("JESSlopeJES"     )->setVal( 4.60147e-02);
+//    //workspace[0]->var("JESSlopeMassJES" )->setVal( 0.         );
+//
+//    //workspace[0]->var("MassOffset"      )->setVal( -0.71);
+//    //workspace[0]->var("MassSlopeMass"   )->setVal(  0.  );
+//    //workspace[0]->var("MassSlopeJES"    )->setVal( 12.59);
+//    //workspace[0]->var("MassSlopeMassJES")->setVal(  0.  );
+//    //workspace[0]->var("JESOffset"       )->setVal( 0.0199);
+//    //workspace[0]->var("JESSlopeMass"    )->setVal( 0.    );
+//    //workspace[0]->var("JESSlopeJES"     )->setVal( 0.8281);
+//    //workspace[0]->var("JESSlopeMassJES" )->setVal( 0.    );
+//
+//    //mTop_corrected   = *(RooFormulaVar*)workspace[0]->var("mTop_corrected");
+//    //JES_corrected    = *(RooFormulaVar*)workspace[0]->var( "JES_corrected");
+//
+//    topAdd = (RooAddPdf*)workspace[0]->pdf("mTopPDF");
+//    wAdd   = (RooAddPdf*)workspace[0]->pdf("mWPDF"  );
+//
+//    varSet  = RooArgSet(/*prob,*///MTOP,meanMW,"varSet");
+//
+//    TString fileName = "writeFullHadTree_data_2011.root";
+//    //TString fileName = "Z2_F11_172_5_sig.root";
+//    //TFile* file = TFile::Open(samplePath_+fileName);
+//    //TTree* oldTree = (TTree*)file->Get("FullHadTreeWriter/tree");
+//    TChain* oldTree = new TChain("FullHadTreeWriter/tree");
+//    oldTree->Add(samplePath_+fileName);
+//    tmpFile->cd();
+//    bool isData = fileName.Contains("data") ? true : false;
+//    TTree* tree = modifiedTree_(oldTree, -10, 10, isData);
+//
+//    RooDataSet* data = new RooDataSet("data","data",varSet,RooFit::Import(*tree));//,RooFit::WeightVar("prob"));
+//
+//    name = "";
+//
+//    RooAbsPdf* model  = workspace[0]->pdf("model");
+//    RooAbsPdf* topBKG = workspace[0]->pdf("topBKG");
+//    RooAbsPdf* wBKG   = workspace[0]->pdf("wBKG");
+//
+//    RooAbsReal* fSig = workspace[0]->var("fSig");
+//
+//    RooAbsReal* nll = model->createNLL(*data);
+//    RooMinuit mini(*nll);
+//    mini.setStrategy(2);
+//    mini.migrad();
+//    mini.improve();
+//    mini.hesse();
+//
+//    TCanvas* canvas1 = new TCanvas("canvas1", "canvas1", 1, 1, 600, 600);
+//    canvas1->cd();
+//    RooPlot* frame1 = MTOP.frame(RooFit::Range(100,350));
+//    data  ->statOn (frame1, RooFit::Layout(.5, .9, .9));
+//    model ->paramOn(frame1, RooFit::Layout(.5, .9, .7));
+//    data  ->plotOn(frame1);
+//    model ->plotOn(frame1, RooFit::LineColor(8));
+//    topAdd->plotOn(frame1, RooFit::LineColor(kRed) , RooFit::Normalization(   fSig->getVal()));
+//    topBKG->plotOn(frame1, RooFit::LineColor(kBlue), RooFit::Normalization(1.-fSig->getVal()));
+//    //workspace[0]->pdf("sig_0")   ->plotOn(frame1, RooFit::LineColor(kRed+1), RooFit::Normalization(1./*fSig.getVal()*workspace[0]->var("fCP")->getVal()*/));
+//    //workspace[0]->pdf("sig_1")   ->plotOn(frame1, RooFit::LineColor(kRed+2), RooFit::Normalization(1./*fSig.getVal()*workspace[0]->var("fWP")->getVal()*/));
+//    //workspace[0]->pdf("sig_2")   ->plotOn(frame1, RooFit::LineColor(kRed+3), RooFit::Normalization(1./*fSig.getVal()*workspace[0]->var("fUN")->getVal()*/));
+//    frame1->Draw();
+//
+//    //TCanvas* canvas2 = new TCanvas("canvas2", "canvas2", 641, 1, 600, 600);
+//    //canvas2->cd();
+//    //
+//    //RooPlot* frame2 = fSig.frame();
+//    ////nll->plotOn(frame2,RooFit::ShiftToZero());
+//    //
+//    //RooAbsReal* pll_fSig = nll->createProfile(fSig);
+//    //pll_fSig->plotOn(frame2,RooFit::LineColor(kRed));
+//    //frame2->Draw();
+//    //
+//    //TCanvas* canvas3 = new TCanvas("canvas3", "canvas3", 641, 1, 600, 600);
+//    //canvas3->cd();
+//    //
+//    //RooPlot* frame3 = workspace[0]->var("mTop")->frame();//RooFit::Bins(100),RooFit::Range(172,175));
+//    ////nll->plotOn(frame3,RooFit::ShiftToZero());
+//    //
+//    //RooAbsReal* pll_mTop = nll->createProfile(*workspace[0]->var("mTop"));
+//    //pll_mTop->plotOn(frame3,RooFit::LineColor(kRed));
+//    //frame3->Draw();
+//    //
+//    //TCanvas* canvas4 = new TCanvas("canvas4", "canvas4", 641, 1, 600, 600);
+//    //canvas4->cd();
+//    //
+//    //RooPlot* frame4 = workspace[0]->var("JES")->frame();//RooFit::Bins(100),RooFit::Range(172,175));
+//    ////nll->plotOn(frame4,RooFit::ShiftToZero());
+//    //
+//    //RooAbsReal* pll_JES = nll->createProfile(*workspace[0]->var("JES"));
+//    //pll_JES->plotOn(frame4,RooFit::LineColor(kRed));
+//    //frame4->Draw();
+//
+//    TCanvas* canvas5 = new TCanvas("canvas5", "canvas5", 641, 1, 600, 600);
+//    canvas5->cd();
+//    RooPlot* frame5 = meanMW.frame(RooFit::Range(60,140));
+//    data ->statOn (frame5, RooFit::Layout(.5, .9, .9));
+//    model->paramOn(frame5, RooFit::Layout(.5, .9, .7));
+//    data ->plotOn(frame5);
+//    model->plotOn(frame5, RooFit::LineColor(8));
+//    wAdd ->plotOn(frame5, RooFit::LineColor(kRed) , RooFit::Normalization(   fSig->getVal()));
+//    wBKG ->plotOn(frame5, RooFit::LineColor(kBlue), RooFit::Normalization(1.-fSig->getVal()));
+//    //workspace[0]->pdf("sig_3")   ->plotOn(frame5, RooFit::LineColor(kRed+1), RooFit::Normalization(1./*fSig.getVal()*workspace[0]->var("fCP")->getVal()*/));
+//    //workspace[0]->pdf("sig_4")   ->plotOn(frame5, RooFit::LineColor(kRed+2), RooFit::Normalization(1./*fSig.getVal()*workspace[0]->var("fWP")->getVal()*/));
+//    //workspace[0]->pdf("sig_5")   ->plotOn(frame5, RooFit::LineColor(kRed+3), RooFit::Normalization(1./*fSig.getVal()*workspace[0]->var("fUN")->getVal()*/));
+//    frame5->Draw();
+//
+//    //tmpFile->Close();
+//  }
 }
 
 //// return the PU weights for the different samples
@@ -1172,66 +1194,138 @@ TopMassCalibration::rooFitTopMass_()
 TTree*
 TopMassCalibration::modifiedTree_(TChain *tree, int minComboType, int maxComboType, bool isData)
 {
-  //TTree* treeCopy = tree->CopyTree(selection_,"",1000);
-  tree->Draw(">>selectedEntries", selection_); //,"",100000);
-  TEventList *selectedEntries = (TEventList*)gDirectory->Get("selectedEntries");
-
   tree->SetBranchStatus("*", 0);
-  //tree->SetBranchStatus("jet.*"   , 1);
-  tree->SetBranchStatus("top.*"   , 1);
-  tree->SetBranchStatus("weight.*", 1);
+  std::vector<std::string> vActiveBanches;
+  boost::split(vActiveBanches, activeBranches_, boost::is_any_of("|"));
+  for(const auto& branch : vActiveBanches){
+    tree->SetBranchStatus(branch.c_str(), 1);
+  }
 
-  //JetEvent    *jetEvent    = new JetEvent();
-  TopEvent    *topEvent    = new TopEvent();
-  WeightEvent *weightEvent = new WeightEvent();
+  TTreeFormula *f1     = new TTreeFormula("f1"    , fVar1_    , tree);
+  TTreeFormula *f2     = new TTreeFormula("f2"    , fVar2_    , tree);
+  TTreeFormula *f3     = new TTreeFormula("f3"    , fVar3_    , tree);
+  TTreeFormula *weight = new TTreeFormula("weight", fWeight_  , tree);
+  TTreeFormula *sel    = new TTreeFormula("sel"   , selection_, tree);
+  TTreeFormula *combo  = new TTreeFormula("combo" , "top.combinationType", tree);
 
-  //tree->SetBranchAddress("jet."   , &jetEvent);
-  tree->SetBranchAddress("top."   , &topEvent);
-  tree->SetBranchAddress("weight.", &weightEvent);
-
-  double /*prob,dRbb,*/topMass,meanWMass,combinedWeight,comboType; //w1Mass,w2Mass;
+  double topMass,meanWMass,combinedWeight,comboType;
   TTree *newTree = new TTree("tree","tree");
-  //newTree->Branch("prob", &prob, "prob/D");
   newTree->Branch("topMass", &topMass, "topMass/D");
   newTree->Branch("meanWMass", &meanWMass, "meanWMass/D");
   if(!isData){
     newTree->Branch("combinedWeight", &combinedWeight, "combinedWeight/D");
     newTree->Branch("comboType"     , &comboType     , "comboType/D");
   }
-  //newTree->Branch("dRbb", &dRbb, "dRbb/D");
-  //newTree->Branch("w1Mass", &w1Mass, "w1Mass/D");
-  //newTree->Branch("w2Mass", &w2Mass, "w2Mass/D");
-  //newTree->Branch("", &);
 
-  //for(int i = 0, l = tree->GetEntries(); i < l; ++i){
-  for(int i = 0, l = selectedEntries->GetN(); i < l; ++i){
-    //jetEvent->init();
-    topEvent->init();
-    weightEvent->init();
-    tree->GetEntry(selectedEntries->GetEntry(i));
-    //selectedEntries->Next();
-    //if(!isData && topEvent->combinationType[0] < minComboType) continue;
-    //if(!isData && topEvent->combinationType[0] > maxComboType) continue;
-    //prob = topEvent->fitProb[0];
-    //dRbb = topEvent->fitB1[0].DeltaR(topEvent->fitB2[0]);
-    topMass = topEvent->fitTop1[0].M();
-    meanWMass = (topEvent->recoW1[0].M()+topEvent->recoW2[0].M())/2.;
-    if(!isData){
-      //double PUWeight   = weightEvent->puWeight;
-      //double BTagWeight = weightEvent->bTagEffWeight; // calcBTagWeight_(Njet, bTag, pdgId, jets);
-      //double MCWeight   = weightEvent->mcWeight;
-      //combinedWeight = prob * PUWeight * MCWeight * BTagWeight;
-      combinedWeight = /*prob * */weightEvent->combinedWeight;
-      comboType = topEvent->combinationType[0];
+  int selected = 0;
+  for(int i = 0; ; ++i){
+    long entry = tree->LoadTree(i);
+    if(entry  < 0) break;
+    if(entry == 0){
+      f1    ->UpdateFormulaLeaves();
+      f2    ->UpdateFormulaLeaves();
+      f3    ->UpdateFormulaLeaves();
+      weight->UpdateFormulaLeaves();
+      sel   ->UpdateFormulaLeaves();
+      combo ->UpdateFormulaLeaves();
     }
-    //combinedWeight = 1.;
-    //w1Mass = w1Masses[0];
-    //w2Mass = w2Masses[0];
-    //std::cout << comboType << " " << topMass << " " << meanWMass << std::endl;
-    newTree->Fill();
+    if(!f1    ->GetNdata()) continue;
+    if(!f2    ->GetNdata()) continue;
+    if(!f3    ->GetNdata()) continue;
+    if(!weight->GetNdata()) continue;
+    if(!sel   ->GetNdata()) continue;
+    if(!combo ->GetNdata()) continue;
+    int filledPermutations = 0;
+    for(int j = 0, l = std::min(maxPermutations_, sel->GetNdata()); j < l; ++j){
+      if(!sel->EvalInstance(j)) continue;
+      topMass = f1->EvalInstance(j);
+      meanWMass = f2->EvalInstance(j);
+      combinedWeight = f3->EvalInstance(j) * weight->EvalInstance(j);
+      if(!isData){
+	comboType = combo->EvalInstance(j);
+      }
+      newTree->Fill();
+      filledPermutations++;
+    }
+    if(filledPermutations) ++selected;
   }
+
+  std::cout << ": " << selected << " events" << std::endl;
+
+  delete tree;
+  delete f1;
+  delete f2;
+  delete f3;
+  delete weight;
+  delete sel;
+  delete combo;
+
   return newTree;
 }
+
+//TTree*
+//TopMassCalibration::modifiedTree_(TChain *tree, int minComboType, int maxComboType, bool isData)
+//{
+//  //TTree* treeCopy = tree->CopyTree(selection_,"",1000);
+//  tree->Draw(">>selectedEntries", selection_); //,"",100000);
+//  TEventList *selectedEntries = (TEventList*)gDirectory->Get("selectedEntries");
+//
+//  tree->SetBranchStatus("*", 0);
+//  //tree->SetBranchStatus("jet.*"   , 1);
+//  tree->SetBranchStatus("top.*"   , 1);
+//  tree->SetBranchStatus("weight.*", 1);
+//
+//  //JetEvent    *jetEvent    = new JetEvent();
+//  TopEvent    *topEvent    = new TopEvent();
+//  WeightEvent *weightEvent = new WeightEvent();
+//
+//  //tree->SetBranchAddress("jet."   , &jetEvent);
+//  tree->SetBranchAddress("top."   , &topEvent);
+//  tree->SetBranchAddress("weight.", &weightEvent);
+//
+//  double /*prob,dRbb,*/topMass,meanWMass,combinedWeight,comboType; //w1Mass,w2Mass;
+//  TTree *newTree = new TTree("tree","tree");
+//  //newTree->Branch("prob", &prob, "prob/D");
+//  newTree->Branch("topMass", &topMass, "topMass/D");
+//  newTree->Branch("meanWMass", &meanWMass, "meanWMass/D");
+//  if(!isData){
+//    newTree->Branch("combinedWeight", &combinedWeight, "combinedWeight/D");
+//    newTree->Branch("comboType"     , &comboType     , "comboType/D");
+//  }
+//  //newTree->Branch("dRbb", &dRbb, "dRbb/D");
+//  //newTree->Branch("w1Mass", &w1Mass, "w1Mass/D");
+//  //newTree->Branch("w2Mass", &w2Mass, "w2Mass/D");
+//  //newTree->Branch("", &);
+//
+//  //for(int i = 0, l = tree->GetEntries(); i < l; ++i){
+//  for(int i = 0, l = selectedEntries->GetN(); i < l; ++i){
+//    //jetEvent->init();
+//    topEvent->init();
+//    weightEvent->init();
+//    tree->GetEntry(selectedEntries->GetEntry(i));
+//    //selectedEntries->Next();
+//    //if(!isData && topEvent->combinationType[0] < minComboType) continue;
+//    //if(!isData && topEvent->combinationType[0] > maxComboType) continue;
+//    //prob = topEvent->fitProb[0];
+//    //dRbb = topEvent->fitB1[0].DeltaR(topEvent->fitB2[0]);
+//    topMass = topEvent->fitTop1[0].M();
+//    meanWMass = (topEvent->recoW1[0].M()+topEvent->recoW2[0].M())/2.;
+//    if(!isData){
+//      //double PUWeight   = weightEvent->puWeight;
+//      //double BTagWeight = weightEvent->bTagEffWeight; // calcBTagWeight_(Njet, bTag, pdgId, jets);
+//      //double MCWeight   = weightEvent->mcWeight;
+//      //combinedWeight = prob * PUWeight * MCWeight * BTagWeight;
+//      combinedWeight = /*prob * */weightEvent->combinedWeight;
+//      comboType = topEvent->combinationType[0];
+//    }
+//    //combinedWeight = 1.;
+//    //w1Mass = w1Masses[0];
+//    //w2Mass = w2Masses[0];
+//    //std::cout << comboType << " " << topMass << " " << meanWMass << std::endl;
+//    newTree->Fill();
+//  }
+//  return newTree;
+//}
 
 TTree*
 TopMassCalibration::modifiedTree_(TChain *tree, int minComboType, int maxComboType)
