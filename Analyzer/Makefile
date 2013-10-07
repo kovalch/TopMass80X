@@ -56,4 +56,4 @@ obj/2/%.o: ../TopEventTree/src/%.cc ../TopEventTree/interface/%.h
 	$(C) $(ROOTCFLAGS) -I../.. -MMD -c -o $@ $<
 
 obj/3/%.o: root/%.cc
-	$(C) $(ROOTCFLAGS) -I../.. -Iinc/ -MMD -c -o $@ $<
+	$(C) $(ROOTCFLAGS) -I/afs/naf.desy.de/group/cms/sw/slc5_amd64_gcc462/external/boost/1.50.0-cms2/include -I../.. -Iinc/ -MMD -c -o $@ $<
