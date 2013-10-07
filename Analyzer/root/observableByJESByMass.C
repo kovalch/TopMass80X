@@ -106,7 +106,7 @@ double crystalBall(const double* xx, const double* p)
   double N     = p[0];
   double mu    = p[1];
   double sigma = p[2];
-  double alpha = p[5];
+  double alpha = p[3];
   double power = p[4];
   double t = (xx[0] - mu) / sigma;
   
@@ -121,7 +121,7 @@ double asymGaus(const double* xx, const double* p)
   double N      = p[0];
   double mu     = p[1];
   double sigma1 = p[2];
-  double sigma2 = p[5];
+  double sigma2 = p[3];
   double t1     = (xx[0] - mu) / sigma1;
   double t2     = (xx[0] - mu) / sigma2;
   
@@ -191,7 +191,7 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
   //linearFit->SetParNames("p_{#mu}^{JES}", "p_{#mu}^{m_{t},JES}");
   gr->Fit("linearFit", "EM");
   params[2] = linearFit->GetParameter(0);
-  params[5] = linearFit->GetParameter(1);
+  params[3] = linearFit->GetParameter(1);
   
   gr->GetXaxis()->SetTitle("m_{t}");
   gr->GetYaxis()->SetTitle("#mu slope");
@@ -477,7 +477,7 @@ void FindParametersMass(int iMass)
     leg0->AddEntry( h096, "JES = 0.96", "PL");
     leg0->AddEntry( h100, "JES = 1.00", "PL");
     leg0->AddEntry( h104, "JES = 1.04", "PL");
-    leg0->AddEntry((TObject*)0, "m_{t,gen} = 172.5 GeV", "");
+    leg0->AddEntry((TObject*)0, sX[iMass], "");
   }
   else if (plotByMass) {
     leg0->AddEntry( h096, "m_{t,gen} = 166.5 GeV", "PL");
@@ -503,9 +503,14 @@ void FindParametersMass(int iMass)
   
   gStyle->SetOptFit(1);
   
-  TString path("observables/"); path+= sFObs[obs]; path += "_";
-  if (plotByMass) path += "mass";
-  else            path += "jes";
+  TString path("../plot/template/"); path+= sFObs[obs]; path += "_";
+  if (plotByMass) {
+    path += "mass";
+  }
+  else {
+    path += "jes";
+    path += X[iMass];
+  }
   path += "_"; path += sTarget[abs(target%8)]; path += ".eps";
   cObservable->Print(path);
   
@@ -621,8 +626,8 @@ TH1F* FindParameters(TString filename, int i)
         
         fit->SetParLimits(0, 0, 1000000);
         fit->SetParLimits(1, 150, 200);
-        fit->SetParLimits(2, 15, 40);
-        fit->SetParLimits(3, 0.3, 0.95);
+        fit->SetParLimits(2, 15, 50);
+        fit->SetParLimits(3, 0.1, 0.95);
         fit->SetParLimits(4, power, power);
         
         break;
@@ -656,7 +661,7 @@ TH1F* FindParameters(TString filename, int i)
     fit->SetParNames("N", "#mu", "#sigma1", "#sigma2");
     fit->SetParameters(1000, 80, 5, 5);
     
-    fit->SetParLimits(0, 800, 1000000);
+    fit->SetParLimits(0, 100, 1000000);
     fit->SetParLimits(1, 50, 150);
     fit->SetParLimits(2, 0, 10);
     fit->SetParLimits(3, 0, 15);
@@ -678,7 +683,7 @@ TH1F* FindParameters(TString filename, int i)
   }
   
   else if (obs == 5) {
-    fit = new TF1("fit", "[0]*TMath::Voigt(x-[1], [2], [5])");
+    fit = new TF1("fit", "[0]*TMath::Voigt(x-[1], [2], [3])");
 
     fit->SetLineColor(kBlack);
     fit->SetLineWidth(width_[i]);
@@ -697,15 +702,15 @@ TH1F* FindParameters(TString filename, int i)
     case 0: {
       switch(target) {
         case   1: {
-          sObservable = "top.recoTop1.M() >> h1(30, 100, 250)";
+          sObservable = "top.fitTop1.M() >> h1(30, 100, 250)";
           break;
         }
         case   0: {
-          sObservable = "top.recoTop1.M() >> h1(30, 100, 400)";
+          sObservable = "top.fitTop1.M() >> h1(30, 100, 400)";
           break;
         }
         case -10: {
-          sObservable = "top.recoTop1.M() >> h1(30, 100, 400)";
+          sObservable = "top.fitTop1.M() >> h1(30, 100, 400)";
           break;
         }
       }
@@ -783,7 +788,7 @@ TH1F* FindParameters(TString filename, int i)
   fit->SetLineColor(color_[j]);
   fit->SetLineStyle(line_[j]);
   
-  TFitResultPtr r = h1->Fit("fit","WLEMSR");
+  TFitResultPtr r = h1->Fit("fit","WEMSR");
   
   std::cout << "chi2/ndf = " << r->Chi2() << "/" << r->Ndf() << std::endl;
 

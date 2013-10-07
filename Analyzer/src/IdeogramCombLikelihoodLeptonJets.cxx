@@ -4,13 +4,12 @@ IdeogramCombLikelihoodLeptonJets::IdeogramCombLikelihoodLeptonJets() {};
 
 double IdeogramCombLikelihoodLeptonJets::Evaluate(double *x, double *p) {
   bool onlyCP   = false;
-  bool Spring11 = false;
-  bool useCalib = true;
+  bool useCalib = false;
   
-  //* Fall11
-  double fCP = 0.438236;
-  double fWP = 0.207301;
-  double fUN = 0.354463;
+  //* Summer12
+  double fCP = 0.43954; // 1
+  double fWP = 0.01067 + 0.188647 + 0.0111505; // 2 3 4
+  double fUN = 0.00107329 + 0.0276057 + 0.321233; // -2 -1 6
   //*/
   
   //* Fall11 electrons
@@ -74,7 +73,7 @@ double IdeogramCombLikelihoodLeptonJets::Evaluate(double *x, double *p) {
 
 
 double IdeogramCombLikelihoodLeptonJets::PCP(double *x, double *p) {
-  double q[12] = {170.729, 0.980962, 86.9952, 0.810794, 10.193, 0.0739653, 10.589, -0.103049, 0, 0, 0, 0};
+  double q[12] = {171.674, 0.985702, 79.4061, 0.926074, 9.89094, 0.0800034, 8.80668, -0.00487388, 0, 0, 0, 0};
   double e[12] = {170.772, 0.950394, 87.4086, 0.776666, 10.1953, 0.0950286, 11.012, 0.195389, 0, 0, 0, 0};
   if (p[3] == 11) for (int i = 0; i<12; ++i) q[i] = e[i];
   
@@ -106,7 +105,7 @@ namespace cb {
 
 double IdeogramCombLikelihoodLeptonJets::PWP(double* x, double* p)
 {
-  double q[12] = {172.06, 0.720447, 90.3707, -0.860654, 27.934, 0.311025, 29.8054, -1.07054, 0.426473, 0.00193419, 0.125964, 0.00822953};
+  double q[12] = {173.714, 0.917419, 99.2623, 0.271034, 30.0504, 0.398952, 36.4555, 0.652493, 0.40277, 0.00453923, 0.279563, 0.0017833};
   double e[12] = {174.123, 0.620424, 96.8582, 0.885688, 29.0981, 0.140688, 30.3437, 0.734781, 0.435573, -0.0022993, 0.123777, -0.0108803};
   if (p[3] == 11) for (int i = 0; i<12; ++i) q[i] = e[i];
   
@@ -135,7 +134,7 @@ double IdeogramCombLikelihoodLeptonJets::PWP(double* x, double* p)
 
 double IdeogramCombLikelihoodLeptonJets::PUN(double* x, double* p)
 {
-  double q[12] = {168.581, 0.887245, 87.4702, 0.645641, 20.4999, 0.249314, 18.5896, 0.155375, 0.876613, 0.00951753, 0.319, 0.00182893};
+  double q[12] = {169.865, 0.87623, 81.0056, 0.835761, 18.697, 0.172046, 7.35387, 0.0221603, 0.831049, 0.00782395, 0.0494347, -0.01188};
   double e[12] = {168.562, 0.842331, 86.132, 0.77473, 20.4059, 0.250519, 18.0985, 0.442554, 0.864017, 0.00832897, 0.218885, 0.0219663};
   if (p[3] == 11) for (int i = 0; i<12; ++i) q[i] = e[i];
   
@@ -163,7 +162,7 @@ double IdeogramCombLikelihoodLeptonJets::PUN(double* x, double* p)
 
 double IdeogramCombLikelihoodLeptonJets::PCPJES(double* x, double* p)
 {
-  double q[12] = {82.7622, 0.0296313, 54.7387, 0.261219, 5.7984, 0.002663, 15.5537, 0.186603, 7.23293, -0.0154696, -7.29268, -0.0437143};
+  double q[12] = {83.1469, 0.00568551, 45.4879, -0.335742, 6.15553, 0.0015377, 12.5085, -0.330609, 7.31215, 0.000182096, -2.84696, 0.209041};
   double e[12] = {82.8179, -0.0130562, 54.298, 0.26241, 5.79095, -0.0144692, 15.1857, 0.157664, 7.23174, 0.0149186, -6.9936, -0.240175};
   if (p[3] == 11) for (int i = 0; i<12; ++i) q[i] = e[i];
   
@@ -212,7 +211,7 @@ double IdeogramCombLikelihoodLeptonJets::PCPJES(double* x, double* p)
 
 double IdeogramCombLikelihoodLeptonJets::PWPJES(double* x, double* p)
 {
-  double q[12] = {82.5335, 0.0134514, 52.2913, 0.215036, 5.78653, -0.0171043, 15.1453, 0.010765, 7.46176, -0.0201443, -9.53141, 0.100091};
+  double q[12] = {82.8777, -0.0075446, 45.1709, -0.385762, 6.05136, -0.0018059, 13.4178, -0.321851, 7.51867, 0.00904713, -5.16936, 0.215022};
   double e[12] = {82.5788, 0.0143882, 53.0209, 0.00501586, 5.73298, 0.00455929, 15.6096, -0.0153593, 7.43306, -0.0127021, -9.1285, 0.0178314};
   if (p[3] == 11) for (int i = 0; i<12; ++i) q[i] = e[i];
   
@@ -256,7 +255,7 @@ double IdeogramCombLikelihoodLeptonJets::PWPJES(double* x, double* p)
 
 double IdeogramCombLikelihoodLeptonJets::PUNJES(double* x, double* p)
 {
-  double q[12] = {82.2989, 0.0220154, 32.6116, -0.218329, 6.23978, 0.00696407, 11.4367, -0.0979023, 8.74599, -0.00031112, -10.8387, 0.0516436};
+  double q[12] = {82.9979, 0.0228183, 27.1973, 0.382442, 6.90406, 0.00258209, 10.4036, 0.229304, 8.95024, -0.0194394, -7.41695, -0.19067};
   double e[12] = {82.3831, 0.00858293, 31.3081, 1.05433, 6.274, -0.00778027, 10.5673, 0.575389, 8.77308, -0.0075097, -9.95694, -0.571045};
   if (p[3] == 11) for (int i = 0; i<12; ++i) q[i] = e[i];
 
