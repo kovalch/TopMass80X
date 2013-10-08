@@ -104,11 +104,16 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
 
     std::string channel = programOptions_->operator[]("channel").as<std::string>();
     std::string fileNameSnippet;
-    if (!strcmp(channel.c_str(), "electron") || !strcmp(channel.c_str(), "muon") || !strcmp(channel.c_str(), "lepton")) {
+    int length = -1;
+    if (((length = 8) && !strncmp(channel.c_str(), "electron", length)) ||
+        ((length = 4) && !strncmp(channel.c_str(), "muon"    , length)) ||
+        ((length = 6) && !strncmp(channel.c_str(), "lepton"  , length))) {
       fileNameSnippet = "LeptonJets";
+      fileNameSnippet += channel.substr(length);
     }
-    else if (!strcmp(channel.c_str(), "alljets")) {
+    else if (((length = 7) && !strncmp(channel.c_str(), "alljets", length))) {
       fileNameSnippet = "AllJets";
+      fileNameSnippet += channel.substr(length);
     }
     else {
       std::cerr << "Stopping analysis! Specified decay channel *" << channel << "* not known!" << std::endl;
