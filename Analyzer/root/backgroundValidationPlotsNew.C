@@ -48,11 +48,11 @@ void backgroundValidationPlotsNew()
   TH1::SetDefaultSumw2();
   gStyle->SetOptStat(0);
 
-  std::string path("/scratch/hh/dust/naf/cms/user/eschliec/TopMass/2012/02/");
+  std::string path("/scratch/hh/dust/naf/cms/user/eschliec/TopMass/2012/Skim_02/");
 
   // DUMMY to get TTree structure
   TChain* myChain = new TChain("analyzeKinFit/eventTree");
-  myChain->Add((path+std::string("Z2_S12_Lep_P11TeV_sig.root")).c_str());
+  myChain->Add((path+std::string("Z2_S12_P11TeV_sig.root")).c_str());
 
   std::vector<MyHistogram> hists;
   hists.push_back(MyHistogram("1", "top.fitTop1[0].M()", myChain, ";m_{t}^{fit} [GeV]; Events", 125, 100, 350));
@@ -75,7 +75,7 @@ void backgroundValidationPlotsNew()
 
   {
     int counter = -1;
-    for(std::string file : {"MJP12*_v1_data.root", "Z2_S12_Had*_ABS_JES_100_172_5_sig.root", "QCDMixing_MJPS12*_v1_data.root"}){
+    for(std::string file : {"MJP12*v1_data.root", "Z2_S12_ABS_JES_100_172_5_sig.root", "QCDMixing_MJPS12*v1_data.root"}){
       ++counter;
 
       TChain* chain = new TChain("analyzeKinFit/eventTree");
@@ -98,11 +98,14 @@ void backgroundValidationPlotsNew()
           sel   .UpdateFormulaLeaves();
           index .UpdateFormulaLeaves();
         }
-        if(!sel.GetNdata()) continue;
+        if(!weight.GetNdata()) continue;
+        if(!sel   .GetNdata()) continue;
+        if(!index .GetNdata()) continue;
         if(!sel.EvalInstance(0)) continue;
         for(int j = 0, l = index.GetNdata(); j < l; ++j){
           if(!sel.EvalInstance(j)) continue;
           for(auto& hist : hists){
+            if(!hist.var->GetNdata()) continue;
             if     (counter == 0) hist.data->Fill(hist.var->EvalInstance(j));
             else if(counter == 1) hist.sig ->Fill(hist.var->EvalInstance(j), weight.EvalInstance(j));
             else if(counter == 2) hist.bkg ->Fill(hist.var->EvalInstance(j));
