@@ -2,7 +2,8 @@ C := g++ -O3 -Wall -fPIC -std=c++0x
 L := g++ -O3
 
 ROOTCFLAGS  := $(shell root-config --cflags)
-ROOTLIBS    := $(shell root-config --libs) -lRooFit -lRooFitCore -lTreePlayer
+ROOTLIBS    := $(shell root-config --libs) -lTreePlayer
+ROOFITLIBS  := -lRooFit -lRooFitCore
 ROOTLDFLAGS := $(shell root-config --ldflags)
 
 # files for TopMassAnalyzer
@@ -12,17 +13,22 @@ OBJ_FILES := $(patsubst src/%.cxx,obj/1/%.o,$(filter-out src/main.cxx, $(CXX_FIL
 CXX_FILES_CMSSW := $(wildcard ../TopEventTree/src/*.cc)
 OBJ_FILES_CMSSW := $(patsubst ../TopEventTree/src/%.cc,obj/2/%.o,$(filter-out ../TopEventTree/src/TreeRegistryService.cc, $(CXX_FILES_CMSSW)))
 OBJ_FILES_CMSSW_DICT := $(patsubst ../TopEventTree/src/%.cc,obj/2/%_dict.o,$(filter-out ../TopEventTree/src/TreeRegistryService.cc, $(CXX_FILES_CMSSW)))
-# files needed to run calibration program
-CXX_FILES_CALIBRATION := $(wildcard root/*.cc)
-OBJ_FILES_CALIBRATION := $(patsubst root/%.cc,obj/3/%.o,$(filter-out root/calibration_main.cc, $(CXX_FILES_CALIBRATION))) obj/1/ProgramOptionsReader.o
+# files needed to run template derivation program
+CXX_FILES_CALIBRATION := $(wildcard root/calibration*.cc)
+OBJ_FILES_CALIBRATION := $(patsubst root/%.cc,obj/3/%.o,$(filter-out $(wildcard root/*_main.cc), $(CXX_FILES_CALIBRATION))) obj/1/ProgramOptionsReader.o
+# files needed to run control plot program
+CXX_FILES_CONTROLPLOT := $(wildcard root/controlPlots*.cc)
+OBJ_FILES_CONTROLPLOT := $(patsubst root/%.cc,obj/3/%.o,$(filter-out $(wildcard root/*_main.cc), $(CXX_FILES_CONTROLPLOT))) obj/1/ProgramOptionsReader.o
 
-.PHONY: clean all top cal
+.PHONY: clean all top tem con
 
-all: top cal
+all: top tem con
 
 top: TopMass
 
-cal: Calibration
+tem: TemplateDerivation
+
+con: ControlPlots
 
 clean:
 	@rm -rf obj
@@ -33,12 +39,16 @@ obj:
 	@mkdir -p obj/3
 
 TopMass: obj $(OBJ_FILES) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT) obj/1/main.o
-	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) -Wl,-rpath -Wl,lib -L/afs/naf.desy.de/group/cms/sw/slc5_amd64_gcc462/external/boost/1.50.0-cms2/lib -lboost_program_options -o $@ obj/1/main.o $(OBJ_FILES) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
+	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) $(ROOFITLIBS) -Wl,-rpath -Wl,lib -L/afs/naf.desy.de/group/cms/sw/slc5_amd64_gcc462/external/boost/1.50.0-cms2/lib -lboost_program_options -o $@ obj/1/main.o $(OBJ_FILES) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
 	@echo -e "\033[32m\033[1mSuccessfully compiled TopMass\033[0m"
 
-Calibration: obj $(OBJ_FILES_CALIBRATION) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT) obj/3/calibration_main.o
-	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) -Wl,-rpath -Wl,lib -L/afs/naf.desy.de/group/cms/sw/slc5_amd64_gcc462/external/boost/1.50.0-cms2/lib -lboost_program_options -o $@ obj/3/calibration_main.o $(OBJ_FILES_CALIBRATION) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
-	@echo -e "\033[32m\033[1mSuccessfully compiled Calibration\033[0m"
+TemplateDerivation: obj $(OBJ_FILES) $(OBJ_FILES_CALIBRATION) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT) obj/3/calibration_main.o
+	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) $(ROOFITLIBS) -Wl,-rpath -Wl,lib -L/afs/naf.desy.de/group/cms/sw/slc5_amd64_gcc462/external/boost/1.50.0-cms2/lib -lboost_program_options -o $@ obj/3/calibration_main.o $(OBJ_FILES_CALIBRATION) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
+	@echo -e "\033[32m\033[1mSuccessfully compiled TemplateDerivation\033[0m"
+
+ControlPlots: obj $(OBJ_FILES_CONTROLPLOT) obj/3/controlPlots_main.o
+	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) -Wl,-rpath -Wl,lib -L/afs/naf.desy.de/group/cms/sw/slc5_amd64_gcc462/external/boost/1.50.0-cms2/lib -lboost_program_options -o $@ obj/3/controlPlots_main.o $(OBJ_FILES_CONTROLPLOT)
+	@echo -e "\033[32m\033[1mSuccessfully compiled ControlPlots\033[0m"
 
 #rules
 obj/1/%.o: src/%.cxx

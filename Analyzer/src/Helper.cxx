@@ -18,10 +18,10 @@ void Helper::init()
 
 int Helper::channelIDFromString(const std::string& channel)
 {
-  if      (!strcmp(channel.c_str(), "alljets" )) return kAllJets;
-  else if (!strcmp(channel.c_str(), "muon"    )) return kMuonJets;
-  else if (!strcmp(channel.c_str(), "electron")) return kElectronJets;
-  else if (!strcmp(channel.c_str(), "lepton"  )) return kLeptonJets;
+  if      (!strncmp(channel.c_str(), "alljets" , 7)) return kAllJets;
+  else if (!strncmp(channel.c_str(), "muon"    , 4)) return kMuonJets;
+  else if (!strncmp(channel.c_str(), "electron", 8)) return kElectronJets;
+  else if (!strncmp(channel.c_str(), "lepton"  , 6)) return kLeptonJets;
   else {
     std::cerr << "Channel name *" << channel << "* not know! Aborting program execution!" << std::endl;
     exit(1);
