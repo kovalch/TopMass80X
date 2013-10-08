@@ -29,11 +29,11 @@ TChain* tTTJetsP11noCR;
 enum lepton           { kElectron, kMuon, kAll};
 TString lepton_ [3] = { "electron", "muon", "all"};
 
-int channel = 2;
+int channel = 1;
 
 int nbins = 10;
 double xfirst = 0;
-double xlast  = 1;
+double xlast  = 3.1416;
 
 int color_ [] =  {kRed+1, kRed-7, kRed-10, kGray , kGreen+1, kRed+1 , kAzure-2, kGreen-3, 
                  kYellow , kMagenta, 10      , kBlack  , 
@@ -62,9 +62,9 @@ std::vector<sample> samples;
 std::vector<sample>::iterator it;
 
 TH1F* responseProfile(TString sDraw, TChain* chain, TString label) {
-  sDraw += " >> h2"; sDraw += label; sDraw += sDraw(1, 7); sDraw += "("; sDraw += nbins; sDraw += ","; sDraw += xfirst; sDraw += ","; sDraw += xlast; sDraw += ")";
-  chain->Draw(sDraw, "(inWContamination<30 & leptonPt > 30 & hadQBCSV<0.679 & hadQBarBCSV<0.679 & hadBBCSV>0.679 & lepBBCSV>0.679 & hitFitProb>0.2)*(MCWeight*hitFitProb*inWJetsCHM/25)");
-  TString sH2("h2"); sH2 += label; sH2 += sDraw(1, 7);
+  sDraw += " >> h2"; sDraw += label; sDraw += sDraw(0, 3); sDraw += "("; sDraw += nbins; sDraw += ","; sDraw += xfirst; sDraw += ","; sDraw += xlast; sDraw += ")";
+  chain->Draw(sDraw, "(top.fitProb>0.2)*(weight.combinedWeight*top.fitProb)");
+  TString sH2("h2"); sH2 += label; sH2 += sDraw(0, 3);
   TH1F* h2 = (TH1F*) gDirectory->Get(sH2);
   /*
   for (int i = 0; i < nbins; ++i) {
@@ -130,26 +130,31 @@ void CRStudy()
   //    open input files
   // ---
   if (channel == kMuon || channel == kAll) {
-    tData             ->Add("/scratch/hh/current/cms/user/mseidel/Run2011_CRStudy_muon/analyzeTop.root");
-    tTTJetsP11        ->Add("/scratch/hh/current/cms/user/mseidel/Fall11_TTJets1725_P11_CRStudy_muon/analyzeTop.root");
-    tTTJetsP11noCR    ->Add("/scratch/hh/current/cms/user/mseidel/Fall11_TTJets1725_P11noCR_CRStudy_muon/analyzeTop.root");
+    tData             ->Add("/scratch/hh/dust/naf/cms/user/mseidel/trees/Run2012_muon/job_*.root");
+    tTTJetsP11        ->Add("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1725_SemiLept_P11_muon/job_*.root");
+    tTTJetsP11noCR    ->Add("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1725_SemiLept_P11noCR_muon/job_*.root");
   }
   if (channel == kElectron || channel == kAll) {
-    tData             ->Add("/scratch/hh/current/cms/user/mseidel/Run2011_CRStudy_electron/analyzeTop.root");
-    tTTJetsP11        ->Add("/scratch/hh/current/cms/user/mseidel/Fall11_TTJets1725_P11_CRStudy_electron/analyzeTop.root");
-    tTTJetsP11noCR    ->Add("/scratch/hh/current/cms/user/mseidel/Fall11_TTJets1725_P11noCR_CRStudy_electron/analyzeTop.root");
+    tData             ->Add("/scratch/hh/dust/naf/cms/user/mseidel/trees/Run2011_CRStudy_electron/analyzeTop.root");
+    tTTJetsP11        ->Add("/scratch/hh/dust/naf/cms/user/mseidel/trees/Fall11_TTJets1725_P11_CRStudy_electron/analyzeTop.root");
+    tTTJetsP11noCR    ->Add("/scratch/hh/dust/naf/cms/user/mseidel/trees/Fall11_TTJets1725_P11noCR_CRStudy_electron/analyzeTop.root");
   }
   
+  samples.push_back(sample(tData, "Data", kBlack));
   samples.push_back(sample(tTTJetsP11, "P11", kMagenta+1));
   samples.push_back(sample(tTTJetsP11noCR, "P11noCR", kCyan+1));
-  samples.push_back(sample(tData, "Data", kBlack));
     
   //"[0] + exp([1]+[2]*x)"
   
   for (it = samples.begin(); it != samples.end(); ++it) {
     
     //it->profile  = responseProfile("hadTopMass", it->chain, it->label);
-    it->profile  = responseProfile("inWJetsDRQ/inWdR", it->chain, it->label);
+    //it->profile  = responseProfile("abs(TVector2::Phi_mpi_pi(jet.pull[top.recoJetIdxW1Prod1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitW1Prod2.Phi()-top.fitW1Prod1.Phi()),-(top.fitW1Prod2.Eta()-top.fitW1Prod1.Eta())))))", it->chain, it->label);
+    //it->profile  = responseProfile("abs(TVector2::Phi_mpi_pi(jet.pull[top.recoJetIdxW1Prod2].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitW1Prod1.Phi()-top.fitW1Prod2.Phi()),-(top.fitW1Prod1.Eta()-top.fitW1Prod2.Eta())))))", it->chain, it->label);
+    it->profile  = responseProfile("abs(TVector2::Phi_mpi_pi(jet.pull[top.recoJetIdxB1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitB2.Phi()-top.fitB1.Phi()),-(top.fitB2.Eta()-top.fitB1.Eta())))))", it->chain, it->label);
+    std::cout << it->profile->GetEntries() << std::endl;
+    //it->profile  = responseProfile("abs(TVector2::Phi_mpi_pi(jet[recoJetIdxB1].pull.Phi()-(TMath::Pi()+TMath::ATan2(-(fitB2.Phi()-fitB1.Phi()),-(fitB2.Eta()-fitB1.Eta())))))", it->chain, it->label);
+    
     //it->profile  = responseProfile("(hadQRaw.Pt()+hadQBarRaw.Pt())/(hadQGen.Pt()+hadQBarGen.Pt()):(hadQGen.Pt()+hadQBarGen.Pt())/2", it->chain, it->label);
     //it->profileB = responseProfile("(lepBRaw.Pt()/lepBGen.Pt() + hadBRaw.Pt()/hadBGen.Pt())/2:(hadBGen.Pt()+lepBGen.Pt())/2", it->chain, it->label);
     
@@ -159,6 +164,32 @@ void CRStudy()
     //it->profileB = responseProfile("(lepBRaw.Pt()/lepBGen.Pt()):lepBGen.Pt()", it->chain, it->label);
   }
   
+  TMultiGraph *mg = new TMultiGraph();
+  mg->SetTitle(";[bin];ratio. to P11");
+  
+  TLegend *leg1 = new TLegend(0.6, 0.75, 0.9, 0.925);
+  leg1->SetTextSize(0.03);
+  leg1->SetFillStyle(0);
+  leg1->SetBorderSize(0);
+  
+  TCanvas* canvas = new TCanvas("canvas", "canvas", 600, 600);
+  canvas->cd();
+  
+  for (it = samples.begin(); it != samples.end(); ++it) {
+    it->profile->SetLineColor(it->color);
+    if (it == samples.begin()) { // DATA
+      it->profile->SetMarkerStyle(20);
+      it->profile->Draw("E");
+    }
+    else {
+      it->profile->SetMarkerStyle(1);
+      it->profile->Scale(19.7*9./4.);
+      it->profile->Draw("SAME");
+    }
+    leg1->AddEntry(it->profile, it->label, "PL");
+  }
+  
+  /*
   TMultiGraph *mg = new TMultiGraph();
   mg->SetTitle(";[bin];ratio. to P11");
   
