@@ -5,6 +5,5 @@ int main(int ac, char** av)
 {
   ProgramOptionsReader por = ProgramOptionsReader(ac,av);
 
-  TopMassControlPlots *top = new TopMassControlPlots();
-  delete top;
+  TopMassControlPlots top = TopMassControlPlots();
 }
