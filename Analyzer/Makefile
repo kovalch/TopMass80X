@@ -18,7 +18,7 @@ CXX_FILES_CALIBRATION := $(wildcard root/calibration*.cc)
 OBJ_FILES_CALIBRATION := $(patsubst root/%.cc,obj/3/%.o,$(filter-out $(wildcard root/*_main.cc), $(CXX_FILES_CALIBRATION))) obj/1/ProgramOptionsReader.o
 # files needed to run control plot program
 CXX_FILES_CONTROLPLOT := $(wildcard root/controlPlots*.cc)
-OBJ_FILES_CONTROLPLOT := $(patsubst root/%.cc,obj/3/%.o,$(filter-out $(wildcard root/*_main.cc), $(CXX_FILES_CONTROLPLOT))) obj/1/ProgramOptionsReader.o
+OBJ_FILES_CONTROLPLOT := $(patsubst root/%.cc,obj/3/%.o,$(filter-out $(wildcard root/*_main.cc), $(CXX_FILES_CONTROLPLOT))) obj/1/ProgramOptionsReader.o obj/1/Helper.o
 
 .PHONY: clean all top tem con
 
