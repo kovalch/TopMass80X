@@ -21,6 +21,7 @@ private:
   const std::string fVar1_;
   const std::string fVar2_;
   const std::string fVar3_;
+  const std::string fVar4_;
   const std::string fWeight_;
   const std::string activeBranches_;
   const double fLumi_, fSig_; //, fBDisc_;

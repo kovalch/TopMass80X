@@ -8,10 +8,11 @@ void DataSample::Clear()
   events.clear();
 }
 
-void DataSample::Fill(double topMass, double wMass, double prob, double weight, int index)
+void DataSample::Fill(double topMass, double wMass, double prob, int leptonFlavour, double weight, int index)
 {
   if(index == 0){
     events.push_back(SimpleEvent());
+    events.back().leptonFlavour = leptonFlavour;
     events.back().weight = weight;
     if(weight > maxWeight) maxWeight = weight;
     ++nEvents;

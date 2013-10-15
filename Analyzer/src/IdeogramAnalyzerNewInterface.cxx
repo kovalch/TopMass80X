@@ -187,6 +187,7 @@ void IdeogramAnalyzerNewInterface::Scan(const std::string& cuts, int i, int j, d
         double topMass = event.permutations.at(iComb).topMass;
         double wMass   = event.permutations.at(iComb).wMass;
         double prob    = event.permutations.at(iComb).prob;
+        int leptonFlavour = event.leptonFlavour;
 
         fitWeight += prob; //*CombinedWeight;
 
@@ -202,7 +203,7 @@ void IdeogramAnalyzerNewInterface::Scan(const std::string& cuts, int i, int j, d
           // Set Likelihood parameters
           // TODO electron channel
           //if(channelID_ == Helper::kAllJets){
-          combLikelihood_->SetParameters(prob, topMass, wMass, 1., shapeSystematic_, permutationFractionSystematic_, isFastSim_);
+          combLikelihood_->SetParameters(prob, topMass, wMass, abs(leptonFlavour), shapeSystematic_, permutationFractionSystematic_, isFastSim_);
           // add permutation to event likelihood
           eventLikelihood->Eval(combLikelihood_, "A");
         }

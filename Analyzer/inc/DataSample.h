@@ -17,11 +17,12 @@ public:
     };
 
     std::vector<Permutation> permutations;
+    int leptonFlavour;
     double weight;
   };
 
   void Clear();
-  void Fill(double topMass, double wMass, double prob, double weight, int index);
+  void Fill(double topMass, double wMass, double prob, int leptonFlavour, double weight, int index);
   //template<class T> void Fill(double topMass, double wMass, double prob, double weight, T index) = delete;
   void AddEvent(const SimpleEvent& event);
 

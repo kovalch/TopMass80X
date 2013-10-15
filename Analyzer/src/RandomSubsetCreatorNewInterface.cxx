@@ -23,6 +23,7 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface() :
     fVar1_      (po::GetOption<std::string>("analysisConfig.var1")),
     fVar2_      (po::GetOption<std::string>("analysisConfig.var2")),
     fVar3_      (po::GetOption<std::string>("analysisConfig.var3")),
+    fVar4_      (po::GetOption<std::string>("analysisConfig.var4")),
     fWeight_    (po::GetOption<std::string>("weight")),
     activeBranches_(po::GetOption<std::string>("analysisConfig.activeBranches")),
     fLumi_  (po::GetOption<double>("lumi")),
@@ -38,6 +39,7 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface() :
   std::cout << "Variable 1: " << fVar1_ << std::endl;
   std::cout << "Variable 2: " << fVar2_ << std::endl;
   std::cout << "Variable 3: " << fVar3_ << std::endl;
+  std::cout << "Variable 4: " << fVar4_ << std::endl;
   std::cout << "Weight: " << fWeight_ << std::endl;
   std::cout << "Lumi: " << fLumi_ << std::endl;
   std::cout << "Signal Fraction: " << fSig_ << std::endl;
@@ -53,15 +55,15 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface() :
   if (channelID_ == Helper::kMuonJets || channelID_ == Helper::kLeptonJets) {
     PrepareEvents(samplePath_+fIdentifier_+std::string("_muon/job_*.root"));
     if(fLumi_>0) {
-      PrepareEvents("/scratch/hh/lustre/cms/user/mseidel/Fall11_Wbb_muon/analyzeTop.root");
-      PrepareEvents("/scratch/hh/lustre/cms/user/mseidel/Fall11_T_muon/analyzeTop.root");
+      PrepareEvents("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_WJets_muon/job_*.root");
+      PrepareEvents("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_singleTop_muon/job_*.root");
     }
   }
   if (channelID_ == Helper::kElectronJets || channelID_ == Helper::kLeptonJets) {
     PrepareEvents(samplePath_+fIdentifier_+std::string("_electron/job_*.root"));
     if(fLumi_>0) {
-      PrepareEvents("/scratch/hh/lustre/cms/user/mseidel/Fall11_Wbb_electron/analyzeTop.root");
-      PrepareEvents("/scratch/hh/lustre/cms/user/mseidel/Fall11_T_electron/analyzeTop.root");
+      PrepareEvents("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_WJets_electron/job_*.root");
+      PrepareEvents("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_singleTop_electron/job_*.root");
     }
   }
   time(&end);
@@ -88,11 +90,11 @@ TTree* RandomSubsetCreatorNewInterface::CreateRandomSubset() {
     // DATA
     double nEventsDataAllJets  = 11428.;
     double nEventsDataMuon     = 15172.;
-    double nEventsDataElectron = 2268.;
+    double nEventsDataElectron = 13937.;
 
     int eventsPEAllJets  = random_->Poisson(nEventsDataAllJets /18352.0 *fLumi_);
     int eventsPEMuon     = random_->Poisson(nEventsDataMuon    /19712.000*fLumi_);
-    int eventsPEElectron = random_->Poisson(nEventsDataElectron/5000.000*fLumi_);
+    int eventsPEElectron = random_->Poisson(nEventsDataElectron/19712.000*fLumi_);
 
     if (channelID_ == Helper::kAllJets) {
       DrawEvents(events_.at(0), eventsPEAllJets*    fSig_ );
@@ -100,15 +102,15 @@ TTree* RandomSubsetCreatorNewInterface::CreateRandomSubset() {
     }
     if (channelID_ == Helper::kMuonJets || channelID_ == Helper::kLeptonJets) {
       DrawEvents(events_.at(0), eventsPEMuon*    fSig_       );
-      DrawEvents(events_.at(1), eventsPEMuon*(1.-fSig_)*1./4.);
-      DrawEvents(events_.at(2), eventsPEMuon*(1.-fSig_)*3./4.);
+      DrawEvents(events_.at(1), eventsPEMuon*(1.-fSig_)*2./5.);
+      DrawEvents(events_.at(2), eventsPEMuon*(1.-fSig_)*3./5.);
     }
     if (channelID_ == Helper::kElectronJets || channelID_ == Helper::kLeptonJets) {
       short offset = 0;
       if(channelID_ == Helper::kLeptonJets) offset = 1;
       DrawEvents(events_.at(3*offset+0), eventsPEElectron*    fSig_       );
-      DrawEvents(events_.at(3*offset+1), eventsPEElectron*(1.-fSig_)*1./4.);
-      DrawEvents(events_.at(3*offset+2), eventsPEElectron*(1.-fSig_)*3./4.);
+      DrawEvents(events_.at(3*offset+1), eventsPEElectron*(1.-fSig_)*1./3.);
+      DrawEvents(events_.at(3*offset+2), eventsPEElectron*(1.-fSig_)*2./3.);
     }
 
     time(&end);
@@ -184,6 +186,7 @@ void RandomSubsetCreatorNewInterface::PrepareEvents(const std::string& file) {
   TTreeFormula *f1     = new TTreeFormula("f1"    , fVar1_    .c_str(), chain);
   TTreeFormula *f2     = new TTreeFormula("f2"    , fVar2_    .c_str(), chain);
   TTreeFormula *f3     = new TTreeFormula("f3"    , fVar3_    .c_str(), chain);
+  TTreeFormula *f4     = new TTreeFormula("f4"    , fVar4_    .c_str(), chain);
   TTreeFormula *weight = new TTreeFormula("weight", fWeight_  .c_str(), chain);
   TTreeFormula *sel    = new TTreeFormula("sel"   , selection_.c_str(), chain);
 
@@ -197,18 +200,20 @@ void RandomSubsetCreatorNewInterface::PrepareEvents(const std::string& file) {
       f1    ->UpdateFormulaLeaves();
       f2    ->UpdateFormulaLeaves();
       f3    ->UpdateFormulaLeaves();
+      f4    ->UpdateFormulaLeaves();
       weight->UpdateFormulaLeaves();
       sel   ->UpdateFormulaLeaves();
     }
     if(!f1    ->GetNdata()) continue;
     if(!f2    ->GetNdata()) continue;
     if(!f3    ->GetNdata()) continue;
+    if(!f4    ->GetNdata()) continue;
     if(!weight->GetNdata()) continue;
     if(!sel   ->GetNdata()) continue;
     int filledPermutations = 0;
     for(int j = 0, l = std::min(maxPermutations_, sel->GetNdata()); j < l; ++j){
       if(!sel->EvalInstance(j)) continue;
-      sample.Fill(f1->EvalInstance(j), f2->EvalInstance(j), f3->EvalInstance(j), weight->EvalInstance(j), filledPermutations++);
+      sample.Fill(f1->EvalInstance(j), f2->EvalInstance(j), f3->EvalInstance(j), f4->EvalInstance(j), weight->EvalInstance(j), filledPermutations++);
     }
     if(filledPermutations) ++selected;
   }
@@ -221,6 +226,7 @@ void RandomSubsetCreatorNewInterface::PrepareEvents(const std::string& file) {
   delete f1;
   delete f2;
   delete f3;
+  delete f4;
   delete weight;
   delete sel;
 }
