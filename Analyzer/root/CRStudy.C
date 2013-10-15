@@ -31,7 +31,7 @@ TString lepton_ [3] = { "electron", "muon", "all"};
 
 int channel = 1;
 
-int nbins = 10;
+int nbins = 20;
 double xfirst = 0;
 double xlast  = 3.1416;
 
@@ -53,8 +53,9 @@ struct sample {
   TGraphErrors* graph;
   const char* label;
   int color;
-  sample(TChain* ch, const char* l, int c = kBlack)
-  : chain(ch), label(l), color(c) {}
+  double scale;
+  sample(TChain* ch, const char* l, int c = kBlack, double s = 1.)
+  : chain(ch), label(l), color(c), scale(s) {}
 };
 
 
@@ -63,7 +64,7 @@ std::vector<sample>::iterator it;
 
 TH1F* responseProfile(TString sDraw, TChain* chain, TString label) {
   sDraw += " >> h2"; sDraw += label; sDraw += sDraw(0, 3); sDraw += "("; sDraw += nbins; sDraw += ","; sDraw += xfirst; sDraw += ","; sDraw += xlast; sDraw += ")";
-  chain->Draw(sDraw, "(top.fitProb>0.2)*(weight.combinedWeight*top.fitProb)");
+  chain->Draw(sDraw, "(top.fitProb>0.2)*(weight.combinedWeight)");
   TString sH2("h2"); sH2 += label; sH2 += sDraw(0, 3);
   TH1F* h2 = (TH1F*) gDirectory->Get(sH2);
   /*
@@ -122,6 +123,7 @@ void CRStudy()
   // Define chains
   TString sTree("analyzeHitFit/eventTree");
   tData             = new TChain(sTree);
+  tTTJets100        = new TChain(sTree);
   tTTJetsP11        = new TChain(sTree);
   tTTJetsP11noCR    = new TChain(sTree);
   
@@ -131,6 +133,7 @@ void CRStudy()
   // ---
   if (channel == kMuon || channel == kAll) {
     tData             ->Add("/scratch/hh/dust/naf/cms/user/mseidel/trees/Run2012_muon/job_*.root");
+    tTTJets100        ->Add("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1725_1.00_muon/job_*.root");
     tTTJetsP11        ->Add("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1725_SemiLept_P11_muon/job_*.root");
     tTTJetsP11noCR    ->Add("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1725_SemiLept_P11noCR_muon/job_*.root");
   }
@@ -141,17 +144,18 @@ void CRStudy()
   }
   
   samples.push_back(sample(tData, "Data", kBlack));
-  samples.push_back(sample(tTTJetsP11, "P11", kMagenta+1));
-  samples.push_back(sample(tTTJetsP11noCR, "P11noCR", kCyan+1));
+  samples.push_back(sample(tTTJets100, "Z2", kRed+1, 19.7));
+  samples.push_back(sample(tTTJetsP11, "P11", kMagenta+1, 19.7*9./4.));
+  samples.push_back(sample(tTTJetsP11noCR, "P11noCR", kCyan+1, 19.7*9./4.));
     
   //"[0] + exp([1]+[2]*x)"
   
   for (it = samples.begin(); it != samples.end(); ++it) {
     
     //it->profile  = responseProfile("hadTopMass", it->chain, it->label);
-    //it->profile  = responseProfile("abs(TVector2::Phi_mpi_pi(jet.pull[top.recoJetIdxW1Prod1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitW1Prod2.Phi()-top.fitW1Prod1.Phi()),-(top.fitW1Prod2.Eta()-top.fitW1Prod1.Eta())))))", it->chain, it->label);
+    it->profile  = responseProfile("abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxW1Prod1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitW1Prod2.Phi()-top.fitW1Prod1.Phi()),-(top.fitW1Prod2.Eta()-top.fitW1Prod1.Eta())))))", it->chain, it->label);
     //it->profile  = responseProfile("abs(TVector2::Phi_mpi_pi(jet.pull[top.recoJetIdxW1Prod2].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitW1Prod1.Phi()-top.fitW1Prod2.Phi()),-(top.fitW1Prod1.Eta()-top.fitW1Prod2.Eta())))))", it->chain, it->label);
-    it->profile  = responseProfile("abs(TVector2::Phi_mpi_pi(jet.pull[top.recoJetIdxB1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitB2.Phi()-top.fitB1.Phi()),-(top.fitB2.Eta()-top.fitB1.Eta())))))", it->chain, it->label);
+    //it->profile  = responseProfile("abs(TVector2::Phi_mpi_pi(jet.pull[top.recoJetIdxB1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitB2.Phi()-top.fitB1.Phi()),-(top.fitB2.Eta()-top.fitB1.Eta())))))", it->chain, it->label);
     std::cout << it->profile->GetEntries() << std::endl;
     //it->profile  = responseProfile("abs(TVector2::Phi_mpi_pi(jet[recoJetIdxB1].pull.Phi()-(TMath::Pi()+TMath::ATan2(-(fitB2.Phi()-fitB1.Phi()),-(fitB2.Eta()-fitB1.Eta())))))", it->chain, it->label);
     
@@ -179,11 +183,12 @@ void CRStudy()
     it->profile->SetLineColor(it->color);
     if (it == samples.begin()) { // DATA
       it->profile->SetMarkerStyle(20);
+      it->profile->GetYaxis()->SetRangeUser(1, it->profile->GetMaximum()*1.5);
       it->profile->Draw("E");
     }
     else {
       it->profile->SetMarkerStyle(1);
-      it->profile->Scale(19.7*9./4.);
+      it->profile->Scale(it->scale);
       it->profile->Draw("SAME");
     }
     leg1->AddEntry(it->profile, it->label, "PL");
