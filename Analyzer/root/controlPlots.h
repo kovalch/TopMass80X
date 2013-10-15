@@ -18,17 +18,19 @@ private:
 
   class MySample{
   public:
-    MySample(std::string name_, std::string file_, int type_, int color_) :
-      name(name_), file(file_), type(type_), color(color_) {}
+    MySample(std::string name_, std::string file_, int type_, int color_, double scale_ = 1.) :
+      name(name_), file(file_), type(type_), color(color_), scale(scale_) {}
     
     std::string name, file;
     int type, color;
+    double scale;
+    TChain* chain;
   };
 
   class MyHistogram{
   public:
-    MyHistogram(std::string name, std::string formula, TChain* chain, std::string title, int nBins, double min, double max) :
-      var(new TTreeFormula((std::string("f")+name).c_str(), formula.c_str(), chain)),
+    MyHistogram(std::string name_, std::string formula_, TChain* chain_, std::string title, int nBins, double min, double max) :
+      name(name_), formula(formula_), chain(chain_),
       data(new TH1F((std::string("hD")+name).c_str(), (std::string("Data")+title).c_str(), nBins, min, max))
     {
       data->SetLineWidth(1);
@@ -37,6 +39,10 @@ private:
       data->SetMarkerColor(kBlack);
     }
 
+    void Init(TChain* chain)
+    {
+      var = new TTreeFormula((std::string("f")+name).c_str(), formula.c_str(), chain);
+    }
     void AddSignal(MySample* sample)
     {
       int colorShift[] =  {-11, -8, 0};
@@ -58,8 +64,11 @@ private:
       bkg.back()->SetTitle(sample->name.c_str());
     }
     TTreeFormula* var;
-    TH1F *data;
+    
     std::vector<TH1F*> sig, bkg;
+    std::string name, formula;
+    TChain* chain;
+    TH1F *data;
   };
 
   void doPlots();
