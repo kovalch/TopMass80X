@@ -4,7 +4,7 @@ IdeogramCombLikelihoodLeptonJets::IdeogramCombLikelihoodLeptonJets() {};
 
 double IdeogramCombLikelihoodLeptonJets::Evaluate(double *x, double *p) {
   bool onlyCP   = false;
-  bool useCalib = false;
+  bool useCalib = true;
   
   //* Summer12
   double fCP = 0.43954; // 1
@@ -37,26 +37,26 @@ double IdeogramCombLikelihoodLeptonJets::Evaluate(double *x, double *p) {
     fUN = 0;
   }
   
-  double MassOffset       = -9.58404e-02;
-  double MassSlopeMass    = -1.82737e-02;
-  double MassSlopeJES     =  5.25560e+00;
-  double MassSlopeMassJES = -7.13269e-02;
+  double MassOffset       = -2.47421e-01;
+  double MassSlopeMass    = -1.31539e-02;
+  double MassSlopeJES     =  5.32577e+00;
+  double MassSlopeMassJES =  5.21005e-02;
                             
-  double JESOffset        = -3.06117e-03;
-  double JESSlopeMass     =  2.87550e-04;
-  double JESSlopeJES      = -3.89880e-02;
-  double JESSlopeMassJES  =  1.19222e-03;
+  double JESOffset        = -3.42305e-03;
+  double JESSlopeMass     = -2.83835e-05;
+  double JESSlopeJES      = -6.75216e-02;
+  double JESSlopeMassJES  = -8.75130e-04;
   
   if (p[3] == 11) {
-    MassOffset       = -3.60599e-01;
-    MassSlopeMass    = -2.26131e-03;
-    MassSlopeJES     = -2.66705e+00;
-    MassSlopeMassJES = -1.84892e-01;
+    MassOffset       = -2.40459e-01;
+    MassSlopeMass    = -1.48957e-02;
+    MassSlopeJES     =  1.06322e-01;
+    MassSlopeMassJES =  8.95005e-02;
                        
-    JESOffset        = -1.58004e-03;
-    JESSlopeMass     = -7.27182e-05;
-    JESSlopeJES      =  1.24220e-02;
-    JESSlopeMassJES  =  8.35960e-04;
+    JESOffset        = -3.62325e-03;
+    JESSlopeMass     = -4.81967e-07;
+    JESSlopeJES      = -5.03047e-03;
+    JESSlopeMassJES  = -1.23262e-03;
   }
   
   double m = x[0];

@@ -182,3 +182,9 @@ void DrawCMSPrel() {
 void DrawCMSSim() {
   DrawLabel("CMS Simulation Preliminary,  #sqrt{s}=7 TeV", 0.2, 0.93, 0.9);
 }
+
+void DrawCMSSim(int channel) {
+  TString lepton_[3] = { "e+jets", "#mu+jets", "l+jets"};
+  TString sLabel("CMS simulation,  #sqrt{s} = 8 TeV, "); sLabel += lepton_[channel];
+  DrawLabel(sLabel, 0.2, 0.93, 0.9);
+}
