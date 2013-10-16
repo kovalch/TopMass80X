@@ -7,7 +7,7 @@
 
 #include <vector>
 
-enum sampleType {kData, kSig, kBkg};
+enum sampleType {kData, kSig, kBkg, kSigVar};
 
 class TopMassControlPlots{
 public:
@@ -18,11 +18,11 @@ private:
 
   class MySample{
   public:
-    MySample(std::string name_, std::string file_, int type_, int color_, double scale_ = 1.) :
-      name(name_), file(file_), type(type_), color(color_), scale(scale_) {}
+    MySample(std::string name_, std::string file_, int type_, int color_, int line_ = 1, double scale_ = 1.) :
+      name(name_), file(file_), type(type_), color(color_), line(line_), scale(scale_) {}
     
     std::string name, file;
-    int type, color;
+    int type, color, line;
     double scale;
     TChain* chain;
   };
@@ -63,9 +63,18 @@ private:
       bkg.back()->SetFillColor(sample->color);
       bkg.back()->SetTitle(sample->name.c_str());
     }
-    TTreeFormula* var;
+    void AddSignalVariation(MySample* sample)
+    {
+      sigvar.push_back((TH1F*)data->Clone());
+      sigvar.back()->Reset();
+      sigvar.back()->SetLineWidth(2);
+      sigvar.back()->SetLineColor(sample->color);
+      sigvar.back()->SetLineStyle(sample->line);
+      sigvar.back()->SetTitle(sample->name.c_str());
+    }
     
-    std::vector<TH1F*> sig, bkg;
+    TTreeFormula* var;
+    std::vector<TH1F*> sig, bkg, sigvar;
     std::string name, formula;
     TChain* chain;
     TH1F *data;
