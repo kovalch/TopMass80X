@@ -13,6 +13,8 @@
 #include <string>
 
 #include <boost/program_options.hpp>
+#include <boost/algorithm/string/replace.hpp>
+#include <boost/type_traits/is_same.hpp>
 
 class ProgramOptionsReader {
 public:
