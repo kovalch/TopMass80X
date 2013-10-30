@@ -23,9 +23,9 @@
 #include "tdrstyle.C"
 
 enum lepton           { kElectron, kMuon, kAll};
-std::string lepton_ [3] = { "electron", "muon", "all"};
+std::string lepton_ [3] = { "electron", "muon", "lepton"};
 
-int channel = 1;
+int channel = 2;
 std::string suffix = "";
 
 Long64_t nentries = 1000000000; //1000*27;
