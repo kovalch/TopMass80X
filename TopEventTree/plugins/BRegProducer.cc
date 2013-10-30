@@ -15,7 +15,8 @@
 
 
 BRegProducer::BRegProducer(const edm::ParameterSet& cfg):
-  inputJets_           (cfg.getParameter<edm::InputTag>("jets"           ))
+  inputJets_           (cfg.getParameter<edm::InputTag>("jets"           )),
+  kJetMAX_(cfg.getParameter<int>("maxNJets"))
 {
 	if(inputJets_.instance()==""){
 		outputJets_ = inputJets_.label();// + "DummyBReg";
@@ -54,13 +55,21 @@ BRegProducer::produce(edm::Event& event, const edm::EventSetup& setup)
 
   std::auto_ptr<std::vector<pat::Jet> > pJets(new std::vector<pat::Jet>);
 
-  std::vector<double> tempBRegGBRTrainResultCrossCheck = 	bRegAnalyzer->fillBRegJetAndReturnGBRResults(event,  setup);
+    std::vector<double> tempBRegGBRTrainResultCrossCheck = 	bRegAnalyzer->fillBRegJetAndReturnGBRResults(event,  setup);
+//  std::vector<double> tempBRegGBRTrainResultCrossCheck = 	bRegAnalyzer->fillBRegJetAndReturnTMVAResults(event,  setup);
 
 unsigned int jet_i =0;
   for(std::vector<pat::Jet>::const_iterator jet=jets->begin(); jet!=jets->end(); ++jet){
     pat::Jet scaledJet = *jet;
+    if(jet_i>=(unsigned int) kJetMAX_ || jet_i>=tempBRegGBRTrainResultCrossCheck.size()){
+    	if((unsigned int) kJetMAX_!=tempBRegGBRTrainResultCrossCheck.size()){
+    	edm::LogWarning msg("Max. no of jets");
+	    msg << "The maximum number of jets has been reached. This means, that there are no more BReg-Results available to add to the jets. The maximum number of jets does not match the size of the results vector. Check inputs!\n";
+    	}
+//	    throw cms::Exception("Configuration Error");
+    	continue;
+    }
 //	std::cout <<   tempBRegGBRTrainResultCrossCheck.at(jet_i) << std::endl;
-//    scaledJet.addUserFloat("jesTotUnc" , jesTotalUncertainty);
 	scaledJet.addUserFloat("BRegResult" , tempBRegGBRTrainResultCrossCheck.at(jet_i));
     pJets->push_back( scaledJet );
     jet_i++;

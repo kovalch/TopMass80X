@@ -31,6 +31,9 @@ void BRegJetEvent::init()
   SVPt.clear();
   Rho.clear();
   Rho25.clear();
+  OneOfLeading2B.clear();
+  RlbReco.clear();
+
 
   nSoftMuons          .clear();
   nSoftElectrons      .clear();
