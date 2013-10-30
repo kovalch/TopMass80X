@@ -46,48 +46,125 @@ void TopMassControlPlots::doPlots()
   std::string channel(po::GetOption<std::string>("channel"));
   int channelID_ = Helper::channelID();
   double lumi    = po::GetOption<double>("lumi");
-
+  
   // DUMMY to get TTree structure
   TChain* myChain = new TChain("analyzeKinFit/eventTree");
   myChain->Add("/scratch/hh/dust/naf/cms/user/eschliec/TopMass/2012/Skim_02/Z2_S12_P11TeV_sig.root");
 
   // masses
-  hists.push_back(MyHistogram("fitTop1Mass", "top.fitTop1.M()", myChain, ";m_{t}^{fit} [GeV]; Permutations", 75, 50, 400));
-  hists.push_back(MyHistogram("recoWAveMass", "(top.recoW1[0].M()+top.recoW2[0].M())/2.0", myChain, ";m_{W}^{reco} [GeV]; Events", 60, 65, 125));
-  hists.push_back(MyHistogram("recoW1Mass", "top.recoW1.M()", myChain, ";m_{W}^{reco} [GeV]; Permutations", 60, 0, 300));
+  hists.push_back(MyHistogram("fitTop1Mass", "top.fitTop1.M()", "", ";m_{t}^{fit} [GeV]; Permutations", 75, 50, 400));
+  hists.push_back(MyHistogram("recoTop1Mass", "top.recoTop1.M()", "", ";m_{t}^{reco} [GeV]; Permutations", 75, 50, 400));
+  hists.push_back(MyHistogram("recoWAveMass", "(top.recoW1[0].M()+top.recoW2[0].M())/2.0", "", ";m_{W}^{reco} [GeV]; Events", 60, 65, 125));
+  hists.push_back(MyHistogram("recoW1Mass", "top.recoW1.M()", "", ";m_{W}^{reco} [GeV]; Permutations", 60, 0, 300));
+  
+  hists.push_back(MyHistogram("fitTop1Mass_barrel", "top.fitTop1.M()", "top.fitB1.Eta()<1.1 & top.fitW1Prod1.Eta()<1.1 & top.fitW1Prod2.Eta()<1.1", ";m_{t}^{fit} [GeV], #eta^{j}<1.1; Permutations", 75, 50, 400));
+  hists.push_back(MyHistogram("recoW1Mass_barrel", "top.recoW1.M()", "top.fitB1.Eta()<1.1 & top.fitW1Prod1.Eta()<1.1 & top.fitW1Prod2.Eta()<1.1", ";m_{W}^{reco} [GeV], #eta^{j}<1.1; Permutations", 60, 0, 300));
   
   // light pulls
-  hists.push_back(MyHistogram("pullW1Prod1_W1Prod2", "abs(TVector2::Phi_mpi_pi(jet.pull[top.recoJetIdxW1Prod1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitW1Prod2.Phi()-top.fitW1Prod1.Phi()),-(top.fitW1Prod2.Eta()-top.fitW1Prod1.Eta())))))", myChain, ";#theta_{pull}^{q_{1} #rightarrow q_{2}}; Permutations", 20, 0, 3.1416));
-  hists.push_back(MyHistogram("pullChargedW1Prod1_W1Prod2", "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxW1Prod1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitW1Prod2.Phi()-top.fitW1Prod1.Phi()),-(top.fitW1Prod2.Eta()-top.fitW1Prod1.Eta())))))", myChain, ";#theta_{pull,ch}^{q_{1} #rightarrow q_{2}}; Permutations", 20, 0, 3.1416));
-  hists.push_back(MyHistogram("pullChargedW1Prod1_beam", "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxW1Prod1].Phi()-(TMath::Pi()+TMath::ATan2(-1,-0))))", myChain, ";#theta_{pull,ch}^{q_{1} #rightarrow beam}; Permutations", 20, 0, 3.1416));
-  hists.push_back(MyHistogram("pullChargedW1Prod2_W1Prod1", "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxW1Prod2].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitW1Prod1.Phi()-top.fitW1Prod2.Phi()),-(top.fitW1Prod1.Eta()-top.fitW1Prod2.Eta())))))", myChain, ";#theta_{pull,ch}^{q_{2} #rightarrow q_{1}}; Permutations", 20, 0, 3.1416));
-  hists.push_back(MyHistogram("pullChargedW1Prod2_beam", "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxW1Prod2].Phi()-(TMath::Pi()+TMath::ATan2(-1,-0))))", myChain, ";#theta_{pull,ch}^{q_{2} #rightarrow beam}; Permutations", 20, 0, 3.1416));
+  hists.push_back(MyHistogram("pullW1Prod1_W1Prod2", "abs(TVector2::Phi_mpi_pi(jet.pull[top.recoJetIdxW1Prod1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitW1Prod2.Phi()-top.fitW1Prod1.Phi()),-(top.fitW1Prod2.Eta()-top.fitW1Prod1.Eta())))))", "", ";#theta_{pull}^{q_{1} #rightarrow q_{2}}; Permutations", 20, 0, 3.1416));
+  hists.push_back(MyHistogram("pullChargedW1Prod1_W1Prod2", "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxW1Prod1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitW1Prod2.Phi()-top.fitW1Prod1.Phi()),-(top.fitW1Prod2.Eta()-top.fitW1Prod1.Eta())))))", "", ";#theta_{pull,ch}^{q_{1} #rightarrow q_{2}}; Permutations", 20, 0, 3.1416));
+  hists.push_back(MyHistogram("pullChargedW1Prod1_beam", "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxW1Prod1].Phi()-(TMath::Pi()+TMath::ATan2(-1,-0))))", "", ";#theta_{pull,ch}^{q_{1} #rightarrow beam}; Permutations", 20, 0, 3.1416));
+  hists.push_back(MyHistogram("pullChargedW1Prod2_W1Prod1", "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxW1Prod2].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitW1Prod1.Phi()-top.fitW1Prod2.Phi()),-(top.fitW1Prod1.Eta()-top.fitW1Prod2.Eta())))))", "", ";#theta_{pull,ch}^{q_{2} #rightarrow q_{1}}; Permutations", 20, 0, 3.1416));
+  hists.push_back(MyHistogram("pullChargedW1Prod2_beam", "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxW1Prod2].Phi()-(TMath::Pi()+TMath::ATan2(-1,-0))))", "", ";#theta_{pull,ch}^{q_{2} #rightarrow beam}; Permutations", 20, 0, 3.1416));
+  
+  hists.push_back(MyHistogram("pullChargedW1Prod1_W1Prod2_deltaR_0",
+    "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxW1Prod1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitW1Prod2.Phi()-top.fitW1Prod1.Phi()),-(top.fitW1Prod2.Eta()-top.fitW1Prod1.Eta())))))",
+    "sqrt(pow(top.fitW1Prod2.Eta()-top.fitW1Prod1.Eta(),2)+pow(top.fitW1Prod2.Phi()-top.fitW1Prod1.Phi(),2)) < 1.",
+     ";#theta_{pull,ch}^{q_{1} #rightarrow q_{2}}, #DeltaR < 1; Permutations", 20, 0, 3.1416));
+  hists.push_back(MyHistogram("pullChargedW1Prod1_W1Prod2_deltaR_1",
+    "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxW1Prod1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitW1Prod2.Phi()-top.fitW1Prod1.Phi()),-(top.fitW1Prod2.Eta()-top.fitW1Prod1.Eta())))))",
+    "sqrt(pow(top.fitW1Prod2.Eta()-top.fitW1Prod1.Eta(),2)+pow(top.fitW1Prod2.Phi()-top.fitW1Prod1.Phi(),2)) > 1.",
+     ";#theta_{pull,ch}^{q_{1} #rightarrow q_{2}}, #DeltaR > 1; Permutations", 20, 0, 3.1416));
+  hists.push_back(MyHistogram("pullChargedW1Prod1_W1Prod2_deltaR_2",
+    "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxW1Prod1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitW1Prod2.Phi()-top.fitW1Prod1.Phi()),-(top.fitW1Prod2.Eta()-top.fitW1Prod1.Eta())))))",
+    "sqrt(pow(top.fitW1Prod2.Eta()-top.fitW1Prod1.Eta(),2)+pow(top.fitW1Prod2.Phi()-top.fitW1Prod1.Phi(),2)) > 2.",
+    ";#theta_{pull,ch}^{q_{1} #rightarrow q_{2}}, #DeltaR > 2; Permutations", 20, 0, 3.1416));
   
   // b pulls
-  hists.push_back(MyHistogram("pullChargedB1_B2", "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxB1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitB2.Phi()-top.fitB1.Phi()),-(top.fitB2.Eta()-top.fitB1.Eta())))))", myChain, ";#theta_{pull,ch}^{b_{1} #rightarrow b_{2}}; Permutations", 20, 0, 3.1416));
-  hists.push_back(MyHistogram("pullChargedB1_beam", "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxB1].Phi()-(TMath::Pi()+TMath::ATan2(-1,-0))))", myChain, ";#theta_{pull,ch}^{b_{1} #rightarrow beam}; Permutations", 20, 0, 3.1416));
-  hists.push_back(MyHistogram("pullChargedB2_B1", "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxB2].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitB1.Phi()-top.fitB2.Phi()),-(top.fitB1.Eta()-top.fitB2.Eta())))))", myChain, ";#theta_{pull,ch}^{b_{2} #rightarrow b_{1}}; Permutations", 20, 0, 3.1416));
-  hists.push_back(MyHistogram("pullChargedB2_beam", "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxB2].Phi()-(TMath::Pi()+TMath::ATan2(-1,-0))))", myChain, ";#theta_{pull,ch}^{b_{2} #rightarrow beam}; Permutations", 20, 0, 3.1416));
+  hists.push_back(MyHistogram("pullChargedB1_B2", "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxB1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitB2.Phi()-top.fitB1.Phi()),-(top.fitB2.Eta()-top.fitB1.Eta())))))", "", ";#theta_{pull,ch}^{b_{1} #rightarrow b_{2}}; Permutations", 20, 0, 3.1416));
+  hists.push_back(MyHistogram("pullChargedB1_beam", "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxB1].Phi()-(TMath::Pi()+TMath::ATan2(-1,-0))))", "", ";#theta_{pull,ch}^{b_{1} #rightarrow beam}; Permutations", 20, 0, 3.1416));
+  hists.push_back(MyHistogram("pullChargedB2_B1", "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxB2].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitB1.Phi()-top.fitB2.Phi()),-(top.fitB1.Eta()-top.fitB2.Eta())))))", "", ";#theta_{pull,ch}^{b_{2} #rightarrow b_{1}}; Permutations", 20, 0, 3.1416));
+  hists.push_back(MyHistogram("pullChargedB2_beam", "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxB2].Phi()-(TMath::Pi()+TMath::ATan2(-1,-0))))", "", ";#theta_{pull,ch}^{b_{2} #rightarrow beam}; Permutations", 20, 0, 3.1416));
+  
+  hists.push_back(MyHistogram("pullChargedB1_B2_deltaR_0",
+    "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxB1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitB2.Phi()-top.fitB1.Phi()),-(top.fitB2.Eta()-top.fitB1.Eta())))))",
+    "sqrt(pow(top.fitB2.Phi()-top.fitB1.Phi(),2)+pow(top.fitB2.Eta()-top.fitB1.Eta(),2)) < 1.",
+    ";#theta_{pull,ch}^{b_{1} #rightarrow b_{2}}, #DeltaR < 1; Permutations", 20, 0, 3.1416));
+  hists.push_back(MyHistogram("pullChargedB1_B2_deltaR_1",
+    "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxB1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitB2.Phi()-top.fitB1.Phi()),-(top.fitB2.Eta()-top.fitB1.Eta())))))",
+    "sqrt(pow(top.fitB2.Phi()-top.fitB1.Phi(),2)+pow(top.fitB2.Eta()-top.fitB1.Eta(),2)) > 1.",
+    ";#theta_{pull,ch}^{b_{1} #rightarrow b_{2}}, #DeltaR > 1; Permutations", 20, 0, 3.1416));
+  hists.push_back(MyHistogram("pullChargedB1_B2_deltaR_2",
+    "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxB1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitB2.Phi()-top.fitB1.Phi()),-(top.fitB2.Eta()-top.fitB1.Eta())))))",
+    "sqrt(pow(top.fitB2.Phi()-top.fitB1.Phi(),2)+pow(top.fitB2.Eta()-top.fitB1.Eta(),2)) > 2.",
+    ";#theta_{pull,ch}^{b_{1} #rightarrow b_{2}}, #DeltaR > 2; Permutations", 20, 0, 3.1416));
   
   // mixed pulls
-  hists.push_back(MyHistogram("pullChargedW1Prod1_B1", "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxW1Prod1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitB1.Phi()-top.fitW1Prod1.Phi()),-(top.fitB1.Eta()-top.fitW1Prod1.Eta())))))", myChain, ";#theta_{pull}^{q_{1} #rightarrow b_{1}}; Permutations", 20, 0, 3.1416));
-  hists.push_back(MyHistogram("pullChargedB1_W1Prod1", "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxB1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitW1Prod1.Phi()-top.fitB1.Phi()),-(top.fitW1Prod1.Eta()-top.fitB1.Eta())))))", myChain, ";#theta_{pull}^{b_{1} #rightarrow q_{1}}; Permutations", 20, 0, 3.1416));
+  hists.push_back(MyHistogram("pullChargedW1Prod1_B1", "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxW1Prod1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitB1.Phi()-top.fitW1Prod1.Phi()),-(top.fitB1.Eta()-top.fitW1Prod1.Eta())))))", "", ";#theta_{pull}^{q_{1} #rightarrow b_{1}}; Permutations", 20, 0, 3.1416));
+  hists.push_back(MyHistogram("pullChargedB1_W1Prod1", "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxB1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitW1Prod1.Phi()-top.fitB1.Phi()),-(top.fitW1Prod1.Eta()-top.fitB1.Eta())))))", "", ";#theta_{pull}^{b_{1} #rightarrow q_{1}}; Permutations", 20, 0, 3.1416));
+  
+  hists.push_back(MyHistogram("pullChargedW1Prod1_B1_deltaR_0",
+    "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxW1Prod1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitB1.Phi()-top.fitW1Prod1.Phi()),-(top.fitB1.Eta()-top.fitW1Prod1.Eta())))))",
+    "sqrt(pow(top.fitB1.Eta()-top.fitW1Prod1.Eta(),2)+pow(top.fitB1.Phi()-top.fitW1Prod1.Phi(),2)) < 1.",
+     ";#theta_{pull,ch}^{q_{1} #rightarrow b_{1}}, #DeltaR < 1; Permutations", 20, 0, 3.1416));
+  hists.push_back(MyHistogram("pullChargedW1Prod1_B1_deltaR_1",
+    "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxW1Prod1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitB1.Phi()-top.fitW1Prod1.Phi()),-(top.fitB1.Eta()-top.fitW1Prod1.Eta())))))",
+    "sqrt(pow(top.fitB1.Eta()-top.fitW1Prod1.Eta(),2)+pow(top.fitB1.Phi()-top.fitW1Prod1.Phi(),2)) > 1.",
+     ";#theta_{pull,ch}^{q_{1} #rightarrow b_{1}}, #DeltaR > 1; Permutations", 20, 0, 3.1416));
+  hists.push_back(MyHistogram("pullChargedW1Prod1_B1_deltaR_2",
+    "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxW1Prod1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitB1.Phi()-top.fitW1Prod1.Phi()),-(top.fitB1.Eta()-top.fitW1Prod1.Eta())))))",
+    "sqrt(pow(top.fitB1.Eta()-top.fitW1Prod1.Eta(),2)+pow(top.fitB1.Phi()-top.fitW1Prod1.Phi(),2)) > 2.",
+     ";#theta_{pull,ch}^{q_{1} #rightarrow b_{1}}, #DeltaR > 2; Permutations", 20, 0, 3.1416));
+  
+  hists.push_back(MyHistogram("pullChargedB1_W1Prod2_deltaR_0",
+    "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxB1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitW1Prod2.Phi()-top.fitB1.Phi()),-(top.fitW1Prod2.Eta()-top.fitB1.Eta())))))",
+    "sqrt(pow(top.fitB1.Eta()-top.fitW1Prod2.Eta(),2)+pow(top.fitB1.Phi()-top.fitW1Prod2.Phi(),2)) < 1.",
+     ";#theta_{pull,ch}^{b_{1} #rightarrow q_{2}}, #DeltaR < 1; Permutations", 20, 0, 3.1416));
+  hists.push_back(MyHistogram("pullChargedB1_W1Prod2_deltaR_1",
+    "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxB1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitW1Prod2.Phi()-top.fitB1.Phi()),-(top.fitW1Prod2.Eta()-top.fitB1.Eta())))))",
+    "sqrt(pow(top.fitB1.Eta()-top.fitW1Prod2.Eta(),2)+pow(top.fitB1.Phi()-top.fitW1Prod2.Phi(),2)) > 2.",
+     ";#theta_{pull,ch}^{b_{1} #rightarrow q_{2}}, #DeltaR > 1; Permutations", 20, 0, 3.1416));
+  hists.push_back(MyHistogram("pullChargedB1_W1Prod2_deltaR_2",
+    "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxB1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitW1Prod2.Phi()-top.fitB1.Phi()),-(top.fitW1Prod2.Eta()-top.fitB1.Eta())))))",
+    "sqrt(pow(top.fitB1.Eta()-top.fitW1Prod2.Eta(),2)+pow(top.fitB1.Phi()-top.fitW1Prod2.Phi(),2)) > 2.",
+     ";#theta_{pull,ch}^{b_{1} #rightarrow q_{2}}, #DeltaR > 2; Permutations", 20, 0, 3.1416));
   
   // others
-  hists.push_back(MyHistogram("fitProb", "top.fitProb", myChain, ";P_{gof}; Permutations", 50, 0, 1.0));
-  hists.push_back(MyHistogram("fitProbBest", "top.fitProb[0]", myChain, ";P_{gof}; Events", 50, 0, 1.0));
-  hists.push_back(MyHistogram("deltaRbbBest", "sqrt(pow(top.fitB1[0].Eta()-top.fitB2[0].Eta(),2) + pow(TVector2::Phi_mpi_pi(top.fitB1[0].Phi()-top.fitB2[0].Phi()),2))", myChain, ";#DeltaR_{b#bar{b}}; Events", 50, 1, 6));
+  hists.push_back(MyHistogram("fitProb", "top.fitProb", "", ";P_{gof}; Permutations", 50, 0, 1.0));
+  hists.push_back(MyHistogram("fitProbBest", "top.fitProb[0]", "", ";P_{gof}; Events", 50, 0, 1.0));
+  hists.push_back(MyHistogram("deltaRbbBest", "sqrt(pow(top.fitB1[0].Eta()-top.fitB2[0].Eta(),2) + pow(TVector2::Phi_mpi_pi(top.fitB1[0].Phi()-top.fitB2[0].Phi()),2))", "", ";#DeltaR_{b#bar{b}}; Events", 50, 1, 6));
   
   // pts
-  hists.push_back(MyHistogram("jet1Pt", "jet.jet[0].Pt()", myChain, ";p_{T}^{1} [GeV]; Events", 45, 0, 450));
-  hists.push_back(MyHistogram("jet2Pt", "jet.jet[1].Pt()", myChain, ";p_{T}^{2} [GeV]; Events", 40, 0, 400));
-  hists.push_back(MyHistogram("jet3Pt", "jet.jet[2].Pt()", myChain, ";p_{T}^{3} [GeV]; Events", 50, 0, 250));
-  hists.push_back(MyHistogram("jet4Pt", "jet.jet[3].Pt()", myChain, ";p_{T}^{4} [GeV]; Events", 40, 0, 200));
-  hists.push_back(MyHistogram("jet5Pt", "jet.jet[4].Pt()", myChain, ";p_{T}^{5} [GeV]; Events", 50, 0, 150));
-  hists.push_back(MyHistogram("jet6Pt", "jet.jet[5].Pt()", myChain, ";p_{T}^{6} [GeV]; Events", 50, 0, 100));
-  hists.push_back(MyHistogram("topPt", "top.fitTop1.Pt()", myChain, ";p_{T,t}^{fit} [GeV]; Permutations", 40, 0, 400));
-  hists.push_back(MyHistogram("fitRlb", "(top.fitB1.Pt()+top.fitB2.Pt())/(top.fitW1Prod1.Pt()+top.fitW1Prod2.Pt())", myChain, ";R_{lb}^{fit}; Permutations", 40, 0, 4));
-  hists.push_back(MyHistogram("recoRlb", "(top.recoB1.Pt()+top.recoB2.Pt())/(top.recoW1Prod1.Pt()+top.recoW1Prod2.Pt())", myChain, ";R_{lb}^{reco}; Permutations", 40, 0, 4));
+  hists.push_back(MyHistogram("jet1Pt", "jet.jet[0].Pt()", "", ";p_{T}^{1} [GeV]; Events", 45, 0, 450));
+  hists.push_back(MyHistogram("jet2Pt", "jet.jet[1].Pt()", "", ";p_{T}^{2} [GeV]; Events", 40, 0, 400));
+  hists.push_back(MyHistogram("jet3Pt", "jet.jet[2].Pt()", "", ";p_{T}^{3} [GeV]; Events", 50, 0, 250));
+  hists.push_back(MyHistogram("jet4Pt", "jet.jet[3].Pt()", "", ";p_{T}^{4} [GeV]; Events", 40, 0, 200));
+  hists.push_back(MyHistogram("jet5Pt", "jet.jet[4].Pt()", "", ";p_{T}^{5} [GeV]; Events", 50, 0, 150));
+  hists.push_back(MyHistogram("jet6Pt", "jet.jet[5].Pt()", "", ";p_{T}^{6} [GeV]; Events", 50, 0, 100));
+  
+  hists.push_back(MyHistogram("fitTop1Pt", "top.fitTop1.Pt()", "", ";p_{T,t}^{fit} [GeV]; Permutations", 40, 0, 400));
+  hists.push_back(MyHistogram("fitTop1PtBest", "top.fitTop1[0].Pt()", "", ";p_{T,t}^{fit} [GeV]; Events", 40, 0, 400));
+  hists.push_back(MyHistogram("fitTop1Pt_barrel", "top.fitTop1.Pt()", "top.fitB1.Eta()<1.1 & top.fitW1Prod1.Eta()<1.1 & top.fitW1Prod2.Eta()<1.1", ";p_{T,t}^{fit} [GeV], #eta^{j}<1.1; Permutations", 40, 0, 400));
+  hists.push_back(MyHistogram("fitRlb", "(top.fitB1.Pt()+top.fitB2.Pt())/(top.fitW1Prod1.Pt()+top.fitW1Prod2.Pt())", "", ";R_{lb}^{fit}; Permutations", 40, 0, 4));
+  hists.push_back(MyHistogram("recoRlb", "(top.recoB1.Pt()+top.recoB2.Pt())/(top.recoW1Prod1.Pt()+top.recoW1Prod2.Pt())", "", ";R_{lb}^{reco}; Permutations", 40, 0, 4));
+  
+  hists.push_back(MyHistogram("fitB1Pt", "top.fitB1.Pt()", "", ";p_{T}^{B1} [GeV]; Permutations", 40, 0, 200));
+  hists.push_back(MyHistogram("fitB2Pt", "top.fitB2.Pt()", "", ";p_{T}^{B2} [GeV]; Permutations", 40, 0, 200));
+  hists.push_back(MyHistogram("fitW1Prod1Pt", "top.fitW1Prod1.Pt()", "", ";p_{T}^{W1,1} [GeV]; Permutations", 40, 0, 200));
+  hists.push_back(MyHistogram("fitW1Prod2Pt", "top.fitW1Prod2.Pt()", "", ";p_{T}^{W1,2} [GeV]; Permutations", 40, 0, 200));
+  hists.push_back(MyHistogram("fitW2Prod1Pt", "top.fitW2Prod1.Pt()", "", ";p_{T}^{W2,1} [GeV]; Permutations", 40, 0, 200));
+  hists.push_back(MyHistogram("fitW2Prod2Pt", "top.fitW2Prod2.Pt()", "", ";p_{T}^{W2,2} [GeV]; Permutations", 40, 0, 200));
+  
+  // lepton+jets
+  hists.push_back(MyHistogram("leptonPt", "top.fitW2Prod1.Pt()", "", ";p_{T}^{lepton} [GeV]; Events", 40, 0, 200));
+  hists.push_back(MyHistogram("leptonEta", "top.fitW2Prod1.Eta()", "", ";#eta^{lepton}; Events", 25, -2.5, 2.5));
+  
+  // jet details
+  hists.push_back(MyHistogram("nChargedHadrons", "jet.nChargedHadrons", "jet.bTagCSV>0.679", ";N_{ch}; Jets", 40, 0, 200));
+  
+  // event observables
+  hists.push_back(MyHistogram("nJet", "jet.@jet.size()", "", ";N_{jet}; Events", 10, 0, 10));
+  hists.push_back(MyHistogram("nVertex", "weight.nVertex", "", ";N_{vertex}; Events", 50, 0, 50));
   
   // datasets
   if (channelID_ == Helper::kAllJets) {
@@ -104,7 +181,20 @@ void TopMassControlPlots::doPlots()
     //* Signal variations
     samples.push_back(MySample("t#bar{t}, Z2*", "Summer12_TTJets1725_MGDecays", kSigVar, kRed+1, 1, lumi/1000.*9./4.));
     samples.push_back(MySample("t#bar{t}, P11", "Summer12_TTJets1725_MGDecays_P11", kSigVar, kMagenta+1, 9, lumi/1000.*9./4.));
-    samples.push_back(MySample("t#bar{t}, P11noCR", "Summer12_TTJets1725_MGDecays_P11noCR", kSigVar, kCyan+1, 2, lumi/1000.*9./4.));//*/
+    samples.push_back(MySample("t#bar{t}, P11noCR", "Summer12_TTJets1725_MGDecays_P11noCR", kSigVar, kCyan+1, 2, lumi/1000.*9./4.));
+    //*/
+    /* Signal variations (Powheg)
+    samples.push_back(MySample("t#bar{t}, Z2*", "Summer12_TTJets1725_1.00", kSigVar, kRed+1, 1, lumi/1000.));
+    samples.push_back(MySample("t#bar{t}, Powheg+Pythia", "Summer12_TTJets1725_powheg", kSigVar, kGreen+1, 9, lumi/1000.));
+    samples.push_back(MySample("t#bar{t}, Powheg+Herwig", "Summer12_TTJets1725_powheg_herwig", kSigVar, kBlue+1, 7, lumi/1000.));
+    //*/
+    /* Signal variations (JES)
+    samples.push_back(MySample("t#bar{t}, JES = 0.96", "Summer12_TTJets1725_0.96", kSigVar, kRed+1, 1, lumi/1000.));
+    samples.push_back(MySample("t#bar{t}, JES = 0.98", "Summer12_TTJets1725_0.98", kSigVar, kMagenta+1, 1, lumi/1000.));
+    samples.push_back(MySample("t#bar{t}, JES = 1.00", "Summer12_TTJets1725_1.00", kSigVar, kBlue+1, 1, lumi/1000.));
+    samples.push_back(MySample("t#bar{t}, JES = 1.02", "Summer12_TTJets1725_1.02", kSigVar, kCyan+1, 1, lumi/1000.));
+    samples.push_back(MySample("t#bar{t}, JES = 1.04", "Summer12_TTJets1725_1.04", kSigVar, kGreen+1, 1, lumi/1000.));
+    //*/
   }
   
 
@@ -153,8 +243,10 @@ void TopMassControlPlots::doPlots()
         long entry = chain->LoadTree(i);
         if(entry  < 0) break;
         if(entry == 0){
-          for(auto& hist : hists)
+          for(auto& hist : hists) {
             hist.var->UpdateFormulaLeaves();
+            if (hist.selection.size() > 0) hist.sel->UpdateFormulaLeaves();
+          }
           weight.UpdateFormulaLeaves();
           sel   .UpdateFormulaLeaves();
           selCP .UpdateFormulaLeaves();
@@ -169,6 +261,10 @@ void TopMassControlPlots::doPlots()
           if(!sel.EvalInstance(j)) continue;
           for(MyHistogram& hist : hists){
             if(!hist.var->GetNdata()) continue;
+            if (hist.selection.size() > 0) {
+              if(!hist.sel->GetNdata()) continue;
+              if(!hist.sel->EvalInstance(j)) continue;
+            }
             if     (sample.type == kData) {
               hist.data->Fill(hist.var->EvalInstance(j), weight.EvalInstance(j)*sample.scale);
             }
@@ -263,24 +359,24 @@ void TopMassControlPlots::doPlots()
     canv->Print((std::string("plot/controlplots/")+channel+std::string("/")+channel+std::string("_")+std::string(hist.data->GetName())+std::string(".png")).c_str(),"png");
     
     // Draw signal variation plot
-    
-    hist.data->GetYaxis()->UnZoom();
-    hist.data->GetYaxis()->SetRangeUser(hist.data->GetMinimum()*0.9, hist.data->GetMaximum()*1.15);
-    hist.data->Draw("p");
-    for(TH1F* sigvar : hist.sigvar) sigvar->Draw("hist same");
-    hist.data->Draw("p same");
-    
-    leg1->Clear();
-    for(TH1F* sigvar : hist.sigvar) leg1->AddEntry( sigvar, sigvar->GetTitle(), "L" );
-    leg1->AddEntry( hist.data, hist.data->GetTitle(), "P" );
-    leg1->Draw();
-    
-    helper->DrawCMS();
-    
-    gPad->RedrawAxis();
-    
-    canv->Print((std::string("plot/controlplots/")+channel+std::string("/")+channel+std::string("_")+std::string(hist.data->GetName())+std::string("_sigvar.eps")).c_str(),"eps");
-    canv->Print((std::string("plot/controlplots/")+channel+std::string("/")+channel+std::string("_")+std::string(hist.data->GetName())+std::string("_sigvar.png")).c_str(),"png");
-    
+    if (hist.sigvar.size() > 0) {
+      hist.data->GetYaxis()->UnZoom();
+      hist.data->GetYaxis()->SetRangeUser(hist.data->GetMinimum()*0.9, hist.data->GetMaximum()*1.15);
+      hist.data->Draw("p");
+      for(TH1F* sigvar : hist.sigvar) sigvar->Draw("hist same");
+      hist.data->Draw("p same");
+      
+      leg1->Clear();
+      for(TH1F* sigvar : hist.sigvar) leg1->AddEntry( sigvar, sigvar->GetTitle(), "L" );
+      leg1->AddEntry( hist.data, hist.data->GetTitle(), "P" );
+      leg1->Draw();
+      
+      helper->DrawCMS();
+      
+      gPad->RedrawAxis();
+      
+      canv->Print((std::string("plot/controlplots/")+channel+std::string("/")+channel+std::string("_")+std::string(hist.data->GetName())+std::string("_sigvar.eps")).c_str(),"eps");
+      canv->Print((std::string("plot/controlplots/")+channel+std::string("/")+channel+std::string("_")+std::string(hist.data->GetName())+std::string("_sigvar.png")).c_str(),"png");
+    }
   }
 }
