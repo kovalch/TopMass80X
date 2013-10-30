@@ -21,8 +21,8 @@ TChain* tData;
 TChain* tTTJets096;
 TChain* tTTJets100;
 TChain* tTTJets104;
-TChain* tTTJetsFlavorUp;
-TChain* tTTJetsFlavorDown;
+TChain* tTTJetsScaleUp;
+TChain* tTTJetsScaleDown;
 TChain* tTTJetsP11;
 TChain* tTTJetsP11noCR;
 
@@ -64,7 +64,7 @@ std::vector<sample>::iterator it;
 
 TH1F* responseProfile(TString sDraw, TChain* chain, TString label) {
   sDraw += " >> h2"; sDraw += label; sDraw += sDraw(0, 3); sDraw += "("; sDraw += nbins; sDraw += ","; sDraw += xfirst; sDraw += ","; sDraw += xlast; sDraw += ")";
-  chain->Draw(sDraw, "(top.fitProb>0.2)*(weight.combinedWeight)");
+  chain->Draw(sDraw, "(top.fitProb>0.2 & abs(top.recoW1Prod1.Eta())<2 & abs(top.recoW1Prod2.Eta())<2 & sqrt(pow(top.recoW1Prod2.Eta()-top.recoW1Prod1.Eta(),2)+pow(top.recoW1Prod2.Phi()-top.recoW1Prod1.Phi(),2))>1 & sqrt(pow(top.recoW1Prod2.Eta()-top.recoW1Prod1.Eta(),2)+pow(top.recoW1Prod2.Phi()-top.recoW1Prod1.Phi(),2))<1.5)*(weight.combinedWeight)");
   TString sH2("h2"); sH2 += label; sH2 += sDraw(0, 3);
   TH1F* h2 = (TH1F*) gDirectory->Get(sH2);
   /*
@@ -124,6 +124,8 @@ void CRStudy()
   TString sTree("analyzeHitFit/eventTree");
   tData             = new TChain(sTree);
   tTTJets100        = new TChain(sTree);
+  tTTJetsScaleUp    = new TChain(sTree);
+  tTTJetsScaleDown  = new TChain(sTree);
   tTTJetsP11        = new TChain(sTree);
   tTTJetsP11noCR    = new TChain(sTree);
   
@@ -134,6 +136,8 @@ void CRStudy()
   if (channel == kMuon || channel == kAll) {
     tData             ->Add("/scratch/hh/dust/naf/cms/user/mseidel/trees/Run2012_muon/job_*.root");
     tTTJets100        ->Add("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1725_1.00_muon/job_*.root");
+    //tTTJetsScaleUp    ->Add("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1725_scaleup_muon/job_*.root");
+    //tTTJetsScaleDown  ->Add("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1725_scaledown_muon/job_*.root");
     tTTJetsP11        ->Add("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1725_SemiLept_P11_muon/job_*.root");
     tTTJetsP11noCR    ->Add("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1725_SemiLept_P11noCR_muon/job_*.root");
   }
@@ -145,6 +149,8 @@ void CRStudy()
   
   samples.push_back(sample(tData, "Data", kBlack));
   samples.push_back(sample(tTTJets100, "Z2", kRed+1, 19.7));
+  //samples.push_back(sample(tTTJetsScaleUp, "Z2, scale up", kGreen+1, 19.7));
+  //samples.push_back(sample(tTTJetsScaleDown, "Z2, scale down", kBlue+1, 19.7));
   samples.push_back(sample(tTTJetsP11, "P11", kMagenta+1, 19.7*9./4.));
   samples.push_back(sample(tTTJetsP11noCR, "P11noCR", kCyan+1, 19.7*9./4.));
     
@@ -153,8 +159,8 @@ void CRStudy()
   for (it = samples.begin(); it != samples.end(); ++it) {
     
     //it->profile  = responseProfile("hadTopMass", it->chain, it->label);
-    it->profile  = responseProfile("abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxW1Prod1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitW1Prod2.Phi()-top.fitW1Prod1.Phi()),-(top.fitW1Prod2.Eta()-top.fitW1Prod1.Eta())))))", it->chain, it->label);
-    //it->profile  = responseProfile("abs(TVector2::Phi_mpi_pi(jet.pull[top.recoJetIdxW1Prod2].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitW1Prod1.Phi()-top.fitW1Prod2.Phi()),-(top.fitW1Prod1.Eta()-top.fitW1Prod2.Eta())))))", it->chain, it->label);
+    //it->profile  = responseProfile("abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxW1Prod1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitW1Prod2.Phi()-top.fitW1Prod1.Phi()),-(top.fitW1Prod2.Eta()-top.fitW1Prod1.Eta())))))", it->chain, it->label);
+    it->profile  = responseProfile("abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxW1Prod2].Phi()-(TMath::Pi()+TMath::ATan2(-(top.recoW1Prod1.Phi()-top.recoW1Prod2.Phi()),-(top.recoW1Prod1.Eta()-top.recoW1Prod2.Eta())))))", it->chain, it->label);
     //it->profile  = responseProfile("abs(TVector2::Phi_mpi_pi(jet.pull[top.recoJetIdxB1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitB2.Phi()-top.fitB1.Phi()),-(top.fitB2.Eta()-top.fitB1.Eta())))))", it->chain, it->label);
     std::cout << it->profile->GetEntries() << std::endl;
     //it->profile  = responseProfile("abs(TVector2::Phi_mpi_pi(jet[recoJetIdxB1].pull.Phi()-(TMath::Pi()+TMath::ATan2(-(fitB2.Phi()-fitB1.Phi()),-(fitB2.Eta()-fitB1.Eta())))))", it->chain, it->label);
