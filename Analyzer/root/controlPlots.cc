@@ -52,7 +52,6 @@ void TopMassControlPlots::doPlots()
   TChain* myChain = new TChain("analyzeKinFit/eventTree");
   myChain->Add("/scratch/hh/dust/naf/cms/user/kirschen/BRegression_GC/SemiLeptOutput_All/Run2012_muon/job_Run2012A_analyzeTop.root"); //almost not needed anymore, remove in next iteration
 
-  //TODO: Automatically replace "top." by topBranchName+"."
   // masses
   hists.push_back(MyHistogram("fitTop1Mass", "top.fitTop1.M()", "", ";m_{t}^{fit} [GeV]; Permutations", 75, 50, 400));
   hists.push_back(MyHistogram("recoTop1Mass", "top.recoTop1.M()", "", ";m_{t}^{reco} [GeV]; Permutations", 75, 50, 400));
@@ -170,11 +169,11 @@ void TopMassControlPlots::doPlots()
   
   MyBRegVarInfo helperMyBRegVarInfo;
   for (size_t bvar_i=0;bvar_i<helperMyBRegVarInfo.varNames.size();bvar_i++){
-    hists.push_back(MyHistogram("B1"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),helperMyBRegVarInfo.varForms.at(bvar_i)+"["+topBranchName+"recoJetIdxB1]",myChain,";"+helperMyBRegVarInfo.varNames.at(bvar_i)+"; Events",20,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i) ));
-    hists.push_back(MyHistogram("W1Prod1"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),helperMyBRegVarInfo.varForms.at(bvar_i)+"["+topBranchName+"recoJetIdxW1Prod1]",myChain,";"+helperMyBRegVarInfo.varNames.at(bvar_i)+"; Events",20,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i) ));
+    hists.push_back(MyHistogram("B1"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),helperMyBRegVarInfo.varForms.at(bvar_i)+"["+topBranchName+"recoJetIdxB1]", "",";"+helperMyBRegVarInfo.varNames.at(bvar_i)+"; Events",20,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i) ));
+    hists.push_back(MyHistogram("W1Prod1"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),helperMyBRegVarInfo.varForms.at(bvar_i)+"["+topBranchName+"recoJetIdxW1Prod1]", "",";"+helperMyBRegVarInfo.varNames.at(bvar_i)+"; Events",20,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i) ));
     //2D
-    hists.push_back(MyHistogram("B1TopMassVs"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),helperMyBRegVarInfo.varForms.at(bvar_i)+"["+topBranchName+"recoJetIdxB1]", topBranchName+"fitTop1.M()",myChain,";"+helperMyBRegVarInfo.varNames.at(bvar_i)+"; m_{t}^{fit} [GeV]",20,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i), 20, 50, 400 ));
-    hists.push_back(MyHistogram("B1GBRTrainFactorVs"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),helperMyBRegVarInfo.varForms.at(bvar_i)+"["+topBranchName+"recoJetIdxB1]", "BRegJet.BRegGBRTrainResult["+topBranchName+"recoJetIdxB1]",myChain,";"+helperMyBRegVarInfo.varNames.at(bvar_i)+"; GBRFactor",20,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i), 20, 0., 2. ));
+    hists.push_back(MyHistogram("B1TopMassVs"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),helperMyBRegVarInfo.varForms.at(bvar_i)+"["+topBranchName+"recoJetIdxB1]", topBranchName+"fitTop1.M()", "",";"+helperMyBRegVarInfo.varNames.at(bvar_i)+"; m_{t}^{fit} [GeV]",20,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i), 20, 50, 400 ));
+    hists.push_back(MyHistogram("B1GBRTrainFactorVs"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),helperMyBRegVarInfo.varForms.at(bvar_i)+"["+topBranchName+"recoJetIdxB1]", "BRegJet.BRegGBRTrainResult["+topBranchName+"recoJetIdxB1]", "",";"+helperMyBRegVarInfo.varNames.at(bvar_i)+"; GBRFactor",20,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i), 20, 0., 2. ));
 
   }
 
@@ -191,7 +190,7 @@ void TopMassControlPlots::doPlots()
     samples.push_back(MySample("Z+Jets", "Summer12_ZJets", kBkg, kAzure-2, 1, lumi/1000.));
     samples.push_back(MySample("W+Jets", "Summer12_WJets", kBkg, kGreen-3, 1, lumi/1000.));
     samples.push_back(MySample("single top", "Summer12_singleTop", kBkg, kMagenta, 1, lumi/1000.));
-    //* Signal variations
+    /* Signal variations
     samples.push_back(MySample("t#bar{t}, Z2*", "Summer12_TTJets1725_MGDecays", kSigVar, kRed+1, 1, lumi/1000.*9./4.));
     samples.push_back(MySample("t#bar{t}, P11", "Summer12_TTJets1725_MGDecays_P11", kSigVar, kMagenta+1, 9, lumi/1000.*9./4.));
     samples.push_back(MySample("t#bar{t}, P11noCR", "Summer12_TTJets1725_MGDecays_P11noCR", kSigVar, kCyan+1, 2, lumi/1000.*9./4.));
@@ -231,7 +230,7 @@ void TopMassControlPlots::doPlots()
       std::cout << "Adding " << nFiles << " files for " << sample.name << " (" << sample.file << ")" << std::endl;
 
       for(MyHistogram& hist : hists) {
-        hist.Init(chain);
+        hist.Init(chain, topBranchName);
         if     (sample.type == kSig    ) hist.AddSignal(&sample);
         else if(sample.type == kBkg    ) hist.AddBackground(&sample);
         else if(sample.type == kSigVar ) hist.AddSignalVariation(&sample);
@@ -239,7 +238,8 @@ void TopMassControlPlots::doPlots()
 
       TTreeFormula weight("weight", po::GetOption<std::string>("weight").c_str(), chain);
       std::string tempSelectionString = po::GetOption<std::string>("analysisConfig.selection");
-      if(replaceBReg)boost::replace_all(tempSelectionString,"bRegTop.","top.");
+      //TODO: Where is replaceBReg supposed to come from?
+      //if(replaceBReg)boost::replace_all(tempSelectionString,"bRegTop.","top.");
       TTreeFormula sel   ("sel"   , tempSelectionString.c_str(), chain);
       TTreeFormula selCP ("selCP" , (po::GetOption<std::string>("analysisConfig.selection")
 				     +std::string(" & ")+po::GetOption<std::string>("analysisConfig.selectionCP")).c_str(), chain);
@@ -599,7 +599,7 @@ void TopMassControlPlots::doPlots()
       //      canvWRatio->Clear();
       std::vector<TH1*> collectRatios;
       for(TH1F* sigvar : hist.Sigvar1D()){
-    	  collectRatios.push_back(createRatioPlot((TH1 *)hist.Data1D(), ((TH1 *)(sigvar)), "Data/MC"));
+    	  collectRatios.push_back(HelperFunctions::createRatioPlot((TH1 *)hist.Data1D(), ((TH1 *)(sigvar)), "Data/MC"));
     	  collectRatios.back()->SetMarkerColor(sigvar->GetLineColor());
     	  collectRatios.back()->SetLineColor(sigvar->GetLineColor());
     	  collectRatios.back()->SetLineStyle(sigvar->GetLineStyle());

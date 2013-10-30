@@ -55,8 +55,10 @@ private:
       data->SetMarkerColor(kBlack);
     }
 
-    void Init(TChain* chain)
+    void Init(TChain* chain, std::string topBranchName)
     {
+      boost::replace_all(formulax, "top.", topBranchName);
+      boost::replace_all(formulay, "top.", topBranchName);
       varx = new TTreeFormula((std::string("fx")+name).c_str(), formulax.c_str() , chain);
       vary = new TTreeFormula((std::string("fy")+name).c_str(), formulay.c_str() , chain);
       if (selection.size() > 0) sel = new TTreeFormula((std::string("s")+name).c_str(), selection.c_str(), chain);
