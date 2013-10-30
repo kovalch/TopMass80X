@@ -2,7 +2,7 @@
 
 #include "ProgramOptionsReader.h"
 
-#include "TH1F.h"
+//#include "TH1F.h"
 #include "TStyle.h"
 #include "TPaveLabel.h"
 
@@ -301,3 +301,63 @@ int Helper::methodID()
 {
   return methodIDFromString(po::GetOption<std::string>("method"));
 }
+
+std::string HelperFunctions::cleanedName(std::string toBeCleaned){
+    //    std::string toBeCleaned = varNames.at(i);
+    //      std::cout << "before clean: " << toBeCleaned<< std::endl;
+    boost::replace_all(toBeCleaned,"(","_"      );
+    boost::replace_all(toBeCleaned,")","_"      );
+    boost::replace_all(toBeCleaned,"/","_"      );
+    boost::replace_all(toBeCleaned,"#","_"      );
+    boost::replace_all(toBeCleaned," ","_"      );
+    boost::replace_all(toBeCleaned,"{","_"      );
+    boost::replace_all(toBeCleaned,"}","_"      );
+    boost::replace_all(toBeCleaned,"^","_"      );
+    boost::replace_all(toBeCleaned,".","_"      );
+    boost::replace_all(toBeCleaned,",",""       );
+    boost::replace_all(toBeCleaned,";",""       );
+    boost::replace_all(toBeCleaned,"|",""       );
+    boost::replace_all(toBeCleaned,"+","_"      );
+    boost::replace_all(toBeCleaned,"<","_st_"   );
+    boost::replace_all(toBeCleaned,">","_gt_"   );
+    //      std::cout << "after clean: " << toBeCleaned<< std::endl;
+    return toBeCleaned;
+}
+
+// -------------------------------------------------------------------------------------
+void HelperFunctions::findYRange(const TH1 *h, double& min, double& max) {
+  min = 1E10;
+  max = 0.;
+  for(int bin = 1; bin <= h->GetNbinsX(); ++bin) {
+    double val = h->GetBinContent(bin);
+    std::cout << "bin " << bin << " val " << val << std::endl;
+    if( val < min && val!=0) min = val;
+    if( val > max ) max = val;
+  }
+  if( min > max ) {
+    min = 1E-3;
+    max = 1;
+  }
+}
+
+
+// -------------------------------------------------------------------------------------
+void HelperFunctions::setCommonYRange(std::vector <TH1 *> histos, double RelTopOffset) {
+  if(histos.size()>0){
+    double min = 0.;
+    double max = 0.;
+    findYRange(histos.at(0),min,max);
+    for(unsigned int i = 1; i < histos.size(); i++) {
+      double minTmp = 0;
+      double maxTmp = 0;
+      findYRange(histos.at(i),minTmp,maxTmp);
+      if( minTmp < min ) min = minTmp;
+      if( maxTmp > max ) max = maxTmp;
+    }
+    for(unsigned int i = 0; i < histos.size(); i++) {
+      histos.at(i)->GetYaxis()->SetRangeUser(min-((max-min)*0.1),(max-min)/(1-RelTopOffset)+min);
+    }
+  }
+}
+
+

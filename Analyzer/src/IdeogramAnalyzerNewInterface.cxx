@@ -29,7 +29,8 @@ IdeogramAnalyzerNewInterface::IdeogramAnalyzerNewInterface(const std::string& id
     pullWidth_                    (po::GetOption<double>("pullWidth")),
     isFastSim_                    (po::GetOption<int   >("fastsim"  )),
     shapeSystematic_              (po::GetOption<double>("shape"    )),
-    permutationFractionSystematic_(po::GetOption<double>("permu"    ))
+    permutationFractionSystematic_(po::GetOption<double>("permu"    )),
+    topBranchName_                (po::GetOption<std::string>("topBranchName"))
 {
 }
 
@@ -426,7 +427,7 @@ void IdeogramAnalyzerNewInterface::Scan(const std::string& cuts, int i, int j, d
     helper->DrawCMS();
 
     TString localIdentifier = fIdentifier_; localIdentifier.ReplaceAll("*","_"); localIdentifier.ReplaceAll("/","_");
-    std::string path(plotPath); path+= localIdentifier; path += "_"; path += boost::lexical_cast<std::string>(i); path += std::string("_"); path += boost::lexical_cast<std::string>(j); path += std::string(".eps");
+    std::string path(plotPath); path+= localIdentifier; path += "_"; path += boost::lexical_cast<std::string>(i); path += std::string("_"); path += boost::lexical_cast<std::string>(j); path+=topBranchName_+"_"; path += std::string(".eps");
     ctemp->Print(path.c_str());
     delete leg0;
   }
@@ -475,7 +476,7 @@ void IdeogramAnalyzerNewInterface::Scan(const std::string& cuts, int i, int j, d
     helper->DrawCMS();
 
     TString localIdentifier = fIdentifier_; localIdentifier.ReplaceAll("*","_"); localIdentifier.ReplaceAll("/","_");
-    std::string path1D(plotPath); path1D+= localIdentifier; path1D += std::string("_"); path1D += boost::lexical_cast<std::string>(i); path1D += std::string("_"); path1D += boost::lexical_cast<std::string>(j); path1D += std::string("_1D.eps");
+    std::string path1D(plotPath); path1D+= localIdentifier; path1D += std::string("_"); path1D += boost::lexical_cast<std::string>(i); path1D += std::string("_"); path1D += boost::lexical_cast<std::string>(j); path1D+=topBranchName_+"_"; path1D += std::string("_1D.eps");
     ctemp->Print(path1D.c_str());
 
     //sumLogLikelihood1D->Delete();
