@@ -55,15 +55,15 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface() :
   if (channelID_ == Helper::kMuonJets || channelID_ == Helper::kLeptonJets) {
     PrepareEvents(samplePath_+fIdentifier_+std::string("_muon/job_*.root"));
     if(fLumi_>0) {
-      PrepareEvents("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_WJets_muon/job_*.root");
-      PrepareEvents("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_singleTop_muon/job_*.root");
+      PrepareEvents(""+samplePath_+"Summer12_WJets_muon/job_*.root");
+      PrepareEvents(""+samplePath_+"Summer12_singleTop_muon/job_*.root");
     }
   }
   if (channelID_ == Helper::kElectronJets || channelID_ == Helper::kLeptonJets) {
     PrepareEvents(samplePath_+fIdentifier_+std::string("_electron/job_*.root"));
     if(fLumi_>0) {
-      PrepareEvents("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_WJets_electron/job_*.root");
-      PrepareEvents("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_singleTop_electron/job_*.root");
+      PrepareEvents(""+samplePath_+"Summer12_WJets_electron/job_*.root");
+      PrepareEvents(""+samplePath_+"Summer12_singleTop_electron/job_*.root");
     }
   }
   time(&end);
