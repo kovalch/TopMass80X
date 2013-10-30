@@ -245,8 +245,8 @@ from TopMass.TopEventTree.WeightEventAnalyzer_cfi import analyzeWeights
 process.analyzeWeights = analyzeWeights.clone(
                                               mcWeight        = options.mcWeight,
                                               puWeightSrc     = cms.InputTag("eventWeightPUsysNo"  , "eventWeightPU"),
-                                              puWeightUpSrc   = cms.InputTag("eventWeightPUsysUp"  , "eventWeightPU"),
-                                              puWeightDownSrc = cms.InputTag("eventWeightPUsysDown", "eventWeightPU"),
+                                              puWeightUpSrc   = cms.InputTag("eventWeightPUsysUp"  , "eventWeightPUUp"),
+                                              puWeightDownSrc = cms.InputTag("eventWeightPUsysDown", "eventWeightPUDown"),
                                               savePDFWeights = True
                                              )
 
