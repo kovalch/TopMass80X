@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <math.h>
 
 #include "TFile.h"
 #include "TCanvas.h"
@@ -21,10 +22,10 @@ int target = 1; // 1: correct, 0: wrong, -10: unmatched
 int obs    = 0; // 0: hadTopMass, 1: hadWRawMass
 int lepton = 0;
 
-int iMassMin = 0;
-int iMassMax = 9;
+int iMassMin = 4;
+int iMassMax = 5;
 
-bool plotByMass = false;
+bool plotByMass = true;
 bool pas = false;
 
 TString sTarget[] = {"wp", "cp", "un"};
@@ -83,10 +84,10 @@ double ey6[5];
 double params[12];
 
 enum styles          { kDown, kNominal, kUp};
-int color_   [ 5 ] = { kRed+1, kBlue+1, kGreen+1, kViolet-2, kCyan-3};
-int marker_  [ 5 ] = { 23, 20, 22, 25, 26};
-int line_    [ 5 ] = { 7, 1, 9, 4, 10};
-int width_   [ 5 ] = { 2, 3, 2, 2, 2};
+int color_   [ 5 ] = { kRed+1, kRed+1, kBlue+1, kGreen+1, kGreen+1};
+int marker_  [ 5 ] = { 23, 23, 20, 22, 22};
+int line_    [ 5 ] = { 7, 7, 1, 9, 9};
+int width_   [ 5 ] = { 2, 2, 3, 2, 2};
 
 void FindParametersMass(int iMass);
 TH1F* FindParameters(TString filename, int i);
@@ -432,9 +433,12 @@ void FindParametersMass(int iMass)
     }
   }
   else if (plotByMass) {
+    std::cout << "PLOT BY MASS" << std::endl;
     h096 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1665_1.00", 0);
-    h100 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1725_1.00", 1);
-    h104 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1785_1.00", 2);
+    h098 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1695_1.00", 1);
+    h100 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1725_1.00", 2);
+    h102 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1755_1.00", 3);
+    h104 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1785_1.00", 4);
   }
   else {
     if (obs==0) h166 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1665_1.00", 3);
@@ -780,14 +784,13 @@ TH1F* FindParameters(TString filename, int i)
     }
   }
   
-  int j = i/2;
-  h1->SetFillColor(color_[j]);
-  h1->SetLineColor(color_[j]);
-  h1->SetMarkerColor(color_[j]);
-  h1->SetMarkerStyle(marker_[j]);
+  h1->SetFillColor(color_[i]);
+  h1->SetLineColor(color_[i]);
+  h1->SetMarkerColor(color_[i]);
+  h1->SetMarkerStyle(marker_[i]);
   h1->SetMarkerSize(1.5);
-  fit->SetLineColor(color_[j]);
-  fit->SetLineStyle(line_[j]);
+  fit->SetLineColor(color_[i]);
+  fit->SetLineStyle(line_[i]);
   
   TFitResultPtr r = h1->Fit("fit","WEMSR");
   
