@@ -302,6 +302,20 @@ int Helper::methodID()
   return methodIDFromString(po::GetOption<std::string>("method"));
 }
 
+
+
+TH1* HelperFunctions::createRatioPlot(const TH1 *h1, const TH1 *h2, const std::string &yTitle){
+  assert( h1->GetNbinsX() == h2->GetNbinsX() );
+  std::string name = std::string("Ratio_") + h1->GetName();
+  TH1 *hRatio = static_cast<TH1*>(h1->Clone(name.c_str()));
+  hRatio->SetMarkerStyle(h1->GetMarkerStyle());
+  hRatio->SetMarkerColor(h1->GetLineColor());
+  hRatio->SetYTitle(yTitle.c_str());
+  hRatio->Divide(h2);
+  return hRatio;
+}
+
+
 std::string HelperFunctions::cleanedName(std::string toBeCleaned){
     //    std::string toBeCleaned = varNames.at(i);
     //      std::cout << "before clean: " << toBeCleaned<< std::endl;

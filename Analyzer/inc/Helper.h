@@ -38,6 +38,7 @@ public:
 };
 
 namespace HelperFunctions {
+  TH1* createRatioPlot(const TH1 *h1, const TH1 *h2, const std::string &yTitle);
   std::string cleanedName(std::string toBeCleaned);
   void findYRange(const TH1 *h, double& min, double& max);
   void setCommonYRange(std::vector <TH1 *> histos, double RelTopOffset=0);
