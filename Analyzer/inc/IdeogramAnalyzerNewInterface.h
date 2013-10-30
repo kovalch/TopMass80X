@@ -30,6 +30,7 @@ class IdeogramAnalyzerNewInterface : public MassAnalyzer {
   double isFastSim_;
   double shapeSystematic_;
   double permutationFractionSystematic_;
+  std::string topBranchName_;
 
 };
 

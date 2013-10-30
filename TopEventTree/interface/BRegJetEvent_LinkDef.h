@@ -5,5 +5,7 @@
 #pragma link off all functions;
 
 #pragma link C++ class BRegJetEvent+;
+#pragma link C++ class vector<double>+;
+#pragma link C++ class vector<int>+;
 
 #endif

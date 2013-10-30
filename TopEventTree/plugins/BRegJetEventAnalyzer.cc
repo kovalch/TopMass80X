@@ -126,6 +126,12 @@ std::vector<double> BRegJetEventAnalyzer::fillBRegJetAndReturnGBRResults(const e
 	return BRegJet->BRegGBRTrainResult;
 }
 
+
+std::vector<double> BRegJetEventAnalyzer::fillBRegJetAndReturnTMVAResults(const edm::Event& evt, const edm::EventSetup& setup){
+	fillBRegJet(evt, setup);
+	return BRegJet->BRegResult;
+}
+
 void BRegJetEventAnalyzer::fillBRegJet(const edm::Event& evt, const edm::EventSetup& setup){
 
 
@@ -160,7 +166,39 @@ void BRegJetEventAnalyzer::fillBRegJet(const edm::Event& evt, const edm::EventSe
 	edm::Handle<std::vector<pat::Jet> > jets;
 	evt.getByLabel(jets_, jets);
 
+	double readerRlbReco=-999;
+	std::vector<double> highestPtBJetsPt;
+	std::vector<double> highestPtOtherJetsPt;
+
 	unsigned short jetIndex = 0;
+	unsigned short nB = 0;
+	unsigned short nOther = 0;
+	for(std::vector< pat::Jet >::const_iterator ijet = jets->begin(); ijet != jets->end(); ++ijet, ++jetIndex) {
+		// write only kJetMAX_ jets into the event
+		if(jetIndex == kJetMAX_) break;
+
+		bool isB=false;
+		if(std::abs(ijet->partonFlavour())==5)isB=true;
+
+		if(isB){
+			nB++;
+			highestPtBJetsPt.push_back(ijet->pt());
+		}
+		else{
+			nOther++;
+			highestPtOtherJetsPt.push_back(ijet->pt());
+		}
+		if(nB>=2&&nOther>=2) break;
+	}
+
+	if(nB>=2&&nOther>=2){
+		readerRlbReco = (highestPtBJetsPt.at(0)+highestPtBJetsPt.at(1))/(highestPtOtherJetsPt.at(0)+highestPtOtherJetsPt.at(1));
+	}
+
+
+
+	jetIndex = 0;
+	nB = 0;
 	for(std::vector< pat::Jet >::const_iterator ijet = jets->begin(); ijet != jets->end(); ++ijet, ++jetIndex) {
 		// write only kJetMAX_ jets into the event
 		if(jetIndex == kJetMAX_) break;
@@ -197,6 +235,7 @@ void BRegJetEventAnalyzer::fillBRegJet(const edm::Event& evt, const edm::EventSe
 
 		readerJetPtRaw_=ijet->correctedP4("Uncorrected").Pt();
 		BRegJet->jetPtRaw.push_back(readerJetPtRaw_);
+
 
 
 		//Jet area
@@ -277,6 +316,16 @@ void BRegJetEventAnalyzer::fillBRegJet(const edm::Event& evt, const edm::EventSe
 
 		readerRho25_ = *pRho25;
 		BRegJet->Rho25 .push_back(readerRho25_);
+
+		bool isOneOfLeading2B = false;
+		if(std::abs(ijet->partonFlavour())==5)isOneOfLeading2B=true;
+		if(isOneOfLeading2B){
+			if(nB>2)isOneOfLeading2B=false;
+			nB++;
+		}
+
+		BRegJet->OneOfLeading2B.push_back(isOneOfLeading2B);
+		BRegJet->RlbReco.push_back(readerRlbReco);
 
 
 		//    //add breg-info to patjet //wont work as this is no EDProducer
@@ -472,6 +521,7 @@ void BRegJetEventAnalyzer::fillBRegJet(const edm::Event& evt, const edm::EventSe
 //		if(hasBRegResult)std::cout << " BRegJet->BRegGBRTrainResult.back(): " << BRegJet->BRegGBRTrainResult.back() << " ijet->userFloat(BRegResult); " << ijet->userFloat("BRegResult"      ) << std::endl;
 
 		if(hasBRegResult&&(float)BRegJet->BRegGBRTrainResult.back()!=ijet->userFloat("BRegResult")){
+//TMVA		if(hasBRegResult&&(float)BRegJet->BRegResult.back()!=ijet->userFloat("BRegResult")){
 		    edm::LogError msg("BRegression");
 		    msg << "B regression result stored in jet and recalculated do not match. Please check your configuration accordingly \n";
 		    throw cms::Exception("Configuration Error");

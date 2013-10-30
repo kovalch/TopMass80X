@@ -54,6 +54,10 @@ class BRegProducer : public edm::EDProducer {
  private:
   /// jet input collection 
   edm::InputTag inputJets_;
+
+  // max possible number of jets in events
+  const int kJetMAX_;
+
 //  /// met input collection
 //  edm::InputTag inputMETs_;
 

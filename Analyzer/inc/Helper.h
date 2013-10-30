@@ -6,6 +6,8 @@
 
 #include "Rtypes.h" // needed for Color_t and kBlack
 
+#include "TH1F.h"
+
 class TH1F;
 
 class Helper {
@@ -34,5 +36,12 @@ public:
   enum methodID {kGenMatch, kMVA, kIdeogram, kIdeogramNew, kRooFit, kMaxMethods};
   static int methodID();
 };
+
+namespace HelperFunctions {
+  TH1* createRatioPlot(const TH1 *h1, const TH1 *h2, const std::string &yTitle);
+  std::string cleanedName(std::string toBeCleaned);
+  void findYRange(const TH1 *h, double& min, double& max);
+  void setCommonYRange(std::vector <TH1 *> histos, double RelTopOffset=0);
+}
 
 #endif

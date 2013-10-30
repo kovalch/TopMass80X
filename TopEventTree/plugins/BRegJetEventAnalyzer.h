@@ -39,6 +39,7 @@ class BRegJetEventAnalyzer : public edm::EDAnalyzer {
 
   void fillBRegJet(const edm::Event&, const edm::EventSetup&);
   std::vector<double> fillBRegJetAndReturnGBRResults(const edm::Event&, const edm::EventSetup&);
+  std::vector<double> fillBRegJetAndReturnTMVAResults(const edm::Event&, const edm::EventSetup&);
   void iniBRegEvent();
 
  private:

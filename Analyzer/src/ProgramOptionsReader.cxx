@@ -50,6 +50,11 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
           "  lepton: \telectron+muon\n"
           "  alljets: \tallhadronic"
         )
+        ("topBranchName", boost::program_options::value<std::string>()->default_value("top."),
+          "Top branch name in eventTree\n"
+          "  top: \t(default value)\n"
+          "  bRegTop: \tchoose branch containing fit with b-regression applied\n"
+        )
         ("binning,b", boost::program_options::value<std::string>()->default_value("deltaThetaHadWHadB"),
           "Phasespace binning\n"
           "  deltaThetaHadWHadB\n"
@@ -112,8 +117,8 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
     if (((length = 8) && !strncmp(channel.c_str(), "electron", length)) ||
         ((length = 4) && !strncmp(channel.c_str(), "muon"    , length)) ||
         ((length = 6) && !strncmp(channel.c_str(), "lepton"  , length))) {
-      fileNameSnippet = "LeptonJets";
-      fileNameSnippet += channel.substr(length);
+  		fileNameSnippet = "LeptonJets";
+   		fileNameSnippet += channel.substr(length);
     }
     else if (((length = 7) && !strncmp(channel.c_str(), "alljets", length))) {
       fileNameSnippet = "AllJets";
@@ -123,10 +128,26 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
       std::cerr << "Stopping analysis! Specified decay channel *" << channel << "* not known!" << std::endl;
       return;
     }
+    // Read in additional information to supersede default config, separated by "_"
+    // e.g. c lepton_BReg will read in Configuration_LeptonJets_BReg.conf and set values
+    // before default config is read in.
+    size_t splitPos = fileNameSnippet.find_last_of("_"); //equal to string::npos if not found
+    if(fileNameSnippet.find_first_of("_")!=splitPos) std::cerr << "Stopping analysis! Check input decay channel: Only one _ character supported to read in additional information" << std::endl;
+    if(splitPos==std::string::npos)splitPos=fileNameSnippet.length();
+    
     char configFile[99];
-    sprintf(configFile, "Configuration_%s.conf", fileNameSnippet.c_str());
-    std::ifstream optionsFile(configFile, std::ifstream::in);
+    if(splitPos!=fileNameSnippet.length()){
+	    sprintf(configFile, "Configuration_%s.conf", fileNameSnippet.substr(0,fileNameSnippet.length()).c_str());
+    	std::cout << "Superseding default setup with information from " << fileNameSnippet.substr(splitPos,fileNameSnippet.length()) << " " << configFile<< std::endl;
+	    std::ifstream optionsFile(configFile, std::ifstream::in);
+	    boost::program_options::store(boost::program_options::parse_config_file(optionsFile, desc), *programOptions_);
+	    optionsFile.close();
+    }
 
+
+    sprintf(configFile, "Configuration_%s.conf", fileNameSnippet.substr(0,splitPos).c_str());
+    std::ifstream optionsFile(configFile, std::ifstream::in);
+    
     boost::program_options::store(boost::program_options::parse_config_file(optionsFile, desc), *programOptions_);
     boost::program_options::notify(*programOptions_);
 
