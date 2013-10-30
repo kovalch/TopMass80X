@@ -57,8 +57,17 @@ TopMass::TopMass() :
   else if (!strcmp(fBinning_.c_str(),"top.fitTop1[0].M()")) {
     vBinning = {100, 550};
   }
+  else if (!strcmp(fBinning_.c_str(),"bRegTop.fitTop1[0].M()")) {
+    vBinning = {100, 550};
+  }
+  else{
+    std::cerr << "Stopping analysis! Binning " << fBinning_.c_str() << " not defined" <<std::endl;
+    exit(0);
+  }
 
   // Start task
+  std::cout << "starting task now" << std::endl;
+
   
   if (!strcmp(fTask_.c_str(),"pe")) {
     WriteEnsembleTest(vBinning);
