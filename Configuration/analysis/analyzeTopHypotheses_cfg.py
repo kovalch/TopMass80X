@@ -234,12 +234,6 @@ process.hitFitTtSemiLepEventHypothesis.useBTagging       = True
 addTtSemiLepHypotheses(process,
                        ["kHitFit", "kMVADisc"]
                        )
-
-## add a second genMatch to match hadronic top quarks
-cloneTtSemiLepEvent(process)
-process.ttSemiLepJetPartonMatch2.partonsToIgnore = ["LepB"]
-algorithm = 'totalMinDist'
-
 if data: removeTtSemiLepHypGenMatch(process)
 
 ## load HypothesisAnalyzer
