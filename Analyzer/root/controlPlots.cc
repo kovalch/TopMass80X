@@ -61,6 +61,11 @@ void TopMassControlPlots::doPlots()
   hists.push_back(MyHistogram("fitTop1Mass_barrel", "top.fitTop1.M()", "top.fitB1.Eta()<1.1 & top.fitW1Prod1.Eta()<1.1 & top.fitW1Prod2.Eta()<1.1", ";m_{t}^{fit} [GeV], #eta^{j}<1.1; Permutations", 75, 50, 400));
   hists.push_back(MyHistogram("recoW1Mass_barrel", "top.recoW1.M()", "top.fitB1.Eta()<1.1 & top.fitW1Prod1.Eta()<1.1 & top.fitW1Prod2.Eta()<1.1", ";m_{W}^{reco} [GeV], #eta^{j}<1.1; Permutations", 60, 0, 300));
   
+  hists.push_back(MyHistogram("fitTop1Mass_vs_nVertex", "weight.nVertex", "top.fitTop1.M()", "", ";N_{Vertex}; m_{t}^{fit} [GeV]", 10, 0, 50, 75, 50, 400));
+  hists.push_back(MyHistogram("fitTop1Mass_vs_fitProb", "top.fitProb", "top.fitTop1.M()", "", ";N_{Vertex}; m_{t}^{fit} [GeV]", 10, 0, 1, 75, 50, 400));
+  hists.push_back(MyHistogram("recoW1Mass_vs_nVertex", "weight.nVertex", "top.recoW1.M()", "", ";N_{Vertex}; m_{W}^{reco} [GeV]", 10, 0, 50, 60, 0, 300));
+  hists.push_back(MyHistogram("recoW1Mass_vs_fitProb", "top.fitProb", "top.recoW1.M()", "", ";N_{Vertex}; m_{W}^{reco} [GeV]", 10, 0, 1, 60, 0, 300));
+  
   // light pulls
   hists.push_back(MyHistogram("pullW1Prod1_W1Prod2", "abs(TVector2::Phi_mpi_pi(jet.pull[top.recoJetIdxW1Prod1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitW1Prod2.Phi()-top.fitW1Prod1.Phi()),-(top.fitW1Prod2.Eta()-top.fitW1Prod1.Eta())))))", "", ";#theta_{pull}^{q_{1} #rightarrow q_{2}}; Permutations", 20, 0, 3.1416));
   hists.push_back(MyHistogram("pullChargedW1Prod1_W1Prod2", "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxW1Prod1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitW1Prod2.Phi()-top.fitW1Prod1.Phi()),-(top.fitW1Prod2.Eta()-top.fitW1Prod1.Eta())))))", "", ";#theta_{pull,ch}^{q_{1} #rightarrow q_{2}}; Permutations", 20, 0, 3.1416));
@@ -190,7 +195,7 @@ void TopMassControlPlots::doPlots()
     samples.push_back(MySample("Z+Jets", "Summer12_ZJets", kBkg, kAzure-2, 1, lumi/1000.));
     samples.push_back(MySample("W+Jets", "Summer12_WJets", kBkg, kGreen-3, 1, lumi/1000.));
     samples.push_back(MySample("single top", "Summer12_singleTop", kBkg, kMagenta, 1, lumi/1000.));
-    /* Signal variations
+    //* Signal variations
     samples.push_back(MySample("t#bar{t}, Z2*", "Summer12_TTJets1725_MGDecays", kSigVar, kRed+1, 1, lumi/1000.*9./4.));
     samples.push_back(MySample("t#bar{t}, P11", "Summer12_TTJets1725_MGDecays_P11", kSigVar, kMagenta+1, 9, lumi/1000.*9./4.));
     samples.push_back(MySample("t#bar{t}, P11noCR", "Summer12_TTJets1725_MGDecays_P11noCR", kSigVar, kCyan+1, 2, lumi/1000.*9./4.));
