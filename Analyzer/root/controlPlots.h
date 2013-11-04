@@ -36,7 +36,7 @@ private:
     MyHistogram(std::string name_, std::string formulax_, std::string selection_, std::string title, int nBins, double min, double max) :
       name(name_), formulax(formulax_), formulay("1."), selection(selection_),
       data(new TH1F((std::string("hD")+name).c_str(), (std::string("Data")+title).c_str(), nBins, min, max)),
-    isTwoDHistogram(false)
+      isTwoDHistogram(false)
     {
       data->SetLineWidth(1);
       data->SetLineColor(kBlack);
@@ -57,8 +57,9 @@ private:
 
     void Init(TChain* chain, std::string topBranchName)
     {
-      boost::replace_all(formulax, "top.", topBranchName);
-      boost::replace_all(formulay, "top.", topBranchName);
+      boost::replace_all(formulax,  "top.", topBranchName);
+      boost::replace_all(formulay,  "top.", topBranchName);
+      boost::replace_all(selection, "top.", topBranchName);
       varx = new TTreeFormula((std::string("fx")+name).c_str(), formulax.c_str() , chain);
       vary = new TTreeFormula((std::string("fy")+name).c_str(), formulay.c_str() , chain);
       if (selection.size() > 0) sel = new TTreeFormula((std::string("s")+name).c_str(), selection.c_str(), chain);
@@ -99,21 +100,21 @@ private:
     std::vector<TH1F*> Sigvar1D(){
       std::vector<TH1F*> sigvar1D;
       if(!isTwoDHistogram){
-      for (size_t i=0; i<sigvar.size(); i++)sigvar1D.push_back((TH1F*) sigvar.at(i));
+        for (size_t i=0; i<sigvar.size(); i++)sigvar1D.push_back((TH1F*) sigvar.at(i));
       }
       return sigvar1D;
     }
     std::vector<TH1F*> Sig1D(){
       std::vector<TH1F*> sig1D;
       if(!isTwoDHistogram){
-      for (size_t i=0; i<sig.size(); i++)sig1D.push_back((TH1F*) sig.at(i));
+        for (size_t i=0; i<sig.size(); i++)sig1D.push_back((TH1F*) sig.at(i));
       }
       return sig1D;
     }
     std::vector<TH1F*> Bkg1D(){
       std::vector<TH1F*> bkg1D;
       if(!isTwoDHistogram){
-      for (size_t i=0; i<bkg.size(); i++)bkg1D.push_back((TH1F*) bkg.at(i));
+        for (size_t i=0; i<bkg.size(); i++)bkg1D.push_back((TH1F*) bkg.at(i));
       }
       return bkg1D;
     }
@@ -124,21 +125,21 @@ private:
     std::vector<TH2F*> Sigvar2D(){
       std::vector<TH2F*> sigvar2D;
       if(isTwoDHistogram){
-      for (size_t i=0; i<sigvar.size(); i++)sigvar2D.push_back((TH2F*) sigvar.at(i));
+        for (size_t i=0; i<sigvar.size(); i++)sigvar2D.push_back((TH2F*) sigvar.at(i));
       }
       return sigvar2D;
     }
     std::vector<TH2F*> Sig2D(){
       std::vector<TH2F*> sig2D;
       if(isTwoDHistogram){
-      for (size_t i=0; i<sig.size(); i++)sig2D.push_back((TH2F*) sig.at(i));
+        for (size_t i=0; i<sig.size(); i++)sig2D.push_back((TH2F*) sig.at(i));
       }
       return sig2D;
     }
     std::vector<TH2F*> Bkg2D(){
       std::vector<TH2F*> bkg2D;
       if(isTwoDHistogram){
-      for (size_t i=0; i<bkg.size(); i++)bkg2D.push_back((TH2F*) bkg.at(i));
+        for (size_t i=0; i<bkg.size(); i++)bkg2D.push_back((TH2F*) bkg.at(i));
       }
       return bkg2D;
     }

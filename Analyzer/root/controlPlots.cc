@@ -48,9 +48,9 @@ void TopMassControlPlots::doPlots()
   int channelID_ = Helper::channelID();
   double lumi    = po::GetOption<double>("lumi");
   
-  // DUMMY to get TTree structure
-  TChain* myChain = new TChain("analyzeKinFit/eventTree");
-  myChain->Add("/scratch/hh/dust/naf/cms/user/kirschen/BRegression_GC/SemiLeptOutput_All/Run2012_muon/job_Run2012A_analyzeTop.root"); //almost not needed anymore, remove in next iteration
+  //
+  // DEFINE HISTOGRAMS
+  //
 
   // masses
   hists.push_back(MyHistogram("fitTop1Mass", "top.fitTop1.M()", "", ";m_{t}^{fit} [GeV]; Permutations", 75, 50, 400));
@@ -63,8 +63,8 @@ void TopMassControlPlots::doPlots()
   
   hists.push_back(MyHistogram("fitTop1Mass_vs_nVertex", "weight.nVertex", "top.fitTop1.M()", "", ";N_{Vertex}; m_{t}^{fit} [GeV]", 10, 0, 50, 75, 50, 400));
   hists.push_back(MyHistogram("fitTop1Mass_vs_fitProb", "top.fitProb", "top.fitTop1.M()", "", ";N_{Vertex}; m_{t}^{fit} [GeV]", 10, 0, 1, 75, 50, 400));
-  hists.push_back(MyHistogram("recoW1Mass_vs_nVertex", "weight.nVertex", "top.recoW1.M()", "", ";N_{Vertex}; m_{W}^{reco} [GeV]", 10, 0, 50, 60, 0, 300));
-  hists.push_back(MyHistogram("recoW1Mass_vs_fitProb", "top.fitProb", "top.recoW1.M()", "", ";N_{Vertex}; m_{W}^{reco} [GeV]", 10, 0, 1, 60, 0, 300));
+  hists.push_back(MyHistogram("recoW1Mass_vs_nVertex", "weight.nVertex", "top.recoW1.M()", "", ";N_{Vertex}; m_{W}^{reco} [GeV]", 10, 0, 50, 58, 10, 300));
+  hists.push_back(MyHistogram("recoW1Mass_vs_fitProb", "top.fitProb", "top.recoW1.M()", "", ";N_{Vertex}; m_{W}^{reco} [GeV]", 10, 0, 1, 58, 10, 300));
   
   // light pulls
   hists.push_back(MyHistogram("pullW1Prod1_W1Prod2", "abs(TVector2::Phi_mpi_pi(jet.pull[top.recoJetIdxW1Prod1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitW1Prod2.Phi()-top.fitW1Prod1.Phi()),-(top.fitW1Prod2.Eta()-top.fitW1Prod1.Eta())))))", "", ";#theta_{pull}^{q_{1} #rightarrow q_{2}}; Permutations", 20, 0, 3.1416));
@@ -181,13 +181,19 @@ void TopMassControlPlots::doPlots()
     hists.push_back(MyHistogram("B1GBRTrainFactorVs"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),helperMyBRegVarInfo.varForms.at(bvar_i)+"["+topBranchName+"recoJetIdxB1]", "BRegJet.BRegGBRTrainResult["+topBranchName+"recoJetIdxB1]", "",";"+helperMyBRegVarInfo.varNames.at(bvar_i)+"; GBRFactor",20,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i), 20, 0., 2. ));
 
   }
-
-  // datasets
+  
+  //
+  // DEFINE DATASETS
+  //
+  
+  // Alljets channel
   if (channelID_ == Helper::kAllJets) {
     samples.push_back(MySample("Data", "MJP12*v1_data", kData, kBlack));
     samples.push_back(MySample("t#bar{t}", "Z2_S12_ABS_JES_100_172_5_sig", kSig, kRed+1));
     samples.push_back(MySample("QCD", "QCDMixing_MJPS12*v1_data", kBkg, kYellow));
   }
+  
+  // Lepton+jets channel
   else {
     samples.push_back(MySample("Data", "Run2012", kData, kBlack));
     //    samples.push_back(MySample("t#bar{t} w.o. b-regression", "Summer12_TTJets1725_1.00", kData, kBlack));
@@ -195,6 +201,8 @@ void TopMassControlPlots::doPlots()
     samples.push_back(MySample("Z+Jets", "Summer12_ZJets", kBkg, kAzure-2, 1, lumi/1000.));
     samples.push_back(MySample("W+Jets", "Summer12_WJets", kBkg, kGreen-3, 1, lumi/1000.));
     samples.push_back(MySample("single top", "Summer12_singleTop", kBkg, kMagenta, 1, lumi/1000.));
+    
+    samples.push_back(MySample("t#bar{t}, Z2*", "Summer12_TTJets1725_1.00", kSigVar, kRed+1, 1, lumi/1000.));
     //* Signal variations
     samples.push_back(MySample("t#bar{t}, Z2*", "Summer12_TTJets1725_MGDecays", kSigVar, kRed+1, 1, lumi/1000.*9./4.));
     samples.push_back(MySample("t#bar{t}, P11", "Summer12_TTJets1725_MGDecays_P11", kSigVar, kMagenta+1, 9, lumi/1000.*9./4.));
@@ -214,14 +222,18 @@ void TopMassControlPlots::doPlots()
     //*/
   }
   
-  delete myChain;
+  //
+  // FILL HISTOGRAMS
+  //
 
   {
     int bkgCounter = -1;
     int sigVarCounter = -1;
+    // Loop over all samples
     for(MySample& sample : samples){
       if(sample.type == kBkg    ) ++bkgCounter;
       if(sample.type == kSigVar ) ++sigVarCounter;
+      // Get sample
       TChain* chain; int nFiles = 0;
       if (channelID_ == Helper::kAllJets) {
         chain = new TChain("analyzeKinFit/eventTree");
@@ -232,8 +244,9 @@ void TopMassControlPlots::doPlots()
         if (channelID_ != Helper::kElectronJets) nFiles += chain->Add((path+sample.file+std::string("_muon/job_*.root")).c_str());
         if (channelID_ != Helper::kMuonJets) nFiles += chain->Add((path+sample.file+std::string("_electron/job_*.root")).c_str());
       }
-      std::cout << "Adding " << nFiles << " files for " << sample.name << " (" << sample.file << ")" << std::endl;
+      std::cout << "Adding " << nFiles << " files for " << sample.name << " (" << sample.file << "), type: " << sample.type << std::endl;
 
+      // Soft-initialize histograms and add sample
       for(MyHistogram& hist : hists) {
         hist.Init(chain, topBranchName);
         if     (sample.type == kSig    ) hist.AddSignal(&sample);
@@ -241,11 +254,9 @@ void TopMassControlPlots::doPlots()
         else if(sample.type == kSigVar ) hist.AddSignalVariation(&sample);
       }
 
+      // Initialize weight and selection formulas
       TTreeFormula weight("weight", po::GetOption<std::string>("weight").c_str(), chain);
-      std::string tempSelectionString = po::GetOption<std::string>("analysisConfig.selection");
-      //TODO: Where is replaceBReg supposed to come from?
-      //if(replaceBReg)boost::replace_all(tempSelectionString,"bRegTop.","top.");
-      TTreeFormula sel   ("sel"   , tempSelectionString.c_str(), chain);
+      TTreeFormula sel   ("sel"   , po::GetOption<std::string>("analysisConfig.selection").c_str(), chain);
       TTreeFormula selCP ("selCP" , (po::GetOption<std::string>("analysisConfig.selection")
 				     +std::string(" & ")+po::GetOption<std::string>("analysisConfig.selectionCP")).c_str(), chain);
       TTreeFormula selWP ("selWP" , (po::GetOption<std::string>("analysisConfig.selection")
@@ -253,8 +264,7 @@ void TopMassControlPlots::doPlots()
       TTreeFormula selUN ("selUN" , (po::GetOption<std::string>("analysisConfig.selection")
             +std::string(" & ")+po::GetOption<std::string>("analysisConfig.selectionUN")).c_str(), chain);
 
-      std::cout << "filling for " << sample.type << std::endl;
-
+      //  Loop over all events
       for(int i = 0; ; ++i){
         long entry = chain->LoadTree(i);
         if(entry  < 0) break;
@@ -270,24 +280,32 @@ void TopMassControlPlots::doPlots()
           selWP .UpdateFormulaLeaves();
           selUN .UpdateFormulaLeaves();
         }
+        // Skip event if base selection is not met
         if(!weight.GetNdata()) continue;
         if(!sel   .GetNdata()) continue;
         selCP.GetNdata(); selWP.GetNdata(); selUN.GetNdata();
 
+        // Loop over permutations
         for(int j = 0, l = sel.GetNdata(); j < l; ++j){
           if(!sel.EvalInstance(j)) continue;
+          // Loop over samples
           for(MyHistogram& hist : hists){
             if(!hist.varx->GetNdata()) continue;
+            if(!hist.vary->GetNdata()) continue;
+            // Skip permutation if individual selection is not met
             if (hist.selection.size() > 0) {
               if(!hist.sel->GetNdata()) continue;
               if(!hist.sel->EvalInstance(j)) continue;
             }
+            // Fill according to sample and histogram type
+            // Fill data
             if     (sample.type == kData && !hist.IsTwoDHistogram()) {
               hist.Data1D()->Fill(hist.varx->EvalInstance(j), weight.EvalInstance(j)*sample.scale);
             }
 	          else if(sample.type == kData && hist.IsTwoDHistogram()) {
               hist.Data2D()->Fill(hist.varx->EvalInstance(j), hist.vary->EvalInstance(j), weight.EvalInstance(j)*sample.scale);
 	          }
+	          // Fill signal
             else if(sample.type == kSig && !hist.IsTwoDHistogram()) {
               if     (selCP.EvalInstance(j)) hist.Sig1D().at(2)->Fill(hist.varx->EvalInstance(j), weight.EvalInstance(j)*sample.scale);
               else if(selWP.EvalInstance(j)) hist.Sig1D().at(1)->Fill(hist.varx->EvalInstance(j), weight.EvalInstance(j)*sample.scale);
@@ -298,15 +316,20 @@ void TopMassControlPlots::doPlots()
               else if(selWP.EvalInstance(j)) hist.Sig2D().at(1)->Fill(hist.varx->EvalInstance(j), hist.vary->EvalInstance(j), weight.EvalInstance(j)*sample.scale);
               else if(selUN.EvalInstance(j)) hist.Sig2D().at(0)->Fill(hist.varx->EvalInstance(j), hist.vary->EvalInstance(j), weight.EvalInstance(j)*sample.scale);
             }
+            // Fill background
             else if(sample.type == kBkg  && !hist.IsTwoDHistogram()) {
               hist.Bkg1D()[bkgCounter]->Fill(hist.varx->EvalInstance(j), weight.EvalInstance(j)*sample.scale);
+              // Add background also to histogram for signal variation
               // TODO: Background normalization in signal variations not correct for AllJets
               for(TH1F* sigvar : hist.Sigvar1D()) sigvar->Fill(hist.varx->EvalInstance(j), weight.EvalInstance(j)*sample.scale);
             }
             else if(sample.type == kBkg  && hist.IsTwoDHistogram()) {
               hist.Bkg2D()[bkgCounter]->Fill(hist.varx->EvalInstance(j), hist.vary->EvalInstance(j), weight.EvalInstance(j)*sample.scale);
+              // Add background also to histogram for signal variation
+              // TODO: Background normalization in signal variations not correct for AllJets
               for(TH2F* sigvar : hist.Sigvar2D()) sigvar->Fill(hist.varx->EvalInstance(j), hist.vary->EvalInstance(j), weight.EvalInstance(j)*sample.scale);
             }
+            // Fill signal variation
             else if(sample.type == kSigVar && !hist.IsTwoDHistogram()) hist.Sigvar1D()[sigVarCounter]->Fill(hist.varx->EvalInstance(j), weight.EvalInstance(j)*sample.scale);
             else if(sample.type == kSigVar && hist.IsTwoDHistogram()) hist.Sigvar2D()[sigVarCounter]->Fill(hist.varx->EvalInstance(j), hist.vary->EvalInstance(j), weight.EvalInstance(j)*sample.scale);
           }
@@ -314,11 +337,18 @@ void TopMassControlPlots::doPlots()
       }
       for(MyHistogram& hist : hists) {
         hist.varx->Clear();
+        hist.vary->Clear();
       }
     }
   }
+  
+  //
+  // DRAW CONTROL PLOTS
+  //
+  
   bool firstHist = true;
   for(MyHistogram& hist : hists){
+    // Show event yields for first histogram
     int bins = hist.Data1D()->GetNbinsX()+1;
     if (firstHist) std::cout << "Yields" << std::endl;
     double integralD = hist.Data1D()->Integral(0,bins);
@@ -336,28 +366,27 @@ void TopMassControlPlots::doPlots()
     if (firstHist) std::cout << "MC Total:   " << integralS+integralB << std::endl;
     firstHist = false;
     
+    // Alljets: Normalize to data, use fixed signal fraction
     if (channelID_ == Helper::kAllJets) {
       double fSig = po::GetOption<double>("templates.fSig");
       for(TH1F* sig    : hist.Sig1D())    sig->Scale(    fSig *integralD/integralS);
       for(TH1F* bkg    : hist.Bkg1D())    bkg->Scale((1.-fSig)*integralD/integralB);
       for(TH1F* sigvar : hist.Sigvar1D()) sigvar->Scale(integralD/sigvar->Integral(0,bins));
     }
+    // Lepton+jets: Normalize to data
     else {
       for(TH1F* sig    : hist.Sig1D())    sig->Scale(integralD/(integralS+integralB));
       for(TH1F* bkg    : hist.Bkg1D())    bkg->Scale(integralD/(integralS+integralB));
       for(TH1F* sigvar : hist.Sigvar1D()) sigvar->Scale(integralD/sigvar->Integral(0,bins));
       
       // Double bin error due to correlations
+      // (Many observables do not change for different neutrino solutions or b assignments)
       for (int i = 0; i < hist.Data1D()->GetNbinsX(); i++) {
         hist.Data1D()->SetBinError(i, hist.Data1D()->GetBinError(i) * 2);
       }
     }
     
-    // Draw control plot
-    
-        std::cout << "about to draw control plots" << std::endl;
-
-
+    // Draw 2D plots
     if(hist.IsTwoDHistogram()){
       std::cout << "doing 2D plots" << std::endl;
 
@@ -401,6 +430,8 @@ void TopMassControlPlots::doPlots()
 
 
       HelperFunctions::setCommonYRange(collectAll2DProfiles,0.35);
+      
+      canv->SetRightMargin(0.05);
 
       for (size_t h_i=0;h_i<collectAll2DProfiles.size();h_i++){
     	  if(h_i==0)collectAll2DProfiles.at(h_i)->Draw();
@@ -412,7 +443,7 @@ void TopMassControlPlots::doPlots()
       leg0->SetFillStyle(0);
       leg0->SetBorderSize(0);
       for(TH2F* sig : hist.Sig2D()){
-	leg0->AddEntry( sig, sig->GetTitle(), "LP" );
+        leg0->AddEntry( sig, sig->GetTitle(), "LP" );
       }
       leg0->Draw();
 
@@ -459,12 +490,12 @@ void TopMassControlPlots::doPlots()
       HelperFunctions::setCommonYRange(collectAll2DProfiles,0.35);
 
       for (size_t h_i=0;h_i<collectAll2DProfiles.size();h_i++){
-	if(h_i==0){
-	  collectAll2DProfiles.at(h_i)->Draw();
-	}
-	else {
-	  collectAll2DProfiles.at(h_i)->Draw("SAME");
-	}
+        if(h_i==0){
+          collectAll2DProfiles.at(h_i)->Draw();
+        }
+        else {
+          collectAll2DProfiles.at(h_i)->Draw("SAME");
+        }
       }
 
       leg1->Clear();
