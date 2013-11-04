@@ -344,7 +344,7 @@ void HelperFunctions::findYRange(const TH1 *h, double& min, double& max) {
   max = 0.;
   for(int bin = 1; bin <= h->GetNbinsX(); ++bin) {
     double val = h->GetBinContent(bin);
-    std::cout << "bin " << bin << " val " << val << std::endl;
+//    std::cout << "bin " << bin << " val " << val << std::endl;
     if( val < min && val!=0) min = val;
     if( val > max ) max = val;
   }
