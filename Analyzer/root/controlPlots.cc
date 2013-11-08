@@ -140,10 +140,12 @@ void TopMassControlPlots::doPlots()
      ";#theta_{pull,ch}^{b_{1} #rightarrow q_{2}}, #DeltaR > 2; Permutations", 20, 0, 3.1416));
   
   // others
-  hists.push_back(MyHistogram("fitProb"    , "top.fitProb"   , ""             , ";P_{gof}; Permutations", 50, 0, 1.0));
+  hists.push_back(MyHistogram("fitProb"    , "top.fitProb"   , "", ";P_{gof}; Permutations", 50, 0, 1.0));
   hists.push_back(MyHistogram("fitProbBest", "top.fitProb[0]", "", ";P_{gof}; Events"      , 50, 0, 1.0));
   hists.push_back(MyHistogram("deltaRbb"    , "sqrt(pow(top.fitB1.Eta()-top.fitB2.Eta(),2) + pow(TVector2::Phi_mpi_pi(top.fitB1.Phi()-top.fitB2.Phi()),2))"            , "", ";#DeltaR_{b#bar{b}}; Permutations", 50, 1, 6));
   hists.push_back(MyHistogram("deltaRbbBest", "sqrt(pow(top.fitB1[0].Eta()-top.fitB2[0].Eta(),2) + pow(TVector2::Phi_mpi_pi(top.fitB1[0].Phi()-top.fitB2[0].Phi()),2))", "", ";#DeltaR_{b#bar{b}}; Events"      , 50, 1, 6));
+  hists.push_back(MyHistogram("combinationType"    , "top.combinationType"   , "", ";Combination Type; Permutations", 20, -10, 10));
+  hists.push_back(MyHistogram("combinationTypeBest", "top.combinationType[0]", "", ";Combination Type; Events"      , 20, -10, 10));
   
   // pts
   hists.push_back(MyHistogram("jet1Pt", "jet.jet[0].Pt()", "", ";p_{T}^{1} [GeV]; Events", 45, 0, 450));
@@ -200,13 +202,33 @@ void TopMassControlPlots::doPlots()
     samples.push_back(MySample("t#bar{t}", "Z2_S12_ABS_JES_100_172_5_sig", kSig, kRed+1));
     samples.push_back(MySample("QCD", "QCDMixing_MJPS12*v1_data", kBkg, kYellow, 1, 3.12));
 
-    /* Signal variations
-    samples.push_back(MySample("t#bar{t}, Z2*"     , "Z2_S12_ABS_JES_100_172_5_sig", kSigVar, kRed+1));
-    samples.push_back(MySample("t#bar{t}, P11"     , "Z2_S12_P11_sig"              , kSigVar, kMagenta+1));
-    samples.push_back(MySample("t#bar{t}, P11mpiHi", "Z2_S12_P11mpiHi_sig"         , kSigVar, kBlue+1));
-    samples.push_back(MySample("t#bar{t}, P11TeV"  , "Z2_S12_P11TeV_sig"           , kSigVar, kGreen+4));
-    samples.push_back(MySample("t#bar{t}, P11noCR" , "Z2_S12_P11NoCR_sig"          , kSigVar, kCyan+1));
+    /* Signal variations (UE Tune)
+    samples.push_back(MySample("t#bar{t}, Z2*"     , "Z2_S12_ABS_JES_100_172_5_sig", kSigVar, kRed+1    , 1));
+    samples.push_back(MySample("t#bar{t}, P11"     , "Z2_S12_P11_sig"              , kSigVar, kMagenta+1, 9));
+    samples.push_back(MySample("t#bar{t}, P11mpiHi", "Z2_S12_P11mpiHi_sig"         , kSigVar, kBlue+1   , 3));
+    samples.push_back(MySample("t#bar{t}, P11TeV"  , "Z2_S12_P11TeV_sig"           , kSigVar, kGreen+4  , 4));
+    samples.push_back(MySample("t#bar{t}, P11noCR" , "Z2_S12_P11NoCR_sig"          , kSigVar, kCyan+1   , 2));
+    //*/
+    /* Signal variations (MC Generator)
+    samples.push_back(MySample("t#bar{t}, Z2*"          , "Z2_S12_ABS_JES_100_172_5_sig", kSigVar, kRed+1  , 1));
+    samples.push_back(MySample("t#bar{t}, Powheg+Pythia", "Z2_S12_POWHEG_sig"           , kSigVar, kGreen+1, 9));
+    samples.push_back(MySample("t#bar{t}, Powheg+Herwig", "Z2_S12_POWHER_sig"           , kSigVar, kBlue+1 , 7));
+    samples.push_back(MySample("t#bar{t}, MC@NLO"       , "Z2_S12_MCNLO_sig"            , kSigVar, kCyan+1 , 2));
     /*/
+    /* Signal variations (JES)
+    samples.push_back(MySample("t#bar{t}, JES = 0.96", "Z2_S12_ABS_JES_096_172_5_sig", kSigVar, kRed+1    , 1));
+    samples.push_back(MySample("t#bar{t}, JES = 0.98", "Z2_S12_ABS_JES_098_172_5_sig", kSigVar, kMagenta+1, 1));
+    samples.push_back(MySample("t#bar{t}, JES = 1.00", "Z2_S12_ABS_JES_100_172_5_sig", kSigVar, kBlue+1   , 1));
+    samples.push_back(MySample("t#bar{t}, JES = 1.02", "Z2_S12_ABS_JES_102_172_5_sig", kSigVar, kCyan+1   , 1));
+    samples.push_back(MySample("t#bar{t}, JES = 1.04", "Z2_S12_ABS_JES_104_172_5_sig", kSigVar, kGreen+1  , 1));
+    //*/
+    /* Signal variations (MC Modelling)
+    samples.push_back(MySample("t#bar{t}, , "Z2_S12_ABS_JES_100_172_5_sig", kSigVar, kRed+1    , 1));
+    samples.push_back(MySample("t#bar{t}, , "Z2_S12_Scale_Up_sig"         , kSigVar, kMagenta+1, 9));
+    samples.push_back(MySample("t#bar{t}, , "Z2_S12_Scale_Down_sig"       , kSigVar, kBlue+1   , 7));
+    samples.push_back(MySample("t#bar{t}, , "Z2_S12_Matching_Up_sig"      , kSigVar, kCyan+1   , 2));
+    samples.push_back(MySample("t#bar{t}, , "Z2_S12_Matching_Down_sig"    , kSigVar, kGreen+1  , 3));
+    //*/
   }
   
   // Lepton+jets channel
