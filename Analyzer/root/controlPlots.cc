@@ -198,14 +198,15 @@ void TopMassControlPlots::doPlots()
   if (channelID_ == Helper::kAllJets) {
     samples.push_back(MySample("Data", "MJP12*v1_data", kData, kBlack));
     samples.push_back(MySample("t#bar{t}", "Z2_S12_ABS_JES_100_172_5_sig", kSig, kRed+1));
-    samples.push_back(MySample("QCD", "QCDMixing_MJPS12*v1_data", kBkg, kYellow));
+    samples.push_back(MySample("QCD", "QCDMixing_MJPS12*v1_data", kBkg, kYellow, 1, 3.12));
 
-    //* Signal variations
+    /* Signal variations
     samples.push_back(MySample("t#bar{t}, Z2*"     , "Z2_S12_ABS_JES_100_172_5_sig", kSigVar, kRed+1));
     samples.push_back(MySample("t#bar{t}, P11"     , "Z2_S12_P11_sig"              , kSigVar, kMagenta+1));
     samples.push_back(MySample("t#bar{t}, P11mpiHi", "Z2_S12_P11mpiHi_sig"         , kSigVar, kBlue+1));
     samples.push_back(MySample("t#bar{t}, P11TeV"  , "Z2_S12_P11TeV_sig"           , kSigVar, kGreen+4));
     samples.push_back(MySample("t#bar{t}, P11noCR" , "Z2_S12_P11NoCR_sig"          , kSigVar, kCyan+1));
+    /*/
   }
   
   // Lepton+jets channel
