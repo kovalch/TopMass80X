@@ -181,7 +181,7 @@ void TopMassControlPlots::doPlots()
   hists.push_back(MyHistogram("nVertex", "weight.nVertex", "", ";N_{vertex}; Events", 50, 0, 50));
 
   MyBRegVarInfo helperMyBRegVarInfo;
-  for (size_t bvar_i=0;bvar_i<helperMyBRegVarInfo.varNames.size();bvar_i++){
+  for (size_t bvar_i=0;bvar_i<helperMyBRegVarInfo.varNames.size();++bvar_i){
     hists.push_back(MyHistogram("B1"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),helperMyBRegVarInfo.varForms.at(bvar_i)+"["+topBranchName+"recoJetIdxB1]", "",";"+helperMyBRegVarInfo.varNames.at(bvar_i)+"; Events",20,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i) ));
     hists.push_back(MyHistogram("W1Prod1"+HelperFunctions::cleanedName(helperMyBRegVarInfo.varNames.at(bvar_i)),helperMyBRegVarInfo.varForms.at(bvar_i)+"["+topBranchName+"recoJetIdxW1Prod1]", "",";"+helperMyBRegVarInfo.varNames.at(bvar_i)+"; Events",20,helperMyBRegVarInfo.xMins.at(bvar_i), helperMyBRegVarInfo.xMaxs.at(bvar_i) ));
     //2D
@@ -408,7 +408,7 @@ void TopMassControlPlots::doPlots()
       
       // Double bin error due to correlations
       // (Many observables do not change for different neutrino solutions or b assignments)
-      for (int i = 0; i < hist.Data1D()->GetNbinsX(); i++) {
+      for (int i = 0; i < hist.Data1D()->GetNbinsX(); ++i) {
         hist.Data1D()->SetBinError(i, hist.Data1D()->GetBinError(i) * 2);
       }
     }
@@ -428,7 +428,7 @@ void TopMassControlPlots::doPlots()
       for(TH2F* sig : hist.Sig2D()) collectAll2D.push_back(sig);
       for(TH2F* bkg : hist.Bkg2D()) collectAll2D.push_back(bkg);
 
-      for (size_t h_i=0;h_i<collectAll2D.size();h_i++){
+      for (size_t h_i=0;h_i<collectAll2D.size();++h_i){
     	  collectAll2D.at(h_i)->SetMarkerStyle(20+h_i);
     	  collectAll2D.at(h_i)->SetLineColor(collectAll2D.at(h_i)->GetFillColor());
     	  collectAll2D.at(h_i)->SetMarkerColor(collectAll2D.at(h_i)->GetFillColor());
@@ -460,7 +460,7 @@ void TopMassControlPlots::doPlots()
       
       canv->SetRightMargin(0.05);
 
-      for (size_t h_i=0;h_i<collectAll2DProfiles.size();h_i++){
+      for (size_t h_i=0;h_i<collectAll2DProfiles.size();++h_i){
     	  if(h_i==0)collectAll2DProfiles.at(h_i)->Draw();
     	  else collectAll2DProfiles.at(h_i)->Draw("SAME");
       }
@@ -494,48 +494,48 @@ void TopMassControlPlots::doPlots()
       for(TH1* prof : collectAll2DProfiles) delete prof;//delete profiles
       collectAll2DProfiles.clear();
 
-      // Draw signal variation plots
+      // Draw signal variation plots only if there are signal variations
+      if(hist.Sigvar2D().size()){
+        collectAll2D.push_back(hist.Data2D());
+        for(TH2F* sigvar : hist.Sigvar2D()) collectAll2D.push_back(sigvar);
 
-      collectAll2D.push_back(hist.Data2D());
-      for(TH2F* sigvar : hist.Sigvar2D()) collectAll2D.push_back(sigvar);
 
-
-      for (size_t h_i=0;h_i<collectAll2D.size();h_i++){
-        std::cout << " title " << collectAll2D.at(h_i)->GetTitle() << " " << collectAll2D.at(h_i)->GetFillColor() << std::endl;
-        collectAll2D.at(h_i)->SetMarkerStyle(20+h_i);
-        //	collectAll2D.at(h_i)->SetLineColor(collectAll2D.at(h_i)->GetFillColor());
-        collectAll2D.at(h_i)->SetMarkerColor(collectAll2D.at(h_i)->GetLineColor());
-        if(h_i==0){
-          collectAll2D.at(h_i)->SetMarkerColor(1);
-          collectAll2D.at(h_i)->SetLineColor(1);
+        for (size_t h_i=0;h_i<collectAll2D.size();++h_i){
+          std::cout << " title " << collectAll2D.at(h_i)->GetTitle() << " " << collectAll2D.at(h_i)->GetFillColor() << std::endl;
+          collectAll2D.at(h_i)->SetMarkerStyle(20+h_i);
+          //	collectAll2D.at(h_i)->SetLineColor(collectAll2D.at(h_i)->GetFillColor());
+          collectAll2D.at(h_i)->SetMarkerColor(collectAll2D.at(h_i)->GetLineColor());
+          if(h_i==0){
+            collectAll2D.at(h_i)->SetMarkerColor(1);
+            collectAll2D.at(h_i)->SetLineColor(1);
+          }
+          collectAll2DProfiles.push_back(collectAll2D.at(h_i)->ProfileX(collectAll2D.at(h_i)->GetName()+(TString)"_pfx"));
+          collectAll2DProfiles.at(h_i)->GetYaxis()->SetTitle(collectAll2D.at(h_i)->GetYaxis()->GetTitle());
         }
-        collectAll2DProfiles.push_back(collectAll2D.at(h_i)->ProfileX(collectAll2D.at(h_i)->GetName()+(TString)"_pfx"));
-        collectAll2DProfiles.at(h_i)->GetYaxis()->SetTitle(collectAll2D.at(h_i)->GetYaxis()->GetTitle());
-      }
 
-      HelperFunctions::setCommonYRange(collectAll2DProfiles,0.35);
+        HelperFunctions::setCommonYRange(collectAll2DProfiles,0.35);
 
-      for (size_t h_i=0;h_i<collectAll2DProfiles.size();h_i++){
-        if(h_i==0){
-          collectAll2DProfiles.at(h_i)->Draw();
+        for (size_t h_i=0;h_i<collectAll2DProfiles.size();++h_i){
+          if(h_i==0){
+            collectAll2DProfiles.at(h_i)->Draw();
+          }
+          else {
+            collectAll2DProfiles.at(h_i)->Draw("SAME");
+          }
         }
-        else {
-          collectAll2DProfiles.at(h_i)->Draw("SAME");
-        }
-      }
 
-      leg1->Clear();
-      for(TH2F* sigvar : hist.Sigvar2D()) leg1->AddEntry( sigvar, sigvar->GetTitle(), "LP" );
-      leg1->AddEntry( hist.Data2D(), hist.Data2D()->GetTitle(), "P" );
-      leg1->Draw();
+        leg1->Clear();
+        for(TH2F* sigvar : hist.Sigvar2D()) leg1->AddEntry( sigvar, sigvar->GetTitle(), "LP" );
+        leg1->AddEntry( hist.Data2D(), hist.Data2D()->GetTitle(), "P" );
+        leg1->Draw();
 
-      helper->DrawCMS();
+        helper->DrawCMS();
 
-      gPad->RedrawAxis();
+        gPad->RedrawAxis();
 
-      canv->Print((std::string("plot/controlplots/")+channel+std::string("/")+channel+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_sigvar.eps")).c_str(),"eps");
-      canv->Print((std::string("plot/controlplots/")+channel+std::string("/")+channel+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_sigvar.png")).c_str(),"png");
-
+        canv->Print((std::string("plot/controlplots/")+channel+std::string("/")+channel+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_sigvar.eps")).c_str(),"eps");
+        canv->Print((std::string("plot/controlplots/")+channel+std::string("/")+channel+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_sigvar.png")).c_str(),"png");
+      }//end if 2D signal variation plots
     }
     else if(hist.Dimension() == 1){
 
@@ -629,74 +629,75 @@ void TopMassControlPlots::doPlots()
       canvWRatio->Print((std::string("plot/controlplots/")+channel+std::string("/")+channel+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_Ratio.eps")).c_str(),"eps");
       canvWRatio->Print((std::string("plot/controlplots/")+channel+std::string("/")+channel+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_Ratio.png")).c_str(),"png");
 
-      // Draw signal variation plot
-      canv->cd();
-      canv->Clear();
+      // Draw signal variation plot only if there are signal variations
+      if(hist.Sigvar1D().size()){
+        canv->cd();
+        canv->Clear();
 
-      hist.Data1D()->GetYaxis()->UnZoom();
-      hist.Data1D()->GetYaxis()->SetRangeUser(hist.Data1D()->GetMinimum()*0.9, hist.Data1D()->GetMaximum()*1.15);
-      hist.Data1D()->Draw("p");
-      for(TH1F* sigvar : hist.Sigvar1D()) sigvar->Draw("hist same");
-      hist.Data1D()->Draw("p same");
+        hist.Data1D()->GetYaxis()->UnZoom();
+        hist.Data1D()->GetYaxis()->SetRangeUser(hist.Data1D()->GetMinimum()*0.9, hist.Data1D()->GetMaximum()*1.15);
+        hist.Data1D()->Draw("p");
+        for(TH1F* sigvar : hist.Sigvar1D()) sigvar->Draw("hist same");
+        hist.Data1D()->Draw("p same");
 
-      leg1->Clear();
-      for(TH1F* sigvar : hist.Sigvar1D()) leg1->AddEntry( sigvar, sigvar->GetTitle(), "L" );
-      leg1->AddEntry( hist.Data1D(), hist.Data1D()->GetTitle(), "P" );
-      leg1->Draw();
+        leg1->Clear();
+        for(TH1F* sigvar : hist.Sigvar1D()) leg1->AddEntry( sigvar, sigvar->GetTitle(), "L" );
+        leg1->AddEntry( hist.Data1D(), hist.Data1D()->GetTitle(), "P" );
+        leg1->Draw();
 
-      helper->DrawCMS();
+        helper->DrawCMS();
 
-      gPad->RedrawAxis();
+        gPad->RedrawAxis();
 
-      canv->Print((std::string("plot/controlplots/")+channel+std::string("/")+channel+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_sigvar.eps")).c_str(),"eps");
-      canv->Print((std::string("plot/controlplots/")+channel+std::string("/")+channel+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_sigvar.png")).c_str(),"png");
+        canv->Print((std::string("plot/controlplots/")+channel+std::string("/")+channel+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_sigvar.eps")).c_str(),"eps");
+        canv->Print((std::string("plot/controlplots/")+channel+std::string("/")+channel+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_sigvar.png")).c_str(),"png");
 
 
-      //ratio plots
-      canvWRatio->cd();
-      //      canvWRatio->Clear();
-      std::vector<TH1*> collectRatios;
-      for(TH1F* sigvar : hist.Sigvar1D()){
-        collectRatios.push_back(HelperFunctions::createRatioPlot((TH1 *)hist.Data1D(), ((TH1 *)(sigvar)), "Data/MC"));
-        collectRatios.back()->SetMarkerColor(sigvar->GetLineColor());
-        collectRatios.back()->SetLineColor(sigvar->GetLineColor());
-        collectRatios.back()->SetLineStyle(sigvar->GetLineStyle());
-      }
-
-      pad2->cd();
-      pad2->Draw();
-      for (size_t h_i=0;h_i<collectRatios.size();h_i++){
-        if(h_i==0){
-          collectRatios.at(h_i)->Draw("hist");
-          collectRatios.at(h_i)->GetYaxis()->SetRangeUser(0.49,1.51);
-          collectRatios.at(h_i)->GetYaxis()->SetTickLength(gStyle->GetTickLength("Y")/0.2);
-          collectRatios.at(h_i)->GetXaxis()->SetLabelSize(gStyle->GetLabelSize("X")*0.7);
-          collectRatios.at(h_i)->GetXaxis()->SetTitleSize(gStyle->GetTitleSize("X")*0.7);
-          collectRatios.at(h_i)->GetYaxis()->SetNdivisions(205);
-          collectRatios.at(h_i)->GetYaxis()->CenterTitle();
-          collectRatios.at(h_i)->GetYaxis()->SetLabelSize(gStyle->GetLabelSize("Y")*0.7);
-          collectRatios.at(h_i)->GetYaxis()->SetTitleSize(gStyle->GetTitleSize("Y")*0.7);
-          collectRatios.at(h_i)->GetYaxis()->SetTitleOffset(gStyle->GetTitleYOffset()/0.7);
+        //ratio plots
+        canvWRatio->cd();
+        //      canvWRatio->Clear();
+        std::vector<TH1*> collectRatios;
+        for(TH1F* sigvar : hist.Sigvar1D()){
+          collectRatios.push_back(HelperFunctions::createRatioPlot((TH1 *)hist.Data1D(), ((TH1 *)(sigvar)), "Data/MC"));
+          collectRatios.back()->SetMarkerColor(sigvar->GetLineColor());
+          collectRatios.back()->SetLineColor(sigvar->GetLineColor());
+          collectRatios.back()->SetLineStyle(sigvar->GetLineStyle());
         }
-        else collectRatios.at(h_i)->Draw("hist same");
-      }
-      pad1->Draw();
-      pad1->cd();
-      hist.Data1D()->GetYaxis()->UnZoom();
-      hist.Data1D()->GetYaxis()->SetRangeUser(hist.Data1D()->GetMinimum()*0.9, hist.Data1D()->GetMaximum()*1.15);
-      hist.Data1D()->Draw("p");
-      for(TH1F* sigvar : hist.Sigvar1D()) sigvar->Draw("hist same");
-      hist.Data1D()->Draw("p same");
-      leg1->Draw();
 
-      canvWRatio->cd();
-      helper->DrawCMS();
-      gPad->RedrawAxis();
+        pad2->cd();
+        pad2->Draw();
+        for (size_t h_i=0;h_i<collectRatios.size();++h_i){
+          if(h_i==0){
+            collectRatios.at(h_i)->Draw("hist");
+            collectRatios.at(h_i)->GetYaxis()->SetRangeUser(0.49,1.51);
+            collectRatios.at(h_i)->GetYaxis()->SetTickLength(gStyle->GetTickLength("Y")/0.2);
+            collectRatios.at(h_i)->GetXaxis()->SetLabelSize(gStyle->GetLabelSize("X")*0.7);
+            collectRatios.at(h_i)->GetXaxis()->SetTitleSize(gStyle->GetTitleSize("X")*0.7);
+            collectRatios.at(h_i)->GetYaxis()->SetNdivisions(205);
+            collectRatios.at(h_i)->GetYaxis()->CenterTitle();
+            collectRatios.at(h_i)->GetYaxis()->SetLabelSize(gStyle->GetLabelSize("Y")*0.7);
+            collectRatios.at(h_i)->GetYaxis()->SetTitleSize(gStyle->GetTitleSize("Y")*0.7);
+            collectRatios.at(h_i)->GetYaxis()->SetTitleOffset(gStyle->GetTitleYOffset()/0.7);
+          }
+          else collectRatios.at(h_i)->Draw("hist same");
+        }
+        pad1->Draw();
+        pad1->cd();
+        hist.Data1D()->GetYaxis()->UnZoom();
+        hist.Data1D()->GetYaxis()->SetRangeUser(hist.Data1D()->GetMinimum()*0.9, hist.Data1D()->GetMaximum()*1.15);
+        hist.Data1D()->Draw("p");
+        for(TH1F* sigvar : hist.Sigvar1D()) sigvar->Draw("hist same");
+        hist.Data1D()->Draw("p same");
+        leg1->Draw();
+
+        canvWRatio->cd();
+        helper->DrawCMS();
+        gPad->RedrawAxis();
 
 
-      canvWRatio->Print((std::string("plot/controlplots/")+channel+std::string("/")+channel+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_sigvar_Ratio.eps")).c_str(),"eps");
-      canvWRatio->Print((std::string("plot/controlplots/")+channel+std::string("/")+channel+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_sigvar_Ratio.png")).c_str(),"png");
-
+        canvWRatio->Print((std::string("plot/controlplots/")+channel+std::string("/")+channel+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_sigvar_Ratio.eps")).c_str(),"eps");
+        canvWRatio->Print((std::string("plot/controlplots/")+channel+std::string("/")+channel+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_sigvar_Ratio.png")).c_str(),"png");
+      }//end if 1D signal variation plots
     }//end 1D plots
     else{
       std::cout << "The Histogram *" << hist.Data1D()->GetName() << "* has an invalid dimension *" << hist.Dimension() << "*! Supported are only 1 and 2!" << std::endl;
