@@ -23,6 +23,12 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 
+#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
+
+
+
 #include "TopMass/TopEventTree/plugins/BRegJetEventAnalyzer.h"
 
 BRegJetEventAnalyzer::BRegJetEventAnalyzer(const edm::ParameterSet& cfg):
@@ -38,6 +44,7 @@ mva_name_(cfg.getParameter<std::string>("mva_name")),
 mva_path_(cfg.getParameter<std::string>("mva_path")),
 GBRmva_path_(cfg.getParameter<std::string>("GBRmva_path")),
 writeOutVariables_(cfg.getParameter<bool>("writeOutVariables")),
+JECUncSrcFile_(cfg.getParameter<edm::FileInPath>("JECUncSrcFile") ),
 checkedIsPFJet(false), checkedJERSF(false), checkedJESSF(false), checkedTotalSF(false), checkedQGTag(false), checkedJESTotUnc(false), checkedBRegResult(false),
 isPFJet(false),     hasJERSF(false),     hasJESSF(false),     hasTotalSF(false),     hasQGTag(false),     hasJESTotUnc(false), hasBRegResult(false),
 tempJetPtCorr_(0),tempJetMt_(0),tempJetEta_(0),
@@ -70,7 +77,7 @@ readerSoftElectronDeltaR_(0)
 		variablePointer_.push_back(  &readerJetArea_                     );//ok, was wrong
 		variablePointer_.push_back(  &readerJetEtWEightedSigmaPhi_       );//ok
 		//5 width and PU
-		variablePointer_.push_back(  &readerlChTrackPt_                  );//ok
+//		variablePointer_.push_back(  &readerlChTrackPt_                  );//ok
 		variablePointer_.push_back(  &tempfChargedHadrons_               );//ok
 		variablePointer_.push_back(  &tempfElectrons_                    );//ok
 		variablePointer_.push_back(  &tempfMuons_                        );//ok
@@ -90,7 +97,7 @@ readerSoftElectronDeltaR_(0)
 		//20 soft lepton variables
 		variablePointer_.push_back(  &readerJetPtRaw_                    );//ok
 		variablePointer_.push_back(  &tempJetMt_                         );//ok
-		variablePointer_.push_back(  &readerJesUncert_                   );//ok
+//		variablePointer_.push_back(  &readerJesUncert_                   );//ok
 		variablePointer_.push_back(  &tempnPFConstituents_               );//ok
 		variablePointer_.push_back(  &tempnChargedHadrons_               );//ok
 		variablePointer_.push_back(  &tempnChargedPFConstituents_        );//ok
@@ -134,6 +141,62 @@ std::vector<double> BRegJetEventAnalyzer::fillBRegJetAndReturnTMVAResults(const 
 
 void BRegJetEventAnalyzer::fillBRegJet(const edm::Event& evt, const edm::EventSetup& setup){
 
+	//////////////////////////////////////////////////////////////////////////
+	//  PUJetId-variables
+	////////////////////////////////////////////////////////////////////////
+
+	// input variables
+	edm::Handle<edm::ValueMap<StoredPileupJetIdentifier> > vmap;
+	evt.getByLabel("puJetIdChs", vmap);
+
+
+
+
+
+	//////////////////////////////////////////////////////////////////////////
+	//  QGTaggerInfo
+	////////////////////////////////////////////////////////////////////////
+
+
+	edm::Handle<edm::ValueMap<float> >  QGTagsHandleAxis1MLP ;
+	edm::Handle<edm::ValueMap<float> >  QGTagsHandleAxis2MLP ;
+	edm::Handle<edm::ValueMap<float> >  QGTagsHandlePtDMLP ;
+	edm::Handle<edm::ValueMap<float> >  QGTagsHandleMultMLP ;
+	edm::Handle<edm::ValueMap<float> >  QGTagsHandleQGMLP ;
+
+	evt.getByLabel("QGTagger","axis1MLP", QGTagsHandleAxis1MLP);
+	evt.getByLabel("QGTagger","axis2MLP", QGTagsHandleAxis2MLP);
+	evt.getByLabel("QGTagger","ptDMLP", QGTagsHandlePtDMLP);
+	evt.getByLabel("QGTagger","multMLP", QGTagsHandleMultMLP);
+//	std::cout << "trying to getbylabel" << std::endl;
+	  evt.getByLabel("QGTagger","qgMLP", QGTagsHandleQGMLP);
+
+	  edm::Handle<edm::ValueMap<float> >  QGTagsHandleMLP;
+	  edm::Handle<edm::ValueMap<float> >  QGTagsHandleLikelihood;
+	  evt.getByLabel("QGTagger","qgMLP", QGTagsHandleMLP);
+	  evt.getByLabel("QGTagger","qgLikelihood", QGTagsHandleLikelihood);
+
+//	++floatedmValueMap "QGTagger" "axis1MLP" "topMass" (productId = 5:100)
+//	++floatedmValueMap "QGTagger" "axis2Likelihood" "topMass" (productId = 5:101)
+//	++floatedmValueMap "QGTagger" "axis2MLP" "topMass" (productId = 5:102)
+//	++floatedmValueMap "QGTagger" "multLikelihood" "topMass" (productId = 5:103)
+//	++floatedmValueMap "QGTagger" "multMLP" "topMass" (productId = 5:104)
+//	++floatedmValueMap "QGTagger" "ptDLikelihood" "topMass" (productId = 5:105)
+//	++floatedmValueMap "QGTagger" "ptDMLP" "topMass" (productId = 5:106)
+//	++floatedmValueMap "QGTagger" "qgLikelihood" "topMass" (productId = 5:107)
+//	++floatedmValueMap "QGTagger" "qgMLP" "topMass" (productId = 5:108)
+
+
+//    1 occurrences of key floatedmValueMap + "QGTagger" + "axis1MLP" "topMass"
+//    1 occurrences of key floatedmValueMap + "QGTagger" + "axis2Likelihood" "topMass"
+//    1 occurrences of key floatedmValueMap + "QGTagger" + "axis2MLP" "topMass"
+//    1 occurrences of key floatedmValueMap + "QGTagger" + "multLikelihood" "topMass"
+//    1 occurrences of key floatedmValueMap + "QGTagger" + "multMLP" "topMass"
+//    1 occurrences of key floatedmValueMap + "QGTagger" + "ptDLikelihood" "topMass"
+//    1 occurrences of key floatedmValueMap + "QGTagger" + "ptDMLP" "topMass"
+//    1 occurrences of key floatedmValueMap + "QGTagger" + "qgLikelihood" "topMass"
+//    1 occurrences of key floatedmValueMap + "QGTagger" + "qgMLP" "topMass"
+
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -153,6 +216,7 @@ void BRegJetEventAnalyzer::fillBRegJet(const edm::Event& evt, const edm::EventSe
 
 
 
+
 	//////////////////////////////////////////////////////////////////////////////
 	// INIT JetEvent
 	////////////////////////////////////////////////////////////////////////////
@@ -163,7 +227,9 @@ void BRegJetEventAnalyzer::fillBRegJet(const edm::Event& evt, const edm::EventSe
 	// JETS
 	////////////////////////////////////////////////////////////////////////
 
-	edm::Handle<std::vector<pat::Jet> > jets;
+
+	edm::Handle<edm::View<pat::Jet> > jets;
+//	edm::Handle<std::vector<pat::Jet> > jets;
 	evt.getByLabel(jets_, jets);
 
 	double readerRlbReco=-999;
@@ -173,12 +239,15 @@ void BRegJetEventAnalyzer::fillBRegJet(const edm::Event& evt, const edm::EventSe
 	unsigned short jetIndex = 0;
 	unsigned short nB = 0;
 	unsigned short nOther = 0;
-	for(std::vector< pat::Jet >::const_iterator ijet = jets->begin(); ijet != jets->end(); ++ijet, ++jetIndex) {
+	for(edm::View<pat::Jet>::const_iterator ijet=jets->begin(); ijet!=jets->end(); ++ijet,++jetIndex){
+//	for(std::vector< pat::Jet >::const_iterator ijet = jets->begin(); ijet != jets->end(); ++ijet, ++jetIndex) {
 		// write only kJetMAX_ jets into the event
 		if(jetIndex == kJetMAX_) break;
 
 		bool isB=false;
-		if(std::abs(ijet->partonFlavour())==5)isB=true;
+
+//		if(std::abs(ijet->partonFlavour())==5)isB=true;
+		if(ijet->bDiscriminator("combinedSecondaryVertexBJetTags")>0.679)isB=true;//at least b-tagged //WARNING:HARD_CODED... SHOULD RETRIEVE THIS FROM SOME CONFIG!!!!
 
 		if(isB){
 			nB++;
@@ -199,7 +268,13 @@ void BRegJetEventAnalyzer::fillBRegJet(const edm::Event& evt, const edm::EventSe
 
 	jetIndex = 0;
 	nB = 0;
-	for(std::vector< pat::Jet >::const_iterator ijet = jets->begin(); ijet != jets->end(); ++ijet, ++jetIndex) {
+	for(edm::View<pat::Jet>::const_iterator ijet=jets->begin(); ijet!=jets->end(); ++ijet,++jetIndex){
+
+//	for(std::vector< pat::Jet >::const_iterator ijet = jets->begin(); ijet != jets->end(); ++ijet, ++jetIndex) {
+
+
+
+
 		// write only kJetMAX_ jets into the event
 		if(jetIndex == kJetMAX_) break;
 
@@ -207,6 +282,65 @@ void BRegJetEventAnalyzer::fillBRegJet(const edm::Event& evt, const edm::EventSe
 		if(!checkedIsPFJet) { checkedIsPFJet = true; isPFJet = ijet->isPFJet(); }
 		if(!checkedJESTotUnc  ) { checkedJESTotUnc   = true; if(ijet->hasUserFloat("jesTotUnc"      )) hasJESTotUnc   = true; }
 		if(!checkedBRegResult ) { checkedBRegResult  = true; if(ijet->hasUserFloat("BRegResult"     )) hasBRegResult  = true; }
+
+
+//		   UsersFavoriteData const & usersData = myMuon.userData<UsersFavoriteData>("myData");
+
+
+//	     edm::RefToBase<pat::Jet> jetRef = jets->refAt(jetIndex);
+////	    		 (edm::Ref<PFJetCollection>(jets,ijet));
+//
+//	     if (QGTagsHandleMLP.isValid()) std::cout << "MLP: " << (*QGTagsHandleMLP)[jetRef] << std::endl;
+//	     if (QGTagsHandleLikelihood.isValid()) std::cout << "Likelihood: " << (*QGTagsHandleLikelihood)[jetRef] << std::endl;
+//
+//	     if (QGTagsHandleMLP.isValid()) std::cout << "francescos handle valid" << std::endl;
+//	     if (QGTagsHandleQGMLP.isValid()) std::cout << "Hennings handle valid" << std::endl;
+
+
+//        edm::RefToBase<pat::Jet> refToJetWithValueMaps = jetRef;
+		edm::RefToBase<pat::Jet> refToJetWithValueMaps;
+
+		if(hasBRegResult){
+//			std::cout << "using stored reference" << std::endl;
+			refToJetWithValueMaps =  * ijet->userData<edm::RefToBase<pat::Jet> >("refToJetWithValueMaps") ;
+		}
+		else {
+//			std::cout << "using reference from stored collection" <<t std::endl;
+			refToJetWithValueMaps =  jets->refAt(jetIndex);
+		}
+//		if (QGTagsHandleAxis1MLP.isValid()) std::cout << "Axis1: " << (*QGTagsHandleAxis1MLP)[refToJetWithValueMaps] << std::endl;
+//		if (QGTagsHandleAxis2MLP.isValid()) std::cout << "Axis2: " << (*QGTagsHandleAxis2MLP)[refToJetWithValueMaps] << std::endl;
+//		if (QGTagsHandlePtDMLP.isValid()) std::cout << "PtD: " << (*QGTagsHandlePtDMLP)[refToJetWithValueMaps] << std::endl;
+//		if (QGTagsHandleMultMLP.isValid()) std::cout << "Mult: " << (*QGTagsHandleMultMLP)[refToJetWithValueMaps] << std::endl;
+//		if (QGTagsHandleQGMLP.isValid()) std::cout << "QGMLP: " << (*QGTagsHandleQGMLP)[refToJetWithValueMaps] << std::endl;
+
+//		std::cout << "einfach so QGMLP: " << (*QGTagsHandleQGMLP)[refToJetWithValueMaps] << std::endl;
+//		std::cout << "einfach so Axis1: " << (*QGTagsHandleAxis1MLP)[refToJetWithValueMaps] << std::endl;
+//		BRegJet->jetPtRaw
+		  BRegJet->QGaxis1.push_back((*QGTagsHandleAxis1MLP)[refToJetWithValueMaps]);
+		  BRegJet->QGaxis2.push_back((*QGTagsHandleAxis2MLP)[refToJetWithValueMaps]);
+		  BRegJet->QGMult .push_back((*QGTagsHandleMultMLP)[refToJetWithValueMaps]);
+		  BRegJet->QGPtD  .push_back((*QGTagsHandlePtDMLP)[refToJetWithValueMaps]);
+		  BRegJet->QGMLP  .push_back((*QGTagsHandleQGMLP)[refToJetWithValueMaps]);
+//		std::cout << "doing bregjeteventanalyser..." << std::endl;
+
+
+		PileupJetIdentifier puIdentifier;
+		// Or read it from the value map
+		puIdentifier = (*vmap)[refToJetWithValueMaps];
+//		std::cout << "puIdentifier.ptD() " << puIdentifier.ptD() << std::endl;
+
+		BRegJet->PUIddZ       .push_back(puIdentifier.dZ());
+		BRegJet->PUIddRMean   .push_back(puIdentifier.dRMean());
+		BRegJet->PUIddr2Mean  .push_back(puIdentifier.dR2Mean());
+		BRegJet->PUIdfrac01   .push_back(puIdentifier.frac01());
+		BRegJet->PUIdfrac02   .push_back(puIdentifier.frac02());
+		BRegJet->PUIdfrac03   .push_back(puIdentifier.frac03());
+		BRegJet->PUIdfrac04   .push_back(puIdentifier.frac04());
+		BRegJet->PUIdfrac05   .push_back(puIdentifier.frac05());
+		BRegJet->PUIdbeta     .push_back(puIdentifier.beta());
+		BRegJet->PUIdbetaStar .push_back(puIdentifier.betaStar());
+		BRegJet->PUIdptD      .push_back(puIdentifier.ptD());
 
 		if(isPFJet){
 //			BRegJet->fChargedHadron .push_back(ijet->chargedHadronEnergyFraction());
@@ -296,10 +430,19 @@ void BRegJetEventAnalyzer::fillBRegJet(const edm::Event& evt, const edm::EventSe
 		}
 		BRegJet->EtWeightedSigmaPhi.push_back( readerJetEtWEightedSigmaPhi_);
 
-		//JESUncertainty
-		if(hasJESTotUnc  ) readerJesUncert_=ijet->userFloat("jesTotUnc"      );
-		else readerJesUncert_ = -999;
+
+	    // GetTotal JES uncertainty
+	    // get the uncertainty parameters from file, see
+	    // https://twiki.cern.ch/twiki/bin/viewauth/CMS/JECUncertaintySources
+	    JetCorrectorParameters* TotalParam = new JetCorrectorParameters(JECUncSrcFile_.fullPath(), "Total");
+	    // instantiate the jec uncertainty object
+	    JetCorrectionUncertainty* TotalDeltaJEC = new JetCorrectionUncertainty(*TotalParam);
+	    TotalDeltaJEC->setJetEta(ijet->eta()); TotalDeltaJEC->setJetPt(ijet->pt());
+	    //set total JESUncertainty
+		readerJesUncert_ = TotalDeltaJEC->getUncertainty(true);
 		BRegJet->jesTotUnc   .push_back(readerJesUncert_);
+		delete TotalParam; 
+		delete TotalDeltaJEC;
 
 		//rho and rho25
 		edm::Handle<double> pRho;

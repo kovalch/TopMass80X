@@ -20,6 +20,10 @@
 #include "TMVA/Tools.h"
 #include "TMVA/Reader.h"
 
+// PUJetIdIdentifier
+#include "CMGTools/External/interface/PileupJetIdentifier.h"
+#include "CMGTools/External/interface/PileupJetIdAlgo.h"
+
 //GBRTrain
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 
@@ -70,6 +74,10 @@ class BRegJetEventAnalyzer : public edm::EDAnalyzer {
 
 
   bool writeOutVariables_;
+
+  /// JECUncertaintySource File
+  edm::FileInPath JECUncSrcFile_;
+
   /// jet output collection 
   std::string outputJets_;
 
