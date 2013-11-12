@@ -6,13 +6,13 @@ double IdeogramCombLikelihoodLeptonJets::Evaluate(double *x, double *p) {
   bool onlyCP   = false;
   bool useCalib = true;
   
-  //* Summer12
+  //* Summer12 muons
   double fCP = 0.43954; // 1
   double fWP = 0.01067 + 0.188647 + 0.0111505; // 2 3 4
   double fUN = 0.00107329 + 0.0276057 + 0.321233; // -2 -1 6
   //*/
   
-  //* Fall11 electrons
+  //* Summer12 electrons
   if (p[3] == 11) {
     fCP = 0.447001;
     fWP = 0.00821244 + 0.181794 + 0.00886663;
