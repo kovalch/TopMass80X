@@ -250,6 +250,11 @@ process.analyzeWeights = analyzeWeights.clone(
                                               savePDFWeights = True
                                              )
 
+process.ttSemiLepHypGenMatch.useBReg = cms.bool(False)
+process.ttSemiLepHypMVADisc.useBReg = cms.bool(False)
+
+
+
 if not data:
     ## MC weights
     process.load("TopAnalysis.TopUtils.EventWeightMC_cfi")
