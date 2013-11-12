@@ -90,7 +90,8 @@ secFiles.extend( [
 ## define maximal number of events to loop over
 process.maxEvents = cms.untracked.PSet(
 #    input = cms.untracked.int32(-1)
-    input = cms.untracked.int32(500)
+#    input = cms.untracked.int32(500)
+    input = cms.untracked.int32(50)
 )
 
 ## configure process options
@@ -122,13 +123,17 @@ from TopAnalysis.TopFilter.sequences.jetSelection_cff import goodJets
 process.vetoJets.src = "goodJetsPF30"
 process.vetoJets.cut = ''
 
+# define uncertainty source file here
+JECUncSrcFileAll= "TopAnalysis/TopUtils/data/Summer13_V4_DATA_UncertaintySources_AK5PFchs.txt"
+
+
 if not data:
     ## configure JetEnergyScale tool
     process.load("TopAnalysis.TopUtils.JetEnergyScale_cff")
     from TopAnalysis.TopUtils.JetEnergyScale_cff import *
 
     scaledJetEnergy.scaleType    = options.scaleType
-    scaledJetEnergy.JECUncSrcFile= "TopAnalysis/TopUtils/data/Summer13_V4_DATA_UncertaintySources_AK5PFchs.txt"
+    scaledJetEnergy.JECUncSrcFile= cms.FileInPath(JECUncSrcFileAll)
     scaledJetEnergy.sourceName   = options.jessource
     scaledJetEnergy.scaleFactor  = options.lJesFactor
     scaledJetEnergy.scaleFactorB = options.bJesFactor
@@ -195,9 +200,25 @@ if(options.mcversion=="Summer12"):
 if data:
     process.hltFilter.HLTPaths=["HLT_IsoMu24_eta2p1_v*"]
 
+
+
+
+## import QuarkGluonTagger
+process.load('QuarkGluonTagger.EightTeV.QGTagger_RecoJets_cff')  
+process.QGTagger.srcJets = cms.InputTag("goodJetsPF30")
+process.QGTagger.isPatJet  = cms.untracked.bool(True)     
+process.QGTagger.useCHS  = cms.untracked.bool(True)
+
+# load the PU JetID sequence
+process.load("CMGTools.External.pujetidsequence_cff")
+process.puJetIdChs.jets = cms.InputTag("goodJetsPF30")
+process.puJetMvaChs.jets = cms.InputTag("goodJetsPF30")
+#process.puJetId.jets = cms.InputTag("goodJetsPF30")
+#process.puJetMva.jets = cms.InputTag("goodJetsPF30")
+
 ## apply b-regression to good jets
 from TopMass.TopEventTree.BRegProducer_cfi import addBRegProducer
-process.addBRegProducer = addBRegProducer.clone( jets            = "goodJetsPF30")
+process.addBRegProducer = addBRegProducer.clone( jets            = "goodJetsPF30", JECUncSrcFile= cms.FileInPath(JECUncSrcFileAll))
 
 
 
@@ -250,7 +271,7 @@ process.analyzeHitFit = analyzeHypothesis.clone(hypoClassKey = "ttSemiLepHypHitF
 from TopMass.TopEventTree.JetEventAnalyzer_cfi import analyzeJets
 process.analyzeJets = analyzeJets.clone()
 from TopMass.TopEventTree.BRegJetEventAnalyzer_cfi import analyzeBRegJets
-process.analyzeBRegJets = analyzeBRegJets.clone(jets = analyzeJets.jets)
+process.analyzeBRegJets = analyzeBRegJets.clone(jets = analyzeJets.jets, JECUncSrcFile= cms.FileInPath(JECUncSrcFileAll))
 from TopMass.TopEventTree.WeightEventAnalyzer_cfi import analyzeWeights
 process.analyzeWeights = analyzeWeights.clone(
                                               mcWeight        = options.mcWeight,
@@ -401,6 +422,8 @@ if data:
     process.path = cms.Path(
                             process.hltFilter *
                             process.semiLeptonicSelection *
+                            process.QuarkGluonTagger *
+                            process.puJetIdSqeuenceChs *
                             process.addBRegProducer *
                             process.tightBottomSSVPFJets *
                             process.tightBottomCSVPFJets *
@@ -420,8 +443,11 @@ else:
                             process.scaledMuonEnergy *
                             process.scaledMET *
                             process.semiLeptonicSelection *
-                            process.addBRegProducer *
+                            process.QuarkGluonTagger *
+                            process.puJetIdSqeuenceChs *
+#                            process.puJetIdSqeuence *
 #                            process.content * 
+                            process.addBRegProducer *
                             process.tightBottomSSVPFJets *
                             process.tightBottomCSVPFJets *
                             process.semiLeptonicEvents *
@@ -435,12 +461,14 @@ else:
                             process.effSFMuonEventWeight *
                             process.makeGenEvt *
                             process.makeTtSemiLepEvent *
+#                            process.content * 
                             process.analyzeHitFit *
                             process.analyzeBRegHitFit *
                             process.analyzeJets *
                             process.analyzeBRegJets *
                             process.analyzeWeights
                             )
+
 
 process.path.remove(process.centralJets)
 process.path.remove(process.reliableJets)
