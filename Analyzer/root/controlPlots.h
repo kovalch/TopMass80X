@@ -28,15 +28,15 @@ private:
     std::string name, file;
     int type, color, line;
     double scale;
-    TChain* chain;
   };
 
   class MyHistogram{
   public:
     MyHistogram(std::string name_, std::string formulax_, std::string selection_, std::string title, int nBins, double min, double max) :
+      varx(0), vary(0),sel(0),
       name(name_), formulax(formulax_), formulay("1."), selection(selection_),
       data(new TH1F((std::string("hD")+name).c_str(), (std::string("Data")+title).c_str(), nBins, min, max)),
-    isTwoDHistogram(false)
+      histogramDimension(1)
     {
       data->SetLineWidth(1);
       data->SetLineColor(kBlack);
@@ -45,9 +45,10 @@ private:
     }
 
     MyHistogram(std::string name_, std::string formulax_, std::string formulay_, std::string selection_, std::string title, int x_nBins, double x_min, double x_max, int y_nBins, double y_min, double y_max/*, double y_plotmin =0., double y_plotmax=-1.*/) :
+      varx(0), vary(0),sel(0),
       name(name_), formulax(formulax_), formulay(formulay_), selection(selection_),
       data(new TH2F((std::string("h2D")+name).c_str(), (std::string("Data")+title).c_str(), x_nBins, x_min, x_max, y_nBins, y_min, y_max)),
-      isTwoDHistogram(true)
+      histogramDimension(2)
     {
       data->SetLineWidth(1);
       data->SetLineColor(kBlack);
@@ -57,10 +58,14 @@ private:
 
     void Init(TChain* chain, std::string topBranchName)
     {
-      boost::replace_all(formulax, "top.", topBranchName);
-      boost::replace_all(formulay, "top.", topBranchName);
+      boost::replace_all(formulax,  "top.", topBranchName);
+      boost::replace_all(formulay,  "top.", topBranchName);
+      boost::replace_all(selection, "top.", topBranchName);
       varx = new TTreeFormula((std::string("fx")+name).c_str(), formulax.c_str() , chain);
       vary = new TTreeFormula((std::string("fy")+name).c_str(), formulay.c_str() , chain);
+      if(varx->GetNdim() == 0 || vary->GetNdim() == 0){
+        SetInvalid();
+      }
       if (selection.size() > 0) sel = new TTreeFormula((std::string("s")+name).c_str(), selection.c_str(), chain);
     }
     void AddSignal(MySample* sample)
@@ -98,22 +103,22 @@ private:
     
     std::vector<TH1F*> Sigvar1D(){
       std::vector<TH1F*> sigvar1D;
-      if(!isTwoDHistogram){
-      for (size_t i=0; i<sigvar.size(); i++)sigvar1D.push_back((TH1F*) sigvar.at(i));
+      if(histogramDimension == 1){
+        for (size_t i=0; i<sigvar.size(); i++)sigvar1D.push_back((TH1F*) sigvar.at(i));
       }
       return sigvar1D;
     }
     std::vector<TH1F*> Sig1D(){
       std::vector<TH1F*> sig1D;
-      if(!isTwoDHistogram){
-      for (size_t i=0; i<sig.size(); i++)sig1D.push_back((TH1F*) sig.at(i));
+      if(histogramDimension == 1){
+        for (size_t i=0; i<sig.size(); i++)sig1D.push_back((TH1F*) sig.at(i));
       }
       return sig1D;
     }
     std::vector<TH1F*> Bkg1D(){
       std::vector<TH1F*> bkg1D;
-      if(!isTwoDHistogram){
-      for (size_t i=0; i<bkg.size(); i++)bkg1D.push_back((TH1F*) bkg.at(i));
+      if(histogramDimension == 1){
+        for (size_t i=0; i<bkg.size(); i++)bkg1D.push_back((TH1F*) bkg.at(i));
       }
       return bkg1D;
     }
@@ -123,22 +128,22 @@ private:
 
     std::vector<TH2F*> Sigvar2D(){
       std::vector<TH2F*> sigvar2D;
-      if(isTwoDHistogram){
-      for (size_t i=0; i<sigvar.size(); i++)sigvar2D.push_back((TH2F*) sigvar.at(i));
+      if(histogramDimension == 2){
+        for (size_t i=0; i<sigvar.size(); i++)sigvar2D.push_back((TH2F*) sigvar.at(i));
       }
       return sigvar2D;
     }
     std::vector<TH2F*> Sig2D(){
       std::vector<TH2F*> sig2D;
-      if(isTwoDHistogram){
-      for (size_t i=0; i<sig.size(); i++)sig2D.push_back((TH2F*) sig.at(i));
+      if(histogramDimension == 2){
+        for (size_t i=0; i<sig.size(); i++)sig2D.push_back((TH2F*) sig.at(i));
       }
       return sig2D;
     }
     std::vector<TH2F*> Bkg2D(){
       std::vector<TH2F*> bkg2D;
-      if(isTwoDHistogram){
-      for (size_t i=0; i<bkg.size(); i++)bkg2D.push_back((TH2F*) bkg.at(i));
+      if(histogramDimension == 2){
+        for (size_t i=0; i<bkg.size(); i++)bkg2D.push_back((TH2F*) bkg.at(i));
       }
       return bkg2D;
     }
@@ -146,10 +151,13 @@ private:
       return (TH2F*) data;
     }
 
-    bool IsTwoDHistogram(){
-      return isTwoDHistogram;
+    const short Dimension(){
+      return histogramDimension;
     }
 
+    void SetInvalid(){
+      histogramDimension = -1;
+    }
     
     TTreeFormula* varx;
     TTreeFormula* vary;
@@ -159,7 +167,7 @@ private:
   private:
     TH1 *data;
     std::vector<TH1*> sig, bkg, sigvar;
-    bool isTwoDHistogram;
+    short histogramDimension;
   };
 
   class MyBRegVarInfo{
