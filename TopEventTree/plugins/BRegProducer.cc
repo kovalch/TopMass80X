@@ -47,8 +47,11 @@ void sortByPt(std::auto_ptr<std::vector<T> > &collection) {
 void
 BRegProducer::produce(edm::Event& event, const edm::EventSetup& setup)
 {
+
+
   // access jets
-  edm::Handle<std::vector<pat::Jet> > jets;
+	edm::Handle<edm::View<pat::Jet> > jets;
+//  edm::Handle<std::vector<pat::Jet> > jets;
   event.getByLabel(inputJets_, jets);
 
 //  std::cout << "inputJets_.label() " << inputJets_.label() << " inputJets_.instance() " << inputJets_.instance() << " inputJets_.process() " << inputJets_.process() << std::endl;
@@ -59,8 +62,16 @@ BRegProducer::produce(edm::Event& event, const edm::EventSetup& setup)
 //  std::vector<double> tempBRegGBRTrainResultCrossCheck = 	bRegAnalyzer->fillBRegJetAndReturnTMVAResults(event,  setup);
 
 unsigned int jet_i =0;
-  for(std::vector<pat::Jet>::const_iterator jet=jets->begin(); jet!=jets->end(); ++jet){
+for(edm::View<pat::Jet>::const_iterator jet=jets->begin(); jet!=jets->end(); ++jet){
+
+//  for(std::vector<pat::Jet>::const_iterator jet=jets->begin(); jet!=jets->end(); ++jet){
     pat::Jet scaledJet = *jet;
+
+
+
+
+//std::cout << "jet_i" << jet_i << "kJetMAX_" << kJetMAX_ << "tempBRegGBRTrainResultCrossCheck.size() " << tempBRegGBRTrainResultCrossCheck.size() << std::endl;
+
     if(jet_i>=(unsigned int) kJetMAX_ || jet_i>=tempBRegGBRTrainResultCrossCheck.size()){
     	if((unsigned int) kJetMAX_!=tempBRegGBRTrainResultCrossCheck.size()){
     	edm::LogWarning msg("Max. no of jets");
@@ -71,6 +82,12 @@ unsigned int jet_i =0;
     }
 //	std::cout <<   tempBRegGBRTrainResultCrossCheck.at(jet_i) << std::endl;
 	scaledJet.addUserFloat("BRegResult" , tempBRegGBRTrainResultCrossCheck.at(jet_i));
+//	std::cout << "trying to add ref to jet before" << std::endl;
+	edm::RefToBase<pat::Jet> refToJetWithValueMaps =  jets->refAt(jet_i);
+//	std::cout << "adduserdatatrying to add ref to jet before" << std::endl;
+	scaledJet.addUserData< edm::RefToBase<pat::Jet> >( "refToJetWithValueMaps", refToJetWithValueMaps );
+//	std::cout << "did it adduserdatatrying to add ref to jet before" << std::endl;
+
     pJets->push_back( scaledJet );
     jet_i++;
   }

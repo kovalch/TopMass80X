@@ -34,6 +34,24 @@ void BRegJetEvent::init()
   OneOfLeading2B.clear();
   RlbReco.clear();
 
+  QGaxis1.clear();
+  QGaxis2.clear();
+  QGMult .clear();
+  QGPtD  .clear();
+  QGMLP  .clear();
+
+  PUIddZ       .clear();
+  PUIddRMean   .clear();
+  PUIddr2Mean  .clear();
+  PUIdfrac01   .clear();
+  PUIdfrac02   .clear();
+  PUIdfrac03   .clear();
+  PUIdfrac04   .clear();
+  PUIdfrac05   .clear();
+  PUIdbeta     .clear();
+  PUIdbetaStar .clear();
+  PUIdptD      .clear();
+
 
   nSoftMuons          .clear();
   nSoftElectrons      .clear();

@@ -306,7 +306,7 @@ int Helper::methodID()
 
 TH1* HelperFunctions::createRatioPlot(const TH1 *h1, const TH1 *h2, const std::string &yTitle){
   assert( h1->GetNbinsX() == h2->GetNbinsX() );
-  std::string name = std::string("Ratio_") + h1->GetName();
+  std::string name = (std::string("Ratio_") + h1->GetName())+h2->GetName();
   TH1 *hRatio = static_cast<TH1*>(h1->Clone(name.c_str()));
   hRatio->SetMarkerStyle(h1->GetMarkerStyle());
   hRatio->SetMarkerColor(h1->GetLineColor());
@@ -328,6 +328,7 @@ std::string HelperFunctions::cleanedName(std::string toBeCleaned){
     boost::replace_all(toBeCleaned,"}","_"      );
     boost::replace_all(toBeCleaned,"^","_"      );
     boost::replace_all(toBeCleaned,".","_"      );
+    boost::replace_all(toBeCleaned,"*","_"      );
     boost::replace_all(toBeCleaned,",",""       );
     boost::replace_all(toBeCleaned,";",""       );
     boost::replace_all(toBeCleaned,"|",""       );
@@ -344,7 +345,7 @@ void HelperFunctions::findYRange(const TH1 *h, double& min, double& max) {
   max = 0.;
   for(int bin = 1; bin <= h->GetNbinsX(); ++bin) {
     double val = h->GetBinContent(bin);
-    std::cout << "bin " << bin << " val " << val << std::endl;
+//    std::cout << "bin " << bin << " val " << val << std::endl;
     if( val < min && val!=0) min = val;
     if( val > max ) max = val;
   }

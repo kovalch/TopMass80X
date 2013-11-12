@@ -2,16 +2,16 @@
 
 //#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 //#include "DataFormats/PatCandidates/interface/Muon.h"
-//#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
 
 //#include "DataFormats/Common/interface/Association.h"
 //#include "DataFormats/Candidate/interface/Candidate.h"
 
 
-//#include "DataFormats/Common/interface/RefProd.h"
-//#include "DataFormats/Common/interface/RefToBase.h"
-//#include "DataFormats/Common/interface/RefHolder.h"
-//#include "DataFormats/Common/interface/Holder.h"
+#include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/Common/interface/RefHolder.h"
+#include "DataFormats/Common/interface/Holder.h"
 
 #include "TLorentzVector.h"
 #include "TopMass/TopEventTree/interface/TopEvent.h"
@@ -28,5 +28,8 @@ namespace {
     JetEvent     je;
     BRegJetEvent BRegje;
     WeightEvent  we;
+
+    edm::RefToBase<pat::Jet> rtb;
+    pat::UserHolder<edm::RefToBase<pat::Jet> > uhrtb;
   };
 }
