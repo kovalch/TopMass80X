@@ -306,7 +306,7 @@ int Helper::methodID()
 
 TH1* HelperFunctions::createRatioPlot(const TH1 *h1, const TH1 *h2, const std::string &yTitle){
   assert( h1->GetNbinsX() == h2->GetNbinsX() );
-  std::string name = std::string("Ratio_") + h1->GetName();
+  std::string name = (std::string("Ratio_") + h1->GetName())+h2->GetName();
   TH1 *hRatio = static_cast<TH1*>(h1->Clone(name.c_str()));
   hRatio->SetMarkerStyle(h1->GetMarkerStyle());
   hRatio->SetMarkerColor(h1->GetLineColor());
