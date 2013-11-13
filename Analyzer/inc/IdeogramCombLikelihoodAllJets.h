@@ -24,27 +24,10 @@ private:
   double PBKGJES(double *x, double *p, const std::vector<double> &q);
   double PBKGJES1(double *x, double *p);
   
-  std::vector<double> readParameters(const char *whichParameter);
-
-  std::vector<double> parsCP_;
-  std::vector<double> parsWP_;
-  std::vector<double> parsUN_;
-  std::vector<double> parsCPJES_;
-  std::vector<double> parsWPJES_;
-  std::vector<double> parsUNJES_;
   std::vector<double> parsBKG_;
   std::vector<double> parsBKGJES_;
 
-  std::vector<double> massOffset_;
-  std::vector<double> massSlopeMass_;
-  std::vector<double> massSlopeJES_;
-  std::vector<double> massSlopeMassJES_;
-  std::vector<double> jesOffset_;
-  std::vector<double> jesSlopeMass_;
-  std::vector<double> jesSlopeJES_;
-  std::vector<double> jesSlopeMassJES_;
-
-  double fSig_, fCP_, fWP_, fUN_;
+  double fSig_;
 
   double PBKGintegral_;
   

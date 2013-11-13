@@ -1,6 +1,93 @@
 #include "IdeogramCombLikelihoodLeptonJets.h"
 
-IdeogramCombLikelihoodLeptonJets::IdeogramCombLikelihoodLeptonJets() {};
+typedef ProgramOptionsReader po;
+
+IdeogramCombLikelihoodLeptonJets::IdeogramCombLikelihoodLeptonJets() :
+		ele_parsCP_   (0), ele_parsWP_    (0), ele_parsUN_   (0),
+		ele_parsCPJES_(0), ele_parsWPJES_ (0), ele_parsUNJES_(0),
+		ele_massOffset_(0), ele_massSlopeMass_(0), ele_massSlopeJES_(0), ele_massSlopeMassJES_(0),
+		ele_jesOffset_ (0), ele_jesSlopeMass_ (0), ele_jesSlopeJES_ (0), ele_jesSlopeMassJES_ (0),
+		ele_fCP_(-1.), ele_fWP_(-1.), ele_fUN_(-1.)
+
+{
+	//read in electron information as well
+
+	// parameters for mTop correct permutations
+	if(!ele_parsCP_.size())
+		ele_parsCP_ = readParameters("templates.ele_parsCP");
+
+	// parameters for mTop wrong parmutations
+	if(!ele_parsWP_.size())
+		ele_parsWP_ = readParameters("templates.ele_parsWP");
+
+	// parameters for mTop unmatched permutations
+	if(!ele_parsUN_.size())
+		ele_parsUN_ = readParameters("templates.ele_parsUN");
+
+	// parameters for JES correct permutations
+	if(!ele_parsCPJES_.size())
+		ele_parsCPJES_ = readParameters("templates.ele_parsCPJES");
+
+	// parameters for JES wrong permutations
+	if(!ele_parsWPJES_.size())
+		ele_parsWPJES_ = readParameters("templates.ele_parsWPJES");
+
+	// parameters for JES unmatched permutations
+	if(!ele_parsUNJES_.size())
+		ele_parsUNJES_ = readParameters("templates.ele_parsUNJES");
+
+	// read calibration
+	if(!ele_massOffset_.size())
+		ele_massOffset_ = readParameters("calibration.ele_massOffset");
+	if(!ele_massSlopeMass_.size()){
+		ele_massSlopeMass_ = readParameters("calibration.ele_massSlopeMass");
+		if(ele_massSlopeMass_.size() != ele_massOffset_.size()){
+			std::cout << "Different number of calibration constants! ele_massSlopeMass_.size() = " << ele_massSlopeMass_.size() << ", ele_massOffset_.size() = " << ele_massOffset_.size() << std::endl;
+		}
+	}
+	if(!ele_massSlopeJES_.size()){
+		ele_massSlopeJES_ = readParameters("calibration.ele_massSlopeJES");
+		if(ele_massSlopeJES_.size() != ele_massOffset_.size()){
+			std::cout << "Different number of calibration constants! ele_massSlopeJES_.size() = " << ele_massSlopeJES_.size() << ", ele_massOffset_.size() = " << ele_massOffset_.size() << std::endl;
+		}
+	}
+	if(!ele_massSlopeMassJES_.size()){
+		ele_massSlopeMassJES_ = readParameters("calibration.ele_massSlopeMassJES");
+		if(ele_massSlopeMassJES_.size() != ele_massOffset_.size()){
+			std::cout << "Different number of calibration constants! ele_massSlopeMassJES_.size() = " << ele_massSlopeMassJES_.size() << ", ele_massOffset_.size() = " << ele_massOffset_.size() << std::endl;
+		}
+	}
+	if(!ele_jesOffset_.size()){
+		ele_jesOffset_ = readParameters("calibration.ele_jesOffset");
+		if(ele_jesOffset_.size() != ele_massOffset_.size()){
+			std::cout << "Different number of calibration constants! ele_jesOffset_.size() = " << ele_jesOffset_.size() << ", ele_massOffset_.size() = " << ele_massOffset_.size() << std::endl;
+		}
+	}
+	if(!ele_jesSlopeMass_.size()){
+		ele_jesSlopeMass_ = readParameters("calibration.ele_jesSlopeMass");
+		if(ele_jesSlopeMass_.size() != ele_massOffset_.size()){
+			std::cout << "Different number of calibration constants! ele_jesSlopeMass_.size() = " << ele_jesSlopeMass_.size() << ", ele_massOffset_.size() = " << ele_massOffset_.size() << std::endl;
+		}
+	}
+	if(!ele_jesSlopeJES_.size()){
+		ele_jesSlopeJES_ = readParameters("calibration.ele_jesSlopeJES");
+		if(ele_jesSlopeJES_.size() != ele_massOffset_.size()){
+			std::cout << "Different number of calibration constants! ele_jesSlopeJES_.size() = " << ele_jesSlopeJES_.size() << ", ele_massOffset_.size() = " << ele_massOffset_.size() << std::endl;
+		}
+	}
+	if(!ele_jesSlopeMassJES_.size()){
+		ele_jesSlopeMassJES_ = readParameters("calibration.ele_jesSlopeMassJES");
+		if(ele_jesSlopeMassJES_.size() != ele_massOffset_.size()){
+			std::cout << "Different number of calibration constants! ele_jesSlopeMassJES_.size() = " << ele_jesSlopeMassJES_.size() << ", ele_massOffset_.size() = " << ele_massOffset_.size() << std::endl;
+		}
+	}
+
+	if(ele_fCP_  == -1) ele_fCP_  = po::GetOption<double>("templates.ele_fCP");
+	if(ele_fWP_  == -1) ele_fWP_  = po::GetOption<double>("templates.ele_fWP");
+	if(ele_fUN_  == -1) ele_fUN_  = po::GetOption<double>("templates.ele_fUN");
+
+
+};
 
 double IdeogramCombLikelihoodLeptonJets::Evaluate(double *x, double *p) {
   bool onlyCP   = false;
