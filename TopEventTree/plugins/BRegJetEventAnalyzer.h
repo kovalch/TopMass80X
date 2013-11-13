@@ -85,18 +85,10 @@ class BRegJetEventAnalyzer : public edm::EDAnalyzer {
   bool checkedIsPFJet, checkedJERSF, checkedJESSF, checkedTotalSF, checkedQGTag, checkedJESTotUnc,  checkedBRegResult;
   bool        isPFJet,     hasJERSF,     hasJESSF,     hasTotalSF,     hasQGTag,     hasJESTotUnc,      hasBRegResult;
 
-  double tempJetPtCorr_,tempJetMt_,tempJetEta_,
-  tempfChargedHadrons_,tempfElectrons_, tempfMuons_,
-  tempBTagCSV_;
-  double tempnChargedHadrons_,tempnChargedPFConstituents_,tempnPFConstituents_ ;
+  double tempJetPtCorr_, tempJetEta_;
 
-  double readerJetPtRaw_, readerJetArea_, readerJetEtWEightedSigmaPhi_,
-  	  readerJesUncert_, readerSVtx3dLength_, readerSVtx3dLengthError_,
-  	  readerSVtxMass_, readerSVtxPt_, readerlChTrackPt_, readerRho25_;
-
-  double readerSoftMuonPt_, readerSoftMuonRatioRel_, readerSoftMuonDeltaR_,
-  	  readerSoftElectronPt_, readerSoftElectronRatioRel_,
-  	  readerSoftElectronDeltaR_;
+  std::map<std::string, double> AllVarHolder_;
+  std::vector <std::string> AllVariables_;
 
   GBRForest *gbropt_;
   std::vector <double*> variablePointer_;
