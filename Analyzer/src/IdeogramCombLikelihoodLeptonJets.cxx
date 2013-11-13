@@ -15,26 +15,32 @@ IdeogramCombLikelihoodLeptonJets::IdeogramCombLikelihoodLeptonJets() :
 	// parameters for mTop correct permutations
 	if(!ele_parsCP_.size())
 		ele_parsCP_ = readParameters("templates.ele_parsCP");
+	if(ele_parsCP_.size()!=parsCP_.size())std::cerr << "Error: Muon and electron config for parsCP does not match. You have to check this!" << std::endl;
 
 	// parameters for mTop wrong parmutations
 	if(!ele_parsWP_.size())
 		ele_parsWP_ = readParameters("templates.ele_parsWP");
+	if(ele_parsWP_.size()!=parsWP_.size())std::cerr << "Error: Muon and electron config for parsWP does not match. You have to check this!" << std::endl;
 
 	// parameters for mTop unmatched permutations
 	if(!ele_parsUN_.size())
 		ele_parsUN_ = readParameters("templates.ele_parsUN");
+	if(ele_parsUN_.size()!=parsUN_.size())std::cerr << "Error: Muon and electron config for parsUN does not match. You have to check this!" << std::endl;
 
 	// parameters for JES correct permutations
 	if(!ele_parsCPJES_.size())
 		ele_parsCPJES_ = readParameters("templates.ele_parsCPJES");
+	if(ele_parsCPJES_.size()!=parsCPJES_.size())std::cerr << "Error: Muon and electron config for parsCPJES does not match. You have to check this!" << std::endl;
 
 	// parameters for JES wrong permutations
 	if(!ele_parsWPJES_.size())
 		ele_parsWPJES_ = readParameters("templates.ele_parsWPJES");
+	if(ele_parsWPJES_.size()!=parsWPJES_.size())std::cerr << "Error: Muon and electron config for parsWPJES does not match. You have to check this!" << std::endl;
 
 	// parameters for JES unmatched permutations
 	if(!ele_parsUNJES_.size())
 		ele_parsUNJES_ = readParameters("templates.ele_parsUNJES");
+	if(ele_parsUNJES_.size()!=parsUNJES_.size())std::cerr << "Error: Muon and electron config for parsUNJES does not match. You have to check this!" << std::endl;
 
 	// read calibration
 	if(!ele_massOffset_.size())
@@ -87,23 +93,37 @@ IdeogramCombLikelihoodLeptonJets::IdeogramCombLikelihoodLeptonJets() :
 	if(ele_fUN_  == -1) ele_fUN_  = po::GetOption<double>("templates.ele_fUN");
 
 
+	if(parsCP_   .size()!=12||
+			parsWP_   .size()!=12||
+			parsUN_   .size()!=12||
+			parsCPJES_.size()!=12||
+			parsWPJES_.size()!=12||
+			parsUNJES_.size()!=12||
+			ele_parsCP_   .size()!=12||
+			ele_parsWP_   .size()!=12||
+			ele_parsUN_   .size()!=12||
+			ele_parsCPJES_.size()!=12||
+			ele_parsWPJES_.size()!=12||
+			ele_parsUNJES_.size()!=12)std::cout << "Error: At least one of the parameter configs for the templates has too many or too few parameters (checked for 12). Check, please!" << std::endl;
+
+
 };
 
 double IdeogramCombLikelihoodLeptonJets::Evaluate(double *x, double *p) {
   bool onlyCP   = false;
   bool useCalib = true;
   
-  //* Summer12 muons
-  double fCP = 0.43954; // 1
-  double fWP = 0.01067 + 0.188647 + 0.0111505; // 2 3 4
-  double fUN = 0.00107329 + 0.0276057 + 0.321233; // -2 -1 6
+  //* muons from config
+  double fCP = fCP_; // combination type 1
+  double fWP = fWP_; // combination types 2 3 4
+  double fUN = fUN_; // combination types -2 -1 6
   //*/
   
-  //* Summer12 electrons
+  //* electrons from config
   if (p[3] == 11) {
-    fCP = 0.447001;
-    fWP = 0.00821244 + 0.181794 + 0.00886663;
-    fUN = 0.000816016 + 0.0249795 + 0.328331;
+	  fCP = ele_fCP_;
+	  fWP = ele_fWP_;
+	  fUN = ele_fUN_;
   }
   //*
   
@@ -124,26 +144,27 @@ double IdeogramCombLikelihoodLeptonJets::Evaluate(double *x, double *p) {
     fUN = 0;
   }
   
-  double MassOffset       = -2.47421e-01;
-  double MassSlopeMass    = -1.31539e-02;
-  double MassSlopeJES     =  5.32577e+00;
-  double MassSlopeMassJES =  5.21005e-02;
-                            
-  double JESOffset        = -3.42305e-03;
-  double JESSlopeMass     = -2.83835e-05;
-  double JESSlopeJES      = -6.75216e-02;
-  double JESSlopeMassJES  = -8.75130e-04;
   
+  double MassOffset       = massOffset_       .at(0);
+  double MassSlopeMass    = massSlopeMass_    .at(0);
+  double MassSlopeJES     = massSlopeJES_     .at(0);
+  double MassSlopeMassJES = massSlopeMassJES_ .at(0);
+
+  double JESOffset        = jesOffset_        .at(0);
+  double JESSlopeMass     = jesSlopeMass_     .at(0);
+  double JESSlopeJES      = jesSlopeJES_      .at(0);
+  double JESSlopeMassJES  = jesSlopeMassJES_  .at(0);
+
   if (p[3] == 11) {
-    MassOffset       = -2.40459e-01;
-    MassSlopeMass    = -1.48957e-02;
-    MassSlopeJES     =  1.06322e-01;
-    MassSlopeMassJES =  8.95005e-02;
-                       
-    JESOffset        = -3.62325e-03;
-    JESSlopeMass     = -4.81967e-07;
-    JESSlopeJES      = -5.03047e-03;
-    JESSlopeMassJES  = -1.23262e-03;
+	  MassOffset       = ele_massOffset_       .at(0);
+	  MassSlopeMass    = ele_massSlopeMass_    .at(0);
+	  MassSlopeJES     = ele_massSlopeJES_     .at(0);
+	  MassSlopeMassJES = ele_massSlopeMassJES_ .at(0);
+
+	  JESOffset        = ele_jesOffset_        .at(0);
+	  JESSlopeMass     = ele_jesSlopeMass_     .at(0);
+	  JESSlopeJES      = ele_jesSlopeJES_      .at(0);
+	  JESSlopeMassJES  = ele_jesSlopeMassJES_  .at(0);
   }
   
   double m = x[0];
@@ -160,10 +181,9 @@ double IdeogramCombLikelihoodLeptonJets::Evaluate(double *x, double *p) {
 
 
 double IdeogramCombLikelihoodLeptonJets::PCP(double *x, double *p) {
-  double q[12] = {171.674, 0.985702, 79.4061, 0.926074, 9.89094, 0.0800034, 8.80668, -0.00487388, 0, 0, 0, 0};
-  double e[12] = {171.646, 0.997112, 80.0779, 0.755107, 9.75059, 0.0779803, 8.97104, -0.0323009, 0, 0, 0, 0};
-  if (p[3] == 11) for (int i = 0; i<12; ++i) q[i] = e[i];
-  
+	double* q = &parsCP_[0]; //could use it as vector (range check)
+	if (p[3] == 11) q = &ele_parsCP_[0];
+
   //* hadTopMass
   double mu       = q[0] + q[1] * (x[0]-172.5) + (q[2] + q[3] * (x[0]-172.5)) * (x[1]-1.);
   double sigma    = q[4] + q[5] * (x[0]-172.5) + (q[6] + q[7] * (x[0]-172.5)) * (x[1]-1.);
@@ -192,9 +212,8 @@ namespace cb {
 
 double IdeogramCombLikelihoodLeptonJets::PWP(double* x, double* p)
 {
-  double q[12] = {173.714, 0.917419, 99.2623, 0.271034, 30.0504, 0.398952, 36.4555, 0.652493, 0.40277, 0.00453923, 0.279563, 0.0017833};
-  double e[12] = {174.329, 1.05136, 98.5432, 0.484559, 30.2234, 0.536747, 35.2327, -0.462667, 0.396633, 0.00544819, 0.226293, -0.0123674};
-  if (p[3] == 11) for (int i = 0; i<12; ++i) q[i] = e[i];
+	double* q = &parsWP_[0]; //could use it as vector (range check)
+	if (p[3] == 11) q = &ele_parsWP_[0];
   
   double N      =  1./0.01;
   double mu     = q[0] + q[1] * (x[0]-172.5) + (q[2] + q[3] * (x[0]-172.5)) * (x[1]-1.);
@@ -221,9 +240,8 @@ double IdeogramCombLikelihoodLeptonJets::PWP(double* x, double* p)
 
 double IdeogramCombLikelihoodLeptonJets::PUN(double* x, double* p)
 {
-  double q[12] = {169.865, 0.87623, 81.0056, 0.835761, 18.697, 0.172046, 7.35387, 0.0221603, 0.831049, 0.00782395, 0.0494347, -0.01188};
-  double e[12] = {169.802, 0.898192, 82.3509, 1.05716, 18.5581, 0.177879, 8.47535, -0.2692, 0.818154, 0.00683775, 0.199256, -0.00875282};
-  if (p[3] == 11) for (int i = 0; i<12; ++i) q[i] = e[i];
+	double* q = &parsUN_[0]; //could use it as vector (range check)
+	if (p[3] == 11) q = &ele_parsUN_[0];
   
   double N      =  1./0.01;
   double mu     = q[0] + q[1] * (x[0]-172.5) + (q[2] + q[3] * (x[0]-172.5)) * (x[1]-1.);
@@ -249,9 +267,8 @@ double IdeogramCombLikelihoodLeptonJets::PUN(double* x, double* p)
 
 double IdeogramCombLikelihoodLeptonJets::PCPJES(double* x, double* p)
 {
-  double q[12] = {83.1469, 0.00568551, 45.4879, -0.335742, 6.15553, 0.0015377, 12.5085, -0.330609, 7.31215, 0.000182096, -2.84696, 0.209041};
-  double e[12] = {83.198, 0.0355267, 41.6371, -0.115806, 6.21283, 0.0138433, 9.42051, 0.0569133, 7.3055, -0.0135193, -0.0826961, 0.288039};
-  if (p[3] == 11) for (int i = 0; i<12; ++i) q[i] = e[i];
+	double* q = &parsCPJES_[0]; //could use it as vector (range check)
+	if (p[3] == 11) q = &ele_parsCPJES_[0];
   
   //* W Mass
   //std::cout << p[4] << " ";
@@ -298,9 +315,8 @@ double IdeogramCombLikelihoodLeptonJets::PCPJES(double* x, double* p)
 
 double IdeogramCombLikelihoodLeptonJets::PWPJES(double* x, double* p)
 {
-  double q[12] = {82.8777, -0.0075446, 45.1709, -0.385762, 6.05136, -0.0018059, 13.4178, -0.321851, 7.51867, 0.00904713, -5.16936, 0.215022};
-  double e[12] = {82.3831, 0.00858293, 31.3081, 1.05433, 6.274, -0.00778027, 10.5673, 0.575389, 8.77308, -0.0075097, -9.95694, -0.571045};
-  if (p[3] == 11) for (int i = 0; i<12; ++i) q[i] = e[i];
+	double* q = &parsWPJES_[0]; //could use it as vector (range check)
+	if (p[3] == 11) q = &ele_parsWPJES_[0];
   
   //* W Mass
   double N      =  1;
@@ -342,9 +358,8 @@ double IdeogramCombLikelihoodLeptonJets::PWPJES(double* x, double* p)
 
 double IdeogramCombLikelihoodLeptonJets::PUNJES(double* x, double* p)
 {
-  double q[12] = {82.9979, 0.0228183, 27.1973, 0.382442, 6.90406, 0.00258209, 10.4036, 0.229304, 8.95024, -0.0194394, -7.41695, -0.19067};
-  double e[12] = {82.6916, 0.0141625, 27.5887, 0.298442, 6.77016, -0.00468755, 10.7515, 0.135094, 9.14786, -0.0158128, -8.99872, -0.0978321};
-  if (p[3] == 11) for (int i = 0; i<12; ++i) q[i] = e[i];
+	double* q = &parsUNJES_[0]; //could use it as vector (range check)
+	if (p[3] == 11) q = &ele_parsUNJES_[0];
 
   //* W Mass
   double N      =  1;
