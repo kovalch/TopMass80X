@@ -336,7 +336,6 @@ void TopMassControlPlots::doPlots()
           // Loop over samples
           for(MyHistogram& hist : hists){
         	if(!hist.varx->GetNdata()) continue;
-            if(hist.IsTwoDHistogram())if(!hist.vary->GetNdata()) continue;
             if(hist.Dimension() == -1) continue;
             if(hist.varx->GetNdata()<=j) continue;
             if(hist.Dimension() == 1){
