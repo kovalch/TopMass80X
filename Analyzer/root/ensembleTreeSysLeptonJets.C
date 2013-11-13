@@ -123,17 +123,17 @@ void ensembleTreeSysLeptonJets()
   ensembles.push_back(ensemble("Fall11_TTJets1725_source:down_CorrelationGroupUncorrelated/ensemble.root", 59613991./1.75));
   ensembles.push_back(ensemble("Fall11_TTJets1725_source:up_CorrelationGroupUncorrelated/ensemble.root", 59613991./1.75));
   //*/
-  /*
-  ensembles.push_back(ensemble("Fall11_TTJets1725_jer:down/ensemble.root", 59613991./1.75));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_jer:up/ensemble.root", 59613991./1.75));
-  */
+  //*
+  ensembles.push_back(ensemble("Summer12_TTJets1725_jer:down/job_*_ensemble.root", 7000000./1.75));
+  ensembles.push_back(ensemble("Summer12_TTJets1725_jer:up/job_*_ensemble.root", 7000000./1.75));
+  //*/
   ensembles.push_back(ensemble("Summer12_TTJets1725_matchingup/job_*_ensemble.root", 5000000./1.75, false));
   ensembles.push_back(ensemble("Summer12_TTJets1725_matchingdown/job_*_ensemble.root", 5000000./1.75, false));
   ensembles.push_back(ensemble("Summer12_TTJets1725_scaleup/job_*_ensemble.root", 5000000./1.75, false));
   ensembles.push_back(ensemble("Summer12_TTJets1725_scaledown/job_*_ensemble.root", 5000000./1.75, false));
-  ensembles.push_back(ensemble("Summer12_TTJets1725_MGDecays_P11/job_*_ensemble.root", 30000000./1.75, false, true, 0., 12));
+  ensembles.push_back(ensemble("Summer12_TTJets1725_MGDecays_P11/job_*_ensemble.root", 30000000./1.75, false, true, 0., 14));
   ensembles.push_back(ensemble("Summer12_TTJets1725_MGDecays_P11noCR/job_*_ensemble.root", 30000000./1.75, false));
-  ensembles.push_back(ensemble("Summer12_TTJets1725_MGDecays_P11TeV/job_*_ensemble.root", 20000000./1.75, false, true, 0., 11));
+  ensembles.push_back(ensemble("Summer12_TTJets1725_MGDecays_P11TeV/job_*_ensemble.root", 20000000./1.75, false, true, 0., 13));
   ensembles.push_back(ensemble("Summer12_TTJets1725_MGDecays_P11mpiHi/job_*_ensemble.root", 20000000./1.75, false, true, 0., 11));
   /*
   ensembles.push_back(ensemble("Summer12_TTJets1725_powheg/job_*_ensemble.root", 22000000./1.75, false, true, 0., 14));

@@ -15,8 +15,11 @@
 #include "TopMass/TopEventTree/interface/TreeRegistryService.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "TopMass/TopEventTree/plugins/JetEventAnalyzer.h"
+
+#define IS_BHADRON_PDGID(id) ( ((abs(id)/100)%10 == 5) || (abs(id) >= 5000 && abs(id) <= 5999) )
 
 JetEventAnalyzer::JetEventAnalyzer(const edm::ParameterSet& cfg):
 jets_           (cfg.getParameter<edm::InputTag>("jets")),
@@ -112,6 +115,45 @@ JetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
       ++alternativeJetIndex;
     }
   }
+  
+  //////////////////////////////////////////////////////////////////////////
+  // GENPARTICLES
+  ////////////////////////////////////////////////////////////////////////
+  
+  edm::Handle<reco::GenParticleCollection> genParticles;
+  evt.getByLabel("genParticles", genParticles);
+  for(size_t i = 0; i < genParticles->size(); ++ i) {
+    const reco::GenParticle & p = (*genParticles)[i];
+    if (p.pt() == 0) continue;
+    int id = p.pdgId();
+    int n = p.numberOfDaughters();
+    bool hasBDaughter = false;
+    for(int j = 0; j < n; ++j) {
+      const reco::Candidate * d = p.daughter( j );
+      int dauId = d->pdgId();
+      if (IS_BHADRON_PDGID(dauId)) {
+        hasBDaughter = true;
+        break;
+      }
+    }
+    if (IS_BHADRON_PDGID(id) && !hasBDaughter) {
+      jet->genBHadronId.push_back(id);
+      std::cout << id << std::endl;
+      jet->genBHadron.push_back(TLorentzVector(p.px(), p.py(), p.pz(), p.energy()));
+    }
+  }
+  
+  for (unsigned int h = 0; h < jet->genBHadron.size(); ++h) {
+    jet->genBHadronGenJetIdx.push_back(-1);
+    for (unsigned int j = 0; j < jet->genJet.size(); ++j) {
+      if (jet->genBHadron[h].Pt() == 0 || jet->genJet[j].Pt() == 0) continue;
+      if (jet->genBHadron[h].DeltaR(jet->genJet[j]) < 0.5) {
+        jet->genBHadronGenJetIdx[h] = j;
+        break;
+      }
+    }
+  }
+  
   trs->Fill();
 }
 
