@@ -87,6 +87,7 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("analysisConfig.var4", boost::program_options::value<std::string>())
         ("analysisConfig.maxPermutations", boost::program_options::value<int>()->default_value(666666))
         ("analysisConfig.activeBranches", boost::program_options::value<std::string>()->default_value("*"))
+        ("analysisConfig.plotsToDraw", boost::program_options::value<std::string>()->default_value("BasicMasses|LightPulls|BJetPulls|MixedPulls|ExtraPlotsFitCombTypeEtc|JetPts|TopPts|FitPts|LeptonJetsExtra|JetDetails|EventObservables"))
         ("templates.fSig", boost::program_options::value<double>()->default_value(0.0))
         ("templates.fCP", boost::program_options::value<double>()->default_value(0.0))
         ("templates.fWP", boost::program_options::value<double>()->default_value(0.0))
@@ -124,6 +125,7 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("calibration.ele_jesSlopeMass", boost::program_options::value<std::string>()->default_value("0.0"))
         ("calibration.ele_jesSlopeJES", boost::program_options::value<std::string>()->default_value("0.0"))
         ("calibration.ele_jesSlopeMassJES", boost::program_options::value<std::string>()->default_value("0.0"))
+
         ;
 
     boost::program_options::store(boost::program_options::parse_command_line(ac, av, desc), *programOptions_);

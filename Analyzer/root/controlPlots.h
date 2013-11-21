@@ -217,6 +217,25 @@ private:
       addVariable("number of charged hadrons"               , "jet.nChargedHadrons"               , 0   , 50    );           
       addVariable("number of charged PF candidates"         , "BRegJet.nChargedPFConstituents"    , 0   , 50    );  //26 more jet info, multiplicities
       addVariable("RlbReco"                                 , "BRegJet.RlbReco"                   , 0   , 2     );  //27 add ATLAS 3D variable into training
+      //add QGL and PU Id variables
+      addVariable("BRegJet.QGaxis1"      ,"BRegJet.QGaxis1"      , 0    ,   0.3);
+      addVariable("BRegJet.QGaxis2"      ,"BRegJet.QGaxis2"      , 0    ,   0.3);
+      addVariable("BRegJet.QGMult"       ,"BRegJet.QGMult"       , 0    ,   30 );
+      addVariable("BRegJet.QGPtD"        ,"BRegJet.QGPtD"        , 0    ,   1  );
+      addVariable("BRegJet.QGMLP"        ,"BRegJet.QGMLP"        , 0    ,   1  );
+
+      addVariable("BRegJet.PUIddZ"       ,"BRegJet.PUIddZ"       , 0    ,   2  );
+      addVariable("BRegJet.PUIddRMean"   ,"BRegJet.PUIddRMean"   , 0    ,   0.3  );
+      addVariable("BRegJet.PUIddr2Mean"  ,"BRegJet.PUIddr2Mean"  , 0    ,   0.1  );
+      addVariable("BRegJet.PUIdfrac01"   ,"BRegJet.PUIdfrac01"   , 0    ,   1  );
+      addVariable("BRegJet.PUIdfrac02"   ,"BRegJet.PUIdfrac02"   , 0    ,   1  );
+      addVariable("BRegJet.PUIdfrac03"   ,"BRegJet.PUIdfrac03"   , 0    ,   1  );
+      addVariable("BRegJet.PUIdfrac04"   ,"BRegJet.PUIdfrac04"   , 0    ,   1  );
+      addVariable("BRegJet.PUIdfrac05"   ,"BRegJet.PUIdfrac05"   , 0    ,   1  );
+      addVariable("BRegJet.PUIdbeta"     ,"BRegJet.PUIdbeta"     , 0    ,   1  );
+      addVariable("BRegJet.PUIdbetaStar" ,"BRegJet.PUIdbetaStar" , 0    ,   1  );
+      addVariable("BRegJet.PUIdptD"      ,"BRegJet.PUIdptD"      , 0    ,   1  );
+
       addVariable("GBR factor"                              , "BRegJet.BRegGBRTrainResult"        , 0.5 , 1.5   );
       addVariable("TMVA factor"                             , "BRegJet.BRegResult"                , 0.5 , 1.5   );
     }

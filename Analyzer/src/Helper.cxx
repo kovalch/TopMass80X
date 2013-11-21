@@ -302,6 +302,22 @@ int Helper::methodID()
   return methodIDFromString(po::GetOption<std::string>("method"));
 }
 
+std::vector<double> Helper::readParameters(const char *whichParameter){
+  std::vector<double> pars;
+  std::vector<std::string> vsPars = readParametersString(whichParameter);
+  for(auto var : vsPars)
+    pars.push_back(std::atof(var.c_str()));
+  return pars;
+}
+
+std::vector<std::string> Helper::readParametersString(const char *whichParameter){
+  std::vector<std::string> vsPars;
+  std::string sPars = po::GetOption<std::string>(whichParameter);
+  boost::split(vsPars, sPars, boost::is_any_of("|"));
+  return vsPars;
+}
+
+
 
 
 TH1* HelperFunctions::createRatioPlot(const TH1 *h1, const TH1 *h2, const std::string &yTitle){
@@ -374,5 +390,44 @@ void HelperFunctions::setCommonYRange(std::vector <TH1 *> histos, double RelTopO
     }
   }
 }
+
+// --------------------------------------------------
+//    static bool fitCoreWidth(const TH1* hist, double nSig, TF1* &gauss, double &width, double &widthErr, double &rms, double &rmsErr, double &mean) {
+bool HelperFunctions::fitCoreWidth(const TH1* hist, double nSig, TF1* &gauss, double &width, double &widthErr, double &rms, double &rmsErr) {
+  bool result  = false;
+
+  TString name = hist->GetName();
+  name += "_GaussFit";
+  gauss = new TF1(name,"gaus",hist->GetXaxis()->GetBinLowEdge(1),hist->GetXaxis()->GetBinUpEdge(hist->GetNbinsX()));
+  gauss->SetLineWidth(1);
+  gauss->SetLineColor(kRed);
+
+  TH1* h = static_cast<TH1*>(hist->Clone("util::HistOps::fitCoreWidth::h"));
+  double mean = h->GetMean();
+  rms = h->GetRMS();
+  rmsErr = h->GetRMSError();
+  double sig = 2.5*rms;
+  if( h->Fit(gauss,"0QIR","",mean-sig,mean+sig) == 0 ) {
+mean = gauss->GetParameter(1);
+sig = nSig*gauss->GetParameter(2);
+if( h->Fit(gauss,"0QIR","",mean-sig,mean+sig) == 0 ) {
+  result = true;
+  width = gauss->GetParameter(2);
+  widthErr = gauss->GetParError(2);
+
+  mean = gauss->GetParameter(1);
+  sig = nSig*width;
+  gauss->SetRange(mean-sig,mean+sig);
+} else {
+  std::cerr << "WARNING in util::HistOps::fitCoreWidth: No convergence when fitting width of '" << h->GetName() << "'\n";
+  width = 0.;
+  widthErr = 10000.;
+}
+  }
+  delete h;
+
+  return result;
+}
+
 
 

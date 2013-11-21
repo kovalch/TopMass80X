@@ -4,9 +4,13 @@
 #include <string>
 #include <vector>
 
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
+
 #include "Rtypes.h" // needed for Color_t and kBlack
 
 #include "TH1F.h"
+#include "TF1.h"
 
 class TH1F;
 
@@ -35,13 +39,17 @@ public:
   static int channelID();
   enum methodID {kGenMatch, kMVA, kIdeogram, kIdeogramNew, kRooFit, kMaxMethods};
   static int methodID();
+  std::vector<double> readParameters(const char *whichParameter);
+  std::vector<std::string> readParametersString(const char *whichParameter);
 };
 
 namespace HelperFunctions {
+  // heavily inspired by Matthias' Usercode: https://github.com/mschrode/Tools
   TH1* createRatioPlot(const TH1 *h1, const TH1 *h2, const std::string &yTitle);
   std::string cleanedName(std::string toBeCleaned);
   void findYRange(const TH1 *h, double& min, double& max);
   void setCommonYRange(std::vector <TH1 *> histos, double RelTopOffset=0);
+  bool fitCoreWidth(const TH1* hist, double nSig, TF1* &gauss, double &width, double &widthErr, double &rms, double &rmsErr);
 }
 
 #endif
