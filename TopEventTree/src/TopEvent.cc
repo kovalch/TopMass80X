@@ -59,3 +59,46 @@ void TopEvent::init()
   fitChi2 .clear();
   fitSigMT.clear();
 }
+
+void TopEvent::shrink(unsigned int maxSize)
+{
+  if(recoTTBar.size() > maxSize){
+    recoTTBar  .resize(maxSize);
+    recoTop1   .resize(maxSize);
+    recoTop2   .resize(maxSize);
+    recoW1     .resize(maxSize);
+    recoW2     .resize(maxSize);
+    recoB1     .resize(maxSize);
+    recoW1Prod1.resize(maxSize);
+    recoW1Prod2.resize(maxSize);
+    recoB2     .resize(maxSize);
+    recoW2Prod1.resize(maxSize);
+    recoW2Prod2.resize(maxSize);
+
+    recoJetIdxB1     .resize(maxSize);
+    recoJetIdxW1Prod1.resize(maxSize);
+    recoJetIdxW1Prod2.resize(maxSize);
+    recoJetIdxB2     .resize(maxSize);
+    recoJetIdxW2Prod1.resize(maxSize);
+    recoJetIdxW2Prod2.resize(maxSize);
+
+    fitTTBar  .resize(maxSize);
+    fitTop1   .resize(maxSize);
+    fitTop2   .resize(maxSize);
+    fitW1     .resize(maxSize);
+    fitW2     .resize(maxSize);
+    fitB1     .resize(maxSize);
+    fitW1Prod1.resize(maxSize);
+    fitW1Prod2.resize(maxSize);
+    fitB2     .resize(maxSize);
+    fitW2Prod1.resize(maxSize);
+    fitW2Prod2.resize(maxSize);
+
+    combinationType.resize(maxSize);
+
+    fitProb.resize(maxSize);
+    fitChi2.resize(maxSize);
+    // treat sigMT specially as it is not used in all-jets channel up to now
+    if(fitSigMT.size() > maxSize) fitSigMT.resize(maxSize);
+  }
+}
