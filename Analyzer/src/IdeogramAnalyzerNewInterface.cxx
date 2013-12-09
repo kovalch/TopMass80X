@@ -156,6 +156,7 @@ void IdeogramAnalyzerNewInterface::Scan(const std::string& cuts, int i, int j, d
   double fitWeight;
   int nEvents = sample_.nEvents;
   double sumWeights = 0.;
+  double posNegWeight = 0.;
 
   std::cout << "nEvents: " << nEvents << std::endl;
 
@@ -168,6 +169,8 @@ void IdeogramAnalyzerNewInterface::Scan(const std::string& cuts, int i, int j, d
     for (const auto& event : sample_.events) {
       ++iEntry;
       ++progress;
+      
+      posNegWeight  = event.weight/fabs(event.weight);
 
       eventLikelihood->Eval(null);
       eventLikelihood->SetFillColor(0);
@@ -181,6 +184,8 @@ void IdeogramAnalyzerNewInterface::Scan(const std::string& cuts, int i, int j, d
         << std::setw(10) << "mt"
         << std::setw(10) << "mW"
         << std::setw(12) << "prob"
+        << std::setw(12) << "lepton"
+        << std::setw(12) << "pos/neg"
         << std::endl;
       }
 
@@ -197,13 +202,13 @@ void IdeogramAnalyzerNewInterface::Scan(const std::string& cuts, int i, int j, d
               << std::setw(10) << topMass
               << std::setw(10) << wMass
               << std::setw(12) << prob
+              << std::setw(12) << leptonFlavour
+              << std::setw(12) << posNegWeight
               << std::endl;
         }
 
         if (prob != 0) {
           // Set Likelihood parameters
-          // TODO electron channel
-          //if(channelID_ == Helper::kAllJets){
           combLikelihood_->SetParameters(prob, topMass, wMass, abs(leptonFlavour), shapeSystematic_, permutationFractionSystematic_, isFastSim_);
           // add permutation to event likelihood
           eventLikelihood->Eval(combLikelihood_, "A");
@@ -222,7 +227,7 @@ void IdeogramAnalyzerNewInterface::Scan(const std::string& cuts, int i, int j, d
         }
       }
 
-      sumLogLikelihood->Add(logEventLikelihood, fitWeight/(pullWidth_*pullWidth_)); // add weight here
+      sumLogLikelihood->Add(logEventLikelihood, fitWeight/(pullWidth_*pullWidth_) * posNegWeight); // add weight here
 
       if (debug && iEntry%nDebug == 0 && iEntry > minDebug && iEntry < maxDebug) {
         TCanvas* eventCanvas = new TCanvas("eventCanvas", "eventCanvas", 1200, 400);
