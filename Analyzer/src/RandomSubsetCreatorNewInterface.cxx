@@ -15,7 +15,7 @@
 
 typedef ProgramOptionsReader po;
 
-RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface() :
+RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface(const std::vector<float>& v) :
     // filled from program options
     selection_  (po::GetOption<std::string>("analysisConfig.selection")),
     samplePath_ (po::GetOption<std::string>("analysisConfig.samplePath")),
@@ -26,6 +26,8 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface() :
     fVar4_      (po::GetOption<std::string>("analysisConfig.var4")),
     fWeight_    (po::GetOption<std::string>("weight")),
     activeBranches_(po::GetOption<std::string>("analysisConfig.activeBranches")),
+    fBinning_   (po::GetOption<std::string>("binning")),
+    vBinning_   (v),
     fLumi_  (po::GetOption<double>("lumi")),
     fSig_   (po::GetOption<double>("fsig")),
     //fBDisc_ (po::GetOption<double>("bdisc")),
@@ -40,6 +42,7 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface() :
   std::cout << "Variable 2: " << fVar2_ << std::endl;
   std::cout << "Variable 3: " << fVar3_ << std::endl;
   std::cout << "Variable 4: " << fVar4_ << std::endl;
+  std::cout << "Binning: " << fBinning_ << std::endl;
   std::cout << "Weight: " << fWeight_ << std::endl;
   std::cout << "Lumi: " << fLumi_ << std::endl;
   std::cout << "Signal Fraction: " << fSig_ << std::endl;
@@ -187,6 +190,7 @@ void RandomSubsetCreatorNewInterface::PrepareEvents(const std::string& file) {
   TTreeFormula *f2     = new TTreeFormula("f2"    , fVar2_    .c_str(), chain);
   TTreeFormula *f3     = new TTreeFormula("f3"    , fVar3_    .c_str(), chain);
   TTreeFormula *f4     = new TTreeFormula("f4"    , fVar4_    .c_str(), chain);
+  TTreeFormula *binning= new TTreeFormula("binning", fBinning_.c_str(), chain);
   TTreeFormula *weight = new TTreeFormula("weight", fWeight_  .c_str(), chain);
   TTreeFormula *sel    = new TTreeFormula("sel"   , selection_.c_str(), chain);
 
@@ -201,6 +205,7 @@ void RandomSubsetCreatorNewInterface::PrepareEvents(const std::string& file) {
       f2    ->UpdateFormulaLeaves();
       f3    ->UpdateFormulaLeaves();
       f4    ->UpdateFormulaLeaves();
+      binning->UpdateFormulaLeaves();
       weight->UpdateFormulaLeaves();
       sel   ->UpdateFormulaLeaves();
     }
@@ -208,12 +213,19 @@ void RandomSubsetCreatorNewInterface::PrepareEvents(const std::string& file) {
     if(!f2    ->GetNdata()) continue;
     if(!f3    ->GetNdata()) continue;
     if(!f4    ->GetNdata()) continue;
+    if(!binning->GetNdata()) continue;
     if(!weight->GetNdata()) continue;
     if(!sel   ->GetNdata()) continue;
     int filledPermutations = 0;
     for(int j = 0, l = std::min(maxPermutations_, sel->GetNdata()); j < l; ++j){
       if(!sel->EvalInstance(j)) continue;
-      sample.Fill(f1->EvalInstance(j), f2->EvalInstance(j), f3->EvalInstance(j), f4->EvalInstance(j), weight->EvalInstance(j), filledPermutations++);
+      
+      int bin = 0;
+      for (const auto& boundary : vBinning_) {
+        if (binning->EvalInstance(j) > boundary) ++bin;
+      }
+      
+      sample.Fill(f1->EvalInstance(j), f2->EvalInstance(j), f3->EvalInstance(j), f4->EvalInstance(j), weight->EvalInstance(j), filledPermutations++, bin);
     }
     if(filledPermutations) ++selected;
   }
@@ -227,6 +239,7 @@ void RandomSubsetCreatorNewInterface::PrepareEvents(const std::string& file) {
   delete f2;
   delete f3;
   delete f4;
+  delete binning;
   delete weight;
   delete sel;
 }

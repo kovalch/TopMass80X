@@ -53,7 +53,7 @@ void Analysis::Analyze() {
   if(!fCreator_){
     if (fChannelID_ == Helper::kElectronJets || fChannelID_ == Helper::kMuonJets || fChannelID_ == Helper::kLeptonJets) {
       if (fMethodID_ == Helper::kIdeogramNew) {
-        fCreator_ = new RandomSubsetCreatorNewInterface();
+        fCreator_ = new RandomSubsetCreatorNewInterface(vBinning_);
       }
       else{
         fCreator_ = new RandomSubsetCreatorLeptonJets();
@@ -61,7 +61,7 @@ void Analysis::Analyze() {
     }
     else if (fChannelID_ == Helper::kAllJets) {
       if (fMethodID_ == Helper::kIdeogramNew) {
-        fCreator_ = new RandomSubsetCreatorNewInterface();
+        fCreator_ = new RandomSubsetCreatorNewInterface(vBinning_);
       }
       else{
         fCreator_ = new RandomSubsetCreatorAllJets();
