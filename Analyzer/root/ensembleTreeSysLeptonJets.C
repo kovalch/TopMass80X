@@ -139,8 +139,8 @@ void ensembleTreeSysLeptonJets()
   ensembles.push_back(ensemble("Summer12_TTJets1725_powheg/job_*_ensemble.root", 22000000./1.75, false, true, 0., 18));
   ensembles.push_back(ensemble("Summer12_TTJets1725_powheg_herwig/job_*_ensemble.root", 28000000./1.75));
   //*
-  ensembles.push_back(ensemble("Fall11_TTJets1725_powheg_herwig/ensemble.root", 28000000./1.75, false, true, 0., 20));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_mcatnlo_herwig/ensemble.root", 28000000./1.75));
+  ensembles.push_back(ensemble("Summer12_TTJets1725_powheg_herwig/job_*_ensemble.root", 28000000./1.75, false, true, 0., 20));
+  ensembles.push_back(ensemble("Summer12_TTJets1725_mcatnlo_herwig/job_*_ensemble.root", 28000000./1.75));
   //*/
   //*/
   /*
