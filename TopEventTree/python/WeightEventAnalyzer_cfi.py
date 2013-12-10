@@ -26,6 +26,7 @@ analyzeWeights = cms.EDAnalyzer("WeightEventAnalyzer",
     elWeightSrc  = cms.InputTag("effSFElectronEventWeight"),
     
     genEventSrc    = cms.InputTag("generator"),
+    ttEvent        = cms.InputTag("ttSemiLepEvent"),
     savePDFWeights = cms.bool(False),
-    
+    brCorrection   = cms.bool(False),
 )

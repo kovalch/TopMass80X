@@ -21,6 +21,8 @@ options.register('uncFactor', 1.0, VarParsing.VarParsing.multiplicity.singleton,
 options.register('csvm', 0.679, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "CSVM working point")
 options.register('nbjets', 2, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.int, "Minimum number of bjets")
 
+options.register('brCorrection', True, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.bool, "Do BR correction (MadGraph)")
+
 # define the syntax for parsing
 # you need to enter in the cfg file:
 # search for arguments entered after cmsRun
@@ -247,7 +249,8 @@ process.analyzeWeights = analyzeWeights.clone(
                                               puWeightSrc     = cms.InputTag("eventWeightPUsysNo"  , "eventWeightPU"),
                                               puWeightUpSrc   = cms.InputTag("eventWeightPUsysUp"  , "eventWeightPUUp"),
                                               puWeightDownSrc = cms.InputTag("eventWeightPUsysDown", "eventWeightPUDown"),
-                                              savePDFWeights = True
+                                              savePDFWeights = True,
+                                              brCorrection   = options.brCorrection
                                              )
 
 process.ttSemiLepHypGenMatch.useBReg = cms.bool(False)

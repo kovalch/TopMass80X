@@ -17,6 +17,8 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtFullHadronicEvent.h"
 //#include "LHAPDF/LHAPDF.h"
 
 #include "TopMass/TopEventTree/plugins/WeightEventAnalyzer.h"
@@ -43,7 +45,9 @@ muWeightSrc_ (cfg.getParameter<edm::InputTag>("muWeightSrc")),
 elWeightSrc_ (cfg.getParameter<edm::InputTag>("elWeightSrc")),
 
 genEventSrc_   (cfg.getParameter<edm::InputTag>("genEventSrc")),
+ttEvent_       (cfg.getParameter<edm::InputTag>("ttEvent")),
 savePDFWeights_(cfg.getParameter<bool>("savePDFWeights")),
+brCorrection_  (cfg.getParameter<bool>("brCorrection")),
 weight(0)
 {
   //LHAPDF::initPDFSet(1, "cteq66.LHgrid");
@@ -95,6 +99,49 @@ WeightEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
 */
     }
   }
+  
+  //////////////////////////////////////////////////////////////////////////
+  // BR correction for MadGraph
+  ////////////////////////////////////////////////////////////////////////
+  
+  if (brCorrection_) {
+    edm::Handle<TtSemiLeptonicEvent> hSemiLepTtEvent;
+    edm::Handle<TtFullHadronicEvent> hFullHadTtEvent;
+    const TtSemiLeptonicEvent *semiLepTtEvent = 0;
+    const TtFullHadronicEvent *fullHadTtEvent = 0;
+    const TtEvent *ttEvent = 0;
+
+    if(ttEvent_.label().find("SemiLep")!=std::string::npos){
+      evt.getByLabel(ttEvent_, hSemiLepTtEvent);
+      semiLepTtEvent = hSemiLepTtEvent.product();
+      ttEvent = semiLepTtEvent;
+    }
+    else if(ttEvent_.label().find("FullHad")!=std::string::npos){
+      evt.getByLabel(ttEvent_, hFullHadTtEvent);
+      fullHadTtEvent = hFullHadTtEvent.product();
+      ttEvent = fullHadTtEvent;
+    }
+    else{
+      std::cout << "The given 'ttEvent' label (" << ttEvent_.label() << ") is not allowed.\n"
+          << "It has to contain either 'SemiLep' or 'FullHad'!" << std::endl;
+    }
+    
+    if(      !ttEvent->genEvent()            ) weight->brWeight = 1;
+    else if( !ttEvent->genEvent()->isTtBar() ) weight->brWeight = 1;
+    else if (ttEvent->genEvent()->isFullHadronic()) {
+      weight->brWeight        = 0.456976 / (36./81.);
+      weight->combinedWeight *= weight->brWeight;
+    }
+    else if (ttEvent->genEvent()->isSemiLeptonic()) {
+      weight->brWeight        = 0.438048 / (36./81.);
+      weight->combinedWeight *= weight->brWeight;
+    }
+    else if (ttEvent->genEvent()->isFullLeptonic()) {
+      weight->brWeight        = 0.104976 / (1./9.);
+      weight->combinedWeight *= weight->brWeight;
+    }
+  }
+  
   //////////////////////////////////////////////////////////////////////////
   // PU weights & control variables
   ////////////////////////////////////////////////////////////////////////

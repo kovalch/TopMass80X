@@ -19,13 +19,16 @@ public:
   WeightEvent();
   void init();
 
-  ClassDef(WeightEvent,1);
+  ClassDef(WeightEvent,2);
 
   // WeightEvent data
 
   // MC weight
   // currently only used for MC@NLO with 1 or -1
   double mcWeight;
+  
+  // MG BR correction
+  double brWeight;
 
   // PU weight and control variables
   double puWeight;
