@@ -24,6 +24,7 @@ public:
   static const boost::program_options::variables_map* GetProgramOptions();
   template <class T>
   static T GetOption(std::string whichParameter);
+  static std::string GetOptionReplaced(std::string whichParameter,std::string replaceHelper="");
 
 private:
   static boost::program_options::variables_map* programOptions_;
@@ -40,6 +41,17 @@ ProgramOptionsReader::GetOption(std::string whichParameter){
     std::cerr << "Program option *" << whichParameter << "* not found!" << std::endl;
     assert(0);
   }
+}
+
+std::string ProgramOptionsReader::GetOptionReplaced(std::string whichParameter,std::string replaceHelper){
+	std::string tempReturn = GetOption<std::string>(whichParameter);
+    if(replaceHelper!=""){
+    	std::vector<std::string> vsPars;
+    	boost::split(vsPars, replaceHelper, boost::is_any_of("|"));
+    	assert(vsPars.size()==2);
+    	boost::replace_all(tempReturn,  vsPars.at(0), vsPars.at(1));
+    }
+    return tempReturn;
 }
 
 #endif /* PROGRAMOPTIONSREADER_H_ */
