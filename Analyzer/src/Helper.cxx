@@ -248,7 +248,13 @@ void Helper::DrawCMS(int channelID, int energy) {
     }
   }
   else if(energy == 8){
-    if(po::GetOption<int>("preliminary") == 2){
+    if(po::GetOption<int>("preliminary") == 3){
+      if     (channelID == kAllJets     ) DrawLabel("PRIVATE WORK,  #sqrt{s} = 8 TeV"         , 0.2, 0.93, 0.9);
+      else if(channelID == kLeptonJets  ) DrawLabel("PRIVATE WORK,  #sqrt{s} = 8 TeV, l+jets"  , 0.2, 0.93, 0.9);
+      else if(channelID == kElectronJets) DrawLabel("PRIVATE WORK,  #sqrt{s} = 8 TeV, e+jets"  , 0.2, 0.93, 0.9);
+      else if(channelID == kMuonJets    ) DrawLabel("PRIVATE WORK,  #sqrt{s} = 8 TeV, #mu+jets", 0.2, 0.93, 0.9);
+    }
+    else if(po::GetOption<int>("preliminary") == 2){
       if     (channelID == kAllJets     ) DrawLabel("PRIVATE WORK, 18.3 fb^{-1},  #sqrt{s} = 8 TeV"         , 0.2, 0.93, 0.9);
       else if(channelID == kLeptonJets  ) DrawLabel("PRIVATE WORK, 19.7 fb^{-1},  #sqrt{s} = 8 TeV, l+jets"  , 0.2, 0.93, 0.9);
       else if(channelID == kElectronJets) DrawLabel("PRIVATE WORK, 19.7 fb^{-1},  #sqrt{s} = 8 TeV, e+jets"  , 0.2, 0.93, 0.9);
