@@ -22,8 +22,8 @@
 
 #include "tdrstyle.C"
 
-enum lepton           { kElectron, kMuon, kAll};
-TString lepton_ [3] = { "electron", "muon", "lepton"};
+enum lepton           { kElectron, kMuon, kAll, kMuon_BReg};
+std::string lepton_ [4] = { "electron", "muon", "lepton", "muon_BReg"};
 
 int channel = 2;
 
@@ -64,9 +64,10 @@ double peLumi         = 5000.;
 std::vector<TChain*> trees;
 
 
-void ensembleTreeSysLeptonJets()
+void ensembleTreeSysLeptonJets(TString sPath = globalPath)
 {
-  TString sPath = globalPath; sPath += lepton_[channel]; sPath += "/";
+  //  TString sPath = globalPath;
+  sPath += lepton_[channel]; sPath += "/";
   
   std::vector<ensemble> ensembles;
   std::vector<staticUncertainty> staticUncertainties;
@@ -96,7 +97,8 @@ void ensembleTreeSysLeptonJets()
   }
   */
   
-  ensembles.push_back(ensemble("job_*_ensemble.root", 7000000./1.75));
+    ensembles.push_back(ensemble("job_*_ensemble.root", 7000000./1.75));
+  //  ensembles.push_back(ensemble("Summer12_TTJets1725_1.00/job_*_ensemble.root", 7000000./1.75));
   
   ensembles.push_back(ensemble("Summer12_TTJets1725_flavor:down_FlavorPureBottom/job_*_ensemble.root", 7000000./1.75));
   ensembles.push_back(ensemble("Summer12_TTJets1725_flavor:up_FlavorPureBottom/job_*_ensemble.root", 7000000./1.75));
