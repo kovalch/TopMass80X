@@ -22,6 +22,7 @@ comboIndex_(0),
 combos_(0),
 validCombos_(0),
 oriPatJets_(0),
+oriPatJetsCalo_(0),
 //oriGenJets_(0),
 oriPFCandidates_(0),
 oriPUInfos_(0)
@@ -39,6 +40,7 @@ oriPUInfos_(0)
   //}
 
   produces<std::vector<pat::Jet> >();
+  produces<std::vector<pat::Jet> >("calo");
   //produces<std::vector<reco::GenJet> > ("genJets");
   //produces<std::vector<CaloTower>  > ("caloTowers");
   produces<std::vector<reco::PFCandidate> > ("pfCandidates");
@@ -117,6 +119,13 @@ JetEventMixer::processOneEvent(edm::EventPrincipal const& eventPrincipal, edm::E
   oriPatJets_.push_back(pPatJets);
   //oriPatJets_.push_back(*(static_cast<edm::Wrapper<std::vector<pat::Jet> > const*>(hPatJets.wrapper())->product()));
 
+  size_t cachedOffset2;
+  int fillCount2;
+  edm::BasicHandle hPatJetsCalo = eventPrincipal.getByLabel(edm::TypeID(typeid(std::vector<pat::Jet>)), "selectedPatJetsAK5Calo", "", "FullHadTreeWriter", cachedOffset2, fillCount2);
+  edm::Wrapper<std::vector<pat::Jet> > const* wPatJetsCalo = static_cast<edm::Wrapper<std::vector<pat::Jet> > const*>(hPatJetsCalo.wrapper());
+  std::vector<pat::Jet> pPatJetsCalo = *wPatJetsCalo->product();
+  oriPatJetsCalo_.push_back(pPatJetsCalo);
+
   ////edm::BasicHandle hGenJets = eventPrincipal.getByLabel(edm::TypeID(typeid(std::vector<reco::GenJet>)), "tightLeadingJets", "genJets", "FullHadTreeWriter", cachedOffset, fillCount);
   //edm::BasicHandle hGenJets = eventPrincipal.getByType(edm::TypeID(typeid(std::vector<reco::GenJet>)));
   //edm::Wrapper<std::vector<reco::GenJet> > const* wGenJets = static_cast<edm::Wrapper<std::vector<reco::GenJet> > const*>(hGenJets.wrapper());
@@ -153,7 +162,7 @@ JetEventMixer::fillCombos()
 {
   comboIndex_ = 0;
   validCombos_.clear();
-  static unsigned int maxCombosToSave = factorial(nMixMin_) / speedUp_;
+  //static unsigned int maxCombosToSave = factorial(nMixMin_) / speedUp_;
   static TRandom3 rand(0);
 
   std::vector<char> nJets(0);
@@ -168,6 +177,7 @@ JetEventMixer::fillCombos()
   }
   maxNJets = std::min(maxNJets, int(nMix_));
   //std::cout << maxNJets << std::endl;
+  unsigned int maxCombosToSave = factorial(maxNJets) / speedUp_;
 
   std::vector<char> comb(0);
   for(unsigned int i = 0; i < nMix_; ++i)
@@ -204,6 +214,7 @@ JetEventMixer::putOneEvent(edm::Event& evt)
 {
   std::vector<char> combo = combos_[comboIndex_];
   std::auto_ptr< std::vector<pat::Jet> > patJets ( new std::vector<pat::Jet>() );
+  std::auto_ptr< std::vector<pat::Jet> > patJetsCalo ( new std::vector<pat::Jet>() );
 
   //std::auto_ptr<reco::GenJetCollection > genJetsOut ( new reco::GenJetCollection() );
   //std::auto_ptr<std::vector<CaloTower>  >  caloTowersOut( new std::vector<CaloTower> () );
@@ -291,17 +302,18 @@ JetEventMixer::putOneEvent(edm::Event& evt)
     puInfos->push_back(PileupSummaryInfo(nPU2, zpositions, sumpT_lowpT, sumpT_highpT, ntrks_lowpT, ntrks_highpT, +1, nPUTrue2));
   }
 
-  if(combo.size() > 0 && oriPatJets_[combo[0]].size() > 0) patJets->push_back(oriPatJets_[combo[0]][0]);
-  if(combo.size() > 1 && oriPatJets_[combo[1]].size() > 1) patJets->push_back(oriPatJets_[combo[1]][1]);
-  if(combo.size() > 2 && oriPatJets_[combo[2]].size() > 2) patJets->push_back(oriPatJets_[combo[2]][2]);
-  if(combo.size() > 3 && oriPatJets_[combo[3]].size() > 3) patJets->push_back(oriPatJets_[combo[3]][3]);
-  if(combo.size() > 4 && oriPatJets_[combo[4]].size() > 4) patJets->push_back(oriPatJets_[combo[4]][4]);
-  if(combo.size() > 5 && oriPatJets_[combo[5]].size() > 5) patJets->push_back(oriPatJets_[combo[5]][5]);
-  if(combo.size() > 6 && oriPatJets_[combo[6]].size() > 6) patJets->push_back(oriPatJets_[combo[6]][6]);
-  if(combo.size() > 7 && oriPatJets_[combo[7]].size() > 7) patJets->push_back(oriPatJets_[combo[7]][7]);
-  if(combo.size() > 8 && oriPatJets_[combo[8]].size() > 8) patJets->push_back(oriPatJets_[combo[8]][8]);
-  if(combo.size() > 9 && oriPatJets_[combo[9]].size() > 9) patJets->push_back(oriPatJets_[combo[9]][9]);
+  if(combo.size() > 0 && oriPatJets_[combo[0]].size() > 0) { patJets->push_back(oriPatJets_[combo[0]][0]); if(oriPatJetsCalo_[combo[0]].size() > 0) patJetsCalo->push_back(oriPatJetsCalo_[combo[0]][0]); }
+  if(combo.size() > 1 && oriPatJets_[combo[1]].size() > 1) { patJets->push_back(oriPatJets_[combo[1]][1]); if(oriPatJetsCalo_[combo[1]].size() > 1) patJetsCalo->push_back(oriPatJetsCalo_[combo[1]][1]); }
+  if(combo.size() > 2 && oriPatJets_[combo[2]].size() > 2) { patJets->push_back(oriPatJets_[combo[2]][2]); if(oriPatJetsCalo_[combo[2]].size() > 2) patJetsCalo->push_back(oriPatJetsCalo_[combo[2]][2]); }
+  if(combo.size() > 3 && oriPatJets_[combo[3]].size() > 3) { patJets->push_back(oriPatJets_[combo[3]][3]); if(oriPatJetsCalo_[combo[3]].size() > 3) patJetsCalo->push_back(oriPatJetsCalo_[combo[3]][3]); }
+  if(combo.size() > 4 && oriPatJets_[combo[4]].size() > 4) { patJets->push_back(oriPatJets_[combo[4]][4]); if(oriPatJetsCalo_[combo[4]].size() > 4) patJetsCalo->push_back(oriPatJetsCalo_[combo[4]][4]); }
+  if(combo.size() > 5 && oriPatJets_[combo[5]].size() > 5) { patJets->push_back(oriPatJets_[combo[5]][5]); if(oriPatJetsCalo_[combo[5]].size() > 5) patJetsCalo->push_back(oriPatJetsCalo_[combo[5]][5]); }
+  if(combo.size() > 6 && oriPatJets_[combo[6]].size() > 6) { patJets->push_back(oriPatJets_[combo[6]][6]); if(oriPatJetsCalo_[combo[6]].size() > 6) patJetsCalo->push_back(oriPatJetsCalo_[combo[6]][6]); }
+  if(combo.size() > 7 && oriPatJets_[combo[7]].size() > 7) { patJets->push_back(oriPatJets_[combo[7]][7]); if(oriPatJetsCalo_[combo[7]].size() > 7) patJetsCalo->push_back(oriPatJetsCalo_[combo[7]][7]); }
+  if(combo.size() > 8 && oriPatJets_[combo[8]].size() > 8) { patJets->push_back(oriPatJets_[combo[8]][8]); if(oriPatJetsCalo_[combo[8]].size() > 8) patJetsCalo->push_back(oriPatJetsCalo_[combo[8]][8]); }
+  if(combo.size() > 9 && oriPatJets_[combo[9]].size() > 9) { patJets->push_back(oriPatJets_[combo[9]][9]); if(oriPatJetsCalo_[combo[9]].size() > 9) patJetsCalo->push_back(oriPatJetsCalo_[combo[9]][9]); }
   evt.put(patJets, "");
+  evt.put(patJetsCalo, "calo");
   //evt.put(genJetsOut, "genJets");
   //evt.put(caloTowersOut, "caloTowers");
   evt.put(pfCandidatesOut, "pfCandidates");
@@ -315,6 +327,7 @@ JetEventMixer::cleanUp()
   //std::cout << "CLEANING UP !!!" << std::endl;
   if(oriPatJets_.size()){
     oriPatJets_     .clear();
+    oriPatJetsCalo_ .clear();
     //oriGenJets_     .clear();
     oriPFCandidates_.clear();
     oriPUInfos_     .clear();
