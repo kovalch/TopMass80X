@@ -53,7 +53,7 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface(const std::vect
 
   if (channelID_ == Helper::kAllJets) {
     PrepareEvents(samplePath_+fIdentifier_+std::string(".root"));
-    if(fLumi_>0) PrepareEvents(samplePath_+"QCDMixing_MJPS12*_data.root");
+    if(fLumi_>0) PrepareEvents(samplePath_+"QCDMixing_MJPS12_v1_data.root");
   }
   if (channelID_ == Helper::kMuonJets || channelID_ == Helper::kLeptonJets) {
     PrepareEvents(samplePath_+fIdentifier_+std::string("_muon/job_*.root"));
@@ -91,11 +91,11 @@ TTree* RandomSubsetCreatorNewInterface::CreateRandomSubset() {
     time(&end);
 
     // DATA
-    double nEventsDataAllJets  = 11428.;
+    double nEventsDataAllJets  =  6792.;
     double nEventsDataMuon     = 15172.;
     double nEventsDataElectron = 13937.;
 
-    int eventsPEAllJets  = random_->Poisson(nEventsDataAllJets /18352.0 *fLumi_);
+    int eventsPEAllJets  = random_->Poisson(nEventsDataAllJets /18291.000*fLumi_);
     int eventsPEMuon     = random_->Poisson(nEventsDataMuon    /19712.000*fLumi_);
     int eventsPEElectron = random_->Poisson(nEventsDataElectron/19712.000*fLumi_);
 
