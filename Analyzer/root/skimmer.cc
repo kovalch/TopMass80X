@@ -43,7 +43,8 @@ Skimmer::Skimmer()
 void Skimmer::skim()
 {
   //std::string samplePath(po::GetOption<std::string>("analysisConfig.samplePath"));
-  std::string samplePath("/scratch/hh/dust/naf/cms/user/eschliec/GRID-CONTROL_JOBS/TopMassTreeWriter_02_Data06/");
+  //std::string samplePath("/scratch/hh/dust/naf/cms/user/eschliec/GRID-CONTROL_JOBS/TopMassTreeWriter_02_Data06/");
+  std::string samplePath("dcap://dcache-cms-dcap.desy.de//pnfs/desy.de/cms/tier2/store/user/eschliec/TopMassTreeWriter_02_Data06/");
   std::string selection(po::GetOption<std::string>("analysisConfig.selection"));
   //int maxPermutations(po::GetOption<int>("analysisConfig.maxPermutations"));
   int maxPermutations(1);
@@ -71,7 +72,7 @@ void Skimmer::skim()
   fromChain->SetBranchAddress("top."   , &topEvent);
   fromChain->SetBranchAddress("weight.", &weightEvent);
   
-  TFile* toFile = new TFile((samplePath+std::string("QCDMixing_MJPS12_v1_data_")+input+std::string(".root")).c_str(), "RECREATE");
+  TFile* toFile = new TFile((std::string("QCDMixing_MJPS12_v1_data_dCache_")+input+std::string(".root")).c_str(), "RECREATE");
   toFile->mkdir("analyzeKinFit")->cd();
   
   TTree* toTree = fromChain->CloneTree(0);
