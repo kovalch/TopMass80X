@@ -32,7 +32,7 @@ private:
 
   bool doCalibration_;
   bool fitBackground_;
-  bool doMeasurement_;
+  //bool doMeasurement_;
 
   // do all the calculation
   void rooFitTopMass_();
