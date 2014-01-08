@@ -296,25 +296,30 @@ void TopMassControlPlots::doPlots()
       samples.push_back(MySample("Z+Jets", "Summer12_ZJets", kBkg, kAzure-2, 1, lumi_/1000.));
       samples.push_back(MySample("W+Jets", "Summer12_WJets", kBkg, kGreen-3, 1, lumi_/1000.));
       samples.push_back(MySample("single top", "Summer12_singleTop", kBkg, kMagenta, 1, lumi_/1000.));
+    }
+
+    // SCPlots
+    if(plotSelectedForPlotting.find("SCPlots")!=plotSelectedForPlotting.end()){
+      samples.push_back(MySample("t#bar{t}, MG+DECAY+Pythia6 Z2*", "Summer12_TTJets1725_1.00", kSigVar, kRed+1, 1, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t}, MG+MGDecays+Pythia6 Z2*", "Summer12_TTJets1725_MGDecays", kSigVar, kOrange+1, 9, lumi_/1000.*9./4.));
+      samples.push_back(MySample("t#bar{t}, MG+MadSpin+Pythia6 Z2*", "Summer12_TTJets1725_MadSpin", kSigVar, kGray+3, 2, lumi_/1000.));
+    }
     
-      samples.push_back(MySample("t#bar{t}, Z2*", "Summer12_TTJets1725_1.00", kSigVar, kRed+1, 1, lumi_/1000.));
-    }
-
-    // Signal variations
+    // UETunePlots
     if(plotSelectedForPlotting.find("UETunePlots")!=plotSelectedForPlotting.end()){
-      samples.push_back(MySample("t#bar{t}, Z2*", "Summer12_TTJets1725_MGDecays", kSigVar, kRed+1, 1, lumi_/1000.*9./4.));
-      samples.push_back(MySample("t#bar{t}, P11", "Summer12_TTJets1725_MGDecays_P11", kSigVar, kMagenta+1, 9, lumi_/1000.*9./4.));
-      samples.push_back(MySample("t#bar{t}, P11noCR", "Summer12_TTJets1725_MGDecays_P11noCR", kSigVar, kCyan+1, 2, lumi_/1000.*9./4.));
+      samples.push_back(MySample("t#bar{t}, MG+Pythia6 Z2*", "Summer12_TTJets1725_MGDecays", kSigVar, kRed+1, 1, lumi_/1000.*9./4.));
+      samples.push_back(MySample("t#bar{t}, MG+Pythia6 P11", "Summer12_TTJets1725_MGDecays_P11", kSigVar, kMagenta+1, 9, lumi_/1000.*9./4.));
+      samples.push_back(MySample("t#bar{t}, MG+Pythia6 P11noCR", "Summer12_TTJets1725_MGDecays_P11noCR", kSigVar, kCyan+1, 2, lumi_/1000.*9./4.));
     }
 
-    // Signal variations (Powheg)
+    // MCGeneratorPlots
     if(plotSelectedForPlotting.find("MCGeneratorPlots")!=plotSelectedForPlotting.end()){
-      samples.push_back(MySample("t#bar{t}, Z2*", "Summer12_TTJets1725_1.00", kSigVar, kRed+1, 1, lumi_/1000.));
-      samples.push_back(MySample("t#bar{t}, Powheg+Pythia", "Summer12_TTJets1725_powheg", kSigVar, kGreen+1, 9, lumi_/1000.));
-      samples.push_back(MySample("t#bar{t}, Powheg+Herwig", "Summer12_TTJets1725_powheg_herwig", kSigVar, kBlue+1, 7, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t}, MG+Pythia6 Z2*", "Summer12_TTJets1725_1.00", kSigVar, kRed+1, 1, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t}, Powheg+Pythia6 Z2*", "Summer12_TTJets1725_powheg", kSigVar, kGreen+1, 9, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t}, Powheg+Herwig6 AUET2", "Summer12_TTJets1725_powheg_herwig", kSigVar, kBlue+1, 7, lumi_/1000.));
     }
 
-    // Signal variations (JES)
+    // JES
     if(plotSelectedForPlotting.find("JESVariationPlots")!=plotSelectedForPlotting.end()){
       samples.push_back(MySample("t#bar{t}, JES = 0.96", "Summer12_TTJets1725_0.96", kSigVar, kRed+1, 1, lumi_/1000.));
       samples.push_back(MySample("t#bar{t}, JES = 0.98", "Summer12_TTJets1725_0.98", kSigVar, kMagenta+1, 1, lumi_/1000.));
