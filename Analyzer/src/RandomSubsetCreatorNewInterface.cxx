@@ -224,7 +224,7 @@ void RandomSubsetCreatorNewInterface::PrepareEvents(const std::string& file) {
       for (const auto& boundary : vBinning_) {
         if (binning->EvalInstance(j) > boundary) ++bin;
       }
-      
+
       sample.Fill(f1->EvalInstance(j), f2->EvalInstance(j), f3->EvalInstance(j), f4->EvalInstance(j), weight->EvalInstance(j), filledPermutations++, bin);
     }
     if(filledPermutations) ++selected;

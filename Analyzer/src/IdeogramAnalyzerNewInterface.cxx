@@ -106,28 +106,6 @@ void IdeogramAnalyzerNewInterface::Scan(const std::string& cuts, int i, int j, d
 
   //TF1* combBackground = new TF1("combBackground",fptr,&IdeogramCombLikelihood::CrystalBall,150,200,1);
 
-  TF1* fitParabola = new TF1("fitParabola", "abs([1])*(x-[0])^2+[2]");
-  fitParabola->SetParNames("mass", "massCurv", "minL");
-  fitParabola->SetParLimits(0, firstBinMass, lastBinMass);
-  fitParabola->SetParLimits(1, 0.0001, 1000);
-  fitParabola->SetLineColor(kRed+1);
-
-  TF2* fitParaboloid  = new TF2("fitParaboloid" , "abs([1])*((x-[0])*cos([4])-(y-[2])*sin([4]))^2 + abs([3])*((x-[0])*sin([4])+(y-[2])*cos([4]))^2 + [5]");
-  TF2* systParaboloid = 0;
-  if (syst) systParaboloid = new TF2("systParaboloid", "abs([1])*((x-[0])*cos([4])-(y-[2])*sin([4]))^2 + abs([3])*((x-[0])*sin([4])+(y-[2])*cos([4]))^2 + [5]");
-  fitParaboloid->SetNpx(300);
-  fitParaboloid->SetNpy(300);
-  fitParaboloid->SetParNames("mass", "massCurv", "jes", "jesCurv", "alpha", "minL");
-  fitParaboloid->SetParLimits(0, firstBinMass, lastBinMass);
-  fitParaboloid->SetParLimits(1, 0.0001, 1000);
-  fitParaboloid->SetParLimits(2, 0.5, 1.5);
-  fitParaboloid->SetParLimits(3, 1, 10000000);
-  fitParaboloid->SetParLimits(4, 0, 6.3);
-  fitParaboloid->SetParameter(4, 1.5);
-  if (blackWhite) fitParaboloid->SetLineColor(kRed+1);
-  else fitParaboloid->SetLineColor(kWhite);
-  fitParaboloid->SetLineWidth(3);
-
   TF2* null  = new TF2("null" , "0 + 0*x + 0*y");
   TF2* unity = new TF2("unity", "1 + 0*x + 0*y");
   TH2D* hUnity = new TH2D("hUnity","hUnity", binsMass, firstBinMass, lastBinMass, binsJes, firstBinJes, lastBinJes);
@@ -185,6 +163,7 @@ void IdeogramAnalyzerNewInterface::Scan(const std::string& cuts, int i, int j, d
         << std::setw(10) << "mW"
         << std::setw(12) << "prob"
         << std::setw(12) << "lepton"
+        << std::setw(12) << "weight"
         << std::setw(12) << "pos/neg"
         << std::endl;
       }
@@ -203,6 +182,7 @@ void IdeogramAnalyzerNewInterface::Scan(const std::string& cuts, int i, int j, d
               << std::setw(10) << wMass
               << std::setw(12) << prob
               << std::setw(12) << leptonFlavour
+              << std::setw(12) << event.weight
               << std::setw(12) << posNegWeight
               << std::endl;
         }
@@ -280,40 +260,53 @@ void IdeogramAnalyzerNewInterface::Scan(const std::string& cuts, int i, int j, d
   }
   //*/
 
-  int minBinX;
-  int minBinY;
-  int minBinZ;
-
-  sumLogLikelihood->GetMinimumBin(minBinX, minBinY, minBinZ);
-
-  double minMass = sumLogLikelihood->GetXaxis()->GetBinCenter(minBinX);
-  double minJes  = sumLogLikelihood->GetYaxis()->GetBinCenter(minBinY);
-  double minLike = sumLogLikelihood->GetMinimum(0);
-
-  std::cout << "minMass: " << minMass << ", minJes: " << minJes << std::endl;
-
-  /*
-  sumLogLikelihood->SetAxisRange(minMass - 3, minMass + 3, "X");
-  sumLogLikelihood->SetAxisRange(minJes - 0.03, minJes + 0.03, "Y");
-  sumLogLikelihood->SetAxisRange(0, 20, "Z");
-  //*/
-
-  //sumLogLikelihood->SetMarkerStyle(20);
-  //sumLogLikelihood->SetMarkerColor(kRed+1);
-
-  std::cout << "Minimum likelihood: " << minLike << "\tMaximum likelihood (in range): " << sumLogLikelihood->GetMaximum() << std::endl;
-
   Helper* helper = new Helper();
 
   if (fit2D) {
-    fitParaboloid->SetParLimits(0, minMass-2*resolMass, minMass+2*resolMass);
+    int minBinX;
+    int minBinY;
+    int minBinZ;
+
+    sumLogLikelihood->GetMinimumBin(minBinX, minBinY, minBinZ);
+
+    double minMass = sumLogLikelihood->GetXaxis()->GetBinCenter(minBinX);
+    double minJes  = sumLogLikelihood->GetYaxis()->GetBinCenter(minBinY);
+    double minLike = sumLogLikelihood->GetMinimum(0);
+
+    std::cout << "minMass: " << minMass << ", minJes: " << minJes << std::endl;
+
+    /*
+    sumLogLikelihood->SetAxisRange(minMass - 3, minMass + 3, "X");
+    sumLogLikelihood->SetAxisRange(minJes - 0.03, minJes + 0.03, "Y");
+    sumLogLikelihood->SetAxisRange(0, 20, "Z");
+    //*/
+
+    //sumLogLikelihood->SetMarkerStyle(20);
+    //sumLogLikelihood->SetMarkerColor(kRed+1);
+
+    std::cout << "Minimum likelihood: " << minLike << "\tMaximum likelihood (in range): " << sumLogLikelihood->GetMaximum() << std::endl;
+
+    TF2* fitParaboloid  = new TF2("fitParaboloid" , "abs([1])*((x-[0])*cos([4])-(y-[2])*sin([4]))^2 + abs([3])*((x-[0])*sin([4])+(y-[2])*cos([4]))^2 + [5]");
+    TF2* systParaboloid = 0;
+    if (syst) systParaboloid = new TF2("systParaboloid", "abs([1])*((x-[0])*cos([4])-(y-[2])*sin([4]))^2 + abs([3])*((x-[0])*sin([4])+(y-[2])*cos([4]))^2 + [5]");
+    fitParaboloid->SetParNames("mass", "massCurv", "jes", "jesCurv", "alpha", "minL");
+    fitParaboloid->SetNpx(300);
+    fitParaboloid->SetNpy(300);
+    if (blackWhite) fitParaboloid->SetLineColor(kRed+1);
+    else fitParaboloid->SetLineColor(kWhite);
+    fitParaboloid->SetLineWidth(3);
     fitParaboloid->SetParameter(0, minMass);
+    fitParaboloid->SetParLimits(0, minMass-2*resolMass, minMass+2*resolMass);
     fitParaboloid->SetParameter(1, 100);
-    fitParaboloid->SetParLimits(2, minJes-2*resolJes, minJes+2*resolJes);
+    fitParaboloid->SetParLimits(1, 0.0001, 1000);
     fitParaboloid->SetParameter(2, minJes);
+    fitParaboloid->SetParLimits(2, minJes-2*resolJes, minJes+2*resolJes);
     fitParaboloid->SetParameter(3, 1000000);
-    fitParaboloid->SetParLimits(5, 0.95*minLike, 1.05*minLike);
+    fitParaboloid->SetParLimits(3, 1, 10000000);
+    fitParaboloid->SetParameter(4, 1.5);
+    fitParaboloid->SetParLimits(4, 0, 6.3);
     fitParaboloid->SetParameter(5, minLike);
+    fitParaboloid->SetParLimits(5, 0.95*minLike, 1.05*minLike);
 
     //fitParaboloid->SetRange(minMass - 1, minJes - 0.01, minMass + 1, minJes + 0.01);
     fitParaboloid->SetRange(minMass - 4, minJes - 0.04, minMass + 4, minJes + 0.04);
@@ -433,6 +426,8 @@ void IdeogramAnalyzerNewInterface::Scan(const std::string& cuts, int i, int j, d
     std::string path(plotPath); path+= HelperFunctions::cleanedName(fIdentifier_); path += "_"; path += boost::lexical_cast<std::string>(i); path += std::string("_"); path += boost::lexical_cast<std::string>(j); path +=  std::string("_"); path += HelperFunctions::cleanedName(topBranchName_); path += std::string(".eps");
     ctemp->Print(path.c_str());
     delete leg0;
+    delete fitParaboloid;
+    delete systParaboloid;
   }
   else{
     double leftMargin  = ctemp->GetLeftMargin();
@@ -445,6 +440,11 @@ void IdeogramAnalyzerNewInterface::Scan(const std::string& cuts, int i, int j, d
     sumLogLikelihood1D->GetYaxis()->SetTitle("-2 #Delta ln(L)");
     sumLogLikelihood1D->GetYaxis()->SetTitleOffset(1.65);
 
+    double minMass1D = sumLogLikelihood1D->GetBinCenter(sumLogLikelihood1D->GetMinimumBin());
+
+    std::cout << "minMass: " << minMass1D << std::endl;
+    std::cout << "Minimum likelihood: " << sumLogLikelihood1D->GetMinimum() << "\tMaximum likelihood (in range): " << sumLogLikelihood1D->GetMaximum() << std::endl;
+
     TF1* unity1D = new TF1("unity1D", "1 + 0*x");
     TH1D* hUnity1D = new TH1D("hUnity1D","hUnity1D", binsMass, firstBinMass, lastBinMass);
     hUnity1D->Eval(unity1D);
@@ -452,16 +452,20 @@ void IdeogramAnalyzerNewInterface::Scan(const std::string& cuts, int i, int j, d
 
     sumLogLikelihood1D->Draw("E");
 
-    fitParabola->SetParameter(2, 0);
-    fitParabola->SetParameter(1, 100);
-    fitParabola->SetRange(minMass - 2, minMass + 2);
+    TF1* fitParabola = new TF1("fitParabola", "abs([1])*(x-[0])^2+[2]");
+    fitParabola->SetParNames("mass", "massCurv", "minL");
+    fitParabola->SetLineColor(kRed+1);
 
-    //fitParabola->SetRange(sumLogLikelihood1D->GetBinCenter(sumLogLikelihood->GetMinimumBin()) - 3, sumLogLikelihood->GetBinCenter(sumLogLikelihood->GetMinimumBin()) + 3);
+    fitParabola->SetParameter(0, minMass1D);
+    fitParabola->SetParLimits(0, firstBinMass, lastBinMass);
+    fitParabola->SetParameter(1, 20);
+    fitParabola->SetParLimits(1, 0.0001, 1000);
+    fitParabola->SetParameter(2, 0);
+    fitParabola->SetRange(minMass1D - 2, minMass1D + 2);
 
     sumLogLikelihood1D->Fit("fitParabola","EMR");
 
-    //sumLogLikelihood1D->GetXaxis()->SetRangeUser(sumLogLikelihood->GetXaxis()->GetBinLowEdge(1), sumLogLikelihood->GetXaxis()->GetBinLowEdge(sumLogLikelihood->GetNbinsX()+1));
-    sumLogLikelihood1D->GetXaxis()->SetRangeUser(minMass - 3, minMass + 3);
+    sumLogLikelihood1D->GetXaxis()->SetRangeUser(minMass1D - 3, minMass1D + 3);
 
     double massConstJES      = fitParabola->GetParameter(0);
     double massConstJESError = -1;
@@ -487,11 +491,9 @@ void IdeogramAnalyzerNewInterface::Scan(const std::string& cuts, int i, int j, d
     delete sumLogLikelihood1D;
     delete unity1D;
     delete hUnity1D;
+    delete fitParabola;
   }
 
-  delete fitParabola;
-  delete fitParaboloid;
-  delete systParaboloid;
   delete null;
   delete unity;
   delete ctemp;

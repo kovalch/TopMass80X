@@ -35,7 +35,8 @@ struct ensemble {
 
 std::vector<ensemble> ensembles;
 
-TString sPath("/scratch/hh/dust/naf/cms/user/eschliec/TopMass/topmass_130913_1901c/");
+//TString sPath("/scratch/hh/dust/naf/cms/user/eschliec/TopMass/topmass_130913_1901c/");
+TString sPath("/scratch/hh/dust/naf/cms/user/eschliec/TopMass/topmass_131213_1201/");
 //TString sPath("");
 
 double mass[11];
@@ -53,12 +54,12 @@ void ensembleTreeSys()
   ensembles.push_back(ensemble("ensemble_S12_1725_100.root"));
   //ensembles.push_back(ensemble("ensemble_S12_jesTotNoFlav_down.root"));
   //ensembles.push_back(ensemble("ensemble_S12_jesTotNoFlav_up.root"));
-  //ensembles.push_back(ensemble("ensemble_S12_jesFlavorUds_down.root"));
-  //ensembles.push_back(ensemble("ensemble_S12_jesFlavorUds_up.root"));
-  //ensembles.push_back(ensemble("ensemble_S12_jesTotNoFlav_down.root", true, 0.988));
-  //ensembles.push_back(ensemble("ensemble_S12_jesTotNoFlav_up.root", true, 1.012));
-  //ensembles.push_back(ensemble("ensemble_S12_jesFlavorUds_down.root", true, 0.988));
-  //ensembles.push_back(ensemble("ensemble_S12_jesFlavorUds_up.root", true, 1.012));
+  //ensembles.push_back(ensemble("ensemble_S12_jesFlavorQuark_down.root"));
+  //ensembles.push_back(ensemble("ensemble_S12_jesFlavorQuark_up.root"));
+  ////ensembles.push_back(ensemble("ensemble_S12_jesTotNoFlav_down.root", true, 0.988));
+  ////ensembles.push_back(ensemble("ensemble_S12_jesTotNoFlav_up.root", true, 1.012));
+  ////ensembles.push_back(ensemble("ensemble_S12_jesFlavorUds_down.root", true, 0.988));
+  ////ensembles.push_back(ensemble("ensemble_S12_jesFlavorUds_up.root", true, 1.012));
   //ensembles.push_back(ensemble("ensemble_S12_jer_down.root"));
   //ensembles.push_back(ensemble("ensemble_S12_jer_up.root"));
   //ensembles.push_back(ensemble("ensemble_S12_match_down.root"));
@@ -67,14 +68,14 @@ void ensembleTreeSys()
   //ensembles.push_back(ensemble("ensemble_S12_scale_up.root"));
   //ensembles.push_back(ensemble("ensemble_S12_bjes_down.root"));
   //ensembles.push_back(ensemble("ensemble_S12_bjes_up.root"));
-  //ensembles.push_back(ensemble("ensemble_S12_fsig_down.root"));
-  //ensembles.push_back(ensemble("ensemble_S12_fsig_up.root"));
+  ////ensembles.push_back(ensemble("ensemble_S12_fsig_down.root"));
+  ////ensembles.push_back(ensemble("ensemble_S12_fsig_up.root"));
   //ensembles.push_back(ensemble("ensemble_S12_pu_down.root"));
   //ensembles.push_back(ensemble("ensemble_S12_pu_up.root"));
-  ensembles.push_back(ensemble("ensemble_S12_btagSF_down.root"));
-  ensembles.push_back(ensemble("ensemble_S12_btagSF_up.root"));
-  ensembles.push_back(ensemble("ensemble_S12_mtagSF_down.root"));
-  ensembles.push_back(ensemble("ensemble_S12_mtagSF_up.root"));
+  //ensembles.push_back(ensemble("ensemble_S12_btagSF_down.root"));
+  //ensembles.push_back(ensemble("ensemble_S12_btagSF_up.root"));
+  //ensembles.push_back(ensemble("ensemble_S12_mtagSF_down.root"));
+  //ensembles.push_back(ensemble("ensemble_S12_mtagSF_up.root"));
   //////ensembles.push_back(ensemble("ensemble_S12_P11.root"));
   //////ensembles.push_back(ensemble("ensemble_S12_P11.root"));
   ////ensembles.push_back(ensemble("ensemble_S12_shape_095.root"));
@@ -99,8 +100,8 @@ void ensembleTreeSys()
   ////ensembles.push_back(ensemble("ensemble_S12_permu_-40.root"));
   ////ensembles.push_back(ensemble("ensemble_S11.root"));
   ////ensembles.push_back(ensemble("ensemble_S11.root"));
-  //ensembles.push_back(ensemble("ensemble_S12_POWHEG.root"));
-  //ensembles.push_back(ensemble("ensemble_S12_POWHEG.root"));
+  ensembles.push_back(ensemble("ensemble_S12_POWHEG.root"));
+  ensembles.push_back(ensemble("ensemble_S12_POWHEG.root"));
   //ensembles.push_back(ensemble("ensemble_S12_POWHER.root"));
   //ensembles.push_back(ensemble("ensemble_S12_POWHER.root"));
   //ensembles.push_back(ensemble("ensemble_S12_MCNLO.root"));
@@ -131,8 +132,8 @@ void ensembleTreeSys()
   //ensembles.push_back(ensemble("ensemble_S12_BackgroundModel2.root"));
 
   //ensembles.push_back(ensemble("ensemble_S12_P11.root"));
-  //ensembles.push_back(ensemble("ensemble_S12_P11NoCR.root"));
-  //ensembles.push_back(ensemble("ensemble_S12_P11NoCR.root"));
+  //ensembles.push_back(ensemble("ensemble_S12_P11_NoCR.root"));
+  //ensembles.push_back(ensemble("ensemble_S12_P11_NoCR.root"));
   //ensembles.push_back(ensemble("ensemble_S12_P11mpiHi.root"));
   //ensembles.push_back(ensemble("ensemble_S12_P11TeV.root"));
 
