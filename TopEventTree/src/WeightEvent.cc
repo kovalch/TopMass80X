@@ -32,6 +32,12 @@ void WeightEvent::init()
   bTagWeight_bTagSFDown   = -1.;
   bTagWeight_misTagSFUp   = -1.;
   bTagWeight_misTagSFDown = -1.;
+  
+  bJESWeight_fNuUp     = -1.;
+  bJESWeight_fNuDown   = -1.;
+  bJESWeight_frag      = -1.;
+  bJESWeight_fragHard  = -1.;
+  bJESWeight_fragSoft  = -1.;
 
   triggerWeight = -1.;
 

@@ -19,7 +19,7 @@ public:
   WeightEvent();
   void init();
 
-  ClassDef(WeightEvent,2);
+  ClassDef(WeightEvent,3);
 
   // WeightEvent data
 
@@ -47,6 +47,13 @@ public:
   double bTagWeight_misTagSFUp;
   double bTagWeight_misTagSFDown;
 
+  // bJES neutrino fraction and fragmentation weights
+  double bJESWeight_fNuUp;
+  double bJESWeight_fNuDown;
+  double bJESWeight_frag;
+  double bJESWeight_fragHard;
+  double bJESWeight_fragSoft;
+  
   // trigger weight
   double triggerWeight;
 
