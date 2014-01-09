@@ -138,7 +138,7 @@ JetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
     }
     if (IS_BHADRON_PDGID(id) && !hasBDaughter) {
       jet->genBHadronId.push_back(id);
-      std::cout << id << std::endl;
+//      std::cout << id << std::endl;
       jet->genBHadron.push_back(TLorentzVector(p.px(), p.py(), p.pz(), p.energy()));
     }
   }
