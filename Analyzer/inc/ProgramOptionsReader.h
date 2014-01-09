@@ -15,6 +15,7 @@
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/type_traits/is_same.hpp>
+#include <boost/algorithm/string.hpp>
 
 class ProgramOptionsReader {
 public:
@@ -41,17 +42,6 @@ ProgramOptionsReader::GetOption(std::string whichParameter){
     std::cerr << "Program option *" << whichParameter << "* not found!" << std::endl;
     assert(0);
   }
-}
-
-std::string ProgramOptionsReader::GetOptionReplaced(std::string whichParameter,std::string replaceHelper){
-	std::string tempReturn = GetOption<std::string>(whichParameter);
-    if(replaceHelper!=""){
-    	std::vector<std::string> vsPars;
-    	boost::split(vsPars, replaceHelper, boost::is_any_of("|"));
-    	assert(vsPars.size()==2);
-    	boost::replace_all(tempReturn,  vsPars.at(0), vsPars.at(1));
-    }
-    return tempReturn;
 }
 
 #endif /* PROGRAMOPTIONSREADER_H_ */

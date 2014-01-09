@@ -189,3 +189,15 @@ const boost::program_options::variables_map*
 ProgramOptionsReader::GetProgramOptions(){
   return 0;
 }
+
+
+std::string ProgramOptionsReader::GetOptionReplaced(std::string whichParameter,std::string replaceHelper){
+	std::string tempReturn = GetOption<std::string>(whichParameter);
+    if(replaceHelper!=""){
+    	std::vector<std::string> vsPars;
+    	boost::split(vsPars, replaceHelper, boost::is_any_of("|"));
+    	assert(vsPars.size()==2);
+    	boost::replace_all(tempReturn,  vsPars.at(0), vsPars.at(1));
+    }
+    return tempReturn;
+}
