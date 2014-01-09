@@ -22,10 +22,10 @@
 
 #include "tdrstyle.C"
 
-enum lepton           { kElectron, kMuon, kAll};
-std::string lepton_ [3] = { "electron", "muon", "lepton"};
+enum lepton           { kElectron, kMuon, kAll, kMuon_BReg};
+std::string lepton_ [4] = { "electron", "muon", "lepton", "muon_BReg"};
 
-int channel = 2;
+int channel = 3;
 std::string suffix = "";
 
 Long64_t nentries = 1000000000; //1000*27;
@@ -126,7 +126,7 @@ void DrawLegend(bool bwlines = false) {
   */
 }
 
-void ensembleTreeLeptonJets()
+void ensembleTreeLeptonJets(std::string pathToPE = "/scratch/hh/dust/naf/cms/user/mseidel/pseudoexperiments/topmass_131012")
 {
   //*
   TStyle *tdrStyle = setTDRStyle();
@@ -149,7 +149,9 @@ void ensembleTreeLeptonJets()
   // topmass_120530_0840 - all
   // topmass_120412_2120cp
   tree = new TChain("tree");
-  tree->Add((std::string("/scratch/hh/dust/naf/cms/user/mseidel/pseudoexperiments/topmass_131012")+suffix+std::string("/")+lepton_[channel]+std::string("/job_*.root")).c_str());
+  std::string pathToRootFiles = pathToPE+suffix+std::string("/")+lepton_[channel]+std::string("/job_*.root");
+  std::cout << "opening root files from " << pathToRootFiles << std::endl;
+  tree->Add(pathToRootFiles.c_str());
   switch(channel) {
     case kElectron:
       eff = 0.003022831;
@@ -160,11 +162,14 @@ void ensembleTreeLeptonJets()
     case kAll:
       eff = 0.006751167;
       break;
+    case kMuon_BReg:
+      eff = 0.003728336;
+      break;
   }
   
   TMultiGraph *mgMass = new TMultiGraph();
-  mgMass->SetTitle(";m_{t,gen} [GeV];<m_{t,extr}-m_{t,gen}> [GeV]");
-  
+  mgMass->SetTitle(";m_{t,gen} [GeV];<m_{t,extr}-m_{t,gen}> [GeV]"); 
+
   TMultiGraph *mgJES = new TMultiGraph();
   mgJES->SetTitle(";m_{t,gen} [GeV];<JES_{extr}-JES>");
   

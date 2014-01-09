@@ -344,7 +344,6 @@ void BRegJetEventAnalyzer::fillBRegJet(const edm::Event& evt, const edm::EventSe
 		BRegJet->nChargedPFConstituents  .push_back(AllVarHolder_["BRegJet.nChargedPFConstituents"]);
 		BRegJet->leadingChargedConstPt   .push_back(AllVarHolder_["BRegJet.leadingChargedConstPt"]);
 
-		AllVarHolder_["BRegJet.leadingChargedConstPt/BRegJet.jetPtCorr"]=AllVarHolder_["BRegJet.leadingChargedConstPt"]/AllVarHolder_["BRegJet.jetPtCorr"];
 
 		AllVarHolder_["BRegJet.jetPtRaw"]=ijet->correctedP4("Uncorrected").Pt();
 		BRegJet->jetPtRaw.push_back(AllVarHolder_["BRegJet.jetPtRaw"]);
@@ -612,6 +611,7 @@ void BRegJetEventAnalyzer::fillBRegJet(const edm::Event& evt, const edm::EventSe
 
 		//temporary variables needed to calculate b-regression result
 		AllVarHolder_["BRegJet.jetPtCorr"] = ijet->pt();
+		AllVarHolder_["BRegJet.leadingChargedConstPt/BRegJet.jetPtCorr"]=AllVarHolder_["BRegJet.leadingChargedConstPt"]/AllVarHolder_["BRegJet.jetPtCorr"];
 		AllVarHolder_["BRegJet.jetMt"]     = ijet->mt();
 		AllVarHolder_["BRegJet.jetEta"]    = ijet->eta();
 		BRegJet->jetPtCorr.push_back(AllVarHolder_["BRegJet.jetPtCorr"]);
@@ -620,12 +620,18 @@ void BRegJetEventAnalyzer::fillBRegJet(const edm::Event& evt, const edm::EventSe
 
 		if(isPFJet){
 			AllVarHolder_["jet.fChargedHadron"] = ijet->chargedHadronEnergyFraction();
-			AllVarHolder_["jet.fElectrons"]      = ijet->electronEnergyFraction();
-			AllVarHolder_["jet.fMuons"]          = ijet->muonEnergyFraction();
+			AllVarHolder_["jet.fElectron"]      = ijet->electronEnergyFraction();
+			AllVarHolder_["jet.fMuon"]          = ijet->muonEnergyFraction();
 			AllVarHolder_["jet.nChargedHadrons"] = ijet->chargedHadronMultiplicity ();
-			AllVarHolder_["jet.nConstituents"] = (ijet->chargedHadronMultiplicity () +ijet->neutralHadronMultiplicity ()
+			AllVarHolder_["jet.nConstituents"] = ijet->nConstituents();
+			assert(AllVarHolder_["jet.nConstituents"] == (ijet->chargedHadronMultiplicity () +ijet->neutralHadronMultiplicity ()
 					+ijet->photonMultiplicity ()  +ijet->electronMultiplicity () +ijet->muonMultiplicity ()
-					+ijet->HFHadronMultiplicity ()  +ijet->HFEMMultiplicity () );//NTot
+					+ijet->HFHadronMultiplicity ()  +ijet->HFEMMultiplicity () ));//NTot
+		}
+		else {
+		    edm::LogError msg("BRegression");
+		    msg << "Jet you are trying to calculate the b-regression on is no PF Jet \n";
+		    throw cms::Exception("Configuration Error");
 		}
 		AllVarHolder_["jet.bTagCSV"] = ijet->bDiscriminator("combinedSecondaryVertexBJetTags");
 

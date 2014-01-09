@@ -3,6 +3,8 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "TopMass/TopEventTree/interface/BRegJetEvent.h"
+#include "TopMass/TopEventTree/interface/JetEvent.h"
+
 
 // for event setup handles needed for "computer"
 #include "FWCore/Framework/interface/EventSetup.h"

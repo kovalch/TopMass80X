@@ -15,6 +15,7 @@
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/type_traits/is_same.hpp>
+#include <boost/algorithm/string.hpp>
 
 class ProgramOptionsReader {
 public:
@@ -24,6 +25,7 @@ public:
   static const boost::program_options::variables_map* GetProgramOptions();
   template <class T>
   static T GetOption(std::string whichParameter);
+  static std::string GetOptionReplaced(std::string whichParameter,std::string replaceHelper="");
 
 private:
   static boost::program_options::variables_map* programOptions_;
