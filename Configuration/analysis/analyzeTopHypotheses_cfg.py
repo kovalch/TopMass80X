@@ -242,7 +242,7 @@ if data: removeTtSemiLepHypGenMatch(process)
 from TopMass.TopEventTree.EventHypothesisAnalyzer_cfi import analyzeHypothesis
 process.analyzeHitFit = analyzeHypothesis.clone(hypoClassKey = "ttSemiLepHypHitFit:Key")
 from TopMass.TopEventTree.JetEventAnalyzer_cfi import analyzeJets
-process.analyzeJets = analyzeJets.clone()
+process.analyzeJets = analyzeJets.clone(jets = "selectedPatJets", maxNJets = 10)
 from TopMass.TopEventTree.WeightEventAnalyzer_cfi import analyzeWeights
 process.analyzeWeights = analyzeWeights.clone(
                                               mcWeight        = options.mcWeight,

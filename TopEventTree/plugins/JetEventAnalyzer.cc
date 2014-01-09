@@ -15,6 +15,8 @@
 #include "TopMass/TopEventTree/interface/TreeRegistryService.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "TopMass/TopEventTree/plugins/JetEventAnalyzer.h"
 
@@ -99,6 +101,10 @@ JetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
     std::pair<TVector2, TVector2> pulls = getPullVector( ijet );
     jet->pull       .push_back(pulls.first );
     jet->pullCharged.push_back(pulls.second);
+    
+    std::pair<TVector2, TVector2> genPulls = getGenPullVector( ijet );
+    jet->genPull       .push_back(genPulls.first );
+    jet->genPullCharged.push_back(genPulls.second);
   }
 
   if(alternativeJetsAvailable){
@@ -157,6 +163,56 @@ JetEventAnalyzer::getPullVector( std::vector<pat::Jet>::const_iterator patJet )
   }
 
   double jetPt        = patJet   ->pt(), jetPhi        = patJet   ->phi(), jetRapidity        = patJet   ->rapidity();
+  double jetPtCharged = chargedJet.Pt(), jetPhiCharged = chargedJet.Phi(), jetRapidityCharged = chargedJet.Rapidity();
+  TVector2 r(0,0);
+  TVector2 pullAll(0,0);
+  TVector2 pullCharged(0,0);
+
+  for(size_t idx = 0, length = constituents.size(); idx < length; ++idx){
+    double constituentPt       = constituents.at(idx)->pt();
+    double constituentPhi      = constituents.at(idx)->phi();
+    double constituentRapidity = constituents.at(idx)->rapidity();
+    r.Set( constituentRapidity - jetRapidity, TVector2::Phi_mpi_pi( constituentPhi - jetPhi ) );
+    pullAll += ( constituentPt / jetPt ) * r.Mod() * r;
+    //calculate TVector using only charged tracks
+    if( constituents.at(idx)->charge() != 0  )
+      r.Set( constituentRapidity - jetRapidityCharged, TVector2::Phi_mpi_pi( constituentPhi - jetPhiCharged ) );
+    pullCharged += ( constituentPt / jetPtCharged ) * r.Mod() * r;
+  }
+
+  // if there are less than two charged tracks do not calculate the pull (there is not enough info), return null vector
+  //TODO really needed???????
+  if( nCharged < 2 )
+    pullCharged = null;
+
+  return std::make_pair(pullAll, pullCharged);
+}
+
+// TODO Sorry for duplicating this function. Maybe there is a nicer option?
+std::pair<TVector2, TVector2>
+JetEventAnalyzer::getGenPullVector( std::vector<pat::Jet>::const_iterator patJet )
+{
+  TVector2 null(0,0);
+
+  if ((patJet->genJet()) == false) {
+    return std::make_pair(null,null);
+  }
+
+  //re-reconstruct the jet direction with the charged tracks
+  TLorentzVector chargedJet(0,0,0,0);
+  TLorentzVector constituent(0,0,0,0);
+  unsigned int nCharged = 0;
+
+  std::vector<const reco::GenParticle*> constituents = patJet->genJet()->getGenConstituents();
+  for(size_t idx = 0, length = constituents.size(); idx < length; ++idx){
+    if( constituents.at(idx)->charge() != 0 ){
+      constituent.SetPtEtaPhiE( constituents.at(idx)->pt(), constituents.at(idx)->eta(), constituents.at(idx)->phi(), constituents.at(idx)->energy() );
+      chargedJet += constituent;
+      ++nCharged;
+    }
+  }
+
+  double jetPt        = patJet->genJet()->pt(), jetPhi = patJet->genJet()->phi(), jetRapidity = patJet->genJet()->rapidity();
   double jetPtCharged = chargedJet.Pt(), jetPhiCharged = chargedJet.Phi(), jetRapidityCharged = chargedJet.Rapidity();
   TVector2 r(0,0);
   TVector2 pullAll(0,0);

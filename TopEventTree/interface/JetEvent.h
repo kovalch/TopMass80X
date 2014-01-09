@@ -20,7 +20,7 @@ public:
 
   unsigned int nJet() const { return jet.size(); }
 
-  ClassDef(JetEvent,1);
+  ClassDef(JetEvent,2);
 
   // JetEvent data
 
@@ -53,6 +53,8 @@ public:
 
   std::vector<TVector2> pull;
   std::vector<TVector2> pullCharged;
+  std::vector<TVector2> genPull;
+  std::vector<TVector2> genPullCharged;
 
 
 private:

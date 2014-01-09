@@ -20,6 +20,7 @@ class JetEventAnalyzer : public edm::EDAnalyzer {
   virtual void endJob();
 
   std::pair<TVector2, TVector2> getPullVector( std::vector<pat::Jet>::const_iterator patJet );
+  std::pair<TVector2, TVector2> getGenPullVector( std::vector<pat::Jet>::const_iterator patJet );
 
   edm::Service<TreeRegistryService> trs;
 

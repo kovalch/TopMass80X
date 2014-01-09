@@ -47,5 +47,7 @@ void JetEvent::init()
 #ifndef __CINT__
   pull.clear();
   pullCharged.clear();
+  genPull.clear();
+  genPullCharged.clear();
 #endif
 }
