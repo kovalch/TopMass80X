@@ -11,6 +11,8 @@ public:
   TopEvent();
   void init();
 
+  void shrink(unsigned int maxSize = 1);
+
   ClassDef(TopEvent,6);
 
   // TopEvent data

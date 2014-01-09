@@ -74,14 +74,14 @@ TopMassCalibration::TopMassCalibration() :
     fChannel_   (po::GetOption<std::string>("channel")),
     activeBranches_(po::GetOption<std::string>("analysisConfig.activeBranches")),
     maxPermutations_(po::GetOption<int>("analysisConfig.maxPermutations")),
-    doCalibration_(false),
-    fitBackground_(true),
-    doMeasurement_(false)
+    doCalibration_(true),
+    fitBackground_(false)
+    //doMeasurement_(false)
 {
-  if      (!strcmp(fChannel_, "alljets" )) channelID_ = kAllJets;
-  else if (!strcmp(fChannel_, "muon"    )) channelID_ = kMuonJets;
-  else if (!strcmp(fChannel_, "electron")) channelID_ = kElectronJets;
-  else if (!strcmp(fChannel_, "lepton"  )) channelID_ = kLeptonJets;
+  if      (!strncmp(fChannel_, "alljets" , 7)) channelID_ = kAllJets;
+  else if (!strncmp(fChannel_, "muon"    , 4)) channelID_ = kMuonJets;
+  else if (!strncmp(fChannel_, "electron", 8)) channelID_ = kElectronJets;
+  else if (!strncmp(fChannel_, "lepton"  , 6)) channelID_ = kLeptonJets;
   else UnknownChannelAbort();
 
   rooFitTopMass_();
@@ -213,7 +213,7 @@ TopMassCalibration::rooFitTopMass_()
           else if(iMass == 1) fileName += "163_5";
           else if(iMass == 2) fileName += "166_5";
           else if(iMass == 3) fileName += "169_5";
-          else if(iMass == 4) fileName += "172_5";
+          else if(iMass == 4) fileName += "172_5_MassiveBinDecay";
           else if(iMass == 5) fileName += "175_5";
           else if(iMass == 6) fileName += "178_5";
           else if(iMass == 7) fileName += "181_5";
@@ -392,8 +392,8 @@ TopMassCalibration::rooFitTopMass_()
             else if(comboType == 1 || comboType == 2) {
               varName = "ratio_"; varName += h;
               RooRealVar *ratio = new RooRealVar(varName, varName, 0.0, 1.0);
-              if     (comboType == 1) ratio->setVal(0.662784); //0.820546);
-              else if(comboType == 2) ratio->setVal(0.774588); //0.758690);
+              if     (comboType == 1) ratio->setVal(0.648584); //0.662784); //0.820546);
+              else if(comboType == 2) ratio->setVal(0.685704); //0.774588); //0.758690);
               ratio->setConstant(kTRUE);
               //ratio->setConstant(kFALSE);
               fillAlpha(alpha, h, RooArgSet(*par[0], *par[1], *par[ 2], *par[ 3], mTop_corrected, JES_corrected));
@@ -653,7 +653,8 @@ TopMassCalibration::rooFitTopMass_()
     std::cout << "Creating BKG dataset" << std::endl;
 
     //TString fileName = "QCDEstimationMix_2011_NEW_skimmed2.root";
-    TString fileName = "QCDMixing_MJPS12*_data.root";
+    //TString fileName = "QCDMixing_MJPS12*_data.root";
+    TString fileName = "QCDMixing_MJPS12_v1_data.root";
     //TFile* file = TFile::Open(samplePath_+fileName);
     //TTree* oldTree = (TTree*)file->Get("tree");
     TChain* oldTree = new TChain("analyzeKinFit/eventTree");

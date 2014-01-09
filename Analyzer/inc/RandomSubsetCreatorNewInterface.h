@@ -10,7 +10,7 @@ class TRandom3;
 
 class RandomSubsetCreatorNewInterface : public RandomSubsetCreator {
 public:
-  RandomSubsetCreatorNewInterface();
+  RandomSubsetCreatorNewInterface(const std::vector<float>& v);
   virtual ~RandomSubsetCreatorNewInterface();
   const DataSample& GetDataSample() const { return subset_; }
 
@@ -24,6 +24,8 @@ private:
   const std::string fVar4_;
   const std::string fWeight_;
   const std::string activeBranches_;
+  const std::string fBinning_;
+  const std::vector<float> vBinning_;
   const double fLumi_, fSig_; //, fBDisc_;
   const int maxPermutations_;
   int channelID_;

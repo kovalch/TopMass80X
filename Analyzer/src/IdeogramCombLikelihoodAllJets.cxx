@@ -107,10 +107,10 @@ double IdeogramCombLikelihoodAllJets::Evaluate(double *x, double *p) {
     //x[0] = m1 + MassOffset1 + MassSlopeMass1*(m1-172.5) + MassSlopeJES1*(j1-1.) + MassSlopeMassJES1*(m1-172.5)*(j1-1.);
   }
   
-  return p[0] * (fSig_ * (fCP_ * PCP (x,p) * (p[3]*PCPJES1 (x,p))
-		               +  fWP_ * PWP (x,p) * (p[3]*PWPJES1 (x,p))
-		               +  fUN_ * PUN (x,p) * (p[3]*PUNJES1 (x,p)))
-	       + (1.-fSig_)        * PBKG(x,p) * (p[3]*PBKGJES1(x,p)));
+  return p[0] * (fSig_ * (fCP_ * PCP (x,p) * (PCPJES1 (x,p))
+		               +  fWP_ * PWP (x,p) * (PWPJES1 (x,p))
+		               +  fUN_ * PUN (x,p) * (PUNJES1 (x,p)))
+	       + (1.-fSig_)        * PBKG(x,p) * (PBKGJES1(x,p)));
 }
 
 

@@ -31,6 +31,7 @@ private:
   std::vector<std::vector<char> > validCombos_;
 
   std::vector<std::vector<pat::Jet         > > oriPatJets_;
+  std::vector<std::vector<pat::Jet         > > oriPatJetsCalo_;
   //std::vector<std::vector<reco::GenJet     > > oriGenJets_;
   std::vector<std::vector<reco::PFCandidate> > oriPFCandidates_;
   std::vector<std::vector<PileupSummaryInfo> > oriPUInfos_;

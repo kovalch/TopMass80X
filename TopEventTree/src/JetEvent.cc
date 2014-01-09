@@ -17,7 +17,6 @@ void JetEvent::init()
 {
   jet.clear();
   genJet.clear();
-  genBHadron.clear();
   genParton.clear();
   alternativeJet.clear();
 
@@ -27,10 +26,6 @@ void JetEvent::init()
   nElectrons.clear();
   nPhotons.clear();
   nMuons.clear();
-  
-  genBHadronId.clear();
-  genBHadronGenJetIdx.clear();
-  
   fChargedHadron.clear();
   fNeutralHadron.clear();
   fElectron.clear();

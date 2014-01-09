@@ -8,7 +8,7 @@ void DataSample::Clear()
   events.clear();
 }
 
-void DataSample::Fill(double topMass, double wMass, double prob, int leptonFlavour, double weight, int index)
+void DataSample::Fill(double topMass, double wMass, double prob, int leptonFlavour, double weight, int index, int bin)
 {
   if(index == 0){
     events.push_back(SimpleEvent());
@@ -17,7 +17,7 @@ void DataSample::Fill(double topMass, double wMass, double prob, int leptonFlavo
     if(weight > maxWeight) maxWeight = weight;
     ++nEvents;
   }
-  events.back().permutations.push_back({topMass, wMass, prob});
+  events.back().permutations.push_back({topMass, wMass, prob, bin});
 }
 
 void DataSample::AddEvent(const SimpleEvent& event)

@@ -13,10 +13,14 @@
 \.autotools$
 \.cproject$
 \.pydevproject$
+\.prefs$
 \_dict.h$
 test.prof
--glob:Analyzer/TopMass
 
 syntax: regexp
 ^Analyzer/TopMass$
-^Analyzer/Calibration$
+^Analyzer/TemplateDerivation$
+^Analyzer/ControlPlots$
+^Analyzer/DuplicateRemoval$
+^Analyzer/Skimmer$
+^Analyzer/plot

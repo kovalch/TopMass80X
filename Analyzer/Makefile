@@ -22,10 +22,13 @@ OBJ_FILES_CONTROLPLOT := $(patsubst root/%.cc,obj/3/%.o,$(filter-out $(wildcard 
 # files needed to run duplicate removal program
 CXX_FILES_DUPREMOVAL := $(wildcard root/duplicateRemoval*.cc)
 OBJ_FILES_DUPREMOVAL := $(patsubst root/%.cc,obj/3/%.o,$(filter-out $(wildcard root/*_main.cc), $(CXX_FILES_DUPREMOVAL))) obj/1/ProgramOptionsReader.o
+# files needed to run skimmer program
+CXX_FILES_SKIMMER := $(wildcard root/skimmer*.cc)
+OBJ_FILES_SKIMMER := $(patsubst root/%.cc,obj/3/%.o,$(filter-out $(wildcard root/*_main.cc), $(CXX_FILES_SKIMMER))) obj/1/ProgramOptionsReader.o
 
-.PHONY: clean all top tem con dup
+.PHONY: clean all top tem con dup ski
 
-all: top tem con dup
+all: top tem con dup ski
 
 top: TopMass
 
@@ -35,9 +38,15 @@ con: ControlPlots
 
 dup: DuplicateRemoval
 
+ski: Skimmer
+
 clean:
 	@rm -rf obj
 	@rm -f TopMass
+	@rm -f TemplateDerivation
+	@rm -f ControlPlots
+	@rm -f DuplicateRemoval
+	@rm -f Skimmer
 obj:
 	@mkdir -p obj/1
 	@mkdir -p obj/2
@@ -54,10 +63,14 @@ TemplateDerivation: obj $(OBJ_FILES) $(OBJ_FILES_CALIBRATION) $(OBJ_FILES_CMSSW)
 ControlPlots: obj $(OBJ_FILES_CONTROLPLOT) obj/3/controlPlots_main.o
 	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) -Wl,-rpath -Wl,lib -L/afs/naf.desy.de/group/cms/sw/slc5_amd64_gcc462/external/boost/1.50.0-cms2/lib -lboost_program_options -o $@ obj/3/controlPlots_main.o $(OBJ_FILES_CONTROLPLOT)
 	@echo -e "\033[32m\033[1mSuccessfully compiled ControlPlots\033[0m"
-	
+
 DuplicateRemoval: obj $(OBJ_FILES) $(OBJ_FILES_DUPREMOVAL) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT) obj/3/duplicateRemoval_main.o
 	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) $(ROOFITLIBS) -Wl,-rpath -Wl,lib -L/afs/naf.desy.de/group/cms/sw/slc5_amd64_gcc462/external/boost/1.50.0-cms2/lib -lboost_program_options -o $@ obj/3/duplicateRemoval_main.o $(OBJ_FILES_DUPREMOVAL) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
 	@echo -e "\033[32m\033[1mSuccessfully compiled DuplicateRemoval\033[0m"
+
+Skimmer: obj $(OBJ_FILES) $(OBJ_FILES_SKIMMER) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT) obj/3/skimmer_main.o
+	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) -Wl,-rpath -Wl,lib -L/afs/naf.desy.de/group/cms/sw/slc5_amd64_gcc462/external/boost/1.50.0-cms2/lib -lboost_program_options -o $@ obj/3/skimmer_main.o $(OBJ_FILES_SKIMMER) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
+	@echo -e "\033[32m\033[1mSuccessfully compiled Skimmer\033[0m"
 
 #rules
 obj/1/%.o: src/%.cxx

@@ -428,6 +428,17 @@ private:
 
   std::vector<MyHistogram> hists;
   std::vector<MySample>    samples;
+
+  std::string selection_   ;
+  std::string selectionCP_ ;
+  std::string selectionWP_ ;
+  std::string selectionUN_ ;
+
+  std::string path_;
+  std::string channel_;
+  std::string topBranchName_;
+  double lumi_;
+
 };
 
 #endif /* TOPMASSCONTROLPLOTS_H */

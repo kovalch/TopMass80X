@@ -17,6 +17,8 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtFullHadronicEvent.h"
 //#include "LHAPDF/LHAPDF.h"
 
 #include "TopMass/TopEventTree/plugins/WeightEventAnalyzer.h"
@@ -37,13 +39,21 @@ bWeightSrc_bTagSFDown_  (cfg.getParameter<edm::InputTag>("bWeightSrc_bTagSFDown"
 bWeightSrc_misTagSFUp_  (cfg.getParameter<edm::InputTag>("bWeightSrc_misTagSFUp")),
 bWeightSrc_misTagSFDown_(cfg.getParameter<edm::InputTag>("bWeightSrc_misTagSFDown")),
 
+bJESSrc_fNuUp_    (cfg.getParameter<edm::InputTag>("bJESSrc_fNuUp")),
+bJESSrc_fNuDown_  (cfg.getParameter<edm::InputTag>("bJESSrc_fNuDown")),
+bJESSrc_frag_     (cfg.getParameter<edm::InputTag>("bJESSrc_frag")),
+bJESSrc_fragHard_ (cfg.getParameter<edm::InputTag>("bJESSrc_fragHard")),
+bJESSrc_fragSoft_ (cfg.getParameter<edm::InputTag>("bJESSrc_fragSoft")),
+
 triggerWeightSrc_ (cfg.getParameter<edm::InputTag>("triggerWeightSrc")),
 
 muWeightSrc_ (cfg.getParameter<edm::InputTag>("muWeightSrc")),
 elWeightSrc_ (cfg.getParameter<edm::InputTag>("elWeightSrc")),
 
 genEventSrc_   (cfg.getParameter<edm::InputTag>("genEventSrc")),
+ttEvent_       (cfg.getParameter<edm::InputTag>("ttEvent")),
 savePDFWeights_(cfg.getParameter<bool>("savePDFWeights")),
+brCorrection_  (cfg.getParameter<bool>("brCorrection")),
 weight(0)
 {
   //LHAPDF::initPDFSet(1, "cteq66.LHgrid");
@@ -95,6 +105,49 @@ WeightEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
 */
     }
   }
+  
+  //////////////////////////////////////////////////////////////////////////
+  // BR correction for MadGraph
+  ////////////////////////////////////////////////////////////////////////
+  
+  if (brCorrection_) {
+    edm::Handle<TtSemiLeptonicEvent> hSemiLepTtEvent;
+    edm::Handle<TtFullHadronicEvent> hFullHadTtEvent;
+    const TtSemiLeptonicEvent *semiLepTtEvent = 0;
+    const TtFullHadronicEvent *fullHadTtEvent = 0;
+    const TtEvent *ttEvent = 0;
+
+    if(ttEvent_.label().find("SemiLep")!=std::string::npos){
+      evt.getByLabel(ttEvent_, hSemiLepTtEvent);
+      semiLepTtEvent = hSemiLepTtEvent.product();
+      ttEvent = semiLepTtEvent;
+    }
+    else if(ttEvent_.label().find("FullHad")!=std::string::npos){
+      evt.getByLabel(ttEvent_, hFullHadTtEvent);
+      fullHadTtEvent = hFullHadTtEvent.product();
+      ttEvent = fullHadTtEvent;
+    }
+    else{
+      std::cout << "The given 'ttEvent' label (" << ttEvent_.label() << ") is not allowed.\n"
+          << "It has to contain either 'SemiLep' or 'FullHad'!" << std::endl;
+    }
+    
+    if(      !ttEvent->genEvent()            ) weight->brWeight = 1;
+    else if( !ttEvent->genEvent()->isTtBar() ) weight->brWeight = 1;
+    else if (ttEvent->genEvent()->isFullHadronic()) {
+      weight->brWeight        = 0.456976 / (36./81.);
+      weight->combinedWeight *= weight->brWeight;
+    }
+    else if (ttEvent->genEvent()->isSemiLeptonic()) {
+      weight->brWeight        = 0.438048 / (36./81.);
+      weight->combinedWeight *= weight->brWeight;
+    }
+    else if (ttEvent->genEvent()->isFullLeptonic()) {
+      weight->brWeight        = 0.104976 / (1./9.);
+      weight->combinedWeight *= weight->brWeight;
+    }
+  }
+  
   //////////////////////////////////////////////////////////////////////////
   // PU weights & control variables
   ////////////////////////////////////////////////////////////////////////
@@ -131,6 +184,10 @@ WeightEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
   if(puWeight_h    .isValid()) { weight->puWeight     = *puWeight_h    ; weight->combinedWeight *= weight->puWeight; }
   if(puWeightUp_h  .isValid())   weight->puWeightUp   = *puWeightUp_h  ;
   if(puWeightDown_h.isValid())   weight->puWeightDown = *puWeightDown_h;
+  
+  //////////////////////////////////////////////////////////////////////////
+  // btag weights
+  ////////////////////////////////////////////////////////////////////////
 
   edm::Handle<double> bWeight_h;
   evt.getByLabel(bWeightSrc_, bWeight_h);
@@ -153,6 +210,29 @@ WeightEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
   if(bWeight_misTagSFUp_h  .isValid())   weight->bTagWeight_misTagSFUp   = *bWeight_misTagSFUp_h  ;
   if(bWeight_misTagSFDown_h.isValid())   weight->bTagWeight_misTagSFDown = *bWeight_misTagSFDown_h;
 
+  //////////////////////////////////////////////////////////////////////////
+  // bJES weights
+  ////////////////////////////////////////////////////////////////////////
+  
+  edm::Handle<double> bJESWeight_fNuUp_h; evt.getByLabel(bJESSrc_fNuUp_, bJESWeight_fNuUp_h);
+  if(bJESWeight_fNuUp_h.isValid()) weight->bJESWeight_fNuUp = *bJESWeight_fNuUp_h;
+  
+  edm::Handle<double> bJESWeight_fNuDown_h; evt.getByLabel(bJESSrc_fNuDown_, bJESWeight_fNuDown_h);
+  if(bJESWeight_fNuDown_h.isValid()) weight->bJESWeight_fNuDown = *bJESWeight_fNuDown_h;
+  
+  edm::Handle<double> bJESWeight_frag_h; evt.getByLabel(bJESSrc_frag_, bJESWeight_frag_h);
+  if(bJESWeight_frag_h.isValid()) weight->bJESWeight_frag = *bJESWeight_frag_h;
+  
+  edm::Handle<double> bJESWeight_fragHard_h; evt.getByLabel(bJESSrc_fragHard_, bJESWeight_fragHard_h);
+  if(bJESWeight_fragHard_h.isValid()) weight->bJESWeight_fragHard = *bJESWeight_fragHard_h;
+  
+  edm::Handle<double> bJESWeight_fragSoft_h; evt.getByLabel(bJESSrc_fragSoft_, bJESWeight_fragSoft_h);
+  if(bJESWeight_fragSoft_h.isValid()) weight->bJESWeight_fragSoft = *bJESWeight_fragSoft_h;
+  
+  //////////////////////////////////////////////////////////////////////////
+  // trigger weights
+  ////////////////////////////////////////////////////////////////////////
+  
   edm::Handle<double> triggerWeight_h;
   evt.getByLabel(triggerWeightSrc_, triggerWeight_h);
   if(triggerWeight_h.isValid()) { weight->triggerWeight = *triggerWeight_h; weight->combinedWeight *= weight->triggerWeight; }

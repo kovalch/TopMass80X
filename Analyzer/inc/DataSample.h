@@ -14,6 +14,7 @@ public:
       double topMass;
       double wMass;
       double prob;
+      int bin;
     };
 
     std::vector<Permutation> permutations;
@@ -22,7 +23,7 @@ public:
   };
 
   void Clear();
-  void Fill(double topMass, double wMass, double prob, int leptonFlavour, double weight, int index);
+  void Fill(double topMass, double wMass, double prob, int leptonFlavour, double weight, int index, int bin);
   //template<class T> void Fill(double topMass, double wMass, double prob, double weight, T index) = delete;
   void AddEvent(const SimpleEvent& event);
 

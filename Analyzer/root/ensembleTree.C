@@ -193,7 +193,8 @@ void ensembleTree()
   canvasFit->cd();
   
   //// Get histos
-  TString sFile("/scratch/hh/dust/naf/cms/user/eschliec/TopMass/topmass_131004_1201/");
+  //TString sFile("/scratch/hh/dust/naf/cms/user/eschliec/TopMass/topmass_131004_1201/");
+  TString sFile("/scratch/hh/dust/naf/cms/user/eschliec/TopMass/topmass_131213_1200/");
   //TString sFile("/scratch/hh/current/cms/user/eschliec/TopMass/21/ensemble/");
   //TString sFile("/scratch/hh/dust/naf/cms/user/eschliec/TopMass/");
   //sFile += "ensemble_F11_NEWTEMPLATES_Calibrated_NoCorrelation.root";
@@ -220,8 +221,8 @@ void ensembleTree()
   //sFile += "ensemble_F11_TemplateRooFit_New_Recalibrated.root";
   //sFile += "ensemble_F11_Ideogram_Uncalibrated_1.root";
   //sFile += "ensemble_F11_Ideogram_Calibrated_1.root";
-  //sFile += "ensemble_S12_Uncalibrated.root";
-  sFile += "ensemble_S12_Calibrated.root";
+  sFile += "ensemble_S12_Uncalibrated.root";
+  //sFile += "ensemble_S12_Calibrated.root";
 
   std::cout << "Doing calibration on: " << sFile << std::endl;
   TFile* fEnsemble = new TFile(sFile);

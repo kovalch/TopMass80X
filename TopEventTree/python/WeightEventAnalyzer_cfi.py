@@ -22,10 +22,17 @@ analyzeWeights = cms.EDAnalyzer("WeightEventAnalyzer",
     
     triggerWeightSrc  = cms.InputTag("effSFMuonEventWeight"),
     
+    bJESSrc_fNuUp     = cms.InputTag("bJESEventWeightFNuUp"),
+    bJESSrc_fNuDown   = cms.InputTag("bJESEventWeightFNuDown"),
+    bJESSrc_frag      = cms.InputTag("bJESEventWeightFrag"),
+    bJESSrc_fragHard  = cms.InputTag("bJESEventWeightFragHard"),
+    bJESSrc_fragSoft  = cms.InputTag("bJESEventWeightFragSoft"),
+    
     muWeightSrc  = cms.InputTag("effSFMuonEventWeight"),
     elWeightSrc  = cms.InputTag("effSFElectronEventWeight"),
     
     genEventSrc    = cms.InputTag("generator"),
+    ttEvent        = cms.InputTag("ttSemiLepEvent"),
     savePDFWeights = cms.bool(False),
-    
+    brCorrection   = cms.bool(False),
 )

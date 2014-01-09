@@ -35,6 +35,12 @@ class WeightEventAnalyzer : public edm::EDAnalyzer {
   edm::InputTag bWeightSrc_bTagSFDown_;
   edm::InputTag bWeightSrc_misTagSFUp_;
   edm::InputTag bWeightSrc_misTagSFDown_;
+  
+  edm::InputTag bJESSrc_fNuUp_;
+  edm::InputTag bJESSrc_fNuDown_;
+  edm::InputTag bJESSrc_frag_;
+  edm::InputTag bJESSrc_fragHard_;
+  edm::InputTag bJESSrc_fragSoft_;
 
   edm::InputTag triggerWeightSrc_;
 
@@ -42,7 +48,9 @@ class WeightEventAnalyzer : public edm::EDAnalyzer {
   edm::InputTag elWeightSrc_;
 
   edm::InputTag genEventSrc_;
+  edm::InputTag ttEvent_;
   bool savePDFWeights_;
+  bool brCorrection_;
 
   // THE WeightEvent to store the information
   WeightEvent* weight;
