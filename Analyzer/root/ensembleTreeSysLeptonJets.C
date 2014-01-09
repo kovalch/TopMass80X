@@ -22,11 +22,10 @@
 
 #include "tdrstyle.C"
 
-enum lepton           { kElectron, kMuon, kAll, kMuon_BReg, kMuon_FixedBReg};
-std::string lepton_ [5] = { "electron", "muon", "lepton", "muon_BReg", "muon_FixedBReg"};
+enum lepton           { kElectron, kMuon, kAll, kMuon_BReg};
+std::string lepton_ [4] = { "electron", "muon", "lepton", "muon_BReg"};
 
-int channel = 3;
-//int channel = 1;
+int channel = 2;
 
 struct ensemble {
   const char* file;
@@ -98,8 +97,8 @@ void ensembleTreeSysLeptonJets(TString sPath = globalPath)
   }
   */
   
-  //    ensembles.push_back(ensemble("job_*_ensemble.root", 7000000./1.75));
-    ensembles.push_back(ensemble("Summer12_TTJets1725_1.00/job_*_ensemble.root", 7000000./1.75));
+    ensembles.push_back(ensemble("job_*_ensemble.root", 7000000./1.75));
+  //  ensembles.push_back(ensemble("Summer12_TTJets1725_1.00/job_*_ensemble.root", 7000000./1.75));
   
   ensembles.push_back(ensemble("Summer12_TTJets1725_flavor:down_FlavorPureBottom/job_*_ensemble.root", 7000000./1.75));
   ensembles.push_back(ensemble("Summer12_TTJets1725_flavor:up_FlavorPureBottom/job_*_ensemble.root", 7000000./1.75));
@@ -138,26 +137,9 @@ void ensembleTreeSysLeptonJets(TString sPath = globalPath)
   ensembles.push_back(ensemble("Summer12_TTJets1725_MGDecays_P11noCR/job_*_ensemble.root", 30000000./1.75, false));
   ensembles.push_back(ensemble("Summer12_TTJets1725_MGDecays_P11TeV/job_*_ensemble.root", 20000000./1.75, false, true, 0., 13));
   ensembles.push_back(ensemble("Summer12_TTJets1725_MGDecays_P11mpiHi/job_*_ensemble.root", 20000000./1.75, false, true, 0., 11));
-
-  //  ensembles.push_back(ensemble("Summer12_TTJets1725_powheg/job_*_ensemble.root", 22000000./1.75, false, true, 0., 14));
-  //  ensembles.push_back(ensemble("Summer12_TTJets1725_powheg_herwig/job_*_ensemble.root", 28000000./1.75));
- 
-  ensembles.push_back(ensemble("Summer12_TTJets1725_powheg/job_*_ensemble.root", 22000000./1.75));
-  ensembles.push_back(ensemble("Summer12_TTJets1725_powheg/job_*_ensemble.root", 22000000./1.75));
-
-  size_t powhegpythia_idx = ensembles.size();
-
-  ensembles.push_back(ensemble("Summer12_TTJets1725_powheg/job_*_ensemble.root", 22000000./1.75,false,true,0.,powhegpythia_idx));
-  ensembles.push_back(ensemble("Summer12_TTJets1725_powheg_herwig/job_*_ensemble.root", 28000000./1.75,false,true,0.,powhegpythia_idx));
- 
-  ensembles.push_back(ensemble("Summer12_TTJets1725_mcatnlo_herwig/job_*_ensemble.root", 22000000./1.75,false,true,0.,powhegpythia_idx));
-  ensembles.push_back(ensemble("Summer12_TTJets1725_mcatnlo_herwig/job_*_ensemble.root", 28000000./1.75,false,true,0.,powhegpythia_idx));
- 
-  ensembles.push_back(ensemble("Summer12_TTJets1725_MGDecays/job_*_ensemble.root", 30000000./1.75));
-  ensembles.push_back(ensemble("Summer12_TTJets1725_MGDecays/job_*_ensemble.root", 30000000./1.75));
-
-
-
+  /*
+  ensembles.push_back(ensemble("Summer12_TTJets1725_powheg/job_*_ensemble.root", 22000000./1.75, false, true, 0., 14));
+  ensembles.push_back(ensemble("Summer12_TTJets1725_powheg_herwig/job_*_ensemble.root", 28000000./1.75));
   /*
   ensembles.push_back(ensemble("Fall11_TTJets1725_powheg_herwig/ensemble.root", 8000000./1.75, false, true, 0., 22));
   ensembles.push_back(ensemble("Fall11_TTJets1725_mcatnlo/ensemble.root", 20000000./1.75));

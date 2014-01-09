@@ -60,14 +60,12 @@ void ensemblePlots()
   
   //// Get histos
   
-  TString sFile("/scratch/hh/dust/naf/cms/user/kirschen/BRegression_PE_NoCalibrationApplied/muon_BReg/");
-  //  TString sFile("/scratch/hh/current/cms/user/eschliec/TopMass/");
+  TString sFile("/scratch/hh/current/cms/user/eschliec/TopMass/");
   //TString sFile("/scratch/hh/dust/naf/cms/user/eschliec/TopMass/");
   //sFile += "ensemble_F11_ROOFIT_Recalibrated_NEWER.root";
   //sFile += "ensemble_F11_ROOFIT_Calibrated_BUGFIXED_5JES_NEW.root";
-  //  sFile += "ensemble_F11_TemplateRooFit_Uncalibrated.root";
+  sFile += "ensemble_F11_TemplateRooFit_Uncalibrated.root";
   //sFile += "ensemble_F11_TemplateRooFit_Calibrated.root";
-  sFile += "ensemble.root";
   TFile* fEnsemble = new TFile(sFile);
   tree = (TTree*) fEnsemble->Get("tree");
   
