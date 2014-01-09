@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <math.h>
 
 #include "TFile.h"
 #include "TCanvas.h"
@@ -18,12 +17,20 @@
 
 #include "tdrstyle.C"
 
+#include "/afs/naf.desy.de/user/k/kirschen/public/util/utils.cc"
+
 int target = 1; // 1: correct, 0: wrong, -10: unmatched
 int obs    = 0; // 0: hadTopMass, 1: hadWRawMass
 int lepton = 0;
+//void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1, bool pPlotByMass = plotByMass) {
 
-int iMassMin = 4;
-int iMassMax = 5;
+
+
+int iMassMin = 0;
+int iMassMax = 9;
+//int iMassMin = 4;
+//int iMassMax = 5;
+
 
 bool plotByMass = true;
 bool pas = false;
@@ -33,10 +40,25 @@ TString sFObs[]   = {"mt", "mW"};
 TString sObs[]    = {"m_{t}", "m_{W}^{reco}"};
 TString sLepton[] = {"electron", "muon"};
 
+//std::string pathToTrees="/scratch/hh/dust/naf/cms/user/mseidel/trees/";
+//std::string topBranchName="top.";
+//std::string pathToTrees="/scratch/hh/dust/naf/cms/user/kirschen/BRegression_GC/SemiLeptOutput_All/";
+
+//std::string pathToTrees="/scratch/hh/dust/naf/cms/user/kirschen/BRegression_GC/SemiLeptOutput_TMVA/";
+std::string pathToTrees="/scratch/hh/dust/naf/cms/user/kirschen/BRegression_GC/SemiLeptOutput_AllNewBReg/";
+std::string topBranchName="bRegTop.";
+
+
 TGraphErrors* gr1[9];
 TGraphErrors* gr2[9];
 TGraphErrors* gr3[9];
 TGraphErrors* gr4[9];
+
+//TString sX[9] = {"m_{t,gen} = 166.5 GeV",
+//                 "m_{t,gen} = 172.5 GeV",
+//                 "m_{t,gen} = 178.5 GeV"};
+//
+//double X[9] = {166.5, 172.5, 178.5};
 
 TString sX[9] = {"m_{t,gen} = 161.5 GeV",
                  "m_{t,gen} = 163.5 GeV",
@@ -49,6 +71,7 @@ TString sX[9] = {"m_{t,gen} = 161.5 GeV",
                  "m_{t,gen} = 184.5 GeV"};
 
 double X[9] = {161.5, 163.5, 166.5, 169.5, 172.5, 175.5, 178.5, 181.5, 184.5};
+
 double Y10[9];
 double Y11[9];
 double Y20[9];
@@ -84,10 +107,10 @@ double ey6[5];
 double params[12];
 
 enum styles          { kDown, kNominal, kUp};
-int color_   [ 5 ] = { kRed+1, kRed+1, kBlue+1, kGreen+1, kGreen+1};
-int marker_  [ 5 ] = { 23, 23, 20, 22, 22};
-int line_    [ 5 ] = { 7, 7, 1, 9, 9};
-int width_   [ 5 ] = { 2, 2, 3, 2, 2};
+int color_   [ 5 ] = { kRed+1, kBlue+1, kGreen+1, kViolet-2, kCyan-3};
+int marker_  [ 5 ] = { 23, 20, 22, 25, 26};
+int line_    [ 5 ] = { 7, 1, 9, 4, 10};
+int width_   [ 5 ] = { 2, 3, 2, 2, 2};
 
 void FindParametersMass(int iMass);
 TH1F* FindParameters(TString filename, int i);
@@ -146,10 +169,12 @@ void DrawCutLine(double cutval, double maximum)
   cut->DrawLine(cutval, 1e-6,cutval, maximum);
 }
 
-void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
+void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1, bool pPlotByMass = plotByMass) {
   target = pTarget;
   obs    = pObs;
   lepton = pLepton;
+  std::cout << "plotByMass: " << plotByMass << " pPlotByMass: " << pPlotByMass << std::endl;
+  plotByMass = pPlotByMass;
   
   setTDRStyle();
   TH1::SetDefaultSumw2();
@@ -283,7 +308,10 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
     }
   }
   
-  cByMass->Print("../plot/template/bymass.eps");
+  TString path("../plot/template/"+topBranchName); path+= sFObs[obs]; path += "_";
+  path += "_"; path += sTarget[abs(target%8)];
+  path += "_"; path += sLepton[lepton]; 
+  cByMass->Print(path+"_bymass.eps");
   
   gStyle->SetOptStat(0);
   gStyle->SetOptFit(0);
@@ -322,8 +350,8 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
   
   leg1->Draw();
   
-  cSetOfCurves->Print("../plot/template/byjes.eps");
-  
+  cSetOfCurves->Print(path+"_byjes.eps");
+
   std::cout << "Parameters for IdeogramCombLikelihood.cxx:" << std::endl;
   for (int i=0; i<12; i++) {
     std::cout << params[i] << ", ";
@@ -359,93 +387,90 @@ void FindParametersMass(int iMass)
   if (!pas && !plotByMass) {
     switch(iMass) {
       case 0: {
-        h096 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1615_0.96", 0);
-        h098 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1615_0.98", 1);
-        h100 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1615_1.00", 2);
-        h102 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1615_1.02", 3);
-        h104 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1615_1.04", 4);
+        h096 = FindParameters(""+pathToTrees+"Summer12_TTJets1615_0.96", 0);
+        h098 = FindParameters(""+pathToTrees+"Summer12_TTJets1615_0.98", 1);
+        h100 = FindParameters(""+pathToTrees+"Summer12_TTJets1615_1.00", 2);
+        h102 = FindParameters(""+pathToTrees+"Summer12_TTJets1615_1.02", 3);
+        h104 = FindParameters(""+pathToTrees+"Summer12_TTJets1615_1.04", 4);
         break;
       }
       case 1: {
-        h096 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1635_0.96", 0);
-        h098 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1635_0.98", 1);
-        h100 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1635_1.00", 2);
-        h102 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1635_1.02", 3);
-        h104 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1635_1.04", 4);
+        h096 = FindParameters(""+pathToTrees+"Summer12_TTJets1635_0.96", 0);
+        h098 = FindParameters(""+pathToTrees+"Summer12_TTJets1635_0.98", 1);
+        h100 = FindParameters(""+pathToTrees+"Summer12_TTJets1635_1.00", 2);
+        h102 = FindParameters(""+pathToTrees+"Summer12_TTJets1635_1.02", 3);
+        h104 = FindParameters(""+pathToTrees+"Summer12_TTJets1635_1.04", 4);
         break;
       }
 		  case 2: {
-        h096 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1665_0.96", 0);
-        h098 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1665_0.98", 1);
-        h100 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1665_1.00", 2);
-        h102 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1665_1.02", 3);
-        h104 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1665_1.04", 4);
+        h096 = FindParameters(""+pathToTrees+"Summer12_TTJets1665_0.96", 0);
+        h098 = FindParameters(""+pathToTrees+"Summer12_TTJets1665_0.98", 1);
+        h100 = FindParameters(""+pathToTrees+"Summer12_TTJets1665_1.00", 2);
+        h102 = FindParameters(""+pathToTrees+"Summer12_TTJets1665_1.02", 3);
+        h104 = FindParameters(""+pathToTrees+"Summer12_TTJets1665_1.04", 4);
         break;
       }
 		  case 3: {
-        h096 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1695_0.96", 0);
-        h098 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1695_0.98", 1);
-        h100 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1695_1.00", 2);
-        h102 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1695_1.02", 3);
-        h104 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1695_1.04", 4);
+        h096 = FindParameters(""+pathToTrees+"Summer12_TTJets1695_0.96", 0);
+        h098 = FindParameters(""+pathToTrees+"Summer12_TTJets1695_0.98", 1);
+        h100 = FindParameters(""+pathToTrees+"Summer12_TTJets1695_1.00", 2);
+        h102 = FindParameters(""+pathToTrees+"Summer12_TTJets1695_1.02", 3);
+        h104 = FindParameters(""+pathToTrees+"Summer12_TTJets1695_1.04", 4);
         break;
       }
 		  case 4: {
-        h096 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1725_0.96", 0);
-        h098 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1725_0.98", 1);
-        h100 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1725_1.00", 2);
-        h102 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1725_1.02", 3);
-        h104 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1725_1.04", 4);
+        h096 = FindParameters(""+pathToTrees+"Summer12_TTJets1725_0.96", 0);
+        h098 = FindParameters(""+pathToTrees+"Summer12_TTJets1725_0.98", 1);
+        h100 = FindParameters(""+pathToTrees+"Summer12_TTJets1725_1.00", 2);
+        h102 = FindParameters(""+pathToTrees+"Summer12_TTJets1725_1.02", 3);
+        h104 = FindParameters(""+pathToTrees+"Summer12_TTJets1725_1.04", 4);
         break;
       }
 		  case 5: {
-        h096 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1755_0.96", 0);
-        h098 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1755_0.98", 1);
-        h100 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1755_1.00", 2);
-        h102 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1755_1.02", 3);
-        h104 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1755_1.04", 4);
+        h096 = FindParameters(""+pathToTrees+"Summer12_TTJets1755_0.96", 0);
+        h098 = FindParameters(""+pathToTrees+"Summer12_TTJets1755_0.98", 1);
+        h100 = FindParameters(""+pathToTrees+"Summer12_TTJets1755_1.00", 2);
+        h102 = FindParameters(""+pathToTrees+"Summer12_TTJets1755_1.02", 3);
+        h104 = FindParameters(""+pathToTrees+"Summer12_TTJets1755_1.04", 4);
         break;
       }
 		  case 6: {
-        h096 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1785_0.96", 0);
-        h098 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1785_0.98", 1);
-        h100 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1785_1.00", 2);
-        h102 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1785_1.02", 3);
-        h104 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1785_1.04", 4);
+        h096 = FindParameters(""+pathToTrees+"Summer12_TTJets1785_0.96", 0);
+        h098 = FindParameters(""+pathToTrees+"Summer12_TTJets1785_0.98", 1);
+        h100 = FindParameters(""+pathToTrees+"Summer12_TTJets1785_1.00", 2);
+        h102 = FindParameters(""+pathToTrees+"Summer12_TTJets1785_1.02", 3);
+        h104 = FindParameters(""+pathToTrees+"Summer12_TTJets1785_1.04", 4);
         break;
       }
 		  case 7: {
-        h096 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1815_0.96", 0);
-        h098 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1815_0.98", 1);
-        h100 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1815_1.00", 2);
-        h102 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1815_1.02", 3);
-        h104 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1815_1.04", 4);
+        h096 = FindParameters(""+pathToTrees+"Summer12_TTJets1815_0.96", 0);
+        h098 = FindParameters(""+pathToTrees+"Summer12_TTJets1815_0.98", 1);
+        h100 = FindParameters(""+pathToTrees+"Summer12_TTJets1815_1.00", 2);
+        h102 = FindParameters(""+pathToTrees+"Summer12_TTJets1815_1.02", 3);
+        h104 = FindParameters(""+pathToTrees+"Summer12_TTJets1815_1.04", 4);
         break;
       }
 		  case 8: {
-        h096 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1845_0.96", 0);
-        h098 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1845_0.98", 1);
-        h100 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1845_1.00", 2);
-        h102 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1845_1.02", 3);
-        h104 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1845_1.04", 4);
+        h096 = FindParameters(""+pathToTrees+"Summer12_TTJets1845_0.96", 0);
+        h098 = FindParameters(""+pathToTrees+"Summer12_TTJets1845_0.98", 1);
+        h100 = FindParameters(""+pathToTrees+"Summer12_TTJets1845_1.00", 2);
+        h102 = FindParameters(""+pathToTrees+"Summer12_TTJets1845_1.02", 3);
+        h104 = FindParameters(""+pathToTrees+"Summer12_TTJets1845_1.04", 4);
         break;
       }
     }
   }
   else if (plotByMass) {
-    std::cout << "PLOT BY MASS" << std::endl;
-    h096 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1665_1.00", 0);
-    h098 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1695_1.00", 1);
-    h100 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1725_1.00", 2);
-    h102 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1755_1.00", 3);
-    h104 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1785_1.00", 4);
+    h096 = FindParameters(""+pathToTrees+"Summer12_TTJets1665_1.00", 0);
+    h100 = FindParameters(""+pathToTrees+"Summer12_TTJets1725_1.00", 1);
+    h104 = FindParameters(""+pathToTrees+"Summer12_TTJets1785_1.00", 2);
   }
   else {
-    if (obs==0) h166 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1665_1.00", 3);
-    h096 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1725_0.96", 0);
-    h100 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1725_1.00", 1);
-    h104 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1725_1.04", 2);
-    if (obs==0) h178 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1785_1.00", 4); 
+    if (obs==0) h166 = FindParameters(""+pathToTrees+"Summer12_TTJets1665_1.00", 3);
+    h096 = FindParameters(""+pathToTrees+"Summer12_TTJets1725_0.96", 0);
+    h100 = FindParameters(""+pathToTrees+"Summer12_TTJets1725_1.00", 1);
+    h104 = FindParameters(""+pathToTrees+"Summer12_TTJets1725_1.04", 2);
+    if (obs==0) h178 = FindParameters(""+pathToTrees+"Summer12_TTJets1785_1.00", 4); 
   }
   
   h096->Draw();
@@ -507,7 +532,7 @@ void FindParametersMass(int iMass)
   
   gStyle->SetOptFit(1);
   
-  TString path("../plot/template/"); path+= sFObs[obs]; path += "_";
+  TString path("../plot/template/"+topBranchName); path+= sFObs[obs]; path += "_";
   if (plotByMass) {
     path += "mass";
   }
@@ -587,14 +612,18 @@ void FindParametersMass(int iMass)
     gr4[iMass]->GetXaxis()->SetTitle("JES");
     gr4[iMass]->GetYaxis()->SetTitle("power");
   }
+  cObservablePar->Print(path+"_par.eps");
+
 }
 
 
 
 TH1F* FindParameters(TString filename, int i)
 {
-  TString tempfilename = filename;
-  tempfilename += "_"; tempfilename += sLepton[lepton]; tempfilename += "/temp.root";
+  TString tempfilename = "/scratch/hh/dust/naf/cms/user/kirschen/BRegressionTemplatesTesting/"+util::cleanStringMore(filename);
+  //  TString tempfilename = filename;
+  tempfilename += "_"; tempfilename += sLepton[lepton]; tempfilename += "_temp.root";
+  std::cout << tempfilename << std::endl;
   TFile* file = new TFile(tempfilename, "RECREATE");
   //TTree* eventTree = (TTree*) file->Get("analyzeHitFit/eventTree");
   
@@ -707,22 +736,22 @@ TH1F* FindParameters(TString filename, int i)
     case 0: {
       switch(target) {
         case   1: {
-          sObservable = "top.fitTop1.M() >> h1(30, 100, 250)";
+          sObservable = ""+topBranchName+"fitTop1.M() >> h1(30, 100, 250)";
           break;
         }
         case   0: {
-          sObservable = "top.fitTop1.M() >> h1(30, 100, 400)";
+          sObservable = ""+topBranchName+"fitTop1.M() >> h1(30, 100, 400)";
           break;
         }
         case -10: {
-          sObservable = "top.fitTop1.M() >> h1(30, 100, 400)";
+          sObservable = ""+topBranchName+"fitTop1.M() >> h1(30, 100, 400)";
           break;
         }
       }
       break;
     }
     case 1: {
-      sObservable = "top.recoW1.M() >> h1(30, 60, 120)";
+      sObservable = ""+topBranchName+"recoW1.M() >> h1(30, 60, 120)";
       break;
     }
     case 4: {
@@ -734,22 +763,22 @@ TH1F* FindParameters(TString filename, int i)
       break;
     }
   }
-  TString sCutAndWeight("(top.fitProb*weight.combinedWeight)*(");
+  TString sCutAndWeight("("+topBranchName+"fitProb*weight.combinedWeight)*(");
   switch(target) {
     case   1: {
-      sCutAndWeight += "top.combinationType==1";
+      sCutAndWeight += ""+topBranchName+"combinationType==1";
       break;
     }
     case   0: {
-      sCutAndWeight += "top.combinationType>=2 & top.combinationType<=4";
+      sCutAndWeight += ""+topBranchName+"combinationType>=2 & "+topBranchName+"combinationType<=4";
       break;
     }
     case -10: {
-      sCutAndWeight += "(top.combinationType==6 | top.combinationType<0)";
+      sCutAndWeight += "("+topBranchName+"combinationType==6 | "+topBranchName+"combinationType<0)";
       break;
     }
   }
-  sCutAndWeight += " & top.fitProb > 0.2)";
+  sCutAndWeight += " & "+topBranchName+"fitProb > 0.2)";
 
   std::cout << sCutAndWeight << std::endl;
   
@@ -784,13 +813,14 @@ TH1F* FindParameters(TString filename, int i)
     }
   }
   
-  h1->SetFillColor(color_[i]);
-  h1->SetLineColor(color_[i]);
-  h1->SetMarkerColor(color_[i]);
-  h1->SetMarkerStyle(marker_[i]);
+  int j = i/2;
+  h1->SetFillColor(color_[j]);
+  h1->SetLineColor(color_[j]);
+  h1->SetMarkerColor(color_[j]);
+  h1->SetMarkerStyle(marker_[j]);
   h1->SetMarkerSize(1.5);
-  fit->SetLineColor(color_[i]);
-  fit->SetLineStyle(line_[i]);
+  fit->SetLineColor(color_[j]);
+  fit->SetLineStyle(line_[j]);
   
   TFitResultPtr r = h1->Fit("fit","WEMSR");
   
