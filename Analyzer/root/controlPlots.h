@@ -37,7 +37,7 @@ private:
       varx(0), vary(0),sel(0),
       name(name_), formulax(formulax_), formulay("1."), selection(selection_),
       data(new TH1F((std::string("hD")+name).c_str(), (std::string("Data")+title).c_str(), nBins, min, max)),
-      histogramDimension(1), fitGaussToCore(false)
+      histogramDimension(1), dataContainsMC(false), fitGaussToCore(false)
     {
       data->SetLineWidth(1);
       data->SetLineColor(kBlack);
@@ -49,7 +49,7 @@ private:
       varx(0), vary(0),sel(0),
       name(name_), formulax(formulax_), formulay(formulay_), selection(selection_),
       data(new TH2F((std::string("h2D")+name).c_str(), (std::string("Data")+title).c_str(), x_nBins, x_min, x_max, y_nBins, y_min, y_max)),
-      histogramDimension(2), fitGaussToCore(false)
+      histogramDimension(2), dataContainsMC(false), fitGaussToCore(false)
     {
       data->SetLineWidth(1);
       data->SetLineColor(kBlack);
@@ -88,7 +88,10 @@ private:
         data->SetMarkerColor(sample->color);
         data->SetTitle(sample->name.c_str());
         std::size_t found = sample->name.find("Data");
-        if (found==std::string::npos)dataContainsMC=true;
+        if (found==std::string::npos){
+        	dataContainsMC=true;
+//        	std::cout << "sample defined as data is assumed to contain MC" << std::endl;
+        }
     }
     void AddSignal(MySample* sample)
     {
@@ -210,6 +213,48 @@ private:
   public:
     MyBRegVarInfo(){
       init();
+      CummulativeVars.push_back("BRegJet_jetPtCorr");
+      CummulativeVars.push_back("BRegJet_jetEta");
+      CummulativeVars.push_back("BRegJet_Rho25");
+      CummulativeVars.push_back("BRegJet_jetArea");
+      CummulativeVars.push_back("BRegJet_EtWeightedSigmaPhi");
+      CummulativeVars.push_back("jet_fChargedHadron");
+      CummulativeVars.push_back("jet_fElectron");
+      CummulativeVars.push_back("jet_fMuon");
+      CummulativeVars.push_back("BRegJet_leadingChargedConstPt");
+      CummulativeVars.push_back("BRegJet_SV3DLength");
+      CummulativeVars.push_back("BRegJet_SV3DLengthError");
+      CummulativeVars.push_back("BRegJet_SVMass");
+      CummulativeVars.push_back("BRegJet_SVPt");
+      CummulativeVars.push_back("jet_bTagCSV");
+      CummulativeVars.push_back("BRegJet_SoftMuonPt");
+      CummulativeVars.push_back("BRegJet_SoftMuonRatioRel");
+      CummulativeVars.push_back("BRegJet_SoftMuonDeltaR");
+      CummulativeVars.push_back("BRegJet_SoftElectronPt");
+      CummulativeVars.push_back("BRegJet_SoftElectronRatioRel");
+      CummulativeVars.push_back("BRegJet_SoftElectronDeltaR");
+      CummulativeVars.push_back("BRegJet_jetPtRaw");
+      CummulativeVars.push_back("BRegJet_jetMt");
+      CummulativeVars.push_back("BRegJet_jesTotUnc");
+      CummulativeVars.push_back("jet_nConstituents");
+      CummulativeVars.push_back("jet_nChargedHadrons");
+      CummulativeVars.push_back("BRegJet_nChargedPFConstituents");
+      CummulativeVars.push_back("BRegJet_RlbReco");
+      CummulativeVars.push_back("BRegJet_QGaxis1");
+      CummulativeVars.push_back("BRegJet_QGaxis2");
+      CummulativeVars.push_back("BRegJet_QGMult");
+      CummulativeVars.push_back("BRegJet_QGPtD");
+      CummulativeVars.push_back("BRegJet_QGMLP");
+      CummulativeVars.push_back("BRegJet_PUIddZ");
+      CummulativeVars.push_back("BRegJet_PUIddRMean");
+      CummulativeVars.push_back("BRegJet_PUIddr2Mean");
+      CummulativeVars.push_back("BRegJet_PUIdfrac01");
+      CummulativeVars.push_back("BRegJet_PUIdfrac02");
+      CummulativeVars.push_back("BRegJet_PUIdfrac03");
+      CummulativeVars.push_back("BRegJet_PUIdfrac04");
+      CummulativeVars.push_back("BRegJet_PUIdfrac05");
+      CummulativeVars.push_back("BRegJet_PUIdbeta");
+
     }
     void addVariable(std::string varName, std::string varForm, float xMin, float xMax){
       varNames.push_back(varName);
@@ -282,12 +327,40 @@ private:
         xMins.clear();
         xMaxs.clear();
         addBasicVariables();
+        //keep this for nice labels
         for(std::string& varForm : varForms){
         	boost::replace_all(varForm,".","_"      );
-        	varForm = "GBRResult"+varForm;
+        	//when using standalone to define plots:  varForm = "GBRResult"+varForm;
         }
         for(float& xMin : xMins)xMin = 0.5;
         for(float& xMax : xMaxs)xMax = 1.5;
+
+        std::vector<std::string> tempVarForms = varForms;
+        varNames.clear();
+        varForms.clear();
+        xMins.clear();
+        xMaxs.clear();
+    	char buffer [200];
+    	char buffer2 [200];
+
+        for(unsigned int j = 0; j < tempVarForms.size(); ++j){
+   	    	sprintf(buffer,"%02d_%s",j,tempVarForms.at(j).c_str());
+        	addVariable(buffer,("GBRResult"+tempVarForms.at(j)).c_str()      ,0.5,1.5);
+   	    	sprintf(buffer,"%02d_WPtEta_%s",j,tempVarForms.at(j).c_str());
+        	addVariable(buffer,("GBRResultWPtEta"+tempVarForms.at(j)).c_str()      ,0.5,1.5);
+//   	    	"%s, #sigma/#mu=%5.3f,#mu=%5.3f,m=%5.3f",sigvar->GetTitle(),width/gauss->GetParameter(1),gauss->GetParameter(1),sigvar->GetMean());
+//   	     TrInfoHelpVec.back().name=  TString::Format("GBRResultCumm%02d_%s",selectInVarIdx,TrInfoHelpVec.back().trainedVarlist->at(selectInVarIdx).c_str());//"GBRResultCumm" + (Long_t) selectI
+//        	addVariable(((Long_t)j + ("_"+ tempVarForms.at(j))).c_str(),("GBRResult"+tempVarForms.at(j)).c_str()      ,0.5,1.5);
+//        	addVariable(((Long_t)j + ("_WPtEta_"+ tempVarForms.at(j))).c_str(),("GBRResultWPtEta"+tempVarForms.at(j)).c_str()      ,0.5,1.5);
+        }
+
+
+        for(unsigned int j = 0; j < CummulativeVars.size(); ++j){
+   	    	sprintf(buffer,"Cumm_%02d_%s",j,CummulativeVars.at(j).c_str());
+   	    	sprintf(buffer2,"GBRResultCumm%02d_%s",j,CummulativeVars.at(j).c_str());
+        	addVariable(buffer,buffer2      ,0.5,1.5);
+        }
+
         addVariable("26","26TrainingUsedForNTupels"                      ,0.5,1.5);
         addVariable("26SemiLept","26SemiLeptTrainingUsedForNTupels"              ,0.5,1.5);
         addVariable("24CleanedVar","26CleanedVarTraining"                          ,0.5,1.5);
@@ -310,13 +383,40 @@ private:
         addVariable("20Sel_200Tr_Min500_MCS3_JERC","20SelVars200TreesMin500EvtsMCS3_JERC"  ,0.5,1.5  );
         addVariable("43Pl_200Tr_Min2k_JERC","43PlVars200TreesMin2000EvtsMCS3_JERC"         ,0.5,1.5  );
 
+        addVariable("20Sel_TMVA_JERC","TMVAtest20SelVars"         ,0.5,1.5  );
+        addVariable("24Pl_TMVA_small","TMVAtest24CleanedVarSmallTr"         ,0.5,1.5  );
+
+        addVariable("43Pl_1000Tr_Min2k_MCS3_JERC","43PlVars1000TreesMin2000EvtsMCS3_JERC"         ,0.5,1.5  );
+
+        addVariable("26Pl_1000Tr_Min2k_MCS8_JERC_NoFlat","26PlVars1000TreesMin2000EvtsMCS8_NoFlat_JERC"         ,0.5,1.5  );
+        addVariable("24Pl_1000Tr_Min2k_MCS8_JERC_NoFlat","24PlVars1000TreesMin2000EvtsMCS8_NoFlat_JERC"         ,0.5,1.5  );
+        addVariable("43Pl_1000Tr_Min2k_MCS3_JERC_NoFlat","43PlVars1000TreesMin2000EvtsMCS3_NoFlat_JERC"         ,0.5,1.5  );
+        addVariable("43Pl_1000Tr_Min2k_MCS5_JERC_NoFlat","43PlVars1000TreesMin2000EvtsMCS5_NoFlat_JERC"         ,0.5,1.5  );
+
+        addVariable("10Sel1KTMin2KMCS8TQ07_NoFlat_JERC", "10Sel1KTMin2KMCS8TQ07_NoFlat_JERC",0.5,1.5);
+        addVariable("10Sel1KTMin2KMCS8TQ05_NoFlat_JERC", "10Sel1KTMin2KMCS8TQ05_NoFlat_JERC",0.5,1.5);
+        addVariable("10Sel1KTMin2KMCS8TQ09_NoFlat_JERC", "10Sel1KTMin2KMCS8TQ09_NoFlat_JERC",0.5,1.5);
+        addVariable("20Sel1KTMin2KMCS8TQ09_NoFlat_JERC", "20Sel1KTMin2KMCS8TQ09_NoFlat_JERC",0.5,1.5);
+        addVariable("20Sel1KTMin2KMCS8TQ07_NoFlat_JERC", "20Sel1KTMin2KMCS8TQ07_NoFlat_JERC",0.5,1.5);
+        addVariable("24Pl_1000Tr_Min2k_MCS8","24PlVars1000TreesMin2000EvtsMCS8"         ,0.5,1.5  );
+        addVariable("24Pl_1000Tr_Min2k_MCS5","24PlVars1000TreesMin2000EvtsMCS5"         ,0.5,1.5  );
+        addVariable("24Pl_1000Tr_Min2k_MCS3","24PlVars1000TreesMin2000EvtsMCS3"         ,0.5,1.5  );
+        addVariable("24Pl_1000Tr_Min2k_MCS8TQ09","24PlVars1000TreesMin2000EvtsMCS8TQ09"         ,0.5,1.5  );
+        addVariable("24Pl_1000Tr_Min2k_MCS8TQ07","24PlVars1000TreesMin2000EvtsMCS8TQ07"         ,0.5,1.5  );
+        addVariable("24Pl_1000Tr_Min2k_MCS8TQ05","24PlVars1000TreesMin2000EvtsMCS8TQ05"         ,0.5,1.5  );
+
 
     }
     
+
     std::vector<std::string> varNames;
     std::vector<std::string> varForms;
     std::vector<float> xMins;
     std::vector<float> xMaxs;
+    std::vector<std::string> CummulativeVars;
+
+
+
   };
 
 
