@@ -400,6 +400,10 @@ private:
         addVariable("20Sel1KTMin2KMCS8TQ07_NoFlat_JERC", "20Sel1KTMin2KMCS8TQ07_NoFlat_JERC",0.5,1.5);
         addVariable("24Pl_1000Tr_Min2k_MCS8","24PlVars1000TreesMin2000EvtsMCS8"         ,0.5,1.5  );
         addVariable("24Pl_1000Tr_Min2k_MCS5","24PlVars1000TreesMin2000EvtsMCS5"         ,0.5,1.5  );
+        addVariable("24Pl_1000Tr_Min1k_MCS5TQ07","24PlVars1000TreesMin1000EvtsMCS5TQ07"         ,0.5,1.5  );
+        addVariable("24Pl_1000Tr_Min500_MCS5TQ07","24PlVars1000TreesMin500EvtsMCS5TQ07"         ,0.5,1.5  );
+        addVariable("24Pl_1000Tr_Min250_MCS5TQ07","24PlVars1000TreesMin250EvtsMCS5TQ07"         ,0.5,1.5  );
+
         addVariable("24Pl_1000Tr_Min2k_MCS3","24PlVars1000TreesMin2000EvtsMCS3"         ,0.5,1.5  );
         addVariable("24Pl_1000Tr_Min2k_MCS8TQ09","24PlVars1000TreesMin2000EvtsMCS8TQ09"         ,0.5,1.5  );
         addVariable("24Pl_1000Tr_Min2k_MCS8TQ07","24PlVars1000TreesMin2000EvtsMCS8TQ07"         ,0.5,1.5  );
