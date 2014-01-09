@@ -211,7 +211,7 @@ WeightEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
   if(bWeight_misTagSFDown_h.isValid())   weight->bTagWeight_misTagSFDown = *bWeight_misTagSFDown_h;
 
   //////////////////////////////////////////////////////////////////////////
-  // bJES weights
+  // bJES weights (not multiplied into combinedWeight)
   ////////////////////////////////////////////////////////////////////////
   
   edm::Handle<double> bJESWeight_fNuUp_h; evt.getByLabel(bJESSrc_fNuUp_, bJESWeight_fNuUp_h);

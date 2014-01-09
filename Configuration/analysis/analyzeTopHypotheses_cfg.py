@@ -339,6 +339,28 @@ if not data:
 
 
     ## ---
+    ##    MC B-JES reweighting
+    ## ---
+    process.load("TopAnalysis.TopUtils.EventWeightBJES_cfi")
+
+    process.bJESEventWeightFNuUp    = process.EventWeightBJES.clone(
+        nuDecayFractionTarget = 0.262
+    )
+    process.bJESEventWeightFNuDown  = process.EventWeightBJES.clone(
+        nuDecayFractionTarget = 0.238
+    )
+    process.bJESEventWeightFrag     = process.EventWeightBJES.clone(
+        fragTargetFile = "TopAnalysis/TopUtils/data/MC_BJES_TuneZ2star_rbLEP.root"
+    )
+    process.bJESEventWeightFragHard = process.EventWeightBJES.clone(
+        fragTargetFile = "TopAnalysis/TopUtils/data/MC_BJES_TuneZ2star_rbLEPhard.root"
+    )
+    process.bJESEventWeightFragSoft = process.EventWeightBJES.clone(
+        fragTargetFile = "TopAnalysis/TopUtils/data/MC_BJES_TuneZ2star_rbLEPsoft.root"
+    )
+    
+    
+    ## ---
     ##    MC eff SF reweighting
     ## ---
     ## scale factor for trigger and lepton selection efficiency
@@ -407,6 +429,11 @@ else:
                             process.bTagSFEventWeightBTagSFDown *
                             process.bTagSFEventWeightMisTagSFUp *
                             process.bTagSFEventWeightMisTagSFDown *
+                            process.bJESEventWeightFNuUp *
+                            process.bJESEventWeightFNuDown *
+                            process.bJESEventWeightFrag *
+                            process.bJESEventWeightFragHard *
+                            process.bJESEventWeightFragSoft *
                             process.effSFMuonEventWeight *
                             process.makeGenEvt *
                             process.makeTtSemiLepEvent *
