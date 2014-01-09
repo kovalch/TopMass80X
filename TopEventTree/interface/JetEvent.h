@@ -20,7 +20,7 @@ public:
 
   unsigned int nJet() const { return jet.size(); }
 
-  ClassDef(JetEvent,1);
+  ClassDef(JetEvent,2);
 
   // JetEvent data
 
