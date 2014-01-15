@@ -1,21 +1,14 @@
-#ifndef ROOT_TREE_VECTOR_LINKDEF_H 
-#define ROOT_TREE_VECTOR_LINKDEF_H 1
+#ifndef dileptonic_ROOT_TREE_VECTOR_LINKDEF_H 
+#define dileptonic_ROOT_TREE_VECTOR_LINKDEF_H 1
+
+#include "../../common/include/LinkDef.h"
 
 #ifdef __CINT__
 
-#pragma link off all classes;
-
-#pragma link C++ class std::vector<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > >+;
-#pragma link C++ class std::map<std::string, std::vector<TH1*> >+;
-#pragma link C++ class std::map<std::string, std::pair<TH1*, std::vector<std::map<std::string, TH1*> > > >+;
-#pragma link C++ class AnalysisBase+;
 #pragma link C++ class TopAnalysis+;
-#pragma link C++ class PlotProperties+;
-#pragma link C++ class HistoListReader+;
-#pragma link C++ class std::map<std::string, PlotProperties>+;
-#pragma link C++ class std::vector<std::vector<int> >+;
 
 #endif
 
-#endif // ROOT_TREE_VECTOR_LINKDEF_H
+#endif
+
 
