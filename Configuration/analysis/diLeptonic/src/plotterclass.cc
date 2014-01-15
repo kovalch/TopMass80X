@@ -3963,7 +3963,7 @@ TLegend* Plotter::getNewLegend() {
   leg->SetX2NDC(1.0-gStyle->GetPadRightMargin()-gStyle->GetTickLength()-0.1);
   leg->SetY2NDC(1.0-gStyle->GetPadTopMargin()-gStyle->GetTickLength());
   leg->SetTextFont(42);
-  leg->SetTextSize(0.001);
+  leg->SetTextSize(0.03);
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);
   leg->SetTextAlign(12);
