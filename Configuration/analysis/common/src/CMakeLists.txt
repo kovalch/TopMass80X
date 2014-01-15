@@ -41,12 +41,10 @@ INCLUDE_DIRECTORIES( BEFORE "${${PROJECT_NAME}_SOURCE_DIR}/include" ${${PROJECT_
 # targets
 ####################
 
-SET(FILE_SEARCH_PATHS "${${PROJECT_NAME}_SOURCE_DIR}/src" "${${PROJECT_NAME}_SOURCE_DIR}/include")
-
 MESSAGE (STATUS "starting ROOT dict header search:")
 FOREACH( filename ${${PROJECT_NAME}_HEADERS_THAT_NEED_ROOTDICT} )
   FIND_FILE( ${filename}_fullPath "${filename}.h"
-    PATHS  ${FILE_SEARCH_PATHS}  NO_DEFAULT_PATH )
+    PATHS  "${${PROJECT_NAME}_SOURCE_DIR}/include"  NO_DEFAULT_PATH )
   MESSAGE (STATUS "  ${filename} --> ${${filename}_fullPath}")
   SET(ROOT_DICT_HEADERS ${ROOT_DICT_HEADERS} ${${filename}_fullPath} )
   UNSET(${filename}_fullPath CACHE)
@@ -62,17 +60,7 @@ ADD_CUSTOM_COMMAND( OUTPUT ${DICT_NAME}
                     COMMENT "generating dictionary ${DICT_NAME} from" ${ROOT_DICT_HEADERS})
 
 
-MESSAGE (STATUS "starting search for source files")
-FOREACH( filename ${${PROJECT_NAME}_LIBSOURCES} )
-  FIND_FILE( ${filename}_cfilePath NAMES "${filename}.cc"
-    PATHS  ${FILE_SEARCH_PATHS}  NO_DEFAULT_PATH )
-  MESSAGE (STATUS "  ${filename} --> ${${filename}_cfilePath}")
-  SET(${PROJECT_NAME}_LIBSOURCES_full ${${PROJECT_NAME}_LIBSOURCES_full} ${${filename}_cfilePath} )
-  UNSET(${filename}_cfilePath CACHE)
-ENDFOREACH( filename ${${PROJECT_NAME}_LIBSOURCES} )
-
-
-ADD_LIBRARY( ${PROJECT_NAME} SHARED ${${PROJECT_NAME}_LIBSOURCES_full} ${DICT_NAME} )
+ADD_LIBRARY( ${PROJECT_NAME} SHARED ${${PROJECT_NAME}_LIBSOURCES} ${DICT_NAME} )
 TARGET_LINK_LIBRARIES( ${PROJECT_NAME} ${ROOT_LIBRARIES} ${ZTopUtils_LIBRARIES} )
 
 

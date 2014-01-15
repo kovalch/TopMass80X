@@ -54,6 +54,10 @@ SET( ROOT_LIBRARIES ${ROOT_LIBRARIES} -lGenVector -lHistPainter -lTMVA )
 FIND_PACKAGE( ZTopUtils REQUIRED )
 # now you can use ${ZTopUtils_INCLUDE_DIRS} and ${ZTopUtils_LIBRARIES}
 
+FIND_PACKAGE( common REQUIRED )
+MESSAGE( STATUS "common_INCLUDE_DIRS = ${common_INCLUDE_DIRS}")
+MESSAGE( STATUS "common_LIBRARIES    = ${common_LIBRARIES}")
+
 #######################
 # installation options
 #######################

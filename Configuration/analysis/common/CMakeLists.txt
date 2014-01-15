@@ -112,18 +112,19 @@ ADD_SUBDIRECTORY( src )
 INCLUDE (DOCUMENTATION)
 
 
-##########
-# install the scripts into the bin directory
-##########
-#FILE(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/scripts)
-#FILE(GLOB scripts RELATIVE  ${PROJECT_SOURCE_DIR}/scripts scripts/*)
-#MESSAGE(STATUS "scripts found: ${scripts}")
-#FOREACH( script ${scripts})
-#  MESSAGE(STATUS "configuring ${script} to  ${CMAKE_BINARY_DIR}/scripts")
-#  CONFIGURE_FILE( ${PROJECT_SOURCE_DIR}/scripts/${script} ${CMAKE_BINARY_DIR}/scripts/${script} @ONLY )
-#  INSTALL(PROGRAMS  ${CMAKE_BINARY_DIR}/scripts/${script}
-#    DESTINATION bin )
-#ENDFOREACH( script ${scripts} )
+########################
+# generate configuration cmake file for other projects
+########################
+
+FIND_PATH(pathToConfigTemplate genericConfig.cmake.in PATHS ${CMAKE_MODULE_PATH})
+GET_PROPERTY(LIB_BUILD_NAME TARGET ${PROJECT_NAME} PROPERTY LOCATION)
+GET_FILENAME_COMPONENT(FULL_LIB_NAME ${LIB_BUILD_NAME} NAME)
+
+CONFIGURE_FILE( ${pathToConfigTemplate}/genericConfig.cmake.in
+  ${${PROJECT_NAME}_BINARY_DIR}/${PROJECT_NAME}Config.cmake)
+INSTALL( FILES ${${PROJECT_NAME}_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+  DESTINATION ${CONFIG_INSTALL_DIR}                               )
+
 
 
 ########################
