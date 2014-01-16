@@ -27,6 +27,7 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
     boost::program_options::options_description desc("Allowed options", 150);
     desc.add_options()
         ("help,h", "produce help message")
+        ("outPath,o", boost::program_options::value<std::string>()->default_value(""))
         ("method,m", boost::program_options::value<std::string>()->default_value("Ideogram"),
             "Top mass measurement method\n"
             "  GenMatch: \tGaussian fit of correct permutations (MC only)\n"

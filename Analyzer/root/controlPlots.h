@@ -435,6 +435,7 @@ private:
   std::string selectionUN_ ;
 
   std::string path_;
+  std::string outPath_;
   std::string channel_;
   std::string topBranchName_;
   double lumi_;
