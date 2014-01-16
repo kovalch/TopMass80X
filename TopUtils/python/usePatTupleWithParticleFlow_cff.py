@@ -709,6 +709,34 @@ def prependPF2PATSequence(process, pathnames = [''], options = dict()):
     # hpsPFTauDiscriminationByMediumMuonRejection
     # hpsPFTauDiscriminationByTightMuonRejection
 
+    # hpsPFTauDiscriminationByIsolationMVAraw
+    # hpsPFTauDiscriminationByLooseIsolationMVA
+    # hpsPFTauDiscriminationByMediumIsolationMVA
+    # hpsPFTauDiscriminationByTightIsolationMVA
+    # hpsPFTauDiscriminationByIsolationMVA2raw
+    # hpsPFTauDiscriminationByLooseIsolationMVA2
+    # hpsPFTauDiscriminationByMediumIsolationMVA2
+    # hpsPFTauDiscriminationByTightIsolationMVA2
+    # hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits
+    # hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits
+    # hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr3Hits
+    # hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr3Hits
+    # hpsPFTauDiscriminationByMVA2rawElectronRejection
+    # hpsPFTauDiscriminationByMVA2LooseElectronRejection
+    # hpsPFTauDiscriminationByMVA2VLooseElectronRejection
+    # hpsPFTauDiscriminationByMVA2MediumElectronRejection
+    # hpsPFTauDiscriminationByMVA2TightElectronRejection
+    # hpsPFTauDiscriminationByLooseMuonRejection2
+    # hpsPFTauDiscriminationByMediumMuonRejection2
+    # hpsPFTauDiscriminationByTightMuonRejection2
+    # hpsPFTauDiscriminationByLooseMuonRejection3
+    # hpsPFTauDiscriminationByTightMuonRejection3
+    # hpsPFTauDiscriminationByMVA3rawElectronRejection
+    # hpsPFTauDiscriminationByMVA3LooseElectronRejection
+    # hpsPFTauDiscriminationByMVA3VTightElectronRejection
+    # hpsPFTauDiscriminationByMVA3MediumElectronRejection
+    # hpsPFTauDiscriminationByMVA3TightElectronRejection
+    # hpsPFTauDiscriminationByDeadECALElectronRejection
 
     ## remove the full pftau sequence as it is not needed for us
     getattr(process,'patPF2PATSequence'+postfix).remove(getattr(process,'pfTauPFJets08Region'+postfix))
@@ -752,6 +780,63 @@ def prependPF2PATSequence(process, pathnames = [''], options = dict()):
     getattr(process,'patPF2PATSequence'+postfix).remove(getattr(process,'hpsPFTauDiscriminationByLooseMuonRejection'+postfix))
     getattr(process,'patPF2PATSequence'+postfix).remove(getattr(process,'hpsPFTauDiscriminationByMediumMuonRejection'+postfix))
     getattr(process,'patPF2PATSequence'+postfix).remove(getattr(process,'hpsPFTauDiscriminationByTightMuonRejection'+postfix))
+
+    if hasattr(process,'hpsPFTauDiscriminationByIsolationMVAraw'+postfix)                         :
+        getattr(process,'patPF2PATSequence'+postfix).remove(getattr(process,'hpsPFTauDiscriminationByIsolationMVAraw'+postfix))
+    if hasattr(process,'hpsPFTauDiscriminationByLooseIsolationMVA'+postfix)                       :
+        getattr(process,'patPF2PATSequence'+postfix).remove(getattr(process,'hpsPFTauDiscriminationByLooseIsolationMVA'+postfix))
+    if hasattr(process,'hpsPFTauDiscriminationByMediumIsolationMVA'+postfix)                      :
+        getattr(process,'patPF2PATSequence'+postfix).remove(getattr(process,'hpsPFTauDiscriminationByMediumIsolationMVA'+postfix))
+    if hasattr(process,'hpsPFTauDiscriminationByTightIsolationMVA'+postfix)                       :
+        getattr(process,'patPF2PATSequence'+postfix).remove(getattr(process,'hpsPFTauDiscriminationByTightIsolationMVA'+postfix))
+    if hasattr(process,'hpsPFTauDiscriminationByIsolationMVA2raw'+postfix)                        :
+        getattr(process,'patPF2PATSequence'+postfix).remove(getattr(process,'hpsPFTauDiscriminationByIsolationMVA2raw'+postfix))
+    if hasattr(process,'hpsPFTauDiscriminationByLooseIsolationMVA2'+postfix)                      :
+        getattr(process,'patPF2PATSequence'+postfix).remove(getattr(process,'hpsPFTauDiscriminationByLooseIsolationMVA2'+postfix))
+    if hasattr(process,'hpsPFTauDiscriminationByMediumIsolationMVA2'+postfix)                     :
+        getattr(process,'patPF2PATSequence'+postfix).remove(getattr(process,'hpsPFTauDiscriminationByMediumIsolationMVA2'+postfix))
+    if hasattr(process,'hpsPFTauDiscriminationByTightIsolationMVA2'+postfix)                      :
+        getattr(process,'patPF2PATSequence'+postfix).remove(getattr(process,'hpsPFTauDiscriminationByTightIsolationMVA2'+postfix))
+    if hasattr(process,'hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits'+postfix)  :
+        getattr(process,'patPF2PATSequence'+postfix).remove(getattr(process,'hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits'+postfix))
+    if hasattr(process,'hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits'+postfix) :
+        getattr(process,'patPF2PATSequence'+postfix).remove(getattr(process,'hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits'+postfix))
+    if hasattr(process,'hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr3Hits'+postfix)  :
+        getattr(process,'patPF2PATSequence'+postfix).remove(getattr(process,'hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr3Hits'+postfix))
+    if hasattr(process,'hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr3Hits'+postfix)    :
+        getattr(process,'patPF2PATSequence'+postfix).remove(getattr(process,'hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr3Hits'+postfix))
+    if hasattr(process,'hpsPFTauDiscriminationByMVA2rawElectronRejection'+postfix)                :
+        getattr(process,'patPF2PATSequence'+postfix).remove(getattr(process,'hpsPFTauDiscriminationByMVA2rawElectronRejection'+postfix))
+    if hasattr(process,'hpsPFTauDiscriminationByMVA2LooseElectronRejection'+postfix)              :
+        getattr(process,'patPF2PATSequence'+postfix).remove(getattr(process,'hpsPFTauDiscriminationByMVA2LooseElectronRejection'+postfix))
+    if hasattr(process,'hpsPFTauDiscriminationByMVA2VLooseElectronRejection'+postfix)             :
+        getattr(process,'patPF2PATSequence'+postfix).remove(getattr(process,'hpsPFTauDiscriminationByMVA2VLooseElectronRejection'+postfix))
+    if hasattr(process,'hpsPFTauDiscriminationByMVA2MediumElectronRejection'+postfix)             :
+        getattr(process,'patPF2PATSequence'+postfix).remove(getattr(process,'hpsPFTauDiscriminationByMVA2MediumElectronRejection'+postfix))
+    if hasattr(process,'hpsPFTauDiscriminationByMVA2TightElectronRejection'+postfix)              :
+        getattr(process,'patPF2PATSequence'+postfix).remove(getattr(process,'hpsPFTauDiscriminationByMVA2TightElectronRejection'+postfix))
+    if hasattr(process,'hpsPFTauDiscriminationByLooseMuonRejection2'+postfix)                     :
+        getattr(process,'patPF2PATSequence'+postfix).remove(getattr(process,'hpsPFTauDiscriminationByLooseMuonRejection2'+postfix))
+    if hasattr(process,'hpsPFTauDiscriminationByMediumMuonRejection2'+postfix)                    :
+        getattr(process,'patPF2PATSequence'+postfix).remove(getattr(process,'hpsPFTauDiscriminationByMediumMuonRejection2'+postfix))
+    if hasattr(process,'hpsPFTauDiscriminationByTightMuonRejection2'+postfix)                     :
+        getattr(process,'patPF2PATSequence'+postfix).remove(getattr(process,'hpsPFTauDiscriminationByTightMuonRejection2'+postfix))
+    if hasattr(process,'hpsPFTauDiscriminationByLooseMuonRejection3'+postfix)                     :
+        getattr(process,'patPF2PATSequence'+postfix).remove(getattr(process,'hpsPFTauDiscriminationByLooseMuonRejection3'+postfix))
+    if hasattr(process,'hpsPFTauDiscriminationByTightMuonRejection3'+postfix)                     :
+        getattr(process,'patPF2PATSequence'+postfix).remove(getattr(process,'hpsPFTauDiscriminationByTightMuonRejection3'+postfix))
+    if hasattr(process,'hpsPFTauDiscriminationByMVA3rawElectronRejection'+postfix)                :
+        getattr(process,'patPF2PATSequence'+postfix).remove(getattr(process,'hpsPFTauDiscriminationByMVA3rawElectronRejection'+postfix))
+    if hasattr(process,'hpsPFTauDiscriminationByMVA3LooseElectronRejection'+postfix)              :
+        getattr(process,'patPF2PATSequence'+postfix).remove(getattr(process,'hpsPFTauDiscriminationByMVA3LooseElectronRejection'+postfix))
+    if hasattr(process,'hpsPFTauDiscriminationByMVA3VTightElectronRejection'+postfix)             :
+        getattr(process,'patPF2PATSequence'+postfix).remove(getattr(process,'hpsPFTauDiscriminationByMVA3VTightElectronRejection'+postfix))
+    if hasattr(process,'hpsPFTauDiscriminationByMVA3MediumElectronRejection'+postfix)             :
+        getattr(process,'patPF2PATSequence'+postfix).remove(getattr(process,'hpsPFTauDiscriminationByMVA3MediumElectronRejection'+postfix))
+    if hasattr(process,'hpsPFTauDiscriminationByMVA3TightElectronRejection'+postfix)              :
+        getattr(process,'patPF2PATSequence'+postfix).remove(getattr(process,'hpsPFTauDiscriminationByMVA3TightElectronRejection'+postfix))
+    if hasattr(process,'hpsPFTauDiscriminationByDeadECALElectronRejection'+postfix)               :
+        getattr(process,'patPF2PATSequence'+postfix).remove(getattr(process,'hpsPFTauDiscriminationByDeadECALElectronRejection'+postfix))
 
     ##
     ## customize photons
