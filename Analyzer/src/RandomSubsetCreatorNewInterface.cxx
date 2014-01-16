@@ -57,14 +57,14 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface(const std::vect
   }
   if (channelID_ == Helper::kMuonJets || channelID_ == Helper::kLeptonJets) {
     PrepareEvents(samplePath_+fIdentifier_+std::string("_muon/job_*.root"));
-    if(fLumi_>0) {
+    if(fLumi_>0 && fSig_<1.) {
       PrepareEvents(""+samplePath_+"Summer12_WJets_muon/job_*.root");
       PrepareEvents(""+samplePath_+"Summer12_singleTop_muon/job_*.root");
     }
   }
   if (channelID_ == Helper::kElectronJets || channelID_ == Helper::kLeptonJets) {
     PrepareEvents(samplePath_+fIdentifier_+std::string("_electron/job_*.root"));
-    if(fLumi_>0) {
+    if(fLumi_>0 && fSig_<1.) {
       PrepareEvents(""+samplePath_+"Summer12_WJets_electron/job_*.root");
       PrepareEvents(""+samplePath_+"Summer12_singleTop_electron/job_*.root");
     }
@@ -105,15 +105,22 @@ TTree* RandomSubsetCreatorNewInterface::CreateRandomSubset() {
     }
     if (channelID_ == Helper::kMuonJets || channelID_ == Helper::kLeptonJets) {
       DrawEvents(events_.at(0), eventsPEMuon*    fSig_       );
-      DrawEvents(events_.at(1), eventsPEMuon*(1.-fSig_)*2./5.);
-      DrawEvents(events_.at(2), eventsPEMuon*(1.-fSig_)*3./5.);
+      if (fSig_<1.) {
+        DrawEvents(events_.at(1), eventsPEMuon*(1.-fSig_)*2./5.);
+        DrawEvents(events_.at(2), eventsPEMuon*(1.-fSig_)*3./5.);
+      }
     }
     if (channelID_ == Helper::kElectronJets || channelID_ == Helper::kLeptonJets) {
       short offset = 0;
       if(channelID_ == Helper::kLeptonJets) offset = 1;
-      DrawEvents(events_.at(3*offset+0), eventsPEElectron*    fSig_       );
-      DrawEvents(events_.at(3*offset+1), eventsPEElectron*(1.-fSig_)*1./3.);
-      DrawEvents(events_.at(3*offset+2), eventsPEElectron*(1.-fSig_)*2./3.);
+      if (fSig_<1.) {
+        DrawEvents(events_.at(3*offset+0), eventsPEElectron*    fSig_       );
+        DrawEvents(events_.at(3*offset+1), eventsPEElectron*(1.-fSig_)*1./3.);
+        DrawEvents(events_.at(3*offset+2), eventsPEElectron*(1.-fSig_)*2./3.);
+      }
+      else {
+        DrawEvents(events_.at(1), eventsPEElectron);
+      }
     }
 
     time(&end);
