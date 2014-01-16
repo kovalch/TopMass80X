@@ -242,7 +242,7 @@ if data: removeTtSemiLepHypGenMatch(process)
 from TopMass.TopEventTree.EventHypothesisAnalyzer_cfi import analyzeHypothesis
 process.analyzeHitFit = analyzeHypothesis.clone(hypoClassKey = "ttSemiLepHypHitFit:Key")
 from TopMass.TopEventTree.JetEventAnalyzer_cfi import analyzeJets
-process.analyzeJets = analyzeJets.clone(jets = "selectedPatJets", maxNJets = 10)
+process.analyzeJets = analyzeJets.clone()
 from TopMass.TopEventTree.WeightEventAnalyzer_cfi import analyzeWeights
 process.analyzeWeights = analyzeWeights.clone(
                                               mcWeight        = options.mcWeight,
@@ -344,10 +344,10 @@ if not data:
     process.load("TopAnalysis.TopUtils.EventWeightBJES_cfi")
 
     process.bJESEventWeightFNuUp    = process.EventWeightBJES.clone(
-        nuDecayFractionTarget = 0.262
+        nuDecayFractionTarget = 0.268
     )
     process.bJESEventWeightFNuDown  = process.EventWeightBJES.clone(
-        nuDecayFractionTarget = 0.238
+        nuDecayFractionTarget = 0.239
     )
     process.bJESEventWeightFrag     = process.EventWeightBJES.clone(
         fragTargetFile = "TopAnalysis/TopUtils/data/MC_BJES_TuneZ2star_rbLEP.root"
