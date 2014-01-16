@@ -849,9 +849,12 @@ def prependPF2PATSequence(process, pathnames = [''], options = dict()):
 #    getattr(process,'patJets'+postfix).tagInfoSources = []
     getattr(process,'patJets'+postfix).addTagInfos = True
     getattr(process,'combinedSecondaryVertexBJetTagsAOD'+postfix).jetTagComputer = cms.string('combinedSecondaryVertex')
-    getattr(process,'patJets'+postfix).discriminatorSources.remove(cms.InputTag("softMuonBJetTagsAOD"+postfix))
-    getattr(process,'patJets'+postfix).discriminatorSources.remove(cms.InputTag("softMuonByPtBJetTagsAOD"+postfix))
-    getattr(process,'patJets'+postfix).discriminatorSources.remove(cms.InputTag("softMuonByIP3dBJetTagsAOD"+postfix))
+    if hasattr(getattr(process,'patJets'+postfix).discriminatorSources, "softMuonBJetTagsAOD"+postfix):
+        getattr(process,'patJets'+postfix).discriminatorSources.remove(cms.InputTag("softMuonBJetTagsAOD"+postfix))
+    if hasattr(getattr(process,'patJets'+postfix).discriminatorSources, "softMuonByPtBJetTagsAOD"+postfix):
+        getattr(process,'patJets'+postfix).discriminatorSources.remove(cms.InputTag("softMuonByPtBJetTagsAOD"+postfix))
+    if hasattr(getattr(process,'patJets'+postfix).discriminatorSources, "softMuonByIP3dBJetTagsAOD"+postfix):
+        getattr(process,'patJets'+postfix).discriminatorSources.remove(cms.InputTag("softMuonByIP3dBJetTagsAOD"+postfix))
 
     ## embedding of resolutions into the patObjects
     if options['addResolutions']:
