@@ -28,7 +28,7 @@ QCDBkgEstimateSelector::QCDBkgEstimateSelector(TopJetCollection jets, const pat:
 		TopJetCollection::const_iterator jet = jets.begin();
 
 		double jet1Phi, jet2Phi, jet3Phi, jet4Phi;
-		double jet1Eta, jet2Eta, jet3Eta, jet4Eta;
+		double jet1Eta;//, jet2Eta, jet3Eta, jet4Eta;
 		double jet1pt, jet2pt, jet3pt, jet4pt;
 		double jet1Et, jet2Et, jet3Et, jet4Et;
 		reco::Particle::LorentzVector vec;
@@ -43,7 +43,7 @@ QCDBkgEstimateSelector::QCDBkgEstimateSelector(TopJetCollection jets, const pat:
 		++jet;
 		jet2pt = jet->pt();
 		jet2Et = jet->et();
-		jet2Eta = jet->eta();
+		//jet2Eta = jet->eta();
 		jet2Phi = jet->phi();
 
 		vec += jet->p4();
@@ -51,7 +51,7 @@ QCDBkgEstimateSelector::QCDBkgEstimateSelector(TopJetCollection jets, const pat:
 		++jet;
 		jet3pt = jet->pt();
 		jet3Et = jet->et();
-		jet3Eta = jet->eta();
+		//jet3Eta = jet->eta();
 		jet3Phi = jet->phi();
 
 		vec += jet->p4();
@@ -59,7 +59,7 @@ QCDBkgEstimateSelector::QCDBkgEstimateSelector(TopJetCollection jets, const pat:
 		++jet;
 		jet4pt = jet->pt();
 		jet4Et = jet->et();
-		jet4Eta = jet->eta();
+		//jet4Eta = jet->eta();
 		jet4Phi = jet->phi();
 
 		vec += jet->p4();
@@ -94,20 +94,20 @@ QCDBkgEstimateSelector::QCDBkgEstimateSelector(TopJetCollection jets, const pat:
 		DeltaPhiMuonJet4_ = deltaPhi(lepton->phi(), jet4Phi);
 
 		//trying to reconstruct the deltaPhi between the two top quarks
-		double phi1, phi2, phi3, phi4, phi5, phi6, phi7, phi8;
+		double phi1, /*phi2, phi3,*/ phi4, phi5, /*phi6, phi7,*/ phi8;
 		//get closest jet to mu (should be bjet from semileptonic t-decay)
 		pat::Jet closestMuJet = getClosestJetInDeltaPhi(jets, lepton->phi());
 		//get 4th jet + closest (hadronic W)
 		phi1 = jet3Phi + (0.5 * deltaPhi(jet4Phi, jet3Phi));
-		phi2 = jet4Phi + (0.5 * deltaPhi(jet3Phi, jet4Phi));
+		//phi2 = jet4Phi + (0.5 * deltaPhi(jet3Phi, jet4Phi));
 		pat::Jet closest34Jet = getClosestJetInDeltaPhi(jets, phi1);
-		phi3 = phi1 + 0.5 * deltaPhi(closest34Jet.phi(), phi1);
+		//phi3 = phi1 + 0.5 * deltaPhi(closest34Jet.phi(), phi1);
 		// phi of hadronic top
 		phi4 = closest34Jet.phi() + 0.5 * deltaPhi(phi1, closest34Jet.phi());
 		// get neutrino and leptonon
 		phi5 = lepton->phi() + 0.5 * deltaPhi(met->phi(), lepton->phi());
-		phi6 = met->phi() + 0.5 * deltaPhi(lepton->phi(), met->phi());
-		phi7 = phi5 + 0.5 * deltaPhi(closestMuJet.phi(), phi5);
+		//phi6 = met->phi() + 0.5 * deltaPhi(lepton->phi(), met->phi());
+		//phi7 = phi5 + 0.5 * deltaPhi(closestMuJet.phi(), phi5);
 		// phi of leptonic top
 		phi8 = closestMuJet.phi() + 0.5 * deltaPhi(phi5, closestMuJet.phi());
 		DeltaPhiTtbar_ = deltaPhi(phi8, phi4);

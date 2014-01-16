@@ -89,7 +89,7 @@ EffSFElectronEventWeight::produce(edm::Event& evt, const edm::EventSetup& setup)
   edm::Handle<std::vector<pat::Jet> > jets;
   evt.getByLabel(jets_, jets);
 
-  double ptEle, etaEle, relIsoEle;
+  double ptEle, etaEle; //, relIsoEle;
   double SFele       =  0.97562;
   double errorSFele  =  0.001;
   int numPart        =  0;
@@ -106,7 +106,7 @@ EffSFElectronEventWeight::produce(edm::Event& evt, const edm::EventSetup& setup)
 
     ptEle  = part->pt();
     etaEle = part->eta();
-    relIsoEle = (part->chargedHadronIso() + part->neutralHadronIso() + part->photonIso()) / part->et();
+    //relIsoEle = (part->chargedHadronIso() + part->neutralHadronIso() + part->photonIso()) / part->et();
     numPart++;
     
     /// scale trigger efficiency to take difference between non-isolated for early run ranges and
