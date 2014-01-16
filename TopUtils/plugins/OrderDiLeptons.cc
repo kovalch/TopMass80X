@@ -138,7 +138,7 @@ OrderDiLeptons::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 
-  bool higherpt;
+  bool higherpt=true;
   unsigned int size = inDiLeptons->size();
   int i;
 

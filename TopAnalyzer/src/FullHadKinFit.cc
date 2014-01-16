@@ -161,7 +161,7 @@ FullHadKinFit::foundRadiation(const edm::View<reco::LeafCandidate>& src, std::ve
 /// smear input vectors for kinematic fit
 void
 FullHadKinFit::smear(std::vector< TLorentzVector >& vecs){
-  Double_t phi, pt, eta, e;
+  Double_t phi, pt, eta;//, e;
   for(std::vector< TLorentzVector >::iterator vec = vecs.begin(); vec != vecs.end(); ++vec){
     if( smearOnly_ == -1 || smearOnly_ == vec - vecs.begin() ){
       double pt_  = vec->Pt();
@@ -212,7 +212,7 @@ FullHadKinFit::smear(std::vector< TLorentzVector >& vecs){
       }
       if( phi >= TMath::Pi() ) phi -= 2* TMath::Pi();
       if( phi < -TMath::Pi() ) phi += 2* TMath::Pi();
-      e = vec->E() * ( pt / pt_ );
+      //e = vec->E() * ( pt / pt_ );
       //std::cout << "-------------------" << std::endl;
       //std::cout << "pt:  " << vec->Pt()  << " +- " << 0.5 * sqrt( vec->Pt() )                          << " -> " << pt  << std::endl;
       //std::cout << "eta: " << vec->Eta() << " +- " << 0.2 * vec->Eta() * sqrt( vec->Pt() ) / vec->Pt() << " -> " << eta << std::endl;

@@ -407,7 +407,7 @@ void DiLeptonAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& con
 
       // Electron isolation
 
-      reco::GsfElectron::IsolationVariables elecIso = elec->dr03IsolationVariables();
+      //reco::GsfElectron::IsolationVariables elecIso = elec->dr03IsolationVariables();
 
       double elecCombRelIso = 999.;
 
