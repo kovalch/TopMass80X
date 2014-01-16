@@ -50,7 +50,7 @@ struct staticUncertainty {
   : name(n), massUncertainty(mu), jesUncertainty(ju) {}
 };
 
-TString globalPath("/scratch/hh/dust/naf/cms/user/mseidel/pseudoexperiments/topmass_131012/");
+TString globalPath("/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_131012/");
 
 double genMass[]      = {161.5, 163.5, 166.5, 169.5, 172.5, 175.5, 178.5, 181.5, 184.5};
 double genMassError[] = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
@@ -161,6 +161,12 @@ void ensembleTreeSysLeptonJets(TString sPath = globalPath)
   ensembles.push_back(ensemble("Fall11_TTJets1725_UNC_0.9/ensemble.root", 59613991./1.75));
   ensembles.push_back(ensemble("Fall11_TTJets1725_UNC_1.1/ensemble.root", 59613991./1.75));
   //*/
+  
+  ensembles.push_back(ensemble("weight.combinedWeight/job_*_ensemble.root", 7000000./1.75, true, true, 0., 22));
+  ensembles.push_back(ensemble("weight.combinedWeight*weight.bJESWeight_fragHard/job_*_ensemble.root", 7000000./1.75));
+  
+  ensembles.push_back(ensemble("weight.combinedWeight/job_*_ensemble.root", 7000000./1.75, true, true, 0., 24));
+  ensembles.push_back(ensemble("weight.combinedWeight*weight.bJESWeight_fNuUp/job_*_ensemble.root", 7000000./1.75));
   
   for (int i = 0; i < (int) ensembles.size(); ++i) {
     TChain* chain = new TChain("tree");
