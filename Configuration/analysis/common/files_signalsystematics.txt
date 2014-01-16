@@ -9,17 +9,17 @@
 190  Summer12.TTJets_MSDecays_matchingdown_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v2_cff   ttbarsignalplustau_matchingdown.root   ttbarsignalplustau,systematicsName=MATCH_DOWN
 190  Summer12.TTJets_MSDecays_matchingdown_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v2_cff   ttbarbg_matchingdown.root              ttbarbg,systematicsName=MATCH_DOWN
 
-500  Summer12.TTJets_MSDecays_scaleup_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff       ttbarsignalplustau_scaleup.root        ttbarsignalplustau,systematicsName=SCALE_UP
-500  Summer12.TTJets_MSDecays_scaleup_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff       ttbarbg_scaleup.root                   ttbarbg,systematicsName=SCALE_UP
+500  Summer12.TTJets_MSDecays_scaleup_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff        ttbarsignalplustau_scaleup.root        ttbarsignalplustau,systematicsName=SCALE_UP
+500  Summer12.TTJets_MSDecays_scaleup_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff        ttbarbg_scaleup.root                   ttbarbg,systematicsName=SCALE_UP
 
-50  Summer12.TTJets_ScaleDown_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff               ttbarsignalplustau_scaledown.root      ttbarsignalplustau,systematicsName=SCALE_DOWN
-50  Summer12.TTJets_ScaleDown_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff               ttbarbg_scaledown.root                 ttbarbg,systematicsName=SCALE_DOWN
+500  Summer12.TTJets_MSDecays_scaledown_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff      ttbarsignalplustau_scaledown.root      ttbarsignalplustau,systematicsName=SCALE_DOWN
+500  Summer12.TTJets_MSDecays_scaledown_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff      ttbarbg_scaledown.root                 ttbarbg,systematicsName=SCALE_DOWN
 
-250  Summer12.TTJets_MSDecays_mass173_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff     ttbarsignalplustau_massup.root         ttbarsignalplustau,systematicsName=MASS_UP
-250  Summer12.TTJets_MSDecays_mass173_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff     ttbarbg_massup.root                    ttbarbg,systematicsName=MASS_UP
+250  Summer12.TTJets_MSDecays_mass173_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff      ttbarsignalplustau_massup.root         ttbarsignalplustau,systematicsName=MASS_UP
+250  Summer12.TTJets_MSDecays_mass173_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff      ttbarbg_massup.root                    ttbarbg,systematicsName=MASS_UP
 
-200  Summer12.TTJets_MSDecays_mass171_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff     ttbarsignalplustau_massdown.root       ttbarsignalplustau,systematicsName=MASS_DOWN
-200  Summer12.TTJets_MSDecays_mass171_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff     ttbarbg_massdown.root                  ttbarbg,systematicsName=MASS_DOWN
+200  Summer12.TTJets_MSDecays_mass171_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff      ttbarsignalplustau_massdown.root       ttbarsignalplustau,systematicsName=MASS_DOWN
+200  Summer12.TTJets_MSDecays_mass171_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff      ttbarbg_massdown.root                  ttbarbg,systematicsName=MASS_DOWN
 
 
 ##########################################################
