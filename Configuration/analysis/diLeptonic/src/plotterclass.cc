@@ -1175,11 +1175,17 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
     }
     sumMC->SetName(name);
 
+    // Get the ratio plot from the canvas
+    TPad* tmpPad = dynamic_cast<TPad*>(c->GetPrimitive("rPad"));
+    TH1* ratio = nullptr;
+    if(tmpPad) ratio = dynamic_cast<TH1*>(tmpPad->GetPrimitive("ratio"));
+
     //save Canvas AND sources in a root file
     TFile out_root(outdir.Copy()+name+"_source.root", "RECREATE");
     drawhists[0]->Write(name+"_data");
     sumttbar->Write(name+"_signalmc");
     sumMC->Write(name+"_allmc");
+    if(ratio && ratio->GetEntries())ratio->Write("ratio");
     c->Write(name + "_canvas");
     out_root.Close();
 
