@@ -956,6 +956,7 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
     for(unsigned int i=0; i<hists.size() ; i++){ // prepare histos and leg
         drawhists[i]=(TH1D*) hists[i].Clone();//rebin and scale the histograms
         if(rebin>1) drawhists[i]->Rebin(rebin);
+        if(XAxisbins.size()>1) drawhists[i] = drawhists[i]->Rebin(bins,"tmp",Xbins);
         setStyle(drawhists[i], i, true);
     }
 
@@ -966,7 +967,7 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
         //      drawhists[i]->Scale(12.1/5.1);
 
         if(XAxisbins.size()>1){//only distributions we want to unfold will have a binning vector
-            if(legends.at(i) == "t#bar{t} Signal"){
+            if(legends.at(i) == "t#bar{t} Signal" && doUnfolding){
                 TString ftemp = dataset.at(i);
                 double LumiWeight = CalcLumiWeight(dataset.at(i));
                 if (!init) {
@@ -1056,7 +1057,7 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
     }
     }
 
-    if(XAxisbins.size()>1){//only distributions we want to unfold will have a binning vector
+    if(XAxisbins.size()>1 && doUnfolding){//only distributions we want to unfold will have a binning vector
         aDataHist = drawhists[0]->Rebin(bins,"aDataHist",Xbins);
 
         TString outdir = common::assignFolder("preunfolded", Channel, Systematic);
