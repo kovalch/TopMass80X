@@ -741,7 +741,7 @@ SingleObjectJetTrigger::analyze(const edm::Event& event, const edm::EventSetup&)
 
   if( !triggerEvent.failedToGet() ) {
 
-    bool L1Triggered = false;
+    //bool L1Triggered = false;
     bool HLTriggered = false;
     bool singleJetTriggered = false;
     /*
@@ -755,7 +755,7 @@ SingleObjectJetTrigger::analyze(const edm::Event& event, const edm::EventSetup&)
     for(pat::TriggerFilterRefVector::const_iterator filter = filters.begin(); filter != filters.end(); ++filter){
       if((*filter)->label() == "hlt1jet30") singleJetTriggered = true;
       if((*filter)->label() == "hlt4jet30") HLTriggered = true;
-      if((*filter)->label() == "hltL1sQuadJet30") L1Triggered = true;
+      //if((*filter)->label() == "hltL1sQuadJet30") L1Triggered = true;
    }
     
     //if(L1Triggered){
@@ -772,7 +772,7 @@ SingleObjectJetTrigger::analyze(const edm::Event& event, const edm::EventSetup&)
       double jet2_pt = 0;
       double jet3_pt = 0;
       double jet4_pt = 0;
-      double jet5_pt = 0;
+      //double jet5_pt = 0;
       double HLTriggerMatchedJet1_pt = 0;
       double HLTriggerMatchedJet2_pt = 0;
       double HLTriggerMatchedJet3_pt = 0;
@@ -782,7 +782,7 @@ SingleObjectJetTrigger::analyze(const edm::Event& event, const edm::EventSetup&)
       double HLTriggerJet2_pt = 0;
       double HLTriggerJet3_pt = 0;
       double HLTriggerJet4_pt = 0;
-      double HLTriggerJet5_pt = 0;
+      //double HLTriggerJet5_pt = 0;
     
       for (size_t iJet = 0; iJet < jets->size(); ++iJet, ++jetCounter) {
 	double jet_pt = (*jets)[iJet].pt();
@@ -791,7 +791,7 @@ SingleObjectJetTrigger::analyze(const edm::Event& event, const edm::EventSetup&)
 	else if(jetCounter == 2) { hists_.find("pt2")->second->Fill( jet_pt ); jet2_pt = jet_pt; }
 	else if(jetCounter == 3) { hists_.find("pt3")->second->Fill( jet_pt ); jet3_pt = jet_pt; }
 	else if(jetCounter == 4) { hists_.find("pt4")->second->Fill( jet_pt ); jet4_pt = jet_pt; }
-	else if(jetCounter == 5) { hists_.find("pt5")->second->Fill( jet_pt ); jet5_pt = jet_pt; }
+	else if(jetCounter == 5) { hists_.find("pt5")->second->Fill( jet_pt ); } //jet5_pt = jet_pt; }
 	else if(jetCounter == 6)   hists_.find("pt6")->second->Fill( jet_pt );
 
 	const reco::CandidateBaseRef candBaseRef( pat::JetRef( jets , iJet) );
@@ -917,7 +917,7 @@ SingleObjectJetTrigger::analyze(const edm::Event& event, const edm::EventSetup&)
 	  if(HLTriggerJetCounter == 2) { hists_.find("pt2_trigger")->second->Fill( HLTriggerJet_pt ); HLTriggerJet2_pt = HLTriggerJet_pt; }
 	  if(HLTriggerJetCounter == 3) { hists_.find("pt3_trigger")->second->Fill( HLTriggerJet_pt ); HLTriggerJet3_pt = HLTriggerJet_pt; }
 	  if(HLTriggerJetCounter == 4) { hists_.find("pt4_trigger")->second->Fill( HLTriggerJet_pt ); HLTriggerJet4_pt = HLTriggerJet_pt; }
-	  if(HLTriggerJetCounter == 5) { hists_.find("pt5_trigger")->second->Fill( HLTriggerJet_pt ); HLTriggerJet5_pt = HLTriggerJet_pt; }
+	  if(HLTriggerJetCounter == 5) { hists_.find("pt5_trigger")->second->Fill( HLTriggerJet_pt ); } //HLTriggerJet5_pt = HLTriggerJet_pt; }
 	  if(HLTriggerJetCounter == 6)   hists_.find("pt6_trigger")->second->Fill( HLTriggerJet_pt );  
 	}
 

@@ -74,10 +74,10 @@ private:
     
     
     /// Select events from Higgs signal samples which need to be removed due to generator selection
-    bool failsHiggsGeneratorSelection(const Long64_t&)const;
+    bool failsHiggsGeneratorSelection(const int higgsDecayMode)const;
     
     /// Select events from Top signal that satisfy flavour of the additional jets
-    bool failsAdditionalJetFlavourSelection(const Long64_t&)const;
+    bool failsAdditionalJetFlavourSelection(const Long64_t& entry)const;
     
     
     

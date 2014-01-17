@@ -95,6 +95,7 @@ int bTagBase::setSampleName(const std::string & samplename) {
 
     std::vector<TH2D> temp;
     
+    // Defining the histograms. Should have names as in histoNames_ and effHistoNames_
     TH2D bjets = TH2D("bjets2D", "unTagged Bjets", npt - 1,
             effptbins, neta - 1, effetabins);
     bjets.Sumw2();
@@ -124,12 +125,15 @@ int bTagBase::setSampleName(const std::string & samplename) {
     histos_[tempsamplename_] = reorderedHistograms(temp, tag);
     histp_ = &(histos_.find(tempsamplename_)->second);
 
+    
     TH2D beff = TH2D("beff2D", "Bjets eff", npt - 1, effptbins,
             neta - 1, effetabins);
     beff.Sumw2();
+    
     TH2D ceff = TH2D("ceff2D", "Cjets eff", npt - 1, effptbins,
             neta - 1, effetabins);
     ceff.Sumw2();
+    
     TH2D leff = TH2D("leff2D", "Ljets eff", l_npt - 1, l_effptbins,
             l_neta - 1, l_effetabins);
     leff.Sumw2();

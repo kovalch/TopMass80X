@@ -10,7 +10,9 @@ class TH2;
 class TString;
 class TSelectorList;
 
-class JetCorrectionUncertainty;
+namespace ztop{
+    class JetCorrectionUncertainty;
+}
 
 #include "classesFwd.h"
 #include "storeTemplate.h"
@@ -371,7 +373,7 @@ public:
 private:
     
     /// Object for retrieving uncertainty values
-    JetCorrectionUncertainty* jetCorrectionUncertainty_;
+    ztop::JetCorrectionUncertainty* jetCorrectionUncertainty_;
     
     /// Variation upwards?
     bool varyUp_;

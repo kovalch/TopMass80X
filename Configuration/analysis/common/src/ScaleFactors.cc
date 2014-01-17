@@ -21,8 +21,8 @@
 #include "ScaleFactors.h"
 #include "classes.h"
 #include "utils.h"
-#include "JetCorrectorParameters.h"
-#include "JetCorrectionUncertainty.h"
+#include "TopAnalysis/ZTopUtils/ext/interface/JetCorrectorParameters.h"
+#include "TopAnalysis/ZTopUtils/ext/interface/JetCorrectionUncertainty.h"
 
 
 
@@ -1373,7 +1373,7 @@ varyUp_(false)
     std::string inputFileName(common::DATA_PATH_COMMON());
     inputFileName.append("/");
     inputFileName.append(jesUncertaintySourceFile);
-    jetCorrectionUncertainty_ = new JetCorrectionUncertainty(JetCorrectorParameters(inputFileName.data(), "Total"));
+    jetCorrectionUncertainty_ = new ztop::JetCorrectionUncertainty(ztop::JetCorrectorParameters(inputFileName.data(), "Total"));
     
     if(systematic == vary_up){
         varyUp_ = true;
@@ -1403,32 +1403,32 @@ JetEnergyScaleScaleFactors::~JetEnergyScaleScaleFactors()
 void JetEnergyScaleScaleFactors::applySystematic(VLV* jets, VLV* jetsForMET, LV* met)const
 {
     // This first loop will correct the jet collection that is used for jet selections
-    for(size_t i = 0; i < jets->size(); ++i){
-        jetCorrectionUncertainty_->setJetPt(jets->at(i).pt());
-        jetCorrectionUncertainty_->setJetEta(jets->at(i).eta());
+    for(size_t iJet = 0; iJet < jets->size(); ++iJet){
+        jetCorrectionUncertainty_->setJetPt(jets->at(iJet).pt());
+        jetCorrectionUncertainty_->setJetEta(jets->at(iJet).eta());
         const double dunc = jetCorrectionUncertainty_->getUncertainty(true);
 
-        if(varyUp_) jets->at(i) *= 1. + dunc;
-        else jets->at(i) *= 1. - dunc;
+        if(varyUp_) jets->at(iJet) *= 1. + dunc;
+        else jets->at(iJet) *= 1. - dunc;
     }
-
+    
     // This second loop will correct the jet collection that is used for modifying MET
     double JEC_dpX =0.;
     double JEC_dpY =0.;
-    for(size_t i = 0; i < jetsForMET->size(); ++i){
+    for(size_t iJet = 0; iJet < jetsForMET->size(); ++iJet){
+        
+        const double dpX = jetsForMET->at(iJet).px();
+        const double dpY = jetsForMET->at(iJet).py();
 
-        const double dpX = jetsForMET->at(i).px();
-        const double dpY = jetsForMET->at(i).py();
-
-        jetCorrectionUncertainty_->setJetPt(jetsForMET->at(i).pt());
-        jetCorrectionUncertainty_->setJetEta(jetsForMET->at(i).eta());
+        jetCorrectionUncertainty_->setJetPt(jetsForMET->at(iJet).pt());
+        jetCorrectionUncertainty_->setJetEta(jetsForMET->at(iJet).eta());
         const double dunc = jetCorrectionUncertainty_->getUncertainty(true);
 
-        if(varyUp_) jetsForMET->at(i) *= 1. + dunc;
-        else jetsForMET->at(i) *= 1. - dunc;
+        if(varyUp_) jetsForMET->at(iJet) *= 1. + dunc;
+        else jetsForMET->at(iJet) *= 1. - dunc;
 
-        JEC_dpX += jetsForMET->at(i).px() - dpX;
-        JEC_dpY += jetsForMET->at(i).py() - dpY;
+        JEC_dpX += jetsForMET->at(iJet).px() - dpX;
+        JEC_dpY += jetsForMET->at(iJet).py() - dpY;
     }
 
     // Adjust the MET

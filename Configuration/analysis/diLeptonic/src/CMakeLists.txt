@@ -8,9 +8,7 @@ SET( ${PROJECT_NAME}_HEADERS_THAT_NEED_ROOTDICT
   TopAnalysis
   classes
   classesFwd
-  HistoListReader
-  PUReweighter
-  LinkDef )
+  diLeptonic_LinkDef )
 
 SET( ${PROJECT_NAME}_LIBSOURCES
   utils
@@ -22,14 +20,10 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   ttbarUtils
   analysisUtils
   analysisObjectStructs
-  PUReweighter
   KinReco
   KinematicReconstruction
   KinematicReconstruction_LSroutines
   KinematicReconstruction_MeanSol
-  JetCorrectionUncertainty
-  JetCorrectorParameters
-  SimpleJetCorrectionUncertainty
   ScaleFactors
   BTagUtils
   plotterUtils
@@ -106,11 +100,11 @@ ADD_LIBRARY( ${PROJECT_NAME} SHARED ${${PROJECT_NAME}_LIBSOURCES_full} ${DICT_NA
 TARGET_LINK_LIBRARIES( ${PROJECT_NAME} ${ROOT_LIBRARIES} ${ZTopUtils_LIBRARIES} )
 
 INSTALL(TARGETS ${PROJECT_NAME}
-	LIBRARY DESTINATION lib
-	PERMISSIONS
-	OWNER_READ OWNER_WRITE OWNER_EXECUTE
-	GROUP_READ GROUP_EXECUTE
-	WORLD_READ WORLD_EXECUTE  )
+        LIBRARY DESTINATION lib
+        PERMISSIONS
+        OWNER_READ OWNER_WRITE OWNER_EXECUTE
+        GROUP_READ GROUP_EXECUTE
+        WORLD_READ WORLD_EXECUTE  )
 
 
 FOREACH( exec ${${PROJECT_NAME}_EXECUTABLES} )

@@ -12,12 +12,12 @@
 #include <TH1.h>
 
 #include "TopAnalysis.h"
-#include "../../common/include/PUReweighter.h"
 #include "../../common/include/CommandLineParameters.h"
 #include "../../common/include/utils.h"
 #include "../../common/include/ScaleFactors.h"
 #include "../../common/include/sampleHelpers.h"
 #include "../../common/include/KinematicReconstruction.h"
+#include "TopAnalysis/ZTopUtils/interface/PUReweighter.h"
 
 
 
@@ -107,7 +107,7 @@ void load_Analysis(TString validFilenamePattern,
     
     // Set up pileup reweighter
     std::cout<<"--- Beginning preparation of pileup reweighter\n";
-    PUReweighter* puReweighter = new PUReweighter();
+    ztop::PUReweighter* puReweighter = new ztop::PUReweighter();
     puReweighter->setMCDistrSum12("S10");
     TString pileupInput(common::DATA_PATH_COMMON());
     pileupInput.Append("/").Append(PileupInputFILE);

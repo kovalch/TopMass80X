@@ -1,5 +1,6 @@
 #include "../interface/JECBase.h"
 #include <stdexcept>
+#include "unistd.h"
 
 namespace ztop {
 

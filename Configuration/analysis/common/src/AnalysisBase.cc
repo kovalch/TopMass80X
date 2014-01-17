@@ -25,15 +25,14 @@
 #include <TObject.h>
 
 #include "AnalysisBase.h"
-#include "utils.h"
 #include "KinReco.h"
-#include "PUReweighter.h"
 #include "analysisUtils.h"
 #include "classes.h"
 #include "ScaleFactors.h"
 #include "BTagUtils.h"
 #include "KinematicReconstruction.h"
 #include "analysisObjectStructs.h"
+#include "TopAnalysis/ZTopUtils/interface/PUReweighter.h"
 
 
 
@@ -41,8 +40,13 @@
 
 
 AnalysisBase::AnalysisBase(TTree*):
-btagScaleFactors_(0),
-bTagSFGeneric_(0),
+chain_(0),
+recoObjects_(0),
+commonGenObjects_(0),
+topGenObjects_(0),
+higgsGenObjects_(0),
+kinRecoObjects_(0),
+h_weightedEvents(0),
 samplename_(""),
 channel_(""),
 systematic_(""),
@@ -52,26 +56,21 @@ isHiggsSignal_(false),
 isTtbarPlusTauSample_(false),
 correctMadgraphBR_(false),
 channelPdgIdProduct_(0),
-checkZDecayMode_(nullptr),
+checkZDecayMode_(0),
 outputfilename_(""),
 runViaTau_(false),
+isTtbarSample_(false),
+weightKinFit_(0),
+eventCounter_(0),
+analysisOutputBase_(0),
 kinematicReconstruction_(0),
-puReweighter_(nullptr),
+puReweighter_(0),
 leptonScaleFactors_(0),
 triggerScaleFactors_(0),
 jetEnergyResolutionScaleFactors_(0),
 jetEnergyScaleScaleFactors_(0),
-weightKinFit_(0),
-isTtbarSample_(false),
-chain_(0),
-h_weightedEvents(0),
-eventCounter_(0),
-analysisOutputBase_(0),
-recoObjects_(0),
-commonGenObjects_(0),
-topGenObjects_(0),
-higgsGenObjects_(0),
-kinRecoObjects_(0)
+btagScaleFactors_(0),
+bTagSFGeneric_(0)
 {
     this->clearBranches();
     this->clearBranchVariables();
@@ -254,12 +253,19 @@ void AnalysisBase::SetSystematic(const TString& systematic)
 
 void AnalysisBase::SetSamplename(const TString& samplename, const TString& systematic_from_file)
 {
-    samplename_ = samplename;
-    isTtbarSample_ = samplename.BeginsWith("ttbar") && !samplename.BeginsWith("ttbarhiggs") &&
-                     !(samplename=="ttbarw") && !(samplename=="ttbarz");
-    isTtbarPlusTauSample_ = isTtbarSample_ && !samplename.BeginsWith("ttbarbg");
-    correctMadgraphBR_ = samplename.BeginsWith("ttbar") && !systematic_from_file.Contains("SPIN") &&
-                         !systematic_from_file.Contains("POWHEG") && !systematic_from_file.Contains("MCATNLO");
+    if(samplename_ == ""){
+        // Samplename was not set so far, so initialize everything based on it
+        samplename_ = samplename;
+        isTtbarSample_ = samplename.BeginsWith("ttbar") && !samplename.BeginsWith("ttbarhiggs") &&
+                         !(samplename=="ttbarw") && !(samplename=="ttbarz");
+        isTtbarPlusTauSample_ = isTtbarSample_ && !samplename.BeginsWith("ttbarbg");
+        correctMadgraphBR_ = samplename.BeginsWith("ttbar") && !systematic_from_file.Contains("SPIN") &&
+                             !systematic_from_file.Contains("POWHEG") && !systematic_from_file.Contains("MCATNLO");
+    }
+    else{
+        // Samplename was already set and everything associated was initialized, so adjust only the name
+        samplename_ = samplename;
+    }
 }
 
 
@@ -288,7 +294,7 @@ void AnalysisBase::SetWeightedEvents(TH1* weightedEvents)
 void AnalysisBase::SetRunViaTau(const bool runViaTau)
 {
     runViaTau_ = runViaTau;
-    if (runViaTau) isTopSignal_ = 0;
+    if (runViaTau) isTopSignal_ = false;
 }
 
 
@@ -307,7 +313,7 @@ void AnalysisBase::SetKinematicReconstruction(KinematicReconstruction* kinematic
 
 
 
-void AnalysisBase::SetPUReweighter(PUReweighter* puReweighter)
+void AnalysisBase::SetPUReweighter(ztop::PUReweighter* puReweighter)
 {
     puReweighter_ = puReweighter;
 }
@@ -506,6 +512,11 @@ void AnalysisBase::clearBranchVariables()
     if(topGenObjects_) topGenObjects_->clear();
     if(higgsGenObjects_) higgsGenObjects_->clear();
     if(kinRecoObjects_) kinRecoObjects_->clear();
+    
+    // Set values to null for trigger bits
+    triggerBits_ = 0;
+    //triggerBitsTau_ = 0;
+    //firedTriggers_ = 0;
     
     // Set values to null for true vertex multiplicity
     vertMultiTrue_ = 0;
@@ -729,10 +740,8 @@ void AnalysisBase::SetHiggsSignalBranchAddresses()
 void AnalysisBase::GetRecoBranchesEntry(const Long64_t& entry)const
 {
     // Check if branches' entry is already read
-    if(recoObjects_){
-        if(recoObjects_->valuesSet_) return;
-        recoObjects_->valuesSet_ = true;
-    }
+    if(recoObjects_->valuesSet_) return;
+    recoObjects_->valuesSet_ = true;
 
     // Concerning physics objects
     b_lepton->GetEntry(entry);
@@ -787,10 +796,8 @@ void AnalysisBase::GetTriggerBranchesEntry(const Long64_t& entry)const
 void AnalysisBase::GetCommonGenBranchesEntry(const Long64_t& entry)const
 {
     // Check if branches' entry is already read
-    if(commonGenObjects_){
-        if(commonGenObjects_->valuesSet_) return;
-        commonGenObjects_->valuesSet_ = true;
-    }
+    if(commonGenObjects_->valuesSet_) return;
+    commonGenObjects_->valuesSet_ = true;
 
     // Concerning physics objects
     b_allGenJets->GetEntry(entry);
@@ -806,10 +813,8 @@ void AnalysisBase::GetCommonGenBranchesEntry(const Long64_t& entry)const
 void AnalysisBase::GetKinRecoBranchesEntry(const Long64_t& entry)const
 {
     // Check if branches' entry is already read
-    if(kinRecoObjects_){
-        if(kinRecoObjects_->valuesSet_) return;
-        kinRecoObjects_->valuesSet_ = true;
-    }
+    if(kinRecoObjects_->valuesSet_) return;
+    kinRecoObjects_->valuesSet_ = true;
 
     b_HypTop->GetEntry(entry);
     b_HypAntiTop->GetEntry(entry);
@@ -894,10 +899,8 @@ void AnalysisBase::GetHiggsDecayModeEntry(const Long64_t& entry)const
 void AnalysisBase::GetTopSignalBranchesEntry(const Long64_t& entry)const
 {
     // Check if branches' entry is already read
-    if(topGenObjects_){
-        if(topGenObjects_->valuesSet_) return;
-        topGenObjects_->valuesSet_ = true;
-    }
+    if(topGenObjects_->valuesSet_) return;
+    topGenObjects_->valuesSet_ = true;
 
     b_GenMet->GetEntry(entry);
     b_GenTop->GetEntry(entry);
@@ -939,10 +942,8 @@ void AnalysisBase::GetTopSignalBranchesEntry(const Long64_t& entry)const
 void AnalysisBase::GetHiggsSignalBranchesEntry(const Long64_t& entry)const
 {
     // Check if branches' entry is already read
-    if(higgsGenObjects_){
-        if(higgsGenObjects_->valuesSet_) return;
-        higgsGenObjects_->valuesSet_ = true;
-    }
+    if(higgsGenObjects_->valuesSet_) return;
+    higgsGenObjects_->valuesSet_ = true;
 
     b_GenH->GetEntry(entry);
     b_GenBFromH->GetEntry(entry);
@@ -1104,10 +1105,20 @@ bool AnalysisBase::calculateKinReco(const int leptonIndex, const int antiLeptonI
 const std::string AnalysisBase::topDecayModeString()const
 {
     const std::vector<std::string> WMode {"unknown", "hadronic", "e", "mu", "tau->hadron", "tau->e", "tau->mu"};
-    int top = topDecayMode_ / 10;
-    int antitop = topDecayMode_ % 10;
-    std::string result = WMode[top] + "/" + WMode[antitop];
+    const int top = topDecayMode_ / 10;
+    const int antitop = topDecayMode_ % 10;
+    const std::string result = WMode[top] + "/" + WMode[antitop];
     return result;
+}
+
+
+
+int AnalysisBase::higgsDecayMode(const Long64_t& entry)const
+{
+    if(!isHiggsSignal_) return -1;
+    this->GetHiggsDecayModeEntry(entry);
+    
+    return higgsDecayMode_;
 }
 
 
@@ -1184,6 +1195,16 @@ double AnalysisBase::weightGenerator(const Long64_t& entry)const
     if(!isMC_) return 1.;
     GetWeightGeneratorEntry(entry);
     return weightGenerator_;
+}
+
+
+
+double AnalysisBase::weightPdf(const Long64_t& entry, const int pdfNo)const
+{
+    if(pdfNo < 0) return 1.;
+    this->GetPDFEntry(entry);
+    const double pdfWeight = weightPDF_->at(pdfNo);
+    return pdfWeight;
 }
 
 

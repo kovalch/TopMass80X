@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <algorithm>
 #include <sstream>
+#include <exception>
 
 #include <TTree.h>
 #include <TSystem.h>
@@ -34,48 +35,28 @@ weightsSwapped_(0),
 doHadronMatchingComparison_(doHadronMatchingComparison)
 {
     std::cout<<"--- Beginning setting up dijet analyzer\n";
-
+    
     // Setting up the MVA weights if available
-    TFile* weightsFile = new TFile(mva2dWeightsFile, "READ");
-    if(!weightsFile->IsZombie()) {
-        TString weightFolder(mva2dWeightsFile);
-        weightFolder.Remove(weightFolder.Last('/')+1);
-
-        TObjArray* trainingsCorrect(0);
-        weightsFile->GetObject("trainingsCorrect", trainingsCorrect);
-        if(trainingsCorrect) {
-            // Finding the proper correct training
-            for ( int trainId=0; trainId<trainingsCorrect->GetEntries(); trainId++ )
-            {
-                TString weightName = ((TObjString*)trainingsCorrect->At(trainId))->String();
-                TString trainingName(weightName);
-                trainingName.Remove(0, trainingName.Last('_')+1);
-                if(!trainingName.EqualTo(corName)) continue;
-                TString xmlFileName(weightFolder);
-                xmlFileName.Append(weightName).Append(".weights.xml");
-                weightsCorrect_ = new MvaReader(xmlFileName);
-                break;
-            }
-        } else printf("      WARNING: No 'trainingsCorrect' object found in %s\n", mva2dWeightsFile);
-
-
-        TObjArray* trainingsSwapped(0);
-        weightsFile->GetObject("trainingsSwapped", trainingsSwapped);
-        if(trainingsSwapped) {
-            // Finding the proper swapped training
-            for ( int trainId=0; trainId<trainingsSwapped->GetEntries(); trainId++ )
-            {
-                TString weightName = ((TObjString*)trainingsSwapped->At(trainId))->String();
-                TString trainingName(weightName);
-                trainingName.Remove(0, trainingName.Last('_')+1);
-                if(!trainingName.EqualTo(swpName)) continue;
-                TString xmlFileName(weightFolder);
-                xmlFileName.Append(weightName).Append(".weights.xml");
-                weightsSwapped_ = new MvaReader(xmlFileName);
-                break;
-            }
-        } else printf("      WARNING: No 'trainingsSwapped' object found in %s\n", mva2dWeightsFile);
-    } else printf("      WARNING: No MVA weights file found at %s\n", mva2dWeightsFile);
+    std::string mvaWeightsFolder(mva2dWeightsFile);
+    mvaWeightsFolder.erase(mvaWeightsFolder.rfind('/'));
+    if(!gSystem->OpenDirectory(mvaWeightsFolder.c_str()) && corName.length()>0 && swpName.length()>0) {
+        throw std::logic_error("DijetAnalyzer::DijetAnalyzer     WARNING! Folder with MVA weights doesn't exist\n");
+    }
+    
+    std::string tempStr;
+    // Setting up the correct training
+    if(corName.length()>0) {
+        tempStr = mvaWeightsFolder;
+        tempStr.append("/").append(corName).append(".weights.xml");
+        weightsCorrect_ = new MvaReader(tempStr.c_str());
+    }
+    // Setting up the swapped training
+    if(swpName.length()>0) {
+        tempStr = mvaWeightsFolder;
+        tempStr.append("/").append(swpName).append(".weights.xml");
+        weightsCorrect_ = new MvaReader(tempStr.c_str());
+    }
+    
 
     std::cout<<"=== Finishing setting up dijet analyzer\n\n";
 }

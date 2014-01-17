@@ -321,9 +321,6 @@ private:
     /// Get weight of closure test
     double calculateClosureTestWeight(const Long64_t& entry);
     
-    /// Get weight of PDF variation
-    double weightPdf(Long64_t entry);
-    
     /// Get indices of B hadron and anti-B hadron
     void bHadronIndices(int& bHadronIndex, int& antiBHadronIndex,const CommonGenObjects& commonGenObjects,const TopGenObjects& topGenObjects);
     

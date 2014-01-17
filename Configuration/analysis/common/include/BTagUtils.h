@@ -14,18 +14,6 @@ class TSelectorList;
 
 
 
-// FIXME: replace these functions with enum type ones
-namespace common{
-
-    /// Access an already existing input folder
-    std::string fullFilePath(const std::string& baseDir, const std::string& fileName,
-                             const std::string& channel, const TString& systematic,
-                             const bool createNonExisting = false, const bool allowNonExisting = true);
-
-    /// Builds the path of the file for a given channel and systematic
-    std::string partialFilePath(const std::string& fileName, const std::string& channel, const TString& systematic);
-}
-
 
 class BTagSFGeneric : public ztop::bTagBase{
 
@@ -39,19 +27,6 @@ public:
 
   /// Destructor
   ~BTagSFGeneric(){}
-
-
-  /// Enumeration for possible systematics
-  enum Systematic{nominal,
-  btag_up, btag_down,
-  btagPt_up, btagPt_down,
-  btagEta_up, btagEta_down,
-  btagLjet_up, btagLjet_down,
-  btagLjetPt_up, btagLjetPt_down,
-  btagLjetEta_up, btagLjetEta_down,
-  btagBeff_up, btagBeff_down,
-  btagCeff_up, btagCeff_down,
-  btagLeff_up, btagLeff_down};
 
 
 
@@ -106,25 +81,18 @@ private:
   std::string fileName_;
 
 
-  /// Check if systematic belongs to a specific category
-  bool ljetSystematic()const;
-  bool ptUpSystematic()const;
-  bool ptDownSystematic()const;
-  bool etaUpSystematic()const;
-  bool etaDownSystematic()const;
-  bool absoluteUpSystematic()const;
-  bool absoluteDownSystematic()const;
-
-
 
   /// Whether to produce btag efficiencies or whether to read in already produced ones
   bool makeEfficiencies_;
 
-  /// Systematic to be used for btag efficiencies
-  Systematic systematic_;
-
   /// Pointer for bookkeeping of histograms
   TSelectorList* selectorList_;
+  
+  /// Map of the file names for each channel
+  std::map<std::string, std::string> channelFileNames_;
+  
+  /// Map of the sample names for each channel
+  std::map<std::string, std::string> channelSampleNames_;
 
 };
 
