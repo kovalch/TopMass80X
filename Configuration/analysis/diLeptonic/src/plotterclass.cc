@@ -1416,7 +1416,8 @@ void Plotter::PlotXSec(TString Channel){
     framehist->Draw();
     mcfmplot->Draw("C,2,SAME");
     //kidonplot->Draw("C,2,SAME");
-    nnloplot->Draw("C,2,SAME");
+    //nnloplot->Draw("C,2,SAME");
+    toplhcwgplot->Draw("C,2,SAME");
     gStyle->SetEndErrorSize(8);
     mplot->Draw("p,SAME");
     mplotwithsys->Draw("p,SAME,Z");
