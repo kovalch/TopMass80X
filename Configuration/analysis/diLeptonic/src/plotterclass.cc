@@ -1143,7 +1143,7 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
     DrawCMSLabels(1, 8);
     DrawDecayChLabel(channelLabel[channelType]);
 
-    TString legtit = "";                                        
+    TString legtit = "";
     if(name.Contains("JetMult")) {
         if(name.Contains("pt60")) legtit += "p_{T}^{jet}> 60 GeV";
         else if(name.Contains("pt100")) legtit += "p_{T}^{jet}> 100 GeV";
@@ -1319,6 +1319,42 @@ void Plotter::PlotXSec(TString Channel){
     kidonplot->SetFillColor(kGreen+1);
     kidonplot->SetFillStyle(3004);
 
+    // Full NNLO
+    Double_t nnlomean = 245.794;
+    Double_t errDown = 10.656;
+    Double_t errUp   = 8.652;
+    Double_t nnlox[]   = {    -0.5,     0.5,   1.5,     2.5,     3.5,     4.5};
+    Double_t nnloy[]   = {nnlomean,nnlomean,nnlomean,nnlomean,nnlomean,nnlomean};
+    Double_t nnloexl[] = {      .4,    .4,      .5,      .5,      .5,      .5};
+    Double_t nnloexh[] = {      .5,    .5,      .5,      .5,      .4,      .4};
+    Double_t nnloeyl[] = { errDown, errDown, errDown, errDown, errDown, errDown};
+    Double_t nnloeyh[] = {   errUp,   errUp,   errUp,   errUp,   errUp,   errUp};
+
+    TGraphAsymmErrors *nnloplot = new TGraphAsymmErrors(6, nnlox, nnloy, nnloexl, nnloexh, nnloeyl, nnloeyh);
+    nnloplot->SetLineColor(kGreen+1);
+    nnloplot->SetLineWidth(4);
+    nnloplot->SetFillColor(kGreen+1);
+    nnloplot->SetFillStyle(3004);
+
+    // TopLHC working group, prescription for m_top = 172.5 GeV
+    //   https://indico.cern.ch/getFile.py/access?contribId=4&sessionId=1&resId=0&materialId=slides&confId=280522
+
+    Double_t toplhcwgmean = 252.89;
+    Double_t toplhcwgDown = 15.313;
+    Double_t toplhcwgUp   = 16.266;
+    Double_t toplhcwgx[]   = {    -0.5,     0.5,   1.5,     2.5,     3.5,     4.5};
+    Double_t toplhcwgy[]   = {toplhcwgmean,toplhcwgmean,toplhcwgmean,toplhcwgmean,toplhcwgmean,toplhcwgmean};
+    Double_t toplhcwgexl[] = {      .4,    .4,      .5,      .5,      .5,      .5};
+    Double_t toplhcwgexh[] = {      .5,    .5,      .5,      .5,      .4,      .4};
+    Double_t toplhcwgeyl[] = { toplhcwgDown, toplhcwgDown, toplhcwgDown, toplhcwgDown, toplhcwgDown, toplhcwgDown};
+    Double_t toplhcwgeyh[] = {   toplhcwgUp,   toplhcwgUp,   toplhcwgUp,   toplhcwgUp,   toplhcwgUp,   toplhcwgUp};
+
+    TGraphAsymmErrors *toplhcwgplot = new TGraphAsymmErrors(6, toplhcwgx, toplhcwgy, toplhcwgexl, toplhcwgexh, toplhcwgeyl, toplhcwgeyh);
+    toplhcwgplot->SetLineColor(kGreen+1);
+    toplhcwgplot->SetLineWidth(4);
+    toplhcwgplot->SetFillColor(kGreen+1);
+    toplhcwgplot->SetFillStyle(3004);
+
     // mcfm
     Double_t mcfmmean = 225.197;
     Double_t mcfmx[]   = {      -0.5,     0.5,     1.5,     2.5,     3.5,     4.5};
@@ -1372,12 +1408,15 @@ void Plotter::PlotXSec(TString Channel){
     leg->SetTextSize(0.03);
     leg->AddEntry( mplot,       "Measurements",            "p"  );
     leg->AddEntry( mcfmplot, "MCFM #otimes CTQE66M", "lf" );
-    leg->AddEntry( kidonplot,    "Kidonakis #otimes MSTW2008 NNLO",     "lf" );
+//    leg->AddEntry( kidonplot,    "Kidonakis #otimes MSTW2008 NNLO",     "lf" );
+//    leg->AddEntry( nnloplot,    "NNLO #otimes MSTW2008 NNLO",     "lf" );
+    leg->AddEntry( toplhcwgplot,    "TOP LHC WG",     "lf" );
 
     TCanvas* c = new TCanvas("plot", "plot", 1200, 800);
     framehist->Draw();
     mcfmplot->Draw("C,2,SAME");
-    kidonplot->Draw("C,2,SAME");
+    //kidonplot->Draw("C,2,SAME");
+    nnloplot->Draw("C,2,SAME");
     gStyle->SetEndErrorSize(8);
     mplot->Draw("p,SAME");
     mplotwithsys->Draw("p,SAME,Z");
@@ -2791,8 +2830,8 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
           matchupBinned->Draw("SAME");
           matchdownBinned->Draw("SAME");
           }
-          ofstream OutputFileXSec(string("Plots/"+Channel+"/"+name+"DiffXsecMass.txt"));       
-              for(int i = 1; i < madupBinned->GetNbinsX(); i++){                               
+          ofstream OutputFileXSec(string("Plots/"+Channel+"/"+name+"DiffXsecMass.txt"));
+              for(int i = 1; i < madupBinned->GetNbinsX(); i++){
               //OutputFileXSec<<"Nominal "<<"Mass 181 GeV" << " Mass 175 GeV"<< "Mass 169 GeV" << "Mass 163 GeV"<<endl;                             OutputFileXSec<<h_DiffXSec->GetBinContent(i)<< " "<<tga_DiffXSecPlot->GetErrorY(i-1)<<" "<<tga_DiffXSecPlotwithSys->GetErrorY(i-1)<< " "<<h|
               }
           OutputFileXSec.close();
@@ -2937,7 +2976,7 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
             tmpKido->SetLineColor(Kidoth1_Binned->GetLineColor());
             tmpKido->SetLineStyle(Kidoth1_Binned->GetLineStyle());
             tmpKido->SetLineWidth(Kidoth1_Binned->GetLineWidth());
-            for (int i=1; i<(int)tmpKido->GetNbinsX()+1; i++){ tmpKido->SetBinContent(i,Kidoth1_Binned->GetBinContent(i));};
+            for (int i=0; i<(int)tmpKido->GetNbinsX()+2; i++){tmpKido->SetBinContent(i,Kidoth1_Binned->GetBinContent(Kidoth1_Binned->FindBin(tmpKido->GetBinCenter(i))));};
         }
 
         common::drawRatioXSEC(h_DiffXSec, madgraphhistBinned, powheghistBinned, mcnlohistBinned, tmpKido, Ahrensth1_Binned,powhegHerwighistBinned, perugia11histBinned, 0.4, 1.6);
@@ -3699,7 +3738,7 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
             tmpKido->SetLineColor(Kidoth1_Binned->GetLineColor());
             tmpKido->SetLineStyle(Kidoth1_Binned->GetLineStyle());
             tmpKido->SetLineWidth(Kidoth1_Binned->GetLineWidth());
-            for (int i=1; i<(int)tmpKido->GetNbinsX()+1; i++){ tmpKido->SetBinContent(i,Kidoth1_Binned->GetBinContent(i));};
+            for (int i=0; i<(int)tmpKido->GetNbinsX()+2; i++){tmpKido->SetBinContent(i,Kidoth1_Binned->GetBinContent(Kidoth1_Binned->FindBin(tmpKido->GetBinCenter(i))));};
         }
 
         if(doClosureTest) { common::drawRatioXSEC(h_DiffXSec, realTruthBinned, madgraphhistBinned, powheghistBinned,
