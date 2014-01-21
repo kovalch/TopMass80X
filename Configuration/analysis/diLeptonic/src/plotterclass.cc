@@ -2965,7 +2965,7 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
     gPad->RedrawAxis();
 
     if(drawPlotRatio) {
-        TH1D* tmpKido =0;
+        TH1D *tmpKido = 0, *tmpAhrens = 0;
         if(Kidoth1_Binned){
             /// Idiot definition of temporary histogram for Kidonakis due to the larger number of bins in raw histogram
             tmpKido = (TH1D*)h_DiffXSec->Clone();
@@ -2974,8 +2974,16 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
             tmpKido->SetLineWidth(Kidoth1_Binned->GetLineWidth());
             for (int i=0; i<(int)tmpKido->GetNbinsX()+2; i++){tmpKido->SetBinContent(i,Kidoth1_Binned->GetBinContent(Kidoth1_Binned->FindBin(tmpKido->GetBinCenter(i))));};
         }
+        if(Ahrensth1_Binned){
+            /// Idiot definition of temporary histogram for Ahrens due to the larger number of bins in raw histogram
+            tmpAhrens = (TH1D*)h_DiffXSec->Clone();
+            tmpAhrens->SetLineColor(Ahrensth1_Binned->GetLineColor());
+            tmpAhrens->SetLineStyle(Ahrensth1_Binned->GetLineStyle());
+            tmpAhrens->SetLineWidth(Ahrensth1_Binned->GetLineWidth());
+            for (int i=0; i<(int)tmpAhrens->GetNbinsX()+2; i++){tmpAhrens->SetBinContent(i,Ahrensth1_Binned->GetBinContent(Ahrensth1_Binned->FindBin(tmpAhrens->GetBinCenter(i))));};
+        }
 
-        common::drawRatioXSEC(h_DiffXSec, madgraphhistBinned, powheghistBinned, mcnlohistBinned, tmpKido, Ahrensth1_Binned,powhegHerwighistBinned, perugia11histBinned, 0.4, 1.6);
+        common::drawRatioXSEC(h_DiffXSec, madgraphhistBinned, powheghistBinned, mcnlohistBinned, tmpKido, tmpAhrens,powhegHerwighistBinned, perugia11histBinned, 0.4, 1.6);
     };
 
 //    if(drawMadScaleMatching) {powheghist = nullptr; mcnlohist = nullptr; common::drawRatioXSEC(h_DiffXSec,h_GenDiffXSec,madupBinned,maddownBinned,matchupBinned,matchdownBinned,0,0,0.4, 1.6); }
@@ -3744,7 +3752,7 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
         }
 
         if(doClosureTest) { common::drawRatioXSEC(h_DiffXSec, realTruthBinned, madgraphhistBinned, powheghistBinned,
-                                                 mcnlohistBinned, tmpKido, Ahrensth1_Binned,powhegHerwighistBinned, 0.4, 1.6);
+                                                 mcnlohistBinned, tmpKido, tmpAhrens,powhegHerwighistBinned, 0.4, 1.6);
         } else { common::drawRatioXSEC(h_DiffXSec, madgraphhistBinned, powheghistBinned, mcnlohistBinned, 
                                   tmpKido, tmpAhrens, powhegHerwighistBinned, perugia11histBinned,0.4, 1.6);
         };
