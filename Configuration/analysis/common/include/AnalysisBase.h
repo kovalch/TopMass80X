@@ -100,7 +100,6 @@ public:
     
     /// Set the btag scale factors
     void SetBtagScaleFactors(BtagScaleFactors& scaleFactors);
-    void SetBtagScaleFactors(BTagSFGeneric& scaleFactors);
     
     /// Set jet energy resolution scale factors
     void SetJetEnergyResolutionScaleFactors(const JetEnergyResolutionScaleFactors* jetEnergyResolutionScaleFactors);
@@ -626,7 +625,6 @@ protected:
     // FIXME: make them also private, access via function
     /// Pointer to btag scale factors instance
     BtagScaleFactors* btagScaleFactors_;
-    BTagSFGeneric* bTagSFGeneric_;
 };
 
 

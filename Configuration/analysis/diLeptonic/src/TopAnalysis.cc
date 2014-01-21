@@ -656,7 +656,7 @@ void TopAnalysis::SlaveBegin(TTree*)
 
 
     // Histograms for b-tagging efficiencies
-    if(this->makeBtagEfficiencies()) btagScaleFactors_->bookBtagHistograms(fOutput, static_cast<std::string>(this->channel()));
+    if(this->makeBtagEfficiencies()) btagScaleFactors_->prepareBTags(fOutput, static_cast<std::string>(this->channel()));
     
     h_PUSF = store(new TH1D("PUSF", "PU SF per event", 200, 0.5, 1.5));
     h_TrigSF = store(new TH1D("TrigSF", "Trigger SF per event", 200, 0.5, 1.5));
@@ -888,8 +888,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     if(this->isMC() && !(btagScaleFactors_->makeEfficiencies()) && ReTagJet){
         // Apply b-tag efficiency MC correction using random number based tag flipping
         btagScaleFactors_->indexOfBtags(bjetIndices, jetIndices,
-                                        (*recoObjects.jets_), (*commonGenObjects.jetPartonFlavour_), (*recoObjects.jetBTagCSV_),
-                                        BtagWP, static_cast<std::string>(this->channel()));
+                                        (*recoObjects.jets_), (*commonGenObjects.jetPartonFlavour_), (*recoObjects.jetBTagCSV_));
     }
     orderIndices(bjetIndices, (*recoObjects.jetBTagCSV_));
     const int numberOfBjets = bjetIndices.size();
@@ -1200,9 +1199,8 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     
     // Fill the b-tagging efficiency plots
     if(this->makeBtagEfficiencies()){
-        btagScaleFactors_->fillBtagHistograms(jetIndices, bjetIndices,
-                                              (*recoObjects.jets_), (*commonGenObjects.jetPartonFlavour_),
-                                              weight, static_cast<std::string>(this->channel()));
+        btagScaleFactors_->fillBtagHistograms(jetIndices, (*recoObjects.jetBTagCSV_),
+                                              (*recoObjects.jets_), (*commonGenObjects.jetPartonFlavour_), weight);
         return kTRUE;
     }
     

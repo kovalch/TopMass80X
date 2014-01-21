@@ -25,7 +25,6 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   KinematicReconstruction_LSroutines
   KinematicReconstruction_MeanSol
   ScaleFactors
-  BTagUtils
   plotterUtils
   RootFileReader
   plotterclass

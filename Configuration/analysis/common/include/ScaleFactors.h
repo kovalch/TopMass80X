@@ -16,6 +16,7 @@ namespace ztop{
 
 #include "classesFwd.h"
 #include "storeTemplate.h"
+#include "TopAnalysis/ZTopUtils/interface/bTagBase.h"
 
 
 
@@ -147,170 +148,85 @@ private:
 
 
 
-class BtagScaleFactors{
-    
+class BtagScaleFactors : public ztop::bTagBase{
+
 public:
-    
-    /// Enumeration for possible systematics
-    enum Systematic{nominal,
-                    btag_up, btag_down,
-                    btagPt_up, btagPt_down,
-                    btagEta_up, btagEta_down,
-                    btagLjet_up, btagLjet_down,
-                    btagLjetPt_up, btagLjetPt_down,
-                    btagLjetEta_up, btagLjetEta_down,
-                    btagBeff_up, btagBeff_down,
-                    btagCeff_up, btagCeff_down,
-                    btagLeff_up, btagLeff_down};
-    
-    
-    
-    
-    
-    /// Constructor
-    BtagScaleFactors(const char* btagEfficiencyInputDir,
-                     const char* btagEfficiencyOutputDir,
-                     const std::vector<std::string>& channels,
-                     TString systematic);
-    
-    /// Destructor
-    ~BtagScaleFactors(){}
-    
-    
-    
-    /// Whether to produce b-tag efficiencies during Analysis
-    /// If efficiencies can be found, they are used in the Analysis, but not produced
-    /// If efficiencies cannot be found, they are not used in the Analysis, but produced
-    bool makeEfficiencies()const;
-    
-    
-    
-    /// Book histograms needed for b-tag efficiencies
-    void bookBtagHistograms(TSelectorList* output, const std::string& channel);
-    
-    /// Fill histograms needed for b-tag efficiencies
-    void fillBtagHistograms(const std::vector<int>& jetIndices,
-                            const std::vector<int>& bjetIndices,
-                            const VLV& jets,
-                            const std::vector<int>& jetPartonFlavours,
-                            const double weight,
-                            const std::string& channel);
-    
-    /// Produce b-tag efficiencies
-    void produceBtagEfficiencies(const std::string& channel);
-    
-    
-    
-    /// Get b-tag per-event scale factor
-    double calculateBtagSF(const std::vector<int>& jetIndices,
-                           const VLV& jets,
-                           const std::vector<int>& jetPartonFlavours,
-                           const std::string& channel)const;
-    
-    /// Method takes the indices of b-tagged jets,
-    /// and overwrites them with the b-tagged jets after randomised tag flipping
-    void indexOfBtags(std::vector<int>& bjetIndices,
-                      const std::vector<int>& jetIndices,
-                      const VLV& jets,
-                      const std::vector<int>& jetPartonFlavours,
-                      const std::vector<double>& btagDiscriminants,
-                      const double TagCut,
-                      const std::string& channel)const;
-    
-    
-    
-    
+
+  /// Constructor
+  BtagScaleFactors(const char* btagEfficiencyInputDir,
+                const char* btagEfficiencyOutputDir,
+                const std::vector<std::string>& channels,
+                TString systematic);
+
+  /// Destructor
+  ~BtagScaleFactors(){}
+
+
+
+  /// Whether to produce b-tag efficiencies during Analysis
+  /// If efficiencies can be found, they are used in the Analysis, but not produced
+  /// If efficiencies cannot be found, they are not used in the Analysis, but produced
+  bool makeEfficiencies();
+
+
+
+  /// Fill histograms needed for b-tag efficiencies
+  void fillBtagHistograms(const std::vector<int>& jetIndices,
+                          const std::vector<double>& bTagDiscriminant,
+                          const VLV& jets,
+                          const std::vector<int>& jetPartonFlavours,
+                          const double weight);
+
+  /// Produce b-tag efficiencies
+  void produceBtagEfficiencies(const std::string& channel);
+
+
+
+  /// Get b-tag per-event scale factor
+  double calculateBtagSF(const std::vector<int>& jetIndices,
+                         const VLV& jets,
+                         const std::vector<int>& jetPartonFlavours);
+
+  /// Method takes the indices of b-tagged jets,
+  /// and overwrites them with the b-tagged jets after randomised tag flipping
+  /// Method explained in: https://twiki.cern.ch/twiki/bin/view/CMS/BTagSFUtil
+  /// and in: https://twiki.cern.ch/twiki/bin/view/CMS/BTagSFMethods#2a_Jet_by_jet_updating_of_the_b
+  void indexOfBtags(std::vector<int>& bjetIndices,
+                    const std::vector<int>& jetIndices,
+                    const VLV& jets,
+                    const std::vector<int>& jetPartonFlavours,
+                    const std::vector<double>& btagDiscriminants)const;
+
+  /// Prepare b-tagging scale factors (efficiency histograms)
+  void prepareBTags(TSelectorList* output, const std::string& channel);
+
+
+
 private:
-    
-    struct ChannelStruct{
-        
-        ChannelStruct();
-        ChannelStruct(const std::string& inputFileName, const std::string& outputFileName);
-        ~ChannelStruct(){}
-        
-        /// Store the object in the output list and return it
-        template<class T> T* store(T* obj){return common::store(obj, selectorList_);}
-        
-        /// Input file name for files holding histograms of b-tagging efficiencies
-        std::string inputFileName_;
-        
-        /// Output file name in case b-tagging efficiencies are produced in Analysis
-        std::string outputFileName_;
-        
-        /// Medians in eta, pt for b-tag SF
-        double btag_ptmedian_;
-        double btag_etamedian_;
-        
-        /// Histograms of per-jet b-tagging efficiencies
-        /// Need to be written out to file previously
-        /// Used e.g. to calculate per-event SF
-        TH2* h2_bEff;
-        TH2* h2_cEff;
-        TH2* h2_lEff;
-        
-        /// Histograms for writing out b-tagging efficiencies
-        TH2* h2_bjets;
-        TH2* h2_cjets;
-        TH2* h2_ljets;
-        TH2* h2_btaggedjets;
-        TH2* h2_ctaggedjets;
-        TH2* h2_ltaggedjets;
-        
-        /// Pointer for bookkeeping of histograms
-        TSelectorList* selectorList_;    
-    };
-    
-    /// Prepare b-tagging scale factors (efficiency histograms and medians of jet eta, pt)
-    void prepareBtagSF(ChannelStruct& channelStruct);
-    
-    /// Methods needed for b-tag scale factor calculation
-    double BJetSF(const double&, const double&)const;
-    double CJetSF(const double&, const double&)const;
-    double LJetSF(const double&, const double&, const TString&)const;
-    double BJetSFAbsErr(const double&)const;
-    double CJetSFAbsErr(const double&)const;
-    
-    /// 'Random' decision to tag or not tag a jet.
-    /// Method explained in: https://twiki.cern.ch/twiki/bin/view/CMS/BTagSFUtil
-    /// and in: https://twiki.cern.ch/twiki/bin/view/CMS/BTagSFMethods#2a_Jet_by_jet_updating_of_the_b
-    bool isTagged(const LV& jet, const double tagValue, const int flavour,
-                  const double tagCut, const std::string& channel)const;
-    
-    double getEfficiency(const LV& jet, const int partonFlavour,
-                         const ChannelStruct& channelStruct)const;
-    
-    double getSF(const double pt, const double abs_eta,
-                 const int flavour, const ChannelStruct& channelStruct)const;
-    
-    /// Decide wich type of BTag variation is going to be done according to 
-    ///   systematics name 
-    ///   median value (if applicable)
-    double varySF(const double pt, const double eta,
-                  const int flavour,
-                  const double ptmedian, const double etamedian)const;
-    
-    /// Check if systematic belongs to a specific category
-    bool ljetSystematic()const;
-    bool ptUpSystematic()const;
-    bool ptDownSystematic()const;
-    bool etaUpSystematic()const;
-    bool etaDownSystematic()const;
-    bool absoluteUpSystematic()const;
-    bool absoluteDownSystematic()const;
-    
-    /// Access the ChannelStruct from the map for a given channel
-    ChannelStruct& getChannelStruct(const std::string& channel);
-    
-    
-    
-    /// Whether to produce btag efficiencies or whether to read in already produced ones
-    bool makeEfficiencies_;
-    
-    /// Systematic to be used for btag efficiencies
-    Systematic systematic_;
-    
-    /// Map holding the ChannelStruct for each relevant channel
-    std::map<std::string, ChannelStruct> m_channelChannelStruct_;
+
+  /// Input directory for files holding histograms of b-tagging efficiencies
+  std::string inputDirName_;
+
+  /// Output directory for files holding histograms, in case b-tagging efficiencies are produced in Analysis
+  std::string outputDirName_;
+
+  /// Name of the file with btag histograms
+  std::string fileName_;
+
+
+
+  /// Whether to produce btag efficiencies or whether to read in already produced ones
+  bool makeEfficiencies_;
+
+  /// Pointer for bookkeeping of histograms
+  TSelectorList* selectorList_;
+  
+  /// Map of the file names for each channel
+  std::map<std::string, std::string> channelFileNames_;
+  
+  /// Map of the sample names for each channel
+  std::map<std::string, std::string> channelSampleNames_;
+
 };
 
 
