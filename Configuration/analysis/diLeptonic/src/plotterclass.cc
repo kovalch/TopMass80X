@@ -2587,16 +2587,11 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
         perugia11histBinned->Scale(1./perugia11histBinned->Integral("width"));
     }
     if(drawNLOCurves && drawKidonakis &&
-        (name== "HypToppT" || name == "HypTopRapidity") && 
-        !name.Contains("Lead") && !name.Contains("RestFrame")){
-        TString kidoFile = ttbar::DATA_PATH_DILEPTONIC() + "/dilepton_kidonakisNNLO.root";
-        //KidoFile=TFile::Open(ttbar::DATA_PATH_DILEPTONIC() + "dilepton_kidonakisNNLO.root");
+        (name== "HypToppT" || name == "HypTopRapidity") && !name.Contains("Lead") && !name.Contains("RestFrame")){
+        TString kidoFile = ttbar::DATA_PATH_DILEPTONIC() + "/kidonakisNNLO_8TeV.root";
         if(name.Contains("ToppT")){
-            //Kidoth1_Binned = (TH1F*)KidoFile->Get("topPt");
             Kidoth1_Binned = fileReader->GetClone<TH1>(kidoFile, "topPt");
-        }
-        else if(name.Contains("TopRapidity")){
-            //Kidoth1_Binned = (TH1F*)KidoFile->Get("topY");
+        }else if(name.Contains("TopRapidity")){
             Kidoth1_Binned = fileReader->GetClone<TH1>(kidoFile, "topY");
         }
     }
@@ -3544,13 +3539,11 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
         perugia11histBinned->Scale(1./perugia11histBinned->Integral("width"));
     }
     if(drawNLOCurves && drawKidonakis &&
-        (name== "HypToppT" || name == "HypTopRapidity") && 
-        !name.Contains("Lead") && !name.Contains("RestFrame")){
-        TString kidoFile = ttbar::DATA_PATH_DILEPTONIC() + "/dilepton_kidonakisNNLO.root";
+        (name== "HypToppT" || name == "HypTopRapidity") && !name.Contains("Lead") && !name.Contains("RestFrame")){
+        TString kidoFile = ttbar::DATA_PATH_DILEPTONIC() + "/kidonakisNNLO_8TeV.root";
         if(name.Contains("ToppT")){
             Kidoth1_Binned = fileReader->GetClone<TH1>(kidoFile, "topPt");
-        }
-        else if(name.Contains("TopRapidity")){
+        }else if(name.Contains("TopRapidity")){
             Kidoth1_Binned = fileReader->GetClone<TH1>(kidoFile, "topY");
         }
     }
@@ -3732,7 +3725,7 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
     gPad->RedrawAxis();
 
     if(drawPlotRatio) {
-        TH1D* tmpKido =0;
+        TH1D *tmpKido = 0, *tmpAhrens = 0;
         if(Kidoth1_Binned){
             /// Idiot definition of temporary histogram for Kidonakis due to the larger number of bins in raw histogram
             tmpKido = (TH1D*)h_DiffXSec->Clone();
@@ -3741,11 +3734,19 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
             tmpKido->SetLineWidth(Kidoth1_Binned->GetLineWidth());
             for (int i=0; i<(int)tmpKido->GetNbinsX()+2; i++){tmpKido->SetBinContent(i,Kidoth1_Binned->GetBinContent(Kidoth1_Binned->FindBin(tmpKido->GetBinCenter(i))));};
         }
+        if(Ahrensth1_Binned){
+            /// Idiot definition of temporary histogram for Ahrens due to the larger number of bins in raw histogram
+            tmpAhrens = (TH1D*)h_DiffXSec->Clone();
+            tmpAhrens->SetLineColor(Ahrensth1_Binned->GetLineColor());
+            tmpAhrens->SetLineStyle(Ahrensth1_Binned->GetLineStyle());
+            tmpAhrens->SetLineWidth(Ahrensth1_Binned->GetLineWidth());
+            for (int i=0; i<(int)tmpAhrens->GetNbinsX()+2; i++){tmpAhrens->SetBinContent(i,Ahrensth1_Binned->GetBinContent(Ahrensth1_Binned->FindBin(tmpAhrens->GetBinCenter(i))));};
+        }
 
         if(doClosureTest) { common::drawRatioXSEC(h_DiffXSec, realTruthBinned, madgraphhistBinned, powheghistBinned,
                                                  mcnlohistBinned, tmpKido, Ahrensth1_Binned,powhegHerwighistBinned, 0.4, 1.6);
         } else { common::drawRatioXSEC(h_DiffXSec, madgraphhistBinned, powheghistBinned, mcnlohistBinned, 
-                                  tmpKido, Ahrensth1_Binned, powhegHerwighistBinned, perugia11histBinned,0.4, 1.6);
+                                  tmpKido, tmpAhrens, powhegHerwighistBinned, perugia11histBinned,0.4, 1.6);
         };
     };
 
