@@ -7,7 +7,7 @@ analysisDir=${TopAnalysisDir}/Configuration/analysis
 
 ztopDir=${TopAnalysisDir}/ZTopUtils
 commonSourceDir=${analysisDir}/common
-mainSourceDir=${analysisDir}/ttH
+mainSourceDir=${analysisDir}/diLeptonic
 
 
 if [ $# -ge 2 ] ; then
@@ -80,14 +80,14 @@ echo
 
 echo
 echo
-echo "Compiling project ttH using cmake/make"
+echo "Compiling project diLeptonic using cmake/make"
 echo "Source code in folder: ${mainSourceDir}"
 echo "Installation in folder: ${mainInstallDir}"
 echo
-if [ ! -d "${mainInstallDir}/build_ttH" ]; then
-    mkdir ${mainInstallDir}/build_ttH
+if [ ! -d "${mainInstallDir}/build_diLeptonic" ]; then
+    mkdir ${mainInstallDir}/build_diLeptonic
 fi
-cd ${mainInstallDir}/build_ttH
+cd ${mainInstallDir}/build_diLeptonic
 cmake -D CMAKE_INSTALL_PREFIX=${mainInstallDir}/install ${mainSourceDir}
 make -j8 install
 if [ $? -eq 0 ] ; then
