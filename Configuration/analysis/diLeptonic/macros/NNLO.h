@@ -20,7 +20,6 @@ class NNLO {
 
     private:
 
-        TString Theory;
         TString parPlotName;
         unsigned int parVerbose;
         TString outputFilename;
@@ -43,8 +42,8 @@ class NNLO {
         void drawControlPlots();
         void printControlOutput();
         void setObjectStyles(TString xAxisTitle="", TString xAxisUnit="", 
-                                TString yAxisTitle="", TString yAxisUnit="", TString yAxisTitleNorm="", TString yAxisUnitNorm="", 
-                                bool logXScale=0, double ymax=1.0);
+                             TString yAxisTitle="", TString yAxisUnit="", TString yAxisTitleNorm="", TString yAxisUnitNorm="",
+                             bool logXScale=0, double ymax=1.0);
         void fillLegends();
 
         void writeOutputFile(TString file_open_option);
@@ -68,7 +67,7 @@ class NNLO {
     public:
 
         NNLO();
-        NNLO(TString theory, TString plotname, bool verbose=0, TString Energy = "8");
+        NNLO(TString plotname, bool verbose=0, TString Energy = "8");
         ~NNLO();
 
         int runNNLO(TString file_open_option="");
