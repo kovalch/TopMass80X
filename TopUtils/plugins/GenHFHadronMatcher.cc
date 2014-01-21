@@ -292,7 +292,6 @@ void GenHFHadronMatcher::endLuminosityBlock ( edm::LuminosityBlock&, edm::EventS
 */
 std::vector<int> GenHFHadronMatcher::findHadronJets ( const reco::GenJetCollection& genJets, std::vector<int> &hadIndex, std::vector<reco::GenParticle> &hadMothers, std::vector<std::vector<int> > &hadMothersIndices, std::vector<int> &hadFlavour )
 {
-
     std::vector<int> result;
     std::vector<const reco::Candidate*> hadMothersCand;
 
@@ -403,11 +402,12 @@ std::vector<int> GenHFHadronMatcher::findHadronJets ( const reco::GenJetCollecti
 
         // Finding last quark for each first quark
         for ( unsigned int qId=0; qId<FirstQuarkId.size(); qId++ ) {
-            // Getting mothers of the first quark
-            std::vector<int> FirstQMotherId = hadMothersIndices.at ( FirstQuarkId[qId] );
+            // Identifying the flavour of the first quark to find the last quark of the same flavour
+            int bQFlav = hadMothers.at(FirstQuarkId.at(qId)).pdgId() < 0?-1:1;
             // Finding last quark of the hadron starting from the first quark
-            findInMothers ( FirstQuarkId.at(qId), LastQuarkId, hadMothersIndices, hadMothers, 0, hadFlav*flavour_, false, 2, false );
+            findInMothers ( FirstQuarkId.at(qId), LastQuarkId, hadMothersIndices, hadMothers, 0, bQFlav*flavour_, false, 2, false );
         }		// End of loop over all first quarks of the hadron
+        printf("NLastQuarks: %d\n",(int)LastQuarkId.size());
 
         // Setting iinitial flavour of the hadron
         int hadronFlavour = 0;
@@ -445,22 +445,18 @@ std::vector<int> GenHFHadronMatcher::findHadronJets ( const reco::GenJetCollecti
 
         if(lastQuarkIndices.at(hadNum)<0) {
             hadronFlavour = 0;
+            hadFlavour.push_back(hadronFlavour);    // Adding hadron flavour to the list of flavours
         } else {
             int qIdx = LastQuarkId.at( lastQuarkIndices.at( hadNum ) );
             int qFlav = ( hadMothers.at(qIdx).pdgId() < 0 ) ? -1 : 1;
             hadronFlavour = qFlav*std::abs( hadMothers.at( LastQuarkMotherId.at( lastQuarkIndices.at( hadNum ) ) ).pdgId() );
-        }
-        hadFlavour.push_back(hadronFlavour);    // Adding hadron flavour to the list of flavours
+            hadFlavour.push_back(hadronFlavour);    // Adding hadron flavour to the list of flavours
 
-        if(lastQuarkIndices.at(hadNum)>=0) {
             std::set<int> checkedHadronIds;
             bool noAmbiguity = fixExtraSameFlavours(hadNum, hadIndex, hadMothers, hadMothersIndices, LastQuarkIds, LastQuarkMotherIds, lastQuarkIndices, hadFlavour, checkedHadronIds, 0);
 
-            int qIdx = LastQuarkId.at( lastQuarkIndices.at( hadNum ) );
-            int qFlav = ( hadMothers.at(qIdx).pdgId() < 0 ) ? -1 : 1;
-            hadronFlavour = qFlav*std::abs( hadMothers.at( LastQuarkMotherId.at( lastQuarkIndices.at( hadNum ) ) ).pdgId() );
-            if(!noAmbiguity) hadronFlavour = qFlav*21;      // Assigning the gluon as mother of ambiguous hadron
-        }       // If at least 1 lasst quark found for this hadron
+            if(!noAmbiguity) hadFlavour.at(hadNum) = qFlav*21;      // Assigning the gluon as mother of ambiguous hadron
+        }       // If at least 1 last quark found for this hadron
 
     }	// End of loop over all hadrons
 

@@ -285,6 +285,7 @@ void common::drawRatio(const TH1* histNumerator, const TH1* histDenominator,
     double scaleFactor = 1./(canvAsym*ratioSize);
     ratio->SetStats(kFALSE);
     ratio->SetTitle("");
+    ratio->SetName("ratio");
     ratio->SetMaximum(ratioMax);
     ratio->SetMinimum(ratioMin);
     ratio->SetLineWidth(1);

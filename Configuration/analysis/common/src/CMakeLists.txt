@@ -2,43 +2,26 @@ SET( ${PROJECT_NAME}_ROOTDICT_DIR ${CMAKE_BINARY_DIR}/ROOTdicts )
 SET( DICT_NAME ${${PROJECT_NAME}_ROOTDICT_DIR}/${PROJECT_NAME}_dict.cc )
 
 SET( ${PROJECT_NAME}_HEADERS_THAT_NEED_ROOTDICT
-  HiggsAnalysis
-  ttH_LinkDef )
+  AnalysisBase
+  classes
+  classesFwd
+  common_LinkDef )
 
 SET( ${PROJECT_NAME}_LIBSOURCES
-  HistoListReader
-  higgsUtils
-  analysisHelpers
-  analysisStructs
-  HiggsAnalysis
-  MvaTreeHandler
-  MvaTreeAnalyzer
-  MvaWeights2d
-  MvaReader
-  MvaFactory
-  MvaValidation
-  mvaSetup
-  mvaStructs
-  AnalysisHistograms
-  BasicAnalyzer
-  JetChargeAnalyzer
-  JetMatchAnalyzer
-  JetCategories
-  Playground
-  DijetAnalyzer
-  plotterHelpers
-  Samples
-  DyScaleFactors
-  EventYields
-  Plotter
-  )
-
-SET( ${PROJECT_NAME}_EXECUTABLES
-  load_Analysis
-  train_bdt_topSystemJetAssignment
-  histo_bdt_topSystemJetAssignment
-  histo_mvaVariables_topSystemJetAssignment
-  Histo
+  utils
+  CommandLineParameters
+  sampleHelpers
+  AnalysisBase
+  analysisUtils
+  analysisObjectStructs
+  KinReco
+  KinematicReconstruction
+  KinematicReconstruction_LSroutines
+  KinematicReconstruction_MeanSol
+  ScaleFactors
+  BTagUtils
+  plotterUtils
+  RootFileReader
   )
 
 
@@ -51,7 +34,6 @@ ADD_DEFINITIONS(-Wall -Wextra -pedantic -Wno-vla -O2 -g -std=c++0x -DSTANDALONE_
 
 INCLUDE_DIRECTORIES( ${ROOT_INCLUDE_DIR} )
 INCLUDE_DIRECTORIES( ${ZTopUtils_INCLUDE_DIRS} )
-INCLUDE_DIRECTORIES( ${ntupleCommon_INCLUDE_DIRS} )
 INCLUDE_DIRECTORIES( BEFORE "${${PROJECT_NAME}_SOURCE_DIR}/include" ${${PROJECT_NAME}_ROOTDICT_DIR} )
 
 
@@ -62,8 +44,8 @@ INCLUDE_DIRECTORIES( BEFORE "${${PROJECT_NAME}_SOURCE_DIR}/include" ${${PROJECT_
 MESSAGE (STATUS "starting ROOT dict header search:")
 FOREACH( filename ${${PROJECT_NAME}_HEADERS_THAT_NEED_ROOTDICT} )
   FIND_FILE( ${filename}_fullPath "${filename}.h"
-    PATHS "${${PROJECT_NAME}_SOURCE_DIR}/include"  NO_DEFAULT_PATH )
-  MESSAGE (STATUS "  ${filename} found at: ${${filename}_fullPath}")
+    PATHS  "${${PROJECT_NAME}_SOURCE_DIR}/include"  NO_DEFAULT_PATH )
+  MESSAGE (STATUS "  ${filename} --> ${${filename}_fullPath}")
   SET(ROOT_DICT_HEADERS ${ROOT_DICT_HEADERS} ${${filename}_fullPath} )
   UNSET(${filename}_fullPath CACHE)
 ENDFOREACH( filename ${${PROJECT_NAME}_HEADERS_THAT_NEED_ROOTDICT} )
@@ -79,7 +61,8 @@ ADD_CUSTOM_COMMAND( OUTPUT ${DICT_NAME}
 
 
 ADD_LIBRARY( ${PROJECT_NAME} SHARED ${${PROJECT_NAME}_LIBSOURCES} ${DICT_NAME} )
-TARGET_LINK_LIBRARIES( ${PROJECT_NAME} ${ROOT_LIBRARIES} ${ZTopUtils_LIBRARIES} ${ntupleCommon_LIBRARIES})
+TARGET_LINK_LIBRARIES( ${PROJECT_NAME} ${ROOT_LIBRARIES} ${ZTopUtils_LIBRARIES} )
+
 
 INSTALL(TARGETS ${PROJECT_NAME}
         LIBRARY DESTINATION lib
@@ -88,10 +71,3 @@ INSTALL(TARGETS ${PROJECT_NAME}
         GROUP_READ GROUP_EXECUTE
         WORLD_READ WORLD_EXECUTE  )
 
-
-FOREACH( exec ${${PROJECT_NAME}_EXECUTABLES} )
-  ADD_EXECUTABLE( ${exec} ${exec} )
-  TARGET_LINK_LIBRARIES( ${exec} ${PROJECT_NAME} ${ROOT_LIBRARIES} ${ZTopUtils_LIBRARIES} ${ntupleCommon_LIBRARIES} )
-  INSTALL(TARGETS ${exec}
-    RUNTIME DESTINATION bin )
-ENDFOREACH( exec ${${PROJECT_NAME}_EXECUTABLES} )

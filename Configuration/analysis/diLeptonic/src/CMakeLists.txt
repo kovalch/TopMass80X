@@ -8,7 +8,7 @@ SET( ${PROJECT_NAME}_HEADERS_THAT_NEED_ROOTDICT
   TopAnalysis
   classes
   classesFwd
-  LinkDef )
+  diLeptonic_LinkDef )
 
 SET( ${PROJECT_NAME}_LIBSOURCES
   utils

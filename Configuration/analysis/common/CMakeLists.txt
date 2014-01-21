@@ -1,4 +1,4 @@
-PROJECT( ttH )
+PROJECT( ntupleCommon )
 
 #################
 # modules/macros
@@ -10,7 +10,6 @@ SET( CMAKE_MODULE_PATH ${${PROJECT_NAME}_SOURCE_DIR}/../cmake ${CMAKE_MODULE_PAT
 # cmake options
 ################
 CMAKE_MINIMUM_REQUIRED( VERSION 2.4.6 )
-cmake_policy(SET CMP0003 NEW)
 MARK_AS_ADVANCED(CMAKE_BACKWARDS_COMPATIBILITY)
 
 #################
@@ -48,15 +47,11 @@ ENDIF(NOT CMAKE_BUILD_TYPE)
 
 FIND_PACKAGE( ROOT REQUIRED )
 # Next line needed to be replaced by the second line, because changed version of FindROOT.cmake does not work with first line
-#SET( ROOT_EXTRA_LIBS -lGenVector -lTMVA -lHistPainter)
-SET( ROOT_LIBRARIES ${ROOT_LIBRARIES} -lGenVector -lHistPainter -lTMVA )
+#SET( ROOT_EXTRA_LIBS -lGenVector -lHistPainter)
+#SET( ROOT_LIBRARIES ${ROOT_LIBRARIES} -lGenVector -lHistPainter )
 
 FIND_PACKAGE( ZTopUtils REQUIRED )
 # now you can use ${ZTopUtils_INCLUDE_DIRS} and ${ZTopUtils_LIBRARIES}
-
-FIND_PACKAGE( ntupleCommon PATHS ../common/install REQUIRED )
-MESSAGE( STATUS "ntupleCommon_INCLUDE_DIRS = ${ntupleCommon_INCLUDE_DIRS}")
-MESSAGE( STATUS "ntupleCommon_LIBRARIES    = ${ntupleCommon_LIBRARIES}")
 
 #######################
 # installation options
@@ -117,18 +112,19 @@ ADD_SUBDIRECTORY( src )
 INCLUDE (DOCUMENTATION)
 
 
-##########
-# install the scripts into the bin directory
-##########
-FILE(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/scripts)
-FILE(GLOB scripts RELATIVE  ${PROJECT_SOURCE_DIR}/scripts scripts/*)
-MESSAGE(STATUS "scripts found: ${scripts}")
-FOREACH( script ${scripts})
-  MESSAGE(STATUS "configuring ${script} to  ${CMAKE_BINARY_DIR}/scripts")
-  CONFIGURE_FILE( ${PROJECT_SOURCE_DIR}/scripts/${script} ${CMAKE_BINARY_DIR}/scripts/${script} @ONLY )
-  INSTALL(PROGRAMS  ${CMAKE_BINARY_DIR}/scripts/${script}
-    DESTINATION bin )
-ENDFOREACH( script ${scripts} )
+########################
+# generate configuration cmake file for other projects
+########################
+
+FIND_PATH(pathToConfigTemplate genericConfig.cmake.in PATHS ${CMAKE_MODULE_PATH})
+GET_PROPERTY(LIB_BUILD_NAME TARGET ${PROJECT_NAME} PROPERTY LOCATION)
+GET_FILENAME_COMPONENT(FULL_LIB_NAME ${LIB_BUILD_NAME} NAME)
+
+CONFIGURE_FILE( ${pathToConfigTemplate}/genericConfig.cmake.in
+  ${${PROJECT_NAME}_BINARY_DIR}/${PROJECT_NAME}Config.cmake)
+INSTALL( FILES ${${PROJECT_NAME}_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+  DESTINATION ${CONFIG_INSTALL_DIR}                               )
+
 
 
 ########################

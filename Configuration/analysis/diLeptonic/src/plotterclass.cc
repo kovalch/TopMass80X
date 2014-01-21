@@ -956,6 +956,7 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
     for(unsigned int i=0; i<hists.size() ; i++){ // prepare histos and leg
         drawhists[i]=(TH1D*) hists[i].Clone();//rebin and scale the histograms
         if(rebin>1) drawhists[i]->Rebin(rebin);
+        if(XAxisbins.size()>1) drawhists[i] = drawhists[i]->Rebin(bins,"tmp",Xbins);
         setStyle(drawhists[i], i, true);
     }
 
@@ -966,7 +967,7 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
         //      drawhists[i]->Scale(12.1/5.1);
 
         if(XAxisbins.size()>1){//only distributions we want to unfold will have a binning vector
-            if(legends.at(i) == "t#bar{t} Signal"){
+            if(legends.at(i) == "t#bar{t} Signal" && doUnfolding){
                 TString ftemp = dataset.at(i);
                 double LumiWeight = CalcLumiWeight(dataset.at(i));
                 if (!init) {
@@ -1056,7 +1057,7 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
     }
     }
 
-    if(XAxisbins.size()>1){//only distributions we want to unfold will have a binning vector
+    if(XAxisbins.size()>1 && doUnfolding){//only distributions we want to unfold will have a binning vector
         aDataHist = drawhists[0]->Rebin(bins,"aDataHist",Xbins);
 
         TString outdir = common::assignFolder("preunfolded", Channel, Systematic);
@@ -1142,7 +1143,7 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
     DrawCMSLabels(1, 8);
     DrawDecayChLabel(channelLabel[channelType]);
 
-    TString legtit = "";                                        
+    TString legtit = "";
     if(name.Contains("JetMult")) {
         if(name.Contains("pt60")) legtit += "p_{T}^{jet}> 60 GeV";
         else if(name.Contains("pt100")) legtit += "p_{T}^{jet}> 100 GeV";
@@ -1175,11 +1176,17 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
     }
     sumMC->SetName(name);
 
+    // Get the ratio plot from the canvas
+    TPad* tmpPad = dynamic_cast<TPad*>(c->GetPrimitive("rPad"));
+    TH1* ratio = nullptr;
+    if(tmpPad) ratio = dynamic_cast<TH1*>(tmpPad->GetPrimitive("ratio"));
+
     //save Canvas AND sources in a root file
     TFile out_root(outdir.Copy()+name+"_source.root", "RECREATE");
     drawhists[0]->Write(name+"_data");
     sumttbar->Write(name+"_signalmc");
     sumMC->Write(name+"_allmc");
+    if(ratio && ratio->GetEntries())ratio->Write("ratio");
     c->Write(name + "_canvas");
     out_root.Close();
 
@@ -1312,6 +1319,42 @@ void Plotter::PlotXSec(TString Channel){
     kidonplot->SetFillColor(kGreen+1);
     kidonplot->SetFillStyle(3004);
 
+    // Full NNLO
+    Double_t nnlomean = 245.794;
+    Double_t errDown = 10.656;
+    Double_t errUp   = 8.652;
+    Double_t nnlox[]   = {    -0.5,     0.5,   1.5,     2.5,     3.5,     4.5};
+    Double_t nnloy[]   = {nnlomean,nnlomean,nnlomean,nnlomean,nnlomean,nnlomean};
+    Double_t nnloexl[] = {      .4,    .4,      .5,      .5,      .5,      .5};
+    Double_t nnloexh[] = {      .5,    .5,      .5,      .5,      .4,      .4};
+    Double_t nnloeyl[] = { errDown, errDown, errDown, errDown, errDown, errDown};
+    Double_t nnloeyh[] = {   errUp,   errUp,   errUp,   errUp,   errUp,   errUp};
+
+    TGraphAsymmErrors *nnloplot = new TGraphAsymmErrors(6, nnlox, nnloy, nnloexl, nnloexh, nnloeyl, nnloeyh);
+    nnloplot->SetLineColor(kGreen+1);
+    nnloplot->SetLineWidth(4);
+    nnloplot->SetFillColor(kGreen+1);
+    nnloplot->SetFillStyle(3004);
+
+    // TopLHC working group, prescription for m_top = 172.5 GeV
+    //   https://indico.cern.ch/getFile.py/access?contribId=4&sessionId=1&resId=0&materialId=slides&confId=280522
+
+    Double_t toplhcwgmean = 252.89;
+    Double_t toplhcwgDown = 15.313;
+    Double_t toplhcwgUp   = 16.266;
+    Double_t toplhcwgx[]   = {    -0.5,     0.5,   1.5,     2.5,     3.5,     4.5};
+    Double_t toplhcwgy[]   = {toplhcwgmean,toplhcwgmean,toplhcwgmean,toplhcwgmean,toplhcwgmean,toplhcwgmean};
+    Double_t toplhcwgexl[] = {      .4,    .4,      .5,      .5,      .5,      .5};
+    Double_t toplhcwgexh[] = {      .5,    .5,      .5,      .5,      .4,      .4};
+    Double_t toplhcwgeyl[] = { toplhcwgDown, toplhcwgDown, toplhcwgDown, toplhcwgDown, toplhcwgDown, toplhcwgDown};
+    Double_t toplhcwgeyh[] = {   toplhcwgUp,   toplhcwgUp,   toplhcwgUp,   toplhcwgUp,   toplhcwgUp,   toplhcwgUp};
+
+    TGraphAsymmErrors *toplhcwgplot = new TGraphAsymmErrors(6, toplhcwgx, toplhcwgy, toplhcwgexl, toplhcwgexh, toplhcwgeyl, toplhcwgeyh);
+    toplhcwgplot->SetLineColor(kGreen+1);
+    toplhcwgplot->SetLineWidth(4);
+    toplhcwgplot->SetFillColor(kGreen+1);
+    toplhcwgplot->SetFillStyle(3004);
+
     // mcfm
     Double_t mcfmmean = 225.197;
     Double_t mcfmx[]   = {      -0.5,     0.5,     1.5,     2.5,     3.5,     4.5};
@@ -1365,12 +1408,16 @@ void Plotter::PlotXSec(TString Channel){
     leg->SetTextSize(0.03);
     leg->AddEntry( mplot,       "Measurements",            "p"  );
     leg->AddEntry( mcfmplot, "MCFM #otimes CTQE66M", "lf" );
-    leg->AddEntry( kidonplot,    "Kidonakis #otimes MSTW2008 NNLO",     "lf" );
+//    leg->AddEntry( kidonplot,    "Kidonakis #otimes MSTW2008 NNLO",     "lf" );
+//    leg->AddEntry( nnloplot,    "NNLO #otimes MSTW2008 NNLO",     "lf" );
+    leg->AddEntry( toplhcwgplot,    "TOP LHC WG",     "lf" );
 
     TCanvas* c = new TCanvas("plot", "plot", 1200, 800);
     framehist->Draw();
     mcfmplot->Draw("C,2,SAME");
-    kidonplot->Draw("C,2,SAME");
+    //kidonplot->Draw("C,2,SAME");
+    //nnloplot->Draw("C,2,SAME");
+    toplhcwgplot->Draw("C,2,SAME");
     gStyle->SetEndErrorSize(8);
     mplot->Draw("p,SAME");
     mplotwithsys->Draw("p,SAME,Z");
@@ -2540,16 +2587,11 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
         perugia11histBinned->Scale(1./perugia11histBinned->Integral("width"));
     }
     if(drawNLOCurves && drawKidonakis &&
-        (name== "HypToppT" || name == "HypTopRapidity") && 
-        !name.Contains("Lead") && !name.Contains("RestFrame")){
-        TString kidoFile = ttbar::DATA_PATH_DILEPTONIC() + "/dilepton_kidonakisNNLO.root";
-        //KidoFile=TFile::Open(ttbar::DATA_PATH_DILEPTONIC() + "dilepton_kidonakisNNLO.root");
+        (name== "HypToppT" || name == "HypTopRapidity") && !name.Contains("Lead") && !name.Contains("RestFrame")){
+        TString kidoFile = ttbar::DATA_PATH_DILEPTONIC() + "/kidonakisNNLO_8TeV.root";
         if(name.Contains("ToppT")){
-            //Kidoth1_Binned = (TH1F*)KidoFile->Get("topPt");
             Kidoth1_Binned = fileReader->GetClone<TH1>(kidoFile, "topPt");
-        }
-        else if(name.Contains("TopRapidity")){
-            //Kidoth1_Binned = (TH1F*)KidoFile->Get("topY");
+        }else if(name.Contains("TopRapidity")){
             Kidoth1_Binned = fileReader->GetClone<TH1>(kidoFile, "topY");
         }
     }
@@ -2784,8 +2826,8 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
           matchupBinned->Draw("SAME");
           matchdownBinned->Draw("SAME");
           }
-          ofstream OutputFileXSec(string("Plots/"+Channel+"/"+name+"DiffXsecMass.txt"));       
-              for(int i = 1; i < madupBinned->GetNbinsX(); i++){                               
+          ofstream OutputFileXSec(string("Plots/"+Channel+"/"+name+"DiffXsecMass.txt"));
+              for(int i = 1; i < madupBinned->GetNbinsX(); i++){
               //OutputFileXSec<<"Nominal "<<"Mass 181 GeV" << " Mass 175 GeV"<< "Mass 169 GeV" << "Mass 163 GeV"<<endl;                             OutputFileXSec<<h_DiffXSec->GetBinContent(i)<< " "<<tga_DiffXSecPlot->GetErrorY(i-1)<<" "<<tga_DiffXSecPlotwithSys->GetErrorY(i-1)<< " "<<h|
               }
           OutputFileXSec.close();
@@ -2923,17 +2965,25 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
     gPad->RedrawAxis();
 
     if(drawPlotRatio) {
-        TH1D* tmpKido =0;
+        TH1D *tmpKido = 0, *tmpAhrens = 0;
         if(Kidoth1_Binned){
             /// Idiot definition of temporary histogram for Kidonakis due to the larger number of bins in raw histogram
             tmpKido = (TH1D*)h_DiffXSec->Clone();
             tmpKido->SetLineColor(Kidoth1_Binned->GetLineColor());
             tmpKido->SetLineStyle(Kidoth1_Binned->GetLineStyle());
             tmpKido->SetLineWidth(Kidoth1_Binned->GetLineWidth());
-            for (int i=1; i<(int)tmpKido->GetNbinsX()+1; i++){ tmpKido->SetBinContent(i,Kidoth1_Binned->GetBinContent(i));};
+            for (int i=0; i<(int)tmpKido->GetNbinsX()+2; i++){tmpKido->SetBinContent(i,Kidoth1_Binned->GetBinContent(Kidoth1_Binned->FindBin(tmpKido->GetBinCenter(i))));};
+        }
+        if(Ahrensth1_Binned){
+            /// Idiot definition of temporary histogram for Ahrens due to the larger number of bins in raw histogram
+            tmpAhrens = (TH1D*)h_DiffXSec->Clone();
+            tmpAhrens->SetLineColor(Ahrensth1_Binned->GetLineColor());
+            tmpAhrens->SetLineStyle(Ahrensth1_Binned->GetLineStyle());
+            tmpAhrens->SetLineWidth(Ahrensth1_Binned->GetLineWidth());
+            for (int i=0; i<(int)tmpAhrens->GetNbinsX()+2; i++){tmpAhrens->SetBinContent(i,Ahrensth1_Binned->GetBinContent(Ahrensth1_Binned->FindBin(tmpAhrens->GetBinCenter(i))));};
         }
 
-        common::drawRatioXSEC(h_DiffXSec, madgraphhistBinned, powheghistBinned, mcnlohistBinned, tmpKido, Ahrensth1_Binned,powhegHerwighistBinned, perugia11histBinned, 0.4, 1.6);
+        common::drawRatioXSEC(h_DiffXSec, madgraphhistBinned, powheghistBinned, mcnlohistBinned, tmpKido, tmpAhrens,powhegHerwighistBinned, perugia11histBinned, 0.4, 1.6);
     };
 
 //    if(drawMadScaleMatching) {powheghist = nullptr; mcnlohist = nullptr; common::drawRatioXSEC(h_DiffXSec,h_GenDiffXSec,madupBinned,maddownBinned,matchupBinned,matchdownBinned,0,0,0.4, 1.6); }
@@ -3497,13 +3547,11 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
         perugia11histBinned->Scale(1./perugia11histBinned->Integral("width"));
     }
     if(drawNLOCurves && drawKidonakis &&
-        (name== "HypToppT" || name == "HypTopRapidity") && 
-        !name.Contains("Lead") && !name.Contains("RestFrame")){
-        TString kidoFile = ttbar::DATA_PATH_DILEPTONIC() + "/dilepton_kidonakisNNLO.root";
+        (name== "HypToppT" || name == "HypTopRapidity") && !name.Contains("Lead") && !name.Contains("RestFrame")){
+        TString kidoFile = ttbar::DATA_PATH_DILEPTONIC() + "/kidonakisNNLO_8TeV.root";
         if(name.Contains("ToppT")){
             Kidoth1_Binned = fileReader->GetClone<TH1>(kidoFile, "topPt");
-        }
-        else if(name.Contains("TopRapidity")){
+        }else if(name.Contains("TopRapidity")){
             Kidoth1_Binned = fileReader->GetClone<TH1>(kidoFile, "topY");
         }
     }
@@ -3685,20 +3733,28 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
     gPad->RedrawAxis();
 
     if(drawPlotRatio) {
-        TH1D* tmpKido =0;
+        TH1D *tmpKido = 0, *tmpAhrens = 0;
         if(Kidoth1_Binned){
             /// Idiot definition of temporary histogram for Kidonakis due to the larger number of bins in raw histogram
             tmpKido = (TH1D*)h_DiffXSec->Clone();
             tmpKido->SetLineColor(Kidoth1_Binned->GetLineColor());
             tmpKido->SetLineStyle(Kidoth1_Binned->GetLineStyle());
             tmpKido->SetLineWidth(Kidoth1_Binned->GetLineWidth());
-            for (int i=1; i<(int)tmpKido->GetNbinsX()+1; i++){ tmpKido->SetBinContent(i,Kidoth1_Binned->GetBinContent(i));};
+            for (int i=0; i<(int)tmpKido->GetNbinsX()+2; i++){tmpKido->SetBinContent(i,Kidoth1_Binned->GetBinContent(Kidoth1_Binned->FindBin(tmpKido->GetBinCenter(i))));};
+        }
+        if(Ahrensth1_Binned){
+            /// Idiot definition of temporary histogram for Ahrens due to the larger number of bins in raw histogram
+            tmpAhrens = (TH1D*)h_DiffXSec->Clone();
+            tmpAhrens->SetLineColor(Ahrensth1_Binned->GetLineColor());
+            tmpAhrens->SetLineStyle(Ahrensth1_Binned->GetLineStyle());
+            tmpAhrens->SetLineWidth(Ahrensth1_Binned->GetLineWidth());
+            for (int i=0; i<(int)tmpAhrens->GetNbinsX()+2; i++){tmpAhrens->SetBinContent(i,Ahrensth1_Binned->GetBinContent(Ahrensth1_Binned->FindBin(tmpAhrens->GetBinCenter(i))));};
         }
 
         if(doClosureTest) { common::drawRatioXSEC(h_DiffXSec, realTruthBinned, madgraphhistBinned, powheghistBinned,
-                                                 mcnlohistBinned, tmpKido, Ahrensth1_Binned,powhegHerwighistBinned, 0.4, 1.6);
+                                                 mcnlohistBinned, tmpKido, tmpAhrens,powhegHerwighistBinned, 0.4, 1.6);
         } else { common::drawRatioXSEC(h_DiffXSec, madgraphhistBinned, powheghistBinned, mcnlohistBinned, 
-                                  tmpKido, Ahrensth1_Binned, powhegHerwighistBinned, perugia11histBinned,0.4, 1.6);
+                                  tmpKido, tmpAhrens, powhegHerwighistBinned, perugia11histBinned,0.4, 1.6);
         };
     };
 
