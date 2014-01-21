@@ -69,7 +69,6 @@ ADD_CUSTOM_COMMAND( OUTPUT ${DICT_NAME}
 ## Unfortunately this explicit search for .C files is needed due to missing directory structure for code in unfolding/
 MESSAGE (STATUS "starting search for Unfolding source files")
 FOREACH( filename ${Unfold_LIBSOURCES} )
-  ## Unfortunately "${filename}.C" is needed, since files in unfolding/ do have this naming pattern
   FIND_FILE( ${filename}_cfilePath NAMES "${filename}.C"
     PATHS  ${Unfold_DIR}  NO_DEFAULT_PATH )
   MESSAGE (STATUS "  ${filename} found at: ${${filename}_cfilePath}")
@@ -78,10 +77,9 @@ FOREACH( filename ${Unfold_LIBSOURCES} )
 ENDFOREACH( filename ${${PROJECT_NAME}_LIBSOURCES} )
 
 
-
-#ADD_LIBRARY( ${PROJECT_NAME} SHARED ${${PROJECT_NAME}_LIBSOURCES_full} ${DICT_NAME} )
 ADD_LIBRARY( ${PROJECT_NAME} SHARED ${${PROJECT_NAME}_LIBSOURCES} ${Unfold_LIBSOURCES_full} ${DICT_NAME} )
 TARGET_LINK_LIBRARIES( ${PROJECT_NAME} ${ROOT_LIBRARIES} ${ZTopUtils_LIBRARIES} ${ntupleCommon_LIBRARIES} )
+
 
 INSTALL(TARGETS ${PROJECT_NAME}
         LIBRARY DESTINATION lib
