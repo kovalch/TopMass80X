@@ -846,7 +846,7 @@ if signal or higgsSignal or zGenInfo:
 process.scaledJetEnergy.inputElectrons       = "selectedPatElectrons"
 process.scaledJetEnergy.inputJets            = "selectedPatJets"
 process.scaledJetEnergy.inputMETs            = "patMETs"
-process.scaledJetEnergy.JECUncSrcFile        = cms.FileInPath("TopAnalysis/TopUtils/data/Summer13_V4_DATA_UncertaintySources_AK5PFchs.txt")
+process.scaledJetEnergy.JECUncSrcFile        = cms.FileInPath("TopAnalysis/Configuration/analysis/common/data/Summer13_V4_DATA_UncertaintySources_AK5PFchs.txt")
 process.scaledJetEnergy.scaleType = "abs"   #abs = 1, jes:up, jes:down
 
 if options.runOnMC:

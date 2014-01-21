@@ -32,7 +32,6 @@
 #include "../../common/include/CommandLineParameters.h"
 #include "../../common/include/KinematicReconstruction.h"
 #include "../../common/include/ScaleFactors.h"
-#include "../../common/include/BTagUtils.h"
 #include "TopAnalysis/ZTopUtils/interface/PUReweighter.h"
 
 
@@ -67,7 +66,8 @@ constexpr const char* TriggerSFInputSUFFIX = "_rereco198fb.root";
 
 /// File containing the uncertainties associated to JES
 //constexpr const char* JesUncertaintySourceFILE = "Fall12_V7_DATA_UncertaintySources_AK5PFchs.txt";
-constexpr const char* JesUncertaintySourceFILE = "Summer13_V1_DATA_UncertaintySources_AK5PFchs.txt";
+// constexpr const char* JesUncertaintySourceFILE = "Summer13_V1_DATA_UncertaintySources_AK5PFchs.txt";
+constexpr const char* JesUncertaintySourceFILE = "Summer13_V4_DATA_UncertaintySources_AK5PFchs.txt";
 
 
 
@@ -147,26 +147,11 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
                                                   Channel::convertChannels(Channel::realChannels),
                                                   triggerSFSystematic);
     
-    BtagScaleFactors *btagScaleFactors = 0;
-    BTagSFGeneric *bTagSFGeneric = 0;
-
-    // Setting the flag to choose which kind of btag scale factors to use
-    bool useGenericBTagSF = false;
-
-    if(useGenericBTagSF){
-        // Set up generic btag efficiency scale factors
-        bTagSFGeneric = new BTagSFGeneric(BtagEfficiencyInputDIR,
-                                          BtagEfficiencyOutputDIR,
-                                          Channel::convertChannels(Channel::realChannels),
-                                          Systematic::convertSystematic(systematic));
-    }
-    else{
-        // Set up btag efficiency scale factors (do it for all channels)
-        btagScaleFactors = new BtagScaleFactors(BtagEfficiencyInputDIR,
-                                                BtagEfficiencyOutputDIR,
-                                                Channel::convertChannels(Channel::realChannels),
-                                                Systematic::convertSystematic(systematic));
-    }
+    // Set up btag efficiency scale factors (do it for all channels)
+    BtagScaleFactors btagScaleFactors(BtagEfficiencyInputDIR,
+                                      BtagEfficiencyOutputDIR,
+                                      Channel::convertChannels(Channel::realChannels),
+                                      Systematic::convertSystematic(systematic));
     
     // Set up JER systematic scale factors
     JetEnergyResolutionScaleFactors* jetEnergyResolutionScaleFactors(0);
@@ -265,8 +250,7 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
     selector->SetPUReweighter(puReweighter);
     selector->SetLeptonScaleFactors(leptonScaleFactors);
     selector->SetTriggerScaleFactors(triggerScaleFactors);
-    if(btagScaleFactors) selector->SetBtagScaleFactors(*btagScaleFactors);
-    else if(bTagSFGeneric) selector->SetBtagScaleFactors(*bTagSFGeneric);
+    selector->SetBtagScaleFactors(btagScaleFactors);
     selector->SetJetEnergyResolutionScaleFactors(jetEnergyResolutionScaleFactors);
     selector->SetJetEnergyScaleScaleFactors(jetEnergyScaleScaleFactors);
     
