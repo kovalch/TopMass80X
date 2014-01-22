@@ -11,6 +11,7 @@
 #include "plotterHelpers.h"
 #include "Plotter.h"
 #include "HistoListReader.h"
+#include "higgsUtils.h"
 #include "../../common/include/utils.h"
 #include "../../common/include/sampleHelpers.h"
 #include "../../common/include/CommandLineParameters.h"
@@ -28,7 +29,7 @@ constexpr double Luminosity = 19712;
 
 
 
-void Histo(const std::vector<std::string> plots, 
+void Histo(const std::vector<std::string> v_plot, 
            const std::vector<Channel::Channel> v_channel,
            const std::vector<Systematic::Systematic> v_systematic,
            const DrawMode::DrawMode drawMode)
@@ -48,31 +49,35 @@ void Histo(const std::vector<std::string> plots,
     // Create Plotter
     Plotter generalPlot(samples, Luminosity, dyScaleFactors, drawMode);
     
-    // Loop over all histograms in histoList and print them
-    HistoListReader histoList("HistoList_control");
-    if (histoList.IsZombie()){
-        std::cerr<<"Cannot find HistoList_control, ... break\n\n"<<std::endl;
+    // Access the histoList specifying printing parameters of histograms
+    const std::string histoListFile(tth::DATA_PATH_TTH() + "/" + "HistoList_control");
+    const HistoListReader histoList(histoListFile.data());
+    if(histoList.isZombie()){
+        std::cerr<<"Error in Histo! Cannot find HistoList with name: "<<histoListFile<<"\n...break\n"<<std::endl;
         exit(12);
     }
+    
+    // Loop over all histograms in histoList and print them
     std::cout<<"--- Beginning with the plotting\n\n";
-    for (auto it = histoList.begin(); it != histoList.end(); ++it) {
+    for(auto it = histoList.begin(); it != histoList.end(); ++it){
         
         // Access plot properties from histoList and check whether histogram name contains name pattern
         const PlotProperties& plotProperties = it->second;
         std::cout << "\nchecking " << plotProperties.name << std::endl;
         bool found = false;
-        for (auto plot : plots) {
-            if (plot.size() && plot[0] == '+') {
-                if (plotProperties.name.CompareTo(&plot[1], TString::kIgnoreCase) == 0) {
+        for(const auto& plot : v_plot){
+            if(plot.size() && plot[0] == '+'){
+                if(plotProperties.name.CompareTo(&plot[1], TString::kIgnoreCase) == 0){
                     found = true;
                     break;
                 }
-            } else if (plotProperties.name.Contains(plot, TString::kIgnoreCase)) {
+            }
+            else if(plotProperties.name.Contains(plot, TString::kIgnoreCase)){
                 found = true;
                 break;
             }
         }
-        if (!found){
+        if(!found){
             std::cout<<"... no histograms found, continue with next\n";
             continue;
         }
@@ -91,10 +96,10 @@ void Histo(const std::vector<std::string> plots,
 
 
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv){
     
     // Get and check configuration parameters
-    CLParameter<std::string> opt_plots("p", "Name (pattern) of plot; multiple patterns possible; use '+Name' to match name exactly", false, 1, 100);
+    CLParameter<std::string> opt_plot("p", "Name (pattern) of plot; multiple patterns possible; use '+Name' to match name exactly", false, 1, 100);
     CLParameter<std::string> opt_channel("c", "Specify channel(s), valid: emu, ee, mumu, combined. Default: all channels", false, 1, 4,
         common::makeStringCheck(Channel::convertChannels(Channel::allowedChannelsPlotting)));
     CLParameter<std::string> opt_systematic("s", "Systematic variation - default is Nominal, use 'all' for all", false, 1, 100,
@@ -104,11 +109,11 @@ int main(int argc, char** argv) {
     CLAnalyser::interpretGlobal(argc, argv);
     
     // Set up plots
-    std::vector<std::string> plots {""};
-    if (opt_plots.isSet()){
-        plots = opt_plots.getArguments();
+    std::vector<std::string> v_plot {""};
+    if (opt_plot.isSet()){
+        v_plot = opt_plot.getArguments();
         std::cout<< "Processing only histograms containing in name: ";
-        for(auto plot : plots)std::cout<< plot << " ";
+        for(auto plot : v_plot)std::cout<< plot << " ";
         std::cout << "\n\n";
     }
     
@@ -137,7 +142,7 @@ int main(int argc, char** argv) {
     std::cout << "\n\n";
     
     // Start analysis
-    Histo(plots, v_channel, v_systematic, drawMode);
+    Histo(v_plot, v_channel, v_systematic, drawMode);
 }
 
 
