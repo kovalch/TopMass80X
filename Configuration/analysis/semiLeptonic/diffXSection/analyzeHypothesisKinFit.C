@@ -74,10 +74,11 @@ void analyzeHypothesisKinFit(double luminosity = 19712.,
   //        45: sysDiBosUp                 46: sysDiBosDown 
   //        47: sysVjetsUp                 48: sysVjetsDown
   //        49: sysBRUp                    50: sysBRDown              
-  //        51: sysPDFUp                   52: sysPDFDown                  
-  //        53: sysHadUp                   54: sysHadDown                  
-  //        55: sysGenMCatNLO              56: sysGenPowheg  
-  //        57: sysGenPowhegHerwig         58: ENDOFSYSENUM
+  //        51: sysPDFUp                   52: sysPDFDown 
+  //        53: sysUnf,                    54: sysMad,
+  //        55: sysHadUp                   56: sysHadDown                  
+  //        57: sysGenMCatNLO              58: sysGenPowheg  
+  //        59: sysGenPowhegHerwig         60: ENDOFSYSENUM
   
   // systematic variation for which you want to print the
   // inclusive cross section and the jet permutation overview
