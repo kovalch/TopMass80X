@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <map>
+
 #include <TString.h>
 
 class TH1;
@@ -47,22 +48,22 @@ private:
 
 class HistoListReader{
     
+public:
+    
+    HistoListReader(const char* filename);
+    bool isZombie()const;
+    const PlotProperties& getPlotProperties(const TString& name)const;
+    //rootcint does not like decltype! :-(
+    //auto begin() -> decltype(plots_.begin()) { return plots_.begin(); }
+    //auto end() -> decltype(plots_.end()) { return plots_.end(); }
+    std::map<TString, PlotProperties>::const_iterator begin()const{return plots_.begin();}
+    std::map<TString, PlotProperties>::const_iterator end()const{return plots_.end();}
+    
 private:
     
     const char* filename_;
     bool isZombie_;
     std::map<TString, PlotProperties> plots_;
-    
-public:
-    
-    HistoListReader(const char *filename);
-    bool IsZombie() const;
-    PlotProperties& getPlotProperties(TString name);
-    //rootcint does not like decltype! :-(
-    //auto begin() -> decltype(plots_.begin()) { return plots_.begin(); }
-    //auto end() -> decltype(plots_.end()) { return plots_.end(); }
-    std::map <TString, PlotProperties >::iterator begin(){return plots_.begin();}
-    std::map <TString, PlotProperties >::iterator end(){return plots_.end();}
 };
 
 

@@ -126,9 +126,9 @@ if options.globalTag != '':
 else:
     print "Determine global tag automatically"
     if options.runOnMC:
-        process.GlobalTag.globaltag = cms.string('START53_V26::All')
+        process.GlobalTag.globaltag = cms.string('START53_V27::All')
     else:
-	process.GlobalTag.globaltag = cms.string('FT_53_V21_AN6::All')
+        process.GlobalTag.globaltag = cms.string('FT_53_V21A_AN6::All')
 
 print "Using global tag: ", process.GlobalTag.globaltag
 
