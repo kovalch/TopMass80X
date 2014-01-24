@@ -658,6 +658,7 @@ void TopAnalysis::SlaveBegin(TTree*)
 
     // Histograms for b-tagging efficiencies
 //    if(this->makeBtagEfficiencies()) btagScaleFactors_->prepareBTags(fOutput, static_cast<std::string>(this->channel()));
+
     btagScaleFactors_->setWorkingPoint(BtagWP);
     btagScaleFactors_->prepareBTags(fOutput, static_cast<std::string>(this->channel()));
     
