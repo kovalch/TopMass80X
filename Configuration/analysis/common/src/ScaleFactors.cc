@@ -103,23 +103,6 @@ double ScaleFactorHelpers::get2DSF(TH2* histo, const double x, const double y)
 
 
 
-double ScaleFactorHelpers::median(TH1* h1)
-{ 
-    int nBin = h1->GetXaxis()->GetNbins();
-    std::vector<double> x(nBin);
-    h1->GetXaxis()->GetCenter(&x[0]);
-    TH1D* h1D = dynamic_cast<TH1D*>(h1);
-    if(!h1D){
-        std::cerr << "Median needs a TH1D!\n";
-        exit(7);
-    }
-    const double* y = h1D->GetArray();
-    // exclude underflow/overflows from bin content array y
-    return TMath::Median(nBin, &x[0], &y[1]);
-}
-
-
-
 
 
 

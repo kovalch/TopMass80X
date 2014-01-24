@@ -40,10 +40,6 @@ namespace ScaleFactorHelpers{
 /// Get 2-dimensional scale factor from histogram
 double get2DSF(TH2* histo, const double x, const double y);
 
-/** Calculate the median of a histogram
- *
- */
-double median(TH1* h1);
 }
 
 
