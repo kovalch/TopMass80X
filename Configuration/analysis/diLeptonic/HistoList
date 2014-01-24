@@ -30,7 +30,6 @@ HypToppTNLead Standard N_{Events} p_{T}^{NLead.t} 1 1 0 0 0.00001 0.01 0 0 5 0 8
 HypTTBarRapidity Standard N_{Events} y^{t#bar{t}} 1 1 0 0 0 0.8 0 0 6 -2.5 -1.2 -0.6 0.0 0.6 1.2 2.5 -1.95 -1.1 -0.4 0.4 1.1 1.95
 HypTTBarpT Standard N_{Events} p_{T}^{t#bar{t}} 1 1 0 0 0.0001 0.025 0 0 4 0 30 80 170 300 5 38.5 87 190
 HypTTBarMass Standard N_{Events} m^{t#bar{t}} 1 1 0 1 0.0001 0.04 0 0 6 340 380 470 620 820 1100 1600 365 450 540 775 940 1265
-#HypTTBarMass Standard N_{Events} m^{t#bar{t}} 1 1 0 1 0.0001 0.04 0 0 5 340 390 530 740 1100 1600 365 475 675 940 1265
 HypTTBarDeltaPhi Standard N_{Events} #Delta#phi^{t#bar{t}} 1 1 0 0 0 0 0 3.15 4 0 1.89 2.765 3.045 3.15 1.015 2.38 2.87 3.08
 
 HypBBBarpT Standard N_{Events} p_{T}^{b#bar{b}} 1 1 0 0 0 0.01 0 340 5 0 30 60 100 180 400 15 45 80 150 340
