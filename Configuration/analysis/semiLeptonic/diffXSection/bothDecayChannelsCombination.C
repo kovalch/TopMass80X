@@ -118,13 +118,14 @@ void bothDecayChannelsCombination(double luminosity=19712, bool save=true, unsig
   TString universalplotLabel = extrapolate ? "FullPS" : LV+"LvPS";
   
   // Choose additional theory curves to plot
-  // Version 1: data, MadGraph, MC@NLO, POWHEG NNLO (Kidonakis)
+  // Version 1: data, MadGraph, MC@NLO, POWHEG, NNLO (approx Kidonakis/ NNLL Ahrens)
   bool DrawSmoothMadgraph    = false;
   bool DrawMCAtNLOPlot       = true;
   bool DrawPOWHEGPYTHIAPlot  = true;
-  bool DrawPOWHEGHERWIGPlot  = true;
+  bool DrawPOWHEGHERWIGPlot  = false;
   bool DrawNNLOPlot          = true;
   bool DrawMCFMPlot          = false;
+  bool errorbands            = false;  // draw MC@NLO errorbands? 
   // smooth instead of binned theory curves
   if(smoothcurves){
     DrawSmoothMadgraph   = true;
@@ -803,7 +804,6 @@ void bothDecayChannelsCombination(double luminosity=19712, bool save=true, unsig
 	  plotNameMCAtNLO2.ReplaceAll("Plus","");
 	  // for bbbar and lead/sublead quantities
 	  // -> no error bands
-	  bool errorbands=true; 
  	  if(xSecVariables_[i].Contains("lbMass")||xSecVariables_[i].Contains("bbbar")||xSecVariables_[i].Contains("Lead")||xSecVariables_[i].Contains("PhiStar")||xSecVariables_[i].Contains("DelPhi")||xSecVariables_[i].Contains("topPtTtbarSys")||xSecVariables_[i].Contains("Njets")||xSecVariables_[i].Contains("rhos")){
 	    errorbands=false;
 	    // check if only external file should be used
