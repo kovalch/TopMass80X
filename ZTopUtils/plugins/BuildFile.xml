@@ -1,0 +1,9 @@
+
+
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/Utilities"/>
+<library file="*.cc" name="TopAnalysisZTopUtilsPlugins">
+  <use name="TopAnalysis/ZTopUtils"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

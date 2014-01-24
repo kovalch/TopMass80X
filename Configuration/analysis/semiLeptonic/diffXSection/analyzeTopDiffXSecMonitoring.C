@@ -144,15 +144,21 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
   //        25: sysVBosonScaleUp           26: sysVBosonScaleDown          
   //        27: sysSingleTopScaleUp        28: sysSingleTopScaleDown       
   //        29: sysTopMatchUp              30: sysTopMatchDown             
-  //        31: sysVBosonMatchUp           32: sysVBosonMatchDown          
-  //        33: sysTopMassUp               34: sysTopMassDown              
-  //        35: sysQCDUp                   36: sysQCDDown                  
-  //        37: sysSTopUp                  38: sysSTopDown                 
-  //        39: sysDiBosUp                 40: sysDiBosDown                
-  //        41: sysPDFUp                   42: sysPDFDown                  
-  //        43: sysHadUp                   44: sysHadDown                  
-  //        45: sysGenMCatNLO              46: sysGenPowheg  
-  //        47: sysGenPowhegHerwig         48: ENDOFSYSENUM
+  //        31: sysVBosonMatchUp           32: sysVBosonMatchDown  
+  //        33: sysTopMassUp               34: sysTopMassDown  
+  //        35: sysTopMassUp2              36: sysTopMassDown2
+  //        37: sysTopMassUp3              38: sysTopMassDown3
+  //        39: sysTopMassUp4              40: sysTopMassDown4
+  //        41: sysQCDUp                   42: sysQCDDown                  
+  //        43: sysSTopUp                  44: sysSTopDown                 
+  //        45: sysDiBosUp                 46: sysDiBosDown 
+  //        47: sysVjetsUp                 48: sysVjetsDown
+  //        49: sysBRUp                    50: sysBRDown              
+  //        51: sysPDFUp                   52: sysPDFDown 
+  //        53: sysUnf,                    54: sysMad,
+  //        55: sysHadUp                   56: sysHadDown                  
+  //        57: sysGenMCatNLO              58: sysGenPowheg  
+  //        59: sysGenPowhegHerwig         60: ENDOFSYSENUM         
 
   int systematicVariation=sysNo; // MadGraph: sysNo, topPt-reweigthing: sysTest, Powheg+Pythia: sysGenPowheg/sysTestPowheg, Powheg+Herwig: sysGenPowhegHerwig/sysTestPowhegHerwig, McatNLO: sysGenMCatNLO/sysTestMCatNLO
   // use different ttbar MC ("Madgraph", "Powheg", "PowhegHerwig", "McatNLO"), also used for generator uncertainties
@@ -1808,8 +1814,10 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
       histo_[newLabel][sample]=(TH1F*)(histo_[oldLabel][sample]->Clone(newLabel));
       if(sample<kData) histo_[newLabel][sample]->Scale(1./integral);
       else{
-	histo_[newLabel][kData]->Sumw2();
-	histo_[newLabel][kData]->Scale(1./(histo_[oldLabel][kData]->Integral(0, histo_[oldLabel][kData]->GetNbinsX()+1)));
+	for(int bin=0; bin<=(int)histo_[oldLabel][kData]->GetNbinsX()+1; ++bin){
+	  histo_[newLabel][kData]->SetBinContent(bin, (histo_[oldLabel][kData]->GetBinContent(bin)/histo_[oldLabel][kData]->Integral(0, histo_[oldLabel][kData]->GetNbinsX()+1)));
+	  histo_[newLabel][kData]->SetBinError  (bin, (histo_[oldLabel][kData]->GetBinError  (bin)/histo_[oldLabel][kData]->Integral(0, histo_[oldLabel][kData]->GetNbinsX()+1)));
+	}
       }
       if(verbose>2) std::cout << "rescaled int(" << sampleLabel(sample, "combined") << ")=" <<  histo_[newLabel][sample]->Integral(0, histo_[newLabel][sample]->GetNbinsX()+1) << std::endl;
     }

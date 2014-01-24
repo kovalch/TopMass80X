@@ -1141,7 +1141,7 @@ void purityStabilityEfficiency(TString variable = "ttbarDelPhi", bool save=true,
     TString chi="";
     if(chi2Max<100){ 
       chi+="chi";
-      chi+=getTStringFromDouble(chi2Max);
+      chi+=(getTStringFromDouble(chi2Max).ReplaceAll(".", "p"));
     }
     TString qAssStr="";
     if(qAssignment>=0){ 

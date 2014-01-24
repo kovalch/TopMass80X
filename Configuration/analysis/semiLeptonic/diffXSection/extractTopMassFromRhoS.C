@@ -224,14 +224,19 @@ std::map <TString, TH1F*> extraction(int verbose, double luminosity, bool save, 
   // get histogram in correct binning
   TH1F* data= new TH1F("dataRhoSNorm"+getTStringFromInt(binOfInterest), "dataRhoSNorm"+getTStringFromInt(binOfInterest), Nbins, binning_["rhos"][0], binning_["rhos"][binning_["rhos"].size()-1]);
   reBinTH1F(*data, binning_["rhos"], 0);
+  TH1F* dataStati=(TH1F*)data->Clone("dataStati");
+  //TH1F* dataStat=(TH1F*)(data->Clone("dataStat"));
   // refill TGraphAsymmErrors to rebinned histo
   for(int bin=1; bin<=data->GetNbinsX(); ++bin){
     //std::cout << dataRaw ->GetY()[bin] << std::endl;
     //std::cout << dataStat->GetY()[bin] << std::endl;
-    data->SetBinContent(bin, dataRaw->GetY()[bin]);
-    double err=dataRaw->GetErrorYhigh(bin);
+    data     ->SetBinContent(bin, dataRaw ->GetY()[bin]);
+    dataStati->SetBinContent(bin, dataStat->GetY()[bin]);
+    double err    =dataRaw ->GetErrorYhigh(bin);
+    double errStat=dataStat->GetErrorYhigh(bin);
     if(err<dataRaw->GetErrorYlow(bin)) err=dataRaw->GetErrorYlow(bin);
-    data->SetBinError(bin, err);
+    data     ->SetBinError(bin, err    );
+    dataStati->SetBinError(bin, errStat);
   }
   axesStyle(*data, xSecLabelName("rhos"), "#frac{1}{#sigma} #frac{d#sigma}{d#rho_{S}}" , 0., 4.);
   data->SetTitleOffset(0.8*data->GetTitleOffset("Y"), "Y");
@@ -252,28 +257,34 @@ std::map <TString, TH1F*> extraction(int verbose, double luminosity, bool save, 
     MassPointsData_.push_back(181.5);
     MassPointsData_.push_back(184.5);
   }
-  TCanvas* canvasUp  = (TCanvas*)(datafile->Get("xSec/sysTopMassUp/rhosNorm"   )->Clone("dataCanvUp" ));
-  TCanvas* canvasDn  = (TCanvas*)(datafile->Get("xSec/sysTopMassDown/rhosNorm" )->Clone("dataCanvDn" ));
-  TCanvas* canvasUp2 = (TCanvas*)(datafile->Get("xSec/sysTopMassUp2/rhosNorm"  )->Clone("dataCanvUp2"));
-  TCanvas* canvasDn2 = (TCanvas*)(datafile->Get("xSec/sysTopMassDown2/rhosNorm")->Clone("dataCanvDn2"));
-  TCanvas* canvasUp3 = (TCanvas*)(datafile->Get("xSec/sysTopMassUp3/rhosNorm"  )->Clone("dataCanvUp3"));
-  TCanvas* canvasDn3 = (TCanvas*)(datafile->Get("xSec/sysTopMassDown3/rhosNorm")->Clone("dataCanvDn3"));
-  TCanvas* canvasUp4 = (TCanvas*)(datafile->Get("xSec/sysTopMassUp4/rhosNorm"  )->Clone("dataCanvUp4"));
-  TCanvas* canvasDn4 = (TCanvas*)(datafile->Get("xSec/sysTopMassDown4/rhosNorm")->Clone("dataCanvDn4"));
-  TH1F* dataUp = (TH1F*)(canvasUp ->GetPrimitive("rhoskData")->Clone("dataUp" ));
-  TH1F* dataDn = (TH1F*)(canvasDn ->GetPrimitive("rhoskData")->Clone("dataDn" ));
-  TH1F* dataUp2= (TH1F*)(canvasUp2->GetPrimitive("rhoskData")->Clone("dataUp2"));
-  TH1F* dataDn2= (TH1F*)(canvasDn2->GetPrimitive("rhoskData")->Clone("dataDn2"));
-  TH1F* dataUp3= (TH1F*)(canvasUp3->GetPrimitive("rhoskData")->Clone("dataUp3"));
-  TH1F* dataDn3= (TH1F*)(canvasDn3->GetPrimitive("rhoskData")->Clone("dataDn3"));
-  TH1F* dataUp4= (TH1F*)(canvasUp4->GetPrimitive("rhoskData")->Clone("dataUp4"));
-  TH1F* dataDn4= (TH1F*)(canvasDn4->GetPrimitive("rhoskData")->Clone("dataDn4"));
- if(dataMassDependence){
+  // get result canvas for measurement from all masspoints
+  std::vector<TCanvas* > canvasData_;
+  canvasData_.push_back( (TCanvas*)(datafile->Get("xSec/sysTopMassDown4/rhosNorm")->Clone("dataCanvDn4")) );
+  canvasData_.push_back( (TCanvas*)(datafile->Get("xSec/sysTopMassDown3/rhosNorm")->Clone("dataCanvDn3")) );
+  canvasData_.push_back( (TCanvas*)(datafile->Get("xSec/sysTopMassDown2/rhosNorm")->Clone("dataCanvDn2")) );
+  canvasData_.push_back( (TCanvas*)(datafile->Get("xSec/sysTopMassDown/rhosNorm" )->Clone("dataCanvDn" )) );
+  canvasData_.push_back( (TCanvas*)(                                     canvasNom->Clone("dataCanvNom")) );
+  canvasData_.push_back( (TCanvas*)(datafile->Get("xSec/sysTopMassUp/rhosNorm"   )->Clone("dataCanvUp" )) );
+  canvasData_.push_back( (TCanvas*)(datafile->Get("xSec/sysTopMassUp2/rhosNorm"  )->Clone("dataCanvUp2")) );
+  canvasData_.push_back( (TCanvas*)(datafile->Get("xSec/sysTopMassUp3/rhosNorm"  )->Clone("dataCanvUp3")) );
+  canvasData_.push_back( (TCanvas*)(datafile->Get("xSec/sysTopMassUp4/rhosNorm"  )->Clone("dataCanvUp4")) );
+  // get rhos cross section measurement curve from all masspoints
+  TH1F* dataDn4= (TH1F*)(canvasData_[0]->GetPrimitive("rhoskData")->Clone("dataDn4"));
+  TH1F* dataDn3= (TH1F*)(canvasData_[1]->GetPrimitive("rhoskData")->Clone("dataDn3"));
+  TH1F* dataDn2= (TH1F*)(canvasData_[2]->GetPrimitive("rhoskData")->Clone("dataDn2"));
+  TH1F* dataDn = (TH1F*)(canvasData_[3]->GetPrimitive("rhoskData")->Clone("dataDn" ));
+  TH1F* dataUp = (TH1F*)(canvasData_[5]->GetPrimitive("rhoskData")->Clone("dataUp" ));
+  TH1F* dataUp2= (TH1F*)(canvasData_[6]->GetPrimitive("rhoskData")->Clone("dataUp2"));
+  TH1F* dataUp3= (TH1F*)(canvasData_[7]->GetPrimitive("rhoskData")->Clone("dataUp3"));
+  TH1F* dataUp4= (TH1F*)(canvasData_[8]->GetPrimitive("rhoskData")->Clone("dataUp4"));
+  // collect them in a vector
+  if(dataMassDependence){
     data_.push_back((TH1F*)dataDn4->Clone("measurementDn4"    ));
     data_.push_back((TH1F*)dataDn3->Clone("measurementDn3"    ));
     data_.push_back((TH1F*)dataDn2->Clone("measurementDn2"    ));
     data_.push_back((TH1F*)dataDn ->Clone("measurementDn"     ));
   }
+  int centralMP=data_.size();
   data_.push_back((TH1F*)data  ->Clone("measurementCentral"));
   if(dataMassDependence){
     data_.push_back((TH1F*)dataUp ->Clone("measurementUp"     ));
@@ -281,31 +292,55 @@ std::map <TString, TH1F*> extraction(int verbose, double luminosity, bool save, 
     data_.push_back((TH1F*)dataUp3->Clone("measurementUp3"    ));
     data_.push_back((TH1F*)dataUp4->Clone("measurementUp4"    ));
   }
-  // extract uncertainty for bin of interest from central mass point 
+  // extract total uncertainty for bin of interest from central mass point 
   double central =data->GetBinContent(binOfInterest);
   double errorAbs=data->GetBinError  (binOfInterest);
   double errRel=std::abs(1.-(central+errorAbs)/central);
   if(verbose>0) std::cout << "central data result: " << central << "+/-" << errorAbs << " (=" << errRel*100 << "% unc.)" << std::endl;
+  
+  // extract statistical uncertainty for bin of interest from all mass points 
+  std::map <double, double > statError_; // (masspoint, stat Err)
+  for( unsigned int masspoint=0; masspoint<data_.size(); ++masspoint ){
+    // get plot with stat. errors:
+    TH1F* tempStat= (masspoint==centralMP ? dataStati : data_[masspoint]);    
+    // save value in vector as pair (masspoint, stat Err)
+    statError_[MassPointsData_[masspoint]]=tempStat->GetBinError(binOfInterest);
+    if(verbose>1){
+      std::cout << "bin: " << binOfInterest << std::endl;
+      std::cout << MassPointsData_[masspoint] << ": " << tempStat->GetBinContent(binOfInterest) << "+/-" << tempStat->GetBinError(binOfInterest) << std::endl;
+    }
+  }
 
   // collect rhos data results from bin of interest for different masses in one separate plot
   TH1F* measurement= new TH1F("CMSdata"+getTStringFromInt(binOfInterest), "CMSdata"+getTStringFromInt(binOfInterest), nbinsx, minx, maxx);
+  histogramStyle(*measurement, kData, false, 1.5, color_[0]);
+  measurement->SetMarkerColor(color_[0]);
+  measurement->SetMarkerStyle(33);
+  TH1F* tempMeasStat=(TH1F*)measurement->Clone("tempMeasStat");
   // loop samples
   for( unsigned int masspoint=0; masspoint<data_.size(); ++masspoint ){
     double value=data_[masspoint]->GetBinContent(binOfInterest);
     if(verbose>0) std::cout << "data(" << MassPointsData_[masspoint] << "GeV): " << value << std::endl;
-    measurement->SetBinContent(measurement->FindBin(MassPointsData_[masspoint]), value   );
-    measurement->SetBinError  (measurement->FindBin(MassPointsData_[masspoint]), errorAbs);
+    measurement ->SetBinContent(measurement->FindBin(MassPointsData_[masspoint]), value   );
+    measurement ->SetBinError  (measurement->FindBin(MassPointsData_[masspoint]), errorAbs);
+    tempMeasStat->SetBinContent(measurement->FindBin(MassPointsData_[masspoint]), value   );
+    tempMeasStat->SetBinError  (measurement->FindBin(MassPointsData_[masspoint]), statError_[MassPointsData_[masspoint]]);
   }
-  histogramStyle(*measurement, kData, false, 1.5, color_[0]);
-  measurement->SetMarkerColor(color_[0]);
-  measurement->SetMarkerStyle(33);
+
   // keep modified versions for drawing
   TH1F* measNomOnly   =((TH1F*)(measurement->Clone("measurementNominalOnly")));
   TH1F* measNonNomOnly=((TH1F*)(measurement->Clone("measurementNonNominal" )));
+  TGraphAsymmErrors* measStatUncOnly = new TGraphAsymmErrors((TH1F*)tempMeasStat->Clone("temp"));
+  measStatUncOnly->SetName ("measurementStatAll");
+  measStatUncOnly->SetTitle(measStatUncOnly->GetName());
+  measStatUncOnly->SetMarkerSize(0.01);
+  
   for( unsigned int masspoint=0; masspoint<data_.size(); ++masspoint ){
     double value=data_[masspoint]->GetBinContent(binOfInterest);
+    // measNomOnly: rm all but cwentral point
     if(value!=central) measNomOnly->SetBinContent(measNomOnly->FindBin(MassPointsData_[masspoint]), 0.);
-    measNonNomOnly->SetBinError(measNonNomOnly->FindBin(MassPointsData_[masspoint]), 0.);
+    // measNonNomOnly: rm all errors
+    measNonNomOnly->SetBinError(measNonNomOnly->FindBin(MassPointsData_[masspoint]), 0.); // FIXME
   }
   // do a linear or quadratic fit of the mass dependence
   TF1* lindata= quad ? new TF1("quadFitdata", "[2]*x*x+[0]*x+[1]", minx, maxx) : new TF1("linFitdata", "[0]*x+[1]", minx, maxx);
@@ -316,7 +351,7 @@ std::map <TString, TH1F*> extraction(int verbose, double luminosity, bool save, 
   if(verbose>0)option="";
   if(verbose>1)option="V";
   option+="R";
-  measurement->Fit(lindata, option,"",MassPointsData_[0]-0.5, MassPointsData_[MassPointsData_.size()-1]+0.5);
+  measStatUncOnly->Fit(lindata, option,"",MassPointsData_[0]-0.5, MassPointsData_[MassPointsData_.size()-1]+0.5);
   if(!dataMassDependence){
     lindata->SetParameter(0, 0.     );
     lindata->SetParameter(1, central);
@@ -442,7 +477,7 @@ std::map <TString, TH1F*> extraction(int verbose, double luminosity, bool save, 
     //std::cout << "dn=" << fileSys_[sample+1]->GetName() << ": " << valueDn << std::endl;
   }
   
-  // do a linear fit of the mass dependence
+  // do a linear fit for the mass dependence of the simulation 
   TF1* lin=new TF1("linFit", "[0]*x+[1]", minx, maxx);
   lin->SetLineColor(MC->GetLineColor());
   lin->SetLineWidth(2);
@@ -570,8 +605,9 @@ std::map <TString, TH1F*> extraction(int verbose, double luminosity, bool save, 
   TH1F* legMC=(TH1F*)MC->Clone("legMC");
   legMC->SetFillColor(MCunc->GetFillColor());
   legMC->SetFillStyle(MCunc->GetFillStyle());
-  leg->AddEntry(legmeasurement, "CMS data"      , "FLP");
-  leg->AddEntry(legMC         , "CMS simulation", "PLF" );
+  leg->AddEntry(legmeasurement, "Data"             , "PL" );
+  leg->AddEntry(legmeasurement, "Fit to Data"      , "FL" );
+  leg->AddEntry(legMC         , "Fit to Simulation", "PLF");
   //leg->AddEntry(lin           , "linear fit"    , "L" );
   
   // D) create final plots
@@ -614,6 +650,7 @@ std::map <TString, TH1F*> extraction(int verbose, double luminosity, bool save, 
   lin->Draw("same");
   measNonNomOnly->Draw("p same");
   measNomOnly->Draw("p same");
+  measStatUncOnly->Draw("e same");
   MC->Draw("AXIS same");
   if(DrawIntersection){
     if(mresultfit<=maxx&&mresultfit>=minx) drawLine(mresultfit, min, mresultfit, centralfit, kBlack, 2, 2);
