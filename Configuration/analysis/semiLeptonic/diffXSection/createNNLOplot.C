@@ -19,13 +19,17 @@ void createNNLOplot(TString theory="ahrens")
   // list of variables
   std::vector<TString> xSecVariables_, xSecLabel_;
   // NB: add variables for new datset name here
-  TString xSecVariablesUsedAhrens[]    ={"ttbarMass", "ttbarPt"};
+  TString xSecVariablesUsedAhrens[]    ={"ttbarMass"};//, "ttbarPt"};
   TString xSecVariablesUsedKidonakis[] ={"topPt"    , "topY"   };
   if(     theory.Contains("ahrens")   ) xSecVariables_ .insert( xSecVariables_.begin(), xSecVariablesUsedAhrens   , xSecVariablesUsedAhrens    + sizeof(xSecVariablesUsedAhrens   )/sizeof(TString) );
   else if(theory=="kidonakis") xSecVariables_ .insert( xSecVariables_.begin(), xSecVariablesUsedKidonakis, xSecVariablesUsedKidonakis + sizeof(xSecVariablesUsedKidonakis)/sizeof(TString) );
   // get variable binning used for final cross sections 
   std::map<TString, std::vector<double> > bins_=makeVariableBinning();
-  //TH1F* temp=new TH1F("ttbarMassAhrens", "ttbarMassAhrens", 1000, 250., 2720.);
+//   std::vector<double> tempbins_;
+//   double ttbarMassBins[]={350.0, 400.0, 450.0, 550.0, 750.0, 1000.0};
+//   tempbins_.insert( tempbins_.begin(), ttbarMassBins, ttbarMassBins + sizeof(ttbarMassBins)/sizeof(double) );
+//   bins_["ttbarMass"]=tempbins_;
+
 
   // loop all variables
   for(unsigned var=0; var<xSecVariables_.size(); ++var){
@@ -41,7 +45,7 @@ void createNNLOplot(TString theory="ahrens")
     // NB: add new datset file names here
     TGraph * rawHist;
     if(theory=="ahrens"   ){
-      if(variable.Contains("ttbarMass")) rawHist= new TGraph("AhrensTheory_Mtt_8000_172.5_Mtt_norm.dat");//"AhrensTheory_Mtt_8000_172.5_Mtt_norm.dat" // "AhrensTheory_Mtt_7000_172.5_Mtt_norm.dat"
+      if(variable.Contains("ttbarMass")) rawHist= new TGraph("AhrensTheory_Mtt_7000_172.5_Mtt_fin.dat");//"AhrensTheory_Mtt_8000_172.5_Mtt_norm.dat" // "AhrensTheory_Mtt_7000_172.5_Mtt_norm.dat"
       if(variable.Contains("ttbarPt"  )) rawHist= new TGraph("pTttbar_8000_NLONNLL.dat"                );//"pTttbar_7000_NLONNLL.dat" // "pTttbar_8000_NLONNLL.dat"
     }
     else if(theory=="kidonakis"){
@@ -121,7 +125,7 @@ void createNNLOplot(TString theory="ahrens")
 	y=rawHist->GetY()[bin-1];
       }
       if(x!=-999){
-	std::cout << "data bin: " << bin;
+	std::cout << "data point: " << bin;
 	std::cout << "(<x>=" << x << ")-> bin";
 	// get bin in target (fine binned) plot
 	int bin2=bin;
@@ -330,6 +334,12 @@ void createNNLOplot(TString theory="ahrens")
 	binnedPlot->SetBinContent(bin, binnedPlot->GetBinContent(bin)/binnedPlot->GetBinWidth(bin));
       }
     }
+    std::cout << "-------------------------------------------" << std::endl;
+    std::cout << "result: binned output histo" << std::endl;
+    for(int bin=1; bin<=binnedPlot->GetNbinsX(); ++bin){
+      std::cout << "content bin " << bin << " (" << binnedPlot->GetBinLowEdge(bin) << ".." << binnedPlot->GetBinLowEdge(bin+1) << ")= " << binnedPlot->GetBinContent(bin) << std::endl;
+    }
+
     // styling
     binnedPlot->SetLineColor(kBlue);
     binnedPlot->SetLineWidth(2);
