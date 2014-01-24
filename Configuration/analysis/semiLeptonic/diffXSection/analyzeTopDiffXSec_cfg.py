@@ -1063,16 +1063,17 @@ process.tightMuonKinematicsNjets3 = process.tightMuonKinematics.clone()
 process.tightMuonQualityNjets3    = process.tightMuonQuality.clone   ()
 
 ## jets
-process.tightLead_0_JetKinematics = process.analyzeJetKinematics.clone(src = 'tightLeadingPFJets', analyze = uds0 )
-process.tightLead_1_JetKinematics = process.analyzeJetKinematics.clone(src = 'tightLeadingPFJets', analyze = uds1 )
-process.tightLead_2_JetKinematics = process.analyzeJetKinematics.clone(src = 'tightLeadingPFJets', analyze = uds2 )
-process.tightLead_3_JetKinematics = process.analyzeJetKinematics.clone(src = 'tightLeadingPFJets', analyze = uds3 )
+process.tightLead_0_JetKinematics = process.analyzeJetKinematics.clone(src = 'tightLeadingPFJets', analyze = uds0  )
+process.tightLead_1_JetKinematics = process.analyzeJetKinematics.clone(src = 'tightLeadingPFJets', analyze = uds1  )
+process.tightLead_2_JetKinematics = process.analyzeJetKinematics.clone(src = 'tightLeadingPFJets', analyze = uds2  )
+process.tightLead_3_JetKinematics = process.analyzeJetKinematics.clone(src = 'tightLeadingPFJets', analyze = uds3  )
 process.tightJetKinematics        = process.analyzeJetKinematics.clone(src = 'tightLeadingPFJets', analyze = udsAll)
 process.tightJetQuality           = process.analyzeJetQuality.clone   (src = 'tightLeadingPFJets')
-process.bottomJetKinematics       = process.analyzeJetKinematics.clone(src = 'tightBottomPFJets', analyze = udsAll)
-process.bottomJetQuality          = process.analyzeJetQuality.clone(src = 'tightBottomPFJets')
-process.tightJetKinematicsSSV  = process.analyzeJetKinematics.clone(src = 'tightLeadingPFJets', analyze = udsAll)
-process.tightJetQualitySSV     = process.analyzeJetQuality.clone   (src = 'tightLeadingPFJets')
+process.bottomJetKinematics       = process.analyzeJetKinematics.clone(src = 'tightBottomPFJets' , analyze = udsAll)
+process.bottomJetQuality          = process.analyzeJetQuality.clone   (src = 'tightBottomPFJets' )
+process.tightJetKinematicsSSV     = process.analyzeJetKinematics.clone(src = 'tightLeadingPFJets', analyze = udsAll)
+process.tightJetQualitySSV        = process.analyzeJetQuality.clone   (src = 'tightLeadingPFJets')
+process.tightlightJetKinematics   = process.analyzeJetKinematics.clone(src = 'tightLightPFJets'  )
 
 process.tightJetKinematicsNjets1=process.tightJetKinematics.clone()
 process.tightJetQualityNjets1   =process.tightJetQuality   .clone()
@@ -1649,6 +1650,7 @@ if(applyKinFit==True):
         if(eventFilter=='signal only'):
             process.kinFit    = cms.Sequence(process.tightLightPFJets                        +
                                              process.lightJetSelection                       +
+                                             process.tightlightJetKinematics                 +
                                              process.makeTtSemiLepEvent                      +
                                              process.filterRecoKinFit                        +
                                              process.analyzeTopRecoKinematicsKinFit          +
@@ -1710,6 +1712,7 @@ if(applyKinFit==True):
         else:
             process.kinFit    = cms.Sequence(process.tightLightPFJets                        +
                                              process.lightJetSelection                       +
+                                             process.tightlightJetKinematics                 +
                                              process.makeTtSemiLepEvent                      +
                                              process.filterRecoKinFit                        +
                                              process.analyzeTopRecoKinematicsKinFit          +
@@ -1729,6 +1732,7 @@ if(applyKinFit==True):
     elif(runningOnData=="data"):
         process.kinFit    = cms.Sequence(process.tightLightPFJets                        +
                                          process.lightJetSelection                       +
+                                         process.tightlightJetKinematics                 +
                                          process.makeTtSemiLepEvent                      +
                                          process.filterRecoKinFit                        +
                                          process.analyzeTopRecoKinematicsKinFit          +
