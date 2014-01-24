@@ -22,21 +22,23 @@ void JERBase::setSystematics(std::string type) {
 
 }
 
-void JERBase::correctP4(ztop::PolarLorentzVector & toBeCorrectedRecoP4,
-        const ztop::PolarLorentzVector & genP4) {
-    if (genP4.Pt() < 1)
+void JERBase::correctP4(float & recopt, float& recoeta, float & recophi, float & recom, //full lorentzvector
+        const float & genpt) const{
+    if (genpt < 1)
         return;
-    for (unsigned int i = 0; i < resranges_.size(); i++) {
-        if (fabs(toBeCorrectedRecoP4.Eta()) < resranges_.at(i)) {
-            if (i != 0) { //not outside range
-                double deltapt = (1. - resfactors_.at(i - 1))
-                        * (toBeCorrectedRecoP4.Pt() - genP4.Pt());
-                double scale = std::max(0., toBeCorrectedRecoP4.Pt() + deltapt)
-                        / toBeCorrectedRecoP4.Pt();
-                toBeCorrectedRecoP4 = toBeCorrectedRecoP4 * scale;
-                break;
-            }
-        }
-    }
+
+
+    std::vector<float>::const_iterator it=std::lower_bound(resranges_.begin(),
+            resranges_.end(), recoeta);
+    size_t etabin=0;
+    if(recoeta==*it)
+        etabin= it-resranges_.begin();
+    else
+        etabin= it-resranges_.begin()-1;
+
+    double deltapt = (1. - resfactors_.at(etabin))* (recopt - genpt);
+    double scale = std::max(0., recopt + deltapt) / recopt;
+    recopt*=scale;
+    recom*=scale;
 }
 } //namespace

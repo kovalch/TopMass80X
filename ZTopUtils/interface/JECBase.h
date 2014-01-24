@@ -46,13 +46,7 @@ public:
         return sources_;
     }
 
-    void applyJECUncertainties(ztop::PolarLorentzVector &);
-    void applyJECUncertainties(ztop::LorentzVector & v) {
-        ztop::PolarLorentzVector vp;
-        vp = v;
-        applyJECUncertainties(vp);
-        v = vp;
-    }
+    void applyJECUncertainties(float & pt, float& eta, float & phi, float& m);
 
 protected:
 

@@ -29,29 +29,22 @@ public:
     ~JERBase() {
     }
 
-    void setResolutionEtaRanges(std::vector<double> ranges) {
+    void setResolutionEtaRanges(std::vector<float> ranges) {
         resranges_ = ranges;
     }
-    void setResolutionFactors(std::vector<double> factors) {
+    void setResolutionFactors(std::vector<float> factors) {
         resfactors_ = factors;
     }
 
     void setSystematics(std::string type);
 
-    void correctP4(ztop::PolarLorentzVector &,
-            const ztop::PolarLorentzVector &);
-    void correctP4(ztop::LorentzVector & v, const ztop::LorentzVector & vv) {
-        ztop::PolarLorentzVector vp, vvp;
-        vp = v;
-        vvp = vv;
-        correctP4(vp, vvp);
-        v = vp;
-    }
+    void correctP4(float & recopt, float& recoeta, float & recophi, float & recom, //full lorentzvector
+            const float & genpt) const;
 
 protected:
 
-    std::vector<double> resranges_;
-    std::vector<double> resfactors_;
+    std::vector<float> resranges_;
+    std::vector<float> resfactors_;
 
 };
 }
