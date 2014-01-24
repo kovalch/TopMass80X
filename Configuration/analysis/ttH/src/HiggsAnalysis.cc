@@ -70,7 +70,7 @@ HiggsAnalysis::HiggsAnalysis(TTree*):
 isInclusiveHiggs_(false),
 bbbarDecayFromInclusiveHiggs_(false),
 runWithTtbb_(false),
-retagBJets_(true),
+retagBJets_(true),  // FIXME: remove this variable which was implemented for testing (and in a different way as it was in TopAnalysis...)
 mvaTreeHandler_(0)
 {}
 
@@ -130,6 +130,9 @@ void HiggsAnalysis::SlaveBegin(TTree *)
     AnalysisBase::SlaveBegin(0);
 
     // Histograms for b-tagging efficiencies
+    // FIXME: common usage of this function for production and application of btag stuff like is implemented does not work,
+    // FIXME: for ttbb sample is just working by chance (with wrong settings if individual efficiencies per sample would be used)
+    // FIXME: --> Make settings to how they were before
     if(!runWithTtbb_) {
         btagScaleFactors_->setWorkingPoint(BtagWP);
         btagScaleFactors_->prepareBTags(fOutput, static_cast<std::string>(this->channel()));
