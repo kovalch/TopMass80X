@@ -125,6 +125,11 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     dataFileEl=getStringEntry(dataFile,1 , ":");
     dataFileMu=getStringEntry(dataFile,42, ":");
   }
+  else{
+
+
+
+  }
   // addSel: xSec from prob selection step?
   //if(!extrapolate) addSel="";
   TString probComplement = addSel=="ProbSel" ? "" : "ProbSel";
@@ -828,6 +833,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
   // ===================================
   //  Open the standard analysis files
   // ===================================
+  if(verbose>1) std::cout << "get files" << std::endl;
   std::map<unsigned int, TFile*> files_, filesMu_, filesEl_;
   if(decayChannel!="combined") files_ = getStdTopAnalysisFiles(inputFolder, systematicVariation, dataFile, decayChannel, ttbarMC);
   else{
@@ -838,6 +844,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
   // =====================
   //  Loading histos
   // =====================
+  if(verbose>1) std::cout << "get histos" << std::endl;
   // collect all plot names in vector (first 1D, then 2D)
   std::vector<TString> plotList_, plotListEl_, plotListMu_;
   plotList_.insert(plotList_.begin(), plots1D,        plots1D        + sizeof(plots1D       )/sizeof(TString));
@@ -854,6 +861,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
   }
 
   // Renaming: for the naming used to save the plots and later to access them internally
+  if(verbose>1) std::cout << "internal renaming" << std::endl;
   if(decayChannel != "combined"){
     for (std::vector<TString>::iterator iter = plotList_.begin(); iter != plotList_.end(); iter++){
       // Rename lepton plots according to chosen decay channel
@@ -861,8 +869,10 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	if (decayChannel=="electron")  iter->ReplaceAll("Lepton","Electron");
 	else if (decayChannel=="muon") iter->ReplaceAll("Lepton","Muon");    
       }
+      // Rename KinFitProbSel plots
+      if (iter->Contains("KinFitProbSel")&&iter->Contains("composited")) iter->ReplaceAll("KinFitProbSel","ProbSel"); 
     }
-  }  
+  }
   else{
     // electron plots
     for (std::vector<TString>::iterator iter = plotListEl_.begin(); iter != plotListEl_.end(); iter++){
@@ -2332,6 +2342,6 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
   }
   //std::cout << "test" << std::endl;
   // delete pointer
-  closeStdTopAnalysisFiles(files_);
+  //closeStdTopAnalysisFiles(files_);
   //std::cout << "done" << std::endl;
 }
