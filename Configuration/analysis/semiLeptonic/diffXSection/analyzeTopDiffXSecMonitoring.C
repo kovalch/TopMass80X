@@ -1,7 +1,7 @@
 #include "basicFunctions.h"
 
 void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
-				  bool save = false, int verbose=0,
+				  bool save = true, int verbose=0,
 				  TString inputFolderName= "RecentAnalysisRun8TeV_doubleKinFit",
 				  //TString dataFile= "/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/muonDiffXSecData2012ABCDAll.root",
 				  //TString dataFile= "/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/elecDiffXSecData2012ABCDAll.root",
@@ -322,7 +322,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     "compositedKinematicsKinFit/MJJ",
     "compositedKinematicsKinFit/mHbb",
     "compositedKinematicsKinFit/mbb",
-    "analyzeTopRecoKinematicsKinFit/lbMass",
+    "analyzeTopRecoKinematicsKinFit"+addSel+"/lbMass",
     // complementary plots - with or without probability selection to have both versions for sure
     "analyzeTopRecoKinematicsKinFit"+probComplement+"/ttbarAngle",
     "analyzeTopRecoKinematicsKinFit"+probComplement+"/topPt",
@@ -364,8 +364,8 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     "compositedKinematicsKinFit"+addSel+"/leadNonttjetPt",
     "compositedKinematicsKinFit"+addSel+"/leadNonttjetY",
     "compositedKinematicsKinFit"+addSel+"/leadNonttjetEta",
-    "analyzeTopRecoKinematicsKinFit"+addSel+"/prob", 
-    "analyzeTopRecoKinematicsKinFit"+addSel+"/chi2",
+    "analyzeTopRecoKinematicsKinFit/prob", 
+    "analyzeTopRecoKinematicsKinFit/chi2",
     "analyzeTopRecoKinematicsKinFit"+addSel+"/ttbarDelPhi",
     // gen distributions
     "analyzeTopRecoKinematicsKinFit"+addSel+"/decayChannel", 
@@ -679,8 +679,8 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     "p_{T}^{leading non t#bar{t}-jet} #left[GeV#right];Events;1;50",
     "y^{leading non t#bar{t}-jet};Events;0;4",
     "#eta^{leading non t#bar{t}-jet};Events;0;4",
-    "probability (best fit hypothesis);Events;1;25", 
-    "#chi^{2} (best fit hypothesis);Events;1;10",
+    "#chi^{2}-probability;Events;1;25", 
+    "#chi^{2};Events;1;10",
     "#Delta#Phi(t,#bar{t});Events;0;4",
     // gen distributions
     "t#bar{t} other decay channel;events;0;1",
@@ -1250,6 +1250,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
   // Uncertainty band in legend
   if(histoErrorBand_.size() > 0 && plotList_.size() > 0){
     TString unclabel = ttbarTheoryBands ? "t#bar{t} model unc." : "Norm. Uncertainty";
+    //TString unclabel = "JES unc.";
     leg ->AddEntry(histoErrorBand_[plotList_[0]], unclabel, "F");
     leg0->AddEntry(histoErrorBand_[plotList_[0]], unclabel, "F");
     leg1->AddEntry(histoErrorBand_[plotList_[0]], unclabel, "F");
@@ -1992,6 +1993,8 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	    if(plotList_[plot].Contains("compositedKinematicsKinFit/shiftNuPhi")                                       ){xDn=-0.25  ;xUp=0.25;  }
 	    if(plotList_[plot].Contains("compositedKinematicsKinFit/Njets"     )                                       ){xDn=4.5    ;xUp=9.5;   }
 	    if(getStringEntry(plotList_[plot], 2).Contains("topMass")                                                  ){xDn=100.   ;xUp=500.;  }
+
+	    if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFitProbSel/topMass")                               ){xDn=100.   ;xUp=250.;  }
 	    if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFitProbEff/ttbarMass")                             ){xDn=300.   ;xUp=1500.; }
 	    if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFitProbEff/ttbarHT")                               ){xDn=50.    ;xUp=600.;  }
 	    if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFitProbEff/leadqPt")                               ){xDn=0.     ;xUp=300.;  }
@@ -2026,6 +2029,8 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	      if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/topY"))    {min=0; max=2.5E03; paperPlot=true;} //max=1.5E04;}
 	      if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/ttbarPt")) {min=0; max=6.0E03; paperPlot=true;} //max=2.2E04;}
 	      if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/ttbarY"))  {min=0; max=1.6E03; paperPlot=true;} //max=0.8E04;}
+	      if(getStringEntry(plotList_[plot], 2)=="chi2"&&getStringEntry(plotList_[plot], 1).Contains("analyzeTopRecoKinematicsKinFit")) max=10000000; 
+	      if(getStringEntry(plotList_[plot], 2)=="prob") max=50000000000; 
 	      if(paperPlot){
 		max*=(luminosity/5000.); // lumi dependence
 		if(dataSample=="2012"){
@@ -2215,6 +2220,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 		  int ndivisions=505;
 		  if(plotList_[plot].Contains("shift")){ratMin=0.88; ratMax=1.12;}
 		  if(plotList_[plot].Contains("TopRecoKinematics")){ratMin=0.49; ratMax=1.49; ndivisions=405;}
+		  if(getStringEntry(plotList_[plot], 2)=="prob"){ratMin=0.75; ratMax=1.25;}
 		  //if(plotList_[plot].Contains("topMass")){ratMin=0.7; ratMax=2.0;}
 		  TString ratioLabelNominator  ="N_{data}";
 		  TString ratioLabelDenominator="N_{MC}";
