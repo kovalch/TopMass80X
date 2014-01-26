@@ -3528,7 +3528,7 @@ namespace semileptonic {
     if(verbose>0) std::cout << std::endl << "A collect relevant systematics" << std::endl;
     std::vector<int> RelevantSys_;
     //int sysList[ ] = { sysJESUp, sysJESDown};
-    int sysList[ ] = { sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysTopMassUp, sysTopMassDown};
+    int sysList[ ] = { sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysTopMassUp, sysTopMassDown}; // ttbar mosedling
     //int sysList[ ] = { sysLumiUp, sysLumiDown, sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysTopMassUp, sysTopMassDown, sysJESUp, sysJESDown ,sysJERUp, sysJERDown, sysPUUp, sysPUDown, sysLepEffSFNormUp, sysLepEffSFNormDown, sysLepEffSFShapeUpEta, sysLepEffSFShapeDownEta, sysLepEffSFShapeUpPt, sysLepEffSFShapeDownPt, sysBtagSFUp, sysBtagSFDown, sysBtagSFShapeUpPt65, sysBtagSFShapeDownPt65, sysBtagSFShapeUpEta0p7, sysBtagSFShapeDownEta0p7, sysHadUp, sysHadDown};
     RelevantSys_.insert(RelevantSys_.begin(), sysList, sysList+ sizeof(sysList)/sizeof(int));
     if(verbose>1){
