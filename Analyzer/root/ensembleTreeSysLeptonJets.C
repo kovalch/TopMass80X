@@ -1,240 +1,207 @@
 // Current state: Use largest of sys/stat
 
 #include <vector>
+#include <map>
+#include <string>
 #include <iostream>
+#include <iomanip>
 
 #include "TFile.h"
 #include "TChain.h"
-#include "TCanvas.h"
-#include "TAxis.h"
 #include "TF1.h"
-#include "TH1F.h"
-#include "THStack.h"
-#include "TLatex.h"
-#include "TBox.h"
-#include "TGraphErrors.h"
-#include "TMultiGraph.h"
-#include "TLegend.h"
-#include "TStyle.h"
-#include "TPaveStats.h"
 #include "TFitResult.h"
-#include "TString.h"
 
 #include "tdrstyle.C"
+
+struct ensemble {
+  const char* file; // file selection for chain
+  double size; // EFFECTIVE sample size
+  double mass;
+  double jes;
+  double mass1d;
+  double massUnc;
+  double jesUnc;
+  double mass1dUnc;
+  TChain* chain;
+  ensemble(const char* f = "temp", double s = 0, double m = -1, double j = -1, double m1 = -1)
+  : file(f), size(s), mass(m), jes(j), mass1d(m1) {}
+};
+
+struct comparison {
+  const char* nominal;
+  const char* up;
+  const char* down;
+  bool active;
+  comparison(const char* n = "", const char* u = "", const char* d = "", bool a = true)
+  : nominal(n), up(u), down(d), active(a) {}
+};
 
 enum lepton           { kElectron, kMuon, kAll, kMuon_BReg};
 std::string lepton_ [4] = { "electron", "muon", "lepton", "muon_BReg"};
 
 int channel = 2;
 
-struct ensemble {
-  const char* file;
-  double size; // EFFECTIVE sample size
-  bool correlated;
-  bool takeLargest;
-  double expectedJES;
-  int reference;
-  double mass;
-  double massWidth;
-  double jes;
-  double jesWidth;
-  ensemble(const char* f, double s, bool c = true, bool t = true, double j = 0, int r = 0)
-  : file(f), size(s), correlated(c), takeLargest(t), expectedJES(j), reference(r) {}
-};
-
-struct staticUncertainty {
-  const char* name;
-  double massUncertainty;
-  double jesUncertainty;
-  staticUncertainty(const char* n, double mu, double ju)
-  : name(n), massUncertainty(mu), jesUncertainty(ju) {}
-};
-
 TString globalPath("/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_131012/");
 
-double genMass[]      = {161.5, 163.5, 166.5, 169.5, 172.5, 175.5, 178.5, 181.5, 184.5};
-double genMassError[] = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
-double genMassN[]     = {1620072, 1633197, 1669034, 1606570, 59613991, 1538301, 1648519, 1665350, 1671859};
-//double genMassN[]     = {1620072, 1.5, 1.5, 1.5, 59613991, 1.5, 1.5, 1.5, 1.5};
-double maxMCWeight[]  = {1.7, 2.2, 2.2, 2.2, 1.7, 2.2, 2.2, 2.2, 1.7};
-double crossSection   = 164.4;
-double peLumi         = 5000.;
-  
-
-std::vector<TChain*> trees;
-
+double crossSection   = 230;
+double peLumi         = 20000.;
 
 void ensembleTreeSysLeptonJets(TString sPath = globalPath)
 {
-  //  TString sPath = globalPath;
-  sPath += lepton_[channel]; sPath += "/";
+  std::map<std::string, ensemble> ensembles;
   
-  std::vector<ensemble> ensembles;
-  std::vector<staticUncertainty> staticUncertainties;
+  std::map<std::string, comparison> comparisons;
+
+  sPath += lepton_[channel]; sPath += "/";
   
   double totalMassUncertainty2 = 0;
   double totalJESUncertainty2  = 0;
+  double totalMass1dUncertainty2 = 0;
   
-  /*
-  switch(channel) {
-    case kElectron:
-      staticUncertainties.push_back(staticUncertainty("Calibration", 0.09, 0.001));
-      staticUncertainties.push_back(staticUncertainty("PDF", 0.07, 0.001));
-      staticUncertainties.push_back(staticUncertainty("UE", 0.244, 0.0011));
-      break;
-    case kMuon:
-      staticUncertainties.push_back(staticUncertainty("Calibration", 0.08, 0.001));
-      staticUncertainties.push_back(staticUncertainty("PDF", 0.07, 0.001));
-      staticUncertainties.push_back(staticUncertainty("UE", 0.256, 0.0025));
-      break;
-    case kAll:
-      staticUncertainties.push_back(staticUncertainty("Calibration", 0.06, 0.001));
-      staticUncertainties.push_back(staticUncertainty("PDF", 0.07, 0.001));
-      staticUncertainties.push_back(staticUncertainty("UE", 0.153, 0.0018)); // 0.153 +/- 0.187
-      staticUncertainties.push_back(staticUncertainty("Background", 0.126, 0.001));
-      //staticUncertainties.push_back(staticUncertainty("Statistical", 0.428, 0.003));
-      break;
-  }
-  */
+  ///////////////////////////////////
   
-    ensembles.push_back(ensemble("job_*_ensemble.root", 7000000./1.75));
-  //  ensembles.push_back(ensemble("Summer12_TTJets1725_1.00/job_*_ensemble.root", 7000000./1.75));
+  ensembles["calibration"] = ensemble("", 0, 172.5, 1., 172.5);
+  ensembles["default"] = ensemble("job_*_ensemble.root", 7000000./1.75);
+  ensembles["defaultNewWeights"] = ensemble("weight.combinedWeight/job_*_ensemble.root", 7000000./1.75);
   
-  ensembles.push_back(ensemble("Summer12_TTJets1725_flavor:down_FlavorPureBottom/job_*_ensemble.root", 7000000./1.75));
-  ensembles.push_back(ensemble("Summer12_TTJets1725_flavor:up_FlavorPureBottom/job_*_ensemble.root", 7000000./1.75));
-  ensembles.push_back(ensemble("Summer12_TTJets1725_flavor:down_FlavorQCD/job_*_ensemble.root", 7000000./1.75));
-  ensembles.push_back(ensemble("Summer12_TTJets1725_flavor:up_FlavorQCD/job_*_ensemble.root", 7000000./1.75));
-  ensembles.push_back(ensemble("Summer12_TTJets1725_source:down_Total/job_*_ensemble.root", 7000000./1.75));
-  ensembles.push_back(ensemble("Summer12_TTJets1725_source:up_Total/job_*_ensemble.root", 7000000./1.75));
+  ensembles["puUp"] = ensemble("weight.combinedWeight/weight.puWeight*weight.puWeightUp/job_*_ensemble.root", 7000000./1.75);
+  ensembles["puDown"] = ensemble("weight.combinedWeight/weight.puWeight*weight.puWeightDown/job_*_ensemble.root", 7000000./1.75);
+  
+  ensembles["bFragLEP"] = ensemble("weight_frag/job_*_ensemble.root", 7000000./1.75);
+  ensembles["bFragLEPHard"] = ensemble("weight_fragHard/job_*_ensemble.root", 7000000./1.75);
+  ensembles["bFragLEPSoft"] = ensemble("weight_fragSoft/job_*_ensemble.root", 7000000./1.75);
+  
+  ensembles["bFNuUp"] = ensemble("weight_fNuUp/job_*_ensemble.root", 7000000./1.75);
+  ensembles["bFNuDown"] = ensemble("weight_fNuDown/job_*_ensemble.root", 7000000./1.75);
+  
+  ensembles["flavorBUp"] = ensemble("Summer12_TTJets1725_flavor:up_FlavorPureBottom/job_*_ensemble.root", 7000000./1.75);
+  ensembles["flavorBDown"] = ensemble("Summer12_TTJets1725_flavor:down_FlavorPureBottom/job_*_ensemble.root", 7000000./1.75);
+  
+  ensembles["flavorQUp"] = ensemble("Summer12_TTJets1725_flavor:up_FlavorPureQuark/job_*_ensemble.root", 7000000./1.75);
+  ensembles["flavorQDown"] = ensemble("Summer12_TTJets1725_flavor:down_FlavorPureQuark/job_*_ensemble.root", 7000000./1.75);
+  
+  ensembles["flavorGUp"] = ensemble("Summer12_TTJets1725_flavor:up_FlavorPureGluon/job_*_ensemble.root", 7000000./1.75);
+  ensembles["flavorGDown"] = ensemble("Summer12_TTJets1725_flavor:down_FlavorPureGluon/job_*_ensemble.root", 7000000./1.75);
+  
+  ensembles["bTagSFUp"] = ensemble("weight_bTagSFUp/job_*_ensemble.root", 7000000./1.75);
+  ensembles["bTagSFDown"] = ensemble("weight_bTagSFDown/job_*_ensemble.root", 7000000./1.75);
+  ensembles["misTagSFUp"] = ensemble("weight_misTagSFUp/job_*_ensemble.root", 7000000./1.75);
+  ensembles["misTagSFDown"] = ensemble("weight_misTagSFDown/job_*_ensemble.root", 7000000./1.75);
+  
+  ensembles["topPt"] = ensemble("weight_topPt/job_*_ensemble.root", 7000000./1.75);
+  
+  ensembles["matchingUp"] = ensemble("Summer12_TTJets1725_matchingup/job_*_ensemble.root", 5000000./1.75);
+  ensembles["matchingDown"] = ensemble("Summer12_TTJets1725_matchingdown/job_*_ensemble.root", 5000000./1.75);
+  
+  ensembles["scaleUp"] = ensemble("Summer12_TTJets1725_scaleup/job_*_ensemble.root", 5000000./1.75);
+  ensembles["scaleDown"] = ensemble("Summer12_TTJets1725_scaledown/job_*_ensemble.root", 5000000./1.75);
+  
+  ensembles["jerUp"] = ensemble("Summer12_TTJets1725_jer:up/job_*_ensemble.root", 7000000./1.75);
+  ensembles["jerDown"] = ensemble("Summer12_TTJets1725_jer:down/job_*_ensemble.root", 7000000./1.75);
+  
+  ensembles["jesUp"] = ensemble("Summer12_TTJets1725_source:up_Total/job_*_ensemble.root", 7000000./1.75);
+  ensembles["jesDown"] = ensemble("Summer12_TTJets1725_source:down_Total/job_*_ensemble.root", 7000000./1.75);
+  
+  ensembles["mcatnlo"] = ensemble("Summer12_TTJets1725_mcatnlo_herwig/job_*_ensemble.root", 7000000./1.75);
+  ensembles["powheg"] = ensemble("Summer12_TTJets1725_powheg/job_*_ensemble.root", 7000000./1.75);
+  ensembles["powhegHerwig"] = ensemble("Summer12_TTJets1725_powheg_herwig/job_*_ensemble.root", 7000000./1.75);
+  
+  ensembles["defaultSC"] = ensemble("Summer12_TTJets1725_MGDecays/job_*_ensemble.root", 7000000./1.75);
+  ensembles["P11"] = ensemble("Summer12_TTJets1725_MGDecays_P11/job_*_ensemble.root", 7000000./1.75);
+  ensembles["P11noCR"] = ensemble("Summer12_TTJets1725_MGDecays_P11noCR/job_*_ensemble.root", 7000000./1.75);
+  ensembles["P11mpiHi"] = ensemble("Summer12_TTJets1725_MGDecays_P11mpiHi/job_*_ensemble.root", 7000000./1.75);
+  ensembles["P11TeV"] = ensemble("Summer12_TTJets1725_MGDecays_P11TeV/job_*_ensemble.root", 7000000./1.75);
+  
+  ///////////////////////////////////
+  
+  comparisons["FlavorPureBottom"] = comparison("default", "flavorBUp", "flavorBDown");
+  comparisons["PU"] = comparison("defaultNewWeights", "puUp", "puDown");
+  comparisons["FlavorPureQuark"] = comparison("defaultNewWeights", "flavorQUp", "flavorQDown");
+  comparisons["FlavorPureGluon"] = comparison("defaultNewWeights", "flavorGUp", "flavorGDown");
+  comparisons["b-fragmentation"] = comparison("defaultNewWeights", "bFragLEP");
+  comparisons["neutrino fraction"] = comparison("defaultNewWeights", "bFNuUp", "bFNuDown");
+  comparisons["b-tag"] = comparison("defaultNewWeights", "bTagSFUp", "bTagSFDown");
+  comparisons["mistag"] = comparison("defaultNewWeights", "misTagSFUp", "misTagSFDown");
+  comparisons["top-pt"] = comparison("defaultNewWeights", "topPt");
+  comparisons["matching"] = comparison("calibration", "matchingUp", "matchingDown");
+  comparisons["scale"] = comparison("calibration", "scaleUp", "scaleDown");
+  comparisons["jer"] = comparison("default", "jerUp", "jerDown");
+  comparisons["jes"] = comparison("default", "jesUp", "jesDown");
+  comparisons["generator"] = comparison("calibration", "powheg");
+  comparisons["nlogenerator"] = comparison("powheg", "mcatnlo", "", false);
+  comparisons["shower"] = comparison("powheg", "powhegHerwig", "", false);
+  comparisons["SC"] = comparison("calibration", "defaultSC", "", false);
+  comparisons["tune"] = comparison("defaultSC", "P11", "", false);
+  comparisons["CR"] = comparison("P11", "P11noCR");
+  comparisons["UE"] = comparison("P11", "P11mpiHi", "P11TeV");
   
   
-  /* JES total
-  ensembles.push_back(ensemble("Fall11_TTJets1725_jes:down/ensemble.root", 59613991./1.7, true, true, 0.984));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_jes:up/ensemble.root", 59613991./1.7, true, true, 1.016));
-  */
-  /* JES split
-  ensembles.push_back(ensemble("Fall11_TTJets1725_source:down_CorrelationGroupFlavor/ensemble.root", 59613991./1.75));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_source:up_CorrelationGroupFlavor/ensemble.root", 59613991./1.75));
+  ///////////////////////////////////
   
-  ensembles.push_back(ensemble("Fall11_TTJets1725_source:down_CorrelationGroupIntercalibration/ensemble.root", 59613991./1.75));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_source:up_CorrelationGroupIntercalibration/ensemble.root", 59613991./1.75));
-  
-  ensembles.push_back(ensemble("Fall11_TTJets1725_source:down_CorrelationGroupMPFInSitu/ensemble.root", 59613991./1.75));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_source:up_CorrelationGroupMPFInSitu/ensemble.root", 59613991./1.75));
-  
-  ensembles.push_back(ensemble("Fall11_TTJets1725_source:down_CorrelationGroupUncorrelated/ensemble.root", 59613991./1.75));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_source:up_CorrelationGroupUncorrelated/ensemble.root", 59613991./1.75));
-  //*/
-  //*
-  ensembles.push_back(ensemble("Summer12_TTJets1725_jer:down/job_*_ensemble.root", 7000000./1.75));
-  ensembles.push_back(ensemble("Summer12_TTJets1725_jer:up/job_*_ensemble.root", 7000000./1.75));
-  //*/
-  ensembles.push_back(ensemble("Summer12_TTJets1725_matchingup/job_*_ensemble.root", 5000000./1.75, false));
-  ensembles.push_back(ensemble("Summer12_TTJets1725_matchingdown/job_*_ensemble.root", 5000000./1.75, false));
-  ensembles.push_back(ensemble("Summer12_TTJets1725_scaleup/job_*_ensemble.root", 5000000./1.75, false));
-  ensembles.push_back(ensemble("Summer12_TTJets1725_scaledown/job_*_ensemble.root", 5000000./1.75, false));
-  ensembles.push_back(ensemble("Summer12_TTJets1725_MGDecays_P11/job_*_ensemble.root", 30000000./1.75, false, true, 0., 14));
-  ensembles.push_back(ensemble("Summer12_TTJets1725_MGDecays_P11noCR/job_*_ensemble.root", 30000000./1.75, false));
-  ensembles.push_back(ensemble("Summer12_TTJets1725_MGDecays_P11TeV/job_*_ensemble.root", 20000000./1.75, false, true, 0., 13));
-  ensembles.push_back(ensemble("Summer12_TTJets1725_MGDecays_P11mpiHi/job_*_ensemble.root", 20000000./1.75, false, true, 0., 13));
-  //*
-  ensembles.push_back(ensemble("Summer12_TTJets1725_powheg/job_*_ensemble.root", 22000000./1.75, false, true, 0., 18));
-  ensembles.push_back(ensemble("Summer12_TTJets1725_powheg_herwig/job_*_ensemble.root", 28000000./1.75));
-  //*
-  ensembles.push_back(ensemble("Summer12_TTJets1725_powheg_herwig/job_*_ensemble.root", 28000000./1.75, false, true, 0., 20));
-  ensembles.push_back(ensemble("Summer12_TTJets1725_mcatnlo_herwig/job_*_ensemble.root", 28000000./1.75));
-  //*/
-  //*/
-  /*
-  ensembles.push_back(ensemble("muWeight-bWeight-PUWeightDown/ensemble.root", 59613991./1.75));
-  ensembles.push_back(ensemble("muWeight-bWeight-PUWeightUp/ensemble.root", 59613991./1.75));
-  if (!(channel == kAll)) {
-    ensembles.push_back(ensemble("fSig_0.92/ensemble.root", 59613991./1.75));
-    ensembles.push_back(ensemble("fSig_0.84/ensemble.root", 59613991./1.75));
-  }
-  ensembles.push_back(ensemble("bDisc_0.61/ensemble.root", 59613991./1.75));
-  ensembles.push_back(ensemble("bDisc_0.75/ensemble.root", 59613991./1.75));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_EES_down/ensemble.root", 59613991./1.75));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_EES_up/ensemble.root", 59613991./1.75));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_MES_down/ensemble.root", 59613991./1.75));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_MES_up/ensemble.root", 59613991./1.75));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_UNC_0.9/ensemble.root", 59613991./1.75));
-  ensembles.push_back(ensemble("Fall11_TTJets1725_UNC_1.1/ensemble.root", 59613991./1.75));
-  //*/
-  
-  ensembles.push_back(ensemble("weight.combinedWeight/job_*_ensemble.root", 7000000./1.75, true, true, 0., 22));
-  ensembles.push_back(ensemble("weight.combinedWeight*weight.bJESWeight_fragHard/job_*_ensemble.root", 7000000./1.75));
-  
-  ensembles.push_back(ensemble("weight.combinedWeight/job_*_ensemble.root", 7000000./1.75, true, true, 0., 24));
-  ensembles.push_back(ensemble("weight.combinedWeight*weight.bJESWeight_fNuUp/job_*_ensemble.root", 7000000./1.75));
-  
-  for (int i = 0; i < (int) ensembles.size(); ++i) {
-    TChain* chain = new TChain("tree");
-    trees.push_back(chain);
-    trees[i]->Add(sPath + ensembles[i].file);
-  }
-  
-  for (int i = 0; i < (int) ensembles.size(); ++i) {
-    TF1* gaus = new TF1("gaus", "gaus");
-    
-    trees[i]->Fit("gaus", "mass_mTop_JES", "mass_mTop_JES>0 & JES_mTop_JES>0 & genMass==172.5 & genJES==1", "EMQ0");
-    ensembles[i].mass = gaus->GetParameter(1);
-    ensembles[i].massWidth = gaus->GetParameter(2);
-    
-    trees[i]->Fit("gaus", "JES_mTop_JES", "mass_mTop_JES>0 & JES_mTop_JES>0 & genMass==172.5 & genJES==1", "EMQ0");
-    ensembles[i].jes = gaus->GetParameter(1);
-    ensembles[i].jesWidth = gaus->GetParameter(2);
-  }
-  
-  for (int i = 1; i < (int) ensembles.size(); i+=2) {
-    std::cout << "\n" << ensembles[i].file << " / " << ensembles[i+1].file << std::endl;
-    
-    double referenceMass = 172.5;
-    if (ensembles[i].correlated || ensembles[i].reference != 0) referenceMass = ensembles[ensembles[i].reference].mass;
-    double referenceJES = 1.0;
-    if (ensembles[i].correlated || ensembles[i].reference != 0) referenceJES = ensembles[ensembles[i].reference].jes;
-    
-    printf("\t- %4.3f GeV / o %4.3f GeV / + %4.3f GeV \n", ensembles[i].mass, referenceMass, ensembles[i+1].mass);
-    double largestDM = max(abs(referenceMass-ensembles[i].mass), abs(referenceMass-ensembles[i+1].mass));
-    double meanDM    = (abs(referenceMass-ensembles[i].mass) + abs(referenceMass-ensembles[i+1].mass))/2;
-    printf("\tLargest uncertainty: %4.2f GeV / Mean uncertainty: %4.2f GeV", largestDM, meanDM);
-    
-    double statDM = sqrt(pow(ensembles[ensembles[i].reference].massWidth / sqrt(ensembles[ensembles[i].reference].size/(crossSection*peLumi)), 2) + pow(ensembles[i].massWidth / sqrt(ensembles[i].size/(crossSection*peLumi)), 2));
-    printf(" / Statistical precision: %4.2f GeV \n", statDM);
-    if (statDM > largestDM && !ensembles[i].correlated) largestDM = statDM;
-    
-    (ensembles[i].takeLargest) ? totalMassUncertainty2 += largestDM*largestDM : totalMassUncertainty2 += meanDM*meanDM;
-    
-    printf("\t- %4.4f / o %4.4f / + %4.4f \n", ensembles[i].jes, referenceJES, ensembles[i+1].jes);
-    double largestDJ = 0;
-    double meanDJ    = 0;
-    if (ensembles[i].expectedJES > 0) {
-      largestDJ = max(abs(ensembles[i].expectedJES-ensembles[i].jes), abs(ensembles[i+1].expectedJES-ensembles[i+1].jes));
-      meanDJ    = (abs(ensembles[i].expectedJES-ensembles[i].jes) + abs(ensembles[i+1].expectedJES-ensembles[i+1].jes))/2;
+  std::cout << "\n### Fitting pseudo-experiments" << std::endl;
+  for(std::map<std::string, ensemble>::iterator it = ensembles.begin(); it != ensembles.end(); it++) {
+    std::cout << std::setiosflags(std::ios::left) << std::setw(20) << it->first;
+    if (strcmp(it->second.file, "") == 0) {
+      // Calibration uncertainties
+      it->second.massUnc = 0.02;
+      it->second.jesUnc  = 0.;
     }
     else {
-      largestDJ = max(abs(referenceJES-ensembles[i].jes), abs(referenceJES-ensembles[i+1].jes));
-      meanDJ    = (abs(referenceJES-ensembles[i].jes) + abs(referenceJES-ensembles[i+1].jes))/2;
+      // Get files
+      it->second.chain = new TChain("tree");
+      it->second.chain->Add(sPath + it->second.file);
+      
+      // Fit
+      TF1* gaus = new TF1("gaus", "gaus");
+      
+      it->second.chain->Fit("gaus", "mass_mTop_JES", "mass_mTop_JES>0 & JES_mTop_JES>0 & genMass==172.5 & genJES==1", "EMQ0");
+      it->second.mass    = gaus->GetParameter(1);
+      it->second.massUnc = gaus->GetParameter(2) / sqrt(it->second.size/(crossSection*peLumi));
+      
+      it->second.chain->Fit("gaus", "JES_mTop_JES", "mass_mTop_JES>0 & JES_mTop_JES>0 & genMass==172.5 & genJES==1", "EMQ0");
+      it->second.jes    = gaus->GetParameter(1);
+      it->second.jesUnc = gaus->GetParameter(2) / sqrt(it->second.size/(crossSection*peLumi));
+      
+      it->second.chain->Fit("gaus", "mass_mTop", "mass_mTop>0 & genMass==172.5 & genJES==1", "EMQ0");
+      it->second.mass1d    = gaus->GetParameter(1);
+      it->second.mass1dUnc = gaus->GetParameter(2) / sqrt(it->second.size/(crossSection*peLumi));
     }
-    printf("\tLargest uncertainty: %4.3f / Mean uncertainty: %4.3f", largestDJ, meanDJ);
     
-    double statDJ = sqrt(pow(ensembles[ensembles[i].reference].jesWidth / sqrt(ensembles[ensembles[i].reference].size/(crossSection*peLumi)), 2) + pow(ensembles[i].jesWidth / sqrt(ensembles[i].size/(crossSection*peLumi)), 2));
-    printf(" / Statistical precision: %4.3f \n", statDJ);
-    if (statDJ > largestDJ && !ensembles[i].correlated) largestDJ = statDJ;
-    
-    (ensembles[i].takeLargest) ? totalJESUncertainty2 += largestDJ*largestDJ : totalJESUncertainty2 += meanDJ*meanDJ;
+    printf("\tmass = %.2lf+/-%.2lf GeV, jes = %.3lf+/-%.3lf, mass1d = %.2lf+/-%.2lf GeV\n", it->second.mass, it->second.massUnc, it->second.jes, it->second.jesUnc, it->second.mass1d, it->second.mass1dUnc);
   }
   
-  for (int i = 0; i < (int) staticUncertainties.size(); ++i) {
-    std::cout << staticUncertainties[i].name << std::endl;
-    printf("\n\tMass uncertainty: %4.2f / JES uncertainty: %4.3f \n\n", staticUncertainties[i].massUncertainty, staticUncertainties[i].jesUncertainty);
+  ///////////////////////////////////
+  
+  std::cout << "\n### Systematic uncertainties" << std::endl;
+  for(std::map<std::string, comparison>::iterator it = comparisons.begin(); it != comparisons.end(); it++) {
+    if (!it->second.active) std::cout << "#";
+    std::cout << std::setiosflags(std::ios::left) << std::setw(20) << it->first;
     
-    totalMassUncertainty2 += staticUncertainties[i].massUncertainty*staticUncertainties[i].massUncertainty;
-    totalJESUncertainty2 += staticUncertainties[i].jesUncertainty*staticUncertainties[i].jesUncertainty;
+    ensemble nominal  = ensembles.find(it->second.nominal)->second;
+    ensemble up       = ensembles.find(it->second.up)->second;
+    ensemble down;
+    if (strcmp(it->second.down, "") == 0) down = up;
+    else down         = ensembles.find(it->second.down)->second;
+    
+    double massShift = max(abs(nominal.mass-up.mass), abs(nominal.mass-down.mass));
+    double jesShift  = max(abs(nominal.jes-up.jes), abs(nominal.jes-down.jes));
+    double mass1dShift = max(abs(nominal.mass1d-up.mass1d), abs(nominal.mass1d-down.mass1d));
+    
+    double massShiftUnc = 0.;
+    double jesShiftUnc = 0.;
+    double mass1dShiftUnc = 0.;
+    
+    printf("\tmassShift = %.2lf+/-%.2lf GeV, jesShift = %.3lf+/-%.3lf, mass1dShift = %.2lf+/-%.2lf GeV\n", massShift, massShiftUnc, jesShift, jesShiftUnc, mass1dShift, mass1dShiftUnc);
+    
+    if (it->second.active) {
+      totalMassUncertainty2   += pow(massShift, 2);
+      totalJESUncertainty2    += pow(jesShift, 2);
+      totalMass1dUncertainty2 += pow(mass1dShift, 2);
+    }
   }
   
-  printf("Systematic uncertainty on top mass: %4.2f GeV \n", sqrt(totalMassUncertainty2));
-  printf("Systematic uncertainty on JES     : %4.3f \n", sqrt(totalJESUncertainty2));
+  std::cout << "\n### Total" << std::endl;
+  printf("\tmassShift = %.2lf GeV, jesShift = %.3lf, mass1dShift = %.2lf GeV\n", sqrt(totalMassUncertainty2), sqrt(totalJESUncertainty2), sqrt(totalMass1dUncertainty2));
 }
 
 
