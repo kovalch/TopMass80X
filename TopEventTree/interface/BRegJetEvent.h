@@ -20,7 +20,7 @@ public:
 
   unsigned int nJet() { return EtWeightedSigmaPhi.size(); }
 
-  ClassDef(BRegJetEvent,4);
+  ClassDef(BRegJetEvent,6);
 
   // BRegJetEvent data
 
@@ -62,7 +62,8 @@ public:
   std::vector<double> PUIdbetaStar;
   std::vector<double> PUIdptD;
 
-
+  std::vector<double> PUJetIdMVA;
+  std::vector<int> PUJetidflag;
 
   std::vector<int>    nSoftMuons;
   std::vector<int>    nSoftElectrons;
@@ -87,6 +88,7 @@ public:
 
   std::vector<double> BRegResult;
   std::vector<double> BRegGBRTrainResult;
+  std::vector<double> BRegProducerResult;
 
 
 private:
