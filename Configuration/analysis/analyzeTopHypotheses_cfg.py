@@ -11,6 +11,7 @@ options.register('metcl', 1, VarParsing.VarParsing.multiplicity.singleton,VarPar
 
 options.register('scaleType', 'abs', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "JES scale type")
 options.register('jessource', '', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "Uncertainty source for JES variation for source:up/down")
+options.register('flavor', 'bottom', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "Jet flavor for flavor:up/down")
 options.register('lJesFactor', 1.0, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "JES")
 options.register('bJesFactor', 1.0, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "bJES")
 options.register('resolution', 'nominal', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "JER")
@@ -81,6 +82,21 @@ elif (data and options.lepton == "electron"):
          '/store/data/Run2012A/SingleElectron/AOD/22Jan2013-v1/30002/72352080-9372-E211-B431-00266CFFA1AC.root'
   ] )
   process.source.skipEvents=cms.untracked.uint32(1800)
+elif (options.mcversion == "Sherpa12"):
+  readFiles.extend( [
+         '/store/user/mseidel/TT_cluster_8TeV-sherpa/job_0_fastreco_FASTSIM_HLT_PU.root',
+         '/store/user/mseidel/TT_cluster_8TeV-sherpa/job_2_fastreco_FASTSIM_HLT_PU.root',
+         '/store/user/mseidel/TT_cluster_8TeV-sherpa/job_4_fastreco_FASTSIM_HLT_PU.root',
+         '/store/user/mseidel/TT_cluster_8TeV-sherpa/job_6_fastreco_FASTSIM_HLT_PU.root',
+         '/store/user/mseidel/TT_cluster_8TeV-sherpa/job_8_fastreco_FASTSIM_HLT_PU.root',
+         '/store/user/mseidel/TT_lund_8TeV-sherpa/job_1_fastreco_FASTSIM_HLT_PU.root',
+         '/store/user/mseidel/TT_lund_8TeV-sherpa/job_3_fastreco_FASTSIM_HLT_PU.root',
+         '/store/user/mseidel/TT_lund_8TeV-sherpa/job_5_fastreco_FASTSIM_HLT_PU.root',
+         '/store/user/mseidel/TT_lund_8TeV-sherpa/job_7_fastreco_FASTSIM_HLT_PU.root',
+         '/store/user/mseidel/TT_lund_8TeV-sherpa/job_9_fastreco_FASTSIM_HLT_PU.root',
+         '/store/user/mseidel/TT_lund_8TeV-sherpa/job_13_fastreco_FASTSIM_HLT_PU.root',
+         
+  ] )
 else:
   readFiles.extend( [
           '/store/user/mgosseli/mc/TT_TuneZ2_7TeV_madgraph_FASTSIM_172_5GeV_matchingdown_v1/TT_TuneZ2_7TeV_madgraph_FASTSIM_172_5GeV_matchingdown_v1_139.root',
@@ -96,8 +112,8 @@ process.maxEvents = cms.untracked.PSet(
 
 ## configure process options
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(True),
-    SkipEvent = cms.untracked.vstring('ProductNotFound')
+#    wantSummary = cms.untracked.bool(True),
+#    SkipEvent = cms.untracked.vstring('ProductNotFound')
 )
 
 ## configure geometry & conditions
@@ -131,6 +147,7 @@ if not data:
     scaledJetEnergy.scaleType    = options.scaleType
     scaledJetEnergy.JECUncSrcFile= "TopAnalysis/TopUtils/data/Summer13_V4_DATA_UncertaintySources_AK5PFchs.txt"
     scaledJetEnergy.sourceName   = options.jessource
+    scaledJetEnergy.flavor       = options.flavor
     scaledJetEnergy.scaleFactor  = options.lJesFactor
     scaledJetEnergy.scaleFactorB = options.bJesFactor
     if (options.resolution=='down'):
@@ -454,6 +471,7 @@ process.path.remove(process.tightBottomJets)
 #process.path.remove(process.looseElectronsEJ)
 #process.path.remove(process.tightElectronsEJ)
 
+if (options.mcversion == "Sherpa12"): process.path.remove(process.eventWeightMC)
 
 
 ## switch to from muon to electron collections
