@@ -20,13 +20,13 @@
 
 int target = 1; // 1: correct, 0: wrong, -10: unmatched
 int obs    = 0; // 0: hadTopMass, 1: hadWRawMass
-int lepton = 0;
+int lepton = 1;
 
-int iMassMin = 4;
-int iMassMax = 5;
+int iMassMin = 0;
+int iMassMax = 9;
 
-bool plotByMass = true;
-bool pas = false;
+bool plotByMass = false;
+bool pas = true;
 
 TString sTarget[] = {"wp", "cp", "un"};
 TString sFObs[]   = {"mt", "mW"};
@@ -150,6 +150,11 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
   target = pTarget;
   obs    = pObs;
   lepton = pLepton;
+  
+  if (plotByMass || pas) {
+    iMassMin = 4;
+    iMassMax = 5;
+  }
   
   setTDRStyle();
   TH1::SetDefaultSumw2();
@@ -356,96 +361,96 @@ void FindParametersMass(int iMass)
   TH1F* h166;
   TH1F* h178;
   
-  if (!pas && !plotByMass) {
+  if (!plotByMass) {
     switch(iMass) {
       case 0: {
-        h096 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1615_0.96", 0);
-        h098 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1615_0.98", 1);
-        h100 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1615_1.00", 2);
-        h102 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1615_1.02", 3);
-        h104 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1615_1.04", 4);
+        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1615_0.96", 0);
+        h098 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1615_0.98", 1);
+        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1615_1.00", 2);
+        h102 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1615_1.02", 3);
+        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1615_1.04", 4);
         break;
       }
       case 1: {
-        h096 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1635_0.96", 0);
-        h098 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1635_0.98", 1);
-        h100 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1635_1.00", 2);
-        h102 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1635_1.02", 3);
-        h104 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1635_1.04", 4);
+        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1635_0.96", 0);
+        h098 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1635_0.98", 1);
+        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1635_1.00", 2);
+        h102 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1635_1.02", 3);
+        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1635_1.04", 4);
         break;
       }
 		  case 2: {
-        h096 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1665_0.96", 0);
-        h098 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1665_0.98", 1);
-        h100 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1665_1.00", 2);
-        h102 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1665_1.02", 3);
-        h104 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1665_1.04", 4);
+        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1665_0.96", 0);
+        h098 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1665_0.98", 1);
+        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1665_1.00", 2);
+        h102 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1665_1.02", 3);
+        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1665_1.04", 4);
         break;
       }
 		  case 3: {
-        h096 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1695_0.96", 0);
-        h098 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1695_0.98", 1);
-        h100 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1695_1.00", 2);
-        h102 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1695_1.02", 3);
-        h104 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1695_1.04", 4);
+        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1695_0.96", 0);
+        h098 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1695_0.98", 1);
+        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1695_1.00", 2);
+        h102 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1695_1.02", 3);
+        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1695_1.04", 4);
         break;
       }
 		  case 4: {
-        h096 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1725_0.96", 0);
-        h098 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1725_0.98", 1);
-        h100 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1725_1.00", 2);
-        h102 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1725_1.02", 3);
-        h104 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1725_1.04", 4);
+        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1725_0.96", 0);
+        h098 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1725_0.98", 1);
+        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1725_1.00", 2);
+        h102 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1725_1.02", 3);
+        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1725_1.04", 4);
         break;
       }
 		  case 5: {
-        h096 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1755_0.96", 0);
-        h098 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1755_0.98", 1);
-        h100 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1755_1.00", 2);
-        h102 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1755_1.02", 3);
-        h104 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1755_1.04", 4);
+        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1755_0.96", 0);
+        h098 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1755_0.98", 1);
+        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1755_1.00", 2);
+        h102 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1755_1.02", 3);
+        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1755_1.04", 4);
         break;
       }
 		  case 6: {
-        h096 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1785_0.96", 0);
-        h098 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1785_0.98", 1);
-        h100 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1785_1.00", 2);
-        h102 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1785_1.02", 3);
-        h104 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1785_1.04", 4);
+        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1785_0.96", 0);
+        h098 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1785_0.98", 1);
+        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1785_1.00", 2);
+        h102 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1785_1.02", 3);
+        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1785_1.04", 4);
         break;
       }
 		  case 7: {
-        h096 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1815_0.96", 0);
-        h098 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1815_0.98", 1);
-        h100 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1815_1.00", 2);
-        h102 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1815_1.02", 3);
-        h104 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1815_1.04", 4);
+        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1815_0.96", 0);
+        h098 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1815_0.98", 1);
+        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1815_1.00", 2);
+        h102 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1815_1.02", 3);
+        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1815_1.04", 4);
         break;
       }
 		  case 8: {
-        h096 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1845_0.96", 0);
-        h098 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1845_0.98", 1);
-        h100 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1845_1.00", 2);
-        h102 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1845_1.02", 3);
-        h104 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1845_1.04", 4);
+        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1845_0.96", 0);
+        h098 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1845_0.98", 1);
+        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1845_1.00", 2);
+        h102 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1845_1.02", 3);
+        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1845_1.04", 4);
         break;
       }
     }
   }
   else if (plotByMass) {
     std::cout << "PLOT BY MASS" << std::endl;
-    h096 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1665_1.00", 0);
-    h098 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1695_1.00", 1);
-    h100 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1725_1.00", 2);
-    h102 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1755_1.00", 3);
-    h104 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1785_1.00", 4);
+    h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1665_1.00", 0);
+    h098 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1695_1.00", 1);
+    h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1725_1.00", 2);
+    h102 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1755_1.00", 3);
+    h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1785_1.00", 4);
   }
   else {
-    if (obs==0) h166 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1665_1.00", 3);
-    h096 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1725_0.96", 0);
-    h100 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1725_1.00", 1);
-    h104 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1725_1.04", 2);
-    if (obs==0) h178 = FindParameters("/scratch/hh/dust/naf/cms/user/mseidel/trees/Summer12_TTJets1785_1.00", 4); 
+    if (obs==0) h166 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1665_1.00", 3);
+    h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1725_0.96", 0);
+    h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1725_1.00", 1);
+    h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1725_1.04", 2);
+    if (obs==0) h178 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1785_1.00", 4); 
   }
   
   h096->Draw();
@@ -453,10 +458,6 @@ void FindParametersMass(int iMass)
     h096->GetXaxis()->SetRangeUser(100, 240);
     h100->GetXaxis()->SetRangeUser(100, 240);
     h104->GetXaxis()->SetRangeUser(100, 240);
-    if (pas) {
-      h166->GetXaxis()->SetRangeUser(100, 240);
-      h178->GetXaxis()->SetRangeUser(100, 240);
-    }
   }
   if (obs == 1) {
     h096->GetXaxis()->SetRangeUser(60, 110);
@@ -466,18 +467,13 @@ void FindParametersMass(int iMass)
   h100->Draw("SAME");
   h104->Draw("SAME");
   
-  if (pas && obs==0) {
-    h166->Draw("SAME");
-    h178->Draw("SAME");
-  }
-  
   // ---
   //    create legend
   // ---
   TLegend *leg0 = new TLegend(0.5, 0.7, 0.95, 0.92);
   leg0->SetFillStyle(0);
   leg0->SetBorderSize(0);
-  if (!pas && !plotByMass) {
+  if (!plotByMass) {
     leg0->AddEntry( h096, "JES = 0.96", "PL");
     leg0->AddEntry( h100, "JES = 1.00", "PL");
     leg0->AddEntry( h104, "JES = 1.04", "PL");
@@ -499,7 +495,7 @@ void FindParametersMass(int iMass)
   
   leg0->Draw();
 
-  DrawCMSSim();
+  DrawCMSSim(lepton);
   
   if (obs==0) DrawCutLine(172.5, h096->GetMaximum()*1.1);
   else DrawCutLine(80.4, h096->GetMaximum()*1.1);

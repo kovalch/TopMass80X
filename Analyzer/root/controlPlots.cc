@@ -97,11 +97,11 @@ void TopMassControlPlots::doPlots()
 	  hists.back().SetFitGaussToCore();
 	  hists.push_back(MyHistogram("recoW1Mass_barrel" , "top.recoW1.M()" , "top.fitB1.Eta()<1.1 & top.fitW1Prod1.Eta()<1.1 & top.fitW1Prod2.Eta()<1.1", ";m_{W}^{reco} [GeV], #eta^{j}<1.1; Permutations", 60,  0, 300));
 
-	  hists.push_back(MyHistogram("fitTop1Mass_vs_nVertex", "weight.nVertex", "top.fitTop1.M()", "", ";N_{Vertex}; m_{t}^{fit} [GeV]" , 10, 0, 50, 70, 50, 400));
+	  hists.push_back(MyHistogram("fitTop1Mass_vs_nVertex", "weight.nVertex", "top.fitTop1.M()", "", ";N_{Vertex}; m_{t}^{fit} [GeV]" , 8, 0, 40, 70, 50, 400));
 	  hists.push_back(MyHistogram("fitTop1Mass_vs_fitProb", "top.fitProb"   , "top.fitTop1.M()", "", ";P_{gof}; m_{t}^{fit} [GeV]"    , 10, 0,  1, 70, 50, 400));
 	  hists.push_back(MyHistogram("fitTop1Mass_vs_nJet", "jet.@jet.size()", "top.fitTop1.M()", "", ";N_{jet}; m_{t}^{fit} [GeV]", 11, 4, 15, 70, 50, 400));
       hists.push_back(MyHistogram("fitTop1Mass_vs_dRbb", "sqrt(pow(top.fitB1.Eta()-top.fitB2.Eta(),2) + pow(TVector2::Phi_mpi_pi(top.fitB1.Phi()-top.fitB2.Phi()),2))", "top.fitTop1.M()", "", ";#DeltaR_{b#bar{b}}; m_{t}^{fit} [GeV]" , 10, 1, 6, 70, 50, 400));
-	  hists.push_back(MyHistogram("recoW1Mass_vs_nVertex" , "weight.nVertex", "top.recoW1.M()" , "", ";N_{Vertex}; m_{W}^{reco} [GeV]", 10, 0, 50, 58, 10, 300));
+	  hists.push_back(MyHistogram("recoW1Mass_vs_nVertex" , "weight.nVertex", "top.recoW1.M()" , "", ";N_{Vertex}; m_{W}^{reco} [GeV]", 8, 0, 40, 58, 10, 300));
 	  hists.push_back(MyHistogram("recoW1Mass_vs_fitProb" , "top.fitProb"   , "top.recoW1.M()" , "", ";P_{gof}; m_{W}^{reco} [GeV]"   , 10, 0,  1, 58, 10, 300));
 	  hists.push_back(MyHistogram("recoW1Mass_vs_nJet", "jet.@jet.size()", "top.recoW1.M()", "", ";N_{jet}; m_{W}^{reco} [GeV]", 11, 4, 15, 58, 10, 300));
       hists.push_back(MyHistogram("recoW1Mass_vs_dRbb", "sqrt(pow(top.fitB1.Eta()-top.fitB2.Eta(),2) + pow(TVector2::Phi_mpi_pi(top.fitB1.Phi()-top.fitB2.Phi()),2))", "top.recoW1.M()", "", ";#DeltaR_{b#bar{b}}; m_{W}^{reco}" , 10, 1, 6, 58, 10, 300));
