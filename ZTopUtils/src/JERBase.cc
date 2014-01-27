@@ -22,19 +22,21 @@ void JERBase::setSystematics(std::string type) {
 
 }
 
-void JERBase::correctP4(float & recopt, float& recoeta, float & recophi, float & recom, //full lorentzvector
+void JERBase::correctP4(float & recopt, float& recoabs_eta, float & recophi, float & recom, //full lorentzvector
         const float & genpt) const{
     if (genpt < 1)
         return;
 
 
     std::vector<float>::const_iterator it=std::lower_bound(resranges_.begin(),
-            resranges_.end(), recoeta);
+            resranges_.end(), recoabs_eta);
     size_t etabin=0;
-    if(recoeta==*it)
+    if(recoabs_eta==*it)
         etabin= it-resranges_.begin();
     else
         etabin= it-resranges_.begin()-1;
+    if(etabin==resranges_.size()-1) //last entry
+        etabin--;
 
     double deltapt = (1. - resfactors_.at(etabin))* (recopt - genpt);
     double scale = std::max(0., recopt + deltapt) / recopt;
