@@ -34,8 +34,8 @@ private:
   class MyHistogram{
   public:
     MyHistogram(std::string name_, std::string formulax_, std::string selection_, std::string title, int nBins, double min, double max) :
-      varx(0), vary(0),sel(0),
-      name(name_), formulax(formulax_), formulay("1."), selection(selection_),
+      varx(0), vary(0),sel(0),histoweight(0),
+      name(name_), formulax(formulax_), formulay("1."), selection(selection_),CustomHistoWeight("1."),
       data(new TH1F((std::string("hD")+name).c_str(), (std::string("Data")+title).c_str(), nBins, min, max)),
       histogramDimension(1), dataContainsMC(false), fitGaussToCore(false)
     {
@@ -46,8 +46,8 @@ private:
     }
 
     MyHistogram(std::string name_, std::string formulax_, std::string formulay_, std::string selection_, std::string title, int x_nBins, double x_min, double x_max, int y_nBins, double y_min, double y_max/*, double y_plotmin =0., double y_plotmax=-1.*/) :
-      varx(0), vary(0),sel(0),
-      name(name_), formulax(formulax_), formulay(formulay_), selection(selection_),
+      varx(0), vary(0),sel(0),histoweight(0),
+      name(name_), formulax(formulax_), formulay(formulay_), selection(selection_),CustomHistoWeight("1."),
       data(new TH2F((std::string("h2D")+name).c_str(), (std::string("Data")+title).c_str(), x_nBins, x_min, x_max, y_nBins, y_min, y_max)),
       histogramDimension(2), dataContainsMC(false), fitGaussToCore(false)
     {
@@ -59,11 +59,13 @@ private:
 
     void Init(TChain* chain, std::string topBranchName, std::string replaceVar)
     {
-      boost::replace_all(formulax,  "top.", topBranchName);
-      boost::replace_all(formulay,  "top.", topBranchName);
-      boost::replace_all(selection, "top.", topBranchName);
+      boost::replace_all(formulax,          "top.", topBranchName);
+      boost::replace_all(formulay,          "top.", topBranchName);
+      boost::replace_all(selection,         "top.", topBranchName);
+      boost::replace_all(CustomHistoWeight, "top.", topBranchName);
       std::string tempformulax = formulax;
       std::string tempformulay = formulay;
+      std::string tempCustomHistoWeight = CustomHistoWeight;
       //re-initialize varx/vary if needed
       if(replaceVar!=""){
     	  std::vector<std::string> vsPars;
@@ -71,11 +73,14 @@ private:
     	  assert(vsPars.size()==2);
     	  boost::replace_all(formulax,  vsPars.at(0), vsPars.at(1));
     	  boost::replace_all(formulay,  vsPars.at(0), vsPars.at(1));
+    	  boost::replace_all(CustomHistoWeight,  vsPars.at(0), vsPars.at(1));
       }
       varx = new TTreeFormula((std::string("fx")+name).c_str(), formulax.c_str() , chain);
       vary = new TTreeFormula((std::string("fy")+name).c_str(), formulay.c_str() , chain);
+      histoweight = new TTreeFormula((std::string("h_weight")+name).c_str(), CustomHistoWeight.c_str() , chain);
       formulax = tempformulax;
       formulay = tempformulay;
+      CustomHistoWeight = tempCustomHistoWeight;
       if(varx->GetNdim() == 0 || vary->GetNdim() == 0){
         SetInvalid();
       }
@@ -188,6 +193,10 @@ private:
     	return dataContainsMC;
     }
 
+    void ConfigureExtraOptions(bool SetFitGaussToCore, std::string SetCustomHistoweight="1."){
+    	fitGaussToCore = SetFitGaussToCore;
+    	CustomHistoWeight = SetCustomHistoweight;
+    }
     void SetFitGaussToCore(){
     	fitGaussToCore = true;
     }
@@ -200,7 +209,8 @@ private:
     TTreeFormula* varx;
     TTreeFormula* vary;
     TTreeFormula* sel;
-    std::string name, formulax, formulay, selection;
+    TTreeFormula* histoweight;
+    std::string name, formulax, formulay, selection, CustomHistoWeight;
   private:
     TH1 *data;
     std::vector<TH1*> sig, bkg, sigvar;
@@ -403,6 +413,12 @@ private:
         addVariable("24Pl_1000Tr_Min1k_MCS5TQ07","24PlVars1000TreesMin1000EvtsMCS5TQ07"         ,0.5,1.5  );
         addVariable("24Pl_1000Tr_Min500_MCS5TQ07","24PlVars1000TreesMin500EvtsMCS5TQ07"         ,0.5,1.5  );
         addVariable("24Pl_1000Tr_Min250_MCS5TQ07","24PlVars1000TreesMin250EvtsMCS5TQ07"         ,0.5,1.5  );
+
+        addVariable("24Pl_1000Tr_Min00250_MCS1TQ07","24PlVars1000TreesMin00250EvtsMCS1TQ07"         ,0.5,1.5  );
+        addVariable("24Pl_1000Tr_Min00250_MCS2TQ07","24PlVars1000TreesMin00250EvtsMCS2TQ07"         ,0.5,1.5  );
+        addVariable("24Pl_1000Tr_Min00250_MCS3TQ07","24PlVars1000TreesMin00250EvtsMCS3TQ07"         ,0.5,1.5  );
+        addVariable("24Pl_1000Tr_Min00500_MCS3TQ07","24PlVars1000TreesMin00500EvtsMC35TQ07"         ,0.5,1.5  );//MCS3, actually
+        addVariable("24Pl_1000Tr_Min01000_MCS3TQ07","24PlVars1000TreesMin01000EvtsMC35TQ07"         ,0.5,1.5  );//MCS3, actually
 
         addVariable("24Pl_1000Tr_Min2k_MCS3","24PlVars1000TreesMin2000EvtsMCS3"         ,0.5,1.5  );
         addVariable("24Pl_1000Tr_Min2k_MCS8TQ09","24PlVars1000TreesMin2000EvtsMCS8TQ09"         ,0.5,1.5  );
