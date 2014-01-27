@@ -23,7 +23,7 @@
 #include "basicFunctions.h"
 #include "../../../../TopUtils/interface/extract_sigma.h"
 
-void purityStabilityEfficiency(TString variable = "ttbarDelPhi", bool save=true, TString lepton="combined", 
+void purityStabilityEfficiency(TString variable = "topPt", bool save=true, TString lepton="combined", 
 			       TString inputFolderName="RecentAnalysisRun8TeV_doubleKinFit", bool plotAcceptance = false, 
 			       bool plotEfficiencyPhaseSpace = false, bool plotEfficiency2 = false, double chi2Max=7.824,//9999.,//7.824,
 			       int verbose=1, bool hadron=false, int qAssignment=-1,
@@ -45,6 +45,8 @@ void purityStabilityEfficiency(TString variable = "ttbarDelPhi", bool save=true,
   if(variable.Contains("lbMass")) useTree=false; //FIXME
   TString nameExt="";
   double chi2MaxInit=chi2Max;
+  // if chi2 sel is applied-plot chi2 efficiency in addition?
+  bool drawChi2Eff=false;
   // if chi2 sel is applied-plot pur and stab without chi2 sel in addition?
   bool plotDefToCompare=false;
   if(chi2Max>100) plotDefToCompare=false;
@@ -53,8 +55,12 @@ void purityStabilityEfficiency(TString variable = "ttbarDelPhi", bool save=true,
     if(chi2Max<100) nameExt+="ProbSel";
     chi2Max=99999; // can be done only with tree
   }
-  // lgend drawing: drawAlwaysLegenddrawAlwaysLegend=false->only for topPt
+  if(chi2Max>100) drawChi2Eff=false;
+  // legend drawing: drawSepLegend=false -> only separate canvas with legend is drawn
+  bool drawSepLegend=false;
+  // legend drawing: drawAlwaysLegenddrawAlwaysLegend=false->only for topPt
   bool drawAlwaysLegend=true;
+  if(!drawSepLegend) drawAlwaysLegend=false;
   if(lepton.Contains("combined")) lepton="combined";
   // output folder in case of saving the canvases:
   TString outputFolder = "./diffXSecFromSignal/plots/"+lepton+"/2012/binning";
@@ -816,7 +822,7 @@ void purityStabilityEfficiency(TString variable = "ttbarDelPhi", bool save=true,
     chi2eff->SetLineColor(1);
     if(plotDefToCompare) chi2eff->SetLineStyle(9);
     chi2eff->SetLineWidth(4);
-    chi2eff->Draw("same");
+    if(drawChi2Eff) chi2eff->Draw("same");
   }
   if (lepton=="muon") DrawDecayChLabel("#mu + Jets");
   else if(lepton=="elec") DrawDecayChLabel("e + Jets");
@@ -840,27 +846,33 @@ void purityStabilityEfficiency(TString variable = "ttbarDelPhi", bool save=true,
   if(chi2Max<100){
     TString entry="eff (#chi^{2} < ";
     entry+=getTStringFromDouble(chi2Max)+")";
-    leg->AddEntry(chi2eff,entry,"l");
+    if(drawChi2Eff) leg->AddEntry(chi2eff,entry,"l");
   }
   leg->SetFillColor(0);
   leg->SetBorderSize(0);
-  if(variable == "topPt"||drawAlwaysLegend) leg->Draw("same");
+  if(drawSepLegend&&(variable == "topPt"||drawAlwaysLegend)) leg->Draw("same");
     
-  TLegend* legFull=new TLegend(0.,0.,1.,1.);
+  TLegend* legFull=new TLegend(0.1,0.1,1.,0.9);
   legFull->SetFillStyle(0);
   legFull->SetBorderSize(0);
   legFull->AddEntry(purityhist,   "Purity"    ,"l");
   legFull->AddEntry(stabilityhist,"Stability" ,"l");
+  double Nlegfull=2.;
   //purityhist->GetYaxis()->SetRangeUser  (0, 0.2);
   //if(plotAcceptance)leg->AddEntry(effHistBBB,"Eff*A full PS Spring11","l");
   //     if(plotEfficiencyPhaseSpace)legFull->AddEntry(effHistGenPS,"Efficiency","l");
-  if(plotEfficiencyPhaseSpace)legFull->AddEntry(effHistGenPS,"#epsilon^{vis. PS}","l");
+  if(plotEfficiencyPhaseSpace){legFull->AddEntry(effHistGenPS,"#epsilon^{vis. PS}","l"); Nlegfull++; }
   //     if(plotAcceptance)legFull->AddEntry(accHistGen,"Acceptance","l");
-  if(plotAcceptance)legFull->AddEntry(accHistGen,"A","l");
-  if(plotEfficiency2)legFull->AddEntry(effHistBBB2,"eff.*A full PS Summer11","l");
-  
+  if(plotAcceptance ){ legFull->AddEntry(accHistGen ,"A"                      ,"l"); Nlegfull++; }
+  if(plotEfficiency2){ legFull->AddEntry(effHistBBB2,"eff.*A full PS Summer11","l"); Nlegfull++; }
+  if(chi2Max<100){
+    TString entry="eff (#chi^{2} < ";
+    entry+=getTStringFromDouble(chi2Max)+")";
+    if(drawChi2Eff){ legFull->AddEntry(chi2eff,entry,"l"); Nlegfull++; }
+  }
+  legFull->SetTextSize(0.1);
   // canvas for legend
-  TCanvas* purstabLeg = new TCanvas("purstabLeg","purstabLeg",200,100);
+  TCanvas* purstabLeg = new TCanvas("purstabLeg","purstabLeg",600,600);
   legFull->Draw("");
     
   //------------------------------------------------------------------------------
