@@ -38,7 +38,7 @@ public:
 
     void setSystematics(std::string type);
 
-    void correctP4(float & recopt, float& recoeta, float & recophi, float & recom, //full lorentzvector
+    void correctP4(float & recopt, float& recoabs_eta, float & recophi, float & recom, //full lorentzvector
             const float & genpt) const;
 
 protected:
