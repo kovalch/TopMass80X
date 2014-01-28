@@ -56,6 +56,7 @@
 ## mkdir -p diffXSecFromSignal/plots/combined/2012/massConstraintTest
 ## mkdir -p diffXSecFromSignal/plots/combined/2012/regularizationTest
 ## mkdir -p diffXSecFromSignal/plots/combined/2012/topPtTest
+## mkdir -p diffXSecFromSignal/plots/combined/2012/cov
 
 ## b) root files needed for the Analysis are loaded automatically from /afs/naf.desy.de/group/cms/scratch/tophh/
 ## c) if not yet done, combine the MC samples for the single channels (like QCD, single top, Diboson) using combineMCsamples.C
@@ -247,7 +248,7 @@ redoSystematics=true
 ## redoPDFReweighting = true / false (default: true)
 redoPDFReweighting=true
 
-## Produce final xSec plots, ratios and uncertainties 
+## Produce final xSec plots, ratios, uncertainties and covariance matrices 
 ## produceResults = true / false (default: true)
 produceResults=true
 
@@ -837,8 +838,8 @@ fi
 #### ===================================================
 if [ $decayChannel == \"combined\" -a $closureTestSpecifier == \"\" -a $produceResults == true ]; then
     echo ""
-    echo " Processing .... makeResultTables($decayChannel, $extrapolate, $hadron, $inclCCVars)"
-    root -l -q -b './makeResultTables.C++('$decayChannel', '$extrapolate', '$hadron', '$inclCCVars')'
+    echo " Processing .... makeResultTables($decayChannel, $extrapolate, $hadron, $inclCCVars, $useBCC)"
+    root -l -q -b './makeResultTables.C++('$decayChannel', '$extrapolate', '$hadron', '$inclCCVars, $useBCC)'
 else
     echo "will be ignored, only done if final results are produced (produceResults is set to $produceResults)"
 fi
