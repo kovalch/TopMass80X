@@ -23,6 +23,7 @@ JetEnergyScale::JetEnergyScale(const edm::ParameterSet& cfg):
   payload_             (cfg.getParameter<std::string>  ("payload"             )),  
   scaleType_           (cfg.getParameter<std::string>  ("scaleType"           )),  
   sourceName_          (cfg.getParameter<std::string>  ("sourceName"          )),  
+  flavor_              (cfg.getParameter<std::string>  ("flavor"              )), 
   scaleFactor_         (cfg.getParameter<double>       ("scaleFactor"         )),
   scaleFactorB_        (cfg.getParameter<double>       ("scaleFactorB"        )),
   resolutionFactor_    (cfg.getParameter<std::vector<double> > ("resolutionFactors"   )),
@@ -193,7 +194,11 @@ JetEnergyScale::produce(edm::Event& event, const edm::EventSetup& setup)
       JetCorrectionUncertainty* deltaJEC = new JetCorrectionUncertainty(*param);
       deltaJEC->setJetEta(jet->eta()); deltaJEC->setJetPt(jet->pt()); 
       
-      if (abs(scaledJet.partonFlavour()) == 5) {
+      if (
+        (flavor_ == "bottom" && abs(scaledJet.partonFlavour()) == 5) ||
+        (flavor_ == "light"  && abs(scaledJet.partonFlavour())  < 5) ||
+        (flavor_ == "gluon"  && abs(scaledJet.partonFlavour())  > 5)
+        ) {
         if(scaleType_.substr(scaleType_.find(':')+1)=="up") {
           float jetMetFlavor = deltaJEC->getUncertainty(true);
           scaleJetEnergy( scaledJet, 1+jetMetFlavor );
