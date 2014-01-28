@@ -26,13 +26,12 @@
 
 #include "AnalysisBase.h"
 #include "KinReco.h"
-#include "PUReweighter.h"
 #include "analysisUtils.h"
 #include "classes.h"
 #include "ScaleFactors.h"
-#include "BTagUtils.h"
 #include "KinematicReconstruction.h"
 #include "analysisObjectStructs.h"
+#include "TopAnalysis/ZTopUtils/interface/PUReweighter.h"
 
 
 
@@ -69,8 +68,7 @@ leptonScaleFactors_(0),
 triggerScaleFactors_(0),
 jetEnergyResolutionScaleFactors_(0),
 jetEnergyScaleScaleFactors_(0),
-btagScaleFactors_(0),
-bTagSFGeneric_(0)
+btagScaleFactors_(0)
 {
     this->clearBranches();
     this->clearBranchVariables();
@@ -313,7 +311,7 @@ void AnalysisBase::SetKinematicReconstruction(KinematicReconstruction* kinematic
 
 
 
-void AnalysisBase::SetPUReweighter(PUReweighter* puReweighter)
+void AnalysisBase::SetPUReweighter(ztop::PUReweighter* puReweighter)
 {
     puReweighter_ = puReweighter;
 }
@@ -337,13 +335,6 @@ void AnalysisBase::SetTriggerScaleFactors(const TriggerScaleFactors& scaleFactor
 void AnalysisBase::SetBtagScaleFactors(BtagScaleFactors& scaleFactors)
 {
     btagScaleFactors_ = &scaleFactors;
-}
-
-
-
-void AnalysisBase::SetBtagScaleFactors(BTagSFGeneric& scaleFactors)
-{
-    bTagSFGeneric_ = &scaleFactors;
 }
 
 
@@ -1242,8 +1233,7 @@ double AnalysisBase::weightBtagSF(const std::vector<int>& jetIndices,
 {
     if(!isMC_) return 1.;
     if(btagScaleFactors_->makeEfficiencies()) return 1.;
-    return btagScaleFactors_->calculateBtagSF(jetIndices, jets,
-                                              jetPartonFlavour, static_cast<std::string>(channel_));
+    return btagScaleFactors_->calculateBtagSF(jetIndices, jets, jetPartonFlavour);
 }
 
 
@@ -1290,9 +1280,7 @@ bool AnalysisBase::failsDileptonTrigger(const Long64_t& entry)const
 
 bool AnalysisBase::makeBtagEfficiencies()const
 {
-    if(btagScaleFactors_) return btagScaleFactors_->makeEfficiencies() && isTtbarSample_ && isTopSignal_;
-    if(bTagSFGeneric_) return bTagSFGeneric_->makeEfficiencies() && isTtbarSample_ && isTopSignal_;
-    return false;
+    return btagScaleFactors_->makeEfficiencies() && isTtbarSample_ && isTopSignal_;
 }
 
 

@@ -1,5 +1,6 @@
 #include "../interface/JECBase.h"
 #include <stdexcept>
+#include "unistd.h"
 
 namespace ztop {
 
@@ -146,7 +147,7 @@ void JECBase::setSystematics(std::string set) {
     }
 }
 
-void JECBase::applyJECUncertainties(ztop::PolarLorentzVector & p4In) {
+void JECBase::applyJECUncertainties(float & pt, float& eta, float & phi, float& m) {
 
     if (noupdown_ == 0) // no variation
         return;
@@ -163,8 +164,6 @@ void JECBase::applyJECUncertainties(ztop::PolarLorentzVector & p4In) {
         up = true;
 
     double dunc = 0;
-    double pt = p4In.Pt();
-    double eta = p4In.Eta();
 
     if (sources_.size() < 1) { //total
         totalunc_->setJetPt(pt);
@@ -188,10 +187,14 @@ void JECBase::applyJECUncertainties(ztop::PolarLorentzVector & p4In) {
                 << "JECBase::applyJECUncertainties: too many sources; must be below "
                 << vsrc_.size() - 1 << "." << std::endl;
     }
-    if (up)
-        p4In = p4In * (1 + dunc);
-    else
-        p4In = p4In * (1 - dunc);
+    if (up){
+        pt*=  (1 + dunc);
+        m*=  (1 + dunc);
+    }
+    else{
+        pt*=  (1 - dunc);
+        m*=  (1 - dunc);
+    }
 }
 }
 

@@ -1,6 +1,7 @@
 #ifndef tth_utils_h
 #define tth_utils_h
 
+#include <string>
 #include <vector>
 #include <utility>
 
@@ -11,6 +12,11 @@ class TString;
 
 
 namespace tth{
+    
+    /// Return the path where relevant input data is stored
+    const std::string DATA_PATH_TTH();
+    
+    
     
     /// Get vector of pairs with < stepName, objectName from ROOT-file (e.g. histo or tree) >
     std::vector<std::pair<TString, TString> > nameStepPairs(const char* filename,

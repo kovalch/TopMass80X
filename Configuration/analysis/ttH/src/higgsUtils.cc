@@ -1,9 +1,9 @@
 #include <iostream>
 #include <cstdlib>
 #include <sstream>
+#include <string>
 #include <vector>
 #include <utility>
-#include <sstream>
 #include <algorithm>
 
 #include <TObjArray.h>
@@ -11,9 +11,19 @@
 #include <Rtypes.h>
 
 #include "higgsUtils.h"
+#include "../../common/include/utils.h"
 #include "../../common/include/RootFileReader.h"
 
 
+
+
+
+const std::string tth::DATA_PATH_TTH()
+{
+    std::string result(common::CMSSW_BASE());
+    result.append("/src/TopAnalysis/Configuration/analysis/ttH/data");
+    return result;
+}
 
 
 

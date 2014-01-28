@@ -82,10 +82,9 @@ NNLO::NNLO(TString theory, TString plotname, bool verbose, TString Energy){
     }
 
     // l+jets
-
 //     const double topPtBins[] = { 1.0,60.0,100.0,150.0,200.0,260.0,320.0,400.0,800.0,1500.};
 //     const double topYBins[]  = {-5.0,-2.5,-1.6,-1.2,-0.8,-0.4,0.0,0.4,0.8,1.2,1.6,2.5,5.0};
-//     const double ttbarMBins[] = {345.,400.,470.,550.,650.,800.,1100.,1600.,2720.};
+//    const double ttbarMBins[] = {345.,400.,470.,550.,650.,800.,1100.,1600.};
 //     const double ttbarPtBins[] = {0.,20.,60.,120.,300.,1300.};
 
     // dilepton
@@ -125,7 +124,7 @@ NNLO::NNLO(TString theory, TString plotname, bool verbose, TString Energy){
         ymax=0.5;
     } else if (plotname=="ttbarM"){
         vecBins.insert(vecBins.begin(), ttbarMBins,  ttbarMBins  + sizeof(ttbarMBins)/sizeof(double));
-        xAxisTitle="m [GeV]";
+        xAxisTitle="m ";
         xAxisUnit="#left[GeV#right]";
         yAxisTitle="d#sigma/dm";
         yAxisUnit="#left[pb#right]";
@@ -135,7 +134,7 @@ NNLO::NNLO(TString theory, TString plotname, bool verbose, TString Energy){
         ymax=0.006;
     } else if (plotname=="ttbarPt"){
         vecBins.insert(vecBins.begin(), ttbarPtBins,  ttbarPtBins  + sizeof(ttbarPtBins)/sizeof(double));
-        xAxisTitle="p_{T} [GeV]";
+        xAxisTitle="p_{T} ";
         xAxisUnit="#left[GeV#right]";
         yAxisTitle="d#sigma/dp_{T}";
         yAxisUnit="#left[pb/GeV#right]";
@@ -360,9 +359,9 @@ void NNLO::setObjectStyles(TString xAxisTitle, TString xAxisUnit,
 inline double NNLO::getLocalIntegral(double xLeft, double xRight, double yLeft, double yRight){
 
     if(Theory == "kidonakis"){// Kidonakis give the value 'y' in a given point 'x', eg: f(x) = y
-        return 0.5*(yLeft+yRight)*(xRight-xLeft);
+        return 0.5*(yLeft+yRight)*std::abs(xRight-xLeft);
     } else if(Theory == "ahrens"){// Ahrens, instead, gives the integrated value 'y' in a bin with bin center 'x'
-        return yLeft;
+        return yLeft*std::abs(xRight-xLeft);
     }
     return 0;
 }
@@ -447,7 +446,6 @@ void NNLO::createRebinnedHisto(const TGraph* graph, TH1* histo, const std::vecto
         int NPoints = 0;
         if(Theory == "kidonakis") NPoints = graph->GetN()-1;
         else if (Theory == "ahrens") NPoints = graph->GetN();
-        double binWidth = 0;
         for (int j=0;j<NPoints;j++){
 
             graph->GetPoint(j,  xLeft, yLeft);
@@ -458,7 +456,7 @@ void NNLO::createRebinnedHisto(const TGraph* graph, TH1* histo, const std::vecto
                 // Modify the binWidth in graph to accomodate Ahrens description
                 //  eg: 'x' = center of a bin
                 //      'y' = integral over that given bin
-                if(j==0) {binWidth = std::fabs(xRight - xLeft);};
+                double binWidth = std::fabs(xRight - xLeft);
                 xRight = xLeft + 0.5 * binWidth;
                 xLeft -= 0.5* binWidth;
             }
@@ -483,6 +481,7 @@ void NNLO::createRebinnedHisto(const TGraph* graph, TH1* histo, const std::vecto
         }
         histo->SetBinContent(vecIndex,(binSum_graph1+binSum_graph2)/(highEdge-lowEdge));
     }
+    histo->Scale(1./histo->Integral("width"));
 }
 
 // ========================================================

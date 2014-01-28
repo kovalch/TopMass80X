@@ -182,13 +182,13 @@ namespace semileptonic {
 			     /*47:*/ sysVjetsUp,                 /*48:*/ sysVjetsDown,
 			     /*49:*/ sysBRUp   ,                 /*50:*/ sysBRDown,
 			     /*51:*/ sysPDFUp,                   /*52:*/ sysPDFDown,
-			     /*53:*/ sysUnf,
-			     /*54:*/ sysHadUp,                   /*55:*/ sysHadDown,			     
-			     /*56:*/ sysGenMCatNLO,              /*57:*/ sysGenPowheg,
-			     /*58:*/ sysGenPowhegHerwig,         /*59:*/ ENDOFSYSENUM, 
-			     /*60:*/ sysTest, 			 /*61:*/ sysTestMCatNLO,             
-			     /*62:*/ sysTestPowheg,     	 /*63:*/ sysTestPowhegHerwig,        
-			     /*64:*/ ENDOFSYSENUM2,
+			     /*53:*/ sysUnf,                     /*54:*/ sysMad,
+			     /*55:*/ sysHadUp,                   /*56:*/ sysHadDown,			     
+			     /*57:*/ sysGenMCatNLO,              /*58:*/ sysGenPowheg,
+			     /*59:*/ sysGenPowhegHerwig,         /*60:*/ ENDOFSYSENUM, 
+			     /*61:*/ sysTest, 			 /*62:*/ sysTestMCatNLO,             
+			     /*63:*/ sysTestPowheg,     	 /*64:*/ sysTestPowhegHerwig,        
+			     /*65:*/ ENDOFSYSENUM2,
 
   };
 
@@ -366,7 +366,8 @@ namespace semileptonic {
       case sysBRDown                   : return "sysBRDown";    
       case sysPDFUp                    : return "sysPDFUp";              
       case sysPDFDown                  : return "sysPDFDown"; 
-      case sysUnf                      : return "sysUnf";    
+      case sysUnf                      : return "sysUnf";   
+      case sysMad                      : return "sysMad";    
       case sysHadUp                    : return "sysHadronizationUp";
       case sysHadDown                  : return "sysHadronizationDown";
       case sysGenMCatNLO               : return "sysGenMCatNLO";
@@ -1439,12 +1440,14 @@ namespace semileptonic {
       else if(sys==sysTopMassUp3) fileName+="3";
       else if(sys==sysTopMassUp4) fileName+="4"; 
     }
-    if((sysLabel(sys).Contains("sysTopMassDown"))&&((sample==kSig)||(sample==kBkg))){
+    else if((sysLabel(sys).Contains("sysTopMassDown"))&&((sample==kSig)||(sample==kBkg))){
       fileName = "TopMassDown/"+fileName+"TopMassDown";
       if(     sys==sysTopMassDown2) fileName+="2";
       else if(sys==sysTopMassDown3) fileName+="3";
       else if(sys==sysTopMassDown4) fileName+="4";      
     }
+    // MadSpin
+    else if(sys==sysMad&&((sample==kSig)||(sample==kBkg))) fileName+="MadSpin";
     // label for MC production cycle
     fileName += "Summer12";
     fileName += "PF.root";
@@ -3524,9 +3527,9 @@ namespace semileptonic {
     // WARNING: systematics are expected to be listed as up/down pairs in this order!!!
     if(verbose>0) std::cout << std::endl << "A collect relevant systematics" << std::endl;
     std::vector<int> RelevantSys_;
-    //int sysList[ ] = { sysHadUp, sysHadDown};
-    //int sysList[ ] = { sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysTopMassUp, sysTopMassDown};
-    int sysList[ ] = { sysLumiUp, sysLumiDown, sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysTopMassUp, sysTopMassDown, sysJESUp, sysJESDown ,sysJERUp, sysJERDown, sysPUUp, sysPUDown, sysLepEffSFNormUp, sysLepEffSFNormDown, sysLepEffSFShapeUpEta, sysLepEffSFShapeDownEta, sysLepEffSFShapeUpPt, sysLepEffSFShapeDownPt, sysBtagSFUp, sysBtagSFDown, sysBtagSFShapeUpPt65, sysBtagSFShapeDownPt65, sysBtagSFShapeUpEta0p7, sysBtagSFShapeDownEta0p7, sysHadUp, sysHadDown};
+    //int sysList[ ] = { sysJESUp, sysJESDown};
+    int sysList[ ] = { sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysTopMassUp, sysTopMassDown}; // ttbar mosedling
+    //int sysList[ ] = { sysLumiUp, sysLumiDown, sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysTopMassUp, sysTopMassDown, sysJESUp, sysJESDown ,sysJERUp, sysJERDown, sysPUUp, sysPUDown, sysLepEffSFNormUp, sysLepEffSFNormDown, sysLepEffSFShapeUpEta, sysLepEffSFShapeDownEta, sysLepEffSFShapeUpPt, sysLepEffSFShapeDownPt, sysBtagSFUp, sysBtagSFDown, sysBtagSFShapeUpPt65, sysBtagSFShapeDownPt65, sysBtagSFShapeUpEta0p7, sysBtagSFShapeDownEta0p7, sysHadUp, sysHadDown};
     RelevantSys_.insert(RelevantSys_.begin(), sysList, sysList+ sizeof(sysList)/sizeof(int));
     if(verbose>1){
       std::cout << "considered systematics: " << std::endl;
@@ -4993,6 +4996,8 @@ namespace semileptonic {
     else if(kSys==sysTopMassUp3   ||kSys==sysTopMassDown3   ) result=false;
     else if(kSys==sysTopMassUp4   ||kSys==sysTopMassDown4   ) result=false;
     else if(kSys==sysBRUp         ||kSys==sysBRDown         ) result=false;
+    else if(kSys==sysUnf                                    ) result=false;
+    else if(kSys==sysMad                                    ) result=false;
     else if(kSys==sysGenMCatNLO||kSys==sysGenPowheg||kSys==sysGenPowhegHerwig) result=false;         
     else if(kSys>=ENDOFSYSENUM                              ) result=false;
     // std::cout << sysLabel(kSys) << ": " << result << std::endl; 

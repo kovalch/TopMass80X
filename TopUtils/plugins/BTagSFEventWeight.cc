@@ -164,7 +164,7 @@ double BTagSFEventWeight::effBTagSF11004(double x)
 double BTagSFEventWeight::effBTagSF2012(double x)
 {
   // function from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagPOG#2012_Data_and_MC_EPS13_prescript; x = jetPt
-  if     (bTagAlgo_=="CSVM") return (0.939158+(0.000158694*x))+(-2.53962e-07*(x*x));
+  if     (bTagAlgo_=="CSVM") return (0.938887+(0.00017124*x))+(-2.76366e-07*(x*x));
   else if(bTagAlgo_=="CSVT") return (0.927563+(1.55479e-05*x))+(-1.90666e-07*(x*x));
   else { 
     std::cout<< "WARNING!!! b tag SF for "<< bTagAlgo_ << " for effBTagSF2012 not in code!!! CHECK!!!" << std::endl;
@@ -257,22 +257,22 @@ double BTagSFEventWeight::effBTagSFerr2012(double x)
   double pt[] = {20, 30, 40, 50, 60, 70, 80, 100, 120, 160, 210, 260, 320, 400, 500, 600, 800};
   // corresponding SFb uncertainties
   double SFb_errorCSVM[] = {
-    0.0415694,
-    0.023429,
-    0.0261074,
-    0.0239251,
-    0.0232416,
-    0.0197251,
-    0.0217319,
-    0.0198108,
-    0.0193,
-    0.0276144,
-    0.0205839,
-    0.026915,
-    0.0312739,
-    0.0415054,
-    0.0740561,
-    0.0598311 };
+    0.0415707,
+    0.0204209,
+    0.0223227,
+    0.0206655,
+    0.0199325,
+    0.0174121,
+    0.0202332,
+    0.0182446,
+    0.0159777,
+    0.0218531,
+    0.0204688,
+    0.0265191,
+    0.0313175,
+    0.0415417,
+    0.0740446,
+    0.0596716 };
 
   double SFb_errorCSVT[] = {
     0.0515703,

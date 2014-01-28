@@ -13,33 +13,31 @@
 
 
 # Data Samples (, 2012A, 2012B)
-15   samples.dilepton.MuEG_Run2012A_22Jan2013_v1_cff              emu_run2012A.root    data,mode=emu,json=${CMSSW_BASE}/src/TopAnalysis/Configuration/python/samples/Cert_190456-208686_8TeV_22Jan2013ReReco_Collisions12_JSON.txt
-120  samples.dilepton.MuEG_Run2012B_22Jan2013_v1_cff              emu_run2012B.root    data,mode=emu,json=${CMSSW_BASE}/src/TopAnalysis/Configuration/python/samples/Cert_190456-208686_8TeV_22Jan2013ReReco_Collisions12_JSON.txt
-180  samples.dilepton.MuEG_Run2012C_22Jan2013_v1_cff              emu_run2012C.root    data,mode=emu,json=${CMSSW_BASE}/src/TopAnalysis/Configuration/python/samples/Cert_190456-208686_8TeV_22Jan2013ReReco_Collisions12_JSON.txt
-200  samples.dilepton.MuEG_Run2012D_22Jan2013_v1_cff              emu_run2012D.root    data,mode=emu,json=${CMSSW_BASE}/src/TopAnalysis/Configuration/python/samples/Cert_190456-208686_8TeV_22Jan2013ReReco_Collisions12_JSON.txt 
+15   samples.dilepton.MuEG_Run2012A_22Jan2013_v1_cff              emu_run2012A.root    data,mode=emu,json=${CMSSW_BASE}/src/TopAnalysis/Configuration/python/samples/Cert_190456-208686_8TeV_22Jan2013ReReco_Legacy.txt
+120  samples.dilepton.MuEG_Run2012B_22Jan2013_v1_cff              emu_run2012B.root    data,mode=emu,json=${CMSSW_BASE}/src/TopAnalysis/Configuration/python/samples/Cert_190456-208686_8TeV_22Jan2013ReReco_Legacy.txt
+180  samples.dilepton.MuEG_Run2012C_22Jan2013_v1_cff              emu_run2012C.root    data,mode=emu,json=${CMSSW_BASE}/src/TopAnalysis/Configuration/python/samples/Cert_190456-208686_8TeV_22Jan2013ReReco_Legacy.txt
+200  samples.dilepton.MuEG_Run2012D_22Jan2013_v1_cff              emu_run2012D.root    data,mode=emu,json=${CMSSW_BASE}/src/TopAnalysis/Configuration/python/samples/Cert_190456-208686_8TeV_22Jan2013ReReco_Legacy.txt 
 
 
-40   samples.dilepton.DoubleMu_Run2012A_22Jan2013_v1_cff          mumu_run2012A.root   data,mode=mumu,json=${CMSSW_BASE}/src/TopAnalysis/Configuration/python/samples/Cert_190456-208686_8TeV_22Jan2013ReReco_Collisions12_JSON.txt
-200  samples.dilepton.DoubleMu_Run2012B_22Jan2013_v1_cff          mumu_run2012B.root   data,mode=mumu,json=${CMSSW_BASE}/src/TopAnalysis/Configuration/python/samples/Cert_190456-208686_8TeV_22Jan2013ReReco_Collisions12_JSON.txt
-290  samples.dilepton.DoubleMu_Run2012C_22Jan2013_v1_cff          mumu_run2012C.root   data,mode=mumu,json=${CMSSW_BASE}/src/TopAnalysis/Configuration/python/samples/Cert_190456-208686_8TeV_22Jan2013ReReco_Collisions12_JSON.txt
-300  samples.dilepton.DoubleMu_Run2012D_22Jan2013_v1_cff          mumu_run2012D.root   data,mode=mumu,json=${CMSSW_BASE}/src/TopAnalysis/Configuration/python/samples/Cert_190456-208686_8TeV_22Jan2013ReReco_Collisions12_JSON.txt 
+40   samples.dilepton.DoubleMu_Run2012A_22Jan2013_v1_cff          mumu_run2012A.root   data,mode=mumu,json=${CMSSW_BASE}/src/TopAnalysis/Configuration/python/samples/Cert_190456-208686_8TeV_22Jan2013ReReco_Legacy.txt
+200  samples.dilepton.DoubleMu_Run2012B_22Jan2013_v1_cff          mumu_run2012B.root   data,mode=mumu,json=${CMSSW_BASE}/src/TopAnalysis/Configuration/python/samples/Cert_190456-208686_8TeV_22Jan2013ReReco_Legacy.txt
+290  samples.dilepton.DoubleMu_Run2012C_22Jan2013_v1_cff          mumu_run2012C.root   data,mode=mumu,json=${CMSSW_BASE}/src/TopAnalysis/Configuration/python/samples/Cert_190456-208686_8TeV_22Jan2013ReReco_Legacy.txt
+300  samples.dilepton.DoubleMu_Run2012D_22Jan2013_v1_cff          mumu_run2012D.root   data,mode=mumu,json=${CMSSW_BASE}/src/TopAnalysis/Configuration/python/samples/Cert_190456-208686_8TeV_22Jan2013ReReco_Legacy.txt 
 
 
-60   samples.dilepton.DoubleElectron_Run2012A_22Jan2013_v1_cff    ee_run2012A.root     data,mode=ee,json=${CMSSW_BASE}/src/TopAnalysis/Configuration/python/samples/Cert_190456-208686_8TeV_22Jan2013ReReco_Collisions12_JSON.txt
-150  samples.dilepton.DoubleElectron_Run2012B_22Jan2013_v1_cff    ee_run2012B.root     data,mode=ee,json=${CMSSW_BASE}/src/TopAnalysis/Configuration/python/samples/Cert_190456-208686_8TeV_22Jan2013ReReco_Collisions12_JSON.txt
-230  samples.dilepton.DoubleElectron_Run2012C_22Jan2013_v1_cff    ee_run2012C.root     data,mode=ee,json=${CMSSW_BASE}/src/TopAnalysis/Configuration/python/samples/Cert_190456-208686_8TeV_22Jan2013ReReco_Collisions12_JSON.txt
-250  samples.dilepton.DoubleElectron_Run2012D_22Jan2013_v1_cff    ee_run2012D.root     data,mode=ee,json=${CMSSW_BASE}/src/TopAnalysis/Configuration/python/samples/Cert_190456-208686_8TeV_22Jan2013ReReco_Collisions12_JSON.txt 
+60   samples.dilepton.DoubleElectron_Run2012A_22Jan2013_v1_cff    ee_run2012A.root     data,mode=ee,json=${CMSSW_BASE}/src/TopAnalysis/Configuration/python/samples/Cert_190456-208686_8TeV_22Jan2013ReReco_Legacy.txt
+150  samples.dilepton.DoubleElectron_Run2012B_22Jan2013_v1_cff    ee_run2012B.root     data,mode=ee,json=${CMSSW_BASE}/src/TopAnalysis/Configuration/python/samples/Cert_190456-208686_8TeV_22Jan2013ReReco_Legacy.txt
+230  samples.dilepton.DoubleElectron_Run2012C_22Jan2013_v1_cff    ee_run2012C.root     data,mode=ee,json=${CMSSW_BASE}/src/TopAnalysis/Configuration/python/samples/Cert_190456-208686_8TeV_22Jan2013ReReco_Legacy.txt
+250  samples.dilepton.DoubleElectron_Run2012D_22Jan2013_v1_cff    ee_run2012D.root     data,mode=ee,json=${CMSSW_BASE}/src/TopAnalysis/Configuration/python/samples/Cert_190456-208686_8TeV_22Jan2013ReReco_Legacy.txt 
 
 ################################################################
 #############   MC  samples ####################################
 ################################################################
 
-# TT
-#230  Summer12.TTJets_MassiveBinDECAY_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff   ttbarsignalplustau.root      ttbarsignalplustau,includePDFWeights=True
-#150  Summer12.TTJets_MassiveBinDECAY_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff   ttbarbg.root                 ttbarbg
 # TTMadSpin
 730   Summer12.TTJets_MSDecays_central_TuneZ2star_8TeV_madgraph_tauola__Summer12_DR53X_PU_S10_START53_V19_v1_cff  ttbarsignalplustau.root      ttbarsignalplustau,includePDFWeights=True
 300   Summer12.TTJets_MSDecays_central_TuneZ2star_8TeV_madgraph_tauola__Summer12_DR53X_PU_S10_START53_V19_v1_cff  ttbarbg.root                 ttbarbg
+
 # Drell Yan
 160    Summer12.DYJetsToLL_M_10To50filter_8TeV_madgraph_Summer12_DR53X_PU_S10_START53_V7A_v1_cff             dy1050.root      dy1050
 180    Summer12.DYJetsToLL_M_50_TuneZ2Star_8TeV_madgraph_tarball_Summer12_DR53X_PU_S10_START53_V7A_v1_cff    dy50inf.root     dy50inf
@@ -58,13 +56,6 @@
 
 # QCD - Muon enriched
 100  Summer12.QCD_Pt_20_MuEnrichedPt_15_TuneZ2star_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v3_cff        qcdmu15.root                 qcdmu15
-# we are currently using one mu sample, the following 20-...-170 samples are
-# not at DESY
-#30   Summer12.QCD_Pt_20to30_MuEnrichedPt5_TuneZ2star_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff      qcdmu2030.root               qcdmu2030
-#30   Summer12.QCD_Pt_30to50_MuEnrichedPt5_TuneZ2star_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff      qcdmu3050.root               qcdmu3050
-#30   Summer12.QCD_Pt_50to80_MuEnrichedPt5_TuneZ2star_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff      qcdmu5080.root               qcdmu5080
-#30   Summer12.QCD_Pt_80to120_MuEnrichedPt5_TuneZ2star_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1cff      qcdmu80120.root              qcdmu80120
-#30   Summer12.QCD_Pt_120to170_MuEnrichedPt5_TuneZ2star_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff    qcdmu120170.root             qcdmu120170
 
 # QCD - Electron enriched
 60   Summer12.QCD_Pt_20_30_EMEnriched_TuneZ2star_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff          qcdem2030.root               qcdem2030

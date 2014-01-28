@@ -10,6 +10,8 @@
 
 
 
+
+
 HistoListReader::HistoListReader(const char* filename): 
 filename_(filename),
 isZombie_(false)
@@ -94,17 +96,20 @@ isZombie_(false)
 
 
 
-bool HistoListReader::IsZombie()const
+bool HistoListReader::isZombie()const
 {
     return isZombie_;
 }
 
 
 
-PlotProperties& HistoListReader::getPlotProperties(TString name)
+const PlotProperties& HistoListReader::getPlotProperties(const TString& name)const
 {
-    std::map <TString, PlotProperties >::iterator it = plots_.find(name);
-    if (it == plots_.end()) { std::cerr << "no such plot in " << filename_ << ": ``" << name << "''" <<std::endl; exit(671); }
+    std::map<TString, PlotProperties>::const_iterator it = plots_.find(name);
+    if (it == plots_.end()){
+        std::cerr << "no such plot in " << filename_ << ": ``" << name << "''" <<std::endl;
+        exit(671);
+    }
     return it->second;
 }
 

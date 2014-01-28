@@ -2,9 +2,10 @@
 
 bool isValidsample(unsigned int sample, unsigned int systematicVariation);
 
-void treeComparison(double luminosity = 19712, bool save = true, int verbose=2, TString inputFolderName= "RecentAnalysisRun8TeV_doubleKinFit", TString dataFile= "/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/elecDiffXSecData2012ABCDAll.root:/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/muonDiffXSecData2012ABCDAll.root", const std::string decayChannel = "combined", bool withRatioPlot=true, TString test="prob")
+void treeComparison(double luminosity = 19712, bool save = true, int verbose=2, TString inputFolderName= "RecentAnalysisRun8TeV_doubleKinFit", TString dataFile= "/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/elecDiffXSecData2012ABCDAll.root:/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/muonDiffXSecData2012ABCDAll.root", const std::string decayChannel = "combined", bool withRatioPlot=true, TString test="PV")
 {
-
+  // test= "prob" or "PV" 
+  // verbose = 
   // ============================
   //  Set Root Style
   // ============================
@@ -107,6 +108,7 @@ void treeComparison(double luminosity = 19712, bool save = true, int verbose=2, 
     TString channelExt=getTStringFromInt(channel);
     // loop samples
     for(unsigned int sample=kSig; sample<=kSAToptW; ++sample){
+      bool note=false;
       // check if sample is relevant
       if(isValidsample(sample, systematicVariation)){
 	if(verbose>1){
@@ -127,10 +129,10 @@ void treeComparison(double luminosity = 19712, bool save = true, int verbose=2, 
 	// container for values read from tree
 	std::map< TString, float > value_;
 	// initialize map entries with 0 
-	value_["weight"  ]=1;
-	value_["testQuantity"    ]=0;
-	value_["topPtLep"]=0;
-	value_["topPtHad"]=0;
+	value_["weight"  ]=1.;
+	value_["testQuantity"    ]=0.;
+	value_["topPtLep"]=0.;
+	value_["topPtHad"]=0.;
 	// initialize branches
 	tree->SetBranchStatus ("*", 0);
 	tree->SetBranchStatus ("weight"  , 1);
@@ -151,6 +153,11 @@ void treeComparison(double luminosity = 19712, bool save = true, int verbose=2, 
 	for(unsigned int event=0; event<tree->GetEntries(); ++event){
 	  // get event
 	  tree->GetEntry(event);
+	  // check if values are reasonable
+	  if(!((value_["weight"]>0&&value_["weight"]<10)||(test!="PV"&&value_["weight"]==0.))){ 
+	    if(!note){ std::cout << "!!! WARNING - some weights are strange (e.g." << value_["weight"] << ") !!!"<< std::endl; note=true; }
+	    value_["weight"]=1.0;
+	  }
 	  // get relevant quantities
 	  double weight=value_["weight"]*lumiwgt;
 	  double filterQuantity  =value_["testQuantity"  ];
@@ -469,9 +476,10 @@ void treeComparison(double luminosity = 19712, bool save = true, int verbose=2, 
   // saving
   if(verbose>0) std::cout << "do saving" << std::endl;
   if(save){
+    TString outfolder="./diffXSecFromSignal/plots/combined/2012/topPtTest/";
     // eps and png
     if(verbose==0) gErrorIgnoreLevel=kWarning;
-    saveCanvas(plotCanvas_, "./", "topPtTest"+testQuantity+TString(decayChannel), true, true, true);
+    saveCanvas(plotCanvas_, outfolder, "topPtTest"+testQuantity+TString(decayChannel), true, true, true);
   }
 }
 

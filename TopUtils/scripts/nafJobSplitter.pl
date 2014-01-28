@@ -11,16 +11,21 @@ use Term::ANSIColor qw(colored);
 use Getopt::Std;
 
 #my $datasetPythonPath = "$ENV{CMSSW_BASE}/src/NafJobsplitter/Configuration/python";
-my $datasetPythonPath = "/scratch/hh/dust/naf/cms/user/$ENV{USER}/.nafJobSplitter/python";
+my $datasetPythonPath = "/nfs/dust/cms/user/$ENV{USER}/.nafJobSplitter/python";
 use constant DAS_DOWNLOAD_URL => 'https://cmsweb.cern.ch/das/makepy?dataset=%s&instance=cms_dbs_prod_global';
+#change for only valid files at some point
 use constant C_OK => 'green bold';
 use constant C_FILE => 'bold';
 use constant C_ERROR => 'red bold';
 use constant C_RESUBMIT => 'magenta';
 
+
+
 ########################
 ### PROGRAM BEGINS
 ########################
+
+
 
 my %args;
 getopts('SsbW:kJjp:P:q:o:m:t:c:O:d:nQ:M:D:', \%args);
@@ -77,9 +82,9 @@ use more than 10 jobs. If you run over 3 files using 2 jobs, then one job will r
 over 2 files and one job will run over 1 file (ignoring file sizes).
 
 Available Parameters
-  -q: choose queue, h_cpu in hours
-        default: -q 48
-        to modify the default, use the environt variable NJS_QUEUE, e.g. "export NJS_QUEUE=12"
+  -q: choose queue, h_rt in hours
+        default: -q 24
+        to modify the default, use the environt variable NJS_QUEUE, e.g. "export NJS_QUEUE=3"
   -M: maximum memory, default is 3700 (unit is MB), this is the hard limit. Soft limit is 300M less.
         to modify the default, use the environt variable NJS_MEM, e.g. "export NJS_MEM=7000"
   -o: output directory
@@ -569,7 +574,8 @@ sub getBatchsystemTemplate {
 #$ -S /bin/zsh
 #
 #(the cpu time for this job)
-#$ -l h_cpu=__HCPU__
+#(naf2 change: h_cpu to h_rt to account for the new queues)
+#$ -l h_rt=__HCPU__
 #$ -l s_cpu=__SCPU__
 #$ -l s_rt=__SCPU__
 #$ -l site=hh
@@ -586,6 +592,8 @@ sub getBatchsystemTemplate {
 #$ -V
 #
 #$ -o /dev/null
+# naf2 changes
+#$ -P af-cms
 
 tmp=$(mktemp -d -t njs_XXXXXX)
 
@@ -702,7 +710,7 @@ END_OF_BATCH_TEMPLATE
 
 #####
 sub getCPULimits {
-    my $hlimit = $args{'q'} || $ENV{NJS_QUEUE} || "48:00:00";
+    my $hlimit = $args{'q'} || $ENV{NJS_QUEUE} || "24:00:00";
     $hlimit .= ":00:00" if $hlimit !~ /:/;
     die "invalid queue format: $hlimit\n" unless $hlimit =~ /^\d{1,2}:\d{2}:\d{2}$/;
     my ($h,$m,$s) = split /:/, $hlimit;
@@ -734,8 +742,7 @@ sub peek {
     if ($self->queue() =~ /\@(.+)/) {
         print "Please wait, this can take up to a few minutes...\n";
         my $jid = $self->fullId();
-        #system("qrsh -l h_cpu=00:01:00 -l h=$1 -l h_vmem=400M -now n 'ls /tmp/$jid.*/ /tmp/$jid.*/* ; cat /tmp/$jid.*/njs_*/stdout.txt'");
-        system("qrsh -l h_cpu=00:01:00 -l h=$1 -l h_vmem=400M -now n 'cat /tmp/$jid.*/njs_*/stdout.txt'");
+        system("qrsh -l h_rt=00:01:00 -l h=$1 -l h_vmem=100M -now n 'sh -c \"cd \$TMP; cd ../$jid.*/njs_*/; tail -f stdout.txt\"'");
     } else {
         die "Didn't find hostname\n";
     }
@@ -747,7 +754,7 @@ sub logIntoHost {
     if ($self->queue() =~ /\@(.+)/) {
         print "Please wait, this can take up to a few minutes...\n";
         my $jid = $self->fullId();
-        system("qrsh -l h_cpu=00:01:00 -l h=$1 -l h_vmem=400M -now n ");
+        system("qrsh -l h_rt=00:01:00 -l h=$1 -l h_vmem=400M -now n ");
     } else {
         die "Didn't find hostname\n";
     }
