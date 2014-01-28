@@ -870,6 +870,20 @@ namespace semileptonic {
     return out;
   }
 
+  TString fillspaceT(TString label, int lengthref=3){
+    // as fillspace but for TStrings instead of doubles
+    // modified quantities: NONE
+    // used functions: NONE
+    // used enumerators: NONE
+    TString out="";   
+    int lenght=label.Length();
+    //std::cout << "fillspaceT(" << label << "->" << lenght << "," << lengthref << ")" << std::endl;
+    if(lenght<lengthref){
+      for(int space=(lengthref-lenght); space>0; space--){ out+=" "; }
+    }
+    return out;
+  }
+
   void DrawDecayChLabel(TString decaychannel="", double textSize=0.04)
   {
     // Draw label for Decay Channel in upper left corner of plot
