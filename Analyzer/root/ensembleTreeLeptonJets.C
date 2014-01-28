@@ -25,7 +25,7 @@
 enum lepton           { kElectron, kMuon, kAll, kMuon_BReg};
 std::string lepton_ [4] = { "electron", "muon", "lepton", "muon_BReg"};
 
-int channel = 3;
+int channel = 2;
 std::string suffix = "";
 
 Long64_t nentries = 1000000000; //1000*27;
@@ -126,7 +126,7 @@ void DrawLegend(bool bwlines = false) {
   */
 }
 
-void ensembleTreeLeptonJets(std::string pathToPE = "/scratch/hh/dust/naf/cms/user/mseidel/pseudoexperiments/topmass_131012")
+void ensembleTreeLeptonJets(std::string pathToPE = "/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_131012")
 {
   //*
   TStyle *tdrStyle = setTDRStyle();
@@ -312,9 +312,13 @@ void ensembleTreeLeptonJets(std::string pathToPE = "/scratch/hh/dust/naf/cms/use
   canvasFit->Divide(1, 2, -1., -1.);
   canvasFit->cd(1);
   
+  std::cout << "MASS, fit constant" << std::endl;
   fitResult = mgMass->Fit("constFit", "EMS");
+  std::cout << "Fit linear, JES 0.96" << std::endl;
   gMass[0]->Fit("linearFit096", "EM");
+  std::cout << "Fit linear" << std::endl;
   gMass[1]->Fit("linearFit100", "EM");
+  std::cout << "Fit linear, JES 1.04" << std::endl;
   gMass[2]->Fit("linearFit104", "EM");
   mgMass->SetMinimum(-1.9);
   mgMass->SetMaximum( 1.9);
@@ -342,9 +346,13 @@ void ensembleTreeLeptonJets(std::string pathToPE = "/scratch/hh/dust/naf/cms/use
   
   canvasFit->cd(2);
   
+  std::cout << "JES, fit constant" << std::endl;
   fitResult = mgJES->Fit("constFit", "EMS");
+  std::cout << "Fit linear, JES 0.96" << std::endl;
   gJES[0]->Fit("linearFit096", "EM");
+  std::cout << "Fit linear" << std::endl;
   gJES[1]->Fit("linearFit100", "EM");
+  std::cout << "Fit linear, JES 1.04" << std::endl;
   gJES[2]->Fit("linearFit104", "EM");
   mgJES->SetMinimum(-0.019);
   mgJES->SetMaximum( 0.019);
@@ -391,6 +399,7 @@ void ensembleTreeLeptonJets(std::string pathToPE = "/scratch/hh/dust/naf/cms/use
   canvasFitPull->Divide(1, 2, 0, 0);
   canvasFitPull->cd(1);
   
+  std::cout << "MASS PULL" << std::endl;
   fitResult = mgMassPull->Fit("constFit", "EMS");
   gMassPull[0]->Fit("linearFit096", "EM0");
   gMassPull[1]->Fit("linearFit100", "EM0");
@@ -404,6 +413,7 @@ void ensembleTreeLeptonJets(std::string pathToPE = "/scratch/hh/dust/naf/cms/use
   mgMassPull->GetYaxis()->SetTitleOffset(0.82);
   
   canvasFitPull->cd(2);
+  std::cout << "JES PULL" << std::endl;
   fitResult = mgJESPull->Fit("constFit", "EMS");
   gJESPull[0]->Fit("linearFit096", "EM0");
   gJESPull[1]->Fit("linearFit100", "EM0");

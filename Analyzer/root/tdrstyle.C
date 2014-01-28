@@ -180,7 +180,7 @@ void DrawCMSPrel() {
 //}
 
 void DrawCMSSim() {
-  DrawLabel("CMS Simulation Preliminary,  #sqrt{s}=7 TeV", 0.2, 0.93, 0.9);
+  DrawLabel("CMS Simulation Preliminary,  #sqrt{s}=8 TeV", 0.2, 0.93, 0.9);
 }
 
 void DrawCMSSim(int channel) {

@@ -170,6 +170,15 @@ void BRegJetEventAnalyzer::fillBRegJet(const edm::Event& evt, const edm::EventSe
 	edm::Handle<edm::ValueMap<StoredPileupJetIdentifier> > vmap;
 	evt.getByLabel("puJetIdChs", vmap);
 
+	edm::Handle<edm::ValueMap<float> > puJetIdMVA;
+	evt.getByLabel("puJetMvaChs","fullDiscriminant",puJetIdMVA);
+
+//	void Event::getByLabel(std::string const& moduleLabel,
+//	                       std::string const& productInstanceLabel,
+//	                       edm::Handle<T>&    result)
+
+	edm::Handle<edm::ValueMap<int> > puJetIdFlag;
+	evt.getByLabel("puJetMvaChs","fullId",puJetIdFlag);
 
 	//////////////////////////////////////////////////////////////////////////
 	//  QGTaggerInfo
@@ -297,6 +306,12 @@ void BRegJetEventAnalyzer::fillBRegJet(const edm::Event& evt, const edm::EventSe
 		PileupJetIdentifier puIdentifier;
 		// Read it from the value map
 		puIdentifier = (*vmap)[refToJetWithValueMaps];
+
+	    float mva   = (*puJetIdMVA)[refToJetWithValueMaps];
+	    int    idflag = (*puJetIdFlag)[refToJetWithValueMaps];
+	    BRegJet->PUJetIdMVA.push_back(mva);
+	    BRegJet->PUJetidflag.push_back(idflag);
+
 
 		BRegJet->PUIddZ       .push_back(puIdentifier.dZ());
 		BRegJet->PUIddRMean   .push_back(puIdentifier.dRMean());
@@ -648,6 +663,17 @@ void BRegJetEventAnalyzer::fillBRegJet(const edm::Event& evt, const edm::EventSe
 		BRegJet->BRegGBRTrainResult.push_back(gbropt_->GetResponse(vals_));
 
 //		if(hasBRegResult)std::cout << " BRegJet->BRegGBRTrainResult.back(): " << BRegJet->BRegGBRTrainResult.back() << " ijet->userFloat(BRegResult); " << ijet->userFloat("BRegResult"      ) << std::endl;
+		if(hasBRegResult)BRegJet->BRegProducerResult.push_back(ijet->userFloat("BRegResult"));
+		else BRegJet->BRegProducerResult.push_back(-999);
+
+//deactivated in order to run bregression beforescaleJetEnergyVariations//		if(hasBRegResult&&(float)BRegJet->BRegGBRTrainResult.back()!=ijet->userFloat("BRegResult")){
+//deactivated in order to run bregression beforescaleJetEnergyVariations////TMVA		if(hasBRegResult&&(float)BRegJet->BRegResult.back()!=ijet->userFloat("BRegResult")){
+//deactivated in order to run bregression beforescaleJetEnergyVariations//		    edm::LogError msg("BRegression");
+//deactivated in order to run bregression beforescaleJetEnergyVariations//		    msg << "B regression result stored in jet and recalculated do not match. Please check your configuration accordingly \n";
+//deactivated in order to run bregression beforescaleJetEnergyVariations//		    throw cms::Exception("Configuration Error");
+//deactivated in order to run bregression beforescaleJetEnergyVariations////
+//deactivated in order to run bregression beforescaleJetEnergyVariations////			assert(BRegJet->BRegGBRTrainResult.back()==ijet->userFloat(BRegResult));
+//deactivated in order to run bregression beforescaleJetEnergyVariations//		}
 
 		if(hasBRegResult&&(float)BRegJet->BRegGBRTrainResult.back()!=ijet->userFloat("BRegResult")){
 //TMVA		if(hasBRegResult&&(float)BRegJet->BRegResult.back()!=ijet->userFloat("BRegResult")){
@@ -657,6 +683,8 @@ void BRegJetEventAnalyzer::fillBRegJet(const edm::Event& evt, const edm::EventSe
 //
 //			assert(BRegJet->BRegGBRTrainResult.back()==ijet->userFloat(BRegResult));
 		}
+
+
 //		std::cout << " ->BRegGBRTrainResult: " << BRegJet->BRegGBRTrainResult.back() << " >userFloat(BRegResult); " << ijet->userFloat("BRegResult") << ">userFloat(jesTotUnc)" << ijet->userFloat("jesTotUnc"      ) << " jetPtCorr " << BRegJet->jetPtCorr.back()  << " jetEta " << BRegJet->jetEta.back() << std::endl;
 	}
 

@@ -52,6 +52,8 @@ void BRegJetEvent::init()
   PUIdbetaStar .clear();
   PUIdptD      .clear();
 
+  PUJetIdMVA   .clear();
+  PUJetidflag  .clear();
 
   nSoftMuons          .clear();
   nSoftElectrons      .clear();
@@ -75,4 +77,5 @@ void BRegJetEvent::init()
 
   BRegResult.clear();
   BRegGBRTrainResult.clear();
+  BRegProducerResult.clear();
 }
