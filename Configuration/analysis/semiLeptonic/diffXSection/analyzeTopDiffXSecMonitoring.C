@@ -2021,7 +2021,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	      if(plotList_[plot].Contains("tightJetKinematicsTagged/n"))    {min=1.0; max=1.0E06; paperPlot=true;}
 	      if(plotList_[plot].Contains("bottomJetKinematics/n"))         {min=1.0; max=3.0E06; paperPlot=true;}
 	      if(plotList_[plot].Contains("tightJetKinematicsTagged/pt"))   {min=1.0; max=1.0E06; paperPlot=true;}
-	      if(plotList_[plot].Contains("tightLeptonKinematicsTagged/pt")){min=0.0; max=6.0E03; paperPlot=true;}
+	      if(plotList_[plot].Contains("tightLeptonKinematicsTagged/pt")){min=0.0; max=10.0E03; paperPlot=true;}
 	      if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/topPt")&&!plotList_[plot].Contains("_Y")){
 		min=0; max=7.0E03; paperPlot=true;  //max=2.5E04;
 		if(getStringEntry(axisLabel_[plot],2,";").Contains("Events")) max*=0.5; // splitted topPt control plots
