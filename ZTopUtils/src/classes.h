@@ -23,6 +23,7 @@ struct dict {
     std::map<TString, std::vector<TH2D> > kokd;
 
     std::map<std::string, std::vector<TH2D> > sdfdsf;
+    std::map<std::string, std::vector<float> > formedianmap;
 
     ztop::bTagBase ked;
     ztop::JECBase kkss;
