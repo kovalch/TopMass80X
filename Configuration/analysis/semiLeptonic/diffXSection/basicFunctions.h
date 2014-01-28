@@ -849,6 +849,27 @@ namespace semileptonic {
 
   }
 
+  TString fillspace(double number, int lengthref=3){
+    // function to determine the number of 
+    // spaces of number wrt. lengthref
+    // another space is added for positive values
+    // -> used to make uniform indented output, e.g.
+    // -0.5 to  0.0
+    //  0.0 to 10.5
+    // modified quantities: NONE
+    // used functions: getBigitFromDouble
+    // used enumerators: NONE
+    TString out="";   
+    int lenght=getBigitFromDouble(number);
+    if(number<0) lenght-=1;
+    //std::cout << "fillspace(" << number << "->" << lenght << "," << lengthref << ")" << std::endl;
+    if(lenght<lengthref){
+      for(int space=(lengthref-lenght); space>0; space--){ out+=" "; }
+    }
+    if(number>=0){ out+=" "; } 
+    return out;
+  }
+
   void DrawDecayChLabel(TString decaychannel="", double textSize=0.04)
   {
     // Draw label for Decay Channel in upper left corner of plot
