@@ -7,7 +7,6 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include "mathdefs.h"
 
 namespace ztop {
 
