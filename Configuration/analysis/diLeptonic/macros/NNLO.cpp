@@ -88,11 +88,15 @@ NNLO::NNLO(TString theory, TString plotname, bool verbose, TString Energy){
 //     const double ttbarPtBins[] = {0.,20.,60.,120.,300.,1300.};
 
     // dilepton
-
-    const double topPtBins[] = { 0.0,80.0,130.0,200.0,300.0,400.0,1500.};
-    const double topYBins[]  = {-5.0,-2.5,-1.3,-0.8,-0.4,0.0,0.4,0.8,1.3,2.5,5.0};
-    const double ttbarMBins[] = {340.,400.,470.,550.,650.,800.,1100.,1600.,2720.};
-    const double ttbarPtBins[] = {0.,20.,60.,120.,300.,1300.};
+//     const double topPtBins[] = { 0.0,80.0,130.0,200.0,300.0,400.0,1500.};
+//     const double topYBins[]  = {-5.0,-2.5,-1.3,-0.8,-0.4,0.0,0.4,0.8,1.3,2.5,5.0};
+//     const double ttbarMBins[] = {340.,400.,470.,550.,650.,800.,1100.,1600.,2720.};
+//     const double ttbarPtBins[] = {0.,20.,60.,120.,300.,1300.};
+    
+    const double topPtBins[] = {0,65,125,200,290,400};
+    const double topYBins[]  = {-2.5,-1.6,-1.0,-0.5,0.0,0.5,1.0,1.6,2.5};
+    const double ttbarMBins[] = {340,380,470,620,820,1100,1600};
+    const double ttbarPtBins[] = {0,30,80,170,300};
 
     // Cannel specific variables
 

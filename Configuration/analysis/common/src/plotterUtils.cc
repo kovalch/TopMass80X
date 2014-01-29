@@ -153,6 +153,7 @@ void common::drawRatioXSEC(const TH1* histNumerator, const TH1* histDenominator1
     ratio1->GetYaxis()->SetTickLength(0.03);
     ratio1->GetYaxis()->SetNdivisions(504);
     ratio1->GetXaxis()->SetRange(histNumerator->GetXaxis()->GetFirst(), histNumerator->GetXaxis()->GetLast());
+    ratio1->GetXaxis()->SetNoExponent(kTRUE);
     
     /// delete axis of initial plot
     histNumerator->GetXaxis()->SetLabelSize(0);
