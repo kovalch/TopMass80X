@@ -57,6 +57,7 @@
 ## mkdir -p diffXSecFromSignal/plots/combined/2012/regularizationTest
 ## mkdir -p diffXSecFromSignal/plots/combined/2012/topPtTest
 ## mkdir -p diffXSecFromSignal/plots/combined/2012/cov
+## mkdir -p diffXSecFromSignal/plots/combined/2012/rhos
 
 ## b) root files needed for the Analysis are loaded automatically from /afs/naf.desy.de/group/cms/scratch/tophh/
 ## c) if not yet done, combine the MC samples for the single channels (like QCD, single top, Diboson) using combineMCsamples.C
