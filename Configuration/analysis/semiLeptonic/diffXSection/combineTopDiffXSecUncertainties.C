@@ -1,7 +1,7 @@
 #include "basicFunctions.h"
 #include <numeric>
 
-void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=false, unsigned int verbose=0, TString decayChannel="combined", bool extrapolate=true, bool hadron=false, bool addCrossCheckVariables=false, TString closureTestSpecifier="", bool useBCC=false){
+void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, unsigned int verbose=0, TString decayChannel="combined", bool extrapolate=true, bool hadron=false, bool addCrossCheckVariables=false, TString closureTestSpecifier="", bool useBCC=false){
 
   // ============================
   //  Systematic Variations:
@@ -56,7 +56,7 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=false, 
   // name quantity for which you want to see a detailed uncertainty printout
   TString testVar="topPtNorm";//"topPtNorm";
   // if true: for uncertainties with different versions like eff. SF (norm., eta+pt shape) take only maximum of those
-  bool takeMaxOfNormAndShape=true;
+  bool takeMaxOfNormAndShape=false;
 
   // verbose: set detail level of output 
   // 0: no output, 1: std output 2: output for debugging
@@ -488,18 +488,18 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=false, 
 		  //}
 		  sysDiff=std::abs(sysBinXSecValue-stdBinXSecValue);
 		  // hadron lv PS lepton and b-jet PDF uncertainties
-		  if(!extrapolate&&hadron&&(sys==sysPDFUp||sys==sysPDFDown)&&(xSecVariables_[i].Contains("lep")||xSecVariables_[i].Contains("bq"))){
-		    if(verbose>1) std::cout << "load unc PDF for " << xSecVariables_[i] << " bin " << bin << std::endl;
-		    TString fileName="/afs/naf.desy.de/group/cms/scratch/tophh/tmp/2012/diffXSecTopSemi";
-		    if(decayChannel=="muon"    ) fileName+="Mu";
-		    else if(decayChannel=="electron") fileName+="Elec";
-		    else if(decayChannel=="combined") fileName+="Lep";
-		    fileName+="PartonPhaseSpace.root";   
-		    TString canvName="relativeUncertainties/"+xSecVariables_[i]+"/relSysPlotBin"+getTStringFromInt(bin)+xSecVariables_[i];
-		    TString plotName="relSysPlotBin"+getTStringFromInt(bin)+xSecVariables_[i];
-		    int sysBin=23; // this is the bin in the symmetrised histo plot
-		    sysDiff=stdBinXSecValue*getValue(fileName, canvName, plotName, sysBin)/100.;
-		  }
+// 		  if(!extrapolate&&hadron&&(sys==sysPDFUp||sys==sysPDFDown)&&(xSecVariables_[i].Contains("lep")||xSecVariables_[i].Contains("bq"))){
+// 		    if(verbose>1) std::cout << "load unc PDF for " << xSecVariables_[i] << " bin " << bin << std::endl;
+// 		    TString fileName="/afs/naf.desy.de/group/cms/scratch/tophh/tmp/2012/diffXSecTopSemi";
+// 		    if(decayChannel=="muon"    ) fileName+="Mu";
+// 		    else if(decayChannel=="electron") fileName+="Elec";
+// 		    else if(decayChannel=="combined") fileName+="Lep";
+// 		    fileName+="PartonPhaseSpace.root";   
+// 		    TString canvName="relativeUncertainties/"+xSecVariables_[i]+"/relSysPlotBin"+getTStringFromInt(bin)+xSecVariables_[i];
+// 		    TString plotName="relSysPlotBin"+getTStringFromInt(bin)+xSecVariables_[i];
+// 		    int sysBin=23; // this is the bin in the symmetrised histo plot
+// 		    sysDiff=stdBinXSecValue*getValue(fileName, canvName, plotName, sysBin)/100.;
+// 		  }
 		  // adjust NEW hadronization uncertainty by hand
 		  // sysHadUp: as powheg+herwig vs powheg+pythia
 		  // sysHadDown: as powheg+herwig vs mcatnlo+herwig
@@ -692,7 +692,7 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=false, 
       }
       
       TString label = upTypeLabel;
-      std::cout << label << std::endl;
+      if(verbose>2) std::cout << label << std::endl;
       (upTypeLabel==downTypeLabel) ? uncIdx+=2 : uncIdx++;
 
       uncList+=" & ";
@@ -809,9 +809,9 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=false, 
 	  //std::cout << histoBinIdx << " " << uncIdx << " " << upTypeLabel << " " << downTypeLabel << " " << label << std::endl;
 
 	  TCanvas *canvasUncertaintyDistributions = new TCanvas("canvasUncertaintyDistributions","canvasUncertaintyDistributions",800,600);
-	  std::cout << label;
+	  if(verbose>2) std::cout << label;
 	  if (label.Contains("HadronizationOld")||(calculateError_[xSecVariables_[i]][2*histoBinIdx] && label != "sysNo")){
-	    std::cout << " -> considered" << std::endl;
+	    if(verbose>2) std::cout << " -> considered" << std::endl;
 	    TH1F* tempResult = new TH1F(xSecVariables_[i]+"_"+label,xSecVariables_[i]+"_"+label,NBINS,0.5,NBINS+0.5);
 	    tempResult->GetXaxis()->SetTitle("Bin Number ("+xSecVariables_[i]+")");
 	    tempResult->GetYaxis()->SetTitle(label+" Relative Uncertainty [%]"); 
@@ -928,7 +928,7 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=false, 
 	    delete tempResult; tempResult = NULL;
 	  }
 	  else{
-	    std::cout << std::endl;
+	    if(verbose>2) std::cout << std::endl;
 	  }
 	  delete canvasUncertaintyDistributions; canvasUncertaintyDistributions=NULL;
 	}
