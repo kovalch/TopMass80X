@@ -2715,7 +2715,10 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
             TitBin  = "";
        }
     }
-
+    madgraphhistBinned->GetXaxis()->SetTitleOffset(varhists[0]->GetXaxis()->GetTitleOffset());
+    madgraphhistBinned->GetXaxis()->SetTitle(varhists[0]->GetXaxis()->GetTitle());
+    madgraphhistBinned->GetYaxis()->SetTitleOffset(varhists[0]->GetYaxis()->GetTitleOffset());
+    madgraphhistBinned->GetYaxis()->SetTitle(varhists[0]->GetYaxis()->GetTitle());
     madgraphhistBinned->Draw();
     if (ymax!=0) madgraphhistBinned->SetMaximum(ymax);
     gStyle->SetEndErrorSize(8);
@@ -3599,6 +3602,10 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
     madgraphhistBinned->SetLineColor(madgraphhist->GetLineColor());
     madgraphhistBinned->SetLineStyle(madgraphhist->GetLineStyle());
     madgraphhistBinned->SetLineWidth(2);
+    madgraphhistBinned->GetXaxis()->SetTitleOffset(varhists[0]->GetXaxis()->GetTitleOffset());
+    madgraphhistBinned->GetXaxis()->SetTitle(varhists[0]->GetXaxis()->GetTitle());
+    madgraphhistBinned->GetYaxis()->SetTitleOffset(varhists[0]->GetYaxis()->GetTitleOffset());
+    madgraphhistBinned->GetYaxis()->SetTitle(h_DiffXSec->GetYaxis()->GetTitle());
     madgraphhistBinned->Draw();
 
     TH1* realTruthBinned = nullptr;
