@@ -5,7 +5,7 @@ function overview {
     echo -n $(echo "$x" | egrep $1 | grep -c " qw ") "queuing, "
     echo $(echo "$x" | egrep -c $1) "total."
 }
-
+#$tmp = $real{$user} if $real{$user};
 x=`qstat -g d -u '*'`
 echo -n "All users: "
 overview "."
@@ -20,6 +20,14 @@ perl -le'
     $width = int($width/2-6);
     $height-=8;
     print sprintf "      %-${width}s      %s", "RUNNING JOBS", "WAITING JOBS";
+
+    for $c(@ARGV) {
+        for $i (0..$height) {
+            (undef,$n,$user) = split/\s+/, (split/\n/,$c)[$i];
+            $real{$user} = $user;
+        }
+    }
+
     for (do{open $x, "<", "/etc/passwd"; <$x>}) {
         ($user,undef,undef,undef,$nameAndUni) = split /:/;
         ($name,undef,undef,$uni) = split /,/, $nameAndUni;
