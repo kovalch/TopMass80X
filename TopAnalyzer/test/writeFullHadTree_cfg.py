@@ -99,6 +99,7 @@ process.source = cms.Source("PoolSource",
         #'file:patTuple.root',
         #'file:patTuple_selected.root',
         #'file:/tmp/eschliec/tmp.root',
+        #'/store/user/eschliec/Skim_02_Data01/Skim_MJP12B_v1_data/patTuple_selected_0.root'
         #'/store/mc/Summer12_DR53X/TTJets_MassiveBinDECAY_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V7A-v1/0000/209D26E9-AEE1-E111-BAA6-0030487D5D8D.root',
         #'/store/mc/Summer12_DR53X/TTJets_MassiveBinDECAY_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V7A-v1/0000/54145FEE-1AE2-E111-8B8E-003048C69408.root',
         #'/store/mc/Summer12_DR53X/TTJets_MassiveBinDECAY_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V7A-v1/0000/8CA6B320-CFE1-E111-A04C-003048D2BB22.root',
@@ -190,6 +191,14 @@ process.source = cms.Source("PoolSource",
         #"/store/user/eschliec/Skim_02_Data01/Skim_MJP12D2_v1_data/patTuple_selected_3267.root",
         #"/store/user/eschliec/Skim_02_Data01/Skim_MJP12D2_v1_data/patTuple_selected_3268.root",
         #"/store/user/eschliec/Skim_02_Data01/Skim_MJP12D2_v1_data/patTuple_selected_3269.root",
+        "/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/00002/009B74EF-A84A-E311-AEBD-848F69FD2997.root",
+        "/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/00002/D0680DCA-B04A-E311-9C3C-848F69FD45A7.root",
+        "/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/00002/40583575-B04A-E311-BA57-848F69FD298E.root",
+        "/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/00002/5C77C9EF-B14A-E311-9C20-00266CF2506C.root",
+        "/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/00002/E0D3C157-B24A-E311-A040-00266CF9B970.root",
+        "/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/00002/4279F970-B44A-E311-A11E-001D09FDD91E.root",
+        "/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/00002/A87145D0-B44A-E311-B10C-7845C4FC3C11.root",
+        "/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/00002/74C5B553-B54A-E311-8817-7845C4FC3767.root"
 ),
                             skipEvents = cms.untracked.uint32(0)
                             )
@@ -230,7 +239,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 if(options.eventFilter=='data'):
     if os.getenv('CMSSW_VERSION').startswith('CMSSW_5_3_'):
         #process.GlobalTag.globaltag = cms.string('GR_R_53_V19::All')
-        process.GlobalTag.globaltag = cms.string('FT_53_V21_AN4::All')
+        process.GlobalTag.globaltag = cms.string('FT53_V21A_AN6::All')
     elif os.getenv('CMSSW_VERSION').startswith('CMSSW_4_2_'):
         #process.GlobalTag.globaltag = cms.string('GR_R_38X_V15::All')
         #process.GlobalTag.globaltag = cms.string('GR_R_42_V14::All')
@@ -241,9 +250,9 @@ if(options.eventFilter=='data'):
         
 else:
     if os.getenv('CMSSW_VERSION').startswith('CMSSW_5_3_'):
-        process.GlobalTag.globaltag = cms.string('START53_V15::All')
+        process.GlobalTag.globaltag = cms.string('START53_V26::All')
     if os.getenv('CMSSW_VERSION').startswith('CMSSW_5_3_11'):
-        process.GlobalTag.globaltag = cms.string('START53_V23::All')
+        process.GlobalTag.globaltag = cms.string('START53_V27::All')
     elif os.getenv('CMSSW_VERSION').startswith('CMSSW_4_2_'):
         #process.GlobalTag.globaltag = cms.string('START42_V12::All')
         #process.GlobalTag.globaltag = cms.string('START42_V13::All')
@@ -791,10 +800,11 @@ if(not options.pdfUn==2 and not options.eventFilter=='toyMC'):
             jecLevels = ['L1FastJet', 'L2Relative', 'L3Absolute']
             myGenJetCollection = cms.InputTag("ak5GenJets")
 
-        ## add AK5Calo Jets
-        preSeq = process.patDefaultSequence.copy()
-        from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
-        addJetCollection(process,cms.InputTag('ak5CaloJets'),
+        if not options.bTagEfficiencyDetermination:
+            ## add AK5Calo Jets
+            preSeq = process.patDefaultSequence.copy()
+            from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
+            addJetCollection(process,cms.InputTag('ak5CaloJets'),
                  'AK5', 'Calo',
                  doJTA        = False,
                  doBTagging   = False,
@@ -807,17 +817,17 @@ if(not options.pdfUn==2 and not options.eventFilter=='toyMC'):
                  jetIdLabel   = "ak5",
                  outputModules = []
                  )
-        for mod in preSeq.moduleNames() :
-            process.patDefaultSequence.remove(getattr(process,mod))
+            for mod in preSeq.moduleNames() :
+                process.patDefaultSequence.remove(getattr(process,mod))
         
-        process.patJetsAK5Calo.addResolutions = False
-        process.patJetsAK5Calo.resolutions = cms.PSet()
-        process.patJetsAK5Calo.addTagInfos = False
-        process.patJetsAK5Calo.userData.userFloats.src = cms.VInputTag("")
-        process.patJetsAK5Calo.addDiscriminators = False
+            process.patJetsAK5Calo.addResolutions = False
+            process.patJetsAK5Calo.resolutions = cms.PSet()
+            process.patJetsAK5Calo.addTagInfos = False
+            process.patJetsAK5Calo.userData.userFloats.src = cms.VInputTag("")
+            process.patJetsAK5Calo.addDiscriminators = False
         
-        process.selectedPatJetsAK5Calo.cut = 'pt > 10. & abs(eta) < 2.4'
-        process.p1.replace(process.leadingJetSelection, process.leadingJetSelection*process.patDefaultSequence)
+            process.selectedPatJetsAK5Calo.cut = 'pt > 10. & abs(eta) < 2.4'
+            process.p1.replace(process.leadingJetSelection, process.leadingJetSelection*process.patDefaultSequence)
         
     ## load bugfix for wrongly generated MC files (MadGraph / Powheg + Pythia6)
     process.load("GeneratorInterface.GenFilters.TotalKinematicsFilter_cfi")
@@ -927,6 +937,16 @@ if(not options.pdfUn==2 and not options.eventFilter=='toyMC'):
                     delattr(process, 'TFileService')
              ## when bTag efficiency is determined PUweight and bTagEff are needed
             if options.bTagEfficiencyDetermination:
+                if hasattr(process,'initSubset'):
+                    process.p1.remove(process.initSubset)
+                if hasattr(process,'decaySubset'):
+                    process.p1.remove(process.decaySubset)
+                if hasattr(process,'genEvt'):
+                    process.p1.remove(process.genEvt)
+                if hasattr(process,'eventWeightPUSysUp'):
+                    process.p1.remove(process.eventWeightPUSysUp)
+                if hasattr(process,'eventWeightPUSysDown'):
+                    process.p1.remove(process.eventWeightPUSysDown)
                 process.p1 += process.bTagEff
                 process.TFileService.fileName = 'bTagEff_test.root'
 
