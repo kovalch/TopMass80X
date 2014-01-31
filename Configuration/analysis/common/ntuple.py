@@ -553,6 +553,8 @@ process.writeNTuple = writeNTuple.clone(
     genBHadIndex = cms.InputTag(genHFHadronMatcherInput,"genBHadIndex"),
     genBHadFlavour = cms.InputTag(genHFHadronMatcherInput,"genBHadFlavour"),
     genBHadJetIndex = cms.InputTag(genHFHadronMatcherInput,"genBHadJetIndex"),
+    genBHadLeptons = cms.InputTag(genHFHadronMatcherInput,"genBHadLeptons"),
+    genBHadLeptonHadIndex = cms.InputTag(genHFHadronMatcherInput,"genBHadLeptonHadIndex"),
 )
 process.writeNTuple.jetsForMET    = cms.InputTag("scaledJetEnergy:selectedPatJets")
 process.writeNTuple.jetsForMETuncorr    = cms.InputTag("selectedPatJets")
