@@ -149,8 +149,7 @@ GenHFHadronMatcher::GenHFHadronMatcher ( const edm::ParameterSet& cfg )
     genJets_           = cfg.getParameter<edm::InputTag> ( "genJets" );
     flavour_           = cfg.getParameter<int> ( "flavour" );
     noBBbarResonances_ = cfg.getParameter<bool> ( "noBBbarResonances" );
-//     onlyJetClusteredHadrons_ = cfg.getParameter<bool> ( "onlyJetClusteredHadrons" );
-    onlyJetClusteredHadrons_ = false;
+    onlyJetClusteredHadrons_ = cfg.getParameter<bool> ( "onlyJetClusteredHadrons" );
 
 
     flavour_ = abs ( flavour_ ); // Make flavour independent of sign given in configuration

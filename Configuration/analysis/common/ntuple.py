@@ -678,6 +678,7 @@ if topfilter:
     process.load("TopAnalysis.TopUtils.GenHFHadronMatcher_cff")
     process.matchGenHFHadronJets.flavour = 5
     process.matchGenHFHadronJets.noBBbarResonances = True
+    process.matchGenHFHadronJets.onlyJetClusteredHadrons = False # should be True to store leptons from b-jets (will run slower)
 
     process.load("TopAnalysis.TopUtils.sequences.improvedJetHadronQuarkMatching_cff")
 
