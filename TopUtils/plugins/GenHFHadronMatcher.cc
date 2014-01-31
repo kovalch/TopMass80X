@@ -407,7 +407,6 @@ std::vector<int> GenHFHadronMatcher::findHadronJets ( const reco::GenJetCollecti
             // Finding last quark of the hadron starting from the first quark
             findInMothers ( FirstQuarkId.at(qId), LastQuarkId, hadMothersIndices, hadMothers, 0, bQFlav*flavour_, false, 2, false );
         }		// End of loop over all first quarks of the hadron
-        printf("NLastQuarks: %d\n",(int)LastQuarkId.size());
 
         // Setting iinitial flavour of the hadron
         int hadronFlavour = 0;
@@ -855,7 +854,6 @@ bool GenHFHadronMatcher::fixExtraSameFlavours(
         return true;
     }
 
-    // printf("hadId: %d  LastQuarkId: %d hadFlavour: %d\n", hadId, LastQuarkId, hadFlavour);
     int nSameFlavourHadrons = 0;
     // Looping over all previous hadrons
     for(unsigned int iHad = 0; iHad<hadronFlavour.size(); iHad++) {

@@ -19,6 +19,7 @@
 ## mkdir -p diffXSecFromSignal/plots/muon/2012/shapeReweighting
 ## mkdir -p diffXSecFromSignal/plots/muon/2012/unfolding
 ## mkdir -p diffXSecFromSignal/plots/muon/2012/closureTest
+## mkdir -p diffXSecFromSignal/plots/muon/2012/topPtTest
 ## mkdir -p diffXSecFromSignal/plots/electron/2012/monitoring/withoutRatioPlots
 ## mkdir -p diffXSecFromSignal/plots/electron/2012/partonLevel
 ## mkdir -p diffXSecFromSignal/plots/electron/2012/recoYield
@@ -33,6 +34,7 @@
 ## mkdir -p diffXSecFromSignal/plots/electron/2012/shapeReweighting 
 ## mkdir -p diffXSecFromSignal/plots/electron/2012/unfolding
 ## mkdir -p diffXSecFromSignal/plots/electron/2012/closureTest
+## mkdir -p diffXSecFromSignal/plots/electron/2012/topPtTest
 ## mkdir -p diffXSecFromSignal/plots/combined/2012/xSec
 ## mkdir -p diffXSecFromSignal/plots/combined/2012/binning
 ## mkdir -p diffXSecFromSignal/plots/combined/2012/partonLevel
@@ -53,6 +55,9 @@
 ## mkdir -p diffXSecFromSignal/plots/combined/2012/closureTest
 ## mkdir -p diffXSecFromSignal/plots/combined/2012/massConstraintTest
 ## mkdir -p diffXSecFromSignal/plots/combined/2012/regularizationTest
+## mkdir -p diffXSecFromSignal/plots/combined/2012/topPtTest
+## mkdir -p diffXSecFromSignal/plots/combined/2012/cov
+## mkdir -p diffXSecFromSignal/plots/combined/2012/rhos
 
 ## b) root files needed for the Analysis are loaded automatically from /afs/naf.desy.de/group/cms/scratch/tophh/
 ## c) if not yet done, combine the MC samples for the single channels (like QCD, single top, Diboson) using combineMCsamples.C
@@ -244,7 +249,7 @@ redoSystematics=true
 ## redoPDFReweighting = true / false (default: true)
 redoPDFReweighting=true
 
-## Produce final xSec plots, ratios and uncertainties 
+## Produce final xSec plots, ratios, uncertainties and covariance matrices 
 ## produceResults = true / false (default: true)
 produceResults=true
 
@@ -270,8 +275,8 @@ makeLogPlots=false
 
 ## last systematic to proceed (0: only std analysis without variation)
 ## has to be consistent with the enumerator "systematicVariation" in "basicFunctions.h"
-## maxSys>0 needs a lot of time (must be <= 57 (default), see list of systematics below)
-maxSys=58
+## maxSys>0 needs a lot of time (must be <= 59 (default), see list of systematics below)
+maxSys=59
 
 ## Include cross-check variables to get additional differential cross-sections for
 ## a) pT(top) and pT(antitop)
@@ -634,10 +639,10 @@ echo " 45: sysDiBosUp                 46: sysDiBosDown 		   "
 echo " 47: sysVjetsUp                 48: sysVjetsDown		   "
 echo " 49: sysBRUp                    50: sysBRDown                "
 echo " 51: sysPDFUp                   52: sysPDFDown               "  
-echo " 53: sysUnf                                                  "
-echo " 54: sysHadUp                   55: sysHadDown               "  
-echo " 56: sysGenMCatNLO              57: sysGenPowheg  	   "
-echo " 58: sysGenPowhegHerwig         59: ENDOFSYSENUM             "
+echo " 53: sysUnf                     54: sysMad                   "
+echo " 55: sysHadUp                   56: sysHadDown               "
+echo " 57: sysGenMCatNLO              58: sysGenPowheg  	   "
+echo " 59: sysGenPowhegHerwig         60: ENDOFSYSENUM             "
 
 echo
 
@@ -834,8 +839,8 @@ fi
 #### ===================================================
 if [ $decayChannel == \"combined\" -a $closureTestSpecifier == \"\" -a $produceResults == true ]; then
     echo ""
-    echo " Processing .... makeResultTables($decayChannel, $extrapolate, $hadron, $inclCCVars)"
-    root -l -q -b './makeResultTables.C++('$decayChannel', '$extrapolate', '$hadron', '$inclCCVars')'
+    echo " Processing .... makeResultTables($decayChannel, $extrapolate, $hadron, $inclCCVars, $useBCC)"
+    root -l -q -b './makeResultTables.C++('$decayChannel', '$extrapolate', '$hadron', '$inclCCVars, $useBCC)'
 else
     echo "will be ignored, only done if final results are produced (produceResults is set to $produceResults)"
 fi

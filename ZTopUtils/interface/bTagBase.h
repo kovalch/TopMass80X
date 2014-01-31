@@ -47,201 +47,224 @@ namespace ztop {
 class bTagBase {
 public:
 
-    bTagBase();
+	bTagBase();
 
-    ~bTagBase() {
-        cleanptr();
-    }
+	~bTagBase() {
+		cleanptr();
+	}
 
-    /**
-     * enum for working points
-     * should be named <tagger><wp>_wp
-     *
-     */
-    enum workingPoints {
-        csvt_wp,
-        csvm_wp,
-        csvl_wp,
-        /* some other WP/taggers ..*/
-        //
-        /*don't touch this: needs to be last entry*/
-        length_wp
-    };
+	/**
+	 * enum for working points
+	 * should be named <tagger><wp>_wp
+	 *
+	 */
+	enum workingPoints {
+		csvt_wp,
+		csvm_wp,
+		csvl_wp,
+		/* some other WP/taggers ..*/
+		//
+		/*don't touch this: needs to be last entry*/
+		length_wp
+	};
 
-    /**
-     * enum for systematic variations
-     */
-    enum systematics {
-        nominal,
-        heavyup, heavydown,
-        lightup, lightdown,
-        heavyuppt, heavydownpt,
-        heavyupeta, heavydowneta,
-        lightuppt, lightdownpt,
-        lightupeta, lightdowneta,
-        length_syst
-    };
-
-    enum medians {bpt, beta, cpt, ceta, lpt, leta, length_median};
-    
-    enum histoTypes {tag, eff};
-
-    void setWorkingPoint(workingPoints wp) { wp_ = wp; }
-    const float& getWPDiscrValue()const{return wpvals_[wp_];}
-    std::string getWorkingPointString()const;
-
-    workingPoints getWorkingPoint() const { return wp_;}
-    /**
-     * switches on SF for 7 TeV data
-     */
-    void setIs2011(bool is) {is2011_ = is;}
-
-    void setSystematic(systematics sys) { syst_ = sys;}
-    systematics getSystematic() { return syst_;}
+	/**
+	 * enum for systematic variations
+	 */
+	enum systematics {
+		nominal,
+		heavyup, heavydown,
+		lightup, lightdown,
+		heavyuppt, heavydownpt,
+		heavyupeta, heavydowneta,
+		lightuppt, lightdownpt,
+		lightupeta, lightdowneta,
+		length_syst
+	};
 
 
-    int setSampleName(const std::string &); //checks if effs should be made, if sample exists,..
+	enum histoTypes {tag, eff};
 
-    /**
-     * enables the filling of histograms for efficiencies and disables
-     * scale factor output
-     */
-    void setMakeEff(bool makee) {makeeffs_ = makee; }
-    bool getMakeEff()const { return makeeffs_;}
+	void setWorkingPoint(workingPoints wp) { wp_ = wp; }
+	const float& getWPDiscrValue()const{return wpvals_[wp_];}
+	std::string getWorkingPointString()const;
 
-    void fillEff(const float &, const float&, const int &, const float &,const float&);
-    void makeEffs();
+	workingPoints getWorkingPoint() const { return wp_;}
+	/**
+	 * switches on SF for 7 TeV data
+	 */
+	void setIs2011(bool is) {is2011_ = is;}
 
-    /**
-     * returns the number of nan sf
-     */
-    size_t getNanCount()const{return nancount_;}
+	void setSystematic(systematics sys) { syst_ = sys;}
+	systematics getSystematic() { return syst_;}
 
-    bool showWarnings;
-    bool debug;
+
+	int setSampleName(const std::string &); //checks if effs should be made, if sample exists,..
+
+	/**
+	 * enables the filling of histograms for efficiencies and disables
+	 * scale factor output
+	 */
+	void setMakeEff(bool makee) {makeeffs_ = makee; }
+	bool getMakeEff()const { return makeeffs_;}
+
+	void fillEff(const float &, const float&, const int &, const float &,const float&);
+	void makeEffs();
+
+	/**
+	 * returns the number of nan sf
+	 */
+	size_t getNanCount()const{return nancount_;}
+
+	bool showWarnings;
+	bool debug;
 
 protected:
 
-    std::map<std::string, std::vector<TH2D> > histos_;      //! bjets, btagged, cjets, ctagged, ljets, ltagged
-    std::map<std::string, std::vector<TH2D> > effhistos_;   //! beff, ceff, leff
-    std::map<std::string, std::vector<float> > medianMap_;
+	/**
+	 * use these functions to fill the TH2D vectors in histos_ and effhistos_ in the right order
+	 *
+	 */
+	const std::vector<std::string> & getJetHistoOrderedNames()const{return histoNames_;}
+	const std::vector<std::string> & getEffHistoOrderedNames()const{return effHistoNames_;}
 
-    // functions to be used in the wrapper classes inheriting from this class
-    // example implementation:
-    /*
+	/**
+	 * use these enums to associate the entries of histos_ and effhistos_ with the given names from
+	 * e.g. getJetHistoOrderedNames()
+	 * so getJetHistoOrderedNames().at(bjets_h) will be the name of the b-jet histogram!
+	 * And bjets_h will be the index of the histogram in histos_[<samplename>]
+	 */
+	enum histoNames_en{bjets_h, btagged_h, cjets_h, ctagged_h, ljets_h, ltagged_h, length_histoNames_en};
+	enum effHistoNames_en{beff_h, ceff_h, leff_h, length_effHistoNames_en};
+
+	std::map<std::string, std::vector<TH2D> > histos_;      //! bjets, btagged, cjets, ctagged, ljets, ltagged
+	std::map<std::string, std::vector<TH2D> > effhistos_;   //! beff, ceff, leff
+
+
+	/**
+	 * use these enums to associate the entries of the median vector in medianMap_ with the corresponding
+	 * input/output
+	 */
+	enum medians {bpt, beta, cpt, ceta, lpt, leta, length_median};
+	std::map<std::string, std::vector<float> > medianMap_;
+
+	// functions to be used in the wrapper classes inheriting from this class
+	// example implementation:
+	/*
      resetCounter();
      for(size_t i=0;i<jets.size();i++){
      ztop::NTJet *jet=jets.at(i);
      countJet(jet->p4(),jet->genPartonFlavour());
      }
      return getEventSF();
-     */
+	 */
 
-    void resetCounter() {
-        sumStuffEff_ = 0.99999999;
-        sumStuffSfEff_ = 0.99999999;
-    }
-    void countJet(const float&, const float&, const int & genPartonFlavor);
-    float getEventSF();
+	void resetCounter() {
+		sumStuffEff_ = 0.99999999;
+		sumStuffSfEff_ = 0.99999999;
+	}
+	void countJet(const float&, const float&, const int & genPartonFlavor);
+	float getEventSF();
 
-    bool jetIsTagged(const float&, const float&, const int & genPartonFlavor,
-            const float & tagValue, const unsigned int & seed) const; // to be implmented
+	bool jetIsTagged(const float&, const float&, const int & genPartonFlavor,
+			const float & tagValue, const unsigned int & seed) const; // to be implmented
 
-    void cleanptr() {
-        histp_ = 0;
-        effhistp_ = 0;
-    }
+	void cleanptr() {
+		histp_ = 0;
+		effhistp_ = 0;
+	}
 
-    float median(TH1 *)const ;
-    
-    std::string histoNameAtId(const int id, const histoTypes type)const {
-        if(type == tag) return (int)histoNames_.size()>id ? histoNames_.at(id) : std::string("");
-        if(type == eff) return (int)effHistoNames_.size()>id ? effHistoNames_.at(id) : std::string("");
-        else return std::string("");
-    }
+	float median(TH1 *)const ;
+
+	std::string histoNameAtId(const int id, const histoTypes type)const {
+		if(type == tag) return (int)histoNames_.size()>id ? histoNames_.at(id) : std::string("");
+		if(type == eff) return (int)effHistoNames_.size()>id ? effHistoNames_.at(id) : std::string("");
+		else return std::string("");
+	}
 
 
 
 
 private:
-    enum jetTypes{bjet,cjet,lightjet,undefined};
+	enum jetTypes{bjet,cjet,lightjet,undefined};
 
-    bool init_;
+	bool init_;
 
-    workingPoints wp_;
-    bool is2011_;
-    systematics syst_;
+	workingPoints wp_;
+	bool is2011_;
+	systematics syst_;
 
-    std::vector<float> wpvals_, minpt_, maxpt_;
-    std::vector<std::string> histoNames_;
-    std::vector<std::string> effHistoNames_;
+	std::vector<float> wpvals_, minpt_, maxpt_;
 
-    bool makeeffs_;
+	std::vector<std::string> histoNames_;
+	std::vector<std::string> effHistoNames_;
 
-    std::string tempsamplename_;
-    std::vector<TH2D> * histp_;
-    std::vector<TH2D> * effhistp_;
-    std::vector<float> * medianvecp_;
+	bool makeeffs_;
 
-    float sumStuffEff_;
-    float sumStuffSfEff_;
+	std::string tempsamplename_;
+	std::vector<TH2D> * histp_;
+	std::vector<TH2D> * effhistp_;
+	std::vector<float> * medianvecp_;
 
-    //counts the fraction of nans
-    size_t nancount_;
+	float sumStuffEff_;
+	float sumStuffSfEff_;
 
-    jetTypes jetType(const int & )const;
+	//counts the fraction of nans
+	size_t nancount_;
 
-    float calcHeavySF(float *, float *, const size_t &, const float &,
-            const float &, const float &, const float &) const;
+	jetTypes jetType(const int & )const;
 
-    float jetSF(const float &pt, const float& abs_eta,const jetTypes & jettype) const;
-    float jetEff(const float &pt, const float& abs_eta,const jetTypes & jettype) const;
+	float calcHeavySF(float *, float *, const size_t &, const float &,
+			const float &, const float &, const float &) const;
 
-    //SFs btv input
-    float BJetSF(const float &pt, const float& abs_eta,
-            float multiplier = 1) const;
-    float CJetSF(const float &pt, const float &abs_eta,
-            float multiplier = 1) const;
-    float LJetSF(const float &pt, const float &abs_eta,
-            float multiplier = 1) const;
+	float jetSF(const float &pt, const float& abs_eta,const jetTypes & jettype) const;
+	float jetEff(const float &pt, const float& abs_eta,const jetTypes & jettype) const;
 
-    void initWorkingpoints();
-    
-    std::vector<TH2D> reorderedHistograms(const std::vector<TH2D>& unorderedHistos, const histoTypes type);
+	//SFs btv input
+	float BJetSF(const float &pt, const float& abs_eta,
+			float multiplier = 1) const;
+	float CJetSF(const float &pt, const float &abs_eta,
+			float multiplier = 1) const;
+	float LJetSF(const float &pt, const float &abs_eta,
+			float multiplier = 1) const;
+
+	void initWorkingpoints();
+
+	std::vector<TH2D> reorderedHistograms(const std::vector<TH2D>& unorderedHistos, const histoTypes type);
 
 };
 
 ///inlined functions for performance reasons:
 inline bTagBase::jetTypes bTagBase::jetType(const int & partonflavor)const{
-    if(fabs(fabs(partonflavor) - 5) < 0.1) return bjet;
-    else if (fabs(fabs(partonflavor) - 4) < 0.1) return cjet;
-    else if(fabs(partonflavor)>0) return lightjet;
-    else return undefined;
+	if(std::abs(partonflavor) == 5) return bjet;
+	else if (std::abs(partonflavor) == 4) return cjet;
+	else if(std::abs(partonflavor) > 0) return lightjet;
+	else return undefined;
 }
 
 inline float bTagBase::calcHeavySF(float* ptbins, float * SFb_error,
-        const size_t & ptbinsSize, const float & pt, const float & abseta, const float & SF,
-        const float & multiplier) const {
+		const size_t & ptbinsSize, const float & pt, const float & abseta, const float & SF,
+		const float & multiplier) const {
 
-    if (syst_ != heavyup && syst_ != heavydown && syst_ != heavyuppt && syst_ != heavydownpt && syst_ != heavyupeta && syst_ != heavydowneta)
-        return SF;
+	if (syst_ != heavyup && syst_ != heavydown && syst_ != heavyuppt && syst_ != heavydownpt && syst_ != heavyupeta && syst_ != heavydowneta)
+		return SF;
 
-    //this uses the standard histogram bin range definition from root
-    size_t ptbin = std::lower_bound(ptbins, ptbins + ptbinsSize, pt)
-    - &ptbins[0];
-    if (ptbins[ptbin] == pt)
-        --ptbin;
+	//this uses the standard histogram bin range definition from root
+	size_t ptbin = std::lower_bound(ptbins, ptbins + ptbinsSize, pt)
+	- &ptbins[0];
+	if (ptbins[ptbin] == pt)
+		--ptbin;
 
-    if (syst_ == heavyup ||
-       (syst_ == heavyuppt && pt < medianvecp_->at(bpt)) || (syst_ == heavydownpt && pt > medianvecp_->at(bpt)) ||
-       (syst_ == heavyupeta &&  abseta < medianvecp_->at(beta)) || (syst_ == heavydowneta && abseta > medianvecp_->at(beta)) )
-        return SF + (multiplier * SFb_error[ptbin]);
-    if (syst_ == heavydown ||
-       (syst_ == heavyuppt && pt > medianvecp_->at(bpt)) || (syst_ == heavydownpt && pt < medianvecp_->at(bpt)) ||
-       (syst_ == heavyupeta &&  abseta > medianvecp_->at(beta)) || (syst_ == heavydowneta && abseta < medianvecp_->at(beta)) )
-        return SF - (multiplier * SFb_error[ptbin]);
+	if (syst_ == heavyup ||
+			(syst_ == heavyuppt && pt < medianvecp_->at(bpt)) || (syst_ == heavydownpt && pt > medianvecp_->at(bpt)) ||
+			(syst_ == heavyupeta &&  abseta < medianvecp_->at(beta)) || (syst_ == heavydowneta && abseta > medianvecp_->at(beta)) )
+		return SF + (multiplier * SFb_error[ptbin]);
+	if (syst_ == heavydown ||
+			(syst_ == heavyuppt && pt > medianvecp_->at(bpt)) || (syst_ == heavydownpt && pt < medianvecp_->at(bpt)) ||
+			(syst_ == heavyupeta &&  abseta > medianvecp_->at(beta)) || (syst_ == heavydowneta && abseta < medianvecp_->at(beta)) )
+		return SF - (multiplier * SFb_error[ptbin]);
 
-    return 0;    //never reaches
+	return 0;    //never reaches
 }
 
 }    //namespace

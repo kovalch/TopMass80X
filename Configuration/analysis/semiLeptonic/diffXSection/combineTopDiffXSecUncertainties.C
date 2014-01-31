@@ -32,10 +32,11 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, u
   //        45: sysDiBosUp                 46: sysDiBosDown 
   //        47: sysVjetsUp                 48: sysVjetsDown
   //        49: sysBRUp                    50: sysBRDown              
-  //        51: sysPDFUp                   52: sysPDFDown                  
-  //        53: sysHadUp                   54: sysHadDown                  
-  //        55: sysGenMCatNLO              56: sysGenPowheg  
-  //        57: sysGenPowhegHerwig         58: ENDOFSYSENUM
+  //        51: sysPDFUp                   52: sysPDFDown   
+  //        53: sysUnf,                    54: sysMad,
+  //        55: sysHadUp                   56: sysHadDown                  
+  //        57: sysGenMCatNLO              58: sysGenPowheg  
+  //        59: sysGenPowhegHerwig         60: ENDOFSYSENUM
  
   // ============================
   //  Set Root Style
@@ -55,7 +56,7 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, u
   // name quantity for which you want to see a detailed uncertainty printout
   TString testVar="topPtNorm";//"topPtNorm";
   // if true: for uncertainties with different versions like eff. SF (norm., eta+pt shape) take only maximum of those
-  bool takeMaxOfNormAndShape=true;
+  bool takeMaxOfNormAndShape=false;
 
   // verbose: set detail level of output 
   // 0: no output, 1: std output 2: output for debugging
@@ -117,23 +118,26 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, u
   // NOTE: these must be identical to those defined in xSecVariables_ in analyzeHypothesisKinFit.C
 
   std::vector<TString> xSecVariables_;
+  int NormxSecs=0;
   // a) top and ttbar quantities
   if(!hadron){
     xSecVariables_.insert(xSecVariables_.end(), xSecVariablesKinFit    , xSecVariablesKinFit     + sizeof(xSecVariablesKinFit    )/sizeof(TString));
     xSecVariables_.insert(xSecVariables_.end(), xSecVariablesKinFitNorm, xSecVariablesKinFitNorm + sizeof(xSecVariablesKinFitNorm)/sizeof(TString));
+    NormxSecs+=sizeof(xSecVariablesKinFitNorm)/sizeof(TString);
   }
   // b) lepton and b-jet quantities
   if(hadron||!extrapolate){
     xSecVariables_.insert(xSecVariables_.end(), xSecVariablesFinalState    , xSecVariablesFinalState     + sizeof(xSecVariablesFinalState    )/sizeof(TString));
     xSecVariables_.insert(xSecVariables_.end(), xSecVariablesFinalStateNorm, xSecVariablesFinalStateNorm + sizeof(xSecVariablesFinalStateNorm)/sizeof(TString));
+    NormxSecs+=sizeof(xSecVariablesFinalStateNorm)/sizeof(TString);
   }
   // c) cross check variables presently only available for parton level cross-sections
   if (addCrossCheckVariables && !hadron){
     xSecVariables_.insert( xSecVariables_.end(),   xSecVariablesCCVar,     xSecVariablesCCVar     + sizeof(xSecVariablesCCVar    )/sizeof(TString)    );
     xSecVariables_.insert( xSecVariables_.end(),   xSecVariablesCCVarNorm, xSecVariablesCCVarNorm + sizeof(xSecVariablesCCVarNorm)/sizeof(TString));
+    NormxSecs+=sizeof(xSecVariablesCCVarNorm)/sizeof(TString);
   }
   xSecVariables_.insert( xSecVariables_.end(),   xSecVariablesIncl,      xSecVariablesIncl      + sizeof(xSecVariablesIncl)/sizeof(TString)     );
-
   // chose min/max value[%] for relative uncertainty plots
   double errMax=15.0;
   double errMin= 0.0;
@@ -300,8 +304,8 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, u
 
     if(verbose>0) std::cout << std::endl << " Part A: Loading Plots" << std::endl;
     // loop systematic variations
-    for(unsigned int sys=sysNo; sys<ENDOFSYSENUM; ++sys){
-      TString subfolder=sysLabel(sys);      
+    for(unsigned int sys=sysNo; sys<=ENDOFSYSENUM; ++sys){
+      TString subfolder= sys==ENDOFSYSENUM ? "sysHadronizationOld" : sysLabel(sys);      
       // loop variables
       for(unsigned int i=0; i<xSecVariables_.size(); ++i){
 	// get canvas       
@@ -416,8 +420,8 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, u
 	    unsigned int nSysCnt   = 0;
 	    bool setNewLabel       = 0;
 	    TString label="";
-	    for(unsigned int sys=sysNo+1; sys<ENDOFSYSENUM; ++sys){
-	      label = sysLabel(sys);
+	    for(unsigned int sys=sysNo+1; sys<=ENDOFSYSENUM; ++sys){
+	      label = sys==ENDOFSYSENUM ? "sysHadronizationOld" : sysLabel(sys);
 	      //if(sys==sysNo+1) std::cout << std::endl;
 	      //std::cout << label << ": ";
 	      // Systemtatic uncertainties are symmetrized later:
@@ -431,7 +435,7 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, u
 	    TH1F* relSysPlot = new TH1F("relSysPlotBin"+getTStringFromInt(bin)+xSecVariables_[i], "relSysPlotBin"+getTStringFromInt(bin)+xSecVariables_[i], nSysTypes+3, 0.5, 0.5+nSysTypes+3); // +3 for total syst., total stat. and total
 	    relSysPlot->GetXaxis()->SetLabelSize(0.025);
 	    // loop systematic variations
-	    for(unsigned int sys=sysNo+1; sys<ENDOFSYSENUM+1; ++sys){ // +1 for MC@NLO+Herwig vs. Powheg+Pythia uncertainty
+	    for(unsigned int sys=sysNo+1; sys<=ENDOFSYSENUM+1; ++sys){ // +1 for MC@NLO+Herwig vs. Powheg+Pythia uncertainty
 	      // set labels for relative uncertainties for bin & variable in map relativeUncertainties_
 	      label = sys<ENDOFSYSENUM ? sysLabel(sys).ReplaceAll("sys","") : "HadronizationOld";
 	      // up/down variations: keep only up variations (symmetrisation already done above)
@@ -484,18 +488,18 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, u
 		  //}
 		  sysDiff=std::abs(sysBinXSecValue-stdBinXSecValue);
 		  // hadron lv PS lepton and b-jet PDF uncertainties
-		  if(!extrapolate&&hadron&&(sys==sysPDFUp||sys==sysPDFDown)&&(xSecVariables_[i].Contains("lep")||xSecVariables_[i].Contains("bq"))){
-		    if(verbose>1) std::cout << "load unc PDF for " << xSecVariables_[i] << " bin " << bin << std::endl;
-		    TString fileName="/afs/naf.desy.de/group/cms/scratch/tophh/tmp/2012/diffXSecTopSemi";
-		    if(decayChannel=="muon"    ) fileName+="Mu";
-		    else if(decayChannel=="electron") fileName+="Elec";
-		    else if(decayChannel=="combined") fileName+="Lep";
-		    fileName+="PartonPhaseSpace.root";   
-		    TString canvName="relativeUncertainties/"+xSecVariables_[i]+"/relSysPlotBin"+getTStringFromInt(bin)+xSecVariables_[i];
-		    TString plotName="relSysPlotBin"+getTStringFromInt(bin)+xSecVariables_[i];
-		    int sysBin=23; // this is the bin in the symmetrised histo plot
-		    sysDiff=stdBinXSecValue*getValue(fileName, canvName, plotName, sysBin)/100.;
-		  }
+// 		  if(!extrapolate&&hadron&&(sys==sysPDFUp||sys==sysPDFDown)&&(xSecVariables_[i].Contains("lep")||xSecVariables_[i].Contains("bq"))){
+// 		    if(verbose>1) std::cout << "load unc PDF for " << xSecVariables_[i] << " bin " << bin << std::endl;
+// 		    TString fileName="/afs/naf.desy.de/group/cms/scratch/tophh/tmp/2012/diffXSecTopSemi";
+// 		    if(decayChannel=="muon"    ) fileName+="Mu";
+// 		    else if(decayChannel=="electron") fileName+="Elec";
+// 		    else if(decayChannel=="combined") fileName+="Lep";
+// 		    fileName+="PartonPhaseSpace.root";   
+// 		    TString canvName="relativeUncertainties/"+xSecVariables_[i]+"/relSysPlotBin"+getTStringFromInt(bin)+xSecVariables_[i];
+// 		    TString plotName="relSysPlotBin"+getTStringFromInt(bin)+xSecVariables_[i];
+// 		    int sysBin=23; // this is the bin in the symmetrised histo plot
+// 		    sysDiff=stdBinXSecValue*getValue(fileName, canvName, plotName, sysBin)/100.;
+// 		  }
 		  // adjust NEW hadronization uncertainty by hand
 		  // sysHadUp: as powheg+herwig vs powheg+pythia
 		  // sysHadDown: as powheg+herwig vs mcatnlo+herwig
@@ -673,14 +677,14 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, u
 
     std::map<TString, double> minMedian;
     std::map<TString, double> maxMedian;
+    std::map<TString, double> aveMedian;
 
     TString uncList = "";
-    for (int uncIdx=1; uncIdx<ENDOFSYSENUM;){
+    for (int uncIdx=1; uncIdx<=ENDOFSYSENUM;){
 
       TString arrayLabelIds[] = {"Up","up","Down","down"};
-      
-      TString upTypeLabel   = sysLabel(uncIdx);
-      TString downTypeLabel = uncIdx+1>=ENDOFSYSENUM ? "" : sysLabel(uncIdx+1); // +1 to get next entry
+      TString upTypeLabel   = uncIdx  >=ENDOFSYSENUM+1 ? "" : ( uncIdx  ==ENDOFSYSENUM ? "sysHadronizationOld" : (uncIdx  ==sysHadDown ? "sysGenerator" : ( uncIdx  ==sysHadUp ? "sysHadronization" : sysLabel(uncIdx  ) )) );
+      TString downTypeLabel = uncIdx+1>=ENDOFSYSENUM+1 ? "" : ( uncIdx+1==ENDOFSYSENUM ? "sysHadronizationOld" : (uncIdx+1==sysHadDown ? "sysGenerator" : ( uncIdx+1==sysHadUp ? "sysHadronization" : sysLabel(uncIdx+1) )) ); // +1 to get next entry
       
       for (unsigned int j=0; j<(sizeof(arrayLabelIds)/sizeof(arrayLabelIds[0])); j++){
 	upTypeLabel.ReplaceAll(arrayLabelIds[j],"");
@@ -688,14 +692,15 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, u
       }
       
       TString label = upTypeLabel;
-      
+      if(verbose>2) std::cout << label << std::endl;
       (upTypeLabel==downTypeLabel) ? uncIdx+=2 : uncIdx++;
 
-      uncList+=" & ";	  
+      uncList+=" & ";
+      if(uncIdx!=ENDOFSYSENUM&&(!considerInTotalError(uncIdx)||uncIdx==sysHadDown||uncIdx==sysHadUp)) uncList+= "%";
       uncList+=label;
     }
     uncList.ReplaceAll("sys","");
-    writeToFile(uncList, outputFolder+"/uncertaintyDistributionsOverview/uncertaintyTable_"+decayChannel+"_"+universalplotLabel+".txt", false);
+    if(save) writeToFile(uncList, outputFolder+"/uncertaintyDistributionsOverview/uncertaintyTable_"+decayChannel+"_"+universalplotLabel+".txt", false);
 
     for(unsigned int i=0; i<xSecVariables_.size(); ++i){
 
@@ -780,32 +785,33 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, u
 
 	// prepare uncertainty table with minimum and maximum
 
-	if(universalplotLabel!="PartonLvPS")writeToFile("Type of unc. & min Relative unc. & max Relative unc. \\\\", outputFolder+"/uncertaintyDistributionsOverview/uncertaintyTable_"+decayChannel+"_"+universalplotLabel+"_minmax.txt", false);
+	if(universalplotLabel!="PartonLvPS"&&save) writeToFile("Type of unc. & average Relative unc. & min Relative unc. & max Relative unc. \\\\", outputFolder+"/uncertaintyDistributionsOverview/uncertaintyTable_"+decayChannel+"_"+universalplotLabel+"_minmax.txt", false);
 	uncList = "";
 	uncList+=xSecVariables_[i];
 
-	for (int uncIdx=1; uncIdx<ENDOFSYSENUM;){ // loop starts at 1 to skip sysNo   
+	for (int uncIdx=1; uncIdx<=ENDOFSYSENUM;){ // loop starts at 1 to skip sysNo   
 
 	  histoBinIdx++;
 
 	  TString arrayLabelIds[] = {"Up","up","Down","down"};
-	  TString upTypeLabel   = sysLabel(uncIdx);    
-	  TString downTypeLabel = uncIdx+1>=ENDOFSYSENUM ? "" : sysLabel(uncIdx+1); // +1 to get next entry
+	  TString upTypeLabel   = uncIdx  >=ENDOFSYSENUM+1 ? "" : ( uncIdx  ==ENDOFSYSENUM ? "sysHadronizationOld" : (uncIdx  ==sysHadDown ? "sysGenerator" : ( uncIdx  ==sysHadUp ? "sysHadronization" : sysLabel(uncIdx  ) )) );
+	  TString downTypeLabel = uncIdx+1>=ENDOFSYSENUM+1 ? "" : ( uncIdx+1==ENDOFSYSENUM ? "sysHadronizationOld" : (uncIdx+1==sysHadDown ? "sysGenerator" : ( uncIdx+1==sysHadUp ? "sysHadronization" : sysLabel(uncIdx+1) )) ); // +1 to get next entry
+
 	  for (unsigned int j=0; j<(sizeof(arrayLabelIds)/sizeof(arrayLabelIds[0])); j++){
 	    upTypeLabel.ReplaceAll(arrayLabelIds[j],"");
 	    downTypeLabel.ReplaceAll(arrayLabelIds[j],"");	    
 	  }
 	  
 	  TString label = upTypeLabel;
-
+	  if(uncIdx!=ENDOFSYSENUM&&(!considerInTotalError(uncIdx)||uncIdx==sysHadDown||uncIdx==sysHadUp)) label= TString("%")+label;
 	  (upTypeLabel==downTypeLabel) ? uncIdx+=2 : uncIdx++;
 	  	  
 	  //std::cout << histoBinIdx << " " << uncIdx << " " << upTypeLabel << " " << downTypeLabel << " " << label << std::endl;
 
 	  TCanvas *canvasUncertaintyDistributions = new TCanvas("canvasUncertaintyDistributions","canvasUncertaintyDistributions",800,600);
-	  
-	  if (calculateError_[xSecVariables_[i]][2*histoBinIdx] && label != "sysNo"){
-	      
+	  if(verbose>2) std::cout << label;
+	  if (label.Contains("HadronizationOld")||(calculateError_[xSecVariables_[i]][2*histoBinIdx] && label != "sysNo")){
+	    if(verbose>2) std::cout << " -> considered" << std::endl;
 	    TH1F* tempResult = new TH1F(xSecVariables_[i]+"_"+label,xSecVariables_[i]+"_"+label,NBINS,0.5,NBINS+0.5);
 	    tempResult->GetXaxis()->SetTitle("Bin Number ("+xSecVariables_[i]+")");
 	    tempResult->GetYaxis()->SetTitle(label+" Relative Uncertainty [%]"); 
@@ -815,7 +821,7 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, u
 	    int binCounter = 1;
 	    
 	    std::vector<float> vecValues;
-	    
+
 	    for (std::map<unsigned int, TH1F*>::const_iterator histoIter = outerIter->second.begin(); histoIter != outerIter->second.end();){
 	      
 	      // jump over leading empty bins
@@ -850,22 +856,28 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, u
 	    float median = ( vecValues.size() % 2 != 0 ) ? vecValues[vecSize/2] : (vecValues[vecSize/2-1] + vecValues[vecSize/2]) / 2;
 
 	    // calculate minimum and maximum of medians for uncertainty table (in the plotted variables)
-
 	    if((((xSecVariables_[i].Contains("bq") || xSecVariables_[i].Contains("lep")) && universalplotLabel=="HadronLvPS") ||
-		(!(xSecVariables_[i].Contains("bq") || xSecVariables_[i].Contains("lep")) && universalplotLabel=="FullPS")) && xSecVariables_[i].Contains("Norm")){
+	    (   !(xSecVariables_[i].Contains("bq") || xSecVariables_[i].Contains("lep")) && universalplotLabel=="FullPS"    )   ) 
+	    &&    xSecVariables_[i].Contains("Norm")){
 	      if(!minMedian[label])minMedian[label]=1000.;
 	      if(median < minMedian[label])minMedian[label] = median;
 	      if(!maxMedian[label])maxMedian[label]=0.;
 	      if(median > maxMedian[label])maxMedian[label] = median;
+	      aveMedian[label]+=median;
 	    }
-
-	    // fill uncertainty table with minimum and maximum
-
+	    // fill uncertainty table with minimum and maximum (for last plot)
 	    if(i==xSecVariables_.size()-1 && universalplotLabel!="PartonLvPS"){
 	      TString uncTable2 = label;
-	      uncTable2+=Form(" & %3.1f",minMedian[label]); uncTable2+="\\%"; uncTable2+=Form(" & %3.1f",maxMedian[label]); uncTable2+="\\% \\\\";
+	      uncTable2+=fillspaceT(label, 20);
+	      uncTable2+=Form(" & %3.1f",aveMedian[label]/NormxSecs);
+	      uncTable2+=fillspace(minMedian[label], 3);
+	      uncTable2+=Form(" & %3.1f",minMedian[label]); 
+	      uncTable2+="\\%"; 
+	      uncTable2+=fillspace(maxMedian[label], 3);
+	      uncTable2+=Form(" & %3.1f",maxMedian[label]); 
+	      uncTable2+="\\% \\\\";
 	      uncTable2.ReplaceAll("sys","");
-	      writeToFile(uncTable2, outputFolder+"/uncertaintyDistributionsOverview/uncertaintyTable_"+decayChannel+"_"+universalplotLabel+"_minmax.txt", true);
+	      if(save) writeToFile(uncTable2, outputFolder+"/uncertaintyDistributionsOverview/uncertaintyTable_"+decayChannel+"_"+universalplotLabel+"_minmax.txt", true);
 	    }
 
 	    // prepare line for the complete uncertainty table
@@ -914,11 +926,14 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, u
 	    gErrorIgnoreLevel=initialIgnoreLevel;
 	      
 	    delete tempResult; tempResult = NULL;
-	  }  
+	  }
+	  else{
+	    if(verbose>2) std::cout << std::endl;
+	  }
 	  delete canvasUncertaintyDistributions; canvasUncertaintyDistributions=NULL;
 	}
 	// fill complete uncertainty table
-	writeToFile(uncList, outputFolder+"/uncertaintyDistributionsOverview/uncertaintyTable_"+decayChannel+"_"+universalplotLabel+".txt", true);
+	if(save) writeToFile(uncList, outputFolder+"/uncertaintyDistributionsOverview/uncertaintyTable_"+decayChannel+"_"+universalplotLabel+".txt", true);
       }
     }
     std::cout << "uncertainty tables can be found in " << outputFolder+"/uncertaintyDistributionsOverview/uncertaintyTable_"+decayChannel+"_*.txt" << std::endl;
@@ -990,7 +1005,7 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, u
 		  relUnCertaintyCopy->DrawCopy("hist same");
 		  // delete label entry for considered uncertainties in axis clone
 		  if(!(TString(relUnCAxisCopy->GetXaxis()->GetBinLabel(sys)).Contains("("))){
-		    std::cout<< "delete label " << relUnCAxisCopy->GetXaxis()->GetBinLabel(sys) << std::endl;
+		    //std::cout<< "delete label " << relUnCAxisCopy->GetXaxis()->GetBinLabel(sys) << std::endl;
 		    //relUnCAxisCopy->GetXaxis()->SetBinLabel(sys, "");
 		  }
 		}

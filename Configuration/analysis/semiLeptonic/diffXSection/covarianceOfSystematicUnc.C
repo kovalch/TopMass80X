@@ -3,7 +3,7 @@
 TString unfShortLabel(TString variable="");
 TString space(int val, int ref);
 
-void covarianceOfSystematicUnc(bool save=true, unsigned int verbose=0, TString decayChannel="combined", bool extrapolate=true, bool hadron=false, TString closureTestSpecifier=""){
+void covarianceOfSystematicUnc(bool save=true, unsigned int verbose=0, TString decayChannel="combined", bool extrapolate=false, bool hadron=true, TString closureTestSpecifier=""){
   // take sign of the down instead of the up variation
   bool signdn=false;
   // print important info, neglecting verbose
@@ -529,6 +529,7 @@ void covarianceOfSystematicUnc(bool save=true, unsigned int verbose=0, TString d
       histStyle2D(*sysCov_[xSecVariables_[i]][sys], nameSys+"plot", "", "");
       // save plot for current systematic
       // create new canvas
+      gROOT->cd();
       addCanvas(plotCanvas_);
       // go to canvas 
       plotCanvas_[plotCanvas_.size()-1]->cd();
@@ -556,6 +557,7 @@ void covarianceOfSystematicUnc(bool save=true, unsigned int verbose=0, TString d
 	//sysCov_[xSecVariables_[i]][42]->SetTitle(sysHistLabel);
 	// print total systematic covariance matrix
 	// create new canvas
+	gROOT->cd();
 	addCanvas(plotCanvasTot_);
 	// go to canvas 
 	plotCanvasTot_[plotCanvasTot_.size()-1]->cd();
@@ -635,6 +637,7 @@ void covarianceOfSystematicUnc(bool save=true, unsigned int verbose=0, TString d
       //statCov_[xSecVariables_[i]]->GetXaxis()->SetTitleOffset(1.3*statCov_[xSecVariables_[i]]->GetXaxis()->GetTitleOffset());
       //statCov_[xSecVariables_[i]]->GetYaxis()->SetTitleOffset(1.2*statCov_[xSecVariables_[i]]->GetYaxis()->GetTitleOffset());
       // create new canvas
+      gROOT->cd();
       addCanvas(plotCanvasTot_);
       // go to canvas
       plotCanvasTot_[plotCanvasTot_.size()-1]->cd();
@@ -664,8 +667,15 @@ void covarianceOfSystematicUnc(bool save=true, unsigned int verbose=0, TString d
     if(verbose>0) std::cout << "b) in rootfile" << std::endl;
     // loop all canvases
     for(unsigned int i=0; i<plotCanvasTot_.size(); ++i){
+      // search name of cross section quantity
+      TString xSecName="";
+      for(unsigned int scan=0; scan<xSecVariables_.size(); ++scan){
+	TString temp=xSecVariables_[scan];
+	if(TString(plotCanvasTot_[i]->GetTitle()).Contains(temp)) xSecName=temp;
+      }
       // i)  syst. and stat. covariance matrices
-      saveToRootFile(outputFile, plotCanvasTot_[i], true, verbose-1, "covariance");
+      if(plotCanvasTot_[i])saveToRootFile(outputFile, plotCanvasTot_[i], true, verbose-1, TString("covariance/")+xSecName);//{ std::cout << "NOTE: CAN save plotCanvasTot_[" << i << "]" << std::endl;}//saveToRootFile(outputFile, plotCanvasTot_[i], true, verbose-1, TString("covariance/")+xSecName); 
+      else {std::cout << "WARNING: can not save plotCanvasTot_[" << i << "]" << std::endl; exit(0); }
       // ii) single systematic covariance matrices
       // loop relevant symmetrized systematic variations
       //for(unsigned int sys=0; sys<(unsigned int)symmUncLabel_.size(); ++sys){
@@ -716,6 +726,7 @@ void covarianceOfSystematicUnc(bool save=true, unsigned int verbose=0, TString d
     //totCorr_[xSecVariables_[i]]->GetXaxis()->SetTitleOffset(1.3*totCorr_[xSecVariables_[i]]->GetXaxis()->GetTitleOffset());
     //totCorr_[xSecVariables_[i]]->GetYaxis()->SetTitleOffset(1.2*totCorr_[xSecVariables_[i]]->GetYaxis()->GetTitleOffset());
     // create new canvas
+    gROOT->cd();
     addCanvas(plotCanvasCorr_);
     // go to canvas
     plotCanvasCorr_[plotCanvasCorr_.size()-1]->cd();
@@ -745,8 +756,14 @@ void covarianceOfSystematicUnc(bool save=true, unsigned int verbose=0, TString d
     if(verbose>0) std::cout << "b) in rootfile" << std::endl;
     // loop all canvases
     for(unsigned int i=0; i<plotCanvasCorr_.size(); ++i){
+      // search name of cross section quantity
+      TString xSecName="";
+      for(unsigned int scan=0; scan<xSecVariables_.size(); ++scan){
+	TString temp=xSecVariables_[scan];
+	if(TString(plotCanvasCorr_[i]->GetTitle()).Contains(temp)) xSecName=temp;
+      }
       // iv) total correlation matrices
-      saveToRootFile(outputFile, plotCanvasCorr_[i], true, verbose-1, "covariance");
+      saveToRootFile(outputFile, plotCanvasCorr_[i], true, verbose-1, TString("covariance/")+xSecName);
     } // end for loop plotCanvasCorr
   } // end if save  
 
