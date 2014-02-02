@@ -840,7 +840,7 @@ fi
 if [ $decayChannel == \"combined\" -a $closureTestSpecifier == \"\" -a $produceResults == true ]; then
     echo ""
     echo " Processing .... makeResultTables($decayChannel, $extrapolate, $hadron, $inclCCVars, $useBCC)"
-    root -l -q -b './makeResultTables.C++('$decayChannel', '$extrapolate', '$hadron', '$inclCCVars, $useBCC)'
+    root -l -q -b './makeResultTables.C++g('$decayChannel', '$extrapolate', '$hadron', '$inclCCVars', '$useBCC')'
 else
     echo "will be ignored, only done if final results are produced (produceResults is set to $produceResults)"
 fi
