@@ -3,8 +3,8 @@
 #JOBS  DATASET                                   OUTPUT HISTOGRAM NAME                   SAMPLENAME
 
 
-50  Summer12.TTJets_MatchingUp_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff     ttbarsignalplustau_matchingup.root     ttbarsignalplustau,systematicsName=MATCH_UP
-50  Summer12.TTJets_MatchingUp_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff     ttbarbg_matchingup.root                ttbarbg,systematicsName=MATCH_UP
+200  Summer12.TTJets_MSDecays_matchingup_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v2_cff     ttbarsignalplustau_matchingup.root     ttbarsignalplustau,systematicsName=MATCH_UP
+200  Summer12.TTJets_MSDecays_matchingup_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v2_cff     ttbarbg_matchingup.root                ttbarbg,systematicsName=MATCH_UP
 
 190  Summer12.TTJets_MSDecays_matchingdown_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v2_cff   ttbarsignalplustau_matchingdown.root   ttbarsignalplustau,systematicsName=MATCH_DOWN
 190  Summer12.TTJets_MSDecays_matchingdown_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v2_cff   ttbarbg_matchingdown.root              ttbarbg,systematicsName=MATCH_DOWN
