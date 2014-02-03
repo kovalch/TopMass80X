@@ -2519,9 +2519,22 @@ namespace semileptonic {
       // used functions: none
       // used enumerators: none
 
+
+      // check if file is already open
+      TFile* openfile = 0;
+      TSeqCollection *openfiles= gROOT->GetListOfFiles();
+      for(int i=0; i<openfiles->GetSize(); ++i){
+	 if(verbose>2) std::cout << openfiles->At(i)->GetName() << std::endl;
+	if(TString(openfiles->At(i)->GetName())==outputFile){
+	  openfile=(TFile*)(openfiles->At(i));
+	  if(verbose>1) std::cout << "file " << outputFile << " already open, use reopen" << std::endl;
+	}
+      }
+
       bool saveObject=true;
       // check if file exist
-      TFile* file = TFile::Open(outputFile, "UPDATE");
+      TFile* file = openfile ? openfile : TFile::Open(outputFile, "UPDATE");
+      if(openfile) file->ReOpen("UPDATE");
       // if not exist: create
       if(!file){
 	if(verbose>1) std::cout << "file " << outputFile << " does not exist, will be created" << std::endl;
@@ -2593,7 +2606,7 @@ namespace semileptonic {
 	object->Write(object->GetTitle(), TObject::kOverwrite);
       }
       // close file
-      file->Close();
+      if(!openfile) file->Close();
     }
 
   template <class T>
@@ -2690,6 +2703,20 @@ namespace semileptonic {
       // close file
       file->Close();
     }
+
+  void CloseOpenFiles(int verbose=0){   
+    // this function closes all open rootfiles
+    // use it at the begin of all macros to prevent problems with saving
+    // modified quantities: none
+    // used functions: none
+    // used enumerators: none 
+
+    TSeqCollection *openfiles= gROOT->GetListOfFiles();
+    for(int i=0; i<openfiles->GetSize(); ++i){
+      if(verbose>2) std::cout << openfiles->At(i)->GetName() << std::endl;
+      ((TFile*)(openfiles->At(i)))->Close();
+    }
+  }
 
   int drawRatio(const TH1* histNumerator, TH1* histDenominator, const Double_t& ratioMin, const Double_t& ratioMax, TStyle myStyle, int verbose=0, const std::vector<double> err_=std::vector<double>(0), TString ratioLabelNominator="N_{data}", TString ratioLabelDenominator="N_{MC}", TString ratioDrawOption="p e X0", int ratioDrawColor=kBlack, bool error=true, double ratioMarkersize=1.2, int ndiv=505)
   {
@@ -5035,6 +5062,9 @@ namespace semileptonic {
     else if(kSys==sysMad                                    ) result=false;
     else if(kSys==sysGenMCatNLO||kSys==sysGenPowheg||kSys==sysGenPowhegHerwig) result=false;         
     else if(kSys>=ENDOFSYSENUM                              ) result=false;
+    //TEST FIXME CAREFUT ATTENTION - the following line is only for testing
+    //if(kSys!=sysBtagSFUp&&kSys!=sysBtagSFDown&&kSys!=sysBtagSFShapeUpPt65&&kSys!=sysBtagSFShapeDownPt65&&kSys!=sysBtagSFShapeUpEta0p7&&kSys!=sysBtagSFShapeDownEta0p7) result=false;
+
     // std::cout << sysLabel(kSys) << ": " << result << std::endl; 
     return result;
   }
@@ -5064,6 +5094,15 @@ namespace semileptonic {
     else if (closureTestSpecifier.Contains("ttbarMassDown")) out+="PseudoData19712pbReweightedttbarMassDown8TeV.root";
     else if (closureTestSpecifier.Contains("data"         )) out+="PseudoData19712pbReweighteddata8TeV.root";
     else if (closureTestSpecifier.Contains("1000"         )) out+="PseudoData19712pbandM1000W100Zprime8TeV.root";
+    else if (closureTestSpecifier.Contains("topMass161p5" )) out+="PseudoData19712pbTopMass161p58TeV.root";
+    else if (closureTestSpecifier.Contains("topMass163p5" )) out+="PseudoData19712pbTopMass163p58TeV.root";
+    else if (closureTestSpecifier.Contains("topMass166p5" )) out+="PseudoData19712pbTopMass166p58TeV.root";
+    else if (closureTestSpecifier.Contains("topMass169p5" )) out+="PseudoData19712pbTopMass169p58TeV.root";
+    else if (closureTestSpecifier.Contains("topMass175p5" )) out+="PseudoData19712pbTopMass175p58TeV.root";
+    else if (closureTestSpecifier.Contains("topMass178p5" )) out+="PseudoData19712pbTopMass178p58TeV.root";
+    else if (closureTestSpecifier.Contains("topMass181p5" )) out+="PseudoData19712pbTopMass181p58TeV.root";
+    else if (closureTestSpecifier.Contains("topMass184p5" )) out+="PseudoData19712pbTopMass184p58TeV.root";
+    
     return out;
   }
     TString pseudoDatalabel(TString closureTestSpecifier){
