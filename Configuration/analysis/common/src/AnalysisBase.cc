@@ -248,22 +248,19 @@ void AnalysisBase::SetSystematic(const TString& systematic)
 }
 
 
-
-void AnalysisBase::SetSamplename(const TString& samplename, const TString& systematic_from_file)
+void AnalysisBase::SetGeneratorBools(const TString& samplename, const TString& systematic_from_file)
 {
-    if(samplename_ == ""){
-        // Samplename was not set so far, so initialize everything based on it
-        samplename_ = samplename;
-        isTtbarSample_ = samplename.BeginsWith("ttbar") && !samplename.BeginsWith("ttbarhiggs") &&
-                         !(samplename=="ttbarw") && !(samplename=="ttbarz");
-        isTtbarPlusTauSample_ = isTtbarSample_ && !samplename.BeginsWith("ttbarbg");
-        correctMadgraphBR_ = samplename.BeginsWith("ttbar") && !systematic_from_file.Contains("SPIN") &&
-                             !systematic_from_file.Contains("POWHEG") && !systematic_from_file.Contains("MCATNLO");
-    }
-    else{
-        // Samplename was already set and everything associated was initialized, so adjust only the name
-        samplename_ = samplename;
-    }
+    isTtbarSample_ = samplename.BeginsWith("ttbar") && !samplename.BeginsWith("ttbarhiggs") &&
+                        !(samplename=="ttbarw") && !(samplename=="ttbarz");
+    isTtbarPlusTauSample_ = isTtbarSample_ && !samplename.BeginsWith("ttbarbg");
+    correctMadgraphBR_ = samplename.BeginsWith("ttbar") && !systematic_from_file.Contains("SPIN") &&
+                            !systematic_from_file.Contains("POWHEG") && !systematic_from_file.Contains("MCATNLO");
+}
+
+
+void AnalysisBase::SetSamplename(const TString& samplename)
+{
+    samplename_ = samplename;
 }
 
 
@@ -1126,7 +1123,6 @@ bool AnalysisBase::failsTopGeneratorSelection(const Long64_t& entry)const
 {
     if(!isTtbarPlusTauSample_) return false;
     GetTopDecayModeEntry(entry);
-
     //decayMode contains the decay of the top (*10) + the decay of the antitop
     //1=hadron, 2=e, 3=mu, 4=tau->hadron, 5=tau->e, 6=tau->mu
     //i.e. 23 == top decays to e, tbar decays to mu

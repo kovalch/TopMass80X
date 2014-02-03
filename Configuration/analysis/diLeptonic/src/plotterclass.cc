@@ -805,6 +805,9 @@ std::vector<TString> Plotter::InputFileList(TString mode, TString Systematic)
     FileVector.push_back(tempName + "_zztoall.root");
     FileVector.push_back(tempName + "_dytautau1050.root");
     FileVector.push_back(tempName + "_dytautau50inf.root");
+    FileVector.push_back(tempName + "_qcdbcem2030.root");
+    FileVector.push_back(tempName + "_qcdbcem3080.root");
+    FileVector.push_back(tempName + "_qcdbcem80170.root");
     FileVector.push_back(tempName + "_qcdem2030.root");
     FileVector.push_back(tempName + "_qcdem3080.root");
     FileVector.push_back(tempName + "_qcdem80170.root");
