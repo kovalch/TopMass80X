@@ -57,7 +57,10 @@ public:
     virtual void Terminate();
 
     /// Set sample name
-    void SetSamplename(const TString& samplename, const TString& systematic_from_file);
+    void SetSamplename(const TString& samplename);
+    
+    /// Set generator parameters
+    void SetGeneratorBools(const TString& samplename, const TString& systematic_from_file);
     
     /// Set Channel
     void SetChannel(const TString& channel);

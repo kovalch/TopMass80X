@@ -267,7 +267,8 @@ void load_Analysis(TString validFilenamePattern,
                 selector->SetSystematic(systematic);
             }
             selector->SetWeightedEvents(weightedEvents);
-            selector->SetSamplename(samplename->GetString(), systematics_from_file->GetString());
+            selector->SetSamplename(samplename->GetString());
+            selector->SetGeneratorBools(samplename->GetString(), systematics_from_file->GetString());
             selector->SetOutputfilename(outputfilename);
             selector->SetRunViaTau(0);
             selector->SetClosureTest(closure, slope);
