@@ -194,46 +194,111 @@ void extractTopMassFromRhoS(int verbose=0, double luminosity=19712., bool save=t
   absUncBin_[2]=sqrt(covStatTot->GetBinContent(2,2)+covSysTot->GetBinContent(2,2));
   absUncBin_[4]=sqrt(covStatTot->GetBinContent(4,4)+covSysTot->GetBinContent(4,4));
   double corr24=(covStatTot->GetBinContent(2,4)+covSysTot->GetBinContent(2,4))/(absUncBin_[2]*absUncBin_[4]);  
-  //if(verbose>1){
+  if(verbose>1){
     std::cout << std::setprecision(7) << std::fixed << " - absUncBin2:" << absUncBin_[2] << std::endl;
     std::cout << std::setprecision(7) << std::fixed << " - absUncBin4:" << absUncBin_[4] << std::endl;
     std::cout << std::setprecision(2) << std::fixed << " - corr24:"     << corr24        << std::endl;
-    //}
+  }
+  // define correlation parameters for scan
+  std::vector<double> corr_;
+  corr_.push_back(corr24);
+  corr_.push_back(-0.98  );
+  corr_.push_back(-0.95 );
+  corr_.push_back(-0.9  );
+  corr_.push_back(-0.875);
+  corr_.push_back(-0.85 );
+  corr_.push_back(-0.825);
+  corr_.push_back(-0.8  );
+  corr_.push_back(-0.775);
+  corr_.push_back(-0.75 );
+  corr_.push_back(-0.725);
+  corr_.push_back(-0.7  );
+  corr_.push_back(-0.65 );
+  corr_.push_back(-0.6  );
+  corr_.push_back(-0.4  );
+  corr_.push_back(-0.2  );
+  corr_.push_back( 0.0  );
+  corr_.push_back( 0.2  );
+  corr_.push_back( 0.4  );
+  corr_.push_back( 0.6  );
+  corr_.push_back( 0.8  );
+  corr_.push_back( 0.98 );
   // define chi2 functions for all scanned rho parameter values
   std::map<int, TH1F*> corrglobalchi2CorrTest_;
-  corrglobalchi2CorrTest_[0]=(TH1F*)globalchi2->Clone("corrGlobalChi2CottTest"+getTStringFromDouble(corr24));
-  corrglobalchi2CorrTest_[0]->Reset("ICESM");
 
-  for(int binMtop=1; binMtop<=corrglobalchi2->GetNbinsX(); ++binMtop){
-    // declare chi2
-    // = SUM_ij (xi-mui)*covij^-1*(xj-muj)
-    double chi2massBin=0; 
-    // fill from bins...
-    for(int binA=1; binA<=4; ++binA){
-      for(int binB=1; binB<=4; ++binB){
-	// ... 2 and 4
-	if(considerBin24_[binA-1]&&considerBin24_[binB-1]){	
-	  // data-prediction terms
-	  double resA=result_[binA]["measurement"]->GetBinContent(binMtop)-result_[binA]["prediction"]->GetBinContent(binMtop);
-	  double resB=result_[binB]["measurement"]->GetBinContent(binMtop)-result_[binB]["prediction"]->GetBinContent(binMtop);
-	  // get current correlation value
-	  double corr=corr24;
-	  // get entry from inverse covariance matrix
-	  double covABinv=1.0;
-	  //covinv22=1.0/(absUnc_[2]*absUnc_[2]*(1.0-corr*corr));
-	  //covinv44=1.0/(absUnc_[4]*absUnc_[4]*(1.0-corr*corr));
-	  //covinv24=1.0/(absUnc_[2]*absUnc_[4]*(corr-(1.0/corr)))=covinv42;
-	  if(binA==binB) covABinv/=(absUncBin_[binA]*absUncBin_[binA]*(1.0-corr*corr));   // diagonal terms
-	  else           covABinv/=(absUncBin_[binA]*absUncBin_[binB]*(corr-(1.0/corr))); // interference term
-	  // contribution to chi2 term
-	  chi2massBin+=(resA*covABinv*resB);
-	} // end if consider bins
-      } // end for loop binB
-    } // end for loop binA
-    // fill value
-    corrglobalchi2CorrTest_[0]->SetBinContent(binMtop, chi2massBin);
-  } // end for loop binMtop
-  
+  // scan all correlation values
+  for( int c=0; c<(int)corr_.size(); ++c){
+    corrglobalchi2CorrTest_[c]=(TH1F*)globalchi2->Clone("corrGlobalChi2CottTest"+getTStringFromDouble(corr_[c]));
+    corrglobalchi2CorrTest_[c]->Reset("ICESM");
+    // loop masspoints in chi2
+    for(int binMtop=1; binMtop<=corrglobalchi2->GetNbinsX(); ++binMtop){
+      // declare chi2
+      // = SUM_ij (xi-mui)*covij^-1*(xj-muj)
+      double chi2massBin=0; 
+      // fill from bins...
+      for(int binA=1; binA<=4; ++binA){
+	for(int binB=1; binB<=4; ++binB){
+	  // ... 2 and 4
+	  if(considerBin24_[binA-1]&&considerBin24_[binB-1]){	
+	    // data-prediction terms
+	    double resA=result_[binA]["measurement"]->GetBinContent(binMtop)-result_[binA]["prediction"]->GetBinContent(binMtop);
+	    double resB=result_[binB]["measurement"]->GetBinContent(binMtop)-result_[binB]["prediction"]->GetBinContent(binMtop);
+	    // get current correlation value
+	    double corr=corr_[c];
+	    // get entry from inverse covariance matrix
+	    double covABinv=1.0;
+	    //covinv22=1.0/(absUnc_[2]*absUnc_[2]*(1.0-corr*corr));
+	    //covinv44=1.0/(absUnc_[4]*absUnc_[4]*(1.0-corr*corr));
+	    //covinv24=1.0/(absUnc_[2]*absUnc_[4]*(corr-(1.0/corr)))=covinv42;
+	    if(binA==binB) covABinv/=(absUncBin_[binA]*absUncBin_[binA]*(1.0-corr*corr));   // diagonal terms
+	    else           covABinv/=(absUncBin_[binA]*absUncBin_[binB]*(corr-(1.0/corr))); // interference term
+	    // contribution to chi2 term
+	    chi2massBin+=(resA*covABinv*resB);
+	  } // end if consider bins
+	} // end for loop binB
+      } // end for loop binA
+      // fill value
+      corrglobalchi2CorrTest_[c]->SetBinContent(binMtop, chi2massBin);
+    } // end for loop binMtop
+  } // end for loop correlation values
+
+  // collect Results from all correlation values and save in histograms
+  TH1F* CorrScanMin  = new TH1F("CorrScanMin"  , "CorrScanMin"  , 200, -1.0, 1.0);
+  TH1F* CorrScanErrUp= new TH1F("CorrScanErrUp", "CorrScanErrUp", 200, -1.0, 1.0);
+  TH1F* CorrScanErrDn= new TH1F("CorrScanErrDn", "CorrScanErrDn", 200, -1.0, 1.0);
+
+  for( int c=0; c<(int)corr_.size(); ++c){
+    double corr=corr_[c];
+    int corrbin=CorrScanMin->FindBin(corr);
+    std::map<TString, double> chi2ResultCorr=GetChi2Info(corrglobalchi2CorrTest_[c], false, verbose, minx3, maxx3);
+    double val=chi2ResultCorr["min"];
+    double dn =chi2ResultCorr["dn" ];
+    double up =chi2ResultCorr["up" ];
+    if(verbose>1) std::cout << TString("mtop(global chi2, with corr=")+getTStringFromDouble(corr,1)+")=" << std::setprecision(2) << std::fixed << val << "+" << up<< "-" << dn << " (bin 2&4 only, by hand implementation!)"<<  std::endl;
+    CorrScanMin  ->SetBinContent(corrbin, val-172.5);
+    CorrScanErrUp->SetBinContent(corrbin, up       );
+    CorrScanErrDn->SetBinContent(corrbin, dn       );
+  }
+  // reset empty bins
+  for(int bin=0; bin<CorrScanMin->GetNbinsX()+1; ++bin){
+    if(CorrScanMin  ->GetBinContent(bin)==0.) CorrScanMin  ->SetBinContent(bin, -999.);
+    if(CorrScanErrUp->GetBinContent(bin)==0.) CorrScanErrUp->SetBinContent(bin, -999.);
+    if(CorrScanErrDn->GetBinContent(bin)==0.) CorrScanErrDn->SetBinContent(bin, -999.);
+  }
+  // define style
+  CorrScanMin  ->SetMarkerColor(kBlack);
+  CorrScanErrUp->SetMarkerColor(kRed  );
+  CorrScanErrDn->SetMarkerColor(kBlue );
+  CorrScanMin  ->SetMarkerStyle(33);
+  CorrScanErrUp->SetMarkerStyle(22);
+  CorrScanErrDn->SetMarkerStyle(23);
+  CorrScanMin  ->SetMarkerSize(0.75);
+  CorrScanErrUp->SetMarkerSize(0.75);
+  CorrScanErrDn->SetMarkerSize(0.75);
+  axesStyle(*CorrScanMin  , "assumed correlation #rho_{24}", "result from #chi^{2}_{Tot}#left(#rho_{24}#right) |_{bin2&4}", -3.0, 10.0);
+  axesStyle(*CorrScanErrUp, "assumed correlation #rho_{24}", "result from #chi^{2}_{Tot}#left(#rho_{24}#right) |_{bin2&4}");
+  axesStyle(*CorrScanErrDn, "assumed correlation #rho_{24}", "result from #chi^{2}_{Tot}#left(#rho_{24}#right) |_{bin2&4}");
+
   std::cout << "combined result:" << std::endl;
   // draw global chi2
   std::vector<TCanvas*> plotCanvas_;
@@ -298,10 +363,35 @@ void extractTopMassFromRhoS(int verbose=0, double luminosity=19712., bool save=t
   DrawLabel(label2, 0.35, 0.6, 0.85, 0.7, 12, 0.03);
   std::cout << "mtop(global chi2, with corr)= " << std::setprecision(2) << std::fixed << chi2ResultCorrAll["min"] << "+" << chi2ResultCorrAll["up"] << "-" << chi2ResultCorrAll["dn"] << " (all bins)" << std::endl;
 
-
   // get values for global chi2 with different correlation values - only significant bins
-  std::map<TString, double> chi2ResultCorrTest=GetChi2Info(corrglobalchi2CorrTest_[0], true, verbose, minx3, maxx3);
+  std::map<TString, double> chi2ResultCorrTest=GetChi2Info(corrglobalchi2CorrTest_[0], false, verbose, minx3, maxx3);
   std::cout << "mtop(global chi2, with corr)= " << std::setprecision(2) << std::fixed << chi2ResultCorrTest["min"] << "+" << chi2ResultCorrTest["up"] << "-" << chi2ResultCorrTest["dn"] << " (bin 2&4 only, by hand implementation!)"<<  std::endl;
+
+
+  // print result for different Chis values
+  TLegend *legScan = new TLegend(0.6, 0.65, 0.8, 0.85 );
+  legendStyle(*legScan,"#font[22]{extracted values [GeV]}");
+  legScan->AddEntry(CorrScanMin  , "m_{top} - 172.5 GeV", "P");
+  legScan->AddEntry(CorrScanErrUp, "unc. up", "P");
+  legScan->AddEntry(CorrScanErrDn, "unc. dn", "P");
+  TH1F* dummyLine =(TH1F*)CorrScanMin->Clone("dummyLine");
+  dummyLine->SetLineWidth(2);
+  dummyLine->SetLineStyle(2);
+  dummyLine->SetLineColor(12);
+  legScan->AddEntry(dummyLine, "nominal correlation", "L");
+
+  addCanvas(plotCanvas_);
+  plotCanvas_[plotCanvas_.size()-1]->cd(0);
+  TString titleCorrScan="scanCorrResultsSignificantBins";
+  plotCanvas_[plotCanvas_.size()-1]->SetName (titleCorrScan);
+  plotCanvas_[plotCanvas_.size()-1]->SetTitle(titleCorrScan);
+  CorrScanMin  ->Draw("p");
+  CorrScanErrUp->Draw("p same");
+  CorrScanErrDn->Draw("p same");
+  legScan      ->Draw("same");
+  DrawDecayChLabel("e/#mu + Jets Combined");
+  DrawCMSLabels(prelim, 0.5*(constLumiMuon+constLumiElec), 0.04, false, false, false);
+  drawLine(corr_[0], -3.0, corr_[0], 8.0, 12, 2, 2);
 
   // linear fit to extracted mass values
   addCanvas(plotCanvas_);
@@ -667,7 +757,7 @@ std::map <TString, TH1F*> extraction(int verbose, double luminosity, bool save, 
     MC->SetBinContent(MC->FindBin(mtop_[sample]), value);
     if(mtop_[sample]==172.5) MCnom=value;
   }
-  histogramStyle(*MC, kData, false, 1.2, kGreen-2);
+  histogramStyle(*MC, kData, false, 1.2, kBlue-2);
   
 
   // extract values for parameter dependence
@@ -756,9 +846,9 @@ std::map <TString, TH1F*> extraction(int verbose, double luminosity, bool save, 
     MCunc->SetPoint     (bin-1, binCenter, value);
     MCunc->SetPointError(bin-1, 0.5*binWidth, 0.5*binWidth, MCnomUnc, MCnomUnc);
   }
-  MCunc->SetLineColor(kGreen);
-  MCunc->SetMarkerColor(kGreen);
-  MCunc->SetFillColor(kGreen);
+  MCunc->SetLineColor(kBlue);
+  MCunc->SetMarkerColor(kBlue);
+  MCunc->SetFillColor(kBlue);
   MCunc->SetFillStyle(3344);
   MCunc->SetLineWidth(1);
   MCunc->SetLineStyle(1);
@@ -819,10 +909,10 @@ std::map <TString, TH1F*> extraction(int verbose, double luminosity, bool save, 
   legMC->SetFillStyle(MCunc->GetFillStyle());
   leg->AddEntry(legmeasurement, "Data"+ext             , "P" );
   leg->AddEntry(legmeasurement, "Fit to Data"+ext      , "L" );
-  leg->AddEntry(legmeasurement, "Data Unc. (m_{#lower[-0.1]{top}}=172.5GeV)"+ext, "F" );
+  leg->AddEntry(legmeasurement, "Data Unc.|_{m_{#lower[-0.1]{top}}=172.5 GeV}"+ext, "F" );
   leg->AddEntry(legMC         , "Simulation"+ext, "P");
   leg->AddEntry(legMC         , "Fit to Simulation"+ext, "L");
-  leg->AddEntry(legMC         , "t#bar{t} Model Unc. (m_{#lower[-0.1]{top}}=172.5GeV)"+ext, "F");
+  leg->AddEntry(legMC         , "t#bar{t} Model Unc.|_{m_{#lower[-0.1]{top}}=172.5 GeV}"+ext, "F");
   //leg->AddEntry(lin           , "linear fit"    , "L" );
   
   // D) create final plots
@@ -903,8 +993,8 @@ std::map <TString, TH1F*> extraction(int verbose, double luminosity, bool save, 
     std::vector <int > colorMC_;
     colorMC_.push_back(6         );
     colorMC_.push_back(kBlue     );
-    colorMC_.push_back(kGreen+1  );
-    colorMC_.push_back(kGreen+3  );
+    colorMC_.push_back(kBlue+1  );
+    colorMC_.push_back(kBlue+3  );
     colorMC_.push_back(kRed      );
     colorMC_.push_back(kAzure+8  );
     colorMC_.push_back(kOrange+3 ); 
@@ -1196,7 +1286,7 @@ std::map<TString, double> GetChi2Info(TH1F* chi2, bool draw, int verbose, double
 TH2F* InvertMatrix(TH2& hist, int verbose, std::vector<bool> *considerBin_){
   // this function converts TH2 into a matrix, inverts the matrix, 
   // converts the incerted matrix into a TH2F* and returns it
-  verbose=2;
+  //verbose=2;
 
   if(verbose>0){
     std::cout << "Inverting " << hist.GetName() << std::endl;
