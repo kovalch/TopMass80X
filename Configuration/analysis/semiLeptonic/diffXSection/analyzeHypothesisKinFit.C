@@ -8,7 +8,7 @@ void analyzeHypothesisKinFit(double luminosity = 19712.,
 			     //TString dataFile= "/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/muonDiffXSecData2012ABCDAll.root",
 			     //TString dataFile= "/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/elecDiffXSecData2012ABCDAll.root",
 			     TString dataFile= "/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/elecDiffXSecData2012ABCDAll.root:/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/muonDiffXSecData2012ABCDAll.root",
-			     std::string decayChannel = "combined", bool SVDunfold=true, bool extrapolate=true, bool hadron=false,
+			     std::string decayChannel = "combined", bool SVDunfold=true, bool extrapolate=false, bool hadron=true,
 			     bool addCrossCheckVariables=false, bool redetermineopttau =false, TString closureTestSpecifier="", TString addSel="ProbSel")
 {
   // ============================
@@ -3334,4 +3334,6 @@ void analyzeHypothesisKinFit(double luminosity = 19712.,
   // delete pointer
   delete leg0;
   closeStdTopAnalysisFiles(files_);
+  // close all open files
+  CloseOpenFiles();
 }
