@@ -4,6 +4,9 @@ TString unfShortLabel(TString variable="");
 TString space(int val, int ref);
 
 void covarianceOfSystematicUnc(bool save=true, unsigned int verbose=0, TString decayChannel="combined", bool extrapolate=false, bool hadron=true, TString closureTestSpecifier=""){
+
+  // close all open files
+  CloseOpenFiles();
   // take sign of the down instead of the up variation
   bool signdn=false;
   // print important info, neglecting verbose
@@ -600,6 +603,7 @@ void covarianceOfSystematicUnc(bool save=true, unsigned int verbose=0, TString d
     TString tempPlotName=TString("SVD_combined_")+unfShortLabel(name)+"_sysNo_STATCOVNORM";
     if(verbose>1) std::cout << "trying to open " << tempPlotName << std::endl;
     // STATERR STATCORRORM bin xSecValue
+    gROOT->cd();
     if(filetemp) temp=(TH2F*)(filetemp->Get(tempPlotName)->Clone());
     if(temp){
       if(verbose>1) std::cout << "found plot " << tempPlotName << std::endl;
@@ -648,6 +652,7 @@ void covarianceOfSystematicUnc(bool save=true, unsigned int verbose=0, TString d
       statCov_[xSecVariables_[i]]->Draw("text");
       DrawLabel(lab, gStyle->GetPadLeftMargin(), 1.0-gStyle->GetPadTopMargin(), 1.0-gStyle->GetPadRightMargin(), 1.0);
     }
+    filetemp->Close();
   } // end for loop variables
   
   // =================
