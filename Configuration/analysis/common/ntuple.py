@@ -553,6 +553,8 @@ process.writeNTuple = writeNTuple.clone(
     genBHadIndex = cms.InputTag(genHFHadronMatcherInput,"genBHadIndex"),
     genBHadFlavour = cms.InputTag(genHFHadronMatcherInput,"genBHadFlavour"),
     genBHadJetIndex = cms.InputTag(genHFHadronMatcherInput,"genBHadJetIndex"),
+    genBHadLeptons = cms.InputTag(genHFHadronMatcherInput,"genBHadLeptons"),
+    genBHadLeptonHadIndex = cms.InputTag(genHFHadronMatcherInput,"genBHadLeptonHadIndex"),
 )
 process.writeNTuple.jetsForMET    = cms.InputTag("scaledJetEnergy:selectedPatJets")
 process.writeNTuple.jetsForMETuncorr    = cms.InputTag("selectedPatJets")
@@ -676,6 +678,7 @@ if topfilter:
     process.load("TopAnalysis.TopUtils.GenHFHadronMatcher_cff")
     process.matchGenHFHadronJets.flavour = 5
     process.matchGenHFHadronJets.noBBbarResonances = True
+    process.matchGenHFHadronJets.onlyJetClusteredHadrons = False # should be True to store leptons from b-jets (will run slower)
 
     process.load("TopAnalysis.TopUtils.sequences.improvedJetHadronQuarkMatching_cff")
 
