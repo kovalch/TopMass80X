@@ -361,10 +361,11 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
             }
             selector->SetWeightedEvents(weightedEvents);
             // FIXME: correction for MadGraph W decay branching fractions are not correctly applied
-            // Recently it is done for W from ttbar decays, set via SetSamplename
+            // Recently it is done for W from ttbar decays, set via SetGeneratorBools
             // Needs to be changed: for ttbarW, also correction for 3rd W needs to be applied, for ttbarhiggs corrections for 2 or 4 Ws needed, depending on Higgs decay (H->WW?)
             // and what about Wlnu sample, or possible others ?
             selector->SetSamplename(samplename->GetString());
+            selector->SetGeneratorBools(samplename->GetString(), systematics_from_file->GetString());
             selector->SetOutputfilename(outputfilename);
             selector->SetRunViaTau(0);
             selector->SetRunWithTtbb(0);
