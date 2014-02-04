@@ -169,7 +169,7 @@ void common::drawRatioXSEC(const TH1* histNumerator, const TH1* histDenominator1
     gPad->RedrawAxis();
     
     /// draw grid
-    //rPad->SetGrid(1,1);
+    rPad->SetGrid(0,1);
 
     // draw a horizontal lines on a given histogram
     // a) at 1
@@ -318,7 +318,7 @@ void common::drawRatio(const TH1* histNumerator, const TH1* histDenominator,
     gPad->SetLeftMargin(left);
     gPad->RedrawAxis();
     // draw grid
-    //rPad->SetGrid(1,1);
+    rPad->SetGrid(0,1);
 
     /// make linear fit of the ratio plot
     TF1 *fit = 0;
