@@ -1105,7 +1105,7 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
 
     drawhists[0]->GetXaxis()->SetNoExponent(kTRUE);
 
-    TGaxis::SetMaxDigits(2);
+    TGaxis::SetMaxDigits(3);
 
     //Removal of extra ticks in JetMult plots
 
