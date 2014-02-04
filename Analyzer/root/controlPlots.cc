@@ -312,7 +312,7 @@ void TopMassControlPlots::doPlots()
   if (channelID_ == Helper::kAllJets) {
     if(plotSelectedForPlotting.find("StandardPlots")!=plotSelectedForPlotting.end()){
       samples.push_back(MySample("Data", "MJP12*v1_data", kData, kBlack));
-      samples.push_back(MySample("t#bar{t}", "Z2_S12_ABS_JES_100_172_5_sig", kSig, kRed+1));
+      samples.push_back(MySample("t#bar{t}", "Z2_S12_ABS_JES_100_172_5_MadSpin_sig*", kSig, kRed+1));
       samples.push_back(MySample("QCD", "QCDMixing_MJPS12*v1_data", kBkg, kYellow, 1));
     }
 
@@ -600,7 +600,19 @@ void TopMassControlPlots::doPlots()
       // Initialize weight and selection formulas
 //      TTreeFormula weight("weight",  po::GetOption<std::string>("weight").c_str(), chain);
       TTreeFormula weight("weight",  po::GetOptionReplaced("weight",sample.replaceVar).c_str(), chain);
-      TTreeFormula sel   ("sel"   ,  po::GetOptionReplaced("analysisConfig.selection",sample.replaceVar).c_str(), chain);
+      std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
+      std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
+      std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
+      std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
+      std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
+      std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
+      std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
+      std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
+      std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
+      std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
+      std::string tempSel(po::GetOptionReplaced("analysisConfig.selection",sample.replaceVar));
+      if(sample.type == kBkg)  boost::replace_all(tempSel, "&& jet.alternativeJet[3].Pt() > 60", "");
+      TTreeFormula sel   ("sel"   ,  tempSel.c_str(), chain);
       TTreeFormula selCP ("selCP" , (po::GetOptionReplaced("analysisConfig.selection",sample.replaceVar)
 				 +std::string(" & ")+po::GetOptionReplaced("analysisConfig.selectionCP",sample.replaceVar)).c_str(), chain);
       TTreeFormula selWP ("selWP" , (po::GetOptionReplaced("analysisConfig.selection",sample.replaceVar)
