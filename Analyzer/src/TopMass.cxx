@@ -55,10 +55,13 @@ TopMass::TopMass() :
     vBinning = {100, 550};
   }
   else if (!strcmp(fBinning_.c_str(),"top.fitTop1[0].M()")) {
-    vBinning = {100, 550};
+    vBinning = {0, 2000};
   }
   else if (!strcmp(fBinning_.c_str(),"bRegTop.fitTop1[0].M()")) {
     vBinning = {100, 550};
+  }
+  else if (!strcmp(fBinning_.c_str(),"nVertex")) {
+    vBinning = {0, 10, 20, 40};
   }
   else{
     std::cerr << "Stopping analysis! Binning " << fBinning_.c_str() << " not defined" <<std::endl;

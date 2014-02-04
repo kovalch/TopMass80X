@@ -12,14 +12,14 @@ class IdeogramAnalyzerNewInterface : public MassAnalyzer {
  public:
   IdeogramAnalyzerNewInterface(const std::string& identifier, TTree* tree);
   ~IdeogramAnalyzerNewInterface();
-  void Analyze(const std::string& cuts, int i, int j);
+  void Analyze(const std::string& cuts, int iBin, int jBin);
   void SetDataSample(const DataSample& sample) {sample_ = sample;}
     
  private:
   double QBTagProbability(double bDiscriminator);
   double mWnVertex();
   double mTnVertex();
-  void Scan(const std::string& cuts, int i, int j, double firstBinMass, double lastBinMass,
+  void Scan(const std::string& cuts, int iBin, int jBin, double firstBinMass, double lastBinMass,
 	        double resolMass, double firstBinJes, double lastBinJes, double resolJes, bool fit2D = true);
   
   DataSample& sample_;

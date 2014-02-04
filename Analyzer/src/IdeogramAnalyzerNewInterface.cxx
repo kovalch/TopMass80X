@@ -34,29 +34,29 @@ IdeogramAnalyzerNewInterface::IdeogramAnalyzerNewInterface(const std::string& id
 {
 }
 
-void IdeogramAnalyzerNewInterface::Analyze(const std::string& cuts, int i, int j) {
+void IdeogramAnalyzerNewInterface::Analyze(const std::string& cuts, int iBin, int jBin) {
   std::cout << "Starting IdeogramAnalyzer ..." << std::endl;
   time_t start, end;
   time(&start);
   time(&end);
 
-  Scan(cuts, i, j, 154, 190, 2, 0.9, 1.1, 0.02);
-
+  Scan(cuts, iBin, jBin, 154, 190, 2, 0.9, 1.1, 0.02);
+  
   double mass = GetValue("mass_mTop_JES").first;
   double JES  = GetValue("JES_mTop_JES" ).first;
-  Scan(cuts, i, j, mass-2 , mass+2 , 0.1, JES-0.015, JES+0.015, 0.00075);
+  Scan(cuts, iBin, jBin, mass-2 , mass+2 , 0.1, JES-0.015, JES+0.015, 0.00075);
 
   double epsilon = 1e-6;
   mass = GetValue("mass_mTop_JES").first;
   //JES  = GetValue("JES_mTop_JES" ).first;
-  Scan(cuts, i, j, mass-10, mass+10, 0.1 , 1.-(0.5*epsilon), 1.+(0.5*epsilon), epsilon, false);
+  Scan(cuts, iBin, jBin, mass-10, mass+10, 0.1 , 1.-(0.5*epsilon), 1.+(0.5*epsilon), epsilon, false);
 
   time(&end);
   std::cout << "Finished IdeogramAnalyzer in " << difftime(end, start) << " seconds." << std::endl;
 }
 
 
-void IdeogramAnalyzerNewInterface::Scan(const std::string& cuts, int i, int j, double firstBinMass, double lastBinMass,
+void IdeogramAnalyzerNewInterface::Scan(const std::string& cuts, int iBin, int jBin, double firstBinMass, double lastBinMass,
     double resolMass, double firstBinJes, double lastBinJes, double resolJes, bool fit2D)
 {
   //*
@@ -165,6 +165,7 @@ void IdeogramAnalyzerNewInterface::Scan(const std::string& cuts, int i, int j, d
         << std::setw(12) << "lepton"
         << std::setw(12) << "weight"
         << std::setw(12) << "pos/neg"
+        << std::setw(12) << "bin"
         << std::endl;
       }
 
@@ -173,9 +174,8 @@ void IdeogramAnalyzerNewInterface::Scan(const std::string& cuts, int i, int j, d
         double wMass   = event.permutations.at(iComb).wMass;
         double prob    = event.permutations.at(iComb).prob;
         int leptonFlavour = event.leptonFlavour;
-
-        fitWeight += prob; //*CombinedWeight;
-
+        int bin        = event.permutations.at(iComb).bin;
+        
         if (debug && iEntry%nDebug == 0 && iEntry > minDebug && iEntry < maxDebug) {
           std::cout << std::setw(04) << iComb
               << std::setw(10) << topMass
@@ -184,8 +184,20 @@ void IdeogramAnalyzerNewInterface::Scan(const std::string& cuts, int i, int j, d
               << std::setw(12) << leptonFlavour
               << std::setw(12) << event.weight
               << std::setw(12) << posNegWeight
+              << std::setw(12) << bin
               << std::endl;
         }
+        
+        /*
+        std::cout << "bin: " << bin << std::endl;
+        std::cout << "iBin: " << iBin << std::endl;
+        
+        if (bin == iBin) std::cout << "true" << std::endl;
+        */
+
+        if (bin != iBin) continue;
+        
+        fitWeight += prob; //*CombinedWeight;
 
         if (prob != 0) {
           // Set Likelihood parameters
@@ -195,15 +207,17 @@ void IdeogramAnalyzerNewInterface::Scan(const std::string& cuts, int i, int j, d
         }
       }
 
+      if (fitWeight == 0) continue; // no permutation in bin
+      
       eventLikelihood->Scale(1./fitWeight);
       sumWeights += fitWeight;
       //if (weight == 0) continue;
 
       logEventLikelihood->Eval(null);
 
-      for (int i = 0; i<=binsMass; i++) {
-        for (int j = 0; j<=binsJes; j++) {
-          logEventLikelihood->SetBinContent(i, j, -2*log(eventLikelihood->GetBinContent(i, j)));
+      for (int iLL = 0; iLL<=binsMass; iLL++) {
+        for (int jLL = 0; jLL<=binsJes; jLL++) {
+          logEventLikelihood->SetBinContent(iLL, jLL, -2*log(eventLikelihood->GetBinContent(iLL, jLL)));
         }
       }
 
@@ -423,7 +437,7 @@ void IdeogramAnalyzerNewInterface::Scan(const std::string& cuts, int i, int j, d
 
     helper->DrawCMS();
 
-    std::string path(plotPath); path+= HelperFunctions::cleanedName(fIdentifier_); path += "_"; path += boost::lexical_cast<std::string>(i); path += std::string("_"); path += boost::lexical_cast<std::string>(j); path +=  std::string("_"); path += HelperFunctions::cleanedName(topBranchName_); path += std::string(".eps");
+    std::string path(plotPath); path+= HelperFunctions::cleanedName(fIdentifier_); path += "_"; path += boost::lexical_cast<std::string>(iBin); path += std::string("_"); path += boost::lexical_cast<std::string>(jBin); path +=  std::string("_"); path += HelperFunctions::cleanedName(topBranchName_); path += std::string(".eps");
     ctemp->Print(path.c_str());
     delete leg0;
     delete fitParaboloid;
@@ -482,7 +496,7 @@ void IdeogramAnalyzerNewInterface::Scan(const std::string& cuts, int i, int j, d
 
     helper->DrawCMS();
 
-    std::string path1D(plotPath); path1D+= HelperFunctions::cleanedName(fIdentifier_); path1D += std::string("_"); path1D += boost::lexical_cast<std::string>(i); path1D += std::string("_"); path1D += boost::lexical_cast<std::string>(j); path1D += std::string("_"); path1D += HelperFunctions::cleanedName(topBranchName_); path1D += std::string("_1D.eps");
+    std::string path1D(plotPath); path1D+= HelperFunctions::cleanedName(fIdentifier_); path1D += std::string("_"); path1D += boost::lexical_cast<std::string>(iBin); path1D += std::string("_"); path1D += boost::lexical_cast<std::string>(jBin); path1D += std::string("_"); path1D += HelperFunctions::cleanedName(topBranchName_); path1D += std::string("_1D.eps");
     ctemp->Print(path1D.c_str());
 
     ctemp->SetLeftMargin(leftMargin);
