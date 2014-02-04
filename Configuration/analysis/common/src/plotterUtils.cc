@@ -145,7 +145,7 @@ void common::drawRatioXSEC(const TH1* histNumerator, const TH1* histDenominator1
 
 
     ratio1->GetYaxis()->CenterTitle();
-    ratio1->GetYaxis()->SetTitle("Data/Th.");
+    ratio1->GetYaxis()->SetTitle("#frac{Data}{Theory}");
     ratio1->GetYaxis()->SetTitleSize(histNumerator->GetYaxis()->GetTitleSize()*scaleFactor);
     ratio1->GetYaxis()->SetTitleOffset(histNumerator->GetYaxis()->GetTitleOffset()/scaleFactor);
     ratio1->GetYaxis()->SetLabelSize(histNumerator->GetYaxis()->GetLabelSize()*scaleFactor);
