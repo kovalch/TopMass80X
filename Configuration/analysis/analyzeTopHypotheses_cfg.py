@@ -125,7 +125,7 @@ if os.getenv('CMSSW_VERSION').startswith('CMSSW_4_1_'):
 elif os.getenv('CMSSW_VERSION').startswith('CMSSW_4_1_'):
   process.GlobalTag.globaltag = cms.string('START42_V17::All')
 elif os.getenv('CMSSW_VERSION').startswith('CMSSW_5_3_'):
-  process.GlobalTag.globaltag = cms.string('START53_V23::All')
+  process.GlobalTag.globaltag = cms.string('START53_V27::All')
 if data:
   process.GlobalTag.globaltag = cms.string('FT_53_V21_AN5::All')
 
@@ -259,7 +259,7 @@ if data: removeTtSemiLepHypGenMatch(process)
 from TopMass.TopEventTree.EventHypothesisAnalyzer_cfi import analyzeHypothesis
 process.analyzeHitFit = analyzeHypothesis.clone(hypoClassKey = "ttSemiLepHypHitFit:Key")
 from TopMass.TopEventTree.JetEventAnalyzer_cfi import analyzeJets
-process.analyzeJets = analyzeJets.clone()
+process.analyzeJets = analyzeJets.clone(jets = "goodJetsPF20")
 from TopMass.TopEventTree.WeightEventAnalyzer_cfi import analyzeWeights
 process.analyzeWeights = analyzeWeights.clone(
                                               mcWeight        = options.mcWeight,
