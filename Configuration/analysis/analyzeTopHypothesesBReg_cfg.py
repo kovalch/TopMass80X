@@ -11,6 +11,7 @@ options.register('metcl', 1, VarParsing.VarParsing.multiplicity.singleton,VarPar
 
 options.register('scaleType', 'abs', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "JES scale type")
 options.register('jessource', '', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "Uncertainty source for JES variation for source:up/down")
+options.register('flavor', 'bottom', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "Jet flavor for flavor:up/down")
 options.register('lJesFactor', 1.0, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "JES")
 options.register('bJesFactor', 1.0, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "bJES")
 options.register('resolution', 'nominal', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "JER")
@@ -137,6 +138,7 @@ if not data:
     scaledJetEnergy.scaleType    = options.scaleType
     scaledJetEnergy.JECUncSrcFile= cms.FileInPath(JECUncSrcFileAll)
     scaledJetEnergy.sourceName   = options.jessource
+    scaledJetEnergy.flavor       = options.flavor
     scaledJetEnergy.scaleFactor  = options.lJesFactor
     scaledJetEnergy.scaleFactorB = options.bJesFactor
     if (options.resolution=='down'):
@@ -389,10 +391,10 @@ if not data:
     process.load("TopAnalysis.TopUtils.EventWeightBJES_cfi")
 
     process.bJESEventWeightFNuUp    = process.EventWeightBJES.clone(
-        nuDecayFractionTarget = 0.262
+        nuDecayFractionTarget = 0.268
     )
     process.bJESEventWeightFNuDown  = process.EventWeightBJES.clone(
-        nuDecayFractionTarget = 0.238
+        nuDecayFractionTarget = 0.239
     )
     process.bJESEventWeightFrag     = process.EventWeightBJES.clone(
         fragTargetFile = "TopAnalysis/TopUtils/data/MC_BJES_TuneZ2star_rbLEP.root"
