@@ -634,31 +634,31 @@ void TopMassControlPlots::doPlots()
 
     //Before/after b regression comparison
     if(plotSelectedForPlotting.find("BeforeAfter")!=plotSelectedForPlotting.end()){
-		  samples.push_back(MySample("t#bar{t}, Z2*", "Summer12_TTJets1725_1.00", kSigVar, kRed+1, 1, lumi_/1000.));
-		  samples.push_back(MySample("t#bar{t}, Z2*, noBReg", "Summer12_TTJets1725_1.00", kSigVar, kCyan+1, 1, lumi_/1000.,"bRegTop.|top."));
-		  samples.push_back(MySample("Data, noBReg", "Run2012", kSigVar, kGreen-5, 9, lumi_/1000.*9./4.,"bRegTop.|top."));
+      samples.push_back(MySample("t#bar{t}, Z2*", "Summer12_TTJets1725_1.00", kSigVar, kRed+1, 1, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t}, Z2*, noBReg", "Summer12_TTJets1725_1.00", kSigVar, kCyan+1, 1, lumi_/1000.,"bRegTop.|top."));
+      samples.push_back(MySample("Data, noBReg", "Run2012", kSigVar, kGreen-5, 9, lumi_/1000.*9./4.,"bRegTop.|top."));
 	}
 
     
     //Scale before/after b-regression
     if(plotSelectedForPlotting.find("ScaleTests")!=plotSelectedForPlotting.end()){
-    		  samples.push_back(MySample("t#bar{t}, Z2*", "Summer12_TTJets1725_1.00", kSigVar, kRed+1, 1, lumi_/1000.));
-		  samples.push_back(MySample("t#bar{t}, Z2*, noBReg", "Summer12_TTJets1725_1.00", kSigVar, kCyan+1, 1, lumi_/1000.,"bRegTop.|top."));
-		  samples.push_back(MySample("t#bar{t}, Sc-Up", "Summer12_TTJets1725_scaleup", kSigVar, kMagenta+1, 9, lumi_/1000.*9./4.));
-		  samples.push_back(MySample("t#bar{t}, Sc-Up, noBReg", "Summer12_TTJets1725_scaleup", kSigVar, kBlue+1, 9, lumi_/1000.*9./4.,"bRegTop.|top."));
-		  samples.push_back(MySample("t#bar{t}, Sc-Dn", "Summer12_TTJets1725_scaledown", kSigVar, kGreen+1, 8, lumi_/1000.*9./4.));
-		  samples.push_back(MySample("t#bar{t}, Sc-Dn, noBReg", "Summer12_TTJets1725_scaledown", kSigVar, kAzure-2, 8, lumi_/1000.*9./4.,"bRegTop.|top."));
-	  }
+      samples.push_back(MySample("t#bar{t}, Z2*", "Summer12_TTJets1725_1.00", kSigVar, kRed+1, 1, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t}, Z2*, noBReg", "Summer12_TTJets1725_1.00", kSigVar, kCyan+1, 1, lumi_/1000.,"bRegTop.|top."));
+      samples.push_back(MySample("t#bar{t}, Sc-Up", "Summer12_TTJets1725_scaleup", kSigVar, kMagenta+1, 9, lumi_/1000.*9./4.));
+      samples.push_back(MySample("t#bar{t}, Sc-Up, noBReg", "Summer12_TTJets1725_scaleup", kSigVar, kBlue+1, 9, lumi_/1000.*9./4.,"bRegTop.|top."));
+      samples.push_back(MySample("t#bar{t}, Sc-Dn", "Summer12_TTJets1725_scaledown", kSigVar, kGreen+1, 8, lumi_/1000.*9./4.));
+      samples.push_back(MySample("t#bar{t}, Sc-Dn, noBReg", "Summer12_TTJets1725_scaledown", kSigVar, kAzure-2, 8, lumi_/1000.*9./4.,"bRegTop.|top."));
+	}
 	  
-   //Matching before/after b-regression
+    //Matching before/after b-regression
 	if(plotSelectedForPlotting.find("MatchingTests")!=plotSelectedForPlotting.end()){
-    	  samples.push_back(MySample("t#bar{t}, Z2*", "Summer12_TTJets1725_1.00", kSigVar, kRed+1, 1, lumi_/1000.));
-		  samples.push_back(MySample("t#bar{t}, Z2*, noBReg", "Summer12_TTJets1725_1.00", kSigVar, kCyan+1, 1, lumi_/1000.,"bRegTop.|top."));
-		  samples.push_back(MySample("t#bar{t}, M-Up", "Summer12_TTJets1725_matchingup", kSigVar, kMagenta+1, 9, lumi_/1000.*9./4.));
-		  samples.push_back(MySample("t#bar{t}, M-Up, noBReg", "Summer12_TTJets1725_matchingup", kSigVar, kBlue+1, 9, lumi_/1000.*9./4.,"bRegTop.|top."));
-		  samples.push_back(MySample("t#bar{t}, M-Dn", "Summer12_TTJets1725_matchingdown", kSigVar, kGreen+1, 8, lumi_/1000.*9./4.));
-		  samples.push_back(MySample("t#bar{t}, M-Dn, noBReg", "Summer12_TTJets1725_matchingdown", kSigVar, kAzure-2, 8, lumi_/1000.*9./4.,"bRegTop.|top."));
-	  }
+	  samples.push_back(MySample("t#bar{t}, Z2*", "Summer12_TTJets1725_1.00", kSigVar, kRed+1, 1, lumi_/1000.));
+	  samples.push_back(MySample("t#bar{t}, Z2*, noBReg", "Summer12_TTJets1725_1.00", kSigVar, kCyan+1, 1, lumi_/1000.,"bRegTop.|top."));
+	  samples.push_back(MySample("t#bar{t}, M-Up", "Summer12_TTJets1725_matchingup", kSigVar, kMagenta+1, 9, lumi_/1000.*9./4.));
+	  samples.push_back(MySample("t#bar{t}, M-Up, noBReg", "Summer12_TTJets1725_matchingup", kSigVar, kBlue+1, 9, lumi_/1000.*9./4.,"bRegTop.|top."));
+	  samples.push_back(MySample("t#bar{t}, M-Dn", "Summer12_TTJets1725_matchingdown", kSigVar, kGreen+1, 8, lumi_/1000.*9./4.));
+	  samples.push_back(MySample("t#bar{t}, M-Dn, noBReg", "Summer12_TTJets1725_matchingdown", kSigVar, kAzure-2, 8, lumi_/1000.*9./4.,"bRegTop.|top."));
+	}
 
 //    /* Signal variations (plaintests)*/
 //    samples.push_back(MySample("t#bar{t}, Z2*", "Summer12_TTJets1725_1.00", kSigVar, kRed+1, 1, lumi_/1000.));
@@ -712,20 +712,22 @@ void TopMassControlPlots::doPlots()
       //replaceVar used for replacements in selection
 
       // Initialize weight and selection formulas
-//      TTreeFormula weight("weight",  po::GetOption<std::string>("weight").c_str(), chain);
+      //TTreeFormula weight("weight",  po::GetOption<std::string>("weight").c_str(), chain);
       TTreeFormula weight("weight",  po::GetOptionReplaced("weight",sample.replaceVar).c_str(), chain);
-      std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
-      std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
-      std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
-      std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
-      std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
-      std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
-      std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
-      std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
-      std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
-      std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
       std::string tempSel(po::GetOptionReplaced("analysisConfig.selection",sample.replaceVar));
-      if(sample.type == kBkg)  boost::replace_all(tempSel, "&& jet.alternativeJet[3].Pt() > 60", "");
+      if(channelID_ == Helper::kAllJets && sample.type == kBkg) {
+        std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
+        std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
+        std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
+        std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
+        std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
+        std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
+        std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
+        std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
+        std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
+        std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
+        boost::replace_all(tempSel, "&& jet.alternativeJet[3].Pt() > 60", "");
+      }
       TTreeFormula sel   ("sel"   ,  tempSel.c_str(), chain);
       TTreeFormula selCP ("selCP" , (po::GetOptionReplaced("analysisConfig.selection",sample.replaceVar)
 				 +std::string(" & ")+po::GetOptionReplaced("analysisConfig.selectionCP",sample.replaceVar)).c_str(), chain);
