@@ -110,9 +110,9 @@ h_mbl_w_(0),
 h_costheta_w_(0),
 h_neuEta_w_(0)
 {
-    //std::cout<<"--- Beginning preparation of kinematic reconstruction\n";
+    std::cout<<"--- Beginning preparation of kinematic reconstruction\n";
     this->loadData();
-    //std::cout<<"=== Finishing preparation of kinematic reconstruction\n\n";
+    std::cout<<"=== Finishing preparation of kinematic reconstruction\n\n";
 }
 
 void KinematicReconstruction::doJetsMerging(const VLV* jets,const std::vector<double> *btags)

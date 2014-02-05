@@ -387,8 +387,9 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
 
     const bool isZregion = dilepton.M() > 76 && dilepton.M() < 106;
     //const KinRecoObjects& kinRecoObjects = this->getKinRecoObjects(entry);
-    const KinRecoObjects& kinRecoObjects = this->getKinRecoObjectsOnTheFly(leptonIndex, antiLeptonIndex, jetIndices,
-                                                                           allLeptons, jets, jetBTagCSV, met);
+    //const KinRecoObjects& kinRecoObjects = this->getKinRecoObjectsOnTheFly(leptonIndex, antiLeptonIndex, jetIndices,
+    //                                                                       allLeptons, jets, jetBTagCSV, met);
+    const KinRecoObjects& kinRecoObjects = kinRecoObjectsDummy;
     //const bool hasSolution = kinRecoObjects.valuesSet_;
 
 

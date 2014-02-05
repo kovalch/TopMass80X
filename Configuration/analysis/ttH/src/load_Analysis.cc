@@ -119,7 +119,7 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
 
     // Set up kinematic reconstruction
     KinematicReconstruction* kinematicReconstruction(0);
-    kinematicReconstruction = new KinematicReconstruction();
+    //kinematicReconstruction = new KinematicReconstruction();
 
     // Set up pileup reweighter
     std::cout<<"--- Beginning preparation of pileup reweighter\n";
