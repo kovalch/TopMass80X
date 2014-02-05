@@ -193,9 +193,10 @@ private:
     	return dataContainsMC;
     }
 
-    void ConfigureExtraOptions(bool SetFitGaussToCore, std::string SetCustomHistoweight="1."){
+    void ConfigureExtraOptions(bool SetFitGaussToCore, std::string SetCustomHistoweight="1.", bool ExportSigVarToRoot = false){
     	fitGaussToCore = SetFitGaussToCore;
     	CustomHistoWeight = SetCustomHistoweight;
+	exportSigVarToRoot = ExportSigVarToRoot;
     }
     void SetFitGaussToCore(){
     	fitGaussToCore = true;
@@ -203,6 +204,10 @@ private:
 
     bool FitGaussToCore(){
     	return fitGaussToCore;
+    }
+
+    bool ExportSigVarToRoot(){
+      return exportSigVarToRoot;
     }
 
 
@@ -217,6 +222,7 @@ private:
     short histogramDimension;
     bool dataContainsMC;
     bool fitGaussToCore;
+    bool exportSigVarToRoot;
   };
 
   class MyBRegVarInfo{
@@ -353,78 +359,80 @@ private:
     	char buffer [200];
     	char buffer2 [200];
 
-        for(unsigned int j = 0; j < tempVarForms.size(); ++j){
-   	    	sprintf(buffer,"%02d_%s",j,tempVarForms.at(j).c_str());
-        	addVariable(buffer,("GBRResult"+tempVarForms.at(j)).c_str()      ,0.5,1.5);
-   	    	sprintf(buffer,"%02d_WPtEta_%s",j,tempVarForms.at(j).c_str());
-        	addVariable(buffer,("GBRResultWPtEta"+tempVarForms.at(j)).c_str()      ,0.5,1.5);
-//   	    	"%s, #sigma/#mu=%5.3f,#mu=%5.3f,m=%5.3f",sigvar->GetTitle(),width/gauss->GetParameter(1),gauss->GetParameter(1),sigvar->GetMean());
-//   	     TrInfoHelpVec.back().name=  TString::Format("GBRResultCumm%02d_%s",selectInVarIdx,TrInfoHelpVec.back().trainedVarlist->at(selectInVarIdx).c_str());//"GBRResultCumm" + (Long_t) selectI
-//        	addVariable(((Long_t)j + ("_"+ tempVarForms.at(j))).c_str(),("GBRResult"+tempVarForms.at(j)).c_str()      ,0.5,1.5);
-//        	addVariable(((Long_t)j + ("_WPtEta_"+ tempVarForms.at(j))).c_str(),("GBRResultWPtEta"+tempVarForms.at(j)).c_str()      ,0.5,1.5);
-        }
-
-
-        for(unsigned int j = 0; j < CummulativeVars.size(); ++j){
-   	    	sprintf(buffer,"Cumm_%02d_%s",j,CummulativeVars.at(j).c_str());
-   	    	sprintf(buffer2,"GBRResultCumm%02d_%s",j,CummulativeVars.at(j).c_str());
-        	addVariable(buffer,buffer2      ,0.5,1.5);
-        }
-
-        addVariable("26","26TrainingUsedForNTupels"                      ,0.5,1.5);
-        addVariable("26SemiLept","26SemiLeptTrainingUsedForNTupels"              ,0.5,1.5);
-        addVariable("24CleanedVar","26CleanedVarTraining"                          ,0.5,1.5);
-        addVariable("40_100Trees","40Cleaned100TreesVarTraining"                  ,0.5,1.5);
-        addVariable("40_500Trees","40Cleaned500TreesVarTraining"                  ,0.5,1.5);
-        addVariable("40_100Trees_Flat","40Cleaned100TreesVarTrainingWithFlatPtTraining",0.5,1.5);
-        addVariable("24_100Trees_Flat","24Cleaned100TreesVarTrainingWithFlatPtTraining",0.5,1.5);
-        addVariable("42_200Trees_Flat","42Cleaned200TreesVarTrainingWithFlatPtTraining",0.5,1.5);
-        addVariable("17_200Trees_Flat","17Cleaned200TreesVarTrainingWithFlatPtTraining",0.5,1.5);
-        addVariable("20Sel_200Trees_Flat","20SelectedNoLessPt200TreesVarTrainingWithFlatPtTraining"  ,0.5,1.5);
-        addVariable("24Pl_100Trees_Flat","24PlainTradSelection100TreesVarTrainingWithFlatPtTraining",0.5,1.5);
-        addVariable("20Sel_100Trees_Flat","20SelectedNoLessPt100TreesVarTrainingWithFlatPtTraining"  ,0.5,1.5);
-        addVariable("20Sel_100Trees_Min1000Evt_Flat","20SelectedNoLessPt100TreesMin1000EvtsVarTrainingWithFlatPtTraining"  ,0.5,1.5);
-        addVariable("20Sel_200Trees_Min1000Evt_Flat","20SelectedNoLessPt200TreesMin1000EvtsVarTrainingWithFlatPtTraining"  ,0.5,1.5);
-        //add 10 December
-        addVariable("20Sel_1000Tr_Min2k","20SelVars1000TreesMin2000Evts"                   ,0.5,1.5  );
-        addVariable("26Pl_100Tr_Min2k_MCS3","26PlVars100TreesMin2000EvtsMCS3"              ,0.5,1.5  );
-        addVariable("20Sel_200Tr_Min2k_MCS3","20SelVars200TreesMin2000EvtsMCS3"            ,0.5,1.5  );
-        addVariable("20Sel_200Tr_Min2k_MCS3_JERC","20SelVars200TreesMin2000EvtsMCS3_JERC"  ,0.5,1.5  );
-        addVariable("20Sel_200Tr_Min500_MCS3_JERC","20SelVars200TreesMin500EvtsMCS3_JERC"  ,0.5,1.5  );
-        addVariable("43Pl_200Tr_Min2k_JERC","43PlVars200TreesMin2000EvtsMCS3_JERC"         ,0.5,1.5  );
-
-        addVariable("20Sel_TMVA_JERC","TMVAtest20SelVars"         ,0.5,1.5  );
-        addVariable("24Pl_TMVA_small","TMVAtest24CleanedVarSmallTr"         ,0.5,1.5  );
-
-        addVariable("43Pl_1000Tr_Min2k_MCS3_JERC","43PlVars1000TreesMin2000EvtsMCS3_JERC"         ,0.5,1.5  );
-
-        addVariable("26Pl_1000Tr_Min2k_MCS8_JERC_NoFlat","26PlVars1000TreesMin2000EvtsMCS8_NoFlat_JERC"         ,0.5,1.5  );
-        addVariable("24Pl_1000Tr_Min2k_MCS8_JERC_NoFlat","24PlVars1000TreesMin2000EvtsMCS8_NoFlat_JERC"         ,0.5,1.5  );
-        addVariable("43Pl_1000Tr_Min2k_MCS3_JERC_NoFlat","43PlVars1000TreesMin2000EvtsMCS3_NoFlat_JERC"         ,0.5,1.5  );
-        addVariable("43Pl_1000Tr_Min2k_MCS5_JERC_NoFlat","43PlVars1000TreesMin2000EvtsMCS5_NoFlat_JERC"         ,0.5,1.5  );
-
-        addVariable("10Sel1KTMin2KMCS8TQ07_NoFlat_JERC", "10Sel1KTMin2KMCS8TQ07_NoFlat_JERC",0.5,1.5);
-        addVariable("10Sel1KTMin2KMCS8TQ05_NoFlat_JERC", "10Sel1KTMin2KMCS8TQ05_NoFlat_JERC",0.5,1.5);
-        addVariable("10Sel1KTMin2KMCS8TQ09_NoFlat_JERC", "10Sel1KTMin2KMCS8TQ09_NoFlat_JERC",0.5,1.5);
-        addVariable("20Sel1KTMin2KMCS8TQ09_NoFlat_JERC", "20Sel1KTMin2KMCS8TQ09_NoFlat_JERC",0.5,1.5);
-        addVariable("20Sel1KTMin2KMCS8TQ07_NoFlat_JERC", "20Sel1KTMin2KMCS8TQ07_NoFlat_JERC",0.5,1.5);
-        addVariable("24Pl_1000Tr_Min2k_MCS8","24PlVars1000TreesMin2000EvtsMCS8"         ,0.5,1.5  );
-        addVariable("24Pl_1000Tr_Min2k_MCS5","24PlVars1000TreesMin2000EvtsMCS5"         ,0.5,1.5  );
-        addVariable("24Pl_1000Tr_Min1k_MCS5TQ07","24PlVars1000TreesMin1000EvtsMCS5TQ07"         ,0.5,1.5  );
-        addVariable("24Pl_1000Tr_Min500_MCS5TQ07","24PlVars1000TreesMin500EvtsMCS5TQ07"         ,0.5,1.5  );
-        addVariable("24Pl_1000Tr_Min250_MCS5TQ07","24PlVars1000TreesMin250EvtsMCS5TQ07"         ,0.5,1.5  );
-
-        addVariable("24Pl_1000Tr_Min00250_MCS1TQ07","24PlVars1000TreesMin00250EvtsMCS1TQ07"         ,0.5,1.5  );
-        addVariable("24Pl_1000Tr_Min00250_MCS2TQ07","24PlVars1000TreesMin00250EvtsMCS2TQ07"         ,0.5,1.5  );
+//        for(unsigned int j = 0; j < tempVarForms.size(); ++j){
+//   	    	sprintf(buffer,"%02d_%s",j,tempVarForms.at(j).c_str());
+//        	addVariable(buffer,("GBRResult"+tempVarForms.at(j)).c_str()      ,0.5,1.5);
+//   	    	sprintf(buffer,"%02d_WPtEta_%s",j,tempVarForms.at(j).c_str());
+//        	addVariable(buffer,("GBRResultWPtEta"+tempVarForms.at(j)).c_str()      ,0.5,1.5);
+////   	    	"%s, #sigma/#mu=%5.3f,#mu=%5.3f,m=%5.3f",sigvar->GetTitle(),width/gauss->GetParameter(1),gauss->GetParameter(1),sigvar->GetMean());
+////   	     TrInfoHelpVec.back().name=  TString::Format("GBRResultCumm%02d_%s",selectInVarIdx,TrInfoHelpVec.back().trainedVarlist->at(selectInVarIdx).c_str());//"GBRResultCumm" + (Long_t) selectI
+////        	addVariable(((Long_t)j + ("_"+ tempVarForms.at(j))).c_str(),("GBRResult"+tempVarForms.at(j)).c_str()      ,0.5,1.5);
+////        	addVariable(((Long_t)j + ("_WPtEta_"+ tempVarForms.at(j))).c_str(),("GBRResultWPtEta"+tempVarForms.at(j)).c_str()      ,0.5,1.5);
+//        }
+//
+//
+//        for(unsigned int j = 0; j < CummulativeVars.size(); ++j){
+//   	    	sprintf(buffer,"Cumm_%02d_%s",j,CummulativeVars.at(j).c_str());
+//   	    	sprintf(buffer2,"GBRResultCumm%02d_%s",j,CummulativeVars.at(j).c_str());
+//        	addVariable(buffer,buffer2      ,0.5,1.5);
+//        }
+//
+//        addVariable("26","26TrainingUsedForNTupels"                      ,0.5,1.5);
+//        addVariable("26SemiLept","26SemiLeptTrainingUsedForNTupels"              ,0.5,1.5);
+//        addVariable("24CleanedVar","26CleanedVarTraining"                          ,0.5,1.5);
+//        addVariable("40_100Trees","40Cleaned100TreesVarTraining"                  ,0.5,1.5);
+//        addVariable("40_500Trees","40Cleaned500TreesVarTraining"                  ,0.5,1.5);
+//        addVariable("40_100Trees_Flat","40Cleaned100TreesVarTrainingWithFlatPtTraining",0.5,1.5);
+//        addVariable("24_100Trees_Flat","24Cleaned100TreesVarTrainingWithFlatPtTraining",0.5,1.5);
+//        addVariable("42_200Trees_Flat","42Cleaned200TreesVarTrainingWithFlatPtTraining",0.5,1.5);
+//        addVariable("17_200Trees_Flat","17Cleaned200TreesVarTrainingWithFlatPtTraining",0.5,1.5);
+//        addVariable("20Sel_200Trees_Flat","20SelectedNoLessPt200TreesVarTrainingWithFlatPtTraining"  ,0.5,1.5);
+//        addVariable("24Pl_100Trees_Flat","24PlainTradSelection100TreesVarTrainingWithFlatPtTraining",0.5,1.5);
+//        addVariable("20Sel_100Trees_Flat","20SelectedNoLessPt100TreesVarTrainingWithFlatPtTraining"  ,0.5,1.5);
+//        addVariable("20Sel_100Trees_Min1000Evt_Flat","20SelectedNoLessPt100TreesMin1000EvtsVarTrainingWithFlatPtTraining"  ,0.5,1.5);
+//        addVariable("20Sel_200Trees_Min1000Evt_Flat","20SelectedNoLessPt200TreesMin1000EvtsVarTrainingWithFlatPtTraining"  ,0.5,1.5);
+//        //add 10 December
+//        addVariable("20Sel_1000Tr_Min2k","20SelVars1000TreesMin2000Evts"                   ,0.5,1.5  );
+//        addVariable("26Pl_100Tr_Min2k_MCS3","26PlVars100TreesMin2000EvtsMCS3"              ,0.5,1.5  );
+//        addVariable("20Sel_200Tr_Min2k_MCS3","20SelVars200TreesMin2000EvtsMCS3"            ,0.5,1.5  );
+//        addVariable("20Sel_200Tr_Min2k_MCS3_JERC","20SelVars200TreesMin2000EvtsMCS3_JERC"  ,0.5,1.5  );
+//        addVariable("20Sel_200Tr_Min500_MCS3_JERC","20SelVars200TreesMin500EvtsMCS3_JERC"  ,0.5,1.5  );
+//        addVariable("43Pl_200Tr_Min2k_JERC","43PlVars200TreesMin2000EvtsMCS3_JERC"         ,0.5,1.5  );
+//
+//        addVariable("20Sel_TMVA_JERC","TMVAtest20SelVars"         ,0.5,1.5  );
+//        addVariable("24Pl_TMVA_small","TMVAtest24CleanedVarSmallTr"         ,0.5,1.5  );
+//
+//        addVariable("43Pl_1000Tr_Min2k_MCS3_JERC","43PlVars1000TreesMin2000EvtsMCS3_JERC"         ,0.5,1.5  );
+//
+//        addVariable("26Pl_1000Tr_Min2k_MCS8_JERC_NoFlat","26PlVars1000TreesMin2000EvtsMCS8_NoFlat_JERC"         ,0.5,1.5  );
+//        addVariable("24Pl_1000Tr_Min2k_MCS8_JERC_NoFlat","24PlVars1000TreesMin2000EvtsMCS8_NoFlat_JERC"         ,0.5,1.5  );
+//        addVariable("43Pl_1000Tr_Min2k_MCS3_JERC_NoFlat","43PlVars1000TreesMin2000EvtsMCS3_NoFlat_JERC"         ,0.5,1.5  );
+//        addVariable("43Pl_1000Tr_Min2k_MCS5_JERC_NoFlat","43PlVars1000TreesMin2000EvtsMCS5_NoFlat_JERC"         ,0.5,1.5  );
+//
+//        addVariable("10Sel1KTMin2KMCS8TQ07_NoFlat_JERC", "10Sel1KTMin2KMCS8TQ07_NoFlat_JERC",0.5,1.5);
+//        addVariable("10Sel1KTMin2KMCS8TQ05_NoFlat_JERC", "10Sel1KTMin2KMCS8TQ05_NoFlat_JERC",0.5,1.5);
+//        addVariable("10Sel1KTMin2KMCS8TQ09_NoFlat_JERC", "10Sel1KTMin2KMCS8TQ09_NoFlat_JERC",0.5,1.5);
+//        addVariable("20Sel1KTMin2KMCS8TQ09_NoFlat_JERC", "20Sel1KTMin2KMCS8TQ09_NoFlat_JERC",0.5,1.5);
+//        addVariable("20Sel1KTMin2KMCS8TQ07_NoFlat_JERC", "20Sel1KTMin2KMCS8TQ07_NoFlat_JERC",0.5,1.5);
+//        addVariable("24Pl_1000Tr_Min2k_MCS8","24PlVars1000TreesMin2000EvtsMCS8"         ,0.5,1.5  );
+//        addVariable("24Pl_1000Tr_Min2k_MCS5","24PlVars1000TreesMin2000EvtsMCS5"         ,0.5,1.5  );
+//        addVariable("24Pl_1000Tr_Min1k_MCS5TQ07","24PlVars1000TreesMin1000EvtsMCS5TQ07"         ,0.5,1.5  );
+//        addVariable("24Pl_1000Tr_Min500_MCS5TQ07","24PlVars1000TreesMin500EvtsMCS5TQ07"         ,0.5,1.5  );
+//        addVariable("24Pl_1000Tr_Min250_MCS5TQ07","24PlVars1000TreesMin250EvtsMCS5TQ07"         ,0.5,1.5  );
+//
+//        addVariable("24Pl_1000Tr_Min00250_MCS1TQ07","24PlVars1000TreesMin00250EvtsMCS1TQ07"         ,0.5,1.5  );
+//        addVariable("24Pl_1000Tr_Min00250_MCS2TQ07","24PlVars1000TreesMin00250EvtsMCS2TQ07"         ,0.5,1.5  );
         addVariable("24Pl_1000Tr_Min00250_MCS3TQ07","24PlVars1000TreesMin00250EvtsMCS3TQ07"         ,0.5,1.5  );
-        addVariable("24Pl_1000Tr_Min00500_MCS3TQ07","24PlVars1000TreesMin00500EvtsMC35TQ07"         ,0.5,1.5  );//MCS3, actually
-        addVariable("24Pl_1000Tr_Min01000_MCS3TQ07","24PlVars1000TreesMin01000EvtsMC35TQ07"         ,0.5,1.5  );//MCS3, actually
+//        addVariable("24Pl_1000Tr_Min00500_MCS3TQ07","24PlVars1000TreesMin00500EvtsMC35TQ07"         ,0.5,1.5  );//MCS3, actually
+//        addVariable("24Pl_1000Tr_Min01000_MCS3TQ07","24PlVars1000TreesMin01000EvtsMC35TQ07"         ,0.5,1.5  );//MCS3, actually
+//
+//        addVariable("24Pl_1000Tr_Min2k_MCS3","24PlVars1000TreesMin2000EvtsMCS3"         ,0.5,1.5  );
+//        addVariable("24Pl_1000Tr_Min2k_MCS8TQ09","24PlVars1000TreesMin2000EvtsMCS8TQ09"         ,0.5,1.5  );
+//        addVariable("24Pl_1000Tr_Min2k_MCS8TQ07","24PlVars1000TreesMin2000EvtsMCS8TQ07"         ,0.5,1.5  );
+//        addVariable("24Pl_1000Tr_Min2k_MCS8TQ05","24PlVars1000TreesMin2000EvtsMCS8TQ05"         ,0.5,1.5  );
 
-        addVariable("24Pl_1000Tr_Min2k_MCS3","24PlVars1000TreesMin2000EvtsMCS3"         ,0.5,1.5  );
-        addVariable("24Pl_1000Tr_Min2k_MCS8TQ09","24PlVars1000TreesMin2000EvtsMCS8TQ09"         ,0.5,1.5  );
-        addVariable("24Pl_1000Tr_Min2k_MCS8TQ07","24PlVars1000TreesMin2000EvtsMCS8TQ07"         ,0.5,1.5  );
-        addVariable("24Pl_1000Tr_Min2k_MCS8TQ05","24PlVars1000TreesMin2000EvtsMCS8TQ05"         ,0.5,1.5  );
-
+        addVariable("24Pl_PlPUIdFrac_Min00250_MCS3TQ07","24PlVarsPlPUIdFrac01Min00250EvtsMCS3TQ07"         ,0.5,1.5  );
+        addVariable("24Pl_PlPUIdFracSVPtRel_Min00250_MCS3TQ07","24PlVarsPlPUIdFrac01SVPTRelMin00250EvtsMCS3TQ07"         ,0.5,1.5  );
 
     }
     
