@@ -92,38 +92,16 @@ void Analysis::Analyze() {
   canvas->cd();
   
   for(unsigned int i = 0; i < vBinning_.size()-1; ++i) {
-    // calculate cuts
-    std::stringstream stream;
-    stream << vBinning_[i] << " < " << fBinning_ << " & "
-           << fBinning_ << " < " << vBinning_[i+1];
-    std::string cuts = stream.str();
-    
-    if (fMethodID_ == Helper::kGenMatch) {
-      cuts += " & target == 1";
-    }
-    else if (fMethodID_ == Helper::kMVA) {
-      cuts += " & mvaDisc > 0";
-    }
-    else if (fMethodID_ == Helper::kIdeogram) {
-    }
-    else if (fMethodID_ == Helper::kIdeogramNew) {
-    }
-    else if (fMethodID_ == Helper::kRooFit) {
-    }
-
     // FIXME binning not yet implemented, still needs some implementation ...
-    int entries = -1;
-    if(fTree_)
-      entries = fTree_->GetEntries();
-    else
-      entries = ((RandomSubsetCreatorNewInterface*)fCreator_)->GetDataSample().nEvents;
-
+    
+    //FIXME Entries per bin
+    int entries = ((RandomSubsetCreatorNewInterface*)fCreator_)->GetDataSample().nEvents;
     CreateHisto("Entries");
-    GetH1("Entries")->SetBinContent(i+1, entries);
+    GetH1("Entries")->SetBinContent(i+1, 10+i);
 
     if (entries > 25) {
       if (fMethodID_ == Helper::kIdeogramNew) ((IdeogramAnalyzerNewInterface*)fAnalyzer_)->SetDataSample(((RandomSubsetCreatorNewInterface*)fCreator_)->GetDataSample());
-      fAnalyzer_->Analyze(cuts, i, 0);
+      fAnalyzer_->Analyze("", i+1, 0);
       const std::map<std::string, std::pair<double, double>> values = fAnalyzer_->GetValues();
 
       for(const auto& value: values){
@@ -143,6 +121,7 @@ void Analysis::Analyze() {
         else if(!strncmp(value.first.c_str(),"JES" ,3)) gen = genJES;
         else if(!strncmp(value.first.c_str(),"fSig",4)) gen = genfSig;
         GetH1(value.first                 ) ->SetBinContent(i+1, val);
+        GetH1(value.first                 ) ->SetBinError  (i+1, valError);
         GetH1(value.first+std::string("_Error"))->SetBinContent(i+1, valError);
         GetH1(value.first+std::string("_Pull" ))->SetBinContent(i+1, (val - gen)/valError);
         std::cout << "Measured " << value.first << ": " << val << " +/- " << valError << std::endl;
@@ -159,7 +138,7 @@ void Analysis::Analyze() {
 
   canvas->cd(2);
   GetH1("mass_mTop_JES")->Draw("E1");
-  GetH1("mass_mTop_JES")->SetAxisRange(GetH1("mass_mTop_JES")->GetMinimum(0.05), GetH1("mass_mTop_JES")->GetMaximum(), "Z");
+  GetH1("mass_mTop_JES")->SetAxisRange(GetH1("mass_mTop_JES")->GetMinimum(0.05)-1., GetH1("mass_mTop_JES")->GetMaximum()+1, "Z");
   GetH1("mass_mTop_JES")->Fit("pol0");
 
   canvas->cd(3);
@@ -189,10 +168,7 @@ void Analysis::Analyze() {
 
 void Analysis::CreateHisto(std::string name) {
   std::map<std::string, TH1F*>::iterator hist = histograms_.find(name);
-  if(hist != histograms_.end()){
-    hist->second->Reset();
-  }
-  else{
+  if(hist == histograms_.end()){
     gROOT->cd();
     Helper* helper = new Helper(fBinning_, vBinning_);
     SetH1(name, helper->GetH1(name));

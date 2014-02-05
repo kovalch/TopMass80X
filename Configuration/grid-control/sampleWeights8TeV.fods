@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <office:document xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0" xmlns:presentation="urn:oasis:names:tc:opendocument:xmlns:presentation:1.0" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0" xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0" xmlns:math="http://www.w3.org/1998/Math/MathML" xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0" xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0" xmlns:config="urn:oasis:names:tc:opendocument:xmlns:config:1.0" xmlns:ooo="http://openoffice.org/2004/office" xmlns:ooow="http://openoffice.org/2004/writer" xmlns:oooc="http://openoffice.org/2004/calc" xmlns:dom="http://www.w3.org/2001/xml-events" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:rpt="http://openoffice.org/2005/report" xmlns:of="urn:oasis:names:tc:opendocument:xmlns:of:1.2" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:grddl="http://www.w3.org/2003/g/data-view#" xmlns:tableooo="http://openoffice.org/2009/table" xmlns:field="urn:openoffice:names:experimental:ooo-ms-interop:xmlns:field:1.0" xmlns:formx="urn:openoffice:names:experimental:ooxml-odf-interop:xmlns:form:1.0" xmlns:css3t="http://www.w3.org/TR/css3-text/" office:version="1.2" office:mimetype="application/vnd.oasis.opendocument.spreadsheet">
- <office:meta><meta:creation-date>2013-07-15T16:34:22</meta:creation-date><dc:date>2013-08-20T15:33:19</dc:date><meta:editing-duration>PT12M17S</meta:editing-duration><meta:editing-cycles>6</meta:editing-cycles><meta:generator>LibreOffice/3.5$Linux_X86_64 LibreOffice_project/350m1$Build-2</meta:generator><meta:document-statistic meta:table-count="3" meta:cell-count="377" meta:object-count="0"/></office:meta>
+ <office:meta><meta:creation-date>2013-07-15T16:34:22</meta:creation-date><dc:date>2013-08-20T15:33:19</dc:date><meta:editing-duration>PT12M17S</meta:editing-duration><meta:editing-cycles>6</meta:editing-cycles><meta:generator>LibreOffice/3.5$Linux_X86_64 LibreOffice_project/350m1$Build-2</meta:generator><meta:document-statistic meta:table-count="3" meta:cell-count="447" meta:object-count="0"/></office:meta>
  <office:settings>
   <config:config-item-set config:name="ooo:view-settings">
    <config:config-item config:name="VisibleAreaTop" config:type="int">0</config:config-item>
    <config:config-item config:name="VisibleAreaLeft" config:type="int">0</config:config-item>
-   <config:config-item config:name="VisibleAreaWidth" config:type="int">38382</config:config-item>
-   <config:config-item config:name="VisibleAreaHeight" config:type="int">35657</config:config-item>
+   <config:config-item config:name="VisibleAreaWidth" config:type="int">36339</config:config-item>
+   <config:config-item config:name="VisibleAreaHeight" config:type="int">40297</config:config-item>
    <config:config-item-map-indexed config:name="Views">
     <config:config-item-map-entry>
      <config:config-item config:name="ViewId" config:type="string">view1</config:config-item>
      <config:config-item-map-named config:name="Tables">
       <config:config-item-map-entry config:name="Sheet1">
-       <config:config-item config:name="CursorPositionX" config:type="int">0</config:config-item>
-       <config:config-item config:name="CursorPositionY" config:type="int">5</config:config-item>
-       <config:config-item config:name="HorizontalSplitMode" config:type="short">0</config:config-item>
+       <config:config-item config:name="CursorPositionX" config:type="int">7</config:config-item>
+       <config:config-item config:name="CursorPositionY" config:type="int">61</config:config-item>
+       <config:config-item config:name="HorizontalSplitMode" config:type="short">2</config:config-item>
        <config:config-item config:name="VerticalSplitMode" config:type="short">2</config:config-item>
-       <config:config-item config:name="HorizontalSplitPosition" config:type="int">0</config:config-item>
-       <config:config-item config:name="VerticalSplitPosition" config:type="int">8</config:config-item>
-       <config:config-item config:name="ActiveSplitRange" config:type="short">0</config:config-item>
+       <config:config-item config:name="HorizontalSplitPosition" config:type="int">1</config:config-item>
+       <config:config-item config:name="VerticalSplitPosition" config:type="int">7</config:config-item>
+       <config:config-item config:name="ActiveSplitRange" config:type="short">3</config:config-item>
        <config:config-item config:name="PositionLeft" config:type="int">0</config:config-item>
-       <config:config-item config:name="PositionRight" config:type="int">0</config:config-item>
+       <config:config-item config:name="PositionRight" config:type="int">1</config:config-item>
        <config:config-item config:name="PositionTop" config:type="int">0</config:config-item>
-       <config:config-item config:name="PositionBottom" config:type="int">8</config:config-item>
+       <config:config-item config:name="PositionBottom" config:type="int">28</config:config-item>
        <config:config-item config:name="ZoomType" config:type="short">0</config:config-item>
        <config:config-item config:name="ZoomValue" config:type="int">100</config:config-item>
        <config:config-item config:name="PageViewZoomValue" config:type="int">60</config:config-item>
@@ -63,6 +63,15 @@
    <config:config-item config:name="IsSnapToRaster" config:type="boolean">false</config:config-item>
    <config:config-item config:name="RasterSubdivisionX" config:type="int">1</config:config-item>
    <config:config-item config:name="RasterSubdivisionY" config:type="int">1</config:config-item>
+   <config:config-item-map-indexed config:name="ForbiddenCharacters">
+    <config:config-item-map-entry>
+     <config:config-item config:name="Language" config:type="string">en</config:config-item>
+     <config:config-item config:name="Country" config:type="string">US</config:config-item>
+     <config:config-item config:name="Variant" config:type="string"/>
+     <config:config-item config:name="BeginLine" config:type="string"/>
+     <config:config-item config:name="EndLine" config:type="string"/>
+    </config:config-item-map-entry>
+   </config:config-item-map-indexed>
    <config:config-item config:name="AutoCalculate" config:type="boolean">true</config:config-item>
    <config:config-item config:name="PrinterSetup" config:type="base64Binary"/>
    <config:config-item config:name="ShowNotes" config:type="boolean">true</config:config-item>
@@ -136,8 +145,17 @@
   </style:style>
  </office:styles>
  <office:automatic-styles>
-  <style:style style:name="co1" style:family="table-column">
+  <style:style style:name="co3" style:family="table-column">
    <style:table-column-properties fo:break-before="auto" style:column-width="0.889in"/>
+  </style:style>
+  <style:style style:name="co2" style:family="table-column">
+   <style:table-column-properties fo:break-before="auto" style:column-width="1.1425in"/>
+  </style:style>
+  <style:style style:name="co4" style:family="table-column">
+   <style:table-column-properties fo:break-before="auto" style:column-width="0.4134in"/>
+  </style:style>
+  <style:style style:name="co5" style:family="table-column">
+   <style:table-column-properties fo:break-before="auto" style:column-width="0.598in"/>
   </style:style>
   <style:style style:name="ro5" style:family="table-row">
    <style:table-row-properties style:row-height="0.178in" fo:break-before="auto" style:use-optimal-row-height="true"/>
@@ -225,7 +243,7 @@
      <text:p><text:sheet-name>???</text:sheet-name> (<text:title>???</text:title>)</text:p>
     </style:region-left>
     <style:region-right>
-     <text:p><text:date style:data-style-name="N2" text:date-value="2013-12-17">00/00/0000</text:date>, <text:time>00:00:00</text:time></text:p>
+     <text:p><text:date style:data-style-name="N2" text:date-value="2014-02-04">00/00/0000</text:date>, <text:time>00:00:00</text:time></text:p>
     </style:region-right>
    </style:header>
    <style:header-left style:display="false"/>
@@ -239,7 +257,11 @@
   <office:spreadsheet>
    <table:table table:name="Sheet1" table:style-name="ta1">
     <office:forms form:automatic-focus="false" form:apply-design-mode="false"/>
-    <table:table-column table:style-name="co1" table:number-columns-repeated="1024" table:default-cell-style-name="ce1"/>
+    <table:table-column table:style-name="co2" table:default-cell-style-name="ce1"/>
+    <table:table-column table:style-name="co4" table:default-cell-style-name="ce1"/>
+    <table:table-column table:style-name="co3" table:number-columns-repeated="4" table:default-cell-style-name="ce1"/>
+    <table:table-column table:style-name="co5" table:number-columns-repeated="2" table:default-cell-style-name="ce1"/>
+    <table:table-column table:style-name="co3" table:number-columns-repeated="1016" table:default-cell-style-name="ce1"/>
     <table:table-row table:style-name="ro2">
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -268,8 +290,8 @@
      <table:table-cell office:value-type="string">
       <text:p>Lumi</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.H3]" office:value-type="float" office:value="19.712">
-      <text:p>19.712</text:p>
+     <table:table-cell table:formula="of:=[.H4]" office:value-type="float" office:value="18.291">
+      <text:p>18.291</text:p>
      </table:table-cell>
      <table:table-cell office:value-type="string">
       <text:p>/fb</text:p>
@@ -368,11 +390,6 @@
      <table:table-cell table:number-columns-repeated="1011"/>
     </table:table-row>
     <table:table-row table:style-name="ro3">
-     <table:table-cell table:number-columns-repeated="4"/>
-     <table:table-cell table:style-name="Default"/>
-     <table:table-cell table:number-columns-repeated="1019"/>
-    </table:table-row>
-    <table:table-row table:style-name="ro2">
      <table:table-cell table:number-columns-repeated="1024"/>
     </table:table-row>
     <table:table-row table:style-name="ro2">
@@ -406,14 +423,14 @@
      <table:table-cell table:formula="of:=31223821+10537444" office:value-type="float" office:value="41761265">
       <text:p>41761265</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C9]/[.$K$3]/1000/([.$C$2]/[.B9])^4*(1+[.$C$3]*([.B9]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B9]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="366.861634311072">
+     <table:table-cell table:formula="of:=[.C8]/[.$K$3]/1000/([.$C$2]/[.B8])^4*(1+[.$C$3]*([.B8]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B8]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="366.861634311072">
       <text:p>366.8616343111</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D9]" office:value-type="float" office:value="0.0027258233254014">
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D8]" office:value-type="float" office:value="0.0027258233254014">
       <text:p>0.0027258233</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E9]" office:value-type="float" office:value="0.0537314293903124">
-      <text:p>0.0537314294</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E8]" office:value-type="float" office:value="0.049858034444917">
+      <text:p>0.0498580344</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="ce6"/>
      <table:table-cell office:value-type="string">
@@ -429,14 +446,14 @@
      <table:table-cell office:value-type="float" office:value="24953451">
       <text:p>24953451</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C10]/[.$K$4]/1000/([.$C$2]/[.B9])^4*(1+[.$C$3]*([.B9]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B9]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="228.68146036407">
+     <table:table-cell table:formula="of:=[.C9]/[.$K$4]/1000/([.$C$2]/[.B8])^4*(1+[.$C$3]*([.B8]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B8]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="228.68146036407">
       <text:p>228.6814603641</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D10]" office:value-type="float" office:value="0.00437289493607378">
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D9]" office:value-type="float" office:value="0.00437289493607378">
       <text:p>0.0043728949</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E10]" office:value-type="float" office:value="0.0861985049798863">
-      <text:p>0.086198505</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E9]" office:value-type="float" office:value="0.0799846212757254">
+      <text:p>0.0799846213</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="ce6"/>
      <table:table-cell office:value-type="string">
@@ -452,14 +469,14 @@
      <table:table-cell office:value-type="float" office:value="12011428">
       <text:p>12011428</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C11]/[.$K$5]/1000/([.$C$2]/[.B9])^4*(1+[.$C$3]*([.B9]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B9]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="459.331960394302">
+     <table:table-cell table:formula="of:=[.C10]/[.$K$5]/1000/([.$C$2]/[.B8])^4*(1+[.$C$3]*([.B8]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B8]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="459.331960394302">
       <text:p>459.3319603943</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D11]" office:value-type="float" office:value="0.00217707472204106">
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D10]" office:value-type="float" office:value="0.00217707472204106">
       <text:p>0.0021770747</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E11]" office:value-type="float" office:value="0.0429144969208734">
-      <text:p>0.0429144969</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E10]" office:value-type="float" office:value="0.039820873740853">
+      <text:p>0.0398208737</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="ce6"/>
      <table:table-cell office:value-type="string">
@@ -490,14 +507,14 @@
      <table:table-cell office:value-type="float" office:value="11651739">
       <text:p>11651739</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C14]/[.$K$3]/1000/([.$C$2]/[.B14])^4*(1+[.$C$3]*([.B14]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B14]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="102.357436062008">
+     <table:table-cell table:formula="of:=[.C13]/[.$K$3]/1000/([.$C$2]/[.B13])^4*(1+[.$C$3]*([.B13]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B13]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="102.357436062008">
       <text:p>102.357436062</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D14]" office:value-type="float" office:value="0.00976968590141516">
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D13]" office:value-type="float" office:value="0.00976968590141516">
       <text:p>0.0097696859</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E14]" office:value-type="float" office:value="0.192580048488696">
-      <text:p>0.1925800485</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E13]" office:value-type="float" office:value="0.178697324822785">
+      <text:p>0.1786973248</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="ce6"/>
      <table:table-cell table:style-name="ce6" office:value-type="string">
@@ -513,14 +530,14 @@
      <table:table-cell office:value-type="float" office:value="12005805">
       <text:p>12005805</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C15]/[.$K$4]/1000/([.$C$2]/[.B14])^4*(1+[.$C$3]*([.B14]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B14]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="110.025063076296">
+     <table:table-cell table:formula="of:=[.C14]/[.$K$4]/1000/([.$C$2]/[.B13])^4*(1+[.$C$3]*([.B13]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B13]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="110.025063076296">
       <text:p>110.0250630763</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D15]" office:value-type="float" office:value="0.00908883823412633">
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D14]" office:value-type="float" office:value="0.00908883823412633">
       <text:p>0.0090888382</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E15]" office:value-type="float" office:value="0.179159179271098">
-      <text:p>0.1791591793</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E14]" office:value-type="float" office:value="0.166243940140405">
+      <text:p>0.1662439401</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="ce6"/>
      <table:table-cell table:style-name="ce6" office:value-type="string">
@@ -536,14 +553,14 @@
      <table:table-cell office:value-type="float" office:value="5976484">
       <text:p>5976484</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C16]/[.$K$5]/1000/([.$C$2]/[.B14])^4*(1+[.$C$3]*([.B14]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B14]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="228.548188607148">
+     <table:table-cell table:formula="of:=[.C15]/[.$K$5]/1000/([.$C$2]/[.B13])^4*(1+[.$C$3]*([.B13]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B13]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="228.548188607148">
       <text:p>228.5481886071</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D16]" office:value-type="float" office:value="0.00437544487267366">
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D15]" office:value-type="float" office:value="0.00437544487267366">
       <text:p>0.0043754449</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E16]" office:value-type="float" office:value="0.0862487693301433">
-      <text:p>0.0862487693</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E15]" office:value-type="float" office:value="0.080031262166074">
+      <text:p>0.0800312622</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="ce6"/>
      <table:table-cell table:style-name="ce6" office:value-type="string">
@@ -574,14 +591,14 @@
      <table:table-cell office:value-type="float" office:value="7953758">
       <text:p>7953758</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C19]/[.$K$3]/1000/([.$C$2]/[.B19])^4*(1+[.$C$3]*([.B19]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B19]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="69.8716540026928">
+     <table:table-cell table:formula="of:=[.C18]/[.$K$3]/1000/([.$C$2]/[.B18])^4*(1+[.$C$3]*([.B18]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B18]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="69.8716540026928">
       <text:p>69.8716540027</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D19]" office:value-type="float" office:value="0.0143119554599561">
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D18]" office:value-type="float" office:value="0.0143119554599561">
       <text:p>0.0143119555</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E19]" office:value-type="float" office:value="0.282117266026654">
-      <text:p>0.282117266</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E18]" office:value-type="float" office:value="0.261779977318056">
+      <text:p>0.2617799773</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="ce6"/>
      <table:table-cell table:style-name="ce6" office:value-type="string">
@@ -597,14 +614,14 @@
      <table:table-cell office:value-type="float" office:value="7978174">
       <text:p>7978174</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C20]/[.$K$4]/1000/([.$C$2]/[.B19])^4*(1+[.$C$3]*([.B19]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B19]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="73.1145556323515">
+     <table:table-cell table:formula="of:=[.C19]/[.$K$4]/1000/([.$C$2]/[.B18])^4*(1+[.$C$3]*([.B18]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B18]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="73.1145556323515">
       <text:p>73.1145556324</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D20]" office:value-type="float" office:value="0.0136771671707668">
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D19]" office:value-type="float" office:value="0.0136771671707668">
       <text:p>0.0136771672</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E20]" office:value-type="float" office:value="0.269604319270155">
-      <text:p>0.2696043193</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E19]" office:value-type="float" office:value="0.250169064720495">
+      <text:p>0.2501690647</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="ce6"/>
      <table:table-cell table:style-name="ce6" office:value-type="string">
@@ -620,14 +637,14 @@
      <table:table-cell office:value-type="float" office:value="3982409">
       <text:p>3982409</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C21]/[.$K$5]/1000/([.$C$2]/[.B19])^4*(1+[.$C$3]*([.B19]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B19]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="152.292278075672">
+     <table:table-cell table:formula="of:=[.C20]/[.$K$5]/1000/([.$C$2]/[.B18])^4*(1+[.$C$3]*([.B18]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B18]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="152.292278075672">
       <text:p>152.2922780757</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D21]" office:value-type="float" office:value="0.00656632110725347">
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D20]" office:value-type="float" office:value="0.00656632110725347">
       <text:p>0.0065663211</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E21]" office:value-type="float" office:value="0.12943532166618">
-      <text:p>0.1294353217</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E20]" office:value-type="float" office:value="0.120104579372773">
+      <text:p>0.1201045794</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="ce6"/>
      <table:table-cell table:style-name="ce6" office:value-type="string">
@@ -658,14 +675,14 @@
      <table:table-cell office:value-type="float" office:value="7946264">
       <text:p>7946264</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C24]/[.$K$3]/1000/([.$C$2]/[.B24])^4*(1+[.$C$3]*([.B24]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B24]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="69.8058212007524">
+     <table:table-cell table:formula="of:=[.C23]/[.$K$3]/1000/([.$C$2]/[.B23])^4*(1+[.$C$3]*([.B23]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B23]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="69.8058212007524">
       <text:p>69.8058212008</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D24]" office:value-type="float" office:value="0.0143254528461764">
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D23]" office:value-type="float" office:value="0.0143254528461764">
       <text:p>0.0143254528</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E24]" office:value-type="float" office:value="0.282383326503829">
-      <text:p>0.2823833265</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E23]" office:value-type="float" office:value="0.262026858009413">
+      <text:p>0.262026858</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="ce6"/>
      <table:table-cell table:style-name="ce6" office:value-type="string">
@@ -681,14 +698,14 @@
      <table:table-cell office:value-type="float" office:value="7853450">
       <text:p>7853450</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C25]/[.$K$4]/1000/([.$C$2]/[.B24])^4*(1+[.$C$3]*([.B24]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B24]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="71.97154473328">
+     <table:table-cell table:formula="of:=[.C24]/[.$K$4]/1000/([.$C$2]/[.B23])^4*(1+[.$C$3]*([.B23]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B23]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="71.97154473328">
       <text:p>71.9715447333</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D25]" office:value-type="float" office:value="0.0138943801151679">
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D24]" office:value-type="float" office:value="0.0138943801151679">
       <text:p>0.0138943801</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E25]" office:value-type="float" office:value="0.273886020830189">
-      <text:p>0.2738860208</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E24]" office:value-type="float" office:value="0.254142106686536">
+      <text:p>0.2541421067</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="ce6"/>
      <table:table-cell table:style-name="ce6" office:value-type="string">
@@ -704,14 +721,14 @@
      <table:table-cell office:value-type="float" office:value="3984963">
       <text:p>3984963</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C26]/[.$K$5]/1000/([.$C$2]/[.B24])^4*(1+[.$C$3]*([.B24]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B24]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="152.389946215284">
+     <table:table-cell table:formula="of:=[.C25]/[.$K$5]/1000/([.$C$2]/[.B23])^4*(1+[.$C$3]*([.B23]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B23]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="152.389946215284">
       <text:p>152.3899462153</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D26]" office:value-type="float" office:value="0.0065621126907367">
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D25]" office:value-type="float" office:value="0.0065621126907367">
       <text:p>0.0065621127</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E26]" office:value-type="float" office:value="0.129352365359802">
-      <text:p>0.1293523654</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E25]" office:value-type="float" office:value="0.120027603226265">
+      <text:p>0.1200276032</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="ce6"/>
      <table:table-cell table:style-name="ce6" office:value-type="string">
@@ -742,14 +759,14 @@
      <table:table-cell office:value-type="float" office:value="11919063">
       <text:p>11919063</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C29]/[.$K$3]/1000/([.$C$2]/[.B29])^4*(1+[.$C$3]*([.B29]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B29]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="104.705806484469">
+     <table:table-cell table:formula="of:=[.C28]/[.$K$3]/1000/([.$C$2]/[.B28])^4*(1+[.$C$3]*([.B28]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B28]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="104.705806484469">
       <text:p>104.7058064845</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D29]" office:value-type="float" office:value="0.00955056871796627">
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D28]" office:value-type="float" office:value="0.00955056871796627">
       <text:p>0.0095505687</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E29]" office:value-type="float" office:value="0.188260810568551">
-      <text:p>0.1882608106</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E28]" office:value-type="float" office:value="0.174689452420321">
+      <text:p>0.1746894524</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="ce6"/>
      <table:table-cell table:style-name="ce6" office:value-type="string">
@@ -765,14 +782,14 @@
      <table:table-cell office:value-type="float" office:value="12024653">
       <text:p>12024653</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C30]/[.$K$4]/1000/([.$C$2]/[.B29])^4*(1+[.$C$3]*([.B29]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B29]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="110.197792217646">
+     <table:table-cell table:formula="of:=[.C29]/[.$K$4]/1000/([.$C$2]/[.B28])^4*(1+[.$C$3]*([.B28]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B28]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="110.197792217646">
       <text:p>110.1977922176</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D30]" office:value-type="float" office:value="0.00907459196664262">
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D29]" office:value-type="float" office:value="0.00907459196664262">
       <text:p>0.009074592</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E30]" office:value-type="float" office:value="0.178878356846459">
-      <text:p>0.1788783568</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E29]" office:value-type="float" office:value="0.16598336166186">
+      <text:p>0.1659833617</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="ce6"/>
      <table:table-cell table:style-name="ce6" office:value-type="string">
@@ -788,14 +805,14 @@
      <table:table-cell office:value-type="float" office:value="5974627">
       <text:p>5974627</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C31]/[.$K$5]/1000/([.$C$2]/[.B29])^4*(1+[.$C$3]*([.B29]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B29]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="228.477174615269">
+     <table:table-cell table:formula="of:=[.C30]/[.$K$5]/1000/([.$C$2]/[.B28])^4*(1+[.$C$3]*([.B28]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B28]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="228.477174615269">
       <text:p>228.4771746153</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D31]" office:value-type="float" office:value="0.0043768048238687">
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D30]" office:value-type="float" office:value="0.0043768048238687">
       <text:p>0.0043768048</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E31]" office:value-type="float" office:value="0.0862755766880999">
-      <text:p>0.0862755767</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E30]" office:value-type="float" office:value="0.0800561370333825">
+      <text:p>0.080056137</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="ce6"/>
      <table:table-cell table:style-name="ce6" office:value-type="string">
@@ -816,14 +833,14 @@
      <table:table-cell table:style-name="ce2" office:value-type="float" office:value="6923750">
       <text:p>6923750</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C34]/[.$E$2]/1000/([.$C$2]/[.B34])^4*(1+[.$C$3]*([.B34]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B34]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="27.7947915260406">
+     <table:table-cell table:formula="of:=[.C33]/[.$E$2]/1000/([.$C$2]/[.B33])^4*(1+[.$C$3]*([.B33]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B33]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="27.7947915260406">
       <text:p>27.794791526</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D34]" office:value-type="float" office:value="0.0359779636793863">
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D33]" office:value-type="float" office:value="0.0359779636793863">
       <text:p>0.0359779637</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E34]" office:value-type="float" office:value="0.709197620048062">
-      <text:p>0.70919762</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E33]" office:value-type="float" office:value="0.658072933659654">
+      <text:p>0.6580729337</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -836,14 +853,14 @@
      <table:table-cell table:style-name="ce2" office:value-type="float" office:value="45706206">
       <text:p>45706206</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C35]/[.$E$2]/1000/([.$C$2]/[.B34])^4*(1+[.$C$3]*([.B34]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B34]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="183.483584360536">
+     <table:table-cell table:formula="of:=[.C34]/[.$E$2]/1000/([.$C$2]/[.B33])^4*(1+[.$C$3]*([.B33]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B33]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="183.483584360536">
       <text:p>183.4835843605</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D35]" office:value-type="float" office:value="0.00545007883667156">
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D34]" office:value-type="float" office:value="0.00545007883667156">
       <text:p>0.0054500788</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E35]" office:value-type="float" office:value="0.10743195402847">
-      <text:p>0.107431954</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E34]" office:value-type="float" office:value="0.0996873920015594">
+      <text:p>0.099687392</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -853,17 +870,17 @@
     </table:table-row>
     <table:table-row table:style-name="ro6">
      <table:table-cell table:number-columns-repeated="2"/>
-     <table:table-cell table:style-name="ce2" table:formula="of:=[.C35]+[.C34]" office:value-type="float" office:value="52629956">
+     <table:table-cell table:style-name="ce2" table:formula="of:=[.C34]+[.C33]" office:value-type="float" office:value="52629956">
       <text:p>52629956</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C36]/[.$E$2]/1000/([.$C$2]/[.B34])^4*(1+[.$C$3]*([.B34]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B34]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="211.278375886577">
+     <table:table-cell table:formula="of:=[.C35]/[.$E$2]/1000/([.$C$2]/[.B33])^4*(1+[.$C$3]*([.B33]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B33]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="211.278375886577">
       <text:p>211.2783758866</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D36]" office:value-type="float" office:value="0.00473309204410413">
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D35]" office:value-type="float" office:value="0.00473309204410413">
       <text:p>0.004733092</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E36]" office:value-type="float" office:value="0.0932987103733806">
-      <text:p>0.0932987104</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E35]" office:value-type="float" office:value="0.0865729865787087">
+      <text:p>0.0865729866</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -879,34 +896,6 @@
      <table:table-cell table:style-name="ce6"/>
      <table:table-cell table:number-columns-repeated="1018"/>
     </table:table-row>
-    <table:table-row table:style-name="ro6">
-     <table:table-cell office:value-type="string">
-      <text:p>MadSpin</text:p>
-     </table:table-cell>
-     <table:table-cell office:value-type="float" office:value="172.5">
-      <text:p>172.5</text:p>
-     </table:table-cell>
-     <table:table-cell table:style-name="ce2" office:value-type="float" office:value="62131965">
-      <text:p>62131965</text:p>
-     </table:table-cell>
-     <table:table-cell table:formula="of:=[.C38]/[.$E$2]/1000/([.$C$2]/[.B38])^4*(1+[.$C$3]*([.B38]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B38]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="249.423363679834">
-      <text:p>249.4233636798</text:p>
-     </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D38]" office:value-type="float" office:value="0.00400924751092534">
-      <text:p>0.0040092475</text:p>
-     </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E38]" office:value-type="float" office:value="0.0790302869353604">
-      <text:p>0.0790302869</text:p>
-     </table:table-cell>
-     <table:table-cell/>
-     <table:table-cell office:value-type="string">
-      <text:p>/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/Summer12_DR53X-PU_S10_START53_V19-v1/AODSIM</text:p>
-     </table:table-cell>
-     <table:table-cell table:number-columns-repeated="1016"/>
-    </table:table-row>
-    <table:table-row table:style-name="ro2">
-     <table:table-cell table:number-columns-repeated="1024"/>
-    </table:table-row>
     <table:table-row table:style-name="ro4">
      <table:table-cell office:value-type="string">
       <text:p>161_5</text:p>
@@ -917,14 +906,14 @@
      <table:table-cell table:style-name="ce2" office:value-type="float" office:value="5369214">
       <text:p>5369214</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C40]/[.$E$2]/1000/([.$C$2]/[.B40])^4*(1+[.$C$3]*([.B40]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B40]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="17.7774494215083">
+     <table:table-cell table:formula="of:=[.C37]/[.$E$2]/1000/([.$C$2]/[.B37])^4*(1+[.$C$3]*([.B37]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B37]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="17.7774494215083">
       <text:p>17.7774494215</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D40]" office:value-type="float" office:value="0.0562510389589485">
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D37]" office:value-type="float" office:value="0.0562510389589485">
       <text:p>0.056251039</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E40]" office:value-type="float" office:value="1.10882047995879">
-      <text:p>1.10882048</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E37]" office:value-type="float" office:value="1.02888775359813">
+      <text:p>1.0288877536</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -942,14 +931,14 @@
      <table:table-cell table:style-name="ce2" office:value-type="float" office:value="5365348">
       <text:p>5365348</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C41]/[.$E$2]/1000/([.$C$2]/[.B41])^4*(1+[.$C$3]*([.B41]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B41]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="18.4214645512314">
+     <table:table-cell table:formula="of:=[.C38]/[.$E$2]/1000/([.$C$2]/[.B38])^4*(1+[.$C$3]*([.B38]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B38]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="18.4214645512314">
       <text:p>18.4214645512</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D41]" office:value-type="float" office:value="0.0542845004108619">
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D38]" office:value-type="float" office:value="0.0542845004108619">
       <text:p>0.0542845004</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E41]" office:value-type="float" office:value="1.07005607209891">
-      <text:p>1.0700560721</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E38]" office:value-type="float" office:value="0.992917797015074">
+      <text:p>0.992917797</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -967,14 +956,14 @@
      <table:table-cell table:style-name="ce2" office:value-type="float" office:value="4469095">
       <text:p>4469095</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C42]/[.$E$2]/1000/([.$C$2]/[.B42])^4*(1+[.$C$3]*([.B42]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B42]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="16.185279814938">
+     <table:table-cell table:formula="of:=[.C39]/[.$E$2]/1000/([.$C$2]/[.B39])^4*(1+[.$C$3]*([.B39]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B39]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="16.185279814938">
       <text:p>16.1852798149</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D42]" office:value-type="float" office:value="0.0617845357901729">
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D39]" office:value-type="float" office:value="0.0617845357901729">
       <text:p>0.0617845358</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E42]" office:value-type="float" office:value="1.21789676949589">
-      <text:p>1.2178967695</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E39]" office:value-type="float" office:value="1.13010094413805">
+      <text:p>1.1301009441</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -992,14 +981,14 @@
      <table:table-cell table:style-name="ce2" office:value-type="float" office:value="5202817">
       <text:p>5202817</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C43]/[.$E$2]/1000/([.$C$2]/[.B43])^4*(1+[.$C$3]*([.B43]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B43]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="19.850120907541">
+     <table:table-cell table:formula="of:=[.C40]/[.$E$2]/1000/([.$C$2]/[.B40])^4*(1+[.$C$3]*([.B40]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B40]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="19.850120907541">
       <text:p>19.8501209075</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D43]" office:value-type="float" office:value="0.0503775269006096">
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D40]" office:value-type="float" office:value="0.0503775269006096">
       <text:p>0.0503775269</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E43]" office:value-type="float" office:value="0.993041810264816">
-      <text:p>0.9930418103</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E40]" office:value-type="float" office:value="0.92145534453905">
+      <text:p>0.9214553445</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -1017,14 +1006,14 @@
      <table:table-cell table:style-name="ce2" office:value-type="float" office:value="5186494">
       <text:p>5186494</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C44]/[.$E$2]/1000/([.$C$2]/[.B44])^4*(1+[.$C$3]*([.B44]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B44]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="21.8821431122157">
+     <table:table-cell table:formula="of:=[.C41]/[.$E$2]/1000/([.$C$2]/[.B41])^4*(1+[.$C$3]*([.B41]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B41]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="21.8821431122157">
       <text:p>21.8821431122</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D44]" office:value-type="float" office:value="0.0456993629404494">
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D41]" office:value-type="float" office:value="0.0456993629404494">
       <text:p>0.0456993629</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E44]" office:value-type="float" office:value="0.900825842282139">
-      <text:p>0.9008258423</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E41]" office:value-type="float" office:value="0.83588704754376">
+      <text:p>0.8358870475</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -1042,14 +1031,14 @@
      <table:table-cell table:style-name="ce2" office:value-type="float" office:value="4733483">
       <text:p>4733483</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C45]/[.$E$2]/1000/([.$C$2]/[.B45])^4*(1+[.$C$3]*([.B45]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B45]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="20.9657078789887">
+     <table:table-cell table:formula="of:=[.C42]/[.$E$2]/1000/([.$C$2]/[.B42])^4*(1+[.$C$3]*([.B42]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B42]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="20.9657078789887">
       <text:p>20.965707879</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D45]" office:value-type="float" office:value="0.0476969347170087">
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D42]" office:value-type="float" office:value="0.0476969347170087">
       <text:p>0.0476969347</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E45]" office:value-type="float" office:value="0.940201977141675">
-      <text:p>0.9402019771</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E42]" office:value-type="float" office:value="0.872424632908806">
+      <text:p>0.8724246329</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -1067,14 +1056,14 @@
      <table:table-cell table:style-name="ce2" office:value-type="float" office:value="5145140">
       <text:p>5145140</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C46]/[.$E$2]/1000/([.$C$2]/[.B46])^4*(1+[.$C$3]*([.B46]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B46]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="23.8989649162039">
+     <table:table-cell table:formula="of:=[.C43]/[.$E$2]/1000/([.$C$2]/[.B43])^4*(1+[.$C$3]*([.B43]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B43]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="23.8989649162039">
       <text:p>23.8989649162</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D46]" office:value-type="float" office:value="0.0418428163523511">
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D43]" office:value-type="float" office:value="0.0418428163523511">
       <text:p>0.0418428164</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E46]" office:value-type="float" office:value="0.824805595937544">
-      <text:p>0.8248055959</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E43]" office:value-type="float" office:value="0.765346953900853">
+      <text:p>0.7653469539</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -1092,14 +1081,14 @@
      <table:table-cell table:style-name="ce2" office:value-type="float" office:value="5249525">
       <text:p>5249525</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C47]/[.$E$2]/1000/([.$C$2]/[.B47])^4*(1+[.$C$3]*([.B47]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B47]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="25.5456287379358">
+     <table:table-cell table:formula="of:=[.C44]/[.$E$2]/1000/([.$C$2]/[.B44])^4*(1+[.$C$3]*([.B44]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B44]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="25.5456287379358">
       <text:p>25.5456287379</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D47]" office:value-type="float" office:value="0.0391456405422106">
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D44]" office:value-type="float" office:value="0.0391456405422106">
       <text:p>0.0391456405</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E47]" office:value-type="float" office:value="0.771638866368054">
-      <text:p>0.7716388664</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E44]" office:value-type="float" office:value="0.716012911157573">
+      <text:p>0.7160129112</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -1120,14 +1109,14 @@
      <table:table-cell office:value-type="float" office:value="5009488">
       <text:p>5009488</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C49]/[.$E$2]/1000/([.$C$2]/[.B49])^4*(1+[.$C$3]*([.B49]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B49]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="20.1101534012929">
+     <table:table-cell table:formula="of:=[.C46]/[.$E$2]/1000/([.$C$2]/[.B46])^4*(1+[.$C$3]*([.B46]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B46]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="20.1101534012929">
       <text:p>20.1101534013</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D49]" office:value-type="float" office:value="0.0497261249104001">
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D46]" office:value-type="float" office:value="0.0497261249104001">
       <text:p>0.0497261249</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E49]" office:value-type="float" office:value="0.980201374233807">
-      <text:p>0.9802013742</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E46]" office:value-type="float" office:value="0.909540550736129">
+      <text:p>0.9095405507</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -1145,14 +1134,14 @@
      <table:table-cell office:value-type="float" office:value="5387181">
       <text:p>5387181</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C50]/[.$E$2]/1000/([.$C$2]/[.B50])^4*(1+[.$C$3]*([.B50]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B50]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="21.62636906417">
+     <table:table-cell table:formula="of:=[.C47]/[.$E$2]/1000/([.$C$2]/[.B47])^4*(1+[.$C$3]*([.B47]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B47]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="21.62636906417">
       <text:p>21.6263690642</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D50]" office:value-type="float" office:value="0.0462398471529266">
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D47]" office:value-type="float" office:value="0.0462398471529266">
       <text:p>0.0462398472</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E50]" office:value-type="float" office:value="0.91147986707849">
-      <text:p>0.9114798671</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E47]" office:value-type="float" office:value="0.845773044274181">
+      <text:p>0.8457730443</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -1170,14 +1159,14 @@
      <table:table-cell office:value-type="float" office:value="5415010">
       <text:p>5415010</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C51]/[.$E$2]/1000/([.$C$2]/[.B51])^4*(1+[.$C$3]*([.B51]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B51]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="21.7380861616068">
+     <table:table-cell table:formula="of:=[.C48]/[.$E$2]/1000/([.$C$2]/[.B48])^4*(1+[.$C$3]*([.B48]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B48]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="21.7380861616068">
       <text:p>21.7380861616</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D51]" office:value-type="float" office:value="0.0460022097881907">
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D48]" office:value-type="float" office:value="0.0460022097881907">
       <text:p>0.0460022098</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E51]" office:value-type="float" office:value="0.906795559344815">
-      <text:p>0.9067955593</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E48]" office:value-type="float" office:value="0.841426419235796">
+      <text:p>0.8414264192</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -1195,14 +1184,14 @@
      <table:table-cell office:value-type="float" office:value="5476728">
       <text:p>5476728</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C52]/[.$E$2]/1000/([.$C$2]/[.B52])^4*(1+[.$C$3]*([.B52]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B52]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="21.9858476988379">
+     <table:table-cell table:formula="of:=[.C49]/[.$E$2]/1000/([.$C$2]/[.B49])^4*(1+[.$C$3]*([.B49]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B49]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="21.9858476988379">
       <text:p>21.9858476988</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D52]" office:value-type="float" office:value="0.045483804568193">
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D49]" office:value-type="float" office:value="0.045483804568193">
       <text:p>0.0454838046</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E52]" office:value-type="float" office:value="0.89657675564822">
-      <text:p>0.8965767556</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E49]" office:value-type="float" office:value="0.831944269356818">
+      <text:p>0.8319442694</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -1213,7 +1202,294 @@
     <table:table-row table:style-name="ro2">
      <table:table-cell table:number-columns-repeated="1024"/>
     </table:table-row>
-    <table:table-row table:style-name="ro4">
+    <table:table-row table:style-name="ro6">
+     <table:table-cell office:value-type="string">
+      <text:p>MadSpin</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="172.5">
+      <text:p>172.5</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="ce2" office:value-type="float" office:value="62131965">
+      <text:p>62131965</text:p>
+     </table:table-cell>
+     <table:table-cell table:formula="of:=[.C51]/[.$E$2]/1000/([.$C$2]/[.B51])^4*(1+[.$C$3]*([.B51]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B51]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="249.423363679834">
+      <text:p>249.4233636798</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D51]" office:value-type="float" office:value="0.00400924751092534">
+      <text:p>0.0040092475</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E51]" office:value-type="float" office:value="0.0733331462223354">
+      <text:p>0.0733331462</text:p>
+     </table:table-cell>
+     <table:table-cell/>
+     <table:table-cell office:value-type="string">
+      <text:p>/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/Summer12_DR53X-PU_S10_START53_V19-v1/AODSIM</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="1016"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro3">
+     <table:table-cell table:number-columns-repeated="4"/>
+     <table:table-cell table:style-name="Default"/>
+     <table:table-cell table:style-name="ce6"/>
+     <table:table-cell table:number-columns-repeated="1018"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro3">
+     <table:table-cell office:value-type="string">
+      <text:p>166_5 MadSpin</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="166.5">
+      <text:p>166.5</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="27078777">
+      <text:p>27078777</text:p>
+     </table:table-cell>
+     <table:table-cell table:formula="of:=[.C53]/[.$E$2]/1000/([.$C$2]/[.B53])^4*(1+[.$C$3]*([.B53]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B53]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="98.0685312778778">
+      <text:p>98.0685312779</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D53]" office:value-type="float" office:value="0.0101969509175833">
+      <text:p>0.0101969509</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E53]" office:value-type="float" office:value="0.186512429233516">
+      <text:p>0.1865124292</text:p>
+     </table:table-cell>
+     <table:table-cell/>
+     <table:table-cell office:value-type="string">
+      <text:p>/TTJets_MSDecays_mass166_5_TuneZ2star_8TeV-madgraph-tauola/Summer12_DR53X-PU_S10_START53_V19-v1/AODSIM</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="1016"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro3">
+     <table:table-cell office:value-type="string">
+      <text:p>169_5 MadSpin</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="169.5">
+      <text:p>169.5</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="39518234">
+      <text:p>39518234</text:p>
+     </table:table-cell>
+     <table:table-cell table:formula="of:=[.C54]/[.$E$2]/1000/([.$C$2]/[.B54])^4*(1+[.$C$3]*([.B54]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B54]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="150.772499388792">
+      <text:p>150.7724993888</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D54]" office:value-type="float" office:value="0.00663250927094689">
+      <text:p>0.0066325093</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E54]" office:value-type="float" office:value="0.12131522707489">
+      <text:p>0.1213152271</text:p>
+     </table:table-cell>
+     <table:table-cell/>
+     <table:table-cell office:value-type="string">
+      <text:p>/TTJets_MSDecays_mass169_5_TuneZ2star_8TeV-madgraph-tauola/Summer12_DR53X-PU_S10_START53_V19-v1/AODSIM</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="1016"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro3">
+     <table:table-cell office:value-type="string">
+      <text:p>171_5 MadSpin</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="171.5">
+      <text:p>171.5</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="24439341">
+      <text:p>24439341</text:p>
+     </table:table-cell>
+     <table:table-cell table:formula="of:=[.C55]/[.$E$2]/1000/([.$C$2]/[.B55])^4*(1+[.$C$3]*([.B55]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B55]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="96.4723346369327">
+      <text:p>96.4723346369</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D55]" office:value-type="float" office:value="0.0103656660094672">
+      <text:p>0.010365666</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E55]" office:value-type="float" office:value="0.189598396979165">
+      <text:p>0.189598397</text:p>
+     </table:table-cell>
+     <table:table-cell/>
+     <table:table-cell office:value-type="string">
+      <text:p>/TTJets_MSDecays_mass171_5_TuneZ2star_8TeV-madgraph-tauola/Summer12_DR53X-PU_S10_START53_V19-v1/AODSIM</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="1016"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro3">
+     <table:table-cell office:value-type="string">
+      <text:p>173_5 MadSpin</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="173.5">
+      <text:p>173.5</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="26489020">
+      <text:p>26489020</text:p>
+     </table:table-cell>
+     <table:table-cell table:formula="of:=[.C56]/[.$E$2]/1000/([.$C$2]/[.B56])^4*(1+[.$C$3]*([.B56]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B56]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="108.128639914434">
+      <text:p>108.1286399144</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D56]" office:value-type="float" office:value="0.009248243580899">
+      <text:p>0.0092482436</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E56]" office:value-type="float" office:value="0.169159623338224">
+      <text:p>0.1691596233</text:p>
+     </table:table-cell>
+     <table:table-cell/>
+     <table:table-cell office:value-type="string">
+      <text:p>/TTJets_MSDecays_mass173_5_TuneZ2star_8TeV-madgraph-tauola/Summer12_DR53X-PU_S10_START53_V19-v1/AODSIM</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="1016"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro3">
+     <table:table-cell office:value-type="string">
+      <text:p>175_5 MadSpin</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="175.5">
+      <text:p>175.5</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="40244328">
+      <text:p>40244328</text:p>
+     </table:table-cell>
+     <table:table-cell table:formula="of:=[.C57]/[.$E$2]/1000/([.$C$2]/[.B57])^4*(1+[.$C$3]*([.B57]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B57]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="169.793341079918">
+      <text:p>169.7933410799</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D57]" office:value-type="float" office:value="0.00588951247227841">
+      <text:p>0.0058895125</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E57]" office:value-type="float" office:value="0.107725072630444">
+      <text:p>0.1077250726</text:p>
+     </table:table-cell>
+     <table:table-cell/>
+     <table:table-cell office:value-type="string">
+      <text:p>/TTJets_MSDecays_mass175_5_TuneZ2star_8TeV-madgraph-tauola/Summer12_DR53X-PU_S10_START53_V19-v1/AODSIM</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="1016"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro3">
+     <table:table-cell office:value-type="string">
+      <text:p>178_5 MadSpin</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="178.5">
+      <text:p>178.5</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="24359161">
+      <text:p>24359161</text:p>
+     </table:table-cell>
+     <table:table-cell table:formula="of:=[.C58]/[.$E$2]/1000/([.$C$2]/[.B58])^4*(1+[.$C$3]*([.B58]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B58]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="107.892444887466">
+      <text:p>107.8924448875</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D58]" office:value-type="float" office:value="0.00926848956887597">
+      <text:p>0.0092684896</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E58]" office:value-type="float" office:value="0.16952994270431">
+      <text:p>0.1695299427</text:p>
+     </table:table-cell>
+     <table:table-cell/>
+     <table:table-cell office:value-type="string">
+      <text:p>/TTJets_MSDecays_mass178_5_TuneZ2star_8TeV-madgraph-tauola/Summer12_DR53X-PU_S10_START53_V19-v1/AODSIM</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="1016"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro3">
+     <table:table-cell table:number-columns-repeated="1024"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro3">
+     <table:table-cell office:value-type="string">
+      <text:p>MS Scale Up</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="172.5">
+      <text:p>172.5</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="41908271">
+      <text:p>41908271</text:p>
+     </table:table-cell>
+     <table:table-cell table:formula="of:=[.C60]/[.$E$2]/1000/([.$C$2]/[.B60])^4*(1+[.$C$3]*([.B60]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B60]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="168.237104988166">
+      <text:p>168.2371049882</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D60]" office:value-type="float" office:value="0.00594399196342771">
+      <text:p>0.005943992</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E60]" office:value-type="float" office:value="0.108721557003056">
+      <text:p>0.108721557</text:p>
+     </table:table-cell>
+     <table:table-cell/>
+     <table:table-cell office:value-type="string">
+      <text:p>/TTJets_MSDecays_scaleup_TuneZ2star_8TeV-madgraph-tauola/Summer12_DR53X-PU_S10_START53_V19-v1/AODSIM</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="1016"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro3">
+     <table:table-cell office:value-type="string">
+      <text:p>MS Scale Down</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="172.5">
+      <text:p>172.5</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="39286663">
+      <text:p>39286663</text:p>
+     </table:table-cell>
+     <table:table-cell table:formula="of:=[.C61]/[.$E$2]/1000/([.$C$2]/[.B61])^4*(1+[.$C$3]*([.B61]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B61]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="157.712887934835">
+      <text:p>157.7128879348</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D61]" office:value-type="float" office:value="0.00634063590550184">
+      <text:p>0.0063406359</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E61]" office:value-type="float" office:value="0.115976571347534">
+      <text:p>0.1159765713</text:p>
+     </table:table-cell>
+     <table:table-cell/>
+     <table:table-cell table:style-name="Default" office:value-type="string">
+      <text:p>/TTJets_MSDecays_scaledown_TuneZ2star_8TeV-madgraph-tauola/Summer12_DR53X-PU_S10_START53_V19-v1/AODSIM</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="1016"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro3">
+     <table:table-cell office:value-type="string">
+      <text:p>MS Match Up</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="172.5">
+      <text:p>172.5</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="37083003">
+      <text:p>37083003</text:p>
+     </table:table-cell>
+     <table:table-cell table:formula="of:=[.C62]/[.$E$2]/1000/([.$C$2]/[.B62])^4*(1+[.$C$3]*([.B62]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B62]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="148.866486736889">
+      <text:p>148.8664867369</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D62]" office:value-type="float" office:value="0.00671742862963796">
+      <text:p>0.0067174286</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E62]" office:value-type="float" office:value="0.122868487064708">
+      <text:p>0.1228684871</text:p>
+     </table:table-cell>
+     <table:table-cell/>
+     <table:table-cell office:value-type="string">
+      <text:p>/TTJets_MSDecays_matchingup_TuneZ2star_8TeV-madgraph-tauola/Summer12_DR53X-PU_S10_START53_V19-v2/AODSIM</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="1016"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro3">
+     <table:table-cell office:value-type="string">
+      <text:p>MS Match Down</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="172.5">
+      <text:p>172.5</text:p>
+     </table:table-cell>
+     <table:table-cell table:formula="of:=13406551+20646562" office:value-type="float" office:value="34053113">
+      <text:p>34053113</text:p>
+     </table:table-cell>
+     <table:table-cell table:formula="of:=[.C63]/[.$E$2]/1000/([.$C$2]/[.B63])^4*(1+[.$C$3]*([.B63]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B63]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="136.703257143557">
+      <text:p>136.7032571436</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D63]" office:value-type="float" office:value="0.00731511465706969">
+      <text:p>0.0073151147</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E63]" office:value-type="float" office:value="0.133800762192462">
+      <text:p>0.1338007622</text:p>
+     </table:table-cell>
+     <table:table-cell/>
+     <table:table-cell office:value-type="string">
+      <text:p>/TTJets_MSDecays_matchingdown_TuneZ2star_8TeV-madgraph-tauola/Summer12_DR53X-PU_S10_START53_V19-v1/AODSIM &amp; /TTJets_MSDecays_matchingdown_TuneZ2star_8TeV-madgraph-tauola/Summer12_DR53X-PU_S10_START53_V19-v2/AODSIM</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="1016"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro3">
+     <table:table-cell table:number-columns-repeated="1024"/>
+    </table:table-row>
+    <table:table-row table:style-name="ro6">
      <table:table-cell office:value-type="string">
       <text:p>Pow+Pyt</text:p>
      </table:table-cell>
@@ -1223,14 +1499,14 @@
      <table:table-cell table:style-name="ce2" office:value-type="float" office:value="21675970">
       <text:p>21675970</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C54]/[.$E$2]/1000/([.$C$2]/[.B54])^4*(1+[.$C$3]*([.B54]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B54]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="87.0162942444065">
+     <table:table-cell table:formula="of:=[.C65]/[.$E$2]/1000/([.$C$2]/[.B65])^4*(1+[.$C$3]*([.B65]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B65]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="87.0162942444065">
       <text:p>87.0162942444</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D54]" office:value-type="float" office:value="0.0114921005161545">
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D65]" office:value-type="float" office:value="0.0114921005161545">
       <text:p>0.0114921005</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E54]" office:value-type="float" office:value="0.226532285374438">
-      <text:p>0.2265322854</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E65]" office:value-type="float" office:value="0.210202010540983">
+      <text:p>0.2102020105</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -1248,14 +1524,14 @@
      <table:table-cell office:value-type="float" office:value="27684235">
       <text:p>27684235</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C55]/[.$E$2]/1000/([.$C$2]/[.B55])^4*(1+[.$C$3]*([.B55]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B55]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="111.135950948968">
+     <table:table-cell table:formula="of:=[.C66]/[.$E$2]/1000/([.$C$2]/[.B66])^4*(1+[.$C$3]*([.B66]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B66]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="111.135950948968">
       <text:p>111.135950949</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D55]" office:value-type="float" office:value="0.00899798842283886">
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D66]" office:value-type="float" office:value="0.00899798842283886">
       <text:p>0.0089979884</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E55]" office:value-type="float" office:value="0.177368347791">
-      <text:p>0.1773683478</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E66]" office:value-type="float" office:value="0.164582206242146">
+      <text:p>0.1645822062</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -1273,14 +1549,14 @@
      <table:table-cell office:value-type="float" office:value="32852589">
       <text:p>32852589</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C56]/[.$E$2]/1000/([.$C$2]/[.B56])^4*(1+[.$C$3]*([.B56]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B56]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="131.883858074843">
+     <table:table-cell table:formula="of:=[.C67]/[.$E$2]/1000/([.$C$2]/[.B67])^4*(1+[.$C$3]*([.B67]-[.$C$2])/[.$C$2]+[.$C$4]*(([.B67]-[.$C$2])/[.$C$2])^2)" office:value-type="float" office:value="131.883858074843">
       <text:p>131.8838580748</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D56]" office:value-type="float" office:value="0.00758242907507687">
+     <table:table-cell table:style-name="ce4" table:formula="of:=1/[.D67]" office:value-type="float" office:value="0.00758242907507687">
       <text:p>0.0075824291</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E56]" office:value-type="float" office:value="0.149464841927915">
-      <text:p>0.1494648419</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E67]" office:value-type="float" office:value="0.138690210212231">
+      <text:p>0.1386902102</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -1303,14 +1579,14 @@
      <table:table-cell office:value-type="float" office:value="50129518">
       <text:p>50129518</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C61]/[.Q61]/1000" office:value-type="float" office:value="0.00483875656370656">
+     <table:table-cell table:formula="of:=[.C72]/[.Q72]/1000" office:value-type="float" office:value="0.00483875656370656">
       <text:p>0.0048387566</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=1/[.D61]" office:value-type="float" office:value="206.664664120648">
+     <table:table-cell table:formula="of:=1/[.D72]" office:value-type="float" office:value="206.664664120648">
       <text:p>206.6646641206</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E61]" office:value-type="float" office:value="4073.77385914622">
-      <text:p>4073.7738591462</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E72]" office:value-type="float" office:value="3780.10337143078">
+      <text:p>3780.1033714308</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -1328,14 +1604,14 @@
      <table:table-cell office:value-type="float" office:value="27062078">
       <text:p>27062078</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C62]/[.Q62]/1000" office:value-type="float" office:value="0.0980510072463768">
+     <table:table-cell table:formula="of:=[.C73]/[.Q73]/1000" office:value-type="float" office:value="0.0980510072463768">
       <text:p>0.0980510072</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=1/[.D62]" office:value-type="float" office:value="10.1987733536205">
+     <table:table-cell table:formula="of:=1/[.D73]" office:value-type="float" office:value="10.1987733536205">
       <text:p>10.1987733536</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E62]" office:value-type="float" office:value="201.038220346568">
-      <text:p>201.0382203466</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E73]" office:value-type="float" office:value="186.545763411073">
+      <text:p>186.5457634111</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -1352,14 +1628,14 @@
      <table:table-cell office:value-type="float" office:value="30599292">
       <text:p>30599292</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C63]/[.Q63]/1000" office:value-type="float" office:value="3.63153239971517">
+     <table:table-cell table:formula="of:=[.C74]/[.Q74]/1000" office:value-type="float" office:value="3.63153239971517">
       <text:p>3.6315323997</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=1/[.D63]" office:value-type="float" office:value="0.275365848334007">
+     <table:table-cell table:formula="of:=1/[.D74]" office:value-type="float" office:value="0.275365848334007">
       <text:p>0.2753658483</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E63]" office:value-type="float" office:value="5.42801160235995">
-      <text:p>5.4280116024</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E74]" office:value-type="float" office:value="5.03671673187733">
+      <text:p>5.0367167319</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -1376,14 +1652,14 @@
      <table:table-cell office:value-type="float" office:value="13843863">
       <text:p>13843863</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C64]/[.Q64]/1000" office:value-type="float" office:value="67.8620735294118">
+     <table:table-cell table:formula="of:=[.C75]/[.Q75]/1000" office:value-type="float" office:value="67.8620735294118">
       <text:p>67.8620735294</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=1/[.D64]" office:value-type="float" office:value="0.014735771366706">
+     <table:table-cell table:formula="of:=1/[.D75]" office:value-type="float" office:value="0.014735771366706">
       <text:p>0.0147357714</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E64]" office:value-type="float" office:value="0.290471525180508">
-      <text:p>0.2904715252</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E75]" office:value-type="float" office:value="0.269531994068419">
+      <text:p>0.2695319941</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -1403,14 +1679,14 @@
      <table:table-cell office:value-type="float" office:value="45991">
       <text:p>45991</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C66]/[.Q66]/1000" office:value-type="float" office:value="0.0048230030957155">
+     <table:table-cell table:formula="of:=[.C77]/[.Q77]/1000" office:value-type="float" office:value="0.0048230030957155">
       <text:p>0.0048230031</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=1/[.D66]" office:value-type="float" office:value="207.339696897219">
+     <table:table-cell table:formula="of:=1/[.D77]" office:value-type="float" office:value="207.339696897219">
       <text:p>207.3396968972</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E66]" office:value-type="float" office:value="4087.08010523798">
-      <text:p>4087.080105238</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E77]" office:value-type="float" office:value="3792.45039594703">
+      <text:p>3792.450395947</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -1427,14 +1703,14 @@
      <table:table-cell office:value-type="float" office:value="36994">
       <text:p>36994</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C67]/[.Q67]/1000" office:value-type="float" office:value="0.0193172086805773">
+     <table:table-cell table:formula="of:=[.C78]/[.Q78]/1000" office:value-type="float" office:value="0.0193172086805773">
       <text:p>0.0193172087</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=1/[.D67]" office:value-type="float" office:value="51.7673136184246">
+     <table:table-cell table:formula="of:=1/[.D78]" office:value-type="float" office:value="51.7673136184246">
       <text:p>51.7673136184</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E67]" office:value-type="float" office:value="1020.43728604639">
-      <text:p>1020.4372860464</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E78]" office:value-type="float" office:value="946.875933394605">
+      <text:p>946.8759333946</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -1451,14 +1727,14 @@
      <table:table-cell office:value-type="float" office:value="66997">
       <text:p>66997</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C68]/[.Q68]/1000" office:value-type="float" office:value="0.08838654353562">
+     <table:table-cell table:formula="of:=[.C79]/[.Q79]/1000" office:value-type="float" office:value="0.08838654353562">
       <text:p>0.0883865435</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=1/[.D68]" office:value-type="float" office:value="11.3139394301237">
+     <table:table-cell table:formula="of:=1/[.D79]" office:value-type="float" office:value="11.3139394301237">
       <text:p>11.3139394301</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E68]" office:value-type="float" office:value="223.020374046599">
-      <text:p>223.0203740466</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E79]" office:value-type="float" office:value="206.943266116393">
+      <text:p>206.9432661164</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -1475,14 +1751,14 @@
      <table:table-cell office:value-type="float" office:value="46997">
       <text:p>46997</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C69]/[.Q69]/1000" office:value-type="float" office:value="0.458654981603833">
+     <table:table-cell table:formula="of:=[.C80]/[.Q80]/1000" office:value-type="float" office:value="0.458654981603833">
       <text:p>0.4586549816</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=1/[.D69]" office:value-type="float" office:value="2.18028810349597">
+     <table:table-cell table:formula="of:=1/[.D80]" office:value-type="float" office:value="2.18028810349597">
       <text:p>2.1802881035</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E69]" office:value-type="float" office:value="42.9778390961125">
-      <text:p>42.9778390961</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E80]" office:value-type="float" office:value="39.8796497010447">
+      <text:p>39.879649701</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -1504,14 +1780,14 @@
      <table:table-cell table:formula="of:=40884011+16825894" office:value-type="float" office:value="57709905">
       <text:p>57709905</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C71]/[.Q71]/1000" office:value-type="float" office:value="1.53856154522915">
+     <table:table-cell table:formula="of:=[.C82]/[.Q82]/1000" office:value-type="float" office:value="1.53856154522915">
       <text:p>1.5385615452</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce5" table:formula="of:=1/[.D71]" office:value-type="float" office:value="0.649957749887129">
+     <table:table-cell table:style-name="ce5" table:formula="of:=1/[.D82]" office:value-type="float" office:value="0.649957749887129">
       <text:p>0.6499577499</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E71]" office:value-type="float" office:value="12.8119671657751">
-      <text:p>12.8119671658</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E82]" office:value-type="float" office:value="11.8883772031855">
+      <text:p>11.8883772032</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -1528,14 +1804,14 @@
      <table:table-cell office:value-type="float" office:value="20646001">
       <text:p>20646001</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C72]/[.Q72]/1000" office:value-type="float" office:value="54.7058850026497">
+     <table:table-cell table:formula="of:=[.C83]/[.Q83]/1000" office:value-type="float" office:value="54.7058850026497">
       <text:p>54.7058850026</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce5" table:formula="of:=1/[.D72]" office:value-type="float" office:value="0.0182795690070925">
+     <table:table-cell table:style-name="ce5" table:formula="of:=1/[.D83]" office:value-type="float" office:value="0.0182795690070925">
       <text:p>0.018279569</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E72]" office:value-type="float" office:value="0.360326864267807">
-      <text:p>0.3603268643</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E83]" office:value-type="float" office:value="0.334351596708728">
+      <text:p>0.3343515967</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -1552,14 +1828,14 @@
      <table:table-cell table:style-name="ce2" office:value-type="float" office:value="30459503">
       <text:p>30459503</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C73]/[.Q73]/1000" office:value-type="float" office:value="8.69352484516369">
+     <table:table-cell table:formula="of:=[.C84]/[.Q84]/1000" office:value-type="float" office:value="8.69352484516369">
       <text:p>8.6935248452</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce5" table:formula="of:=1/[.D73]" office:value-type="float" office:value="0.115028140807156">
+     <table:table-cell table:style-name="ce5" table:formula="of:=1/[.D84]" office:value-type="float" office:value="0.115028140807156">
       <text:p>0.1150281408</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E73]" office:value-type="float" office:value="2.26743471159066">
-      <text:p>2.2674347116</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E84]" office:value-type="float" office:value="2.1039797235037">
+      <text:p>2.1039797235</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -1576,14 +1852,14 @@
      <table:table-cell office:value-type="float" office:value="21484602">
       <text:p>21484602</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C74]/[.Q74]/1000" office:value-type="float" office:value="0.159523329373329">
+     <table:table-cell table:formula="of:=[.C85]/[.Q85]/1000" office:value-type="float" office:value="0.159523329373329">
       <text:p>0.1595233294</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce5" table:formula="of:=1/[.D74]" office:value-type="float" office:value="6.26867558449535">
+     <table:table-cell table:style-name="ce5" table:formula="of:=1/[.D85]" office:value-type="float" office:value="6.26867558449535">
       <text:p>6.2686755845</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E74]" office:value-type="float" office:value="123.568133121572">
-      <text:p>123.5681331216</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E85]" office:value-type="float" office:value="114.660345116004">
+      <text:p>114.660345116</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -1600,14 +1876,14 @@
      <table:table-cell office:value-type="float" office:value="259961">
       <text:p>259961</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C75]/[.Q75]/1000" office:value-type="float" office:value="68.5912928759894">
+     <table:table-cell table:formula="of:=[.C86]/[.Q86]/1000" office:value-type="float" office:value="68.5912928759894">
       <text:p>68.591292876</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce5" table:formula="of:=1/[.D75]" office:value-type="float" office:value="0.0145791099434146">
+     <table:table-cell table:style-name="ce5" table:formula="of:=1/[.D86]" office:value-type="float" office:value="0.0145791099434146">
       <text:p>0.0145791099</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E75]" office:value-type="float" office:value="0.287383415204588">
-      <text:p>0.2873834152</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E86]" office:value-type="float" office:value="0.266666499974996">
+      <text:p>0.2666665</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -1624,14 +1900,14 @@
      <table:table-cell office:value-type="float" office:value="3758227">
       <text:p>3758227</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C76]/[.Q76]/1000" office:value-type="float" office:value="66.6352304964539">
+     <table:table-cell table:formula="of:=[.C87]/[.Q87]/1000" office:value-type="float" office:value="66.6352304964539">
       <text:p>66.6352304965</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce5" table:formula="of:=1/[.D76]" office:value-type="float" office:value="0.015007076475157">
+     <table:table-cell table:style-name="ce5" table:formula="of:=1/[.D87]" office:value-type="float" office:value="0.015007076475157">
       <text:p>0.0150070765</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E76]" office:value-type="float" office:value="0.295819491478295">
-      <text:p>0.2958194915</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E87]" office:value-type="float" office:value="0.274494435807097">
+      <text:p>0.2744944358</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -1648,14 +1924,14 @@
      <table:table-cell office:value-type="float" office:value="497658">
       <text:p>497658</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C77]/[.Q77]/1000" office:value-type="float" office:value="44.834054054054">
+     <table:table-cell table:formula="of:=[.C88]/[.Q88]/1000" office:value-type="float" office:value="44.834054054054">
       <text:p>44.8340540541</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce5" table:formula="of:=1/[.D77]" office:value-type="float" office:value="0.0223044741569512">
+     <table:table-cell table:style-name="ce5" table:formula="of:=1/[.D88]" office:value-type="float" office:value="0.0223044741569512">
       <text:p>0.0223044742</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E77]" office:value-type="float" office:value="0.439665794581821">
-      <text:p>0.4396657946</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E88]" office:value-type="float" office:value="0.407971136804794">
+      <text:p>0.4079711368</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -1672,14 +1948,14 @@
      <table:table-cell office:value-type="float" office:value="139974">
       <text:p>139974</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C78]/[.Q78]/1000" office:value-type="float" office:value="79.5306818181818">
+     <table:table-cell table:formula="of:=[.C89]/[.Q89]/1000" office:value-type="float" office:value="79.5306818181818">
       <text:p>79.5306818182</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce5" table:formula="of:=1/[.D78]" office:value-type="float" office:value="0.0125737636989727">
+     <table:table-cell table:style-name="ce5" table:formula="of:=1/[.D89]" office:value-type="float" office:value="0.0125737636989727">
       <text:p>0.0125737637</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E78]" office:value-type="float" office:value="0.247854030034149">
-      <text:p>0.24785403</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E89]" office:value-type="float" office:value="0.229986711817909">
+      <text:p>0.2299867118</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -1696,14 +1972,14 @@
      <table:table-cell office:value-type="float" office:value="1935072">
       <text:p>1935072</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C79]/[.Q79]/1000" office:value-type="float" office:value="63.031661237785">
+     <table:table-cell table:formula="of:=[.C90]/[.Q90]/1000" office:value-type="float" office:value="63.031661237785">
       <text:p>63.0316612378</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce5" table:formula="of:=1/[.D79]" office:value-type="float" office:value="0.0158650427477634">
+     <table:table-cell table:style-name="ce5" table:formula="of:=1/[.D90]" office:value-type="float" office:value="0.0158650427477634">
       <text:p>0.0158650427</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E79]" office:value-type="float" office:value="0.312731722643912">
-      <text:p>0.3127317226</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E90]" office:value-type="float" office:value="0.29018749689934">
+      <text:p>0.2901874969</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -1720,14 +1996,14 @@
      <table:table-cell office:value-type="float" office:value="493460">
       <text:p>493460</text:p>
      </table:table-cell>
-     <table:table-cell table:formula="of:=[.C80]/[.Q80]/1000" office:value-type="float" office:value="44.4558558558559">
+     <table:table-cell table:formula="of:=[.C91]/[.Q91]/1000" office:value-type="float" office:value="44.4558558558559">
       <text:p>44.4558558559</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce5" table:formula="of:=1/[.D80]" office:value-type="float" office:value="0.0224942244558829">
+     <table:table-cell table:style-name="ce5" table:formula="of:=1/[.D91]" office:value-type="float" office:value="0.0224942244558829">
       <text:p>0.0224942245</text:p>
      </table:table-cell>
-     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E80]" office:value-type="float" office:value="0.443406152474365">
-      <text:p>0.4434061525</text:p>
+     <table:table-cell table:style-name="ce6" table:formula="of:=[.$H$2]*[.E91]" office:value-type="float" office:value="0.411441859522555">
+      <text:p>0.4114418595</text:p>
      </table:table-cell>
      <table:table-cell/>
      <table:table-cell office:value-type="string">
@@ -1747,7 +2023,7 @@
     <table:table-row table:style-name="ro2" table:number-rows-repeated="1048449">
      <table:table-cell table:number-columns-repeated="1024"/>
     </table:table-row>
-    <table:table-row table:style-name="ro5" table:number-rows-repeated="37">
+    <table:table-row table:style-name="ro5" table:number-rows-repeated="26">
      <table:table-cell table:number-columns-repeated="1024"/>
     </table:table-row>
     <table:table-row table:style-name="ro5">
@@ -1755,13 +2031,13 @@
     </table:table-row>
    </table:table>
    <table:table table:name="Sheet2" table:style-name="ta1">
-    <table:table-column table:style-name="co1" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co3" table:default-cell-style-name="Default"/>
     <table:table-row table:style-name="ro5">
      <table:table-cell/>
     </table:table-row>
    </table:table>
    <table:table table:name="Sheet3" table:style-name="ta1">
-    <table:table-column table:style-name="co1" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co3" table:default-cell-style-name="Default"/>
     <table:table-row table:style-name="ro5">
      <table:table-cell/>
     </table:table-row>

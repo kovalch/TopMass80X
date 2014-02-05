@@ -75,6 +75,7 @@ void TopMassControlPlots::doPlots()
 	  hists.push_back(MyHistogram("fitChi2"    , "top.fitChi2"   , "", ";#chi^{2}; Permutations", 50, 0, 50));
 	  hists.push_back(MyHistogram("deltaRbb"    , "sqrt(pow(top.fitB1.Eta()-top.fitB2.Eta(),2) + pow(TVector2::Phi_mpi_pi(top.fitB1.Phi()-top.fitB2.Phi()),2))"            , "", ";#DeltaR_{b#bar{b}}; Permutations", 50, 1, 6));
 	  hists.push_back(MyHistogram("deltaRbbBest", "sqrt(pow(top.fitB1[0].Eta()-top.fitB2[0].Eta(),2) + pow(TVector2::Phi_mpi_pi(top.fitB1[0].Phi()-top.fitB2[0].Phi()),2))", "", ";#DeltaR_{b#bar{b}}; Events"      , 50, 1, 6));
+	  hists.push_back(MyHistogram("deltaRqq"    , "sqrt(pow(top.recoW1Prod1.Eta()-top.recoW1Prod2.Eta(),2) + pow(TVector2::Phi_mpi_pi(top.recoW1Prod1.Phi()-top.recoW1Prod2.Phi()),2))", "", ";#DeltaR_{q#bar{q}}; Permutations", 50, 1, 6));
 	  hists.push_back(MyHistogram("combinationType"    , "top.combinationType"   , "", ";Combination Type; Permutations", 20, -10, 10));
 	  hists.push_back(MyHistogram("combinationTypeBest", "top.combinationType[0]", "", ";Combination Type; Events"      , 20, -10, 10));
   }
@@ -138,15 +139,15 @@ void TopMassControlPlots::doPlots()
 
 	  hists.push_back(MyHistogram("pullChargedB1_B2_deltaR_0",
 			  "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxB1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitB2.Phi()-top.fitB1.Phi()),-(top.fitB2.Eta()-top.fitB1.Eta())))))",
-			  "sqrt(pow(top.fitB2.Phi()-top.fitB1.Phi(),2)+pow(top.fitB2.Eta()-top.fitB1.Eta(),2)) < 1.",
+			  "sqrt(pow(TVector2::Phi_mpi_pi(top.fitB2.Phi()-top.fitB1.Phi()),2)+pow(top.fitB2.Eta()-top.fitB1.Eta(),2)) < 1.",
 			  ";#theta_{pull,ch}^{b_{1} #rightarrow b_{2}}, #DeltaR < 1; Permutations", 20, 0, 3.1416));
 	  hists.push_back(MyHistogram("pullChargedB1_B2_deltaR_1",
 			  "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxB1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitB2.Phi()-top.fitB1.Phi()),-(top.fitB2.Eta()-top.fitB1.Eta())))))",
-			  "sqrt(pow(top.fitB2.Phi()-top.fitB1.Phi(),2)+pow(top.fitB2.Eta()-top.fitB1.Eta(),2)) > 1.",
+			  "sqrt(pow(TVector2::Phi_mpi_pi(top.fitB2.Phi()-top.fitB1.Phi()),2)+pow(top.fitB2.Eta()-top.fitB1.Eta(),2)) > 1.",
 			  ";#theta_{pull,ch}^{b_{1} #rightarrow b_{2}}, #DeltaR > 1; Permutations", 20, 0, 3.1416));
 	  hists.push_back(MyHistogram("pullChargedB1_B2_deltaR_2",
 			  "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxB1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitB2.Phi()-top.fitB1.Phi()),-(top.fitB2.Eta()-top.fitB1.Eta())))))",
-			  "sqrt(pow(top.fitB2.Phi()-top.fitB1.Phi(),2)+pow(top.fitB2.Eta()-top.fitB1.Eta(),2)) > 2.",
+			  "sqrt(pow(TVector2::Phi_mpi_pi(top.fitB2.Phi()-top.fitB1.Phi()),2)+pow(top.fitB2.Eta()-top.fitB1.Eta(),2)) > 2.",
 			  ";#theta_{pull,ch}^{b_{1} #rightarrow b_{2}}, #DeltaR > 2; Permutations", 20, 0, 3.1416));
   }
 
@@ -157,32 +158,32 @@ void TopMassControlPlots::doPlots()
 
 	  hists.push_back(MyHistogram("pullChargedW1Prod1_B1_deltaR_0",
 			  "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxW1Prod1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitB1.Phi()-top.fitW1Prod1.Phi()),-(top.fitB1.Eta()-top.fitW1Prod1.Eta())))))",
-			  "sqrt(pow(top.fitB1.Eta()-top.fitW1Prod1.Eta(),2)+pow(top.fitB1.Phi()-top.fitW1Prod1.Phi(),2)) < 1.",
+			  "sqrt(pow(top.fitB1.Eta()-top.fitW1Prod1.Eta(),2)+pow(TVector2::Phi_mpi_pi(top.fitB1.Phi()-top.fitW1Prod1.Phi()),2)) < 1.",
 			  ";#theta_{pull,ch}^{q_{1} #rightarrow b_{1}}, #DeltaR < 1; Permutations", 20, 0, 3.1416));
 	  hists.push_back(MyHistogram("pullChargedW1Prod1_B1_deltaR_1",
 			  "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxW1Prod1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitB1.Phi()-top.fitW1Prod1.Phi()),-(top.fitB1.Eta()-top.fitW1Prod1.Eta())))))",
-			  "sqrt(pow(top.fitB1.Eta()-top.fitW1Prod1.Eta(),2)+pow(top.fitB1.Phi()-top.fitW1Prod1.Phi(),2)) > 1.",
+			  "sqrt(pow(top.fitB1.Eta()-top.fitW1Prod1.Eta(),2)+pow(TVector2::Phi_mpi_pi(top.fitB1.Phi()-top.fitW1Prod1.Phi()),2)) > 1.",
 			  ";#theta_{pull,ch}^{q_{1} #rightarrow b_{1}}, #DeltaR > 1; Permutations", 20, 0, 3.1416));
 	  hists.push_back(MyHistogram("pullChargedW1Prod1_B1_deltaR_2",
 			  "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxW1Prod1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitB1.Phi()-top.fitW1Prod1.Phi()),-(top.fitB1.Eta()-top.fitW1Prod1.Eta())))))",
-			  "sqrt(pow(top.fitB1.Eta()-top.fitW1Prod1.Eta(),2)+pow(top.fitB1.Phi()-top.fitW1Prod1.Phi(),2)) > 2.",
+			  "sqrt(pow(top.fitB1.Eta()-top.fitW1Prod1.Eta(),2)+pow(TVector2::Phi_mpi_pi(top.fitB1.Phi()-top.fitW1Prod1.Phi()),2)) > 2.",
 			  ";#theta_{pull,ch}^{q_{1} #rightarrow b_{1}}, #DeltaR > 2; Permutations", 20, 0, 3.1416));
 
 	  hists.push_back(MyHistogram("pullChargedB1_W1Prod2_deltaR_0",
 			  "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxB1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitW1Prod2.Phi()-top.fitB1.Phi()),-(top.fitW1Prod2.Eta()-top.fitB1.Eta())))))",
-			  "sqrt(pow(top.fitB1.Eta()-top.fitW1Prod2.Eta(),2)+pow(top.fitB1.Phi()-top.fitW1Prod2.Phi(),2)) < 1.",
+			  "sqrt(pow(top.fitB1.Eta()-top.fitW1Prod2.Eta(),2)+pow(TVector2::Phi_mpi_pi(top.fitB1.Phi()-top.fitW1Prod2.Phi()),2)) < 1.",
 			  ";#theta_{pull,ch}^{b_{1} #rightarrow q_{2}}, #DeltaR < 1; Permutations", 20, 0, 3.1416));
 	  hists.push_back(MyHistogram("pullChargedB1_W1Prod2_deltaR_1",
 			  "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxB1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitW1Prod2.Phi()-top.fitB1.Phi()),-(top.fitW1Prod2.Eta()-top.fitB1.Eta())))))",
-			  "sqrt(pow(top.fitB1.Eta()-top.fitW1Prod2.Eta(),2)+pow(top.fitB1.Phi()-top.fitW1Prod2.Phi(),2)) > 2.",
+			  "sqrt(pow(top.fitB1.Eta()-top.fitW1Prod2.Eta(),2)+pow(TVector2::Phi_mpi_pi(top.fitB1.Phi()-top.fitW1Prod2.Phi()),2)) > 2.",
 			  ";#theta_{pull,ch}^{b_{1} #rightarrow q_{2}}, #DeltaR > 1; Permutations", 20, 0, 3.1416));
 	  hists.push_back(MyHistogram("pullChargedB1_W1Prod2_deltaR_2",
 			  "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxB1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitW1Prod2.Phi()-top.fitB1.Phi()),-(top.fitW1Prod2.Eta()-top.fitB1.Eta())))))",
-			  "sqrt(pow(top.fitB1.Eta()-top.fitW1Prod2.Eta(),2)+pow(top.fitB1.Phi()-top.fitW1Prod2.Phi(),2)) > 2.",
+			  "sqrt(pow(top.fitB1.Eta()-top.fitW1Prod2.Eta(),2)+pow(TVector2::Phi_mpi_pi(top.fitB1.Phi()-top.fitW1Prod2.Phi()),2)) > 2.",
 			  ";#theta_{pull,ch}^{b_{1} #rightarrow q_{2}}, #DeltaR > 2; Permutations", 20, 0, 3.1416));
   }
 
-  // pts
+  // Basic kinematics
   if(plotSelectedForPlotting.find("JetPts")!=plotSelectedForPlotting.end()){
 	  hists.push_back(MyHistogram("jet1Pt", "jet.jet[0].Pt()", "", ";p_{T}^{1} [GeV]; Events", 45, 0, 450));
 	  hists.push_back(MyHistogram("jet2Pt", "jet.jet[1].Pt()", "", ";p_{T}^{2} [GeV]; Events", 40, 0, 400));
@@ -190,6 +191,23 @@ void TopMassControlPlots::doPlots()
 	  hists.push_back(MyHistogram("jet4Pt", "jet.jet[3].Pt()", "", ";p_{T}^{4} [GeV]; Events", 40, 0, 200));
 	  hists.push_back(MyHistogram("jet5Pt", "jet.jet[4].Pt()", "", ";p_{T}^{5} [GeV]; Events", 50, 0, 150));
 	  hists.push_back(MyHistogram("jet6Pt", "jet.jet[5].Pt()", "", ";p_{T}^{6} [GeV]; Events", 50, 0, 100));
+	  hists.push_back(MyHistogram("lJetPt", "jet.jet.Pt()", "jet.bTagCSV<0.679", ";p_{T} [GeV], untagged (CSVM); Jets", 45, 0, 450));
+	  hists.push_back(MyHistogram("bJetPt", "jet.jet.Pt()", "jet.bTagCSV>0.679", ";p_{T} [GeV], b-tagged (CSVM); Jets", 45, 0, 450));
+	  hists.push_back(MyHistogram("lJetPt_vs_nVertex" , "weight.nVertex", "jet.jet.Pt()" , "jet.bTagCSV<0.679", ";N_{Vertex}; p_{T} [GeV], untagged (CSVM)", 8, 0, 40, 44, 10, 450));
+	  hists.push_back(MyHistogram("bJetPt_vs_nVertex" , "weight.nVertex", "jet.jet.Pt()" , "jet.bTagCSV>0.679", ";N_{Vertex}; p_{T} [GeV], b-tagged (CSVM)", 8, 0, 40, 44, 10, 450));
+  }
+  
+  if(plotSelectedForPlotting.find("JetEtas")!=plotSelectedForPlotting.end()){
+	  hists.push_back(MyHistogram("jet1Eta", "jet.jet[0].Eta()", "", ";#eta^{1}; Events", 30, -3, 3));
+	  hists.push_back(MyHistogram("jet2Eta", "jet.jet[1].Eta()", "", ";#eta^{2}; Events", 30, -3, 3));
+	  hists.push_back(MyHistogram("jet3Eta", "jet.jet[2].Eta()", "", ";#eta^{3}; Events", 30, -3, 3));
+	  hists.push_back(MyHistogram("jet4Eta", "jet.jet[3].Eta()", "", ";#eta^{4}; Events", 30, -3, 3));
+	  hists.push_back(MyHistogram("jet5Eta", "jet.jet[4].Eta()", "", ";#eta^{5}; Events", 30, -3, 3));
+	  hists.push_back(MyHistogram("jet6Eta", "jet.jet[5].Eta()", "", ";#eta^{6}; Events", 30, -3, 3));
+	  hists.push_back(MyHistogram("lJetEta", "jet.jet.Eta()", "jet.bTagCSV<0.679", ";#eta, untagged (CSVM); Jets", 30, -3, 3));
+	  hists.push_back(MyHistogram("bJetEta", "jet.jet.Eta()", "jet.bTagCSV>0.679", ";#eta, b-tagged (CSVM); Jets", 30, -3, 3));
+	  hists.push_back(MyHistogram("lJetEta_vs_nVertex" , "weight.nVertex", "abs(jet.jet.Eta())" , "jet.bTagCSV<0.679", ";N_{Vertex}; #eta, untagged (CSVM)", 6, 0, 30, 30, 0, 3));
+	  hists.push_back(MyHistogram("bJetEta_vs_nVertex" , "weight.nVertex", "abs(jet.jet.Eta())" , "jet.bTagCSV>0.679", ";N_{Vertex}; #eta, b-tagged (CSVM)", 6, 0, 30, 30, 0, 3));
   }
 
   if(plotSelectedForPlotting.find("TopPts")!=plotSelectedForPlotting.end()){
@@ -216,6 +234,10 @@ void TopMassControlPlots::doPlots()
 	  hists.push_back(MyHistogram("leptonPt", "top.recoW2Prod1[0].Pt()", "", ";p_{T}^{lepton} [GeV]; Events", 40, 0, 200));
 	  hists.push_back(MyHistogram("leptonEta", "top.recoW2Prod1[0].Eta()", "", ";#eta^{lepton}; Events", 25, -2.5, 2.5));
 	  hists.push_back(MyHistogram("MET", "top.recoW2Prod2[0].Pt()", "", ";p_{T}^{miss} [GeV]; Events", 40, 0, 200));
+	  hists.push_back(MyHistogram("fitW1Pt", "top.fitW1.Pt()"   , "", ";p_{T,W,had}^{fit} [GeV]; Permutations", 40, 0, 400));
+	  hists.push_back(MyHistogram("fitW2Pt", "top.fitW2.Pt()"   , "", ";p_{T,W,lep}^{fit} [GeV]; Permutations", 40, 0, 400));
+	  hists.push_back(MyHistogram("recoW1MassZoom"    , "top.recoW1.M()"   , "", ";m_{W}^{reco} [GeV]; Permutations / 2 GeV", 50, 60, 110));
+	  hists.push_back(MyHistogram("recoW2Mass"    , "top.recoW2.M()"   , "", ";m_{W,lep}^{reco} [GeV]; Permutations / 5 GeV", 60, 0, 300));
   }
 
   // jet details
@@ -315,7 +337,7 @@ void TopMassControlPlots::doPlots()
   if (channelID_ == Helper::kAllJets) {
     if(plotSelectedForPlotting.find("StandardPlots")!=plotSelectedForPlotting.end()){
       samples.push_back(MySample("Data", "MJP12*v1_data", kData, kBlack));
-      samples.push_back(MySample("t#bar{t}", "Z2_S12_ABS_JES_100_172_5_sig", kSig, kRed+1));
+      samples.push_back(MySample("t#bar{t}", "Z2_S12_ABS_JES_100_172_5_MadSpin_sig*", kSig, kRed+1));
       samples.push_back(MySample("QCD", "QCDMixing_MJPS12*v1_data", kBkg, kYellow, 1));
     }
 
@@ -588,6 +610,19 @@ void TopMassControlPlots::doPlots()
       samples.push_back(MySample("t#bar{t}, JES = 1.04", "Summer12_TTJets1725_1.04", kSigVar, kGreen+1, 1, lumi_/1000.));
     }
     
+    if(plotSelectedForPlotting.find("JESUncVariationPlots")!=plotSelectedForPlotting.end()){
+      samples.push_back(MySample("t#bar{t}, JES down", "Summer12_TTJets1725_source:down_Total", kSigVar, kRed+1, 1, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t}, JES default", "Summer12_TTJets1725_1.00", kSigVar, kBlue+1, 1, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t}, JES up", "Summer12_TTJets1725_source:up_Total", kSigVar, kGreen+1, 1, lumi_/1000.));
+    }
+    
+    if(plotSelectedForPlotting.find("bJESUncVariationPlots")!=plotSelectedForPlotting.end()){
+      samples.push_back(MySample("t#bar{t}, bJES down (FlavorQCD)", "Summer12_TTJets1725_flavor:down_FlavorQCD", kSigVar, kRed+1, 1, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t}, bJES default", "Summer12_TTJets1725_1.00", kSigVar, kBlue+1, 1, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t}, bJES up (FlavorQCD)", "Summer12_TTJets1725_flavor:up_FlavorQCD", kSigVar, kGreen+1, 1, lumi_/1000.));
+    }
+    
+
     // Nu fraction and frag function weighting
     if(plotSelectedForPlotting.find("WeightVariationPlots")!=plotSelectedForPlotting.end()){
 //        MySample(std::string name_, std::string file_, int type_, int color_, int line_ = 1, double scale_ = 1., std::string replaceVar_="") :
@@ -672,9 +707,6 @@ void TopMassControlPlots::doPlots()
         else if(sample.type == kSig    ) hist.AddSignal(&sample);
         else if(sample.type == kBkg    ) hist.AddBackground(&sample);
         else if(sample.type == kSigVar ) hist.AddSignalVariation(&sample);
-
- //        varx = new TTreeFormula((std::string("fx")+name).c_str(), formulax.c_str() , chain);
-
       }
 
       //replaceVar used for replacements in selection
@@ -682,7 +714,19 @@ void TopMassControlPlots::doPlots()
       // Initialize weight and selection formulas
 //      TTreeFormula weight("weight",  po::GetOption<std::string>("weight").c_str(), chain);
       TTreeFormula weight("weight",  po::GetOptionReplaced("weight",sample.replaceVar).c_str(), chain);
-      TTreeFormula sel   ("sel"   ,  po::GetOptionReplaced("analysisConfig.selection",sample.replaceVar).c_str(), chain);
+      std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
+      std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
+      std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
+      std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
+      std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
+      std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
+      std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
+      std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
+      std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
+      std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
+      std::string tempSel(po::GetOptionReplaced("analysisConfig.selection",sample.replaceVar));
+      if(sample.type == kBkg)  boost::replace_all(tempSel, "&& jet.alternativeJet[3].Pt() > 60", "");
+      TTreeFormula sel   ("sel"   ,  tempSel.c_str(), chain);
       TTreeFormula selCP ("selCP" , (po::GetOptionReplaced("analysisConfig.selection",sample.replaceVar)
 				 +std::string(" & ")+po::GetOptionReplaced("analysisConfig.selectionCP",sample.replaceVar)).c_str(), chain);
       TTreeFormula selWP ("selWP" , (po::GetOptionReplaced("analysisConfig.selection",sample.replaceVar)
@@ -696,7 +740,7 @@ void TopMassControlPlots::doPlots()
 //    	if(i%1000==0)std::cout << "event " << (Long_t) i << std::endl;
         long entry = chain->LoadTree(i);
         if(entry  < 0) break;
-//	if(i > 10000) break;
+        //if(i > 10000) break;
         if(entry == 0){
           for(auto& hist : hists) {
             hist.varx->UpdateFormulaLeaves();
@@ -799,6 +843,7 @@ void TopMassControlPlots::doPlots()
   bool firstHist = true;
   for(MyHistogram& hist : hists){
     if(hist.Dimension() == -1) continue;
+
     // Show event yields for first histogram
     int bins = hist.Data1D()->GetNbinsX()+1;
     if (firstHist) std::cout << "Yields" << std::endl;
