@@ -994,6 +994,8 @@ void TopMassControlPlots::doPlots()
           }
           collectAll2DProfiles.push_back(collectAll2D.at(h_i)->ProfileX(collectAll2D.at(h_i)->GetName()+(TString)"_pfx")->ProjectionX()); //convert TProfile to TH1 with ProjectionX()
           collectAll2DProfiles.at(h_i)->SetLineColor(collectAll2D.at(h_i)->GetLineColor());
+          collectAll2DProfiles.at(h_i)->SetMarkerColor(collectAll2D.at(h_i)->GetLineColor());
+          collectAll2DProfiles.at(h_i)->SetMarkerStyle(collectAll2D.at(h_i)->GetMarkerStyle());
 	  
           collectAll2DProfiles.at(h_i)->GetYaxis()->SetTitle(collectAll2D.at(h_i)->GetYaxis()->GetTitle());
 	  if(hist.ExportSigVarToRoot()){
@@ -1007,10 +1009,10 @@ void TopMassControlPlots::doPlots()
 
         for (size_t h_i=0;h_i<collectAll2DProfiles.size();++h_i){
           if(h_i==0){
-            collectAll2DProfiles.at(h_i)->Draw();
+        	hist.DataContainsMC()==false ? collectAll2DProfiles.at(h_i)->Draw("p") : collectAll2DProfiles.at(h_i)->Draw("hist");
           }
           else {
-            collectAll2DProfiles.at(h_i)->Draw("SAME");
+            collectAll2DProfiles.at(h_i)->Draw("hist SAME");
           }
         }
 
