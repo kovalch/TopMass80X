@@ -356,9 +356,9 @@ private:
         varForms.clear();
         xMins.clear();
         xMaxs.clear();
-    	char buffer [200];
-    	char buffer2 [200];
-
+//    	char buffer [200];
+//    	char buffer2 [200];
+//
 //        for(unsigned int j = 0; j < tempVarForms.size(); ++j){
 //   	    	sprintf(buffer,"%02d_%s",j,tempVarForms.at(j).c_str());
 //        	addVariable(buffer,("GBRResult"+tempVarForms.at(j)).c_str()      ,0.5,1.5);

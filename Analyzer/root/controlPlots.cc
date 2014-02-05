@@ -1047,6 +1047,10 @@ void TopMassControlPlots::doPlots()
         pad1->Draw();
         pad1->cd();
 
+        double oldLabelSize = hist.Data2D()->GetLabelSize();
+        double oldTitleSize = hist.Data2D()->GetTitleSize();
+        hist.Data2D()->SetLabelSize(0);
+        hist.Data2D()->SetTitleSize(0);
 
         TH1* data2DProfile = (TH1*) hist.Data2D()->ProfileX(hist.Data2D()->GetName()+(TString)"_pfx")->ProjectionX();
         data2DProfile->SetLineColor(hist.Data2D()->GetLineColor());
@@ -1091,6 +1095,9 @@ void TopMassControlPlots::doPlots()
 
         canvWRatio->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_sigvar_Ratio.eps")).c_str(),"eps");
         canvWRatio->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_sigvar_Ratio.png")).c_str(),"png");
+
+        hist.Data2D()->SetLabelSize(oldLabelSize);
+        hist.Data2D()->SetTitleSize(oldTitleSize);
 
         delete data2DProfile;
         for(TH1* sigvar : collectAll2DProfiles) delete sigvar;        
