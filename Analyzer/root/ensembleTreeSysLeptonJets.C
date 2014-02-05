@@ -39,9 +39,11 @@ struct comparison {
 enum lepton           { kElectron, kMuon, kAll, kMuon_BReg};
 std::string lepton_ [4] = { "electron", "muon", "lepton", "muon_BReg"};
 
+//int channel = 3;
 int channel = 2;
 
 TString globalPath("/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_131012/");
+//TString globalPath("/nfs/dust/test/cms/user/kirschen/BRegression_PE_NewCalibrationJan2014Applied_MCS3250MinEvtsBReg/");
 
 double crossSection   = 230;
 double peLumi         = 20000.;
@@ -62,6 +64,7 @@ void ensembleTreeSysLeptonJets(TString sPath = globalPath)
   
   ensembles["calibration"] = ensemble("", 0, 172.5, 1., 172.5);
   ensembles["default"] = ensemble("job_*_ensemble.root", 7000000./1.75);
+  //ensembles["default"] = ensemble("Summer12_TTJets1725_1.00/job_*_ensemble.root", 7000000./1.75);
   ensembles["defaultNewWeights"] = ensemble("weight.combinedWeight/job_*_ensemble.root", 7000000./1.75);
   
   ensembles["puUp"] = ensemble("weight.combinedWeight/weight.puWeight*weight.puWeightUp/job_*_ensemble.root", 7000000./1.75);
@@ -116,13 +119,13 @@ void ensembleTreeSysLeptonJets(TString sPath = globalPath)
   
   comparisons["FlavorPureBottom"] = comparison("default", "flavorBUp", "flavorBDown");
   comparisons["PU"] = comparison("defaultNewWeights", "puUp", "puDown");
-  comparisons["FlavorPureQuark"] = comparison("defaultNewWeights", "flavorQUp", "flavorQDown");
-  comparisons["FlavorPureGluon"] = comparison("defaultNewWeights", "flavorGUp", "flavorGDown");
+  comparisons["FlavorPureQuark"] = comparison("defaultNewWeights", "flavorQUp", "flavorQDown", true);//
+  comparisons["FlavorPureGluon"] = comparison("defaultNewWeights", "flavorGUp", "flavorGDown", true);//
   comparisons["b-fragmentation"] = comparison("defaultNewWeights", "bFragLEP");
   comparisons["neutrino fraction"] = comparison("defaultNewWeights", "bFNuUp", "bFNuDown");
-  comparisons["b-tag"] = comparison("defaultNewWeights", "bTagSFUp", "bTagSFDown");
-  comparisons["mistag"] = comparison("defaultNewWeights", "misTagSFUp", "misTagSFDown");
-  comparisons["top-pt"] = comparison("defaultNewWeights", "topPt");
+  comparisons["b-tag"] = comparison("defaultNewWeights", "bTagSFUp", "bTagSFDown", true);//
+  comparisons["mistag"] = comparison("defaultNewWeights", "misTagSFUp", "misTagSFDown", true);//
+  comparisons["top-pt"] = comparison("defaultNewWeights", "topPt", "", true);//
   comparisons["matching"] = comparison("calibration", "matchingUp", "matchingDown");
   comparisons["scale"] = comparison("calibration", "scaleUp", "scaleDown");
   comparisons["jer"] = comparison("default", "jerUp", "jerDown");
@@ -130,6 +133,8 @@ void ensembleTreeSysLeptonJets(TString sPath = globalPath)
   comparisons["generator"] = comparison("calibration", "powheg");
   comparisons["nlogenerator"] = comparison("powheg", "mcatnlo", "", false);
   comparisons["shower"] = comparison("powheg", "powhegHerwig", "", false);
+  comparisons["nlogeneratorHer"] = comparison("powhegHerwig", "mcatnlo", "", false);
+  comparisons["MGVsPowheg"] = comparison("powheg", "defaultSC", "", false);
   comparisons["SC"] = comparison("calibration", "defaultSC", "", false);
   comparisons["tune"] = comparison("defaultSC", "P11", "", false);
   comparisons["CR"] = comparison("P11", "P11noCR");
