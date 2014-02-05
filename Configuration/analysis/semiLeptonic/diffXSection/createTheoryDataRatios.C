@@ -149,38 +149,28 @@ TCanvas* getRatio(TString plotName, int verbose, TString outputFile){
   std::vector<TCanvas*> plotCanvas_;
   double max= 1.5;
   double min= 0.5;
-  if(plotName.Contains("lepPt" )){min=0.75;max=1.25;}
-  if(plotName.Contains("lepEta")){min=0.85;max=1.15;}
-  if(plotName.Contains("bqPt"  )){min=0.7;max=1.5;}
-  if(plotName.Contains("bqEta" )){min=0.8;max=1.15;}
-  if(plotName.Contains("bbbarMass")){min=0.3;max=1.75;}
-  if(plotName.Contains("bbbarPt"  )){min=0.4;max=1.8;}
-  if(plotName.Contains("Njets"   )){min=0.15;max=1.85;}
-  if(plotName.Contains("rhos"    )){min=0.1 ;max=2.4;}
-  if(plotName.Contains("lbMass")){min=0.55;max=1.35;}
-  if(plotName.Contains("topPt")){
-       if(plotName.Contains("Sub")){min=0.8;max=1.7;}
-       else if(plotName.Contains("Lead")){min=0.8;max=1.5;}
-       else{min=0.8;max=1.5;}
+  if(plotName.Contains("lepPt"    )){min=0.85;max=1.29;}
+  if(plotName.Contains("lepEta"   )){min=0.75;max=1.25;}
+  if(plotName.Contains("bqPt"     )){min=0.7 ;max=1.5; }
+  if(plotName.Contains("bqEta"    )){min=0.85;max=1.15;}
+  if(plotName.Contains("bbbarMass")){min=0.3 ;max=1.75;}
+  if(plotName.Contains("bbbarPt"  )){min=0.61;max=1.39;}
+  if(plotName.Contains("Njets"    )){min=0.15;max=1.95;}
+  if(plotName.Contains("rhos"     )){min=0.1 ;max=1.9; }
+  if(plotName.Contains("lbMass"   )){min=0.7 ;max=1.35;}
+  if(plotName.Contains("topPt"    )){
+    if(     plotName.Contains("Sub" )){min=0.7 ;max=1.7;}
+    else if(plotName.Contains("Lead")){min=0.8 ;max=1.5;}
+    else                              {min=0.75;max=1.6;}
   }
-  if(plotName.Contains("topY")){min=0.8;max=1.25;}
-  if(plotName.Contains("ttbarPt")){min=0.7;max=1.5;}
-  if(plotName.Contains("ttbarY")){min=0.8;max=1.35;}
-  if(plotName.Contains("ttbarMass")){min=0.5;max=1.5;}
-  if(plotName.Contains("topPtTtbar")){min=0.8;max=1.7;}
-  if(plotName.Contains("ttbarDelPhi")){min=0.8;max=1.25;}
-  if(plotName.Contains("PhiStar")){min=0.8;max=1.25;}
-  //if(plotName.Contains("")){min=;max=;}
-  //if(plotName.Contains("")){min=;max=;}
-  //if(plotName.Contains("")){min=;max=;}
-  //if(plotName.Contains("")){min=;max=;}
-  //if(plotName.Contains("")){min=;max=;}
-  //if(plotName.Contains("")){min=;max=;}
-  //if(plotName.Contains("")){min=;max=;}
-  //if(plotName.Contains("")){min=;max=;}
-  //if(plotName.Contains("")){min=;max=;}
-  //if(plotName.Contains("")){min=;max=;}
-  plotCanvas_.push_back(drawFinalResultRatio(data, min, max, myStyle, 0, hist_, (TCanvas*)(canvas->Clone()), -1, -1, dataStat, true));
+  if(plotName.Contains("topY"       )){min=0.85;max=1.15;}
+  if(plotName.Contains("ttbarPt"    )){min=0.7 ;max=1.3; }
+  if(plotName.Contains("ttbarY"     )){min=0.8 ;max=1.29;}
+  if(plotName.Contains("ttbarMass"  )){min=0.7 ;max=1.5; }
+  if(plotName.Contains("topPtTtbar" )){min=0.6 ;max=1.79;}
+  if(plotName.Contains("ttbarDelPhi")){min=0.85;max=1.15;}
+  if(plotName.Contains("PhiStar"    )){min=0.85;max=1.15;}
+  plotCanvas_.push_back(drawFinalResultRatio(data, min, max, myStyle, 0, hist_, (TCanvas*)(canvas->Clone()), -1, -1, dataStat, false, true));
   plotCanvas_[0]->Draw();
   plotCanvas_[0]->Update();
   // close file
