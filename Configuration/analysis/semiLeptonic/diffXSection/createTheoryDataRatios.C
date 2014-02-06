@@ -161,7 +161,7 @@ TCanvas* getRatio(TString plotName, int verbose, TString outputFile){
   if(plotName.Contains("topPt"    )){
     if(     plotName.Contains("Sub" )){min=0.7 ;max=1.7;}
     else if(plotName.Contains("Lead")){min=0.8 ;max=1.5;}
-    else                              {min=0.75;max=1.6;}
+    else                              {min=0.75;max=1.59;}
   }
   if(plotName.Contains("topY"       )){min=0.85;max=1.15;}
   if(plotName.Contains("ttbarPt"    )){min=0.7 ;max=1.3; }
