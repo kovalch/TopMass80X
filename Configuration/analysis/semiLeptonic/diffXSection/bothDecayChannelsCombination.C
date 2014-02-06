@@ -563,14 +563,13 @@ void bothDecayChannelsCombination(double luminosity=19712, bool save=true, unsig
 	      double maximumy=xSecMaximum(plotName);
 	      if(maximumy>0.) plotTheo->SetMaximum(maximumy);
 	      if(plotName.Contains("rho")) plotTheo->GetXaxis()->SetLabelSize(0.033); 
+	      // adjust min
+	      if(plotName.Contains("ttbarMass")){
+		plotTheo->GetYaxis()->SetNoExponent(false);
+		plotTheo->SetMinimum(0.000005);
+	      }
 	    }
-	    // bq Pt should alwaye be log
-	    // if (!pTPlotsLog && xSecVariables_[i].Contains("bqPt") ){
-	    //  plotTheo->SetMinimum(0.00001);
-	    //  plotTheo->SetMaximum(0.1);
-	    //  combicanvas->SetLogy(1); 
-	    //}
-	    // adjust max
+	    // remove y axis 10^x label style
 	    if(plotName.Contains("lepEta")||plotName=="bqEta"||plotName.Contains("topY")||plotName=="ttbarY"||plotName.Contains("rhos")) plotTheo->GetYaxis()->SetNoExponent(true);	    
 	  }
 	  
