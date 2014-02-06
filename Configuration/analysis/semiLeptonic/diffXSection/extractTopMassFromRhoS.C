@@ -1,6 +1,6 @@
 #include "basicFunctions.h"
 
-std::map <TString, TH1F*> extraction(int verbose=0, double luminosity=19712., bool save=true, double minx=160., double maxx=185., double nbinsx=250, bool dataMassDependence=false, int binOfInterest=1, TString outputFolder="./", TString outputFile="diffXSecTopSemiLepHadronPhaseSpace.root");
+std::map <TString, TH1F*> extraction(int verbose=0, double luminosity=19712., bool save=false, double minx=160., double maxx=185., double nbinsx=250, bool dataMassDependence=false, int binOfInterest=1, TString outputFolder="./", TString outputFile="diffXSecTopSemiLepHadronPhaseSpace.root");
 std::map<TString, double> GetChi2Info(TH1F* chi2, bool draw=false, int verbose=0, double xmin=-1., double xmax=-1.);
 TH2F* InvertMatrix(TH2& hist, int verbose=2, std::vector<bool> *considerBin_=0);
 
@@ -19,6 +19,10 @@ void extractTopMassFromRhoS(int verbose=0, double luminosity=19712., bool save=t
   double nbinsx=250.;
   // consider mass dependence of measurement
   bool dataMassDependence=true;
+  // add plot with rel. uncertainty ratio for correlation scan
+  bool ratioScan=true;
+  // extract top mass also from all bins with full correlations
+  bool doGlobalChi2CorrAllBins=false;
   // where to store the output
   TString outputFolder="./diffXSecFromSignal/plots/combined/2012/rhos/";
   TString outputFile="diffXSecTopSemiLepHadronPhaseSpace.root";
@@ -154,37 +158,40 @@ void extractTopMassFromRhoS(int verbose=0, double luminosity=19712., bool save=t
     // fill value
     corrglobalchi2->SetBinContent(binMtop, chi2massBin);
   } // end for loop binMtop
-  if(verbose>1) std::cout << " B for all bins" << std::endl;
-  for(int binMtop=1; binMtop<=corrglobalchi2All->GetNbinsX(); ++binMtop){
-    // declare chi2
-    // = SUM_ij (xi-mui)*covij^-1*(xj-muj)
-    double chi2massBin=0; 
-    // fill from bins...
-    for(int binA=1; binA<=4; ++binA){
-      for(int binB=1; binB<=4; ++binB){
-	// ... that are considered
-	double covAB   =covTot   ->GetBinContent(binA, binB);
-	double covABinv=covTotInv->GetBinContent(binA, binB);
-	double resA=result_[binA]["measurement"]->GetBinContent(binMtop)-result_[binA]["prediction"]->GetBinContent(binMtop);
-	double resB=result_[binB]["measurement"]->GetBinContent(binMtop)-result_[binB]["prediction"]->GetBinContent(binMtop);
-	if(verbose>1&&(binA==binB&&(corrglobalchi2All->GetBinLowEdge(binMtop)<=172.5&&corrglobalchi2All->GetBinLowEdge(binMtop+1)>172.5))){
-	  std::cout<< "bin" << binA << "(mtop=" << corrglobalchi2All->GetBinCenter(binMtop) << "): " << std::endl;
-	  std::cout<< "  - diff Norm XSec(A,fit): " << result_[binA]["measurement"]->GetBinContent(binMtop) << std::endl;
-	  std::cout<< "  - diff Norm XSec(B,fit): " << result_[binB]["measurement"]->GetBinContent(binMtop) << std::endl;
-	  std::cout<< "  - covStatAB            : " << covStatTot->GetBinContent(binA, binB) << std::endl;
-	  std::cout<< "  - covSysAB             : " << covSysTot ->GetBinContent(binA, binB) << std::endl;
-	  std::cout<< "  - cov-1AB              : " << covABinv << std::endl;
-	  std::cout<< "  - uncTot               : " << sqrt(covAB) << std::endl;
-	  std::cout<< "  - prediction A,fit     : " << result_[binA]["prediction"]->GetBinContent(binMtop) << std::endl;
-	  std::cout<< "  - prediction B,fit     : " << result_[binB]["prediction"]->GetBinContent(binMtop) << std::endl;
-	  std::cout<< "  - rel. unc.            : " << sqrt(covAB/(result_[binA]["measurement"]->GetBinContent(binMtop)*result_[binB]["measurement"]->GetBinContent(binMtop))) << std::endl;
-	}
-	chi2massBin+=resA*covABinv*resB;
-      } // end for loop binB
-    } // end for loop binA
-    // fill value
-    corrglobalchi2All->SetBinContent(binMtop, chi2massBin);
-  } // end for loop binMtop
+  if(doGlobalChi2CorrAllBins){
+    if(verbose>1) std::cout << " B for all bins" << std::endl;
+    for(int binMtop=1; binMtop<=corrglobalchi2All->GetNbinsX(); ++binMtop){
+      // declare chi2
+      // = SUM_ij (xi-mui)*covij^-1*(xj-muj)
+      double chi2massBin=0; 
+      // fill from bins...
+      for(int binA=1; binA<=4; ++binA){
+	for(int binB=1; binB<=4; ++binB){
+	  // ... that are considered
+	  double covAB   =covTot   ->GetBinContent(binA, binB);
+	  double covABinv=covTotInv->GetBinContent(binA, binB);
+	  double resA=result_[binA]["measurement"]->GetBinContent(binMtop)-result_[binA]["prediction"]->GetBinContent(binMtop);
+	  double resB=result_[binB]["measurement"]->GetBinContent(binMtop)-result_[binB]["prediction"]->GetBinContent(binMtop);
+	  if(verbose>1&&(binA==binB&&(corrglobalchi2All->GetBinLowEdge(binMtop)<=172.5&&corrglobalchi2All->GetBinLowEdge(binMtop+1)>172.5))){
+	    std::cout<< "bin" << binA << "(mtop=" << corrglobalchi2All->GetBinCenter(binMtop) << "): " << std::endl;
+	    std::cout<< "  - diff Norm XSec(A,fit): " << result_[binA]["measurement"]->GetBinContent(binMtop) << std::endl;
+	    std::cout<< "  - diff Norm XSec(B,fit): " << result_[binB]["measurement"]->GetBinContent(binMtop) << std::endl;
+	    std::cout<< "  - covStatAB            : " << covStatTot->GetBinContent(binA, binB) << std::endl;
+	    std::cout<< "  - covSysAB             : " << covSysTot ->GetBinContent(binA, binB) << std::endl;
+	    std::cout<< "  - cov-1AB              : " << covABinv << std::endl;
+	    std::cout<< "  - uncTot               : " << sqrt(covAB) << std::endl;
+	    std::cout<< "  - prediction A,fit     : " << result_[binA]["prediction"]->GetBinContent(binMtop) << std::endl;
+	    std::cout<< "  - prediction B,fit     : " << result_[binB]["prediction"]->GetBinContent(binMtop) << std::endl;
+	    std::cout<< "  - rel. unc.            : " << sqrt(covAB/(result_[binA]["measurement"]->GetBinContent(binMtop)*result_[binB]["measurement"]->GetBinContent(binMtop))) << std::endl;
+	  }
+	  chi2massBin+=resA*covABinv*resB;
+	} // end for loop binB
+      } // end for loop binA
+      // fill value
+      corrglobalchi2All->SetBinContent(binMtop, chi2massBin);
+      if(verbose>2) std::cout << "chi2(mtop=" << binMtop<< ")=" << chi2massBin << std::endl;
+    } // end for loop binMtop
+  } // end if doGlobalChi2CorrAllBins
   if(verbose>1) std::cout << " C scanning different correlation values (only bin 2 and 4)" << std::endl;
   std::vector<bool> considerBin24_(4, false);
   considerBin24_[1]=true; // 2nd bin
@@ -266,6 +273,7 @@ void extractTopMassFromRhoS(int verbose=0, double luminosity=19712., bool save=t
   TH1F* CorrScanMin  = new TH1F("CorrScanMin"  , "CorrScanMin"  , 200, -1.0, 1.0);
   TH1F* CorrScanErrUp= new TH1F("CorrScanErrUp", "CorrScanErrUp", 200, -1.0, 1.0);
   TH1F* CorrScanErrDn= new TH1F("CorrScanErrDn", "CorrScanErrDn", 200, -1.0, 1.0);
+  double corrPlotDiff=172.0;
 
   for( int c=0; c<(int)corr_.size(); ++c){
     double corr=corr_[c];
@@ -275,9 +283,9 @@ void extractTopMassFromRhoS(int verbose=0, double luminosity=19712., bool save=t
     double dn =chi2ResultCorr["dn" ];
     double up =chi2ResultCorr["up" ];
     if(verbose>1) std::cout << TString("mtop(global chi2, with corr=")+getTStringFromDouble(corr,1)+")=" << std::setprecision(2) << std::fixed << val << "+" << up<< "-" << dn << " (bin 2&4 only, by hand implementation!)"<<  std::endl;
-    CorrScanMin  ->SetBinContent(corrbin, val-172.5);
-    CorrScanErrUp->SetBinContent(corrbin, up       );
-    CorrScanErrDn->SetBinContent(corrbin, dn       );
+    CorrScanMin  ->SetBinContent(corrbin, val      );
+    CorrScanErrUp->SetBinContent(corrbin, up +corrPlotDiff);
+    CorrScanErrDn->SetBinContent(corrbin, dn +corrPlotDiff);
   }
   // reset empty bins
   for(int bin=0; bin<CorrScanMin->GetNbinsX()+1; ++bin){
@@ -295,11 +303,48 @@ void extractTopMassFromRhoS(int verbose=0, double luminosity=19712., bool save=t
   CorrScanMin  ->SetMarkerSize(0.75);
   CorrScanErrUp->SetMarkerSize(0.75);
   CorrScanErrDn->SetMarkerSize(0.75);
-  axesStyle(*CorrScanMin  , "assumed correlation #rho_{24}", "result from #chi^{2}_{Tot}#left(#rho_{24}#right) |_{bin2&4}", -3.0, 10.0);
-  axesStyle(*CorrScanErrUp, "assumed correlation #rho_{24}", "result from #chi^{2}_{Tot}#left(#rho_{24}#right) |_{bin2&4}");
-  axesStyle(*CorrScanErrDn, "assumed correlation #rho_{24}", "result from #chi^{2}_{Tot}#left(#rho_{24}#right) |_{bin2&4}");
+  double corrValyMin=ratioScan ? 165.5 : 168.5;
+  double corrValyMax=ratioScan ? 183.5 : 181.5;
+  axesStyle(*CorrScanMin  , "assumed correlation #rho_{24}", "m_{top}#left(#rho_{24}#right) [GeV]",corrValyMin, corrValyMax);
+  axesStyle(*CorrScanErrUp, "assumed correlation #rho_{24}", "#Deltam_{top}#left(#rho_{24}#right) [GeV]");//, -3.0, 10.0 );
+  axesStyle(*CorrScanErrDn, "assumed correlation #rho_{24}", "#Deltam_{top}#left(#rho_{24}#right) [GeV]");//, -3.0, 10.0 );
+  CorrScanMin  ->GetYaxis()->SetNoExponent(true);
+  CorrScanErrUp->GetYaxis()->SetNoExponent(true);
+  CorrScanErrDn->GetYaxis()->SetNoExponent(true);
+  CorrScanMin->GetYaxis()->SetTitleOffset(0.8*CorrScanMin->GetYaxis()->GetTitleOffset());
+  CorrScanMin->GetXaxis()->SetTitleOffset(1.2*CorrScanMin->GetXaxis()->GetTitleOffset());
+  CorrScanErrUp->GetXaxis()->SetTitleOffset(1.2*CorrScanErrUp->GetXaxis()->GetTitleOffset());
+  CorrScanErrDn->GetXaxis()->SetTitleOffset(1.2*CorrScanErrDn->GetXaxis()->GetTitleOffset());
+  // scale uncertainty
+  //CorrScanErrUp->Scale(gPad->GetUymax()/(1.1*CorrScanErrUp->GetMaximum()));
+  //CorrScanErrDn->Scale(gPad->GetUymax()/(1.1*CorrScanErrDn->GetMaximum()));
 
-  std::cout << "combined result:" << std::endl;
+  TH1F* CorrScanErrUpAbs= (TH1F*)CorrScanErrUp->Clone("CorrScanErrUpAbs");
+  TH1F* CorrScanErrDnAbs= (TH1F*)CorrScanErrDn->Clone("CorrScanErrDnAbs");
+  for(int bin=1; bin<=CorrScanErrUpAbs->GetNbinsX(); ++bin){
+    if(CorrScanErrUp->GetBinContent(bin)>0) CorrScanErrUpAbs->SetBinContent(bin, 100*(CorrScanErrUp->GetBinContent(bin)-corrPlotDiff));
+    else                                    CorrScanErrUpAbs->SetBinContent(bin, 0.);
+    if(CorrScanErrDn->GetBinContent(bin)>0) CorrScanErrDnAbs->SetBinContent(bin, 100*(CorrScanErrDn->GetBinContent(bin)-corrPlotDiff));
+    else                                    CorrScanErrDnAbs->SetBinContent(bin, 0.);
+  }
+  CorrScanErrDnAbs->GetYaxis()->SetTitleOffset(0.8*CorrScanErrDnAbs->GetYaxis()->GetTitleOffset());
+  CorrScanErrUpAbs->GetYaxis()->SetTitleOffset(0.8*CorrScanErrUpAbs->GetYaxis()->GetTitleOffset());
+  // draw an axis on the right side
+  TGaxis *uncaxis = new TGaxis(1.0, corrValyMin, 1.0, corrValyMax, corrValyMin-corrPlotDiff, corrValyMax-corrPlotDiff, 510, "+L");
+  uncaxis->SetTitle(CorrScanErrUp->GetYaxis()->GetTitle());
+  uncaxis->SetTitleOffset(0.7*CorrScanMin->GetYaxis()->GetTitleOffset());
+  uncaxis->SetLabelSize(CorrScanMin->GetYaxis()->GetLabelSize());
+  uncaxis->SetLabelFont(CorrScanMin->GetYaxis()->GetLabelFont());
+  uncaxis->SetTitleFont(CorrScanMin->GetYaxis()->GetTitleFont());
+  uncaxis->SetTitleSize(CorrScanMin->GetYaxis()->GetTitleSize());
+  uncaxis->SetLabelOffset(1.2*CorrScanMin->GetYaxis()->GetLabelOffset());
+  uncaxis->SetLineColor(CorrScanErrUp->GetMarkerColor());
+  uncaxis->SetLabelColor(CorrScanErrDn->GetMarkerColor());
+  uncaxis->SetLineWidth(CorrScanErrUp->GetLineWidth()+1);
+
+  //TGaxis *uncaxis2 = (TGaxis*)uncaxis->Clone();
+  //uncaxis2->SetLineColor(CorrScanErrDn->GetMarkerColor());
+  std::cout << "combined results:" << std::endl;
   // draw global chi2
   std::vector<TCanvas*> plotCanvas_;
   addCanvas(plotCanvas_);
@@ -313,7 +358,10 @@ void extractTopMassFromRhoS(int verbose=0, double luminosity=19712., bool save=t
   std::map<TString, double> chi2Result=GetChi2Info(globalchi2, true, verbose, minx3, maxx3);
   DrawDecayChLabel("e/#mu + Jets Combined");
   DrawCMSLabels(prelim, 0.5*(constLumiMuon+constLumiElec), 0.04, false, false, false);
-  std::cout << "mtop(global chi2, no corr  )= " << std::setprecision(2) << std::fixed << chi2Result["min"] << "+" << chi2Result["up"] << "-" << chi2Result["dn"] << std::endl;
+  std::cout << "- mtop(global chi2, no corr  , all bins)= ";
+  std::cout << std::setprecision(2) << std::fixed << chi2Result["min"];
+  std::cout << "+" << chi2Result["up"] << "-" << chi2Result["dn"];
+  std::cout << " (= +" << 100*chi2Result["up"]/chi2Result["min"] << "% -" << 100*chi2Result["dn"]/chi2Result["min"] << "%)" << std::endl;
   
   // draw global chi2 with correlation - only significant bins
   addCanvas(plotCanvas_);
@@ -338,60 +386,100 @@ void extractTopMassFromRhoS(int verbose=0, double luminosity=19712., bool save=t
   DrawCMSLabels(prelim, 0.5*(constLumiMuon+constLumiElec), 0.04, false, false, false);
   DrawLabel(label , 0.35, 0.7, 0.85, 0.8, 12, 0.03);
   DrawLabel(label2, 0.35, 0.6, 0.85, 0.7, 12, 0.03);
-  std::cout << "mtop(global chi2, with corr)= " << std::setprecision(2) << std::fixed << chi2ResultCorr["min"] << "+" << chi2ResultCorr["up"] << "-" << chi2ResultCorr["dn"] << " (bin 2&4 only)"<<  std::endl;
+  std::cout << "- mtop(global chi2, with corr, bin 2&4 )= ";
+  std::cout << std::setprecision(2) << std::fixed << chi2ResultCorr["min"];
+  std::cout << "+" << chi2ResultCorr["up"] << "-" << chi2ResultCorr["dn"];
+  std::cout << " (= +" << 100*chi2ResultCorr["up"]/chi2ResultCorr["min"] << "% -" << 100*chi2ResultCorr["dn"]/chi2ResultCorr["min"] << "%)" << std::endl;
 
   // draw global chi2 with correlation - all bins
-  addCanvas(plotCanvas_);
-  plotCanvas_[plotCanvas_.size()-1]->cd(0);
-  TString titlechi2corrAll="globalchi2RhosBinCorrelationIncludedAllBins";
-  plotCanvas_[plotCanvas_.size()-1]->SetName (titlechi2corrAll);
-  plotCanvas_[plotCanvas_.size()-1]->SetTitle(titlechi2corrAll);
-  //corrglobalchi2All->GetYaxis()->SetTitle("#splitline{global  #chi^{2} = }{#Sigma_{#splitline{ all}{bins}} (x^{pred}_{bin i}-x^{meas}_{bin i})#upointCOV_{ij}^{ -1}#upoint(x^{pred}_{bin j}-x^{meas}_{bin j})}");
-  //corrglobalchi2All->GetYaxis()->SetTitle("#chi^{2}_{Tot}=#sum_{i,j}^{all bins} #Delta#left(#frac{1}{#sigma} #frac{d#sigma}{d#rho_{S}}#right)_{i}#upoint COV_{ij}^{ -1} #upoint #Delta#left(#frac{1}{#sigma} #frac{d#sigma}{d#rho_{S}}#right)_{j}");
-  TString label3=label;
-  label3.ReplaceAll("{bin i,j}", "{bin i,j=1}");
-  label3.ReplaceAll("i,j#in(2,4)", "4");
-  corrglobalchi2All->GetYaxis()->SetTitle("#chi^{2}_{Tot}");
-  corrglobalchi2All->GetYaxis()->SetTitleSize(0.045);
-  corrglobalchi2All->GetXaxis()->SetRangeUser(minx3, maxx3);
-  corrglobalchi2All->SetMinimum(-0.4);
-  corrglobalchi2All->Draw("p");
-  std::map<TString, double> chi2ResultCorrAll=GetChi2Info(corrglobalchi2All, true, verbose, minx3, maxx3);
-  DrawDecayChLabel("e/#mu + Jets Combined");
-  DrawCMSLabels(prelim, 0.5*(constLumiMuon+constLumiElec), 0.04, false, false, false);
-  DrawLabel(label3, 0.35, 0.7, 0.85, 0.8, 12, 0.03);
-  DrawLabel(label2, 0.35, 0.6, 0.85, 0.7, 12, 0.03);
-  std::cout << "mtop(global chi2, with corr)= " << std::setprecision(2) << std::fixed << chi2ResultCorrAll["min"] << "+" << chi2ResultCorrAll["up"] << "-" << chi2ResultCorrAll["dn"] << " (all bins)" << std::endl;
-
+  if(doGlobalChi2CorrAllBins){
+    addCanvas(plotCanvas_);
+    plotCanvas_[plotCanvas_.size()-1]->cd(0);
+    TString titlechi2corrAll="globalchi2RhosBinCorrelationIncludedAllBins";
+    plotCanvas_[plotCanvas_.size()-1]->SetName (titlechi2corrAll);
+    plotCanvas_[plotCanvas_.size()-1]->SetTitle(titlechi2corrAll);
+    //corrglobalchi2All->GetYaxis()->SetTitle("#splitline{global  #chi^{2} = }{#Sigma_{#splitline{ all}{bins}} (x^{pred}_{bin i}-x^{meas}_{bin i})#upointCOV_{ij}^{ -1}#upoint(x^{pred}_{bin j}-x^{meas}_{bin j})}");
+    //corrglobalchi2All->GetYaxis()->SetTitle("#chi^{2}_{Tot}=#sum_{i,j}^{all bins} #Delta#left(#frac{1}{#sigma} #frac{d#sigma}{d#rho_{S}}#right)_{i}#upoint COV_{ij}^{ -1} #upoint #Delta#left(#frac{1}{#sigma} #frac{d#sigma}{d#rho_{S}}#right)_{j}");
+    TString label3=label;
+    label3.ReplaceAll("{bin i,j}", "{bin i,j=1}");
+    label3.ReplaceAll("i,j#in(2,4)", "4");
+    corrglobalchi2All->GetYaxis()->SetTitle("#chi^{2}_{Tot}");
+    corrglobalchi2All->GetYaxis()->SetTitleSize(0.045);
+    corrglobalchi2All->GetXaxis()->SetRangeUser(minx3, maxx3);
+    corrglobalchi2All->SetMinimum(-0.4);
+    corrglobalchi2All->Draw("p");
+    std::map<TString, double> chi2ResultCorrAll=GetChi2Info(corrglobalchi2All, true, verbose, minx3, maxx3);
+    DrawDecayChLabel("e/#mu + Jets Combined");
+    DrawCMSLabels(prelim, 0.5*(constLumiMuon+constLumiElec), 0.04, false, false, false);
+    DrawLabel(label3, 0.35, 0.7, 0.85, 0.8, 12, 0.03);
+    DrawLabel(label2, 0.35, 0.6, 0.85, 0.7, 12, 0.03);
+    std::cout << "- mtop(global chi2, with corr)= " << std::setprecision(2) << std::fixed << chi2ResultCorrAll["min"] << "+" << chi2ResultCorrAll["up"] << "-" << chi2ResultCorrAll["dn"] << " (all bins)" << std::endl;
+  }
   // get values for global chi2 with different correlation values - only significant bins
   std::map<TString, double> chi2ResultCorrTest=GetChi2Info(corrglobalchi2CorrTest_[0], false, verbose, minx3, maxx3);
-  std::cout << "mtop(global chi2, with corr)= " << std::setprecision(2) << std::fixed << chi2ResultCorrTest["min"] << "+" << chi2ResultCorrTest["up"] << "-" << chi2ResultCorrTest["dn"] << " (bin 2&4 only, by hand implementation!)"<<  std::endl;
-
+  if(chi2ResultCorrTest["min"]!=chi2ResultCorr["min"]){
+    std::cout << "!!!!WARNING: different result from by hand implementation!!!!" << std::endl;
+    std::cout << "-> mtop(global chi2, with corr, bin 2&4)= ";
+    std::cout << std::setprecision(2) << std::fixed << chi2ResultCorrTest["min"];
+    std::cout << "+" << chi2ResultCorrTest["up"] << "-" << chi2ResultCorrTest["dn"] << std::endl;
+  }
 
   // print result for different Chis values
-  TLegend *legScan = new TLegend(0.6, 0.65, 0.8, 0.85 );
-  legendStyle(*legScan,"#font[22]{extracted values [GeV]}");
-  legScan->AddEntry(CorrScanMin  , "m_{top} - 172.5 GeV", "P");
-  legScan->AddEntry(CorrScanErrUp, "unc. up", "P");
-  legScan->AddEntry(CorrScanErrDn, "unc. dn", "P");
+  TLegend *legScan = new TLegend(0.45, ratioScan ? 0.38 : 0.2, 0.65, ratioScan ? 0.58 : 0.4 );
+  //legendStyle(*legScan,"#font[22]{#splitline{extracted values [GeV]}{from #chi^{2}_{Tot}#color[10]{#cbar}_{#lower[-0.25]{#scale[1.9]{#cbar}}#lower[-0.47]{bin2&4}}}}");
+  legendStyle(*legScan,"#font[22]{#splitline{extracted values [GeV]}{from #chi^{2}_{Tot}#scale[0.8]{(bin2&4)}}}");
+  legScan->AddEntry(CorrScanMin  , " ", "");
+  legScan->AddEntry(CorrScanMin  , "m_{top}^{#color[10]{               Martin}}", "P");
+  legScan->AddEntry(CorrScanErrUp, "unc. up^{#color[10]{               Martin}}_{#color[10]{               Görner}}", "P");
+  legScan->AddEntry(CorrScanErrDn, "unc. dn^{#color[10]{               Martin}}_{#color[10]{               Görner}}", "P");
   TH1F* dummyLine =(TH1F*)CorrScanMin->Clone("dummyLine");
   dummyLine->SetLineWidth(2);
   dummyLine->SetLineStyle(2);
   dummyLine->SetLineColor(12);
-  legScan->AddEntry(dummyLine, "nominal correlation", "L");
+  legScan->AddEntry(dummyLine, "nominal correlation^{#color[10]{               Martin}}_{#color[10]{               Görner}}", "L");
+  TLegend *legScanNoR= (TLegend*)legScan->Clone("legScanNoR");
+  legScanNoR->SetX1(0.45);
+  legScanNoR->SetY1(0.22);
+  legScanNoR->SetX2(0.65);
+  legScanNoR->SetY2(0.42);
 
   addCanvas(plotCanvas_);
   plotCanvas_[plotCanvas_.size()-1]->cd(0);
+  plotCanvas_[plotCanvas_.size()-1]->SetRightMargin(0.12);
+  plotCanvas_[plotCanvas_.size()-1]->SetLeftMargin (0.15);
   TString titleCorrScan="scanCorrResultsSignificantBins";
+  if(ratioScan) titleCorrScan+="Ratio";
   plotCanvas_[plotCanvas_.size()-1]->SetName (titleCorrScan);
   plotCanvas_[plotCanvas_.size()-1]->SetTitle(titleCorrScan);
-  CorrScanMin  ->Draw("p");
+  CorrScanMin  ->Draw("Axis");
+  uncaxis ->Draw("");
+  CorrScanMin  ->Draw("p same");
   CorrScanErrUp->Draw("p same");
   CorrScanErrDn->Draw("p same");
-  legScan      ->Draw("same");
+  if(!ratioScan) legScan->Draw("same");
   DrawDecayChLabel("e/#mu + Jets Combined");
   DrawCMSLabels(prelim, 0.5*(constLumiMuon+constLumiElec), 0.04, false, false, false);
-  drawLine(corr_[0], -3.0, corr_[0], 8.0, 12, 2, 2);
+  drawLine(corr_[0], corrValyMin, corr_[0], 8.0+corrPlotDiff, 12, 2, 2);
+  if(ratioScan){
+    TString titleNoRat=TString(plotCanvas_[plotCanvas_.size()-1]->GetTitle());
+    titleNoRat.ReplaceAll("Ratio", "");
+    TCanvas* tempCanv =(TCanvas*)plotCanvas_[plotCanvas_.size()-1]->Clone(titleNoRat);
+    tempCanv->SetName (titleNoRat);
+    tempCanv->SetTitle(titleNoRat);
+    plotCanvas_[plotCanvas_.size()-1]->cd(0);
+    plotCanvas_[plotCanvas_.size()-1]->Update();
+    legScan->Draw("same");
+    double ratMin=0.1;
+    double ratMax=4.9;
+    drawRatio(CorrScanErrUpAbs, CorrScanMin     , ratMin, ratMax, myStyle, verbose-1, std::vector<double>(0), "#lower[0.12]{#frac{#Delta m_{top}}{m_{top}} [%]}", "", "p X0"     , CorrScanErrUpAbs->GetMarkerColor(), false, CorrScanErrUpAbs->GetMarkerSize(), 505, false, false);
+    drawRatio(CorrScanErrDnAbs, CorrScanMin     , ratMin, ratMax, myStyle, verbose-1, std::vector<double>(0), "#lower[0.12]{#frac{#Delta m_{top}}{m_{top}} [%]}", "", "p X0 same", CorrScanErrDnAbs->GetMarkerColor(), false, CorrScanErrDnAbs->GetMarkerSize(), 505, false, false);
+    drawLine(corr_[0], ratMin, corr_[0], ratMax, 12, 2, 2);
+    tempCanv->cd(0);
+    tempCanv->Draw();
+    tempCanv->Update();
+    legScanNoR->Draw("same");
+    plotCanvas_.push_back(tempCanv);   
+  }
 
   // linear fit to extracted mass values
   addCanvas(plotCanvas_);
@@ -409,22 +497,23 @@ void extractTopMassFromRhoS(int verbose=0, double luminosity=19712., bool save=t
   // histogram with global chi2 result
   TH1F* CombMass= new TH1F("CombMass", "CombMass", 1, binning_["rhos"][0], binning_["rhos"][binning_["rhos"].size()-1]);
   histogramStyle(*CombMass, kSig, false, 0.1, kBlue);
-  CombMass->SetBinContent(1, chi2ResultCorrAll["min"]);
+  CombMass->SetBinContent(1, chi2ResultCorr["min"]);
+  CombMass->SetLineStyle(2);
   TGraphAsymmErrors* massfinal= new TGraphAsymmErrors(nbinsx);  
   for(int bin=1; bin<=extractedMass->GetNbinsX(); ++bin){
     double binWidth             = extractedMass->GetBinWidth(bin);
     double binCenter            = extractedMass->GetBinCenter(bin);
-    massfinal->SetPoint     (bin-1, binCenter, chi2ResultCorrAll["min"]);
-    massfinal->SetPointError(bin-1, 0.5*binWidth, 0.5*binWidth, chi2ResultCorrAll["dn"], chi2ResultCorrAll["up"]);
+    massfinal->SetPoint     (bin-1, binCenter, chi2ResultCorr["min"]);
+    massfinal->SetPointError(bin-1, 0.5*binWidth, 0.5*binWidth, chi2ResultCorr["dn"], chi2ResultCorr["up"]);
   }
   massfinal->SetLineColor(kBlue);
   massfinal->SetMarkerColor(kBlue);
   massfinal->SetFillColor(kBlue-9);
   massfinal->SetFillStyle(1001);
   massfinal->SetLineWidth(2);
-  massfinal->SetLineStyle(1);
+  massfinal->SetLineStyle(2);
   massfinal->SetMarkerSize(0.1);
-  std::cout << "mtop(intersection          )= " << std::setprecision(2) << std::fixed << mcomb << "+/-" << merr << "GeV (=" << 100*merr/mcomb << "%)" << std::endl;
+  std::cout << "- mtop(lin. fit to intersection results)= " << std::setprecision(2) << std::fixed << mcomb << "+/-" << merr << "GeV (= +/-" << 100*merr/mcomb << "%)" << std::endl;
   // create legend
   TLegend *leg = new TLegend(0.67, 0.55, 0.92, 0.88 );
   legendStyle(*leg,"");
@@ -432,6 +521,7 @@ void extractTopMassFromRhoS(int verbose=0, double luminosity=19712., bool save=t
   legtev->SetFillColor  (TevatronMassErr->GetFillColor());
   legtev->SetFillStyle  (TevatronMassErr->GetFillStyle());
   TH1F* legcomb=(TH1F*)TevatronMass->Clone("legcomb");
+  legcomb->SetLineStyle(massfinal->GetLineStyle());
   legcomb->SetLineColor(massfinal->GetLineColor());
   legcomb->SetLineWidth(massfinal->GetLineWidth());
   legcomb->SetFillColor(massfinal->GetFillColor());
@@ -443,9 +533,10 @@ void extractTopMassFromRhoS(int verbose=0, double luminosity=19712., bool save=t
   leg->AddEntry(legEmpty, "#splitline{#font[22]{extracted from}}{#font[22]{#rho_{S} in CMS data:}}", "P"  );
   leg->AddEntry(extractedMass, "#splitline{#chi^{2} result of}{separate bins}", "LP" );
   //leg->AddEntry(legEmpty, " ", "P" );
-  leg->AddEntry(legcomb      , "#splitline{global #chi^{2} result:}{"+getTStringFromDouble(chi2ResultCorrAll["min"], 1)+"^{+"+getTStringFromDouble(chi2ResultCorrAll["up"], 1)+"}_{- "+getTStringFromDouble(chi2ResultCorrAll["dn"], 1)+"} GeV}", "FLP");
+  //leg->AddEntry(legcomb      , "#splitline{global #chi^{2} result:}{"+getTStringFromDouble(chi2ResultCorrAll["min"], 1)+"^{+"+getTStringFromDouble(chi2ResultCorrAll["up"], 1)+"}_{- "+getTStringFromDouble(chi2ResultCorrAll["dn"], 1)+"} GeV}", "FLP");
+    leg->AddEntry(legcomb      , "#splitline{from #chi^{2}_{Tot}#scale[0.8]{(bin2&4)}:}{"+getTStringFromDouble(chi2ResultCorr["min"], 1)+"^{+"+getTStringFromDouble(chi2ResultCorr["up"], 1)+"}_{- "+getTStringFromDouble(chi2ResultCorr["dn"], 1)+"} GeV}", "FLP");
 
-  // draw extracted mass for all binsR
+  // draw extracted mass for all bins
   TString title="mtopExtractionFromRhosAllBins";
   if(dataMassDependence) title+="DataMassDependence";
   plotCanvas_[plotCanvas_.size()-1]->SetName (title);
@@ -457,9 +548,9 @@ void extractTopMassFromRhoS(int verbose=0, double luminosity=19712., bool save=t
   extractedMass->GetXaxis()->SetTitleOffset(1.1*extractedMass->GetXaxis()->GetTitleOffset());
   extractedMass->Draw("AXIS");
   massfinal->Draw("e2 same");
-  CombMass->Draw("hist same");
   TevatronMassErr->Draw("e2 same");
   TevatronMass->Draw("hist same");
+  CombMass->Draw("hist same");
   //extractedMass->Draw("p e same");
   extractedChi2Mass->Draw("p e same");  
   leg->Draw("same");
@@ -909,10 +1000,12 @@ std::map <TString, TH1F*> extraction(int verbose, double luminosity, bool save, 
   legMC->SetFillStyle(MCunc->GetFillStyle());
   leg->AddEntry(legmeasurement, "Data"+ext             , "P" );
   leg->AddEntry(legmeasurement, "Fit to Data"+ext      , "L" );
-  leg->AddEntry(legmeasurement, "Data Unc.|_{m_{#lower[-0.1]{top}}=172.5 GeV}"+ext, "F" );
+  //leg->AddEntry(legmeasurement, "Data Unc.|_{m_{#lower[-0.1]{top}}=172.5 GeV}"+ext, "F" );
+  leg->AddEntry(legmeasurement, "Data Unc._{#lower[-0.25]{#scale[1.9]{#cbar}}#lower[-0.47]{#scale[1.3]{m_{#lower[-0.1]{top}}=172.5 GeV}}}"+ext, "F" );
   leg->AddEntry(legMC         , "Simulation"+ext, "P");
   leg->AddEntry(legMC         , "Fit to Simulation"+ext, "L");
-  leg->AddEntry(legMC         , "t#bar{t} Model Unc.|_{m_{#lower[-0.1]{top}}=172.5 GeV}"+ext, "F");
+  //leg->AddEntry(legMC         , "t#bar{t} Model Unc.|_{m_{#lower[-0.1]{top}}=172.5 GeV}"+ext, "F");
+  leg->AddEntry(legMC         , "t#bar{t} Model Unc._{#lower[-0.25]{#scale[1.9]{#cbar}}#lower[-0.47]{#scale[1.3]{m_{#lower[-0.1]{top}}=172.5 GeV}}}"+ext, "F");
   //leg->AddEntry(lin           , "linear fit"    , "L" );
   
   // D) create final plots
@@ -1066,18 +1159,18 @@ std::map <TString, TH1F*> extraction(int verbose, double luminosity, bool save, 
       plotCanvas_[plotCanvas_.size()-1]->Update();
       // ratio function
       plotCanvas_.push_back(drawFinalResultRatio((TH1F*)data->Clone("dataTotRat"), 0.35, 1.75, myStyle, verbose, rhosMC_, (TCanvas*)(plotCanvas_[plotCanvas_.size()-1]->Clone()), -1., -1., dataStat, true));
-      plotCanvas_[plotCanvas_.size()-1]->cd();
+      //plotCanvas_[plotCanvas_.size()-1]->cd();
       plotCanvas_[plotCanvas_.size()-1]->SetName ("ratioFinalXSecrhosNormCombinedHadronPhaseSpaceMassCurves");
       plotCanvas_[plotCanvas_.size()-1]->SetTitle("ratioFinalXSecrhosNormCombinedHadronPhaseSpaceMassCurves");
-      plotCanvas_[plotCanvas_.size()-1]->Draw();
-      plotCanvas_[plotCanvas_.size()-1]->Update();
+      //plotCanvas_[plotCanvas_.size()-1]->Draw();
+      //plotCanvas_[plotCanvas_.size()-1]->Update();
       if(save){    
 	TCanvas* tempCanv=(TCanvas*)(plotCanvas_[plotCanvas_.size()-1]->Clone());
 	int initWarningLV=gErrorIgnoreLevel;
 	if(verbose<1) gErrorIgnoreLevel=kWarning;   
 	tempCanv->Print(outputFolder+tempCanv->GetName()+".eps");
 	tempCanv->Print(outputFolder+tempCanv->GetName()+".png");
-	tempCanv->Print(outputFolder+"massFromRhoS.pdf");
+	plotCanvas_[plotCanvas_.size()-1]->Print(outputFolder+"massFromRhoS.pdf");
 	saveToRootFile(outputFile, tempCanv, true, verbose-1, "massFromRhos");
 	gErrorIgnoreLevel=initWarningLV;
       }
@@ -1134,8 +1227,8 @@ std::map <TString, TH1F*> extraction(int verbose, double luminosity, bool save, 
   double errIup=std::abs(mresultfit-mup);
   double errIdn=std::abs(mresultfit-mdn);
   double largerUnc= errIup>errIdn ? errIup : errIdn;
-  std::cout << "intersection method: " << std::setprecision(2) << std::fixed << mresultfit << "+" << errIup<< "-" << errIdn << std::endl;
-  std::cout << "chi2 method:         " << std::setprecision(2) << std::fixed << chi2Result["min"] << "+" << chi2Result["up"] << "-" << chi2Result["dn"] << std::endl;
+  std::cout << "- intersection method: " << std::setprecision(2) << std::fixed << mresultfit << "+" << errIup<< "-" << errIdn << std::endl;
+  std::cout << "- chi2 method:         " << std::setprecision(2) << std::fixed << chi2Result["min"] << "+" << chi2Result["up"] << "-" << chi2Result["dn"] << std::endl;
   
   // collect output
   TString binext=TString("Bin")+getTStringFromInt(binOfInterest);
@@ -1288,6 +1381,7 @@ TH2F* InvertMatrix(TH2& hist, int verbose, std::vector<bool> *considerBin_){
   // converts the incerted matrix into a TH2F* and returns it
   //verbose=2;
 
+  //if(!considerBin_) verbose=2; // activate monitoring for inversion of the full matrix
   if(verbose>0){
     std::cout << "Inverting " << hist.GetName() << std::endl;
     if(considerBin_){
@@ -1341,6 +1435,29 @@ TH2F* InvertMatrix(TH2& hist, int verbose, std::vector<bool> *considerBin_){
     }
     if(!considerBin_||(considerBin_->at(binA))) matrixA++;
   }
+
+  //// FIXME fix hardcoded the inverted 4x4 matrix as root is too dumb to do the job
+  //if(!considerBin_){   
+  //  std::cout << "!!!WARNING: FIXME-use hardcoded numbers!!!" << std::endl;
+  //  outhist->SetBinContent(1,1,-5290858.03727);   outhist->SetBinContent(1,2,-6393952.90136);   outhist->SetBinContent(1,3,-3195524.91831);   outhist->SetBinContent(1,4,-8524804.74726 );
+  //  outhist->SetBinContent(2,1,-6393952.90137);   outhist->SetBinContent(2,2,-7655300.09889);   outhist->SetBinContent(2,3,-3828220.68402);   outhist->SetBinContent(2,4,-10207274.70293);
+  //  outhist->SetBinContent(3,1,-3195524.91831);   outhist->SetBinContent(3,2,-3828220.68402);   outhist->SetBinContent(3,3,-1914310.24119);   outhist->SetBinContent(3,4,-5104389.23669 );
+  //  outhist->SetBinContent(4,1,-8524804.74726);   outhist->SetBinContent(4,2,-10207274.70293);  outhist->SetBinContent(4,3,-5104389.23669);   outhist->SetBinContent(4,4,-13609832.9221 );  
+  //
+  //
+  //  //outhist->SetBinContent(1,1,-5290858.03727);   outhist->SetBinContent(1,2,-6393952.90136);   outhist->SetBinContent(1,3,-3195524.91831);   outhist->SetBinContent(1,4,-8524804.74726 );
+  //  //outhist->SetBinContent(2,1,0.);   outhist->SetBinContent(2,2,-7655300.09889);   outhist->SetBinContent(2,3,-3828220.68402);   outhist->SetBinContent(2,4,-10207274.70293);
+  //  //outhist->SetBinContent(3,1,0.);   outhist->SetBinContent(3,2,-3828220.68402);   outhist->SetBinContent(3,3,-1914310.24119);   outhist->SetBinContent(3,4,-5104389.23669 );
+  //  //outhist->SetBinContent(4,1,0.);   outhist->SetBinContent(4,2,-10207274.70293);  outhist->SetBinContent(4,3,-5104389.23669);   outhist->SetBinContent(4,4,-13609832.9221 );   
+  //}
+
+  // cross check: matrix*matrix^-1
+  //for(int binA=0; binA<Ndim; ++binA){
+  //  matrixB=0;
+  //  for(int binB=0; binB<Ndim; ++binB){
+  //    outM*inM
+  //  }
+  //}
   // return
   return outhist;
 }
