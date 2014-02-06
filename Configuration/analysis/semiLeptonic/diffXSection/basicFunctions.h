@@ -2724,7 +2724,7 @@ namespace semileptonic {
     }
   }
 
-  int drawRatio(const TH1* histNumerator, TH1* histDenominator, const Double_t& ratioMin, const Double_t& ratioMax, TStyle myStyle, int verbose=0, const std::vector<double> err_=std::vector<double>(0), TString ratioLabelNominator="N_{data}", TString ratioLabelDenominator="N_{MC}", TString ratioDrawOption="p e X0", int ratioDrawColor=kBlack, bool error=true, double ratioMarkersize=1.2, int ndiv=505, bool invert=false)
+  int drawRatio(const TH1* histNumerator, TH1* histDenominator, const Double_t& ratioMin, const Double_t& ratioMax, TStyle myStyle, int verbose=0, const std::vector<double> err_=std::vector<double>(0), TString ratioLabelNominator="N_{data}", TString ratioLabelDenominator="N_{MC}", TString ratioDrawOption="p e X0", int ratioDrawColor=kBlack, bool error=true, double ratioMarkersize=1.2, int ndiv=505, bool invert=false, bool drawOne=true)
   {
     // this function draws a pad with the ratio of 'histNumerator' and 'histDenominator'
     // the range of the ratio is 'ratioMin' to 'ratioMax'
@@ -2793,8 +2793,10 @@ namespace semileptonic {
     //Double_t right = gPad->GetRightMargin();
       
     Int_t    logx  = myStyle.GetOptLogx();
-    Double_t left  = myStyle.GetPadLeftMargin();
-    Double_t right = myStyle.GetPadRightMargin();
+    //Double_t left  = myStyle.GetPadLeftMargin();
+    //Double_t right = myStyle.GetPadRightMargin();
+    Double_t left  = gPad->GetLeftMargin();
+    Double_t right = gPad->GetRightMargin();
     if(!histDenominator->GetXaxis()->GetNoExponent()&&TString(histDenominator->GetName()).Contains("shift")&&(TString(histDenominator->GetName()).Contains("Eta")||TString(histDenominator->GetName()).Contains("Phi"))&&!(TString(histDenominator->GetName()).Contains("Nu"))) right=0.11;
 
     // y:x size ratio for canvas
@@ -2852,7 +2854,11 @@ namespace semileptonic {
       ratio->GetXaxis()->SetTitle(histDenominator->GetXaxis()->GetTitle());
       ratio->GetXaxis()->SetNdivisions(histDenominator->GetNdivisions());
       ratio->GetYaxis()->CenterTitle();
-      ratio->GetYaxis()->SetTitle("#frac{"+ratioLabelNominator+"}{"+ratioLabelDenominator+"}");
+      TString ratioAxisTitle="";
+      if(ratioLabelDenominator!=""&&ratioLabelNominator!="") ratioAxisTitle="#frac{"+ratioLabelNominator+"}{"+ratioLabelDenominator+"}";
+      else if(ratioLabelDenominator!="") ratioAxisTitle=ratioLabelDenominator;
+      else if(ratioLabelNominator  !="") ratioAxisTitle=ratioLabelNominator  ;
+      ratio->GetYaxis()->SetTitle(ratioAxisTitle);
       ratio->GetYaxis()->SetTitleSize(histDenominator->GetYaxis()->GetTitleSize()*scaleFactor);
       ratio->GetYaxis()->SetTitleOffset(histDenominator->GetYaxis()->GetTitleOffset()/scaleFactor);
       ratio->GetYaxis()->SetLabelSize(histDenominator->GetYaxis()->GetLabelSize()*scaleFactor);
@@ -2886,7 +2892,7 @@ namespace semileptonic {
       f->SetLineStyle(1);
       f->SetLineWidth(1);
       f->SetLineColor(kBlack);
-      f->Draw("L same");
+      if(drawOne) f->Draw("L same");
       // b) at upper end of ratio pad
       TString height2 = ""; height2 += ratioMax;
       TF1 *f2 = new TF1("f2", height2, xmin, xmax);
@@ -3317,7 +3323,7 @@ namespace semileptonic {
 	      errorbandStat->SetPointError(bin, 0, 0, statErrY/statY, statErrY/statY);
 	      //std::cout << bin << ": (x,dy/y)=(" << statX << "," << statErrY/statY << "), (x,y)=(" << statX << "," << statY << "+/-" << statErrY << ")" << std::endl;
 	    }
-	    errorbandStat->SetLineWidth(3.5);
+	    errorbandStat->SetLineWidth(2.);
 	    errorbandStat->SetLineColor(errcolor);
 	    errorbandStat2=(TGraphAsymmErrors*)errorbandStat->Clone();
 	  }
