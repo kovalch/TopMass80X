@@ -1,7 +1,7 @@
 #include "basicFunctions.h"
 #include <numeric>
 
-void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, unsigned int verbose=0, TString decayChannel="combined", bool extrapolate=true, bool hadron=false, bool addCrossCheckVariables=false, TString closureTestSpecifier="", bool useBCC=false){
+void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, unsigned int verbose=0, TString decayChannel="combined", bool extrapolate=false, bool hadron=true, bool addCrossCheckVariables=false, TString closureTestSpecifier="", bool useBCC=false){
 
   // ============================
   //  Systematic Variations:
@@ -1201,7 +1201,7 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, u
 		// convert to TGraphAsymmErrors
 		TGraphAsymmErrors* statErrors= new TGraphAsymmErrors(dataStat->GetNbinsX());
 		statErrors->SetName("dataStatError");
-		statErrors->SetLineWidth(3.5) ; // totalErrors_[xSecVariables_[i]]->GetLineWidth());
+		statErrors->SetLineWidth(2.0) ; // totalErrors_[xSecVariables_[i]]->GetLineWidth());
 		statErrors->SetLineColor(totalErrors_[xSecVariables_[i]]->GetLineColor());
 		for(int bin=1; bin<=dataStat->GetNbinsX(); ++bin){
 		  // exclude over/underflow bins with empty bin content or zero width 
