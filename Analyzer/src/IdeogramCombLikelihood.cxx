@@ -12,7 +12,7 @@ IdeogramCombLikelihood::IdeogramCombLikelihood():
 		parsCPJES_(0), parsWPJES_ (0), parsUNJES_(0),
 		massOffset_(0), massSlopeMass_(0), massSlopeJES_(0), massSlopeMassJES_(0),
 		jesOffset_ (0), jesSlopeMass_ (0), jesSlopeJES_ (0), jesSlopeMassJES_ (0),
-		fCP_(-1.), fWP_(-1.), fUN_(-1.)
+		fCP_(-1.), fWP_(-1.), fUN_(-1.), useFixedParams_(false)
 
 {
 	  // parameters for mTop correct permutations
@@ -100,4 +100,20 @@ std::vector<double> IdeogramCombLikelihood::readParameters(const char *whichPara
   for(auto var : vsPars)
     pars.push_back(std::atof(var.c_str()));
   return pars;
+}
+
+void IdeogramCombLikelihood::SetFixedParams(double p0, double p1, double p2, double p3, double p4, double p5, double p6) {
+  fp_.push_back(p0);
+  fp_.push_back(p1);
+  fp_.push_back(p2);
+  fp_.push_back(p3);
+  fp_.push_back(p4);
+  fp_.push_back(p5);
+  fp_.push_back(p6);
+
+  useFixedParams_ = true;
+}
+
+double IdeogramCombLikelihood::GetFixedParam(int index) {
+  return fp_[index];
 }

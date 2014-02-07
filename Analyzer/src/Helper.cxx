@@ -35,6 +35,7 @@ int Helper::methodIDFromString(const std::string& method)
   else if (!strcmp(method.c_str(), "MVA"        )) return kMVA;
   else if (!strcmp(method.c_str(), "Ideogram"   )) return kIdeogram;
   else if (!strcmp(method.c_str(), "IdeogramNew")) return kIdeogramNew;
+  else if (!strcmp(method.c_str(), "IdeogramMin")) return kIdeogramMin;
   else if (!strcmp(method.c_str(), "RooFit"     )) return kRooFit;
   else {
     std::cerr << "Stopping analysis! Specified analysis method *" << method << "* not known!" << std::endl;

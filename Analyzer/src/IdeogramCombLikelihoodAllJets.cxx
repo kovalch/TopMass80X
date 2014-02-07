@@ -38,6 +38,16 @@ double IdeogramCombLikelihoodAllJets::Evaluate(double *x, double *p) {
   bool onlySIG    = false;
   bool fSigOfMtop = false;
   
+  // for IdeogramMinimizer
+  // TODO - IdeogramMinimizer does not like unfriendly GammaDist
+  if (useFixedParams_) {
+    double ep[7];
+    for (int i = 0; i < 7; ++i) {
+      ep[i] = fp_[i];
+    }
+    p = ep;
+  }
+  
   fCP_ -= 0.5*p[5];
   fWP_ -= 0.5*p[5];
   fUN_ += p[5];

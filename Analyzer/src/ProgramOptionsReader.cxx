@@ -32,7 +32,12 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
             "Top mass measurement method\n"
             "  GenMatch: \tGaussian fit of correct permutations (MC only)\n"
             "  Ideogram: \tJoint likelihood fit of mt and JES given data sample\n"
+            "  IdeogramNew: \tNew interface\n"
+            "  IdeogramMin: \tMinimizer function\n"
             "  RooFit:   \tTemplate fit of mt (JES, fSig) given data sample using RooFit"
+        )
+        ("minPlot", boost::program_options::value<bool>()->default_value(false),
+            "Plot IdeogramMin result\n"
         )
         ("task,t", boost::program_options::value<std::string>()->default_value("sm"),
             "Task to be done\n"

@@ -12,6 +12,7 @@
 #include "Helper.h"
 #include "IdeogramAnalyzer.h"
 #include "IdeogramAnalyzerNewInterface.h"
+#include "IdeogramAnalyzerMinimizer.h"
 #include "MVAAnalyzer.h"
 #include "ProgramOptionsReader.h"
 #include "RandomSubsetCreatorLeptonJets.h"
@@ -52,7 +53,7 @@ void Analysis::Analyze() {
   // random subset creation
   if(!fCreator_){
     if (fChannelID_ == Helper::kElectronJets || fChannelID_ == Helper::kMuonJets || fChannelID_ == Helper::kLeptonJets) {
-      if (fMethodID_ == Helper::kIdeogramNew) {
+      if (fMethodID_ == Helper::kIdeogramNew || fMethodID_ == Helper::kIdeogramMin) {
         fCreator_ = new RandomSubsetCreatorNewInterface(vBinning_);
       }
       else{
@@ -60,7 +61,7 @@ void Analysis::Analyze() {
       }
     }
     else if (fChannelID_ == Helper::kAllJets) {
-      if (fMethodID_ == Helper::kIdeogramNew) {
+      if (fMethodID_ == Helper::kIdeogramNew || fMethodID_ == Helper::kIdeogramMin) {
         fCreator_ = new RandomSubsetCreatorNewInterface(vBinning_);
       }
       else{
@@ -78,6 +79,7 @@ void Analysis::Analyze() {
   else if (fMethodID_ == Helper::kMVA        ) fAnalyzer_ = new MVAAnalyzer                 (fIdentifier_, fTree_);
   else if (fMethodID_ == Helper::kIdeogram   ) fAnalyzer_ = new IdeogramAnalyzer            (fIdentifier_, fTree_);
   else if (fMethodID_ == Helper::kIdeogramNew) { if(!fAnalyzer_) { fAnalyzer_ = new IdeogramAnalyzerNewInterface(fIdentifier_, fTree_); } }
+  else if (fMethodID_ == Helper::kIdeogramMin) { if(!fAnalyzer_) { fAnalyzer_ = new IdeogramAnalyzerMinimizer(fIdentifier_, fTree_); } }
   else if (fMethodID_ == Helper::kRooFit     ) fAnalyzer_ = new RooFitTemplateAnalyzer      (fIdentifier_, fTree_);
   else {
     std::cerr << "Stopping analysis! Specified analysis method *" << fMethod_ << "* not known!" << std::endl;
@@ -100,7 +102,7 @@ void Analysis::Analyze() {
     GetH1("Entries")->SetBinContent(i+1, 10+i);
 
     if (entries > 25) {
-      if (fMethodID_ == Helper::kIdeogramNew) ((IdeogramAnalyzerNewInterface*)fAnalyzer_)->SetDataSample(((RandomSubsetCreatorNewInterface*)fCreator_)->GetDataSample());
+      if (fMethodID_ == Helper::kIdeogramNew || fMethodID_ == Helper::kIdeogramMin) ((IdeogramAnalyzerNewInterface*)fAnalyzer_)->SetDataSample(((RandomSubsetCreatorNewInterface*)fCreator_)->GetDataSample());
       fAnalyzer_->Analyze("", i+1, 0);
       const std::map<std::string, std::pair<double, double>> values = fAnalyzer_->GetValues();
 

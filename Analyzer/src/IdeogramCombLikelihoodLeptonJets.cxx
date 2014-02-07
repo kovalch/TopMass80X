@@ -119,6 +119,15 @@ double IdeogramCombLikelihoodLeptonJets::Evaluate(double *x, double *p) {
   double fUN = fUN_; // combination types -2 -1 6
   //*/
   
+  // for IdeogramMinimizer
+  if (useFixedParams_) {
+    double ep[7];
+    for (int i = 0; i < 7; ++i) {
+      ep[i] = fp_[i];
+    }
+    p = ep;
+  }
+  
   //* electrons from config
   if (p[3] == 11) {
 	  fCP = ele_fCP_;
