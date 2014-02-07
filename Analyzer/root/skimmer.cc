@@ -38,10 +38,10 @@ typedef ProgramOptionsReader po;
 Skimmer::Skimmer()
 {
   //std::string samplePath(po::GetOption<std::string>("analysisConfig.samplePath"));
-  std::string samplePath("/nfs/dust/cms/user/eschliec/TopMass/2012/02/");
+  std::string samplePath("/nfs/dust/cms/user/eschliec/TopMass/2012/04/");
   //std::string samplePath("dcap://dcache-cms-dcap.desy.de//pnfs/desy.de/cms/tier2/store/user/eschliec/TopMassTreeWriter_02_Data06/");
 
-  std::string outputPath("/nfs/dust/cms/user/eschliec/TopMass/2012/Skim_02_test/");
+  std::string outputPath("/nfs/dust/cms/user/eschliec/TopMass/2012/Skim_04/");
 
   std::vector<std::string> samples {
     // test sample
@@ -68,7 +68,7 @@ Skimmer::Skimmer()
     //,"Z2_S12_ABS_JES_100_166_5_MadSpin_sig.root"
     //,"Z2_S12_ABS_JES_100_169_5_MadSpin_sig.root"
     //,"Z2_S12_ABS_JES_100_171_5_MadSpin_sig.root"
-    //,"Z2_S12_ABS_JES_100_172_5_MadSpin_sig.root"
+    "Z2_S12_ABS_JES_100_172_5_MadSpin_sig*.root"
     //,"Z2_S12_ABS_JES_100_173_5_MadSpin_sig.root"
     //,"Z2_S12_ABS_JES_100_175_5_MadSpin_sig.root"
     //,"Z2_S12_ABS_JES_100_178_5_MadSpin_sig.root"
@@ -116,7 +116,7 @@ Skimmer::Skimmer()
     //,"Z2_S12*_P11mpiHi_sig.root"
     //// generator samples
     //,"Z2_S12_MCNLO*_sig.root"
-    "Z2_S12_POWHEG_sig.root"
+    //,"Z2_S12_POWHEG_sig.root"
     //,"Z2_S12_POWHER_sig.root"
     //,"Z2_S12_ABS_JES_100_172_5_MassiveBinDecay_sig.root"
     //// QCD samples

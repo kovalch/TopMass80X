@@ -11,6 +11,7 @@ options.register('metcl', 1, VarParsing.VarParsing.multiplicity.singleton,VarPar
 
 options.register('scaleType', 'abs', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "JES scale type")
 options.register('jessource', '', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "Uncertainty source for JES variation for source:up/down")
+options.register('flavor', 'bottom', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "Jet flavor for flavor:up/down")
 options.register('lJesFactor', 1.0, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "JES")
 options.register('bJesFactor', 1.0, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "bJES")
 options.register('resolution', 'nominal', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "JER")
@@ -20,6 +21,8 @@ options.register('uncFactor', 1.0, VarParsing.VarParsing.multiplicity.singleton,
 
 options.register('csvm', 0.679, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "CSVM working point")
 options.register('nbjets', 2, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.int, "Minimum number of bjets")
+
+options.register('brCorrection', True, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.bool, "Do BR correction (MadGraph)")
 
 # define the syntax for parsing
 # you need to enter in the cfg file:
@@ -90,8 +93,8 @@ secFiles.extend( [
 ## define maximal number of events to loop over
 process.maxEvents = cms.untracked.PSet(
 #    input = cms.untracked.int32(-1)
-#    input = cms.untracked.int32(500)
-    input = cms.untracked.int32(50)
+    input = cms.untracked.int32(500)
+#    input = cms.untracked.int32(50)
 )
 
 ## configure process options
@@ -135,6 +138,7 @@ if not data:
     scaledJetEnergy.scaleType    = options.scaleType
     scaledJetEnergy.JECUncSrcFile= cms.FileInPath(JECUncSrcFileAll)
     scaledJetEnergy.sourceName   = options.jessource
+    scaledJetEnergy.flavor       = options.flavor
     scaledJetEnergy.scaleFactor  = options.lJesFactor
     scaledJetEnergy.scaleFactorB = options.bJesFactor
     if (options.resolution=='down'):
@@ -269,6 +273,7 @@ if data: removeTtSemiLepHypGenMatch(process)
 from TopMass.TopEventTree.EventHypothesisAnalyzer_cfi import analyzeHypothesis
 process.analyzeHitFit = analyzeHypothesis.clone(hypoClassKey = "ttSemiLepHypHitFit:Key")
 from TopMass.TopEventTree.JetEventAnalyzer_cfi import analyzeJets
+##watch out: process.analyzeJets = analyzeJets.clone(jets = "selectedPatJets", maxNJets = 10) in baseline config
 process.analyzeJets = analyzeJets.clone()
 from TopMass.TopEventTree.BRegJetEventAnalyzer_cfi import analyzeBRegJets
 process.analyzeBRegJets = analyzeBRegJets.clone(jets = analyzeJets.jets, JECUncSrcFile= cms.FileInPath(JECUncSrcFileAll))
@@ -276,9 +281,10 @@ from TopMass.TopEventTree.WeightEventAnalyzer_cfi import analyzeWeights
 process.analyzeWeights = analyzeWeights.clone(
                                               mcWeight        = options.mcWeight,
                                               puWeightSrc     = cms.InputTag("eventWeightPUsysNo"  , "eventWeightPU"),
-                                              puWeightUpSrc   = cms.InputTag("eventWeightPUsysUp"  , "eventWeightPU"),
-                                              puWeightDownSrc = cms.InputTag("eventWeightPUsysDown", "eventWeightPU"),
-                                              savePDFWeights = True
+                                              puWeightUpSrc   = cms.InputTag("eventWeightPUsysUp"  , "eventWeightPUUp"),
+                                              puWeightDownSrc = cms.InputTag("eventWeightPUsysDown", "eventWeightPUDown"),
+                                              savePDFWeights = True,
+                                              brCorrection   = options.brCorrection
                                              )
 
 if( hasattr(process, 'addBRegProducer' ) ):
@@ -380,6 +386,28 @@ if not data:
 
 
     ## ---
+    ##    MC B-JES reweighting
+    ## ---
+    process.load("TopAnalysis.TopUtils.EventWeightBJES_cfi")
+
+    process.bJESEventWeightFNuUp    = process.EventWeightBJES.clone(
+        nuDecayFractionTarget = 0.268
+    )
+    process.bJESEventWeightFNuDown  = process.EventWeightBJES.clone(
+        nuDecayFractionTarget = 0.239
+    )
+    process.bJESEventWeightFrag     = process.EventWeightBJES.clone(
+        fragTargetFile = "TopAnalysis/TopUtils/data/MC_BJES_TuneZ2star_rbLEP.root"
+    )
+    process.bJESEventWeightFragHard = process.EventWeightBJES.clone(
+        fragTargetFile = "TopAnalysis/TopUtils/data/MC_BJES_TuneZ2star_rbLEPhard.root"
+    )
+    process.bJESEventWeightFragSoft = process.EventWeightBJES.clone(
+        fragTargetFile = "TopAnalysis/TopUtils/data/MC_BJES_TuneZ2star_rbLEPsoft.root"
+    )
+    
+    
+    ## ---
     ##    MC eff SF reweighting
     ## ---
     ## scale factor for trigger and lepton selection efficiency
@@ -458,6 +486,11 @@ else:
                             process.bTagSFEventWeightBTagSFDown *
                             process.bTagSFEventWeightMisTagSFUp *
                             process.bTagSFEventWeightMisTagSFDown *
+                            process.bJESEventWeightFNuUp *
+                            process.bJESEventWeightFNuDown *
+                            process.bJESEventWeightFrag *
+                            process.bJESEventWeightFragHard *
+                            process.bJESEventWeightFragSoft *
                             process.effSFMuonEventWeight *
                             process.makeGenEvt *
                             process.makeTtSemiLepEvent *
