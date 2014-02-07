@@ -204,7 +204,7 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
     // Set up jet charge analyzer
     JetChargeAnalyzer* jetChargeAnalyzer(0);
     if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::charge) != v_analysisMode.end()){
-        jetChargeAnalyzer = new JetChargeAnalyzer({"7"}, {"7"}, jetCategories);
+        jetChargeAnalyzer = new JetChargeAnalyzer({"7"});
         v_analysisHistograms.push_back(jetChargeAnalyzer);
     }
 
