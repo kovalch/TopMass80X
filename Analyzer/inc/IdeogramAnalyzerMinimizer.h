@@ -20,14 +20,13 @@ class IdeogramAnalyzerMinimizer : public MassAnalyzer {
   void NumericalMinimization();
   
   DataSample& sample_;
-  IdeogramCombLikelihood* fptr_;
-  TF2* combLikelihood_;
+  //IdeogramCombLikelihood* fptr_;
+  //TF2* combLikelihood_;
   int channelID_;
-  double pullWidth_;
   double isFastSim_;
   double shapeSystematic_;
   double permutationFractionSystematic_;
-  std::string topBranchName_;
+  //std::string topBranchName_;
   
   std::vector<std::vector<IdeogramCombLikelihood*>> eventFunctions_;
 

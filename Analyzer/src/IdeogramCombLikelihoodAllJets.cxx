@@ -11,10 +11,13 @@
 
 typedef ProgramOptionsReader po;
 
+double IdeogramCombLikelihoodAllJets::PBKGintegral_(-1);
+IdeogramCombLikelihoodAllJets::ScanPointMap IdeogramCombLikelihoodAllJets::PWPnormalizations_;
+IdeogramCombLikelihoodAllJets::ScanPointMap IdeogramCombLikelihoodAllJets::PUNnormalizations_;
+
 IdeogramCombLikelihoodAllJets::IdeogramCombLikelihoodAllJets() :
   parsBKG_  (0), parsBKGJES_(0),
-  fSig_(-1.),
-  PBKGintegral_(-1)
+  fSig_(-1.)
   {
 
   // parameters for mTop background
@@ -157,8 +160,8 @@ double IdeogramCombLikelihoodAllJets::PWP(double* x, double* p)
     //TF1 func = TF1("func", langau, 100., 550., 5);
     TF1 func = TF1("func", lanvog, 100., 550., 6);
     func.SetParameters(funcPars);
-    currentNormalization = func.Integral(100.,550.);
-    PWPnormalizations_[currentPoint] = 1. / currentNormalization;
+    currentNormalization = 1. / func.Integral(100.,550.);
+    PWPnormalizations_[currentPoint] = currentNormalization;
   }
   else{
     currentNormalization = iter->second;
@@ -188,8 +191,8 @@ double IdeogramCombLikelihoodAllJets::PUN(double* x, double* p)
     //TF1 func = TF1("func", langau, 100., 550., 5);
     TF1 func = TF1("func", lanvog, 100., 550., 6);
     func.SetParameters(funcPars);
-    currentNormalization = func.Integral(100.,550.);
-    PUNnormalizations_[currentPoint] = 1. / currentNormalization;
+    currentNormalization = 1. / func.Integral(100.,550.);
+    PUNnormalizations_[currentPoint] = currentNormalization;
   }
   else{
     currentNormalization = iter->second;

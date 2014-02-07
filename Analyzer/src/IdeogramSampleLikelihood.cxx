@@ -1,5 +1,9 @@
 #include "IdeogramSampleLikelihood.h"
 
+#include "IdeogramCombLikelihoodAllJets.h"
+#include "IdeogramCombLikelihoodLeptonJets.h"
+#include "ProgramOptionsReader.h"
+
 typedef ProgramOptionsReader po;
 
 double IdeogramSampleLikelihood::DoEval(const double *x) const {

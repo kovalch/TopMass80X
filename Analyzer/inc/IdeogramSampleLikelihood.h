@@ -1,6 +1,4 @@
-#include "IdeogramCombLikelihoodAllJets.h"
-#include "IdeogramCombLikelihoodLeptonJets.h"
-#include "ProgramOptionsReader.h"
+#include "IdeogramCombLikelihood.h"
 
 #include "Math/IFunction.h"
  

@@ -8,40 +8,40 @@
 
 #include <cmath>
 #include <iomanip>
+#include <iostream>
+
 #include <boost/progress.hpp>
-#include <boost/lexical_cast.hpp>
+//#include <boost/lexical_cast.hpp>
 
 #include "TCanvas.h"
-#include "TFrame.h"
 //#include "TColor.h"
-#include "TF2.h"
-#include "TH1D.h"
-#include "TH2D.h"
+//#include "TError.h"
+//#include "TF2.h"
+//#include "TFrame.h"
+#include "TGraph.h"
+//#include "TH1D.h"
+//#include "TH2D.h"
 #include "TLegend.h"
-#include "TStyle.h"
+//#include "TRandom2.h"
+//#include "TStyle.h"
 
 #include "Math/Minimizer.h"
 #include "Math/Factory.h"
 #include "Math/Functor.h"
 #include "Math/IFunction.h"
-#include "TRandom2.h"
-#include "TError.h"
-#include <iostream>
-#include "TGraph.h"
 
 typedef ProgramOptionsReader po;
 
 IdeogramAnalyzerMinimizer::IdeogramAnalyzerMinimizer(const std::string& identifier, TTree* tree) :
     MassAnalyzer(identifier, tree),
     sample_(*(new DataSample())),
-    fptr_(0),
-    combLikelihood_(0),
+    //fptr_(0),
+    //combLikelihood_(0),
     channelID_(Helper::channelID()),
-    pullWidth_                    (po::GetOption<double>("pullWidth")),
     isFastSim_                    (po::GetOption<int   >("fastsim"  )),
     shapeSystematic_              (po::GetOption<double>("shape"    )),
-    permutationFractionSystematic_(po::GetOption<double>("permu"    )),
-    topBranchName_                (po::GetOption<std::string>("topBranchName"))
+    permutationFractionSystematic_(po::GetOption<double>("permu"    ))
+    //topBranchName_                (po::GetOption<std::string>("topBranchName"))
 {
 }
 
@@ -92,7 +92,7 @@ void IdeogramAnalyzerMinimizer::Scan(const std::string& cuts, int iBin, int jBin
           else {
             permutationFunctions.push_back(new IdeogramCombLikelihoodLeptonJets());
           }
-          permutationFunctions.back()->SetFixedParams(prob, topMass, wMass, abs(leptonFlavour));
+          permutationFunctions.back()->SetFixedParams(prob, topMass, wMass, abs(leptonFlavour), shapeSystematic_, permutationFractionSystematic_, isFastSim_);
         }
       }
       eventFunctions_.push_back(permutationFunctions);
@@ -102,8 +102,8 @@ void IdeogramAnalyzerMinimizer::Scan(const std::string& cuts, int iBin, int jBin
 
 IdeogramAnalyzerMinimizer::~IdeogramAnalyzerMinimizer()
 {
-  delete fptr_;
-  delete combLikelihood_;
+  //delete fptr_;
+  //delete combLikelihood_;
 }
 
 void IdeogramAnalyzerMinimizer::NumericalMinimization() {
@@ -136,7 +136,7 @@ void IdeogramAnalyzerMinimizer::NumericalMinimization() {
   double step[2] = {0.01,0.01};
 
   // starting point
-  double variable[2] = { 172.5, 1.};
+  double variable[2] = {172.5, 1.};
 
   min->SetFunction(f);
 
@@ -145,15 +145,15 @@ void IdeogramAnalyzerMinimizer::NumericalMinimization() {
   min->SetVariable(1, "jes" , variable[1], step[1]);
 
   // do the minimization
-  min->Minimize(); 
-  
+  min->Minimize();
+
   double mass      = min->X()[0];
   double massError = min->Errors()[0];
   double JES       = min->X()[1];
   double JESError  = min->Errors()[1];
   
   std::cout << "Minimum: f(" << mass << "," << JES << "): " 
-           << min->MinValue()  << std::endl;
+            << min->MinValue()  << std::endl;
 
   // DRAW
   if (po::GetOption<bool>("minPlot")) {
@@ -238,6 +238,11 @@ void IdeogramAnalyzerMinimizer::NumericalMinimization() {
   min->Minimize();
   double mass1d      = min->X()[0];
   double mass1dError = min->Errors()[0];
+
+  //min->SetFixedVariable(0, "mass", 172.5);
+  //min->Minimize();
+  //double mass1d      = min->X()[0];
+  //double mass1dError = min->Errors()[0];
   
   SetValue("mass_mTop_JES", mass, massError);
   SetValue("JES_mTop_JES" , JES , JESError );
