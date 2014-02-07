@@ -18,6 +18,7 @@ class IdeogramAnalyzerMinimizer : public MassAnalyzer {
  private:
   void Scan(const std::string& cuts, int iBin, int jBin);
   void NumericalMinimization();
+  void CleanUp();
   
   DataSample& sample_;
   //IdeogramCombLikelihood* fptr_;
