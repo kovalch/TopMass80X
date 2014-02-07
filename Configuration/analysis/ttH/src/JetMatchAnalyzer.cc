@@ -538,8 +538,8 @@ void JetMatchAnalyzer::fillHistos(const RecoObjects& recoObjects, const CommonGe
 
     name = "unmatchedRecoBjetFromTop";
     if(genObjectIndices.uniqueGenTopMatching()){
-        if(genObjectIndices.recoBjetFromTopIndex_==-1 && genObjectIndices.recoAntiBjetFromTopIndex_==-1) m_histogram[name]->Fill(1., weight);
-        else if(genObjectIndices.recoBjetFromTopIndex_==-1 || genObjectIndices.recoAntiBjetFromTopIndex_==-1) m_histogram[name]->Fill(2., weight);
+        if(genObjectIndices.recoBjetFromTopIndex_<0 && genObjectIndices.recoAntiBjetFromTopIndex_<0) m_histogram[name]->Fill(1., weight);
+        else if(genObjectIndices.recoBjetFromTopIndex_<0 || genObjectIndices.recoAntiBjetFromTopIndex_<0) m_histogram[name]->Fill(2., weight);
         else if(genObjectIndices.recoBjetFromTopIndex_==genObjectIndices.recoAntiBjetFromTopIndex_) m_histogram[name]->Fill(0., weight);
     }
 
@@ -556,8 +556,8 @@ void JetMatchAnalyzer::fillHistos(const RecoObjects& recoObjects, const CommonGe
 
     name = "unmatchedRecoBjetFromHiggs";
     if(genObjectIndices.uniqueGenHiggsMatching()){
-        if(genObjectIndices.recoBjetFromHiggsIndex_==-1 && genObjectIndices.recoAntiBjetFromHiggsIndex_==-1) m_histogram[name]->Fill(1., weight);
-        else if(genObjectIndices.recoBjetFromHiggsIndex_==-1 || genObjectIndices.recoAntiBjetFromHiggsIndex_==-1) m_histogram[name]->Fill(2., weight);
+        if(genObjectIndices.recoBjetFromHiggsIndex_<0 && genObjectIndices.recoAntiBjetFromHiggsIndex_<0) m_histogram[name]->Fill(1., weight);
+        else if(genObjectIndices.recoBjetFromHiggsIndex_<0 || genObjectIndices.recoAntiBjetFromHiggsIndex_<0) m_histogram[name]->Fill(2., weight);
         else if(genObjectIndices.recoBjetFromHiggsIndex_==genObjectIndices.recoAntiBjetFromHiggsIndex_) m_histogram[name]->Fill(0., weight);
     }
 
