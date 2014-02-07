@@ -118,6 +118,7 @@ private:
 
     edm::InputTag genBHadPlusMothers_, genBHadPlusMothersIndices_;
     edm::InputTag genBHadIndex_, genBHadFlavour_, genBHadJetIndex_;
+    edm::InputTag genBHadLeptons_, genBHadLeptonHadIndex_;
     bool saveHadronMothers;
 
     bool includeTrig_;
@@ -180,6 +181,8 @@ private:
     std::vector<int>             VgenBHadPlusMothersPdg, VgenBHadPlusMothersStatus;
     std::vector<std::vector<int> >  VgenBHadPlusMothersIndices;
     std::vector<int>             VgenBHadIndex, VgenBHadFlavour, VgenBHadJetIndex;
+    std::vector<LV>              VgenBHadLeptons;
+    std::vector<int>             VgenBHadLeptonsPdg, VgenBHadLeptonHadIndex;
 
     // True level info from Zs and their decays
     std::vector<LV> VGenZ;
@@ -313,6 +316,8 @@ NTupleWriter::NTupleWriter(const edm::ParameterSet& iConfig):
     genBHadIndex_(iConfig.getParameter<edm::InputTag> ("genBHadIndex")),
     genBHadFlavour_(iConfig.getParameter<edm::InputTag> ("genBHadFlavour")),
     genBHadJetIndex_(iConfig.getParameter<edm::InputTag> ("genBHadJetIndex")),
+    genBHadLeptons_(iConfig.getParameter<edm::InputTag> ("genBHadLeptons")),
+    genBHadLeptonHadIndex_(iConfig.getParameter<edm::InputTag> ("genBHadLeptonHadIndex")),
 
     saveHadronMothers(iConfig.getParameter<bool>("saveHadronMothers")),
 
@@ -667,6 +672,20 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
                     }       // End of loop over hadrons
                 }
             }       // If genBHadPlusMothers is not empty
+            
+            edm::Handle<std::vector<reco::GenParticle> > genBHadLeptons;            
+            iEvent.getByLabel(genBHadLeptons_, genBHadLeptons);
+            edm::Handle<std::vector<int> > genBHadLeptonHadIndex;
+            iEvent.getByLabel(genBHadLeptonHadIndex_, genBHadLeptonHadIndex);
+            if(!genBHadLeptons.failedToGet() && !genBHadLeptonHadIndex.failedToGet()) {
+                for(unsigned int lepId=0; lepId<genBHadLeptons->size(); ++lepId) {
+                    int hadId = genBHadLeptonHadIndex->at(lepId);
+                    VgenBHadLeptons.push_back(genBHadLeptons->at(lepId).polarP4());
+                    VgenBHadLeptonsPdg.push_back(genBHadLeptons->at(lepId).pdgId());
+                    VgenBHadLeptonHadIndex.push_back(hadId);
+                }
+                
+            }
 
 
             edm::Handle<std::vector<std::vector<int> > > genBHadPlusMothersIndices;
@@ -715,7 +734,8 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
         //             GenParticleStatus.push_back(p->status());
         //         }
     }
-
+    
+        
     if ( isHiggsSample_ ) {
         //Generator info
         edm::Handle<HiggsGenEvent> genEvtHiggs;
@@ -1203,9 +1223,10 @@ NTupleWriter::beginJob()
         Ntuple->Branch("GenAntiB", &GenAntiB);
         Ntuple->Branch("GenWPlus", &GenWPlus);
         Ntuple->Branch("GenWMinus", &GenWMinus);
-        Ntuple->Branch("GenParticleP4", &GenParticleP4);
-        Ntuple->Branch("GenParticlePdgId", &GenParticlePdgId);
-        Ntuple->Branch("GenParticleStatus", &GenParticleStatus);
+        //     Ntuple->Branch("GenParticleP4", &GenParticleP4);
+        //     Ntuple->Branch("GenParticlePdgId", &GenParticlePdgId);
+        //     Ntuple->Branch("GenParticleStatus", &GenParticleStatus);
+        
         //     Ntuple->Branch("GenJetHadronB", &HadronGenB);
         //     Ntuple->Branch("GenJetHadronAntiB", &HadronGenAntiB);
 
@@ -1227,6 +1248,9 @@ NTupleWriter::beginJob()
         Ntuple->Branch("genBHadIndex", &VgenBHadIndex);
         Ntuple->Branch("genBHadFlavour", &VgenBHadFlavour);
         Ntuple->Branch("genBHadJetIndex", &VgenBHadJetIndex);
+        Ntuple->Branch("genBHadLeptons", &VgenBHadLeptons);
+        Ntuple->Branch("genBHadLeptonsPdg", &VgenBHadLeptonsPdg);
+        Ntuple->Branch("genBHadLeptonHadIndex", &VgenBHadLeptonHadIndex);
 
         Ntuple->Branch("jetAssociatedParton", &VjetAssociatedParton);
     }
@@ -1340,6 +1364,9 @@ void NTupleWriter::clearVariables()
     VgenBHadIndex.clear();
     VgenBHadFlavour.clear();
     VgenBHadJetIndex.clear();
+    VgenBHadLeptons.clear();
+    VgenBHadLeptonsPdg.clear();
+    VgenBHadLeptonHadIndex.clear();
 
     /////////Triggers/////////
     VfiredTriggers.clear();

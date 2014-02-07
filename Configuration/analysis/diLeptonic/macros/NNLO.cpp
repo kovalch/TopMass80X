@@ -23,18 +23,18 @@ if you want to create kidonakis curves execute:
 
     root -l
     .L macros/NNLO.cpp++
-    NNLO pt=NNLO("topPt",2)
+    NNLO pt=NNLO("kidonakis", "topPt",2)
     pt.runNNLO("UPDATE")
-    NNLO y=NNLO("topY",2)
+    NNLO y=NNLO("kidonakis", "topY",2)
     y.runNNLO("UPDATE")
 
 instead if you want to create Ahrens curves execute:
 
     root -l
     .L macros/NNLO.cpp++
-    NNLO ptttbar=NNLO("ttbarPt",2)
+    NNLO ptttbar=NNLO("ahrens", "ttbarPt",2)
     ptttbar.runNNLO("UPDATE")
-    NNLO mttbar=NNLO("ttbarM",2)
+    NNLO mttbar=NNLO("ahrens", "ttbarM",2)
     mttbar.runNNLO("UPDATE")
 
 
@@ -58,36 +58,45 @@ instead if you want to create Ahrens curves execute:
 
 NNLO::NNLO(){}
 
-NNLO::NNLO(TString plotname, bool verbose, TString Energy){
+NNLO::NNLO(TString theory, TString plotname, bool verbose, TString Energy){
 
     // General seetings
 
     gStyle -> SetOptStat(0);
     gStyle -> SetPadLeftMargin(0.15);
 
+    Theory = theory;
     parPlotName = plotname;
     parVerbose  = verbose;
 
-
-    if(parPlotName.Contains("topPt") || parPlotName.Contains("topY")){
-        outputFilename = "kidonakisNNLO_"+Energy+"TeV";
-    } else if(parPlotName.Contains("ttbarPt") || parPlotName.Contains("ttbarM")){
-        outputFilename = "ahrensNNLL_"+Energy+"TeV";
+    if(Theory != "kidonakis" && Theory != "ahrens")
+    {
+        std::cout<<"Not valid theory prediction. I don't know to treat the binning"<<std::endl;
+        exit(88);
+    } else {
+        std::cout<<"Making plots alla '"<<Theory<<"'\n"<<std::endl;
+        outputFilename = Theory;
+        if(Theory == "ahrens") outputFilename.Append("NNLL_");
+        else if(Theory == "kidonakis") outputFilename.Append("NNLO_");
+        outputFilename.Append(Energy+"TeV");
     }
 
     // l+jets
-
 //     const double topPtBins[] = { 1.0,60.0,100.0,150.0,200.0,260.0,320.0,400.0,800.0,1500.};
 //     const double topYBins[]  = {-5.0,-2.5,-1.6,-1.2,-0.8,-0.4,0.0,0.4,0.8,1.2,1.6,2.5,5.0};
-//     const double ttbarMBins[] = {345.,400.,470.,550.,650.,800.,1100.,1600.,2720.};
+//    const double ttbarMBins[] = {345.,400.,470.,550.,650.,800.,1100.,1600.};
 //     const double ttbarPtBins[] = {0.,20.,60.,120.,300.,1300.};
 
     // dilepton
-
-    const double topPtBins[] = { 0.0,80.0,130.0,200.0,300.0,400.0,1500.};
-    const double topYBins[]  = {-5.0,-2.5,-1.3,-0.8,-0.4,0.0,0.4,0.8,1.3,2.5,5.0};
-    const double ttbarMBins[] = {340.,400.,470.,550.,650.,800.,1100.,1600.,2720.};
-    const double ttbarPtBins[] = {0.,20.,60.,120.,300.,1300.};
+//     const double topPtBins[] = { 0.0,80.0,130.0,200.0,300.0,400.0,1500.};
+//     const double topYBins[]  = {-5.0,-2.5,-1.3,-0.8,-0.4,0.0,0.4,0.8,1.3,2.5,5.0};
+//     const double ttbarMBins[] = {340.,400.,470.,550.,650.,800.,1100.,1600.,2720.};
+//     const double ttbarPtBins[] = {0.,20.,60.,120.,300.,1300.};
+    
+    const double topPtBins[] = {0,65,125,200,290,400};
+    const double topYBins[]  = {-2.5,-1.6,-1.0,-0.5,0.0,0.5,1.0,1.6,2.5};
+    const double ttbarMBins[] = {340,380,470,620,820,1100,1600};
+    const double ttbarPtBins[] = {0,30,80,170,300};
 
     // Cannel specific variables
 
@@ -119,7 +128,7 @@ NNLO::NNLO(TString plotname, bool verbose, TString Energy){
         ymax=0.5;
     } else if (plotname=="ttbarM"){
         vecBins.insert(vecBins.begin(), ttbarMBins,  ttbarMBins  + sizeof(ttbarMBins)/sizeof(double));
-        xAxisTitle="m [GeV]";
+        xAxisTitle="m ";
         xAxisUnit="#left[GeV#right]";
         yAxisTitle="d#sigma/dm";
         yAxisUnit="#left[pb#right]";
@@ -129,7 +138,7 @@ NNLO::NNLO(TString plotname, bool verbose, TString Energy){
         ymax=0.006;
     } else if (plotname=="ttbarPt"){
         vecBins.insert(vecBins.begin(), ttbarPtBins,  ttbarPtBins  + sizeof(ttbarPtBins)/sizeof(double));
-        xAxisTitle="p_{T} [GeV]";
+        xAxisTitle="p_{T} ";
         xAxisUnit="#left[GeV#right]";
         yAxisTitle="d#sigma/dp_{T}";
         yAxisUnit="#left[pb/GeV#right]";
@@ -353,7 +362,12 @@ void NNLO::setObjectStyles(TString xAxisTitle, TString xAxisUnit,
 
 inline double NNLO::getLocalIntegral(double xLeft, double xRight, double yLeft, double yRight){
 
-    return 0.5*(yLeft+yRight)*(xRight-xLeft);
+    if(Theory == "kidonakis"){// Kidonakis give the value 'y' in a given point 'x', eg: f(x) = y
+        return 0.5*(yLeft+yRight)*std::abs(xRight-xLeft);
+    } else if(Theory == "ahrens"){// Ahrens, instead, gives the integrated value 'y' in a bin with bin center 'x'
+        return yLeft*std::abs(xRight-xLeft);
+    }
+    return 0;
 }
 
 // ===============================================================
@@ -368,7 +382,11 @@ inline double NNLO::getNormalization(const TGraph* graph){
     double yLeft, yRight;
     int j;
 
-    for (j=0; j<graph->GetN()-1; j++){
+    int NPoints = 0;
+    if(Theory == "kidonakis") NPoints = graph->GetN()-1;
+    else if(Theory == "ahrens") NPoints = graph->GetN();
+
+    for (j=0;j<NPoints;j++){
         graph->GetPoint(j,  xLeft, yLeft);
         graph->GetPoint(j+1,xRight,yRight);
         integral += getLocalIntegral(xLeft,xRight,yLeft,yRight);
@@ -400,7 +418,7 @@ inline void NNLO::rescaleGraph(TGraph* graph, const double scaleFactor){
     double x,y;
     int j;
 
-    for (j=0; j<graph->GetN(); j++){
+    for (j=0;j<graph->GetN();j++){
         graph->GetPoint(j,x,y);
         graph->SetPoint(j,x,y/scaleFactor);
     }
@@ -429,11 +447,23 @@ void NNLO::createRebinnedHisto(const TGraph* graph, TH1* histo, const std::vecto
 
         // distribute bin integral from bin where new bin center falls between two data points 
         // according to ratio of left bin edge, bin center, right bin edge 
-        for (int j=0; j<graph->GetN()-1; j++){
+        int NPoints = 0;
+        if(Theory == "kidonakis") NPoints = graph->GetN()-1;
+        else if (Theory == "ahrens") NPoints = graph->GetN();
+        for (int j=0;j<NPoints;j++){
 
             graph->GetPoint(j,  xLeft, yLeft);
             graph->GetPoint(j+1,xRight,yRight);
             area = getLocalIntegral(xLeft,xRight,yLeft,yRight);
+
+            if(Theory == "ahrens"){
+                // Modify the binWidth in graph to accomodate Ahrens description
+                //  eg: 'x' = center of a bin
+                //      'y' = integral over that given bin
+                double binWidth = std::fabs(xRight - xLeft);
+                xRight = xLeft + 0.5 * binWidth;
+                xLeft -= 0.5* binWidth;
+            }
 
             if (xLeft>=lowEdge && xRight<=highEdge){
                 binSum_graph1 += area;
@@ -455,6 +485,7 @@ void NNLO::createRebinnedHisto(const TGraph* graph, TH1* histo, const std::vecto
         }
         histo->SetBinContent(vecIndex,(binSum_graph1+binSum_graph2)/(highEdge-lowEdge));
     }
+    histo->Scale(1./histo->Integral("width"));
 }
 
 // ========================================================

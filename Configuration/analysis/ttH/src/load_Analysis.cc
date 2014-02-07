@@ -119,7 +119,7 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
 
     // Set up kinematic reconstruction
     KinematicReconstruction* kinematicReconstruction(0);
-    kinematicReconstruction = new KinematicReconstruction();
+    //kinematicReconstruction = new KinematicReconstruction();
 
     // Set up pileup reweighter
     std::cout<<"--- Beginning preparation of pileup reweighter\n";
@@ -204,7 +204,7 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
     // Set up jet charge analyzer
     JetChargeAnalyzer* jetChargeAnalyzer(0);
     if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::charge) != v_analysisMode.end()){
-        jetChargeAnalyzer = new JetChargeAnalyzer({"7"}, {"7"}, jetCategories);
+        jetChargeAnalyzer = new JetChargeAnalyzer({"7"});
         v_analysisHistograms.push_back(jetChargeAnalyzer);
     }
 
@@ -361,10 +361,11 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
             }
             selector->SetWeightedEvents(weightedEvents);
             // FIXME: correction for MadGraph W decay branching fractions are not correctly applied
-            // Recently it is done for W from ttbar decays, set via SetSamplename
+            // Recently it is done for W from ttbar decays, set via SetGeneratorBools
             // Needs to be changed: for ttbarW, also correction for 3rd W needs to be applied, for ttbarhiggs corrections for 2 or 4 Ws needed, depending on Higgs decay (H->WW?)
             // and what about Wlnu sample, or possible others ?
-            selector->SetSamplename(samplename->GetString(), systematics_from_file->GetString());
+            selector->SetSamplename(samplename->GetString());
+            selector->SetGeneratorBools(samplename->GetString(), systematics_from_file->GetString());
             selector->SetOutputfilename(outputfilename);
             selector->SetRunViaTau(0);
             selector->SetRunWithTtbb(0);

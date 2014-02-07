@@ -805,6 +805,9 @@ std::vector<TString> Plotter::InputFileList(TString mode, TString Systematic)
     FileVector.push_back(tempName + "_zztoall.root");
     FileVector.push_back(tempName + "_dytautau1050.root");
     FileVector.push_back(tempName + "_dytautau50inf.root");
+    FileVector.push_back(tempName + "_qcdbcem2030.root");
+    FileVector.push_back(tempName + "_qcdbcem3080.root");
+    FileVector.push_back(tempName + "_qcdbcem80170.root");
     FileVector.push_back(tempName + "_qcdem2030.root");
     FileVector.push_back(tempName + "_qcdem3080.root");
     FileVector.push_back(tempName + "_qcdem80170.root");
@@ -1102,7 +1105,7 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
 
     drawhists[0]->GetXaxis()->SetNoExponent(kTRUE);
 
-    TGaxis::SetMaxDigits(2);
+    TGaxis::SetMaxDigits(3);
 
     //Removal of extra ticks in JetMult plots
 
@@ -2715,7 +2718,10 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
             TitBin  = "";
        }
     }
-
+    madgraphhistBinned->GetXaxis()->SetTitleOffset(varhists[0]->GetXaxis()->GetTitleOffset());
+    madgraphhistBinned->GetXaxis()->SetTitle(varhists[0]->GetXaxis()->GetTitle());
+    madgraphhistBinned->GetYaxis()->SetTitleOffset(varhists[0]->GetYaxis()->GetTitleOffset());
+    madgraphhistBinned->GetYaxis()->SetTitle(varhists[0]->GetYaxis()->GetTitle());
     madgraphhistBinned->Draw();
     if (ymax!=0) madgraphhistBinned->SetMaximum(ymax);
     gStyle->SetEndErrorSize(8);
@@ -2954,7 +2960,7 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
         DrawLabel("(arXiv:1210.7813)", leg2->GetX1NDC()+0.06, leg2->GetY1NDC()-0.025, leg2->GetX2NDC(), leg2->GetY1NDC(), 12, 0.025);
     }
     if (drawNLOCurves && drawAhrens){
-        if(name == "HypTTBarMass") {DrawLabel("(arXiv:1306.1537)", leg2->GetX1NDC()+0.06, leg2->GetY1NDC()-0.025, leg2->GetX2NDC(), leg2->GetY1NDC(), 12, 0.025);}
+        if(name == "HypTTBarMass") {DrawLabel("(arXiv:1003.5827)", leg2->GetX1NDC()+0.06, leg2->GetY1NDC()-0.025, leg2->GetX2NDC(), leg2->GetY1NDC(), 12, 0.025);}
         else if (name == "HypTTBarpT"){DrawLabel("(arXiv:1307.2464)", leg2->GetX1NDC()+0.06, leg2->GetY1NDC()-0.025, leg2->GetX2NDC(), leg2->GetY1NDC(), 12, 0.025);}
     }
 
@@ -3599,6 +3605,10 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
     madgraphhistBinned->SetLineColor(madgraphhist->GetLineColor());
     madgraphhistBinned->SetLineStyle(madgraphhist->GetLineStyle());
     madgraphhistBinned->SetLineWidth(2);
+    madgraphhistBinned->GetXaxis()->SetTitleOffset(varhists[0]->GetXaxis()->GetTitleOffset());
+    madgraphhistBinned->GetXaxis()->SetTitle(varhists[0]->GetXaxis()->GetTitle());
+    madgraphhistBinned->GetYaxis()->SetTitleOffset(varhists[0]->GetYaxis()->GetTitleOffset());
+    madgraphhistBinned->GetYaxis()->SetTitle(h_DiffXSec->GetYaxis()->GetTitle());
     madgraphhistBinned->Draw();
 
     TH1* realTruthBinned = nullptr;
@@ -3719,7 +3729,7 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
         DrawLabel("(arXiv:1210.7813)", leg2->GetX1NDC()+0.06, leg2->GetY1NDC()-0.025, leg2->GetX2NDC(), leg2->GetY1NDC(), 12, 0.025);
     }
     if (drawNLOCurves && drawAhrens){
-        if(name == "HypTTBarMass") {DrawLabel("(arXiv:1306.1537)", leg2->GetX1NDC()+0.06, leg2->GetY1NDC()-0.025, leg2->GetX2NDC(), leg2->GetY1NDC(), 12, 0.025);}
+        if(name == "HypTTBarMass") {DrawLabel("(arXiv:1003.5827)", leg2->GetX1NDC()+0.06, leg2->GetY1NDC()-0.025, leg2->GetX2NDC(), leg2->GetY1NDC(), 12, 0.025);}
         else if (name == "HypTTBarpT"){DrawLabel("(arXiv:1307.2464)", leg2->GetX1NDC()+0.06, leg2->GetY1NDC()-0.025, leg2->GetX2NDC(), leg2->GetY1NDC(), 12, 0.025);}
     }
 

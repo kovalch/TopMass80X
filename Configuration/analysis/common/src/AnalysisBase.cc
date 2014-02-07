@@ -248,22 +248,19 @@ void AnalysisBase::SetSystematic(const TString& systematic)
 }
 
 
-
-void AnalysisBase::SetSamplename(const TString& samplename, const TString& systematic_from_file)
+void AnalysisBase::SetGeneratorBools(const TString& samplename, const TString& systematic_from_file)
 {
-    if(samplename_ == ""){
-        // Samplename was not set so far, so initialize everything based on it
-        samplename_ = samplename;
-        isTtbarSample_ = samplename.BeginsWith("ttbar") && !samplename.BeginsWith("ttbarhiggs") &&
-                         !(samplename=="ttbarw") && !(samplename=="ttbarz");
-        isTtbarPlusTauSample_ = isTtbarSample_ && !samplename.BeginsWith("ttbarbg");
-        correctMadgraphBR_ = samplename.BeginsWith("ttbar") && !systematic_from_file.Contains("SPIN") &&
-                             !systematic_from_file.Contains("POWHEG") && !systematic_from_file.Contains("MCATNLO");
-    }
-    else{
-        // Samplename was already set and everything associated was initialized, so adjust only the name
-        samplename_ = samplename;
-    }
+    isTtbarSample_ = samplename.BeginsWith("ttbar") && !samplename.BeginsWith("ttbarhiggs") &&
+                        !(samplename=="ttbarw") && !(samplename=="ttbarz");
+    isTtbarPlusTauSample_ = isTtbarSample_ && !samplename.BeginsWith("ttbarbg");
+    correctMadgraphBR_ = samplename.BeginsWith("ttbar") && !systematic_from_file.Contains("SPIN") &&
+                            !systematic_from_file.Contains("POWHEG") && !systematic_from_file.Contains("MCATNLO");
+}
+
+
+void AnalysisBase::SetSamplename(const TString& samplename)
+{
+    samplename_ = samplename;
 }
 
 
@@ -1000,65 +997,33 @@ bool AnalysisBase::calculateKinReco(const int leptonIndex, const int antiLeptonI
     const LV& leptonPlus(allLeptons.at(antiLeptonIndex));
     VLV selectedJets;
     std::vector<double> btagValues;
-    std::vector<int> jIndex;
+    std::vector<int> selectedJetIndices;
     for(const int index : jetIndices){
         selectedJets.push_back(jets.at(index));
         btagValues.push_back(jetBTagCSV.at(index));
-        jIndex.push_back(index);
+        selectedJetIndices.push_back(index);
     }
 
 
-//     if(0){//print
-//          printf("****************************************************************************************************************\n");
-//                           printf("Event nr: %d\n",eventNumber_);
-//                           std::cout <<"Jets info:"<< std::endl;
-//                           for(int i=0;i<(int)jetBTagCSV.size();i++)
-//                           {
-//                                 std::cout << "jet " << i <<": ";printf("(Pt,eta,Phi)=(%f %f %f) w=%f \n",(*jets)[i].Pt(),(*jets)[i].Eta(),(*jets)[i].Phi(),jetBTagCSV.at(i));
-//                           }
-//
-//
-//                           std::cout << std::endl;
-//                           std::cout <<"  True info:"<< std::endl;
-//                           std::cout << "  tt     -> ";printf("(Mtt,Pt,eta,Phi)=(%f %f %f %f)\n",(GenTop_+GenAntiTop_).M(),(GenTop_+GenAntiTop_).Pt(),(GenTop_+GenAntiTop_).Eta(),(GenTop_+GenAntiTop_).Phi());
-//                           std::cout << "    top     -> ";printf("(Pt,eta,Phi)=(%f %f %f)\n",GenTop_.Pt(),GenTop_.Eta(),GenTop_.Phi());
-//                           std::cout << "      B     -> ";printf("(Pt,eta,Phi)=(%f %f %f)\n",GenB_.Pt(),GenB_.Eta(),GenB_.Phi());
-//                           std::cout << "      W+    -> ";printf("(Pt,eta,Phi)=(%f %f %f)\n",GenWPlus_.Pt(),GenWPlus_.Eta(),GenWPlus_.Phi());
-//                           std::cout << "        neutrino    -> ";printf("(Pt,eta,Phi)=(%f %f %f)\n",GenNeutrino_.Pt(),GenNeutrino_.Eta(),GenNeutrino_.Phi());
-//                           std::cout << "        Antilepton  -> ";printf("(Pt,eta,Phi)=(%f %f %f)\n",GenAntiLepton_.Pt(),GenAntiLepton_.Eta(),GenAntiLepton_.Phi());
-//                           std::cout << "    topbar  -> ";printf("(Pt,eta,Phi)=(%f %f %f)\n",GenAntiTop_.Pt(),GenAntiTop_.Eta(),GenAntiTop_.Phi());
-//                           std::cout << "      Bbar  -> ";printf("(Pt,eta,Phi)=(%f %f %f)\n",GenAntiB_.Pt(),GenAntiB_.Eta(),GenAntiB_.Phi());
-//                           std::cout << "      W-    -> ";printf("(Pt,eta,Phi)=(%f %f %f)\n",GenWMinus_.Pt(),GenWMinus_.Eta(),GenWMinus_.Phi());
-//                           std::cout << "        Antineutrino -> ";printf("(Pt,eta,Phi)=(%f %f %f)\n",GenAntiNeutrino_.Pt(),GenAntiNeutrino_.Eta(),GenAntiNeutrino_.Phi());
-//                           std::cout << "        lepton       -> ";printf("(Pt,eta,Phi)=(%f %f %f)\n",GenLepton_.Pt(),GenLepton_.Eta(),GenLepton_.Phi());
-//                           std::cout << std::endl;
-//
-//     }
-//
-
     // 2 lines needed for OLD kinReco
-//    const auto& sols = GetKinSolutions(leptonMinus, leptonPlus, &selectedJets, &btagValues, &met);
-//    const int nSolution = sols.size();
+    //const auto& sols = GetKinSolutions(leptonMinus, leptonPlus, &selectedJets, &btagValues, &met);
+    //const int nSolution = sols.size();
 
-    // 3 lines needed for NEW kinReco
+    // 6 lines needed for NEW kinReco
+    if(!kinematicReconstruction_){
+        std::cerr<<"Error in AnalysisBase::calculateKinReco()! Kinematic reconstruction is not initialised\n...break\n"<<std::endl;
+        exit(659);
+    }
     kinematicReconstruction_->kinReco(leptonMinus, leptonPlus, &selectedJets, &btagValues, &met);
     const auto& sols = kinematicReconstruction_->getSols();
     const int nSolution = sols.size();
-
-   //////////kinematicReconstruction_->doJetsMerging(&jets,&jetBTagCSV);
-
+    
+    
+    // Check if solution exists, take first one
     if(nSolution == 0) return false;
     const auto& sol = sols.at(0);
-
-
-//    std::cout<< std::endl;
-//    std::cout<<selectedJets.size() << std::endl;
-//    for(int i=0;i<nSolution;i++)
-//     {
-//         std::cout <<i<< "  "<< sols.at(i).ntags <<"  "<< sols.at(i).weight<<" " <<jIndex[sols.at(i).jetB_index]  << " " << jIndex[sols.at(i).jetBbar_index] << std::endl;
-//
-//     }
-
+    
+    
     // Fill the results of the on-the-fly kinematic reconstruction
     kinRecoObjects_->HypTop_->push_back(common::TLVtoLV(sol.top));
     kinRecoObjects_->HypAntiTop_->push_back(common::TLVtoLV(sol.topBar));
@@ -1068,9 +1033,8 @@ bool AnalysisBase::calculateKinReco(const int leptonIndex, const int antiLeptonI
     kinRecoObjects_->HypAntiBJet_->push_back(common::TLVtoLV(sol.jetBbar));
     kinRecoObjects_->HypNeutrino_->push_back(common::TLVtoLV(sol.neutrino));
     kinRecoObjects_->HypAntiNeutrino_->push_back(common::TLVtoLV(sol.neutrinoBar));
-    kinRecoObjects_->HypJet0index_->push_back(jIndex[sol.jetB_index]);
-    kinRecoObjects_->HypJet1index_->push_back(jIndex[sol.jetBbar_index]);
-
+    kinRecoObjects_->HypJet0index_->push_back(selectedJetIndices.at(sol.jetB_index));
+    kinRecoObjects_->HypJet1index_->push_back(selectedJetIndices.at(sol.jetBbar_index));
     kinRecoObjects_->valuesSet_ = true;
 
     // Check for strange events
@@ -1126,7 +1090,6 @@ bool AnalysisBase::failsTopGeneratorSelection(const Long64_t& entry)const
 {
     if(!isTtbarPlusTauSample_) return false;
     GetTopDecayModeEntry(entry);
-
     //decayMode contains the decay of the top (*10) + the decay of the antitop
     //1=hadron, 2=e, 3=mu, 4=tau->hadron, 5=tau->e, 6=tau->mu
     //i.e. 23 == top decays to e, tbar decays to mu

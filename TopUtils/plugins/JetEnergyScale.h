@@ -83,6 +83,8 @@ class JetEnergyScale : public edm::EDProducer {
   std::string scaleType_;
   /// if scaleType is set to use a single source, here's the name of the source to be used
   std::string sourceName_;
+  /// jet flavor to scale with flavor:up/down
+  std::string flavor_;
   /// scale factor for the rescaling of JES
   double scaleFactor_;
   /// scale factor bJES/JES

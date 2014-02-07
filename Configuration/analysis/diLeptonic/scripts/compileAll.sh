@@ -1,6 +1,13 @@
 #!/bin/sh
 
 
+if [ ! ${CMSSW_BASE} ] ; then
+    echo "Environment variable CMSSW_BASE not set, cannot continue!"
+    echo "First do the cmsenv in your release"
+    exit 6
+fi
+
+
 TopAnalysisDir=${CMSSW_BASE}/src/TopAnalysis
 analysisDir=${TopAnalysisDir}/Configuration/analysis
 

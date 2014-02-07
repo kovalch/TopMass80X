@@ -8,7 +8,7 @@ void analyzeHypothesisKinFit(double luminosity = 19712.,
 			     //TString dataFile= "/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/muonDiffXSecData2012ABCDAll.root",
 			     //TString dataFile= "/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/elecDiffXSecData2012ABCDAll.root",
 			     TString dataFile= "/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/elecDiffXSecData2012ABCDAll.root:/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/muonDiffXSecData2012ABCDAll.root",
-			     std::string decayChannel = "combined", bool SVDunfold=true, bool extrapolate=true, bool hadron=false,
+			     std::string decayChannel = "combined", bool SVDunfold=true, bool extrapolate=false, bool hadron=true,
 			     bool addCrossCheckVariables=false, bool redetermineopttau =false, TString closureTestSpecifier="", TString addSel="ProbSel")
 {
   // ============================
@@ -74,10 +74,11 @@ void analyzeHypothesisKinFit(double luminosity = 19712.,
   //        45: sysDiBosUp                 46: sysDiBosDown 
   //        47: sysVjetsUp                 48: sysVjetsDown
   //        49: sysBRUp                    50: sysBRDown              
-  //        51: sysPDFUp                   52: sysPDFDown                  
-  //        53: sysHadUp                   54: sysHadDown                  
-  //        55: sysGenMCatNLO              56: sysGenPowheg  
-  //        57: sysGenPowhegHerwig         58: ENDOFSYSENUM
+  //        51: sysPDFUp                   52: sysPDFDown 
+  //        53: sysUnf,                    54: sysMad,
+  //        55: sysHadUp                   56: sysHadDown                  
+  //        57: sysGenMCatNLO              58: sysGenPowheg  
+  //        59: sysGenPowhegHerwig         60: ENDOFSYSENUM
   
   // systematic variation for which you want to print the
   // inclusive cross section and the jet permutation overview
@@ -258,7 +259,11 @@ void analyzeHypothesisKinFit(double luminosity = 19712.,
     }
     exit(0);
   }
-
+  else if(verbose>2){
+    for(unsigned int ix=0; ix<xSecVariables_.size(); ++ix){
+      std::cout << xSecVariables_[ix] << ": " << xSecLabel_[ix] << std::endl; 
+    }
+  }
 
   // get folder prefix for systematics without extra rootfile
   switch (systematicVariationMod)
@@ -692,8 +697,8 @@ void analyzeHypothesisKinFit(double luminosity = 19712.,
     "#Delta#chi^{2} (1^{st} - 2^{nd} best fit hypothesis)/events/0/10",
     // reconstructed top quantities
     "m^{t} #left[GeV#right]/#frac{dN}{dm^{t}} #left[GeV^{-1}#right]/0/10",
-    xSecLabelName("topPt")+"/#frac{dN}{dp_{T}^{t}} #left[GeV^{-1}#right]/0/1",
-    xSecLabelName("topPtTtbarSys")+"/#frac{dN}{dp_{T}^{t}} #left[GeV^{-1}#right]/0/1",
+    xSecLabelName("topPt")+"/#frac{dN}{"+xSecLabelName("topPt")+"} #left[GeV^{-1}#right]/0/1",
+    xSecLabelName("topPtTtbarSys")+"/#frac{dN}{d"+xSecLabelName("topPtTtbarSys")+"} #left[GeV^{-1}#right]/0/1",
     xSecLabelName("topPtLead")+"/#frac{dN}{dp_{T}^{t}} #left[GeV^{-1}#right]/0/1",
     xSecLabelName("topPtSubLead")+"/#frac{dN}{dp_{T}^{t}} #left[GeV^{-1}#right]/0/1",
     "#phi^{t}/#frac{dN}{d#phi^{t}}/0/4",
@@ -3333,4 +3338,6 @@ void analyzeHypothesisKinFit(double luminosity = 19712.,
   // delete pointer
   delete leg0;
   closeStdTopAnalysisFiles(files_);
+  // close all open files
+  CloseOpenFiles();
 }

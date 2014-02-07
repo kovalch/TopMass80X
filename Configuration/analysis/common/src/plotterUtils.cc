@@ -145,7 +145,7 @@ void common::drawRatioXSEC(const TH1* histNumerator, const TH1* histDenominator1
 
 
     ratio1->GetYaxis()->CenterTitle();
-    ratio1->GetYaxis()->SetTitle("Data/Th.");
+    ratio1->GetYaxis()->SetTitle("#frac{Data}{Theory}");
     ratio1->GetYaxis()->SetTitleSize(histNumerator->GetYaxis()->GetTitleSize()*scaleFactor);
     ratio1->GetYaxis()->SetTitleOffset(histNumerator->GetYaxis()->GetTitleOffset()/scaleFactor);
     ratio1->GetYaxis()->SetLabelSize(histNumerator->GetYaxis()->GetLabelSize()*scaleFactor);
@@ -153,6 +153,7 @@ void common::drawRatioXSEC(const TH1* histNumerator, const TH1* histDenominator1
     ratio1->GetYaxis()->SetTickLength(0.03);
     ratio1->GetYaxis()->SetNdivisions(504);
     ratio1->GetXaxis()->SetRange(histNumerator->GetXaxis()->GetFirst(), histNumerator->GetXaxis()->GetLast());
+    ratio1->GetXaxis()->SetNoExponent(kTRUE);
     
     /// delete axis of initial plot
     histNumerator->GetXaxis()->SetLabelSize(0);
@@ -168,7 +169,7 @@ void common::drawRatioXSEC(const TH1* histNumerator, const TH1* histDenominator1
     gPad->RedrawAxis();
     
     /// draw grid
-    //rPad->SetGrid(1,1);
+    rPad->SetGrid(0,1);
 
     // draw a horizontal lines on a given histogram
     // a) at 1
@@ -317,7 +318,7 @@ void common::drawRatio(const TH1* histNumerator, const TH1* histDenominator,
     gPad->SetLeftMargin(left);
     gPad->RedrawAxis();
     // draw grid
-    //rPad->SetGrid(1,1);
+    rPad->SetGrid(0,1);
 
     /// make linear fit of the ratio plot
     TF1 *fit = 0;

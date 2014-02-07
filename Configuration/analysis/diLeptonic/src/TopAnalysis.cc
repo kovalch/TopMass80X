@@ -52,7 +52,8 @@ constexpr double JetPtCUT = 30.;
 constexpr double JetPtCUT2 = 30.;
 
 /// CSV Loose working point
-constexpr double BtagWP = 0.244;
+//constexpr double BtagWP = 0.244;
+constexpr BtagScaleFactors::workingPoints BtagWP = BtagScaleFactors::csvl_wp;
 
 /// Dxy(vertex) cut for electrons
 constexpr double DVertex = 0.04;
@@ -523,12 +524,12 @@ void TopAnalysis::SlaveBegin(TTree*)
     h_HypTTBar0Mass = store(new TH1D("HypTTBar0Mass","TTBar0Mass (HYP)",200,0,2));
 
     h_HypPartonFraction = store(new TH1D("HypPartonFraction","Parton Momentum Fraction (HYP)",100,0,1));
-    h_VisGenPartonFraction = store(new TH1D("VsiGenPartonFraction","Parton Momentum Fraction (VisGEN)",100,0,1));
+    h_VisGenPartonFraction = store(new TH1D("VisGenPartonFraction","Parton Momentum Fraction (VisGEN)",100,0,1));
     h_RecoPartonFraction = store(new TH1D("RecoPartonFraction","Parton Momentum Fraction (reco)",100,0,1));
     h_GenRecoPartonFraction = store(new TH2D("GenRecoPartonFraction","Parton Momentum Fraction (Gen/Reco)",100,0,1, 100, 0,1));
 
     h_HypAntiPartonFraction = store(new TH1D("HypAntiPartonFraction","AntiParton Momentum Fraction (HYP)",100,0,1));
-    h_VisGenAntiPartonFraction = store(new TH1D("VsiGenAntiPartonFraction","AntiParton Momentum Fraction (VisGEN)",100,0,1));
+    h_VisGenAntiPartonFraction = store(new TH1D("VisGenAntiPartonFraction","AntiParton Momentum Fraction (VisGEN)",100,0,1));
     h_RecoAntiPartonFraction = store(new TH1D("RecoAntiPartonFraction","AntiParton Momentum Fraction (reco)",100,0,1));
     h_GenRecoAntiPartonFraction = store(new TH2D("GenRecoAntiPartonFraction","AntiParton Momentum Fraction (Gen/Reco)",100,0,1, 100, 0,1));
 
@@ -656,7 +657,10 @@ void TopAnalysis::SlaveBegin(TTree*)
 
 
     // Histograms for b-tagging efficiencies
-    if(this->makeBtagEfficiencies()) btagScaleFactors_->prepareBTags(fOutput, static_cast<std::string>(this->channel()));
+//    if(this->makeBtagEfficiencies()) btagScaleFactors_->prepareBTags(fOutput, static_cast<std::string>(this->channel()));
+
+    btagScaleFactors_->setWorkingPoint(BtagWP);
+    btagScaleFactors_->prepareBTags(fOutput, static_cast<std::string>(this->channel()));
     
     h_PUSF = store(new TH1D("PUSF", "PU SF per event", 200, 0.5, 1.5));
     h_TrigSF = store(new TH1D("TrigSF", "Trigger SF per event", 200, 0.5, 1.5));
@@ -754,7 +758,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
 
     // Separate dileptonic ttbar decays via tau
     if(this->failsTopGeneratorSelection(entry)) return kTRUE;
-
+// std::cout<<"Ivan"<<std::endl;
     // Count events for closure test here, where no more taus are available
     if (doClosureTest_) {
         static int closureTestEventCounter = 0;
@@ -884,7 +888,8 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     // Get b-jet indices, apply selection cuts
     // and order b-jets by btag discriminator (beginning with the highest value)
     std::vector<int> bjetIndices = jetIndices;
-    selectIndices(bjetIndices, (*recoObjects.jetBTagCSV_), BtagWP);
+//    selectIndices(bjetIndices, (*recoObjects.jetBTagCSV_), BtagWP);
+  selectIndices(bjetIndices, (*recoObjects.jetBTagCSV_), (double)btagScaleFactors_->getWPDiscrValue());
     if(this->isMC() && !(btagScaleFactors_->makeEfficiencies()) && ReTagJet){
         // Apply b-tag efficiency MC correction using random number based tag flipping
         btagScaleFactors_->indexOfBtags(bjetIndices, jetIndices,
@@ -1968,7 +1973,7 @@ void TopAnalysis::SetClosureTest(TString closure, double slope)
         closureMaxEvents_ = TOPXSEC * 1000 * LUMI * br;
         TString samplename = this->samplename();
         samplename.Append("_fakedata");
-        this->SetSamplename(samplename, "");
+        this->SetSamplename(samplename);
     }
 }
 

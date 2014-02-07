@@ -25,7 +25,10 @@ void createNNLOplot(TString theory="ahrens")
   else if(theory=="kidonakis") xSecVariables_ .insert( xSecVariables_.begin(), xSecVariablesUsedKidonakis, xSecVariablesUsedKidonakis + sizeof(xSecVariablesUsedKidonakis)/sizeof(TString) );
   // get variable binning used for final cross sections 
   std::map<TString, std::vector<double> > bins_=makeVariableBinning();
-  //TH1F* temp=new TH1F("ttbarMassAhrens", "ttbarMassAhrens", 1000, 250., 2720.);
+  //std::vector<double> tempbins_;
+  //double ttbarMassBins[]={345,445,545,745, 1045};
+  //tempbins_.insert( tempbins_.begin(), ttbarMassBins, ttbarMassBins + sizeof(ttbarMassBins)/sizeof(double) );
+  //bins_["ttbarMass"]=tempbins_;
 
   // loop all variables
   for(unsigned var=0; var<xSecVariables_.size(); ++var){
@@ -40,13 +43,14 @@ void createNNLOplot(TString theory="ahrens")
     // --------------------------
     // NB: add new datset file names here
     TGraph * rawHist;
+    TString predictionfolder="/afs/naf.desy.de/group/cms/scratch/tophh/CommonFiles/";
     if(theory=="ahrens"   ){
-      if(variable.Contains("ttbarMass")) rawHist= new TGraph("AhrensTheory_Mtt_8000_172.5_Mtt_norm.dat");//"AhrensTheory_Mtt_8000_172.5_Mtt_norm.dat" // "AhrensTheory_Mtt_7000_172.5_Mtt_norm.dat"
-      if(variable.Contains("ttbarPt"  )) rawHist= new TGraph("pTttbar_8000_NLONNLL.dat"                );//"pTttbar_7000_NLONNLL.dat" // "pTttbar_8000_NLONNLL.dat"
+      if(variable.Contains("ttbarMass")) rawHist= new TGraph(predictionfolder+"AhrensTheory_Mttbar_8000_172.5_NLONNLL_norm.dat");//AhrensTheory_Mtt_7000_172.5_Mtt_fin.dat
+      if(variable.Contains("ttbarPt"  )) rawHist= new TGraph(predictionfolder+"AhrensTheory_pTttbar_8000_172.5_NLONNLL_abs.dat");//AhrensTheory_pTttbar_7000_172.5_NLONNLL_abs.dat
     }
     else if(theory=="kidonakis"){
-      if(variable.Contains("topPt")) rawHist= new TGraph("pttopnnloapprox8lhc173m.dat");//"ptnormalNNLO7lhc173m.dat" //"pttopnnloapprox8lhc173m.dat"
-      if(variable.Contains("topY" )) rawHist= new TGraph("ytopnnloapprox8lhc173m.dat" );//"ynormalNNLO7lhc173m.dat"  //"ytopnnloapprox8lhc173m.dat"
+      if(variable.Contains("topPt")) rawHist= new TGraph(predictionfolder+"pttopnnloapprox8lhc173m.dat");//"ptnormalNNLO7lhc173m.dat" //"pttopnnloapprox8lhc173m.dat"
+      if(variable.Contains("topY" )) rawHist= new TGraph(predictionfolder+"ytopnnloapprox8lhc173m.dat" );//"ynormalNNLO7lhc173m.dat"  //"ytopnnloapprox8lhc173m.dat"
     }
     // NB: say if points should be interpreted as single points with 
     //     nothing in between or as integrated value over the range
@@ -121,7 +125,7 @@ void createNNLOplot(TString theory="ahrens")
 	y=rawHist->GetY()[bin-1];
       }
       if(x!=-999){
-	std::cout << "data bin: " << bin;
+	std::cout << "data point: " << bin;
 	std::cout << "(<x>=" << x << ")-> bin";
 	// get bin in target (fine binned) plot
 	int bin2=bin;
@@ -330,6 +334,12 @@ void createNNLOplot(TString theory="ahrens")
 	binnedPlot->SetBinContent(bin, binnedPlot->GetBinContent(bin)/binnedPlot->GetBinWidth(bin));
       }
     }
+    std::cout << "-------------------------------------------" << std::endl;
+    std::cout << "result: binned output histo" << std::endl;
+    for(int bin=1; bin<=binnedPlot->GetNbinsX(); ++bin){
+      std::cout << "content bin " << bin << " (" << binnedPlot->GetBinLowEdge(bin) << ".." << binnedPlot->GetBinLowEdge(bin+1) << ")= " << binnedPlot->GetBinContent(bin) << std::endl;
+    }
+
     // styling
     binnedPlot->SetLineColor(kBlue);
     binnedPlot->SetLineWidth(2);
