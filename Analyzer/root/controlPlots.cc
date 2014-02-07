@@ -105,6 +105,7 @@ void TopMassControlPlots::doPlots()
 	  hists.push_back(MyHistogram("recoW1Mass_vs_nVertex" , "weight.nVertex", "top.recoW1.M()" , "", ";N_{Vertex}; m_{W}^{reco} [GeV]", 8, 0, 40, 58, 10, 300));
 	  hists.push_back(MyHistogram("recoW1Mass_vs_fitProb" , "top.fitProb"   , "top.recoW1.M()" , "", ";P_{gof}; m_{W}^{reco} [GeV]"   , 10, 0,  1, 58, 10, 300));
 	  hists.push_back(MyHistogram("recoW1Mass_vs_nJet", "jet.@jet.size()", "top.recoW1.M()", "", ";N_{jet}; m_{W}^{reco} [GeV]", 11, 4, 15, 58, 10, 300));
+	  hists.push_back(MyHistogram("recoW1Mass_vs_jet3Pt", "jet.jet[3].Pt()", "top.recoW1.M()", "", ";p_{T}^{3} [GeV]; m_{W}^{reco} [GeV]", 7, 30, 100, 58, 10, 300));
     hists.push_back(MyHistogram("recoW1Mass_vs_dRbb", "sqrt(pow(top.fitB1.Eta()-top.fitB2.Eta(),2) + pow(TVector2::Phi_mpi_pi(top.fitB1.Phi()-top.fitB2.Phi()),2))", "top.recoW1.M()", "", ";#DeltaR_{b#bar{b}}; m_{W}^{reco}" , 10, 1, 6, 58, 10, 300));
   }
   // light pulls
@@ -501,9 +502,9 @@ void TopMassControlPlots::doPlots()
 
     // JES
     if(plotSelectedForPlotting.find("JESVariationPlots")!=plotSelectedForPlotting.end()){
-      samples.push_back(MySample("t#bar{t}, JES = 0.96", "Summer12_TTJets1725_0.96", kSigVar, kRed+1, 1, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t}, JES = 0.98", "Summer12_TTJets1725_0.98", kSigVar, kRed+1, 1, lumi_/1000.));
       samples.push_back(MySample("t#bar{t}, JES = 1.00", "Summer12_TTJets1725_1.00", kSigVar, kBlue+1, 1, lumi_/1000.));
-      samples.push_back(MySample("t#bar{t}, JES = 1.04", "Summer12_TTJets1725_1.04", kSigVar, kGreen+1, 1, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t}, JES = 1.02", "Summer12_TTJets1725_1.02", kSigVar, kGreen+1, 1, lumi_/1000.));
     }
     
     if(plotSelectedForPlotting.find("JESUncVariationPlots")!=plotSelectedForPlotting.end()){
