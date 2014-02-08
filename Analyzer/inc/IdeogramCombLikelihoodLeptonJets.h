@@ -1,6 +1,9 @@
 #ifndef IDEOGRAMCOMBLIKELIHOODLEPTONJETS_H
 #define IDEOGRAMCOMBLIKELIHOODLEPTONJETS_H
 #include <iostream>
+#include <map>
+#include <utility>
+#include <vector>
 
 #include "IdeogramCombLikelihood.h"
 
@@ -33,6 +36,11 @@ class IdeogramCombLikelihoodLeptonJets : public IdeogramCombLikelihood {
     std::vector<double> ele_jesSlopeMassJES_;
 
     double ele_fCP_, ele_fWP_, ele_fUN_;
+    
+    typedef std::pair<double,double> ScanPoint;
+    typedef std::map<ScanPoint,double> ScanPointMap; 
+    static ScanPointMap PWPnormalizations_;
+    static ScanPointMap PUNnormalizations_;
 
 
   

@@ -2,6 +2,9 @@
 
 typedef ProgramOptionsReader po;
 
+IdeogramCombLikelihoodLeptonJets::ScanPointMap IdeogramCombLikelihoodLeptonJets::PWPnormalizations_;
+IdeogramCombLikelihoodLeptonJets::ScanPointMap IdeogramCombLikelihoodLeptonJets::PUNnormalizations_;
+
 IdeogramCombLikelihoodLeptonJets::IdeogramCombLikelihoodLeptonJets() :
 		ele_parsCP_   (0), ele_parsWP_    (0), ele_parsUN_   (0),
 		ele_parsCPJES_(0), ele_parsWPJES_ (0), ele_parsUNJES_(0),
@@ -224,26 +227,32 @@ double IdeogramCombLikelihoodLeptonJets::PWP(double* x, double* p)
 	double* q = &parsWP_[0]; //could use it as vector (range check)
 	if (p[3] == 11) q = &ele_parsWP_[0];
   
-  double N      =  1./0.01;
   double mu     = q[0] + q[1] * (x[0]-172.5) + (q[2] + q[3] * (x[0]-172.5)) * (x[1]-1.);
   double sigma  = q[4] + q[5] * (x[0]-172.5) + (q[6] + q[7] * (x[0]-172.5)) * (x[1]-1.);
   double alpha  = q[8] + q[9] * (x[0]-172.5) + (q[10] + q[11] * (x[0]-172.5)) * (x[1]-1.);
   double power  =  15;
   double t = (p[1] - mu) / sigma;
   
-  //*
-  double N1 = -sqrt(TMath::PiOver2()) * sigma * (TMath::Erf(-alpha/sqrt(2)) - TMath::Erf(mu/(sqrt(2)*sigma)));
-  double N2 = cb::A(alpha,power) / (-1.+power) * (
+  ScanPoint currentPoint = std::make_pair(x[0],x[1]);
+  ScanPointMap::const_iterator iter = PWPnormalizations_.find(currentPoint);
+  double currentNormalization = -1.;
+  if(iter == PWPnormalizations_.end()){
+    double N1 = -sqrt(TMath::PiOver2()) * sigma * (TMath::Erf(-alpha/sqrt(2)) - TMath::Erf(mu/(sqrt(2)*sigma)));
+    double N2 = cb::A(alpha,power) / (-1.+power) * (
                 (-cb::B(alpha,power)*sigma+mu-10000) * TMath::Power(cb::B(alpha,power)+(-mu+10000)/sigma, -power)
                -(-cb::B(alpha,power)*sigma-sigma*alpha) * TMath::Power(cb::B(alpha,power)+(sigma*alpha)/sigma, -power)
               );
-  N = N1 + N2;
-  //*/
+    currentNormalization = N1 + N2;
+    PWPnormalizations_[currentPoint] = currentNormalization;
+  }
+  else{
+    currentNormalization = iter->second;
+  }
   
   if(t < alpha)
-    return 1./N * TMath::Exp(-t*t/2);
+    return 1./currentNormalization * TMath::Exp(-t*t/2);
   else
-    return 1./N * cb::A(alpha,power) * TMath::Power(cb::B(alpha,power) + t, -power);
+    return 1./currentNormalization * cb::A(alpha,power) * TMath::Power(cb::B(alpha,power) + t, -power);
 }
 
 
@@ -252,26 +261,32 @@ double IdeogramCombLikelihoodLeptonJets::PUN(double* x, double* p)
 	double* q = &parsUN_[0]; //could use it as vector (range check)
 	if (p[3] == 11) q = &ele_parsUN_[0];
   
-  double N      =  1./0.01;
   double mu     = q[0] + q[1] * (x[0]-172.5) + (q[2] + q[3] * (x[0]-172.5)) * (x[1]-1.);
   double sigma  = q[4] + q[5] * (x[0]-172.5) + (q[6] + q[7] * (x[0]-172.5)) * (x[1]-1.);
   double alpha  = q[8] + q[9] * (x[0]-172.5) + (q[10] + q[11] * (x[0]-172.5)) * (x[1]-1.);
   double power  =  5;
   double t = (p[1] - mu) / sigma;
   
-  //*
-  double N1 = -sqrt(TMath::PiOver2()) * sigma * (TMath::Erf(-alpha/sqrt(2)) - TMath::Erf(mu/(sqrt(2)*sigma)));
-  double N2 = cb::A(alpha,power) / (-1.+power) * (
+  ScanPoint currentPoint = std::make_pair(x[0],x[1]);
+  ScanPointMap::const_iterator iter = PUNnormalizations_.find(currentPoint);
+  double currentNormalization = -1.;
+  if(iter == PUNnormalizations_.end()){
+    double N1 = -sqrt(TMath::PiOver2()) * sigma * (TMath::Erf(-alpha/sqrt(2)) - TMath::Erf(mu/(sqrt(2)*sigma)));
+    double N2 = cb::A(alpha,power) / (-1.+power) * (
                 (-cb::B(alpha,power)*sigma+mu-10000) * TMath::Power(cb::B(alpha,power)+(-mu+10000)/sigma, -power)
                -(-cb::B(alpha,power)*sigma-sigma*alpha) * TMath::Power(cb::B(alpha,power)+(sigma*alpha)/sigma, -power)
               );
-  N = N1 + N2;
-  //*/
+    currentNormalization = N1 + N2;
+    PUNnormalizations_[currentPoint] = currentNormalization;
+  }
+  else{
+    currentNormalization = iter->second;
+  }
   
   if(t < alpha)
-    return 1./N * TMath::Exp(-t*t/2);
+    return 1./currentNormalization * TMath::Exp(-t*t/2);
   else
-    return 1./N * cb::A(alpha,power) * TMath::Power(cb::B(alpha,power) + t, -power);
+    return 1./currentNormalization * cb::A(alpha,power) * TMath::Power(cb::B(alpha,power) + t, -power);
 }
 
 double IdeogramCombLikelihoodLeptonJets::PCPJES(double* x, double* p)
