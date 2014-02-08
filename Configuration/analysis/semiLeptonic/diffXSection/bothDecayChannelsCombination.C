@@ -1,6 +1,6 @@
 #include "basicFunctions.h"
 
-void bothDecayChannelsCombination(double luminosity=19712, bool save=true, unsigned int verbose=0,
+void bothDecayChannelsCombination(double luminosity=19712, bool save=false, unsigned int verbose=0,
 				  TString inputFolderName="RecentAnalysisRun8TeV_doubleKinFit",
 				  bool pTPlotsLog=false, bool extrapolate=true, bool hadron=false, bool addCrossCheckVariables=false, 
 				  bool combinedEventYields=true, TString closureTestSpecifier="" , bool smoothcurves=false){
@@ -658,7 +658,7 @@ void bothDecayChannelsCombination(double luminosity=19712, bool save=true, unsig
 	    // get predicted inclusive cross section in chosen PS 
 	    double inclxSec=NGenPS/(BR*0.5*(constLumiElec+constLumiMuon));
 	    // fill histo
-	    plotTheo2 = new TH1F( plotTheo->GetName(), plotTheo->GetTitle(), 1, 0., 1.0);
+	    plotTheo2 = new TH1F( TString(plotTheo->GetName())+"incl1", TString(plotTheo->GetTitle())+"incl1", 1, 0., 1.0);
 	    plotTheo2->SetBinContent(1, inclxSec );
 	  }
 	  else{
@@ -697,7 +697,7 @@ void bothDecayChannelsCombination(double luminosity=19712, bool save=true, unsig
 	  // load it from combined file
 	  TString MGcombFile2="/afs/naf.desy.de/group/cms/scratch/tophh/"+inputFolderName+"/combinedDiffXSecSigSummer12PFLarge.root";
 	  if(!largeMGfile) MGcombFile2.ReplaceAll("Large","");
-	  TH1F* plotTheo3 = (xSecVariables_[i]=="inclusive") ? new TH1F( TString(plotTheo->GetName())+"incl", TString(plotTheo->GetTitle())+"incl", 1, 0., 1.0) : getTheoryPrediction(plotNameMadgraph2, MGcombFile2);
+	  TH1F* plotTheo3 = (xSecVariables_[i]=="inclusive") ? new TH1F( TString(plotTheo->GetName())+"incl2", TString(plotTheo->GetTitle())+"incl2", 1, 0., 1.0) : getTheoryPrediction(plotNameMadgraph2, MGcombFile2);
 	  // inclusive cross section
 	  if(xSecVariables_[i]=="inclusive"){
 	    // get events in PS from top pt
@@ -711,7 +711,7 @@ void bothDecayChannelsCombination(double luminosity=19712, bool save=true, unsig
 	    // get predicted inclusive cross section in chosen PS 
 	    double inclxSec=NGenPS/(BR*0.5*(constLumiElec+constLumiMuon));
 	    // fill histo
-	    plotTheo3 = new TH1F( plotTheo->GetName(), plotTheo->GetTitle(), 1, 0., 1.0);
+	    //plotTheo3 = new TH1F( plotTheo->GetName(), plotTheo->GetTitle(), 1, 0., 1.0);
 	    plotTheo3->SetBinContent(1, inclxSec );
 	  }
 	  else{
@@ -1196,12 +1196,14 @@ void bothDecayChannelsCombination(double luminosity=19712, bool save=true, unsig
   // =================================================
 
   // saving in rootfile
-  // loop variables
-  for(unsigned int i=0; i<xSecVariables_.size(); ++i){
-    // loop systematic variations
-    for(unsigned int sys=sysNo; sys<sysEnd; ++sys){
-      if(histo_[xSecVariables_[i]][sys]){
-	saveToRootFile("diffXSecTopSemiLep"+closureLabel+LV+PS+".root", canvas_[xSecVariables_[i]][sys], true, verbose,""+xSecFolder+"/"+sysLabel(sys));
+  if(save){
+    // loop variables
+    for(unsigned int i=0; i<xSecVariables_.size(); ++i){
+      // loop systematic variations
+      for(unsigned int sys=sysNo; sys<sysEnd; ++sys){
+	if(histo_[xSecVariables_[i]][sys]){
+	  saveToRootFile("diffXSecTopSemiLep"+closureLabel+LV+PS+".root", canvas_[xSecVariables_[i]][sys], true, verbose,""+xSecFolder+"/"+sysLabel(sys));
+	}
       }
     }
   }
