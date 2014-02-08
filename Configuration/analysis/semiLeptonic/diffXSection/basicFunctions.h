@@ -417,7 +417,7 @@ namespace semileptonic {
     if(sample==kSToptW1 ) return "Single Top tW t->lep W->had";
     if(sample==kSAToptW1) return "Single Antitop tW t->lep W->had";
     if(sample==kWjets  ) return "W+Jets";
-    if(sample==kZjets  ) return "Z / #gamma^{#lower[-0.9]{*}}+Jets";
+    if(sample==kZjets  ) return "Z / #gamma_{#lower[-0.7]{*}}+Jets";
     if(sample==kDiBos  ) return "Diboson";
     if(sample==kWW     ) return "WW";
     if(sample==kWZ     ) return "WZ";
@@ -658,7 +658,7 @@ namespace semileptonic {
       // b) add output to the end of the file
       if(append){
 	std::ofstream fapp(file, std::ios::app);
-	fapp << output << std::endl;;
+	fapp << output << std::endl;
 	fapp.close();
       }
     }
@@ -1936,6 +1936,7 @@ namespace semileptonic {
 	  histo_[plotList_[plot]][sample]->Add((TH1F*)histo_[plotList_[plot]][sample+1]->Clone());
 	  if(verbose>1) std::cout << "add "+plotList_[plot] << " plot for " << sampleLabel(sample,decayChannel) << " and " << sampleLabel(sample+1,decayChannel) << std::endl;
 	  if(verbose>1) std::cout << "this new stacked plot contains now " <<  histo_[plotList_[plot]][sample]->Integral(0, histo_[plotList_[plot]][sample]->GetNbinsX()+1) << " events" << std::endl;
+	  if(verbose>2) std::cerr << "Ich find dich scheisse ... sch sch sch sch sch sch scheisse!" << std::endl;
 	}
       }
     }
@@ -2737,6 +2738,9 @@ namespace semileptonic {
     // NOTE: x Axis is transferred from histDenominator to the bottom of the canvas
     // invert: draw histDenominator/histNumerator instead of the other way round 
     //         (this allows to switch fast without additional fixing of axes labels etc)
+    // NOTE: ratioLabelDenominator and ratioLabelNominator are assumed to correspond to 
+    //       histNumerator and histDenominator, if invert is used, they are automatically 
+    //       switched, wrong treatment leads to wrong errors for empty err_ and error=true
     // modified quantities: none
     // used functions: none
     // used enumerators: none
@@ -2770,21 +2774,17 @@ namespace semileptonic {
 	ratio->SetBinError(bin, err_[bin-1]);
       }
     }
+    // b) from data statistics
     else if (error==true){
-      // b) default: only gaussian error of data or numerator
-      // data is only in denominator -> stat. unc from denominator
-      if((ratioLabelDenominator.Contains("data")||ratioLabelDenominator.Contains("Data"))&&!(ratioLabelNominator.Contains("data")||ratioLabelNominator.Contains("Data"))){
-	if(verbose>0) std::cout << "ratio error from statistical error of " << tempDenominator->GetName() << " only" << std::endl;
-	for(int bin=1; bin<=tempNumerator->GetNbinsX(); bin++){
-	  ratio->SetBinError(bin, tempNumerator->GetBinContent(bin)/(tempDenominator->GetBinContent(bin)*sqrt(tempDenominator->GetBinContent(bin))));
-	}
+      // get data (condition is true if data is finally used as denominator)
+      TH1F* data=tempNumerator;
+      if((!invert&& (ratioLabelDenominator.Contains("data")||ratioLabelDenominator.Contains("Data"))&&!(ratioLabelNominator.Contains("data")||ratioLabelNominator.Contains("Data")))||( invert&&!(ratioLabelDenominator.Contains("data")||ratioLabelDenominator.Contains("Data"))&& (ratioLabelNominator.Contains("data")||ratioLabelNominator.Contains("Data")))){
+	data=tempDenominator;
       }
-      // stat. unc. from nominator
-      else{
-	if(verbose>0) std::cout << "ratio error from statistical error of " << tempNumerator->GetName() << " only" << std::endl;
-	for(int bin=1; bin<=tempNumerator->GetNbinsX(); bin++){
-	  ratio->SetBinError(bin, sqrt(tempNumerator->GetBinContent(bin))/tempDenominator->GetBinContent(bin));
-	}
+      // uncertainty from gaussian propagated error of data
+      //     = ratio*relative poissonean error of Ndata -> ratio(data,MC)*sqrt(Ndata)/Ndata
+      for(int bin=1; bin<=tempDenominator->GetNbinsX(); bin++){
+	ratio->SetBinError(bin, ratio->GetBinContent(bin)*(sqrt(data->GetBinContent(bin)))/data->GetBinContent(bin));
       }
     }
     // get some values from old pad
@@ -3633,19 +3633,21 @@ namespace semileptonic {
 				  int& Nplots, unsigned int& N1Dplots,
 				  TString& inputFolder, TString& dataFileMu, TString& dataFileEl,
 				  std::vector<TString> vecRedundantPartOfNameInData,
-				  double& luminosityMu, double& luminosityEl
+				  double& luminosityMu, double& luminosityEl, TString type ="model"
 				  )
   {
     // this function generates set of errorbands ("histoErrorBand_") for all samples 
     // and histogrammes in "histo_", using the "Nplots" plots listed in "plotList_" 
-    // taking into account ttbar modeling uncertainties
-    // 
+    // taking into account ttbar modeling uncertainties specified with "type"
+    // type=="model" -> Q2 & matching scale
+    // type=="JE" -> JES & JER    
+
     // modified quantities: histoErrorBand_
     // used functions:      getStdTopAnalysisFiles
     // used enumerators:    samples, systematicVariation, 
-
+    
     // internal configurations
-    int verbose =1; // printout within makeTheoryUncertaintyBands
+    int verbose =0; // printout within makeTheoryUncertaintyBands
     int verbose2=0; // argument passed to called functions
     unsigned int sysNoBG =42;
     unsigned int sysNoAll=42*42;
@@ -3657,17 +3659,18 @@ namespace semileptonic {
     // WARNING: systematics are expected to be listed as up/down pairs in this order!!!
     if(verbose>0) std::cout << std::endl << "A collect relevant systematics" << std::endl;
     std::vector<int> RelevantSys_;
-    //int sysList[ ] = { sysJESUp, sysJESDown};
-    int sysList[ ] = { sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysTopMassUp, sysTopMassDown}; // ttbar mosedling
+    int sysListJE   [ ] = { sysJESUp, sysJESDown, sysJERUp, sysJERDown}; // JE related uncertainties
+    int sysListModel[ ] = { sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysTopMassUp, sysTopMassDown}; // ttbar modeling
     //int sysList[ ] = { sysLumiUp, sysLumiDown, sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysTopMassUp, sysTopMassDown, sysJESUp, sysJESDown ,sysJERUp, sysJERDown, sysPUUp, sysPUDown, sysLepEffSFNormUp, sysLepEffSFNormDown, sysLepEffSFShapeUpEta, sysLepEffSFShapeDownEta, sysLepEffSFShapeUpPt, sysLepEffSFShapeDownPt, sysBtagSFUp, sysBtagSFDown, sysBtagSFShapeUpPt65, sysBtagSFShapeDownPt65, sysBtagSFShapeUpEta0p7, sysBtagSFShapeDownEta0p7, sysHadUp, sysHadDown};
-    RelevantSys_.insert(RelevantSys_.begin(), sysList, sysList+ sizeof(sysList)/sizeof(int));
+    if(     type =="model") RelevantSys_.insert(RelevantSys_.begin(), sysListModel, sysListModel+ sizeof(sysListModel)/sizeof(int));
+    else if(type =="JE"   ) RelevantSys_.insert(RelevantSys_.begin(), sysListJE   , sysListJE   + sizeof(sysListJE   )/sizeof(int));
     if(verbose>1){
       std::cout << "considered systematics: " << std::endl;
       for(unsigned int i=0; i<RelevantSys_.size(); ++i){
 	std::cout << sysLabel(RelevantSys_[i]) << std::endl;
       }
     }
-    // plot container
+    // define plot container
     std::map< TString, std::map <unsigned int, TH1F*> > histoSys_;
 
     // B Get ttbar sysNo Reference plot
