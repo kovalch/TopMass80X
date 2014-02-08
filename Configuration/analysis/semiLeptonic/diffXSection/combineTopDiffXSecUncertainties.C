@@ -1,7 +1,7 @@
 #include "basicFunctions.h"
 #include <numeric>
 
-void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, unsigned int verbose=0, TString decayChannel="combined", bool extrapolate=false, bool hadron=true, bool addCrossCheckVariables=false, TString closureTestSpecifier="", bool useBCC=false){
+void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, unsigned int verbose=0, TString decayChannel="combined", bool extrapolate=true, bool hadron=false, bool addCrossCheckVariables=false, TString closureTestSpecifier="", bool useBCC=false){
 
   // ============================
   //  Systematic Variations:
@@ -54,7 +54,7 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, u
   //  Parameter Configuration
   // ============================
   // name quantity for which you want to see a detailed uncertainty printout
-  TString testVar="topPtNorm";//"topPtNorm";
+  TString testVar="NONE";//"topPtNorm";
   // if true: for uncertainties with different versions like eff. SF (norm., eta+pt shape) take only maximum of those
   bool takeMaxOfNormAndShape=false;
 
@@ -305,7 +305,7 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, u
     if(verbose>0) std::cout << std::endl << " Part A: Loading Plots" << std::endl;
     // loop systematic variations
     for(unsigned int sys=sysNo; sys<=ENDOFSYSENUM; ++sys){
-      TString subfolder= sys==ENDOFSYSENUM ? "sysHadronizationOld" : sysLabel(sys);      
+      TString subfolder= sys==ENDOFSYSENUM ? "sysHadronizationOld" : sysLabel(sys);  
       // loop variables
       for(unsigned int i=0; i<xSecVariables_.size(); ++i){
 	// get canvas       
@@ -332,7 +332,13 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, u
 	    if(sys==sysHadDown) considerError_[xSecVariables_[i]][sys]=false;
 	    if(sys==sysHadUp  ) considerError_[xSecVariables_[i]][sys]=false;
 	    // sysHadronizationOld=MC@NLO+HERWIG vs. POWHEG+PYTHIA
-	    if(sys==ENDOFSYSENUM-1){ calculateError_[xSecVariables_[i]][ENDOFSYSENUM]=true; considerError_[xSecVariables_[i]][ENDOFSYSENUM]=true; }
+	    if(sys==ENDOFSYSENUM-1){ 
+	      calculateError_[xSecVariables_[i]][ENDOFSYSENUM]=true;
+	      if(xSecVariables_[i]!="inclusive") considerError_[xSecVariables_[i]][ENDOFSYSENUM]=true; 
+	      else                               considerError_[xSecVariables_[i]][ENDOFSYSENUM]=false; 
+	    }
+	    // no top mass uncertainties for rhos
+	    if(xSecVariables_[i].Contains("rhos")&&(sys==sysTopMassUp||sys==sysTopMassDown)) considerError_[xSecVariables_[i]][sys]=false;;
 	  }
 	  else{
 	    if(verbose>1) std::cout << "ERROR: Plot " << plotName +"kData not found in "+ xSecFolder+"/"+subfolder+"/"+xSecVariables_[i] << std::endl;
@@ -435,7 +441,7 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, u
 	    TH1F* relSysPlot = new TH1F("relSysPlotBin"+getTStringFromInt(bin)+xSecVariables_[i], "relSysPlotBin"+getTStringFromInt(bin)+xSecVariables_[i], nSysTypes+3, 0.5, 0.5+nSysTypes+3); // +3 for total syst., total stat. and total
 	    relSysPlot->GetXaxis()->SetLabelSize(0.025);
 	    // loop systematic variations
-	    for(unsigned int sys=sysNo+1; sys<=ENDOFSYSENUM+1; ++sys){ // +1 for MC@NLO+Herwig vs. Powheg+Pythia uncertainty
+	    for(unsigned int sys=sysNo+1; sys<=ENDOFSYSENUM; ++sys){ // +1 for MC@NLO+Herwig vs. Powheg+Pythia uncertainty
 	      // set labels for relative uncertainties for bin & variable in map relativeUncertainties_
 	      label = sys<ENDOFSYSENUM ? sysLabel(sys).ReplaceAll("sys","") : "HadronizationOld";
 	      // up/down variations: keep only up variations (symmetrisation already done above)
@@ -460,7 +466,7 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, u
 	      // create plot that indicates the relative systematic uncertainty
 	      double sysDiff=0;
 	      if(verbose2>0){
-		TString tempi = (sys==ENDOFSYSENUM ? "sysHadronizationOld" : (sys==sysHadDown ? "sysGenerator" : ( sys==sysHadUp ? "sysHadronization" : sysLabel(sys) ) ) );
+		TString tempi = (sys>=ENDOFSYSENUM ? "sysHadronizationOld" : (sys==sysHadDown ? "sysGenerator" : ( sys==sysHadUp ? "sysHadronization" : sysLabel(sys) ) ) );
 		std::cout << tempi;
 		// check if chosen systematic variation should be considered
 		if(calculateError_[xSecVariables_[i]].count(sys)>0&&considerError_[xSecVariables_[i]].count(sys)>0){
