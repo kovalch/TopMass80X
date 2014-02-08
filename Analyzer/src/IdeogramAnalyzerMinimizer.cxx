@@ -96,7 +96,7 @@ void IdeogramAnalyzerMinimizer::Scan(const std::string& cuts, int iBin, int jBin
           permutationFunctions.back()->SetFixedParams(prob, topMass, wMass, abs(leptonFlavour), shapeSystematic_, permutationFractionSystematic_, isFastSim_);
         }
       }
-      eventFunctions_.push_back(permutationFunctions);
+      if (permutationFunctions.size()) eventFunctions_.push_back(permutationFunctions);
     } // end for
   }
 }
