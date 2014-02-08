@@ -3660,7 +3660,7 @@ namespace semileptonic {
     if(verbose>0) std::cout << std::endl << "A collect relevant systematics" << std::endl;
     std::vector<int> RelevantSys_;
     int sysListJE   [ ] = { sysJESUp, sysJESDown, sysJERUp, sysJERDown}; // JE related uncertainties
-    int sysListModel[ ] = { sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysTopMassUp, sysTopMassDown}; // ttbar modeling
+    int sysListModel[ ] = { sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysTopMassUp, sysTopMassDown, sysHadUp, sysHadDown}; // ttbar modeling
     //int sysList[ ] = { sysLumiUp, sysLumiDown, sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysTopMassUp, sysTopMassDown, sysJESUp, sysJESDown ,sysJERUp, sysJERDown, sysPUUp, sysPUDown, sysLepEffSFNormUp, sysLepEffSFNormDown, sysLepEffSFShapeUpEta, sysLepEffSFShapeDownEta, sysLepEffSFShapeUpPt, sysLepEffSFShapeDownPt, sysBtagSFUp, sysBtagSFDown, sysBtagSFShapeUpPt65, sysBtagSFShapeDownPt65, sysBtagSFShapeUpEta0p7, sysBtagSFShapeDownEta0p7, sysHadUp, sysHadDown};
     if(     type =="model") RelevantSys_.insert(RelevantSys_.begin(), sysListModel, sysListModel+ sizeof(sysListModel)/sizeof(int));
     else if(type =="JE"   ) RelevantSys_.insert(RelevantSys_.begin(), sysListJE   , sysListJE   + sizeof(sysListJE   )/sizeof(int));
@@ -3670,10 +3670,10 @@ namespace semileptonic {
 	std::cout << sysLabel(RelevantSys_[i]) << std::endl;
       }
     }
-    // define plot container
+    // define plot container: one histo for each sample and systematic variation
     std::map< TString, std::map <unsigned int, TH1F*> > histoSys_;
 
-    // B Get ttbar sysNo Reference plot
+    // B Get ttbar sysNo Reference plot that is drawn as central MC prediction
     if(verbose>0) std::cout << std::endl << "B Get ttbar sysNo Reference plot" << std::endl;
     // loop plots
     for(unsigned int plot=0; plot<N1Dplots; plot++){
@@ -3681,11 +3681,11 @@ namespace semileptonic {
       TString plotName = plotList_[plot];  
       // debug output
       if(verbose>1) std::cout << "plot #" << plot+1 << "/" << N1Dplots << ": " << plotName;
-      // consider only plots available for SG+BG
+      // consider only plots available for SG+BG (+FIXME: also Z as there is a bug with the binning in one case...)
       if(histo_[plotName].count(kSig)>0&&histo_[plotName].count(kBkg)>0&&histo_[plotName].count(kZjets)>0){
 	if(verbose>1)  std::cout << " (ok) ";
-	// get ttbar sysNo
-	histoSys_[plotName][sysNo]    = (TH1F*)histo_[plotName][kSig]->Clone();
+	// get ttbar (SG+BG) sysNo
+	histoSys_[plotName][sysNo]=     (TH1F*)histo_[plotName][kSig]->Clone();
 	histoSys_[plotName][sysNo]->Add((TH1F*)histo_[plotName][kBkg]->Clone());
 	// get non-ttbar sysNo
 	histoSys_[plotName][sysNoBG ]=(TH1F*)histoSys_[plotName][sysNo]->Clone();
@@ -3694,14 +3694,14 @@ namespace semileptonic {
 	  histoSys_[plotName][sysNoBG ]->Add((TH1F*)histo_[plotName][sample]->Clone());
 	}
 	// get combined sysNo
-	histoSys_[plotName][sysNoAll]=(TH1F*)histoSys_[plotName][sysNo]->Clone();
+	histoSys_[plotName][sysNoAll]=     (TH1F*)histoSys_[plotName][sysNo  ]->Clone();
 	histoSys_[plotName][sysNoAll]->Add((TH1F*)histoSys_[plotName][sysNoBG]->Clone());
       }
       else if(verbose>1) std::cout << " (skipped) ";	
       if(verbose>1) std::cout << std::endl;
     }
     
-    // C Get ttbar systematic shifted plots
+    // C Get ttbar (SG+BG) systematically shifted plots
     if(verbose>0) std::cout << std::endl << "C Get ttbar systematic shifted plots (note: takes centuries)" << std::endl;
     // loop systematics
     for(unsigned int sys=0; sys<RelevantSys_.size(); ++sys){
@@ -3734,7 +3734,7 @@ namespace semileptonic {
       if(verbose>1) std::cout << "c3 lumiscaling" << std::endl;
       scaleByLuminosity(plotListMu_, histoMu_, histo2Mu_, N1Dplots, luminosityMu, verbose2, sysNow2, "muon"    , "Madgraph");
       scaleByLuminosity(plotListEl_, histoEl_, histo2El_, N1Dplots, luminosityEl, verbose2, sysNow2, "electron", "Madgraph");
-      // c4 add channels
+      // c4 add channels, collect plots in temporary existing map histoComb_
      if(verbose>1) std::cout << "c4 add mu and el channel plots" << std::endl;
       // loop samples
       for(unsigned int sample=kSig; sample<kData; ++sample){
@@ -3768,10 +3768,10 @@ namespace semileptonic {
 	      if(!histoEl_.count(plotListEl_[plot])>0) std::cout << "in histoEl" << std::endl;
 	      if( histoEl_.count(plotListEl_[plot])>0&&!histoEl_[plotListEl_[plot]].count(sample)>0) std::cout << "in el sample " << sampleLabel(sample, "electron") << std::endl;
 	    } // end if verbose
-	  } // ende else (plot not found)
+	  } // end else (plot not found)
 	} // end loop plots
       } // end loop sample
-      // c5 rebinning and storing of systematically shifted plots
+      // c5 rebinning and storing of systematically shifted ttbar SG&BG plots in histoSys_
       if(verbose>1) std::cout << "c5 rebinning and storing of systematically shifted plots" << std::endl;
       // loop plots
       for(unsigned int plot=0; plot<plotList_.size(); ++plot){
@@ -3780,18 +3780,20 @@ namespace semileptonic {
 	// debug output
 	if(verbose>2) std::cout << "- plot #" << plot+1 << "/" << plotList_.size() << ": " << plotName;
 	// existing 1D plots
-	if( histoSys_[plotName].count(kSig)>0 && histo_.count(plotList_[plot])>0 && histoComb_.count(plotList_[plot])>0 && plot<N1Dplots ){
-	  // do rebinning (based on sysNo binning)
+	if(  histoComb_.count(plotList_[plot])>0 && histoComb_[plotName].count(kSig)>0 && histo_.count(plotList_[plot])>0 && plot<N1Dplots ){
+	  // do rebinning (based on binning for sysNo that is drawn as central MC value)
 	  int reBinFactor=roundToInt((histoComb_[plotName][kSig]->GetNbinsX())/(histo_[plotName][sysNo]->GetNbinsX()));
 	  if(reBinFactor>1){
 	    equalReBinTH1(reBinFactor, histoComb_, plotName, kSig);
-	    if(histoSys_[plotName].count(kBkg)>0) equalReBinTH1(reBinFactor, histoComb_, plotName, kBkg);
+	    if(histoComb_[plotName].count(kBkg)>0) equalReBinTH1(reBinFactor, histoComb_, plotName, kBkg);
+	    else std::cout << "WARNING: ttbar BG NOT found for plot " << plotName << " in makeTheoryUncertaintyBands for variation " << sysLabel(sysNow) << std::endl;
 	  }
 	  // store Plot
-	  histoSys_[plotName][sysNow]     =(TH1F*)histoComb_[plotName][kSig]->Clone();
-	  if(histoSys_[plotName].count(kBkg)>0) histoSys_[plotName][sysNow]->Add((TH1F*)histoComb_[plotName][kBkg]->Clone());
-	  // ensure same normalization as in sysNo sample
-	  // (N.B.: was scales to inclusive cross section derived from data)	  
+	  histoSys_[plotName][sysNow]=                                            (TH1F*)histoComb_[plotName][kSig]->Clone();
+	  if(histoComb_[plotName].count(kBkg)>0) histoSys_[plotName][sysNow]->Add((TH1F*)histoComb_[plotName][kBkg]->Clone());
+	  // ensure same normalization of systematically shifted plot as for sysNo case
+	  // (N.B.: the idea is to adress only shape uncertainties, as the ttbar component is
+	  //        anyhow scaled wrt. the inclusive cross section derived from data)	  
 	  histoSys_[plotName][sysNow]->Scale((histoSys_[plotName][sysNo]->Integral(0,histoSys_[plotName][sysNo]->GetNbinsX()+1))/(histoSys_[plotName][sysNow]->Integral(0,histoSys_[plotName][sysNow]->GetNbinsX()+1)));
 	}
       } // for plots
@@ -3806,9 +3808,9 @@ namespace semileptonic {
       TString plotName = plotList_[plot];
       // debug output
       if(verbose>1) std::cout << "- plot #" << plot+1 << "/" << plotList_.size() << ": " << plotName;
-      // process only 1D plots existing for SG & BG and in the loaded files
-      if( histoSys_[plotName].count(kSig)>0 ){
-	// clone sysNo for errorband
+      // process only 1D plots existing for sysNo and for systematically shifted plots
+      if( histoSys_.count(plotName)>0 && histo_.count(plotList_[plot])>0 && plot<N1Dplots){
+	// clone plot for total MC (SG+BG+nottbarBG) sysNo for errorband
 	histoErrorBand_[plotName]=(TH1F*)histoSys_[plotName][sysNoAll]->Clone();
 	// loop bins
 	for (int bin=1; bin<=histoErrorBand_[plotName]->GetNbinsX(); ++bin){
@@ -3823,6 +3825,7 @@ namespace semileptonic {
 	    int sysNow=RelevantSys_[sys];
 	    // debug output
 	    if(verbose>2) std::cout << "    - " << sysLabel(sysNow);
+	    // check if considered systematics exists for this plot 
 	    if(histoSys_[plotName].count(sysNow)>0){
 	      if(verbose>2) std::cout << " (considered)" << std::endl;
 	      // process up and down at the same time (during dn is looped)
@@ -3845,13 +3848,14 @@ namespace semileptonic {
 		  relDiffUp=std::abs((NttbarSysUp-NttbarSysDn)/(NttbarSysNo+NBGSysNo));
 		  relDiffDn=relDiffUp;
 		}
-		// collect all unecrtainties
+		// collect ^2 of all uncertainties
 		uncUp+=relDiffUp*relDiffUp;
 		uncDn+=relDiffDn*relDiffDn;
 	      } // end if modulo 2 - processing Dn systematics
 	    } // end if sys is successfully loaded
 	    else if(verbose>2) std::cout << " (skipped)" << std::endl;
 	  } // end loop systematics
+	  // symmetrize total up and total down uncertainty
 	  double uncSymm=(sqrt(uncUp)+sqrt(uncDn))/2;
 	  // Set uncertainty value for errorband
 	  histoErrorBand_[plotName]->SetBinError(bin, uncSymm*histoErrorBand_[plotName]->GetBinContent(bin));
