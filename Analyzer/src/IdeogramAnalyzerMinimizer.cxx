@@ -53,6 +53,7 @@ void IdeogramAnalyzerMinimizer::Analyze(const std::string& cuts, int iBin, int j
 
   Scan(cuts, iBin, jBin);
   NumericalMinimization();
+  CleanUp();
 
   time(&end);
   std::cout << "Finished IdeogramAnalyzer in " << difftime(end, start) << " seconds." << std::endl;
@@ -65,7 +66,7 @@ void IdeogramAnalyzerMinimizer::Scan(const std::string& cuts, int iBin, int jBin
 
   std::cout << "nEvents: " << nEvents << std::endl;
 
-  std::string plotPath("plot/Ideogram/");
+  //std::string plotPath("plot/Ideogram/");
   {
     // Build Likelihood
     boost::progress_display progress((int)nEvents, std::cout);
@@ -251,4 +252,15 @@ void IdeogramAnalyzerMinimizer::NumericalMinimization() {
   std::cout << "m_t = " << mass << " +/- " << massError << std::endl;
   std::cout << "JES = " << JES  << " +/- " <<  JESError << std::endl;
   std::cout << "m_t(1d) = " << mass1d << " +/- " << mass1dError << std::endl;
+}
+
+// cleanup needed to run pseudo-experiments
+void IdeogramAnalyzerMinimizer::CleanUp(){
+  for (unsigned int i=0, l=eventFunctions_.size(); i<l; ++i){
+    for (unsigned int j=0, m=eventFunctions_[i].size(); j<m; ++j){
+      delete eventFunctions_[i][j];
+      eventFunctions_[i][j]=0;
+    }
+  }
+  eventFunctions_.clear();
 }

@@ -29,4 +29,3 @@ double IdeogramSampleLikelihood::DoEval(const double *x) const {
   }
   return sampleResult * sampleNEvent / sampleSumProb / (pullWidth*pullWidth);
 }
-

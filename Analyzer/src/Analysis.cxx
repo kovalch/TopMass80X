@@ -42,7 +42,7 @@ Analysis::~Analysis()
   }
   histograms_.clear();
   //delete fTree_; // deletion is taken care of by MassAnalyzer
-  if (fMethodID_ == Helper::kIdeogramNew) delete fAnalyzer_;
+  if (fMethodID_ == Helper::kIdeogramNew || fMethodID_ == Helper::kIdeogramMin) delete fAnalyzer_;
   delete fCreator_;
 }
 
@@ -52,25 +52,20 @@ void Analysis::Analyze() {
 
   // random subset creation
   if(!fCreator_){
-    if (fChannelID_ == Helper::kElectronJets || fChannelID_ == Helper::kMuonJets || fChannelID_ == Helper::kLeptonJets) {
-      if (fMethodID_ == Helper::kIdeogramNew || fMethodID_ == Helper::kIdeogramMin) {
-        fCreator_ = new RandomSubsetCreatorNewInterface(vBinning_);
-      }
-      else{
+    if (fMethodID_ == Helper::kIdeogramNew || fMethodID_ == Helper::kIdeogramMin) {
+      fCreator_ = new RandomSubsetCreatorNewInterface(vBinning_);
+    }
+    else{
+      if (fChannelID_ == Helper::kElectronJets || fChannelID_ == Helper::kMuonJets || fChannelID_ == Helper::kLeptonJets) {
         fCreator_ = new RandomSubsetCreatorLeptonJets();
       }
-    }
-    else if (fChannelID_ == Helper::kAllJets) {
-      if (fMethodID_ == Helper::kIdeogramNew || fMethodID_ == Helper::kIdeogramMin) {
-        fCreator_ = new RandomSubsetCreatorNewInterface(vBinning_);
-      }
-      else{
+      else if (fChannelID_ == Helper::kAllJets) {
         fCreator_ = new RandomSubsetCreatorAllJets();
       }
-    }
-    else {
-      std::cerr << "Stopping analysis! Specified decay channel *" << po::GetOption<std::string>("channel") << "* not known!" << std::endl;
-      return;
+      else {
+        std::cerr << "Stopping analysis! Specified decay channel *" << po::GetOption<std::string>("channel") << "* not known!" << std::endl;
+        return;
+      }
     }
   }
   fTree_ = fCreator_->CreateRandomSubset();
@@ -79,7 +74,7 @@ void Analysis::Analyze() {
   else if (fMethodID_ == Helper::kMVA        ) fAnalyzer_ = new MVAAnalyzer                 (fIdentifier_, fTree_);
   else if (fMethodID_ == Helper::kIdeogram   ) fAnalyzer_ = new IdeogramAnalyzer            (fIdentifier_, fTree_);
   else if (fMethodID_ == Helper::kIdeogramNew) { if(!fAnalyzer_) { fAnalyzer_ = new IdeogramAnalyzerNewInterface(fIdentifier_, fTree_); } }
-  else if (fMethodID_ == Helper::kIdeogramMin) { if(!fAnalyzer_) { fAnalyzer_ = new IdeogramAnalyzerMinimizer(fIdentifier_, fTree_); } }
+  else if (fMethodID_ == Helper::kIdeogramMin) { if(!fAnalyzer_) { fAnalyzer_ = new IdeogramAnalyzerMinimizer   (fIdentifier_, fTree_); } }
   else if (fMethodID_ == Helper::kRooFit     ) fAnalyzer_ = new RooFitTemplateAnalyzer      (fIdentifier_, fTree_);
   else {
     std::cerr << "Stopping analysis! Specified analysis method *" << fMethod_ << "* not known!" << std::endl;
@@ -96,13 +91,14 @@ void Analysis::Analyze() {
   for(unsigned int i = 0; i < vBinning_.size()-1; ++i) {
     // FIXME binning not yet implemented, still needs some implementation ...
     
-    //FIXME Entries per bin
+    // FIXME Entries per bin
     int entries = ((RandomSubsetCreatorNewInterface*)fCreator_)->GetDataSample().nEvents;
     CreateHisto("Entries");
     GetH1("Entries")->SetBinContent(i+1, 10+i);
 
     if (entries > 25) {
-      if (fMethodID_ == Helper::kIdeogramNew || fMethodID_ == Helper::kIdeogramMin) ((IdeogramAnalyzerNewInterface*)fAnalyzer_)->SetDataSample(((RandomSubsetCreatorNewInterface*)fCreator_)->GetDataSample());
+      if      (fMethodID_ == Helper::kIdeogramMin) ((IdeogramAnalyzerMinimizer   *)fAnalyzer_)->SetDataSample(((RandomSubsetCreatorNewInterface*)fCreator_)->GetDataSample());
+      else if (fMethodID_ == Helper::kIdeogramNew) ((IdeogramAnalyzerNewInterface*)fAnalyzer_)->SetDataSample(((RandomSubsetCreatorNewInterface*)fCreator_)->GetDataSample());
       fAnalyzer_->Analyze("", i+1, 0);
       const std::map<std::string, std::pair<double, double>> values = fAnalyzer_->GetValues();
 
@@ -165,7 +161,7 @@ void Analysis::Analyze() {
   canvas->Print(pathr.c_str());
   
   delete canvas;
-  if (fMethodID_ != Helper::kIdeogramNew) delete fAnalyzer_;
+  if (fMethodID_ != Helper::kIdeogramNew && fMethodID_ != Helper::kIdeogramMin) delete fAnalyzer_;
 }
 
 void Analysis::CreateHisto(std::string name) {
