@@ -119,6 +119,7 @@ private:
     edm::InputTag genBHadPlusMothers_, genBHadPlusMothersIndices_;
     edm::InputTag genBHadIndex_, genBHadFlavour_, genBHadJetIndex_;
     edm::InputTag genBHadLeptons_, genBHadLeptonHadIndex_;
+    edm::InputTag genBHadFromTopWeakDecay_;
     bool saveHadronMothers;
 
     bool includeTrig_;
@@ -177,12 +178,14 @@ private:
     std::vector<bool>     VBHadFromTop, VAntiBHadFromTop;
     std::vector<int>      VBHadVsJet, VAntiBHadVsJet;
 
+    int genExtraTopJetNumberId;
     std::vector<LV>              VgenBHadPlusMothers;
     std::vector<int>             VgenBHadPlusMothersPdg, VgenBHadPlusMothersStatus;
     std::vector<std::vector<int> >  VgenBHadPlusMothersIndices;
     std::vector<int>             VgenBHadIndex, VgenBHadFlavour, VgenBHadJetIndex;
     std::vector<LV>              VgenBHadLeptons;
     std::vector<int>             VgenBHadLeptonsPdg, VgenBHadLeptonHadIndex;
+    std::vector<int>             VgenBHadFromTopWeakDecay;
 
     // True level info from Zs and their decays
     std::vector<LV> VGenZ;
@@ -318,6 +321,7 @@ NTupleWriter::NTupleWriter(const edm::ParameterSet& iConfig):
     genBHadJetIndex_(iConfig.getParameter<edm::InputTag> ("genBHadJetIndex")),
     genBHadLeptons_(iConfig.getParameter<edm::InputTag> ("genBHadLeptons")),
     genBHadLeptonHadIndex_(iConfig.getParameter<edm::InputTag> ("genBHadLeptonHadIndex")),
+    genBHadFromTopWeakDecay_(iConfig.getParameter<edm::InputTag> ("genBHadFromTopWeakDecay")),
 
     saveHadronMothers(iConfig.getParameter<bool>("saveHadronMothers")),
 
@@ -687,7 +691,17 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
                 
             }
 
-
+            // Id of the event depending on the number of additional b(c)-jets in the event (not coming after the top weak decay)
+            // -1  : Something went wrong
+            // 0   : No extra b-jets that come not directly from top and no c-jets that come not from b-hadrons
+            // 1   : Exactly 1 extra b-jet coming not from the top weak decay chain (and any number of c/light jets)
+            // 2   : 2 or more extra b-jets coming not from the top weak decay chain (and any number of c/light jets)
+            // 11  : Exactly 1 extra b-jet coming from the top weak decay chain but not directly from top (and any number of c/light jets)
+            // 12  : 2 or more extra b-jets coming from the top weak decay chain but not directly from top (and any number of c/light jets)
+            // 21  : No extra b-jets and exactly 1 c-jet coming not from the top weak decay chain (and any number of light jets)
+            // 22  : No extra b-jets and 2 or more c-jets coming not from the top weak decay chain (and any number of light jets)
+            genExtraTopJetNumberId = -1;
+            
             edm::Handle<std::vector<std::vector<int> > > genBHadPlusMothersIndices;
             iEvent.getByLabel(genBHadPlusMothersIndices_, genBHadPlusMothersIndices);
             if(!genBHadPlusMothersIndices.failedToGet() && saveHadronMothers) {         // Only if all hadron mothers have to be stored
@@ -709,6 +723,28 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
                 for (std::vector<int>::const_iterator it=genBHadJetIndex->begin(); it!=genBHadJetIndex->end(); ++it) {
                     VgenBHadJetIndex.push_back(*it);
                 }
+            }
+            edm::Handle<std::vector<int> > genBHadFromTopWeakDecay;
+            iEvent.getByLabel(genBHadFromTopWeakDecay_, genBHadFromTopWeakDecay);
+            if(!genBHadFromTopWeakDecay.failedToGet()) {
+                for (std::vector<int>::const_iterator it=genBHadFromTopWeakDecay->begin(); it!=genBHadFromTopWeakDecay->end(); ++it) {
+                    VgenBHadFromTopWeakDecay.push_back(*it);
+                }
+                
+                // Making the list of jet that contain hadrons not coming from the top weak decay
+                std::vector<int> genJetNotFromTopDecayChainIndex;
+                if(!genBHadJetIndex.failedToGet()) {
+                    for(size_t iHad=0; iHad<genBHadJetIndex->size(); ++iHad) {
+                        if(genBHadFromTopWeakDecay->at(iHad)!=0) continue;
+                        int jetId = genBHadJetIndex->at(iHad);
+                        if(std::find(genJetNotFromTopDecayChainIndex.begin(), genJetNotFromTopDecayChainIndex.end(), jetId) != genJetNotFromTopDecayChainIndex.end()) continue;
+                        genJetNotFromTopDecayChainIndex.push_back(jetId);
+                    }
+                }
+                int nGenJetNotFromTopDecayChain = genJetNotFromTopDecayChainIndex.size();
+                if(nGenJetNotFromTopDecayChain==0) genExtraTopJetNumberId=0;
+                else if(nGenJetNotFromTopDecayChain==1) genExtraTopJetNumberId=1;
+                else if(nGenJetNotFromTopDecayChain>=2) genExtraTopJetNumberId=2;
             }
         }
         else
@@ -1239,6 +1275,7 @@ NTupleWriter::beginJob()
         Ntuple->Branch("BHadronVsJet", &VBHadVsJet);
         Ntuple->Branch("AntiBHadronVsJet", &VAntiBHadVsJet);
 
+        Ntuple->Branch("genExtraTopJetNumberId", &genExtraTopJetNumberId);
         Ntuple->Branch("genBHadPlusMothers", &VgenBHadPlusMothers);
         Ntuple->Branch("genBHadPlusMothersPdgId", &VgenBHadPlusMothersPdg);
         if(saveHadronMothers) {
@@ -1251,6 +1288,7 @@ NTupleWriter::beginJob()
         Ntuple->Branch("genBHadLeptons", &VgenBHadLeptons);
         Ntuple->Branch("genBHadLeptonsPdg", &VgenBHadLeptonsPdg);
         Ntuple->Branch("genBHadLeptonHadIndex", &VgenBHadLeptonHadIndex);
+        Ntuple->Branch("genBHadFromTopWeakDecay", &VgenBHadFromTopWeakDecay);
 
         Ntuple->Branch("jetAssociatedParton", &VjetAssociatedParton);
     }
@@ -1357,6 +1395,7 @@ void NTupleWriter::clearVariables()
     VBHadVsJet.clear();
     VAntiBHadVsJet.clear();
 
+    genExtraTopJetNumberId=-1;
     VgenBHadPlusMothers.clear();
     VgenBHadPlusMothersIndices.clear();
     VgenBHadPlusMothersStatus.clear();
@@ -1367,6 +1406,7 @@ void NTupleWriter::clearVariables()
     VgenBHadLeptons.clear();
     VgenBHadLeptonsPdg.clear();
     VgenBHadLeptonHadIndex.clear();
+    VgenBHadFromTopWeakDecay.clear();
 
     /////////Triggers/////////
     VfiredTriggers.clear();
