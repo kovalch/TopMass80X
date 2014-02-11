@@ -233,7 +233,7 @@ double IdeogramCombLikelihoodLeptonJets::PWP(double* x, double* p)
   double power  =  15;
   double t = (p[1] - mu) / sigma;
   
-  ScanPoint currentPoint = std::make_pair(x[0],x[1]);
+  ScanPoint currentPoint = std::make_tuple(p[3],x[0],x[1]);
   ScanPointMap::const_iterator iter = PWPnormalizations_.find(currentPoint);
   double currentNormalization = -1.;
   if(iter == PWPnormalizations_.end()){
@@ -267,7 +267,7 @@ double IdeogramCombLikelihoodLeptonJets::PUN(double* x, double* p)
   double power  =  5;
   double t = (p[1] - mu) / sigma;
   
-  ScanPoint currentPoint = std::make_pair(x[0],x[1]);
+  ScanPoint currentPoint = std::make_tuple(p[3],x[0],x[1]);
   ScanPointMap::const_iterator iter = PUNnormalizations_.find(currentPoint);
   double currentNormalization = -1.;
   if(iter == PUNnormalizations_.end()){

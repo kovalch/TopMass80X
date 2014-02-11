@@ -66,14 +66,35 @@ void IdeogramAnalyzerMinimizer::Scan(const std::string& cuts, int iBin, int jBin
 
   std::cout << "nEvents: " << nEvents << std::endl;
 
-  //std::string plotPath("plot/Ideogram/");
-  {
-    // Build Likelihood
+  // Create functions
+  if (eventFunctions_.size() == 0) {
+    if (po::GetOption<std::string>("task") == "pe") nEvents *= 1.5;
+
     boost::progress_display progress((int)nEvents, std::cout);
-    for (const auto& event : sample_.events) {
+    for (int iEvent = 0; iEvent < nEvents; ++iEvent) {
       ++progress;
       
       std::vector<IdeogramCombLikelihood*> permutationFunctions;
+      
+      if (channelID_ == Helper::kAllJets) {
+        permutationFunctions.push_back(new IdeogramCombLikelihoodAllJets());
+        permutationFunctions.back()->SetActive(false);
+      }
+      else {
+        for (int iComb = 0; iComb < 4; ++iComb) {
+          permutationFunctions.push_back(new IdeogramCombLikelihoodLeptonJets());
+          permutationFunctions.back()->SetActive(false);
+        }
+      }
+
+      eventFunctions_.push_back(permutationFunctions);
+    } // end for
+  }
+  
+  {
+    // Set Likelihood parameters
+    int iEvent = 0;
+    for (const auto& event : sample_.events) {
       
       //TODO - negative weights
 
@@ -87,16 +108,11 @@ void IdeogramAnalyzerMinimizer::Scan(const std::string& cuts, int iBin, int jBin
         if (bin != iBin) continue;
 
         if (prob != 0) {
-          if (channelID_ == Helper::kAllJets) {
-            permutationFunctions.push_back(new IdeogramCombLikelihoodAllJets());
-          }
-          else {
-            permutationFunctions.push_back(new IdeogramCombLikelihoodLeptonJets());
-          }
-          permutationFunctions.back()->SetFixedParams(prob, topMass, wMass, abs(leptonFlavour), shapeSystematic_, permutationFractionSystematic_, isFastSim_);
+          eventFunctions_[iEvent][iComb]->SetFixedParams(prob, topMass, wMass, abs(leptonFlavour), shapeSystematic_, permutationFractionSystematic_, isFastSim_);
+          eventFunctions_[iEvent][iComb]->SetActive(true);
         }
       }
-      if (permutationFunctions.size()) eventFunctions_.push_back(permutationFunctions);
+      ++iEvent;
     } // end for
   }
 }
@@ -252,15 +268,18 @@ void IdeogramAnalyzerMinimizer::NumericalMinimization() {
   std::cout << "m_t = " << mass << " +/- " << massError << std::endl;
   std::cout << "JES = " << JES  << " +/- " <<  JESError << std::endl;
   std::cout << "m_t(1d) = " << mass1d << " +/- " << mass1dError << std::endl;
+  
+  delete min;
 }
 
 // cleanup needed to run pseudo-experiments
 void IdeogramAnalyzerMinimizer::CleanUp(){
   for (unsigned int i=0, l=eventFunctions_.size(); i<l; ++i){
     for (unsigned int j=0, m=eventFunctions_[i].size(); j<m; ++j){
-      delete eventFunctions_[i][j];
-      eventFunctions_[i][j]=0;
+      eventFunctions_[i][j]->SetActive(false);
+      //delete eventFunctions_[i][j];
+      //eventFunctions_[i][j]=0;
     }
   }
-  eventFunctions_.clear();
+  //eventFunctions_.clear();
 }

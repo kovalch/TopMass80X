@@ -117,3 +117,12 @@ void IdeogramCombLikelihood::SetFixedParams(double p0, double p1, double p2, dou
 double IdeogramCombLikelihood::GetFixedParam(int index) {
   return fp_[index];
 }
+
+void IdeogramCombLikelihood::SetActive(bool active) {
+  active_ = active;
+  if (!active) fp_.clear();
+}
+
+bool IdeogramCombLikelihood::IsActive() {
+  return active_;
+}
