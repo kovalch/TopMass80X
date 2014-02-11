@@ -99,7 +99,7 @@ process.source = cms.Source("PoolSource",
         #'file:patTuple.root',
         #'file:patTuple_selected.root',
         #'file:/tmp/eschliec/tmp.root',
-        #'/store/user/eschliec/Skim_02_Data01/Skim_MJP12B_v1_data/patTuple_selected_0.root'
+        '/store/user/eschliec/Skim_03_Data01/Skim_MJP12D1_v1_data/patTuple_selected_2066.root',
         #'/store/mc/Summer12_DR53X/TTJets_MassiveBinDECAY_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V7A-v1/0000/209D26E9-AEE1-E111-BAA6-0030487D5D8D.root',
         #'/store/mc/Summer12_DR53X/TTJets_MassiveBinDECAY_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V7A-v1/0000/54145FEE-1AE2-E111-8B8E-003048C69408.root',
         #'/store/mc/Summer12_DR53X/TTJets_MassiveBinDECAY_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V7A-v1/0000/8CA6B320-CFE1-E111-A04C-003048D2BB22.root',
@@ -191,14 +191,14 @@ process.source = cms.Source("PoolSource",
         #"/store/user/eschliec/Skim_02_Data01/Skim_MJP12D2_v1_data/patTuple_selected_3267.root",
         #"/store/user/eschliec/Skim_02_Data01/Skim_MJP12D2_v1_data/patTuple_selected_3268.root",
         #"/store/user/eschliec/Skim_02_Data01/Skim_MJP12D2_v1_data/patTuple_selected_3269.root",
-        "/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/00002/009B74EF-A84A-E311-AEBD-848F69FD2997.root",
-        "/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/00002/D0680DCA-B04A-E311-9C3C-848F69FD45A7.root",
-        "/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/00002/40583575-B04A-E311-BA57-848F69FD298E.root",
-        "/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/00002/5C77C9EF-B14A-E311-9C20-00266CF2506C.root",
-        "/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/00002/E0D3C157-B24A-E311-A040-00266CF9B970.root",
-        "/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/00002/4279F970-B44A-E311-A11E-001D09FDD91E.root",
-        "/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/00002/A87145D0-B44A-E311-B10C-7845C4FC3C11.root",
-        "/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/00002/74C5B553-B54A-E311-8817-7845C4FC3767.root"
+        #"/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/00002/009B74EF-A84A-E311-AEBD-848F69FD2997.root",
+        #"/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/00002/D0680DCA-B04A-E311-9C3C-848F69FD45A7.root",
+        #"/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/00002/40583575-B04A-E311-BA57-848F69FD298E.root",
+        #"/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/00002/5C77C9EF-B14A-E311-9C20-00266CF2506C.root",
+        #"/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/00002/E0D3C157-B24A-E311-A040-00266CF9B970.root",
+        #"/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/00002/4279F970-B44A-E311-A11E-001D09FDD91E.root",
+        #"/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/00002/A87145D0-B44A-E311-B10C-7845C4FC3C11.root",
+        #"/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/00002/74C5B553-B54A-E311-8817-7845C4FC3767.root"
 ),
                             skipEvents = cms.untracked.uint32(0)
                             )
@@ -317,7 +317,7 @@ process.scaledJetEnergy = scaledJetEnergy.clone( inputJets            = "selecte
                                                  jetEMLimitForMET     = 0.9,
                                                  resolutionFactors    = resolutions,
                                                  resolutionEtaRanges  = etaRanges,
-                                                 JECUncSrcFile        = "TopAnalysis/TopUtils/data/Summer13_V4_DATA_UncertaintySources_AK5PFchs.txt",
+                                                 JECUncSrcFile        = "TopAnalysis/TopUtils/data/Summer13_V5_DATA_UncertaintySources_AK5PFchs.txt",
                                                  )
 
 ## don't scale MET if skimmed event content is used
