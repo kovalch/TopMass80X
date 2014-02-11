@@ -9,11 +9,18 @@ import fileinput,os,subprocess,sys
 class config:
   dcache_desy   = "dcap://dcache-cms-dcap.desy.de"
   dcache_prefix = "/pnfs/desy.de/cms/tier2"
-  dcache_cms    = "/store/user/mgosseli/mc"
+  dcache_cms    = "/store/user/eschliec/Skim_02_Data03"
   L_samples     = [
 #                   'TT_TuneZ2_7TeV_madgraph_FASTSIM_172_5GeV_v1'
 #                   'TT_TuneP11_7TeV_madgraph_FASTSIM_172_5GeV_v1',
-                   'TT_TuneP11mpiHi_7TeV_madgraph_FASTSIM_172_5GeV_v1'
+#                   'TT_TuneP11mpiHi_7TeV_madgraph_FASTSIM_172_5GeV_v1'
+                    #'Skim_MJP12B_v1_data ',
+                    'Skim_MJP12D1_v1_data',
+                    'Skim_MJP12C2_v1_data',
+                    'Skim_MJP12C1_v1_data',
+                    'Skim_MJP12D2_v1_data',
+                    'Skim_MJP12D3_v1_data',
+
                   ]
   dataset_file  = "datasets.dbs"
   list_file     = "tmp_files.txt"

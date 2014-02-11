@@ -14,8 +14,11 @@ void signalHandler( int signum )
   // cleanup and close up stuff here
   // terminate program
 
-  for(int i=0; i<gROOT->GetListOfFiles()->GetSize(); ++i)
-    ((TFile*)gROOT->GetListOfFiles()->At(i))->Close();
+  for(int i=0; i<gROOT->GetListOfFiles()->GetSize(); ++i){
+    TFile* file = (TFile*)gROOT->GetListOfFiles()->At(i);
+    if(file->IsWritable()) file->Write();
+    file->Close();
+  }
 
   exit(signum);
 
