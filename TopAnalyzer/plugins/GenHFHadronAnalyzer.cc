@@ -122,7 +122,8 @@ private:
     TH1I *h_nHadInJet, *h_hadFlavour;
     TH1I *h_nLeptonsInHad, *h_nHadNotFromTDecay, *h_nHadNotFromTHDecay;
     TH1I *h_nJetNotFromTDecay;
-    TH1I *h_topDaughterQuarkPdgId, *h_hadFromTDecayPdg, *h_hadNotFromTDecayPdg;
+    TH1I *h_topDaughterQuarkFlavour, *h_hadFromTDecayPdg, *h_hadNotFromTDecayPdg;
+    TH1D *h_hadNotClusteredInJet_Pt, *h_hadNoDecayClusteredInJet_Pt, *h_hadNoDecayButHadClusteredInJet_Pt, *h_hadAll_Pt;
 
 
 };
@@ -241,7 +242,12 @@ GenHFHadronAnalyzer::GenHFHadronAnalyzer ( const edm::ParameterSet& cfg )
     h_hadNotFromTDecayPdg = fs->make<TH1I> ( "hadNotFromTDecayPdg", "PdgId of hadrons not from Top decay;PdgId;Hadrons", 52, -26, 26 );
     h_hadFromTDecayPdg = fs->make<TH1I> ( "hadFromTDecayPdg", "PdgId of hadrons from Top decay;PdgId;Hadrons", 52, -26, 26 );
     
-    h_topDaughterQuarkPdgId = fs->make<TH1I> ( "topDaughterQuarkPdgId", "PdgId of the top daughter quark;PdgId;Events", 20, -10, 10 );
+    h_topDaughterQuarkFlavour = fs->make<TH1I> ( "topDaughterQuarkFlavour", "PdgId of the top daughter quark;PdgId;Events", 20, -10, 10 );
+    
+    h_hadAll_Pt = fs->make<TH1D> ( "hadAll_Pt", "Pt of all hadrons;Pt;Hadrons", 50, 0, 200 );
+    h_hadNotClusteredInJet_Pt = fs->make<TH1D> ( "hadNotClusteredInJet_Pt", "Pt of hadrons not clustered to any jet;Pt;Hadrons", 50, 0, 200 );
+    h_hadNoDecayClusteredInJet_Pt= fs->make<TH1D> ( "hadNoDecayClusteredInJet_Pt", "Pt of hadrons without decay products clustered to any jet;Pt;Hadrons", 50, 0, 200 );
+    h_hadNoDecayButHadClusteredInJet_Pt= fs->make<TH1D> ( "hadNoDecayButHadClusteredInJet_Pt", "Pt of hadrons clustered to jets but decay products not clustered;Pt;Hadrons", 50, 0, 200 );
 }
 
 GenHFHadronAnalyzer::~GenHFHadronAnalyzer()
@@ -382,6 +388,7 @@ std::vector<int> GenHFHadronAnalyzer::findHadronJets ( const reco::GenJetCollect
 
     std::vector<int> result;
     std::vector<const reco::Candidate*> hadMothersCand;
+    std::vector<int> hadFromJetWithClusteredHadrons;
 
     const unsigned int nJets = genJets.size();
     bool hadVsJet[100][400]= {{false}};				// Whether jet contains decay products of the hadron (max 100 hadrons, 250 jets foreseen)
@@ -393,16 +400,16 @@ std::vector<int> GenHFHadronAnalyzer::findHadronJets ( const reco::GenJetCollect
         const reco::GenJet* thisJet = & ( genJets[iJet] );
         std::vector<const reco::GenParticle*> particles = thisJet->getGenConstituents();
         
+        bool hasClusteredHadron = false;
+        // Skipping jets that don't have clustered hadrons
+        for(const reco::GenParticle* particle : particles) {
+            if(!isHadronPdgId(flavour_, particle->pdgId())) continue;
+            hasClusteredHadron = true; 
+            break;
+        }
         //############################ WILL WORK X500 FASTER IN SHERPA
         //########## HADRONS NOT CLUSTERED TO ANY JET ARE LOST (~1-2%)
         if(onlyJetClusteredHadrons_) {
-            bool hasClusteredHadron = false;
-            // Skipping jets that don't have clustered hadrons
-            for(const reco::GenParticle* particle : particles) {
-                if(!isHadronPdgId(flavour_, particle->pdgId())) continue;
-                hasClusteredHadron = true; 
-                break;
-            }
             if(!hasClusteredHadron) continue;
         }   // If jets without clustered hadrons should be skipped
 
@@ -423,6 +430,7 @@ std::vector<int> GenHFHadronAnalyzer::findHadronJets ( const reco::GenJetCollect
                 if ( hadListIndex<0 ) {
                     hadIndex.push_back ( hadronIndex );
                     hadListIndex = hadIndex.size()-1;
+                    if(hasClusteredHadron) hadFromJetWithClusteredHadrons.push_back(1); else hadFromJetWithClusteredHadrons.push_back(0);
                 }
                 // Identifying the lepton in the hadron jet
                 if ( lepton ) {
@@ -741,8 +749,13 @@ std::vector<int> GenHFHadronAnalyzer::findHadronJets ( const reco::GenJetCollect
         }
         h_nLeptonsInHad->Fill( nLeps );
         
+        h_hadAll_Pt->Fill(hadMothers.at(i).pt());
+        if(result.at(i)<0 ) {
+            h_hadNotClusteredInJet_Pt->Fill(hadMothers.at(i).pt());
+            if(hadFromJetWithClusteredHadrons.at(i)==0) h_hadNoDecayClusteredInJet_Pt->Fill(hadMothers.at(i).pt());
+        } else if(result.at(i)>=0 && hadFromJetWithClusteredHadrons.at(i)==0) h_hadNoDecayButHadClusteredInJet_Pt->Fill(hadMothers.at(i).pt());
+        
         // Checking whether the hadron is from Top/Higgs
-
         if(hadFromTopWeakDecay.at(i)==0 && std::abs(hadFlavour.at(i))!=6) {
             nHadNotFromTDecay++;
             if(std::abs(hadFlavour.at( i )) != 25) nHadNotFromTHDecay++;
@@ -787,8 +800,8 @@ std::vector<int> GenHFHadronAnalyzer::findHadronJets ( const reco::GenJetCollect
         h_nHadNotFromTDecay->Fill( nHadNotFromTDecay );
         h_nHadNotFromTHDecay->Fill( nHadNotFromTHDecay );
         
-        if(topDaughterQId>=0) h_topDaughterQuarkPdgId->Fill(hadMothers.at(topDaughterQId).pdgId()); else h_topDaughterQuarkPdgId->Fill(0);
-        if(topBarDaughterQId>=0) h_topDaughterQuarkPdgId->Fill(hadMothers.at(topBarDaughterQId).pdgId()); else h_topDaughterQuarkPdgId->Fill(0);
+        if(topDaughterQId>=0) h_topDaughterQuarkFlavour->Fill(hadMothers.at(topDaughterQId).pdgId()); else h_topDaughterQuarkFlavour->Fill(0);
+        if(topBarDaughterQId>=0) h_topDaughterQuarkFlavour->Fill(hadMothers.at(topBarDaughterQId).pdgId()); else h_topDaughterQuarkFlavour->Fill(0);
 
 // Filling number of hadrons associated to a single jet
         for ( unsigned int iJet=0; iJet<nJets; iJet++ ) {
