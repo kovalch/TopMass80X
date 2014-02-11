@@ -3,14 +3,14 @@
 TString unfShortLabel(TString variable="");
 TString space(int val, int ref);
 
-void covarianceOfSystematicUnc(bool save=true, unsigned int verbose=0, TString decayChannel="combined", bool extrapolate=false, bool hadron=true, TString closureTestSpecifier=""){
+void covarianceOfSystematicUnc(bool save=true, unsigned int verbose=0, TString decayChannel="combined", bool extrapolate=true, bool hadron=false, TString closureTestSpecifier=""){
 
   // close all open files
   CloseOpenFiles();
   // take sign of the down instead of the up variation
   bool signdn=false;
   // print important info, neglecting verbose
-  bool output=true;
+  bool output=false;
   // print info if up/down errors are asymmetric or very different in size
   bool check=false;
   // verbose = 0: no output, 
@@ -133,6 +133,8 @@ void covarianceOfSystematicUnc(bool save=true, unsigned int verbose=0, TString d
   std::map< TString, std::map <unsigned int, TH1F*> > histo_;
   // for covariance result plots 
   std::map< TString, std::map <unsigned int, TH2F*> > sysCov_;
+  // for correlation result plots
+  std::map< TString, TH2F* > totCorr_;
   // for uncertainties that will be excluded
   std::map< TString, std::map<unsigned int, bool> > considerSys_;
   // for absolute uncertainty values
@@ -696,8 +698,6 @@ void covarianceOfSystematicUnc(bool save=true, unsigned int verbose=0, TString d
   // ======================
   // determine correlation
   // ======================
-  // container
-  std::map< TString, TH2F* > totCorr_;
   // printout
   if(verbose>0||output) std::cout << std::endl << "Determine Correlation Matrices" << std::endl;
   // relation: corr(i,j)=cov(i,j)/(sigma(i)*sigma(j))=cov(i,j)/(sqrt(cov(i,i))*sqrt(cov(j,j)))
@@ -711,6 +711,7 @@ void covarianceOfSystematicUnc(bool save=true, unsigned int verbose=0, TString d
     for(unsigned int bini=1; bini<=(unsigned int)uncIter_[xSecVariables_[i]][symmUncLabel_[0]].size(); ++bini){
       for(unsigned int binj=1; binj<=(unsigned int)uncIter_[xSecVariables_[i]][symmUncLabel_[0]].size(); ++binj){
 	totCorr_[xSecVariables_[i]]->SetBinContent(bini, binj, 100*totCov_[xSecVariables_[i]]->GetBinContent(bini, binj)/(sqrt(totCov_[xSecVariables_[i]]->GetBinContent(bini, bini)*totCov_[xSecVariables_[i]]->GetBinContent(binj, binj))));
+	if(verbose>2) std::cout << "corr(" << bini << "," << binj << ")="<<  totCorr_[xSecVariables_[i]]->GetBinContent(bini, binj) << std::endl;
       } // end for loop binj
     } // end for loop bini
     // draw total correlation matrix in canvas
@@ -742,9 +743,6 @@ void covarianceOfSystematicUnc(bool save=true, unsigned int verbose=0, TString d
     totCorr_[xSecVariables_[i]]->Draw("text");
     DrawLabel(lab, gStyle->GetPadLeftMargin(), 1.0-gStyle->GetPadTopMargin(), 1.0-gStyle->GetPadRightMargin(), 1.0);
   } // end for loop variables
-
-  // close file
-  file->Close();
 
   // =================
   // Do Saving Part B
@@ -882,6 +880,8 @@ void covarianceOfSystematicUnc(bool save=true, unsigned int verbose=0, TString d
       } // end for loop bini
     } // end for loop variables
   } // end if verbose
+  // close file
+  file->Close();
 }
 
 TString unfShortLabel(TString variable){

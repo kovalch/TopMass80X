@@ -387,8 +387,9 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
 
     const bool isZregion = dilepton.M() > 76 && dilepton.M() < 106;
     //const KinRecoObjects& kinRecoObjects = this->getKinRecoObjects(entry);
-    const KinRecoObjects& kinRecoObjects = this->getKinRecoObjectsOnTheFly(leptonIndex, antiLeptonIndex, jetIndices,
-                                                                           allLeptons, jets, jetBTagCSV, met);
+    //const KinRecoObjects& kinRecoObjects = this->getKinRecoObjectsOnTheFly(leptonIndex, antiLeptonIndex, jetIndices,
+    //                                                                       allLeptons, jets, jetBTagCSV, met);
+    const KinRecoObjects& kinRecoObjects = kinRecoObjectsDummy;
     //const bool hasSolution = kinRecoObjects.valuesSet_;
 
 
@@ -659,12 +660,12 @@ bool HiggsAnalysis::matchRecoToGenJets(int& matchedBjetIndex, int& matchedAntiBj
                                        const LV* genBjet, const LV* genAntiBjet)
 {
     using ROOT::Math::VectorUtil::DeltaR;
-
+    
     // Find closest jet and its distance in deltaR
     double deltaRBjet(999.);
     double deltaRAntiBjet(999.);
     for(const auto& index : jetIndices){
-        float deltaR = DeltaR(*genBjet, jets.at(index));
+        double deltaR = DeltaR(*genBjet, jets.at(index));
         if(deltaR < deltaRBjet){
             deltaRBjet = deltaR;
             matchedBjetIndex = index;
@@ -675,14 +676,31 @@ bool HiggsAnalysis::matchRecoToGenJets(int& matchedBjetIndex, int& matchedAntiBj
             matchedAntiBjetIndex = index;
         }
     }
-
-    // Call a jet matched if it is close enough (should this be a configurable parameter?)
-    if(deltaRBjet>0.5) matchedBjetIndex = -1;
-    if(deltaRAntiBjet>0.5) matchedAntiBjetIndex = -1;
-
+    
+    // Call a jet matched if it is close enough, and has similar pt
+    if(deltaRBjet>0.4){
+        matchedBjetIndex = -2;
+    }
+    else if(matchedBjetIndex >= 0){
+        const double ptRecoJet = jets.at(matchedBjetIndex).pt();
+        const double ptBjet = genBjet->pt();
+        const double deltaPtRel = (ptBjet - ptRecoJet)/ptBjet;
+        if(deltaPtRel<-0.4 || deltaPtRel>0.6) matchedBjetIndex = -3;
+    }
+    
+    if(deltaRAntiBjet>0.4){
+        matchedAntiBjetIndex = -2;
+    }
+    else if(matchedAntiBjetIndex >= 0){
+        const double ptRecoJet = jets.at(matchedAntiBjetIndex).pt();
+        const double ptAntiBjet = genAntiBjet->pt();
+        const double deltaPtRel = (ptAntiBjet - ptRecoJet)/ptAntiBjet;
+        if(deltaPtRel<-0.4 || deltaPtRel>0.6) matchedAntiBjetIndex = -3;
+    }
+    
     // Check if both gen jets are successfully matched to different reco jets
-    if(matchedBjetIndex==-1 || matchedAntiBjetIndex==-1 || matchedBjetIndex == matchedAntiBjetIndex) return false;
-
+    if(matchedBjetIndex<0 || matchedAntiBjetIndex<0 || matchedBjetIndex==matchedAntiBjetIndex) return false;
+    
     return true;
 }
 

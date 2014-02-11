@@ -259,7 +259,11 @@ void analyzeHypothesisKinFit(double luminosity = 19712.,
     }
     exit(0);
   }
-
+  else if(verbose>2){
+    for(unsigned int ix=0; ix<xSecVariables_.size(); ++ix){
+      std::cout << xSecVariables_[ix] << ": " << xSecLabel_[ix] << std::endl; 
+    }
+  }
 
   // get folder prefix for systematics without extra rootfile
   switch (systematicVariationMod)
@@ -693,8 +697,8 @@ void analyzeHypothesisKinFit(double luminosity = 19712.,
     "#Delta#chi^{2} (1^{st} - 2^{nd} best fit hypothesis)/events/0/10",
     // reconstructed top quantities
     "m^{t} #left[GeV#right]/#frac{dN}{dm^{t}} #left[GeV^{-1}#right]/0/10",
-    xSecLabelName("topPt")+"/#frac{dN}{dp_{T}^{t}} #left[GeV^{-1}#right]/0/1",
-    xSecLabelName("topPtTtbarSys")+"/#frac{dN}{dp_{T}^{t}} #left[GeV^{-1}#right]/0/1",
+    xSecLabelName("topPt")+"/#frac{dN}{"+xSecLabelName("topPt")+"} #left[GeV^{-1}#right]/0/1",
+    xSecLabelName("topPtTtbarSys")+"/#frac{dN}{d"+xSecLabelName("topPtTtbarSys")+"} #left[GeV^{-1}#right]/0/1",
     xSecLabelName("topPtLead")+"/#frac{dN}{dp_{T}^{t}} #left[GeV^{-1}#right]/0/1",
     xSecLabelName("topPtSubLead")+"/#frac{dN}{dp_{T}^{t}} #left[GeV^{-1}#right]/0/1",
     "#phi^{t}/#frac{dN}{d#phi^{t}}/0/4",

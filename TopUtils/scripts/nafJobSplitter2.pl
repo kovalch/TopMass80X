@@ -114,6 +114,10 @@ Available Parameters
       WARNING: you need to save your file to the local temp dir, i.e.
       ....fileName=cms.untracked.string(os.getenv('TMPDIR', '.') + '/file.root')
 
+
+   Additionally the environment variable NJS_GROUPID can specify another
+   fairshare group (NAF2). If not set, af-cms is used
+
 ******************************************************************
 * What to do after submitting - if jobs crash / to monitor jobs  *
 ******************************************************************
@@ -589,7 +593,7 @@ sub getBatchsystemTemplate {
 #
 #$ -o /dev/null
 # naf2 changes
-#$ -P af-cms
+#$ -P __GPID__
 
 tmp=$(mktemp -d -t njs_XXXXXX)
 
@@ -693,10 +697,12 @@ rm -r $tmp
 END_OF_BATCH_TEMPLATE
     my ($hcpu, $scpu) = getCPULimits();
     my ($hvmem, $svmem) = getMemoryLimits();
+    my $afgid = getGroupID();
     $templ =~ s/__HCPU__/$hcpu/g;
     $templ =~ s/__SCPU__/$scpu/g;
     $templ =~ s/__HVMEM__/$hvmem/g;
     $templ =~ s/__SVMEM__/$svmem/g;
+    $templ =~ s/__GPID__/$afgid/g;
     $args{'c'} ||= '';
     $templ =~ s/CMSRUNPARAMETER/$args{'c'}/g;
     $args{'O'} ||= '';
@@ -719,6 +725,16 @@ sub getMemoryLimits {
     my $hlimit = $args{'M'} || $ENV{NJS_MEM} || 3700;
     die "invalid memory requirement: $hlimit\n" unless $hlimit =~ /^\d+$/ && $hlimit > 700 && $hlimit < 20000;
     return ($hlimit, $hlimit - 300);
+}
+
+sub getGroupID {
+    my $gid = $ENV{NJS_GROUPID} || "af-cms";
+    my $mygroups=`id`;
+    if(index($mygroups, $gid) == -1) {
+	die "invalid group id: $gid\n";
+    }
+    print "using group $gid\n";
+    return $gid;
 }
 
 ################################################################################################
