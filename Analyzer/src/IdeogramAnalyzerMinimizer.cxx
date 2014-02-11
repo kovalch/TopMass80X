@@ -69,7 +69,6 @@ void IdeogramAnalyzerMinimizer::Scan(const std::string& cuts, int iBin, int jBin
   // Create functions
   if (eventFunctions_.size() == 0) {
     if (po::GetOption<std::string>("task") == "pe") nEvents *= 1.5;
-
     boost::progress_display progress((int)nEvents, std::cout);
     for (int iEvent = 0; iEvent < nEvents; ++iEvent) {
       ++progress;
@@ -139,38 +138,70 @@ void IdeogramAnalyzerMinimizer::NumericalMinimization() {
   ROOT::Math::Minimizer* min = ROOT::Math::Factory::CreateMinimizer("Minuit2", "Migrad");
 
   // set tolerance , etc...
-  min->SetMaxFunctionCalls(1000000); // for Minuit/Minuit2 
+  min->SetMaxFunctionCalls(1000000); // for Minuit/Minuit2
   min->SetMaxIterations(10000);  // for GSL 
   min->SetTolerance(0.001);
   min->SetPrintLevel(1);
 
+  // all possible result variables go here
+  double mass3d = -10, mass3dError = -10;
+  double  JES3d = -10,  JES3dError = -10;
+  double fSig3d = -10, fSig3dError = -10;
+
+  double mass2d1 = -10, mass2d1Error = -10;
+  double  JES2d1 = -10,  JES2d1Error = -10;
+
+  double mass2d2 = -10, mass2d2Error = -10;
+  double fSig2d2 = -10, fSig2d2Error = -10;
+
+  double  JES2d3 = -10,  JES2d3Error = -10;
+  double fSig2d3 = -10, fSig2d3Error = -10;
+
+  double mass1d = -10, mass1dError = -10;
+  double  JES1d = -10,  JES1dError = -10;
+  double fSig1d = -10, fSig1dError = -10;
   // create funciton wrapper for minmizer
   // a IMultiGenFunction type 
   IdeogramSampleLikelihood likelihood;
   likelihood.AddFunctions(eventFunctions_);
 
-  ROOT::Math::Functor f(likelihood, 2); 
-  double step[2] = {0.01,0.01};
+  ROOT::Math::Functor f(likelihood, likelihood.NDim());
+  double step[] = {0.01,0.01,0.001};
 
   // starting point
-  double variable[2] = {172.5, 1.};
+  double variable[] = {172.5, 1., 0.70669};
 
   min->SetFunction(f);
 
   // Set the free variables to be minimized!
   min->SetVariable(0, "mass", variable[0], step[0]);
   min->SetVariable(1, "jes" , variable[1], step[1]);
+  if (channelID_ == Helper::kAllJets) {
+    min->SetLimitedVariable(2, "fSig", variable[2], step[2], 0.0, 1.0);
+  }
+  else {
+    min->SetFixedVariable(2, "fSig", 1.0);
+  }
 
   // do the minimization
   min->Minimize();
 
-  double mass      = min->X()[0];
-  double massError = min->Errors()[0];
-  double JES       = min->X()[1];
-  double JESError  = min->Errors()[1];
-  
-  std::cout << "Minimum: f(" << mass << "," << JES << "): " 
-            << min->MinValue()  << std::endl;
+  if (channelID_ == Helper::kAllJets) {
+    mass3d      = min->X()[0];
+    mass3dError = min->Errors()[0];
+     JES3d      = min->X()[1];
+     JES3dError = min->Errors()[1];
+    fSig3d      = min->X()[2];
+    fSig3dError = min->Errors()[2];
+    std::cout << "Minimum: f(" << mass3d << "," << JES3d << "," << fSig3d << "): " << min->MinValue()  << std::endl;
+  }
+  else{
+    mass2d1      = min->X()[0];
+    mass2d1Error = min->Errors()[0];
+     JES2d1      = min->X()[1];
+     JES2d1Error = min->Errors()[1];
+    std::cout << "Minimum: f(" << mass2d1 << "," << JES2d1 << "): " << min->MinValue()  << std::endl;
+  }
 
   // DRAW
   if (po::GetOption<bool>("minPlot")) {
@@ -230,6 +261,15 @@ void IdeogramAnalyzerMinimizer::NumericalMinimization() {
     gr1->Draw("CF,SAME");
     gr1->Draw("C,SAME");
     
+    double mass, JES;
+    if (channelID_ == Helper::kAllJets) {
+      mass = mass3d;
+       JES =  JES3d;
+    }
+    else {
+      mass = mass2d1;
+       JES =  JES2d1;
+    }
     TGraph* gr0 = new TGraph(1, &mass, &JES);
     gr0->SetMarkerColor(kWhite);
     gr0->SetMarkerStyle(2);
@@ -250,25 +290,82 @@ void IdeogramAnalyzerMinimizer::NumericalMinimization() {
     std::string path("plot/Ideogram/"); path+= fIdentifier_; path += std::string(".eps");
     canv->Print(path.c_str());
   }
-  
-  min->SetFixedVariable(1, "jes", 1.);
-  min->Minimize();
-  double mass1d      = min->X()[0];
-  double mass1dError = min->Errors()[0];
+  if (channelID_ == Helper::kAllJets) {
+    min->SetVariable(0, "mass", variable[0], step[0]);
+    min->SetVariable(1, "jes" , variable[1], step[1]);
+    min->SetFixedVariable(2, "fSig", -1.0);
+    min->Minimize();
 
-  //min->SetFixedVariable(0, "mass", 172.5);
-  //min->Minimize();
-  //double mass1d      = min->X()[0];
-  //double mass1dError = min->Errors()[0];
-  
-  SetValue("mass_mTop_JES", mass, massError);
-  SetValue("JES_mTop_JES" , JES , JESError );
+    mass2d1      = min->X()[0];
+    mass2d1Error = min->Errors()[0];
+     JES2d1      = min->X()[1];
+     JES2d1Error = min->Errors()[1];
+
+    min->SetVariable(0, "mass", variable[0], step[0]);
+    min->SetFixedVariable(1, "jes", variable[1]);
+    min->SetLimitedVariable(2, "fSig", variable[2], step[2], 0.0, 1.0);
+    min->Minimize();
+
+    mass2d2      = min->X()[0];
+    mass2d2Error = min->Errors()[0];
+    fSig2d2      = min->X()[2];
+    fSig2d2Error = min->Errors()[2];
+
+    min->SetFixedVariable(0, "mass", variable[0]);
+    min->SetVariable(1, "jes", variable[1], step[1]);
+    min->SetLimitedVariable(2, "fSig", variable[2], step[2], 0.0, 1.0);
+    min->Minimize();
+
+     JES2d3      = min->X()[1];
+     JES2d3Error = min->Errors()[1];
+    fSig2d3      = min->X()[2];
+    fSig2d3Error = min->Errors()[2];
+
+    min->SetFixedVariable(0, "mass", variable[0]);
+    min->SetVariable(1, "jes" , variable[1], step[1]);
+    min->SetFixedVariable(2, "fSig", -1.0);
+    min->Minimize();
+
+    JES1d      = min->X()[1];
+    JES1dError = min->Errors()[1];
+
+    min->SetFixedVariable(0, "mass", variable[0]);
+    min->SetFixedVariable(1, "jes", variable[1]);
+    min->SetLimitedVariable(2, "fSig", variable[2], step[2], 0.0, 1.0);
+    min->Minimize();
+
+    fSig1d      = min->X()[2];
+    fSig1dError = min->Errors()[2];
+  }
+
+  min->SetVariable(0, "mass", variable[0], step[0]);
+  min->SetFixedVariable(1, "jes", variable[1]);
+  if (channelID_ == Helper::kAllJets) {
+    min->SetFixedVariable(2, "fSig", -1.0);
+  }
+  else {
+    min->SetFixedVariable(2, "fSig", 1.0);
+  }
+  min->Minimize();
+  mass1d      = min->X()[0];
+  mass1dError = min->Errors()[0];
+
+  SetValue("mass_mTop_JES_fSig", mass3d, mass3dError);
+  SetValue("JES_mTop_JES_fSig" ,  JES3d,  JES3dError);
+  SetValue("fSig_mTop_JES_fSig", fSig3d, fSig3dError);
+
+  SetValue("mass_mTop_JES", mass2d1, mass2d1Error);
+  SetValue("JES_mTop_JES" ,  JES2d1,  JES2d1Error);
+
+  SetValue("mass_mTop_fSig", mass2d2, mass2d2Error);
+  SetValue("fSig_mTop_fSig", fSig2d2, fSig2d2Error);
+
+  SetValue("JES_JES_fSig" ,  JES2d3,  JES2d3Error);
+  SetValue("fSig_JES_fSig", fSig2d3, fSig2d3Error);
   SetValue("mass_mTop", mass1d, mass1dError);
-  
-  std::cout << "m_t = " << mass << " +/- " << massError << std::endl;
-  std::cout << "JES = " << JES  << " +/- " <<  JESError << std::endl;
-  std::cout << "m_t(1d) = " << mass1d << " +/- " << mass1dError << std::endl;
-  
+  SetValue("JES_JES"  ,  JES1d,  JES1dError);
+  SetValue("fSig_fSig", fSig1d, fSig1dError);
+    
   delete min;
 }
 
@@ -277,9 +374,6 @@ void IdeogramAnalyzerMinimizer::CleanUp(){
   for (unsigned int i=0, l=eventFunctions_.size(); i<l; ++i){
     for (unsigned int j=0, m=eventFunctions_[i].size(); j<m; ++j){
       eventFunctions_[i][j]->SetActive(false);
-      //delete eventFunctions_[i][j];
-      //eventFunctions_[i][j]=0;
     }
   }
-  //eventFunctions_.clear();
 }

@@ -24,8 +24,8 @@ private:
   double PBKGJES(double *x, double *p, const std::vector<double> &q);
   double PBKGJES1(double *x, double *p);
   
-  std::vector<double> parsBKG_;
-  std::vector<double> parsBKGJES_;
+  static std::vector<double> parsBKG_;
+  static std::vector<double> parsBKGJES_;
 
   double fSig_;
 
