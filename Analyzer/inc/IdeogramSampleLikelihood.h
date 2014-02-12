@@ -8,7 +8,7 @@ public:
   
   unsigned int NDim() const
    {
-     return 2;
+     return 3;
    }
 
   IdeogramSampleLikelihood* Clone() const {

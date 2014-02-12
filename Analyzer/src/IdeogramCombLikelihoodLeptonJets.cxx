@@ -1,17 +1,33 @@
 #include "IdeogramCombLikelihoodLeptonJets.h"
 
+#include "ProgramOptionsReader.h"
+
 typedef ProgramOptionsReader po;
+
+std::vector<double> IdeogramCombLikelihoodLeptonJets::ele_parsCP_(0);
+std::vector<double> IdeogramCombLikelihoodLeptonJets::ele_parsWP_(0);
+std::vector<double> IdeogramCombLikelihoodLeptonJets::ele_parsUN_(0);
+std::vector<double> IdeogramCombLikelihoodLeptonJets::ele_parsCPJES_(0);
+std::vector<double> IdeogramCombLikelihoodLeptonJets::ele_parsWPJES_(0);
+std::vector<double> IdeogramCombLikelihoodLeptonJets::ele_parsUNJES_(0);
+
+std::vector<double> IdeogramCombLikelihoodLeptonJets::ele_massOffset_(0);
+std::vector<double> IdeogramCombLikelihoodLeptonJets::ele_massSlopeMass_(0);
+std::vector<double> IdeogramCombLikelihoodLeptonJets::ele_massSlopeJES_(0);
+std::vector<double> IdeogramCombLikelihoodLeptonJets::ele_massSlopeMassJES_(0);
+std::vector<double> IdeogramCombLikelihoodLeptonJets::ele_jesOffset_(0);
+std::vector<double> IdeogramCombLikelihoodLeptonJets::ele_jesSlopeMass_(0);
+std::vector<double> IdeogramCombLikelihoodLeptonJets::ele_jesSlopeJES_(0);
+std::vector<double> IdeogramCombLikelihoodLeptonJets::ele_jesSlopeMassJES_(0);
+
+double IdeogramCombLikelihoodLeptonJets::ele_fCP_(-1.);
+double IdeogramCombLikelihoodLeptonJets::ele_fWP_(-1.);
+double IdeogramCombLikelihoodLeptonJets::ele_fUN_(-1.);
 
 IdeogramCombLikelihoodLeptonJets::ScanPointMap IdeogramCombLikelihoodLeptonJets::PWPnormalizations_;
 IdeogramCombLikelihoodLeptonJets::ScanPointMap IdeogramCombLikelihoodLeptonJets::PUNnormalizations_;
 
-IdeogramCombLikelihoodLeptonJets::IdeogramCombLikelihoodLeptonJets() :
-		ele_parsCP_   (0), ele_parsWP_    (0), ele_parsUN_   (0),
-		ele_parsCPJES_(0), ele_parsWPJES_ (0), ele_parsUNJES_(0),
-		ele_massOffset_(0), ele_massSlopeMass_(0), ele_massSlopeJES_(0), ele_massSlopeMassJES_(0),
-		ele_jesOffset_ (0), ele_jesSlopeMass_ (0), ele_jesSlopeJES_ (0), ele_jesSlopeMassJES_ (0),
-		ele_fCP_(-1.), ele_fWP_(-1.), ele_fUN_(-1.)
-
+IdeogramCombLikelihoodLeptonJets::IdeogramCombLikelihoodLeptonJets()
 {
 	//read in electron information as well
 

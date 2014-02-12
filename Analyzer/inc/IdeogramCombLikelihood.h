@@ -1,7 +1,7 @@
 #ifndef IDEOGRAMCOMBLIKELIHOOD_H
 #define IDEOGRAMCOMBLIKELIHOOD_H
 
-#include "ProgramOptionsReader.h"
+#include <vector>
 
 class IdeogramCombLikelihood {
 public:
@@ -17,23 +17,25 @@ public:
   bool IsActive();
 
 protected:
-  std::vector<double> parsCP_;
-  std::vector<double> parsWP_;
-  std::vector<double> parsUN_;
-  std::vector<double> parsCPJES_;
-  std::vector<double> parsWPJES_;
-  std::vector<double> parsUNJES_;
+  static std::vector<double> parsCP_;
+  static std::vector<double> parsWP_;
+  static std::vector<double> parsUN_;
+  static std::vector<double> parsCPJES_;
+  static std::vector<double> parsWPJES_;
+  static std::vector<double> parsUNJES_;
 
-  std::vector<double> massOffset_;
-  std::vector<double> massSlopeMass_;
-  std::vector<double> massSlopeJES_;
-  std::vector<double> massSlopeMassJES_;
-  std::vector<double> jesOffset_;
-  std::vector<double> jesSlopeMass_;
-  std::vector<double> jesSlopeJES_;
-  std::vector<double> jesSlopeMassJES_;
+  static std::vector<double> massOffset_;
+  static std::vector<double> massSlopeMass_;
+  static std::vector<double> massSlopeJES_;
+  static std::vector<double> massSlopeMassJES_;
+  static std::vector<double> jesOffset_;
+  static std::vector<double> jesSlopeMass_;
+  static std::vector<double> jesSlopeJES_;
+  static std::vector<double> jesSlopeMassJES_;
 
-  double fCP_, fWP_, fUN_;
+  static double fCP_;
+  static double fWP_;
+  static double fUN_;
 
   std::vector<double> fp_;
   bool useFixedParams_;
