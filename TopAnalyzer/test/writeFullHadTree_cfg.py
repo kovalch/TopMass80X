@@ -342,7 +342,7 @@ elif options.jesType == 'flavor' :
     elif options.jesFactor < 1.0 :
         process.scaledJetEnergy.scaleType = "flavor:down"
 ## set energy scaling factors for a single source
-elif options.jesType == 'CorrelationGroupMPFInSitu' or options.jesType == 'CorrelationGroupFlavor' or options.jesType == 'CorrelationGroupIntercalibration' or options.jesType == 'CorrelationGroupUncorrelated' or options.jesType == 'CorrelationGroupbJES' or options.jesType == 'TotalNoFlavor' or options.jesType == 'FlavorPureQuark':
+elif options.jesType == 'CorrelationGroupMPFInSitu' or options.jesType == 'CorrelationGroupFlavor' or options.jesType == 'CorrelationGroupIntercalibration' or options.jesType == 'CorrelationGroupUncorrelated' or options.jesType == 'CorrelationGroupbJES' or options.jesType == 'TotalNoFlavor' or options.jesType == 'FlavorPureQuark' or options.jesType == 'PileUpPtBB' or options.jesType == 'PileUpPtEC':
     process.scaledJetEnergy.sourceName = options.jesType
     if options.jesFactor > 1.0 :
         process.scaledJetEnergy.scaleType = "source:up"
