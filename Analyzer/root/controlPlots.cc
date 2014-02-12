@@ -109,6 +109,20 @@ void TopMassControlPlots::doPlots()
 	  hists.push_back(MyHistogram("recoW1Mass_vs_jet3Pt", "jet.jet[3].Pt()", "top.recoW1.M()", "", ";p_{T}^{3} [GeV]; m_{W}^{reco} [GeV]", 7, 30, 100, 58, 10, 300));
       hists.push_back(MyHistogram("recoW1Mass_vs_dRbb", "sqrt(pow(top.fitB1.Eta()-top.fitB2.Eta(),2) + pow(TVector2::Phi_mpi_pi(top.fitB1.Phi()-top.fitB2.Phi()),2))", "top.recoW1.M()", "", ";#DeltaR_{b#bar{b}}; m_{W}^{reco}" , 10, 1, 6, 58, 10, 300));
   }
+  if(plotSelectedForPlotting.find("WMassComponents")!=plotSelectedForPlotting.end()){
+    hists.push_back(MyHistogram("recoW1Prod1Mass", "top.recoW1Prod1.M()", "", ";m_{q} [GeV]; Permutations", 60, 0, 60));
+    hists.push_back(MyHistogram("recoW1Prod2Mass", "top.recoW1Prod2.M()", "", ";m_{#bar{q}} [GeV]; Permutations", 60, 0, 60));
+    hists.push_back(MyHistogram("recoW1SqrtProdEnergies", "sqrt(top.recoW1Prod1.E()*top.recoW1Prod2.E())", "", ";#sqrt{E_{q} E_{#bar{q}}} [GeV]; Permutations", 40, 0, 400));
+    hists.push_back(MyHistogram("recoW1SqrtProdMomenta", "sqrt(top.recoW1Prod1.Px()*top.recoW1Prod2.Px() + top.recoW1Prod1.Py()*top.recoW1Prod2.Py() + top.recoW1Prod1.Pz()*top.recoW1Prod2.Pz())", "", ";#sqrt{#vec{q} #vec{#bar{q}}} [GeV]; Permutations", 60, 0, 300));
+    hists.push_back(MyHistogram("recoW1SqrtProdAbsMomenta", "sqrt(sqrt(top.recoW1Prod1.Px()*top.recoW1Prod1.Px() + top.recoW1Prod1.Py()*top.recoW1Prod1.Py() + top.recoW1Prod1.Pz()*top.recoW1Prod1.Pz())*sqrt(top.recoW1Prod2.Px()*top.recoW1Prod2.Px() + top.recoW1Prod2.Py()*top.recoW1Prod2.Py() + top.recoW1Prod2.Pz()*top.recoW1Prod2.Pz()))", "", ";#sqrt{|#vec{q}| |#vec{#bar{q}}|} [GeV]; Permutations", 40, 0, 400));
+    hists.push_back(MyHistogram("recoW1ProdAngle", "TMath::ACos((top.recoW1Prod1.Px()*top.recoW1Prod2.Px() + top.recoW1Prod1.Py()*top.recoW1Prod2.Py() + top.recoW1Prod1.Pz()*top.recoW1Prod2.Pz())/sqrt((top.recoW1Prod1.Px()*top.recoW1Prod1.Px() + top.recoW1Prod1.Py()*top.recoW1Prod1.Py() + top.recoW1Prod1.Pz()*top.recoW1Prod1.Pz())*(top.recoW1Prod2.Px()*top.recoW1Prod2.Px() + top.recoW1Prod2.Py()*top.recoW1Prod2.Py() + top.recoW1Prod2.Pz()*top.recoW1Prod2.Pz())))", "", ";#angle(q#bar{q}); Permutations", 32, 0, 3.2));
+    hists.push_back(MyHistogram("recoW1MT", "top.recoW1.Mt()", "", ";m_{T,q} [GeV]; Permutations", 60, 0, 600));
+    hists.push_back(MyHistogram("recoW1Prod1MT", "top.recoW1Prod1.Mt()", "", ";m_{T,q} [GeV]; Permutations", 60, 0, 300));
+    hists.push_back(MyHistogram("recoW1Prod2MT", "top.recoW1Prod2.Mt()", "", ";m_{T,#bar{q}} [GeV]; Permutations", 60, 0, 300));
+    hists.push_back(MyHistogram("recoW1ProdPtOverLeptonPt", "(top.recoW1Prod1.Pt()+top.recoW1Prod2.Pt())/top.recoW2Prod1.Pt()", "", ";(p_{T,q}+p_{T,#bar{q}})/p_{T,lep}; Permutations", 50, 0, 10));
+    hists.push_back(MyHistogram("recoW1Mass0", "sqrt(2*(sqrt(pow(top.recoW1Prod1.E(),2)-top.recoW1Prod1.M2())*sqrt(pow(top.recoW1Prod2.E(),2)-top.recoW1Prod2.M2()) - (top.recoW1Prod1.Px()*top.recoW1Prod2.Px() + top.recoW1Prod1.Py()*top.recoW1Prod2.Py() + top.recoW1Prod1.Pz()*top.recoW1Prod2.Pz()) ))", "", ";m_{W,0}^{reco} [GeV]; Permutations", 60, 0, 300));
+    hists.push_back(MyHistogram("recoW1Mass0Zoom", "sqrt(2*(sqrt(pow(top.recoW1Prod1.E(),2)-top.recoW1Prod1.M2())*sqrt(pow(top.recoW1Prod2.E(),2)-top.recoW1Prod2.M2()) - (top.recoW1Prod1.Px()*top.recoW1Prod2.Px() + top.recoW1Prod1.Py()*top.recoW1Prod2.Py() + top.recoW1Prod1.Pz()*top.recoW1Prod2.Pz()) ))", "", ";m_{W,0}^{reco} [GeV]; Permutations", 50, 60, 110));
+  }
   // light pulls
   if(plotSelectedForPlotting.find("LightPulls")!=plotSelectedForPlotting.end()){
 	  hists.push_back(MyHistogram("pullW1Prod1_W1Prod2", "abs(TVector2::Phi_mpi_pi(jet.pull[top.recoJetIdxW1Prod1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitW1Prod2.Phi()-top.fitW1Prod1.Phi()),-(top.fitW1Prod2.Eta()-top.fitW1Prod1.Eta())))))", "", ";#theta_{pull}^{q_{1} #rightarrow q_{2}}; Permutations", 20, 0, 3.1416));
@@ -601,6 +615,15 @@ void TopMassControlPlots::doPlots()
       samples.push_back(MySample("t#bar{t}, Powheg+Pythia6 Z2*", "Summer12_TTJets1725_powheg", kSigVar, kGreen+1, 9, lumi_/1000.));
       samples.push_back(MySample("t#bar{t}, Powheg+Herwig6 AUET2", "Summer12_TTJets1725_powheg_herwig", kSigVar, kBlue+1, 7, lumi_/1000.));
     }
+    
+    // SherpaPlots
+    if(plotSelectedForPlotting.find("SherpaPlots")!=plotSelectedForPlotting.end()){
+      samples.push_back(MySample("t#bar{t}, MG+Pythia6 Z2*", "Summer12_TTJets1725_1.00", kSigVar, kRed+1, 1, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t}, JES = 1.02", "Summer12_TTJets1725_1.02", kSigVar, kMagenta+1, 1, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t}, Sherpa (4jets)", "Summer12_TTJets1725_sherpa", kSigVar,  kCyan+1, 2, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t}, Sherpa Cluster", "Summer12_TT_cluster_8TeV-sherpa", kSigVar, kGreen+1, 9, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t}, Sherpa Lund", "Summer12_TT_lund_8TeV-sherpa", kSigVar, kBlue+1, 7, lumi_/1000.));
+    }
 
     // JES
     if(plotSelectedForPlotting.find("JESVariationPlots")!=plotSelectedForPlotting.end()){
@@ -935,8 +958,8 @@ void TopMassControlPlots::doPlots()
     	  helper->DrawCMS();
     	  gPad->RedrawAxis();
 //    	  std::cout << HelperFunctions::cleanedName(collectAll2D.at(h_i)->GetTitle()) << std::endl;
-    	  canv->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+std::string("_")+std::string(hist.Data2D()->GetName())+std::string("_Ind2D_")+HelperFunctions::cleanedName(collectAll2D.at(h_i)->GetTitle())+std::string(".eps")).c_str(),"eps");
-          canv->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+std::string("_")+std::string(hist.Data2D()->GetName())+std::string("_Ind2D_")+HelperFunctions::cleanedName(collectAll2D.at(h_i)->GetTitle())+std::string(".png")).c_str(),"png");
+    	  canv->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+outPath_+std::string("_")+std::string(hist.Data2D()->GetName())+std::string("_Ind2D_")+HelperFunctions::cleanedName(collectAll2D.at(h_i)->GetTitle())+std::string(".eps")).c_str(),"eps");
+          canv->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+outPath_+std::string("_")+std::string(hist.Data2D()->GetName())+std::string("_Ind2D_")+HelperFunctions::cleanedName(collectAll2D.at(h_i)->GetTitle())+std::string(".png")).c_str(),"png");
       }
 
 
@@ -970,8 +993,8 @@ void TopMassControlPlots::doPlots()
       gPad->RedrawAxis();
 
 
-      canv->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+std::string("_")+std::string(hist.Data2D()->GetName())+std::string(".eps")).c_str(),"eps");
-      canv->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+std::string("_")+std::string(hist.Data2D()->GetName())+std::string(".png")).c_str(),"png");
+      canv->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+outPath_+std::string("_")+std::string(hist.Data2D()->GetName())+std::string(".eps")).c_str(),"eps");
+      canv->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+outPath_+std::string("_")+std::string(hist.Data2D()->GetName())+std::string(".png")).c_str(),"png");
 
 
       collectAll2D.clear();
@@ -1026,8 +1049,8 @@ void TopMassControlPlots::doPlots()
 
         gPad->RedrawAxis();
 
-        canv->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_sigvar.eps")).c_str(),"eps");
-        canv->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_sigvar.png")).c_str(),"png");
+        canv->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+outPath_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_sigvar.eps")).c_str(),"eps");
+        canv->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+outPath_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_sigvar.png")).c_str(),"png");
 
 
 
@@ -1096,8 +1119,8 @@ void TopMassControlPlots::doPlots()
         helper->DrawCMS();
         gPad->RedrawAxis();
 
-        canvWRatio->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_sigvar_Ratio.eps")).c_str(),"eps");
-        canvWRatio->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_sigvar_Ratio.png")).c_str(),"png");
+        canvWRatio->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+outPath_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_sigvar_Ratio.eps")).c_str(),"eps");
+        canvWRatio->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+outPath_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_sigvar_Ratio.png")).c_str(),"png");
 
         hist.Data2D()->SetLabelSize(oldLabelSize);
         hist.Data2D()->SetTitleSize(oldTitleSize);
@@ -1144,8 +1167,8 @@ void TopMassControlPlots::doPlots()
 
       gPad->RedrawAxis();
 
-      canv->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string(".eps")).c_str(),"eps");
-      canv->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string(".png")).c_str(),"png");
+      canv->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+outPath_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string(".eps")).c_str(),"eps");
+      canv->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+outPath_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string(".png")).c_str(),"png");
 
 
       //draw together with ratio underneath
@@ -1200,8 +1223,8 @@ void TopMassControlPlots::doPlots()
       helper->DrawCMS();
       gPad->RedrawAxis();
 
-      canvWRatio->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_Ratio.eps")).c_str(),"eps");
-      canvWRatio->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_Ratio.png")).c_str(),"png");
+      canvWRatio->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+outPath_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_Ratio.eps")).c_str(),"eps");
+      canvWRatio->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+outPath_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_Ratio.png")).c_str(),"png");
 
       hist.Data1D()->SetLabelSize(oldLabelSize);
       hist.Data1D()->SetTitleSize(oldTitleSize);
@@ -1252,8 +1275,8 @@ void TopMassControlPlots::doPlots()
 
         gPad->RedrawAxis();
 
-        canv->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_sigvar.eps")).c_str(),"eps");
-        canv->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_sigvar.png")).c_str(),"png");
+        canv->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+outPath_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_sigvar.eps")).c_str(),"eps");
+        canv->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+outPath_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_sigvar.png")).c_str(),"png");
 
 
         //ratio plots
@@ -1298,8 +1321,8 @@ void TopMassControlPlots::doPlots()
         gPad->RedrawAxis();
 
 
-        canvWRatio->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_sigvar_Ratio.eps")).c_str(),"eps");
-        canvWRatio->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_sigvar_Ratio.png")).c_str(),"png");
+        canvWRatio->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+outPath_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_sigvar_Ratio.eps")).c_str(),"eps");
+        canvWRatio->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+outPath_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_sigvar_Ratio.png")).c_str(),"png");
       }//end if 1D signal variation plots
     }//end 1D plots
     else{

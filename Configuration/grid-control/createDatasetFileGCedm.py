@@ -9,11 +9,10 @@ import fileinput,os,subprocess,sys
 class config:
   dcache_desy   = "dcap://dcache-cms-dcap.desy.de"
   dcache_prefix = "/pnfs/desy.de/cms/tier2"
-  dcache_cms    = "/store/user/mgosseli/mc"
+  dcache_cms    = "/store/user/mseidel"
   L_samples     = [
-#                   'TT_TuneZ2_7TeV_madgraph_FASTSIM_172_5GeV_v1'
-#                   'TT_TuneP11_7TeV_madgraph_FASTSIM_172_5GeV_v1',
-                   'TT_TuneP11mpiHi_7TeV_madgraph_FASTSIM_172_5GeV_v1'
+                   'TT_cluster_8TeV-sherpa',
+                   'TT_lund_8TeV-sherpa'
                   ]
   dataset_file  = "datasets.dbs"
   list_file     = "tmp_files.txt"
