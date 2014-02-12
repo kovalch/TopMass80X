@@ -3402,6 +3402,9 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
 
     TH1 *Kidoth1_Binned = 0, *Ahrensth1_Binned = 0;
 
+    TH1* madup=0, *maddown=0, *matchup=0, *matchdown=0;
+    TH1* madupBinned = 0, *maddownBinned = 0, *matchupBinned = 0, *matchdownBinned = 0;
+
     bool canDrawMCATNLO = true;
     if (drawNLOCurves && drawMCATNLO) {
         mcnlohist = GetNloCurve(newname,"MCATNLO");
@@ -3568,6 +3571,76 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
         Ahrensth1_Binned->Scale(1./Ahrensth1_Binned->Integral("width"));
     } else {drawAhrens = 0;}
 
+    if(drawMadScaleMatching){
+        madup = GetNloCurve(newname,"SCALE_UP");
+        madup->Scale(1./madup->Integral("width"));
+        madupBinned = madup->Rebin(bins,"madupplot",Xbins);
+        for (Int_t bin=0; bin<bins; bin++){//condense matrices to arrays for plotting
+          madupBinned->SetBinContent(bin+1,madupBinned->GetBinContent(bin+1)/((Xbins[bin+1]-Xbins[bin])/madup->GetBinWidth(1)));
+        }
+        madupBinned->Scale(1./madupBinned->Integral("width"));
+
+        maddown = GetNloCurve(newname,"SCALE_DOWN");
+        double maddownscale = 1./maddown->Integral("width");
+        maddown->Scale(maddownscale);
+        maddownBinned = maddown->Rebin(bins,"maddownplot",Xbins);
+        for (Int_t bin=0; bin<bins; bin++){//condense matrices to arrays for plotting
+            maddownBinned->SetBinContent(bin+1,maddownBinned->GetBinContent(bin+1)/((Xbins[bin+1]-Xbins[bin])/maddown->GetBinWidth(1)));
+        }
+        maddownBinned->Scale(1./maddownBinned->Integral("width"));
+
+        matchup = GetNloCurve(newname,"MATCH_UP");
+        matchup->Scale(1./matchup->Integral("width"));
+        matchupBinned = matchup->Rebin(bins,"matchupplot",Xbins);
+        for (Int_t bin=0; bin<bins; bin++){//condense matrices to arrays for plotting
+            matchupBinned->SetBinContent(bin+1,matchupBinned->GetBinContent(bin+1)/((Xbins[bin+1]-Xbins[bin])/matchup->GetBinWidth(1)));
+        }
+        matchupBinned->Scale(1./matchupBinned->Integral("width"));
+
+        matchdown = GetNloCurve(newname,"MATCH_DOWN");
+        matchdown->Scale(1./matchdown->Integral("width"));
+        matchdownBinned = matchdown->Rebin(bins,"matchdownplot",Xbins);
+        for (Int_t bin=0; bin<bins; bin++){//condense matrices to arrays for plotting
+           matchdownBinned->SetBinContent(bin+1,matchdownBinned->GetBinContent(bin+1)/((Xbins[bin+1]-Xbins[bin])/matchdown->GetBinWidth(1)));
+        }
+        matchdownBinned->Scale(1./matchdownBinned->Integral("width"));
+
+    }
+
+    if(drawNLOCurves && drawMadMass){
+        madup = GetNloCurveMass(newname,"MASS_UP","181");
+        madup->Scale(1./madup->Integral("width"));
+        madupBinned = madup->Rebin(bins,"madupplot",Xbins);
+        for (Int_t bin=0; bin<bins; bin++){//condense matrices to arrays for plotting
+          madupBinned->SetBinContent(bin+1,madupBinned->GetBinContent(bin+1)/((Xbins[bin+1]-Xbins[bin])/madup->GetBinWidth(1)));
+        }
+        madupBinned->Scale(1./madupBinned->Integral("width"));
+
+        maddown = GetNloCurveMass(newname,"MASS_DOWN","169");
+        maddown->Scale(1./maddown->Integral("width"));
+        maddownBinned = maddown->Rebin(bins,"maddownplot",Xbins);
+        for (Int_t bin=0; bin<bins; bin++){//condense matrices to arrays for plotting
+            maddownBinned->SetBinContent(bin+1,maddownBinned->GetBinContent(bin+1)/((Xbins[bin+1]-Xbins[bin])/maddown->GetBinWidth(1)));
+        }
+        maddownBinned->Scale(1./maddownBinned->Integral("width"));
+
+        matchup = GetNloCurveMass(newname,"MASS_UP","175");
+        matchup->Scale(1./matchup->Integral("width"));
+        matchupBinned = matchup->Rebin(bins,"matchupplot",Xbins);
+        for (Int_t bin=0; bin<bins; bin++){//condense matrices to arrays for plotting
+            matchupBinned->SetBinContent(bin+1,matchupBinned->GetBinContent(bin+1)/((Xbins[bin+1]-Xbins[bin])/matchup->GetBinWidth(1)));
+        }
+        matchupBinned->Scale(1./matchupBinned->Integral("width"));
+
+        matchdown = GetNloCurveMass(newname,"MASS_DOWN","163");
+        matchdown->Scale(1./matchdown->Integral("width"));
+        matchdownBinned = matchdown->Rebin(bins,"matchdownplot",Xbins);
+        for (Int_t bin=0; bin<bins; bin++){//condense matrices to arrays for plotting
+           matchdownBinned->SetBinContent(bin+1,matchdownBinned->GetBinContent(bin+1)/((Xbins[bin+1]-Xbins[bin])/matchdown->GetBinWidth(1)));
+        }
+        matchdownBinned->Scale(1./matchdownBinned->Integral("width"));
+    }
+
     TCanvas * c = new TCanvas("DiffXS","DiffXS");
     if(logY){
       c->SetLogy();
@@ -3677,7 +3750,6 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
         perugia11hist->SetLineStyle(2);
         perugia11histBinned->SetLineColor(kYellow);
         perugia11histBinned->SetLineWidth(3);
-//         perugia11histBinned->SetLineStyle(2);
         perugia11histBinned->Draw("SAME");
     }
     if(drawNLOCurves && drawKidonakis &&
@@ -3695,6 +3767,30 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
         Ahrensth1_Binned->SetLineStyle(10);
         Ahrensth1_Binned->Draw("SAME][");
     }
+    if(drawNLOCurves && (drawMadScaleMatching || drawMadMass)){
+        madupBinned->SetLineWidth(2);
+        maddownBinned->SetLineWidth(2);
+        madupBinned->SetLineStyle(2);
+        maddownBinned->SetLineStyle(2);
+        madupBinned->SetLineColor(kAzure+2);
+        maddownBinned->SetLineColor(8);
+        matchupBinned->SetLineWidth(2);
+        matchdownBinned->SetLineWidth(2);
+        matchupBinned->SetLineStyle(7);
+        matchdownBinned->SetLineStyle(7);
+        matchupBinned->SetLineColor(kPink-7);
+        matchdownBinned->SetLineColor(kRed-7);
+        madupBinned->Draw("SAME");
+        maddownBinned->Draw("SAME");
+        matchupBinned->Draw("SAME");
+        matchdownBinned->Draw("SAME");
+        ofstream OutputFileXSec(string("Plots/"+Channel+"/"+name+"DiffXsecMass.txt"));
+        for(int i = 1; i < madupBinned->GetNbinsX(); i++){
+        //OutputFileXSec<<"Nominal "<<"Mass 181 GeV" << " Mass 175 GeV"<< "Mass 169 GeV" << "Mass 163 GeV"<<endl;                             OutputFileXSec<<h_DiffXSec->GetBinContent(i)<< " "<<tga_DiffXSecPlot->GetErrorY(i-1)<<" "<<tga_DiffXSecPlotwithSys->GetErrorY(i-1)<< " "<<h|
+        }
+        OutputFileXSec.close();
+    }
+
     madgraphhistBinned->Draw("SAME");
     DrawCMSLabels(1, 8);
     DrawDecayChLabel(channelLabel[channelType]);
@@ -3716,6 +3812,18 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
         if (drawKidonakis && !name.Contains("RestFrame") && !name.Contains("Lead") && 
             (name.Contains("ToppT") || name.Contains("TopRapidity")))                                   leg2->AddEntry(Kidoth1_Binned, "Approx. NNLO",  "l");
         if (drawAhrens && (name == "HypTTBarMass" || name == "HypTTBarpT"))                             leg2->AddEntry(Ahrensth1_Binned, "NLO+NNLL",  "l");
+        if (drawMadScaleMatching){
+            if (madup->GetEntries()) leg2->AddEntry(madupBinned,"4*Q^{2}",  "l");
+            if (maddown->GetEntries()) leg2->AddEntry(maddownBinned,"Q^{2}/4",  "l");
+            if (matchup->GetEntries()) leg2->AddEntry(matchupBinned,"Matching up",  "l");
+            if (matchdown->GetEntries()) leg2->AddEntry(matchdownBinned,"Matching down",  "l");
+        }
+        if (drawMadMass){
+            if (madup->GetEntries()) leg2->AddEntry(madupBinned,"Mass = 181 GeV",  "l");
+            if (maddown->GetEntries()) leg2->AddEntry(maddownBinned,"Mass = 169 GeV",  "l");
+            if (matchup->GetEntries()) leg2->AddEntry(matchupBinned,"Mass = 175 GeV",  "l");
+            if (matchdown->GetEntries()) leg2->AddEntry(matchdownBinned,"Mass = 163 GeV",  "l");
+        }
     }
     leg2->SetFillStyle(0);
     leg2->SetBorderSize(0);
@@ -3767,6 +3875,10 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
                                   tmpKido, tmpAhrens, powhegHerwighistBinned, perugia11histBinned,0.4, 1.6);
         };
     };
+
+//    if(drawMadScaleMatching) {powheghist = nullptr; mcnlohist = nullptr; common::drawRatioXSEC(h_DiffXSec,h_GenDiffXSec,madupBinned,maddownBinned,matchupBinned,matchdownBinned,0,0,0.4, 1.6); }
+    if(drawNLOCurves && drawMadScaleMatching) common::drawRatioXSEC(h_DiffXSec,madgraphhistBinned,madupBinned,maddownBinned,matchupBinned,matchdownBinned,0,0,0.4, 1.6);
+    if(drawNLOCurves && drawMadMass) common::drawRatioXSEC(madgraphhistBinned,h_DiffXSec,madupBinned,maddownBinned,matchupBinned,matchdownBinned,0,0,0.4, 1.6);
 
     c->Print(outdir.Copy()+"DiffXS_"+name+".eps");
     TFile out_source(outdir.Copy()+"DiffXS_"+name+"_source.root", "RECREATE");

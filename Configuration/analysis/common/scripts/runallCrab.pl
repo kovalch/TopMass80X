@@ -83,7 +83,7 @@ die "CMS ENV must be set!" unless $ENV{CMSSW_BASE};
 
 # prepare workingdir
 
-my $globalCWorkingdir="/scratch/hh/dust/naf/cms/user/$ENV{USER}/Crab_workingDir";
+my $globalCWorkingdir="/nfs/dust/cms/user/$ENV{USER}/Crab_workingDir";
 
 unless(-e $globalCWorkingdir){
     print "creating global crab working dir at $globalCWorkingdir...\n";
