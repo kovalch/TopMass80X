@@ -101,7 +101,8 @@ TopMassCalibration::rooFitTopMass_()
   RooWorkspace *workspace[1];
 
   const int nTemplTypes = 2; // number of different distributions, e.g., mTop & mW
-  const int nComboTypes = 3; // number of different permutation types, e.g., correct, wrong, unmatched
+  //const int nComboTypes = 3; // number of different permutation types, e.g., correct, wrong, unmatched
+  const int nComboTypes = 2; // number of different permutation types, e.g., correct, rest
   const int nPDFs = nTemplTypes*nComboTypes;
 
   //bool binnedTemplates = false;
@@ -116,15 +117,15 @@ TopMassCalibration::rooFitTopMass_()
 
   /// definitions for fit
   const unsigned short nJES = 5; // number of JES to be used for calibration
-  const unsigned short nMasses = 9; // number of top masses to be used for calibration
+  //const unsigned short nMasses = 9; // number of top masses to be used for calibration
+  const unsigned short nMasses = 7; // number of top masses to be used for calibration
   const unsigned short nTemplates = nJES*nMasses;
 
   const double  jes_templ[nJES] = {0.96, 0.98, 1.00, 1.02, 1.04};
-  const double mTop_templ[nMasses] = {161.5, 163.5, 166.5, 169.5, 172.5, 175.5, 178.5, 181.5, 184.5};
+  //const double mTop_templ[nMasses] = {161.5, 163.5, 166.5, 169.5, 172.5, 175.5, 178.5, 181.5, 184.5};
+  const double mTop_templ[nMasses] = {166.5, 169.5, 171.5, 172.5, 173.5, 175.5, 178.5};
 
   const unsigned iTemplateJES [] = {0,1,2,3,4,
-                                    0,1,2,3,4,
-                                    0,1,2,3,4,
                                     0,1,2,3,4,
                                     0,1,2,3,4,
                                     0,1,2,3,4,
@@ -138,36 +139,40 @@ TopMassCalibration::rooFitTopMass_()
                                     3,3,3,3,3,
                                     4,4,4,4,4,
                                     5,5,5,5,5,
-                                    6,6,6,6,6,
-                                    7,7,7,7,7,
-                                    8,8,8,8,8};
+                                    6,6,6,6,6};
 
-  TString templ[nTemplates] = {"jes096mass1615","jes098mass1615","jes100mass1615","jes102mass1615","jes104mass1615",
-                               "jes096mass1635","jes098mass1635","jes100mass1635","jes102mass1635","jes104mass1635",
+  TString templ[nTemplates] = {//"jes096mass1615","jes098mass1615","jes100mass1615","jes102mass1615","jes104mass1615",
+                               //"jes096mass1635","jes098mass1635","jes100mass1635","jes102mass1635","jes104mass1635",
                                "jes096mass1665","jes098mass1665","jes100mass1665","jes102mass1665","jes104mass1665",
                                "jes096mass1695","jes098mass1695","jes100mass1695","jes102mass1695","jes104mass1695",
+                               "jes096mass1715","jes098mass1715","jes100mass1715","jes102mass1715","jes104mass1715",
                                "jes096mass1725","jes098mass1725","jes100mass1725","jes102mass1725","jes104mass1725",
+                               "jes096mass1735","jes098mass1735","jes100mass1735","jes102mass1735","jes104mass1735",
                                "jes096mass1755","jes098mass1755","jes100mass1755","jes102mass1755","jes104mass1755",
-                               "jes096mass1785","jes098mass1785","jes100mass1785","jes102mass1785","jes104mass1785",
-                               "jes096mass1815","jes098mass1815","jes100mass1815","jes102mass1815","jes104mass1815",
-                               "jes096mass1845","jes098mass1845","jes100mass1845","jes102mass1845","jes104mass1845"};
+                               "jes096mass1785","jes098mass1785","jes100mass1785","jes102mass1785","jes104mass1785"//,
+                               //"jes096mass1815","jes098mass1815","jes100mass1815","jes102mass1815","jes104mass1815",
+                               //"jes096mass1845","jes098mass1845","jes100mass1845","jes102mass1845","jes104mass1845"
+                               };
 
-  TString templateSettings[nTemplates] = {"MC for JES = 0.96, mTop = 161.5 GeV","MC for JES = 0.98, mTop = 161.5 GeV","MC for JES = 1.00, mTop = 161.5 GeV","MC for JES = 1.02, mTop = 161.5 GeV","MC for JES = 1.04, mTop = 161.5 GeV",
-                                          "MC for JES = 0.96, mTop = 163.5 GeV","MC for JES = 0.98, mTop = 163.5 GeV","MC for JES = 1.00, mTop = 163.5 GeV","MC for JES = 1.02, mTop = 163.5 GeV","MC for JES = 1.04, mTop = 163.5 GeV",
+  TString templateSettings[nTemplates] = {//"MC for JES = 0.96, mTop = 161.5 GeV","MC for JES = 0.98, mTop = 161.5 GeV","MC for JES = 1.00, mTop = 161.5 GeV","MC for JES = 1.02, mTop = 161.5 GeV","MC for JES = 1.04, mTop = 161.5 GeV",
+                                          //"MC for JES = 0.96, mTop = 163.5 GeV","MC for JES = 0.98, mTop = 163.5 GeV","MC for JES = 1.00, mTop = 163.5 GeV","MC for JES = 1.02, mTop = 163.5 GeV","MC for JES = 1.04, mTop = 163.5 GeV",
                                           "MC for JES = 0.96, mTop = 166.5 GeV","MC for JES = 0.98, mTop = 166.5 GeV","MC for JES = 1.00, mTop = 166.5 GeV","MC for JES = 1.02, mTop = 166.5 GeV","MC for JES = 1.04, mTop = 166.5 GeV",
                                           "MC for JES = 0.96, mTop = 169.5 GeV","MC for JES = 0.98, mTop = 169.5 GeV","MC for JES = 1.00, mTop = 169.5 GeV","MC for JES = 1.02, mTop = 169.5 GeV","MC for JES = 1.04, mTop = 169.5 GeV",
+                                          "MC for JES = 0.96, mTop = 171.5 GeV","MC for JES = 0.98, mTop = 171.5 GeV","MC for JES = 1.00, mTop = 171.5 GeV","MC for JES = 1.02, mTop = 171.5 GeV","MC for JES = 1.04, mTop = 171.5 GeV",
                                           "MC for JES = 0.96, mTop = 172.5 GeV","MC for JES = 0.98, mTop = 172.5 GeV","MC for JES = 1.00, mTop = 172.5 GeV","MC for JES = 1.02, mTop = 172.5 GeV","MC for JES = 1.04, mTop = 172.5 GeV",
+                                          "MC for JES = 0.96, mTop = 173.5 GeV","MC for JES = 0.98, mTop = 173.5 GeV","MC for JES = 1.00, mTop = 173.5 GeV","MC for JES = 1.02, mTop = 173.5 GeV","MC for JES = 1.04, mTop = 173.5 GeV",
                                           "MC for JES = 0.96, mTop = 175.5 GeV","MC for JES = 0.98, mTop = 175.5 GeV","MC for JES = 1.00, mTop = 175.5 GeV","MC for JES = 1.02, mTop = 175.5 GeV","MC for JES = 1.04, mTop = 175.5 GeV",
-                                          "MC for JES = 0.96, mTop = 178.5 GeV","MC for JES = 0.98, mTop = 178.5 GeV","MC for JES = 1.00, mTop = 178.5 GeV","MC for JES = 1.02, mTop = 178.5 GeV","MC for JES = 1.04, mTop = 178.5 GeV",
-                                          "MC for JES = 0.96, mTop = 181.5 GeV","MC for JES = 0.98, mTop = 181.5 GeV","MC for JES = 1.00, mTop = 181.5 GeV","MC for JES = 1.02, mTop = 181.5 GeV","MC for JES = 1.04, mTop = 181.5 GeV",
-                                          "MC for JES = 0.96, mTop = 184.5 GeV","MC for JES = 0.98, mTop = 184.5 GeV","MC for JES = 1.00, mTop = 184.5 GeV","MC for JES = 1.02, mTop = 184.5 GeV","MC for JES = 1.04, mTop = 184.5 GeV"};
+                                          "MC for JES = 0.96, mTop = 178.5 GeV","MC for JES = 0.98, mTop = 178.5 GeV","MC for JES = 1.00, mTop = 178.5 GeV","MC for JES = 1.02, mTop = 178.5 GeV","MC for JES = 1.04, mTop = 178.5 GeV"//,
+                                          //"MC for JES = 0.96, mTop = 181.5 GeV","MC for JES = 0.98, mTop = 181.5 GeV","MC for JES = 1.00, mTop = 181.5 GeV","MC for JES = 1.02, mTop = 181.5 GeV","MC for JES = 1.04, mTop = 181.5 GeV",
+                                          //"MC for JES = 0.96, mTop = 184.5 GeV","MC for JES = 0.98, mTop = 184.5 GeV","MC for JES = 1.00, mTop = 184.5 GeV","MC for JES = 1.02, mTop = 184.5 GeV","MC for JES = 1.04, mTop = 184.5 GeV"
+                                          };
 
   /// create datasets for later use
   RooDataSet *dataset[nTemplates];
   RooDataSet *reducedDataset[nTemplates];
   //RooDataHist* hist[1][nTemplates];
 
-  RooRealVar comboTypeVar   = RooRealVar("comboType"     ,"comboType"  ,  -10.,   6.9,"");
+  RooRealVar comboTypeVar   = RooRealVar("comboType"     ,"comboType"  ,  -10.,   20.,"");
   //RooRealVar prob           = RooRealVar("prob"          ,"P(#chi^{2})",  0.,   1.,"");
   RooRealVar MTOP           = RooRealVar("topMass"       ,"m_{t}^{fit}",100., 550.,"GeV");
   RooRealVar meanMW         = RooRealVar("meanWMass"     ,"m_{W}^{rec}", 50., 300.,"GeV");
@@ -175,8 +180,9 @@ TopMassCalibration::rooFitTopMass_()
 
   if(channelID_ == kAllJets){
     comboTypeVar.setRange("R1",0.9,1.1);
-    comboTypeVar.setRange("R4",-9.9,-0.1);
-    comboTypeVar.setRange("R5",1.9,10.1);
+    //comboTypeVar.setRange("R4",-9.9,-0.1);
+    //comboTypeVar.setRange("R5",1.9,10.1);
+    comboTypeVar.setRange("R2",1.9,20.1);
   }
   MTOP  .setRange("mTopFitRange",100.,550.);
   meanMW.setRange("mWFitRange", 50.,300.);
@@ -209,16 +215,24 @@ TopMassCalibration::rooFitTopMass_()
           else if(iJES  == 2) fileName += "ABS_JES_100_";
           else if(iJES  == 3) fileName += "ABS_JES_102_";
           else if(iJES  == 4) fileName += "ABS_JES_104_";
-          if     (iMass == 0) fileName += "161_5";
-          else if(iMass == 1) fileName += "163_5";
-          else if(iMass == 2) fileName += "166_5";
-          else if(iMass == 3) fileName += "169_5";
-          else if(iMass == 4) fileName += "172_5_MassiveBinDecay";
+          //if     (iMass == 0) fileName += "161_5";
+          //else if(iMass == 1) fileName += "163_5";
+          //else if(iMass == 2) fileName += "166_5";
+          //else if(iMass == 3) fileName += "169_5";
+          //else if(iMass == 4) fileName += "172_5_MassiveBinDecay";
+          //else if(iMass == 5) fileName += "175_5";
+          //else if(iMass == 6) fileName += "178_5";
+          //else if(iMass == 7) fileName += "181_5";
+          //else if(iMass == 8) fileName += "184_5";
+          //fileName += "_sig.root";
+          if     (iMass == 0) fileName += "166_5";
+          else if(iMass == 1) fileName += "169_5";
+          else if(iMass == 2) fileName += "171_5";
+          else if(iMass == 3) fileName += "172_5";
+          else if(iMass == 4) fileName += "173_5";
           else if(iMass == 5) fileName += "175_5";
           else if(iMass == 6) fileName += "178_5";
-          else if(iMass == 7) fileName += "181_5";
-          else if(iMass == 8) fileName += "184_5";
-          fileName += "_sig.root";
+          fileName += "_MadSpin_sig.root";
         }
         std::cout << "Creating RooDataSet for: " << fileName;
 
@@ -305,27 +319,34 @@ TopMassCalibration::rooFitTopMass_()
 
         if(channelID_ == kAllJets){
           if     (comboType == 0){ comboRangeName = "R1"; }
-          else if(comboType == 1){ comboRangeName = "R4"; }
-          else if(comboType == 2){ comboRangeName = "R5"; }
+          //else if(comboType == 1){ comboRangeName = "R4"; }
+          //else if(comboType == 2){ comboRangeName = "R5"; }
+          else if(comboType == 1){ comboRangeName = "R2"; }
 
           if(templType == 0){
             if (comboType == 0){ // mTop, correct
               //double a[] = {172.328, 0.982351 , 85.7756 , 0.871109,
               //              7.17985, 0.0687401,  6.68148, 0.281139};
               //iniPar = std::vector<double>(a,a+sizeof(a)/sizeof(double));
-              iniPar = {172.478, 0.980786 , 79.2462 ,  0.724549,
-                        7.88763, 0.0719042,  6.25116, -0.0799414};
+              //iniPar = {172.478, 0.980786 , 79.2462 ,  0.724549,
+              //          7.88763, 0.0719042,  6.25116, -0.0799414};
+              iniPar = {172.399, 0.989847 , 81.225 , 0.758306,
+                        7.92651, 0.0730216, 5.03205, 0.0241954};
             }
             else if (comboType == 1){ // mTop, wrong
-              double a[] = {182.221,  0.180998 , 35.0042 ,  0.701448,
-                            172.565,  1.0841   , 99.7299 ,  0.226163,
-                            24.3286, -0.0251085, -6.24156,  0.392888,
-                            8.87901, -0.072422 ,  7.45875, -1.6491};
-              iniPar = std::vector<double>(a,a+sizeof(a)/sizeof(double));
+              //double a[] = {182.221,  0.180998 , 35.0042 ,  0.701448,
+              //              172.565,  1.0841   , 99.7299 ,  0.226163,
+              //              24.3286, -0.0251085, -6.24156,  0.392888,
+              //              8.87901, -0.072422 ,  7.45875, -1.6491};
+              //iniPar = std::vector<double>(a,a+sizeof(a)/sizeof(double));
               //iniPar = {171.534 , 0.36392  , 50.5469 ,  0.885869,
               //          174.476 , 0.967762 , 84.2048 , -0.469726,
               //           20.2423, 0.0825402, 15.4528 ,  1.20711,
               //           12.4386, 0.0652505,  7.62482,  0.000278128};
+              iniPar = {190.009,  0.23107  , 123.714, -2.41287,
+                        173.325,  1.11063  , 80.0112,  1.32969,
+                        26.2827, -0.0172727, 35.0065, -0.442854,
+                        10.0152,  0.0656903,-4.72985, -0.108491};
             }
             else if(comboType == 2){ // mTop, unmatched
               //double a[] = {178.206, 0.26746    , 35.9815  , 1.50419 ,
@@ -345,19 +366,25 @@ TopMassCalibration::rooFitTopMass_()
               //               4.25403,  0.00163248, 11.8082 ,  0.0886389,
               //               5.43406, -0.00640861, -6.93172, -0.0742648};
               //iniPar = std::vector<double>(a,a+sizeof(a)/sizeof(double));
-              iniPar = {84.5861, -0.00713988, 82.7429, -0.196859,
-                        5.20718, -0.000562235, 21.8792, -0.13701,
-                        6.76429, 0.000500302, -17.8822, 0.0366887};
+              //iniPar = {84.5861, -0.00713988, 82.7429, -0.196859,
+              //          5.20718, -0.000562235, 21.8792, -0.13701,
+              //          6.76429, 0.000500302, -17.8822, 0.0366887};
+              iniPar = {84.4535, -0.0154884, 91.1495, -0.00943573,
+                        5.20726, -0.0115877, 23.4646, -0.0249863,
+                        6.75636,  0.0019251,-19.8341,  0.0724597};
             }
             else if (comboType == 1){ // mW, wrong
               //double a[] = {84.059 ,  0.00363846, 27.6651, -0.0122909,
               //              4.28601, -0.0106779 ,  5.2756, -0.18915  ,
               //              6.2658 , -0.0133067 , -6.2384,  0.0742743};
               //iniPar = std::vector<double>(a,a+sizeof(a)/sizeof(double));
-              iniPar = {85.2743, -0.0165617, 26.6677, -0.332143,
-                        5.58215, -0.0131054, 6.19793, -0.200832,
-                        7.56877, 0.00863095, -9.94996, 0.100932};
-            }
+              //iniPar = {85.2743, -0.0165617, 26.6677, -0.332143,
+              //          5.58215, -0.0131054, 6.19793, -0.200832,
+              //          7.56877, 0.00863095, -9.94996, 0.100932};
+              iniPar = {86.8557, -0.0238499 ,  56.0143, -0.0907859,
+                        6.60509, -0.00966986,  12.8897, -0.166508,
+                        7.63725,  0.0112471 , -27.3866,  0.0187517};
+           }
             else if(comboType == 2){ // mW, unmatched
               //double a[] = {84.6333,  0.0205799 , 16.0275, -0.280052,
               //              4.76909,  0.018934  , 2.18012, -0.12839 ,
@@ -392,10 +419,10 @@ TopMassCalibration::rooFitTopMass_()
             else if(comboType == 1 || comboType == 2) {
               varName = "ratio_"; varName += h;
               RooRealVar *ratio = new RooRealVar(varName, varName, 0.0, 1.0);
-              if     (comboType == 1) ratio->setVal(0.648584); //0.662784); //0.820546);
+              if     (comboType == 1) ratio->setVal(0.700559); //0.648584); //0.662784); //0.820546);
               else if(comboType == 2) ratio->setVal(0.685704); //0.774588); //0.758690);
-              ratio->setConstant(kTRUE);
-              //ratio->setConstant(kFALSE);
+              //ratio->setConstant(kTRUE);
+              ratio->setConstant(kFALSE);
               fillAlpha(alpha, h, RooArgSet(*par[0], *par[1], *par[ 2], *par[ 3], mTop_corrected, JES_corrected));
               fillAlpha(alpha, h, RooArgSet(*par[8], *par[9], *par[10], *par[11], mTop_corrected, JES_corrected));
               varName = "landau_"; varName += h;
@@ -406,7 +433,8 @@ TopMassCalibration::rooFitTopMass_()
               RooRealVar *width = new RooRealVar(varName, varName, 2.0);
               width->setConstant(kTRUE);
               varName = "voigt_"; varName += h;
-              RooVoigtian *voigt = new RooVoigtian(varName, varName, *var, *alpha[2], *width, *alpha[3]);
+              //RooVoigtian *voigt = new RooVoigtian(varName, varName, *var, *alpha[2], *width, *alpha[3]);
+              RooGaussian *voigt = new RooGaussian(varName, varName, *var, *alpha[2], *alpha[3]);
               RooAddPdf *add = new RooAddPdf(name, name, *landau, *voigt, *ratio);
               workspace[0]->import(*add);
             }
@@ -491,7 +519,8 @@ TopMassCalibration::rooFitTopMass_()
         if     (templType == 0 && comboType == 0) frame = var->frame(RooFit::Range(100., 250.));
         else if(templType == 0)                   frame = var->frame(RooFit::Range(100., 550.));
         else if(templType == 1)                   frame = var->frame(RooFit::Range( 50., 120.));
-        for(unsigned t=20; t<25; ++t) {
+        //for(unsigned t=20; t<25; ++t) {
+        for(unsigned t=15; t<20; ++t) {
           name_pdf = "sig_"; name_pdf += h; name_pdf += "_"+templ[t];
           //std::cout << name_pdf << std::endl;
           //workspace[0]->pdf(name_pdf)->plotOn(frame, RooFit::FillColor(kGray), RooFit::VisualizeError(*result));
@@ -519,7 +548,8 @@ TopMassCalibration::rooFitTopMass_()
         }
         frame->SetMinimum(.0);
         frame->GetYaxis()->SetTitle("Probability");
-        frame->SetTitle("mTop = 161.5, 163.5, 166.5, 169.5, 172.5, 175.5, 178.5, 181.5, 184.5 GeV (JES = 1.00)");
+        //frame->SetTitle("mTop = 161.5, 163.5, 166.5, 169.5, 172.5, 175.5, 178.5, 181.5, 184.5 GeV (JES = 1.00)");
+        frame->SetTitle("mTop = 166.5, 169.5, 171.5, 172.5, 173.5, 175.5, 178.5 GeV (JES = 1.00)");
         frame->Draw();
         figName = "funcFamily_mass_"; figName += templType; figName += "_"; figName += comboType;
         canvas->Print(outDir + "/" + figName + ".eps");
@@ -1243,7 +1273,8 @@ TopMassCalibration::modifiedTree_(TChain *tree, int minComboType, int maxComboTy
       meanWMass = f2->EvalInstance(j);
       combinedWeight = f3->EvalInstance(j) * weight->EvalInstance(j);
       if(!isData){
-	comboType = combo->EvalInstance(j);
+        comboType = combo->EvalInstance(j);
+        if(comboType < 0) comboType = std::abs(comboType)+10.;
       }
       newTree->Fill();
       filledPermutations++;
