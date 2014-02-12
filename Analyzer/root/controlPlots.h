@@ -210,7 +210,6 @@ private:
       return exportSigVarToRoot;
     }
 
-
     TTreeFormula* varx;
     TTreeFormula* vary;
     TTreeFormula* sel;
