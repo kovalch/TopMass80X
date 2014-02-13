@@ -46,6 +46,9 @@
 #ifdef DILEPTON_MACRO
 namespace semileptonic {
 #endif
+  
+  // adapt several things like removing official labels for my PHD
+  bool PHD=false;
 
   // ==========================================
   //  Cross-section variables and labels
@@ -913,6 +916,7 @@ namespace semileptonic {
   void DrawCMSLabels(bool cmsprelim=true, double luminosity=0.0, double textSize=0.04, bool cmssimulation=false, bool privateWork=false, bool sevenTeV=false)
   {
     // Draw official labels (CMS Preliminary/Simulation, luminosity and CM energy) above plot
+    bool rmOff2= PHD ? true : rmOff;
 
     TPaveText *label = new TPaveText();
 
@@ -927,16 +931,16 @@ namespace semileptonic {
     if(sevenTeV) comE="7";
 
     if(cmssimulation) extension+=" Simulation";
-    if(cmsprelim  ) extension+=" Preliminary";
+    if(cmsprelim&&!PHD) extension+=" Preliminary";
     if(privateWork) extension+=" (Private Work)";
     
     TString finalLabel="";
     if (cmssimulation||luminosity==0.){
-      if(!rmOff) finalLabel=extension+", #sqrt{s} = "+comE+" TeV";
+      if(!rmOff2) finalLabel=extension+", #sqrt{s} = "+comE+" TeV";
       else  finalLabel="Simulation at  #sqrt{s} = "+comE+" TeV";
     }
     else{
-      if(!rmOff) finalLabel=TString(Form(extension+", %2.1f fb^{-1} at #sqrt{s} = "+comE+" TeV",luminosity/1000));
+      if(!rmOff2) finalLabel=TString(Form(extension+", %2.1f fb^{-1} at #sqrt{s} = "+comE+" TeV",luminosity/1000));
       else finalLabel=TString(Form("%2.1f fb^{-1} at #sqrt{s} = "+comE+" TeV",luminosity/1000));
     }
 
@@ -1936,7 +1940,6 @@ namespace semileptonic {
 	  histo_[plotList_[plot]][sample]->Add((TH1F*)histo_[plotList_[plot]][sample+1]->Clone());
 	  if(verbose>1) std::cout << "add "+plotList_[plot] << " plot for " << sampleLabel(sample,decayChannel) << " and " << sampleLabel(sample+1,decayChannel) << std::endl;
 	  if(verbose>1) std::cout << "this new stacked plot contains now " <<  histo_[plotList_[plot]][sample]->Integral(0, histo_[plotList_[plot]][sample]->GetNbinsX()+1) << " events" << std::endl;
-	  if(verbose>2) std::cerr << "Ich find dich scheisse ... sch sch sch sch sch sch scheisse!" << std::endl;
 	}
       }
     }
@@ -2725,7 +2728,7 @@ namespace semileptonic {
     }
   }
 
-  int drawRatio(const TH1* histNumerator, TH1* histDenominator, const Double_t& ratioMin, const Double_t& ratioMax, TStyle myStyle, int verbose=0, const std::vector<double> err_=std::vector<double>(0), TString ratioLabelNominator="N_{data}", TString ratioLabelDenominator="N_{MC}", TString ratioDrawOption="p e X0", int ratioDrawColor=kBlack, bool error=true, double ratioMarkersize=1.2, int ndiv=505, bool invert=false, bool drawOne=true)
+  int drawRatio(const TH1* histNumerator, TH1* histDenominator, const Double_t& ratioMin, const Double_t& ratioMax, TStyle myStyle, int verbose=0, const std::vector<double> err_=std::vector<double>(0), TString ratioLabelNominator="N_{data}", TString ratioLabelDenominator="N_{MC}", TString ratioDrawOption="p e X0", int ratioDrawColor=kBlack, bool error=true, double ratioMarkersize=1.2, int ndiv=505, bool invert=false, bool drawOne=true, bool linFit=false)
   {
     // this function draws a pad with the ratio of 'histNumerator' and 'histDenominator'
     // the range of the ratio is 'ratioMin' to 'ratioMax'
@@ -2879,6 +2882,7 @@ namespace semileptonic {
     ratio->SetMarkerColor(ratioDrawColor);
     //gPad->Update();
     ratio->Draw(ratioDrawOption);
+    if(linFit)  ratio->Fit("pol1", "q", "", histDenominator->GetBinLowEdge(histDenominator->GetXaxis()->GetFirst()), histDenominator->GetBinLowEdge(histDenominator->GetXaxis()->GetLast()+1));
     gPad->SetLeftMargin(left);
     gPad->RedrawAxis("g");
 
@@ -2943,7 +2947,7 @@ namespace semileptonic {
       else return constPowhegColor; 
     }
     if(theo.Contains("nnlo")){
-      if(theo.Contains("ahrens")||theo.Contains("ttbarMass")) return constNnloColor2;
+      if(theo.Contains("ahrens")||theo.Contains("ttbarMass")||theo.Contains("ttbarPt")) return constNnloColor2;
       return constNnloColor;
     }
     if(theo.Contains("data")) return kBlack;
@@ -2961,7 +2965,7 @@ namespace semileptonic {
       else  return constPowhegStyle; 
     }
     if(theo.Contains("nnlo")){
-      if(theo.Contains("ahrens")||theo.Contains("ttbarMass")) return constNnloStyle2;
+      if(theo.Contains("ahrens")||theo.Contains("ttbarMass")||theo.Contains("ttbarPt")) return constNnloStyle2;
       return constNnloStyle;
     }
     if(theo.Contains("nnlo"    )||theo.Contains("kidonakis")) return constNnloStyle;
@@ -3661,11 +3665,20 @@ namespace semileptonic {
     std::vector<int> RelevantSys_;
     int sysListJE   [ ] = { sysJESUp, sysJESDown, sysJERUp, sysJERDown}; // JE related uncertainties
     int sysListModel[ ] = { sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysTopMassUp, sysTopMassDown, sysHadUp, sysHadDown}; // ttbar modeling
-    //int sysList[ ] = { sysLumiUp, sysLumiDown, sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysTopMassUp, sysTopMassDown, sysJESUp, sysJESDown ,sysJERUp, sysJERDown, sysPUUp, sysPUDown, sysLepEffSFNormUp, sysLepEffSFNormDown, sysLepEffSFShapeUpEta, sysLepEffSFShapeDownEta, sysLepEffSFShapeUpPt, sysLepEffSFShapeDownPt, sysBtagSFUp, sysBtagSFDown, sysBtagSFShapeUpPt65, sysBtagSFShapeDownPt65, sysBtagSFShapeUpEta0p7, sysBtagSFShapeDownEta0p7, sysHadUp, sysHadDown};
+    int sysListMain [ ] = { sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysHadUp, sysHadDown, sysJESUp, sysJESDown, sysJERUp, sysJERDown, sysBtagSFUp, sysBtagSFDown, sysBtagSFShapeUpPt65, sysBtagSFShapeDownPt65, sysBtagSFShapeUpEta0p7, sysBtagSFShapeDownEta0p7 }; // ttbar modeling
+
+    int sysListAll[ ] = { sysLumiUp, sysLumiDown, sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysTopMassUp, sysTopMassDown, sysJESUp, sysJESDown ,sysJERUp, sysJERDown, sysPUUp, sysPUDown, sysLepEffSFNormUp, sysLepEffSFNormDown, sysLepEffSFShapeUpEta, sysLepEffSFShapeDownEta, sysLepEffSFShapeUpPt, sysLepEffSFShapeDownPt, sysBtagSFUp, sysBtagSFDown, sysBtagSFShapeUpPt65, sysBtagSFShapeDownPt65, sysBtagSFShapeUpEta0p7, sysBtagSFShapeDownEta0p7, sysHadUp, sysHadDown};
+
     if(     type =="model") RelevantSys_.insert(RelevantSys_.begin(), sysListModel, sysListModel+ sizeof(sysListModel)/sizeof(int));
     else if(type =="JE"   ) RelevantSys_.insert(RelevantSys_.begin(), sysListJE   , sysListJE   + sizeof(sysListJE   )/sizeof(int));
+    else if(type =="all"  ) RelevantSys_.insert(RelevantSys_.begin(), sysListAll  , sysListAll  + sizeof(sysListAll  )/sizeof(int));
+    else if(type =="main" ) RelevantSys_.insert(RelevantSys_.begin(), sysListMain , sysListMain + sizeof(sysListMain )/sizeof(int));
+    else{ 
+      std::cout << "ERROR in function  " << std::endl;
+      exit(0);
+    }
     if(verbose>1){
-      std::cout << "considered systematics: " << std::endl;
+      std::cout << "considered systematics: makeTheoryUncertaintyBands, provided input argument type=" << type << " is invalid" << std::endl;
       for(unsigned int i=0; i<RelevantSys_.size(); ++i){
 	std::cout << sysLabel(RelevantSys_[i]) << std::endl;
       }

@@ -306,8 +306,8 @@ void extractTopMassFromRhoS(int verbose=0, double luminosity=19712., bool save=t
   double corrValyMin=ratioScan ? 165.5 : 168.5;
   double corrValyMax=ratioScan ? 183.5 : 181.5;
   axesStyle(*CorrScanMin  , "assumed correlation #rho_{24}", "m_{top}#left(#rho_{24}#right) [GeV]",corrValyMin, corrValyMax);
-  axesStyle(*CorrScanErrUp, "assumed correlation #rho_{24}", "#Deltam_{top}#left(#rho_{24}#right) [GeV]");//, -3.0, 10.0 );
-  axesStyle(*CorrScanErrDn, "assumed correlation #rho_{24}", "#Deltam_{top}#left(#rho_{24}#right) [GeV]");//, -3.0, 10.0 );
+  axesStyle(*CorrScanErrUp, "assumed correlation #rho_{24}", "#deltam_{top}#left(#rho_{24}#right) [GeV]");//, -3.0, 10.0 );
+  axesStyle(*CorrScanErrDn, "assumed correlation #rho_{24}", "#deltam_{top}#left(#rho_{24}#right) [GeV]");//, -3.0, 10.0 );
   CorrScanMin  ->GetYaxis()->SetNoExponent(true);
   CorrScanErrUp->GetYaxis()->SetNoExponent(true);
   CorrScanErrDn->GetYaxis()->SetNoExponent(true);
@@ -370,12 +370,12 @@ void extractTopMassFromRhoS(int verbose=0, double luminosity=19712., bool save=t
   plotCanvas_[plotCanvas_.size()-1]->SetName (titlechi2corr);
   plotCanvas_[plotCanvas_.size()-1]->SetTitle(titlechi2corr);
   //corrglobalchi2->GetYaxis()->SetTitle("#splitline{global  #chi^{2} = }{#Sigma_{#splitline{ all}{bins}} (x^{pred}_{bin i}-x^{meas}_{bin i})#upointCOV_{ij}^{ -1}#upoint(x^{pred}_{bin j}-x^{meas}_{bin j})}");
-  //corrglobalchi2->GetYaxis()->SetTitle("#chi^{2}_{Tot}=#sum_{i,j}^{bin 2,4} #Delta#left(#frac{1}{#sigma} #frac{d#sigma}{d#rho_{S}}#right)_{i}#upoint COV_{ij}^{ -1} #upoint #Delta#left(#frac{1}{#sigma} #frac{d#sigma}{d#rho_{S}}#right)_{j}");
+  //corrglobalchi2->GetYaxis()->SetTitle("#chi^{2}_{Tot}=#sum_{i,j}^{bin 2,4} #delta#left(#frac{1}{#sigma} #frac{d#sigma}{d#rho_{S}}#right)_{i}#upoint COV_{ij}^{ -1} #upoint #delta#left(#frac{1}{#sigma} #frac{d#sigma}{d#rho_{S}}#right)_{j}");
   corrglobalchi2->GetYaxis()->SetTitle("#chi^{2}_{Tot}");
-  //TString label="#splitline{#chi^{2}_{Tot}(m_{top})=#sum_{i,j}^{bin 2,4}#Deltax_{i}(m_{top})#upointCOV_{ij}^{ -1}#upoint#Deltax_{j}(m_{top})}{#Deltax=#left(#frac{1}{#sigma} #frac{d#sigma}{d#rho_{S}}#right)_{data}(m_{top}) - #left( #frac{1}{#sigma} #frac{d#sigma}{d#rho_{S}} #right)_{prediction}(m_{top})}";
-  //TString label="#splitline{#chi^{2}_{Tot}=#sum_{i,j}^{bin 2,4}#Deltax_{i}#upointCOV_{ij}^{ -1}#upoint#Deltax_{j}}{#Deltax=#left(#frac{1}{#sigma} #frac{d#sigma}{d#rho_{S}}#right)_{data} - #left( #frac{1}{#sigma} #frac{d#sigma}{d#rho_{S}} #right)_{prediction}}";
-  TString label ="#chi^{2}_{Tot} =#sum_{bin i,j}^{i,j#in(2,4)}#Deltax_{i} #upoint #left(#font[22]{COV^{-1}_{data}}#right)_{ij} #upoint #Deltax_{j}";
-  TString label2="#Deltax_{i} = #left(#frac{1}{#sigma} #frac{d#sigma}{d#rho_{S}}#right)_{data}^{bin i} - #left( #frac{1}{#sigma} #frac{d#sigma}{d#rho_{S}} #right)_{prediction}^{bin i}";
+  //TString label="#splitline{#chi^{2}_{Tot}(m_{top})=#sum_{i,j}^{bin 2,4}#deltax_{i}(m_{top})#upointCOV_{ij}^{ -1}#upoint#deltax_{j}(m_{top})}{#deltax=#left(#frac{1}{#sigma} #frac{d#sigma}{d#rho_{S}}#right)_{data}(m_{top}) - #left( #frac{1}{#sigma} #frac{d#sigma}{d#rho_{S}} #right)_{prediction}(m_{top})}";
+  //TString label="#splitline{#chi^{2}_{Tot}=#sum_{i,j}^{bin 2,4}#deltax_{i}#upointCOV_{ij}^{ -1}#upoint#deltax_{j}}{#deltax=#left(#frac{1}{#sigma} #frac{d#sigma}{d#rho_{S}}#right)_{data} - #left( #frac{1}{#sigma} #frac{d#sigma}{d#rho_{S}} #right)_{prediction}}";
+  TString label ="#chi^{2}_{Tot} =#sum_{bin i,j}^{i,j#in(2,4)}#deltax_{i} #upoint #left(#font[22]{COV^{-1}_{data}}#right)_{ij} #upoint #deltax_{j}";
+  TString label2="#deltax_{i} = #left(#frac{1}{#sigma} #frac{d#sigma}{d#rho_{S}}#right)_{data}^{bin i} - #left( #frac{1}{#sigma} #frac{d#sigma}{d#rho_{S}} #right)_{prediction}^{bin i}";
   corrglobalchi2->GetYaxis()->SetTitleSize(0.045);
   corrglobalchi2->GetXaxis()->SetRangeUser(minx3, maxx3);
   corrglobalchi2->SetMaximum(4.);
@@ -399,7 +399,7 @@ void extractTopMassFromRhoS(int verbose=0, double luminosity=19712., bool save=t
     plotCanvas_[plotCanvas_.size()-1]->SetName (titlechi2corrAll);
     plotCanvas_[plotCanvas_.size()-1]->SetTitle(titlechi2corrAll);
     //corrglobalchi2All->GetYaxis()->SetTitle("#splitline{global  #chi^{2} = }{#Sigma_{#splitline{ all}{bins}} (x^{pred}_{bin i}-x^{meas}_{bin i})#upointCOV_{ij}^{ -1}#upoint(x^{pred}_{bin j}-x^{meas}_{bin j})}");
-    //corrglobalchi2All->GetYaxis()->SetTitle("#chi^{2}_{Tot}=#sum_{i,j}^{all bins} #Delta#left(#frac{1}{#sigma} #frac{d#sigma}{d#rho_{S}}#right)_{i}#upoint COV_{ij}^{ -1} #upoint #Delta#left(#frac{1}{#sigma} #frac{d#sigma}{d#rho_{S}}#right)_{j}");
+    //corrglobalchi2All->GetYaxis()->SetTitle("#chi^{2}_{Tot}=#sum_{i,j}^{all bins} #delta#left(#frac{1}{#sigma} #frac{d#sigma}{d#rho_{S}}#right)_{i}#upoint COV_{ij}^{ -1} #upoint #delta#left(#frac{1}{#sigma} #frac{d#sigma}{d#rho_{S}}#right)_{j}");
     TString label3=label;
     label3.ReplaceAll("{bin i,j}", "{bin i,j=1}");
     label3.ReplaceAll("i,j#in(2,4)", "4");
@@ -471,8 +471,8 @@ void extractTopMassFromRhoS(int verbose=0, double luminosity=19712., bool save=t
     legScan->Draw("same");
     double ratMin=0.1;
     double ratMax=4.9;
-    drawRatio(CorrScanErrUpAbs, CorrScanMin     , ratMin, ratMax, myStyle, verbose-1, std::vector<double>(0), "#lower[0.12]{#frac{#Delta m_{top}}{m_{top}} [%]}", "", "p X0"     , CorrScanErrUpAbs->GetMarkerColor(), false, CorrScanErrUpAbs->GetMarkerSize(), 505, false, false);
-    drawRatio(CorrScanErrDnAbs, CorrScanMin     , ratMin, ratMax, myStyle, verbose-1, std::vector<double>(0), "#lower[0.12]{#frac{#Delta m_{top}}{m_{top}} [%]}", "", "p X0 same", CorrScanErrDnAbs->GetMarkerColor(), false, CorrScanErrDnAbs->GetMarkerSize(), 505, false, false);
+    drawRatio(CorrScanErrUpAbs, CorrScanMin     , ratMin, ratMax, myStyle, verbose-1, std::vector<double>(0), "#lower[0.12]{#frac{#delta m_{top}}{m_{top}} [%]}", "", "p X0"     , CorrScanErrUpAbs->GetMarkerColor(), false, CorrScanErrUpAbs->GetMarkerSize(), 505, false, false);
+    drawRatio(CorrScanErrDnAbs, CorrScanMin     , ratMin, ratMax, myStyle, verbose-1, std::vector<double>(0), "#lower[0.12]{#frac{#delta m_{top}}{m_{top}} [%]}", "", "p X0 same", CorrScanErrDnAbs->GetMarkerColor(), false, CorrScanErrDnAbs->GetMarkerSize(), 505, false, false);
     drawLine(corr_[0], ratMin, corr_[0], ratMax, 12, 2, 2);
     tempCanv->cd(0);
     tempCanv->Draw();
