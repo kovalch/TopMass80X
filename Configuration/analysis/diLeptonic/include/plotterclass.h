@@ -134,7 +134,7 @@ private:
     void setResultRatioRanges(double &ymin, double &ymax);
 
     /// Set style of result and control plot legend
-    void setResultLegendStyle(TLegend *leg);
+    void setResultLegendStyle(TLegend *leg, const bool result = 1);
     void setControlPlotLegendStyle(std::vector<TH1*> drawhists, std::vector<TString> legends, TLegend *leg);
 
 };

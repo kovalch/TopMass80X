@@ -2172,7 +2172,7 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
     leg3->AddEntry(grE, "Efficiency", "p" );
     leg3->AddEntry(grP, "Purity",    "p" );
     leg3->AddEntry(grS, "Stability", "p" );
-    setResultLegendStyle(leg3);
+    setResultLegendStyle(leg3, 0);
     leg3->Draw("SAME");
 
     TString outdir = common::assignFolder(outpathPlots, Channel, TString("FinalResults"));
@@ -2689,15 +2689,7 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
             TitBin  = "";
        }
     }
-    madgraphhistBinned->GetXaxis()->SetTitleOffset(varhists[0]->GetXaxis()->GetTitleOffset());
-    madgraphhistBinned->GetXaxis()->SetTitle(varhists[0]->GetXaxis()->GetTitle());
-    madgraphhistBinned->GetYaxis()->SetTitleOffset(varhists[0]->GetYaxis()->GetTitleOffset());
-    madgraphhistBinned->GetYaxis()->SetTitle(varhists[0]->GetYaxis()->GetTitle());
-    madgraphhistBinned->Draw();
-    madgraphhistBinned->GetXaxis()->SetTitleOffset(varhists[0]->GetXaxis()->GetTitleOffset());
-    madgraphhistBinned->GetXaxis()->SetTitle(varhists[0]->GetXaxis()->GetTitle());
-    madgraphhistBinned->GetYaxis()->SetTitleOffset(varhists[0]->GetYaxis()->GetTitleOffset());
-    madgraphhistBinned->GetYaxis()->SetTitle(h_DiffXSec->GetYaxis()->GetTitle());
+
 
     if (ymax!=0) madgraphhistBinned->SetMaximum(ymax);
     gStyle->SetEndErrorSize(8);
@@ -2758,6 +2750,8 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
 //     if(ratio_tota) leg2->AddEntry(ratio_tota, "Stat. #oplus Syst.", "f");
     setTheoryStyleAndFillLegend(madgraphhist, "madgraph");
     setTheoryStyleAndFillLegend(madgraphhistBinned, "madgraph", leg2);
+    madgraphhistBinned->GetXaxis()->SetTitle(varhists[0]->GetXaxis()->GetTitle());
+    madgraphhistBinned->GetYaxis()->SetTitle(varhists[0]->GetYaxis()->GetTitle());
     madgraphhistBinned->Draw();
 
     if (drawNLOCurves && drawMCATNLO) {
@@ -3264,7 +3258,7 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
     leg3->AddEntry(grE, "Efficiency", "p" );
     leg3->AddEntry(grP, "Purity",    "p" );
     leg3->AddEntry(grS, "Stability", "p" );
-    setResultLegendStyle(leg3);
+    setResultLegendStyle(leg3, 0);
     leg3->Draw("SAME");
 
     TString outdir = common::assignFolder(outpathPlots, Channel, Systematic);
@@ -3595,7 +3589,6 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
     }
     madgraphhistBinned->GetXaxis()->SetNoExponent(kTRUE);
     if (name.Contains("Rapidity") || name.Contains("Eta")){madgraphhistBinned->GetYaxis()->SetNoExponent(kTRUE);}
-    madgraphhistBinned->Draw();
     if (ymax!=0) madgraphhistBinned->SetMaximum(ymax);
 
     gStyle->SetEndErrorSize(8);
@@ -3612,11 +3605,6 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
     GenPlotTheory->SetLineStyle(1);
     h_GenDiffXSec->SetLineColor(GenPlotTheory->GetLineColor());
     h_GenDiffXSec->SetLineStyle(GenPlotTheory->GetLineStyle());
-
-    madgraphhistBinned->GetXaxis()->SetTitleOffset(varhists[0]->GetXaxis()->GetTitleOffset());
-    madgraphhistBinned->GetXaxis()->SetTitle(varhists[0]->GetXaxis()->GetTitle());
-    madgraphhistBinned->GetYaxis()->SetTitleOffset(varhists[0]->GetYaxis()->GetTitleOffset());
-    madgraphhistBinned->GetYaxis()->SetTitle(h_DiffXSec->GetYaxis()->GetTitle());
 
     // Plot statistical and totl error of full result
     TGraphAsymmErrors *ratio_stat = 0;
@@ -3647,6 +3635,8 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
 
     setTheoryStyleAndFillLegend(madgraphhist, "madgraph");
     setTheoryStyleAndFillLegend(madgraphhistBinned, "madgraph", leg2);
+    madgraphhistBinned->GetXaxis()->SetTitle(varhists[0]->GetXaxis()->GetTitle());
+    madgraphhistBinned->GetYaxis()->SetTitle(varhists[0]->GetYaxis()->GetTitle());
     madgraphhistBinned->Draw();
 
     TH1* realTruthBinned = nullptr;
@@ -4188,27 +4178,28 @@ void Plotter::setResultRatioRanges(double &ymin, double &ymax)
 //     }
 }
 
-void Plotter::setResultLegendStyle(TLegend *leg)
+void Plotter::setResultLegendStyle(TLegend *leg, const bool result)
 {
     double x1 = 0.560, y1 = 0.655;
     double height = 0.175, width = 0.275;
-
-    if(name.Contains("Eta") || name.Contains("TTBarRapidity") ){
-        x1 = 0.4;
-        y1 = 0.39;
-    }
-    if(name.Contains("TopRapidity") || name.Contains("HypTTBarDeltaRapidity")){
-        x1 = 0.4;
-        y1 = 0.39;
-        height += 0.045;
-    }
-    if(name.Contains("DeltaPhi")){
-        x1 = 0.4;
-        y1 = 0.56;
-    }
-    if(name.Contains("TTBarpT") || name.Contains("TTBarMass") || name.Contains("ToppT")){
-        height += 0.045;
-        y1 -= 0.045;
+    if(result){
+        if(name.Contains("Eta") || name.Contains("TTBarRapidity") ){
+            x1 = 0.4;
+            y1 = 0.39;
+        }
+        if(name.Contains("TopRapidity") || name.Contains("HypTTBarDeltaRapidity")){
+            x1 = 0.4;
+            y1 = 0.39;
+            height += 0.045;
+        }
+        if(name.Contains("DeltaPhi")){
+            x1 = 0.4;
+            y1 = 0.56;
+        }
+        if(name.Contains("TTBarpT") || name.Contains("TTBarMass") || name.Contains("ToppT")){
+            height += 0.045;
+            y1 -= 0.045;
+        }
     }
     leg->SetX1NDC(x1);
     leg->SetY1NDC(y1);
@@ -4256,6 +4247,7 @@ void Plotter::setControlPlotLegendStyle(std::vector< TH1* > drawhists, std::vect
     leg->SetY1NDC(1.00 - gStyle->GetPadTopMargin() - gStyle->GetTickLength() - 0.05 - 0.03 * leg->GetNRows());
     leg->SetX2NDC(1.00 - gStyle->GetPadRightMargin() - gStyle->GetTickLength());
     leg->SetY2NDC(1.00 - gStyle->GetPadTopMargin() - 0.8 * gStyle->GetTickLength());
+
     leg->SetTextFont(42);
     leg->SetTextSize(0.035);
     leg->SetFillStyle(0);
@@ -4503,65 +4495,68 @@ double Plotter::CalculateIntegral(TGraphAsymmErrors *tga_DiffXSecPlot, double Xb
 
 
 void Plotter::setTheoryStyleAndFillLegend(TH1* histo, TString theoryName, TLegend *leg){
+
+    histo->GetXaxis()->SetTitleOffset(1.0);
+    histo->GetYaxis()->SetTitleOffset(1.7);
+    histo->GetXaxis()->SetTitleSize(0.05);
+    histo->GetYaxis()->SetTitleSize(0.05);
+    histo->GetXaxis()->SetLabelFont(42);
+    histo->GetYaxis()->SetLabelFont(42);
+    histo->GetXaxis()->SetLabelOffset(0.007);
+    histo->GetYaxis()->SetLabelOffset(0.007);
+    histo->GetXaxis()->SetLabelSize(0.04);
+    histo->GetYaxis()->SetLabelSize(0.04);
+    histo->SetLineWidth(2);
+
     if(theoryName == "madgraph"){
         histo->SetLineColor(kRed+1);
         histo->SetLineStyle(1);
-        histo->SetLineWidth(2);
         if(leg) leg->AddEntry(histo, "MadGraph+Pythia",  "l");
     }
     if(theoryName == "powhegpythia"){
         histo->SetLineColor(kGreen+1);
         histo->SetLineStyle(7);
-        histo->SetLineWidth(2);
         if(leg) leg->AddEntry(histo, "Powheg+Pythia",  "l");
     }
     if(theoryName == "powhegherwig"){
         histo->SetLineColor(kGreen+3);
         histo->SetLineStyle(4);
-        histo->SetLineWidth(2);
         if(leg) leg->AddEntry(histo, "Powheg+Herwig",  "l");
     }
     if(theoryName == "mcatnloherwig"){
         histo->SetLineColor(kBlue);
         histo->SetLineStyle(5);
-        histo->SetLineWidth(2);
         if(leg) leg->AddEntry(histo, "MC@NLO+Herwig",  "l");
     }
     if(theoryName == "ahrens"){
         histo->SetLineColor(kMagenta+2);
         histo->SetLineStyle(10);
-        histo->SetLineWidth(2);
         if(leg) leg->AddEntry(histo, "NLO+NNLL",  "l");
     }
     if(theoryName == "kidonakis"){
         histo->SetLineColor(kOrange+4);
         histo->SetLineStyle(2);
-        histo->SetLineWidth(2);
         if(leg) leg->AddEntry(histo, "Approx. NNLO",  "l");
     }
     if(theoryName == "scaleup" || theoryName == "mass181"){
-        histo->SetLineWidth(2);
         histo->SetLineStyle(2);
         histo->SetLineColor(kAzure+2);
         if(leg && theoryName == "scaleup") leg->AddEntry(histo,"4*Q^{2}",  "l");
         if(leg && theoryName == "mass181") leg->AddEntry(histo,"Mass = 181 GeV",  "l");
     }
     if(theoryName == "scaledown" || theoryName == "mass169"){
-        histo->SetLineWidth(2);
         histo->SetLineStyle(2);
         histo->SetLineColor(8);
         if(leg && theoryName == "scaledown") leg->AddEntry(histo,"Q^{2}/4",  "l");
         if(leg && theoryName == "mass169")   leg->AddEntry(histo,"Mass = 169 GeV",  "l");
     }
     if(theoryName == "matchup" || theoryName == "mass175"){
-        histo->SetLineWidth(2);
         histo->SetLineStyle(7);
         histo->SetLineColor(kPink-7);
         if(leg && theoryName == "matchup") leg->AddEntry(histo,"Matching up",  "l");
         if(leg && theoryName == "mass175") leg->AddEntry(histo,"Mass = 175 GeV",  "l");
     }
     if(theoryName == "matchdown" || theoryName == "mass163"){
-        histo->SetLineWidth(2);
         histo->SetLineStyle(7);
         histo->SetLineColor(kRed-7);
         if(leg && theoryName == "matchdown") leg->AddEntry(histo,"Matching down",  "l");
