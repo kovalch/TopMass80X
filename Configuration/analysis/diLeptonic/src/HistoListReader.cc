@@ -33,14 +33,16 @@ HistoListReader::HistoListReader(const char* filename) :
         if (line.size() == 0 || line[0] == '#') continue;
         
         PlotProperties m;
+        std::string dummy;
+        std::ostringstream combined;
         std::stringstream linestream(line);
 //        # Name, Extra, axis labels (y,x), rebin, do_dyscale, logx, logy, ymin, ymax, xmin, xmax, nbins, xbins, bcs
         linestream 
             >> m.name
-            >> m.specialComment
-            >> m.ytitle
-            >> m.xtitle
-            >> m.rebin
+            >> m.specialComment;
+            readString(linestream, m.ytitle);
+            readString(linestream, m.xtitle);
+            linestream >> m.rebin
             >> m.do_dyscale
             >> m.logX
             >> m.logY
@@ -89,6 +91,35 @@ HistoListReader::HistoListReader(const char* filename) :
             << std::endl; 
             exit(981);
         }
+    }
+}
+
+void HistoListReader::readString(std::stringstream &input, TString &output)const
+{
+    std::string dummy;
+    std::stringstream combined;
+
+    input >> dummy;
+
+    if(dummy.size() > 0 && dummy[0] == '"'){
+        dummy.erase(0,1);
+        if(dummy.size() ==0) input >> dummy;
+        int nTokens =0;
+        while(dummy[dummy.size()-1] != '"' && !input.eof())
+        {
+            if (nTokens++ > 0) combined << " ";
+            combined << dummy;
+            input >> dummy;
+        }
+        if(dummy[dummy.size()-1] == '"')
+        {
+            dummy.erase(dummy.size()-1);
+        }
+        if (nTokens++ > 0) combined << " ";
+        combined << dummy;
+        output = combined.str();
+    } else {
+        output = dummy;
     }
 }
 
