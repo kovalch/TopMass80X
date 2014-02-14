@@ -137,6 +137,9 @@ private:
     void setResultLegendStyle(TLegend *leg, const bool result = 1);
     void setControlPlotLegendStyle(std::vector<TH1*> drawhists, std::vector<TString> legends, TLegend *leg);
 
+    /// boolean to decide to add or not the QCD background to the control plot
+    bool addQCDToControlPlot()const;
+
 };
 
 #endif

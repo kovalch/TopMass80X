@@ -636,8 +636,8 @@ void Plotter::setOptions(TString name_, TString specialComment_, TString YAxis_,
     if(XAxis.Contains("l^{+}andl^{-}")){//Histogram naming convention has to be smarter
         XAxis.ReplaceAll("l^{+}andl^{-}",13,"l^{+} and l^{-}",15);
     }
-    if(XAxis.Contains("p_{T}^{t}(t#bar{t}R.F.)")){//Histogram naming convention has to be smarter
-        XAxis.ReplaceAll("p_{T}^{t}(t#bar{t}R.F.)",23,"p_{T}^{t}(t#bar{t} Rest Frame)",30);
+    if(XAxis.Contains("p_{T}^{t}(t#bar{t}c.o.m.)")){//Histogram naming convention has to be smarter
+        XAxis.ReplaceAll("p_{T}^{t}(t#bar{t}c.o.m.)",25,"p_{T}^{t}(t#bar{t} c.o.m.)",26);
     }
     if(YAxis.Contains("Toppairs")){
         YAxis.ReplaceAll("Toppairs",8,"Top-quark pairs",15);
@@ -925,7 +925,6 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
     TH1* aGenHist = NULL; 
     TH1* aRespHist = NULL;
 
-
     double Xbins[XAxisbins.size()];
     TString newname = name;
 
@@ -1008,7 +1007,6 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
         if(i > 1){
             if(legends.at(i) != legends.at(i-1)){
                 legchange = i;
-                if(legends.at(i).Contains("QCD")) continue;
                 if((legends.at(i) == DYEntry)&& DYScale[channelType] != 1) leg->AddEntry(drawhists[i], legends.at(i),"f");
                 else leg->AddEntry(drawhists[i], legends.at(i) ,"f");
             }else{
@@ -1022,16 +1020,16 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
         }else{
             drawhists[i]->SetLineColor(1);
         }
-        if(legends.at(i) != legends.at(i-1) && !legends.at(i).Contains("QCD")){
-
+        if(legends.at(i) != legends.at(i-1) ){
             drawhists[i]->SetLineColor(1);
-            stack->Add(drawhists[i]); 
+            if(!legends.at(i).Contains("QCD") || addQCDToControlPlot()){stack->Add(drawhists[i]);};
+
         }
     }
     else{
         if(i==0) leg->AddEntry(drawhists[i], legends.at(i) ,"pe");
         if(i>0){
-            if(legends.at(i) != legends.at(i-1) && !legends.at(i).Contains("QCD")){
+            if(legends.at(i) != legends.at(i-1)){
                 leg->AddEntry(drawhists[i], legends.at(i) ,"pe");
             }
             if(legends.at(i) == legends.at(0)){
@@ -1127,13 +1125,13 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
     DrawCMSLabels(1, 8);
     DrawDecayChLabel(channelLabel[channelType]);
 
-    TString legtit = "";
     if(name.Contains("JetMult")) {
+        TString legtit = "";
         if(name.Contains("pt60")) legtit += "p_{T}^{jet}> 60 GeV";
         else if(name.Contains("pt100")) legtit += "p_{T}^{jet}> 100 GeV";
         else legtit += "p_{T}^{jet}> 30 GeV";
+        leg->SetHeader(legtit);
     }
-    leg->SetHeader(legtit);
     leg->Draw("SAME");
 
     if(drawPlotRatio){
@@ -2058,7 +2056,6 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
                 stack->Add(varhistsPlotting[i]);
             }
             if(i > 1){
-                if(legends.at(i).Contains("QCD")) continue;
                 if(legends.at(i) != legends.at(i-1)){
                     legchange = i;
                     if( (legends.at(i) == DYEntry) && DYScale[channelType]!= 1){
@@ -3123,7 +3120,6 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
         setStyle(varhists[i], i);
         varhistsPlotting[i]=(TH1*)varhists[i]->Clone();
         if(legends.at(i) != "Data"){
-            if(legends.at(i).Contains("QCD")) continue;
             if((legends.at(i) == DYEntry) && channelType!=2){
                 varhists[i]->Scale(DYScale[channelType]);
                 varhistsPlotting[i]->Scale(DYScale[channelType]);
@@ -4226,10 +4222,9 @@ void Plotter::setControlPlotLegendStyle(std::vector< TH1* > drawhists, std::vect
     OrderedLegends.push_back("Z / #gamma* #rightarrow #tau#tau");
     OrderedLegends.push_back("Diboson");
     OrderedLegends.push_back("QCD Multijet");
-      
+
     leg->Clear();
     for(size_t i=0; i<OrderedLegends.size(); ++i){
-        if(OrderedLegends.at(i) == "QCD Multijet") continue;
         for(size_t j=0; j<drawhists.size(); ++j){
             if (OrderedLegends[i] == legends[j]){
                 if( OrderedLegends[i] == "Data"){
@@ -4564,3 +4559,13 @@ void Plotter::setTheoryStyleAndFillLegend(TH1* histo, TString theoryName, TLegen
     }
 }
 
+bool Plotter::addQCDToControlPlot()const
+{
+    if( name.Contains("_step2") || name.Contains("_step3") || name.Contains("_step4") || name.Contains("_step5") || name.Contains("_step6") || name.Contains("_step7") ||
+        name.Contains("_noBTag") || name.Contains("_diLep") || name.Contains("Electron") || name.Contains("Muon") || name == "MET" ||
+        (!name.Contains("Hyp") && (name.Contains("jetpT") || name.Contains("jetHT")) ))
+       {
+            return 1;
+        }
+    return 0;
+}
