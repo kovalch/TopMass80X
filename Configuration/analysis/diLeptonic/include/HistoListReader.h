@@ -50,6 +50,11 @@ public:
     //auto end() -> decltype(plots_.end()) { return plots_.end(); }
     std::map <TString, PlotProperties >::iterator begin()  { return plots_.begin(); }
     std::map <TString, PlotProperties >::iterator end()  { return plots_.end(); }
+
+private:
+
+    /// Read string and keep blank spaces if string starts with quotes  "... ..."
+    void readString(std::stringstream &input, TString &output)const;
 };
 
 #endif

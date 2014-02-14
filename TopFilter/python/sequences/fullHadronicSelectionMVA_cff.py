@@ -161,7 +161,7 @@ trigger = hltHighLevel.clone( HLTPaths = [ #2010 trigger ('v*' to be immune to v
                                          #2011 1E33-2E33 trigger ('v*' to be immune to version changes)
                                          , 'HLT_QuadJet50_Jet40_Jet30_v*'
                                          #2012 5E33 trigger ('v*' to be immune to version changes)
-                                         , 'HLT_QuadJet50_v*'] ##TEST
+                                         , 'HLT_QuadJet50_v*']
                                          #, 'HLT_QuadJet60_DiJet20_v*'
                                          #, 'HLT_QuadJet60_DiJet20_L1FastJet_v*']
                              , throw = False)

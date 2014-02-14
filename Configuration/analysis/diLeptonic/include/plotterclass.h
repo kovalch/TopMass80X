@@ -52,9 +52,6 @@ public:
     void PrintResultTotxtFile(TString, double[], TGraphAsymmErrors *, TGraphAsymmErrors *);
     void CalcUpDownDifference ( TString Channel, TString Syst_Up, TString Syst_Down, TString Variable);
 
-    TLegend* getNewLegend();
-    TLegend* getNewLegendpre();
-
     TH1* GetNloCurve(const char *particle, const char *quantity, const char *generator);
     TH1* GetNloCurve(TString NewName, TString Generator);
     TH1* GetNloCurveMass(TString NewName, TString Generator, TString Mass);
@@ -71,7 +68,6 @@ public:
     // DAVID
     void UnfoldingOptions(bool doSVD);
     void SetOutpath(TString path); 
-    void ControlLegend(std::vector<TH1*> drawhists, std::vector<TString> legends, TLegend *leg);
     void DrawLabel(TString text, const double x1, const double y1, const double x2, const double y2, int centering, double textSize);
 
     double CalculateIntegral(TGraphAsymmErrors *tga_DiffXSecPlot, double Xbins[]);
@@ -130,6 +126,19 @@ private:
     RootFileReader *fileReader;
     void DrawDecayChLabel(TString decaychannel="", double textSize=0.04);
     void DrawCMSLabels(int cmsprelim=true, double energy=8, double textSize=0.04);
+    
+    /// Define members and enums for theory curves style properties
+    void setTheoryStyleAndFillLegend(TH1 *histo, TString theoryName, TLegend *leg = 0);
+    
+    /// Set yaxis range of ratio plot of the result
+    void setResultRatioRanges(double &ymin, double &ymax);
+
+    /// Set style of result and control plot legend
+    void setResultLegendStyle(TLegend *leg, const bool result = 1);
+    void setControlPlotLegendStyle(std::vector<TH1*> drawhists, std::vector<TString> legends, TLegend *leg);
+
+    /// boolean to decide to add or not the QCD background to the control plot
+    bool addQCDToControlPlot()const;
 
 };
 

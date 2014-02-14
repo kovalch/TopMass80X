@@ -100,7 +100,7 @@ TCanvas* getRatio(TString plotName, int verbose, TString outputFile){
     hist_.push_back( killEmptyBins(plotmcatnloerror2, verbose) );
   }
   // a1) Ahrens
-  if(finalNNLO&&plotName.Contains("ttbarMass")) hist_.push_back(finalNNLO);
+  if(finalNNLO&&(plotName.Contains("ttbarMass")||plotName.Contains("ttbarPt"))) hist_.push_back(finalNNLO);
   // c) MC theories
   if(plotMadGraph    ) hist_.push_back( killEmptyBins(plotMadGraph    , verbose) );
   if(plotmcatnlo     ) hist_.push_back( killEmptyBins(plotmcatnlo     , verbose) );
@@ -159,12 +159,12 @@ TCanvas* getRatio(TString plotName, int verbose, TString outputFile){
   if(plotName.Contains("rhos"     )){min=0.1 ;max=1.9; }
   if(plotName.Contains("lbMass"   )){min=0.7 ;max=1.35;}
   if(plotName.Contains("topPt"    )){
-    if(     plotName.Contains("Sub" )){min=0.7 ;max=1.7;}
-    else if(plotName.Contains("Lead")){min=0.8 ;max=1.5;}
+    if(     plotName.Contains("Sub" )){min=0.7 ;max=1.6;}
+    else if(plotName.Contains("Lead")){min=0.7 ;max=1.6;}
     else                              {min=0.75;max=1.59;}
   }
   if(plotName.Contains("topY"       )){min=0.85;max=1.15;}
-  if(plotName.Contains("ttbarPt"    )){min=0.7 ;max=1.3; }
+  if(plotName.Contains("ttbarPt"    )){min=0.5 ;max=1.39; }
   if(plotName.Contains("ttbarY"     )){min=0.8 ;max=1.29;}
   if(plotName.Contains("ttbarMass"  )){min=0.7 ;max=1.5; }
   if(plotName.Contains("topPtTtbar" )){min=0.6 ;max=1.79;}
