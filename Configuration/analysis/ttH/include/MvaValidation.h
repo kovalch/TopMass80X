@@ -130,8 +130,8 @@ private:
 
     void fillWeightHistos(const MvaTopJetsVariablesPerEvent& mvaTopJetsVariablesPerEvent,
                           const std::vector<float>& v_mvaWeight, const size_t maxWeightIndex,
-                          const double& weight,
-                          std::map<TString, TH1*>& m_histogram,
+                          const double& weight, const tth::RecoObjectIndices& recoObjectIndices,
+                          const tth::GenObjectIndices& genObjectIndices, std::map<TString, TH1*>& m_histogram,
                           const TString& mvaType, const std::string& mvaConfigName1, const std::string& mvaConfigName2 ="");
 
     void fillBestWeightHistos(const std::vector<float>& v_mvaWeights,

@@ -50,6 +50,7 @@ AnalysisHistogramsBase("mvaA_", selectionStepsNoCategories, stepsForCategories, 
 
         TString objName ( key->GetName() );
         if(!objName.BeginsWith("correct_")) continue;
+//         if(!objName.Contains("cate0")) continue;
 
         // Extracting the name of the step (substring from 8-th character to the end)
         std::string stepName(objName.Data(), 8, objName.Length());     // Synchronized with the length of "correct_"
@@ -176,17 +177,23 @@ void MvaValidation::bookMvaSpecificHistos(const TString& step, std::map<TString,
     const double mvaWeightHigh = mvaType=="combined" ? 1. : 0.2;
 
     name = "mvaWeight"+mvaTypeC+mvaConfigName;
-    this->bookHistosInclExcl(m_histogram, prefix_, step, name, name+"mvaWeight_{"+mvaType+"};w_{MVA}^{"+mvaType+"};# jet pairs", 80, mvaWeightLow, mvaWeightHigh);
+    this->bookHistosInclExcl(m_histogram, prefix_, step, name, "mvaWeight_{"+mvaType+"};w_{MVA}^{"+mvaType+"};# jet pairs", 80, mvaWeightLow, mvaWeightHigh);
 
     name = "mvaWeight"+mvaTypeC+"_best"+mvaTypeC+mvaConfigName;
-    this->bookHistosInclExcl(m_histogram, prefix_, step, name, name+"best mvaWeight_{"+mvaType+"};w_{MVA,1}^{"+mvaType+"};# events", 80, mvaWeightLow, mvaWeightHigh);
+    this->bookHistosInclExcl(m_histogram, prefix_, step, name, "best mvaWeight_{"+mvaType+"};w_{MVA,1}^{"+mvaType+"};# events", 80, mvaWeightLow, mvaWeightHigh);
+    
+    name = "mvaWeight"+mvaTypeC+"_TopPairMinusHiggsPair"+mvaConfigName;
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "mvaWeight_{"+mvaType+"}^{top} - mvaWeight_{"+mvaType+"}^{higgs};w_{top}^{"+mvaType+"} - w_{higgs}^{"+mvaType+"};# events", 80, -1.2, 1.2));
+    
+    name = "mvaWeight"+mvaTypeC+"_TopPairVsHiggsPair"+mvaConfigName;
+    m_histogram[name] = this->store(new TH2D(prefix_+name+step, "mvaWeightTopPairVsHiggsPair;w_{MVA}^{top};w_{MVA}^{higgs}", 80, mvaWeightLow, mvaWeightHigh, 40, mvaWeightLow, mvaWeightHigh));
 
     if(mvaType == "combined"){
         name = "mvaWeightCorrectVsSwapped"+mvaConfigName;
-        this->bookHistosInclExcl2D(m_histogram, prefix_, step, name, name+"mvaWeightCorrectVsSwapped;w_{MVA}^{correct};w_{MVA}^{swapped}", 40, -1.2, 0.2, 40, -1.2, 0.2);
+        this->bookHistosInclExcl2D(m_histogram, prefix_, step, name, "mvaWeightCorrectVsSwapped;w_{MVA}^{correct};w_{MVA}^{swapped}", 40, -1.2, 0.2, 40, -1.2, 0.2);
 
         name = "mvaWeightCorrectVsSwapped_bestCorrectBestSwapped"+mvaConfigName;
-        this->bookHistosInclExcl2D(m_histogram, prefix_, step, name, name+"mvaWeightCorrectVsSwapped for best Correct pair;w_{MVA,1}^{correct};w_{MVA,1}^{swapped}", 40, -1.2, 0.2, 40, -1.2, 0.2);
+        this->bookHistosInclExcl2D(m_histogram, prefix_, step, name, "mvaWeightCorrectVsSwapped for best Correct pair;w_{MVA,1}^{correct};w_{MVA,1}^{swapped}", 40, -1.2, 0.2, 40, -1.2, 0.2);
     }
 
 
@@ -281,9 +288,9 @@ void MvaValidation::fillHistosPerSet(const RecoObjects& recoObjects, const Commo
         const std::vector<float>& v_mvaWeight = mvaWeights.second;
         const size_t maxWeightIndex = mvaTopJetsVariablesPerEvent.maxWeightCorrectIndex(mvaConfigName);
 
-        this->fillWeightHistos(mvaTopJetsVariablesPerEvent, v_mvaWeight, maxWeightIndex, weight, m_histogram,
+        this->fillWeightHistos(mvaTopJetsVariablesPerEvent, v_mvaWeight, maxWeightIndex, weight, recoObjectIndices, genObjectIndices, m_histogram,
                                "Correct", mvaConfigName);
-       this->fillBestWeightHistos(v_mvaWeight, recoObjects, recoObjectIndices, genObjectIndices, weight, m_histogram,
+        this->fillBestWeightHistos(v_mvaWeight, recoObjects, recoObjectIndices, genObjectIndices, weight, m_histogram,
                                   "Correct", "_"+mvaConfigName);
     }
 
@@ -293,7 +300,7 @@ void MvaValidation::fillHistosPerSet(const RecoObjects& recoObjects, const Commo
         const std::vector<float>& v_mvaWeight = mvaWeights.second;
         const size_t maxWeightIndex = mvaTopJetsVariablesPerEvent.maxWeightSwappedIndex(mvaConfigName);
 
-        this->fillWeightHistos(mvaTopJetsVariablesPerEvent, v_mvaWeight, maxWeightIndex, weight, m_histogram,
+        this->fillWeightHistos(mvaTopJetsVariablesPerEvent, v_mvaWeight, maxWeightIndex, weight, recoObjectIndices, genObjectIndices, m_histogram,
                                "Swapped", mvaConfigName);
         this->fillBestWeightHistos(v_mvaWeight, recoObjects, recoObjectIndices, genObjectIndices, weight, m_histogram,
                                    "Swapped", "_"+mvaConfigName);
@@ -308,7 +315,7 @@ void MvaValidation::fillHistosPerSet(const RecoObjects& recoObjects, const Commo
             const std::vector<float>& v_mvaWeight = mvaWeights2.second;
             const size_t maxWeightIndex = mvaTopJetsVariablesPerEvent.maxWeightCombinedIndex(mvaConfigName1, mvaConfigName2);
 
-            this->fillWeightHistos(mvaTopJetsVariablesPerEvent, v_mvaWeight, maxWeightIndex, weight, m_histogram,
+            this->fillWeightHistos(mvaTopJetsVariablesPerEvent, v_mvaWeight, maxWeightIndex, weight, recoObjectIndices, genObjectIndices, m_histogram,
                                    "Combined", mvaConfigName1, mvaConfigName2);
             this->fillBestWeightHistos(v_mvaWeight, recoObjects, recoObjectIndices, genObjectIndices, weight, m_histogram,
                                        "Combined", "_"+mvaConfigName1+"_"+mvaConfigName2);
@@ -320,19 +327,27 @@ void MvaValidation::fillHistosPerSet(const RecoObjects& recoObjects, const Commo
 
 void MvaValidation::fillWeightHistos(const MvaTopJetsVariablesPerEvent& mvaTopJetsVariablesPerEvent,
                                      const std::vector<float>& v_mvaWeight, const size_t maxWeightIndex,
-                                     const double& weight,
-                                     std::map<TString, TH1*>& m_histogram,
+                                     const double& weight, const tth::RecoObjectIndices& recoObjectIndices, 
+                                     const tth::GenObjectIndices& genObjectIndices, std::map<TString, TH1*>& m_histogram,
                                      const TString& mvaType, const std::string& mvaConfigName1, const std::string& mvaConfigName2)
 {
     TString mvaConfigName = "_" + mvaConfigName1;
     if(mvaConfigName2 != "") mvaConfigName.Append("_").Append(mvaConfigName2);
-
+    
+    TString name;
+    
+    // Get the indices of the jet pairs and order them by MVA weights, biggest value first
+    const tth::IndexPairs& jetIndexPairs = recoObjectIndices.jetIndexPairs_;
+    double weight_top=-100.;
+    double weight_higgs=-100.;
+    
+//     printf("  nJetPairs: %d nMvaWeights: %d\n", (int)jetIndexPairs.size(), (int)mvaTopJetsVariablesPerEvent.variables().size());
+    
     for(size_t index = 0; index<mvaTopJetsVariablesPerEvent.variables().size(); ++index){
         const MvaTopJetsVariables& mvaTopJetsVariables = mvaTopJetsVariablesPerEvent.variables().at(index);
 
         const bool isMaxWeight = index == maxWeightIndex;
 
-        TString name;
 
         name = "mvaWeight"+mvaType+mvaConfigName;
         this->fillHistosInclExcl(m_histogram, name, v_mvaWeight.at(index), mvaTopJetsVariables, weight);
@@ -353,8 +368,20 @@ void MvaValidation::fillWeightHistos(const MvaTopJetsVariablesPerEvent& mvaTopJe
                 this->fillHistosInclExcl2D(m_histogram, name, maxWeightCorrect, maxWeightSwapped, mvaTopJetsVariables, weight);
             }
         }
+        int j1 = jetIndexPairs.at(index).first;
+        int j2 = jetIndexPairs.at(index).second;
+        if(genObjectIndices.isPairFromTop(jetIndexPairs.at(index).first, jetIndexPairs.at(index).second)) weight_top=v_mvaWeight.at(index);
+        if(genObjectIndices.isPairFromHiggs(jetIndexPairs.at(index).first, jetIndexPairs.at(index).second)) weight_higgs=v_mvaWeight.at(index);
+        
     }
 
+    if(weight_top>-99. && weight_higgs>-99.) {
+        name = "mvaWeight"+mvaType+"_TopPairVsHiggsPair"+mvaConfigName;
+        ((TH2D*)m_histogram[name])->Fill(weight_top, weight_higgs, weight);
+        
+        name = "mvaWeight"+mvaType+"_TopPairMinusHiggsPair"+mvaConfigName;
+        m_histogram[name]->Fill(weight_top - weight_higgs, weight);
+    }
 
 }
 
