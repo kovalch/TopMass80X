@@ -438,7 +438,7 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     if(significanceLabelTTbb) significanceLabelTTbb->Draw("same");
     legend->Draw("SAME");
     if(dataHist.second && stacksum){
-        common::drawRatio(dataHist.second, stacksum, 0.5, 1.7);
+        common::drawRatio(dataHist.second, stacksum, 0, 0.5, 1.7);
         firstHistToDraw->GetXaxis()->SetLabelSize(0);
         firstHistToDraw->GetXaxis()->SetTitleSize(0);
     }

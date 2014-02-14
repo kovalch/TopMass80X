@@ -368,8 +368,6 @@ void MvaValidation::fillWeightHistos(const MvaTopJetsVariablesPerEvent& mvaTopJe
                 this->fillHistosInclExcl2D(m_histogram, name, maxWeightCorrect, maxWeightSwapped, mvaTopJetsVariables, weight);
             }
         }
-        int j1 = jetIndexPairs.at(index).first;
-        int j2 = jetIndexPairs.at(index).second;
         if(genObjectIndices.isPairFromTop(jetIndexPairs.at(index).first, jetIndexPairs.at(index).second)) weight_top=v_mvaWeight.at(index);
         if(genObjectIndices.isPairFromHiggs(jetIndexPairs.at(index).first, jetIndexPairs.at(index).second)) weight_higgs=v_mvaWeight.at(index);
         
