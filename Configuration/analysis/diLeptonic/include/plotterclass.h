@@ -140,6 +140,9 @@ private:
     /// boolean to decide to add or not the QCD background to the control plot
     bool addQCDToControlPlot()const;
 
+    /// Derive tt signal model unceratinty band
+    void getSignalUncertaintyBand(TH1 *uncBand, TString channel_);
+
 };
 
 #endif

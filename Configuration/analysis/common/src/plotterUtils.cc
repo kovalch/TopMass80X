@@ -10,6 +10,7 @@
 #include <TStyle.h>
 #include <TText.h>
 #include <TGraphAsymmErrors.h>
+#include <TExec.h>
 
 #include "plotterUtils.h"
 
@@ -180,7 +181,7 @@ void common::drawRatioXSEC(const TH1* histNumerator, const TH1* histDenominator1
     Double_t xmax = ratio1->GetXaxis()->GetXmax();
     TString height = ""; height += 1;
     TF1 *f = new TF1("f", height.Data(), xmin, xmax);
-    f->SetLineStyle(1);
+    f->SetLineStyle(1);//this is frustrating and stupid but apparently necessary...
     f->SetLineWidth(1);
     f->SetLineColor(kBlack);
     f->Draw("L same");
@@ -210,7 +211,7 @@ void common::drawRatioXSEC(const TH1* histNumerator, const TH1* histDenominator1
 
 
 
-void common::drawRatio(const TH1* histNumerator, const TH1* histDenominator, 
+void common::drawRatio(const TH1* histNumerator, const TH1* histDenominator, const TH1* uncband,
                const Double_t& ratioMin, const Double_t& ratioMax, 
                bool addFit,
                const TStyle& myStyle, const int verbose, const std::vector<double>& err)
@@ -236,6 +237,14 @@ void common::drawRatio(const TH1* histNumerator, const TH1* histDenominator,
         std::cout << "building ratio plot of " << histNumerator->GetName();
         std::cout << " and " << histDenominator->GetName() << std::endl;
     }
+
+    // create ratio of uncertainty band
+    TH1 *band = nullptr;
+    if (uncband) {
+        band = (TH1*)uncband->Clone("band");
+        band->Divide(band);
+    }
+
     // create ratio
     TH1* ratio = (TH1*)histNumerator->Clone();
     ratio->Divide(histDenominator);
@@ -324,6 +333,12 @@ void common::drawRatio(const TH1* histNumerator, const TH1* histDenominator,
     histDenominator->GetXaxis()->SetTitleSize(0);
     // draw ratio plot
     ratio->DrawClone("p e X0");
+    //This is frustrating and stupid but apparently necessary...
+    TExec *setex1 { new TExec("setex1","gStyle->SetErrorX(0.5)") };
+    setex1->Draw();
+    if(band)band->Draw("same,e2");
+    TExec *setex2 { new TExec("setex2","gStyle->SetErrorX(0.)") };
+    setex2->Draw();
     ratio->SetMarkerSize(1.2);
     ratio->DrawClone("p e X0 same");
     rPad->SetTopMargin(0.0);

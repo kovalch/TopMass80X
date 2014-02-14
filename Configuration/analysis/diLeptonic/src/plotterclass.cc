@@ -1066,16 +1066,11 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
         if(channelType==3) Plotter::PlotXSec(Channel);
     }
 
-    std::unique_ptr<TH1D> syshist { (TH1D*) common::summedStackHisto(stack.get()) };
-
-    if(logY)c->SetLogy();
-    syshist->SetFillStyle(3004);
-    syshist->SetFillColor(kBlack);
-
     drawhists[0]->SetMinimum(ymin);
 
     if(rangemin!=0 || rangemax!=0) {drawhists[0]->SetAxisRange(rangemin, rangemax, "X");}
 
+    if(logY)c->SetLogy();
     if(ymax==0){
         if(logY){drawhists[0]->SetMaximum(18  * drawhists[0]->GetBinContent(drawhists[0]->GetMaximumBin()));}
         else    {drawhists[0]->SetMaximum(1.5 * drawhists[0]->GetBinContent(drawhists[0]->GetMaximumBin()));}
@@ -1096,7 +1091,7 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
             drawhists[0]->GetXaxis()->SetBinLabel(bin,TitBin);
             }
             TitBin  = "";
-       }
+        }
     }
 
     //Add the binwidth to the yaxis in yield plots
@@ -1113,16 +1108,25 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
     gStyle->SetEndErrorSize(0);
 
     stack->Draw("same HIST");
+
+    TH1* uncBand = common::summedStackHisto(stack.get());
+
+    getSignalUncertaintyBand(uncBand, Channel);
+    leg->AddEntry(uncBand, "t#bar{t} Model Unc.", "f");
+
     gPad->RedrawAxis();
     TExec *setex1 { new TExec("setex1","gStyle->SetErrorX(0.5)") };//this is frustrating and stupid but apparently necessary...
     setex1->Draw();
-    syshist->SetMarkerStyle(0);
-    //syshist->Draw("same,E2");
+    uncBand->SetFillStyle(3001);
+    uncBand->SetMarkerStyle(0);
+    uncBand->SetFillColor(11);
+    uncBand->Draw("same,e2");
     TExec *setex2 { new TExec("setex2","gStyle->SetErrorX(0.)") };
     setex2->Draw();
+
     drawhists[0]->Draw("same,e1");
 
-    DrawCMSLabels(1, 8);
+    DrawCMSLabels(0, 8);
     DrawDecayChLabel(channelLabel[channelType]);
 
     if(name.Contains("JetMult")) {
@@ -1134,28 +1138,22 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
     }
     leg->Draw("SAME");
 
+    TH1* stacksum = common::summedStackHisto(stack.get());
     if(drawPlotRatio){
-        TH1* stacksum = common::summedStackHisto(stack.get());
-        common::drawRatio(stacksum, drawhists[0], 0.49, 1.49, doFit_);
+        common::drawRatio(stacksum, drawhists[0], uncBand, 0.49, 1.49, doFit_);
     }
 
     // Create Directory for Output Plots 
     TString outdir = common::assignFolder(outpathPlots, Channel, Systematic);
     c->Print(outdir.Copy()+name+".eps");
 
-    std::unique_ptr<TH1> sumMC;
     std::unique_ptr<TH1> sumttbar;
     for (size_t i = 0; i < hists.size(); ++i) {
-        if (legends.at(i) != "Data") {
-            if (sumMC.get()) sumMC->Add(drawhists[i]);
-            else sumMC = std::unique_ptr<TH1>{static_cast<TH1*>(drawhists[i]->Clone())};
-        }
         if (legends.at(i) == "t#bar{t} Signal") {
             if (sumttbar.get()) sumttbar->Add(drawhists[i]);
             else sumttbar = std::unique_ptr<TH1>{static_cast<TH1*>(drawhists[i]->Clone())};
         }
     }
-    sumMC->SetName(name);
 
     // Get the ratio plot from the canvas
     TPad* tmpPad = dynamic_cast<TPad*>(c->GetPrimitive("rPad"));
@@ -1166,7 +1164,8 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
     TFile out_root(outdir.Copy()+name+"_source.root", "RECREATE");
     drawhists[0]->Write(name+"_data");
     sumttbar->Write(name+"_signalmc");
-    sumMC->Write(name+"_allmc");
+    stacksum->SetName(name);
+    stacksum->Write(name+"_allmc");
     if(ratio && ratio->GetEntries())ratio->Write("ratio");
     c->Write(name + "_canvas");
     out_root.Close();
@@ -2884,7 +2883,7 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
     }
 
     madgraphhistBinned->Draw("SAME");
-    DrawCMSLabels(1, 8);
+    DrawCMSLabels(0, 8);
     DrawDecayChLabel(channelLabel[channelType]);
 
 
@@ -3048,7 +3047,7 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
     setex2->Draw();*/
     varhists[0]->Draw("same, e1"); //############
     //varhists[0]->Draw("same, e"); 
-    DrawCMSLabels(1, 8);
+    DrawCMSLabels(0, 8);
     DrawDecayChLabel(channelLabel[channelType]);
     leg->Draw("SAME");
     gPad->RedrawAxis();
@@ -3718,7 +3717,7 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
     }
 
     madgraphhistBinned->Draw("SAME");
-    DrawCMSLabels(1, 8);
+    DrawCMSLabels(0, 8);
     DrawDecayChLabel(channelLabel[channelType]);
 
     if (drawNLOCurves) {
@@ -3878,7 +3877,7 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
     //Only necessary if we want error bands
 
     varhists[0]->Draw("same, e1");
-    DrawCMSLabels(1, 8);
+    DrawCMSLabels(0, 8);
     DrawDecayChLabel(channelLabel[channelType]);
     setControlPlotLegendStyle(varhistsPlotting, legends, leg);
     leg->Draw("SAME");
@@ -4568,4 +4567,36 @@ bool Plotter::addQCDToControlPlot()const
             return 1;
         }
     return 0;
+}
+
+
+void Plotter::getSignalUncertaintyBand(TH1* uncBand, TString channel_)
+{
+    std::vector<TString> syst {"MASS_", "SCALE_", "MATCH_", "HAD_", "PDF_"};
+
+    int nbins = uncBand->GetNbinsX();
+    std::vector<double> vec_varup(nbins, 0), vec_vardown(nbins, 0);
+
+    for (size_t iter = 0; iter<syst.size(); iter++)
+    {
+        TH1D *tmpUp = fileReader->GetClone<TH1D>("Plots/"+syst.at(iter)+"UP/"+channel_+"/"+name+"_source.root", name+"_allmc", 1);
+        TH1D *tmpDo = fileReader->GetClone<TH1D>("Plots/"+syst.at(iter)+"DOWN/"+channel_+"/"+name+"_source.root", name+"_allmc", 1);
+        if(!tmpUp || !tmpDo) continue;
+
+        for (Int_t nbin = 0; nbin < tmpUp->GetNbinsX(); nbin++)
+        {
+            double binContent = uncBand->GetBinContent(nbin+1);
+            double rel_diffup = std::abs(tmpUp->GetBinContent(nbin+1) - binContent) / binContent;
+            double rel_diffdo = std::abs(tmpDo->GetBinContent(nbin+1) - binContent) / binContent;
+
+            vec_varup.at(nbin) += rel_diffup * rel_diffup;
+            vec_vardown.at(nbin) += rel_diffdo * rel_diffdo;
+        }
+    }
+
+    for (size_t iter = 0; iter< vec_varup.size(); iter++)
+    {
+        double centralValue =  uncBand->GetBinContent(iter+1);
+        uncBand->SetBinError(iter+1, centralValue * 0.5 * (std::sqrt(vec_vardown.at(iter)) + std::sqrt(vec_varup.at(iter))));
+    }
 }

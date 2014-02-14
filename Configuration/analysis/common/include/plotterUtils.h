@@ -17,6 +17,7 @@ namespace common{
     /// Draw ratio of two histograms
     void drawRatio(const TH1* histNumerator, 
                    const TH1* histDenominator,
+                   const TH1 *uncband,
                    const Double_t& ratioMin, 
                    const Double_t& ratioMax, 
                    const bool addFit = 0,
