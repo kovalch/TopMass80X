@@ -175,6 +175,10 @@ void DrawCMSPrel() {
   DrawLabel("CMS Preliminary, 3.54 fb^{-1},  #sqrt{s}=7 TeV", 0.2, 0.93, 0.9);
 }
 
+void DrawCMSPrel8LeptonJets() {
+  DrawLabel("CMS Preliminary, 19.7 fb^{-1},  #sqrt{s} = 8 TeV, l+jets", 0.2, 0.93, 0.9);
+}
+
 //void DrawCMSPrel50() {
 //  DrawLabel("CMS Preliminary, 5.0 fb^{-1},  #sqrt{s}=7 TeV", 0.2, 0.93, 0.9);
 //}

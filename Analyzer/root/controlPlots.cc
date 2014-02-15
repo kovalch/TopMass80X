@@ -71,11 +71,12 @@ void TopMassControlPlots::doPlots()
   if(plotSelectedForPlotting.find("ExtraPlotsFitCombTypeEtc")!=plotSelectedForPlotting.end()){
     hists.push_back(MyHistogram("leptonFlavour", "top.leptonFlavour[0]"   , "", ";Lepton flavour; Events", 40, -20, 20));
 	  hists.push_back(MyHistogram("fitProb"    , "top.fitProb"   , "", ";P_{gof}; Permutations", 50, 0, 1.0));
+	  hists.push_back(MyHistogram("fitProbLow" , "top.fitProb"   , "", ";P_{gof}; Permutations",  1, 0, 0.2));
 	  hists.push_back(MyHistogram("fitProbBest", "top.fitProb[0]", "", ";P_{gof}; Events"      , 50, 0, 1.0));
 	  hists.push_back(MyHistogram("fitChi2"    , "top.fitChi2"   , "", ";#chi^{2}; Permutations", 50, 0, 50));
 	  hists.push_back(MyHistogram("deltaRbb"    , "sqrt(pow(top.fitB1.Eta()-top.fitB2.Eta(),2) + pow(TVector2::Phi_mpi_pi(top.fitB1.Phi()-top.fitB2.Phi()),2))"            , "", ";#DeltaR_{b#bar{b}}; Permutations", 50, 1, 6));
 	  hists.push_back(MyHistogram("deltaRbbBest", "sqrt(pow(top.fitB1[0].Eta()-top.fitB2[0].Eta(),2) + pow(TVector2::Phi_mpi_pi(top.fitB1[0].Phi()-top.fitB2[0].Phi()),2))", "", ";#DeltaR_{b#bar{b}}; Events"      , 50, 1, 6));
-	  hists.push_back(MyHistogram("deltaRqq"    , "sqrt(pow(top.recoW1Prod1.Eta()-top.recoW1Prod2.Eta(),2) + pow(TVector2::Phi_mpi_pi(top.recoW1Prod1.Phi()-top.recoW1Prod2.Phi()),2))", "", ";#DeltaR_{q#bar{q}}; Permutations", 50, 1, 6));
+	  hists.push_back(MyHistogram("deltaRqq"    , "sqrt(pow(top.recoW1Prod1.Eta()-top.recoW1Prod2.Eta(),2) + pow(TVector2::Phi_mpi_pi(top.recoW1Prod1.Phi()-top.recoW1Prod2.Phi()),2))", "", ";#DeltaR_{q#bar{q}}; Permutations", 40, 0, 4));
 	  hists.push_back(MyHistogram("combinationType"    , "top.combinationType"   , "", ";Combination Type; Permutations", 20, -10, 10));
 	  hists.push_back(MyHistogram("combinationTypeBest", "top.combinationType[0]", "", ";Combination Type; Events"      , 20, -10, 10));
   }
@@ -102,12 +103,13 @@ void TopMassControlPlots::doPlots()
 	  hists.push_back(MyHistogram("fitTop1Mass_vs_nVertex", "weight.nVertex", "top.fitTop1.M()", "", ";N_{Vertex}; m_{t}^{fit} [GeV]" , 8, 0, 40, 70, 50, 400));
 	  hists.push_back(MyHistogram("fitTop1Mass_vs_fitProb", "top.fitProb"   , "top.fitTop1.M()", "", ";P_{gof}; m_{t}^{fit} [GeV]"    , 10, 0,  1, 70, 50, 400));
 	  hists.push_back(MyHistogram("fitTop1Mass_vs_nJet", "jet.@jet.size()", "top.fitTop1.M()", "", ";N_{jet}; m_{t}^{fit} [GeV]", 11, 4, 15, 70, 50, 400));
-      hists.push_back(MyHistogram("fitTop1Mass_vs_dRbb", "sqrt(pow(top.fitB1.Eta()-top.fitB2.Eta(),2) + pow(TVector2::Phi_mpi_pi(top.fitB1.Phi()-top.fitB2.Phi()),2))", "top.fitTop1.M()", "", ";#DeltaR_{b#bar{b}}; m_{t}^{fit} [GeV]" , 10, 1, 6, 70, 50, 400));
+    hists.push_back(MyHistogram("fitTop1Mass_vs_dRbb", "sqrt(pow(top.fitB1.Eta()-top.fitB2.Eta(),2) + pow(TVector2::Phi_mpi_pi(top.fitB1.Phi()-top.fitB2.Phi()),2))", "top.fitTop1.M()", "", ";#DeltaR_{b#bar{b}}; m_{t}^{fit} [GeV]" , 10, 1, 6, 70, 50, 400));
 	  hists.push_back(MyHistogram("recoW1Mass_vs_nVertex" , "weight.nVertex", "top.recoW1.M()" , "", ";N_{Vertex}; m_{W}^{reco} [GeV]", 8, 0, 40, 58, 10, 300));
 	  hists.push_back(MyHistogram("recoW1Mass_vs_fitProb" , "top.fitProb"   , "top.recoW1.M()" , "", ";P_{gof}; m_{W}^{reco} [GeV]"   , 10, 0,  1, 58, 10, 300));
 	  hists.push_back(MyHistogram("recoW1Mass_vs_nJet", "jet.@jet.size()", "top.recoW1.M()", "", ";N_{jet}; m_{W}^{reco} [GeV]", 11, 4, 15, 58, 10, 300));
 	  hists.push_back(MyHistogram("recoW1Mass_vs_jet3Pt", "jet.jet[3].Pt()", "top.recoW1.M()", "", ";p_{T}^{3} [GeV]; m_{W}^{reco} [GeV]", 7, 30, 100, 58, 10, 300));
-      hists.push_back(MyHistogram("recoW1Mass_vs_dRbb", "sqrt(pow(top.fitB1.Eta()-top.fitB2.Eta(),2) + pow(TVector2::Phi_mpi_pi(top.fitB1.Phi()-top.fitB2.Phi()),2))", "top.recoW1.M()", "", ";#DeltaR_{b#bar{b}}; m_{W}^{reco}" , 10, 1, 6, 58, 10, 300));
+	  hists.push_back(MyHistogram("recoW1Mass_vs_dRqq", "sqrt(pow(top.recoW1Prod1.Eta()-top.recoW1Prod2.Eta(),2) + pow(TVector2::Phi_mpi_pi(top.recoW1Prod1.Phi()-top.recoW1Prod2.Phi()),2))", "top.recoW1.M()", "", ";#DeltaR_{q#bar{q}}; m_{W}^{reco}" , 10, 0, 5, 58, 10, 300));
+    hists.push_back(MyHistogram("recoW1Mass_vs_dRbb", "sqrt(pow(top.fitB1.Eta()-top.fitB2.Eta(),2) + pow(TVector2::Phi_mpi_pi(top.fitB1.Phi()-top.fitB2.Phi()),2))", "top.recoW1.M()", "", ";#DeltaR_{b#bar{b}}; m_{W}^{reco}" , 10, 1, 6, 58, 10, 300));
   }
   if(plotSelectedForPlotting.find("WMassComponents")!=plotSelectedForPlotting.end()){
     hists.push_back(MyHistogram("recoW1Prod1Mass", "top.recoW1Prod1.M()", "", ";m_{q} [GeV]; Permutations", 60, 0, 60));
@@ -627,11 +629,11 @@ void TopMassControlPlots::doPlots()
 
     // JES
     if(plotSelectedForPlotting.find("JESVariationPlots")!=plotSelectedForPlotting.end()){
-      samples.push_back(MySample("t#bar{t}, JES = 0.96", "Summer12_TTJets1725_0.96", kSigVar, kRed+1, 1, lumi_/1000.));
-      samples.push_back(MySample("t#bar{t}, JES = 0.98", "Summer12_TTJets1725_0.98", kSigVar, kMagenta+1, 1, lumi_/1000.));
+      //samples.push_back(MySample("t#bar{t}, JES = 0.96", "Summer12_TTJets1725_0.96", kSigVar, kRed+1, 1, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t}, JES = 0.98", "Summer12_TTJets1725_0.98", kSigVar, kRed+1, 1, lumi_/1000.));
       samples.push_back(MySample("t#bar{t}, JES = 1.00", "Summer12_TTJets1725_1.00", kSigVar, kBlue+1, 1, lumi_/1000.));
-      samples.push_back(MySample("t#bar{t}, JES = 1.02", "Summer12_TTJets1725_1.02", kSigVar, kCyan+1, 1, lumi_/1000.));
-      samples.push_back(MySample("t#bar{t}, JES = 1.04", "Summer12_TTJets1725_1.04", kSigVar, kGreen+1, 1, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t}, JES = 1.02", "Summer12_TTJets1725_1.02", kSigVar, kGreen+1, 1, lumi_/1000.));
+      //samples.push_back(MySample("t#bar{t}, JES = 1.04", "Summer12_TTJets1725_1.04", kSigVar, kGreen+1, 1, lumi_/1000.));
     }
     
     if(plotSelectedForPlotting.find("JESUncVariationPlots")!=plotSelectedForPlotting.end()){
