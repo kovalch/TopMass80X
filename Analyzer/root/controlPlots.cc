@@ -51,7 +51,7 @@ void TopMassControlPlots::doPlots()
   gStyle->SetOptStat(0);
   gStyle->SetHatchesLineWidth(1.5);
 
-  int channelID_ = Helper::channelID();
+  int channelID = Helper::channelID();
   
   std::map<std::string,bool> plotSelectedForPlotting;
   std::vector<std::string> selectPlotsToDraw  = helper->readParametersString("analysisConfig.plotsToDraw");
@@ -351,7 +351,7 @@ void TopMassControlPlots::doPlots()
   //
   
   // Alljets channel
-  if (channelID_ == Helper::kAllJets) {
+  if (channelID == Helper::kAllJets) {
     if(plotSelectedForPlotting.find("StandardPlots")!=plotSelectedForPlotting.end()){
       samples.push_back(MySample("Data", "MJP12*v1_data", kData, kBlack));
       samples.push_back(MySample("t#bar{t}", "Z2_S12_ABS_JES_100_172_5_MadSpin_sig*", kSig, kRed+1));
@@ -369,7 +369,8 @@ void TopMassControlPlots::doPlots()
 
     // Signal variations (MC Generator)
     if(plotSelectedForPlotting.find("MCGeneratorPlots")!=plotSelectedForPlotting.end()){
-      samples.push_back(MySample("t#bar{t}, Z2*"          , "Z2_S12_ABS_JES_100_172_5_sig", kSigVar, kRed+1  , 1));
+      samples.push_back(MySample("t#bar{t}, MG Z2* MadSpin", "Z2_S12_ABS_JES_100_172_5_MadSpin_sig*", kSigVar, kRed+1  , 1));
+      samples.push_back(MySample("t#bar{t}, MG Z2*"        , "Z2_S12_ABS_JES_100_172_5_sig", kSigVar, kRed  , 1));
       samples.push_back(MySample("t#bar{t}, Powheg+Pythia", "Z2_S12_POWHEG_sig"           , kSigVar, kGreen+1, 9));
       samples.push_back(MySample("t#bar{t}, Powheg+Herwig", "Z2_S12_POWHER_sig"           , kSigVar, kBlue+1 , 7));
       samples.push_back(MySample("t#bar{t}, MC@NLO"       , "Z2_S12_MCNLO_sig"            , kSigVar, kCyan+1 , 2));
@@ -377,20 +378,20 @@ void TopMassControlPlots::doPlots()
 
     // Signal variations (JES)
     if(plotSelectedForPlotting.find("JESVariationPlots")!=plotSelectedForPlotting.end()){
-      samples.push_back(MySample("t#bar{t}, JES = 0.96", "Z2_S12_ABS_JES_096_172_5_sig", kSigVar, kRed+1    , 1));
-      samples.push_back(MySample("t#bar{t}, JES = 0.98", "Z2_S12_ABS_JES_098_172_5_sig", kSigVar, kMagenta+1, 1));
-      samples.push_back(MySample("t#bar{t}, JES = 1.00", "Z2_S12_ABS_JES_100_172_5_sig", kSigVar, kBlue+1   , 1));
-      samples.push_back(MySample("t#bar{t}, JES = 1.02", "Z2_S12_ABS_JES_102_172_5_sig", kSigVar, kCyan+1   , 1));
-      samples.push_back(MySample("t#bar{t}, JES = 1.04", "Z2_S12_ABS_JES_104_172_5_sig", kSigVar, kGreen+1  , 1));
+      samples.push_back(MySample("t#bar{t}, JES = 0.96", "Z2_S12_ABS_JES_096_172_5_MadSpin_sig", kSigVar, kRed+1    , 1));
+      samples.push_back(MySample("t#bar{t}, JES = 0.98", "Z2_S12_ABS_JES_098_172_5_MadSpin_sig", kSigVar, kMagenta+1, 1));
+      samples.push_back(MySample("t#bar{t}, JES = 1.00", "Z2_S12_ABS_JES_100_172_5_MadSpin_sig", kSigVar, kBlue+1   , 1));
+      samples.push_back(MySample("t#bar{t}, JES = 1.02", "Z2_S12_ABS_JES_102_172_5_MadSpin_sig", kSigVar, kCyan+1   , 1));
+      samples.push_back(MySample("t#bar{t}, JES = 1.04", "Z2_S12_ABS_JES_104_172_5_MadSpin_sig", kSigVar, kGreen+1  , 1));
     }
 
     // Signal variations (MC Modelling)
     if(plotSelectedForPlotting.find("SignalModellingPlots")!=plotSelectedForPlotting.end()){
-      samples.push_back(MySample("t#bar{t}, Z2*"          , "Z2_S12_ABS_JES_100_172_5_sig", kSigVar, kRed+1    , 1));
-      samples.push_back(MySample("t#bar{t}, Q^{2} up"     , "Z2_S12_Scale_Up_sig"         , kSigVar, kMagenta+1, 9));
-      samples.push_back(MySample("t#bar{t}, Q^{2} down"   , "Z2_S12_Scale_Down_sig"       , kSigVar, kBlue+1   , 7));
-      samples.push_back(MySample("t#bar{t}, matching up"  , "Z2_S12_Matching_Up_sig"      , kSigVar, kCyan+1   , 2));
-      samples.push_back(MySample("t#bar{t}, matching down", "Z2_S12_Matching_Down_sig"    , kSigVar, kGreen+1  , 3));
+      samples.push_back(MySample("t#bar{t}, Z2*"          , "Z2_S12_ABS_JES_100_172_5_MadSpin_sig", kSigVar, kRed+1    , 1));
+      samples.push_back(MySample("t#bar{t}, Q^{2} up"     , "Z2_S12_Scale_Up_MadSpin_sig"         , kSigVar, kMagenta+1, 9));
+      samples.push_back(MySample("t#bar{t}, Q^{2} down"   , "Z2_S12_Scale_Down_MadSpin_sig"       , kSigVar, kBlue+1   , 7));
+      samples.push_back(MySample("t#bar{t}, matching up"  , "Z2_S12_Matching_Up_MadSpin_sig"      , kSigVar, kCyan+1   , 2));
+      samples.push_back(MySample("t#bar{t}, matching down", "Z2_S12_Matching_Down_MadSpin_sig"    , kSigVar, kGreen+1  , 3));
     }
   }
   
@@ -704,12 +705,13 @@ void TopMassControlPlots::doPlots()
     int bkgCounter = -1;
     int sigVarCounter = -1;
     // Loop over all samples
+    std::cout << "Adding files from folder: " << path_ << std::endl;
     for(MySample& sample : samples){
       if(sample.type == kBkg    ) ++bkgCounter;
       if(sample.type == kSigVar ) ++sigVarCounter;
       // Get sample
       TChain* chain; int nFiles = 0;
-      if (channelID_ == Helper::kAllJets) {
+      if (channelID == Helper::kAllJets) {
         chain = new TChain("analyzeKinFit/eventTree");
         nFiles = chain->Add((path_+sample.file+std::string(".root")).c_str());
       }
@@ -720,8 +722,8 @@ void TopMassControlPlots::doPlots()
       }
       else{
     	  chain = new TChain("analyzeHitFit/eventTree");
-    	  if (channelID_ != Helper::kElectronJets) nFiles += chain->Add((path_+sample.file+std::string("_muon/job_*.root")).c_str());
-    	  if (channelID_ != Helper::kMuonJets) nFiles += chain->Add((path_+sample.file+std::string("_electron/job_*.root")).c_str());
+    	  if (channelID != Helper::kElectronJets) nFiles += chain->Add((path_+sample.file+std::string("_muon/job_*.root")).c_str());
+    	  if (channelID != Helper::kMuonJets    ) nFiles += chain->Add((path_+sample.file+std::string("_electron/job_*.root")).c_str());
       }
       std::cout << "Adding " << nFiles << " files for " << sample.name << " (" << sample.file << "), type: " << sample.type << std::endl;
 
@@ -741,7 +743,7 @@ void TopMassControlPlots::doPlots()
       //TTreeFormula weight("weight",  po::GetOption<std::string>("weight").c_str(), chain);
       TTreeFormula weight("weight",  po::GetOptionReplaced("weight",sample.replaceVar).c_str(), chain);
       std::string tempSel(po::GetOptionReplaced("analysisConfig.selection",sample.replaceVar));
-      if(channelID_ == Helper::kAllJets && sample.type == kBkg) {
+      if(channelID == Helper::kAllJets && sample.type == kBkg) {
         std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
         std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
         std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
@@ -894,7 +896,7 @@ void TopMassControlPlots::doPlots()
     firstHist = false;
     
     // Alljets: Normalize to data, use fixed signal fraction
-    if (channelID_ == Helper::kAllJets) {
+    if (channelID == Helper::kAllJets) {
       //double fSig = po::GetOption<double>("templates.fSig");
       //for(TH1F* sig    : hist.Sig1D())    sig->Scale(    fSig *integralD/integralS);
       //for(TH1F* bkg    : hist.Bkg1D())    bkg->Scale((1.-fSig)*integralD/integralB);
@@ -978,8 +980,15 @@ void TopMassControlPlots::doPlots()
       leg0->SetTextSize(0.03);
       leg0->SetFillStyle(0);
       leg0->SetBorderSize(0);
-      for(TH2F* sig : hist.Sig2D()){
-        leg0->AddEntry( sig, sig->GetTitle(), "LP" );
+      if(channelID == Helper::kAllJets){
+        for(TH2F* sig : hist.Sig2D()){
+          if(!TString(sig->GetTitle()).Contains("unmatched")) leg0->AddEntry( sig, sig->GetTitle(), "LP" );
+        }
+      }
+      else{
+        for(TH2F* sig : hist.Sig2D()){
+          leg0->AddEntry( sig, sig->GetTitle(), "LP" );
+        }
       }
       leg0->Draw();
 
@@ -1154,7 +1163,12 @@ void TopMassControlPlots::doPlots()
       leg0->SetTextSize(0.03);
       leg0->SetFillStyle(0);
       leg0->SetBorderSize(0);
-      for(TH1F* sig : hist.Sig1D()) leg0->AddEntry( sig, sig->GetTitle(), "F" );
+      if(channelID == Helper::kAllJets){
+        for(TH1F* sig : hist.Sig1D()){
+          if(!TString(sig->GetTitle()).Contains("unmatched")) leg0->AddEntry( sig, sig->GetTitle(), "F" );
+        }
+      }
+      else for(TH1F* sig : hist.Sig1D()) leg0->AddEntry( sig, sig->GetTitle(), "F" );
       leg0->Draw();
 
       TLegend *leg1 = new TLegend(0.6, 0.75, 0.9, 0.925);

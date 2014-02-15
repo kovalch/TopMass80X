@@ -97,7 +97,7 @@ double IdeogramCombLikelihoodAllJets::Evaluate(double *x, double *p) {
 
   return p[0] * (fSig_ * (fCP_ * PCP (x,p) * (PCPJES1 (x,p))
 		               +  fWP_ * PWP (x,p) * (PWPJES1 (x,p))
-		               +  fUN_ * PUN (x,p) * (PUNJES1 (x,p)))
+     +  ((fUN_==0) ? 0 : (fUN_ * PUN (x,p) * (PUNJES1 (x,p)))) )
 	       + (1.-fSig_)        * PBKG(x,p) * (PBKGJES1(x,p)));
 }
 
