@@ -49,6 +49,9 @@ namespace semileptonic {
   
   // adapt several things like removing official labels for my PHD
   bool PHD=false;
+  // use global switch to rm/add Preliminary to plots 
+  bool globalPrelim   =false; // value used in DrawCMSLabels
+  bool useGlobalPrelim=true;  // for false the value above is ignored
 
   // ==========================================
   //  Cross-section variables and labels
@@ -920,6 +923,8 @@ namespace semileptonic {
 
     TPaveText *label = new TPaveText();
 
+    bool cmsprelim2= (useGlobalPrelim) ? globalPrelim : cmsprelim;
+
     label -> SetX1NDC(gStyle->GetPadLeftMargin());
     label -> SetY1NDC(1.0-gStyle->GetPadTopMargin());
     label -> SetX2NDC(1.0-gStyle->GetPadRightMargin());
@@ -931,7 +936,7 @@ namespace semileptonic {
     if(sevenTeV) comE="7";
 
     if(cmssimulation) extension+=" Simulation";
-    if(cmsprelim&&!PHD) extension+=" Preliminary";
+    if(cmsprelim2&&!PHD) extension+=" Preliminary";
     if(privateWork) extension+=" (Private Work)";
     
     TString finalLabel="";
@@ -3045,7 +3050,7 @@ namespace semileptonic {
     return -1.0;
   }
 
-  TCanvas* drawFinalResultRatio(TH1F* histNumeratorData, const Double_t& ratioMin, const Double_t& ratioMax, TStyle myStyle, int verbose=0, std::vector<TH1F*> histDenominatorTheory_=std::vector<TH1F*>(0), TCanvas* canv=0, double rangeMin=-1., double rangeMax=-1., TGraphAsymmErrors* histStatData=0, bool addXBinGrid=true, bool addYGrid=false)
+  TCanvas* drawFinalResultRatio(TH1F* histNumeratorData, const Double_t& ratioMin, const Double_t& ratioMax, TStyle myStyle, int verbose=0, std::vector<TH1F*> histDenominatorTheory_=std::vector<TH1F*>(0), TCanvas* canv=0, double rangeMin=-1., double rangeMax=-1., TGraphAsymmErrors* histStatData=0, bool addXBinGrid=true, bool addYGrid=false, bool bands=true)
   {
     // this function draws a pad with the ratio "histNumeratorData" over "histDenominatorTheoryX" 
     // for up to five specified theory curves, using "histNumeratorDataDown" and "histNumeratorDataUp"
@@ -3056,6 +3061,7 @@ namespace semileptonic {
     // 'addXBinGrid': a vertical grid is drawn at the bin boundaries if true
     // 'histStatData': statistical errors are drawn in the ratio and the BCC x
     //                 position from this object is used also for the ratio plots
+    // 'bands'       : draw data uncertainty as errorbands if set to true
     // NOTE: x Axis is transferred from histDenominator to the bottom of the canvas
     // modified quantities: none
     // used functions: setXAxisRange, theoryColor, drawLine
@@ -3083,7 +3089,8 @@ namespace semileptonic {
       }	       
       canv->cd();
       canv->Draw();
-      
+      //canv->SetGrayscale(); // FIXME: for black-white compatibility check
+
       // create ratios
       std::vector<TH1*> ratio_;
       // sort for drawing order: MADGRAPH, MC@NLO, POWHEG, POWHEG+HERWIG, higher order theory calculation
@@ -3211,6 +3218,7 @@ namespace semileptonic {
       TGraphAsymmErrors* errorband2=0;
       TGraphAsymmErrors* errorbandStat2=0;
       TLegend *leg  = new TLegend(); 
+      TLegend *legBand = bands ? new TLegend() : 0;
       if(verbose>3) std::cout << "debug E" << std::endl;
       for(unsigned int nTheory=0; nTheory<ratio_.size(); ++nTheory){
 	if(verbose>3) std::cout << "  -" << nTheory << std::endl;
@@ -3286,7 +3294,19 @@ namespace semileptonic {
 	  one->SetLineStyle(1);
 	  one->SetLineColor(kBlack);
 	  one->SetFillStyle(0);
-
+	  // FIXME: Printout for synchronization
+	  //std::cout << "ratio->GetXaxis()->GetTitleSize  : " << one->GetXaxis()->GetTitleSize()   << std::endl;
+	  //std::cout << "ratio->GetXaxis()->GetTitleOffset: " << one->GetXaxis()->GetTitleOffset() << std::endl;
+	  //std::cout << "ratio->GetXaxis()->GetLabelSize  : " << one->GetXaxis()->GetLabelSize()   << std::endl;
+	  //std::cout << "ratio->GetXaxis()->GetLabelOffset: " << one->GetXaxis()->GetLabelOffset() << std::endl;
+	  //std::cout << "ratio->GetXaxis()->GetNdivisions : " << one->GetXaxis()->GetNdivisions()  << std::endl;
+	  //std::cout << "ratio->GetXaxis()->GetTickLength : " << one->GetXaxis()->GetTickLength()  << std::endl;
+	  //std::cout << "ratio->GetYaxis()->GetTitleSize  : " << one->GetYaxis()->GetTitleSize()   << std::endl;
+	  //std::cout << "ratio->GetYaxis()->GetTitleOffset: " << one->GetYaxis()->GetTitleOffset() << std::endl;
+	  //std::cout << "ratio->GetYaxis()->GetLabelSize  : " << one->GetYaxis()->GetLabelSize()   << std::endl;
+	  //std::cout << "ratio->GetYaxis()->GetLabelOffset: " << one->GetYaxis()->GetLabelOffset() << std::endl;
+	  //std::cout << "ratio->GetYaxis()->GetTickLength : " << one->GetYaxis()->GetTickLength()  << std::endl;
+	  //std::cout << "ratio->GetYaxis()->GetNdivisions : " << one->GetYaxis()->GetNdivisions()  << std::endl;
 	  TString add= nTheory==0 ? "" : " same";
 	  one2=(TH1F*)one->Clone();
 	  one->DrawClone("hist"+add);
@@ -3305,7 +3325,9 @@ namespace semileptonic {
 	    double totX=histStatData ? histStatData->GetX()[bin] : histNumeratorData->GetBinCenter(bin);
 	    double totErrY=histNumeratorData->GetBinError(bin);
 	    errorband->SetPoint(bin, totX, 1);
-	    errorband->SetPointError(bin, 0, 0,totErrY/totY, totErrY/totY);
+	    double errUp=bands ? 0.5*histNumeratorData->GetBinWidth(bin) : 0;
+	    double errDn=bands ? 0.5*histNumeratorData->GetBinWidth(bin) : 0;
+	    errorband->SetPointError(bin, errDn, errUp,totErrY/totY, totErrY/totY);
 	    //errorband->SetBinContent(bin, 1);
 	    //errorband->SetBinError  (bin, histNumeratorData->GetBinError(bin)/histNumeratorData->GetBinContent(bin));	  
 	    //std::cout << bin << ": (x,dy/y)=(" << totX << "," << totErrY/totY << "), (x,y)=(" << totX << "," << totY << "+/-" << totErrY << ")" << std::endl;
@@ -3324,34 +3346,79 @@ namespace semileptonic {
 	      double statX=histStatData->GetX()[bin];
 	      double statErrY=histStatData->GetEYlow()[bin];
 	      errorbandStat->SetPoint(bin, statX, 1);
-	      errorbandStat->SetPointError(bin, 0, 0, statErrY/statY, statErrY/statY);
+	      double errUp=bands ? 0.5*histNumeratorData->GetBinWidth(bin) : 0;
+	      double errDn=bands ? 0.5*histNumeratorData->GetBinWidth(bin) : 0;
+	      errorbandStat->SetPointError(bin, errUp, errDn, statErrY/statY, statErrY/statY);
 	      //std::cout << bin << ": (x,dy/y)=(" << statX << "," << statErrY/statY << "), (x,y)=(" << statX << "," << statY << "+/-" << statErrY << ")" << std::endl;
 	    }
 	    errorbandStat->SetLineWidth(2.);
 	    errorbandStat->SetLineColor(errcolor);
 	    errorbandStat2=(TGraphAsymmErrors*)errorbandStat->Clone();
 	  }
+	  // adapt style for errorbands if they are drawn as bands
+	  if(bands){
+	    // style
+	    int totColor =kOrange-4;//kOrange-4;
+	    int statColor=18;//kGray;
+	    int Errstyle=1001;
+	    // total error
+	    errorband2->SetLineStyle(1);
+	    errorband2->SetLineColor(totColor);
+	    errorband2->SetLineWidth(1.);
+	    errorband2->SetFillStyle(Errstyle);
+	    errorband2->SetFillColor(totColor);
+	    errorband2->SetMarkerColor(totColor);
+	    errorband2->SetMarkerSize(0.01);
+	    // stat error
+	    if(histStatData){
+	      errorbandStat2->SetLineStyle(1);
+	      errorbandStat2->SetLineColor(statColor);
+	      errorbandStat2->SetLineWidth(1.);
+	      errorbandStat2->SetFillStyle(Errstyle);
+	      errorbandStat2->SetFillColor(statColor);
+	      errorbandStat2->SetMarkerColor(statColor);
+	      errorbandStat2->SetMarkerSize(0.01);
+	    }
+	    // legend
+	    legBand->SetX1NDC(0.22);
+	    legBand->SetY1NDC(0.96);
+	    legBand->SetX2NDC(0.46);
+	    legBand->SetY2NDC(0.76);
+	    legBand->SetFillStyle(4050);
+	    legBand->SetFillColor(10);
+	    legBand->SetBorderSize(0);
+	    legBand->SetTextSize(0.1);
+	    legBand->SetTextAlign(12);
+	    legBand->AddEntry(errorband2, "Stat. #oplus Syst.", "f"); 	    
+	    if(errorbandStat2) legBand->AddEntry(errorbandStat2, "Stat.", "f");
+	  }
           if(verbose>3) std::cout << "debug G6" << std::endl;
 	  leg->SetX1NDC(0.22);
-	  leg->SetY1NDC(0.99);
-	  leg->SetX2NDC(0.58);
-	  leg->SetY2NDC(0.79);
+	  leg->SetY1NDC(0.79);
+	  leg->SetX2NDC(0.5 );
+	  leg->SetY2NDC(0.99);
 	  leg ->SetFillStyle(1001);
 	  leg ->SetFillColor(10);
 	  leg ->SetBorderSize(0);
 	  leg ->SetTextSize(0.1);
 	  leg ->SetTextAlign(12);
 	  leg ->AddEntry(errorband, "data stat+sys error", "F");
+	  if(verbose>3) std::cout << "debug G7" << std::endl;
+	  if(bands){
+	    errorband2    ->Draw("2 same");
+	    errorbandStat2->Draw("2 same");
+	    one->DrawClone("hist same");
+	  }
 	}
-	if(verbose>3) std::cout << "debug G7" << std::endl;
 	ratio_[nTheory]->DrawClone("hist same");
 	if(((TString)ratio_[nTheory]->GetName()).Contains("errorBandDn")) one2->Draw("hist same");
 	if(nTheory==ratio_.size()-1){
 	  gPad->RedrawAxis("g");
 	  gPad->RedrawAxis();
-	  errorband2->Draw("p z same");
+	  if(!bands) errorband2->Draw("p z same");
 	  gStyle->SetEndErrorSize(8);
-	  if(errorbandStat2) errorbandStat2->Draw("p e same");
+	  if(!bands&&errorbandStat2) errorbandStat2->Draw("p e same");
+	  if(bands&&legBand) legBand->Draw("same");
 	}
       }
       if(verbose>3) std::cout << "debug H" << std::endl;
@@ -3667,8 +3734,8 @@ namespace semileptonic {
     int sysListModel[ ] = { sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysTopMassUp, sysTopMassDown, sysHadUp, sysHadDown}; // ttbar modeling
     int sysListMain [ ] = { sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysHadUp, sysHadDown, sysJESUp, sysJESDown, sysJERUp, sysJERDown, sysBtagSFUp, sysBtagSFDown, sysBtagSFShapeUpPt65, sysBtagSFShapeDownPt65, sysBtagSFShapeUpEta0p7, sysBtagSFShapeDownEta0p7 }; // ttbar modeling
 
-    int sysListAll[ ] = { sysLumiUp, sysLumiDown, sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysTopMassUp, sysTopMassDown, sysJESUp, sysJESDown ,sysJERUp, sysJERDown, sysPUUp, sysPUDown, sysLepEffSFNormUp, sysLepEffSFNormDown, sysLepEffSFShapeUpEta, sysLepEffSFShapeDownEta, sysLepEffSFShapeUpPt, sysLepEffSFShapeDownPt, sysBtagSFUp, sysBtagSFDown, sysBtagSFShapeUpPt65, sysBtagSFShapeDownPt65, sysBtagSFShapeUpEta0p7, sysBtagSFShapeDownEta0p7, sysHadUp, sysHadDown};
-
+    int sysListAll[ ] = { sysLumiUp, sysLumiDown, sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysTopMassUp, sysTopMassDown, sysJESUp, sysJESDown ,sysJERUp, sysJERDown, sysPUUp, sysPUDown, sysLepEffSFNormUp, sysLepEffSFNormDown, sysLepEffSFShapeUpEta, sysLepEffSFShapeDownEta, sysLepEffSFShapeUpPt, sysLepEffSFShapeDownPt, sysBtagSFUp, sysBtagSFDown, sysBtagSFShapeUpPt65, sysBtagSFShapeDownPt65, sysBtagSFShapeUpEta0p7, sysBtagSFShapeDownEta0p7, sysMisTagSFUp, sysMisTagSFDown, sysBRUp, sysBRDown, sysPDFUp, sysPDFDown, sysHadUp, sysHadDown};
+    
     if(     type =="model") RelevantSys_.insert(RelevantSys_.begin(), sysListModel, sysListModel+ sizeof(sysListModel)/sizeof(int));
     else if(type =="JE"   ) RelevantSys_.insert(RelevantSys_.begin(), sysListJE   , sysListJE   + sizeof(sysListJE   )/sizeof(int));
     else if(type =="all"  ) RelevantSys_.insert(RelevantSys_.begin(), sysListAll  , sysListAll  + sizeof(sysListAll  )/sizeof(int));
