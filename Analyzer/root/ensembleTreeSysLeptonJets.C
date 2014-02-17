@@ -31,9 +31,10 @@ struct comparison {
   const char* nominal;
   const char* up;
   const char* down;
+  bool correlated;
   bool active;
-  comparison(const char* n = "", const char* u = "", const char* d = "", bool a = true)
-  : nominal(n), up(u), down(d), active(a) {}
+  comparison(const char* n = "", const char* u = "", const char* d = "", bool c = true, bool a = true)
+  : nominal(n), up(u), down(d), correlated(c), active(a) {}
 };
 
 enum lepton           { kElectron, kMuon, kAll, kMuon_BReg};
@@ -77,6 +78,9 @@ void ensembleTreeSysLeptonJets(TString sPath = globalPath)
   ensembles["bFNuUp"] = ensemble("weight_fNuUp/job_*_ensemble.root", 7000000./1.75);
   ensembles["bFNuDown"] = ensemble("weight_fNuDown/job_*_ensemble.root", 7000000./1.75);
   
+  ensembles["flavorQCDUp"] = ensemble("Summer12_TTJets1725_flavor:up_FlavorQCD/job_*_ensemble.root", 7000000./1.75);
+  ensembles["flavorQCDDown"] = ensemble("Summer12_TTJets1725_flavor:down_FlavorQCD/job_*_ensemble.root", 7000000./1.75);
+  
   ensembles["flavorBUp"] = ensemble("Summer12_TTJets1725_flavor:up_FlavorPureBottom/job_*_ensemble.root", 7000000./1.75);
   ensembles["flavorBDown"] = ensemble("Summer12_TTJets1725_flavor:down_FlavorPureBottom/job_*_ensemble.root", 7000000./1.75);
   
@@ -93,11 +97,14 @@ void ensembleTreeSysLeptonJets(TString sPath = globalPath)
   
   ensembles["topPt"] = ensemble("weight_topPt/job_*_ensemble.root", 7000000./1.75);
   
-  ensembles["matchingUp"] = ensemble("Summer12_TTJets1725_matchingup/job_*_ensemble.root", 5000000./1.75);
-  ensembles["matchingDown"] = ensemble("Summer12_TTJets1725_matchingdown/job_*_ensemble.root", 5000000./1.75);
+  ensembles["fSig1.0"] = ensemble("fsig_1.00/job_*_ensemble.root", 7000000./1.75);
+  ensembles["fSig0.9"] = ensemble("fsig_0.90/job_*_ensemble.root", 7000000./1.75);
   
-  ensembles["scaleUp"] = ensemble("Summer12_TTJets1725_scaleup/job_*_ensemble.root", 5000000./1.75);
-  ensembles["scaleDown"] = ensemble("Summer12_TTJets1725_scaledown/job_*_ensemble.root", 5000000./1.75);
+  ensembles["matchingUp"] = ensemble("Summer12_TTJets1725_matchingup/job_*_ensemble.root", 37083003./1.75);
+  ensembles["matchingDown"] = ensemble("Summer12_TTJets1725_matchingdown/job_*_ensemble.root", 34053113./1.75);
+  
+  ensembles["scaleUp"] = ensemble("Summer12_TTJets1725_scaleup/job_*_ensemble.root", 41908271./1.75);
+  ensembles["scaleDown"] = ensemble("Summer12_TTJets1725_scaledown/job_*_ensemble.root", 39286663./1.75);
   
   ensembles["jerUp"] = ensemble("Summer12_TTJets1725_jer:up/job_*_ensemble.root", 7000000./1.75);
   ensembles["jerDown"] = ensemble("Summer12_TTJets1725_jer:down/job_*_ensemble.root", 7000000./1.75);
@@ -105,40 +112,46 @@ void ensembleTreeSysLeptonJets(TString sPath = globalPath)
   ensembles["jesUp"] = ensemble("Summer12_TTJets1725_source:up_Total/job_*_ensemble.root", 7000000./1.75);
   ensembles["jesDown"] = ensemble("Summer12_TTJets1725_source:down_Total/job_*_ensemble.root", 7000000./1.75);
   
-  ensembles["mcatnlo"] = ensemble("Summer12_TTJets1725_mcatnlo_herwig/job_*_ensemble.root", 7000000./1.75);
-  ensembles["powheg"] = ensemble("Summer12_TTJets1725_powheg/job_*_ensemble.root", 7000000./1.75);
-  ensembles["powhegHerwig"] = ensemble("Summer12_TTJets1725_powheg_herwig/job_*_ensemble.root", 7000000./1.75);
+  ensembles["jesPuUp"] = ensemble("Summer12_TTJets1725_source:up_PileUpPtBB/job_*_ensemble.root", 7000000./1.75);
+  ensembles["jesPuDown"] = ensemble("Summer12_TTJets1725_source:down_PileUpPtBB/job_*_ensemble.root", 7000000./1.75);
   
-  ensembles["defaultSC"] = ensemble("Summer12_TTJets1725_MGDecays/job_*_ensemble.root", 7000000./1.75);
-  ensembles["P11"] = ensemble("Summer12_TTJets1725_MGDecays_P11/job_*_ensemble.root", 7000000./1.75);
-  ensembles["P11noCR"] = ensemble("Summer12_TTJets1725_MGDecays_P11noCR/job_*_ensemble.root", 7000000./1.75);
-  ensembles["P11mpiHi"] = ensemble("Summer12_TTJets1725_MGDecays_P11mpiHi/job_*_ensemble.root", 7000000./1.75);
-  ensembles["P11TeV"] = ensemble("Summer12_TTJets1725_MGDecays_P11TeV/job_*_ensemble.root", 7000000./1.75);
+  ensembles["mcatnlo"] = ensemble("Summer12_TTJets1725_mcatnlo_herwig/job_*_ensemble.root", 32852589./1.75);
+  ensembles["powheg"] = ensemble("Summer12_TTJets1725_powheg/job_*_ensemble.root", 21675970./1.75);
+  ensembles["powhegHerwig"] = ensemble("Summer12_TTJets1725_powheg_herwig/job_*_ensemble.root", 27684235./1.75);
+  
+  ensembles["defaultSC"] = ensemble("Summer12_TTJets1725_MGDecays/job_*_ensemble.root", 56000000./1.75);
+  ensembles["P11"] = ensemble("Summer12_TTJets1725_MGDecays_P11/job_*_ensemble.root", 27000000./1.75);
+  ensembles["P11noCR"] = ensemble("Summer12_TTJets1725_MGDecays_P11noCR/job_*_ensemble.root", 27000000./1.75);
+  ensembles["P11mpiHi"] = ensemble("Summer12_TTJets1725_MGDecays_P11mpiHi/job_*_ensemble.root", 18000000./1.75);
+  ensembles["P11TeV"] = ensemble("Summer12_TTJets1725_MGDecays_P11TeV/job_*_ensemble.root", 18000000./1.75);
   
   ///////////////////////////////////
   
-  comparisons["FlavorPureBottom"] = comparison("default", "flavorBUp", "flavorBDown");
-  comparisons["PU"] = comparison("defaultNewWeights", "puUp", "puDown");
-  comparisons["FlavorPureQuark"] = comparison("defaultNewWeights", "flavorQUp", "flavorQDown", true);//
-  comparisons["FlavorPureGluon"] = comparison("defaultNewWeights", "flavorGUp", "flavorGDown", true);//
+  comparisons["Pile-up"] = comparison("defaultNewWeights", "puUp", "puDown");
+  comparisons["JES FlavorPureQuark"] = comparison("defaultNewWeights", "flavorQUp", "flavorQDown", true, false);//
+  comparisons["JES FlavorPureGluon"] = comparison("defaultNewWeights", "flavorGUp", "flavorGDown", true, false);//
+  comparisons["JES FlavorPureBottom"] = comparison("default", "flavorBUp", "flavorBDown", true, false);
+  comparisons["JES FlavorQCD"] = comparison("default", "flavorQCDUp", "flavorQCDDown");
   comparisons["b-fragmentation"] = comparison("defaultNewWeights", "bFragLEP");
-  comparisons["neutrino fraction"] = comparison("defaultNewWeights", "bFNuUp", "bFNuDown");
-  comparisons["b-tag"] = comparison("defaultNewWeights", "bTagSFUp", "bTagSFDown", true);//
-  comparisons["mistag"] = comparison("defaultNewWeights", "misTagSFUp", "misTagSFDown", true);//
-  comparisons["top-pt"] = comparison("defaultNewWeights", "topPt", "", true);//
-  comparisons["matching"] = comparison("calibration", "matchingUp", "matchingDown");
-  comparisons["scale"] = comparison("calibration", "scaleUp", "scaleDown");
-  comparisons["jer"] = comparison("default", "jerUp", "jerDown");
-  comparisons["jes"] = comparison("default", "jesUp", "jesDown");
-  comparisons["generator"] = comparison("calibration", "powheg");
-  comparisons["nlogenerator"] = comparison("powheg", "mcatnlo", "", false);
-  comparisons["shower"] = comparison("powheg", "powhegHerwig", "", false);
-  comparisons["nlogeneratorHer"] = comparison("powhegHerwig", "mcatnlo", "", false);
-  comparisons["MGVsPowheg"] = comparison("powheg", "defaultSC", "", false);
-  comparisons["SC"] = comparison("calibration", "defaultSC", "", false);
-  comparisons["tune"] = comparison("defaultSC", "P11", "", false);
-  comparisons["CR"] = comparison("P11", "P11noCR");
-  comparisons["UE"] = comparison("P11", "P11mpiHi", "P11TeV");
+  comparisons["Neutrino fraction"] = comparison("defaultNewWeights", "bFNuUp", "bFNuDown");
+  comparisons["b-tag"] = comparison("defaultNewWeights", "bTagSFUp", "bTagSFDown");//
+  comparisons["Mistag"] = comparison("defaultNewWeights", "misTagSFUp", "misTagSFDown");//
+  comparisons["Top-pt"] = comparison("defaultNewWeights", "topPt", "");//
+  comparisons["Matching"] = comparison("calibration", "matchingUp", "matchingDown", false);
+  comparisons["Scale"] = comparison("calibration", "scaleUp", "scaleDown", false);
+  comparisons["JER"] = comparison("default", "jerUp", "jerDown");
+  comparisons["JES total"] = comparison("default", "jesUp", "jesDown");
+  comparisons["JES PileUpPt"] = comparison("defaultNewWeights", "jesPuUp", "jesPuDown");
+  comparisons["MG vs. Powheg"] = comparison("calibration", "powheg", "", false, false);
+  comparisons["Powheg+Pythia vs. MCatNLO"] = comparison("powheg", "mcatnlo", "", false, false);
+  comparisons["Pythia vs. Herwig"] = comparison("powheg", "powhegHerwig", "", false, false);
+  comparisons["Powheg+Herwig vs. MCatNLO"] = comparison("powhegHerwig", "mcatnlo", "", false, false);
+  comparisons["MG (SC) vs. Powheg"] = comparison("powheg", "defaultSC", "", false);
+  comparisons["Spin correlations"] = comparison("calibration", "defaultSC", "", false, true);
+  comparisons["Pythia Z2* vs. P11"] = comparison("defaultSC", "P11", "", false, false);
+  comparisons["Color reconnection"] = comparison("P11", "P11noCR", "", false);
+  comparisons["Underlying event"] = comparison("P11", "P11mpiHi", "P11TeV", false);
+  comparisons["Background"] = comparison("defaultNewWeights", "fSig1.0", "fSig0.9");
   
   
   ///////////////////////////////////
@@ -159,15 +172,15 @@ void ensembleTreeSysLeptonJets(TString sPath = globalPath)
       // Fit
       TF1* gaus = new TF1("gaus", "gaus");
       
-      it->second.chain->Fit("gaus", "mass_mTop_JES", "mass_mTop_JES>0 & JES_mTop_JES>0 & genMass==172.5 & genJES==1", "EMQ0");
+      it->second.chain->Fit("gaus", "mass_mTop_JES", "mass_mTop_JES>0 & JES_mTop_JES>0 & genMass==172.5 & genJES==1", "LEMQ0");
       it->second.mass    = gaus->GetParameter(1);
       it->second.massUnc = gaus->GetParameter(2) / sqrt(it->second.size/(crossSection*peLumi));
       
-      it->second.chain->Fit("gaus", "JES_mTop_JES", "mass_mTop_JES>0 & JES_mTop_JES>0 & genMass==172.5 & genJES==1", "EMQ0");
+      it->second.chain->Fit("gaus", "JES_mTop_JES", "mass_mTop_JES>0 & JES_mTop_JES>0 & genMass==172.5 & genJES==1", "LEMQ0");
       it->second.jes    = gaus->GetParameter(1);
       it->second.jesUnc = gaus->GetParameter(2) / sqrt(it->second.size/(crossSection*peLumi));
       
-      it->second.chain->Fit("gaus", "mass_mTop", "mass_mTop>0 & genMass==172.5 & genJES==1", "EMQ0");
+      it->second.chain->Fit("gaus", "mass_mTop", "mass_mTop>0 & genMass==172.5 & genJES==1", "LEMQ0");
       it->second.mass1d    = gaus->GetParameter(1);
       it->second.mass1dUnc = gaus->GetParameter(2) / sqrt(it->second.size/(crossSection*peLumi));
     }
@@ -188,13 +201,19 @@ void ensembleTreeSysLeptonJets(TString sPath = globalPath)
     if (strcmp(it->second.down, "") == 0) down = up;
     else down         = ensembles.find(it->second.down)->second;
     
-    double massShift = max(abs(nominal.mass-up.mass), abs(nominal.mass-down.mass));
-    double jesShift  = max(abs(nominal.jes-up.jes), abs(nominal.jes-down.jes));
-    double mass1dShift = max(abs(nominal.mass1d-up.mass1d), abs(nominal.mass1d-down.mass1d));
+    double massShift    = max(abs(nominal.mass-up.mass), abs(nominal.mass-down.mass));
+    double jesShift     = max(abs(nominal.jes-up.jes), abs(nominal.jes-down.jes));
+    double mass1dShift  = max(abs(nominal.mass1d-up.mass1d), abs(nominal.mass1d-down.mass1d));
     
-    double massShiftUnc = 0.;
-    double jesShiftUnc = 0.;
+    double massShiftUnc   = 0.;
+    double jesShiftUnc    = 0.;
     double mass1dShiftUnc = 0.;
+    
+    if (!it->second.correlated) {
+      massShiftUnc    = max(sqrt(pow(nominal.massUnc,2)+pow(up.massUnc,2)),sqrt(pow(nominal.massUnc,2)+pow(down.massUnc,2)));
+      jesShiftUnc     = max(sqrt(pow(nominal.jesUnc,2)+pow(up.jesUnc,2)),sqrt(pow(nominal.jesUnc,2)+pow(down.jesUnc,2)));
+      mass1dShiftUnc  = max(sqrt(pow(nominal.mass1dUnc,2)+pow(up.mass1dUnc,2)),sqrt(pow(nominal.mass1dUnc,2)+pow(down.mass1dUnc,2)));
+    }
     
     printf("\tmassShift = %.2lf+/-%.2lf GeV, jesShift = %.3lf+/-%.3lf, mass1dShift = %.2lf+/-%.2lf GeV\n", massShift, massShiftUnc, jesShift, jesShiftUnc, mass1dShift, mass1dShiftUnc);
     

@@ -60,14 +60,14 @@ void ensemble()
   
   //// Get histos
   
-  TFile* fEnsemble = new TFile("/scratch/hh/current/cms/user/mseidel/topmass_120412_2120cp/all/Fall11_TTJets1725_1.00/ensemble.root");
-  tree = (TTree*) fEnsemble->Get("tree");
+  TChain* tree = new TChain("tree");
+  tree->Add("/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_131012/lepton/weight.combinedWeight/job_*_ensemble.root");
   
-  hError = new TH1D("hError", "hError", 500, 0, 1);
+  hError = new TH1D("hError", "hError", 5000, 0, 1);
   hPull  = new TH1D("hPull", "hPull", 100, -5, 5);
   
   double massError;
-  tree->SetBranchAddress("massError", &massError);
+  tree->SetBranchAddress("mass_mTop_JES_Error", &massError);
   
   double genMass;
   tree->SetBranchAddress("genMass", &genMass);
@@ -77,7 +77,7 @@ void ensemble()
   
   for (int i = 0; i < tree->GetEntries(); i++) {
     tree->GetEntry(i);
-    if (massError>0 && genMass==172.5 && genJES==1.) hError->Fill(massError * 1.02);
+    if (massError>0 && genMass==172.5 && genJES==1.) hError->Fill(massError);
   }
   
   hError->GetYaxis()->SetTitle("Pseudo-experiments / 2 MeV");
@@ -91,13 +91,13 @@ void ensemble()
   TCanvas* cError = new TCanvas("cError", "cError", 600, 600);
   
   //hError->Rebin(4);
-  hError->GetXaxis()->SetRangeUser(0.4, 0.47);
-  hError->GetYaxis()->SetRangeUser(0, 5000);
+  hError->GetXaxis()->SetRangeUser(0.18, 0.19);
+  hError->GetYaxis()->SetRangeUser(0, 1000);
   hError->Draw();
-  drawArrow(0.428136, 4500);
+  drawArrow(0.187639, 800);
   DrawLabel("This measurement", 0.36, 0.85, 0.46, kRed+1);
   
-  DrawCMS50();
+  DrawCMSPrel8LeptonJets();
   
   /*
   TCanvas* cPull = new TCanvas("cPull", "cPull", 600, 600);
