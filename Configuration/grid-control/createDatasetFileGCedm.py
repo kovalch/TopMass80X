@@ -9,12 +9,12 @@ import fileinput,os,subprocess,sys
 class config:
   dcache_desy   = "dcap://dcache-cms-dcap.desy.de"
   dcache_prefix = "/pnfs/desy.de/cms/tier2"
-  dcache_cms    = "/store/user/mseidel"
-#  dcache_cms    = "/store/user/eschliec/Skim_02_Data03"
+#  dcache_cms    = "/store/user/mseidel"
+  dcache_cms    = "/store/user/eschliec/Skim_02_Data03"
   L_samples     = [
-                   'TT_cluster_8TeV-sherpa',
-                   'TT_lund_8TeV-sherpa'
-                   #'Skim_MJP12B_v1_data ',
+                   #'TT_cluster_8TeV-sherpa',
+                   #'TT_lund_8TeV-sherpa'
+                   'Skim_MJP12B_v1_data',
                    #'Skim_MJP12D1_v1_data',
                    #'Skim_MJP12C2_v1_data',
                    #'Skim_MJP12C1_v1_data',

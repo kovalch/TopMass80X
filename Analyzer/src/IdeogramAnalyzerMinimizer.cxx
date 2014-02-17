@@ -35,8 +35,6 @@ typedef ProgramOptionsReader po;
 IdeogramAnalyzerMinimizer::IdeogramAnalyzerMinimizer(const std::string& identifier, TTree* tree) :
     MassAnalyzer(identifier, tree),
     sample_(*(new DataSample())),
-    //fptr_(0),
-    //combLikelihood_(0),
     channelID_(Helper::channelID()),
     isFastSim_                    (po::GetOption<int   >("fastsim"  )),
     shapeSystematic_              (po::GetOption<double>("shape"    )),
@@ -118,8 +116,6 @@ void IdeogramAnalyzerMinimizer::Scan(const std::string& cuts, int iBin, int jBin
 
 IdeogramAnalyzerMinimizer::~IdeogramAnalyzerMinimizer()
 {
-  //delete fptr_;
-  //delete combLikelihood_;
 }
 
 void IdeogramAnalyzerMinimizer::NumericalMinimization() {
@@ -143,230 +139,157 @@ void IdeogramAnalyzerMinimizer::NumericalMinimization() {
   min->SetTolerance(0.001);
   min->SetPrintLevel(1);
 
-  // all possible result variables go here
-  double mass3d = -10, mass3dError = -10;
-  double  JES3d = -10,  JES3dError = -10;
-  double fSig3d = -10, fSig3dError = -10;
-
-  double mass2d1 = -10, mass2d1Error = -10;
-  double  JES2d1 = -10,  JES2d1Error = -10;
-
-  double mass2d2 = -10, mass2d2Error = -10;
-  double fSig2d2 = -10, fSig2d2Error = -10;
-
-  double  JES2d3 = -10,  JES2d3Error = -10;
-  double fSig2d3 = -10, fSig2d3Error = -10;
-
-  double mass1d = -10, mass1dError = -10;
-  double  JES1d = -10,  JES1dError = -10;
-  double fSig1d = -10, fSig1dError = -10;
   // create funciton wrapper for minmizer
   // a IMultiGenFunction type 
   IdeogramSampleLikelihood likelihood;
   likelihood.AddFunctions(eventFunctions_);
 
   ROOT::Math::Functor f(likelihood, likelihood.NDim());
-  double step[] = {0.01,0.01,0.001};
-
-  // starting point
-  double variable[] = {172.5, 1., 0.70669};
 
   min->SetFunction(f);
 
-  // Set the free variables to be minimized!
-  min->SetVariable(0, "mass", variable[0], step[0]);
-  min->SetVariable(1, "jes" , variable[1], step[1]);
-  if (channelID_ == Helper::kAllJets) {
-    min->SetLimitedVariable(2, "fSig", variable[2], step[2], 0.0, 1.0);
-  }
-  else {
-    min->SetFixedVariable(2, "fSig", 1.0);
+  std::vector<unsigned int> toFit;
+  if(channelID_ == Helper::kAllJets) toFit = {kMass, kJES, kFSig, kFCP};
+  else toFit = {kMass, kJES};
+  IterateVariableCombinations(min, toFit);
+
+  delete min;
+}
+
+template <class T>
+void IdeogramAnalyzerMinimizer::IterateVariableCombinations(ROOT::Math::Minimizer* min, std::vector<T> toFit, unsigned int start)
+{
+  if(!toFit.size()) return;
+  // starting point
+  double variable[] = {172.5, 1., 0.70669, 0.426911023};
+  double step[] = {0.01,0.01,0.001,0.001};
+
+  min->SetFixedVariable(0, "mass", variable[0]);
+  min->SetFixedVariable(1, "jes" , variable[1]);
+  min->SetFixedVariable(2, "fSig", variable[2]);
+  min->SetFixedVariable(3, "fCP" , variable[3]);
+
+  std::string nameFreeVariables;
+  for(unsigned int i = 0; i < toFit.size(); ++i){
+    // Set the free variables to be minimized!
+    if(toFit[i] == kMass) {
+      min->SetVariable(0, "mass", variable[0], step[0]);
+      nameFreeVariables += "_mTop";
+    }
+    else if(toFit[i] == kJES ) {
+      min->SetVariable(1, "jes" , variable[1], step[1]);
+      nameFreeVariables += "_JES";
+    }
+    else if(toFit[i] == kFSig) {
+      min->SetLimitedVariable(2, "fSig", variable[2], step[2], 0.0, 1.0);
+      nameFreeVariables += "_fSig";
+    }
+    else if(toFit[i] == kFCP ) {
+      min->SetLimitedVariable(3, "fCP" , variable[3], step[3], 0.0, 1.0);
+      nameFreeVariables += "_fCP";
+   }
   }
 
   // do the minimization
   min->Minimize();
-
-  if (channelID_ == Helper::kAllJets) {
-    mass3d      = min->X()[0];
-    mass3dError = min->Errors()[0];
-     JES3d      = min->X()[1];
-     JES3dError = min->Errors()[1];
-    fSig3d      = min->X()[2];
-    fSig3dError = min->Errors()[2];
-    std::cout << "Minimum: f(" << mass3d << "," << JES3d << "," << fSig3d << "): " << min->MinValue()  << std::endl;
-  }
-  else{
-    mass2d1      = min->X()[0];
-    mass2d1Error = min->Errors()[0];
-     JES2d1      = min->X()[1];
-     JES2d1Error = min->Errors()[1];
-    std::cout << "Minimum: f(" << mass2d1 << "," << JES2d1 << "): " << min->MinValue()  << std::endl;
+  for(unsigned int i = 0; i < toFit.size(); ++i){
+    // Set the free variables to be minimized!
+    if     (toFit[i] == kMass) { SetValue("mass"+nameFreeVariables, min->X()[0], min->Errors()[0]); }
+    else if(toFit[i] == kJES ) { SetValue("JES" +nameFreeVariables, min->X()[1], min->Errors()[1]); }
+    else if(toFit[i] == kFSig) { SetValue("fSig"+nameFreeVariables, min->X()[2], min->Errors()[2]); }
+    else if(toFit[i] == kFCP ) { SetValue("fCP" +nameFreeVariables, min->X()[3], min->Errors()[3]); }
   }
 
   // DRAW
   if (po::GetOption<bool>("minPlot")) {
-    Helper* helper = new Helper();
-    
-    TCanvas* canv = new TCanvas("canv", "Top mass", 500, 500);
-    canv->SetFrameFillColor(kRed);
-    canv->SetFrameFillStyle(1001);
-    /*
-    canv->Update();
-    canv->GetFrame()->SetFillColor(21);
-    canv->GetFrame()->SetBorderSize(12);
-    canv->GetFrame()->SetFillStyle(1001);
-    canv->Modified();*/
-    
-    canv->SetLeftMargin (0.20);
-    canv->SetRightMargin(0.04);
-    canv->cd();
-    
-    unsigned int numPoints = 100;
-    double* contourxs = new double[numPoints];
-    double* contourys = new double[numPoints];
-
-    unsigned int x = 0; unsigned int y = 1;
-    
-    int lineColor = kBlack;
-    int lineWidth = 1;
-    
-    min->SetErrorDef(9.);
-    min->Contour(x, y, numPoints, contourxs, contourys);
-    TGraph* gr3 = new TGraph(numPoints, contourxs, contourys);
-    gr3->SetFillColor(kSpring-9);
-    gr3->SetLineColor(lineColor);
-    gr3->SetLineWidth(lineWidth);
-    
-    min->SetErrorDef(4.);
-    min->Contour(x, y, numPoints, contourxs, contourys);
-    TGraph* gr2 = new TGraph(numPoints, contourxs, contourys);
-    gr2->SetFillColor(kAzure+1);
-    gr2->SetLineColor(lineColor);
-    gr2->SetLineWidth(lineWidth);
-    
-    min->SetErrorDef(1.);
-    min->Contour(x, y, numPoints, contourxs, contourys);
-    TGraph* gr1 = new TGraph(numPoints, contourxs, contourys);
-    gr1->SetFillColor(kViolet+9);
-    gr1->SetLineColor(lineColor);
-    gr1->SetLineWidth(lineWidth);
-    
-    gr3->SetTitle("-2 #Delta log(L); m_{t} [GeV]; JES");
-    gr3->GetYaxis()->SetTitleOffset(1.7);
-    
-    gr3->Draw("ACF");
-    gr3->Draw("C,SAME");
-    gr2->Draw("CF,SAME");
-    gr2->Draw("C,SAME");
-    gr1->Draw("CF,SAME");
-    gr1->Draw("C,SAME");
-    
-    double mass, JES;
-    if (channelID_ == Helper::kAllJets) {
-      mass = mass3d;
-       JES =  JES3d;
-    }
-    else {
-      mass = mass2d1;
-       JES =  JES2d1;
-    }
-    TGraph* gr0 = new TGraph(1, &mass, &JES);
-    gr0->SetMarkerColor(kWhite);
-    gr0->SetMarkerStyle(2);
-    gr0->SetMarkerSize(2);
-    gr0->Draw("P,SAME");
-    
-    TLegend *leg0 = new TLegend(0.70, 0.75, 0.93, 0.92);
-    leg0->SetFillStyle(1001);
-    leg0->SetFillColor(kWhite);
-    leg0->SetBorderSize(1);
-    leg0->AddEntry(gr1, "1#sigma contour", "F");
-    leg0->AddEntry(gr2, "2#sigma contour", "F");
-    leg0->AddEntry(gr3, "3#sigma contour", "F");
-    leg0->Draw();
-
-    helper->DrawCMS();
-    
-    std::string path("plot/Ideogram/"); path+= fIdentifier_; path += std::string(".eps");
-    canv->Print(path.c_str());
-  }
-  if (channelID_ == Helper::kAllJets) {
-    min->SetVariable(0, "mass", variable[0], step[0]);
-    min->SetVariable(1, "jes" , variable[1], step[1]);
-    min->SetFixedVariable(2, "fSig", -1.0);
-    min->Minimize();
-
-    mass2d1      = min->X()[0];
-    mass2d1Error = min->Errors()[0];
-     JES2d1      = min->X()[1];
-     JES2d1Error = min->Errors()[1];
-
-    min->SetVariable(0, "mass", variable[0], step[0]);
-    min->SetFixedVariable(1, "jes", variable[1]);
-    min->SetLimitedVariable(2, "fSig", variable[2], step[2], 0.0, 1.0);
-    min->Minimize();
-
-    mass2d2      = min->X()[0];
-    mass2d2Error = min->Errors()[0];
-    fSig2d2      = min->X()[2];
-    fSig2d2Error = min->Errors()[2];
-
-    min->SetFixedVariable(0, "mass", variable[0]);
-    min->SetVariable(1, "jes", variable[1], step[1]);
-    min->SetLimitedVariable(2, "fSig", variable[2], step[2], 0.0, 1.0);
-    min->Minimize();
-
-     JES2d3      = min->X()[1];
-     JES2d3Error = min->Errors()[1];
-    fSig2d3      = min->X()[2];
-    fSig2d3Error = min->Errors()[2];
-
-    min->SetFixedVariable(0, "mass", variable[0]);
-    min->SetVariable(1, "jes" , variable[1], step[1]);
-    min->SetFixedVariable(2, "fSig", -1.0);
-    min->Minimize();
-
-    JES1d      = min->X()[1];
-    JES1dError = min->Errors()[1];
-
-    min->SetFixedVariable(0, "mass", variable[0]);
-    min->SetFixedVariable(1, "jes", variable[1]);
-    min->SetLimitedVariable(2, "fSig", variable[2], step[2], 0.0, 1.0);
-    min->Minimize();
-
-    fSig1d      = min->X()[2];
-    fSig1dError = min->Errors()[2];
+    PlotResult(min);
   }
 
-  min->SetVariable(0, "mass", variable[0], step[0]);
-  min->SetFixedVariable(1, "jes", variable[1]);
-  if (channelID_ == Helper::kAllJets) {
-    min->SetFixedVariable(2, "fSig", -1.0);
+  // do the next combination of variables
+  for(unsigned int i = start; i < toFit.size(); ++i){
+    std::vector<T> copyFit = toFit;
+    copyFit.erase(copyFit.begin()+i);
+    IterateVariableCombinations(min, copyFit, i);
   }
-  else {
-    min->SetFixedVariable(2, "fSig", 1.0);
-  }
-  min->Minimize();
-  mass1d      = min->X()[0];
-  mass1dError = min->Errors()[0];
+  return;
+}
 
-  SetValue("mass_mTop_JES_fSig", mass3d, mass3dError);
-  SetValue("JES_mTop_JES_fSig" ,  JES3d,  JES3dError);
-  SetValue("fSig_mTop_JES_fSig", fSig3d, fSig3dError);
+void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min){
+  Helper* helper = new Helper();
 
-  SetValue("mass_mTop_JES", mass2d1, mass2d1Error);
-  SetValue("JES_mTop_JES" ,  JES2d1,  JES2d1Error);
+  TCanvas* canv = new TCanvas("canv", "Top mass", 500, 500);
+  canv->SetFrameFillColor(kRed);
+  canv->SetFrameFillStyle(1001);
+  /*
+  canv->Update();
+  canv->GetFrame()->SetFillColor(21);
+  canv->GetFrame()->SetBorderSize(12);
+  canv->GetFrame()->SetFillStyle(1001);
+  canv->Modified();*/
 
-  SetValue("mass_mTop_fSig", mass2d2, mass2d2Error);
-  SetValue("fSig_mTop_fSig", fSig2d2, fSig2d2Error);
+  canv->SetLeftMargin (0.20);
+  canv->SetRightMargin(0.04);
+  canv->cd();
 
-  SetValue("JES_JES_fSig" ,  JES2d3,  JES2d3Error);
-  SetValue("fSig_JES_fSig", fSig2d3, fSig2d3Error);
-  SetValue("mass_mTop", mass1d, mass1dError);
-  SetValue("JES_JES"  ,  JES1d,  JES1dError);
-  SetValue("fSig_fSig", fSig1d, fSig1dError);
-    
-  delete min;
+  unsigned int numPoints = 100;
+  double* contourxs = new double[numPoints];
+  double* contourys = new double[numPoints];
+
+  unsigned int x = 0; unsigned int y = 1;
+
+  int lineColor = kBlack;
+  int lineWidth = 1;
+
+  min->SetErrorDef(9.);
+  min->Contour(x, y, numPoints, contourxs, contourys);
+  TGraph* gr3 = new TGraph(numPoints, contourxs, contourys);
+  gr3->SetFillColor(kSpring-9);
+  gr3->SetLineColor(lineColor);
+  gr3->SetLineWidth(lineWidth);
+
+  min->SetErrorDef(4.);
+  min->Contour(x, y, numPoints, contourxs, contourys);
+  TGraph* gr2 = new TGraph(numPoints, contourxs, contourys);
+  gr2->SetFillColor(kAzure+1);
+  gr2->SetLineColor(lineColor);
+  gr2->SetLineWidth(lineWidth);
+
+  min->SetErrorDef(1.);
+  min->Contour(x, y, numPoints, contourxs, contourys);
+  TGraph* gr1 = new TGraph(numPoints, contourxs, contourys);
+  gr1->SetFillColor(kViolet+9);
+  gr1->SetLineColor(lineColor);
+  gr1->SetLineWidth(lineWidth);
+
+  gr3->SetTitle("-2 #Delta log(L); m_{t} [GeV]; JES");
+  gr3->GetYaxis()->SetTitleOffset(1.7);
+
+  gr3->Draw("ACF");
+  gr3->Draw("C,SAME");
+  gr2->Draw("CF,SAME");
+  gr2->Draw("C,SAME");
+  gr1->Draw("CF,SAME");
+  gr1->Draw("C,SAME");
+
+  TGraph* gr0 = new TGraph(1, &min->X()[0], &min->X()[1]);
+  gr0->SetMarkerColor(kWhite);
+  gr0->SetMarkerStyle(2);
+  gr0->SetMarkerSize(2);
+  gr0->Draw("P,SAME");
+
+  TLegend *leg0 = new TLegend(0.70, 0.75, 0.93, 0.92);
+  leg0->SetFillStyle(1001);
+  leg0->SetFillColor(kWhite);
+  leg0->SetBorderSize(1);
+  leg0->AddEntry(gr1, "1#sigma contour", "F");
+  leg0->AddEntry(gr2, "2#sigma contour", "F");
+  leg0->AddEntry(gr3, "3#sigma contour", "F");
+  leg0->Draw();
+
+  helper->DrawCMS();
+
+  std::string path("plot/Ideogram/"); path+= fIdentifier_; path += std::string(".eps");
+  canv->Print(path.c_str());
 }
 
 // cleanup needed to run pseudo-experiments

@@ -7,6 +7,11 @@
 
 class TF2;
 class IdeogramCombLikelihood;
+namespace ROOT{
+  namespace Math{
+  class Minimizer;
+  }
+}
 
 class IdeogramAnalyzerMinimizer : public MassAnalyzer {
  public:
@@ -18,11 +23,13 @@ class IdeogramAnalyzerMinimizer : public MassAnalyzer {
  private:
   void Scan(const std::string& cuts, int iBin, int jBin);
   void NumericalMinimization();
+  enum allowedVariables{kMass, kJES, kFSig, kFCP};
+  template <class T> void IterateVariableCombinations(ROOT::Math::Minimizer* min, std::vector<T> toFit, unsigned int start = 0);
+  void PlotResult(ROOT::Math::Minimizer* min);
+
   void CleanUp();
   
   DataSample& sample_;
-  //IdeogramCombLikelihood* fptr_;
-  //TF2* combLikelihood_;
   int channelID_;
   double isFastSim_;
   double shapeSystematic_;

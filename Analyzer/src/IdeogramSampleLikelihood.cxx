@@ -19,10 +19,11 @@ double IdeogramSampleLikelihood::DoEval(const double *x) const {
     for (const auto& permutation : event) {
       if (permutation->IsActive()) {
         eventIsActive = true;
-        double temp[] = {172.5, 1., 1.};
+        double temp[] = {172.5, 1., 1.,0.5};
         temp[0] = x[0];
         temp[1] = x[1];
         temp[2] = x[2];
+        temp[3] = x[3];
         double p[] = {0., 0., 0., 0., 0., 0., 0.};
         eventResult  += permutation->Evaluate(temp, p);
         eventSumProb += permutation->GetFixedParam(0);
