@@ -148,7 +148,7 @@ void IdeogramAnalyzerMinimizer::NumericalMinimization() {
 
   min->SetFunction(f);
 
-  std::vector<unsigned int> toFit;
+  std::vector<allowedVariables> toFit;
   if(channelID_ == Helper::kAllJets) toFit = {kMass, kJES, kFSig, kFCP};
   else toFit = {kMass, kJES};
   IterateVariableCombinations(min, toFit);
@@ -156,8 +156,7 @@ void IdeogramAnalyzerMinimizer::NumericalMinimization() {
   delete min;
 }
 
-template <class T>
-void IdeogramAnalyzerMinimizer::IterateVariableCombinations(ROOT::Math::Minimizer* min, std::vector<T> toFit, unsigned int start)
+void IdeogramAnalyzerMinimizer::IterateVariableCombinations(ROOT::Math::Minimizer* min, std::vector<IdeogramAnalyzerMinimizer::allowedVariables> toFit, unsigned int start)
 {
   if(!toFit.size()) return;
   // starting point
@@ -204,7 +203,12 @@ void IdeogramAnalyzerMinimizer::IterateVariableCombinations(ROOT::Math::Minimize
   if (po::GetOption<bool>("minPlot")) {
     if(channelID_ == Helper::kAllJets){
       if(nameFreeVariables == "_mTop_JES_fSig_fCP"){
-        PlotResult(min);
+        PlotResult(min, kMass, kJES );
+        PlotResult(min, kMass, kFSig);
+        PlotResult(min, kMass, kFCP );
+        PlotResult(min, kJES , kFSig);
+        PlotResult(min, kJES , kFCP );
+        PlotResult(min, kFSig, kFCP );
       }
     }
     else{
@@ -216,14 +220,14 @@ void IdeogramAnalyzerMinimizer::IterateVariableCombinations(ROOT::Math::Minimize
 
   // do the next combination of variables
   for(unsigned int i = start; i < toFit.size(); ++i){
-    std::vector<T> copyFit = toFit;
+    std::vector<allowedVariables> copyFit = toFit;
     copyFit.erase(copyFit.begin()+i);
     IterateVariableCombinations(min, copyFit, i);
   }
   return;
 }
 
-void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min){
+void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min, IdeogramAnalyzerMinimizer::allowedVariables x, IdeogramAnalyzerMinimizer::allowedVariables y){
   Helper* helper = new Helper();
 
   TCanvas* canv = new TCanvas("canv", "Top mass", 500, 500);
@@ -243,8 +247,6 @@ void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min){
   unsigned int numPoints = 100;
   double* contourxs = new double[numPoints+1];
   double* contourys = new double[numPoints+1];
-
-  unsigned int x = 0; unsigned int y = 1;
 
   int lineColor = kBlack;
   int lineWidth = 1;
@@ -273,7 +275,16 @@ void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min){
   gr1->SetLineColor(lineColor);
   gr1->SetLineWidth(lineWidth);
 
-  gr3->SetTitle("; m_{t} [GeV]; JES");
+  std::string plotNamePostfix("_");
+  if     (x == kMass) { gr3->GetXaxis()->SetTitle("m_{t} [GeV]"); plotNamePostfix += "mass_"; }
+  else if(x == kJES ) { gr3->GetXaxis()->SetTitle("JES");         plotNamePostfix += "JES_" ; }
+  else if(x == kFSig) { gr3->GetXaxis()->SetTitle("f_{sig}");     plotNamePostfix += "fSig_"; }
+  else if(x == kFCP ) { gr3->GetXaxis()->SetTitle("f_{CP}");      plotNamePostfix += "fCP_" ; }
+  plotNamePostfix += "vs_";
+  if     (y == kMass) { gr3->GetYaxis()->SetTitle("m_{t} [GeV]"); plotNamePostfix += "mass"; }
+  else if(y == kJES ) { gr3->GetYaxis()->SetTitle("JES");         plotNamePostfix += "JES" ; }
+  else if(y == kFSig) { gr3->GetYaxis()->SetTitle("f_{sig}");     plotNamePostfix += "fSig"; }
+  else if(y == kFCP ) { gr3->GetYaxis()->SetTitle("f_{CP}");      plotNamePostfix += "fCP" ; }
   gr3->GetYaxis()->SetTitleOffset(1.7);
 
   gr3->Draw("ACF");
@@ -283,7 +294,7 @@ void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min){
   gr1->Draw("CF,SAME");
   gr1->Draw("C,SAME");
 
-  TGraph* gr0 = new TGraph(1, &min->X()[0], &min->X()[1]);
+  TGraph* gr0 = new TGraph(1, &min->X()[x], &min->X()[y]);
   gr0->SetMarkerColor(kWhite);
   gr0->SetMarkerStyle(2);
   gr0->SetMarkerSize(2);
@@ -300,10 +311,9 @@ void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min){
 
   helper->DrawCMS();
 
-  std::string path("plot/Ideogram/"); path+= HelperFunctions::cleanedName(fIdentifier_); path += std::string(".eps");
-  canv->Print(path.c_str());
-  path = "plot/Ideogram/"; path+= HelperFunctions::cleanedName(fIdentifier_); path += std::string(".root");
-  canv->Print(path.c_str());
+  std::string path("plot/Ideogram/"); path+=HelperFunctions::cleanedName(fIdentifier_)+plotNamePostfix;
+  canv->Print((path+std::string(".eps" )).c_str(), "eps");
+  canv->Print((path+std::string(".root")).c_str(), "root");
 }
 
 // cleanup needed to run pseudo-experiments

@@ -24,8 +24,8 @@ class IdeogramAnalyzerMinimizer : public MassAnalyzer {
   void Scan(const std::string& cuts, int iBin, int jBin);
   void NumericalMinimization();
   enum allowedVariables{kMass, kJES, kFSig, kFCP};
-  template <class T> void IterateVariableCombinations(ROOT::Math::Minimizer* min, std::vector<T> toFit, unsigned int start = 0);
-  void PlotResult(ROOT::Math::Minimizer* min);
+  void IterateVariableCombinations(ROOT::Math::Minimizer* min, std::vector<allowedVariables> toFit, unsigned int start = 0);
+  void PlotResult(ROOT::Math::Minimizer* min, allowedVariables x = kMass, allowedVariables y = kJES);
 
   void CleanUp();
   
