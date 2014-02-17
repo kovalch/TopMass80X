@@ -202,7 +202,16 @@ void IdeogramAnalyzerMinimizer::IterateVariableCombinations(ROOT::Math::Minimize
 
   // DRAW
   if (po::GetOption<bool>("minPlot")) {
-    PlotResult(min);
+    if(channelID_ == Helper::kAllJets){
+      if(nameFreeVariables == "_mTop_JES_fSig_fCP"){
+        PlotResult(min);
+      }
+    }
+    else{
+      if(nameFreeVariables == "_mTop_JES"){
+        PlotResult(min);
+      }
+    }
   }
 
   // do the next combination of variables
