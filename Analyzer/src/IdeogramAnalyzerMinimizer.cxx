@@ -241,8 +241,8 @@ void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min){
   canv->cd();
 
   unsigned int numPoints = 100;
-  double* contourxs = new double[numPoints];
-  double* contourys = new double[numPoints];
+  double* contourxs = new double[numPoints+1];
+  double* contourys = new double[numPoints+1];
 
   unsigned int x = 0; unsigned int y = 1;
 
@@ -251,26 +251,29 @@ void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min){
 
   min->SetErrorDef(9.);
   min->Contour(x, y, numPoints, contourxs, contourys);
-  TGraph* gr3 = new TGraph(numPoints, contourxs, contourys);
+  contourxs[numPoints] = contourxs[0]; contourys[numPoints] = contourys[0];
+  TGraph* gr3 = new TGraph(numPoints+1, contourxs, contourys);
   gr3->SetFillColor(kSpring-9);
   gr3->SetLineColor(lineColor);
   gr3->SetLineWidth(lineWidth);
 
   min->SetErrorDef(4.);
   min->Contour(x, y, numPoints, contourxs, contourys);
-  TGraph* gr2 = new TGraph(numPoints, contourxs, contourys);
+  contourxs[numPoints] = contourxs[0]; contourys[numPoints] = contourys[0];
+  TGraph* gr2 = new TGraph(numPoints+1, contourxs, contourys);
   gr2->SetFillColor(kAzure+1);
   gr2->SetLineColor(lineColor);
   gr2->SetLineWidth(lineWidth);
 
   min->SetErrorDef(1.);
   min->Contour(x, y, numPoints, contourxs, contourys);
-  TGraph* gr1 = new TGraph(numPoints, contourxs, contourys);
+  contourxs[numPoints] = contourxs[0]; contourys[numPoints] = contourys[0];
+  TGraph* gr1 = new TGraph(numPoints+1, contourxs, contourys);
   gr1->SetFillColor(kViolet+9);
   gr1->SetLineColor(lineColor);
   gr1->SetLineWidth(lineWidth);
 
-  gr3->SetTitle("-2 #Delta log(L); m_{t} [GeV]; JES");
+  gr3->SetTitle("; m_{t} [GeV]; JES");
   gr3->GetYaxis()->SetTitleOffset(1.7);
 
   gr3->Draw("ACF");
@@ -298,6 +301,8 @@ void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min){
   helper->DrawCMS();
 
   std::string path("plot/Ideogram/"); path+= HelperFunctions::cleanedName(fIdentifier_); path += std::string(".eps");
+  canv->Print(path.c_str());
+  path = "plot/Ideogram/"; path+= HelperFunctions::cleanedName(fIdentifier_); path += std::string(".root");
   canv->Print(path.c_str());
 }
 
