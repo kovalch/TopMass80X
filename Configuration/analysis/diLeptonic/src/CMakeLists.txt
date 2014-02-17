@@ -9,8 +9,10 @@ SET( ${PROJECT_NAME}_HEADERS_THAT_NEED_ROOTDICT
 SET( ${PROJECT_NAME}_LIBSOURCES
   HistoListReader
   TopAnalysis
-  plotterclass
   ttbarUtils
+  analysisStructs
+  AnalysisHistograms
+  plotterclass
   DilepSVDFunctions
   )
 

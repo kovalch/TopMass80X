@@ -8,9 +8,10 @@
 #include <cstdlib>
 
 #include <TObject.h>
+#include <TString.h>
 
 class TFile;
-class TString;
+//class TString;
 
 
 

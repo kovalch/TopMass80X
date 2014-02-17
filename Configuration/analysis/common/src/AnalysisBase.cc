@@ -1018,6 +1018,7 @@ bool AnalysisBase::calculateKinReco(const int leptonIndex, const int antiLeptonI
     const auto& sols = kinematicReconstruction_->getSols();
     const int nSolution = sols.size();
     
+    //////////kinematicReconstruction_->doJetsMerging(&jets,&jetBTagCSV);
     
     // Check if solution exists, take first one
     if(nSolution == 0) return false;

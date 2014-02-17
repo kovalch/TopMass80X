@@ -23,6 +23,8 @@
 
 #define printout 0
 
+#define topmass (172.5)
+
 using namespace std;
 
 void angle_rot(double alpha, double e, TLorentzVector jet, TLorentzVector & jet_sm)
@@ -354,7 +356,7 @@ else
 
 if(b1_id.size()<2)return;     
 
-    KinematicReconstruction_MeanSol meanSol(172.5);
+    KinematicReconstruction_MeanSol meanSol(topmass);
     //double max_sum_weight=0;
     int /*nbtag=0,*/ isHaveSol=0;
 
@@ -876,7 +878,7 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
                 l_sm.SetXYZT(l_sm.Px()*xL, l_sm.Py()*xL, l_sm.Pz()*xL, l_sm.E()*fL);
                 al_sm.SetXYZT(al_sm.Px()*xaL, al_sm.Py()*xaL, al_sm.Pz()*xaL, al_sm.E()*faL);
 
-                KinematicReconstruction_LSroutines tp_sm(172.5, 4.8, 80.4, 0.0, 0.0);
+                KinematicReconstruction_LSroutines tp_sm(topmass, 4.8, 80.4, 0.0, 0.0);
                 tp_sm.setConstraints(al_sm, l_sm, b_sm, bbar_sm, met_sm.Px(), met_sm.Py());
 
                 if(!(tp_sm.getNsol()<1 || tp_sm.getNsol()==1 || tp_sm.getNsol()==3)) {

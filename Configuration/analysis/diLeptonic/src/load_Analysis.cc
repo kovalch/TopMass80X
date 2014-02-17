@@ -12,12 +12,22 @@
 #include <TH1.h>
 
 #include "TopAnalysis.h"
+#include "AnalysisHistograms.h"
 #include "../../common/include/CommandLineParameters.h"
 #include "../../common/include/utils.h"
 #include "../../common/include/ScaleFactors.h"
 #include "../../common/include/sampleHelpers.h"
 #include "../../common/include/KinematicReconstruction.h"
 #include "TopAnalysis/ZTopUtils/interface/PUReweighter.h"
+
+
+
+// #include "BasicAnalyzer.h"
+// #include "JetMatchAnalyzer.h"
+// #include "JetChargeAnalyzer.h"
+// #include "Playground.h"
+
+
 
 
 
@@ -154,6 +164,20 @@ void load_Analysis(TString validFilenamePattern,
     }
     
     
+    // Vector for setting up all analysers
+    std::vector<AnalysisHistogramsBase*> v_analysisHistograms;
+    
+    // Set up event yield histograms
+    EventYieldHistograms* eventYieldHistograms(0);
+    eventYieldHistograms = new EventYieldHistograms({"1", "2", "3", "4", "5", "6", "7", "8"});
+    v_analysisHistograms.push_back(eventYieldHistograms);
+    
+    // Set up Drell-Yan scaling histograms
+    DyScalingHistograms* dyScalingHistograms(0);
+    dyScalingHistograms = new DyScalingHistograms({"4", "5", "6", "7", "8"}, "5");
+    v_analysisHistograms.push_back(dyScalingHistograms);
+    
+    
     // Set up the analysis
     TopAnalysis *selector = new TopAnalysis();
     selector->SetAnalysisOutputBase(AnalysisOutputDIR);
@@ -164,6 +188,8 @@ void load_Analysis(TString validFilenamePattern,
     selector->SetBtagScaleFactors(btagScaleFactors);
     selector->SetJetEnergyResolutionScaleFactors(jetEnergyResolutionScaleFactors);
     selector->SetJetEnergyScaleScaleFactors(jetEnergyScaleScaleFactors);
+    
+    selector->SetAllAnalysisHistograms(v_analysisHistograms);
     
     // Access selectionList containing all input sample nTuples
     ifstream infile("selectionList.txt");
