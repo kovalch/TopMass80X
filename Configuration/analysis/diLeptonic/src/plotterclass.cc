@@ -943,8 +943,6 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
         if(XAxisbins.size()>1) drawhists[i] = drawhists[i]->Rebin(bins,"tmp",Xbins);
         setStyle(drawhists[i], i, true);
     }
-
-
     for(unsigned int i=0; i<hists.size() ; ++i){ // prepare histos and leg
 //         std::cout << "Legend ["<<i<<"] = " << legends.at(i) << std::endl;
     if(legends.at(i) != "Data"){
@@ -1111,23 +1109,23 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
     stack->Draw("same HIST");
 
     TH1* uncBand = common::summedStackHisto(stack.get());
-
     getSignalUncertaintyBand(uncBand, Channel);
-    leg->AddEntry(uncBand, "t#bar{t} Model Unc.", "f");
-
-    gPad->RedrawAxis();
-    TExec *setex1 { new TExec("setex1","gStyle->SetErrorX(0.5)") };//this is frustrating and stupid but apparently necessary...
-    setex1->Draw();
     uncBand->SetFillStyle(3001);
     uncBand->SetMarkerStyle(0);
     uncBand->SetFillColor(11);
     uncBand->Draw("same,e2");
+    leg->AddEntry(uncBand, "t#bar{t} Model Unc.", "f");
+
+
+    gPad->RedrawAxis();
+    TExec *setex1 { new TExec("setex1","gStyle->SetErrorX(0.5)") };//this is frustrating and stupid but apparently necessary...
+    setex1->Draw();
+    uncBand->Draw("same,e2");
     TExec *setex2 { new TExec("setex2","gStyle->SetErrorX(0.)") };
     setex2->Draw();
-
     drawhists[0]->Draw("same,e1");
 
-    DrawCMSLabels(0, 8);
+    DrawCMSLabels(1, 8);
     DrawDecayChLabel(channelLabel[channelType]);
 
     if(name.Contains("JetMult")) {
@@ -2884,7 +2882,7 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
     }
 
     madgraphhistBinned->Draw("SAME");
-    DrawCMSLabels(0, 8);
+    DrawCMSLabels(1, 8);
     DrawDecayChLabel(channelLabel[channelType]);
 
 
@@ -3048,7 +3046,7 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
     setex2->Draw();*/
     varhists[0]->Draw("same, e1"); //############
     //varhists[0]->Draw("same, e"); 
-    DrawCMSLabels(0, 8);
+    DrawCMSLabels(1, 8);
     DrawDecayChLabel(channelLabel[channelType]);
     leg->Draw("SAME");
     gPad->RedrawAxis();
@@ -3718,7 +3716,7 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
     }
 
     madgraphhistBinned->Draw("SAME");
-    DrawCMSLabels(0, 8);
+    DrawCMSLabels(1, 8);
     DrawDecayChLabel(channelLabel[channelType]);
 
     if (drawNLOCurves) {
@@ -3878,7 +3876,7 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
     //Only necessary if we want error bands
 
     varhists[0]->Draw("same, e1");
-    DrawCMSLabels(0, 8);
+    DrawCMSLabels(1, 8);
     DrawDecayChLabel(channelLabel[channelType]);
     setControlPlotLegendStyle(varhistsPlotting, legends, leg);
     leg->Draw("SAME");
@@ -4142,7 +4140,7 @@ TH1F* Plotter::reBinTH1FIrregularNewBinning(TH1F *histoOldBinning, TString plotn
 
     double oldBin = histoOldBinning->GetBinCenter(j);
 
-    if( (oldBin>=lowEdge) && (oldBin<highEdge) ){		   
+    if( (oldBin>=lowEdge) && (oldBin<highEdge) ){
         if (rescale) binSum+=histoOldBinning->GetBinContent(j) * histoOldBinning->GetBinWidth(j);
         else         binSum+=histoOldBinning->GetBinContent(j);
     }
@@ -4580,9 +4578,25 @@ void Plotter::getSignalUncertaintyBand(TH1* uncBand, TString channel_)
 
     for (size_t iter = 0; iter<syst.size(); iter++)
     {
-        TH1D *tmpUp = fileReader->GetClone<TH1D>("Plots/"+syst.at(iter)+"UP/"+channel_+"/"+name+"_source.root", name+"_allmc", 1);
-        TH1D *tmpDo = fileReader->GetClone<TH1D>("Plots/"+syst.at(iter)+"DOWN/"+channel_+"/"+name+"_source.root", name+"_allmc", 1);
-        if(!tmpUp || !tmpDo) continue;
+//         // This lines crashes the code, some probles arises form the HistoListReader class
+//         TH1D *tmpUp = fileReader->GetClone<TH1D>("Plots/"+syst.at(iter)+"UP/"+channel_+"/"+name+"_source.root", name+"_allmc", 1);
+//         TH1D *tmpDo = fileReader->GetClone<TH1D>("Plots/"+syst.at(iter)+"DOWN/"+channel_+"/"+name+"_source.root", name+"_allmc", 1);
+//         if(!tmpUp || !tmpDo) continue;
+
+        TFile *f_tmpUp = new TFile("Plots/"+syst.at(iter)+"UP/"+channel_+"/"+name+"_source.root");
+        TFile *f_tmpDo = new TFile("Plots/"+syst.at(iter)+"DOWN/"+channel_+"/"+name+"_source.root");
+        if(!f_tmpDo || !f_tmpUp) {
+            std::cout<<"File not existing"<<std::endl;
+            continue;
+        }
+        TH1D *tmpUp = dynamic_cast<TH1D*> (f_tmpUp->Get(name+"_allmc"));
+        TH1D *tmpDo = dynamic_cast<TH1D*> (f_tmpDo->Get(name+"_allmc"));
+        if(!tmpUp || !tmpDo){
+            std::cout<<"Histogram not existing"<<std::endl;
+            continue;
+        }
+        tmpDo->SetDirectory(0);
+        tmpUp->SetDirectory(0);
 
         for (Int_t nbin = 0; nbin < tmpUp->GetNbinsX(); nbin++)
         {
@@ -4593,6 +4607,8 @@ void Plotter::getSignalUncertaintyBand(TH1* uncBand, TString channel_)
             vec_varup.at(nbin) += rel_diffup * rel_diffup;
             vec_vardown.at(nbin) += rel_diffdo * rel_diffdo;
         }
+        delete tmpDo; delete tmpUp;
+        delete f_tmpDo; delete f_tmpUp;
     }
 
     for (size_t iter = 0; iter< vec_varup.size(); iter++)
