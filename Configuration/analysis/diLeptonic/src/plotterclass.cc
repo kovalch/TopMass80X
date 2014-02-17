@@ -811,9 +811,6 @@ std::vector<TString> Plotter::InputFileList(TString mode, TString Systematic)
     FileVector.push_back(tempName + "_qcdem3080.root");
     FileVector.push_back(tempName + "_qcdem80170.root");
     FileVector.push_back(tempName + "_qcdmu15.root");
-    FileVector.push_back(tempName + "_qcdbcem2030.root");
-    FileVector.push_back(tempName + "_qcdbcem3080.root");
-    FileVector.push_back(tempName + "_qcdbcem80170.root");
     
     
     TString ttbarsignalplustau = TString("selectionRoot/") + Systematic + "/" + mode + "/" + mode + "_ttbarsignalplustau.root";

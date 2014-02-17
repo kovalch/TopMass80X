@@ -20,21 +20,6 @@
 #include "../../common/include/KinematicReconstruction.h"
 #include "TopAnalysis/ZTopUtils/interface/PUReweighter.h"
 
-
-
-// #include "BasicAnalyzer.h"
-// #include "JetMatchAnalyzer.h"
-// #include "JetChargeAnalyzer.h"
-// #include "Playground.h"
-
-
-
-
-
-
-
-
-
 /// Set pileup distribution file corresponding to data sample in use
 /// The file ending is automatically adjusted for different systematics
 //constexpr const char* PileupInputFILE = "Data_PUDist_19624pb.root";
