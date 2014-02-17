@@ -297,7 +297,7 @@ void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min){
 
   helper->DrawCMS();
 
-  std::string path("plot/Ideogram/"); path+= fIdentifier_; path += std::string(".eps");
+  std::string path("plot/Ideogram/"); path+= HelperFunctions::cleanedName(fIdentifier_); path += std::string(".eps");
   canv->Print(path.c_str());
 }
 
