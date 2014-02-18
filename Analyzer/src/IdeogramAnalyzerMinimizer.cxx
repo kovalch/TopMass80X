@@ -228,21 +228,21 @@ void IdeogramAnalyzerMinimizer::IterateVariableCombinations(ROOT::Math::Minimize
 }
 
 void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min, IdeogramAnalyzerMinimizer::allowedVariables x, IdeogramAnalyzerMinimizer::allowedVariables y){
-  Helper* helper = new Helper();
+  Helper helper;
 
-  TCanvas* canv = new TCanvas("canv", "Top mass", 500, 500);
-  canv->SetFrameFillColor(kRed);
-  canv->SetFrameFillStyle(1001);
+  TCanvas canv("canv", "Top mass", 500, 500);
+  canv.SetFrameFillColor(kRed);
+  canv.SetFrameFillStyle(1001);
   /*
-  canv->Update();
-  canv->GetFrame()->SetFillColor(21);
-  canv->GetFrame()->SetBorderSize(12);
-  canv->GetFrame()->SetFillStyle(1001);
-  canv->Modified();*/
-
-  canv->SetLeftMargin (0.20);
-  canv->SetRightMargin(0.04);
-  canv->cd();
+  canv.Update();
+  canv.GetFrame()->SetFillColor(21);
+  canv.GetFrame()->SetBorderSize(12);
+  canv.GetFrame()->SetFillStyle(1001);
+  canv.Modified();
+  */
+  canv.SetLeftMargin (0.20);
+  canv.SetRightMargin(0.04);
+  canv.cd();
 
   unsigned int numPoints = 100;
   double* contourxs = new double[numPoints+1];
@@ -254,66 +254,70 @@ void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min, IdeogramA
   min->SetErrorDef(9.);
   min->Contour(x, y, numPoints, contourxs, contourys);
   contourxs[numPoints] = contourxs[0]; contourys[numPoints] = contourys[0];
-  TGraph* gr3 = new TGraph(numPoints+1, contourxs, contourys);
-  gr3->SetFillColor(kSpring-9);
-  gr3->SetLineColor(lineColor);
-  gr3->SetLineWidth(lineWidth);
+  TGraph gr3(numPoints+1, contourxs, contourys);
+  gr3.SetNameTitle("","");
+  gr3.SetFillColor(kSpring-9);
+  gr3.SetLineColor(lineColor);
+  gr3.SetLineWidth(lineWidth);
 
   min->SetErrorDef(4.);
   min->Contour(x, y, numPoints, contourxs, contourys);
   contourxs[numPoints] = contourxs[0]; contourys[numPoints] = contourys[0];
-  TGraph* gr2 = new TGraph(numPoints+1, contourxs, contourys);
-  gr2->SetFillColor(kAzure+1);
-  gr2->SetLineColor(lineColor);
-  gr2->SetLineWidth(lineWidth);
+  TGraph gr2(numPoints+1, contourxs, contourys);
+  gr2.SetFillColor(kAzure+1);
+  gr2.SetLineColor(lineColor);
+  gr2.SetLineWidth(lineWidth);
 
   min->SetErrorDef(1.);
   min->Contour(x, y, numPoints, contourxs, contourys);
   contourxs[numPoints] = contourxs[0]; contourys[numPoints] = contourys[0];
-  TGraph* gr1 = new TGraph(numPoints+1, contourxs, contourys);
-  gr1->SetFillColor(kViolet+9);
-  gr1->SetLineColor(lineColor);
-  gr1->SetLineWidth(lineWidth);
+  TGraph gr1(numPoints+1, contourxs, contourys);
+  gr1.SetFillColor(kViolet+9);
+  gr1.SetLineColor(lineColor);
+  gr1.SetLineWidth(lineWidth);
 
   std::string plotNamePostfix("_");
-  if     (x == kMass) { gr3->GetXaxis()->SetTitle("m_{t} [GeV]"); plotNamePostfix += "mass_"; }
-  else if(x == kJES ) { gr3->GetXaxis()->SetTitle("JES");         plotNamePostfix += "JES_" ; }
-  else if(x == kFSig) { gr3->GetXaxis()->SetTitle("f_{sig}");     plotNamePostfix += "fSig_"; }
-  else if(x == kFCP ) { gr3->GetXaxis()->SetTitle("f_{CP}");      plotNamePostfix += "fCP_" ; }
+  if     (x == kMass) { gr3.GetXaxis()->SetTitle("m_{t} [GeV]"); plotNamePostfix += "mass_"; }
+  else if(x == kJES ) { gr3.GetXaxis()->SetTitle("JES");         plotNamePostfix += "JES_" ; }
+  else if(x == kFSig) { gr3.GetXaxis()->SetTitle("f_{sig}");     plotNamePostfix += "fSig_"; }
+  else if(x == kFCP ) { gr3.GetXaxis()->SetTitle("f_{CP}");      plotNamePostfix += "fCP_" ; }
   plotNamePostfix += "vs_";
-  if     (y == kMass) { gr3->GetYaxis()->SetTitle("m_{t} [GeV]"); plotNamePostfix += "mass"; }
-  else if(y == kJES ) { gr3->GetYaxis()->SetTitle("JES");         plotNamePostfix += "JES" ; }
-  else if(y == kFSig) { gr3->GetYaxis()->SetTitle("f_{sig}");     plotNamePostfix += "fSig"; }
-  else if(y == kFCP ) { gr3->GetYaxis()->SetTitle("f_{CP}");      plotNamePostfix += "fCP" ; }
-  gr3->GetYaxis()->SetTitleOffset(1.7);
+  if     (y == kMass) { gr3.GetYaxis()->SetTitle("m_{t} [GeV]"); plotNamePostfix += "mass"; }
+  else if(y == kJES ) { gr3.GetYaxis()->SetTitle("JES");         plotNamePostfix += "JES" ; }
+  else if(y == kFSig) { gr3.GetYaxis()->SetTitle("f_{sig}");     plotNamePostfix += "fSig"; }
+  else if(y == kFCP ) { gr3.GetYaxis()->SetTitle("f_{CP}");      plotNamePostfix += "fCP" ; }
+  gr3.GetYaxis()->SetTitleOffset(1.7);
 
-  gr3->Draw("ACF");
-  gr3->Draw("C,SAME");
-  gr2->Draw("CF,SAME");
-  gr2->Draw("C,SAME");
-  gr1->Draw("CF,SAME");
-  gr1->Draw("C,SAME");
+  gr3.Draw("ACF");
+  gr3.Draw("C,SAME");
+  gr2.Draw("CF,SAME");
+  gr2.Draw("C,SAME");
+  gr1.Draw("CF,SAME");
+  gr1.Draw("C,SAME");
 
-  TGraph* gr0 = new TGraph(1, &min->X()[x], &min->X()[y]);
-  gr0->SetMarkerColor(kWhite);
-  gr0->SetMarkerStyle(2);
-  gr0->SetMarkerSize(2);
-  gr0->Draw("P,SAME");
+  TGraph gr0(1, &min->X()[x], &min->X()[y]);
+  gr0.SetMarkerColor(kWhite);
+  gr0.SetMarkerStyle(2);
+  gr0.SetMarkerSize(2);
+  gr0.Draw("P,SAME");
 
-  TLegend *leg0 = new TLegend(0.70, 0.75, 0.93, 0.92);
-  leg0->SetFillStyle(1001);
-  leg0->SetFillColor(kWhite);
-  leg0->SetBorderSize(1);
-  leg0->AddEntry(gr1, "1#sigma contour", "F");
-  leg0->AddEntry(gr2, "2#sigma contour", "F");
-  leg0->AddEntry(gr3, "3#sigma contour", "F");
-  leg0->Draw();
+  TLegend leg0(0.70, 0.75, 0.93, 0.92);
+  leg0.SetFillStyle(1001);
+  leg0.SetFillColor(kWhite);
+  leg0.SetBorderSize(1);
+  leg0.AddEntry(&gr1, "1#sigma contour", "F");
+  leg0.AddEntry(&gr2, "2#sigma contour", "F");
+  leg0.AddEntry(&gr3, "3#sigma contour", "F");
+  leg0.Draw();
 
-  helper->DrawCMS();
+  helper.DrawCMS();
 
   std::string path("plot/Ideogram/"); path+=HelperFunctions::cleanedName(fIdentifier_)+plotNamePostfix;
-  canv->Print((path+std::string(".eps" )).c_str(), "eps");
-  canv->Print((path+std::string(".root")).c_str(), "root");
+  canv.Print((path+std::string(".eps" )).c_str(), "eps");
+  canv.Print((path+std::string(".root")).c_str(), "root");
+
+  delete[] contourxs;
+  delete[] contourys;
 }
 
 // cleanup needed to run pseudo-experiments
