@@ -11,19 +11,10 @@
 #include <iostream>
 
 #include <boost/progress.hpp>
-//#include <boost/lexical_cast.hpp>
 
 #include "TCanvas.h"
-//#include "TColor.h"
-//#include "TError.h"
-//#include "TF2.h"
-//#include "TFrame.h"
 #include "TGraph.h"
-//#include "TH1D.h"
-//#include "TH2D.h"
 #include "TLegend.h"
-//#include "TRandom2.h"
-//#include "TStyle.h"
 
 #include "Math/Minimizer.h"
 #include "Math/Factory.h"

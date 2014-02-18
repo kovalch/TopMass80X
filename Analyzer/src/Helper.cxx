@@ -340,8 +340,6 @@ TH1* HelperFunctions::createRatioPlot(const TH1 *h1, const TH1 *h2, const std::s
 
 
 std::string HelperFunctions::cleanedName(std::string toBeCleaned){
-    //    std::string toBeCleaned = varNames.at(i);
-    //      std::cout << "before clean: " << toBeCleaned<< std::endl;
     boost::replace_all(toBeCleaned,"(","_"      );
     boost::replace_all(toBeCleaned,")","_"      );
     boost::replace_all(toBeCleaned,"/","_"      );
@@ -358,7 +356,8 @@ std::string HelperFunctions::cleanedName(std::string toBeCleaned){
     boost::replace_all(toBeCleaned,"+","_"      );
     boost::replace_all(toBeCleaned,"<","_st_"   );
     boost::replace_all(toBeCleaned,">","_gt_"   );
-    //      std::cout << "after clean: " << toBeCleaned<< std::endl;
+    boost::replace_all(toBeCleaned,"[","_"      );
+    boost::replace_all(toBeCleaned,"]","_"      );
     return toBeCleaned;
 }
 
@@ -368,7 +367,6 @@ void HelperFunctions::findYRange(const TH1 *h, double& min, double& max) {
   max = 0.;
   for(int bin = 1; bin <= h->GetNbinsX(); ++bin) {
     double val = h->GetBinContent(bin);
-//    std::cout << "bin " << bin << " val " << val << std::endl;
     if( val < min && val!=0) min = val;
     if( val > max ) max = val;
   }

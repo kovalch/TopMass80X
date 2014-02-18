@@ -1,11 +1,9 @@
 #include "RandomSubsetCreatorNewInterface.h"
 
-//#include "Analysis.h"
 #include "Helper.h"
 #include "ProgramOptionsReader.h"
 
 #include <iostream>
-//#include <boost/progress.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
 
@@ -91,11 +89,11 @@ TTree* RandomSubsetCreatorNewInterface::CreateRandomSubset() {
     time(&end);
 
     // DATA
-    double nEventsDataAllJets  =  6792.;
+    double nEventsDataAllJets  =  5318.;
     double nEventsDataMuon     = 15172.;
     double nEventsDataElectron = 13937.;
 
-    int eventsPEAllJets  = random_->Poisson(nEventsDataAllJets /18291.000*fLumi_);
+    int eventsPEAllJets  = random_->Poisson(nEventsDataAllJets /18192.000*fLumi_);
     int eventsPEMuon     = random_->Poisson(nEventsDataMuon    /19712.000*fLumi_);
     int eventsPEElectron = random_->Poisson(nEventsDataElectron/19712.000*fLumi_);
 
@@ -136,8 +134,6 @@ TTree* RandomSubsetCreatorNewInterface::CreateRandomSubset() {
 }
 
 void RandomSubsetCreatorNewInterface::DrawEvents(const DataSample& sample, double nEventsPE) {
-  //std::cout << "nEventsPE: " << nEventsPE << std::endl;
-
   int perms = sample.nEvents;
   
   if (perms == 0) return;
@@ -149,12 +145,8 @@ void RandomSubsetCreatorNewInterface::DrawEvents(const DataSample& sample, doubl
   if (maxMCWeight ==  0) { std::cout << "Weight not active?" << std::endl; }
   if (maxMCWeight == -1) { std::cout << "Running over data?" << std::endl; }
 
-  //std::cout << "while (eventsDrawn < nEventsPE)..." << std::endl;
-
   int eventsDrawn = 0;
   int nAttempts = 0;
-
-  //boost::progress_display progress((int)nEventsPE, std::cout);
 
   while (eventsDrawn < (int)nEventsPE) {
     int drawn = random_->Integer(perms);
@@ -164,11 +156,9 @@ void RandomSubsetCreatorNewInterface::DrawEvents(const DataSample& sample, doubl
       subset_.AddEvent(sample.events.at(drawn));
       if (sample.events.at(drawn).weight < 0) {
         eventsDrawn += -1;
-        //progress    += -1;
       }
       else {
         ++eventsDrawn;
-        //++progress;
       }
     }
   }

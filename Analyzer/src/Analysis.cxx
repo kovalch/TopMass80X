@@ -5,8 +5,8 @@
 #include <csignal>
 
 #include "TCanvas.h"
+#include "TH1F.h"
 #include "TROOT.h"
-#include "TString.h"
 
 #include "GenMatchAnalyzer.h"
 #include "Helper.h"
@@ -149,16 +149,10 @@ void Analysis::Analyze() {
   hJES->Draw("E1");
   hJES->Fit("pol0");
   */
-  // clean binning to give a proper path
-  TString binningForPath = fBinning_;
-  binningForPath.ReplaceAll("[","_"); binningForPath.ReplaceAll("]","_"); binningForPath.ReplaceAll("(","_"); binningForPath.ReplaceAll(")","_");
-  binningForPath.ReplaceAll(".","_"); binningForPath.ReplaceAll("/","_");
-  TString localIdentifier = fIdentifier_; localIdentifier.ReplaceAll("*","_"); localIdentifier.ReplaceAll("/","_");
-  std::string path("plot/"); path += fMethod_; path += "_"; path += localIdentifier; path += "_"; path += binningForPath; path += ".eps";
+  std::string path("plot/"); path += fMethod_; path += "_"; path += HelperFunctions::cleanedName(fIdentifier_); path += "_"; path += HelperFunctions::cleanedName(fBinning_); path += ".eps";
   canvas->Print(path.c_str());
-  
-  std::string pathr("plot/"); pathr += fMethod_; pathr += "_"; pathr += localIdentifier; pathr += "_"; pathr += binningForPath; pathr += ".root";
-  canvas->Print(pathr.c_str());
+  boost::replace_all(path,".eps",".root");
+  canvas->Print(path.c_str());
   
   delete canvas;
   if (fMethodID_ != Helper::kIdeogramNew && fMethodID_ != Helper::kIdeogramMin) delete fAnalyzer_;
