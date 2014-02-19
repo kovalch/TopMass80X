@@ -8,11 +8,11 @@
 
 #include <TSelector.h>
 #include <Rtypes.h>
+#include <TString.h>
 
 class TBranch;
 class TTree;
 class TH1;
-class TString;
 
 #include "classesFwd.h"
 #include "storeTemplate.h"
