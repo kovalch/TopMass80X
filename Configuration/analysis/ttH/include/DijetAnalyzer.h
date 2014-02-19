@@ -57,9 +57,15 @@ public:
                                           const std::vector<int>& hadFlavours, const bool absFlavour = true);
 
     /// Whether index is in the vector of indices
-    bool isInVector(const std::vector<int>& idVector, const int id);
+    bool isInVector(const std::vector<int>& vector, const int id);
+    bool isInVector(std::vector<std::pair<int,int> >& vector, const std::pair<int,int> id);
 
+    /// Add to the vector only if it's not there already
     bool putUniquelyInVector(std::vector<int>& vector, const int id);
+    bool putUniquelyInVector(std::vector<std::pair<int,int> >& vector, const std::pair<int,int> id);
+    
+    /// Creates a vector of all possible jet pairs from allJets except pairs containing any jet from jetsToIgnore
+    std::vector<std::pair<int,int> > allPairsFromJets(const std::vector<int>& allJets, const std::vector<int>& jetsToIgnore);
 
 
 
@@ -67,6 +73,9 @@ private:
 
     /// Book histograms for one categoryId with given id and label
     virtual void bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram);
+    
+    /// Book set of histograms for dijet mass
+    void bookPairHistos(TH1* histo, std::map<TString, TH1*>& m_histogram, const TString& name);
 
     /// Fill all histograms for given selection step
     virtual void fillHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
@@ -81,13 +90,28 @@ private:
     float correctPairFraction(const VLV& allJets, const std::vector<int>& jetsId,
                               const std::vector<int>& bJetsId, const std::vector<double>& jetsBtagDiscriminant,
                               const std::vector<int>& topJetsId, const std::vector<int>& higgsJetsId,
-                              const double weight, TH1* h_dijetMass, TH1* h_correctJetMultiplicity, const bool fillAllCombinations = true,
-                              const double jetPt_threshold = 0.0, const int lowerHigher = 0, const std::vector<std::pair<int, int> > &pairsToIgnore = std::vector<std::pair<int, int> >(0) );
+                              const double weight, std::map<TString, TH1*>& m_histogram, std::string histoName, 
+                              const bool fillAllCombinations = true, const double jetPt_threshold = 0.0, const int lowerHigher = 0, 
+                              const std::vector<std::pair<int, int> > &pairsToIgnore = std::vector<std::pair<int, int> >(0) );
+    
+    /// Fill dijet mass for pairs of jets
+    void fillDijetMassForPairs(const VLV& allJets, const std::vector<int>& jetsId, const std::vector<int>& higgsJetsId,
+                               const std::vector<std::pair<int, int> > &jetPairs, const double weight, 
+                               std::map<TString, TH1*>& m_histogram, std::string histoName, const bool normaliseWeight = false );
+    
+    /// Fill values for correct/wrong Higgs pairs separately
+    void fillPairHistos(std::map<TString, TH1*>& m_histogram, const TString& name, const double value, const bool isCorrect, const double weight = 1.);
 
     /// Fill histograms about Gen/Reco matching: comparison of dR to true matching
     void fillGenRecoMatchingComparisonHistos(const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
                                              const VLV& bHadLVs, const std::vector<int>& bHadFlavour, const std::vector<int>& bHadJetIndex,
                                              const VLV& genJets, std::map<TString, TH1*>& m_histogram, const double weight);
+    
+    /// Returns list of jets pairs that are not from H according to the MVA
+    std::vector<std::pair<int,int> > jetPairsFromMVA(std::map<TString, TH1*>& m_histogram, const tth::RecoObjectIndices& recoObjectIndices,
+                                                     const tth::GenObjectIndices& genObjectIndices, const RecoObjects& recoObjects, 
+                                                     const std::vector<int>& trueTopJetsId, const std::vector<int>& trueHiggsJetsId, 
+                                                     const double weight);
 
     /// Checks whether two indices are among vector of pairs of indices
     bool areAmongPairs(const std::vector<std::pair<int, int> > &pairs, const int idx1, const int idx2);

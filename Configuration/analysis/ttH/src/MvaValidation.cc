@@ -186,7 +186,7 @@ void MvaValidation::bookMvaSpecificHistos(const TString& step, std::map<TString,
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "mvaWeight_{"+mvaType+"}^{top} - mvaWeight_{"+mvaType+"}^{higgs};w_{top}^{"+mvaType+"} - w_{higgs}^{"+mvaType+"};# events", 80, -1.2, 1.2));
     
     name = "mvaWeight"+mvaTypeC+"_TopPairVsHiggsPair"+mvaConfigName;
-    m_histogram[name] = this->store(new TH2D(prefix_+name+step, "mvaWeightTopPairVsHiggsPair;w_{MVA}^{top};w_{MVA}^{higgs}", 80, mvaWeightLow, mvaWeightHigh, 40, mvaWeightLow, mvaWeightHigh));
+    m_histogram[name] = this->store(new TH2D(prefix_+name+step, "mvaWeightTopPairVsHiggsPair;w_{MVA}^{top};w_{MVA}^{higgs}", 40, mvaWeightLow, mvaWeightHigh, 40, mvaWeightLow, mvaWeightHigh));
 
     if(mvaType == "combined"){
         name = "mvaWeightCorrectVsSwapped"+mvaConfigName;
