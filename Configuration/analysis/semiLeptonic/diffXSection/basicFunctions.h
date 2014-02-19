@@ -118,7 +118,7 @@ namespace semileptonic {
   const unsigned int constMcatnloColor  = kBlue;
   const unsigned int constPowhegColor   = kGreen+1;
   const unsigned int constPowhegColor2  = kGreen+3;
-  const unsigned int constNnloColor     = kOrange+4;
+  const unsigned int constNnloColor     = kViolet-6;//kOrange+4
   const unsigned int constNnloColor2    = kMagenta+2;
   const unsigned int constMadgraphPerugiaColor = kRed-7;
   const unsigned int constMadgraphPerugiaMpiHiColor = kCyan;
@@ -130,7 +130,7 @@ namespace semileptonic {
   const unsigned int constPowhegStyle2 = 4;
   const unsigned int constNnloStyle    = 2;
   const unsigned int constMcatnloStyle = 5;
-  const unsigned int constNnloStyle2   = 10;
+  const unsigned int constNnloStyle2   = 6;//10
   const unsigned int constMadgraphPerugiaStyle = 3;
   const unsigned int constMadgraphPerugiaNoCRStyle  = 3;
   const unsigned int constMadgraphPerugiaMpiHiStyle = 3;
@@ -148,8 +148,8 @@ namespace semileptonic {
   const TString constMadGraphPythiaPerugiaMpiHiLabel = "MadGraph+Pythia(P11,MpiHi)";
 
   // theory arxiv numbers
-  const TString constApproxNNLOLabel="arXiv:1307.2464";
-  const TString constNLONNLLLabel   ="arXiv:1003.5827";
+  const TString constApproxNNLOLabel="arXiv:1003.5827";
+  const TString constNLONNLLLabel   ="arXiv:1307.2464";
 
   // Marker style (<=kSAToptW)
 
@@ -3050,7 +3050,7 @@ namespace semileptonic {
     return -1.0;
   }
 
-  TCanvas* drawFinalResultRatio(TH1F* histNumeratorData, const Double_t& ratioMin, const Double_t& ratioMax, TStyle myStyle, int verbose=0, std::vector<TH1F*> histDenominatorTheory_=std::vector<TH1F*>(0), TCanvas* canv=0, double rangeMin=-1., double rangeMax=-1., TGraphAsymmErrors* histStatData=0, bool addXBinGrid=true, bool addYGrid=false, bool bands=true)
+  TCanvas* drawFinalResultRatio(TH1F* histNumeratorData, const Double_t& ratioMin, const Double_t& ratioMax, TStyle myStyle, int verbose=0, std::vector<TH1F*> histDenominatorTheory_=std::vector<TH1F*>(0), TCanvas* canv=0, double rangeMin=-1., double rangeMax=-1., TGraphAsymmErrors* histStatData=0, bool addXBinGrid=true, bool addYGrid=false, bool bands=true, unsigned int ndiv=505)
   {
     // this function draws a pad with the ratio "histNumeratorData" over "histDenominatorTheoryX" 
     // for up to five specified theory curves, using "histNumeratorDataDown" and "histNumeratorDataUp"
@@ -3089,6 +3089,9 @@ namespace semileptonic {
       }	       
       canv->cd();
       canv->Draw();
+      //std::cout << "width =" << canv->GetWindowWidth()  << std::endl;
+      //std::cout << "height=" << canv->GetWindowHeight() << std::endl;
+
       //canv->SetGrayscale(); // FIXME: for black-white compatibility check
 
       // create ratios
@@ -3253,7 +3256,7 @@ namespace semileptonic {
 	ratio_[nTheory]->GetYaxis()->SetLabelSize(histDenominatorTheoryOrdered_[nTheory]->GetYaxis()->GetLabelSize()*scaleFactor);
 	ratio_[nTheory]->GetYaxis()->SetLabelOffset(histDenominatorTheoryOrdered_[nTheory]->GetYaxis()->GetLabelOffset()*3.3);
 	ratio_[nTheory]->GetYaxis()->SetTickLength(0.03);
-	ratio_[nTheory]->GetYaxis()->SetNdivisions(505);
+	ratio_[nTheory]->GetYaxis()->SetNdivisions(ndiv);
 	ratio_[nTheory]->GetXaxis()->SetRange(histNumeratorData->GetXaxis()->GetFirst(), histNumeratorData->GetXaxis()->GetLast());
 	// first plot
 	if(nTheory==0){
@@ -3312,7 +3315,7 @@ namespace semileptonic {
 	  one->DrawClone("hist"+add);
 	  // line at upper border
 	  TH1F* up=(TH1F*)one->Clone("up");
-	  up->SetLineWidth(3);
+	  up->SetLineWidth(1);
 	  up->SetLineColor(kBlack);
 	  up->Scale(ratioMax);
 	  up->DrawClone("hist same");
@@ -3359,7 +3362,7 @@ namespace semileptonic {
 	  if(bands){
 	    // style
 	    int totColor =kOrange-4;//kOrange-4;
-	    int statColor=18;//kGray;
+	    int statColor=kGray+1;//18;
 	    int Errstyle=1001;
 	    // total error
 	    errorband2->SetLineStyle(1);
@@ -3381,10 +3384,11 @@ namespace semileptonic {
 	    }
 	    // legend
 	    legBand->SetX1NDC(0.22);
-	    legBand->SetY1NDC(0.96);
+	    legBand->SetY1NDC(0.97);
 	    legBand->SetX2NDC(0.46);
-	    legBand->SetY2NDC(0.76);
-	    legBand->SetFillStyle(4050);
+	    legBand->SetY2NDC(0.77);
+	    legBand->SetFillStyle(1001);
+	    //legBand->SetFillStyle(4050);
 	    legBand->SetFillColor(10);
 	    legBand->SetBorderSize(0);
 	    legBand->SetTextSize(0.1);
@@ -3429,9 +3433,9 @@ namespace semileptonic {
 	} 
       }
       rPad->SetTopMargin(0.0);
-      rPad->SetBottomMargin(0.15*scaleFactor);
+      rPad->SetBottomMargin(ratioSize);
       rPad->SetRightMargin(right);
-      gPad->SetLeftMargin(left);
+      //rPad->SetLeftMargin(left);
       //leg->DrawClone("same");
       //rPad->Print("./"+(TString)(histNumeratorData->GetName())+".png");
       gPad->cd();
@@ -4206,7 +4210,7 @@ namespace semileptonic {
       fitLowEdge=480.;
       fitHighEdge=1600.;
       def="[0]*exp([1]*x)+[2]";
-      a=40556.;
+      a=40565.;
       b=-0.007;
       c=3.1;
       addOpt="LL";
