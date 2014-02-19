@@ -8,11 +8,11 @@
 
 #include <TSelector.h>
 #include <Rtypes.h>
+#include <TString.h>
 
 class TBranch;
 class TTree;
 class TH1;
-class TString;
 
 #include "classesFwd.h"
 #include "storeTemplate.h"
@@ -511,6 +511,7 @@ private:
     TBranch* b_genBHadIndex;
     TBranch* b_genBHadFlavour;
     TBranch* b_genBHadJetIndex;
+    TBranch* b_genBHadFromTopWeakDecay;
     
     
     /// nTuple branches for Higgs signal samples on generator level

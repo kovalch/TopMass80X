@@ -122,6 +122,7 @@ void TopGenObjects::clear()
     genBHadIndex_ = 0;
     genBHadFlavour_ = 0;
     genBHadJetIndex_ = 0;
+    genBHadFromTopWeakDecay_ = 0;
 }
 
 

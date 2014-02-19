@@ -115,8 +115,10 @@ Available Parameters
       ....fileName=cms.untracked.string(os.getenv('TMPDIR', '.') + '/file.root')
 
 
-   Additionally the environment variable NJS_GROUPID can specify another
+   The environment variable NJS_GROUPID can specify another
    fairshare group (NAF2). If not set, af-cms is used
+   The standard disk limit for a job is 50GB. If you want to change that
+   use the environment variable NJS_FSIZE (only number without "G")
 
 ******************************************************************
 * What to do after submitting - if jobs crash / to monitor jobs  *
@@ -594,6 +596,8 @@ sub getBatchsystemTemplate {
 #$ -o /dev/null
 # naf2 changes
 #$ -P __GPID__
+# request disk space. 
+#$ -l h_fsize=__FSIZE__G
 
 tmp=$(mktemp -d -t njs_XXXXXX)
 
@@ -698,11 +702,13 @@ END_OF_BATCH_TEMPLATE
     my ($hcpu, $scpu) = getCPULimits();
     my ($hvmem, $svmem) = getMemoryLimits();
     my $afgid = getGroupID();
+    my $dlimit = getDiskLimit();
     $templ =~ s/__HCPU__/$hcpu/g;
     $templ =~ s/__SCPU__/$scpu/g;
     $templ =~ s/__HVMEM__/$hvmem/g;
     $templ =~ s/__SVMEM__/$svmem/g;
     $templ =~ s/__GPID__/$afgid/g;
+    $templ =~ s/__FSIZE__/$dlimit/g;
     $args{'c'} ||= '';
     $templ =~ s/CMSRUNPARAMETER/$args{'c'}/g;
     $args{'O'} ||= '';
@@ -725,6 +731,10 @@ sub getMemoryLimits {
     my $hlimit = $args{'M'} || $ENV{NJS_MEM} || 3700;
     die "invalid memory requirement: $hlimit\n" unless $hlimit =~ /^\d+$/ && $hlimit > 700 && $hlimit < 20000;
     return ($hlimit, $hlimit - 300);
+}
+sub getDiskLimit {
+    my $dlimit = $ENV{NJS_FSIZE} || 50;
+    return $dlimit;
 }
 
 sub getGroupID {

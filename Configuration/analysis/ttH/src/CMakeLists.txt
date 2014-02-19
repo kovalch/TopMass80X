@@ -39,6 +39,7 @@ SET( ${PROJECT_NAME}_EXECUTABLES
   histo_bdt_topSystemJetAssignment
   histo_mvaVariables_topSystemJetAssignment
   Histo
+  histo_genLevel_genRecoMatching
   )
 
 
