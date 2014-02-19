@@ -417,17 +417,15 @@ BtagScaleFactors::BtagScaleFactors(const char* btagEfficiencyInputDir,
     if (systematic == "" || systematic.Contains("PDF") || systematic.Contains("closure")) systematic = "Nominal";
     // Check if all relevant input files are available
     bool allInputFilesAvailable(true);
+    // Setting the sample name for each channel
+    for(const auto& channel : channels) channelSampleNames_[channel] = std::string(systematic)+"_"+channel+"_"+fileName_;
+    // Checking whether files with btag efficiencies exist for all channels
     for(const auto& channel : channels){
         std::string bTagInputFile = common::accessFolder(inputDirName_.c_str(),channel, systematic, true).append(channel).append("_").append(fileName_);
         ifstream inputFileStream(bTagInputFile);
         // Setting the file and sample name for each channel in the map if the file exists
-        if(inputFileStream.is_open() && bTagInputFile.length() > fileName_.length() + channel.length() + 1) {
+        if(inputFileStream.is_open() ) {
             channelFileNames_[channel] = bTagInputFile;
-
-            std::string sampleName(bTagInputFile);
-            sampleName.erase(0,inputDirName_.length());
-            while(sampleName.at(0) == '/') sampleName.erase(0,1);
-            channelSampleNames_[channel] = sampleName;
         } else {
             std::cout<< "******************************************************\n"
                     << "Btag efficiency file [" << bTagInputFile << "] doesn't exist.\n"
@@ -453,11 +451,6 @@ BtagScaleFactors::BtagScaleFactors(const char* btagEfficiencyInputDir,
         for(const auto& channel : channels){
             std::string bTagOutputFile = common::assignFolder(outputDirName_.c_str(), channel, systematic).append(channel).append("_").append(fileName_);
             channelFileNames_[channel] = bTagOutputFile;
-
-            std::string sampleName(bTagOutputFile);
-            sampleName.erase(0,outputDirName_.length());
-            while(sampleName.at(0) == '/') sampleName.erase(0,1);
-            channelSampleNames_[channel] = sampleName;
         }
     }
     else{
