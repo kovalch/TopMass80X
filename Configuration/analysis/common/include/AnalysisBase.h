@@ -511,6 +511,7 @@ private:
     TBranch* b_genBHadIndex;
     TBranch* b_genBHadFlavour;
     TBranch* b_genBHadJetIndex;
+    TBranch* b_genBHadFromTopWeakDecay;
     
     
     /// nTuple branches for Higgs signal samples on generator level

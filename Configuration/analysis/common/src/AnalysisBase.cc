@@ -482,6 +482,7 @@ void AnalysisBase::clearBranches()
     b_genBHadIndex = 0;
     b_genBHadFlavour = 0;
     b_genBHadJetIndex = 0;
+    b_genBHadFromTopWeakDecay = 0;
 
 
     // nTuple branches for Higgs signal samples on generator level
@@ -712,6 +713,8 @@ void AnalysisBase::SetTopSignalBranchAddresses()
         chain_->SetBranchAddress("genBHadFlavour", &topGenObjects_->genBHadFlavour_, &b_genBHadFlavour);
     if(chain_->GetBranch("genBHadJetIndex")) // need to check whether branch exists
         chain_->SetBranchAddress("genBHadJetIndex", &topGenObjects_->genBHadJetIndex_, &b_genBHadJetIndex);
+    if(chain_->GetBranch("genBHadFromTopWeakDecay")) // need to check whether branch exists
+        chain_->SetBranchAddress("genBHadFromTopWeakDecay", &topGenObjects_->genBHadFromTopWeakDecay_, &b_genBHadFromTopWeakDecay);
 }
 
 
@@ -923,6 +926,7 @@ void AnalysisBase::GetTopSignalBranchesEntry(const Long64_t& entry)const
     if(b_genBHadIndex) b_genBHadIndex->GetEntry(entry);
     if(b_genBHadFlavour) b_genBHadFlavour->GetEntry(entry);
     if(b_genBHadJetIndex) b_genBHadJetIndex->GetEntry(entry);
+    if(b_genBHadFromTopWeakDecay) b_genBHadFromTopWeakDecay->GetEntry(entry);
 }
 
 
