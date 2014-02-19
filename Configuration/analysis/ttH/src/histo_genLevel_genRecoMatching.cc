@@ -34,7 +34,6 @@ constexpr const char* InputBaseDIR = "selectionRoot/Nominal/";
 /// The output base folder
 constexpr const char* OutputBaseDIR = "Plots_genLevel_genRecoMatching";
 
-//const TString outputFolder = "MyPlots/";
 
 void setStyle(){
     gROOT->SetStyle("Plain");
@@ -94,16 +93,6 @@ void setStyle(){
 }
 
 
-// TString CreateOutputFolder(const std::vector<Channel::Channel>& v_channel, const std::vector<Systematic::Systematic>& v_systematic){
-//     
-//     for(const auto& i_systematic : v_systematic){
-//         for(const auto& i_channel : v_channel){
-//             const TString Folder = common::assignFolder(OutputBaseDIR, i_channel, i_systematic);
-//         }
-//     }
-//         return Folder;
-// }
-
 //Plot one TH1D histogram on each canvas
 void Plot_TH1 (TString outputFolder, TH1D *hist1, TString FileName, TString LegName, TString FigName, 
                int hist1_color, TString hist1_leg, bool LogY, bool zoomXaxis=false, double xl=0.0, double xu=0.0) {
@@ -134,9 +123,7 @@ void Plot_TH1 (TString outputFolder, TH1D *hist1, TString FileName, TString LegN
     
     // Scale histograms and get minimum and maximum value 
     //hist1->Scale(1./hist1->Integral(0, hist1->GetNbinsX()+1));
-    //const Double_t yMin = hist1->GetMinimum();
-    const Double_t yMax = hist1->GetMaximum();
-    
+    const Double_t yMax = hist1->GetBinContent(hist1->GetMaximumBin());
     
        
     // Draw the histograms
@@ -157,7 +144,7 @@ void Plot_TH1 (TString outputFolder, TH1D *hist1, TString FileName, TString LegN
         const double x2ndc = 0.99;
         stats->SetX2NDC(x2ndc);
         stats->SetX1NDC(x2ndc-0.2);
-        //const double y2ndc = 0.99 - static_cast<double>(iHist)*0.21;
+        //const double y2ndc = 0.99;
         //stats->SetY2NDC(y2ndc);
         //stats->SetY1NDC(y2ndc-0.2);
         stats->SetLineColor(hist1->GetLineColor());
@@ -294,7 +281,7 @@ void Plot_4TH1 (TString outputFolder, TH1D *hist1, TH1D *hist2, TH1D *hist3, TH1
    
     // Set up Legend
     TLegend* leg(0);
-    leg = new TLegend(0.610802,0.590036,0.914863,0.775565); //0.5759,0.669774,0.882119,0.799263
+    leg = new TLegend(0.610802,0.590036,0.914863,0.775565);
     leg->SetLineColor(kWhite);
     leg->SetFillColor(kWhite);
     leg->SetTextSize(0.038);
