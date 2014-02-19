@@ -36,6 +36,8 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
   gROOT->SetStyle("HHStyle");
   gROOT->ForceStyle();
   TGaxis::SetMaxDigits(3);
+  gStyle->SetHatchesLineWidth(2);
+  gStyle->SetHatchesSpacing(0.8);
 
   // ============================
   //  Name Conventions
@@ -585,7 +587,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     "b-discr.(soft#mu);Jets;0;10"	,
     "b-discr.(soft#muPt);Jets;0;10"  ,                  
     "b-discr.(soft#muIP3d);Jets;0;10",
-    "N_{b-jets};Events;1;1"      ,
+    "N_{b jets};Events;1;1"      ,
     // (iv) MET monitoring 
     "#slash{E}_{T} #left[GeV#right];Events;0;10",
     "#SigmaE_{T} [GeV];Events;0;50"  ,
@@ -619,7 +621,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     "#eta(lead 2^{nd} b-tagged jet);Events;0;5" ,
     // (iii) btag monitoring    
     "b-discr.(CSV);Jets;0;2",
-    "N_{b-jets};Events;1;1" ,
+    "N_{b jets};Events;1;1" ,
     // (iv) MET monitoring 
     "#slash{E}_{T} #left[GeV#right];Events;0;20",
     "#phi(#slash{E}_{T});Events;0;5",
@@ -636,7 +638,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     // (III) after kinematic fit 
     "#angle(t,#bar{t});Events;0;15",
     "p_{T}^{t} #left[GeV#right];Top quarks;0;20",
-    "p_{T}^{t} #left[GeV#right] (t#bar{t} system);Events;0;20",
+    "p_{T}^{t} #scale[0.8]{(t#bar{t} c.m.s.)} #left[GeV#right];Events;0;20",
     "y^{t};Top quarks;0;1",
     "m^{t};Top quarks;0;10",
     "p_{T}^{t#bar{t}} #left[GeV#right];Top-quark pairs;0;20",
@@ -648,8 +650,8 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     "#eta^{l};Leptons;0;1",
     "p_{T}^{q} #left[GeV#right];tt jets;0;20",    
     "#eta^{q};tt jets;0;1",
-    "p_{T}^{b} #left[GeV#right];b-jets;0;20",    
-    "#eta^{b};b-jets;0;1",
+    "p_{T}^{b} #left[GeV#right];b jets;0;20",    
+    "#eta^{b};b jets;0;1",
     "#eta^{l+};Events;0;1",
     "#eta^{l-};Events;0;1",
     "#eta^{t+};Events;0;1",
@@ -668,7 +670,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     "m^{b#bar{b}}(assigned to t#bar{t} system) #left[GeV#right];Events;0;20",
     "m^{jj} (KinFit W-assignment) #left[GeV#right];Events;1;5",
     "m^{jj} #left[GeV#right];Events;1;10",
-    "m^{bb} (KinFit non t#bar{t} b-jets) #left[GeV#right];4 b-tag events;1;50",
+    "m^{bb} (KinFit non t#bar{t} b jets) #left[GeV#right];4 b-tag events;1;50",
     "m^{bb} #left[GeV#right];permutations;1;10",
     "m^{lb} #left[GeV#right];events;1;5",
     // complementary plots - with or without probability selection to have both versions for sure
@@ -687,8 +689,8 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     "#eta^{l};Leptons;0;1",
     "p_{T}^{q} #left[GeV#right];tt jets;0;20",    
     "#eta^{q};tt jets;0;1",
-    "p_{T}^{b} #left[GeV#right];b-jets;0;20",    
-    "#eta^{b};b-jets;0;1",
+    "p_{T}^{b} #left[GeV#right];b jets;0;20",    
+    "#eta^{b};b jets;0;1",
     "#eta^{l+};Events;0;1",
     "#eta^{l-};Events;0;1",
     "#eta^{t+};Events;0;1",
@@ -1302,12 +1304,14 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
   // - Following entries: MC samples (if existing)
   // - Last entry: uncertainty band
 
+  TString TXT="                                                                                    #color[10]{#bar{MARTIN}_{GOERNER}}";
+
   // Data:
   TString lumilabel = Form("%2.1f fb^{-1}",luminosity/1000);
-  leg      ->AddEntry(histo_[plotList_[0]][kData], sampleLabel(kData,decayChannel)               ,"P" );
-  legSplit1->AddEntry(histo_[plotList_[0]][kData], sampleLabel(kData,decayChannel)               ,"P" );
-  leg0     ->AddEntry(histo_[plotList_[0]][kData], sampleLabel(kData,decayChannel)+", "+lumilabel,"PL");
-  leg1     ->AddEntry(histo_[plotList_[0]][kData], sampleLabel(kData,decayChannel)+", "+lumilabel,"PL");
+  leg      ->AddEntry(histo_[plotList_[0]][kData], sampleLabel(kData,decayChannel)+TXT                ,"P" );
+  legSplit1->AddEntry(histo_[plotList_[0]][kData], sampleLabel(kData,decayChannel)+TXT                ,"P" );
+  leg0     ->AddEntry(histo_[plotList_[0]][kData], sampleLabel(kData,decayChannel)+", "+lumilabel+TXT ,"PL");
+  leg1     ->AddEntry(histo_[plotList_[0]][kData], sampleLabel(kData,decayChannel)+", "+lumilabel+TXT ,"PL");
 
   // empty dummy
   legSplit2->AddEntry((TObject*)0, " ", "");
@@ -1322,11 +1326,12 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
       if((histo_.count(plotList_[plot])>0)&&(histo_[plotList_[plot]].count(sample)>0)){
 	TString leglabel=sampleLabel(sample,decayChannel);
 	if((systematicVariation==sysTest)&&(sample==kSig||sample==kBkg)) leglabel="weighted "+leglabel;
+	leglabel+=TXT;
 	leg ->AddEntry(histo_[plotList_[plot]][sample], leglabel, "F");
 	leg0->AddEntry(histo_[plotList_[plot]][sample], leglabel, "F");
 	leg1->AddEntry(histo_[plotList_[plot]][sample], leglabel, "F");
-	if((double)sample<0.5*(double)samples_.size()) legSplit1->AddEntry(histo_[plotList_[plot]][sample], leglabel, "F");
-	else                                           legSplit2->AddEntry(histo_[plotList_[plot]][sample], leglabel, "F");
+	if(legSplit1->GetNRows()<5) legSplit1->AddEntry(histo_[plotList_[plot]][sample], leglabel, "F");
+	else                        legSplit2->AddEntry(histo_[plotList_[plot]][sample], leglabel, "F");
 	break;
       }
     }
@@ -1340,6 +1345,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
   // Uncertainty band in legend
   if(ttbarTheoryBands&&histoErrorBand_.size() > 0 && plotList_.size() > 0){
     TString unclabel = unctypeLabel=="" ? (unctype=="model" ? "t#bar{t} model unc." : (unctype=="JE" ? "JES+JER unc." : unctypeLabel)) : unctypeLabel;
+    unclabel+=TXT;
     //TString unclabel = "JES unc.";
     leg      ->AddEntry(histoErrorBand_[plotList_[0]], unclabel, "F");
     legSplit2->AddEntry(histoErrorBand_[plotList_[0]], unclabel, "F");
@@ -2153,9 +2159,9 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	    if (decayChannel == "combined"){
 	      bool paperPlot=PaperPlot(plotList_, plot, addSel, decayChannel);
 	      // Optimized y-range for paper control plots & PHD relevant plots
-	      if(plotList_[plot].Contains("tightJetKinematicsTagged/n"    )){min=1.0; max=1.0E08; if((!paperPlot||!splitlegends)&&ttbarTheoryBands) max*= 10; if(paperPlot&&splitlegends){max*=1.5;}}
+	      if(plotList_[plot].Contains("tightJetKinematicsTagged/n"    )){min=1.0; max=5.0E08; if((!paperPlot||!splitlegends)&&ttbarTheoryBands) max*= 10; if(paperPlot&&splitlegends){max*=1.5;}}
 	      if(plotList_[plot].Contains("bottomJetKinematics/n"         )){min=1.0; max=1.0E11; if((!paperPlot||!splitlegends)&&ttbarTheoryBands) max*=100; }
-	      if(plotList_[plot].Contains("bottomJetKinematicsTagged/n"   )){min=1.0; max=1.0E08; if((!paperPlot||!splitlegends)&&ttbarTheoryBands){max*= 10;} else if(!ttbarTheoryBands&&paperPlot&&splitlegends){max*=10;} }
+	      if(plotList_[plot].Contains("bottomJetKinematicsTagged/n"   )){min=1.0; max=5.0E08; if((!paperPlot||!splitlegends)&&ttbarTheoryBands){max*= 10;} else if(!ttbarTheoryBands&&paperPlot&&splitlegends){max*=10;} }
 	      if(plotList_[plot].Contains("tightJetKinematicsTagged/pt"   )){min=1.0; max=1.0E08; if((!paperPlot||!splitlegends)&&ttbarTheoryBands) max*= 10; }
 	      if(plotList_[plot].Contains("tightLeptonKinematicsTagged/pt")){min=0.0; max=3.5E04;}
 	      if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/topPt")&&!plotList_[plot].Contains("_Y")){
@@ -2271,8 +2277,8 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	    if(sample!=kData) histo_[plotList_[plot]][sample]->Draw("hist X0 same");
 	    else{
 	      // optional: draw MC uncertainties as errorbands 
-	      int errorbandFillStyle=3001;
-	      int errorbandColor    =11;
+	      int errorbandFillStyle=3354;
+	      int errorbandColor    =kGray+2;//11;
 	      // o1) PU uncertainty band for normalized nPV plot
 	      if(histoErrorBandPU_.count(plotList_[plot])>0){
 		if(verbose>2) std::cout << "draw PU unc. band for " << plotList_[plot] << std::endl;
@@ -2350,34 +2356,35 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 
 	      // splitted legends
 	      while(legSplit1->GetNRows()>legSplit2->GetNRows()) legSplit2->AddEntry((TObject*)0, " ", "");  // unify number of entries
-	      double xShift=0.85*(x2-x1); // move first legend to the left
+	      //double xShift=0.85*(x2-x1); // move first legend to the left
+	      double xShift=0.9*(x2-x1);
 	      double yShift=0.06; // move both legends down to avoid overlapping with channel label
 	      double y1mod=y1+0.45*(y2-y1); // both legends start now higher as they contain only half as many entries
 	      legSplit1->SetX1NDC(x1 - xShift);
 	      legSplit1->SetY1NDC(y1mod-yShift);
 	      legSplit1->SetX2NDC(x2 - xShift);
 	      legSplit1->SetY2NDC(y2-yShift);
-	      legSplit1->SetTextSize(0.035);
+	      legSplit1->SetTextSize(0.03);
 
 	      legSplit2->SetX1NDC(x1);
 	      legSplit2->SetY1NDC(y1mod-yShift);
 	      legSplit2->SetX2NDC(x2);
 	      legSplit2->SetY2NDC(y2-yShift);
-	      legSplit2->SetTextSize(0.035);
+	      legSplit2->SetTextSize(0.03);
 
 	      // nPV legend (including PU unc. band)
 	      legPU->SetX1NDC(x1);
 	      legPU->SetY1NDC(1.0 - gStyle->GetPadTopMargin() - gStyle->GetTickLength() -0.05 - 0.03 * legPU->GetNRows());
 	      legPU->SetX2NDC(x2);
 	      legPU->SetY2NDC(y2);
-	      legPU->SetTextSize(0.035);
+	      legPU->SetTextSize(0.03);
 	      // shift plot (including JE unc. band)
 	      if(plotList_[plot].Contains("shift")&&!(histo_[plotList_[plot]][sample]->GetXaxis()->GetNoExponent())) legJE->SetX1NDC(x1-0.095); // larger right margins	 
 	      else legJE->SetX1NDC(x1-0.035);
 	      legJE->SetY1NDC(1.0 - gStyle->GetPadTopMargin() - gStyle->GetTickLength() -0.05 - 0.03 * legJE->GetNRows());
 	      legJE->SetX2NDC(x2);
 	      legJE->SetY2NDC(y2);
-	      legJE->SetTextSize(0.035);
+	      legJE->SetTextSize(0.03);
 
 	      // draw legend
 	      // i) with JES+JER uncertainty band
@@ -2464,7 +2471,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 		  }
 		  if(paperPlot&&!PHD){ 
 		    if(verbose>2) std::cout << "paperPlot: " << plotList_[plot] << " - using synchronnized axis ranges" << std::endl;
-		    //ratMin=0.51; ratMax=1.49; ndivisions=405;
+		    ratMin=0.51; ratMax=1.49; ndivisions=405;
 		  }
 		  // labels of ratio
 		  TString ratioLabelNominator  ="N_{MC}";
