@@ -1,6 +1,5 @@
 #include <string>
 #include <algorithm>
-
 #include <fstream>
 
 #include <TString.h>
@@ -27,7 +26,6 @@ RootFileReader::~RootFileReader()
 //     for(const auto& i : opened){
 //         std::cout << "opened: " << i.first << " " << i.second << std::endl;
 //     }
-//     
 }
 
 
@@ -35,8 +33,8 @@ RootFileReader::~RootFileReader()
 TObject* RootFileReader::GetObj(const TString& filename, const TString& histoname, const bool allowNonexisting)
 {
     ifstream inputFileStream(filename);
-    if(!inputFileStream.is_open()) {
-        if (allowNonexisting) return nullptr;
+    if(!inputFileStream.is_open()){
+        if(allowNonexisting) return nullptr;
         std::cerr << "\n\n******************* ERROR ******************* ERROR ******************* ERROR *******************\n\n"
                     << "The file " << filename << " does not exist, thus cannot get histogram " << histoname
                     << "\n\n******************* ERROR ******************* ERROR ******************* ERROR *******************\n"
@@ -45,7 +43,7 @@ TObject* RootFileReader::GetObj(const TString& filename, const TString& histonam
     }
     inputFileStream.close();
 
-    auto& file = fileMap_[filename];
+    TFile* file = fileMap_[filename];
     if(!file){
         file = TFile::Open(filename);
         ++opened_[filename];
@@ -59,7 +57,7 @@ TObject* RootFileReader::GetObj(const TString& filename, const TString& histonam
     fileOrder_.push_back(filename);
     ++accessed_[filename];
     //at max, keep 20 files open
-    if(fileMap_.size() > 20) {
+    if(fileMap_.size() > 20){
         //delete 0th element
         delete fileMap_[fileOrder_[0]];
         fileMap_.erase(fileOrder_[0]);
@@ -76,18 +74,20 @@ TObject* RootFileReader::GetObj(const TString& filename, const TString& histonam
 
 std::vector<TString> RootFileReader::findObjects(const TString& filename, const TString& objectNameFragment, const bool fragmentAtBegin)
 {
-    
-    TFile* file = TFile::Open(filename);
-    if(!file){
+    ifstream inputFileStream(filename);
+    if(!inputFileStream.is_open()){
         const std::string helpText(fragmentAtBegin ? "beginning with: " : "containing: ");
         std::cerr << "\n\n******************* ERROR ******************* ERROR ******************* ERROR *******************\n\n"
                   << "The file "<<filename<<" does not exist, thus cannot search for object "<<helpText<<objectNameFragment
                   << "\n\n******************* ERROR ******************* ERROR ******************* ERROR *******************\n"
                   << std::endl;
-        exit(1);
+        exit(2);
     }
+    inputFileStream.close();
+    
+    const TFile* file = TFile::Open(filename);
     std::vector<TString> result;
-    TList* objectList = file->GetListOfKeys();
+    const TList* objectList = file->GetListOfKeys();
     for(int i = 0; i < objectList->GetSize(); ++i){
         TObject* i_objectList = objectList->At(i);
         TString* objectName(0);
