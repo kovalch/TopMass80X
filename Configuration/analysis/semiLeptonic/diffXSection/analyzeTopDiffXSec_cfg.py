@@ -323,7 +323,8 @@ if(not options.sample=="none"):
         outputFileName+="Data2012DJanReReco"
     elif("ttbar" in options.sample):
         # limited statistics (wo spin correlation inclusive sample)
-        usedSample="TopAnalysis/Configuration/Summer12/TTJets_MassiveBinDECAY_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff"
+        #usedSample="TopAnalysis/Configuration/Summer12/TTJets_MassiveBinDECAY_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff" #////
+        usedSample="TopAnalysis/Configuration/Summer12/TTJets_MSDecays_central_TuneZ2star_8TeV_madgraph_tauola__Summer12_DR53X_PU_S10_START53_V19_v1_cff"
         # full statistics: FIXME not available yet
         if(genFull):
             usedSample="TopAnalysis/Configuration/Summer12/TTJets_SemiLeptMGDecays_8TeV_madgraph_Summer12_DR53X_PU_S10_START53_V7A_v1_cff"
@@ -336,55 +337,47 @@ if(not options.sample=="none"):
                 additionalEventWeights=False # if set to false no variations (SF+-, ...) are done
 	    outputFileName+="SysDistort"+sysDistort
         if("ttbarMatchingDown" in options.sample):        
-            usedSample="TopAnalysis/Configuration/Summer12/TTJets_MatchingDown_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff"
+            usedSample="TopAnalysis/Configuration/Summer12/TTJets_MSDecays_matchingdown_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v2_cff"
             additionalEventWeights=False
             outputFileName+="MatchDown"
         elif("ttbarMatchingUp" in options.sample):        
-            usedSample="TopAnalysis/Configuration/Summer12/TTJets_MatchingUp_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff"
+            usedSample="TopAnalysis/Configuration/Summer12/TTJets_MSDecays_matchingup_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v2_cff"
             additionalEventWeights=False
             outputFileName+="MatchUp"
         elif("ttbarScaleDown" in options.sample):        
-            usedSample="TopAnalysis/Configuration/Summer12/TTJets_ScaleDown_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff"
+            usedSample="TopAnalysis/Configuration/Summer12/TTJets_MSDecays_scaledown_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff"
             additionalEventWeights=False
             outputFileName+="ScaleDown"
         elif("ttbarScaleUp" in options.sample):        
-            usedSample="TopAnalysis/Configuration/Summer12/TTJets_ScaleUp_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff"
+            usedSample="TopAnalysis/Configuration/Summer12/TTJets_MSDecays_scaleup_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff"
             additionalEventWeights=False
             outputFileName+="ScaleUp"
-        elif("ttbarMassDown4" in options.sample):        
-            usedSample="TopAnalysis/Configuration/Summer12/TTJets_mass161_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff"
-            additionalEventWeights=False
-            outputFileName+="TopMassDown4"
         elif("ttbarMassDown3" in options.sample):        
-            usedSample="TopAnalysis/Configuration/Summer12/TTJets_mass163_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff"
+            usedSample="TopAnalysis/Configuration/Summer12/TTJets_MSDecays_mass166_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff" 
             additionalEventWeights=False
             outputFileName+="TopMassDown3"
         elif("ttbarMassDown2" in options.sample):        
-            usedSample="TopAnalysis/Configuration/Summer12/TTJets_mass166_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff"
+            usedSample="TopAnalysis/Configuration/Summer12/TTJets_MSDecays_mass169_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff"
             additionalEventWeights=False
             outputFileName+="TopMassDown2"
         elif("ttbarMassDown" in options.sample):        
-            usedSample="TopAnalysis/Configuration/Summer12/TTJets_mass169_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff"
+            usedSample="TopAnalysis/Configuration/Summer12/TTJets_MSDecays_mass171_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff"
             additionalEventWeights=False
             outputFileName+="TopMassDown"
-        elif("ttbarMassUp4" in options.sample):        
-            usedSample="TopAnalysis/Configuration/Summer12/TTJets_mass184_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff"
-            additionalEventWeights=False
-            outputFileName+="TopMassUp4"
         elif("ttbarMassUp3" in options.sample):        
-            usedSample="TopAnalysis/Configuration/Summer12/TTJets_mass181_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff"
+            usedSample="TopAnalysis/Configuration/Summer12/TTJets_MSDecays_mass178_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff"
             additionalEventWeights=False
             outputFileName+="TopMassUp3"
         elif("ttbarMassUp2" in options.sample):        
-            usedSample="TopAnalysis/Configuration/Summer12/TTJets_mass178_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff"
+            usedSample="TopAnalysis/Configuration/Summer12/TTJets_MSDecays_mass175_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff"
             additionalEventWeights=False
             outputFileName+="TopMassUp2"
         elif("ttbarMassUp" in options.sample):        
-            usedSample="TopAnalysis/Configuration/Summer12/TTJets_mass175_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff"
+            usedSample="TopAnalysis/Configuration/Summer12/TTJets_MSDecays_mass173_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff"
             additionalEventWeights=False
             outputFileName+="TopMassUp"
         elif("MadSpin" in options.sample):        
-            usedSample="TopAnalysis/Configuration/Summer12/TTJets_MSDecays_central_TuneZ2star_8TeV_madgraph_tauola__Summer12_DR53X_PU_S10_START53_V19_v1_cff"
+            usedSample="TopAnalysis/Configuration/Summer12/TTJets_MSDecays_central_TuneZ2star_8TeV_madgraph_tauola__Summer12_DR53X_PU_S10_START53_V19_v1_cff" 
             additionalEventWeights=False
             outputFileName+="MadSpin"
         if(not options.massfix==172.5):        
