@@ -376,10 +376,10 @@ void AnalysisBase::clearBranches()
     b_jetBTagCSVMVA = 0;
     b_jetChargeGlobalPtWeighted = 0;
     b_jetChargeRelativePtWeighted = 0;
-    //b_jetTrackIndex = 0;
-    //b_jetTrackCharge = 0;
-    //b_jetTrack = 0;
-    //b_trackPdgId = 0;
+    b_jetTrackIndex = 0;
+    b_jetTrackCharge = 0;
+    b_jetTrack = 0;
+    b_trackPdgId = 0;
     b_met = 0;
     b_jetJERSF = 0;
     b_jetForMET = 0;
@@ -484,9 +484,9 @@ void AnalysisBase::clearBranches()
     b_genBHadFlavour = 0;
     b_genBHadJetIndex = 0;
     b_genBHadFromTopWeakDecay = 0;
-    //b_genBHadLeptonHadIndex = 0;
-    //b_genBHadLeptonsPdg = 0;
-    //b_genBHadLeptons = 0;
+    b_genBHadLeptonHadIndex = 0;
+    b_genBHadLeptonsPdg = 0;
+    b_genBHadLeptons = 0;
 
 
     // nTuple branches for Higgs signal samples on generator level
