@@ -30,6 +30,7 @@ public:
     void   unfolding(TString channel, TString systematic);
     void   preunfolding(TString Channel="", TString Systematic="");
     void   DoFitInRatio(bool doFit = 0);
+    void   setDrawUncBand(bool drawUncBand);
     
     ///add addThis to addToThis (and delete it afterwards) - or assign it it to addToThis if addToThis is nullptr.
     void   addAndDelete_or_Assign(TH1*& addToThis, TH1* addThis);
@@ -129,19 +130,23 @@ private:
     
     /// Define members and enums for theory curves style properties
     void setTheoryStyleAndFillLegend(TH1 *histo, TString theoryName, TLegend *leg = 0);
-    
-    /// Set yaxis range of ratio plot of the result
-    void setResultRatioRanges(double &ymin, double &ymax);
 
     /// Set style of result and control plot legend
     void setResultLegendStyle(TLegend *leg, const bool result = 1);
-    void setControlPlotLegendStyle(std::vector<TH1*> drawhists, std::vector<TString> legends, TLegend *leg);
+    void setControlPlotLegendStyle(std::vector<TH1*> drawhists, std::vector<TString> legends, TLegend *leg, TLegend *leg1 = nullptr, TLegend *leg2 = nullptr);
 
     /// boolean to decide to add or not the QCD background to the control plot
     bool addQCDToControlPlot()const;
 
     /// Derive tt signal model unceratinty band
     void getSignalUncertaintyBand(TH1 *uncBand, TString channel_);
+    bool drawUncBand_;
+
+    /// Control plot ratio yaxis rangemax
+    void yRangeControlPlotRatio(double &yminCP_, double &ymaxCP_)const;
+
+    /// Set yaxis range of ratio plot of the result
+    void setResultRatioRanges(double &ymin, double &ymax)const;
 
 };
 

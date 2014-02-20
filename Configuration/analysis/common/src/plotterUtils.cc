@@ -11,6 +11,7 @@
 #include <TText.h>
 #include <TGraphAsymmErrors.h>
 #include <TExec.h>
+#include <TLegend.h>
 
 #include "plotterUtils.h"
 
@@ -40,13 +41,13 @@ void common::drawRatioXSEC(const TH1* histNumerator, const TH1* histDenominator1
 
     /// create ratio
     TH1F *ratio1 = 0, *ratio2 = 0, *ratio3 = 0, *ratio4 = 0, *ratio5 = 0, *ratio6 = 0, *ratio7 = 0; 
-    
+
     ratio1 = (TH1F*)histDenominator1->Clone();
     ratio1->SetLineColor(histDenominator1->GetLineColor());
     ratio1->SetLineStyle(histDenominator1->GetLineStyle());
     ratio1->SetLineWidth(histDenominator1->GetLineWidth());
     ratio1->Divide(histNumerator);
-    
+
     if (histDenominator2){
         ratio2 = (TH1F*)histDenominator2->Clone();
         ratio2->SetLineColor(histDenominator2->GetLineColor());
@@ -139,7 +140,6 @@ void common::drawRatioXSEC(const TH1* histNumerator, const TH1* histDenominator1
     ratio1->SetTitle("");
     ratio1->SetMaximum(ratioMax);
     ratio1->SetMinimum(ratioMin);
-    ratio1->SetLineWidth(1);
     
     /// configure axis of ratio plot
     ratio1->GetXaxis()->SetTitleSize(histNumerator->GetXaxis()->GetTitleSize()*scaleFactor*1.3);
@@ -193,8 +193,23 @@ void common::drawRatioXSEC(const TH1* histNumerator, const TH1* histDenominator1
     f2->SetLineColor(kBlack);
     f2->Draw("L same");
 
-    if(ratio_total) ratio_total->Draw("same,e2");
-    if(ratio_stat)  ratio_stat->Draw("same,e2");
+    if(ratio_stat) {
+        TLegend *leg_band = new TLegend();
+        if(ratio_total) leg_band->AddEntry(ratio_total, "Stat. #oplus Syst.", "f");
+        leg_band->AddEntry(ratio_stat, "Stat.", "f");
+        leg_band->SetX1NDC(0.22);
+        leg_band->SetY1NDC(0.97);
+        leg_band->SetX2NDC(0.46);
+        leg_band->SetY2NDC(0.77);
+        leg_band->SetFillStyle(1001);
+        leg_band->SetFillColor(10);
+        leg_band->SetBorderSize(0);
+        leg_band->SetTextSize(0.1);
+        leg_band->SetTextAlign(12);
+        leg_band->Draw("same");
+        if(ratio_total)ratio_total->Draw("same,e2");
+        ratio_stat->Draw("same,e2");
+    }
     f->Draw("l,same");
     f2->Draw("l,same");
     gPad->RedrawAxis();
@@ -253,7 +268,7 @@ void common::drawRatio(const TH1* histNumerator, const TH1* histDenominator, con
     ratio->SetLineWidth(histDenominator->GetLineWidth());
     ratio->SetMarkerColor(histDenominator->GetMarkerColor());
     ratio->SetMarkerStyle(histDenominator->GetMarkerStyle());
-    ratio->SetMarkerSize(histDenominator->GetMarkerSize());
+    ratio->SetMarkerSize(0.8);
     // calculate error for ratio
     // a) from err_
     if(err.size()==(unsigned int)histNumerator->GetNbinsX()){
@@ -339,7 +354,7 @@ void common::drawRatio(const TH1* histNumerator, const TH1* histDenominator, con
     if(band)band->Draw("same,e2");
     TExec *setex2 { new TExec("setex2","gStyle->SetErrorX(0.)") };
     setex2->Draw();
-    ratio->SetMarkerSize(1.2);
+    ratio->SetMarkerSize(0.8);
     ratio->DrawClone("p e X0 same");
     rPad->SetTopMargin(0.0);
     rPad->SetBottomMargin(0.15*scaleFactor);
