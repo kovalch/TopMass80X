@@ -33,22 +33,25 @@
 
 
 JetChargeAnalyzer::JetChargeAnalyzer(const std::vector<TString>& selectionStepsNoCategories,
-				     const std::vector<TString>& stepsForCategories,
-				     const JetCategories* jetCategories):
-  AnalysisHistogramsBase("jetCharge_", selectionStepsNoCategories, stepsForCategories, jetCategories)
-{
-  std::cout<<"--- Beginning setting up jetChargeAnalyzer\n";
-  std::cout<<"=== Finishing setting up jetChargeAnalyzer\n\n";
-}
+                                     const std::vector<TString>& stepsForCategories,
+                                     const JetCategories* jetCategories):
+                                     AnalysisHistogramsBase("jetCharge_", selectionStepsNoCategories, stepsForCategories, jetCategories)
+                                     {
+                                         std::cout<<"--- Beginning setting up jet charge analyzer\n";
+                                         std::cout<<"=== Finishing setting up jet charge analyzer\n\n";
+                                     }
+                                     
+
+
 
 
 void JetChargeAnalyzer::fillHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
-				   const TopGenObjects& topGenObjects, const HiggsGenObjects&,
-				   const KinRecoObjects&,
-				   const tth::RecoObjectIndices&, const tth::GenObjectIndices&,
-				   const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
-				   const double& weight, const TString&,
-				   std::map<TString, TH1*>& m_histogram)
+                                   const TopGenObjects& topGenObjects , const HiggsGenObjects&,
+                                   const KinRecoObjects&,
+                                   const tth::RecoObjectIndices&, const tth::GenObjectIndices&,
+                                   const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
+                                   const double& weight, const TString&,
+                                   std::map<TString, TH1*>& m_histogram)
   
 {
     TString name;
@@ -152,8 +155,7 @@ void JetChargeAnalyzer::fillHistos(const RecoObjects& recoObjects, const CommonG
     m_histogram["h_trueBJetNonLeadingLeptonScalarChargeMatch"]->SetMinimum(0);
     m_histogram["h_trueBJetNonLeadingLeptonRelChargeMatch"]->SetMinimum(0);
     
-    //TEST Here I will test the genLepton new features. 
-    
+
     
     //RECO JETS (+ GEN JETS) LOOPS ======================================================================================================================
     for(size_t i_jet=0;i_jet!=lowerPtCUTJetIdx.size();i_jet++)
@@ -237,7 +239,7 @@ void JetChargeAnalyzer::fillHistos(const RecoObjects& recoObjects, const CommonG
         //we only continue if the jet is a true b-jet
         if (isMatched==-1) continue;
         
-            //std::cout<<"number of hadrons per jet is = "<<numHadMatched.size()<<std::endl;
+        //std::cout<<"number of hadrons per jet is = "<<numHadMatched.size()<<std::endl;
 
         //if the jet is matched to a hadron, we fill the true histograms
         
@@ -602,8 +604,8 @@ void JetChargeAnalyzer::fillHistos(const RecoObjects& recoObjects, const CommonG
             trueBJetRelCharge20V.push_back(trueBJetRelChargeVector.at(9));
             
             //for mva exclusive:
-//             if (isMuon==true)
-//             {
+            //if (isMuon==true)
+            //{
                 trueBJetMaxPtTrackV.push_back(maxPtTrueTrack);
                 trueBJetMaxChargeTrackV.push_back(maxChargeTrueTrack);
                 trueBJetTrackMultiplicityV.push_back(trueBJetTrackMultiplicity);
@@ -612,16 +614,16 @@ void JetChargeAnalyzer::fillHistos(const RecoObjects& recoObjects, const CommonG
                 trueBJetPtRatioV.push_back(ptRatioValues.at(0));
                 if (isMuon) isMuonV.push_back(1);
                 else if (isMuon==false) isMuonV.push_back(0);
-//             }
-//             else if (isMuon == false)
-//             {
-//                 trueBJetMaxPtTrackV.push_back(-999.);
-//                 trueBJetMaxChargeTrackV.push_back(-999.);
-//                 trueBJetTrackMultiplicityV.push_back(-999.);
-//                 trueBJetMaxPtChargeTrackV.push_back(-999.);
-//                 trueBJetPtV.push_back(-999.);
-//                 trueBJetPtRatioV.push_back(-999.);
-//             }
+            //}
+            //else if (isMuon == false)
+            //{
+            //    trueBJetMaxPtTrackV.push_back(-999.);
+            //    trueBJetMaxChargeTrackV.push_back(-999.);
+            //    trueBJetTrackMultiplicityV.push_back(-999.);
+            //    trueBJetMaxPtChargeTrackV.push_back(-999.);
+            //    trueBJetPtV.push_back(-999.);
+            //    trueBJetPtRatioV.push_back(-999.);
+            //}
         }
 
     } //end loop over reco jets
@@ -790,19 +792,16 @@ void JetChargeAnalyzer::bookHistos(const TString& step, std::map<TString, TH1*>&
     mvaChargeTrainTree = store (new TTree("mvaChargeTrainTree","mvaChargeTrainTree"));
     
     mvaChargeTrainTree->Branch("trueBJetId", &(mvaStruct.trueBJetId_));
-   mvaChargeTrainTree->Branch("longChargeJet", &(mvaStruct.longChargeJet_));
+    mvaChargeTrainTree->Branch("longChargeJet", &(mvaStruct.longChargeJet_));
     mvaChargeTrainTree->Branch("leadingTrackCharge", &(mvaStruct.leadingTrackCharge_));
     mvaChargeTrainTree->Branch("leadingTrackPt", &(mvaStruct.leadingTrackPt_));
-   mvaChargeTrainTree->Branch("leadingTrackPtCharge", &(mvaStruct.leadingTrackPtCharge_));
-   mvaChargeTrainTree->Branch("numTracks", &(mvaStruct.numTracks_));
-   mvaChargeTrainTree->Branch("relChargeJet", &(mvaStruct.relChargeJet_));
+    mvaChargeTrainTree->Branch("leadingTrackPtCharge", &(mvaStruct.leadingTrackPtCharge_));
+    mvaChargeTrainTree->Branch("numTracks", &(mvaStruct.numTracks_));
+    mvaChargeTrainTree->Branch("relChargeJet", &(mvaStruct.relChargeJet_));
     mvaChargeTrainTree->Branch("BJetPt",&(mvaStruct.trueBJetPt_));
-   mvaChargeTrainTree->Branch("ptRatioTrackJet",&(mvaStruct.ptRatioTrackJet_));
+    mvaChargeTrainTree->Branch("ptRatioTrackJet",&(mvaStruct.ptRatioTrackJet_));
     mvaChargeTrainTree->Branch("isMuonEvent",&(mvaStruct.isMuonEvent_));
    
-    
-//     mvaChargeTestTree->Clear();
-//     mvaChargeTrainTree->Clear();
     
     //==================TRUE LEVEL INFORMATION===========================================================================================
     
@@ -1296,29 +1295,6 @@ bool JetChargeAnalyzer::putUniquelyInVector(std::vector<int>& vector, const int 
     vector.push_back(id);
     return true;
 }
-
-
-
-//  int JetChargeAnalyzer::multiplicityTracks (int jetIdx, const std::vector<int> jetTrackIndex)
-//  {
-    // 		     int multiplicity=0;
-    // 	     for (size_t i_track=0; i_track!=jetTrackIndex.size();i_track++)
-    // 	     {
-        // 			     if (jetTrackIndex.size()==0) break;
-        // 		     int trackIdx = jetTrackIndex.at(i_track);
-        // 		     if (trackIdx == jetIdx) multiplicity++;
-        // 	     }
-        // 	     return multiplicity;
-        //  }
-        
-        // int JetChargeAnalyzer::isMatched (int jetIdx, int trackIdx)
-        //  {
-            // 	int matched;
-            // 	 if (jetIdx!=trackIdx) return -1;
-            // }
-            
-            
-            // 						     
 
 
 
