@@ -72,8 +72,8 @@ nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarSGSc
 # matching MadSpin
 nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarSGMatchUp -c mctag=Summer12,triggerTag=HLT,sample=ttbarMatchingUp,lepton=muon     1252 analyzeTopDiffXSec_cfg.py
 nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarSGMatchUp -c mctag=Summer12,triggerTag=HLT,sample=ttbarMatchingUp,lepton=electron 1252 analyzeTopDiffXSec_cfg.py
-nafJobSplitter.pl -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarSGMatchDn -c mctag=Summer12,triggerTag=HLT,sample=ttbarMatchingDown,lepton=muon     666 analyzeTopDiffXSec_cfg.py
-nafJobSplitter.pl -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarSGMatchDn -c mctag=Summer12,triggerTag=HLT,sample=ttbarMatchingDown,lepton=electron 666 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarSGMatchDn -c mctag=Summer12,triggerTag=HLT,sample=ttbarMatchingDown,lepton=muon     1140 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarSGMatchDn -c mctag=Summer12,triggerTag=HLT,sample=ttbarMatchingDown,lepton=electron 1140 analyzeTopDiffXSec_cfg.py
 
 # POWHEG
 nafJobSplitter.pl -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuPowhegSG -c mctag=Summer12,triggerTag=HLT,sample=powheg,lepton=muon     540 analyzeTopDiffXSec_cfg.py
@@ -134,8 +134,8 @@ nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarBGSc
 # matching MadSpin
 nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarBGMatchUp -c mctag=Summer12,triggerTag=HLT,sample=ttbarMatchingUpBG,lepton=muon     1252 analyzeTopDiffXSec_cfg.py
 nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarBGMatchUp -c mctag=Summer12,triggerTag=HLT,sample=ttbarMatchingUpBG,lepton=electron 1252 analyzeTopDiffXSec_cfg.py
-nafJobSplitter.pl -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarBGMatchDn -c mctag=Summer12,triggerTag=HLT,sample=ttbarMatchingDownBG,lepton=muon     666 analyzeTopDiffXSec_cfg.py
-nafJobSplitter.pl -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarBGMatchDn -c mctag=Summer12,triggerTag=HLT,sample=ttbarMatchingDownBG,lepton=electron 666 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarBGMatchDn -c mctag=Summer12,triggerTag=HLT,sample=ttbarMatchingDownBG,lepton=muon     1140 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarBGMatchDn -c mctag=Summer12,triggerTag=HLT,sample=ttbarMatchingDownBG,lepton=electron 1140 analyzeTopDiffXSec_cfg.py
 
 # POWHEG
 nafJobSplitter.pl -q 24 -M 6500 -o /nfs/dust/cms/user/`whoami` -d MuPowhegBG -c mctag=Summer12,triggerTag=HLT,sample=powhegBG,lepton=muon     540 analyzeTopDiffXSec_cfg.py
