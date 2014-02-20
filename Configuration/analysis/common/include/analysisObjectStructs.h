@@ -42,9 +42,10 @@ struct RecoObjects{
     //std::vector<double>* jetBTagCSVMVA_;
     std::vector<double>* jetChargeGlobalPtWeighted_;
     std::vector<double>* jetChargeRelativePtWeighted_;
-    //std::vector<int>* jetTrackIndex_;
-    //std::vector<int>* jetTrackCharge_;
-    //std::vector<LV>* jetTrack_;
+    std::vector<int>* jetTrackIndex_;
+    std::vector<int>* jetTrackCharge_;
+    std::vector<LV>* jetTrack_;
+    std::vector<int>* trackPdgId_;
     LV* met_;
     std::vector<double>* jetJERSF_;
     VLV* jetsForMET_;
@@ -121,6 +122,9 @@ struct TopGenObjects{
     std::vector<int>* genBHadFlavour_;
     std::vector<int>* genBHadJetIndex_;
     std::vector<int>* genBHadFromTopWeakDecay_;
+    std::vector<int>* genBHadLeptonHadIndex_;
+    std::vector<int>* genBHadLeptonsPdg_;
+    std::vector<LV>* genBHadLeptons_;
 };
 
 

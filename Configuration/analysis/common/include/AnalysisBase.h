@@ -409,6 +409,7 @@ private:
     TBranch* b_jetTrackIndex;
     TBranch* b_jetTrackCharge;
     TBranch* b_jetTrack;
+    TBranch* b_trackPdgId;
     TBranch* b_met;
     TBranch* b_jetForMET;
     TBranch* b_jetJERSF;
@@ -512,6 +513,9 @@ private:
     TBranch* b_genBHadFlavour;
     TBranch* b_genBHadJetIndex;
     TBranch* b_genBHadFromTopWeakDecay;
+    TBranch* b_genBHadLeptonHadIndex;
+    TBranch* b_genBHadLeptonsPdg;
+    TBranch* b_genBHadLeptons;
     
     
     /// nTuple branches for Higgs signal samples on generator level

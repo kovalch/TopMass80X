@@ -376,9 +376,10 @@ void AnalysisBase::clearBranches()
     b_jetBTagCSVMVA = 0;
     b_jetChargeGlobalPtWeighted = 0;
     b_jetChargeRelativePtWeighted = 0;
-    b_jetTrackIndex = 0;
-    b_jetTrackCharge = 0;
-    b_jetTrack = 0;
+    //b_jetTrackIndex = 0;
+    //b_jetTrackCharge = 0;
+    //b_jetTrack = 0;
+    //b_trackPdgId = 0;
     b_met = 0;
     b_jetJERSF = 0;
     b_jetForMET = 0;
@@ -483,6 +484,9 @@ void AnalysisBase::clearBranches()
     b_genBHadFlavour = 0;
     b_genBHadJetIndex = 0;
     b_genBHadFromTopWeakDecay = 0;
+    //b_genBHadLeptonHadIndex = 0;
+    //b_genBHadLeptonsPdg = 0;
+    //b_genBHadLeptons = 0;
 
 
     // nTuple branches for Higgs signal samples on generator level
@@ -566,6 +570,9 @@ void AnalysisBase::SetRecoBranchAddresses()
     //if(chain_->GetBranch("jetTrack")) // new variable, keep check a while for compatibility
     //   chain_->SetBranchAddress("jetTrack", &recoObjects_->jetTrack_, &b_jetTrack);
     //else b_jetTrack = 0;
+    //if(chain_->GetBranch("trackPdgId")) // new variable, keep check a while for compatibility
+    //   chain_->SetBranchAddress("trackPdgId", &recoObjects_->trackPdgId_, &b_trackPdgId);
+    //else b_trackPdgId = 0;
     chain_->SetBranchAddress("met", &recoObjects_->met_, &b_met);
     if(jetEnergyResolutionScaleFactors_ || jetEnergyScaleScaleFactors_){
         chain_->SetBranchAddress("jetsForMET", &recoObjects_->jetsForMET_, &b_jetForMET);
@@ -715,6 +722,15 @@ void AnalysisBase::SetTopSignalBranchAddresses()
         chain_->SetBranchAddress("genBHadJetIndex", &topGenObjects_->genBHadJetIndex_, &b_genBHadJetIndex);
     if(chain_->GetBranch("genBHadFromTopWeakDecay")) // need to check whether branch exists
         chain_->SetBranchAddress("genBHadFromTopWeakDecay", &topGenObjects_->genBHadFromTopWeakDecay_, &b_genBHadFromTopWeakDecay);
+    //if(chain_->GetBranch("genBHadLeptonHadIndex")) // new variable, keep check a while for compatibility
+    //  chain_->SetBranchAddress("genBHadLeptonHadIndex", &topGenObjects_->genBHadLeptonHadIndex_, &b_genBHadLeptonHadIndex);
+    //else b_genBHadLeptonHadIndex = 0;
+    //if(chain_->GetBranch("genBHadLeptonsPdg")) // new variable, keep check a while for compatibility
+    //  chain_->SetBranchAddress("genBHadLeptonsPdg", &topGenObjects_->genBHadLeptonsPdg_, &b_genBHadLeptonsPdg);
+    //else b_genBHadLeptonsPdg = 0;
+    //if(chain_->GetBranch("genBHadLeptons")) // new variable, keep check a while for compatibility
+    //  chain_->SetBranchAddress("genBHadLeptons", &topGenObjects_->genBHadLeptons_, &b_genBHadLeptons);
+    //else b_genBHadLeptons = 0;
 }
 
 
@@ -760,6 +776,7 @@ void AnalysisBase::GetRecoBranchesEntry(const Long64_t& entry)const
     //if(b_jetTrackIndex) b_jetTrackIndex->GetEntry(entry);
     //if(b_jetTrackCharge) b_jetTrackCharge->GetEntry(entry);
     //if(b_jetTrack) b_jetTrack->GetEntry(entry);
+    //if(b_trackPdgId) b_trackPdgId->GetEntry(entry);
     b_met->GetEntry(entry);
     if(b_jetForMET) b_jetForMET->GetEntry(entry);
     if(b_jetJERSF) b_jetJERSF->GetEntry(entry);
@@ -927,6 +944,9 @@ void AnalysisBase::GetTopSignalBranchesEntry(const Long64_t& entry)const
     if(b_genBHadFlavour) b_genBHadFlavour->GetEntry(entry);
     if(b_genBHadJetIndex) b_genBHadJetIndex->GetEntry(entry);
     if(b_genBHadFromTopWeakDecay) b_genBHadFromTopWeakDecay->GetEntry(entry);
+    //if(b_genBHadLeptonHadIndex) b_genBHadLeptonHadIndex->GetEntry(entry);
+    //if(b_genBHadLeptonsPdg) b_genBHadLeptonsPdg->GetEntry(entry);
+    //if(b_genBHadLeptons) b_genBHadLeptons->GetEntry(entry);
 }
 
 
