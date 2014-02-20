@@ -43,7 +43,7 @@ HypLeptonBjetMass Standard N_{Events} m^{lb} 10 1 0 0 0 0 0 300 0 0
 
 HypBBBarpT Standard N_{Events} p_{T}^{b#bar{b}} 5 1 0 0 0 0 0 350 0 0
 HypBBBarMass Standard N_{Events} m^{b#bar{b}} 10 1 0 0 0 0 0 600 0 0
-HypToppTTTRestFrame Standard N_{Events} "p_{T}^{t} #scale[0.8]{(t#bar{t} c.o.m.)}" 10 1 0 0 0 0 0 400 0 0
+HypToppTTTRestFrame Standard N_{Events} "p_{T}^{t} #scale[0.8]{(t#bar{t} com)}" 10 1 0 0 0 0 0 400 0 0
 HypTTBarDeltaPhi Standard N_{Events} #Delta#phi^{t,#bar{t}} 5 1 0 0 0 0 0 3.15 0 0
 HypTTBarDeltaRapidity Standard N_{Events} |y^{t}|-|y^{#bar{t}}| 10 1 0 0 0 0 -3 3 0 0
 

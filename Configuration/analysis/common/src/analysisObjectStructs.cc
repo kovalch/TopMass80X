@@ -39,9 +39,10 @@ void RecoObjects::clear()
     jetChargeGlobalPtWeighted_ = 0;
     jetChargeRelativePtWeighted_ = 0;
     jetChargeRelativePtWeighted_ = 0;
-    //jetTrackIndex_ = 0;
-    //jetTrackCharge_ = 0;
-    //jetTrack_ = 0;
+    jetTrackIndex_ = 0;
+    jetTrackCharge_ = 0;
+    jetTrack_ = 0;
+    trackPdgId_ = 0;
     met_ = 0;
     jetJERSF_ = 0;
     jetsForMET_ = 0;
@@ -123,6 +124,9 @@ void TopGenObjects::clear()
     genBHadFlavour_ = 0;
     genBHadJetIndex_ = 0;
     genBHadFromTopWeakDecay_ = 0;
+    genBHadLeptonHadIndex_=0;
+    genBHadLeptonsPdg_ = 0;
+    genBHadLeptons_ = 0;
 }
 
 

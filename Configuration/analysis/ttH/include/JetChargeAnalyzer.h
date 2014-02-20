@@ -8,6 +8,8 @@ class TString;
 class TH1;
 
 #include "AnalysisHistograms.h"
+#include "../../common/include/classesFwd.h"
+
 
 class JetCategories;
 class RecoObjects;
@@ -37,6 +39,37 @@ public:
     /// Destructor
     ~JetChargeAnalyzer(){}
 
+    /// Find index of genJet corresponding to the specified reco jet. Returns -1 if not found
+    int genJetIdOfRecoJet(const LV& recoJet, const VLV& genJets, const float dR_max=999.9);
+    
+    /// Get vector of indices of hadrons that are associted to the given gen jet
+    std::vector<int> bHadIdsInGenJet(const int jetId, const std::vector<int>& hadJetIndices);
+    
+    /// Get vector of flavours of hadrons that are associted to the given gen jet
+    std::vector<int> bHadFlavoursInGenJet(const int jetId, const std::vector<int>& hadJetIndices,
+					  const std::vector<int>& hadFlavours, const bool absFlavour = true);
+	
+    /// Whether index is in the vector of indices
+    bool isInVector(const std::vector<int>& idVector, const int id);
+    
+    bool putUniquelyInVector(std::vector<int>& vector, const int id);
+    
+    struct MvaJetVariable
+    {
+        std::vector <float> longChargeJet_;
+        std::vector <float> relChargeJet_;
+        std::vector <int> leadingTrackCharge_;
+        std::vector <float> leadingTrackPt_;
+        std::vector <float> leadingTrackPtCharge_;
+        std::vector <float> trueBJetPt_;
+        std::vector <int> numTracks_;
+        std::vector <int> trueBJetId_;
+        std::vector<float> ptRatioTrackJet_;
+        std::vector<bool> isMuonEvent_;
+    } mvaStruct;
+    
+    TTree* mvaChargeTestTree;
+    TTree* mvaChargeTrainTree;
 
 
 private:
