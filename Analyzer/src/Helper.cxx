@@ -44,6 +44,11 @@ int Helper::methodIDFromString(const std::string& method)
   }
 }
 
+int Helper::getCMSEnergy()
+{
+  return po::GetOption<int>("cmsenergy");
+}
+
 TH1F* Helper::GetH1(const std::string& title) {
   const float* array = &vBinning[0];
 

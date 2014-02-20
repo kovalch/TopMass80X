@@ -171,6 +171,9 @@ void RandomSubsetCreatorNewInterface::PrepareEvents(const std::string& file) {
   TChain* chain;
   if (channelID_ == Helper::kAllJets) {
     chain = new TChain("analyzeKinFit/eventTree");
+    if (Helper::getCMSEnergy() == 7) {
+      chain = new TChain("FullHadTreeWriter/tree");
+    }
   }
   else {
     chain = new TChain("analyzeHitFit/eventTree");

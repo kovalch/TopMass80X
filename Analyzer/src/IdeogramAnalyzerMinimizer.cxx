@@ -151,7 +151,7 @@ void IdeogramAnalyzerMinimizer::IterateVariableCombinations(ROOT::Math::Minimize
 {
   if(!toFit.size()) return;
   // starting point
-  double variable[] = {172.5, 1., 0.70669, 0.426911023};
+  static double variable[] = {172.5, 1., po::GetOption<double>("templates.fSig"), po::GetOption<double>("templates.fCP")};
   double step[] = {0.01,0.01,0.001,0.001};
 
   min->SetFixedVariable(0, "mass", variable[0]);

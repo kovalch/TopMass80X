@@ -28,11 +28,6 @@ double IdeogramCombLikelihood::fWP_(-1);
 double IdeogramCombLikelihood::fUN_(-1);
 
 IdeogramCombLikelihood::IdeogramCombLikelihood():
-		//parsCP_   (0), parsWP_    (0), parsUN_   (0),
-		//parsCPJES_(0), parsWPJES_ (0), parsUNJES_(0),
-		//massOffset_(0), massSlopeMass_(0), massSlopeJES_(0), massSlopeMassJES_(0),
-		//jesOffset_ (0), jesSlopeMass_ (0), jesSlopeJES_ (0), jesSlopeMassJES_ (0),
-		//fCP_(-1.), fWP_(-1.), fUN_(-1.),
 		useFixedParams_(false)
 {
   // parameters for mTop correct permutations
