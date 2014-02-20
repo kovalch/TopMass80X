@@ -1117,6 +1117,8 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
 
     TH1* uncBand = nullptr;
     if(drawUncBand_){
+//         uncBand = dynamic_cast<TH1D*> (common::summedStackHisto(stack.get()));
+//         uncBand->SetDirectory(0);
         uncBand = common::summedStackHisto(stack.get());
         getSignalUncertaintyBand(uncBand, Channel);
         uncBand->SetFillStyle(3004);
@@ -4630,28 +4632,12 @@ void Plotter::getSignalUncertaintyBand(TH1* uncBand, TString channel_)
     for (size_t iter = 0; iter<syst.size(); iter++)
     {
 //         // This lines crashes the code, some probles arises form the HistoListReader class
-//         TH1D *tmpUp = fileReader->GetClone<TH1D>("Plots/"+syst.at(iter)+"UP/"+channel_+"/"+name+"_source.root", name+"_allmc", 1);
-//         TH1D *tmpDo = fileReader->GetClone<TH1D>("Plots/"+syst.at(iter)+"DOWN/"+channel_+"/"+name+"_source.root", name+"_allmc", 1);
-//         if(!tmpUp || !tmpDo) continue;
-        TFile *f_tmpUp = nullptr, *f_tmpDo = nullptr;
+        TH1D *tmpUp = fileReader->GetClone<TH1D>("Plots/"+syst.at(iter)+"UP/"+channel_+"/"+name+"_source.root", name+"_allmc", 1);
+        TH1D *tmpDo = fileReader->GetClone<TH1D>("Plots/"+syst.at(iter)+"DOWN/"+channel_+"/"+name+"_source.root", name+"_allmc", 1);
+        if(!tmpUp && tmpDo){ delete tmpDo; continue;}
+        if(tmpUp && !tmpDo){ delete tmpUp; continue;}
+        if(!tmpUp && !tmpDo) continue;
 
-        if(syst.at(iter) == "HAD_"){
-            f_tmpUp = new TFile("Plots/MCATNLO/"+channel_+"/"+name+"_source.root");
-            f_tmpDo = new TFile("Plots/POWHEG/"+channel_+"/"+name+"_source.root");
-        } else {
-            f_tmpUp = new TFile("Plots/"+syst.at(iter)+"UP/"+channel_+"/"+name+"_source.root");
-            f_tmpDo = new TFile("Plots/"+syst.at(iter)+"DOWN/"+channel_+"/"+name+"_source.root");
-        }
-        if(!f_tmpDo || !f_tmpUp) {
-            delete f_tmpDo; delete f_tmpUp;
-            continue;
-        }
-        TH1D *tmpUp = dynamic_cast<TH1D*> (f_tmpUp->Get(name+"_allmc"));
-        TH1D *tmpDo = dynamic_cast<TH1D*> (f_tmpDo->Get(name+"_allmc"));
-        if(!tmpUp || !tmpDo){
-            delete tmpDo; delete tmpUp;
-            continue;
-        }
         if (nbins != tmpUp->GetNbinsX() || nbins != tmpDo->GetNbinsX()){
             continue;
         }
@@ -4674,7 +4660,6 @@ void Plotter::getSignalUncertaintyBand(TH1* uncBand, TString channel_)
             vec_vardown.at(nbin) += rel_diffdo * rel_diffdo;
         }
         delete tmpDo; delete tmpUp;
-        delete f_tmpDo; delete f_tmpUp;
     }
     for (size_t iter = 0; iter< vec_varup.size(); iter++)
     {
