@@ -39,6 +39,7 @@ public:
   static int channelID();
   enum methodID {kGenMatch, kMVA, kIdeogram, kIdeogramNew, kIdeogramMin, kRooFit, kMaxMethods};
   static int methodID();
+  static int getCMSEnergy();
   std::vector<double> readParameters(const char *whichParameter);
   std::vector<std::string> readParametersString(const char *whichParameter);
 };

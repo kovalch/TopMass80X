@@ -1,8 +1,10 @@
+#include <map>
 #include <string>
+#include <vector>
 
-#include "TH1F.h"
 #include "TTree.h"
 
+class TH1F;
 class MassAnalyzer;
 class RandomSubsetCreator;
 
