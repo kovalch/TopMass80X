@@ -263,11 +263,11 @@ void common::drawRatio(const TH1* histNumerator, const TH1* histDenominator, con
     // create ratio
     TH1* ratio = (TH1*)histNumerator->Clone();
     ratio->Divide(histDenominator);
-    ratio->SetLineColor(histDenominator->GetLineColor());
-    ratio->SetLineStyle(histDenominator->GetLineStyle());
-    ratio->SetLineWidth(histDenominator->GetLineWidth());
-    ratio->SetMarkerColor(histDenominator->GetMarkerColor());
-    ratio->SetMarkerStyle(histDenominator->GetMarkerStyle());
+    ratio->SetLineColor(histNumerator->GetLineColor());
+    ratio->SetLineStyle(histNumerator->GetLineStyle());
+    ratio->SetLineWidth(histNumerator->GetLineWidth());
+    ratio->SetMarkerColor(histNumerator->GetMarkerColor());
+    ratio->SetMarkerStyle(histNumerator->GetMarkerStyle());
     ratio->SetMarkerSize(0.8);
     // calculate error for ratio
     // a) from err_
@@ -329,23 +329,23 @@ void common::drawRatio(const TH1* histNumerator, const TH1* histDenominator, con
     ratio->SetMinimum(ratioMin);
     ratio->SetLineWidth(1);
     // configure axis of ratio plot
-    ratio->GetXaxis()->SetTitleSize(histDenominator->GetXaxis()->GetTitleSize()*scaleFactor*1.3);
-    ratio->GetXaxis()->SetTitleOffset(histDenominator->GetXaxis()->GetTitleOffset()*0.9);
-    ratio->GetXaxis()->SetLabelSize(histDenominator->GetXaxis()->GetLabelSize()*scaleFactor*1.4);
-    ratio->GetXaxis()->SetTitle(histDenominator->GetXaxis()->GetTitle());
-    ratio->GetXaxis()->SetNdivisions(histDenominator->GetNdivisions());
+    ratio->GetXaxis()->SetTitleSize(histNumerator->GetXaxis()->GetTitleSize()*scaleFactor*1.3);
+    ratio->GetXaxis()->SetTitleOffset(histNumerator->GetXaxis()->GetTitleOffset()*0.9);
+    ratio->GetXaxis()->SetLabelSize(histNumerator->GetXaxis()->GetLabelSize()*scaleFactor*1.4);
+    ratio->GetXaxis()->SetTitle(histNumerator->GetXaxis()->GetTitle());
+    ratio->GetXaxis()->SetNdivisions(histNumerator->GetNdivisions());
     ratio->GetYaxis()->CenterTitle();
-    ratio->GetYaxis()->SetTitle("#frac{N_{MC}}{N_{Data}}");
-    ratio->GetYaxis()->SetTitleSize(histDenominator->GetYaxis()->GetTitleSize()*scaleFactor);
-    ratio->GetYaxis()->SetTitleOffset(histDenominator->GetYaxis()->GetTitleOffset()/scaleFactor);
-    ratio->GetYaxis()->SetLabelSize(histDenominator->GetYaxis()->GetLabelSize()*scaleFactor);
-    ratio->GetYaxis()->SetLabelOffset(histDenominator->GetYaxis()->GetLabelOffset()*3.3);
+    ratio->GetYaxis()->SetTitle("#frac{N_{Data}}{N_{MC}}");
+    ratio->GetYaxis()->SetTitleSize(histNumerator->GetYaxis()->GetTitleSize()*scaleFactor);
+    ratio->GetYaxis()->SetTitleOffset(histNumerator->GetYaxis()->GetTitleOffset()/scaleFactor);
+    ratio->GetYaxis()->SetLabelSize(histNumerator->GetYaxis()->GetLabelSize()*scaleFactor);
+    ratio->GetYaxis()->SetLabelOffset(histNumerator->GetYaxis()->GetLabelOffset()*3.3);
     ratio->GetYaxis()->SetTickLength(0.03);
     ratio->GetYaxis()->SetNdivisions(405);
-    ratio->GetXaxis()->SetRange(histDenominator->GetXaxis()->GetFirst(), histDenominator->GetXaxis()->GetLast());
+    ratio->GetXaxis()->SetRange(histNumerator->GetXaxis()->GetFirst(), histNumerator->GetXaxis()->GetLast());
     // delete axis of initial plot
-    histDenominator->GetXaxis()->SetLabelSize(0);
-    histDenominator->GetXaxis()->SetTitleSize(0);
+    histNumerator->GetXaxis()->SetLabelSize(0);
+    histNumerator->GetXaxis()->SetTitleSize(0);
     // draw ratio plot
     ratio->DrawClone("p e X0");
     //This is frustrating and stupid but apparently necessary...
@@ -355,6 +355,7 @@ void common::drawRatio(const TH1* histNumerator, const TH1* histDenominator, con
     TExec *setex2 { new TExec("setex2","gStyle->SetErrorX(0.)") };
     setex2->Draw();
     ratio->SetMarkerSize(0.8);
+    ratio->SetLineWidth(2);
     ratio->DrawClone("p e X0 same");
     rPad->SetTopMargin(0.0);
     rPad->SetBottomMargin(0.15*scaleFactor);

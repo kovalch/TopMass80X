@@ -1117,17 +1117,12 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
 
     TH1* uncBand = nullptr;
     if(drawUncBand_){
-//         uncBand = dynamic_cast<TH1D*> (common::summedStackHisto(stack.get()));
-//         uncBand->SetDirectory(0);
         uncBand = common::summedStackHisto(stack.get());
         getSignalUncertaintyBand(uncBand, Channel);
-        uncBand->SetFillStyle(3004);
+        uncBand->SetFillStyle(3354);
         uncBand->SetFillColor(kBlack);
-//         // second proposal
-//         uncBand->SetFillStyle(3354);
-//         uncBand->SetFillColor(kGray+2);
-//         gStyle->SetHatchesLineWidth(2);
-//         gStyle->SetHatchesSpacing(0.8);
+        gStyle->SetHatchesLineWidth(1);
+        gStyle->SetHatchesSpacing(0.8);
         uncBand->SetMarkerStyle(0);
         uncBand->Draw("same,e2");
 
@@ -1160,7 +1155,7 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
     if(drawPlotRatio){
         double yminCP_ = 0.49, ymaxCP_ = 1.51;
         yRangeControlPlotRatio(yminCP_, ymaxCP_);
-        common::drawRatio(stacksum, drawhists[0], uncBand, yminCP_, ymaxCP_, doFit_);
+        common::drawRatio(drawhists[0], stacksum, uncBand, yminCP_, ymaxCP_, doFit_);
     }
 
     // Create Directory for Output Plots 
@@ -4218,7 +4213,11 @@ void Plotter::setResultLegendStyle(TLegend *leg, const bool result)
 }
 
 
-void Plotter::setControlPlotLegendStyle(std::vector< TH1* > drawhists, std::vector< TString > legends, TLegend* leg, TLegend *leg1, TLegend *leg2){
+void Plotter::setControlPlotLegendStyle(std::vector< TH1* > drawhists, std::vector< TString > legends, TLegend* leg, TLegend *leg1, TLegend *leg2)
+{
+    //this appendix  to the legend aligns vertically all entries in the legend
+    std::string  appendix = "                                                                                    #color[10]{#bar{MARTIN}_{GOERNER}}";
+
     //hardcoded ControlPlot legend
     std::vector<TString> OrderedLegends;
     OrderedLegends.push_back("Data");
@@ -4236,16 +4235,16 @@ void Plotter::setControlPlotLegendStyle(std::vector< TH1* > drawhists, std::vect
     if(leg2) leg2->Clear();
     for(size_t i=0; i<OrderedLegends.size(); ++i){
         for(size_t j=0; j<drawhists.size(); ++j){
-            if (OrderedLegends[i] == legends[j]){
-                if( OrderedLegends[i] == "Data"){
-                    leg->AddEntry(drawhists[j], OrderedLegends[i], "pe");
-                    if(leg1)leg1->AddEntry(drawhists[j], OrderedLegends[i], "pe");
+            if (OrderedLegends.at(i) == legends.at(j)){
+                if( OrderedLegends.at(i) == "Data"){
+                    leg->AddEntry(drawhists.at(j), OrderedLegends.at(i)+appendix, "pe");
+                    if(leg1)leg1->AddEntry(drawhists.at(j), OrderedLegends.at(i)+appendix, "pe");
                     break;
                 }
                 else{
-                    leg->AddEntry(drawhists[j], OrderedLegends[i], "f");
-                    if (leg1 && i < 5) leg1->AddEntry(drawhists[j], OrderedLegends[i], "f");
-                    if (leg2 && i > 4) leg2->AddEntry(drawhists[j], OrderedLegends[i], "f");
+                    leg->AddEntry(drawhists.at(j), OrderedLegends.at(i)+appendix, "f");
+                    if (leg1 && i < 5) leg1->AddEntry(drawhists.at(j), OrderedLegends.at(i)+appendix, "f");
+                    if (leg2 && i > 4) leg2->AddEntry(drawhists.at(j), OrderedLegends.at(i)+appendix, "f");
                     break;
                 }
             }
@@ -4263,20 +4262,20 @@ void Plotter::setControlPlotLegendStyle(std::vector< TH1* > drawhists, std::vect
     leg->SetY2NDC(y2);
 
     leg->SetTextFont(42);
-    leg->SetTextSize(0.035);
+    leg->SetTextSize(0.03);
     leg->SetFillStyle(0);
     leg->SetBorderSize(0);
     leg->SetTextAlign(12);
 
     if (!leg1) return;
     leg1->SetTextFont(42);
-    leg1->SetTextSize(0.035);
+    leg1->SetTextSize(0.03);
     leg1->SetFillStyle(0);
     leg1->SetBorderSize(0);
     leg1->SetTextAlign(12);
 
     // Define shifts of legends
-    double xShift=0.9*(x2-x1);
+    double xShift=0.8*(x2-x1);
     double yShift=0.06;
     double y1mod=y1+0.45*(y2-y1);
 
@@ -4288,15 +4287,15 @@ void Plotter::setControlPlotLegendStyle(std::vector< TH1* > drawhists, std::vect
 
     if(!leg2) return;
     leg2->SetTextFont(42);
-    leg2->SetTextSize(0.035);
+    leg2->SetTextSize(0.03);
     leg2->SetFillStyle(0);
     leg2->SetBorderSize(0);
     leg2->SetTextAlign(12);
 
     // coordinates for splitted legends
-    leg2->SetX1NDC(x1);
+    leg2->SetX1NDC(x1 + 0.01);
     leg2->SetY1NDC(y1mod - yShift);
-    leg2->SetX2NDC(x2);
+    leg2->SetX2NDC(x2 + 0.01);
     leg2->SetY2NDC(y2 - yShift);
 
 }
@@ -4631,9 +4630,24 @@ void Plotter::getSignalUncertaintyBand(TH1* uncBand, TString channel_)
     std::vector<double> vec_varup(nbins, 0), vec_vardown(nbins, 0);
     for (size_t iter = 0; iter<syst.size(); iter++)
     {
-//         // This lines crashes the code, some probles arises form the HistoListReader class
-        TH1D *tmpUp = fileReader->GetClone<TH1D>("Plots/"+syst.at(iter)+"UP/"+channel_+"/"+name+"_source.root", name+"_allmc", 1);
-        TH1D *tmpDo = fileReader->GetClone<TH1D>("Plots/"+syst.at(iter)+"DOWN/"+channel_+"/"+name+"_source.root", name+"_allmc", 1);
+        TString file_up = "", file_do = "";
+        if(syst.at(iter) == "HAD_"){
+            file_up = TString("Plots/MCATNLO/"+channel_+"/"+name+"_source.root");
+            file_do = TString("Plots/POWHEG/"+channel_+"/"+name+"_source.root");
+        } else{
+            file_up = TString("Plots/"+syst.at(iter)+"UP/"+channel_+"/"+name+"_source.root");
+            file_do = TString("Plots/"+syst.at(iter)+"DOWN/"+channel_+"/"+name+"_source.root");
+        }
+        ifstream inputFileStream(file_up);
+        if(inputFileStream.fail()){continue;}
+        inputFileStream.close();
+        ifstream inputFileStream2(file_do);
+        if(inputFileStream2.fail()){continue;}
+        inputFileStream2.close();
+
+        // This lines crashes the code, some probles arises form the HistoListReader class
+        TH1D *tmpUp = fileReader->GetClone<TH1D>(file_up, name+"_allmc", 1);
+        TH1D *tmpDo = fileReader->GetClone<TH1D>(file_do, name+"_allmc", 1);
         if(!tmpUp && tmpDo){ delete tmpDo; continue;}
         if(tmpUp && !tmpDo){ delete tmpUp; continue;}
         if(!tmpUp && !tmpDo) continue;
