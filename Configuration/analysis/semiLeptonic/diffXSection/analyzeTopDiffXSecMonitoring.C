@@ -36,7 +36,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
   gROOT->SetStyle("HHStyle");
   gROOT->ForceStyle();
   TGaxis::SetMaxDigits(3);
-  gStyle->SetHatchesLineWidth(2);
+  gStyle->SetHatchesLineWidth(1);
   gStyle->SetHatchesSpacing(0.8);
 
   // ============================
@@ -78,7 +78,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 
   // b) options to be configured only once
   // data/MC -> MC/data
-  bool invert=true;
+  bool invert=false;
   // draw for the normalized nPV plot the PU uncertainty band?
   bool drawnPVPUunc=true;
   // draw JES+JER uncertainty bands for chi2, prob& kinfit shift plots
@@ -638,7 +638,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     // (III) after kinematic fit 
     "#angle(t,#bar{t});Events;0;15",
     "p_{T}^{t} #left[GeV#right];Top quarks;0;20",
-    "p_{T}^{t} #scale[0.8]{(t#bar{t} c.m.s.)} #left[GeV#right];Events;0;20",
+    "p_{T}^{t} #scale[0.8]{(t#bar{t} CoM)} #left[GeV#right];Events;0;20",
     "y^{t};Top quarks;0;1",
     "m^{t};Top quarks;0;10",
     "p_{T}^{t#bar{t}} #left[GeV#right];Top-quark pairs;0;20",
@@ -2278,7 +2278,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	    else{
 	      // optional: draw MC uncertainties as errorbands 
 	      int errorbandFillStyle=3354;
-	      int errorbandColor    =kGray+2;//11;
+	      int errorbandColor    =kBlack;//kGray+2;//11;
 	      // o1) PU uncertainty band for normalized nPV plot
 	      if(histoErrorBandPU_.count(plotList_[plot])>0){
 		if(verbose>2) std::cout << "draw PU unc. band for " << plotList_[plot] << std::endl;
@@ -2356,8 +2356,9 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 
 	      // splitted legends
 	      while(legSplit1->GetNRows()>legSplit2->GetNRows()) legSplit2->AddEntry((TObject*)0, " ", "");  // unify number of entries
-	      //double xShift=0.85*(x2-x1); // move first legend to the left
-	      double xShift=0.9*(x2-x1);
+	      // for synchro with DESY
+	      x1-=0.01; x2-=0.03; x2-=0.025;
+	      double xShift=0.8*(x2-x1); // move first legend to the left
 	      double yShift=0.06; // move both legends down to avoid overlapping with channel label
 	      double y1mod=y1+0.45*(y2-y1); // both legends start now higher as they contain only half as many entries
 	      legSplit1->SetX1NDC(x1 - xShift);
@@ -2366,9 +2367,9 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	      legSplit1->SetY2NDC(y2-yShift);
 	      legSplit1->SetTextSize(0.03);
 
-	      legSplit2->SetX1NDC(x1);
+	      legSplit2->SetX1NDC(x1+0.01);
 	      legSplit2->SetY1NDC(y1mod-yShift);
-	      legSplit2->SetX2NDC(x2);
+	      legSplit2->SetX2NDC(x2+0.01);
 	      legSplit2->SetY2NDC(y2-yShift);
 	      legSplit2->SetTextSize(0.03);
 
