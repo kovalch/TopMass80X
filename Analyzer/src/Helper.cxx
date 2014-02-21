@@ -357,12 +357,14 @@ std::string HelperFunctions::cleanedName(std::string toBeCleaned){
     boost::replace_all(toBeCleaned,"*","_"      );
     boost::replace_all(toBeCleaned,",",""       );
     boost::replace_all(toBeCleaned,";",""       );
+    boost::replace_all(toBeCleaned,":",""       );
     boost::replace_all(toBeCleaned,"|",""       );
     boost::replace_all(toBeCleaned,"+","_"      );
     boost::replace_all(toBeCleaned,"<","_st_"   );
     boost::replace_all(toBeCleaned,">","_gt_"   );
     boost::replace_all(toBeCleaned,"[","_"      );
     boost::replace_all(toBeCleaned,"]","_"      );
+    boost::replace_all(toBeCleaned,"@","_"      );
     return toBeCleaned;
 }
 
