@@ -66,7 +66,7 @@ namespace semileptonic {
 
   TString xSecVariablesIncl[] = {"inclusive"};
 
-  TString xSecLabelKinFit[]     = {"p_{T}^{lead t}/[GeV]", "p_{T}^{sublead t}/[GeV]", "p_{T}^{t} #scale[0.8]{(t#bar{t} c.m.s.)}/[GeV]", "p_{T}^{t}/[GeV]", "y^{t}/ ", "p_{T}^{t#bar{t}}/[GeV]", "y^{t#bar{t}}/ ", "m^{t#bar{t}}/[GeV]", "#Delta#phi(t,#bar{t})/ ", "#Phi^{#lower[-0.9]{* }}(t,#bar{t})/ "};
+  TString xSecLabelKinFit[]     = {"p_{T}^{lead t}/[GeV]", "p_{T}^{sublead t}/[GeV]", "p_{T}^{t} #scale[0.8]{(t#bar{t} CoM)}/[GeV]", "p_{T}^{t}/[GeV]", "y^{t}/ ", "p_{T}^{t#bar{t}}/[GeV]", "y^{t#bar{t}}/ ", "m^{t#bar{t}}/[GeV]", "#Delta#phi(t,#bar{t})/ ", "#Phi^{#lower[-0.9]{* }}(t,#bar{t})/ "};
   TString xSecLabelFinalState[] = {"p_{T}^{l}/[GeV]", "#eta^{l}/ ", "p_{T}^{b}/[GeV]", "#eta^{b}/ ", "m^{b#bar{b}}/[GeV]", "p_{T}^{b#bar{b}}/[GeV]", "m^{lb}/[GeV]", "N_{jets}/ ", "#rho_{S}/ "};
 
   // cross-check variables
@@ -148,8 +148,8 @@ namespace semileptonic {
   const TString constMadGraphPythiaPerugiaMpiHiLabel = "MadGraph+Pythia(P11,MpiHi)";
 
   // theory arxiv numbers
-  const TString constApproxNNLOLabel="arXiv:1003.5827";
-  const TString constNLONNLLLabel   ="arXiv:1307.2464";
+  const TString constApproxNNLOLabel="arXiv:1210.7813";
+  const TString constNLONNLLLabel   ="arXiv:1003.5827";
 
   // Marker style (<=kSAToptW)
 
@@ -2863,7 +2863,8 @@ namespace semileptonic {
       ratio->GetXaxis()->SetNdivisions(histDenominator->GetNdivisions());
       ratio->GetYaxis()->CenterTitle();
       TString ratioAxisTitle="";
-      if(ratioLabelDenominator!=""&&ratioLabelNominator!="") ratioAxisTitle="#frac{"+ratioLabelNominator+"}{"+ratioLabelDenominator+"}";
+      //if(ratioLabelDenominator!=""&&ratioLabelNominator!="") ratioAxisTitle="#frac{"+ratioLabelNominator+"}{"+ratioLabelDenominator+"}";
+      if(ratioLabelDenominator!=""&&ratioLabelNominator!="") ratioAxisTitle="#frac{"+(!invert ? ratioLabelDenominator : ratioLabelNominator)+"}{"+(!invert ? ratioLabelNominator : ratioLabelDenominator)+"}";
       else if(ratioLabelDenominator!="") ratioAxisTitle=ratioLabelDenominator;
       else if(ratioLabelNominator  !="") ratioAxisTitle=ratioLabelNominator  ;
       ratio->GetYaxis()->SetTitle(ratioAxisTitle);
@@ -2989,7 +2990,7 @@ namespace semileptonic {
     if(noUnit) strUnitGeV="";
 
     if(variable == "topPt"        ) return "p_{T}^{t}"+strUnitGeV;
-    if(variable == "topPtTtbarSys") return "p_{T}^{t} #scale[0.8]{(t#bar{t} c.m.s.)}"+strUnitGeV;
+    if(variable == "topPtTtbarSys") return "p_{T}^{t} #scale[0.8]{(t#bar{t} CoM)}"+strUnitGeV;
     if(variable == "topPtLead"    ) return "p_{T}^{lead t}"+strUnitGeV;
     if(variable == "topPtSubLead" ) return "p_{T}^{sublead t}"+strUnitGeV;
     if(variable == "topPtPlus"    ) return "p_{T}^{t}"+strUnitGeV;
