@@ -2903,7 +2903,7 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
         else {GenPlotTheory->Draw("SAME,C");} //### 150512 ### 
     }
 
-    madgraphhistBinned->Draw("SAME");
+//     madgraphhistBinned->Draw("SAME");
     DrawCMSLabels(0, 8);
     DrawDecayChLabel(channelLabel[channelType]);
 
@@ -2925,7 +2925,7 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
         DrawLabel("(arXiv:1003.5827)", leg2->GetX1NDC()+0.06, leg2->GetY1NDC()-0.025, leg2->GetX2NDC(), leg2->GetY1NDC(), 12, 0.025);
     }
 
-    madgraphhistBinned->Draw("SAME");
+//     madgraphhistBinned->Draw("SAME");
     gStyle->SetEndErrorSize(10);
     tga_DiffXSecPlot->Draw("p, SAME");
     tga_DiffXSecPlotwithSys->Draw("p, SAME, Z");
@@ -3738,7 +3738,7 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
         OutputFileXSec.close();
     }
 
-    madgraphhistBinned->Draw("SAME");
+//     madgraphhistBinned->Draw("SAME");
     DrawCMSLabels(0, 8);
     DrawDecayChLabel(channelLabel[channelType]);
 
@@ -3765,7 +3765,7 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
         DrawLabel("(arXiv:1003.5827)", leg2->GetX1NDC()+0.06, leg2->GetY1NDC()-0.025, leg2->GetX2NDC(), leg2->GetY1NDC(), 12, 0.025);
     }
 
-    madgraphhistBinned->Draw("same");
+//     madgraphhistBinned->Draw("same");
     gStyle->SetEndErrorSize(10);
     tga_DiffXSecPlot->Draw("p, SAME");
     ///Stupid clone to be able to see the stat error bars
@@ -4720,7 +4720,7 @@ void Plotter::setResultRatioRanges(double &yminRes_, double &ymaxRes_ )const
     yminRes_ = 0.49;
     ymaxRes_ = 1.51;
 
-    if(name.Contains("HypToppT"))               { yminRes_ = 0.75; ymaxRes_ = 1.59; return;}
+    if(name.Contains("HypToppT"))               { yminRes_ = 0.75; ymaxRes_ = 1.45; return;}
     if(name.Contains("HypToppTLead"))           { yminRes_ = 0.70; ymaxRes_ = 1.59; return;}
     if(name.Contains("HypToppTNLead"))          { yminRes_ = 0.70; ymaxRes_ = 1.59; return;}
 
