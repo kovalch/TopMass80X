@@ -89,12 +89,7 @@ void Analysis::Analyze() {
   canvas->cd();
   
   for(unsigned int i = 0; i < vBinning_.size()-1; ++i) {
-    // FIXME binning not yet implemented, still needs some implementation ...
-    
-    // FIXME Entries per bin
     int entries = ((RandomSubsetCreatorNewInterface*)fCreator_)->GetDataSample().nEvents;
-    CreateHisto("Entries");
-    GetH1("Entries")->SetBinContent(i+1, 10+i);
 
     if (entries > 25) {
       if      (fMethodID_ == Helper::kIdeogramMin) ((IdeogramAnalyzerMinimizer   *)fAnalyzer_)->SetDataSample(((RandomSubsetCreatorNewInterface*)fCreator_)->GetDataSample());
@@ -140,19 +135,20 @@ void Analysis::Analyze() {
   GetH1("mass_mTop_JES")->Fit("pol0");
 
   canvas->cd(3);
-  GetH1("mass_mTop_JES_Error")->Draw("E1");
-  GetH1("mass_mTop_JES_Error")->SetAxisRange(0.05, 5, "Z");
-  GetH1("mass_mTop_JES_Error")->Fit("pol0");
+  GetH1("JES_mTop_JES")->Draw("E1");
+  GetH1("JES_mTop_JES")->SetAxisRange(GetH1("JES_mTop_JES")->GetMinimum(0.05)-0.01, GetH1("JES_mTop_JES")->GetMaximum()+0.01, "Z");
+  GetH1("JES_mTop_JES")->Fit("pol0");
   
-  /*
   canvas->cd(4);
-  hJES->Draw("E1");
-  hJES->Fit("pol0");
-  */
+  GetH1("mass_mTop")->Draw("E1");
+  GetH1("mass_mTop")->SetAxisRange(GetH1("mass_mTop")->GetMinimum(0.05)-1., GetH1("mass_mTop")->GetMaximum()+1, "Z");
+  GetH1("mass_mTop")->Fit("pol0");
+  
   // clean binning to give a proper path
   TString binningForPath = fBinning_;
   binningForPath.ReplaceAll("[","_"); binningForPath.ReplaceAll("]","_"); binningForPath.ReplaceAll("(","_"); binningForPath.ReplaceAll(")","_");
-  binningForPath.ReplaceAll(".","_"); binningForPath.ReplaceAll("/","_");
+  binningForPath.ReplaceAll(".","_"); binningForPath.ReplaceAll("/","_"); binningForPath.ReplaceAll("@","_");
+  binningForPath.ReplaceAll(",","_"); binningForPath.ReplaceAll(" ","_"); binningForPath.ReplaceAll(":","_");
   TString localIdentifier = fIdentifier_; localIdentifier.ReplaceAll("*","_"); localIdentifier.ReplaceAll("/","_");
   std::string path("plot/"); path += fMethod_; path += "_"; path += localIdentifier; path += "_"; path += binningForPath; path += ".eps";
   canvas->Print(path.c_str());

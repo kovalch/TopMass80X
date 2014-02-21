@@ -24,6 +24,7 @@ class IdeogramAnalyzerMinimizer : public MassAnalyzer {
   //IdeogramCombLikelihood* fptr_;
   //TF2* combLikelihood_;
   int channelID_;
+  int entries_;
   double isFastSim_;
   double shapeSystematic_;
   double permutationFractionSystematic_;
