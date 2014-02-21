@@ -36,11 +36,11 @@ JetChargeAnalyzer::JetChargeAnalyzer(const std::vector<TString>& selectionStepsN
                                      const std::vector<TString>& stepsForCategories,
                                      const JetCategories* jetCategories):
                                      AnalysisHistogramsBase("jetCharge_", selectionStepsNoCategories, stepsForCategories, jetCategories)
-                                     {
-                                         std::cout<<"--- Beginning setting up jet charge analyzer\n";
-                                         std::cout<<"=== Finishing setting up jet charge analyzer\n\n";
-                                     }
-                                     
+  {
+      std::cout<<"--- Beginning setting up jet charge analyzer\n";
+      std::cout<<"=== Finishing setting up jet charge analyzer\n\n";
+  }
+  
 
 
 

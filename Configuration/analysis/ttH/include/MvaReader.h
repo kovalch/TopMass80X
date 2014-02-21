@@ -32,9 +32,6 @@ public:
     /// Clear the class instance
     void clear();
     
-    /// Get the MVA input structs
-//    std::vector<Input> inputStructs()const;
-    
     
     
     /// Get the MVA weights for all jet pairs from weights file
