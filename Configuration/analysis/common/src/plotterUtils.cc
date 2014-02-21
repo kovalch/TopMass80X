@@ -155,7 +155,7 @@ void common::drawRatioXSEC(const TH1* histNumerator, const TH1* histDenominator1
     ratio1->GetYaxis()->SetLabelSize(histNumerator->GetYaxis()->GetLabelSize()*scaleFactor);
     ratio1->GetYaxis()->SetLabelOffset(histNumerator->GetYaxis()->GetLabelOffset()*3.3);
     ratio1->GetYaxis()->SetTickLength(0.03);
-    ratio1->GetYaxis()->SetNdivisions(504);
+    ratio1->GetYaxis()->SetNdivisions(505);
     ratio1->GetXaxis()->SetRange(histNumerator->GetXaxis()->GetFirst(), histNumerator->GetXaxis()->GetLast());
     ratio1->GetXaxis()->SetNoExponent(kTRUE);
     
@@ -166,6 +166,8 @@ void common::drawRatioXSEC(const TH1* histNumerator, const TH1* histDenominator1
 
     /// draw ratio plot
     ratio1->DrawClone("Histo");
+    rPad->Update();
+    rPad->Modified();
     rPad->SetTopMargin(0.0);
     rPad->SetBottomMargin(0.15*scaleFactor);
     rPad->SetRightMargin(right);
@@ -213,6 +215,8 @@ void common::drawRatioXSEC(const TH1* histNumerator, const TH1* histDenominator1
     f->Draw("l,same");
     f2->Draw("l,same");
     gPad->RedrawAxis();
+    gPad->Update();
+    gPad->Modified();
     ratio1->Draw("histo,same");
     if (ratio2) ratio2->Draw("Histo,same");
     if (ratio3) ratio3->Draw("Histo,same");
@@ -220,7 +224,10 @@ void common::drawRatioXSEC(const TH1* histNumerator, const TH1* histDenominator1
     if (ratio5) ratio5->Draw("Histo,same");
     if (ratio6) ratio6->Draw("Histo,same");
     if (ratio7) ratio7->Draw("Histo,same");
-    
+    gPad->RedrawAxis();
+    gPad->Update();
+    gPad->Modified();
+    rPad->RedrawAxis();
 }
 
 

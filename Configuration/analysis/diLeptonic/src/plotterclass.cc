@@ -1210,7 +1210,7 @@ void Plotter::setStyle(TH1 *hist, unsigned int i, bool isControlPlot)
         hist->SetFillColor(0);
         hist->SetMarkerStyle(20);
         hist->SetMarkerSize(1.2);
-        hist->SetLineWidth(1);
+        hist->SetLineWidth(2);
         if ((name.Contains("pT") || name.Contains("Mass")) && (!name.Contains("1st") && !name.Contains("Rapidity") && !name.Contains("Phi"))) {
             hist->GetXaxis()->SetTitle(XAxis+" #left[GeV#right]");
             hist->GetYaxis()->SetTitle("#frac{1}{#sigma} #frac{d#sigma}{d"+XAxis+"}"+" #left[GeV^{-1}#right]"); 
@@ -2395,12 +2395,14 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
     tga_DiffXSecPlot->SetMarkerStyle(1);
     tga_DiffXSecPlot->SetMarkerColor(kBlack);
     tga_DiffXSecPlot->SetMarkerSize(0.8);
+    tga_DiffXSecPlot->SetLineWidth(2);
     tga_DiffXSecPlot->SetLineColor(kBlack);
    
     TGraphAsymmErrors *tga_DiffXSecPlotwithSys = new TGraphAsymmErrors(bins, binCenters, DiffXSecPlot, mexl, mexh, DiffXSecTotalErrorPlot, DiffXSecTotalErrorPlot);
     tga_DiffXSecPlotwithSys->SetMarkerStyle(20);
     tga_DiffXSecPlotwithSys->SetMarkerColor(kBlack);
     tga_DiffXSecPlotwithSys->SetMarkerSize(0.8);
+    tga_DiffXSecPlotwithSys->SetLineWidth(2);
     tga_DiffXSecPlotwithSys->SetLineColor(kBlack);
 
     //GenPlotTheory->Scale(topxsec/(SignalEventswithWeight*GenPlotTheory->GetBinWidth(1)));
@@ -2774,22 +2776,22 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
     if (drawNLOCurves && drawMCATNLO) {
         setTheoryStyleAndFillLegend(mcnlohist, "mcatnloherwig");
         setTheoryStyleAndFillLegend(mcnlohistBinned, "mcatnloherwig", leg2);
-        mcnlohistBinned->Draw("SAME");
+        mcnlohistBinned->Draw("SAME][");
     }
     if(drawNLOCurves && drawPOWHEGHERWIG){
         setTheoryStyleAndFillLegend(powhegHerwighist, "powhegherwig");
         setTheoryStyleAndFillLegend(powhegHerwighistBinned, "powhegherwig", leg2);
-        powhegHerwighistBinned->Draw("SAME");
+        powhegHerwighistBinned->Draw("SAME][");
     }
     if(drawNLOCurves && drawPOWHEG){
         setTheoryStyleAndFillLegend(powheghist, "powhegpythia");
         setTheoryStyleAndFillLegend(powheghistBinned, "powhegpythia", leg2);
-        powheghistBinned->Draw("SAME");
+        powheghistBinned->Draw("SAME][");
     }
     if(drawNLOCurves && drawPERUGIA11){
         setTheoryStyleAndFillLegend(perugia11hist, "perugia11");
         setTheoryStyleAndFillLegend(perugia11histBinned, "perugia11", leg2);
-        perugia11histBinned->Draw("SAME");
+        perugia11histBinned->Draw("SAME][");
     }
     if(drawNLOCurves && drawKidonakis &&
         (name== "HypToppT" || name == "HypTopRapidity") &&
@@ -2953,6 +2955,8 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
         double yminRatio, ymaxRatio;
         setResultRatioRanges(yminRatio, ymaxRatio);
         common::drawRatioXSEC(h_DiffXSec, madgraphhistBinned, ratio_stat, ratio_tota, powheghistBinned, mcnlohistBinned, tmpKido, tmpAhrens,powhegHerwighistBinned, perugia11histBinned, yminRatio, ymaxRatio);
+        c->Update();
+        c->Modified();
     };
 
 //    if(drawMadScaleMatching) {powheghist = nullptr; mcnlohist = nullptr; common::drawRatioXSEC(h_DiffXSec,h_GenDiffXSec,madupBinned,maddownBinned,matchupBinned,matchdownBinned,0,0,0.4, 1.6); }
@@ -3341,6 +3345,7 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
     //tga_DiffXSecPlot->SetMarkerStyle(20);
     tga_DiffXSecPlot->SetMarkerColor(kBlack);
     tga_DiffXSecPlot->SetMarkerSize(1);
+    tga_DiffXSecPlot->SetLineWidth(2);
     tga_DiffXSecPlot->SetLineColor(kBlack);
 
     GenPlot->Scale(topxsec/(SignalEventswithWeight*GenPlot->GetBinWidth(1)));
@@ -3679,29 +3684,29 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
         // Histogram style
         realTruthBinned->SetLineColor(kRed-7);
         realTruthBinned->SetLineStyle(2);
-        realTruthBinned->Draw("same");
+        realTruthBinned->Draw("SAME][");
         leg2->AddEntry(realTruthBinned, "Simu. Reweighted", "l");
     }
 
     if (drawNLOCurves && drawMCATNLO) {
         setTheoryStyleAndFillLegend(mcnlohist, "mcatnloherwig");
         setTheoryStyleAndFillLegend(mcnlohistBinned, "mcatnloherwig", leg2);
-        mcnlohistBinned->Draw("SAME");
+        mcnlohistBinned->Draw("SAME][");
     }
     if(drawNLOCurves && drawPOWHEGHERWIG){
         setTheoryStyleAndFillLegend(powhegHerwighist, "powhegherwig");
         setTheoryStyleAndFillLegend(powhegHerwighistBinned, "powhegherwig", leg2);
-        powhegHerwighistBinned->Draw("SAME");
+        powhegHerwighistBinned->Draw("SAME][");
     }
     if(drawNLOCurves && drawPOWHEG){
         setTheoryStyleAndFillLegend(powheghist, "powhegpythia");
         setTheoryStyleAndFillLegend(powheghistBinned, "powhegpythia", leg2);
-        powheghistBinned->Draw("SAME");
+        powheghistBinned->Draw("SAME][");
     }
     if(drawNLOCurves && drawPERUGIA11){
         setTheoryStyleAndFillLegend(perugia11hist, "perugia11");
         setTheoryStyleAndFillLegend(perugia11histBinned, "perugia11", leg2);
-        perugia11histBinned->Draw("SAME");
+        perugia11histBinned->Draw("SAME][");
     }
     if(drawNLOCurves && drawKidonakis &&
         (name== "HypToppT" || name == "HypTopRapidity") && 
@@ -3801,6 +3806,8 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
             common::drawRatioXSEC(h_DiffXSec, madgraphhistBinned, ratio_stat, 0, powheghistBinned, mcnlohistBinned, tmpKido, tmpAhrens,powhegHerwighistBinned, perugia11histBinned, yminRatio, ymaxRatio);
         };
     };
+    c->Update();
+    c->Modified();
 
 //    if(drawMadScaleMatching) {powheghist = nullptr; mcnlohist = nullptr; common::drawRatioXSEC(h_DiffXSec,h_GenDiffXSec,madupBinned,maddownBinned,matchupBinned,matchdownBinned,0,0,0.4, 1.6); }
     if(drawNLOCurves && drawMadScaleMatching) common::drawRatioXSEC(h_DiffXSec,madgraphhistBinned,0,0,madupBinned,maddownBinned,matchupBinned,matchdownBinned,0,0,0.4, 1.6);
@@ -4720,7 +4727,7 @@ void Plotter::setResultRatioRanges(double &yminRes_, double &ymaxRes_ )const
     yminRes_ = 0.49;
     ymaxRes_ = 1.51;
 
-    if(name.Contains("HypToppT"))               { yminRes_ = 0.75; ymaxRes_ = 1.45; return;}
+    if(name.Contains("HypToppT"))               { yminRes_ = 0.75; ymaxRes_ = 1.59; return;}
     if(name.Contains("HypToppTLead"))           { yminRes_ = 0.70; ymaxRes_ = 1.59; return;}
     if(name.Contains("HypToppTNLead"))          { yminRes_ = 0.70; ymaxRes_ = 1.59; return;}
 
