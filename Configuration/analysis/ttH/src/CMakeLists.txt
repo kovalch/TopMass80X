@@ -35,11 +35,11 @@ SET( ${PROJECT_NAME}_LIBSOURCES
 
 SET( ${PROJECT_NAME}_EXECUTABLES
   load_Analysis
-  train_bdt_topSystemJetAssignment
-  histo_bdt_topSystemJetAssignment
-  histo_mvaVariables_topSystemJetAssignment
+  train_mvaTopJets
   Histo
-  histo_genLevel_genRecoMatching
+  histo_analyzerJetMatch
+  histo_analyzerMvaTopJets
+  histo_mvaTopJetsInputVariables
   )
 
 

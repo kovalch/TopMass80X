@@ -47,9 +47,9 @@ constexpr const char* WeightsOutputFILE = "weights2d.root";
 
 
 
-void trainBdtTopSystemJetAssignment(const std::vector<Channel::Channel>& v_channel,
-                                    const std::vector<Systematic::Systematic>& v_systematic,
-                                    const std::vector<std::string>& v_mode)
+void trainMvaTopJets(const std::vector<Channel::Channel>& v_channel,
+                     const std::vector<Systematic::Systematic>& v_systematic,
+                     const std::vector<std::string>& v_mode)
 {
     // Access all MVA input file names for all systematics and channels
     tth::mvaHelpers::SystematicChannelFileNames m_systematicChannelFileNamesTraining =
@@ -187,7 +187,7 @@ int main(int argc, char** argv)
     for (auto mode : v_mode)std::cout << mode << " ";
     std::cout << "\n\n";
     
-    trainBdtTopSystemJetAssignment(v_channel, v_systematic, v_mode);
+    trainMvaTopJets(v_channel, v_systematic, v_mode);
 }
 
 
