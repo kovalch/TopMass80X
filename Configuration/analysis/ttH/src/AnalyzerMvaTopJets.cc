@@ -12,7 +12,7 @@
 #include <TObjArray.h>
 #include <TObjString.h>
 
-#include "MvaValidation.h"
+#include "AnalyzerMvaTopJets.h"
 #include "MvaReader.h"
 #include "mvaStructs.h"
 #include "analysisStructs.h"
@@ -30,11 +30,11 @@
 
 
 
-MvaValidation::MvaValidation(const char* mva2dWeightsFile,
-                             const std::vector<TString>& selectionStepsNoCategories,
-                             const std::vector<TString>& stepsForCategories,
-                             const JetCategories* jetCategories):
-AnalysisHistogramsBase("mvaA_", selectionStepsNoCategories, stepsForCategories, jetCategories)
+AnalyzerMvaTopJets::AnalyzerMvaTopJets(const char* mva2dWeightsFile,
+                                       const std::vector<TString>& selectionStepsNoCategories,
+                                       const std::vector<TString>& stepsForCategories,
+                                       const JetCategories* jetCategories):
+AnalyzerBaseClass("mvaA_", selectionStepsNoCategories, stepsForCategories, jetCategories)
 {
     std::cout<<"--- Beginning setting up MVA validation\n";
 
@@ -84,7 +84,7 @@ AnalysisHistogramsBase("mvaA_", selectionStepsNoCategories, stepsForCategories, 
 
 
 
-void MvaValidation::bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram)
+void AnalyzerMvaTopJets::bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram)
 {
     for(const MvaWeightsStruct& mvaWeightsStruct : v_mvaWeightsStruct_){
         // FIXME: treatment of different MVA sets neglected for now, could be treated via folders in root file?
@@ -96,7 +96,7 @@ void MvaValidation::bookHistos(const TString& step, std::map<TString, TH1*>& m_h
 
 
 
-void MvaValidation::bookHistosPerSet(const TString& step, std::map<TString, TH1*>& m_histogram, const MvaWeightsStruct& mvaWeightsStruct)
+void AnalyzerMvaTopJets::bookHistosPerSet(const TString& step, std::map<TString, TH1*>& m_histogram, const MvaWeightsStruct& mvaWeightsStruct)
 {
     TString name;
 
@@ -130,7 +130,7 @@ void MvaValidation::bookHistosPerSet(const TString& step, std::map<TString, TH1*
 
 
 
-void MvaValidation::bookMvaSpecificHistos(const TString& step, std::map<TString, TH1*>& m_histogram,
+void AnalyzerMvaTopJets::bookMvaSpecificHistos(const TString& step, std::map<TString, TH1*>& m_histogram,
                                           const TString& mvaConfigName, const TString& mvaType)
 {
     TString mvaTypeC;
@@ -219,13 +219,13 @@ void MvaValidation::bookMvaSpecificHistos(const TString& step, std::map<TString,
 
 
 
-void MvaValidation::fillHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
-                               const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
-                               const KinRecoObjects& kinRecoObjects,
-                               const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
-                               const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
-                               const double& weight, const TString& step,
-                               std::map<TString, TH1*>& m_histogram)
+void AnalyzerMvaTopJets::fillHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+                                    const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
+                                    const KinRecoObjects& kinRecoObjects,
+                                    const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
+                                    const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
+                                    const double& weight, const TString& step,
+                                    std::map<TString, TH1*>& m_histogram)
 {
     for(const MvaWeightsStruct& mvaWeightsStruct : v_mvaWeightsStruct_){
         // FIXME: treatment of different MVA sets neglected for now, could be treated via folders in root file?
@@ -239,14 +239,14 @@ void MvaValidation::fillHistos(const RecoObjects& recoObjects, const CommonGenOb
 
 
 
-void MvaValidation::fillHistosPerSet(const RecoObjects& recoObjects, const CommonGenObjects&,
-                                     const TopGenObjects&, const HiggsGenObjects&,
-                                     const KinRecoObjects&,
-                                     const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
-                                     const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
-                                     const double& weight, const TString&,
-                                     std::map<TString, TH1*>& m_histogram,
-                                     const MvaValidation::MvaWeightsStruct& mvaWeightsStruct)
+void AnalyzerMvaTopJets::fillHistosPerSet(const RecoObjects& recoObjects, const CommonGenObjects&,
+                                          const TopGenObjects&, const HiggsGenObjects&,
+                                          const KinRecoObjects&,
+                                          const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
+                                          const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
+                                          const double& weight, const TString&,
+                                          std::map<TString, TH1*>& m_histogram,
+                                          const AnalyzerMvaTopJets::MvaWeightsStruct& mvaWeightsStruct)
 {
     TString name;
 
@@ -325,11 +325,11 @@ void MvaValidation::fillHistosPerSet(const RecoObjects& recoObjects, const Commo
 
 
 
-void MvaValidation::fillWeightHistos(const MvaTopJetsVariablesPerEvent& mvaTopJetsVariablesPerEvent,
-                                     const std::vector<float>& v_mvaWeight, const size_t maxWeightIndex,
-                                     const double& weight, const tth::RecoObjectIndices& recoObjectIndices, 
-                                     const tth::GenObjectIndices& genObjectIndices, std::map<TString, TH1*>& m_histogram,
-                                     const TString& mvaType, const std::string& mvaConfigName1, const std::string& mvaConfigName2)
+void AnalyzerMvaTopJets::fillWeightHistos(const MvaTopJetsVariablesPerEvent& mvaTopJetsVariablesPerEvent,
+                                          const std::vector<float>& v_mvaWeight, const size_t maxWeightIndex,
+                                          const double& weight, const tth::RecoObjectIndices& recoObjectIndices, 
+                                          const tth::GenObjectIndices& genObjectIndices, std::map<TString, TH1*>& m_histogram,
+                                          const TString& mvaType, const std::string& mvaConfigName1, const std::string& mvaConfigName2)
 {
     TString mvaConfigName = "_" + mvaConfigName1;
     if(mvaConfigName2 != "") mvaConfigName.Append("_").Append(mvaConfigName2);
@@ -338,11 +338,9 @@ void MvaValidation::fillWeightHistos(const MvaTopJetsVariablesPerEvent& mvaTopJe
     
     // Get the indices of the jet pairs and order them by MVA weights, biggest value first
     const tth::IndexPairs& jetIndexPairs = recoObjectIndices.jetIndexPairs_;
+    
     double weight_top=-100.;
     double weight_higgs=-100.;
-    
-//     printf("  nJetPairs: %d nMvaWeights: %d\n", (int)jetIndexPairs.size(), (int)mvaTopJetsVariablesPerEvent.variables().size());
-    
     for(size_t index = 0; index<mvaTopJetsVariablesPerEvent.variables().size(); ++index){
         const MvaTopJetsVariables& mvaTopJetsVariables = mvaTopJetsVariablesPerEvent.variables().at(index);
 
@@ -385,12 +383,12 @@ void MvaValidation::fillWeightHistos(const MvaTopJetsVariablesPerEvent& mvaTopJe
 
 
 
-void MvaValidation::fillBestWeightHistos(const std::vector<float>& v_mvaWeights,
-                                         const RecoObjects& recoObjects,
-                                         const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
-                                         const double& weight,
-                                         std::map<TString, TH1*>& m_histogram,
-                                         const std::string& mvaType, const std::string& mvaConfigName)
+void AnalyzerMvaTopJets::fillBestWeightHistos(const std::vector<float>& v_mvaWeights,
+                                              const RecoObjects& recoObjects,
+                                              const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
+                                              const double& weight,
+                                              std::map<TString, TH1*>& m_histogram,
+                                              const std::string& mvaType, const std::string& mvaConfigName)
 {
     TString name;
 
@@ -478,9 +476,9 @@ void MvaValidation::fillBestWeightHistos(const std::vector<float>& v_mvaWeights,
 
 
 
-void MvaValidation::bookHistosInclExcl(std::map<TString, TH1*>& m_histogram, const TString& prefix, const TString& step,
-                                       const TString& name, const TString& title,
-                                       const int& nBinX, const double& xMin, const double& xMax)
+void AnalyzerMvaTopJets::bookHistosInclExcl(std::map<TString, TH1*>& m_histogram, const TString& prefix, const TString& step,
+                                            const TString& name, const TString& title,
+                                            const int& nBinX, const double& xMin, const double& xMax)
 {
     const TString correct("_correct");
     const TString swapped("_swapped");
@@ -495,10 +493,10 @@ void MvaValidation::bookHistosInclExcl(std::map<TString, TH1*>& m_histogram, con
 
 
 
-void MvaValidation::bookHistosInclExcl2D(std::map<TString, TH1*>& m_histogram, const TString& prefix, const TString& step,
-                                         const TString& name, const TString& title,
-                                         const int& nBinX, const double& xMin, const double& xMax,
-                                         const int& nBinY, const double& yMin, const double& yMax)
+void AnalyzerMvaTopJets::bookHistosInclExcl2D(std::map<TString, TH1*>& m_histogram, const TString& prefix, const TString& step,
+                                              const TString& name, const TString& title,
+                                              const int& nBinX, const double& xMin, const double& xMax,
+                                              const int& nBinY, const double& yMin, const double& yMax)
 {
     const TString correct("_correct");
     const TString swapped("_swapped");
@@ -513,9 +511,9 @@ void MvaValidation::bookHistosInclExcl2D(std::map<TString, TH1*>& m_histogram, c
 
 
 
-void MvaValidation::fillHistosInclExcl(std::map<TString, TH1*>& m_histogram, const TString& name,
-                                       const float& variable,
-                                       const MvaTopJetsVariables& mvaTopJetsVariables, const double& weight)
+void AnalyzerMvaTopJets::fillHistosInclExcl(std::map<TString, TH1*>& m_histogram, const TString& name,
+                                            const float& variable,
+                                            const MvaTopJetsVariables& mvaTopJetsVariables, const double& weight)
 {
     const TString correct("_correct");
     const TString swapped("_swapped");
@@ -530,9 +528,9 @@ void MvaValidation::fillHistosInclExcl(std::map<TString, TH1*>& m_histogram, con
 
 
 
-void MvaValidation::fillHistosInclExcl2D(std::map<TString, TH1*>& m_histogram, const TString& name,
-                                         const float& variable1, const float& variable2,
-                                         const MvaTopJetsVariables& mvaTopJetsVariables, const double& weight)
+void AnalyzerMvaTopJets::fillHistosInclExcl2D(std::map<TString, TH1*>& m_histogram, const TString& name,
+                                              const float& variable1, const float& variable2,
+                                              const MvaTopJetsVariables& mvaTopJetsVariables, const double& weight)
 {
     const TString correct("_correct");
     const TString swapped("_swapped");
@@ -554,10 +552,10 @@ void MvaValidation::fillHistosInclExcl2D(std::map<TString, TH1*>& m_histogram, c
 
 
 
-MvaValidation::MvaWeightsStruct::MvaWeightsStruct(const std::string& stepName,
-                                                  const std::vector<std::string>& v_nameCorrect,
-                                                  const std::vector<std::string>& v_nameSwapped,
-                                                  const char* mva2dWeightsFile):
+AnalyzerMvaTopJets::MvaWeightsStruct::MvaWeightsStruct(const std::string& stepName,
+                                                       const std::vector<std::string>& v_nameCorrect,
+                                                       const std::vector<std::string>& v_nameSwapped,
+                                                       const char* mva2dWeightsFile):
 stepName_(stepName)
 {
     // Extracting the path to the folder containing the root file and xml files with weights

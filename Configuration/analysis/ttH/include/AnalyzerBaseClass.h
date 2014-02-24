@@ -1,10 +1,11 @@
-#ifndef AnalysisHistograms_h
-#define AnalysisHistograms_h
+#ifndef AnalyzerBaseClass_h
+#define AnalyzerBaseClass_h
 
 #include <map>
 #include <vector>
 
-class TString;
+#include <TString.h>
+
 class TH1;
 class TSelectorList;
 
@@ -26,18 +27,18 @@ namespace tth{
 
 
 /// Base class for histograms for analysis, useful to handle same set of histograms for different selection steps
-class AnalysisHistogramsBase{
+class AnalyzerBaseClass{
     
 public:
     
     /// Constructor with setting up selection steps
-    AnalysisHistogramsBase(const TString& prefix,
-                           const std::vector<TString>& selectionStepsNoCategories,
-                           const std::vector<TString>& stepsForCategories =std::vector<TString>(),
-                           const JetCategories* jetCategories =0);
+    AnalyzerBaseClass(const TString& prefix,
+                      const std::vector<TString>& selectionStepsNoCategories,
+                      const std::vector<TString>& stepsForCategories =std::vector<TString>(),
+                      const JetCategories* jetCategories =0);
     
     /// Destructor
-    ~AnalysisHistogramsBase(){};
+    ~AnalyzerBaseClass(){};
     
     /// Book all histograms for all defined selection steps
     void book(TSelectorList* output);
@@ -116,17 +117,17 @@ protected:
 
 
 /// Class for histograms needed for event yields
-class EventYieldHistograms : public AnalysisHistogramsBase{
+class AnalyzerEventYields : public AnalyzerBaseClass{
     
 public:
     
     /// Constructor
-    EventYieldHistograms(const std::vector<TString>& selectionStepsNoCategories,
-                         const std::vector<TString>& stepsForCategories =std::vector<TString>(),
-                         const JetCategories* jetCategories =0);
+    AnalyzerEventYields(const std::vector<TString>& selectionStepsNoCategories,
+                        const std::vector<TString>& stepsForCategories =std::vector<TString>(),
+                        const JetCategories* jetCategories =0);
     
     /// Destructor
-    ~EventYieldHistograms(){}
+    ~AnalyzerEventYields(){}
     
     
     
@@ -150,15 +151,15 @@ private:
 
 
 /// Class for histograms needed for Drell-Yan reweighting
-class DyScalingHistograms : public AnalysisHistogramsBase{
+class AnalyzerDyScaling : public AnalyzerBaseClass{
 
 public:
 
     /// Constructor
-    DyScalingHistograms(const std::vector<TString>& selectionSteps, const TString& looseStep);
+    AnalyzerDyScaling(const std::vector<TString>& selectionSteps, const TString& looseStep);
 
     /// Destructor
-    ~DyScalingHistograms(){}
+    ~AnalyzerDyScaling(){}
 
 
 

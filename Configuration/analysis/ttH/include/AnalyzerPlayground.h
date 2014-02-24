@@ -1,13 +1,13 @@
-#ifndef BasicAnalyzer_h
-#define BasicAnalyzer_h
+#ifndef AnalyzerPlayground_h
+#define AnalyzerPlayground_h
 
-#include <map>
 #include <vector>
+#include <map>
 
 class TString;
 class TH1;
 
-#include "AnalysisHistograms.h"
+#include "AnalyzerBaseClass.h"
 
 class JetCategories;
 class RecoObjects;
@@ -24,26 +24,31 @@ namespace tth{
 
 
 
-/// Class for basic histograms that are filled simultaneously for any step
-class BasicHistograms : public AnalysisHistogramsBase{
 
+
+
+
+
+/// Playground class, test here whatever you want to test
+class AnalyzerPlayground : public AnalyzerBaseClass{
+    
 public:
     
     /// Constructor
-    BasicHistograms(const std::vector<TString>& selectionStepsNoCategories,
-                    const std::vector<TString>& stepsForCategories =std::vector<TString>(),
-                    const JetCategories* jetCategories =0);
-
+    AnalyzerPlayground(const std::vector<TString>& selectionStepsNoCategories,
+                       const std::vector<TString>& stepsForCategories =std::vector<TString>(),
+                       const JetCategories* jetCategories =0);
+    
     /// Destructor
-    ~BasicHistograms(){}
-
-
-
+    ~AnalyzerPlayground(){}
+    
+    
+    
 private:
-
+    
     /// Book all histograms for given selection step
     virtual void bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram);
-
+    
     /// Fill all histograms for given selection step
     virtual void fillHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                             const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
@@ -53,6 +58,7 @@ private:
                             const double& weight, const TString& step,
                             std::map<TString, TH1*>& m_histogram);
 };
+
 
 
 

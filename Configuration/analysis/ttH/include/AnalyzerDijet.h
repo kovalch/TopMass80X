@@ -1,5 +1,5 @@
-#ifndef DijetAnalyzer_h
-#define DijetAnalyzer_h
+#ifndef AnalyzerDijet_h
+#define AnalyzerDijet_h
 
 #include <vector>
 #include <string>
@@ -11,7 +11,7 @@ class TH1;
 class TString;
 
 #include "JetCategories.h"
-#include "AnalysisHistograms.h"
+#include "AnalyzerBaseClass.h"
 #include "../../common/include/storeTemplate.h"
 #include "../../common/include/classesFwd.h"
 
@@ -32,19 +32,19 @@ class MvaReader;
 
 /// Class that analyzes all b-jet pairs from the input jet collection
 /// In addition produces other plots about input jets, their origin, other properties
-class DijetAnalyzer : public AnalysisHistogramsBase{
+class AnalyzerDijet : public AnalyzerBaseClass{
 
 public:
 
 
     /// Constructor for given jet categories
-    DijetAnalyzer(const char* mva2dWeightsFile, const std::string& corName, const std::string& swpName,
+    AnalyzerDijet(const char* mva2dWeightsFile, const std::string& corName, const std::string& swpName,
                   const std::vector<TString>& selectionStepsNoCategories,
                   const std::vector<TString>& stepsForCategories =std::vector<TString>(),
                   const JetCategories* jetCategories =0, bool doHadronMatchingComparison = false);
 
     /// Empty destructor
-    ~DijetAnalyzer(){};
+    ~AnalyzerDijet(){};
 
     /// Find index of genJet corresponding to the specified reco jet. Returns -1 if not found
     int genJetIdOfRecoJet(const LV& recoJet, const VLV& genJets, const float dR_max=999.9);
@@ -144,4 +144,4 @@ private:
 };
 
 
-#endif // DijetAnalyzer_h
+#endif

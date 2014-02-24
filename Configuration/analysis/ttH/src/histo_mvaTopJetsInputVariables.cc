@@ -204,10 +204,9 @@ void printHistogram(const TString& inputFile,
 
 
 
-
-void histoMvaVariablesTopSystemJetAssignment(const std::vector<Channel::Channel>& v_channel,
-                                             const std::vector<Systematic::Systematic>& v_systematic,
-                                             const std::vector<std::string>& v_drawMode)
+void histoMvaTopJetsinputVariables(const std::vector<Channel::Channel>& v_channel,
+                                   const std::vector<Systematic::Systematic>& v_systematic,
+                                   const std::vector<std::string>& v_drawMode)
 {
     
     constexpr const char* prefix = "mvaP_";
@@ -299,7 +298,7 @@ int main(int argc, char** argv)
     for (auto mode : v_drawMode) std::cout << mode << " ";
     std::cout << "\n\n";
     
-    histoMvaVariablesTopSystemJetAssignment(v_channel, v_systematic, v_drawMode);
+    histoMvaTopJetsinputVariables(v_channel, v_systematic, v_drawMode);
 }
 
 

@@ -4,7 +4,6 @@
 #include <Rtypes.h>
 
 class TTree;
-class TString;
 
 #include "analysisHelpers.h"
 #include "analysisStructsFwd.h"
@@ -12,7 +11,7 @@ class TString;
 #include "../../common/include/classesFwd.h"
 
 class MvaTreeHandler;
-class AnalysisHistogramsBase;
+class AnalyzerBaseClass;
 class RecoObjects;
 class CommonGenObjects;
 class TopGenObjects;
@@ -65,8 +64,8 @@ public:
     /// Set up production of MVA input
     void SetMvaInputProduction(MvaTreeHandler* mvaTreeHandler);
     
-    /// Set up all analysers of type AnalysisHistogramsBase
-    void SetAllAnalysisHistograms(std::vector<AnalysisHistogramsBase*> v_analysisHistograms);
+    /// Set up all analysers of type AnalyzerBaseClass
+    void SetAllAnalyzers(std::vector<AnalyzerBaseClass*> v_analyzer);
     
     
     
@@ -135,8 +134,8 @@ private:
     /// Class for steering the I/O of MVA input tree, trying to identify the jets coming from (anti)b's from (anti)tops
     MvaTreeHandler* mvaTreeHandler_;
     
-    /// All analysers of type AnalysisHistogramsBase
-    std::vector<AnalysisHistogramsBase*> v_analysisHistograms_;
+    /// All analysers of type AnalyzerBaseClass
+    std::vector<AnalyzerBaseClass*> v_analyzer_;
 };
 
 

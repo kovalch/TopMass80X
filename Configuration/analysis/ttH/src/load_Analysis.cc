@@ -20,13 +20,13 @@
 #include "MvaTreeHandler.h"
 #include "MvaReader.h"
 
-#include "MvaValidation.h"
-#include "DijetAnalyzer.h"
-#include "AnalysisHistograms.h"
-#include "BasicAnalyzer.h"
-#include "JetMatchAnalyzer.h"
-#include "JetChargeAnalyzer.h"
-#include "Playground.h"
+#include "AnalyzerBaseClass.h"
+#include "AnalyzerMvaTopJets.h"
+#include "AnalyzerDijet.h"
+#include "AnalyzerControlPlots.h"
+#include "AnalyzerJetMatch.h"
+#include "AnalyzerJetCharge.h"
+#include "AnalyzerPlayground.h"
 #include "../../common/include/sampleHelpers.h"
 #include "../../common/include/utils.h"
 #include "../../common/include/CommandLineParameters.h"
@@ -184,59 +184,59 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
     }
     
     // Vector for setting up all analysers
-    std::vector<AnalysisHistogramsBase*> v_analysisHistograms;
+    std::vector<AnalyzerBaseClass*> v_analyzer;
     
     // Set up event yield histograms
-    EventYieldHistograms* eventYieldHistograms(0);
-    eventYieldHistograms = new EventYieldHistograms({"1", "2", "3", "4", "5", "6", "7"}, {"7"}, jetCategories);
-    v_analysisHistograms.push_back(eventYieldHistograms);
+    AnalyzerEventYields* analyzerEventYields(0);
+    analyzerEventYields = new AnalyzerEventYields({"1", "2", "3", "4", "5", "6", "7"}, {"7"}, jetCategories);
+    v_analyzer.push_back(analyzerEventYields);
     
     // Set up Drell-Yan scaling histograms
-    DyScalingHistograms* dyScalingHistograms(0);
-    dyScalingHistograms = new DyScalingHistograms({"4", "5", "6", "7"}, "5");
-    v_analysisHistograms.push_back(dyScalingHistograms);
+    AnalyzerDyScaling* analyzerDyScaling(0);
+    analyzerDyScaling = new AnalyzerDyScaling({"4", "5", "6", "7"}, "5");
+    v_analyzer.push_back(analyzerDyScaling);
     
     // Set up basic histograms
-    BasicHistograms* basicHistograms(0);
+    AnalyzerControlPlots* analyzerControlPlots(0);
     if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::cp) != v_analysisMode.end()){
-        basicHistograms = new BasicHistograms({"1", "2", "3", "4", "5", "6", "7"}, {"7"}, jetCategories);
-        v_analysisHistograms.push_back(basicHistograms);
+        analyzerControlPlots = new AnalyzerControlPlots({"1", "2", "3", "4", "5", "6", "7"}, {"7"}, jetCategories);
+        v_analyzer.push_back(analyzerControlPlots);
     }
     
     // Set up jet charge analyzer
-    JetChargeAnalyzer* jetChargeAnalyzer(0);
+    AnalyzerJetCharge* analyzerJetCharge(0);
     if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::charge) != v_analysisMode.end()){
-        jetChargeAnalyzer = new JetChargeAnalyzer({"7"});
-        v_analysisHistograms.push_back(jetChargeAnalyzer);
+        analyzerJetCharge = new AnalyzerJetCharge({"7"});
+        v_analyzer.push_back(analyzerJetCharge);
     }
     
     // Set up jet match analyzer
-    JetMatchAnalyzer* jetMatchAnalyzer(0);
+    AnalyzerJetMatch* analyzerJetMatch(0);
     if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::match) != v_analysisMode.end()){
-        jetMatchAnalyzer = new JetMatchAnalyzer({"7"}, {"7"}, jetCategories);
-        v_analysisHistograms.push_back(jetMatchAnalyzer);
+        analyzerJetMatch = new AnalyzerJetMatch({"7"}, {"7"}, jetCategories);
+        v_analyzer.push_back(analyzerJetMatch);
     }
     
     // Set up playground
-    Playground* playground(0);
+    AnalyzerPlayground* anayzerPlayground(0);
     if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::playg) != v_analysisMode.end()){
-        //playground = new Playground({"1", "2", "3", "4", "5", "6", "7"},{"6", "7"}, jetCategories);
-        playground = new Playground({"1", "2", "3", "4", "5", "6", "7"});
-        v_analysisHistograms.push_back(playground);
+        //analyzerPlayground = new AnalyzerPlayground({"1", "2", "3", "4", "5", "6", "7"},{"6", "7"}, jetCategories);
+        anayzerPlayground = new AnalyzerPlayground({"1", "2", "3", "4", "5", "6", "7"});
+        v_analyzer.push_back(anayzerPlayground);
     }
     
     // Set up DijetAnalyzer
-    DijetAnalyzer* dijetAnalyzer(0);
+    AnalyzerDijet* analyzerDijet(0);
     if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::dijet) != v_analysisMode.end()){
-        dijetAnalyzer = new DijetAnalyzer(Mva2dWeightsFILE, "", "", {}, {"7"}, jetCategories);
-        v_analysisHistograms.push_back(dijetAnalyzer);
+        analyzerDijet = new AnalyzerDijet(Mva2dWeightsFILE, "", "", {}, {"7"}, jetCategories);
+        v_analyzer.push_back(analyzerDijet);
     }
     
     // Set up MVA validation, including reading in MVA weights in case they exist
-    MvaValidation* mvaValidation(0);
+    AnalyzerMvaTopJets* analyzerMvaTopJets(0);
     if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::mvaA) != v_analysisMode.end()){
-        mvaValidation = new MvaValidation(Mva2dWeightsFILE, {"7"}, {"7"}, jetCategories);
-        v_analysisHistograms.push_back(mvaValidation);
+        analyzerMvaTopJets = new AnalyzerMvaTopJets(Mva2dWeightsFILE, {"7"}, {"7"}, jetCategories);
+        v_analyzer.push_back(analyzerMvaTopJets);
     }
     
     // Set up production of MVA input tree
@@ -257,7 +257,7 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
     selector->SetJetEnergyScaleScaleFactors(jetEnergyScaleScaleFactors);
     
     selector->SetMvaInputProduction(mvaTreeHandler);
-    selector->SetAllAnalysisHistograms(v_analysisHistograms);
+    selector->SetAllAnalyzers(v_analyzer);
     
     // Access selectionList containing all input sample nTuples
     ifstream infile("selectionList.txt");

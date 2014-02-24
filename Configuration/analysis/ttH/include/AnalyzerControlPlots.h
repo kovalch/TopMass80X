@@ -1,13 +1,13 @@
-#ifndef Playground_h
-#define Playground_h
+#ifndef AnalyzerControlPlots_h
+#define AnalyzerControlPlots_h
 
-#include <vector>
 #include <map>
+#include <vector>
 
 class TString;
 class TH1;
 
-#include "AnalysisHistograms.h"
+#include "AnalyzerBaseClass.h"
 
 class JetCategories;
 class RecoObjects;
@@ -24,31 +24,26 @@ namespace tth{
 
 
 
+/// Class for basic histograms that are filled simultaneously for any step
+class AnalyzerControlPlots : public AnalyzerBaseClass{
 
-
-
-
-
-/// Playground class, test here whatever you want to test
-class Playground : public AnalysisHistogramsBase{
-    
 public:
     
     /// Constructor
-    Playground(const std::vector<TString>& selectionStepsNoCategories,
-               const std::vector<TString>& stepsForCategories =std::vector<TString>(),
-               const JetCategories* jetCategories =0);
-    
+    AnalyzerControlPlots(const std::vector<TString>& selectionStepsNoCategories,
+                         const std::vector<TString>& stepsForCategories =std::vector<TString>(),
+                         const JetCategories* jetCategories =0);
+
     /// Destructor
-    ~Playground(){}
-    
-    
-    
+    ~AnalyzerControlPlots(){}
+
+
+
 private:
-    
+
     /// Book all histograms for given selection step
     virtual void bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram);
-    
+
     /// Fill all histograms for given selection step
     virtual void fillHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                             const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
@@ -58,7 +53,6 @@ private:
                             const double& weight, const TString& step,
                             std::map<TString, TH1*>& m_histogram);
 };
-
 
 
 

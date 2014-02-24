@@ -827,11 +827,13 @@ void PrintHistogram(TString FileName, TString LegFileName, TString prefix_histna
         }
     }
 }
-    
+
+
+
 int main(int argc, char** argv){
-    CLAnalyser::interpretGlobal(argc, argv);
     CLParameter<std::string> opt_channel("c", "Specify channel(s), valid: emu, ee, mumu, combined. Default: combined", false, 1, 4,
         common::makeStringCheck(Channel::convertChannels(Channel::allowedChannelsPlotting)));    
+    CLAnalyser::interpretGlobal(argc, argv);
     
     // Set up systematics
     std::vector<Systematic::Systematic> v_Systematic({Systematic::nominal});
@@ -871,7 +873,7 @@ int main(int argc, char** argv){
     TString prefix_histname_Mismatched  = prefix_histname+"Mismatched_";
     
     for (auto i_channel : v_Channel){
-
+        
         for(size_t FileName_ = 0; FileName_ < v_inputFileTtbar.size(); ++FileName_){
             for(size_t step_ = 0; step_ < v_step.size(); ++step_){
                 TString FileName         = v_inputFileTtbar.at(FileName_);

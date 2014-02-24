@@ -8,7 +8,7 @@
 #include <TString.h>
 #include <Math/VectorUtil.h>
 
-#include "JetMatchAnalyzer.h"
+#include "AnalyzerJetMatch.h"
 #include "analysisStructs.h"
 #include "JetCategories.h"
 #include "../../common/include/analysisObjectStructs.h"
@@ -22,10 +22,10 @@
 
 
 
-JetMatchAnalyzer::JetMatchAnalyzer(const std::vector<TString>& selectionStepsNoCategories,
+AnalyzerJetMatch::AnalyzerJetMatch(const std::vector<TString>& selectionStepsNoCategories,
                                    const std::vector<TString>& stepsForCategories,
                                    const JetCategories* jetCategories):
-AnalysisHistogramsBase("jetMatch_", selectionStepsNoCategories, stepsForCategories, jetCategories)
+AnalyzerBaseClass("jetMatch_", selectionStepsNoCategories, stepsForCategories, jetCategories)
 {
     std::cout<<"--- Beginning setting up jet match analyzer\n";
     std::cout<<"=== Finishing setting up jet match analyzer\n\n";
@@ -33,7 +33,7 @@ AnalysisHistogramsBase("jetMatch_", selectionStepsNoCategories, stepsForCategori
 
 
 
-void JetMatchAnalyzer::bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram)
+void AnalyzerJetMatch::bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram)
 {
     TString name;
     
@@ -42,39 +42,39 @@ void JetMatchAnalyzer::bookHistos(const TString& step, std::map<TString, TH1*>& 
     m_histogram[name]->GetXaxis()->SetBinLabel(1, "bQuark-genJet fail");
     m_histogram[name]->GetXaxis()->SetBinLabel(2, "genJet-recoJet fail");
     m_histogram[name]->GetXaxis()->SetBinLabel(3, "Matched");
-
+    
     name = "unmatchedGenBjetFromTop";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "unmatchedGenBjetFromTop;;# events",4,0,4));
     m_histogram[name]->GetXaxis()->SetBinLabel(1, "Top jets overlap");
     m_histogram[name]->GetXaxis()->SetBinLabel(2, "2 jets not matched");
     m_histogram[name]->GetXaxis()->SetBinLabel(3, "1 jet not matched");
     m_histogram[name]->GetXaxis()->SetBinLabel(4, "Several hadrons");
-
+    
     name = "unmatchedRecoBjetFromTop";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "unmatchedRecoBjetFromTop;;# events",3,0,3));
     m_histogram[name]->GetXaxis()->SetBinLabel(1, "Top jets overlap");
     m_histogram[name]->GetXaxis()->SetBinLabel(2, "2 jets not matched");
     m_histogram[name]->GetXaxis()->SetBinLabel(3, "1 jet not matched");
-
+    
     name = "matchedBjetFromHiggs";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "matchedBjetFromHiggs;;# events",3,0,3));
     m_histogram[name]->GetXaxis()->SetBinLabel(1, "bQuark-genJet fail");
     m_histogram[name]->GetXaxis()->SetBinLabel(2, "genJet-recoJet fail");
     m_histogram[name]->GetXaxis()->SetBinLabel(3, "Matched");
-
+    
     name = "unmatchedGenBjetFromHiggs";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "unmatchedGenBjetFromHiggs;;# events",4,0,4));
     m_histogram[name]->GetXaxis()->SetBinLabel(1, "Higgs jets overlap");
     m_histogram[name]->GetXaxis()->SetBinLabel(2, "2 jets not matched");
     m_histogram[name]->GetXaxis()->SetBinLabel(3, "1 jet not matched");
     m_histogram[name]->GetXaxis()->SetBinLabel(4, "Several hadrons");
-
+    
     name = "unmatchedRecoBjetFromHiggs";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "unmatchedRecoBjetFromHiggs;;# events",3,0,3));
     m_histogram[name]->GetXaxis()->SetBinLabel(1, "Higgs jets overlap");
     m_histogram[name]->GetXaxis()->SetBinLabel(2, "2 jets not matched");
     m_histogram[name]->GetXaxis()->SetBinLabel(3, "1 jet not matched");
-
+    
     name = "matchedBjet";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "matchedBjet;;# events",4,0,4));
     m_histogram[name]->GetXaxis()->SetBinLabel(1, "Top-Higgs gen overlap");
@@ -514,7 +514,7 @@ void JetMatchAnalyzer::bookHistos(const TString& step, std::map<TString, TH1*>& 
 
 
 
-void JetMatchAnalyzer::fillHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+void AnalyzerJetMatch::fillHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                                   const TopGenObjects& topGenObjects, const HiggsGenObjects&,
                                   const KinRecoObjects&,
                                   const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
@@ -592,7 +592,7 @@ void JetMatchAnalyzer::fillHistos(const RecoObjects& recoObjects, const CommonGe
     // Get jet indices, apply selection cuts and order them by pt (beginning with the highest value)
     const VLV& testcommonjets = *commonGenObjects.allGenJets_;
     std::vector<int> testcommonJetIndices = common::initialiseIndices(testcommonjets);
-    common::orderIndices(testcommonJetIndices, testcommonjets, common::LVpt);  //pt ordered jets  
+    common::orderIndices(testcommonJetIndices, testcommonjets, common::LVpt);
 
 
     std::vector<int> recoIndex;       recoIndex.clear();
@@ -1179,10 +1179,10 @@ void JetMatchAnalyzer::fillHistos(const RecoObjects& recoObjects, const CommonGe
                     if (!isInOverlappingHiggsJetsIndex){ 
                         n_Overlapping_Higgs=OverlappingHiggsJetsIndex.size()+OverlappingHiggsJetsGenIndex.size();
                         n_HiggsGenJets=OverlappingHiggsJetsGenIndex.size();
-                    }//if (!isInOverlappingHiggsJetsIndex){
-                }//if (MyHiggsJetsIndex.at(i)==MyHiggsJetsIndex.at(j))
-            }//for j
-        }//for i
+                    }
+                }
+            }
+        }
 
     
         if (n_Overlapping_Higgs>0) isOverlapping_Higgs=true;
@@ -1198,7 +1198,7 @@ void JetMatchAnalyzer::fillHistos(const RecoObjects& recoObjects, const CommonGe
     
         name = "GenJetsID_VS_NOverlappingHadrons_Higgs_2D";
         ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(n_Overlapping_Higgs,n_HiggsGenJets);
-    }//if (MyHiggsJetsIndex.size()>1)     
+    }
           
 
     //Top+Higgs Jets
@@ -1226,40 +1226,40 @@ void JetMatchAnalyzer::fillHistos(const RecoObjects& recoObjects, const CommonGe
                             }
                             //else if (j!=OverlappingTopHiggsJetsIndex.at(k)) isInOverlappingTopHiggsJetsIndex = false;
                             else if (static_cast<int>(j)!=OverlappingTopHiggsJetsIndex.at(k)) isInOverlappingTopHiggsJetsIndex = false; 
-                        }// for k
+                        }
                         for (size_t g=0; g!=OverlappingTopHiggsJetsGenIndex.size(); g++){
                             if (MyTopHiggsJetsIndex.at(j)==OverlappingTopHiggsJetsGenIndex.at(g)){ 
                                isInOverlappingTopHiggsGenJetsIndex = true;
                                break;
                             }
                             else if (MyTopHiggsJetsIndex.at(j)!=OverlappingTopHiggsJetsGenIndex.at(g)) isInOverlappingTopHiggsGenJetsIndex = false;
-                        }// for g 
+                        }
               
                         if (!isInOverlappingTopHiggsJetsIndex) OverlappingTopHiggsJetsIndex.push_back(j); 
                         if (!isInOverlappingTopHiggsGenJetsIndex)  OverlappingTopHiggsJetsGenIndex.push_back(MyTopHiggsJetsIndex.at(j));
-                    }//else if (OverlappingTopHiggsJetsIndex.size()>0) 
+                    }
             
                     if (OverlappingTopHiggsJetsIndex.size()>0){
                         for(size_t n=0; n!=OverlappingTopHiggsJetsIndex.size();n++){
                             //if(i!=OverlappingTopHiggsJetsIndex.at(n)){
                             if(static_cast<int>(i)!=OverlappingTopHiggsJetsIndex.at(n)){
                                 isInOverlappingTopHiggsJetsIndex = false;
-                            }//if(i!=OverlappingTopHiggsJetsIndex.at(n))
+                            }
                             //else if(i==OverlappingTopHiggsJetsIndex.at(n)){
                             else if(static_cast<int>(i)==OverlappingTopHiggsJetsIndex.at(n)){
                                 isInOverlappingTopHiggsJetsIndex = true;
                                 break;
-                            }//else if(i==OverlappingTopHiggsJetsIndex.at(n))   
-                        }//for n 
-                    }//if (OverlappingTopHiggsJetsIndex.size()>0)
+                            }
+                        }
+                    }
                         
                     if (!isInOverlappingTopHiggsJetsIndex){ 
                         n_Overlapping_TopHiggs=OverlappingTopHiggsJetsIndex.size()+OverlappingTopHiggsJetsGenIndex.size();
                         n_TopHiggsGenJets=OverlappingTopHiggsJetsGenIndex.size();
-                    }//if (!isInOverlappingTopHiggsJetsIndex){
-                }//if (MyTopHiggsJetsIndex.at(i)==MyTopHiggsJetsIndex.at(j))        
-            }//for j
-        }//for i
+                    }
+                }
+            }
+        }
      
         if (n_Overlapping_TopHiggs>0) isOverlapping_TopHiggs=true;
         else if (n_Overlapping_TopHiggs==0) isOverlapping_TopHiggs=false;
@@ -1273,8 +1273,7 @@ void JetMatchAnalyzer::fillHistos(const RecoObjects& recoObjects, const CommonGe
       
         name = "GenJetsID_VS_NOverlappingHadrons_TopHiggs_2D";
         ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(n_Overlapping_TopHiggs,n_TopHiggsGenJets);
-          
-    }//if (MyTopHiggsJetsIndex.size()>1) 
+    }
 
 
     //Find the leading Jet  
@@ -1305,8 +1304,8 @@ void JetMatchAnalyzer::fillHistos(const RecoObjects& recoObjects, const CommonGe
                 SubLeadingTopJetIndx = MyTopJetsIndex.at(1);
             }  
             else SubLeadingTopJetIndx = MyTopJetsIndex.at(3);
-        }//if (MyTopJetsIndex.size()>1)
-    }//if (!isOverlapping_Top)
+        }
+    }
 
     //Find the Higgs Subleading Jet
     if (!isOverlapping_Higgs && genObjectIndices.uniqueGenHiggsMatching()){ // we keep only the events with no overlapping jets!!!
@@ -1326,8 +1325,8 @@ void JetMatchAnalyzer::fillHistos(const RecoObjects& recoObjects, const CommonGe
                 SubLeadingHiggsJetIndx = MyHiggsJetsIndex.at(1);
             }  
             else SubLeadingHiggsJetIndx = MyHiggsJetsIndex.at(3);
-        }//if (MyHiggsJetsIndex.size()>1
-    }//if (!isOverlapping_Higgs)
+        }
+    }
 
      
       
@@ -1347,7 +1346,7 @@ void JetMatchAnalyzer::fillHistos(const RecoObjects& recoObjects, const CommonGe
                 //choose smallest R
                 if (deltaR>minR) continue;
                 if (deltaR<minR) minR = deltaR;
-            }//for j_jet
+            }
 
             for (size_t j_jet=i_jet+1;j_jet!=MyTopHiggsJetsIndex.size();j_jet++){
                 deltaEta = (commonGenObjects.allGenJets_->at(MyTopHiggsJetsIndex.at(i_jet)).Eta(),commonGenObjects.allGenJets_->at(MyTopHiggsJetsIndex.at(j_jet)).Eta());
@@ -1360,7 +1359,7 @@ void JetMatchAnalyzer::fillHistos(const RecoObjects& recoObjects, const CommonGe
                //choose smallest R
                if (deltaEta_Abs>minEta) continue;
                if (deltaEta_Abs<minEta) minEta = deltaEta_Abs;
-            }//for j_jet
+            }
 
             for (size_t j_jet=i_jet+1;j_jet!=MyTopHiggsJetsIndex.size();j_jet++){
                 deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(commonGenObjects.allGenJets_->at(MyTopHiggsJetsIndex.at(i_jet)),commonGenObjects.allGenJets_->at(MyTopHiggsJetsIndex.at(j_jet)));
@@ -1373,8 +1372,8 @@ void JetMatchAnalyzer::fillHistos(const RecoObjects& recoObjects, const CommonGe
                 //choose smallest R
                 if (deltaPhi_Abs>minPhi) continue;
                 if (deltaPhi_Abs<minPhi) minPhi = deltaPhi_Abs;
-            }//for j_jet
-        }//for i_jet
+            }
+        }
 
         
         name = "MinDeltaR";
@@ -1411,7 +1410,7 @@ void JetMatchAnalyzer::fillHistos(const RecoObjects& recoObjects, const CommonGe
         m_stepHistograms_[step].m_histogram_[name]->Fill(commonGenObjects.allGenJets_->at(SubLeadingHiggsJetIndx).Eta(), weight);
 
 
-    }//if(MyTopJetsIndex.size()>1  && MyHiggsJetsIndex.size()>1 && TopHasLeadingAndSubleading && HiggsHasLeadingAndSubleading && !isOverlapping_TopHiggs)
+    }
      
 
       
@@ -1449,7 +1448,7 @@ void JetMatchAnalyzer::fillHistos(const RecoObjects& recoObjects, const CommonGe
 
         name = "subleading_Topjet_eta";
         m_stepHistograms_[step].m_histogram_[name]->Fill(commonGenObjects.allGenJets_->at(SubLeadingTopJetIndx).Eta(), weight);
-    }//MyTopJetsIndex
+    }
 
     //=================================     Higgs Jets    ===========================================//
     if (MyHiggsJetsIndex.size()>1 && HiggsHasLeadingAndSubleading && !isOverlapping_Higgs && genObjectIndices.uniqueGenHiggsMatching()){        
@@ -1484,7 +1483,7 @@ void JetMatchAnalyzer::fillHistos(const RecoObjects& recoObjects, const CommonGe
 
         name = "subleading_Higgsjet_eta";
         m_stepHistograms_[step].m_histogram_[name]->Fill(commonGenObjects.allGenJets_->at(SubLeadingHiggsJetIndx).Eta(), weight);
-    }//MyHiggsJetsIndex
+    }
 
 
      //================================   Gen - Reco Plots  ===================================================//
@@ -1537,9 +1536,9 @@ void JetMatchAnalyzer::fillHistos(const RecoObjects& recoObjects, const CommonGe
 
                 name = "GenPtMinusRecoPtOverGenPtVsMinDeltaR_Topjet_2D";
                 ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(minRTopRecoGen.at(i_get), (commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt()-recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt())/commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
-            }//if (isInMismatchedTopJetsIndex.size()>0)
-        }// for  i_get 
-    }//  if(TopgenIndex.size()>0 && !isOverlapping_Top)
+            }
+        }
+    }
 
 
     if(HiggsgenIndex.size()>0 && !isOverlapping_Higgs && genObjectIndices.uniqueGenHiggsMatching()){
@@ -1590,9 +1589,9 @@ void JetMatchAnalyzer::fillHistos(const RecoObjects& recoObjects, const CommonGe
 
                 name = "GenPtMinusRecoPtOverGenPtVsMinDeltaR_Higgsjet_2D";
                 ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(minRHiggsRecoGen.at(i_get), (commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt()-recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt())/commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
-            }//if(isInMismatchedHiggsJetsIndex.size())
-        }// for  i_get 
-    }// if(HiggsgenIndex.size()>0 && !isOverlapping_Higgs)
+            }
+        }
+    }
 
 
     if(genIndex.size()>0 && !isOverlapping){
@@ -1643,9 +1642,9 @@ void JetMatchAnalyzer::fillHistos(const RecoObjects& recoObjects, const CommonGe
 
                 name = "GenPtMinusRecoPtOverGenPtVsMinDeltaR_2D";
                 ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(minRRecoGen.at(i_get), (commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt()-recoObjects.jets_->at(recoIndex.at(i_get)).Pt())/commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
-            }//if(isInMismatchedJetsIndex.size()>0)
-        }// for  i_get 
-    }// if(genIndex.size()>0 && !isOverlapping)
+            }
+        }
+    }
 
     //Plots for the WRONG Matching
     if(genIndex.size()>0 && !isOverlapping){
@@ -1696,10 +1695,10 @@ void JetMatchAnalyzer::fillHistos(const RecoObjects& recoObjects, const CommonGe
 
                 name = "Mismatched_GenPtMinusRecoPtOverGenPtVsMinDeltaR_2D";
                 ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(minRRecoGen.at(i_get), (commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt()-recoObjects.jets_->at(recoIndex.at(i_get)).Pt())/commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
-            }//if (isInMismatchedJetsIndex.size()>0)
-        }// for  i_get 
+            }
+        }
     } 
-     
+    
     if(TopgenIndex.size()>0 && !isOverlapping_Top && genObjectIndices.uniqueGenTopMatching()){
         for(size_t i_get=0;i_get!=TopgenIndex.size();i_get++){
             if (isInMismatchedTopJetsIndex.size()>0){
@@ -1748,9 +1747,9 @@ void JetMatchAnalyzer::fillHistos(const RecoObjects& recoObjects, const CommonGe
 
                 name = "Mismatched_GenPtMinusRecoPtOverGenPtVsMinDeltaR_Topjet_2D";
                 ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(minRTopRecoGen.at(i_get), (commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt()-recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt())/commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
-            }//if (isInMismatchedTopJetsIndex.size()>0)
-        }// for  i_get 
-    }//  if(TopgenIndex.size()>0 && !isOverlapping_Top)
+            }
+        }
+    }
 
 
     if(HiggsgenIndex.size()>0 && !isOverlapping_Higgs && genObjectIndices.uniqueGenHiggsMatching()){
@@ -1801,9 +1800,9 @@ void JetMatchAnalyzer::fillHistos(const RecoObjects& recoObjects, const CommonGe
 
                 name = "Mismatched_GenPtMinusRecoPtOverGenPtVsMinDeltaR_Higgsjet_2D";
                 ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(minRHiggsRecoGen.at(i_get), (commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt()-recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt())/commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
-            }//if(isInMismatchedHiggsJetsIndex.size())
-        }// for  i_get 
-    }// if(HiggsgenIndex.size()>0 && !isOverlapping_Higgs)
+            }
+        }
+    }
 
     
 }

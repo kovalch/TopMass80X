@@ -1003,9 +1003,9 @@ void plotBestWeightHistos(std::map<TString, std::vector<TString> >& m_mvaConfigC
 }
 
 
-void histoBdtTopSystemJetAssignment(const std::vector<Channel::Channel>& v_channel,
-                                    const std::vector<Systematic::Systematic>& v_systematic,
-                                    const std::vector<std::string>& v_mode)
+void histoAnalyzerMvaTopJets(const std::vector<Channel::Channel>& v_channel,
+                             const std::vector<Systematic::Systematic>& v_systematic,
+                             const std::vector<std::string>& v_mode)
 {
     // Hardcoded input files, since detailed validation makes sense only on samples containing ttbar system, and some only on real ttH events
     const std::vector<TString> v_inputFileTtbar =
@@ -1172,7 +1172,7 @@ int main(int argc, char** argv)
     for (auto mode : v_mode) std::cout << mode << " ";
     std::cout << "\n\n";
     
-    histoBdtTopSystemJetAssignment(v_channel, v_systematic, v_mode);
+    histoAnalyzerMvaTopJets(v_channel, v_systematic, v_mode);
 }
 
 

@@ -15,7 +15,7 @@
 #include <TSelectorList.h>
 #include <Rtypes.h>
 
-#include "DijetAnalyzer.h"
+#include "AnalyzerDijet.h"
 #include "analysisStructs.h"
 #include "higgsUtils.h"
 #include "MvaReader.h"
@@ -25,11 +25,11 @@
 #include "../../common/include/classes.h"
 
 
-DijetAnalyzer::DijetAnalyzer(const char* mva2dWeightsFile, const std::string& corName, const std::string& swpName,
+AnalyzerDijet::AnalyzerDijet(const char* mva2dWeightsFile, const std::string& corName, const std::string& swpName,
                              const std::vector<TString>& selectionStepsNoCategories,
                              const std::vector<TString>& stepsForCategories,
                              const JetCategories* jetCategories, bool doHadronMatchingComparison):
-AnalysisHistogramsBase("dijet_", selectionStepsNoCategories, stepsForCategories, jetCategories),
+AnalyzerBaseClass("dijet_", selectionStepsNoCategories, stepsForCategories, jetCategories),
 weightsCorrect_(0),
 weightsSwapped_(0),
 doHadronMatchingComparison_(doHadronMatchingComparison)
@@ -40,7 +40,7 @@ doHadronMatchingComparison_(doHadronMatchingComparison)
     std::string mvaWeightsFolder(mva2dWeightsFile);
     mvaWeightsFolder.erase(mvaWeightsFolder.rfind('/'));
     if(!gSystem->OpenDirectory(mvaWeightsFolder.c_str()) && corName.length()>0 && swpName.length()>0) {
-        throw std::logic_error("DijetAnalyzer::DijetAnalyzer     WARNING! Folder with MVA weights doesn't exist\n");
+        throw std::logic_error("AnalyzerDijet::AnalyzerDijet     WARNING! Folder with MVA weights doesn't exist\n");
     }
     
     std::string tempStr;
@@ -63,7 +63,7 @@ doHadronMatchingComparison_(doHadronMatchingComparison)
 
 
 
-void DijetAnalyzer::fillHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+void AnalyzerDijet::fillHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                                const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
                                const KinRecoObjects& kinRecoObjects,
                                const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
@@ -478,7 +478,7 @@ void DijetAnalyzer::fillHistos(const RecoObjects& recoObjects, const CommonGenOb
 }
 
 
-void DijetAnalyzer::bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram)
+void AnalyzerDijet::bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram)
 {
     TString name;
 
@@ -846,7 +846,7 @@ void DijetAnalyzer::bookHistos(const TString& step, std::map<TString, TH1*>& m_h
 
 }
 
-void DijetAnalyzer::bookPairHistos(TH1* histo, std::map<TString, TH1*>& m_histogram, const TString& name)
+void AnalyzerDijet::bookPairHistos(TH1* histo, std::map<TString, TH1*>& m_histogram, const TString& name)
 {
     m_histogram[name] = store((TH1D*)histo);
     // Adding histogram for the correct pairs
@@ -862,7 +862,7 @@ void DijetAnalyzer::bookPairHistos(TH1* histo, std::map<TString, TH1*>& m_histog
 }
 
 
-void DijetAnalyzer::fillPairHistos(std::map<TString, TH1*>& m_histogram, const TString& name, const double value, const bool isCorrect, const double weight)
+void AnalyzerDijet::fillPairHistos(std::map<TString, TH1*>& m_histogram, const TString& name, const double value, const bool isCorrect, const double weight)
 {
     if(m_histogram[name]) m_histogram[name]->Fill(value, weight);
     
@@ -871,7 +871,7 @@ void DijetAnalyzer::fillPairHistos(std::map<TString, TH1*>& m_histogram, const T
 }
 
 
-std::vector<std::pair<int,int> > DijetAnalyzer::jetPairsFromMVA(std::map<TString, TH1*>& m_histogram, const tth::RecoObjectIndices& recoObjectIndices,
+std::vector<std::pair<int,int> > AnalyzerDijet::jetPairsFromMVA(std::map<TString, TH1*>& m_histogram, const tth::RecoObjectIndices& recoObjectIndices,
                                                                 const tth::GenObjectIndices& genObjectIndices, const RecoObjects& recoObjects,
                                                                 const std::vector<int>& trueTopJetsId, const std::vector<int>& trueHiggsJetsId, 
                                                                 const double weight)
@@ -951,7 +951,7 @@ std::vector<std::pair<int,int> > DijetAnalyzer::jetPairsFromMVA(std::map<TString
 }
 
 
-void DijetAnalyzer::fillDijetMassForPairs(const VLV& allJets, const std::vector<int>& jetsId, const std::vector<int>& higgsJetsId,
+void AnalyzerDijet::fillDijetMassForPairs(const VLV& allJets, const std::vector<int>& jetsId, const std::vector<int>& higgsJetsId,
                                           const std::vector<std::pair<int, int> > &jetPairs, const double weight, 
                                           std::map<TString, TH1*>& m_histogram, std::string histoName, const bool normaliseWeight )
 {
@@ -969,7 +969,7 @@ void DijetAnalyzer::fillDijetMassForPairs(const VLV& allJets, const std::vector<
 }
 
 
-float DijetAnalyzer::correctPairFraction(const VLV& allJets, const std::vector<int>& jetsId,
+float AnalyzerDijet::correctPairFraction(const VLV& allJets, const std::vector<int>& jetsId,
                                          const std::vector<int>& bJetsId, const std::vector<double>& jetsBtagDiscriminant,
                                          const std::vector<int>& topJetsId, const std::vector<int>& higgsJetsId,
                                          const double weight, std::map<TString, TH1*>& m_histogram, std::string histoName, bool fillAllCombinations,
@@ -1068,7 +1068,7 @@ float DijetAnalyzer::correctPairFraction(const VLV& allJets, const std::vector<i
 }
 
 
-void DijetAnalyzer::fillGenRecoMatchingComparisonHistos(const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
+void AnalyzerDijet::fillGenRecoMatchingComparisonHistos(const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
                                                         const VLV& bHadLVs, const std::vector<int>& bHadFlavour, const std::vector<int>& bHadJetIndex,
                                                         const VLV& genJets, std::map<TString, TH1*>& m_histogram, const double weight )
 {
@@ -1491,7 +1491,7 @@ void DijetAnalyzer::fillGenRecoMatchingComparisonHistos(const TopGenObjects& top
 }
 
 
-int DijetAnalyzer::genJetIdOfRecoJet(const LV& recoJet, const VLV& genJets, const float dR_max)
+int AnalyzerDijet::genJetIdOfRecoJet(const LV& recoJet, const VLV& genJets, const float dR_max)
 {
     float dR_min = 999.9;
     int genJetId = -1;
@@ -1508,7 +1508,7 @@ int DijetAnalyzer::genJetIdOfRecoJet(const LV& recoJet, const VLV& genJets, cons
 }
 
 
-std::vector<int> DijetAnalyzer::bHadIdsInGenJet(const int jetId, const std::vector<int>& hadJetIndices)
+std::vector<int> AnalyzerDijet::bHadIdsInGenJet(const int jetId, const std::vector<int>& hadJetIndices)
 {
     std::vector<int> hadIndices;
 
@@ -1523,7 +1523,7 @@ std::vector<int> DijetAnalyzer::bHadIdsInGenJet(const int jetId, const std::vect
 }
 
 
-std::vector<int> DijetAnalyzer::bHadFlavoursInGenJet(const int jetId, const std::vector<int>& hadJetIndices,
+std::vector<int> AnalyzerDijet::bHadFlavoursInGenJet(const int jetId, const std::vector<int>& hadJetIndices,
                                                      const std::vector<int>& hadFlavours, const bool absFlavour)
 {
     std::vector<int> flavours;
@@ -1541,21 +1541,21 @@ std::vector<int> DijetAnalyzer::bHadFlavoursInGenJet(const int jetId, const std:
 }
 
 
-bool DijetAnalyzer::isInVector(const std::vector<int>& vector, const int id)
+bool AnalyzerDijet::isInVector(const std::vector<int>& vector, const int id)
 {
     bool isIn = std::find(vector.begin(), vector.end(), id) != vector.end();
 
     return isIn;
 }
 
-bool DijetAnalyzer::isInVector(std::vector<std::pair<int,int> >& vector, const std::pair<int,int> id)
+bool AnalyzerDijet::isInVector(std::vector<std::pair<int,int> >& vector, const std::pair<int,int> id)
 {
     bool isIn = std::find(vector.begin(), vector.end(), id) != vector.end();
 
     return isIn;
 }
 
-bool DijetAnalyzer::putUniquelyInVector(std::vector<int>& vector, const int id)
+bool AnalyzerDijet::putUniquelyInVector(std::vector<int>& vector, const int id)
 {
     if(isInVector(vector, id)) return false;
 
@@ -1563,7 +1563,7 @@ bool DijetAnalyzer::putUniquelyInVector(std::vector<int>& vector, const int id)
     return true;
 }
 
-bool DijetAnalyzer::putUniquelyInVector(std::vector<std::pair<int,int> >& vector, const std::pair<int,int> id)
+bool AnalyzerDijet::putUniquelyInVector(std::vector<std::pair<int,int> >& vector, const std::pair<int,int> id)
 {
     if(isInVector(vector, id)) return false;
 
@@ -1571,7 +1571,7 @@ bool DijetAnalyzer::putUniquelyInVector(std::vector<std::pair<int,int> >& vector
     return true;
 }
 
-std::vector<std::pair<int,int> > DijetAnalyzer::allPairsFromJets(const std::vector<int>& allJets, const std::vector<int>& jetsToIgnore)
+std::vector<std::pair<int,int> > AnalyzerDijet::allPairsFromJets(const std::vector<int>& allJets, const std::vector<int>& jetsToIgnore)
 {
     std::vector<std::pair<int,int> > jetPairs;
     
@@ -1588,7 +1588,7 @@ std::vector<std::pair<int,int> > DijetAnalyzer::allPairsFromJets(const std::vect
 }
 
 
-bool DijetAnalyzer::areAmongPairs( const std::vector< std::pair<int,int> >& pairs, const int idx1, const int idx2 )
+bool AnalyzerDijet::areAmongPairs( const std::vector< std::pair<int,int> >& pairs, const int idx1, const int idx2 )
 {
     for(size_t iPair=0; iPair<pairs.size(); iPair++) {
         std::pair<int,int> pair = pairs.at(iPair);
