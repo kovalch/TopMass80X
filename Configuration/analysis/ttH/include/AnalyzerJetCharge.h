@@ -7,7 +7,7 @@
 class TString;
 class TH1;
 
-#include "AnalysisHistograms.h"
+#include "AnalyzerBaseClass.h"
 #include "../../common/include/classesFwd.h"
 
 
@@ -27,17 +27,17 @@ namespace tth{
 
 
 /// Class for basic histograms that are filled simultaneously for any step
-class JetChargeAnalyzer : public AnalysisHistogramsBase{
+class AnalyzerJetCharge : public AnalyzerBaseClass{
 
 public:
     
     /// Constructor
-    JetChargeAnalyzer(const std::vector<TString>& selectionStepsNoCategories,
+    AnalyzerJetCharge(const std::vector<TString>& selectionStepsNoCategories,
                       const std::vector<TString>& stepsForCategories =std::vector<TString>(),
                       const JetCategories* jetCategories =0);
 
     /// Destructor
-    ~JetChargeAnalyzer(){}
+    ~AnalyzerJetCharge(){}
 
     /// Find index of genJet corresponding to the specified reco jet. Returns -1 if not found
     int genJetIdOfRecoJet(const LV& recoJet, const VLV& genJets, const float dR_max=999.9);

@@ -10,7 +10,7 @@
 #include <Math/VectorUtil.h>
 #include <TProfile.h>
 
-#include "Playground.h"
+#include "AnalyzerPlayground.h"
 #include "analysisStructs.h"
 #include "JetCategories.h"
 #include "../../common/include/analysisUtils.h"
@@ -21,10 +21,10 @@
 
 
 
-Playground::Playground(const std::vector<TString>& selectionStepsNoCategories,
-                       const std::vector<TString>& stepsForCategories,
-                       const JetCategories* jetCategories):
-AnalysisHistogramsBase("test_", selectionStepsNoCategories, stepsForCategories, jetCategories)
+AnalyzerPlayground::AnalyzerPlayground(const std::vector<TString>& selectionStepsNoCategories,
+                                       const std::vector<TString>& stepsForCategories,
+                                       const JetCategories* jetCategories):
+AnalyzerBaseClass("test_", selectionStepsNoCategories, stepsForCategories, jetCategories)
 {
     std::cout<<"--- Beginning setting up playground\n";
     std::cout<<"=== Finishing setting up playground\n\n";
@@ -32,7 +32,7 @@ AnalysisHistogramsBase("test_", selectionStepsNoCategories, stepsForCategories, 
 
 
 
-void Playground::bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram)
+void AnalyzerPlayground::bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram)
 {
     TString name;
     
@@ -47,12 +47,12 @@ void Playground::bookHistos(const TString& step, std::map<TString, TH1*>& m_hist
 
 
 
-void Playground::fillHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
-                            const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
-                            const KinRecoObjects& kinRecoObjects,
-                            const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
-                            const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
-                            const double& weight, const TString& step, std::map<TString, TH1*>& m_histogram)
+void AnalyzerPlayground::fillHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+                                    const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
+                                    const KinRecoObjects& kinRecoObjects,
+                                    const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
+                                    const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
+                                    const double& weight, const TString& step, std::map<TString, TH1*>& m_histogram)
 {
     TString name;
     

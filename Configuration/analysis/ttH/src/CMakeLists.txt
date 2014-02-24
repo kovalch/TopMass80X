@@ -16,16 +16,16 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   MvaWeights2d
   MvaReader
   MvaFactory
-  MvaValidation
   mvaSetup
   mvaStructs
-  AnalysisHistograms
-  BasicAnalyzer
-  JetChargeAnalyzer
-  JetMatchAnalyzer
+  AnalyzerBaseClass
+  AnalyzerControlPlots
+  AnalyzerMvaTopJets
+  AnalyzerJetCharge
+  AnalyzerJetMatch
+  AnalyzerPlayground
+  AnalyzerDijet
   JetCategories
-  Playground
-  DijetAnalyzer
   plotterHelpers
   Samples
   DyScaleFactors

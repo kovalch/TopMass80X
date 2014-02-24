@@ -20,7 +20,7 @@
 #include <TRandom3.h>
 
 
-#include "../include/JetChargeAnalyzer.h"
+#include "../include/AnalyzerJetCharge.h"
 #include "../include/analysisStructs.h"
 #include "../include/JetCategories.h"
 #include "../include/higgsUtils.h"
@@ -32,20 +32,20 @@
 
 
 
-JetChargeAnalyzer::JetChargeAnalyzer(const std::vector<TString>& selectionStepsNoCategories,
+AnalyzerJetCharge::AnalyzerJetCharge(const std::vector<TString>& selectionStepsNoCategories,
                                      const std::vector<TString>& stepsForCategories,
                                      const JetCategories* jetCategories):
-                                     AnalysisHistogramsBase("jetCharge_", selectionStepsNoCategories, stepsForCategories, jetCategories)
-  {
-      std::cout<<"--- Beginning setting up jet charge analyzer\n";
-      std::cout<<"=== Finishing setting up jet charge analyzer\n\n";
-  }
+AnalyzerBaseClass("jetCharge_", selectionStepsNoCategories, stepsForCategories, jetCategories)
+{
+    std::cout<<"--- Beginning setting up jet charge analyzer\n";
+    std::cout<<"=== Finishing setting up jet charge analyzer\n\n";
+}
   
 
 
 
 
-void JetChargeAnalyzer::fillHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                                    const TopGenObjects& topGenObjects , const HiggsGenObjects&,
                                    const KinRecoObjects&,
                                    const tth::RecoObjectIndices&, const tth::GenObjectIndices&,
@@ -772,7 +772,7 @@ void JetChargeAnalyzer::fillHistos(const RecoObjects& recoObjects, const CommonG
     
 } //END OF JET CHARGE ANALYZER FUNCTION
 
-void JetChargeAnalyzer::bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram)
+void AnalyzerJetCharge::bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram)
 {
     TString name;
     
@@ -1230,7 +1230,7 @@ void JetChargeAnalyzer::bookHistos(const TString& step, std::map<TString, TH1*>&
 
 //==========================================HERE MY OTHER FUNTIONS===============================================
 
-int JetChargeAnalyzer::genJetIdOfRecoJet ( const LV& recoJet, const VLV& genJets, const float dR_max )
+int AnalyzerJetCharge::genJetIdOfRecoJet ( const LV& recoJet, const VLV& genJets, const float dR_max )
 {
     
     float dR_min = 999.9;
@@ -1248,7 +1248,7 @@ int JetChargeAnalyzer::genJetIdOfRecoJet ( const LV& recoJet, const VLV& genJets
 }
 
 
-std::vector< int > JetChargeAnalyzer::bHadIdsInGenJet ( const int jetId, const std::vector< int >& hadJetIndices )
+std::vector< int > AnalyzerJetCharge::bHadIdsInGenJet ( const int jetId, const std::vector< int >& hadJetIndices )
 {
     
     std::vector<int> hadIndices;
@@ -1264,7 +1264,7 @@ std::vector< int > JetChargeAnalyzer::bHadIdsInGenJet ( const int jetId, const s
 }
 
 
-std::vector< int > JetChargeAnalyzer::bHadFlavoursInGenJet ( const int jetId, const std::vector< int >& hadJetIndices, const std::vector< int >& hadFlavours, const bool absFlavour )
+std::vector< int > AnalyzerJetCharge::bHadFlavoursInGenJet ( const int jetId, const std::vector< int >& hadJetIndices, const std::vector< int >& hadFlavours, const bool absFlavour )
 {
     
     std::vector<int> flavours;
@@ -1281,14 +1281,14 @@ std::vector< int > JetChargeAnalyzer::bHadFlavoursInGenJet ( const int jetId, co
     return flavours;
 }
 
-bool JetChargeAnalyzer::isInVector(const std::vector<int>& idVector, const int id)
+bool AnalyzerJetCharge::isInVector(const std::vector<int>& idVector, const int id)
 {
     bool isIn = std::find(idVector.begin(), idVector.end(), id) != idVector.end();
     
     return isIn;
 }
 
-bool JetChargeAnalyzer::putUniquelyInVector(std::vector<int>& vector, const int id)
+bool AnalyzerJetCharge::putUniquelyInVector(std::vector<int>& vector, const int id)
 {
     if(isInVector(vector, id)) return false;
     

@@ -7,7 +7,7 @@
 #include <TString.h>
 #include <Math/VectorUtil.h>
 
-#include "BasicAnalyzer.h"
+#include "AnalyzerControlPlots.h"
 #include "analysisStructs.h"
 #include "JetCategories.h"
 #include "../../common/include/analysisObjectStructs.h"
@@ -21,10 +21,10 @@
 
 
 
-BasicHistograms::BasicHistograms(const std::vector<TString>& selectionStepsNoCategories,
-                                 const std::vector<TString>& stepsForCategories,
-                                 const JetCategories* jetCategories):
-AnalysisHistogramsBase("basic_", selectionStepsNoCategories, stepsForCategories, jetCategories)
+AnalyzerControlPlots::AnalyzerControlPlots(const std::vector<TString>& selectionStepsNoCategories,
+                                           const std::vector<TString>& stepsForCategories,
+                                           const JetCategories* jetCategories):
+AnalyzerBaseClass("basic_", selectionStepsNoCategories, stepsForCategories, jetCategories)
 {
     std::cout<<"--- Beginning setting up basic histograms\n";
     std::cout<<"=== Finishing setting up basic histograms\n\n";
@@ -32,7 +32,7 @@ AnalysisHistogramsBase("basic_", selectionStepsNoCategories, stepsForCategories,
 
 
 
-void BasicHistograms::bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram)
+void AnalyzerControlPlots::bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram)
 {
     TString name;
     
@@ -111,13 +111,13 @@ void BasicHistograms::bookHistos(const TString& step, std::map<TString, TH1*>& m
 
 
 
-void BasicHistograms::fillHistos(const RecoObjects& recoObjects, const CommonGenObjects&,
-                                 const TopGenObjects&, const HiggsGenObjects&,
-                                 const KinRecoObjects&,
-                                 const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices&,
-                                 const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
-                                 const double& weight, const TString&,
-                                 std::map< TString, TH1* >& m_histogram)
+void AnalyzerControlPlots::fillHistos(const RecoObjects& recoObjects, const CommonGenObjects&,
+                                      const TopGenObjects&, const HiggsGenObjects&,
+                                      const KinRecoObjects&,
+                                      const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices&,
+                                      const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
+                                      const double& weight, const TString&,
+                                      std::map< TString, TH1* >& m_histogram)
 {
     // Leptons
     m_histogram["lepton_multiplicity"]->Fill(recoObjectIndices.allLeptonIndices_.size(), weight);

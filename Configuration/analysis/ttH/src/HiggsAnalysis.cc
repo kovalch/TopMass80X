@@ -14,13 +14,10 @@
 
 #include "HiggsAnalysis.h"
 #include "higgsUtils.h"
-#include "DijetAnalyzer.h"
 #include "analysisStructs.h"
-#include "AnalysisHistograms.h"
-#include "Playground.h"
+#include "AnalyzerBaseClass.h"
 #include "MvaTreeHandler.h"
 #include "MvaTreeAnalyzer.h"
-#include "MvaValidation.h"
 #include "../../common/include/analysisUtils.h"
 #include "../../common/include/analysisObjectStructs.h"
 #include "../../common/include/classes.h"
@@ -734,9 +731,9 @@ void HiggsAnalysis::SetMvaInputProduction(MvaTreeHandler* mvaTreeHandler)
 
 
 
-void HiggsAnalysis::SetAllAnalysisHistograms(std::vector<AnalysisHistogramsBase*> v_analysisHistograms)
+void HiggsAnalysis::SetAllAnalyzers(std::vector<AnalyzerBaseClass*> v_analyzer)
 {
-    v_analysisHistograms_ = v_analysisHistograms;
+    v_analyzer_ = v_analyzer;
 }
 
 
@@ -778,13 +775,13 @@ void HiggsAnalysis::fillAll(const std::string& selectionStep,
                             const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
                             const double& defaultWeight)const
 {
-    for(AnalysisHistogramsBase* analysisHistograms : v_analysisHistograms_){
-        if(analysisHistograms) analysisHistograms->fill(recoObjects, commonGenObjects,
-                                                   topGenObjects, higgsGenObjects,
-                                                   kinRecoObjects,
-                                                   recoObjectIndices, genObjectIndices,
-                                                   genLevelWeights, recoLevelWeights,
-                                                   defaultWeight, selectionStep);
+    for(AnalyzerBaseClass* analyzer : v_analyzer_){
+        if(analyzer) analyzer->fill(recoObjects, commonGenObjects,
+                                    topGenObjects, higgsGenObjects,
+                                    kinRecoObjects,
+                                    recoObjectIndices, genObjectIndices,
+                                    genLevelWeights, recoLevelWeights,
+                                    defaultWeight, selectionStep);
     }
 
     if(mvaTreeHandler_) mvaTreeHandler_->fill(recoObjects, genObjectIndices, recoObjectIndices, defaultWeight, selectionStep);
@@ -794,8 +791,8 @@ void HiggsAnalysis::fillAll(const std::string& selectionStep,
 
 void HiggsAnalysis::bookAll()
 {
-    for(AnalysisHistogramsBase* analysisHistograms : v_analysisHistograms_){
-        if(analysisHistograms) analysisHistograms->book(fOutput);
+    for(AnalyzerBaseClass* analyzer : v_analyzer_){
+        if(analyzer) analyzer->book(fOutput);
     }
 }
 
@@ -803,8 +800,8 @@ void HiggsAnalysis::bookAll()
 
 void HiggsAnalysis::clearAll()
 {
-    for(AnalysisHistogramsBase* analysisHistograms : v_analysisHistograms_){
-        if(analysisHistograms) analysisHistograms->clear();
+    for(AnalyzerBaseClass* analyzer : v_analyzer_){
+        if(analyzer) analyzer->clear();
     }
 }
 

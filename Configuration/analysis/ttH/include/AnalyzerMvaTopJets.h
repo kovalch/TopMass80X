@@ -1,5 +1,5 @@
-#ifndef MvaValidation_h
-#define MvaValidation_h
+#ifndef AnalyzerMvaTopJets_h
+#define AnalyzerMvaTopJets_h
 
 #include <vector>
 #include <map>
@@ -8,7 +8,7 @@ class TString;
 class TH1;
 class TH2D;
 
-#include "AnalysisHistograms.h"
+#include "AnalyzerBaseClass.h"
 #include "mvaStructs.h"
 
 class JetCategories;
@@ -35,18 +35,18 @@ namespace tth{
 
 
 /// Class for basic histograms that are filled simultaneously for any step
-class MvaValidation : public AnalysisHistogramsBase{
+class AnalyzerMvaTopJets : public AnalyzerBaseClass{
 
 public:
 
     /// Constructor
-    MvaValidation(const char* mva2dWeightsFile,
-                  const std::vector<TString>& selectionStepsNoCategories,
-                  const std::vector<TString>& stepsForCategories = std::vector<TString>(),
-                  const JetCategories* jetCategories =0);
+    AnalyzerMvaTopJets(const char* mva2dWeightsFile,
+                       const std::vector<TString>& selectionStepsNoCategories,
+                       const std::vector<TString>& stepsForCategories = std::vector<TString>(),
+                       const JetCategories* jetCategories =0);
 
     /// Destructor
-    ~MvaValidation(){}
+    ~AnalyzerMvaTopJets(){}
 
 
 
