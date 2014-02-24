@@ -2,11 +2,11 @@
 
 bool isValidsample(unsigned int sample, unsigned int systematicVariation);
 
-void treeComparison(double luminosity = 19712, bool save = true, int verbose=1, TString inputFolderName= "RecentAnalysisRun8TeV_doubleKinFit", TString dataFile= "/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/elecDiffXSecData2012ABCDAll.root:/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/muonDiffXSecData2012ABCDAll.root", const std::string decayChannel = "combined", bool withRatioPlot=true, TString test="prob")
+void treeComparison(double luminosity = 19712, bool save = true, int verbose=0, TString inputFolderName= "RecentAnalysisRun8TeV_doubleKinFit", TString dataFile= "/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/elecDiffXSecData2012ABCDAll.root:/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/muonDiffXSecData2012ABCDAll.root", const std::string decayChannel = "combined", bool withRatioPlot=true, TString test="PV")
 {
   // test= "prob" or "PV" 
   // data/MC -> MC/data
-  bool invert=true;
+  bool invert=false;
   // linear fit in ratio?
   bool linFit=true;
 
