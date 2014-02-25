@@ -47,10 +47,13 @@ public:
     ~MvaVariablesTopJets(){}
     
     /// Fill the MVA input structs for all jet combinations of one event
-    static std::vector<MvaVariablesTopJets> fillVariables(const tth::RecoObjectIndices& recoObjectIndices,
-                                                          const tth::GenObjectIndices& genObjectIndices,
-                                                          const RecoObjects& recoObjects,
-                                                          const double& eventWeight);
+    static std::vector<MvaVariablesTopJets*> fillVariables(const tth::RecoObjectIndices& recoObjectIndices,
+                                                           const tth::GenObjectIndices& genObjectIndices,
+                                                           const RecoObjects& recoObjects,
+                                                           const double& eventWeight);
+    
+    /// Clear the MVA input structs, i.e. delete all pointers properly
+    static void clearVariables(std::vector<MvaVariablesTopJets*>& v_mvaVariables);
     
     /// Calculate the jet recoil for a given jet pair, i.e. vector sum of all jets except selected jet pair
     static VLV recoilForJetPairs(const tth::IndexPairs& jetIndexPairs,
@@ -123,10 +126,10 @@ class MvaVariablesTopJetsPerEvent{
 public:
     
     /// Constructor setting up mvaInputVariables
-    MvaVariablesTopJetsPerEvent(const std::vector<MvaVariablesTopJets>& v_mvaInputVariables);
+    MvaVariablesTopJetsPerEvent(const std::vector<MvaVariablesTopJets*>& v_mvaInputVariables);
     
     /// Constructor setting up mvaInputVariables together with MVA weights for correct and for swapped combinations
-    MvaVariablesTopJetsPerEvent(const std::vector<MvaVariablesTopJets>& v_mvaInputVariables,
+    MvaVariablesTopJetsPerEvent(const std::vector<MvaVariablesTopJets*>& v_mvaInputVariables,
                                 const std::map<std::string, std::vector<float> >& m_weightCorrect,
                                 const std::map<std::string, std::vector<float> >& m_weightSwapped,
                                 const std::map<std::string, std::map<std::string, std::vector<float> > >& m_weightCombined);
@@ -158,7 +161,7 @@ public:
     bool isSameMaxCombination(const std::string& mvaConfigNameCorrect, const std::string& mvaConfigNameSwapped)const;
     
     /// Get the vector of MVA variables
-    std::vector<MvaVariablesTopJets> variables()const;
+    std::vector<MvaVariablesTopJets*> variables()const;
     
     /// Get the vector of MVA correct weights for given config name
     std::vector<float> mvaWeightsCorrect(const std::string& mvaConfigName)const;
@@ -183,7 +186,7 @@ public:
 private:
     
     /// Vector containing MVA input variables for all dijet pairs per event
-    std::vector<MvaVariablesTopJets> v_mvaVariables_;
+    std::vector<MvaVariablesTopJets*> v_mvaVariables_;
     
     /// Map MVA config name to the vector containing correct MVA weights for all dijet pairs per event
     std::map<std::string, std::vector<float> > m_weightCorrect_;

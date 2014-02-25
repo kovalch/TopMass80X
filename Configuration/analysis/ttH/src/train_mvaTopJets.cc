@@ -125,6 +125,7 @@ void trainMvaTopJets(const std::vector<Channel::Channel>& v_channel,
                 mvaTreeHandler.importTrees(fileName.Data(), "training");
                 MvaTreeAnalyzer mvaTreeAnalyzer(mvaTreeHandler.stepMvaVariablesMap(), true);
                 mvaTreeAnalyzer.plotVariables(outputFile.Data());
+                mvaTreeHandler.clear();
             }
             
             // Produce MVA weights
@@ -147,6 +148,7 @@ void trainMvaTopJets(const std::vector<Channel::Channel>& v_channel,
                 MvaWeights2d mvaWeights2d(mvaTreeHandler.stepMvaVariablesMap(),
                                           weightsFolder.Data(), mvaSets, true);
                 mvaWeights2d.plotVariables(outputFile.Data());
+                mvaTreeHandler.clear();
             }
         }
     }

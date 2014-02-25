@@ -22,7 +22,7 @@
 
 
 
-MvaWeights2d::MvaWeights2d(const std::map<TString, std::vector<MvaVariablesTopJets> >& m_stepMvaVariables,
+MvaWeights2d::MvaWeights2d(const std::map<TString, std::vector<MvaVariablesTopJets*> >& m_stepMvaVariables,
                                        const char* mvaWeightFileDirectory,
                                        const std::vector<mvaSetup::MvaSet>& v_mvaSet,
                                        const bool separationPowerPlots):
@@ -92,11 +92,11 @@ void MvaWeights2d::plotVariables(TSelectorList* output)
 void MvaWeights2d::plotStep(const mvaSetup::MvaSet& mvaSet)
 {
     const TString step = tth::stepName(mvaSet.step_, mvaSet.v_category_);
-    const std::vector<MvaVariablesTopJets>& v_mvaTopJetsVariables(m_stepMvaVariables_.at(step));
+    const std::vector<MvaVariablesTopJets*>& v_mvaTopJetsVariables(m_stepMvaVariables_.at(step));
     const std::vector<mvaSetup::MvaConfig>& v_mvaConfigCorrect = mvaSet.v_mvaConfigCorrect_;
     const std::vector<mvaSetup::MvaConfig>& v_mvaConfigSwapped = mvaSet.v_mvaConfigSwapped_;
-
-    storeTrainingsForStep(step, v_mvaConfigCorrect, v_mvaConfigSwapped);
+    
+    this->storeTrainingsForStep(step, v_mvaConfigCorrect, v_mvaConfigSwapped);
     
     // 2D weights are only possible in case correct and swapped trainings are applied
     if(!v_mvaConfigCorrect.size() || !v_mvaConfigSwapped.size()) return;
@@ -147,7 +147,7 @@ void MvaWeights2d::plotStep(const mvaSetup::MvaSet& mvaSet)
             
             // Fill histograms
             for(size_t iWeight = 0; iWeight < v_mvaWeightsCorrect.size(); ++iWeight){
-                const MvaVariablesTopJets& mvaTopJetsVariables = v_mvaTopJetsVariables.at(iWeight);
+                const MvaVariablesTopJets& mvaTopJetsVariables = *(v_mvaTopJetsVariables.at(iWeight));
                 const double weight = mvaTopJetsVariables.eventWeight_.value_;
                 const float mvaWeightCorrect = v_mvaWeightsCorrect.at(iWeight);
                 const float mvaWeightSwapped = v_mvaWeightsSwapped.at(iWeight);

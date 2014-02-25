@@ -79,12 +79,12 @@ private:
     /// Fill 1-D histograms exclusively for correct, swapped and wrong combinations, and inclusively
     void fillHistosInclExcl(std::map<TString, TH1*>& m_histogram, const TString& name,
                             const float& variable,
-                            const MvaVariablesTopJets& mvaTopJetsVariables, const double& weight =1.);
+                            const MvaVariablesTopJets* mvaTopJetsVariables, const double& weight =1.);
 
     /// Fill 2-D histograms exclusively for correct, swapped and wrong combinations, and inclusively
     void fillHistosInclExcl2D(std::map<TString, TH1*>& m_histogram, const TString& name,
                               const float& variable1, const float& variable2,
-                              const MvaVariablesTopJets& mvaTopJetsVariables, const double& weight =1.);
+                              const MvaVariablesTopJets* mvaTopJetsVariables, const double& weight =1.);
 
 
 

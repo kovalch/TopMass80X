@@ -105,12 +105,12 @@ massDiff_antiBLepton_bAntiLepton_(MvaVariableFloat(name_massDiff_antiBLepton_bAn
 
 
 
-std::vector<MvaVariablesTopJets> MvaVariablesTopJets::fillVariables(const tth::RecoObjectIndices& recoObjectIndices,
-                                                                    const tth::GenObjectIndices& genObjectIndices,
-                                                                    const RecoObjects& recoObjects,
-                                                                    const double& eventWeight)
+std::vector<MvaVariablesTopJets*> MvaVariablesTopJets::fillVariables(const tth::RecoObjectIndices& recoObjectIndices,
+                                                                     const tth::GenObjectIndices& genObjectIndices,
+                                                                     const RecoObjects& recoObjects,
+                                                                     const double& eventWeight)
 {
-    std::vector<MvaVariablesTopJets> result;
+    std::vector<MvaVariablesTopJets*> result;
     
     // Access relevant objects and indices
     const VLV& allLeptons(*recoObjects.allLeptons_);
@@ -166,20 +166,27 @@ std::vector<MvaVariablesTopJets> MvaVariablesTopJets::fillVariables(const tth::R
         }
         const LV& jetRecoil = jetRecoils.at(iJetIndexPairs);
 
-        const MvaVariablesTopJets mvaInput(lepton, antiLepton,
-                                           bjet, antiBjet,
-                                           bjetBtagDiscriminator, antiBjetBtagDiscriminator,
-                                           jetChargeDiff,
-                                           jetRecoil, met,
-                                           successfulTopMatching,
-                                           isCorrectPair, isSwappedPair,
-                                           lastInEvent,
-                                           eventWeight);
+        MvaVariablesTopJets* mvaInput = new MvaVariablesTopJets(lepton, antiLepton,
+                                                                bjet, antiBjet,
+                                                                bjetBtagDiscriminator, antiBjetBtagDiscriminator,
+                                                                jetChargeDiff,
+                                                                jetRecoil, met,
+                                                                successfulTopMatching,
+                                                                isCorrectPair, isSwappedPair,
+                                                                lastInEvent,
+                                                                eventWeight);
 
         result.push_back(mvaInput);
     }
     
     return result;
+}
+
+
+
+void MvaVariablesTopJets::clearVariables(std::vector<MvaVariablesTopJets*>& v_mvaVariables){
+    for(auto& mvaVariables : v_mvaVariables) delete mvaVariables;
+    v_mvaVariables.clear();
 }
 
 
@@ -214,13 +221,13 @@ VLV MvaVariablesTopJets::recoilForJetPairs(const tth::IndexPairs& jetIndexPairs,
 
 
 
-MvaVariablesTopJetsPerEvent::MvaVariablesTopJetsPerEvent(const std::vector<MvaVariablesTopJets>& v_mvaInputVariables):
+MvaVariablesTopJetsPerEvent::MvaVariablesTopJetsPerEvent(const std::vector<MvaVariablesTopJets*>& v_mvaInputVariables):
 v_mvaVariables_(v_mvaInputVariables)
 {}
 
 
 
-MvaVariablesTopJetsPerEvent::MvaVariablesTopJetsPerEvent(const std::vector<MvaVariablesTopJets>& v_mvaInputVariables,
+MvaVariablesTopJetsPerEvent::MvaVariablesTopJetsPerEvent(const std::vector<MvaVariablesTopJets*>& v_mvaInputVariables,
                                                          const std::map<std::string, std::vector<float> >& m_mvaWeightCorrect,
                                                          const std::map<std::string, std::vector<float> >& m_mvaWeightSwapped,
                                                          const std::map<std::string, std::map<std::string, std::vector<float> > >& m_mvaWeightCombined):
@@ -312,7 +319,7 @@ bool MvaVariablesTopJetsPerEvent::isSameMaxCombination(const std::string& mvaCon
 
 
 
-std::vector<MvaVariablesTopJets> MvaVariablesTopJetsPerEvent::variables()const
+std::vector<MvaVariablesTopJets*> MvaVariablesTopJetsPerEvent::variables()const
 {
     return v_mvaVariables_;
 }

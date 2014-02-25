@@ -883,7 +883,7 @@ std::vector<std::pair<int,int> > AnalyzerDijet::jetPairsFromMVA(std::map<TString
     
     // Setting up the MVA input #################################
     // Loop over all jet combinations and get MVA input variables
-    const std::vector<MvaVariablesTopJets> v_mvaTopJetsVariables = MvaVariablesTopJets::fillVariables(recoObjectIndices, genObjectIndices, recoObjects, weight);
+    const std::vector<MvaVariablesTopJets*> v_mvaTopJetsVariables = MvaVariablesTopJets::fillVariables(recoObjectIndices, genObjectIndices, recoObjects, weight);
 
     // Getting the MVA weights from weights file as vector, one entry per jet pair
     std::vector<float> v_mvaWeightsCorrect, v_mvaWeightsSwapped;
