@@ -5,9 +5,10 @@
 #include <string>
 #include <map>
 
+#include <TString.h>
+
 class TTree;
 class TSelectorList;
-class TString;
 
 #include "MvaVariablesTopJets.h"
 #include "../../common/include/storeTemplate.h"
