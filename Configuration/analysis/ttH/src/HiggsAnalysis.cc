@@ -66,7 +66,7 @@ constexpr double MetCUT = 40.;
 HiggsAnalysis::HiggsAnalysis(TTree*):
 isInclusiveHiggs_(false),
 bbbarDecayFromInclusiveHiggs_(false),
-runWithTtbb_(false),
+additionalBJetMode_(0),
 retagBJets_(true),  // FIXME: remove this variable which was implemented for testing (and in a different way as it was in TopAnalysis...)
 mvaTreeHandler_(0)
 {}
@@ -93,9 +93,9 @@ void HiggsAnalysis::Begin(TTree*)
 void HiggsAnalysis::Terminate()
 {
     // Produce b-tag efficiencies
-    // FIXME: runWithTtbb_ is dirty hack, since makeBtagEfficiencies() is in AnalysisBase
+    // FIXME: additionalBJetMode_ is dirty hack, since makeBtagEfficiencies() is in AnalysisBase
     // FIXME: Shouldn't we also clear b-tagging efficiency histograms if they are produced ?
-    if(!runWithTtbb_ && this->makeBtagEfficiencies()) btagScaleFactors_->produceBtagEfficiencies(static_cast<std::string>(this->channel()));
+    if(additionalBJetMode_==0 && this->makeBtagEfficiencies()) btagScaleFactors_->produceBtagEfficiencies(static_cast<std::string>(this->channel()));
 
     // Do everything needed for MVA
     if(mvaTreeHandler_){
@@ -130,7 +130,7 @@ void HiggsAnalysis::SlaveBegin(TTree *)
     // FIXME: common usage of this function for production and application of btag stuff like is implemented does not work,
     // FIXME: for ttbb sample is just working by chance (with wrong settings if individual efficiencies per sample would be used)
     // FIXME: --> Make settings to how they were before
-    if(!runWithTtbb_) {
+    if(additionalBJetMode_==0) {
         btagScaleFactors_->setWorkingPoint(BtagWP);
         btagScaleFactors_->prepareBTags(fOutput, static_cast<std::string>(this->channel()));
     }
@@ -513,7 +513,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
                   weight);
 
     // Fill the b-tagging efficiency plots
-    if( !runWithTtbb_ && this->makeBtagEfficiencies() ){
+    if( additionalBJetMode_==0 && this->makeBtagEfficiencies() ){
         btagScaleFactors_->fillBtagHistograms(jetIndices, jetBTagCSV,
                                               jets, jetPartonFlavour,
                                               weight);
@@ -717,10 +717,11 @@ void HiggsAnalysis::SetHiggsInclusiveSeparation(const bool bbbarDecayFromInclusi
 
 
 
-void HiggsAnalysis::SetRunWithTtbb(const bool runWithTtbb)
+void HiggsAnalysis::SetAdditionalBJetMode(const int additionalBJetMode)
 {
-    runWithTtbb_ = runWithTtbb;
+    additionalBJetMode_ = additionalBJetMode;
 }
+
 
 
 
@@ -758,11 +759,36 @@ bool HiggsAnalysis::failsAdditionalJetFlavourSelection(const Long64_t& entry)con
 
     // FIXME: this is a workaround as long as there is no specific additional jet flavour info written to nTuple
     const TopGenObjects& topGenObjects = this->getTopGenObjects(entry);
-    const int nGenBjets = topGenObjects.genBHadIndex_->size();
-    if(runWithTtbb_ && nGenBjets<=2) return true;
-    if(!runWithTtbb_ && nGenBjets>2) return true;
+    const CommonGenObjects& commonGenObjects = this->getCommonGenObjects(entry);
 
-    return false;
+    std::vector<int> genAddBJetIdNotFromTop;
+
+    float signalJetPt_min = 20.;
+    float signalJetEta_max = 2.5;
+
+    for(size_t iHad=0; iHad<topGenObjects.genBHadJetIndex_->size(); iHad++) {
+//         printf("hadId: %d\n", iHad);
+        if(topGenObjects.genBHadFromTopWeakDecay_->at(iHad)==0) {
+            int genJetId = topGenObjects.genBHadJetIndex_->at(iHad);
+//             printf(" genJetId: %d\n", genJetId);
+            if(genJetId>=0) {
+                if(commonGenObjects.allGenJets_->at(genJetId).Pt()>signalJetPt_min && std::fabs(commonGenObjects.allGenJets_->at(genJetId).Eta())<signalJetEta_max) {
+                    if(std::find(genAddBJetIdNotFromTop.begin(), genAddBJetIdNotFromTop.end(), genJetId) == genAddBJetIdNotFromTop.end()) {
+                        genAddBJetIdNotFromTop.push_back(genJetId);
+                    }
+                }   // If the jet suits the signal selection criterea
+            }   // If the hadron is clustered to any jet
+        }   // If the hadron is additional to b-hadrons from Top
+    }   // End of loop over all b-hadrons
+
+    const unsigned int nExtraBjets = genAddBJetIdNotFromTop.size();
+//     printf("Mode: %d  nAddJets: %d\n", additionalBJetMode_, nExtraBjets);
+
+    if(additionalBJetMode_==2 && nExtraBjets>=2) return false;
+    if(additionalBJetMode_==1 && nExtraBjets==1) return false;
+    if(additionalBJetMode_==0 && nExtraBjets==0) return false;
+
+    return true;
 }
 
 

@@ -370,7 +370,7 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
             selector->SetGeneratorBools(samplename->GetString(), systematics_from_file->GetString());
             selector->SetOutputfilename(outputfilename);
             selector->SetRunViaTau(0);
-            selector->SetRunWithTtbb(0);
+            selector->SetAdditionalBJetMode(0);
             selector->SetHiggsInclusiveSample(isHiggsInclusive);
             selector->SetHiggsInclusiveSeparation(false);
             
@@ -380,13 +380,19 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
             // chain.SetProof(); //will work from 5.34 onwards
             chain.Process(selector, "", maxEvents, skipEvents);
             
-            // For splitting of dileptonic ttbar in tt+bb and tt+other
+            // For splitting of dileptonic ttbar in tt+bb, tt+b and tt+other
             if(isTopSignal && !isHiggsSignal && !isTtbarV){
-                selector->SetRunWithTtbb(1);
+                selector->SetAdditionalBJetMode(2);
                 outputfilename.ReplaceAll("Other", "Bbbar");
                 selector->SetOutputfilename(outputfilename);
-                chain.Process(selector, "", maxEvents, skipEvents);
+                chain.Process(selector);
+                
+                selector->SetAdditionalBJetMode(1);
+                outputfilename.ReplaceAll("Bbbar", "B");
+                selector->SetOutputfilename(outputfilename);
+                chain.Process(selector);
             }
+
             
             // For splitting of ttH inclusive decay in H->bb and other decays
             if(isHiggsInclusive){

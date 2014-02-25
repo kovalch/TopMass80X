@@ -56,8 +56,8 @@ public:
     /// Select H->bbbar or H->other decay from ttH sample inclusive in Higgs decay
     void SetHiggsInclusiveSeparation(const bool bbbarDecayFromInclusiveHiggs);
     
-    /// Bool for separating ttbar+bbar events and ttbar+other events
-    void SetRunWithTtbb(const bool runWithTtbb);
+    /// Bool for separating ttbar+bbar, ttbar+b and ttbar+other events
+    void SetAdditionalBJetMode(const int additionalBJetMode);
     
     
     
@@ -122,8 +122,8 @@ private:
     /// Select H->bbbar or H->other decay from ttH sample inclusive in Higgs decay
     bool bbbarDecayFromInclusiveHiggs_;
     
-    /// Select tt+bb or tt+other events
-    bool runWithTtbb_;
+    /// Select tt+bb, tt+b, or tt+other events
+    int additionalBJetMode_;
     
     // FIXME: remove this variable which was implemented for testing (and in a different way as it was in TopAnalysis...)
     /// Whether randomly tag b jets or apply an event btag weight
