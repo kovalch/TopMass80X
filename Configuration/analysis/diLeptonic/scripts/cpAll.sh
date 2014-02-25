@@ -27,7 +27,6 @@ echo ""
 ## no unceratinty band will be plotted yet
 ########################
 for i in $plotList; do 
-    echo -n "Unfolding $i - "
     $HISTO -t cp -s MATCH_UP -s MATCH_DOWN -s Nominal -s SCALE_UP -s SCALE_DOWN -s MCATNLO -s POWHEG -p +$i &
     w
 done
@@ -39,7 +38,6 @@ done
 ##   plese notice the ' -b'
 ########################
 for i in $plotList; do 
-    echo -n "Unfolding $i - "
     $HISTO -t cp -s Nominal -p +$i  -b&
     w
 done

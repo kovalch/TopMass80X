@@ -128,7 +128,7 @@ void Plotter::preunfolding(TString Channel, TString Systematic)
 
 void Plotter::DYScaleFactor(TString SpecialComment){
 
-    DYScale = {1,1,1,1}; 
+    DYScale = {1,1,1,1};
 
     if(!doDYScale || doClosureTest) return; //need to make a switch for control plots that don't want DYScale
 
@@ -726,6 +726,7 @@ void Plotter::setDataSet(TString mode, TString Systematic)
         else if(filename.Contains("wtolnu")){legends.push_back("W+Jets"); colors.push_back(kGreen-3);}
         else if(filename.Contains("qcd")){legends.push_back("QCD Multijet"); colors.push_back(kYellow);}
     }
+    FileList.close();
 }
 
 
@@ -988,6 +989,7 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
             }else if((legends.at(i) == DYEntry)){
                 if (channelType!=2) drawhists[i]->Scale(DYScale[channelType]);
 
+
                 //Here we take into account the systematic shifts needed for DY systematic because it only modifies the nominal dataset
                 if(Systematic == "DY_UP"){
                     drawhists[i]->Scale(1.3);
@@ -1011,7 +1013,7 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
         if(i > 1){
             if(legends.at(i) != legends.at(i-1)){
                 legchange = i;
-                if((legends.at(i) == DYEntry)&& DYScale[channelType] != 1) leg->AddEntry(drawhists[i], legends.at(i),"f");
+                if((legends.at(i) == DYEntry)&& DYScale.at(channelType) != 1) leg->AddEntry(drawhists[i], legends.at(i),"f");
                 else leg->AddEntry(drawhists[i], legends.at(i) ,"f");
             }else{
                 drawhists[legchange]->Add(drawhists[i]);
@@ -1188,6 +1190,7 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
     c->Clear();
 
     for (TH1* h : drawhists) delete h;
+//     if(uncBand) delete uncBand;
 }
 
 void Plotter::setStyle(TH1 *hist, unsigned int i, bool isControlPlot)
@@ -1629,7 +1632,7 @@ double Plotter::CalcXSec(std::vector<TString> datasetVec, double InclusiveXsecti
         }
         else {
             if((legends.at(i) == DYEntry) && channelType!=2){
-                numhists[i]->Scale(DYScale[channelType]);
+                numhists[i]->Scale(DYScale.at(channelType));
             }
             if((legends.at(i) == DYEntry) && Systematic.Contains("DY_") && Shift == "Up"){
                 numhists[i]->Scale(1.3);
@@ -2056,8 +2059,8 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
         varhistsPlotting[i]=(TH1*)varhists[i]->Clone();
         if(legends.at(i) != "Data"){
             if((legends.at(i) == DYEntry) && channelType!=2){
-                varhists[i]->Scale(DYScale[channelType]);
-                varhistsPlotting[i]->Scale(DYScale[channelType]);
+                varhists[i]->Scale(DYScale.at(channelType));
+                varhistsPlotting[i]->Scale(DYScale.at(channelType));
             }
 
             if(i!=(hists.size()-1)){
@@ -2076,7 +2079,7 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
             if(i > 1){
                 if(legends.at(i) != legends.at(i-1)){
                     legchange = i;
-                    if( (legends.at(i) == DYEntry) && DYScale[channelType]!= 1){
+                    if( (legends.at(i) == DYEntry) && DYScale.at(channelType)!= 1){
                         leg->AddEntry(varhistsPlotting[i], legends.at(i), "f");
                     }
                     else leg->AddEntry(varhistsPlotting[i], legends.at(i) ,"f");
@@ -2767,6 +2770,7 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
         leg2->AddEntry(h_DiffXSec, "Data", "p");
     }
 
+    setTheoryStyleAndFillLegend(h_DiffXSec, "madgraph");
     setTheoryStyleAndFillLegend(madgraphhist, "madgraph");
     setTheoryStyleAndFillLegend(madgraphhistBinned, "madgraph", leg2);
     madgraphhistBinned->GetXaxis()->SetTitle(varhists[0]->GetXaxis()->GetTitle());
@@ -3088,7 +3092,8 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
     delete c1;
     delete stacksum;
     for (unsigned int i =0; i<hists.size(); i++){
-//         delete varhists[i];
+        delete varhists[i];
+        delete varhistsPlotting.at(i);
     }
 }
 
@@ -3145,8 +3150,8 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
         varhistsPlotting[i]=(TH1*)varhists[i]->Clone();
         if(legends.at(i) != "Data"){
             if((legends.at(i) == DYEntry) && channelType!=2){
-                varhists[i]->Scale(DYScale[channelType]);
-                varhistsPlotting[i]->Scale(DYScale[channelType]);
+                varhists[i]->Scale(DYScale.at(channelType));
+                varhistsPlotting[i]->Scale(DYScale.at(channelType));
             }
 
             if(i!=(hists.size()-1)){
@@ -3162,7 +3167,7 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
             if(i > 1){
                 if(legends.at(i) != legends.at(i-1)){
                     legchange = i;
-                    if( (legends.at(i) == DYEntry) && DYScale[channelType]!= 1){
+                    if( (legends.at(i) == DYEntry) && DYScale.at(channelType)!= 1){
                         leg->AddEntry(varhistsPlotting[i], legends.at(i), "f");
                     } else {
                         leg->AddEntry(varhistsPlotting[i], legends.at(i) ,"f");
@@ -3655,6 +3660,7 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
         leg2->AddEntry(h_DiffXSec, "Data", "p");
     }
 
+    setTheoryStyleAndFillLegend(h_DiffXSec, "madgraph");
     setTheoryStyleAndFillLegend(madgraphhist, "madgraph");
     setTheoryStyleAndFillLegend(madgraphhistBinned, "madgraph", leg2);
     madgraphhistBinned->GetXaxis()->SetTitle(varhists[0]->GetXaxis()->GetTitle());
@@ -3924,6 +3930,7 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
     delete stacksum;
     for (unsigned int i =0; i<hists.size(); i++){
         delete varhists[i];
+        delete varhistsPlotting.at(i);
     }
 }
 
@@ -4548,16 +4555,18 @@ double Plotter::CalculateIntegral(TGraphAsymmErrors *tga_DiffXSecPlot, double Xb
 
 void Plotter::setTheoryStyleAndFillLegend(TH1* histo, TString theoryName, TLegend *leg){
 
-    histo->GetXaxis()->SetTitleOffset(1.0);
-    histo->GetYaxis()->SetTitleOffset(1.6);
+    histo->GetXaxis()->SetTitleOffset(1.08);
     histo->GetXaxis()->SetTitleSize(0.05);
-    histo->GetYaxis()->SetTitleSize(0.05);
     histo->GetXaxis()->SetLabelFont(42);
-    histo->GetYaxis()->SetLabelFont(42);
     histo->GetXaxis()->SetLabelOffset(0.007);
-    histo->GetYaxis()->SetLabelOffset(0.007);
     histo->GetXaxis()->SetLabelSize(0.04);
+
+    histo->GetYaxis()->SetTitleOffset(1.7);
+    histo->GetYaxis()->SetTitleSize(0.05);
+    histo->GetYaxis()->SetLabelFont(42);
+    histo->GetYaxis()->SetLabelOffset(0.007);
     histo->GetYaxis()->SetLabelSize(0.04);
+
     histo->SetLineWidth(2);
 
     if(theoryName == "madgraph"){
@@ -4655,6 +4664,7 @@ void Plotter::getSignalUncertaintyBand(TH1* uncBand, TString channel_)
         // This lines crashes the code, some probles arises form the HistoListReader class
         TH1D *tmpUp = fileReader->GetClone<TH1D>(file_up, name+"_allmc", 1);
         TH1D *tmpDo = fileReader->GetClone<TH1D>(file_do, name+"_allmc", 1);
+
         if(!tmpUp && tmpDo){ delete tmpDo; continue;}
         if(tmpUp && !tmpDo){ delete tmpUp; continue;}
         if(!tmpUp && !tmpDo) continue;
