@@ -31,6 +31,7 @@ class IdeogramAnalyzerMinimizer : public MassAnalyzer {
   
   DataSample& sample_;
   int channelID_;
+  int entries_;
   double isFastSim_;
   double shapeSystematic_;
   double permutationFractionSystematic_;

@@ -11,7 +11,8 @@ class RandomSubsetCreator;
 class Analysis {
  private:
 
-  const std::string samplePath_, fIdentifier_, fMethod_, fBinning_;
+  const std::string samplePath_, fIdentifier_, fMethod_;
+  std::string fBinning_;
   const std::vector<float> vBinning_;
   const int fChannelID_, fMethodID_;
   MassAnalyzer* fAnalyzer_;

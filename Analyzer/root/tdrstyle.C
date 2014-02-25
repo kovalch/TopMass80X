@@ -157,7 +157,7 @@ TStyle* setTDRStyle() {
   return tdrStyle;
 }
 
-void DrawLabel(TString text, const double x1, const double y1, const double x2, Color_t color = kBlack)
+TPaveLabel* DrawLabel(TString text, const double x1, const double y1, const double x2, Color_t color = kBlack)
 {
   // function to directly draw a label into the active canvas
   double y2 = y1 + 0.05;
@@ -169,6 +169,8 @@ void DrawLabel(TString text, const double x1, const double y1, const double x2, 
   label->SetTextAlign(12);
   label->SetTextColor(color);
   label->Draw("same");
+  
+  return label;
 }
 
 void DrawCMSPrel() {

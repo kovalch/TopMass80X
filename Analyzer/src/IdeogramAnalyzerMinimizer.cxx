@@ -81,6 +81,7 @@ void IdeogramAnalyzerMinimizer::Scan(const std::string& cuts, int iBin, int jBin
   
   {
     // Set Likelihood parameters
+    entries_   = 0;
     int iEvent = 0;
     for (const auto& event : sample_.events) {
       
@@ -94,6 +95,8 @@ void IdeogramAnalyzerMinimizer::Scan(const std::string& cuts, int iBin, int jBin
         int bin        = event.permutations.at(iComb).bin;
         
         if (bin != iBin) continue;
+
+        ++entries_;
 
         if (prob != 0) {
           eventFunctions_[iEvent][iComb]->SetFixedParams(prob, topMass, wMass, abs(leptonFlavour), shapeSystematic_, permutationFractionSystematic_, isFastSim_);
@@ -189,6 +192,7 @@ void IdeogramAnalyzerMinimizer::IterateVariableCombinations(ROOT::Math::Minimize
     else if(toFit[i] == kFSig) { SetValue("fSig"+nameFreeVariables, min->X()[2], min->Errors()[2]); }
     else if(toFit[i] == kFCP ) { SetValue("fCP" +nameFreeVariables, min->X()[3], min->Errors()[3]); }
   }
+  SetValue("Entries", entries_, sqrt(entries_));
 
   // DRAW
   if (po::GetOption<bool>("minPlot")) {
