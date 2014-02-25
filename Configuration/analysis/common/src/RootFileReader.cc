@@ -17,13 +17,13 @@
 RootFileReader::~RootFileReader()
 {
 //     std::cout << "Deleting RootFileReader\n";
-//     for(const auto& i : fileMap){
+//     for(const auto& i : fileMap_){
 //         delete i.second;
 //     }
-//     for(const auto& i : accessed){
+//     for(const auto& i : accessed_){
 //         std::cout << "accessed: " << i.first << " " << i.second << std::endl;
 //     }
-//     for(const auto& i : opened){
+//     for(const auto& i : opened_){
 //         std::cout << "opened: " << i.first << " " << i.second << std::endl;
 //     }
 }
@@ -43,7 +43,7 @@ TObject* RootFileReader::GetObj(const TString& filename, const TString& histonam
     }
     inputFileStream.close();
 
-    TFile* file = fileMap_[filename];
+    auto& file = fileMap_[filename];
     if(!file){
         file = TFile::Open(filename);
         ++opened_[filename];
