@@ -1190,7 +1190,7 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
     c->Clear();
 
     for (TH1* h : drawhists) delete h;
-    if(uncBand) delete uncBand;
+//     if(uncBand) delete uncBand;
 }
 
 void Plotter::setStyle(TH1 *hist, unsigned int i, bool isControlPlot)
@@ -3092,7 +3092,8 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
     delete c1;
     delete stacksum;
     for (unsigned int i =0; i<hists.size(); i++){
-//         delete varhists[i];
+        delete varhists[i];
+        delete varhistsPlotting.at(i);
     }
 }
 
@@ -3929,6 +3930,7 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
     delete stacksum;
     for (unsigned int i =0; i<hists.size(); i++){
         delete varhists[i];
+        delete varhistsPlotting.at(i);
     }
 }
 
@@ -4662,6 +4664,7 @@ void Plotter::getSignalUncertaintyBand(TH1* uncBand, TString channel_)
         // This lines crashes the code, some probles arises form the HistoListReader class
         TH1D *tmpUp = fileReader->GetClone<TH1D>(file_up, name+"_allmc", 1);
         TH1D *tmpDo = fileReader->GetClone<TH1D>(file_do, name+"_allmc", 1);
+
         if(!tmpUp && tmpDo){ delete tmpDo; continue;}
         if(tmpUp && !tmpDo){ delete tmpUp; continue;}
         if(!tmpUp && !tmpDo) continue;
