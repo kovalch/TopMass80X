@@ -9,7 +9,7 @@ namespace TMVA{
     class Reader;
 }
 
-#include "mvaStructs.h"
+#include "MvaVariablesTopJets.h"
 
 
 
@@ -35,7 +35,7 @@ public:
     
     
     /// Get the MVA weights for all jet pairs from weights file
-    std::vector<float> mvaWeights(const std::vector<MvaTopJetsVariables>& v_mvaTopJetsVariables);
+    std::vector<float> mvaWeights(const std::vector<MvaVariablesTopJets>& v_mvaTopJetsVariables);
     
     
     
@@ -63,13 +63,13 @@ private:
     
     
     /// Storage of all entries for the MVA
-    std::vector<MvaTopJetsVariablesPerEvent> v_mvaTopJetsVariablesPerEvent_;
+    std::vector<MvaVariablesTopJetsPerEvent> v_mvaTopJetsVariablesPerEvent_;
     
     /// Pointer to TMVA Reader, i.e. tool for reading in MVA weights
     TMVA::Reader* mvaWeightsReader_;
     
     /// Struct for setting addresses of variables for mvaWeightsReader_
-    MvaTopJetsVariables mvaTopJetsVariables_;
+    MvaVariablesTopJets mvaTopJetsVariables_;
 };
 
 

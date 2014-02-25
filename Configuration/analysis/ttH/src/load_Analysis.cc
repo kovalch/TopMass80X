@@ -408,7 +408,8 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
 
 
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
     CLParameter<std::string> opt_filenamePattern("f", "Restrict to filename pattern, e.g. ttbar", false, 1, 1);
     CLParameter<std::string> opt_channel("c", "Specify a certain channel (ee, emu, mumu). No channel specified = run on all channels", false, 1, 1,
             common::makeStringCheck(Channel::convertChannels(Channel::allowedChannelsAnalysis)));
@@ -418,7 +419,7 @@ int main(int argc, char** argv) {
             [](int dy){return dy==11 || dy==13 || dy==15;});
     CLParameter<int> opt_jetCategoriesId("j", "ID for jet categories (# jets, # b-jets). If not specified, use default categories (=0)", false, 1, 1,
             [](int id){return id>=0 && id<=3;});
-    CLParameter<std::string> opt_mode("m", "Mode of analysis: control plots (cp), Produce MVA input (mvaP), Apply MVA weights (mvaA), dijet analyser (dijet), playground (playg), charge analyser (charge), jet match analyser (match). Default is cp", false, 1, 100,
+    CLParameter<std::string> opt_mode("m", "Mode of analysis: control plots (cp), Produce MVA input (mvaP), Apply MVA weights (mvaA), dijet analyser (dijet), playground (playg), jet charge analyser (charge), jet match analyser (match). Default is cp", false, 1, 100,
             common::makeStringCheck(AnalysisMode::convertAnalysisModes(AnalysisMode::allowedAnalysisModes)));
     CLParameter<Long64_t> opt_maxEvents("maxEvents", "Maximum number of events to process", false, 1, 1,
             [](const Long64_t mE){return mE > 0;});

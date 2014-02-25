@@ -6,7 +6,7 @@
 #include <TMVA/Reader.h>
 
 #include "MvaReader.h"
-#include "mvaStructs.h"
+#include "MvaVariablesTopJets.h"
 
 
 
@@ -25,7 +25,7 @@ mvaWeightsReader_(0)
     else{
         mvaWeightsReader_ = new TMVA::Reader("Color");
 
-        MvaTopJetsVariables& mvaTopJetsVariables = mvaTopJetsVariables_;
+        MvaVariablesTopJets& mvaTopJetsVariables = mvaTopJetsVariables_;
         
         this->addVariable(mvaTopJetsVariables.jetChargeDiff_);
         this->addVariable(mvaTopJetsVariables.meanDeltaPhi_b_met_);
@@ -93,11 +93,11 @@ void MvaReader::clear()
 
 
 
-std::vector<float> MvaReader::mvaWeights(const std::vector<MvaTopJetsVariables>& v_mvaTopJetsVariables)
+std::vector<float> MvaReader::mvaWeights(const std::vector<MvaVariablesTopJets>& v_mvaTopJetsVariables)
 {
     std::vector<float> result;
     
-    for(const MvaTopJetsVariables& mvaTopJetsVariables : v_mvaTopJetsVariables){
+    for(const MvaVariablesTopJets& mvaTopJetsVariables : v_mvaTopJetsVariables){
         if(!mvaWeightsReader_){
             result.push_back(1.);
             continue;

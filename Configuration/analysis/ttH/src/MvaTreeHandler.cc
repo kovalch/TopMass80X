@@ -9,10 +9,11 @@
 #include <TSelectorList.h>
 #include <TIterator.h>
 #include <TObject.h>
+#include <TList.h>
 #include <Rtypes.h>
 
 #include "MvaTreeHandler.h"
-#include "mvaStructs.h"
+#include "MvaVariablesTopJets.h"
 #include "analysisStructs.h"
 #include "JetCategories.h"
 #include "higgsUtils.h"
@@ -78,7 +79,7 @@ void MvaTreeHandler::addStep(const TString& step)
     }
 
     // Book the step
-    m_stepMvaVariables_[step] = std::vector<MvaTopJetsVariables>();
+    m_stepMvaVariables_[step] = std::vector<MvaVariablesTopJets>();
 }
 
 
@@ -111,8 +112,8 @@ void MvaTreeHandler::fill(const RecoObjects& recoObjects,
     if(!stepExists) return;
     
     // Loop over all jet combinations and get MVA input variables
-    const std::vector<MvaTopJetsVariables>& v_mvaTopJetsVariables = 
-            MvaTopJetsVariables::fillVariables(recoObjectIndices, genObjectIndices, recoObjects, weight);
+    const std::vector<MvaVariablesTopJets>& v_mvaTopJetsVariables = 
+            MvaVariablesTopJets::fillVariables(recoObjectIndices, genObjectIndices, recoObjects, weight);
     
     // Fill the MVA variables
     m_stepMvaVariables_.at(step).insert(m_stepMvaVariables_.at(step).end(), v_mvaTopJetsVariables.begin(), v_mvaTopJetsVariables.end());
@@ -155,12 +156,12 @@ void MvaTreeHandler::writeTrees(TSelectorList* output)
     std::map<TString, TTree*> m_stepTree;
     for(const auto& stepMvaVariables : m_stepMvaVariables_){
         const TString& step = stepMvaVariables.first;
-        const std::vector<MvaTopJetsVariables>& v_mvaVariables = stepMvaVariables.second;
+        const std::vector<MvaVariablesTopJets>& v_mvaVariables = stepMvaVariables.second;
         TTree* tree = m_stepTree[step];
         tree = this->store(new TTree("mvaInputTopJets"+step, "mvaInputTopJets"));
         
         // Set up struct for branch handling
-        MvaTopJetsVariables mvaTopJetsVariables;
+        MvaVariablesTopJets mvaTopJetsVariables;
         this->createBranches(tree, mvaTopJetsVariables);
         this->fillBranches(tree, mvaTopJetsVariables, v_mvaVariables);
     }
@@ -175,7 +176,7 @@ void MvaTreeHandler::writeTrees(TSelectorList* output)
 
 
 
-void MvaTreeHandler::createBranches(TTree* tree, const MvaTopJetsVariables& mvaTopJetsVariables)const
+void MvaTreeHandler::createBranches(TTree* tree, const MvaVariablesTopJets& mvaTopJetsVariables)const
 {
     this->createBranch(tree, mvaTopJetsVariables.lastInEvent_);
     this->createBranch(tree, mvaTopJetsVariables.eventWeight_);
@@ -219,8 +220,8 @@ void MvaTreeHandler::createBranch(TTree* tree, const MvaVariableFloat& variable)
 
 
 
-void MvaTreeHandler::fillBranches(TTree* tree, MvaTopJetsVariables& mvaTopJetsVariables,
-                                  const std::vector<MvaTopJetsVariables>& v_mvaTopJetsVariables)const
+void MvaTreeHandler::fillBranches(TTree* tree, MvaVariablesTopJets& mvaTopJetsVariables,
+                                  const std::vector<MvaVariablesTopJets>& v_mvaTopJetsVariables)const
 {
     for(const auto& mvaVariables : v_mvaTopJetsVariables){
         mvaTopJetsVariables = mvaVariables;
@@ -281,10 +282,10 @@ void MvaTreeHandler::importTrees(const std::string& f_savename, const std::strin
 
 
 
-void MvaTreeHandler::importBranches(TTree* tree, std::vector<MvaTopJetsVariables>& v_mvaTopJetsVariables)
+void MvaTreeHandler::importBranches(TTree* tree, std::vector<MvaVariablesTopJets>& v_mvaTopJetsVariables)
 {
     // Set up variables struct and branches
-    MvaTopJetsVariables mvaTopJetsVariables;
+    MvaVariablesTopJets mvaTopJetsVariables;
     
     // Set branch addresses
     this->importBranch(tree, mvaTopJetsVariables.lastInEvent_);
@@ -329,7 +330,7 @@ void MvaTreeHandler::importBranch(TTree* tree, MvaVariableFloat& variable)
 
 
 
-const std::map<TString, std::vector<MvaTopJetsVariables> >& MvaTreeHandler::stepMvaVariablesMap()const
+const std::map<TString, std::vector<MvaVariablesTopJets> >& MvaTreeHandler::stepMvaVariablesMap()const
 {
     return m_stepMvaVariables_;
 }

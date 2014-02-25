@@ -9,13 +9,13 @@
 #include <TH1D.h>
 
 #include "MvaTreeAnalyzer.h"
-#include "mvaStructs.h"
+#include "MvaVariablesTopJets.h"
 
 
 
 
 
-MvaTreeAnalyzer::MvaTreeAnalyzer(const std::map<TString, std::vector<MvaTopJetsVariables> >& m_stepMvaVariables,
+MvaTreeAnalyzer::MvaTreeAnalyzer(const std::map<TString, std::vector<MvaVariablesTopJets> >& m_stepMvaVariables,
                                  const bool separationPowerPlots):
 selectorList_(0),
 m_stepMvaVariables_(m_stepMvaVariables),
@@ -71,7 +71,7 @@ void MvaTreeAnalyzer::plotVariables(TSelectorList* output)
     // Loop over steps and plot all histograms
     for(const auto& stepMvaVariables : m_stepMvaVariables_){
         const TString& step(stepMvaVariables.first);
-        const std::vector<MvaTopJetsVariables>& v_mvaTopJetsVariables(stepMvaVariables.second);
+        const std::vector<MvaVariablesTopJets>& v_mvaTopJetsVariables(stepMvaVariables.second);
         this->plotStep(step, v_mvaTopJetsVariables);
     }
     
@@ -80,9 +80,9 @@ void MvaTreeAnalyzer::plotVariables(TSelectorList* output)
 
 
 
-void MvaTreeAnalyzer::plotStep(const TString& step, const std::vector<MvaTopJetsVariables>& v_mvaTopJetsVariables)
+void MvaTreeAnalyzer::plotStep(const TString& step, const std::vector<MvaVariablesTopJets>& v_mvaTopJetsVariables)
 {    
-    const MvaTopJetsVariables nameDummy;
+    const MvaVariablesTopJets nameDummy;
     constexpr const char* prefix = "mvaP_";
     std::map<TString, TH1*>& m_histogram = m_stepHistograms_[step].m_histogram_;
     TString name;
@@ -135,7 +135,7 @@ void MvaTreeAnalyzer::plotStep(const TString& step, const std::vector<MvaTopJets
     
     
     // Fill histograms
-    for(const MvaTopJetsVariables& mvaTopJetsVariables : v_mvaTopJetsVariables){
+    for(const MvaVariablesTopJets& mvaTopJetsVariables : v_mvaTopJetsVariables){
         
         const double weight(mvaTopJetsVariables.eventWeight_.value_);
         
@@ -223,7 +223,7 @@ void MvaTreeAnalyzer::bookHistosInclExcl(std::map<TString, TH1*>& m_histogram, c
 
 void MvaTreeAnalyzer::fillHistosInclExcl(std::map<TString, TH1*>& m_histogram, const TString& name,
                                         const double& variable,
-                                        const MvaTopJetsVariables& mvaTopJetsVariables, const double& weight)
+                                        const MvaVariablesTopJets& mvaTopJetsVariables, const double& weight)
 {
     const TString correct("correct_");
     const TString swapped("swapped_");

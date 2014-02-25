@@ -14,7 +14,7 @@
 
 #include "AnalyzerMvaTopJets.h"
 #include "MvaReader.h"
-#include "mvaStructs.h"
+#include "MvaVariablesTopJets.h"
 #include "analysisStructs.h"
 #include "JetCategories.h"
 #include "../../common/include/analysisObjectStructs.h"
@@ -258,8 +258,8 @@ void AnalyzerMvaTopJets::fillHistosPerSet(const RecoObjects& recoObjects, const 
     }
 
     // Loop over all jet combinations and get MVA input variables
-    const std::vector<MvaTopJetsVariables> v_mvaTopJetsVariables =
-            MvaTopJetsVariables::fillVariables(recoObjectIndices, genObjectIndices, recoObjects, weight);
+    const std::vector<MvaVariablesTopJets> v_mvaTopJetsVariables =
+            MvaVariablesTopJets::fillVariables(recoObjectIndices, genObjectIndices, recoObjects, weight);
 
     // Get the MVA weights from file, one entry per jet pair
     std::map<std::string, std::vector<float> > m_weightsCorrect;
@@ -280,7 +280,7 @@ void AnalyzerMvaTopJets::fillHistosPerSet(const RecoObjects& recoObjects, const 
     }
 
     // Fill all variables and associated MVA weights per event
-    const MvaTopJetsVariablesPerEvent mvaTopJetsVariablesPerEvent(v_mvaTopJetsVariables,m_weightsCorrect, m_weightsSwapped, m_weightsCombined);
+    const MvaVariablesTopJetsPerEvent mvaTopJetsVariablesPerEvent(v_mvaTopJetsVariables,m_weightsCorrect, m_weightsSwapped, m_weightsCombined);
 
     // Fill correct trainings
     for(const auto& mvaWeights : mvaTopJetsVariablesPerEvent.mvaWeightsCorrectMap()){
@@ -325,7 +325,7 @@ void AnalyzerMvaTopJets::fillHistosPerSet(const RecoObjects& recoObjects, const 
 
 
 
-void AnalyzerMvaTopJets::fillWeightHistos(const MvaTopJetsVariablesPerEvent& mvaTopJetsVariablesPerEvent,
+void AnalyzerMvaTopJets::fillWeightHistos(const MvaVariablesTopJetsPerEvent& mvaTopJetsVariablesPerEvent,
                                           const std::vector<float>& v_mvaWeight, const size_t maxWeightIndex,
                                           const double& weight, const tth::RecoObjectIndices& recoObjectIndices, 
                                           const tth::GenObjectIndices& genObjectIndices, std::map<TString, TH1*>& m_histogram,
@@ -342,7 +342,7 @@ void AnalyzerMvaTopJets::fillWeightHistos(const MvaTopJetsVariablesPerEvent& mva
     double weight_top=-100.;
     double weight_higgs=-100.;
     for(size_t index = 0; index<mvaTopJetsVariablesPerEvent.variables().size(); ++index){
-        const MvaTopJetsVariables& mvaTopJetsVariables = mvaTopJetsVariablesPerEvent.variables().at(index);
+        const MvaVariablesTopJets& mvaTopJetsVariables = mvaTopJetsVariablesPerEvent.variables().at(index);
 
         const bool isMaxWeight = index == maxWeightIndex;
 
@@ -513,7 +513,7 @@ void AnalyzerMvaTopJets::bookHistosInclExcl2D(std::map<TString, TH1*>& m_histogr
 
 void AnalyzerMvaTopJets::fillHistosInclExcl(std::map<TString, TH1*>& m_histogram, const TString& name,
                                             const float& variable,
-                                            const MvaTopJetsVariables& mvaTopJetsVariables, const double& weight)
+                                            const MvaVariablesTopJets& mvaTopJetsVariables, const double& weight)
 {
     const TString correct("_correct");
     const TString swapped("_swapped");
@@ -530,7 +530,7 @@ void AnalyzerMvaTopJets::fillHistosInclExcl(std::map<TString, TH1*>& m_histogram
 
 void AnalyzerMvaTopJets::fillHistosInclExcl2D(std::map<TString, TH1*>& m_histogram, const TString& name,
                                               const float& variable1, const float& variable2,
-                                              const MvaTopJetsVariables& mvaTopJetsVariables, const double& weight)
+                                              const MvaVariablesTopJets& mvaTopJetsVariables, const double& weight)
 {
     const TString correct("_correct");
     const TString swapped("_swapped");
