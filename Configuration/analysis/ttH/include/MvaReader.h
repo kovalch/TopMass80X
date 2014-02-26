@@ -35,7 +35,7 @@ public:
     
     
     /// Get the MVA weights for all jet pairs from weights file
-    std::vector<float> mvaWeights(const std::vector<MvaVariablesTopJets*>& v_mvaTopJetsVariables);
+    std::vector<float> mvaWeights(const std::vector<MvaVariablesBase*>& v_mvaVariables);
     
     
     
@@ -69,7 +69,7 @@ private:
     TMVA::Reader* mvaWeightsReader_;
     
     /// Struct for setting addresses of variables for mvaWeightsReader_
-    MvaVariablesTopJets* mvaVariablesTopJets_;
+    MvaVariablesBase* mvaVariables_;
 };
 
 

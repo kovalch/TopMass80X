@@ -14,7 +14,7 @@
 
 MvaReader::MvaReader(const char* mvaWeightsFile):
 mvaWeightsReader_(0),
-mvaVariablesTopJets_(0)
+mvaVariables_(0)
 {
     std::cout<<"--- Beginning setting up MVA weights from file\n";
     
@@ -26,26 +26,30 @@ mvaVariablesTopJets_(0)
     else{
         mvaWeightsReader_ = new TMVA::Reader("Color");
         
-        mvaVariablesTopJets_ = new MvaVariablesTopJets();
-        MvaVariablesTopJets* mvaTopJetsVariables = mvaVariablesTopJets_;
+        mvaVariables_ = new MvaVariablesTopJets();
+        MvaVariablesTopJets* mvaVariablesTopJets = dynamic_cast<MvaVariablesTopJets*>(mvaVariables_);
+        if(!mvaVariablesTopJets){
+            std::cerr<<"ERROR in constructor of MvaReader! MvaVariables are of wrong type, cannot typecast\n...break\n"<<std::endl;
+            exit(395);
+        }
         
-        this->addVariable(mvaTopJetsVariables->jetChargeDiff_);
-        this->addVariable(mvaTopJetsVariables->meanDeltaPhi_b_met_);
-        this->addVariable(mvaTopJetsVariables->massDiff_recoil_bbbar_);
-        this->addVariable(mvaTopJetsVariables->pt_b_antiLepton_);
-        this->addVariable(mvaTopJetsVariables->pt_antiB_lepton_);
-        this->addVariable(mvaTopJetsVariables->deltaR_b_antiLepton_);
-        this->addVariable(mvaTopJetsVariables->deltaR_antiB_lepton_);
-        this->addVariable(mvaTopJetsVariables->btagDiscriminatorSum_);
-        this->addVariable(mvaTopJetsVariables->deltaPhi_antiBLepton_bAntiLepton_);
-        this->addVariable(mvaTopJetsVariables->massDiff_fullBLepton_bbbar_);
-        this->addVariable(mvaTopJetsVariables->meanMt_b_met_);
-        this->addVariable(mvaTopJetsVariables->massSum_antiBLepton_bAntiLepton_);
-        this->addVariable(mvaTopJetsVariables->massDiff_antiBLepton_bAntiLepton_);
+        this->addVariable(mvaVariablesTopJets->jetChargeDiff_);
+        this->addVariable(mvaVariablesTopJets->meanDeltaPhi_b_met_);
+        this->addVariable(mvaVariablesTopJets->massDiff_recoil_bbbar_);
+        this->addVariable(mvaVariablesTopJets->pt_b_antiLepton_);
+        this->addVariable(mvaVariablesTopJets->pt_antiB_lepton_);
+        this->addVariable(mvaVariablesTopJets->deltaR_b_antiLepton_);
+        this->addVariable(mvaVariablesTopJets->deltaR_antiB_lepton_);
+        this->addVariable(mvaVariablesTopJets->btagDiscriminatorSum_);
+        this->addVariable(mvaVariablesTopJets->deltaPhi_antiBLepton_bAntiLepton_);
+        this->addVariable(mvaVariablesTopJets->massDiff_fullBLepton_bbbar_);
+        this->addVariable(mvaVariablesTopJets->meanMt_b_met_);
+        this->addVariable(mvaVariablesTopJets->massSum_antiBLepton_bAntiLepton_);
+        this->addVariable(mvaVariablesTopJets->massDiff_antiBLepton_bAntiLepton_);
         
-        this->addSpectator(mvaTopJetsVariables->bQuarkRecoJetMatched_);
-        this->addSpectator(mvaTopJetsVariables->correctCombination_);
-        this->addSpectator(mvaTopJetsVariables->swappedCombination_);
+        this->addSpectator(mvaVariablesTopJets->bQuarkRecoJetMatched_);
+        this->addSpectator(mvaVariablesTopJets->correctCombination_);
+        this->addSpectator(mvaVariablesTopJets->swappedCombination_);
         
         // FIXME: what is first argument, should it be "BDTG" or "BDT method" ???
         mvaWeightsReader_->BookMVA("BDT method", mvaWeightsFile);
@@ -95,16 +99,29 @@ void MvaReader::clear()
 
 
 
-std::vector<float> MvaReader::mvaWeights(const std::vector<MvaVariablesTopJets*>& v_mvaTopJetsVariables)
+std::vector<float> MvaReader::mvaWeights(const std::vector<MvaVariablesBase*>& v_mvaVariables)
 {
     std::vector<float> result;
     
-    for(MvaVariablesTopJets* mvaTopJetsVariables : v_mvaTopJetsVariables){
+    for(MvaVariablesBase* mvaVariablesTmp : v_mvaVariables){
         if(!mvaWeightsReader_){
             result.push_back(1.);
             continue;
         }
-        *mvaVariablesTopJets_ = *mvaTopJetsVariables;
+        
+        MvaVariablesTopJets* mvaVariablesTopJetsTmp = dynamic_cast<MvaVariablesTopJets*>(mvaVariablesTmp);
+        if(!mvaVariablesTopJetsTmp){
+            std::cerr<<"ERROR in MvaReader::mvaWeights()! MvaVariables are of wrong type, cannot typecast\n...break\n"<<std::endl;
+            exit(395);
+        }
+        
+        MvaVariablesTopJets* const mvaVariablesTopJets = dynamic_cast<MvaVariablesTopJets* const>(mvaVariables_);
+        if(!mvaVariablesTopJets){
+            std::cerr<<"ERROR in MvaReader::mvaWeights()! MvaVariables are of wrong type, cannot typecast\n...break\n"<<std::endl;
+            exit(395);
+        }
+        
+        *mvaVariablesTopJets = *mvaVariablesTopJetsTmp;
         const float weight = mvaWeightsReader_->EvaluateMVA("BDT method");
         result.push_back(weight);
     }

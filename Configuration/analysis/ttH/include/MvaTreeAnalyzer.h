@@ -5,12 +5,15 @@
 #include <string>
 #include <map>
 
+#include <TString.h>
+
 class TSelectorList;
-class TString;
 class TH1;
 
-#include "MvaVariablesTopJets.h"
 #include "../../common/include/storeTemplate.h"
+
+class MvaVariablesBase;
+class MvaVariablesTopJets;
 
 
 
@@ -23,7 +26,7 @@ class MvaTreeAnalyzer{
 public:
     
     /// Constructor for selection steps
-    MvaTreeAnalyzer(const std::map<TString, std::vector<MvaVariablesTopJets*> >& m_stepMvaVariables,
+    MvaTreeAnalyzer(const std::map<TString, std::vector<MvaVariablesBase*> >& m_stepMvaVariables,
                     const bool separationPowerPlots =false);
     
     /// Destructor
@@ -64,7 +67,7 @@ private:
     
     
     /// Book and fill histograms for given selection step
-    void plotStep(const TString& step, const std::vector<MvaVariablesTopJets*>& v_mvaTopJetsVariables);
+    void plotStep(const TString& step, const std::vector<MvaVariablesBase*>& v_mvaVariables);
     
     /// Book 1-D histograms exclusively for correct, swapped and wrong combinations, and inclusively
     void bookHistosInclExcl(std::map<TString, TH1*>& m_histogram, const TString& prefix, const TString& step,
@@ -87,7 +90,7 @@ private:
     TSelectorList* selectorList_;
     
     /// The map containing all the vectors of MVA variables for all selection steps
-    const std::map<TString, std::vector<MvaVariablesTopJets*> >& m_stepMvaVariables_;
+    const std::map<TString, std::vector<MvaVariablesBase*> >& m_stepMvaVariables_;
     
     /// The map containing all the step histograms for all selection steps
     std::map<TString, StepHistograms> m_stepHistograms_;

@@ -80,7 +80,7 @@ public:
     MvaVariablesBase(const double& eventWeight);
     
     /// Destructor
-    ~MvaVariablesBase(){}
+    virtual ~MvaVariablesBase(){}
     
     
     

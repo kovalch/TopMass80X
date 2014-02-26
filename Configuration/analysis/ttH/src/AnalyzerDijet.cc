@@ -883,13 +883,14 @@ std::vector<std::pair<int,int> > AnalyzerDijet::jetPairsFromMVA(std::map<TString
     
     // Setting up the MVA input #################################
     // Loop over all jet combinations and get MVA input variables
-    const std::vector<MvaVariablesTopJets*> v_mvaTopJetsVariables = MvaVariablesTopJets::fillVariables(recoObjectIndices, genObjectIndices, recoObjects, weight);
+    std::vector<MvaVariablesBase*> v_mvaVariables = MvaVariablesTopJets::fillVariables(recoObjectIndices, genObjectIndices, recoObjects, weight);
 
     // Getting the MVA weights from weights file as vector, one entry per jet pair
     std::vector<float> v_mvaWeightsCorrect, v_mvaWeightsSwapped;
-    if(weightsCorrect_) v_mvaWeightsCorrect = weightsCorrect_->mvaWeights(v_mvaTopJetsVariables);
-//     if(weightsSwapped_) v_mvaWeightsSwapped = weightsSwapped_->mvaWeights(v_mvaTopJetsVariables);
-
+    if(weightsCorrect_) v_mvaWeightsCorrect = weightsCorrect_->mvaWeights(v_mvaVariables);
+//     if(weightsSwapped_) v_mvaWeightsSwapped = weightsSwapped_->mvaWeights(v_mvaVariables);
+    MvaVariablesTopJets::clearVariables(v_mvaVariables);
+    
     // Get the indices of the jet pairs and order them by MVA weights, biggest value first
     const tth::IndexPairs& jetIndexPairs = recoObjectIndices.jetIndexPairs_;
 //     printf("nAllJets: %d  nJets: %d  nBJets: %d  nPairs: %d\n", (int)recoObjects.jets_->size(), (int)recoObjectIndices.jetIndices_.size(), (int)recoObjectIndices.bjetIndices_.size(), (int)jetIndexPairs.size() );

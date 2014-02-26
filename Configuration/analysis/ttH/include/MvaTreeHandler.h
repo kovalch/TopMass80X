@@ -10,7 +10,7 @@
 class TTree;
 class TSelectorList;
 
-#include "MvaVariablesTopJets.h"
+#include "MvaVariablesBase.h"
 #include "../../common/include/storeTemplate.h"
 #include "../../common/include/sampleHelpers.h"
 
@@ -61,7 +61,7 @@ public:
     void writeTrees(TSelectorList* output);
     
     /// Return a constant reference to the map containing all the vectors of MVA variables for all selection steps
-    const std::map<TString, std::vector<MvaVariablesTopJets*> >& stepMvaVariablesMap()const;
+    const std::map<TString, std::vector<MvaVariablesBase*> >& stepMvaVariablesMap()const;
     
     /// Import written TTrees
     void importTrees(const std::string& f_savename, const std::string& prefix ="");
@@ -87,7 +87,7 @@ private:
     bool checkExistence(const TString& step)const;
     
     /// Create branches for TTree holding the input variables for MVA
-    void createBranches(TTree* tree, const MvaVariablesTopJets* mvaTopJetsVariables)const;
+    void createBranches(TTree* tree, const MvaVariablesBase* mvaVariables)const;
     
     /// Create single branch for TTree based on MvaInputVariables structs of type int
     void createBranch(TTree* tree, const MvaVariableInt& variable)const;
@@ -96,11 +96,11 @@ private:
     void createBranch(TTree* tree, const MvaVariableFloat& variable)const;
     
     /// Fill branches of MVA input TTree
-    void fillBranches(TTree* tree, MvaVariablesTopJets* const mvaTopJetsVariables,
-                      const std::vector<MvaVariablesTopJets*>& v_mvaTopJetsVariables)const;
+    void fillBranches(TTree* tree, MvaVariablesBase* const mvaVariables,
+                      const std::vector<MvaVariablesBase*>& v_mvaVariables)const;
     
     /// Import all branches from TTree
-    void importBranches(TTree* tree, std::vector<MvaVariablesTopJets*>& mvaTopJetsVariables);
+    void importBranches(TTree* tree, std::vector<MvaVariablesBase*>& mvaVariables);
     
     /// Import branch of type Int_t
     void importBranch(TTree* tree, MvaVariableInt& variable);
@@ -114,7 +114,7 @@ private:
     TSelectorList* selectorList_;
     
     /// The map containing all the vectors of MVA variables for all selection steps
-    std::map<TString, std::vector<MvaVariablesTopJets*> > m_stepMvaVariables_;
+    std::map<TString, std::vector<MvaVariablesBase*> > m_stepMvaVariables_;
     
     /// Selection steps for which to run the MVA tool
     const std::vector<TString> selectionSteps_;

@@ -258,17 +258,17 @@ void AnalyzerMvaTopJets::fillHistosPerSet(const RecoObjects& recoObjects, const 
     }
 
     // Loop over all jet combinations and get MVA input variables
-    std::vector<MvaVariablesTopJets*> v_mvaVariablesTopJets =
+    std::vector<MvaVariablesBase*> v_mvaVariables =
             MvaVariablesTopJets::fillVariables(recoObjectIndices, genObjectIndices, recoObjects, weight);
 
     // Get the MVA weights from file, one entry per jet pair
     std::map<std::string, std::vector<float> > m_weightsCorrect;
     for(const auto& weights : mvaWeightsStruct.correctWeights()){
-        m_weightsCorrect[weights.first] = weights.second->mvaWeights(v_mvaVariablesTopJets);
+        m_weightsCorrect[weights.first] = weights.second->mvaWeights(v_mvaVariables);
     }
     std::map<std::string, std::vector<float> > m_weightsSwapped;
     for(const auto& weights : mvaWeightsStruct.swappedWeights()){
-        m_weightsSwapped[weights.first] = weights.second->mvaWeights(v_mvaVariablesTopJets);
+        m_weightsSwapped[weights.first] = weights.second->mvaWeights(v_mvaVariables);
     }
     std::map<std::string, std::map<std::string, std::vector<float> > > m_weightsCombined;
     for(const auto& weights1 : mvaWeightsStruct.combinedWeights()){
@@ -280,7 +280,7 @@ void AnalyzerMvaTopJets::fillHistosPerSet(const RecoObjects& recoObjects, const 
     }
 
     // Fill all variables and associated MVA weights per event
-    const MvaVariablesTopJetsPerEvent mvaVariablesTopJetsPerEvent(v_mvaVariablesTopJets, m_weightsCorrect, m_weightsSwapped, m_weightsCombined);
+    const MvaVariablesTopJetsPerEvent mvaVariablesTopJetsPerEvent(v_mvaVariables, m_weightsCorrect, m_weightsSwapped, m_weightsCombined);
 
     // Fill correct trainings
     for(const auto& mvaWeights : mvaVariablesTopJetsPerEvent.mvaWeightsCorrectMap()){
@@ -323,12 +323,12 @@ void AnalyzerMvaTopJets::fillHistosPerSet(const RecoObjects& recoObjects, const 
     }
     
     // Cleanup
-    MvaVariablesTopJets::clearVariables(v_mvaVariablesTopJets);
+    MvaVariablesTopJets::clearVariables(v_mvaVariables);
 }
 
 
 
-void AnalyzerMvaTopJets::fillWeightHistos(const MvaVariablesTopJetsPerEvent& mvaTopJetsVariablesPerEvent,
+void AnalyzerMvaTopJets::fillWeightHistos(const MvaVariablesTopJetsPerEvent& mvaVariablesTopJetsPerEvent,
                                           const std::vector<float>& v_mvaWeight, const size_t maxWeightIndex,
                                           const double& weight, const tth::RecoObjectIndices& recoObjectIndices, 
                                           const tth::GenObjectIndices& genObjectIndices, std::map<TString, TH1*>& m_histogram,
@@ -344,36 +344,39 @@ void AnalyzerMvaTopJets::fillWeightHistos(const MvaVariablesTopJetsPerEvent& mva
     
     double weight_top=-100.;
     double weight_higgs=-100.;
-    for(size_t index = 0; index<mvaTopJetsVariablesPerEvent.variables().size(); ++index){
-        const MvaVariablesTopJets* mvaTopJetsVariables = mvaTopJetsVariablesPerEvent.variables().at(index);
-
+    for(size_t index = 0; index<mvaVariablesTopJetsPerEvent.variables().size(); ++index){
+        const MvaVariablesTopJets* mvaVariablesTopJets = dynamic_cast<const MvaVariablesTopJets*>(mvaVariablesTopJetsPerEvent.variables().at(index));
+        if(!mvaVariablesTopJets){
+            std::cerr<<"ERROR in AnalyzerMvaTopJets::fillWeightHistos()! MvaVariables are of wrong type, cannot typecast\n...break\n"<<std::endl;
+            exit(395);
+        }
+        
         const bool isMaxWeight = index == maxWeightIndex;
-
-
+        
+        
         name = "mvaWeight"+mvaType+mvaConfigName;
-        this->fillHistosInclExcl(m_histogram, name, v_mvaWeight.at(index), mvaTopJetsVariables, weight);
-
+        this->fillHistosInclExcl(m_histogram, name, v_mvaWeight.at(index), mvaVariablesTopJets, weight);
+        
         name = "mvaWeight"+mvaType+"_best"+mvaType+mvaConfigName;
-        if(isMaxWeight) this->fillHistosInclExcl(m_histogram, name, v_mvaWeight.at(index), mvaTopJetsVariables, weight);
-
+        if(isMaxWeight) this->fillHistosInclExcl(m_histogram, name, v_mvaWeight.at(index), mvaVariablesTopJets, weight);
+        
         if(mvaType == "Combined"){
-            const float weightCorrect = mvaTopJetsVariablesPerEvent.mvaWeightsCorrect(mvaConfigName1).at(index);
-            const float weightSwapped = mvaTopJetsVariablesPerEvent.mvaWeightsSwapped(mvaConfigName2).at(index);
+            const float weightCorrect = mvaVariablesTopJetsPerEvent.mvaWeightsCorrect(mvaConfigName1).at(index);
+            const float weightSwapped = mvaVariablesTopJetsPerEvent.mvaWeightsSwapped(mvaConfigName2).at(index);
             name = "mvaWeightCorrectVsSwapped"+mvaConfigName;
-            this->fillHistosInclExcl2D(m_histogram, name, weightCorrect, weightSwapped, mvaTopJetsVariables, weight);
-
+            this->fillHistosInclExcl2D(m_histogram, name, weightCorrect, weightSwapped, mvaVariablesTopJets, weight);
+            
             if(index==0){
-                const float maxWeightCorrect = mvaTopJetsVariablesPerEvent.maxWeightCorrect(mvaConfigName1);
-                const float maxWeightSwapped = mvaTopJetsVariablesPerEvent.maxWeightSwapped(mvaConfigName2);
+                const float maxWeightCorrect = mvaVariablesTopJetsPerEvent.maxWeightCorrect(mvaConfigName1);
+                const float maxWeightSwapped = mvaVariablesTopJetsPerEvent.maxWeightSwapped(mvaConfigName2);
                 name = "mvaWeightCorrectVsSwapped_bestCorrectBestSwapped"+mvaConfigName;
-                this->fillHistosInclExcl2D(m_histogram, name, maxWeightCorrect, maxWeightSwapped, mvaTopJetsVariables, weight);
+                this->fillHistosInclExcl2D(m_histogram, name, maxWeightCorrect, maxWeightSwapped, mvaVariablesTopJets, weight);
             }
         }
         if(genObjectIndices.isPairFromTop(jetIndexPairs.at(index).first, jetIndexPairs.at(index).second)) weight_top=v_mvaWeight.at(index);
         if(genObjectIndices.isPairFromHiggs(jetIndexPairs.at(index).first, jetIndexPairs.at(index).second)) weight_higgs=v_mvaWeight.at(index);
-        
     }
-
+    
     if(weight_top>-99. && weight_higgs>-99.) {
         name = "mvaWeight"+mvaType+"_TopPairVsHiggsPair"+mvaConfigName;
         ((TH2D*)m_histogram[name])->Fill(weight_top, weight_higgs, weight);
@@ -381,7 +384,6 @@ void AnalyzerMvaTopJets::fillWeightHistos(const MvaVariablesTopJetsPerEvent& mva
         name = "mvaWeight"+mvaType+"_TopPairMinusHiggsPair"+mvaConfigName;
         m_histogram[name]->Fill(weight_top - weight_higgs, weight);
     }
-
 }
 
 

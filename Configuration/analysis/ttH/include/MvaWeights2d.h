@@ -26,7 +26,7 @@ class MvaWeights2d{
 public:
 
     /// Constructor for selection steps
-    MvaWeights2d(const std::map<TString, std::vector<MvaVariablesTopJets*> >& m_stepMvaVariables,
+    MvaWeights2d(const std::map<TString, std::vector<MvaVariablesBase*> >& m_stepMvaVariables,
                  const char* mvaWeightFileDirectory,
                  const std::vector<mvaSetup::MvaSet>& v_mvaSet,
                  const bool separationPowerPlots =false);
@@ -107,7 +107,7 @@ private:
     TSelectorList* selectorList_;
 
     /// The map containing all the vectors of MVA variables for all selection steps
-    const std::map<TString, std::vector<MvaVariablesTopJets*> >& m_stepMvaVariables_;
+    const std::map<TString, std::vector<MvaVariablesBase*> >& m_stepMvaVariables_;
 
     /// The map containing all the step histograms for all selection steps
     std::map<TString, StepHistograms> m_stepHistograms_;
