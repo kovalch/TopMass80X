@@ -9,10 +9,11 @@
 #include <TSelectorList.h>
 #include <TIterator.h>
 #include <TObject.h>
+#include <TList.h>
 #include <Rtypes.h>
 
 #include "MvaTreeHandler.h"
-#include "mvaStructs.h"
+#include "MvaVariablesTopJets.h"
 #include "analysisStructs.h"
 #include "JetCategories.h"
 #include "higgsUtils.h"
@@ -78,7 +79,7 @@ void MvaTreeHandler::addStep(const TString& step)
     }
 
     // Book the step
-    m_stepMvaVariables_[step] = std::vector<MvaTopJetsVariables>();
+    m_stepMvaVariables_[step] = std::vector<MvaVariablesTopJets*>();
 }
 
 
@@ -111,8 +112,8 @@ void MvaTreeHandler::fill(const RecoObjects& recoObjects,
     if(!stepExists) return;
     
     // Loop over all jet combinations and get MVA input variables
-    const std::vector<MvaTopJetsVariables>& v_mvaTopJetsVariables = 
-            MvaTopJetsVariables::fillVariables(recoObjectIndices, genObjectIndices, recoObjects, weight);
+    const std::vector<MvaVariablesTopJets*> v_mvaTopJetsVariables = 
+            MvaVariablesTopJets::fillVariables(recoObjectIndices, genObjectIndices, recoObjects, weight);
     
     // Fill the MVA variables
     m_stepMvaVariables_.at(step).insert(m_stepMvaVariables_.at(step).end(), v_mvaTopJetsVariables.begin(), v_mvaTopJetsVariables.end());
@@ -155,14 +156,15 @@ void MvaTreeHandler::writeTrees(TSelectorList* output)
     std::map<TString, TTree*> m_stepTree;
     for(const auto& stepMvaVariables : m_stepMvaVariables_){
         const TString& step = stepMvaVariables.first;
-        const std::vector<MvaTopJetsVariables>& v_mvaVariables = stepMvaVariables.second;
+        const std::vector<MvaVariablesTopJets*>& v_mvaVariables = stepMvaVariables.second;
         TTree* tree = m_stepTree[step];
         tree = this->store(new TTree("mvaInputTopJets"+step, "mvaInputTopJets"));
         
         // Set up struct for branch handling
-        MvaTopJetsVariables mvaTopJetsVariables;
-        this->createBranches(tree, mvaTopJetsVariables);
-        this->fillBranches(tree, mvaTopJetsVariables, v_mvaVariables);
+        MvaVariablesTopJets* const mvaVariablesTopJets = new MvaVariablesTopJets();
+        this->createBranches(tree, mvaVariablesTopJets);
+        this->fillBranches(tree, mvaVariablesTopJets, v_mvaVariables);
+        delete mvaVariablesTopJets;
     }
     
     std::cout<<"Dijet combinations per step (step, no. of combinations):\n";
@@ -175,26 +177,26 @@ void MvaTreeHandler::writeTrees(TSelectorList* output)
 
 
 
-void MvaTreeHandler::createBranches(TTree* tree, const MvaTopJetsVariables& mvaTopJetsVariables)const
+void MvaTreeHandler::createBranches(TTree* tree, const MvaVariablesTopJets* mvaTopJetsVariables)const
 {
-    this->createBranch(tree, mvaTopJetsVariables.lastInEvent_);
-    this->createBranch(tree, mvaTopJetsVariables.eventWeight_);
-    this->createBranch(tree, mvaTopJetsVariables.bQuarkRecoJetMatched_);
-    this->createBranch(tree, mvaTopJetsVariables.correctCombination_);
-    this->createBranch(tree, mvaTopJetsVariables.swappedCombination_);
-    this->createBranch(tree, mvaTopJetsVariables.jetChargeDiff_);
-    this->createBranch(tree, mvaTopJetsVariables.meanDeltaPhi_b_met_);
-    this->createBranch(tree, mvaTopJetsVariables.massDiff_recoil_bbbar_);
-    this->createBranch(tree, mvaTopJetsVariables.pt_b_antiLepton_);
-    this->createBranch(tree, mvaTopJetsVariables.pt_antiB_lepton_);
-    this->createBranch(tree, mvaTopJetsVariables.deltaR_b_antiLepton_);
-    this->createBranch(tree, mvaTopJetsVariables.deltaR_antiB_lepton_);
-    this->createBranch(tree, mvaTopJetsVariables.btagDiscriminatorSum_);
-    this->createBranch(tree, mvaTopJetsVariables.deltaPhi_antiBLepton_bAntiLepton_);
-    this->createBranch(tree, mvaTopJetsVariables.massDiff_fullBLepton_bbbar_);
-    this->createBranch(tree, mvaTopJetsVariables.meanMt_b_met_);
-    this->createBranch(tree, mvaTopJetsVariables.massSum_antiBLepton_bAntiLepton_);
-    this->createBranch(tree, mvaTopJetsVariables.massDiff_antiBLepton_bAntiLepton_);
+    this->createBranch(tree, mvaTopJetsVariables->lastInEvent_);
+    this->createBranch(tree, mvaTopJetsVariables->eventWeight_);
+    this->createBranch(tree, mvaTopJetsVariables->bQuarkRecoJetMatched_);
+    this->createBranch(tree, mvaTopJetsVariables->correctCombination_);
+    this->createBranch(tree, mvaTopJetsVariables->swappedCombination_);
+    this->createBranch(tree, mvaTopJetsVariables->jetChargeDiff_);
+    this->createBranch(tree, mvaTopJetsVariables->meanDeltaPhi_b_met_);
+    this->createBranch(tree, mvaTopJetsVariables->massDiff_recoil_bbbar_);
+    this->createBranch(tree, mvaTopJetsVariables->pt_b_antiLepton_);
+    this->createBranch(tree, mvaTopJetsVariables->pt_antiB_lepton_);
+    this->createBranch(tree, mvaTopJetsVariables->deltaR_b_antiLepton_);
+    this->createBranch(tree, mvaTopJetsVariables->deltaR_antiB_lepton_);
+    this->createBranch(tree, mvaTopJetsVariables->btagDiscriminatorSum_);
+    this->createBranch(tree, mvaTopJetsVariables->deltaPhi_antiBLepton_bAntiLepton_);
+    this->createBranch(tree, mvaTopJetsVariables->massDiff_fullBLepton_bbbar_);
+    this->createBranch(tree, mvaTopJetsVariables->meanMt_b_met_);
+    this->createBranch(tree, mvaTopJetsVariables->massSum_antiBLepton_bAntiLepton_);
+    this->createBranch(tree, mvaTopJetsVariables->massDiff_antiBLepton_bAntiLepton_);
 }
 
 
@@ -219,11 +221,11 @@ void MvaTreeHandler::createBranch(TTree* tree, const MvaVariableFloat& variable)
 
 
 
-void MvaTreeHandler::fillBranches(TTree* tree, MvaTopJetsVariables& mvaTopJetsVariables,
-                                  const std::vector<MvaTopJetsVariables>& v_mvaTopJetsVariables)const
+void MvaTreeHandler::fillBranches(TTree* tree, MvaVariablesTopJets* const mvaTopJetsVariables,
+                                  const std::vector<MvaVariablesTopJets*>& v_mvaTopJetsVariables)const
 {
-    for(const auto& mvaVariables : v_mvaTopJetsVariables){
-        mvaTopJetsVariables = mvaVariables;
+    for(const MvaVariablesTopJets* mvaVariables : v_mvaTopJetsVariables){
+        *mvaTopJetsVariables = *mvaVariables;
         tree->Fill();
     }
 }
@@ -235,7 +237,7 @@ void MvaTreeHandler::clear()
     selectorList_ = 0;
     
     for(auto& stepMvaVariables : m_stepMvaVariables_){
-        stepMvaVariables.second.clear();
+        MvaVariablesTopJets::clearVariables(stepMvaVariables.second);
     }
     m_stepMvaVariables_.clear();
 }
@@ -281,10 +283,10 @@ void MvaTreeHandler::importTrees(const std::string& f_savename, const std::strin
 
 
 
-void MvaTreeHandler::importBranches(TTree* tree, std::vector<MvaTopJetsVariables>& v_mvaTopJetsVariables)
+void MvaTreeHandler::importBranches(TTree* tree, std::vector<MvaVariablesTopJets*>& v_mvaTopJetsVariables)
 {
-    // Set up variables struct and branches
-    MvaTopJetsVariables mvaTopJetsVariables;
+    // Set up variables struct
+    MvaVariablesTopJets mvaTopJetsVariables;
     
     // Set branch addresses
     this->importBranch(tree, mvaTopJetsVariables.lastInEvent_);
@@ -309,7 +311,9 @@ void MvaTreeHandler::importBranches(TTree* tree, std::vector<MvaTopJetsVariables
     // Loop over all tree entries and fill vector of structs
     for(Long64_t iEntry = 0; iEntry < tree->GetEntries(); ++iEntry){
         tree->GetEntry(iEntry);
-        v_mvaTopJetsVariables.push_back(mvaTopJetsVariables);
+        MvaVariablesTopJets* const mvaVariablesTopJetsPtr = new MvaVariablesTopJets();
+        *mvaVariablesTopJetsPtr = mvaTopJetsVariables;
+        v_mvaTopJetsVariables.push_back(mvaVariablesTopJetsPtr);
     }
 }
 
@@ -329,7 +333,7 @@ void MvaTreeHandler::importBranch(TTree* tree, MvaVariableFloat& variable)
 
 
 
-const std::map<TString, std::vector<MvaTopJetsVariables> >& MvaTreeHandler::stepMvaVariablesMap()const
+const std::map<TString, std::vector<MvaVariablesTopJets*> >& MvaTreeHandler::stepMvaVariablesMap()const
 {
     return m_stepMvaVariables_;
 }

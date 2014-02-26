@@ -52,6 +52,8 @@ namespace semileptonic {
   // use global switch to rm/add Preliminary to plots 
   bool globalPrelim   =false; // value used in DrawCMSLabels
   bool useGlobalPrelim=true;  // for false the value above is ignored
+  // label extension for center of mass in topPt in ttbar center of mass system
+  TString cmsExt="com";
 
   // ==========================================
   //  Cross-section variables and labels
@@ -66,7 +68,7 @@ namespace semileptonic {
 
   TString xSecVariablesIncl[] = {"inclusive"};
 
-  TString xSecLabelKinFit[]     = {"p_{T}^{lead t}/[GeV]", "p_{T}^{sublead t}/[GeV]", "p_{T}^{t} #scale[0.8]{(t#bar{t} CoM)}/[GeV]", "p_{T}^{t}/[GeV]", "y^{t}/ ", "p_{T}^{t#bar{t}}/[GeV]", "y^{t#bar{t}}/ ", "m^{t#bar{t}}/[GeV]", "#Delta#phi(t,#bar{t})/ ", "#Phi^{#lower[-0.9]{* }}(t,#bar{t})/ "};
+  TString xSecLabelKinFit[]     = {"p_{T}^{lead t}/[GeV]", "p_{T}^{sublead t}/[GeV]", "p_{T}^{t} #scale[0.8]{(t#bar{t} "+cmsExt+")}/[GeV]", "p_{T}^{t}/[GeV]", "y^{t}/ ", "p_{T}^{t#bar{t}}/[GeV]", "y^{t#bar{t}}/ ", "m^{t#bar{t}}/[GeV]", "#Delta#phi(t,#bar{t})/ ", "#Phi^{#lower[-0.9]{* }}(t,#bar{t})/ "};
   TString xSecLabelFinalState[] = {"p_{T}^{l}/[GeV]", "#eta^{l}/ ", "p_{T}^{b}/[GeV]", "#eta^{b}/ ", "m^{b#bar{b}}/[GeV]", "p_{T}^{b#bar{b}}/[GeV]", "m^{lb}/[GeV]", "N_{jets}/ ", "#rho_{S}/ "};
 
   // cross-check variables
@@ -385,6 +387,7 @@ namespace semileptonic {
       case sysGenMCatNLO               : return "sysGenMCatNLO";
       case sysGenPowheg                : return "sysGenPowheg";  
       case sysGenPowhegHerwig          : return "sysGenPowhegHerwig";  
+      case sysTest                     : return "sysTest";  
       default                          : std::cout << "ERROR: the chosen input for function sysLabel is not valid" << std::endl;
                                          std::cout << "chosen systematic variation:  " << sys            << std::endl;
                                          std::cout << "maximum systematic variation: " << ENDOFSYSENUM-1 << std::endl;
@@ -2990,7 +2993,7 @@ namespace semileptonic {
     if(noUnit) strUnitGeV="";
 
     if(variable == "topPt"        ) return "p_{T}^{t}"+strUnitGeV;
-    if(variable == "topPtTtbarSys") return "p_{T}^{t} #scale[0.8]{(t#bar{t} CoM)}"+strUnitGeV;
+    if(variable == "topPtTtbarSys") return "p_{T}^{t} #scale[0.8]{(t#bar{t} "+cmsExt+")}"+strUnitGeV;
     if(variable == "topPtLead"    ) return "p_{T}^{lead t}"+strUnitGeV;
     if(variable == "topPtSubLead" ) return "p_{T}^{sublead t}"+strUnitGeV;
     if(variable == "topPtPlus"    ) return "p_{T}^{t}"+strUnitGeV;
@@ -3738,13 +3741,15 @@ namespace semileptonic {
     int sysListJE   [ ] = { sysJESUp, sysJESDown, sysJERUp, sysJERDown}; // JE related uncertainties
     int sysListModel[ ] = { sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysTopMassUp, sysTopMassDown, sysHadUp, sysHadDown}; // ttbar modeling
     int sysListMain [ ] = { sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysHadUp, sysHadDown, sysJESUp, sysJESDown, sysJERUp, sysJERDown, sysBtagSFUp, sysBtagSFDown, sysBtagSFShapeUpPt65, sysBtagSFShapeDownPt65, sysBtagSFShapeUpEta0p7, sysBtagSFShapeDownEta0p7 }; // ttbar modeling
+    int sysListPaper[ ] = { sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysHadUp, sysHadDown, sysTopMassUp, sysTopMassDown, sysPDFUp, sysPDFDown}; // ttbar main modeling unc.
 
-    int sysListAll[ ] = { sysLumiUp, sysLumiDown, sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysTopMassUp, sysTopMassDown, sysJESUp, sysJESDown ,sysJERUp, sysJERDown, sysPUUp, sysPUDown, sysLepEffSFNormUp, sysLepEffSFNormDown, sysLepEffSFShapeUpEta, sysLepEffSFShapeDownEta, sysLepEffSFShapeUpPt, sysLepEffSFShapeDownPt, sysBtagSFUp, sysBtagSFDown, sysBtagSFShapeUpPt65, sysBtagSFShapeDownPt65, sysBtagSFShapeUpEta0p7, sysBtagSFShapeDownEta0p7, sysMisTagSFUp, sysMisTagSFDown, sysBRUp, sysBRDown, sysPDFUp, sysPDFDown, sysHadUp, sysHadDown};
+    int sysListAll  [ ] = { sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysTopMassUp, sysTopMassDown, sysJESUp, sysJESDown ,sysJERUp, sysJERDown, sysPUUp, sysPUDown, sysLepEffSFNormUp, sysLepEffSFNormDown, sysLepEffSFShapeUpEta, sysLepEffSFShapeDownEta, sysLepEffSFShapeUpPt, sysLepEffSFShapeDownPt, sysBtagSFUp, sysBtagSFDown, sysBtagSFShapeUpPt65, sysBtagSFShapeDownPt65, sysBtagSFShapeUpEta0p7, sysBtagSFShapeDownEta0p7, sysMisTagSFUp, sysMisTagSFDown, sysBRUp, sysBRDown, sysPDFUp, sysPDFDown, sysHadUp, sysHadDown};
     
     if(     type =="model") RelevantSys_.insert(RelevantSys_.begin(), sysListModel, sysListModel+ sizeof(sysListModel)/sizeof(int));
     else if(type =="JE"   ) RelevantSys_.insert(RelevantSys_.begin(), sysListJE   , sysListJE   + sizeof(sysListJE   )/sizeof(int));
     else if(type =="all"  ) RelevantSys_.insert(RelevantSys_.begin(), sysListAll  , sysListAll  + sizeof(sysListAll  )/sizeof(int));
     else if(type =="main" ) RelevantSys_.insert(RelevantSys_.begin(), sysListMain , sysListMain + sizeof(sysListMain )/sizeof(int));
+    else if(type =="paper") RelevantSys_.insert(RelevantSys_.begin(), sysListPaper, sysListPaper+ sizeof(sysListPaper)/sizeof(int));
     else{ 
       std::cout << "ERROR in function  " << std::endl;
       exit(0);

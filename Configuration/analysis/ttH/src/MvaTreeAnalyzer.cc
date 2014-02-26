@@ -9,13 +9,13 @@
 #include <TH1D.h>
 
 #include "MvaTreeAnalyzer.h"
-#include "mvaStructs.h"
+#include "MvaVariablesTopJets.h"
 
 
 
 
 
-MvaTreeAnalyzer::MvaTreeAnalyzer(const std::map<TString, std::vector<MvaTopJetsVariables> >& m_stepMvaVariables,
+MvaTreeAnalyzer::MvaTreeAnalyzer(const std::map<TString, std::vector<MvaVariablesTopJets*> >& m_stepMvaVariables,
                                  const bool separationPowerPlots):
 selectorList_(0),
 m_stepMvaVariables_(m_stepMvaVariables),
@@ -71,7 +71,7 @@ void MvaTreeAnalyzer::plotVariables(TSelectorList* output)
     // Loop over steps and plot all histograms
     for(const auto& stepMvaVariables : m_stepMvaVariables_){
         const TString& step(stepMvaVariables.first);
-        const std::vector<MvaTopJetsVariables>& v_mvaTopJetsVariables(stepMvaVariables.second);
+        const std::vector<MvaVariablesTopJets*>& v_mvaTopJetsVariables(stepMvaVariables.second);
         this->plotStep(step, v_mvaTopJetsVariables);
     }
     
@@ -80,9 +80,9 @@ void MvaTreeAnalyzer::plotVariables(TSelectorList* output)
 
 
 
-void MvaTreeAnalyzer::plotStep(const TString& step, const std::vector<MvaTopJetsVariables>& v_mvaTopJetsVariables)
+void MvaTreeAnalyzer::plotStep(const TString& step, const std::vector<MvaVariablesTopJets*>& v_mvaTopJetsVariables)
 {    
-    const MvaTopJetsVariables nameDummy;
+    const MvaVariablesTopJets nameDummy;
     constexpr const char* prefix = "mvaP_";
     std::map<TString, TH1*>& m_histogram = m_stepHistograms_[step].m_histogram_;
     TString name;
@@ -135,66 +135,66 @@ void MvaTreeAnalyzer::plotStep(const TString& step, const std::vector<MvaTopJets
     
     
     // Fill histograms
-    for(const MvaTopJetsVariables& mvaTopJetsVariables : v_mvaTopJetsVariables){
+    for(const MvaVariablesTopJets* mvaTopJetsVariables : v_mvaTopJetsVariables){
         
-        const double weight(mvaTopJetsVariables.eventWeight_.value_);
+        const double weight(mvaTopJetsVariables->eventWeight_.value_);
         
         name = "trueStatus";
-        if(mvaTopJetsVariables.swappedCombination_.value_) m_histogram[name]->Fill(0., weight);
-        if(mvaTopJetsVariables.correctCombination_.value_) m_histogram[name]->Fill(1., weight);
+        if(mvaTopJetsVariables->swappedCombination_.value_) m_histogram[name]->Fill(0., weight);
+        if(mvaTopJetsVariables->correctCombination_.value_) m_histogram[name]->Fill(1., weight);
         
-        double value;
+        double value(-999.);
         
-        name = mvaTopJetsVariables.jetChargeDiff_.name();
-        value = mvaTopJetsVariables.jetChargeDiff_.value_;
+        name = mvaTopJetsVariables->jetChargeDiff_.name();
+        value = mvaTopJetsVariables->jetChargeDiff_.value_;
         this->fillHistosInclExcl(m_histogram, name, value, mvaTopJetsVariables, weight);
         
-        name = mvaTopJetsVariables.meanDeltaPhi_b_met_.name();
-        value = mvaTopJetsVariables.meanDeltaPhi_b_met_.value_;
+        name = mvaTopJetsVariables->meanDeltaPhi_b_met_.name();
+        value = mvaTopJetsVariables->meanDeltaPhi_b_met_.value_;
         this->fillHistosInclExcl(m_histogram, name, value, mvaTopJetsVariables, weight);
         
-        name = mvaTopJetsVariables.massDiff_recoil_bbbar_.name();
-        value = mvaTopJetsVariables.massDiff_recoil_bbbar_.value_;
+        name = mvaTopJetsVariables->massDiff_recoil_bbbar_.name();
+        value = mvaTopJetsVariables->massDiff_recoil_bbbar_.value_;
         this->fillHistosInclExcl(m_histogram, name, value, mvaTopJetsVariables, weight);
         
-        name = mvaTopJetsVariables.pt_b_antiLepton_.name();
-        value = mvaTopJetsVariables.pt_b_antiLepton_.value_;
+        name = mvaTopJetsVariables->pt_b_antiLepton_.name();
+        value = mvaTopJetsVariables->pt_b_antiLepton_.value_;
         this->fillHistosInclExcl(m_histogram, name, value, mvaTopJetsVariables, weight);
         
-        name = mvaTopJetsVariables.pt_antiB_lepton_.name();
-        value = mvaTopJetsVariables.pt_antiB_lepton_.value_;
+        name = mvaTopJetsVariables->pt_antiB_lepton_.name();
+        value = mvaTopJetsVariables->pt_antiB_lepton_.value_;
         this->fillHistosInclExcl(m_histogram, name, value, mvaTopJetsVariables, weight);
         
-        name = mvaTopJetsVariables.deltaR_b_antiLepton_.name();
-        value = mvaTopJetsVariables.deltaR_b_antiLepton_.value_;
+        name = mvaTopJetsVariables->deltaR_b_antiLepton_.name();
+        value = mvaTopJetsVariables->deltaR_b_antiLepton_.value_;
         this->fillHistosInclExcl(m_histogram, name, value, mvaTopJetsVariables, weight);
         
-        name = mvaTopJetsVariables.deltaR_antiB_lepton_.name();
-        value = mvaTopJetsVariables.deltaR_antiB_lepton_.value_;
+        name = mvaTopJetsVariables->deltaR_antiB_lepton_.name();
+        value = mvaTopJetsVariables->deltaR_antiB_lepton_.value_;
         this->fillHistosInclExcl(m_histogram, name, value, mvaTopJetsVariables, weight);
         
-        name = mvaTopJetsVariables.btagDiscriminatorSum_.name();
-        value = mvaTopJetsVariables.btagDiscriminatorSum_.value_;
+        name = mvaTopJetsVariables->btagDiscriminatorSum_.name();
+        value = mvaTopJetsVariables->btagDiscriminatorSum_.value_;
         this->fillHistosInclExcl(m_histogram, name, value, mvaTopJetsVariables, weight);
         
-        name = mvaTopJetsVariables.deltaPhi_antiBLepton_bAntiLepton_.name();
-        value = mvaTopJetsVariables.deltaPhi_antiBLepton_bAntiLepton_.value_;
+        name = mvaTopJetsVariables->deltaPhi_antiBLepton_bAntiLepton_.name();
+        value = mvaTopJetsVariables->deltaPhi_antiBLepton_bAntiLepton_.value_;
         this->fillHistosInclExcl(m_histogram, name, value, mvaTopJetsVariables, weight);
         
-        name = mvaTopJetsVariables.massDiff_fullBLepton_bbbar_.name();
-        value = mvaTopJetsVariables.massDiff_fullBLepton_bbbar_.value_;
+        name = mvaTopJetsVariables->massDiff_fullBLepton_bbbar_.name();
+        value = mvaTopJetsVariables->massDiff_fullBLepton_bbbar_.value_;
         this->fillHistosInclExcl(m_histogram, name, value, mvaTopJetsVariables, weight);
         
-        name = mvaTopJetsVariables.meanMt_b_met_.name();
-        value = mvaTopJetsVariables.meanMt_b_met_.value_;
+        name = mvaTopJetsVariables->meanMt_b_met_.name();
+        value = mvaTopJetsVariables->meanMt_b_met_.value_;
         this->fillHistosInclExcl(m_histogram, name, value, mvaTopJetsVariables, weight);
         
-        name = mvaTopJetsVariables.massSum_antiBLepton_bAntiLepton_.name();
-        value = mvaTopJetsVariables.massSum_antiBLepton_bAntiLepton_.value_;
+        name = mvaTopJetsVariables->massSum_antiBLepton_bAntiLepton_.name();
+        value = mvaTopJetsVariables->massSum_antiBLepton_bAntiLepton_.value_;
         this->fillHistosInclExcl(m_histogram, name, value, mvaTopJetsVariables, weight);
         
-        name = mvaTopJetsVariables.massDiff_antiBLepton_bAntiLepton_.name();
-        value = mvaTopJetsVariables.massDiff_antiBLepton_bAntiLepton_.value_;
+        name = mvaTopJetsVariables->massDiff_antiBLepton_bAntiLepton_.name();
+        value = mvaTopJetsVariables->massDiff_antiBLepton_bAntiLepton_.value_;
         this->fillHistosInclExcl(m_histogram, name, value, mvaTopJetsVariables, weight);
     }
 }
@@ -223,7 +223,7 @@ void MvaTreeAnalyzer::bookHistosInclExcl(std::map<TString, TH1*>& m_histogram, c
 
 void MvaTreeAnalyzer::fillHistosInclExcl(std::map<TString, TH1*>& m_histogram, const TString& name,
                                         const double& variable,
-                                        const MvaTopJetsVariables& mvaTopJetsVariables, const double& weight)
+                                        const MvaVariablesTopJets* mvaTopJetsVariables, const double& weight)
 {
     const TString correct("correct_");
     const TString swapped("swapped_");
@@ -233,8 +233,8 @@ void MvaTreeAnalyzer::fillHistosInclExcl(std::map<TString, TH1*>& m_histogram, c
         m_histogram[name]->Fill(variable, weight);
     }
     else{
-        if(mvaTopJetsVariables.correctCombination_.value_) m_histogram[correct+name]->Fill(variable, weight);
-        else if(mvaTopJetsVariables.swappedCombination_.value_) m_histogram[swapped+name]->Fill(variable, weight);
+        if(mvaTopJetsVariables->correctCombination_.value_) m_histogram[correct+name]->Fill(variable, weight);
+        else if(mvaTopJetsVariables->swappedCombination_.value_) m_histogram[swapped+name]->Fill(variable, weight);
         else m_histogram[wrong+name]->Fill(variable, weight);
     }
 }

@@ -77,6 +77,8 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
   //          2: output for debugging
 
   // b) options to be configured only once
+  // use test samples with topPt reweighting applied?
+  bool topPtReweighting=false;
   // data/MC -> MC/data
   bool invert=false;
   // draw for the normalized nPV plot the PU uncertainty band?
@@ -90,10 +92,10 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     ttbarTheoryBands =false;
   }
   // a) for yield and 
-  TString unctype="all"; // main -> all relevant uncertainties -> model: ttbar model uncertainties; JE -> JES+JER; all-> all uncertainties
+  TString unctype="paper"; // main -> all relevant uncertainties -> model: ttbar model uncertainties; JE -> JES+JER; all-> all uncertainties, paper: individual composition;
   TString unctypeLabel="Uncertainty"; // used as legend entry if !="" in ("model", "JE")
   // b) for chi2 related plots (prob, chi2, KinFitShift)
-  TString unctypeJE=unctype;
+  TString unctypeJE="main";
   TString unctypeLabelJE=unctypeLabel;
   // choose if you want to set QCD artificially to 0 to avoid problems with large SF for single events
   bool setQCDtoZero=true;
@@ -203,17 +205,44 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
   int systematicVariation=sysNo; // MadGraph: sysNo, topPt-reweigthing: sysTest, Powheg+Pythia: sysGenPowheg/sysTestPowheg, Powheg+Herwig: sysGenPowhegHerwig/sysTestPowhegHerwig, McatNLO: sysGenMCatNLO/sysTestMCatNLO
   // use different ttbar MC ("Madgraph", "Powheg", "PowhegHerwig", "McatNLO"), also used for generator uncertainties
   TString ttbarMC="Madgraph";
-  if     (systematicVariation==sysGenMCatNLO||systematicVariation==sysTestMCatNLO            ) ttbarMC="Mcatnlo";
-  else if(systematicVariation==sysGenPowheg ||systematicVariation==sysTestPowheg             ) ttbarMC="Powheg";
-  else if(systematicVariation==sysGenPowhegHerwig ||systematicVariation==sysTestPowhegHerwig ) ttbarMC="PowhegHerwig";
+  if     (systematicVariation==sysNo&&topPtReweighting) systematicVariation=sysTest;
+  else if(systematicVariation==sysGenMCatNLO          ){ttbarMC="Mcatnlo"     ;topPtReweighting=false;}
+  else if(systematicVariation==sysTestMCatNLO         ){ttbarMC="Mcatnlo"     ;topPtReweighting=true; }
+  else if(systematicVariation==sysGenPowheg           ){ttbarMC="Powheg"      ;topPtReweighting=false;}
+  else if(systematicVariation==sysTestPowheg          ){ttbarMC="Powheg"      ;topPtReweighting=true; }
+  else if(systematicVariation==sysGenPowhegHerwig     ){ttbarMC="PowhegHerwig";topPtReweighting=false;}
+  else if(systematicVariation==sysTestPowhegHerwig    ){ttbarMC="PowhegHerwig";topPtReweighting=true; }
+  else if(systematicVariation!=sysNo&&topPtReweighting) topPtReweighting=false;
+
+  // reset parameters and labels for reweighting case
+  TString ttsampleExt="";
   if(ttbarMC!="Madgraph"){
+    ttsampleExt+=ttbarMC;
     pdfName+=ttbarMC;
     outputFolder+=ttbarMC;
     effA=false;
-    compareTTsample=false;
-    ttbarTheoryBands=false;
+    compareTTsample  =false;
+    ttbarTheoryBands =false;
+    drawchi2JESRbands=false;
   }
-  
+  if(topPtReweighting){
+    ttsampleExt+="topPtReweighted";
+    compareTTsample  =false;
+    ttbarTheoryBands =false;
+    drawchi2JESRbands=false;
+    effA=false;
+  }
+  // extension for special variation case
+  if(systematicVariation!=sysNo&&systematicVariation<ENDOFSYSENUM){
+    TString temp= sysLabel(systematicVariation);
+    temp.ReplaceAll("sys", "");
+    ttsampleExt+=temp;
+    effA=false;
+    compareTTsample  =false;
+    ttbarTheoryBands =false;
+    drawchi2JESRbands=false;
+  }
+
   // ============================
   //     choose plots
   // ============================
@@ -638,14 +667,14 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     // (III) after kinematic fit 
     "#angle(t,#bar{t});Events;0;15",
     "p_{T}^{t} #left[GeV#right];Top quarks;0;20",
-    "p_{T}^{t} #scale[0.8]{(t#bar{t} CoM)} #left[GeV#right];Events;0;20",
+    "p_{T}^{t} #scale[0.8]{(t#bar{t} "+cmsExt+")} #left[GeV#right];Events;0;20",
     "y^{t};Top quarks;0;1",
     "m^{t};Top quarks;0;10",
     "p_{T}^{t#bar{t}} #left[GeV#right];Top-quark pairs;0;20",
     "y^{t#bar{t}};Top-quark pairs;0;1",
     "m^{t#bar{t}} #left[GeV#right];Top-quark pairs;0;50",
     "H_{T}^{t#bar{t}}=#Sigma(E_{T}(jets)) #left[GeV#right];#frac{dN}{dH_{T}^{t#bar{t}}};0;20",
-    "#Phi^{*}(t,#bar{t});Events;0;10",
+    "#phi^{*}(t,#bar{t});Events;0;10",
     "p_{T}^{l} #left[GeV#right];N^{l};0;10",    
     "#eta^{l};Leptons;0;1",
     "p_{T}^{q} #left[GeV#right];tt jets;0;20",    
@@ -1077,6 +1106,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
   // ============================
   //  Event composition
   // ============================
+  double ProbSelxSec=0.;
   double KinFitxSec=0.;
   double TaggedxSec=0.;
   std::map< TString, std::map <unsigned int, double> > events_;
@@ -1166,7 +1196,8 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     if(decayChannel=="combined") luminosity2=luminosityMu+luminosityEl;
     xSec=(NData-NnonTtbarBG)*ttbarSigFrac/(A*eff*BR*luminosity2);
     if(selection_[step].Contains("shift" ))  KinFitxSec=xSec;
-    if(selection_[step].Contains("Tagged")) TaggedxSec=xSec;
+    else if(selection_[step].Contains("Tagged")) TaggedxSec=xSec;
+    else if(selection_[step].Contains("ttbarMass")) ProbSelxSec=xSec;
     if(verbose>=0&&withRatioPlot){
       std::cout << std::endl;
       std::cout << "    inclusive cross section: " << std::setprecision(2) << std::fixed << xSec;
@@ -1230,7 +1261,8 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
       for(unsigned int plot=0; plot<plotList_.size(); ++plot){
 	if((histo_.count(plotList_[plot])>0)&&(histo_[plotList_[plot]].count(sample)>0)){
 	  if     (plotList_[plot].Contains("Tagged")) histo_[plotList_[plot]][sample]->Scale(TaggedxSec/ttbarCrossSection);
-	  else if(plotList_[plot].Contains("shift" )||(plotList_[plot].Contains("KinFit")&&plotList_[plot].Contains("ProbSel"))) histo_[plotList_[plot]][sample]->Scale(KinFitxSec/ttbarCrossSection);
+	  else if(addSel!=""&&plotList_[plot].Contains("ProbSel")) histo_[plotList_[plot]][sample]->Scale(ProbSelxSec/ttbarCrossSection); 
+	  else if(plotList_[plot].Contains("shift" )||(plotList_[plot].Contains("KinFit"))) histo_[plotList_[plot]][sample]->Scale(KinFitxSec/ttbarCrossSection);
 	  else histo_[plotList_[plot]][sample]->Scale(xSec/ttbarCrossSection);
 	}
       }
@@ -1325,7 +1357,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     for(unsigned int plot=0; plot<plotList_.size()-1; ++plot){  // <plotList_.size()-1, because last entry is for data (see above)
       if((histo_.count(plotList_[plot])>0)&&(histo_[plotList_[plot]].count(sample)>0)){
 	TString leglabel=sampleLabel(sample,decayChannel);
-	if((systematicVariation==sysTest)&&(sample==kSig||sample==kBkg)) leglabel="weighted "+leglabel;
+	if((topPtReweighting)&&(sample==kSig||sample==kBkg)) leglabel+="-p_{T}^{t} corr";
 	leglabel+=TXT;
 	leg ->AddEntry(histo_[plotList_[plot]][sample], leglabel, "F");
 	leg0->AddEntry(histo_[plotList_[plot]][sample], leglabel, "F");
@@ -2142,6 +2174,8 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	    if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFitProbEff/bbbarMass")                             ){xDn=0.     ;xUp=700.;  }
 	    if(plotList_[plot].Contains("npvertex_reweighted")                                                         ){xDn=0.     ;xUp=40.;   }
 	    if(plotList_[plot].Contains("lbMass")                                                                      ){xDn=20.    ;xUp=300.;  }
+	    if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/ttbarDelPhi")                        ){xDn=0      ;xUp=3.2;   }
+
 	    // FIXME: intermediate by hand fix of the vertex distribution
 	    // needed because analyzeTopDiffXSec_cfg.py has removed no-PU weight when running with option reduced so that they are not included in the plot...
 	    if(plotList_[plot].Contains("PUControlDistributionsAfterBtagging/npvertex_reweighted")&&!plotList_[plot].Contains("Norm")){
@@ -2343,10 +2377,11 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	      }
 	      // default legend
 	      double x1=1.0 - gStyle->GetPadRightMargin() - gStyle->GetTickLength() - 0.25;
-	      if(systematicVariation==sysTest) x1-=0.05; // closure tests
+	      double x2=1.03- gStyle->GetPadRightMargin() - gStyle->GetTickLength();
+	      if(topPtReweighting                       ){ x1-=0.05;  x2-=0.05;} // closure tests
+	      if(plotList_[plot].Contains("ttbarDelPhi")){ x1-=0.05 ; x2-=0.05;} // avoid overlap
 	      x1+=0.015;
 	      double y1=1.0 - gStyle->GetPadTopMargin() - gStyle->GetTickLength() -0.05 - 0.03 * leg->GetNRows();
-	      double x2=1.03- gStyle->GetPadRightMargin() - gStyle->GetTickLength();
 	      double y2=1.0-gStyle->GetPadTopMargin()-0.8*gStyle->GetTickLength();
 	      leg->SetX1NDC(x1);
 	      leg->SetY1NDC(y1);
@@ -2355,6 +2390,8 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	      leg->SetTextSize(0.035);
 
 	      // splitted legends
+	      double ttrewShift=0.035;
+	      if(topPtReweighting) x1-=(ttrewShift-0.08); // top-pt reweighting tests
 	      while(legSplit1->GetNRows()>legSplit2->GetNRows()) legSplit2->AddEntry((TObject*)0, " ", "");  // unify number of entries
 	      // for synchro with DESY
 	      x1-=0.01; x2-=0.03; x2-=0.025;
@@ -2372,7 +2409,10 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	      legSplit2->SetX2NDC(x2+0.01);
 	      legSplit2->SetY2NDC(y2-yShift);
 	      legSplit2->SetTextSize(0.03);
-
+	      if(topPtReweighting){
+		legSplit2->SetX1NDC(legSplit2->GetX1NDC()+ttrewShift+0.06);
+		legSplit2->SetX2NDC(legSplit2->GetX2NDC()+ttrewShift+0.06);	       
+	      }
 	      // nPV legend (including PU unc. band)
 	      legPU->SetX1NDC(x1);
 	      legPU->SetY1NDC(1.0 - gStyle->GetPadTopMargin() - gStyle->GetTickLength() -0.05 - 0.03 * legPU->GetNRows());
@@ -2584,14 +2624,14 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
   // ==============
   //std::cout << "test0" << std::endl;
   if(save){
-    TString paperpdfname=outputFolder+"PAPERPlots.pdf";
+    TString paperpdfname=outputFolder+"PAPERPlots"+ttsampleExt+".pdf";
     bool firstPAPER=true;
     // eps and png
     if(verbose==0) gErrorIgnoreLevel=kWarning;
     saveCanvas(plotCanvas_, outputFolder, pdfName, true, false);
     unsigned int idxstop=plotCanvas_.size();
     for(unsigned int idx=0; idx<plotCanvas_.size(); idx++){
-      TString title=(TString)(plotCanvas_[idx])->GetTitle();
+      TString title=(TString)(plotCanvas_[idx])->GetTitle()+ttsampleExt;
       if(!title.Contains("canv")){
 	TString outputFolder2=outputFolder;
 	if(title.Contains("efficiencyOnly")||title.Contains("acceptanceOnly")){
@@ -2602,14 +2642,14 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
       }
       // kinfitshift as pdf
       if(title.Contains("shift")){
-	TString pdfname=outputFolder+"KinFitObjectShift.pdf";
+	TString pdfname=outputFolder+"KinFitObjectShift"+ttsampleExt+".pdf";
 	if(title.Contains("shiftLqPt" )) pdfname+="(";
 	if(title.Contains("shiftNuPhi")) pdfname+=")";
 	plotCanvas_[idx]->Print(pdfname); 
       }
       // prob efficiency as pdf
       if(title.Contains("ProbEff")){
-	TString pdfname=outputFolder+"ProbEff.pdf";
+	TString pdfname=outputFolder+"ProbEff"+ttsampleExt+".pdf";
 	if(title.Contains("ttbarAngle")) pdfname+="(";
 	if(title.Contains("bbbarMass" )){ pdfname+=")"; idxstop=idx; }
 	if(idx<=idxstop) plotCanvas_[idx]->Print(pdfname); 
@@ -2624,8 +2664,10 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     }
     // root file
     if(verbose>0) std::cout << "will save into outputfile named " << outputFileName << std::endl;
-    for(unsigned int idx=0; idx<plotCanvas_.size(); ++idx){
-      saveToRootFile(outputFileName, plotCanvas_[idx], true, verbose, "monitoring");
+    if(ttsampleExt==""){
+      for(unsigned int idx=0; idx<plotCanvas_.size(); ++idx){
+	saveToRootFile(outputFileName, plotCanvas_[idx], true, verbose, "monitoring");
+      }
     }
   }
   //std::cout << "test" << std::endl;

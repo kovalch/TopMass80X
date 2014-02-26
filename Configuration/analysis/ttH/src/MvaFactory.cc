@@ -15,7 +15,7 @@
 #include <TMVA/Types.h>
 
 #include "MvaFactory.h"
-#include "mvaStructs.h"
+#include "MvaVariablesTopJets.h"
 #include "mvaSetup.h"
 #include "higgsUtils.h"
 
@@ -117,7 +117,7 @@ void MvaFactory::runMva(const char* methodPrefix, const TCut& cutSignal, const T
     factory = new TMVA::Factory(factoryName, outputFile, "!V:!Silent");
     
     // Set all branches of MVA input which should be used for training
-    MvaTopJetsVariables mvaTopJetsVariables;
+    MvaVariablesTopJets mvaTopJetsVariables;
     
     this->addVariable(factory, mvaTopJetsVariables.jetChargeDiff_);
     this->addVariable(factory, mvaTopJetsVariables.meanDeltaPhi_b_met_);

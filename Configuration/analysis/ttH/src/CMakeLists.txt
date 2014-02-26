@@ -17,7 +17,9 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   MvaReader
   MvaFactory
   mvaSetup
-  mvaStructs
+  MvaVariablesBase
+  MvaVariablesTopJets
+  MvaVariablesEventClassification
   AnalyzerBaseClass
   AnalyzerControlPlots
   AnalyzerMvaTopJets

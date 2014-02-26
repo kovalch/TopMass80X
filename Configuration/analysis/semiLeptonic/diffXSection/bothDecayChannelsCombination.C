@@ -1,6 +1,6 @@
 #include "basicFunctions.h"
 
-void bothDecayChannelsCombination(double luminosity=19712, bool save=false, unsigned int verbose=0,
+void bothDecayChannelsCombination(double luminosity=19712, bool save=true, unsigned int verbose=0,
 				  TString inputFolderName="RecentAnalysisRun8TeV_doubleKinFit",
 				  bool pTPlotsLog=false, bool extrapolate=true, bool hadron=false, bool addCrossCheckVariables=false, 
 				  bool combinedEventYields=true, TString closureTestSpecifier="" , bool smoothcurves=false){
@@ -569,6 +569,11 @@ void bothDecayChannelsCombination(double luminosity=19712, bool save=false, unsi
 		plotTheo->SetMinimum(0.000005);
 	      }
 	    }
+	    // increase range slightly for closure tests
+	    if(closureTestSpecifier!=""){
+	      plotTheo->SetMinimum(0.9*plotTheo->GetMinimum());
+	      plotTheo->SetMaximum(1.1*plotTheo->GetMaximum());
+	    }
 	    // remove y axis 10^x label style
 	    if(plotName.Contains("lepEta")||plotName=="bqEta"||plotName.Contains("topY")||plotName=="ttbarY"||plotName.Contains("rhos")) plotTheo->GetYaxis()->SetNoExponent(true);	    
 	  }
@@ -997,10 +1002,10 @@ void bothDecayChannelsCombination(double luminosity=19712, bool save=false, unsi
 	    }
 	    leg->SetX1NDC(0.56);
 	    // larger legend for quantities with additional theory entry
-	    double y1= (plotName.Contains("ttbarPt")||plotName.Contains("ttbarMass")||plotName.Contains("topPt")||plotName.Contains("topY")) ? 0.68 : 0725;
-	    leg->SetY1NDC(y1);
+	    //double y1= (plotName.Contains("ttbarPt")||plotName.Contains("ttbarMass")||plotName.Contains("topPt")||plotName.Contains("topY")) ? 0.68 : 0.725;
+	    leg->SetY1NDC(0.55);
 	    leg->SetX2NDC(0.835);
-	    leg->SetY2NDC(0.88);
+	    leg->SetY2NDC(0.82);
 	  }
 	  else {
 	    double y1     = 0.655;
@@ -1121,10 +1126,17 @@ void bothDecayChannelsCombination(double luminosity=19712, bool save=false, unsi
 	  
 	  
 	  // h) Plotting, legend and additional labels
-
 	  if(closureTestSpecifier=="") plotCombination->Draw("e X0 same"); 
 	  else  plotCombination->Draw("p X0 same"); 
 	  leg->Draw("same");  
+	  //if(xSecVariables_[i].Contains("ttbarDelPhiNorm" )){
+	  //  std::cout << xSecVariables_[i] << std::endl;
+	  //  std::cout << "leg->GetNRows()" << leg->GetNRows() << std::endl;
+	  //  std::cout << "leg->GetX1NDC():" << leg->GetX1NDC() << std::endl;
+	  //  std::cout << "leg->GetX2NDC():" << leg->GetX2NDC() << std::endl;
+	  //  std::cout << "leg->GetY1NDC():" << leg->GetY1NDC() << std::endl;
+	  //  std::cout << "leg->GetY2NDC():" << leg->GetY2NDC() << std::endl;
+	  //}
 	  gPad->RedrawAxis(); 
 	  DrawCMSLabels(prelim, luminosity, 0.04, (closureTestSpecifier!="" ? true : false), false, false);
 	  DrawDecayChLabel("e/#mu + Jets Combined");

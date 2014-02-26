@@ -3,7 +3,7 @@
 
 #include <Math/VectorUtil.h>
 
-#include "mvaStructs.h"
+#include "MvaVariablesTopJets.h"
 #include "analysisStructs.h"
 #include "../../common/include/classes.h"
 #include "../../common/include/analysisUtils.h"
@@ -13,16 +13,16 @@
 
 
 
-// ----------------------------------------- Methods for MvaTopJetsVariables -----------------------------------------------------------
+// ----------------------------------------- Methods for MvaVariablesTopJets -----------------------------------------------------------
 
 
 
-MvaTopJetsVariables::MvaTopJetsVariables():
+MvaVariablesTopJets::MvaVariablesTopJets():
+MvaVariablesBase(),
 lastInEvent_(MvaVariableInt(name_lastInEvent_)),
 bQuarkRecoJetMatched_(MvaVariableInt(name_bQuarkRecoJetMatched_)),
 correctCombination_(MvaVariableInt(name_correctCombination_)),
 swappedCombination_(MvaVariableInt(name_swappedCombination_)),
-eventWeight_(MvaVariableFloat(name_eventWeight_)),
 jetChargeDiff_(MvaVariableFloat(name_jetChargeDiff_)),
 meanDeltaPhi_b_met_(MvaVariableFloat(name_meanDeltaPhi_b_met_)),
 massDiff_recoil_bbbar_(MvaVariableFloat(name_massDiff_recoil_bbbar_)),
@@ -40,20 +40,20 @@ massDiff_antiBLepton_bAntiLepton_(MvaVariableFloat(name_massDiff_antiBLepton_bAn
 
 
 
-MvaTopJetsVariables::MvaTopJetsVariables(const LV& lepton, const LV& antiLepton,
+MvaVariablesTopJets::MvaVariablesTopJets(const LV& lepton, const LV& antiLepton,
                                          const LV& bJet, const LV& antiBJet,
-                                         const double& bJetBtagDiscriminator, const double& antiBJetBtagDiscriminator,
+                                         const double& bjetBtagDiscriminator, const double& antiBjetBtagDiscriminator,
                                          const double& jetChargeDiff,
                                          const LV& jetRecoil, const LV& met,
                                          const bool bQuarkRecoJetMatched,
                                          const bool correctCombination, const bool swappedCombination,
                                          const bool lastInEvent,
                                          const double& eventWeight):
+MvaVariablesBase(eventWeight),
 lastInEvent_(MvaVariableInt(name_lastInEvent_)),
 bQuarkRecoJetMatched_(MvaVariableInt(name_bQuarkRecoJetMatched_)),
 correctCombination_(MvaVariableInt(name_correctCombination_)),
 swappedCombination_(MvaVariableInt(name_swappedCombination_)),
-eventWeight_(MvaVariableFloat(name_eventWeight_)),
 jetChargeDiff_(MvaVariableFloat(name_jetChargeDiff_)),
 meanDeltaPhi_b_met_(MvaVariableFloat(name_meanDeltaPhi_b_met_)),
 massDiff_recoil_bbbar_(MvaVariableFloat(name_massDiff_recoil_bbbar_)),
@@ -78,17 +78,14 @@ massDiff_antiBLepton_bAntiLepton_(MvaVariableFloat(name_massDiff_antiBLepton_bAn
     const LV fullBLeptonSystem = bAntiLeptonSystem + antiBLeptonSystem;
     
     // Set btag discriminator to 0 in case it has value -1
-    const double bJetBtagDiscriminatorPositive = bJetBtagDiscriminator<0. ? 0. : bJetBtagDiscriminator;
-    const double antiBJetBtagDiscriminatorPositive = antiBJetBtagDiscriminator<0. ? 0. : antiBJetBtagDiscriminator;
+    const double bjetBtagDiscriminatorPositive = bjetBtagDiscriminator<0. ? 0. : bjetBtagDiscriminator;
+    const double antiBjetBtagDiscriminatorPositive = antiBjetBtagDiscriminator<0. ? 0. : antiBjetBtagDiscriminator;
     
     // Needed booleans
     lastInEvent_.value_ = lastInEvent;
     bQuarkRecoJetMatched_.value_ = bQuarkRecoJetMatched;
     correctCombination_.value_ = correctCombination;
     swappedCombination_.value_ = swappedCombination;
-    
-    // Event weight
-    eventWeight_.value_ = eventWeight;
     
     // Fill the variables for MVA TTree
     jetChargeDiff_.value_ = jetChargeDiff;
@@ -98,7 +95,7 @@ massDiff_antiBLepton_bAntiLepton_(MvaVariableFloat(name_massDiff_antiBLepton_bAn
     pt_antiB_lepton_.value_ = antiBLeptonSystem.pt();
     deltaR_b_antiLepton_.value_ = DeltaR(bJet, antiLepton);
     deltaR_antiB_lepton_.value_ = DeltaR(antiBJet, lepton);
-    btagDiscriminatorSum_.value_ = bJetBtagDiscriminatorPositive + antiBJetBtagDiscriminatorPositive;
+    btagDiscriminatorSum_.value_ = bjetBtagDiscriminatorPositive + antiBjetBtagDiscriminatorPositive;
     deltaPhi_antiBLepton_bAntiLepton_.value_ = std::abs(DeltaPhi(antiBLeptonSystem, bAntiLeptonSystem));
     massDiff_fullBLepton_bbbar_.value_ = fullBLeptonSystem.M() - bAntiBSystem.M();
     meanMt_b_met_.value_ = 0.5*((bJet + met).Mt() + (antiBJet + met).Mt());
@@ -108,12 +105,12 @@ massDiff_antiBLepton_bAntiLepton_(MvaVariableFloat(name_massDiff_antiBLepton_bAn
 
 
 
-std::vector<MvaTopJetsVariables> MvaTopJetsVariables::fillVariables(const tth::RecoObjectIndices& recoObjectIndices,
-                                                                    const tth::GenObjectIndices& genObjectIndices,
-                                                                    const RecoObjects& recoObjects,
-                                                                    const double& eventWeight)
+std::vector<MvaVariablesTopJets*> MvaVariablesTopJets::fillVariables(const tth::RecoObjectIndices& recoObjectIndices,
+                                                                     const tth::GenObjectIndices& genObjectIndices,
+                                                                     const RecoObjects& recoObjects,
+                                                                     const double& eventWeight)
 {
-    std::vector<MvaTopJetsVariables> result;
+    std::vector<MvaVariablesTopJets*> result;
     
     // Access relevant objects and indices
     const VLV& allLeptons(*recoObjects.allLeptons_);
@@ -132,7 +129,7 @@ std::vector<MvaTopJetsVariables> MvaTopJetsVariables::fillVariables(const tth::R
     const tth::IndexPairs& jetIndexPairs = recoObjectIndices.jetIndexPairs_;
     
     // Calculate the jet recoil for each jet pair, and put it in a vector of same size
-    const VLV& jetRecoils = MvaTopJetsVariables::recoilForJetPairs(jetIndexPairs, recoObjectIndices.jetIndices_, jets);
+    const VLV& jetRecoils = MvaVariablesTopJets::recoilForJetPairs(jetIndexPairs, recoObjectIndices.jetIndices_, jets);
     
     
     // Loop over all jet pairs
@@ -169,15 +166,15 @@ std::vector<MvaTopJetsVariables> MvaTopJetsVariables::fillVariables(const tth::R
         }
         const LV& jetRecoil = jetRecoils.at(iJetIndexPairs);
 
-        const MvaTopJetsVariables mvaInput(lepton, antiLepton,
-                                           bjet, antiBjet,
-                                           bjetBtagDiscriminator, antiBjetBtagDiscriminator,
-                                           jetChargeDiff,
-                                           jetRecoil, met,
-                                           successfulTopMatching,
-                                           isCorrectPair, isSwappedPair,
-                                           lastInEvent,
-                                           eventWeight);
+        MvaVariablesTopJets* mvaInput = new MvaVariablesTopJets(lepton, antiLepton,
+                                                                bjet, antiBjet,
+                                                                bjetBtagDiscriminator, antiBjetBtagDiscriminator,
+                                                                jetChargeDiff,
+                                                                jetRecoil, met,
+                                                                successfulTopMatching,
+                                                                isCorrectPair, isSwappedPair,
+                                                                lastInEvent,
+                                                                eventWeight);
 
         result.push_back(mvaInput);
     }
@@ -187,7 +184,14 @@ std::vector<MvaTopJetsVariables> MvaTopJetsVariables::fillVariables(const tth::R
 
 
 
-VLV MvaTopJetsVariables::recoilForJetPairs(const tth::IndexPairs& jetIndexPairs, const std::vector<int>& jetIndices, const VLV& jets)
+void MvaVariablesTopJets::clearVariables(std::vector<MvaVariablesTopJets*>& v_mvaVariables){
+    for(auto& mvaVariables : v_mvaVariables) delete mvaVariables;
+    v_mvaVariables.clear();
+}
+
+
+
+VLV MvaVariablesTopJets::recoilForJetPairs(const tth::IndexPairs& jetIndexPairs, const std::vector<int>& jetIndices, const VLV& jets)
 {
     VLV result;
 
@@ -213,43 +217,43 @@ VLV MvaTopJetsVariables::recoilForJetPairs(const tth::IndexPairs& jetIndexPairs,
 
 
 
-// ----------------------------------------- Methods for MvaTopJetsVariablesPerEvent -----------------------------------------------------------
+// ----------------------------------------- Methods for MvaVariablesTopJetsPerEvent -----------------------------------------------------------
 
 
 
-MvaTopJetsVariablesPerEvent::MvaTopJetsVariablesPerEvent(const std::vector<MvaTopJetsVariables>& v_mvaInputVariables):
-v_mvaTopJetsVariables_(v_mvaInputVariables)
+MvaVariablesTopJetsPerEvent::MvaVariablesTopJetsPerEvent(const std::vector<MvaVariablesTopJets*>& v_mvaInputVariables):
+v_mvaVariables_(v_mvaInputVariables)
 {}
 
 
 
-MvaTopJetsVariablesPerEvent::MvaTopJetsVariablesPerEvent(const std::vector<MvaTopJetsVariables>& v_mvaInputVariables,
+MvaVariablesTopJetsPerEvent::MvaVariablesTopJetsPerEvent(const std::vector<MvaVariablesTopJets*>& v_mvaInputVariables,
                                                          const std::map<std::string, std::vector<float> >& m_mvaWeightCorrect,
                                                          const std::map<std::string, std::vector<float> >& m_mvaWeightSwapped,
                                                          const std::map<std::string, std::map<std::string, std::vector<float> > >& m_mvaWeightCombined):
-v_mvaTopJetsVariables_(v_mvaInputVariables),
+v_mvaVariables_(v_mvaInputVariables),
 m_weightCorrect_(m_mvaWeightCorrect),
 m_weightSwapped_(m_mvaWeightSwapped),
 m_weightCombined_(m_mvaWeightCombined)
 {
     for(const auto& weights : m_weightCorrect_){
-        if(weights.second.size() != v_mvaTopJetsVariables_.size()){
-            std::cerr<<"ERROR in constructor of MvaTopJetsVariablesPerEvent! Vector sizes do not match for CORRECT weights (variables, weights): "
+        if(weights.second.size() != v_mvaVariables_.size()){
+            std::cerr<<"ERROR in constructor of MvaVariablesTopJetsPerEvent! Vector sizes do not match for CORRECT weights (variables, weights): "
                      <<v_mvaInputVariables.size()<<" , "<<weights.second.size()<<"\n...break\n"<<std::endl;
             exit(47);
         }
     }
     for(const auto& weights : m_weightSwapped_){
-        if(weights.second.size() != v_mvaTopJetsVariables_.size()){
-            std::cerr<<"ERROR in constructor of MvaTopJetsVariablesPerEvent! Vector sizes do not match for SWAPPED weights (variables, weights): "
+        if(weights.second.size() != v_mvaVariables_.size()){
+            std::cerr<<"ERROR in constructor of MvaVariablesTopJetsPerEvent! Vector sizes do not match for SWAPPED weights (variables, weights): "
                      <<v_mvaInputVariables.size()<<" , "<<weights.second.size()<<"\n...break\n"<<std::endl;
             exit(48);
         }
     }
     for(const auto& weights1 : m_weightCombined_){
         for(const auto& weights2 : weights1.second){
-            if(weights2.second.size() != v_mvaTopJetsVariables_.size()){
-                std::cerr<<"ERROR in constructor of MvaTopJetsVariablesPerEvent! Vector sizes do not match for COMBINED weights (variables, weights): "
+            if(weights2.second.size() != v_mvaVariables_.size()){
+                std::cerr<<"ERROR in constructor of MvaVariablesTopJetsPerEvent! Vector sizes do not match for COMBINED weights (variables, weights): "
                          <<v_mvaInputVariables.size()<<" , "<<weights2.second.size()<<"\n...break\n"<<std::endl;
                 exit(49);
             }
@@ -259,7 +263,7 @@ m_weightCombined_(m_mvaWeightCombined)
 
 
 
-size_t MvaTopJetsVariablesPerEvent::maxWeightCorrectIndex(const std::string& mvaConfigName)const
+size_t MvaVariablesTopJetsPerEvent::maxWeightCorrectIndex(const std::string& mvaConfigName)const
 {
     const std::vector<float>& v_weight = this->mvaWeightsCorrect(mvaConfigName);
     return common::extremumIndex(v_weight);
@@ -267,7 +271,7 @@ size_t MvaTopJetsVariablesPerEvent::maxWeightCorrectIndex(const std::string& mva
 
 
 
-size_t MvaTopJetsVariablesPerEvent::maxWeightSwappedIndex(const std::string& mvaConfigName)const
+size_t MvaVariablesTopJetsPerEvent::maxWeightSwappedIndex(const std::string& mvaConfigName)const
 {
     const std::vector<float>& v_weight = this->mvaWeightsSwapped(mvaConfigName);
     return common::extremumIndex(v_weight);
@@ -275,7 +279,7 @@ size_t MvaTopJetsVariablesPerEvent::maxWeightSwappedIndex(const std::string& mva
 
 
 
-size_t MvaTopJetsVariablesPerEvent::maxWeightCombinedIndex(const std::string& mvaConfigNameCorrect,
+size_t MvaVariablesTopJetsPerEvent::maxWeightCombinedIndex(const std::string& mvaConfigNameCorrect,
                                                            const std::string& mvaConfigNameSwapped)const
 {
     const std::vector<float>& v_weight = this->mvaWeightsCombined(mvaConfigNameCorrect, mvaConfigNameSwapped);
@@ -284,7 +288,7 @@ size_t MvaTopJetsVariablesPerEvent::maxWeightCombinedIndex(const std::string& mv
 
 
 
-float MvaTopJetsVariablesPerEvent::maxWeightCorrect(const std::string& mvaConfigName)const
+float MvaVariablesTopJetsPerEvent::maxWeightCorrect(const std::string& mvaConfigName)const
 {
     const size_t maxWeightIndex = this->maxWeightCorrectIndex(mvaConfigName);
     return m_weightCorrect_.at(mvaConfigName).at(maxWeightIndex);
@@ -292,7 +296,7 @@ float MvaTopJetsVariablesPerEvent::maxWeightCorrect(const std::string& mvaConfig
 
 
 
-float MvaTopJetsVariablesPerEvent::maxWeightSwapped(const std::string& mvaConfigName)const
+float MvaVariablesTopJetsPerEvent::maxWeightSwapped(const std::string& mvaConfigName)const
 {
     const size_t maxWeightIndex = this->maxWeightSwappedIndex(mvaConfigName);
     return m_weightSwapped_.at(mvaConfigName).at(maxWeightIndex);
@@ -300,7 +304,7 @@ float MvaTopJetsVariablesPerEvent::maxWeightSwapped(const std::string& mvaConfig
 
 
 
-float MvaTopJetsVariablesPerEvent::maxWeightCombined(const std::string& mvaConfigNameCorrect, const std::string& mvaConfigNameSwapped)const
+float MvaVariablesTopJetsPerEvent::maxWeightCombined(const std::string& mvaConfigNameCorrect, const std::string& mvaConfigNameSwapped)const
 {
     const size_t maxWeightIndex = this->maxWeightCombinedIndex(mvaConfigNameCorrect, mvaConfigNameSwapped);
     return m_weightCombined_.at(mvaConfigNameCorrect).at(mvaConfigNameSwapped).at(maxWeightIndex);
@@ -308,21 +312,21 @@ float MvaTopJetsVariablesPerEvent::maxWeightCombined(const std::string& mvaConfi
 
 
 
-bool MvaTopJetsVariablesPerEvent::isSameMaxCombination(const std::string& mvaConfigNameCorrect, const std::string& mvaConfigNameSwapped)const
+bool MvaVariablesTopJetsPerEvent::isSameMaxCombination(const std::string& mvaConfigNameCorrect, const std::string& mvaConfigNameSwapped)const
 {
     return this->maxWeightCorrectIndex(mvaConfigNameCorrect) == this->maxWeightSwappedIndex(mvaConfigNameSwapped);
 }
 
 
 
-std::vector<MvaTopJetsVariables> MvaTopJetsVariablesPerEvent::variables()const
+std::vector<MvaVariablesTopJets*> MvaVariablesTopJetsPerEvent::variables()const
 {
-    return v_mvaTopJetsVariables_;
+    return v_mvaVariables_;
 }
 
 
 
-std::vector<float> MvaTopJetsVariablesPerEvent::mvaWeightsCorrect(const std::string& mvaConfigName)const
+std::vector<float> MvaVariablesTopJetsPerEvent::mvaWeightsCorrect(const std::string& mvaConfigName)const
 {
     if(m_weightCorrect_.find(mvaConfigName) == m_weightCorrect_.end()){
         std::cerr<<"ERROR in mvaWeightsCorrect()! No weights found for mvaConfigName: "
@@ -335,7 +339,7 @@ std::vector<float> MvaTopJetsVariablesPerEvent::mvaWeightsCorrect(const std::str
 
 
 
-std::vector<float> MvaTopJetsVariablesPerEvent::mvaWeightsSwapped(const std::string& mvaConfigName)const
+std::vector<float> MvaVariablesTopJetsPerEvent::mvaWeightsSwapped(const std::string& mvaConfigName)const
 {
     if(m_weightSwapped_.find(mvaConfigName) == m_weightSwapped_.end()){
         std::cerr<<"ERROR in mvaWeightsSwapped()! No weights found for mvaConfigName: "
@@ -348,7 +352,7 @@ std::vector<float> MvaTopJetsVariablesPerEvent::mvaWeightsSwapped(const std::str
 
 
 
-std::vector<float> MvaTopJetsVariablesPerEvent::mvaWeightsCombined(const std::string& mvaConfigNameCorrect,
+std::vector<float> MvaVariablesTopJetsPerEvent::mvaWeightsCombined(const std::string& mvaConfigNameCorrect,
                                                                    const std::string& mvaConfigNameSwapped)const
 {
     if(m_weightCombined_.find(mvaConfigNameCorrect) == m_weightCombined_.end() || 
@@ -363,25 +367,24 @@ std::vector<float> MvaTopJetsVariablesPerEvent::mvaWeightsCombined(const std::st
 
 
 
-std::map<std::string, std::vector<float> > MvaTopJetsVariablesPerEvent::mvaWeightsCorrectMap()const
+std::map<std::string, std::vector<float> > MvaVariablesTopJetsPerEvent::mvaWeightsCorrectMap()const
 {
     return m_weightCorrect_;
 }
 
 
 
-std::map<std::string, std::vector<float> > MvaTopJetsVariablesPerEvent::mvaWeightsSwappedMap()const
+std::map<std::string, std::vector<float> > MvaVariablesTopJetsPerEvent::mvaWeightsSwappedMap()const
 {
     return m_weightSwapped_;
 }
 
 
 
-std::map<std::string, std::map<std::string, std::vector<float> > > MvaTopJetsVariablesPerEvent::mvaWeightsCombinedMap()const
+std::map<std::string, std::map<std::string, std::vector<float> > > MvaVariablesTopJetsPerEvent::mvaWeightsCombinedMap()const
 {
     return m_weightCombined_;
 }
-
 
 
 

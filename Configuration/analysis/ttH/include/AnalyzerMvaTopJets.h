@@ -9,7 +9,7 @@ class TH1;
 class TH2D;
 
 #include "AnalyzerBaseClass.h"
-#include "mvaStructs.h"
+#include "MvaVariablesTopJets.h"
 
 class JetCategories;
 class RecoObjects;
@@ -17,7 +17,7 @@ class CommonGenObjects;
 class TopGenObjects;
 class HiggsGenObjects;
 class KinRecoObjects;
-class MvaTopJetsVariables;
+class MvaVariablesTopJets;
 class MvaReader;
 namespace tth{
     class RecoLevelWeights;
@@ -79,12 +79,12 @@ private:
     /// Fill 1-D histograms exclusively for correct, swapped and wrong combinations, and inclusively
     void fillHistosInclExcl(std::map<TString, TH1*>& m_histogram, const TString& name,
                             const float& variable,
-                            const MvaTopJetsVariables& mvaTopJetsVariables, const double& weight =1.);
+                            const MvaVariablesTopJets* mvaTopJetsVariables, const double& weight =1.);
 
     /// Fill 2-D histograms exclusively for correct, swapped and wrong combinations, and inclusively
     void fillHistosInclExcl2D(std::map<TString, TH1*>& m_histogram, const TString& name,
                               const float& variable1, const float& variable2,
-                              const MvaTopJetsVariables& mvaTopJetsVariables, const double& weight =1.);
+                              const MvaVariablesTopJets* mvaTopJetsVariables, const double& weight =1.);
 
 
 
@@ -128,7 +128,7 @@ private:
                           const MvaWeightsStruct& mvaWeightsStruct
                          );
 
-    void fillWeightHistos(const MvaTopJetsVariablesPerEvent& mvaTopJetsVariablesPerEvent,
+    void fillWeightHistos(const MvaVariablesTopJetsPerEvent& mvaTopJetsVariablesPerEvent,
                           const std::vector<float>& v_mvaWeight, const size_t maxWeightIndex,
                           const double& weight, const tth::RecoObjectIndices& recoObjectIndices,
                           const tth::GenObjectIndices& genObjectIndices, std::map<TString, TH1*>& m_histogram,

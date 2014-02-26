@@ -6,14 +6,15 @@
 #include <TMVA/Reader.h>
 
 #include "MvaReader.h"
-#include "mvaStructs.h"
+#include "MvaVariablesTopJets.h"
 
 
 
 
 
 MvaReader::MvaReader(const char* mvaWeightsFile):
-mvaWeightsReader_(0)
+mvaWeightsReader_(0),
+mvaVariablesTopJets_(0)
 {
     std::cout<<"--- Beginning setting up MVA weights from file\n";
     
@@ -24,26 +25,27 @@ mvaWeightsReader_(0)
     }
     else{
         mvaWeightsReader_ = new TMVA::Reader("Color");
-
-        MvaTopJetsVariables& mvaTopJetsVariables = mvaTopJetsVariables_;
         
-        this->addVariable(mvaTopJetsVariables.jetChargeDiff_);
-        this->addVariable(mvaTopJetsVariables.meanDeltaPhi_b_met_);
-        this->addVariable(mvaTopJetsVariables.massDiff_recoil_bbbar_);
-        this->addVariable(mvaTopJetsVariables.pt_b_antiLepton_);
-        this->addVariable(mvaTopJetsVariables.pt_antiB_lepton_);
-        this->addVariable(mvaTopJetsVariables.deltaR_b_antiLepton_);
-        this->addVariable(mvaTopJetsVariables.deltaR_antiB_lepton_);
-        this->addVariable(mvaTopJetsVariables.btagDiscriminatorSum_);
-        this->addVariable(mvaTopJetsVariables.deltaPhi_antiBLepton_bAntiLepton_);
-        this->addVariable(mvaTopJetsVariables.massDiff_fullBLepton_bbbar_);
-        this->addVariable(mvaTopJetsVariables.meanMt_b_met_);
-        this->addVariable(mvaTopJetsVariables.massSum_antiBLepton_bAntiLepton_);
-        this->addVariable(mvaTopJetsVariables.massDiff_antiBLepton_bAntiLepton_);
+        mvaVariablesTopJets_ = new MvaVariablesTopJets();
+        MvaVariablesTopJets* mvaTopJetsVariables = mvaVariablesTopJets_;
         
-        this->addSpectator(mvaTopJetsVariables.bQuarkRecoJetMatched_);
-        this->addSpectator(mvaTopJetsVariables.correctCombination_);
-        this->addSpectator(mvaTopJetsVariables.swappedCombination_);
+        this->addVariable(mvaTopJetsVariables->jetChargeDiff_);
+        this->addVariable(mvaTopJetsVariables->meanDeltaPhi_b_met_);
+        this->addVariable(mvaTopJetsVariables->massDiff_recoil_bbbar_);
+        this->addVariable(mvaTopJetsVariables->pt_b_antiLepton_);
+        this->addVariable(mvaTopJetsVariables->pt_antiB_lepton_);
+        this->addVariable(mvaTopJetsVariables->deltaR_b_antiLepton_);
+        this->addVariable(mvaTopJetsVariables->deltaR_antiB_lepton_);
+        this->addVariable(mvaTopJetsVariables->btagDiscriminatorSum_);
+        this->addVariable(mvaTopJetsVariables->deltaPhi_antiBLepton_bAntiLepton_);
+        this->addVariable(mvaTopJetsVariables->massDiff_fullBLepton_bbbar_);
+        this->addVariable(mvaTopJetsVariables->meanMt_b_met_);
+        this->addVariable(mvaTopJetsVariables->massSum_antiBLepton_bAntiLepton_);
+        this->addVariable(mvaTopJetsVariables->massDiff_antiBLepton_bAntiLepton_);
+        
+        this->addSpectator(mvaTopJetsVariables->bQuarkRecoJetMatched_);
+        this->addSpectator(mvaTopJetsVariables->correctCombination_);
+        this->addSpectator(mvaTopJetsVariables->swappedCombination_);
         
         // FIXME: what is first argument, should it be "BDTG" or "BDT method" ???
         mvaWeightsReader_->BookMVA("BDT method", mvaWeightsFile);
@@ -93,16 +95,16 @@ void MvaReader::clear()
 
 
 
-std::vector<float> MvaReader::mvaWeights(const std::vector<MvaTopJetsVariables>& v_mvaTopJetsVariables)
+std::vector<float> MvaReader::mvaWeights(const std::vector<MvaVariablesTopJets*>& v_mvaTopJetsVariables)
 {
     std::vector<float> result;
     
-    for(const MvaTopJetsVariables& mvaTopJetsVariables : v_mvaTopJetsVariables){
+    for(MvaVariablesTopJets* mvaTopJetsVariables : v_mvaTopJetsVariables){
         if(!mvaWeightsReader_){
             result.push_back(1.);
             continue;
         }
-        mvaTopJetsVariables_ = mvaTopJetsVariables;
+        *mvaVariablesTopJets_ = *mvaTopJetsVariables;
         const float weight = mvaWeightsReader_->EvaluateMVA("BDT method");
         result.push_back(weight);
     }

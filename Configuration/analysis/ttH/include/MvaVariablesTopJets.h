@@ -1,14 +1,11 @@
-#ifndef mvaStructs_h
-#define mvaStructs_h
+#ifndef MvaVariablesTopJets_h
+#define MvaVariablesTopJets_h
 
 #include <map>
 #include <vector>
 #include <string>
 
-#include <Rtypes.h>
-
-class TBranch;
-
+#include "MvaVariablesBase.h"
 #include "analysisStructsFwd.h"
 #include "../../common/include/classesFwd.h"
 
@@ -23,74 +20,20 @@ namespace tth{
 
 
 
-// /// Templated struct which defines all relevant parameters for MVA input variables
-// template<class T> struct MvaVariable{
-//     MvaVariable(const char* name):
-//         branch_(0), name_(name){}
-//     
-// public:
-//     T value_;
-//     TBranch* branch_;
-//     
-//     std::string name()const{return name_;}
-//     char type()const{return type_;}
-//     
-// private:
-//     const char* name_;
-//     static constexpr char type_ = 'I';
-// };
 
 
 
-/// Struct which defines all relevant parameters for MVA input variables of type int
-struct MvaVariableInt{
-    MvaVariableInt(const char* name):
-        value_(-999), branch_(0), name_(name){}
-    
-public:
-    Int_t value_;
-    TBranch* branch_;
-    
-    std::string name()const{return name_;}
-    const char* type()const{return type_;}
-    
-private:
-    const char* name_;
-    static constexpr const char* type_ = "I";
-};
-
-
-
-/// Struct which defines all relevant parameters for MVA input variables of type float
-struct MvaVariableFloat{
-    MvaVariableFloat(const char* name):
-        value_(-999.F), branch_(0), name_(name){}
-    
-public:
-    Float_t value_;
-    TBranch* branch_;
-    
-    std::string name()const{return name_;}
-    const char* type()const{return type_;}
-    
-private:
-    const char* name_;
-    static constexpr const char* type_ = "F";
-};
-
-
-
-/// Stuct holding the input variables for one entry for MVA,
+/// Class holding the input variables for one entry for MVA for top system jet identification,
 /// i.e. one entry of each quantity per selected jet combination
-struct MvaTopJetsVariables{
+class MvaVariablesTopJets : public MvaVariablesBase{
     
 public:
     
     /// Empty constructor
-    MvaTopJetsVariables();
+    MvaVariablesTopJets();
     
     /// Constructor setting up input variables from physics objects
-    MvaTopJetsVariables(const LV& lepton, const LV& antiLepton,
+    MvaVariablesTopJets(const LV& lepton, const LV& antiLepton,
                         const LV& bJet, const LV& antiBJet,
                         const double& bJetBtagDiscriminator, const double& antiBJetBtagDiscriminator,
                         const double& jetChargeDiff,
@@ -101,13 +44,16 @@ public:
                         const double& eventWeight);
     
     /// Destructor
-    ~MvaTopJetsVariables(){}
+    ~MvaVariablesTopJets(){}
     
     /// Fill the MVA input structs for all jet combinations of one event
-    static std::vector<MvaTopJetsVariables> fillVariables(const tth::RecoObjectIndices& recoObjectIndices,
-                                                          const tth::GenObjectIndices& genObjectIndices,
-                                                          const RecoObjects& recoObjects,
-                                                          const double& eventWeight);
+    static std::vector<MvaVariablesTopJets*> fillVariables(const tth::RecoObjectIndices& recoObjectIndices,
+                                                           const tth::GenObjectIndices& genObjectIndices,
+                                                           const RecoObjects& recoObjects,
+                                                           const double& eventWeight);
+    
+    /// Clear the MVA input structs, i.e. delete all pointers properly
+    static void clearVariables(std::vector<MvaVariablesTopJets*>& v_mvaVariables);
     
     /// Calculate the jet recoil for a given jet pair, i.e. vector sum of all jets except selected jet pair
     static VLV recoilForJetPairs(const tth::IndexPairs& jetIndexPairs,
@@ -127,11 +73,9 @@ public:
     /// Is it the true but swapped jet combination
     MvaVariableInt swappedCombination_;
     
-    /// Event weight including all scale factors
-    MvaVariableFloat eventWeight_;
-    
     /// Difference of the jet charges for (anti-b jet - b jet), i.e. it is within [0,2]
     MvaVariableFloat jetChargeDiff_;
+    // FIXME: describe each variable in doxygen
     /// Variables for MVA
     MvaVariableFloat meanDeltaPhi_b_met_;
     MvaVariableFloat massDiff_recoil_bbbar_;
@@ -157,8 +101,6 @@ private:
     static constexpr const char* name_correctCombination_ = "correctCombination";
     static constexpr const char* name_swappedCombination_ = "swappedCombination";
     
-    static constexpr const char* name_eventWeight_ = "eventWeight";
-    
     static constexpr const char* name_jetChargeDiff_ = "jetChargeDiff";
     static constexpr const char* name_meanDeltaPhi_b_met_ = "meanDeltaPhi_b_met";
     static constexpr const char* name_massDiff_recoil_bbbar_ = "massDiff_recoil_bbbar";
@@ -177,23 +119,23 @@ private:
 
 
 
-/// Stuct holding the input variables for all jet combinations of one event for MVA,
+/// Class holding the input variables for all jet combinations of one event for MVA,
 /// potentially together with estimated MVA weights for correct and swapped combinations
-struct MvaTopJetsVariablesPerEvent{
+class MvaVariablesTopJetsPerEvent{
     
 public:
     
     /// Constructor setting up mvaInputVariables
-    MvaTopJetsVariablesPerEvent(const std::vector<MvaTopJetsVariables>& v_mvaInputVariables);
+    MvaVariablesTopJetsPerEvent(const std::vector<MvaVariablesTopJets*>& v_mvaInputVariables);
     
     /// Constructor setting up mvaInputVariables together with MVA weights for correct and for swapped combinations
-    MvaTopJetsVariablesPerEvent(const std::vector<MvaTopJetsVariables>& v_mvaInputVariables,
+    MvaVariablesTopJetsPerEvent(const std::vector<MvaVariablesTopJets*>& v_mvaInputVariables,
                                 const std::map<std::string, std::vector<float> >& m_weightCorrect,
                                 const std::map<std::string, std::vector<float> >& m_weightSwapped,
                                 const std::map<std::string, std::map<std::string, std::vector<float> > >& m_weightCombined);
     
     /// Destructor
-    ~MvaTopJetsVariablesPerEvent(){}
+    ~MvaVariablesTopJetsPerEvent(){}
     
     
     
@@ -219,7 +161,7 @@ public:
     bool isSameMaxCombination(const std::string& mvaConfigNameCorrect, const std::string& mvaConfigNameSwapped)const;
     
     /// Get the vector of MVA variables
-    std::vector<MvaTopJetsVariables> variables()const;
+    std::vector<MvaVariablesTopJets*> variables()const;
     
     /// Get the vector of MVA correct weights for given config name
     std::vector<float> mvaWeightsCorrect(const std::string& mvaConfigName)const;
@@ -244,7 +186,7 @@ public:
 private:
     
     /// Vector containing MVA input variables for all dijet pairs per event
-    std::vector<MvaTopJetsVariables> v_mvaTopJetsVariables_;
+    std::vector<MvaVariablesTopJets*> v_mvaVariables_;
     
     /// Map MVA config name to the vector containing correct MVA weights for all dijet pairs per event
     std::map<std::string, std::vector<float> > m_weightCorrect_;
@@ -255,10 +197,6 @@ private:
     /// Map MVA config name to the vector containing swapped MVA weights for all dijet pairs per event
     std::map<std::string, std::map<std::string, std::vector<float> > > m_weightCombined_;
 };
-
-
-
-
 
 
 

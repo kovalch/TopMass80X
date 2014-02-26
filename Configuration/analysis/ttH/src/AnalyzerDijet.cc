@@ -19,7 +19,7 @@
 #include "analysisStructs.h"
 #include "higgsUtils.h"
 #include "MvaReader.h"
-#include "mvaStructs.h"
+#include "MvaVariablesTopJets.h"
 #include "../../common/include/analysisObjectStructs.h"
 #include "../../common/include/analysisUtils.h"
 #include "../../common/include/classes.h"
@@ -883,7 +883,7 @@ std::vector<std::pair<int,int> > AnalyzerDijet::jetPairsFromMVA(std::map<TString
     
     // Setting up the MVA input #################################
     // Loop over all jet combinations and get MVA input variables
-    const std::vector<MvaTopJetsVariables> v_mvaTopJetsVariables = MvaTopJetsVariables::fillVariables(recoObjectIndices, genObjectIndices, recoObjects, weight);
+    const std::vector<MvaVariablesTopJets*> v_mvaTopJetsVariables = MvaVariablesTopJets::fillVariables(recoObjectIndices, genObjectIndices, recoObjects, weight);
 
     // Getting the MVA weights from weights file as vector, one entry per jet pair
     std::vector<float> v_mvaWeightsCorrect, v_mvaWeightsSwapped;
