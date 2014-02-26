@@ -121,6 +121,7 @@ input file lists per channel and systematic.
 You can run Histo with 3 different "types":
 
         ./install/bin/Histo -t cp  ##produces control plots
+        ./install/bin/Histo -t cp -b  ##produces control plots incuding the ttbar signal uncertainty band. Pelase note that previuosly the control plot for the signal variations has to be done
         ./install/bin/Histo -t unfold  ##unfolds and produces the diff. xsec
         ./install/bin/Histo -t plot  ##just plot the diff. xsec, use values from previous unfolding
 
@@ -149,6 +150,16 @@ where channel is each if the channels: ee, emu, mumu, combined.
 To unfold all distributions from your HistoList in parallel, use the script:
 
         ./install/bin/unfoldAll.sh
+
+The scripts
+
+        ./install/bin/plotAll.sh
+
+will plot the full result using all the systematics available
+
+And to plot the control plots, including ttbar signal shape uncertainty band
+
+        ./install/bin/cpAll.sh
 
 Again, on the workgroup server, it will run up to 10 jobs in parallel,
 while it will submit one job per distribution to the batch system if run on the NAF.

@@ -1,14 +1,14 @@
 # Name, Extra, axis labels (y,x), rebin, do_dyscale, logx, logy, ymin, ymax, xmin, xmax, nbins, xbins, bcs
 
 HypjetMultiXSec Standard N_{Events} N_{jets} 1 1 0 0 0 0 2 9 0 0
-vertMulti Standard Events N_{vtx} 1 0 0 0 0 0 0 0 0 0
-vertMulti_noPU Standard Events N_{vtx} 1 0 0 0 0 0 0 0 0 0
-DIMFull Standard Events m^{ll} 2 0 0 1 10.0 0 0 0 0 0
+vertMulti Standard Events N_{vtx} 1 0 0 0 0 1.7e4 0 0 0 0
+vertMulti_noPU Standard Events N_{vtx} 1 0 0 0 0 1.7e4 0 0 0 0
+DIMFull Standard Events m^{ll} 2 0 0 1 50.0 0 0 0 0 0
 DIMFull_fullSel Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
 Allh1 Standard Events m^{ll} 1 1 0 0 0 0 0 0 0 0
 HypjetMulti Standard Events N_{jets} 1 1 0 1 2 1.e8 2 8 0 0
-HypjetMulti_diLep Standard Events N_{jets} 1 0 0 1 1.0 0 0 0 0 0
-HypjetMulti_noBTag Standard Events N_{jets} 1 1 0 1 1.0 0 2 10 0 0
+HypjetMulti_diLep Standard Events N_{jets} 1 0 0 1 1.0 2e8 0 0 0 0
+HypjetMulti_noBTag Standard Events N_{jets} 1 1 0 1 1.0 1e6 2 10 0 0
 MuonpT Standard Muons p_{T,#mu} 2 0 0 1 1 0 20 400 0 0
 ElectronpT Standard Electrons p_{T,e} 2 0 0 1 1 0 20 400 0 0
 LeptonpT Standard Leptons p_{T} 2 1 0 0 0 0 20 400 0 0
@@ -19,9 +19,9 @@ LeptonEta Standard Leptons #eta_{l} 4 1 0 0 0 0 -2.5 2.5 0 0
 MuonpT_postMETcut Standard Muons p_{T,#mu} 2 1 0 0 0 0 20 400 0 0
 ElectronpT_postMETcut Standard Electrons p_{T,e} 2 1 0 0 0 0 20 400 0 0
 LeptonpT_postMETcut Standard Leptons p_{T} 2 1 0 0 0 0 20 400 0 0
-MuonEta_postMETcut Standard Muons #eta_{#mu} 4 1 0 0 0 0 -2.5 2.5 0 0
-ElectronEta_postMETcut Standard Electrons #eta_{e} 4 1 0 0 0 0 -2.5 2.5 0 0
-LeptonEta_postMETcut Standard Leptons #eta_{l} 4 1 0 0 0 0 -2.5 2.5 0 0
+MuonEta_postMETcut Standard Muons #eta_{#mu} 4 1 0 0 0 1.2e4 -2.5 2.5 0 0
+ElectronEta_postMETcut Standard Electrons #eta_{e} 4 1 0 0 0 1.2e4 -2.5 2.5 0 0
+LeptonEta_postMETcut Standard Leptons #eta_{l} 4 1 0 0 0 1.1e4 -2.5 2.5 0 0
 
 LeptonEta_diLep Standard Leptons #eta_{l} 4 0 0 0 0 0 -2.5 2.5 0 0
 jetpT Standard Jets p_{T} 2 1 0 1 10 1.e5 30 400 0 0
@@ -35,11 +35,11 @@ HypToppT Standard Topquarks p_{T}^{t} 20 1 0 0 0 0 0 0 0 0
 HypTTBarMass Standard Toppairs m^{t#bar{t}} 40 1 0 0 0 0 0 0 0 0
 HypTTBarRapidity Standard Toppairs y^{t#bar{t}} 2 1 0 0 0 1.3e4 -2.5 2.5 0 0
 HypTTBarpT Standard Toppairs p_{T}^{t#bar{t}} 10 1 0 0 0 0 0 295 0 0
-HypBJetpT Standard b-jets p_{T}^{b} 2 0 0 0 0 0 0 400 0 0
-HypBJetEta Standard b-jets #eta^{b} 2 1 0 0 0 0 -2.5 2.5 0 0
+HypBJetpT Standard b-jets p_{T}^{b} 2 1 0 1 1 0 39 400 0 0
+HypBJetEta Standard b-jets #eta^{b} 2 1 0 0 0 1.7e4 -2.5 2.5 0 0
 HypLeptonEta Standard Leptons #eta^{l} 5 1 0 0 0 0 -3 3 0 0
 HypLeptonpT Standard Leptons p_{T}^{l} 5 1 0 0 0 0 0 0 0 0
-HypLeptonBjetMass Standard N_{Events} m^{lb} 10 1 0 0 0 0 0 300 0 0
+HypLeptonBjetMass Standard N_{Events} m^{lb} 10 1 0 0 0 7e4 0 179 0 0
 
 HypBBBarpT Standard N_{Events} p_{T}^{b#bar{b}} 5 1 0 0 0 0 0 350 0 0
 HypBBBarMass Standard N_{Events} m^{b#bar{b}} 10 1 0 0 0 0 0 600 0 0
