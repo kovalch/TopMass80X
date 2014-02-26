@@ -56,7 +56,7 @@ public:
     
     
     
-protected:
+private:
     
     /// Struct holding the histograms for one selection step
     struct StepHistograms{
@@ -69,8 +69,9 @@ protected:
         std::map<TString, TH1*> m_histogram_;
     };
     
-    /// Add a new selection step
-    void addStep(const TString& step);
+    
+    
+protected:
     
     /// Book all histograms for given selection step (dummy method, override in inherited AnalysisHistograms)
     virtual void bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram);
@@ -84,9 +85,6 @@ protected:
                             const double& weight, const TString& step,
                             std::map<TString, TH1*>& m_histogram);
     
-    /// Check whether a given selection step already exists
-    bool checkExistence(const TString& step)const;
-    
     /// Store the object in the output list and return it
     template<class T> T* store(T* obj){return common::store(obj, selectorList_);}
     
@@ -94,9 +92,6 @@ protected:
     
     /// The prefix which all histograms of the specific analyzer should have
     const TString prefix_;
-    
-    /// Pointer for bookkeeping of histograms
-    TSelectorList* selectorList_;
     
     /// The map containing all the step histograms for all selection steps
     std::map<TString, StepHistograms> m_stepHistograms_;
@@ -109,6 +104,21 @@ protected:
     
     /// The categories in no. of jets and b-jets
     const JetCategories* jetCategories_;
+    
+    
+    
+private:
+    
+    /// Add a new selection step
+    void addStep(const TString& step);
+    
+    /// Check whether a given selection step already exists
+    bool checkExistence(const TString& step)const;
+    
+    
+    
+    /// Pointer for bookkeeping of histograms
+    TSelectorList* selectorList_;
 };
 
 

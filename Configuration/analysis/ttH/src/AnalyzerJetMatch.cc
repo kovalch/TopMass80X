@@ -519,7 +519,7 @@ void AnalyzerJetMatch::fillHistos(const RecoObjects& recoObjects, const CommonGe
                                   const KinRecoObjects&,
                                   const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
                                   const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
-                                  const double& weight, const TString& step,
+                                  const double& weight, const TString&,
                                   std::map<TString, TH1*>& m_histogram)
 {
     TString name;
@@ -1038,14 +1038,14 @@ void AnalyzerJetMatch::fillHistos(const RecoObjects& recoObjects, const CommonGe
         else if (n_Overlapping==0) isOverlapping=false;
         
         name = "NOverlappingHadrons";
-        m_stepHistograms_[step].m_histogram_[name]->Fill(n_Overlapping);
+        m_histogram[name]->Fill(n_Overlapping);
             
         name = "HasOverlappingHadrons";
-        if (isOverlapping)  m_stepHistograms_[step].m_histogram_[name]->Fill(1);
-        if (!isOverlapping) m_stepHistograms_[step].m_histogram_[name]->Fill(0);
+        if (isOverlapping)  m_histogram[name]->Fill(1);
+        if (!isOverlapping) m_histogram[name]->Fill(0);
       
         name = "GenJetsID_VS_NOverlappingHadrons_2D";
-        ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(n_Overlapping,n_GenJets);
+        ((TH2D*)m_histogram[name])->Fill(n_Overlapping,n_GenJets);
           
     }//if (testbHadcommonJetIndex.size()>1) 
     //======================================================================//
@@ -1114,14 +1114,14 @@ void AnalyzerJetMatch::fillHistos(const RecoObjects& recoObjects, const CommonGe
 
 
         name = "NOverlappingHadrons_Top";
-        m_stepHistograms_[step].m_histogram_[name]->Fill(n_Overlapping_Top);
+        m_histogram[name]->Fill(n_Overlapping_Top);
         
         name = "HasOverlappingHadrons_Top";
-        if (isOverlapping_Top)  m_stepHistograms_[step].m_histogram_[name]->Fill(1);
-        if (!isOverlapping_Top) m_stepHistograms_[step].m_histogram_[name]->Fill(0);
+        if (isOverlapping_Top)  m_histogram[name]->Fill(1);
+        if (!isOverlapping_Top) m_histogram[name]->Fill(0);
       
         name = "GenJetsID_VS_NOverlappingHadrons_Top_2D";
-        ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(n_Overlapping_Top,n_TopGenJets);    
+        ((TH2D*)m_histogram[name])->Fill(n_Overlapping_Top,n_TopGenJets);    
     }//if (MyTopJetsIndex.size()>1)      
     
 
@@ -1190,14 +1190,14 @@ void AnalyzerJetMatch::fillHistos(const RecoObjects& recoObjects, const CommonGe
 
 
         name = "NOverlappingHadrons_Higgs";
-        m_stepHistograms_[step].m_histogram_[name]->Fill(n_Overlapping_Higgs);
+        m_histogram[name]->Fill(n_Overlapping_Higgs);
       
         name = "HasOverlappingHadrons_Higgs";
-        if (isOverlapping_Higgs)  m_stepHistograms_[step].m_histogram_[name]->Fill(1);
-        if (!isOverlapping_Higgs) m_stepHistograms_[step].m_histogram_[name]->Fill(0);
+        if (isOverlapping_Higgs)  m_histogram[name]->Fill(1);
+        if (!isOverlapping_Higgs) m_histogram[name]->Fill(0);
     
         name = "GenJetsID_VS_NOverlappingHadrons_Higgs_2D";
-        ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(n_Overlapping_Higgs,n_HiggsGenJets);
+        ((TH2D*)m_histogram[name])->Fill(n_Overlapping_Higgs,n_HiggsGenJets);
     }
           
 
@@ -1265,14 +1265,14 @@ void AnalyzerJetMatch::fillHistos(const RecoObjects& recoObjects, const CommonGe
         else if (n_Overlapping_TopHiggs==0) isOverlapping_TopHiggs=false;
 
         name = "NOverlappingHadrons_TopHiggs";
-        m_stepHistograms_[step].m_histogram_[name]->Fill(n_Overlapping_TopHiggs);
+        m_histogram[name]->Fill(n_Overlapping_TopHiggs);
             
         name = "HasOverlappingHadrons_TopHiggs";
-        if (isOverlapping_TopHiggs)  m_stepHistograms_[step].m_histogram_[name]->Fill(1);
-        if (!isOverlapping_TopHiggs) m_stepHistograms_[step].m_histogram_[name]->Fill(0);
+        if (isOverlapping_TopHiggs)  m_histogram[name]->Fill(1);
+        if (!isOverlapping_TopHiggs) m_histogram[name]->Fill(0);
       
         name = "GenJetsID_VS_NOverlappingHadrons_TopHiggs_2D";
-        ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(n_Overlapping_TopHiggs,n_TopHiggsGenJets);
+        ((TH2D*)m_histogram[name])->Fill(n_Overlapping_TopHiggs,n_TopHiggsGenJets);
     }
 
 
@@ -1377,37 +1377,37 @@ void AnalyzerJetMatch::fillHistos(const RecoObjects& recoObjects, const CommonGe
 
         
         name = "MinDeltaR";
-        m_stepHistograms_[step].m_histogram_[name]->Fill(minR, weight);
+        m_histogram[name]->Fill(minR, weight);
 
         name = "MinDeltaEta";
-        m_stepHistograms_[step].m_histogram_[name]->Fill(minEta, weight);
+        m_histogram[name]->Fill(minEta, weight);
         
         name = "MinDeltaPhi";
-        m_stepHistograms_[step].m_histogram_[name]->Fill(minPhi, weight);
+        m_histogram[name]->Fill(minPhi, weight);
 
         name = "Topleading_TopHiggsJets_Pt";
-        m_stepHistograms_[step].m_histogram_[name]->Fill(commonGenObjects.allGenJets_->at(LeadingTopJetIndx).Pt(), weight);
+        m_histogram[name]->Fill(commonGenObjects.allGenJets_->at(LeadingTopJetIndx).Pt(), weight);
         
         name = "Topleading_TopHiggsJets_eta";
-        m_stepHistograms_[step].m_histogram_[name]->Fill(commonGenObjects.allGenJets_->at(LeadingTopJetIndx).Eta(), weight);
+        m_histogram[name]->Fill(commonGenObjects.allGenJets_->at(LeadingTopJetIndx).Eta(), weight);
 
         name = "Topsubleading_TopHiggsJets_Pt";
-        m_stepHistograms_[step].m_histogram_[name]->Fill(commonGenObjects.allGenJets_->at(SubLeadingTopJetIndx).Pt(), weight);
+        m_histogram[name]->Fill(commonGenObjects.allGenJets_->at(SubLeadingTopJetIndx).Pt(), weight);
 
         name = "Topsubleading_TopHiggsJets_eta";
-        m_stepHistograms_[step].m_histogram_[name]->Fill(commonGenObjects.allGenJets_->at(SubLeadingTopJetIndx).Eta(), weight);
+        m_histogram[name]->Fill(commonGenObjects.allGenJets_->at(SubLeadingTopJetIndx).Eta(), weight);
 
         name = "Higgsleading_TopHiggsJets_Pt";
-        m_stepHistograms_[step].m_histogram_[name]->Fill(commonGenObjects.allGenJets_->at(LeadingHiggsJetIndx).Pt(), weight);
+        m_histogram[name]->Fill(commonGenObjects.allGenJets_->at(LeadingHiggsJetIndx).Pt(), weight);
 
         name = "Higgsleading_TopHiggsJets_eta";
-        m_stepHistograms_[step].m_histogram_[name]->Fill(commonGenObjects.allGenJets_->at(LeadingHiggsJetIndx).Eta(), weight);
+        m_histogram[name]->Fill(commonGenObjects.allGenJets_->at(LeadingHiggsJetIndx).Eta(), weight);
 
         name = "Higgssubleading_TopHiggsJets_Pt";
-        m_stepHistograms_[step].m_histogram_[name]->Fill(commonGenObjects.allGenJets_->at(SubLeadingHiggsJetIndx).Pt(), weight);
+        m_histogram[name]->Fill(commonGenObjects.allGenJets_->at(SubLeadingHiggsJetIndx).Pt(), weight);
 
         name = "Higgssubleading_TopHiggsJets_eta";
-        m_stepHistograms_[step].m_histogram_[name]->Fill(commonGenObjects.allGenJets_->at(SubLeadingHiggsJetIndx).Eta(), weight);
+        m_histogram[name]->Fill(commonGenObjects.allGenJets_->at(SubLeadingHiggsJetIndx).Eta(), weight);
 
 
     }
@@ -1429,25 +1429,25 @@ void AnalyzerJetMatch::fillHistos(const RecoObjects& recoObjects, const CommonGe
 
 
         name = "DeltaR_Topjet";
-        m_stepHistograms_[step].m_histogram_[name]->Fill(deltaR, weight);
+        m_histogram[name]->Fill(deltaR, weight);
         
         name = "DeltaEta_Topjet";
-        m_stepHistograms_[step].m_histogram_[name]->Fill(deltaEta, weight);
+        m_histogram[name]->Fill(deltaEta, weight);
 
         name = "DeltaPhi_Topjet";
-        m_stepHistograms_[step].m_histogram_[name]->Fill(deltaPhi, weight);
+        m_histogram[name]->Fill(deltaPhi, weight);
 
         name = "leading_Topjet_Pt";
-        m_stepHistograms_[step].m_histogram_[name]->Fill(commonGenObjects.allGenJets_->at(LeadingTopJetIndx).Pt(), weight);
+        m_histogram[name]->Fill(commonGenObjects.allGenJets_->at(LeadingTopJetIndx).Pt(), weight);
 
         name = "leading_Topjet_eta";
-        m_stepHistograms_[step].m_histogram_[name]->Fill(commonGenObjects.allGenJets_->at(LeadingTopJetIndx).Eta(), weight);
+        m_histogram[name]->Fill(commonGenObjects.allGenJets_->at(LeadingTopJetIndx).Eta(), weight);
 
         name = "subleading_Topjet_Pt";
-        m_stepHistograms_[step].m_histogram_[name]->Fill(commonGenObjects.allGenJets_->at(SubLeadingTopJetIndx).Pt(), weight);
+        m_histogram[name]->Fill(commonGenObjects.allGenJets_->at(SubLeadingTopJetIndx).Pt(), weight);
 
         name = "subleading_Topjet_eta";
-        m_stepHistograms_[step].m_histogram_[name]->Fill(commonGenObjects.allGenJets_->at(SubLeadingTopJetIndx).Eta(), weight);
+        m_histogram[name]->Fill(commonGenObjects.allGenJets_->at(SubLeadingTopJetIndx).Eta(), weight);
     }
 
     //=================================     Higgs Jets    ===========================================//
@@ -1464,25 +1464,25 @@ void AnalyzerJetMatch::fillHistos(const RecoObjects& recoObjects, const CommonGe
 
         
         name = "DeltaR_Higgsjet";
-        m_stepHistograms_[step].m_histogram_[name]->Fill(deltaR, weight);
+        m_histogram[name]->Fill(deltaR, weight);
 
         name = "DeltaEta_Higgsjet";
-        m_stepHistograms_[step].m_histogram_[name]->Fill(deltaEta, weight);
+        m_histogram[name]->Fill(deltaEta, weight);
 
         name = "DeltaPhi_Higgsjet";
-        m_stepHistograms_[step].m_histogram_[name]->Fill(deltaPhi, weight);
+        m_histogram[name]->Fill(deltaPhi, weight);
         
         name = "leading_Higgsjet_Pt";
-        m_stepHistograms_[step].m_histogram_[name]->Fill(commonGenObjects.allGenJets_->at(LeadingHiggsJetIndx).Pt(), weight);
+        m_histogram[name]->Fill(commonGenObjects.allGenJets_->at(LeadingHiggsJetIndx).Pt(), weight);
 
         name = "leading_Higgsjet_eta";
-        m_stepHistograms_[step].m_histogram_[name]->Fill(commonGenObjects.allGenJets_->at(LeadingHiggsJetIndx).Eta(), weight);
+        m_histogram[name]->Fill(commonGenObjects.allGenJets_->at(LeadingHiggsJetIndx).Eta(), weight);
 
         name = "subleading_Higgsjet_Pt";
-        m_stepHistograms_[step].m_histogram_[name]->Fill(commonGenObjects.allGenJets_->at(SubLeadingHiggsJetIndx).Pt(), weight);
+        m_histogram[name]->Fill(commonGenObjects.allGenJets_->at(SubLeadingHiggsJetIndx).Pt(), weight);
 
         name = "subleading_Higgsjet_eta";
-        m_stepHistograms_[step].m_histogram_[name]->Fill(commonGenObjects.allGenJets_->at(SubLeadingHiggsJetIndx).Eta(), weight);
+        m_histogram[name]->Fill(commonGenObjects.allGenJets_->at(SubLeadingHiggsJetIndx).Eta(), weight);
     }
 
 
@@ -1496,46 +1496,46 @@ void AnalyzerJetMatch::fillHistos(const RecoObjects& recoObjects, const CommonGe
                 double ToprecoP = recoObjects.jets_->at(ToprecoIndex.at(i_get)).M();
           
                 name = "GenP_VS_RecoP_Topjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(ToprecoP,TopgenP,weight);
+                ((TH2D*)m_histogram[name])->Fill(ToprecoP,TopgenP,weight);
           
                 name = "MinDeltaR_RecoGen_Topjet";
-                m_stepHistograms_[step].m_histogram_[name]->Fill(minRTopRecoGen.at(i_get),weight);
+                m_histogram[name]->Fill(minRTopRecoGen.at(i_get),weight);
 
                 name = "MinDeltaR_RecoGen_VS_PtGen_Topjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(), minRTopRecoGen.at(i_get),weight);
+                ((TH2D*)m_histogram[name])->Fill(commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(), minRTopRecoGen.at(i_get),weight);
 
                 name = "RecoPtOverGenPt_Topjet";
-                m_stepHistograms_[step].m_histogram_[name]->Fill(recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
+                m_histogram[name]->Fill(recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
 
                 name = "GenPtMinusRecoPtOverGenPt_Topjet";
-                m_stepHistograms_[step].m_histogram_[name]->Fill((commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt()-recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt())/commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
+                m_histogram[name]->Fill((commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt()-recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt())/commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
 
                 name = "GenPtVSRecoPt_Topjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt(), commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt(), commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
       
                 name = "GenEtaVSRecoEta_Topjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(recoObjects.jets_->at(ToprecoIndex.at(i_get)).Eta(), commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Eta(),weight);
+                ((TH2D*)m_histogram[name])->Fill(recoObjects.jets_->at(ToprecoIndex.at(i_get)).Eta(), commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Eta(),weight);
 
                 name = "GenPhiVSRecoPhi_Topjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(recoObjects.jets_->at(ToprecoIndex.at(i_get)).Phi(), commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Phi(),weight);
+                ((TH2D*)m_histogram[name])->Fill(recoObjects.jets_->at(ToprecoIndex.at(i_get)).Phi(), commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Phi(),weight);
 
                 name = "GenPtVSGenPtMinusRecoPt_Topjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt()-recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt(), commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt()-recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt(), commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
 
                 name = "RecoPtOverGenPtVsGenPt_Topjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(), recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(), recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
 
                 name = "RecoPtOverGenPtVsGenEta_Topjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Eta(), recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Eta(), recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
 
                 name = "RecoPtOverGenPtVsGenPhi_Topjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Phi(), recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Phi(), recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
 
                 name = "RecoPtOverGenPtVsMinDeltaR_Topjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(minRTopRecoGen.at(i_get), recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(minRTopRecoGen.at(i_get), recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
 
                 name = "GenPtMinusRecoPtOverGenPtVsMinDeltaR_Topjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(minRTopRecoGen.at(i_get), (commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt()-recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt())/commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(minRTopRecoGen.at(i_get), (commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt()-recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt())/commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
             }
         }
     }
@@ -1549,46 +1549,46 @@ void AnalyzerJetMatch::fillHistos(const RecoObjects& recoObjects, const CommonGe
                 double HiggsrecoP = recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).M();          
                 
                 name = "GenP_VS_RecoP_Higgsjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(HiggsrecoP,HiggsgenP,weight);
+                ((TH2D*)m_histogram[name])->Fill(HiggsrecoP,HiggsgenP,weight);
                 
                 name = "MinDeltaR_RecoGen_Higgsjet";
-                m_stepHistograms_[step].m_histogram_[name]->Fill(minRHiggsRecoGen.at(i_get),weight);
+                m_histogram[name]->Fill(minRHiggsRecoGen.at(i_get),weight);
 
                 name = "MinDeltaR_RecoGen_VS_PtGen_Higgsjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(), minRHiggsRecoGen.at(i_get),weight);
+                ((TH2D*)m_histogram[name])->Fill(commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(), minRHiggsRecoGen.at(i_get),weight);
 
                 name = "RecoPtOverGenPt_Higgsjet";
-                m_stepHistograms_[step].m_histogram_[name]->Fill(recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
+                m_histogram[name]->Fill(recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
 
                 name = "GenPtMinusRecoPtOverGenPt_Higgsjet";
-                m_stepHistograms_[step].m_histogram_[name]->Fill((commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt()-recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt())/commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
+                m_histogram[name]->Fill((commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt()-recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt())/commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
 
                 name = "GenPtVSRecoPt_Higgsjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt(), commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt(), commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
           
                 name = "GenEtaVSRecoEta_Higgsjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Eta(), commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Eta(),weight);
+                ((TH2D*)m_histogram[name])->Fill(recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Eta(), commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Eta(),weight);
 
                 name = "GenPhiVSRecoPhi_Higgsjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Phi(), commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Phi(),weight);
+                ((TH2D*)m_histogram[name])->Fill(recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Phi(), commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Phi(),weight);
 
                 name = "GenPtVSGenPtMinusRecoPt_Higgsjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt()-recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt(), commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt()-recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt(), commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
 
                 name = "RecoPtOverGenPtVsGenPt_Higgsjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(), recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(), recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
 
                 name = "RecoPtOverGenPtVsGenEta_Higgsjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Eta(), recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Eta(), recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
 
                 name = "RecoPtOverGenPtVsGenPhi_Higgsjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Phi(), recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Phi(), recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
 
                 name = "RecoPtOverGenPtVsMinDeltaR_Higgsjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(minRHiggsRecoGen.at(i_get), recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(minRHiggsRecoGen.at(i_get), recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
 
                 name = "GenPtMinusRecoPtOverGenPtVsMinDeltaR_Higgsjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(minRHiggsRecoGen.at(i_get), (commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt()-recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt())/commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(minRHiggsRecoGen.at(i_get), (commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt()-recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt())/commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
             }
         }
     }
@@ -1602,46 +1602,46 @@ void AnalyzerJetMatch::fillHistos(const RecoObjects& recoObjects, const CommonGe
                 double recoP = recoObjects.jets_->at(recoIndex.at(i_get)).M();          
                 
                 name = "GenP_VS_RecoP_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(recoP,genP,weight);
+                ((TH2D*)m_histogram[name])->Fill(recoP,genP,weight);
                 
                 name = "MinDeltaR_RecoGen";
-                m_stepHistograms_[step].m_histogram_[name]->Fill(minRRecoGen.at(i_get),weight);
+                m_histogram[name]->Fill(minRRecoGen.at(i_get),weight);
 
                 name = "MinDeltaR_RecoGen_VS_PtGen_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(), minRRecoGen.at(i_get),weight);
+                ((TH2D*)m_histogram[name])->Fill(commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(), minRRecoGen.at(i_get),weight);
 
                 name = "RecoPtOverGenPt";
-                m_stepHistograms_[step].m_histogram_[name]->Fill(recoObjects.jets_->at(recoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
+                m_histogram[name]->Fill(recoObjects.jets_->at(recoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
 
                 name = "GenPtMinusRecoPtOverGenPt";
-                m_stepHistograms_[step].m_histogram_[name]->Fill((commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt()-recoObjects.jets_->at(recoIndex.at(i_get)).Pt())/commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
+                m_histogram[name]->Fill((commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt()-recoObjects.jets_->at(recoIndex.at(i_get)).Pt())/commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
 
                 name = "GenPtVSRecoPt_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(recoObjects.jets_->at(recoIndex.at(i_get)).Pt(), commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(recoObjects.jets_->at(recoIndex.at(i_get)).Pt(), commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
           
                 name = "GenEtaVSRecoEta_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(recoObjects.jets_->at(recoIndex.at(i_get)).Eta(), commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Eta(),weight);
+                ((TH2D*)m_histogram[name])->Fill(recoObjects.jets_->at(recoIndex.at(i_get)).Eta(), commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Eta(),weight);
 
                 name = "GenPhiVSRecoPhi_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(recoObjects.jets_->at(recoIndex.at(i_get)).Phi(), commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Phi(),weight);
+                ((TH2D*)m_histogram[name])->Fill(recoObjects.jets_->at(recoIndex.at(i_get)).Phi(), commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Phi(),weight);
 
                 name = "GenPtVSGenPtMinusRecoPt_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt()-recoObjects.jets_->at(recoIndex.at(i_get)).Pt(), commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt()-recoObjects.jets_->at(recoIndex.at(i_get)).Pt(), commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
 
                 name = "RecoPtOverGenPtVsGenPt_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(), recoObjects.jets_->at(recoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(), recoObjects.jets_->at(recoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
 
                 name = "RecoPtOverGenPtVsGenEta_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Eta(), recoObjects.jets_->at(recoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Eta(), recoObjects.jets_->at(recoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
 
                 name = "RecoPtOverGenPtVsGenPhi_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Phi(), recoObjects.jets_->at(recoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Phi(), recoObjects.jets_->at(recoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
 
                 name = "RecoPtOverGenPtVsMinDeltaR_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(minRRecoGen.at(i_get), recoObjects.jets_->at(recoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(minRRecoGen.at(i_get), recoObjects.jets_->at(recoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
 
                 name = "GenPtMinusRecoPtOverGenPtVsMinDeltaR_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(minRRecoGen.at(i_get), (commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt()-recoObjects.jets_->at(recoIndex.at(i_get)).Pt())/commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(minRRecoGen.at(i_get), (commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt()-recoObjects.jets_->at(recoIndex.at(i_get)).Pt())/commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
             }
         }
     }
@@ -1655,46 +1655,46 @@ void AnalyzerJetMatch::fillHistos(const RecoObjects& recoObjects, const CommonGe
                 double recoP = recoObjects.jets_->at(recoIndex.at(i_get)).M();  
                 
                 name = "Mismatched_GenP_VS_RecoP_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(recoP,genP,weight);
+                ((TH2D*)m_histogram[name])->Fill(recoP,genP,weight);
                 
                 name = "Mismatched_MinDeltaR_RecoGen";
-                m_stepHistograms_[step].m_histogram_[name]->Fill(minRRecoGen.at(i_get),weight);
+                m_histogram[name]->Fill(minRRecoGen.at(i_get),weight);
 
                 name = "Mismatched_MinDeltaR_RecoGen_VS_PtGen_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(), minRRecoGen.at(i_get),weight);
+                ((TH2D*)m_histogram[name])->Fill(commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(), minRRecoGen.at(i_get),weight);
 
                 name = "Mismatched_RecoPtOverGenPt";
-                m_stepHistograms_[step].m_histogram_[name]->Fill(recoObjects.jets_->at(recoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
+                m_histogram[name]->Fill(recoObjects.jets_->at(recoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
 
                 name = "Mismatched_GenPtMinusRecoPtOverGenPt";
-                m_stepHistograms_[step].m_histogram_[name]->Fill((commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt()-recoObjects.jets_->at(recoIndex.at(i_get)).Pt())/commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
+                m_histogram[name]->Fill((commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt()-recoObjects.jets_->at(recoIndex.at(i_get)).Pt())/commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
 
                 name = "Mismatched_GenPtVSRecoPt_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(recoObjects.jets_->at(recoIndex.at(i_get)).Pt(), commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(recoObjects.jets_->at(recoIndex.at(i_get)).Pt(), commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
           
                 name = "Mismatched_GenEtaVSRecoEta_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(recoObjects.jets_->at(recoIndex.at(i_get)).Eta(), commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Eta(),weight);
+                ((TH2D*)m_histogram[name])->Fill(recoObjects.jets_->at(recoIndex.at(i_get)).Eta(), commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Eta(),weight);
 
                 name = "Mismatched_GenPhiVSRecoPhi_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(recoObjects.jets_->at(recoIndex.at(i_get)).Phi(), commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Phi(),weight);
+                ((TH2D*)m_histogram[name])->Fill(recoObjects.jets_->at(recoIndex.at(i_get)).Phi(), commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Phi(),weight);
 
                 name = "Mismatched_GenPtVSGenPtMinusRecoPt_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt()-recoObjects.jets_->at(recoIndex.at(i_get)).Pt(), commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt()-recoObjects.jets_->at(recoIndex.at(i_get)).Pt(), commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
 
                 name = "Mismatched_RecoPtOverGenPtVsGenPt_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(), recoObjects.jets_->at(recoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(), recoObjects.jets_->at(recoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
 
                 name = "Mismatched_RecoPtOverGenPtVsGenEta_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Eta(), recoObjects.jets_->at(recoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Eta(), recoObjects.jets_->at(recoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
 
                 name = "Mismatched_RecoPtOverGenPtVsGenPhi_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Phi(), recoObjects.jets_->at(recoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Phi(), recoObjects.jets_->at(recoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
 
                 name = "Mismatched_RecoPtOverGenPtVsMinDeltaR_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(minRRecoGen.at(i_get), recoObjects.jets_->at(recoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(minRRecoGen.at(i_get), recoObjects.jets_->at(recoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
 
                 name = "Mismatched_GenPtMinusRecoPtOverGenPtVsMinDeltaR_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(minRRecoGen.at(i_get), (commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt()-recoObjects.jets_->at(recoIndex.at(i_get)).Pt())/commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(minRRecoGen.at(i_get), (commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt()-recoObjects.jets_->at(recoIndex.at(i_get)).Pt())/commonGenObjects.allGenJets_->at(genIndex.at(i_get)).Pt(),weight);
             }
         }
     } 
@@ -1707,46 +1707,46 @@ void AnalyzerJetMatch::fillHistos(const RecoObjects& recoObjects, const CommonGe
                 double ToprecoP = recoObjects.jets_->at(ToprecoIndex.at(i_get)).M();
                 
                 name = "Mismatched_GenP_VS_RecoP_Topjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(ToprecoP,TopgenP,weight);
+                ((TH2D*)m_histogram[name])->Fill(ToprecoP,TopgenP,weight);
                 
                 name = "Mismatched_MinDeltaR_RecoGen_Topjet";
-                m_stepHistograms_[step].m_histogram_[name]->Fill(minRTopRecoGen.at(i_get),weight);
+                m_histogram[name]->Fill(minRTopRecoGen.at(i_get),weight);
 
                 name = "Mismatched_MinDeltaR_RecoGen_VS_PtGen_Topjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(), minRTopRecoGen.at(i_get),weight);
+                ((TH2D*)m_histogram[name])->Fill(commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(), minRTopRecoGen.at(i_get),weight);
 
                 name = "Mismatched_RecoPtOverGenPt_Topjet";
-                m_stepHistograms_[step].m_histogram_[name]->Fill(recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
+                m_histogram[name]->Fill(recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
 
                 name = "Mismatched_GenPtMinusRecoPtOverGenPt_Topjet";
-                m_stepHistograms_[step].m_histogram_[name]->Fill((commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt()-recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt())/commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
+                m_histogram[name]->Fill((commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt()-recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt())/commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
 
                 name = "Mismatched_GenPtVSRecoPt_Topjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt(), commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt(), commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
           
                 name = "Mismatched_GenEtaVSRecoEta_Topjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(recoObjects.jets_->at(ToprecoIndex.at(i_get)).Eta(), commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Eta(),weight);
+                ((TH2D*)m_histogram[name])->Fill(recoObjects.jets_->at(ToprecoIndex.at(i_get)).Eta(), commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Eta(),weight);
 
                 name = "Mismatched_GenPhiVSRecoPhi_Topjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(recoObjects.jets_->at(ToprecoIndex.at(i_get)).Phi(), commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Phi(),weight);
+                ((TH2D*)m_histogram[name])->Fill(recoObjects.jets_->at(ToprecoIndex.at(i_get)).Phi(), commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Phi(),weight);
 
                 name = "Mismatched_GenPtVSGenPtMinusRecoPt_Topjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt()-recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt(), commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt()-recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt(), commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
 
                 name = "Mismatched_RecoPtOverGenPtVsGenPt_Topjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(), recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(), recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
 
                 name = "Mismatched_RecoPtOverGenPtVsGenEta_Topjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Eta(), recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Eta(), recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
 
                 name = "Mismatched_RecoPtOverGenPtVsGenPhi_Topjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Phi(), recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Phi(), recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
 
                 name = "Mismatched_RecoPtOverGenPtVsMinDeltaR_Topjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(minRTopRecoGen.at(i_get), recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(minRTopRecoGen.at(i_get), recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
 
                 name = "Mismatched_GenPtMinusRecoPtOverGenPtVsMinDeltaR_Topjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(minRTopRecoGen.at(i_get), (commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt()-recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt())/commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(minRTopRecoGen.at(i_get), (commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt()-recoObjects.jets_->at(ToprecoIndex.at(i_get)).Pt())/commonGenObjects.allGenJets_->at(TopgenIndex.at(i_get)).Pt(),weight);
             }
         }
     }
@@ -1760,46 +1760,46 @@ void AnalyzerJetMatch::fillHistos(const RecoObjects& recoObjects, const CommonGe
                 double HiggsrecoP = recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).M();  
                 
                 name = "Mismatched_GenP_VS_RecoP_Higgsjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(HiggsrecoP,HiggsgenP,weight);
+                ((TH2D*)m_histogram[name])->Fill(HiggsrecoP,HiggsgenP,weight);
                 
                 name = "Mismatched_MinDeltaR_RecoGen_Higgsjet";
-                m_stepHistograms_[step].m_histogram_[name]->Fill(minRHiggsRecoGen.at(i_get),weight);
+                m_histogram[name]->Fill(minRHiggsRecoGen.at(i_get),weight);
 
                 name = "Mismatched_MinDeltaR_RecoGen_VS_PtGen_Higgsjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(), minRHiggsRecoGen.at(i_get),weight);
+                ((TH2D*)m_histogram[name])->Fill(commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(), minRHiggsRecoGen.at(i_get),weight);
 
                 name = "Mismatched_RecoPtOverGenPt_Higgsjet";
-                m_stepHistograms_[step].m_histogram_[name]->Fill(recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
+                m_histogram[name]->Fill(recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
 
                 name = "Mismatched_GenPtMinusRecoPtOverGenPt_Higgsjet";
-                m_stepHistograms_[step].m_histogram_[name]->Fill((commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt()-recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt())/commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
+                m_histogram[name]->Fill((commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt()-recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt())/commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
 
                 name = "Mismatched_GenPtVSRecoPt_Higgsjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt(), commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt(), commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
           
                 name = "Mismatched_GenEtaVSRecoEta_Higgsjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Eta(), commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Eta(),weight);
+                ((TH2D*)m_histogram[name])->Fill(recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Eta(), commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Eta(),weight);
 
                 name = "Mismatched_GenPhiVSRecoPhi_Higgsjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Phi(), commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Phi(),weight);
+                ((TH2D*)m_histogram[name])->Fill(recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Phi(), commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Phi(),weight);
 
                 name = "Mismatched_GenPtVSGenPtMinusRecoPt_Higgsjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt()-recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt(), commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt()-recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt(), commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
 
                 name = "Mismatched_RecoPtOverGenPtVsGenPt_Higgsjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(), recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(), recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
 
                 name = "Mismatched_RecoPtOverGenPtVsGenEta_Higgsjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Eta(), recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Eta(), recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
 
                 name = "Mismatched_RecoPtOverGenPtVsGenPhi_Higgsjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Phi(), recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Phi(), recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
 
                 name = "Mismatched_RecoPtOverGenPtVsMinDeltaR_Higgsjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(minRHiggsRecoGen.at(i_get), recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(minRHiggsRecoGen.at(i_get), recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt()/commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
 
                 name = "Mismatched_GenPtMinusRecoPtOverGenPtVsMinDeltaR_Higgsjet_2D";
-                ((TH2D*)m_stepHistograms_[step].m_histogram_[name])->Fill(minRHiggsRecoGen.at(i_get), (commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt()-recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt())/commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
+                ((TH2D*)m_histogram[name])->Fill(minRHiggsRecoGen.at(i_get), (commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt()-recoObjects.jets_->at(HiggsrecoIndex.at(i_get)).Pt())/commonGenObjects.allGenJets_->at(HiggsgenIndex.at(i_get)).Pt(),weight);
             }
         }
     }

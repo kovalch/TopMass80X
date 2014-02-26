@@ -30,10 +30,10 @@ AnalyzerBaseClass::AnalyzerBaseClass(const TString& prefix,
                                      const std::vector<TString>& stepsForCategories,
                                      const JetCategories* jetCategories):
 prefix_(prefix),
-selectorList_(0),
 selectionSteps_(selectionStepsNoCategories),
 stepsForCategories_(stepsForCategories),
-jetCategories_(jetCategories)
+jetCategories_(jetCategories),
+selectorList_(0)
 {
     if(!jetCategories_ && stepsForCategories_.size()>0){
         std::cerr<<"ERROR in constructor for AnalysisHistogramsBase! "
