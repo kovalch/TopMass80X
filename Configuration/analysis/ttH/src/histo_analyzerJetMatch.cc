@@ -871,27 +871,19 @@ int main(int argc, char** argv){
     
     TString prefix_histname  = "jetMatch_";
     TString prefix_histname_Mismatched  = prefix_histname+"Mismatched_";
-    
-    for (auto i_channel : v_Channel){
-        
-        for(size_t FileName_ = 0; FileName_ < v_inputFileTtbar.size(); ++FileName_){
-            for(size_t step_ = 0; step_ < v_step.size(); ++step_){
-                TString FileName         = v_inputFileTtbar.at(FileName_);
-                TString LegFileName      = v_inputLegTtbar.at(FileName_);
+         
+    for(size_t FileName_ = 0; FileName_ != v_inputFileTtbar.size(); ++FileName_){
+        for(size_t step_ = 0; step_ != v_step.size(); ++step_){
+            TString FileName         = v_inputFileTtbar.at(FileName_);
+            TString LegFileName      = v_inputLegTtbar.at(FileName_);
+            TString ending_histname  = v_step.at(step_);
 
-                TString ending_histname  = v_step.at(step_);
+            PrintHistogram(FileName, LegFileName , prefix_histname, ending_histname, false, v_Channel, v_Systematic);
+            
+            //If you want to print the histograms for the Gen-Reco Matching where at least 2 Gen Jets are matched to the same Reco Jets
+            //uncomment the following:
+            PrintHistogram(FileName, LegFileName, prefix_histname_Mismatched, ending_histname, true, v_Channel, v_Systematic);     
+        }
+    } 
 
-                TString channel          = Channel::convertChannel(i_channel);
-                std::cout << channel ;
-               
-                PrintHistogram(FileName, LegFileName , prefix_histname, ending_histname, false, v_Channel, v_Systematic);
-                
-                //If you want to print the histograms for the Gen-Reco Matching where at least 2 Gen Jets are matched to the same Reco Jets
-                //uncomment the following:
-                PrintHistogram(FileName, LegFileName, prefix_histname_Mismatched, ending_histname, true, v_Channel, v_Systematic);
-                
-                return 0;     
-            }
-        } 
-    }
 }
