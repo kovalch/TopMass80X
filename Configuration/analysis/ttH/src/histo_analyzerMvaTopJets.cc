@@ -19,11 +19,6 @@
 #include "TSystem.h"
 #include "TError.h"
 
-#include "MvaFactory.h"
-#include "MvaTreeHandler.h"
-#include "MvaTreeAnalyzer.h"
-#include "MvaWeights2d.h"
-#include "mvaSetup.h"
 #include "higgsUtils.h"
 #include "../../common/include/sampleHelpers.h"
 #include "../../common/include/CommandLineParameters.h"

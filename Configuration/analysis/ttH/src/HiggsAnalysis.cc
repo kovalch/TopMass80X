@@ -16,7 +16,7 @@
 #include "higgsUtils.h"
 #include "analysisStructs.h"
 #include "AnalyzerBaseClass.h"
-#include "MvaTreeHandler.h"
+#include "MvaTreeHandlerBase.h"
 #include "MvaTreeAnalyzer.h"
 #include "../../common/include/analysisUtils.h"
 #include "../../common/include/analysisObjectStructs.h"
@@ -67,8 +67,7 @@ HiggsAnalysis::HiggsAnalysis(TTree*):
 isInclusiveHiggs_(false),
 bbbarDecayFromInclusiveHiggs_(false),
 additionalBJetMode_(0),
-retagBJets_(true),  // FIXME: remove this variable which was implemented for testing (and in a different way as it was in TopAnalysis...)
-mvaTreeHandler_(0)
+retagBJets_(true)  // FIXME: remove this variable which was implemented for testing (and in a different way as it was in TopAnalysis...)
 {}
 
 
@@ -83,8 +82,10 @@ void HiggsAnalysis::Begin(TTree*)
     // Defaults from AnalysisBase
     AnalysisBase::Begin(0);
 
-    // Set up selection steps of MVA tree handler
-    if(mvaTreeHandler_) mvaTreeHandler_->book();
+    // Set up selection steps of MVA tree handlers
+    for(MvaTreeHandlerBase* mvaTreeHandler : v_mvaTreeHandler_){
+        if(mvaTreeHandler) mvaTreeHandler->book();
+    }
 }
 
 
@@ -98,23 +99,26 @@ void HiggsAnalysis::Terminate()
     if(additionalBJetMode_==0 && this->makeBtagEfficiencies()) btagScaleFactors_->produceBtagEfficiencies(static_cast<std::string>(this->channel()));
 
     // Do everything needed for MVA
-    if(mvaTreeHandler_){
-        // Produce and write tree
-        mvaTreeHandler_->writeTrees(static_cast<std::string>(this->outputFilename()),
-                                    Channel::convertChannel(static_cast<std::string>(this->channel())),
-                                    Systematic::convertSystematic(static_cast<std::string>(this->systematic())));
-        //mvaTreeHandler_->writeTrees(fOutput);
+    for(MvaTreeHandlerBase* mvaTreeHandler : v_mvaTreeHandler_){
+        if(mvaTreeHandler){
+            // Produce and write tree
+            mvaTreeHandler->writeTrees(static_cast<std::string>(this->outputFilename()),
+                                        Channel::convertChannel(static_cast<std::string>(this->channel())),
+                                        Systematic::convertSystematic(static_cast<std::string>(this->systematic())));
+            //mvaTreeHandler->writeTrees(fOutput);
 
-        // Create and store control plots in fOutput
-        MvaTreeAnalyzer mvaTreeAnalyzer(mvaTreeHandler_->stepMvaVariablesMap());
-        mvaTreeAnalyzer.plotVariables(fOutput);
-        mvaTreeAnalyzer.clear();
+            // Create and store control plots in fOutput
+            // FIXME: how to make this part generic for different handlers and corresponding analyzers?
+            MvaTreeAnalyzer mvaTreeAnalyzer(mvaTreeHandler->stepMvaVariablesMap());
+            mvaTreeAnalyzer.plotVariables(fOutput);
+            mvaTreeAnalyzer.clear();
 
-        // Cleanup
-        mvaTreeHandler_->clear();
+            // Cleanup
+            mvaTreeHandler->clear();
+        }
     }
-
-
+    
+    
     // Defaults from AnalysisBase
     AnalysisBase::Terminate();
 }
@@ -725,16 +729,16 @@ void HiggsAnalysis::SetAdditionalBJetMode(const int additionalBJetMode)
 
 
 
-void HiggsAnalysis::SetMvaInputProduction(MvaTreeHandler* mvaTreeHandler)
+void HiggsAnalysis::SetAllAnalyzers(std::vector<AnalyzerBaseClass*> v_analyzer)
 {
-    mvaTreeHandler_ = mvaTreeHandler;
+    v_analyzer_ = v_analyzer;
 }
 
 
 
-void HiggsAnalysis::SetAllAnalyzers(std::vector<AnalyzerBaseClass*> v_analyzer)
+void HiggsAnalysis::SetAllTreeHandlers(std::vector<MvaTreeHandlerBase*> v_mvaTreeHandler)
 {
-    v_analyzer_ = v_analyzer;
+    v_mvaTreeHandler_ = v_mvaTreeHandler;
 }
 
 
@@ -809,8 +813,15 @@ void HiggsAnalysis::fillAll(const std::string& selectionStep,
                                     genLevelWeights, recoLevelWeights,
                                     defaultWeight, selectionStep);
     }
-
-    if(mvaTreeHandler_) mvaTreeHandler_->fill(recoObjects, genObjectIndices, recoObjectIndices, defaultWeight, selectionStep);
+    
+    for(MvaTreeHandlerBase* mvaTreeHandler : v_mvaTreeHandler_){
+        if(mvaTreeHandler) mvaTreeHandler->fill(recoObjects, commonGenObjects,
+                                                topGenObjects, higgsGenObjects,
+                                                kinRecoObjects,
+                                                recoObjectIndices, genObjectIndices,
+                                                genLevelWeights, recoLevelWeights,
+                                                defaultWeight, selectionStep);
+    }
 }
 
 

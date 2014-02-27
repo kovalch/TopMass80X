@@ -17,7 +17,8 @@
 #include "HiggsAnalysis.h"
 #include "analysisHelpers.h"
 #include "JetCategories.h"
-#include "MvaTreeHandler.h"
+#include "MvaTreeHandlerBase.h"
+#include "MvaTreeHandlerTopJets.h"
 #include "MvaReader.h"
 
 #include "AnalyzerBaseClass.h"
@@ -239,10 +240,14 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
         v_analyzer.push_back(analyzerMvaTopJets);
     }
     
+    // Vector setting up all tree handlers for MVA input variables
+    std::vector<MvaTreeHandlerBase*> v_mvaTreeHandler;
+    
     // Set up production of MVA input tree
-    MvaTreeHandler* mvaTreeHandler(0);
+    MvaTreeHandlerTopJets* mvaTreeHandlerTopJets(0);
     if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::mvaP) != v_analysisMode.end()){
-        mvaTreeHandler = new MvaTreeHandler(MvaInputDIR, {"7"}, {"7"}, jetCategories);
+        mvaTreeHandlerTopJets = new MvaTreeHandlerTopJets(MvaInputDIR, {"7"}, {"7"}, jetCategories);
+        v_mvaTreeHandler.push_back(mvaTreeHandlerTopJets);
     }
     
     // Set up the analysis
@@ -255,9 +260,8 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
     selector->SetBtagScaleFactors(btagScaleFactors);
     selector->SetJetEnergyResolutionScaleFactors(jetEnergyResolutionScaleFactors);
     selector->SetJetEnergyScaleScaleFactors(jetEnergyScaleScaleFactors);
-    
-    selector->SetMvaInputProduction(mvaTreeHandler);
     selector->SetAllAnalyzers(v_analyzer);
+    selector->SetAllTreeHandlers(v_mvaTreeHandler);
     
     // Access selectionList containing all input sample nTuples
     ifstream infile("selectionList.txt");

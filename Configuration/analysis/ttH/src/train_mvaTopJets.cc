@@ -8,7 +8,7 @@
 #include "TString.h"
 
 #include "MvaFactory.h"
-#include "MvaTreeHandler.h"
+#include "MvaTreeHandlerTopJets.h"
 #include "MvaTreeAnalyzer.h"
 #include "MvaWeights2d.h"
 #include "mvaSetup.h"
@@ -121,7 +121,7 @@ void trainMvaTopJets(const std::vector<Channel::Channel>& v_channel,
             if(std::find(v_mode.begin(), v_mode.end(), "cp") != v_mode.end()){
                 TString outputFile = outputFolder;
                 outputFile.Append(PlotOutputFILE);
-                MvaTreeHandler mvaTreeHandler("", {});
+                MvaTreeHandlerTopJets mvaTreeHandler("", {});
                 mvaTreeHandler.importTrees(fileName.Data(), "training");
                 MvaTreeAnalyzer mvaTreeAnalyzer(mvaTreeHandler.stepMvaVariablesMap(), true);
                 mvaTreeAnalyzer.plotVariables(outputFile.Data());
@@ -139,7 +139,7 @@ void trainMvaTopJets(const std::vector<Channel::Channel>& v_channel,
                                       cleanSets, fileName);
                 
                 // Build 2D histograms of MVA weights for correct and swapped combinations
-                MvaTreeHandler mvaTreeHandler("", {});
+                MvaTreeHandlerTopJets mvaTreeHandler("", {});
                 mvaTreeHandler.importTrees(fileName.Data(), "training");
                 TString weightsFolder(outputFolder);
                 weightsFolder.Append(MvaWeightFileDIR).Append("/");

@@ -10,7 +10,7 @@ class TTree;
 #include "../../common/include/AnalysisBase.h"
 #include "../../common/include/classesFwd.h"
 
-class MvaTreeHandler;
+class MvaTreeHandlerBase;
 class AnalyzerBaseClass;
 class RecoObjects;
 class CommonGenObjects;
@@ -61,11 +61,11 @@ public:
     
     
     
-    /// Set up production of MVA input
-    void SetMvaInputProduction(MvaTreeHandler* mvaTreeHandler);
-    
     /// Set up all analysers of type AnalyzerBaseClass
     void SetAllAnalyzers(std::vector<AnalyzerBaseClass*> v_analyzer);
+    
+    /// Set up all tree handlers of type MvaTreeHandlerBase
+    void SetAllTreeHandlers(std::vector<MvaTreeHandlerBase*> v_mvaTreeHandler);
     
     
     
@@ -131,11 +131,11 @@ private:
     
     
     
-    /// Class for steering the I/O of MVA input tree, trying to identify the jets coming from (anti)b's from (anti)tops
-    MvaTreeHandler* mvaTreeHandler_;
-    
     /// All analysers of type AnalyzerBaseClass
     std::vector<AnalyzerBaseClass*> v_analyzer_;
+    
+    /// All tree handlers of type MvaTreeHandlerBase
+    std::vector<MvaTreeHandlerBase*> v_mvaTreeHandler_;
 };
 
 

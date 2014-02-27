@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cstdlib>
-#include <algorithm>
 #include <fstream>
+#include <utility>
 
 #include <TTree.h>
 #include <TFile.h>
@@ -12,10 +12,10 @@
 #include <TList.h>
 #include <Rtypes.h>
 
-#include "MvaTreeHandler.h"
-#include "MvaVariablesTopJets.h"
-#include "analysisStructs.h"
+#include "MvaTreeHandlerBase.h"
+#include "MvaVariablesBase.h"
 #include "JetCategories.h"
+#include "analysisStructs.h"
 #include "higgsUtils.h"
 #include "../../common/include/sampleHelpers.h"
 #include "../../common/include/analysisObjectStructs.h"
@@ -24,35 +24,33 @@
 
 
 
-MvaTreeHandler::MvaTreeHandler(const char* mvaInputDir,
-                               const std::vector<TString>& selectionStepsNoCategories,
-                               const std::vector<TString>& stepsForCategories,
-                               const JetCategories* jetCategories):
+MvaTreeHandlerBase::MvaTreeHandlerBase(const TString& prefix,
+                                       const char* mvaInputDir,
+                                       const std::vector<TString>& selectionStepsNoCategories,
+                                       const std::vector<TString>& stepsForCategories,
+                                       const JetCategories* jetCategories):
+prefix_(prefix),
 selectorList_(0),
 selectionSteps_(selectionStepsNoCategories),
 stepsForCategories_(stepsForCategories),
 jetCategories_(jetCategories),
 mvaInputDir_(mvaInputDir)
 {
-    std::cout<<"--- Beginning setting up MVA input tree handler\n";
-    
     if(!jetCategories_ && stepsForCategories_.size()>0){
-        std::cerr<<"ERROR in constructor for MvaTreeHandler! "
+        std::cerr<<"ERROR in constructor for MvaTreeHandlerBase! "
                  <<"No jet categories passed, but request for category-wise selection steps\n...break\n"<<std::endl;
         exit(236);
     }
     if(jetCategories_ && stepsForCategories_.size()==0){
-        std::cerr<<"ERROR in constructor for MvaTreeHandler! "
+        std::cerr<<"ERROR in constructor for MvaTreeHandlerBase! "
                  <<"Jet categories passed, but no category-wise selection steps defined\n...break\n"<<std::endl;
         exit(237);
     }
-    
-    std::cout<<"=== Finishing setting up MVA input tree handler\n\n";
 }
 
 
 
-void MvaTreeHandler::book()
+void MvaTreeHandlerBase::book()
 {
     for(const auto& stepShort : selectionSteps_){
         const TString step = tth::stepName(stepShort);
@@ -69,7 +67,7 @@ void MvaTreeHandler::book()
 
 
 
-void MvaTreeHandler::addStep(const TString& step)
+void MvaTreeHandlerBase::addStep(const TString& step)
 {
     // Check whether step already exists
     if(this->checkExistence(step)){
@@ -84,16 +82,19 @@ void MvaTreeHandler::addStep(const TString& step)
 
 
 
-bool MvaTreeHandler::checkExistence(const TString& step)const
+bool MvaTreeHandlerBase::checkExistence(const TString& step)const
 {
     return m_stepMvaVariables_.find(step) != m_stepMvaVariables_.end();
 }
 
 
 
-void MvaTreeHandler::fill(const RecoObjects& recoObjects,
-                          const tth::GenObjectIndices& genObjectIndices, const tth::RecoObjectIndices& recoObjectIndices,
-                          const double& weight, const TString& stepShort)
+void MvaTreeHandlerBase::fill(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+                              const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
+                              const KinRecoObjects& kinRecoObjects,
+                              const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
+                              const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
+                              const double& weight, const TString& stepShort)
 {
     // Number of selected jets and bjets
     const int numberOfJets = recoObjectIndices.jetIndices_.size();
@@ -104,25 +105,34 @@ void MvaTreeHandler::fill(const RecoObjects& recoObjects,
     const TString step = stepInCategory ? stepShort : tth::stepName(stepShort);
     const bool stepExists(this->checkExistence(step));
     if(!stepInCategory && jetCategories_){
-        // Here check the individual jet categories
         const int categoryId = jetCategories_->categoryId(numberOfJets, numberOfBjets);
+        
+        // Here check the individual jet categories
         const TString fullStepName = tth::stepName(stepShort, categoryId);
-        this->fill(recoObjects, genObjectIndices, recoObjectIndices, weight, fullStepName);
+        this->fill(recoObjects, commonGenObjects,
+                   topGenObjects, higgsGenObjects,
+                   kinRecoObjects,
+                   recoObjectIndices, genObjectIndices,
+                   genLevelWeights, recoLevelWeights,
+                   weight, fullStepName);
     }
     if(!stepExists) return;
     
-    // Loop over all jet combinations and get MVA input variables
-    const std::vector<MvaVariablesBase*> v_mvaVariablesTopJets = 
-            MvaVariablesTopJets::fillVariables(recoObjectIndices, genObjectIndices, recoObjects, weight);
-    
-    // Fill the MVA variables
-    m_stepMvaVariables_.at(step).insert(m_stepMvaVariables_.at(step).end(), v_mvaVariablesTopJets.begin(), v_mvaVariablesTopJets.end());
+    // Fill the MVA variables of the specific treeHandler
+    std::vector<MvaVariablesBase*>& mvaVariables = m_stepMvaVariables_.at(step);
+    this->fillVariables(recoObjects, commonGenObjects,
+                        topGenObjects, higgsGenObjects,
+                        kinRecoObjects,
+                        recoObjectIndices, genObjectIndices,
+                        genLevelWeights, recoLevelWeights,
+                        weight, step,
+                        mvaVariables);
 }
 
 
 
-void MvaTreeHandler::writeTrees(const std::string& outputFilename,
-                                const Channel::Channel& channel, const Systematic::Systematic& systematic)
+void MvaTreeHandlerBase::writeTrees(const std::string& outputFilename,
+                                    const Channel::Channel& channel, const Systematic::Systematic& systematic)
 {
     // Create output file for MVA tree
     std::string f_savename = static_cast<std::string>(common::assignFolder(mvaInputDir_, channel, systematic));
@@ -146,7 +156,7 @@ void MvaTreeHandler::writeTrees(const std::string& outputFilename,
 
 
 
-void MvaTreeHandler::writeTrees(TSelectorList* output)
+void MvaTreeHandlerBase::writeTrees(TSelectorList* output)
 {
     std::cout<<"--- Beginning production of MVA input trees\n";
     
@@ -158,16 +168,11 @@ void MvaTreeHandler::writeTrees(TSelectorList* output)
         const TString& step = stepMvaVariables.first;
         const std::vector<MvaVariablesBase*>& v_mvaVariables = stepMvaVariables.second;
         TTree* tree = m_stepTree[step];
-        tree = this->store(new TTree("mvaInputTopJets"+step, "mvaInputTopJets"));
-        
-        // Set up struct for branch handling
-        MvaVariablesBase* const mvaVariables = new MvaVariablesTopJets();
-        this->createBranches(tree, mvaVariables);
-        this->fillBranches(tree, mvaVariables, v_mvaVariables);
-        delete mvaVariables;
+        tree = this->store(new TTree(prefix_+"mvaVariables"+step, prefix_+"mvaVariables"));
+        this->createAndFillBranches(tree, v_mvaVariables);
     }
     
-    std::cout<<"Dijet combinations per step (step, no. of combinations):\n";
+    std::cout<<"MVA variables multiplicity per step (step, no. of entries):\n";
     for(auto vars : m_stepMvaVariables_){
         std::cout<<"\t"<<vars.first<<" , "<<vars.second.size()<<"\n";
     }
@@ -177,37 +182,18 @@ void MvaTreeHandler::writeTrees(TSelectorList* output)
 
 
 
-void MvaTreeHandler::createBranches(TTree* tree, const MvaVariablesBase* mvaVariables)const
+void MvaTreeHandlerBase::createAndFillBranches(TTree*, const std::vector<MvaVariablesBase*>&)
 {
-    const MvaVariablesTopJets* mvaVariablesTopJets = dynamic_cast<const MvaVariablesTopJets*>(mvaVariables);
-    if(!mvaVariablesTopJets){
-        std::cerr<<"ERROR in MvaTreeHandler::createBranches()! MvaVariables are of wrong type, cannot typecast\n...break\n"<<std::endl;
-        exit(395);
-    }
+    // WARNING: this is empty template method, overwrite for inherited class
     
-    this->createBranch(tree, mvaVariablesTopJets->lastInEvent_);
-    this->createBranch(tree, mvaVariablesTopJets->eventWeight_);
-    this->createBranch(tree, mvaVariablesTopJets->bQuarkRecoJetMatched_);
-    this->createBranch(tree, mvaVariablesTopJets->correctCombination_);
-    this->createBranch(tree, mvaVariablesTopJets->swappedCombination_);
-    this->createBranch(tree, mvaVariablesTopJets->jetChargeDiff_);
-    this->createBranch(tree, mvaVariablesTopJets->meanDeltaPhi_b_met_);
-    this->createBranch(tree, mvaVariablesTopJets->massDiff_recoil_bbbar_);
-    this->createBranch(tree, mvaVariablesTopJets->pt_b_antiLepton_);
-    this->createBranch(tree, mvaVariablesTopJets->pt_antiB_lepton_);
-    this->createBranch(tree, mvaVariablesTopJets->deltaR_b_antiLepton_);
-    this->createBranch(tree, mvaVariablesTopJets->deltaR_antiB_lepton_);
-    this->createBranch(tree, mvaVariablesTopJets->btagDiscriminatorSum_);
-    this->createBranch(tree, mvaVariablesTopJets->deltaPhi_antiBLepton_bAntiLepton_);
-    this->createBranch(tree, mvaVariablesTopJets->massDiff_fullBLepton_bbbar_);
-    this->createBranch(tree, mvaVariablesTopJets->meanMt_b_met_);
-    this->createBranch(tree, mvaVariablesTopJets->massSum_antiBLepton_bAntiLepton_);
-    this->createBranch(tree, mvaVariablesTopJets->massDiff_antiBLepton_bAntiLepton_);
+    std::cerr<<"ERROR! Dummy method createAndFillBranches() in MvaTreeHandlerBase is called, but overridden one should be used\n"
+             <<"...break\n"<<std::endl;
+    exit(568);
 }
 
 
 
-void MvaTreeHandler::createBranch(TTree* tree, const MvaVariableInt& variable)const
+void MvaTreeHandlerBase::createBranch(TTree* tree, const MvaVariableInt& variable)const
 {
     std::string name(variable.name());
     std::string nameType(name);
@@ -217,7 +203,7 @@ void MvaTreeHandler::createBranch(TTree* tree, const MvaVariableInt& variable)co
 
 
 
-void MvaTreeHandler::createBranch(TTree* tree, const MvaVariableFloat& variable)const
+void MvaTreeHandlerBase::createBranch(TTree* tree, const MvaVariableFloat& variable)const
 {
     std::string name(variable.name());
     std::string nameType(name);
@@ -227,43 +213,7 @@ void MvaTreeHandler::createBranch(TTree* tree, const MvaVariableFloat& variable)
 
 
 
-void MvaTreeHandler::fillBranches(TTree* tree, MvaVariablesBase* const mvaVariables,
-                                  const std::vector<MvaVariablesBase*>& v_mvaVariables)const
-{
-    for(const MvaVariablesBase* mvaVariablesTmp : v_mvaVariables){
-        const MvaVariablesTopJets* mvaVariablesTopJetsTmp = dynamic_cast<const MvaVariablesTopJets*>(mvaVariablesTmp);
-        if(!mvaVariablesTopJetsTmp){
-            std::cerr<<"ERROR in MvaTreeAnalyzer::plotStep()! MvaVariables are of wrong type, cannot typecast\n...break\n"<<std::endl;
-            exit(395);
-        }
-        
-        MvaVariablesTopJets* const mvaVariablesTopJets = dynamic_cast<MvaVariablesTopJets* const>(mvaVariables);
-        if(!mvaVariablesTopJets){
-            std::cerr<<"ERROR in MvaTreeAnalyzer::plotStep()! MvaVariables are of wrong type, cannot typecast\n...break\n"<<std::endl;
-            exit(395);
-        }
-        
-        *mvaVariablesTopJets = *mvaVariablesTopJetsTmp;
-        
-        tree->Fill();
-    }
-}
-
-
-
-void MvaTreeHandler::clear()
-{
-    selectorList_ = 0;
-    
-    for(auto& stepMvaVariables : m_stepMvaVariables_){
-        MvaVariablesTopJets::clearVariables(stepMvaVariables.second);
-    }
-    m_stepMvaVariables_.clear();
-}
-
-
-
-void MvaTreeHandler::importTrees(const std::string& f_savename, const std::string& prefix)
+void MvaTreeHandlerBase::importTrees(const std::string& f_savename, const std::string& prefix)
 {
     std::cout<<"--- Beginning import of TTrees with MVA variables\n";
     
@@ -281,7 +231,7 @@ void MvaTreeHandler::importTrees(const std::string& f_savename, const std::strin
         tth::nameStepPairs(f_savename.c_str(), treeName);
     
     // Loop over steps and import trees
-    m_stepMvaVariables_.clear();
+    this->clear();
     for(const auto& nameStepPair : v_nameStepPair){
         TTree* tree(0);
         tree = dynamic_cast<TTree*>(inputFile->Get(nameStepPair.first));
@@ -302,60 +252,52 @@ void MvaTreeHandler::importTrees(const std::string& f_savename, const std::strin
 
 
 
-void MvaTreeHandler::importBranches(TTree* tree, std::vector<MvaVariablesBase*>& v_mvaVariables)
+void MvaTreeHandlerBase::importBranches(TTree*, std::vector<MvaVariablesBase*>&)
 {
-    // Set up variables struct
-    MvaVariablesTopJets mvaVariablesTopJets;
+    // WARNING: this is empty template method, overwrite for inherited class
     
-    // Set branch addresses
-    this->importBranch(tree, mvaVariablesTopJets.lastInEvent_);
-    this->importBranch(tree, mvaVariablesTopJets.eventWeight_);
-    this->importBranch(tree, mvaVariablesTopJets.bQuarkRecoJetMatched_);
-    this->importBranch(tree, mvaVariablesTopJets.correctCombination_);
-    this->importBranch(tree, mvaVariablesTopJets.swappedCombination_);
-    this->importBranch(tree, mvaVariablesTopJets.jetChargeDiff_);
-    this->importBranch(tree, mvaVariablesTopJets.meanDeltaPhi_b_met_);
-    this->importBranch(tree, mvaVariablesTopJets.massDiff_recoil_bbbar_);
-    this->importBranch(tree, mvaVariablesTopJets.pt_b_antiLepton_);
-    this->importBranch(tree, mvaVariablesTopJets.pt_antiB_lepton_);
-    this->importBranch(tree, mvaVariablesTopJets.deltaR_b_antiLepton_);
-    this->importBranch(tree, mvaVariablesTopJets.deltaR_antiB_lepton_);
-    this->importBranch(tree, mvaVariablesTopJets.btagDiscriminatorSum_);
-    this->importBranch(tree, mvaVariablesTopJets.deltaPhi_antiBLepton_bAntiLepton_);
-    this->importBranch(tree, mvaVariablesTopJets.massDiff_fullBLepton_bbbar_);
-    this->importBranch(tree, mvaVariablesTopJets.meanMt_b_met_);
-    this->importBranch(tree, mvaVariablesTopJets.massSum_antiBLepton_bAntiLepton_);
-    this->importBranch(tree, mvaVariablesTopJets.massDiff_antiBLepton_bAntiLepton_);
-    
-    // Loop over all tree entries and fill vector of structs
-    for(Long64_t iEntry = 0; iEntry < tree->GetEntries(); ++iEntry){
-        tree->GetEntry(iEntry);
-        MvaVariablesTopJets* const mvaVariablesTopJetsPtr = new MvaVariablesTopJets();
-        *mvaVariablesTopJetsPtr = mvaVariablesTopJets;
-        v_mvaVariables.push_back(mvaVariablesTopJetsPtr);
-    }
+    std::cerr<<"ERROR! Dummy method importBranches() in MvaTreeHandlerBase is called, but overridden one should be used\n"
+             <<"...break\n"<<std::endl;
+    exit(568);
 }
 
 
 
-void MvaTreeHandler::importBranch(TTree* tree, MvaVariableInt& variable)
+void MvaTreeHandlerBase::importBranch(TTree* tree, MvaVariableInt& variable)
 {
     tree->SetBranchAddress(variable.name().data(), &variable.value_, &variable.branch_);
 }
 
 
 
-void MvaTreeHandler::importBranch(TTree* tree, MvaVariableFloat& variable)
+void MvaTreeHandlerBase::importBranch(TTree* tree, MvaVariableFloat& variable)
 {
     tree->SetBranchAddress(variable.name().data(), &variable.value_, &variable.branch_);
 }
 
 
 
-const std::map<TString, std::vector<MvaVariablesBase*> >& MvaTreeHandler::stepMvaVariablesMap()const
+const std::map<TString, std::vector<MvaVariablesBase*> >& MvaTreeHandlerBase::stepMvaVariablesMap()const
 {
     return m_stepMvaVariables_;
 }
+
+
+
+void MvaTreeHandlerBase::clear()
+{
+    selectorList_ = 0;
+    
+    for(auto& stepMvaVariables : m_stepMvaVariables_){
+        MvaVariablesBase::clearVariables(stepMvaVariables.second);
+    }
+    m_stepMvaVariables_.clear();
+}
+
+
+
+
+
 
 
 
@@ -403,6 +345,31 @@ tth::mvaHelpers::SystematicChannelFileNames tth::mvaHelpers::systematicChannelFi
     
     return m_systematicChannelFileNames;
 }
+
+
+
+void MvaTreeHandlerBase::fillVariables(const RecoObjects&, const CommonGenObjects&,
+                                       const TopGenObjects&, const HiggsGenObjects&,
+                                       const KinRecoObjects&,
+                                       const tth::RecoObjectIndices&, const tth::GenObjectIndices&,
+                                       const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
+                                       const double&, const TString&,
+                                       std::vector<MvaVariablesBase*>&)
+{
+    // WARNING: this is empty template method, overwrite for inherited class
+    
+    std::cerr<<"ERROR! Dummy method fillVariables() in MvaTreeHandlerBase is called, but overridden one should be used\n"
+             <<"...break\n"<<std::endl;
+    exit(568);
+}
+
+
+
+
+
+
+
+
 
 
 

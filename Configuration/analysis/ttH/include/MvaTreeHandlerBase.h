@@ -1,24 +1,31 @@
-#ifndef MvaTreeHandler_h
-#define MvaTreeHandler_h
+#ifndef MvaTreeHandlerBase_h
+#define MvaTreeHandlerBase_h
 
 #include <vector>
 #include <string>
 #include <map>
+#include <utility>
 
 #include <TString.h>
 
 class TTree;
 class TSelectorList;
 
-#include "MvaVariablesBase.h"
 #include "../../common/include/storeTemplate.h"
 #include "../../common/include/sampleHelpers.h"
 
+class MvaVariableInt;
+class MvaVariableFloat;
+class MvaVariablesBase;
 class JetCategories;
 class RecoObjects;
+class CommonGenObjects;
+class TopGenObjects;
+class HiggsGenObjects;
+class KinRecoObjects;
 namespace tth{
-    //class GenLevelWeights;
-    //class RecoLevelWeights;
+    class RecoLevelWeights;
+    class GenLevelWeights;
     class GenObjectIndices;
     class RecoObjectIndices;
 }
@@ -27,21 +34,20 @@ namespace tth{
 
 
 
-
-/// Class for handling the trees of input variables for MVA,
-/// trying to identify the jets coming from (anti)b's from (anti)tops
-class MvaTreeHandler{
+/// Base class for handling the trees of input variables for MVA
+class MvaTreeHandlerBase{
     
 public:
     
     /// Constructor for selection steps
-    MvaTreeHandler(const char* mvaInputDir,
-                   const std::vector<TString>& selectionStepsNoCategories,
-                   const std::vector<TString>& stepsForCategories =std::vector<TString>(),
-                   const JetCategories* jetCategories =0);
+    MvaTreeHandlerBase(const TString& prefix,
+                       const char* mvaInputDir,
+                       const std::vector<TString>& selectionStepsNoCategories,
+                       const std::vector<TString>& stepsForCategories =std::vector<TString>(),
+                       const JetCategories* jetCategories =0);
     
     /// Destructor
-    ~MvaTreeHandler(){}
+    ~MvaTreeHandlerBase(){}
     
     
     
@@ -49,8 +55,11 @@ public:
     void book();
     
     /// Fill the vector of MVA variables for given selection step
-    void fill(const RecoObjects& recoObjects,
-              const tth::GenObjectIndices& genObjectIndices, const tth::RecoObjectIndices& recoObjectIndices,
+    void fill(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+              const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
+              const KinRecoObjects& kinRecoObjects,
+              const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
+              const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
               const double& weight, const TString& stepShort);
     
     /// Write trees with MVA input variables in own file
@@ -73,6 +82,39 @@ public:
     
     
     
+protected:
+    
+    /// Fill all variables for given selection step (dummy method, override in inherited MvaTreeHandler)
+    virtual void fillVariables(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+                               const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
+                               const KinRecoObjects& kinRecoObjects,
+                               const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
+                               const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
+                               const double& weight, const TString& step,
+                               std::vector<MvaVariablesBase*>& mvaVariables);
+    
+    /// Import all branches from TTree (dummy method, override in inherited MvaTreeHandler)
+    virtual void importBranches(TTree* tree, std::vector<MvaVariablesBase*>& mvaVariables);
+    
+    /// Create and fill branches for TTree holding the input variables for MVA (dummy method, override in inherited MvaTreeHandler)
+    virtual void createAndFillBranches(TTree* tree, const std::vector<MvaVariablesBase*>& v_mvaVariables);
+    
+    
+    
+    /// Create single branch for TTree based on MvaInputVariables structs of type Int_t
+    void createBranch(TTree* tree, const MvaVariableInt& variable)const;
+    
+    /// Create single branch for TTree based on MvaInputVariables structs of type Float_t
+    void createBranch(TTree* tree, const MvaVariableFloat& variable)const;
+    
+    /// Import branch of type Int_t
+    void importBranch(TTree* tree, MvaVariableInt& variable);
+    
+    /// Import branch of type Float_t
+    void importBranch(TTree* tree, MvaVariableFloat& variable);
+    
+    
+    
 private:
     
     /// Store the object in the output list and return it
@@ -86,29 +128,10 @@ private:
     /// Check if selection step exists
     bool checkExistence(const TString& step)const;
     
-    /// Create branches for TTree holding the input variables for MVA
-    void createBranches(TTree* tree, const MvaVariablesBase* mvaVariables)const;
-    
-    /// Create single branch for TTree based on MvaInputVariables structs of type int
-    void createBranch(TTree* tree, const MvaVariableInt& variable)const;
-    
-    /// Create single branch for TTree based on MvaInputVariables structs of type int
-    void createBranch(TTree* tree, const MvaVariableFloat& variable)const;
-    
-    /// Fill branches of MVA input TTree
-    void fillBranches(TTree* tree, MvaVariablesBase* const mvaVariables,
-                      const std::vector<MvaVariablesBase*>& v_mvaVariables)const;
-    
-    /// Import all branches from TTree
-    void importBranches(TTree* tree, std::vector<MvaVariablesBase*>& mvaVariables);
-    
-    /// Import branch of type Int_t
-    void importBranch(TTree* tree, MvaVariableInt& variable);
-    
-    /// Import branch of type Float_t
-    void importBranch(TTree* tree, MvaVariableFloat& variable);
     
     
+    /// The prefix which all trees of the specific handler should have
+    const TString prefix_;    
     
     /// Pointer for bookkeeping of histograms, trees, etc.
     TSelectorList* selectorList_;
@@ -128,6 +151,8 @@ private:
     /// The folder where to store the input for MVA
     const char* mvaInputDir_;
 };
+
+
 
 
 

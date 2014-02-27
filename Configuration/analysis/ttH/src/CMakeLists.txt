@@ -11,7 +11,8 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   analysisHelpers
   analysisStructs
   HiggsAnalysis
-  MvaTreeHandler
+  MvaTreeHandlerBase
+  MvaTreeHandlerTopJets
   MvaTreeAnalyzer
   MvaWeights2d
   MvaReader
