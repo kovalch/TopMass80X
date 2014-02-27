@@ -19,5 +19,14 @@ eventWeight_(MvaVariableFloat(name_eventWeight_))
 
 
 
+void MvaVariablesBase::clearVariables(std::vector<MvaVariablesBase*>& v_mvaVariables){
+    for(auto& mvaVariables : v_mvaVariables) delete mvaVariables;
+    v_mvaVariables.clear();
+}
+
+
+
+
+
 
 

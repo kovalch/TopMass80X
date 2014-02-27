@@ -52,9 +52,6 @@ public:
                                                         const RecoObjects& recoObjects,
                                                         const double& eventWeight);
     
-    /// Clear the MVA input structs, i.e. delete all pointers properly
-    static void clearVariables(std::vector<MvaVariablesBase*>& v_mvaVariables);
-    
     /// Calculate the jet recoil for a given jet pair, i.e. vector sum of all jets except selected jet pair
     static VLV recoilForJetPairs(const tth::IndexPairs& jetIndexPairs,
                                  const std::vector<int>& jetIndices,

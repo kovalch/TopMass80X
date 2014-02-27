@@ -184,13 +184,6 @@ std::vector<MvaVariablesBase*> MvaVariablesTopJets::fillVariables(const tth::Rec
 
 
 
-void MvaVariablesTopJets::clearVariables(std::vector<MvaVariablesBase*>& v_mvaVariables){
-    for(auto& mvaVariables : v_mvaVariables) delete mvaVariables;
-    v_mvaVariables.clear();
-}
-
-
-
 VLV MvaVariablesTopJets::recoilForJetPairs(const tth::IndexPairs& jetIndexPairs, const std::vector<int>& jetIndices, const VLV& jets)
 {
     VLV result;
