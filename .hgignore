@@ -23,4 +23,6 @@ syntax: regexp
 ^Analyzer/ControlPlots$
 ^Analyzer/DuplicateRemoval$
 ^Analyzer/Skimmer$
+^Analyzer/AddPDFweights$
 ^Analyzer/plot
+
