@@ -872,11 +872,11 @@ int main(int argc, char** argv){
     TString prefix_histname  = "jetMatch_";
     TString prefix_histname_Mismatched  = prefix_histname+"Mismatched_";
          
-    for(size_t i_fileName = 0; i_fileName < v_inputFileTtbar.size(); ++i_fileName){
-        for(size_t i_step = 0; i_step < v_step.size(); ++i_step){
-            TString fileName         = v_inputFileTtbar.at(i_fileName);
-            TString legFileName      = v_inputLegTtbar.at(i_fileName);
-            TString ending_histname  = v_step.at(i_step);
+    for(size_t iFileName = 0; iFileName < v_inputFileTtbar.size(); ++iFileName){
+        for(const auto& iStep : v_step){
+            TString fileName         = v_inputFileTtbar.at(iFileName);
+            TString legFileName      = v_inputLegTtbar.at(iFileName);
+            TString ending_histname  = iStep;
 
             printHistogram(fileName, legFileName , prefix_histname, ending_histname, false, v_channel, v_systematic);
             
