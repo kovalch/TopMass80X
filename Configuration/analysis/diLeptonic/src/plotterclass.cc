@@ -943,11 +943,22 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
 
     for(unsigned int i = 0; i<XAxisbins.size();i++){Xbins[i]=XAxisbins[i];}
 
+    std::unique_ptr<TH1> sumttbar;
+    std::unique_ptr<TH1> allttbar;
+
     for(unsigned int i=0; i<hists.size() ; i++){ // prepare histos and leg
         drawhists[i]=(TH1D*) hists[i].Clone();//rebin and scale the histograms
         if(rebin>1) drawhists[i]->Rebin(rebin);
         if(XAxisbins.size()>1) drawhists[i] = drawhists[i]->Rebin(bins,"tmp",Xbins);
         setStyle(drawhists[i], i, true);
+        if (legends.at(i) == "t#bar{t} Signal") {
+            if (sumttbar.get()) sumttbar->Add(drawhists[i]);
+            else sumttbar = std::unique_ptr<TH1>{static_cast<TH1*>(drawhists[i]->Clone())};
+        }
+        if (legends.at(i).Contains("t#bar{t}")){
+            if (allttbar.get()) allttbar->Add(drawhists[i]);
+            else allttbar = std::unique_ptr<TH1>{static_cast<TH1*>(drawhists[i]->Clone())};
+        }
     }
     for(unsigned int i=0; i<hists.size() ; ++i){ // prepare histos and leg
 //         std::cout << "Legend ["<<i<<"] = " << legends.at(i) << std::endl;
@@ -1085,6 +1096,8 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
     }
     else{drawhists[0]->SetMaximum(ymax);}
 
+    if(name.Contains("HypTopRapidity") || name.Contains("HypTTBarRapidity")) drawhists[0]->GetXaxis()->SetNdivisions(511);
+
     drawhists[0]->GetXaxis()->SetNoExponent(kTRUE);
     TGaxis::SetMaxDigits(4);
 
@@ -1092,14 +1105,16 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
     //Removal of extra ticks in JetMult plots
     if(name.Contains("JetMult") || (name.Contains("jet") && name.Contains("Multi"))) {
         drawhists[0]->GetXaxis()->SetNdivisions(drawhists[0]->GetNbinsX(),0,0, 1);
-        TString TitBin = "";
-        for(int bin = 1; bin <= drawhists[0]->GetNbinsX(); bin++) {
-            if( bin == drawhists[0]->GetNbinsX()) {TitBin += "#geq"; TitBin += drawhists[0]->GetBinCenter(bin); drawhists[0]->GetXaxis()->SetBinLabel(bin,TitBin);}
-            else{TitBin += drawhists[0]->GetBinCenter(bin);
-            drawhists[0]->GetXaxis()->SetBinLabel(bin,TitBin);
-            }
-            TitBin  = "";
-        }
+
+//      // when changed the axis characters the size of the ticks cannot be modified: talk to Carmen
+//         TString TitBin = "";
+//         for(int bin = 1; bin <= drawhists[0]->GetNbinsX(); bin++) {
+//             if( bin == drawhists[0]->GetNbinsX()) {TitBin += "#geq"; TitBin += drawhists[0]->GetBinCenter(bin); drawhists[0]->GetXaxis()->SetBinLabel(bin,TitBin);}
+//             else{TitBin += drawhists[0]->GetBinCenter(bin);
+//             drawhists[0]->GetXaxis()->SetBinLabel(bin,TitBin);
+//             }
+//             TitBin  = "";
+//         }
     }
 
     //Add the binwidth to the yaxis in yield plots
@@ -1117,17 +1132,23 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
 
     stack->Draw("same HIST");
 
-    TH1* uncBand = nullptr;
+    TH1* stacksum = common::summedStackHisto(stack.get());
+    TH1* uncBand = nullptr, *uncBandPlot = nullptr;
     if(drawUncBand_){
-        uncBand = common::summedStackHisto(stack.get());
+        uncBand = dynamic_cast<TH1*>(allttbar->Clone("uncBand"));//common::summedStackHisto(stack.get());
         getSignalUncertaintyBand(uncBand, Channel);
         uncBand->SetFillStyle(3354);
         uncBand->SetFillColor(kBlack);
+        uncBand->SetLineColor(kBlack);
         gStyle->SetHatchesLineWidth(1);
         gStyle->SetHatchesSpacing(0.8);
         uncBand->SetMarkerStyle(0);
-        uncBand->Draw("same,e2");
 
+        uncBandPlot = dynamic_cast<TH1*> (uncBand->Clone("uncBandPlot"));
+        for (int i=0; i<=stacksum->GetNbinsX(); i++){
+            uncBandPlot->SetBinContent(i, stacksum->GetBinContent(i));
+        }
+        uncBandPlot->Draw("same,e2");
         leg->AddEntry(uncBand, "Uncertainty", "f");
         if(leg2)leg2->AddEntry(uncBand, "Uncertainty", "f");
     }
@@ -1135,7 +1156,7 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
     gPad->RedrawAxis();
     TExec *setex1 { new TExec("setex1","gStyle->SetErrorX(0.5)") };//this is frustrating and stupid but apparently necessary...
     setex1->Draw();
-    if(drawUncBand_)uncBand->Draw("same,e2");
+    if(drawUncBand_)uncBandPlot->Draw("same,e2");
     TExec *setex2 { new TExec("setex2","gStyle->SetErrorX(0.)") };
     setex2->Draw();
     drawhists[0]->Draw("same,e1");
@@ -1153,7 +1174,6 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
     if(leg1) leg1->Draw("SAME");
     if(leg2) leg2->Draw("SAME");
 
-    TH1* stacksum = common::summedStackHisto(stack.get());
     if(drawPlotRatio){
         double yminCP_ = 0.49, ymaxCP_ = 1.51;
         yRangeControlPlotRatio(yminCP_, ymaxCP_);
@@ -1164,14 +1184,6 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
     TString outdir = common::assignFolder(outpathPlots, Channel, Systematic);
     c->Print(outdir.Copy()+name+".eps");
 
-    std::unique_ptr<TH1> sumttbar;
-    for (size_t i = 0; i < hists.size(); ++i) {
-        if (legends.at(i) == "t#bar{t} Signal") {
-            if (sumttbar.get()) sumttbar->Add(drawhists[i]);
-            else sumttbar = std::unique_ptr<TH1>{static_cast<TH1*>(drawhists[i]->Clone())};
-        }
-    }
-
     // Get the ratio plot from the canvas
     TPad* tmpPad = dynamic_cast<TPad*>(c->GetPrimitive("rPad"));
     TH1* ratio = nullptr;
@@ -1181,6 +1193,7 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
     TFile out_root(outdir.Copy()+name+"_source.root", "RECREATE");
     drawhists[0]->Write(name+"_data");
     sumttbar->Write(name+"_signalmc");
+    allttbar->Write(name+"_allttbar");
     stacksum->SetName(name);
     stacksum->Write(name+"_allmc");
     if(ratio && ratio->GetEntries())ratio->Write("ratio");
@@ -1190,7 +1203,6 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
     c->Clear();
 
     for (TH1* h : drawhists) delete h;
-//     if(uncBand) delete uncBand;
 }
 
 void Plotter::setStyle(TH1 *hist, unsigned int i, bool isControlPlot)
@@ -2774,7 +2786,7 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
         leg2->AddEntry(h_DiffXSec, "Data", "p");
     }
 
-    setTheoryStyleAndFillLegend(h_DiffXSec, "madgraph");
+    setTheoryStyleAndFillLegend(h_DiffXSec, "data");
     setTheoryStyleAndFillLegend(madgraphhist, "madgraph");
     setTheoryStyleAndFillLegend(madgraphhistBinned, "madgraph", leg2);
     madgraphhistBinned->GetXaxis()->SetTitle(varhists[0]->GetXaxis()->GetTitle());
@@ -3670,7 +3682,7 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
         leg2->AddEntry(h_DiffXSec, "Data", "p");
     }
 
-    setTheoryStyleAndFillLegend(h_DiffXSec, "madgraph");
+    setTheoryStyleAndFillLegend(h_DiffXSec, "data");
     setTheoryStyleAndFillLegend(madgraphhist, "madgraph");
     setTheoryStyleAndFillLegend(madgraphhistBinned, "madgraph", leg2);
     madgraphhistBinned->GetXaxis()->SetTitle(varhists[0]->GetXaxis()->GetTitle());
@@ -4579,8 +4591,10 @@ void Plotter::setTheoryStyleAndFillLegend(TH1* histo, TString theoryName, TLegen
     histo->GetYaxis()->SetLabelSize(0.04);
 
     histo->SetLineWidth(2);
-    histo->SetMarkerStyle(1);
-    histo->SetMarkerSize(0);
+    if(theoryName != "data"){
+        histo->SetMarkerSize(0);
+        histo->SetMarkerStyle(1);
+    }
 
     if(theoryName == "madgraph"){
         histo->SetLineColor(kRed+1);
@@ -4675,8 +4689,8 @@ void Plotter::getSignalUncertaintyBand(TH1* uncBand, TString channel_)
         inputFileStream2.close();
 
         // This lines crashes the code, some probles arises form the HistoListReader class
-        TH1D *tmpUp = fileReader->GetClone<TH1D>(file_up, name+"_allmc", 1);
-        TH1D *tmpDo = fileReader->GetClone<TH1D>(file_do, name+"_allmc", 1);
+        TH1D *tmpUp = fileReader->GetClone<TH1D>(file_up, name+"_allttbar", 1);
+        TH1D *tmpDo = fileReader->GetClone<TH1D>(file_do, name+"_allttbar", 1);
 
         if(!tmpUp && tmpDo){ delete tmpDo; continue;}
         if(tmpUp && !tmpDo){ delete tmpUp; continue;}
@@ -4697,8 +4711,8 @@ void Plotter::getSignalUncertaintyBand(TH1* uncBand, TString channel_)
                 rel_diffup = 0;
             }
             if(syst.at(iter) == "MASS_") {
-                rel_diffdo = 1. * rel_diffdo / 12.;
-                rel_diffup = 1. * rel_diffup / 12.;
+                rel_diffdo = rel_diffdo / 12.;
+                rel_diffup = rel_diffup / 12.;
             }
             vec_varup.at(nbin) += rel_diffup * rel_diffup;
             vec_vardown.at(nbin) += rel_diffdo * rel_diffdo;

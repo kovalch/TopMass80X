@@ -264,7 +264,18 @@ void common::drawRatio(const TH1* histNumerator, const TH1* histDenominator, con
     TH1 *band = nullptr;
     if (uncband) {
         band = (TH1*)uncband->Clone("band");
-        band->Divide(band);
+        for(int i=0; i<= 1+uncband->GetNbinsX(); i++)
+        {
+            double error = 0;
+            double content = 1;
+            if(band->GetBinContent(i))
+            {
+                error = band->GetBinError(i) / band->GetBinContent(i);
+                content = band->GetBinContent(i) /band->GetBinContent(i);
+            }
+            band->SetBinError(i, error/content);
+            band->SetBinContent(i, content/content);
+        }
     }
 
     // create ratio
