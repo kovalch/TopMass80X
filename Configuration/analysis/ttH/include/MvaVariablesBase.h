@@ -84,6 +84,11 @@ public:
     
     
     
+    /// Clear the MVA input variables, i.e. delete all pointers properly
+    static void clearVariables(std::vector<MvaVariablesBase*>& v_mvaVariables);
+    
+    
+    
     /// Event weight including all scale factors
     MvaVariableFloat eventWeight_;
     
