@@ -94,7 +94,7 @@ void setStyle(){
 
 
 //Plot one TH1D histogram on each canvas
-void Plot_TH1 (TString outputFolder, TH1D *hist1, TString FileName, TString LegName, TString FigName, 
+void plot_TH1 (TString outputFolder, TH1D *hist1, TString fileName, TString LegName, TString FigName, 
                int hist1_color, TString hist1_leg, bool LogY, bool zoomXaxis=false, double xl=0.0, double xu=0.0) {
     
     // Set up histogram style  
@@ -157,8 +157,8 @@ void Plot_TH1 (TString outputFolder, TH1D *hist1, TString FileName, TString LegN
     C1->Modified();
     C1->Update();
     
-    C1->SaveAs(outputFolder+FileName+"_"+FigName+".eps");
-    C1->SaveAs(outputFolder+FileName+"_"+FigName+".png");
+    C1->SaveAs(outputFolder+fileName+"_"+FigName+".eps");
+    C1->SaveAs(outputFolder+fileName+"_"+FigName+".png");
 
     leg->Delete();
     C1->Close();
@@ -166,7 +166,7 @@ void Plot_TH1 (TString outputFolder, TH1D *hist1, TString FileName, TString LegN
 }
 
 //Plot two TH1D histograms on the same canvas               
-void Plot_2TH1 (TString outputFolder, TH1D *hist1, TH1D *hist2, TString FileName, TString LegName, TString FigName, 
+void plot_2TH1 (TString outputFolder, TH1D *hist1, TH1D *hist2, TString fileName, TString LegName, TString FigName, 
                 int hist1_color, int hist2_color, TString hist1_leg, TString hist2_leg, 
                 bool zoomXaxis=false, double xl=0.0, double xu=0.0) {
 
@@ -256,8 +256,8 @@ void Plot_2TH1 (TString outputFolder, TH1D *hist1, TH1D *hist2, TString FileName
     C1->Modified();
     C1->Update();
     
-    C1->SaveAs(outputFolder+FileName+"_"+FigName+".eps");
-    C1->SaveAs(outputFolder+FileName+"_"+FigName+".png");
+    C1->SaveAs(outputFolder+fileName+"_"+FigName+".eps");
+    C1->SaveAs(outputFolder+fileName+"_"+FigName+".png");
 
     leg->Delete();
     C1->Close();
@@ -266,7 +266,7 @@ void Plot_2TH1 (TString outputFolder, TH1D *hist1, TH1D *hist2, TString FileName
 
 
 //Plot four TH1D histograms on the same canvas
-void Plot_4TH1 (TString outputFolder, TH1D *hist1, TH1D *hist2, TH1D *hist3, TH1D *hist4, TString FileName, TString LegName, TString FigName, 
+void plot_4TH1 (TString outputFolder, TH1D *hist1, TH1D *hist2, TH1D *hist3, TH1D *hist4, TString fileName, TString LegName, TString FigName, 
                 int hist1_color, int hist2_color, int hist3_color, int hist4_color,
                 TString hist1_leg, TString hist2_leg, TString hist3_leg, TString hist4_leg,
                 bool zoomXaxis=false, double xl=0.0, double xu=0.0) {    
@@ -361,8 +361,8 @@ void Plot_4TH1 (TString outputFolder, TH1D *hist1, TH1D *hist2, TH1D *hist3, TH1
     C1->Modified();
     C1->Update();
     
-    C1->SaveAs(outputFolder+FileName+"_"+FigName+".eps");
-    C1->SaveAs(outputFolder+FileName+"_"+FigName+".png");
+    C1->SaveAs(outputFolder+fileName+"_"+FigName+".eps");
+    C1->SaveAs(outputFolder+fileName+"_"+FigName+".png");
 
     leg->Delete();
     C1->Close();
@@ -371,7 +371,7 @@ void Plot_4TH1 (TString outputFolder, TH1D *hist1, TH1D *hist2, TH1D *hist3, TH1
    
    
 //Plot one TH2D histogram on each canvas   
-void Plot_TH2 (TString outputFolder, TH2D *hist1, TString FileName, TString LegName, TString FigName, TString hist1_leg, 
+void plot_TH2 (TString outputFolder, TH2D *hist1, TString fileName, TString LegName, TString FigName, TString hist1_leg, 
                bool zoomXaxis=false, double xl=0.0, double xu=0.0, bool zoomYaxis=false, double yl=0.0, double yu=0.0) {
     // Set up histogram style  
     setStyle();
@@ -394,24 +394,24 @@ void Plot_TH2 (TString outputFolder, TH2D *hist1, TString FileName, TString LegN
     leg->AddEntry(hist1, hist1_leg, "l");
     leg->Draw("same"); 
     
-    C1->SaveAs(outputFolder+FileName+"_"+FigName+".eps");
-    C1->SaveAs(outputFolder+FileName+"_"+FigName+".png");
+    C1->SaveAs(outputFolder+fileName+"_"+FigName+".eps");
+    C1->SaveAs(outputFolder+fileName+"_"+FigName+".png");
 
     leg->Delete();
     C1->Close();
     
 }
     
-void PrintHistogram(TString FileName, TString LegFileName, TString prefix_histname, TString ending_histname, bool Mismatched, const std::vector<Channel::Channel>& v_channel, const std::vector<Systematic::Systematic>& v_systematic){
+void printHistogram(TString fileName, TString legFileName, TString prefix_histname, TString ending_histname, bool mismatched, const std::vector<Channel::Channel>& v_channel, const std::vector<Systematic::Systematic>& v_systematic){
     
     for(const auto& i_systematic : v_systematic){
         for(const auto& i_channel : v_channel){
             const TString outputFolder = common::assignFolder(OutputBaseDIR, i_channel, i_systematic);
             TString channel          = Channel::convertChannel(i_channel);
             
-            TString name=channel+"_"+FileName;
-            TString name_i=channel+" "+LegFileName;
-            TString file_name= InputBaseDIR+channel+"/"+channel+"_"+FileName+".root";
+            TString name=channel+"_"+fileName+ending_histname;
+            TString name_leg=channel+" "+legFileName;
+            TString file_name= InputBaseDIR+channel+"/"+channel+"_"+fileName+".root";
             
             
             //Open the file with the histograms
@@ -419,9 +419,9 @@ void PrintHistogram(TString FileName, TString LegFileName, TString prefix_histna
             
             //If you want to print the histograms for the Gen-Reco Matching where at least 2 Gen Jets are matched to the same Reco Jets
             //then you have to change the "name" as following:
-            if (Mismatched) name=channel+"_"+FileName+"_Mismatched";
+            if (mismatched) name=channel+"_"+fileName+"_Mismatched";
         
-            if (!Mismatched){
+            if (!mismatched){
                 //set the names for the histograms
                 std::vector<TString> v_Overlapping_All_histname1D_;{
                     v_Overlapping_All_histname1D_.push_back(prefix_histname+"matchedBjetFromTop"+ending_histname);
@@ -442,16 +442,16 @@ void PrintHistogram(TString FileName, TString LegFileName, TString prefix_histna
                 }
                 
                 //Print Histograms
-                Plot_TH1 (outputFolder, v_Overlapping_All_histname1D.at(0), name, name_i, "matchedBjetFromTop", 4, "Top Jets", false);
-                Plot_TH1 (outputFolder, v_Overlapping_All_histname1D.at(1), name, name_i, "unmatchedGenBjetFromTop", 4, "Top Jets", false);
-                Plot_TH1 (outputFolder, v_Overlapping_All_histname1D.at(1), name, name_i, "unmatchedRecoBjetFromTop", 4, "Top Jets", false);
-                Plot_TH1 (outputFolder, v_Overlapping_All_histname1D.at(1), name, name_i, "matchedBjetFromHiggs", 7, "Higgs Jets", false);
-                Plot_TH1 (outputFolder, v_Overlapping_All_histname1D.at(1), name, name_i, "unmatchedGenBjetFromHiggs", 7, "Higgs Jets", false);
-                Plot_TH1 (outputFolder, v_Overlapping_All_histname1D.at(1), name, name_i, "unmatchedRecoBjetFromHiggs", 7, "Higgs Jets", false);
-                Plot_TH1 (outputFolder, v_Overlapping_All_histname1D.at(1), name, name_i, "matchedBjet", 8, "Top/Higgs Jets", false);
+                plot_TH1 (outputFolder, v_Overlapping_All_histname1D.at(0), name, name_leg, "matchedBjetFromTop", 4, "Top Jets", false);
+                plot_TH1 (outputFolder, v_Overlapping_All_histname1D.at(1), name, name_leg, "unmatchedGenBjetFromTop", 4, "Top Jets", false);
+                plot_TH1 (outputFolder, v_Overlapping_All_histname1D.at(1), name, name_leg, "unmatchedRecoBjetFromTop", 4, "Top Jets", false);
+                plot_TH1 (outputFolder, v_Overlapping_All_histname1D.at(1), name, name_leg, "matchedBjetFromHiggs", 7, "Higgs Jets", false);
+                plot_TH1 (outputFolder, v_Overlapping_All_histname1D.at(1), name, name_leg, "unmatchedGenBjetFromHiggs", 7, "Higgs Jets", false);
+                plot_TH1 (outputFolder, v_Overlapping_All_histname1D.at(1), name, name_leg, "unmatchedRecoBjetFromHiggs", 7, "Higgs Jets", false);
+                plot_TH1 (outputFolder, v_Overlapping_All_histname1D.at(1), name, name_leg, "matchedBjet", 8, "Top/Higgs Jets", false);
                 
             }
-            if (!Mismatched){
+            if (!mismatched){
                 
                 //=============================        Plots for testing overlapping   ================================//
                 
@@ -479,9 +479,9 @@ void PrintHistogram(TString FileName, TString LegFileName, TString prefix_histna
                 }
  
                 //Print Histograms
-                Plot_TH1 (outputFolder, v_Overlapping_All_histname1D.at(0), name, name_i, "HasOverlappingHadrons_All", 8, "All Jets", false);
-                Plot_TH1 (outputFolder, v_Overlapping_All_histname1D.at(1), name, name_i, "NOverlappingHadrons_All", 8, "All Jets", false);
-                Plot_TH2 (outputFolder, v_Overlapping_All_histname2D.at(0), name, name_i, "GenJetsID_VS_NOverlappingHadrons_2D_All","All Jets");
+                plot_TH1 (outputFolder, v_Overlapping_All_histname1D.at(0), name, name_leg, "HasOverlappingHadrons_All", 8, "All Jets", false);
+                plot_TH1 (outputFolder, v_Overlapping_All_histname1D.at(1), name, name_leg, "NOverlappingHadrons_All", 8, "All Jets", false);
+                plot_TH2 (outputFolder, v_Overlapping_All_histname2D.at(0), name, name_leg, "GenJetsID_VS_NOverlappingHadrons_2D_All","All Jets");
            
                 //----------------            Plots for the Top Jets           -------------------//
                 //set the names for the histograms
@@ -506,9 +506,9 @@ void PrintHistogram(TString FileName, TString LegFileName, TString prefix_histna
                 } 
                 
                 //Print Histograms
-                Plot_TH1 (outputFolder, v_Overlapping_Top_histname1D.at(0), name, name_i, "HasOverlappingHadrons_Top", 4, "Top Jets", false);
-                Plot_TH1 (outputFolder, v_Overlapping_Top_histname1D.at(1), name, name_i, "NOverlappingHadrons_Top", 4, "Top Jets", false);
-                Plot_TH2 (outputFolder, v_Overlapping_Top_histname2D.at(0), name, name_i, "GenJetsID_VS_NOverlappingHadrons_2D_Top","Top Jets");
+                plot_TH1 (outputFolder, v_Overlapping_Top_histname1D.at(0), name, name_leg, "HasOverlappingHadrons_Top", 4, "Top Jets", false);
+                plot_TH1 (outputFolder, v_Overlapping_Top_histname1D.at(1), name, name_leg, "NOverlappingHadrons_Top", 4, "Top Jets", false);
+                plot_TH2 (outputFolder, v_Overlapping_Top_histname2D.at(0), name, name_leg, "GenJetsID_VS_NOverlappingHadrons_2D_Top","Top Jets");
   
                 
                 //-----------------           Plots for the Higgs Jets         ---------------------//
@@ -534,9 +534,9 @@ void PrintHistogram(TString FileName, TString LegFileName, TString prefix_histna
                 }  
                 
                 //Print Histograms
-                Plot_TH1 (outputFolder, v_Overlapping_Higgs_histname1D.at(0), name, name_i, "HasOverlappingHadrons_Higgs", 7, "Higgs Jets", false);
-                Plot_TH1 (outputFolder, v_Overlapping_Higgs_histname1D.at(1), name, name_i, "NOverlappingHadrons_Higgs", 7, "Higgs Jets", false);
-                Plot_TH2 (outputFolder, v_Overlapping_Higgs_histname2D.at(0), name, name_i, "GenJetsID_VS_NOverlappingHadrons_2D_Higgs","Higgs Jets");
+                plot_TH1 (outputFolder, v_Overlapping_Higgs_histname1D.at(0), name, name_leg, "HasOverlappingHadrons_Higgs", 7, "Higgs Jets", false);
+                plot_TH1 (outputFolder, v_Overlapping_Higgs_histname1D.at(1), name, name_leg, "NOverlappingHadrons_Higgs", 7, "Higgs Jets", false);
+                plot_TH2 (outputFolder, v_Overlapping_Higgs_histname2D.at(0), name, name_leg, "GenJetsID_VS_NOverlappingHadrons_2D_Higgs","Higgs Jets");
 
                 
                 //-------------------        Plots for Top + Higgs Jets   ---------------------//
@@ -562,9 +562,9 @@ void PrintHistogram(TString FileName, TString LegFileName, TString prefix_histna
                 }
                 
                 //Print Histograms
-                Plot_TH1 (outputFolder, v_Overlapping_TopHiggs_histname1D.at(0), name, name_i, "HasOverlappingHadrons_TopHiggs", 8, "Top+Higgs Jets", false);
-                Plot_TH1 (outputFolder, v_Overlapping_TopHiggs_histname1D.at(1), name, name_i, "NOverlappingHadrons_TopHiggs", 8, "Top+Higgs Jets", false);
-                Plot_TH2 (outputFolder, v_Overlapping_TopHiggs_histname2D.at(0), name, name_i, "GenJetsID_VS_NOverlappingHadrons_2D_TopHiggs","Top+Higgs Jets");
+                plot_TH1 (outputFolder, v_Overlapping_TopHiggs_histname1D.at(0), name, name_leg, "HasOverlappingHadrons_TopHiggs", 8, "Top+Higgs Jets", false);
+                plot_TH1 (outputFolder, v_Overlapping_TopHiggs_histname1D.at(1), name, name_leg, "NOverlappingHadrons_TopHiggs", 8, "Top+Higgs Jets", false);
+                plot_TH2 (outputFolder, v_Overlapping_TopHiggs_histname2D.at(0), name, name_leg, "GenJetsID_VS_NOverlappingHadrons_2D_TopHiggs","Top+Higgs Jets");
    
                 
                 //===============                   Gen Level Plots                   =================//
@@ -588,11 +588,11 @@ void PrintHistogram(TString FileName, TString LegFileName, TString prefix_histna
                 }
                  
                 //Print Histograms
-                Plot_2TH1(outputFolder, v_Gen_Top_histname1D.at(0), v_Gen_Top_histname1D.at(1), name, name_i, "TopJetsPt", 4, 2, "Top Leading Jet", "Top nLeading Jet");
-                Plot_2TH1(outputFolder, v_Gen_Top_histname1D.at(2), v_Gen_Top_histname1D.at(3), name, name_i, "TopJetsEta", 4, 2, "Top Leading Jet", "Top nLeading Jet");
-                Plot_TH1 (outputFolder, v_Gen_Top_histname1D.at(4), name, name_i, "DeltaEta_lead_nlead_TopJets", 4, "Top Jets", false);
-                Plot_TH1 (outputFolder, v_Gen_Top_histname1D.at(5), name, name_i, "DeltaPhi_lead_nlead_TopJets", 4, "Top Jets", false);
-                Plot_TH1 (outputFolder, v_Gen_Top_histname1D.at(6), name, name_i, "DeltaR_lead_nlead_TopJets", 4, "Top Jets", false);
+                plot_2TH1(outputFolder, v_Gen_Top_histname1D.at(0), v_Gen_Top_histname1D.at(1), name, name_leg, "TopJetsPt", 4, 2, "Top Leading Jet", "Top nLeading Jet");
+                plot_2TH1(outputFolder, v_Gen_Top_histname1D.at(2), v_Gen_Top_histname1D.at(3), name, name_leg, "TopJetsEta", 4, 2, "Top Leading Jet", "Top nLeading Jet");
+                plot_TH1 (outputFolder, v_Gen_Top_histname1D.at(4), name, name_leg, "DeltaEta_lead_nlead_TopJets", 4, "Top Jets", false);
+                plot_TH1 (outputFolder, v_Gen_Top_histname1D.at(5), name, name_leg, "DeltaPhi_lead_nlead_TopJets", 4, "Top Jets", false);
+                plot_TH1 (outputFolder, v_Gen_Top_histname1D.at(6), name, name_leg, "DeltaR_lead_nlead_TopJets", 4, "Top Jets", false);
                 
                 //---------------------                Plots for the Higgs Jets         --------------------------------------//
                 //set the names for the histograms
@@ -614,11 +614,11 @@ void PrintHistogram(TString FileName, TString LegFileName, TString prefix_histna
                 }
                    
                 //Print Histograms
-                Plot_2TH1(outputFolder, v_Gen_Higgs_histname1D.at(0), v_Gen_Higgs_histname1D.at(1), name, name_i, "HiggsJetsPt", 7, 6, "Higgs Leading Jet", "Higgs nLeading Jet");
-                Plot_2TH1(outputFolder, v_Gen_Higgs_histname1D.at(2), v_Gen_Higgs_histname1D.at(3), name, name_i, "HiggsJetsEta", 7, 6, "Higgs Leading Jet", "Higgs nLeading Jet");
-                Plot_TH1 (outputFolder, v_Gen_Higgs_histname1D.at(4), name, name_i, "DeltaEta_lead_nlead_HiggsJets", 7, "Higgs Jets", false);
-                Plot_TH1 (outputFolder, v_Gen_Higgs_histname1D.at(5), name, name_i, "DeltaPhi_lead_nlead_HiggsJets", 7, "Higgs Jets", false);
-                Plot_TH1 (outputFolder, v_Gen_Higgs_histname1D.at(6), name, name_i, "DeltaR_lead_nlead_HiggsJets", 7, "Higgs Jets", false);
+                plot_2TH1(outputFolder, v_Gen_Higgs_histname1D.at(0), v_Gen_Higgs_histname1D.at(1), name, name_leg, "HiggsJetsPt", 7, 6, "Higgs Leading Jet", "Higgs nLeading Jet");
+                plot_2TH1(outputFolder, v_Gen_Higgs_histname1D.at(2), v_Gen_Higgs_histname1D.at(3), name, name_leg, "HiggsJetsEta", 7, 6, "Higgs Leading Jet", "Higgs nLeading Jet");
+                plot_TH1 (outputFolder, v_Gen_Higgs_histname1D.at(4), name, name_leg, "DeltaEta_lead_nlead_HiggsJets", 7, "Higgs Jets", false);
+                plot_TH1 (outputFolder, v_Gen_Higgs_histname1D.at(5), name, name_leg, "DeltaPhi_lead_nlead_HiggsJets", 7, "Higgs Jets", false);
+                plot_TH1 (outputFolder, v_Gen_Higgs_histname1D.at(6), name, name_leg, "DeltaR_lead_nlead_HiggsJets", 7, "Higgs Jets", false);
                    
                 //--------------------       Plots for Top + Higgs Jets  ----------------------------------------//
                 //set the names for the histograms
@@ -644,11 +644,11 @@ void PrintHistogram(TString FileName, TString LegFileName, TString prefix_histna
                 }   
                 
                 //Print Histograms
-                Plot_4TH1(outputFolder, v_Gen_TopHiggs_histname1D.at(0), v_Gen_TopHiggs_histname1D.at(1), v_Gen_TopHiggs_histname1D.at(2), v_Gen_TopHiggs_histname1D.at(3), name, name_i, "TopHiggsJetsPt", 4, 2, 7, 6,"Top Leading Jet", "Top nLeading Jet","Higgs Leading Jet", "Higgs nLeading Jet");
-                Plot_4TH1(outputFolder, v_Gen_TopHiggs_histname1D.at(4), v_Gen_TopHiggs_histname1D.at(5), v_Gen_TopHiggs_histname1D.at(6), v_Gen_TopHiggs_histname1D.at(7), name, name_i, "TopHiggsJetsEta", 4, 2, 7, 6,"Top Leading Jet", "Top nLeading Jet","Higgs Leading Jet", "Higgs nLeading Jet");
-                Plot_TH1 (outputFolder, v_Gen_TopHiggs_histname1D.at(8), name, name_i, "DeltaEta_TopHiggsJets", 8, "Top+Higgs Jets", false);
-                Plot_TH1 (outputFolder, v_Gen_TopHiggs_histname1D.at(9), name, name_i, "DeltaPhi_TopHiggsJets", 8, "Top+Higgs Jets", false);
-                Plot_TH1 (outputFolder, v_Gen_TopHiggs_histname1D.at(10), name, name_i, "DeltaR_TopHiggsJets", 8, "Top+Higgs Jets", false);
+                plot_4TH1(outputFolder, v_Gen_TopHiggs_histname1D.at(0), v_Gen_TopHiggs_histname1D.at(1), v_Gen_TopHiggs_histname1D.at(2), v_Gen_TopHiggs_histname1D.at(3), name, name_leg, "TopHiggsJetsPt", 4, 2, 7, 6,"Top Leading Jet", "Top nLeading Jet","Higgs Leading Jet", "Higgs nLeading Jet");
+                plot_4TH1(outputFolder, v_Gen_TopHiggs_histname1D.at(4), v_Gen_TopHiggs_histname1D.at(5), v_Gen_TopHiggs_histname1D.at(6), v_Gen_TopHiggs_histname1D.at(7), name, name_leg, "TopHiggsJetsEta", 4, 2, 7, 6,"Top Leading Jet", "Top nLeading Jet","Higgs Leading Jet", "Higgs nLeading Jet");
+                plot_TH1 (outputFolder, v_Gen_TopHiggs_histname1D.at(8), name, name_leg, "DeltaEta_TopHiggsJets", 8, "Top+Higgs Jets", false);
+                plot_TH1 (outputFolder, v_Gen_TopHiggs_histname1D.at(9), name, name_leg, "DeltaPhi_TopHiggsJets", 8, "Top+Higgs Jets", false);
+                plot_TH1 (outputFolder, v_Gen_TopHiggs_histname1D.at(10), name, name_leg, "DeltaR_TopHiggsJets", 8, "Top+Higgs Jets", false);
             }
 
 
@@ -691,25 +691,25 @@ void PrintHistogram(TString FileName, TString LegFileName, TString prefix_histna
             }
         
             //Print Histograms
-            Plot_TH1 (outputFolder, v_GenReco_All_histname1D.at(0), name, name_i, "RecoPtOverGenPt_All", 8, "All Jets", true);
-            Plot_TH1 (outputFolder, v_GenReco_All_histname1D.at(1), name, name_i, "GenPtMinusRecoPtOverGenPt_All", 8, "All Jets", true);
-            Plot_TH1 (outputFolder, v_GenReco_All_histname1D.at(2), name, name_i, "MinDeltaR_RecoGen_All", 8, "All Jets", true);
-            Plot_TH1 (outputFolder, v_GenReco_All_histname1D.at(2), name, name_i, "MinDeltaR_RecoGen_All_zoom", 8, "All Jets", true, true, 0.0, 1.0);
+            plot_TH1 (outputFolder, v_GenReco_All_histname1D.at(0), name, name_leg, "RecoPtOverGenPt_All", 8, "All Jets", true);
+            plot_TH1 (outputFolder, v_GenReco_All_histname1D.at(1), name, name_leg, "GenPtMinusRecoPtOverGenPt_All", 8, "All Jets", true);
+            plot_TH1 (outputFolder, v_GenReco_All_histname1D.at(2), name, name_leg, "MinDeltaR_RecoGen_All", 8, "All Jets", true);
+            plot_TH1 (outputFolder, v_GenReco_All_histname1D.at(2), name, name_leg, "MinDeltaR_RecoGen_All_zoom", 8, "All Jets", true, true, 0.0, 1.0);
         
-            Plot_TH2 (outputFolder, v_GenReco_All_histname2D.at(0), name, name_i, "MinDeltaR_RecoGen_VS_PtGen_2D_All","All Jets");
-            Plot_TH2 (outputFolder, v_GenReco_All_histname2D.at(0), name, name_i, "MinDeltaR_RecoGen_VS_PtGen_2D_All_zoom","All Jets", false, 0.0, 0.0, true, 0.0, 1.0);
-            Plot_TH2 (outputFolder, v_GenReco_All_histname2D.at(1), name, name_i, "GenP_VS_RecoP_2D_All","All Jets");
-            Plot_TH2 (outputFolder, v_GenReco_All_histname2D.at(2), name, name_i, "GenPtVSGenPtMinusRecoPt_2D_All","All Jets");
-            Plot_TH2 (outputFolder, v_GenReco_All_histname2D.at(3), name, name_i, "GenPtVSRecoPt_2D_All","All Jets");
-            Plot_TH2 (outputFolder, v_GenReco_All_histname2D.at(4), name, name_i, "GenEtaVSRecoEta_2D_ALl","All Jets");
-            Plot_TH2 (outputFolder, v_GenReco_All_histname2D.at(5), name, name_i, "GenPhiVSRecoPhi_2D_All","All Jets");
-            Plot_TH2 (outputFolder, v_GenReco_All_histname2D.at(6), name, name_i, "RecoPtOverGenPtVsMinDeltaR_2D_All","All Jets");
-            Plot_TH2 (outputFolder, v_GenReco_All_histname2D.at(6), name, name_i, "RecoPtOverGenPtVsMinDeltaR_2D_All_zoom","All Jets", true, 0.0, 1.0, false, 0.0, 0.0);
-            Plot_TH2 (outputFolder, v_GenReco_All_histname2D.at(7), name, name_i, "GenPtMinusRecoPtOverGenPtVsMinDeltaR_2D_All","All Jets");
-            Plot_TH2 (outputFolder, v_GenReco_All_histname2D.at(7), name, name_i, "GenPtMinusRecoPtOverGenPtVsMinDeltaR_2D_All_zoom","All Jets", true, 0.0, 1.0, false, 0.0, 0.0);
-            Plot_TH2 (outputFolder, v_GenReco_All_histname2D.at(8), name, name_i, "RecoPtOverGenPtVsGenPt_2D_All","All Jets");
-            Plot_TH2 (outputFolder, v_GenReco_All_histname2D.at(9), name, name_i, "RecoPtOverGenPtVsGenEta_2D_All","All Jets");
-            Plot_TH2 (outputFolder, v_GenReco_All_histname2D.at(10), name, name_i, "RecoPtOverGenPtVsGenPhi_2D_All","All Jets");
+            plot_TH2 (outputFolder, v_GenReco_All_histname2D.at(0), name, name_leg, "MinDeltaR_RecoGen_VS_PtGen_2D_All","All Jets");
+            plot_TH2 (outputFolder, v_GenReco_All_histname2D.at(0), name, name_leg, "MinDeltaR_RecoGen_VS_PtGen_2D_All_zoom","All Jets", false, 0.0, 0.0, true, 0.0, 1.0);
+            plot_TH2 (outputFolder, v_GenReco_All_histname2D.at(1), name, name_leg, "GenP_VS_RecoP_2D_All","All Jets");
+            plot_TH2 (outputFolder, v_GenReco_All_histname2D.at(2), name, name_leg, "GenPtVSGenPtMinusRecoPt_2D_All","All Jets");
+            plot_TH2 (outputFolder, v_GenReco_All_histname2D.at(3), name, name_leg, "GenPtVSRecoPt_2D_All","All Jets");
+            plot_TH2 (outputFolder, v_GenReco_All_histname2D.at(4), name, name_leg, "GenEtaVSRecoEta_2D_ALl","All Jets");
+            plot_TH2 (outputFolder, v_GenReco_All_histname2D.at(5), name, name_leg, "GenPhiVSRecoPhi_2D_All","All Jets");
+            plot_TH2 (outputFolder, v_GenReco_All_histname2D.at(6), name, name_leg, "RecoPtOverGenPtVsMinDeltaR_2D_All","All Jets");
+            plot_TH2 (outputFolder, v_GenReco_All_histname2D.at(6), name, name_leg, "RecoPtOverGenPtVsMinDeltaR_2D_All_zoom","All Jets", true, 0.0, 1.0, false, 0.0, 0.0);
+            plot_TH2 (outputFolder, v_GenReco_All_histname2D.at(7), name, name_leg, "GenPtMinusRecoPtOverGenPtVsMinDeltaR_2D_All","All Jets");
+            plot_TH2 (outputFolder, v_GenReco_All_histname2D.at(7), name, name_leg, "GenPtMinusRecoPtOverGenPtVsMinDeltaR_2D_All_zoom","All Jets", true, 0.0, 1.0, false, 0.0, 0.0);
+            plot_TH2 (outputFolder, v_GenReco_All_histname2D.at(8), name, name_leg, "RecoPtOverGenPtVsGenPt_2D_All","All Jets");
+            plot_TH2 (outputFolder, v_GenReco_All_histname2D.at(9), name, name_leg, "RecoPtOverGenPtVsGenEta_2D_All","All Jets");
+            plot_TH2 (outputFolder, v_GenReco_All_histname2D.at(10), name, name_leg, "RecoPtOverGenPtVsGenPhi_2D_All","All Jets");
         
             //-----------------------------  Plots for the Top Jets -----------------------------------//
             //set the names for the histograms
@@ -746,25 +746,25 @@ void PrintHistogram(TString FileName, TString LegFileName, TString prefix_histna
             }
         
             //Print Histograms 
-            Plot_TH1 (outputFolder, v_GenReco_Top_histname1D.at(0), name, name_i, "RecoPtOverGenPt_Top", 4, "Top Jets", true);
-            Plot_TH1 (outputFolder, v_GenReco_Top_histname1D.at(1), name, name_i, "GenPtMinusRecoPtOverGenPt_Top", 4, "Top Jets", true);
-            Plot_TH1 (outputFolder, v_GenReco_Top_histname1D.at(2), name, name_i, "MinDeltaR_RecoGen_Top", 4, "Top Jets", true);
-            Plot_TH1 (outputFolder, v_GenReco_Top_histname1D.at(2), name, name_i, "MinDeltaR_RecoGen_Top_zoom", 4, "Top Jets", true, true, 0.0, 1.0);
+            plot_TH1 (outputFolder, v_GenReco_Top_histname1D.at(0), name, name_leg, "RecoPtOverGenPt_Top", 4, "Top Jets", true);
+            plot_TH1 (outputFolder, v_GenReco_Top_histname1D.at(1), name, name_leg, "GenPtMinusRecoPtOverGenPt_Top", 4, "Top Jets", true);
+            plot_TH1 (outputFolder, v_GenReco_Top_histname1D.at(2), name, name_leg, "MinDeltaR_RecoGen_Top", 4, "Top Jets", true);
+            plot_TH1 (outputFolder, v_GenReco_Top_histname1D.at(2), name, name_leg, "MinDeltaR_RecoGen_Top_zoom", 4, "Top Jets", true, true, 0.0, 1.0);
         
-            Plot_TH2 (outputFolder, v_GenReco_Top_histname2D.at(0), name, name_i, "MinDeltaR_RecoGen_VS_PtGen_2D_Top","Top Jets");
-            Plot_TH2 (outputFolder, v_GenReco_Top_histname2D.at(0), name, name_i, "MinDeltaR_RecoGen_VS_PtGen_2D_Top","Top Jets", false, 0.0, 0.0, true, 0.0, 1.0);
-            Plot_TH2 (outputFolder, v_GenReco_Top_histname2D.at(1), name, name_i, "GenP_VS_RecoP_2D_Top","Top Jets");
-            Plot_TH2 (outputFolder, v_GenReco_Top_histname2D.at(2), name, name_i, "GenPtVSGenPtMinusRecoPt_2D_Top","Top Jets");
-            Plot_TH2 (outputFolder, v_GenReco_Top_histname2D.at(3), name, name_i, "GenPtVSRecoPt_2D_Top","Top Jets");
-            Plot_TH2 (outputFolder, v_GenReco_Top_histname2D.at(4), name, name_i, "GenEtaVSRecoEta_2D_ALl","Top Jets");
-            Plot_TH2 (outputFolder, v_GenReco_Top_histname2D.at(5), name, name_i, "GenPhiVSRecoPhi_2D_Top","Top Jets");
-            Plot_TH2 (outputFolder, v_GenReco_Top_histname2D.at(6), name, name_i, "RecoPtOverGenPtVsMinDeltaR_2D_Top","Top Jets");
-            Plot_TH2 (outputFolder, v_GenReco_Top_histname2D.at(6), name, name_i, "RecoPtOverGenPtVsMinDeltaR_2D_Top_zoom","Top Jets", true, 0.0, 1.0, false, 0.0, 0.0);
-            Plot_TH2 (outputFolder, v_GenReco_Top_histname2D.at(7), name, name_i, "GenPtMinusRecoPtOverGenPtVsMinDeltaR_2D_Top","Top Jets");
-            Plot_TH2 (outputFolder, v_GenReco_Top_histname2D.at(7), name, name_i, "GenPtMinusRecoPtOverGenPtVsMinDeltaR_2D_Top_zoom","Top Jets", true, 0.0, 1.0, false, 0.0, 0.0);
-            Plot_TH2 (outputFolder, v_GenReco_Top_histname2D.at(8), name, name_i, "RecoPtOverGenPtVsGenPt_2D_Top","Top Jets");
-            Plot_TH2 (outputFolder, v_GenReco_Top_histname2D.at(9), name, name_i, "RecoPtOverGenPtVsGenEta_2D_Top","Top Jets");
-            Plot_TH2 (outputFolder, v_GenReco_Top_histname2D.at(10), name, name_i, "RecoPtOverGenPtVsGenPhi_2D_Top","Top Jets");
+            plot_TH2 (outputFolder, v_GenReco_Top_histname2D.at(0), name, name_leg, "MinDeltaR_RecoGen_VS_PtGen_2D_Top","Top Jets");
+            plot_TH2 (outputFolder, v_GenReco_Top_histname2D.at(0), name, name_leg, "MinDeltaR_RecoGen_VS_PtGen_2D_Top","Top Jets", false, 0.0, 0.0, true, 0.0, 1.0);
+            plot_TH2 (outputFolder, v_GenReco_Top_histname2D.at(1), name, name_leg, "GenP_VS_RecoP_2D_Top","Top Jets");
+            plot_TH2 (outputFolder, v_GenReco_Top_histname2D.at(2), name, name_leg, "GenPtVSGenPtMinusRecoPt_2D_Top","Top Jets");
+            plot_TH2 (outputFolder, v_GenReco_Top_histname2D.at(3), name, name_leg, "GenPtVSRecoPt_2D_Top","Top Jets");
+            plot_TH2 (outputFolder, v_GenReco_Top_histname2D.at(4), name, name_leg, "GenEtaVSRecoEta_2D_ALl","Top Jets");
+            plot_TH2 (outputFolder, v_GenReco_Top_histname2D.at(5), name, name_leg, "GenPhiVSRecoPhi_2D_Top","Top Jets");
+            plot_TH2 (outputFolder, v_GenReco_Top_histname2D.at(6), name, name_leg, "RecoPtOverGenPtVsMinDeltaR_2D_Top","Top Jets");
+            plot_TH2 (outputFolder, v_GenReco_Top_histname2D.at(6), name, name_leg, "RecoPtOverGenPtVsMinDeltaR_2D_Top_zoom","Top Jets", true, 0.0, 1.0, false, 0.0, 0.0);
+            plot_TH2 (outputFolder, v_GenReco_Top_histname2D.at(7), name, name_leg, "GenPtMinusRecoPtOverGenPtVsMinDeltaR_2D_Top","Top Jets");
+            plot_TH2 (outputFolder, v_GenReco_Top_histname2D.at(7), name, name_leg, "GenPtMinusRecoPtOverGenPtVsMinDeltaR_2D_Top_zoom","Top Jets", true, 0.0, 1.0, false, 0.0, 0.0);
+            plot_TH2 (outputFolder, v_GenReco_Top_histname2D.at(8), name, name_leg, "RecoPtOverGenPtVsGenPt_2D_Top","Top Jets");
+            plot_TH2 (outputFolder, v_GenReco_Top_histname2D.at(9), name, name_leg, "RecoPtOverGenPtVsGenEta_2D_Top","Top Jets");
+            plot_TH2 (outputFolder, v_GenReco_Top_histname2D.at(10), name, name_leg, "RecoPtOverGenPtVsGenPhi_2D_Top","Top Jets");
         
         
         
@@ -803,25 +803,25 @@ void PrintHistogram(TString FileName, TString LegFileName, TString prefix_histna
             }
         
             //Print Histograms 
-            Plot_TH1 (outputFolder, v_GenReco_Higgs_histname1D.at(0), name, name_i, "RecoPtOverGenPt_Higgs", 7, "Higgs Jets", true);
-            Plot_TH1 (outputFolder, v_GenReco_Higgs_histname1D.at(1), name, name_i, "GenPtMinusRecoPtOverGenPt_Higgs", 7, "Higgs Jets", true);
-            Plot_TH1 (outputFolder, v_GenReco_Higgs_histname1D.at(2), name, name_i, "MinDeltaR_RecoGen_Higgs", 7, "Higgs Jets", true);
-            Plot_TH1 (outputFolder, v_GenReco_Higgs_histname1D.at(2), name, name_i, "MinDeltaR_RecoGen_Higgs", 7, "Higgs Jets", true, true, 0.0, 1.0);
+            plot_TH1 (outputFolder, v_GenReco_Higgs_histname1D.at(0), name, name_leg, "RecoPtOverGenPt_Higgs", 7, "Higgs Jets", true);
+            plot_TH1 (outputFolder, v_GenReco_Higgs_histname1D.at(1), name, name_leg, "GenPtMinusRecoPtOverGenPt_Higgs", 7, "Higgs Jets", true);
+            plot_TH1 (outputFolder, v_GenReco_Higgs_histname1D.at(2), name, name_leg, "MinDeltaR_RecoGen_Higgs", 7, "Higgs Jets", true);
+            plot_TH1 (outputFolder, v_GenReco_Higgs_histname1D.at(2), name, name_leg, "MinDeltaR_RecoGen_Higgs", 7, "Higgs Jets", true, true, 0.0, 1.0);
         
-            Plot_TH2 (outputFolder, v_GenReco_Higgs_histname2D.at(0), name, name_i, "MinDeltaR_RecoGen_VS_PtGen_2D_Higgs","Higgs Jets");
-            Plot_TH2 (outputFolder, v_GenReco_Higgs_histname2D.at(0), name, name_i, "MinDeltaR_RecoGen_VS_PtGen_2D_Higgs","Higgs Jets", false, 0.0, 0.0, true, 0.0, 1.0);
-            Plot_TH2 (outputFolder, v_GenReco_Higgs_histname2D.at(1), name, name_i, "GenP_VS_RecoP_2D_Higgs","Higgs Jets");
-            Plot_TH2 (outputFolder, v_GenReco_Higgs_histname2D.at(2), name, name_i, "GenPtVSGenPtMinusRecoPt_2D_Higgs","Higgs Jets");
-            Plot_TH2 (outputFolder, v_GenReco_Higgs_histname2D.at(3), name, name_i, "GenPtVSRecoPt_2D_Higgs","Higgs Jets");
-            Plot_TH2 (outputFolder, v_GenReco_Higgs_histname2D.at(4), name, name_i, "GenEtaVSRecoEta_2D_ALl","Higgs Jets");
-            Plot_TH2 (outputFolder, v_GenReco_Higgs_histname2D.at(5), name, name_i, "GenPhiVSRecoPhi_2D_Higgs","Higgs Jets");
-            Plot_TH2 (outputFolder, v_GenReco_Higgs_histname2D.at(6), name, name_i, "RecoPtOverGenPtVsMinDeltaR_2D_Higgs","Higgs Jets");
-            Plot_TH2 (outputFolder, v_GenReco_Higgs_histname2D.at(6), name, name_i, "RecoPtOverGenPtVsMinDeltaR_2D_Higgs_zoom","Higgs Jets", true, 0.0, 1.0, false, 0.0, 0.0);
-            Plot_TH2 (outputFolder, v_GenReco_Higgs_histname2D.at(7), name, name_i, "GenPtMinusRecoPtOverGenPtVsMinDeltaR_2D_Higgs","Higgs Jets");
-            Plot_TH2 (outputFolder, v_GenReco_Higgs_histname2D.at(7), name, name_i, "GenPtMinusRecoPtOverGenPtVsMinDeltaR_2D_Higgs_zoom","Higgs Jets", true, 0.0, 1.0, false, 0.0, 0.0);
-            Plot_TH2 (outputFolder, v_GenReco_Higgs_histname2D.at(8), name, name_i, "RecoPtOverGenPtVsGenPt_2D_Higgs","Higgs Jets");
-            Plot_TH2 (outputFolder, v_GenReco_Higgs_histname2D.at(9), name, name_i, "RecoPtOverGenPtVsGenEta_2D_Higgs","Higgs Jets");
-            Plot_TH2 (outputFolder, v_GenReco_Higgs_histname2D.at(10), name, name_i, "RecoPtOverGenPtVsGenPhi_2D_Higgs","Higgs Jets");
+            plot_TH2 (outputFolder, v_GenReco_Higgs_histname2D.at(0), name, name_leg, "MinDeltaR_RecoGen_VS_PtGen_2D_Higgs","Higgs Jets");
+            plot_TH2 (outputFolder, v_GenReco_Higgs_histname2D.at(0), name, name_leg, "MinDeltaR_RecoGen_VS_PtGen_2D_Higgs","Higgs Jets", false, 0.0, 0.0, true, 0.0, 1.0);
+            plot_TH2 (outputFolder, v_GenReco_Higgs_histname2D.at(1), name, name_leg, "GenP_VS_RecoP_2D_Higgs","Higgs Jets");
+            plot_TH2 (outputFolder, v_GenReco_Higgs_histname2D.at(2), name, name_leg, "GenPtVSGenPtMinusRecoPt_2D_Higgs","Higgs Jets");
+            plot_TH2 (outputFolder, v_GenReco_Higgs_histname2D.at(3), name, name_leg, "GenPtVSRecoPt_2D_Higgs","Higgs Jets");
+            plot_TH2 (outputFolder, v_GenReco_Higgs_histname2D.at(4), name, name_leg, "GenEtaVSRecoEta_2D_ALl","Higgs Jets");
+            plot_TH2 (outputFolder, v_GenReco_Higgs_histname2D.at(5), name, name_leg, "GenPhiVSRecoPhi_2D_Higgs","Higgs Jets");
+            plot_TH2 (outputFolder, v_GenReco_Higgs_histname2D.at(6), name, name_leg, "RecoPtOverGenPtVsMinDeltaR_2D_Higgs","Higgs Jets");
+            plot_TH2 (outputFolder, v_GenReco_Higgs_histname2D.at(6), name, name_leg, "RecoPtOverGenPtVsMinDeltaR_2D_Higgs_zoom","Higgs Jets", true, 0.0, 1.0, false, 0.0, 0.0);
+            plot_TH2 (outputFolder, v_GenReco_Higgs_histname2D.at(7), name, name_leg, "GenPtMinusRecoPtOverGenPtVsMinDeltaR_2D_Higgs","Higgs Jets");
+            plot_TH2 (outputFolder, v_GenReco_Higgs_histname2D.at(7), name, name_leg, "GenPtMinusRecoPtOverGenPtVsMinDeltaR_2D_Higgs_zoom","Higgs Jets", true, 0.0, 1.0, false, 0.0, 0.0);
+            plot_TH2 (outputFolder, v_GenReco_Higgs_histname2D.at(8), name, name_leg, "RecoPtOverGenPtVsGenPt_2D_Higgs","Higgs Jets");
+            plot_TH2 (outputFolder, v_GenReco_Higgs_histname2D.at(9), name, name_leg, "RecoPtOverGenPtVsGenEta_2D_Higgs","Higgs Jets");
+            plot_TH2 (outputFolder, v_GenReco_Higgs_histname2D.at(10), name, name_leg, "RecoPtOverGenPtVsGenPhi_2D_Higgs","Higgs Jets");
         
             file->Close();
         }
@@ -836,7 +836,7 @@ int main(int argc, char** argv){
     CLAnalyser::interpretGlobal(argc, argv);
     
     // Set up systematics
-    std::vector<Systematic::Systematic> v_Systematic({Systematic::nominal});
+    std::vector<Systematic::Systematic> v_systematic({Systematic::nominal});
     
     //Hardcoded input files, since detailed validation makes sense only on samples containing ttbar system, and some only on real ttH events
     const std::vector<TString> v_inputFileTtbar = {
@@ -856,15 +856,15 @@ int main(int argc, char** argv){
     };  
     
     // Set up channels
-    std::vector<Channel::Channel> v_Channel= {
+    std::vector<Channel::Channel> v_channel= {
         Channel::mumu,
         Channel::emu,
         Channel::ee
     };
     
-    if(opt_channel.isSet()) v_Channel = Channel::convertChannels(opt_channel.getArguments());
+    if(opt_channel.isSet()) v_channel = Channel::convertChannels(opt_channel.getArguments());
     std::cout << "Processing channels: ";
-    for (auto i_channel : v_Channel)std::cout << Channel::convertChannel(i_channel) << " ";
+    for (auto i_channel : v_channel)std::cout << Channel::convertChannel(i_channel) << " ";
     std::cout << "\n\n";
     
     
@@ -872,17 +872,17 @@ int main(int argc, char** argv){
     TString prefix_histname  = "jetMatch_";
     TString prefix_histname_Mismatched  = prefix_histname+"Mismatched_";
          
-    for(size_t FileName_ = 0; FileName_ != v_inputFileTtbar.size(); ++FileName_){
-        for(size_t step_ = 0; step_ != v_step.size(); ++step_){
-            TString FileName         = v_inputFileTtbar.at(FileName_);
-            TString LegFileName      = v_inputLegTtbar.at(FileName_);
-            TString ending_histname  = v_step.at(step_);
+    for(size_t i_fileName = 0; i_fileName < v_inputFileTtbar.size(); ++i_fileName){
+        for(size_t i_step = 0; i_step < v_step.size(); ++i_step){
+            TString fileName         = v_inputFileTtbar.at(i_fileName);
+            TString legFileName      = v_inputLegTtbar.at(i_fileName);
+            TString ending_histname  = v_step.at(i_step);
 
-            PrintHistogram(FileName, LegFileName , prefix_histname, ending_histname, false, v_Channel, v_Systematic);
+            printHistogram(fileName, legFileName , prefix_histname, ending_histname, false, v_channel, v_systematic);
             
             //If you want to print the histograms for the Gen-Reco Matching where at least 2 Gen Jets are matched to the same Reco Jets
             //uncomment the following:
-            PrintHistogram(FileName, LegFileName, prefix_histname_Mismatched, ending_histname, true, v_Channel, v_Systematic);     
+            printHistogram(fileName, legFileName, prefix_histname_Mismatched, ending_histname, true, v_channel, v_systematic);     
         }
     } 
 
