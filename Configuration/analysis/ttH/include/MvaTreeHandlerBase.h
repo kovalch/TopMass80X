@@ -91,27 +91,27 @@ protected:
                                const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
                                const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
                                const double& weight, const TString& step,
-                               std::vector<MvaVariablesBase*>& mvaVariables);
+                               std::vector<MvaVariablesBase*>& mvaVariables)const;
     
     /// Import all branches from TTree (dummy method, override in inherited MvaTreeHandler)
-    virtual void importBranches(TTree* tree, std::vector<MvaVariablesBase*>& mvaVariables);
+    virtual void importBranches(TTree* tree, std::vector<MvaVariablesBase*>& mvaVariables)const;
     
     /// Create and fill branches for TTree holding the input variables for MVA (dummy method, override in inherited MvaTreeHandler)
-    virtual void createAndFillBranches(TTree* tree, const std::vector<MvaVariablesBase*>& v_mvaVariables);
+    virtual void createAndFillBranches(TTree* tree, const std::vector<MvaVariablesBase*>& v_mvaVariables)const;
     
     
     
-    /// Create single branch for TTree based on MvaInputVariables structs of type Int_t
+    /// Create single branch for TTree based on MvaInputVariables of type Int_t
     void createBranch(TTree* tree, const MvaVariableInt& variable)const;
     
-    /// Create single branch for TTree based on MvaInputVariables structs of type Float_t
+    /// Create single branch for TTree based on MvaInputVariables of type Float_t
     void createBranch(TTree* tree, const MvaVariableFloat& variable)const;
     
     /// Import branch of type Int_t
-    void importBranch(TTree* tree, MvaVariableInt& variable);
+    void importBranch(TTree* tree, MvaVariableInt& variable)const;
     
     /// Import branch of type Float_t
-    void importBranch(TTree* tree, MvaVariableFloat& variable);
+    void importBranch(TTree* tree, MvaVariableFloat& variable)const;
     
     
     

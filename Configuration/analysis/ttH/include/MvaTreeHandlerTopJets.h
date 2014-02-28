@@ -52,13 +52,13 @@ private:
                                const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
                                const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
                                const double& weight, const TString& step,
-                               std::vector<MvaVariablesBase*>& mvaVariables);
+                               std::vector<MvaVariablesBase*>& mvaVariables)const;
     
     /// Create and fill branches for TTree holding the input variables for MVA
-    virtual void createAndFillBranches(TTree* tree, const std::vector<MvaVariablesBase*>& v_mvaVariables);
+    virtual void createAndFillBranches(TTree* tree, const std::vector<MvaVariablesBase*>& v_mvaVariables)const;
     
     /// Import all branches from TTree
-    virtual void importBranches(TTree* tree, std::vector<MvaVariablesBase*>& mvaVariables);
+    virtual void importBranches(TTree* tree, std::vector<MvaVariablesBase*>& mvaVariables)const;
 };
 
 

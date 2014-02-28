@@ -34,7 +34,7 @@ void MvaTreeHandlerTopJets::fillVariables(const RecoObjects& recoObjects, const 
                                           const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
                                           const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
                                           const double& weight, const TString&,
-                                          std::vector<MvaVariablesBase*>& mvaVariables)
+                                          std::vector<MvaVariablesBase*>& mvaVariables)const
 {
     // Loop over all jet combinations and get MVA input variables
     const std::vector<MvaVariablesBase*> v_mvaVariablesTopJets = 
@@ -46,7 +46,7 @@ void MvaTreeHandlerTopJets::fillVariables(const RecoObjects& recoObjects, const 
 
 
 
-void MvaTreeHandlerTopJets::createAndFillBranches(TTree* tree, const std::vector<MvaVariablesBase*>& v_mvaVariables)
+void MvaTreeHandlerTopJets::createAndFillBranches(TTree* tree, const std::vector<MvaVariablesBase*>& v_mvaVariables)const
 {
     MvaVariablesTopJets* const mvaVariablesTopJets = new MvaVariablesTopJets();
     
@@ -85,7 +85,7 @@ void MvaTreeHandlerTopJets::createAndFillBranches(TTree* tree, const std::vector
 
 
 
-void MvaTreeHandlerTopJets::importBranches(TTree* tree, std::vector<MvaVariablesBase*>& v_mvaVariables)
+void MvaTreeHandlerTopJets::importBranches(TTree* tree, std::vector<MvaVariablesBase*>& v_mvaVariables)const
 {
     // Set up variables struct
     MvaVariablesTopJets mvaVariablesTopJets;

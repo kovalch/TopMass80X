@@ -182,7 +182,7 @@ void MvaTreeHandlerBase::writeTrees(TSelectorList* output)
 
 
 
-void MvaTreeHandlerBase::createAndFillBranches(TTree*, const std::vector<MvaVariablesBase*>&)
+void MvaTreeHandlerBase::createAndFillBranches(TTree*, const std::vector<MvaVariablesBase*>&)const
 {
     // WARNING: this is empty template method, overwrite for inherited class
     
@@ -252,7 +252,7 @@ void MvaTreeHandlerBase::importTrees(const std::string& f_savename, const std::s
 
 
 
-void MvaTreeHandlerBase::importBranches(TTree*, std::vector<MvaVariablesBase*>&)
+void MvaTreeHandlerBase::importBranches(TTree*, std::vector<MvaVariablesBase*>&)const
 {
     // WARNING: this is empty template method, overwrite for inherited class
     
@@ -263,14 +263,14 @@ void MvaTreeHandlerBase::importBranches(TTree*, std::vector<MvaVariablesBase*>&)
 
 
 
-void MvaTreeHandlerBase::importBranch(TTree* tree, MvaVariableInt& variable)
+void MvaTreeHandlerBase::importBranch(TTree* tree, MvaVariableInt& variable)const
 {
     tree->SetBranchAddress(variable.name().data(), &variable.value_, &variable.branch_);
 }
 
 
 
-void MvaTreeHandlerBase::importBranch(TTree* tree, MvaVariableFloat& variable)
+void MvaTreeHandlerBase::importBranch(TTree* tree, MvaVariableFloat& variable)const
 {
     tree->SetBranchAddress(variable.name().data(), &variable.value_, &variable.branch_);
 }
@@ -354,7 +354,7 @@ void MvaTreeHandlerBase::fillVariables(const RecoObjects&, const CommonGenObject
                                        const tth::RecoObjectIndices&, const tth::GenObjectIndices&,
                                        const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
                                        const double&, const TString&,
-                                       std::vector<MvaVariablesBase*>&)
+                                       std::vector<MvaVariablesBase*>&)const
 {
     // WARNING: this is empty template method, overwrite for inherited class
     
