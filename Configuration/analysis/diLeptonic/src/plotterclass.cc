@@ -4669,6 +4669,7 @@ void Plotter::getSignalUncertaintyBand(TH1* uncBand, TString channel_)
     if(!uncBand)  return;
     std::vector<TString> syst {"MASS_", "SCALE_", "MATCH_", "HAD_", "PDF_"};
 
+    double norm_Events = uncBand->Integral(-1e6, 1e6);
     int nbins = uncBand->GetNbinsX();
     std::vector<double> vec_varup(nbins, 0), vec_vardown(nbins, 0);
     for (size_t iter = 0; iter<syst.size(); iter++)
@@ -4701,6 +4702,12 @@ void Plotter::getSignalUncertaintyBand(TH1* uncBand, TString channel_)
         }
         tmpDo->SetDirectory(0);
         tmpUp->SetDirectory(0);
+
+        double upIntegral = tmpUp->Integral(-1e6, 1e6);
+        double doIntegral = tmpDo->Integral(-1e6, 1e6);
+
+        tmpUp->Scale(norm_Events/upIntegral);
+        tmpDo->Scale(norm_Events/doIntegral);
         for (Int_t nbin = 0; nbin < nbins; nbin++)
         {
             double binContent = uncBand->GetBinContent(nbin+1);
