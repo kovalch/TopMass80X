@@ -9,7 +9,7 @@
 
 #include "MvaFactory.h"
 #include "MvaTreeHandlerTopJets.h"
-#include "MvaTreeAnalyzer.h"
+#include "MvaTreePlotterBase.h"
 #include "MvaWeights2d.h"
 #include "mvaSetup.h"
 #include "higgsUtils.h"
@@ -123,8 +123,10 @@ void trainMvaTopJets(const std::vector<Channel::Channel>& v_channel,
                 outputFile.Append(PlotOutputFILE);
                 MvaTreeHandlerTopJets mvaTreeHandler("", {});
                 mvaTreeHandler.importTrees(fileName.Data(), "training");
-                MvaTreeAnalyzer mvaTreeAnalyzer(mvaTreeHandler.stepMvaVariablesMap(), true);
-                mvaTreeAnalyzer.plotVariables(outputFile.Data());
+                MvaTreePlotterBase* mvaTreePlotter = mvaTreeHandler.setPlotter(mvaTreeHandler.stepMvaVariablesMap(), true);
+                mvaTreePlotter->plotVariables(outputFile.Data());
+                mvaTreePlotter->clear();
+                delete mvaTreePlotter;
                 mvaTreeHandler.clear();
             }
             

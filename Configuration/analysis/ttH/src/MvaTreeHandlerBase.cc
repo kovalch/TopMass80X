@@ -14,6 +14,7 @@
 
 #include "MvaTreeHandlerBase.h"
 #include "MvaVariablesBase.h"
+#include "MvaTreePlotterBase.h"
 #include "JetCategories.h"
 #include "analysisStructs.h"
 #include "higgsUtils.h"
@@ -280,6 +281,18 @@ void MvaTreeHandlerBase::importBranch(TTree* tree, MvaVariableFloat& variable)co
 const std::map<TString, std::vector<MvaVariablesBase*> >& MvaTreeHandlerBase::stepMvaVariablesMap()const
 {
     return m_stepMvaVariables_;
+}
+
+
+
+MvaTreePlotterBase* MvaTreeHandlerBase::setPlotter(const std::map<TString, std::vector<MvaVariablesBase*> >&,
+                                                   const bool)const
+{
+    // WARNING: this is empty template method, overwrite for inherited class
+    
+    std::cerr<<"ERROR! Dummy method setPlotter() in MvaTreeHandlerBase is called, but overridden one should be used\n"
+             <<"...break\n"<<std::endl;
+    exit(568);
 }
 
 

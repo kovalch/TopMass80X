@@ -8,6 +8,8 @@
 #include "MvaTreeHandlerTopJets.h"
 #include "MvaVariablesBase.h"
 #include "MvaVariablesTopJets.h"
+#include "MvaTreePlotterBase.h"
+#include "MvaTreePlotterTopJets.h"
 #include "JetCategories.h"
 #include "analysisStructs.h"
 #include "../../common/include/analysisObjectStructs.h"
@@ -72,7 +74,8 @@ void MvaTreeHandlerTopJets::createAndFillBranches(TTree* tree, const std::vector
     for(const MvaVariablesBase* mvaVariablesTmp : v_mvaVariables){
         const MvaVariablesTopJets* mvaVariablesTopJetsTmp = dynamic_cast<const MvaVariablesTopJets*>(mvaVariablesTmp);
         if(!mvaVariablesTopJetsTmp){
-            std::cerr<<"ERROR in MvaTreeAnalyzer::plotStep()! MvaVariables are of wrong type, cannot typecast\n...break\n"<<std::endl;
+            std::cerr<<"ERROR in MvaTreeHandlerTopJets::createAndFillBranches()! MvaVariables are of wrong type, cannot typecast\n"
+                     <<"...break\n"<<std::endl;
             exit(395);
         }
         
@@ -117,6 +120,14 @@ void MvaTreeHandlerTopJets::importBranches(TTree* tree, std::vector<MvaVariables
         *mvaVariablesTopJetsPtr = mvaVariablesTopJets;
         v_mvaVariables.push_back(mvaVariablesTopJetsPtr);
     }
+}
+
+
+
+MvaTreePlotterBase* MvaTreeHandlerTopJets::setPlotter(const std::map<TString, std::vector<MvaVariablesBase*> >& m_stepMvaVariables,
+                                                      const bool separationPowerPlots)const
+{
+    return new MvaTreePlotterTopJets(m_stepMvaVariables, separationPowerPlots);
 }
 
 

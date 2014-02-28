@@ -17,6 +17,7 @@ class TSelectorList;
 class MvaVariableInt;
 class MvaVariableFloat;
 class MvaVariablesBase;
+class MvaTreePlotterBase;
 class JetCategories;
 class RecoObjects;
 class CommonGenObjects;
@@ -77,6 +78,12 @@ public:
     
     
     
+    /// Specify which type of plotter is needed for specific tree handler (dummy method, override in inherited MvaTreeHandler)
+    virtual MvaTreePlotterBase* setPlotter(const std::map<TString, std::vector<MvaVariablesBase*> >& m_stepMvaVariables,
+                                           const bool separationPowerPlots =false)const;
+    
+    
+    
     /// Clear the class instance
     void clear();
     
@@ -131,7 +138,7 @@ private:
     
     
     /// The prefix which all trees of the specific handler should have
-    const TString prefix_;    
+    const TString prefix_;
     
     /// Pointer for bookkeeping of histograms, trees, etc.
     TSelectorList* selectorList_;

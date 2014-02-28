@@ -8,138 +8,101 @@
 #include <TH1.h>
 #include <TH1D.h>
 
-#include "MvaTreeAnalyzer.h"
+#include "MvaTreePlotterTopJets.h"
+#include "MvaVariablesBase.h"
 #include "MvaVariablesTopJets.h"
 
 
 
 
 
-MvaTreeAnalyzer::MvaTreeAnalyzer(const std::map<TString, std::vector<MvaVariablesBase*> >& m_stepMvaVariables,
-                                 const bool separationPowerPlots):
-selectorList_(0),
-m_stepMvaVariables_(m_stepMvaVariables),
-plotExclusively_(separationPowerPlots)
+MvaTreePlotterTopJets::MvaTreePlotterTopJets(const std::map<TString, std::vector<MvaVariablesBase*> >& m_stepMvaVariables,
+                                             const bool separationPowerPlots):
+MvaTreePlotterBase("mvaP_", m_stepMvaVariables, separationPowerPlots)
 {
-    std::cout<<"--- Beginning setting up MVA variables histograms\n";
-    std::cout<<"=== Finishing setting up MVA variables histograms\n\n";
-}
-
-
-
-void MvaTreeAnalyzer::clear()
-{
-    selectorList_ = 0;
+    std::cout<<"--- Beginning setting up top jets MVA variables plotter\n";
     
-    for(auto stepHistograms : m_stepHistograms_){
-        stepHistograms.second.m_histogram_.clear();
-    }
-    m_stepHistograms_.clear();
-}
-
-
-
-void MvaTreeAnalyzer::plotVariables(const std::string& f_savename)
-{
-    // Output file
-    TFile outputFile(f_savename.c_str(),"RECREATE");
-    std::cout<<"\nOutput file for MVA input control plots: "<<f_savename<<"\n";
-    
-    // Produce MVA input control plots and store them in output
-    TSelectorList* output = new TSelectorList();
-    this->plotVariables(output);
-    
-    // Write file and cleanup
-    TIterator* it = output->MakeIterator();
-    while(TObject* obj = it->Next()){
-        obj->Write();
-    }
-    outputFile.Close();
-    output->SetOwner();
-    output->Clear();
-}
-
-
-
-void MvaTreeAnalyzer::plotVariables(TSelectorList* output)
-{
-    std::cout<<"--- Beginning control plots for MVA variables\n";
-    
-    // Set pointer to output, so that histograms are owned by it
-    selectorList_ = output;
-    
-    // Loop over steps and plot all histograms
-    for(const auto& stepMvaVariables : m_stepMvaVariables_){
-        const TString& step(stepMvaVariables.first);
-        const std::vector<MvaVariablesBase*>& v_mvaVariables(stepMvaVariables.second);
-        this->plotStep(step, v_mvaVariables);
+    // Check that MVA variables are of correct type for plotter
+    for(const auto& stepMvaVariables : m_stepMvaVariables){
+        const std::vector<MvaVariablesBase*>& v_mvaVariables = stepMvaVariables.second;
+        if(v_mvaVariables.size()){
+            const MvaVariablesTopJets* const mvaVariablesTopJets = dynamic_cast<const MvaVariablesTopJets* const>(v_mvaVariables.at(0));
+            if(!mvaVariablesTopJets){
+                std::cerr<<"ERROR in constructor of MvaTreePlotterTopJets! MvaVariables are of wrong type, cannot typecast\n...break\n"<<std::endl;
+                exit(395);
+            }
+            break;
+        }
     }
     
-    std::cout<<"=== Finishing control plots for MVA variables\n\n";
+    std::cout<<"=== Finishing setting up top jets MVA variables plotter\n\n";
 }
 
 
 
-void MvaTreeAnalyzer::plotStep(const TString& step, const std::vector<MvaVariablesBase*>& v_mvaVariables)
-{    
-    const MvaVariablesTopJets nameDummy;
-    constexpr const char* prefix = "mvaP_";
-    std::map<TString, TH1*>& m_histogram = m_stepHistograms_[step].m_histogram_;
+void MvaTreePlotterTopJets::bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram)
+{
     TString name;
+    const MvaVariablesTopJets nameDummy;
     
-    // Book histograms
     name = "trueStatus";
-    m_histogram[name] = store(new TH1D(prefix+name+step, "True status of matched jets;Status;# jet pairs",2,0,2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step, "True status of matched jets;Status;# jet pairs",2,0,2));
     m_histogram[name]->GetXaxis()->SetBinLabel(1, "swapped");
     m_histogram[name]->GetXaxis()->SetBinLabel(2, "correct");
     
     name = nameDummy.jetChargeDiff_.name();
-    this->bookHistosInclExcl(m_histogram, prefix, step, name, name+";c_{rel}^{#bar{b}}-c_{rel}^{b};# jet pairs",50,0,2);
+    this->bookHistosInclExcl(m_histogram, prefix_, step, name, name+";c_{rel}^{#bar{b}}-c_{rel}^{b};# jet pairs",50,0,2);
     
     name = nameDummy.meanDeltaPhi_b_met_.name();
-    this->bookHistosInclExcl(m_histogram, prefix, step, name, name+";0.5(|#Delta#phi(b,MET)|+|#Delta#phi(#bar{b},MET)|)  [rad];# jet pairs",20,0,3.2);
+    this->bookHistosInclExcl(m_histogram, prefix_, step, name, name+";0.5(|#Delta#phi(b,MET)|+|#Delta#phi(#bar{b},MET)|)  [rad];# jet pairs",20,0,3.2);
     
     name = nameDummy.massDiff_recoil_bbbar_.name();
-    this->bookHistosInclExcl(m_histogram, prefix, step, name, name+"; m_{recoil}^{jets}-m^{b#bar{b}}  [GeV];# jet pairs",16,-600,600);
+    this->bookHistosInclExcl(m_histogram, prefix_, step, name, name+"; m_{recoil}^{jets}-m^{b#bar{b}}  [GeV];# jet pairs",16,-600,600);
     
     name = nameDummy.pt_b_antiLepton_.name();
-    this->bookHistosInclExcl(m_histogram, prefix, step, name, name+"; p_{T}^{bl^{+}}  [GeV];# jet pairs",20,0,500);
+    this->bookHistosInclExcl(m_histogram, prefix_, step, name, name+"; p_{T}^{bl^{+}}  [GeV];# jet pairs",20,0,500);
     
     name = nameDummy.pt_antiB_lepton_.name();
-    this->bookHistosInclExcl(m_histogram, prefix, step, name, name+"; p_{T}^{#bar{b}l^{-}}  [GeV];# jet pairs",20,0,500);
+    this->bookHistosInclExcl(m_histogram, prefix_, step, name, name+"; p_{T}^{#bar{b}l^{-}}  [GeV];# jet pairs",20,0,500);
     
     name = nameDummy.deltaR_b_antiLepton_.name();
-    this->bookHistosInclExcl(m_histogram, prefix, step, name, name+"; #DeltaR(b,l^{+});# jet pairs",25,0,5);
+    this->bookHistosInclExcl(m_histogram, prefix_, step, name, name+"; #DeltaR(b,l^{+});# jet pairs",25,0,5);
     
     name = nameDummy.deltaR_antiB_lepton_.name();
-    this->bookHistosInclExcl(m_histogram, prefix, step, name, name+"; #DeltaR(#bar{b},l^{-});# jet pairs",25,0,5);
+    this->bookHistosInclExcl(m_histogram, prefix_, step, name, name+"; #DeltaR(#bar{b},l^{-});# jet pairs",25,0,5);
     
     name = nameDummy.btagDiscriminatorSum_.name();
-    this->bookHistosInclExcl(m_histogram, prefix, step, name, name+"; d^{b}+d^{#bar{b}};# jet pairs",20,0,2);
+    this->bookHistosInclExcl(m_histogram, prefix_, step, name, name+"; d^{b}+d^{#bar{b}};# jet pairs",20,0,2);
     
     name = nameDummy.deltaPhi_antiBLepton_bAntiLepton_.name();
-    this->bookHistosInclExcl(m_histogram, prefix, step, name, name+"; |#Delta#phi(bl^{+},#bar{b}l^{-})|  [rad];# jet pairs",10,0,3.2);
+    this->bookHistosInclExcl(m_histogram, prefix_, step, name, name+"; |#Delta#phi(bl^{+},#bar{b}l^{-})|  [rad];# jet pairs",10,0,3.2);
     
     name = nameDummy.massDiff_fullBLepton_bbbar_.name();
-    this->bookHistosInclExcl(m_histogram, prefix, step, name, name+"; m^{b#bar{b}l^{+}l^{-}}-m^{b#bar{b}}  [GeV];# jet pairs",13,0,1050);
+    this->bookHistosInclExcl(m_histogram, prefix_, step, name, name+"; m^{b#bar{b}l^{+}l^{-}}-m^{b#bar{b}}  [GeV];# jet pairs",13,0,1050);
     
     name = nameDummy.meanMt_b_met_.name();
-    this->bookHistosInclExcl(m_histogram, prefix, step, name, name+"; 0.5(m_{T}^{b,MET}+m_{T}^{#bar{b},MET)}  [GeV];# jet pairs",21,0,630);
+    this->bookHistosInclExcl(m_histogram, prefix_, step, name, name+"; 0.5(m_{T}^{b,MET}+m_{T}^{#bar{b},MET)}  [GeV];# jet pairs",21,0,630);
     
     name = nameDummy.massSum_antiBLepton_bAntiLepton_.name();
-    this->bookHistosInclExcl(m_histogram, prefix, step, name, name+"; m^{#bar{b}l^{-}}+m^{bl^{+}}  [GeV];# jet pairs",21,0,840);
+    this->bookHistosInclExcl(m_histogram, prefix_, step, name, name+"; m^{#bar{b}l^{-}}+m^{bl^{+}}  [GeV];# jet pairs",21,0,840);
     
     name = nameDummy.massDiff_antiBLepton_bAntiLepton_.name();
-    this->bookHistosInclExcl(m_histogram, prefix, step, name, name+"; m^{#bar{b}l^{-}}-m^{bl^{+}}  [GeV];# jet pairs",41,-400,420);
+    this->bookHistosInclExcl(m_histogram, prefix_, step, name, name+"; m^{#bar{b}l^{-}}-m^{bl^{+}}  [GeV];# jet pairs",41,-400,420);
+}
+
+
+
+void MvaTreePlotterTopJets::fillHistos(const TString&,
+                                       const std::vector<MvaVariablesBase*>& v_mvaVariables,
+                                       std::map<TString, TH1*>& m_histogram)
+{
+    TString name;
     
-    
-    
-    // Fill histograms
     for(const MvaVariablesBase* mvaVariables : v_mvaVariables){
         
         const MvaVariablesTopJets* mvaVariablesTopJets = dynamic_cast<const MvaVariablesTopJets*>(mvaVariables);
         if(!mvaVariablesTopJets){
-            std::cerr<<"ERROR in MvaTreeAnalyzer::plotStep()! MvaVariables are of wrong type, cannot typecast\n...break\n"<<std::endl;
+            std::cerr<<"ERROR in MvaTreePlotterTopJets::fillHistos()! MvaVariables are of wrong type, cannot typecast\n...break\n"<<std::endl;
             exit(395);
         }
         
@@ -207,9 +170,9 @@ void MvaTreeAnalyzer::plotStep(const TString& step, const std::vector<MvaVariabl
 
 
 
-void MvaTreeAnalyzer::bookHistosInclExcl(std::map<TString, TH1*>& m_histogram, const TString& prefix, const TString& step,
-                                        const TString& name, const TString& title,
-                                        const int& nBinX, const double& xMin, const double& xMax)
+void MvaTreePlotterTopJets::bookHistosInclExcl(std::map<TString, TH1*>& m_histogram, const TString& prefix, const TString& step,
+                                               const TString& name, const TString& title,
+                                               const int& nBinX, const double& xMin, const double& xMax)
 {
     const TString correct("correct_");
     const TString swapped("swapped_");
@@ -227,10 +190,16 @@ void MvaTreeAnalyzer::bookHistosInclExcl(std::map<TString, TH1*>& m_histogram, c
 
 
 
-void MvaTreeAnalyzer::fillHistosInclExcl(std::map<TString, TH1*>& m_histogram, const TString& name,
-                                        const double& variable,
-                                        const MvaVariablesTopJets* mvaTopJetsVariables, const double& weight)
+void MvaTreePlotterTopJets::fillHistosInclExcl(std::map<TString, TH1*>& m_histogram, const TString& name,
+                                               const double& variable,
+                                               const MvaVariablesBase* mvaVariables, const double& weight)
 {
+    const MvaVariablesTopJets* mvaVariablesTopJets = dynamic_cast<const MvaVariablesTopJets*>(mvaVariables);
+    if(!mvaVariablesTopJets){
+        std::cerr<<"ERROR in MvaTreePlotterTopJets::fillHistosInclExcl()! MvaVariables are of wrong type, cannot typecast\n...break\n"<<std::endl;
+        exit(395);
+    }
+    
     const TString correct("correct_");
     const TString swapped("swapped_");
     const TString wrong("wrong_");
@@ -239,8 +208,8 @@ void MvaTreeAnalyzer::fillHistosInclExcl(std::map<TString, TH1*>& m_histogram, c
         m_histogram[name]->Fill(variable, weight);
     }
     else{
-        if(mvaTopJetsVariables->correctCombination_.value_) m_histogram[correct+name]->Fill(variable, weight);
-        else if(mvaTopJetsVariables->swappedCombination_.value_) m_histogram[swapped+name]->Fill(variable, weight);
+        if(mvaVariablesTopJets->correctCombination_.value_) m_histogram[correct+name]->Fill(variable, weight);
+        else if(mvaVariablesTopJets->swappedCombination_.value_) m_histogram[swapped+name]->Fill(variable, weight);
         else m_histogram[wrong+name]->Fill(variable, weight);
     }
 }

@@ -17,7 +17,7 @@
 #include "analysisStructs.h"
 #include "AnalyzerBaseClass.h"
 #include "MvaTreeHandlerBase.h"
-#include "MvaTreeAnalyzer.h"
+#include "MvaTreePlotterBase.h"
 #include "../../common/include/analysisUtils.h"
 #include "../../common/include/analysisObjectStructs.h"
 #include "../../common/include/classes.h"
@@ -108,12 +108,12 @@ void HiggsAnalysis::Terminate()
             //mvaTreeHandler->writeTrees(fOutput);
 
             // Create and store control plots in fOutput
-            // FIXME: how to make this part generic for different handlers and corresponding analyzers?
-            MvaTreeAnalyzer mvaTreeAnalyzer(mvaTreeHandler->stepMvaVariablesMap());
-            mvaTreeAnalyzer.plotVariables(fOutput);
-            mvaTreeAnalyzer.clear();
+            MvaTreePlotterBase* mvaTreePlotter = mvaTreeHandler->setPlotter(mvaTreeHandler->stepMvaVariablesMap());
+            mvaTreePlotter->plotVariables(fOutput);
 
             // Cleanup
+            mvaTreePlotter->clear();
+            delete mvaTreePlotter;
             mvaTreeHandler->clear();
         }
     }

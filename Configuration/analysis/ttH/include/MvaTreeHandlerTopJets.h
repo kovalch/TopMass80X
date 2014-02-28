@@ -9,6 +9,7 @@ class TTree;
 #include "MvaTreeHandlerBase.h"
 
 class MvaVariablesBase;
+class MvaTreePlotterBase;
 class JetCategories;
 class RecoObjects;
 class CommonGenObjects;
@@ -40,6 +41,12 @@ public:
     
     /// Destructor
     ~MvaTreeHandlerTopJets(){}
+    
+    
+    
+    /// Specify which type of plotter is needed for specific tree handler
+    virtual MvaTreePlotterBase* setPlotter(const std::map<TString, std::vector<MvaVariablesBase*> >& m_stepMvaVariables,
+                                           const bool separationPowerPlots =false)const;
     
     
     
