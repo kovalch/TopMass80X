@@ -1197,7 +1197,11 @@ void TopMassControlPlots::doPlots()
       std::vector <TH1F*> tempHistBkg1D = hist.Bkg1D();
       for(TH1F* bkg : boost::adaptors::reverse(tempHistBkg1D)) stack->Add(bkg);
       std::vector <TH1F*> tempHistSig1D = hist.Sig1D();
-      for(TH1* sig : boost::adaptors::reverse(tempHistSig1D)) stack->Add(sig);
+      if (channelID == Helper::kAllJets) {
+        std::vector <TH1F*> tempHistSig1D = hist.Sig1D();
+        for(TH1* sig : boost::adaptors::reverse(tempHistSig1D)) stack->Add(sig);
+      }
+      else for(TH1* sig : hist.Sig1D()) stack->Add(sig);
 
       stack->Draw("hist same");
       hist.DataContainsMC()==false ? hist.Data1D()->Draw("p same") : hist.Data1D()->Draw("hist same");
