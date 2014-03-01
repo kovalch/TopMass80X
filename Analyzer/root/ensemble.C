@@ -61,7 +61,7 @@ void ensemble()
   //// Get histos
   
   TChain* tree = new TChain("tree");
-  tree->Add("/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_131012/lepton/weight.combinedWeight/job_*_ensemble.root");
+  tree->Add("/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_131012/lepton/job_*_ensemble.root");
   
   hError = new TH1D("hError", "hError", 5000, 0, 1);
   hPull  = new TH1D("hPull", "hPull", 100, -5, 5);
@@ -77,7 +77,7 @@ void ensemble()
   
   for (int i = 0; i < tree->GetEntries(); i++) {
     tree->GetEntry(i);
-    if (massError>0 && genMass==172.5 && genJES==1.) hError->Fill(massError);
+    if (massError>0 && genMass==172.5 && genJES==1.) hError->Fill(massError*1.02975);
   }
   
   hError->GetYaxis()->SetTitle("Pseudo-experiments / 2 MeV");
@@ -91,11 +91,11 @@ void ensemble()
   TCanvas* cError = new TCanvas("cError", "cError", 600, 600);
   
   //hError->Rebin(4);
-  hError->GetXaxis()->SetRangeUser(0.18, 0.19);
-  hError->GetYaxis()->SetRangeUser(0, 1000);
+  hError->GetXaxis()->SetRangeUser(0.1825, 0.19);
+  hError->GetYaxis()->SetRangeUser(0, 1200);
   hError->Draw();
-  drawArrow(0.187639, 800);
-  DrawLabel("This measurement", 0.36, 0.85, 0.46, kRed+1);
+  drawArrow(0.187639, 1050);
+  DrawLabel("This measurement", 0.5, 0.85, 0.9, kRed+1);
   
   DrawCMSPrel8LeptonJets();
   
