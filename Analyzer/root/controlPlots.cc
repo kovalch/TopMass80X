@@ -873,6 +873,11 @@ void TopMassControlPlots::doPlots()
   bool firstHist = true;
   for(MyHistogram& hist : hists){
     if(hist.Dimension() == -1) continue;
+    
+    if (hist.name == "combinationType") {
+      std::cout << "PERMUTATION YIELD" << std::endl;
+      firstHist = true;
+    }
 
     // Show event yields for first histogram
     int bins = hist.Data1D()->GetNbinsX()+1;
