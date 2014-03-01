@@ -106,7 +106,7 @@ struct sample {
   : data(d), systematic(sys), cr(c_), rad(r), drawerror(de), id(i), label(l), color(c), line(li), size(s) {}
 };
 
-string itos(int number)
+std::string itos(int number)
 {
    stringstream ss;
    ss << number;
@@ -155,7 +155,7 @@ void differentialMass(int iBinning = 0, int iObs = 2, bool batch = false)
   samples.push_back(sample(false, false, true, true, true, "powheg", "Powheg, Pythia Z2*", kGreen+1, 9, 21675970./1.7));
   samples.push_back(sample(false, false, true, true, true, "powheg_herwig", "Powheg, Herwig 6", kOrange+2, 7, 27684235./1.7));
   samples.push_back(sample(false, false, true, true, true, "mcatnlo_herwig", "MC@NLO, Herwig 6", kBlue+1, 2, 32852589./1.7));
-  samples.push_back(sample(false, false, true, true, true, "sherpa", "Sherpa", kYellow+1, 3, 44000000./1.7));
+  //samples.push_back(sample(false, false, true, true, true, "sherpa", "Sherpa", kYellow+1, 3, 44000000./1.7));
   //*/
   //
   
@@ -214,6 +214,7 @@ void differentialMass(int iBinning = 0, int iObs = 2, bool batch = false)
       for (int i = 1; i < it->profile->GetNbinsX()+1; i++) {
         TF1* gaus = new TF1("gaus", "gaus");
         int entries = it->chain->GetEntries(sObsLowCase[iObs] + " < " + itos(maxFit) + " & " + sObsLowCase[iObs] + " > " + itos(minFit) + " & bin == " + itos(i));
+        double pullWidth = 1.;
         if (entries < 100) {
             std::cout << "WARNING: Too less entries: " << itos(entries) << " in " << it->id << " bin " << itos(i) << std::endl;
             fixme = true;
@@ -222,10 +223,19 @@ void differentialMass(int iBinning = 0, int iObs = 2, bool batch = false)
           it->chain->Fit("gaus", sObsLowCase[iObs], sObsLowCase[iObs] + " < " + itos(maxFit) + " & " + sObsLowCase[iObs] + " > " + itos(minFit) + " & bin == " + itos(i), "LEMQ");
           it->profile->SetBinContent(i, gaus->GetParameter(1));
           it->profile->SetBinError(i, gaus->GetParameter(2) / sqrt(it->size/(crossSection*peLumi)));
+          
+          it->chain->Fit("gaus", sObsLowCase[iObs] + "_Pull", sObsLowCase[iObs] + " < " + itos(maxFit) + " & " + sObsLowCase[iObs] + " > " + itos(minFit) + " & bin == " + itos(i), "LEMQ");
+          pullWidth = gaus->GetParameter(2);
         }
         else {
           it->profile->SetBinContent(i, -1);
           it->profile->SetBinError(i, 1e6);
+        }
+        
+        // PULL correction for data
+        if (it->id == "1.00" && iObs != 0) {
+          samples[0].profile->SetBinError(i, samples[0].profile->GetBinError(i) * pullWidth);
+          std::cout << "Pull correction:" << pullWidth << std::endl;
         }
       }
     }
