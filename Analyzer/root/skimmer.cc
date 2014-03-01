@@ -38,12 +38,18 @@ typedef ProgramOptionsReader po;
 Skimmer::Skimmer()
 {
   //std::string samplePath(po::GetOption<std::string>("analysisConfig.samplePath"));
-  std::string samplePath("/nfs/dust/cms/user/eschliec/TopMass/2012/04/");
-  //std::string samplePath("dcap://dcache-cms-dcap.desy.de//pnfs/desy.de/cms/tier2/store/user/eschliec/TopMassTreeWriter_02_Data06/");
-
+  //std::string samplePath("/nfs/dust/cms/user/eschliec/TopMass/2012/04/");
+  std::string samplePath("dcap://dcache-cms-dcap.desy.de//pnfs/desy.de/cms/tier2/store/user/eschliec/TopMassTreeWriter_04_DataMix01/");
   std::string outputPath("/nfs/dust/cms/user/eschliec/TopMass/2012/Skim_04/");
 
+  std::string inputFolder = po::GetOption<std::string>("input");
+  std::string inputSample = po::GetOption<std::string>("outPath");
+
+  samplePath += inputFolder + std::string("/");
+
   std::vector<std::string> samples {
+    // test
+    //"*.root"
     // test sample
     //"Z2_S12_MadSpin_triggerTest_ABS_JES_100_172_5_sig.root"
     // data samples
@@ -72,20 +78,20 @@ Skimmer::Skimmer()
     //,"Z2_S12_ABS_JES_100_173_5_MadSpin_sig.root"
     //,"Z2_S12_ABS_JES_100_175_5_MadSpin_sig.root"
     //,"Z2_S12_ABS_JES_100_178_5_MadSpin_sig.root"
-    "Z2_S12_ABS_JES_102_166_5_MadSpin_sig.root"
-    ,"Z2_S12_ABS_JES_102_169_5_MadSpin_sig.root"
-    ,"Z2_S12_ABS_JES_102_171_5_MadSpin_sig.root"
-    ,"Z2_S12_ABS_JES_102_172_5_MadSpin_sig*.root"
-    ,"Z2_S12_ABS_JES_102_173_5_MadSpin_sig.root"
-    ,"Z2_S12_ABS_JES_102_175_5_MadSpin_sig.root"
-    ,"Z2_S12_ABS_JES_102_178_5_MadSpin_sig.root"
-    ,"Z2_S12_ABS_JES_104_166_5_MadSpin_sig.root"
-    ,"Z2_S12_ABS_JES_104_169_5_MadSpin_sig.root"
-    ,"Z2_S12_ABS_JES_104_171_5_MadSpin_sig.root"
-    ,"Z2_S12_ABS_JES_104_172_5_MadSpin_sig*.root"
-    ,"Z2_S12_ABS_JES_104_173_5_MadSpin_sig.root"
-    ,"Z2_S12_ABS_JES_104_175_5_MadSpin_sig.root"
-    ,"Z2_S12_ABS_JES_104_178_5_MadSpin_sig.root"
+    //,"Z2_S12_ABS_JES_102_166_5_MadSpin_sig.root"
+    //,"Z2_S12_ABS_JES_102_169_5_MadSpin_sig.root"
+    //,"Z2_S12_ABS_JES_102_171_5_MadSpin_sig.root"
+    //,"Z2_S12_ABS_JES_102_172_5_MadSpin_sig*.root"
+    //,"Z2_S12_ABS_JES_102_173_5_MadSpin_sig.root"
+    //,"Z2_S12_ABS_JES_102_175_5_MadSpin_sig.root"
+    //,"Z2_S12_ABS_JES_102_178_5_MadSpin_sig.root"
+    //,"Z2_S12_ABS_JES_104_166_5_MadSpin_sig.root"
+    //,"Z2_S12_ABS_JES_104_169_5_MadSpin_sig.root"
+    //,"Z2_S12_ABS_JES_104_171_5_MadSpin_sig.root"
+    //,"Z2_S12_ABS_JES_104_172_5_MadSpin_sig*.root"
+    //,"Z2_S12_ABS_JES_104_173_5_MadSpin_sig.root"
+    //,"Z2_S12_ABS_JES_104_175_5_MadSpin_sig.root"
+    //,"Z2_S12_ABS_JES_104_178_5_MadSpin_sig.root"
     //// systematic samples from central sample
     //,"Z2_S12_JER_Down_MadSpin_sig.root"
     //,"Z2_S12_JER_Up_MadSpin_sig.root"
@@ -127,6 +133,8 @@ Skimmer::Skimmer()
     //,"QCD_Mad_Pt1000ToInfi.root"
   };
 
+  samples.push_back(inputSample);
+
   for(auto& mySample : samples)
     skim(samplePath, outputPath, mySample);
 }
@@ -134,15 +142,18 @@ Skimmer::Skimmer()
 void Skimmer::skim(std::string inputPath, std::string outputPath, std::string sample)
 {
   std::string selection(po::GetOption<std::string>("analysisConfig.selection"));
-  //int maxPermutations(po::GetOption<int>("analysisConfig.maxPermutations"));
-  int maxPermutations(1);
+  int maxPermutations(po::GetOption<int>("analysisConfig.maxPermutations"));
+  //int maxPermutations(1);
+
+  std::cout << "Selection: " << selection << std::endl;
+  std::cout << "Max Permutations: " << maxPermutations << std::endl;
 
   TChain* fromChain = new TChain("analyzeKinFit/eventTree");
   int nFiles = 0;
   std::string fullInPath = inputPath+sample;
   std::cout << "Sample: " << fullInPath << std::endl;
 
-  std::string prunedSampleName = sample;
+  std::string prunedSampleName = po::GetOption<std::string>("input")+sample;
   boost::replace_all(prunedSampleName,"*","");
   std::string fullOutPath = outputPath+prunedSampleName;
   std::cout << "Output: " << fullOutPath << std::endl;
@@ -164,6 +175,7 @@ void Skimmer::skim(std::string inputPath, std::string outputPath, std::string sa
   fromChain->SetBranchAddress("weight.", &weightEvent);
   
   TFile* toFile = new TFile(fullOutPath.c_str(), "CREATE");
+  if(toFile->IsZombie()) return;
   toFile->mkdir("analyzeKinFit")->cd();
   
   TTree* toTree = fromChain->CloneTree(0);

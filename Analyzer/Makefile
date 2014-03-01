@@ -25,10 +25,13 @@ OBJ_FILES_DUPREMOVAL := $(patsubst root/%.cc,obj/3/%.o,$(filter-out $(wildcard r
 # files needed to run skimmer program
 CXX_FILES_SKIMMER := $(wildcard root/skimmer*.cc)
 OBJ_FILES_SKIMMER := $(patsubst root/%.cc,obj/3/%.o,$(filter-out $(wildcard root/*_main.cc), $(CXX_FILES_SKIMMER))) obj/1/ProgramOptionsReader.o
+# files needed to run add PDF weights program
+CXX_FILES_ADDPDFWEIGHTS := $(wildcard root/addPDFweights*.cc)
+OBJ_FILES_ADDPDFWEIGHTS := $(patsubst root/%.cc,obj/4/%.o,$(filter-out $(wildcard root/*_main.cc), $(CXX_FILES_ADDPDFWEIGHTS))) obj/1/ProgramOptionsReader.o
 
-.PHONY: clean all top tem con dup ski
+.PHONY: clean all top tem con dup ski pdf
 
-all: top tem con dup ski
+all: top tem con dup ski pdf
 
 top: TopMass
 
@@ -40,6 +43,8 @@ dup: DuplicateRemoval
 
 ski: Skimmer
 
+pdf: AddPDFweights
+
 clean:
 	@rm -rf obj
 	@rm -f TopMass
@@ -47,34 +52,40 @@ clean:
 	@rm -f ControlPlots
 	@rm -f DuplicateRemoval
 	@rm -f Skimmer
+	@rm -f AddPDFweights
 obj:
 	@mkdir -p obj/1
 	@mkdir -p obj/2
 	@mkdir -p obj/3
+	@mkdir -p obj/4
 
 TopMass: obj $(OBJ_FILES) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT) obj/1/main.o
-	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) $(ROOFITLIBS) -Wl,-rpath -Wl,lib -L/afs/naf.desy.de/group/cms/sw/slc5_amd64_gcc462/external/boost/1.50.0-cms2/lib -lboost_program_options -o $@ obj/1/main.o $(OBJ_FILES) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
+	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) $(ROOFITLIBS) -Wl,-rpath -Wl,lib -L/cvmfs/cms.cern.ch/slc5_amd64_gcc462/external/boost/1.51.0/lib -lboost_program_options -o $@ obj/1/main.o $(OBJ_FILES) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
 	@echo -e "\033[32m\033[1mSuccessfully compiled TopMass\033[0m"
 
 TemplateDerivation: obj $(OBJ_FILES) $(OBJ_FILES_CALIBRATION) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT) obj/3/calibration_main.o
-	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) $(ROOFITLIBS) -Wl,-rpath -Wl,lib -L/afs/naf.desy.de/group/cms/sw/slc5_amd64_gcc462/external/boost/1.50.0-cms2/lib -lboost_program_options -o $@ obj/3/calibration_main.o $(OBJ_FILES_CALIBRATION) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
+	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) $(ROOFITLIBS) -Wl,-rpath -Wl,lib -L/cvmfs/cms.cern.ch/slc5_amd64_gcc462/external/boost/1.51.0/lib -lboost_program_options -o $@ obj/3/calibration_main.o $(OBJ_FILES_CALIBRATION) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
 	@echo -e "\033[32m\033[1mSuccessfully compiled TemplateDerivation\033[0m"
 
 ControlPlots: obj $(OBJ_FILES_CONTROLPLOT) obj/3/controlPlots_main.o
-	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) -Wl,-rpath -Wl,lib -L/afs/naf.desy.de/group/cms/sw/slc5_amd64_gcc462/external/boost/1.50.0-cms2/lib -lboost_program_options -o $@ obj/3/controlPlots_main.o $(OBJ_FILES_CONTROLPLOT)
+	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) -Wl,-rpath -Wl,lib -L/cvmfs/cms.cern.ch/slc5_amd64_gcc462/external/boost/1.51.0/lib -lboost_program_options -o $@ obj/3/controlPlots_main.o $(OBJ_FILES_CONTROLPLOT)
 	@echo -e "\033[32m\033[1mSuccessfully compiled ControlPlots\033[0m"
 
 DuplicateRemoval: obj $(OBJ_FILES) $(OBJ_FILES_DUPREMOVAL) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT) obj/3/duplicateRemoval_main.o
-	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) $(ROOFITLIBS) -Wl,-rpath -Wl,lib -L/afs/naf.desy.de/group/cms/sw/slc5_amd64_gcc462/external/boost/1.50.0-cms2/lib -lboost_program_options -o $@ obj/3/duplicateRemoval_main.o $(OBJ_FILES_DUPREMOVAL) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
+	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) $(ROOFITLIBS) -Wl,-rpath -Wl,lib -L/cvmfs/cms.cern.ch/slc5_amd64_gcc462/external/boost/1.51.0/lib -lboost_program_options -o $@ obj/3/duplicateRemoval_main.o $(OBJ_FILES_DUPREMOVAL) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
 	@echo -e "\033[32m\033[1mSuccessfully compiled DuplicateRemoval\033[0m"
 
 Skimmer: obj $(OBJ_FILES) $(OBJ_FILES_SKIMMER) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT) obj/3/skimmer_main.o
-	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) -Wl,-rpath -Wl,lib -L/afs/naf.desy.de/group/cms/sw/slc5_amd64_gcc462/external/boost/1.50.0-cms2/lib -lboost_program_options -o $@ obj/3/skimmer_main.o $(OBJ_FILES_SKIMMER) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
+	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) -Wl,-rpath -Wl,lib -L/cvmfs/cms.cern.ch/slc5_amd64_gcc462/external/boost/1.51.0/lib -lboost_program_options -o $@ obj/3/skimmer_main.o $(OBJ_FILES_SKIMMER) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
 	@echo -e "\033[32m\033[1mSuccessfully compiled Skimmer\033[0m"
+
+AddPDFweights: obj $(OBJ_FILES) $(OBJ_FILES_ADDPDFWEIGHTS) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT) obj/4/addPDFweights_main.o
+	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) $(ROOFITLIBS) -Wl,-rpath -Wl,lib -L/cvmfs/cms.cern.ch/slc5_amd64_gcc462/external/boost/1.51.0/lib -lboost_program_options -L/afs/desy.de/user/e/eschliec/xxl-af-cms/wd/LHAPDF-605/lib -lLHAPDF -o $@ obj/4/addPDFweights_main.o $(OBJ_FILES_ADDPDFWEIGHTS) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
+	@echo -e "\033[32m\033[1mSuccessfully compiled AddPDFweights\033[0m"
 
 #rules
 obj/1/%.o: src/%.cxx
-	$(C) $(ROOTCFLAGS) -I/afs/naf.desy.de/group/cms/sw/slc5_amd64_gcc462/external/boost/1.50.0-cms2/include -I../.. -Iinc/ -MMD -c -o $@ $<
+	$(C) $(ROOTCFLAGS) -I/cvmfs/cms.cern.ch/slc5_amd64_gcc462/external/boost/1.51.0/include -I../.. -Iinc/ -MMD -c -o $@ $<
 #@sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
 #     -e '/^$$/ d' -e 's/$$/ :/' < $*.d >> $*.d
 
@@ -88,4 +99,7 @@ obj/2/%.o: ../TopEventTree/src/%.cc ../TopEventTree/interface/%.h
 	$(C) $(ROOTCFLAGS) -I../.. -MMD -c -o $@ $<
 
 obj/3/%.o: root/%.cc
-	$(C) $(ROOTCFLAGS) -I/afs/naf.desy.de/group/cms/sw/slc5_amd64_gcc462/external/boost/1.50.0-cms2/include -I../.. -Iinc/ -MMD -c -o $@ $<
+	$(C) $(ROOTCFLAGS) -I/cvmfs/cms.cern.ch/slc5_amd64_gcc462/external/boost/1.51.0/include -I../.. -Iinc/ -MMD -c -o $@ $<
+
+obj/4/%.o: root/%.cc
+	$(C) $(ROOTCFLAGS) -I/cvmfs/cms.cern.ch/slc5_amd64_gcc462/external/boost/1.51.0/include -I/afs/desy.de/user/e/eschliec/xxl-af-cms/wd/LHAPDF-605/include -I../.. -Iinc/ -MMD -c -o $@ $<
