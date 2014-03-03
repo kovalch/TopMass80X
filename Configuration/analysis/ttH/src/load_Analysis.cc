@@ -101,6 +101,7 @@ constexpr const char* AnalysisOutputDIR = "selectionRoot";
 
 
 void load_HiggsAnalysis(const TString& validFilenamePattern,
+                        const int part,
                         const Channel::Channel& channel,
                         const Systematic::Systematic& systematic,
                         const int dy,
@@ -350,8 +351,6 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
                 const Channel::Channel dyChannel = dy == 11 ? Channel::ee : dy == 13 ? Channel::mumu : Channel::tautau;
                 outputfilename.ReplaceAll("_dy", TString("_dy").Append(Channel::convertChannel(dyChannel)));
             }
-            if(isHiggsInclusive)outputfilename.ReplaceAll("inclusive", "inclusiveOther");
-            if(isTopSignal)outputfilename.ReplaceAll("signalplustau", "signalPlusOther");
             
             // Configure selector
             selector->SetChannel(channelName);
@@ -372,36 +371,71 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
             // and what about Wlnu sample, or possible others ?
             selector->SetSamplename(samplename->GetString());
             selector->SetGeneratorBools(samplename->GetString(), systematics_from_file->GetString());
-            selector->SetOutputfilename(outputfilename);
             selector->SetRunViaTau(0);
-            selector->SetAdditionalBJetMode(0);
             selector->SetHiggsInclusiveSample(isHiggsInclusive);
-            selector->SetHiggsInclusiveSeparation(false);
             
-            // Set up nTuple chain and run selector
+            // Set up nTuple chain
             TChain chain("writeNTuple/NTuple");
             chain.Add(filename);
             // chain.SetProof(); //will work from 5.34 onwards
-            chain.Process(selector, "", maxEvents, skipEvents);
             
-            // For splitting of dileptonic ttbar in tt+bb, tt+b and tt+other
-            if(isTopSignal && !isHiggsSignal && !isTtbarV){
-                selector->SetAdditionalBJetMode(2);
-                outputfilename.ReplaceAll("Other", "Bbbar");
-                selector->SetOutputfilename(outputfilename);
-                chain.Process(selector);
-                
-                selector->SetAdditionalBJetMode(1);
-                outputfilename.ReplaceAll("Bbbar", "B");
-                selector->SetOutputfilename(outputfilename);
-                chain.Process(selector);
+            // Split specific samples into subsamples and run the selector
+            // FIXME: should also include Drell-Yan splitting in this scheme (and any other splitting)
+            if(isTopSignal && !isHiggsSignal && !isTtbarV){ // For splitting of ttbar in production modes associated with heavy flavours
+                if(part==0 || part==-1){ // output is ttbar+other
+                    selector->SetAdditionalBJetMode(0);
+                    TString modifiedOutputfilename(outputfilename);
+                    modifiedOutputfilename.ReplaceAll("signalplustau", "signalPlusOther");
+                    selector->SetOutputfilename(modifiedOutputfilename);
+                    chain.Process(selector, "", maxEvents, skipEvents);
+                }
+                if(part==1 || part==-1){ // output is ttbar+b
+                    selector->SetAdditionalBJetMode(1);
+                    TString modifiedOutputfilename(outputfilename);
+                    modifiedOutputfilename.ReplaceAll("signalplustau", "signalPlusB");
+                    selector->SetOutputfilename(modifiedOutputfilename);
+                    chain.Process(selector, "", maxEvents, skipEvents);
+                }
+                if(part==2 || part==-1){ // output is ttbar+bbbar
+                    selector->SetAdditionalBJetMode(2);
+                    TString modifiedOutputfilename(outputfilename);
+                    modifiedOutputfilename.ReplaceAll("signalplustau", "signalPlusBbbar");
+                    selector->SetOutputfilename(modifiedOutputfilename);
+                    chain.Process(selector, "", maxEvents, skipEvents);
+                }
+                if(part >= 3){
+                    std::cerr<<"ERROR in load_Analysis! Specified part for ttbar+HF separation is not allowed (sample, part): "
+                             <<outputfilename<<" , "<<part<<"\n...break\n"<<std::endl;
+                    exit(647);
+                }
             }
-
-            
-            // For splitting of ttH inclusive decay in H->bb and other decays
-            if(isHiggsInclusive){
-                selector->SetHiggsInclusiveSeparation(true);
-                outputfilename.ReplaceAll("Other", "Bbbar");
+            else if(isHiggsInclusive){ // For splitting of ttH inclusive decay in H->bb and other decays
+                if(part==0 || part==-1){ // output is H->other
+                    selector->SetHiggsInclusiveSeparation(false);
+                    TString modifiedOutputfilename(outputfilename);
+                    modifiedOutputfilename.ReplaceAll("inclusive", "inclusiveOther");
+                    selector->SetOutputfilename(modifiedOutputfilename);
+                    chain.Process(selector, "", maxEvents, skipEvents);
+                }
+                if(part==1 || part==-1){ // output is H->bb
+                    selector->SetHiggsInclusiveSeparation(true);
+                    TString modifiedOutputfilename(outputfilename);
+                    modifiedOutputfilename.ReplaceAll("inclusive", "inclusiveBbbar");
+                    selector->SetOutputfilename(modifiedOutputfilename);
+                    chain.Process(selector, "", maxEvents, skipEvents);
+                }
+                if(part >= 2){
+                    std::cerr<<"ERROR in load_Analysis! Specified part for Higgs inclusive separation is not allowed (sample, part): "
+                             <<outputfilename<<" , "<<part<<"\n...break\n"<<std::endl;
+                    exit(647);
+                }
+            }
+            else{ // All other samples which are not split in subsamples
+                if(part >= 0){
+                    std::cerr<<"ERROR in load_Analysis! Specified part for sample separation is not allowed, this sample cannot be split (sample, part): "
+                             <<outputfilename<<" , "<<part<<"\n...break\n"<<std::endl;
+                    exit(647);
+                }
                 selector->SetOutputfilename(outputfilename);
                 chain.Process(selector, "", maxEvents, skipEvents);
             }
@@ -415,6 +449,8 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
 int main(int argc, char** argv)
 {
     CLParameter<std::string> opt_filenamePattern("f", "Restrict to filename pattern, e.g. ttbar", false, 1, 1);
+    CLParameter<int> opt_partToRun("p", "Specify a part to be run for samples which are split in subsamples (via ID). Default is no splitting", false, 1, 1,
+            [](int part){return part>=0 && part<3;});
     CLParameter<std::string> opt_channel("c", "Specify a certain channel (ee, emu, mumu). No channel specified = run on all channels", false, 1, 1,
             common::makeStringCheck(Channel::convertChannels(Channel::allowedChannelsAnalysis)));
     CLParameter<std::string> opt_systematic("s", "Run with a systematic that runs on the nominal ntuples, e.g. 'PU_UP'", false, 1, 1,
@@ -433,6 +469,9 @@ int main(int argc, char** argv)
     
     // Set up a pattern for selecting only files from selectionList containing that pattern in filename
     const TString validFilenamePattern = opt_filenamePattern.isSet() ? opt_filenamePattern[0] : "";
+    
+    // Set up part to be run for splitted samples
+    const int part = opt_partToRun.isSet() ? opt_partToRun[0] : -1;
     
     // Set up channel
     Channel::Channel channel(Channel::undefined);
@@ -464,7 +503,7 @@ int main(int argc, char** argv)
     
     // Start plotting
     //TProof* p = TProof::Open(""); // not before ROOT 5.34
-    load_HiggsAnalysis(validFilenamePattern, channel, systematic, dy, jetCategoriesId, v_analysisMode, maxEvents, skipEvents);
+    load_HiggsAnalysis(validFilenamePattern, part, channel, systematic, dy, jetCategoriesId, v_analysisMode, maxEvents, skipEvents);
     //delete p;
 }
 
