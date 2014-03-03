@@ -10,7 +10,35 @@ rm -r Plots
 rm -r PlotsPt*
 set -e
 
-for slope in 0.000 0.002 0.004 0.006 0.008 -0.002 -0.004 -0.006 -0.008; do
+
+for ch in ee emu mumu; do
+    ls -1 selectionRoot/Nominal/${ch}/*.root | grep -v run2012 > closure_${ch}mc.txt
+    rm FileLists/HistoFileList_Nominal_${ch}.txt
+    echo "selectionRoot/closure/$ch/${ch}_ttbarsignalplustau_fakerun_nominal.root" > FileLists/HistoFileList_Nominal_${ch}.txt
+    cat closure_${ch}mc.txt >> FileLists/HistoFileList_Nominal_${ch}.txt
+    rm closure_${ch}mc.txt
+
+    ### Make unfolding
+    w
+    $HISTO -t unfold -p +hyptoppt -c ${ch}
+    grep -v Bin < UnfoldingResults/Nominal/${ch}/HypToppTResults.txt | awk '{print $2"  "$8"  "$10"  "$10}' >> ${basedir}closure_result_pt_${ch}.txt
+
+    $HISTO -t unfold -p +hyptoprapidity -c ${ch}
+    grep -v Bin < UnfoldingResults/Nominal/${ch}/HypTopRapidityResults.txt | awk '{print $2"  "$8"  "$10"  "$10}' >> ${basedir}closure_result_y_${ch}.txt
+
+    ### Make control plot
+    $HISTO -t cp -p +hyptoppt -c ${ch}
+    $HISTO -t cp -p +hyptoprapidity -c ${ch}
+done
+
+mv Plots ${basedir}PlotsNominal
+
+echo "Pt results Nominal"
+
+
+exit
+
+for slope in 0.002 0.004 0.006 0.008 -0.002 -0.004 -0.006 -0.008; do
 
    for ch in ee emu mumu; do
         ls -1 selectionRoot/Nominal/${ch}/*.root | grep -v run2012 > closure_${ch}mc.txt
@@ -47,7 +75,7 @@ rm -r Plots
 rm -r PlotsY*
 set -e
 
-for slope in 0.000 0.080 0.160 0.240 0.320 -0.080 -0.160 -0.240 -0.320; do
+for slope in 0.080 0.160 0.240 0.320 -0.080 -0.160 -0.240 -0.320; do
 
     for ch in ee emu mumu; do
         ls -1 selectionRoot/Nominal/${ch}/*.root | grep -v run2012 > closure_${ch}mc.txt
