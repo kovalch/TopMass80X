@@ -2,16 +2,12 @@
 #define MvaTreePlotterTopJets_h
 
 #include <vector>
-#include <string>
 #include <map>
 
-#include <TString.h>
-
-class TSelectorList;
+class TString;
 class TH1;
 
 #include "MvaTreePlotterBase.h"
-#include "../../common/include/storeTemplate.h"
 
 class MvaVariablesBase;
 

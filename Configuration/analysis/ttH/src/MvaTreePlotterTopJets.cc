@@ -1,10 +1,6 @@
 #include <iostream>
 
-#include <TFile.h>
 #include <TString.h>
-#include <TSelectorList.h>
-#include <TIterator.h>
-#include <TObject.h>
 #include <TH1.h>
 #include <TH1D.h>
 

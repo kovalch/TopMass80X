@@ -6,7 +6,6 @@
 #include <TIterator.h>
 #include <TObject.h>
 #include <TH1.h>
-#include <TH1D.h>
 
 #include "MvaTreePlotterBase.h"
 #include "MvaVariablesBase.h"
