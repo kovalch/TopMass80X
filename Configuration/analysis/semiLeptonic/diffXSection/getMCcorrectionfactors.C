@@ -1,6 +1,27 @@
 #include "basicFunctions.h"
 
+void addTAE(TGraphAsymmErrors* in, TGraphAsymmErrors* out);
+
 void getMCcorrectionfactors(TString func = "exp"){
+
+  // some parameters
+  bool grey=false;
+  bool plotsepfit   =true;
+  bool plotfiterrors=false;
+  TString optD= plotsepfit ? "" : "0";
+  double xmax=500;
+  TString Txmax=getTStringFromDouble(xmax);
+
+  // colors
+  int color7=kRed-4;
+  int color8=kBlue+2;
+  int ljets7color=color7;//kRed;//kRed+1;
+  int dilep7color=color7;//kOrange+7;
+  int ljets8color=color8;//kBlue+2;//kBlue;
+  int dilep8color=color8;//kGreen+2;//kAzure+6;
+  int fit7color=color7;//kMagenta-4;
+  int fit8color=color8;//kTeal+3;
+  int colorband=kCyan-7;
 
   // ---
   //    canvas style 
@@ -14,11 +35,29 @@ void getMCcorrectionfactors(TString func = "exp"){
   gStyle->SetOptFit(0);
 
   // ---
+  //    collect all curves
+  // ---
+  // 7 TeV
+  int NbinsLjets7=7;
+  TGraphAsymmErrors* SFljets = new TGraphAsymmErrors(NbinsLjets7);
+  int NbinsDilep7=5;
+  TGraphAsymmErrors* SFdilep = new TGraphAsymmErrors(NbinsDilep7);
+  //int Nbins7=NbinsLjets7+NbinsDilep7;
+  TGraphAsymmErrors* SF7 = new TGraphAsymmErrors(0);
+  // 8 TeV
+  int NbinsLjets8=8;
+  TGraphAsymmErrors* SFljets8 = new TGraphAsymmErrors(NbinsLjets8);
+  int NbinsDilep8=5;
+  TGraphAsymmErrors* SFdilep8 = new TGraphAsymmErrors(NbinsDilep8);
+  //int Nbins8=NbinsLjets8+NbinsDilep8;
+  TGraphAsymmErrors* SF8 = new TGraphAsymmErrors(0);
+  // combined
+  //int Nbins=NbinsLjets7+NbinsDilep7+NbinsLjets8+NbinsDilep8;
+  TGraphAsymmErrors* SF = new TGraphAsymmErrors(0);
+  // ---
   //    top Pt data / MC ratio
   // ---
   // a) l+jets 7TeV data points
-  int NbinsLjets7=7;
-  TGraphAsymmErrors* SFljets = new TGraphAsymmErrors(NbinsLjets7);
   //           bin x(BCC)    data  / Madgraph         // BCCNNLO // BCC MG
   SFljets->SetPoint( 0, 28   , 0.004536 / 0.003806 ); //28       // 26.2
   SFljets->SetPoint( 1, 85.6 , 0.006658 / 0.006574 ); //85.6     // 88.8
@@ -39,12 +78,10 @@ void getMCcorrectionfactors(TString func = "exp"){
   SFljets->SetLineWidth(3.);
   SFljets->SetMarkerSize(1.5);
   SFljets->SetMarkerStyle(26);
-  SFljets->SetMarkerColor(kRed+1);
-  SFljets->SetLineColor(kRed+1);
+  SFljets->SetMarkerColor(ljets7color);
+  SFljets->SetLineColor(ljets7color);
 
   // b) dilepton 7TeV data points
-  int NbinsDilep7=5;
-  TGraphAsymmErrors* SFdilep = new TGraphAsymmErrors(NbinsDilep7);
   //           bin x(BCC)    data  / Madgraph               // BCCNNLO // BCC MG
   SFdilep->SetPoint( 0, 33.7,  (0.00509572 / 0.00453114 )  );// 33.7    // 34 
   SFdilep->SetPoint( 1, 107 ,  (0.00626002 / 0.00600115 )  );// 106     // 107
@@ -61,29 +98,42 @@ void getMCcorrectionfactors(TString func = "exp"){
   SFdilep->SetLineWidth(3.);
   SFdilep->SetMarkerSize(1.5);
   SFdilep->SetMarkerStyle(22);
-  SFdilep->SetMarkerColor(kOrange+7);
-  SFdilep->SetLineColor(kOrange+7);
+  SFdilep->SetMarkerColor(dilep7color);
+  SFdilep->SetLineColor(dilep7color);
+
+  // collect 8 TeV BCC x values for analysis binning
+  std::vector<double> xBCCljets_;
+  xBCCljets_.push_back( 28  );   //   0.0 ..  60.0
+  xBCCljets_.push_back( 86  );   //  60.0 .. 100.0
+  xBCCljets_.push_back(125  );   // 100.0 .. 150.0
+  xBCCljets_.push_back(173  );   // 150.0 .. 200.0
+  xBCCljets_.push_back(227.3);   // 200.0 .. 260.0
+  xBCCljets_.push_back(288  );   // 260.0 .. 320.0
+  xBCCljets_.push_back(356  );   // 320.0 .. 400.0
+  xBCCljets_.push_back(444  );   // 400.0 .. 500.0
+  std::vector<double> xBCCdilep_;
+  xBCCdilep_.push_back( 29.7);  //   0.0 ..  65.0
+  xBCCdilep_.push_back( 99.6);  //  65.0 .. 125.0
+  xBCCdilep_.push_back(159.7);  // 125.0 .. 200.0
+  xBCCdilep_.push_back(239.1);  // 200.0 .. 290.0
+  xBCCdilep_.push_back(336.2);  // 290.0 .. 400.0
 
   // c) l+jets 8TeV data points
-  int NbinsLjets8=7;
-  TGraphAsymmErrors* SFljets8 = new TGraphAsymmErrors(NbinsLjets8);
-  //           bin x(BCC)    data  / Madgraph          // BCCNNLO // BCC MG
-  SFljets8->SetPoint( 0, 28.  , 0.004350 / 0.003695 ); //28       //26.2
-  SFljets8->SetPoint( 1, 86.  , 0.006638 / 0.006477 ); //86       //90
-  SFljets8->SetPoint( 2, 125. , 0.004787 / 0.005077 ); //125	  //126.2
-  SFljets8->SetPoint( 3, 173. , 0.002629 / 0.002795 ); //173	  //173.8
-  SFljets8->SetPoint( 4, 227.3, 0.001069 / 0.001246 ); //227.3	  //228.8
-  SFljets8->SetPoint( 5, 288. , 0.000394 / 0.000491 ); //288	  //286.2
-  SFljets8->SetPoint( 6, 356. , 0.000126 / 0.000177 ); //356      //356.2
-  //                   x errors   rel.err(data) *( data  / Madgraph)
-
-  SFljets8->SetPointError( 0, 0., 0., (4.3 /100.)*(0.004350 / 0.003695), (4.3 /100.)*(0.004350 / 0.003695) );
-  SFljets8->SetPointError( 1, 0., 0., (4.0 /100.)*(0.006638 / 0.006477), (4.0 /100.)*(0.006638 / 0.006477) );
-  SFljets8->SetPointError( 2, 0., 0., (3.8 /100.)*(0.004787 / 0.005077), (3.8 /100.)*(0.004787 / 0.005077) );
-  SFljets8->SetPointError( 3, 0., 0., (5.1 /100.)*(0.002629 / 0.002795), (5.1 /100.)*(0.002629 / 0.002795) );
-  SFljets8->SetPointError( 4, 0., 0., (4.6 /100.)*(0.001069 / 0.001246), (4.6 /100.)*(0.001069 / 0.001246) );
-  SFljets8->SetPointError( 5, 0., 0., (6.5 /100.)*(0.000394 / 0.000491), (6.5 /100.)*(0.000394 / 0.000491) );
-  SFljets8->SetPointError( 6, 0., 0., (9.0 /100.)*(0.000126 / 0.000177), (9.0 /100.)*(0.000126 / 0.000177) );
+  for(int p=0; p<NbinsLjets8; ++p){
+    // get line with all informations
+    TString line= readLineFromFile(p+1, "/afs/naf.desy.de/group/cms/scratch/tophh/CommonFiles/topPtInputForReweighting/diffXSecTopSemiLepPartontopPt.txt");
+    // data value
+    TString temp = getStringEntry(line, 3 , "&");
+    temp.ReplaceAll(" ","");
+    double data=atof(temp.Data());
+    temp = getStringEntry(line, 2 , "&");
+    temp.ReplaceAll(" ","");
+    double MC  =atof(temp.Data());
+    SFljets8->SetPoint( p,  xBCCljets_.at(p) , data/MC ); 
+    temp = getStringEntry(line, 6 , "&");
+    double unc=atof(temp.Data());
+    SFljets8->SetPointError( p, 0., 0., (unc/100.)*(data/MC), (unc /100.)*(data/MC) );
+  }
   whipEmptyBinsAway(SFljets8, 0);
 
   //style of ratio
@@ -91,122 +141,43 @@ void getMCcorrectionfactors(TString func = "exp"){
   SFljets8->SetMarkerSize(1.5);
   SFljets8->SetMarkerStyle(24);
   //SFljets8->SetLineStyle(2);
-  SFljets8->SetMarkerColor(kBlue);
-  SFljets8->SetLineColor(kBlue);
-
+  SFljets8->SetMarkerColor(ljets8color);
+  SFljets8->SetLineColor(ljets8color);
 
   // d) dilepton 8TeV data points
-  int NbinsDilep8=5;
-  TGraphAsymmErrors* SFdilep8 = new TGraphAsymmErrors(NbinsDilep8);
-  //           bin x(BCC)    data  / Madgraph            // BCCNNLO // BCC MG
-  SFdilep8->SetPoint( 0, 35.4, (0.0051166/ 0.00441149 ) );//35.4     // 35
-  SFdilep8->SetPoint( 1, 106 , (0.0058072/ 0.00595931 ) );//106      // 105
-  SFdilep8->SetPoint( 2, 163 , (0.0030113/ 0.00328498 ) );//163      // 165
-  SFdilep8->SetPoint( 3, 242 , (0.00084306/0.000978855) );//242      // 245
-  SFdilep8->SetPoint( 4, 343 , (0.00016226/0.000212811) );//343      // 350
-  //                   x errors   rel.err(data) *( data  / Madgraph)
-  SFdilep8->SetPointError( 0, 0.,0., (5.6 /100.)*(0.0051166 /0.00441149 ), (5.6 /100.)*(0.0051166 /0.00441149 ) );
-  SFdilep8->SetPointError( 1, 0.,0., (5.2 /100.)*(0.0058072 /0.00595931 ), (5.2 /100.)*(0.0058072 /0.00595931 ) );
-  SFdilep8->SetPointError( 2, 0.,0., (5.61/100.)*(0.0030113 /0.00328498 ), (5.61/100.)*(0.0030113 /0.00328498 ) );
-  SFdilep8->SetPointError( 3, 0.,0., (5.29/100.)*(0.00084306/0.000978855), (5.29/100.)*(0.00084306/0.000978855) );
-  SFdilep8->SetPointError( 4, 0.,0., (9.31/100.)*(0.00016226/0.000212811), (9.31/100.)*(0.00016226/0.000212811) );
+  // MC prediction point (as not in provided table)
+  std::vector<double> MCdilep_;
+  MCdilep_.push_back(0.00396076 ); 
+  MCdilep_.push_back(0.00620269 ); 
+  MCdilep_.push_back(0.00336987 ); 
+  MCdilep_.push_back(0.00102834 ); 
+  MCdilep_.push_back(0.000228163); 
+  for(int p=0; p<NbinsDilep8; ++p){
+    // get line with all informations
+    TString line= readLineFromFile(p+4, "/afs/naf.desy.de/group/cms/scratch/tophh/CommonFiles/topPtInputForReweighting/HypToppTLaTeX.txt");
+    // data value
+    TString temp = getStringEntry(line, 3 , "&");
+    temp.ReplaceAll(" ","");
+    double data=atof(temp.Data());
+    //temp = getStringEntry(line, 2 , "&");
+    //temp.ReplaceAll(" ","");
+    double MC  =MCdilep_[p];
+    SFdilep8->SetPoint( p,  xBCCdilep_.at(p) , data/MC ); 
+    temp = getStringEntry(line, 6 , "&");
+    double unc=atof(temp.Data());
+    SFdilep8->SetPointError( p, 0., 0., (unc/100.)*(data/MC), (unc /100.)*(data/MC) );
+  }
 
   //style of ratio
   SFdilep8->SetLineWidth(3.);
   SFdilep8->SetMarkerSize(1.5);
   SFdilep8->SetMarkerStyle(20);
-  SFdilep8->SetMarkerColor(kAzure+6);
-  SFdilep8->SetLineColor(kAzure+6);
+  SFdilep8->SetMarkerColor(dilep8color);
+  SFdilep8->SetLineColor(dilep8color);
 
-  // e) combined 7+8TeV data points
-  int Nbins=NbinsLjets7+NbinsDilep7+NbinsLjets8+NbinsDilep8;
-  TGraphAsymmErrors* SF = new TGraphAsymmErrors(Nbins);
-  //           bin x(BCC)    data  / Madgraph         // BCCNNLO // BCC MG
-  SF->SetPoint( 0, 28   , 0.004536 / 0.003806 ); //28       // 26.2
-  SF->SetPoint( 1, 85.6 , 0.006658 / 0.006574 ); //85.6     // 88.8
-  SF->SetPoint( 2, 125  , 0.004740 / 0.004740 ); //125      // 126.2
-  SF->SetPoint( 3, 173.6, 0.002501 / 0.002748 ); //173.6    // 173.8
-  SF->SetPoint( 4, 227.5, 0.001042 / 0.001195 ); //227.5    // 228.8
-  SF->SetPoint( 5, 287.3, 0.000378 / 0.000454 ); //287.3    // 288.8
-  SF->SetPoint( 6, 355.8, 0.000120 / 0.000154 ); //355.8    // 356.2
-  SF->SetPoint( 7, 33.7,  (0.00509572 / 0.00453114 )  );// 33.7    // 34 
-  SF->SetPoint( 8, 107 ,  (0.00626002 / 0.00600115 )  );// 106     // 107
-  SF->SetPoint( 9, 162 ,  (0.00296467 / 0.00321705 )  );// 162     // 163
-  SF->SetPoint( 10, 242 ,  (0.000701592/ 0.000931674)  );// 242     // 247
-  SF->SetPoint( 11, 343 ,  (0.00012036 / 0.000191065)  );// 343     // 350
-  SF->SetPoint( 12, 28.  , 0.004350 / 0.003695 ); //28       //26.2
-  SF->SetPoint( 13, 86.  , 0.006638 / 0.006477 ); //86       //90
-  SF->SetPoint( 14, 125. , 0.004787 / 0.005077 ); //125	  //126.2
-  SF->SetPoint( 15, 173. , 0.002629 / 0.002795 ); //173	  //173.8
-  SF->SetPoint( 16, 227.3, 0.001069 / 0.001246 ); //227.3	  //228.8
-  SF->SetPoint( 17, 288. , 0.000394 / 0.000491 ); //288	  //286.2
-  SF->SetPoint( 18, 356. , 0.000126 / 0.000177 ); //356      //356.2
-  SF->SetPoint( 19, 35.4, (0.0051166/ 0.00441149 ) );//35.4     // 35
-  SF->SetPoint( 20, 106 , (0.0058072/ 0.00595931 ) );//106      // 105
-  SF->SetPoint( 21, 163 , (0.0030113/ 0.00328498 ) );//163      // 165
-  SF->SetPoint( 22, 242 , (0.00084306/0.000978855) );//242      // 245
-  SF->SetPoint( 23, 343 , (0.00016226/0.000212811) );//343      // 350
-  //                   x errors   rel.err(data) *( data  / Madgraph)
-  SF->SetPointError( 0, 0., 0., (4.4 /100.)*(0.004536 / 0.003806), (4.4 /100.)*(0.004536 / 0.003806) );
-  SF->SetPointError( 1, 0., 0., (5.5 /100.)*(0.006658 / 0.006574), (5.5 /100.)*(0.006658 / 0.006574) );
-  SF->SetPointError( 2, 0., 0., (4.0 /100.)*(0.004740 / 0.004740), (4.0 /100.)*(0.004740 / 0.004740) );
-  SF->SetPointError( 3, 0., 0., (5.8 /100.)*(0.002501 / 0.002748), (5.8 /100.)*(0.002501 / 0.002748) );
-  SF->SetPointError( 4, 0., 0., (6.2 /100.)*(0.001042 / 0.001195), (6.2 /100.)*(0.001042 / 0.001195) );
-  SF->SetPointError( 5, 0., 0., (9.0 /100.)*(0.000378 / 0.000454), (9.0 /100.)*(0.000378 / 0.000454) );
-  SF->SetPointError( 6, 0., 0., (11.1/100.)*(0.000120 / 0.000154), (11.1/100.)*(0.000120 / 0.000154) );
-  SF->SetPointError( 7, 0., 0., 0.0601381*(0.00509572 / 0.00453114 ), 0.0601381*(0.00509572 / 0.00453114 ) );
-  SF->SetPointError( 8, 0., 0., 0.0469906*(0.00626002 / 0.00600115 ), 0.0469906*(0.00626002 / 0.00600115 ) );
-  SF->SetPointError( 9, 0., 0., 0.0555114*(0.00296467 / 0.00321705 ), 0.0555114*(0.00296467 / 0.00321705 ) );
-  SF->SetPointError( 10, 0., 0., 0.071274* (0.000701592/ 0.000931674), 0.071274* (0.000701592/ 0.000931674) );
-  SF->SetPointError( 11, 0., 0., 0.0924826*(0.00012036 / 0.000191065), 0.0924826*(0.00012036 / 0.000191065) );
-  SF->SetPointError( 12, 0., 0., (4.3 /100.)*(0.004350 / 0.003695), (4.3 /100.)*(0.004350 / 0.003695) );
-  SF->SetPointError( 13, 0., 0., (4.0 /100.)*(0.006638 / 0.006477), (4.0 /100.)*(0.006638 / 0.006477) );
-  SF->SetPointError( 14, 0., 0., (3.8 /100.)*(0.004787 / 0.005077), (3.8 /100.)*(0.004787 / 0.005077) );
-  SF->SetPointError( 15, 0., 0., (5.1 /100.)*(0.002629 / 0.002795), (5.1 /100.)*(0.002629 / 0.002795) );
-  SF->SetPointError( 16, 0., 0., (4.6 /100.)*(0.001069 / 0.001246), (4.6 /100.)*(0.001069 / 0.001246) );
-  SF->SetPointError( 17, 0., 0., (6.5 /100.)*(0.000394 / 0.000491), (6.5 /100.)*(0.000394 / 0.000491) );
-  SF->SetPointError( 18, 0., 0., (9.0 /100.)*(0.000126 / 0.000177), (9.0 /100.)*(0.000126 / 0.000177) );
-  SF->SetPointError( 19, 0.,0., (5.6 /100.)*(0.0051166 /0.00441149 ), (5.6 /100.)*(0.0051166 /0.00441149 ) );
-  SF->SetPointError( 20, 0.,0., (5.2 /100.)*(0.0058072 /0.00595931 ), (5.2 /100.)*(0.0058072 /0.00595931 ) );
-  SF->SetPointError( 21, 0.,0., (5.61/100.)*(0.0030113 /0.00328498 ), (5.61/100.)*(0.0030113 /0.00328498 ) );
-  SF->SetPointError( 22, 0.,0., (5.29/100.)*(0.00084306/0.000978855), (5.29/100.)*(0.00084306/0.000978855) );
-  SF->SetPointError( 23, 0.,0., (9.31/100.)*(0.00016226/0.000212811), (9.31/100.)*(0.00016226/0.000212811) );
-  //style of ratio
-  SF->SetLineWidth(3.);
-  SF->SetMarkerSize(0.1);
-  SF->SetMarkerStyle(20);
-  SF->SetMarkerColor(kWhite);
-  SF->SetLineColor(kWhite);
-
-  // f) combined 7 TeV data points
-  int Nbins7=NbinsLjets7+NbinsDilep7;
-  TGraphAsymmErrors* SF7 = new TGraphAsymmErrors(Nbins7);
-  //           bin x(BCC)    data  / Madgraph         // BCCNNLO // BCC MG
-  SF7->SetPoint( 0, 28   , 0.004536 / 0.003806 ); //28       // 26.2
-  SF7->SetPoint( 1, 85.6 , 0.006658 / 0.006574 ); //85.6     // 88.8
-  SF7->SetPoint( 2, 125  , 0.004740 / 0.004740 ); //125      // 126.2
-  SF7->SetPoint( 3, 173.6, 0.002501 / 0.002748 ); //173.6    // 173.8
-  SF7->SetPoint( 4, 227.5, 0.001042 / 0.001195 ); //227.5    // 228.8
-  SF7->SetPoint( 5, 287.3, 0.000378 / 0.000454 ); //287.3    // 288.8
-  SF7->SetPoint( 6, 355.8, 0.000120 / 0.000154 ); //355.8    // 356.2
-  SF7->SetPoint( 7, 33.7,  (0.00509572 / 0.00453114 )  );// 33.7    // 34 
-  SF7->SetPoint( 8, 107 ,  (0.00626002 / 0.00600115 )  );// 106     // 107
-  SF7->SetPoint( 9, 162 ,  (0.00296467 / 0.00321705 )  );// 162     // 163
-  SF7->SetPoint( 10, 242 ,  (0.000701592/ 0.000931674)  );// 242     // 247
-  SF7->SetPoint( 11, 343 ,  (0.00012036 / 0.000191065)  );// 343     // 350
-  //                   x errors   rel.err(data) *( data  / Madgraph)
-  SF7->SetPointError( 0, 0., 0., (4.4 /100.)*(0.004536 / 0.003806), (4.4 /100.)*(0.004536 / 0.003806) );
-  SF7->SetPointError( 1, 0., 0., (5.5 /100.)*(0.006658 / 0.006574), (5.5 /100.)*(0.006658 / 0.006574) );
-  SF7->SetPointError( 2, 0., 0., (4.0 /100.)*(0.004740 / 0.004740), (4.0 /100.)*(0.004740 / 0.004740) );
-  SF7->SetPointError( 3, 0., 0., (5.8 /100.)*(0.002501 / 0.002748), (5.8 /100.)*(0.002501 / 0.002748) );
-  SF7->SetPointError( 4, 0., 0., (6.2 /100.)*(0.001042 / 0.001195), (6.2 /100.)*(0.001042 / 0.001195) );
-  SF7->SetPointError( 5, 0., 0., (9.0 /100.)*(0.000378 / 0.000454), (9.0 /100.)*(0.000378 / 0.000454) );
-  SF7->SetPointError( 6, 0., 0., (11.1/100.)*(0.000120 / 0.000154), (11.1/100.)*(0.000120 / 0.000154) );
-  SF7->SetPointError( 7, 0., 0., 0.0601381*(0.00509572 / 0.00453114 ), 0.0601381*(0.00509572 / 0.00453114 ) );
-  SF7->SetPointError( 8, 0., 0., 0.0469906*(0.00626002 / 0.00600115 ), 0.0469906*(0.00626002 / 0.00600115 ) );
-  SF7->SetPointError( 9, 0., 0., 0.0555114*(0.00296467 / 0.00321705 ), 0.0555114*(0.00296467 / 0.00321705 ) );
-  SF7->SetPointError( 10, 0., 0., 0.071274* (0.000701592/ 0.000931674), 0.071274* (0.000701592/ 0.000931674) );
-  SF7->SetPointError( 11, 0., 0., 0.0924826*(0.00012036 / 0.000191065), 0.0924826*(0.00012036 / 0.000191065) );
+  // e) combined 7 TeV data points
+  addTAE(SFdilep , SF7);
+  addTAE(SFljets , SF7);
   //style of ratio
   SF7->SetLineWidth(3.);
   SF7->SetMarkerSize(0.1);
@@ -214,35 +185,9 @@ void getMCcorrectionfactors(TString func = "exp"){
   SF7->SetMarkerColor(kWhite);
   SF7->SetLineColor(kWhite);
 
-  // g) combined 8 TeV data points
-  int Nbins8=NbinsLjets8+NbinsDilep8;
-  TGraphAsymmErrors* SF8 = new TGraphAsymmErrors(Nbins8);
-  //           bin x(BCC)    data  / Madgraph         // BCCNNLO // BCC MG
-  SF8->SetPoint( 0 , 28.  , 0.004350 / 0.003695 ); //28       //26.2
-  SF8->SetPoint( 1 , 86.  , 0.006638 / 0.006477 ); //86       //90
-  SF8->SetPoint( 2 , 125. , 0.004787 / 0.005077 ); //125	  //126.2
-  SF8->SetPoint( 3 , 173. , 0.002629 / 0.002795 ); //173	  //173.8
-  SF8->SetPoint( 4 , 227.3, 0.001069 / 0.001246 ); //227.3	  //228.8
-  SF8->SetPoint( 5 , 288. , 0.000394 / 0.000491 ); //288	  //286.2
-  SF8->SetPoint( 6 , 356. , 0.000126 / 0.000177 ); //356      //356.2
-  SF8->SetPoint( 7 , 35.4, (0.0051166/ 0.00441149 ) );//35.4     // 35
-  SF8->SetPoint( 8 , 106 , (0.0058072/ 0.00595931 ) );//106      // 105
-  SF8->SetPoint( 9 , 163 , (0.0030113/ 0.00328498 ) );//163      // 165
-  SF8->SetPoint( 10, 242 , (0.00084306/0.000978855) );//242      // 245
-  SF8->SetPoint( 11, 343 , (0.00016226/0.000212811) );//343      // 350
-  //                   x errors   rel.err(data) *( data  / Madgraph)
-  SF8->SetPointError( 0 , 0., 0., (4.3 /100.)*(0.004350 / 0.003695), (4.3 /100.)*(0.004350 / 0.003695) );
-  SF8->SetPointError( 1 , 0., 0., (4.0 /100.)*(0.006638 / 0.006477), (4.0 /100.)*(0.006638 / 0.006477) );
-  SF8->SetPointError( 2 , 0., 0., (3.8 /100.)*(0.004787 / 0.005077), (3.8 /100.)*(0.004787 / 0.005077) );
-  SF8->SetPointError( 3 , 0., 0., (5.1 /100.)*(0.002629 / 0.002795), (5.1 /100.)*(0.002629 / 0.002795) );
-  SF8->SetPointError( 4 , 0., 0., (4.6 /100.)*(0.001069 / 0.001246), (4.6 /100.)*(0.001069 / 0.001246) );
-  SF8->SetPointError( 5 , 0., 0., (6.5 /100.)*(0.000394 / 0.000491), (6.5 /100.)*(0.000394 / 0.000491) );
-  SF8->SetPointError( 6 , 0., 0., (9.0 /100.)*(0.000126 / 0.000177), (9.0 /100.)*(0.000126 / 0.000177) );
-  SF8->SetPointError( 7 , 0.,0., (5.6 /100.)*(0.0051166 /0.00441149 ), (5.6 /100.)*(0.0051166 /0.00441149 ) );
-  SF8->SetPointError( 8 , 0.,0., (5.2 /100.)*(0.0058072 /0.00595931 ), (5.2 /100.)*(0.0058072 /0.00595931 ) );
-  SF8->SetPointError( 9 , 0.,0., (5.61/100.)*(0.0030113 /0.00328498 ), (5.61/100.)*(0.0030113 /0.00328498 ) );
-  SF8->SetPointError( 10, 0.,0., (5.29/100.)*(0.00084306/0.000978855), (5.29/100.)*(0.00084306/0.000978855) );
-  SF8->SetPointError( 11, 0.,0., (9.31/100.)*(0.00016226/0.000212811), (9.31/100.)*(0.00016226/0.000212811) );
+  // f) combined 8 TeV data points
+  addTAE(SFdilep8, SF8);
+  addTAE(SFljets8, SF8);
   //style of ratio
   SF8->SetLineWidth(3.);
   SF8->SetMarkerSize(0.1);
@@ -250,28 +195,46 @@ void getMCcorrectionfactors(TString func = "exp"){
   SF8->SetMarkerColor(kWhite);
   SF8->SetLineColor(kWhite);
 
+  // g) combined 7+8TeV data points
+  addTAE(SF7, SF);
+  addTAE(SF8, SF);
+  //style of ratio
+  SF->SetLineWidth(3.);
+  SF->SetMarkerSize(0.1);
+  SF->SetMarkerStyle(20);
+  SF->SetMarkerColor(kWhite);
+  SF->SetLineColor(kWhite);
+
   // ---
   //    dummy plots for axis
   // ---
-  TH1F* dummy= new TH1F("","",1,0.,400);
+  TH1F* dummy= new TH1F("","",1,0.,xmax);
   histogramStyle(*dummy, kSig);
   dummy->GetXaxis()->SetTitle("p_{T}^{t} [GeV]");
-  dummy->GetYaxis()->SetTitle("#frac{1}{#sigma} #frac{d#sigma}{dp_{T}^{t}} ratio: (data / MadGraph)");
+  dummy->GetYaxis()->SetTitle("#frac{1}{#sigma} #frac{d#sigma}{dp_{T}^{t}} Ratio: (Data / Simulation)");
+  dummy->GetYaxis()->SetTitleOffset(0.9*dummy->GetYaxis()->GetTitleOffset());
   dummy->SetMaximum(1.8);
   dummy->SetMinimum(0.5);
 
   // ---
-  //    legend
+  //    legends
   // ---
-  TLegend *leg0 = new TLegend(0.2, 0.7, 0.67, 0.88);
+  double x1=0.29;
+  double x2=0.86;
+    
+  TLegend *leg0 = new TLegend(x1, 0.69, x2, 0.87);
   leg0->SetFillStyle(0);
+  leg0->SetTextSize(0.035);
   leg0->SetBorderSize(0);
   leg0->SetHeader("#font[22]{Data / MadGraph+PYTHIA(CTEQ6L1)}");
 
-  TLegend *leg1 = new TLegend(0.36, 0.49, 0.9, 0.69);
+  TLegend *leg1 = new TLegend(x1, 0.57, x2, 0.69);
   leg1->SetFillStyle(0);
+  leg1->SetTextSize(0.035);
   leg1->SetBorderSize(0);
-  leg1->SetHeader("#font[22]{Fit: exp(a+b*x)}");
+  leg1->SetHeader("#font[22]{Fit: exp(a+b#upointx)}");
+
+  if(plotsepfit) leg1->SetY1(leg1->GetY1()-0.2);
 
   // canvas
   std::vector<TCanvas*> plotCanvas_;
@@ -290,9 +253,9 @@ void getMCcorrectionfactors(TString func = "exp"){
   // fit polynomial or exponential function
   TString def = "";
   if(func=="pol2")def="[0]*x*x+[1]*x+[2]";
-  if(func=="exp")def="exp([0]+[1]*x)";
+  if(func=="exp" )def="exp([0]+[1]*x)";
   double fitLowEdge=0.;
-  double fitHighEdge=400.;
+  double fitHighEdge=xmax;
   // a) to all 8 and 7 TeV points
 //   TF1* function=new TF1("function",def,fitLowEdge, fitHighEdge);
 //   function->SetLineColor(kMagenta+2);
@@ -308,8 +271,9 @@ void getMCcorrectionfactors(TString func = "exp"){
 //   leg0->AddEntry( function, fitEntry, "L");
   // b) to all 7 TeV points
   TF1* function7=new TF1("function7",def,fitLowEdge, fitHighEdge);
-  function7->SetLineColor(6);
-  function7->SetLineWidth(2);
+  function7->SetLineColor(fit7color);
+  function7->SetLineWidth(6);
+  function7->SetLineStyle(2);
   SF7->Fit(function7,"R","same",fitLowEdge, fitHighEdge);
   for(int i=0; i<function7->GetNumberFreeParameters(); i++){
     function7->SetParameter(i,round(function7->GetParameter(i),3));
@@ -320,21 +284,26 @@ void getMCcorrectionfactors(TString func = "exp"){
   //fitEntry7+=getTStringFromDouble(function7->GetChisquare())+"/"+getTStringFromInt(function7->GetNDF());
   //fitEntry7.ReplaceAll("+(","");
   //fitEntry7.ReplaceAll("))",")");
-  TString fitEntry7="7 TeV:               ";
+  TString fitEntry7="7 TeV: ";
+  if(plotfiterrors) fitEntry7+="              ";
   fitEntry7+="a=";
   fitEntry7+=getTStringFromDouble(function7->GetParameter(0), 3);
-  fitEntry7+="#pm";
-  fitEntry7+=getTStringFromDouble(function7->GetParError(0) , 3);
+  if(plotfiterrors){
+    fitEntry7+="#pm";
+    fitEntry7+=getTStringFromDouble(function7->GetParError(0) , 3);
+  }
   fitEntry7+=", b=";
   fitEntry7+=getTStringFromDouble(function7->GetParameter(1), 5);
-  fitEntry7+="#pm";
-  fitEntry7+=getTStringFromDouble(function7->GetParError(1) , 5);
+  if(plotfiterrors){
+    fitEntry7+="#pm";
+    fitEntry7+=getTStringFromDouble(function7->GetParError(1) , 5);
+  }
 
   // b1) to l+jets 7 TeV points
   TF1* functionljets7=new TF1("functionljets7",def,fitLowEdge, fitHighEdge);
   functionljets7->SetLineColor(kRed+1);
   functionljets7->SetLineWidth(2);
-  SFljets->Fit(functionljets7,"R","same",fitLowEdge, fitHighEdge);
+  SFljets->Fit(functionljets7,"R"+optD,"same",fitLowEdge, fitHighEdge);
   for(int i=0; i<functionljets7->GetNumberFreeParameters(); i++){
     functionljets7->SetParameter(i,round(functionljets7->GetParameter(i),3));
   }
@@ -347,18 +316,22 @@ void getMCcorrectionfactors(TString func = "exp"){
   TString fitEntryljets7="7 TeV l+jets:     ";
   fitEntryljets7+="a=";
   fitEntryljets7+=getTStringFromDouble(functionljets7->GetParameter(0), 3);
-  fitEntryljets7+="#pm";
-  fitEntryljets7+=getTStringFromDouble(functionljets7->GetParError(0) , 3);
+  if(plotfiterrors){
+    fitEntryljets7+="#pm";
+    fitEntryljets7+=getTStringFromDouble(functionljets7->GetParError(0) , 3);
+  }
   fitEntryljets7+=", b=";
   fitEntryljets7+=getTStringFromDouble(functionljets7->GetParameter(1), 5);
-  fitEntryljets7+="#pm";
-  fitEntryljets7+=getTStringFromDouble(functionljets7->GetParError(1) , 5);
+  if(plotfiterrors){
+    fitEntryljets7+="#pm";
+    fitEntryljets7+=getTStringFromDouble(functionljets7->GetParError(1) , 5);
+  }
 
   // b2) to dilepton 7 TeV points
   TF1* functiondilep7=new TF1("functiondilep7",def,fitLowEdge, fitHighEdge);
   functiondilep7->SetLineColor(kOrange+7);
   functiondilep7->SetLineWidth(2);
-  SFdilep->Fit(functiondilep7,"R","same",fitLowEdge, fitHighEdge);
+  SFdilep->Fit(functiondilep7,"R"+optD,"same",fitLowEdge, fitHighEdge);
   for(int i=0; i<functiondilep7->GetNumberFreeParameters(); i++){
     functiondilep7->SetParameter(i,round(functiondilep7->GetParameter(i),3));
   }
@@ -371,17 +344,22 @@ void getMCcorrectionfactors(TString func = "exp"){
   TString fitEntrydilep7="7 TeV dilepton: ";
   fitEntrydilep7+="a=";
   fitEntrydilep7+=getTStringFromDouble(functiondilep7->GetParameter(0), 3);
-  fitEntrydilep7+="#pm";
-  fitEntrydilep7+=getTStringFromDouble(functiondilep7->GetParError(0) , 3);
+  if(plotfiterrors){
+    fitEntrydilep7+="#pm";
+    fitEntrydilep7+=getTStringFromDouble(functiondilep7->GetParError(0) , 3);
+  }
   fitEntrydilep7+=", b=";
-  fitEntrydilep7+=getTStringFromDouble(functiondilep7->GetParameter(1), 5);
-  fitEntrydilep7+="#pm";
+  if(plotfiterrors){
+    fitEntrydilep7+=getTStringFromDouble(functiondilep7->GetParameter(1), 5);
+    fitEntrydilep7+="#pm";
+  }
   fitEntrydilep7+=getTStringFromDouble(functiondilep7->GetParError(1) , 5);
 
   // c) to all 8 TeV points
   TF1* function8=new TF1("function8",def,fitLowEdge, fitHighEdge);
-  function8->SetLineWidth(2);
-  function8->SetLineColor(kTeal-1);
+  function8->SetLineWidth(6);
+  function8->SetLineColor(fit8color);
+  function8->SetLineStyle(2);
   SF8->Fit(function8,"R","same",fitLowEdge, fitHighEdge);
   for(int i=0; i<function8->GetNumberFreeParameters(); i++){
     function8->SetParameter(i,round(function8->GetParameter(i),3));
@@ -392,21 +370,26 @@ void getMCcorrectionfactors(TString func = "exp"){
   //fitEntry8+=getTStringFromDouble(function8->GetChisquare())+"/"+getTStringFromInt(function8->GetNDF());
   //fitEntry8.ReplaceAll("+(","");
   //fitEntry8.ReplaceAll("))",")");
-  TString fitEntry8="8 TeV:               ";
+  TString fitEntry8="8 TeV: ";
+  if(plotfiterrors) fitEntry8+="              ";
   fitEntry8+="a=";
   fitEntry8+=getTStringFromDouble(function8->GetParameter(0), 3);
-  fitEntry8+="#pm";
-  fitEntry8+=getTStringFromDouble(function8->GetParError(0) , 3);
+  if(plotfiterrors){
+    fitEntry8+="#pm";
+    fitEntry8+=getTStringFromDouble(function8->GetParError(0) , 3);
+  }
   fitEntry8+=", b=";
   fitEntry8+=getTStringFromDouble(function8->GetParameter(1), 5);
-  fitEntry8+="#pm";
-  fitEntry8+=getTStringFromDouble(function8->GetParError(1) , 5);
+  if(plotfiterrors){
+    fitEntry8+="#pm";
+    fitEntry8+=getTStringFromDouble(function8->GetParError(1) , 5);
+  }
 
   // c1) to l+jets 8 TeV points
   TF1* functionljets8=new TF1("functionljets8",def,fitLowEdge, fitHighEdge);
   functionljets8->SetLineColor(kBlue);
   functionljets8->SetLineWidth(2);
-  SFljets8->Fit(functionljets8,"R","same",fitLowEdge, fitHighEdge);
+  SFljets8->Fit(functionljets8,"R"+optD,"same",fitLowEdge, fitHighEdge);
   for(int i=0; i<functionljets8->GetNumberFreeParameters(); i++){
     functionljets8->SetParameter(i,round(functionljets8->GetParameter(i),3));
   }
@@ -419,18 +402,23 @@ void getMCcorrectionfactors(TString func = "exp"){
   TString fitEntryljets8="8 TeV l+jets:     ";
   fitEntryljets8+="a=";
   fitEntryljets8+=getTStringFromDouble(functionljets8->GetParameter(0), 3);
-  fitEntryljets8+="#pm";
-  fitEntryljets8+=getTStringFromDouble(functionljets8->GetParError(0) , 3);
+  if(plotfiterrors){
+    fitEntryljets8+="#pm";
+    fitEntryljets8+=getTStringFromDouble(functionljets8->GetParError(0) , 3);
+  }
   fitEntryljets8+=", b=";
   fitEntryljets8+=getTStringFromDouble(functionljets8->GetParameter(1), 5);
-  fitEntryljets8+="#pm";
-  fitEntryljets8+=getTStringFromDouble(functionljets8->GetParError(1) , 5);
+  if(plotfiterrors){
+    fitEntryljets8+="#pm";
+    fitEntryljets8+=getTStringFromDouble(functionljets8->GetParError(1) , 5);
+  }
 
   // c2) to dilepton 8 TeV points
   TF1* functiondilep8=new TF1("functiondilep8",def,fitLowEdge, fitHighEdge);
   functiondilep8->SetLineColor(kAzure+6);
   functiondilep8->SetLineWidth(2);
-  SFdilep8->Fit(functiondilep8,"R","same",fitLowEdge, fitHighEdge);
+  
+  SFdilep8->Fit(functiondilep8,"R"+optD,"same",fitLowEdge, fitHighEdge);
   for(int i=0; i<functiondilep8->GetNumberFreeParameters(); i++){
     functiondilep8->SetParameter(i,round(functiondilep8->GetParameter(i),3));
   }
@@ -443,25 +431,29 @@ void getMCcorrectionfactors(TString func = "exp"){
   TString fitEntrydilep8="8 TeV dilepton: ";
   fitEntrydilep8+="a=";
   fitEntrydilep8+=getTStringFromDouble(functiondilep8->GetParameter(0), 3);
-  fitEntrydilep8+="#pm";
-  fitEntrydilep8+=getTStringFromDouble(functiondilep8->GetParError(0) , 3);
+  if(plotfiterrors){
+    fitEntrydilep8+="#pm";
+    fitEntrydilep8+=getTStringFromDouble(functiondilep8->GetParError(0) , 3);
+  }
   fitEntrydilep8+=", b=";
   fitEntrydilep8+=getTStringFromDouble(functiondilep8->GetParameter(1), 5);
-  fitEntrydilep8+="#pm";
-  fitEntrydilep8+=getTStringFromDouble(functiondilep8->GetParError(1) , 5);
+  if(plotfiterrors){
+    fitEntrydilep8+="#pm";
+    fitEntrydilep8+=getTStringFromDouble(functiondilep8->GetParError(1) , 5);
+  }
 
   // Draw legend
-  leg0->AddEntry(SFljets, "7 TeV e/#mu+jets  (TOP-11-013)"   , "PL");
-  leg0->AddEntry(SFdilep, "7 TeV ee/e#mu/#mu#mu (TOP-11-013)", "PL");
-  leg0->AddEntry(SFljets8,"8 TeV e/#mu+jets  (TOP-12-027)"   , "PL");
-  leg0->AddEntry(SFdilep8,"8 TeV ee/e#mu/#mu#mu (TOP-12-028)", "PL");
+  leg0->AddEntry(SFljets, "7 TeV e/#mu+jets  (TOP-11-013)"   , "P");
+  leg0->AddEntry(SFdilep, "7 TeV ee/e#mu/#mu#mu (TOP-11-013)", "P");
+  leg0->AddEntry(SFljets8,"8 TeV e/#mu+jets  (TOP-12-028)"   , "P");
+  leg0->AddEntry(SFdilep8,"8 TeV ee/e#mu/#mu#mu (TOP-12-028)", "P");
   leg0->Draw("same");
   leg1->AddEntry( function7, fitEntry7, "L");
-  leg1->AddEntry( functiondilep7, fitEntrydilep7, "L");
-  leg1->AddEntry( functionljets7, fitEntryljets7, "L");
+  if(plotsepfit) leg1->AddEntry( functiondilep7, fitEntrydilep7, "L");
+  if(plotsepfit) leg1->AddEntry( functionljets7, fitEntryljets7, "L");
   leg1->AddEntry( function8, fitEntry8, "L");
-  leg1->AddEntry( functiondilep8, fitEntrydilep8, "L");
-  leg1->AddEntry( functionljets8, fitEntryljets8, "L");
+  if(plotsepfit) leg1->AddEntry( functiondilep8, fitEntrydilep8, "L");
+  if(plotsepfit) leg1->AddEntry( functionljets8, fitEntryljets8, "L");
   leg1->Draw("same");
   // Draw cms label
   TPaveText *label = new TPaveText();
@@ -470,21 +462,133 @@ void getMCcorrectionfactors(TString func = "exp"){
   label -> SetX2NDC(1.0-gStyle->GetPadRightMargin());
   label -> SetY2NDC(1.0);
   label -> SetTextFont(42);
-  label -> AddText("CMS Preliminary, 5/12 fb^{-1} at #sqrt{s} = 7/8 TeV");
+  TString CMSlab="";
+  if(!PHD) CMSlab+="CMS Preliminary, ";  
+  CMSlab+="5.0/19.7 fb^{-1} at #sqrt{s} = 7/8 TeV";
+  label -> AddText(CMSlab);
   label->SetFillStyle(0);
   label->SetBorderSize(0);
   label->SetTextSize(0.04);
   label->SetTextAlign(32);
   label-> Draw("same");
   // BCC label
-  double positionX=400.+0.045*400.*(gStyle->GetCanvasDefW()/600.);
+  double positionX=xmax+0.045*xmax*(gStyle->GetCanvasDefW()/600.);
   double positionY=0.5;
-  TLatex *bcclabel = new TLatex(positionX,positionY, " (BCC wrt. approx NNLO, arXiv:1205.3453)");
+  TLatex *bcclabel = new TLatex(positionX,positionY, " (horizontal BCC wrt. NNLO^{approx}, arXiv:1205.3453)");
   bcclabel->SetTextAlign(11);
   bcclabel->SetTextAngle(90);
-  bcclabel->SetTextSize(0.04);
+  bcclabel->SetTextSize(0.035);
   bcclabel->Draw("same");
-
+  if(grey) plotCanvas_[0]->SetGrayscale();
   //saving
-  plotCanvas_[plotCanvas_.size()-1]->Print("dataVsMadgraph7and8TeV.eps");
+  plotCanvas_[0]->Print("diffXSecFromSignal/plots/combined/2012/xSec/dataVsMadgraph7and8TeV.eps");
+  plotCanvas_[0]->Print("diffXSecFromSignal/plots/combined/2012/xSec/dataVsMadgraph7and8TeV.png");
+
+  // ---
+  // ERROR band plot
+  // ---
+  addCanvas(plotCanvas_);
+  plotCanvas_[plotCanvas_.size()-1]->cd(0);
+  plotCanvas_[plotCanvas_.size()-1]->SetTitle("data/MC top Pt errorband");
+  // drawing
+  dummy->GetYaxis()->SetTitle("(Data / Simulation) SF (#sqrt{s}=8 TeV)");
+  dummy->GetYaxis()->SetRangeUser(0.35, 1.65);
+  dummy->SetFillColor(10);
+  dummy->SetLineColor(10);
+  dummy->Draw("axis");
+  // extract parameters
+  double a=function8->GetParameter(0);
+  double b=function8->GetParameter(1);
+  // turning point
+  double min=0;
+  double max=500;
+  double TP=-a/b;
+  // get functions for high, low and central
+  TF1* centralErr=new TF1("centralErr",def,min, max);
+  centralErr->SetParameter(0, a);
+  centralErr->SetParameter(1, b);
+  TF1* upErr=new TF1("upErr",def,min, max);
+  upErr->SetParameter(0, 2*a);
+  upErr->SetParameter(1, 2*b);
+  TF1* dnErr=new TF1("upErr",def,min, max);
+  dnErr->SetParameter(0, 0.);
+  dnErr->SetParameter(1, 0.);
+  // draw errorbands
+  upErr->SetFillStyle(1001);
+  dnErr->SetFillStyle(1001);
+  upErr->SetLineColor(10);
+  dnErr->SetLineColor(10);
+  upErr->SetFillColor(colorband);
+  upErr->SetRange(min,TP);
+  upErr->DrawClone("hist same");
+  dnErr->SetFillColor(10);
+  dnErr->SetLineColor(10);
+  dnErr->SetRange(min,TP);
+  dnErr->DrawClone("hist same");
+  dnErr->SetFillColor(colorband);
+  dnErr->SetLineColor(colorband);
+  dnErr->SetRange(TP, max);
+  dnErr->DrawClone("hist same");
+  upErr->SetFillColor(10);
+  upErr->SetLineColor(10);
+  upErr->SetRange(TP, max);
+  upErr->DrawClone("hist same");
+  drawLine(TP, 0.35, TP, 1.05, 10, 2, 1);
+  // draw central prediction
+  centralErr->SetFillStyle(0);
+  centralErr->SetFillColor(0);
+  centralErr->SetLineColor(kBlue);
+  centralErr->SetLineWidth(6);
+  centralErr->SetLineColor(fit8color);
+  centralErr->SetLineStyle(2);
+  centralErr->Draw("hist same");
+  // legend and labels
+  dummy->Draw("axis same");
+  TPaveText *label2 = new TPaveText();
+  label2 -> SetX1NDC(gStyle->GetPadLeftMargin());
+  label2 -> SetY1NDC(1.0-gStyle->GetPadTopMargin());
+  label2 -> SetX2NDC(1.0-gStyle->GetPadRightMargin());
+  label2 -> SetY2NDC(1.0);
+  label2 -> SetTextFont(42);
+  TString CMSlab2="";
+  if(!PHD) CMSlab2+="CMS Preliminary, ";  
+  CMSlab2+="19.7 fb^{-1} at #sqrt{s} = 8 TeV";
+  label2->AddText(CMSlab2);
+  label2->SetFillStyle(0);
+  label2->SetBorderSize(0);
+  label2->SetTextSize(0.04);
+  label2->SetTextAlign(32);
+  label2->Draw("same");
+  TLegend *leg3 = new TLegend(x1+0.05, 0.7, x2+0.05, 0.85);
+  leg3->SetFillStyle(0);
+  leg3->SetTextSize(0.035);
+  leg3->SetBorderSize(0);
+  leg3->SetHeader("#font[22]{Parametrisation: exp(a+b#upointx)}");
+  TString entryErr=fitEntry8;
+  entryErr.ReplaceAll("8 TeV: ", "");
+  leg3->AddEntry(centralErr, entryErr , "L");
+  leg3->AddEntry(dnErr     , "a,b #pm 100%", "F");
+  leg3->Draw("same");
+  //saving
+  if(grey) plotCanvas_[1]->SetGrayscale();
+  plotCanvas_[1]->Print("diffXSecFromSignal/plots/combined/2012/xSec/topPtReweighting8TeVunc.eps");
+  plotCanvas_[1]->Print("diffXSecFromSignal/plots/combined/2012/xSec/topPtReweighting8TeVunc.png");
+
+}
+
+
+void addTAE(TGraphAsymmErrors* in, TGraphAsymmErrors* out){
+  // this functions adds the points of "in" to out
+
+  // calculate new number of points
+  int Nin =in ->GetMaxSize();
+  int Nout=out->GetMaxSize();
+  int Nsum=Nin+Nout;
+  out->Expand(Nsum);
+
+  // add points
+  for(int p=0; p<Nin; ++p){
+    out->SetPoint     ( Nout+p, in->GetX()[p], in->GetY()[p] );
+    out->SetPointError( Nout+p, in->GetEXlow()[p], in->GetEXhigh()[p], in->GetEYlow()[p], in->GetEYhigh()[p] );
+  }
 }
