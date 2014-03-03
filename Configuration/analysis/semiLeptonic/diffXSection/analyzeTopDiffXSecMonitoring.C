@@ -577,7 +577,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     "N_{jets};Events;1;1",
     //"N_{jets};Events;1;1",
     "E(jets) [GeV]; jets;1;1",
-    "p_{T} #left[GeV#right];Jets;1;1",
+    "p_{T}^{jet} #left[GeV#right];Jets;1;1",
     "#eta(jets);Jets;0;5",
     "#phi(jets);Jets;0;10",
     "H_{T} #left[GeV#right];Events;0;50",
@@ -632,7 +632,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     // (III) after btagging 
     // (ii) jet monitoring
     "N_{jets};Events;1;1",
-    "p_{T} #left[GeV#right];Jets;1;2",
+    "p_{T}^{jet} #left[GeV#right];Jets;1;2",
     "#eta(jets);Jets;0;5" ,
     "#phi(jets);Jets;0;10",
     "H_{T} [GeV];Events;0;100",
@@ -699,7 +699,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     "m^{b#bar{b}}(assigned to t#bar{t} system) #left[GeV#right];Events;0;20",
     "m^{jj} (KinFit W-assignment) #left[GeV#right];Events;1;5",
     "m^{jj} #left[GeV#right];Events;1;10",
-    "m^{bb} (KinFit non t#bar{t} b jets) #left[GeV#right];4 b-tag events;1;50",
+    "m^{bb} (KinFit non t#bar{t} b jets) #left[GeV#right];4 b-tag events;0;50",
     "m^{bb} #left[GeV#right];permutations;1;10",
     "m^{lb} #left[GeV#right];events;1;5",
     // complementary plots - with or without probability selection to have both versions for sure
@@ -713,7 +713,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     "m^{t#bar{t}} #left[GeV#right];Top-quark pairs;0;50",
     "H_{T}(t#bar{t})=#Sigma(E_{T}(jets)) #left[GeV#right];#frac{dN}{dH_{T}(t#bar{t})};0;20",
     "#Phi^{*}(t,#bar{t});Events;0;10",
-    "#Delta#Phi(t,#bar{t});Events;0;4",
+    "#Delta#phi(t,#bar{t});Events;0;4",
     "p_{T}^{l} #left[GeV#right];N^{l};0;10",  // keep synchronized with lepPt (Tagged) in axisLabel1DLeptons for tagged/kinfit ratio
     "#eta^{l};Leptons;0;1",
     "p_{T}^{q} #left[GeV#right];tt jets;0;20",    
@@ -745,7 +745,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     "#eta^{leading non t#bar{t}-jet};Events;0;4",
     "#chi^{2}-probability;Events;1;25", 
     "#chi^{2};Events;1;10",
-    "#Delta#Phi(t,#bar{t});Events;0;4",
+    "#Delta#phi(t,#bar{t});Events;0;4",
     // gen distributions
     "t#bar{t} other decay channel;events;0;1",
     "m^{t#bar{t}} #left[GeV#right] parton all truth;Events;1;1",
@@ -1978,8 +1978,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	  histo_[newLabel][kData]->SetBinContent(bin, (histo_[oldLabel][kData]->GetBinContent(bin)/DataIntegral));
 	  histo_[newLabel][kData]->SetBinError  (bin, sqrt(histo_[oldLabel][kData]->GetBinContent(bin))/DataIntegral); 
 	  // calculate data uncertainty for ratio(MC, data)
-	  double ratio = (histo_[newLabel][kData]->GetBinContent(bin)/histo_[newLabel][kSig]->GetBinContent(bin));
-	  if(invert) ratio=1./ratio;
+	  double ratio = histo_[newLabel][kData]->GetBinContent(bin)/(invert ? histo_[newLabel][kData]->GetBinContent(bin) : histo_[newLabel][kSig]->GetBinContent(bin));
 	  temp_.push_back(ratio*(histo_[newLabel][kData]->GetBinError(bin)/histo_[newLabel][kData]->GetBinContent(bin)));
 	}
 	errPUDa_[newLabel]=temp_;
@@ -2018,11 +2017,8 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	histoErrorBandPU_[nameErr]->SetBinError(bin, uncRelSymm*histoErrorBandPU_[nameErr]->GetBinContent(bin));
 	if(verbose>2) std::cout << "bin" << bin << ": " << histoErrorBandPU_[nameErr]->GetBinContent(bin) << "+/-" << histoErrorBandPU_[nameErr]->GetBinError(bin) << std::endl;
 	// calulate MC error for ratio(MC, data)
-	double ratio = (histo_[namestd][kData]->GetBinContent(bin)/histo_[namestd][kSig]->GetBinContent(bin));
-	if(invert) ratio=1./ratio;
+	double ratio = histo_[namestd][kSig]->GetBinContent(bin)/(invert ? histo_[namestd][kData]->GetBinContent(bin) : histo_[namestd][kSig]->GetBinContent(bin));
 	temp_.push_back(uncRelSymm*ratio);
-	// calulate data error for ratio(MC, data)
-	
       }
       errPUMC_[nameErr]=temp_;
       if(name.Contains("Before")) legPU ->AddEntry(histoErrorBandPU_[nameErr], "pile up unc.", "F");
@@ -2375,11 +2371,14 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 		sellabel->SetTextSize(0.04);
 		if(PHD||!paperPlot) sellabel->Draw("same"); // exclude selection label for paper plots
 	      }
+	      //std::cout << "quantity: " << plotList_[plot] << std::endl;
 	      // default legend
 	      double x1=1.0 - gStyle->GetPadRightMargin() - gStyle->GetTickLength() - 0.25;
 	      double x2=1.03- gStyle->GetPadRightMargin() - gStyle->GetTickLength();
 	      if(topPtReweighting                       ){ x1-=0.05;  x2-=0.05;} // closure tests
-	      if(plotList_[plot].Contains("ttbarDelPhi")){ x1-=0.05 ; x2-=0.05;} // avoid overlap
+	      if(plotList_[plot].Contains("ttbarDelPhi")){ x1-=0.05 ; x2-=0.05;
+		if(!topPtReweighting)  x1-=0.05 ; x2-=0.05;
+} // avoid overlap
 	      x1+=0.015;
 	      double y1=1.0 - gStyle->GetPadTopMargin() - gStyle->GetTickLength() -0.05 - 0.03 * leg->GetNRows();
 	      double y2=1.0-gStyle->GetPadTopMargin()-0.8*gStyle->GetTickLength();
@@ -2388,7 +2387,6 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	      leg->SetX2NDC(x2);
 	      leg->SetY2NDC(y2);
 	      leg->SetTextSize(0.035);
-
 	      // splitted legends
 	      double ttrewShift=0.035;
 	      if(topPtReweighting) x1-=(ttrewShift-0.08); // top-pt reweighting tests
@@ -2413,6 +2411,14 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 		legSplit2->SetX1NDC(legSplit2->GetX1NDC()+ttrewShift+0.06);
 		legSplit2->SetX2NDC(legSplit2->GetX2NDC()+ttrewShift+0.06);	       
 	      }
+	      //std::cout << "leg1, x1="  << std::setprecision(4) << std::fixed << legSplit1->GetX1NDC() << std::endl;
+	      //std::cout << "leg1, x2="  << std::setprecision(4) << std::fixed << legSplit1->GetX2NDC() << std::endl;
+	      //std::cout << "leg1, y1="  << std::setprecision(4) << std::fixed << legSplit1->GetY1NDC() << std::endl;
+	      //std::cout << "leg1, y2="  << std::setprecision(4) << std::fixed << legSplit1->GetY2NDC() << std::endl;
+	      //std::cout << "leg2, x1="  << std::setprecision(4) << std::fixed << legSplit2->GetX1NDC() << std::endl;
+	      //std::cout << "leg2, x2="  << std::setprecision(4) << std::fixed << legSplit2->GetX2NDC() << std::endl;
+	      //std::cout << "leg2, y1="  << std::setprecision(4) << std::fixed << legSplit2->GetY1NDC() << std::endl;
+	      //std::cout << "leg2, y2="  << std::setprecision(4) << std::fixed << legSplit2->GetY2NDC() << std::endl;
 	      // nPV legend (including PU unc. band)
 	      legPU->SetX1NDC(x1);
 	      legPU->SetY1NDC(1.0 - gStyle->GetPadTopMargin() - gStyle->GetTickLength() -0.05 - 0.03 * legPU->GetNRows());
@@ -2441,8 +2447,17 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 		// splitted legend
 		if(paperPlot&&splitlegends){
 		  if(verbose>3) std::cout << "splitted legends!" << std::endl;
-		  legSplit1->Draw("SAME");
-		  legSplit2->Draw("SAME");
+		  legSplit1->DrawClone("SAME");
+		  legSplit2->DrawClone("SAME");
+		  //std::cout << "quantity: " << plotList_[plot] << std::endl;
+		  //std::cout << "leg1, x1="  << std::setprecision(4) << std::fixed << legSplit1->GetX1NDC() << std::endl;
+		  //std::cout << "leg1, x2="  << std::setprecision(4) << std::fixed << legSplit1->GetX2NDC() << std::endl;
+		  //std::cout << "leg1, y1="  << std::setprecision(4) << std::fixed << legSplit1->GetY1NDC() << std::endl;
+		  //std::cout << "leg1, y2="  << std::setprecision(4) << std::fixed << legSplit1->GetY2NDC() << std::endl;
+		  //std::cout << "leg2, x1="  << std::setprecision(4) << std::fixed << legSplit2->GetX1NDC() << std::endl;
+		  //std::cout << "leg2, x2="  << std::setprecision(4) << std::fixed << legSplit2->GetX2NDC() << std::endl;
+		  //std::cout << "leg2, y1="  << std::setprecision(4) << std::fixed << legSplit2->GetY1NDC() << std::endl;
+		  //std::cout << "leg2, y2="  << std::setprecision(4) << std::fixed << legSplit2->GetY2NDC() << std::endl;
 		}
 		// ordinary legend
 		else leg->Draw("SAME");
@@ -2519,7 +2534,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 		  TString ratioLabelDenominator="N_{Data}";
 		  // per hand filled uncertainties for each bin of the ratio
 		  std::vector<double> err_=std::vector<double>(0); 
-		  // uncertainty values for MC unc. band (e.g.PU band or MC uncertainty band)
+		  // uncertainty values for MC unc. ban d(e.g.PU band or MC uncertainty band)
 		  std::vector<double> err2_;
 		  // configure efficiency ratios
 		  if(plotList_[plot].Contains("KinFitEff")||plotList_[plot].Contains("ProbEff")){
@@ -2550,8 +2565,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 		  // b2ii) MC shape errorband
 		  else if(histoErrorBand_.count(plotList_[plot])>0&&rval==0){
 		    for(int bin=1; bin<=histoErrorBand_[plotList_[plot]]->GetNbinsX(); ++bin){
-		      double ratio = (histo_[plotList_[plot]][kData]->GetBinContent(bin)/histo_[plotList_[plot]][kSig]->GetBinContent(bin));
-		      if(invert) ratio=1./ratio;
+		      double ratio = histo_[plotList_[plot]][kSig]->GetBinContent(bin)/(invert ? histo_[plotList_[plot]][kData]->GetBinContent(bin) : histo_[plotList_[plot]][kSig]->GetBinContent(bin));
 		      err2_.push_back(ratio*(histoErrorBand_[plotList_[plot]]->GetBinError(bin)/histoErrorBand_[plotList_[plot]]->GetBinContent(bin)));
 		    }
 		    int rval2 = drawRatio(histoErrorBand_[plotList_[plot]], histoErrorBand_[plotList_[plot]], ratMin, ratMax, myStyle, verbose, err2_, ratioLabelNominator, ratioLabelDenominator, "e2 same", kBlack, true, 0.8, ndivisions, invert);
@@ -2561,6 +2575,10 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 		  // data unc.: around the ratio, taken directly from err_ OR statistical error 
 		  //            of Ndata (for error=true and err_=std::vector<double>(0) in drawRatio)		  
 		  if(!plotList_[plot].Contains("PU")||plotList_[plot].Contains("reweightedNorm")){
+		    for(int bin=1; bin<=histo_[plotList_[plot]][kSig]->GetNbinsX(); ++bin){
+		      double ratio = histo_[plotList_[plot]][kData]->GetBinContent(bin)/(invert ? histo_[plotList_[plot]][kData]->GetBinContent(bin) : histo_[plotList_[plot]][kSig]->GetBinContent(bin));
+		      err_.push_back(ratio*(1/sqrt(histo_[plotList_[plot]][kData]->GetBinContent(bin))));
+		    }
 		    rval=drawRatio(histo_[plotList_[plot]][kData], histo_[plotList_[plot]][kSig], ratMin, ratMax, myStyle, verbose, err_, ratioLabelNominator, ratioLabelDenominator, "p e X0 same", kBlack, true, 0.8, ndivisions, invert);
 		    if (rval!=0) std::cout << " Problem occured when creating ratio plot for " << plotList_[plot] << std::endl;
 		  }
