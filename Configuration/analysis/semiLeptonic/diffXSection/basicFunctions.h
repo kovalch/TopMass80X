@@ -578,7 +578,7 @@ namespace semileptonic {
     hist.SetStats(kFALSE);
   }
 
-  double readLineFromFile(int line, TString file="crossSectionCalculation.txt")
+  double readValFromLineFromFile(int line, TString file="crossSectionCalculation.txt")
   {
     // this function to reads and returns a double value
     // from a specific line "line" of the .txt-like file "file"
@@ -604,6 +604,34 @@ namespace semileptonic {
     // if line is not found
     std::cout << "can not find line" << line << std::endl;
     return -1.;
+  }
+
+  TString readLineFromFile(int line, TString file="crossSectionCalculation.txt")
+  {
+    // this function to reads and returns a TString expression
+    // from a specific line "line" of the .txt-like file "file"
+    // modified quantities: NONE
+    // used functions: NONE
+    // used enumerators: NONE
+
+    // define variables
+    std::ifstream finDouble (file);
+    std::string readIn;
+    // check if file exists
+    if (!finDouble){
+      std::cout << "can not open file " << file << std::endl;
+      return -1;
+    }
+    // loop lines of the file
+    for(int l=1; !finDouble.eof(); ++l){
+      // save line content in readIn
+      getline(finDouble, readIn);
+      // convert your chosen line into double and return it
+      if(l==line) return TString(readIn.c_str());
+    }
+    // if line is not found
+    std::cout << "can not find line" << line << std::endl;
+    return "";
   }
 
   //void canvasStyle(TCanvas& canv) re-definition of header to avoid warnings when compiling, must be changed once function body is not empty anymore
@@ -2744,7 +2772,8 @@ namespace semileptonic {
     // per default only the gaussian error of the 'histNumerator' is considered:
     // (error(bin i) = sqrt(histNumerator->GetBinContent(i))/histDenominator->GetBinContent(i))
     // if 'err_' is present and its size equals the number of bins in the histos,
-    // its valus are considered as error for the ratio (if error=true)
+    // its values are considered as error for the ratio (if error=true) 
+    // (first entry in err_ - index 0 - corresponds to bin 1)
     // 'ndiv' defines the Ndivisions for the ratio y axis
     // NOTE: x Axis is transferred from histDenominator to the bottom of the canvas
     // invert: draw histDenominator/histNumerator instead of the other way round 
@@ -2755,7 +2784,10 @@ namespace semileptonic {
     // modified quantities: none
     // used functions: none
     // used enumerators: none
-
+    
+    // invert ==false: build histNumerator/histDenominator
+    // invert ==true : build histDenominator/histNumerator
+    // -> build in any case tempNumerator/tempDenominator
     TH1F* tempNumerator   = invert ? (TH1F*)histDenominator->Clone() : (TH1F*)histNumerator  ->Clone();
     TH1F* tempDenominator = invert ? (TH1F*)histNumerator  ->Clone() : (TH1F*)histDenominator->Clone();
     // check that histos have the same binning
@@ -2763,14 +2795,13 @@ namespace semileptonic {
       std::cout << " ERROR when calling drawRatio - histos have different number of bins" << std::endl;
       return -1;
     }
-    
     if(verbose>1){
-      std::cout << "building ratio plot of " << histNumerator->GetName();
-      std::cout << " and " << histDenominator->GetName() << std::endl;
+      std::cout << "building ratio plot of " << tempNumerator->GetName();
+      std::cout << " and " << tempDenominator->GetName() << std::endl;
     }
     // create ratio
     TH1F* ratio = (TH1F*)histNumerator->Clone();
-    //ratio->Divide(histDenominator);
+    // separate calculation of each bin
     for(int bin=1; bin<=tempNumerator->GetNbinsX(); bin++){
       double num  =tempNumerator  ->GetBinContent(bin);
       double denom=tempDenominator->GetBinContent(bin);
@@ -3730,7 +3761,10 @@ namespace semileptonic {
     int verbose2=0; // argument passed to called functions
     unsigned int sysNoBG =42;
     unsigned int sysNoAll=42*42;
-
+    TString testvar="";
+    //TString testvar="compositedKinematicsKinFit/mHbb";
+    //TString testvar="analyzeTopRecoKinematicsKinFitProbSel/topPt";
+    
     // debug output
     if(verbose>0) std::cout << "executing function makeTheoryUncertaintyBands" << std::endl;
 
@@ -3806,8 +3840,8 @@ namespace semileptonic {
       // c1 get files
       if(verbose>1) std::cout << "c1 get rootfiles" << std::endl;
       std::map<unsigned int, TFile*> filesMu_, filesEl_;
-      filesMu_ = getStdTopAnalysisFiles(inputFolder, sysNow2, dataFileMu, "muon"    , "Madgraph");
-      filesEl_ = getStdTopAnalysisFiles(inputFolder, sysNow2, dataFileEl, "electron", "Madgraph");
+      filesMu_ = getStdTopAnalysisFiles(inputFolder, sysNow2, dataFileMu, "muon"    , ttbarMC);
+      filesEl_ = getStdTopAnalysisFiles(inputFolder, sysNow2, dataFileEl, "electron", ttbarMC);
       // c2 get plots 
       if(verbose>1) std::cout << "c2 get all plots" << std::endl;
       std::map< TString, std::map <unsigned int, TH1F*> > histoEl_ , histoMu_, histoComb_;
@@ -3822,8 +3856,8 @@ namespace semileptonic {
       closeStdTopAnalysisFiles(filesEl_);
       // c3 lumi scale
       if(verbose>1) std::cout << "c3 lumiscaling" << std::endl;
-      scaleByLuminosity(plotListMu_, histoMu_, histo2Mu_, N1Dplots, luminosityMu, verbose2, sysNow2, "muon"    , "Madgraph");
-      scaleByLuminosity(plotListEl_, histoEl_, histo2El_, N1Dplots, luminosityEl, verbose2, sysNow2, "electron", "Madgraph");
+      scaleByLuminosity(plotListMu_, histoMu_, histo2Mu_, N1Dplots, luminosityMu, verbose2, sysNow2, "muon"    , ttbarMC);
+      scaleByLuminosity(plotListEl_, histoEl_, histo2El_, N1Dplots, luminosityEl, verbose2, sysNow2, "electron", ttbarMC);
       // c4 add channels, collect plots in temporary existing map histoComb_
      if(verbose>1) std::cout << "c4 add mu and el channel plots" << std::endl;
       // loop samples
@@ -3896,16 +3930,21 @@ namespace semileptonic {
     for(unsigned int plot=0; plot<plotList_.size(); ++plot){
       // name of plot
       TString plotName = plotList_[plot];
+      bool test= plotName.Contains(testvar) ? true : false;
       // debug output
       if(verbose>1) std::cout << "- plot #" << plot+1 << "/" << plotList_.size() << ": " << plotName;
       // process only 1D plots existing for sysNo and for systematically shifted plots
       if( histoSys_.count(plotName)>0 && histo_.count(plotList_[plot])>0 && plot<N1Dplots){
 	// clone plot for total MC (SG+BG+nottbarBG) sysNo for errorband
 	histoErrorBand_[plotName]=(TH1F*)histoSys_[plotName][sysNoAll]->Clone();
+	if(test) std::cout << plotName << std::endl;
 	// loop bins
 	for (int bin=1; bin<=histoErrorBand_[plotName]->GetNbinsX(); ++bin){
 	  // debug output
-	  if(verbose>2) std::cout << "  - bin #" << bin << "/" << histoErrorBand_[plotName]->GetNbinsX() << std::endl;
+	  if(verbose>2||test){
+	    std::cout << "  - bin #" << bin << "/" << histoErrorBand_[plotName]->GetNbinsX();
+	    std::cout << ", <x>=" << histoErrorBand_[plotName]->GetBinCenter(bin) << ":" << std::endl;
+	  }
 	  double NttbarSysNo=histoSys_[plotName][sysNo  ]->GetBinContent(bin);
 	  double NBGSysNo   =histoSys_[plotName][sysNoBG]->GetBinContent(bin);
 	  double uncUp=0;
@@ -3914,10 +3953,10 @@ namespace semileptonic {
 	  for(unsigned int sys=0; sys<RelevantSys_.size(); ++sys){
 	    int sysNow=RelevantSys_[sys];
 	    // debug output
-	    if(verbose>2) std::cout << "    - " << sysLabel(sysNow);
+	    if(verbose>2||test) std::cout << "    - " << sysLabel(sysNow);
 	    // check if considered systematics exists for this plot 
 	    if(histoSys_[plotName].count(sysNow)>0){
-	      if(verbose>2) std::cout << " (considered)" << std::endl;
+	      if(verbose>2||test) std::cout << " (considered)" << std::endl;
 	      // process up and down at the same time (during dn is looped)
 	      if(verbose>2) std::cout << sys+1 << "%2=" << (sys+1)%2 << std::endl;
 	      if(((sys+1)%2)==0){
@@ -3934,9 +3973,22 @@ namespace semileptonic {
 		  relDiffUp*=SF_TopMassUpUncertainty;
 		}
 		// special treatment for hadronization uncertainty
-		if(sys==sysHadDown||sys==sysHadUp){
+		if(sysUp==sysHadDown||sysUp==sysHadUp){
 		  relDiffUp=std::abs((NttbarSysUp-NttbarSysDn)/(NttbarSysNo+NBGSysNo));
 		  relDiffDn=relDiffUp;
+		}
+		// 100% unc. for empty bins
+		if((NttbarSysNo+NBGSysNo)==0.){
+		  relDiffDn=1.0;
+		  relDiffUp=1.0;
+		}
+		if(verbose>2||test){
+		  if(!(sysUp==sysHadDown||sysUp==sysHadUp)) std::cout << "      (NttbarSysNo=" << NttbarSysNo << ")" << std::endl; 
+		  std::cout << "      (NBGSysNo   =" << NBGSysNo    << ")" << std::endl;
+		  std::cout << "       NttbarSysUp=" << NttbarSysUp << std::endl; 
+		  std::cout << "       NttbarSysDn=" << NttbarSysDn << std::endl; 
+		  std::cout << "       relDiffUp  =" << relDiffUp*100 << "%" << std::endl; 
+		  std::cout << "       relDiffDn  =" << relDiffDn*100 << "%" << std::endl; 
 		}
 		// collect ^2 of all uncertainties
 		uncUp+=relDiffUp*relDiffUp;
@@ -3948,6 +4000,9 @@ namespace semileptonic {
 	  // symmetrize total up and total down uncertainty
 	  double uncSymm=(sqrt(uncUp)+sqrt(uncDn))/2;
 	  // Set uncertainty value for errorband
+	  if(plotList_[plot].Contains(testvar)){
+	    std::cout << "  -> tot. symm. unc.=" << uncSymm*100 << "%" << std::endl;
+	  }
 	  histoErrorBand_[plotName]->SetBinError(bin, uncSymm*histoErrorBand_[plotName]->GetBinContent(bin));
 	} // end loop bins
       } // end if plot exists
