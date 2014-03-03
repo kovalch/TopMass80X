@@ -1103,18 +1103,17 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
 
 
     //Removal of extra ticks in JetMult plots
-    if(name.Contains("JetMult") || (name.Contains("jet") && name.Contains("Multi"))) {
+    if(name.Contains("HypJetMultpt")) {
         drawhists[0]->GetXaxis()->SetNdivisions(drawhists[0]->GetNbinsX(),0,0, 1);
 
-//      // when changed the axis characters the size of the ticks cannot be modified: talk to Carmen
-//         TString TitBin = "";
-//         for(int bin = 1; bin <= drawhists[0]->GetNbinsX(); bin++) {
-//             if( bin == drawhists[0]->GetNbinsX()) {TitBin += "#geq"; TitBin += drawhists[0]->GetBinCenter(bin); drawhists[0]->GetXaxis()->SetBinLabel(bin,TitBin);}
-//             else{TitBin += drawhists[0]->GetBinCenter(bin);
-//             drawhists[0]->GetXaxis()->SetBinLabel(bin,TitBin);
-//             }
-//             TitBin  = "";
-//         }
+        TString TitBin = "";
+        for(int bin = 1; bin <= drawhists[0]->GetNbinsX(); bin++) {
+            if( bin == drawhists[0]->GetNbinsX()) {TitBin += "#geq"; TitBin += drawhists[0]->GetBinCenter(bin); drawhists[0]->GetXaxis()->SetBinLabel(bin,TitBin);}
+            else{TitBin += drawhists[0]->GetBinCenter(bin);
+            drawhists[0]->GetXaxis()->SetBinLabel(bin,TitBin);
+            }
+            TitBin  = "";
+        }
     }
 
     //Add the binwidth to the yaxis in yield plots
@@ -2714,7 +2713,7 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
     }
     madgraphhistBinned->GetXaxis()->SetNoExponent(kTRUE);
     if (name.Contains("Rapidity") || name.Contains("Eta")){madgraphhistBinned->GetYaxis()->SetNoExponent(kTRUE);}
-    if (name.Contains("JetMult")) {
+    if (name.Contains("HypJetMultpt")) {
         //madgraphhistBinned->GetXaxis()->SetNdivisions(madgraphhistBinned->GetNbinsX(),0,0, 1);
         TString TitBin = "";
         for(int bin = 1; bin <= madgraphhistBinned->GetNbinsX(); bin++) {
