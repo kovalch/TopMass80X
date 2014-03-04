@@ -2,7 +2,7 @@
 
 bool isValidsample(unsigned int sample, unsigned int systematicVariation);
 
-void treeComparison(double luminosity = 19712, bool save = true, int verbose=0, TString inputFolderName= "RecentAnalysisRun8TeV_doubleKinFit", TString dataFile= "/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/elecDiffXSecData2012ABCDAll.root:/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/muonDiffXSecData2012ABCDAll.root", const std::string decayChannel = "combined", bool withRatioPlot=true, TString test="PV")
+void treeComparison(double luminosity = 19712, bool save = true, int verbose=0, TString inputFolderName= AnalysisFolder, TString dataFile= groupSpace+AnalysisFolder+"/elecDiffXSecData2012ABCDAll.root:"+groupSpace+AnalysisFolder+"/muonDiffXSecData2012ABCDAll.root", const std::string decayChannel = "combined", bool withRatioPlot=true, TString test="PV")
 {
   // test= "prob" or "PV" 
   // data/MC -> MC/data
@@ -82,7 +82,7 @@ void treeComparison(double luminosity = 19712, bool save = true, int verbose=0, 
   // file vector storage
   std::vector< std::map<unsigned int, TFile*> > fileList_;
   // get analysis files
-  TString inputFolder="/afs/naf.desy.de/group/cms/scratch/tophh/"+inputFolderName;
+  TString inputFolder=groupSpace+inputFolderName;
   if(verbose>0) std::cout << "loading files from " << inputFolder << std::endl;
   if(decayChannel!="combined"){
     TString dataFiletemp= decayChannel=="muon" ? dataFileMu : dataFileEl;
