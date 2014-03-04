@@ -165,43 +165,19 @@ echo "closureTestSpecifier                        $closureTestSpecifier         
 echo "-------------------------------------------------------------------------------------"
 echo
 
-## folder on /afs/naf.desy.de/group/cms/scratch/tophh where MC and data files are stored
-## inputFolderName=\"RecentAnalysisRun8TeV\" (default)
-#inputFolderName=\"RecentAnalysisRun8TeV\"
+
+## shared folder of the analysis containing all relevant files
+HHgroupFolder=\"/afs/naf.desy.de/group/cms/scratch/tophh/\"
+## subfolder of $HHgroupFolder where MC and data files are stored
+## inputFolderName=\"RecentAnalysisRun8TeV_doubleKinFit\" (default)
 inputFolderName=\"RecentAnalysisRun8TeV_doubleKinFit\"
 
 ## Dataset and luminosity [/pb]
 ## has to fit to current dataset
-
-mudataSample=\"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/muonDiffXSecData2012ABCDAll.root\"
-eldataSample=\"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/elecDiffXSecData2012ABCDAll.root\"
-
-# closure tests
-# [ $closureTestSpecifier != \"\" ]; then
-#  if [ $closureTestSpecifierS==\"NoDistort\"]; then
-#	mudataSample=\"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/pseudodata/muonPseudoData19712pb8TeV.root\"
-#	eldataSample=\"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/pseudodata/electronPseudoData19712pb8TeV.root\"
-#  elif [ $closureTestSpecifierS==\"topPtUp\"]; then
-#	mudataSample=\"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/pseudodata/muonPseudoData19712pbReweightedtopPtUp8TeV.root\"
-#	eldataSample=\"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/pseudodata/electronPseudoData19712pbReweightedtopPtUp8TeV.root\"
-#  elif [ $closureTestSpecifierS==\"topPtDown\"]; then
-#	mudataSample=\"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/pseudodata/muonPseudoData19712pbReweightedtopPtDown8TeV.root\"
-#	eldataSample=\"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/pseudodata/electronPseudoData19712pbReweightedtopPtDown8TeV.root\"
-#  elif [ $closureTestSpecifierS==\"ttbarMassUp\"]; then
-#	mudataSample=\"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/pseudodata/muonPseudoData19712pbReweightedttbarMassUp8TeV.root\"
-#	eldataSample=\"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/pseudodata/electronPseudoData19712pbReweightedttbarMassUp8TeV.root\"
-#  elif [ $closureTestSpecifierS==\"ttbarMassDown\"]; then
-#	mudataSample=\"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/pseudodata/muonPseudoData19712pbReweightedttbarMassDown8TeV.root\"
-#	eldataSample=\"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/pseudodata/electronPseudoData19712pbReweightedttbarMassDown8TeV.root\"
-#  elif [ $closureTestSpecifierS==\"data\"]; then
-#	mudataSample=\"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/pseudodata/muonPseudoData19712pbReweighteddata8TeV.root\"
-#	eldataSample=\"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/pseudodata/electronPseudoData19712pbReweighteddata8TeV.root\"
-#  elif [ $closureTestSpecifierS==\"1000\"]; then
-#	mudataSample=\"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/pseudodata/muonPseudoData19712pbandM1000W100Zprime8TeV.root\"
-#	eldataSample=\"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/pseudodata/electronPseudoData19712pbandM1000W100Zprime8TeV.root\"
-#  fi
-#
-# -> directly specified within basicFunctions.h
+mudataSample2=$HHgroupFolder$inputFolderName\"/muonDiffXSecData2012ABCDAll.root\"
+eldataSample2=$HHgroupFolder$inputFolderName\"/elecDiffXSecData2012ABCDAll.root\"
+mudataSample=`echo $mudataSample2 | sed -e 's/\"\"//g'`
+eldataSample=`echo $eldataSample2 | sed -e 's/\"\"//g'`
 
 if [ $decayChannel == \"electron\" ]; then
     dataLuminosity=19712
