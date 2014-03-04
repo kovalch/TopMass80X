@@ -274,6 +274,11 @@ protected:
     /// Whether generator information about a Higgs system is stored (and whether it should be used for analysis)
     const bool& isHiggsSignal()const{return isHiggsSignal_;}
     
+    /// Whether it is a ttbar sample (not ttbar + something)
+    const bool& isTtbarSample()const{return isTtbarSample_;}
+    
+    /// Whether it is the ttbarsignalplustau sample (the part of ttbar which contains generator information about the ttbar system)
+    const bool& isTtbarPlusTauSample()const{return isTtbarPlusTauSample_;}
     
     
     

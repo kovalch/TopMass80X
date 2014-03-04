@@ -752,8 +752,7 @@ bool HiggsAnalysis::failsHiggsGeneratorSelection(const int higgsDecayMode)const
 
 bool HiggsAnalysis::failsAdditionalJetFlavourSelection(const Long64_t& entry)const
 {
-    if(!this->isTopSignal()) return false;
-    if(this->isHiggsSignal()) return false;
+    if(!this->isTtbarPlusTauSample()) return false;
 
     // FIXME: this is a workaround as long as there is no specific additional jet flavour info written to nTuple
     const TopGenObjects& topGenObjects = this->getTopGenObjects(entry);
