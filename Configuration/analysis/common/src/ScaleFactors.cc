@@ -413,7 +413,7 @@ BtagScaleFactors::BtagScaleFactors(const char* btagEfficiencyInputDir,
                 fileName_("ttbarsignalplustau.root"),
                 selectorList_(0)
 {
-    std::cout<<"--- Trying to load b-tagging scale factors\n";
+    std::cout<<"--- Beginning preparation of b-tagging scale factors\n";
     if (systematic == "" || systematic.Contains("PDF") || systematic.Contains("closure")) systematic = "Nominal";
     // Check if all relevant input files are available
     bool allInputFilesAvailable(true);

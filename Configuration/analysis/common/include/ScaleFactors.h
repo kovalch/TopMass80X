@@ -211,9 +211,6 @@ private:
 
 
 
-    /// Whether to produce btag efficiencies or whether to read in already produced ones
-    //Jan  bool makeEfficiencies_;
-
     /// Pointer for bookkeeping of histograms
     // this is NOT used right now!
     // but it may be good for parallelization in the future

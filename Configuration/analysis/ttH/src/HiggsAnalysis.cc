@@ -66,8 +66,7 @@ constexpr double MetCUT = 40.;
 HiggsAnalysis::HiggsAnalysis(TTree*):
 isInclusiveHiggs_(false),
 bbbarDecayFromInclusiveHiggs_(false),
-additionalBJetMode_(0),
-retagBJets_(true)  // FIXME: remove this variable which was implemented for testing (and in a different way as it was in TopAnalysis...)
+additionalBJetMode_(0)
 {}
 
 
@@ -305,12 +304,10 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     const std::vector<int>& jetPartonFlavour = *commonGenObjects.jetPartonFlavour_;
     std::vector<int> bjetIndices = jetIndices;
     selectIndices(bjetIndices, jetBTagCSV, (double)btagScaleFactors_->getWPDiscrValue());
-    if(retagBJets_) {
-        if (this->isMC() && !(btagScaleFactors_->makeEfficiencies())){
-            // Apply b-tag efficiency MC correction using random number based tag flipping
-            btagScaleFactors_->indexOfBtags(bjetIndices, jetIndices,
-                                            jets, jetPartonFlavour, jetBTagCSV);
-        }
+    if(this->isMC() && !(btagScaleFactors_->makeEfficiencies())){
+        // Apply b-tag efficiency MC correction using random number based tag flipping
+        btagScaleFactors_->indexOfBtags(bjetIndices, jetIndices,
+                                        jets, jetPartonFlavour, jetBTagCSV);
     }
     orderIndices(bjetIndices, jetBTagCSV);
     const int numberOfBjets = bjetIndices.size();
@@ -337,10 +334,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     const double weightNoPileup = trueLevelWeightNoPileup*weightTriggerSF*weightLeptonSF;
     // We do not apply a b-tag scale factor
     //const double weightBtagSF = ReTagJet ? 1. : this->weightBtagSF(jetIndices, jets, jetPartonFlavour);
-    double weightBtagSF = 1.0;
-    if(!retagBJets_) {
-        weightBtagSF = btagScaleFactors_->calculateBtagSF(jetIndices, jets, jetPartonFlavour);
-    }
+    constexpr double weightBtagSF = 1.;
 
     // The weight to be used for filling the histograms
     double weight = weightNoPileup*weightPU;
