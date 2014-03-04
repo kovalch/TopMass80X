@@ -68,8 +68,8 @@ private:
     virtual void endLuminosityBlock ( edm::LuminosityBlock&, edm::EventSetup const& );
 
     std::vector<int> findHadronJets ( const reco::GenJetCollection& genJets,  std::vector<int> &hadIndex, std::vector<reco::GenParticle> &hadMothersGenPart, 
-                                      std::vector<std::vector<int> > &hadMothersIndices, std::vector<reco::GenParticle> &hadLeptons,
-                                      std::vector<int> &hadLeptonsHadIndex, std::vector<int> &hadFlavour, std::vector<int> &hadFromTopWeakDecay );
+                                      std::vector<std::vector<int> > &hadMothersIndices, std::vector<int> &hadLeptonIndex, 
+                                      std::vector<int> &hadLeptonHadIndex, std::vector<int> &hadFlavour, std::vector<int> &hadFromTopWeakDecay );
     typedef const reco::Candidate* pCRC;
     int analyzeMothers ( const reco::Candidate* thisParticle, pCRC *hadron, pCRC *lepton, int& topDaughterQId, int& topBarDaughterQId, 
                          std::vector<const reco::Candidate*> &hadMothers, std::vector<std::vector<int> > &hadMothersIndices, 
@@ -307,15 +307,15 @@ void GenHFHadronAnalyzer::analyze ( const edm::Event& evt, const edm::EventSetup
 // Hadron matching variables
     std::auto_ptr<std::vector<reco::GenParticle> > hadMothers ( new std::vector<reco::GenParticle> );
     std::auto_ptr<std::vector<std::vector<int> > > hadMothersIndices ( new std::vector<std::vector<int> > );
-    std::auto_ptr<std::vector<reco::GenParticle> > hadLeptons ( new std::vector<reco::GenParticle> );
     std::auto_ptr<std::vector<int> > hadIndex ( new std::vector<int> );
     std::auto_ptr<std::vector<int> > hadFlavour ( new std::vector<int> );
     std::auto_ptr<std::vector<int> > hadJetIndex ( new std::vector<int> );
     std::auto_ptr<std::vector<int> > hadLeptonIndex ( new std::vector<int> );
+    std::auto_ptr<std::vector<int> > hadLeptonHadIndex ( new std::vector<int> );
     std::auto_ptr<std::vector<int> > hadFromTopWeakDecay ( new std::vector<int> );
 
     LogDebug ( flavourStr_+"Jet (new)" ) << "searching for "<< flavourStr_ <<"-jets in " << genJets_;
-    *hadJetIndex = findHadronJets ( *genJets, *hadIndex, *hadMothers, *hadMothersIndices, *hadLeptons, *hadLeptonIndex, *hadFlavour, *hadFromTopWeakDecay );
+    *hadJetIndex = findHadronJets ( *genJets, *hadIndex, *hadMothers, *hadMothersIndices, *hadLeptonIndex, *hadLeptonHadIndex, *hadFlavour, *hadFromTopWeakDecay );
 
 }
 
@@ -375,15 +375,16 @@ void GenHFHadronAnalyzer::endLuminosityBlock ( edm::LuminosityBlock&, edm::Event
 * @param[out] hadIndex vector of indices of found hadrons in hadMothers
 * @param[out] hadMothers vector of all mothers at all levels of each found hadron
 * @param[out] hadMothersIndices connection between each particle from hadMothers and its mothers
-* @param[out] hadLeptons vector of all leptons found among hadron decay products
-* @param[out] hadLeptonsHadIndex index of hadron associated to each lepton
+* @param[out] hadLeptonIndex vector of indices representing leptons in hadMothers
+* @param[out] hadLeptonHadIndex index of hadron associated to each lepton
 * @param[out] hadFlavour flavour of each found hadron
+* @param[out] hadFromTopWeakDecay flag showing whether the hadron comes from the products of top quark weak decay
 * @returns vector of jets being matched to each hadron by jet clustering algorithm
 */
 std::vector<int> GenHFHadronAnalyzer::findHadronJets ( const reco::GenJetCollection& genJets, std::vector<int> &hadIndex, 
                                                       std::vector<reco::GenParticle> &hadMothers, std::vector<std::vector<int> > &hadMothersIndices, 
-                                                      std::vector<reco::GenParticle> &hadLeptons, std::vector<int> &hadLeptonsHadIndex,
-                                                      std::vector<int> &hadFlavour, std::vector<int> &hadFromTopWeakDecay )
+                                                      std::vector<int> &hadLeptonIndex, std::vector<int> &hadLeptonHadIndex, std::vector<int> &hadFlavour, 
+                                                      std::vector<int> &hadFromTopWeakDecay )
 {
 
     std::vector<int> result;
@@ -434,17 +435,10 @@ std::vector<int> GenHFHadronAnalyzer::findHadronJets ( const reco::GenJetCollect
                 }
                 // Identifying the lepton in the hadron jet
                 if ( lepton ) {
-                    bool inList = false;
-                    for(reco::GenParticle theLepton : hadLeptons) {
-                        if(theLepton.pdgId() != lepton->pdgId()) continue;
-                        if(std::fabs(theLepton.pt() - lepton->pdgId()) > 0.0001) continue;
-                        if(std::fabs(theLepton.eta() - lepton->eta()) > 0.0001) continue;
-                        if(std::fabs(theLepton.phi() - lepton->phi()) > 0.0001) continue;
-                        inList = true;
-                    }
-                    if(!inList) {
-                        hadLeptons.push_back(*dynamic_cast<const reco::GenParticle*>(lepton));
-                        hadLeptonsHadIndex.push_back(hadListIndex);
+                    int leptonId = isInList(hadMothersCand, lepton);
+                    if(isInList(hadLeptonIndex, leptonId)<0) {
+                        hadLeptonIndex.push_back( leptonId );
+                        hadLeptonHadIndex.push_back( hadListIndex );
                     }
                 }
             }   // If hadron has been found in the chain
@@ -469,10 +463,19 @@ std::vector<int> GenHFHadronAnalyzer::findHadronJets ( const reco::GenJetCollect
 
 // Looping over all hadrons
     for ( unsigned int hadNum=0; hadNum<nHad; hadNum++ ) {
-
-        unsigned int hadIdx = hadIndex.at(hadNum);   // Index of hadron in the hadMothers
+        int hadIdx = hadIndex.at(hadNum);   // Index of hadron in the hadMothers
         const reco::GenParticle* hadron = &hadMothers.at(hadIdx);
         int jetIndex = -1;
+        
+        // Checking daughters of the hadron
+//         printf("Checking hadron %d out of %d\n", hadNum, nHad);
+        for(int mothId=0; mothId<(int)hadMothersIndices.size(); ++mothId) {
+//             printf(" Checking particle %d out of %d: nMoth: %d\n", mothId, (int)hadMothersIndices.size(), (int)hadMothersIndices.at(mothId).size());
+//             printf("  Particle (%d)\n", hadMothers.at(mothId).pdgId());
+            int daughterId = hadMothersIndices.at(mothId).at(0);
+            if(daughterId != hadIdx) continue;
+//             printf("  Daughter (%d) of hadron (%d)\n", hadMothers.at(mothId).pdgId(), hadMothers.at(hadIdx).pdgId());
+        }
 
 // Looping over all jets to match them to current hadron
         for ( unsigned int jetNum = 0; jetNum < nJets; jetNum++ ) {
@@ -744,7 +747,7 @@ std::vector<int> GenHFHadronAnalyzer::findHadronJets ( const reco::GenJetCollect
     for ( unsigned int i=0; i<hadFlavour.size(); i++ ) {
         // Checking N leptons
         int nLeps = 0;
-        for ( unsigned int lepHadId : hadLeptonsHadIndex ) {
+        for ( unsigned int lepHadId : hadLeptonHadIndex ) {
             if(i==lepHadId) nLeps++;
         }
         h_nLeptonsInHad->Fill( nLeps );
@@ -945,6 +948,26 @@ int GenHFHadronAnalyzer::analyzeMothers ( const reco::Candidate* thisParticle, p
             hadronIndex=index;
         }
     }
+    // Checking if the particle is a lepton
+    if(!*hadron){
+        int absPdg = std::abs(thisParticle->pdgId());
+        if(absPdg==11 || absPdg==13) {
+            const reco::Candidate* mother1 = 0;
+            if(thisParticle->numberOfMothers()>0) mother1 = thisParticle->mother(0);
+            if(mother1 && isHadron(flavour_, mother1) ) {
+                *lepton = thisParticle;
+                if(isInList(hadMothers, thisParticle)<0) hadMothers.push_back(thisParticle);
+            }   // If the lepton's mother is a hadron
+            else if(mother1 && std::abs(mother1->pdgId()) == 15) {
+                const reco::Candidate* mother2 = 0;
+                if(mother1->numberOfMothers()>0) mother2 = mother1->mother(0);
+                if(mother2 && isHadron(flavour_, mother2)) {
+                    *lepton = thisParticle;
+                    if(isInList(hadMothers, thisParticle)<0) hadMothers.push_back(thisParticle);
+                }   // If the tau's mother is a hadron
+            }   // If the lepton's mother is a tau lepton
+        }   // If this is a lepton
+    }   // If no hadron found yet
 
 
     //################################################### FOR SHERPA
@@ -978,21 +1001,14 @@ int GenHFHadronAnalyzer::analyzeMothers ( const reco::Candidate* thisParticle, p
     }
     analyzedParticles->insert ( thisParticle );
 
-    if(!*lepton && !*hadron){
-        int absPdg = std::abs(thisParticle->pdgId());
-        if(absPdg==11 || absPdg==13 || absPdg==15) {
-            *lepton = thisParticle;
-        }
-    }
+
     
 
 // Putting the mothers to the list of mothers
     for ( size_t iMother = 0; iMother < thisParticle->numberOfMothers(); ++iMother ) {
         const reco::Candidate* mother = thisParticle->mother ( iMother );
         int mothIndex = isInList ( hadMothers, mother );
-        if ( mothIndex == partIndex && partIndex>=0 ) {
-            continue;		// Skipping the mother that is its own daughter
-        }
+        if ( mothIndex == partIndex && partIndex>=0 ) continue;		// Skipping the mother that is its own daughter
 
         int nSameDaugh=0;
 
@@ -1064,13 +1080,14 @@ int GenHFHadronAnalyzer::analyzeMothers ( const reco::Candidate* thisParticle, p
             h2_QQMothSamePdg->Fill ( thisParticle->pdgId(),mother->pdgId() );
         }	// If both particle and mother are quarks and have same abs(pdgId)
 
-// If this mother isn't yet in the list and hadron is in the list
-        if ( mothIndex<0 && ( *hadron ) !=0 ) {
+// If this mother isn't yet in the list and hadron or lepton is in the list
+        if ( mothIndex<0 && ((*hadron) !=0 || (*lepton)) ) {
             hadMothers.push_back ( mother );
             mothIndex=hadMothers.size()-1;
         }
 // If hadron has already been found in current chain and the mother isn't a duplicate of the particle being checked
-        if ( ( *hadron ) !=0 && mothIndex!=partIndex && partIndex>=0 ) {
+        if ( (*hadron || *lepton) && mothIndex!=partIndex && partIndex>=0 ) {
+//             printf(" Setting mother (%d) for particle (%d)\n", mother->pdgId(), thisParticle->pdgId());
             putMotherIndex ( hadMothersIndices, partIndex, mothIndex );			// Putting the index of mother for current particle
         }
         int index = analyzeMothers ( mother, hadron, lepton, topDaughterQId, topBarDaughterQId, hadMothers, hadMothersIndices, analyzedParticles, partIndex );
