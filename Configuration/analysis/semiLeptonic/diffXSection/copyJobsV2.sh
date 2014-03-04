@@ -1,9 +1,11 @@
 #!/bin/sh
 
 merged=''
+groupspace='/nfs/dust/cms/group/tophh'
 
 if [ -n "$1" ]; then
     echo "Files are copied to $1"
+    read -p "Please type in your desired extension for the file names (e.g. MadSpin):" EXT
     for FOLDER in `ls -d naf_*`; do
 	
 	if [[ "${FOLDER}" == *Elqcd* ]] || [[ "${FOLDER}" == *WW* ]] || [[ "${FOLDER}" == *WZ* ]] || [[ "${FOLDER}" == *ZZ* ]] || [[ "${FOLDER}" == *Top* ]]; then
@@ -12,40 +14,86 @@ if [ -n "$1" ]; then
 	    merged=''
 	fi
 
+	cd $FOLDER
 	if [[ "${FOLDER}" == *JERDn* ]]; then
-	    cp -vu ${FOLDER}/????DiffXSec*JERDown*.root     /afs/naf.desy.de/group/cms/scratch/tophh/$1/JERDown/${merged}
-	    cp -vu ${FOLDER}/????DiffXSec*JERDown*.txt      /afs/naf.desy.de/group/cms/scratch/tophh/$1/JERDown/TriggerReports/
+	    for File in ????DiffXSec*JERDown*.*t; do
+		if [[ "${File}" == *.txt ]]; then
+		    merged='TriggerReports/'
+		fi
+		cp -vui "$File" ${groupspace}/$1/JERDown/${merged}"${File//JERDown/${EXT}JERDown}"
+	    done
 	elif [[ "${FOLDER}" == *JERUp* ]]; then
-	    cp -vu ${FOLDER}/????DiffXSec*JERUp*.root	     /afs/naf.desy.de/group/cms/scratch/tophh/$1/JERUp/${merged}
-	    cp -vu ${FOLDER}/????DiffXSec*JERUp*.txt	     /afs/naf.desy.de/group/cms/scratch/tophh/$1/JERUp/TriggerReports/
+	    for File in ????DiffXSec*JERUp*.*t; do
+		if [[ "${File}" == *.txt ]]; then
+		    merged='TriggerReports/'
+		fi
+		cp -vui "$File" ${groupspace}/$1/JERUp/${merged}"${File//JERUp/${EXT}JERUp}"
+	    done
 	elif [[ "${FOLDER}" == *JESDn* ]]; then
-	    cp -vu ${FOLDER}/????DiffXSec*JESDown*.root     /afs/naf.desy.de/group/cms/scratch/tophh/$1/JESDown/${merged}
-	    cp -vu ${FOLDER}/????DiffXSec*JESDown*.txt     /afs/naf.desy.de/group/cms/scratch/tophh/$1/JESDown/TriggerReports/
+	    for File in ????DiffXSec*JESDown*.*t; do
+		if [[ "${File}" == *.txt ]]; then
+		    merged='TriggerReports/'
+		fi
+		cp -vui "$File" ${groupspace}/$1/JESDown/${merged}"${File//JESDown/${EXT}JESDown}"
+	    done
 	elif [[ "${FOLDER}" == *JESUp* ]]; then
-	    cp -vu ${FOLDER}/????DiffXSec*JESUp*.root	     /afs/naf.desy.de/group/cms/scratch/tophh/$1/JESUp/${merged}
-	    cp -vu ${FOLDER}/????DiffXSec*JESUp*.txt	     /afs/naf.desy.de/group/cms/scratch/tophh/$1/JESUp/TriggerReports/
+	    for File in ????DiffXSec*JESUp*.*t; do
+		if [[ "${File}" == *.txt ]]; then
+		    merged='TriggerReports/'
+		fi
+		cp -vui "$File" ${groupspace}/$1/JESUp/${merged}"${File//JESUp/${EXT}JESUp}"
+	    done
 	elif [[ "${FOLDER}" == *Mass*Dn* ]]; then
-	    cp -vu ${FOLDER}/????DiffXSec*TopMassDown*.root /afs/naf.desy.de/group/cms/scratch/tophh/$1/TopMassDown/${merged}
-	    cp -vu ${FOLDER}/????DiffXSec*TopMassDown*.txt /afs/naf.desy.de/group/cms/scratch/tophh/$1/TopMassDown/TriggerReports/
+	    for File in ????DiffXSec*TopMassDown*.*t; do
+		if [[ "${File}" == *.txt ]]; then
+		    merged='TriggerReports/'
+		fi
+		cp -vui "$File" ${groupspace}/$1/TopMassDown/${merged}"${File//TopMassDown/${EXT}TopMassDown}"
+	    done
 	elif [[ "${FOLDER}" == *Mass*Up* ]]; then
-	    cp -vu ${FOLDER}/????DiffXSec*TopMassUp*.root   /afs/naf.desy.de/group/cms/scratch/tophh/$1/TopMassUp/${merged}
-	    cp -vu ${FOLDER}/????DiffXSec*TopMassUp*.txt   /afs/naf.desy.de/group/cms/scratch/tophh/$1/TopMassUp/TriggerReports/
+	    for File in ????DiffXSec*TopMassUp*.*t; do
+		if [[ "${File}" == *.txt ]]; then
+		    merged='TriggerReports/'
+		fi
+		cp -vui "$File" ${groupspace}/$1/TopMassUp/${merged}"${File//TopMassUp/${EXT}TopMassUp}"
+	    done
 	elif [[ "${FOLDER}" == *MatchDn* ]]; then
-	    cp -vu ${FOLDER}/????DiffXSec*MatchDown*.root   /afs/naf.desy.de/group/cms/scratch/tophh/$1/MatchDown/${merged}
-	    cp -vu ${FOLDER}/????DiffXSec*MatchDown*.txt   /afs/naf.desy.de/group/cms/scratch/tophh/$1/MatchDown/TriggerReports/
+	    for File in ????DiffXSec*MatchDown*.*t; do
+		if [[ "${File}" == *.txt ]]; then
+		    merged='TriggerReports/'
+		fi
+		cp -vui "$File" ${groupspace}/$1/MatchDown/${merged}"${File//MatchDown/${EXT}MatchDown}"
+	    done
 	elif [[ "${FOLDER}" == *MatchUp* ]]; then
-	    cp -vu ${FOLDER}/????DiffXSec*MatchUp*.root     /afs/naf.desy.de/group/cms/scratch/tophh/$1/MatchUp/${merged}
-	    cp -vu ${FOLDER}/????DiffXSec*MatchUp*.txt     /afs/naf.desy.de/group/cms/scratch/tophh/$1/MatchUp/TriggerReports/
+	    for File in ????DiffXSec*MatchUp*.*t; do
+		if [[ "${File}" == *.txt ]]; then
+		    merged='TriggerReports/'
+		fi
+		cp -vui "$File" ${groupspace}/$1/MatchUp/${merged}"${File//MatchUp/${EXT}MatchUp}"
+	    done
 	elif [[ "${FOLDER}" == *ScaleDn* ]]; then
-	    cp -vu ${FOLDER}/????DiffXSec*ScaleDown*.root   /afs/naf.desy.de/group/cms/scratch/tophh/$1/ScaleDown/${merged}
-	    cp -vu ${FOLDER}/????DiffXSec*ScaleDown*.txt   /afs/naf.desy.de/group/cms/scratch/tophh/$1/ScaleDown/TriggerReports/
+	    for File in ????DiffXSec*ScaleDown*.*t; do
+		if [[ "${File}" == *.txt ]]; then
+		    merged='TriggerReports/'
+		fi
+		cp -vui "$File" ${groupspace}/$1/ScaleDown/${merged}"${File//ScaleDown/${EXT}ScaleDown}"
+	    done
 	elif [[ "${FOLDER}" == *ScaleUp* ]]; then
-	    cp -vu ${FOLDER}/????DiffXSec*ScaleUp*.root     /afs/naf.desy.de/group/cms/scratch/tophh/$1/ScaleUp/${merged}
-	    cp -vu ${FOLDER}/????DiffXSec*ScaleUp*.txt     /afs/naf.desy.de/group/cms/scratch/tophh/$1/ScaleUp/TriggerReports/
+	    for File in ????DiffXSec*ScaleUp*.*t; do
+		if [[ "${File}" == *.txt ]]; then
+		    merged='TriggerReports/'
+		fi
+		cp -vui "$File" ${groupspace}/$1/ScaleUp/${merged}"${File//ScaleUp/${EXT}ScaleUp}"
+	    done
 	else
-	    cp -vu ${FOLDER}/????DiffXSec*.root             /afs/naf.desy.de/group/cms/scratch/tophh/$1/${merged}
-	    cp -vu ${FOLDER}/????DiffXSec*.txt             /afs/naf.desy.de/group/cms/scratch/tophh/$1/TriggerReports/
+	    for File in ????DiffXSec*.*t; do
+		if [[ "${File}" == *.txt ]]; then
+		    merged='TriggerReports/'
+		fi
+		cp -vui "$File" ${groupspace}/$1/${merged}"${File//Summer/${EXT}Summer}"
+	    done
 	fi
+	cd -
 
     done
 
