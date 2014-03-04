@@ -103,7 +103,6 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
                         const int part,
                         const Channel::Channel& channel,
                         const Systematic::Systematic& systematic,
-                        const int dy,
                         const int jetCategoriesId,
                         const std::vector<AnalysisMode::AnalysisMode>& v_analysisMode,
                         const Long64_t& maxEvents,
@@ -316,6 +315,7 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
         const bool isHiggsSignal(o_isHiggsSignal && o_isHiggsSignal->GetString()=="1");
         const bool isHiggsInclusive(isHiggsSignal && samplename->GetString()=="ttbarhiggsinclusive");
         const bool isTtbarV(samplename->GetString()=="ttbarw" || samplename->GetString()=="ttbarz");
+        const bool isDrellYan(samplename->GetString()=="dy1050" || samplename->GetString()=="dy50inf");
         
         if(!isMC && systematic!=Systematic::undefined){
             std::cout<<"Sample is DATA, so not running again for systematic variation\n";
@@ -342,6 +342,7 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
         // Configure selector
         selector->SetTopSignal(isTopSignal);
         selector->SetHiggsSignal(isHiggsSignal);
+        selector->SetHiggsInclusiveSample(isHiggsInclusive);
         selector->SetMC(isMC);
         selector->SetWeightedEvents(weightedEvents);
         // FIXME: correction for MadGraph W decay branching fractions are not correctly applied
@@ -358,7 +359,7 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
             
             // Set the channel
             const TString channelName = Channel::convertChannel(selectedChannel);
-            TString outputfilename = filenameBase.BeginsWith(channelName+"_") ? filenameBase : channelName+"_"+filenameBase; // FIXME: make const later
+            const TString outputfilename = filenameBase.BeginsWith(channelName+"_") ? filenameBase : channelName+"_"+filenameBase;
             selector->SetChannel(channelName);
             
             // Set up nTuple chain
@@ -366,21 +367,41 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
             chain.Add(filename);
             // chain.SetProof(); //will work from 5.34 onwards
             
-            // Split Drell-Yan sample in decay modes ee, mumu, tautau
-            selector->SetTrueLevelDYChannel(dy);
-            if(dy){
-                if(outputfilename.First("_dy") == kNPOS){
-                    std::cerr << "DY variations must be run on DY samples!\n";
-                    std::cerr << outputfilename << " must start with 'channel_dy'\n";
-                    exit(1);
-                }
-                const Channel::Channel dyChannel = dy == 11 ? Channel::ee : dy == 13 ? Channel::mumu : Channel::tautau;
-                outputfilename.ReplaceAll("_dy", TString("_dy").Append(Channel::convertChannel(dyChannel)));
-            }
-            
             // Split specific samples into subsamples and run the selector
-            // FIXME: should also include Drell-Yan splitting in this scheme (and any other splitting)
-            if(isTopSignal && !isHiggsSignal && !isTtbarV){ // For splitting of ttbar in production modes associated with heavy flavours
+            if(isDrellYan){ // For splitting of Drell-Yan sample in decay modes ee, mumu, tautau
+                if(part==0 || part==-1){ // output is DY->ee
+                    selector->SetTrueLevelDYChannel(11);
+                    const Channel::Channel dyChannel = Channel::ee;
+                    TString modifiedOutputfilename(outputfilename);
+                    modifiedOutputfilename.ReplaceAll("_dy", TString("_dy").Append(Channel::convertChannel(dyChannel)));
+                    selector->SetOutputfilename(modifiedOutputfilename);
+                    chain.Process(selector, "", maxEvents, skipEvents);
+                }
+                if(part==1 || part==-1){ // output is DY->mumu
+                    selector->SetTrueLevelDYChannel(13);
+                    const Channel::Channel dyChannel = Channel::mumu;
+                    TString modifiedOutputfilename(outputfilename);
+                    modifiedOutputfilename.ReplaceAll("_dy", TString("_dy").Append(Channel::convertChannel(dyChannel)));
+                    selector->SetOutputfilename(modifiedOutputfilename);
+                    chain.Process(selector, "", maxEvents, skipEvents);
+                }
+                if(part==2 || part==-1){ // output is DY->tautau
+                    selector->SetTrueLevelDYChannel(15);
+                    const Channel::Channel dyChannel = Channel::tautau;
+                    TString modifiedOutputfilename(outputfilename);
+                    modifiedOutputfilename.ReplaceAll("_dy", TString("_dy").Append(Channel::convertChannel(dyChannel)));
+                    selector->SetOutputfilename(modifiedOutputfilename);
+                    chain.Process(selector, "", maxEvents, skipEvents);
+                }
+                if(part >= 3){
+                    std::cerr<<"ERROR in load_Analysis! Specified part for Drell-Yan separation is not allowed (sample, part): "
+                             <<outputfilename<<" , "<<part<<"\n...break\n"<<std::endl;
+                    exit(647);
+                }
+                // Reset the selection
+                selector->SetTrueLevelDYChannel(0);
+            }
+            else if(isTopSignal && !isHiggsSignal && !isTtbarV){ // For splitting of ttbar in production modes associated with heavy flavours
                 //selector->SetRunViaTau(0); // This could be used for splitting of dileptonic ttbar in component with intermediate taus and without
                 if(part==0 || part==-1){ // output is ttbar+other
                     selector->SetAdditionalBJetMode(0);
@@ -408,9 +429,11 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
                              <<outputfilename<<" , "<<part<<"\n...break\n"<<std::endl;
                     exit(647);
                 }
+                // Reset the selection
+                // FIXME: make default -1, and use it for the separation
+                selector->SetAdditionalBJetMode(0);
             }
             else if(isHiggsInclusive){ // For splitting of ttH inclusive decay in H->bb and other decays
-                selector->SetHiggsInclusiveSample(isHiggsInclusive);
                 if(part==0 || part==-1){ // output is H->other
                     selector->SetHiggsInclusiveSeparation(false);
                     TString modifiedOutputfilename(outputfilename);
@@ -430,6 +453,9 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
                              <<outputfilename<<" , "<<part<<"\n...break\n"<<std::endl;
                     exit(647);
                 }
+                // Reset the selection
+                // FIXME: make it int and make default -1, and use it for the separation
+                selector->SetHiggsInclusiveSeparation(false);
             }
             else{ // All other samples which are not split in subsamples
                 if(part >= 0){
@@ -456,8 +482,6 @@ int main(int argc, char** argv)
             common::makeStringCheck(Channel::convertChannels(Channel::allowedChannelsAnalysis)));
     CLParameter<std::string> opt_systematic("s", "Run with a systematic that runs on the nominal ntuples, e.g. 'PU_UP'", false, 1, 1,
             common::makeStringCheck(Systematic::convertSystematics(Systematic::allowedSystematicsHiggsAnalysis)));
-    CLParameter<int> opt_dy("d", "Drell-Yan mode (11 for ee, 13 for mumu, 15 for tautau)", false, 1, 1,
-            [](int dy){return dy==11 || dy==13 || dy==15;});
     CLParameter<int> opt_jetCategoriesId("j", "ID for jet categories (# jets, # b-jets). If not specified, use default categories (=0)", false, 1, 1,
             [](int id){return id>=0 && id<=3;});
     CLParameter<std::string> opt_mode("m", "Mode of analysis: control plots (cp), Produce MVA input (mvaP), Apply MVA weights (mvaA), dijet analyser (dijet), playground (playg), jet charge analyser (charge), jet match analyser (match). Default is cp", false, 1, 100,
@@ -482,9 +506,6 @@ int main(int argc, char** argv)
     Systematic::Systematic systematic(Systematic::undefined);
     if(opt_systematic.isSet()) systematic = Systematic::convertSystematic(opt_systematic[0]);
     
-    // Set up Drell-Yan mode
-    const int dy = opt_dy.isSet() ? opt_dy[0] : 0;
-    
     // Set up jet categories
     const int jetCategoriesId = opt_jetCategoriesId.isSet() ? opt_jetCategoriesId[0] : 0;
     
@@ -504,7 +525,7 @@ int main(int argc, char** argv)
     
     // Start plotting
     //TProof* p = TProof::Open(""); // not before ROOT 5.34
-    load_HiggsAnalysis(validFilenamePattern, part, channel, systematic, dy, jetCategoriesId, v_analysisMode, maxEvents, skipEvents);
+    load_HiggsAnalysis(validFilenamePattern, part, channel, systematic, jetCategoriesId, v_analysisMode, maxEvents, skipEvents);
     //delete p;
 }
 

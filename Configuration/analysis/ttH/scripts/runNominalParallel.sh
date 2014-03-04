@@ -14,11 +14,12 @@ source $(dirname `readlink -f $0`)/parallelTools.sh
 
 for c in ee emu mumu; do
     w
-    $LA -f dy -d 11 -c $c $@ &
-    $LA -f dy -d 13 -c $c $@ &
-    $LA -f dy -d 15 -c $c $@ &
+    $LA -f dy -p 0 -c $c $@ &
+    $LA -f dy -p 1 -c $c $@ &
+    $LA -f dy -p 2 -c $c $@ &
     $LA -f ttbarsignalplustau.root -c $c $@ &
-    $LA -f ttbarH125 -c $c $@ &
+    $LA -f ttbarH125tobbbar -c $c $@ &
+    $LA -f ttbarH125incl -p 0 -c $c $@ &
 done
 
 for c in ee emu mumu; do
