@@ -21,21 +21,22 @@ void analyzeFileComparison(bool save = true,  bool usePAPERbinning=true, int ver
   //  load rootfiles
   // ============================
   std::vector<TFile* > file_;
-  TString targetfolder="/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/";
-  file_.push_back(TFile::Open(targetfolder+"elecDiffXSecSigSummer12PF.root"                      , "Open"));
-  file_.push_back(TFile::Open(targetfolder+"muonDiffXSecSigSummer12PF.root"                      , "Open"));
-  file_.push_back(TFile::Open(targetfolder+"TopMassConstraint/elecDiffXSecSigTopMassConstraint173p5Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"TopMassConstraint/muonDiffXSecSigTopMassConstraint173p5Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"TopMassConstraint/elecDiffXSecSigTopMassConstraint171p5Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"TopMassConstraint/muonDiffXSecSigTopMassConstraint171p5Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"TopMassConstraint/elecDiffXSecSigTopMassConstraint174p5Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"TopMassConstraint/muonDiffXSecSigTopMassConstraint174p5Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"TopMassConstraint/elecDiffXSecSigTopMassConstraint170p5Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"TopMassConstraint/muonDiffXSecSigTopMassConstraint170p5Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"TopMassConstraint/elecDiffXSecSigTopMassConstraint180p0Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"TopMassConstraint/muonDiffXSecSigTopMassConstraint180p0Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"TopMassConstraint/elecDiffXSecSigTopMassConstraint160p0Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"TopMassConstraint/muonDiffXSecSigTopMassConstraint160p0Summer12PF.root", "Open"));
+  TString MS= ""; //MadSpin ? "MadSpin" : ""; -> keep old files for the moment
+  TString targetfolder=groupSpace+AnalysisFolder;
+  file_.push_back(TFile::Open(targetfolder+"/elecDiffXSecSig"+MS+"Summer12PF.root"                                  , "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/muonDiffXSecSigSummer12PF.root"                                        , "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/elecDiffXSecSig"+MS+"TopMassConstraint173p5Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/muonDiffXSecSig"+MS+"TopMassConstraint173p5Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/elecDiffXSecSig"+MS+"TopMassConstraint171p5Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/muonDiffXSecSig"+MS+"TopMassConstraint171p5Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/elecDiffXSecSig"+MS+"TopMassConstraint174p5Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/muonDiffXSecSig"+MS+"TopMassConstraint174p5Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/elecDiffXSecSig"+MS+"TopMassConstraint170p5Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/muonDiffXSecSig"+MS+"TopMassConstraint170p5Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/elecDiffXSecSig"+MS+"TopMassConstraint180p0Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/muonDiffXSecSig"+MS+"TopMassConstraint180p0Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/elecDiffXSecSig"+MS+"TopMassConstraint160p0Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/muonDiffXSecSig"+MS+"TopMassConstraint160p0Summer12PF.root", "Open"));
 
 
   std::vector<double > massConstraint_;
