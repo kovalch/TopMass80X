@@ -5,10 +5,10 @@ bool PaperPlot2(TString title, TString addSel, const std::string decayChannel);
 
 void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 				  bool save = true, int verbose=0,
-				  TString inputFolderName= "RecentAnalysisRun8TeV_doubleKinFit",
-				  //TString dataFile= "/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/muonDiffXSecData2012ABCDAll.root",
-				  //TString dataFile= "/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/elecDiffXSecData2012ABCDAll.root",
-				  TString dataFile= "/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/elecDiffXSecData2012ABCDAll.root:/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/muonDiffXSecData2012ABCDAll.root",
+				  TString inputFolderName=AnalysisFolder,
+				  //TString dataFile= groupSpace+AnalysisFolder+"/muonDiffXSecData2012ABCDAll.root",
+				  //TString dataFile= groupSpace+AnalysisFolder+"/elecDiffXSecData2012ABCDAll.root",
+				  TString dataFile= groupSpace+AnalysisFolder+"/elecDiffXSecData2012ABCDAll.root:"+groupSpace+AnalysisFolder+"/muonDiffXSecData2012ABCDAll.root",
 				  const std::string decayChannel = "combined", 
 				  bool withRatioPlot = true, bool extrapolate=true, bool hadron=false, TString addSel="ProbSel")
 { 
@@ -115,7 +115,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
   // split legend into two parts for paper plots?
   bool splitlegends=true;
   // get the .root files from the following folder:
-  TString inputFolder = "/afs/naf.desy.de/group/cms/scratch/tophh/"+inputFolderName;
+  TString inputFolder = groupSpace+inputFolderName;
   // see if its 2011 or 2012 data from luminosity
   TString dataSample = "2012";
   // save all plots into the following folder

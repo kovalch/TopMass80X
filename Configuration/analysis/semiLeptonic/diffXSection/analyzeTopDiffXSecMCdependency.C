@@ -5,13 +5,15 @@ TH1F* distort   (const TH1& hist, TString variation, TString variable, int verbo
 double linSF(const double x, const double xmax, const double a, const double b);
 
 void analyzeTopDiffXSecMCdependency(double luminosity = 12148, std::string decayChannel="electron", bool save=true, int verbose=2, TString inputFolderName="newRecentAnalysisRun8TeV",
-				    TString dataFile= "/afs/naf.desy.de/group/cms/scratch/tophh/newRecentAnalysisRun8TeV/analyzeDiffXData2012ABCAllElec.root",
-				    //TString dataFile= "/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV/analyzeDiffXData2012ABCAllMuon.root",
+				    TString dataFile=  groupSpace+AnalysisFolder+"/elecDiffXSecData2012ABCDAll.root",
+				    //TString dataFile= groupSpace+AnalysisFolder+"/muonDiffXSecData2012ABCDAll.root"
                                     bool doPDFuncertainty=true, bool addCrossCheckVariables=false)
 {
   // ---
   //     Configuration
   // ---
+  // folder with all rootfiles
+  TString path=groupSpace;
   // take care that prescaling of muon channel for full 2011 datset was taken into account
   if(luminosity==4980&&decayChannel=="muon"    ) luminosity=constLumiMuon;
   if(luminosity==4955&&decayChannel=="electron") luminosity=constLumiElec;
@@ -31,8 +33,8 @@ void analyzeTopDiffXSecMCdependency(double luminosity = 12148, std::string decay
   // file name for input rootfile
   TString analysisFileName="";
   TString SampleTag="Summer12";
-  if     (decayChannel=="muon"    ) analysisFileName="/afs/naf.desy.de/group/cms/scratch/tophh/"+inputFolderName+"/muonDiffXSecSig"+SampleTag+"PF.root";
-  else if(decayChannel=="electron") analysisFileName="/afs/naf.desy.de/group/cms/scratch/tophh/"+inputFolderName+"/elecDiffXSecSig"+SampleTag+"PF.root";
+  if     (decayChannel=="muon"    ) analysisFileName=path+inputFolderName+TopFilename(kSig, sysNo, "muon"    );
+  else if(decayChannel=="electron") analysisFileName=path+inputFolderName+TopFilename(kSig, sysNo, "electron");
   else{
     std::cout << "ERROR: decay channel " << decayChannel << " is no valid choice, use electron or muon!" << std::endl;
     exit(0);
@@ -582,7 +584,7 @@ void analyzeTopDiffXSecMCdependency(double luminosity = 12148, std::string decay
   unsigned int N1Dplots = plotList_.size();
 
   // open standard analysis files
-  std::map<unsigned int, TFile*> files_ = getStdTopAnalysisFiles("/afs/naf.desy.de/group/cms/scratch/tophh/"+inputFolderName, 0, dataFile, decayChannel);
+  std::map<unsigned int, TFile*> files_ = getStdTopAnalysisFiles(path+inputFolderName, 0, dataFile, decayChannel);
   // define container for data plots
   std::map< TString, std::map <unsigned int, TH1F*> > histo_;
   std::map< TString, std::map <unsigned int, TH2F*> > histo2_;

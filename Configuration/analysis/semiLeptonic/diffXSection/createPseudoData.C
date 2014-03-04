@@ -58,8 +58,8 @@ void createPseudoDataFunc(double luminosity, const std::string decayChannel, TSt
   bool smear=false;
   // "dataFile": absolute path of data file, used to define plots of interest
   TString dataFile= "";
-  if(decayChannel.compare("electron")==0) dataFile="/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/elecDiffXSecData2012ABCDAll.root";
-  else                                    dataFile="/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/muonDiffXSecData2012ABCDAll.root";
+  if(decayChannel.compare("electron")==0) dataFile=groupSpace+AnalysisFolder+"/elecDiffXSecData2012ABCDAll.root";
+  else                                    dataFile=groupSpace+AnalysisFolder+"/muonDiffXSecData2012ABCDAll.root";
   // "useReweightedTop": use parton level reweighted ttbar signal file in pseudo data?
   bool useReweightedTop = (specifier.Contains("NoDistort")) ? false : true;
   // "zprime": include additional Zprime in pseudo data?
@@ -94,7 +94,7 @@ void createPseudoDataFunc(double luminosity, const std::string decayChannel, TSt
   //  ---
   // a) name and path of rootfile
   // path
-  TString nameTtbarReweighted="/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/";
+  TString nameTtbarReweighted=groupSpace+AnalysisFolder+"/";
   // subfolder for reweighting systematics
   if(specifier!="NoDistort"&&!specifier.Contains("p5")){
     nameTtbarReweighted+="ttbarReweight/";
@@ -128,7 +128,7 @@ void createPseudoDataFunc(double luminosity, const std::string decayChannel, TSt
     histo_["avWeight"][kSig] = (TH1F*)(ttbarRewfile->Get(weightPlot)->Clone());
     avWeight=histo_ ["avWeight"][kSig]->GetBinContent(2)/histo_ ["avWeight"][kSig]->GetBinContent(1);
     histo_["avWeight"].erase(kSig);
-    TFile* sigfile = new (TFile)("/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/"+TopFilename(kSig, sysNo, decayChannel));
+    TFile* sigfile = new (TFile)(groupSpace+AnalysisFolder+"/"+TopFilename(kSig, sysNo, decayChannel));
     TString partonPlot="analyzeTopPartonLevelKinematics/ttbarMass";
     gROOT->cd();
     histo_["parton"   ][kSig] = (TH1F*)(sigfile     ->Get(partonPlot)->Clone());
@@ -138,7 +138,7 @@ void createPseudoDataFunc(double luminosity, const std::string decayChannel, TSt
     if(verbose>1){
       std::cout << "ratio unweighted/weighted" << std::endl;
       std::cout << avWeight  << " (from " << weightPlot << ")" << std::endl;
-      std::cout << avWeight2 << TString(" (from entries in ")+partonPlot+" wrt /afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/"+TopFilename(kSig, sysNo, decayChannel)+"): " << std::endl;
+      std::cout << avWeight2 << TString(" (from entries in ")+partonPlot+" wrt "+groupSpace+AnalysisFolder+"/"+TopFilename(kSig, sysNo, decayChannel)+"): " << std::endl;
     }
   }
 
@@ -151,7 +151,7 @@ void createPseudoDataFunc(double luminosity, const std::string decayChannel, TSt
   TString zprimeMass =specifier;
   TString zprimeWidth=specifier;
   zprimeWidth.ReplaceAll("1000", "100");
-  TString nameZprime="/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/zprime/";
+  TString nameZprime=groupSpace+AnalysisFolder+"/zprime/";
   if(decayChannel.compare("electron")==0) nameZprime+="elec";
   else                                    nameZprime+="muon";
   nameZprime+="DiffXSecZprimeM"+zprimeMass+"W"+zprimeWidth+"Summer12PF.root";
@@ -183,7 +183,7 @@ void createPseudoDataFunc(double luminosity, const std::string decayChannel, TSt
   // -----------------------------------------
   // !!! add all contributing samples here !!!
   // -----------------------------------------
-  TString inputFolder = "/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/";
+  TString inputFolder = groupSpace+AnalysisFolder;
   // save all default top analysis samples in files_
   files_ = getStdTopAnalysisFiles(inputFolder, sysNo, dataFile, decayChannel);
   // remove combined file dor single Top & DiBoson
@@ -308,8 +308,7 @@ void createPseudoDataFunc(double luminosity, const std::string decayChannel, TSt
   // ---------------------------------------
   // !!! definition of output file(name) !!!
   // ---------------------------------------
-  //TString outputfile="/afs/naf.desy.de/user/g/goerner/WGspace/RecentAnalysisRun8TeV_doubleKinFit/pseudodata/"+(TString)decayChannel+"PseudoData"+lum+"pb"+outNameExtension+"8TeV.root";
-  TString outputfile="/afs/naf.desy.de/user/g/goerner/WGspace/RecentAnalysisRun8TeV_doubleKinFit/pseudodata/"+pseudoDataFileName(specifier, decayChannel);
+  TString outputfile=groupSpace+AnalysisFolder+"/pseudodata/"+pseudoDataFileName(specifier, decayChannel);
   TFile* out = new TFile(outputfile, "recreate");
   if(verbose>0) std::cout << std::endl << "outputfile: " << outputfile << std::endl;
   poisson(histo_, plotList_, decayChannel, *out, luminosity, verbose, smear, useReweightedTop, avWeight, zprime, zPrimeLumiWeight);

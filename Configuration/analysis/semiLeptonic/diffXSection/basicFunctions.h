@@ -47,6 +47,11 @@
 namespace semileptonic {
 #endif
   
+  // group space folder with all rootfiles and other analysis relevant stuff
+  TString groupSpace="/afs/naf.desy.de/group/cms/scratch/tophh/";
+  TString AnalysisFolder="RecentAnalysisRun8TeV_doubleKinFit"; // used mostly as default argument
+  // large madspin or smaller madgraph samples?
+  bool MadSpin=false;
   // adapt several things like removing official labels for my PHD
   bool PHD=false;
   // use global switch to rm/add Preliminary to plots 
@@ -222,8 +227,8 @@ namespace semileptonic {
   const double ttbarCrossSectionError=sqrt(((6.2+8.4)/2.)*((6.2+8.4)/2.)+((6.2+6.4)/2.)*((6.2+6.4)/2.)); // Scale and PDF uncertainties 
                                                              // --> up/down contributions have been symetrized
 
-  const double SF_TopMassDownUncertainty=0.9/3.0; // scale factors for top mass uncertainty
-  const double SF_TopMassUpUncertainty  =0.9/3.0; // --> world average is presently known at +/-0.9 GeV (arXiv:1107.5255v3 [hep-ex])
+  const double SF_TopMassDownUncertainty=MadSpin ? 1.0 : 0.9/3.0; // scale factors for top mass uncertainty
+  const double SF_TopMassUpUncertainty  =MadSpin ? 1.0 : 0.9/3.0; // --> world average is presently known at +/-0.9 GeV (arXiv:1107.5255v3 [hep-ex])
                                                   // --> systematic samples are varied by +/-3.0 GeV 
                                                   // --> linearily rescale uncertainty on top mass in combineTopDiffXSecUncertainties.C
 
@@ -1027,7 +1032,7 @@ namespace semileptonic {
     }
   }
 
-  double lumiweight(unsigned int sample, double luminosity, unsigned int kSys, const std::string decayChannel)
+  double lumiweight(unsigned int sample, double luminosity, unsigned int kSys, const std::string decayChannel, bool MS=MadSpin)
   {
     // this function derives the lumiweight for every standard MC
     // sample "sample" based on the theoretical cross section, the
@@ -1046,6 +1051,9 @@ namespace semileptonic {
     calledfunction+=", const std::string decayChannel=";
     calledfunction+=decayChannel;
     calledfunction+=")";
+
+    // large MadSpin sample?
+    bool MS2= (((MS&&kSys!=sysMad)||(!MS&&kSys==sysMad))&&((sample==kSig)||(sample==kBkg))&&kSys<=sysHadDown)  ? true : false;
 
     // function internal detail level of text output
     int verbose=0;
@@ -1084,21 +1092,21 @@ namespace semileptonic {
     if((sample==kSig)||(sample==kBkg)){
       crossSection=ttbarCrossSection; 
       // Summer12
-      Nevents = 6923750*0.999881;// 8 TEV PU SF from gen ttbarSG Integral/entries
+      Nevents = MS2 ? 62131965 : 6923750;
       // Systematic samples
       if(kSys!=sysNo){
-	if     (kSys==sysTopScaleUp  ) Nevents=5009488;
-	else if(kSys==sysTopScaleDown) Nevents=5387181;
-	else if(kSys==sysTopMatchUp  ) Nevents=5415010;
-	else if(kSys==sysTopMatchDown) Nevents=5476728;
-	else if(kSys==sysTopMassUp   ) Nevents=5249525;
-	else if(kSys==sysTopMassDown ) Nevents=5369214;
-	else if(kSys==sysTopMassUp2  ) Nevents=4733483;
-	else if(kSys==sysTopMassDown2) Nevents=4469095;
-	else if(kSys==sysTopMassUp3  ) Nevents=5145140;
-	else if(kSys==sysTopMassDown3) Nevents=5365348;
-	else if(kSys==sysTopMassUp4  ) Nevents=5249525;
-	else if(kSys==sysTopMassDown4) Nevents=5369214;
+	if     (kSys==sysTopScaleUp  ) Nevents= MS2 ?  41908271 : 5009488;
+	else if(kSys==sysTopScaleDown) Nevents= MS2 ?  39286663 : 5387181;
+	else if(kSys==sysTopMatchUp  ) Nevents= MS2 ?  37083003 : 5415010;
+	else if(kSys==sysTopMatchDown) Nevents= MS2 ?  34053113 : 5476728;
+	else if(kSys==sysTopMassUp   ) Nevents= MS2 ?  26489020 : 5249525;
+	else if(kSys==sysTopMassDown ) Nevents= MS2 ?  24439341 : 5369214;
+	else if(kSys==sysTopMassUp2  ) Nevents= MS2 ?  40244328 : 4733483;
+	else if(kSys==sysTopMassDown2) Nevents= MS2 ?  39518234 : 4469095;
+	else if(kSys==sysTopMassUp3  ) Nevents= MS2 ?  24359161 : 5145140;
+	else if(kSys==sysTopMassDown3) Nevents= MS2 ?  27078777 : 5365348;
+	else if(kSys==sysTopMassUp4  ) Nevents= MS2 ? -1 : 5249525;
+	else if(kSys==sysTopMassDown4) Nevents= MS2 ? -1 : 5369214;
       }
     }
     else if((sample==kSigPow)||(sample==kBkgPow)){
@@ -1425,7 +1433,7 @@ namespace semileptonic {
     return result;
   }
 
-  TString TopFilename(unsigned int sample, unsigned int sys, const std::string decayChannel)
+  TString TopFilename(unsigned int sample, unsigned int sys, const std::string decayChannel, bool MS=MadSpin)
   {
     // this function contains the basic convention for the MC
     // .root files and returns the correct names for chosen samplesample"
@@ -1444,6 +1452,8 @@ namespace semileptonic {
     // standard MC filenames
     if(sample==kSig    )fileName += "Sig";
     if(sample==kBkg    )fileName += "Bkg";
+    // MadSpin: ttbar MadGraph sample, MS==true OR sysMad
+    if(((MS&&sys!=sysMad)||(!MS&&sys==sysMad))&&((sample==kSig)||(sample==kBkg))&&sys<=sysHadDown) fileName+="MadSpin";
     if(sample==kSigPow )fileName += "SigPowheg";
     if(sample==kBkgPow )fileName += "BkgPowheg";
     if(sample==kSigPowHer )fileName += "SigPowhegHerwig";
@@ -1527,8 +1537,6 @@ namespace semileptonic {
       else if(sys==sysTopMassDown3) fileName+="3";
       else if(sys==sysTopMassDown4) fileName+="4";      
     }
-    // MadSpin
-    else if(sys==sysMad&&((sample==kSig)||(sample==kBkg))) fileName+="MadSpin";
     // label for MC production cycle
     fileName += "Summer12";
     fileName += "PF.root";
@@ -1569,7 +1577,7 @@ namespace semileptonic {
     }
   }
 
-  std::map<unsigned int, TFile*> getStdTopAnalysisFiles( const TString inputFolder, const unsigned int systematicVariation, const TString dataFile, const std::string decayChannel, TString ttbarMC="Madgraph")
+  std::map<unsigned int, TFile*> getStdTopAnalysisFiles( const TString inputFolder, const unsigned int systematicVariation, const TString dataFile, const std::string decayChannel, TString ttbarMC="Madgraph", bool MS=MadSpin)
     {
       // this function returns a map containing all existing .root in "inputFolder"
       // corresponding to the chosen systematic variation "systematicVariation"
@@ -1607,7 +1615,9 @@ namespace semileptonic {
 	      if(sample==kSig) fileName = inputFolder+"/"+TopFilename(kSigMca, systematicVariation, decayChannel);
 	      if(sample==kBkg) fileName = inputFolder+"/"+TopFilename(kBkgMca, systematicVariation, decayChannel);
 	    }
-	    else fileName = inputFolder+"/"+TopFilename(sample, systematicVariation, decayChannel);
+	    else{
+	      fileName = inputFolder+"/"+TopFilename(sample, systematicVariation, decayChannel, MS);
+	    }
 	    // take care of splitted single top tW sample for scale systematics
 	    if((systematicVariation==sysSingleTopScaleUp||systematicVariation==sysSingleTopScaleDown)&&(sample==kSToptW||sample==kSAToptW)){
 	      if(sample==kSToptW){
@@ -3930,7 +3940,7 @@ namespace semileptonic {
     for(unsigned int plot=0; plot<plotList_.size(); ++plot){
       // name of plot
       TString plotName = plotList_[plot];
-      bool test= plotName.Contains(testvar) ? true : false;
+      bool test= testvar!=""&&plotName.Contains(testvar) ? true : false;
       // debug output
       if(verbose>1) std::cout << "- plot #" << plot+1 << "/" << plotList_.size() << ": " << plotName;
       // process only 1D plots existing for sysNo and for systematically shifted plots
@@ -4000,7 +4010,7 @@ namespace semileptonic {
 	  // symmetrize total up and total down uncertainty
 	  double uncSymm=(sqrt(uncUp)+sqrt(uncDn))/2;
 	  // Set uncertainty value for errorband
-	  if(plotList_[plot].Contains(testvar)){
+	  if(testvar!=""&&plotList_[plot].Contains(testvar)){
 	    std::cout << "  -> tot. symm. unc.=" << uncSymm*100 << "%" << std::endl;
 	  }
 	  histoErrorBand_[plotName]->SetBinError(bin, uncSymm*histoErrorBand_[plotName]->GetBinContent(bin));
@@ -4731,9 +4741,9 @@ namespace semileptonic {
       TH1F* loadcentral2=0;
       if(verbose>0){
 	std::cout << "transfer relative uncertainties to central value from: " << plotname4 << " in " 
-		  << "/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV/combinedDiffXSecSigMcatnloSummer12PF.root" << std::endl;
+		  << groupSpace+"RecentAnalysisRun8TeV/combinedDiffXSecSigMcatnloSummer12PF.root" << std::endl;
       }       
-      loadcentral2=getTheoryPrediction(plotname4,"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV/combinedDiffXSecSigMcatnloSummer12PF.root");
+      loadcentral2=getTheoryPrediction(plotname4,groupSpace+"RecentAnalysisRun8TeV/combinedDiffXSecSigMcatnloSummer12PF.root");
 
       TH1F* central=0;    
       TH1F* central2=0;

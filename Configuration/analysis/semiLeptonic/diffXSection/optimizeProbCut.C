@@ -1,24 +1,9 @@
-#include "TROOT.h"
-#include "TStyle.h"
-#include <vector>
-#include <iostream>
-#include "TFile.h"
-#include "TTree.h"
-#include "TH1F.h"
-#include "TGraph.h"
-#include "TMath.h"
-#include "TCanvas.h"
-#include "TLegend.h"
-#include "TLine.h"
-#include "TString.h"
+#include "basicFunctions.h"
 
 double getSoB(TH1F* sig, TH1F* bkg, double probCut, TString opt);
-void drawLine(const double xmin, const double ymin, const double xmax, const double ymax, const unsigned int color, const double lineWidth, const unsigned int lineStyle);
-TString getTStringFromInt(int i);
-TString getTStringFromDouble(double d, int precision, bool output);
 void drawArrow(const double xmin, const double y, const double xmax, const unsigned int color, const double lineWidth, const unsigned int lineStyle, double stretchFactor);
 
-void optimizeProbCut(double forceProb = 0.02, unsigned int ndof = 2, int verbose=1, TString LepDecayChannel = "combined", TString inputFolderName="RecentAnalysisRun8TeV_doubleKinFit", bool save=true)
+void optimizeProbCut(double forceProb = 0.02, unsigned int ndof = 2, int verbose=1, TString LepDecayChannel = "combined", TString inputFolderName=AnalysisFolder, bool save=true)
 {
   // configure style
   gROOT->SetStyle("Plain");
@@ -34,12 +19,12 @@ void optimizeProbCut(double forceProb = 0.02, unsigned int ndof = 2, int verbose
   // TString optimize = "#frac{sig}{sig+bkg}";
 
   // read files
-  TString path = TString("/afs/naf.desy.de/group/cms/scratch/tophh/")+inputFolderName+"/";
+  TString path = groupSpace+inputFolderName+"/";
   std::vector<TFile*> files_;
-  if(LepDecayChannel=="combined" || LepDecayChannel=="muon"    )  files_.push_back(new TFile(path+"muonDiffXSecSigSummer12PF.root"));
-  if(LepDecayChannel=="combined" || LepDecayChannel=="muon"    )  files_.push_back(new TFile(path+"muonDiffXSecBkgSummer12PF.root"));
-  if(LepDecayChannel=="combined" || LepDecayChannel=="electron")  files_.push_back(new TFile(path+"elecDiffXSecSigSummer12PF.root"));
-  if(LepDecayChannel=="combined" || LepDecayChannel=="electron")  files_.push_back(new TFile(path+"elecDiffXSecBkgSummer12PF.root"));
+  if(LepDecayChannel=="combined" || LepDecayChannel=="muon"    )  files_.push_back(new TFile(path+TopFilename(kSig, sysNo,"muon"    )));
+  if(LepDecayChannel=="combined" || LepDecayChannel=="muon"    )  files_.push_back(new TFile(path+TopFilename(kBkg, sysNo,"muon"    )));
+  if(LepDecayChannel=="combined" || LepDecayChannel=="electron")  files_.push_back(new TFile(path+TopFilename(kSig, sysNo,"electron")));
+  if(LepDecayChannel=="combined" || LepDecayChannel=="electron")  files_.push_back(new TFile(path+TopFilename(kBkg, sysNo,"electron")));
 
   // get trees
   vector<TTree*> trees_;
@@ -600,39 +585,6 @@ double getSoB(TH1F* sig, TH1F* bkg, double probCut, TString opt)
   if(opt=="#frac{sig}{#sqrt{bkg}}")result = signal/TMath::Sqrt(backgr);
   if(opt=="#frac{sig}{#sqrt{sig+bkg}}")result = signal/TMath::Sqrt(signal+backgr);
   return result;
-}
-
-void drawLine(const double xmin, const double ymin, const double xmax, const double ymax, const unsigned int color, const double lineWidth, const unsigned int lineStyle)
-{
-  // this function draws a line withe the chosen coordinates,
-  // color and width into the active canvas
-  TLine *line = new TLine();
-  line->SetLineWidth(lineWidth);
-  line->SetLineStyle(lineStyle);
-  line->SetLineColor(color);
-  line->DrawLine(xmin, ymin, xmax, ymax);
-}
-
-TString getTStringFromInt(int i)
-{
-  // function to convert an int "i" to
-  // a TString and return this one
-  char result[20];
-  sprintf(result, "%i", i);
-  return (TString)result;
-}
-
-TString getTStringFromDouble(double d, int precision, bool output)
-{
-  // function to convert an double "d" to
-  // a TString and return this one
-  TString conv="%.";
-  conv+=getTStringFromInt(precision);
-  conv+="f";
-  char result[30];
-  if(output) std::cout << "sprintf(result, conv, d)=sprintf(" << result << ", " << conv << ", " << d << ")" << std::endl;
-  sprintf(result, conv, d);
-  return (TString)result;
 }
 
 void drawArrow(const double xmin, const double y, const double xmax, const unsigned int color, const double lineWidth, const unsigned int lineStyle, double stretchFactor)

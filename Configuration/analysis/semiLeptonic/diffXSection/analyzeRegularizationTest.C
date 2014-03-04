@@ -2,10 +2,10 @@
 #include "../../unfolding/TopSVDFunctions.h" 
 #include "../../unfolding/TopSVDFunctions.C" 
 
-void analyzeRegularizationTest(TString test="tau", double luminosity = 19712.,
+void analyzeRegularizationTest(TString test="mix", double luminosity = 19712.,
 			       bool save = true, int systematicVariation=sysNo, unsigned int verbose=0,
 			       TString inputFolderName="RecentAnalysisRun8TeV_doubleKinFit",
-			       TString dataFile= "/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/elecDiffXSecData2012ABCDAll.root:/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/muonDiffXSecData2012ABCDAll.root",
+			       TString dataFile= groupSpace+AnalysisFolder+"/elecDiffXSecData2012ABCDAll.root:"+groupSpace+AnalysisFolder+"/muonDiffXSecData2012ABCDAll.root",
 			       std::string decayChannel = "combined", bool SVDunfold=true, bool extrapolate=true, bool hadron=false, 
 			       bool redetermineopttau =false, TString closureTestSpecifier="data", TString addSel="ProbSel")
 {

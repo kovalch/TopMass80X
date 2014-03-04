@@ -4,11 +4,11 @@
 
 void analyzeHypothesisKinFit(double luminosity = 19712.,
 			     bool save = true, int systematicVariation=sysNo, unsigned int verbose=0,
-			     TString inputFolderName="RecentAnalysisRun8TeV_doubleKinFit",
-			     //TString dataFile= "/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/muonDiffXSecData2012ABCDAll.root",
-			     //TString dataFile= "/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/elecDiffXSecData2012ABCDAll.root",
-			     TString dataFile= "/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/elecDiffXSecData2012ABCDAll.root:/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/muonDiffXSecData2012ABCDAll.root",
-			     std::string decayChannel = "combined", bool SVDunfold=true, bool extrapolate=false, bool hadron=true,
+			     TString inputFolderName=AnalysisFolder,
+			     //TString dataFile= groupSpace+AnalysisFolder+"/muonDiffXSecData2012ABCDAll.root",
+			     //TString dataFile= groupSpace+AnalysisFolder+"/elecDiffXSecData2012ABCDAll.root",
+			     TString dataFile= groupSpace+AnalysisFolder+"/elecDiffXSecData2012ABCDAll.root:"+groupSpace+AnalysisFolder+"/muonDiffXSecData2012ABCDAll.root",
+			     std::string decayChannel = "combined", bool SVDunfold=true, bool extrapolate=true, bool hadron=false,
 			     bool addCrossCheckVariables=false, bool redetermineopttau =false, TString closureTestSpecifier="", TString addSel="ProbSel")
 {
   // ============================
@@ -132,7 +132,7 @@ void analyzeHypothesisKinFit(double luminosity = 19712.,
   TString lumi = getTStringFromInt(roundToInt((luminosity), false));  
   // b) options to be configured only once
   // get the .root files from the following folder:
-  TString inputFolder = "/afs/naf.desy.de/group/cms/scratch/tophh/"+inputFolderName;
+  TString inputFolder = groupSpace+inputFolderName;
   // see if its 2010 or 2011 data from luminosity
   TString dataSample="2012";
   // for closure test if desired

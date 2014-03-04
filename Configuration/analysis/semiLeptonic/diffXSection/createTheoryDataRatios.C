@@ -15,7 +15,7 @@ TCanvas* getRatio(TString plotName, int verbose, TString outputFile){
 
   // compare current with old result
   bool compare=false;
-  TString oldResult="/afs/naf.desy.de/group/cms/scratch/tophh/tmp/OldCombination/";
+  TString oldResult=groupSpace+"tmp/OldCombination/";
 
   // open file
   TFile* file = TFile::Open(outputFile, "READ");

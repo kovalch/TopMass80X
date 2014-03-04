@@ -186,7 +186,7 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, u
   
   if(useBCC){
     // open file
-    TString fileNameBCC = "/afs/naf.desy.de/group/cms/scratch/tophh/CommonFiles/diffXSecBCC8TeV.root";
+    TString fileNameBCC = groupSpace+"CommonFiles/diffXSecBCC8TeV.root";
     std::cout << " Loading bin center corrections from  file " << fileNameBCC << std::endl;
     TFile* BCCfile=TFile::Open(fileNameBCC, "OPEN");
     if(!BCCfile||BCCfile->IsZombie()){
@@ -522,13 +522,13 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, u
 		  }		  
 		  // rescale top mass to 0.9 GeV - use rescale factor "SF_TopMass*Uncertainty" defined in basicFunctions.h
 		  if      (sys==sysTopMassUp   ) sysDiff *= SF_TopMassUpUncertainty  ;   
-		  else if (sys==sysTopMassUp2  ) sysDiff *= (3./6. )*SF_TopMassUpUncertainty;  
-		  else if (sys==sysTopMassUp3  ) sysDiff *= (3./9. )*SF_TopMassUpUncertainty;  
-		  else if (sys==sysTopMassUp4  ) sysDiff *= (3./12.)*SF_TopMassUpUncertainty; 
+		  else if (sys==sysTopMassUp2  ) sysDiff *= (MadSpin ? (1./3. ) : (3./6. ))*SF_TopMassUpUncertainty;  
+		  else if (sys==sysTopMassUp3  ) sysDiff *= (MadSpin ? (1./6. ) : (3./9. ))*SF_TopMassUpUncertainty;  
+		  else if (sys==sysTopMassUp4  ) sysDiff *= (MadSpin ? (0.    ) : (3./12.))*SF_TopMassUpUncertainty; 
 		  else if (sys==sysTopMassDown ) sysDiff *= SF_TopMassDownUncertainty; 
-		  else if (sys==sysTopMassDown2) sysDiff *= (3./6. )*SF_TopMassDownUncertainty; 
-		  else if (sys==sysTopMassDown3) sysDiff *= (3./9. )*SF_TopMassDownUncertainty; 
-		  else if (sys==sysTopMassDown4) sysDiff *= (3./11.)*SF_TopMassDownUncertainty; 
+		  else if (sys==sysTopMassDown2) sysDiff *= (MadSpin ? (1./3. ) : (3./6. ))*SF_TopMassDownUncertainty; 
+		  else if (sys==sysTopMassDown3) sysDiff *= (MadSpin ? (1./6. ) : (3./9. ))*SF_TopMassDownUncertainty; 
+		  else if (sys==sysTopMassDown4) sysDiff *= (MadSpin ? (0.    ) : (3./12.))*SF_TopMassDownUncertainty; 
 		}
 
 		// save relative systematic uncertainties for bin & variable
