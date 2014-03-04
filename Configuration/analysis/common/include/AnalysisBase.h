@@ -21,7 +21,6 @@ class KinematicReconstruction;
 class TriggerScaleFactors;
 class LeptonScaleFactors;
 class BtagScaleFactors;
-class BTagSFGeneric;
 class JetEnergyResolutionScaleFactors;
 class JetEnergyScaleScaleFactors;
 class RecoObjects;

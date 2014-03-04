@@ -125,10 +125,6 @@ private:
     /// Select tt+bb, tt+b, or tt+other events
     int additionalBJetMode_;
     
-    // FIXME: remove this variable which was implemented for testing (and in a different way as it was in TopAnalysis...)
-    /// Whether randomly tag b jets or apply an event btag weight
-    bool retagBJets_;
-    
     
     
     /// All analysers of type AnalyzerBaseClass

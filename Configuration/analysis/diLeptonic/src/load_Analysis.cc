@@ -126,12 +126,6 @@ void load_Analysis(TString validFilenamePattern,
                                                   {"ee", "emu", "mumu"},
                                                   triggerSFSystematic);
     
-    // Set up btag efficiency scale factors (do it for all channels)
-    BtagScaleFactors btagScaleFactors(BtagEfficiencyInputDIR,
-                                      BtagEfficiencyOutputDIR,
-                                      channels,
-                                      systematic);
-    
     // Set up JER systematic scale factors
     JetEnergyResolutionScaleFactors* jetEnergyResolutionScaleFactors(0);
     if(systematic=="JER_UP" || systematic=="JER_DOWN"){
@@ -170,7 +164,6 @@ void load_Analysis(TString validFilenamePattern,
     selector->SetPUReweighter(puReweighter);
     selector->SetLeptonScaleFactors(leptonScaleFactors);
     selector->SetTriggerScaleFactors(triggerScaleFactors);
-    selector->SetBtagScaleFactors(btagScaleFactors);
     selector->SetJetEnergyResolutionScaleFactors(jetEnergyResolutionScaleFactors);
     selector->SetJetEnergyScaleScaleFactors(jetEnergyScaleScaleFactors);
     
@@ -195,6 +188,13 @@ void load_Analysis(TString validFilenamePattern,
         std::cout<<std::endl;
         std::cout<<"PROCESSING File "<<++filecounter<<" ("<<filename<<") from selectionList.txt"<<std::endl;
         std::cout<<std::endl;
+        
+        // Access the basic filename by stripping off the folders
+        TString filenameBase(filename);
+        if(filenameBase.Contains('/')){
+            Ssiz_t last = filenameBase.Last('/');
+            filenameBase = filenameBase.Data() + last + 1;
+        }
         
         // Open nTuple file
         TFile file(filename);
@@ -237,24 +237,49 @@ void load_Analysis(TString validFilenamePattern,
             continue;
         }
         
-        // Is the channel given in the file?
+        // Is the channel given in the file? This is true only for data which is preselected due to trigger,
+        // and guarantees that only the proper channel is processed
         if(channel_from_file->GetString() != ""){
             channels.clear();
             channels.push_back(static_cast<std::string>(channel_from_file->GetString()));
         }
         
+        // If no systematic is specified, read it from the file and use this (used for systematic variations of signal samples)
+        const TString selectedSystematic = systematic=="" ? systematics_from_file->GetString() : systematic;
+        
+        // Set up btag efficiency scale factors
+        // This has to be done only after potentially setting systematic from file, since it is varied with signal systematics
+        BtagScaleFactors btagScaleFactors(BtagEfficiencyInputDIR,
+                                          BtagEfficiencyOutputDIR,
+                                          channels,
+                                          systematic);
+        
+        // Configure selector
+        selector->SetTopSignal(isTopSignal);
+        selector->SetHiggsSignal(isHiggsSignal);
+        selector->SetMC(isMC);
+        selector->SetWeightedEvents(weightedEvents);
+        selector->SetSamplename(samplename->GetString());
+        selector->SetGeneratorBools(samplename->GetString(), systematics_from_file->GetString());
+        selector->SetSystematic(selectedSystematic);
+        selector->SetBtagScaleFactors(btagScaleFactors);
+        selector->SetClosureTest(closure, slope);
+        
         // Loop over channels and run selector
         for(const auto& selectedChannel : channels){
             
-            // Set output file name
-            TString outputfilename(filename);
-            if(outputfilename.Contains('/')){
-                Ssiz_t last = outputfilename.Last('/');
-                outputfilename = outputfilename.Data() + last + 1;
-            }
+            // Set the channel
             const TString channelName = selectedChannel;
-            if(!outputfilename.BeginsWith(channelName + "_")) outputfilename.Prepend(channelName + "_");
-            //outputfile is now channel_filename.root
+            TString outputfilename = filenameBase.BeginsWith(channelName+"_") ? filenameBase : channelName+"_"+filenameBase;
+            selector->SetChannel(channelName);
+            
+            // Set up nTuple chain
+            TChain chain("writeNTuple/NTuple");
+            chain.Add(filename);
+            // chain.SetProof(); //will work from 5.34 onwards
+            
+            // Split Drell-Yan sample in decay modes ee, mumu, tautau
+            selector->SetTrueLevelDYChannel(dy);
             if(dy){
                 if(outputfilename.First("_dy") == kNPOS){ 
                     std::cerr << "DY variations must be run on DY samples!\n";
@@ -265,29 +290,9 @@ void load_Analysis(TString validFilenamePattern,
                 outputfilename.ReplaceAll("_dy", TString("_dy").Append(dyChannel));
             }
             
-            // Configure selector
-            selector->SetChannel(channelName);
-            selector->SetTopSignal(isTopSignal);
-            selector->SetHiggsSignal(isHiggsSignal);
-            selector->SetMC(isMC);
-            selector->SetTrueLevelDYChannel(dy);
-            if(systematic == ""){
-                selector->SetSystematic(systematics_from_file->GetString());
-            }
-            else{
-                selector->SetSystematic(systematic);
-            }
-            selector->SetWeightedEvents(weightedEvents);
-            selector->SetSamplename(samplename->GetString());
-            selector->SetGeneratorBools(samplename->GetString(), systematics_from_file->GetString());
-            selector->SetOutputfilename(outputfilename);
+            // Run the selector
             selector->SetRunViaTau(0);
-            selector->SetClosureTest(closure, slope);
-            
-            // Set up nTuple chain and run selector
-            TChain chain("writeNTuple/NTuple");
-            chain.Add(filename);
-            // chain.SetProof(); //will work from 5.34 onwards
+            selector->SetOutputfilename(outputfilename);
             chain.Process(selector);
             
             // For running on PDF systematics

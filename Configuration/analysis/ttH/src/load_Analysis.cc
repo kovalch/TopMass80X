@@ -150,12 +150,6 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
                                                   Channel::convertChannels(Channel::realChannels),
                                                   triggerSFSystematic);
     
-    // Set up btag efficiency scale factors (do it for all channels)
-    BtagScaleFactors btagScaleFactors(BtagEfficiencyInputDIR,
-                                      BtagEfficiencyOutputDIR,
-                                      Channel::convertChannels(Channel::realChannels),
-                                      Systematic::convertSystematic(systematic));
-    
     // Set up JER systematic scale factors
     JetEnergyResolutionScaleFactors* jetEnergyResolutionScaleFactors(0);
     if(systematic==Systematic::jer_up || systematic==Systematic::jer_down){
@@ -257,7 +251,6 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
     selector->SetPUReweighter(puReweighter);
     selector->SetLeptonScaleFactors(leptonScaleFactors);
     selector->SetTriggerScaleFactors(triggerScaleFactors);
-    selector->SetBtagScaleFactors(btagScaleFactors);
     selector->SetJetEnergyResolutionScaleFactors(jetEnergyResolutionScaleFactors);
     selector->SetJetEnergyScaleScaleFactors(jetEnergyScaleScaleFactors);
     selector->SetAllAnalyzers(v_analyzer);
@@ -282,6 +275,13 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
         std::cout<<std::endl;
         std::cout<<"PROCESSING File "<<++filecounter<<" ("<<filename<<") from selectionList.txt"<<std::endl;
         std::cout<<std::endl;
+        
+        // Access the basic filename by stripping off the folders
+        TString filenameBase(filename);
+        if(filenameBase.Contains('/')){
+            Ssiz_t last = filenameBase.Last('/');
+            filenameBase = filenameBase.Data() + last + 1;
+        }
         
         // Open nTuple file
         TFile file(filename);
@@ -322,25 +322,52 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
             continue;
         }
         
-        // Is the channel given in the file?
-        // FIXME: In case of data, use the channel as specified in the file, or what is this for?
+        // Is the channel given in the file? This is true only for data which is preselected due to trigger,
+        // and guarantees that only the proper channel is processed
         if(channel_from_file->GetString() != ""){
             channels.clear();
             channels.push_back(Channel::convertChannel(static_cast<std::string>(channel_from_file->GetString())));
         }
         
+        // If no systematic is specified, read it from the file and use this (used for systematic variations of signal samples)
+        const TString selectedSystematic = systematic==Systematic::undefined ? systematics_from_file->GetString() : Systematic::convertSystematic(systematic);
+        
+        // Set up btag efficiency scale factors
+        // This has to be done only after potentially setting systematic from file, since it is varied with signal systematics
+        BtagScaleFactors btagScaleFactors(BtagEfficiencyInputDIR,
+                                          BtagEfficiencyOutputDIR,
+                                          Channel::convertChannels(channels),
+                                          Systematic::convertSystematic(systematic));
+        
+        // Configure selector
+        selector->SetTopSignal(isTopSignal);
+        selector->SetHiggsSignal(isHiggsSignal);
+        selector->SetMC(isMC);
+        selector->SetWeightedEvents(weightedEvents);
+        // FIXME: correction for MadGraph W decay branching fractions are not correctly applied
+        // Recently it is done for W from ttbar decays, set via SetGeneratorBools
+        // Needs to be changed: for ttbarW, also correction for 3rd W needs to be applied, for ttbarhiggs corrections for 2 or 4 Ws needed, depending on Higgs decay (H->WW?)
+        // and what about Wlnu sample, or possible others ?
+        selector->SetSamplename(samplename->GetString());
+        selector->SetGeneratorBools(samplename->GetString(), systematics_from_file->GetString());
+        selector->SetSystematic(selectedSystematic);
+        selector->SetBtagScaleFactors(btagScaleFactors);
+        
         // Loop over channels and run selector
         for(const auto& selectedChannel : channels){
             
-            // Set output file name
-            TString outputfilename(filename);
-            if(outputfilename.Contains('/')){
-                Ssiz_t last = outputfilename.Last('/');
-                outputfilename = outputfilename.Data() + last + 1;
-            }
+            // Set the channel
             const TString channelName = Channel::convertChannel(selectedChannel);
-            if(!outputfilename.BeginsWith(channelName + "_")) outputfilename.Prepend(channelName + "_");
-            //outputfile is now channel_filename.root
+            TString outputfilename = filenameBase.BeginsWith(channelName+"_") ? filenameBase : channelName+"_"+filenameBase; // FIXME: make const later
+            selector->SetChannel(channelName);
+            
+            // Set up nTuple chain
+            TChain chain("writeNTuple/NTuple");
+            chain.Add(filename);
+            // chain.SetProof(); //will work from 5.34 onwards
+            
+            // Split Drell-Yan sample in decay modes ee, mumu, tautau
+            selector->SetTrueLevelDYChannel(dy);
             if(dy){
                 if(outputfilename.First("_dy") == kNPOS){
                     std::cerr << "DY variations must be run on DY samples!\n";
@@ -351,36 +378,10 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
                 outputfilename.ReplaceAll("_dy", TString("_dy").Append(Channel::convertChannel(dyChannel)));
             }
             
-            // Configure selector
-            selector->SetChannel(channelName);
-            selector->SetTopSignal(isTopSignal);
-            selector->SetHiggsSignal(isHiggsSignal);
-            selector->SetMC(isMC);
-            selector->SetTrueLevelDYChannel(dy);
-            if(systematic == Systematic::undefined){
-                selector->SetSystematic(systematics_from_file->GetString());
-            }
-            else{
-                selector->SetSystematic(Systematic::convertSystematic(systematic));
-            }
-            selector->SetWeightedEvents(weightedEvents);
-            // FIXME: correction for MadGraph W decay branching fractions are not correctly applied
-            // Recently it is done for W from ttbar decays, set via SetGeneratorBools
-            // Needs to be changed: for ttbarW, also correction for 3rd W needs to be applied, for ttbarhiggs corrections for 2 or 4 Ws needed, depending on Higgs decay (H->WW?)
-            // and what about Wlnu sample, or possible others ?
-            selector->SetSamplename(samplename->GetString());
-            selector->SetGeneratorBools(samplename->GetString(), systematics_from_file->GetString());
-            selector->SetRunViaTau(0);
-            selector->SetHiggsInclusiveSample(isHiggsInclusive);
-            
-            // Set up nTuple chain
-            TChain chain("writeNTuple/NTuple");
-            chain.Add(filename);
-            // chain.SetProof(); //will work from 5.34 onwards
-            
             // Split specific samples into subsamples and run the selector
             // FIXME: should also include Drell-Yan splitting in this scheme (and any other splitting)
             if(isTopSignal && !isHiggsSignal && !isTtbarV){ // For splitting of ttbar in production modes associated with heavy flavours
+                //selector->SetRunViaTau(0); // This could be used for splitting of dileptonic ttbar in component with intermediate taus and without
                 if(part==0 || part==-1){ // output is ttbar+other
                     selector->SetAdditionalBJetMode(0);
                     TString modifiedOutputfilename(outputfilename);
@@ -409,6 +410,7 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
                 }
             }
             else if(isHiggsInclusive){ // For splitting of ttH inclusive decay in H->bb and other decays
+                selector->SetHiggsInclusiveSample(isHiggsInclusive);
                 if(part==0 || part==-1){ // output is H->other
                     selector->SetHiggsInclusiveSeparation(false);
                     TString modifiedOutputfilename(outputfilename);
