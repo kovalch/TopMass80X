@@ -18,7 +18,7 @@ class TopGenObjects;
 class HiggsGenObjects;
 class KinRecoObjects;
 class MvaVariablesTopJets;
-class MvaReader;
+class MvaReaderBase;
 namespace tth{
     class RecoLevelWeights;
     class GenLevelWeights;
@@ -96,8 +96,8 @@ private:
         ~MvaWeightsStruct(){}
 
         std::string stepName()const{return stepName_;}
-        const std::map<std::string, MvaReader*>& correctWeights()const{return m_correct_;}
-        const std::map<std::string, MvaReader*>& swappedWeights()const{return m_swapped_;}
+        const std::map<std::string, MvaReaderBase*>& correctWeights()const{return m_correct_;}
+        const std::map<std::string, MvaReaderBase*>& swappedWeights()const{return m_swapped_;}
         const std::map<std::string, std::map<std::string, TH2D*> >& combinedWeights()const{return m_combined_;}
 
 
@@ -105,8 +105,8 @@ private:
 
         std::string stepName_;
 
-        std::map<std::string, MvaReader*> m_correct_;
-        std::map<std::string, MvaReader*> m_swapped_;
+        std::map<std::string, MvaReaderBase*> m_correct_;
+        std::map<std::string, MvaReaderBase*> m_swapped_;
         std::map<std::string, std::map<std::string, TH2D*> > m_combined_;
     };
 

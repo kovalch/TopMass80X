@@ -13,7 +13,8 @@
 #include <TObjString.h>
 
 #include "AnalyzerMvaTopJets.h"
-#include "MvaReader.h"
+#include "MvaReaderBase.h"
+#include "MvaReaderTopJets.h"
 #include "MvaVariablesTopJets.h"
 #include "analysisStructs.h"
 #include "JetCategories.h"
@@ -273,9 +274,9 @@ void AnalyzerMvaTopJets::fillHistosPerSet(const RecoObjects& recoObjects, const 
     std::map<std::string, std::map<std::string, std::vector<float> > > m_weightsCombined;
     for(const auto& weights1 : mvaWeightsStruct.combinedWeights()){
         for(const auto& weights2 : weights1.second){
-            m_weightsCombined[weights1.first][weights2.first] = MvaReader::combinedWeight(weights2.second,
-                                                                                          m_weightsCorrect.at(weights1.first),
-                                                                                          m_weightsSwapped.at(weights2.first));
+            m_weightsCombined[weights1.first][weights2.first] = MvaReaderBase::combinedWeights(weights2.second,
+                                                                                               m_weightsCorrect.at(weights1.first),
+                                                                                               m_weightsSwapped.at(weights2.first));
         }
     }
 
@@ -572,8 +573,9 @@ stepName_(stepName)
         TString weightsCorrectFilename(mva2dWeightsFolder);
         weightsCorrectFilename.Append("correct_").Append(stepName).Append("_").Append(nameCorrect).Append(".weights.xml");
 
-        m_correct_[nameCorrect] = new MvaReader(weightsCorrectFilename);
-
+        m_correct_[nameCorrect] = new MvaReaderTopJets("BDT method");
+        m_correct_.at(nameCorrect)->book(weightsCorrectFilename);
+        
         // Access combined weights
         for(const auto& nameSwapped : v_nameSwapped){
             TString weights2dHistoname("combined_");
@@ -586,7 +588,6 @@ stepName_(stepName)
             weightsCombined->Scale(1./integral);
             m_combined_[nameCorrect][nameSwapped] = weightsCombined;
         }
-
     }
 
     // Access swapped weights
@@ -594,7 +595,8 @@ stepName_(stepName)
         TString weightsSwappedFilename(mva2dWeightsFolder);
         weightsSwappedFilename.Append("swapped_").Append(stepName).Append("_").Append(nameSwapped).Append(".weights.xml");
 
-        m_swapped_[nameSwapped] = new MvaReader(weightsSwappedFilename);
+        m_swapped_[nameSwapped] = new MvaReaderTopJets("BDT method");
+        m_swapped_.at(nameSwapped)->book(weightsSwappedFilename);
     }
 }
 

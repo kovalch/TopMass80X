@@ -16,8 +16,10 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   MvaTreePlotterBase
   MvaTreePlotterTopJets
   MvaWeights2d
-  MvaReader
-  MvaFactory
+  MvaReaderBase
+  MvaReaderTopJets
+  MvaFactoryBase
+  MvaFactoryTopJets
   mvaSetup
   MvaVariablesBase
   MvaVariablesTopJets

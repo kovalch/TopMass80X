@@ -13,7 +13,7 @@
 #include <TH2D.h>
 
 #include "MvaWeights2d.h"
-#include "MvaReader.h"
+#include "MvaReaderTopJets.h"
 #include "mvaSetup.h"
 #include "MvaVariablesTopJets.h"
 #include "higgsUtils.h"
@@ -113,8 +113,10 @@ void MvaWeights2d::plotStep(const mvaSetup::MvaSet& mvaSet)
         TString fileName(mvaWeightFileDirectory_);
         fileName.Append(methodPrefixCorrect);
         fileName.Append(step).Append("_").Append(methodTitle).Append(fileAppendix);
-        MvaReader reader(fileName);
+        MvaReaderTopJets reader("BDT method");
+        reader.book(fileName);
         v_mvaConfigWeightsPairCorrect.push_back(std::make_pair(mvaConfig, reader.mvaWeights(v_mvaVariables)));
+        reader.clear();
     }
     
     std::vector<std::pair<mvaSetup::MvaConfig, std::vector<float> > > v_mvaConfigWeightsPairSwapped;
@@ -123,8 +125,10 @@ void MvaWeights2d::plotStep(const mvaSetup::MvaSet& mvaSet)
         TString fileName(mvaWeightFileDirectory_);
         fileName.Append(methodPrefixSwapped);
         fileName.Append(step).Append("_").Append(methodTitle).Append(fileAppendix);
-        MvaReader reader(fileName);
+        MvaReaderTopJets reader("BDT method");
+        reader.book(fileName);
         v_mvaConfigWeightsPairSwapped.push_back(std::make_pair(mvaConfig, reader.mvaWeights(v_mvaVariables)));
+        reader.clear();
     }
     
     

@@ -26,7 +26,7 @@ namespace tth{
 }
 
 class MvaTopJetsVariables;
-class MvaReader;
+class MvaReaderBase;
 
 
 
@@ -133,10 +133,10 @@ private:
     std::vector<CatHistograms> histograms_;
 
     /// MVA weights of correct dijet assignment for top system
-    MvaReader* weightsCorrect_;
+    MvaReaderBase* weightsCorrect_;
 
     /// MVA weights of swapped dijet assignment for top system
-    MvaReader* weightsSwapped_;
+    MvaReaderBase* weightsSwapped_;
 
     /// Whether to do comparison of dR and improved hadron-quark-jet matching
     bool doHadronMatchingComparison_;

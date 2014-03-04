@@ -18,7 +18,7 @@
 #include "AnalyzerDijet.h"
 #include "analysisStructs.h"
 #include "higgsUtils.h"
-#include "MvaReader.h"
+#include "MvaReaderTopJets.h"
 #include "MvaVariablesTopJets.h"
 #include "../../common/include/analysisObjectStructs.h"
 #include "../../common/include/analysisUtils.h"
@@ -48,13 +48,15 @@ doHadronMatchingComparison_(doHadronMatchingComparison)
     if(corName.length()>0) {
         tempStr = mvaWeightsFolder;
         tempStr.append("/").append(corName).append(".weights.xml");
-        weightsCorrect_ = new MvaReader(tempStr.c_str());
+        weightsCorrect_ = new MvaReaderTopJets("BDT method");
+        weightsCorrect_->book(tempStr);
     }
     // Setting up the swapped training
     if(swpName.length()>0) {
         tempStr = mvaWeightsFolder;
         tempStr.append("/").append(swpName).append(".weights.xml");
-        weightsSwapped_ = new MvaReader(tempStr.c_str());
+        weightsSwapped_ = new MvaReaderTopJets("BDT method");
+        weightsSwapped_->book(tempStr);
     }
     
 

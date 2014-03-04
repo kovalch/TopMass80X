@@ -19,7 +19,6 @@
 #include "JetCategories.h"
 #include "MvaTreeHandlerBase.h"
 #include "MvaTreeHandlerTopJets.h"
-#include "MvaReader.h"
 
 #include "AnalyzerBaseClass.h"
 #include "AnalyzerMvaTopJets.h"

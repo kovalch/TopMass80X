@@ -7,7 +7,7 @@
 
 #include "TString.h"
 
-#include "MvaFactory.h"
+#include "MvaFactoryTopJets.h"
 #include "MvaTreeHandlerTopJets.h"
 #include "MvaTreePlotterBase.h"
 #include "MvaWeights2d.h"
@@ -137,8 +137,8 @@ void trainMvaTopJets(const std::vector<Channel::Channel>& v_channel,
                 std::vector<mvaSetup::MvaSet> cleanSets = mvaSetup::cleanForChannel(mvaSets, channel);
                 
                 // Run the MVA training for correct and swapped combinations
-                MvaFactory mvaFactory(outputFolder, MvaWeightFileDIR,
-                                      cleanSets, fileName);
+                const MvaFactoryTopJets mvaFactory(outputFolder, MvaWeightFileDIR, fileName);
+                mvaFactory.train(cleanSets);
                 
                 // Build 2D histograms of MVA weights for correct and swapped combinations
                 MvaTreeHandlerTopJets mvaTreeHandler("", {});
