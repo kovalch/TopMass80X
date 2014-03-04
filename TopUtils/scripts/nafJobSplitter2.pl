@@ -177,7 +177,7 @@ END_USAGE_INFO
 }
 
 # pass dataset name as parameter
-# returns import command for python file (full line, but excluding \n)
+# returns import command for python file. Recreates lumi list
 sub getDatasetPythonFile {
     my $dataset = shift;
     (my $localFileName = $dataset) =~ s!\W!_!g;
@@ -202,7 +202,7 @@ sub getDatasetPythonFile {
     }
     #make sure the file can be found even without running scram (dirty hack)
     $ENV{PYTHONPATH} = "$datasetPythonPath:$ENV{PYTHONPATH}";
-    return qq{process.load("$localFileName")};
+    return qq{\nlumisToProcess=process.source.lumisToProcess\nprocess.load("$localFileName")\nprocess.source.lumisToProcess=lumisToProcess};
 #     return qq{process.load("TopAnalysis.Configuration.$localFileName")};
 }
 
