@@ -123,10 +123,10 @@ void TopGenObjects::clear()
     genBHadIndex_ = 0;
     genBHadFlavour_ = 0;
     genBHadJetIndex_ = 0;
+    //genBHadLeptonIndex_ = 0;
+    //genBHadLeptonHadronIndex_ = 0;
+    //genBHadLeptonViaTau_ = 0;
     genBHadFromTopWeakDecay_ = 0;
-    genBHadLeptonHadIndex_=0;
-    genBHadLeptonsPdg_ = 0;
-    genBHadLeptons_ = 0;
 }
 
 

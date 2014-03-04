@@ -121,10 +121,10 @@ struct TopGenObjects{
     std::vector<int>* genBHadIndex_;
     std::vector<int>* genBHadFlavour_;
     std::vector<int>* genBHadJetIndex_;
+    //std::vector<int>* genBHadLeptonIndex_;
+    //std::vector<int>* genBHadLeptonHadronIndex_;
+    //std::vector<int>* genBHadLeptonViaTau_;
     std::vector<int>* genBHadFromTopWeakDecay_;
-    std::vector<int>* genBHadLeptonHadIndex_;
-    std::vector<int>* genBHadLeptonsPdg_;
-    std::vector<LV>* genBHadLeptons_;
 };
 
 
