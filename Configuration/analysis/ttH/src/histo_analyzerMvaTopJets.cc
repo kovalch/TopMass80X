@@ -1010,8 +1010,9 @@ void histoAnalyzerMvaTopJets(const std::vector<Channel::Channel>& v_channel,
 //            "ttbarH125inclusiveBbbar",
 //            "ttbarH125inclusiveOther",
             "ttbarH125tobbbar",
-//            "ttbarsignalPlusBbbar",
-//            "ttbarsignalPlusOther"
+            "ttbarsignalPlusBbbar",
+            "ttbarsignalPlusB",
+            "ttbarsignalPlusOther"
         };
     
     // Loop over all systematics and channels
