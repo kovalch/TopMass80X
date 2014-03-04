@@ -70,10 +70,6 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
     const std::vector<int>& jetTrackIndex = *recoObjects.jetTrackIndex_;
     const std::vector<LV>& jetTrack = *recoObjects.jetTrack_;
     const std::vector<int>& trackPdgId = *recoObjects.trackPdgId_;
-    //generator level lepton-track information
-    const std::vector<int>& genBHadLeptonHadIndex = *topGenObjects.genBHadLeptonHadIndex_;
-    const std::vector<int>& genBHadLeptonsPdgId = *topGenObjects.genBHadLeptonsPdg_;
-    const std::vector<LV>& genBHadLeptons = *topGenObjects.genBHadLeptons_;
     
   
     // =============================================================Now do calculations and filling of histograms===================================================================
@@ -167,22 +163,7 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
         //================================HERE B-QUARK-B-HADRON THINGS================================
 
         int isMatched = -1;
-        bool isGenLepton = false;
-        bool isGenMuon = false;
         bool isMuon = false;
-        bool isGenElectron = false;
-        bool isElectron = false;
-        bool isGenPMuon = false;
-        bool isGenNMuon = false;
-        bool isPMuon = false;
-        bool isNMuon = false;
-        std::vector<int> genPMuonHad;
-        std::vector<int> genNMuonHad;
-        
-        //vectors for genLepton studies
-        std::vector<double> genLeptonGenMatchedPt;
-        std::vector<int> genLeptonGenMatchedPdgId;
-        std::vector<int> genLeptonBHadIndex;
         
         //matching distance between reco and gen jets
         const float dR_max = 0.5;
@@ -206,34 +187,6 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
             double jetChargeValue=jetChargeRelativePtWeighted.at(jetIdx);
             charge.push_back(jetChargeValue);
             isMatched=1;
-            
-            //for each jet we check if there's a lepton associated to a hadron associated to this jet. 
-            for (size_t i_genLep = 0;i_genLep!=genBHadLeptonHadIndex.size();i_genLep++)
-            {
-                if (isMatched==-1) continue;
-                //if (genBHadLeptonHadIndex.at(i_genLep)==i_had) isGenLepton = true;
-                if (isGenLepton == false) continue;
-                if (genBHadLeptonsPdgId.at(i_genLep)==13||genBHadLeptonsPdgId.at(i_genLep)==-13) isGenMuon = true;
-                if (genBHadLeptonsPdgId.at(i_genLep)==11||genBHadLeptonsPdgId.at(i_genLep)==-11) isGenElectron = true;
-                if (genBHadLeptonsPdgId.at(i_genLep)==13) 
-                {
-                    isGenPMuon = true;
-                    genPMuonHad.push_back(i_had);
-                }
-                if (genBHadLeptonsPdgId.at(i_genLep)==-13) 
-                {
-                    isGenNMuon = true;
-                    genNMuonHad.push_back(i_had);
-                }
-                genLeptonGenMatchedPdgId.push_back(genBHadLeptonsPdgId.at(i_genLep));
-                genLeptonGenMatchedPt.push_back(genBHadLeptons.at(i_genLep).pt());
-                genLeptonBHadIndex.push_back(i_had);
-                if (genBHadLeptonsPdgId.at(i_genLep)==13||genBHadLeptonsPdgId.at(i_genLep)==-13) m_histogram["h_trueBJetGenMuonPt"]->Fill(genBHadLeptons.at(i_genLep).pt());
-                m_histogram["h_trueBJetGenLeptonPt"]->Fill(genBHadLeptons.at(i_genLep).pt());
-                m_histogram["h_trueBJetGenLeptonPdgId"]->Fill(genBHadLeptonsPdgId.at(i_genLep));
-                //std::cout<<"The gen leptons in the jet are = "<<genBHadLeptonsPdgId.at(i_genLep)<<std::endl;
-            }
-            
         }
         
         //we only continue if the jet is a true b-jet
@@ -329,8 +282,6 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
                 m_histogram["h_trueBJetToLeptonTrackPtRatio"]->Fill(trueBJetTrackPt/trueBJetPt, weight);
                 isMuon = true;
             }
-           
-           if(lep==2) isElectron = true;
 
             // We set some boolean to later on identify if the b-quark has the same charge as the lepton with highest energy in the jet.
             if (trueBJetLeptonTracksCharge.size()>0 && trueBJetLeptonTracksCharge.at(0) <0 ) isB=true;
@@ -393,18 +344,6 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
 
         } //end of track loop
 
-        //if there's one lepton in our reco and gen events we fill a one. If there's none a zero. If gen yes, reco no, a 2. If gen no reco yes a 3
-        
-        if(isGenMuon==false&&isMuon==false) m_histogram["h_trueBJetAgreementMuons"]->Fill(0);
-        if(isGenMuon&&isMuon) m_histogram["h_trueBJetAgreementMuons"]->Fill(1);
-        if(isGenMuon&&isMuon==false) m_histogram["h_trueBJetAgreementMuons"]->Fill(2);
-        if(isGenMuon==false&&isMuon) m_histogram["h_trueBJetAgreementMuons"]->Fill(3);
-        
-        if(isGenElectron==false&&isElectron==false) m_histogram["h_trueBJetAgreementElectrons"]->Fill(0);
-        if(isGenElectron&&isElectron) m_histogram["h_trueBJetAgreementElectrons"]->Fill(1);
-        if(isGenElectron&&isElectron==false) m_histogram["h_trueBJetAgreementElectrons"]->Fill(2);
-        if(isGenElectron==false&&isElectron) m_histogram["h_trueBJetAgreementElectrons"]->Fill(3);
-    
         //Which particle leads our tracks?
         if(leptonTrackPdgId.size()>=1) m_histogram["h_trueBJetLeptonLeadingTrackPdgId"] -> Fill(leptonTrackPdgId.at(0));
         if(leptonTrackPdgId.size()>=2) m_histogram["h_trueBJetLeptonSubLeadingTrackPdgId"] -> Fill(leptonTrackPdgId.at(1));
@@ -458,18 +397,6 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
         m_histogram["h_trueBJetScalarCharge10"]->Fill(trueBJetScalarCharge10, weight);
         ((TH2D*)m_histogram["h_trueBJetScalarChargeVsMultip"])->Fill(trueBJetTrackMultiplicity,trueBJetScalarCharge10,weight);
         
-        //check if charge of mc and data coincide
-       // if (isMuon) std::cout<<"The jet charge is = "<<trueBJetScalarCharge10<<std::endl;
-        
-        if (isMuon&&trueBJetScalarCharge10>0) isPMuon = true;
-        
-        if (isMuon&&trueBJetScalarCharge10<0) isNMuon = true;
-            
-            
-        if(isGenPMuon&&isPMuon) m_histogram["h_trueBJetAgreementChargeMuons"]->Fill(0);
-        if(isGenPMuon&&isNMuon) m_histogram["h_trueBJetAgreementChargeMuons"]->Fill(1);
-        if(isGenNMuon&&isPMuon) m_histogram["h_trueBJetAgreementChargeMuons"]->Fill(2);
-        if(isGenNMuon&&isNMuon) m_histogram["h_trueBJetAgreementChargeMuons"]->Fill(3);
         
         //check if lepton track and charge of the jet coincide
         if (trueBJetLeptonTracksPt.size()>0) 
@@ -1197,25 +1124,6 @@ void AnalyzerJetCharge::bookHistos(const TString& step, std::map<TString, TH1*>&
     name = "h_trueBJetToLeadingLeptonTrackPtRatio";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Ratio between pt of jet and pt of track for muon leading tracks;ptTrack/ptJet ;Number of tracks",40,0.,1.));
     
-    //TRUE LEPTONS
-    
-    name = "h_trueBJetGenLeptonPt";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pt of the gen-leptons associated to a b-hadron;Pt;# of leptons",40,0.,400.));
-    
-    name = "h_trueBJetGenMuonPt";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pt of the gen-muons associated to a b-hadron;Pt;# of leptons",40,0.,400.));
-    
-    name = "h_trueBJetGenLeptonPdgId";
-    m_histogram[name] = store(new TH1I(prefix_+name+step,"PdgId of the gen-leptons associated to a b-hadron;PdgId;# of leptons",36,-18,18));
-    
-    name = "h_trueBJetAgreementMuons";
-    m_histogram[name] = store(new TH1I(prefix_+name+step,"Agreement between reco and gen muons detection;Agreement (ng+nr=0, g+r=1, g+nr=2, ng+r=3;#jets",4,0,4));
-    
-    name = "h_trueBJetAgreementElectrons";
-    m_histogram[name] = store(new TH1I(prefix_+name+step,"Agreement between reco and gen electron detection;Agreement (ng+nr=0, g+r=1, g+nr=2, ng+r=3;#jets",4,0,4));
-    
-    name = "h_trueBJetAgreementChargeMuons";
-    m_histogram[name] = store(new TH1I(prefix_+name+step,"Agreement between reco and gen muons charge;Charge (pg=pr->0, pg+nr=1, ng+pr=2, ng+nr=3;#jets",4,0,4));
     
     //Test PLOTS==================================================================================================================
     
