@@ -512,9 +512,9 @@ private:
     TBranch* b_genBHadIndex;
     TBranch* b_genBHadFlavour;
     TBranch* b_genBHadJetIndex;
-    //TBranch* b_genBHadLeptonIndex;
-    //TBranch* b_genBHadLeptonHadronIndex;
-    //TBranch* b_genBHadLeptonViaTau;
+    TBranch* b_genBHadLeptonIndex;
+    TBranch* b_genBHadLeptonHadronIndex;
+    TBranch* b_genBHadLeptonViaTau;
     TBranch* b_genBHadFromTopWeakDecay;
     
     

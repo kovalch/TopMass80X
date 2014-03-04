@@ -483,9 +483,9 @@ void AnalysisBase::clearBranches()
     b_genBHadIndex = 0;
     b_genBHadFlavour = 0;
     b_genBHadJetIndex = 0;
-    //b_genBHadLeptonIndex = 0;
-    //b_genBHadLeptonHadronIndex = 0;
-    //b_genBHadLeptonViaTau = 0;
+    b_genBHadLeptonIndex = 0;
+    b_genBHadLeptonHadronIndex = 0;
+    b_genBHadLeptonViaTau = 0;
     b_genBHadFromTopWeakDecay = 0;
 
 
