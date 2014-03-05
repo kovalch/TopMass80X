@@ -135,7 +135,7 @@ void analyzeRegularizationTest(TString test="mix", double luminosity = 19712.,
   TString lumi = getTStringFromInt(roundToInt((luminosity), false));  
   // b) options to be configured only once
   // get the .root files from the following folder:
-  TString inputFolder = "/afs/naf.desy.de/group/cms/scratch/tophh/"+inputFolderName;
+  TString inputFolder = groupSpace+inputFolderName;
   // see if its 2010 or 2011 data from luminosity
   TString dataSample="2012";
   // for closure test if desired
