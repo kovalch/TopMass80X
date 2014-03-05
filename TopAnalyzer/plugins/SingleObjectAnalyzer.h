@@ -18,6 +18,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+
 /**
    \class   SingleObjectAnalyzer SingleObjectAnalyzer.h "TopAnalysis/TopAnalyzer/plugins/SingleObjectAnalyzer.h"
 
@@ -118,7 +120,7 @@ void SingleObjectAnalyzer<Collection, Analyze>::analyze(const edm::Event& event,
     weight = *wgt;
   }
   // more weights to be stored in tree
-// loop over all eventWeightTags and multiply weights
+  // loop over all eventWeightTags and multiply weights
   std::vector<double> weights;
   for(unsigned iWeight=0; iWeight < wgts_.size(); iWeight++){
     if(!wgts_[iWeight].label().empty()) {
@@ -136,12 +138,38 @@ void SingleObjectAnalyzer<Collection, Analyze>::analyze(const edm::Event& event,
       }
   }
 }
+
+  // get general event quantities
   edm::EventAuxiliary aux = event.eventAuxiliary();
   double runNumber             = aux.run();
   double luminosityBlockNumber = aux.luminosityBlock();
   double eventNumber           = aux.event();
+
+  // get PDF related quantities
+  edm::Handle<GenEventInfoProduct> genInfo; 
+  event.getByLabel("generator", genInfo);    
+  float Q   = 0.;
+  int id1   = -42;
+  int id2   = -42;
+  double x1 = 0.;
+  double x2 = 0.;
+  if(genInfo.isValid()){
+    Q     = genInfo->pdf()->scalePDF;
+    id1   = genInfo->pdf()->id.first;
+    id2   = genInfo->pdf()->id.second;
+    x1    = genInfo->pdf()->x.first;
+    x2    = genInfo->pdf()->x.second;
+  }
   // hand over to the common analyzer function
-  analyze_->fill2(*src, runNumber, luminosityBlockNumber, eventNumber, weight, weights);
+  //std::cout << " runNumber: " << runNumber << std::endl;
+  //std::cout << " luminosityBlockNumber: " << luminosityBlockNumber << std::endl;
+  //std::cout << " eventNumber: " << eventNumber << std::endl;
+  //std::cout << " Q: " << Q << std::endl;
+  //std::cout << " id1: " << id1 << std::endl;
+  //std::cout << " id2: " << id2 << std::endl;
+  //std::cout << " x1: " << x1 << std::endl;
+  //std::cout << " x2: " << x2 << std::endl;
+  analyze_->fill2(*src, runNumber, luminosityBlockNumber, eventNumber, x1, x2, Q, id1, id2, weight, weights);
 }
 
 /// everything which has to be done before the event loop  

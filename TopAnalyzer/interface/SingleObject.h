@@ -48,6 +48,9 @@ class SingleObject{
   std::map<std::string, TH1*> hists_;
   std::map<std::string, TH2*> hists2D_;
   std::map<std::string, float> treeVars_;
+  std::map<std::string, unsigned int> treeVarsUI_;
+  std::map<std::string, int> treeVarsI_;
+  std::map<std::string, double> treeVarsD_;
   TTree * tree;
   /// weights
   std::vector<edm::InputTag> wgts_;
@@ -69,8 +72,11 @@ class SingleObject{
   void bookVariable(edm::Service<TFileService>& fs, const char * variable, unsigned int binsX, float lowX, float upX, bool useTree);
   void bookVariable(edm::Service<TFileService>& fs, const char * variable);
   /// fill values into map for histograms or tree
-  void fillValue(std::string variable, float value1, float value2, const double& weight);
-  void fillValue(std::string variable, float value1, const double& weight);
+  void fillValue(std::string variable, float  value1, float value2, const double& weight);
+  void fillValue(std::string variable, float  value1, const double& weight);
+  void fillValue(std::string variable, int    value1, const double& weight);
+  void fillValue(std::string variable, unsigned int    value1, const double& weight);
+  void fillValue(std::string variable, double value1, const double& weight);
   void initializeTrees(float value, const double& weight);
 
   /**
@@ -83,7 +89,7 @@ class SingleObject{
   virtual void book(edm::Service<TFileService>& fileService) = 0;
   /// histogram filling for fwlite and for fwfull
   virtual void fill(const Collection& inputCollection, const double& weight=1.) = 0;
-  void fill2(const Collection& inputCollection, const double& runNumber, const double& luminosityBlockNumber, const double& eventNumber, const double& weight=1., std::vector<double> weights=0) ;
+  void fill2(const Collection& inputCollection, const double& runNumber, const double& luminosityBlockNumber, const double& eventNumber, const double& x1=0, const double& x2=0, const float& Q=0, const int& id1=-42, const int& id2=-42, const double& weight=1., std::vector<double> weights=0) ;
   /// books the weight tags
   void book2(std::vector<edm::InputTag> wgts2_) {wgts_ = wgts2_; };
   /// everything which needs to be done after the event loop
@@ -100,11 +106,16 @@ class SingleObject{
 };
 
 template <typename Collection>
-    void SingleObject<Collection>::fill2(const Collection& inputCollection, const double& runNumber, const double& luminosityBlockNumber, const double& eventNumber, const double& weight, std::vector<double> weights)
+    void SingleObject<Collection>::fill2(const Collection& inputCollection, const double& runNumber, const double& luminosityBlockNumber, const double& eventNumber, const double& x1, const double& x2, const float& Q, const int& id1, const int& id2, const double& weight, std::vector<double> weights)
 {
   fillValue("runNumber", runNumber, weight);
   fillValue("luminosityBlockNumber", luminosityBlockNumber, weight);
   fillValue("eventNumber", eventNumber, weight);
+  fillValue("id1", id1, weight);
+  fillValue("id2", id2, weight);
+  fillValue("x1" , x1 , weight);
+  fillValue("x2" , x2 , weight);
+  fillValue("Q"  , Q  , weight);
   // if more than one weight is supposed to be stored
   for(unsigned int iWeight=0; iWeight < wgts_.size(); iWeight++){
     std::string weightName = wgts_[iWeight].label()+wgts_[iWeight].instance();
@@ -142,6 +153,16 @@ template <typename Collection>
       tree->Branch("luminosityBlockNumber", &treeVars_["luminosityBlockNumber"], (std::string("luminosityBlockNumber") + "/F").c_str());
       treeVars_["eventNumber"];
       tree->Branch("eventNumber", &treeVars_["eventNumber"], (std::string("eventNumber") + "/F").c_str());
+      treeVars_  ["Q"   ];
+      tree->Branch("Q"  , &treeVars_ ["Q"    ], (std::string("Q"  ) + "/F").c_str());
+      treeVarsI_ ["id1" ];
+      tree->Branch("id1", &treeVarsI_["id1"  ], (std::string("id1") + "/I").c_str());
+      treeVarsI_ ["id2" ];
+      tree->Branch("id2", &treeVarsI_["id2"  ], (std::string("id2") + "/I").c_str());
+      treeVarsD_ ["x1"  ];
+      tree->Branch("x1" , &treeVarsD_["x1"   ], (std::string("x1" ) + "/D").c_str());
+      treeVarsD_ ["x2"  ];
+      tree->Branch("x2" , &treeVarsD_["x2"   ], (std::string("x2" ) + "/D").c_str());
     }
     treeVars_[variable];
     tree->Branch(variable, &treeVars_[variable], (std::string(variable) + "/F").c_str());
@@ -174,9 +195,61 @@ template <typename Collection>
 }
 
 template <typename Collection>
+  void SingleObject<Collection>::fillValue(std::string variable, int value, const double& weight=1.)
+{
+  if(treeVarsI_.find(variable) != treeVarsI_.end()){
+    treeVarsI_.find(variable)->second = value;
+    treeVars_.find("weight")->second = weight;
+  }
+  else if(treeVars_.find(variable) != treeVars_.end()){
+    treeVars_.find(variable)->second = value;
+    treeVars_.find("weight")->second = weight;
+  }
+  if(hists_.find(variable) != hists_.end()){
+    hists_.find(variable)->second->Fill(value, weight);
+  }
+}
+
+template <typename Collection>
+  void SingleObject<Collection>::fillValue(std::string variable, unsigned int value, const double& weight=1.)
+{
+  if(treeVarsUI_.find(variable) != treeVarsUI_.end()){
+    treeVarsUI_.find(variable)->second = value;
+    treeVars_.find("weight")->second = weight;
+  }
+  else if(treeVars_.find(variable) != treeVars_.end()){
+    treeVars_.find(variable)->second = value;
+    treeVars_.find("weight")->second = weight;
+  }
+  if(hists_.find(variable) != hists_.end()){
+    hists_.find(variable)->second->Fill(value, weight);
+  }
+}
+
+template <typename Collection>
   void SingleObject<Collection>::fillValue(std::string variable, float value, const double& weight=1.)
 {
   if(treeVars_.find(variable) != treeVars_.end()){
+    treeVars_.find(variable)->second = value;
+    treeVars_.find("weight")->second = weight;
+  }
+  else if(treeVars_.find(variable) != treeVars_.end()){
+    treeVars_.find(variable)->second = value;
+    treeVars_.find("weight")->second = weight;
+  }
+  if(hists_.find(variable) != hists_.end()){
+    hists_.find(variable)->second->Fill(value, weight);
+  }
+}
+
+template <typename Collection>
+  void SingleObject<Collection>::fillValue(std::string variable, double value, const double& weight=1.)
+{
+  if(treeVarsD_.find(variable) != treeVarsD_.end()){
+    treeVarsD_.find(variable)->second = value;
+    treeVars_.find("weight")->second = weight;
+  }
+  else if(treeVars_.find(variable) != treeVars_.end()){
     treeVars_.find(variable)->second = value;
     treeVars_.find("weight")->second = weight;
   }
@@ -208,9 +281,18 @@ void SingleObject<Collection>::initializeTrees(float value, const double& weight
     for(unsigned iWeight=0; iWeight < wgts_.size(); iWeight++) {
       if(treeEntry->first==(wgts_[iWeight].label()+wgts_[iWeight].instance())) return;
     }
-    if(treeEntry->first!="weight"&&treeEntry->first!="runNumber"&&treeEntry->first!="eventNumber"&&treeEntry->first!="luminosityBlockNumber") treeEntry->second = value;
+    if(treeEntry->first!="weight"&&treeEntry->first!="runNumber"&&treeEntry->first!="eventNumber"&&treeEntry->first!="luminosityBlockNumber"&&treeEntry->first!="x1"&&treeEntry->first!="x2"&&treeEntry->first!="Q"&&treeEntry->first!="id1"&&treeEntry->first!="id2") treeEntry->second = value;
     else if (treeEntry->first=="weight") treeEntry->second = weight;
   }
+  //for(std::map<std::string, int>::iterator treeEntry=treeVarsI_.begin(); treeEntry!=treeVarsI_.end(); ++treeEntry){
+  //  if(treeEntry->first!="weight"&&treeEntry->first!="runNumber"&&treeEntry->first!="eventNumber"&&treeEntry->first!="luminosityBlockNumber"&&treeEntry->first!="x1"&&treeEntry->first!="x2"&&treeEntry->first!="Q"&&treeEntry->first!="id1"&&treeEntry->first!="id2") treeEntry->second = -42;
+  //}
+  //for(std::map<std::string, unsigned int>::iterator treeEntry=treeVarsUI_.begin(); treeEntry!=treeVarsUI_.end(); ++treeEntry){
+  //  if(treeEntry->first!="weight"&&treeEntry->first!="runNumber"&&treeEntry->first!="eventNumber"&&treeEntry->first!="luminosityBlockNumber"&&treeEntry->first!="x1"&&treeEntry->first!="x2"&&treeEntry->first!="Q"&&treeEntry->first!="id1"&&treeEntry->first!="id2") treeEntry->second =  42;
+  //}
+  //for(std::map<std::string, double>::iterator treeEntry=treeVarsD_.begin(); treeEntry!=treeVarsD_.end(); ++treeEntry){
+  //  if(treeEntry->first!="weight"&&treeEntry->first!="runNumber"&&treeEntry->first!="eventNumber"&&treeEntry->first!="luminosityBlockNumber"&&treeEntry->first!="x1"&&treeEntry->first!="x2"&&treeEntry->first!="Q"&&treeEntry->first!="id1"&&treeEntry->first!="id2") treeEntry->second = -42.0;
+  //}
 }
 
 #endif

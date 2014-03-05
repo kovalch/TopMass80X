@@ -69,6 +69,9 @@ class SemiLepLeptonAnalyzer : public edm::EDAnalyzer {
   bool useTree_;
   float weight;
   unsigned int runNumber, luminosityBlockNumber, eventNumber;
+  float Q;
+  int id1, id2;
+  double x1, x2;
   float valueLepPtRec;
   float valueLepPtGen;
   float valueLepEtaRec;
