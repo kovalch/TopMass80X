@@ -330,7 +330,7 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
         }
         
         // If no systematic is specified, read it from the file and use this (used for systematic variations of signal samples)
-        const TString selectedSystematic = systematic==Systematic::undefined ? systematics_from_file->GetString() : Systematic::convertSystematic(systematic);
+        const Systematic::Systematic selectedSystematic = systematic==Systematic::undefined ? Systematic::convertSystematic(static_cast<std::string>(systematics_from_file->GetString())) : systematic;
         
         // Set up btag efficiency scale factors
         // This has to be done only after potentially setting systematic from file, since it is varied with signal systematics
