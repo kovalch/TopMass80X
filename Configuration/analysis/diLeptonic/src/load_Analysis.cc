@@ -83,7 +83,9 @@ void load_Analysis(TString validFilenamePattern,
                    int specific_PDF,
                    int dy,
                    TString closure,
-                   double slope
+                   double slope,
+                   const Long64_t& maxEvents,
+                   const Long64_t& skipEvents
                   )
 {   
     // Set up the channels to run over
@@ -245,14 +247,14 @@ void load_Analysis(TString validFilenamePattern,
         }
         
         // If no systematic is specified, read it from the file and use this (used for systematic variations of signal samples)
-        const TString selectedSystematic = systematic=="" ? systematics_from_file->GetString() : systematic;
+        const TString selectedSystematic = systematic=="" ? systematics_from_file->GetString() : (systematic != "PDF" ? systematic : "Nominal");
         
         // Set up btag efficiency scale factors
         // This has to be done only after potentially setting systematic from file, since it is varied with signal systematics
         BtagScaleFactors btagScaleFactors(BtagEfficiencyInputDIR,
                                           BtagEfficiencyOutputDIR,
                                           channels,
-                                          systematic);
+                                          selectedSystematic);
         
         // Configure selector
         selector->SetTopSignal(isTopSignal);
@@ -293,7 +295,7 @@ void load_Analysis(TString validFilenamePattern,
             // Run the selector
             selector->SetRunViaTau(0);
             selector->SetOutputfilename(outputfilename);
-            chain.Process(selector);
+            chain.Process(selector, "", maxEvents, skipEvents);
             
             // For running on PDF systematics
             if(systematic == "PDF"){
@@ -308,7 +310,7 @@ void load_Analysis(TString validFilenamePattern,
                     //weightedEvents->SetBinContent(1, pdfWeights->GetBinContent(pdf_no+1));
                     selector->SetWeightedEvents(weightedEvents);
                     selector->SetPDF(pdf_no);
-                    chain.Process(selector);
+                    chain.Process(selector, "", maxEvents, skipEvents);
                 }
                 continue;
             }
@@ -318,7 +320,7 @@ void load_Analysis(TString validFilenamePattern,
                 selector->SetRunViaTau(1);
                 outputfilename.ReplaceAll("signalplustau", "bgviatau");
                 selector->SetOutputfilename(outputfilename);
-                chain.Process(selector);
+                chain.Process(selector, "", maxEvents, skipEvents);
             }
         }
         file.Close();
@@ -337,7 +339,10 @@ int main(int argc, char** argv) {
             [](const std::string &c){return c == "pttop" || c == "ytop" || c == "nominal";});
     CLParameter<double> opt_closureSlope("slope", "Slope for closure test, use -0.01 to 0.01 for pt and -0.4 to 0.4 for ytop", false, 1, 1,
             [](double s){return std::abs(s) < 1;});
-
+    CLParameter<Long64_t> opt_maxEvents("maxEvents", "Maximum number of events to process", false, 1, 1,
+            [](const Long64_t mE){return mE > 0;});
+    CLParameter<Long64_t> opt_skipEvents("skipEvents", "Number of events to be skipped", false, 1, 1,
+            [](const Long64_t sE){return sE > 0;});
     CLAnalyser::interpretGlobal(argc, argv);
 
     TString validFilenamePattern = opt_f.isSet() ? opt_f[0] : "";
@@ -364,8 +369,15 @@ int main(int argc, char** argv) {
         }
         syst = "PDF";
     }
-    
+
+    // Set up maximum number of events to process
+    const Long64_t bigNumber(TChain::kBigNumber);
+    const Long64_t maxEvents = opt_maxEvents.isSet() ? opt_maxEvents[0] : bigNumber;
+
+    // Set up number of events to be skipped
+    const Long64_t skipEvents = opt_skipEvents.isSet() ? opt_skipEvents[0] : 0;
+
 //     TProof* p = TProof::Open(""); // not before ROOT 5.34
-    load_Analysis(validFilenamePattern, channel, syst, pdf_no, dy, closure, slope);
+    load_Analysis(validFilenamePattern, channel, syst, pdf_no, dy, closure, slope, maxEvents, skipEvents);
 //     delete p;
 }

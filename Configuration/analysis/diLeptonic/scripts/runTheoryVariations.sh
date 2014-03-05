@@ -16,14 +16,14 @@ source $(dirname `readlink -f $0`)/parallelTools.sh
 # done
 
 for chann in ee emu mumu; do
-    $LA -f massup -s MASS_UP -c ${chann} &
-    $LA -f massdown -s MASS_DOWN -c ${chann} &
-    $LA -f matchingup -s MATCH_UP -c ${chann} &
-    $LA -f matchingdown -s MATCH_DOWN -c ${chann} &
-    $LA -f scaleup -s SCALE_UP -c ${chann} &
-    $LA -f scaledown -s SCALE_DOWN -c ${chann} &
-    $LA -f powheg.root -s POWHEG -c ${chann} &
-    $LA -f mcatnlo -s MCATNLO -c ${chann} &
+    $LA -f massup -c ${chann} &
+    $LA -f massdown -c ${chann} &
+    $LA -f matchingup -c ${chann} &
+    $LA -f matchingdown -c ${chann} &
+    $LA -f scaleup -c ${chann} &
+    $LA -f scaledown -c ${chann} &
+    $LA -f powheg.root -c ${chann} &
+    $LA -f mcatnlo -c ${chann} &
     w
 done
 

@@ -337,7 +337,7 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
         BtagScaleFactors btagScaleFactors(BtagEfficiencyInputDIR,
                                           BtagEfficiencyOutputDIR,
                                           Channel::convertChannels(channels),
-                                          Systematic::convertSystematic(systematic));
+                                          Systematic::convertSystematic(selectedSystematic));
         
         // Configure selector
         selector->SetTopSignal(isTopSignal);
