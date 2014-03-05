@@ -3,13 +3,13 @@
 #include "../../unfolding/TopSVDFunctions.C" 
 
 void analyzeHypothesisKinFit(double luminosity = 19712.,
-			     bool save = true, int systematicVariation=sysNo, unsigned int verbose=0,
+			     bool save = true, int systematicVariation=sysPUUp, unsigned int verbose=0,
 			     TString inputFolderName=AnalysisFolder,
 			     //TString dataFile= groupSpace+AnalysisFolder+"/muonDiffXSecData2012ABCDAll.root",
 			     //TString dataFile= groupSpace+AnalysisFolder+"/elecDiffXSecData2012ABCDAll.root",
 			     TString dataFile= groupSpace+AnalysisFolder+"/elecDiffXSecData2012ABCDAll.root:"+groupSpace+AnalysisFolder+"/muonDiffXSecData2012ABCDAll.root",
 			     std::string decayChannel = "combined", bool SVDunfold=true, bool extrapolate=true, bool hadron=false,
-			     bool addCrossCheckVariables=false, bool redetermineopttau =false, TString closureTestSpecifier="", TString addSel="ProbSel")
+			     bool addCrossCheckVariables=false, bool redetermineopttau =true, TString closureTestSpecifier="", TString addSel="ProbSel")
 {
   // ============================
   //  Set ROOT Style
@@ -209,6 +209,28 @@ void analyzeHypothesisKinFit(double luminosity = 19712.,
   //for(int sys=sysPDFUp     ; sys<=sysPDFDown    ; ++sys) ignoreSys_.push_back(sys);
   // FIXME: exclude all
   //for(int sys=3     ; sys<=47    ; ++sys) ignoreSys_.push_back(sys);
+  // exclude the last TOPMASS uncertainty for MadSpin as only 3 masspoints are available
+  if(MadSpin){
+    ignoreSys_.push_back(sysTopMassUp4  );
+    ignoreSys_.push_back(sysTopMassDown4);  
+    // FIXME: use if Recent*/Prob/*MadSpin*.root files are missing
+    //ignoreSys_.push_back(sysPUUp);
+    //ignoreSys_.push_back(sysPUDown);
+    //ignoreSys_.push_back(sysLepEffSFNormUp);
+    //ignoreSys_.push_back(sysLepEffSFNormDown);
+    //ignoreSys_.push_back(sysLepEffSFShapeUpEta);
+    //ignoreSys_.push_back(sysLepEffSFShapeDownEta);
+    //ignoreSys_.push_back(sysLepEffSFShapeUpPt);
+    //ignoreSys_.push_back(sysLepEffSFShapeDownPt);
+    //ignoreSys_.push_back(sysBtagSFUp);
+    //ignoreSys_.push_back(sysBtagSFDown);
+    //ignoreSys_.push_back(sysBtagSFShapeUpPt65);
+    //ignoreSys_.push_back(sysBtagSFShapeDownPt65);
+    //ignoreSys_.push_back(sysBtagSFShapeUpEta0p7);
+    //ignoreSys_.push_back(sysBtagSFShapeDownEta0p7);
+    //ignoreSys_.push_back(sysMisTagSFUp);
+    //ignoreSys_.push_back(sysMisTagSFDown);
+  }
   // use std variable for loading plots in case of listed systematics
   for(unsigned int i=0; i<ignoreSys_.size(); ++i){
     if(systematicVariation==ignoreSys_[i]) systematicVariationMod=sysNo;
