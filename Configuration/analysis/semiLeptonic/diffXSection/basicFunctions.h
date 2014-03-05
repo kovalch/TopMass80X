@@ -48,10 +48,11 @@ namespace semileptonic {
 #endif
   
   // group space folder with all rootfiles and other analysis relevant stuff
-  TString groupSpace="/afs/naf.desy.de/group/cms/scratch/tophh/";
+  TString groupSpace="/nfs/dust/cms/group/tophh/";
+  //TString groupSpace="/afs/naf.desy.de/group/cms/scratch/tophh/";
   TString AnalysisFolder="RecentAnalysisRun8TeV_doubleKinFit"; // used mostly as default argument
   // large madspin or smaller madgraph samples?
-  bool MadSpin=false;
+  bool MadSpin=true;
   // adapt several things like removing official labels for my PHD
   bool PHD=false;
   // use global switch to rm/add Preliminary to plots 
@@ -1676,7 +1677,7 @@ namespace semileptonic {
 
     // loop plots
     for(unsigned int plot=0; plot<plotList_.size(); ++plot){
-      TString testPlotNameForTrackingDownErrors="NotUsedAtTheMoment";
+      TString testPlotNameForTrackingDownErrors="NotUsedAtTheMoment";//"analyzeTopRecoKinematicsKinFitProbSel/topPt";//"NotUsedAtTheMoment";
       bool hugo=plotList_[plot].Contains(testPlotNameForTrackingDownErrors) ? true : false;
       // check if plot exists in any sample
       bool existsInAnySample=false;
@@ -3753,7 +3754,7 @@ namespace semileptonic {
 				  int& Nplots, unsigned int& N1Dplots,
 				  TString& inputFolder, TString& dataFileMu, TString& dataFileEl,
 				  std::vector<TString> vecRedundantPartOfNameInData,
-				  double& luminosityMu, double& luminosityEl, TString type ="model"
+				  double& luminosityMu, double& luminosityEl, TString type ="model", TString addSel=""
 				  )
   {
     // this function generates set of errorbands ("histoErrorBand_") for all samples 
@@ -3761,6 +3762,7 @@ namespace semileptonic {
     // taking into account ttbar modeling uncertainties specified with "type"
     // type=="model" -> Q2 & matching scale
     // type=="JE" -> JES & JER    
+    
 
     // modified quantities: histoErrorBand_
     // used functions:      getStdTopAnalysisFiles
@@ -3785,6 +3787,7 @@ namespace semileptonic {
     int sysListJE   [ ] = { sysJESUp, sysJESDown, sysJERUp, sysJERDown}; // JE related uncertainties
     int sysListModel[ ] = { sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysTopMassUp, sysTopMassDown, sysHadUp, sysHadDown}; // ttbar modeling
     int sysListMain [ ] = { sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysHadUp, sysHadDown, sysJESUp, sysJESDown, sysJERUp, sysJERDown, sysBtagSFUp, sysBtagSFDown, sysBtagSFShapeUpPt65, sysBtagSFShapeDownPt65, sysBtagSFShapeUpEta0p7, sysBtagSFShapeDownEta0p7 }; // ttbar modeling
+    //int sysListPaper[ ] = {sysBtagSFUp, sysBtagSFDown, sysBtagSFShapeDownPt65, sysBtagSFShapeUpEta0p7};
     int sysListPaper[ ] = { sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysHadUp, sysHadDown, sysTopMassUp, sysTopMassDown, sysPDFUp, sysPDFDown}; // ttbar main modeling unc.
 
     int sysListAll  [ ] = { sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysTopMassUp, sysTopMassDown, sysJESUp, sysJESDown ,sysJERUp, sysJERDown, sysPUUp, sysPUDown, sysLepEffSFNormUp, sysLepEffSFNormDown, sysLepEffSFShapeUpEta, sysLepEffSFShapeDownEta, sysLepEffSFShapeUpPt, sysLepEffSFShapeDownPt, sysBtagSFUp, sysBtagSFDown, sysBtagSFShapeUpPt65, sysBtagSFShapeDownPt65, sysBtagSFShapeUpEta0p7, sysBtagSFShapeDownEta0p7, sysMisTagSFUp, sysMisTagSFDown, sysBRUp, sysBRDown, sysPDFUp, sysPDFDown, sysHadUp, sysHadDown};
@@ -3841,26 +3844,88 @@ namespace semileptonic {
     for(unsigned int sys=0; sys<RelevantSys_.size(); ++sys){
       if(verbose==1) std::cout << ".";
       int sysNow=RelevantSys_[sys];
+      TString inputFolder2=inputFolder;
+      TString sysInputFolderExtension="";
+      TString addSelData="";
+      std::vector<TString> plotListElMod_=plotListEl_;
+      std::vector<TString> plotListMuMod_=plotListMu_;
       // special treatment for hadronization uncertainty
       TString ttbarMC="Madgraph";
       int sysNow2=sysNow;
       if(     sysNow==sysHadUp  ){ sysNow2=sysNo; ttbarMC="Mcatnlo";}
       else if(sysNow==sysHadDown){ sysNow2=sysNo; ttbarMC="Powheg" ;}
+      // for systematic variations done in central signal sample (e.g. PU, effSF, btagSF):
+      // use MC rootfiles from subfolder /Prob and ignore addSel plotname extension
+      else if(addSel=="ProbSel"&&((sysNow2>=sysPUUp&&sysNow2<=sysPUDown)||(sysNow2>=sysLepEffSFNormUp&&sysNow2<=sysMisTagSFDown))){
+	inputFolder2+="/Prob";
+	addSelData=addSel;
+	switch (sysNow2)
+	  {
+	  case sysPUUp                     : sysInputFolderExtension="PUup";                  break;
+	  case sysPUDown                   : sysInputFolderExtension="PUdown";                break;
+	  case sysLepEffSFNormUp           : sysInputFolderExtension="EffSFNormUpSys";        break;
+	  case sysLepEffSFNormDown         : sysInputFolderExtension="EffSFNormDownSys";      break;
+	  case sysLepEffSFShapeUpEta       : sysInputFolderExtension="EffSFShapeUpEta";       break;
+	  case sysLepEffSFShapeDownEta     : sysInputFolderExtension="EffSFShapeDownEta";     break;
+	  case sysLepEffSFShapeUpPt        : sysInputFolderExtension="EffSFShapeUpPt";        break;
+	  case sysLepEffSFShapeDownPt      : sysInputFolderExtension="EffSFShapeDownPt";      break;
+	  case sysBtagSFUp                 : sysInputFolderExtension="BtagSFup";              break;
+	  case sysBtagSFDown               : sysInputFolderExtension="BtagSFdown";            break;
+	  case sysBtagSFShapeUpPt65        : sysInputFolderExtension="BTagSFShapeUpPt65";     break;
+	  case sysBtagSFShapeDownPt65      : sysInputFolderExtension="BTagSFShapeDownPt65";   break;
+	  case sysBtagSFShapeUpEta0p7      : sysInputFolderExtension="BTagSFShapeUpEta0p7";   break;
+	  case sysBtagSFShapeDownEta0p7    : sysInputFolderExtension="BTagSFShapeDownEta0p7"; break;
+	  case sysMisTagSFUp               : sysInputFolderExtension="MisTagSFup";            break;
+	  case sysMisTagSFDown             : sysInputFolderExtension="MisTagSFdown";          break;
+	  default: break;
+	  }
+	for(unsigned int i=0; i<plotListMuMod_.size(); ++i){
+	  TString plotNameMu=plotListMu_[i];
+	  if(plotNameMu.Contains(addSel)){
+	    plotNameMu.ReplaceAll(addSel, sysInputFolderExtension);
+	    if(plotNameMu.Contains("composited")) plotNameMu.ReplaceAll(sysInputFolderExtension, "KinFit"+sysInputFolderExtension);
+	    plotListMuMod_[i]=plotNameMu;
+	  }
+	}
+	for(unsigned int i=0; i<plotListElMod_.size(); ++i){ 
+	  TString plotNameEl=plotListEl_[i];
+	  if(plotNameEl.Contains(addSel)){
+	    plotNameEl.ReplaceAll(addSel, sysInputFolderExtension);
+	    if(plotNameEl.Contains("composited")) plotNameEl.ReplaceAll(sysInputFolderExtension, "KinFit"+sysInputFolderExtension);
+	    plotListElMod_[i]=plotNameEl;
+	  }
+	}
+      }
       if(verbose>1) std::cout << "- " << sysNow << ":" << std::endl;
       // c1 get files
       if(verbose>1) std::cout << "c1 get rootfiles" << std::endl;
       std::map<unsigned int, TFile*> filesMu_, filesEl_;
-      filesMu_ = getStdTopAnalysisFiles(inputFolder, sysNow2, dataFileMu, "muon"    , ttbarMC);
-      filesEl_ = getStdTopAnalysisFiles(inputFolder, sysNow2, dataFileEl, "electron", ttbarMC);
+      filesMu_ = getStdTopAnalysisFiles(inputFolder2, sysNow2, dataFileMu, "muon"    , ttbarMC);
+      filesEl_ = getStdTopAnalysisFiles(inputFolder2, sysNow2, dataFileEl, "electron", ttbarMC);
       // c2 get plots 
       if(verbose>1) std::cout << "c2 get all plots" << std::endl;
-      std::map< TString, std::map <unsigned int, TH1F*> > histoEl_ , histoMu_, histoComb_;
+      std::map< TString, std::map <unsigned int, TH1F*> > histoEl_ , histoMu_ , histoComb_;
       std::map< TString, std::map <unsigned int, TH2F*> > histo2El_, histo2Mu_, histo2Comb_;
       // store plots NOT into the files
       gROOT->cd();
       // get plots
-      getAllPlots(filesEl_, plotListEl_, histoEl_, histo2El_, N1Dplots, Nplots, verbose2, "electron", &vecRedundantPartOfNameInData, false);
-      getAllPlots(filesMu_, plotListMu_, histoMu_, histo2Mu_, N1Dplots, Nplots, verbose2, "muon"    , &vecRedundantPartOfNameInData, false);
+      getAllPlots(filesEl_, plotListElMod_, histoEl_, histo2El_, N1Dplots, Nplots, verbose2, "electron", &vecRedundantPartOfNameInData, false, addSelData);
+      getAllPlots(filesMu_, plotListMuMod_, histoMu_, histo2Mu_, N1Dplots, Nplots, verbose2, "muon"    , &vecRedundantPartOfNameInData, false, addSelData);
+      // take care of adapted naming
+      for(unsigned int i=0; i<plotListElMod_.size(); ++i){ 
+	TString plotNameEl=plotListEl_[i];
+	if(plotNameEl.Contains(addSel)&&(plotListElMod_[i]!=plotListEl_[i])){
+	  for(unsigned int sample=kSig; sample<kData; ++sample)
+	    if(histoEl_.count(plotListElMod_[i])>0&&histoEl_[plotListElMod_[i]].count(sample)>0) histoEl_[plotListEl_[i]][sample]=histoEl_[plotListElMod_[i]][sample];
+	}
+      }
+      for(unsigned int i=0; i<plotListMuMod_.size(); ++i){ 
+	TString plotNameMu=plotListMu_[i];
+	if(plotNameMu.Contains(addSel)&&(plotListMuMod_[i]!=plotListMu_[i])){
+	  for(unsigned int sample=kSig; sample<kData; ++sample)
+	    if(histoMu_.count(plotListMuMod_[i])>0&&histoMu_[plotListMuMod_[i]].count(sample)>0) histoMu_[plotListMu_[i]][sample]=histoMu_[plotListMuMod_[i]][sample];
+	}
+      }
       // close files
       closeStdTopAnalysisFiles(filesMu_);
       closeStdTopAnalysisFiles(filesEl_);
@@ -5019,64 +5084,64 @@ namespace semileptonic {
 	// top & ttbar:  visible PS (hadron+parton level) not relevant
 	if(fullPS){
 	  if(closureTestSpecifier==""){
-	    if     (variable.Contains("topPtLead")   ) k = 6.87;
-	    else if(variable.Contains("topPtSubLead")) k = 3.84;
-	    else if(variable.Contains("topPtTtbarSys"))k = 4.86;
-	    else if(variable.Contains("topPt")       ) k = 7.56;
-	    else if(variable.Contains("topY" )       ) k = 9.59;
-	    else if(variable.Contains("ttbarPt")     ) k = 5.85;
-	    else if(variable.Contains("ttbarY")      ) k = 7.68;
-	    else if(variable.Contains("ttbarMass")   ) k = 4.55;
-	    else if(variable.Contains("ttbarDelPhi" )) k = 10.54;
-	    else if(variable.Contains("ttbarPhiStar")) k = 10.42;
+	    if     (variable.Contains("topPtLead")   ) k = MadSpin ?  6.84 : 6.87;
+	    else if(variable.Contains("topPtSubLead")) k = MadSpin ?  4.01 : 3.84;
+	    else if(variable.Contains("topPtTtbarSys"))k = MadSpin ?  4.74 : 4.86;
+	    else if(variable.Contains("topPt")       ) k = MadSpin ?  7.57 : 7.56;
+	    else if(variable.Contains("topY" )       ) k = MadSpin ?  9.66 : 9.59;
+	    else if(variable.Contains("ttbarPt")     ) k = MadSpin ?  5.66 : 5.85;
+	    else if(variable.Contains("ttbarY")      ) k = MadSpin ?  7.79 : 7.68;
+	    else if(variable.Contains("ttbarMass")   ) k = MadSpin ?  4.60 : 4.55;
+	    else if(variable.Contains("ttbarDelPhi" )) k = MadSpin ? 10.70 : 10.54;
+	    else if(variable.Contains("ttbarPhiStar")) k = MadSpin ? 10.62 : 10.42;
 	  }
 	  else if(closureTestSpecifier=="NoDistort"){
-	    if     (variable.Contains("topPtLead")   ) k = 6.15;
-	    else if(variable.Contains("topPtSubLead")) k = 3.35;
-	    else if(variable.Contains("topPtTtbarSys"))k = 4.15;
-	    else if(variable.Contains("topPt")       ) k = 6.68;
-	    else if(variable.Contains("topY" )       ) k = 10.05;
-	    else if(variable.Contains("ttbarPt")     ) k = 5.98;
-	    else if(variable.Contains("ttbarY")      ) k = 7.80;
-	    else if(variable.Contains("ttbarMass")   ) k = 4.80;
-	    else if(variable.Contains("ttbarDelPhi" )) k = 10.88;
-	    else if(variable.Contains("ttbarPhiStar")) k = 10.67;
+	    if     (variable.Contains("topPtLead")   ) k = MadSpin ?  6.10 : 6.15;
+	    else if(variable.Contains("topPtSubLead")) k = MadSpin ?  3.51 : 3.35;
+	    else if(variable.Contains("topPtTtbarSys"))k = MadSpin ?  4.06 : 4.15;
+	    else if(variable.Contains("topPt")       ) k = MadSpin ?  6.70 : 6.68;
+	    else if(variable.Contains("topY" )       ) k = MadSpin ? 10.14 : 10.05;
+	    else if(variable.Contains("ttbarPt")     ) k = MadSpin ?  5.79 : 5.98;
+	    else if(variable.Contains("ttbarY")      ) k = MadSpin ?  7.94 : 7.80;
+	    else if(variable.Contains("ttbarMass")   ) k = MadSpin ?  4.85 : 4.80;
+	    else if(variable.Contains("ttbarDelPhi" )) k = MadSpin ? 11.10 : 10.88;
+	    else if(variable.Contains("ttbarPhiStar")) k = MadSpin ? 10.92 : 10.67;
 	  }
 	  else if(closureTestSpecifier=="topPtUp"){
-	    if     (variable.Contains("topPtLead")   ) k = 8.13;
-	    else if(variable.Contains("topPtSubLead")) k = 5.09;
-	    else if(variable.Contains("topPtTtbarSys"))k = 6.23;
-	    else if(variable.Contains("topPt")       ) k = 9.42;
-	    else if(variable.Contains("topY" )       ) k = 10.20;
-	    else if(variable.Contains("ttbarPt")     ) k = 6.19;
-	    else if(variable.Contains("ttbarY")      ) k = 7.95;
-	    else if(variable.Contains("ttbarMass")   ) k = 6.44;
-	    else if(variable.Contains("ttbarDelPhi" )) k = 10.92;
-	    else if(variable.Contains("ttbarPhiStar")) k = 10.80;
+	    if     (variable.Contains("topPtLead")   ) k = MadSpin ?  8.17 : 8.13;
+	    else if(variable.Contains("topPtSubLead")) k = MadSpin ?  5.33 : 5.09;
+	    else if(variable.Contains("topPtTtbarSys"))k = MadSpin ?  6.09 : 6.23;
+	    else if(variable.Contains("topPt")       ) k = MadSpin ?  9.53 : 9.42;
+	    else if(variable.Contains("topY" )       ) k = MadSpin ? 10.20 : 10.20;
+	    else if(variable.Contains("ttbarPt")     ) k = MadSpin ?  6.02 : 6.19;
+	    else if(variable.Contains("ttbarY")      ) k = MadSpin ?  8.08 : 7.95;
+	    else if(variable.Contains("ttbarMass")   ) k = MadSpin ?  6.51 : 6.44;
+	    else if(variable.Contains("ttbarDelPhi" )) k = MadSpin ? 11.10 : 10.92;
+	    else if(variable.Contains("ttbarPhiStar")) k = MadSpin ? 11.01 : 10.80;
 	  }
 	  else if(closureTestSpecifier=="topPtDown"){
-	    if     (variable.Contains("topPtLead")   ) k = 4.90;
-	    else if(variable.Contains("topPtSubLead")) k = 2.65;
-	    else if(variable.Contains("topPtTtbarSys"))k = 3.28;
-	    else if(variable.Contains("topPt")       ) k = 5.39;
-	    else if(variable.Contains("topY" )       ) k = 9.88;
-	    else if(variable.Contains("ttbarPt")     ) k = 5.78;
-	    else if(variable.Contains("ttbarY")      ) k = 7.66;
-	    else if(variable.Contains("ttbarMass")   ) k = 3.81;
-	    else if(variable.Contains("ttbarDelPhi" )) k = 10.88;
-	    else if(variable.Contains("ttbarPhiStar")) k = 10.47;
+	    if     (variable.Contains("topPtLead")   ) k = MadSpin ?  4.81 : 4.90;
+	    else if(variable.Contains("topPtSubLead")) k = MadSpin ?  2.78 : 2.65;
+	    else if(variable.Contains("topPtTtbarSys"))k = MadSpin ?  3.21 : 3.28;
+	    else if(variable.Contains("topPt")       ) k = MadSpin ?  5.38 : 5.39;
+	    else if(variable.Contains("topY" )       ) k = MadSpin ?  9.98 : 9.88;
+	    else if(variable.Contains("ttbarPt")     ) k = MadSpin ?  5.62 : 5.78;
+	    else if(variable.Contains("ttbarY")      ) k = MadSpin ?  7.80 : 7.66;
+	    else if(variable.Contains("ttbarMass")   ) k = MadSpin ?  3.87 : 3.81;
+	    else if(variable.Contains("ttbarDelPhi" )) k = MadSpin ? 11.12 : 10.88;
+	    else if(variable.Contains("ttbarPhiStar")) k = MadSpin ? 10.81 : 10.47;
 	  }
 	  else if(closureTestSpecifier=="data"){
-	    if     (variable.Contains("topPtLead")   ) k = 7.18;
-	    else if(variable.Contains("topPtSubLead")) k = 4.13;
-	    else if(variable.Contains("topPtTtbarSys"))k = 5.08;
-	    else if(variable.Contains("topPt")       ) k = 7.98;
-	    else if(variable.Contains("topY" )       ) k = 10.12;
-	    else if(variable.Contains("ttbarPt")     ) k = 6.08;
-	    else if(variable.Contains("ttbarY")      ) k = 7.88;
-	    else if(variable.Contains("ttbarMass")   ) k = 5.69;
-	    else if(variable.Contains("ttbarDelPhi" )) k = 10.77;
-	    else if(variable.Contains("ttbarPhiStar")) k = 10.75;
+	    if     (variable.Contains("topPtLead")   ) k = MadSpin ?  7.20 : 7.18;
+	    else if(variable.Contains("topPtSubLead")) k = MadSpin ?  4.33 : 4.13;
+	    else if(variable.Contains("topPtTtbarSys"))k = MadSpin ?  4.96 : 5.08;
+	    else if(variable.Contains("topPt")       ) k = MadSpin ?  8.02 : 7.98;
+	    else if(variable.Contains("topY" )       ) k = MadSpin ? 10.22 : 10.12;
+	    else if(variable.Contains("ttbarPt")     ) k = MadSpin ?  5.91 : 6.08;
+	    else if(variable.Contains("ttbarY")      ) k = MadSpin ?  8.01 : 7.88;
+	    else if(variable.Contains("ttbarMass")   ) k = MadSpin ?  5.72 : 5.69;
+	    else if(variable.Contains("ttbarDelPhi" )) k = MadSpin ? 11.07 : 10.77;
+	    else if(variable.Contains("ttbarPhiStar")) k = MadSpin ? 10.96 : 10.75;
 	  }
 	  else if(closureTestSpecifier=="ttbarMassUp"){
 	    if     (variable.Contains("topPtLead")   ) k = 5.78;
@@ -5103,74 +5168,74 @@ namespace semileptonic {
 	    else if(variable.Contains("ttbarPhiStar")) k = 11.07;
 	  }
 	  else if(closureTestSpecifier=="1000"){
-	    if     (variable.Contains("topPtLead")   ) k = 5.32;
-	    else if(variable.Contains("topPtSubLead")) k = 2.42;
-	    else if(variable.Contains("topPtTtbarSys"))k = 3.17;
-	    else if(variable.Contains("topPt")       ) k = 5.48;
-	    else if(variable.Contains("topY" )       ) k = 9.91;
-	    else if(variable.Contains("ttbarPt")     ) k = 5.90;
-	    else if(variable.Contains("ttbarY")      ) k = 7.73;
-	    else if(variable.Contains("ttbarMass")   ) k = 3.84;
-	    else if(variable.Contains("ttbarDelPhi" )) k = 10.85;
-	    else if(variable.Contains("ttbarPhiStar")) k = 10.60;
+	    if     (variable.Contains("topPtLead")   ) k = MadSpin ?  5.21 : 5.32;
+	    else if(variable.Contains("topPtSubLead")) k = MadSpin ?  2.56 : 2.42;
+	    else if(variable.Contains("topPtTtbarSys"))k = MadSpin ?  3.10 : 3.17;
+	    else if(variable.Contains("topPt")       ) k = MadSpin ?  5.46 : 5.48;
+	    else if(variable.Contains("topY" )       ) k = MadSpin ? 10.01 : 9.91;
+	    else if(variable.Contains("ttbarPt")     ) k = MadSpin ?  5.73 : 5.90;
+	    else if(variable.Contains("ttbarY")      ) k = MadSpin ?  7.86 : 7.73;
+	    else if(variable.Contains("ttbarMass")   ) k = MadSpin ?  3.91 : 3.84;
+	    else if(variable.Contains("ttbarDelPhi" )) k = MadSpin ? 11.03 : 10.85;
+	    else if(variable.Contains("ttbarPhiStar")) k = MadSpin ? 10.85 : 10.60;
 	  }
 	}
 	// lepton&b(jet): full PS and parton level PS  not relevant
 	else if(hadronPS){
 	  if(closureTestSpecifier==""){
-	    if(     variable.Contains("lepPt")       ) k = 5.65 ;
-	    else if(variable.Contains("lepEta")      ) k = 3.30 ;
-	    else if(variable.Contains("bqPt")        ) k = 12.96;
-	    else if(variable.Contains("bqEta")       ) k = 6.62 ;
-	    else if(variable.Contains("bbbarMass")   ) k = 1.49 ;
-	    else if(variable.Contains("bbbarPt"  )   ) k = 4.93 ;
-	    else if(variable.Contains("lbMass")      ) k = 11.96;
-	    else if(variable.Contains("Njets")       ) k = 2.352;
-	    else if(variable.Contains("rho"  )       ) k = 4.65 ; 
+	    if(     variable.Contains("lepPt")       ) k = MadSpin ?  5.62 : 5.65 ;
+	    else if(variable.Contains("lepEta")      ) k = MadSpin ?  3.67 : 3.30 ;
+	    else if(variable.Contains("bqPt")        ) k = MadSpin ? 12.94 : 12.96;
+	    else if(variable.Contains("bqEta")       ) k = MadSpin ?  6.65 : 6.62 ;
+	    else if(variable.Contains("bbbarMass")   ) k = MadSpin ?  1.31 : 1.49 ;
+	    else if(variable.Contains("bbbarPt"  )   ) k = MadSpin ?  3.41 : 4.93 ;
+	    else if(variable.Contains("lbMass")      ) k = MadSpin ? 11.95 : 11.96;
+	    else if(variable.Contains("Njets")       ) k = MadSpin ?  1.99 : 2.352;
+	    else if(variable.Contains("rho"  )       ) k = MadSpin ?  4.35 : 4.65 ; 
 	  }
 	  else if(closureTestSpecifier=="NoDistort"){
-	    if(     variable.Contains("lepPt")       ) k = 5.62 ;
-	    else if(variable.Contains("lepEta")      ) k = 3.34 ;
-	    else if(variable.Contains("bqPt")        ) k = 12.35;
-	    else if(variable.Contains("bqEta")       ) k = 6.48 ;
-	    else if(variable.Contains("bbbarMass")   ) k = 1.50 ;
-	    else if(variable.Contains("bbbarPt"  )   ) k = 5.08 ;
-	    else if(variable.Contains("lbMass")      ) k = 12.30;
-	    else if(variable.Contains("Njets")       ) k = 2.22 ;
-	    else if(variable.Contains("rho"  )       ) k = 4.80 ; 
+	    if(     variable.Contains("lepPt")       ) k = MadSpin ?  5.59 : 5.62 ;
+	    else if(variable.Contains("lepEta")      ) k = MadSpin ?  3.69 : 3.34 ;
+	    else if(variable.Contains("bqPt")        ) k = MadSpin ? 12.21 : 12.35;
+	    else if(variable.Contains("bqEta")       ) k = MadSpin ?  6.62 : 6.48 ;
+	    else if(variable.Contains("bbbarMass")   ) k = MadSpin ?  1.32 : 1.50 ;
+	    else if(variable.Contains("bbbarPt"  )   ) k = MadSpin ?  3.51 : 5.08 ;
+	    else if(variable.Contains("lbMass")      ) k = MadSpin ? 12.29 : 12.30;
+	    else if(variable.Contains("Njets")       ) k = MadSpin ?  1.87 : 2.22 ;
+	    else if(variable.Contains("rho"  )       ) k = MadSpin ?  4.48 : 4.80 ; 
 	  }
 	  else if(closureTestSpecifier=="topPtDown"){
-	    if(     variable.Contains("lepPt")       ) k = 5.24 ;
-	    else if(variable.Contains("lepEta")      ) k = 3.20 ;
-	    else if(variable.Contains("bqPt")        ) k = 10.64;
-	    else if(variable.Contains("bqEta")       ) k = 6.31 ;
-	    else if(variable.Contains("bbbarMass")   ) k = 1.35 ;
-	    else if(variable.Contains("bbbarPt"  )   ) k = 4.81 ;
-	    else if(variable.Contains("lbMass")      ) k = 12.14;
-	    else if(variable.Contains("Njets")       ) k = 2.11 ;
-	    else if(variable.Contains("rho"  )       ) k = 4.44 ; 
+	    if(     variable.Contains("lepPt")       ) k = MadSpin ?  5.21 : 5.24 ;
+	    else if(variable.Contains("lepEta")      ) k = MadSpin ?  3.56 : 3.20 ;
+	    else if(variable.Contains("bqPt")        ) k = MadSpin ? 10.63 : 10.64;
+	    else if(variable.Contains("bqEta")       ) k = MadSpin ?  6.34 : 6.31 ;
+	    else if(variable.Contains("bbbarMass")   ) k = MadSpin ?  1.12 : 1.35 ;
+	    else if(variable.Contains("bbbarPt"  )   ) k = MadSpin ?  3.25 : 4.81 ;
+	    else if(variable.Contains("lbMass")      ) k = MadSpin ? 12.13 : 12.14;
+	    else if(variable.Contains("Njets")       ) k = MadSpin ?  1.78 : 2.11 ;
+	    else if(variable.Contains("rho"  )       ) k = MadSpin ?  4.12 : 4.44 ; 
 	  }
 	  else if(closureTestSpecifier=="topPtUp"){
-	    if(     variable.Contains("lepPt")       ) k = 6.09 ;
-	    else if(variable.Contains("lepEta")      ) k = 3.46 ;
-	    else if(variable.Contains("bqPt")        ) k = 14.82;
-	    else if(variable.Contains("bqEta")       ) k = 6.76 ;
-	    else if(variable.Contains("bbbarMass")   ) k = 1.78 ;
-	    else if(variable.Contains("bbbarPt"  )   ) k = 5.49 ;
-	    else if(variable.Contains("lbMass")      ) k = 12.47;
-	    else if(variable.Contains("Njets")       ) k = 2.355;
-	    else if(variable.Contains("rho"  )       ) k = 5.30 ; 
+	    if(     variable.Contains("lepPt")       ) k = MadSpin ?  6.02 : 6.09 ;
+	    else if(variable.Contains("lepEta")      ) k = MadSpin ?  3.83 : 3.46 ;
+	    else if(variable.Contains("bqPt")        ) k = MadSpin ? 14.75 : 14.82;
+	    else if(variable.Contains("bqEta")       ) k = MadSpin ?  6.79 : 6.76 ;
+	    else if(variable.Contains("bbbarMass")   ) k = MadSpin ?  1.66 : 1.78 ;
+	    else if(variable.Contains("bbbarPt"  )   ) k = MadSpin ?  3.88 : 5.49 ;
+	    else if(variable.Contains("lbMass")      ) k = MadSpin ? 12.46 : 12.47;
+	    else if(variable.Contains("Njets")       ) k = MadSpin ?  1.98 : 2.355;
+	    else if(variable.Contains("rho"  )       ) k = MadSpin ?  5.00 : 5.30 ; 
 	  }
 	  else if(closureTestSpecifier=="data"){
-	    if(     variable.Contains("lepPt")       ) k = 5.83 ;
-	    else if(variable.Contains("lepEta")      ) k = 3.41 ;
-	    else if(variable.Contains("bqPt")        ) k = 13.51;
-	    else if(variable.Contains("bqEta")       ) k = 6.65 ;
-	    else if(variable.Contains("bbbarMass")   ) k = 1.63 ;
-	    else if(variable.Contains("bbbarPt"  )   ) k = 5.31 ;
-	    else if(variable.Contains("lbMass")      ) k = 12.42;
-	    else if(variable.Contains("Njets")       ) k = 2.29 ;
-	    else if(variable.Contains("rho"  )       ) k = 5.06 ; 
+	    if(     variable.Contains("lepPt")       ) k = MadSpin ?  5.80 : 5.83 ;
+	    else if(variable.Contains("lepEta")      ) k = MadSpin ?  3.77 : 3.41 ;
+	    else if(variable.Contains("bqPt")        ) k = MadSpin ? 13.49 : 13.51;
+	    else if(variable.Contains("bqEta")       ) k = MadSpin ?  6.73 : 6.65 ;
+	    else if(variable.Contains("bbbarMass")   ) k = MadSpin ?  1.48 : 1.63 ;
+	    else if(variable.Contains("bbbarPt"  )   ) k = MadSpin ?  3.70 : 5.31 ;
+	    else if(variable.Contains("lbMass")      ) k = MadSpin ? 12.36 : 12.42;
+	    else if(variable.Contains("Njets")       ) k = MadSpin ?  1.92 : 2.29 ;
+	    else if(variable.Contains("rho"  )       ) k = MadSpin ?  4.74 : 5.06 ; 
 	  }
 	  else if(closureTestSpecifier=="ttbarMassUp"){
 	    if(     variable.Contains("lepPt")       ) k = 5.44 ;
@@ -5195,15 +5260,15 @@ namespace semileptonic {
 	    else if(variable.Contains("rho"  )       ) k = 5.76 ; 
 	  }
 	  else if(closureTestSpecifier=="1000"){
-	    if(     variable.Contains("lepPt")       ) k = 5.47 ;
-	    else if(variable.Contains("lepEta")      ) k = 3.32 ;
-	    else if(variable.Contains("bqPt")        ) k = 11.22;
-	    else if(variable.Contains("bqEta")       ) k = 6.41 ;
-	    else if(variable.Contains("bbbarMass")   ) k = 1.29 ;
-	    else if(variable.Contains("bbbarPt"  )   ) k = 4.83 ;
-	    else if(variable.Contains("lbMass")      ) k = 12.17;
-	    else if(variable.Contains("Njets")       ) k = 2.20 ;
-	    else if(variable.Contains("rho"  )       ) k = 4.66 ; 
+	    if(     variable.Contains("lepPt")       ) k = MadSpin ?  5.50 : 5.47 ;
+	    else if(variable.Contains("lepEta")      ) k = MadSpin ?  3.67 : 3.32 ;
+	    else if(variable.Contains("bqPt")        ) k = MadSpin ? 11.23 : 11.22;
+	    else if(variable.Contains("bqEta")       ) k = MadSpin ?  6.44 : 6.41 ;
+	    else if(variable.Contains("bbbarMass")   ) k = MadSpin ?  1.07 : 1.29 ;
+	    else if(variable.Contains("bbbarPt"  )   ) k = MadSpin ?  3.32 : 4.83 ;
+	    else if(variable.Contains("lbMass")      ) k = MadSpin ? 12.43 : 12.17;
+	    else if(variable.Contains("Njets")       ) k = MadSpin ?  1.85 : 2.20 ;
+	    else if(variable.Contains("rho"  )       ) k = MadSpin ?  4.34 : 4.66 ; 
 	  }
 	}
       }
