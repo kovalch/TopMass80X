@@ -130,31 +130,35 @@ void differentialMass(int iBinning = 0, int iObs = 2, bool batch = false)
   std::vector<sample>::iterator it;
   //std::vector<std::vector<double> > values;
   
-  samples.push_back(sample(true,  false, true, true, false, "Run2012", "Data", kBlack, 0));  
-  samples.push_back(sample(false, false, true, true, true,  "1.00", "MG, Pythia Z2*", kRed+1, 0, 7000000./1.7));
+  samples.push_back(sample(true,  false, true, true, false,   "Run2012", "Data", kBlack, 0));  
+  samples.push_back(sample(false, false, true, true, true,    "Summer12_TTJets1725_MGDecays", "MG, Pythia Z2*", kRed+1, 0, 56000000./1.7));
   
-  samples.push_back(sample(false, true,  false, false, false, "flavor:up_FlavorQCD", "MG, b-JES up", kBlue+1, 2, 59613991./1.7));
-  samples.push_back(sample(false, true,  false, false, false, "flavor:down_FlavorQCD", "MG, b-JES down", kGreen+1, 2, 59613991./1.7));
-  samples.push_back(sample(false, true,  false, false, false, "source:up_Total", "MG, JES up", kBlue+1, 2, 59613991./1.7));
-  samples.push_back(sample(false, true,  false, false, false, "source:down_Total", "MG, JES down", kGreen+1, 2, 59613991./1.7));
-  samples.push_back(sample(false, true,  false, false, false, "jer:up", "MG, JER up", kBlue+1, 2, 59613991./1.7));
-  samples.push_back(sample(false, true,  false, false, false, "jer:down", "MG, JER down", kGreen+1, 2, 59613991./1.7));
-  samples.push_back(sample(false, true,  false, false, false, "source:up_PileUpPtBB", "MG, PUJES up", kBlue+1, 2, 59613991./1.7));
-  samples.push_back(sample(false, true,  false, false, false, "source:down_PileUpPtBB", "MG, PUJES down", kGreen+1, 2, 59613991./1.7));
+  samples.push_back(sample(false, true,  false, false, false, "Summer12_TTJetsMS1725_1.00", "MG+MS, Pythia Z2*", kRed+1, 0, 56000000./1.7));
   
-  /*
-  samples.push_back(sample(false, false, false, false, false, "scaleup", "MG, scale up", kRed-1, 5, 3696269./1.7));
-  samples.push_back(sample(false, false, false, false, false, "scaledown", "MG, scale down", kRed-7, 6, 4004587./1.7));
-  samples.push_back(sample(false, false, false, false, false, "matchingup", "MG, matching up", kRed-1, 7, 4029823./1.7));
-  samples.push_back(sample(false, false, false, false, false, "matchingdown", "MG, matching down", kRed-7, 7, 1545688./1.7));
+  samples.push_back(sample(false, true,  false, false, false, "Summer12_TTJets1725_1.00", "MG, Pythia Z2*", kRed+1, 0, 7000000./1.7));
+  
+  samples.push_back(sample(false, true,  false, false, false, "Summer12_TTJets1725_flavor:up_FlavorQCD", "MG, b-JES up", kBlue+1, 2, 59613991./1.7));
+  samples.push_back(sample(false, true,  false, false, false, "Summer12_TTJets1725_flavor:down_FlavorQCD", "MG, b-JES down", kGreen+1, 2, 59613991./1.7));
+  samples.push_back(sample(false, true,  false, false, false, "Summer12_TTJets1725_source:up_Total", "MG, JES up", kBlue+1, 2, 59613991./1.7));
+  samples.push_back(sample(false, true,  false, false, false, "Summer12_TTJets1725_source:down_Total", "MG, JES down", kGreen+1, 2, 59613991./1.7));
+  samples.push_back(sample(false, true,  false, false, false, "Summer12_TTJets1725_jer:up", "MG, JER up", kBlue+1, 2, 59613991./1.7));
+  samples.push_back(sample(false, true,  false, false, false, "Summer12_TTJets1725_jer:down", "MG, JER down", kGreen+1, 2, 59613991./1.7));
+  samples.push_back(sample(false, true,  false, false, false, "Summer12_TTJets1725_source:up_PileUpPtBB", "MG, PUJES up", kBlue+1, 2, 59613991./1.7));
+  samples.push_back(sample(false, true,  false, false, false, "Summer12_TTJets1725_source:down_PileUpPtBB", "MG, PUJES down", kGreen+1, 2, 59613991./1.7));
+  
+  //*
+  samples.push_back(sample(false, true, false, false, false, "Summer12_TTJetsMS1725_scaleup", "MG, scale up", kRed-1, 5, 3696269./1.7));
+  samples.push_back(sample(false, true, false, false, false, "Summer12_TTJetsMS1725_scaledown", "MG, scale down", kRed-7, 6, 4004587./1.7));
+  samples.push_back(sample(false, true, false, false, false, "Summer12_TTJetsMS1725_matchingup", "MG, matching up", kRed-1, 7, 4029823./1.7));
+  samples.push_back(sample(false, true, false, false, false, "Summer12_TTJetsMS1725_matchingdown", "MG, matching down", kRed-7, 7, 1545688./1.7));
   //*/
   
   //*
-  samples.push_back(sample(false, false, true, true, true, "MGDecays_P11", "MG, Pythia P11", kMagenta+1, 5, 27000000./1.7));
-  samples.push_back(sample(false, false, true, true, true, "MGDecays_P11noCR", "MG, Pythia P11noCR", kCyan+1, 6, 27000000./1.7));
-  samples.push_back(sample(false, false, true, true, true, "powheg", "Powheg, Pythia Z2*", kGreen+1, 9, 21675970./1.7));
-  samples.push_back(sample(false, false, true, true, true, "powheg_herwig", "Powheg, Herwig 6", kOrange+2, 7, 27684235./1.7));
-  samples.push_back(sample(false, false, true, true, true, "mcatnlo_herwig", "MC@NLO, Herwig 6", kBlue+1, 2, 32852589./1.7));
+  samples.push_back(sample(false, false, true, true, true, "Summer12_TTJets1725_powheg", "Powheg, Pythia Z2*", kGreen+1, 9, 21675970./1.7));
+  samples.push_back(sample(false, false, true, true, true, "Summer12_TTJets1725_MGDecays_P11", "MG, Pythia P11", kMagenta+1, 5, 27000000./1.7));
+  samples.push_back(sample(false, false, true, true, true, "Summer12_TTJets1725_MGDecays_P11noCR", "MG, Pythia P11noCR", kCyan+1, 6, 27000000./1.7));
+  //samples.push_back(sample(false, false, true, true, true, "powheg_herwig", "Powheg, Herwig 6", kOrange+2, 7, 27684235./1.7));
+  samples.push_back(sample(false, false, true, true, true, "Summer12_TTJets1725_mcatnlo_herwig", "MC@NLO, Herwig 6", kBlue+1, 2, 32852589./1.7));
   //samples.push_back(sample(false, false, true, true, true, "sherpa", "Sherpa", kYellow+1, 3, 44000000./1.7));
   //*/
   //
@@ -200,14 +204,14 @@ void differentialMass(int iBinning = 0, int iObs = 2, bool batch = false)
       if (iObs == 3) maxFit = 2;
       
       TChain* inclChain = new TChain("tree");
-      inclChain->Add(sfBase + "lepton/Summer12_TTJets1725_" + it->id + "/TopMass/job_*_ensemble.root");
+      inclChain->Add(sfBase + "lepton/" + it->id + "/TopMass/job_*_ensemble.root");
       TF1* inclGaus = new TF1("inclGaus", "gaus");
       inclChain->Fit("inclGaus", sObsLowCase[iObs], sObsLowCase[iObs] + " < " + itos(maxFit) + " & " + sObsLowCase[iObs] + " > " + itos(minFit), "LEMQ");
       it->incl = inclGaus->GetParameter(1);
       inclChain->Delete();
       
       it->chain   = new TChain("tree");
-      it->chain->Add(sfBase + "lepton/Summer12_TTJets1725_" + it->id + "/" + sBinning[iBinning] + "/job_*_ensemble.root");
+      it->chain->Add(sfBase + "lepton/" + it->id + "/" + sBinning[iBinning] + "/job_*_ensemble.root");
       
       it->profile = (TH1F*) samples[0].profile->Clone(it->id);
       
@@ -233,7 +237,7 @@ void differentialMass(int iBinning = 0, int iObs = 2, bool batch = false)
         }
         
         // PULL correction for data
-        if (it->id == "1.00" && iObs != 0) {
+        if (it->id == "Summer12_TTJets1725_MGDecays" && iObs != 0) {
           samples[0].profile->SetBinError(i, samples[0].profile->GetBinError(i) * pullWidth);
           std::cout << "Pull correction:" << pullWidth << std::endl;
         }
@@ -292,28 +296,30 @@ void differentialMass(int iBinning = 0, int iObs = 2, bool batch = false)
   hNull->SetLineStyle(1);
   //samples[0].profile->SetLineWidth(4);
   
+  int sysRef = 2; // MadSpin sample, MassiveBinDecay is sysRef+1
+  
   //*
   for (int i = 1; i < samples[0].profile->GetNbinsX()+1; i++) {
     double syst2 = 0;
-    syst2 += pow(max(fabs(samples[1].profile->GetBinContent(i) - samples[2].profile->GetBinContent(i)),
-                     fabs(samples[1].profile->GetBinContent(i) - samples[3].profile->GetBinContent(i))), 2);
-    syst2 += pow(max(fabs(samples[1].profile->GetBinContent(i) - samples[4].profile->GetBinContent(i)),
-                      fabs(samples[1].profile->GetBinContent(i) - samples[5].profile->GetBinContent(i))), 2);
-    syst2 += pow(max(fabs(samples[1].profile->GetBinContent(i) - samples[6].profile->GetBinContent(i)),
-                     fabs(samples[1].profile->GetBinContent(i) - samples[7].profile->GetBinContent(i))), 2);
+    syst2 += pow(max(fabs(samples[sysRef+1].profile->GetBinContent(i) - samples[sysRef+2].profile->GetBinContent(i)),
+                     fabs(samples[sysRef+1].profile->GetBinContent(i) - samples[sysRef+3].profile->GetBinContent(i))), 2);
+    syst2 += pow(max(fabs(samples[sysRef+1].profile->GetBinContent(i) - samples[sysRef+4].profile->GetBinContent(i)),
+                     fabs(samples[sysRef+1].profile->GetBinContent(i) - samples[sysRef+5].profile->GetBinContent(i))), 2);
+    syst2 += pow(max(fabs(samples[sysRef+1].profile->GetBinContent(i) - samples[sysRef+6].profile->GetBinContent(i)),
+                     fabs(samples[sysRef+1].profile->GetBinContent(i) - samples[sysRef+7].profile->GetBinContent(i))), 2);
     //* PU (wrong NJet)
     if (iBinning != 9) {
-    syst2 += pow(max(fabs(samples[1].profile->GetBinContent(i) - samples[8].profile->GetBinContent(i)),
-                     fabs(samples[1].profile->GetBinContent(i) - samples[9].profile->GetBinContent(i))), 2);
+    syst2 += pow(max(fabs(samples[sysRef+1].profile->GetBinContent(i) - samples[sysRef+8].profile->GetBinContent(i)),
+                     fabs(samples[sysRef+1].profile->GetBinContent(i) - samples[sysRef+9].profile->GetBinContent(i))), 2);
     }
     //*/
-    /*
-    syst2 += pow(fabs(samples[1].profile->GetBinContent(i) - samples[8].profile->GetBinContent(i)), 2);
-    syst2 += pow(max(fabs(samples[1].profile->GetBinContent(i) - samples[9].profile->GetBinContent(i)),
-                     fabs(samples[1].profile->GetBinContent(i) - samples[10].profile->GetBinContent(i))), 2);
-    syst2 += pow(max(fabs(samples[1].profile->GetBinContent(i) - samples[11].profile->GetBinContent(i)),
-                     fabs(samples[1].profile->GetBinContent(i) - samples[12].profile->GetBinContent(i))), 2);
-    */
+    //*
+    //syst2 += pow(fabs(samples[1].profile->GetBinContent(i) - samples[8].profile->GetBinContent(i)), 2);
+    syst2 += pow(max(fabs(samples[sysRef].profile->GetBinContent(i) - samples[sysRef+10].profile->GetBinContent(i)),
+                     fabs(samples[sysRef].profile->GetBinContent(i) - samples[sysRef+11].profile->GetBinContent(i))), 2);
+    syst2 += pow(max(fabs(samples[sysRef].profile->GetBinContent(i) - samples[sysRef+12].profile->GetBinContent(i)),
+                     fabs(samples[sysRef].profile->GetBinContent(i) - samples[sysRef+13].profile->GetBinContent(i))), 2);
+    //*/
     hNull->SetBinError(i, sqrt(pow(samples[0].profile->GetBinError(i), 2) + syst2));
     if (iObs == 0) hNull->SetBinError(i, hNull->GetBinError(i) / hNull->GetBinWidth(i));
   }
@@ -391,7 +397,7 @@ void differentialMass(int iBinning = 0, int iObs = 2, bool batch = false)
             || binCat[iBinning] == kBoth ) ) {
       it->profile->Draw("SAME");
       ++legEntry;
-      if (legEntry > 4) leg1->AddEntry(it->error, it->label, "LF");
+      if (legEntry > 3) leg1->AddEntry(it->error, it->label, "LF");
       else              leg0->AddEntry(it->error, it->label, "LF");
     }
   }
