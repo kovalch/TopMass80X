@@ -4,7 +4,7 @@ SCRIPT=$(readlink -f $0)
 SCRIPTPATH=$(dirname "$SCRIPT")
 BIN="@CMAKE_INSTALL_PREFIX@/bin"
 
-if [ `hostname | grep "naf.desy.de"` ]; then
+if [ `hostname | grep "nafhh"` ]; then
     echo "Running on the NAF - so let's submit our jobs, job output will be stored in batch_output/..."
     mkdir -p "batch_output"
 

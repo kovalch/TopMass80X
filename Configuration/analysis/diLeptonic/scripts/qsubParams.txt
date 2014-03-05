@@ -1,6 +1,6 @@
 -cwd
 -b yes
--l h_cpu=00:45:00
+-l h_rt=02:00:00
 -l site=hh
 -V
 -l h_vmem=2000M
