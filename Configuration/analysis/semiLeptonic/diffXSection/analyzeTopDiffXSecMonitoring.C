@@ -1297,7 +1297,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
       }
       int          Nrelevant =uncPlotList_.size();
       unsigned int Nrelevant2=uncPlotList_.size();
-      makeTheoryUncertaintyBands(histo_, histoErrorBand_, uncPlotList_, uncPlotListEl_, uncPlotListMu_, Nrelevant, Nrelevant2, inputFolder, dataFileMu, dataFileEl, vecRedundantPartOfNameInData, luminosityMu, luminosityEl, unctype);
+      makeTheoryUncertaintyBands(histo_, histoErrorBand_, uncPlotList_, uncPlotListEl_, uncPlotListMu_, Nrelevant, Nrelevant2, inputFolder, dataFileMu, dataFileEl, vecRedundantPartOfNameInData, luminosityMu, luminosityEl, unctype, addSel);
     }
     // JES+JER uncertainties for chi2 related plots    
     if(drawchi2JESRbands){
