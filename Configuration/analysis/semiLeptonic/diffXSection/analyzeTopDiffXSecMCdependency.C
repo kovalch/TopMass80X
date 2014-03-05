@@ -33,8 +33,8 @@ void analyzeTopDiffXSecMCdependency(double luminosity = 12148, std::string decay
   // file name for input rootfile
   TString analysisFileName="";
   TString SampleTag="Summer12";
-  if     (decayChannel=="muon"    ) analysisFileName=path+inputFolderName+TopFilename(kSig, sysNo, "muon"    );
-  else if(decayChannel=="electron") analysisFileName=path+inputFolderName+TopFilename(kSig, sysNo, "electron");
+  if     (decayChannel=="muon"    ) analysisFileName=path+inputFolderName+"/"+TopFilename(kSig, sysNo, "muon"    );
+  else if(decayChannel=="electron") analysisFileName=path+inputFolderName+"/"+TopFilename(kSig, sysNo, "electron");
   else{
     std::cout << "ERROR: decay channel " << decayChannel << " is no valid choice, use electron or muon!" << std::endl;
     exit(0);
@@ -1070,9 +1070,9 @@ double linSF(const double x, const double xmax, const double a, const double b){
 
 TH1F* distortPDF(const TH1& hist, TString variation, TString variable, TString inputFolderName, TString phaseSpace, int verbose)
 {
-  if (verbose>0) std::cout << "Using hard-coded path '/afs/naf.desy.de/group/cms/scratch/tophh/CommonFiles' instead of '/afs/naf.desy.de/group/cms/scratch/tophh'" << inputFolderName << " for file with PDF-uncertainties." << std::endl;
+  if (verbose>0) std::cout << "Using hard-coded path '"+groupSpace+"CommonFiles' instead of '"+groupSpace+"'" << inputFolderName << " for file with PDF-uncertainties." << std::endl;
   // this function loads the max/min PDF uncertainties as determined externally with MC@NLO for the desired variables and applies it to MadGraph
-  TString fileName    = "/afs/naf.desy.de/group/cms/scratch/tophh/CommonFiles/ttbarNtupleCteq6mPDFuncertOnly.root" ;
+  TString fileName    = groupSpace+"CommonFiles/ttbarNtupleCteq6mPDFuncertOnly.root";
   TString plotNameVar = (variation == "") ? variable : variable + "_" + variation                                              ;
   TString plotNameNom = variable                                                                                               ;                 
   TString directory   = (phaseSpace == "Full") ? "FullPhaseSpace" : "VisiblePhaseSpace"                                        ; 
