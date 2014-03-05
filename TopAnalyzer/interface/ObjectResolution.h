@@ -59,7 +59,14 @@ class ObjectResolution{
   **/
   /// histogram filling for fwlite and for fwfull
   virtual void fill(const Collection& inputCollection, const double& weight=1.) = 0;
-  void fill2(const Collection& inputCollection, const double& a, const double& b, const double& c, const double& weight, std::vector<double> weights){return fill(inputCollection, weight);};
+  void fill2(const Collection& inputCollection, const double& a, const double& b, const double& c, const double& x1, const double& x2, const float& Q, const int& id1, const int& id2, const double& weight, std::vector<double> weights){
+    //fillValue("id1", id1, weight);
+    //fillValue("id2", id2, weight);
+    //fillValue("x1" , x1 , weight);
+    //fillValue("x2" , x2 , weight);
+    //fillValue("Q"  , Q  , weight);
+    return fill(inputCollection, weight);
+};
 
  protected:
   /**
