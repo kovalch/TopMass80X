@@ -835,7 +835,6 @@ void TopKinematics::book(edm::Service<TFileService>& fs)
     bookVariable(fs, "topPtSubLeadPartonTruth");
     bookVariable(fs, "topYLeadPartonTruth"    );
     bookVariable(fs, "topYSubLeadPartonTruth" );
-
   }
 }
 
