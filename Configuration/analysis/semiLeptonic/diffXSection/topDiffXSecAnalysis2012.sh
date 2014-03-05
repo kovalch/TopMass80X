@@ -167,7 +167,8 @@ echo
 
 
 ## shared folder of the analysis containing all relevant files
-HHgroupFolder=\"/afs/naf.desy.de/group/cms/scratch/tophh/\"
+#HHgroupFolder=\"/afs/naf.desy.de/group/cms/scratch/tophh/\"
+HHgroupFolder=\"/nfs/dust/cms/group/tophh/\"
 ## subfolder of $HHgroupFolder where MC and data files are stored
 ## inputFolderName=\"RecentAnalysisRun8TeV_doubleKinFit\" (default)
 inputFolderName=\"RecentAnalysisRun8TeV_doubleKinFit\"
@@ -452,13 +453,31 @@ if [ $clean == true ]; then
     fi
 fi
 
+#### ============================
+####  Prepare PDF uncertainties 
+#### ============================
+BEFOREB=$(date +%s)
+echo
+echo "Part B: Prepare files for pdf uncertainties"
+
+if [ $decayChannel != \"combined\" -a $redoSystematics == true -a $redoPDFReweighting == true ]; then
+    echo
+    root -l -q -b './analyzeTopDiffXSecMCdependency.C++('$dataLuminosity','$decayChannel', '$save', '$verbose', '$inputFolderName', '$dataSample', 'true', '$inclCCVars')' 
+elif [ $1 == "combined2" -a $redoSystematics == true -a $redoPDFReweighting == true ]; then
+    root -l -q -b './analyzeTopDiffXSecMCdependency.C++('$dataLuminosity', '\"muon\"',     '$save', '$verbose', '$inputFolderName', '$mudataSample', 'true', '$inclCCVars')' 
+    root -l -q -b './analyzeTopDiffXSecMCdependency.C++('$dataLuminosity', '\"electron\"', '$save', '$verbose', '$inputFolderName', '$eldataSample', 'true', '$inclCCVars')' 
+else
+    echo "Done for 2012 analysis (in e/mu channel separate or when combining event yields) and if systematics and PDF files are requested to be re-done (redoSystematics set to $redoSystematics, redoPDFReweighting set to $redoPDFReweighting)."
+fi
+
+
 #### =====================
 ####  Run cut monitoring
 #### =====================
 
-BEFOREB=$(date +%s)
+BEFOREC=$(date +%s)
 echo
-echo "Part B: process cut monitoring macros"
+echo "Part C: process cut monitoring macros"
 if [ $fast == false ]
     then
     sleep 3
@@ -520,7 +539,7 @@ fi
 ###  Run migration macro for binning 
 ### ===================================
 
-BEFOREC=$(date +%s)
+BEFORED=$(date +%s)
 echo
 echo "Part C: process migration macro to validate binning"
 if [ $fast == false ]
@@ -547,25 +566,6 @@ if [ $redoPurStab == true ]
     for (( iVar=0; iVar<${#listVar_[@]}; iVar++ )); do
 	root -l -q -b './purityStabilityEfficiency.C++('${listVar_[$iVar]}','$save', '$decayChannel', '$inputFolderName', '$plotAcceptance', true, false, '$chi2Max', 1, '$hadron')'
     done
-fi
-
-
-
-#### ============================
-####  Prepare PDF uncertainties 
-#### ============================
-BEFORED=$(date +%s)
-echo
-echo "Part D: Prepare files for pdf uncertainties"
-
-if [ $decayChannel != \"combined\" -a $redoSystematics == true -a $redoPDFReweighting == true ]; then
-    echo
-    root -l -q -b './analyzeTopDiffXSecMCdependency.C++('$dataLuminosity','$decayChannel', '$save', '$verbose', '$inputFolderName', '$dataSample', 'true', '$inclCCVars')' 
-elif [ $1 == "combined2" -a $redoSystematics == true -a $redoPDFReweighting == true ]; then
-    root -l -q -b './analyzeTopDiffXSecMCdependency.C++('$dataLuminosity', '\"muon\"',     '$save', '$verbose', '$inputFolderName', '$mudataSample', 'true', '$inclCCVars')' 
-    root -l -q -b './analyzeTopDiffXSecMCdependency.C++('$dataLuminosity', '\"electron\"', '$save', '$verbose', '$inputFolderName', '$eldataSample', 'true', '$inclCCVars')' 
-else
-    echo "Done for 2012 analysis (in e/mu channel separate or when combining event yields) and if systematics and PDF files are requested to be re-done (redoSystematics set to $redoSystematics, redoPDFReweighting set to $redoPDFReweighting)."
 fi
 
 #### ==========================================
@@ -900,9 +900,9 @@ if [ $maxSys -ge 1 ]
     echo "($SYS seconds due to systematic variations)"
 fi
 echo "part A: $(( $BEFOREB   - $START    )) seconds (clean up  )"
-echo "part B: $(( $BEFOREC   - $BEFOREB  )) seconds (monitoring)"
-echo "part C: $(( $BEFORED   - $BEFOREC  )) seconds (migration)"
-echo "part D: $(( $BEFOREE   - $BEFORED  )) seconds (prepare PDF uncertainty run)"
+echo "part B: $(( $BEFOREC   - $BEFOREB  )) seconds (prepare PDF uncertainty run)"
+echo "part C: $(( $BEFORED   - $BEFOREC  )) seconds (monitoring)"
+echo "part D: $(( $BEFOREE   - $BEFORED  )) seconds (migration)"
 echo "part F: $(( $BEFOREF   - $BEFOREE  )) seconds (xSecs- $maxSys systematic variations considered, cov matrix)"
 echo "part G: $(( $BEFOREG   - $BEFOREF  )) seconds (errors and final xSec)"
 echo "part H: $(( $END       - $BEFOREG  )) seconds (regularization parameter scan, mass constraint test"
