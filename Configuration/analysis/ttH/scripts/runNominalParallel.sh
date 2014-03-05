@@ -17,7 +17,9 @@ for c in ee emu mumu; do
     $LA -f dy -p 0 -c $c $@ &
     $LA -f dy -p 1 -c $c $@ &
     $LA -f dy -p 2 -c $c $@ &
-    $LA -f ttbarsignalplustau.root -c $c $@ &
+    $LA -f ttbarsignalplustau.root -p 0 -c $c $@ &
+    $LA -f ttbarsignalplustau.root -p 1 -c $c $@ &
+    $LA -f ttbarsignalplustau.root -p 2 -c $c $@ &
     $LA -f ttbarH125tobbbar -c $c $@ &
     $LA -f ttbarH125incl -p 0 -c $c $@ &
 done
