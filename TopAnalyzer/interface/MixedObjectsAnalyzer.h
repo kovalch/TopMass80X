@@ -95,6 +95,11 @@ class MixedObjectsAnalyzer : public edm::EDAnalyzer {
   /// ints
   int BindexA, BindexB, BindexC, BindexD, leadNonttjetIX;
 
+  /// PDF related
+  float Q;
+  int id1, id2;
+  double x1, x2;
+
   /// histo container
   std::map< std::string, TH1F* > hists_;
   std::map< std::string, TH2F* > hists2D_;
