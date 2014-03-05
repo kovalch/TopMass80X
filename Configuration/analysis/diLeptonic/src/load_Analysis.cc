@@ -273,6 +273,7 @@ void load_Analysis(TString validFilenamePattern,
             // Set the channel
             const TString channelName = selectedChannel;
             TString outputfilename = filenameBase.BeginsWith(channelName+"_") ? filenameBase : channelName+"_"+filenameBase;
+            btagScaleFactors.prepareBtagSF(static_cast<std::string>(channelName));
             selector->SetChannel(channelName);
             
             // Set up nTuple chain
@@ -295,7 +296,9 @@ void load_Analysis(TString validFilenamePattern,
             // Run the selector
             selector->SetRunViaTau(0);
             selector->SetOutputfilename(outputfilename);
+            if(isTopSignal) selector->SetSampleForBtagEfficiencies(true);
             chain.Process(selector, "", maxEvents, skipEvents);
+            selector->SetSampleForBtagEfficiencies(false);
             
             // For running on PDF systematics
             if(systematic == "PDF"){

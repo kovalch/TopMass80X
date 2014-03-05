@@ -93,9 +93,8 @@ void HiggsAnalysis::Begin(TTree*)
 void HiggsAnalysis::Terminate()
 {
     // Produce b-tag efficiencies
-    // FIXME: additionalBJetMode_ is dirty hack, since makeBtagEfficiencies() is in AnalysisBase
     // FIXME: Shouldn't we also clear b-tagging efficiency histograms if they are produced ?
-    if(additionalBJetMode_==0 && this->makeBtagEfficiencies()) btagScaleFactors_->produceBtagEfficiencies(static_cast<std::string>(this->channel()));
+    if(this->makeBtagEfficiencies()) btagScaleFactors_->produceBtagEfficiencies(static_cast<std::string>(this->channel()));
 
     // Do everything needed for MVA
     for(MvaTreeHandlerBase* mvaTreeHandler : v_mvaTreeHandler_){
@@ -128,16 +127,13 @@ void HiggsAnalysis::SlaveBegin(TTree *)
 {
     // Defaults from AnalysisBase
     AnalysisBase::SlaveBegin(0);
-
-    // Histograms for b-tagging efficiencies
-    // FIXME: common usage of this function for production and application of btag stuff like is implemented does not work,
-    // FIXME: for ttbb sample is just working by chance (with wrong settings if individual efficiencies per sample would be used)
-    // FIXME: --> Make settings to how they were before
-    if(additionalBJetMode_==0) {
-        btagScaleFactors_->setWorkingPoint(BtagWP);
-        btagScaleFactors_->prepareBTags(fOutput, static_cast<std::string>(this->channel()));
-    }
-
+    
+    // Set b-tagging working point
+    btagScaleFactors_->setWorkingPoint(BtagWP);
+    
+    // Book histograms for b-tagging efficiencies
+    if(this->makeBtagEfficiencies()) btagScaleFactors_->bookBtagHistograms(fOutput);
+    
     // Book histograms of all analyzers
     this->bookAll();
 }
@@ -238,6 +234,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
 
     // Get allLepton indices, apply selection cuts and order them by pt (beginning with the highest value)
     const VLV& allLeptons = *recoObjects.allLeptons_;
+    const std::vector<int>& lepPdgId = *recoObjects.lepPdgId_;
     std::vector<int> allLeptonIndices = initialiseIndices(allLeptons);
     selectIndices(allLeptonIndices, allLeptons, LVeta, LeptonEtaCUT, false);
     selectIndices(allLeptonIndices, allLeptons, LVeta, -LeptonEtaCUT);
@@ -246,7 +243,6 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     //const int numberOfAllLeptons = allLeptonIndices.size();
 
     // Get indices of leptons and antiLeptons separated by charge, and get the leading ones if they exist
-    const std::vector<int>& lepPdgId = *recoObjects.lepPdgId_;
     std::vector<int> leptonIndices = allLeptonIndices;
     std::vector<int> antiLeptonIndices = allLeptonIndices;
     selectIndices(leptonIndices, lepPdgId, 0);
@@ -299,16 +295,13 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     const tth::IndexPairs& jetIndexPairs = this->chargeOrderedJetPairIndices(jetIndices, jetChargeRelativePtWeighted);
 
     // Get b-jet indices, apply selection cuts
+    // and apply b-tag efficiency MC correction using random number based tag flipping
     // and order b-jets by btag discriminator (beginning with the highest value)
     const std::vector<double>& jetBTagCSV = *recoObjects.jetBTagCSV_;
     const std::vector<int>& jetPartonFlavour = *commonGenObjects.jetPartonFlavour_;
     std::vector<int> bjetIndices = jetIndices;
     selectIndices(bjetIndices, jetBTagCSV, (double)btagScaleFactors_->getWPDiscrValue());
-    if(this->isMC() && !(btagScaleFactors_->makeEfficiencies())){
-        // Apply b-tag efficiency MC correction using random number based tag flipping
-        btagScaleFactors_->indexOfBtags(bjetIndices, jetIndices,
-                                        jets, jetPartonFlavour, jetBTagCSV);
-    }
+    this->retagJets(bjetIndices, jetIndices, jets, jetPartonFlavour, jetBTagCSV);
     orderIndices(bjetIndices, jetBTagCSV);
     const int numberOfBjets = bjetIndices.size();
     const bool hasBtag = numberOfBjets > 0;
@@ -441,7 +434,6 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
                     selectionStep = "7zWindow";
 
                     // FIXME: do not use b-tag scale factor
-                    //weightBtagSF = isMC ? calculateBtagSF() : 1;
                     //fullWeights *= weightBtagSF;
 
                     this->fillAll(selectionStep,
@@ -511,7 +503,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
                   weight);
 
     // Fill the b-tagging efficiency plots
-    if( additionalBJetMode_==0 && this->makeBtagEfficiencies() ){
+    if(this->makeBtagEfficiencies()){
         btagScaleFactors_->fillBtagHistograms(jetIndices, jetBTagCSV,
                                               jets, jetPartonFlavour,
                                               weight);
@@ -753,11 +745,14 @@ bool HiggsAnalysis::failsHiggsGeneratorSelection(const int higgsDecayMode)const
 bool HiggsAnalysis::failsAdditionalJetFlavourSelection(const Long64_t& entry)const
 {
     if(!this->isTtbarPlusTauSample()) return false;
-
+    
+    // Use the full sample for creating btag efficiencies
+    if(this->makeBtagEfficiencies()) return false;
+    
     // FIXME: this is a workaround as long as there is no specific additional jet flavour info written to nTuple
     const TopGenObjects& topGenObjects = this->getTopGenObjects(entry);
     const CommonGenObjects& commonGenObjects = this->getCommonGenObjects(entry);
-
+    
     std::vector<int> genAddBJetIdNotFromTop;
 
     float signalJetPt_min = 20.;

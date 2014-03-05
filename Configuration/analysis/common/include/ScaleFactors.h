@@ -11,7 +11,7 @@ class TString;
 class TSelectorList;
 
 namespace ztop{
-class JetCorrectionUncertainty;
+    class JetCorrectionUncertainty;
 }
 
 #include "classesFwd.h"
@@ -24,12 +24,12 @@ class JetCorrectionUncertainty;
 // FIXME: replace these functions with enum type ones
 namespace common{
 
-/// Assign a folder depending on channel and systematic
-std::string assignFolder(const char* baseDir, const TString& channel, const TString& systematic);
+    /// Assign a folder depending on channel and systematic
+    std::string assignFolder(const char* baseDir, const TString& channel, const TString& systematic);
 
-/// Access an already existing input folder
-std::string accessFolder(const char* baseDir, const TString& channel,
-        const TString& systematic, const bool allowNonexisting =false);
+    /// Access an already existing input folder
+    std::string accessFolder(const char* baseDir, const TString& channel,
+                             const TString& systematic, const bool allowNonexisting =false);
 }
 
 
@@ -37,9 +37,8 @@ std::string accessFolder(const char* baseDir, const TString& channel,
 /// Namespace for functions needed only by ScaleFactors classes
 namespace ScaleFactorHelpers{
 
-/// Get 2-dimensional scale factor from histogram
-double get2DSF(TH2* histo, const double x, const double y);
-
+    /// Get 2-dimensional scale factor from histogram
+    double get2DSF(TH2* histo, const double x, const double y);
 }
 
 
@@ -64,19 +63,19 @@ public:
 
     /// Constructor
     LeptonScaleFactors(const char* electronSFInputFileName,
-            const char* muonSFInputFileName,
-            const Systematic& systematic);
+                       const char* muonSFInputFileName,
+                       const Systematic& systematic);
 
     /// Destructor
     ~LeptonScaleFactors(){}
 
     /// Get lepton per-event scale factor for exactly two leptons
     double getLeptonIDSF(const int leadingLeptonIndex, const int nLeadingLeptonIndex,
-            const VLV& leptons, const std::vector<int>& lepPdgIds)const;
+                         const VLV& leptons, const std::vector<int>& lepPdgIds)const;
 
     /// Get lepton per-event scale factor for all leptons in the event
     double scaleFactorAllLeptons(const std::vector<int>& allLeptonIndices,
-            const VLV& leptons, const std::vector<int>& lepPdgIds)const;
+                                 const VLV& leptons, const std::vector<int>& lepPdgIds)const;
 
 
 
@@ -84,8 +83,8 @@ private:
 
     /// Return the scale factor histogram
     TH2* prepareLeptonIDSF(const std::string& inputFileName,
-            const std::string& histogramName,
-            const Systematic& systematic)const;
+                           const std::string& histogramName,
+                           const Systematic& systematic)const;
 
     /// Electron scale factor histogram differential in eta, pt    
     TH2* h2_ElectronIDSFpteta;
@@ -107,8 +106,8 @@ public:
 
     /// Constructor
     TriggerScaleFactors(const char* inputFileSuffix,
-            const std::vector<std::string>& channels,
-            const Systematic& systematic);
+                        const std::vector<std::string>& channels,
+                        const Systematic& systematic);
 
     /// Destructor
     ~TriggerScaleFactors(){}
@@ -117,7 +116,7 @@ public:
 
     /// Get trigger per-event scale factor
     double getTriggerSF(const int leptonXIndex, const int leptonYIndex,
-            const VLV& leptons, const TString& channel)const;
+                        const VLV& leptons, const TString& channel)const;
 
 
 
@@ -150,9 +149,9 @@ public:
 
     /// Constructor
     BtagScaleFactors(const char* btagEfficiencyInputDir,
-            const char* btagEfficiencyOutputDir,
-            const std::vector<std::string>& channels,
-            TString systematic);
+                     const char* btagEfficiencyOutputDir,
+                     const std::vector<std::string>& channels,
+                     TString systematic);
 
     /// Destructor
     ~BtagScaleFactors(){}
@@ -166,12 +165,18 @@ public:
 
 
 
+    /// Prepare b-tagging scale factors (efficiency histograms and medians of jet eta, pt)
+    void prepareBtagSF(const std::string& channel);
+    
+    /// Book histograms needed for b-tag efficiencies
+    void bookBtagHistograms(TSelectorList* output);
+    
     /// Fill histograms needed for b-tag efficiencies
     void fillBtagHistograms(const std::vector<int>& jetIndices,
-            const std::vector<double>& bTagDiscriminant,
-            const VLV& jets,
-            const std::vector<int>& jetPartonFlavours,
-            const double weight);
+                            const std::vector<double>& bTagDiscriminant,
+                            const VLV& jets,
+                            const std::vector<int>& jetPartonFlavours,
+                            const double weight);
 
     /// Produce b-tag efficiencies
     void produceBtagEfficiencies(const std::string& channel);
@@ -180,24 +185,21 @@ public:
 
     /// Get b-tag per-event scale factor
     double calculateBtagSF(const std::vector<int>& jetIndices,
-            const VLV& jets,
-            const std::vector<int>& jetPartonFlavours);
+                           const VLV& jets,
+                           const std::vector<int>& jetPartonFlavours);
 
     /// Method takes the indices of b-tagged jets,
     /// and overwrites them with the b-tagged jets after randomised tag flipping
     /// Method explained in: https://twiki.cern.ch/twiki/bin/view/CMS/BTagSFUtil
     /// and in: https://twiki.cern.ch/twiki/bin/view/CMS/BTagSFMethods#2a_Jet_by_jet_updating_of_the_b
     void indexOfBtags(std::vector<int>& bjetIndices,
-            const std::vector<int>& jetIndices,
-            const VLV& jets,
-            const std::vector<int>& jetPartonFlavours,
-            const std::vector<double>& btagDiscriminants)const;
+                      const std::vector<int>& jetIndices,
+                      const VLV& jets,
+                      const std::vector<int>& jetPartonFlavours,
+                      const std::vector<double>& btagDiscriminants)const;
 
-    /// Prepare b-tagging scale factors (efficiency histograms)
-    void prepareBTags(TSelectorList* output, const std::string& channel);
-
-
-
+    
+    
 private:
 
     /// Input directory for files holding histograms of b-tagging efficiencies
@@ -215,13 +217,15 @@ private:
     // this is NOT used right now!
     // but it may be good for parallelization in the future
     TSelectorList* selectorList_;
-
+    
     /// Map of the file names for each channel
     std::map<std::string, std::string> channelFileNames_;
-
+    
     /// Map of the sample names for each channel
     std::map<std::string, std::string> channelSampleNames_;
-
+    
+    /// The channel which is processed
+    std::string channel_;
 };
 
 
@@ -243,8 +247,8 @@ public:
 
     /// Scale the jet and MET collections
     void applySystematic(VLV* jets, VLV* jetsForMET, LV* met,
-            const std::vector<double>* jetJERSF, const std::vector<double>* jetForMETJERSF,
-            const VLV* associatedGenJet, const VLV* associatedGenJetForMET)const;
+                         const std::vector<double>* jetJERSF, const std::vector<double>* jetForMETJERSF,
+                         const VLV* associatedGenJet, const VLV* associatedGenJetForMET)const;
 
 
 
@@ -271,7 +275,7 @@ public:
 
     /// Constructor
     JetEnergyScaleScaleFactors(const char* jesUncertaintySourceFile,
-            const Systematic& systematic);
+                               const Systematic& systematic);
 
     /// Destructor
     ~JetEnergyScaleScaleFactors();

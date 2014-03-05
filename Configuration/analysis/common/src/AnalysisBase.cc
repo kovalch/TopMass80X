@@ -68,7 +68,8 @@ leptonScaleFactors_(0),
 triggerScaleFactors_(0),
 jetEnergyResolutionScaleFactors_(0),
 jetEnergyScaleScaleFactors_(0),
-btagScaleFactors_(0)
+btagScaleFactors_(0),
+isSampleForBtagEfficiencies_(false)
 {
     this->clearBranches();
     this->clearBranchVariables();
@@ -332,6 +333,13 @@ void AnalysisBase::SetTriggerScaleFactors(const TriggerScaleFactors& scaleFactor
 void AnalysisBase::SetBtagScaleFactors(BtagScaleFactors& scaleFactors)
 {
     btagScaleFactors_ = &scaleFactors;
+}
+
+
+
+void AnalysisBase::SetSampleForBtagEfficiencies(const bool isSampleForBtagEfficiencies)
+{
+    isSampleForBtagEfficiencies_ = isSampleForBtagEfficiencies;
 }
 
 
@@ -1268,7 +1276,19 @@ bool AnalysisBase::failsDileptonTrigger(const Long64_t& entry)const
 
 bool AnalysisBase::makeBtagEfficiencies()const
 {
-    return btagScaleFactors_->makeEfficiencies() && isTtbarSample_ && isTopSignal_;
+    return btagScaleFactors_->makeEfficiencies() && isSampleForBtagEfficiencies_;
+}
+
+
+
+void AnalysisBase::retagJets(std::vector<int>& bjetIndices, const std::vector<int>& jetIndices,
+                             const VLV& jets, const std::vector<int>& jetPartonFlavours,
+                             const std::vector<double>& btagDiscriminants)const
+{
+    if(!this->isMC() || btagScaleFactors_->makeEfficiencies()) return;
+    
+    // Apply random-number based tag flipping
+    btagScaleFactors_->indexOfBtags(bjetIndices, jetIndices, jets, jetPartonFlavours, btagDiscriminants);
 }
 
 

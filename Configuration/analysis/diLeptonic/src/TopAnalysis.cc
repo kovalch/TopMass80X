@@ -54,7 +54,6 @@ constexpr double JetPtCUT = 30.;
 constexpr double JetPtCUT2 = 30.;
 
 /// CSV Loose working point
-//constexpr double BtagWP = 0.244;
 constexpr BtagScaleFactors::workingPoints BtagWP = BtagScaleFactors::csvl_wp;
 
 /// Dxy(vertex) cut for electrons
@@ -655,11 +654,12 @@ void TopAnalysis::SlaveBegin(TTree*)
     h_BJetsMult_step9 = store(new TH1D("BJetsMult_step9", "Number of the jets after kinReco", 21, -0.5, 20.5));
 
 
-    // Histograms for b-tagging efficiencies
-//    if(this->makeBtagEfficiencies()) btagScaleFactors_->prepareBTags(fOutput, static_cast<std::string>(this->channel()));
-
+    // Set b-tagging working point
     btagScaleFactors_->setWorkingPoint(BtagWP);
-    btagScaleFactors_->prepareBTags(fOutput, static_cast<std::string>(this->channel()));
+    
+    // Book histograms for b-tagging efficiencies
+    if(this->makeBtagEfficiencies()) btagScaleFactors_->bookBtagHistograms(fOutput);
+    
     
     h_PUSF = store(new TH1D("PUSF", "PU SF per event", 200, 0.5, 1.5));
     h_TrigSF = store(new TH1D("TrigSF", "Trigger SF per event", 200, 0.5, 1.5));
@@ -869,21 +869,23 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     // === FULL OBJECT SELECTION === (can thus be used at each selection step)
 
     // Get allLepton indices, apply selection cuts and order them by pt (beginning with the highest value)
-    std::vector<int> allLeptonIndices = initialiseIndices((*recoObjects.allLeptons_));
-    selectIndices(allLeptonIndices, (*recoObjects.allLeptons_), LVeta, LeptonEtaCUT, false);
-    selectIndices(allLeptonIndices, (*recoObjects.allLeptons_), LVeta, -LeptonEtaCUT);
-    selectIndices(allLeptonIndices, (*recoObjects.allLeptons_), LVpt, LeptonPtCut);
+    const VLV& allLeptons = *recoObjects.allLeptons_;
+    const std::vector<int>& lepPdgId = *recoObjects.lepPdgId_;
+    std::vector<int> allLeptonIndices = initialiseIndices(allLeptons);
+    selectIndices(allLeptonIndices, allLeptons, LVeta, LeptonEtaCUT, false);
+    selectIndices(allLeptonIndices, allLeptons, LVeta, -LeptonEtaCUT);
+    selectIndices(allLeptonIndices, allLeptons, LVpt, LeptonPtCut);
     // for electrons apply D0 cut
-    selectIndices(allLeptonIndices, (*recoObjects.lepPdgId_), (*recoObjects.lepDxyVertex0_), DVertex, false);
-    selectIndices(allLeptonIndices, (*recoObjects.lepPdgId_), (*recoObjects.lepDxyVertex0_), -DVertex, true);
-    orderIndices(allLeptonIndices, (*recoObjects.allLeptons_), LVpt);
+    selectIndices(allLeptonIndices, lepPdgId, *recoObjects.lepDxyVertex0_, DVertex, false);
+    selectIndices(allLeptonIndices, lepPdgId, *recoObjects.lepDxyVertex0_, -DVertex, true);
+    orderIndices(allLeptonIndices, allLeptons, LVpt);
     const int numberOfAllLeptons = allLeptonIndices.size();
 
     // Get indices of leptons and antiLeptons separated by charge, and get the leading ones if they exist
     std::vector<int> leptonIndices = allLeptonIndices;
     std::vector<int> antiLeptonIndices = allLeptonIndices;
-    selectIndices(leptonIndices, (*recoObjects.lepPdgId_), 0);
-    selectIndices(antiLeptonIndices, (*recoObjects.lepPdgId_), 0, false);
+    selectIndices(leptonIndices, lepPdgId, 0);
+    selectIndices(antiLeptonIndices, lepPdgId, 0, false);
     const int numberOfLeptons = leptonIndices.size();
     const int numberOfAntiLeptons = antiLeptonIndices.size();
     const int leptonIndex = numberOfLeptons>0 ? leptonIndices.at(0) : -1;
@@ -895,9 +897,9 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     if(numberOfLeptons>0 && numberOfAntiLeptons>0){
         leadingLeptonIndex = leptonIndex;
         nLeadingLeptonIndex = antiLeptonIndex;
-        orderIndices(leadingLeptonIndex, nLeadingLeptonIndex, (*recoObjects.allLeptons_), LVpt);
+        orderIndices(leadingLeptonIndex, nLeadingLeptonIndex, allLeptons, LVpt);
     }
-    const bool hasLeptonPair = this->hasLeptonPair(leadingLeptonIndex, nLeadingLeptonIndex, (*recoObjects.lepPdgId_));
+    const bool hasLeptonPair = this->hasLeptonPair(leadingLeptonIndex, nLeadingLeptonIndex, lepPdgId);
 
     // Get two indices of the two leptons in the right order for trigger scale factor, if existing
     int leptonXIndex(leadingLeptonIndex);
@@ -905,58 +907,57 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     if(hasLeptonPair){
         //in ee and mumu channel leptonX must be the highest pt lepton, i.e. this is already correct
         // in emu channel leptonX must be electron
-        if(std::abs((*recoObjects.lepPdgId_).at(leptonXIndex)) != std::abs((*recoObjects.lepPdgId_).at(leptonYIndex))){
-            orderIndices(leptonYIndex, leptonXIndex, (*recoObjects.lepPdgId_), true);
+        if(std::abs(lepPdgId.at(leptonXIndex)) != std::abs(lepPdgId.at(leptonYIndex))){
+            orderIndices(leptonYIndex, leptonXIndex, lepPdgId, true);
         }
     }
     
     // Get dilepton system, if existing
     const LV dummyLV(0.,0.,0.,0.);
-    const LV dilepton(hasLeptonPair ? (*recoObjects.allLeptons_).at(leadingLeptonIndex)+(*recoObjects.allLeptons_).at(nLeadingLeptonIndex) : dummyLV);
+    const LV dilepton(hasLeptonPair ? allLeptons.at(leadingLeptonIndex)+allLeptons.at(nLeadingLeptonIndex) : dummyLV);
     
     // Get jet indices, apply selection cuts and order them by pt (beginning with the highest value)
+    const VLV& jets = *recoObjects.jets_;
     std::vector<int> jetIndices = initialiseIndices((*recoObjects.jets_));
-    selectIndices(jetIndices, (*recoObjects.jets_), LVeta, JetEtaCUT, false);
-    selectIndices(jetIndices, (*recoObjects.jets_), LVeta, -JetEtaCUT);
-    selectIndices(jetIndices, (*recoObjects.jets_), LVpt, JetPtCUT);
-    orderIndices(jetIndices, (*recoObjects.jets_), LVpt);
+    selectIndices(jetIndices, jets, LVeta, JetEtaCUT, false);
+    selectIndices(jetIndices, jets, LVeta, -JetEtaCUT);
+    selectIndices(jetIndices, jets, LVpt, JetPtCUT);
+    orderIndices(jetIndices, jets, LVpt);
     const int numberOfJets = jetIndices.size();
     const bool has2Jets = numberOfJets > 1;
 
     // Get b-jet indices, apply selection cuts
+    // and apply b-tag efficiency MC correction using random number based tag flipping
     // and order b-jets by btag discriminator (beginning with the highest value)
+    const std::vector<double>& jetBTagCSV = *recoObjects.jetBTagCSV_;
+    const std::vector<int>& jetPartonFlavour = *commonGenObjects.jetPartonFlavour_;
     std::vector<int> bjetIndices = jetIndices;
-//    selectIndices(bjetIndices, (*recoObjects.jetBTagCSV_), BtagWP);
-  selectIndices(bjetIndices, (*recoObjects.jetBTagCSV_), (double)btagScaleFactors_->getWPDiscrValue());
-    if(this->isMC() && !(btagScaleFactors_->makeEfficiencies()) && ReTagJet){
-        // Apply b-tag efficiency MC correction using random number based tag flipping
-        btagScaleFactors_->indexOfBtags(bjetIndices, jetIndices,
-                                        (*recoObjects.jets_), (*commonGenObjects.jetPartonFlavour_), (*recoObjects.jetBTagCSV_));
-    }
-    orderIndices(bjetIndices, (*recoObjects.jetBTagCSV_));
+    selectIndices(bjetIndices, jetBTagCSV, (double)btagScaleFactors_->getWPDiscrValue());
+    if(ReTagJet) this->retagJets(bjetIndices, jetIndices, jets, jetPartonFlavour, jetBTagCSV);
+    orderIndices(bjetIndices, jetBTagCSV);
     const int numberOfBjets = bjetIndices.size();
     const bool hasBtag = numberOfBjets > 0;
     
     // Get MET
-    const LV& met((*recoObjects.met_));
+    const LV& met = *recoObjects.met_;
 
     const bool hasMetOrEmu = this->channel()=="emu" || met.Pt()>40;
     //ievgen new
 //     
    const ttbar::RecoObjectIndices recoObjectIndices(allLeptonIndices,
-                                                   leptonIndices, antiLeptonIndices,
-                                                   leptonIndex, antiLeptonIndex,
-                                                   leadingLeptonIndex, nLeadingLeptonIndex,
-                                                   leptonXIndex, leptonYIndex,
-                                                   jetIndices,bjetIndices);
+                                                    leptonIndices, antiLeptonIndices,
+                                                    leptonIndex, antiLeptonIndex,
+                                                    leadingLeptonIndex, nLeadingLeptonIndex,
+                                                    leptonXIndex, leptonYIndex,
+                                                    jetIndices, bjetIndices);
 
    const ttbar::GenObjectIndices genObjectIndicesDummy(-1, -1, -1, -1, -1, -1, -1, -1);
 
     // Determine all reco level weights
-    const double weightLeptonSF = this->weightLeptonSF(leadingLeptonIndex, nLeadingLeptonIndex, (*recoObjects.allLeptons_), (*recoObjects.lepPdgId_));
-    const double weightTriggerSF = this->weightTriggerSF(leptonXIndex, leptonYIndex, (*recoObjects.allLeptons_));
+    const double weightLeptonSF = this->weightLeptonSF(leadingLeptonIndex, nLeadingLeptonIndex, allLeptons, lepPdgId);
+    const double weightTriggerSF = this->weightTriggerSF(leptonXIndex, leptonYIndex, allLeptons);
     const double weightNoPileup = trueLevelWeightNoPileup*weightTriggerSF*weightLeptonSF;
-    const double weightBtagSF = ReTagJet ? 1. : this->weightBtagSF(jetIndices, (*recoObjects.jets_), (*commonGenObjects.jetPartonFlavour_));
+    const double weightBtagSF = ReTagJet ? 1. : this->weightBtagSF(jetIndices, jets, (*commonGenObjects.jetPartonFlavour_));
     const double weightKinReco = this->weightKinReco();
     
     // The weight to be used for filling the histograms

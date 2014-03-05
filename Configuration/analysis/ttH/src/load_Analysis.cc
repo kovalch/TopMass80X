@@ -351,7 +351,7 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
         // and what about Wlnu sample, or possible others ?
         selector->SetSamplename(samplename->GetString());
         selector->SetGeneratorBools(samplename->GetString(), systematics_from_file->GetString());
-        selector->SetSystematic(selectedSystematic);
+        selector->SetSystematic(Systematic::convertSystematic(selectedSystematic));
         selector->SetBtagScaleFactors(btagScaleFactors);
         
         // Loop over channels and run selector
@@ -360,6 +360,7 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
             // Set the channel
             const TString channelName = Channel::convertChannel(selectedChannel);
             const TString outputfilename = filenameBase.BeginsWith(channelName+"_") ? filenameBase : channelName+"_"+filenameBase;
+            btagScaleFactors.prepareBtagSF(static_cast<std::string>(channelName));
             selector->SetChannel(channelName);
             
             // Set up nTuple chain
@@ -408,7 +409,9 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
                     TString modifiedOutputfilename(outputfilename);
                     modifiedOutputfilename.ReplaceAll("signalplustau", "signalPlusOther");
                     selector->SetOutputfilename(modifiedOutputfilename);
+                    selector->SetSampleForBtagEfficiencies(true);
                     chain.Process(selector, "", maxEvents, skipEvents);
+                    selector->SetSampleForBtagEfficiencies(false);
                 }
                 if(part==1 || part==-1){ // output is ttbar+b
                     selector->SetAdditionalBJetMode(1);

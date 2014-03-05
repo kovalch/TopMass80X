@@ -103,6 +103,9 @@ public:
     /// Set the btag scale factors
     void SetBtagScaleFactors(BtagScaleFactors& scaleFactors);
     
+    /// Set the MC sample which should be used for production of btag efficiencies
+    void SetSampleForBtagEfficiencies(const bool isSampleForBtagEfficiencies);
+    
     /// Set jet energy resolution scale factors
     void SetJetEnergyResolutionScaleFactors(const JetEnergyResolutionScaleFactors* jetEnergyResolutionScaleFactors);
     
@@ -633,10 +636,18 @@ private:
     
     
 protected:
-
+    
+    /// Apply b-tag efficiency MC correction using random number based tag flipping
+    void retagJets(std::vector<int>& bjetIndices, const std::vector<int>& jetIndices,
+                   const VLV& jets, const std::vector<int>& jetPartonFlavours,
+                   const std::vector<double>& btagDiscriminants)const;
+    
     // FIXME: make them also private, access via function
     /// Pointer to btag scale factors instance
     BtagScaleFactors* btagScaleFactors_;
+    
+    /// Whether the sample should be used for production of btag efficiencies
+    bool isSampleForBtagEfficiencies_;
 };
 
 
