@@ -397,9 +397,9 @@ void TopMassControlPlots::doPlots()
   // Alljets channel
   if (channelID == Helper::kAllJets) {
     if(plotSelectedForPlotting.find("StandardPlots")!=plotSelectedForPlotting.end()){
-      samples.push_back(MySample("Data", "MJP12*v1_data", kData, kBlack));
-      samples.push_back(MySample("t#bar{t}", "Z2_S12_ABS_JES_100_172_5_MadSpin_sig*", kSig, kRed+1));
-      samples.push_back(MySample("Background v0.5", "QCDMixing_MJPS12*v05_data*", kBkg, kYellow, 1));
+      samples.push_back(MySample("Data", "MJP12_v1_data", kData, kBlack));
+      samples.push_back(MySample("t#bar{t}", "Z2_S12_ABS_JES_100_172_5_MadSpin_sig", kSig, kRed+1));
+      samples.push_back(MySample("Background", "QCDMixing_MJPS12_v1_data", kBkg, kYellow, 1));
     }
 
     // Signal variations (UE Tune)
