@@ -372,7 +372,7 @@ void AnalysisBase::clearBranches()
     b_lepPuChargedHadronIso = 0;
     b_lepCombIso = 0;
     b_lepDxyVertex0 = 0;
-    b_lepDzVertex0 = 0;
+    //b_lepDzVertex0 = 0;
     b_lepTrigger = 0;
     b_jet = 0;
     b_jetBTagTCHE = 0;
@@ -554,7 +554,7 @@ void AnalysisBase::SetRecoBranchAddresses()
     //chain_->SetBranchAddress("lepPuChargedHadronIso", &recoObjects_->lepPuChargedHadronIso_, &b_lepPuChargedHadronIso);
     chain_->SetBranchAddress("lepCombIso", &recoObjects_->lepCombIso_, &b_lepCombIso);
     chain_->SetBranchAddress("lepDxyVertex0", &recoObjects_->lepDxyVertex0_, &b_lepDxyVertex0);
-    chain_->SetBranchAddress("lepDzVertex0", &recoObjects_->lepDzVertex0_, &b_lepDzVertex0);
+    //chain_->SetBranchAddress("lepDzVertex0", &recoObjects_->lepDzVertex0_, &b_lepDzVertex0);
     //chain_->SetBranchAddress("lepTrigger", &recoObjects_->lepTrigger_, &b_lepTrigger);
     chain_->SetBranchAddress("jets", &recoObjects_->jets_, &b_jet);
     chain_->SetBranchAddress("jetBTagTCHE", &recoObjects_->jetBTagTCHE_, &b_jetBTagTCHE);
@@ -771,7 +771,7 @@ void AnalysisBase::GetRecoBranchesEntry(const Long64_t& entry)const
     //b_lepPuChargedHadronIso->GetEntry(entry);
     //b_lepCombIso->GetEntry(entry);
     b_lepDxyVertex0->GetEntry(entry);
-    b_lepDzVertex0->GetEntry(entry);
+    //b_lepDzVertex0->GetEntry(entry);
     //b_lepTrigger->GetEntry(entry);
     b_jet->GetEntry(entry);
     //b_jetBTagTCHE->GetEntry(entry);
