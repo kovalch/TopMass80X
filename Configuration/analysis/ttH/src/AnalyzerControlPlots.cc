@@ -107,6 +107,38 @@ void AnalyzerControlPlots::bookHistos(const TString& step, std::map<TString, TH1
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Met E_{t};E_{t}^{met};Events",50,0,300));
     name = "met_phi";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Met #phi;#phi^{met};Events",50,-3.2,3.2));
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    int bins_vert    = 50; int max_vert = 50;
+    int bins_lep_dxy = 60; double min_lep_dxy = -0.3; double max_lep_dxy = 0.3;
+    int bins_dilep_dxy = 30; double max_dilep_dxy = 0.3;
+    int bins_angle = 40; double max_angle = 3.2;
+    
+    name = "vertex_multiplicity";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step,"Primary Vertex Multiplicity;N Vertex;Events",bins_vert,0,max_vert));
+    
+    // Leptons
+    name = "lepton_DxyVertex0";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step,"Lepton's d_{xy} Vertex0 ;lepton's d_{xy};Events",bins_lep_dxy,min_lep_dxy,max_lep_dxy));
+    
+    //name = "Lepton_DzVertex0";
+    //m_histogram[name] = this->store(new TH1D(prefix_+name+step,"Lepton's d_{z} Vertex0 ;lepton's d_{z};Events",bins_lep_dxy,min_lep_dxy,max_lep_dxy));
+    
+    // Dilepton
+    name = "delta_leptons_DxyVertex0";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step,"Delta Leptons d_{xy} Vertex0 ;dileptons #Delta d_{xy};Events",bins_dilep_dxy,0,max_dilep_dxy));
+    
+    name = "angle_leptons";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step,"Opening Angle of the Leptons ;#alpha_{ll} [rad];Events",bins_angle,0,max_angle));
+    
 }
 
 
@@ -194,6 +226,40 @@ void AnalyzerControlPlots::fillHistos(const RecoObjects& recoObjects, const Comm
     // Met
     m_histogram["met_et"]->Fill(recoObjects.met_->E(), weight);
     m_histogram["met_phi"]->Fill(recoObjects.met_->Phi(), weight);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    m_histogram["vertex_multiplicity"]->Fill(recoObjects.vertMulti_, weight);
+    
+    for(const int index : recoObjectIndices.leptonIndices_){
+        m_histogram["lepton_DxyVertex0"]->Fill(recoObjects.lepDxyVertex0_->at(index), weight);
+    }
+    for(const int index : recoObjectIndices.antiLeptonIndices_){
+        m_histogram["lepton_DxyVertex0"]->Fill(recoObjects.lepDxyVertex0_->at(index), weight);
+    }    
+    
+    if(hasLeptonPair){
+        common::orderIndices(leadingLeptonIndex, nLeadingLeptonIndex, *recoObjects.allLeptons_, common::LVpt);
+        if(recoObjects.lepDxyVertex0_->at(leadingLeptonIndex)!=-1000 && recoObjects.lepDxyVertex0_->at(nLeadingLeptonIndex)!=-1000){
+            double DDxy =  std::abs(recoObjects.lepDxyVertex0_->at(leadingLeptonIndex) - recoObjects.lepDxyVertex0_->at(nLeadingLeptonIndex));
+            m_histogram["delta_leptons_DxyVertex0"]->Fill(DDxy, weight);
+        }
+        
+        double Angle_ll =  ROOT::Math::VectorUtil::Angle(recoObjects.allLeptons_->at(leadingLeptonIndex),recoObjects.allLeptons_->at(nLeadingLeptonIndex));
+        m_histogram["angle_leptons"]->Fill(Angle_ll, weight);
+        
+    }
 }
 
 
