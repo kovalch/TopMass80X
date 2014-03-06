@@ -64,9 +64,8 @@ constexpr double MetCUT = 40.;
 
 
 HiggsAnalysis::HiggsAnalysis(TTree*):
-isInclusiveHiggs_(false),
-bbbarDecayFromInclusiveHiggs_(false),
-additionalBJetMode_(0)
+inclusiveHiggsDecayMode_(-999),
+additionalBjetMode_(-999)
 {}
 
 
@@ -693,23 +692,16 @@ bool HiggsAnalysis::matchRecoToGenJets(int& matchedBjetIndex, int& matchedAntiBj
 
 
 
-void HiggsAnalysis::SetHiggsInclusiveSample(const bool isInclusiveHiggs)
+void HiggsAnalysis::SetInclusiveHiggsDecayMode(const int inclusiveHiggsDecayMode)
 {
-    isInclusiveHiggs_ = isInclusiveHiggs;
+    inclusiveHiggsDecayMode_ = inclusiveHiggsDecayMode;
 }
 
 
 
-void HiggsAnalysis::SetHiggsInclusiveSeparation(const bool bbbarDecayFromInclusiveHiggs)
+void HiggsAnalysis::SetAdditionalBjetMode(const int additionalBjetMode)
 {
-    bbbarDecayFromInclusiveHiggs_ = bbbarDecayFromInclusiveHiggs;
-}
-
-
-
-void HiggsAnalysis::SetAdditionalBJetMode(const int additionalBJetMode)
-{
-    additionalBJetMode_ = additionalBJetMode;
+    additionalBjetMode_ = additionalBjetMode;
 }
 
 
@@ -731,12 +723,11 @@ void HiggsAnalysis::SetAllTreeHandlers(std::vector<MvaTreeHandlerBase*> v_mvaTre
 
 bool HiggsAnalysis::failsHiggsGeneratorSelection(const int higgsDecayMode)const
 {
-    // Check whether it is a Higgs sample
-    if(higgsDecayMode < 0) return false;
+    if(inclusiveHiggsDecayMode_ == -999) return false;
     
     // Separate ttH events from inclusve decay into H->bbbar and other decays
-    if(isInclusiveHiggs_ && !bbbarDecayFromInclusiveHiggs_ && higgsDecayMode==5) return true;
-    if(isInclusiveHiggs_ && bbbarDecayFromInclusiveHiggs_ && higgsDecayMode!=5) return true;
+    if(inclusiveHiggsDecayMode_==0 && higgsDecayMode==5) return true;
+    if(inclusiveHiggsDecayMode_==5 && higgsDecayMode!=5) return true;
     return false;
 }
 
@@ -744,7 +735,7 @@ bool HiggsAnalysis::failsHiggsGeneratorSelection(const int higgsDecayMode)const
 
 bool HiggsAnalysis::failsAdditionalJetFlavourSelection(const Long64_t& entry)const
 {
-    if(!this->isTtbarPlusTauSample()) return false;
+    if(additionalBjetMode_ == -999) return false;
     
     // Use the full sample for creating btag efficiencies
     if(this->makeBtagEfficiencies()) return false;
@@ -776,9 +767,9 @@ bool HiggsAnalysis::failsAdditionalJetFlavourSelection(const Long64_t& entry)con
     const unsigned int nExtraBjets = genAddBJetIdNotFromTop.size();
 //     printf("Mode: %d  nAddJets: %d\n", additionalBJetMode_, nExtraBjets);
 
-    if(additionalBJetMode_==2 && nExtraBjets>=2) return false;
-    if(additionalBJetMode_==1 && nExtraBjets==1) return false;
-    if(additionalBJetMode_==0 && nExtraBjets==0) return false;
+    if(additionalBjetMode_==2 && nExtraBjets>=2) return false;
+    if(additionalBjetMode_==1 && nExtraBjets==1) return false;
+    if(additionalBjetMode_==0 && nExtraBjets==0) return false;
 
     return true;
 }

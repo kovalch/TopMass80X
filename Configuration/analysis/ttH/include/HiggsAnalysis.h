@@ -50,14 +50,11 @@ public:
     
     
     
-    /// Is it a ttH sample inclusive in Higgs decay
-    void SetHiggsInclusiveSample(const bool isInclusiveHiggs);
+    /// ID for separating Higgs sample inclusive in Higgs decay via their decay mode
+    void SetInclusiveHiggsDecayMode(const int inclusiveHiggsDecayMode);
     
-    /// Select H->bbbar or H->other decay from ttH sample inclusive in Higgs decay
-    void SetHiggsInclusiveSeparation(const bool bbbarDecayFromInclusiveHiggs);
-    
-    /// Bool for separating ttbar+bbar, ttbar+b and ttbar+other events
-    void SetAdditionalBJetMode(const int additionalBJetMode);
+    /// ID for separating ttbar samples via flavour of additional jets
+    void SetAdditionalBjetMode(const int additionalBjetMode);
     
     
     
@@ -116,14 +113,11 @@ private:
     
     
     
-    /// Is it a ttH sample inclusive in Higgs decay
-    bool isInclusiveHiggs_;
+    /// For a Higgs sample inclusive in decay, select H->bbbar or H->other decay (no separation for default value -999)
+    int inclusiveHiggsDecayMode_;
     
-    /// Select H->bbbar or H->other decay from ttH sample inclusive in Higgs decay
-    bool bbbarDecayFromInclusiveHiggs_;
-    
-    /// Select tt+bb, tt+b, or tt+other events
-    int additionalBJetMode_;
+    /// For a ttbar sample, select tt+bb, tt+b, or tt+other events (no separation for default value -999)
+    int additionalBjetMode_;
     
     
     

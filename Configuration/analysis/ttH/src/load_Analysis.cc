@@ -342,7 +342,6 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
         // Configure selector
         selector->SetTopSignal(isTopSignal);
         selector->SetHiggsSignal(isHiggsSignal);
-        selector->SetHiggsInclusiveSample(isHiggsInclusive);
         selector->SetMC(isMC);
         selector->SetWeightedEvents(weightedEvents);
         // FIXME: correction for MadGraph W decay branching fractions are not correctly applied
@@ -405,7 +404,7 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
             else if(isTopSignal && !isHiggsSignal && !isTtbarV){ // For splitting of ttbar in production modes associated with heavy flavours
                 //selector->SetRunViaTau(0); // This could be used for splitting of dileptonic ttbar in component with intermediate taus and without
                 if(part==0 || part==-1){ // output is ttbar+other
-                    selector->SetAdditionalBJetMode(0);
+                    selector->SetAdditionalBjetMode(0);
                     TString modifiedOutputfilename(outputfilename);
                     modifiedOutputfilename.ReplaceAll("signalplustau", "signalPlusOther");
                     selector->SetOutputfilename(modifiedOutputfilename);
@@ -414,14 +413,14 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
                     selector->SetSampleForBtagEfficiencies(false);
                 }
                 if(part==1 || part==-1){ // output is ttbar+b
-                    selector->SetAdditionalBJetMode(1);
+                    selector->SetAdditionalBjetMode(1);
                     TString modifiedOutputfilename(outputfilename);
                     modifiedOutputfilename.ReplaceAll("signalplustau", "signalPlusB");
                     selector->SetOutputfilename(modifiedOutputfilename);
                     chain.Process(selector, "", maxEvents, skipEvents);
                 }
                 if(part==2 || part==-1){ // output is ttbar+bbbar
-                    selector->SetAdditionalBJetMode(2);
+                    selector->SetAdditionalBjetMode(2);
                     TString modifiedOutputfilename(outputfilename);
                     modifiedOutputfilename.ReplaceAll("signalplustau", "signalPlusBbbar");
                     selector->SetOutputfilename(modifiedOutputfilename);
@@ -433,19 +432,18 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
                     exit(647);
                 }
                 // Reset the selection
-                // FIXME: make default -1, and use it for the separation
-                selector->SetAdditionalBJetMode(0);
+                selector->SetAdditionalBjetMode(-999);
             }
             else if(isHiggsInclusive){ // For splitting of ttH inclusive decay in H->bb and other decays
                 if(part==0 || part==-1){ // output is H->other
-                    selector->SetHiggsInclusiveSeparation(false);
+                    selector->SetInclusiveHiggsDecayMode(0);
                     TString modifiedOutputfilename(outputfilename);
                     modifiedOutputfilename.ReplaceAll("inclusive", "inclusiveOther");
                     selector->SetOutputfilename(modifiedOutputfilename);
                     chain.Process(selector, "", maxEvents, skipEvents);
                 }
                 if(part==1 || part==-1){ // output is H->bb
-                    selector->SetHiggsInclusiveSeparation(true);
+                    selector->SetInclusiveHiggsDecayMode(5);
                     TString modifiedOutputfilename(outputfilename);
                     modifiedOutputfilename.ReplaceAll("inclusive", "inclusiveBbbar");
                     selector->SetOutputfilename(modifiedOutputfilename);
@@ -457,8 +455,7 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
                     exit(647);
                 }
                 // Reset the selection
-                // FIXME: make it int and make default -1, and use it for the separation
-                selector->SetHiggsInclusiveSeparation(false);
+                selector->SetInclusiveHiggsDecayMode(-999);
             }
             else{ // All other samples which are not split in subsamples
                 if(part >= 0){
