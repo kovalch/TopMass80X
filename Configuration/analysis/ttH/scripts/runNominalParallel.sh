@@ -26,6 +26,10 @@ for c in ee emu mumu; do
     $LA -f dy50inf -p 0 -c $c $@ &
     $LA -f dy50inf -p 1 -c $c $@ &
     $LA -f dy50inf -p 2 -c $c $@ &
+done
+
+for c in ee emu mumu; do
+    w
     $LA -f dy1050 -p 0 -c $c $@ &
     $LA -f dy1050 -p 1 -c $c $@ &
     $LA -f dy1050 -p 2 -c $c $@ &
