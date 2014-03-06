@@ -475,10 +475,6 @@ void Plotter::CalcDiffSystematics(TString Channel, TString Systematic, TString S
                 std::cout<<"                     binCenter "<<symmSysErrors->GetBinCenter(Nbins-i+1)<<" Content "<<symmSysErrors->GetBinContent(Nbins-i+1)<<std::endl;
                 Sys_Error = 0.5*(symmSysErrors->GetBinContent(i+2)+symmSysErrors->GetBinContent(Nbins+1-i));
                 std::cout<<"Symetrized error "<<Sys_Error<<std::endl;
-                if(Systematic == "MASS_"){
-                    Sys_Error = Sys_Error/12.;
-                }
-                // Save it
 
                 //std::cout<<"XAxisbinCenters[bin]: "<<XAxisbinCenters[i]<<" bin: "<<Xbins[i]<<" to "<<Xbins[i+1]<<" SystematicError: "<<Sys_Error<<std::endl;
                 ResultsFile<<"XAxisbinCenters[bin]: "<<XAxisbinCenters[i]<<" bin: "<<Xbins[i]<<" to "<<Xbins[i+1]<<" SystematicRelError: "<<Sys_Error<<std::endl;
@@ -488,9 +484,6 @@ void Plotter::CalcDiffSystematics(TString Channel, TString Systematic, TString S
             // Save the shifts in Tyler's triple-matrix ...
             for(Int_t bin = 0; bin < theDataHist->GetNbinsX(); ++bin) {
                 Sys_Error = symmSysErrors->GetBinContent(bin+2); // Keep in mind the extra layer of OF bins
-                if(Systematic == "MASS_"){
-                    Sys_Error = Sys_Error/12.;
-                }
                 // Save it
                 //std::cout<<"XAxisbinCenters[bin]: "<<XAxisbinCenters[bin]<<" bin: "<<Xbins[bin]<<" to "<<Xbins[bin+1]<<" SystematicError: "<<Sys_Error<<std::endl;
                 ResultsFile<<"XAxisbinCenters[bin]: "<<XAxisbinCenters[bin]<<" bin: "<<Xbins[bin]<<" to "<<Xbins[bin+1]<<" SystematicRelError: "<<Sys_Error<<std::endl;
@@ -1280,7 +1273,6 @@ void Plotter::PlotXSec(TString Channel){
 
             //systematic error in %
             double sys_err=(TMath::Abs(InclusiveXsectionPlot[j]-VarUp)+TMath::Abs(InclusiveXsectionPlot[j]-VarDown))*0.5/InclusiveXsectionPlot[j];
-            if(vec_systematic.at(i).Contains("MASS_")) {sys_err = sys_err/12;}
             syst_square_for_channel+=sys_err*sys_err;
             OutputFile<<vec_systematic.at(i)<<" (%): "<<setprecision(3)<<sys_err*100<<std::endl;
         }
@@ -2793,37 +2785,36 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
     madgraphhistBinned->Draw();
 
 
-    gStyle->SetErrorX(0.5);
     if (drawNLOCurves && drawMCATNLO) {
         setTheoryStyleAndFillLegend(mcnlohist, "mcatnloherwig");
         setTheoryStyleAndFillLegend(mcnlohistBinned, "mcatnloherwig", leg2);
-        mcnlohistBinned->Draw("SAME,E");
+        mcnlohistBinned->Draw("SAME,HISTO");
     }
     if(drawNLOCurves && drawPOWHEGHERWIG){
         setTheoryStyleAndFillLegend(powhegHerwighist, "powhegherwig");
         setTheoryStyleAndFillLegend(powhegHerwighistBinned, "powhegherwig", leg2);
-        powhegHerwighistBinned->Draw("SAME,E");
+        powhegHerwighistBinned->Draw("SAME,HISTO");
     }
     if(drawNLOCurves && drawPOWHEG){
         setTheoryStyleAndFillLegend(powheghist, "powhegpythia");
         setTheoryStyleAndFillLegend(powheghistBinned, "powhegpythia", leg2);
-        powheghistBinned->Draw("SAME,E");
+        powheghistBinned->Draw("SAME,HISTO");
     }
     if(drawNLOCurves && drawPERUGIA11){
         setTheoryStyleAndFillLegend(perugia11hist, "perugia11");
         setTheoryStyleAndFillLegend(perugia11histBinned, "perugia11", leg2);
-        perugia11histBinned->Draw("SAME,E");
+        perugia11histBinned->Draw("SAME,HISTO");
     }
     if(drawNLOCurves && drawKidonakis &&
         (name== "HypToppT" || name == "HypTopRapidity") &&
         !name.Contains("Lead") && !name.Contains("RestFrame")){
         setTheoryStyleAndFillLegend(Kidoth1_Binned, "kidonakis", leg2);
-        Kidoth1_Binned->Draw("SAME,E");
+        Kidoth1_Binned->Draw("SAME,HISTO");
     }
     if(drawNLOCurves && drawAhrens && (name == "HypTTBarMass" || name == "HypTTBarpT"))
     {
         setTheoryStyleAndFillLegend(Ahrensth1_Binned, "ahrens", leg2);
-        Ahrensth1_Binned->Draw("SAME,E");
+        Ahrensth1_Binned->Draw("SAME,HISTO");
     }
     if(drawNLOCurves && (drawMadScaleMatching || drawMadMass)){
         if(drawMadScaleMatching){
@@ -3715,37 +3706,36 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
         leg2->AddEntry(realTruthBinned, "Simu. Reweighted", "l");
     }
 
-    gStyle->SetErrorX(0.5);
     if (drawNLOCurves && drawMCATNLO) {
         setTheoryStyleAndFillLegend(mcnlohist, "mcatnloherwig");
         setTheoryStyleAndFillLegend(mcnlohistBinned, "mcatnloherwig", leg2);
-        mcnlohistBinned->Draw("SAME,E");
+        mcnlohistBinned->Draw("SAME,histo");
     }
     if(drawNLOCurves && drawPOWHEGHERWIG){
         setTheoryStyleAndFillLegend(powhegHerwighist, "powhegherwig");
         setTheoryStyleAndFillLegend(powhegHerwighistBinned, "powhegherwig", leg2);
-        powhegHerwighistBinned->Draw("SAME,E");
+        powhegHerwighistBinned->Draw("SAME,histo");
     }
     if(drawNLOCurves && drawPOWHEG){
         setTheoryStyleAndFillLegend(powheghist, "powhegpythia");
         setTheoryStyleAndFillLegend(powheghistBinned, "powhegpythia", leg2);
-        powheghistBinned->Draw("SAME,E");
+        powheghistBinned->Draw("SAME,histo");
     }
     if(drawNLOCurves && drawPERUGIA11){
         setTheoryStyleAndFillLegend(perugia11hist, "perugia11");
         setTheoryStyleAndFillLegend(perugia11histBinned, "perugia11", leg2);
-        perugia11histBinned->Draw("SAME,E");
+        perugia11histBinned->Draw("SAME,histo");
     }
     if(drawNLOCurves && drawKidonakis &&
         (name== "HypToppT" || name == "HypTopRapidity") && 
         !name.Contains("Lead") && !name.Contains("RestFrame")){
         setTheoryStyleAndFillLegend(Kidoth1_Binned, "kidonakis", leg2);
-        Kidoth1_Binned->Draw("SAME,E");
+        Kidoth1_Binned->Draw("SAME,histo");
     }
     if(drawNLOCurves && drawAhrens && (name == "HypTTBarMass" || name == "HypTTBarpT"))
     {
         setTheoryStyleAndFillLegend(Ahrensth1_Binned, "ahrens", leg2);
-        Ahrensth1_Binned->Draw("SAME,E");
+        Ahrensth1_Binned->Draw("SAME,histo");
     }
     if(drawNLOCurves && (drawMadScaleMatching || drawMadMass)){
         if(drawMadScaleMatching){
@@ -4534,7 +4524,6 @@ void Plotter::CalcUpDownDifference( TString Channel, TString Syst_Up, TString Sy
             double down = CentralValue_Down - CentralValue_Nom;
             double sq_err = (up*up + down*down)/2.;
             double rel_err = TMath::Sqrt(sq_err)/CentralValue_Nom;
-            if(Syst_Down.Contains("MASS") && Syst_Up.Contains("MASS")) rel_err = rel_err/12.;
 
             RelativeError.push_back(rel_err);
         }
@@ -4715,10 +4704,6 @@ void Plotter::getSignalUncertaintyBand(TH1* uncBand, TString channel_)
             if (binContent<1e-6){
                 rel_diffdo = 0;
                 rel_diffup = 0;
-            }
-            if(syst.at(iter) == "MASS_") {
-                rel_diffdo = rel_diffdo / 12.;
-                rel_diffup = rel_diffup / 12.;
             }
             vec_varup.at(nbin) += rel_diffup * rel_diffup;
             vec_vardown.at(nbin) += rel_diffdo * rel_diffdo;
