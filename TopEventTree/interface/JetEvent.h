@@ -52,6 +52,8 @@ public:
   std::vector<double> totalSF;
   std::vector<double> breg;
 
+  double sumEt;
+
   std::vector<TVector2> pull;
   std::vector<TVector2> pullCharged;
   std::vector<TVector2> genPull;

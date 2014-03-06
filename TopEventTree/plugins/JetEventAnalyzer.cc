@@ -121,6 +121,7 @@ JetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
   edm::Handle<std::vector<pat::MET> > met;
   evt.getByLabel(met_, met);
   jet->met = TLorentzVector(met->at(0).px(), met->at(0).py(), met->at(0).pz(), met->at(0).energy());
+  jet->sumEt = met->at(0).sumEt();
 
   trs->Fill();
 }
