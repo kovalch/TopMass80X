@@ -350,7 +350,7 @@ std::vector<int> GenHFHadronMatcher::findHadronJets ( const reco::GenJetCollecti
 
             int hadronIndex = analyzeMothers ( thisParticle, &hadron, &lepton, topDaughterQId, topBarDaughterQId, hadMothersCand, hadMothersIndices, 0, -1 );
             if ( hadron ) { // Putting hadron index to the list if it is not yet
-                std::cout << "hadron: " << hadron << "  lepton: " << lepton << std::endl;
+//                 std::cout << "hadron: " << hadron << "  lepton: " << lepton << std::endl;
                 // Storing the index of the hadron and lepton
                 int hadListIndex = isInList(hadIndex, hadronIndex);
                 if ( hadListIndex<0 ) {
