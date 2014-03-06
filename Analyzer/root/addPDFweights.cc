@@ -1,13 +1,14 @@
 #include "addPDFweights.h"
 
 #include "TFile.h"
-#include "TTree.h"
+#include "TChain.h"
 
 #include "TopMass/TopEventTree/interface/JetEvent.h"
 #include "TopMass/TopEventTree/interface/TopEvent.h"
 #include "TopMass/TopEventTree/interface/WeightEvent.h"
 
 #include "ProgramOptionsReader.h"
+#include "Helper.h"
 
 #include "iostream"
 
@@ -35,11 +36,26 @@ AddPDFweights::AddPDFweights()
 
 void AddPDFweights::addPDFweights()
 {
+  Helper* helper = new Helper();
+  int channelID = Helper::channelID();
+  
   std::string samplePath (po::GetOption<std::string>("analysisConfig.samplePath"));
   std::string inputSample(po::GetOption<std::string>("input"));
-
-  TFile* fromFile = new TFile((samplePath+inputSample+std::string(".root")).c_str(), "READ");
-  TTree* fromTree = (TTree*) fromFile->Get("analyzeKinFit/eventTree");
+  std::string treeDir;
+  
+  TChain* fromTree; int nFiles = 0;
+  if (channelID == Helper::kAllJets) {
+    fromTree = new TChain("analyzeKinFit/eventTree");
+    nFiles = fromTree->Add((samplePath+inputSample+std::string(".root")).c_str());
+    treeDir = "analyzeKinFit";
+  }
+  else {
+	  fromTree = new TChain("analyzeHitFit/eventTree");
+	  if (channelID != Helper::kElectronJets) nFiles += fromTree->Add((samplePath+inputSample+std::string("_muon/job_*.root")).c_str());
+	  if (channelID != Helper::kMuonJets    ) nFiles += fromTree->Add((samplePath+inputSample+std::string("_electron/job_*.root")).c_str());
+	  treeDir = "analyzeHitFit";
+  }
+  std::cout << "Adding " << nFiles << " files for " << inputSample << std::endl;
   
   fromTree->SetBranchStatus("*", 0);
   fromTree->SetBranchStatus("jet.*"   , 1);
@@ -55,8 +71,8 @@ void AddPDFweights::addPDFweights()
   fromTree->SetBranchAddress("weight.", &weightEvent);
   
   TFile* toFile = new TFile((samplePath+inputSample+std::string("_pdf.root")).c_str(), "RECREATE");
-  toFile->mkdir("analyzeKinFit");
-  toFile->cd("analyzeKinFit");
+  toFile->mkdir(treeDir.c_str());
+  toFile->cd(treeDir.c_str());
   
   TTree* toTree = fromTree->CloneTree(0);
   toTree->SetBranchAddress("jet."   , &jetEvent);
@@ -113,7 +129,6 @@ void AddPDFweights::addPDFweights()
   
   toFile->Write();
   toFile->Close();
-  fromFile->Close();
 }
 
 
