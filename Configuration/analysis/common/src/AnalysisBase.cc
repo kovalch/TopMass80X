@@ -991,20 +991,30 @@ void AnalysisBase::prepareKinRecoSF()
 //     weightKinFit=1; return;
 
     if (!isMC_) { weightKinFit_ = 1; return; }
-    //SF for mass(top) = 100..300 GeV
-    const static std::map<TString, double> sfNominal { {"ee", 0.9779}, {"emu", 0.9871}, {"mumu", 0.9879} };
-    const static std::map<TString, double> sfUnc { {"ee", 0.0066}, {"emu", 0.0032}, {"mumu", 0.0056} };
 
+    //SF = 1
+    //const static std::map<TString, double> sfNominal { {"ee", 1}, {"emu", 1}, {"mumu", 1} };
+    //const static std::map<TString, double> sfUnc { {"ee", 0}, {"emu", 0}, {"mumu", 0} };
+
+    
+    //SF for mass(top) = 100..300 GeV
+//     const static std::map<TString, double> sfNominal { {"ee", 0.9779}, {"emu", 0.9871}, {"mumu", 0.9879} };
+//     const static std::map<TString, double> sfUnc { {"ee", 0.0066}, {"emu", 0.0032}, {"mumu", 0.0056} };
+
+    //SF for newKinReco flat
+   const static std::map<TString, double> sfNominal { {"ee", 0.9876}, {"emu", 0.9921}, {"mumu", 0.9949} };
+   const static std::map<TString, double> sfUnc { {"ee", 0.0043}, {"emu", 0.0019}, {"mumu", 0.0037} };
+    
     //SF for mass(top) = 173 GeV
 //     const static std::map<TString, double> sfNominal { {"ee", 0.9696}, {"emu", 0.9732}, {"mumu", 0.9930} };
 //     const static std::map<TString, double> sfUnc { {"ee", 0.0123}, {"emu", 0.0060}, {"mumu", 0.0105} };
 
+    
+    
     weightKinFit_ = sfNominal.at(channel_);
     if (systematic_ == "KIN_UP") weightKinFit_ += sfUnc.at(channel_);
     else if (systematic_ == "KIN_DOWN") weightKinFit_ -= sfUnc.at(channel_);
 }
-
-
 
 bool AnalysisBase::calculateKinReco(const int leptonIndex, const int antiLeptonIndex, const std::vector<int>& jetIndices,
                                     const VLV& allLeptons, const VLV& jets,
@@ -1038,8 +1048,8 @@ bool AnalysisBase::calculateKinReco(const int leptonIndex, const int antiLeptonI
 
 
     // 2 lines needed for OLD kinReco
-    //const auto& sols = GetKinSolutions(leptonMinus, leptonPlus, &selectedJets, &btagValues, &met);
-    //const int nSolution = sols.size();
+//     const auto& sols = GetKinSolutions(leptonMinus, leptonPlus, &selectedJets, &btagValues, &met);
+//     const int nSolution = sols.size();
 
     // 6 lines needed for NEW kinReco
     if(!kinematicReconstruction_){

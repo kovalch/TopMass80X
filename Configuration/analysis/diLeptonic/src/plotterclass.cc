@@ -1460,11 +1460,11 @@ void Plotter::MakeTable(TString Channel, TString Systematic){
 
     for(unsigned int i=0; i<dataset.size(); i++){
 
-        TH1D *temp_hist5 = fileReader->GetClone<TH1D>(dataset[i], "step5");
-        TH1D *temp_hist6 = fileReader->GetClone<TH1D>(dataset[i], "step6");
-        TH1D *temp_hist7 = fileReader->GetClone<TH1D>(dataset[i], "step7");
-        TH1D *temp_hist8 = fileReader->GetClone<TH1D>(dataset[i], "step8");
-        TH1D *temp_hist9 = fileReader->GetClone<TH1D>(dataset[i], "step9");
+        TH1D *temp_hist5 = fileReader->GetClone<TH1D>(dataset[i], "events_weighted_step4");//TH1D *temp_hist5 = fileReader->GetClone<TH1D>(dataset[i], "step5");
+        TH1D *temp_hist6 = fileReader->GetClone<TH1D>(dataset[i], "events_weighted_step5");//TH1D *temp_hist6 = fileReader->GetClone<TH1D>(dataset[i], "step6");
+        TH1D *temp_hist7 = fileReader->GetClone<TH1D>(dataset[i], "events_weighted_step6");//TH1D *temp_hist7 = fileReader->GetClone<TH1D>(dataset[i], "step7");
+        TH1D *temp_hist8 = fileReader->GetClone<TH1D>(dataset[i], "events_weighted_step7");//TH1D *temp_hist8 = fileReader->GetClone<TH1D>(dataset[i], "step8");
+        TH1D *temp_hist9 = fileReader->GetClone<TH1D>(dataset[i], "events_weighted_step8");//TH1D *temp_hist9 = fileReader->GetClone<TH1D>(dataset[i], "step9");
 
         double LumiWeight = CalcLumiWeight(dataset.at(i));
         ApplyFlatWeights(temp_hist5, LumiWeight);
@@ -1586,7 +1586,7 @@ double Plotter::CalcXSec(std::vector<TString> datasetVec, double InclusiveXsecti
     if (Systematic.Contains("DOWN")){ Shift="Down";}
 
     for(unsigned int i=0; i<datasetVec.size(); i++){
-        TH1D *hist = fileReader->GetClone<TH1D>(datasetVec[i], "step9");
+        TH1D *hist = fileReader->GetClone<TH1D>(datasetVec[i], "events_weighted_step8");
         //hist->Sumw2();
 
         double LumiWeight = CalcLumiWeight(datasetVec.at(i));
@@ -1601,7 +1601,7 @@ double Plotter::CalcXSec(std::vector<TString> datasetVec, double InclusiveXsecti
             error_numbers[0]+=numhists[i]->GetBinError(2) * numhists[i]->GetBinError(2); //This bin selection is hardcoded please change it if changes when filling in Analysis.C
         }
         else if(legends.at(i) == "t#bar{t} Signal"){
-            TH1D *NoPUPlot = fileReader->GetClone<TH1D>(datasetVec.at(i), "step9");
+            TH1D *NoPUPlot = fileReader->GetClone<TH1D>(datasetVec.at(i), "events_weighted_step8");
 
             double LumiWeight = CalcLumiWeight(datasetVec.at(i));
             ApplyFlatWeights(NoPUPlot, LumiWeight);

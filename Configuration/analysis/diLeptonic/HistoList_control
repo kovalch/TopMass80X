@@ -263,8 +263,8 @@ METakr Standard Events MET 8 1 0 0 0 0 0 0 0 0
 BjetEtabkr Standard b-jets #eta 8 1 0 0 0 0 -2.4 2.4 0 0
 BjetEtaakr Standard b-jets #eta 8 1 0 0 0 0 -2.4 2.4 0 0
 
-step8 Standard Events - 1 1 0 0 0 0 0 0 0 0
-step9 Standard Events - 1 1 0 0 0 0 0 0 0 0
+events_weighted_step7 Standard Events - 1 1 0 0 0 0 0 0 0 0
+events_weighted_step8 Standard Events - 1 1 0 0 0 0 0 0 0 0
 
 # Name, Extra, axis labels (y,x), rebin, do_dyscale, logx, logy, ymin, ymax, xmin, xmax, nbins, xbins, bcs
 HypJetMultpt30 Standard Events Jets 1 1 0 1 0.12 30000000 2 10 0 0

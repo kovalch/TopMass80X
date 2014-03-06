@@ -736,12 +736,10 @@ void TopAnalysis::SlaveBegin(TTree*)
         h_RMSvsGenTTBarMass = store(new TH2D ( "RMSvsGenTTBarMass", "RMS vs Gen", 2000, 0, 2000, 4000, -2000, 2000 ));
         
         //2d cs
-        h_HypTopEtavsToppT = store(new TH2D ("HypTopEtavsToppT","TopEta vs ToppT; p_{T}^{t} [GeV];#eta(t)",500,0,500,100,-5,5));
-        h_HypAntiTopEtavsAntiToppT = store(new TH2D ("HypAntiTopEtavsAntiToppT","TopEta vs ToppT; p_{T}^{t} [GeV];#eta(t)",500,0,500,100,-5,5));
-        h_HypTTBarEtavsTTBarpT = store(new TH2D ("HypTTBarEtavsTTBarpT","TTBarEta vs TTBarpT;p_{T}^{t#bar{t}} [GeV];#eta(t#bar{t})",500,0,500,100,-5,5));
-
+        h_HypTopRapidityvsToppT = store(new TH2D ("HypTopRapidityvsToppT","TopRapidity vs ToppT; p_{T}^{t} [GeV];y(t)",800,0,800,100,-2.4,2.4));
+        h_HypAntiTopRapidityvsAntiToppT = store(new TH2D ("HypAntiTopRapidityvsAntiToppT","TopRapidity vs ToppT; p_{T}^{t} [GeV];y(t)",800,0,800,100,-2.4,2.4));
+        h_HypTTBarRapidityvsTTBarpT = store(new TH2D ("HypTTBarRapidityvsTTBarpT","TTBarRapidity vs TTBarpT;p_{T}^{t#bar{t}} [GeV];y(t#bar{t})",400,0,400,100,-2.4,2.4));
     /// ...
-        
     // Book histograms of all analyzers
     this->bookAll();
 }
@@ -1408,6 +1406,11 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     h_nRecoEvt_vs_MET->Fill(met.Pt(),weight);
     h_nRecoEvt_vs_JetEta->Fill((*recoObjects.jets_).at(0).Eta(), weight);
     h_nRecoEvt_vs_JetEta2->Fill((*recoObjects.jets_).at(1).Eta(), weight);
+    h_nRecoEvt_vs_JetpT->Fill((*recoObjects.jets_).at(0).Pt(), weight);
+    h_nRecoEvt_vs_JetpT2->Fill((*recoObjects.jets_).at(1).Pt(), weight);
+    
+    
+    
     h_nRecoEvt_Eff->Fill(1,weight);
     
     //...
@@ -1427,10 +1430,12 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     h_nKinRecoSol_vs_LeptonpT->Fill((*recoObjects.allLeptons_).at(leptonIndex).Pt(),weight);
     h_nKinRecoSol_vs_AntiLeptonpT->Fill((*recoObjects.allLeptons_).at(antiLeptonIndex).Pt(),weight);
     
-    h_nKinRecoSol_vs_LeppT2->Fill((*recoObjects.allLeptons_).at(antiLeptonIndex).Pt(),weight);
     h_nKinRecoSol_vs_MET->Fill(met.Pt(),weight);
     h_nKinRecoSol_vs_JetEta->Fill((*recoObjects.jets_).at(0).Eta(), weight);
     h_nKinRecoSol_vs_JetEta2->Fill((*recoObjects.jets_).at(1).Eta(), weight);
+    h_nKinRecoSol_vs_JetpT->Fill((*recoObjects.jets_).at(0).Pt(), weight);
+    h_nKinRecoSol_vs_JetpT2->Fill((*recoObjects.jets_).at(1).Pt(), weight);
+    
     h_nKinRecoSol_Eff->Fill(1, weight);
     
     weight *= weightKinReco;
@@ -1645,10 +1650,10 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     h_HypBJetEtaNLead->Fill(NLeadHypBJet.Eta(), weight);
 
     //Ievgen 
-    h_HypTopEtavsToppT->Fill((*kinRecoObjects.HypTop_).at(0).Pt(),(*kinRecoObjects.HypTop_).at(0).Eta(),weight);
-    h_HypAntiTopEtavsAntiToppT->Fill((*kinRecoObjects.HypAntiTop_).at(0).Pt(),(*kinRecoObjects.HypAntiTop_).at(0).Eta(),weight);
+    h_HypTopRapidityvsToppT->Fill((*kinRecoObjects.HypTop_).at(0).Pt(),(*kinRecoObjects.HypTop_).at(0).Rapidity(),weight);
+    h_HypAntiTopRapidityvsAntiToppT->Fill((*kinRecoObjects.HypAntiTop_).at(0).Pt(),(*kinRecoObjects.HypAntiTop_).at(0).Rapidity(),weight);
     
-    h_HypTTBarEtavsTTBarpT->Fill(hypbbbar.Pt(),hypttbar.Eta(),weight);
+    h_HypTTBarRapidityvsTTBarpT->Fill(hypbbbar.Pt(),hypttbar.Rapidity(),weight);
     
     // ...
     /// Parton momentum fraction

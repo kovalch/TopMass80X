@@ -269,9 +269,9 @@ class TopAnalysis : public AnalysisBase
        TH1 *h_true_vE;
        TH1 *h_reco_vE;
        
-       TH2 *h_HypTopEtavsToppT;
-       TH2 *h_HypAntiTopEtavsAntiToppT;
-       TH2 *h_HypTTBarEtavsTTBarpT;
+       TH2 *h_HypTopRapidityvsToppT;
+       TH2 *h_HypAntiTopRapidityvsAntiToppT;
+       TH2 *h_HypTTBarRapidityvsTTBarpT;
        
     /// ... 
     
