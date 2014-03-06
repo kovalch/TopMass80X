@@ -15,6 +15,7 @@
 #include "TopMass/TopEventTree/interface/TreeRegistryService.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
@@ -23,8 +24,7 @@
 JetEventAnalyzer::JetEventAnalyzer(const edm::ParameterSet& cfg):
 jets_           (cfg.getParameter<edm::InputTag>("jets")),
 alternativeJets_(cfg.getParameter<edm::InputTag>("alternativeJets")),
-//allJets_       (cfg.getParameter<edm::InputTag>("allJets")),
-//noPtEtaJets_   (cfg.getParameter<edm::InputTag>("noPtEtaJets")),
+met_            (cfg.getParameter<edm::InputTag>("met")),
 gluonTagName_   (cfg.getParameter<edm::InputTag>("gluonTagSrc").encode()),
 kJetMAX_(cfg.getParameter<int>("maxNJets")),
 jet(0),
@@ -118,6 +118,10 @@ JetEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
       ++alternativeJetIndex;
     }
   }
+  edm::Handle<std::vector<pat::MET> > met;
+  evt.getByLabel(met_, met);
+  jet->met = TLorentzVector(met->at(0).px(), met->at(0).py(), met->at(0).pz(), met->at(0).energy());
+
   trs->Fill();
 }
 

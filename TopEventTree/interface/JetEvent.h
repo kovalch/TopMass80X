@@ -20,7 +20,7 @@ public:
 
   unsigned int nJet() const { return jet.size(); }
 
-  ClassDef(JetEvent,2);
+  ClassDef(JetEvent,3);
 
   // JetEvent data
 
@@ -28,6 +28,7 @@ public:
   std::vector<TLorentzVector> genJet;
   std::vector<TLorentzVector> genParton;
   std::vector<TLorentzVector> alternativeJet;
+  TLorentzVector met;
 
   std::vector<int> nConstituents;
   std::vector<int> nChargedHadrons;

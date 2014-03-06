@@ -133,9 +133,123 @@ void SystematicUncertainties::fillLeptonJets()
   sample.comparisons["MET                              "] = comparison("defaultNewWeights", "metcl2");
 }
 
+void SystematicUncertainties::fillAllJets()
+{
+  std::string path("/nfs/dust/cms/user/eschliec/TopMass/topmass_140305_1201/");
+
+  sample.path = path;
+  sample.crossSection = 245.794;
+  sample.peLumi = 18192.;
+
+  //sample.variables = {"mass_mTop_JES", "JES_mTop_JES", "mass_mTop"};
+  sample.variables = {"mass_mTop_JES_fSig_fCP", "JES_mTop_JES_fSig_fCP", "mass_mTop"};
+
+  sample.ensembles["calibration"] = ensemble("", 0, {std::make_pair(sample.variables[0],std::make_pair(172.5,0.0585859)), std::make_pair(sample.variables[1],std::make_pair(1.0,0.000489326)), std::make_pair(sample.variables[2],std::make_pair(172.5,0.058894))});
+  sample.ensembles["default"] = ensemble("Z2_S12_ABS_JES_100_172_5_MadSpin_sig/MASS_172.5/JES_1.00/SHAPE_1.00/PERMU_0.0/FSIG_0.767995487/WEIGHT_weight.combinedWeight/job_*_ensemble.root", 62131965./1.8);
+
+  //sample.ensembles["puUp"  ] = ensemble("Z2_S12_ABS_JES_100_172_5_sig/MASS_172.5/JES_1.00/SHAPE_1.00/PERMU_0.0/FSIG_0.7581132863/WEIGHT_weight.combinedWeight/weight.puWeight\*weight.puWeightUp/job_*_ensemble.root", 62131965./1.8);
+  //sample.ensembles["puDown"] = ensemble("Z2_S12_ABS_JES_100_172_5_sig/MASS_172.5/JES_1.00/SHAPE_1.00/PERMU_0.0/FSIG_0.777978015/WEIGHT_weight.combinedWeight/weight.puWeight\*weight.puWeightDown/job_*_ensemble.root", 62131965./1.8);
+
+  //sample.ensembles["bFragLEP"] = ensemble("weight_frag/job_*_ensemble.root", 62131965./1.8);
+  //sample.ensembles["bFragLEPHard"] = ensemble("weight_fragHard/job_*_ensemble.root", 62131965./1.8);
+  //sample.ensembles["bFragLEPSoft"] = ensemble("weight_fragSoft/job_*_ensemble.root", 62131965./1.8);
+
+  //sample.ensembles["bFNuUp"] = ensemble("weight_fNuUp/job_*_ensemble.root", 62131965./1.8);
+  //sample.ensembles["bFNuDown"] = ensemble("weight_fNuDown/job_*_ensemble.root", 62131965./1.8);
+
+  //sample.ensembles["flavorQCDUp"] = ensemble("Summer12_TTJets1725_flavor:up_FlavorQCD/job_*_ensemble.root", 62131965./1.8);
+  //sample.ensembles["flavorQCDDown"] = ensemble("Summer12_TTJets1725_flavor:down_FlavorQCD/job_*_ensemble.root", 62131965./1.8);
+
+  sample.ensembles["flavorBUp"  ] = ensemble("Z2_S12_BJES_Up_sig/MASS_172.5/JES_1.00/SHAPE_1.00/PERMU_0.0/FSIG_0.7685747868/WEIGHT_weight.combinedWeight/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["flavorBDown"] = ensemble("Z2_S12_BJES_Down_sig/MASS_172.5/JES_1.00/SHAPE_1.00/PERMU_0.0/FSIG_0.7673455689/WEIGHT_weight.combinedWeight/job_*_ensemble.root", 62131965./1.8);
+
+  //sample.ensembles["flavorQUp"] = ensemble("Summer12_TTJets1725_flavor:up_FlavorPureQuark/job_*_ensemble.root", 62131965./1.8);
+  //sample.ensembles["flavorQDown"] = ensemble("Summer12_TTJets1725_flavor:down_FlavorPureQuark/job_*_ensemble.root", 62131965./1.8);
+
+  //sample.ensembles["flavorGUp"] = ensemble("Summer12_TTJets1725_flavor:up_FlavorPureGluon/job_*_ensemble.root", 62131965./1.8);
+  //sample.ensembles["flavorGDown"] = ensemble("Summer12_TTJets1725_flavor:down_FlavorPureGluon/job_*_ensemble.root", 62131965./1.8);
+
+  //sample.ensembles["bTagSFUp"    ] = ensemble("Z2_S12_ABS_JES_100_172_5_sig/MASS_172.5/JES_1.00/SHAPE_1.00/PERMU_0.0/FSIG_0.8104569962/WEIGHT_weight.combinedWeight/weight.bTagWeight\*weight.bTagWeight_bTagSFUp/job_*_ensemble.root", 62131965./1.8);
+  //sample.ensembles["bTagSFDown"  ] = ensemble("Z2_S12_ABS_JES_100_172_5_sig/MASS_172.5/JES_1.00/SHAPE_1.00/PERMU_0.0/FSIG_0.7264860679/WEIGHT_weight.combinedWeight/weight.bTagWeight\*weight.bTagWeight_bTagSFDown/job_*_ensemble.root", 62131965./1.8);
+  //sample.ensembles["misTagSFUp"  ] = ensemble("Z2_S12_ABS_JES_100_172_5_sig/MASS_172.5/JES_1.00/SHAPE_1.00/PERMU_0.0/FSIG_0.7701726589/WEIGHT_weight.combinedWeight/weight.bTagWeight\*weight.bTagWeight_misTagSFUp/job_*_ensemble.root", 62131965./1.8);
+  //sample.ensembles["misTagSFDown"] = ensemble("Z2_S12_ABS_JES_100_172_5_sig/MASS_172.5/JES_1.00/SHAPE_1.00/PERMU_0.0/FSIG_0.7658154453/WEIGHT_weight.combinedWeight/weight.bTagWeight\*weight.bTagWeight_misTagSFDown/job_*_ensemble.root", 62131965./1.8);
+
+  //sample.ensembles["topPt"] = ensemble("weight_topPt/job_*_ensemble.root", 62131965./1.8);
+
+  //sample.ensembles["fSig1.0"] = ensemble("fsig_1.00/job_*_ensemble.root", 62131965./1.8);
+  //sample.ensembles["fSig0.9"] = ensemble("fsig_0.90/job_*_ensemble.root", 62131965./1.8);
+
+  sample.ensembles["matchingUp"  ] = ensemble("Z2_S12_Matching_Up_MadSpin_sig/MASS_172.5/JES_1.00/SHAPE_1.00/PERMU_0.0/FSIG_0.6322077386/WEIGHT_weight.combinedWeight/job_*_ensemble.root", 37083003./1.8);
+  sample.ensembles["matchingDown"] = ensemble("Z2_S12_Matching_Down_MadSpin_sig/MASS_172.5/JES_1.00/SHAPE_1.00/PERMU_0.0/FSIG_0.6615011853/WEIGHT_weight.combinedWeight/job_*_ensemble.root", 34053113./1.8);
+
+  sample.ensembles["scaleUp"  ] = ensemble("Z2_S12_Scale_Up_MadSpin_sig/MASS_172.5/JES_1.00/SHAPE_1.00/PERMU_0.0/FSIG_0.7123135044/WEIGHT_weight.combinedWeight/job_*_ensemble.root", 41908271./1.8);
+  sample.ensembles["scaleDown"] = ensemble("Z2_S12_Scale_Down_MadSpin_sig/MASS_172.5/JES_1.00/SHAPE_1.00/PERMU_0.0/FSIG_0.635286828/WEIGHT_weight.combinedWeight/job_*_ensemble.root", 39286663./1.8);
+
+  sample.ensembles["jerUp"  ] = ensemble("Z2_S12_JER_Up_sig/MASS_172.5/JES_1.00/SHAPE_1.00/PERMU_0.0/FSIG_0.7532557569/WEIGHT_weight.combinedWeight/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["jerDown"] = ensemble("Z2_S12_JER_Down_sig/MASS_172.5/JES_1.00/SHAPE_1.00/PERMU_0.0/FSIG_0.7835384716/WEIGHT_weight.combinedWeight/job_*_ensemble.root", 62131965./1.8);
+
+  sample.ensembles["jes1Up"  ] = ensemble("Z2_S12_COR1JES_Up_sig/MASS_172.5/JES_1.00/SHAPE_1.00/PERMU_0.0/FSIG_0.7672252189/WEIGHT_weight.combinedWeight/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["jes1Down"] = ensemble("Z2_S12_COR1JES_Down_sig/MASS_172.5/JES_1.00/SHAPE_1.00/PERMU_0.0/FSIG_0.7695591532/WEIGHT_weight.combinedWeight/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["jes2Up"  ] = ensemble("Z2_S12_COR2JES_Up_sig/MASS_172.5/JES_1.00/SHAPE_1.00/PERMU_0.0/FSIG_0.7748250179/WEIGHT_weight.combinedWeight/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["jes2Down"] = ensemble("Z2_S12_COR2JES_Down_sig/MASS_172.5/JES_1.00/SHAPE_1.00/PERMU_0.0/FSIG_0.7601530052/WEIGHT_weight.combinedWeight/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["jes3Up"  ] = ensemble("Z2_S12_COR3JES_Up_sig/MASS_172.5/JES_1.00/SHAPE_1.00/PERMU_0.0/FSIG_0.76795735/WEIGHT_weight.combinedWeight/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["jes3Down"] = ensemble("Z2_S12_COR3JES_Down_sig/MASS_172.5/JES_1.00/SHAPE_1.00/PERMU_0.0/FSIG_0.7681779725/WEIGHT_weight.combinedWeight/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["jes4Up"  ] = ensemble("Z2_S12_COR4JES_Up_sig/MASS_172.5/JES_1.00/SHAPE_1.00/PERMU_0.0/FSIG_0.7835827954/WEIGHT_weight.combinedWeight/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["jes4Down"] = ensemble("Z2_S12_COR4JES_Down_sig/MASS_172.5/JES_1.00/SHAPE_1.00/PERMU_0.0/FSIG_0.7514697972/WEIGHT_weight.combinedWeight/job_*_ensemble.root", 62131965./1.8);
+
+  sample.ensembles["triggerUp"  ] = ensemble("Z2_S12_TRIGGERJES_Up_sig/MASS_172.5/JES_1.00/SHAPE_1.00/PERMU_0.0/FSIG_1.0000000000/WEIGHT_weight.combinedWeight/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["triggerDown"] = ensemble("Z2_S12_TRIGGERJES_Down_sig/MASS_172.5/JES_1.00/SHAPE_1.00/PERMU_0.0/FSIG_0.4383580517/WEIGHT_weight.combinedWeight/job_*_ensemble.root", 62131965./1.8);
+
+  //sample.ensembles["jesPuUp"] = ensemble("Summer12_TTJets1725_source:up_PileUpPtBB/job_*_ensemble.root", 62131965./1.8);
+  //sample.ensembles["jesPuDown"] = ensemble("Summer12_TTJets1725_source:down_PileUpPtBB/job_*_ensemble.root", 62131965./1.8);
+
+  sample.ensembles["mcatnlo"     ] = ensemble("Z2_S12_MCNLO_sig/MASS_172.5/JES_1.00/SHAPE_1.00/PERMU_0.0/FSIG_0.5557773815/WEIGHT_weight.combinedWeight/job_*_ensemble.root", 32852589./1.8);
+  sample.ensembles["powheg"      ] = ensemble("Z2_S12_POWHEG_sig/MASS_172.5/JES_1.00/SHAPE_1.00/PERMU_0.0/FSIG_0.7029775376/WEIGHT_weight.combinedWeight/job_*_ensemble.root", 21675970./1.8);
+  sample.ensembles["powhegHerwig"] = ensemble("Z2_S12_POWHER_sig/MASS_172.5/JES_1.00/SHAPE_1.00/PERMU_0.0/FSIG_0.8471413429/WEIGHT_weight.combinedWeight/job_*_ensemble.root", 27684235./1.8);
+
+  sample.ensembles["defaultSC"] = ensemble("Z2_S12_Z2_sig/MASS_172.5/JES_1.00/SHAPE_1.00/PERMU_0.0/FSIG_0.7916110679/WEIGHT_weight.combinedWeight/job_*_ensemble.root", 41761265./6./6.*9.*9./1.8);
+  sample.ensembles["P11"      ] = ensemble("Z2_S12_P11_sig/MASS_172.5/JES_1.00/SHAPE_1.00/PERMU_0.0/FSIG_0.7238466061/WEIGHT_weight.combinedWeight/job_*_ensemble.root", 11651739./6./6.*9.*9./1.8);
+  sample.ensembles["P11noCR"  ] = ensemble("Z2_S12_P11NoCR_sig/MASS_172.5/JES_1.00/SHAPE_1.00/PERMU_0.0/FSIG_0.7413235903/WEIGHT_weight.combinedWeight/job_*_ensemble.root", 11919063./6./6.*9.*9./1.8);
+  sample.ensembles["P11mpiHi" ] = ensemble("Z2_S12_P11mpiHi_sig/MASS_172.5/JES_1.00/SHAPE_1.00/PERMU_0.0/FSIG_0.7353096816/WEIGHT_weight.combinedWeight/job_*_ensemble.root", 7953758./6./6.*9.*9./1.8);
+  sample.ensembles["P11TeV"   ] = ensemble("Z2_S12_P11TeV_sig/MASS_172.5/JES_1.00/SHAPE_1.00/PERMU_0.0/FSIG_0.7431802926/WEIGHT_weight.combinedWeight/job_*_ensemble.root", 7946264./6./6.*9.*9./1.8);
+
+  ///////////////////////////////////
+
+  //sample.comparisons["Pile-up (pp cross-section)       "] = comparison("default", "puUp", "puDown", true);
+  //sample.comparisons["Jet energy response (udsc)       "] = comparison("default", "flavorQUp", "flavorQDown", true);
+  //sample.comparisons["Jet energy response (gluon)      "] = comparison("default", "flavorGUp", "flavorGDown", true);
+  sample.comparisons["Jet energy response (b)          "] = comparison("default", "flavorBUp", "flavorBDown", true);
+  //sample.comparisons["Jet energy response (FlavorQCD)  "] = comparison("default", "flavorQCDUp", "flavorQCDDown", true, false);
+  //sample.comparisons["b fragmentation                  "] = comparison("default", "bFragLEP", "", true);
+  //sample.comparisons["Semi-leptonic B hadron decays    "] = comparison("default", "bFNuUp", "bFNuDown", true);
+  //sample.comparisons["b-tag rate                       "] = comparison("default", "bTagSFUp", "bTagSFDown", true);
+  //sample.comparisons["b-tag (mistag rate)              "] = comparison("default", "misTagSFUp", "misTagSFDown", true);
+  sample.comparisons["Trigger                          "] = comparison("default", "triggerUp", "triggerDown", true);
+  //sample.comparisons["Top-pt reweighting               "] = comparison("default", "topPt", "", true);
+  sample.comparisons["ME-PS matching threshold         "] = comparison("default", "matchingUp", "matchingDown", false);
+  sample.comparisons["$Q^{2}$ scale                    "] = comparison("default", "scaleUp", "scaleDown", false);
+  sample.comparisons["Jet energy resolution            "] = comparison("default", "jerUp" , "jerDown" , true);
+  sample.comparisons["\\pt- and $\\eta$-dependent JES1 "] = comparison("default", "jes1Up", "jes1Down", true);
+  sample.comparisons["\\pt- and $\\eta$-dependent JES2 "] = comparison("default", "jes2Up", "jes2Down", true);
+  sample.comparisons["\\pt- and $\\eta$-dependent JES3 "] = comparison("default", "jes3Up", "jes3Down", true);
+  sample.comparisons["\\pt- and $\\eta$-dependent JES4 "] = comparison("default", "jes4Up", "jes4Down", true);
+  //sample.comparisons["Pile-up (JES)                    "] = comparison("defaultNewWeights", "jesPuUp", "jesPuDown", true);
+  sample.comparisons["MadGraph (no SC) vs. Powheg      "] = comparison("default", "powheg", "", false, false);
+  sample.comparisons["Powheg+Pythia6 vs. MC@NLO+Herwig6"] = comparison("powheg", "mcatnlo", "", false, false);
+  sample.comparisons["Powheg+Pythia6 vs. Powheg+Herwig6"] = comparison("powheg", "powhegHerwig", "", false, false);
+  sample.comparisons["MC@NLO+Herwig6 vs. Powheg+Herwig6"] = comparison("mcatnlo", "powhegHerwig", "", false, false);
+  sample.comparisons["ME generator                     "] = comparison("defaultSC", "powheg", "", false);
+  sample.comparisons["Spin correlations                "] = comparison("default", "defaultSC", "", false, true);
+  sample.comparisons["Pythia Z2* vs. P11               "] = comparison("defaultSC", "P11", "", false, false);
+  sample.comparisons["Color reconnection               "] = comparison("P11", "P11noCR", "", false);
+  sample.comparisons["Underlying event                 "] = comparison("P11", "P11mpiHi", "P11TeV", false);
+  //sample.comparisons["Non-\\ttbar background           "] = comparison("default", "fSig0.9", "fSig1.0", true);
+}
+
 void SystematicUncertainties::deriveSystematics()
 {
-  fillLeptonJets();
+  //fillLeptonJets();
+  fillAllJets();
 
   std::map<std::string, double> totalUncertainties2;
   for(auto& var : sample.variables)
@@ -162,9 +276,10 @@ void SystematicUncertainties::deriveSystematics()
         it->second.values[var].second = gaus->GetParameter(2) / sqrt(it->second.size/(sample.crossSection*sample.peLumi));
       }
 
-      N_PE = it->second.chain->GetEntries("mass_mTop_JES>0 & JES_mTop_JES>0 & genMass==172.5 & genJES==1");
+      std::string selection = sample.variables[0] + std::string(">0 & ") + sample.variables[1] + std::string(">0 & genMass==172.5 & genJES==1");
+      N_PE = it->second.chain->GetEntries(selection.c_str());
     }
-    printf("\tmass = %.2lf+/-%.2lf GeV, jes = %.3lf+/-%.3lf, mass1d = %.2lf+/-%.2lf GeV, N(PE) = %i\n", it->second.values["mass_mTop_JES"].first, it->second.values["mass_mTop_JES"].second, it->second.values["JES_mTop_JES"].first, it->second.values["JES_mTop_JES"].second, it->second.values["mass_mTop"].first, it->second.values["mass_mTop"].second, N_PE);
+    printf("\tmass = %.2lf+/-%.2lf GeV, jes = %.3lf+/-%.3lf, mass1d = %.2lf+/-%.2lf GeV, N(PE) = %i\n", it->second.values[sample.variables[0]].first, it->second.values[sample.variables[0]].second, it->second.values[sample.variables[1]].first, it->second.values[sample.variables[1]].second, it->second.values[sample.variables[2]].first, it->second.values[sample.variables[2]].second, N_PE);
   }
 
   ///////////////////////////////////
@@ -175,7 +290,7 @@ void SystematicUncertainties::deriveSystematics()
 
   std::cout << "\n### Systematic uncertainties" << std::endl;
   //myfile    << "\n### Systematic uncertainties" << "\n";
-  std::cout << "Uncertainty name \t 2D mass \t JSF \t 1D mass" << std::endl;
+  std::cout << "Uncertainty name \t \t \t  2D mass \t  JSF \t \t    1D mass" << std::endl;
   myfile    << "Uncertainty name & 2D mass & JSF & 1D mass \\tabularnewline\n\\hline" << "\n";
   for(std::map<std::string, comparison>::iterator it = sample.comparisons.begin(); it != sample.comparisons.end(); it++) {
     myfile    << "\\hline" << "\n";
@@ -206,37 +321,38 @@ void SystematicUncertainties::deriveSystematics()
         shiftUncs[var] = std::max(sqrt(pow(nominal.values[var].second,2)+pow(up.values[var].second,2)),sqrt(pow(nominal.values[var].second,2)+pow(down.values[var].second,2)));
     }
 
-    sprintf(buffer," & %.2lf$\\pm$%.2lf & %.3lf$\\pm$%.3lf & %.2lf$\\pm$%.2lf \\tabularnewline\n", shifts["mass_mTop_JES"], shiftUncs["mass_mTop_JES"], shifts["JES_mTop_JES"], shiftUncs["JES_mTop_JES"], shifts["mass_mTop"], shiftUncs["mass_mTop"]);
-    printf(" \t  %.2lf +/- %.2lf   %.3lf +/- %.3lf   %.2lf +/- %.2lf \n", shifts["mass_mTop_JES"], shiftUncs["mass_mTop_JES"], shifts["JES_mTop_JES"], shiftUncs["JES_mTop_JES"], shifts["mass_mTop"], shiftUncs["mass_mTop"]);
+    sprintf(buffer," & %.2lf$\\pm$%.2lf & %.3lf$\\pm$%.3lf & %.2lf$\\pm$%.2lf \\tabularnewline\n", shifts[sample.variables[0]], shiftUncs[sample.variables[0]], shifts[sample.variables[1]], shiftUncs[sample.variables[1]], shifts[sample.variables[2]], shiftUncs[sample.variables[2]]);
+    printf(" \t  %.2lf +/- %.2lf   %.3lf +/- %.3lf   %.2lf +/- %.2lf \n", shifts[sample.variables[0]], shiftUncs[sample.variables[0]], shifts[sample.variables[1]], shiftUncs[sample.variables[1]], shifts[sample.variables[2]], shiftUncs[sample.variables[2]]);
     myfile << buffer;
 
     if (upDown) {
       if (!it->second.active) std::cout << "(cc) ";
-      sprintf(buffer, "- up                              & %+.2lf & %+.3lf & %+.2lf \\tabularnewline\n", up.values["mass_mTop_JES"].first-nominal.values["mass_mTop_JES"].first, up.values["JES_mTop_JES"].first-nominal.values["JES_mTop_JES"].first, up.values["mass_mTop"].first-nominal.values["mass_mTop"].first);
-      printf("- up                              \t %+.2lf \t \t %+.3lf \t   %+.2lf \n", up.values["mass_mTop_JES"].first-nominal.values["mass_mTop_JES"].first, up.values["JES_mTop_JES"].first-nominal.values["JES_mTop_JES"].first, up.values["mass_mTop"].first-nominal.values["mass_mTop"].first);
+      sprintf(buffer, "- up                              & %+.2lf & %+.3lf & %+.2lf \\tabularnewline\n", up.values[sample.variables[0]].first-nominal.values[sample.variables[0]].first, up.values[sample.variables[1]].first-nominal.values[sample.variables[1]].first, up.values[sample.variables[2]].first-nominal.values[sample.variables[2]].first);
+      printf("- up                              \t %+.2lf \t \t %+.3lf \t   %+.2lf \n", up.values[sample.variables[0]].first-nominal.values[sample.variables[0]].first, up.values[sample.variables[1]].first-nominal.values[sample.variables[1]].first, up.values[sample.variables[2]].first-nominal.values[sample.variables[2]].first);
       myfile << buffer;
       if (!it->second.active) std::cout << "(cc) ";
-      sprintf(buffer, "- down                            & %+.2lf & %+.3lf & %+.2lf \\tabularnewline\n", down.values["mass_mTop_JES"].first-nominal.values["mass_mTop_JES"].first, down.values["JES_mTop_JES"].first-nominal.values["JES_mTop_JES"].first, down.values["mass_mTop"].first-nominal.values["mass_mTop"].first);
-      printf("- down                            \t %+.2lf \t \t %+.3lf \t   %+.2lf \n", down.values["mass_mTop_JES"].first-nominal.values["mass_mTop_JES"].first, down.values["JES_mTop_JES"].first-nominal.values["JES_mTop_JES"].first, down.values["mass_mTop"].first-nominal.values["mass_mTop"].first);
+      sprintf(buffer, "- down                            & %+.2lf & %+.3lf & %+.2lf \\tabularnewline\n", down.values[sample.variables[0]].first-nominal.values[sample.variables[0]].first, down.values[sample.variables[1]].first-nominal.values[sample.variables[1]].first, down.values[sample.variables[2]].first-nominal.values[sample.variables[2]].first);
+      printf("- down                            \t %+.2lf \t \t %+.3lf \t   %+.2lf \n", down.values[sample.variables[0]].first-nominal.values[sample.variables[0]].first, down.values[sample.variables[1]].first-nominal.values[sample.variables[1]].first, down.values[sample.variables[2]].first-nominal.values[sample.variables[2]].first);
       myfile << buffer;
     }
     else {
       if (!it->second.active) std::cout << "(cc) ";
-      sprintf(buffer, "- shift                           & %+.2lf & %+.3lf & %+.2lf \\tabularnewline\n", up.values["mass_mTop_JES"].first-nominal.values["mass_mTop_JES"].first, up.values["JES_mTop_JES"].first-nominal.values["JES_mTop_JES"].first, up.values["mass_mTop"].first-nominal.values["mass_mTop"].first);
-      printf("- shift                           \t %+.2lf \t \t %+.3lf \t   %+.2lf \n", up.values["mass_mTop_JES"].first-nominal.values["mass_mTop_JES"].first, up.values["JES_mTop_JES"].first-nominal.values["JES_mTop_JES"].first, up.values["mass_mTop"].first-nominal.values["mass_mTop"].first);
+      sprintf(buffer, "- shift                           & %+.2lf & %+.3lf & %+.2lf \\tabularnewline\n", up.values[sample.variables[0]].first-nominal.values[sample.variables[0]].first, up.values[sample.variables[1]].first-nominal.values[sample.variables[1]].first, up.values[sample.variables[2]].first-nominal.values[sample.variables[2]].first);
+      printf("- shift                           \t %+.2lf \t \t %+.3lf \t   %+.2lf \n", up.values[sample.variables[0]].first-nominal.values[sample.variables[0]].first, up.values[sample.variables[1]].first-nominal.values[sample.variables[1]].first, up.values[sample.variables[2]].first-nominal.values[sample.variables[2]].first);
       myfile << buffer;
     }
 
     if (it->second.active) {
-      for(auto& var : sample.variables)
+      for(auto& var : sample.variables){
         totalUncertainties2[var] += pow(std::max(shifts[var], shiftUncs[var]), 2);
+      }
     }
   }
 
   std::cout << "\n### Total uncertainties" << std::endl;
   myfile    << "\\hline\n\\hline\nTotal uncertainties";
-  sprintf(buffer, "& %.2lf & %.3lf & %.2lf \n", sqrt(totalUncertainties2["mass_mTop_JES"]), sqrt(totalUncertainties2["JES_mTop_JES"]), sqrt(totalUncertainties2["mass_mTop"]));
-  printf("\t 2D mass = %.2lf GeV, JSF = %.3lf, 1D mass = %.2lf GeV\n", sqrt(totalUncertainties2["mass_mTop_JES"]), sqrt(totalUncertainties2["JES_mTop_JES"]), sqrt(totalUncertainties2["mass_mTop"]));
+  sprintf(buffer, "& %.2lf & %.3lf & %.2lf \n", sqrt(totalUncertainties2[sample.variables[0]]), sqrt(totalUncertainties2[sample.variables[1]]), sqrt(totalUncertainties2[sample.variables[2]]));
+  printf("\t 2D mass = %.2lf GeV, JSF = %.3lf, 1D mass = %.2lf GeV\n", sqrt(totalUncertainties2[sample.variables[0]]), sqrt(totalUncertainties2[sample.variables[1]]), sqrt(totalUncertainties2[sample.variables[2]]));
   myfile << buffer;
   myfile.close();
 }

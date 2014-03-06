@@ -26,8 +26,7 @@ class JetEventAnalyzer : public edm::EDAnalyzer {
 
   edm::InputTag jets_;
   edm::InputTag alternativeJets_;
-  //edm::InputTag allJets_;
-  //edm::InputTag noPtEtaJets_;
+  edm::InputTag met_;
   std::string gluonTagName_;
 
   // max possible number of jets in events

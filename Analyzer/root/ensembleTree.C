@@ -184,9 +184,9 @@ void ensembleTree()
   canvasFit->cd();
   
   //// Get histos
-  TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140305_1200/");
-  sFile += "ensemble_S12_Uncalibrated.root";
-  //sFile += "ensemble_S12_Calibrated.root";
+  TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140305_1201/");
+  //sFile += "ensemble_S12_Uncalibrated.root";
+  sFile += "ensemble_S12_Calibrated.root";
 
   std::cout << "Doing calibration on: " << sFile << std::endl;
   TFile* fEnsemble = new TFile(sFile);
@@ -573,8 +573,8 @@ void ensembleTree()
     gMass[1]    ->Fit("constFit", "EM");
     gMassPull[1]->Fit("constFit", "EM");
   }
-  std::cout << "topmass 1D calibration uncertainty: " << std::sqrt(     pow(topMass1DUncertaintyFit->GetParError(0),2) +      pow((174.04-172.50)*topMass1DUncertaintyFit->GetParError(1),2)) << std::endl;
-  std::cout << "topmass 2D calibration uncertainty: " << std::sqrt(nJES*pow(topMass2DUncertaintyFit->GetParError(0),2) + nJES*pow((174.64-172.50)*topMass2DUncertaintyFit->GetParError(1),2)) << std::endl;
-  std::cout << "JES        calibration uncertainty: " << std::sqrt(nJES*pow(      jesUncertaintyFit->GetParError(0),2) + nJES*pow((174.64-172.50)*      jesUncertaintyFit->GetParError(1),2)) << std::endl;
+  std::cout << "topmass 1D calibration uncertainty: " << std::sqrt(     pow(topMass1DUncertaintyFit->GetParError(0),2) +      pow((171.7-172.50)*topMass1DUncertaintyFit->GetParError(1),2)) << std::endl;
+  std::cout << "topmass 2D calibration uncertainty: " << std::sqrt(nJES*pow(topMass2DUncertaintyFit->GetParError(0),2) + nJES*pow((171.7-172.50)*topMass2DUncertaintyFit->GetParError(1),2)) << std::endl;
+  std::cout << "JES        calibration uncertainty: " << std::sqrt(nJES*pow(      jesUncertaintyFit->GetParError(0),2) + nJES*pow((171.7-172.50)*      jesUncertaintyFit->GetParError(1),2)) << std::endl;
 }
 
