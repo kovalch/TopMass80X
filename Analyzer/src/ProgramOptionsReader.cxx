@@ -82,6 +82,7 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("preliminary,p", boost::program_options::value<int>()->default_value(1), "use \"Preliminary\" label for plots")
         ("cmsenergy,e", boost::program_options::value<int>()->default_value(7), "cms energy to be used (for example for plots)")
         ("pullWidth", boost::program_options::value<double>()->default_value(1.0), "pull width correction factor")
+        ("ele_pullWidth", boost::program_options::value<double>()->default_value(1.0), "pull width correction factor (e+jets)")
         ("analysisConfig.selection", boost::program_options::value<std::string>())
         ("analysisConfig.selectionCP", boost::program_options::value<std::string>())
         ("analysisConfig.selectionWP", boost::program_options::value<std::string>())

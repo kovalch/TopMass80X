@@ -8,12 +8,14 @@ typedef ProgramOptionsReader po;
 
 double IdeogramSampleLikelihood::DoEval(const double *x) const {
   double pullWidth(po::GetOption<double>("pullWidth"));
+  double pullWidthEle(po::GetOption<double>("ele_pullWidth"));
   
   double sampleResult  = 0;
   double sampleSumProb = 0;
   double sampleNEvent  = 0;
   for (const auto& event : eventFunctions_) {
     bool eventIsActive = false;
+    int flavour = 0;
     double eventResult  = 0;
     double eventSumProb = 0;
     for (const auto& permutation : event) {
@@ -27,13 +29,15 @@ double IdeogramSampleLikelihood::DoEval(const double *x) const {
         double p[] = {0., 0., 0., 0., 0., 0., 0.};
         eventResult  += permutation->Evaluate(temp, p);
         eventSumProb += permutation->GetFixedParam(0);
+        flavour       = permutation->GetFixedParam(3);
       }
     }
     if (eventIsActive) {
-      sampleResult  += -2.*log(eventResult)*eventSumProb;
+      double pullWidthFlavour = (flavour == 11) ? pullWidthEle : pullWidth;
+      sampleResult  += -2.*log(eventResult)*eventSumProb / (pullWidthFlavour*pullWidthFlavour);
       sampleSumProb += eventSumProb;
       sampleNEvent  += 1.;
     }
   }
-  return sampleResult * sampleNEvent / sampleSumProb / (pullWidth*pullWidth);
+  return sampleResult * sampleNEvent / sampleSumProb;
 }
