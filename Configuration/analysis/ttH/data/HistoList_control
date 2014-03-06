@@ -73,10 +73,12 @@ mvaA_best_mvaWeightCombined_step7 - - - 1 1 0 0 0 0 0 0 0 0
 ##
 basic_jetCategories_step7 - - - 1 1 0 0 0 0 0 0 0 0
 
+basic_vertex_multiplicity_step7 - - - 1 1 0 0 0 0 0 0 0 0
 basic_lepton_multiplicity_step7 - - - 1 1 0 1 0 0 0 0 0 0
 basic_lepton_pt_step7 - - - 1 1 0 0 0 0 0 0 0 0
 basic_lepton_eta_step7 - - - 1 1 0 0 0 0 0 0 0 0
 basic_lepton_phi_step7 - - - 1 1 0 0 0 0 0 0 0 0
+basic_lepton_dxy_step7 - - - 1 1 0 1 0 0 0 0 0 0
 basic_lepton1st_pt_step7 - - - 1 1 0 0 0 0 0 0 0 0
 basic_lepton1st_eta_step7 - - - 1 1 0 0 0 0 0 0 0 0
 basic_lepton1st_phi_step7 - - - 1 1 0 0 0 0 0 0 0 0
@@ -89,14 +91,16 @@ basic_dilepton_rapidity_step7 - - - 1 1 0 0 0 0 0 0 0 0
 basic_dilepton_phi_step7 - - - 1 1 0 0 0 0 0 0 0 0
 basic_dilepton_deltaEta_step7 - - - 1 1 0 0 0 0 0 0 0 0
 basic_dilepton_deltaPhi_step7 - - - 1 1 0 0 0 0 0 0 0 0
-basic_jet_multiplicity_step7 - - - 1 1 0 0 0 0 0 0 0 0
+basic_dilepton_deltaDxy_step7 - - - 1 1 0 1 0 0 0 0 0 0
+basic_dilepton_alpha_step7 - - - 1 1 0 0 0 0 0 0 0 0
+basic_jet_multiplicity_step7 - - - 1 1 0 1 0 0 0 0 0 0
 basic_jet_pt_step7 - - - 1 1 0 0 0 0 0 0 0 0
 basic_jet_eta_step7 - - - 1 1 0 0 0 0 0 0 0 0
 basic_jet_phi_step7 - - - 1 1 0 0 0 0 0 0 0 0
 basic_jet_btagDiscriminator_step7 - - - 1 1 0 0 0 0 0 0 0 0
 basic_jet_chargeGlobalPtWeighted_step7 - - - 1 1 0 0 0 0 0 0 0 0
 basic_jet_chargeRelativePtWeighted_step7 - - - 1 1 0 0 0 0 0 0 0 0
-basic_bjet_multiplicity_step7 - - - 1 1 0 0 0 0 0 0 0 0
+basic_bjet_multiplicity_step7 - - - 1 1 0 1 0 0 0 0 0 0
 basic_bjet_pt_step7 - - - 1 1 0 0 0 0 0 0 0 0
 basic_bjet_eta_step7 - - - 1 1 0 0 0 0 0 0 0 0
 basic_bjet_phi_step7 - - - 1 1 0 0 0 0 0 0 0 0
@@ -104,16 +108,14 @@ basic_bjet_chargeRelativePtWeighted_step7 - - - 1 1 0 0 0 0 0 0 0 0
 basic_met_et_step7 - - - 1 1 0 0 0 0 0 0 0 0
 basic_met_phi_step7 - - - 1 1 0 0 0 0 0 0 0 0
 
-basic_vertex_multiplicity_step7 - - - 1 1 0 0 0 0 0 0 0 0
-basic_lepton_DxyVertex0_step7 - - - 1 1 0 1 1 0 0 0 0 0
-basic_delta_leptons_DxyVertex0_step7 - - - 1 1 0 1 1 0 0 0 0 0
-basic_angle_leptons_step7 - - - 1 1 0 0 0 0 0 0 0 0
 
 
+#basic_vertex_multiplicity_step6 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_lepton_multiplicity_step6 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_lepton_pt_step6 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_lepton_eta_step6 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_lepton_phi_step6 - - - 1 1 0 0 0 0 0 0 0 0
+#basic_lepton_dxy_step6 - - - 1 1 0 1 0 0 0 0 0 0
 #basic_lepton1st_pt_step6 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_lepton1st_eta_step6 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_lepton1st_phi_step6 - - - 1 1 0 0 0 0 0 0 0 0
@@ -126,27 +128,28 @@ basic_angle_leptons_step7 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_dilepton_phi_step6 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_dilepton_deltaEta_step6 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_dilepton_deltaPhi_step6 - - - 1 1 0 0 0 0 0 0 0 0
-#basic_jet_multiplicity_step6 - - - 1 1 0 0 0 0 0 0 0 0
+#basic_dilepton_deltaDxy_step6 - - - 1 1 0 1 0 0 0 0 0 0
+#basic_dilepton_alpha_step6 - - - 1 1 0 0 0 0 0 0 0 0
+#basic_jet_multiplicity_step6 - - - 1 1 0 1 0 0 0 0 0 0
 #basic_jet_pt_step6 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_jet_eta_step6 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_jet_phi_step6 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_jet_btagDiscriminator_step6 - - - 1 1 0 0 0 0 0 0 0 0
-#basic_bjet_multiplicity_step6 - - - 1 1 0 0 0 0 0 0 0 0
+#basic_bjet_multiplicity_step6 - - - 1 1 0 1 0 0 0 0 0 0
 #basic_bjet_pt_step6 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_bjet_eta_step6 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_bjet_phi_step6 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_met_et_step6 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_met_phi_step6 - - - 1 1 0 0 0 0 0 0 0 0
 
-basic_vertex_multiplicity_step6 - - - 1 1 0 0 0 0 0 0 0 0
-basic_lepton_DxyVertex0_step6 - - - 1 1 0 1 1 0 0 0 0 0
-basic_delta_leptons_DxyVertex0_step6 - - - 1 1 0 1 1 0 0 0 0 0
-basic_angle_leptons_step6 - - - 1 1 0 0 0 0 0 0 0 0
 
+
+#basic_vertex_multiplicity_step5 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_lepton_multiplicity_step5 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_lepton_pt_step5 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_lepton_eta_step5 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_lepton_phi_step5 - - - 1 1 0 0 0 0 0 0 0 0
+#basic_lepton_dxy_step5 - - - 1 1 0 1 0 0 0 0 0 0
 #basic_lepton1st_pt_step5 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_lepton1st_eta_step5 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_lepton1st_phi_step5 - - - 1 1 0 0 0 0 0 0 0 0
@@ -159,27 +162,28 @@ basic_angle_leptons_step6 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_dilepton_phi_step5 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_dilepton_deltaEta_step5 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_dilepton_deltaPhi_step5 - - - 1 1 0 0 0 0 0 0 0 0
-#basic_jet_multiplicity_step5 - - - 1 1 0 0 0 0 0 0 0 0
+#basic_dilepton_deltaDxy_step5 - - - 1 1 0 1 0 0 0 0 0 0
+#basic_dilepton_alpha_step5 - - - 1 1 0 0 0 0 0 0 0 0
+#basic_jet_multiplicity_step5 - - - 1 1 0 1 0 0 0 0 0 0
 #basic_jet_pt_step5 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_jet_eta_step5 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_jet_phi_step5 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_jet_btagDiscriminator_step5 - - - 1 1 0 0 0 0 0 0 0 0
-#basic_bjet_multiplicity_step5 - - - 1 1 0 0 0 0 0 0 0 0
+#basic_bjet_multiplicity_step5 - - - 1 1 0 1 0 0 0 0 0 0
 #basic_bjet_pt_step5 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_bjet_eta_step5 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_bjet_phi_step5 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_met_et_step5 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_met_phi_step5 - - - 1 1 0 0 0 0 0 0 0 0
 
-basic_vertex_multiplicity_step5 - - - 1 1 0 0 0 0 0 0 0 0
-basic_lepton_DxyVertex0_step5 - - - 1 1 0 1 1 0 0 0 0 0
-basic_delta_leptons_DxyVertex0_step5 - - - 1 1 0 1 1 0 0 0 0 0
-basic_angle_leptons_step5 - - - 1 1 0 0 0 0 0 0 0 0
 
+
+#basic_vertex_multiplicity_step4 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_lepton_multiplicity_step4 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_lepton_pt_step4 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_lepton_eta_step4 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_lepton_phi_step4 - - - 1 1 0 0 0 0 0 0 0 0
+#basic_lepton_dxy_step4 - - - 1 1 0 1 0 0 0 0 0 0
 #basic_lepton1st_pt_step4 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_lepton1st_eta_step4 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_lepton1st_phi_step4 - - - 1 1 0 0 0 0 0 0 0 0
@@ -192,27 +196,28 @@ basic_angle_leptons_step5 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_dilepton_phi_step4 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_dilepton_deltaEta_step4 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_dilepton_deltaPhi_step4 - - - 1 1 0 0 0 0 0 0 0 0
-#basic_jet_multiplicity_step4 - - - 1 1 0 0 0 0 0 0 0 0
+#basic_dilepton_deltaDxy_step4 - - - 1 1 0 1 0 0 0 0 0 0
+#basic_dilepton_alpha_step4 - - - 1 1 0 0 0 0 0 0 0 0
+#basic_jet_multiplicity_step4 - - - 1 1 0 1 0 0 0 0 0 0
 #basic_jet_pt_step4 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_jet_eta_step4 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_jet_phi_step4 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_jet_btagDiscriminator_step4 - - - 1 1 0 0 0 0 0 0 0 0
-#basic_bjet_multiplicity_step4 - - - 1 1 0 0 0 0 0 0 0 0
+#basic_bjet_multiplicity_step4 - - - 1 1 0 1 0 0 0 0 0 0
 #basic_bjet_pt_step4 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_bjet_eta_step4 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_bjet_phi_step4 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_met_et_step4 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_met_phi_step4 - - - 1 1 0 0 0 0 0 0 0 0
 
-basic_vertex_multiplicity_step4 - - - 1 1 0 0 0 0 0 0 0 0
-basic_lepton_DxyVertex0_step4 - - - 1 1 0 1 1 0 0 0 0 0
-basic_delta_leptons_DxyVertex0_step4 - - - 1 1 0 1 1 0 0 0 0 0
-basic_angle_leptons_step4 - - - 1 1 0 0 0 0 0 0 0 0
 
+
+#basic_vertex_multiplicity_step3 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_lepton_multiplicity_step3 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_lepton_pt_step3 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_lepton_eta_step3 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_lepton_phi_step3 - - - 1 0 0 0 0 0 0 0 0 0
+#basic_lepton_dxy_step3 - - - 1 0 0 1 0 0 0 0 0 0
 #basic_lepton1st_pt_step3 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_lepton1st_eta_step3 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_lepton1st_phi_step3 - - - 1 0 0 0 0 0 0 0 0 0
@@ -222,30 +227,31 @@ basic_angle_leptons_step4 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_dilepton_mass_step3 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_dilepton_pt_step3 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_dilepton_rapidity_step3 - - - 1 0 0 0 0 0 0 0 0 0
-#basic_dilepton_phi_step3 - - - 1 1 0 0 0 0 0 0 0 0
+#basic_dilepton_phi_step3 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_dilepton_deltaEta_step3 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_dilepton_deltaPhi_step3 - - - 1 0 0 0 0 0 0 0 0 0
-#basic_jet_multiplicity_step3 - - - 1 0 0 0 0 0 0 0 0 0
+#basic_dilepton_deltaDxy_step3 - - - 1 0 0 1 0 0 0 0 0 0
+#basic_dilepton_alpha_step3 - - - 1 0 0 0 0 0 0 0 0 0
+#basic_jet_multiplicity_step3 - - - 1 0 0 1 0 0 0 0 0 0
 #basic_jet_pt_step3 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_jet_eta_step3 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_jet_phi_step3 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_jet_btagDiscriminator_step3 - - - 1 0 0 0 0 0 0 0 0 0
-#basic_bjet_multiplicity_step3 - - - 1 0 0 0 0 0 0 0 0 0
+#basic_bjet_multiplicity_step3 - - - 1 0 0 1 0 0 0 0 0 0
 #basic_bjet_pt_step3 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_bjet_eta_step3 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_bjet_phi_step3 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_met_et_step3 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_met_phi_step3 - - - 1 0 0 0 0 0 0 0 0 0
 
-# basic_vertex_multiplicity_step3 - - - 1 1 0 0 0 0 0 0 0 0
-# basic_lepton_DxyVertex0_step3 - - - 1 1 0 1 1 0 0 0 0 0
-# basic_delta_leptons_DxyVertex0_step3 - - - 1 1 0 1 1 0 0 0 0 0
-# basic_angle_leptons_step3 - - - 1 1 0 0 0 0 0 0 0 0
 
+
+#basic_vertex_multiplicity_step2 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_lepton_multiplicity_step2 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_lepton_pt_step2 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_lepton_eta_step2 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_lepton_phi_step2 - - - 1 0 0 0 0 0 0 0 0 0
+#basic_lepton_dxy_step2 - - - 1 0 0 1 0 0 0 0 0 0
 #basic_lepton1st_pt_step2 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_lepton1st_eta_step2 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_lepton1st_phi_step2 - - - 1 0 0 0 0 0 0 0 0 0
@@ -258,27 +264,28 @@ basic_angle_leptons_step4 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_dilepton_phi_step2 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_dilepton_deltaEta_step2 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_dilepton_deltaPhi_step2 - - - 1 0 0 0 0 0 0 0 0 0
-#basic_jet_multiplicity_step2 - - - 1 0 0 0 0 0 0 0 0 0
+#basic_dilepton_deltaDxy_step2 - - - 1 0 0 1 0 0 0 0 0 0
+#basic_dilepton_alpha_step2 - - - 1 0 0 0 0 0 0 0 0 0
+#basic_jet_multiplicity_step2 - - - 1 0 0 1 0 0 0 0 0 0
 #basic_jet_pt_step2 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_jet_eta_step2 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_jet_phi_step2 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_jet_btagDiscriminator_step2 - - - 1 0 0 0 0 0 0 0 0 0
-#basic_bjet_multiplicity_step2 - - - 1 0 0 0 0 0 0 0 0 0
+#basic_bjet_multiplicity_step2 - - - 1 0 0 1 0 0 0 0 0 0
 #basic_bjet_pt_step2 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_bjet_eta_step2 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_bjet_phi_step2 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_met_et_step2 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_met_phi_step2 - - - 1 0 0 0 0 0 0 0 0 0
 
-# basic_vertex_multiplicity_step2 - - - 1 1 0 0 0 0 0 0 0 0
-# basic_lepton_DxyVertex0_step2 - - - 1 1 0 1 1 0 0 0 0 0
-# basic_delta_leptons_DxyVertex0_step2 - - - 1 1 0 1 1 0 0 0 0 0
-# basic_angle_leptons_step2 - - - 1 1 0 0 0 0 0 0 0 0
 
+
+# basic_vertex_multiplicity_step1 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_lepton_multiplicity_step1 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_lepton_pt_step1 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_lepton_eta_step1 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_lepton_phi_step1 - - - 1 0 0 0 0 0 0 0 0 0
+#basic_lepton_dxy_step1 - - - 1 0 0 1 0 0 0 0 0 0
 #basic_lepton1st_pt_step1 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_lepton1st_eta_step1 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_lepton1st_phi_step1 - - - 1 0 0 0 0 0 0 0 0 0
@@ -291,12 +298,14 @@ basic_angle_leptons_step4 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_dilepton_phi_step1 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_dilepton_deltaEta_step1 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_dilepton_deltaPhi_step1 - - - 1 0 0 0 0 0 0 0 0 0
-#basic_jet_multiplicity_step1 - - - 1 0 0 0 0 0 0 0 0 0
+#basic_dilepton_deltaDxy_step1 - - - 1 0 0 1 0 0 0 0 0 0
+#basic_dilepton_alpha_step1 - - - 1 0 0 0 0 0 0 0 0 0
+#basic_jet_multiplicity_step1 - - - 1 0 0 1 0 0 0 0 0 0
 #basic_jet_pt_step1 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_jet_eta_step1 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_jet_phi_step1 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_jet_btagDiscriminator_step1 - - - 1 0 0 0 0 0 0 0 0 0
-#basic_bjet_multiplicity_step1 - - - 1 0 0 0 0 0 0 0 0 0
+#basic_bjet_multiplicity_step1 - - - 1 0 0 1 0 0 0 0 0 0
 #basic_bjet_pt_step1 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_bjet_eta_step1 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_bjet_phi_step1 - - - 1 0 0 0 0 0 0 0 0 0
@@ -304,10 +313,6 @@ basic_angle_leptons_step4 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_met_phi_step1 - - - 1 0 0 0 0 0 0 0 0 0
 
 
-# basic_vertex_multiplicity_step1 - - - 1 1 0 0 0 0 0 0 0 0
-# basic_lepton_DxyVertex0_step1 - - - 1 1 0 1 1 0 0 0 0 0
-# basic_delta_leptons_DxyVertex0_step1 - - - 1 1 0 1 1 0 0 0 0 0
-# basic_angle_leptons_step1 - - - 1 1 0 0 0 0 0 0 0 0
 
 
 
