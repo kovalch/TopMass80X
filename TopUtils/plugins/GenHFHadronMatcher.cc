@@ -72,7 +72,8 @@ private:
     typedef const reco::Candidate* pCRC;
     std::vector<int> findHadronJets ( const reco::GenJetCollection& genJets,  std::vector<int> &hadIndex, std::vector<reco::GenParticle> &hadMothersGenPart, 
                                       std::vector<std::vector<int> > &hadMothersIndices, std::vector<int> &hadLeptonIndex, 
-                                      std::vector<int> &hadLeptonHadIndex, std::vector<int> &hadFlavour, std::vector<int> &hadFromTopWeakDecay );
+                                      std::vector<int> &hadLeptonHadIndex, std::vector<int> &hadFlavour, 
+                                      std::vector<int> &hadFromTopWeakDecay, std::vector<int> &hadFromBHadron );
     int analyzeMothers ( const reco::Candidate* thisParticle, pCRC *hadron, pCRC *lepton, int& topDaughterQId, int& topBarDaughterQId, 
                          std::vector<const reco::Candidate*> &hadMothers, std::vector<std::vector<int> > &hadMothersIndices, 
                          std::set<const reco::Candidate*> *analyzedParticles, const int prevPartIndex );
@@ -151,8 +152,7 @@ GenHFHadronMatcher::GenHFHadronMatcher ( const edm::ParameterSet& cfg )
     flavour_           = cfg.getParameter<int> ( "flavour" );
     noBBbarResonances_ = cfg.getParameter<bool> ( "noBBbarResonances" );
     onlyJetClusteredHadrons_ = cfg.getParameter<bool> ( "onlyJetClusteredHadrons" );
-
-
+    
     flavour_ = abs ( flavour_ ); // Make flavour independent of sign given in configuration
     if ( flavour_==5 ) {
         flavourStr_="B";
@@ -171,6 +171,7 @@ GenHFHadronMatcher::GenHFHadronMatcher ( const edm::ParameterSet& cfg )
     produces< std::vector<int> > ( "gen"+flavourStr_+"HadLeptonIndex" ); // Index of lepton found among the hadron decay products in the list of mothers
     produces< std::vector<int> > ( "gen"+flavourStr_+"HadLeptonHadronIndex" ); // Index of hadron the lepton is associated to
     produces< std::vector<int> > ( "gen"+flavourStr_+"HadFromTopWeakDecay" ); // Tells whether the hadron appears in the chain after top decay
+    produces< std::vector<int> > ( "gen"+flavourStr_+"HadFromBHadron" ); // Tells whether the hadron comes from a b-hadron (for c-hadrons)
 
 }
 
@@ -238,9 +239,10 @@ void GenHFHadronMatcher::produce ( edm::Event& evt, const edm::EventSetup& setup
     std::auto_ptr<std::vector<int> > hadLeptonIndex ( new std::vector<int> );
     std::auto_ptr<std::vector<int> > hadLeptonHadIndex ( new std::vector<int> );
     std::auto_ptr<std::vector<int> > hadFromTopWeakDecay ( new std::vector<int> );
-
+    std::auto_ptr<std::vector<int> > hadFromBHadron ( new std::vector<int> );
+    
     LogDebug ( flavourStr_+"Jet (new)" ) << "searching for "<< flavourStr_ <<"-jets in " << genJets_;
-    *hadJetIndex = findHadronJets ( *genJets, *hadIndex, *hadMothers, *hadMothersIndices, *hadLeptonIndex, *hadLeptonHadIndex, *hadFlavour, *hadFromTopWeakDecay );
+    *hadJetIndex = findHadronJets ( *genJets, *hadIndex, *hadMothers, *hadMothersIndices, *hadLeptonIndex, *hadLeptonHadIndex, *hadFlavour, *hadFromTopWeakDecay, *hadFromBHadron );
 
     // Putting products to the event
     evt.put ( hadMothers,         "gen"+flavourStr_+"HadPlusMothers" );
@@ -251,6 +253,7 @@ void GenHFHadronMatcher::produce ( edm::Event& evt, const edm::EventSetup& setup
     evt.put ( hadLeptonIndex,     "gen"+flavourStr_+"HadLeptonIndex" );
     evt.put ( hadLeptonHadIndex,  "gen"+flavourStr_+"HadLeptonHadronIndex" );
     evt.put ( hadFromTopWeakDecay,"gen"+flavourStr_+"HadFromTopWeakDecay" );
+    evt.put ( hadFromBHadron,     "gen"+flavourStr_+"HadFromBHadron" );
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -303,14 +306,16 @@ void GenHFHadronMatcher::endLuminosityBlock ( edm::LuminosityBlock&, edm::EventS
 * @param[out] hadMothers vector of all mothers at all levels of each found hadron
 * @param[out] hadMothersIndices connection between each particle from hadMothers and its mothers
 * @param[out] hadLeptonIndex index of lepton among the hadMothers
+* @param[out] hadLeptonHadIndex index of hadron associated to each lepton
 * @param[out] hadFlavour flavour of each found hadron
-* @param[out] hadFromTopWeakDecay whether each hadron contains the top quark in its decay chain
+* @param[out] hadFromTopWeakDecay whether each hadron contains the top quark in its decay chain (works only for B-Hadrons)
+* @param[out] hadFromBHadron whether each hadron comes from a b-hadron
 * @returns vector of jets being matched to each hadron by jet clustering algorithm
 */
 std::vector<int> GenHFHadronMatcher::findHadronJets ( const reco::GenJetCollection& genJets, std::vector<int> &hadIndex, 
                                                       std::vector<reco::GenParticle> &hadMothers, std::vector<std::vector<int> > &hadMothersIndices, 
                                                       std::vector<int> &hadLeptonIndex, std::vector<int> &hadLeptonHadIndex, std::vector<int> &hadFlavour, 
-                                                      std::vector<int> &hadFromTopWeakDecay )
+                                                      std::vector<int> &hadFromTopWeakDecay, std::vector<int> &hadFromBHadron )
 {
     std::vector<int> result;
     std::vector<const reco::Candidate*> hadMothersCand;
@@ -345,7 +350,7 @@ std::vector<int> GenHFHadronMatcher::findHadronJets ( const reco::GenJetCollecti
 
             int hadronIndex = analyzeMothers ( thisParticle, &hadron, &lepton, topDaughterQId, topBarDaughterQId, hadMothersCand, hadMothersIndices, 0, -1 );
             if ( hadron ) { // Putting hadron index to the list if it is not yet
-//                 std::cout << "hadron: " << hadron << "  lepton: " << lepton << std::endl;
+                std::cout << "hadron: " << hadron << "  lepton: " << lepton << std::endl;
                 // Storing the index of the hadron and lepton
                 int hadListIndex = isInList(hadIndex, hadronIndex);
                 if ( hadListIndex<0 ) {
@@ -377,7 +382,7 @@ std::vector<int> GenHFHadronMatcher::findHadronJets ( const reco::GenJetCollecti
 
     // Looping over all hadrons
     for ( unsigned int hadNum=0; hadNum<nHad; hadNum++ ) {
-
+        
         unsigned int hadIdx = hadIndex.at(hadNum);   // Index of hadron in the hadMothers
         const reco::GenParticle* hadron = &hadMothers.at(hadIdx);
         int jetIndex = -1;
@@ -494,17 +499,20 @@ std::vector<int> GenHFHadronMatcher::findHadronJets ( const reco::GenJetCollecti
         
         // Checking whether hadron comes from the Top weak decay
         int isFromTopWeakDecay = 1;
+        std::vector <int> checkedParticles;
         if(hadFlavour.at(hadNum)!=0) {
-            std::vector <int> checkedParticles;
             int lastQIndex = LastQuarkId.at(lastQuarkIndices.at(hadNum));
             bool fromTB = topDaughterQId>=0?findInMothers( lastQIndex, checkedParticles, hadMothersIndices, hadMothers, -1, 0, false, topDaughterQId, 2, false ) : false;
             checkedParticles.clear();
             bool fromTbarB = topBarDaughterQId>=0?findInMothers( lastQIndex, checkedParticles, hadMothersIndices, hadMothers, -1, 0, false, topBarDaughterQId, 2, false):false;
+            checkedParticles.clear();
             if(!fromTB && !fromTbarB) {
                 isFromTopWeakDecay = 0;
             }
         } else isFromTopWeakDecay = 2;
         hadFromTopWeakDecay.push_back(isFromTopWeakDecay);
+        int isFromBHadron = findInMothers( hadIdx, checkedParticles, hadMothersIndices, hadMothers, 0, 555555, true, -1, 1, false )?1:0;
+        hadFromBHadron.push_back(isFromBHadron);
         
 
         if(LastQuarkMotherId.size()>0) {
@@ -848,6 +856,14 @@ bool GenHFHadronMatcher::findInMothers ( int idx, std::vector<int> &mothChains, 
     }
     // Stopping if the particular particle has been found
     if(stopId>=0 && idx == stopId) return true;
+    
+    // Stopping if the hadron of particular flavour has been found
+    if(pdgId%111111==0 && pdgId!=0) {
+        if(isHadronPdgId(pdgId/111111, hadMothers.at(idx).pdgId())) {
+            return true;
+        }
+    }
+    
     // Checking whether current mother satisfies selection criteria
     if ( ( ( hadMothers.at ( idx ).pdgId() == pdgId && pdgAbs==false )
             || ( abs ( hadMothers.at ( idx ).pdgId() ) == abs ( pdgId ) && pdgAbs==true ) )

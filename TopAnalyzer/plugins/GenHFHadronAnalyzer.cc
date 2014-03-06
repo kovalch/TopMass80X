@@ -69,7 +69,8 @@ private:
 
     std::vector<int> findHadronJets ( const reco::GenJetCollection& genJets,  std::vector<int> &hadIndex, std::vector<reco::GenParticle> &hadMothersGenPart, 
                                       std::vector<std::vector<int> > &hadMothersIndices, std::vector<int> &hadLeptonIndex, 
-                                      std::vector<int> &hadLeptonHadIndex, std::vector<int> &hadFlavour, std::vector<int> &hadFromTopWeakDecay );
+                                      std::vector<int> &hadLeptonHadIndex, std::vector<int> &hadFlavour, 
+                                      std::vector<int> &hadFromTopWeakDecay, std::vector<int> &hadFromBHadron );
     typedef const reco::Candidate* pCRC;
     int analyzeMothers ( const reco::Candidate* thisParticle, pCRC *hadron, pCRC *lepton, int& topDaughterQId, int& topBarDaughterQId, 
                          std::vector<const reco::Candidate*> &hadMothers, std::vector<std::vector<int> > &hadMothersIndices, 
@@ -120,7 +121,7 @@ private:
     TH1D *h_lastQ_lastQ_dRmin, *h_hadJet_dRmin, *h_lastQ12_had_dRratio;
     TH1D *h_dEHadJet_T, *h_dEHadJet_H, *h_dEHadJet_Z, *h_dEHadJet_G, *h_dEHadJet_P, *h_dEHadJet_Q, *h_dEHadJet_Other, *h_dEHadJet[7];
     TH1I *h_nHadInJet, *h_hadFlavour;
-    TH1I *h_nLeptonsInHad, *h_nHadNotFromTDecay, *h_nHadNotFromTHDecay;
+    TH1I *h_nLeptonsInHad, *h_nHadNotFromTDecay, *h_nHadNotFromTHDecay, *h_hadIsFromBHadron;
     TH1I *h_nJetNotFromTDecay;
     TH1I *h_topDaughterQuarkFlavour, *h_hadFromTDecayPdg, *h_hadNotFromTDecayPdg;
     TH1D *h_hadNotClusteredInJet_Pt, *h_hadNoDecayClusteredInJet_Pt, *h_hadNoDecayButHadClusteredInJet_Pt, *h_hadAll_Pt;
@@ -241,6 +242,7 @@ GenHFHadronAnalyzer::GenHFHadronAnalyzer ( const edm::ParameterSet& cfg )
     h_nHadNotFromTHDecay = fs->make<TH1I> ( "nHadNotFromTHDecay", "Number of hadrons not from Top/Higgs decay;N;Events", 10, 0, 10 );
     h_hadNotFromTDecayPdg = fs->make<TH1I> ( "hadNotFromTDecayPdg", "PdgId of hadrons not from Top decay;PdgId;Hadrons", 52, -26, 26 );
     h_hadFromTDecayPdg = fs->make<TH1I> ( "hadFromTDecayPdg", "PdgId of hadrons from Top decay;PdgId;Hadrons", 52, -26, 26 );
+    h_hadIsFromBHadron = fs->make<TH1I> ( "hadIsFromBHadron", "Whether hadron comes from a b-hadron;0-No 1-Yes;Hadrons", 3, 0, 3 );
     
     h_topDaughterQuarkFlavour = fs->make<TH1I> ( "topDaughterQuarkFlavour", "PdgId of the top daughter quark;PdgId;Events", 20, -10, 10 );
     
@@ -313,9 +315,10 @@ void GenHFHadronAnalyzer::analyze ( const edm::Event& evt, const edm::EventSetup
     std::auto_ptr<std::vector<int> > hadLeptonIndex ( new std::vector<int> );
     std::auto_ptr<std::vector<int> > hadLeptonHadIndex ( new std::vector<int> );
     std::auto_ptr<std::vector<int> > hadFromTopWeakDecay ( new std::vector<int> );
+    std::auto_ptr<std::vector<int> > hadFromBHadron ( new std::vector<int> );
 
     LogDebug ( flavourStr_+"Jet (new)" ) << "searching for "<< flavourStr_ <<"-jets in " << genJets_;
-    *hadJetIndex = findHadronJets ( *genJets, *hadIndex, *hadMothers, *hadMothersIndices, *hadLeptonIndex, *hadLeptonHadIndex, *hadFlavour, *hadFromTopWeakDecay );
+    *hadJetIndex = findHadronJets ( *genJets, *hadIndex, *hadMothers, *hadMothersIndices, *hadLeptonIndex, *hadLeptonHadIndex, *hadFlavour, *hadFromTopWeakDecay, *hadFromBHadron );
 
 }
 
@@ -378,13 +381,13 @@ void GenHFHadronAnalyzer::endLuminosityBlock ( edm::LuminosityBlock&, edm::Event
 * @param[out] hadLeptonIndex vector of indices representing leptons in hadMothers
 * @param[out] hadLeptonHadIndex index of hadron associated to each lepton
 * @param[out] hadFlavour flavour of each found hadron
-* @param[out] hadFromTopWeakDecay flag showing whether the hadron comes from the products of top quark weak decay
+* @param[out] hadFromTopWeakDecay flag showing whether the hadron comes from the products of top quark weak decay (works only with B-Hadrons)
 * @returns vector of jets being matched to each hadron by jet clustering algorithm
 */
 std::vector<int> GenHFHadronAnalyzer::findHadronJets ( const reco::GenJetCollection& genJets, std::vector<int> &hadIndex, 
                                                       std::vector<reco::GenParticle> &hadMothers, std::vector<std::vector<int> > &hadMothersIndices, 
                                                       std::vector<int> &hadLeptonIndex, std::vector<int> &hadLeptonHadIndex, std::vector<int> &hadFlavour, 
-                                                      std::vector<int> &hadFromTopWeakDecay )
+                                                      std::vector<int> &hadFromTopWeakDecay, std::vector<int> &hadFromBHadron )
 {
 
     std::vector<int> result;
@@ -660,8 +663,8 @@ std::vector<int> GenHFHadronAnalyzer::findHadronJets ( const reco::GenJetCollect
         
         // Checking whether hadron comes from the Top weak decay
         int isFromTopWeakDecay = 1;
+        std::vector <int> checkedParticles;
         if(hadFlavour.at(hadNum)!=0) {
-            std::vector <int> checkedParticles;
             int lastQIndex = LastQuarkId.at(lastQuarkIndices.at(hadNum));
             bool fromTB = topDaughterQId>=0?findInMothers( lastQIndex, checkedParticles, hadMothersIndices, hadMothers, -1, 0, false, topDaughterQId, 2, false ) : false;
             checkedParticles.clear();
@@ -671,6 +674,8 @@ std::vector<int> GenHFHadronAnalyzer::findHadronJets ( const reco::GenJetCollect
             }
         } else isFromTopWeakDecay = 2;
         hadFromTopWeakDecay.push_back(isFromTopWeakDecay);
+        int isFromBHadron = findInMothers( hadIdx, checkedParticles, hadMothersIndices, hadMothers, 0, 555555, true, -1, 1, false )?1:0;
+        h_hadIsFromBHadron->Fill((int)isFromBHadron);
         
 
         if(LastQuarkMotherId.size()>0) {
@@ -1230,6 +1235,13 @@ bool GenHFHadronAnalyzer::findInMothers ( int idx, std::vector<int> &mothChains,
     }
     // Stopping if the particular particle has been found
     if(stopId>=0 && idx == stopId) return true;
+    
+    // Stopping if the hadron of particular flavour has been found
+    if(pdgId%111111==0 && pdgId!=0) {
+        if(isHadronPdgId(pdgId/111111, hadMothers.at(idx).pdgId())) {
+            return true;
+        }
+    }
     
 // Checking whether current mother satisfies selection criteria
     if ( ( ( hadMothers.at ( idx ).pdgId() == pdgId && pdgAbs==false )
