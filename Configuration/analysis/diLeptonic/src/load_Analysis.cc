@@ -1,6 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
+#include <vector>
+#include <string>
 
 #include <TString.h>
 #include <TFile.h>
@@ -10,6 +12,7 @@
 #include <TObjString.h>
 #include <TChain.h>
 #include <TH1.h>
+#include <Rtypes.h>
 
 #include "TopAnalysis.h"
 #include "AnalysisHistograms.h"
@@ -68,7 +71,7 @@ constexpr const char* AnalysisOutputDIR = "selectionRoot";
 
 
 
-const TString pdfDirName(int pdf_no) {
+const TString pdfDirName(const int pdf_no) {
     TString result("PDF_");
     if (pdf_no == 0) result += "CENTRAL";
     else result += TString::Format("%d", (pdf_no+1)/2) + "_" + (pdf_no % 2 ? "UP" : "DOWN");
@@ -77,13 +80,13 @@ const TString pdfDirName(int pdf_no) {
 
 
 
-void load_Analysis(TString validFilenamePattern, 
-                   TString channel, 
-                   TString systematic,
-                   int specific_PDF,
-                   int dy,
-                   TString closure,
-                   double slope,
+void load_Analysis(const TString& validFilenamePattern, 
+                   const TString& channel, 
+                   const TString& systematic,
+                   const int specific_PDF,
+                   const int dy,
+                   const TString& closure,
+                   const double& slope,
                    const Long64_t& maxEvents,
                    const Long64_t& skipEvents
                   )
@@ -158,7 +161,6 @@ void load_Analysis(TString validFilenamePattern,
     dyScalingHistograms = new DyScalingHistograms({"4", "5", "6", "7", "8"}, "5");
     v_analysisHistograms.push_back(dyScalingHistograms);
     
-    
     // Set up the analysis
     TopAnalysis *selector = new TopAnalysis();
     selector->SetAnalysisOutputBase(AnalysisOutputDIR);
@@ -168,7 +170,6 @@ void load_Analysis(TString validFilenamePattern,
     selector->SetTriggerScaleFactors(triggerScaleFactors);
     selector->SetJetEnergyResolutionScaleFactors(jetEnergyResolutionScaleFactors);
     selector->SetJetEnergyScaleScaleFactors(jetEnergyScaleScaleFactors);
-    
     selector->SetAllAnalysisHistograms(v_analysisHistograms);
     
     // Access selectionList containing all input sample nTuples
@@ -230,6 +231,7 @@ void load_Analysis(TString validFilenamePattern,
         const bool isMC = o_isMC->GetString() == "1";
         const bool isHiggsSignal(o_isHiggsSignal && o_isHiggsSignal->GetString()=="1");
         
+        // Checks avoiding running on ill-defined configurations
         if(!isMC && systematic!=""){
             std::cout<<"Sample is DATA, so not running again for systematic variation\n";
             continue;
@@ -246,15 +248,18 @@ void load_Analysis(TString validFilenamePattern,
             channels.push_back(static_cast<std::string>(channel_from_file->GetString()));
         }
         
-        // If no systematic is specified, read it from the file and use this (used for systematic variations of signal samples)
-        const TString selectedSystematic = systematic=="" ? systematics_from_file->GetString() : (systematic != "PDF" ? systematic : "Nominal");
+        // If no systematic is specified, read it from the file and use this (used for systematic variations of signal samples, and for nominal)
+        const TString selectedSystematic = systematic=="" ? systematics_from_file->GetString() : systematic;
+        
+        // If for specific systematic variations the nominal btagging efficiencies should be used
+        const TString systematicForBtagEfficiencies = (selectedSystematic=="PDF" || selectedSystematic=="closure") ? "Nominal" : selectedSystematic;
         
         // Set up btag efficiency scale factors
         // This has to be done only after potentially setting systematic from file, since it is varied with signal systematics
         BtagScaleFactors btagScaleFactors(BtagEfficiencyInputDIR,
                                           BtagEfficiencyOutputDIR,
                                           channels,
-                                          selectedSystematic);
+                                          systematicForBtagEfficiencies);
         
         // Configure selector
         selector->SetTopSignal(isTopSignal);
@@ -273,7 +278,7 @@ void load_Analysis(TString validFilenamePattern,
             // Set the channel
             const TString channelName = selectedChannel;
             TString outputfilename = filenameBase.BeginsWith(channelName+"_") ? filenameBase : channelName+"_"+filenameBase;
-            btagScaleFactors.prepareBtagSF(static_cast<std::string>(channelName));
+            btagScaleFactors.prepareSF(static_cast<std::string>(channelName));
             selector->SetChannel(channelName);
             
             // Set up nTuple chain

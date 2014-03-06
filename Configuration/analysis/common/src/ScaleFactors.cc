@@ -407,33 +407,31 @@ double TriggerScaleFactors::getTriggerSF(const int leptonXIndex, const int lepto
 BtagScaleFactors::BtagScaleFactors(const char* btagEfficiencyInputDir,
                                    const char* btagEfficiencyOutputDir,
                                    const std::vector<std::string>& channels,
-                                   TString systematic):
+                                   const TString& systematic):
 bTagBase(),
-inputDirName_(btagEfficiencyInputDir),
-outputDirName_(btagEfficiencyOutputDir),
-fileName_("ttbarsignalplustau.root"),  // Hardcoded filename, since btag efficiencies are produced and used always from this one
 selectorList_(0),
 channel_("")
 {
     std::cout<<"--- Beginning preparation of b-tagging scale factors\n";
     
-    if (systematic == "" || systematic.Contains("PDF") || systematic.Contains("closure")) systematic = "Nominal";
+    // Hardcoded filename, since btag efficiencies are produced and used always from this one
+    const std::string filename("ttbarsignalplustau.root"); 
     
     // Set the sample name for each channel
-    for(const auto& channel : channels) channelSampleNames_[channel] = std::string(systematic)+"_"+channel+"_"+fileName_;
+    for(const auto& channel : channels) m_channelSamplename_[channel] = std::string(systematic)+"_"+channel+"_"+filename;
     
     // Checking whether files with btag efficiencies exist for all channels
     bool allInputFilesAvailable(true);
     for(const auto& channel : channels){
-        std::string btagInputFile = common::accessFolder(inputDirName_.c_str(), channel, systematic, true);
+        std::string btagInputFile = common::accessFolder(btagEfficiencyInputDir, channel, systematic, true);
         if(btagInputFile == "") allInputFilesAvailable = false;
-        btagInputFile.append(channel).append("_").append(fileName_);
+        btagInputFile.append(channel).append("_").append(filename);
         
         ifstream inputFileStream;
         if(allInputFilesAvailable) inputFileStream.open(btagInputFile);
         if(inputFileStream.is_open()){
             // Setting the file and sample name for each channel in the map if the file exists
-            channelFileNames_[channel] = btagInputFile;
+            m_channelFilename_[channel] = btagInputFile;
             inputFileStream.close();
         }
         else{
@@ -459,8 +457,8 @@ channel_("")
         this->setMakeEff(true);
         // Setting the root file names for storing btagging efficiencies for each channel in the map
         for(const auto& channel : channels){
-            std::string btagOutputFile = common::assignFolder(outputDirName_.c_str(), channel, systematic).append(channel).append("_").append(fileName_);
-            channelFileNames_[channel] = btagOutputFile;
+            const std::string btagOutputFile = common::assignFolder(btagEfficiencyOutputDir, channel, systematic).append(channel).append("_").append(filename);
+            m_channelFilename_[channel] = btagOutputFile;
         }
     }
     else{
@@ -488,7 +486,7 @@ channel_("")
 
 
 
-void BtagScaleFactors::prepareBtagSF(const std::string& channel)
+void BtagScaleFactors::prepareSF(const std::string& channel)
 {
     channel_ = channel;
     
@@ -500,7 +498,7 @@ void BtagScaleFactors::prepareBtagSF(const std::string& channel)
     std::vector<float> medians;
 
     // Load per-jet efficiencies file
-    std::string& inputFileName = channelFileNames_.at(channel_);
+    const std::string& inputFileName = m_channelFilename_.at(channel_);
     TFile file(inputFileName.c_str(),"READ");
 
     // Disabling referencing histograms to gDirectory to prevent crashing when closing the root file
@@ -556,7 +554,7 @@ void BtagScaleFactors::prepareBtagSF(const std::string& channel)
     if(!medianHisto) throw std::runtime_error("BtagScaleFactors::prepareBTags Couldn't find [medians] histogram in the input root file");
     for(int i = 0; i < medianHisto->GetNbinsX(); ++i) medians.push_back((float)medianHisto->GetBinContent(i+1));
 
-    std::string& sampleName = channelSampleNames_.at(channel_);
+    const std::string& sampleName = m_channelSamplename_.at(channel_);
     histos_[sampleName] = histos;
     effhistos_[sampleName] = effhistos;
     medianMap_[sampleName] = medians;
@@ -577,22 +575,22 @@ bool BtagScaleFactors::makeEfficiencies()
 
 
 void BtagScaleFactors::indexOfBtags(std::vector<int>& bjetIndices,
-        const std::vector<int>& jetIndices,
-        const VLV& jets,
-        const std::vector<int>& jetPartonFlavours,
-        const std::vector<double>& btagDiscriminants)const
+                                    const std::vector<int>& jetIndices,
+                                    const VLV& jets,
+                                    const std::vector<int>& jetPartonFlavours,
+                                    const std::vector<double>& btagDiscriminants)const
 {
     bjetIndices.clear();
-
+    
     std::vector<int> tagged_indices;
     for(const int index : jetIndices){
         //Skip jets where there is no partonFlavour
         if(jetPartonFlavours.at(index) == 0) continue;
-        LV jet = jets.at(index);
+        const LV& jet = jets.at(index);
 
         // Preparing a seed for the random jet retagging
         const unsigned int seed = std::abs( static_cast<int>( 1.e6*sin( 1.e6*jet.Phi() ) ) );
-        bool isTagged = jetIsTagged( jet.pt(), std::fabs(jet.eta()), jetPartonFlavours.at(index), btagDiscriminants.at(index), seed );
+        const bool isTagged = this->jetIsTagged( jet.pt(), std::fabs(jet.eta()), jetPartonFlavours.at(index), btagDiscriminants.at(index), seed );
         if(isTagged) tagged_indices.push_back(index);
     }
     bjetIndices = tagged_indices;
@@ -600,13 +598,13 @@ void BtagScaleFactors::indexOfBtags(std::vector<int>& bjetIndices,
 
 
 
-double BtagScaleFactors::calculateBtagSF(const std::vector<int>& jetIndices,
-        const VLV& jets,
-        const std::vector<int>& jetPartonFlavours)
+double BtagScaleFactors::calculateSF(const std::vector<int>& jetIndices,
+                                     const VLV& jets,
+                                     const std::vector<int>& jetPartonFlavours)
 {
-    resetCounter();
+    this->resetCounter();
     for(const int index : jetIndices){
-        countJet(jets.at(index).pt(), std::abs(jets.at(index).eta()), jetPartonFlavours.at(index));
+        this->countJet(jets.at(index).pt(), std::abs(jets.at(index).eta()), jetPartonFlavours.at(index));
     }
 
     // per-event SF calculation
@@ -615,28 +613,28 @@ double BtagScaleFactors::calculateBtagSF(const std::vector<int>& jetIndices,
     //this is plain wrong and especially leads to underestimated uncertainties!
     //if(std::abs(scale_factor-1.) > 0.05) scale_factor = 1.;
 
-    return getEventSF();
+    return this->getEventSF();
 }
 
 
 
-void BtagScaleFactors::bookBtagHistograms(TSelectorList* output)
+void BtagScaleFactors::bookHistograms(TSelectorList* output)
 {
     // Set pointer to output, so that selectorList_histograms are owned by it
     // (not used in current implementation)
     selectorList_ = output;
 
-    std::string& sampleName = channelSampleNames_.at(channel_);
+    const std::string& sampleName = m_channelSamplename_.at(channel_);
     this->setSampleName(sampleName);
 }
 
 
 
-void BtagScaleFactors::fillBtagHistograms(const std::vector<int>& jetIndices,
-        const std::vector<double>& bTagDiscriminant,
-        const VLV& jets,
-        const std::vector<int>& jetPartonFlavours,
-        const double weight)
+void BtagScaleFactors::fillHistograms(const std::vector<int>& jetIndices,
+                                      const std::vector<double>& bTagDiscriminant,
+                                      const VLV& jets,
+                                      const std::vector<int>& jetPartonFlavours,
+                                      const double& weight)
 {
     for(const int index : jetIndices){
         this->fillEff(jets.at(index).pt(), std::abs(jets.at(index).eta()),
@@ -646,10 +644,10 @@ void BtagScaleFactors::fillBtagHistograms(const std::vector<int>& jetIndices,
 
 
 
-void BtagScaleFactors::produceBtagEfficiencies(const std::string& channel)
+void BtagScaleFactors::produceEfficiencies()
 {
-    std::string outputFileName = channelFileNames_.at(channel);
-    std::string sampleName = channelSampleNames_.at(channel);
+    const std::string& outputFileName = m_channelFilename_.at(channel_);
+    const std::string& sampleName = m_channelSamplename_.at(channel_);
 
     TFile file(outputFileName.c_str(),"RECREATE");
 
@@ -657,26 +655,26 @@ void BtagScaleFactors::produceBtagEfficiencies(const std::string& channel)
     this->makeEffs();
 
     // Writing each histogram to file
-    std::vector<TH2D> histos = histos_.at(sampleName);
-    for(TH2D histo : histos) {
+    const std::vector<TH2D>& histos = histos_.at(sampleName);
+    for(const TH2D& histo : histos) {
         histo.Write();
     }
 
     // Writing each efficiency hitogram to file
-    std::vector<TH2D> effhistos = effhistos_.at(sampleName);
-    for(TH2D histo : effhistos) {
+    const std::vector<TH2D>& effhistos = effhistos_.at(sampleName);
+    for(const TH2D& histo : effhistos){
         histo.Write();
     }
 
     // Writing medians to the histogram and then to the file
-    size_t nMedians = (size_t)medians::length_median;
+    const size_t nMedians = (size_t)medians::length_median;
     TH1D histo("medians","Medians;Property id;Median value",nMedians, 0, nMedians);
 
-    if(nMedians != medianMap_.at(sampleName).size()) {
+    if(nMedians != medianMap_.at(sampleName).size()){
         throw std::range_error("BtagScaleFactors::produceBtagEfficiencies Numbers of stored and designed median values differ");
     }
 
-    for(size_t i = 0; i<nMedians; ++i) {
+    for(size_t i = 0; i<nMedians; ++i){
         histo.SetBinContent(i+1, medianMap_.at(sampleName).at(i));
     }
     histo.Write();
@@ -686,7 +684,7 @@ void BtagScaleFactors::produceBtagEfficiencies(const std::string& channel)
 
 
     std::cout<<"Done with production of b-tag efficiency file: "<< outputFileName
-            <<"\n\n"<<std::endl;
+             <<"\n\n"<<std::endl;
 }
 
 

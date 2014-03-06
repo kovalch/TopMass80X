@@ -1242,7 +1242,7 @@ double AnalysisBase::weightBtagSF(const std::vector<int>& jetIndices,
 {
     if(!isMC_) return 1.;
     if(btagScaleFactors_->makeEfficiencies()) return 1.;
-    return btagScaleFactors_->calculateBtagSF(jetIndices, jets, jetPartonFlavour);
+    return btagScaleFactors_->calculateSF(jetIndices, jets, jetPartonFlavour);
 }
 
 

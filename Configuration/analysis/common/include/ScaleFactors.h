@@ -151,7 +151,7 @@ public:
     BtagScaleFactors(const char* btagEfficiencyInputDir,
                      const char* btagEfficiencyOutputDir,
                      const std::vector<std::string>& channels,
-                     TString systematic);
+                     const TString& systematic);
 
     /// Destructor
     ~BtagScaleFactors(){}
@@ -166,27 +166,27 @@ public:
 
 
     /// Prepare b-tagging scale factors (efficiency histograms and medians of jet eta, pt)
-    void prepareBtagSF(const std::string& channel);
+    void prepareSF(const std::string& channel);
     
     /// Book histograms needed for b-tag efficiencies
-    void bookBtagHistograms(TSelectorList* output);
+    void bookHistograms(TSelectorList* output);
     
     /// Fill histograms needed for b-tag efficiencies
-    void fillBtagHistograms(const std::vector<int>& jetIndices,
-                            const std::vector<double>& bTagDiscriminant,
-                            const VLV& jets,
-                            const std::vector<int>& jetPartonFlavours,
-                            const double weight);
+    void fillHistograms(const std::vector<int>& jetIndices,
+                        const std::vector<double>& bTagDiscriminant,
+                        const VLV& jets,
+                        const std::vector<int>& jetPartonFlavours,
+                        const double& weight);
 
     /// Produce b-tag efficiencies
-    void produceBtagEfficiencies(const std::string& channel);
+    void produceEfficiencies();
 
 
 
     /// Get b-tag per-event scale factor
-    double calculateBtagSF(const std::vector<int>& jetIndices,
-                           const VLV& jets,
-                           const std::vector<int>& jetPartonFlavours);
+    double calculateSF(const std::vector<int>& jetIndices,
+                       const VLV& jets,
+                       const std::vector<int>& jetPartonFlavours);
 
     /// Method takes the indices of b-tagged jets,
     /// and overwrites them with the b-tagged jets after randomised tag flipping
@@ -202,27 +202,16 @@ public:
     
 private:
 
-    /// Input directory for files holding histograms of b-tagging efficiencies
-    std::string inputDirName_;
-
-    /// Output directory for files holding histograms, in case b-tagging efficiencies are produced in Analysis
-    std::string outputDirName_;
-
-    /// Name of the file with btag histograms
-    std::string fileName_;
-
-
-
     /// Pointer for bookkeeping of histograms
     // this is NOT used right now!
     // but it may be good for parallelization in the future
     TSelectorList* selectorList_;
     
     /// Map of the file names for each channel
-    std::map<std::string, std::string> channelFileNames_;
+    std::map<std::string, std::string> m_channelFilename_;
     
     /// Map of the sample names for each channel
-    std::map<std::string, std::string> channelSampleNames_;
+    std::map<std::string, std::string> m_channelSamplename_;
     
     /// The channel which is processed
     std::string channel_;

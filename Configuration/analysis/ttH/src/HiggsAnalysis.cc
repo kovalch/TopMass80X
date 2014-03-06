@@ -93,7 +93,7 @@ void HiggsAnalysis::Terminate()
 {
     // Produce b-tag efficiencies
     // FIXME: Shouldn't we also clear b-tagging efficiency histograms if they are produced ?
-    if(this->makeBtagEfficiencies()) btagScaleFactors_->produceBtagEfficiencies(static_cast<std::string>(this->channel()));
+    if(this->makeBtagEfficiencies()) this->btagScaleFactors()->produceEfficiencies();
 
     // Do everything needed for MVA
     for(MvaTreeHandlerBase* mvaTreeHandler : v_mvaTreeHandler_){
@@ -128,10 +128,10 @@ void HiggsAnalysis::SlaveBegin(TTree *)
     AnalysisBase::SlaveBegin(0);
     
     // Set b-tagging working point
-    btagScaleFactors_->setWorkingPoint(BtagWP);
+    this->btagScaleFactors()->setWorkingPoint(BtagWP);
     
     // Book histograms for b-tagging efficiencies
-    if(this->makeBtagEfficiencies()) btagScaleFactors_->bookBtagHistograms(fOutput);
+    if(this->makeBtagEfficiencies()) this->btagScaleFactors()->bookHistograms(fOutput);
     
     // Book histograms of all analyzers
     this->bookAll();
@@ -299,7 +299,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     const std::vector<double>& jetBTagCSV = *recoObjects.jetBTagCSV_;
     const std::vector<int>& jetPartonFlavour = *commonGenObjects.jetPartonFlavour_;
     std::vector<int> bjetIndices = jetIndices;
-    selectIndices(bjetIndices, jetBTagCSV, (double)btagScaleFactors_->getWPDiscrValue());
+    selectIndices(bjetIndices, jetBTagCSV, (double)this->btagScaleFactors()->getWPDiscrValue());
     this->retagJets(bjetIndices, jetIndices, jets, jetPartonFlavour, jetBTagCSV);
     orderIndices(bjetIndices, jetBTagCSV);
     const int numberOfBjets = bjetIndices.size();
@@ -503,9 +503,8 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
 
     // Fill the b-tagging efficiency plots
     if(this->makeBtagEfficiencies()){
-        btagScaleFactors_->fillBtagHistograms(jetIndices, jetBTagCSV,
-                                              jets, jetPartonFlavour,
-                                              weight);
+        this->btagScaleFactors()->fillHistograms(jetIndices, jetBTagCSV, jets, jetPartonFlavour, weight);
+        return kTRUE;
     }
 
     

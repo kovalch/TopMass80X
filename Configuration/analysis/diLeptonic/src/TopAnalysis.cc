@@ -88,10 +88,10 @@ void TopAnalysis::Begin(TTree*)
 void TopAnalysis::Terminate()
 {
     // Produce b-tag efficiencies
-    if(this->makeBtagEfficiencies()) btagScaleFactors_->produceBtagEfficiencies(static_cast<std::string>(this->channel()));
+    if(this->makeBtagEfficiencies()) this->btagScaleFactors()->produceEfficiencies();
     
     // Calculate an overall weight due to the shape reweighting, and apply it
-    const double globalNormalisationFactor = overallGlobalNormalisationFactor();
+    const double globalNormalisationFactor = this->overallGlobalNormalisationFactor();
     TIterator* it = fOutput->MakeIterator();
     while (TObject* obj = it->Next()) {
         TH1 *hist = dynamic_cast<TH1*>(obj);
@@ -655,10 +655,10 @@ void TopAnalysis::SlaveBegin(TTree*)
 
 
     // Set b-tagging working point
-    btagScaleFactors_->setWorkingPoint(BtagWP);
+    this->btagScaleFactors()->setWorkingPoint(BtagWP);
     
     // Book histograms for b-tagging efficiencies
-    if(this->makeBtagEfficiencies()) btagScaleFactors_->bookBtagHistograms(fOutput);
+    if(this->makeBtagEfficiencies()) this->btagScaleFactors()->bookHistograms(fOutput);
     
     
     h_PUSF = store(new TH1D("PUSF", "PU SF per event", 200, 0.5, 1.5));
@@ -930,7 +930,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     const std::vector<double>& jetBTagCSV = *recoObjects.jetBTagCSV_;
     const std::vector<int>& jetPartonFlavour = *commonGenObjects.jetPartonFlavour_;
     std::vector<int> bjetIndices = jetIndices;
-    selectIndices(bjetIndices, jetBTagCSV, (double)btagScaleFactors_->getWPDiscrValue());
+    selectIndices(bjetIndices, jetBTagCSV, (double)this->btagScaleFactors()->getWPDiscrValue());
     if(ReTagJet) this->retagJets(bjetIndices, jetIndices, jets, jetPartonFlavour, jetBTagCSV);
     orderIndices(bjetIndices, jetBTagCSV);
     const int numberOfBjets = bjetIndices.size();
@@ -1310,8 +1310,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     
     // Fill the b-tagging efficiency plots
     if(this->makeBtagEfficiencies()){
-        btagScaleFactors_->fillBtagHistograms(jetIndices, (*recoObjects.jetBTagCSV_),
-                                              (*recoObjects.jets_), (*commonGenObjects.jetPartonFlavour_), weight);
+        this->btagScaleFactors()->fillHistograms(jetIndices, jetBTagCSV, jets, jetPartonFlavour, weight);
         return kTRUE;
     }
     

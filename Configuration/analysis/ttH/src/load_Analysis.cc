@@ -3,7 +3,6 @@
 #include <cstdlib>
 #include <vector>
 #include <string>
-#include <algorithm>
 
 #include <TString.h>
 #include <TFile.h>
@@ -13,6 +12,7 @@
 #include <TObjString.h>
 #include <TChain.h>
 #include <TH1.h>
+#include <Rtypes.h>
 
 #include "HiggsAnalysis.h"
 #include "analysisHelpers.h"
@@ -33,6 +33,7 @@
 #include "../../common/include/KinematicReconstruction.h"
 #include "../../common/include/ScaleFactors.h"
 #include "TopAnalysis/ZTopUtils/interface/PUReweighter.h"
+
 
 
 
@@ -317,6 +318,7 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
         const bool isTtbarV(samplename->GetString()=="ttbarw" || samplename->GetString()=="ttbarz");
         const bool isDrellYan(samplename->GetString()=="dy1050" || samplename->GetString()=="dy50inf");
         
+        // Checks avoiding running on ill-defined configurations
         if(!isMC && systematic!=Systematic::undefined){
             std::cout<<"Sample is DATA, so not running again for systematic variation\n";
             continue;
@@ -359,7 +361,7 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
             // Set the channel
             const TString channelName = Channel::convertChannel(selectedChannel);
             const TString outputfilename = filenameBase.BeginsWith(channelName+"_") ? filenameBase : channelName+"_"+filenameBase;
-            btagScaleFactors.prepareBtagSF(static_cast<std::string>(channelName));
+            btagScaleFactors.prepareSF(static_cast<std::string>(channelName));
             selector->SetChannel(channelName);
             
             // Set up nTuple chain

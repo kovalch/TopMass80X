@@ -253,6 +253,14 @@ protected:
     /// Whether to or not to produce b-tag efficiencies for the analysed sample
     bool makeBtagEfficiencies()const;
     
+    /// Apply b-tag efficiency MC correction using random number based tag flipping
+    void retagJets(std::vector<int>& bjetIndices, const std::vector<int>& jetIndices,
+                   const VLV& jets, const std::vector<int>& jetPartonFlavours,
+                   const std::vector<double>& btagDiscriminants)const;
+    
+    /// Get a pointer to the BtagScaleFactors (probably not the best implementation, should put individual functionality in separate functions)
+    BtagScaleFactors* btagScaleFactors(){return btagScaleFactors_;}
+    
     /// Returns the samplename which is written as metadata in ingoing and outgoing root-file
     const TString& samplename()const{return samplename_;}
     
@@ -616,6 +624,7 @@ private:
     const char* analysisOutputBase_;
     
     
+    
     /// Pointer to the kinematic reconstruction instance
     KinematicReconstruction* kinematicReconstruction_;
     
@@ -634,16 +643,6 @@ private:
     /// Pointer to jet energy resolution scale factors
     const JetEnergyScaleScaleFactors* jetEnergyScaleScaleFactors_;
     
-    
-    
-protected:
-    
-    /// Apply b-tag efficiency MC correction using random number based tag flipping
-    void retagJets(std::vector<int>& bjetIndices, const std::vector<int>& jetIndices,
-                   const VLV& jets, const std::vector<int>& jetPartonFlavours,
-                   const std::vector<double>& btagDiscriminants)const;
-    
-    // FIXME: make them also private, access via function
     /// Pointer to btag scale factors instance
     BtagScaleFactors* btagScaleFactors_;
     
