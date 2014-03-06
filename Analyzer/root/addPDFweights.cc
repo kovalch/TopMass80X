@@ -1,5 +1,6 @@
 #include "addPDFweights.h"
 
+#include "TSystem.h"
 #include "TFile.h"
 #include "TChain.h"
 
@@ -41,6 +42,7 @@ void AddPDFweights::addPDFweights()
   
   std::string samplePath (po::GetOption<std::string>("analysisConfig.samplePath"));
   std::string inputSample(po::GetOption<std::string>("input"));
+  std::string channel    (po::GetOption<std::string>("channel"));
   std::string treeDir;
   
   TChain* fromTree; int nFiles = 0;
@@ -70,7 +72,14 @@ void AddPDFweights::addPDFweights()
   fromTree->SetBranchAddress("top."   , &topEvent);
   fromTree->SetBranchAddress("weight.", &weightEvent);
   
-  TFile* toFile = new TFile((samplePath+inputSample+std::string("_pdf.root")).c_str(), "RECREATE");
+  TFile* toFile;
+  if (channelID == Helper::kAllJets) {
+    toFile = new TFile((samplePath+inputSample+std::string("_pdf.root")).c_str(), "RECREATE");
+  }
+  else {
+    gSystem->mkdir((samplePath+inputSample+std::string("_pdf_")+channel).c_str());
+    toFile = new TFile((samplePath+inputSample+std::string("_pdf_")+channel+std::string("/job_all.root")).c_str(), "RECREATE");
+  }
   toFile->mkdir(treeDir.c_str());
   toFile->cd(treeDir.c_str());
   
