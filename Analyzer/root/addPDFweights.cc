@@ -70,38 +70,38 @@ void AddPDFweights::addPDFweights()
     //double xpdf2Central = LHAPDF::xfx(1, weightEvent->x2, weightEvent->Q, weightEvent->id2);
     //double w0Central = 1./(xpdf1Central * xpdf2Central);
     double w0 = 0.;
-    for(unsigned i=0; i <=52; ++i) {
-      LHAPDF::usePDFMember(2,i);
+    for(unsigned j=0; j<=52; ++j) {
+      LHAPDF::usePDFMember(2,j);
       double xpdf1 = LHAPDF::xfx(2, weightEvent->x1, weightEvent->Q, weightEvent->id1);
       double xpdf2 = LHAPDF::xfx(2, weightEvent->x2, weightEvent->Q, weightEvent->id2);
-      if(i<1)
+      if(j<1)
         w0 = xpdf1 * xpdf2;
       else
         weightEvent->pdfWeight.push_back( ( ( ( (xpdf1 * xpdf2 / w0) - 1.0 ) / 1.645 ) + 1.0 ) ); // CT has 90% CL uncertainties, therefore they are scaled down to 68% CL
     }
-    for(unsigned i=1; i <=40; ++i) {
-      LHAPDF::usePDFMember(3,i);
+    for(unsigned j=0; j<=40; ++j) {
+      LHAPDF::usePDFMember(3,j);
       double xpdf1 = LHAPDF::xfx(3, weightEvent->x1, weightEvent->Q, weightEvent->id1);
       double xpdf2 = LHAPDF::xfx(3, weightEvent->x2, weightEvent->Q, weightEvent->id2);
-      //if(i<1)
+      //if(j<1)
       //  w0 = xpdf1 * xpdf2;
       //else
         weightEvent->pdfWeight.push_back(xpdf1 * xpdf2 / w0);
     }
-    for(unsigned i=0; i <=100; ++i) {
-      LHAPDF::usePDFMember(4,i);
+    for(unsigned j=0; j<=100; ++j) {
+      LHAPDF::usePDFMember(4,j);
       double xpdf1 = LHAPDF::xfx(4, weightEvent->x1, weightEvent->Q, weightEvent->id1);
       double xpdf2 = LHAPDF::xfx(4, weightEvent->x2, weightEvent->Q, weightEvent->id2);
-      //if(i<1)
+      //if(j<1)
       //  w0 = xpdf1 * xpdf2;
       //else
         weightEvent->pdfWeight.push_back(xpdf1 * xpdf2 / w0);
     }
-    for(unsigned i=1; i <=10; ++i) {
-      LHAPDF::usePDFMember(5,i);
+    for(unsigned j=0; j<=10; ++j) {
+      LHAPDF::usePDFMember(5,j);
       double xpdf1 = LHAPDF::xfx(5, weightEvent->x1, weightEvent->Q, weightEvent->id1);
       double xpdf2 = LHAPDF::xfx(5, weightEvent->x2, weightEvent->Q, weightEvent->id2);
-      //if(i<1)
+      //if(j<1)
       //  w0 = xpdf1 * xpdf2;
       //else
         weightEvent->pdfWeight.push_back(xpdf1 * xpdf2 / w0);

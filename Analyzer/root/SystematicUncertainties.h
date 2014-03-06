@@ -49,6 +49,7 @@ private:
 
   void deriveSystematics();
   void fillLeptonJets();
+  void fillAllJets();
 
   std::string getSelectionFromVariable(std::string& var);
 

@@ -6,8 +6,7 @@ import FWCore.ParameterSet.Config as cms
 analyzeJets = cms.EDAnalyzer("JetEventAnalyzer",
     jets            = cms.InputTag("goodJetsPF30"),
     alternativeJets = cms.InputTag(""),
-    #allJets      = cms.InputTag("patJets"),
-    #noPtEtaJets  = cms.InputTag("noPtEtaJetsPF"),
+    met = cms.InputTag("patMETs"),
     gluonTagSrc  = cms.InputTag(""),
     maxNJets = cms.int32(20)
 )
