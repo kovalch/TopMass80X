@@ -30,6 +30,7 @@ struct RecoObjects{
     //std::vector<double>* lepPuChargedHadronIso_;
     std::vector<double>* lepCombIso_;
     std::vector<double>* lepDxyVertex0_;
+    std::vector<double>* lepDzVertex0_;
     //std::vector<int>* lepTrigger_;
     VLV* jets_;
     std::vector<double>* jetBTagTCHE_;

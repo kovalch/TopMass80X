@@ -401,6 +401,7 @@ private:
     TBranch* b_lepPuChargedHadronIso;
     TBranch* b_lepCombIso;
     TBranch* b_lepDxyVertex0;
+    TBranch* b_lepDzVertex0;
     TBranch* b_lepTrigger;
     TBranch* b_jet;
     TBranch* b_jetBTagTCHE;

@@ -55,6 +55,11 @@ Implementation:
 #include "TopAnalysis/HiggsUtils/interface/JetProperties.h"
 #include "TopAnalysis/HiggsUtils/interface/GenZDecayProperties.h"
 
+#include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+
+#include "Math/Vector3D.h"
+
 #include <TTree.h>
 #include <TLorentzVector.h>
 
@@ -157,6 +162,7 @@ private:
     std::vector<double> VlepPfIso;
     std::vector<double> VlepCombIso;
     std::vector<double> VlepDxyVertex0;
+    std::vector<double> VlepDzVertex0;
     std::vector<int>    VlepTrigger;
 
     //True level info from FullLepGenEvent
@@ -921,11 +927,12 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
             VlepPdgId.push_back(amuon->pdgId());
             VlepID.push_back(-1);
 
-            if (amuon->gsfTrack().isAvailable()) {
-                const reco::GsfTrack &track = *(amuon->gsfTrack());
-                VlepDxyVertex0.push_back(track.dxy(vertices->at(0).position()));
+            if (amuon->globalTrack().isAvailable()) {
+                VlepDxyVertex0.push_back(amuon->globalTrack()->dxy(vertices->at(0).position()));
+                VlepDzVertex0.push_back(amuon->globalTrack()->dz(vertices->at(0).position()));
             } else {
                 VlepDxyVertex0.push_back(-1000); //no such value available
+                VlepDzVertex0.push_back(-1000); //no such value available
             }
 
             VlepChargedHadronIso.push_back(amuon->chargedHadronIso());
@@ -975,7 +982,8 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
             VlepID.push_back(idtemp);
             const reco::GsfTrack &track = *(anelectron->gsfTrack());
             VlepDxyVertex0.push_back(track.dxy(vertices->at(0).position()));
-
+            VlepDzVertex0.push_back(track.dz(vertices->at(0).position()));
+            
             VlepChargedHadronIso.push_back(anelectron->chargedHadronIso());
             VlepNeutralHadronIso.push_back(anelectron->neutralHadronIso());
             VlepPhotonIso.push_back(anelectron->photonIso());
@@ -1266,6 +1274,7 @@ NTupleWriter::beginJob()
     Ntuple->Branch("lepPuChargedHadronIso", &VlepPuChargedHadronIso);
     Ntuple->Branch("lepCombIso", &VlepCombIso);
     Ntuple->Branch("lepDxyVertex0", &VlepDxyVertex0);
+    Ntuple->Branch("lepDzVertex0", &VlepDzVertex0);
     Ntuple->Branch("lepTrigger", &VlepTrigger);
 
 
@@ -1433,6 +1442,7 @@ void NTupleWriter::clearVariables()
     VlepPuChargedHadronIso.clear();
     VlepCombIso.clear();
     VlepDxyVertex0.clear();
+    VlepDzVertex0.clear();
     VlepTrigger.clear();
 
     GenParticleP4.clear();
