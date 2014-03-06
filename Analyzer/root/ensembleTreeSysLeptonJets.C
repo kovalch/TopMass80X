@@ -44,6 +44,7 @@ std::string lepton_ [4] = { "electron", "muon", "lepton", "muon_BReg"};
 int channel = 2;
 
 TString globalPath("/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_131012/");
+TString globalPathMS("/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_140305/");
 //TString globalPath("/nfs/dust/test/cms/user/kirschen/BRegression_PE_NewCalibrationJan2014Applied_MCS3250MinEvtsBReg/");
 
 double crossSection   = 230;
@@ -56,6 +57,8 @@ void ensembleTreeSysLeptonJets(TString sPath = globalPath)
   std::map<std::string, comparison> comparisons;
 
   sPath += lepton_[channel]; sPath += "/";
+  TString sPathMS(globalPathMS);
+  sPathMS += lepton_[channel]; sPathMS += "/";
   
   double totalMassUncertainty2 = 0;
   double totalJESUncertainty2  = 0;
@@ -66,7 +69,7 @@ void ensembleTreeSysLeptonJets(TString sPath = globalPath)
   ensembles["calibration"] = ensemble("", 0, 172.5, 1., 172.5);
   ensembles["default"] = ensemble("job_*_ensemble.root", 7000000./1.75);
   //ensembles["default"] = ensemble("Summer12_TTJets1725_1.00/job_*_ensemble.root", 7000000./1.75);
-  ensembles["defaultNewWeights"] = ensemble("weight.combinedWeight/job_*_ensemble.root", 7000000./1.75);
+  ensembles["defaultNewWeights"] = ensemble("weight.combinedWeight/job_*_ensemble.root", 7000000./1.75); //TODO fsig=1!
   
   ensembles["puUp"] = ensemble("weight.combinedWeight/weight.puWeight*weight.puWeightUp/job_*_ensemble.root", 7000000./1.75);
   ensembles["puDown"] = ensemble("weight.combinedWeight/weight.puWeight*weight.puWeightDown/job_*_ensemble.root", 7000000./1.75);
@@ -133,6 +136,8 @@ void ensembleTreeSysLeptonJets(TString sPath = globalPath)
   
   ensembles["metcl2"] = ensemble("Summer12_TTJets1725_metcl_2/job_*_ensemble.root", 7000000./1.75);
   
+  ensembles["MSdefault"] = ensemble("Summer12_TTJetsMS1725_1.00/job_*_ensemble.root", 62000000./1.75);
+  
   ///////////////////////////////////
   
   comparisons["Pile-up (pp cross-section)       "] = comparison("defaultNewWeights", "puUp", "puDown");
@@ -174,13 +179,16 @@ void ensembleTreeSysLeptonJets(TString sPath = globalPath)
     int N_PE = 0;
     if (strcmp(it->second.file, "") == 0) {
       // Calibration uncertainties
-      it->second.massUnc = 0.02;
-      it->second.jesUnc  = 0.;
+      it->second.massUnc = 3.62797e-02 + 6.15495e-02;
+      it->second.jesUnc  = 3.73474e-04 + 8.43934e-04;
     }
     else {
       // Get files
       it->second.chain = new TChain("tree");
-      it->second.chain->Add(sPath + it->second.file);
+      if (!it->first.compare(0,2,"MS")) {
+        it->second.chain->Add(sPathMS + it->second.file);
+      }
+      else it->second.chain->Add(sPath + it->second.file);
       
       // Fit
       TF1* gaus = new TF1("gaus", "gaus");

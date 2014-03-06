@@ -25,7 +25,7 @@
 enum lepton           { kElectron, kMuon, kAll, kMuon_BReg};
 std::string lepton_ [4] = { "electron", "muon", "lepton", "muon_BReg"};
 
-int channel = 0;
+int channel = 2;
 std::string suffix = "";
 
 Long64_t nentries = 1000000000; //1000*27;
@@ -322,6 +322,10 @@ void ensembleTreeLeptonJets(std::string pathToPE = "/nfs/dust/cms/user/mseidel/p
   gMass[2]->Fit("linearFit104", "EM");
   mgMass->SetMinimum(-1.9);
   mgMass->SetMaximum( 1.9);
+  if (channel==2 && false) {
+    mgMass->SetMinimum(-0.49);
+    mgMass->SetMaximum( 0.49);
+  }
   mgMass->Draw("AP");
   gPad->SetBottomMargin(0.005);
   mgMass->GetYaxis()->SetTitleSize(0.11);
