@@ -1308,7 +1308,13 @@ void AnalysisBase::retagJets(std::vector<int>& bjetIndices, const std::vector<in
 
 double AnalysisBase::topPtReweightValue(const double& pt)const
 {
-    return TMath::Exp(0.156-0.00137*pt);
+    // only dilepton
+    return TMath::Exp(0.128-0.00121*pt);
+
+//     // only semileptons
+//     return TMath::Exp(0.130-0.00116*pt);
+//     // dilepton + semileptons
+//     return TMath::Exp(0.130-0.00118*pt);
 }
 
 
