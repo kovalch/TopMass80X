@@ -59,7 +59,7 @@ public:
     void SetSamplename(const TString& samplename);
     
     /// Set generator parameters
-    void SetGeneratorBools(const TString& samplename, const TString& systematic_from_file);
+    void SetGeneratorBools(const TString& samplename, const TString& systematic);
     
     /// Set Channel
     void SetChannel(const TString& channel);

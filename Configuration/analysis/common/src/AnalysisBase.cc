@@ -249,13 +249,13 @@ void AnalysisBase::SetSystematic(const TString& systematic)
 }
 
 
-void AnalysisBase::SetGeneratorBools(const TString& samplename, const TString& systematic_from_file)
+void AnalysisBase::SetGeneratorBools(const TString& samplename, const TString& systematic)
 {
     isTtbarSample_ = samplename.BeginsWith("ttbar") && !samplename.BeginsWith("ttbarhiggs") &&
                         !(samplename=="ttbarw") && !(samplename=="ttbarz");
     isTtbarPlusTauSample_ = isTtbarSample_ && !samplename.BeginsWith("ttbarbg");
-    correctMadgraphBR_ = samplename.BeginsWith("ttbar") && !systematic_from_file.Contains("SPIN") &&
-                            !systematic_from_file.Contains("POWHEG") && !systematic_from_file.Contains("MCATNLO");
+    correctMadgraphBR_ = samplename.BeginsWith("ttbar") && !samplename.BeginsWith("ttbarhiggs") && !systematic.Contains("SPIN") &&
+                            !systematic.Contains("POWHEG") && !systematic.Contains("MCATNLO");
 }
 
 
