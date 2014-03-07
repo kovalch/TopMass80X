@@ -159,17 +159,17 @@ void Plotter::DYScaleFactor(TString SpecialComment){
     for(size_t i=0; i < Vec_Files.size(); i++){
         double LumiWeight = CalcLumiWeight(Vec_Files.at(i));
         double allWeights=LumiWeight;//calculate here all the flat-weights we apply: Lumi*others*...
-        if(Vec_Files.at(i).Contains("ee") || Vec_Files.at(i).Contains("mumu")){
+        if(Vec_Files.at(i).Contains("ee_") || Vec_Files.at(i).Contains("mumu_")){
             if(Vec_Files.at(i).Contains("run")){
                 TH1D *htemp = fileReader->GetClone<TH1D>(Vec_Files.at(i), TString("Zh1").Append(nameAppendix));
                 TH1D *htemp1 = fileReader->GetClone<TH1D>(Vec_Files.at(i), "Looseh1");
                 ApplyFlatWeights(htemp, allWeights);
                 ApplyFlatWeights(htemp1, allWeights);
-                if(Vec_Files.at(i).Contains("ee")){
+                if(Vec_Files.at(i).Contains("ee_")){
                     NinEE+=htemp->Integral();
                     NinEEloose+=htemp1->Integral();
                 }
-                if(Vec_Files.at(i).Contains("mumu")){
+                if(Vec_Files.at(i).Contains("mumu_")){
                     NinMuMu+=htemp->Integral();
                     NinMuMuloose+=htemp1->Integral();
                 }
@@ -181,11 +181,11 @@ void Plotter::DYScaleFactor(TString SpecialComment){
                     TH1D *htemp1 = fileReader->GetClone<TH1D>(Vec_Files.at(i), TString("TTh1").Append(nameAppendix));
                     ApplyFlatWeights(htemp, LumiWeight);
                     ApplyFlatWeights(htemp1, LumiWeight);
-                    if(Vec_Files.at(i).Contains("ee")){
+                    if(Vec_Files.at(i).Contains("ee_")){
                         NinEEDYMC+=htemp->Integral();
                         NoutEEDYMC+=htemp1->Integral();
                     }
-                    if(Vec_Files.at(i).Contains("mumu")){
+                    if(Vec_Files.at(i).Contains("mumu_")){
                         NinMuMuDYMC+=htemp->Integral();
                         NoutMuMuDYMC+=htemp1->Integral();
                     }
@@ -194,21 +194,21 @@ void Plotter::DYScaleFactor(TString SpecialComment){
                 else{
                     TH1D *htemp = fileReader->GetClone<TH1D>(Vec_Files.at(i), TString("TTh1").Append(nameAppendix));
                     ApplyFlatWeights(htemp, LumiWeight);
-                    if(Vec_Files.at(i).Contains("ee")){   NoutEEDYMC+=htemp->Integral();}
-                    if(Vec_Files.at(i).Contains("mumu")){ NoutMuMuDYMC+=htemp->Integral();}
+                    if(Vec_Files.at(i).Contains("ee_")){   NoutEEDYMC+=htemp->Integral();}
+                    if(Vec_Files.at(i).Contains("mumu_")){ NoutMuMuDYMC+=htemp->Integral();}
                     delete htemp;
                 }
             }
             else{
                 TH1D *htemp = fileReader->GetClone<TH1D>(Vec_Files.at(i), TString("Zh1").Append(nameAppendix));
                 ApplyFlatWeights(htemp, LumiWeight);
-                if(Vec_Files.at(i).Contains("ee")){   NinEEMC+=htemp->Integral();   }
-                if(Vec_Files.at(i).Contains("mumu")){ NinMuMuMC+=htemp->Integral(); }
+                if(Vec_Files.at(i).Contains("ee_")){   NinEEMC+=htemp->Integral();   }
+                if(Vec_Files.at(i).Contains("mumu_")){ NinMuMuMC+=htemp->Integral(); }
                 delete htemp;
             }
         }
         
-        if(Vec_Files.at(i).Contains("emu") && Vec_Files.at(i).Contains("run")){
+        if(Vec_Files.at(i).Contains("emu_") && Vec_Files.at(i).Contains("run")){
             TH1D *htemp = fileReader->GetClone<TH1D>(Vec_Files.at(i), TString("Zh1").Append(nameAppendix));
             ApplyFlatWeights(htemp, LumiWeight);
             NinEMu+=htemp->Integral();
@@ -235,6 +235,7 @@ void Plotter::DYScaleFactor(TString SpecialComment){
 
     double DYSFEE = NoutMCEE/NoutEEDYMC;
     double DYSFMuMu = NoutMCMuMu/NoutMuMuDYMC;
+    double DYSFEMu = std::sqrt(DYSFEE * DYSFMuMu);
 
     std::cout << std::endl;
     std::cout << "<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>" << std::endl;
@@ -242,6 +243,7 @@ void Plotter::DYScaleFactor(TString SpecialComment){
 
     std::cout<<"DYSFEE:                 "<<DYSFEE<<std::endl;
     std::cout<<"DYSFMuMu:               "<<DYSFMuMu<<std::endl;
+    std::cout<<"DYSFEMu:                "<<DYSFEMu<<std::endl;
 
     std::cout<<"NinEEloose:             "<<NinEEloose<<std::endl;
     std::cout<<"NinMMloose:             "<<NinMuMuloose<<std::endl;
@@ -268,8 +270,8 @@ void Plotter::DYScaleFactor(TString SpecialComment){
     
     DYScale.at(0)=DYSFEE;
     DYScale.at(1)=DYSFMuMu;
-    DYScale.at(2)=1.;
-    DYScale.at(3)=(DYSFEE+DYSFMuMu)/2;//not correct, but close, fix later
+    DYScale.at(2)=DYSFEMu;
+    DYScale.at(3)=(DYSFEE+DYSFMuMu+DYSFEMu)/3;//not correct, but close, fix later
 
     std::cout<<"End DYSCALE FACTOR calculation\n"<<std::endl;
 
@@ -991,8 +993,7 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
                 addAndDelete_or_Assign(aTtBgrHist, drawhists[i]->Rebin(bins,"aTtBgrHist",Xbins));
                 addAndDelete_or_Assign(aBgrHist, drawhists[i]->Rebin(bins,"aTtBgrHist",Xbins));
             }else if((legends.at(i) == DYEntry)){
-                if (channelType!=2) drawhists[i]->Scale(DYScale[channelType]);
-
+                drawhists[i]->Scale(DYScale.at(channelType));
 
                 //Here we take into account the systematic shifts needed for DY systematic because it only modifies the nominal dataset
                 if(Systematic == "DY_UP"){
@@ -1474,7 +1475,7 @@ void Plotter::MakeTable(TString Channel, TString Systematic){
     }
 
     for(unsigned int i=0; i<hists.size() ; i++){ // prepare histos and leg
-        if((legends.at(i) == DYEntry) && channelType!=2){
+        if(legends.at(i) == DYEntry){
             //numhists5[i]->Scale(DYScale[channelType]);//DYscale not applied in step5 and 6?
             //numhists6[i]->Scale(DYScale[channelType]);
             numhists7[i]->Scale(DYScale.at(channelType));
@@ -1562,6 +1563,7 @@ void Plotter::MakeTable(TString Channel, TString Systematic){
 
 double Plotter::CalcXSec(std::vector<TString> datasetVec, double InclusiveXsectionVec[4],double InclusiveXsectionStatErrorVec[4], TString Systematic, TString Shift){
 
+//    double BranchingFraction[4]={0.01582, 0.01573, 0.03155, 0.06310};//[ee, mumu, emu, combined] including tau into electron/muon
     double BranchingFraction[4]={0.01166, 0.01166, 0.02332, 0.04666};//[ee, mumu, emu, combined] not including tau
 
     double NrOfEvts_VisGen_afterSelection_noweight = 0, NrOfEvts_VisGen_afterSelection = 0;
@@ -1579,11 +1581,7 @@ double Plotter::CalcXSec(std::vector<TString> datasetVec, double InclusiveXsecti
 
     for(unsigned int i=0; i<datasetVec.size(); i++){
         TH1D *hist = fileReader->GetClone<TH1D>(datasetVec[i], "events_weighted_step8");
-        //hist->Sumw2();
-
-        double LumiWeight = CalcLumiWeight(datasetVec.at(i));
-        ApplyFlatWeights(hist, LumiWeight);
-
+        ApplyFlatWeights(hist, CalcLumiWeight(datasetVec.at(i)));
         numhists[i]=hist;
     }
 
@@ -1593,13 +1591,8 @@ double Plotter::CalcXSec(std::vector<TString> datasetVec, double InclusiveXsecti
             error_numbers[0]+=numhists[i]->GetBinError(2) * numhists[i]->GetBinError(2); //This bin selection is hardcoded please change it if changes when filling in Analysis.C
         }
         else if(legends.at(i) == "t#bar{t} Signal"){
-            TH1D *NoPUPlot = fileReader->GetClone<TH1D>(datasetVec.at(i), "events_weighted_step8");
-
-            double LumiWeight = CalcLumiWeight(datasetVec.at(i));
-            ApplyFlatWeights(NoPUPlot, LumiWeight);
-
-            numbers[1]+=NoPUPlot->Integral();
-            error_numbers[1]+=NoPUPlot->GetBinError(2) * NoPUPlot->GetBinError(2); //This bin selection is hardcoded please change it if changes when filling in Analysis.C
+            numbers[1]+=numhists[i]->Integral();
+            error_numbers[1]+=numhists[i]->GetBinError(2) * numhists[i]->GetBinError(2); //This bin selection is hardcoded please change it if changes when filling in Analysis.C
 
             TH1D *GenPlot = fileReader->GetClone<TH1D>(datasetVec.at(i), "GenAll");
             TH1D *GenPlot_noweight = fileReader->GetClone<TH1D>(datasetVec.at(i), "GenAll_noweight");
@@ -1609,6 +1602,7 @@ double Plotter::CalcXSec(std::vector<TString> datasetVec, double InclusiveXsecti
             TH1D *RecoGenPlot_noweight = fileReader->GetClone<TH1D>(datasetVec.at(i), "GenAll_RecoCuts_noweight");
             TH1 *h_NrOfEvts = fileReader->GetClone<TH1>(datasetVec.at(i), "weightedEvents");
 
+            double LumiWeight = CalcLumiWeight(datasetVec.at(i));
             ApplyFlatWeights(GenPlot, LumiWeight);
             ApplyFlatWeights(GenPlot_noweight, LumiWeight);
             ApplyFlatWeights(VisGenPlot, LumiWeight);
@@ -1616,7 +1610,7 @@ double Plotter::CalcXSec(std::vector<TString> datasetVec, double InclusiveXsecti
             ApplyFlatWeights(RecoGenPlot, LumiWeight);
             ApplyFlatWeights(RecoGenPlot_noweight, LumiWeight);
             ApplyFlatWeights(h_NrOfEvts, LumiWeight);
-            
+
             NrOfEvts += h_NrOfEvts->GetBinContent(1);
             NrOfEvts_afterSelection += GenPlot->Integral();
             NrOfEvts_afterSelection_noweight += GenPlot_noweight->Integral();
@@ -1634,7 +1628,7 @@ double Plotter::CalcXSec(std::vector<TString> datasetVec, double InclusiveXsecti
             error_numbers[3]+=numhists[i]->GetBinError(2) * numhists[i]->GetBinError(2); //This bin selection is hardcoded please change it if changes when filling in Analysis.C
         }
         else {
-            if((legends.at(i) == DYEntry) && channelType!=2){
+            if((legends.at(i) == DYEntry)){
                 numhists[i]->Scale(DYScale.at(channelType));
             }
             if((legends.at(i) == DYEntry) && Systematic.Contains("DY_") && Shift == "Up"){
@@ -2061,7 +2055,7 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
         setStyle(varhists[i], i);
         varhistsPlotting[i]=(TH1*)varhists[i]->Clone();
         if(legends.at(i) != "Data"){
-            if((legends.at(i) == DYEntry) && channelType!=2){
+            if((legends.at(i) == DYEntry)){
                 varhists[i]->Scale(DYScale.at(channelType));
                 varhistsPlotting[i]->Scale(DYScale.at(channelType));
             }
@@ -3157,7 +3151,7 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
         setStyle(varhists[i], i);
         varhistsPlotting[i]=(TH1*)varhists[i]->Clone();
         if(legends.at(i) != "Data"){
-            if((legends.at(i) == DYEntry) && channelType!=2){
+            if((legends.at(i) == DYEntry)){
                 varhists[i]->Scale(DYScale.at(channelType));
                 varhistsPlotting[i]->Scale(DYScale.at(channelType));
             }
@@ -3176,7 +3170,7 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
                 if(legends.at(i) != legends.at(i-1)){
                     legchange = i;
                     if( (legends.at(i) == DYEntry) && DYScale.at(channelType)!= 1){
-//                         leg->AddEntry(varhistsPlotting[i], legends.at(i), "f");
+                        leg->AddEntry(varhistsPlotting[i], legends.at(i), "f");
                     } else {
                         leg->AddEntry(varhistsPlotting[i], legends.at(i) ,"f");
                     }
@@ -4158,14 +4152,14 @@ TH1F* Plotter::reBinTH1FIrregularNewBinning(TH1F *histoOldBinning, TString plotn
   //                       from xaxis.min to xaxis.max
   //  "rescale":           rescale the rebinned histogramme
   //                       (applicable for cross-section e.g.) 
-  std::cout << std::endl;
-  std::cout << std::endl;
-  std::cout << "asdfasdfasdfasdfasdf hallo david " << plotname << " " << rescale << std::endl;
-  std::cout << "histoOldBinning = ";
-  for ( int i = 0 ; i < histoOldBinning->GetXaxis()->GetNbins() + 1; i++ ) std::cout << " " << histoOldBinning->GetXaxis()->GetBinLowEdge(i+1);
-  std::cout << std::endl;
-  std::cout << std::endl;
-  std::cout << std::endl;
+  //  std::cout << std::endl;
+  //  std::cout << std::endl;
+  //  std::cout << "asdfasdfasdfasdfasdf hallo david " << plotname << " " << rescale << std::endl;
+  //  std::cout << "histoOldBinning = ";
+  //  for ( int i = 0 ; i < histoOldBinning->GetXaxis()->GetNbins() + 1; i++ ) std::cout << " " << histoOldBinning->GetXaxis()->GetBinLowEdge(i+1);
+  //  std::cout << std::endl;
+  //  std::cout << std::endl;
+  //  std::cout << std::endl;
 
   unsigned int vecIndex=0;
 
