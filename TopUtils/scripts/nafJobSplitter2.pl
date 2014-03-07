@@ -202,7 +202,7 @@ sub getDatasetPythonFile {
     }
     #make sure the file can be found even without running scram (dirty hack)
     $ENV{PYTHONPATH} = "$datasetPythonPath:$ENV{PYTHONPATH}";
-    return qq{\nlumisToProcess=process.source.lumisToProcess\nprocess.load("$localFileName")\nprocess.source.lumisToProcess=lumisToProcess};
+    return qq{\ncopyjson=False\nif(hasattr(process.source,'lumisToProcess')):\n\tlumisToProcess=process.source.lumisToProcess\n\tcopyjson=True\nprocess.load("$localFileName")\nif copyjson:\n\tprocess.source.lumisToProcess=lumisToProcess};
 #     return qq{process.load("TopAnalysis.Configuration.$localFileName")};
 }
 
