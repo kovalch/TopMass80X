@@ -334,12 +334,15 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
         // If no systematic is specified, read it from the file and use this (used for systematic variations of signal samples)
         const Systematic::Systematic selectedSystematic = systematic==Systematic::undefined ? Systematic::convertSystematic(static_cast<std::string>(systematics_from_file->GetString())) : systematic;
         
+        // If for specific systematic variations the nominal btagging efficiencies should be used
+        const Systematic::Systematic systematicForBtagEfficiencies = selectedSystematic;
+        
         // Set up btag efficiency scale factors
         // This has to be done only after potentially setting systematic from file, since it is varied with signal systematics
         BtagScaleFactors btagScaleFactors(BtagEfficiencyInputDIR,
                                           BtagEfficiencyOutputDIR,
                                           Channel::convertChannels(channels),
-                                          Systematic::convertSystematic(selectedSystematic));
+                                          Systematic::convertSystematic(systematicForBtagEfficiencies));
         
         // Configure selector
         selector->SetTopSignal(isTopSignal);
@@ -351,7 +354,7 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
         // Needs to be changed: for ttbarW, also correction for 3rd W needs to be applied, for ttbarhiggs corrections for 2 or 4 Ws needed, depending on Higgs decay (H->WW?)
         // and what about Wlnu sample, or possible others ?
         selector->SetSamplename(samplename->GetString());
-        selector->SetGeneratorBools(samplename->GetString(), systematics_from_file->GetString());
+        selector->SetGeneratorBools(samplename->GetString(), Systematic::convertSystematic(selectedSystematic));
         selector->SetSystematic(Systematic::convertSystematic(selectedSystematic));
         selector->SetBtagScaleFactors(btagScaleFactors);
         

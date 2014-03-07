@@ -267,7 +267,7 @@ void load_Analysis(const TString& validFilenamePattern,
         selector->SetMC(isMC);
         selector->SetWeightedEvents(weightedEvents);
         selector->SetSamplename(samplename->GetString());
-        selector->SetGeneratorBools(samplename->GetString(), systematics_from_file->GetString());
+        selector->SetGeneratorBools(samplename->GetString(), selectedSystematic);
         selector->SetSystematic(selectedSystematic);
         selector->SetBtagScaleFactors(btagScaleFactors);
         selector->SetClosureTest(closure, slope);
@@ -306,7 +306,7 @@ void load_Analysis(const TString& validFilenamePattern,
             selector->SetSampleForBtagEfficiencies(false);
             
             // For running on PDF systematics
-            if(systematic == "PDF"){
+            if(selectedSystematic == "PDF"){
                 TH1* pdfWeights = dynamic_cast<TH1*>(file.Get("EventsBeforeSelection/pdfEventWeights"));
                 if(!pdfWeights){
                     std::cerr << "Error: pdfEventWeights histo missing!\n";
