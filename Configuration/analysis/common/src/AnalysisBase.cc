@@ -372,7 +372,7 @@ void AnalysisBase::clearBranches()
     b_lepPuChargedHadronIso = 0;
     b_lepCombIso = 0;
     b_lepDxyVertex0 = 0;
-    //b_lepDzVertex0 = 0;
+    b_lepDzVertex0 = 0;
     b_lepTrigger = 0;
     b_jet = 0;
     b_jetBTagTCHE = 0;
