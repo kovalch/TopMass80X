@@ -42,10 +42,10 @@ using namespace std;
 
 myInputGenJetsParticleSelector::myInputGenJetsParticleSelector(const edm::ParameterSet &params ):
   inTag(params.getParameter<edm::InputTag>("src")),
+  flavours(params.getParameter<std::vector<int> >("injectHadronFlavours")),
   partonicFinalState(params.getParameter<bool>("partonicFinalState")),
   excludeResonances(params.getParameter<bool>("excludeResonances")),
   tausAsJets(params.getParameter<bool>("tausAsJets")),
-  flavour(params.getParameter<int>("flavour")),
   ptMin(0.0){
   if (params.exists("ignoreParticleIDs"))
     setIgnoredParticles(params.getParameter<std::vector<unsigned int> >
@@ -250,15 +250,17 @@ void myInputGenJetsParticleSelector::produce (edm::Event &evt, const edm::EventS
     if (particle->status() == 1)
       selected[i] = true;
 
-    // Putting hadron of specified flavour into the list of particles for jet clustering
-    if(abs(particle->pdgId()/1000) == flavour || abs(particle->pdgId()/100 % 10) == flavour){
-      selected[i] = true;
-      // Skipping hadron that has hadron daughter (doesn't decay weakly)
-      for(unsigned int k=0; k<particle->numberOfDaughters();k++){
-        if(abs(particle->daughter(k)->pdgId()/1000) == flavour || abs(particle->daughter(k)->pdgId()/100 % 10) == flavour){
-          selected[i] = false;
+    // Putting hadron of any of specified flavours into the list of particles for jet clustering
+    for(int flavour : flavours) {
+        if(abs(particle->pdgId()/1000) == flavour || abs(particle->pdgId()/100 % 10) == flavour){
+          selected[i] = true;
+          // Skipping hadron that has hadron daughter (doesn't decay weakly)
+          for(unsigned int k=0; k<particle->numberOfDaughters();k++){
+            if(abs(particle->daughter(k)->pdgId()/1000) == flavour || abs(particle->daughter(k)->pdgId()/100 % 10) == flavour){
+              selected[i] = false;
+            }
+          }
         }
-      }
     }
 
 
@@ -299,10 +301,12 @@ void myInputGenJetsParticleSelector::produce (edm::Event &evt, const edm::EventS
     if (particle->pt() >= ptMin){
 //      edm::Ref<reco::GenParticleCollection> particleRef(genParticles,idx);  // Replaced because we use particles instead of references for hadrons
       reco::GenParticle part = (*particle);
-      if(abs(part.pdgId()/1000) == flavour || abs(part.pdgId()/100 % 10) == flavour){
+      for(int flavour : flavours) {
+          if(abs(part.pdgId()/1000) == flavour || abs(part.pdgId()/100 % 10) == flavour){
 
-// 				std::printf("hadInEve: Pdg: %d\tPt: %.1f\tEta: %.3f\tPhi: %.3f\n",particle->pdgId(), particle->pt(), particle->eta(), particle->phi());
-        part.setP4(part.p4()*.0000000000000000001); // Scaling down the energy of the hadron so that jet energy isn't affected
+    // 				std::printf("hadInEve: Pdg: %d\tPt: %.1f\tEta: %.3f\tPhi: %.3f\n",particle->pdgId(), particle->pt(), particle->eta(), particle->phi());
+            part.setP4(part.p4()*.0000000000000000001); // Scaling down the energy of the hadron so that jet energy isn't affected
+          }
       }
 //      selected_->push_back(particleRef);    // Commented because references are replaced by particles
       selected_->push_back(part);
