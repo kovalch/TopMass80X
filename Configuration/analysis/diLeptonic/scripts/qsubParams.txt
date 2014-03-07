@@ -1,4 +1,5 @@
 -cwd
+-m a
 -b yes
 -l h_rt=02:00:00
 -l site=hh
