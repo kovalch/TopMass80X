@@ -388,6 +388,7 @@ void AnalysisBase::clearBranches()
     b_jetTrackIndex = 0;
     b_jetTrackCharge = 0;
     b_jetTrack = 0;
+    b_trackPdgId = 0;
     b_jetPfCandidateTrack = 0;
     b_jetPfCandidateTrackCharge = 0;
     b_jetPfCandidateTrackId = 0;
@@ -588,6 +589,9 @@ void AnalysisBase::SetRecoBranchAddresses()
     //if(chain_->GetBranch("jetTrack")) // new variable, keep check a while for compatibility
     //   chain_->SetBranchAddress("jetTrack", &recoObjects_->jetTrack_, &b_jetTrack);
     //else b_jetTrack = 0;
+    //if(chain_->GetBranch("trackPdgId")) // new variable, keep check a while for compatibility
+    //   chain_->SetBranchAddress("trackPdgId", &recoObjects_->trackPdgId_, &b_trackPdgId);
+    //else b_trackPdgId = 0;
     //if(chain_->GetBranch("jetPfCandidateTrack")) // new variable, keep check a while for compatibility
     //   chain_->SetBranchAddress("jetPfCandidateTrack", &recoObjects_->jetPfCandidateTrack_, &b_jetPfCandidateTrack);
     //else b_jetPfCandidateTrack = 0;
@@ -820,6 +824,7 @@ void AnalysisBase::GetRecoBranchesEntry(const Long64_t& entry)const
     //if(b_jetTrackIndex) b_jetTrackIndex->GetEntry(entry);
     //if(b_jetTrackCharge) b_jetTrackCharge->GetEntry(entry);
     //if(b_jetTrack) b_jetTrack->GetEntry(entry);
+    //if(b_trackPdgId) b_trackPdgId->GetEntry(entry);
     //if(b_jetPfCandidateTrack) b_jetPfCandidateTrack->GetEntry(entry);
     //if(b_jetPfCandidateTrackCharge) b_jetPfCandidateTrackCharge->GetEntry(entry);
     //if(b_jetPfCandidateTrackId) b_jetPfCandidateTrackId->GetEntry(entry);

@@ -425,6 +425,7 @@ private:
     TBranch* b_jetTrackIndex;
     TBranch* b_jetTrackCharge;
     TBranch* b_jetTrack;
+    TBranch* b_trackPdgId;
     TBranch* b_jetPfCandidateTrack;
     TBranch* b_jetPfCandidateTrackCharge;
     TBranch* b_jetPfCandidateTrackId;

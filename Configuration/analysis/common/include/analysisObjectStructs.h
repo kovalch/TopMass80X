@@ -46,6 +46,7 @@ struct RecoObjects{
     std::vector<int>* jetTrackIndex_;
     std::vector<int>* jetTrackCharge_;
     std::vector<LV>* jetTrack_;
+    std::vector<int>* trackPdgId_;
     //std::vector<LV>* jetPfCandidateTrack_;
     //std::vector<int>* jetPfCandidateTrackCharge_;
     //std::vector<int>* jetPfCandidateTrackId_;

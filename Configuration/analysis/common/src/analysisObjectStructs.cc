@@ -43,6 +43,7 @@ void RecoObjects::clear()
     jetTrackIndex_ = 0;
     jetTrackCharge_ = 0;
     jetTrack_ = 0;
+    
     //jetPfCandidateTrack = 0;
     //jetPfCandidateTrackCharge = 0;
     //jetPfCandidateTrackId = 0;
