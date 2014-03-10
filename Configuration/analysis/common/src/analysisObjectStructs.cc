@@ -43,7 +43,15 @@ void RecoObjects::clear()
     jetTrackIndex_ = 0;
     jetTrackCharge_ = 0;
     jetTrack_ = 0;
-    trackPdgId_ = 0;
+    //jetPfCandidateTrack = 0;
+    //jetPfCandidateTrackCharge = 0;
+    //jetPfCandidateTrackId = 0;
+    //jetPfCandidateTrackIndex = 0;
+    //jetSelectedTrack = 0;
+    //jetSelectedTrackIPValue = 0;
+    //jetSelectedTrackIPSignificance = 0;
+    //jetSelectedTrackCharge = 0;
+    //jetSelectedTrackIndex = 0;
     met_ = 0;
     jetJERSF_ = 0;
     jetsForMET_ = 0;

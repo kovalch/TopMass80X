@@ -425,7 +425,16 @@ private:
     TBranch* b_jetTrackIndex;
     TBranch* b_jetTrackCharge;
     TBranch* b_jetTrack;
-    TBranch* b_trackPdgId;
+    TBranch* b_jetPfCandidateTrack;
+    TBranch* b_jetPfCandidateTrackCharge;
+    TBranch* b_jetPfCandidateTrackId;
+    TBranch* b_jetPfCandidateTrackIndex;
+    TBranch* b_jetSelectedTrack;
+    TBranch* b_jetSelectedTrackIPValue;
+    TBranch* b_jetSelectedTrackIPSignificance;
+    TBranch* b_jetSelectedTrackCharge;
+    TBranch* b_jetSelectedTrackIndex;
+    
     TBranch* b_met;
     TBranch* b_jetForMET;
     TBranch* b_jetJERSF;
