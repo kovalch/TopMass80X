@@ -46,19 +46,35 @@
 #ifdef DILEPTON_MACRO
 namespace semileptonic {
 #endif
+  
+  // group space folder with all rootfiles and other analysis relevant stuff
+  TString groupSpace="/nfs/dust/cms/group/tophh/";
+  //TString groupSpace="/afs/naf.desy.de/group/cms/scratch/tophh/";
+  TString AnalysisFolder="RecentAnalysisRun8TeV_doubleKinFit"; // used mostly as default argument
+  // large madspin or smaller madgraph samples?
+  bool MadSpin=true;
+  // adapt several things like removing official labels for my PHD
+  bool PHD=false;
+  // use global switch to rm/add Preliminary to plots 
+  bool globalPrelim   =false; // value used in DrawCMSLabels
+  bool useGlobalPrelim=true;  // for false the value above is ignored
+  // label extension for center of mass in topPt in ttbar center of mass system
+  TString cmsExt="com";
 
   // ==========================================
   //  Cross-section variables and labels
   // ==========================================
 
   // basic variables
-  TString xSecVariablesFinalState[] = {"lepPt" , "lepEta", "bqPt"   , "bqEta" , "bbbarMass", "bbbarPt", "lbMass", "Njets", "rhos"};
-  TString xSecVariablesKinFit[]     = {"topPtLead", "topPtSubLead", "topPtTtbarSys", "topPt", "topY", "ttbarPt", "ttbarY", "ttbarMass", "ttbarDelPhi", "ttbarPhiStar"};
-  TString xSecVariablesFinalStateNorm[] = {"lepPtNorm", "lepEtaNorm", "bqPtNorm"   , "bqEtaNorm" , "bbbarMassNorm", "bbbarPtNorm", "lbMassNorm", "NjetsNorm", "rhosNorm"};
-  TString xSecVariablesKinFitNorm[]     = {"topPtNorm", "topPtLeadNorm", "topPtSubLeadNorm", "topYNorm"  , "ttbarPtNorm", "ttbarYNorm", "ttbarMassNorm", "topPtTtbarSysNorm", "ttbarDelPhiNorm", "ttbarPhiStarNorm"};
+  TString xSecVariablesKinFit[]       = {"topPtLead"    , "topPtSubLead"    , "topPtTtbarSys"    , "topPt"    , "topY"    , "ttbarPt"    , "ttbarY"    , "ttbarMass"    , "ttbarDelPhi"    , "ttbarPhiStar"    };
+  TString xSecVariablesKinFitNorm[]   = {"topPtLeadNorm", "topPtSubLeadNorm", "topPtTtbarSysNorm", "topPtNorm", "topYNorm", "ttbarPtNorm", "ttbarYNorm", "ttbarMassNorm", "ttbarDelPhiNorm", "ttbarPhiStarNorm"};
+  TString xSecVariablesFinalState[]     = {"lepPt"    , "lepEta"    , "bqPt"    , "bqEta"    , "bbbarMass"    , "bbbarPt"    , "lbMass"    , "Njets"    , "rhos"    };
+
+  TString xSecVariablesFinalStateNorm[] = {"lepPtNorm", "lepEtaNorm", "bqPtNorm", "bqEtaNorm", "bbbarMassNorm", "bbbarPtNorm", "lbMassNorm", "NjetsNorm", "rhosNorm"};
+
   TString xSecVariablesIncl[] = {"inclusive"};
 
-  TString xSecLabelKinFit[]     = {"p_{T}^{lead t}/[GeV]", "p_{T}^{sublead t}/[GeV]", "p_{T}^{t#bar{t}}/[GeV]", "p_{T}^{t}/[GeV]", "y^{t}/ ", "y^{t#bar{t}}/ ", "m^{t#bar{t}}/[GeV]", "p_{T}^{t} (t#bar{t} restframe)/[GeV]", "#Delta#phi^{t}/ ", "#Phi^{#lower[-0.9]{* }}(t,#bar{t})/ "};
+  TString xSecLabelKinFit[]     = {"p_{T}^{lead t}/[GeV]", "p_{T}^{sublead t}/[GeV]", "p_{T}^{t} #scale[0.8]{(t#bar{t} "+cmsExt+")}/[GeV]", "p_{T}^{t}/[GeV]", "y^{t}/ ", "p_{T}^{t#bar{t}}/[GeV]", "y^{t#bar{t}}/ ", "m^{t#bar{t}}/[GeV]", "#Delta#phi(t,#bar{t})/ ", "#Phi^{#lower[-0.9]{* }}(t,#bar{t})/ "};
   TString xSecLabelFinalState[] = {"p_{T}^{l}/[GeV]", "#eta^{l}/ ", "p_{T}^{b}/[GeV]", "#eta^{b}/ ", "m^{b#bar{b}}/[GeV]", "p_{T}^{b#bar{b}}/[GeV]", "m^{lb}/[GeV]", "N_{jets}/ ", "#rho_{S}/ "};
 
   // cross-check variables
@@ -66,7 +82,7 @@ namespace semileptonic {
   TString xSecVariablesCCVar[]     = {"topPtPlus",    "topPtMinus",    "topYPlus",    "topYMinus",    "lepEtaPlus",    "lepEtaMinus"    };
   TString xSecVariablesCCVarNorm[] = {"topPtPlusNorm","topPtMinusNorm","topYPlusNorm","topYMinusNorm","lepEtaPlusNorm","lepEtaMinusNorm"};
 
-  TString xSecLabelCCVar[] = {"p_{T}^{t}/[GeV]", "p_{T}^{#bar{t}}/[GeV]", "y^{t}/ ", "y^{#bar{t}}/ ", "#eta^{#mu^{+}}/ ", "#eta^{#mu^{-}}/ "};
+  TString xSecLabelCCVar[] = {"p_{T}^{t}/[GeV]", "p_{T}^{#bar{t}}/[GeV]", "y^{t}/ ", "y^{#bar{t}}/ ", "#eta^{l^{+}}/ ", "#eta^{l^{-}}/ "};
 
   // =================================================
   //  Parameters for samples and style options 
@@ -110,7 +126,7 @@ namespace semileptonic {
   const unsigned int constMcatnloColor  = kBlue;
   const unsigned int constPowhegColor   = kGreen+1;
   const unsigned int constPowhegColor2  = kGreen+3;
-  const unsigned int constNnloColor     = kOrange+4;
+  const unsigned int constNnloColor     = kViolet-6;//kOrange+4
   const unsigned int constNnloColor2    = kMagenta+2;
   const unsigned int constMadgraphPerugiaColor = kRed-7;
   const unsigned int constMadgraphPerugiaMpiHiColor = kCyan;
@@ -122,7 +138,7 @@ namespace semileptonic {
   const unsigned int constPowhegStyle2 = 4;
   const unsigned int constNnloStyle    = 2;
   const unsigned int constMcatnloStyle = 5;
-  const unsigned int constNnloStyle2   = 10;
+  const unsigned int constNnloStyle2   = 6;//10
   const unsigned int constMadgraphPerugiaStyle = 3;
   const unsigned int constMadgraphPerugiaNoCRStyle  = 3;
   const unsigned int constMadgraphPerugiaMpiHiStyle = 3;
@@ -138,6 +154,10 @@ namespace semileptonic {
   const TString constMadGraphPythiaPerugiaLabel      = "MadGraph+Pythia(P11)";
   const TString constMadGraphPythiaPerugiaNoCRLabel  = "MadGraph+Pythia(P11,noCR)";
   const TString constMadGraphPythiaPerugiaMpiHiLabel = "MadGraph+Pythia(P11,MpiHi)";
+
+  // theory arxiv numbers
+  const TString constApproxNNLOLabel="arXiv:1210.7813";
+  const TString constNLONNLLLabel   ="arXiv:1003.5827";
 
   // Marker style (<=kSAToptW)
 
@@ -208,8 +228,8 @@ namespace semileptonic {
   const double ttbarCrossSectionError=sqrt(((6.2+8.4)/2.)*((6.2+8.4)/2.)+((6.2+6.4)/2.)*((6.2+6.4)/2.)); // Scale and PDF uncertainties 
                                                              // --> up/down contributions have been symetrized
 
-  const double SF_TopMassDownUncertainty=0.9/3.0; // scale factors for top mass uncertainty
-  const double SF_TopMassUpUncertainty  =0.9/3.0; // --> world average is presently known at +/-0.9 GeV (arXiv:1107.5255v3 [hep-ex])
+  const double SF_TopMassDownUncertainty=MadSpin ? 1.0 : 0.9/3.0; // scale factors for top mass uncertainty
+  const double SF_TopMassUpUncertainty  =MadSpin ? 1.0 : 0.9/3.0; // --> world average is presently known at +/-0.9 GeV (arXiv:1107.5255v3 [hep-ex])
                                                   // --> systematic samples are varied by +/-3.0 GeV 
                                                   // --> linearily rescale uncertainty on top mass in combineTopDiffXSecUncertainties.C
 
@@ -373,6 +393,7 @@ namespace semileptonic {
       case sysGenMCatNLO               : return "sysGenMCatNLO";
       case sysGenPowheg                : return "sysGenPowheg";  
       case sysGenPowhegHerwig          : return "sysGenPowhegHerwig";  
+      case sysTest                     : return "sysTest";  
       default                          : std::cout << "ERROR: the chosen input for function sysLabel is not valid" << std::endl;
                                          std::cout << "chosen systematic variation:  " << sys            << std::endl;
                                          std::cout << "maximum systematic variation: " << ENDOFSYSENUM-1 << std::endl;
@@ -411,7 +432,7 @@ namespace semileptonic {
     if(sample==kSToptW1 ) return "Single Top tW t->lep W->had";
     if(sample==kSAToptW1) return "Single Antitop tW t->lep W->had";
     if(sample==kWjets  ) return "W+Jets";
-    if(sample==kZjets  ) return "Z+Jets";
+    if(sample==kZjets  ) return "Z / #gamma_{#lower[-0.7]{*}}+Jets";
     if(sample==kDiBos  ) return "Diboson";
     if(sample==kWW     ) return "WW";
     if(sample==kWZ     ) return "WZ";
@@ -457,7 +478,7 @@ namespace semileptonic {
     else if(in.Contains("bbbarMass")) out="bbbarMass";
     else if(in.Contains("bbbarPt"  )) out="bbbarPt";
     else if(in.Contains("lbMass"   )) out="lbMass";
-    else if(in.Contains("rhos"     )) out="rhos";
+    else if(in.Contains("rho"      )) out="rhos";
     else if(in.Contains("Njets")||in.Contains("Ngenjets")) out="Njets";
     // return output
     return out;
@@ -563,7 +584,7 @@ namespace semileptonic {
     hist.SetStats(kFALSE);
   }
 
-  double readLineFromFile(int line, TString file="crossSectionCalculation.txt")
+  double readValFromLineFromFile(int line, TString file="crossSectionCalculation.txt")
   {
     // this function to reads and returns a double value
     // from a specific line "line" of the .txt-like file "file"
@@ -589,6 +610,34 @@ namespace semileptonic {
     // if line is not found
     std::cout << "can not find line" << line << std::endl;
     return -1.;
+  }
+
+  TString readLineFromFile(int line, TString file="crossSectionCalculation.txt")
+  {
+    // this function to reads and returns a TString expression
+    // from a specific line "line" of the .txt-like file "file"
+    // modified quantities: NONE
+    // used functions: NONE
+    // used enumerators: NONE
+
+    // define variables
+    std::ifstream finDouble (file);
+    std::string readIn;
+    // check if file exists
+    if (!finDouble){
+      std::cout << "can not open file " << file << std::endl;
+      return -1;
+    }
+    // loop lines of the file
+    for(int l=1; !finDouble.eof(); ++l){
+      // save line content in readIn
+      getline(finDouble, readIn);
+      // convert your chosen line into double and return it
+      if(l==line) return TString(readIn.c_str());
+    }
+    // if line is not found
+    std::cout << "can not find line" << line << std::endl;
+    return "";
   }
 
   //void canvasStyle(TCanvas& canv) re-definition of header to avoid warnings when compiling, must be changed once function body is not empty anymore
@@ -652,7 +701,7 @@ namespace semileptonic {
       // b) add output to the end of the file
       if(append){
 	std::ofstream fapp(file, std::ios::app);
-	fapp << output << std::endl;;
+	fapp << output << std::endl;
 	fapp.close();
       }
     }
@@ -849,6 +898,41 @@ namespace semileptonic {
 
   }
 
+  TString fillspace(double number, int lengthref=3){
+    // function to determine the number of 
+    // spaces of number wrt. lengthref
+    // another space is added for positive values
+    // -> used to make uniform indented output, e.g.
+    // -0.5 to  0.0
+    //  0.0 to 10.5
+    // modified quantities: NONE
+    // used functions: getBigitFromDouble
+    // used enumerators: NONE
+    TString out="";   
+    int lenght=getBigitFromDouble(number);
+    if(number<0) lenght-=1;
+    //std::cout << "fillspace(" << number << "->" << lenght << "," << lengthref << ")" << std::endl;
+    if(lenght<lengthref){
+      for(int space=(lengthref-lenght); space>0; space--){ out+=" "; }
+    }
+    if(number>=0){ out+=" "; } 
+    return out;
+  }
+
+  TString fillspaceT(TString label, int lengthref=3){
+    // as fillspace but for TStrings instead of doubles
+    // modified quantities: NONE
+    // used functions: NONE
+    // used enumerators: NONE
+    TString out="";   
+    int lenght=label.Length();
+    //std::cout << "fillspaceT(" << label << "->" << lenght << "," << lengthref << ")" << std::endl;
+    if(lenght<lengthref){
+      for(int space=(lengthref-lenght); space>0; space--){ out+=" "; }
+    }
+    return out;
+  }
+
   void DrawDecayChLabel(TString decaychannel="", double textSize=0.04)
   {
     // Draw label for Decay Channel in upper left corner of plot
@@ -872,8 +956,11 @@ namespace semileptonic {
   void DrawCMSLabels(bool cmsprelim=true, double luminosity=0.0, double textSize=0.04, bool cmssimulation=false, bool privateWork=false, bool sevenTeV=false)
   {
     // Draw official labels (CMS Preliminary/Simulation, luminosity and CM energy) above plot
+    bool rmOff2= PHD ? true : rmOff;
 
     TPaveText *label = new TPaveText();
+
+    bool cmsprelim2= (useGlobalPrelim) ? globalPrelim : cmsprelim;
 
     label -> SetX1NDC(gStyle->GetPadLeftMargin());
     label -> SetY1NDC(1.0-gStyle->GetPadTopMargin());
@@ -886,16 +973,16 @@ namespace semileptonic {
     if(sevenTeV) comE="7";
 
     if(cmssimulation) extension+=" Simulation";
-    if(cmsprelim  ) extension+=" Preliminary";
+    if(cmsprelim2&&!PHD) extension+=" Preliminary";
     if(privateWork) extension+=" (Private Work)";
     
     TString finalLabel="";
     if (cmssimulation||luminosity==0.){
-      if(!rmOff) finalLabel=extension+", #sqrt{s} = "+comE+" TeV";
+      if(!rmOff2) finalLabel=extension+", #sqrt{s} = "+comE+" TeV";
       else  finalLabel="Simulation at  #sqrt{s} = "+comE+" TeV";
     }
     else{
-      if(!rmOff) finalLabel=TString(Form(extension+", %2.1f fb^{-1} at #sqrt{s} = "+comE+" TeV",luminosity/1000));
+      if(!rmOff2) finalLabel=TString(Form(extension+", %2.1f fb^{-1} at #sqrt{s} = "+comE+" TeV",luminosity/1000));
       else finalLabel=TString(Form("%2.1f fb^{-1} at #sqrt{s} = "+comE+" TeV",luminosity/1000));
     }
 
@@ -946,7 +1033,7 @@ namespace semileptonic {
     }
   }
 
-  double lumiweight(unsigned int sample, double luminosity, unsigned int kSys, const std::string decayChannel)
+  double lumiweight(unsigned int sample, double luminosity, unsigned int kSys, const std::string decayChannel, bool MS=MadSpin)
   {
     // this function derives the lumiweight for every standard MC
     // sample "sample" based on the theoretical cross section, the
@@ -965,6 +1052,9 @@ namespace semileptonic {
     calledfunction+=", const std::string decayChannel=";
     calledfunction+=decayChannel;
     calledfunction+=")";
+
+    // large MadSpin sample?
+    bool MS2= (((MS&&kSys!=sysMad)||(!MS&&kSys==sysMad))&&((sample==kSig)||(sample==kBkg))&&kSys<=sysHadDown)  ? true : false;
 
     // function internal detail level of text output
     int verbose=0;
@@ -1003,21 +1093,21 @@ namespace semileptonic {
     if((sample==kSig)||(sample==kBkg)){
       crossSection=ttbarCrossSection; 
       // Summer12
-      Nevents = 6923750*0.999881;// 8 TEV PU SF from gen ttbarSG Integral/entries
+      Nevents = MS2 ? 62131965 : 6923750;
       // Systematic samples
       if(kSys!=sysNo){
-	if     (kSys==sysTopScaleUp  ) Nevents=5009488;
-	else if(kSys==sysTopScaleDown) Nevents=5387181;
-	else if(kSys==sysTopMatchUp  ) Nevents=5415010;
-	else if(kSys==sysTopMatchDown) Nevents=5476728;
-	else if(kSys==sysTopMassUp   ) Nevents=5249525;
-	else if(kSys==sysTopMassDown ) Nevents=5369214;
-	else if(kSys==sysTopMassUp2  ) Nevents=4733483;
-	else if(kSys==sysTopMassDown2) Nevents=4469095;
-	else if(kSys==sysTopMassUp3  ) Nevents=5145140;
-	else if(kSys==sysTopMassDown3) Nevents=5365348;
-	else if(kSys==sysTopMassUp4  ) Nevents=5249525;
-	else if(kSys==sysTopMassDown4) Nevents=5369214;
+	if     (kSys==sysTopScaleUp  ) Nevents= MS2 ?  41908271 : 5009488;
+	else if(kSys==sysTopScaleDown) Nevents= MS2 ?  39286663 : 5387181;
+	else if(kSys==sysTopMatchUp  ) Nevents= MS2 ?  37083003 : 5415010;
+	else if(kSys==sysTopMatchDown) Nevents= MS2 ?  34053113 : 5476728;
+	else if(kSys==sysTopMassUp   ) Nevents= MS2 ?  26489020 : 5249525;
+	else if(kSys==sysTopMassDown ) Nevents= MS2 ?  24439341 : 5369214;
+	else if(kSys==sysTopMassUp2  ) Nevents= MS2 ?  40244328 : 4733483;
+	else if(kSys==sysTopMassDown2) Nevents= MS2 ?  39518234 : 4469095;
+	else if(kSys==sysTopMassUp3  ) Nevents= MS2 ?  24359161 : 5145140;
+	else if(kSys==sysTopMassDown3) Nevents= MS2 ?  27078777 : 5365348;
+	else if(kSys==sysTopMassUp4  ) Nevents= MS2 ? -1 : 5249525;
+	else if(kSys==sysTopMassDown4) Nevents= MS2 ? -1 : 5369214;
       }
     }
     else if((sample==kSigPow)||(sample==kBkgPow)){
@@ -1344,7 +1434,7 @@ namespace semileptonic {
     return result;
   }
 
-  TString TopFilename(unsigned int sample, unsigned int sys, const std::string decayChannel)
+  TString TopFilename(unsigned int sample, unsigned int sys, const std::string decayChannel, bool MS=MadSpin)
   {
     // this function contains the basic convention for the MC
     // .root files and returns the correct names for chosen samplesample"
@@ -1363,6 +1453,8 @@ namespace semileptonic {
     // standard MC filenames
     if(sample==kSig    )fileName += "Sig";
     if(sample==kBkg    )fileName += "Bkg";
+    // MadSpin: ttbar MadGraph sample, MS==true OR sysMad
+    if(((MS&&sys!=sysMad)||(!MS&&sys==sysMad))&&((sample==kSig)||(sample==kBkg))&&sys<=sysHadDown) fileName+="MadSpin";
     if(sample==kSigPow )fileName += "SigPowheg";
     if(sample==kBkgPow )fileName += "BkgPowheg";
     if(sample==kSigPowHer )fileName += "SigPowhegHerwig";
@@ -1446,8 +1538,6 @@ namespace semileptonic {
       else if(sys==sysTopMassDown3) fileName+="3";
       else if(sys==sysTopMassDown4) fileName+="4";      
     }
-    // MadSpin
-    else if(sys==sysMad&&((sample==kSig)||(sample==kBkg))) fileName+="MadSpin";
     // label for MC production cycle
     fileName += "Summer12";
     fileName += "PF.root";
@@ -1488,7 +1578,7 @@ namespace semileptonic {
     }
   }
 
-  std::map<unsigned int, TFile*> getStdTopAnalysisFiles( const TString inputFolder, const unsigned int systematicVariation, const TString dataFile, const std::string decayChannel, TString ttbarMC="Madgraph")
+  std::map<unsigned int, TFile*> getStdTopAnalysisFiles( const TString inputFolder, const unsigned int systematicVariation, const TString dataFile, const std::string decayChannel, TString ttbarMC="Madgraph", bool MS=MadSpin)
     {
       // this function returns a map containing all existing .root in "inputFolder"
       // corresponding to the chosen systematic variation "systematicVariation"
@@ -1526,7 +1616,9 @@ namespace semileptonic {
 	      if(sample==kSig) fileName = inputFolder+"/"+TopFilename(kSigMca, systematicVariation, decayChannel);
 	      if(sample==kBkg) fileName = inputFolder+"/"+TopFilename(kBkgMca, systematicVariation, decayChannel);
 	    }
-	    else fileName = inputFolder+"/"+TopFilename(sample, systematicVariation, decayChannel);
+	    else{
+	      fileName = inputFolder+"/"+TopFilename(sample, systematicVariation, decayChannel, MS);
+	    }
 	    // take care of splitted single top tW sample for scale systematics
 	    if((systematicVariation==sysSingleTopScaleUp||systematicVariation==sysSingleTopScaleDown)&&(sample==kSToptW||sample==kSAToptW)){
 	      if(sample==kSToptW){
@@ -1585,7 +1677,7 @@ namespace semileptonic {
 
     // loop plots
     for(unsigned int plot=0; plot<plotList_.size(); ++plot){
-      TString testPlotNameForTrackingDownErrors="NotUsedAtTheMoment";
+      TString testPlotNameForTrackingDownErrors="NotUsedAtTheMoment";//"analyzeTopRecoKinematicsKinFitProbSel/topPt";//"NotUsedAtTheMoment";
       bool hugo=plotList_[plot].Contains(testPlotNameForTrackingDownErrors) ? true : false;
       // check if plot exists in any sample
       bool existsInAnySample=false;
@@ -2379,7 +2471,7 @@ namespace semileptonic {
     else if(variable.Contains("bqEta"    )) his->GetXaxis()->SetRangeUser(-2.4 , 2.39 );
     else if(variable.Contains("lbMass"   )) his->GetXaxis()->SetRangeUser(0.   , 500  );
     else if(variable.Contains("Njets"    )) his->GetXaxis()->SetRangeUser(3.5  , 14.5 );
-    else if(variable.Contains("rhos"     )) his->GetXaxis()->SetRangeUser(0.   , 1.1  );
+    else if(variable.Contains("rho"      )) his->GetXaxis()->SetRangeUser(0.   , 1.1  );
   }
     
   template <class T>
@@ -2484,9 +2576,22 @@ namespace semileptonic {
       // used functions: none
       // used enumerators: none
 
+
+      // check if file is already open
+      TFile* openfile = 0;
+      TSeqCollection *openfiles= gROOT->GetListOfFiles();
+      for(int i=0; i<openfiles->GetSize(); ++i){
+	 if(verbose>2) std::cout << openfiles->At(i)->GetName() << std::endl;
+	if(TString(openfiles->At(i)->GetName())==outputFile){
+	  openfile=(TFile*)(openfiles->At(i));
+	  if(verbose>1) std::cout << "file " << outputFile << " already open, use reopen" << std::endl;
+	}
+      }
+
       bool saveObject=true;
       // check if file exist
-      TFile* file = TFile::Open(outputFile, "UPDATE");
+      TFile* file = openfile ? openfile : TFile::Open(outputFile, "UPDATE");
+      if(openfile) file->ReOpen("UPDATE");
       // if not exist: create
       if(!file){
 	if(verbose>1) std::cout << "file " << outputFile << " does not exist, will be created" << std::endl;
@@ -2558,7 +2663,7 @@ namespace semileptonic {
 	object->Write(object->GetTitle(), TObject::kOverwrite);
       }
       // close file
-      file->Close();
+      if(!openfile) file->Close();
     }
 
   template <class T>
@@ -2656,7 +2761,21 @@ namespace semileptonic {
       file->Close();
     }
 
-  int drawRatio(const TH1* histNumerator, TH1* histDenominator, const Double_t& ratioMin, const Double_t& ratioMax, TStyle myStyle, int verbose=0, const std::vector<double> err_=std::vector<double>(0), TString ratioLabelNominator="N_{data}", TString ratioLabelDenominator="N_{MC}", TString ratioDrawOption="p e X0", int ratioDrawColor=kBlack, bool error=true, double ratioMarkersize=1.2, int ndiv=505)
+  void CloseOpenFiles(int verbose=0){   
+    // this function closes all open rootfiles
+    // use it at the begin of all macros to prevent problems with saving
+    // modified quantities: none
+    // used functions: none
+    // used enumerators: none 
+
+    TSeqCollection *openfiles= gROOT->GetListOfFiles();
+    for(int i=0; i<openfiles->GetSize(); ++i){
+      if(verbose>2) std::cout << openfiles->At(i)->GetName() << std::endl;
+      ((TFile*)(openfiles->At(i)))->Close();
+    }
+  }
+
+  int drawRatio(const TH1* histNumerator, TH1* histDenominator, const Double_t& ratioMin, const Double_t& ratioMax, TStyle myStyle, int verbose=0, const std::vector<double> err_=std::vector<double>(0), TString ratioLabelNominator="N_{data}", TString ratioLabelDenominator="N_{MC}", TString ratioDrawOption="p e X0", int ratioDrawColor=kBlack, bool error=true, double ratioMarkersize=1.2, int ndiv=505, bool invert=false, bool drawOne=true, bool linFit=false)
   {
     // this function draws a pad with the ratio of 'histNumerator' and 'histDenominator'
     // the range of the ratio is 'ratioMin' to 'ratioMax'
@@ -2664,26 +2783,42 @@ namespace semileptonic {
     // per default only the gaussian error of the 'histNumerator' is considered:
     // (error(bin i) = sqrt(histNumerator->GetBinContent(i))/histDenominator->GetBinContent(i))
     // if 'err_' is present and its size equals the number of bins in the histos,
-    // its valus are considered as error for the ratio (if error=true)
+    // its values are considered as error for the ratio (if error=true) 
+    // (first entry in err_ - index 0 - corresponds to bin 1)
     // 'ndiv' defines the Ndivisions for the ratio y axis
     // NOTE: x Axis is transferred from histDenominator to the bottom of the canvas
+    // invert: draw histDenominator/histNumerator instead of the other way round 
+    //         (this allows to switch fast without additional fixing of axes labels etc)
+    // NOTE: ratioLabelDenominator and ratioLabelNominator are assumed to correspond to 
+    //       histNumerator and histDenominator, if invert is used, they are automatically 
+    //       switched, wrong treatment leads to wrong errors for empty err_ and error=true
     // modified quantities: none
     // used functions: none
     // used enumerators: none
-
+    
+    // invert ==false: build histNumerator/histDenominator
+    // invert ==true : build histDenominator/histNumerator
+    // -> build in any case tempNumerator/tempDenominator
+    TH1F* tempNumerator   = invert ? (TH1F*)histDenominator->Clone() : (TH1F*)histNumerator  ->Clone();
+    TH1F* tempDenominator = invert ? (TH1F*)histNumerator  ->Clone() : (TH1F*)histDenominator->Clone();
     // check that histos have the same binning
     if(histNumerator->GetNbinsX()!=histDenominator->GetNbinsX()){
       std::cout << " ERROR when calling drawRatio - histos have different number of bins" << std::endl;
       return -1;
     }
-    
     if(verbose>1){
-      std::cout << "building ratio plot of " << histNumerator->GetName();
-      std::cout << " and " << histDenominator->GetName() << std::endl;
+      std::cout << "building ratio plot of " << tempNumerator->GetName();
+      std::cout << " and " << tempDenominator->GetName() << std::endl;
     }
     // create ratio
     TH1F* ratio = (TH1F*)histNumerator->Clone();
-    ratio->Divide(histDenominator);
+    // separate calculation of each bin
+    for(int bin=1; bin<=tempNumerator->GetNbinsX(); bin++){
+      double num  =tempNumerator  ->GetBinContent(bin);
+      double denom=tempDenominator->GetBinContent(bin);
+      if(denom==0.) denom=0.00001;
+      ratio->SetBinContent(bin, num/denom);
+    }
     // calculate error for ratio
     // a) from err_
     if(err_.size()==(unsigned int)histNumerator->GetNbinsX()){
@@ -2692,11 +2827,17 @@ namespace semileptonic {
 	ratio->SetBinError(bin, err_[bin-1]);
       }
     }
+    // b) from data statistics
     else if (error==true){
-      // b) default: only gaussian error of histNumerator
-      if(verbose>0) std::cout << "ratio error from statistical error of " << histNumerator->GetName() << " only" << std::endl;
-      for(int bin=1; bin<=histNumerator->GetNbinsX(); bin++){
-	ratio->SetBinError(bin, sqrt(histNumerator->GetBinContent(bin))/histDenominator->GetBinContent(bin));
+      // get data (condition is true if data is finally used as denominator)
+      TH1F* data=tempNumerator;
+      if((!invert&& (ratioLabelDenominator.Contains("data")||ratioLabelDenominator.Contains("Data"))&&!(ratioLabelNominator.Contains("data")||ratioLabelNominator.Contains("Data")))||( invert&&!(ratioLabelDenominator.Contains("data")||ratioLabelDenominator.Contains("Data"))&& (ratioLabelNominator.Contains("data")||ratioLabelNominator.Contains("Data")))){
+	data=tempDenominator;
+      }
+      // uncertainty from gaussian propagated error of data
+      //     = ratio*relative poissonean error of Ndata -> ratio(data,MC)*sqrt(Ndata)/Ndata
+      for(int bin=1; bin<=tempDenominator->GetNbinsX(); bin++){
+	ratio->SetBinError(bin, ratio->GetBinContent(bin)*(sqrt(data->GetBinContent(bin)))/data->GetBinContent(bin));
       }
     }
     // get some values from old pad
@@ -2705,8 +2846,10 @@ namespace semileptonic {
     //Double_t right = gPad->GetRightMargin();
       
     Int_t    logx  = myStyle.GetOptLogx();
-    Double_t left  = myStyle.GetPadLeftMargin();
-    Double_t right = myStyle.GetPadRightMargin();
+    //Double_t left  = myStyle.GetPadLeftMargin();
+    //Double_t right = myStyle.GetPadRightMargin();
+    Double_t left  = gPad->GetLeftMargin();
+    Double_t right = gPad->GetRightMargin();
     if(!histDenominator->GetXaxis()->GetNoExponent()&&TString(histDenominator->GetName()).Contains("shift")&&(TString(histDenominator->GetName()).Contains("Eta")||TString(histDenominator->GetName()).Contains("Phi"))&&!(TString(histDenominator->GetName()).Contains("Nu"))) right=0.11;
 
     // y:x size ratio for canvas
@@ -2764,7 +2907,12 @@ namespace semileptonic {
       ratio->GetXaxis()->SetTitle(histDenominator->GetXaxis()->GetTitle());
       ratio->GetXaxis()->SetNdivisions(histDenominator->GetNdivisions());
       ratio->GetYaxis()->CenterTitle();
-      ratio->GetYaxis()->SetTitle("#frac{"+ratioLabelNominator+"}{"+ratioLabelDenominator+"}");
+      TString ratioAxisTitle="";
+      //if(ratioLabelDenominator!=""&&ratioLabelNominator!="") ratioAxisTitle="#frac{"+ratioLabelNominator+"}{"+ratioLabelDenominator+"}";
+      if(ratioLabelDenominator!=""&&ratioLabelNominator!="") ratioAxisTitle="#frac{"+(!invert ? ratioLabelDenominator : ratioLabelNominator)+"}{"+(!invert ? ratioLabelNominator : ratioLabelDenominator)+"}";
+      else if(ratioLabelDenominator!="") ratioAxisTitle=ratioLabelDenominator;
+      else if(ratioLabelNominator  !="") ratioAxisTitle=ratioLabelNominator  ;
+      ratio->GetYaxis()->SetTitle(ratioAxisTitle);
       ratio->GetYaxis()->SetTitleSize(histDenominator->GetYaxis()->GetTitleSize()*scaleFactor);
       ratio->GetYaxis()->SetTitleOffset(histDenominator->GetYaxis()->GetTitleOffset()/scaleFactor);
       ratio->GetYaxis()->SetLabelSize(histDenominator->GetYaxis()->GetLabelSize()*scaleFactor);
@@ -2785,6 +2933,7 @@ namespace semileptonic {
     ratio->SetMarkerColor(ratioDrawColor);
     //gPad->Update();
     ratio->Draw(ratioDrawOption);
+    if(linFit)  ratio->Fit("pol1", "q", "", histDenominator->GetBinLowEdge(histDenominator->GetXaxis()->GetFirst()), histDenominator->GetBinLowEdge(histDenominator->GetXaxis()->GetLast()+1));
     gPad->SetLeftMargin(left);
     gPad->RedrawAxis("g");
 
@@ -2798,7 +2947,7 @@ namespace semileptonic {
       f->SetLineStyle(1);
       f->SetLineWidth(1);
       f->SetLineColor(kBlack);
-      f->Draw("L same");
+      if(drawOne) f->Draw("L same");
       // b) at upper end of ratio pad
       TString height2 = ""; height2 += ratioMax;
       TF1 *f2 = new TF1("f2", height2, xmin, xmax);
@@ -2849,7 +2998,7 @@ namespace semileptonic {
       else return constPowhegColor; 
     }
     if(theo.Contains("nnlo")){
-      if(theo.Contains("ahrens")||theo.Contains("ttbarMass")) return constNnloColor2;
+      if(theo.Contains("ahrens")||theo.Contains("ttbarMass")||theo.Contains("ttbarPt")) return constNnloColor2;
       return constNnloColor;
     }
     if(theo.Contains("data")) return kBlack;
@@ -2867,7 +3016,7 @@ namespace semileptonic {
       else  return constPowhegStyle; 
     }
     if(theo.Contains("nnlo")){
-      if(theo.Contains("ahrens")||theo.Contains("ttbarMass")) return constNnloStyle2;
+      if(theo.Contains("ahrens")||theo.Contains("ttbarMass")||theo.Contains("ttbarPt")) return constNnloStyle2;
       return constNnloStyle;
     }
     if(theo.Contains("nnlo"    )||theo.Contains("kidonakis")) return constNnloStyle;
@@ -2885,35 +3034,69 @@ namespace semileptonic {
     TString strUnitGeV = " #left[GeV#right]";
     if(noUnit) strUnitGeV="";
 
-    if     (variable == "topPt"        ) return "p_{T}^{t}"+strUnitGeV;
-    if     (variable == "topPtTtbarSys") return "p_{T}^{t} (t#bar{t} restframe)"+strUnitGeV;
-    if     (variable == "topPtLead"    ) return "p_{T}^{lead t}"+strUnitGeV;
-    if     (variable == "topPtSubLead" ) return "p_{T}^{sublead t}"+strUnitGeV;
-    else if(variable == "topPtPlus"    ) return "p_{T}^{t}"+strUnitGeV;
-    else if(variable == "topPtMinus"   ) return "p_{T}^{#bar{t}}"+strUnitGeV;
-    else if(variable == "topY"         ) return "y^{t}";
-    else if(variable == "topYPlus"     ) return "y^{t}";
-    else if(variable == "topYMinus"    ) return "y^{#bar{t}}";
-    else if(variable == "ttbarPt"      ) return "p_{T}^{t#bar{t}}"+strUnitGeV;
-    else if(variable == "ttbarY"       ) return "y^{t#bar{t}}";
-    else if(variable == "ttbarMass"    ) return "m^{t#bar{t}}"+strUnitGeV;
-    else if(variable == "ttbarPhiStar" ) return "#Phi^{#lower[-0.9]{* }}(t,#bar{t})";
-    else if(variable == "ttbarDelPhi"  ) return "#Delta#phi^{t}";
-    else if(variable == "lepPt"        ) return "p_{T}^{l}"+strUnitGeV;
-    else if(variable == "lepEta"       ) return "#eta^{l}"; 
-    else if(variable == "lepEtaPlus"   ) return "#eta^{l^{+}}";
-    else if(variable == "lepEtaMinus"  ) return "#eta^{l^{-}}";
-    else if(variable == "bqPt"         ) return "p_{T}^{b}"+strUnitGeV;
-    else if(variable == "bqEta"        ) return "#eta^{b}";
-    else if(variable == "bbbarPt"      ) return "p_{T}^{b#bar{b}}"+strUnitGeV;
-    else if(variable == "bbbarMass"    ) return "m^{b#bar{b}}"+strUnitGeV;
-    else if(variable == "lbMass"       ) return "m^{lb}"+strUnitGeV;
-    else if(variable == "Njets"        ) return "N_{jets} (p_{T}>30 GeV, |#eta|<2.4)";
-    else if(variable == "rhos"         ) return "#rho_{S}= #frac{#scale[0.6]{2#upoint170 GeV}}{#scale[0.6]{m(t#bar{t}+1jet)}}";
-    else return "Default Label for variable "+variable;
+    if(variable == "topPt"        ) return "p_{T}^{t}"+strUnitGeV;
+    if(variable == "topPtTtbarSys") return "p_{T}^{t} #scale[0.8]{(t#bar{t} "+cmsExt+")}"+strUnitGeV;
+    if(variable == "topPtLead"    ) return "p_{T}^{lead t}"+strUnitGeV;
+    if(variable == "topPtSubLead" ) return "p_{T}^{sublead t}"+strUnitGeV;
+    if(variable == "topPtPlus"    ) return "p_{T}^{t}"+strUnitGeV;
+    if(variable == "topPtMinus"   ) return "p_{T}^{#bar{t}}"+strUnitGeV;
+    if(variable == "topY"         ) return "y^{t}";
+    if(variable == "topYPlus"     ) return "y^{t}";
+    if(variable == "topYMinus"    ) return "y^{#bar{t}}";
+    if(variable == "ttbarPt"      ) return "p_{T}^{t#bar{t}}"+strUnitGeV;
+    if(variable == "ttbarY"       ) return "y^{t#bar{t}}";
+    if(variable == "ttbarMass"    ) return "m^{t#bar{t}}"+strUnitGeV;
+    if(variable == "ttbarPhiStar" ) return "#Phi^{#lower[-0.9]{* }}(t,#bar{t})";
+    if(variable == "ttbarDelPhi"  ) return "#Delta#phi(t,#bar{t})";
+    if(variable == "lepPt"        ) return "p_{T}^{l}"+strUnitGeV;
+    if(variable == "lepEta"       ) return "#eta^{l}"; 
+    if(variable == "lepEtaPlus"   ) return "#eta^{l^{+}}";
+    if(variable == "lepEtaMinus"  ) return "#eta^{l^{-}}";
+    if(variable == "bqPt"         ) return "p_{T}^{b}"+strUnitGeV;
+    if(variable == "bqEta"        ) return "#eta^{b}";
+    if(variable == "bbbarPt"      ) return "p_{T}^{b#bar{b}}"+strUnitGeV;
+    if(variable == "bbbarMass"    ) return "m^{b#bar{b}}"+strUnitGeV;
+    if(variable == "lbMass"       ) return "m^{lb}"+strUnitGeV;
+    if(variable == "Njets"        ) return "N_{jets} (p_{T}>30 GeV, |#eta|<2.4)";
+    if(variable == "rhos"         ) return "#rho_{S}= #frac{#scale[0.55]{2#upoint170 GeV}}{#scale[0.55]{m(t#bar{t}+1jet)}}";
+    return "Default Label for variable "+variable;
   }
 
-  TCanvas* drawFinalResultRatio(TH1F* histNumeratorData, const Double_t& ratioMin, const Double_t& ratioMax, TStyle myStyle, int verbose=0, std::vector<TH1F*> histDenominatorTheory_=std::vector<TH1F*>(0), TCanvas* canv=0, double rangeMin=-1., double rangeMax=-1., TGraphAsymmErrors* histStatData=0, bool addXBinGrid=true)
+  double xSecMaximum(TString variable=""){
+    // this function returns the maximum of the y axis 
+    // modified quantities: none
+    // used functions: none
+    // used enumerators: none
+
+    if(variable.Contains("topPtTtbarSys")) return 9.0E-03;
+    if(variable.Contains("topPtLead"    )) return 8.5E-03;
+    if(variable.Contains("topPtSubLead" )) return 9.0E-03;
+    if(variable.Contains("topPt"        )) return 8.5E-03;
+    if(variable.Contains("topPtPlus"    )) return -1.0;
+    if(variable.Contains("topPtMinus"   )) return -1.0;
+    if(variable.Contains("topY"         )) return 9.0E-01;
+    if(variable.Contains("topYPlus"     )) return -1.0;
+    if(variable.Contains("topYMinus"    )) return -1.0;
+    if(variable.Contains("ttbarPt"      )) return 2.0E-02;
+    if(variable.Contains("ttbarY"       )) return 9.0E-01;
+    if(variable.Contains("ttbarMass"    )) return 1.0;
+    if(variable.Contains("ttbarPhiStar" )) return 10.0;
+    if(variable.Contains("ttbarDelPhi"  )) return 3.0;
+    if(variable.Contains("lepPt"        )) return 3.0E-02;
+    if(variable.Contains("lepEta"       )) return 0.55;
+    if(variable.Contains("lepEtaPlus"   )) return -1.0;
+    if(variable.Contains("lepEtaMinus"  )) return -1.0;
+    if(variable.Contains("bqPt"         )) return 1.8E-02;
+    if(variable.Contains("bqEta"        )) return 0.5;
+    if(variable.Contains("bbbarPt"      )) return 1.2E-02;
+    if(variable.Contains("bbbarMass"    )) return 8.0E-03;
+    if(variable.Contains("lbMass"       )) return 1.2E-02;
+    if(variable.Contains("Njets"        )) return 0.75;
+    if(variable.Contains("rho"          )) return 5.5;
+    return -1.0;
+  }
+
+  TCanvas* drawFinalResultRatio(TH1F* histNumeratorData, const Double_t& ratioMin, const Double_t& ratioMax, TStyle myStyle, int verbose=0, std::vector<TH1F*> histDenominatorTheory_=std::vector<TH1F*>(0), TCanvas* canv=0, double rangeMin=-1., double rangeMax=-1., TGraphAsymmErrors* histStatData=0, bool addXBinGrid=true, bool addYGrid=false, bool bands=true, unsigned int ndiv=505)
   {
     // this function draws a pad with the ratio "histNumeratorData" over "histDenominatorTheoryX" 
     // for up to five specified theory curves, using "histNumeratorDataDown" and "histNumeratorDataUp"
@@ -2924,6 +3107,7 @@ namespace semileptonic {
     // 'addXBinGrid': a vertical grid is drawn at the bin boundaries if true
     // 'histStatData': statistical errors are drawn in the ratio and the BCC x
     //                 position from this object is used also for the ratio plots
+    // 'bands'       : draw data uncertainty as errorbands if set to true
     // NOTE: x Axis is transferred from histDenominator to the bottom of the canvas
     // modified quantities: none
     // used functions: setXAxisRange, theoryColor, drawLine
@@ -2951,7 +3135,11 @@ namespace semileptonic {
       }	       
       canv->cd();
       canv->Draw();
-      
+      //std::cout << "width =" << canv->GetWindowWidth()  << std::endl;
+      //std::cout << "height=" << canv->GetWindowHeight() << std::endl;
+
+      //canv->SetGrayscale(); // FIXME: for black-white compatibility check
+
       // create ratios
       std::vector<TH1*> ratio_;
       // sort for drawing order: MADGRAPH, MC@NLO, POWHEG, POWHEG+HERWIG, higher order theory calculation
@@ -3068,8 +3256,10 @@ namespace semileptonic {
       // draw grid
       TPad *grid =(TPad*)rPad->Clone("grid");
       grid->SetGrid(0,1);
-      grid->Draw("");
-      rPad->SetGrid(0,1);
+      if(addYGrid){
+	grid->Draw("");
+	rPad->SetGrid(0,1);
+      }
       rPad->Draw("");
       rPad->cd();
       //whitebox3->Draw();
@@ -3077,6 +3267,7 @@ namespace semileptonic {
       TGraphAsymmErrors* errorband2=0;
       TGraphAsymmErrors* errorbandStat2=0;
       TLegend *leg  = new TLegend(); 
+      TLegend *legBand = bands ? new TLegend() : 0;
       if(verbose>3) std::cout << "debug E" << std::endl;
       for(unsigned int nTheory=0; nTheory<ratio_.size(); ++nTheory){
 	if(verbose>3) std::cout << "  -" << nTheory << std::endl;
@@ -3105,13 +3296,13 @@ namespace semileptonic {
 	ratio_[nTheory]->GetXaxis()->SetTitle(histDenominatorTheoryOrdered_[nTheory]->GetXaxis()->GetTitle());
 	ratio_[nTheory]->GetXaxis()->SetNdivisions(histDenominatorTheoryOrdered_[nTheory]->GetNdivisions());
 	ratio_[nTheory]->GetYaxis()->CenterTitle();
-	ratio_[nTheory]->GetYaxis()->SetTitle("#frac{theory}{data}");
+	ratio_[nTheory]->GetYaxis()->SetTitle("#frac{Theory}{Data}");
 	ratio_[nTheory]->GetYaxis()->SetTitleSize(histDenominatorTheoryOrdered_[nTheory]->GetYaxis()->GetTitleSize()*scaleFactor);
 	ratio_[nTheory]->GetYaxis()->SetTitleOffset(histDenominatorTheoryOrdered_[nTheory]->GetYaxis()->GetTitleOffset()/scaleFactor);
 	ratio_[nTheory]->GetYaxis()->SetLabelSize(histDenominatorTheoryOrdered_[nTheory]->GetYaxis()->GetLabelSize()*scaleFactor);
 	ratio_[nTheory]->GetYaxis()->SetLabelOffset(histDenominatorTheoryOrdered_[nTheory]->GetYaxis()->GetLabelOffset()*3.3);
 	ratio_[nTheory]->GetYaxis()->SetTickLength(0.03);
-	ratio_[nTheory]->GetYaxis()->SetNdivisions(505);
+	ratio_[nTheory]->GetYaxis()->SetNdivisions(ndiv);
 	ratio_[nTheory]->GetXaxis()->SetRange(histNumeratorData->GetXaxis()->GetFirst(), histNumeratorData->GetXaxis()->GetLast());
 	// first plot
 	if(nTheory==0){
@@ -3152,13 +3343,25 @@ namespace semileptonic {
 	  one->SetLineStyle(1);
 	  one->SetLineColor(kBlack);
 	  one->SetFillStyle(0);
-
+	  // FIXME: Printout for synchronization
+	  //std::cout << "ratio->GetXaxis()->GetTitleSize  : " << one->GetXaxis()->GetTitleSize()   << std::endl;
+	  //std::cout << "ratio->GetXaxis()->GetTitleOffset: " << one->GetXaxis()->GetTitleOffset() << std::endl;
+	  //std::cout << "ratio->GetXaxis()->GetLabelSize  : " << one->GetXaxis()->GetLabelSize()   << std::endl;
+	  //std::cout << "ratio->GetXaxis()->GetLabelOffset: " << one->GetXaxis()->GetLabelOffset() << std::endl;
+	  //std::cout << "ratio->GetXaxis()->GetNdivisions : " << one->GetXaxis()->GetNdivisions()  << std::endl;
+	  //std::cout << "ratio->GetXaxis()->GetTickLength : " << one->GetXaxis()->GetTickLength()  << std::endl;
+	  //std::cout << "ratio->GetYaxis()->GetTitleSize  : " << one->GetYaxis()->GetTitleSize()   << std::endl;
+	  //std::cout << "ratio->GetYaxis()->GetTitleOffset: " << one->GetYaxis()->GetTitleOffset() << std::endl;
+	  //std::cout << "ratio->GetYaxis()->GetLabelSize  : " << one->GetYaxis()->GetLabelSize()   << std::endl;
+	  //std::cout << "ratio->GetYaxis()->GetLabelOffset: " << one->GetYaxis()->GetLabelOffset() << std::endl;
+	  //std::cout << "ratio->GetYaxis()->GetTickLength : " << one->GetYaxis()->GetTickLength()  << std::endl;
+	  //std::cout << "ratio->GetYaxis()->GetNdivisions : " << one->GetYaxis()->GetNdivisions()  << std::endl;
 	  TString add= nTheory==0 ? "" : " same";
 	  one2=(TH1F*)one->Clone();
 	  one->DrawClone("hist"+add);
 	  // line at upper border
 	  TH1F* up=(TH1F*)one->Clone("up");
-	  up->SetLineWidth(3);
+	  up->SetLineWidth(1);
 	  up->SetLineColor(kBlack);
 	  up->Scale(ratioMax);
 	  up->DrawClone("hist same");
@@ -3171,7 +3374,9 @@ namespace semileptonic {
 	    double totX=histStatData ? histStatData->GetX()[bin] : histNumeratorData->GetBinCenter(bin);
 	    double totErrY=histNumeratorData->GetBinError(bin);
 	    errorband->SetPoint(bin, totX, 1);
-	    errorband->SetPointError(bin, 0, 0,totErrY/totY, totErrY/totY);
+	    double errUp=bands ? 0.5*histNumeratorData->GetBinWidth(bin) : 0;
+	    double errDn=bands ? 0.5*histNumeratorData->GetBinWidth(bin) : 0;
+	    errorband->SetPointError(bin, errDn, errUp,totErrY/totY, totErrY/totY);
 	    //errorband->SetBinContent(bin, 1);
 	    //errorband->SetBinError  (bin, histNumeratorData->GetBinError(bin)/histNumeratorData->GetBinContent(bin));	  
 	    //std::cout << bin << ": (x,dy/y)=(" << totX << "," << totErrY/totY << "), (x,y)=(" << totX << "," << totY << "+/-" << totErrY << ")" << std::endl;
@@ -3190,34 +3395,80 @@ namespace semileptonic {
 	      double statX=histStatData->GetX()[bin];
 	      double statErrY=histStatData->GetEYlow()[bin];
 	      errorbandStat->SetPoint(bin, statX, 1);
-	      errorbandStat->SetPointError(bin, 0, 0, statErrY/statY, statErrY/statY);
+	      double errUp=bands ? 0.5*histNumeratorData->GetBinWidth(bin) : 0;
+	      double errDn=bands ? 0.5*histNumeratorData->GetBinWidth(bin) : 0;
+	      errorbandStat->SetPointError(bin, errUp, errDn, statErrY/statY, statErrY/statY);
 	      //std::cout << bin << ": (x,dy/y)=(" << statX << "," << statErrY/statY << "), (x,y)=(" << statX << "," << statY << "+/-" << statErrY << ")" << std::endl;
 	    }
-	    errorbandStat->SetLineWidth(3.5);
+	    errorbandStat->SetLineWidth(2.);
 	    errorbandStat->SetLineColor(errcolor);
 	    errorbandStat2=(TGraphAsymmErrors*)errorbandStat->Clone();
 	  }
+	  // adapt style for errorbands if they are drawn as bands
+	  if(bands){
+	    // style
+	    int totColor =kOrange-4;//kOrange-4;
+	    int statColor=kGray+1;//18;
+	    int Errstyle=1001;
+	    // total error
+	    errorband2->SetLineStyle(1);
+	    errorband2->SetLineColor(totColor);
+	    errorband2->SetLineWidth(1.);
+	    errorband2->SetFillStyle(Errstyle);
+	    errorband2->SetFillColor(totColor);
+	    errorband2->SetMarkerColor(totColor);
+	    errorband2->SetMarkerSize(0.01);
+	    // stat error
+	    if(histStatData){
+	      errorbandStat2->SetLineStyle(1);
+	      errorbandStat2->SetLineColor(statColor);
+	      errorbandStat2->SetLineWidth(1.);
+	      errorbandStat2->SetFillStyle(Errstyle);
+	      errorbandStat2->SetFillColor(statColor);
+	      errorbandStat2->SetMarkerColor(statColor);
+	      errorbandStat2->SetMarkerSize(0.01);
+	    }
+	    // legend
+	    legBand->SetX1NDC(0.22);
+	    legBand->SetY1NDC(0.97);
+	    legBand->SetX2NDC(0.46);
+	    legBand->SetY2NDC(0.77);
+	    legBand->SetFillStyle(1001);
+	    //legBand->SetFillStyle(4050);
+	    legBand->SetFillColor(10);
+	    legBand->SetBorderSize(0);
+	    legBand->SetTextSize(0.1);
+	    legBand->SetTextAlign(12);
+	    legBand->AddEntry(errorband2, "Stat. #oplus Syst.", "f"); 	    
+	    if(errorbandStat2) legBand->AddEntry(errorbandStat2, "Stat.", "f");
+	  }
           if(verbose>3) std::cout << "debug G6" << std::endl;
 	  leg->SetX1NDC(0.22);
-	  leg->SetY1NDC(0.99);
-	  leg->SetX2NDC(0.58);
-	  leg->SetY2NDC(0.79);
+	  leg->SetY1NDC(0.79);
+	  leg->SetX2NDC(0.5 );
+	  leg->SetY2NDC(0.99);
 	  leg ->SetFillStyle(1001);
 	  leg ->SetFillColor(10);
 	  leg ->SetBorderSize(0);
 	  leg ->SetTextSize(0.1);
 	  leg ->SetTextAlign(12);
 	  leg ->AddEntry(errorband, "data stat+sys error", "F");
+	  if(verbose>3) std::cout << "debug G7" << std::endl;
+	  if(bands){
+	    errorband2    ->Draw("2 same");
+	    errorbandStat2->Draw("2 same");
+	    one->DrawClone("hist same");
+	  }
 	}
-	if(verbose>3) std::cout << "debug G7" << std::endl;
 	ratio_[nTheory]->DrawClone("hist same");
 	if(((TString)ratio_[nTheory]->GetName()).Contains("errorBandDn")) one2->Draw("hist same");
 	if(nTheory==ratio_.size()-1){
 	  gPad->RedrawAxis("g");
 	  gPad->RedrawAxis();
-	  errorband2->Draw("p z same");
+	  if(!bands) errorband2->Draw("p z same");
 	  gStyle->SetEndErrorSize(8);
-	  if(errorbandStat2) errorbandStat2->Draw("p e same");
+	  if(!bands&&errorbandStat2) errorbandStat2->Draw("p e same");
+	  if(bands&&legBand) legBand->Draw("same");
 	}
       }
       if(verbose>3) std::cout << "debug H" << std::endl;
@@ -3228,9 +3479,9 @@ namespace semileptonic {
 	} 
       }
       rPad->SetTopMargin(0.0);
-      rPad->SetBottomMargin(0.15*scaleFactor);
+      rPad->SetBottomMargin(ratioSize);
       rPad->SetRightMargin(right);
-      gPad->SetLeftMargin(left);
+      //rPad->SetLeftMargin(left);
       //leg->DrawClone("same");
       //rPad->Print("./"+(TString)(histNumeratorData->GetName())+".png");
       gPad->cd();
@@ -3503,23 +3754,29 @@ namespace semileptonic {
 				  int& Nplots, unsigned int& N1Dplots,
 				  TString& inputFolder, TString& dataFileMu, TString& dataFileEl,
 				  std::vector<TString> vecRedundantPartOfNameInData,
-				  double& luminosityMu, double& luminosityEl
+				  double& luminosityMu, double& luminosityEl, TString type ="model", TString addSel=""
 				  )
   {
     // this function generates set of errorbands ("histoErrorBand_") for all samples 
     // and histogrammes in "histo_", using the "Nplots" plots listed in "plotList_" 
-    // taking into account ttbar modeling uncertainties
-    // 
+    // taking into account ttbar modeling uncertainties specified with "type"
+    // type=="model" -> Q2 & matching scale
+    // type=="JE" -> JES & JER    
+    
+
     // modified quantities: histoErrorBand_
     // used functions:      getStdTopAnalysisFiles
     // used enumerators:    samples, systematicVariation, 
-
+    
     // internal configurations
-    int verbose =1; // printout within makeTheoryUncertaintyBands
+    int verbose =0; // printout within makeTheoryUncertaintyBands
     int verbose2=0; // argument passed to called functions
     unsigned int sysNoBG =42;
     unsigned int sysNoAll=42*42;
-
+    TString testvar="";
+    //TString testvar="compositedKinematicsKinFit/mHbb";
+    //TString testvar="analyzeTopRecoKinematicsKinFitProbSel/topPt";
+    
     // debug output
     if(verbose>0) std::cout << "executing function makeTheoryUncertaintyBands" << std::endl;
 
@@ -3527,20 +3784,33 @@ namespace semileptonic {
     // WARNING: systematics are expected to be listed as up/down pairs in this order!!!
     if(verbose>0) std::cout << std::endl << "A collect relevant systematics" << std::endl;
     std::vector<int> RelevantSys_;
-    //int sysList[ ] = { sysJESUp, sysJESDown};
-    int sysList[ ] = { sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysTopMassUp, sysTopMassDown}; // ttbar mosedling
-    //int sysList[ ] = { sysLumiUp, sysLumiDown, sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysTopMassUp, sysTopMassDown, sysJESUp, sysJESDown ,sysJERUp, sysJERDown, sysPUUp, sysPUDown, sysLepEffSFNormUp, sysLepEffSFNormDown, sysLepEffSFShapeUpEta, sysLepEffSFShapeDownEta, sysLepEffSFShapeUpPt, sysLepEffSFShapeDownPt, sysBtagSFUp, sysBtagSFDown, sysBtagSFShapeUpPt65, sysBtagSFShapeDownPt65, sysBtagSFShapeUpEta0p7, sysBtagSFShapeDownEta0p7, sysHadUp, sysHadDown};
-    RelevantSys_.insert(RelevantSys_.begin(), sysList, sysList+ sizeof(sysList)/sizeof(int));
+    int sysListJE   [ ] = { sysJESUp, sysJESDown, sysJERUp, sysJERDown}; // JE related uncertainties
+    int sysListModel[ ] = { sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysTopMassUp, sysTopMassDown, sysHadUp, sysHadDown}; // ttbar modeling
+    int sysListMain [ ] = { sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysHadUp, sysHadDown, sysJESUp, sysJESDown, sysJERUp, sysJERDown, sysBtagSFUp, sysBtagSFDown, sysBtagSFShapeUpPt65, sysBtagSFShapeDownPt65, sysBtagSFShapeUpEta0p7, sysBtagSFShapeDownEta0p7 }; // ttbar modeling
+    //int sysListPaper[ ] = {sysBtagSFUp, sysBtagSFDown, sysBtagSFShapeDownPt65, sysBtagSFShapeUpEta0p7};
+    int sysListPaper[ ] = { sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysHadUp, sysHadDown, sysTopMassUp, sysTopMassDown, sysPDFUp, sysPDFDown}; // ttbar main modeling unc.
+
+    int sysListAll  [ ] = { sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysTopMassUp, sysTopMassDown, sysJESUp, sysJESDown ,sysJERUp, sysJERDown, sysPUUp, sysPUDown, sysLepEffSFNormUp, sysLepEffSFNormDown, sysLepEffSFShapeUpEta, sysLepEffSFShapeDownEta, sysLepEffSFShapeUpPt, sysLepEffSFShapeDownPt, sysBtagSFUp, sysBtagSFDown, sysBtagSFShapeUpPt65, sysBtagSFShapeDownPt65, sysBtagSFShapeUpEta0p7, sysBtagSFShapeDownEta0p7, sysMisTagSFUp, sysMisTagSFDown, sysBRUp, sysBRDown, sysPDFUp, sysPDFDown, sysHadUp, sysHadDown};
+    
+    if(     type =="model") RelevantSys_.insert(RelevantSys_.begin(), sysListModel, sysListModel+ sizeof(sysListModel)/sizeof(int));
+    else if(type =="JE"   ) RelevantSys_.insert(RelevantSys_.begin(), sysListJE   , sysListJE   + sizeof(sysListJE   )/sizeof(int));
+    else if(type =="all"  ) RelevantSys_.insert(RelevantSys_.begin(), sysListAll  , sysListAll  + sizeof(sysListAll  )/sizeof(int));
+    else if(type =="main" ) RelevantSys_.insert(RelevantSys_.begin(), sysListMain , sysListMain + sizeof(sysListMain )/sizeof(int));
+    else if(type =="paper") RelevantSys_.insert(RelevantSys_.begin(), sysListPaper, sysListPaper+ sizeof(sysListPaper)/sizeof(int));
+    else{ 
+      std::cout << "ERROR in function  " << std::endl;
+      exit(0);
+    }
     if(verbose>1){
-      std::cout << "considered systematics: " << std::endl;
+      std::cout << "considered systematics: makeTheoryUncertaintyBands, provided input argument type=" << type << " is invalid" << std::endl;
       for(unsigned int i=0; i<RelevantSys_.size(); ++i){
 	std::cout << sysLabel(RelevantSys_[i]) << std::endl;
       }
     }
-    // plot container
+    // define plot container: one histo for each sample and systematic variation
     std::map< TString, std::map <unsigned int, TH1F*> > histoSys_;
 
-    // B Get ttbar sysNo Reference plot
+    // B Get ttbar sysNo Reference plot that is drawn as central MC prediction
     if(verbose>0) std::cout << std::endl << "B Get ttbar sysNo Reference plot" << std::endl;
     // loop plots
     for(unsigned int plot=0; plot<N1Dplots; plot++){
@@ -3548,11 +3818,11 @@ namespace semileptonic {
       TString plotName = plotList_[plot];  
       // debug output
       if(verbose>1) std::cout << "plot #" << plot+1 << "/" << N1Dplots << ": " << plotName;
-      // consider only plots available for SG+BG
+      // consider only plots available for SG+BG (+FIXME: also Z as there is a bug with the binning in one case...)
       if(histo_[plotName].count(kSig)>0&&histo_[plotName].count(kBkg)>0&&histo_[plotName].count(kZjets)>0){
 	if(verbose>1)  std::cout << " (ok) ";
-	// get ttbar sysNo
-	histoSys_[plotName][sysNo]    = (TH1F*)histo_[plotName][kSig]->Clone();
+	// get ttbar (SG+BG) sysNo
+	histoSys_[plotName][sysNo]=     (TH1F*)histo_[plotName][kSig]->Clone();
 	histoSys_[plotName][sysNo]->Add((TH1F*)histo_[plotName][kBkg]->Clone());
 	// get non-ttbar sysNo
 	histoSys_[plotName][sysNoBG ]=(TH1F*)histoSys_[plotName][sysNo]->Clone();
@@ -3561,47 +3831,109 @@ namespace semileptonic {
 	  histoSys_[plotName][sysNoBG ]->Add((TH1F*)histo_[plotName][sample]->Clone());
 	}
 	// get combined sysNo
-	histoSys_[plotName][sysNoAll]=(TH1F*)histoSys_[plotName][sysNo]->Clone();
+	histoSys_[plotName][sysNoAll]=     (TH1F*)histoSys_[plotName][sysNo  ]->Clone();
 	histoSys_[plotName][sysNoAll]->Add((TH1F*)histoSys_[plotName][sysNoBG]->Clone());
       }
       else if(verbose>1) std::cout << " (skipped) ";	
       if(verbose>1) std::cout << std::endl;
     }
     
-    // C Get ttbar systematic shifted plots
+    // C Get ttbar (SG+BG) systematically shifted plots
     if(verbose>0) std::cout << std::endl << "C Get ttbar systematic shifted plots (note: takes centuries)" << std::endl;
     // loop systematics
     for(unsigned int sys=0; sys<RelevantSys_.size(); ++sys){
       if(verbose==1) std::cout << ".";
       int sysNow=RelevantSys_[sys];
+      TString inputFolder2=inputFolder;
+      TString sysInputFolderExtension="";
+      TString addSelData="";
+      std::vector<TString> plotListElMod_=plotListEl_;
+      std::vector<TString> plotListMuMod_=plotListMu_;
       // special treatment for hadronization uncertainty
       TString ttbarMC="Madgraph";
       int sysNow2=sysNow;
       if(     sysNow==sysHadUp  ){ sysNow2=sysNo; ttbarMC="Mcatnlo";}
       else if(sysNow==sysHadDown){ sysNow2=sysNo; ttbarMC="Powheg" ;}
+      // for systematic variations done in central signal sample (e.g. PU, effSF, btagSF):
+      // use MC rootfiles from subfolder /Prob and ignore addSel plotname extension
+      else if(addSel=="ProbSel"&&((sysNow2>=sysPUUp&&sysNow2<=sysPUDown)||(sysNow2>=sysLepEffSFNormUp&&sysNow2<=sysMisTagSFDown))){
+	inputFolder2+="/Prob";
+	addSelData=addSel;
+	switch (sysNow2)
+	  {
+	  case sysPUUp                     : sysInputFolderExtension="PUup";                  break;
+	  case sysPUDown                   : sysInputFolderExtension="PUdown";                break;
+	  case sysLepEffSFNormUp           : sysInputFolderExtension="EffSFNormUpSys";        break;
+	  case sysLepEffSFNormDown         : sysInputFolderExtension="EffSFNormDownSys";      break;
+	  case sysLepEffSFShapeUpEta       : sysInputFolderExtension="EffSFShapeUpEta";       break;
+	  case sysLepEffSFShapeDownEta     : sysInputFolderExtension="EffSFShapeDownEta";     break;
+	  case sysLepEffSFShapeUpPt        : sysInputFolderExtension="EffSFShapeUpPt";        break;
+	  case sysLepEffSFShapeDownPt      : sysInputFolderExtension="EffSFShapeDownPt";      break;
+	  case sysBtagSFUp                 : sysInputFolderExtension="BtagSFup";              break;
+	  case sysBtagSFDown               : sysInputFolderExtension="BtagSFdown";            break;
+	  case sysBtagSFShapeUpPt65        : sysInputFolderExtension="BTagSFShapeUpPt65";     break;
+	  case sysBtagSFShapeDownPt65      : sysInputFolderExtension="BTagSFShapeDownPt65";   break;
+	  case sysBtagSFShapeUpEta0p7      : sysInputFolderExtension="BTagSFShapeUpEta0p7";   break;
+	  case sysBtagSFShapeDownEta0p7    : sysInputFolderExtension="BTagSFShapeDownEta0p7"; break;
+	  case sysMisTagSFUp               : sysInputFolderExtension="MisTagSFup";            break;
+	  case sysMisTagSFDown             : sysInputFolderExtension="MisTagSFdown";          break;
+	  default: break;
+	  }
+	for(unsigned int i=0; i<plotListMuMod_.size(); ++i){
+	  TString plotNameMu=plotListMu_[i];
+	  if(plotNameMu.Contains(addSel)){
+	    plotNameMu.ReplaceAll(addSel, sysInputFolderExtension);
+	    if(plotNameMu.Contains("composited")) plotNameMu.ReplaceAll(sysInputFolderExtension, "KinFit"+sysInputFolderExtension);
+	    plotListMuMod_[i]=plotNameMu;
+	  }
+	}
+	for(unsigned int i=0; i<plotListElMod_.size(); ++i){ 
+	  TString plotNameEl=plotListEl_[i];
+	  if(plotNameEl.Contains(addSel)){
+	    plotNameEl.ReplaceAll(addSel, sysInputFolderExtension);
+	    if(plotNameEl.Contains("composited")) plotNameEl.ReplaceAll(sysInputFolderExtension, "KinFit"+sysInputFolderExtension);
+	    plotListElMod_[i]=plotNameEl;
+	  }
+	}
+      }
       if(verbose>1) std::cout << "- " << sysNow << ":" << std::endl;
       // c1 get files
       if(verbose>1) std::cout << "c1 get rootfiles" << std::endl;
       std::map<unsigned int, TFile*> filesMu_, filesEl_;
-      filesMu_ = getStdTopAnalysisFiles(inputFolder, sysNow2, dataFileMu, "muon"    , "Madgraph");
-      filesEl_ = getStdTopAnalysisFiles(inputFolder, sysNow2, dataFileEl, "electron", "Madgraph");
+      filesMu_ = getStdTopAnalysisFiles(inputFolder2, sysNow2, dataFileMu, "muon"    , ttbarMC);
+      filesEl_ = getStdTopAnalysisFiles(inputFolder2, sysNow2, dataFileEl, "electron", ttbarMC);
       // c2 get plots 
       if(verbose>1) std::cout << "c2 get all plots" << std::endl;
-      std::map< TString, std::map <unsigned int, TH1F*> > histoEl_ , histoMu_, histoComb_;
+      std::map< TString, std::map <unsigned int, TH1F*> > histoEl_ , histoMu_ , histoComb_;
       std::map< TString, std::map <unsigned int, TH2F*> > histo2El_, histo2Mu_, histo2Comb_;
       // store plots NOT into the files
       gROOT->cd();
       // get plots
-      getAllPlots(filesEl_, plotListEl_, histoEl_, histo2El_, N1Dplots, Nplots, verbose2, "electron", &vecRedundantPartOfNameInData, false);
-      getAllPlots(filesMu_, plotListMu_, histoMu_, histo2Mu_, N1Dplots, Nplots, verbose2, "muon"    , &vecRedundantPartOfNameInData, false);
+      getAllPlots(filesEl_, plotListElMod_, histoEl_, histo2El_, N1Dplots, Nplots, verbose2, "electron", &vecRedundantPartOfNameInData, false, addSelData);
+      getAllPlots(filesMu_, plotListMuMod_, histoMu_, histo2Mu_, N1Dplots, Nplots, verbose2, "muon"    , &vecRedundantPartOfNameInData, false, addSelData);
+      // take care of adapted naming
+      for(unsigned int i=0; i<plotListElMod_.size(); ++i){ 
+	TString plotNameEl=plotListEl_[i];
+	if(plotNameEl.Contains(addSel)&&(plotListElMod_[i]!=plotListEl_[i])){
+	  for(unsigned int sample=kSig; sample<kData; ++sample)
+	    if(histoEl_.count(plotListElMod_[i])>0&&histoEl_[plotListElMod_[i]].count(sample)>0) histoEl_[plotListEl_[i]][sample]=histoEl_[plotListElMod_[i]][sample];
+	}
+      }
+      for(unsigned int i=0; i<plotListMuMod_.size(); ++i){ 
+	TString plotNameMu=plotListMu_[i];
+	if(plotNameMu.Contains(addSel)&&(plotListMuMod_[i]!=plotListMu_[i])){
+	  for(unsigned int sample=kSig; sample<kData; ++sample)
+	    if(histoMu_.count(plotListMuMod_[i])>0&&histoMu_[plotListMuMod_[i]].count(sample)>0) histoMu_[plotListMu_[i]][sample]=histoMu_[plotListMuMod_[i]][sample];
+	}
+      }
       // close files
       closeStdTopAnalysisFiles(filesMu_);
       closeStdTopAnalysisFiles(filesEl_);
       // c3 lumi scale
       if(verbose>1) std::cout << "c3 lumiscaling" << std::endl;
-      scaleByLuminosity(plotListMu_, histoMu_, histo2Mu_, N1Dplots, luminosityMu, verbose2, sysNow2, "muon"    , "Madgraph");
-      scaleByLuminosity(plotListEl_, histoEl_, histo2El_, N1Dplots, luminosityEl, verbose2, sysNow2, "electron", "Madgraph");
-      // c4 add channels
+      scaleByLuminosity(plotListMu_, histoMu_, histo2Mu_, N1Dplots, luminosityMu, verbose2, sysNow2, "muon"    , ttbarMC);
+      scaleByLuminosity(plotListEl_, histoEl_, histo2El_, N1Dplots, luminosityEl, verbose2, sysNow2, "electron", ttbarMC);
+      // c4 add channels, collect plots in temporary existing map histoComb_
      if(verbose>1) std::cout << "c4 add mu and el channel plots" << std::endl;
       // loop samples
       for(unsigned int sample=kSig; sample<kData; ++sample){
@@ -3635,10 +3967,10 @@ namespace semileptonic {
 	      if(!histoEl_.count(plotListEl_[plot])>0) std::cout << "in histoEl" << std::endl;
 	      if( histoEl_.count(plotListEl_[plot])>0&&!histoEl_[plotListEl_[plot]].count(sample)>0) std::cout << "in el sample " << sampleLabel(sample, "electron") << std::endl;
 	    } // end if verbose
-	  } // ende else (plot not found)
+	  } // end else (plot not found)
 	} // end loop plots
       } // end loop sample
-      // c5 rebinning and storing of systematically shifted plots
+      // c5 rebinning and storing of systematically shifted ttbar SG&BG plots in histoSys_
       if(verbose>1) std::cout << "c5 rebinning and storing of systematically shifted plots" << std::endl;
       // loop plots
       for(unsigned int plot=0; plot<plotList_.size(); ++plot){
@@ -3647,18 +3979,20 @@ namespace semileptonic {
 	// debug output
 	if(verbose>2) std::cout << "- plot #" << plot+1 << "/" << plotList_.size() << ": " << plotName;
 	// existing 1D plots
-	if( histoSys_[plotName].count(kSig)>0 && histo_.count(plotList_[plot])>0 && histoComb_.count(plotList_[plot])>0 && plot<N1Dplots ){
-	  // do rebinning (based on sysNo binning)
+	if(  histoComb_.count(plotList_[plot])>0 && histoComb_[plotName].count(kSig)>0 && histo_.count(plotList_[plot])>0 && plot<N1Dplots ){
+	  // do rebinning (based on binning for sysNo that is drawn as central MC value)
 	  int reBinFactor=roundToInt((histoComb_[plotName][kSig]->GetNbinsX())/(histo_[plotName][sysNo]->GetNbinsX()));
 	  if(reBinFactor>1){
 	    equalReBinTH1(reBinFactor, histoComb_, plotName, kSig);
-	    if(histoSys_[plotName].count(kBkg)>0) equalReBinTH1(reBinFactor, histoComb_, plotName, kBkg);
+	    if(histoComb_[plotName].count(kBkg)>0) equalReBinTH1(reBinFactor, histoComb_, plotName, kBkg);
+	    else std::cout << "WARNING: ttbar BG NOT found for plot " << plotName << " in makeTheoryUncertaintyBands for variation " << sysLabel(sysNow) << std::endl;
 	  }
 	  // store Plot
-	  histoSys_[plotName][sysNow]     =(TH1F*)histoComb_[plotName][kSig]->Clone();
-	  if(histoSys_[plotName].count(kBkg)>0) histoSys_[plotName][sysNow]->Add((TH1F*)histoComb_[plotName][kBkg]->Clone());
-	  // ensure same normalization as in sysNo sample
-	  // (N.B.: was scales to inclusive cross section derived from data)	  
+	  histoSys_[plotName][sysNow]=                                            (TH1F*)histoComb_[plotName][kSig]->Clone();
+	  if(histoComb_[plotName].count(kBkg)>0) histoSys_[plotName][sysNow]->Add((TH1F*)histoComb_[plotName][kBkg]->Clone());
+	  // ensure same normalization of systematically shifted plot as for sysNo case
+	  // (N.B.: the idea is to adress only shape uncertainties, as the ttbar component is
+	  //        anyhow scaled wrt. the inclusive cross section derived from data)	  
 	  histoSys_[plotName][sysNow]->Scale((histoSys_[plotName][sysNo]->Integral(0,histoSys_[plotName][sysNo]->GetNbinsX()+1))/(histoSys_[plotName][sysNow]->Integral(0,histoSys_[plotName][sysNow]->GetNbinsX()+1)));
 	}
       } // for plots
@@ -3671,16 +4005,21 @@ namespace semileptonic {
     for(unsigned int plot=0; plot<plotList_.size(); ++plot){
       // name of plot
       TString plotName = plotList_[plot];
+      bool test= testvar!=""&&plotName.Contains(testvar) ? true : false;
       // debug output
       if(verbose>1) std::cout << "- plot #" << plot+1 << "/" << plotList_.size() << ": " << plotName;
-      // process only 1D plots existing for SG & BG and in the loaded files
-      if( histoSys_[plotName].count(kSig)>0 ){
-	// clone sysNo for errorband
+      // process only 1D plots existing for sysNo and for systematically shifted plots
+      if( histoSys_.count(plotName)>0 && histo_.count(plotList_[plot])>0 && plot<N1Dplots){
+	// clone plot for total MC (SG+BG+nottbarBG) sysNo for errorband
 	histoErrorBand_[plotName]=(TH1F*)histoSys_[plotName][sysNoAll]->Clone();
+	if(test) std::cout << plotName << std::endl;
 	// loop bins
 	for (int bin=1; bin<=histoErrorBand_[plotName]->GetNbinsX(); ++bin){
 	  // debug output
-	  if(verbose>2) std::cout << "  - bin #" << bin << "/" << histoErrorBand_[plotName]->GetNbinsX() << std::endl;
+	  if(verbose>2||test){
+	    std::cout << "  - bin #" << bin << "/" << histoErrorBand_[plotName]->GetNbinsX();
+	    std::cout << ", <x>=" << histoErrorBand_[plotName]->GetBinCenter(bin) << ":" << std::endl;
+	  }
 	  double NttbarSysNo=histoSys_[plotName][sysNo  ]->GetBinContent(bin);
 	  double NBGSysNo   =histoSys_[plotName][sysNoBG]->GetBinContent(bin);
 	  double uncUp=0;
@@ -3689,9 +4028,10 @@ namespace semileptonic {
 	  for(unsigned int sys=0; sys<RelevantSys_.size(); ++sys){
 	    int sysNow=RelevantSys_[sys];
 	    // debug output
-	    if(verbose>2) std::cout << "    - " << sysLabel(sysNow);
+	    if(verbose>2||test) std::cout << "    - " << sysLabel(sysNow);
+	    // check if considered systematics exists for this plot 
 	    if(histoSys_[plotName].count(sysNow)>0){
-	      if(verbose>2) std::cout << " (considered)" << std::endl;
+	      if(verbose>2||test) std::cout << " (considered)" << std::endl;
 	      // process up and down at the same time (during dn is looped)
 	      if(verbose>2) std::cout << sys+1 << "%2=" << (sys+1)%2 << std::endl;
 	      if(((sys+1)%2)==0){
@@ -3708,19 +4048,36 @@ namespace semileptonic {
 		  relDiffUp*=SF_TopMassUpUncertainty;
 		}
 		// special treatment for hadronization uncertainty
-		if(sys==sysHadDown||sys==sysHadUp){
+		if(sysUp==sysHadDown||sysUp==sysHadUp){
 		  relDiffUp=std::abs((NttbarSysUp-NttbarSysDn)/(NttbarSysNo+NBGSysNo));
 		  relDiffDn=relDiffUp;
 		}
-		// collect all unecrtainties
+		// 100% unc. for empty bins
+		if((NttbarSysNo+NBGSysNo)==0.){
+		  relDiffDn=1.0;
+		  relDiffUp=1.0;
+		}
+		if(verbose>2||test){
+		  if(!(sysUp==sysHadDown||sysUp==sysHadUp)) std::cout << "      (NttbarSysNo=" << NttbarSysNo << ")" << std::endl; 
+		  std::cout << "      (NBGSysNo   =" << NBGSysNo    << ")" << std::endl;
+		  std::cout << "       NttbarSysUp=" << NttbarSysUp << std::endl; 
+		  std::cout << "       NttbarSysDn=" << NttbarSysDn << std::endl; 
+		  std::cout << "       relDiffUp  =" << relDiffUp*100 << "%" << std::endl; 
+		  std::cout << "       relDiffDn  =" << relDiffDn*100 << "%" << std::endl; 
+		}
+		// collect ^2 of all uncertainties
 		uncUp+=relDiffUp*relDiffUp;
 		uncDn+=relDiffDn*relDiffDn;
 	      } // end if modulo 2 - processing Dn systematics
 	    } // end if sys is successfully loaded
 	    else if(verbose>2) std::cout << " (skipped)" << std::endl;
 	  } // end loop systematics
+	  // symmetrize total up and total down uncertainty
 	  double uncSymm=(sqrt(uncUp)+sqrt(uncDn))/2;
 	  // Set uncertainty value for errorband
+	  if(testvar!=""&&plotList_[plot].Contains(testvar)){
+	    std::cout << "  -> tot. symm. unc.=" << uncSymm*100 << "%" << std::endl;
+	  }
 	  histoErrorBand_[plotName]->SetBinError(bin, uncSymm*histoErrorBand_[plotName]->GetBinContent(bin));
 	} // end loop bins
       } // end if plot exists
@@ -3989,7 +4346,7 @@ namespace semileptonic {
       fitLowEdge=480.;
       fitHighEdge=1600.;
       def="[0]*exp([1]*x)+[2]";
-      a=40556.;
+      a=40565.;
       b=-0.007;
       c=3.1;
       addOpt="LL";
@@ -4449,9 +4806,9 @@ namespace semileptonic {
       TH1F* loadcentral2=0;
       if(verbose>0){
 	std::cout << "transfer relative uncertainties to central value from: " << plotname4 << " in " 
-		  << "/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV/combinedDiffXSecSigMcatnloSummer12PF.root" << std::endl;
+		  << groupSpace+"RecentAnalysisRun8TeV/combinedDiffXSecSigMcatnloSummer12PF.root" << std::endl;
       }       
-      loadcentral2=getTheoryPrediction(plotname4,"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV/combinedDiffXSecSigMcatnloSummer12PF.root");
+      loadcentral2=getTheoryPrediction(plotname4,groupSpace+"RecentAnalysisRun8TeV/combinedDiffXSecSigMcatnloSummer12PF.root");
 
       TH1F* central=0;    
       TH1F* central2=0;
@@ -4727,64 +5084,64 @@ namespace semileptonic {
 	// top & ttbar:  visible PS (hadron+parton level) not relevant
 	if(fullPS){
 	  if(closureTestSpecifier==""){
-	    if     (variable.Contains("topPtLead")   ) k = 6.87;
-	    else if(variable.Contains("topPtSubLead")) k = 3.84;
-	    else if(variable.Contains("topPtTtbarSys"))k = 4.86;
-	    else if(variable.Contains("topPt")       ) k = 7.56;
-	    else if(variable.Contains("topY" )       ) k = 9.59;
-	    else if(variable.Contains("ttbarPt")     ) k = 5.85;
-	    else if(variable.Contains("ttbarY")      ) k = 7.68;
-	    else if(variable.Contains("ttbarMass")   ) k = 4.55;
-	    else if(variable.Contains("ttbarDelPhi" )) k = 10.54;
-	    else if(variable.Contains("ttbarPhiStar")) k = 10.42;
+	    if     (variable.Contains("topPtLead")   ) k = MadSpin ?  6.84 : 6.87;
+	    else if(variable.Contains("topPtSubLead")) k = MadSpin ?  4.01 : 3.84;
+	    else if(variable.Contains("topPtTtbarSys"))k = MadSpin ?  4.74 : 4.86;
+	    else if(variable.Contains("topPt")       ) k = MadSpin ?  7.57 : 7.56;
+	    else if(variable.Contains("topY" )       ) k = MadSpin ?  9.66 : 9.59;
+	    else if(variable.Contains("ttbarPt")     ) k = MadSpin ?  5.66 : 5.85;
+	    else if(variable.Contains("ttbarY")      ) k = MadSpin ?  7.79 : 7.68;
+	    else if(variable.Contains("ttbarMass")   ) k = MadSpin ?  4.60 : 4.55;
+	    else if(variable.Contains("ttbarDelPhi" )) k = MadSpin ? 10.70 : 10.54;
+	    else if(variable.Contains("ttbarPhiStar")) k = MadSpin ? 10.62 : 10.42;
 	  }
 	  else if(closureTestSpecifier=="NoDistort"){
-	    if     (variable.Contains("topPtLead")   ) k = 6.15;
-	    else if(variable.Contains("topPtSubLead")) k = 3.35;
-	    else if(variable.Contains("topPtTtbarSys"))k = 4.15;
-	    else if(variable.Contains("topPt")       ) k = 6.68;
-	    else if(variable.Contains("topY" )       ) k = 10.05;
-	    else if(variable.Contains("ttbarPt")     ) k = 5.98;
-	    else if(variable.Contains("ttbarY")      ) k = 7.80;
-	    else if(variable.Contains("ttbarMass")   ) k = 4.80;
-	    else if(variable.Contains("ttbarDelPhi" )) k = 10.88;
-	    else if(variable.Contains("ttbarPhiStar")) k = 10.67;
+	    if     (variable.Contains("topPtLead")   ) k = MadSpin ?  6.10 : 6.15;
+	    else if(variable.Contains("topPtSubLead")) k = MadSpin ?  3.51 : 3.35;
+	    else if(variable.Contains("topPtTtbarSys"))k = MadSpin ?  4.06 : 4.15;
+	    else if(variable.Contains("topPt")       ) k = MadSpin ?  6.70 : 6.68;
+	    else if(variable.Contains("topY" )       ) k = MadSpin ? 10.14 : 10.05;
+	    else if(variable.Contains("ttbarPt")     ) k = MadSpin ?  5.79 : 5.98;
+	    else if(variable.Contains("ttbarY")      ) k = MadSpin ?  7.94 : 7.80;
+	    else if(variable.Contains("ttbarMass")   ) k = MadSpin ?  4.85 : 4.80;
+	    else if(variable.Contains("ttbarDelPhi" )) k = MadSpin ? 11.10 : 10.88;
+	    else if(variable.Contains("ttbarPhiStar")) k = MadSpin ? 10.92 : 10.67;
 	  }
 	  else if(closureTestSpecifier=="topPtUp"){
-	    if     (variable.Contains("topPtLead")   ) k = 8.13;
-	    else if(variable.Contains("topPtSubLead")) k = 5.09;
-	    else if(variable.Contains("topPtTtbarSys"))k = 6.23;
-	    else if(variable.Contains("topPt")       ) k = 9.42;
-	    else if(variable.Contains("topY" )       ) k = 10.20;
-	    else if(variable.Contains("ttbarPt")     ) k = 6.19;
-	    else if(variable.Contains("ttbarY")      ) k = 7.95;
-	    else if(variable.Contains("ttbarMass")   ) k = 6.44;
-	    else if(variable.Contains("ttbarDelPhi" )) k = 10.92;
-	    else if(variable.Contains("ttbarPhiStar")) k = 10.80;
+	    if     (variable.Contains("topPtLead")   ) k = MadSpin ?  8.17 : 8.13;
+	    else if(variable.Contains("topPtSubLead")) k = MadSpin ?  5.33 : 5.09;
+	    else if(variable.Contains("topPtTtbarSys"))k = MadSpin ?  6.09 : 6.23;
+	    else if(variable.Contains("topPt")       ) k = MadSpin ?  9.53 : 9.42;
+	    else if(variable.Contains("topY" )       ) k = MadSpin ? 10.20 : 10.20;
+	    else if(variable.Contains("ttbarPt")     ) k = MadSpin ?  6.02 : 6.19;
+	    else if(variable.Contains("ttbarY")      ) k = MadSpin ?  8.08 : 7.95;
+	    else if(variable.Contains("ttbarMass")   ) k = MadSpin ?  6.51 : 6.44;
+	    else if(variable.Contains("ttbarDelPhi" )) k = MadSpin ? 11.10 : 10.92;
+	    else if(variable.Contains("ttbarPhiStar")) k = MadSpin ? 11.01 : 10.80;
 	  }
 	  else if(closureTestSpecifier=="topPtDown"){
-	    if     (variable.Contains("topPtLead")   ) k = 4.90;
-	    else if(variable.Contains("topPtSubLead")) k = 2.65;
-	    else if(variable.Contains("topPtTtbarSys"))k = 3.28;
-	    else if(variable.Contains("topPt")       ) k = 5.39;
-	    else if(variable.Contains("topY" )       ) k = 9.88;
-	    else if(variable.Contains("ttbarPt")     ) k = 5.78;
-	    else if(variable.Contains("ttbarY")      ) k = 7.66;
-	    else if(variable.Contains("ttbarMass")   ) k = 3.81;
-	    else if(variable.Contains("ttbarDelPhi" )) k = 10.88;
-	    else if(variable.Contains("ttbarPhiStar")) k = 10.47;
+	    if     (variable.Contains("topPtLead")   ) k = MadSpin ?  4.81 : 4.90;
+	    else if(variable.Contains("topPtSubLead")) k = MadSpin ?  2.78 : 2.65;
+	    else if(variable.Contains("topPtTtbarSys"))k = MadSpin ?  3.21 : 3.28;
+	    else if(variable.Contains("topPt")       ) k = MadSpin ?  5.38 : 5.39;
+	    else if(variable.Contains("topY" )       ) k = MadSpin ?  9.98 : 9.88;
+	    else if(variable.Contains("ttbarPt")     ) k = MadSpin ?  5.62 : 5.78;
+	    else if(variable.Contains("ttbarY")      ) k = MadSpin ?  7.80 : 7.66;
+	    else if(variable.Contains("ttbarMass")   ) k = MadSpin ?  3.87 : 3.81;
+	    else if(variable.Contains("ttbarDelPhi" )) k = MadSpin ? 11.12 : 10.88;
+	    else if(variable.Contains("ttbarPhiStar")) k = MadSpin ? 10.81 : 10.47;
 	  }
 	  else if(closureTestSpecifier=="data"){
-	    if     (variable.Contains("topPtLead")   ) k = 7.18;
-	    else if(variable.Contains("topPtSubLead")) k = 4.13;
-	    else if(variable.Contains("topPtTtbarSys"))k = 5.08;
-	    else if(variable.Contains("topPt")       ) k = 7.98;
-	    else if(variable.Contains("topY" )       ) k = 10.12;
-	    else if(variable.Contains("ttbarPt")     ) k = 6.08;
-	    else if(variable.Contains("ttbarY")      ) k = 7.88;
-	    else if(variable.Contains("ttbarMass")   ) k = 5.69;
-	    else if(variable.Contains("ttbarDelPhi" )) k = 10.77;
-	    else if(variable.Contains("ttbarPhiStar")) k = 10.75;
+	    if     (variable.Contains("topPtLead")   ) k = MadSpin ?  7.20 : 7.18;
+	    else if(variable.Contains("topPtSubLead")) k = MadSpin ?  4.33 : 4.13;
+	    else if(variable.Contains("topPtTtbarSys"))k = MadSpin ?  4.96 : 5.08;
+	    else if(variable.Contains("topPt")       ) k = MadSpin ?  8.02 : 7.98;
+	    else if(variable.Contains("topY" )       ) k = MadSpin ? 10.22 : 10.12;
+	    else if(variable.Contains("ttbarPt")     ) k = MadSpin ?  5.91 : 6.08;
+	    else if(variable.Contains("ttbarY")      ) k = MadSpin ?  8.01 : 7.88;
+	    else if(variable.Contains("ttbarMass")   ) k = MadSpin ?  5.72 : 5.69;
+	    else if(variable.Contains("ttbarDelPhi" )) k = MadSpin ? 11.07 : 10.77;
+	    else if(variable.Contains("ttbarPhiStar")) k = MadSpin ? 10.96 : 10.75;
 	  }
 	  else if(closureTestSpecifier=="ttbarMassUp"){
 	    if     (variable.Contains("topPtLead")   ) k = 5.78;
@@ -4811,74 +5168,74 @@ namespace semileptonic {
 	    else if(variable.Contains("ttbarPhiStar")) k = 11.07;
 	  }
 	  else if(closureTestSpecifier=="1000"){
-	    if     (variable.Contains("topPtLead")   ) k = 5.32;
-	    else if(variable.Contains("topPtSubLead")) k = 2.42;
-	    else if(variable.Contains("topPtTtbarSys"))k = 3.17;
-	    else if(variable.Contains("topPt")       ) k = 5.48;
-	    else if(variable.Contains("topY" )       ) k = 9.91;
-	    else if(variable.Contains("ttbarPt")     ) k = 5.90;
-	    else if(variable.Contains("ttbarY")      ) k = 7.73;
-	    else if(variable.Contains("ttbarMass")   ) k = 3.84;
-	    else if(variable.Contains("ttbarDelPhi" )) k = 10.85;
-	    else if(variable.Contains("ttbarPhiStar")) k = 10.60;
+	    if     (variable.Contains("topPtLead")   ) k = MadSpin ?  5.21 : 5.32;
+	    else if(variable.Contains("topPtSubLead")) k = MadSpin ?  2.56 : 2.42;
+	    else if(variable.Contains("topPtTtbarSys"))k = MadSpin ?  3.10 : 3.17;
+	    else if(variable.Contains("topPt")       ) k = MadSpin ?  5.46 : 5.48;
+	    else if(variable.Contains("topY" )       ) k = MadSpin ? 10.01 : 9.91;
+	    else if(variable.Contains("ttbarPt")     ) k = MadSpin ?  5.73 : 5.90;
+	    else if(variable.Contains("ttbarY")      ) k = MadSpin ?  7.86 : 7.73;
+	    else if(variable.Contains("ttbarMass")   ) k = MadSpin ?  3.91 : 3.84;
+	    else if(variable.Contains("ttbarDelPhi" )) k = MadSpin ? 11.03 : 10.85;
+	    else if(variable.Contains("ttbarPhiStar")) k = MadSpin ? 10.85 : 10.60;
 	  }
 	}
 	// lepton&b(jet): full PS and parton level PS  not relevant
 	else if(hadronPS){
 	  if(closureTestSpecifier==""){
-	    if(     variable.Contains("lepPt")       ) k = 5.65 ;
-	    else if(variable.Contains("lepEta")      ) k = 3.30 ;
-	    else if(variable.Contains("bqPt")        ) k = 12.96;
-	    else if(variable.Contains("bqEta")       ) k = 6.62 ;
-	    else if(variable.Contains("bbbarMass")   ) k = 1.49 ;
-	    else if(variable.Contains("bbbarPt"  )   ) k = 4.93 ;
-	    else if(variable.Contains("lbMass")      ) k = 11.96;
-	    else if(variable.Contains("Njets")       ) k = 2.352;
-	    else if(variable.Contains("rhos" )       ) k = 4.65 ; 
+	    if(     variable.Contains("lepPt")       ) k = MadSpin ?  5.62 : 5.65 ;
+	    else if(variable.Contains("lepEta")      ) k = MadSpin ?  3.67 : 3.30 ;
+	    else if(variable.Contains("bqPt")        ) k = MadSpin ? 12.94 : 12.96;
+	    else if(variable.Contains("bqEta")       ) k = MadSpin ?  6.65 : 6.62 ;
+	    else if(variable.Contains("bbbarMass")   ) k = MadSpin ?  1.31 : 1.49 ;
+	    else if(variable.Contains("bbbarPt"  )   ) k = MadSpin ?  3.41 : 4.93 ;
+	    else if(variable.Contains("lbMass")      ) k = MadSpin ? 11.95 : 11.96;
+	    else if(variable.Contains("Njets")       ) k = MadSpin ?  1.99 : 2.352;
+	    else if(variable.Contains("rho"  )       ) k = MadSpin ?  4.35 : 4.65 ; 
 	  }
 	  else if(closureTestSpecifier=="NoDistort"){
-	    if(     variable.Contains("lepPt")       ) k = 5.62 ;
-	    else if(variable.Contains("lepEta")      ) k = 3.34 ;
-	    else if(variable.Contains("bqPt")        ) k = 12.35;
-	    else if(variable.Contains("bqEta")       ) k = 6.48 ;
-	    else if(variable.Contains("bbbarMass")   ) k = 1.50 ;
-	    else if(variable.Contains("bbbarPt"  )   ) k = 5.08 ;
-	    else if(variable.Contains("lbMass")      ) k = 12.30;
-	    else if(variable.Contains("Njets")       ) k = 2.22 ;
-	    else if(variable.Contains("rhos" )       ) k = 4.80 ; 
+	    if(     variable.Contains("lepPt")       ) k = MadSpin ?  5.59 : 5.62 ;
+	    else if(variable.Contains("lepEta")      ) k = MadSpin ?  3.69 : 3.34 ;
+	    else if(variable.Contains("bqPt")        ) k = MadSpin ? 12.21 : 12.35;
+	    else if(variable.Contains("bqEta")       ) k = MadSpin ?  6.62 : 6.48 ;
+	    else if(variable.Contains("bbbarMass")   ) k = MadSpin ?  1.32 : 1.50 ;
+	    else if(variable.Contains("bbbarPt"  )   ) k = MadSpin ?  3.51 : 5.08 ;
+	    else if(variable.Contains("lbMass")      ) k = MadSpin ? 12.29 : 12.30;
+	    else if(variable.Contains("Njets")       ) k = MadSpin ?  1.87 : 2.22 ;
+	    else if(variable.Contains("rho"  )       ) k = MadSpin ?  4.48 : 4.80 ; 
 	  }
 	  else if(closureTestSpecifier=="topPtDown"){
-	    if(     variable.Contains("lepPt")       ) k = 5.24 ;
-	    else if(variable.Contains("lepEta")      ) k = 3.20 ;
-	    else if(variable.Contains("bqPt")        ) k = 10.64;
-	    else if(variable.Contains("bqEta")       ) k = 6.31 ;
-	    else if(variable.Contains("bbbarMass")   ) k = 1.35 ;
-	    else if(variable.Contains("bbbarPt"  )   ) k = 4.81 ;
-	    else if(variable.Contains("lbMass")      ) k = 12.14;
-	    else if(variable.Contains("Njets")       ) k = 2.11 ;
-	    else if(variable.Contains("rhos" )       ) k = 4.44 ; 
+	    if(     variable.Contains("lepPt")       ) k = MadSpin ?  5.21 : 5.24 ;
+	    else if(variable.Contains("lepEta")      ) k = MadSpin ?  3.56 : 3.20 ;
+	    else if(variable.Contains("bqPt")        ) k = MadSpin ? 10.63 : 10.64;
+	    else if(variable.Contains("bqEta")       ) k = MadSpin ?  6.34 : 6.31 ;
+	    else if(variable.Contains("bbbarMass")   ) k = MadSpin ?  1.12 : 1.35 ;
+	    else if(variable.Contains("bbbarPt"  )   ) k = MadSpin ?  3.25 : 4.81 ;
+	    else if(variable.Contains("lbMass")      ) k = MadSpin ? 12.13 : 12.14;
+	    else if(variable.Contains("Njets")       ) k = MadSpin ?  1.78 : 2.11 ;
+	    else if(variable.Contains("rho"  )       ) k = MadSpin ?  4.12 : 4.44 ; 
 	  }
 	  else if(closureTestSpecifier=="topPtUp"){
-	    if(     variable.Contains("lepPt")       ) k = 6.09 ;
-	    else if(variable.Contains("lepEta")      ) k = 3.46 ;
-	    else if(variable.Contains("bqPt")        ) k = 14.82;
-	    else if(variable.Contains("bqEta")       ) k = 6.76 ;
-	    else if(variable.Contains("bbbarMass")   ) k = 1.78 ;
-	    else if(variable.Contains("bbbarPt"  )   ) k = 5.49 ;
-	    else if(variable.Contains("lbMass")      ) k = 12.47;
-	    else if(variable.Contains("Njets")       ) k = 2.355;
-	    else if(variable.Contains("rhos" )       ) k = 5.30 ; 
+	    if(     variable.Contains("lepPt")       ) k = MadSpin ?  6.02 : 6.09 ;
+	    else if(variable.Contains("lepEta")      ) k = MadSpin ?  3.83 : 3.46 ;
+	    else if(variable.Contains("bqPt")        ) k = MadSpin ? 14.75 : 14.82;
+	    else if(variable.Contains("bqEta")       ) k = MadSpin ?  6.79 : 6.76 ;
+	    else if(variable.Contains("bbbarMass")   ) k = MadSpin ?  1.66 : 1.78 ;
+	    else if(variable.Contains("bbbarPt"  )   ) k = MadSpin ?  3.88 : 5.49 ;
+	    else if(variable.Contains("lbMass")      ) k = MadSpin ? 12.46 : 12.47;
+	    else if(variable.Contains("Njets")       ) k = MadSpin ?  1.98 : 2.355;
+	    else if(variable.Contains("rho"  )       ) k = MadSpin ?  5.00 : 5.30 ; 
 	  }
 	  else if(closureTestSpecifier=="data"){
-	    if(     variable.Contains("lepPt")       ) k = 5.83 ;
-	    else if(variable.Contains("lepEta")      ) k = 3.41 ;
-	    else if(variable.Contains("bqPt")        ) k = 13.51;
-	    else if(variable.Contains("bqEta")       ) k = 6.65 ;
-	    else if(variable.Contains("bbbarMass")   ) k = 1.63 ;
-	    else if(variable.Contains("bbbarPt"  )   ) k = 5.31 ;
-	    else if(variable.Contains("lbMass")      ) k = 12.42;
-	    else if(variable.Contains("Njets")       ) k = 2.29 ;
-	    else if(variable.Contains("rhos" )       ) k = 5.06 ; 
+	    if(     variable.Contains("lepPt")       ) k = MadSpin ?  5.80 : 5.83 ;
+	    else if(variable.Contains("lepEta")      ) k = MadSpin ?  3.77 : 3.41 ;
+	    else if(variable.Contains("bqPt")        ) k = MadSpin ? 13.49 : 13.51;
+	    else if(variable.Contains("bqEta")       ) k = MadSpin ?  6.73 : 6.65 ;
+	    else if(variable.Contains("bbbarMass")   ) k = MadSpin ?  1.48 : 1.63 ;
+	    else if(variable.Contains("bbbarPt"  )   ) k = MadSpin ?  3.70 : 5.31 ;
+	    else if(variable.Contains("lbMass")      ) k = MadSpin ? 12.36 : 12.42;
+	    else if(variable.Contains("Njets")       ) k = MadSpin ?  1.92 : 2.29 ;
+	    else if(variable.Contains("rho"  )       ) k = MadSpin ?  4.74 : 5.06 ; 
 	  }
 	  else if(closureTestSpecifier=="ttbarMassUp"){
 	    if(     variable.Contains("lepPt")       ) k = 5.44 ;
@@ -4889,7 +5246,7 @@ namespace semileptonic {
 	    else if(variable.Contains("bbbarPt"  )   ) k = 5.02 ;
 	    else if(variable.Contains("lbMass")      ) k = 12.22;
 	    else if(variable.Contains("Njets")       ) k = 2.18 ;
-	    else if(variable.Contains("rhos" )       ) k = 4.68 ; 
+	    else if(variable.Contains("rho"  )       ) k = 4.68 ; 
 	  }
 	  else if(closureTestSpecifier=="ttbarMassDown"){
 	    if(     variable.Contains("lepPt")       ) k = 7.15 ;
@@ -4900,18 +5257,18 @@ namespace semileptonic {
 	    else if(variable.Contains("bbbarPt"  )   ) k = 5.60 ;
 	    else if(variable.Contains("lbMass")      ) k = 12.92;
 	    else if(variable.Contains("Njets")       ) k = 2.52 ;
-	    else if(variable.Contains("rhos" )       ) k = 5.76 ; 
+	    else if(variable.Contains("rho"  )       ) k = 5.76 ; 
 	  }
 	  else if(closureTestSpecifier=="1000"){
-	    if(     variable.Contains("lepPt")       ) k = 5.47 ;
-	    else if(variable.Contains("lepEta")      ) k = 3.32 ;
-	    else if(variable.Contains("bqPt")        ) k = 11.22;
-	    else if(variable.Contains("bqEta")       ) k = 6.41 ;
-	    else if(variable.Contains("bbbarMass")   ) k = 1.29 ;
-	    else if(variable.Contains("bbbarPt"  )   ) k = 4.83 ;
-	    else if(variable.Contains("lbMass")      ) k = 12.17;
-	    else if(variable.Contains("Njets")       ) k = 2.20 ;
-	    else if(variable.Contains("rhos" )       ) k = 4.66 ; 
+	    if(     variable.Contains("lepPt")       ) k = MadSpin ?  5.50 : 5.47 ;
+	    else if(variable.Contains("lepEta")      ) k = MadSpin ?  3.67 : 3.32 ;
+	    else if(variable.Contains("bqPt")        ) k = MadSpin ? 11.23 : 11.22;
+	    else if(variable.Contains("bqEta")       ) k = MadSpin ?  6.44 : 6.41 ;
+	    else if(variable.Contains("bbbarMass")   ) k = MadSpin ?  1.07 : 1.29 ;
+	    else if(variable.Contains("bbbarPt"  )   ) k = MadSpin ?  3.32 : 4.83 ;
+	    else if(variable.Contains("lbMass")      ) k = MadSpin ? 12.43 : 12.17;
+	    else if(variable.Contains("Njets")       ) k = MadSpin ?  1.85 : 2.20 ;
+	    else if(variable.Contains("rho"  )       ) k = MadSpin ?  4.34 : 4.66 ; 
 	  }
 	}
       }
@@ -4934,7 +5291,7 @@ namespace semileptonic {
       else if(variable.Contains("bbbarMass")) k =  9;
       else if(variable.Contains("lbMass"   )) k =  3;
       else if(variable.Contains("Njets"    )) k =  5;
-      else if(variable.Contains("rhoS"     )) k =  4;
+      else if(variable.Contains("rho"      )) k =  4;
     }
     // output
     if(verbose>1){
@@ -5000,6 +5357,9 @@ namespace semileptonic {
     else if(kSys==sysMad                                    ) result=false;
     else if(kSys==sysGenMCatNLO||kSys==sysGenPowheg||kSys==sysGenPowhegHerwig) result=false;         
     else if(kSys>=ENDOFSYSENUM                              ) result=false;
+    //TEST FIXME CAREFUT ATTENTION - the following line is only for testing
+    //if(kSys!=sysBtagSFUp&&kSys!=sysBtagSFDown&&kSys!=sysBtagSFShapeUpPt65&&kSys!=sysBtagSFShapeDownPt65&&kSys!=sysBtagSFShapeUpEta0p7&&kSys!=sysBtagSFShapeDownEta0p7) result=false;
+
     // std::cout << sysLabel(kSys) << ": " << result << std::endl; 
     return result;
   }
@@ -5029,6 +5389,15 @@ namespace semileptonic {
     else if (closureTestSpecifier.Contains("ttbarMassDown")) out+="PseudoData19712pbReweightedttbarMassDown8TeV.root";
     else if (closureTestSpecifier.Contains("data"         )) out+="PseudoData19712pbReweighteddata8TeV.root";
     else if (closureTestSpecifier.Contains("1000"         )) out+="PseudoData19712pbandM1000W100Zprime8TeV.root";
+    else if (closureTestSpecifier.Contains("topMass161p5" )) out+="PseudoData19712pbTopMass161p58TeV.root";
+    else if (closureTestSpecifier.Contains("topMass163p5" )) out+="PseudoData19712pbTopMass163p58TeV.root";
+    else if (closureTestSpecifier.Contains("topMass166p5" )) out+="PseudoData19712pbTopMass166p58TeV.root";
+    else if (closureTestSpecifier.Contains("topMass169p5" )) out+="PseudoData19712pbTopMass169p58TeV.root";
+    else if (closureTestSpecifier.Contains("topMass175p5" )) out+="PseudoData19712pbTopMass175p58TeV.root";
+    else if (closureTestSpecifier.Contains("topMass178p5" )) out+="PseudoData19712pbTopMass178p58TeV.root";
+    else if (closureTestSpecifier.Contains("topMass181p5" )) out+="PseudoData19712pbTopMass181p58TeV.root";
+    else if (closureTestSpecifier.Contains("topMass184p5" )) out+="PseudoData19712pbTopMass184p58TeV.root";
+    
     return out;
   }
     TString pseudoDatalabel(TString closureTestSpecifier){

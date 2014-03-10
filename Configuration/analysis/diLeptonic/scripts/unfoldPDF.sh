@@ -2,7 +2,6 @@
 
 echo "Warning!"
 echo " - do not run any other unfolding code when unfoldPDF is running!"
-echo " - please set doSystematics to false in the plotterclass and recompile before unfoldPDF!"
 echo ""
 echo "Ctrl-C to cancel or any other key to continue"
 read -n 1 -s
@@ -18,19 +17,38 @@ runSpecificVariation() {
         cp HistoFileList_Nominal_$ch.txt FileLists/
         echo "selectionRoot/$variation/$ch/${ch}_ttbarsignalplustau.root" >> FileLists/HistoFileList_Nominal_$ch.txt
     done
+
+    #move directories to avoid overwritting them
     mv -f Plots Plots_temp
-    # calculate inclusive xsection
+    mv -f UnfoldingResults UnfoldingResults_tmp
+    mv -f preunfolded preunfolded_temp
     if [ -d "Plots_temp/$variation" ] ; then mv "Plots_temp/${variation}" Plots ; fi
+    if [ -d "UnfoldingResults_tmp/$variation" ] ; then mv "UnfoldingResults_tmp/${variation}" UnfoldingResults ; fi
+    if [ -d "preunfolded_temp/$variation" ] ; then mv "preunfolded_temp/${variation}" preunfolded ; fi
     mkdir -p Plots/combined
-    build/Histo -t cp -p XSec -s Nominal
+    mkdir -p UnfoldingResults
+    mkdir -p preunfolded
+
+    # calculate inclusive xsection
+    install/bin/Histo -t cp -p XSec -s Nominal -c ee -c emu -c mumu
+    wait
+    install/bin/Histo -t cp -p XSec -s Nominal -c combined
+
     # now calculate differential distributions
     for plot in `awk '{print $1}' HistoList | grep Hyp`; do
     #for plot in HypTTBarMass; do
-        build/Histo -t unfold -p +$plot -s Nominal &
+        install/bin/Histo -t unfold -p +$plot -s Nominal &
     done
     wait
+
+    # move back directories
     mv -f Plots "Plots_temp/${variation}"
+    mv -f UnfoldingResults "UnfoldingResults_tmp/${variation}"
+    mv -f preunfolded "preunfolded_temp/${variation}"
+
     mv -f Plots_temp Plots
+    mv -f UnfoldingResults_tmp UnfoldingResults
+    mv -f preunfolded_tmp preunfolded
 }
 
 
@@ -51,5 +69,3 @@ done
 scripts/mk_HistoFileList.sh
 
 echo "Done"
-echo "Don't forget to switch doSystematics back to true and recompile"
-

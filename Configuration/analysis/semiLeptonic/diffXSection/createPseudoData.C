@@ -24,14 +24,22 @@ void createPseudoData(double luminosity=19712.){
   leptons_.push_back("electron");
   // collect relevant tests
   std::vector<TString> tests_;
-  tests_.push_back("NoDistort"    );
-  tests_.push_back("topPtUp"      );
-  tests_.push_back("topPtDown"    );
-  tests_.push_back("ttbarMassUp"  );
-  tests_.push_back("ttbarMassDown");
-  tests_.push_back("data"         );
-  tests_.push_back("1000"         );
-  
+  //tests_.push_back("NoDistort"    );
+  //tests_.push_back("topPtUp"      );
+  //tests_.push_back("topPtDown"    );
+  //tests_.push_back("ttbarMassUp"  );
+  //tests_.push_back("ttbarMassDown");
+  //tests_.push_back("data"         );
+  //tests_.push_back("1000"         );
+  tests_.push_back("topMass161p5"   );
+  tests_.push_back("topMass163p5"   );
+  tests_.push_back("topMass166p5"   );
+  tests_.push_back("topMass169p5"   );
+  tests_.push_back("topMass175p5"   );
+  tests_.push_back("topMass178p5"   );
+  tests_.push_back("topMass181p5"   );
+  tests_.push_back("topMass184p5"   );
+
   // create all relevant files
   for(unsigned int lepton=0; lepton<leptons_.size(); ++lepton){
     for(unsigned int test=0; test<tests_.size(); ++test){
@@ -50,10 +58,10 @@ void createPseudoDataFunc(double luminosity, const std::string decayChannel, TSt
   bool smear=false;
   // "dataFile": absolute path of data file, used to define plots of interest
   TString dataFile= "";
-  if(decayChannel.compare("electron")==0) dataFile="/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/elecDiffXSecData2012ABCDAll.root";
-  else                                    dataFile="/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/muonDiffXSecData2012ABCDAll.root";
+  if(decayChannel.compare("electron")==0) dataFile=groupSpace+AnalysisFolder+"/elecDiffXSecData2012ABCDAll.root";
+  else                                    dataFile=groupSpace+AnalysisFolder+"/muonDiffXSecData2012ABCDAll.root";
   // "useReweightedTop": use parton level reweighted ttbar signal file in pseudo data?
-  bool useReweightedTop = (specifier.Contains("NoDistort")||specifier.Contains("1000")) ? false : true;
+  bool useReweightedTop = (specifier.Contains("NoDistort")) ? false : true;
   // "zprime": include additional Zprime in pseudo data?
   bool zprime=specifier.Contains("1000") ? true : false;
   // naming for outputfile, constructed within macro
@@ -61,9 +69,9 @@ void createPseudoDataFunc(double luminosity, const std::string decayChannel, TSt
 
   // check input parameter validity
   // type of closure test
-  if(!(specifier.Contains("NoDistort")||specifier.Contains("1000")||specifier.Contains("data")||specifier.Contains("topPtUp")||specifier.Contains("topPtDown")||specifier.Contains("ttbarMassUp")||specifier.Contains("ttbarMassDown"))){
-    std::cout << "ERROR: invalid input specifier=" << specifier<< std::endl;
-    std::cout << "supported are: specifier=NoDistort,1000,data,topPtUp,topPtDown,ttbarMassUp,ttbarMassDown" << std::endl;
+  if(!(specifier.Contains("NoDistort")||specifier.Contains("1000")||specifier.Contains("data")||specifier.Contains("topPtUp")||specifier.Contains("topPtDown")||specifier.Contains("ttbarMassUp")||specifier.Contains("ttbarMassDown")||specifier.Contains("topMass161p5")||specifier.Contains("topMass163p5")||specifier.Contains("topMass166p5")||specifier.Contains("topMass169p5")||specifier.Contains("topMass175p5")||specifier.Contains("topMass178p5")||specifier.Contains("topMass181p5")||specifier.Contains("topMass184p5"))){
+    std::cout << "ERROR: invalid input specifier=" << specifier << std::endl;
+    std::cout << "supported are: specifier=NoDistort,1000,data,topPtUp,topPtDown,ttbarMassUp,ttbarMassDown,topMass161p5,topMass163p5,topMass166p5,topMass169p5,topMass175p5,topMass178p5,topMass181p5,topMass184p5" << std::endl;
     exit(0);
   }
   // decay channel
@@ -72,6 +80,7 @@ void createPseudoDataFunc(double luminosity, const std::string decayChannel, TSt
     std::cout << "supported are: decayChannel=muon,electron" << std::endl;
     exit(0);
   }
+  
 
   //  ---
   //     create container for histos and files
@@ -85,27 +94,41 @@ void createPseudoDataFunc(double luminosity, const std::string decayChannel, TSt
   //  ---
   // a) name and path of rootfile
   // path
-  TString nameTtbarReweighted="/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/ttbarReweight/";
-  // SG reweighting test
-  if(decayChannel.compare("electron")==0) nameTtbarReweighted+="elecDiffXSec";
-  else                                    nameTtbarReweighted+="muonDiffXSec";
-  nameTtbarReweighted+="SigSysDistort"+specifier+"Summer12PF.root";
-  // SG closure test
-  if     (specifier=="NoDistort"&&decayChannel.compare("muon"    )==0) nameTtbarReweighted="/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/muonDiffXSecSigSummer12PF.root";
-  else if(specifier=="NoDistort"&&decayChannel.compare("electron")==0) nameTtbarReweighted="/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/elecDiffXSecSigSummer12PF.root";
+  TString nameTtbarReweighted=groupSpace+AnalysisFolder+"/";
+  // subfolder for reweighting systematics
+  if(specifier!="NoDistort"&&!specifier.Contains("p5")){
+    nameTtbarReweighted+="ttbarReweight/";
+    // SG reweighting test
+    if(decayChannel.compare("electron")==0) nameTtbarReweighted+="elecDiffXSec";
+    else                                    nameTtbarReweighted+="muonDiffXSec";
+    nameTtbarReweighted+="SigSysDistort"+specifier+"Summer12PF.root";
+  }
+  else{
+    // SG sample for corresponding top mass
+    int sys=sysNo; // == "NoDistort"
+    if(     specifier=="topMass161p5") sys=sysTopMassDown4;
+    else if(specifier=="topMass163p5") sys=sysTopMassDown3;
+    else if(specifier=="topMass166p5") sys=sysTopMassDown2;
+    else if(specifier=="topMass169p5") sys=sysTopMassDown;
+    else if(specifier=="topMass175p5") sys=sysTopMassUp;
+    else if(specifier=="topMass178p5") sys=sysTopMassUp2;
+    else if(specifier=="topMass181p5") sys=sysTopMassUp3;
+    else if(specifier=="topMass184p5") sys=sysTopMassUp4;
+    nameTtbarReweighted+=TopFilename(kSig, sys, decayChannel);
+  }
   // BG
   TString nameTtbarBGReweighted=nameTtbarReweighted;
   nameTtbarBGReweighted.ReplaceAll("Sig","Bkg");
-  if(useReweightedTop) outNameExtension+="Reweighted"+specifier;
+  if(useReweightedTop&&!specifier.Contains("p5")) outNameExtension+="Reweighted"+specifier;
   // b) get average weight for reweighted samples
   double avWeight=1;
-  if(useReweightedTop && specifier!="NoDistort"){
+  if(useReweightedTop && specifier!="NoDistort"&& !specifier.Contains("p5")){
     TFile* ttbarRewfile = new (TFile)(nameTtbarReweighted);
     TString weightPlot="eventWeightDileptonModelVariation/modelWeightSum";
     histo_["avWeight"][kSig] = (TH1F*)(ttbarRewfile->Get(weightPlot)->Clone());
     avWeight=histo_ ["avWeight"][kSig]->GetBinContent(2)/histo_ ["avWeight"][kSig]->GetBinContent(1);
     histo_["avWeight"].erase(kSig);
-    TFile* sigfile = new (TFile)("/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/"+TopFilename(kSig, sysNo, decayChannel));
+    TFile* sigfile = new (TFile)(groupSpace+AnalysisFolder+"/"+TopFilename(kSig, sysNo, decayChannel));
     TString partonPlot="analyzeTopPartonLevelKinematics/ttbarMass";
     gROOT->cd();
     histo_["parton"   ][kSig] = (TH1F*)(sigfile     ->Get(partonPlot)->Clone());
@@ -115,7 +138,7 @@ void createPseudoDataFunc(double luminosity, const std::string decayChannel, TSt
     if(verbose>1){
       std::cout << "ratio unweighted/weighted" << std::endl;
       std::cout << avWeight  << " (from " << weightPlot << ")" << std::endl;
-      std::cout << avWeight2 << TString(" (from entries in ")+partonPlot+" wrt /afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/"+TopFilename(kSig, sysNo, decayChannel)+"): " << std::endl;
+      std::cout << avWeight2 << TString(" (from entries in ")+partonPlot+" wrt "+groupSpace+AnalysisFolder+"/"+TopFilename(kSig, sysNo, decayChannel)+"): " << std::endl;
     }
   }
 
@@ -128,7 +151,7 @@ void createPseudoDataFunc(double luminosity, const std::string decayChannel, TSt
   TString zprimeMass =specifier;
   TString zprimeWidth=specifier;
   zprimeWidth.ReplaceAll("1000", "100");
-  TString nameZprime="/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/zprime/";
+  TString nameZprime=groupSpace+AnalysisFolder+"/zprime/";
   if(decayChannel.compare("electron")==0) nameZprime+="elec";
   else                                    nameZprime+="muon";
   nameZprime+="DiffXSecZprimeM"+zprimeMass+"W"+zprimeWidth+"Summer12PF.root";
@@ -160,7 +183,7 @@ void createPseudoDataFunc(double luminosity, const std::string decayChannel, TSt
   // -----------------------------------------
   // !!! add all contributing samples here !!!
   // -----------------------------------------
-  TString inputFolder = "/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/";
+  TString inputFolder = groupSpace+AnalysisFolder;
   // save all default top analysis samples in files_
   files_ = getStdTopAnalysisFiles(inputFolder, sysNo, dataFile, decayChannel);
   // remove combined file dor single Top & DiBoson
@@ -285,8 +308,7 @@ void createPseudoDataFunc(double luminosity, const std::string decayChannel, TSt
   // ---------------------------------------
   // !!! definition of output file(name) !!!
   // ---------------------------------------
-  //TString outputfile="/afs/naf.desy.de/user/g/goerner/WGspace/RecentAnalysisRun8TeV_doubleKinFit/pseudodata/"+(TString)decayChannel+"PseudoData"+lum+"pb"+outNameExtension+"8TeV.root";
-  TString outputfile="/afs/naf.desy.de/user/g/goerner/WGspace/RecentAnalysisRun8TeV_doubleKinFit/pseudodata/"+pseudoDataFileName(specifier, decayChannel);
+  TString outputfile=groupSpace+AnalysisFolder+"/pseudodata/"+pseudoDataFileName(specifier, decayChannel);
   TFile* out = new TFile(outputfile, "recreate");
   if(verbose>0) std::cout << std::endl << "outputfile: " << outputfile << std::endl;
   poisson(histo_, plotList_, decayChannel, *out, luminosity, verbose, smear, useReweightedTop, avWeight, zprime, zPrimeLumiWeight);

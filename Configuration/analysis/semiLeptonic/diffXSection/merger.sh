@@ -8,7 +8,7 @@
 # The number of cores (nCores) that is used by fasthadd.pl
 # can be changed below. Please, only use Integers!
 
-nCores=16
+nCores=8
 
 if [ ${1} ]; then
     if [ -d ${1} ]; then
@@ -19,7 +19,13 @@ if [ ${1} ]; then
     fi
 fi
 
-numberOfSentJobs=`grep "numberOfJobs =" ./analyzeTopDiffXSec_cfg.py | sed -r 's/numberOfJobs = //'`
+if [ ${2} ]; then
+    configName=${2}
+else
+    configName="analyzeTopDiffXSec"
+fi
+
+numberOfSentJobs=`grep "numberOfJobs =" ./${configName}_cfg.py | sed -r 's/numberOfJobs = //'`
 numberOfReadyJobs=`ls -l *.root | wc -l`
 
 if [ $numberOfSentJobs = $numberOfReadyJobs ]; then
@@ -40,13 +46,17 @@ if [ $numberOfSentJobs = $numberOfReadyJobs ]; then
 	    
 	    if [ -e ${fileName} ]; then
 		
-		echo "rm analyzeTopDiffXSec*.root"
-		for rootFile in `ls analyzeTopDiffXSec*.root`; do
+		read -p "remove old files? (y/n) " RESP
+		if [ "$RESP" = "y" ]; then
+		    echo "rm ${configName}_cfg-*.root"
+		    for rootFile in `ls ${configName}_cfg-*.root`; do
 		    
-		    rm ${rootFile}
+			rm ${rootFile}
 		    
-		done
-		
+		    done
+		else
+		    echo "old files NOT removed!"
+		fi
 	    fi
 
 	    if ls *.root.* &> /dev/null; then

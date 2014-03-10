@@ -19,17 +19,16 @@ void createNNLOplot(TString theory="ahrens")
   // list of variables
   std::vector<TString> xSecVariables_, xSecLabel_;
   // NB: add variables for new datset name here
-  TString xSecVariablesUsedAhrens[]    ={"ttbarMass"};//, "ttbarPt"};
+  TString xSecVariablesUsedAhrens[]    ={"ttbarMass", "ttbarPt"};
   TString xSecVariablesUsedKidonakis[] ={"topPt"    , "topY"   };
   if(     theory.Contains("ahrens")   ) xSecVariables_ .insert( xSecVariables_.begin(), xSecVariablesUsedAhrens   , xSecVariablesUsedAhrens    + sizeof(xSecVariablesUsedAhrens   )/sizeof(TString) );
   else if(theory=="kidonakis") xSecVariables_ .insert( xSecVariables_.begin(), xSecVariablesUsedKidonakis, xSecVariablesUsedKidonakis + sizeof(xSecVariablesUsedKidonakis)/sizeof(TString) );
   // get variable binning used for final cross sections 
   std::map<TString, std::vector<double> > bins_=makeVariableBinning();
-//   std::vector<double> tempbins_;
-//   double ttbarMassBins[]={350.0, 400.0, 450.0, 550.0, 750.0, 1000.0};
-//   tempbins_.insert( tempbins_.begin(), ttbarMassBins, ttbarMassBins + sizeof(ttbarMassBins)/sizeof(double) );
-//   bins_["ttbarMass"]=tempbins_;
-
+  //std::vector<double> tempbins_;
+  //double ttbarMassBins[]={345,445,545,745, 1045};
+  //tempbins_.insert( tempbins_.begin(), ttbarMassBins, ttbarMassBins + sizeof(ttbarMassBins)/sizeof(double) );
+  //bins_["ttbarMass"]=tempbins_;
 
   // loop all variables
   for(unsigned var=0; var<xSecVariables_.size(); ++var){
@@ -44,13 +43,14 @@ void createNNLOplot(TString theory="ahrens")
     // --------------------------
     // NB: add new datset file names here
     TGraph * rawHist;
+    TString predictionfolder="/afs/naf.desy.de/group/cms/scratch/tophh/CommonFiles/";
     if(theory=="ahrens"   ){
-      if(variable.Contains("ttbarMass")) rawHist= new TGraph("AhrensTheory_Mtt_7000_172.5_Mtt_fin.dat");//"AhrensTheory_Mtt_8000_172.5_Mtt_norm.dat" // "AhrensTheory_Mtt_7000_172.5_Mtt_norm.dat"
-      if(variable.Contains("ttbarPt"  )) rawHist= new TGraph("pTttbar_8000_NLONNLL.dat"                );//"pTttbar_7000_NLONNLL.dat" // "pTttbar_8000_NLONNLL.dat"
+      if(variable.Contains("ttbarMass")) rawHist= new TGraph(predictionfolder+"AhrensTheory_Mttbar_8000_172.5_NLONNLL_norm.dat");//AhrensTheory_Mtt_7000_172.5_Mtt_fin.dat
+      if(variable.Contains("ttbarPt"  )) rawHist= new TGraph(predictionfolder+"AhrensTheory_pTttbar_8000_172.5_NLONNLL_abs.dat");//AhrensTheory_pTttbar_7000_172.5_NLONNLL_abs.dat
     }
     else if(theory=="kidonakis"){
-      if(variable.Contains("topPt")) rawHist= new TGraph("pttopnnloapprox8lhc173m.dat");//"ptnormalNNLO7lhc173m.dat" //"pttopnnloapprox8lhc173m.dat"
-      if(variable.Contains("topY" )) rawHist= new TGraph("ytopnnloapprox8lhc173m.dat" );//"ynormalNNLO7lhc173m.dat"  //"ytopnnloapprox8lhc173m.dat"
+      if(variable.Contains("topPt")) rawHist= new TGraph(predictionfolder+"pttopnnloapprox8lhc173m.dat");//"ptnormalNNLO7lhc173m.dat" //"pttopnnloapprox8lhc173m.dat"
+      if(variable.Contains("topY" )) rawHist= new TGraph(predictionfolder+"ytopnnloapprox8lhc173m.dat" );//"ynormalNNLO7lhc173m.dat"  //"ytopnnloapprox8lhc173m.dat"
     }
     // NB: say if points should be interpreted as single points with 
     //     nothing in between or as integrated value over the range

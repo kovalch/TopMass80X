@@ -9,7 +9,7 @@ class TSelectorList;
 class TString;
 class TH1;
 
-#include "mvaStructs.h"
+#include "MvaVariablesTopJets.h"
 #include "../../common/include/storeTemplate.h"
 
 namespace mvaSetup{
@@ -26,7 +26,7 @@ class MvaWeights2d{
 public:
 
     /// Constructor for selection steps
-    MvaWeights2d(const std::map<TString, std::vector<MvaTopJetsVariables> >& m_stepMvaVariables,
+    MvaWeights2d(const std::map<TString, std::vector<MvaVariablesBase*> >& m_stepMvaVariables,
                  const char* mvaWeightFileDirectory,
                  const std::vector<mvaSetup::MvaSet>& v_mvaSet,
                  const bool separationPowerPlots =false);
@@ -85,12 +85,12 @@ private:
     /// Fill 1-D histograms exclusively for correct, swapped and wrong combinations, and inclusively
     void fillHistosInclExcl(std::map<TString, TH1*>& m_histogram, const TString& name,
                             const double& variable,
-                            const MvaTopJetsVariables& mvaTopJetsVariables, const double& weight =1.);
+                            const MvaVariablesTopJets& mvaTopJetsVariables, const double& weight =1.);
 
     /// Fill 2-D histograms exclusively for correct, swapped and wrong combinations, and inclusively
     void fillHistosInclExcl2D(std::map<TString, TH1*>& m_histogram, const TString& name,
                               const float& variable1, const float& variable2,
-                              const MvaTopJetsVariables& mvaTopJetsVariables, const double& weight =1.);
+                              const MvaVariablesTopJets& mvaTopJetsVariables, const double& weight =1.);
 
     /// Store names of the step and corresponding trainings to the output root file
     void storeTrainingsForStep(const TString& stepName, const std::vector<mvaSetup::MvaConfig>& v_mvaConfigCorrect,
@@ -107,7 +107,7 @@ private:
     TSelectorList* selectorList_;
 
     /// The map containing all the vectors of MVA variables for all selection steps
-    const std::map<TString, std::vector<MvaTopJetsVariables> >& m_stepMvaVariables_;
+    const std::map<TString, std::vector<MvaVariablesBase*> >& m_stepMvaVariables_;
 
     /// The map containing all the step histograms for all selection steps
     std::map<TString, StepHistograms> m_stepHistograms_;

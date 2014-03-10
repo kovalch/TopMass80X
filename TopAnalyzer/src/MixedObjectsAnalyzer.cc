@@ -16,6 +16,7 @@
 #include "DataFormats/PatCandidates/interface/Electron.h"
 
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 /// default constructor
 MixedObjectsAnalyzer::MixedObjectsAnalyzer(const edm::ParameterSet& cfg) :
@@ -61,6 +62,17 @@ MixedObjectsAnalyzer::beginJob()
   tree->Branch("luminosityBlockNumber", &luminosityBlockNumber, "luminosityBlockNumber/i");
   eventNumber= 0;
   tree->Branch("eventNumber", &eventNumber, "eventNumber/i");
+  // PDF related info
+  Q   =  0.;
+  id1 = -42;
+  id2 = -42;
+  x1  =  0.;
+  x2  =  0.;
+  tree->Branch("Q"  , &Q  , (std::string("Q"  ) + "/F").c_str());
+  tree->Branch("id1", &id1, (std::string("id1") + "/I").c_str());
+  tree->Branch("id2", &id2, (std::string("id2") + "/I").c_str());
+  tree->Branch("x1" , &x1 , (std::string("x1" ) + "/D").c_str());
+  tree->Branch("x2" , &x2 , (std::string("x2" ) + "/D").c_str());
 
   // event weight
   tree->Branch("weight", &weight, "weight/F");
@@ -220,7 +232,7 @@ MixedObjectsAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& iS
   // activate debug printout
   bool debug=false;
 
-  // Event
+  // Event identifier quantities
   edm::EventAuxiliary aux = event.eventAuxiliary();
   runNumber             = aux.run();
   luminosityBlockNumber = aux.luminosityBlock();
@@ -228,6 +240,19 @@ MixedObjectsAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& iS
 
   if(debug) std::cout << "run:lumi:evt=" << runNumber << ":" << luminosityBlockNumber << ":" << eventNumber << std::endl;
 
+  // PDF related quantities
+  edm::Handle<GenEventInfoProduct> genInfo; 
+  event.getByLabel("generator", genInfo);  
+  Q   =  0.; id1 = -42; id2 = -42; x1  =  0.; x2  =  0.;
+  if(genInfo.isValid()){
+    Q     = genInfo->pdf()->scalePDF;
+    id1   = genInfo->pdf()->id.first;
+    id2   = genInfo->pdf()->id.second;
+    x1    = genInfo->pdf()->x.first;
+    x2    = genInfo->pdf()->x.second;
+  }
+
+  // other collections
   edm::Handle<edm::View< pat::MET > > MET_h;
   event.getByLabel(METSrc_, MET_h);
   

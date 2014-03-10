@@ -1,7 +1,7 @@
 #include "basicFunctions.h"
 
 void bothDecayChannelsCombination(double luminosity=19712, bool save=true, unsigned int verbose=0,
-				  TString inputFolderName="RecentAnalysisRun8TeV_doubleKinFit",
+				  TString inputFolderName=AnalysisFolder,
 				  bool pTPlotsLog=false, bool extrapolate=true, bool hadron=false, bool addCrossCheckVariables=false, 
 				  bool combinedEventYields=true, TString closureTestSpecifier="" , bool smoothcurves=false){
 
@@ -445,7 +445,7 @@ void bothDecayChannelsCombination(double luminosity=19712, bool save=true, unsig
 	  // =================================================
 	  if(sys==sysNo&&plotName!="inclusive"&&!closureTestSpecifier.Contains("NoDistort")){
 	    // get ttbar signal files (with reweighting applied or without for zprime)
-	    TString rewfold="/afs/naf.desy.de/group/cms/scratch/tophh/"+inputFolderName+"/";
+	    TString rewfold=groupSpace+inputFolderName+"/";
 	    if(reweightClosure) rewfold+="ttbarReweight/";
 	    TString muReweighted=rewfold+TopFilename(kSig, sysNo, "muon"    );
 	    TString elReweighted=rewfold+TopFilename(kSig, sysNo, "electron");
@@ -548,6 +548,7 @@ void bothDecayChannelsCombination(double luminosity=19712, bool save=true, unsig
 	  // get style from old canvas
 	  combicanvas ->SetLogy(combinedEventYields ? canvasComb->GetLogy() : canvasMu->GetLogy());
 	  if(normalize){
+	     // treat logarithmic pt plots if pTPlotsLog==true
 	    if (pTPlotsLog && xSecVariables_[i].Contains("Pt") ){
 	      plotTheo->SetMinimum(0.0001);
 	      if      (plotName.Contains("topPt")) plotTheo->SetMaximum(0.02);
@@ -558,26 +559,23 @@ void bothDecayChannelsCombination(double luminosity=19712, bool save=true, unsig
 	      combicanvas->SetLogy(1);
 	    }
 	    else{
-	      if      (plotName.Contains("topPt")) plotTheo->SetMaximum(0.01);
-	      else if (plotName=="ttbarPt"       ) plotTheo->SetMaximum(0.025);
-	      else if (plotName=="lepPt"         ) plotTheo->SetMaximum(0.03);
-	      else if (plotName=="bqPt"          ) plotTheo->SetMaximum(0.018);
-	      else if (plotName=="bbbarPt"       ) plotTheo->SetMaximum(0.01);
+	      // adjust max
+	      double maximumy=xSecMaximum(plotName);
+	      if(maximumy>0.) plotTheo->SetMaximum(maximumy);
+	      if(plotName.Contains("rho")) plotTheo->GetXaxis()->SetLabelSize(0.033); 
+	      // adjust min
+	      if(plotName.Contains("ttbarMass")){
+		plotTheo->GetYaxis()->SetNoExponent(false);
+		plotTheo->SetMinimum(0.000005);
+	      }
 	    }
-	    // bq Pt should alwaye be log
-	    // if (!pTPlotsLog && xSecVariables_[i].Contains("bqPt") ){
-	    //  plotTheo->SetMinimum(0.00001);
-	    //  plotTheo->SetMaximum(0.1);
-	    //  combicanvas->SetLogy(1); 
-	    //}
-	    // adjust max
-	    if(plotName.Contains("lepEta")||plotName=="bqEta"||plotName.Contains("topY")||plotName=="ttbarY"||plotName.Contains("rhos")) plotTheo->GetYaxis()->SetNoExponent(true);
-	    
-	    if      (plotName.Contains("topY")  ) plotTheo->SetMaximum(0.7);
-	    else if (plotName=="ttbarY"         ) plotTheo->SetMaximum(0.8);
-	    else if (plotName.Contains("lepEta")) plotTheo->SetMaximum(0.6);
-	    else if (plotName=="bqEta"          ) plotTheo->SetMaximum(0.6);
-	    else if (plotName.Contains("rhos")  ) plotTheo->SetMaximum(4.0);
+	    // increase range slightly for closure tests
+	    if(closureTestSpecifier!=""){
+	      plotTheo->SetMinimum(0.9*plotTheo->GetMinimum());
+	      plotTheo->SetMaximum(1.1*plotTheo->GetMaximum());
+	    }
+	    // remove y axis 10^x label style
+	    if(plotName.Contains("lepEta")||plotName=="bqEta"||plotName.Contains("topY")||plotName=="ttbarY"||plotName.Contains("rhos")) plotTheo->GetYaxis()->SetNoExponent(true);	    
 	  }
 	  
 	  // activate canvas
@@ -645,7 +643,7 @@ void bothDecayChannelsCombination(double luminosity=19712, bool save=true, unsig
 	  if(xSecVariables_[i].Contains("Njets"    )) plotNameMadgraph="composited"+LV+"Gen"+PS+"/Ngenjets";
 	  if(xSecVariables_[i].Contains("rhos"     )) plotNameMadgraph="composited"+LV+"Gen"+PS+"/rhosGen" ;
 	  plotNameMadgraph.ReplaceAll("Norm","");
-	  TString MGcombFile="/afs/naf.desy.de/group/cms/scratch/tophh/"+inputFolderName+"/"+TopFilename(kSig, 0, "muon").ReplaceAll("muon", "combined");
+	  TString MGcombFile=groupSpace+inputFolderName+"/"+TopFilename(kSig, 0, "muon").ReplaceAll("muon", "combined");
 	  TString plotNameMadgraph2=plotNameMadgraph;
 	  if(xSecVariables_[i].Contains("inclusive")){
 	    if(extrapolate) plotNameMadgraph2.ReplaceAll("inclusive", "topPt");
@@ -665,7 +663,7 @@ void bothDecayChannelsCombination(double luminosity=19712, bool save=true, unsig
 	    // get predicted inclusive cross section in chosen PS 
 	    double inclxSec=NGenPS/(BR*0.5*(constLumiElec+constLumiMuon));
 	    // fill histo
-	    plotTheo2 = new TH1F( plotTheo->GetName(), plotTheo->GetTitle(), 1, 0., 1.0);
+	    plotTheo2 = new TH1F( TString(plotTheo->GetName())+"incl1", TString(plotTheo->GetTitle())+"incl1", 1, 0., 1.0);
 	    plotTheo2->SetBinContent(1, inclxSec );
 	  }
 	  else{
@@ -702,9 +700,9 @@ void bothDecayChannelsCombination(double luminosity=19712, bool save=true, unsig
 
 	  // b2) create binned MADGRAPH theory curve (large sample including SC)
 	  // load it from combined file
-	  TString MGcombFile2="/afs/naf.desy.de/group/cms/scratch/tophh/"+inputFolderName+"/combinedDiffXSecSigSummer12PFLarge.root";
+	  TString MGcombFile2=groupSpace+inputFolderName+"/combinedDiffXSecSigSummer12PFLarge.root";
 	  if(!largeMGfile) MGcombFile2.ReplaceAll("Large","");
-	  TH1F* plotTheo3 = (xSecVariables_[i]=="inclusive") ? new TH1F( TString(plotTheo->GetName())+"incl", TString(plotTheo->GetTitle())+"incl", 1, 0., 1.0) : getTheoryPrediction(plotNameMadgraph2, MGcombFile2);
+	  TH1F* plotTheo3 = (xSecVariables_[i]=="inclusive") ? new TH1F( TString(plotTheo->GetName())+"incl2", TString(plotTheo->GetTitle())+"incl2", 1, 0., 1.0) : getTheoryPrediction(plotNameMadgraph2, MGcombFile2);
 	  // inclusive cross section
 	  if(xSecVariables_[i]=="inclusive"){
 	    // get events in PS from top pt
@@ -718,7 +716,7 @@ void bothDecayChannelsCombination(double luminosity=19712, bool save=true, unsig
 	    // get predicted inclusive cross section in chosen PS 
 	    double inclxSec=NGenPS/(BR*0.5*(constLumiElec+constLumiMuon));
 	    // fill histo
-	    plotTheo3 = new TH1F( plotTheo->GetName(), plotTheo->GetTitle(), 1, 0., 1.0);
+	    //plotTheo3 = new TH1F( plotTheo->GetName(), plotTheo->GetTitle(), 1, 0., 1.0);
 	    plotTheo3->SetBinContent(1, inclxSec );
 	  }
 	  else{
@@ -792,8 +790,8 @@ void bothDecayChannelsCombination(double luminosity=19712, bool save=true, unsig
 	  // choose mcatnlo file
 	  // -> file from standalone external studies for errorBands
 	  // -> std simulation file else
-	  TString filename="/afs/naf.desy.de/group/cms/scratch/tophh/"+inputFolderName+"/combinedDiffXSecSigMcatnloSummer12PF.root";
-	  TString errorBandFilename="/afs/naf.desy.de/group/cms/scratch/tophh/CommonFiles/ttbarNtupleCteq6m.root";
+	  TString filename=groupSpace+inputFolderName+"/combinedDiffXSecSigMcatnloSummer12PF.root";
+	  TString errorBandFilename=groupSpace+"CommonFiles/ttbarNtupleCteq6m.root";
 	  // error bands for MCatNLO curves
 	  // plotname for std simulation file = madgraph-plotname from analyzer structure
 	  TString plotNameMCAtNLO2="analyzeTop"+LV+"LevelKinematics"+hadLevelExtend+PS+"/"+plotName+hadLevelPlotExtend;
@@ -824,10 +822,10 @@ void bothDecayChannelsCombination(double luminosity=19712, bool save=true, unsig
 	  plotTheo2->Draw("hist same");
 	  if(SC) plotTheo3->Draw("hist same"); 
 	  // g1) draw NLO+NNLL curve for topMass (normalized)
-	  if(extrapolate && DrawNNLOPlot && (xSecVariables_[i].Contains("ttbarMassNorm"))){
+	  if(extrapolate && DrawNNLOPlot && (xSecVariables_[i].Contains("ttbarMassNorm")||xSecVariables_[i].Contains("ttbarPtNorm"))){
 	    TString plotname=xSecVariables_[i];	   
 	    plotname.ReplaceAll("Norm", "");
-	    TFile  *file = new TFile("/afs/naf.desy.de/group/cms/scratch/tophh/CommonFiles/AhrensNNLL8TeV.root");
+	    TFile  *file = new TFile(groupSpace+"CommonFiles/AhrensNNLL8TeV.root");
 	    TH1F   *newPlotNNLOHisto = (TH1F*)(file->Get(plotname)->Clone(plotname+"nnlo"));
 	    if(newPlotNNLOHisto){
 	      newPlotNNLOHisto->SetLineColor(constNnloColor2);
@@ -869,10 +867,10 @@ void bothDecayChannelsCombination(double luminosity=19712, bool save=true, unsig
 	  else if(xSecVariables_[i].Contains("bbbarMass")){ smoothFactor = 1 ; rebinFactor= 1; }
 	  else if(xSecVariables_[i].Contains("lbMass"   )){ smoothFactor = 1 ; rebinFactor= 1; }
 	  // d1) draw curve POWHEG+PYTHIA
-	  if(DrawPOWHEGPYTHIAPlot2) DrawTheoryCurve("/afs/naf.desy.de/group/cms/scratch/tophh/"+inputFolderName+"/combinedDiffXSecSigPowhegSummer12PF.root", plotNamePOWHEG, normalize, smoothFactor, rebinFactor, constPowhegColor, constPowhegStyle, -1./*rangeLow*/, -1./*rangeHigh*/, false, 1., 1., verbose-1, false, false, "powheg", smoothcurves2, LV);
+	  if(DrawPOWHEGPYTHIAPlot2) DrawTheoryCurve(groupSpace+inputFolderName+"/combinedDiffXSecSigPowhegSummer12PF.root", plotNamePOWHEG, normalize, smoothFactor, rebinFactor, constPowhegColor, constPowhegStyle, -1./*rangeLow*/, -1./*rangeHigh*/, false, 1., 1., verbose-1, false, false, "powheg", smoothcurves2, LV);
 	  
 	  // d2) draw curve POWHEG+HERWIG
-	  if(DrawPOWHEGHERWIGPlot2) DrawTheoryCurve("/afs/naf.desy.de/group/cms/scratch/tophh/"+inputFolderName+"/combinedDiffXSecSigPowhegHerwigSummer12PF.root", plotNamePOWHEG, normalize, smoothFactor, rebinFactor, constPowhegColor2, constPowhegStyle2, -1./*rangeLow*/, -1./*rangeHigh*/, false, 1., 1., verbose-1, false, false, "powhegherwig", smoothcurves2, LV);
+	  if(DrawPOWHEGHERWIGPlot2) DrawTheoryCurve(groupSpace+inputFolderName+"/combinedDiffXSecSigPowhegHerwigSummer12PF.root", plotNamePOWHEG, normalize, smoothFactor, rebinFactor, constPowhegColor2, constPowhegStyle2, -1./*rangeLow*/, -1./*rangeHigh*/, false, 1., 1., verbose-1, false, false, "powhegherwig", smoothcurves2, LV);
 
 	  // e/f) reweighted histos/ttbar+zprime for closure test
 	  if(closureTestSpecifier!=""&&!closureTestSpecifier.Contains("NoDistort")&&sys==sysNo&&plotName!="inclusive"){
@@ -887,7 +885,7 @@ void bothDecayChannelsCombination(double luminosity=19712, bool save=true, unsig
 
 	    // g2) draw NNLO curve for topPt (normalized) and topY (normalized)
 	    if(DrawNNLOPlot&&(xSecVariables_[i].Contains("topPtNorm")||xSecVariables_[i].Contains("topYNorm"))){
-	      TFile  *file = new TFile("/afs/naf.desy.de/group/cms/scratch/tophh/CommonFiles/kidonakisApproxNNLO8TeV.root");
+	      TFile  *file = new TFile(groupSpace+"CommonFiles/kidonakisApproxNNLO8TeV.root");
 	      TH1F   *newPlotNNLOHisto = (TH1F*)(file->Get(plotname)->Clone(plotname+"nnlo"));
 	      if(newPlotNNLOHisto){
 		newPlotNNLOHisto->GetXaxis()->SetRange(0, newPlotNNLOHisto->GetNbinsX()-1);
@@ -913,8 +911,8 @@ void bothDecayChannelsCombination(double luminosity=19712, bool save=true, unsig
 	      else if (plotname=="lepEta")    mcfmplotname = "eta_l";
 
 	      if (mcfmplotname!=""){
-		TFile *fileMCFM1 = new TFile("/afs/naf.desy.de/group/cms/scratch/tophh/CommonFiles/diffCrossSections_normalized_tt_bbh_todk_MSTW200_172_172_ful_central.root","READ");
-		TFile *fileMCFM2 = new TFile("/afs/naf.desy.de/group/cms/scratch/tophh/CommonFiles/diffCrossSections_normalized_tt_bbh_todk_MSTW200_172_172_ful_charCon.root","READ");
+		TFile *fileMCFM1 = new TFile(groupSpace+"CommonFiles/diffCrossSections_normalized_tt_bbh_todk_MSTW200_172_172_ful_central.root","READ");
+		TFile *fileMCFM2 = new TFile(groupSpace+"CommonFiles/diffCrossSections_normalized_tt_bbh_todk_MSTW200_172_172_ful_charCon.root","READ");
 		
 		if (fileMCFM1 || fileMCFM1){
 		  TH1F *plotMCFM1= (TH1F*)(fileMCFM1->Get(mcfmplotname)->Clone(plotname+"MCFM1"));
@@ -966,7 +964,7 @@ void bothDecayChannelsCombination(double luminosity=19712, bool save=true, unsig
 	  else if(xSecVariables_[i].Contains("bbbarPt"  )){ smoothFactor = 1; rebinFactor =  1; }
 	  else if(xSecVariables_[i].Contains("bbbarMass")){ smoothFactor = 1; rebinFactor =  1; }
 	  else if(xSecVariables_[i].Contains("lbMass"   )){ smoothFactor = 1; rebinFactor =  1; }
-	  if(largeMGfile) MGcombFile="/afs/naf.desy.de/group/cms/scratch/tophh/"+inputFolderName+"/combinedDiffXSecSigSummer12PFLarge.root";
+	  if(largeMGfile) MGcombFile=groupSpace+inputFolderName+"/combinedDiffXSecSigSummer12PFLarge.root";
 	  //std::cout << plotNameMadgraph << std::endl;
 	  if(DrawSmoothMadgraph2) DrawTheoryCurve(MGcombFile, plotNameMadgraph, normalize, smoothFactor, rebinFactor, kRed+1, 1, rangeLow, rangeHigh, false, 1., 1., verbose-1, false, false, "madgraph", DrawSmoothMadgraph2, LV);
 	  
@@ -1002,19 +1000,32 @@ void bothDecayChannelsCombination(double luminosity=19712, bool save=true, unsig
 	      }
 	      leg->AddEntry(histo_["closure"+plotName][kSig], closureentry, "L");
 	    }
-	    leg->SetX1NDC(0.587);
-	    leg->SetY1NDC(0.6  );
-	    leg->SetX2NDC(0.820);
-	    leg->SetY2NDC(0.867);
+	    leg->SetX1NDC(0.56);
+	    // larger legend for quantities with additional theory entry
+	    //double y1= (plotName.Contains("ttbarPt")||plotName.Contains("ttbarMass")||plotName.Contains("topPt")||plotName.Contains("topY")) ? 0.68 : 0.725;
+	    leg->SetY1NDC(0.55);
+	    leg->SetX2NDC(0.835);
+	    leg->SetY2NDC(0.82);
 	  }
 	  else {
-            leg->SetX1NDC(0.587);
-            leg->SetY1NDC(0.6  );
-            leg->SetX2NDC(0.820);
-            leg->SetY2NDC(0.867);
+	    double y1     = 0.655;
+	    double height = 0.175;
+	    double x1     = 0.560;
+	    double width  = 0.275;
+	    double addTheo= 0.045;
+	    if(plotName.Contains("lepEta")||plotName.Contains("bqEta")){ x1=0.4; y1=0.39;}
+	    if(plotName.Contains("ttbarDelPhi")){ x1=0.4; y1=0.56;}
+	    if(plotName.Contains("ttbarPt")||plotName.Contains("ttbarMass")||plotName=="topPt"||plotName.Contains("topY")){
+	      height+=addTheo;
+	      y1    -=addTheo;
+	    }
+	    leg->SetX1NDC(x1       );
+	    leg->SetY1NDC(y1       );
+	    leg->SetX2NDC(x1+width );
+	    leg->SetY2NDC(y1+height);
 	  }
 	  // b) Legend - Data label
-	  leg->AddEntry(plotCombination, dataLabel, "LP");
+	  leg->AddEntry(plotCombination, dataLabel, "P");
 	  
 	  // c1) Legend - Theory prediction - MADGRAPH no SC
 	  TString nameMADGRAPHcurve=plotName;
@@ -1092,8 +1103,11 @@ void bothDecayChannelsCombination(double luminosity=19712, bool save=true, unsig
 	    else if (xSecVariables_[i].Contains("ttbarMassNorm" )){
 	      nnlocurve =(TH1F*)combicanvas->GetPrimitive("ttbarMassnnlo");
 	    }
+	    else if (xSecVariables_[i].Contains("ttbarPtNorm" )){
+	      nnlocurve =(TH1F*)combicanvas->GetPrimitive("ttbarPtnnlo");
+	    }
 	    if(nnlocurve){
-	      if (xSecVariables_[i].Contains("ttbarMassNorm" )) leg->AddEntry(nnlocurve, constNloNNLLLabelAhrens, "L");
+	      if (xSecVariables_[i].Contains("ttbarMassNorm" )||xSecVariables_[i].Contains("ttbarPtNorm" )) leg->AddEntry(nnlocurve, constNloNNLLLabelAhrens, "L");
 	      else if (xSecVariables_[i].Contains("topPtNorm")||xSecVariables_[i].Contains("topYNorm" )){
 		leg->AddEntry(nnlocurve, constNnloLabelKidonakis, "L");
 	      }
@@ -1112,17 +1126,25 @@ void bothDecayChannelsCombination(double luminosity=19712, bool save=true, unsig
 	  
 	  
 	  // h) Plotting, legend and additional labels
-
 	  if(closureTestSpecifier=="") plotCombination->Draw("e X0 same"); 
 	  else  plotCombination->Draw("p X0 same"); 
 	  leg->Draw("same");  
+	  //if(xSecVariables_[i].Contains("ttbarDelPhiNorm" )){
+	  //  std::cout << xSecVariables_[i] << std::endl;
+	  //  std::cout << "leg->GetNRows()" << leg->GetNRows() << std::endl;
+	  //  std::cout << "leg->GetX1NDC():" << leg->GetX1NDC() << std::endl;
+	  //  std::cout << "leg->GetX2NDC():" << leg->GetX2NDC() << std::endl;
+	  //  std::cout << "leg->GetY1NDC():" << leg->GetY1NDC() << std::endl;
+	  //  std::cout << "leg->GetY2NDC():" << leg->GetY2NDC() << std::endl;
+	  //}
 	  gPad->RedrawAxis(); 
 	  DrawCMSLabels(prelim, luminosity, 0.04, (closureTestSpecifier!="" ? true : false), false, false);
 	  DrawDecayChLabel("e/#mu + Jets Combined");
 	  if(DrawNNLOPlot&&extrapolate){
-	    if (xSecVariables_[i].Contains("topPtNorm")) DrawLabel("(arXiv:1205.3453)", leg->GetX1NDC()+0.06, leg->GetY1NDC()-0.025, leg->GetX2NDC(), leg->GetY1NDC(), 12, 0.025);
-	    if (xSecVariables_[i].Contains("topYNorm" )) DrawLabel("(arXiv:1205.3453)", leg->GetX1NDC()+0.06, leg->GetY1NDC()-0.025, leg->GetX2NDC(), leg->GetY1NDC(), 12, 0.025);
-	    if (xSecVariables_[i].Contains("ttbarMassNorm")) DrawLabel("(arXiv:1003.5827)", leg->GetX1NDC()+0.06, leg->GetY1NDC()-0.025, leg->GetX2NDC(), leg->GetY1NDC(), 12, 0.025);
+	    if (xSecVariables_[i].Contains("topPtNorm"    )) DrawLabel("("+constApproxNNLOLabel+")", leg->GetX1NDC()+0.06, leg->GetY1NDC()-0.025, leg->GetX2NDC(), leg->GetY1NDC(), 12, 0.025);
+	    if (xSecVariables_[i].Contains("topYNorm"     )) DrawLabel("("+constApproxNNLOLabel+")", leg->GetX1NDC()+0.06, leg->GetY1NDC()-0.025, leg->GetX2NDC(), leg->GetY1NDC(), 12, 0.025);
+	    if (xSecVariables_[i].Contains("ttbarMassNorm")) DrawLabel("("+constNLONNLLLabel+")"   , leg->GetX1NDC()+0.06, leg->GetY1NDC()-0.025, leg->GetX2NDC(), leg->GetY1NDC(), 12, 0.025);
+	    if (xSecVariables_[i].Contains("ttbarPtNorm"  )) DrawLabel("("+constNLONNLLLabel+")"   , leg->GetX1NDC()+0.06, leg->GetY1NDC()-0.025, leg->GetX2NDC(), leg->GetY1NDC(), 12, 0.025);
 	  }
 
 	  histo_[xSecVariables_[i]][sys]=(TH1F*)(plotCombination->Clone());
@@ -1186,12 +1208,14 @@ void bothDecayChannelsCombination(double luminosity=19712, bool save=true, unsig
   // =================================================
 
   // saving in rootfile
-  // loop variables
-  for(unsigned int i=0; i<xSecVariables_.size(); ++i){
-    // loop systematic variations
-    for(unsigned int sys=sysNo; sys<sysEnd; ++sys){
-      if(histo_[xSecVariables_[i]][sys]){
-	saveToRootFile("diffXSecTopSemiLep"+closureLabel+LV+PS+".root", canvas_[xSecVariables_[i]][sys], true, verbose,""+xSecFolder+"/"+sysLabel(sys));
+  if(save){
+    // loop variables
+    for(unsigned int i=0; i<xSecVariables_.size(); ++i){
+      // loop systematic variations
+      for(unsigned int sys=sysNo; sys<sysEnd; ++sys){
+	if(histo_[xSecVariables_[i]][sys]){
+	  saveToRootFile("diffXSecTopSemiLep"+closureLabel+LV+PS+".root", canvas_[xSecVariables_[i]][sys], true, verbose,""+xSecFolder+"/"+sysLabel(sys));
+	}
       }
     }
   }

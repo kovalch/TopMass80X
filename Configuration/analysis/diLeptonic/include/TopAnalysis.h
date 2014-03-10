@@ -8,7 +8,19 @@ class TH2;
 
 #include "../../common/include/AnalysisBase.h"
 #include "../../common/include/classesFwd.h"
+#include "analysisStructsFwd.h"
 
+class AnalysisHistogramsBase;
+class RecoObjects;
+class CommonGenObjects;
+class TopGenObjects;
+class KinRecoObjects;
+namespace ttbar{
+    class GenLevelWeights;
+    class RecoLevelWeights;
+    class GenObjectIndices;
+    class RecoObjectIndices;
+}
 
 
 
@@ -204,7 +216,7 @@ class TopAnalysis : public AnalysisBase
     TH1 *h_LeptonMult_step8, *h_JetsMult_step8, *h_BJetsMult_step8;
     TH1 *h_LeptonMult_step9, *h_JetsMult_step9, *h_BJetsMult_step9;
     
-    /// Plots fot KinReco, Ievgen-11.11.2013
+    ///Ievgen
        TH1 *h_signalTopEvents_vs_JetMult; 
        TH1 *h_MatchedJets_vs_JetMult; 
        TH1 *h_nSolTtJets_vs_JetMult;
@@ -215,19 +227,40 @@ class TopAnalysis : public AnalysisBase
        
        TH1 *h_nRecoEvt_vs_LepEta;
        TH1 *h_nKinRecoSol_vs_LepEta;
-
+       TH1 *h_nRecoEvt_vs_LepEta2;
+       TH1 *h_nKinRecoSol_vs_LepEta2;
+       
        TH1 *h_nRecoEvt_vs_JetEta;
        TH1 *h_nKinRecoSol_vs_JetEta;
-
-       TH1 *h_nRecoEvt_vs_LeppT;  
+       TH1 *h_nRecoEvt_vs_JetEta2;
+       TH1 *h_nKinRecoSol_vs_JetEta2;
+       
+       TH1 *h_nRecoEvt_vs_LeppT;
        TH1 *h_nKinRecoSol_vs_LeppT;
+       TH1 *h_nRecoEvt_vs_LeppT2;
+       TH1 *h_nKinRecoSol_vs_LeppT2;
+       
+       TH1 *h_nRecoEvt_vs_LeptonEta;
+       TH1 *h_nKinRecoSol_vs_LeptonEta;
+       TH1 *h_nRecoEvt_vs_AntiLeptonEta;
+       TH1 *h_nKinRecoSol_vs_AntiLeptonEta;
+       
+       TH1 *h_nRecoEvt_vs_LeptonpT;
+       TH1 *h_nKinRecoSol_vs_LeptonpT;
+       TH1 *h_nRecoEvt_vs_AntiLeptonpT;
+       TH1 *h_nKinRecoSol_vs_AntiLeptonpT;
 
+       
+       TH1 *h_nRecoEvt_vs_JetpT;
+       TH1 *h_nKinRecoSol_vs_JetpT;
+       TH1 *h_nRecoEvt_vs_JetpT2;
+       TH1 *h_nKinRecoSol_vs_JetpT2;
+       
        TH1 *h_nRecoEvt_vs_MET;
        TH1 *h_nKinRecoSol_vs_MET;
        
        TH1 *h_nRecoEvt_Eff;
        TH1 *h_nKinRecoSol_Eff;
-       
        
        TH1 *h_RMSvsGenToppT;
        TH1 *h_RMSvsGenTopRapidity;
@@ -235,8 +268,12 @@ class TopAnalysis : public AnalysisBase
        
        TH1 *h_true_vE;
        TH1 *h_reco_vE;
+       
+       TH2 *h_HypTopRapidityvsToppT;
+       TH2 *h_HypAntiTopRapidityvsAntiToppT;
+       TH2 *h_HypTTBarRapidityvsTTBarpT;
+       
     /// ... 
-    
     
     /// Do kinematic reconstruction on nTuple level
     bool kinRecoOnTheFly_;
@@ -290,6 +327,9 @@ public:
     /// Class definition
     ClassDef(TopAnalysis, 0);    
     
+    /// Set up all analysers of type AnalysisHistogramsBase
+    void SetAllAnalysisHistograms(std::vector<AnalysisHistogramsBase*> v_analysisHistograms);
+    //void fabs(double DeltaPhi); ?????????
     
 private:
     
@@ -348,6 +388,25 @@ private:
     // -> pair( histogram with the binning of the differential distribution,
     //          vector(bin) -> map( control plot name -> TH1*))
     std::map<std::string, std::pair<TH1*, std::vector<std::map<std::string, TH1*> > > >* binnedControlPlots_;
+    
+    /// Fill all analysers and histograms in one method
+    void fillAll(const std::string& selectionStep,
+                 const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+                 const TopGenObjects& topGenObjects,
+                 const KinRecoObjects& kinRecoObjects,
+                 const ttbar::GenObjectIndices& genObjectIndices, const ttbar::RecoObjectIndices& recoObjectIndices,
+                 const ttbar::GenLevelWeights& genLevelWeights, const ttbar::RecoLevelWeights& recoLevelWeights,
+                 const double& defaultWeight)const;
+    
+    /// Book all histograms of all analysers for all steps in one method
+    void bookAll();
+    
+    /// Clear all analysers in one method
+    void clearAll();
+    
+    /// All analysers of type AnalysisHistogramsBase
+    std::vector<AnalysisHistogramsBase*> v_analysisHistograms_;
+    
 };
 
 

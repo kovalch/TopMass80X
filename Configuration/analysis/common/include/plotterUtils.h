@@ -8,7 +8,7 @@
 class TH1;
 class THStack;
 class TStyle;
-
+class TGraphAsymmErrors;
 
 
 
@@ -17,6 +17,7 @@ namespace common{
     /// Draw ratio of two histograms
     void drawRatio(const TH1* histNumerator, 
                    const TH1* histDenominator,
+                   const TH1 *uncband,
                    const Double_t& ratioMin, 
                    const Double_t& ratioMax, 
                    const bool addFit = 0,
@@ -26,6 +27,7 @@ namespace common{
 
     /// Draw ratio of histograms if not NULL pointers
     void drawRatioXSEC(const TH1* histNumerator, const TH1* histDenominator1, 
+                       TGraphAsymmErrors *data_stat = 0, TGraphAsymmErrors *data_syst = 0, 
                        const TH1* histDenominator2 = 0, const TH1* histDenominator3 = 0, const TH1* histDenominator4 = 0, const TH1* histDenominator5 = 0, const TH1* histDenominator6 = 0, const TH1* histDenominator7 = 0,
                        const Double_t& ratioMin = 0.5, const Double_t& ratioMax = 1.5, 
                        TStyle myStyle = *gStyle);//, int verbose = , const std::vector<double>& err=std::vector<double>(0));

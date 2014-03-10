@@ -9,6 +9,7 @@
 #include "TopAnalysis/TopAnalyzer/plugins/SemiLepLeptonAnalyzer.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Common/interface/View.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 // default constructor
 SemiLepLeptonAnalyzer::SemiLepLeptonAnalyzer(const edm::ParameterSet& cfg):
@@ -40,10 +41,22 @@ SemiLepLeptonAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& s
   //     Z: Event information
   // ---
   if(useTree_){
+    // event identification
     edm::EventAuxiliary aux = event.eventAuxiliary();
     runNumber             = aux.run();
     luminosityBlockNumber = aux.luminosityBlock();
     eventNumber           = aux.event();
+    // PDF related info
+    edm::Handle<GenEventInfoProduct> genInfo; 
+    event.getByLabel("generator", genInfo);  
+    Q   =  0.; id1 = -42; id2 = -42; x1  =  0.; x2  =  0.;
+    if(genInfo.isValid()){
+      Q     = genInfo->pdf()->scalePDF;
+      id1   = genInfo->pdf()->id.first;
+      id2   = genInfo->pdf()->id.second;
+      x1    = genInfo->pdf()->x.first;
+      x2    = genInfo->pdf()->x.second;
+    }
   }
 
   // ---
@@ -192,6 +205,17 @@ SemiLepLeptonAnalyzer::beginJob()
     tree->Branch("luminosityBlockNumber", &luminosityBlockNumber, "luminosityBlockNumber/i");
     eventNumber= 0;
     tree->Branch("eventNumber", &eventNumber, "eventNumber/i");
+    // PDF related info
+    Q   =  0.;
+    id1 = -42;
+    id2 = -42;
+    x1  =  0.;
+    x2  =  0.;
+    tree->Branch("Q"  , &Q  , (std::string("Q"  ) + "/F").c_str());
+    tree->Branch("id1", &id1, (std::string("id1") + "/I").c_str());
+    tree->Branch("id2", &id2, (std::string("id2") + "/I").c_str());
+    tree->Branch("x1" , &x1 , (std::string("x1" ) + "/D").c_str());
+    tree->Branch("x2" , &x2 , (std::string("x2" ) + "/D").c_str());
     // variables
     tree->Branch("lepPtRec" , &valueLepPtRec , "lepPtRec/F" );
     tree->Branch("lepPtGen" , &valueLepPtGen , "lepPtGen/F" );

@@ -1,15 +1,14 @@
 # Name, Extra, axis labels (y,x), rebin, do_dyscale, logx, logy, ymin, ymax, xmin, xmax, nbins, xbins, bcs
 
 HypjetMultiXSec Standard N_{Events} N_{jets} 1 1 0 0 0 0 2 9 0 0
-vertMulti Standard Events N_{vtx} 1 0 0 0 0 0 0 0 0 0
-vertMulti_noPU Standard Events N_{vtx} 1 0 0 0 0 0 0 0 0 0
-DIMFull Standard Events m^{ll} 2 0 0 1 10.0 0 0 0 0 0
+vertMulti Standard Events N_{vtx} 1 0 0 0 0 1.7e4 0 0 0 0
+vertMulti_noPU Standard Events N_{vtx} 1 0 0 0 0 1.7e4 0 0 0 0
+DIMFull Standard Events m^{ll} 2 0 0 1 50.0 0 0 0 0 0
 DIMFull_fullSel Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
 Allh1 Standard Events m^{ll} 1 1 0 0 0 0 0 0 0 0
-HypjetMulti Standard Events N_{jets} 1 1 0 1 0.5 0 2 10 0 0
-HypjetMulti_diLep Standard Events N_{jets} 1 0 0 1 1.0 0 0 0 0 0
-HypjetMulti_noBTag Standard Events N_{jets} 1 1 0 1 1.0 0 2 10 0 0
-HypBjetMulti_noBTag Standard Events N_{jets} 1 1 0 1 1.0 0 0 0 0 0
+HypjetMulti Standard Events N_{jets} 1 1 0 1 2 1.e8 2 8 0 0
+HypjetMulti_diLep Standard Events N_{jets} 1 0 0 1 1.0 2e8 0 0 0 0
+HypjetMulti_noBTag Standard Events N_{jets} 1 1 0 1 1.0 1e6 2 10 0 0
 MuonpT Standard Muons p_{T,#mu} 2 0 0 1 1 0 20 400 0 0
 ElectronpT Standard Electrons p_{T,e} 2 0 0 1 1 0 20 400 0 0
 LeptonpT Standard Leptons p_{T} 2 1 0 0 0 0 20 400 0 0
@@ -20,32 +19,32 @@ LeptonEta Standard Leptons #eta_{l} 4 1 0 0 0 0 -2.5 2.5 0 0
 MuonpT_postMETcut Standard Muons p_{T,#mu} 2 1 0 0 0 0 20 400 0 0
 ElectronpT_postMETcut Standard Electrons p_{T,e} 2 1 0 0 0 0 20 400 0 0
 LeptonpT_postMETcut Standard Leptons p_{T} 2 1 0 0 0 0 20 400 0 0
-MuonEta_postMETcut Standard Muons #eta_{#mu} 4 1 0 0 0 0 -2.5 2.5 0 0
-ElectronEta_postMETcut Standard Electrons #eta_{e} 4 1 0 0 0 0 -2.5 2.5 0 0
-LeptonEta_postMETcut Standard Leptons #eta_{l} 4 1 0 0 0 0 -2.5 2.5 0 0
+MuonEta_postMETcut Standard Muons #eta_{#mu} 4 1 0 0 0 1.2e4 -2.5 2.5 0 0
+ElectronEta_postMETcut Standard Electrons #eta_{e} 4 1 0 0 0 1.2e4 -2.5 2.5 0 0
+LeptonEta_postMETcut Standard Leptons #eta_{l} 4 1 0 0 0 1.1e4 -2.5 2.5 0 0
 
 LeptonEta_diLep Standard Leptons #eta_{l} 4 0 0 0 0 0 -2.5 2.5 0 0
-jetpT Standard Jets p_{T} 2 1 0 1 1 1E5 30 400 0 0
+jetpT Standard Jets p_{T} 2 1 0 1 10 1.e5 30 400 0 0
 jetHT Standard Jets H_{T} 4 1 0 0 0 0 0 0 0 0
 MET Standard Events MET 2 0 0 1 1 0 0 200 0 0
-HypBjetMulti Standard Events N_{b-jets} 1 1 0 1 0.5 1E5 1 6 0 0
-HypBjetMulti_noBTag Standard Events N_{b-jets} 1 1 0 1 0.5 1E5 0 6 0 0
+HypBjetMulti Standard Events "N_{b jets}" 1 1 0 1 0.3 1e8 1 6 0 0
+HypBjetMulti_noBTag Standard Events "N_{b jets}" 1 1 0 1 1 5E6 0 5 0 0
 HypTopMass Standard Topquarks m_{t} 2 1 0 0 0 0 100 300 0 0
-HypTopRapidity Standard Topquarks y^{t} 2 1 0 0 0 0 -2.5 2.5 0 0
+HypTopRapidity Standard Topquarks y^{t} 2 1 0 0 0 2.2e4 -2.5 2.5 0 0
 HypToppT Standard Topquarks p_{T}^{t} 20 1 0 0 0 0 0 0 0 0
 HypTTBarMass Standard Toppairs m^{t#bar{t}} 40 1 0 0 0 0 0 0 0 0
-HypTTBarRapidity Standard Toppairs y^{t#bar{t}} 2 1 0 0 0 0 -2.5 2.5 0 0
+HypTTBarRapidity Standard Toppairs y^{t#bar{t}} 2 1 0 0 0 1.3e4 -2.5 2.5 0 0
 HypTTBarpT Standard Toppairs p_{T}^{t#bar{t}} 10 1 0 0 0 0 0 295 0 0
-HypBJetpT Standard b-jets p_{T}^{b} 2 0 0 0 0 0 0 400 0 0
-HypBJetEta Standard b-jets #eta^{b} 2 1 0 0 0 0 -2.5 2.5 0 0
+HypBJetpT Standard b-jets p_{T}^{b} 2 1 0 1 1 0 39 400 0 0
+HypBJetEta Standard b-jets #eta^{b} 2 1 0 0 0 1.7e4 -2.5 2.5 0 0
 HypLeptonEta Standard Leptons #eta^{l} 5 1 0 0 0 0 -3 3 0 0
 HypLeptonpT Standard Leptons p_{T}^{l} 5 1 0 0 0 0 0 0 0 0
-HypLeptonBjetMass Standard N_{Events} m^{lb} 10 1 0 0 0 0 0 300 0 0
+HypLeptonBjetMass Standard N_{Events} m^{lb} 10 1 0 0 0 7e4 0 179 0 0
 
 HypBBBarpT Standard N_{Events} p_{T}^{b#bar{b}} 5 1 0 0 0 0 0 350 0 0
 HypBBBarMass Standard N_{Events} m^{b#bar{b}} 10 1 0 0 0 0 0 600 0 0
-HypToppTTTRestFrame Standard N_{Events} p_{T}^{t}(t#bar{t}R.F.) 10 1 0 0 0 0 0 400 0 0
-HypTTBarDeltaPhi Standard N_{Events} #Delta#phi^{t#bar{t}} 5 1 0 0 0 0 0 3.15 0 0
+HypToppTTTRestFrame Standard N_{Events} "p_{T}^{t} #scale[0.8]{(t#bar{t} com)}" 10 1 0 0 0 0 0 400 0 0
+HypTTBarDeltaPhi Standard N_{Events} #Delta#phi^{t,#bar{t}} 5 1 0 0 0 0 0 3.15 0 0
 HypTTBarDeltaRapidity Standard N_{Events} |y^{t}|-|y^{#bar{t}}| 10 1 0 0 0 0 -3 3 0 0
 
 
@@ -55,160 +54,160 @@ BTagSF Standard Events SF_{#geq1b-tag} 1 1 0 0 0 0 0 0 0 0
 KinRecoSF Standard Events SF_{Kin.Reco.} 1 1 0 0 0 0 0 0 0 0
 EventWeight Standard Events SF_{Evt.} 1 1 0 0 0 0 0 0 0 0
 
-bcp_HypToppT_bin_0_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
-bcp_HypToppT_bin_1_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
-bcp_HypToppT_bin_2_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
-bcp_HypToppT_bin_3_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
-bcp_HypToppT_bin_4_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
-bcp_HypToppT_bin_5_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
-bcp_HypToppT_bin_6_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
+#bcp_HypToppT_bin_0_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
+#bcp_HypToppT_bin_1_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
+#bcp_HypToppT_bin_2_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
+#bcp_HypToppT_bin_3_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
+#bcp_HypToppT_bin_4_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
+#bcp_HypToppT_bin_5_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
+#bcp_HypToppT_bin_6_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
 
-bcp_HypToppT_bin_0_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
-bcp_HypToppT_bin_1_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
-bcp_HypToppT_bin_2_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
-bcp_HypToppT_bin_3_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
-bcp_HypToppT_bin_4_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
-bcp_HypToppT_bin_5_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
-bcp_HypToppT_bin_6_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
-
-
-bcp_HypToppT_bin_0_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
-bcp_HypToppT_bin_1_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
-bcp_HypToppT_bin_2_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
-bcp_HypToppT_bin_3_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
-bcp_HypToppT_bin_4_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
-bcp_HypToppT_bin_5_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
-bcp_HypToppT_bin_6_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
+#bcp_HypToppT_bin_0_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
+#bcp_HypToppT_bin_1_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
+#bcp_HypToppT_bin_2_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
+#bcp_HypToppT_bin_3_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
+#bcp_HypToppT_bin_4_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
+#bcp_HypToppT_bin_5_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
+#bcp_HypToppT_bin_6_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
 
 
-bcp_HypToppT_bin_0_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
-bcp_HypToppT_bin_1_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
-bcp_HypToppT_bin_2_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
-bcp_HypToppT_bin_3_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
-bcp_HypToppT_bin_4_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
-bcp_HypToppT_bin_5_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
-bcp_HypToppT_bin_6_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
+#bcp_HypToppT_bin_0_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
+#bcp_HypToppT_bin_1_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
+#bcp_HypToppT_bin_2_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
+#bcp_HypToppT_bin_3_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
+#bcp_HypToppT_bin_4_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
+#bcp_HypToppT_bin_5_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
+#bcp_HypToppT_bin_6_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
 
 
-bcp_HypTopRapidity_bin_0_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
-bcp_HypTopRapidity_bin_1_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
-bcp_HypTopRapidity_bin_2_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
-bcp_HypTopRapidity_bin_3_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
-bcp_HypTopRapidity_bin_4_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
-bcp_HypTopRapidity_bin_5_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
-bcp_HypTopRapidity_bin_6_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
-bcp_HypTopRapidity_bin_7_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
-bcp_HypTopRapidity_bin_8_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
-bcp_HypTopRapidity_bin_9_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
-
-bcp_HypTopRapidity_bin_0_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
-bcp_HypTopRapidity_bin_1_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
-bcp_HypTopRapidity_bin_2_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
-bcp_HypTopRapidity_bin_3_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
-bcp_HypTopRapidity_bin_4_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
-bcp_HypTopRapidity_bin_5_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
-bcp_HypTopRapidity_bin_6_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
-bcp_HypTopRapidity_bin_7_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
-bcp_HypTopRapidity_bin_8_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
-bcp_HypTopRapidity_bin_9_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
+#bcp_HypToppT_bin_0_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
+#bcp_HypToppT_bin_1_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
+#bcp_HypToppT_bin_2_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
+#bcp_HypToppT_bin_3_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
+#bcp_HypToppT_bin_4_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
+#bcp_HypToppT_bin_5_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
+#bcp_HypToppT_bin_6_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
 
 
-bcp_HypTopRapidity_bin_0_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
-bcp_HypTopRapidity_bin_1_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
-bcp_HypTopRapidity_bin_2_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
-bcp_HypTopRapidity_bin_3_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
-bcp_HypTopRapidity_bin_4_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
-bcp_HypTopRapidity_bin_5_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
-bcp_HypTopRapidity_bin_6_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
-bcp_HypTopRapidity_bin_7_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
-bcp_HypTopRapidity_bin_8_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
-bcp_HypTopRapidity_bin_9_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
+#bcp_HypTopRapidity_bin_0_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
+#bcp_HypTopRapidity_bin_1_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
+#bcp_HypTopRapidity_bin_2_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
+#bcp_HypTopRapidity_bin_3_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
+#bcp_HypTopRapidity_bin_4_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
+#bcp_HypTopRapidity_bin_5_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
+#bcp_HypTopRapidity_bin_6_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
+#bcp_HypTopRapidity_bin_7_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
+#bcp_HypTopRapidity_bin_8_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
+#bcp_HypTopRapidity_bin_9_LeptonEta Standard Events #eta^{l} 2 1 0 0 0 0 -2.5 2.5 0 0
+
+#bcp_HypTopRapidity_bin_0_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
+#bcp_HypTopRapidity_bin_1_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
+#bcp_HypTopRapidity_bin_2_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
+#bcp_HypTopRapidity_bin_3_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
+#bcp_HypTopRapidity_bin_4_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
+#bcp_HypTopRapidity_bin_5_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
+#bcp_HypTopRapidity_bin_6_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
+#bcp_HypTopRapidity_bin_7_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
+#bcp_HypTopRapidity_bin_8_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
+#bcp_HypTopRapidity_bin_9_LeptonpT Standard Events p_{T}^{l} 2 1 0 0 0 0 0 0 0 0
 
 
-bcp_HypTopRapidity_bin_0_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
-bcp_HypTopRapidity_bin_1_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
-bcp_HypTopRapidity_bin_2_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
-bcp_HypTopRapidity_bin_3_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
-bcp_HypTopRapidity_bin_4_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
-bcp_HypTopRapidity_bin_5_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
-bcp_HypTopRapidity_bin_6_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
-bcp_HypTopRapidity_bin_7_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
-bcp_HypTopRapidity_bin_8_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
-bcp_HypTopRapidity_bin_9_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
+#bcp_HypTopRapidity_bin_0_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
+#bcp_HypTopRapidity_bin_1_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
+#bcp_HypTopRapidity_bin_2_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
+#bcp_HypTopRapidity_bin_3_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
+#bcp_HypTopRapidity_bin_4_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
+#bcp_HypTopRapidity_bin_5_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
+#bcp_HypTopRapidity_bin_6_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
+#bcp_HypTopRapidity_bin_7_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
+#bcp_HypTopRapidity_bin_8_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
+#bcp_HypTopRapidity_bin_9_MET Standard Events MET 2 1 0 0 0 0 0 0 0 0
 
 
-AllLeptonEta_step2 Standard Events_PostTrigg #eta^{l} 1 0 0 0 0 0 0 0 0 0
-AllLeptonEta_step3 Standard Events_PostDiLept #eta^{l} 1 1 0 0 0 0 0 0 0 0
-AllLeptonEta_step4 Standard Events_PostMll20Cut #eta^{l} 1 1 0 0 0 0 0 0 0 0
-AllLeptonEta_step5 Standard Events_PostZCut #eta^{l} 1 1 0 0 0 0 0 0 0 0
-AllLeptonEta_step6 Standard Events_Post2Jets #eta^{l} 1 1 0 0 0 0 0 0 0 0
-AllLeptonEta_step7 Standard Events_PostMETcut #eta^{l} 1 1 0 0 0 0 0 0 0 0
-AllLeptonEta_step8 Standard Events_Post1BTag #eta^{l} 1 1 0 0 0 0 0 0 0 0
-AllLeptonEta_step9 Standard Events_PostKinReco #eta^{l} 1 1 0 0 0 0 0 0 0 0
-
-AllLeptonpT_step2 Standard Events_PostTrigg p_{T}^{l} 1 0 0 0 0 0 0 0 0 0
-AllLeptonpT_step3 Standard Events_PostDiLept p_{T}^{l} 1 1 0 0 0 0 0 0 0 0
-AllLeptonpT_step4 Standard Events_PostMll20Cut p_{T}^{l} 1 1 0 0 0 0 0 0 0 0
-AllLeptonpT_step5 Standard Events_PostZCut p_{T}^{l} 1 1 0 0 0 0 0 0 0 0
-AllLeptonpT_step6 Standard Events_Post2Jets p_{T}^{l} 1 1 0 0 0 0 0 0 0 0
-AllLeptonpT_step7 Standard Events_PostMETcut p_{T}^{l} 1 1 0 0 0 0 0 0 0 0
-AllLeptonpT_step8 Standard Events_Post1BTag p_{T}^{l} 1 1 0 0 0 0 0 0 0 0
-AllLeptonpT_step9 Standard Events_PostKinReco p_{T}^{l} 1 1 0 0 0 0 0 0 0 0
-
-AllJetEta_step2 Standard Events_PostTrigg #eta^{jet} 1 0 0 0 0 0 0 0 0 0
-AllJetEta_step3 Standard Events_PostDiLept #eta^{jet} 1 1 0 0 0 0 0 0 0 0
-AllJetEta_step4 Standard Events_PostMll20Cut #eta^{jet} 1 1 0 0 0 0 0 0 0 0
-AllJetEta_step5 Standard Events_PostZCut #eta^{jet} 1 1 0 0 0 0 0 0 0 0
-AllJetEta_step6 Standard Events_Post2AllJets #eta^{jet} 1 1 0 0 0 0 0 0 0 0
-AllJetEta_step7 Standard Events_PostMETcut #eta^{jet} 1 1 0 0 0 0 0 0 0 0
-AllJetEta_step8 Standard Events_Post1BTag #eta^{jet} 1 1 0 0 0 0 0 0 0 0
-AllJetEta_step9 Standard Events_PostKinReco #eta^{jet} 1 1 0 0 0 0 0 0 0 0
-
-AllJetpT_step2 Standard Events_PostTrigg p_{T}^{jet} 1 0 0 0 0 0 0 0 0 0
-AllJetpT_step3 Standard Events_PostDiLept p_{T}^{jet} 1 1 0 0 0 0 0 0 0 0
-AllJetpT_step4 Standard Events_PostMll20Cut p_{T}^{jet} 1 1 0 0 0 0 0 0 0 0
-AllJetpT_step5 Standard Events_PostZCut p_{T}^{jet} 1 1 0 0 0 0 0 0 0 0
-AllJetpT_step6 Standard Events_Post2AllJets p_{T}^{jet} 1 1 0 0 0 0 0 0 0 0
-AllJetpT_step7 Standard Events_PostMETcut p_{T}^{jet} 1 1 0 0 0 0 0 0 0 0
-AllJetpT_step8 Standard Events_Post1BTag p_{T}^{jet} 1 1 0 0 0 0 0 0 0 0
-AllJetpT_step9 Standard Events_PostKinReco p_{T}^{jet} 1 1 0 0 0 0 0 0 0 0
+#bcp_HypTopRapidity_bin_0_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
+#bcp_HypTopRapidity_bin_1_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
+#bcp_HypTopRapidity_bin_2_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
+#bcp_HypTopRapidity_bin_3_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
+#bcp_HypTopRapidity_bin_4_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
+#bcp_HypTopRapidity_bin_5_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
+#bcp_HypTopRapidity_bin_6_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
+#bcp_HypTopRapidity_bin_7_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
+#bcp_HypTopRapidity_bin_8_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
+#bcp_HypTopRapidity_bin_9_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
 
 
-LeptonEta_step2 Standard Events_PostTrigg #eta^{l} 1 0 0 0 0 0 0 0 0 0
-LeptonEta_step3 Standard Events_PostDiLept #eta^{l} 1 1 0 0 0 0 0 0 0 0
-LeptonEta_step4 Standard Events_PostMll20Cut #eta^{l} 1 1 0 0 0 0 0 0 0 0
-LeptonEta_step5 Standard Events_PostZCut #eta^{l} 1 1 0 0 0 0 0 0 0 0
-LeptonEta_step6 Standard Events_Post2Jets #eta^{l} 1 1 0 0 0 0 0 0 0 0
-LeptonEta_step7 Standard Events_PostMETcut #eta^{l} 1 1 0 0 0 0 0 0 0 0
-LeptonEta_step8 Standard Events_Post1BTag #eta^{l} 1 1 0 0 0 0 0 0 0 0
-LeptonEta_step9 Standard Events_PostKinReco #eta^{l} 1 1 0 0 0 0 0 0 0 0
+AllLeptonEta_step2 Standard Leptons_PostTrigg #eta^{l} 1 0 0 0 0 0 0 0 0 0
+AllLeptonEta_step3 Standard Leptons_PostDiLept #eta^{l} 1 1 0 0 0 0 0 0 0 0
+AllLeptonEta_step4 Standard Leptons_PostMll20Cut #eta^{l} 1 1 0 0 0 0 0 0 0 0
+AllLeptonEta_step5 Standard Leptons_PostZCut #eta^{l} 1 1 0 0 0 0 0 0 0 0
+AllLeptonEta_step6 Standard Leptons_Post2Jets #eta^{l} 1 1 0 0 0 0 0 0 0 0
+AllLeptonEta_step7 Standard Leptons_PostMETcut #eta^{l} 1 1 0 0 0 0 0 0 0 0
+AllLeptonEta_step8 Standard Leptons_Post1BTag #eta^{l} 1 1 0 0 0 0 0 0 0 0
+AllLeptonEta_step9 Standard Leptons_PostKinReco #eta^{l} 1 1 0 0 0 0 0 0 0 0
 
-LeptonpT_step2 Standard Events_PostTrigg p_{T}^{l} 1 0 0 0 0 0 0 0 0 0
-LeptonpT_step3 Standard Events_PostDiLept p_{T}^{l} 1 1 0 0 0 0 0 0 0 0
-LeptonpT_step4 Standard Events_PostMll20Cut p_{T}^{l} 1 1 0 0 0 0 0 0 0 0
-LeptonpT_step5 Standard Events_PostZCut p_{T}^{l} 1 1 0 0 0 0 0 0 0 0
-LeptonpT_step6 Standard Events_Post2Jets p_{T}^{l} 1 1 0 0 0 0 0 0 0 0
-LeptonpT_step7 Standard Events_PostMETcut p_{T}^{l} 1 1 0 0 0 0 0 0 0 0
-LeptonpT_step8 Standard Events_Post1BTag p_{T}^{l} 1 1 0 0 0 0 0 0 0 0
-LeptonpT_step9 Standard Events_PostKinReco p_{T}^{l} 1 1 0 0 0 0 0 0 0 0
+AllLeptonpT_step2 Standard Leptons_PostTrigg p_{T}^{l} 1 0 0 0 0 0 0 0 0 0
+AllLeptonpT_step3 Standard Leptons_PostDiLept p_{T}^{l} 1 1 0 0 0 0 20 150 0 0
+AllLeptonpT_step4 Standard Leptons_PostMll20Cut p_{T}^{l} 1 1 0 0 0 0 20 150 0 0
+AllLeptonpT_step5 Standard Leptons_PostZCut p_{T}^{l} 1 1 0 0 0 0 20 150 0 0
+AllLeptonpT_step6 Standard Leptons_Post2Jets p_{T}^{l} 1 1 0 0 0 0 20 150 0 0
+AllLeptonpT_step7 Standard Leptons_PostMETcut p_{T}^{l} 1 1 0 0 0 0 20 150 0 0
+AllLeptonpT_step8 Standard Leptons p_{T}^{l} 2 1 0 0 1e-1 3e4 20 150 0 0
+AllLeptonpT_step9 Standard Leptons_PostKinReco p_{T}^{l} 1 1 0 0 0 0 20 150 0 0
 
-JetEta_step2 Standard Events_PostTrigg #eta^{jet} 1 0 0 0 0 0 0 0 0 0
-JetEta_step3 Standard Events_PostDiLept #eta^{jet} 1 1 0 0 0 0 0 0 0 0
-JetEta_step4 Standard Events_PostMll20Cut #eta^{jet} 1 1 0 0 0 0 0 0 0 0
-JetEta_step5 Standard Events_PostZCut #eta^{jet} 1 1 0 0 0 0 0 0 0 0
-JetEta_step6 Standard Events_Post2Jets #eta^{jet} 1 1 0 0 0 0 0 0 0 0
-JetEta_step7 Standard Events_PostMETcut #eta^{jet} 1 1 0 0 0 0 0 0 0 0
-JetEta_step8 Standard Events_Post1BTag #eta^{jet} 1 1 0 0 0 0 0 0 0 0
-JetEta_step9 Standard Events_PostKinReco #eta^{jet} 1 1 0 0 0 0 0 0 0 0
+AllJetEta_step2 Standard Jets_PostTrigg #eta^{jet} 1 0 0 0 0 0 0 0 0 0
+AllJetEta_step3 Standard Jets_PostDiLept #eta^{jet} 1 1 0 0 0 0 0 0 0 0
+AllJetEta_step4 Standard Jets_PostMll20Cut #eta^{jet} 1 1 0 0 0 0 0 0 0 0
+AllJetEta_step5 Standard Jets_PostZCut #eta^{jet} 1 1 0 0 0 0 0 0 0 0
+AllJetEta_step6 Standard Jets_Post2AllJets #eta^{jet} 1 1 0 0 0 0 0 0 0 0
+AllJetEta_step7 Standard Jets_PostMETcut #eta^{jet} 1 1 0 0 0 0 0 0 0 0
+AllJetEta_step8 Standard Jets_Post1BTag #eta^{jet} 1 1 0 0 0 0 0 0 0 0
+AllJetEta_step9 Standard Jets_PostKinReco #eta^{jet} 1 1 0 0 0 0 0 0 0 0
 
-JetpT_step2 Standard Events_PostTrigg p_{T}^{jet} 1 0 0 0 0 0 0 0 0 0
-JetpT_step3 Standard Events_PostDiLept p_{T}^{jet} 1 1 0 0 0 0 0 0 0 0
-JetpT_step4 Standard Events_PostMll20Cut p_{T}^{jet} 1 1 0 0 0 0 0 0 0 0
-JetpT_step5 Standard Events_PostZCut p_{T}^{jet} 1 1 0 0 0 0 0 0 0 0
-JetpT_step6 Standard Events_Post2Jets p_{T}^{jet} 1 1 0 0 0 0 0 0 0 0
-JetpT_step7 Standard Events_PostMETcut p_{T}^{jet} 1 1 0 0 0 0 0 0 0 0
-JetpT_step8 Standard Events_Post1BTag p_{T}^{jet} 1 1 0 0 0 0 0 0 0 0
-JetpT_step9 Standard Events_PostKinReco p_{T}^{jet} 1 1 0 0 0 0 0 0 0 0
+AllJetpT_step2 Standard Jets_PostTrigg p_{T}^{jet} 2 1 0 1 1 1e6 30 250 0 0
+AllJetpT_step3 Standard Jets_PostDiLept p_{T}^{jet} 2 1 0 1 1 1e6 30 250 0 0
+AllJetpT_step4 Standard Jets_PostMll20Cut p_{T}^{jet} 2 1 0 1 1 1e6 30 250 0 0
+AllJetpT_step5 Standard Jets_PostZCut p_{T}^{jet} 2 1 0 1 1 1e6 30 250 0 0
+AllJetpT_step6 Standard Jets_Post2AllJets p_{T}^{jet} 2 1 0 1 1 1e6 30 250 0 0
+AllJetpT_step7 Standard Jets_PostMETcut p_{T}^{jet} 2 1 0 1 1 1e6 30 250 0 0
+AllJetpT_step8 Standard Jets p_{T}^{jet} 2 1 0 1 10 1e7 30 250 0 0
+AllJetpT_step9 Standard Jets_PostKinReco p_{T}^{jet} 2 1 0 1 1 1e6 30 250 0 0
+
+
+LeptonEta_step2 Standard Leptons_PostTrigg #eta^{l} 1 0 0 0 0 0 0 0 0 0
+LeptonEta_step3 Standard Leptons_PostDiLept #eta^{l} 1 1 0 0 0 0 0 0 0 0
+LeptonEta_step4 Standard Leptons_PostMll20Cut #eta^{l} 1 1 0 0 0 0 0 0 0 0
+LeptonEta_step5 Standard Leptons_PostZCut #eta^{l} 1 1 0 0 0 0 0 0 0 0
+LeptonEta_step6 Standard Leptons_Post2Jets #eta^{l} 1 1 0 0 0 0 0 0 0 0
+LeptonEta_step7 Standard Leptons_PostMETcut #eta^{l} 1 1 0 0 0 0 0 0 0 0
+LeptonEta_step8 Standard Leptons_Post1BTag #eta^{l} 1 1 0 0 0 0 0 0 0 0
+LeptonEta_step9 Standard Leptons_PostKinReco #eta^{l} 1 1 0 0 0 0 0 0 0 0
+
+LeptonpT_step2 Standard Leptons_PostTrigg p_{T}^{l} 1 0 0 0 0 0 0 0 0 0
+LeptonpT_step3 Standard Leptons_PostDiLept p_{T}^{l} 1 1 0 0 0 0 0 0 0 0
+LeptonpT_step4 Standard Leptons_PostMll20Cut p_{T}^{l} 1 1 0 0 0 0 0 0 0 0
+LeptonpT_step5 Standard Leptons_PostZCut p_{T}^{l} 1 1 0 0 0 0 0 0 0 0
+LeptonpT_step6 Standard Leptons_Post2Jets p_{T}^{l} 1 1 0 0 0 0 0 0 0 0
+LeptonpT_step7 Standard Leptons_PostMETcut p_{T}^{l} 1 1 0 0 0 0 0 0 0 0
+LeptonpT_step8 Standard Leptons_Post1BTag p_{T}^{l} 1 1 0 0 0 0 0 0 0 0
+LeptonpT_step9 Standard Leptons_PostKinReco p_{T}^{l} 1 1 0 0 0 0 0 0 0 0
+
+JetEta_step2 Standard Jets_PostTrigg #eta^{jet} 1 0 0 0 0 0 0 0 0 0
+JetEta_step3 Standard Jets_PostDiLept #eta^{jet} 1 1 0 0 0 0 0 0 0 0
+JetEta_step4 Standard Jets_PostMll20Cut #eta^{jet} 1 1 0 0 0 0 0 0 0 0
+JetEta_step5 Standard Jets_PostZCut #eta^{jet} 1 1 0 0 0 0 0 0 0 0
+JetEta_step6 Standard Jets_Post2Jets #eta^{jet} 1 1 0 0 0 0 0 0 0 0
+JetEta_step7 Standard Jets_PostMETcut #eta^{jet} 1 1 0 0 0 0 0 0 0 0
+JetEta_step8 Standard Jets_Post1BTag #eta^{jet} 1 1 0 0 0 0 0 0 0 0
+JetEta_step9 Standard Jets_PostKinReco #eta^{jet} 1 1 0 0 0 0 0 0 0 0
+
+JetpT_step2 Standard Jets_PostTrigg p_{T}^{jet} 1 0 0 0 0 0 0 0 0 0
+JetpT_step3 Standard Jets_PostDiLept p_{T}^{jet} 1 1 0 0 0 0 0 0 0 0
+JetpT_step4 Standard Jets_PostMll20Cut p_{T}^{jet} 1 1 0 0 0 0 0 0 0 0
+JetpT_step5 Standard Jets_PostZCut p_{T}^{jet} 1 1 0 0 0 0 0 0 0 0
+JetpT_step6 Standard Jets_Post2Jets p_{T}^{jet} 1 1 0 0 0 0 0 0 0 0
+JetpT_step7 Standard Jets_PostMETcut p_{T}^{jet} 1 1 0 0 0 0 0 0 0 0
+JetpT_step8 Standard Jets_Post1BTag p_{T}^{jet} 1 1 0 0 0 0 0 0 0 0
+JetpT_step9 Standard Jets_PostKinReco p_{T}^{jet} 1 1 0 0 0 0 0 0 0 0
 
 JetsMult_step2 Standard Events_PostTrigg N^{jet} 1 0 0 0 0 0 0 0 0 0
 JetsMult_step3 Standard Events_PostDiLept N^{jet} 1 1 0 0 0 0 0 0 0 0
@@ -240,7 +239,7 @@ BJetsMult_step9 Standard Events_PostKinReco N^{jet} 1 1 0 0 0 0 0 0 0 0
 
 HypBJetEtaLead Standard b-jets #eta^{Lead.b-jet} 2 1 0 0 0 0 -2.5 2.5 0 0
 HypBJetEtaNLead Standard b-jets #eta^{N.Lead.b-jet} 2 1 0 0 0 0 -2.5 2.5 0 0
-HypLLBarDPhi Standard Events #Delta#phi{l,#bar{l}} 11 1 0 0 0 0 -0.1 2.9 0 0
+HypLLBarDPhi Standard Events #Delta#phi{l,#bar{l}} 8 1 0 0 0 0 -0.1 2.9 0 0
 HypBJetpTLead Standard b-jets p_{T}^{Lead.b-jet} 5 1 0 0 0 0 0 0 0 0
 HypBJetpTNLead Standard b-jets p_{T}^{N.Lead.b-jet} 5 1 0 0 0 0 0 0 0 0
 HypLeptonEtaLead Standard Events #eta^{Lead.l} 1 1 0 0 0 0 -3 3 0 0
@@ -264,8 +263,8 @@ METakr Standard Events MET 8 1 0 0 0 0 0 0 0 0
 BjetEtabkr Standard b-jets #eta 8 1 0 0 0 0 -2.4 2.4 0 0
 BjetEtaakr Standard b-jets #eta 8 1 0 0 0 0 -2.4 2.4 0 0
 
-step8 Standard Events - 1 1 0 0 0 0 0 0 0 0
-step9 Standard Events - 1 1 0 0 0 0 0 0 0 0
+events_weighted_step7 Standard Events - 1 1 0 0 0 0 0 0 0 0
+events_weighted_step8 Standard Events - 1 1 0 0 0 0 0 0 0 0
 
 # Name, Extra, axis labels (y,x), rebin, do_dyscale, logx, logy, ymin, ymax, xmin, xmax, nbins, xbins, bcs
 HypJetMultpt30 Standard Events Jets 1 1 0 1 0.12 30000000 2 10 0 0

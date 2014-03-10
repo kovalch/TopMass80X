@@ -1,7 +1,7 @@
 #include "basicFunctions.h"
 #include <stdlib.h>
 
-void makeResultTables(std::string decayChannel = "combined", bool extrapolate=true, bool hadron=false, bool addCrossCheckVariables=false, int verbose=1){
+void makeResultTables(std::string decayChannel = "combined", bool extrapolate=true, bool hadron=false, bool addCrossCheckVariables=false, bool useBCC=false, int verbose=1){
   
   // ============================
   //  Set Root Style
@@ -160,24 +160,31 @@ void makeResultTables(std::string decayChannel = "combined", bool extrapolate=tr
 // 	std::cout << "rounded number=" << help << std::endl;
 //       }
       TString out= "";
-      out+=getTStringFromDouble(BCCxValue, precXBCC);
-      out+=" &  ";			  
+      if(useBCC){
+	out+=getTStringFromDouble(BCCxValue, precXBCC);
+	out+=" & ";
+      }
+      out+=fillspace(xValueDn, getBigitFromDouble(binned->GetBinLowEdge(binned->GetNbinsX()+1)));	  
       out+=getTStringFromDouble(xValueDn, precX);
-      out+=" to  ";			  
+      out+=" to ";	
+      out+=fillspace(xValueUp, getBigitFromDouble(binned->GetBinLowEdge(binned->GetNbinsX()+1)));
       out+=getTStringFromDouble(xValueUp, precX);
       out+=" & ";
       out+=getTStringFromDouble(MCxSec, precXSec);
-      out+="  & ";
+      out+=" & ";
       out+=getTStringFromDouble(xSec  , precXSec);
-      out+=" &  ";
+      out+=" & ";
+      out+=fillspace(100*(statError/xSec), 2);
       out+=getTStringFromDouble(100*(statError/xSec),  precErr);
-      out+=" &  ";
+      out+=" & ";
+      out+=fillspace(100*(sysError/xSec), 2);
       out+=getTStringFromDouble(100*(sysError/xSec ),  precErr);
-      out+=" &  ";				    
+      out+=" & ";	
+      out+=fillspace(100*(totError/xSec), 2);		    
       out+=getTStringFromDouble(100*(totError/xSec ),  precErr);
       out+=" \\\\ ";
       bool append= (bin==1 ? false : true);
-      TString txtfile="./diffXSecFromSignal/"+filename;
+      TString txtfile="./diffXSecFromSignal/plots/"+TString(decayChannel)+"/2012/"+filename;
       txtfile.ReplaceAll(".root",plotName+".txt");
       writeToFile(out, txtfile, append);
       // chi2 for this distribution
@@ -219,14 +226,12 @@ void makeResultTables(std::string decayChannel = "combined", bool extrapolate=tr
 	chi2Po/=ndof;
 	chi2PoHer/=ndof;
 	chi2NN/=ndof;
-	if(verbose>0){
-	  if(verbose>1) std::cout << std::endl;
-	  if(chi2  !=0) std::cout << "chi2(MadGraph+Pythia): " << chi2   << std::endl;
-	  if(chi2Mc!=0) std::cout << "chi2(MC@NLO+Herwig  ): " << chi2Mc << std::endl;
-	  if(chi2Po!=0) std::cout << "chi2(Powheg+Pythia  ): " << chi2Po << std::endl;
-	  if(chi2PoHer!=0) std::cout << "chi2(Powheg+Herwig  ): " << chi2PoHer << std::endl;
-	  if(chi2NN!=0) std::cout << "chi2(NNLO    ): " << chi2NN << std::endl;
-	}
+	if(verbose>1) std::cout << std::endl;
+	if(chi2  !=0   ){writeToFile("%chi2(MadGraph+Pythia): "+getTStringFromDouble(chi2     ), txtfile, true); if(verbose>0){std::cout << "chi2(MadGraph+Pythia): " << chi2      << std::endl;}}
+	if(chi2Mc!=0   ){writeToFile("%chi2(MC@NLO+Herwig  ): "+getTStringFromDouble(chi2Mc   ), txtfile, true); if(verbose>0){std::cout << "chi2(MC@NLO+Herwig  ): " << chi2Mc    << std::endl;}}
+	if(chi2Po!=0   ){writeToFile("%chi2(Powheg+Pythia  ): "+getTStringFromDouble(chi2Po   ), txtfile, true); if(verbose>0){std::cout << "chi2(Powheg+Pythia  ): " << chi2Po    << std::endl;}}
+	if(chi2PoHer!=0){writeToFile("%chi2(Powheg+Herwig  ): "+getTStringFromDouble(chi2PoHer), txtfile, true); if(verbose>0){std::cout << "chi2(Powheg+Herwig  ): " << chi2PoHer << std::endl;}}
+	if(chi2NN!=0   ){writeToFile("%chi2(NNLO/NLO+NNLL  ): "+getTStringFromDouble(chi2NN   ), txtfile, true); if(verbose>0){std::cout << "chi2(NNLO/NLO+NNLL  ): " << chi2NN    << std::endl;}}
       }
     }
   }

@@ -8,7 +8,7 @@
   
   
   <class name="JetProperties" ClassVersion="10">
-     <version ClassVersion="10" checksum="3810799753"/>
+     <version ClassVersion="10" checksum="2833692463"/>
   </class>
   <class name="edm::Wrapper<JetProperties>" />
   <class name="edm::RefProd<JetProperties>" />

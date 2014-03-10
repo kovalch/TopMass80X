@@ -56,6 +56,8 @@
 ## mkdir -p diffXSecFromSignal/plots/combined/2012/massConstraintTest
 ## mkdir -p diffXSecFromSignal/plots/combined/2012/regularizationTest
 ## mkdir -p diffXSecFromSignal/plots/combined/2012/topPtTest
+## mkdir -p diffXSecFromSignal/plots/combined/2012/cov
+## mkdir -p diffXSecFromSignal/plots/combined/2012/rhos
 
 ## b) root files needed for the Analysis are loaded automatically from /afs/naf.desy.de/group/cms/scratch/tophh/
 ## c) if not yet done, combine the MC samples for the single channels (like QCD, single top, Diboson) using combineMCsamples.C
@@ -163,43 +165,20 @@ echo "closureTestSpecifier                        $closureTestSpecifier         
 echo "-------------------------------------------------------------------------------------"
 echo
 
-## folder on /afs/naf.desy.de/group/cms/scratch/tophh where MC and data files are stored
-## inputFolderName=\"RecentAnalysisRun8TeV\" (default)
-#inputFolderName=\"RecentAnalysisRun8TeV\"
+
+## shared folder of the analysis containing all relevant files
+#HHgroupFolder=\"/afs/naf.desy.de/group/cms/scratch/tophh/\"
+HHgroupFolder=\"/nfs/dust/cms/group/tophh/\"
+## subfolder of $HHgroupFolder where MC and data files are stored
+## inputFolderName=\"RecentAnalysisRun8TeV_doubleKinFit\" (default)
 inputFolderName=\"RecentAnalysisRun8TeV_doubleKinFit\"
 
 ## Dataset and luminosity [/pb]
 ## has to fit to current dataset
-
-mudataSample=\"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/muonDiffXSecData2012ABCDAll.root\"
-eldataSample=\"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/elecDiffXSecData2012ABCDAll.root\"
-
-# closure tests
-# [ $closureTestSpecifier != \"\" ]; then
-#  if [ $closureTestSpecifierS==\"NoDistort\"]; then
-#	mudataSample=\"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/pseudodata/muonPseudoData19712pb8TeV.root\"
-#	eldataSample=\"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/pseudodata/electronPseudoData19712pb8TeV.root\"
-#  elif [ $closureTestSpecifierS==\"topPtUp\"]; then
-#	mudataSample=\"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/pseudodata/muonPseudoData19712pbReweightedtopPtUp8TeV.root\"
-#	eldataSample=\"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/pseudodata/electronPseudoData19712pbReweightedtopPtUp8TeV.root\"
-#  elif [ $closureTestSpecifierS==\"topPtDown\"]; then
-#	mudataSample=\"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/pseudodata/muonPseudoData19712pbReweightedtopPtDown8TeV.root\"
-#	eldataSample=\"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/pseudodata/electronPseudoData19712pbReweightedtopPtDown8TeV.root\"
-#  elif [ $closureTestSpecifierS==\"ttbarMassUp\"]; then
-#	mudataSample=\"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/pseudodata/muonPseudoData19712pbReweightedttbarMassUp8TeV.root\"
-#	eldataSample=\"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/pseudodata/electronPseudoData19712pbReweightedttbarMassUp8TeV.root\"
-#  elif [ $closureTestSpecifierS==\"ttbarMassDown\"]; then
-#	mudataSample=\"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/pseudodata/muonPseudoData19712pbReweightedttbarMassDown8TeV.root\"
-#	eldataSample=\"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/pseudodata/electronPseudoData19712pbReweightedttbarMassDown8TeV.root\"
-#  elif [ $closureTestSpecifierS==\"data\"]; then
-#	mudataSample=\"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/pseudodata/muonPseudoData19712pbReweighteddata8TeV.root\"
-#	eldataSample=\"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/pseudodata/electronPseudoData19712pbReweighteddata8TeV.root\"
-#  elif [ $closureTestSpecifierS==\"1000\"]; then
-#	mudataSample=\"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/pseudodata/muonPseudoData19712pbandM1000W100Zprime8TeV.root\"
-#	eldataSample=\"/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/pseudodata/electronPseudoData19712pbandM1000W100Zprime8TeV.root\"
-#  fi
-#
-# -> directly specified within basicFunctions.h
+mudataSample2=$HHgroupFolder$inputFolderName\"/muonDiffXSecData2012ABCDAll.root\"
+eldataSample2=$HHgroupFolder$inputFolderName\"/elecDiffXSecData2012ABCDAll.root\"
+mudataSample=`echo $mudataSample2 | sed -e 's/\"\"//g'`
+eldataSample=`echo $eldataSample2 | sed -e 's/\"\"//g'`
 
 if [ $decayChannel == \"electron\" ]; then
     dataLuminosity=19712
@@ -247,7 +226,7 @@ redoSystematics=true
 ## redoPDFReweighting = true / false (default: true)
 redoPDFReweighting=true
 
-## Produce final xSec plots, ratios and uncertainties 
+## Produce final xSec plots, ratios, uncertainties and covariance matrices 
 ## produceResults = true / false (default: true)
 produceResults=true
 
@@ -474,13 +453,31 @@ if [ $clean == true ]; then
     fi
 fi
 
+#### ============================
+####  Prepare PDF uncertainties 
+#### ============================
+BEFOREB=$(date +%s)
+echo
+echo "Part B: Prepare files for pdf uncertainties"
+
+if [ $decayChannel != \"combined\" -a $redoSystematics == true -a $redoPDFReweighting == true ]; then
+    echo
+    root -l -q -b './analyzeTopDiffXSecMCdependency.C++('$dataLuminosity','$decayChannel', '$save', '$verbose', '$inputFolderName', '$dataSample', 'true', '$inclCCVars')' 
+elif [ $1 == "combined2" -a $redoSystematics == true -a $redoPDFReweighting == true ]; then
+    root -l -q -b './analyzeTopDiffXSecMCdependency.C++('$dataLuminosity', '\"muon\"',     '$save', '$verbose', '$inputFolderName', '$mudataSample', 'true', '$inclCCVars')' 
+    root -l -q -b './analyzeTopDiffXSecMCdependency.C++('$dataLuminosity', '\"electron\"', '$save', '$verbose', '$inputFolderName', '$eldataSample', 'true', '$inclCCVars')' 
+else
+    echo "Done for 2012 analysis (in e/mu channel separate or when combining event yields) and if systematics and PDF files are requested to be re-done (redoSystematics set to $redoSystematics, redoPDFReweighting set to $redoPDFReweighting)."
+fi
+
+
 #### =====================
 ####  Run cut monitoring
 #### =====================
 
-BEFOREB=$(date +%s)
+BEFOREC=$(date +%s)
 echo
-echo "Part B: process cut monitoring macros"
+echo "Part C: process cut monitoring macros"
 if [ $fast == false ]
     then
     sleep 3
@@ -542,7 +539,7 @@ fi
 ###  Run migration macro for binning 
 ### ===================================
 
-BEFOREC=$(date +%s)
+BEFORED=$(date +%s)
 echo
 echo "Part C: process migration macro to validate binning"
 if [ $fast == false ]
@@ -569,25 +566,6 @@ if [ $redoPurStab == true ]
     for (( iVar=0; iVar<${#listVar_[@]}; iVar++ )); do
 	root -l -q -b './purityStabilityEfficiency.C++('${listVar_[$iVar]}','$save', '$decayChannel', '$inputFolderName', '$plotAcceptance', true, false, '$chi2Max', 1, '$hadron')'
     done
-fi
-
-
-
-#### ============================
-####  Prepare PDF uncertainties 
-#### ============================
-BEFORED=$(date +%s)
-echo
-echo "Part D: Prepare files for pdf uncertainties"
-
-if [ $decayChannel != \"combined\" -a $redoSystematics == true -a $redoPDFReweighting == true ]; then
-    echo
-    root -l -q -b './analyzeTopDiffXSecMCdependency.C++('$dataLuminosity','$decayChannel', '$save', '$verbose', '$inputFolderName', '$dataSample', 'true', '$inclCCVars')' 
-elif [ $1 == "combined2" -a $redoSystematics == true -a $redoPDFReweighting == true ]; then
-    root -l -q -b './analyzeTopDiffXSecMCdependency.C++('$dataLuminosity', '\"muon\"',     '$save', '$verbose', '$inputFolderName', '$mudataSample', 'true', '$inclCCVars')' 
-    root -l -q -b './analyzeTopDiffXSecMCdependency.C++('$dataLuminosity', '\"electron\"', '$save', '$verbose', '$inputFolderName', '$eldataSample', 'true', '$inclCCVars')' 
-else
-    echo "Done for 2012 analysis (in e/mu channel separate or when combining event yields) and if systematics and PDF files are requested to be re-done (redoSystematics set to $redoSystematics, redoPDFReweighting set to $redoPDFReweighting)."
 fi
 
 #### ==========================================
@@ -837,8 +815,8 @@ fi
 #### ===================================================
 if [ $decayChannel == \"combined\" -a $closureTestSpecifier == \"\" -a $produceResults == true ]; then
     echo ""
-    echo " Processing .... makeResultTables($decayChannel, $extrapolate, $hadron, $inclCCVars)"
-    root -l -q -b './makeResultTables.C++('$decayChannel', '$extrapolate', '$hadron', '$inclCCVars')'
+    echo " Processing .... makeResultTables($decayChannel, $extrapolate, $hadron, $inclCCVars, $useBCC)"
+    root -l -q -b './makeResultTables.C++g('$decayChannel', '$extrapolate', '$hadron', '$inclCCVars', '$useBCC')'
 else
     echo "will be ignored, only done if final results are produced (produceResults is set to $produceResults)"
 fi
@@ -922,9 +900,9 @@ if [ $maxSys -ge 1 ]
     echo "($SYS seconds due to systematic variations)"
 fi
 echo "part A: $(( $BEFOREB   - $START    )) seconds (clean up  )"
-echo "part B: $(( $BEFOREC   - $BEFOREB  )) seconds (monitoring)"
-echo "part C: $(( $BEFORED   - $BEFOREC  )) seconds (migration)"
-echo "part D: $(( $BEFOREE   - $BEFORED  )) seconds (prepare PDF uncertainty run)"
+echo "part B: $(( $BEFOREC   - $BEFOREB  )) seconds (prepare PDF uncertainty run)"
+echo "part C: $(( $BEFORED   - $BEFOREC  )) seconds (monitoring)"
+echo "part D: $(( $BEFOREE   - $BEFORED  )) seconds (migration)"
 echo "part F: $(( $BEFOREF   - $BEFOREE  )) seconds (xSecs- $maxSys systematic variations considered, cov matrix)"
 echo "part G: $(( $BEFOREG   - $BEFOREF  )) seconds (errors and final xSec)"
 echo "part H: $(( $END       - $BEFOREG  )) seconds (regularization parameter scan, mass constraint test"

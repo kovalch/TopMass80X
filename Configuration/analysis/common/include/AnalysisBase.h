@@ -8,11 +8,11 @@
 
 #include <TSelector.h>
 #include <Rtypes.h>
+#include <TString.h>
 
 class TBranch;
 class TTree;
 class TH1;
-class TString;
 
 #include "classesFwd.h"
 #include "storeTemplate.h"
@@ -21,7 +21,6 @@ class KinematicReconstruction;
 class TriggerScaleFactors;
 class LeptonScaleFactors;
 class BtagScaleFactors;
-class BTagSFGeneric;
 class JetEnergyResolutionScaleFactors;
 class JetEnergyScaleScaleFactors;
 class RecoObjects;
@@ -57,7 +56,10 @@ public:
     virtual void Terminate();
 
     /// Set sample name
-    void SetSamplename(const TString& samplename, const TString& systematic_from_file);
+    void SetSamplename(const TString& samplename);
+    
+    /// Set generator parameters
+    void SetGeneratorBools(const TString& samplename, const TString& systematic);
     
     /// Set Channel
     void SetChannel(const TString& channel);
@@ -100,6 +102,9 @@ public:
     
     /// Set the btag scale factors
     void SetBtagScaleFactors(BtagScaleFactors& scaleFactors);
+    
+    /// Set the MC sample which should be used for production of btag efficiencies
+    void SetSampleForBtagEfficiencies(const bool isSampleForBtagEfficiencies);
     
     /// Set jet energy resolution scale factors
     void SetJetEnergyResolutionScaleFactors(const JetEnergyResolutionScaleFactors* jetEnergyResolutionScaleFactors);
@@ -248,6 +253,14 @@ protected:
     /// Whether to or not to produce b-tag efficiencies for the analysed sample
     bool makeBtagEfficiencies()const;
     
+    /// Apply b-tag efficiency MC correction using random number based tag flipping
+    void retagJets(std::vector<int>& bjetIndices, const std::vector<int>& jetIndices,
+                   const VLV& jets, const std::vector<int>& jetPartonFlavours,
+                   const std::vector<double>& btagDiscriminants)const;
+    
+    /// Get a pointer to the BtagScaleFactors (probably not the best implementation, should put individual functionality in separate functions)
+    BtagScaleFactors* btagScaleFactors(){return btagScaleFactors_;}
+    
     /// Returns the samplename which is written as metadata in ingoing and outgoing root-file
     const TString& samplename()const{return samplename_;}
     
@@ -272,6 +285,11 @@ protected:
     /// Whether generator information about a Higgs system is stored (and whether it should be used for analysis)
     const bool& isHiggsSignal()const{return isHiggsSignal_;}
     
+    /// Whether it is a ttbar sample (not ttbar + something)
+    const bool& isTtbarSample()const{return isTtbarSample_;}
+    
+    /// Whether it is the ttbarsignalplustau sample (the part of ttbar which contains generator information about the ttbar system)
+    const bool& isTtbarPlusTauSample()const{return isTtbarPlusTauSample_;}
     
     
     
@@ -391,6 +409,7 @@ private:
     TBranch* b_lepPuChargedHadronIso;
     TBranch* b_lepCombIso;
     TBranch* b_lepDxyVertex0;
+    TBranch* b_lepDzVertex0;
     TBranch* b_lepTrigger;
     TBranch* b_jet;
     TBranch* b_jetBTagTCHE;
@@ -406,6 +425,17 @@ private:
     TBranch* b_jetTrackIndex;
     TBranch* b_jetTrackCharge;
     TBranch* b_jetTrack;
+    TBranch* b_trackPdgId;
+    TBranch* b_jetPfCandidateTrack;
+    TBranch* b_jetPfCandidateTrackCharge;
+    TBranch* b_jetPfCandidateTrackId;
+    TBranch* b_jetPfCandidateTrackIndex;
+    TBranch* b_jetSelectedTrack;
+    TBranch* b_jetSelectedTrackIPValue;
+    TBranch* b_jetSelectedTrackIPSignificance;
+    TBranch* b_jetSelectedTrackCharge;
+    TBranch* b_jetSelectedTrackIndex;
+    
     TBranch* b_met;
     TBranch* b_jetForMET;
     TBranch* b_jetJERSF;
@@ -508,6 +538,10 @@ private:
     TBranch* b_genBHadIndex;
     TBranch* b_genBHadFlavour;
     TBranch* b_genBHadJetIndex;
+    TBranch* b_genBHadLeptonIndex;
+    TBranch* b_genBHadLeptonHadronIndex;
+    TBranch* b_genBHadLeptonViaTau;
+    TBranch* b_genBHadFromTopWeakDecay;
     
     
     /// nTuple branches for Higgs signal samples on generator level
@@ -600,6 +634,7 @@ private:
     const char* analysisOutputBase_;
     
     
+    
     /// Pointer to the kinematic reconstruction instance
     KinematicReconstruction* kinematicReconstruction_;
     
@@ -618,13 +653,11 @@ private:
     /// Pointer to jet energy resolution scale factors
     const JetEnergyScaleScaleFactors* jetEnergyScaleScaleFactors_;
     
-    
-    
-protected:
-
-    // FIXME: make them also private, access via function
     /// Pointer to btag scale factors instance
     BtagScaleFactors* btagScaleFactors_;
+    
+    /// Whether the sample should be used for production of btag efficiencies
+    bool isSampleForBtagEfficiencies_;
 };
 
 

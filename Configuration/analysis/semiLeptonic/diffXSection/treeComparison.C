@@ -2,10 +2,27 @@
 
 bool isValidsample(unsigned int sample, unsigned int systematicVariation);
 
-void treeComparison(double luminosity = 19712, bool save = true, int verbose=2, TString inputFolderName= "RecentAnalysisRun8TeV_doubleKinFit", TString dataFile= "/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/elecDiffXSecData2012ABCDAll.root:/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/muonDiffXSecData2012ABCDAll.root", const std::string decayChannel = "combined", bool withRatioPlot=true, TString test="PV")
+void treeComparison(double luminosity = 19712, bool save = true, int verbose=0, TString inputFolderName= AnalysisFolder, TString dataFile= groupSpace+AnalysisFolder+"/elecDiffXSecData2012ABCDAll.root:"+groupSpace+AnalysisFolder+"/muonDiffXSecData2012ABCDAll.root", const std::string decayChannel = "combined", bool withRatioPlot=true, TString test="PV")
 {
   // test= "prob" or "PV" 
-  // verbose = 
+  // data/MC -> MC/data
+  bool invert=false;
+  // linear fit in ratio?
+  bool linFit=true;
+
+  // ===================================
+  // Define plotting order
+  // ===================================
+  std::vector<int> samples_;
+  samples_.push_back(kSig);
+  samples_.push_back(kBkg);
+  samples_.push_back(kSTop);
+  samples_.push_back(kWjets);
+  samples_.push_back(kZjets);
+  samples_.push_back(kDiBos);
+  samples_.push_back(kQCD);
+  samples_.push_back(kData);
+
   // ============================
   //  Set Root Style
   // ============================
@@ -65,7 +82,7 @@ void treeComparison(double luminosity = 19712, bool save = true, int verbose=2, 
   // file vector storage
   std::vector< std::map<unsigned int, TFile*> > fileList_;
   // get analysis files
-  TString inputFolder="/afs/naf.desy.de/group/cms/scratch/tophh/"+inputFolderName;
+  TString inputFolder=groupSpace+inputFolderName;
   if(verbose>0) std::cout << "loading files from " << inputFolder << std::endl;
   if(decayChannel!="combined"){
     TString dataFiletemp= decayChannel=="muon" ? dataFileMu : dataFileEl;
@@ -87,7 +104,7 @@ void treeComparison(double luminosity = 19712, bool save = true, int verbose=2, 
   temp->GetXaxis()->SetTitle("p_{T}^{t} #left[GeV#right]");
   temp->GetYaxis()->SetTitle("Top quarks");
   //axesStyle(*temp, "p_{T}^{t} #left[GeV#right]", "norm. Top quarks", 0., 0.15);
-  //temp->GetXaxis()->SetRangeUser(0.,400.);
+  temp->GetXaxis()->SetRangeUser(0.,500.);
   //temp->GetYaxis()->SetRangeUser(0.,0.2 );
   temp->SetStats(kFALSE);
   temp->SetLineWidth(3);
@@ -210,13 +227,13 @@ void treeComparison(double luminosity = 19712, bool save = true, int verbose=2, 
 	// add all channels for final histogram
 	if(channel==0){
 	  for(int plot=0; plot<(int)Val_.size(); ++plot){
-	    TString nameNr= plot==0 ? "" : "Prob"+getTStringFromInt(plot);
+	    TString nameNr= plot==0 ? "" : "TestSlice"+getTStringFromInt(plot);
 	    histo_["topPt"+nameNr][sample]=(TH1F*)tempHist_[plot]->Clone();
 	  }
 	}
 	else{
           for(int plot=0; plot<(int)Val_.size(); ++plot){
-            TString nameNr= plot==0 ? "" : "Prob"+getTStringFromInt(plot);
+            TString nameNr= plot==0 ? "" : "TestSlice"+getTStringFromInt(plot);
 	    histo_["topPt"+nameNr][sample]->Add((TH1F*)tempHist_[plot]->Clone());
 	  }
 	}
@@ -231,7 +248,7 @@ void treeComparison(double luminosity = 19712, bool save = true, int verbose=2, 
       } // end channel for loop
       std::vector <double> neventsComb_;
       for(int plot=0; plot<(int)Val_.size(); ++plot){
-	TString nameNr= plot==0 ? "" : "Prob"+getTStringFromInt(plot);
+	TString nameNr= plot==0 ? "" : "TestSlice"+getTStringFromInt(plot);
 	neventsComb_.push_back(histo_["topPt"+nameNr][sample]->Integral(0,binMax));
       }
       if(verbose>1){
@@ -246,28 +263,28 @@ void treeComparison(double luminosity = 19712, bool save = true, int verbose=2, 
       if(sample!=kData){
 	if(sample==kSig){
 	  for(int plot=0; plot<(int)Val_.size(); ++plot){
-	    TString nameNr= plot==0 ? "" : "Prob"+getTStringFromInt(plot);
+	    TString nameNr= plot==0 ? "" : "TestSlice"+getTStringFromInt(plot);
 	    histo_["topPt"+nameNr][kAllMC]=(TH1F*)histo_["topPt"+nameNr][sample]->Clone();
 	  }
 	}
 	else{
 	  for(int plot=0; plot<(int)Val_.size(); ++plot){
-            TString nameNr= plot==0 ? "" : "Prob"+getTStringFromInt(plot);
+            TString nameNr= plot==0 ? "" : "TestSlice"+getTStringFromInt(plot);
 	    histo_["topPt"+nameNr][kAllMC]->Add((TH1F*)histo_["topPt"+nameNr][sample]->Clone());
 	  }
 	}
 	// MC histogram style
 	for(int plot=0; plot<(int)Val_.size(); ++plot){
-	  TString nameNr= plot==0 ? "" : "Prob"+getTStringFromInt(plot);
+	  TString nameNr= plot==0 ? "" : "TestSlice"+getTStringFromInt(plot);
 	  histogramStyle(*histo_["topPt"+nameNr][sample], sample, true);
-	  histo_["topPt"+nameNr][sample]->SetLineColor(histo_["topPt"+nameNr][sample]->GetFillColor());
+	  //histo_["topPt"+nameNr][sample]->SetLineColor(histo_["topPt"+nameNr][sample]->GetFillColor());
 	  histo_["topPt"+nameNr][sample]->SetLineWidth(1);
 	}
       }
       else{
 	// data histogram style
         for(int plot=0; plot<(int)Val_.size(); ++plot){
-          TString nameNr= plot==0 ? "" : "Prob"+getTStringFromInt(plot);
+          TString nameNr= plot==0 ? "" : "TestSlice"+getTStringFromInt(plot);
 	  histogramStyle(*histo_["topPt"+nameNr][sample], kData, false);
 	}
       }
@@ -275,24 +292,33 @@ void treeComparison(double luminosity = 19712, bool save = true, int verbose=2, 
   } // end sample for loop
 
   // print some interesting numbers
-  // total number of MC events
+  // chosen slices
   std::vector< double >neventsMC_;
+  if(verbose>0){
+    std::cout << "slices in " << testQuantity << ":  all / ";
+    for(int plot=1; plot<(int)Val_.size(); ++plot){
+      std::cout <<  "[" << Val_[plot-1] << ".." << Val_[plot] << "]";
+      if(plot<(int)Val_.size()-1) std::cout << "/ ";
+    }
+    std::cout << std::endl;
+  }
+  // total number of MC events
   for(int plot=0; plot<(int)Val_.size(); ++plot){
-    TString nameNr= plot==0 ? "" : "Prob"+getTStringFromInt(plot);
+    TString nameNr= plot==0 ? "" : "TestSlice"+getTStringFromInt(plot);
     neventsMC_.push_back(histo_["topPt"+nameNr][kAllMC]->Integral(0,binMax));
   }
   if(verbose>0){
     std::cout << "#events( MC )=";
     for(int plot=0; plot<(int)Val_.size(); ++plot){
       std::cout <<  neventsMC_[plot];
-      if(plot<(int)Val_.size()-1) std::cout << " / ";
+      if(plot<(int)Val_.size()-1) std::cout << ", ";
     }
     std::cout << std::endl;
   }
   // total number of data events
   std::vector< double >neventsData_;
   for(int plot=0; plot<(int)Val_.size(); ++plot){
-    TString nameNr= plot==0 ? "" : "Prob"+getTStringFromInt(plot);
+    TString nameNr= plot==0 ? "" : "TestSlice"+getTStringFromInt(plot);
     neventsData_.push_back(histo_["topPt"+nameNr][kData]->Integral(0,binMax));
   }
   if(verbose>0){
@@ -318,24 +344,27 @@ void treeComparison(double luminosity = 19712, bool save = true, int verbose=2, 
     if(verbose>0) std::cout << "scale ttbar component to match #data events " << std::endl;
     std::vector<double>neventsTop_, SFTop_;
     for(int plot=0; plot<(int)Val_.size(); ++plot){
-      TString nameNr= plot==0 ? "" : "Prob"+getTStringFromInt(plot);
+      TString nameNr= plot==0 ? "" : "TestSlice"+getTStringFromInt(plot);
       neventsTop_.push_back(histo_["topPt"+nameNr][kSig]->Integral(0,binMax)+histo_["topPt"+nameNr][kBkg]->Integral(0,binMax));
       SFTop_.push_back((neventsTop_[plot]+(neventsData_[plot]-neventsMC_[plot]))/neventsTop_[plot]);
     }
     // scale combined and top MC plots
     for(int plot=0; plot<(int)Val_.size(); ++plot){
-      TString nameNr= plot==0 ? "" : "Prob"+getTStringFromInt(plot);
+      TString nameNr= plot==0 ? "" : "TestSlice"+getTStringFromInt(plot);
+      // subtract ttbar from all MC
       histo_["topPt"+nameNr][kAllMC]->Add((TH1F*)(histo_["topPt"+nameNr][kSig]->Clone()) , -1.);
       histo_["topPt"+nameNr][kAllMC]->Add((TH1F*)(histo_["topPt"+nameNr][kBkg]->Clone()) , -1.);
+      // scale ttbar 
       histo_["topPt"+nameNr][kSig]->Scale(SFTop_[plot]);
       histo_["topPt"+nameNr][kBkg]->Scale(SFTop_[plot]);
+      // re-add ttbar MC
       histo_["topPt"+nameNr][kAllMC]->Add((TH1F*)(histo_["topPt"+nameNr][kSig]->Clone()) );
       histo_["topPt"+nameNr][kAllMC]->Add((TH1F*)(histo_["topPt"+nameNr][kBkg]->Clone()) );
     }
     // printout
     std::vector<double>neventsMCscaled_;
     for(int plot=0; plot<(int)Val_.size(); ++plot){
-      TString nameNr= plot==0 ? "" : "Prob"+getTStringFromInt(plot);
+      TString nameNr= plot==0 ? "" : "TestSlice"+getTStringFromInt(plot);
       neventsMCscaled_.push_back(histo_["topPt"+nameNr][kAllMC]->Integral(0,binMax));
     }
     if(verbose>1){
@@ -354,27 +383,49 @@ void treeComparison(double luminosity = 19712, bool save = true, int verbose=2, 
     }
   };
 
+  // combine single top subsamples
+  for(int plot=0; plot<(int)Val_.size(); ++plot){
+    TString nameNr= plot==0 ? "" : "TestSlice"+getTStringFromInt(plot);
+    histo_["topPt"+nameNr][kSTop]=(TH1F*)histo_["topPt"+nameNr][kSAToptW]->Clone();
+    for(int sample=(int)kSTops; sample<(int)kSAToptW; ++sample){
+      // add to combined STop
+      histo_["topPt"+nameNr][kSTop]->Add((TH1F*)histo_["topPt"+nameNr][sample]->Clone());
+    } // end for loop single top subsamples
+  } // end for loop plots
+
   // create MC histo stack plots
+  int lastSample=-1;
   // loop samples
   if(verbose>0) std::cout << "creating MC stack histos" << std::endl;
-  int lastSample=-1;
-  for(int sample=(int)kSAToptW; sample>=(int)kSig; --sample){
-    if(sample!=kData&&isValidsample(sample, systematicVariation)){
-      if(lastSample>(int)kSig){
-	if(verbose>1) std::cout << "adding " << sampleLabel(lastSample, decayChannel) << " to " <<  sampleLabel(sample, decayChannel) << std::endl;
+  for(int sampleOri=(int)kDiBos; sampleOri>=(int)kSig; --sampleOri){
+    // use previous defined order
+    int sampleMod=samples_[sampleOri];
+    if(verbose>1) std::cout << "processing " << sampleLabel(sampleMod, decayChannel) << "(= " << sampleMod <<", last sample=" << lastSample << ")" << std::endl;
+    // exclude QCD and Diboson
+    if(sampleMod!=kQCD&&sampleMod!=kDiBos){
+      if(lastSample>-1){
+	if(verbose>1) std::cout << "adding " << sampleLabel(lastSample, decayChannel) << " to " << sampleLabel(sampleMod, decayChannel) << std::endl;	 	
+	// loop plots
 	for(int plot=0; plot<(int)Val_.size(); ++plot){
-	  TString nameNr= plot==0 ? "" : "Prob"+getTStringFromInt(plot);
-	  histo_["topPt"+nameNr][sample]->Add((TH1F*)histo_["topPt"+nameNr][lastSample]->Clone());
-	}
-      }
-      lastSample=sample;
-    }
-  }
+	  TString nameNr= plot==0 ? "" : "TestSlice"+getTStringFromInt(plot);
+	  if(verbose>1) std::cout << "processing " << "topPt"+nameNr << std::endl;
+	  // add to stack
+	  if(!histo_.count("topPt"+nameNr)>0) std::cout << "WARNING: topPt"+nameNr+" does not exist in histo_!" << std::endl;
+	  else if(!histo_["topPt"+nameNr].count(sampleMod )>0) std::cout << "WARNING: sample " << sampleMod << " does not exist in histo_[topPt"+nameNr+"]!" << std::endl;
+	  else if(!histo_["topPt"+nameNr].count(lastSample)>0) std::cout << "WARNING: sample " << lastSample << " does not exist in histo_[topPt"+nameNr+"]!" << std::endl;
+	  histo_["topPt"+nameNr][sampleMod]->Add((TH1F*)histo_["topPt"+nameNr][lastSample]->Clone());
+	} // end for loop plots
+	if(verbose>1) std::cout << "done" <<  std::endl;
+      } // if not last sample
+      if(verbose>1) std::cout << "lastSample set to " << sampleMod << std::endl;
+      lastSample=sampleMod;
+    } // end else if !QCD
+  } // end for loop original sample ordering
 
   // printout
   std::vector<double>neventsMCstack_;
   for(int plot=0; plot<(int)Val_.size(); ++plot){
-    TString nameNr= plot==0 ? "" : "Prob"+getTStringFromInt(plot);
+    TString nameNr= plot==0 ? "" : "TestSlice"+getTStringFromInt(plot);
     neventsMCstack_.push_back(histo_["topPt"+nameNr][kAllMC]->Integral(0,binMax));
   }
   if(verbose>1){
@@ -388,7 +439,7 @@ void treeComparison(double luminosity = 19712, bool save = true, int verbose=2, 
 
   // all MC histogram style
   for(int plot=0; plot<(int)Val_.size(); ++plot){
-    TString nameNr= plot==0 ? "" : "Prob"+getTStringFromInt(plot);
+    TString nameNr= plot==0 ? "" : "TestSlice"+getTStringFromInt(plot);
     histo_["topPt"+nameNr][kAllMC]->SetLineColor(kBlue);
     histo_["topPt"+nameNr][kAllMC]->SetMarkerColor(kBlue);
     histo_["topPt"+nameNr][kAllMC]->SetLineStyle(1);
@@ -413,18 +464,17 @@ void treeComparison(double luminosity = 19712, bool save = true, int verbose=2, 
   TLegend *leg= new TLegend(0.73, 0.5, 0.91, 0.88);
   legendStyle(*leg,"");
   for(int plot=0; plot<(int)Val_.size(); ++plot){
-    TString nameNr= plot==0 ? "" : "Prob"+getTStringFromInt(plot);    
-    TString sVallow = plot==0 ? "" : getTStringFromDouble(Val_[plot-1], getRelevantDigits(Val_[plot-1]));
-    TString sValhigh= plot==0 ? "" : getTStringFromDouble(Val_[plot  ], getRelevantDigits(Val_[plot ]));
+    TString nameNr   = plot==0 ? "" : "TestSlice"+getTStringFromInt(plot);    
+    TString sVallow  = plot==0 ? "" : getTStringFromDouble(Val_[plot-1], getRelevantDigits(Val_[plot-1]));
+    TString sValhigh = plot==0 ? "" : getTStringFromDouble(Val_[plot  ], getRelevantDigits(Val_[plot ]));
     TString legHeader= plot==0 ? "KinFit, all" : sVallow+"#leq"+testQuantity+"<"+sValhigh;
     TLegend *templeg=(TLegend*)leg->Clone(); 
     templeg ->SetHeader(legHeader);
-    templeg ->AddEntry(histo_["topPt"+nameNr][kData ], "data"   , "LP");
+    templeg ->AddEntry(histo_["topPt"+nameNr][kData ], "data"   , "P");
     //templeg ->AddEntry(histo_["topPt"+nameNr][kAllMC], "all MC" , "L" );
     for(unsigned int sample=kSig; sample<kData; sample++){
-      unsigned int sampleAlt=sample;
-      if(sample==kSTop) sampleAlt=kSTops;
-      if(sample!=kQCD) templeg ->AddEntry(histo_["topPt"+nameNr][sampleAlt], sampleLabel(sample, decayChannel), "F" );
+      unsigned int sampleMod=samples_[sample];
+      if(sampleMod!=kQCD&&sampleMod!=kDiBos) templeg ->AddEntry(histo_["topPt"+nameNr][sampleMod], sampleLabel(sampleMod, decayChannel), "F" );
     }
     leg_.push_back((TLegend*)(templeg->Clone()));
   }
@@ -433,23 +483,27 @@ void treeComparison(double luminosity = 19712, bool save = true, int verbose=2, 
   // do the plotting 
   if(verbose>0)  std::cout << "plotting " << std::endl;
   for(int plot=0; plot<(int)Val_.size(); ++plot){
-    TString nameNr= plot==0 ? "" : "Prob"+getTStringFromInt(plot);
+    TString nameNr= plot==0 ? "" : "TestSlice"+getTStringFromInt(plot);
     TString title = plot==0 ? "topPtKinFit"+TString(decayChannel) : "topPt"+testQuantity+getTStringFromInt(plot)+TString(decayChannel);
     plotCanvas_[canvasNumber]->cd(0);
     plotCanvas_[canvasNumber]->SetTitle(title);
     // drawing
     // plots
-    histo_["topPt"+nameNr][kData ]->SetMaximum(1.2*histo_["topPt"+nameNr][kData ]->GetMaximum());
-    histo_["topPt"+nameNr][kData ]->GetXaxis()->SetNoExponent(true);
-    histo_["topPt"+nameNr][kData ]->GetYaxis()->SetNoExponent(true);
-    histo_["topPt"+nameNr][kData ]->Draw("axis");
+    histo_["topPt"+nameNr][kSig]->SetMaximum(1.3*histo_["topPt"+nameNr][kData]->GetMaximum());
+    histo_["topPt"+nameNr][kSig]->GetXaxis()->SetNoExponent(true);
+    histo_["topPt"+nameNr][kSig]->GetYaxis()->SetNoExponent(true);
+    histo_["topPt"+nameNr][kSig]->Draw("axis");
     // loop samples
-    for(unsigned int sample=kSig; sample<=kSAToptW; ++sample){
-      // check if sample is relevant
-      if(sample!=kData&&isValidsample(sample, systematicVariation)){
-	histo_["topPt"+nameNr][sample]->Draw("hist same");
+    for(int sampleOri=(int)kSig; sampleOri<=(int)kDiBos; ++sampleOri){
+      // use previous defined order
+      int sampleMod=samples_[sampleOri];
+      if(verbose>2) std::cout << "processing sample " << sampleMod << " ("+sampleLabel(sampleMod, decayChannel)+")" << std::endl; 
+      // draw other MC samples, excluding QCD 
+      if(sampleMod!=kQCD&&sampleMod!=kDiBos){
+	if(verbose>2) std::cout << "-> drawing!" << sampleMod << std::endl;
+	histo_["topPt"+nameNr][sampleMod]->Draw("hist same");	
       }
-    }
+    } // end for loop ori samples
     //histo_["topPt"+nameNr][kAllMC]->Draw("hist same");
     histo_["topPt"+nameNr][kData ]->Draw("ep same");
     // legend
@@ -461,20 +515,27 @@ void treeComparison(double luminosity = 19712, bool save = true, int verbose=2, 
     DrawCMSLabels(true,luminosity);
     // draw ratio
     if(withRatioPlot){
+      // labels of ratio
+      TString ratioLabelNominator  ="N_{MC}";
+      TString ratioLabelDenominator="N_{Data}";
+      double ratMin= invert ? 0.75 : 0.30;
+      double ratMax= invert ? 1.75 : 1.29;
       std::vector<double> err_;
       for(int bin=1; bin<histo_["topPt"+nameNr][kSig]->GetNbinsX(); ++bin){
-	double val=histo_["topPt"+nameNr][kData]->GetBinContent(bin)/histo_["topPt"+nameNr][kSig]->GetBinContent(bin)*histo_["topPt"+nameNr][kData]->GetBinError(bin)/histo_["topPt"+nameNr][kData]->GetBinContent(bin);    
+	double ratio = histo_["topPt"+nameNr][kData]->GetBinContent(bin)/histo_["topPt"+nameNr][kSig]->GetBinContent(bin);
+	if(invert) ratio=1./ratio;
+	double val=ratio*(histo_["topPt"+nameNr][kData]->GetBinError(bin)/histo_["topPt"+nameNr][kData]->GetBinContent(bin));    
 	if(val<0||val>histo_["topPt"+nameNr][kData]->GetBinContent(bin)) val=1.;
 	err_.push_back(val);
-      }
-      int rval1 = drawRatio(histo_["topPt"+nameNr][kData], histo_["topPt"+nameNr][kSig], 0.7, 1.3, myStyle, verbose, err_, "N(data)", "N(MC)", "p e", kBlack, true, 0.5);
+      }      
+      int rval1 = drawRatio(histo_["topPt"+nameNr][kData], histo_["topPt"+nameNr][kSig], ratMin, ratMax, myStyle, verbose, err_, ratioLabelNominator, ratioLabelDenominator, "p e", kBlack, true, 0.5, 505, invert, true, linFit);
       if (rval1!=0) std::cout << " Problem occured when creating ratio plot for " << nameNr << std::endl;
     }
     canvasNumber++;
   }
   
   // saving
-  if(verbose>0) std::cout << "do saving" << std::endl;
+  if(verbose>0) std::cout << "saving" << std::endl;
   if(save){
     TString outfolder="./diffXSecFromSignal/plots/combined/2012/topPtTest/";
     // eps and png

@@ -14,12 +14,14 @@
 
 #define printout 0
 
+#define topmass (172.5)
+
 using namespace std;
 
 KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines()
 {
-    mt_    = 172.5;
-    mtbar_ = 172.5;
+    mt_    = topmass;
+    mtbar_ = topmass;
     mb_    = 4.8;
     mbbar_ = 4.8;
     mw_    = 80.4;
@@ -34,8 +36,8 @@ KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines()
 
 KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(double mass_l, double mass_al)
 {
-    mt_    = 172.5;
-    mtbar_ = 172.5;
+    mt_    = topmass;
+    mtbar_ = topmass;
     mb_    = 4.8;
     mbbar_ = 4.8;
     mw_    = 80.4;//mw_    = 76.671425; for event  799
@@ -50,8 +52,8 @@ KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(double ma
 
 KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(double mass_l, double mass_al,double mass_Wp, double mass_Wm)
 {
-    mt_    = 172.5;
-    mtbar_ = 172.5;
+    mt_    = topmass;
+    mtbar_ = topmass;
     mb_    = 4.8;
     mbbar_ = 4.8;
     mw_    = mass_Wp;
@@ -68,8 +70,8 @@ KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(double ma
 
 KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(double mass_l, double mass_al,double mass_Wp, double mass_Wm, TH1F* hvE[])
 {
-    mt_    = 172.5;
-    mtbar_ = 172.5;
+    mt_    = topmass;
+    mtbar_ = topmass;
     mb_    = 4.8;
     mbbar_ = 4.8;
     mw_    = mass_Wp;
@@ -86,8 +88,8 @@ KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(double ma
 
 KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(double mass_l, double mass_al, double mass_Wp, double mass_Wm, TH1F* hvE[], TH1F hneutrino)
 {
-    mt_    = 172.5;
-    mtbar_ = 172.5;
+    mt_    = topmass;
+    mtbar_ = topmass;
     mb_    = 4.8;
     mbbar_ = 4.8;
     mw_    = mass_Wp;
@@ -107,8 +109,8 @@ KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(double ma
 
 KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(double mass_l, double mass_al,double mass_Wp, double mass_Wm, TH1F hneutrino)
 {
-    mt_    = 172.5;
-    mtbar_ = 172.5;
+    mt_    = topmass;
+    mtbar_ = topmass;
     mb_    = 4.8;
     mbbar_ = 4.8;
     mw_    = mass_Wp;
@@ -129,8 +131,8 @@ KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(double ma
 {
     mt_=index;
     
-    mt_    = 172.5;
-    mtbar_ = 172.5;
+    mt_    = topmass;
+    mtbar_ = topmass;
     mb_    = 4.8;
     mbbar_ = 4.8;
     mw_    = mass_Wp;
@@ -177,8 +179,8 @@ void KinematicReconstruction_LSroutines::fDelete()
 
 void KinematicReconstruction_LSroutines::ini(double mass_l, double mass_al,double mass_Wp, double mass_Wm)
 {
-    mt_    = 172.5;
-    mtbar_ = 172.5;
+    mt_    = topmass;
+    mtbar_ = topmass;
     mb_    = 4.8;
     mbbar_ = 4.8;
     mw_    = mass_Wp;

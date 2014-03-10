@@ -13,16 +13,16 @@
 #include <TH2D.h>
 
 #include "MvaWeights2d.h"
-#include "MvaReader.h"
+#include "MvaReaderTopJets.h"
 #include "mvaSetup.h"
-#include "mvaStructs.h"
+#include "MvaVariablesTopJets.h"
 #include "higgsUtils.h"
 
 
 
 
 
-MvaWeights2d::MvaWeights2d(const std::map<TString, std::vector<MvaTopJetsVariables> >& m_stepMvaVariables,
+MvaWeights2d::MvaWeights2d(const std::map<TString, std::vector<MvaVariablesBase*> >& m_stepMvaVariables,
                                        const char* mvaWeightFileDirectory,
                                        const std::vector<mvaSetup::MvaSet>& v_mvaSet,
                                        const bool separationPowerPlots):
@@ -92,11 +92,11 @@ void MvaWeights2d::plotVariables(TSelectorList* output)
 void MvaWeights2d::plotStep(const mvaSetup::MvaSet& mvaSet)
 {
     const TString step = tth::stepName(mvaSet.step_, mvaSet.v_category_);
-    const std::vector<MvaTopJetsVariables>& v_mvaTopJetsVariables(m_stepMvaVariables_.at(step));
+    const std::vector<MvaVariablesBase*>& v_mvaVariables(m_stepMvaVariables_.at(step));
     const std::vector<mvaSetup::MvaConfig>& v_mvaConfigCorrect = mvaSet.v_mvaConfigCorrect_;
     const std::vector<mvaSetup::MvaConfig>& v_mvaConfigSwapped = mvaSet.v_mvaConfigSwapped_;
-
-    storeTrainingsForStep(step, v_mvaConfigCorrect, v_mvaConfigSwapped);
+    
+    this->storeTrainingsForStep(step, v_mvaConfigCorrect, v_mvaConfigSwapped);
     
     // 2D weights are only possible in case correct and swapped trainings are applied
     if(!v_mvaConfigCorrect.size() || !v_mvaConfigSwapped.size()) return;
@@ -113,8 +113,10 @@ void MvaWeights2d::plotStep(const mvaSetup::MvaSet& mvaSet)
         TString fileName(mvaWeightFileDirectory_);
         fileName.Append(methodPrefixCorrect);
         fileName.Append(step).Append("_").Append(methodTitle).Append(fileAppendix);
-        MvaReader reader(fileName);
-        v_mvaConfigWeightsPairCorrect.push_back(std::make_pair(mvaConfig, reader.mvaWeights(v_mvaTopJetsVariables)));
+        MvaReaderTopJets reader("BDT method");
+        reader.book(fileName);
+        v_mvaConfigWeightsPairCorrect.push_back(std::make_pair(mvaConfig, reader.mvaWeights(v_mvaVariables)));
+        reader.clear();
     }
     
     std::vector<std::pair<mvaSetup::MvaConfig, std::vector<float> > > v_mvaConfigWeightsPairSwapped;
@@ -123,8 +125,10 @@ void MvaWeights2d::plotStep(const mvaSetup::MvaSet& mvaSet)
         TString fileName(mvaWeightFileDirectory_);
         fileName.Append(methodPrefixSwapped);
         fileName.Append(step).Append("_").Append(methodTitle).Append(fileAppendix);
-        MvaReader reader(fileName);
-        v_mvaConfigWeightsPairSwapped.push_back(std::make_pair(mvaConfig, reader.mvaWeights(v_mvaTopJetsVariables)));
+        MvaReaderTopJets reader("BDT method");
+        reader.book(fileName);
+        v_mvaConfigWeightsPairSwapped.push_back(std::make_pair(mvaConfig, reader.mvaWeights(v_mvaVariables)));
+        reader.clear();
     }
     
     
@@ -147,11 +151,16 @@ void MvaWeights2d::plotStep(const mvaSetup::MvaSet& mvaSet)
             
             // Fill histograms
             for(size_t iWeight = 0; iWeight < v_mvaWeightsCorrect.size(); ++iWeight){
-                const MvaTopJetsVariables& mvaTopJetsVariables = v_mvaTopJetsVariables.at(iWeight);
-                const double weight = mvaTopJetsVariables.eventWeight_.value_;
+                const MvaVariablesTopJets* mvaVariablesTopJets = dynamic_cast<const MvaVariablesTopJets*>(v_mvaVariables.at(iWeight));
+                if(!mvaVariablesTopJets){
+                    std::cerr<<"ERROR in MvaWeights2d::plotStep()! MvaVariables are of wrong type, cannot typecast\n...break\n"<<std::endl;
+                    exit(395);
+                }
+                
+                const double weight = mvaVariablesTopJets->eventWeight_.value_;
                 const float mvaWeightCorrect = v_mvaWeightsCorrect.at(iWeight);
                 const float mvaWeightSwapped = v_mvaWeightsSwapped.at(iWeight);
-                this->fillHistosInclExcl2D(m_histogram, name, mvaWeightCorrect, mvaWeightSwapped, mvaTopJetsVariables, weight);
+                this->fillHistosInclExcl2D(m_histogram, name, mvaWeightCorrect, mvaWeightSwapped, *mvaVariablesTopJets, weight);
             }
         }
     }
@@ -204,7 +213,7 @@ void MvaWeights2d::bookHistosInclExcl2D(std::map<TString, TH1*>& m_histogram, co
 
 void MvaWeights2d::fillHistosInclExcl(std::map<TString, TH1*>& m_histogram, const TString& name,
                                         const double& variable,
-                                        const MvaTopJetsVariables& mvaTopJetsVariables, const double& weight)
+                                        const MvaVariablesTopJets& mvaTopJetsVariables, const double& weight)
 {
     const TString correct("correct");
     const TString swapped("swapped");
@@ -224,7 +233,7 @@ void MvaWeights2d::fillHistosInclExcl(std::map<TString, TH1*>& m_histogram, cons
 
 void MvaWeights2d::fillHistosInclExcl2D(std::map<TString, TH1*>& m_histogram, const TString& name,
                                               const float& variable1, const float& variable2,
-                                              const MvaTopJetsVariables& mvaTopJetsVariables, const double& weight)
+                                              const MvaVariablesTopJets& mvaTopJetsVariables, const double& weight)
 {
 //    const TString correct("correct");
 //    const TString swapped("swapped");

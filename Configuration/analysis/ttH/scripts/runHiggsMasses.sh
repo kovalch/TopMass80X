@@ -1,8 +1,8 @@
 #!/bin/sh
 
 
-if [ $# -ge 1 ] && ( [[ "$@" == *"-c"* ]] || [[ "$@" == *"-s"* ]] || [[ "$@" == *"-f"* ]] ) ; then
-    echo "Options '-s', '-c', '-f' are not allowed."
+if [ $# -ge 1 ] && ( [[ "$@" == *"-c"* ]] || [[ "$@" == *"-s"* ]] || [[ "$@" == *"-f"* ]] || [[ "$@" == *"-p"* ]] ) ; then
+    echo "Options '-s', '-c', '-f', '-p' are not allowed. They are set within the script."
     echo "You used options: $@"
     exit 1
 fi

@@ -26,6 +26,7 @@ void RecoObjects::clear()
     //lepPuChargedHadronIso_ = 0;
     lepCombIso_ = 0;
     lepDxyVertex0_ = 0;
+    //lepDzVertex0_ = 0;
     //lepTrigger_ = 0;
     jets_ = 0;
     jetBTagTCHE_ = 0;
@@ -39,9 +40,19 @@ void RecoObjects::clear()
     jetChargeGlobalPtWeighted_ = 0;
     jetChargeRelativePtWeighted_ = 0;
     jetChargeRelativePtWeighted_ = 0;
-    //jetTrackIndex_ = 0;
-    //jetTrackCharge_ = 0;
-    //jetTrack_ = 0;
+    jetTrackIndex_ = 0;
+    jetTrackCharge_ = 0;
+    jetTrack_ = 0;
+    trackPdgId_ = 0;
+    //jetPfCandidateTrack = 0;
+    //jetPfCandidateTrackCharge = 0;
+    //jetPfCandidateTrackId = 0;
+    //jetPfCandidateTrackIndex = 0;
+    //jetSelectedTrack = 0;
+    //jetSelectedTrackIPValue = 0;
+    //jetSelectedTrackIPSignificance = 0;
+    //jetSelectedTrackCharge = 0;
+    //jetSelectedTrackIndex = 0;
     met_ = 0;
     jetJERSF_ = 0;
     jetsForMET_ = 0;
@@ -122,6 +133,10 @@ void TopGenObjects::clear()
     genBHadIndex_ = 0;
     genBHadFlavour_ = 0;
     genBHadJetIndex_ = 0;
+    //genBHadLeptonIndex_ = 0;
+    //genBHadLeptonHadronIndex_ = 0;
+    //genBHadLeptonViaTau_ = 0;
+    genBHadFromTopWeakDecay_ = 0;
 }
 
 

@@ -11,21 +11,27 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   analysisHelpers
   analysisStructs
   HiggsAnalysis
-  MvaTreeHandler
-  MvaTreeAnalyzer
+  MvaTreeHandlerBase
+  MvaTreeHandlerTopJets
+  MvaTreePlotterBase
+  MvaTreePlotterTopJets
   MvaWeights2d
-  MvaReader
-  MvaFactory
-  MvaValidation
+  MvaReaderBase
+  MvaReaderTopJets
+  MvaFactoryBase
+  MvaFactoryTopJets
   mvaSetup
-  mvaStructs
-  AnalysisHistograms
-  BasicAnalyzer
-  JetChargeAnalyzer
-  JetMatchAnalyzer
+  MvaVariablesBase
+  MvaVariablesTopJets
+  MvaVariablesEventClassification
+  AnalyzerBaseClass
+  AnalyzerControlPlots
+  AnalyzerMvaTopJets
+  AnalyzerJetCharge
+  AnalyzerJetMatch
+  AnalyzerPlayground
+  AnalyzerDijet
   JetCategories
-  Playground
-  DijetAnalyzer
   plotterHelpers
   Samples
   DyScaleFactors
@@ -35,10 +41,11 @@ SET( ${PROJECT_NAME}_LIBSOURCES
 
 SET( ${PROJECT_NAME}_EXECUTABLES
   load_Analysis
-  train_bdt_topSystemJetAssignment
-  histo_bdt_topSystemJetAssignment
-  histo_mvaVariables_topSystemJetAssignment
+  train_mvaTopJets
   Histo
+  histo_analyzerJetMatch
+  histo_analyzerMvaTopJets
+  histo_mvaTopJetsInputVariables
   )
 
 

@@ -9,6 +9,7 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 
 /**
@@ -86,6 +87,9 @@ class SemiLepBjetAnalyzer : public edm::EDAnalyzer {
   bool useTree_;
   float weight;
   unsigned int runNumber, luminosityBlockNumber, eventNumber;
+  float Q;
+  int id1, id2;
+  double x1, x2;
   float valueBqPtRec;
   float valueBqPtGen;
   float valueLeadBqPtRec;
@@ -112,6 +116,13 @@ class SemiLepBjetAnalyzer : public edm::EDAnalyzer {
   float valueBbbarMassGen;
   float valueLbMassRec;
   float valueLbMassGen;
+  float valueLepPtRec;
+  float valueLepPtGen;
+  float valueLepEtaRec;
+  float valueLepEtaGen;
+  float valueLepYRec;
+  float valueLepYGen;
+
   //float valuexBHadRec;
   //float valuexBHadGen;
   //float valuexBLepRec;

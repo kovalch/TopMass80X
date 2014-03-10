@@ -3,11 +3,11 @@
 #JOBS  DATASET                                   OUTPUT HISTOGRAM NAME                   SAMPLENAME
 
 
-50  Summer12.TTJets_MatchingUp_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff     ttbarsignalplustau_matchingup.root     ttbarsignalplustau,systematicsName=MATCH_UP
-50  Summer12.TTJets_MatchingUp_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff     ttbarbg_matchingup.root                ttbarbg,systematicsName=MATCH_UP
+250  Summer12.TTJets_MSDecays_matchingup_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v2_cff     ttbarsignalplustau_matchingup.root     ttbarsignalplustau,systematicsName=MATCH_UP
+250  Summer12.TTJets_MSDecays_matchingup_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v2_cff     ttbarbg_matchingup.root                ttbarbg,systematicsName=MATCH_UP
 
-190  Summer12.TTJets_MSDecays_matchingdown_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v2_cff   ttbarsignalplustau_matchingdown.root   ttbarsignalplustau,systematicsName=MATCH_DOWN
-190  Summer12.TTJets_MSDecays_matchingdown_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v2_cff   ttbarbg_matchingdown.root              ttbarbg,systematicsName=MATCH_DOWN
+250  Summer12.TTJets_MSDecays_matchingdown_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v2_cff   ttbarsignalplustau_matchingdown.root   ttbarsignalplustau,systematicsName=MATCH_DOWN
+250  Summer12.TTJets_MSDecays_matchingdown_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v2_cff   ttbarbg_matchingdown.root              ttbarbg,systematicsName=MATCH_DOWN
 
 500  Summer12.TTJets_MSDecays_scaleup_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff        ttbarsignalplustau_scaleup.root        ttbarsignalplustau,systematicsName=SCALE_UP
 500  Summer12.TTJets_MSDecays_scaleup_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff        ttbarbg_scaleup.root                   ttbarbg,systematicsName=SCALE_UP
@@ -26,16 +26,16 @@
 ## Added extra mass samples, but commented out for the time being. Organized in pairs with the same DeltaM wrt the central m_top=172.5 GeV
 
 
-#50  Summer12.TTJets_MSDecays_mass175_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff     ttbarsignalplustau_175_massup.root     ttbarsignalplustau,systematicsName=MASS_UP
-#50  Summer12.TTJets_MSDecays_mass175_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff     ttbarbg_175_massup.root                ttbarbg,systematicsName=MASS_UP
+300  Summer12.TTJets_MSDecays_mass175_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff     ttbarsignalplustau_175_massup.root     ttbarsignalplustau,systematicsName=MASS_UP
+200  Summer12.TTJets_MSDecays_mass175_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff     ttbarbg_175_massup.root                ttbarbg,systematicsName=MASS_UP
 
 300  Summer12.TTJets_MSDecays_mass169_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff     ttbarsignalplustau_169_massdown.root   ttbarsignalplustau,systematicsName=MASS_DOWN
 300  Summer12.TTJets_MSDecays_mass169_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff     ttbarbg_169_massdown.root              ttbarbg,systematicsName=MASS_DOWN
 
 ###
 
-#50  Summer12.TTJets_MSDecays_mass178_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff     ttbarsignalplustau_178_massup.root     ttbarsignalplustau,systematicsName=MASS_UP
-#50  Summer12.TTJets_MSDecays_mass178_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff     ttbarbg_178_massup.root                ttbarbg,systematicsName=MASS_UP
+300  Summer12.TTJets_MSDecays_mass178_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff     ttbarsignalplustau_178_massup.root     ttbarsignalplustau,systematicsName=MASS_UP
+200  Summer12.TTJets_MSDecays_mass178_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff     ttbarbg_178_massup.root                ttbarbg,systematicsName=MASS_UP
 
 200  Summer12.TTJets_MSDecays_mass166_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff     ttbarsignalplustau_166_massdown.root   ttbarsignalplustau,systematicsName=MASS_DOWN
 200  Summer12.TTJets_MSDecays_mass166_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff     ttbarbg_166_massdown.root              ttbarbg,systematicsName=MASS_DOWN

@@ -46,10 +46,15 @@ class TopKinematics : public SingleObject<TtSemiLeptonicEvent> {
   void fill(const TtGenEvent& tops, const double& weight=1.);
   // histogram filling and in addition save information for event identification
   // double definition to avoid problems with different module inputs
-  void fill2(const TtGenEvent& tops, const double& runNumber, const double& luminosityBlockNumber, const double& eventNumber, const double& weight, std::vector<double> weights){
-    fillValue("runNumber", runNumber, weight);
+  void fill2(const TtGenEvent& tops, const double& runNumber, const double& luminosityBlockNumber, const double& eventNumber, const double& x1, const double& x2, const float& Q, const int& id1, const int& id2, const double& weight, std::vector<double> weights){
+    fillValue("runNumber"            , runNumber            , weight);
     fillValue("luminosityBlockNumber", luminosityBlockNumber, weight);
-    fillValue("eventNumber", eventNumber, weight);
+    fillValue("eventNumber"          , eventNumber          , weight);
+    fillValue("Q"  , Q  , weight);
+    fillValue("id1", id1, weight);
+    fillValue("id2", id2, weight);
+    fillValue("x1" , x1 , weight);
+    fillValue("x2" , x2 , weight);
      // if more than one weight is supposed to be stored
     for(unsigned int iWeight=0; iWeight < this->wgts_.size(); iWeight++){
       std::string weightName = this->wgts_[iWeight].label()+this->wgts_[iWeight].instance();
@@ -60,10 +65,15 @@ class TopKinematics : public SingleObject<TtSemiLeptonicEvent> {
     }
     fill(tops, weight);
   }
-  void fill2(const TtSemiLeptonicEvent& tops, const double& runNumber, const double& luminosityBlockNumber, const double& eventNumber, const double& weight, std::vector<double> weights){
+  void fill2(const TtSemiLeptonicEvent& tops, const double& runNumber, const double& luminosityBlockNumber, const double& eventNumber, const double& x1, const double& x2, const float& Q, const int& id1, const int& id2, const double& weight, std::vector<double> weights){
     fillValue("runNumber", runNumber, weight);
     fillValue("luminosityBlockNumber", luminosityBlockNumber, weight);
     fillValue("eventNumber", eventNumber, weight);
+    fillValue("id1", id1, weight);
+    fillValue("id2", id2, weight);
+    fillValue("x1" , x1 , weight);
+    fillValue("x2" , x2 , weight);
+    fillValue("Q"  , Q  , weight);
      // if more than one weight is supposed to be stored
     for(unsigned int iWeight=0; iWeight < this->wgts_.size(); iWeight++){
       std::string weightName = this->wgts_[iWeight].label()+this->wgts_[iWeight].instance();

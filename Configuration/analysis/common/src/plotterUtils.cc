@@ -9,14 +9,19 @@
 #include <TF1.h>
 #include <TStyle.h>
 #include <TText.h>
+#include <TGraphAsymmErrors.h>
+#include <TExec.h>
+#include <TLegend.h>
 
 #include "plotterUtils.h"
 
 
-
-void common::drawRatioXSEC(const TH1* histNumerator, const TH1* histDenominator1, const TH1* histDenominator2, const TH1* histDenominator3, 
-                          const TH1* histDenominator4, const TH1* histDenominator5, const TH1* histDenominator6, const TH1* histDenominator7, 
-                          const Double_t& ratioMin, const Double_t& ratioMax, TStyle myStyle)
+void common::drawRatioXSEC(const TH1* histNumerator, const TH1* histDenominator1, 
+                           TGraphAsymmErrors *ratio_stat, TGraphAsymmErrors *ratio_total, 
+                           const TH1* histDenominator2, const TH1* histDenominator3, 
+                           const TH1* histDenominator4, const TH1* histDenominator5, 
+                           const TH1* histDenominator6, const TH1* histDenominator7, 
+                           const Double_t& ratioMin, const Double_t& ratioMax, TStyle myStyle)
 {
     // this function draws a pad with the ratio of 'histNumerator' and 'histDenominator_i' (_i = 1-5)
     // the range of the ratio is 'ratioMin' to 'ratioMax'
@@ -36,71 +41,71 @@ void common::drawRatioXSEC(const TH1* histNumerator, const TH1* histDenominator1
 
     /// create ratio
     TH1F *ratio1 = 0, *ratio2 = 0, *ratio3 = 0, *ratio4 = 0, *ratio5 = 0, *ratio6 = 0, *ratio7 = 0; 
-    
-    ratio1 = (TH1F*)histNumerator->Clone();
+
+    ratio1 = (TH1F*)histDenominator1->Clone();
     ratio1->SetLineColor(histDenominator1->GetLineColor());
     ratio1->SetLineStyle(histDenominator1->GetLineStyle());
     ratio1->SetLineWidth(histDenominator1->GetLineWidth());
-    ratio1->Divide(histDenominator1);
-    
+    ratio1->Divide(histNumerator);
+
     if (histDenominator2){
-        ratio2 = (TH1F*)histNumerator->Clone();
+        ratio2 = (TH1F*)histDenominator2->Clone();
         ratio2->SetLineColor(histDenominator2->GetLineColor());
         ratio2->SetLineStyle(histDenominator2->GetLineStyle());
         ratio2->SetLineWidth(histDenominator2->GetLineWidth());
         if(histNumerator->GetNbinsX()!=histDenominator2->GetNbinsX()){ratio2 = 0;}
-        else {ratio2->Divide(histDenominator2);}
+        else {ratio2->Divide(histNumerator);}
     };
     if (histDenominator3){
-        ratio3 = (TH1F*)histNumerator->Clone();
+        ratio3 = (TH1F*)histDenominator3->Clone();
         ratio3->SetLineColor(histDenominator3->GetLineColor());
         ratio3->SetLineStyle(histDenominator3->GetLineStyle());
         ratio3->SetLineWidth(histDenominator3->GetLineWidth());
         if(histNumerator->GetNbinsX()!=histDenominator3->GetNbinsX()){ratio3 = 0;}
-        else {ratio3->Divide(histDenominator3);}
+        else {ratio3->Divide(histNumerator);}
     };
     if (histDenominator4){
-        ratio4 = (TH1F*)histNumerator->Clone();
+        ratio4 = (TH1F*)histDenominator4->Clone();
         ratio4->SetLineColor(histDenominator4->GetLineColor());
         ratio4->SetLineStyle(histDenominator4->GetLineStyle());
         ratio4->SetLineWidth(histDenominator4->GetLineWidth());
         if(histNumerator->GetNbinsX()!=histDenominator4->GetNbinsX()){ratio4 = 0;}
-        else {ratio4->Divide(histDenominator4);}
+        else {ratio4->Divide(histNumerator);}
     };
     if (histDenominator5){
-        ratio5 = (TH1F*)histNumerator->Clone();
+        ratio5 = (TH1F*)histDenominator5->Clone();
         ratio5->SetLineColor(histDenominator5->GetLineColor());
         ratio5->SetLineStyle(histDenominator5->GetLineStyle());
         ratio5->SetLineWidth(histDenominator5->GetLineWidth());
         if(histNumerator->GetNbinsX()!=histDenominator5->GetNbinsX()){ratio5 = 0;}
-        else {ratio5->Divide(histDenominator5);}
+        else {ratio5->Divide(histNumerator);}
     };
     if (histDenominator6){
-        ratio6 = (TH1F*)histNumerator->Clone();
+        ratio6 = (TH1F*)histDenominator6->Clone();
         ratio6->SetLineColor(histDenominator6->GetLineColor());
         ratio6->SetLineStyle(histDenominator6->GetLineStyle());
         ratio6->SetLineWidth(histDenominator6->GetLineWidth());
         if(histNumerator->GetNbinsX()!=histDenominator6->GetNbinsX()){ratio6 = 0;}
-        else {ratio6->Divide(histDenominator6);}
+        else {ratio6->Divide(histNumerator);}
     };
     if (histDenominator7){
-        ratio7 = (TH1F*)histNumerator->Clone();
+        ratio7 = (TH1F*)histDenominator7->Clone();
         ratio7->SetLineColor(histDenominator7->GetLineColor());
         ratio7->SetLineStyle(histDenominator7->GetLineStyle());
         ratio7->SetLineWidth(histDenominator7->GetLineWidth());
         if(histNumerator->GetNbinsX()!=histDenominator7->GetNbinsX()){ratio7 = 0;}
-        else {ratio7->Divide(histDenominator7);}
+        else {ratio7->Divide(histNumerator);}
     };
 
     /// calculate error for ratio only gaussian error of histNumerator
     for(int bin=1; bin<=histNumerator->GetNbinsX(); bin++){
-        if (ratio1) ratio1->SetBinError(bin, sqrt(histNumerator->GetBinContent(bin))/histDenominator1->GetBinContent(bin));
-        if (ratio2) ratio2->SetBinError(bin, sqrt(histNumerator->GetBinContent(bin))/histDenominator2->GetBinContent(bin));
-        if (ratio3) ratio3->SetBinError(bin, sqrt(histNumerator->GetBinContent(bin))/histDenominator3->GetBinContent(bin));
-        if (ratio4) ratio4->SetBinError(bin, sqrt(histNumerator->GetBinContent(bin))/histDenominator4->GetBinContent(bin));
-        if (ratio5) ratio5->SetBinError(bin, sqrt(histNumerator->GetBinContent(bin))/histDenominator5->GetBinContent(bin));
-        if (ratio6) ratio6->SetBinError(bin, sqrt(histNumerator->GetBinContent(bin))/histDenominator6->GetBinContent(bin));
-        if (ratio7) ratio7->SetBinError(bin, sqrt(histNumerator->GetBinContent(bin))/histDenominator7->GetBinContent(bin));
+        if (ratio1) ratio1->SetBinError(bin, sqrt(histDenominator1->GetBinContent(bin))/histNumerator->GetBinContent(bin));
+        if (ratio2) ratio2->SetBinError(bin, sqrt(histDenominator2->GetBinContent(bin))/histNumerator->GetBinContent(bin));
+        if (ratio3) ratio3->SetBinError(bin, sqrt(histDenominator3->GetBinContent(bin))/histNumerator->GetBinContent(bin));
+        if (ratio4) ratio4->SetBinError(bin, sqrt(histDenominator4->GetBinContent(bin))/histNumerator->GetBinContent(bin));
+        if (ratio5) ratio5->SetBinError(bin, sqrt(histDenominator5->GetBinContent(bin))/histNumerator->GetBinContent(bin));
+        if (ratio6) ratio6->SetBinError(bin, sqrt(histDenominator6->GetBinContent(bin))/histNumerator->GetBinContent(bin));
+        if (ratio7) ratio7->SetBinError(bin, sqrt(histDenominator7->GetBinContent(bin))/histNumerator->GetBinContent(bin));
     }
 
     Int_t    logx  = myStyle.GetOptLogx();
@@ -110,7 +115,7 @@ void common::drawRatioXSEC(const TH1* histNumerator, const TH1* histDenominator1
     // y:x size ratio for canvas
     double canvAsym = 4./3.;
     // ratio size of pad with plot and pad with ratio
-    double ratioSize = 0.25;
+    double ratioSize = 0.36;
     // change old pad
     gPad->SetBottomMargin(ratioSize);
     gPad->SetRightMargin(right);
@@ -135,7 +140,6 @@ void common::drawRatioXSEC(const TH1* histNumerator, const TH1* histDenominator1
     ratio1->SetTitle("");
     ratio1->SetMaximum(ratioMax);
     ratio1->SetMinimum(ratioMin);
-    ratio1->SetLineWidth(1);
     
     /// configure axis of ratio plot
     ratio1->GetXaxis()->SetTitleSize(histNumerator->GetXaxis()->GetTitleSize()*scaleFactor*1.3);
@@ -145,14 +149,15 @@ void common::drawRatioXSEC(const TH1* histNumerator, const TH1* histDenominator1
 
 
     ratio1->GetYaxis()->CenterTitle();
-    ratio1->GetYaxis()->SetTitle("Data/Th.");
+    ratio1->GetYaxis()->SetTitle("#frac{Theory}{Data}");
     ratio1->GetYaxis()->SetTitleSize(histNumerator->GetYaxis()->GetTitleSize()*scaleFactor);
     ratio1->GetYaxis()->SetTitleOffset(histNumerator->GetYaxis()->GetTitleOffset()/scaleFactor);
     ratio1->GetYaxis()->SetLabelSize(histNumerator->GetYaxis()->GetLabelSize()*scaleFactor);
     ratio1->GetYaxis()->SetLabelOffset(histNumerator->GetYaxis()->GetLabelOffset()*3.3);
     ratio1->GetYaxis()->SetTickLength(0.03);
-    ratio1->GetYaxis()->SetNdivisions(504);
+    ratio1->GetYaxis()->SetNdivisions(505);
     ratio1->GetXaxis()->SetRange(histNumerator->GetXaxis()->GetFirst(), histNumerator->GetXaxis()->GetLast());
+    ratio1->GetXaxis()->SetNoExponent(kTRUE);
     
     /// delete axis of initial plot
     histNumerator->GetXaxis()->SetLabelSize(0);
@@ -161,6 +166,8 @@ void common::drawRatioXSEC(const TH1* histNumerator, const TH1* histDenominator1
 
     /// draw ratio plot
     ratio1->DrawClone("Histo");
+    rPad->Update();
+    rPad->Modified();
     rPad->SetTopMargin(0.0);
     rPad->SetBottomMargin(0.15*scaleFactor);
     rPad->SetRightMargin(right);
@@ -168,7 +175,7 @@ void common::drawRatioXSEC(const TH1* histNumerator, const TH1* histDenominator1
     gPad->RedrawAxis();
     
     /// draw grid
-    //rPad->SetGrid(1,1);
+    rPad->SetGrid(0,1);
 
     // draw a horizontal lines on a given histogram
     // a) at 1
@@ -176,7 +183,7 @@ void common::drawRatioXSEC(const TH1* histNumerator, const TH1* histDenominator1
     Double_t xmax = ratio1->GetXaxis()->GetXmax();
     TString height = ""; height += 1;
     TF1 *f = new TF1("f", height.Data(), xmin, xmax);
-    f->SetLineStyle(1);
+    f->SetLineStyle(1);//this is frustrating and stupid but apparently necessary...
     f->SetLineWidth(1);
     f->SetLineColor(kBlack);
     f->Draw("L same");
@@ -188,20 +195,45 @@ void common::drawRatioXSEC(const TH1* histNumerator, const TH1* histDenominator1
     f2->SetLineColor(kBlack);
     f2->Draw("L same");
 
+    if(ratio_stat) {
+        TLegend *leg_band = new TLegend();
+        if(ratio_total) leg_band->AddEntry(ratio_total, "Stat. #oplus Syst.", "f");
+        leg_band->AddEntry(ratio_stat, "Stat.", "f");
+        leg_band->SetX1NDC(0.22);
+        leg_band->SetY1NDC(0.97);
+        leg_band->SetX2NDC(0.46);
+        leg_band->SetY2NDC(0.77);
+        leg_band->SetFillStyle(1001);
+        leg_band->SetFillColor(10);
+        leg_band->SetBorderSize(0);
+        leg_band->SetTextSize(0.1);
+        leg_band->SetTextAlign(12);
+        leg_band->Draw("same");
+        if(ratio_total)ratio_total->Draw("same,e2");
+        ratio_stat->Draw("same,e2");
+    }
+    f->Draw("l,same");
+    f2->Draw("l,same");
+    gPad->RedrawAxis();
+    gPad->Update();
+    gPad->Modified();
+    ratio1->Draw("histo,same");
     if (ratio2) ratio2->Draw("Histo,same");
     if (ratio3) ratio3->Draw("Histo,same");
     if (ratio4) ratio4->Draw("Histo,same");
     if (ratio5) ratio5->Draw("Histo,same");
     if (ratio6) ratio6->Draw("Histo,same");
     if (ratio7) ratio7->Draw("Histo,same");
-    
+    gPad->RedrawAxis();
+    gPad->Update();
+    gPad->Modified();
+    rPad->RedrawAxis();
 }
 
 
 
 
-
-void common::drawRatio(const TH1* histNumerator, const TH1* histDenominator, 
+void common::drawRatio(const TH1* histNumerator, const TH1* histDenominator, const TH1* uncband,
                const Double_t& ratioMin, const Double_t& ratioMax, 
                bool addFit,
                const TStyle& myStyle, const int verbose, const std::vector<double>& err)
@@ -227,9 +259,34 @@ void common::drawRatio(const TH1* histNumerator, const TH1* histDenominator,
         std::cout << "building ratio plot of " << histNumerator->GetName();
         std::cout << " and " << histDenominator->GetName() << std::endl;
     }
+
+    // create ratio of uncertainty band
+    TH1 *band = nullptr;
+    if (uncband) {
+        band = (TH1*)uncband->Clone("band");
+        for(int i=0; i<= 1+uncband->GetNbinsX(); i++)
+        {
+            double error = 0;
+            double content = 1;
+            if(band->GetBinContent(i))
+            {
+                error = band->GetBinError(i) / band->GetBinContent(i);
+                content = band->GetBinContent(i) /band->GetBinContent(i);
+            }
+            band->SetBinError(i, error/content);
+            band->SetBinContent(i, content/content);
+        }
+    }
+
     // create ratio
     TH1* ratio = (TH1*)histNumerator->Clone();
     ratio->Divide(histDenominator);
+    ratio->SetLineColor(histNumerator->GetLineColor());
+    ratio->SetLineStyle(histNumerator->GetLineStyle());
+    ratio->SetLineWidth(histNumerator->GetLineWidth());
+    ratio->SetMarkerColor(histNumerator->GetMarkerColor());
+    ratio->SetMarkerStyle(histNumerator->GetMarkerStyle());
+    ratio->SetMarkerSize(0.8);
     // calculate error for ratio
     // a) from err_
     if(err.size()==(unsigned int)histNumerator->GetNbinsX()){
@@ -296,20 +353,27 @@ void common::drawRatio(const TH1* histNumerator, const TH1* histDenominator,
     ratio->GetXaxis()->SetTitle(histNumerator->GetXaxis()->GetTitle());
     ratio->GetXaxis()->SetNdivisions(histNumerator->GetNdivisions());
     ratio->GetYaxis()->CenterTitle();
-    ratio->GetYaxis()->SetTitle("#frac{N_{data}}{N_{MC}}");
+    ratio->GetYaxis()->SetTitle("#frac{N_{Data}}{N_{MC}}");
     ratio->GetYaxis()->SetTitleSize(histNumerator->GetYaxis()->GetTitleSize()*scaleFactor);
     ratio->GetYaxis()->SetTitleOffset(histNumerator->GetYaxis()->GetTitleOffset()/scaleFactor);
     ratio->GetYaxis()->SetLabelSize(histNumerator->GetYaxis()->GetLabelSize()*scaleFactor);
     ratio->GetYaxis()->SetLabelOffset(histNumerator->GetYaxis()->GetLabelOffset()*3.3);
     ratio->GetYaxis()->SetTickLength(0.03);
-    ratio->GetYaxis()->SetNdivisions(505);
+    ratio->GetYaxis()->SetNdivisions(405);
     ratio->GetXaxis()->SetRange(histNumerator->GetXaxis()->GetFirst(), histNumerator->GetXaxis()->GetLast());
     // delete axis of initial plot
     histNumerator->GetXaxis()->SetLabelSize(0);
     histNumerator->GetXaxis()->SetTitleSize(0);
     // draw ratio plot
     ratio->DrawClone("p e X0");
-    ratio->SetMarkerSize(1.2);
+    //This is frustrating and stupid but apparently necessary...
+    TExec *setex1 { new TExec("setex1","gStyle->SetErrorX(0.5)") };
+    setex1->Draw();
+    if(band)band->Draw("same,e2");
+    TExec *setex2 { new TExec("setex2","gStyle->SetErrorX(0.)") };
+    setex2->Draw();
+    ratio->SetMarkerSize(0.8);
+    ratio->SetLineWidth(2);
     ratio->DrawClone("p e X0 same");
     rPad->SetTopMargin(0.0);
     rPad->SetBottomMargin(0.15*scaleFactor);
@@ -317,7 +381,7 @@ void common::drawRatio(const TH1* histNumerator, const TH1* histDenominator,
     gPad->SetLeftMargin(left);
     gPad->RedrawAxis();
     // draw grid
-    //rPad->SetGrid(1,1);
+    rPad->SetGrid(0,1);
 
     /// make linear fit of the ratio plot
     TF1 *fit = 0;
@@ -407,7 +471,7 @@ void common::setHHStyle(TStyle& HHStyle)
     // ==============
 
     HHStyle.SetErrorX(0.0);
-    HHStyle.SetEndErrorSize(0);
+    HHStyle.SetEndErrorSize(8);
             
     // HHStyle.SetHistFillColor(1);
     // HHStyle.SetHistFillStyle(0);
@@ -489,11 +553,11 @@ void common::setHHStyle(TStyle& HHStyle)
             
     HHStyle.SetTitleColor(1, "XYZ");
     HHStyle.SetTitleFont(fontstyle, "XYZ");
-    HHStyle.SetTitleSize(0.04, "XYZ");
+    HHStyle.SetTitleSize(0.05, "XYZ");
     // HHStyle.SetTitleXSize(Float_t size = 0.02); // Another way to set the size?
     // HHStyle.SetTitleYSize(Float_t size = 0.02);
-    HHStyle.SetTitleXOffset(1.25);
-    HHStyle.SetTitleYOffset(1.6);
+    HHStyle.SetTitleXOffset(1.0);
+    HHStyle.SetTitleYOffset(1.7);
     // HHStyle.SetTitleOffset(1.1, "Y"); // Another way to set the Offset
             
     // ==============

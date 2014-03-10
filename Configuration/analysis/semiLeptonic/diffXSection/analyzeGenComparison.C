@@ -1,6 +1,6 @@
 #include "basicFunctions.h"
 
-void analyzeGenComparison(bool save = true, int verbose=0, bool theoryVariations=false, bool analysisBinning=true){
+void analyzeGenComparison(bool save = true, int verbose=0, bool theoryVariations=false, bool analysisBinning=true, TString inputPath=AnalysisFolder){
   
   // !!! run different ttbar MCs OR Theory Variations !!!
   // theoryVariations=false OR true
@@ -24,23 +24,26 @@ void analyzeGenComparison(bool save = true, int verbose=0, bool theoryVariations
   // ============================
   std::vector<TFile* > file_;
   if(verbose>0) std::cout << "opening files" << std::endl;
+  // folder with all rootfiles
+  TString path=groupSpace+inputPath;
+  TString MadExt= MadSpin ? "MadSpin" : "";
   if(!theoryVariations){
-    file_.push_back(TFile::Open("/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/combinedDiffXSecSigSummer12PF.root"            , "Open"));
-    file_.push_back(TFile::Open("/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/combinedDiffXSecSigPowhegSummer12PF.root"      , "Open"));
-    file_.push_back(TFile::Open("/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/combinedDiffXSecSigPowhegHerwigSummer12PF.root", "Open"));
-    file_.push_back(TFile::Open("/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/combinedDiffXSecSigMcatnloSummer12PF.root"     , "Open"));
-    file_.push_back(TFile::Open("/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/combinedDiffXSecSigPerugiaSummer12PF.root"     , "Open"));
-    file_.push_back(TFile::Open("/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/combinedDiffXSecSigPerugianoCRSummer12PF.root" , "Open"));
-    file_.push_back(TFile::Open("/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/combinedDiffXSecSigPerugiampiHiSummer12PF.root", "Open"));
+    file_.push_back(TFile::Open(path+"/combinedDiffXSecSig"+MadExt+"Summer12PF.root"  , "Open"));
+    file_.push_back(TFile::Open(path+"/combinedDiffXSecSigPowhegSummer12PF.root"      , "Open"));
+    file_.push_back(TFile::Open(path+"/combinedDiffXSecSigPowhegHerwigSummer12PF.root", "Open"));
+    file_.push_back(TFile::Open(path+"/combinedDiffXSecSigMcatnloSummer12PF.root"     , "Open"));
+    file_.push_back(TFile::Open(path+"/combinedDiffXSecSigPerugiaSummer12PF.root"     , "Open"));
+    file_.push_back(TFile::Open(path+"/combinedDiffXSecSigPerugianoCRSummer12PF.root" , "Open"));
+    file_.push_back(TFile::Open(path+"/combinedDiffXSecSigPerugiampiHiSummer12PF.root", "Open"));
   }
   else{
-    file_.push_back(TFile::Open("/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/combinedDiffXSecSigSummer12PF.root"                       , "Open"));
-    file_.push_back(TFile::Open("/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/MatchUp/combinedDiffXSecSigMatchUpSummer12PF.root"        , "Open"));
-    file_.push_back(TFile::Open("/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/MatchDown/combinedDiffXSecSigMatchDownSummer12PF.root"    , "Open"));
-    file_.push_back(TFile::Open("/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/ScaleUp/combinedDiffXSecSigScaleUpSummer12PF.root"        , "Open"));
-    file_.push_back(TFile::Open("/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/ScaleDown/combinedDiffXSecSigScaleDownSummer12PF.root"    , "Open"));
-    file_.push_back(TFile::Open("/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/TopMassUp/combinedDiffXSecSigTopMassUpSummer12PF.root"    , "Open"));
-    file_.push_back(TFile::Open("/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/TopMassDown/combinedDiffXSecSigTopMassDownSummer12PF.root", "Open"));
+    file_.push_back(TFile::Open(path+"/combinedDiffXSecSig"+MadExt+"Summer12PF.root"                       , "Open"));
+    file_.push_back(TFile::Open(path+"/MatchUp/combinedDiffXSecSig"+MadExt+"MatchUpSummer12PF.root"        , "Open"));
+    file_.push_back(TFile::Open(path+"/MatchDown/combinedDiffXSecSig"+MadExt+"MatchDownSummer12PF.root"    , "Open"));
+    file_.push_back(TFile::Open(path+"/ScaleUp/combinedDiffXSecSig"+MadExt+"ScaleUpSummer12PF.root"        , "Open"));
+    file_.push_back(TFile::Open(path+"/ScaleDown/combinedDiffXSecSig"+MadExt+"ScaleDownSummer12PF.root"    , "Open"));
+    file_.push_back(TFile::Open(path+"/TopMassUp/combinedDiffXSecSig"+MadExt+"TopMassUpSummer12PF.root"    , "Open"));
+    file_.push_back(TFile::Open(path+"/TopMassDown/combinedDiffXSecSig"+MadExt+"TopMassDownSummer12PF.root", "Open"));
   }
   // save output path
   TString outpath="diffXSecFromSignal/plots/combined/2012/ttgencomparison/";

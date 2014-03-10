@@ -19,18 +19,13 @@ The file /data/group/top/DiffXS/README contains a description of the NTuples, i.
 what was new, which <date> to use...
 
 The input files need to be listed in selectionList.txt, so do:
-ls -1 --color=no /data/group/top/DiffXS/2013_11_04_TAG_N002/*.root | grep -v tau.root | grep -v bg.root | grep -v ttbarH | grep -v ttbarW | grep -v ttbarZ > selectionList.txt
-ls -1 --color=no /data/group/top/DiffXS/2013_11_04_TAG_N002_MadSpin_FullStats62M/*.root >> selectionList.txt
+ls -1 --color=no /data/group/top/DiffXS/2014_02_10_TAG_N004/*.root | grep -v ttbarH | grep -v ttbarW | grep -v ttbarZ > selectionList.txt
 (the date may differ)
-(for the time being there are two steps because 2 different ttbar samples were created at the same time: Madgraph 7M and MadSpin 62M. This will change with future ntuple productions)
 
 To compile the code execute:
 
-        mkdir build
-        cd build
-        cmake ..
-        make -j8
-        make install
+        cd $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/diLeptonic
+        ./scripts/compileAll.sh
 
 To run the analysis, go to the directory containing the selectionList.txt:
 
@@ -40,7 +35,7 @@ To run the analysis, go to the directory containing the selectionList.txt:
 **** WARNING ****
 It is assumed that your current working directory is always the diLeptonic directory.
 That means you will call script like scripts/scriptname -- the analysis is run
-with build/load_Analysis and build/Histo
+with install/bin/load_Analysis and install/bin/Histo
 *****************
 
 See
@@ -52,7 +47,7 @@ To run only over a specific dataset, you can do
 
         ./install/bin/load_Analysis -f PATTERN
 
-where PATTERN is in the file name.
+where PATTERN is in the file name as listed in selectionList.txt.
 
 The output produced is in selectionRoot, the files should be fully compatible with
 the old plotterclass.h
@@ -68,17 +63,18 @@ Then copy the created btag files:
 
 Now you are ready to flood the workgroup server or the NAF with a lot of jobs. In case
 you are running on the NAF, the NTuples should be stored on the Sonas file system, i.e.
-under /scratch/hh/dust/naf/cms/... - and parallel access is amazingly fast. 
+under /nfs/dust/cms/<user_name>/... - and parallel access is amazingly fast.
 
 To run the selection on the Nominal sample, just do:
 
         ./install/bin/runNominalParallel.sh
 
 You also need to generate the signal variations with:
-  ./scripts/runNominalVariations.sh
+
+        ./scripts/runNominalVariations.sh
 
 or
-    ./install/bin/runNominalVariations.sh
+        ./install/bin/runNominalVariations.sh
 
 In addition you can also run the theory variations (mass, match, scale) and other 
 generators (powheg, mcatnlo and madgraph with spin correlations): 
@@ -88,13 +84,13 @@ generators (powheg, mcatnlo and madgraph with spin correlations):
 This runs TopAnalysis.cc on each event in the root tuple for each sample. All analysis cuts are
 made in TopAnalysis.cc and the output are a bunch of user specified histograms. Except for adding 
 histograms or changing analysis cuts, additions to this file should be made as separate 
-functions in the Analysis class.
+functions in the AnalysisBase class.
 
 Differences between workgroup server and NAF:
 Workgroup server:
- - the run*.sh scripts will run up to 10 load_Analysis and/or Histo jobs in parallel
+ - the run*.sh scripts will run up to 8 load_Analysis and/or Histo jobs in parallel
  - you share the workgroup server with colleagues, so if they are running
-   10 jobs, you'll have to wait.
+   8 jobs, you'll have to wait.
 
 NAF:
  - the run*.sh scripts will submit all jobs to the 1h queue on the NAF
@@ -121,6 +117,7 @@ input file lists per channel and systematic.
 You can run Histo with 3 different "types":
 
         ./install/bin/Histo -t cp  ##produces control plots
+        ./install/bin/Histo -t cp -b  ##produces control plots incuding the ttbar signal uncertainty band. Pelase note that previuosly the control plot for the signal variations has to be done
         ./install/bin/Histo -t unfold  ##unfolds and produces the diff. xsec
         ./install/bin/Histo -t plot  ##just plot the diff. xsec, use values from previous unfolding
 
@@ -149,6 +146,16 @@ where channel is each if the channels: ee, emu, mumu, combined.
 To unfold all distributions from your HistoList in parallel, use the script:
 
         ./install/bin/unfoldAll.sh
+
+The scripts
+
+        ./install/bin/plotAll.sh
+
+will plot the full result using all the systematics available
+
+And to plot the control plots, including ttbar signal shape uncertainty band
+
+        ./install/bin/cpAll.sh
 
 Again, on the workgroup server, it will run up to 10 jobs in parallel,
 while it will submit one job per distribution to the batch system if run on the NAF.

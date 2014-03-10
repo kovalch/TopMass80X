@@ -1,7 +1,7 @@
 #ifndef JERBASE_H
 #define JERBASE_H
 
-#include "mathdefs.h"
+
 #include <vector>
 #include "../interface/miscUtils.h"
 #include <algorithm>

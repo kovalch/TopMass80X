@@ -75,6 +75,17 @@ SemiLepBjetAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& set
     runNumber             = aux.run();
     luminosityBlockNumber = aux.luminosityBlock();
     eventNumber           = aux.event();
+    // PDF related info
+    edm::Handle<GenEventInfoProduct> genInfo; 
+    event.getByLabel("generator", genInfo);   
+    Q   =  0.; id1 = -42; id2 = -42; x1  =  0.; x2  =  0.;
+    if(genInfo.isValid()){
+      Q     = genInfo->pdf()->scalePDF;
+      id1   = genInfo->pdf()->id.first;
+      id2   = genInfo->pdf()->id.second;
+      x1    = genInfo->pdf()->x.first;
+      x2    = genInfo->pdf()->x.second;
+    }
   }
 
   // ---
@@ -542,6 +553,19 @@ SemiLepBjetAnalyzer::beginJob()
     tree->Branch("luminosityBlockNumber", &luminosityBlockNumber, "luminosityBlockNumber/i");
     eventNumber= 0;
     tree->Branch("eventNumber", &eventNumber, "eventNumber/i");
+    // PDF related info
+    tree->Branch("Q"  , &Q  , (std::string("Q"  ) + "/F").c_str());
+    tree->Branch("id1", &id1, (std::string("id1") + "/I").c_str());
+    tree->Branch("id2", &id2, (std::string("id2") + "/I").c_str());
+    tree->Branch("x1" , &x1 , (std::string("x1" ) + "/D").c_str());
+    tree->Branch("x2" , &x2 , (std::string("x2" ) + "/D").c_str());
+    // variables
+    tree->Branch("lepPtRec" , &valueLepPtRec , "lepPtRec/F" );
+    tree->Branch("lepPtGen" , &valueLepPtGen , "lepPtGen/F" );
+    tree->Branch("lepEtaRec", &valueLepEtaRec, "lepEtaRec/F");
+    tree->Branch("lepEtaGen", &valueLepEtaGen, "lepEtaGen/F");
+    tree->Branch("lepYRec"  , &valueLepYRec  , "lepYRec/F"  );
+    tree->Branch("lepYGen"  , &valueLepYGen  , "lepYGen/F"  );
     // variables
     tree->Branch("bqPtRec" , &valueBqPtRec , "bqPtRec/F" );
     tree->Branch("bqPtGen" , &valueBqPtGen , "bqPtGen/F" );

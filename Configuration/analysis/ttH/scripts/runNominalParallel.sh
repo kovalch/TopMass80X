@@ -1,8 +1,8 @@
 #!/bin/sh
 
 
-if [ $# -ge 1 ] && ( [[ "$@" == *"-c"* ]] || [[ "$@" == *"-s"* ]] || [[ "$@" == *"-f"* ]] ) ; then
-    echo "Options '-s', '-c', '-f' are not allowed."
+if [ $# -ge 1 ] && ( [[ "$@" == *"-c"* ]] || [[ "$@" == *"-s"* ]] || [[ "$@" == *"-f"* ]] || [[ "$@" == *"-p"* ]] ) ; then
+    echo "Options '-s', '-c', '-f', '-p' are not allowed. They are set within the script."
     echo "You used options: $@"
     exit 1
 fi
@@ -14,11 +14,25 @@ source $(dirname `readlink -f $0`)/parallelTools.sh
 
 for c in ee emu mumu; do
     w
-    $LA -f dy -d 11 -c $c $@ &
-    $LA -f dy -d 13 -c $c $@ &
-    $LA -f dy -d 15 -c $c $@ &
-    $LA -f ttbarsignalplustau.root -c $c $@ &
-    $LA -f ttbarH125 -c $c $@ &
+    $LA -f ttbarsignalplustau.root -p 0 -c $c $@ &
+    $LA -f ttbarsignalplustau.root -p 1 -c $c $@ &
+    $LA -f ttbarsignalplustau.root -p 2 -c $c $@ &
+    $LA -f ttbarH125tobbbar -c $c $@ &
+    $LA -f ttbarH125incl -p 0 -c $c $@ &
+done
+
+for c in ee emu mumu; do
+    w
+    $LA -f dy50inf -p 0 -c $c $@ &
+    $LA -f dy50inf -p 1 -c $c $@ &
+    $LA -f dy50inf -p 2 -c $c $@ &
+done
+
+for c in ee emu mumu; do
+    w
+    $LA -f dy1050 -p 0 -c $c $@ &
+    $LA -f dy1050 -p 1 -c $c $@ &
+    $LA -f dy1050 -p 2 -c $c $@ &
 done
 
 for c in ee emu mumu; do

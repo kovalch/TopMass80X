@@ -16,55 +16,48 @@
 using namespace std;
 
 
-vector<TString> Channels(){
-    
-    vector<TString> channel {"ee", "emu", "mumu", "combined"};
+std::vector<TString> Channels()
+{
+    std::vector<TString> channel {"ee", "emu", "mumu", "combined"};
     return channel;
 }
 
-vector<TString> Variables(){
-    
-    vector<TString> variables {"ToppTLead", "ToppTNLead", "ToppT",
-                               "TopRapidityLead", "TopRapidityNLead", "TopRapidity",
-                               "BJetpTLead", "BJetpT",
-                               "BJetEtaLead", "BJetEta",
-                               "LeptonpTLead", "LeptonpTNLead", "LeptonpT",
-                               "LeptonEtaLead", "LeptonEtaNLead", "LeptonEta",
-                               "TTBarpT", "TTBarRapidity", "TTBarMass", 
-                               "LLBarpT", "LLBarMass", 
-                               "LeptonBjetMass", 
-                               "BBBarMass", "BBBarpT"
-                               };
+std::vector<TString> Variables()
+{
+    std::vector<TString> variables {"ToppT", "TopRapidity","ToppTTTRestFrame",
+                                    "TTBarpT", "TTBarRapidity", "TTBarMass", "TTBarDeltaRapidity", "TTBarDeltaPhi",
+                                    "BJetpT","BJetEta","LeptonpT","LeptonEta",
+                                    "LLBarpT", "LLBarMass","LeptonBjetMass", "BBBarMass", "BBBarpT"
+                                    };
+
     return variables;
 }
 
-vector<TString> Systematics (){
-
-    vector<TString> systematics {"TRIG_", "LEPT_",
+std::vector<TString> Systematics()
+{
+    std::vector<TString> systematics {"TRIG_", "LEPT_",
                                 "BG_", "DY_", 
                                 "JES_", "JER_", 
                                 "PU_",
                                 "BTAG_", "BTAG_LJET_", 
-                                "BTAG_PT_", "BTAG_ETA_",
-                                "BTAG_LJET_PT_", "BTAG_LJET_ETA_", 
+                                "BTAG_PT_", "BTAG_LJET_PT_",
                                 "KIN_",
                                 "HAD_", "MASS_", "SCALE_", "MATCH_"
                                 };
-
 
         return systematics;
 }
 
 
-vector<TString> Files(TString channel = "", TString variable = ""){
+std::vector<TString> Files(TString channel = "", TString variable = "")
+{
+    std::vector<TString> WhichVariable;
+    std::vector<TString> FileVector;
 
-    vector<TString> WhichVariable;
-    vector<TString> FileVector;
-
-    if ( variable != "" ){WhichVariable.push_back(variable);}
+    if (variable!=""){WhichVariable.push_back(variable);}
     else{WhichVariable = Variables();}
 
-    for (int j=0; j<(int)WhichVariable.size(); j++){
+    for (size_t j=0; j<WhichVariable.size(); j++){
         FileVector.push_back(TString("Plots/FinalResults/").Append(channel).Append("/").Append(WhichVariable.at(j)).Append("_SystematicsLaTeX.txt"));
     }
 
@@ -72,94 +65,89 @@ vector<TString> Files(TString channel = "", TString variable = ""){
 }
 
 
-vector<string> SplitLine(string Line ){
+std::vector<string> SplitLine(string Line)
+{
+    /// Returns a std::vector which its elements will be the content of 'Line' separated by blank space ' '
 
-    //Returns a vector which its elements will be the content of 'Line' separated by blank space ' '
-
-    vector<string> output_vector;
+    std::vector<string> output_vector;
     istringstream iss(Line);
     copy(istream_iterator<string>(iss),
              istream_iterator<string>(),
-             back_inserter<vector<string> >(output_vector));
+             back_inserter<std::vector<string> >(output_vector));
     return output_vector;
 }
 
 
 
 
-double ReadLineFromFile (TString Filename, TString Systematic){
-
-    //Returns typical error for systematic 'Systematic' in file 'Filename'
+std::vector<double> ReadLineFromFile (TString Filename, TString Systematic)
+{
+    /// Returns typical error for systematic 'Systematic' in file 'Filename'
 
     if (Filename == "" || Systematic == ""){
-        cout<<"\n\n******** ERROR ******** ERROR ******** ERROR ******** ERROR ********"<<endl;
-        cout<<"You didn't provide a file path neither a systematic. Exiting!"<<endl;
-        cout<<"\n\n******** ERROR ******** ERROR ******** ERROR ******** ERROR ********"<<endl;
+        std::cout<<"\n\n******** ERROR ******** ERROR ******** ERROR ******** ERROR ********"<<std::endl;
+        std::cout<<"You didn't provide a file path neither a systematic. Exiting!"<<std::endl;
+        std::cout<<"\n\n******** ERROR ******** ERROR ******** ERROR ******** ERROR ********"<<std::endl;
         exit(9);
     }
 
     string LineToSplit;
     ifstream infile;
-    vector<string> SplittedLine;
+    std::vector<string> SplittedLine;
+    std::vector<double> errors;
 
     infile.open(Filename, ios_base::in);
     if (infile.fail()) {
-        cout<<"\n\n******** WARNING ******** WARNING ******** WARNING ******** WARNING ********"<<endl;
-        cout<<"The file "<<Filename<<" you requested doesn't exist."<<endl;
-        cout<<"Tis file will be skiped in the calculation of 'typical error'"<<endl;
-        cout<<"******** WARNING ******** WARNING ******** WARNING ******** WARNING ********\n\n"<<endl;
-        return -1;
+        std::cout<<"\n\n******** WARNING ******** WARNING ******** WARNING ******** WARNING ********"<<std::endl;
+        std::cout<<"The file "<<Filename<<" you requested doesn't exist."<<std::endl;
+        std::cout<<"Tis file will be skiped in the calculation of 'typical error'"<<std::endl;
+        std::cout<<"******** WARNING ******** WARNING ******** WARNING ******** WARNING ********\n\n"<<std::endl;
+        exit(23);
     }
-    while ( !infile.eof() ) {
+    while (!infile.eof()) {
         LineToSplit.clear();
         getline(infile, LineToSplit);
         SplittedLine.clear();
         SplittedLine = SplitLine(LineToSplit);
-        if(SplittedLine.size()<=0){return -1;}
-        if (SplittedLine.at(0) == Systematic){
-            for(int i=0; i< (int) SplittedLine.size(); i++){
-                if(SplittedLine.at(i) == "Lin.Avg.(%)="){
-                    double return_value = atof(SplittedLine.at(i+1).c_str());
-                    return return_value;
-                }
-            }
+        if(SplittedLine.size()<=0){break;}
+        if (SplittedLine.at(0) != Systematic){continue;}
+        for(size_t i=1; i<SplittedLine.size(); i++){
+            if(SplittedLine.at(i) == "Lin.Avg.(%)="){break;}
+            errors.push_back(atof(SplittedLine.at(i).c_str()));
         }
     }
     infile.close();
-    return -1.;
+    return errors;
 }
 
 
 
-void SanityCheck( TString channel = "", TString systematic = "", TString variable = ""){
+void SanityCheck( TString channel = "", TString systematic = "", TString variable = "")
+{
+    std::vector<TString> ValidChannel = Channels(), ValidSystematic = Systematics(), ValidVariable = Variables();
 
-    vector<TString> ValidChannel = Channels(), ValidSystematic = Systematics(), ValidVariable = Variables();
-    
-    if (find(ValidChannel.begin(), ValidChannel.end(), channel) != ValidChannel.end() || channel == "") {}
-    else{
-        cout<<"\n\nThe proposed channel '"<<channel<<"' is not valid. Exiting!\n"<<endl;
+    if (find(ValidChannel.begin(), ValidChannel.end(), channel) == ValidChannel.end() && channel != ""){
+        std::cout<<"\n\nThe proposed channel '"<<channel<<"' is not valid. Exiting!\n"<<std::endl;
         exit(2);
     }
-    
-    if (find(ValidSystematic.begin(), ValidSystematic.end(), systematic) != ValidSystematic.end() || systematic == "") {}
-    else{
-        cout<<"\n\nThe proposed systematic '"<<systematic<<"' is not valid (or is not implemented yet). Exiting!\n"<<endl;
+
+    if (find(ValidSystematic.begin(), ValidSystematic.end(), systematic) == ValidSystematic.end() && systematic != ""){
+        std::cout<<"\n\nThe proposed systematic '"<<systematic<<"' is not valid (or is not implemented yet). Exiting!\n"<<std::endl;
         exit(22);
     }
-    
-    if (find(ValidVariable.begin(), ValidVariable.end(), variable) != ValidVariable.end() || variable == "") {}
-    else{
-        cout<<"\n\nThe proposed variable '"<<variable<<"' is not valid (or is not implemented yet). Exiting!\n"<<endl;
+
+    if (find(ValidVariable.begin(), ValidVariable.end(), variable) == ValidVariable.end() && variable != ""){
+        std::cout<<"\n\nThe proposed variable '"<<variable<<"' is not valid (or is not implemented yet). Exiting!\n"<<std::endl;
         exit(222);
     }
 
 }
 
-void TypicalError( TString channel = "", TString systematic = "", TString variable = ""){
-
+void TypicalError( TString channel = "", TString systematic = "", TString variable = "")
+{
     SanityCheck(channel, systematic, variable);
     
-    vector<TString> Channel, Systematic;
+    std::vector<TString> Channel, Systematic;
 
     if ( channel != ""){Channel.push_back(channel);}
     else { Channel = Channels(); }
@@ -167,25 +155,22 @@ void TypicalError( TString channel = "", TString systematic = "", TString variab
     if ( systematic != "") {Systematic.push_back(systematic);}
     else { Systematic = Systematics();}
     
-    for (int l=0; l<(int)Channel.size(); l++){
-        vector<TString> FileList;
-        FileList = Files(Channel.at(l), variable);
+    for (size_t l=0; l<Channel.size(); l++){
+        std::vector<TString> FileList = Files(Channel.at(l), variable);
+        std::vector<double> error;
+        std::cout<<"----------------------------------------"<<std::endl;
 
-        vector<double> error;
-        double total_error =0.0;
-
-        for (int j=0; j<(int)Systematic.size(); j++){
-            for (int i=0; i<(int)FileList.size(); i++){
-                double Typ_error = ReadLineFromFile(FileList.at(i), Systematic.at(j));
-                if ( Typ_error >= 0. ) { error.push_back(Typ_error);}
-                cout<<"In file "<<FileList.at(i)<<" typical error "<<Typ_error<<endl;
+        for (size_t j=0; j<Systematic.size(); j++){
+            error.clear();
+            for (size_t i=0; i<FileList.size(); i++){
+                std::vector<double> Typ_error = ReadLineFromFile(FileList.at(i), Systematic.at(j));
+                if(Typ_error.size()) error.insert(error.end(), Typ_error.begin(), Typ_error.end());
             }
+            std::sort(error.begin(), error.end());
 
-            for (int k=0; k<(int)error.size(); k++){
-                total_error = total_error + error.at(k);
-            }
-            total_error = total_error/error.size();
-            cout<<"\n\nTotal typical error for systematic "<<Systematic.at(j)<<" in channel "<<Channel.at(l)<<" is: "<<total_error<<endl;
+            int extra = (error.size()%2) ? 0 : 1;
+            int meanPoint =error.size()/2;
+            std::cout<<"Total typical error for systematic "<<Systematic.at(j)<<" in channel "<<Channel.at(l)<<" is: "<<0.5*(error.at(meanPoint-extra) + error.at(meanPoint))<<std::endl;
         }
     }
 }

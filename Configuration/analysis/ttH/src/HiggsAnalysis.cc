@@ -14,13 +14,10 @@
 
 #include "HiggsAnalysis.h"
 #include "higgsUtils.h"
-#include "DijetAnalyzer.h"
 #include "analysisStructs.h"
-#include "AnalysisHistograms.h"
-#include "Playground.h"
-#include "MvaTreeHandler.h"
-#include "MvaTreeAnalyzer.h"
-#include "MvaValidation.h"
+#include "AnalyzerBaseClass.h"
+#include "MvaTreeHandlerBase.h"
+#include "MvaTreePlotterBase.h"
 #include "../../common/include/analysisUtils.h"
 #include "../../common/include/analysisObjectStructs.h"
 #include "../../common/include/classes.h"
@@ -67,11 +64,8 @@ constexpr double MetCUT = 40.;
 
 
 HiggsAnalysis::HiggsAnalysis(TTree*):
-isInclusiveHiggs_(false),
-bbbarDecayFromInclusiveHiggs_(false),
-runWithTtbb_(false),
-retagBJets_(true),  // FIXME: remove this variable which was implemented for testing (and in a different way as it was in TopAnalysis...)
-mvaTreeHandler_(0)
+inclusiveHiggsDecayMode_(-999),
+additionalBjetMode_(-999)
 {}
 
 
@@ -86,8 +80,10 @@ void HiggsAnalysis::Begin(TTree*)
     // Defaults from AnalysisBase
     AnalysisBase::Begin(0);
 
-    // Set up selection steps of MVA tree handler
-    if(mvaTreeHandler_) mvaTreeHandler_->book();
+    // Set up selection steps of MVA tree handlers
+    for(MvaTreeHandlerBase* mvaTreeHandler : v_mvaTreeHandler_){
+        if(mvaTreeHandler) mvaTreeHandler->book();
+    }
 }
 
 
@@ -96,28 +92,30 @@ void HiggsAnalysis::Begin(TTree*)
 void HiggsAnalysis::Terminate()
 {
     // Produce b-tag efficiencies
-    // FIXME: runWithTtbb_ is dirty hack, since makeBtagEfficiencies() is in AnalysisBase
     // FIXME: Shouldn't we also clear b-tagging efficiency histograms if they are produced ?
-    if(!runWithTtbb_ && this->makeBtagEfficiencies()) btagScaleFactors_->produceBtagEfficiencies(static_cast<std::string>(this->channel()));
+    if(this->makeBtagEfficiencies()) this->btagScaleFactors()->produceEfficiencies();
 
     // Do everything needed for MVA
-    if(mvaTreeHandler_){
-        // Produce and write tree
-        mvaTreeHandler_->writeTrees(static_cast<std::string>(this->outputFilename()),
-                                    Channel::convertChannel(static_cast<std::string>(this->channel())),
-                                    Systematic::convertSystematic(static_cast<std::string>(this->systematic())));
-        //mvaTreeHandler_->writeTrees(fOutput);
+    for(MvaTreeHandlerBase* mvaTreeHandler : v_mvaTreeHandler_){
+        if(mvaTreeHandler){
+            // Produce and write tree
+            mvaTreeHandler->writeTrees(static_cast<std::string>(this->outputFilename()),
+                                        Channel::convertChannel(static_cast<std::string>(this->channel())),
+                                        Systematic::convertSystematic(static_cast<std::string>(this->systematic())));
+            //mvaTreeHandler->writeTrees(fOutput);
 
-        // Create and store control plots in fOutput
-        MvaTreeAnalyzer mvaTreeAnalyzer(mvaTreeHandler_->stepMvaVariablesMap());
-        mvaTreeAnalyzer.plotVariables(fOutput);
-        mvaTreeAnalyzer.clear();
+            // Create and store control plots in fOutput
+            MvaTreePlotterBase* mvaTreePlotter = mvaTreeHandler->setPlotter(mvaTreeHandler->stepMvaVariablesMap());
+            mvaTreePlotter->plotVariables(fOutput);
 
-        // Cleanup
-        mvaTreeHandler_->clear();
+            // Cleanup
+            mvaTreePlotter->clear();
+            delete mvaTreePlotter;
+            mvaTreeHandler->clear();
+        }
     }
-
-
+    
+    
     // Defaults from AnalysisBase
     AnalysisBase::Terminate();
 }
@@ -128,16 +126,13 @@ void HiggsAnalysis::SlaveBegin(TTree *)
 {
     // Defaults from AnalysisBase
     AnalysisBase::SlaveBegin(0);
-
-    // Histograms for b-tagging efficiencies
-    // FIXME: common usage of this function for production and application of btag stuff like is implemented does not work,
-    // FIXME: for ttbb sample is just working by chance (with wrong settings if individual efficiencies per sample would be used)
-    // FIXME: --> Make settings to how they were before
-    if(!runWithTtbb_) {
-        btagScaleFactors_->setWorkingPoint(BtagWP);
-        btagScaleFactors_->prepareBTags(fOutput, static_cast<std::string>(this->channel()));
-    }
-
+    
+    // Set b-tagging working point
+    this->btagScaleFactors()->setWorkingPoint(BtagWP);
+    
+    // Book histograms for b-tagging efficiencies
+    if(this->makeBtagEfficiencies()) this->btagScaleFactors()->bookHistograms(fOutput);
+    
     // Book histograms of all analyzers
     this->bookAll();
 }
@@ -238,6 +233,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
 
     // Get allLepton indices, apply selection cuts and order them by pt (beginning with the highest value)
     const VLV& allLeptons = *recoObjects.allLeptons_;
+    const std::vector<int>& lepPdgId = *recoObjects.lepPdgId_;
     std::vector<int> allLeptonIndices = initialiseIndices(allLeptons);
     selectIndices(allLeptonIndices, allLeptons, LVeta, LeptonEtaCUT, false);
     selectIndices(allLeptonIndices, allLeptons, LVeta, -LeptonEtaCUT);
@@ -246,7 +242,6 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     //const int numberOfAllLeptons = allLeptonIndices.size();
 
     // Get indices of leptons and antiLeptons separated by charge, and get the leading ones if they exist
-    const std::vector<int>& lepPdgId = *recoObjects.lepPdgId_;
     std::vector<int> leptonIndices = allLeptonIndices;
     std::vector<int> antiLeptonIndices = allLeptonIndices;
     selectIndices(leptonIndices, lepPdgId, 0);
@@ -299,18 +294,13 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     const tth::IndexPairs& jetIndexPairs = this->chargeOrderedJetPairIndices(jetIndices, jetChargeRelativePtWeighted);
 
     // Get b-jet indices, apply selection cuts
+    // and apply b-tag efficiency MC correction using random number based tag flipping
     // and order b-jets by btag discriminator (beginning with the highest value)
     const std::vector<double>& jetBTagCSV = *recoObjects.jetBTagCSV_;
     const std::vector<int>& jetPartonFlavour = *commonGenObjects.jetPartonFlavour_;
     std::vector<int> bjetIndices = jetIndices;
-    selectIndices(bjetIndices, jetBTagCSV, (double)btagScaleFactors_->getWPDiscrValue());
-    if(retagBJets_) {
-        if (this->isMC() && !(btagScaleFactors_->makeEfficiencies())){
-            // Apply b-tag efficiency MC correction using random number based tag flipping
-            btagScaleFactors_->indexOfBtags(bjetIndices, jetIndices,
-                                            jets, jetPartonFlavour, jetBTagCSV);
-        }
-    }
+    selectIndices(bjetIndices, jetBTagCSV, (double)this->btagScaleFactors()->getWPDiscrValue());
+    this->retagJets(bjetIndices, jetIndices, jets, jetPartonFlavour, jetBTagCSV);
     orderIndices(bjetIndices, jetBTagCSV);
     const int numberOfBjets = bjetIndices.size();
     const bool hasBtag = numberOfBjets > 0;
@@ -336,10 +326,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     const double weightNoPileup = trueLevelWeightNoPileup*weightTriggerSF*weightLeptonSF;
     // We do not apply a b-tag scale factor
     //const double weightBtagSF = ReTagJet ? 1. : this->weightBtagSF(jetIndices, jets, jetPartonFlavour);
-    double weightBtagSF = 1.0;
-    if(!retagBJets_) {
-        weightBtagSF = btagScaleFactors_->calculateBtagSF(jetIndices, jets, jetPartonFlavour);
-    }
+    constexpr double weightBtagSF = 1.;
 
     // The weight to be used for filling the histograms
     double weight = weightNoPileup*weightPU;
@@ -387,8 +374,9 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
 
     const bool isZregion = dilepton.M() > 76 && dilepton.M() < 106;
     //const KinRecoObjects& kinRecoObjects = this->getKinRecoObjects(entry);
-    const KinRecoObjects& kinRecoObjects = this->getKinRecoObjectsOnTheFly(leptonIndex, antiLeptonIndex, jetIndices,
-                                                                           allLeptons, jets, jetBTagCSV, met);
+    //const KinRecoObjects& kinRecoObjects = this->getKinRecoObjectsOnTheFly(leptonIndex, antiLeptonIndex, jetIndices,
+    //                                                                       allLeptons, jets, jetBTagCSV, met);
+    const KinRecoObjects& kinRecoObjects = kinRecoObjectsDummy;
     //const bool hasSolution = kinRecoObjects.valuesSet_;
 
 
@@ -445,7 +433,6 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
                     selectionStep = "7zWindow";
 
                     // FIXME: do not use b-tag scale factor
-                    //weightBtagSF = isMC ? calculateBtagSF() : 1;
                     //fullWeights *= weightBtagSF;
 
                     this->fillAll(selectionStep,
@@ -515,10 +502,9 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
                   weight);
 
     // Fill the b-tagging efficiency plots
-    if( !runWithTtbb_ && this->makeBtagEfficiencies() ){
-        btagScaleFactors_->fillBtagHistograms(jetIndices, jetBTagCSV,
-                                              jets, jetPartonFlavour,
-                                              weight);
+    if(this->makeBtagEfficiencies()){
+        this->btagScaleFactors()->fillHistograms(jetIndices, jetBTagCSV, jets, jetPartonFlavour, weight);
+        return kTRUE;
     }
 
     
@@ -659,12 +645,12 @@ bool HiggsAnalysis::matchRecoToGenJets(int& matchedBjetIndex, int& matchedAntiBj
                                        const LV* genBjet, const LV* genAntiBjet)
 {
     using ROOT::Math::VectorUtil::DeltaR;
-
+    
     // Find closest jet and its distance in deltaR
     double deltaRBjet(999.);
     double deltaRAntiBjet(999.);
     for(const auto& index : jetIndices){
-        float deltaR = DeltaR(*genBjet, jets.at(index));
+        double deltaR = DeltaR(*genBjet, jets.at(index));
         if(deltaR < deltaRBjet){
             deltaRBjet = deltaR;
             matchedBjetIndex = index;
@@ -675,62 +661,72 @@ bool HiggsAnalysis::matchRecoToGenJets(int& matchedBjetIndex, int& matchedAntiBj
             matchedAntiBjetIndex = index;
         }
     }
-
-    // Call a jet matched if it is close enough (should this be a configurable parameter?)
-    if(deltaRBjet>0.5) matchedBjetIndex = -1;
-    if(deltaRAntiBjet>0.5) matchedAntiBjetIndex = -1;
-
+    
+    // Call a jet matched if it is close enough, and has similar pt
+    if(deltaRBjet>0.4){
+        matchedBjetIndex = -2;
+    }
+    else if(matchedBjetIndex >= 0){
+        const double ptRecoJet = jets.at(matchedBjetIndex).pt();
+        const double ptBjet = genBjet->pt();
+        const double deltaPtRel = (ptBjet - ptRecoJet)/ptBjet;
+        if(deltaPtRel<-0.4 || deltaPtRel>0.6) matchedBjetIndex = -3;
+    }
+    
+    if(deltaRAntiBjet>0.4){
+        matchedAntiBjetIndex = -2;
+    }
+    else if(matchedAntiBjetIndex >= 0){
+        const double ptRecoJet = jets.at(matchedAntiBjetIndex).pt();
+        const double ptAntiBjet = genAntiBjet->pt();
+        const double deltaPtRel = (ptAntiBjet - ptRecoJet)/ptAntiBjet;
+        if(deltaPtRel<-0.4 || deltaPtRel>0.6) matchedAntiBjetIndex = -3;
+    }
+    
     // Check if both gen jets are successfully matched to different reco jets
-    if(matchedBjetIndex==-1 || matchedAntiBjetIndex==-1 || matchedBjetIndex == matchedAntiBjetIndex) return false;
-
+    if(matchedBjetIndex<0 || matchedAntiBjetIndex<0 || matchedBjetIndex==matchedAntiBjetIndex) return false;
+    
     return true;
 }
 
 
 
-void HiggsAnalysis::SetHiggsInclusiveSample(const bool isInclusiveHiggs)
+void HiggsAnalysis::SetInclusiveHiggsDecayMode(const int inclusiveHiggsDecayMode)
 {
-    isInclusiveHiggs_ = isInclusiveHiggs;
+    inclusiveHiggsDecayMode_ = inclusiveHiggsDecayMode;
 }
 
 
 
-void HiggsAnalysis::SetHiggsInclusiveSeparation(const bool bbbarDecayFromInclusiveHiggs)
+void HiggsAnalysis::SetAdditionalBjetMode(const int additionalBjetMode)
 {
-    bbbarDecayFromInclusiveHiggs_ = bbbarDecayFromInclusiveHiggs;
+    additionalBjetMode_ = additionalBjetMode;
 }
 
 
 
-void HiggsAnalysis::SetRunWithTtbb(const bool runWithTtbb)
+
+void HiggsAnalysis::SetAllAnalyzers(std::vector<AnalyzerBaseClass*> v_analyzer)
 {
-    runWithTtbb_ = runWithTtbb;
+    v_analyzer_ = v_analyzer;
 }
 
 
 
-void HiggsAnalysis::SetMvaInputProduction(MvaTreeHandler* mvaTreeHandler)
+void HiggsAnalysis::SetAllTreeHandlers(std::vector<MvaTreeHandlerBase*> v_mvaTreeHandler)
 {
-    mvaTreeHandler_ = mvaTreeHandler;
-}
-
-
-
-void HiggsAnalysis::SetAllAnalysisHistograms(std::vector<AnalysisHistogramsBase*> v_analysisHistograms)
-{
-    v_analysisHistograms_ = v_analysisHistograms;
+    v_mvaTreeHandler_ = v_mvaTreeHandler;
 }
 
 
 
 bool HiggsAnalysis::failsHiggsGeneratorSelection(const int higgsDecayMode)const
 {
-    // Check whether it is a Higgs sample
-    if(higgsDecayMode < 0) return false;
+    if(inclusiveHiggsDecayMode_ == -999) return false;
     
     // Separate ttH events from inclusve decay into H->bbbar and other decays
-    if(isInclusiveHiggs_ && !bbbarDecayFromInclusiveHiggs_ && higgsDecayMode==5) return true;
-    if(isInclusiveHiggs_ && bbbarDecayFromInclusiveHiggs_ && higgsDecayMode!=5) return true;
+    if(inclusiveHiggsDecayMode_==0 && higgsDecayMode==5) return true;
+    if(inclusiveHiggsDecayMode_==5 && higgsDecayMode!=5) return true;
     return false;
 }
 
@@ -738,16 +734,43 @@ bool HiggsAnalysis::failsHiggsGeneratorSelection(const int higgsDecayMode)const
 
 bool HiggsAnalysis::failsAdditionalJetFlavourSelection(const Long64_t& entry)const
 {
-    if(!this->isTopSignal()) return false;
-    if(this->isHiggsSignal()) return false;
-
+    if(additionalBjetMode_ == -999) return false;
+    
+    // Use the full sample for creating btag efficiencies
+    if(this->makeBtagEfficiencies()) return false;
+    
     // FIXME: this is a workaround as long as there is no specific additional jet flavour info written to nTuple
     const TopGenObjects& topGenObjects = this->getTopGenObjects(entry);
-    const int nGenBjets = topGenObjects.genBHadIndex_->size();
-    if(runWithTtbb_ && nGenBjets<=2) return true;
-    if(!runWithTtbb_ && nGenBjets>2) return true;
+    const CommonGenObjects& commonGenObjects = this->getCommonGenObjects(entry);
+    
+    std::vector<int> genAddBJetIdNotFromTop;
 
-    return false;
+    float signalJetPt_min = 20.;
+    float signalJetEta_max = 2.5;
+
+    for(size_t iHad=0; iHad<topGenObjects.genBHadJetIndex_->size(); iHad++) {
+//         printf("hadId: %d\n", iHad);
+        if(topGenObjects.genBHadFromTopWeakDecay_->at(iHad)==0) {
+            int genJetId = topGenObjects.genBHadJetIndex_->at(iHad);
+//             printf(" genJetId: %d\n", genJetId);
+            if(genJetId>=0) {
+                if(commonGenObjects.allGenJets_->at(genJetId).Pt()>signalJetPt_min && std::fabs(commonGenObjects.allGenJets_->at(genJetId).Eta())<signalJetEta_max) {
+                    if(std::find(genAddBJetIdNotFromTop.begin(), genAddBJetIdNotFromTop.end(), genJetId) == genAddBJetIdNotFromTop.end()) {
+                        genAddBJetIdNotFromTop.push_back(genJetId);
+                    }
+                }   // If the jet suits the signal selection criterea
+            }   // If the hadron is clustered to any jet
+        }   // If the hadron is additional to b-hadrons from Top
+    }   // End of loop over all b-hadrons
+
+    const unsigned int nExtraBjets = genAddBJetIdNotFromTop.size();
+//     printf("Mode: %d  nAddJets: %d\n", additionalBJetMode_, nExtraBjets);
+
+    if(additionalBjetMode_==2 && nExtraBjets>=2) return false;
+    if(additionalBjetMode_==1 && nExtraBjets==1) return false;
+    if(additionalBjetMode_==0 && nExtraBjets==0) return false;
+
+    return true;
 }
 
 
@@ -760,24 +783,31 @@ void HiggsAnalysis::fillAll(const std::string& selectionStep,
                             const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
                             const double& defaultWeight)const
 {
-    for(AnalysisHistogramsBase* analysisHistograms : v_analysisHistograms_){
-        if(analysisHistograms) analysisHistograms->fill(recoObjects, commonGenObjects,
-                                                   topGenObjects, higgsGenObjects,
-                                                   kinRecoObjects,
-                                                   recoObjectIndices, genObjectIndices,
-                                                   genLevelWeights, recoLevelWeights,
-                                                   defaultWeight, selectionStep);
+    for(AnalyzerBaseClass* analyzer : v_analyzer_){
+        if(analyzer) analyzer->fill(recoObjects, commonGenObjects,
+                                    topGenObjects, higgsGenObjects,
+                                    kinRecoObjects,
+                                    recoObjectIndices, genObjectIndices,
+                                    genLevelWeights, recoLevelWeights,
+                                    defaultWeight, selectionStep);
     }
-
-    if(mvaTreeHandler_) mvaTreeHandler_->fill(recoObjects, genObjectIndices, recoObjectIndices, defaultWeight, selectionStep);
+    
+    for(MvaTreeHandlerBase* mvaTreeHandler : v_mvaTreeHandler_){
+        if(mvaTreeHandler) mvaTreeHandler->fill(recoObjects, commonGenObjects,
+                                                topGenObjects, higgsGenObjects,
+                                                kinRecoObjects,
+                                                recoObjectIndices, genObjectIndices,
+                                                genLevelWeights, recoLevelWeights,
+                                                defaultWeight, selectionStep);
+    }
 }
 
 
 
 void HiggsAnalysis::bookAll()
 {
-    for(AnalysisHistogramsBase* analysisHistograms : v_analysisHistograms_){
-        if(analysisHistograms) analysisHistograms->book(fOutput);
+    for(AnalyzerBaseClass* analyzer : v_analyzer_){
+        if(analyzer) analyzer->book(fOutput);
     }
 }
 
@@ -785,8 +815,8 @@ void HiggsAnalysis::bookAll()
 
 void HiggsAnalysis::clearAll()
 {
-    for(AnalysisHistogramsBase* analysisHistograms : v_analysisHistograms_){
-        if(analysisHistograms) analysisHistograms->clear();
+    for(AnalyzerBaseClass* analyzer : v_analyzer_){
+        if(analyzer) analyzer->clear();
     }
 }
 

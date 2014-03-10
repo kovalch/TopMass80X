@@ -37,6 +37,8 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 #include "TopAnalysis/HiggsUtils/interface/JetProperties.h"
+#include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
+#include "DataFormats/Common/interface/RefVector.h"
 
 
 //
@@ -107,8 +109,10 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     
     for(std::vector<pat::Jet>::const_iterator i_jet = jetHandle->begin(); i_jet != jetHandle->end(); ++i_jet){
         
-        std::vector<math::PtEtaPhiMLorentzVectorD> jetTrack;
-        std::vector<int> jetTrackCharge;
+        std::vector<math::PtEtaPhiMLorentzVectorD> jetPfCandidateTrack;
+        std::vector<int> jetPfCandidateTrackCharge;
+        std::vector<int> jetPfCandidateTrackId;
+        
         // Jet charge as given by PAT (weighted by global pt)
         const double jetChargeGlobalPtWeighted(i_jet->jetCharge());
         
@@ -130,9 +134,10 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	    
             if(charge == 0) continue;
 	    
-            jetTrack.push_back( (*i_candidate)->polarP4());
-            jetTrackCharge.push_back(charge);
-	    
+            jetPfCandidateTrack.push_back( (*i_candidate)->polarP4());
+            jetPfCandidateTrackCharge.push_back(charge);
+            jetPfCandidateTrackId.push_back((*i_candidate)->particleId());
+            
             const double constituentPx = (*i_candidate)->px();
             const double constituentPy = (*i_candidate)->py();
             const double constituentPz = (*i_candidate)->pz();
@@ -144,6 +149,49 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         
         const double jetChargeRelativePtWeighted(sumMomentum>0 ? sumMomentumQ/sumMomentum : 0);
         
+        //access trackIPTagInfo->impact parameter
+        std::vector<double> jetSelectedTrackIPValue;
+        std::vector<double> jetSelectedTrackIPSignificance;
+        std::vector<int> jetSelectedTrackCharge;
+        std::vector< math::PtEtaPhiMLorentzVectorD > jetSelectedTrack;
+        
+        if (i_jet->hasTagInfo("impactParameter"))
+        {
+            const reco::TrackIPTagInfo* trackIPTagInfo = i_jet->tagInfoTrackIP("impactParameter");
+            if (trackIPTagInfo != NULL)
+            {
+                reco::TrackRefVector jetSelectedTracks = trackIPTagInfo->selectedTracks();
+                
+                for(unsigned int j=0;j<jetSelectedTracks.size(); j++) 
+                {
+                    const double ipValue = trackIPTagInfo->impactParameterData()[j].ip3d.value();
+                    const double ipSignificance = trackIPTagInfo->impactParameterData()[j].ip3d.significance();
+
+                    reco::Track track ( *(jetSelectedTracks.at(j)) );
+                    
+                    double trackPt;
+                    double trackEta;
+                    double trackPhi;
+                    double trackM;
+                    
+                    jetSelectedTrackIPValue.push_back(ipValue);
+                    jetSelectedTrackIPSignificance.push_back(ipSignificance);
+                    jetSelectedTrackCharge.push_back(track.charge());
+                    
+                    //create the track LV
+                    trackPt = track.pt();
+                    trackEta = track.eta();
+                    trackPhi = track.phi();
+                    trackM = 0.13957018; //mass of the track is agreed to be the pion mass by default
+                    
+                    math::PtEtaPhiMLorentzVectorD q (trackPt, trackEta, trackPhi, trackM);
+                    jetSelectedTrack.push_back(q);
+                    
+                }//end loop over tracks
+                
+            }//trackIPTagInfo filled check
+            
+        }//has tag info
         
         // Access Lorentz vector and PDG ID of parton associated to jet by PAT
         // If it does not exist, this can be identified by PDG ID =0
@@ -155,7 +203,7 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
             jetAssociatedParton = genParton->polarP4();
         }
         
-        JetProperties jetProperties(jetChargeGlobalPtWeighted, jetChargeRelativePtWeighted, jetAssociatedPartonPdgId, jetAssociatedParton, jetTrack, jetTrackCharge);
+        JetProperties jetProperties(jetChargeGlobalPtWeighted, jetChargeRelativePtWeighted, jetAssociatedPartonPdgId, jetAssociatedParton, jetPfCandidateTrack, jetPfCandidateTrackCharge,jetPfCandidateTrackId, jetSelectedTrack, jetSelectedTrackIPValue, jetSelectedTrackIPSignificance, jetSelectedTrackCharge);
         v_jetProperties->push_back(jetProperties);
         
         edm::LogVerbatim log("JetPropertiesProducer");
@@ -169,9 +217,13 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         log<<"Jet associated parton mass: "<<jetProperties.jetAssociatedParton().M()<<"\n";
         log<<"   --------------------------   \n\n";    
         
-        jetTrackCharge.clear();
-        jetTrack.clear();
-        
+        jetPfCandidateTrack.clear();
+        jetPfCandidateTrackCharge.clear();
+        jetPfCandidateTrackId.clear();
+        jetSelectedTrack.clear();
+        jetSelectedTrackIPValue.clear();
+        jetSelectedTrackIPSignificance.clear();
+        jetSelectedTrackCharge.clear();
     }
     
     iEvent.put(v_jetProperties);

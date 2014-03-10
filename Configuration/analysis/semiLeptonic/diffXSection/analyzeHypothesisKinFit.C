@@ -3,13 +3,13 @@
 #include "../../unfolding/TopSVDFunctions.C" 
 
 void analyzeHypothesisKinFit(double luminosity = 19712.,
-			     bool save = true, int systematicVariation=sysNo, unsigned int verbose=0,
-			     TString inputFolderName="RecentAnalysisRun8TeV_doubleKinFit",
-			     //TString dataFile= "/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/muonDiffXSecData2012ABCDAll.root",
-			     //TString dataFile= "/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/elecDiffXSecData2012ABCDAll.root",
-			     TString dataFile= "/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/elecDiffXSecData2012ABCDAll.root:/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/muonDiffXSecData2012ABCDAll.root",
+			     bool save = true, int systematicVariation=sysPUUp, unsigned int verbose=0,
+			     TString inputFolderName=AnalysisFolder,
+			     //TString dataFile= groupSpace+AnalysisFolder+"/muonDiffXSecData2012ABCDAll.root",
+			     //TString dataFile= groupSpace+AnalysisFolder+"/elecDiffXSecData2012ABCDAll.root",
+			     TString dataFile= groupSpace+AnalysisFolder+"/elecDiffXSecData2012ABCDAll.root:"+groupSpace+AnalysisFolder+"/muonDiffXSecData2012ABCDAll.root",
 			     std::string decayChannel = "combined", bool SVDunfold=true, bool extrapolate=true, bool hadron=false,
-			     bool addCrossCheckVariables=false, bool redetermineopttau =false, TString closureTestSpecifier="", TString addSel="ProbSel")
+			     bool addCrossCheckVariables=false, bool redetermineopttau =true, TString closureTestSpecifier="", TString addSel="ProbSel")
 {
   // ============================
   //  Set ROOT Style
@@ -132,7 +132,7 @@ void analyzeHypothesisKinFit(double luminosity = 19712.,
   TString lumi = getTStringFromInt(roundToInt((luminosity), false));  
   // b) options to be configured only once
   // get the .root files from the following folder:
-  TString inputFolder = "/afs/naf.desy.de/group/cms/scratch/tophh/"+inputFolderName;
+  TString inputFolder = groupSpace+inputFolderName;
   // see if its 2010 or 2011 data from luminosity
   TString dataSample="2012";
   // for closure test if desired
@@ -209,6 +209,28 @@ void analyzeHypothesisKinFit(double luminosity = 19712.,
   //for(int sys=sysPDFUp     ; sys<=sysPDFDown    ; ++sys) ignoreSys_.push_back(sys);
   // FIXME: exclude all
   //for(int sys=3     ; sys<=47    ; ++sys) ignoreSys_.push_back(sys);
+  // exclude the last TOPMASS uncertainty for MadSpin as only 3 masspoints are available
+  if(MadSpin){
+    ignoreSys_.push_back(sysTopMassUp4  );
+    ignoreSys_.push_back(sysTopMassDown4);  
+    // FIXME: use if Recent*/Prob/*MadSpin*.root files are missing
+    //ignoreSys_.push_back(sysPUUp);
+    //ignoreSys_.push_back(sysPUDown);
+    //ignoreSys_.push_back(sysLepEffSFNormUp);
+    //ignoreSys_.push_back(sysLepEffSFNormDown);
+    //ignoreSys_.push_back(sysLepEffSFShapeUpEta);
+    //ignoreSys_.push_back(sysLepEffSFShapeDownEta);
+    //ignoreSys_.push_back(sysLepEffSFShapeUpPt);
+    //ignoreSys_.push_back(sysLepEffSFShapeDownPt);
+    //ignoreSys_.push_back(sysBtagSFUp);
+    //ignoreSys_.push_back(sysBtagSFDown);
+    //ignoreSys_.push_back(sysBtagSFShapeUpPt65);
+    //ignoreSys_.push_back(sysBtagSFShapeDownPt65);
+    //ignoreSys_.push_back(sysBtagSFShapeUpEta0p7);
+    //ignoreSys_.push_back(sysBtagSFShapeDownEta0p7);
+    //ignoreSys_.push_back(sysMisTagSFUp);
+    //ignoreSys_.push_back(sysMisTagSFDown);
+  }
   // use std variable for loading plots in case of listed systematics
   for(unsigned int i=0; i<ignoreSys_.size(); ++i){
     if(systematicVariation==ignoreSys_[i]) systematicVariationMod=sysNo;
@@ -259,7 +281,11 @@ void analyzeHypothesisKinFit(double luminosity = 19712.,
     }
     exit(0);
   }
-
+  else if(verbose>2){
+    for(unsigned int ix=0; ix<xSecVariables_.size(); ++ix){
+      std::cout << xSecVariables_[ix] << ": " << xSecLabel_[ix] << std::endl; 
+    }
+  }
 
   // get folder prefix for systematics without extra rootfile
   switch (systematicVariationMod)
@@ -693,8 +719,8 @@ void analyzeHypothesisKinFit(double luminosity = 19712.,
     "#Delta#chi^{2} (1^{st} - 2^{nd} best fit hypothesis)/events/0/10",
     // reconstructed top quantities
     "m^{t} #left[GeV#right]/#frac{dN}{dm^{t}} #left[GeV^{-1}#right]/0/10",
-    xSecLabelName("topPt")+"/#frac{dN}{dp_{T}^{t}} #left[GeV^{-1}#right]/0/1",
-    xSecLabelName("topPtTtbarSys")+"/#frac{dN}{dp_{T}^{t}} #left[GeV^{-1}#right]/0/1",
+    xSecLabelName("topPt")+"/#frac{dN}{"+xSecLabelName("topPt")+"} #left[GeV^{-1}#right]/0/1",
+    xSecLabelName("topPtTtbarSys")+"/#frac{dN}{d"+xSecLabelName("topPtTtbarSys")+"} #left[GeV^{-1}#right]/0/1",
     xSecLabelName("topPtLead")+"/#frac{dN}{dp_{T}^{t}} #left[GeV^{-1}#right]/0/1",
     xSecLabelName("topPtSubLead")+"/#frac{dN}{dp_{T}^{t}} #left[GeV^{-1}#right]/0/1",
     "#phi^{t}/#frac{dN}{d#phi^{t}}/0/4",
@@ -3334,4 +3360,6 @@ void analyzeHypothesisKinFit(double luminosity = 19712.,
   // delete pointer
   delete leg0;
   closeStdTopAnalysisFiles(files_);
+  // close all open files
+  CloseOpenFiles();
 }

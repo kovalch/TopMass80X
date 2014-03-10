@@ -10,16 +10,23 @@ source $(dirname `readlink -f $0`)/parallelTools.sh
 #     done
 # done
 
+# for chann in ee emu mumu; do
+#     $LA -f powhegHerwig -c ${chann} -s POWHEGHERWIG &
+#     w
+# done
+
 for chann in ee emu mumu; do
-    $LA -f powhegHerwig -c ${chann} -s POWHEGHERWIG &
+    $LA -f massup -c ${chann} &
+    $LA -f massdown -c ${chann} &
+    $LA -f matchingup -c ${chann} &
+    $LA -f matchingdown -c ${chann} &
+    $LA -f scaleup -c ${chann} &
+    $LA -f scaledown -c ${chann} &
+    $LA -f powheg.root -c ${chann} &
+    $LA -f mcatnlo -c ${chann} &
     w
 done
 
-#these have rather low statistics, don't need to split them into ee/emu/mumu
-for Syst in match mass scale powheg.root mcatnlo; do
-    $LA -f $Syst &
-    w
-done
 
 wait
 

@@ -4,15 +4,14 @@
 #include <Rtypes.h>
 
 class TTree;
-class TString;
 
 #include "analysisHelpers.h"
 #include "analysisStructsFwd.h"
 #include "../../common/include/AnalysisBase.h"
 #include "../../common/include/classesFwd.h"
 
-class MvaTreeHandler;
-class AnalysisHistogramsBase;
+class MvaTreeHandlerBase;
+class AnalyzerBaseClass;
 class RecoObjects;
 class CommonGenObjects;
 class TopGenObjects;
@@ -51,22 +50,19 @@ public:
     
     
     
-    /// Is it a ttH sample inclusive in Higgs decay
-    void SetHiggsInclusiveSample(const bool isInclusiveHiggs);
+    /// ID for separating Higgs sample inclusive in Higgs decay via their decay mode
+    void SetInclusiveHiggsDecayMode(const int inclusiveHiggsDecayMode);
     
-    /// Select H->bbbar or H->other decay from ttH sample inclusive in Higgs decay
-    void SetHiggsInclusiveSeparation(const bool bbbarDecayFromInclusiveHiggs);
-    
-    /// Bool for separating ttbar+bbar events and ttbar+other events
-    void SetRunWithTtbb(const bool runWithTtbb);
+    /// ID for separating ttbar samples via flavour of additional jets
+    void SetAdditionalBjetMode(const int additionalBjetMode);
     
     
     
-    /// Set up production of MVA input
-    void SetMvaInputProduction(MvaTreeHandler* mvaTreeHandler);
+    /// Set up all analysers of type AnalyzerBaseClass
+    void SetAllAnalyzers(std::vector<AnalyzerBaseClass*> v_analyzer);
     
-    /// Set up all analysers of type AnalysisHistogramsBase
-    void SetAllAnalysisHistograms(std::vector<AnalysisHistogramsBase*> v_analysisHistograms);
+    /// Set up all tree handlers of type MvaTreeHandlerBase
+    void SetAllTreeHandlers(std::vector<MvaTreeHandlerBase*> v_mvaTreeHandler);
     
     
     
@@ -117,26 +113,19 @@ private:
     
     
     
-    /// Is it a ttH sample inclusive in Higgs decay
-    bool isInclusiveHiggs_;
+    /// For a Higgs sample inclusive in decay, select H->bbbar or H->other decay (no separation for default value -999)
+    int inclusiveHiggsDecayMode_;
     
-    /// Select H->bbbar or H->other decay from ttH sample inclusive in Higgs decay
-    bool bbbarDecayFromInclusiveHiggs_;
-    
-    /// Select tt+bb or tt+other events
-    bool runWithTtbb_;
-    
-    // FIXME: remove this variable which was implemented for testing (and in a different way as it was in TopAnalysis...)
-    /// Whether randomly tag b jets or apply an event btag weight
-    bool retagBJets_;
+    /// For a ttbar sample, select tt+bb, tt+b, or tt+other events (no separation for default value -999)
+    int additionalBjetMode_;
     
     
     
-    /// Class for steering the I/O of MVA input tree, trying to identify the jets coming from (anti)b's from (anti)tops
-    MvaTreeHandler* mvaTreeHandler_;
+    /// All analysers of type AnalyzerBaseClass
+    std::vector<AnalyzerBaseClass*> v_analyzer_;
     
-    /// All analysers of type AnalysisHistogramsBase
-    std::vector<AnalysisHistogramsBase*> v_analysisHistograms_;
+    /// All tree handlers of type MvaTreeHandlerBase
+    std::vector<MvaTreeHandlerBase*> v_mvaTreeHandler_;
 };
 
 

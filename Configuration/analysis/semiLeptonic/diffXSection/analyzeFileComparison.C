@@ -21,21 +21,22 @@ void analyzeFileComparison(bool save = true,  bool usePAPERbinning=true, int ver
   //  load rootfiles
   // ============================
   std::vector<TFile* > file_;
-  TString targetfolder="/afs/naf.desy.de/group/cms/scratch/tophh/RecentAnalysisRun8TeV_doubleKinFit/";
-  file_.push_back(TFile::Open(targetfolder+"elecDiffXSecSigSummer12PF.root"                      , "Open"));
-  file_.push_back(TFile::Open(targetfolder+"muonDiffXSecSigSummer12PF.root"                      , "Open"));
-  file_.push_back(TFile::Open(targetfolder+"TopMassConstraint/elecDiffXSecSigTopMassConstraint173p5Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"TopMassConstraint/muonDiffXSecSigTopMassConstraint173p5Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"TopMassConstraint/elecDiffXSecSigTopMassConstraint171p5Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"TopMassConstraint/muonDiffXSecSigTopMassConstraint171p5Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"TopMassConstraint/elecDiffXSecSigTopMassConstraint174p5Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"TopMassConstraint/muonDiffXSecSigTopMassConstraint174p5Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"TopMassConstraint/elecDiffXSecSigTopMassConstraint170p5Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"TopMassConstraint/muonDiffXSecSigTopMassConstraint170p5Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"TopMassConstraint/elecDiffXSecSigTopMassConstraint180p0Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"TopMassConstraint/muonDiffXSecSigTopMassConstraint180p0Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"TopMassConstraint/elecDiffXSecSigTopMassConstraint160p0Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"TopMassConstraint/muonDiffXSecSigTopMassConstraint160p0Summer12PF.root", "Open"));
+  TString MS= ""; //MadSpin ? "MadSpin" : ""; -> keep old files for the moment
+  TString targetfolder=groupSpace+AnalysisFolder;
+  file_.push_back(TFile::Open(targetfolder+"/elecDiffXSecSig"+MS+"Summer12PF.root"                                  , "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/muonDiffXSecSigSummer12PF.root"                                        , "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/elecDiffXSecSig"+MS+"TopMassConstraint173p5Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/muonDiffXSecSig"+MS+"TopMassConstraint173p5Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/elecDiffXSecSig"+MS+"TopMassConstraint171p5Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/muonDiffXSecSig"+MS+"TopMassConstraint171p5Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/elecDiffXSecSig"+MS+"TopMassConstraint174p5Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/muonDiffXSecSig"+MS+"TopMassConstraint174p5Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/elecDiffXSecSig"+MS+"TopMassConstraint170p5Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/muonDiffXSecSig"+MS+"TopMassConstraint170p5Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/elecDiffXSecSig"+MS+"TopMassConstraint180p0Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/muonDiffXSecSig"+MS+"TopMassConstraint180p0Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/elecDiffXSecSig"+MS+"TopMassConstraint160p0Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/muonDiffXSecSig"+MS+"TopMassConstraint160p0Summer12PF.root", "Open"));
 
 
   std::vector<double > massConstraint_;
@@ -392,11 +393,8 @@ void analyzeFileComparison(bool save = true,  bool usePAPERbinning=true, int ver
     // ratio
     std::vector<double> err_;
     for(int bin=1; bin<=histo_[name][1725]->GetNbinsX(); ++bin){
-      double b =histo_[name][1725]->GetBinContent(bin);
-      double Db=sqrt(b);
       double a =histo_[name][1725]->GetBinContent(bin);
-      double Da=sqrt(a);
-      err_.push_back(sqrt((a*a*Db*Db)/(b*b*b*b)+(Da*Da)/(b*b)));
+      err_.push_back(sqrt(a)/(a));
     }
     drawRatio(histo_[name][1725], histo_[name][1725], 0.9, 1.12, myStyle, verbose, err_, "constraint", "#scale[0.7]{m_{top}^{constr}=172.5 GeV}", "e p", kBlack, false, 0.2);
     for(int sample=0; sample<int(file_.size()); sample=sample+2){

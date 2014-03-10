@@ -49,7 +49,8 @@ const std::vector<const char*> VectorOfValidSystematics
 void Histo(bool doControlPlots, bool doUnfold, bool doDiffXSPlotOnly,
            std::vector<std::string> plots, 
            std::vector<std::string> systematics, 
-           std::vector<std::string> channels) 
+           std::vector<std::string> channels,
+           const bool drawUncBand)
 {
     //to stay compatible with old code
     std::set<TString> SetOfValidSystematics;
@@ -100,6 +101,7 @@ void Histo(bool doControlPlots, bool doUnfold, bool doDiffXSPlotOnly,
         //need preunfolding for ALL channels before unfolding!!
         for (auto channel : channels) {
             for (auto systematic : systematics) {
+                h_generalPlot.setDrawUncBand(drawUncBand);
                 h_generalPlot.preunfolding(channel, systematic);
             }
         }
@@ -172,6 +174,7 @@ int main(int argc, char** argv) {
         makeStringChecker({"ee", "emu", "mumu", "combined"}));
     CLParameter<std::string> opt_sys("s", "Systematic variation - default is Nominal, use 'all' for all", false, 1, 100,
         makeStringChecker(VectorOfValidSystematics));
+    CLParameter<bool> opt_band("b", "If existing, draw uncertainty band if '-t cp' ", false, 0, 0);
     CLAnalyser::interpretGlobal(argc, argv);
     
     std::vector<std::string> channels { "emu", "ee", "mumu", "combined" };
@@ -185,7 +188,7 @@ int main(int argc, char** argv) {
         if (systematics[0] == "all") {
             systematics.clear();
             for (string syst: VectorOfValidSystematics) {
-                if (syst != "all") systematics.push_back(syst);
+                if (syst != "all" && syst != "POWHEGHERWIG") systematics.push_back(syst);
             }
         }
     }
@@ -198,5 +201,6 @@ int main(int argc, char** argv) {
     bool doControlPlots = opt_type[0] == "cp";
     bool doDiffXSPlotOnly = opt_type[0] == "plot";
     bool doUnfold = opt_type[0] == "unfold";
-    Histo(doControlPlots, doUnfold, doDiffXSPlotOnly, plots, systematics, channels);
+    bool drawUncBand = (opt_band.isSet() && doControlPlots);
+    Histo(doControlPlots, doUnfold, doDiffXSPlotOnly, plots, systematics, channels, drawUncBand);
 }

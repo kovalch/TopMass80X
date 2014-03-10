@@ -114,6 +114,12 @@ Available Parameters
       WARNING: you need to save your file to the local temp dir, i.e.
       ....fileName=cms.untracked.string(os.getenv('TMPDIR', '.') + '/file.root')
 
+
+   The environment variable NJS_GROUPID can specify another
+   fairshare group (NAF2). If not set, af-cms is used
+   The standard disk limit for a job is 50GB. If you want to change that
+   use the environment variable NJS_FSIZE (only number without "G")
+
 ******************************************************************
 * What to do after submitting - if jobs crash / to monitor jobs  *
 ******************************************************************
@@ -171,7 +177,7 @@ END_USAGE_INFO
 }
 
 # pass dataset name as parameter
-# returns import command for python file (full line, but excluding \n)
+# returns import command for python file. Recreates lumi list
 sub getDatasetPythonFile {
     my $dataset = shift;
     (my $localFileName = $dataset) =~ s!\W!_!g;
@@ -196,7 +202,7 @@ sub getDatasetPythonFile {
     }
     #make sure the file can be found even without running scram (dirty hack)
     $ENV{PYTHONPATH} = "$datasetPythonPath:$ENV{PYTHONPATH}";
-    return qq{process.load("$localFileName")};
+    return qq{\ncopyjson=False\nif(hasattr(process.source,'lumisToProcess')):\n\tlumisToProcess=process.source.lumisToProcess\n\tcopyjson=True\nprocess.load("$localFileName")\nif copyjson:\n\tprocess.source.lumisToProcess=lumisToProcess};
 #     return qq{process.load("TopAnalysis.Configuration.$localFileName")};
 }
 
@@ -589,7 +595,9 @@ sub getBatchsystemTemplate {
 #
 #$ -o /dev/null
 # naf2 changes
-#$ -P af-cms
+#$ -P __GPID__
+# request disk space. 
+#$ -l h_fsize=__FSIZE__G
 
 tmp=$(mktemp -d -t njs_XXXXXX)
 
@@ -693,10 +701,14 @@ rm -r $tmp
 END_OF_BATCH_TEMPLATE
     my ($hcpu, $scpu) = getCPULimits();
     my ($hvmem, $svmem) = getMemoryLimits();
+    my $afgid = getGroupID();
+    my $dlimit = getDiskLimit();
     $templ =~ s/__HCPU__/$hcpu/g;
     $templ =~ s/__SCPU__/$scpu/g;
     $templ =~ s/__HVMEM__/$hvmem/g;
     $templ =~ s/__SVMEM__/$svmem/g;
+    $templ =~ s/__GPID__/$afgid/g;
+    $templ =~ s/__FSIZE__/$dlimit/g;
     $args{'c'} ||= '';
     $templ =~ s/CMSRUNPARAMETER/$args{'c'}/g;
     $args{'O'} ||= '';
@@ -719,6 +731,20 @@ sub getMemoryLimits {
     my $hlimit = $args{'M'} || $ENV{NJS_MEM} || 3700;
     die "invalid memory requirement: $hlimit\n" unless $hlimit =~ /^\d+$/ && $hlimit > 700 && $hlimit < 20000;
     return ($hlimit, $hlimit - 300);
+}
+sub getDiskLimit {
+    my $dlimit = $ENV{NJS_FSIZE} || 50;
+    return $dlimit;
+}
+
+sub getGroupID {
+    my $gid = $ENV{NJS_GROUPID} || "af-cms";
+    my $mygroups=`id`;
+    if(index($mygroups, $gid) == -1) {
+	die "invalid group id: $gid\n";
+    }
+    print "using group $gid\n";
+    return $gid;
 }
 
 ################################################################################################

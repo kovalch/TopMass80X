@@ -128,7 +128,7 @@ else:
     if options.runOnMC:
         process.GlobalTag.globaltag = cms.string('START53_V27::All')
     else:
-        process.GlobalTag.globaltag = cms.string('FT_53_V21A_AN6::All')
+        process.GlobalTag.globaltag = cms.string('FT53_V21A_AN6::All')
 
 print "Using global tag: ", process.GlobalTag.globaltag
 
@@ -553,6 +553,8 @@ process.writeNTuple = writeNTuple.clone(
     genBHadIndex = cms.InputTag(genHFHadronMatcherInput,"genBHadIndex"),
     genBHadFlavour = cms.InputTag(genHFHadronMatcherInput,"genBHadFlavour"),
     genBHadJetIndex = cms.InputTag(genHFHadronMatcherInput,"genBHadJetIndex"),
+    genBHadLeptons = cms.InputTag(genHFHadronMatcherInput,"genBHadLeptons"),
+    genBHadLeptonHadIndex = cms.InputTag(genHFHadronMatcherInput,"genBHadLeptonHadIndex"),
 )
 process.writeNTuple.jetsForMET    = cms.InputTag("scaledJetEnergy:selectedPatJets")
 process.writeNTuple.jetsForMETuncorr    = cms.InputTag("selectedPatJets")
@@ -676,6 +678,7 @@ if topfilter:
     process.load("TopAnalysis.TopUtils.GenHFHadronMatcher_cff")
     process.matchGenHFHadronJets.flavour = 5
     process.matchGenHFHadronJets.noBBbarResonances = True
+    process.matchGenHFHadronJets.onlyJetClusteredHadrons = False # should be True to store leptons from b-jets (will run slower)
 
     process.load("TopAnalysis.TopUtils.sequences.improvedJetHadronQuarkMatching_cff")
 
@@ -792,7 +795,8 @@ getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'pfPhotonS
 
 massSearchReplaceAnyInputTag(getattr(process,'patPF2PATSequence'+pfpostfix),'pfNoTau'+pfpostfix,'pfJets'+pfpostfix)
 
-
+#Set to true the access to some specific information in PAT jets when doing the b-tagging. 
+applyPostfix(process, "patJets", pfpostfix).addTagInfos = True
 
 
 ####################################################################

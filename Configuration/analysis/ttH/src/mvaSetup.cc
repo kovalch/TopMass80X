@@ -159,7 +159,7 @@ mvaSetup::SystematicChannelFileNames mvaSetup::mergeTrees(const char* mvaInputDi
                         const TString singleStepName = tth::stepName(mvaSet.step_, category);
                         //std::cout<<"Step name (merged, single): "<<mergedStepName<<" , "<<singleStepName<<"\n";
                         // FIXME: need to check whether input tree really exists
-                        TTree* inputTree = (TTree*)inputFile->Get("mvaInputTopJets"+singleStepName);
+                        TTree* inputTree = (TTree*)inputFile->Get("topJets_mvaVariables"+singleStepName);
                         if(m_stepListTraining.find(mergedStepName) == m_stepListTraining.end()){
                             m_stepListTraining[mergedStepName] = new TList;
                         }
@@ -186,7 +186,7 @@ mvaSetup::SystematicChannelFileNames mvaSetup::mergeTrees(const char* mvaInputDi
                         const TString singleStepName = tth::stepName(mvaSet.step_, category);
                         //std::cout<<"Step name (merged, single): "<<mergedStepName<<" , "<<singleStepName<<"\n";
                         // FIXME: need to check whether input tree really exists
-                        TTree* inputTree = (TTree*)inputFile->Get("mvaInputTopJets"+singleStepName);
+                        TTree* inputTree = (TTree*)inputFile->Get("topJets_mvaVariables"+singleStepName);
                         
                         if(m_stepListTesting.find(mergedStepName) == m_stepListTesting.end()){
                             m_stepListTesting[mergedStepName] = new TList;

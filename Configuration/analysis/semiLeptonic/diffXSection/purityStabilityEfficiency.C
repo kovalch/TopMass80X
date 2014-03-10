@@ -24,7 +24,7 @@
 #include "../../../../TopUtils/interface/extract_sigma.h"
 
 void purityStabilityEfficiency(TString variable = "topPt", bool save=true, TString lepton="combined", 
-			       TString inputFolderName="RecentAnalysisRun8TeV_doubleKinFit", bool plotAcceptance = false, 
+			       TString inputFolderName=AnalysisFolder, bool plotAcceptance = false, 
 			       bool plotEfficiencyPhaseSpace = false, bool plotEfficiency2 = false, double chi2Max=7.824,//9999.,//7.824,
 			       int verbose=1, bool hadron=false, int qAssignment=-1,
 			       bool fitGaussRes=true, bool printSeparateRes = false)
@@ -41,6 +41,8 @@ void purityStabilityEfficiency(TString variable = "topPt", bool save=true, TStri
   // qAssignment     make a cut on kinFit jet permutation: -1= no cut, 0=ok, 1=bb, 2=blepq, 3=bhadq, 4=bbqlep, 5=bbqhad, 6=bbqq, 7=jmis, 8=wrongj, 9=nomatch
   // fitGaussRes:    fit a Gauss to the residuum plots to obtain the resolution
   // printSeparateRes save the residuum plots separately
+
+  TString path=groupSpace; // folder with all rootfiles
   bool useTree=true; // use default 2D histo or create 2D histo from tree, allows chi2 cuts
   if(variable.Contains("lbMass")) useTree=false; //FIXME
   TString nameExt="";
@@ -81,13 +83,12 @@ void purityStabilityEfficiency(TString variable = "topPt", bool save=true, TStri
   if(verbose<=1) gErrorIgnoreLevel=kWarning;
   
   if(qAssignment>=0) std::cout << "qAssignment=" << qAssignment << std::endl;
-
   // input file
-  TFile* myFile1 = new TFile("/afs/naf.desy.de/group/cms/scratch/tophh/"+inputFolderName+"/"+TopFilename(kSig, sysNo, (std::string)lepton), "READ");
-  TFile* myFile2 = new TFile("/afs/naf.desy.de/group/cms/scratch/tophh/"+inputFolderName+"/"+TopFilename(kSig, sysNo, (std::string)lepton), "READ");
+  TFile* myFile1 = new TFile(path+""+inputFolderName+"/"+TopFilename(kSig, sysNo, (std::string)lepton), "READ");
+  TFile* myFile2 = new TFile(path+""+inputFolderName+"/"+TopFilename(kSig, sysNo, (std::string)lepton), "READ");
   
   if(!myFile1){
-    std::cout << "ERROR when opening file " << "/afs/naf.desy.de/group/cms/scratch/tophh/"+inputFolderName+"/"+TopFilename(kSig, sysNo, (std::string)lepton) << std::endl;
+    std::cout << "ERROR when opening file " << path+""+inputFolderName+"/"+TopFilename(kSig, sysNo, (std::string)lepton) << std::endl;
     exit(0);
   }
 

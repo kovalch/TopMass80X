@@ -10,9 +10,12 @@ TCanvas* getRatio(TString plotName, int verbose, TString outputFile){
   myStyle.cd();
   gROOT->SetStyle("HHStyle");
   
+  // draw data uncertainties as bands
+  bool bands=true;
+
   // compare current with old result
   bool compare=false;
-  TString oldResult="/afs/naf.desy.de/group/cms/scratch/tophh/tmp/OldCombination/";
+  TString oldResult=groupSpace+"tmp/OldCombination/";
 
   // open file
   TFile* file = TFile::Open(outputFile, "READ");
@@ -100,7 +103,7 @@ TCanvas* getRatio(TString plotName, int verbose, TString outputFile){
     hist_.push_back( killEmptyBins(plotmcatnloerror2, verbose) );
   }
   // a1) Ahrens
-  if(finalNNLO&&plotName.Contains("ttbarMass")) hist_.push_back(finalNNLO);
+  if(finalNNLO&&(plotName.Contains("ttbarMass")||plotName.Contains("ttbarPt"))) hist_.push_back(finalNNLO);
   // c) MC theories
   if(plotMadGraph    ) hist_.push_back( killEmptyBins(plotMadGraph    , verbose) );
   if(plotmcatnlo     ) hist_.push_back( killEmptyBins(plotmcatnlo     , verbose) );
@@ -149,38 +152,30 @@ TCanvas* getRatio(TString plotName, int verbose, TString outputFile){
   std::vector<TCanvas*> plotCanvas_;
   double max= 1.5;
   double min= 0.5;
-  if(plotName.Contains("lepPt" )){min=0.75;max=1.25;}
-  if(plotName.Contains("lepEta")){min=0.85;max=1.15;}
-  if(plotName.Contains("bqPt"  )){min=0.7;max=1.5;}
-  if(plotName.Contains("bqEta" )){min=0.8;max=1.15;}
-  if(plotName.Contains("bbbarMass")){min=0.3;max=1.75;}
-  if(plotName.Contains("bbbarPt"  )){min=0.4;max=1.8;}
-  if(plotName.Contains("Njets"   )){min=0.15;max=1.85;}
-  if(plotName.Contains("rhos"    )){min=0.1 ;max=2.4;}
-  if(plotName.Contains("lbMass")){min=0.55;max=1.35;}
-  if(plotName.Contains("topPt")){
-       if(plotName.Contains("Sub")){min=0.8;max=1.7;}
-       else if(plotName.Contains("Lead")){min=0.8;max=1.5;}
-       else{min=0.8;max=1.5;}
+  unsigned int ndiv=505;
+  if(plotName.Contains("lepPt"    )){min=bands ? 0.85 : 0.85;max=bands ? 1.35 : 1.29;}
+  if(plotName.Contains("lepEta"   )){min=bands ? 0.8  : 0.75;max=bands ? 1.35 : 1.25; ndiv=506;}
+  if(plotName.Contains("bqPt"     )){min=bands ? 0.7  : 0.7 ;max=bands ? 1.75 : 1.5 ; ndiv=506;}
+  if(plotName.Contains("bqEta"    )){min=bands ? 0.8  : 0.85;max=bands ? 1.25 : 1.15;}
+  if(plotName.Contains("bbbarMass")){min=bands ? 0.4  : 0.3 ;max=bands ? 1.59 : 1.75; ndiv=508;}
+  if(plotName.Contains("bbbarPt"  )){min=bands ? 0.6  : 0.61;max=bands ? 1.49 : 1.39;}
+  if(plotName.Contains("Njets"    )){min=bands ? 0.05 : 0.15;max=bands ? 2.25 : 1.95;}
+  if(plotName.Contains("rhos"     )){min=bands ? 0.1  : 0.1 ;max=bands ? 2.79 : 1.9 ; ndiv=506;}
+  if(plotName.Contains("lbMass"   )){min=bands ? 0.7  : 0.7 ;max=bands ? 1.49 : 1.35;}
+  if(plotName.Contains("topPt"    )){
+    //if(     plotName.Contains("Sub" )){min=bands ? 0.7  : 0.7 ;max=bands ? 1.59 : 1.59;}
+    //else if(plotName.Contains("Lead")){min=bands ? 0.7  : 0.7 ;max=bands ? 1.59 : 1.59;}
+    //else                              {min=bands ? 0.75 : 0.75;max=bands ? 1.59 : 1.59;}
+    min=bands ? 0.7 : 0.75;max=bands ? 1.65 : 1.59;
   }
-  if(plotName.Contains("topY")){min=0.8;max=1.25;}
-  if(plotName.Contains("ttbarPt")){min=0.7;max=1.5;}
-  if(plotName.Contains("ttbarY")){min=0.8;max=1.35;}
-  if(plotName.Contains("ttbarMass")){min=0.5;max=1.5;}
-  if(plotName.Contains("topPtTtbar")){min=0.8;max=1.7;}
-  if(plotName.Contains("ttbarDelPhi")){min=0.8;max=1.25;}
-  if(plotName.Contains("PhiStar")){min=0.8;max=1.25;}
-  //if(plotName.Contains("")){min=;max=;}
-  //if(plotName.Contains("")){min=;max=;}
-  //if(plotName.Contains("")){min=;max=;}
-  //if(plotName.Contains("")){min=;max=;}
-  //if(plotName.Contains("")){min=;max=;}
-  //if(plotName.Contains("")){min=;max=;}
-  //if(plotName.Contains("")){min=;max=;}
-  //if(plotName.Contains("")){min=;max=;}
-  //if(plotName.Contains("")){min=;max=;}
-  //if(plotName.Contains("")){min=;max=;}
-  plotCanvas_.push_back(drawFinalResultRatio(data, min, max, myStyle, 0, hist_, (TCanvas*)(canvas->Clone()), -1, -1, dataStat, true));
+  if(plotName.Contains("topY"       )){min=bands ? 0.85 : 0.85;max=bands ? 1.25 : 1.15;}
+  if(plotName.Contains("ttbarPt"    )){min=bands ? 0.5  : 0.5 ;max=bands ? 1.79 : 1.39; ndiv=506;}
+  if(plotName.Contains("ttbarY"     )){min=bands ? 0.9  : 0.8 ;max=bands ? 1.29 : 1.29;}
+  if(plotName.Contains("ttbarMass"  )){min=bands ? 0.7  : 0.7 ;max=bands ? 1.55 : 1.5 ;}
+  //if(plotName.Contains("topPtTtbar" )){min=bands ? 0.6  : 0.6 ;max=bands ? 1.79 : 1.79; ndiv=506;}
+  if(plotName.Contains("ttbarDelPhi")){min=bands ? 0.85 : 0.85;max=bands ? 1.25 : 1.15;}
+  if(plotName.Contains("PhiStar"    )){min=bands ? 0.85 : 0.85;max=bands ? 1.25 : 1.15;}
+  plotCanvas_.push_back(drawFinalResultRatio(data, min, max, myStyle, 0, hist_, (TCanvas*)(canvas->Clone()), -1, -1, dataStat, false, true, bands, ndiv));
   plotCanvas_[0]->Draw();
   plotCanvas_[0]->Update();
   // close file
@@ -224,9 +219,11 @@ void createTheoryDataRatios(bool extrapolate=true, bool hadron=false, int verbos
     TString variable=xSecVariables_[i];
     // create ratio canvas
     int verbose2=verbose;
-    TCanvas*canv=getRatio(variable, verbose2, outputFile);
+    TCanvas* canv=getRatio(variable, verbose2, outputFile);
     // save ratio plots
     if(canv){
+      canv->SetCanvasSize(596, 572);
+      canv->Update();
       int initialIgnoreLevel=gErrorIgnoreLevel;
       if(verbose==0) gErrorIgnoreLevel=kWarning;
       canv->Print(outputFolder+"ratioFinalXSec"+variable+"NormCombined"+LV+PS+".eps");
