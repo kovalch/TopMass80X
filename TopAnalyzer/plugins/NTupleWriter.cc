@@ -1395,6 +1395,7 @@ NTupleWriter::beginJob()
     Ntuple->Branch("jetChargeRelativePtWeighted", &VjetChargeRelativePtWeighted);
     Ntuple->Branch("jetPfCandidateTrack", &VjetPfCandidateTrack);
     Ntuple->Branch("jetPfCandidateTrackCharge", &VjetPfCandidateTrackCharge);
+    Ntuple->Branch("jetPfCandidateTrackId", &VjetPfCandidateTrackId);
     Ntuple->Branch("jetPfCandidateTrackIndex", &VjetPfCandidateTrackIndex);
     Ntuple->Branch("jetSelectedTrack", &VjetSelectedTrack);
     Ntuple->Branch("jetSelectedTrackIPValue", &VjetSelectedTrackIPValue);
@@ -1574,6 +1575,7 @@ void NTupleWriter::clearVariables()
     VjetAssociatedParton.clear();
     VjetPfCandidateTrack.clear();
     VjetPfCandidateTrackCharge.clear();
+    VjetPfCandidateTrackId.clear();
     VjetPfCandidateTrackIndex.clear();
     VjetSelectedTrack.clear();
     VjetSelectedTrackIPValue.clear();
