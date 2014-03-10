@@ -31,7 +31,7 @@ topAnalysis () {
         echo "  To use specific tag, 'export TOP_TAG=<TAG_NAME>' BEFORE DOWNLOADING AND RUNNING the install script (such that TAG is used for both)."
         echo "  To see available tags, execute: 'git tag'"
         cd ${CMS_version}/src
-        git clone https://git.cern.ch/reps/TopAnalysis
+        git clone https://$1@git.cern.ch/reps/TopAnalysis
         if [ $? -eq 0 ]; then
             echo "Successful download from GIT"
             echo
@@ -44,7 +44,7 @@ topAnalysis () {
     else
         echo "Installing the TopAnalysis code from GIT with tag: ${TOP_TAG}"
         cd ${CMS_version}/src
-        git clone https://git.cern.ch/reps/TopAnalysis
+        git clone https://$1@git.cern.ch/reps/TopAnalysis
         if [ $? -eq 0 ]; then
             echo "Successful download from GIT"
             echo
@@ -66,15 +66,16 @@ topAnalysis () {
 
 ###### Steering parameter for minimal or full installation ######
 minimalInstall="False"
-if [ $# -ge 1 ] ; then
-    if [ $# -ge 2 ] || [ $1 != "min" ] ; then
-        echo "Usage for full installation: $0"
-        echo "Usage for minimal installation (analysis on nTuple level): $0 min"
-        exit 1
-    else
+if [[ $# -eq 0 ]] || [[ $# -ge 3 ]] || [[ $# == 2 && $2 != "min" ]] ; then
+    echo "Usage for full installation: $0 <CERN_USERNAME>"
+    echo "Usage for minimal installation (analysis on nTuple level): $0 <CERN_USERNAME> min"
+    exit 1
+elif [ $# == 2 ] ; then
+    if [ $2 == "min" ] ; then
         minimalInstall="True"
     fi
 fi
+
 
 
 
@@ -99,9 +100,10 @@ cd -
 
 
 
+
 ###### If parameter set, running the minimal installation: Only install our TopAnalysis ######
 if [[ "$minimalInstall" == True ]] ; then
-    topAnalysis
+    topAnalysis $1
     echo "Minimal installation successfully done"
     exit 0
 fi
@@ -175,7 +177,7 @@ cd -
 
 
 ###### Install our TopAnalysis ######
-topAnalysis
+topAnalysis $1
 
 
 
