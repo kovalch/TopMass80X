@@ -259,9 +259,15 @@ private:
     std::vector<double> VjetChargeRelativePtWeighted;
     std::vector<int> VjetAssociatedPartonPdgId;
     std::vector<LV> VjetAssociatedParton;
-    std::vector<int> VjetTrackIndex;
-    std::vector<int> VjetTrackCharge;
-    std::vector<LV> VjetTrack;
+    std::vector<LV> VjetPfCandidateTrack;
+    std::vector<int> VjetPfCandidateTrackCharge;
+    std::vector<int> VjetPfCandidateTrackId;
+    std::vector<int> VjetPfCandidateTrackIndex;
+    std::vector<LV> VjetSelectedTrack;
+    std::vector<double> VjetSelectedTrackIPValue;
+    std::vector<double> VjetSelectedTrackIPSignificance;
+    std::vector<int> VjetSelectedTrackCharge;
+    std::vector<int> VjetSelectedTrackIndex;
 
     std::vector<double> VPdfWeights;
 
@@ -1131,13 +1137,22 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
         VjetChargeRelativePtWeighted.push_back(i_jetProperties->jetChargeRelativePtWeighted());
         VjetAssociatedPartonPdgId.push_back(i_jetProperties->jetAssociatedPartonPdgId());
         VjetAssociatedParton.push_back(i_jetProperties->jetAssociatedParton());
-
-		//Here I create the index list with the track charge and LV
-        for (size_t i_charge=0;i_charge != i_jetProperties->jetTrackCharge().size();i_charge++)
+        
+        for (size_t i_pfTrack=0;i_pfTrack != i_jetProperties->jetPfCandidateTrack().size();i_pfTrack++)
         {
-            VjetTrackCharge.push_back(i_jetProperties->jetTrackCharge().at(i_charge));
-            VjetTrackIndex.push_back(i_jetProperties-jetPropertiesHandle->begin());
-            VjetTrack.push_back(i_jetProperties->jetTrack().at(i_charge));
+            VjetPfCandidateTrack.push_back(i_jetProperties->jetPfCandidateTrack().at(i_pfTrack));
+            VjetPfCandidateTrackCharge.push_back(i_jetProperties->jetPfCandidateTrackCharge().at(i_pfTrack));
+            VjetPfCandidateTrackId.push_back(i_jetProperties->jetPfCandidateTrackId().at(i_pfTrack));
+            VjetPfCandidateTrackIndex.push_back(i_jetProperties-jetPropertiesHandle->begin());
+        }
+        
+        for (size_t i_selTrack=0;i_selTrack != i_jetProperties->jetSelectedTrack().size();i_selTrack++)
+        {
+            VjetSelectedTrack.push_back(i_jetProperties->jetSelectedTrack().at(i_selTrack));
+            VjetSelectedTrackIPValue.push_back(i_jetProperties->jetSelectedTrackIPValue().at(i_selTrack));
+            VjetSelectedTrackIPSignificance.push_back(i_jetProperties->jetSelectedTrackIPSignificance().at(i_selTrack));
+            VjetSelectedTrackCharge.push_back(i_jetProperties->jetSelectedTrackCharge().at(i_selTrack));
+            VjetSelectedTrackIndex.push_back(i_jetProperties-jetPropertiesHandle->begin());
         }
     }
 
@@ -1364,9 +1379,15 @@ NTupleWriter::beginJob()
 
     Ntuple->Branch("jetChargeGlobalPtWeighted", &VjetChargeGlobalPtWeighted);
     Ntuple->Branch("jetChargeRelativePtWeighted", &VjetChargeRelativePtWeighted);
-    Ntuple->Branch("jetTrackIndex", &VjetTrackIndex);
-    Ntuple->Branch("jetTrackCharge", &VjetTrackCharge);
-    Ntuple->Branch("jetTrack", &VjetTrack);
+    Ntuple->Branch("jetPfCandidateTrack", &VjetPfCandidateTrack);
+    Ntuple->Branch("jetPfCandidateTrackCharge", &VjetPfCandidateTrackCharge);
+    Ntuple->Branch("jetPfCandidateTrackIndex", &VjetPfCandidateTrackIndex);
+    Ntuple->Branch("jetSelectedTrack", &VjetSelectedTrack);
+    Ntuple->Branch("jetSelectedTrackIPValue", &VjetSelectedTrackIPValue);
+    Ntuple->Branch("jetSelectedTrackIPSignificance", &VjetSelectedTrackIPSignificance);
+    Ntuple->Branch("jetSelectedTrackCharge", &VjetSelectedTrackCharge);
+    Ntuple->Branch("jetSelectedTrackIndex", &VjetSelectedTrackIndex);
+    
     if (isTtBarSample_) Ntuple->Branch("jetAssociatedPartonPdgId", &VjetAssociatedPartonPdgId);
 
     /////////////met properties///////////
@@ -1537,9 +1558,14 @@ void NTupleWriter::clearVariables()
     VjetChargeRelativePtWeighted.clear();
     VjetAssociatedPartonPdgId.clear();
     VjetAssociatedParton.clear();
-    VjetTrackIndex.clear();
-    VjetTrackCharge.clear();
-    VjetTrack.clear();
+    VjetPfCandidateTrack.clear();
+    VjetPfCandidateTrackCharge.clear();
+    VjetPfCandidateTrackIndex.clear();
+    VjetSelectedTrack.clear();
+    VjetSelectedTrackIPValue.clear();
+    VjetSelectedTrackIPSignificance.clear();
+    VjetSelectedTrackCharge.clear();
+    VjetSelectedTrackIndex.clear();
 
     VBHadJetIdx.clear();
     VAntiBHadJetIdx.clear();
