@@ -12,79 +12,103 @@
 #####################################################################################
 
 
-###### TOP 2013  ########
+
+
+
+###### CMS Software Version and Scram Architecture ########
 CMS_version=CMSSW_5_3_11
 export SCRAM_ARCH=slc5_amd64_gcc462
 
 
 
-minimalInstall="False"
-if [ $# -ge 1 ] ; then
-    if [ $# -ge 2 ] || [ $1 != "min" ] ; then
-        echo "Usage for full installation: $0"
-        echo "Usage for minimal installation (analysis on nTuple level): $0 min"
-        exit 1
+
+
+###### Function installing Hamburg TOP package #####
+topAnalysis () {
+    echo
+    if [ -z "${TOP_TAG}" ]; then
+        echo "Installing the HEAD version of the TopAnalysis code from GIT."
+        echo "  To use specific tag, 'export TOP_TAG=<TAG_NAME>' BEFORE DOWNLOADING AND RUNNING the install script (such that TAG is used for both)."
+        echo "  To see available tags, execute: 'git tag'"
+        cd ${CMS_version}/src
+        git clone https://$1@git.cern.ch/reps/TopAnalysis
+        if [ $? -eq 0 ]; then
+            echo "Successful download from GIT"
+            echo
+        else
+            echo "Error in git clone! stopping..."
+            exit 4
+        fi
+        cd -
+        echo
     else
+        echo "Installing the TopAnalysis code from GIT with tag: ${TOP_TAG}"
+        cd ${CMS_version}/src
+        git clone https://$1@git.cern.ch/reps/TopAnalysis
+        if [ $? -eq 0 ]; then
+            echo "Successful download from GIT"
+            echo
+        else
+            echo "Error in git clone! stopping..."
+            exit 5
+        fi
+        cd -
+        cd $CMSSW_BASE/src/TopAnalysis
+        git checkout ${TOP_TAG}
+        cd -
+    fi
+    echo
+}
+
+
+
+
+
+###### Steering parameter for minimal or full installation ######
+minimalInstall="False"
+if [[ $# -eq 0 ]] || [[ $# -ge 3 ]] || [[ $# == 2 && $2 != "min" ]] ; then
+    echo "Usage for full installation: $0 <CERN_USERNAME>"
+    echo "Usage for minimal installation (analysis on nTuple level): $0 <CERN_USERNAME> min"
+    exit 1
+elif [ $# == 2 ] ; then
+    if [ $2 == "min" ] ; then
         minimalInstall="True"
     fi
 fi
 
 
+
+
+
+###### Setting up the release ######
 scram p -s CMSSW ${CMS_version}
 if [ $? -ne 0 ]; then
     echo "Error in scram while setting up the release! stopping..."
     exit 2
 fi
 
-
 cd ${CMS_version}/src
-echo export SCRAM_ARCH=${SCRAM_ARCH} > SCRAM_ARCH
-chmod u+x SCRAM_ARCH
-eval `scramv1 runtime -sh`
-if [ "$CMSSW_BASE/src" != "$PWD" ]; then
+echo export SCRAM_ARCH=${SCRAM_ARCH}
+eval `scram runtime -sh`
+currentDir=`pwd -P`
+if [ "$CMSSW_BASE/src" != "$currentDir" ]; then
     echo "Error in setting environment variable CMSSW_BASE, did you try to install in a subfolder of another CMSSW_X_Y_Z? stopping..."
     exit 3
 fi
 cd -
 
 
-###### Hamburg TOP package (plus dependencies) #####
-if [ -z "${TOP_TAG}" ]; then
-    echo "Installing the HEAD version of the TopAnalysis code from GIT."
-    echo "  To use specific tag, 'export TOP_TAG=<TAG_NAME>' BEFORE DOWNLOADING AND RUNNING the install script (such that TAG is used for both)."
-    echo "  To see available tags, execute: 'git tag'"
-    cd ${CMS_version}/src
-    git clone https://git.cern.ch/reps/TopAnalysis
-    if [ $? -eq 0 ]; then
-	echo "Successful download from GIT"
-	echo
-    else
-	echo "Error in git clone! stopping..."
-	exit 4
-    fi
-    cd -
-    echo
-else
-    echo "Installing the TopAnalysis code from GIT with tag: ${TOP_TAG}"
-    cd ${CMS_version}/src
-    git clone https://git.cern.ch/reps/TopAnalysis
-    if [ $? -eq 0 ]; then
-	echo "Successful download from GIT"
-	echo
-    else
-	echo "Error in git clone! stopping..."
-	exit 5
-    fi
-    cd -
-    cd $CMSSW_BASE/src/TopAnalysis
-    git checkout ${TOP_TAG}
-    cd -
-fi
 
+
+
+###### If parameter set, running the minimal installation: Only install our TopAnalysis ######
 if [[ "$minimalInstall" == True ]] ; then
+    topAnalysis $1
     echo "Minimal installation successfully done"
     exit 0
 fi
+
+
 
 
 
@@ -149,6 +173,17 @@ addpkg ElectroWeakAnalysis/Utilities
 cd -
 
 
+
+
+
+###### Install our TopAnalysis ######
+topAnalysis $1
+
+
+
+
+
+###### Compile everything ######
 #checkdeps -a
 
 cd $CMSSW_BASE/src

@@ -34,6 +34,7 @@ def prependPF2PATSequence(process, pathnames = [''], options = dict()):
     options.setdefault('analyzersBeforeElecIso', cms.Sequence())
     options.setdefault('excludeElectronsFromWsFromGenJets', False)
     options.setdefault('METCorrectionLevel', 0)
+    options.setdefault('addMETSignificance', True)
     options.setdefault('JECEra' , '')
     options.setdefault('JECFile', '')
     options.setdefault('additionalJECLevels', [])
@@ -1052,6 +1053,7 @@ def prependPF2PATSequence(process, pathnames = [''], options = dict()):
     ## re-configure and create MET
     ## use MET from all PF candidates here !!!
     getattr(process,'pfMET'+postfix).src = 'particleFlow'
+    getattr(process,'pfMET'+postfix).calculateSignificance = options['addMETSignificance']
 
     if options['METCorrectionLevel'] == 0 and not str(options['METCorrectionLevel']) == 'False':
         print "Raw MET will be used, no corrections will be applied!"
@@ -1202,6 +1204,7 @@ def prependPF2PATSequence(process, pathnames = [''], options = dict()):
     print 'analyzersBeforeElecIso:', options['analyzersBeforeElecIso']
     print 'excludeElectronsFromWsFromGenJets:', options['excludeElectronsFromWsFromGenJets']
     print 'METCorrectionLevel:', options['METCorrectionLevel']
+    print 'addMETSignificance:', options['addMETSignificance']
     print 'JECEra:', options['JECEra']
     print 'JECFile:', options['JECFile']
     print 'additionalJECLevels:', options['additionalJECLevels']

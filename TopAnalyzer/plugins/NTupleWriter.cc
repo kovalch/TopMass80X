@@ -747,7 +747,6 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
                 }
             }
             
-
             edm::Handle<std::vector<int> > genBHadFlavour;
             iEvent.getByLabel(genBHadFlavour_, genBHadFlavour);
             if(!genBHadFlavour.failedToGet()) {
@@ -755,11 +754,18 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
                     VgenBHadFlavour.push_back(*it);
                 }
             }
+            std::vector<int> genBJetFromTopIds;
             edm::Handle<std::vector<int> > genBHadJetIndex;
             iEvent.getByLabel(genBHadJetIndex_, genBHadJetIndex);
             if(!genBHadJetIndex.failedToGet()) {
+                unsigned int iHad=0;
                 for (std::vector<int>::const_iterator it=genBHadJetIndex->begin(); it!=genBHadJetIndex->end(); ++it) {
                     VgenBHadJetIndex.push_back(*it);
+                    // Building a vector of b-jets from top
+                    if(VgenBHadFlavour.size()>iHad) {
+                        if(std::abs(VgenBHadFlavour.at(iHad))==6) genBJetFromTopIds.push_back(*it);
+                    }
+                    iHad++;
                 }
             }
             
@@ -846,12 +852,15 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
             if(!genBHadJetIndex.failedToGet()) {
                 for(size_t iHad=0; iHad<genBHadJetIndex->size(); ++iHad) {
                     if(VgenBHadFromTopWeakDecay.size() <= iHad) break;
+                    // Skipping b-hadrons from top
                     if(genBHadFlavour->size()>iHad && std::abs(genBHadFlavour->at(iHad))==6) continue;
                     int jetId = genBHadJetIndex->at(iHad);
                     if(jetId<0) continue;
                     // Checking that the jet satisfies the signal definition
                     if(VallGenJets.at(jetId).Pt()<genSignalJetPt_min) continue;
                     if(std::fabs(VallGenJets.at(jetId).Eta())>genSignalJetEta_max) continue;
+                    // Skipping the jet if it is already identified as b-jet from top
+                    if(std::find(genBJetFromTopIds.begin(), genBJetFromTopIds.end(), jetId) != genBJetFromTopIds.end()) continue;
                     // Checking that the jet is counted only once
                     if(std::find(genBJetNotFromTopDecayChainIndex.begin(), genBJetNotFromTopDecayChainIndex.end(), jetId) != genBJetNotFromTopDecayChainIndex.end()) continue;
                     if(VgenBHadFromTopWeakDecay.at(iHad)==0) {
@@ -868,12 +877,17 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
             if(!genCHadJetIndex.failedToGet()) {
                 for(size_t iHad=0; iHad<genCHadJetIndex->size(); ++iHad) {
                     if(VgenCHadFromTopWeakDecay.size() <= iHad) break;
+                    // Skipping c-hadrons from top
+                    if(genBHadFlavour->size()>iHad && std::abs(genBHadFlavour->at(iHad))==6) continue;
+                    // Skipping c-hadrons coming from b-hadrons
                     if(genCHadFromBHadron->size()>iHad && genCHadFromBHadron->at(iHad)) continue;
                     int jetId = genCHadJetIndex->at(iHad);
                     if(jetId<0) continue;
                     // Checking that the jet satisfies the signal definition
                     if(VallGenJets.at(jetId).Pt()<genSignalJetPt_min) continue;
                     if(std::fabs(VallGenJets.at(jetId).Eta())>genSignalJetEta_max) continue;
+                    // Skipping the jet if it is already identified as b-jet from top
+                    if(std::find(genBJetFromTopIds.begin(), genBJetFromTopIds.end(), jetId) != genBJetFromTopIds.end()) continue;
                     // Checking that the jet is counted only once
                     if(std::find(genCJetNotFromTopDecayChainIndex.begin(), genCJetNotFromTopDecayChainIndex.end(), jetId) != genCJetNotFromTopDecayChainIndex.end()) continue;
                     if(VgenCHadFromTopWeakDecay.at(iHad)==0) {
@@ -1381,6 +1395,7 @@ NTupleWriter::beginJob()
     Ntuple->Branch("jetChargeRelativePtWeighted", &VjetChargeRelativePtWeighted);
     Ntuple->Branch("jetPfCandidateTrack", &VjetPfCandidateTrack);
     Ntuple->Branch("jetPfCandidateTrackCharge", &VjetPfCandidateTrackCharge);
+    Ntuple->Branch("jetPfCandidateTrackId", &VjetPfCandidateTrackId);
     Ntuple->Branch("jetPfCandidateTrackIndex", &VjetPfCandidateTrackIndex);
     Ntuple->Branch("jetSelectedTrack", &VjetSelectedTrack);
     Ntuple->Branch("jetSelectedTrackIPValue", &VjetSelectedTrackIPValue);
@@ -1560,6 +1575,7 @@ void NTupleWriter::clearVariables()
     VjetAssociatedParton.clear();
     VjetPfCandidateTrack.clear();
     VjetPfCandidateTrackCharge.clear();
+    VjetPfCandidateTrackId.clear();
     VjetPfCandidateTrackIndex.clear();
     VjetSelectedTrack.clear();
     VjetSelectedTrackIPValue.clear();
@@ -1593,6 +1609,7 @@ void NTupleWriter::clearVariables()
     VgenCHadLeptonHadronIndex.clear();
     VgenCHadLeptonViaTau.clear();
     VgenCHadFromTopWeakDecay.clear();
+    VgenCHadFromBHadron.clear();
 
     /////////Triggers/////////
     VfiredTriggers.clear();
