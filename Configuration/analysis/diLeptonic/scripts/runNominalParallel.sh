@@ -27,7 +27,7 @@ for c in ee emu mumu; do
     $LA -f ${c}_run2012D -c $c &
 done 
 
-for i in zz qcd single ttbarbg.root wtol ww wz ; do
+for i in zz qcd single ttbarbg.root wtol ww wz ttbarW ttgjets ttbarZ; do
     w
     if [ "$isNAF" = 1 ]; then
         $LA -f $i
