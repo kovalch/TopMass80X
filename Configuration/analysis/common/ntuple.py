@@ -795,7 +795,8 @@ getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'pfPhotonS
 
 massSearchReplaceAnyInputTag(getattr(process,'patPF2PATSequence'+pfpostfix),'pfNoTau'+pfpostfix,'pfJets'+pfpostfix)
 
-
+#Set to true the access to some specific information in PAT jets when doing the b-tagging. 
+applyPostfix(process, "patJets", pfpostfix).addTagInfos = True
 
 
 ####################################################################
