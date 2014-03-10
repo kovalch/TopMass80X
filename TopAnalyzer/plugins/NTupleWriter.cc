@@ -1593,6 +1593,7 @@ void NTupleWriter::clearVariables()
     VgenCHadLeptonHadronIndex.clear();
     VgenCHadLeptonViaTau.clear();
     VgenCHadFromTopWeakDecay.clear();
+    VgenCHadFromBHadron.clear();
 
     /////////Triggers/////////
     VfiredTriggers.clear();
