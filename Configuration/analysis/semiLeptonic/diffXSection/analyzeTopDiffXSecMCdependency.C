@@ -1233,7 +1233,7 @@ double linSF(const double x, const double xmax, const double a, const double b){
 TH1F* distortPDF(const TH1& hist, TString variation, TString variable, TString analysisFileName, int verbose, TString testVar)
 {
   // this function loads the max/min PDF uncertainties as determined externally with MC@NLO for the desired variables and applies it to MadGraph
-  TString fileName    = groupSpace+"CommonFiles/combinedDiffXSecPDFEnvelopeStudy2.root";
+  TString fileName    = groupSpace+"CommonFiles/combinedDiffXSecPDFEnvelopeStudy.root";
   TString plotNameNom = variable=="Njets" ? "Ngenjets" : variable+HistoGenExt(variable);   
   TString plotNameVar = plotNameNom+"PDF"+variation;
   TString directory   = folderGenFull(variable); 
