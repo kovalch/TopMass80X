@@ -1,22 +1,35 @@
 #include "basicFunctions.h"
+#include "TSystem.h"
 
-TH1F* distortPDF(const TH1& hist, TString variation, TString variable, TString inputFolderName, TString phaseSpace, int verbose);
+TH1F* distortPDF(const TH1& hist, TString variation, TString variable, TString analysisFileName, int verbose, TString testVar);
 TH1F* distort   (const TH1& hist, TString variation, TString variable, int verbose);
 double linSF(const double x, const double xmax, const double a, const double b);
+TString folderRec       (TString variable="topPt", TString addSel="ProbSel");
+TString folderGenFull   (TString variable="topPt");
+TString folderGenPS     (TString variable="topPt");
+TString treeGenExtension(TString variable="topPt");
+TString treeRecExtension(TString variable="topPt");
+TString HistoRecExt     (TString variable="topPt");
+TString HistoGenExt     (TString variable="topPt");
+bool fullPS(TString variable="topPt");
 
-void analyzeTopDiffXSecMCdependency(double luminosity = 12148, std::string decayChannel="electron", bool save=true, int verbose=2, TString inputFolderName="newRecentAnalysisRun8TeV",
-				    TString dataFile=  groupSpace+AnalysisFolder+"/elecDiffXSecData2012ABCDAll.root",
+void analyzeTopDiffXSecMCdependency(double luminosity = constLumiMuon, std::string decayChannel="electron", bool save=true, int verbose=0, TString inputFolderName=AnalysisFolder,
+				    TString dataFile=groupSpace+AnalysisFolder+"/elecDiffXSecData2012ABCDAll.root",
 				    //TString dataFile= groupSpace+AnalysisFolder+"/muonDiffXSecData2012ABCDAll.root"
-                                    bool doPDFuncertainty=true, bool addCrossCheckVariables=false)
+                                    bool doPDFuncertainty=true, bool addCrossCheckVariables=false, TString addSel="ProbSel")
 {
   // ---
   //     Configuration
   // ---
   // folder with all rootfiles
   TString path=groupSpace;
-  // take care that prescaling of muon channel for full 2011 datset was taken into account
-  if(luminosity==4980&&decayChannel=="muon"    ) luminosity=constLumiMuon;
-  if(luminosity==4955&&decayChannel=="electron") luminosity=constLumiElec;
+  // additional control plots 
+  // - shape of data-MCBG
+  bool produceBGSubtractedShapePlots=false;
+  // - reco: default, PDF up/down
+  bool producePlotsRec=true;
+  // - gen: default, PDF up/down
+  bool producePlotsGen=true;
   // set up common analysis style
   TStyle myStyle("HHStyle","HHStyle");
   setHHStyle(myStyle);
@@ -24,6 +37,11 @@ void analyzeTopDiffXSecMCdependency(double luminosity = 12148, std::string decay
   myStyle.cd();
   gROOT->SetStyle("HHStyle");
   
+
+  // test quantity with extra printout
+  TString testVar="";
+
+
   // output
   int initialgErrorLv=gErrorIgnoreLevel;
   if(verbose==1) gErrorIgnoreLevel=kWarning;
@@ -43,40 +61,39 @@ void analyzeTopDiffXSecMCdependency(double luminosity = 12148, std::string decay
   // file name for output rootfiles
   TString outputFileNameUp   = analysisFileName;
   TString outputFileNameDown = analysisFileName;
+  TString TEST="";// use this extension for testing to avoid overwriting of the nominal PDF variation samples
   if (doPDFuncertainty) {
-    outputFileNameUp.ReplaceAll(inputFolderName, inputFolderName+"/PDFUp");
-    outputFileNameDown.ReplaceAll(inputFolderName, inputFolderName+"/PDFDown");
-    outputFileNameUp.ReplaceAll(SampleTag+"PF", "PdfVarUp"+SampleTag+"PF"  );
-    outputFileNameDown.ReplaceAll(SampleTag+"PF", "PdfVarDown"+SampleTag+"PF");
-  } 
-  else { 
-    outputFileNameUp.ReplaceAll(inputFolderName, inputFolderName+"/MCShapeUp");
-    outputFileNameDown.ReplaceAll(inputFolderName, inputFolderName+"/MCShapeDown");
-    outputFileNameUp.ReplaceAll("PF", "MCShapeVarUp"+SampleTag+"PF"  );
-    outputFileNameDown.ReplaceAll("PF", "MCShapeVarDown"+SampleTag+"PF");
+    outputFileNameUp.ReplaceAll(  inputFolderName, inputFolderName+"/PDFUp"   );
+    outputFileNameUp.ReplaceAll(  SampleTag+"PF" , "PdfVarUp"+TEST+SampleTag+"PF"  );
+    outputFileNameDown.ReplaceAll(inputFolderName, inputFolderName+"/PDFDown" );
+    outputFileNameDown.ReplaceAll(SampleTag+"PF" , "PdfVarDown"+TEST+SampleTag+"PF");
   }
-  // name for folder where tree is read from
-  TString folder="analyzeTopRecoKinematicsKinFit";
-  TString genfolder="analyzeTopPartonLevelKinematics";
-  TString genfolder2=genfolder;
-  genfolder+="PhaseSpace";
+  else { 
+    outputFileNameUp.ReplaceAll(  inputFolderName, inputFolderName+"/MCShapeUp"   );
+    outputFileNameUp.ReplaceAll(  "PF"           , "MCShapeVarUp"+TEST+SampleTag+"PF"  );
+    outputFileNameDown.ReplaceAll(inputFolderName, inputFolderName+"/MCShapeDown" );
+    outputFileNameDown.ReplaceAll("PF"           , "MCShapeVarDown"+TEST+SampleTag+"PF");
+  }
   // name for folder where plots are saved to
   TString savePlotsTo="./diffXSecFromSignal/plots/"+decayChannel+"/2012/shapeReweighting";
   // define variables
   std::vector<TString> variable_;
-  TString variable[] ={"topPt", "topY", "ttbarPt", "ttbarMass", "ttbarY"};//, "lepPt", "lepEta"};
   // cross check variables
-  variable_.insert( variable_.begin(), variable, variable + sizeof(variable)/sizeof(TString) );
-  if (addCrossCheckVariables) variable_.insert(variable_.end(),   xSecVariablesCCVar,  xSecVariablesCCVar + sizeof( xSecVariablesCCVar)/sizeof(TString));
-  // b quark variables only for PDF uncertainties
-  //TString bvariables[]={"bqPt", "bqEta"};
-  //if(doPDFuncertainty) variable_.insert(variable_.end(), bvariables, bvariables+sizeof(bvariables)/sizeof(TString));
+  variable_.insert( variable_.begin(), xSecVariablesKinFit    , xSecVariablesKinFit     + sizeof(xSecVariablesKinFit    )/sizeof(TString) );
+  variable_.insert( variable_.end()  , xSecVariablesFinalState, xSecVariablesFinalState + sizeof(xSecVariablesFinalState)/sizeof(TString) );
+  if(addCrossCheckVariables) variable_.insert(variable_.end(), xSecVariablesCCVar, xSecVariablesCCVar+ sizeof(xSecVariablesCCVar)/sizeof(TString));
+  //TString xSecVariablesBjet[]     = {"lepPt", "lepEta" };
+  //TString xSecVariablesLepton[]   = {"bqPt" , "bqEta", "bbbarMass", "bbbarPt", "lbMass"};
+  //TString xSecVariablesComp[]     = {"Njets", "rhos"   };
   
+
   // container for values read from tree
-  std::map< TString, float > value_;
+  std::map< TString, std::map< TString, float > > value_;
   // container for original and shape distorted
   // parton Level (phase space) plots
-  std::map< TString, TH1F*> plots_;
+  std::map< TString, TH1F*> plotsGen_;
+  std::map< TString, TH1F*> plotsGenPS_;
+  std::map< TString, TH1F*> plotsRec_;
   std::map< TString, TH1F*> plotsScaled_;
   std::map< TString, TH2F*> plots2D_;
   std::map< TString, TH2F*> plotsScaled2D_;
@@ -87,17 +104,16 @@ void analyzeTopDiffXSecMCdependency(double luminosity = 12148, std::string decay
   
   // printout of configuration
   if(verbose>0){
-    std::cout << std::endl << "create rootfile with genbased reweighted distibutions" << std::endl;
+    std::cout << std::endl << "create rootfile with "+(TString)(doPDFuncertainty ? "PDF" : "gen" )+" based reweighted distributions" << std::endl;
     std::cout << "-----------------------------------------------------" << std::endl;
     std::cout << "input rootfile: " << analysisFileName << std::endl;
-    std::cout << "parton level plots for the calculation of the distortion ";
-    std::cout << "SFs are taken from folder: " << genfolder << std::endl;
-    std::cout << "used tree for filling distorted reco ";
-    std::cout << "level plots: " << folder+"/tree" << std::endl;
+    std::cout << "gen folders used to monitor distortion: " << folderGenFull("topPt")+"(top/ttbar), "+folderGenPS("bqPt")+"(bq/bbbar/lb), "+folderGenPS("lepPt")+"(lep), "+folderGenPS("rhos")+"(others)" << std::endl;
+    std::cout << "used trees for filling distorted reco ";
+    std::cout << "level plots: " << folderRec("topPt", addSel)+"/tree (top/ttbar), "+folderRec("bqPt", addSel)+"/tree (bq/bbbar/lb), "+folderRec("lepPt", addSel)+"/tree (lep), "+folderRec("rhos", addSel)+"/tree (others)" << std::endl;
     std::cout << "-----------------------------------------------------" << std::endl;
     std::cout << "output rootfiles: " << outputFileNameUp << ", " << outputFileNameDown << std::endl;
-    std::cout << "reweighted parton level distributions are stored in folder: " << genfolder << std::endl;
-    std::cout << "reweighted reconstruction level distributions are stored in folder: " << folder << std::endl;
+    std::cout << "reweighted parton level distributions are replaced in the corresponding gen folders"          << std::endl;
+    std::cout << "reweighted reconstruction level distributions are replaced in the corresponding reco folders" << std::endl;
   }
 
   // define list of variations
@@ -122,57 +138,103 @@ void analyzeTopDiffXSecMCdependency(double luminosity = 12148, std::string decay
       std::cout << "copy old root file, will only replace shifted plots" << std::endl;
       std::cout << "a) variation up" << std::endl;
     }
-    inFile->Cp(analysisFileName, outputFileNameUp);
+    // copy the large files only if they dont exist already
+    TFile* testupFile= new TFile(outputFileNameUp, "read");
+    if(!testupFile||testupFile->IsZombie()){
+      inFile->Cp(analysisFileName, outputFileNameUp);
+    }
+    else if(verbose>0) std::cout << "-> exists already, not copied" << std::endl;
     if(verbose>0) std::cout << "b) variation down" << std::endl;
-    inFile->Cp(analysisFileName, outputFileNameDown);
+    TFile* testdnFile= new TFile(outputFileNameDown, "read");
+    if(!testdnFile||testdnFile->IsZombie()){
+      inFile->Cp(analysisFileName, outputFileNameDown);
+    }
+    else if(verbose>0) std::cout << "-> exists already, not copied" << std::endl;
+    delete testdnFile;
+    delete testupFile;
+    gSystem->Exec((TString("chmod g+w ")+outputFileNameUp  ).Data());
+    gSystem->Exec((TString("chmod g+w ")+outputFileNameDown).Data());
+
   }
-  // loading trees
-  TTree *tree=(TTree*)(inFile->Get(folder+"/tree"));
-  if(!tree||tree->IsZombie()){
-     std::cout << "there seems to be a problem with the chosen tree " << folder+"/tree" << std::endl;
-     exit(0);  
+  // load trees
+  std::map <TString, TTree*> trees_;
+  for(unsigned int i=0; i<variable_.size();++i){
+    trees_[variable_[i]] =(TTree*)(inFile->Get(folderRec(variable_[i], addSel)+"/tree"));
+    if(!trees_[variable_[i]]||trees_[variable_[i]]->IsZombie()){
+      std::cout << "there seems to be a problem with the chosen tree " << folderRec(variable_[i], addSel)+"/tree" << std::endl;
+      exit(0);  
+    }
   }
 
   // initialize map entries with 0 
   // to avoid problems with the map re-ordering
   // when new entries are added
-  value_["weight"]=0;
-  if(verbose>0) std::cout << "considered variables: ";
+  for(unsigned int i=0; i<variable_.size();++i) value_[folderRec(variable_[i], addSel)]["weight"]=0;
+  if(verbose>0) std::cout << "considered variables: " << std::endl;
   for(unsigned int i=0; i<variable_.size();++i){
-    TH1F* hist=(TH1F*)(inFile->Get(folder+"/"+variable_[i]));
-    TH2F* hist2D=(TH2F*)(inFile->Get(folder+"/"+variable_[i]+"_"));
-    if(verbose>0) std::cout << variable_[i]+" ";
-    value_[variable_[i]              ]=0;
-    value_[variable_[i]+"PartonTruth"]=0;
-    if(variable_[i].Contains("top")||variable_[i].Contains("bq")){
-      value_[variable_[i]+"Lep"]=0;
-      value_[variable_[i]+"Had"]=0;
-      value_[variable_[i]+"LepPartonTruth"]=0;
-      value_[variable_[i]+"HadPartonTruth"]=0;
+    TString RecPlotExt=HistoRecExt(variable_[i]);
+    TString GenPlotExt=HistoGenExt(variable_[i]);
+    TString GenName= variable_[i]=="Njets" ? "Ngenjets" : variable_[i]+GenPlotExt;
+    if(verbose>0)  std::cout << folderRec    (variable_[i], addSel)+"/"+variable_[i]+RecPlotExt << std::endl;
+    if(verbose>0)  std::cout << folderGenPS  (variable_[i])+"/"+GenName << std::endl;
+    if(verbose>0)  std::cout << folderGenFull(variable_[i])+"/"+GenName << std::endl;
+    TH1F* hist  =(TH1F*)(inFile->Get(folderRec(variable_[i], addSel)+"/"+variable_[i]+RecPlotExt));
+    TH2F* hist2D=(TH2F*)(inFile->Get(folderRec(variable_[i], addSel)+"/"+variable_[i]+"_"));
+
+    TString GenExt=treeGenExtension(variable_[i]);
+    TString RecExt=treeRecExtension(variable_[i]);
+    TString varRec=variable_[i]+RecExt;
+    TString varGen=variable_[i]+GenExt;
+    TString varGenLep=varGen;
+    TString varGenHad=varGen;
+    TString varRecLep=varRec;
+    TString varRecHad=varRec;
+    // take care about splitted leptonic/hadronic or particle/antiparticle distributions
+    if((variable_[i].Contains("top")&&!variable_[i].Contains("Lead")&&!variable_[i].Contains("Sys"))){
+      varGenLep=variable_[i]+"Lep"+GenExt;
+      varGenHad=variable_[i]+"Had"+GenExt;
+      varRecLep=variable_[i]+"Lep"+RecExt;
+      varRecHad=variable_[i]+"Had"+RecExt;
     }
+    else if(variable_[i].Contains("bqPt")){
+      varGenLep=variable_[i]+"Lead"   +GenExt;
+      varGenHad=variable_[i]+"SubLead"+GenExt;
+      varRecLep=variable_[i]+"Lead"   +RecExt;
+      varRecHad=variable_[i]+"SubLead"+RecExt;
+    }
+    else if(variable_[i].Contains("bqEta")){
+      varGenLep=variable_[i]+GenExt;
+      varGenHad="bbarqEta"  +GenExt;
+      varRecLep=variable_[i]+RecExt;
+      varRecHad="bbarqEta"  +RecExt;
+    }
+    value_[folderRec(variable_[i], addSel)][varGenLep]=0;
+    value_[folderRec(variable_[i], addSel)][varGenHad]=0;
+    value_[folderRec(variable_[i], addSel)][varRecLep]=0;
+    value_[folderRec(variable_[i], addSel)][varRecHad]=0;
     // initialize plots with correct binning
     // original plots for parton level phase space / parton level extrapolated / reconstruction level / gen - rec correlation plots
-    plots_      [variable_[i]+"PartonTruth"    ]=new TH1F( variable_[i]+"PartonTruth"    , variable_[i]+"PartonTruth"    , hist->GetNbinsX(), hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
-    plots_      [variable_[i]+"PartonTruthFull"]=new TH1F( variable_[i]+"PartonTruthFull", variable_[i]+"PartonTruthFull", hist->GetNbinsX(), hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
-    plots_      [variable_[i]                  ]=new TH1F( variable_[i]                  , variable_[i]                  , hist->GetNbinsX(), hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
-    plots2D_    [variable_[i]                  ]=new TH2F( variable_[i]                  , variable_[i]                  , hist2D->GetNbinsX(), hist2D->GetXaxis()->GetXmin(), hist2D->GetXaxis()->GetXmax(), hist2D->GetNbinsX(), hist2D->GetXaxis()->GetXmin(), hist2D->GetXaxis()->GetXmax());
+    plotsGenPS_ [variable_[i]]=new TH1F( variable_[i]+GenPlotExt+"GenPS", variable_[i]+GenPlotExt+"GenPS", hist  ->GetNbinsX(), hist  ->GetXaxis()->GetXmin(), hist  ->GetXaxis()->GetXmax());
+    plotsGen_   [variable_[i]]=new TH1F( variable_[i]+GenPlotExt+"Gen"  , variable_[i]+GenPlotExt+"Gen"  , hist  ->GetNbinsX(), hist  ->GetXaxis()->GetXmin(), hist  ->GetXaxis()->GetXmax());
+    plotsRec_   [variable_[i]]=new TH1F( variable_[i]+RecPlotExt+"Rec"  , variable_[i]+RecPlotExt+"Rec"  , hist  ->GetNbinsX(), hist  ->GetXaxis()->GetXmin(), hist  ->GetXaxis()->GetXmax());
+    plots2D_    [variable_[i]]=new TH2F( variable_[i]+"_"       , variable_[i]+"_"           , hist2D->GetNbinsX(), hist2D->GetXaxis()->GetXmin(), hist2D->GetXaxis()->GetXmax(), hist2D->GetNbinsX(), hist2D->GetXaxis()->GetXmin(), hist2D->GetXaxis()->GetXmax());
 
     // loop all variations 
     for(unsigned int var=0; var<variation_.size();++var){
       TString Var=variation_[var];
       // systematic distorted plots for parton level phase space / reconstruction level
       // used for SF determination
-      plotsScaled_[variable_[i]+"PartonTruth"+Var    ]=new TH1F( variable_[i]+"PartonTruth"+Var    , variable_[i]+"PartonTruth"+Var    , hist->GetNbinsX(), hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
-      plotsScaled_[variable_[i]+"PartonTruthFull"+Var]=new TH1F( variable_[i]+"PartonTruthFull"+Var, variable_[i]+"PartonTruthFull"+Var, hist->GetNbinsX(), hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
-      plotsScaled_[variable_[i]              +Var    ]=new TH1F( variable_[i]+Var                  , variable_[i]+Var                  , hist->GetNbinsX(), hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
-      plotsScaled2D_[variable_[i]                    ]=new TH2F( variable_[i]+Var                  , variable_[i]+Var                  , hist2D->GetNbinsX(), hist2D->GetXaxis()->GetXmin(), hist2D->GetXaxis()->GetXmax(), hist2D->GetNbinsX(), hist2D->GetXaxis()->GetXmin(), hist2D->GetXaxis()->GetXmax());
+      plotsScaled_[variable_[i]+"PartonTruth"+Var    ]=new TH1F( variable_[i]+"PartonTruth"+Var    , variable_[i]+"PartonTruth"+Var    , hist  ->GetNbinsX(), hist  ->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
+      plotsScaled_[variable_[i]+"PartonTruthFull"+Var]=new TH1F( variable_[i]+"PartonTruthFull"+Var, variable_[i]+"PartonTruthFull"+Var, hist  ->GetNbinsX(), hist  ->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
+      plotsScaled_[variable_[i]              +Var    ]=new TH1F( variable_[i]+Var                  , variable_[i]+Var                  , hist  ->GetNbinsX(), hist  ->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
+      plotsScaled2D_[variable_[i]                    ]=new TH2F( variable_[i]+Var+"_"              , variable_[i]+Var+"_"              , hist2D->GetNbinsX(), hist2D->GetXaxis()->GetXmin(), hist2D->GetXaxis()->GetXmax(), hist2D->GetNbinsX(), hist2D->GetXaxis()->GetXmin(), hist2D->GetXaxis()->GetXmax());
       for(unsigned int j=0; j<variable_.size();++j){
 	// final plots: reweighted plots from tree entries
 	// (reweighting based on all events on parton level within phase space)
 	// reconstruction level plots and parton level plots for reconstructed events
-	finalPlots_[variable_[j]+"PartonTruth"][variable_[i]+Var]=new TH1F( variable_[j]+"PartonTruth"+variable_[i]+"SF"+Var, variable_[j]+"PartonTruth"+variable_[i]+"SF"+Var, hist->GetNbinsX(), hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
-	finalPlots_[variable_[j]              ][variable_[i]+Var]=new TH1F( variable_[j]              +variable_[i]+"SF"+Var, variable_[j]              +variable_[i]+"SF"+Var, hist->GetNbinsX(), hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
-	finalPlots2D_[variable_[j]            ][variable_[i]+Var]=new TH2F( variable_[j]              +variable_[i]+"SF"+Var, variable_[j]              +variable_[i]+"SF"+Var, hist2D->GetNbinsX(), hist2D->GetXaxis()->GetXmin(), hist2D->GetXaxis()->GetXmax(), hist2D->GetNbinsX(), hist2D->GetXaxis()->GetXmin(), hist2D->GetXaxis()->GetXmax());
+	finalPlots_[variable_[j]+"PartonTruth"][variable_[i]+Var]=new TH1F( variable_[j]+"PartonTruth"+variable_[i]+"SF"+Var    , variable_[j]+"PartonTruth"+variable_[i]+"SF"+Var, hist->GetNbinsX(), hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
+	finalPlots_[variable_[j]              ][variable_[i]+Var]=new TH1F( variable_[j]              +variable_[i]+"SF"+Var    , variable_[j]              +variable_[i]+"SF"+Var, hist->GetNbinsX(), hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
+	finalPlots2D_[variable_[j]            ][variable_[i]+Var]=new TH2F( variable_[j]              +variable_[i]+"SF"+Var+"_", variable_[j]              +variable_[i]+"SF"+Var, hist2D->GetNbinsX(), hist2D->GetXaxis()->GetXmin(), hist2D->GetXaxis()->GetXmax(), hist2D->GetNbinsX(), hist2D->GetXaxis()->GetXmin(), hist2D->GetXaxis()->GetXmax());
       }
     }
   }
@@ -181,83 +243,127 @@ void analyzeTopDiffXSecMCdependency(double luminosity = 12148, std::string decay
   // ---
   //    part A: get values for all variables from tree
   // ---
-  if(verbose>0) std::cout << std::endl << "part A: get tree entries" << std::endl;
-  tree->SetBranchStatus("*",0);
-  tree->SetBranchStatus("weight",1);
-  tree->SetBranchAddress("weight",(&value_["weight"]));
-  // loop all variables
-  for(unsigned int i=0; i<variable_.size();++i){
-    // take care about splitted leptonic and hadronic top distributions
-    if(variable_[i].Contains("top")||variable_[i].Contains("bq")){
-      // activate branches
-      tree->SetBranchStatus(variable_[i]+"Lep",1);
-      tree->SetBranchStatus(variable_[i]+"Had",1);
-      tree->SetBranchStatus(variable_[i]+"LepPartonTruth",1);
-      tree->SetBranchStatus(variable_[i]+"HadPartonTruth",1);
-      // save branch values in map
-      tree->SetBranchAddress(variable_[i]+"Lep",(&value_[variable_[i]+"Lep"]));
-      tree->SetBranchAddress(variable_[i]+"Had",(&value_[variable_[i]+"Had"]));
-      tree->SetBranchAddress(variable_[i]+"LepPartonTruth",(&value_[variable_[i]+"LepPartonTruth"]));
-      tree->SetBranchAddress(variable_[i]+"HadPartonTruth",(&value_[variable_[i]+"HadPartonTruth"]));
-    }
-    // same for ttbar / lepton quantities
-    else{
-      tree->SetBranchStatus(variable_[i],1);
-      tree->SetBranchStatus(variable_[i]+"PartonTruth",1);
-      tree->SetBranchAddress(variable_[i],(&value_[variable_[i]]));
-      tree->SetBranchAddress(variable_[i]+"PartonTruth",(&value_[variable_[i]+"PartonTruth"]));
-    }
-  }
-  // check if tree entries are ok
+    // check if tree entries are ok
   std::vector<TString> uninitialized_;
   int Nevents=0;
-  // loop all events
-  for(unsigned int event=0; event<tree->GetEntries(); ++event){
-    tree->GetEntry(event);
-    Nevents++;
-    // loop all variables
-    for(unsigned int i=0; i<variable_.size();++i){
-      // check leptonic/ hadronic top quantities
-      if(variable_[i].Contains("top")||variable_[i].Contains("bq")){
-	// leptonic top
-	if(value_[variable_[i]+"Lep"]==-9999){
-	  // check if already an invalid branch entry was found
-	  vector<TString>::iterator it=find(uninitialized_.begin(), uninitialized_.end(), variable_[i]+"Lep");
-	  if(uninitialized_.size()==0||it!=uninitialized_.end()) uninitialized_.push_back(variable_[i]+"Lep");
-	}
-	// hadronic top
-	if(value_[variable_[i]+"Had"]==-9999){
-	  // check if already an invalid branch entry was found
-	  vector<TString>::iterator it=find(uninitialized_.begin(), uninitialized_.end(), variable_[i]+"Had");
-	  if(uninitialized_.size()==0||it!=uninitialized_.end()) uninitialized_.push_back(variable_[i]+"Had");
-	}
-      }
-      // check ttbar / lepton quantities
-      else{ 
-	if(value_[variable_[i]]==-9999){
-	  // check if already an invalid branch entry was found
-	  vector<TString>::iterator it=find(uninitialized_.begin(), uninitialized_.end(), variable_[i]);
-	  if(uninitialized_.size()==0||it!=uninitialized_.end()) uninitialized_.push_back(variable_[i]);
-	}
-      }
-    }
-  }
-  // print list of uninitialized tree entries
-  if(uninitialized_.size()>0){
-    std::cout << "there are " << uninitialized_.size();
-    std::cout << " (partly) uninitialized branches in the tree:" << std::endl;
-    for(unsigned int var=0; var<uninitialized_.size();++var){
-      std::cout << uninitialized_[var] << std::endl;
-    }
-    exit(0);
-  }
-  else{
-    if(verbose>0){
-      std::cout << "all trees seem to be filled properly" << std::endl;
-      std::cout << Nevents << " events in total" << std::endl;
-    }
-  }
+  if(verbose>0) std::cout << std::endl << "part A: get tree entries" << std::endl;
 
+  // A1 - activate branches
+  // loop all variables
+  for(unsigned int i=0; i<variable_.size();++i){
+    // deactivate all branches
+    //trees_[variable_[i]]->SetBranchStatus("*",0);
+    // weight
+    trees_[variable_[i]]->SetBranchStatus("weight",1);
+    trees_[variable_[i]]->SetBranchAddress("weight",(&value_[folderRec(variable_[i], addSel)]["weight"]));
+    // variable names in tree
+    TString GenExt=treeGenExtension(variable_[i]);
+    TString RecExt=treeRecExtension(variable_[i]);
+    TString varRec=variable_[i]+RecExt;
+    TString varGen=variable_[i]+GenExt;
+    TString varGenLep=varGen;
+    TString varGenHad=varGen;
+    TString varRecLep=varRec;
+    TString varRecHad=varRec;
+    // take care about splitted leptonic/hadronic or particle/antiparticle distributions
+    if((variable_[i].Contains("top")&&!variable_[i].Contains("Lead")&&!variable_[i].Contains("Sys"))){
+      varGenLep=variable_[i]+"Lep"+GenExt;
+      varGenHad=variable_[i]+"Had"+GenExt;
+      varRecLep=variable_[i]+"Lep"+RecExt;
+      varRecHad=variable_[i]+"Had"+RecExt;
+    }
+    else if(variable_[i].Contains("bqPt")){
+      varGenLep=variable_[i]+"Lead"   +GenExt;
+      varGenHad=variable_[i]+"SubLead"+GenExt;
+      varRecLep=variable_[i]+"Lead"   +RecExt;
+      varRecHad=variable_[i]+"SubLead"+RecExt;
+    }
+    else if(variable_[i].Contains("bqEta")){
+      varGenLep=variable_[i]+GenExt;
+      varGenHad="bbarqEta"  +GenExt;
+      varRecLep=variable_[i]+RecExt;
+      varRecHad="bbarqEta"  +RecExt;
+    }
+    // activate branches
+    trees_[variable_[i]]->SetBranchStatus(varRecLep,1);
+    if(varRecLep!=varRecHad) trees_[variable_[i]]->SetBranchStatus(varRecHad,1);
+    trees_[variable_[i]]->SetBranchStatus(varGenLep,1);
+    if(varGenLep!=varGenHad) trees_[variable_[i]]->SetBranchStatus(varGenHad,1);
+    // save branch values in map
+    trees_[variable_[i]]->SetBranchAddress(varRecLep,(&value_[folderRec(variable_[i], addSel)][varRecLep]));
+    if(varRecLep!=varRecHad) trees_[variable_[i]]->SetBranchAddress(varRecHad,(&value_[folderRec(variable_[i], addSel)][varRecHad]));
+    trees_[variable_[i]]->SetBranchAddress(varGenLep,(&value_[folderRec(variable_[i], addSel)][varGenLep]));
+    if(varRecLep!=varRecHad) trees_[variable_[i]]->SetBranchAddress(varGenHad,(&value_[folderRec(variable_[i], addSel)][varGenHad]));
+    if(variable_[i]==testVar){
+      std::cout << "tree entry " << varRecLep << " -> value_[" << variable_[i] << "][" << varRecLep << "]" << std::endl;
+      if(varRecLep!=varRecHad) std::cout << "tree entry " << varRecHad << " -> value_[" << variable_[i] << "][" << varRecHad << "]" << std::endl;
+      std::cout << "tree entry " << varGenLep << " -> value_[" << variable_[i] << "][" << varGenLep << "]" << std::endl;
+      if(varRecLep!=varRecHad) std::cout << "tree entry " << varGenHad << " -> value_[" << variable_[i] << "][" << varGenHad << "]" << std::endl;
+
+      std::cout<< std::endl << "testing for uninitialized tree entries: " << std::endl;
+    }
+    // A2- check for unanitialized tree entries
+    Nevents=0;
+    // loop all events
+    for(unsigned int event=0; event<trees_[variable_[i]]->GetEntries(); ++event){
+      //if(variable_[i].Contains(testVar))  std::cout<< ".";
+      trees_[variable_[i]]->GetEntry(event);
+      if((variable_[i]==testVar&&event<=10)||(value_[folderRec(variable_[i], addSel)][varRecLep]==0&&value_[folderRec(variable_[i], addSel)][varRecHad]==0&&value_[folderRec(variable_[i], addSel)][varGenLep]==0&&value_[folderRec(variable_[i], addSel)][varGenHad]==0)){
+	std::cout << "tree entry " << varRecLep << " -> value_[" << variable_[i] << "][" << varRecLep << "]=" << value_[folderRec(variable_[i], addSel)][varRecLep] << std::endl;
+	if(varRecLep!=varRecHad) std::cout << "tree entry " << varRecHad << " -> value_[" << variable_[i] << "][" << varRecHad << "]=" << value_[folderRec(variable_[i], addSel)][varRecHad] << std::endl;
+	std::cout << "tree entry " << varGenLep << " -> value_[" << variable_[i] << "][" << varGenLep << "]=" << value_[folderRec(variable_[i], addSel)][varGenLep] << std::endl;
+	if(varRecLep!=varRecHad) std::cout << "tree entry " << varGenHad << " -> value_[" << variable_[i] << "][" << varGenHad << "]=" << value_[folderRec(variable_[i], addSel)][varGenHad] << std::endl;
+	if(value_[folderRec(variable_[i], addSel)][varRecLep]==0&&value_[folderRec(variable_[i], addSel)][varRecHad]==0&&value_[folderRec(variable_[i], addSel)][varGenLep]==0&&value_[folderRec(variable_[i], addSel)][varGenHad]==0){
+	  std::cout << "ERROR in tree " << folderRec(variable_[i], addSel)+"/tree - all quantities are 0!" << std::endl;
+	  exit(0);
+	}
+      }
+      Nevents++;
+      // A2.1 check Gen   
+      // leptonic top
+      if(value_[folderRec(variable_[i], addSel)][varGenLep]==-9999||value_[folderRec(variable_[i], addSel)][varGenLep]==-999||value_[folderRec(variable_[i], addSel)][varGenLep]==0){
+	// check if already an invalid branch entry was found
+	vector<TString>::iterator it=find(uninitialized_.begin(), uninitialized_.end(), varGenLep);
+	if(uninitialized_.size()==0||it!=uninitialized_.end()) uninitialized_.push_back(varGenLep);
+      }
+      // hadronic top
+      else if(value_[folderRec(variable_[i], addSel)][varGenHad]==-9999||value_[folderRec(variable_[i], addSel)][varGenHad]==-999||value_[folderRec(variable_[i], addSel)][varGenHad]==0){
+	// check if already an invalid branch entry was found
+	vector<TString>::iterator it=find(uninitialized_.begin(), uninitialized_.end(), varGenHad);
+	if(uninitialized_.size()==0||it!=uninitialized_.end()) uninitialized_.push_back(varGenHad);
+      }
+      // A2.2 check RECO
+      // leptonic top
+      if(value_[folderRec(variable_[i], addSel)][varRecLep]==-9999||value_[folderRec(variable_[i], addSel)][varRecLep]==-999||value_[folderRec(variable_[i], addSel)][varRecLep]==0){
+	// check if already an invalid branch entry was found
+	vector<TString>::iterator it=find(uninitialized_.begin(), uninitialized_.end(), varRecLep);
+	if(uninitialized_.size()==0||it!=uninitialized_.end()) uninitialized_.push_back(varRecLep);
+      }
+      // hadronic top
+      if(value_[folderRec(variable_[i], addSel)][varRecHad]==-9999||value_[folderRec(variable_[i], addSel)][varRecHad]==-999||value_[folderRec(variable_[i], addSel)][varRecHad]==0){
+	// check if already an invalid branch entry was found
+	vector<TString>::iterator it=find(uninitialized_.begin(), uninitialized_.end(), varRecHad);
+	if(uninitialized_.size()==0||it!=uninitialized_.end()) uninitialized_.push_back(varRecHad);
+      }
+    }
+    if(variable_[i]==testVar)  std::cout << std::endl;;
+    // print list of uninitialized tree entries
+    if(uninitialized_.size()>0){
+      std::cout << "there are " << uninitialized_.size();
+      std::cout << " (partly) uninitialized branches in the tree " << folderRec(variable_[i], addSel)+"/tree" << std::endl;
+      for(unsigned int var=0; var<uninitialized_.size();++var){
+	std::cout << uninitialized_[var] << std::endl;
+      }
+      exit(0);
+    }
+    else{
+      if(verbose>0){
+	std::cout << "tree "+folderRec(variable_[i], addSel)+"/tree for " << variable_[i] << " seems to be filled properly" << std::endl;
+	std::cout << trees_[variable_[i]]->GetEntries() << " entries in total" << std::endl;
+      }
+    }
+  }
+    
   // ---
   //    part B: get weights for shape distortion
   // ---
@@ -268,69 +374,71 @@ void analyzeTopDiffXSecMCdependency(double luminosity = 12148, std::string decay
     TH1* targetPlot;
     TH1* targetPlot2;
     TH1* targetPlot3;
-    inFile->GetObject(genfolder+"/"+variable_[i], targetPlot);
-    inFile->GetObject(folder+"/"+variable_[i]   , targetPlot2);
-    inFile->GetObject(genfolder2+"/"+variable_[i], targetPlot3);
+    inFile->GetObject(folderGenFull(variable_[i])+"/"+variable_[i]+HistoGenExt(variable_[i]), targetPlot );
+    inFile->GetObject(folderRec(    variable_[i], addSel)+"/"+variable_[i]+HistoRecExt(variable_[i]), targetPlot2);
+    inFile->GetObject(folderGenPS(  variable_[i])+"/"+variable_[i]+HistoGenExt(variable_[i]), targetPlot3);
     // check if plot exits
     if(!targetPlot){ 
-      std::cout << "plot " << genfolder+"/"+variable_[i] << "can not ";
+      std::cout << "plot " << folderGenFull(variable_[i])+"/"+variable_[i] << "can not ";
       std::cout << "be found in file " << analysisFileName << std::endl;
       exit(0);
     }
     else{
-      plots_[variable_[i]+"PartonTruth"]=(TH1F*)(targetPlot->Clone());
+      plotsGen_[variable_[i]]=(TH1F*)(targetPlot->Clone());
       // check for empty plots
-      if(plots_[variable_[i]+"PartonTruth"]->GetEntries()==0){
+      if(plotsGen_[variable_[i]]->GetEntries()==0){
 	std::cout << "ERROR: empty plot " << analysisFileName;
-	std::cout << "/"+genfolder+"/"+variable_[i] << std::endl;
+	std::cout << "/"+folderGenFull(variable_[i])+"/"+variable_[i] << std::endl;
 	exit(0);
       }
     }
     if(!targetPlot2){ 
-      std::cout << "plot " << folder+"/"+variable_[i] << "can not ";
+      std::cout << "plot " << folderRec(variable_[i], addSel)+"/"+variable_[i] << "can not ";
       std::cout << "be found in file " << analysisFileName << std::endl;
       exit(0);
     }
     else{
-      plots_[variable_[i]]=(TH1F*)(targetPlot2->Clone());
+      plotsRec_[variable_[i]]=(TH1F*)(targetPlot2->Clone());
       // check for empty plots
-      if(plots_[variable_[i]]->GetEntries()==0){
+      if(plotsRec_[variable_[i]]->GetEntries()==0){
 	std::cout << "ERROR: empty plot " << analysisFileName;
-	std::cout << "/"+folder+"/"+variable_[i] << std::endl;
+	std::cout << "/"+folderRec(variable_[i], addSel)+"/"+variable_[i] << std::endl;
 	exit(0);
       }
     }
     if(!targetPlot3){ 
-      std::cout << "plot " << genfolder2+"/"+variable_[i] << "can not ";
+      std::cout << "plot " << folderGenPS(variable_[i])+"/"+variable_[i] << "can not ";
       std::cout << "be found in file " << analysisFileName << std::endl;
       exit(0);
     }
     else{
-      plots_[variable_[i]+"PartonTruthFull"]=(TH1F*)(targetPlot3->Clone());
+      plotsGenPS_[variable_[i]]=(TH1F*)(targetPlot3->Clone());
       // check for empty plots
-      if(plots_[variable_[i]+"PartonTruthFull"]->GetEntries()==0){
+      if(plotsGenPS_[variable_[i]]->GetEntries()==0){
 	std::cout << "ERROR: empty plot " << analysisFileName;
-	std::cout << "/"+genfolder2+"/"+variable_[i] << std::endl;
+	std::cout << "/"+folderGenPS(variable_[i])+"/"+variable_[i] << std::endl;
 	exit(0);
       }
     }
   }
-  // check if all plots are filled properly
-  int NeventsPS=plots_["ttbarMassPartonTruth"]->GetEntries();
-  if(verbose>0) std::cout << NeventsPS << " events in chosen Phase space" << std::endl;
-  // loop all variables
-  for(unsigned int i=0; i<variable_.size();++i){
-    // count number of entries
-    int entries=plots_[variable_[i]+"PartonTruth"]->GetEntries();
-    // take into account that there are two top quarks
-    if(variable_[i].Contains("top")||variable_[i].Contains("bq")) entries*=0.5;
-    // compare number of events
-    if(entries!=NeventsPS){
-	std::cout << "ERROR: wrong number of events in plot " << analysisFileName;
-	std::cout << "/"+genfolder+"/"+variable_[i] << " or /ttbarMass" << std::endl;
-	exit(0);
-    }
-  }
+  // check if all plots are filled properly -> not done as different trees are used...
+  //int NeventsFull=plotsGenPS_["ttbarMass"]->GetEntries();
+  //int NeventsPS  =plotsGenPS_["Njets"    ]->GetEntries();
+  //if(verbose>0) std::cout << NeventsPS << " events in chosen Phase space" << std::endl;
+  //// loop all variables
+  //for(unsigned int i=0; i<variable_.size();++i){
+  //  // count number of entries
+  //  int entries=plotsGenPS_[variable_[i]]->GetEntries();
+  //  // take into account that there are two top quarks
+  //  if((variable_[i].Contains("top")&&!variable_[i].Contains("Lead")&&!variable_[i].Contains("Sys"))||variable_[i].Contains("bq")) entries*=0.5;
+  //  // compare number of events
+  //  if((!fullPS(variable_[i])&&entries!=NeventsPS)||(fullPS(variable_[i])&&entries!=NeventsFull)){
+  //    TString GenFolderTemp=(fullPS(variable_[i]) ? folderGenFull(variable_[i]) : folderGenPS(variable_[i]));
+  //    std::cout << "ERROR: unequal number of events in plot " << analysisFileName;
+  //    std::cout << "/"+GenFolderTemp+"/"+variable_[i] << " and "+GenFolderTemp+(fullPS(variable_[i]) ? "/ttbarMass" : "/Njets") << std::endl;
+  //    exit(0);
+  //  }
+  //}
   if(verbose>0) std::cout << "original parton level phase space plots loaded successfully" << std::endl;
 
   // B2 distort distributions
@@ -342,16 +450,16 @@ void analyzeTopDiffXSecMCdependency(double luminosity = 12148, std::string decay
       TString Var=variation_[var];
       if (doPDFuncertainty) {
 	// restricted phase space
-	plotsScaled_[variable_[i]+"PartonTruth"    +Var]=distortPDF(*plots_[variable_[i]+"PartonTruth"    ], Var, variable_[i], inputFolderName, ""       , verbose-1);
-	// full phase space
-	TString pdfUncPS="Full";
-	plotsScaled_[variable_[i]+"PartonTruthFull"+Var]=distortPDF(*plots_[variable_[i]+"PartonTruthFull"], Var, variable_[i], inputFolderName, pdfUncPS   , verbose-1);
-      } 
-      else {
-	// restricted phase space
-	plotsScaled_[variable_[i]+"PartonTruth"+Var    ]=distort   (*plots_[variable_[i]+"PartonTruth"], Var, variable_[i], verbose-1);
-	// full phase space
-	plotsScaled_[variable_[i]+"PartonTruthFull"+Var]=distort   (*plots_[variable_[i]+"PartonTruthFull"], Var, variable_[i], verbose-1);
+	//plotsScaled_[variable_[i]+"PartonTruth"    +Var]=distortPDF(*plotsGenPS_[variable_[i]], Var, variable_[i], analysisFileName, verbose-1);
+	// full phase space								     
+	TString pdfUncPS="Full";							     
+	plotsScaled_[variable_[i]+"PartonTruthFull"+Var]=distortPDF(*plotsGen_  [variable_[i]], Var, variable_[i], analysisFileName, verbose-1, testVar);
+      }											     
+      else {										     
+	// restricted phase space							     
+	//plotsScaled_[variable_[i]+"PartonTruth"+Var    ]=distort   (*plotsGenPS_[variable_[i]], Var, variable_[i], verbose-1);
+	// full phase space								     
+	plotsScaled_[variable_[i]+"PartonTruthFull"+Var]=distort   (*plotsGen_  [variable_[i]], Var, variable_[i], verbose-1);
       }
     }
   }
@@ -366,27 +474,16 @@ void analyzeTopDiffXSecMCdependency(double luminosity = 12148, std::string decay
       TString Var=variation_[var];
       // calculate lepton variation SF from full PS
       // others from restricted      // temporary necessary because of different gen and reco cuts
-      TString PS="Full";
-      //if(!(variable_[i]=="lepPt"||variable_[i]=="lepEta")) PS="";
-      if(variable_[i].Contains("Y")) PS="";
-      SF_[variable_[i]+Var]=(TH1F*)plotsScaled_[variable_[i]+"PartonTruth"+PS+Var]->Clone();
-      SF_[variable_[i]+Var]->Divide(plots_[variable_[i]+"PartonTruth"+PS]);
+      SF_[variable_[i]+Var]= (TH1F*)plotsScaled_[variable_[i]+"PartonTruthFull"+Var]->Clone();
+      SF_[variable_[i]+Var]->Divide(plotsGen_[variable_[i]]);
       // if SF is derived by full PS
-      if(PS=="Full"){
-	for(int bin=0; bin<=SF_[variable_[i]+Var]->GetNbinsX()+1; ++bin){
-	  //std::cout << "bin #" << bin << "(" << SF_[variable_[i]+Var]->GetBinCenter(bin) << "): " << SF_[variable_[i]+Var]->GetBinContent(bin) << std::endl;
-	  // replace full PS parton truth plot by limited PS plot
-	  // and apply weight from full PS
-	  double SFbin=SF_[variable_[i]+Var]->GetBinContent(bin);
-	  plotsScaled_[variable_[i]+"PartonTruth"+Var]->SetBinContent(bin, plots_[variable_[i]+"PartonTruth"]->GetBinContent(bin)*SFbin);
-	}
+      for(int bin=0; bin<=SF_[variable_[i]+Var]->GetNbinsX()+1; ++bin){
+	if(verbose>2) std::cout << "bin #" << bin << "(" << SF_[variable_[i]+Var]->GetBinCenter(bin) << "): " << SF_[variable_[i]+Var]->GetBinContent(bin) << std::endl;
+	// replace full PS parton truth plot by limited PS plot
+	// and apply weight from full PS
+	double SFbin=SF_[variable_[i]+Var]->GetBinContent(bin);
+	plotsScaled_[variable_[i]+"PartonTruthFull"+Var]->SetBinContent(bin, plotsGen_[variable_[i]]->GetBinContent(bin)*SFbin);
       }
-//      // Following lines are just to check whether reweighting values from MC@NLO to MadGraph works
-//      if (doPDFuncertainty) {
-//        // add central values (witouth PDF reweighting) from MC@NLO to the list of plots using MadGraph normalisation (see also ~line 462)
-//        plots_[variable_[i]+"PartonTruth"+"MCatNLO"] = getTheoryPrediction(variable_[i], "/afs/naf.desy.de/group/cms/scratch/tophh/" + inputFolderName + "/ttbarNtupleCteq6mPDFuncertOnly.root");
-//        plots_[variable_[i]+"PartonTruth"+"MCatNLO"]->Scale(plots_[variable_[i]+"PartonTruth"]->Integral(0,plots_[variable_[i]+"PartonTruth"]->GetNbinsX()+1));
-//      }
     }
   }
 
@@ -398,25 +495,22 @@ void analyzeTopDiffXSecMCdependency(double luminosity = 12148, std::string decay
     // loop all variations 
     for(unsigned int var=0; var<variation_.size();++var){
       TString Var=variation_[var];
-      double initArea = plots_[variable_[i]+"PartonTruth"]->Integral(0,plots_[variable_[i]+"PartonTruth"]->GetNbinsX()+1);
-      double areaSFUp   = initArea/plotsScaled_[variable_[i]+"PartonTruth"+"Up"  ]->Integral(0,plotsScaled_[variable_[i]+"PartonTruth"+"Up"  ]->GetNbinsX()+1);
-      double areaSFDown = initArea/plotsScaled_[variable_[i]+"PartonTruth"+"Down"]->Integral(0,plotsScaled_[variable_[i]+"PartonTruth"+"Down"]->GetNbinsX()+1);
-      if (doPDFuncertainty) {
-        if(verbose>0) std::cout << "NOTE: not doing any normalization for PDF uncertainties as this would underestimate the maximum variations (normalization should cancel out anyway in reco/parton level ratio, right?!)" << std::endl;
-      } else {
-        SF_[variable_[i]+"Up"  ]->Scale(areaSFUp);
-        plotsScaled_[variable_[i]+"PartonTruth"+"Up"  ]->Scale(areaSFUp);
-        SF_[variable_[i]+"Down"]->Scale(areaSFDown);
-        plotsScaled_[variable_[i]+"PartonTruth"+"Down"]->Scale(areaSFDown);
-      }
-      if(verbose>1) std::cout << "area central value    for "   << variable_[i] << ": " << initArea   << std::endl;
-      if(verbose>1) std::cout << "area SF(up variation) for "   << variable_[i] << ": " << areaSFUp   << std::endl;
-      if(verbose>1) std::cout << "area SF(down variation) for " << variable_[i] << ": " << areaSFDown << std::endl;
+      double initArea   = plotsGen_[variable_[i]]->Integral(0,plotsGen_[variable_[i]]->GetNbinsX()+1);
+      double areaSFUp   = initArea/plotsScaled_[variable_[i]+"PartonTruthFull"+"Up"  ]->Integral(0,plotsScaled_[variable_[i]+"PartonTruthFull"+"Up"  ]->GetNbinsX()+1);
+      double areaSFDown = initArea/plotsScaled_[variable_[i]+"PartonTruthFull"+"Down"]->Integral(0,plotsScaled_[variable_[i]+"PartonTruthFull"+"Down"]->GetNbinsX()+1);
+      //if (doPDFuncertainty) {
+      SF_[variable_[i]+"Up"  ]->Scale(areaSFUp);
+      plotsScaled_[variable_[i]+"PartonTruthFull"+"Up"  ]->Scale(areaSFUp);
+      SF_[variable_[i]+"Down"]->Scale(areaSFDown);
+      plotsScaled_[variable_[i]+"PartonTruthFull"+"Down"]->Scale(areaSFDown);
+      if(verbose>1||variable_[i]==testVar) std::cout << "area central value    for "   << variable_[i] << ": " << initArea   << std::endl;
+      if(verbose>1||variable_[i]==testVar) std::cout << "area SF(up variation) for "   << variable_[i] << ": " << areaSFUp   << std::endl;
+      if(verbose>1||variable_[i]==testVar) std::cout << "area SF(down variation) for " << variable_[i] << ": " << areaSFDown << std::endl;
     }
   }
   if(verbose>0){
     std::cout << "distortion SF keeps normalization for original ";    
-    std::cout << "(phase space) parton level truth distribution" << std::endl;
+    std::cout << "(phase space) gen level truth distribution" << std::endl;
   }
 
   // B5 check for negative SF
@@ -430,7 +524,7 @@ void analyzeTopDiffXSecMCdependency(double luminosity = 12148, std::string decay
 	// search for negative SFs
 	// but only in non-empty bins
         // NB: skip check for PDF uncertainties 
-	if (!doPDFuncertainty&&SF_[variable_[i]+Var]->GetBinContent(bin)<0.&&plots_[variable_[i]+"PartonTruth"]->GetBinContent(bin)>0.){
+	if (!doPDFuncertainty&&SF_[variable_[i]+Var]->GetBinContent(bin)<0.&&plotsGen_[variable_[i]]->GetBinContent(bin)>0.){
 	  std::cout << "ERROR: distortion SF for variable "+variable_[i]+" variation "+Var+" bin " << bin << " is negative!" << std::endl;
 	  exit(1);
 	}
@@ -441,281 +535,342 @@ void analyzeTopDiffXSecMCdependency(double luminosity = 12148, std::string decay
   // ---
   //    part C: Draw control plots for weighted (phase space) parton level distributions
   // ---
-  if(verbose>0) std::cout << std::endl << "part C: create control plots" << std::endl;
+  if(verbose>0) std::cout << std::endl << "part C: create gen control plots" << std::endl;
   std::vector<TCanvas*> plotCanvas_;
-  // C1 create canvas
-  for(unsigned int plot=0; plot<variable_.size(); ++plot){
-    char canvname[10];
-    sprintf(canvname,"canv%i",plot);    
-    plotCanvas_.push_back( new TCanvas( canvname, canvname, 600, 600) );
-    //canvasStyle(*plotCanvas_[sample]);
-  }
-  // C2 create legend
-  TLegend *legPS = new TLegend(0.7, 0.6, 1.0, 0.85);
-  legPS->SetFillStyle(0);
-  legPS->SetBorderSize(0);
-  legPS->SetEntrySeparation(0.45);
-  legPS->SetHeader("#splitline{parton level}{(phase space)}");
-  legPS->AddEntry(plotsScaled_[variable_[0]+"PartonTruth"+"Up"  ], "up"     , "L");
-  legPS->AddEntry(plots_      [variable_[0]+"PartonTruth"       ], "central", "L");
-  legPS->AddEntry(plotsScaled_[variable_[0]+"PartonTruth"+"Down"], "down"   , "L");
-
-  // C3 fill scaled and original plot into one canvas
   int canvasNumber=0;
-  // loop all variables
-  for(unsigned int i=0; i<variable_.size();++i){
-    plotCanvas_[canvasNumber]->cd(0);
-    plotCanvas_[canvasNumber]->SetTitle(variable_[i]+"PartonLevelPhaseSpace");
-    histogramStyle(*plotsScaled_[variable_[i]+"PartonTruth"+"Up"  ], 0, false);
-    histogramStyle(*plotsScaled_[variable_[i]+"PartonTruth"+"Down"], 2, false);
-    histogramStyle(*plots_      [variable_[i]+"PartonTruth"       ], 0, false);
-    plots_      [variable_[i]+"PartonTruth"       ]->SetLineColor(kBlack);
-    plotsScaled_[variable_[i]+"PartonTruth"+"Up"]->GetXaxis()->SetNoExponent(true);
-    plotsScaled_[variable_[i]+"PartonTruth"+"Up"]->GetXaxis()->SetTitle(variable_[i]);
-    plotsScaled_[variable_[i]+"PartonTruth"+"Up"]->GetYaxis()->SetTitle("events");
-    // take care of maximum
-    double maxDown=plotsScaled_[variable_[i]+"PartonTruth"+"Down"]->GetMaximum();
-    double maxUp  =plotsScaled_[variable_[i]+"PartonTruth"+"Up"  ]->GetMaximum();
-    double maxStd =plots_      [variable_[i]+"PartonTruth"       ]->GetMaximum();
-    double maximum=std::max(std::max(maxUp,maxDown), maxStd);
-    plotsScaled_[variable_[i]+"PartonTruth"+"Up"  ]->SetMaximum(1.2*maximum);
-    // adapt plot range
-    if(variable_[i]=="lepPt") plotsScaled_[variable_[i]+"PartonTruth"+"Up"]->GetXaxis()->SetRangeUser(0,400);
-    //draw plots
-    plotsScaled_[variable_[i]+"PartonTruth"+"Up"  ]->Draw("");
-    plotsScaled_[variable_[i]+"PartonTruth"+"Down"]->Draw("same");
-    plots_      [variable_[i]+"PartonTruth"       ]->Draw("same");
-    // only for cross check
-    //plots_      [variable_[i]+"PartonTruth"+"MCatNLO"]->Draw("same");
-    legPS->Draw("same");
-    ++canvasNumber;
+  if(producePlotsGen){
+    // C1 create canvas
+    for(unsigned int plot=0; plot<variable_.size(); ++plot){
+      char canvname[10];
+      sprintf(canvname,"canv%i",plot);    
+      plotCanvas_.push_back( new TCanvas( canvname, canvname, 600, 600) );
+      //canvasStyle(*plotCanvas_[sample]);
+    }
+    // C2 create legend
+    TLegend *legPS = new TLegend(0.7, 0.6, 1.0, 0.85);
+    legPS->SetFillStyle(0);
+    legPS->SetBorderSize(0);
+    legPS->SetEntrySeparation(0.45);
+    legPS->SetHeader("#splitline{gen, chosen }{(phase space)}");
+    legPS->AddEntry(plotsScaled_[variable_[0]+"PartonTruthFull"+"Up"  ], "up"     , "L");
+    legPS->AddEntry(plotsGen_   [variable_[0]                     ], "central", "L");
+    legPS->AddEntry(plotsScaled_[variable_[0]+"PartonTruthFull"+"Down"], "down"   , "L");
+
+    // C3 fill scaled and original plot into one canvas
+    // loop all variables
+    for(unsigned int i=0; i<variable_.size();++i){
+      plotCanvas_[canvasNumber]->cd(0);
+      plotCanvas_[canvasNumber]->SetTitle(variable_[i]+"PartonLevelPhaseSpace");
+      histogramStyle(*plotsScaled_[variable_[i]+"PartonTruthFull"+"Up"  ], 0, false);
+      histogramStyle(*plotsScaled_[variable_[i]+"PartonTruthFull"+"Down"], 2, false);
+      histogramStyle(*plotsGen_   [variable_[i]                     ], 0, false);
+      plotsGen_   [variable_[i]]->SetLineColor(kBlack);
+      plotsScaled_[variable_[i]+"PartonTruthFull"+"Up"]->GetXaxis()->SetNoExponent(true);
+      plotsScaled_[variable_[i]+"PartonTruthFull"+"Up"]->GetXaxis()->SetTitle(variable_[i]);
+      plotsScaled_[variable_[i]+"PartonTruthFull"+"Up"]->GetYaxis()->SetTitle("events");
+      // take care of maximum
+      double maxDown=plotsScaled_[variable_[i]+"PartonTruthFull"+"Down"]->GetMaximum();
+      double maxUp  =plotsScaled_[variable_[i]+"PartonTruthFull"+"Up"  ]->GetMaximum();
+      double maxStd =plotsGen_   [variable_[i]                     ]->GetMaximum();
+      double maximum=std::max(std::max(maxUp,maxDown), maxStd);
+      plotsScaled_[variable_[i]+"PartonTruthFull"+"Up"  ]->SetMaximum(1.2*maximum);
+      // adapt plot range
+      if(variable_[i]=="lepPt") plotsScaled_[variable_[i]+"PartonTruthFull"+"Up"]->GetXaxis()->SetRangeUser(0,400);
+      //draw plots
+      plotsScaled_[variable_[i]+"PartonTruthFull"+"Up"  ]->Draw("");
+      plotsScaled_[variable_[i]+"PartonTruthFull"+"Down"]->Draw("same");
+      plotsGen_   [variable_[i]                     ]->Draw("same");
+      // only for cross check
+      //plots_      [variable_[i]+"PartonTruth"+"MCatNLO"]->Draw("same");
+      legPS->Draw("same");
+      ++canvasNumber;
+    }
+    //int partonLevelPlots=canvasNumber;
   }
-  //int partonLevelPlots=canvasNumber;
+  else if(verbose>0) std::cout << "-> skipped" << std::endl;    
 
   // ---
-  //    part D: create weighted plots
+  //    part D: create gen-reweighted reco plots
   // ---
   if(verbose>0) std::cout << std::endl << "part D: use parton level based SF to reweight reco histos" << std::endl;
-  // loop all events
-  for(unsigned int event=0; event<tree->GetEntries(); ++event){
-    tree->GetEntry(event);
-    double weight=value_["weight"];
-    if(weight==0) std::cout << "WARNING: standard event weight (from tree) is 0!" << std::endl;
+  // loop all variables 
+  for(unsigned int i=0; i<variable_.size();++i){
+    // D1 NAMING
+    // variable names in tree
+    TString GenExt=treeGenExtension(variable_[i]);
+    TString RecExt=treeRecExtension(variable_[i]);
+    TString varRec=variable_[i]+RecExt;
+    TString varGen=variable_[i]+GenExt;
+    TString varGenLep=varGen;
+    TString varGenHad=varGen;
+    TString varRecLep=varRec;
+    TString varRecHad=varRec;
+    // take care about splitted leptonic/hadronic or particle/antiparticle distributions
+    if((variable_[i].Contains("top")&&!variable_[i].Contains("Lead")&&!variable_[i].Contains("Sys"))){
+      varGenLep=variable_[i]+"Lep"+GenExt;
+      varGenHad=variable_[i]+"Had"+GenExt;
+      varRecLep=variable_[i]+"Lep"+RecExt;
+      varRecHad=variable_[i]+"Had"+RecExt;
+    }
+    else if(variable_[i].Contains("bqPt")){
+      varGenLep=variable_[i]+"Lead"   +GenExt;
+      varGenHad=variable_[i]+"SubLead"+GenExt;
+      varRecLep=variable_[i]+"Lead"   +RecExt;
+      varRecHad=variable_[i]+"SubLead"+RecExt;
+    }
+    else if(variable_[i].Contains("bqEta")){
+      varGenLep=variable_[i]+GenExt;
+      varGenHad="bbarqEta"  +GenExt;
+      varRecLep=variable_[i]+RecExt;
+      varRecHad="bbarqEta"  +RecExt;
+    }
+    if(!trees_[variable_[i]]->GetBranchStatus(varRecLep)||!trees_[variable_[i]]->GetBranchStatus(varRecHad)||!trees_[variable_[i]]->GetBranchStatus(varGenLep)||!trees_[variable_[i]]->GetBranchStatus(varGenHad)){
+      std::cout << "ERROR: uninitialized Branch for quantity " << variable_[i] << ": ";
+      if(!trees_[variable_[i]]->GetBranchStatus(varRecLep)) std::cout << varRecLep << std::endl;
+      if(!trees_[variable_[i]]->GetBranchStatus(varRecHad)) std::cout << varRecHad << std::endl;
+      if(!trees_[variable_[i]]->GetBranchStatus(varGenLep)) std::cout << varGenLep << std::endl;
+      if(!trees_[variable_[i]]->GetBranchStatus(varGenHad)) std::cout << varGenHad << std::endl;
+      exit(0);
+    }
+    // loop all events in tree
+    for(unsigned int event=0; event<trees_[variable_[i]]->GetEntries(); ++event){
+      if(variable_[i]==testVar&&verbose>1) std::cout << "event " << event+1 << "/" << trees_[variable_[i]]->GetEntries() << std::endl;
+      trees_[variable_[i]]->GetEntry(event);
+      double weight=value_[folderRec(variable_[i], addSel)]["weight"];
+      if(weight==0) std::cout << "WARNING: standard event weight (from tree) is 0!" << std::endl;
+      if(verbose>3) std::cout << "SF for variable: " << variable_[i] << std::endl; 
+      // loop all variations (Up/Down) 
+      for(unsigned int var=0; var<variation_.size();++var){
+	TString Var=variation_[var];
+	if(verbose>3) std::cout << "- variation: " << Var << std::endl;
+	// D2 CALCULATE WEIGHT
+	double LepShapeWeight=0;
+	double HadShapeWeight=0;
+	// get 2xSF (for variable i)
+	LepShapeWeight=SF_[variable_[i]+Var]->GetBinContent(SF_[variable_[i]+Var]->FindBin(value_[folderRec(variable_[i], addSel)][varGenLep]));
+	HadShapeWeight=SF_[variable_[i]+Var]->GetBinContent(SF_[variable_[i]+Var]->FindBin(value_[folderRec(variable_[i], addSel)][varGenHad]));
+	// print out all relevant tree entries for the first tree events for testVar or high verbosity level
+	if((verbose>3||(variable_[i]==testVar))&&event<=10){
+	  std::cout << "   variable: "      << variable_[i] << " (PDF " << variation_[var] << ")" << std::endl;
+	  std::cout << "   " << "weight= " << value_[folderRec(variable_[i], addSel)]["weight"] << std::endl;
+	  std::cout << "   " << varGenLep << "= " << value_[folderRec(variable_[i], addSel)][varGenLep] << std::endl;
+	  if(varRecLep!=varRecHad) std::cout << "   " << varGenHad << "= " << value_[folderRec(variable_[i], addSel)][varGenHad] << std::endl;
+	  std::cout << "   " << varRecLep << "= " << value_[folderRec(variable_[i], addSel)][varRecLep] << std::endl;
+	  if(varRecLep!=varRecHad) std::cout << "   " << varRecHad << "= " << value_[folderRec(variable_[i], addSel)][varRecHad] << std::endl;
+	  if(varRecLep!=varRecHad) std::cout << "   had weight= "    << HadShapeWeight << std::endl;
+	  std::cout << "   lep weight= "    << LepShapeWeight << std::endl;    
+	}
+	// D3 CREATE REWEIGHTED PLOTS
+	// parton truth plots
+	//finalPlots_[variable_[i]+"PartonTruth"][variable_[i]+Var]->Fill(value_[varGenLep], weight*LepShapeWeight);
+	// reconstruction level plots
+	if(verbose>3||(variable_[i]==testVar&&verbose>1)) std::cout << "filling x=" << value_[folderRec(variable_[i], addSel)][varRecLep] << ", weight=" <<  weight*LepShapeWeight << std::endl;
+	finalPlots_[variable_[i]][variable_[i]+Var]->Fill(value_[folderRec(variable_[i], addSel)][varRecLep], weight*LepShapeWeight);
+	// correlation plots
+	finalPlots2D_[variable_[i]][variable_[i]+Var]->Fill(value_[folderRec(variable_[i], addSel)][varGenLep], value_[folderRec(variable_[i], addSel)][varRecLep], weight*LepShapeWeight);
+	// second entry for splitted leptonic/hadronic or particle/antiparticle distributions
+	if(HadShapeWeight!=LepShapeWeight){
+	  //finalPlots_  [variable_[i]+"PartonTruth"][variable_[i]+Var]->Fill(value_[varGenHad]                   , weight*HadShapeWeight);
+	  finalPlots_  [variable_[i]              ][variable_[i]+Var]->Fill(value_[folderRec(variable_[i], addSel)][varRecHad]                                 , weight*HadShapeWeight);
+	  finalPlots2D_[variable_[i]              ][variable_[i]+Var]->Fill(value_[folderRec(variable_[i], addSel)][varGenHad], value_[folderRec(variable_[i], addSel)][varRecHad], weight*HadShapeWeight);
+	}
+      } // end for loop var (Up/Down)
+    } // end for loop tree entries
+  } // end for loop variables_
+
+  if(verbose>0) std::cout << std::endl << "part E: create control plots for default and reweighted reco histos" << std::endl;
+  // E CREATE CONTROL PLOTS
+  if(producePlotsRec){
+    for(unsigned int i=0; i<variable_.size();++i){
+      // create canvas for every plot
+      char canvname[10];
+      sprintf(canvname,"canv%i",canvasNumber);
+      plotCanvas_.push_back( new TCanvas( canvname, canvname, 600, 600) );
+      plotCanvas_[canvasNumber]->cd(0);
+      plotCanvas_[canvasNumber]->SetTitle(variable_[i]+"RecoLevel");
+      for(unsigned int var=0; var<variation_.size();++var){
+	finalPlots_[variable_[i]][variable_[i]+"Up"   ]->SetLineColor(kRed );
+	finalPlots_[variable_[i]][variable_[i]+"Down" ]->SetLineColor(kBlue);
+	finalPlots_[variable_[i]][variable_[i]+"Up"   ]->SetMarkerColor(kRed );
+	finalPlots_[variable_[i]][variable_[i]+"Down" ]->SetMarkerColor(kBlue);	
+	finalPlots_[variable_[i]][variable_[i]+"Up"   ]->SetLineWidth(2);
+	finalPlots_[variable_[i]][variable_[i]+"Down" ]->SetLineWidth(2);
+	finalPlots_[variable_[i]][variable_[i]+"Up"   ]->SetLineStyle(2);
+	finalPlots_[variable_[i]][variable_[i]+"Down" ]->SetLineStyle(2);
+	plotsRec_[variable_[i]]->SetLineColor(kBlack);
+	plotsRec_[variable_[i]]->GetXaxis()->SetTitle(variable_[i]);
+	plotsRec_[variable_[i]]->GetXaxis()->SetNoExponent(true);
+	plotsRec_[variable_[i]]->Draw("hist");
+	finalPlots_[variable_[i]][variable_[i]+"Up"   ]->Draw("hist same");
+	finalPlots_[variable_[i]][variable_[i]+"Down" ]->Draw("hist same");
+	if(variable_[i]==testVar){
+	  std::cout << "N(rec, nom   )=" << plotsRec_[variable_[i]]->Integral(0, plotsRec_[variable_[i]]->GetNbinsX()+1) << std::endl;
+	  std::cout << "N(rec, pdf up)=" << finalPlots_[variable_[i]][variable_[i]+"Up"  ]->Integral(0, finalPlots_[variable_[i]][variable_[i]+"Up"  ]->GetNbinsX()+1) << std::endl;
+	  std::cout << "N(rec, pdf dn)=" << finalPlots_[variable_[i]][variable_[i]+"Down"]->Integral(0, finalPlots_[variable_[i]][variable_[i]+"Down"]->GetNbinsX()+1) << std::endl;
+	}
+      }
+      canvasNumber++;
+    }
+  }
+  else if(verbose>0) std::cout << "-> skipped" << std::endl;
+
+  // ---
+  //    part F: get BG subtracted data shape plots
+  // ---
+  if(verbose>0) std::cout << std::endl << "part F: create data -MCBG control plots" << std::endl;
+  if(produceBGSubtractedShapePlots){
+    // define data reference plot list
+    std::vector<TString> plotList_;
+    std::vector<TString> axisLabel_;
+    for(unsigned int plot=0; plot<variable_.size(); ++plot){
+      plotList_.push_back( folderRec(variable_[plot], addSel)+"/"+variable_[plot] );
+      TString rebinFactor="1";
+      if(variable_[plot]=="ttbarMass") rebinFactor="20";
+      if(variable_[plot]=="ttbarPt"  ) rebinFactor="6";
+      if(variable_[plot]=="topPt"    ) rebinFactor="10";
+      if(variable_[plot]=="lepPt"    ) rebinFactor="10";
+      axisLabel_.push_back(variable_[plot]+" from data/events/0/"+rebinFactor);
+      if(verbose>2) std::cout << variable_[plot]+" from data/events/0/"+rebinFactor << std::endl;
+    }
+    unsigned int N1Dplots = plotList_.size();
+
+    // open standard analysis files
+    std::map<unsigned int, TFile*> files_ = getStdTopAnalysisFiles(path+inputFolderName, 0, dataFile, decayChannel);
+    // define container for data plots
+    std::map< TString, std::map <unsigned int, TH1F*> > histo_;
+    std::map< TString, std::map <unsigned int, TH2F*> > histo2_;
+    // total # plots 
+    int Nplots=0;
+    std::vector<TString> vecRedundantPartOfNameInData;
+    getAllPlots(files_, plotList_, histo_, histo2_, N1Dplots, Nplots, verbose-1, decayChannel, &vecRedundantPartOfNameInData);
+    // apply lumiweighting
+    scaleByLuminosity(plotList_, histo_, histo2_, N1Dplots, luminosity, verbose-1, 0, decayChannel);
+    for(unsigned int plot=0; plot<plotList_.size(); ++plot){
+      // apply rebinning
+      TString plotName=plotList_[plot];
+      double reBinFactor = atof(((string)getStringEntry(axisLabel_[plot],4)).c_str());
+      equalReBinTH1(reBinFactor, histo_, plotName, kBkg  );
+      equalReBinTH1(reBinFactor, histo_, plotName, kSTop );
+      equalReBinTH1(reBinFactor, histo_, plotName, kWjets);
+      equalReBinTH1(reBinFactor, histo_, plotName, kZjets);
+      equalReBinTH1(reBinFactor, histo_, plotName, kDiBos);
+      equalReBinTH1(reBinFactor, histo_, plotName, kQCD  );
+      equalReBinTH1(reBinFactor, histo_, plotName, kData );
+      // subtract non ttbar prompt lepton BG from data
+      histo_[plotName][kData]->Add(histo_[plotName][kBkg  ],-1);
+      histo_[plotName][kData]->Add(histo_[plotName][kSTop ],-1);
+      histo_[plotName][kData]->Add(histo_[plotName][kWjets],-1);
+      histo_[plotName][kData]->Add(histo_[plotName][kZjets],-1);
+      histo_[plotName][kData]->Add(histo_[plotName][kDiBos],-1);
+      //histo_[plotName][kData]->Add(histo_[plotName][kQCD  ],-1); // neglect QCD for the moment as its spiky and unphysical
+      // normalize data to ttbar MC reco yield
+      double areaMC = plotsRec_[variable_[plot]]->Integral(0,plotsRec_[variable_[plot]]->GetNbinsX()+1);
+      double areaData = histo_[plotName][kData]->Integral(0,histo_[plotName][kData]->GetNbinsX()+1);
+      histo_[plotList_[plot]][kData]->Scale(areaMC/areaData);
+      // adapt style
+      histogramStyle( *histo_[plotName][kData], kData, true);
+    }
+  
+    // ---
+    //    part F2: draw all reweighted reco level plots
+    // ---
+    TLegend* legReco= new TLegend(0.65, 0.55, 1.2, 0.85);
+    legReco->SetFillStyle(0);
+    legReco->SetBorderSize(0);
+    legReco->SetEntrySeparation(0.25);
+    legReco->SetHeader("reconstruction level");
+    legReco->AddEntry(finalPlots_[variable_[0]][variable_[0]+"Up"  ], "up"     , "L");
+    legReco->AddEntry(plotsRec_  [variable_[0]]                    , "central", "L");
+    legReco->AddEntry(finalPlots_[variable_[0]][variable_[0]+"Down"], "down"   , "L");
+    legReco->AddEntry(histo_[plotList_[0]][kData]                   , "data"   ,"PL");
+    if(verbose>0) std::cout << std::endl << "part E: collect all final plots" << std::endl;
     // i: loop all variables (for SF)
     for(unsigned int i=0; i<variable_.size();++i){
-      if(verbose>3) std::cout << "SF: " << variable_[i] << ", "; 
-      // j: loop all variables (for plot to be scaled)
+      // j: loop all variables (for shown plot)
       for(unsigned int j=0; j<variable_.size();++j){
-	if(verbose>3) std::cout << "variable: " << variable_[j] << std::endl;
-	// loop all variations 
-	for(unsigned int var=0; var<variation_.size();++var){
-	  TString Var=variation_[var];
-	  if(verbose>3) std::cout << "variation: " << Var << std::endl;
-	  // get distortion SF (from variable i)
-	  double LepShapeWeight=0;
-	  double HadShapeWeight=0;
-	  // for leptonic and hadronic top: get 2xSF (from variable i)
-	  if(variable_[i].Contains("top")||variable_[i].Contains("bq")){
-	    LepShapeWeight=SF_[variable_[i]+Var]->GetBinContent(SF_[variable_[i]+Var]->FindBin(value_[variable_[i]+"Lep"+"PartonTruth"]));
-	    HadShapeWeight=SF_[variable_[i]+Var]->GetBinContent(SF_[variable_[i]+Var]->FindBin(value_[variable_[i]+"Had"+"PartonTruth"]));
-	  }
-	  // for other quantities: use one SF only (from variable i)
-	  else{
-	    LepShapeWeight=SF_[variable_[i]+Var]->GetBinContent(SF_[variable_[i]+Var]->FindBin(value_[variable_[i]+"PartonTruth"]));
-	    HadShapeWeight=LepShapeWeight;
-	  }
-	  if(verbose>3) std::cout << "had weight: " << HadShapeWeight << std::endl;
-	  if(verbose>3) std::cout << "lep weight: " << LepShapeWeight << std::endl;
-	  if(verbose>3&&i==j&&variable_[i].Contains("Mass")&&HadShapeWeight==0.){
-	    std::cout << "variable: " << variable_[i] << std::endl;
-	    std::cout << "weight: " << HadShapeWeight << std::endl;
-	    std::cout << "gen value " << value_[variable_[i]+"PartonTruth"] << std::endl;
-	    std::cout << "rec value " << value_[variable_[i]] << std::endl;
-	  }
-	  // filling for top quantities: fill leptonic and hadronic top quantities in same plot
-	  if(variable_[j].Contains("top")||variable_[i].Contains("bq")){
-	    // parton truth plots
-	    finalPlots_[variable_[j]+"PartonTruth"][variable_[i]+Var]->Fill(value_[variable_[j]+"Lep"+"PartonTruth"], weight*LepShapeWeight);
-	    finalPlots_[variable_[j]+"PartonTruth"][variable_[i]+Var]->Fill(value_[variable_[j]+"Had"+"PartonTruth"], weight*HadShapeWeight);
-	    if(verbose>3) std::cout << "lep parton truth: " << value_[variable_[j]+"Lep"+"PartonTruth"] << "*" <<  weight << "*" << LepShapeWeight << std::endl;
-	    if(verbose>3) std::cout << "had parton truth: " << value_[variable_[j]+"Had"+"PartonTruth"] << "*" <<  weight << "*" << HadShapeWeight << std::endl;
-	    // reconstruction level plots
-	    finalPlots_[variable_[j]][variable_[i]+Var]->Fill(value_[variable_[j]+"Lep"], weight*LepShapeWeight);
-	    finalPlots_[variable_[j]][variable_[i]+Var]->Fill(value_[variable_[j]+"Had"], weight*HadShapeWeight);
-	    if(verbose>3) std::cout << "lep reco: " << value_[variable_[j]+"Lep"] << "*" <<  weight << "*" << LepShapeWeight << std::endl;
-	    if(verbose>3) std::cout << "had reco: " << value_[variable_[j]+"Had"] << "*" <<  weight << "*" << HadShapeWeight << std::endl;
-	    // correlation plots
-	    finalPlots2D_[variable_[j]][variable_[i]+Var]->Fill(value_[variable_[i]+"Lep"+"PartonTruth"], value_[variable_[j]+"Lep"], weight*LepShapeWeight);
-	    finalPlots2D_[variable_[j]][variable_[i]+Var]->Fill(value_[variable_[i]+"Had"+"PartonTruth"], value_[variable_[j]+"Had"], weight*HadShapeWeight);
-	  }
-	  // other quantities: take average of leptonic and hadronic top SF
-	  else{
-	    // parton truth plots
-	    finalPlots_[variable_[j]+"PartonTruth"][variable_[i]+Var]->Fill(value_[variable_[j]+"PartonTruth"], weight*0.5*(LepShapeWeight+HadShapeWeight));
-	    if(verbose>3) std::cout << "parton level: " << value_[variable_[j]+"PartonTruth"] << "*" <<  weight << "*" << 0.5*(LepShapeWeight+HadShapeWeight) << std::endl;
-	    // reconstruction level plots
-	    finalPlots_[variable_[j]][variable_[i]+Var]->Fill(value_[variable_[j]], weight*0.5*(LepShapeWeight+HadShapeWeight));
-	    if(verbose>3) std::cout << "reco: " << value_[variable_[j]] << "*" <<  weight << "*" << 0.5*(LepShapeWeight+HadShapeWeight) << std::endl;
-	    // correlation plots
-	    finalPlots2D_[variable_[j]][variable_[i]+Var]->Fill(value_[variable_[j]+"PartonTruth"], value_[variable_[j]], weight*0.5*(LepShapeWeight+HadShapeWeight));
-	  }
+	// fill original/scaled reco plots only into canvas   
+	if(i==j){
+	  // create canvas for every plot
+	  char canvname[10];
+	  sprintf(canvname,"canv%i",canvasNumber);
+	  plotCanvas_.push_back( new TCanvas( canvname, canvname, 600, 600) );
+	  plotCanvas_[canvasNumber]->cd(0);
+	  // set canvas title and headline
+	  TString title = finalPlots_[variable_[j]][variable_[i]+"Up"]->GetTitle();
+	  TString PS2="RecoLevel";
+	  if(title.Contains("PartonTruth")) PS2="PartonLevel";
+	  finalPlots_[variable_[j]][variable_[i]+"Up"  ]->SetTitle(variable_[j]+PS2+"SFfrom"+variable_[i]+"Up"  );
+	  finalPlots_[variable_[j]][variable_[i]+"Down"]->SetTitle(variable_[j]+PS2+"SFfrom"+variable_[i]+"Down");
+	  plotCanvas_[canvasNumber]->SetTitle(variable_[j]+PS2+"SFfrom"+variable_[i]);
+	  // set style
+	  histogramStyle(*finalPlots_[variable_[j]][variable_[i]+"Up"  ], 0, false);
+	  histogramStyle(*finalPlots_[variable_[j]][variable_[i]+"Down"], 2, false);
+	  histogramStyle(*plotsRec_[variable_[j]], 0, false);
+	  plotsRec_[variable_[j]]->SetLineColor(kGreen);
+	  finalPlots_[variable_[j]][variable_[i]+"Up"]->GetXaxis()->SetNoExponent(true);
+	  finalPlots_[variable_[j]][variable_[i]+"Up"]->GetXaxis()->SetTitle(variable_[j]);
+	  finalPlots_[variable_[j]][variable_[i]+"Up"]->GetYaxis()->SetTitle("events");
+	  // clone histos
+	  finalPlots_[variable_[j]][variable_[i]+"UpRebinned"  ]=(TH1F*)finalPlots_[variable_[j]][variable_[i]+"Up"  ]->Clone();
+	  finalPlots_[variable_[j]][variable_[i]+"DownRebinned"]=(TH1F*)finalPlots_[variable_[j]][variable_[i]+"Down"]->Clone();
+	  plotsRec_[variable_[j]+"Rebinned"]=(TH1F*)plotsRec_[variable_[j]]->Clone();
+	  // rebin MC histos (only for this plot, NOT for the rootfile) 
+	  double reBinFactor = atof(((string)getStringEntry(axisLabel_[i],4)).c_str());
+	  finalPlots_[variable_[j]][variable_[i]+"UpRebinned"  ]->Rebin(reBinFactor);
+	  finalPlots_[variable_[j]][variable_[i]+"DownRebinned"]->Rebin(reBinFactor);
+	  plotsRec_[variable_[j]+"Rebinned"]->Rebin(reBinFactor);
+	  // take care of maximum
+	  double maxDown=finalPlots_[variable_[j]][variable_[i]+"DownRebinned"]->GetMaximum();
+	  double maxUp  =finalPlots_[variable_[j]][variable_[i]+"UpRebinned"  ]->GetMaximum();
+	  double maxData=0;
+	  if(i==j&&PS2=="RecoLevel") maxData=histo_[plotList_[i]][kData]->GetMaximum();
+	  double maxStd =plotsRec_[variable_[j]+"Rebinned"]->GetMaximum();
+	  double maximum=std::max(std::max(maxUp,maxDown), std::max(maxData, maxStd));
+	  finalPlots_[variable_[j]][variable_[i]+"UpRebinned"]->SetMaximum(1.2*maximum);
+	  // remaining style issues
+	  finalPlots_[variable_[j]][variable_[i]+"UpRebinned"  ]->GetXaxis()->SetNoExponent(true);
+	  finalPlots_[variable_[j]][variable_[i]+"UpRebinned"  ]->GetXaxis()->SetTitle(variable_[i]);
+	  finalPlots_[variable_[j]][variable_[i]+"UpRebinned"  ]->GetYaxis()->SetTitle("events");
+	  // adapt plot range
+	  if(variable_[j]=="lepPt") finalPlots_[variable_[j]][variable_[i]+"UpRebinned"]->GetXaxis()->SetRangeUser(0,400);
+	  // draw histos
+	  finalPlots_[variable_[j]][variable_[i]+"UpRebinned"  ]->DrawClone("");
+	  finalPlots_[variable_[j]][variable_[i]+"DownRebinned"]->DrawClone("same");
+	  plotsRec_[variable_[j]+"Rebinned"]->DrawClone("same");
+	  if(i==j&&PS2=="RecoLevel") histo_[plotList_[i]][kData]->DrawClone("p e1 same");
+	  // change name
+	  //finalPlots_[variable_[j]][variable_[i]+"Down"]->SetName (variable_[j]);
+	  //finalPlots_[variable_[j]][variable_[i]+"Down"]->SetTitle(variable_[j]);
+	  //finalPlots_[variable_[j]][variable_[i]+"Up"  ]->SetName (variable_[j]);
+	  //finalPlots_[variable_[j]][variable_[i]+"Up"  ]->SetTitle(variable_[j]);
+	  //finalPlots2D_[variable_[j]][variable_[i]+"Up"  ]->SetName (variable_[j]+"_");
+	  //finalPlots2D_[variable_[j]][variable_[i]+"Up"  ]->SetTitle(variable_[j]+"_");
+	  // draw legend
+	  if(PS2=="RecoLevel") legReco->Draw("same");
+	  // adapt counter
+	  ++canvasNumber;
 	}
       }
     }
   }
-
+  else if(verbose>0) std::cout << "-> skipped" << std::endl;
   // ---
-  //    part E: get BG subtracted data shape plots
+  //    part F3: save control plots
   // ---
-  // define data reference plot list
-  std::vector<TString> plotList_;
-  std::vector<TString> axisLabel_;
-  for(unsigned int plot=0; plot<variable_.size(); ++plot){
-    plotList_.push_back( folder+"/"+variable_[plot] );
-    TString rebinFactor="1";
-    if(variable_[plot]=="ttbarMass") rebinFactor="20";
-    if(variable_[plot]=="ttbarPt"  ) rebinFactor="6";
-    if(variable_[plot]=="topPt"    ) rebinFactor="10";
-    if(variable_[plot]=="lepPt"    ) rebinFactor="10";
-    axisLabel_.push_back(variable_[plot]+" from data/events/0/"+rebinFactor);
-    if(verbose>2) std::cout << variable_[plot]+" from data/events/0/"+rebinFactor << std::endl;
-    //    plotList_.push_back( genfolder+"/"+variable_[i] );
-  }
-  unsigned int N1Dplots = plotList_.size();
-
-  // open standard analysis files
-  std::map<unsigned int, TFile*> files_ = getStdTopAnalysisFiles(path+inputFolderName, 0, dataFile, decayChannel);
-  // define container for data plots
-  std::map< TString, std::map <unsigned int, TH1F*> > histo_;
-  std::map< TString, std::map <unsigned int, TH2F*> > histo2_;
-  // total # plots 
-  int Nplots=0;
-  std::vector<TString> vecRedundantPartOfNameInData;
-  getAllPlots(files_, plotList_, histo_, histo2_, N1Dplots, Nplots, verbose-1, decayChannel, &vecRedundantPartOfNameInData);
-  // apply lumiweighting
-  scaleByLuminosity(plotList_, histo_, histo2_, N1Dplots, luminosity, verbose-1, 0, decayChannel);
-  for(unsigned int plot=0; plot<plotList_.size(); ++plot){
-    // apply rebinning
-    TString plotName=plotList_[plot];
-    double reBinFactor = atof(((string)getStringEntry(axisLabel_[plot],4)).c_str());
-    equalReBinTH1(reBinFactor, histo_, plotName, kBkg  );
-    equalReBinTH1(reBinFactor, histo_, plotName, kSTop );
-    equalReBinTH1(reBinFactor, histo_, plotName, kWjets);
-    equalReBinTH1(reBinFactor, histo_, plotName, kZjets);
-    equalReBinTH1(reBinFactor, histo_, plotName, kDiBos);
-    equalReBinTH1(reBinFactor, histo_, plotName, kQCD  );
-    equalReBinTH1(reBinFactor, histo_, plotName, kData );
-    // subtract non ttbar prompt lepton BG from data
-    histo_[plotName][kData]->Add(histo_[plotName][kBkg  ],-1);
-    histo_[plotName][kData]->Add(histo_[plotName][kSTop ],-1);
-    histo_[plotName][kData]->Add(histo_[plotName][kWjets],-1);
-    histo_[plotName][kData]->Add(histo_[plotName][kZjets],-1);
-    histo_[plotName][kData]->Add(histo_[plotName][kDiBos],-1);
-    //histo_[plotName][kData]->Add(histo_[plotName][kQCD  ],-1); // neglect QCD for the moment as its spiky and unphysical
-    // normalize data to ttbar MC reco yield
-    double areaMC = plots_[variable_[plot]]->Integral(0,plots_[variable_[plot]]->GetNbinsX()+1);
-    double areaData = histo_[plotName][kData]->Integral(0,histo_[plotName][kData]->GetNbinsX()+1);
-    histo_[plotList_[plot]][kData]->Scale(areaMC/areaData);
-    // adapt style
-    histogramStyle( *histo_[plotName][kData], kData, true);
-  }
-  
-  // ---
-  //    part F: draw all reweighted reco level plots
-  // ---
-  TLegend* legReco= new TLegend(0.65, 0.55, 1.2, 0.85);
-  legReco->SetFillStyle(0);
-  legReco->SetBorderSize(0);
-  legReco->SetEntrySeparation(0.25);
-  legReco->SetHeader("reconstruction level");
-  legReco->AddEntry(finalPlots_[variable_[0]][variable_[0]+"Up"  ], "up"     , "L");
-  legReco->AddEntry(plots_      [variable_[0]]                    , "central", "L");
-  legReco->AddEntry(finalPlots_[variable_[0]][variable_[0]+"Down"], "down"   , "L");
-  legReco->AddEntry(histo_[plotList_[0]][kData]                   , "data"   ,"PL");
-  if(verbose>0) std::cout << std::endl << "part E: collect all final plots" << std::endl;
-  // i: loop all variables (for SF)
-  for(unsigned int i=0; i<variable_.size();++i){
-    // j: loop all variables (for shown plot)
-    for(unsigned int j=0; j<variable_.size();++j){
-      // fill original/scaled reco plots only into canvas   
-      if(i==j){
-	// create canvas for every plot
-	char canvname[10];
-	sprintf(canvname,"canv%i",canvasNumber);
-	plotCanvas_.push_back( new TCanvas( canvname, canvname, 600, 600) );
-	plotCanvas_[canvasNumber]->cd(0);
-	// set canvas title and headline
-	TString title = finalPlots_[variable_[j]][variable_[i]+"Up"]->GetTitle();
-	TString PS2="RecoLevel";
-	if(title.Contains("PartonTruth")) PS2="PartonLevel";
-	finalPlots_[variable_[j]][variable_[i]+"Up"  ]->SetTitle(variable_[j]+PS2+"SFfrom"+variable_[i]+"Up"  );
-	finalPlots_[variable_[j]][variable_[i]+"Down"]->SetTitle(variable_[j]+PS2+"SFfrom"+variable_[i]+"Down");
-	plotCanvas_[canvasNumber]->SetTitle(variable_[j]+PS2+"SFfrom"+variable_[i]);
-	// set style
-	histogramStyle(*finalPlots_[variable_[j]][variable_[i]+"Up"  ], 0, false);
-	histogramStyle(*finalPlots_[variable_[j]][variable_[i]+"Down"], 2, false);
-	histogramStyle(*plots_[variable_[j]], 0, false);
-	plots_[variable_[j]]->SetLineColor(kGreen);
-	finalPlots_[variable_[j]][variable_[i]+"Up"]->GetXaxis()->SetNoExponent(true);
-	finalPlots_[variable_[j]][variable_[i]+"Up"]->GetXaxis()->SetTitle(variable_[j]);
-	finalPlots_[variable_[j]][variable_[i]+"Up"]->GetYaxis()->SetTitle("events");
-	// clone histos
-	finalPlots_[variable_[j]][variable_[i]+"UpRebinned"  ]=(TH1F*)finalPlots_[variable_[j]][variable_[i]+"Up"  ]->Clone();
-	finalPlots_[variable_[j]][variable_[i]+"DownRebinned"]=(TH1F*)finalPlots_[variable_[j]][variable_[i]+"Down"]->Clone();
-	plots_[variable_[j]+"Rebinned"]=(TH1F*)plots_[variable_[j]]->Clone();
-	// rebin MC histos (only for this plot, NOT for the rootfile) 
-	double reBinFactor = atof(((string)getStringEntry(axisLabel_[i],4)).c_str());
-	finalPlots_[variable_[j]][variable_[i]+"UpRebinned"  ]->Rebin(reBinFactor);
-	finalPlots_[variable_[j]][variable_[i]+"DownRebinned"]->Rebin(reBinFactor);
-	plots_[variable_[j]+"Rebinned"]->Rebin(reBinFactor);
-	// take care of maximum
-	double maxDown=finalPlots_[variable_[j]][variable_[i]+"DownRebinned"]->GetMaximum();
-	double maxUp  =finalPlots_[variable_[j]][variable_[i]+"UpRebinned"  ]->GetMaximum();
-	double maxData=0;
-	if(i==j&&PS2=="RecoLevel") maxData=histo_[plotList_[i]][kData]->GetMaximum();
-	double maxStd =plots_[variable_[j]+"Rebinned"]->GetMaximum();
-	double maximum=std::max(std::max(maxUp,maxDown), std::max(maxData, maxStd));
-	finalPlots_[variable_[j]][variable_[i]+"UpRebinned"]->SetMaximum(1.2*maximum);
-	// remaining style issues
-	finalPlots_[variable_[j]][variable_[i]+"UpRebinned"  ]->GetXaxis()->SetNoExponent(true);
-	finalPlots_[variable_[j]][variable_[i]+"UpRebinned"  ]->GetXaxis()->SetTitle(variable_[i]);
-	finalPlots_[variable_[j]][variable_[i]+"UpRebinned"  ]->GetYaxis()->SetTitle("events");
-	// adapt plot range
-	if(variable_[j]=="lepPt") finalPlots_[variable_[j]][variable_[i]+"UpRebinned"]->GetXaxis()->SetRangeUser(0,400);
-	// draw histos
-	finalPlots_[variable_[j]][variable_[i]+"UpRebinned"  ]->DrawClone("");
-	finalPlots_[variable_[j]][variable_[i]+"DownRebinned"]->DrawClone("same");
-	plots_[variable_[j]+"Rebinned"]->DrawClone("same");
-	if(i==j&&PS2=="RecoLevel") histo_[plotList_[i]][kData]->DrawClone("p e1 same");
-	// change name
-	finalPlots_[variable_[j]][variable_[i]+"Down"]->SetName (variable_[j]);
-	finalPlots_[variable_[j]][variable_[i]+"Down"]->SetTitle(variable_[j]);
-	finalPlots_[variable_[j]][variable_[i]+"Up"  ]->SetName (variable_[j]);
-	finalPlots_[variable_[j]][variable_[i]+"Up"  ]->SetTitle(variable_[j]);
-	finalPlots2D_[variable_[j]][variable_[i]+"Up"  ]->SetName (variable_[j]+"_");
-	finalPlots2D_[variable_[j]][variable_[i]+"Up"  ]->SetTitle(variable_[j]+"_");
-	// draw legend
-	if(PS2=="RecoLevel") legReco->Draw("same");
-	// adapt counter
-	++canvasNumber;
-      }
-    }
-  }
-  
-  // ---
-  //    part G: save weighted plots and control plots
-  // ---
-  bool saveIntoRootfile=true;
   if(save){
-    if(verbose>0){
-      std::cout << std::endl << "part F1: save rweighted parton level and";
-      std::cout << "reconstruction level plots to output folder" << std::endl;
-    }
-    // F1: save control plots
+    if(verbose>0) std::cout << std::endl << "part F3: save control plots" << std::endl;
+    // save all canvas
     for(unsigned int plot=0; plot<plotCanvas_.size(); ++plot){
       plotCanvas_[plot]->Print(savePlotsTo+"/"+plotCanvas_[plot]->GetTitle()+".png");
       plotCanvas_[plot]->Print(savePlotsTo+"/"+plotCanvas_[plot]->GetTitle()+".eps");
     }
+  }
+
+  // ---
+  //    part G: save distorted gen, reco & gen-reco plots
+  // ---
+  if(save){
+    bool saveIntoRootfile=true;
     // F2: save scaled parton level distribution 
     // and reco plots in root file for systematic variation
     if(verbose>0) std::cout << std::endl << "part F2: save reweighted reco histos to output files" << std::endl;
@@ -727,20 +882,27 @@ void analyzeTopDiffXSecMCdependency(double luminosity = 12148, std::string decay
 	if(saveIntoRootfile&&i==j){
 	  // parton level plot
 	  // attention: the distorted PS parton level plots used for SF determination are used
-	  saveToRootFile(outputFileNameUp  , plotsScaled_[variable_[i]+"PartonTruth"+"Up"  ], true, verbose-1, genfolder);
-	  saveToRootFile(outputFileNameDown, plotsScaled_[variable_[i]+"PartonTruth"+"Down"], true, verbose-1, genfolder);
+	  TString recExt=HistoRecExt(variable_[i]);
+	  TString genExt=HistoGenExt(variable_[i]);
+	  TString GenName= variable_[i]=="Njets" ? "Ngenjets" : variable_[i]+genExt;
+	  plotsScaled_[variable_[i]+"PartonTruthFull"+"Up"  ]->SetTitle(GenName);
+	  saveToRootFile(outputFileNameUp  , plotsScaled_[variable_[i]+"PartonTruthFull"+"Up"   ], true, verbose-1, folderGenFull(variable_[i]));
+	  plotsScaled_[variable_[i]+"PartonTruthFull"+"Down"]->SetTitle(GenName);
+	  saveToRootFile(outputFileNameDown, plotsScaled_[variable_[i]+"PartonTruthFull"+"Down" ], true, verbose-1, folderGenFull(variable_[i]));
 	  // reco plot (weighted with distorted parton level distribution of the same quantity)
-	  saveToRootFile(outputFileNameUp  , finalPlots_[variable_[j]][variable_[i]+"Up"  ] , true, verbose-1, folder);
-	  saveToRootFile(outputFileNameDown, finalPlots_[variable_[j]][variable_[i]+"Down"] , true, verbose-1, folder);
+	  finalPlots_[variable_[j]][variable_[i]+"Up"   ]->SetTitle(variable_[i]+recExt);
+	  saveToRootFile(outputFileNameUp  , finalPlots_[variable_[j]][variable_[i]+"Up"    ], true, verbose-1, folderRec(variable_[i], addSel));
+	  finalPlots_[variable_[j]][variable_[i]+"Down" ]->SetTitle(variable_[i]+recExt);
+	  saveToRootFile(outputFileNameDown, finalPlots_[variable_[j]][variable_[i]+"Down"  ], true, verbose-1, folderRec(variable_[i], addSel));
 	  // correlation plot (weighted with distorted parton level distribution of the same quantity)
-	  saveToRootFile(outputFileNameUp  , finalPlots2D_[variable_[j]][variable_[i]+"Up"  ] , true, verbose-1, folder);
-	  saveToRootFile(outputFileNameDown, finalPlots2D_[variable_[j]][variable_[i]+"Down"] , true, verbose-1, folder);
-
+	  finalPlots2D_[variable_[j]][variable_[i]+"Up"  ]->SetTitle(variable_[i]+"_");
+	  saveToRootFile(outputFileNameUp  , finalPlots2D_[variable_[j]][variable_[i]+"Up"  ], true, verbose-1, folderRec(variable_[i], addSel));
+	  finalPlots2D_[variable_[j]][variable_[i]+"Down"]->SetTitle(variable_[i]+"_");
+	  saveToRootFile(outputFileNameDown, finalPlots2D_[variable_[j]][variable_[i]+"Down"], true, verbose-1, folderRec(variable_[i], addSel));
 	}
       }
     }
   }
-
   // restore gErrorIgnoreLv
   gErrorIgnoreLevel=initialgErrorLv;
 }
@@ -885,7 +1047,7 @@ TH1F* distort(const TH1& hist, TString variation, TString variable, int verbose)
     if(variation=="Up") scaleFactor=0.9;
     else if(variation=="Down") scaleFactor=2;
     else{ 
-      std::cout << "ERROR: unknown systematic variation" << variation << std::endl;
+      std::cout << "ERROR: unknown systematic variation jo DIGGA" << variation << std::endl;
       exit(0);
     }
     if(variation=="Down"){
@@ -1001,7 +1163,7 @@ TH1F* distort(const TH1& hist, TString variation, TString variable, int verbose)
       else if(variation=="Down") a*=10.0;
     }
     else{
-     std::cout << "ERROR in function distort: chose variable " << variable << " not known" << std::endl;
+     std::cout << "ERROR in function distort: chose variable this one heeeere: " << variable << " not known" << std::endl;
       exit(0);
     }
     // SF control variables
@@ -1068,33 +1230,109 @@ double linSF(const double x, const double xmax, const double a, const double b){
   return SF;
 }
 
-TH1F* distortPDF(const TH1& hist, TString variation, TString variable, TString inputFolderName, TString phaseSpace, int verbose)
+TH1F* distortPDF(const TH1& hist, TString variation, TString variable, TString analysisFileName, int verbose, TString testVar)
 {
-  if (verbose>0) std::cout << "Using hard-coded path '"+groupSpace+"CommonFiles' instead of '"+groupSpace+"'" << inputFolderName << " for file with PDF-uncertainties." << std::endl;
   // this function loads the max/min PDF uncertainties as determined externally with MC@NLO for the desired variables and applies it to MadGraph
-  TString fileName    = groupSpace+"CommonFiles/ttbarNtupleCteq6mPDFuncertOnly.root";
-  TString plotNameVar = (variation == "") ? variable : variable + "_" + variation                                              ;
-  TString plotNameNom = variable                                                                                               ;                 
-  TString directory   = (phaseSpace == "Full") ? "FullPhaseSpace" : "VisiblePhaseSpace"                                        ; 
+  TString fileName    = groupSpace+"CommonFiles/combinedDiffXSecPDFEnvelopeStudy2.root";
+  TString plotNameNom = variable=="Njets" ? "Ngenjets" : variable+HistoGenExt(variable);   
+  TString plotNameVar = plotNameNom+"PDF"+variation;
+  TString directory   = folderGenFull(variable); 
   if(verbose>0) std::cout << "distortPDF: using plot " << directory + "/" + plotNameNom << " from file " << fileName << " for estimated PDF uncertainties in plot " << plotNameVar << std::endl;
 
-  TH1F * histPdfNom = getTheoryPrediction(directory + "/" + plotNameNom,fileName) ;  // the central values of MC@NLO (needed to rescale to central values of MadGraph)
-  TH1F * histPdfVar = getTheoryPrediction(directory + "/" + plotNameVar,fileName) ;  // the varied  values of MC@NLO (needed to add     to central values of MadGraph)
-  TH1F * histPdf    = getTheoryPrediction(directory + "/" + plotNameVar,fileName) ;  // the desired output histogram (PDF variations for MadGraph)
+  TH1F * histPdfNom = getTheoryPrediction(directory + "/" + plotNameNom,fileName);  // the central values of PDF study -> used to calculate SF
+  TH1F * histPdfVar = getTheoryPrediction(directory + "/" + plotNameVar,fileName);  // the varied  values of PDF study -> used to calculate SF
+  TH1F * histPdf    = getTheoryPrediction(directory + "/" + plotNameNom,analysisFileName) ;  // the default sample -> used to store weighted "hist"
 
   // check if binning and ranges are consistent
   if ( histPdf->GetNbinsX() != hist.GetNbinsX() || histPdf->GetXaxis()->GetXmin() != hist.GetXaxis()->GetXmin() || histPdf->GetXaxis()->GetXmax() != hist.GetXaxis()->GetXmax() )
   {
-    std::cout << "ERROR in distortPDF function: histograms do not have the same binning/ranges" << std::endl ;
+    std::cout << "ERROR in distortPDF function: histograms \"hist\" in argument and \"histPdf\" loaded do not have the same binning/ranges" << std::endl ;
     exit(1);
   }
 
   // scale each bin such that it represents the PDF uncertainty found with MC@NLO but with MadGraph as the default central value
-  for (int i=0 ; i <= hist.GetNbinsX()+1; ++i) {
+  // loop bins of input histo
+  for (int i=0 ; i <= hist.GetNbinsX()+1; ++i) {    
+    // reset entries
     histPdf->SetBinContent(i,0.) ;
-    if (histPdfNom->GetBinContent(i) != 0.) histPdf->SetBinContent(i, histPdfVar->GetBinContent(i) / histPdfNom->GetBinContent(i) * hist.GetBinContent(i) ) ; 
+    // calculate SF from PDF envelope study
+    double ValNom=histPdfNom->GetBinContent(i);
+    double ValVar=histPdfVar->GetBinContent(i);    
+    double SFVar=ValVar / ValNom;
+    if(ValNom==0.||ValVar==0.) SFVar=1;
+    // set new entry
+    histPdf->SetBinContent(i, SFVar * hist.GetBinContent(i) ); 
+    // debug output
+    if(verbose>0||variable==testVar){
+      std::cout << "SF(" << variable << ",<" << histPdfNom->GetBinCenter(i) << ">) = " << SFVar << std::endl;
+    }
   }
+  return histPdf;
+}
 
-  return histPdf ;
+TString folderRec(TString variable, TString addSel){
+  // this function returns the correct reco foldername for "variable", "addSel" is used to indicate if an additional cut step is used
+  TString result="compositedKinematicsKinFit";
+  if(addSel=="ProbSel") result.ReplaceAll("KinFit", addSel);
+  if     (variable.Contains("top")||variable.Contains("ttbar")                         ) result="analyzeTopRecoKinematicsKinFit"+addSel;
+  else if(variable.Contains("bq" )||variable.Contains("bbbar")||variable.Contains("lb")) result="analyzeTopRecoKinematicsBjets" +addSel;
+  else if(variable.Contains("lep")                                                     ) result="analyzeTopRecoKinematicsLepton"+addSel;  
+  return result;
+}
 
+TString folderGenFull(TString variable){
+  // this function returns the correct fully extroplated parton level foldername for "variable"
+  TString result="analyzeTopPartonLevelKinematics";
+  if(!(variable.Contains("top")||variable.Contains("ttbar"))) result=folderGenPS(variable);
+  return result;
+}
+
+TString folderGenPS(TString variable){
+  // this function returns the visible PS foldername for "variable"
+  TString result="compositedHadronGenPhaseSpace";
+  if     (variable.Contains("top")||variable.Contains("ttbar")                         ) result="analyzeTopPartonLevelKinematicsPhaseSpace";
+  else if(variable.Contains("bq" )||variable.Contains("bbbar")||variable.Contains("lb")) result="analyzeTopHadronLevelKinematicsBjetsPhaseSpace";
+  else if(variable.Contains("lep")                                                     ) result="analyzeTopHadronLevelKinematicsLeptonPhaseSpace";  
+  return result;
+}
+
+TString treeGenExtension(TString variable){
+  // this function returns the correct name extension of the gen truth entry of "variable" used in the recot tree
+  TString result="True";
+  if     (variable.Contains("top")||variable.Contains("ttbar")                         ) result="PartonTruth";
+  else if(variable.Contains("bq" )||variable.Contains("bbbar")||variable.Contains("lb")) result="Gen";
+  else if(variable.Contains("lep")                                                     ) result="Gen";  
+  return result;
+}
+
+TString treeRecExtension(TString variable){
+  // this function returns the correct name extension of the reco level entry of "variable" used in the reco tree
+  TString result="";
+  if     (variable.Contains("top")||variable.Contains("ttbar")                         ) result="";
+  else if(variable.Contains("bq" )||variable.Contains("bbbar")||variable.Contains("lb")) result="Rec";
+  else if(variable.Contains("lep")                                                     ) result="Rec";  
+  return result;
+}
+
+TString HistoRecExt(TString variable){
+  // this function returns the correct name extension of the 1D reco plot of "variable" used in folderRec
+  TString result="";
+  if(variable.Contains("lep")                                                          ) result="Rec"; 
+  else if(variable.Contains("bq" )||variable.Contains("bbbar")||variable.Contains("lb")) result="Rec"; 
+  return result;
+}
+TString HistoGenExt(TString variable){
+  // this function returns the correct name extension of the 1D gen plot of "variable" used in folderGen
+  TString result="";
+  if(variable.Contains("lep")                                                          ) result="Gen";
+  else if(variable.Contains("bq" )||variable.Contains("bbbar")||variable.Contains("lb")) result="Gen";
+  else if(variable.Contains("rhos" )) result="Gen";
+  return result;
+}
+
+bool fullPS(TString variable){
+  // this function returns true for events in the extrapolated parton level PS and false otherwise
+  bool result=false;
+  if(variable.Contains("top")||variable.Contains("ttbar")) result=true;
+  return result;
 }
