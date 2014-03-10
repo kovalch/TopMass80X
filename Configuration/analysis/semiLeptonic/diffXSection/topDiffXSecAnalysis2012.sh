@@ -462,10 +462,10 @@ echo "Part B: Prepare files for pdf uncertainties"
 
 if [ $decayChannel != \"combined\" -a $redoSystematics == true -a $redoPDFReweighting == true ]; then
     echo
-    root -l -q -b './analyzeTopDiffXSecMCdependency.C++('$dataLuminosity','$decayChannel', '$save', '$verbose', '$inputFolderName', '$dataSample', 'true', '$inclCCVars')' 
+    root -l -q -b './analyzeTopDiffXSecMCdependency.C++('$dataLuminosity','$decayChannel', '$save', '$verbose', '$inputFolderName', '$dataSample', 'true', '$inclCCVars', '$addSel')' 
 elif [ $1 == "combined2" -a $redoSystematics == true -a $redoPDFReweighting == true ]; then
-    root -l -q -b './analyzeTopDiffXSecMCdependency.C++('$dataLuminosity', '\"muon\"',     '$save', '$verbose', '$inputFolderName', '$mudataSample', 'true', '$inclCCVars')' 
-    root -l -q -b './analyzeTopDiffXSecMCdependency.C++('$dataLuminosity', '\"electron\"', '$save', '$verbose', '$inputFolderName', '$eldataSample', 'true', '$inclCCVars')' 
+    root -l -q -b './analyzeTopDiffXSecMCdependency.C++('$dataLuminosity', '\"muon\"',     '$save', '$verbose', '$inputFolderName', '$mudataSample', 'true', '$inclCCVars', '$addSel')' 
+    root -l -q -b './analyzeTopDiffXSecMCdependency.C++('$dataLuminosity', '\"electron\"', '$save', '$verbose', '$inputFolderName', '$eldataSample', 'true', '$inclCCVars', '$addSel')' 
 else
     echo "Done for 2012 analysis (in e/mu channel separate or when combining event yields) and if systematics and PDF files are requested to be re-done (redoSystematics set to $redoSystematics, redoPDFReweighting set to $redoPDFReweighting)."
 fi
