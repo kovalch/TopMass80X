@@ -10,16 +10,18 @@ class config:
   dcache_desy   = "dcap://dcache-cms-dcap.desy.de"
   dcache_prefix = "/pnfs/desy.de/cms/tier2"
 #  dcache_cms    = "/store/user/mseidel"
-  dcache_cms    = "/store/user/eschliec/Skim_03_Data01"
+#  dcache_cms    = "/store/user/eschliec/Skim_03_Data01"
+  dcache_cms    = "/store/user/eschliec/Skim_03_MC01"
   L_samples     = [
-                   #'TT_cluster_8TeV-sherpa',
-                   #'TT_lund_8TeV-sherpa'
-                   'Skim_MJP12B_v1_data',
-                   'Skim_MJP12C2_v1_data',
-                   'Skim_MJP12C1_v1_data',
-                   'Skim_MJP12D1_v1_data',
-                   'Skim_MJP12D2_v1_data',
-                   'Skim_MJP12D3_v1_data',
+                   ##'TT_cluster_8TeV-sherpa',
+                   ##'TT_lund_8TeV-sherpa'
+                   #'Skim_MJP12B_v1_data',
+                   #'Skim_MJP12C2_v1_data',
+                   #'Skim_MJP12C1_v1_data',
+                   #'Skim_MJP12D1_v1_data',
+                   #'Skim_MJP12D2_v1_data',
+                   #'Skim_MJP12D3_v1_data',
+                   'Skim_Z2_S12_MadSpin_sig',
                   ]
   dataset_file  = "datasets.dbs"
   list_file     = "tmp_files.txt"
