@@ -215,6 +215,7 @@ void SystematicUncertainties::fillAllJets()
 
   ///////////////////////////////////
 
+  sample.comparisons["Calibration                      "] = comparison("calibration", "calibration", "", false);
   sample.comparisons["Pile-up (pp cross-section)       "] = comparison("default", "puUp", "puDown", true);
   //sample.comparisons["Jet energy response (udsc)       "] = comparison("default", "flavorQUp", "flavorQDown", true);
   //sample.comparisons["Jet energy response (gluon)      "] = comparison("default", "flavorGUp", "flavorGDown", true);
@@ -225,14 +226,14 @@ void SystematicUncertainties::fillAllJets()
   sample.comparisons["b-tag rate                       "] = comparison("default", "bTagSFUp", "bTagSFDown", true);
   sample.comparisons["b-tag (mistag rate)              "] = comparison("default", "misTagSFUp", "misTagSFDown", true);
   sample.comparisons["Trigger                          "] = comparison("default", "triggerUp", "triggerDown", true);
-  sample.comparisons["Top-pt reweighting               "] = comparison("default", "topPt", "", true);
+  sample.comparisons["Top-\\pt reweighting             "] = comparison("default", "topPt", "", true);
   sample.comparisons["ME-PS matching threshold         "] = comparison("default", "matchingUp", "matchingDown", false);
   sample.comparisons["$Q^{2}$ scale                    "] = comparison("default", "scaleUp", "scaleDown", false);
   sample.comparisons["Jet energy resolution            "] = comparison("default", "jerUp" , "jerDown" , true);
-  sample.comparisons["\\pt- and $\\eta$-dependent JES1 "] = comparison("default", "jes1Up", "jes1Down", true);
-  sample.comparisons["\\pt- and $\\eta$-dependent JES2 "] = comparison("default", "jes2Up", "jes2Down", true);
-  sample.comparisons["\\pt- and $\\eta$-dependent JES3 "] = comparison("default", "jes3Up", "jes3Down", true);
-  sample.comparisons["\\pt- and $\\eta$-dependent JES4 "] = comparison("default", "jes4Up", "jes4Down", true);
+  sample.comparisons["JES MPFInSitu                    "] = comparison("default", "jes1Up", "jes1Down", true);
+  sample.comparisons["JES Flavor                       "] = comparison("default", "jes2Up", "jes2Down", true);
+  sample.comparisons["JES Intercalibration             "] = comparison("default", "jes3Up", "jes3Down", true);
+  sample.comparisons["JES Uncorrelated                 "] = comparison("default", "jes4Up", "jes4Down", true);
   sample.comparisons["Pile-up (JES) BB                 "] = comparison("default", "jesPuBBUp", "jesPuBBDown", true);
   sample.comparisons["Pile-up (JES) EC                 "] = comparison("default", "jesPuECUp", "jesPuECDown", true);
   sample.comparisons["MadGraph (no SC) vs. Powheg      "] = comparison("default", "powheg", "", false, false);
@@ -244,7 +245,7 @@ void SystematicUncertainties::fillAllJets()
   sample.comparisons["Pythia Z2* vs. P11               "] = comparison("defaultSC", "P11", "", false, false);
   sample.comparisons["Color reconnection               "] = comparison("P11", "P11noCR", "", false);
   sample.comparisons["Underlying event                 "] = comparison("P11", "P11mpiHi", "P11TeV", false);
-  sample.comparisons["Non-\\ttbar background fSig      "] = comparison("default", "fSigUp", "fSigDown", true);
+  sample.comparisons["Non-\\ttbar background \\fsig    "] = comparison("default", "fSigUp", "fSigDown", true);
   //sample.comparisons["Non-\\ttbar background shape     "] = comparison("default", "", "", true);
 }
 
@@ -258,7 +259,7 @@ void SystematicUncertainties::deriveSystematics()
     totalUncertainties2[var] = 0;
 
   std::cout << "\n### Fitting pseudo-experiments" << std::endl;
-  for(std::map<std::string, ensemble>::iterator it = sample.ensembles.begin(); it != sample.ensembles.end(); it++) {
+  for(std::map<std::string, ensemble>::iterator it = sample.ensembles.begin(); it != sample.ensembles.end(); ++it) {
     std::cout << std::setiosflags(std::ios::left) << std::setw(20) << it->first;
 
     int N_PE = 0;
@@ -291,12 +292,12 @@ void SystematicUncertainties::deriveSystematics()
   myfile.open("systematicUncertainties.txt", std::ios::out | std::ios::app);
 
   std::cout << "\n### Systematic uncertainties" << std::endl;
-  //myfile    << "\n### Systematic uncertainties" << "\n";
   std::cout << "Uncertainty name \t \t \t  2D mass \t  JSF \t \t    1D mass" << std::endl;
   myfile    << "Uncertainty name & 2D mass & JSF & 1D mass \\tabularnewline\n\\hline" << "\n";
   for(std::map<std::string, comparison>::iterator it = sample.comparisons.begin(); it != sample.comparisons.end(); it++) {
     myfile    << "\\hline" << "\n";
     if (!it->second.active) std::cout << "(cc) ";
+    if (!it->second.active) myfile    << "(cc) ";
     std::cout << it->first;
     myfile    << it->first;
 
@@ -308,7 +309,7 @@ void SystematicUncertainties::deriveSystematics()
       down   = up;
       upDown = false;
     }
-    else down         = sample.ensembles.find(it->second.down)->second;
+    else down = sample.ensembles.find(it->second.down)->second;
 
     std::map<std::string, double> shifts;
     for(auto& var : sample.variables)
