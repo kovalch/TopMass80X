@@ -21,12 +21,12 @@ my $outputPath = "UnfoldingResults/PDF_";
 
 sub pdfSum {
     my ($quantity, $channel) = @_;
-    my $nominal = UnfoldedResult->new("Plots/PDF_CENTRAL/$channel/${quantity}LaTeX.txt");
+    my $nominal = UnfoldedResult->new("UnfoldingResults/PDF_CENTRAL/Nominal/$channel/${quantity}Results.txt");
     #print Dumper $result;
     my (@up, @down);
     for my $var_no (1..22) { 
-        push @up, UnfoldedResult->new("Plots/PDF_${var_no}_UP/$channel/${quantity}LaTeX.txt");
-        push @down, UnfoldedResult->new("Plots/PDF_${var_no}_DOWN/$channel/${quantity}LaTeX.txt");
+        push @up, UnfoldedResult->new("UnfoldingResults/PDF_${var_no}_UP/Nominal/$channel/${quantity}Results.txt");
+        push @down, UnfoldedResult->new("UnfoldingResults/PDF_${var_no}_DOWN/Nominal/$channel/${quantity}Results.txt");
     }
     
     my $filename = "$outputPath/$channel/${quantity}Results.txt";
@@ -57,11 +57,12 @@ sub pdfSum {
 
 sub pdfSumIncl {
     my ($channel) = @_;
-    my $nominalIncl = InclusiveResult->new("Plots/PDF_CENTRAL/Nominal/$channel/InclXSec.txt");
+#    my $nominalIncl = InclusiveResult->new("Plots/PDF_CENTRAL/Nominal/$channel/InclusiveXSec.txt");
+    my $nominalIncl = InclusiveResult->new("Plots/Nominal/$channel/InclusiveXSec.txt");
     my (@upIncl, @downIncl);
     for my $var_no (1..22) { 
-        push @upIncl, InclusiveResult->new("Plots/PDF_${var_no}_UP/Nominal/$channel/InclXSec.txt");
-        push @downIncl, InclusiveResult->new("Plots/PDF_${var_no}_DOWN/Nominal/$channel/InclXSec.txt");
+        push @upIncl, InclusiveResult->new("Plots/PDF_${var_no}_UP/Nominal/$channel/InclusiveXSec.txt");
+        push @downIncl, InclusiveResult->new("Plots/PDF_${var_no}_DOWN/Nominal/$channel/InclusiveXSec.txt");
     }
     
     my ($upInclSUM2, $downInclSUM2) = (0,0);
@@ -83,38 +84,46 @@ sub storeInclXsec {
     
     print "Inclusive xsec:\n$result";
     
-    open my $FH, '>', "Plots/$syst/$channel/InclXSec.txt" or die $!;
+    open my $FH, '>', "Plots/$syst/$channel/InclusiveXSec.txt" or die $!;
     print $FH $result;
 }
 
 for my $channel qw(ee emu mumu combined) {
     mkpath("$outputPath/$channel");
     for my $plot qw(
-    HypLeptonBjetMass
-    HypBJetpTLead
-    HypBJetpTNLead
-    HypBJetEtaLead
-    HypBJetEtaNLead
-    HypTopRapidityLead
-    HypTopRapidityNLead
-    HypToppTLead
-    HypToppTNLead
+    HypLeptonpT
     HypLeptonpTLead
     HypLeptonpTNLead
+    HypLeptonEta
     HypLeptonEtaLead
     HypLeptonEtaNLead
-    HypLeptonEta
-    HypLeptonpT
-    HypBJetEta
+    HypLeptonBjetMass
+    HypLLBarpT
+    HypLLBarMass
     HypBJetpT
+    HypBJetpTLead
+    HypBJetpTNLead
+    HypBJetEta
+    HypBJetpTNLead
+    HypBJetEta
+    HypBJetEtaLead
+    HypBJetEtaNLead
     HypTopRapidity
+    HypTopRapidityLead  
     HypToppT
+    HypToppTLead
+    HypToppTNLead
     HypTTBarRapidity
     HypTTBarpT
     HypTTBarMass
-    HypLLBarpT
-    HypLLBarMass
-    HypNeutrinopT
+    HypTTBarDeltaPhi
+    HypBBBarpT
+    HypBBBarMass
+    HypToppTTTRestFrame
+    HypTTBarDeltaRapidity
+    HypJetMultpt30
+    HypJetMultpt60
+    HypJetMultpt100
     ) 
     {
         print "Unc for $plot in channel $channel:\n";
@@ -139,14 +148,14 @@ sub new {
 sub readFile {
     my $self = shift;
     open my $f, '<', $self->{filename} or die "Opening $self->{filename}\n$!";
-    scalar <$f> for (1..3); #skip first 3 lines
     my @bins;
     while (my $line = <$f>) {
         $line =~ s/\$//g;
         my @cols = split / +/, $line;
-        push @bins, {-center => $cols[0], 
-                     -from => $cols[2], -to => $cols[4], 
-                     -xsec => $cols[6], -xsecstatunc => $cols[8]};
+        push @bins, {-center => $cols[1],
+                     -from => $cols[3], -to => $cols[5], 
+                     -xsec => $cols[7], -xsecstatunc => $cols[7]};
+
     }
     return \@bins;
 }
@@ -168,4 +177,3 @@ sub readFile {
     my (undef, $syst, undef, $ch, undef, $xsec, undef, $xsecunc) = split / +/, <$f>;
     return $xsec;
 }
-
