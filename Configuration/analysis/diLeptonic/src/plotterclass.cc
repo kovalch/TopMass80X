@@ -4381,8 +4381,8 @@ double Plotter::SampleXSection(const TString& filename){
     else if(filename.Contains("Hadronic"))    {return topxsec * 0.4570;}
     else if(filename.Contains("Perugia11") &&
         filename.Contains("signal"))          {return topxsec * 0.1049;}
-    else if(filename.Contains("ttbar") && !filename.Contains("W") && 
-        !filename.Contains("Z"))              {return topxsec;}
+    else if(filename.Contains("ttbar") && !filename.Contains("ttbarW") && 
+        !filename.Contains("ttbarZ"))        {return topxsec;}
     else if(filename.Contains("single"))      {return 11.1;}
     else if(filename.Contains("ww"))          {return 54.838;}
     else if(filename.Contains("wz"))          {return 33.21;}
