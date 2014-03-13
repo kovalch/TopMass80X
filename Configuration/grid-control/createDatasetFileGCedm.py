@@ -11,7 +11,7 @@ class config:
   dcache_prefix = "/pnfs/desy.de/cms/tier2"
 #  dcache_cms    = "/store/user/mseidel"
 #  dcache_cms    = "/store/user/eschliec/Skim_03_Data01"
-  dcache_cms    = "/store/user/eschliec/Skim_03_MC01"
+  dcache_cms    = "/store/user/eschliec/Skim_03_MC02"
   L_samples     = [
                    ##'TT_cluster_8TeV-sherpa',
                    ##'TT_lund_8TeV-sherpa'
