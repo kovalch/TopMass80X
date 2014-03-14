@@ -842,7 +842,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                             trueLevelWeightNoPileup, trueLevelWeight,commonGenObjects,topGenObjects);
 
     double jetHTGen = 0.;
-    int GenJets_cut = 0, GenJets_cut40 = 0, GenJets_cut60 = 0, GenJets_cut100=0;
+    int GenJets_cut = -1000, GenJets_cut40 = -1000, GenJets_cut60 = -1000, GenJets_cut100 = -1000;
     double extragenjet[4]={0.};
     this->generatorTTbarjetsEvent(jetHTGen,
                                   BHadronIndex, AntiBHadronIndex,
@@ -2541,16 +2541,16 @@ void TopAnalysis::generatorTTbarjetsEvent(double& jetHTGen,
         if ( BHadronIndex != -1 && AntiBHadronIndex != -1 ) {
             if ( (*commonGenObjects.allGenJets_).at(BHadronIndex).Pt() > JetPtCUT && std::fabs ( (*commonGenObjects.allGenJets_).at(BHadronIndex).Eta() ) < JetEtaCUT &&
                 (*commonGenObjects.allGenJets_).at(AntiBHadronIndex).Pt() > JetPtCUT && std::fabs ( (*commonGenObjects.allGenJets_).at(AntiBHadronIndex).Eta() ) < JetEtaCUT )
-            {
+            {    
+                GenJets_cut = GenJets_cut40 = GenJets_cut60 = GenJets_cut100 = 0;
                 //New plots from Carmen: Begin
                 for(int genJet=0; genJet<(int)(*commonGenObjects.allGenJets_).size(); genJet++)
                 {
-                    if(std::fabs((*commonGenObjects.allGenJets_).at(genJet).Eta() ) > JetEtaCUT || (*commonGenObjects.allGenJets_).at(genJet).Pt() <= JetPtCUT2 ||
-                        std::fabs(DeltaR((*topGenObjects.GenLepton_), (*commonGenObjects.allGenJets_).at(genJet))) < 0.4 || std::fabs(DeltaR((*topGenObjects.GenAntiLepton_), (*commonGenObjects.allGenJets_).at(genJet))) < 0.4 )
+                    if(std::fabs((*commonGenObjects.allGenJets_).at(genJet).Eta() ) > JetEtaCUT || (*commonGenObjects.allGenJets_).at(genJet).Pt() <= JetPtCUT2 || (std::fabs(DeltaR((*topGenObjects.GenLepton_), (*commonGenObjects.allGenJets_).at(genJet))) < 0.4 && (*commonGenObjects.allGenJets_).at(BHadronIndex) != (*commonGenObjects.allGenJets_).at(genJet)  && (*commonGenObjects.allGenJets_).at(AntiBHadronIndex) != (*commonGenObjects.allGenJets_).at(genJet)) || (std::fabs(DeltaR((*topGenObjects.GenAntiLepton_), (*commonGenObjects.allGenJets_).at(genJet))) < 0.4 && (*commonGenObjects.allGenJets_).at(BHadronIndex) != (*commonGenObjects.allGenJets_).at(genJet)  && (*commonGenObjects.allGenJets_).at(AntiBHadronIndex) != (*commonGenObjects.allGenJets_).at(genJet) ) )
                     {
                         continue;
                     }
-                    if((*commonGenObjects.allGenJets_).at(genJet).Pt()> JetPtCUT2 && std::fabs((*commonGenObjects.allGenJets_).at(genJet).Eta())<2.4) {//CARMEN ETA CUT
+//                    if((*commonGenObjects.allGenJets_).at(genJet).Pt()> JetPtCUT2 && std::fabs((*commonGenObjects.allGenJets_).at(genJet).Eta())<2.4) {//CARMEN ETA CUT
                         GenJets_cut++;
                         if((*commonGenObjects.allGenJets_).at(BHadronIndex) != (*commonGenObjects.allGenJets_).at(genJet) && (*commonGenObjects.allGenJets_).at(AntiBHadronIndex) != (*commonGenObjects.allGenJets_).at(genJet))
                         {
@@ -2564,7 +2564,7 @@ void TopAnalysis::generatorTTbarjetsEvent(double& jetHTGen,
                         if((*commonGenObjects.allGenJets_).at(genJet).Pt()> 40.0) GenJets_cut40++;
                         if((*commonGenObjects.allGenJets_).at(genJet).Pt()> 60.0) GenJets_cut60++;
                         if((*commonGenObjects.allGenJets_).at(genJet).Pt()> 100.0) GenJets_cut100++;
-                    }
+//                    }
                 }
                 h_VisGenJetMultpt30->Fill(GenJets_cut,trueLevelWeight);
                 h_VisGenJetMultpt40->Fill(GenJets_cut40,trueLevelWeight);
