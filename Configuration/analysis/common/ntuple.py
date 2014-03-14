@@ -240,11 +240,12 @@ process.load("PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cff")
 ## Set up selections for PF2PAT & PAT objects: Electrons
 
 # MVA ID
-process.load('EGamma.EGammaAnalysisTools.electronIdMVAProducer_cfi')
-process.eidMVASequence = cms.Sequence(process.mvaTrigV0)
+process.load('EgammaAnalysis.ElectronTools.electronIdMVAProducer_cfi')
+process.electronMvaIdSequence = cms.Sequence(process.mvaTrigV0 + process.mvaNonTrigV0)
 getattr(process,'patElectrons'+pfpostfix).electronIDSources.mvaTrigV0 = cms.InputTag("mvaTrigV0")
+getattr(process,'patElectrons'+pfpostfix).electronIDSources.mvaNonTrigV0 = cms.InputTag("mvaNonTrigV0")
 getattr(process, 'patPF2PATSequence'+pfpostfix).replace(getattr(process,'patElectrons'+pfpostfix),
-                                                process.eidMVASequence *
+                                                process.electronMvaIdSequence *
                                                 getattr(process,'patElectrons'+pfpostfix)
                                                 )
 
