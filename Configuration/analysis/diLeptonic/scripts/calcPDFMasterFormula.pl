@@ -1,14 +1,12 @@
 #!/usr/bin/perl -w
 
-# % cat Plots_temp/PDF_CENTRAL/combined/HypToppTLaTeX.txt
-# Variable: HypToppT   Channel: Dilepton Combined
-# BinCenter & LowXbinEdge  &  HighXbinEdge  &   DiffXSec  &  StatError(\%)  & SystError(\%)  & TotalError(\%) \\
-# \hline
-# $40$ & $0$ to $80$   &  0.0051167  &   1.33 &    0 &    1.33 \\
-# $105$ & $80$ to $130$   &  0.0058073  &   1.5 &    0 &    1.5 \\
-# $165$ & $130$ to $200$   &  0.0030112  &   1.45 &    0 &    1.45 \\
-# $250$ & $200$ to $300$   &  0.00084305  &   1.76 &    0 &    1.76 \\
-# $350$ & $300$ to $400$   &  0.00016227  &   3.4 &    0 &    3.4 \\
+# % cat UnfoldingResults/PDF_CENTRAL/Nominal/combined/HypToppTResults.txt
+# XAxisbinCenters[bin]: 35 bin: 0 to 65 DiffXsec: 0.00403064 StatError: 5.86689e-05 GenDiffXsec: 0.980369
+#XAxisbinCenters[bin]: 100 bin: 65 to 125 DiffXsec: 0.00663165 StatError: 6.96881e-05 GenDiffXsec: 1.53973
+# XAxisbinCenters[bin]: 165 bin: 125 to 200 DiffXsec: 0.00367398 StatError: 2.49495e-05 GenDiffXsec: 0.834946
+# XAxisbinCenters[bin]: 245 bin: 200 to 290 DiffXsec: 0.00065152 StatError: 6.52835e-06 GenDiffXsec: 0.256277
+# XAxisbinCenters[bin]: 350 bin: 290 to 400 DiffXsec: 5.23712e-05 StatError: 6.98898e-07 GenDiffXsec: 0.0563997
+
 
 use strict;
 use warnings;
@@ -57,8 +55,8 @@ sub pdfSum {
 
 sub pdfSumIncl {
     my ($channel) = @_;
-#    my $nominalIncl = InclusiveResult->new("Plots/PDF_CENTRAL/Nominal/$channel/InclusiveXSec.txt");
-    my $nominalIncl = InclusiveResult->new("Plots/Nominal/$channel/InclusiveXSec.txt");
+    my $nominalIncl = InclusiveResult->new("Plots/PDF_CENTRAL/Nominal/$channel/InclusiveXSec.txt");
+    my $nominal = InclusiveResult->new("Plots/Nominal/$channel/InclusiveXSec.txt");
     my (@upIncl, @downIncl);
     for my $var_no (1..22) { 
         push @upIncl, InclusiveResult->new("Plots/PDF_${var_no}_UP/Nominal/$channel/InclusiveXSec.txt");
@@ -73,8 +71,10 @@ sub pdfSumIncl {
         $downInclSUM2 += max(0, -$upMnom, -$downMnom)**2;
     }
 
-    storeInclXsec("PDF_UP", $channel, $nominalIncl->{-xsec} + sqrt($upInclSUM2));
-    storeInclXsec("PDF_DOWN", $channel, $nominalIncl->{-xsec} - sqrt($downInclSUM2));    
+#    storeInclXsec("PDF_UP", $channel, $nominalIncl->{-xsec} + sqrt($upInclSUM2));
+#    storeInclXsec("PDF_DOWN", $channel, $nominalIncl->{-xsec} - sqrt($downInclSUM2));    
+    storeInclXsec("PDF_UP", $channel, $nominal->{-xsec} * (1.0 + sqrt($upInclSUM2)/$nominalIncl->{-xsec}));
+    storeInclXsec("PDF_DOWN", $channel, $nominal->{-xsec} * (1.0  - sqrt($downInclSUM2)/$nominalIncl->{-xsec}));
 }
 
 sub storeInclXsec {
