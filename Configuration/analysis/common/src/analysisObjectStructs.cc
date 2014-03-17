@@ -26,7 +26,7 @@ void RecoObjects::clear()
     //lepPuChargedHadronIso_ = 0;
     lepCombIso_ = 0;
     lepDxyVertex0_ = 0;
-    //lepDzVertex0_ = 0;
+    lepDzVertex0_ = 0;
     //lepTrigger_ = 0;
     jets_ = 0;
     jetBTagTCHE_ = 0;
@@ -53,6 +53,12 @@ void RecoObjects::clear()
     //jetSelectedTrackIPSignificance_ = 0;
     //jetSelectedTrackCharge_ = 0;
     //jetSelectedTrackIndex_ = 0;
+    jetSecondaryVertex_ = 0;
+    jetSecondaryVertexFlightDistanceValue_ = 0;
+    jetSecondaryVertexFlightDistanceSignificance_ = 0;
+    jetSecondaryVertexTrack_ = 0;
+    jetSecondaryVertexTrackIndex_ = 0;
+    secondaryVertexTrackIndex_ = 0;
     met_ = 0;
     jetJERSF_ = 0;
     jetsForMET_ = 0;
