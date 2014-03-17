@@ -720,6 +720,7 @@ void Plotter::setDataSet(TString mode, TString Systematic)
         else if(filename.Contains("dymumu")||filename.Contains("dyee")){legends.push_back("Z / #gamma* #rightarrow ee/#mu#mu"); colors.push_back(kAzure-2);}
         else if(filename.Contains("wtolnu")){legends.push_back("W+Jets"); colors.push_back(kGreen-3);}
         else if(filename.Contains("qcd")){legends.push_back("QCD Multijet"); colors.push_back(kYellow);}
+        else if(filename.Contains("ttbarZ") ||filename.Contains("ttbarW") || filename.Contains("ttgjets")){legends.push_back("t#bar{t}+V"); colors.push_back(kOrange-2);}
     }
     FileList.close();
 }
@@ -812,6 +813,9 @@ std::vector<TString> Plotter::InputFileList(TString mode, TString Systematic)
     FileVector.push_back(tempName + "_qcdem3080.root");
     FileVector.push_back(tempName + "_qcdem80170.root");
     FileVector.push_back(tempName + "_qcdmu15.root");
+    FileVector.push_back(tempName + "_ttbarW.root");
+    FileVector.push_back(tempName + "_ttbarZ.root");
+    FileVector.push_back(tempName + "_ttgjets.root");
     
     
     TString ttbarsignalplustau = TString("selectionRoot/") + Systematic + "/" + mode + "/" + mode + "_ttbarsignalplustau.root";
@@ -4244,6 +4248,7 @@ void Plotter::setControlPlotLegendStyle(std::vector< TH1* > drawhists, std::vect
     OrderedLegends.push_back("t#bar{t} Signal");
     OrderedLegends.push_back("t#bar{t} Other");
     OrderedLegends.push_back("Single Top");
+    OrderedLegends.push_back("t#bar{t}+V");
     OrderedLegends.push_back("W+Jets");
     OrderedLegends.push_back("Z / #gamma* #rightarrow ee/#mu#mu");
     OrderedLegends.push_back("Z / #gamma* #rightarrow #tau#tau");
@@ -4376,7 +4381,8 @@ double Plotter::SampleXSection(const TString& filename){
     else if(filename.Contains("Hadronic"))    {return topxsec * 0.4570;}
     else if(filename.Contains("Perugia11") &&
         filename.Contains("signal"))          {return topxsec * 0.1049;}
-    else if(filename.Contains("ttbar"))       {return topxsec;}
+    else if(filename.Contains("ttbar") && !filename.Contains("ttbarW") && 
+        !filename.Contains("ttbarZ"))        {return topxsec;}
     else if(filename.Contains("single"))      {return 11.1;}
     else if(filename.Contains("ww"))          {return 54.838;}
     else if(filename.Contains("wz"))          {return 33.21;}
@@ -4396,6 +4402,9 @@ double Plotter::SampleXSection(const TString& filename){
     else if(filename.Contains("qcdbcem2030")) {return 2.886E8*5.800E-4;}
     else if(filename.Contains("qcdbcem3080")) {return 7.424E7*2.250E-3;}
     else if(filename.Contains("qcdbcem80170")){return 1.191E6*10.90E-3;}
+    else if(filename.Contains("ttbarW"))      {return 0.232;}
+    else if(filename.Contains("ttbarZ"))      {return 0.2057;}
+    else if(filename.Contains("ttgjets"))     {return 1.8;}
     
     return -1;
 }

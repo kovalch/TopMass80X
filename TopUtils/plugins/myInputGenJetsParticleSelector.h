@@ -83,6 +83,7 @@ class myInputGenJetsParticleSelector : public edm::EDProducer {
   
   std::vector<unsigned int>	ignoreParticleIDs;
   std::vector<unsigned int> excludeFromResonancePids;
+  std::vector<int>	flavours;
   void setExcludeFromResonancePids(const std::vector<unsigned int> &particleIDs);
   void setIgnoredParticles(const std::vector<unsigned int> &particleIDs);
   bool isExcludedFromResonance(int pdgId) const;
@@ -90,7 +91,6 @@ class myInputGenJetsParticleSelector : public edm::EDProducer {
   bool			partonicFinalState;
   bool			excludeResonances;
   bool			tausAsJets;
-  int			flavour;
   double		ptMin;
   
   

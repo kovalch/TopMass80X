@@ -42,38 +42,38 @@ std::vector<std::pair<TString, Sample> > Samples::setSamples(const Channel::Chan
 {
     // Define all samples as differential as they are needed
     Sample data("Data", kBlack, 1., Sample::data);
-    Sample ttbarsignalPlusBbbar("t#bar{t}b#bar{b}", kRed+1, 234.0);
-    Sample ttbarsignalPlusB("t#bar{t}b", kOrange-5, 234.0);
-    Sample ttbarsignalPlusOther("t#bar{t}Other", kOrange+1, 234.0);
-    Sample ttbarbkg("t#bar{t} Bkg", kOrange+8, 234);
-    Sample singletop("Single Top", kMagenta, 11.1);
+    Sample ttbarsignalPlusBbbar("t#bar{t}b#bar{b}", 18, 234.0);
+    Sample ttbarsignalPlusB("t#bar{t}b", 12, 234.0);
+    Sample ttbarsignalPlusOther("t#bar{t}Other", 23, 234.0);
+    Sample ttbarbkg("t#bar{t} Bkg", kPink-9, 234);
+    Sample singletop("Single Top", kViolet-3, 11.1);
     Sample ww("Diboson", 10, 54.838);
     Sample wz("Diboson", 10, 33.21);
     Sample zz("Diboson", 10, 17.654);
-    Sample dyee1050("Z / #gamma* #rightarrow ee/#mu#mu", kAzure-2, 860.5, Sample::dyee);
-    Sample dyee50inf("Z / #gamma* #rightarrow ee/#mu#mu", kAzure-2, 3532.8, Sample::dyee);
-    Sample dymumu1050("Z / #gamma* #rightarrow ee/#mu#mu", kAzure-2, 860.5, Sample::dymumu);
-    Sample dymumu50inf("Z / #gamma* #rightarrow ee/#mu#mu", kAzure-2, 3532.8, Sample::dymumu);
+    Sample dyee1050("Z / #gamma* #rightarrow ee/#mu#mu", kAzure+2, 860.5, Sample::dyee);
+    Sample dyee50inf("Z / #gamma* #rightarrow ee/#mu#mu", kAzure+2, 3532.8, Sample::dyee);
+    Sample dymumu1050("Z / #gamma* #rightarrow ee/#mu#mu", kAzure+2, 860.5, Sample::dymumu);
+    Sample dymumu50inf("Z / #gamma* #rightarrow ee/#mu#mu", kAzure+2, 3532.8, Sample::dymumu);
     Sample dytautau1050("Z / #gamma* #rightarrow #tau#tau", kAzure+8, 860.5, Sample::dytautau);
     Sample dytautau50inf("Z / #gamma* #rightarrow #tau#tau", kAzure+8, 3532.8, Sample::dytautau);
-    Sample wlnu("W+Jets", kGreen-3, 36257.2);
-    Sample qcdmu15("QCD Multijet", kYellow, 3.640E8*3.7E-4);
-    Sample qcdmu2030("QCD Multijet", kYellow, 2.870E8*6.500E-3);
-    Sample qcdmu3050("QCD Multijet", kYellow, 6.609E7*12.20E-3);
-    Sample qcdmu5080("QCD Multijet", kYellow, 8.802E6*21.80E-3);
-    Sample qcdmu80120("QCD Multijet", kYellow, 1.024E6*39.50E-3);
-    Sample qcdmu120170("QCD Multijet", kYellow, 1.578E5*47.30E-3);
-    Sample qcdem2030("QCD Multijet", kYellow, 2.886E8*10.10E-3);
-    Sample qcdem3080("QCD Multijet", kYellow, 7.433E7*62.10E-3);
-    Sample qcdem80170("QCD Multijet", kYellow, 1.191E6*153.9E-3);
-    Sample qcdbcem2030("QCD Multijet", kYellow, 2.886E8*5.800E-4);
-    Sample qcdbcem3080("QCD Multijet", kYellow, 7.424E7*2.250E-3);
-    Sample qcdbcem80170("QCD Multijet", kYellow, 1.191E6*10.90E-3);
-    Sample ttbarW("t#bar{t}W", kBlue, 0.232);
-    Sample ttbarZ("t#bar{t}Z", kBlue-10, 0.2057);
-    Sample ttbarHinclusiveOther("t#bar{t}H Other", kSpring, 0.1302, Sample::higgssignal);
+    Sample wlnu("W+Jets", kSpring+2, 36257.2);
+    Sample qcdmu15("QCD Multijet", kOrange-2, 3.640E8*3.7E-4);
+    Sample qcdmu2030("QCD Multijet", kOrange-2, 2.870E8*6.500E-3);
+    Sample qcdmu3050("QCD Multijet", kOrange-2, 6.609E7*12.20E-3);
+    Sample qcdmu5080("QCD Multijet", kOrange-2, 8.802E6*21.80E-3);
+    Sample qcdmu80120("QCD Multijet", kOrange-2, 1.024E6*39.50E-3);
+    Sample qcdmu120170("QCD Multijet", kOrange-2, 1.578E5*47.30E-3);
+    Sample qcdem2030("QCD Multijet", kOrange-2, 2.886E8*10.10E-3);
+    Sample qcdem3080("QCD Multijet", kOrange-2, 7.433E7*62.10E-3);
+    Sample qcdem80170("QCD Multijet", kOrange-2, 1.191E6*153.9E-3);
+    Sample qcdbcem2030("QCD Multijet", kOrange-2, 2.886E8*5.800E-4);
+    Sample qcdbcem3080("QCD Multijet", kOrange-2, 7.424E7*2.250E-3);
+    Sample qcdbcem80170("QCD Multijet", kOrange-2, 1.191E6*10.90E-3);
+    Sample ttbarW("t#bar{t}W", kViolet+7, 0.232);
+    Sample ttbarZ("t#bar{t}Z", kTeal+1, 0.2057);
+    Sample ttbarHinclusiveOther("t#bar{t}H Other", kSpring-6, 0.1302, Sample::higgssignal);
     // Sample ttbarHinclusiveBbbar("t#bar{t}H (b#bar{b} via incl.)", kSpring+9, 0.1302, Sample::higgssignal);
-    Sample ttbarHtobbbar("t#bar{t}H (b#bar{b})", kOrange-7, 0.1302*0.577, Sample::higgssignal);
+    Sample ttbarHtobbbar("t#bar{t}H (b#bar{b})", 2, 0.1302*0.577, Sample::higgssignal);
 
 
     // Access FileList containing list of input root files

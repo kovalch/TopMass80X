@@ -19,8 +19,9 @@ The file /data/group/top/DiffXS/README contains a description of the NTuples, i.
 what was new, which <date> to use...
 
 The input files need to be listed in selectionList.txt, so do:
-ls -1 --color=no /data/group/top/DiffXS/2014_02_10_TAG_N004/*.root | grep -v ttbarH | grep -v ttbarW | grep -v ttbarZ > selectionList.txt
+ls -1 --color=no /data/group/top/DiffXS/2014_02_10_TAG_N004/*.root | grep -v ttbarH > selectionList.txt
 (the date may differ)
+Note that also the ntuples for ttW, ttZ and ttgamma are used  
 
 To compile the code execute:
 
@@ -110,6 +111,8 @@ Here, lnData.sh will create symlinks to the Nominal folder for all files which h
 not been varied in the systematics.
 After that, mk_HistoFileList.sh will create the directory FileLists/ and create
 input file lists per channel and systematic.
+
+NB. Note that also the ntuples for ttW, ttZ and ttgamma are included in selectionList.txt and the corresponding roots are created in selectionRoot. However, to actually include them in the plots/unfolding a line has to be uncommented in mk_HistoFileList.sh   
 
 ===== Histograms!
         ./install/bin/Histo (run build/Histo --help for options to create some of the plots, with or without unfolding etc.)

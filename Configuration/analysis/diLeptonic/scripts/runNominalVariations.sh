@@ -20,7 +20,7 @@ for sys in JES_UP JES_DOWN JER_UP JER_DOWN \
         $LA -f dy -d 15 -c $c -s $sys&
     done
 
-    for i in qcd single ttbarbg.root wtol ww wz zz; do
+    for i in qcd single ttbarbg.root wtol ww wz zz ttbarW ttgjets ttbarZ; do
         w
         $LA -f $i -s $sys&
     done

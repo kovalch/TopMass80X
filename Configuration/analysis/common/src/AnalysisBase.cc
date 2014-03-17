@@ -389,6 +389,15 @@ void AnalysisBase::clearBranches()
     b_jetTrackCharge = 0;
     b_jetTrack = 0;
     b_trackPdgId = 0;
+    b_jetPfCandidateTrack = 0;
+    b_jetPfCandidateTrackCharge = 0;
+    b_jetPfCandidateTrackId = 0;
+    b_jetPfCandidateTrackIndex = 0;
+    b_jetSelectedTrack = 0;
+    b_jetSelectedTrackIPValue = 0;
+    b_jetSelectedTrackIPSignificance = 0;
+    b_jetSelectedTrackCharge = 0;
+    b_jetSelectedTrackIndex = 0;
     b_met = 0;
     b_jetJERSF = 0;
     b_jetForMET = 0;
@@ -583,6 +592,34 @@ void AnalysisBase::SetRecoBranchAddresses()
     //if(chain_->GetBranch("trackPdgId")) // new variable, keep check a while for compatibility
     //   chain_->SetBranchAddress("trackPdgId", &recoObjects_->trackPdgId_, &b_trackPdgId);
     //else b_trackPdgId = 0;
+    //if(chain_->GetBranch("jetPfCandidateTrack")) // new variable, keep check a while for compatibility
+    //   chain_->SetBranchAddress("jetPfCandidateTrack", &recoObjects_->jetPfCandidateTrack_, &b_jetPfCandidateTrack);
+    //else b_jetPfCandidateTrack = 0;
+    //if(chain_->GetBranch("jetPfCandidateTrackCharge")) // new variable, keep check a while for compatibility
+    //   chain_->SetBranchAddress("jetPfCandidateTrackCharge", &recoObjects_->jetPfCandidateTrackCharge_, &b_jetPfCandidateTrackCharge);
+    //else b_jetPfCandidateTrackCharge = 0;
+    //if(chain_->GetBranch("jetPfCandidateTrackId")) // new variable, keep check a while for compatibility
+    //   chain_->SetBranchAddress("jetPfCandidateTrackId", &recoObjects_->jetPfCandidateTrackId_, &b_jetPfCandidateTrackId);
+    //else b_jetPfCandidateTrackId = 0;
+    //if(chain_->GetBranch("jetPfCandidateTrackIndex")) // new variable, keep check a while for compatibility
+    //   chain_->SetBranchAddress("jetPfCandidateTrackIndex", &recoObjects_->jetPfCandidateTrackIndex_, &b_jetPfCandidateTrackIndex);
+    //else b_jetPfCandidateTrackIndex = 0;
+    //if(chain_->GetBranch("jetSelectedTrack")) // new variable, keep check a while for compatibility
+    //   chain_->SetBranchAddress("jetSelectedTrack", &recoObjects_->jetSelectedTrack_, &b_jetSelectedTrack);
+    //else b_jetSelectedTrack = 0;
+    //if(chain_->GetBranch("jetSelectedTrackIPValue")) // new variable, keep check a while for compatibility
+    //   chain_->SetBranchAddress("jetSelectedTrackIPValue", &recoObjects_->jetSelectedTrackIPValue_, &b_jetSelectedTrackIPValue);
+    //else b_jetSelectedTrackIPValue = 0;
+    //if(chain_->GetBranch("jetSelectedTrackIPSignificance")) // new variable, keep check a while for compatibility
+    //   chain_->SetBranchAddress("jetSelectedTrackIPSignificance", &recoObjects_->jetSelectedTrackIPSignificance_, &b_jetSelectedTrackIPSignificance);
+    //else b_jetSelectedTrackIPSignificance = 0;
+    //if(chain_->GetBranch("jetSelectedTrackCharge")) // new variable, keep check a while for compatibility
+    //   chain_->SetBranchAddress("jetSelectedTrackCharge", &recoObjects_->jetSelectedTrackCharge_, &b_jetSelectedTrackCharge);
+    //else b_jetSelectedTrackCharge = 0;
+    //if(chain_->GetBranch("jetSelectedTrackIndex")) // new variable, keep check a while for compatibility
+    //   chain_->SetBranchAddress("jetSelectedTrackIndex", &recoObjects_->jetSelectedTrackIndex_, &b_jetSelectedTrackIndex);
+    //else b_jetSelectedTrackIndex = 0;
+    
     chain_->SetBranchAddress("met", &recoObjects_->met_, &b_met);
     if(jetEnergyResolutionScaleFactors_ || jetEnergyScaleScaleFactors_){
         chain_->SetBranchAddress("jetsForMET", &recoObjects_->jetsForMET_, &b_jetForMET);
@@ -788,6 +825,15 @@ void AnalysisBase::GetRecoBranchesEntry(const Long64_t& entry)const
     //if(b_jetTrackCharge) b_jetTrackCharge->GetEntry(entry);
     //if(b_jetTrack) b_jetTrack->GetEntry(entry);
     //if(b_trackPdgId) b_trackPdgId->GetEntry(entry);
+    //if(b_jetPfCandidateTrack) b_jetPfCandidateTrack->GetEntry(entry);
+    //if(b_jetPfCandidateTrackCharge) b_jetPfCandidateTrackCharge->GetEntry(entry);
+    //if(b_jetPfCandidateTrackId) b_jetPfCandidateTrackId->GetEntry(entry);
+    //if(b_jetPfCandidateTrackIndex) b_jetPfCandidateTrackIndex->GetEntry(entry);
+    //if(b_jetSelectedTrack) b_jetSelectedTrack->GetEntry(entry);
+    //if(b_jetSelectedTrackIPValue) b_jetSelectedTrackIPValue->GetEntry(entry);
+    //if(b_jetSelectedTrackIPSignificance) b_jetSelectedTrackIPSignificance->GetEntry(entry);
+    //if(b_jetSelectedTrackCharge) b_jetSelectedTrackCharge->GetEntry(entry);
+    //if(b_jetSelectedTrackIndex) b_jetSelectedTrackIndex->GetEntry(entry);
     b_met->GetEntry(entry);
     if(b_jetForMET) b_jetForMET->GetEntry(entry);
     if(b_jetJERSF) b_jetJERSF->GetEntry(entry);
@@ -1308,7 +1354,13 @@ void AnalysisBase::retagJets(std::vector<int>& bjetIndices, const std::vector<in
 
 double AnalysisBase::topPtReweightValue(const double& pt)const
 {
-    return TMath::Exp(0.156-0.00137*pt);
+    // only dilepton
+    return TMath::Exp(0.128-0.00121*pt);
+
+//     // only semileptons
+//     return TMath::Exp(0.130-0.00116*pt);
+//     // dilepton + semileptons
+//     return TMath::Exp(0.130-0.00118*pt);
 }
 
 

@@ -16,7 +16,7 @@
 
 
 ###### CMS Software Version and Scram Architecture ########
-CMS_version=CMSSW_5_3_11
+CMS_version=CMSSW_5_3_14_patch1
 export SCRAM_ARCH=slc5_amd64_gcc462
 
 
@@ -30,7 +30,7 @@ topAnalysis () {
         echo "Installing the HEAD version of the TopAnalysis code from GIT."
         echo "  To use specific tag, 'export TOP_TAG=<TAG_NAME>' BEFORE DOWNLOADING AND RUNNING the install script (such that TAG is used for both)."
         echo "  To see available tags, execute: 'git tag'"
-        cd ${CMS_version}/src
+        cd ${CMSSW_BASE}/src
         git clone https://$1@git.cern.ch/reps/TopAnalysis
         if [ $? -eq 0 ]; then
             echo "Successful download from GIT"
@@ -43,7 +43,7 @@ topAnalysis () {
         echo
     else
         echo "Installing the TopAnalysis code from GIT with tag: ${TOP_TAG}"
-        cd ${CMS_version}/src
+        cd ${CMSSW_BASE}/src
         git clone https://$1@git.cern.ch/reps/TopAnalysis
         if [ $? -eq 0 ]; then
             echo "Successful download from GIT"
@@ -74,6 +74,17 @@ elif [ $# == 2 ] ; then
     if [ $2 == "min" ] ; then
         minimalInstall="True"
     fi
+fi
+
+
+
+
+
+###### File where to store the GIT-cloned release parts (avoid spamming AFS) ######
+if [ `hostname | grep "nafhh"` ]; then
+    export CMSSW_GIT_REFERENCE=/nfs/dust/cms/user/$USER/.cmsgit-cache
+else
+    export CMSSW_GIT_REFERENCE=/data/group/top/cmsswGitReference/.cmsgit-cache
 fi
 
 
@@ -112,64 +123,65 @@ fi
 
 
 
-###### PAT #####
-### From: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuidePATReleaseNotes52X#V08_09_59_CMSSW_5_3_11   (revision 148)
+###### PAT ######
+### From: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuidePATReleaseNotes52X (revision 179), for CMSSW_5_3_14_patch1
 
 cd $CMSSW_BASE/src
-addpkg DataFormats/PatCandidates V06-05-06-12
-addpkg PhysicsTools/PatAlgos
+git cms-addpkg PhysicsTools/PatAlgos
 cd -
 
 
-###### Jet Energy Corrections #####
+###### Jet Energy Corrections ######
 
 
 
-###### Electron ID #####
+###### Electron MVA ID ######
+### From: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideTopRefEventSel (revision 64), for CMSSW_5_3_15
 
-# Electron mva id stuff (following top reference twiki, and TQAF TWiki page rev.223)
-# The following line is not working anymore, since the -d option returns some error, thus use workaround with the 5 lines after
-#cvs co -r V00-00-30-01 -d EGamma/EGammaAnalysisTools UserCode/EGamma/EGammaAnalysisTools
 cd $CMSSW_BASE/src
-cvs co -r V00-00-30-01 UserCode/EGamma/EGammaAnalysisTools
-mv UserCode/EGamma EGamma
-rm -rf UserCode
+git cms-addpkg EgammaAnalysis/ElectronTools
 cd -
-cd $CMSSW_BASE/src/EGamma/EGammaAnalysisTools/data
+cd $CMSSW_BASE/src/EgammaAnalysis/ElectronTools/data/
 cat download.url | xargs wget
 cd -
 
 
-###### ParticleFlow #####
+###### ParticleFlow ######
+
+#cd $CMSSW_BASE/src
+#git cms-addpkg RecoParticleFlow/PFProducer
+#cd -
+
+
+###### MET Filters #####
+### From: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideTopRefEventSel (revision 64), for CMSSW_5_3_15
 
 cd $CMSSW_BASE/src
-cvs co -r V15-02-06 RecoParticleFlow/PFProducer
+git cms-addpkg RecoMET/METFilters
 cd -
 
 
-###### TQAF #####
+###### TQAF ######
+### From: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideTQAFRecipes (revision 229), for CMSSW_5_3_13
 
-### From: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideTQAFRecipes#CMSSW_5_3_X  (revision 224)
 cd $CMSSW_BASE/src
-addpkg AnalysisDataFormats/TopObjects
-addpkg TopQuarkAnalysis/Configuration
-addpkg TopQuarkAnalysis/Examples
-addpkg TopQuarkAnalysis/TopEventProducers
-addpkg TopQuarkAnalysis/TopEventSelection
-addpkg TopQuarkAnalysis/TopHitFit
-addpkg TopQuarkAnalysis/TopJetCombination
-addpkg TopQuarkAnalysis/TopKinFitter
-addpkg TopQuarkAnalysis/TopObjectResolutions
-addpkg TopQuarkAnalysis/TopSkimming V07-01-04
-addpkg TopQuarkAnalysis/TopTools V06-07-13
+git cms-addpkg TopQuarkAnalysis/TopEventProducers
+git cms-addpkg AnalysisDataFormats/TopObjects
+git cms-addpkg TopQuarkAnalysis/Configuration
+git cms-addpkg TopQuarkAnalysis/Examples
+git cms-addpkg TopQuarkAnalysis/TopEventSelection
+git cms-addpkg TopQuarkAnalysis/TopHitFit
+git cms-addpkg TopQuarkAnalysis/TopJetCombination
+git cms-addpkg TopQuarkAnalysis/TopKinFitter
+git cms-addpkg TopQuarkAnalysis/TopObjectResolutions
 cd -
 
 
-# for full memory option of LHAPDF, we NEED to compile ElectroWeakAnalysis/Utilities after scram setup lhapdffull for speeding it up.
-#For more information check the ElectroWeakAnalysis/Utilities/README file
+###### For full memory option of LHAPDF, we NEED to compile ElectroWeakAnalysis/Utilities after scram setup lhapdffull for speeding it up.
+### For more information check the ElectroWeakAnalysis/Utilities/README file
 cd $CMSSW_BASE/src
 scram setup lhapdffull
-addpkg ElectroWeakAnalysis/Utilities
+git cms-addpkg ElectroWeakAnalysis/Utilities
 cd -
 
 

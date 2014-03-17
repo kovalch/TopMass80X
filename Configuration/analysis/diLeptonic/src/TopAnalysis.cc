@@ -108,13 +108,6 @@ void TopAnalysis::SlaveBegin(TTree*)
 {
     // Defaults from AnalysisBase
     AnalysisBase::SlaveBegin(0);
-    
-    h_step4 = store(new TH1D ( "step4", "event count at after 2lepton", 10, 0, 10 ));       h_step4->Sumw2();
-    h_step5 = store(new TH1D ( "step5", "event count at after Zcut", 10, 0, 10 ));          h_step5->Sumw2();
-    h_step6 = store(new TH1D ( "step6", "event count at after 2jets", 10, 0, 10 ));         h_step6->Sumw2();
-    h_step7 = store(new TH1D ( "step7", "event count at after MET", 10, 0, 10 ));           h_step7->Sumw2();
-    h_step8 = store(new TH1D ( "step8", "event count at after 1btag", 10, 0, 10 ));         h_step8->Sumw2();
-    h_step9 = store(new TH1D ( "step9", "event count at step after KinReco", 10, 0, 10 ));  h_step9->Sumw2();
 
     //h_jetMultiAll = store(new TH1D ( "HypjetMultiAll", "Jet Multiplicity (AllJets)", 10, -0.5, 9.5 ));
     h_jetMultiXSec = store(new TH1D ( "HypjetMultiXSec", "Jet Multiplicity (for cross-section)", 10, -0.5, 9.5 ));
@@ -849,7 +842,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                             trueLevelWeightNoPileup, trueLevelWeight,commonGenObjects,topGenObjects);
 
     double jetHTGen = 0.;
-    int GenJets_cut = 0, GenJets_cut40 = 0, GenJets_cut60 = 0, GenJets_cut100=0;
+    int GenJets_cut = -1000, GenJets_cut40 = -1000, GenJets_cut60 = -1000, GenJets_cut100 = -1000;
     double extragenjet[4]={0.};
     this->generatorTTbarjetsEvent(jetHTGen,
                                   BHadronIndex, AntiBHadronIndex,
@@ -1043,7 +1036,6 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     
     h_vertMulti->Fill(recoObjects.vertMulti_, weight);
     
-    h_step4->Fill(1, weight);
     h_TrigSF->Fill(weightTriggerSF, 1.);
     h_LepSF->Fill(weightLeptonSF, 1.);
     
@@ -1077,26 +1069,72 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     
     if ( isZregion ) {
         double fullWeights = weight;
+        selectionStep = "4zWindow";
+        this->fillAll(selectionStep,
+                  recoObjects, commonGenObjects,
+                  topGenObjects,
+                  kinRecoObjects,
+                  genObjectIndicesDummy, recoObjectIndices,
+                  genLevelWeights, recoLevelWeights,
+                  fullWeights);
+
         Zh1_postZcut->Fill(dilepton.M(), fullWeights);
         Allh1_postZcut->Fill(dilepton.M(), fullWeights);
         
         if ( has2Jets ) {
+            selectionStep = "5zWindow";
+            this->fillAll(selectionStep,
+                  recoObjects, commonGenObjects,
+                  topGenObjects,
+                  kinRecoObjects,
+                  genObjectIndicesDummy, recoObjectIndices,
+                  genLevelWeights, recoLevelWeights,
+                  fullWeights);
+            
             // Fill loose dilepton mass histogram before any jet cuts
             Looseh1->Fill(dilepton.M(), fullWeights);
             Zh1_post2jets->Fill(dilepton.M(), fullWeights);
             Allh1_post2jets->Fill(dilepton.M(), fullWeights);
             
             if ( hasMetOrEmu ) {
+                selectionStep = "6zWindow";
+                this->fillAll(selectionStep,
+                  recoObjects, commonGenObjects,
+                  topGenObjects,
+                  kinRecoObjects,
+                  genObjectIndicesDummy, recoObjectIndices,
+                  genLevelWeights, recoLevelWeights,
+                  fullWeights);
+                
                 Zh1_postMET->Fill(dilepton.M(), fullWeights);
                 Allh1_postMET->Fill(dilepton.M(), fullWeights);
 
                 if ( hasBtag ) {
+                    selectionStep = "7zWindow";
+                    this->fillAll(selectionStep,
+                        recoObjects, commonGenObjects,
+                        topGenObjects,
+                        kinRecoObjects,
+                        genObjectIndicesDummy, recoObjectIndices,
+                        genLevelWeights, recoLevelWeights,
+                        fullWeights);
+                    
                     fullWeights *= weightBtagSF;
                     Zh1_post1btag->Fill(dilepton.M(), fullWeights);
                     Allh1_post1btag->Fill(dilepton.M(), fullWeights);
 
                     if ( hasSolution ) {
                         fullWeights *= weightKinReco;
+
+                        selectionStep = "8zWindow";
+                        this->fillAll(selectionStep,
+                            recoObjects, commonGenObjects,
+                            topGenObjects,
+                            kinRecoObjects,
+                            genObjectIndicesDummy, recoObjectIndices,
+                            genLevelWeights, recoLevelWeights,
+                            fullWeights);
+                            
                         Zh1_postKinReco->Fill(dilepton.M(), fullWeights);
                         Allh1_postKinReco->Fill(dilepton.M(), fullWeights);
                     }
@@ -1142,7 +1180,6 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                   genLevelWeights, recoLevelWeights,
                   weight);
     
-    h_step5->Fill(1, weight);
     h_LeptonpT_diLep->Fill((*recoObjects.allLeptons_).at(leptonIndex).Pt(), weight);
     h_AntiLeptonpT_diLep->Fill((*recoObjects.allLeptons_).at(antiLeptonIndex).Pt(), weight);
     h_LeptonEta_diLep->Fill((*recoObjects.allLeptons_).at(leptonIndex).Eta(), weight);
@@ -1204,8 +1241,6 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                   weight);
     
     
-    h_step6->Fill(1, weight);
-    
     // ++++ Control Plots ++++
     for(const int index : allLeptonIndices){
         h_AllLeptonEta_step6->Fill((*recoObjects.allLeptons_).at(index).Eta(), weight);
@@ -1247,8 +1282,6 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                   genObjectIndicesDummy, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   weight);
-    
-    h_step7->Fill(1, weight);
  
     h_LeptonpT_postMETcut->Fill((*recoObjects.allLeptons_).at(leptonIndex).Pt(), weight);
     h_AntiLeptonpT_postMETcut->Fill((*recoObjects.allLeptons_).at(antiLeptonIndex).Pt(), weight);
@@ -1330,8 +1363,6 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                   weight);
     
     h_BTagSF->Fill(weightBtagSF);
-    
-    h_step8->Fill(1, weight);
     
     if (RUNSYNC) {
         static int fullSelectionCounter = 0;
@@ -1494,7 +1525,6 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     int nbjets_step9 = numberOfBjets;
     h_BJetsMult_step9->Fill(nbjets_step9, weight);
     
-    h_step9->Fill(1, weight);
     h_jetMultiXSec->Fill(numberOfJets, weight);
     h_jetMultiNoPU->Fill(numberOfJets, weight / weightPU );
     h_diLepMassFull_fullSel->Fill(dilepton.M(), weight);
@@ -2511,16 +2541,16 @@ void TopAnalysis::generatorTTbarjetsEvent(double& jetHTGen,
         if ( BHadronIndex != -1 && AntiBHadronIndex != -1 ) {
             if ( (*commonGenObjects.allGenJets_).at(BHadronIndex).Pt() > JetPtCUT && std::fabs ( (*commonGenObjects.allGenJets_).at(BHadronIndex).Eta() ) < JetEtaCUT &&
                 (*commonGenObjects.allGenJets_).at(AntiBHadronIndex).Pt() > JetPtCUT && std::fabs ( (*commonGenObjects.allGenJets_).at(AntiBHadronIndex).Eta() ) < JetEtaCUT )
-            {
+            {    
+                GenJets_cut = GenJets_cut40 = GenJets_cut60 = GenJets_cut100 = 0;
                 //New plots from Carmen: Begin
                 for(int genJet=0; genJet<(int)(*commonGenObjects.allGenJets_).size(); genJet++)
                 {
-                    if(std::fabs((*commonGenObjects.allGenJets_).at(genJet).Eta() ) > JetEtaCUT || (*commonGenObjects.allGenJets_).at(genJet).Pt() <= JetPtCUT2 ||
-                        std::fabs(DeltaR((*topGenObjects.GenLepton_), (*commonGenObjects.allGenJets_).at(genJet))) < 0.4 || std::fabs(DeltaR((*topGenObjects.GenAntiLepton_), (*commonGenObjects.allGenJets_).at(genJet))) < 0.4 )
+                    if(std::fabs((*commonGenObjects.allGenJets_).at(genJet).Eta() ) > JetEtaCUT || (*commonGenObjects.allGenJets_).at(genJet).Pt() <= JetPtCUT2 || (std::fabs(DeltaR((*topGenObjects.GenLepton_), (*commonGenObjects.allGenJets_).at(genJet))) < 0.4 && (*commonGenObjects.allGenJets_).at(BHadronIndex) != (*commonGenObjects.allGenJets_).at(genJet)  && (*commonGenObjects.allGenJets_).at(AntiBHadronIndex) != (*commonGenObjects.allGenJets_).at(genJet)) || (std::fabs(DeltaR((*topGenObjects.GenAntiLepton_), (*commonGenObjects.allGenJets_).at(genJet))) < 0.4 && (*commonGenObjects.allGenJets_).at(BHadronIndex) != (*commonGenObjects.allGenJets_).at(genJet)  && (*commonGenObjects.allGenJets_).at(AntiBHadronIndex) != (*commonGenObjects.allGenJets_).at(genJet) ) )
                     {
                         continue;
                     }
-                    if((*commonGenObjects.allGenJets_).at(genJet).Pt()> JetPtCUT2 && std::fabs((*commonGenObjects.allGenJets_).at(genJet).Eta())<2.4) {//CARMEN ETA CUT
+//                    if((*commonGenObjects.allGenJets_).at(genJet).Pt()> JetPtCUT2 && std::fabs((*commonGenObjects.allGenJets_).at(genJet).Eta())<2.4) {//CARMEN ETA CUT
                         GenJets_cut++;
                         if((*commonGenObjects.allGenJets_).at(BHadronIndex) != (*commonGenObjects.allGenJets_).at(genJet) && (*commonGenObjects.allGenJets_).at(AntiBHadronIndex) != (*commonGenObjects.allGenJets_).at(genJet))
                         {
@@ -2534,7 +2564,7 @@ void TopAnalysis::generatorTTbarjetsEvent(double& jetHTGen,
                         if((*commonGenObjects.allGenJets_).at(genJet).Pt()> 40.0) GenJets_cut40++;
                         if((*commonGenObjects.allGenJets_).at(genJet).Pt()> 60.0) GenJets_cut60++;
                         if((*commonGenObjects.allGenJets_).at(genJet).Pt()> 100.0) GenJets_cut100++;
-                    }
+//                    }
                 }
                 h_VisGenJetMultpt30->Fill(GenJets_cut,trueLevelWeight);
                 h_VisGenJetMultpt40->Fill(GenJets_cut40,trueLevelWeight);

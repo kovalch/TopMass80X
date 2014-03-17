@@ -20,5 +20,5 @@ genParticlesForJetsPlusHadron = cms.EDProducer("myInputGenJetsParticleSelector",
     excludeResonances = cms.bool(True),
     excludeFromResonancePids = cms.vuint32(12, 13, 14, 16),
     tausAsJets = cms.bool(False),
-    flavour = cms.int32(5)
+    injectHadronFlavours = cms.vint32(5, 4)
 )

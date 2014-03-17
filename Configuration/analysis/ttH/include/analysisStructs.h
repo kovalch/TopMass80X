@@ -31,7 +31,7 @@ namespace tth{
     
     struct RecoLevelWeights{
         RecoLevelWeights(const double& weightLeptonSF, const double& weightTriggerSF, const double& weightBtagSF,
-                         const double& weightNoPileup, double& weight);
+                         const double& weightNoPileup, const double& weight);
         ~RecoLevelWeights(){}
         
         #ifndef __CINT__
@@ -40,7 +40,7 @@ namespace tth{
         const double& weightBtagSF_;
         
         const double& weightNoPileup_;
-        double& weight_;
+        const double& weight_;
         #endif
     };
     

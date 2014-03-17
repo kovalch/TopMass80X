@@ -101,8 +101,6 @@ class TopAnalysis : public AnalysisBase
     TH1 *h_HypAntiLeptonpT, *h_HypAntiLeptonEta;
     TH1 *h_HypLeptonpT, *h_HypLeptonEta;
 
-    TH1 *h_step3, *h_step4, *h_step5,*h_step6,*h_step7,*h_step8,*h_step9;
-
     TH1 *h_VisGenAntiToppT, *h_VisGenAntiTopEta;
     TH1 *h_VisGenToppT, *h_VisGenTopEta;
 
