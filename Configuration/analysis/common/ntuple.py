@@ -405,7 +405,8 @@ genJetCollection = "ak5GenJetsPlusHadron"
 
 genLevelBJetProducerInput = "produceGenLevelBJets"
 
-genHFHadronMatcherInput = "matchGenHFHadronJets"
+genHFBHadronMatcherInput = "matchGenHFBHadronJets"
+genHFCHadronMatcherInput = "matchGenHFCHadronJets"
 
 # Lepton collection used for kinematic reconstruction (has further selections, and can thus deviate from KinReco in analysis)
 finalLeptons = 'filterDiLeptonMassQCDveto'
@@ -549,13 +550,26 @@ process.writeNTuple = writeNTuple.clone(
     AntiBHadronFromTopB = cms.InputTag(genLevelBJetProducerInput, "AntiBHadronFromTopB"),
     BHadronVsJet = cms.InputTag(genLevelBJetProducerInput, "BHadronVsJet"),
     AntiBHadronVsJet = cms.InputTag(genLevelBJetProducerInput, "AntiBHadronVsJet"),
-    genBHadPlusMothers = cms.InputTag(genHFHadronMatcherInput,"genBHadPlusMothers"),
-    genBHadPlusMothersIndices = cms.InputTag(genHFHadronMatcherInput,"genBHadPlusMothersIndices"),
-    genBHadIndex = cms.InputTag(genHFHadronMatcherInput,"genBHadIndex"),
-    genBHadFlavour = cms.InputTag(genHFHadronMatcherInput,"genBHadFlavour"),
-    genBHadJetIndex = cms.InputTag(genHFHadronMatcherInput,"genBHadJetIndex"),
-    genBHadLeptons = cms.InputTag(genHFHadronMatcherInput,"genBHadLeptons"),
-    genBHadLeptonHadIndex = cms.InputTag(genHFHadronMatcherInput,"genBHadLeptonHadIndex"),
+
+    genBHadPlusMothers = cms.InputTag(genHFBHadronMatcherInput,"genBHadPlusMothers"),
+    genBHadPlusMothersIndices = cms.InputTag(genHFBHadronMatcherInput,"genBHadPlusMothersIndices"),
+    genBHadIndex = cms.InputTag(genHFBHadronMatcherInput,"genBHadIndex"),
+    genBHadFlavour = cms.InputTag(genHFBHadronMatcherInput,"genBHadFlavour"),
+    genBHadJetIndex = cms.InputTag(genHFBHadronMatcherInput,"genBHadJetIndex"),
+    genBHadFromTopWeakDecay = cms.InputTag(genHFBHadronMatcherInput,"genBHadFromTopWeakDecay"),
+    genBHadLeptonIndex = cms.InputTag(genHFBHadronMatcherInput,"genBHadLeptonIndex"),
+    genBHadLeptonHadronIndex = cms.InputTag(genHFBHadronMatcherInput,"genBHadLeptonHadronIndex"),
+    genBHadLeptonViaTau = cms.InputTag(genHFBHadronMatcherInput,"genBHadLeptonViaTau"),
+
+    genCHadPlusMothers = cms.InputTag(genHFCHadronMatcherInput,"genCHadPlusMothers"),
+    genCHadPlusMothersIndices = cms.InputTag(genHFCHadronMatcherInput,"genCHadPlusMothersIndices"),
+    genCHadIndex = cms.InputTag(genHFCHadronMatcherInput,"genCHadIndex"),
+    genCHadFlavour = cms.InputTag(genHFCHadronMatcherInput,"genCHadFlavour"),
+    genCHadJetIndex = cms.InputTag(genHFCHadronMatcherInput,"genCHadJetIndex"),
+    genCHadFromTopWeakDecay = cms.InputTag(genHFCHadronMatcherInput,"genCHadFromTopWeakDecay"),
+    genCHadLeptonIndex = cms.InputTag(genHFCHadronMatcherInput,"genCHadLeptonIndex"),
+    genCHadLeptonHadronIndex = cms.InputTag(genHFCHadronMatcherInput,"genCHadLeptonHadronIndex"),
+    genCHadLeptonViaTau = cms.InputTag(genHFCHadronMatcherInput,"genCHadLeptonViaTau"), 
 )
 process.writeNTuple.jetsForMET    = cms.InputTag("scaledJetEnergy:selectedPatJets")
 process.writeNTuple.jetsForMETuncorr    = cms.InputTag("selectedPatJets")
@@ -676,10 +690,15 @@ if topfilter:
     process.produceGenLevelBJets.deltaR = 5.0
     process.produceGenLevelBJets.noBBbarResonances = True
 
-    process.load("TopAnalysis.TopUtils.GenHFHadronMatcher_cff")
-    process.matchGenHFHadronJets.flavour = 5
-    process.matchGenHFHadronJets.noBBbarResonances = True
-    process.matchGenHFHadronJets.onlyJetClusteredHadrons = False # should be True to store leptons from b-jets (will run slower)
+    from TopAnalysis.TopUtils.GenHFHadronMatcher_cff import matchGenHFHadronJets
+    process.matchGenHFBHadronJets = matchGenHFHadronJets.clone(
+        flavour = 5,
+        noBBbarResonances = True
+    )
+    process.matchGenHFCHadronJets = matchGenHFHadronJets.clone(
+        flavour = 4,
+        noBBbarResonances = True
+    )
 
     process.load("TopAnalysis.TopUtils.sequences.improvedJetHadronQuarkMatching_cff")
 
@@ -690,7 +709,8 @@ if topfilter:
             process.improvedJetHadronQuarkMatchingSequence *
             process.generatorTopFilter *
             process.produceGenLevelBJets *
-            process.matchGenHFHadronJets)
+            process.matchGenHFBHadronJets *
+	    process.matchGenHFCHadronJets)
     else:
         process.topsequence = cms.Sequence(
             process.makeGenEvt *
