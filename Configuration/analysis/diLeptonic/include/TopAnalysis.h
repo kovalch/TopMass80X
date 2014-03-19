@@ -35,14 +35,8 @@ class TopAnalysis : public AnalysisBase
     TH2 *h_GenRecoMet;
     
     TH1 *h_NJetMatching;
-
-    TH1 *TTh1_postZcut, *Allh1_postZcut, *Zh1_postZcut;
-    TH1 *TTh1_post2jets, *Allh1_post2jets, *Zh1_post2jets;
-    TH1 *TTh1_postMET, *Allh1_postMET, *Zh1_postMET;
-    TH1 *TTh1_post1btag, *Allh1_post1btag, *Zh1_post1btag;
-    TH1 *TTh1_postKinReco, *Allh1_postKinReco, *Zh1_postKinReco;
     
-    TH1 *Looseh1, *Allh1, *Zh1, *TTh1, *h_diLepMassFull, *h_diLepMassFull_fullSel,
+    TH1 *h_diLepMassFull, *h_diLepMassFull_fullSel,
         *h_jetMultiXSec,*h_jetMultiAll, *h_jetMultiNoPU, *h_jetMultiVisTop,
         *h_jetMulti, *h_jetMulti_noBTag, *h_jetMulti_diLep, *h_BjetMulti, *h_BjetMulti_noBTag;
 

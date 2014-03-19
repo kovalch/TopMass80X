@@ -141,9 +141,14 @@ void Plotter::DYScaleFactor(TString SpecialComment){
         exit(444);
     }
     if (SpecialComment.BeginsWith("_post")){
-        nameAppendix = SpecialComment;
+        if(SpecialComment.EqualTo("_postZcut"))nameAppendix = "_step4";
+        if(SpecialComment.EqualTo("_post2jets"))nameAppendix = "_step5";
+        if(SpecialComment.EqualTo("_postMET"))nameAppendix = "_step6";
+        if(SpecialComment.EqualTo("_post1btag"))nameAppendix = "_step7";
+        if(SpecialComment.EqualTo("_postKinReco"))nameAppendix = "_step8";
+        
     } else if ( SpecialComment == "Standard") {
-        nameAppendix = "_postKinReco";
+        nameAppendix = "_step8";
     }
 
     std::cout<<"\n\nBegin DYSCALE FACTOR calculation at selection step "<<nameAppendix<<std::endl;
@@ -161,8 +166,8 @@ void Plotter::DYScaleFactor(TString SpecialComment){
         double allWeights=LumiWeight;//calculate here all the flat-weights we apply: Lumi*others*...
         if(Vec_Files.at(i).Contains("ee_") || Vec_Files.at(i).Contains("mumu_")){
             if(Vec_Files.at(i).Contains("run")){
-                TH1D *htemp = fileReader->GetClone<TH1D>(Vec_Files.at(i), TString("Zh1").Append(nameAppendix));
-                TH1D *htemp1 = fileReader->GetClone<TH1D>(Vec_Files.at(i), "Looseh1");
+                TH1D *htemp = fileReader->GetClone<TH1D>(Vec_Files.at(i), TString(TString("dyScaling_Zh1").Append(nameAppendix)).Append("zWindow"));
+                TH1D *htemp1 = fileReader->GetClone<TH1D>(Vec_Files.at(i), "dyScaling_Looseh1");
                 ApplyFlatWeights(htemp, allWeights);
                 ApplyFlatWeights(htemp1, allWeights);
                 if(Vec_Files.at(i).Contains("ee_")){
@@ -177,8 +182,8 @@ void Plotter::DYScaleFactor(TString SpecialComment){
             }
             else if(Vec_Files.at(i).Contains("dy")){
                 if(Vec_Files.at(i).Contains("50inf")){
-                    TH1D *htemp = fileReader->GetClone<TH1D>(Vec_Files.at(i), TString("Zh1").Append(nameAppendix));
-                    TH1D *htemp1 = fileReader->GetClone<TH1D>(Vec_Files.at(i), TString("TTh1").Append(nameAppendix));
+                    TH1D *htemp = fileReader->GetClone<TH1D>(Vec_Files.at(i), TString(TString("dyScaling_Zh1").Append(nameAppendix)).Append("zWindow"));
+                    TH1D *htemp1 = fileReader->GetClone<TH1D>(Vec_Files.at(i), TString("dyScaling_TTh1").Append(nameAppendix));
                     ApplyFlatWeights(htemp, LumiWeight);
                     ApplyFlatWeights(htemp1, LumiWeight);
                     if(Vec_Files.at(i).Contains("ee_")){
@@ -192,7 +197,7 @@ void Plotter::DYScaleFactor(TString SpecialComment){
                     delete htemp; delete htemp1;
                 }
                 else{
-                    TH1D *htemp = fileReader->GetClone<TH1D>(Vec_Files.at(i), TString("TTh1").Append(nameAppendix));
+                    TH1D *htemp = fileReader->GetClone<TH1D>(Vec_Files.at(i), TString("dyScaling_TTh1").Append(nameAppendix));
                     ApplyFlatWeights(htemp, LumiWeight);
                     if(Vec_Files.at(i).Contains("ee_")){   NoutEEDYMC+=htemp->Integral();}
                     if(Vec_Files.at(i).Contains("mumu_")){ NoutMuMuDYMC+=htemp->Integral();}
@@ -200,7 +205,7 @@ void Plotter::DYScaleFactor(TString SpecialComment){
                 }
             }
             else{
-                TH1D *htemp = fileReader->GetClone<TH1D>(Vec_Files.at(i), TString("Zh1").Append(nameAppendix));
+                TH1D *htemp = fileReader->GetClone<TH1D>(Vec_Files.at(i), TString(TString("dyScaling_Zh1").Append(nameAppendix)).Append("zWindow"));
                 ApplyFlatWeights(htemp, LumiWeight);
                 if(Vec_Files.at(i).Contains("ee_")){   NinEEMC+=htemp->Integral();   }
                 if(Vec_Files.at(i).Contains("mumu_")){ NinMuMuMC+=htemp->Integral(); }
@@ -209,7 +214,7 @@ void Plotter::DYScaleFactor(TString SpecialComment){
         }
         
         if(Vec_Files.at(i).Contains("emu_") && Vec_Files.at(i).Contains("run")){
-            TH1D *htemp = fileReader->GetClone<TH1D>(Vec_Files.at(i), TString("Zh1").Append(nameAppendix));
+            TH1D *htemp = fileReader->GetClone<TH1D>(Vec_Files.at(i), TString(TString("dyScaling_Zh1").Append(nameAppendix)).Append("zWindow"));
             ApplyFlatWeights(htemp, LumiWeight);
             NinEMu+=htemp->Integral();
             delete htemp;
