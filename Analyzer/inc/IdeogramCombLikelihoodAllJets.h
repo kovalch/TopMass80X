@@ -24,17 +24,17 @@ private:
   double PBKGJES(double *x, double *p, const std::vector<double> &q);
   double PBKGJES1(double *x, double *p);
   
-  std::vector<double> parsBKG_;
-  std::vector<double> parsBKGJES_;
+  static std::vector<double> parsBKG_;
+  static std::vector<double> parsBKGJES_;
 
   double fSig_;
 
-  double PBKGintegral_;
+  static double PBKGintegral_;
   
   typedef std::pair<double,double> ScanPoint;
   typedef std::map<ScanPoint,double> ScanPointMap; 
-  ScanPointMap PWPnormalizations_;
-  ScanPointMap PUNnormalizations_;
+  static ScanPointMap PWPnormalizations_;
+  static ScanPointMap PUNnormalizations_;
 
   static double langau(Double_t *x, Double_t *p) {
     return p[0]*(p[4]*TMath::Landau(x[0],p[1],p[2],true)+(1-p[4])*TMath::Gaus(x[0],p[1],p[3],true));

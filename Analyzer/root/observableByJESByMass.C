@@ -18,76 +18,77 @@
 
 #include "tdrstyle.C"
 
+const int nMass = 7;
+const int nJES  = 3;
+
 int target = 1; // 1: correct, 0: wrong, -10: unmatched
 int obs    = 0; // 0: hadTopMass, 1: hadWRawMass
 int lepton = 1;
 
 int iMassMin = 0;
-int iMassMax = 9;
+int iMassMax = nMass;
 
 bool plotByMass = false;
-bool pas = true;
+bool pas = false;
 
 TString sTarget[] = {"wp", "cp", "un"};
 TString sFObs[]   = {"mt", "mW"};
 TString sObs[]    = {"m_{t}", "m_{W}^{reco}"};
 TString sLepton[] = {"electron", "muon"};
 
-TGraphErrors* gr1[9];
-TGraphErrors* gr2[9];
-TGraphErrors* gr3[9];
-TGraphErrors* gr4[9];
+TGraphErrors* gr1[nMass];
+TGraphErrors* gr2[nMass];
+TGraphErrors* gr3[nMass];
+TGraphErrors* gr4[nMass];
 
-TString sX[9] = {"m_{t,gen} = 161.5 GeV",
-                 "m_{t,gen} = 163.5 GeV",
-                 "m_{t,gen} = 166.5 GeV",
-                 "m_{t,gen} = 169.5 GeV",
-                 "m_{t,gen} = 172.5 GeV",
-                 "m_{t,gen} = 175.5 GeV",
-                 "m_{t,gen} = 178.5 GeV",
-                 "m_{t,gen} = 181.5 GeV",
-                 "m_{t,gen} = 184.5 GeV"};
+TString sX[nMass] = {"m_{t,gen} = 166.5 GeV",
+                     "m_{t,gen} = 169.5 GeV",
+                     "m_{t,gen} = 171.5 GeV",
+                     "m_{t,gen} = 172.5 GeV",
+                     "m_{t,gen} = 173.5 GeV",
+                     "m_{t,gen} = 175.5 GeV",
+                     "m_{t,gen} = 178.5 GeV"};
 
-double X[9] = {161.5, 163.5, 166.5, 169.5, 172.5, 175.5, 178.5, 181.5, 184.5};
-double Y10[9];
-double Y11[9];
-double Y20[9];
-double Y21[9];
-double Y30[9];
-double Y31[9];
+double X  [nMass] = {166.5, 169.5, 171.5, 172.5, 173.5, 175.5, 178.5};
+double Y10[nMass];
+double Y11[nMass];
+double Y20[nMass];
+double Y21[nMass];
+double Y30[nMass];
+double Y31[nMass];
 
-double eX[9] = {1e-12, 1e-12, 1e-12, 1e-12, 1e-12, 1e-12, 1e-12, 1e-12, 1e-12};
-double eY10[9];
-double eY11[9];
-double eY20[9];
-double eY21[9];
-double eY30[9];
-double eY31[9];
+double eX  [nMass] = {1e-12, 1e-12, 1e-12, 1e-12, 1e-12, 1e-12, 1e-12};
+double eY10[nMass];
+double eY11[nMass];
+double eY20[nMass];
+double eY21[nMass];
+double eY30[nMass];
+double eY31[nMass];
 
-double xJES[5] = {0.96, 0.98, 1.00, 1.02, 1.04};
-double y00[5];
-double y01[5];
-double y2[5];
-double y3[5];
-double y4[5];
-double y5[5];
+double xJES[nJES] = {0.96, 1.00, 1.04};
+double y00 [nJES];
+double y01 [nJES];
+double y2  [nJES];
+double y3  [nJES];
+double y4  [nJES];
+double y5  [nJES];
 
-double ex[5] = {1e-12, 1e-12, 1e-12, 1e-12, 1e-12};
-double ey0[5];
-double ey1[5];
-double ey2[5];
-double ey3[5];
-double ey4[5];
-double ey5[5];
-double ey6[5];
+double ex  [nJES] = {1e-12, 1e-12, 1e-12};
+double ey0 [nJES];
+double ey1 [nJES];
+double ey2 [nJES];
+double ey3 [nJES];
+double ey4 [nJES];
+double ey5 [nJES];
+double ey6 [nJES];
 
 double params[12];
 
-enum styles          { kDown, kNominal, kUp};
-int color_   [ 5 ] = { kRed+1, kRed+1, kBlue+1, kGreen+1, kGreen+1};
-int marker_  [ 5 ] = { 23, 23, 20, 22, 22};
-int line_    [ 5 ] = { 7, 7, 1, 9, 9};
-int width_   [ 5 ] = { 2, 2, 3, 2, 2};
+enum styles             { kDown, kNominal, kUp};
+int color_   [ nJES ] = { kRed+1, kBlue+1, kGreen+1};
+int marker_  [ nJES ] = { 23, 20, 22};
+int line_    [ nJES ] = { 7, 1, 9};
+int width_   [ nJES ] = { 2, 3, 2};
 
 void FindParametersMass(int iMass);
 TH1F* FindParameters(TString filename, int i);
@@ -152,8 +153,8 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
   lepton = pLepton;
   
   if (plotByMass || pas) {
-    iMassMin = 4;
-    iMassMax = 5;
+    iMassMin = 3;
+    iMassMax = 4;
   }
   
   setTDRStyle();
@@ -177,7 +178,7 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
   
   cByMass->cd(1);
   
-  TGraphErrors* gr = new TGraphErrors(9,X,Y10,eX,eY10);
+  TGraphErrors* gr = new TGraphErrors(nMass,X,Y10,eX,eY10);
   gr->SetTitle("10");
   gr->Draw("A*");
   //linearFit->SetParNames("p_{#mu}^{const}", "p_{#mu}^{m_{t}}");
@@ -191,7 +192,7 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
   
   cByMass->cd(2);
   
-  gr = new TGraphErrors(9,X,Y11,eX,eY11);
+  gr = new TGraphErrors(nMass,X,Y11,eX,eY11);
   gr->SetTitle("11");
   gr->Draw("A*");
   //linearFit->SetParNames("p_{#mu}^{JES}", "p_{#mu}^{m_{t},JES}");
@@ -204,7 +205,7 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
   
   cByMass->cd(3);
   
-  gr = new TGraphErrors(9,X,Y20,eX,eY20);
+  gr = new TGraphErrors(nMass,X,Y20,eX,eY20);
   gr->SetTitle("20");
   gr->Draw("A*");
   //linearFit->SetParNames("p_{#sigma}^{const}", "p_{#sigma}^{m_{t}}");
@@ -226,7 +227,7 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
   
   cByMass->cd(4);
   
-  gr = new TGraphErrors(9,X,Y21,eX,eY21);
+  gr = new TGraphErrors(nMass,X,Y21,eX,eY21);
   gr->SetTitle("21");
   gr->Draw("A*");
   //linearFit->SetParNames("p_{#sigma}^{JES}", "p_{#sigma}^{m_{t},JES}");
@@ -248,7 +249,7 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
   
   cByMass->cd(5);
   
-  gr = new TGraphErrors(9,X,Y30,eX,eY30);
+  gr = new TGraphErrors(nMass,X,Y30,eX,eY30);
   gr->SetTitle("30");
   gr->Draw("A*");
   gr->Fit("linearFit", "EM");
@@ -269,7 +270,7 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
   
   cByMass->cd(6);
   
-  gr = new TGraphErrors(9,X,Y31,eX,eY31);
+  gr = new TGraphErrors(nMass,X,Y31,eX,eY31);
   gr->SetTitle("31");
   gr->Draw("A*");
   gr->Fit("linearFit", "EM");
@@ -288,7 +289,12 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
     }
   }
   
-  cByMass->Print("../plot/template/bymass.eps");
+  if (!pas) {
+    TString pathByMass("../plot/template/"); pathByMass+= sFObs[obs]; pathByMass += "_bymass";
+    pathByMass += "_"; pathByMass += sTarget[abs(target%8)];
+    pathByMass += "_"; pathByMass += sLepton[lepton]; pathByMass += ".eps";
+    cByMass->Print(pathByMass);
+  }
   
   gStyle->SetOptStat(0);
   gStyle->SetOptFit(0);
@@ -327,11 +333,16 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
   
   leg1->Draw();
   
-  cSetOfCurves->Print("../plot/template/byjes.eps");
+  if (!pas) {
+    TString pathByJES("../plot/template/"); pathByJES+= sFObs[obs]; pathByJES += "_byjes";
+    pathByJES += "_"; pathByJES += sTarget[abs(target%8)];
+    pathByJES += "_"; pathByJES += sLepton[lepton]; pathByJES += ".eps";
+    cSetOfCurves->Print(pathByJES);
+  }
   
   std::cout << "Parameters for IdeogramCombLikelihood.cxx:" << std::endl;
   for (int i=0; i<12; i++) {
-    std::cout << params[i] << ", ";
+    std::cout << params[i] << "|";
   }
   std::cout << std::endl;
   
@@ -354,9 +365,7 @@ void FindParametersMass(int iMass)
 	linearFit->SetParameters(100, 50);
 	
 	TH1F* h096;
-	TH1F* h098;
   TH1F* h100;
-  TH1F* h102;
   TH1F* h104;
   TH1F* h166;
   TH1F* h178;
@@ -364,75 +373,45 @@ void FindParametersMass(int iMass)
   if (!plotByMass) {
     switch(iMass) {
       case 0: {
-        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1615_0.96", 0);
-        h098 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1615_0.98", 1);
-        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1615_1.00", 2);
-        h102 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1615_1.02", 3);
-        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1615_1.04", 4);
+        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1665_0.96", 0);
+        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1665_1.00", 1);
+        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1665_1.04", 2);
         break;
       }
       case 1: {
-        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1635_0.96", 0);
-        h098 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1635_0.98", 1);
-        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1635_1.00", 2);
-        h102 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1635_1.02", 3);
-        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1635_1.04", 4);
+        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1695_0.96", 0);
+        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1695_1.00", 1);
+        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1695_1.04", 2);
         break;
       }
 		  case 2: {
-        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1665_0.96", 0);
-        h098 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1665_0.98", 1);
-        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1665_1.00", 2);
-        h102 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1665_1.02", 3);
-        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1665_1.04", 4);
+        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1715_0.96", 0);
+        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1715_1.00", 1);
+        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1715_1.04", 2);
         break;
       }
 		  case 3: {
-        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1695_0.96", 0);
-        h098 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1695_0.98", 1);
-        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1695_1.00", 2);
-        h102 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1695_1.02", 3);
-        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1695_1.04", 4);
+        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1725_0.96", 0);
+        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1725_1.00", 1);
+        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1725_1.04", 2);
         break;
       }
 		  case 4: {
-        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1725_0.96", 0);
-        h098 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1725_0.98", 1);
-        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1725_1.00", 2);
-        h102 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1725_1.02", 3);
-        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1725_1.04", 4);
+        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1735_0.96", 0);
+        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1735_1.00", 1);
+        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1735_1.04", 2);
         break;
       }
 		  case 5: {
-        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1755_0.96", 0);
-        h098 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1755_0.98", 1);
-        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1755_1.00", 2);
-        h102 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1755_1.02", 3);
-        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1755_1.04", 4);
+        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1755_0.96", 0);
+        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1755_1.00", 1);
+        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1755_1.04", 2);
         break;
       }
 		  case 6: {
-        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1785_0.96", 0);
-        h098 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1785_0.98", 1);
-        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1785_1.00", 2);
-        h102 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1785_1.02", 3);
-        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1785_1.04", 4);
-        break;
-      }
-		  case 7: {
-        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1815_0.96", 0);
-        h098 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1815_0.98", 1);
-        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1815_1.00", 2);
-        h102 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1815_1.02", 3);
-        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1815_1.04", 4);
-        break;
-      }
-		  case 8: {
-        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1845_0.96", 0);
-        h098 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1845_0.98", 1);
-        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1845_1.00", 2);
-        h102 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1845_1.02", 3);
-        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1845_1.04", 4);
+        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1785_0.96", 0);
+        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1785_1.00", 1);
+        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1785_1.04", 2);
         break;
       }
     }
@@ -440,10 +419,8 @@ void FindParametersMass(int iMass)
   else if (plotByMass) {
     std::cout << "PLOT BY MASS" << std::endl;
     h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1665_1.00", 0);
-    h098 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1695_1.00", 1);
-    h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1725_1.00", 2);
-    h102 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1755_1.00", 3);
-    h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1785_1.00", 4);
+    h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1725_1.00", 1);
+    h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1785_1.00", 2);
   }
   else {
     if (obs==0) h166 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1665_1.00", 3);
@@ -519,7 +496,7 @@ void FindParametersMass(int iMass)
   cObservablePar->Divide(4,1);
   
   cObservablePar->cd(1);
-  gr1[iMass] = new TGraphErrors(5,xJES,y01,ex,ey1);
+  gr1[iMass] = new TGraphErrors(nJES,xJES,y01,ex,ey1);
   gr1[iMass]->SetTitle("p1");
   gr1[iMass]->SetLineColor(iMass+1);
   linearFit->SetLineColor(iMass+1);
@@ -537,7 +514,7 @@ void FindParametersMass(int iMass)
   
   
   cObservablePar->cd(2);
-  gr2[iMass] = new TGraphErrors(5,xJES,y2,ex,ey2);
+  gr2[iMass] = new TGraphErrors(nJES,xJES,y2,ex,ey2);
   gr2[iMass]->SetTitle("p2");
   gr2[iMass]->SetLineColor(iMass+1);
   linearFit->SetLineColor(iMass+1);
@@ -556,7 +533,7 @@ void FindParametersMass(int iMass)
   
   
   cObservablePar->cd(3);
-  gr3[iMass] = new TGraphErrors(5,xJES,y3,ex,ey3);
+  gr3[iMass] = new TGraphErrors(nJES,xJES,y3,ex,ey3);
   gr3[iMass]->SetTitle("p3");
   gr3[iMass]->Draw("A*");
   linearFit->SetParameters(100, 50);
@@ -574,7 +551,7 @@ void FindParametersMass(int iMass)
   
   if (target!=1) {
     cObservablePar->cd(4);
-    gr4[iMass] = new TGraphErrors(5,xJES,y4,ex,ey4);
+    gr4[iMass] = new TGraphErrors(nJES,xJES,y4,ex,ey4);
     gr4[iMass]->SetTitle("p4");
     gr4[iMass]->Draw("A*");
     linearFit->SetParameters(100, 50);
@@ -589,11 +566,6 @@ void FindParametersMass(int iMass)
 
 TH1F* FindParameters(TString filename, int i)
 {
-  TString tempfilename = filename;
-  tempfilename += "_"; tempfilename += sLepton[lepton]; tempfilename += "/temp.root";
-  TFile* file = new TFile(tempfilename, "RECREATE");
-  //TTree* eventTree = (TTree*) file->Get("analyzeHitFit/eventTree");
-  
   filename += "_"; filename += sLepton[lepton]; filename += "/job_*.root";
   TChain* eventTree = new TChain("analyzeHitFit/eventTree");
   eventTree->Add(filename);

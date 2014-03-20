@@ -38,79 +38,119 @@ private:
   class MyHistogram{
   public:
     MyHistogram(std::string name_, std::string formulax_, std::string selection_, std::string title, int nBins, double min, double max) :
-      varx(0), vary(0),sel(0),histoweight(0),
-      name(name_), formulax(formulax_), formulay("1."), selection(selection_),CustomHistoWeight("1."),legendHeader(""),
+      varx(0), vary(0), sel(0), histoweight(0),
+      name(name_), selection(selection_),CustomHistoWeight("1."),
+      formulaex({formulax_}), formulaey({"1."}),legendHeader(""),
       plotRangeYMin(-99), plotRangeYMax(-99), plotRangeYRatioMin(po::GetOption<double>("analysisConfig.ratioYMin")),
       plotRangeYRatioMax(po::GetOption<double>("analysisConfig.ratioYMax")),
       data(new TH1F((std::string("hD")+name).c_str(), (std::string("Data")+title).c_str(), nBins, min, max)),
-      histogramDimension(1), dataContainsMC(false), fitGaussToCore(false), logX(false), logY(false)
+      histogramDimension(1), dataContainsMC(false), fitGaussToCore(false), 
+      exportSigVarToRoot(false), logX(false), logY(false)
     {
-    	InitDataHisto();
+
+      SetDataStyle(data);
+    }
+
+    MyHistogram(std::string name_, std::vector<std::string> formulaex_, std::string selection_, std::string title, int nBins, double min, double max) :
+      varx(0), vary(0), sel(0), histoweight(0),
+      name(name_), selection(selection_),CustomHistoWeight("1."),
+      formulaex(formulaex_), formulaey({"1."}),legendHeader(""),
+      data(new TH1F((std::string("hD")+name).c_str(), (std::string("Data")+title).c_str(), nBins, min, max)),
+      histogramDimension(1), dataContainsMC(false), fitGaussToCore(false), 
+      exportSigVarToRoot(false), logX(false), logY(false)
+   {
+      SetDataStyle(data);
     }
 
     MyHistogram(std::string name_, std::string formulax_, std::string formulay_, std::string selection_, std::string title, int x_nBins, double x_min, double x_max, int y_nBins, double y_min, double y_max/*, double y_plotmin =0., double y_plotmax=-1.*/) :
-      varx(0), vary(0),sel(0),histoweight(0),
-      name(name_), formulax(formulax_), formulay(formulay_), selection(selection_),CustomHistoWeight("1."),legendHeader(""),
+      varx(0), vary(0), sel(0), histoweight(0),
+      name(name_), selection(selection_),CustomHistoWeight("1."),
+      formulaex({formulax_}), formulaey({formulay_}),legendHeader(""),
       plotRangeYMin(-99), plotRangeYMax(-99), plotRangeYRatioMin(po::GetOption<double>("analysisConfig.ratioYMin")),
       plotRangeYRatioMax(po::GetOption<double>("analysisConfig.ratioYMax")),
       data(new TH2F((std::string("h2D")+name).c_str(), (std::string("Data")+title).c_str(), x_nBins, x_min, x_max, y_nBins, y_min, y_max)),
-      histogramDimension(2), dataContainsMC(false), fitGaussToCore(false), logX(false), logY(false)
+      histogramDimension(2), dataContainsMC(false), fitGaussToCore(false), 
+      exportSigVarToRoot(false), logX(false), logY(false)
     {
-    	InitDataHisto();
+      SetDataStyle(data);
     }
 
-    void InitDataHisto(){
-    	data->SetLineWidth(1);
-    	data->SetLineColor(kBlack);
-    	data->SetMarkerStyle(20);
-    	data->SetMarkerColor(kBlack);
+    MyHistogram(std::string name_, std::vector<std::string> formulaex_, std::vector<std::string> formulaey_, std::string selection_, std::string title, int x_nBins, double x_min, double x_max, int y_nBins, double y_min, double y_max/*, double y_plotmin =0., double y_plotmax=-1.*/) :
+      varx(0), vary(0), sel(0), histoweight(0),
+      name(name_), selection(selection_),CustomHistoWeight("1."),
+      formulaex(formulaex_), formulaey(formulaey_),legendHeader(""),
+      plotRangeYMin(-99), plotRangeYMax(-99), plotRangeYRatioMin(po::GetOption<double>("analysisConfig.ratioYMin")),
+      plotRangeYRatioMax(po::GetOption<double>("analysisConfig.ratioYMax")),
+      data(new TH2F((std::string("h2D")+name).c_str(), (std::string("Data")+title).c_str(), x_nBins, x_min, x_max, y_nBins, y_min, y_max)),
+      histogramDimension(2), dataContainsMC(false), fitGaussToCore(false), 
+      exportSigVarToRoot(false), logX(false), logY(false)
+   {
+      SetDataStyle(data);
+    }
+
+
+    void SetDataStyle(TH1* data){
+      data->SetLineWidth(1);
+      data->SetLineColor(kBlack);
+      data->SetMarkerStyle(20);
+      data->SetMarkerColor(kBlack);
     }
 
     void Init(TChain* chain, std::string topBranchName, std::string replaceVar)
     {
-      boost::replace_all(formulax,          "top.", topBranchName);
-      boost::replace_all(formulay,          "top.", topBranchName);
+      for(auto& formulax : formulaex)
+        boost::replace_all(formulax,        "top.", topBranchName);
+      for(auto& formulay : formulaey)
+        boost::replace_all(formulay,        "top.", topBranchName);
       boost::replace_all(selection,         "top.", topBranchName);
       boost::replace_all(CustomHistoWeight, "top.", topBranchName);
-      std::string tempformulax = formulax;
-      std::string tempformulay = formulay;
+      std::vector<std::string> tempformulax = formulaex;
+      std::vector<std::string> tempformulay = formulaey;
       std::string tempCustomHistoWeight = CustomHistoWeight;
       //re-initialize varx/vary if needed
       if(replaceVar!=""){
     	  std::vector<std::string> vsPars;
     	  boost::split(vsPars, replaceVar, boost::is_any_of("|"));
     	  assert(vsPars.size()==2);
-    	  boost::replace_all(formulax,  vsPars.at(0), vsPars.at(1));
-    	  boost::replace_all(formulay,  vsPars.at(0), vsPars.at(1));
+    	  for(auto& formulax : formulaex) boost::replace_all(formulax,  vsPars.at(0), vsPars.at(1));
+    	  for(auto& formulay : formulaey) boost::replace_all(formulay,  vsPars.at(0), vsPars.at(1));
     	  boost::replace_all(CustomHistoWeight,  vsPars.at(0), vsPars.at(1));
       }
-      varx = new TTreeFormula((std::string("fx")+name).c_str(), formulax.c_str() , chain);
-      vary = new TTreeFormula((std::string("fy")+name).c_str(), formulay.c_str() , chain);
+      varx.clear(); vary.clear();
+      for(auto& formulax : formulaex) varx.push_back(new TTreeFormula((std::string("fx")+name).c_str(), formulax.c_str() , chain));
+      for(auto& formulay : formulaey) vary.push_back(new TTreeFormula((std::string("fy")+name).c_str(), formulay.c_str() , chain));
       histoweight = new TTreeFormula((std::string("h_weight")+name).c_str(), CustomHistoWeight.c_str() , chain);
-      formulax = tempformulax;
-      formulay = tempformulay;
+      formulaex = tempformulax;
+      formulaey = tempformulay;
       CustomHistoWeight = tempCustomHistoWeight;
-      if(varx->GetNdim() == 0 || vary->GetNdim() == 0){
-        SetInvalid();
+      for(auto& var : varx){
+        if(var->GetNdim() == 0){
+          SetInvalid();
+        }
+      }
+      for(auto& var : vary){
+        if(var->GetNdim() == 0){
+          SetInvalid();
+        }
       }
       if (selection.size() > 0) sel = new TTreeFormula((std::string("s")+name).c_str(), selection.c_str(), chain);
     }
     void SetupData(MySample* sample)
     {
         data->SetLineColor(sample->color);
-//        data->SetFillColor(sample->color);
+        //data->SetFillColor(sample->color);
         data->SetMarkerColor(sample->color);
         data->SetTitle(sample->name.c_str());
         std::size_t found = sample->name.find("Data");
         if (found==std::string::npos){
         	dataContainsMC=true;
-//        	std::cout << "sample defined as data is assumed to contain MC" << std::endl;
+        	//std::cout << "sample defined as data is assumed to contain MC" << std::endl;
         }
     }
     void AddSignal(MySample* sample)
     {
-      int colorShift[] =  {-11, -8, 0};
-      std::string combinationType[] = {" unmatched", " wrong", " correct"};
+      int colorShift[] =  {0, -8, -11};
+      std::string combinationType[] = {" correct", " wrong", " unmatched"};
       for(int i = 0; i < 3; ++i) {
         sig.push_back((TH1*)data->Clone());
         sig.back()->Reset();
@@ -199,7 +239,7 @@ private:
     }
 
     bool DataContainsMC(){
-    	return dataContainsMC;
+      return dataContainsMC;
     }
 
     void ConfigureExtraOptions(bool SetFitGaussToCore, std::string SetCustomHistoweight="1.", bool ExportSigVarToRoot = false, std::string LegendHeader="", bool useLogXBins = false, bool setLogYOnPads = false, bool useLogYBins = false);
@@ -208,11 +248,11 @@ private:
 
 
     void SetFitGaussToCore(){
-    	fitGaussToCore = true;
+      fitGaussToCore = true;
     }
 
     bool FitGaussToCore(){
-    	return fitGaussToCore;
+      return fitGaussToCore;
     }
 
     bool ExportSigVarToRoot(){
@@ -228,11 +268,13 @@ private:
     }
 
 
-    TTreeFormula* varx;
-    TTreeFormula* vary;
+    std::vector<TTreeFormula*> varx;
+    std::vector<TTreeFormula*> vary;
     TTreeFormula* sel;
     TTreeFormula* histoweight;
-    std::string name, formulax, formulay, selection, CustomHistoWeight, legendHeader;
+    std::string name, selection, CustomHistoWeight;
+    std::vector<std::string> formulaex, formulaey;
+    std::string legendHeader;
     double plotRangeYMin, plotRangeYMax, plotRangeYRatioMin, plotRangeYRatioMax;
   private:
     TH1 *data;
@@ -500,15 +542,12 @@ private:
 
 
     }
-    
 
     std::vector<std::string> varNames;
     std::vector<std::string> varForms;
     std::vector<float> xMins;
     std::vector<float> xMaxs;
     std::vector<std::string> CummulativeVars;
-
-
 
   };
 

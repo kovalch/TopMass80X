@@ -24,33 +24,51 @@ TopMass::TopMass() :
   
   std::vector<float> vBinning;
   
-  if (!strcmp(fBinning_.c_str(),"deltaThetaHadWHadB")) {
-    vBinning = {0, float(M_PI)};
+  if (!strcmp(fBinning_.c_str(),"top.fitTop1.Pt()")) {
+    vBinning = {0, 50, 100, 150, 200, 400};
   }
-  else if (!strcmp(fBinning_.c_str(),"hadTopPt")) {
-    vBinning = {0, 50, 75, 100, 125, 150, 200, 400};
+  else if (!strcmp(fBinning_.c_str(),"top.fitTop1.Eta()")) {
+    vBinning = {0, 0.5, 1, 2, 4};
   }
-  else if (!strcmp(fBinning_.c_str(),"hadTopEta")) {
-    vBinning = {-5, -2, -1, -0.3, 0.3, 1, 2, 5};
+  else if (!strcmp(fBinning_.c_str(),"top.fitW1.Pt()")) {
+    vBinning = {0, 50, 100, 150, 200, 400};
   }
-  else if (!strcmp(fBinning_.c_str(),"hadBPt")) {
-    vBinning = {0, 50, 75, 100, 125, 400};
+  else if (!strcmp(fBinning_.c_str(),"top.fitW1.Eta()")) {
+    vBinning = {0, 0.5, 1, 2, 4};
   }
-  else if (!strcmp(fBinning_.c_str(),"hadBEta")) {
-    vBinning = {-2.5, -1, -0.3, 0.3, 1, 2.5};
+  else if (!strcmp(fBinning_.c_str(),"top.fitB1.Pt()")) {
+    vBinning = {30, 50, 75, 100, 150, 250};
   }
-  else if (!strcmp(fBinning_.c_str(),"TTBarMass")) {
-    vBinning = {200, 400, 450, 500, 550, 700 ,1000};
+  else if (!strcmp(fBinning_.c_str(),"top.fitB1.Eta()")) {
+    vBinning = {0, 0.5, 1, 2.4};
   }
-  else if (!strcmp(fBinning_.c_str(),"TTBarPt")) {
-    vBinning = {0, 20, 30, 40, 50, 100, 250};
+  else if (!strcmp(fBinning_.c_str(),"top.fitW1Prod1.Pt()")) {
+    vBinning = {30, 50, 75, 100, 150, 250};
   }
-  else if (!strcmp(fBinning_.c_str(),"deltaRHadQHadQBar")) {
-    vBinning = {0.5, 1.25, 1.5, 1.75, 2, 3, 6};
+  else if (!strcmp(fBinning_.c_str(),"top.fitW1Prod1.Eta()")) {
+    vBinning = {0, 0.5, 1, 2.4};
   }
-  else if (!strcmp(fBinning_.c_str(),"deltaRHadBLepB")) {
-    vBinning = {0.5, 1.25, 2, 2.5, 3, 6};
+  else if (!strcmp(fBinning_.c_str(),"top.fitTTBar.M()")) {
+    vBinning = {200, 400, 500, 600, 700 ,1000, 1500};
   }
+  else if (!strcmp(fBinning_.c_str(),"top.fitTTBar.Pt()")) {
+    vBinning = {0, 20, 40, 60, 100, 160};
+  }
+  else if (!strcmp(fBinning_.c_str(),"sqrt(pow(top.fitW1Prod1.Eta()-top.fitW1Prod2.Eta(),2) + pow(TVector2::Phi_mpi_pi(top.fitW1Prod1.Phi()-top.fitW1Prod2.Phi()),2))")) {
+    vBinning = {0.5, 1, 2, 3, 6};
+  }
+  else if (!strcmp(fBinning_.c_str(),"sqrt(pow(top.fitB1.Eta()-top.fitB2.Eta(),2) + pow(TVector2::Phi_mpi_pi(top.fitB1.Phi()-top.fitB2.Phi()),2))")) {
+    vBinning = {0.5, 1, 2, 3, 6};
+  }
+  else if (!strcmp(fBinning_.c_str(),"top.fitB1.Pt()+top.fitB1.Pt()+top.fitW1Prod1.Pt()+top.fitW1Prod2.Pt()")) {
+    vBinning = {100, 200, 300, 400, 500, 600};
+  }
+  else if (!strcmp(fBinning_.c_str(),"jet.@jet.size()")) {
+    vBinning = {3.5, 4.5, 5.5, 6.5};
+  }
+  
+  
+  
   else if (!strcmp(fBinning_.c_str(),"topMass")) {
     vBinning = {100, 550};
   }
@@ -60,8 +78,8 @@ TopMass::TopMass() :
   else if (!strcmp(fBinning_.c_str(),"bRegTop.fitTop1[0].M()")) {
     vBinning = {100, 550};
   }
-  else if (!strcmp(fBinning_.c_str(),"nVertex")) {
-    vBinning = {0, 10, 20, 40};
+  else if (!strcmp(fBinning_.c_str(),"weight.nVertex")) {
+    vBinning = {0, 10, 15, 20, 25, 40};
   }
   else{
     std::cerr << "Stopping analysis! Binning " << fBinning_.c_str() << " not defined" <<std::endl;

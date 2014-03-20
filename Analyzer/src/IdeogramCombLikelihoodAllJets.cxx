@@ -4,18 +4,21 @@
 
 #include <stdlib.h>
 
-#include <boost/algorithm/string/split.hpp>
-#include <boost/algorithm/string/classification.hpp>
-
 #include "TF1.h"
 
 typedef ProgramOptionsReader po;
 
+std::vector<double> IdeogramCombLikelihoodAllJets::parsBKG_(0);
+std::vector<double> IdeogramCombLikelihoodAllJets::parsBKGJES_(0);
+
+double IdeogramCombLikelihoodAllJets::PBKGintegral_(-1);
+IdeogramCombLikelihoodAllJets::ScanPointMap IdeogramCombLikelihoodAllJets::PWPnormalizations_;
+IdeogramCombLikelihoodAllJets::ScanPointMap IdeogramCombLikelihoodAllJets::PUNnormalizations_;
+
 IdeogramCombLikelihoodAllJets::IdeogramCombLikelihoodAllJets() :
-  parsBKG_  (0), parsBKGJES_(0),
-  fSig_(-1.),
-  PBKGintegral_(-1)
+  fSig_(-1.)
   {
+  bool onlyCP = false;
 
   // parameters for mTop background
   if(!parsBKG_.size()){
@@ -28,41 +31,45 @@ IdeogramCombLikelihoodAllJets::IdeogramCombLikelihoodAllJets() :
   if(!parsBKGJES_.size())
     parsBKGJES_ = readParameters("templates.parsBKGJES");
 
-  if(fSig_ == -1) fSig_ = po::GetOption<double>("templates.fSig");
-
+  if (onlyCP) {
+    fCP_ = 1;
+    fWP_ = 0;
+    fUN_ = 0;
+  }
 }
 
 double IdeogramCombLikelihoodAllJets::Evaluate(double *x, double *p) {
   bool useCalib   = true;
-  bool onlyCP     = false;
   bool onlySIG    = false;
-  bool fSigOfMtop = false;
+  //bool fSigOfMtop = false;
   
-  fCP_ -= 0.5*p[5];
-  fWP_ -= 0.5*p[5];
-  fUN_ += p[5];
-
-  if (onlyCP) {
-    fWP_ = 0;
-    fUN_ = 0;
+  // for IdeogramMinimizer
+  if (useFixedParams_) {
+    double ep[7];
+    for (int i = 0; i < 7; ++i) {
+      ep[i] = fp_[i];
+    }
+    p = ep;
   }
   
-  if(onlySIG){
-    fSig_ = 1.;
+  if(p[5]){
+    fCP_ -= 0.5*p[5];
+    fWP_ -= 0.5*p[5];
+    fUN_ += p[5];
   }
 
-  if(fSigOfMtop){
-    double a0    = -0.00464347142282148;   // CSVT, P(chi2) weighted
-    double a1    =  0.0000348026883089243; // CSVT, P(chi2) weighted
-    double b0    =  477200000000; // <- Ahrens //  497700000000; // <- Kidonakis //  501000000000; // <- Langenfeld // 
-    double b1    = -3322000000;  // <- Ahrens //  -3375000000;  // <- Kidonakis //  -3385000000;  // <- Langenfeld // 
-    double b2    =  10050000;   // <- Ahrens //    9625000;    // <- Kidonakis //    9553000;    // <- Langenfeld // 
-    double b3    = -12340;     // <- Ahrens //    -10770;     // <- Kidonakis //    -10470;     // <- Langenfeld // 
-    double Lint  = 3544.844;
-    double Ndata = 2418.*0.437638;
-
-    fSig_ = (a0+a1*x[0])*(b0+b1*x[0]+b2*pow(x[0],2)+b3*pow(x[0],3))/pow(x[0],4)*Lint/Ndata;
-  }
+  //if(fSigOfMtop){
+  //  double a0    = -0.00464347142282148;   // CSVT, P(chi2) weighted
+  //  double a1    =  0.0000348026883089243; // CSVT, P(chi2) weighted
+  //  double b0    =  477200000000; // <- Ahrens //  497700000000; // <- Kidonakis //  501000000000; // <- Langenfeld //
+  //  double b1    = -3322000000;  // <- Ahrens //  -3375000000;  // <- Kidonakis //  -3385000000;  // <- Langenfeld //
+  //  double b2    =  10050000;   // <- Ahrens //    9625000;    // <- Kidonakis //    9553000;    // <- Langenfeld //
+  //  double b3    = -12340;     // <- Ahrens //    -10770;     // <- Kidonakis //    -10470;     // <- Langenfeld //
+  //  double Lint  = 3544.844;
+  //  double Ndata = 2418.*0.437638;
+  //
+  //  fSig_ = (a0+a1*x[0])*(b0+b1*x[0]+b2*pow(x[0],2)+b3*pow(x[0],3))/pow(x[0],4)*Lint/Ndata;
+  //}
 
   if (useCalib) {
 
@@ -75,41 +82,32 @@ double IdeogramCombLikelihoodAllJets::Evaluate(double *x, double *p) {
       x[0] = m0 + massOffset_[i] + massSlopeMass_[i]*(m0-172.5) + massSlopeJES_[i]*(j0-1.) + massSlopeMassJES_[i]*(m0-172.5)*(j0-1.);
       x[1] = j0 +  jesOffset_[i] +  jesSlopeMass_[i]*(m0-172.5) +  jesSlopeJES_[i]*(j0-1.) +  jesSlopeMassJES_[i]*(m0-172.5)*(j0-1.);
     }
-
-    //double MassOffset0       = 0.; // 3.31715e-01;
-    //double MassSlopeMass0    = 0.; // 8.22606e-03;
-    //double MassSlopeJES0     = 0.; // 4.60359e-01;
-    //double MassSlopeMassJES0 = 0.; //-2.22772e-01;
-    //
-    //double JESOffset0        = 0.; //-8.78984e-04;
-    //double JESSlopeMass0     = 0.; //-4.66983e-05;
-    //double JESSlopeJES0      = 0.; //-5.75365e-02;
-    //double JESSlopeMassJES0  = 0.; // 1.56276e-03;
-    //
-    //double m0 = x[0];
-    //double j0 = x[1];
-    //
-    //double j1 = j0 +  JESOffset0 +  JESSlopeMass0*(m0-172.5) +  JESSlopeJES0*(j0-1.) +  JESSlopeMassJES0*(m0-172.5)*(j0-1.);
-    //double m1 = m0 + MassOffset0 + MassSlopeMass0*(m0-172.5) + MassSlopeJES0*(j0-1.) + MassSlopeMassJES0*(m0-172.5)*(j0-1.);
-    //
-    //// do additional FastSim calibration if p[6] == 1 (command line parameter -F 1)
-    //double MassOffset1       = (p[6] == 1) ?  1.83190 : 0.;
-    //double MassSlopeMass1    = 0.;
-    //double MassSlopeJES1     = (p[6] == 1) ? -5.36113 : 0.;
-    //double MassSlopeMassJES1 = 0.;
-	//
-    //double JESOffset1        = (p[6] == 1) ? -2.11957e-02 : 0.;
-    //double JESSlopeMass1     = 0.;
-    //double JESSlopeJES1      = (p[6] == 1) ?  3.15759e-02 : 0.;
-    //double JESSlopeMassJES1  = 0.;
-    //
-    //x[1] = j1 +  JESOffset1 +  JESSlopeMass1*(m1-172.5) +  JESSlopeJES1*(j1-1.) +  JESSlopeMassJES1*(m1-172.5)*(j1-1.);
-    //x[0] = m1 + MassOffset1 + MassSlopeMass1*(m1-172.5) + MassSlopeJES1*(j1-1.) + MassSlopeMassJES1*(m1-172.5)*(j1-1.);
   }
-  
+
+  if(onlySIG){
+    fSig_ = 1.;
+  }
+  else{
+    fSig_ = x[2];
+  }
+
+  if(fSig_ == -1){
+    fSig_ = po::GetOption<double>("templates.fSig");
+  }
+
+  fCP_ = x[3];
+  if(!fUN_)
+    fWP_ = 1.0-x[3];
+  else{
+    static double rfWP = fWP_/(fUN_+fWP_);
+    static double rfUN = fUN_/(fUN_+fWP_);
+    fWP_ = rfWP*(1.0-x[3]);
+    fUN_ = rfUN*(1.0-x[3]);
+  }
+
   return p[0] * (fSig_ * (fCP_ * PCP (x,p) * (PCPJES1 (x,p))
 		               +  fWP_ * PWP (x,p) * (PWPJES1 (x,p))
-		               +  fUN_ * PUN (x,p) * (PUNJES1 (x,p)))
+     +  ((fUN_==0) ? 0 : (fUN_ * PUN (x,p) * (PUNJES1 (x,p)))) )
 	       + (1.-fSig_)        * PBKG(x,p) * (PBKGJES1(x,p)));
 }
 
@@ -147,8 +145,8 @@ double IdeogramCombLikelihoodAllJets::PWP(double* x, double* p)
     //TF1 func = TF1("func", langau, 100., 550., 5);
     TF1 func = TF1("func", lanvog, 100., 550., 6);
     func.SetParameters(funcPars);
-    currentNormalization = func.Integral(100.,550.);
-    PWPnormalizations_[currentPoint] = 1. / currentNormalization;
+    currentNormalization = 1. / func.Integral(100.,550.);
+    PWPnormalizations_[currentPoint] = currentNormalization;
   }
   else{
     currentNormalization = iter->second;
@@ -178,8 +176,8 @@ double IdeogramCombLikelihoodAllJets::PUN(double* x, double* p)
     //TF1 func = TF1("func", langau, 100., 550., 5);
     TF1 func = TF1("func", lanvog, 100., 550., 6);
     func.SetParameters(funcPars);
-    currentNormalization = func.Integral(100.,550.);
-    PUNnormalizations_[currentPoint] = 1. / currentNormalization;
+    currentNormalization = 1. / func.Integral(100.,550.);
+    PUNnormalizations_[currentPoint] = currentNormalization;
   }
   else{
     currentNormalization = iter->second;
@@ -220,19 +218,16 @@ double IdeogramCombLikelihoodAllJets::PJES(double* x, double* p, const std::vect
   double sigma1 = q[4] + q[5] * (x[0]-172.5) + (q[6]  + q[7]  * (x[0]-172.5)) * (x[1]-1.);
   double sigma2 = q[8] + q[9] * (x[0]-172.5) + (q[10] + q[11] * (x[0]-172.5)) * (x[1]-1.);
    
-  double t1     =  (p[2] - mu) / sigma1;
-  double t2     =  (p[2] - mu) / sigma2;
+  double t1 = (p[2] - mu) / sigma1;
+  double t2 = (p[2] - mu) / sigma2;
   
-  static const double sqrt2 = sqrt(2);
-  double N1     =  sqrt2*sigma1;
-  double N2     =  sqrt2*sigma2;
-  
-  double N = (N1+N2)/2.;
+  static const double sqrt2 = sqrt(2.0);
+  double N = sqrt2/(sigma1+sigma2);
   
   if(t1 < 0)
-    return 1./N * TMath::Exp(-t1*t1/2);
+    return N * TMath::Exp(-t1*t1/2);
   else
-    return 1./N * TMath::Exp(-t2*t2/2);
+    return N * TMath::Exp(-t2*t2/2);
 }
 
 double IdeogramCombLikelihoodAllJets::PBKG(double *x, double *p)
@@ -244,7 +239,7 @@ double IdeogramCombLikelihoodAllJets::PBKG(double *x, double *p)
 
   if(q[6] < 0.){
     TF1 funcGamma = TF1("funcGamma", gamma, 100., 550., 3);
-    funcGamma.SetParameter(0, q[1]);
+    funcGamma.SetParameter(0, p[4]*q[1]);
     funcGamma.SetParameter(1, q[2]);
     funcGamma.SetParameter(2, q[3]);
     q[6] = funcGamma.Integral(100.,550.);
@@ -258,12 +253,12 @@ double IdeogramCombLikelihoodAllJets::PBKG(double *x, double *p)
 
   if(PBKGintegral_ < 0.){
     TF1 func = TF1("func", gammaland, 100., 550., 8);
-    q.at(1) = p[4]*q.at(1);
-    func.SetParameters(&q.at(0));
+    q[1] = p[4]*q[1];
+    func.SetParameters(&q[0]);
     PBKGintegral_ = 1. / func.Integral(100.,550.);
   }
 
-  return PBKGintegral_*gammaland(&p[1],&q.at(0));
+  return PBKGintegral_*gammaland(&p[1],&q[0]);
 }
 
 double IdeogramCombLikelihoodAllJets::PBKGJES1(double *x, double *p)
@@ -281,19 +276,16 @@ double IdeogramCombLikelihoodAllJets::PBKGJES(double *x, double *p, const std::v
   double sigma1 = q[1];
   double sigma2 = q[2];
    
-  double t1     =  (p[2] - mu) / sigma1;
-  double t2     =  (p[2] - mu) / sigma2;
+  double t1 = (p[2] - mu) / sigma1;
+  double t2 = (p[2] - mu) / sigma2;
   
   static const double sqrt2 = sqrt(2);
-  double N1     =  sqrt2*sigma1;
-  double N2     =  sqrt2*sigma2;
-  
-  double N = (N1+N2)/2.;
+  double N = sqrt2/(sigma1+sigma2);
   
   if(t1 < 0)
-    return 1./N * TMath::Exp(-t1*t1/2);
+    return N * TMath::Exp(-t1*t1/2);
   else
-    return 1./N * TMath::Exp(-t2*t2/2);
+    return N * TMath::Exp(-t2*t2/2);
 }
 
 IdeogramCombLikelihoodAllJets::~IdeogramCombLikelihoodAllJets()

@@ -1,15 +1,18 @@
+#include <map>
 #include <string>
+#include <vector>
 
-#include "TH1F.h"
 #include "TTree.h"
 
+class TH1F;
 class MassAnalyzer;
 class RandomSubsetCreator;
 
 class Analysis {
  private:
 
-  const std::string samplePath_, fIdentifier_, fMethod_, fBinning_;
+  const std::string samplePath_, fIdentifier_, fMethod_;
+  std::string fBinning_;
   const std::vector<float> vBinning_;
   const int fChannelID_, fMethodID_;
   MassAnalyzer* fAnalyzer_;

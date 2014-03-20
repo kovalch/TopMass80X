@@ -37,8 +37,9 @@ public:
 
   enum channelID {kAllJets, kMuonJets, kElectronJets, kLeptonJets, kMaxChannels};
   static int channelID();
-  enum methodID {kGenMatch, kMVA, kIdeogram, kIdeogramNew, kRooFit, kMaxMethods};
+  enum methodID {kGenMatch, kMVA, kIdeogram, kIdeogramNew, kIdeogramMin, kRooFit, kMaxMethods};
   static int methodID();
+  static int getCMSEnergy();
   std::vector<double> readParameters(const char *whichParameter);
   std::vector<std::string> readParametersString(const char *whichParameter);
 };

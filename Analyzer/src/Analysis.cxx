@@ -5,6 +5,7 @@
 #include <csignal>
 
 #include "TCanvas.h"
+#include "TH1F.h"
 #include "TROOT.h"
 #include "TString.h"
 
@@ -12,6 +13,7 @@
 #include "Helper.h"
 #include "IdeogramAnalyzer.h"
 #include "IdeogramAnalyzerNewInterface.h"
+#include "IdeogramAnalyzerMinimizer.h"
 #include "MVAAnalyzer.h"
 #include "ProgramOptionsReader.h"
 #include "RandomSubsetCreatorLeptonJets.h"
@@ -41,7 +43,7 @@ Analysis::~Analysis()
   }
   histograms_.clear();
   //delete fTree_; // deletion is taken care of by MassAnalyzer
-  if (fMethodID_ == Helper::kIdeogramNew) delete fAnalyzer_;
+  if (fMethodID_ == Helper::kIdeogramNew || fMethodID_ == Helper::kIdeogramMin) delete fAnalyzer_;
   delete fCreator_;
 }
 
@@ -51,25 +53,20 @@ void Analysis::Analyze() {
 
   // random subset creation
   if(!fCreator_){
-    if (fChannelID_ == Helper::kElectronJets || fChannelID_ == Helper::kMuonJets || fChannelID_ == Helper::kLeptonJets) {
-      if (fMethodID_ == Helper::kIdeogramNew) {
-        fCreator_ = new RandomSubsetCreatorNewInterface(vBinning_);
-      }
-      else{
+    if (fMethodID_ == Helper::kIdeogramNew || fMethodID_ == Helper::kIdeogramMin) {
+      fCreator_ = new RandomSubsetCreatorNewInterface(vBinning_);
+    }
+    else{
+      if (fChannelID_ == Helper::kElectronJets || fChannelID_ == Helper::kMuonJets || fChannelID_ == Helper::kLeptonJets) {
         fCreator_ = new RandomSubsetCreatorLeptonJets();
       }
-    }
-    else if (fChannelID_ == Helper::kAllJets) {
-      if (fMethodID_ == Helper::kIdeogramNew) {
-        fCreator_ = new RandomSubsetCreatorNewInterface(vBinning_);
-      }
-      else{
+      else if (fChannelID_ == Helper::kAllJets) {
         fCreator_ = new RandomSubsetCreatorAllJets();
       }
-    }
-    else {
-      std::cerr << "Stopping analysis! Specified decay channel *" << po::GetOption<std::string>("channel") << "* not known!" << std::endl;
-      return;
+      else {
+        std::cerr << "Stopping analysis! Specified decay channel *" << po::GetOption<std::string>("channel") << "* not known!" << std::endl;
+        return;
+      }
     }
   }
   fTree_ = fCreator_->CreateRandomSubset();
@@ -78,6 +75,7 @@ void Analysis::Analyze() {
   else if (fMethodID_ == Helper::kMVA        ) fAnalyzer_ = new MVAAnalyzer                 (fIdentifier_, fTree_);
   else if (fMethodID_ == Helper::kIdeogram   ) fAnalyzer_ = new IdeogramAnalyzer            (fIdentifier_, fTree_);
   else if (fMethodID_ == Helper::kIdeogramNew) { if(!fAnalyzer_) { fAnalyzer_ = new IdeogramAnalyzerNewInterface(fIdentifier_, fTree_); } }
+  else if (fMethodID_ == Helper::kIdeogramMin) { if(!fAnalyzer_) { fAnalyzer_ = new IdeogramAnalyzerMinimizer   (fIdentifier_, fTree_); } }
   else if (fMethodID_ == Helper::kRooFit     ) fAnalyzer_ = new RooFitTemplateAnalyzer      (fIdentifier_, fTree_);
   else {
     std::cerr << "Stopping analysis! Specified analysis method *" << fMethod_ << "* not known!" << std::endl;
@@ -94,13 +92,14 @@ void Analysis::Analyze() {
   for(unsigned int i = 0; i < vBinning_.size()-1; ++i) {
     // FIXME binning not yet implemented, still needs some implementation ...
     
-    //FIXME Entries per bin
+    // FIXME Entries per bin
     int entries = ((RandomSubsetCreatorNewInterface*)fCreator_)->GetDataSample().nEvents;
     CreateHisto("Entries");
     GetH1("Entries")->SetBinContent(i+1, 10+i);
 
     if (entries > 25) {
-      if (fMethodID_ == Helper::kIdeogramNew) ((IdeogramAnalyzerNewInterface*)fAnalyzer_)->SetDataSample(((RandomSubsetCreatorNewInterface*)fCreator_)->GetDataSample());
+      if      (fMethodID_ == Helper::kIdeogramMin) ((IdeogramAnalyzerMinimizer   *)fAnalyzer_)->SetDataSample(((RandomSubsetCreatorNewInterface*)fCreator_)->GetDataSample());
+      else if (fMethodID_ == Helper::kIdeogramNew) ((IdeogramAnalyzerNewInterface*)fAnalyzer_)->SetDataSample(((RandomSubsetCreatorNewInterface*)fCreator_)->GetDataSample());
       fAnalyzer_->Analyze("", i+1, 0);
       const std::map<std::string, std::pair<double, double>> values = fAnalyzer_->GetValues();
 
@@ -142,28 +141,22 @@ void Analysis::Analyze() {
   GetH1("mass_mTop_JES")->Fit("pol0");
 
   canvas->cd(3);
-  GetH1("mass_mTop_JES_Error")->Draw("E1");
-  GetH1("mass_mTop_JES_Error")->SetAxisRange(0.05, 5, "Z");
-  GetH1("mass_mTop_JES_Error")->Fit("pol0");
+  GetH1("JES_mTop_JES")->Draw("E1");
+  GetH1("JES_mTop_JES")->SetAxisRange(GetH1("JES_mTop_JES")->GetMinimum(0.05)-0.01, GetH1("JES_mTop_JES")->GetMaximum()+0.01, "Z");
+  GetH1("JES_mTop_JES")->Fit("pol0");
   
-  /*
   canvas->cd(4);
-  hJES->Draw("E1");
-  hJES->Fit("pol0");
-  */
-  // clean binning to give a proper path
-  TString binningForPath = fBinning_;
-  binningForPath.ReplaceAll("[","_"); binningForPath.ReplaceAll("]","_"); binningForPath.ReplaceAll("(","_"); binningForPath.ReplaceAll(")","_");
-  binningForPath.ReplaceAll(".","_"); binningForPath.ReplaceAll("/","_");
-  TString localIdentifier = fIdentifier_; localIdentifier.ReplaceAll("*","_"); localIdentifier.ReplaceAll("/","_");
-  std::string path("plot/"); path += fMethod_; path += "_"; path += localIdentifier; path += "_"; path += binningForPath; path += ".eps";
+  GetH1("mass_mTop")->Draw("E1");
+  GetH1("mass_mTop")->SetAxisRange(GetH1("mass_mTop")->GetMinimum(0.05)-1., GetH1("mass_mTop")->GetMaximum()+1, "Z");
+  GetH1("mass_mTop")->Fit("pol0");
+
+  std::string path("plot/"); path += fMethod_; path += "_"; path += HelperFunctions::cleanedName(fIdentifier_); path += "_"; path += HelperFunctions::cleanedName(fBinning_); path += ".eps";
+  canvas->Print(path.c_str());
+  boost::replace_all(path,".eps",".root");
   canvas->Print(path.c_str());
   
-  std::string pathr("plot/"); pathr += fMethod_; pathr += "_"; pathr += localIdentifier; pathr += "_"; pathr += binningForPath; pathr += ".root";
-  canvas->Print(pathr.c_str());
-  
   delete canvas;
-  if (fMethodID_ != Helper::kIdeogramNew) delete fAnalyzer_;
+  if (fMethodID_ != Helper::kIdeogramNew && fMethodID_ != Helper::kIdeogramMin) delete fAnalyzer_;
 }
 
 void Analysis::CreateHisto(std::string name) {

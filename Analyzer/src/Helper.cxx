@@ -35,12 +35,18 @@ int Helper::methodIDFromString(const std::string& method)
   else if (!strcmp(method.c_str(), "MVA"        )) return kMVA;
   else if (!strcmp(method.c_str(), "Ideogram"   )) return kIdeogram;
   else if (!strcmp(method.c_str(), "IdeogramNew")) return kIdeogramNew;
+  else if (!strcmp(method.c_str(), "IdeogramMin")) return kIdeogramMin;
   else if (!strcmp(method.c_str(), "RooFit"     )) return kRooFit;
   else {
     std::cerr << "Stopping analysis! Specified analysis method *" << method << "* not known!" << std::endl;
     exit(1);
     return kMaxMethods;
   }
+}
+
+int Helper::getCMSEnergy()
+{
+  return po::GetOption<int>("cmsenergy");
 }
 
 TH1F* Helper::GetH1(const std::string& title) {
@@ -255,19 +261,19 @@ void Helper::DrawCMS(int channelID, int energy) {
       else if(channelID == kMuonJets    ) DrawLabel("PRIVATE WORK,  #sqrt{s} = 8 TeV, #mu+jets", 0.2, 0.93, 0.9);
     }
     else if(po::GetOption<int>("preliminary") == 2){
-      if     (channelID == kAllJets     ) DrawLabel("PRIVATE WORK, 18.3 fb^{-1},  #sqrt{s} = 8 TeV"         , 0.2, 0.93, 0.9);
+      if     (channelID == kAllJets     ) DrawLabel("PRIVATE WORK, 18.2 fb^{-1},  #sqrt{s} = 8 TeV"         , 0.2, 0.93, 0.9);
       else if(channelID == kLeptonJets  ) DrawLabel("PRIVATE WORK, 19.7 fb^{-1},  #sqrt{s} = 8 TeV, l+jets"  , 0.2, 0.93, 0.9);
       else if(channelID == kElectronJets) DrawLabel("PRIVATE WORK, 19.7 fb^{-1},  #sqrt{s} = 8 TeV, e+jets"  , 0.2, 0.93, 0.9);
       else if(channelID == kMuonJets    ) DrawLabel("PRIVATE WORK, 19.7 fb^{-1},  #sqrt{s} = 8 TeV, #mu+jets", 0.2, 0.93, 0.9);
     }
     else if(po::GetOption<int>("preliminary") == 1){
-      if     (channelID == kAllJets     ) DrawLabel("CMS Preliminary, 18.3 fb^{-1},  #sqrt{s} = 8 TeV"         , 0.2, 0.93, 0.9);
+      if     (channelID == kAllJets     ) DrawLabel("CMS Preliminary, 18.2 fb^{-1},  #sqrt{s} = 8 TeV"         , 0.2, 0.93, 0.9);
       else if(channelID == kLeptonJets  ) DrawLabel("CMS Preliminary, 19.7 fb^{-1},  #sqrt{s} = 8 TeV, l+jets"  , 0.2, 0.93, 0.9);
       else if(channelID == kElectronJets) DrawLabel("CMS Preliminary, 19.7 fb^{-1},  #sqrt{s} = 8 TeV, e+jets"  , 0.2, 0.93, 0.9);
       else if(channelID == kMuonJets    ) DrawLabel("CMS Preliminary, 19.7 fb^{-1},  #sqrt{s} = 8 TeV, #mu+jets", 0.2, 0.93, 0.9);
     }
     else{
-      if     (channelID == kAllJets     ) DrawLabel("CMS, 18.3 fb^{-1},  #sqrt{s} = 8 TeV"         , 0.2, 0.93, 0.9);
+      if     (channelID == kAllJets     ) DrawLabel("CMS, 18.2 fb^{-1},  #sqrt{s} = 8 TeV"         , 0.2, 0.93, 0.9);
       else if(channelID == kLeptonJets  ) DrawLabel("CMS, 19.7 fb^{-1},  #sqrt{s} = 8 TeV, l+jets"  , 0.2, 0.93, 0.9);
       else if(channelID == kElectronJets) DrawLabel("CMS, 19.7 fb^{-1},  #sqrt{s} = 8 TeV, e+jets"  , 0.2, 0.93, 0.9);
       else if(channelID == kMuonJets    ) DrawLabel("CMS, 19.7 fb^{-1},  #sqrt{s} = 8 TeV, #mu+jets", 0.2, 0.93, 0.9);
@@ -349,8 +355,6 @@ TH1* HelperFunctions::createRatioPlot(const TH1 *h1, const TH1 *h2, const std::s
 
 
 std::string HelperFunctions::cleanedName(std::string toBeCleaned){
-    //    std::string toBeCleaned = varNames.at(i);
-    //      std::cout << "before clean: " << toBeCleaned<< std::endl;
     boost::replace_all(toBeCleaned,"(","_"      );
     boost::replace_all(toBeCleaned,")","_"      );
     boost::replace_all(toBeCleaned,"/","_"      );
@@ -363,11 +367,14 @@ std::string HelperFunctions::cleanedName(std::string toBeCleaned){
     boost::replace_all(toBeCleaned,"*","_"      );
     boost::replace_all(toBeCleaned,",",""       );
     boost::replace_all(toBeCleaned,";",""       );
+    boost::replace_all(toBeCleaned,":",""       );
     boost::replace_all(toBeCleaned,"|",""       );
     boost::replace_all(toBeCleaned,"+","_"      );
     boost::replace_all(toBeCleaned,"<","_st_"   );
     boost::replace_all(toBeCleaned,">","_gt_"   );
-    //      std::cout << "after clean: " << toBeCleaned<< std::endl;
+    boost::replace_all(toBeCleaned,"[","_"      );
+    boost::replace_all(toBeCleaned,"]","_"      );
+    boost::replace_all(toBeCleaned,"@","_"      );
     return toBeCleaned;
 }
 
@@ -377,7 +384,6 @@ void HelperFunctions::findYRange(const TH1 *h, double& min, double& max) {
   max = 0.;
   for(int bin = 1; bin <= h->GetNbinsX(); ++bin) {
     double val = h->GetBinContent(bin);
-//    std::cout << "bin " << bin << " val " << val << std::endl;
     if( val < min && val!=0) min = val;
     if( val > max ) max = val;
   }

@@ -530,6 +530,13 @@ PFoptions = {
         'excludeElectronsFromWsFromGenJets': True,
         'METCorrectionLevel': options.metcl,
         }
+if data:
+    PFoptions['JECEra' ] = 'FT_53_V21_AN5'
+    PFoptions['JECFile'] = '../data/FT_53_V21_AN5_private.db'
+    if os.getenv('GC_CONF'):
+        print "Running with GC, resetting address of JECFile!"
+        PFoptions['JECFile'] = '../src/TopMass/Configuration/data/FT_53_V21_AN5_private.db'
+
 prependPF2PATSequence(process, options = PFoptions)
 
 ## adaptions (re-aranging of modules) to speed up processing

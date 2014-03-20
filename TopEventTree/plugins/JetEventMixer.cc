@@ -72,7 +72,8 @@ JetEventMixer::produce(edm::Event& evt, const edm::EventSetup& setup)
 void
 JetEventMixer::getEvents(edm::Event& evt)
 {
-  for(unsigned int iEvt = 0; iEvt < nMix_; ++iEvt){
+  while(oriPatJets_.size() < nMix_){
+  //for(unsigned int iEvt = 0; iEvt < nMix_; ++iEvt){
     //std::vector< std::string > wantedBranches;
     //eventSrc_->dropUnwantedBranches(wantedBranches);
 
@@ -106,6 +107,14 @@ JetEventMixer::processOneEvent(edm::EventPrincipal const& eventPrincipal, edm::E
   //  std::cout << (*it)->moduleLabel() << " : " << (*it)->productInstanceName() << " : " << (*it)->processName() << " : " << (*it)->productType().className() << std::endl;
   //}
 
+  size_t cachedOffset2;
+  int fillCount2;
+  edm::BasicHandle hPatJetsCalo = eventPrincipal.getByLabel(edm::TypeID(typeid(std::vector<pat::Jet>)), "selectedPatJetsAK5Calo", "", "FullHadTreeWriter", cachedOffset2, fillCount2);
+  edm::Wrapper<std::vector<pat::Jet> > const* wPatJetsCalo = static_cast<edm::Wrapper<std::vector<pat::Jet> > const*>(hPatJetsCalo.wrapper());
+  std::vector<pat::Jet> pPatJetsCalo = *wPatJetsCalo->product();
+  if(pPatJetsCalo.size() < 4 || pPatJetsCalo[3].pt() < 60) return;
+  oriPatJetsCalo_.push_back(pPatJetsCalo);
+
   size_t cachedOffset;
   int fillCount;
   edm::BasicHandle hPatJets = eventPrincipal.getByLabel(edm::TypeID(typeid(std::vector<pat::Jet>)), "tightLeadingJets", "", "FullHadTreeWriter", cachedOffset, fillCount);
@@ -118,13 +127,6 @@ JetEventMixer::processOneEvent(edm::EventPrincipal const& eventPrincipal, edm::E
   //std::cout << "pPatJets: " << pPatJets->at(0).pt() << std::endl;
   oriPatJets_.push_back(pPatJets);
   //oriPatJets_.push_back(*(static_cast<edm::Wrapper<std::vector<pat::Jet> > const*>(hPatJets.wrapper())->product()));
-
-  size_t cachedOffset2;
-  int fillCount2;
-  edm::BasicHandle hPatJetsCalo = eventPrincipal.getByLabel(edm::TypeID(typeid(std::vector<pat::Jet>)), "selectedPatJetsAK5Calo", "", "FullHadTreeWriter", cachedOffset2, fillCount2);
-  edm::Wrapper<std::vector<pat::Jet> > const* wPatJetsCalo = static_cast<edm::Wrapper<std::vector<pat::Jet> > const*>(hPatJetsCalo.wrapper());
-  std::vector<pat::Jet> pPatJetsCalo = *wPatJetsCalo->product();
-  oriPatJetsCalo_.push_back(pPatJetsCalo);
 
   ////edm::BasicHandle hGenJets = eventPrincipal.getByLabel(edm::TypeID(typeid(std::vector<reco::GenJet>)), "tightLeadingJets", "genJets", "FullHadTreeWriter", cachedOffset, fillCount);
   //edm::BasicHandle hGenJets = eventPrincipal.getByType(edm::TypeID(typeid(std::vector<reco::GenJet>)));

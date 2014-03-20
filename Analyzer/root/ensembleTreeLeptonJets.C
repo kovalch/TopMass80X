@@ -35,13 +35,13 @@ enum styles          { kDown, kNominal, kUp};
 int color_   [ 3 ] = { kRed+1, kBlue+1, kGreen+1};
 int marker_  [ 3 ] = { 23, 20, 22};
 
-double genMass[]      = {161.5, 163.5, 166.5, 169.5, 172.5, 175.5, 178.5, 181.5, 184.5};
-double genMassError[] = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
-double genMassN[]     = {5000000, 5000000, 5000000, 5000000, 7000000, 5000000, 5000000, 5000000, 5000000};
+double genMass[]      = {166.5, 169.5, 171.5, 172.5, 173.5, 175.5, 178.5};
+double genMassError[] = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
+double genMassN[]     = {27000000, 41000000, 25000000, 62000000, 27000000, 40000000, 24000000};
 //double genMassN[]     = {1620072, 1.5, 1.5, 1.5, 59613991, 1.5, 1.5, 1.5, 1.5};
-double maxMCWeight[]  = {1.75, 1.75, 1.75, 1.75, 1.75, 1.75, 1.75, 1.75, 1.75};
-double crossSection   = 164.4;
-double peLumi         = 5000.;
+double maxMCWeight[]  = {1.75, 1.75, 1.75, 1.75, 1.75, 1.75, 1.75};
+double crossSection   = 245.8;
+double peLumi         = 19700.;
 double eff;
   
 double genJES[]       = {0.96, 1.00, 1.04};
@@ -51,19 +51,19 @@ double measJES[3];
 double offset[3];
 double offsetError[3];
   
-double mass[3][9];
-double massBias[3][9];
-double massBiasError[3][9];
+double mass[3][7];
+double massBias[3][7];
+double massBiasError[3][7];
 
-double massPull[3][9];
-double massPullError[3][9];
+double massPull[3][7];
+double massPullError[3][7];
   
-double JES[3][9];
-double JESBias[3][9];
-double JESBiasError[3][9];
+double JES[3][7];
+double JESBias[3][7];
+double JESBiasError[3][7];
 
-double JESPull[3][9];
-double JESPullError[3][9];
+double JESPull[3][7];
+double JESPullError[3][7];
 
 std::vector<TGraphErrors*> gMass;
 std::vector<TGraphErrors*> gJES;
@@ -126,7 +126,7 @@ void DrawLegend(bool bwlines = false) {
   */
 }
 
-void ensembleTreeLeptonJets(std::string pathToPE = "/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_131012")
+void ensembleTreeLeptonJets(std::string pathToPE = "/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_140305")
 {
   //*
   TStyle *tdrStyle = setTDRStyle();
@@ -188,7 +188,7 @@ void ensembleTreeLeptonJets(std::string pathToPE = "/nfs/dust/cms/user/mseidel/p
   TH2D* h2JES = new TH2D("h2JES", "h2JES", 1000, 150, 200, 1000, 0.9, 1.1);
   
   for (int iJES = 0; iJES < 3; iJES++) {
-    for (int iMass = 0; iMass < 9; iMass++) {
+    for (int iMass = 0; iMass < 7; iMass++) {
       
       TString sel("mass_mTop_JES>0 & JES_mTop_JES>0 & genMass=="); sel+=genMass[iMass]; sel+=" & genJES=="; sel+=genJES[iJES];
       double entries = tree->GetEntries(sel);
@@ -244,30 +244,30 @@ void ensembleTreeLeptonJets(std::string pathToPE = "/nfs/dust/cms/user/mseidel/p
       JESPullError[iJES][iMass] = sqrt(1./2. * (maxMCWeight[iMass]/(genMassN[iMass]*eff) + 1./(entries-1.)));
     }
     
-    double genMassMod[9];
-    for (int i = 0; i < 9; i++) {
+    double genMassMod[7];
+    for (int i = 0; i < 7; i++) {
       genMassMod[i] = genMass[i] + 0.2*(iJES-1);
     }
 
-    gMass.push_back(new TGraphErrors(9, genMassMod, massBias[iJES], genMassError, massBiasError[iJES]));
+    gMass.push_back(new TGraphErrors(7, genMassMod, massBias[iJES], genMassError, massBiasError[iJES]));
     gMass[iJES]->SetMarkerStyle(marker_[iJES]);
     gMass[iJES]->SetMarkerColor(color_ [iJES]);
     gMass[iJES]->SetLineColor  (color_ [iJES]);
     mgMass->Add(gMass[iJES]);
 
-    gJES.push_back(new TGraphErrors(9, genMassMod, JESBias[iJES], genMassError, JESBiasError[iJES]));
+    gJES.push_back(new TGraphErrors(7, genMassMod, JESBias[iJES], genMassError, JESBiasError[iJES]));
     gJES[iJES]->SetMarkerStyle(marker_[iJES]);
     gJES[iJES]->SetMarkerColor(color_ [iJES]);
     gJES[iJES]->SetLineColor  (color_ [iJES]);
     mgJES->Add(gJES[iJES]);
 
-    gMassPull.push_back(new TGraphErrors(9, genMassMod, massPull[iJES], genMassError, massPullError[iJES]));
+    gMassPull.push_back(new TGraphErrors(7, genMassMod, massPull[iJES], genMassError, massPullError[iJES]));
     gMassPull[iJES]->SetMarkerStyle(marker_[iJES]);
     gMassPull[iJES]->SetMarkerColor(color_ [iJES]);
     gMassPull[iJES]->SetLineColor  (color_ [iJES]);
     mgMassPull->Add(gMassPull[iJES]);
 
-    gJESPull.push_back(new TGraphErrors(9, genMassMod, JESPull[iJES], genMassError, JESPullError[iJES]));
+    gJESPull.push_back(new TGraphErrors(7, genMassMod, JESPull[iJES], genMassError, JESPullError[iJES]));
     gJESPull[iJES]->SetMarkerStyle(marker_[iJES]);
     gJESPull[iJES]->SetMarkerColor(color_ [iJES]);
     gJESPull[iJES]->SetLineColor  (color_ [iJES]);
@@ -322,6 +322,10 @@ void ensembleTreeLeptonJets(std::string pathToPE = "/nfs/dust/cms/user/mseidel/p
   gMass[2]->Fit("linearFit104", "EM");
   mgMass->SetMinimum(-1.9);
   mgMass->SetMaximum( 1.9);
+  if (channel==2 && false) {
+    mgMass->SetMinimum(-0.49);
+    mgMass->SetMaximum( 0.49);
+  }
   mgMass->Draw("AP");
   gPad->SetBottomMargin(0.005);
   mgMass->GetYaxis()->SetTitleSize(0.11);

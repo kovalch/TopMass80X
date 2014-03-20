@@ -32,7 +32,12 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
             "Top mass measurement method\n"
             "  GenMatch: \tGaussian fit of correct permutations (MC only)\n"
             "  Ideogram: \tJoint likelihood fit of mt and JES given data sample\n"
+            "  IdeogramNew: \tNew interface\n"
+            "  IdeogramMin: \tMinimizer function\n"
             "  RooFit:   \tTemplate fit of mt (JES, fSig) given data sample using RooFit"
+        )
+        ("minPlot", boost::program_options::value<bool>()->default_value(false),
+            "Plot IdeogramMin result\n"
         )
         ("task,t", boost::program_options::value<std::string>()->default_value("sm"),
             "Task to be done\n"
@@ -67,7 +72,7 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("mass,M", boost::program_options::value<double>()->default_value(172.5), "Input top mass for pseudo-experiments")
         ("jes,J", boost::program_options::value<double>()->default_value(1.0), "Input JES for pseudo-experiments")
         ("bdisc,B", boost::program_options::value<double>()->default_value(0.679), "Threshold for b-jets")
-        ("fsig,f", boost::program_options::value<double>()->default_value(0.460272275), "Input signal fraction for pseudo-experiments")
+        ("fsig,f", boost::program_options::value<double>()->default_value(0.767995487), "Input signal fraction for pseudo-experiments")
         ("lumi,L", boost::program_options::value<double>()->default_value(0.0), "Luminosity for each pseudo-experiment")
         ("number,N", boost::program_options::value<int>()->default_value(10000), "Number of pseudo-experiments per job")
         ("walltime,W", boost::program_options::value<double>()->default_value(10), "set walltime limit for pseudo-experiments in minutes")
@@ -77,6 +82,7 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("preliminary,p", boost::program_options::value<int>()->default_value(1), "use \"Preliminary\" label for plots")
         ("cmsenergy,e", boost::program_options::value<int>()->default_value(7), "cms energy to be used (for example for plots)")
         ("pullWidth", boost::program_options::value<double>()->default_value(1.0), "pull width correction factor")
+        ("ele_pullWidth", boost::program_options::value<double>()->default_value(1.0), "pull width correction factor (e+jets)")
         ("analysisConfig.selection", boost::program_options::value<std::string>())
         ("analysisConfig.selectionCP", boost::program_options::value<std::string>())
         ("analysisConfig.selectionWP", boost::program_options::value<std::string>())
