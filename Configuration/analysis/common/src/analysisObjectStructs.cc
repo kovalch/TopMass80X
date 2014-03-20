@@ -26,7 +26,7 @@ void RecoObjects::clear()
     //lepPuChargedHadronIso_ = 0;
     lepCombIso_ = 0;
     lepDxyVertex0_ = 0;
-    if(lepDzVertex0_) lepDzVertex0_ = 0;
+    lepDzVertex0_ = 0;
     //lepTrigger_ = 0;
     jets_ = 0;
     jetBTagTCHE_ = 0;
