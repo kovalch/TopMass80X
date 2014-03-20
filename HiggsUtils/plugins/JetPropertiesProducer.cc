@@ -196,7 +196,7 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         
         std::vector<math::PtEtaPhiMLorentzVectorD> jetSecondaryVertexTrack;
         std::vector<math::PtEtaPhiMLorentzVectorD> jetSecondaryVertex;
-        std::vector<int> secondaryVertexTrackIndex;
+        std::vector<int> jetSecondaryVertexTrackVertexIndex;
         std::vector<double> jetSecondaryVertexFlightDistanceValue;
         std::vector<double> jetSecondaryVertexFlightDistanceSignificance;
         
@@ -230,7 +230,7 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
                     
                     for(unsigned int i=0;i<VertTracks.size(); i++) 
                     {
-                        secondaryVertexTrackIndex.push_back(iNVert);
+                        jetSecondaryVertexTrackVertexIndex.push_back(iNVert);
                         reco::Track trackSV ( *(VertTracks.at(i)) );
                         
                         double trackPt;
@@ -264,7 +264,7 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
             jetAssociatedParton = genParton->polarP4();
         }
         
-        JetProperties jetProperties(jetChargeGlobalPtWeighted, jetChargeRelativePtWeighted, jetAssociatedPartonPdgId, jetAssociatedParton, jetPfCandidateTrack, jetPfCandidateTrackCharge,jetPfCandidateTrackId, jetSelectedTrack, jetSelectedTrackIPValue, jetSelectedTrackIPSignificance, jetSelectedTrackCharge, jetSecondaryVertexTrack, secondaryVertexTrackIndex, jetSecondaryVertex, jetSecondaryVertexFlightDistanceValue, jetSecondaryVertexFlightDistanceSignificance);
+        JetProperties jetProperties(jetChargeGlobalPtWeighted, jetChargeRelativePtWeighted, jetAssociatedPartonPdgId, jetAssociatedParton, jetPfCandidateTrack, jetPfCandidateTrackCharge,jetPfCandidateTrackId, jetSelectedTrack, jetSelectedTrackIPValue, jetSelectedTrackIPSignificance, jetSelectedTrackCharge, jetSecondaryVertexTrack, jetSecondaryVertexTrackVertexIndex, jetSecondaryVertex, jetSecondaryVertexFlightDistanceValue, jetSecondaryVertexFlightDistanceSignificance);
         v_jetProperties->push_back(jetProperties);
         
         edm::LogVerbatim log("JetPropertiesProducer");
@@ -289,7 +289,7 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         jetSecondaryVertexFlightDistanceValue.clear();
         jetSecondaryVertexFlightDistanceSignificance.clear();
         jetSecondaryVertexTrack.clear();
-        secondaryVertexTrackIndex.clear();
+        jetSecondaryVertexTrackVertexIndex.clear();
         
     }
     
