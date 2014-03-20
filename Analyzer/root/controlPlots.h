@@ -202,7 +202,7 @@ private:
     	return dataContainsMC;
     }
 
-    void ConfigureExtraOptions(bool SetFitGaussToCore, std::string SetCustomHistoweight="1.", bool ExportSigVarToRoot = false, std::string LegendHeader="", bool useLogXBins = false, bool useLogYBins = false);
+    void ConfigureExtraOptions(bool SetFitGaussToCore, std::string SetCustomHistoweight="1.", bool ExportSigVarToRoot = false, std::string LegendHeader="", bool useLogXBins = false, bool setLogYOnPads = false, bool useLogYBins = false);
 
     void ConfigurePlotRanges(double PlotRangeYRatioMin, double PlotRangeYRatioMax, double PlotRangeYMin=-99, double PlotRangeYMax=-99);
 

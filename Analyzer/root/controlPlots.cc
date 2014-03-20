@@ -1430,8 +1430,7 @@ void TopMassControlPlots::doPlots()
             	collectRatios.at(h_i)->SetFillStyle(0);
 
         	}
-        	else {
-		  collectRatios.at(h_i)->Draw("HIST SAME ");
+        	else collectRatios.at(h_i)->Draw("HIST SAME ");
         }
         pad1->cd();
         data2DProfile->GetYaxis()->UnZoom();
