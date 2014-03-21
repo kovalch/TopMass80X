@@ -25,8 +25,9 @@ constexpr double lumi = 19712;
 
 //constexpr double topxsec = 244.849; //again changes with normalization, must be set outside of the class
 // constexpr double topxsec = 244.794; //Mitov, arXiv:1303.6254
-constexpr double topxsec = 247.998; //Measured XSection after normalization to Mitov, and statistical combination of channels
+//constexpr double topxsec = 247.998; //Measured XSection after normalization to Mitov, and statistical combination of channels
 //constexpr double topxsec = 248.207; //Measured XSection after normalization to Mitov, and after combination of channels at yield level
+constexpr double topxsec = 246.25; //Measured XSection using MadSpin, after normalization to Mitov and statistical combination of channels
 
 using namespace std;
 
@@ -37,7 +38,7 @@ const std::vector<const char*> VectorOfValidSystematics
     "JER_UP", "JER_DOWN", "JES_UP", "JES_DOWN",
     "PU_UP", "PU_DOWN", "TRIG_UP", "TRIG_DOWN", "LEPT_UP", "LEPT_DOWN",
     "DY_UP", "DY_DOWN", "BG_UP", "BG_DOWN", 
-    "KIN_UP", "KIN_DOWN",
+    "KIN_UP", "KIN_DOWN", "PDF_UP", "PDF_DOWN",
     "BTAG_UP", "BTAG_DOWN", "BTAG_LJET_UP", "BTAG_LJET_DOWN",
     "BTAG_PT_UP", "BTAG_PT_DOWN", "BTAG_ETA_UP", "BTAG_ETA_DOWN",
     "BTAG_LJET_PT_UP", "BTAG_LJET_PT_DOWN", "BTAG_LJET_ETA_UP", "BTAG_LJET_ETA_DOWN",
