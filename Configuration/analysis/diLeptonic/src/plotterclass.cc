@@ -60,7 +60,7 @@ void Plotter::UnfoldingOptions(bool doSVD)
   drawMCATNLO      = true;
   drawKidonakis    = true;
   drawAhrens       = true;
-  drawPOWHEG       = true;
+  drawPOWHEG       = true;;
   drawPOWHEGHERWIG = false;
   drawPERUGIA11 = false;
   drawMadScaleMatching = false;
@@ -2431,8 +2431,8 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
 
     TH1 *Kidoth1_Binned = 0, *Ahrensth1_Binned = 0;
 
-    TH1* madup=0, *maddown=0, *matchup=0, *matchdown=0;
-    TH1* madupBinned = 0, *maddownBinned = 0, *matchupBinned = 0, *matchdownBinned = 0;
+    TH1* madup=0, *maddown=0, *matchup=0, *matchdown=0, *match2up = 0, *match2down = 0;
+    TH1* madupBinned = 0, *maddownBinned = 0, *matchupBinned = 0, *matchdownBinned = 0, *match2upBinned = 0, *match2downBinned = 0;
 
     madgraphhist = GetNloCurve(newname, "Nominal");
     madgraphhist->Scale(1./madgraphhist->Integral("width"));
@@ -2645,45 +2645,54 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
     }
 
     if(drawNLOCurves && drawMadMass){
-        madup = GetNloCurveMass(newname,"MASS_UP","181");
-        double madscale = 1./madup->Integral("width");
-        if (binned_theory==false) madup->Rebin(2);madup->Scale(0.5);
-        madup->Scale(madscale);
+        madup = GetNloCurveMass(newname,"MASS_UP","173.5");
+        madup->Scale(1./madup->Integral("width"));
         madupBinned = madup->Rebin(bins,"madupplot",Xbins);
         for (Int_t bin=0; bin<bins; bin++){//condense matrices to arrays for plotting
           madupBinned->SetBinContent(bin+1,madupBinned->GetBinContent(bin+1)/((Xbins[bin+1]-Xbins[bin])/madup->GetBinWidth(1)));
         }
         madupBinned->Scale(1./madupBinned->Integral("width"));
 
-        maddown = GetNloCurveMass(newname,"MASS_DOWN","169");
-        double maddownscale = 1./maddown->Integral("width");
-        if (binned_theory==false) maddown->Rebin(2);maddown->Scale(0.5);
-        maddown->Scale(maddownscale);
+        maddown = GetNloCurveMass(newname,"MASS_DOWN","171.5");
+        maddown->Scale(1./maddown->Integral("width"));
         maddownBinned = maddown->Rebin(bins,"maddownplot",Xbins);
         for (Int_t bin=0; bin<bins; bin++){//condense matrices to arrays for plotting
             maddownBinned->SetBinContent(bin+1,maddownBinned->GetBinContent(bin+1)/((Xbins[bin+1]-Xbins[bin])/maddown->GetBinWidth(1)));
         }
         maddownBinned->Scale(1./maddownBinned->Integral("width"));
 
-        matchup = GetNloCurveMass(newname,"MASS_UP","175");
-        double matchscale = 1./matchup->Integral("width");
-        if (binned_theory==false) matchup->Rebin(2);matchup->Scale(0.5);
-        matchup->Scale(matchscale);
+        matchup = GetNloCurveMass(newname,"MASS_UP","175.5");
+        matchup->Scale(1./matchup->Integral("width"));
         matchupBinned = matchup->Rebin(bins,"matchupplot",Xbins);
         for (Int_t bin=0; bin<bins; bin++){//condense matrices to arrays for plotting
             matchupBinned->SetBinContent(bin+1,matchupBinned->GetBinContent(bin+1)/((Xbins[bin+1]-Xbins[bin])/matchup->GetBinWidth(1)));
         }
         matchupBinned->Scale(1./matchupBinned->Integral("width"));
 
-        matchdown = GetNloCurveMass(newname,"MASS_DOWN","163");
-        double matchdownscale = 1./matchdown->Integral("width");
-        if (binned_theory==false) matchdown->Rebin(2);matchdown->Scale(0.5);
-        matchdown->Scale(matchdownscale);
+        matchdown = GetNloCurveMass(newname,"MASS_DOWN","169.5");
+        matchdown->Scale(1./matchdown->Integral("width"));
         matchdownBinned = matchdown->Rebin(bins,"matchdownplot",Xbins);
         for (Int_t bin=0; bin<bins; bin++){//condense matrices to arrays for plotting
            matchdownBinned->SetBinContent(bin+1,matchdownBinned->GetBinContent(bin+1)/((Xbins[bin+1]-Xbins[bin])/matchdown->GetBinWidth(1)));
         }
         matchdownBinned->Scale(1./matchdownBinned->Integral("width"));
+
+        match2up = GetNloCurveMass(newname,"MASS_UP","178.5");
+        double match2scale = 1./match2up->Integral("width");
+        match2up->Scale(match2scale);
+        match2upBinned = match2up->Rebin(bins,"match2upplot",Xbins);
+        for (Int_t bin=0; bin<bins; bin++){//condense matrices to arrays for plotting
+            match2upBinned->SetBinContent(bin+1,match2upBinned->GetBinContent(bin+1)/((Xbins[bin+1]-Xbins[bin])/match2up->GetBinWidth(1)));
+        }
+        match2upBinned->Scale(1./match2upBinned->Integral("width"));
+        
+        match2down = GetNloCurveMass(newname,"MASS_DOWN","166.5");
+        match2down->Scale(1./match2down->Integral("width"));
+        match2downBinned = match2down->Rebin(bins,"match2downplot",Xbins);
+        for (Int_t bin=0; bin<bins; bin++){//condense matrices to arrays for plotting
+           match2downBinned->SetBinContent(bin+1,match2downBinned->GetBinContent(bin+1)/((Xbins[bin+1]-Xbins[bin])/match2down->GetBinWidth(1)));
+        }
+        match2downBinned->Scale(1./match2downBinned->Integral("width"));
 
     }
 
@@ -2822,15 +2831,20 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
             setTheoryStyleAndFillLegend(matchdownBinned,"matchdown", leg2);
         }
         if(drawMadMass){
-            setTheoryStyleAndFillLegend(madupBinned,    "mass181", leg2);
-            setTheoryStyleAndFillLegend(maddownBinned,  "mass169", leg2);
-            setTheoryStyleAndFillLegend(matchupBinned,  "mass175", leg2);
-            setTheoryStyleAndFillLegend(matchdownBinned,"mass163", leg2);
+            setTheoryStyleAndFillLegend(madupBinned,    "mass173.5", leg2);
+            setTheoryStyleAndFillLegend(maddownBinned,  "mass171.5", leg2);
+            setTheoryStyleAndFillLegend(matchupBinned,  "mass175.5", leg2);
+            setTheoryStyleAndFillLegend(matchdownBinned,"mass169.5", leg2);
+            setTheoryStyleAndFillLegend(match2upBinned, "mass178.5", leg2);
+            setTheoryStyleAndFillLegend(match2downBinned,"mass166.5", leg2);
         }
         madupBinned->Draw("SAME");
         maddownBinned->Draw("SAME");
         matchupBinned->Draw("SAME");
         matchdownBinned->Draw("SAME");
+        match2upBinned->Draw("SAME");
+        match2downBinned->Draw("SAME");
+
         ofstream OutputFileXSec(string("Plots/"+Channel+"/"+name+"DiffXsecMass.txt"));
         for(int i = 1; i < madupBinned->GetNbinsX(); i++){
         //OutputFileXSec<<"Nominal "<<"Mass 181 GeV" << " Mass 175 GeV"<< "Mass 169 GeV" << "Mass 163 GeV"<<endl;                             OutputFileXSec<<h_DiffXSec->GetBinContent(i)<< " "<<tga_DiffXSecPlot->GetErrorY(i-1)<<" "<<tga_DiffXSecPlotwithSys->GetErrorY(i-1)<< " "<<h|
@@ -2969,9 +2983,9 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
         c->Modified();
     };
 
-//    if(drawMadScaleMatching) {powheghist = nullptr; mcnlohist = nullptr; common::drawRatioXSEC(h_DiffXSec,h_GenDiffXSec,madupBinned,maddownBinned,matchupBinned,matchdownBinned,0,0,0.4, 1.6); }
     if(drawNLOCurves && drawMadScaleMatching) common::drawRatioXSEC(h_DiffXSec,madgraphhistBinned,0,0,madupBinned,maddownBinned,matchupBinned,matchdownBinned,0,0,0.4, 1.6);
-    if(drawNLOCurves && drawMadMass) common::drawRatioXSEC(madgraphhistBinned,h_DiffXSec,0,0,madupBinned,maddownBinned,matchupBinned,matchdownBinned,0,0,0.4, 1.6);
+    if(drawNLOCurves && drawMadMass) common::drawRatioXSEC(madgraphhistBinned,h_DiffXSec,ratio_stat,0,madupBinned,maddownBinned,matchupBinned,matchdownBinned,match2upBinned,match2downBinned,0.4, 1.6);
+
 
     c->Print(outdir.Copy()+"DiffXS_"+name+".eps");
     //c->Print(outdir.Copy()+"DiffXS_"+name+".C");
@@ -3379,8 +3393,8 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
 
     TH1 *Kidoth1_Binned = 0, *Ahrensth1_Binned = 0;
 
-    TH1* madup=0, *maddown=0, *matchup=0, *matchdown=0;
-    TH1* madupBinned = 0, *maddownBinned = 0, *matchupBinned = 0, *matchdownBinned = 0;
+    TH1* madup=0, *maddown=0, *matchup=0, *matchdown=0, *match2up = 0, *match2down = 0;
+    TH1* madupBinned = 0, *maddownBinned = 0, *matchupBinned = 0, *matchdownBinned = 0, *match2upBinned = 0, *match2downBinned = 0;
 
     bool canDrawMCATNLO = true;
     if (drawNLOCurves && drawMCATNLO) {
@@ -3578,7 +3592,7 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
     }
 
     if(drawNLOCurves && drawMadMass){
-        madup = GetNloCurveMass(newname,"MASS_UP","181");
+        madup = GetNloCurveMass(newname,"MASS_UP","173.5");
         madup->Scale(1./madup->Integral("width"));
         madupBinned = madup->Rebin(bins,"madupplot",Xbins);
         for (Int_t bin=0; bin<bins; bin++){//condense matrices to arrays for plotting
@@ -3586,7 +3600,7 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
         }
         madupBinned->Scale(1./madupBinned->Integral("width"));
 
-        maddown = GetNloCurveMass(newname,"MASS_DOWN","169");
+        maddown = GetNloCurveMass(newname,"MASS_DOWN","171.5");
         maddown->Scale(1./maddown->Integral("width"));
         maddownBinned = maddown->Rebin(bins,"maddownplot",Xbins);
         for (Int_t bin=0; bin<bins; bin++){//condense matrices to arrays for plotting
@@ -3594,7 +3608,7 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
         }
         maddownBinned->Scale(1./maddownBinned->Integral("width"));
 
-        matchup = GetNloCurveMass(newname,"MASS_UP","175");
+        matchup = GetNloCurveMass(newname,"MASS_UP","175.5");
         matchup->Scale(1./matchup->Integral("width"));
         matchupBinned = matchup->Rebin(bins,"matchupplot",Xbins);
         for (Int_t bin=0; bin<bins; bin++){//condense matrices to arrays for plotting
@@ -3602,13 +3616,32 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
         }
         matchupBinned->Scale(1./matchupBinned->Integral("width"));
 
-        matchdown = GetNloCurveMass(newname,"MASS_DOWN","163");
+        matchdown = GetNloCurveMass(newname,"MASS_DOWN","169.5");
         matchdown->Scale(1./matchdown->Integral("width"));
         matchdownBinned = matchdown->Rebin(bins,"matchdownplot",Xbins);
         for (Int_t bin=0; bin<bins; bin++){//condense matrices to arrays for plotting
            matchdownBinned->SetBinContent(bin+1,matchdownBinned->GetBinContent(bin+1)/((Xbins[bin+1]-Xbins[bin])/matchdown->GetBinWidth(1)));
         }
         matchdownBinned->Scale(1./matchdownBinned->Integral("width"));
+
+        match2up = GetNloCurveMass(newname,"MASS_UP","178.5");
+        double match2scale = 1./match2up->Integral("width");
+        match2up->Scale(match2scale);
+        match2upBinned = match2up->Rebin(bins,"match2upplot",Xbins);
+        for (Int_t bin=0; bin<bins; bin++){//condense matrices to arrays for plotting
+            match2upBinned->SetBinContent(bin+1,match2upBinned->GetBinContent(bin+1)/((Xbins[bin+1]-Xbins[bin])/match2up->GetBinWidth(1)));
+        }
+        match2upBinned->Scale(1./match2upBinned->Integral("width"));
+
+        match2down = GetNloCurveMass(newname,"MASS_DOWN","166.5");
+        double match2downscale = 1./match2down->Integral("width");
+        match2down->Scale(match2downscale);
+        match2downBinned = match2down->Rebin(bins,"match2downplot",Xbins);
+        for (Int_t bin=0; bin<bins; bin++){//condense matrices to arrays for plotting
+           match2downBinned->SetBinContent(bin+1,match2downBinned->GetBinContent(bin+1)/((Xbins[bin+1]-Xbins[bin])/match2down->GetBinWidth(1)));
+        }
+        match2downBinned->Scale(1./match2downBinned->Integral("width"));
+
     }
 
     TCanvas * c = new TCanvas("DiffXS","DiffXS");
@@ -3743,15 +3776,20 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
             setTheoryStyleAndFillLegend(matchdownBinned,"matchdown", leg2);
         }
         if(drawMadMass){
-            setTheoryStyleAndFillLegend(madupBinned,    "mass181", leg2);
-            setTheoryStyleAndFillLegend(maddownBinned,  "mass169", leg2);
-            setTheoryStyleAndFillLegend(matchupBinned,  "mass175", leg2);
-            setTheoryStyleAndFillLegend(matchdownBinned,"mass163", leg2);
+            setTheoryStyleAndFillLegend(madupBinned,    "mass173.5", leg2);
+            setTheoryStyleAndFillLegend(maddownBinned,  "mass171.5", leg2);
+            setTheoryStyleAndFillLegend(matchupBinned,  "mass175.5", leg2);
+            setTheoryStyleAndFillLegend(matchdownBinned,"mass169.5", leg2);
+            setTheoryStyleAndFillLegend(match2upBinned, "mass178.5", leg2);
+            setTheoryStyleAndFillLegend(match2downBinned,"mass166.5", leg2);
         }
         madupBinned->Draw("SAME");
         maddownBinned->Draw("SAME");
         matchupBinned->Draw("SAME");
         matchdownBinned->Draw("SAME");
+        match2upBinned->Draw("SAME");
+        match2downBinned->Draw("SAME");
+
         ofstream OutputFileXSec(string("Plots/"+Channel+"/"+name+"DiffXsecMass.txt"));
         for(int i = 1; i < madupBinned->GetNbinsX(); i++){
         //OutputFileXSec<<"Nominal "<<"Mass 181 GeV" << " Mass 175 GeV"<< "Mass 169 GeV" << "Mass 163 GeV"<<endl;                             OutputFileXSec<<h_DiffXSec->GetBinContent(i)<< " "<<tga_DiffXSecPlot->GetErrorY(i-1)<<" "<<tga_DiffXSecPlotwithSys->GetErrorY(i-1)<< " "<<h|
@@ -3819,15 +3857,13 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
         if(doClosureTest) { common::drawRatioXSEC(h_DiffXSec, realTruthBinned, ratio_stat,0,madgraphhistBinned, powheghistBinned,
                                                  mcnlohistBinned, tmpKido, tmpAhrens,powhegHerwighistBinned, 0.4, 1.6);
         } else { //common::drawRatioXSEC(h_DiffXSec, madgraphhistBinned, ratio_stat,0,powheghistBinned, mcnlohistBinned, tmpKido, tmpAhrens, powhegHerwighistBinned, perugia11histBinned,0.4, 1.6);
-            common::drawRatioXSEC(h_DiffXSec, madgraphhistBinned, ratio_stat, 0, powheghistBinned, mcnlohistBinned, tmpKido, tmpAhrens,powhegHerwighistBinned, perugia11histBinned, yminRatio, ymaxRatio);
+            if(drawNLOCurves && drawMadScaleMatching) common::drawRatioXSEC(h_DiffXSec,madgraphhistBinned,0,0,madupBinned,maddownBinned,matchupBinned,matchdownBinned,0,0,0.4, 1.6);
+            else if(drawNLOCurves && drawMadMass) common::drawRatioXSEC(madgraphhistBinned,h_DiffXSec,0,0,madupBinned,maddownBinned,matchupBinned,matchdownBinned,match2upBinned,match2downBinned,0.4, 1.6);
+            else common::drawRatioXSEC(h_DiffXSec, madgraphhistBinned, ratio_stat, 0, powheghistBinned, mcnlohistBinned, tmpKido, tmpAhrens,powhegHerwighistBinned, perugia11histBinned, yminRatio, ymaxRatio);
         };
     };
     c->Update();
     c->Modified();
-
-//    if(drawMadScaleMatching) {powheghist = nullptr; mcnlohist = nullptr; common::drawRatioXSEC(h_DiffXSec,h_GenDiffXSec,madupBinned,maddownBinned,matchupBinned,matchdownBinned,0,0,0.4, 1.6); }
-    if(drawNLOCurves && drawMadScaleMatching) common::drawRatioXSEC(h_DiffXSec,madgraphhistBinned,0,0,madupBinned,maddownBinned,matchupBinned,matchdownBinned,0,0,0.4, 1.6);
-    if(drawNLOCurves && drawMadMass) common::drawRatioXSEC(madgraphhistBinned,h_DiffXSec,0,0, madupBinned,maddownBinned,matchupBinned,matchdownBinned,0,0,0.4, 1.6);
 
     c->Print(outdir.Copy()+"DiffXS_"+name+".eps");
     TFile out_source(outdir.Copy()+"DiffXS_"+name+"_source.root", "RECREATE");
@@ -4039,14 +4075,18 @@ TH1* Plotter::GetNloCurve(TString NewName, TString Generator){
 TH1* Plotter::GetNloCurveMass(TString NewName, TString Generator, TString Mass){
     
     TString filename;
-    if (Generator == "MASS_UP" && Mass == "181") {
-        filename = "_ttbarsignalplustau_181_massup.root";
-    } else if (Generator == "MASS_UP" && Mass == "175") {
+    if (Generator == "MASS_UP" && Mass == "173.5") {
+        filename = "_ttbarsignalplustau_massup.root";
+    } else if (Generator == "MASS_UP" && Mass == "175.5") {
         filename = "_ttbarsignalplustau_175_massup.root";
-    } else if (Generator == "MASS_DOWN" && Mass == "169") {
+    } else if (Generator == "MASS_UP" && Mass == "178.5") {
+        filename = "_ttbarsignalplustau_178_massup.root";
+    } else if (Generator == "MASS_DOWN" && Mass == "171.5") {
+        filename = "_ttbarsignalplustau_massdown.root";
+    } else if (Generator == "MASS_DOWN" && Mass == "169.5") {
         filename = "_ttbarsignalplustau_169_massdown.root";
-    } else if (Generator == "MASS_DOWN" && Mass == "163") {
-        filename = "_ttbarsignalplustau_163_massdown.root";
+    } else if (Generator == "MASS_DOWN" && Mass == "166.5") {
+        filename = "_ttbarsignalplustau_166_massdown.root";
     } else {
         std::cerr << "Unknown Generator!\n";
         std::exit(2);
@@ -4382,7 +4422,7 @@ double Plotter::SampleXSection(const TString& filename){
     else if(filename.Contains("Perugia11") &&
         filename.Contains("signal"))          {return topxsec * 0.1049;}
     else if(filename.Contains("ttbar") && !filename.Contains("ttbarW") && 
-        !filename.Contains("ttbarZ"))        {return topxsec;}
+        !filename.Contains("ttbarZ"))         {return topxsec;}
     else if(filename.Contains("single"))      {return 11.1;}
     else if(filename.Contains("ww"))          {return 54.838;}
     else if(filename.Contains("wz"))          {return 33.21;}
@@ -4617,30 +4657,43 @@ void Plotter::setTheoryStyleAndFillLegend(TH1* histo, TString theoryName, TLegen
         histo->SetLineStyle(2);
         if(leg) leg->AddEntry(histo, "Approx. NNLO",  "l");
     }
-    if(theoryName == "scaleup" || theoryName == "mass181"){
-        histo->SetLineStyle(2);
-        histo->SetLineColor(kAzure+2);
-        if(leg && theoryName == "scaleup") leg->AddEntry(histo,"4*Q^{2}",  "l");
-        if(leg && theoryName == "mass181") leg->AddEntry(histo,"Mass = 181 GeV",  "l");
-    }
-    if(theoryName == "scaledown" || theoryName == "mass169"){
-        histo->SetLineStyle(2);
-        histo->SetLineColor(8);
-        if(leg && theoryName == "scaledown") leg->AddEntry(histo,"Q^{2}/4",  "l");
-        if(leg && theoryName == "mass169")   leg->AddEntry(histo,"Mass = 169 GeV",  "l");
-    }
-    if(theoryName == "matchup" || theoryName == "mass175"){
+    if(theoryName == "matchup" || theoryName == "mass175.5"){
         histo->SetLineStyle(7);
         histo->SetLineColor(kPink-7);
         if(leg && theoryName == "matchup") leg->AddEntry(histo,"Matching up",  "l");
-        if(leg && theoryName == "mass175") leg->AddEntry(histo,"Mass = 175 GeV",  "l");
+        if(leg && theoryName == "mass175.5") leg->AddEntry(histo,"Mass = 175.5 GeV",  "l");
     }
-    if(theoryName == "matchdown" || theoryName == "mass163"){
+    if(theoryName == "matchdown" || theoryName == "mass169.5"){
         histo->SetLineStyle(7);
         histo->SetLineColor(kRed-7);
         if(leg && theoryName == "matchdown") leg->AddEntry(histo,"Matching down",  "l");
-        if(leg && theoryName == "mass163")   leg->AddEntry(histo,"Mass = 163 GeV",  "l");
+        if(leg && theoryName == "mass169.5")   leg->AddEntry(histo,"Mass = 169.5 GeV",  "l");
     }
+    if(theoryName == "scaleup" || theoryName == "mass173.5"){
+        histo->SetLineStyle(2);
+        histo->SetLineColor(kAzure+2);
+        if(leg && theoryName == "scaleup") leg->AddEntry(histo,"4*Q^{2}",  "l");
+        if(leg && theoryName == "mass173.5") leg->AddEntry(histo,"Mass = 173.5 GeV",  "l");
+    }
+    if(theoryName == "scaledown" || theoryName == "mass171.5"){
+        histo->SetLineStyle(2);
+        histo->SetLineColor(8);
+        if(leg && theoryName == "scaledown") leg->AddEntry(histo,"Q^{2}/4",  "l");
+        if(leg && theoryName == "mass171.5")   leg->AddEntry(histo,"Mass = 171.5 GeV",  "l");
+    }
+    if(theoryName == "mass178.5"){
+        histo->SetLineStyle(3);
+        histo->SetLineColor(42);
+        if(leg && theoryName == "matchup") leg->AddEntry(histo,"Matching up",  "l");
+        if(leg && theoryName == "mass178.5") leg->AddEntry(histo,"Mass = 178.5 GeV",  "l");
+    }
+    if(theoryName == "mass166.5"){
+        histo->SetLineStyle(3);
+        histo->SetLineColor(48);
+        if(leg && theoryName == "matchdown") leg->AddEntry(histo,"Matching down",  "l");
+        if(leg && theoryName == "mass166.5")   leg->AddEntry(histo,"Mass = 166.5 GeV",  "l");
+    }
+
 }
 
 bool Plotter::addQCDToControlPlot()const
