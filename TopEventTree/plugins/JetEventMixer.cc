@@ -112,6 +112,7 @@ JetEventMixer::processOneEvent(edm::EventPrincipal const& eventPrincipal, edm::E
   edm::BasicHandle hPatJetsCalo = eventPrincipal.getByLabel(edm::TypeID(typeid(std::vector<pat::Jet>)), "selectedPatJetsAK5Calo", "", "FullHadTreeWriter", cachedOffset2, fillCount2);
   edm::Wrapper<std::vector<pat::Jet> > const* wPatJetsCalo = static_cast<edm::Wrapper<std::vector<pat::Jet> > const*>(hPatJetsCalo.wrapper());
   std::vector<pat::Jet> pPatJetsCalo = *wPatJetsCalo->product();
+  if(pPatJetsCalo.size() > nMix_) pPatJetsCalo.resize(nMix_);
   if(pPatJetsCalo.size() < 4 || pPatJetsCalo[3].pt() < 60) return;
   oriPatJetsCalo_.push_back(pPatJetsCalo);
 
@@ -123,6 +124,7 @@ JetEventMixer::processOneEvent(edm::EventPrincipal const& eventPrincipal, edm::E
   edm::Wrapper<std::vector<pat::Jet> > const* wPatJets = static_cast<edm::Wrapper<std::vector<pat::Jet> > const*>(hPatJets.wrapper());
   //std::cout << "wPatJets: " << wPatJets << std::endl;
   std::vector<pat::Jet> pPatJets = *wPatJets->product();
+  if(pPatJets.size() > nMix_) pPatJets.resize(nMix_);
   //std::cout << "pPatJets: " << pPatJets << std::endl;
   //std::cout << "pPatJets: " << pPatJets->at(0).pt() << std::endl;
   oriPatJets_.push_back(pPatJets);
@@ -244,6 +246,7 @@ JetEventMixer::putOneEvent(edm::Event& evt)
         pfCandidateIndex = 0;
         //std::cout << "NEXT JET!!!" << std::endl;
       }
+      if(jetIdx >= nMix_) continue;
       if(jetIdx >= oriPatJets_[i].size()){
         std::cout << "Something went wrong, jetIdx (" << jetIdx << ") >= nJets (" << oriPatJets_[i].size() << ")!" << std::endl;
         break;
@@ -327,13 +330,13 @@ void
 JetEventMixer::cleanUp()
 {
   //std::cout << "CLEANING UP !!!" << std::endl;
-  if(oriPatJets_.size()){
+  //if(oriPatJets_.size()){
     oriPatJets_     .clear();
     oriPatJetsCalo_ .clear();
     //oriGenJets_     .clear();
     oriPFCandidates_.clear();
     oriPUInfos_     .clear();
-  }
+  //}
   combos_.clear();
 }
 
