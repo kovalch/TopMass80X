@@ -158,29 +158,9 @@ void TopAnalysis::SlaveBegin(TTree*)
     h_GenAll_noweight = store(new TH1D ( "GenAll_noweight", "AllGenerated particles (IM)", 40, 0, 400 ));         h_GenAll_noweight->Sumw2();
     h_GenAll_RecoCuts = store(new TH1D ( "GenAll_RecoCuts", "AllGenerated particles (IM)", 40, 0, 400 ));         h_GenAll_RecoCuts->Sumw2();
     h_GenAll_RecoCuts_noweight= store(new TH1D ( "GenAll_RecoCuts_noweight", "AllGenerated particles (IM)", 40, 0, 400 ));         h_GenAll_RecoCuts_noweight->Sumw2();
-    Allh1_postKinReco = store(new TH1D ( "Allh1_postKinReco", "DiLepton Mass", 40, 0, 400 ));
+    
     h_diLepMassFull = store(new TH1D ( "DIMFull", "DiLepton Mass (Full Range)", 100, 0, 300 ));
     h_diLepMassFull_fullSel = store(new TH1D ( "DIMFull_fullSel", "DiLepton Mass (Full Range)", 100, 0, 300 ));
-    Looseh1 = store(new TH1D ( "Looseh1", "DiLepton Mass", 40, 0, 400 ));
-    Zh1_postKinReco = store(new TH1D ( "Zh1_postKinReco", "DiLepton Mass in Z Window", 40, 0, 400 ));
-    TTh1_postKinReco = store(new TH1D ( "TTh1_postKinReco", "DiLepton Mass out of Z Window", 40, 0, 400 ));
-
-    Allh1_postZcut = store(new TH1D ( "Allh1_postZcut", "DiLepton Mass", 40, 0, 400 ));
-    Zh1_postZcut = store(new TH1D ( "Zh1_postZcut", "DiLepton Mass in Z Window", 40, 0, 400 ));
-    TTh1_postZcut = store(new TH1D ( "TTh1_postZcut", "DiLepton Mass out of Z Window", 40, 0, 400 ));
-
-    Allh1_post2jets = store(new TH1D ( "Allh1_post2jets", "DiLepton Mass", 40, 0, 400 ));
-    Zh1_post2jets = store(new TH1D ( "Zh1_post2jets", "DiLepton Mass in Z Window", 40, 0, 400 ));
-    TTh1_post2jets = store(new TH1D ( "TTh1_post2jets", "DiLepton Mass out of Z Window", 40, 0, 400 ));
-
-    Allh1_postMET = store(new TH1D ( "Allh1_postMET", "DiLepton Mass", 40, 0, 400 ));
-    Zh1_postMET = store(new TH1D ( "Zh1_postMET", "DiLepton Mass in Z Window", 40, 0, 400 ));
-    TTh1_postMET = store(new TH1D ( "TTh1_postMET", "DiLepton Mass out of Z Window", 40, 0, 400 ));
-
-    Allh1_post1btag = store(new TH1D ( "Allh1_post1btag", "DiLepton Mass", 40, 0, 400 ));
-    Zh1_post1btag = store(new TH1D ( "Zh1_post1btag", "DiLepton Mass in Z Window", 40, 0, 400 ));
-    TTh1_post1btag = store(new TH1D ( "TTh1_post1btag", "DiLepton Mass out of Z Window", 40, 0, 400 ));
-
     
     h_vertMulti = store(new TH1D ( "vertMulti", "Primary Vertex Multiplicity", 30, 0, 30 ));
     h_vertMulti_noPU = store(new TH1D ( "vertMulti_noPU", "Primary Vertex Multiplicity (no Pileup)", 30, 0, 30 ));
@@ -1077,9 +1057,6 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                   genObjectIndicesDummy, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   fullWeights);
-
-        Zh1_postZcut->Fill(dilepton.M(), fullWeights);
-        Allh1_postZcut->Fill(dilepton.M(), fullWeights);
         
         if ( has2Jets ) {
             selectionStep = "5zWindow";
@@ -1091,11 +1068,6 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                   genLevelWeights, recoLevelWeights,
                   fullWeights);
             
-            // Fill loose dilepton mass histogram before any jet cuts
-            Looseh1->Fill(dilepton.M(), fullWeights);
-            Zh1_post2jets->Fill(dilepton.M(), fullWeights);
-            Allh1_post2jets->Fill(dilepton.M(), fullWeights);
-            
             if ( hasMetOrEmu ) {
                 selectionStep = "6zWindow";
                 this->fillAll(selectionStep,
@@ -1106,9 +1078,6 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                   genLevelWeights, recoLevelWeights,
                   fullWeights);
                 
-                Zh1_postMET->Fill(dilepton.M(), fullWeights);
-                Allh1_postMET->Fill(dilepton.M(), fullWeights);
-
                 if ( hasBtag ) {
                     selectionStep = "7zWindow";
                     this->fillAll(selectionStep,
@@ -1120,9 +1089,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                         fullWeights);
                     
                     fullWeights *= weightBtagSF;
-                    Zh1_post1btag->Fill(dilepton.M(), fullWeights);
-                    Allh1_post1btag->Fill(dilepton.M(), fullWeights);
-
+                    
                     if ( hasSolution ) {
                         fullWeights *= weightKinReco;
 
@@ -1135,8 +1102,6 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                             genLevelWeights, recoLevelWeights,
                             fullWeights);
                             
-                        Zh1_postKinReco->Fill(dilepton.M(), fullWeights);
-                        Allh1_postKinReco->Fill(dilepton.M(), fullWeights);
                     }
                 }
             }
@@ -1222,11 +1187,6 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     h_JetsMult_step5->Fill(numberOfJets, weight);
     h_BJetsMult_step5->Fill(numberOfBjets, weight);
     
-    if (!isZregion) { //also apply Z cut in emu!
-        TTh1_postZcut->Fill(dilepton.M(), weight);
-        Allh1_postZcut->Fill(dilepton.M(), weight);  //this is also filled in the Z region in the code above
-    }
-    
     //=== CUT ===
     selectionStep = "5";
     //Require at least two jets > 30 GeV (check for > 30 needed because we might have 20 GeV jets in our NTuple)
@@ -1265,11 +1225,6 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     h_JetsMult_step6->Fill(numberOfJets, weight);
     h_BJetsMult_step6->Fill(numberOfBjets, weight);
     
-    if (!isZregion) { //also apply Z cut in emu!
-        TTh1_post2jets->Fill(dilepton.M(), weight);
-        Allh1_post2jets->Fill(dilepton.M(), weight);  //this is also filled in the Z region in the code above
-    }
-
     //=== CUT ===
     selectionStep = "6";
     //Require MET > 30 GeV in non-emu channels
@@ -1335,11 +1290,6 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     h_JetsMult_step7->Fill(numberOfJets, weight);
     int nbjets_step7 = numberOfBjets;
     h_BJetsMult_step7->Fill(nbjets_step7, weight);
-    
-    if (!isZregion) { //also apply Z cut in emu!
-        TTh1_postMET->Fill(dilepton.M(), weight);
-        Allh1_postMET->Fill(dilepton.M(), weight);  //this is also filled in the Z region in the code above
-    }
     
     // Fill the b-tagging efficiency plots
     if(this->makeBtagEfficiencies()){
@@ -1413,11 +1363,6 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     h_JetsMult_step8->Fill(numberOfJets, weight);
     int nbjets_step8 = numberOfBjets;
     h_BJetsMult_step8->Fill(nbjets_step8, weight);
-    
-    if (!isZregion) { //also apply Z cut in emu!
-        TTh1_post1btag->Fill(dilepton.M(), weight);
-        Allh1_post1btag->Fill(dilepton.M(), weight);  //this is also filled in the Z region in the code above
-    }
     
     
 
@@ -1827,11 +1772,6 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
         FillBinnedControlPlot(h_HypTopRapidity, i.Rapidity(), h_LeptonEta, (*recoObjects.allLeptons_).at(leptonIndex).Eta(), weight);
         FillBinnedControlPlot(h_HypTopRapidity, i.Rapidity(), h_LeptonEta, (*recoObjects.allLeptons_).at(antiLeptonIndex).Eta(), weight);
         FillBinnedControlPlot(h_HypTopRapidity, i.Rapidity(), h_MET, (*recoObjects.met_).Pt(), weight);
-    }
-
-    if (!isZregion) { //also apply Z cut in emu!
-        TTh1_postKinReco->Fill(dilepton.M(), weight);
-        Allh1_postKinReco->Fill(dilepton.M(), weight);  //this is also filled in the Z region in the code above
     }
 
     //=== CUT ===

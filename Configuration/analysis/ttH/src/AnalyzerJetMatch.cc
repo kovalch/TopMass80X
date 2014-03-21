@@ -590,7 +590,7 @@ void AnalyzerJetMatch::fillHistos(const RecoObjects& recoObjects, const CommonGe
       
         
     // Get jet indices, apply selection cuts and order them by pt (beginning with the highest value)
-    const VLV& testcommonjets = *commonGenObjects.allGenJets_;
+    const VLV& testcommonjets = (commonGenObjects.valuesSet_) ? *commonGenObjects.allGenJets_ : VLV(0);
     std::vector<int> testcommonJetIndices = common::initialiseIndices(testcommonjets);
     common::orderIndices(testcommonJetIndices, testcommonjets, common::LVpt);
 

@@ -187,11 +187,72 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
                     math::PtEtaPhiMLorentzVectorD q (trackPt, trackEta, trackPhi, trackM);
                     jetSelectedTrack.push_back(q);
                     
-                }//end loop over tracks
+                }
                 
-            }//trackIPTagInfo filled check
+            }
             
-        }//has tag info
+        }
+
+        
+        std::vector<math::PtEtaPhiMLorentzVectorD> jetSecondaryVertexTrack;
+        std::vector<math::PtEtaPhiMLorentzVectorD> jetSecondaryVertex;
+        std::vector<int> jetSecondaryVertexTrackVertexIndex;
+        std::vector<double> jetSecondaryVertexFlightDistanceValue;
+        std::vector<double> jetSecondaryVertexFlightDistanceSignificance;
+        
+        if (i_jet->hasTagInfo("secondaryVertex"))
+        {
+            
+            const reco::SecondaryVertexTagInfo* secondaryVertexTagInfo = i_jet->tagInfoSecondaryVertex("secondaryVertex");
+            if (secondaryVertexTagInfo != NULL)
+            {  
+                unsigned int NVert = secondaryVertexTagInfo->nVertices();
+                for(size_t iNVert=0; iNVert<NVert; iNVert++){   
+                    
+                    const reco::Vertex& SecVertex = secondaryVertexTagInfo->secondaryVertex(iNVert);
+                    math::XYZTLorentzVectorD SecVertexP4 = SecVertex.p4();
+                                                            
+                    //create the Secondary Vertex LV
+                    double SecVertexP4Pt = SecVertexP4.pt();
+                    double SecVertexP4Eta = SecVertexP4.eta();
+                    double SecVertexP4Phi = SecVertexP4.phi();
+                    double SecVertexP4M = SecVertexP4.mass(); 
+                    
+                    math::PtEtaPhiMLorentzVectorD p (SecVertexP4Pt, SecVertexP4Eta, SecVertexP4Phi, SecVertexP4M);
+                    jetSecondaryVertex.push_back(p);
+                                        
+                    const double FlightDistanceValue = secondaryVertexTagInfo->flightDistance(iNVert).value();
+                    const double FlightDistanceSignificance = secondaryVertexTagInfo->flightDistance(iNVert).significance();
+                    jetSecondaryVertexFlightDistanceValue.push_back(FlightDistanceValue);
+                    jetSecondaryVertexFlightDistanceSignificance.push_back(FlightDistanceSignificance);
+                    
+                    reco::TrackRefVector VertTracks = secondaryVertexTagInfo->vertexTracks(iNVert);
+                    
+                    for(unsigned int i=0;i<VertTracks.size(); i++) 
+                    {
+                        jetSecondaryVertexTrackVertexIndex.push_back(iNVert);
+                        reco::Track trackSV ( *(VertTracks.at(i)) );
+                        
+                        double trackPt;
+                        double trackEta;
+                        double trackPhi;
+                        double trackM;
+                        
+                        //create the track LV
+                        trackPt = trackSV.pt();
+                        trackEta = trackSV.eta();
+                        trackPhi = trackSV.phi();
+                        trackM = 0.13957018; //mass of the track is agreed to be the pion mass by default
+                        
+                        math::PtEtaPhiMLorentzVectorD q (trackPt, trackEta, trackPhi, trackM);
+                        jetSecondaryVertexTrack.push_back(q);
+                        
+                    }  
+                }
+                
+            }
+            
+        }
         
         // Access Lorentz vector and PDG ID of parton associated to jet by PAT
         // If it does not exist, this can be identified by PDG ID =0
@@ -203,7 +264,7 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
             jetAssociatedParton = genParton->polarP4();
         }
         
-        JetProperties jetProperties(jetChargeGlobalPtWeighted, jetChargeRelativePtWeighted, jetAssociatedPartonPdgId, jetAssociatedParton, jetPfCandidateTrack, jetPfCandidateTrackCharge,jetPfCandidateTrackId, jetSelectedTrack, jetSelectedTrackIPValue, jetSelectedTrackIPSignificance, jetSelectedTrackCharge);
+        JetProperties jetProperties(jetChargeGlobalPtWeighted, jetChargeRelativePtWeighted, jetAssociatedPartonPdgId, jetAssociatedParton, jetPfCandidateTrack, jetPfCandidateTrackCharge,jetPfCandidateTrackId, jetSelectedTrack, jetSelectedTrackIPValue, jetSelectedTrackIPSignificance, jetSelectedTrackCharge, jetSecondaryVertexTrack, jetSecondaryVertexTrackVertexIndex, jetSecondaryVertex, jetSecondaryVertexFlightDistanceValue, jetSecondaryVertexFlightDistanceSignificance);
         v_jetProperties->push_back(jetProperties);
         
         edm::LogVerbatim log("JetPropertiesProducer");
@@ -224,6 +285,12 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         jetSelectedTrackIPValue.clear();
         jetSelectedTrackIPSignificance.clear();
         jetSelectedTrackCharge.clear();
+        jetSecondaryVertex.clear();
+        jetSecondaryVertexFlightDistanceValue.clear();
+        jetSecondaryVertexFlightDistanceSignificance.clear();
+        jetSecondaryVertexTrack.clear();
+        jetSecondaryVertexTrackVertexIndex.clear();
+        
     }
     
     iEvent.put(v_jetProperties);

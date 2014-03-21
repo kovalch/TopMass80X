@@ -170,8 +170,29 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     //===CUT===
     // this is step0a, no cut application
     selectionStep = "0a";
+    
+    // Create dummies for objects, non-dummies are created only as soon as needed
+    const RecoObjects recoObjectsDummy;
+    const CommonGenObjects commonGenObjectsDummy;
+    const KinRecoObjects kinRecoObjectsDummy;
+    const TopGenObjects topGenObjectsDummy;
+    const HiggsGenObjects higgsGenObjectsDummy;
 
+    // Set up dummies for weights and indices, as needed for generic functions
+    const tth::GenObjectIndices genObjectIndicesDummy(-1, -1, -1, -1, -1, -1, -1, -1);
+    const tth::RecoObjectIndices recoObjectIndicesDummy({}, {}, {}, -1, -1, -1, -1, -1, -1, {}, {}, {});
+    const tth::GenLevelWeights genLevelWeightsDummy(0., 0., 0., 0., 0.);
+    const tth::RecoLevelWeights recoLevelWeightsDummy(0., 0., 0., 0., 0.);
+    
     // ++++ Control Plots ++++
+    
+    this->fillAll(selectionStep,
+                  recoObjectsDummy, commonGenObjectsDummy,
+                  topGenObjectsDummy, higgsGenObjectsDummy,
+                  kinRecoObjectsDummy,
+                  genObjectIndicesDummy, recoObjectIndicesDummy,
+                  genLevelWeightsDummy, recoLevelWeightsDummy,
+                  1.);
 
 
 
@@ -210,6 +231,14 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
 
     // ++++ Control Plots ++++
 
+    this->fillAll(selectionStep,
+                  recoObjectsDummy, commonGenObjectsDummy,
+                  topGenObjectsDummy, higgsGenObjectsDummy,
+                  kinRecoObjectsDummy,
+                  genObjectIndicesDummy, recoObjectIndicesDummy,
+                  genLevelWeights, recoLevelWeightsDummy,
+                  1.);
+
 
 
     //===CUT===
@@ -225,11 +254,6 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     // Access reco objects, and common generator objects
     const RecoObjects& recoObjects = this->getRecoObjects(entry);
     const CommonGenObjects& commonGenObjects = this->getCommonGenObjects(entry);
-
-    // Create dummies for other objects, non-dummies are created only as soon as needed
-    const KinRecoObjects kinRecoObjectsDummy;
-    const TopGenObjects topGenObjectsDummy;
-    const HiggsGenObjects higgsGenObjectsDummy;
 
     // Get allLepton indices, apply selection cuts and order them by pt (beginning with the highest value)
     const VLV& allLeptons = *recoObjects.allLeptons_;
@@ -316,10 +340,8 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
                                                    leptonXIndex, leptonYIndex,
                                                    jetIndices, jetIndexPairs,
                                                    bjetIndices);
-
-    const tth::GenObjectIndices genObjectIndicesDummy(-1, -1, -1, -1, -1, -1, -1, -1);
-
-
+    
+    
     // Determine all reco level weights
     const double weightLeptonSF = this->weightLeptonSF(leadingLeptonIndex, nLeadingLeptonIndex, allLeptons, lepPdgId);
     const double weightTriggerSF = this->weightTriggerSF(leptonXIndex, leptonYIndex, allLeptons);

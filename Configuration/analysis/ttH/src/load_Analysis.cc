@@ -183,7 +183,7 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
     
     // Set up event yield histograms
     AnalyzerEventYields* analyzerEventYields(0);
-    analyzerEventYields = new AnalyzerEventYields({"1", "2", "3", "4", "5", "6", "7"}, {"7"}, jetCategories);
+    analyzerEventYields = new AnalyzerEventYields({"0a", "0b", "1", "2", "3", "4", "5", "6", "7"}, {"7"}, jetCategories);
     v_analyzer.push_back(analyzerEventYields);
     
     // Set up Drell-Yan scaling histograms

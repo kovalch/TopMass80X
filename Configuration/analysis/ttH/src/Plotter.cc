@@ -238,21 +238,25 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
 
 
     // Scaling the tt+bb component of the tt+jets sample
+//     TH1D* ttbbHist(0);
+//     TH1D* ttbHist(0);
+//     TH1D* ttOtherHist(0);
 //     double ttbbInt = 0.;
 //     double ttOtherInt = 0.;
 //     double ttScale = 1.;
-//     TH1D* ttbbHist(0);
-//     TH1D* ttOtherHist(0);
 //     for(size_t i = 0; i < stackHists.size(); ++i){
 //         if(stackHists.at(i).first == "t#bar{t}b#bar{b}") ttbbHist = (TH1D*)stackHists.at(i).second;
+//         if(stackHists.at(i).first == "t#bar{t}b") ttbHist = (TH1D*)stackHists.at(i).second;
 //         if(stackHists.at(i).first == "t#bar{t}Other") ttOtherHist = (TH1D*)stackHists.at(i).second;
 //     }
 //     if(ttbbHist) ttbbInt = ttbbHist->Integral();
+//     if(ttbHist) ttbbInt += ttbHist->Integral();
 //     if(ttOtherHist) ttOtherInt = ttOtherHist->Integral();
 //     double ttInt = ttbbInt + ttOtherInt;
 //     double ttIntScaled = ttbbInt*ttbbScale_ + ttOtherInt;
 //     if(ttInt>0. && ttIntScaled>0.) ttScale = ttInt/ttIntScaled;
 //     ttbbHist->Scale(ttbbScale_*ttScale);
+//     ttbHist->Scale(ttbbScale_*ttScale);
 //     ttOtherHist->Scale(ttScale);
     
     
@@ -277,14 +281,14 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
 
 
     // Scale the summed MC sample to the data
-//     if(scaleMCtoData_) {
-//         // Estimate the scaling factor for MC histos to have the same integral as Data
-//         float MCtoData = (float)dataHist.second->Integral()/(float)stacksum->Integral();
-//         // Scaling MC to match data
-//         for (const auto& stackHist : stackHists) { stackHist.second->Scale(MCtoData); }
-//         for (const auto& higgsHist : higgsHists) { higgsHist.second->Scale(MCtoData); }
-//         stacksum->Scale(MCtoData);
-//     }
+    if(scaleMCtoData_ && dataHist.second && stacksum) {
+        // Estimate the scaling factor for MC histos to have the same integral as Data
+        float MCtoData = (float)dataHist.second->Integral()/(float)stacksum->Integral();
+        // Scaling MC to match data
+        for (const auto& stackHist : stackHists) { stackHist.second->Scale(MCtoData); }
+        for (const auto& higgsHist : higgsHists) { higgsHist.second->Scale(MCtoData); }
+        stacksum->Scale(MCtoData);
+    }
 
 
     // Drawing signal significance for dijet_mass H->bb
@@ -328,15 +332,20 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     THStack* stack(0);
     if(dataHist.second) legend->AddEntry(dataHist.second, dataHist.first,"pe");
     if(stackHists.size()) stack = new THStack("def", "def");
-    for(const auto& stackHist : stackHists){
-        stackHist.second->SetLineColor(1);
-        legend->AddEntry(stackHist.second, stackHist.first,"f");
-        stack->Add(stackHist.second);
+    for(std::vector<LegendHistPair>::reverse_iterator higgsHist = higgsHists.rbegin(); higgsHist!=higgsHists.rend(); ++higgsHist)
+    {
+        higgsHist->second->SetFillStyle(0);
+        higgsHist->second->SetLineWidth(2);
+        legend->AddEntry(higgsHist->second, higgsHist->first,"l");
     }
-    for(const auto& higgsHist : higgsHists){
-        higgsHist.second->SetFillStyle(0);
-        higgsHist.second->SetLineWidth(2);
-        legend->AddEntry(higgsHist.second, higgsHist.first,"l");
+    for(std::vector<LegendHistPair>::reverse_iterator stackHist = stackHists.rbegin(); stackHist!=stackHists.rend(); ++stackHist)
+    {
+        stackHist->second->SetLineColor(1);
+        legend->AddEntry(stackHist->second, stackHist->first,"f");
+    }
+    for(std::vector<LegendHistPair>::const_iterator stackHist = stackHists.begin(); stackHist!=stackHists.end(); ++stackHist)
+    {
+        stack->Add(stackHist->second);
     }
 
     // In fact the legend is filled oppositely than the stack, so this is used for turning the order (but not completely)

@@ -47,7 +47,7 @@
 
 ### Dibosons
 
-40 Summer12.ZZJetsTo4L_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff 	zzto4l.root        zz
+60 Summer12.ZZJetsTo4L_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff 	zzto4l.root        zz
 18 Summer12.WZJetsTo3LNu_TuneZ2_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff 		wzto3lnu.root      wz
 17 Summer12.WWJetsTo2L2Nu_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff 	wwto2l2nu.root     ww
 

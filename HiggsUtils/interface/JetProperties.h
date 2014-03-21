@@ -21,7 +21,9 @@ public:
             const std::vector<math::PtEtaPhiMLorentzVectorD>& jetPfCandidateTrack, const std::vector<int>& jetPfCandidateTrackCharge,
             const std::vector<int>& jetPfCandidateTrackId, const std::vector<math::PtEtaPhiMLorentzVectorD>& jetSelectedTrack, 
             const std::vector<double>& jetSelectedTrackIPValue, const std::vector<double>& jetSelectedTrackIPSignificance,
-            const std::vector<int>& jetSelectedTrackCharge
+            const std::vector<int>& jetSelectedTrackCharge, const std::vector<math::PtEtaPhiMLorentzVectorD>& jetSecondaryVertexTrack,
+            const std::vector<int>& jetSecondaryVertexTrackVertexIndex, const std::vector<math::PtEtaPhiMLorentzVectorD>& jetSecondaryVertex,
+            const std::vector<double>& jetSecondaryVertexFlightDistanceValue, const std::vector<double>& jetSecondaryVertexFlightDistanceSignificance
 	);
 	
 	
@@ -38,7 +40,12 @@ public:
     std::vector<double> jetSelectedTrackIPValue()const;
     std::vector<double> jetSelectedTrackIPSignificance()const;
     std::vector<int> jetSelectedTrackCharge()const;
-	
+    std::vector<math::PtEtaPhiMLorentzVectorD> jetSecondaryVertexTrack()const;
+    std::vector<int> jetSecondaryVertexTrackVertexIndex()const;
+    std::vector<math::PtEtaPhiMLorentzVectorD> jetSecondaryVertex()const;
+    std::vector<double> jetSecondaryVertexFlightDistanceValue()const;
+    std::vector<double> jetSecondaryVertexFlightDistanceSignificance()const;
+    
 private:
 	
     double jetChargeGlobalPtWeighted_;
@@ -52,6 +59,11 @@ private:
     std::vector<double> jetSelectedTrackIPValue_;
     std::vector<double> jetSelectedTrackIPSignificance_;
     std::vector<int> jetSelectedTrackCharge_;
+    std::vector<math::PtEtaPhiMLorentzVectorD> jetSecondaryVertexTrack_;
+    std::vector<int> jetSecondaryVertexTrackVertexIndex_;
+    std::vector<math::PtEtaPhiMLorentzVectorD> jetSecondaryVertex_;
+    std::vector<double> jetSecondaryVertexFlightDistanceValue_;
+    std::vector<double> jetSecondaryVertexFlightDistanceSignificance_;
 };
 
 
