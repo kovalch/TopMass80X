@@ -45,12 +45,13 @@ public:
 };
 
 namespace HelperFunctions {
-  // heavily inspired by Matthias' Usercode: https://github.com/mschrode/Tools
+  // "best of" of Matthias' Usercode: https://github.com/mschrode/Tools
   TH1* createRatioPlot(const TH1 *h1, const TH1 *h2, const std::string &yTitle);
   std::string cleanedName(std::string toBeCleaned);
   void findYRange(const TH1 *h, double& min, double& max);
   void setCommonYRange(std::vector <TH1 *> histos, double RelTopOffset=0);
   bool fitCoreWidth(const TH1* hist, double nSig, TF1* &gauss, double &width, double &widthErr, double &rms, double &rmsErr);
+  bool equidistLogBins(std::vector<double>& binEdges, double min, double max, bool logarithm=true);
 }
 
 #endif

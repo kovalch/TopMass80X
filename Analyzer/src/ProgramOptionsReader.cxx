@@ -95,6 +95,8 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("analysisConfig.maxPermutations", boost::program_options::value<int>()->default_value(666666))
         ("analysisConfig.activeBranches", boost::program_options::value<std::string>()->default_value("*"))
         ("analysisConfig.plotsToDraw", boost::program_options::value<std::string>()->default_value("StandardPlots|UETunePlots|MCGeneratorPlots|JESVariationPlots|SignalModellingPlots|BasicMasses|LightPulls|BJetPulls|MixedPulls|ExtraPlotsFitCombTypeEtc|JetPts|TopPts|FitPts|LeptonJetsExtra|JetDetails|EventObservables"))
+        ("analysisConfig.ratioYMin", boost::program_options::value<double>()->default_value(0.49))
+        ("analysisConfig.ratioYMax", boost::program_options::value<double>()->default_value(1.51))
         ("templates.fSig", boost::program_options::value<double>()->default_value(0.0))
         ("templates.fCP", boost::program_options::value<double>()->default_value(0.0))
         ("templates.fWP", boost::program_options::value<double>()->default_value(0.0))

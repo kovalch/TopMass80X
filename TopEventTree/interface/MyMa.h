@@ -32,6 +32,24 @@ static TString invariantMass(const char* vec1, const char* vec2, TString scaling
 	return	InvMass;
 }
 
+static TString invariantMass(const char* vec1, const char* vec2, TString scalingFactorVec1 = "1.", TString scalingFactorVec2 = "1."){
+
+	TString EnergySquared = "TMath::Power(" + TString(scalingFactorVec1) + "*" + TString(vec1)+".E() + " + TString(scalingFactorVec2) + "*" + TString(vec2)+".E(),2)";
+	TString PtSquared = "(TMath::Power(" + TString(scalingFactorVec1) + "*" + TString(vec1)+".Px() + " + TString(scalingFactorVec2) + "*" + TString(vec2)+".Px(),2) + TMath::Power(" + TString(scalingFactorVec1) + "*" + TString(vec1)+".Py() + " + TString(scalingFactorVec2) + "*" + TString(vec2)+".Py(),2) + TMath::Power(" + TString(scalingFactorVec1) + "*" + TString(vec1)+".Pz() + " + TString(scalingFactorVec2) + "*" + TString(vec2)+".Pz(),2))";
+	TString InvMass = "TMath::Sqrt("+ EnergySquared + " - " + PtSquared + ")";
+
+	return	InvMass;
+}
+
+static TString invariantMassThreeVec(const char* vec1, const char* vec2, const char* vec3, TString scalingFactorVec1 = "1.", TString scalingFactorVec2 = "1.", TString scalingFactorVec3 = "1."){
+
+	TString EnergySquared = "TMath::Power(" + TString(scalingFactorVec1) + "*" + TString(vec1)+".E() + " + TString(scalingFactorVec2) + "*" + TString(vec2)+".E() + "+ TString(scalingFactorVec3) + "*" + TString(vec3) + ".E(),2)";
+	TString PtSquared = "(TMath::Power(" + TString(scalingFactorVec1) + "*" + TString(vec1)+".Px() + " + TString(scalingFactorVec2) + "*" + TString(vec2)+".Px() + " + TString(scalingFactorVec3) + "*" + TString(vec3)+".Px(),2) + TMath::Power(" + TString(scalingFactorVec1) + "*" + TString(vec1)+".Py() + " + TString(scalingFactorVec2) + "*" + TString(vec2)+".Py() + " + TString(scalingFactorVec3) + "*" + TString(vec3)+".Py(),2) + TMath::Power(" + TString(scalingFactorVec1) + "*" + TString(vec1)+".Pz() + " + TString(scalingFactorVec2) + "*" + TString(vec2)+".Pz() + " + TString(scalingFactorVec3) + "*" + TString(vec3)+".Pz(),2))";
+	TString InvMass = "TMath::Sqrt("+ EnergySquared + " - " + PtSquared + ")";
+
+	return	InvMass;
+}
+
 }
 
 // invariant mass
