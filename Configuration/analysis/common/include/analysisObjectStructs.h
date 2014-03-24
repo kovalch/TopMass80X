@@ -30,7 +30,7 @@ struct RecoObjects{
     //std::vector<double>* lepPuChargedHadronIso_;
     std::vector<double>* lepCombIso_;
     std::vector<double>* lepDxyVertex0_;
-    //std::vector<double>* lepDzVertex0_;
+    std::vector<double>* lepDzVertex0_;
     //std::vector<int>* lepTrigger_;
     VLV* jets_;
     std::vector<double>* jetBTagTCHE_;
@@ -56,6 +56,13 @@ struct RecoObjects{
     //std::vector<double>* jetSelectedTrackIPSignificance_;
     //std::vector<int>* jetSelectedTrackCharge_;
     //std::vector<int>* jetSelectedTrackIndex_;
+    std::vector<LV>* jetSecondaryVertex_;
+    std::vector<double>* jetSecondaryVertexFlightDistanceValue_;
+    std::vector<double>* jetSecondaryVertexFlightDistanceSignificance_;
+    std::vector<LV>* jetSecondaryVertexTrack_;
+    std::vector<int>* jetSecondaryVertexTrackJetIndex_;
+    std::vector<int>* jetSecondaryVertexTrackVertexIndex_;
+    
     LV* met_;
     std::vector<double>* jetJERSF_;
     VLV* jetsForMET_;
