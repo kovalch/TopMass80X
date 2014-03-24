@@ -666,6 +666,8 @@ MixedObjectsAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& iS
     leadNonttjetEtaTrue=addGenJets_h->at(0).eta();
     leadNonttjetYTrue=addGenJets_h->at(0).rapidity();
   }
+  if(leadNonttjetPt    <=addJetPt_)rhos    =-1000;
+  if(leadNonttjetPtTrue<=addJetPt_)rhosTrue=-1000;
 
   // fill rhos plots
   if(debug) std::cout << "fill ttbar+1jet plots" << std::endl;
