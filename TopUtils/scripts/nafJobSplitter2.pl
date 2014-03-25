@@ -593,6 +593,7 @@ sub getBatchsystemTemplate {
 #$ -cwd
 #$ -V
 #
+#$ -m a
 #$ -o /dev/null
 # naf2 changes
 #$ -P __GPID__
