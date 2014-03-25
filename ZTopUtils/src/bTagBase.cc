@@ -500,6 +500,7 @@ float bTagBase::BJetSF(const float & pt, const float& abs_eta,
 			// -------
 			// SF from:
 			// https://twiki.cern.ch/twiki/pub/CMS/BtagPOG/SFb-pt_NOttbar_payload_EPS13.txt  (EPS 2013 prescription)
+		    // THIS IS WINTER13!!!
 			// -------
 
 			static float ptbins[] = { 20, 30, 40, 50, 60, 70, 80, 100, 120, 160,
