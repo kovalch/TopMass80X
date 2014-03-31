@@ -47,7 +47,13 @@ namespace tth{
     
     
     struct GenObjectIndices{
-        GenObjectIndices(const int& genBjetFromTopIndex, const int& genAntiBjetFromTopIndex,
+        GenObjectIndices(const std::vector<int>& genBjetIndices,
+                         const std::vector<std::vector<int> >& genJetBhadronIndices,
+                         const std::vector<int>& genJetMatchedRecoBjetIndices,
+                         const std::vector<int>& genCjetIndices,
+                         const std::vector<std::vector<int> >& genJetChadronIndices,
+                         const std::vector<int>& genJetMatchedRecoCjetIndices,
+                         const int& genBjetFromTopIndex, const int& genAntiBjetFromTopIndex,
                          const int& recoBjetFromTopIndex, const int& recoAntiBjetFromTopIndex,
                          const int& genBjetFromHiggsIndex, const int& genAntiBjetFromHiggsIndex,
                          const int& recoBjetFromHiggsIndex, const int& recoAntiBjetFromHiggsIndex);
@@ -72,6 +78,14 @@ namespace tth{
         bool isPairFromHiggs(const int& bIndex, const int& antiBIndex)const;
         
         #ifndef __CINT__
+        const std::vector<int>& genBjetIndices_;
+        const std::vector<std::vector<int> >& genJetBhadronIndices_;
+        const std::vector<int>& genJetMatchedRecoBjetIndices_;
+        
+        const std::vector<int>& genCjetIndices_;
+        const std::vector<std::vector<int> >& genJetChadronIndices_;
+        const std::vector<int>& genJetMatchedRecoCjetIndices_;
+        
         const int& genBjetFromTopIndex_;
         const int& genAntiBjetFromTopIndex_;
         const int& recoBjetFromTopIndex_;
