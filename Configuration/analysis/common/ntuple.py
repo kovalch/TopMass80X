@@ -9,7 +9,7 @@ import os
 
 REPORTEVERY = 100
 WANTSUMMARY = True
-
+createMvaMet = False
 
 
 ####################################################################
@@ -215,13 +215,16 @@ process.load("Configuration.EventContent.EventContent_cff")
 process.out = cms.OutputModule("PoolOutputModule",
     process.FEVTEventContent,
     dataset = cms.untracked.PSet(dataTier = cms.untracked.string('RECO')),
-     fileName = cms.untracked.string("eh.root"),
+    fileName = cms.untracked.string("eh.root"),
 )
 
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
-#pfpostfix = "PFlow"
-pfpostfix = ""
+
+if createMvaMet:
+    pfpostfix = "PFlow"
+else:
+    pfpostfix = ""
 
 from PhysicsTools.PatAlgos.tools.pfTools import *
 
@@ -253,33 +256,33 @@ getattr(process, 'patPF2PATSequence'+pfpostfix).replace(getattr(process,'patElec
 #default is:
 #process.pfSelectedElectrons.cut = 'pt > 5 && gsfTrackRef.isNonnull && gsfTrackRef.trackerExpectedHitsInner.numberOfLostHits<2'
 #here a low pt cut needs to be used!
-process.pfSelectedElectrons.cut = 'pt > 5 && gsfTrackRef.isNonnull && gsfTrackRef.trackerExpectedHitsInner.numberOfHits <= 0'
+getattr(process, 'pfSelectedElectrons'+pfpostfix).cut = 'pt > 5 && gsfTrackRef.isNonnull && gsfTrackRef.trackerExpectedHitsInner.numberOfHits <= 0'
 
 
 # Switch isolation cone to 0.3 and set cut to 0.15
-process.pfIsolatedElectrons.doDeltaBetaCorrection = True   # not really a 'deltaBeta' correction, but it serves
-process.pfIsolatedElectrons.deltaBetaIsolationValueMap = cms.InputTag("elPFIsoValuePU03PFId")
-process.pfIsolatedElectrons.isolationValueMapsCharged = cms.VInputTag(cms.InputTag("elPFIsoValueCharged03PFId"))
-process.pfIsolatedElectrons.isolationValueMapsNeutral = cms.VInputTag(cms.InputTag("elPFIsoValueNeutral03PFId"), cms.InputTag("elPFIsoValueGamma03PFId"))
-process.pfIsolatedElectrons.isolationCut = 0.15
+getattr(process, 'pfIsolatedElectrons'+pfpostfix).doDeltaBetaCorrection = True   # not really a 'deltaBeta' correction, but it serves
+getattr(process, 'pfIsolatedElectrons'+pfpostfix).deltaBetaIsolationValueMap = cms.InputTag("elPFIsoValuePU03PFId"+pfpostfix)
+getattr(process, 'pfIsolatedElectrons'+pfpostfix).isolationValueMapsCharged = cms.VInputTag(cms.InputTag("elPFIsoValueCharged03PFId"+pfpostfix))
+getattr(process, 'pfIsolatedElectrons'+pfpostfix).isolationValueMapsNeutral = cms.VInputTag(cms.InputTag("elPFIsoValueNeutral03PFId"+pfpostfix), cms.InputTag("elPFIsoValueGamma03PFId"+pfpostfix))
+getattr(process, 'pfIsolatedElectrons'+pfpostfix).isolationCut = 0.15
 
 
-process.patElectrons.isolationValues = cms.PSet(
-    pfChargedHadrons = cms.InputTag("elPFIsoValueCharged03PFId"),
-    pfChargedAll = cms.InputTag("elPFIsoValueChargedAll03PFId"),
-    pfPUChargedHadrons = cms.InputTag("elPFIsoValuePU03PFId"),
-    pfNeutralHadrons = cms.InputTag("elPFIsoValueNeutral03PFId"),
-    pfPhotons = cms.InputTag("elPFIsoValueGamma03PFId") )
+getattr(process, 'patElectrons'+pfpostfix).isolationValues = cms.PSet(
+    pfChargedHadrons = cms.InputTag("elPFIsoValueCharged03PFId"+pfpostfix),
+    pfChargedAll = cms.InputTag("elPFIsoValueChargedAll03PFId"+pfpostfix),
+    pfPUChargedHadrons = cms.InputTag("elPFIsoValuePU03PFId"+pfpostfix),
+    pfNeutralHadrons = cms.InputTag("elPFIsoValueNeutral03PFId"+pfpostfix),
+    pfPhotons = cms.InputTag("elPFIsoValueGamma03PFId"+pfpostfix)
+)
 
 
-process.selectedPatElectrons.cut = 'electronID("mvaTrigV0") > 0.5' \
-            ' && passConversionVeto'
+getattr(process, 'selectedPatElectrons'+pfpostfix).cut = 'electronID("mvaTrigV0") > 0.5 && passConversionVeto'
             #cant do this on python level :-(
             #' && abs(gsfTrack().dxy(vertex_.position())) < 0.04'
 
 
 process.selectedPatElectronsAfterScaling = selectedPatElectrons.clone(
-    src = 'scaledJetEnergy:selectedPatElectrons',
+    src = 'scaledJetEnergy:selectedPatElectrons'+pfpostfix,
     cut = 'pt > 20 && abs(eta) < 2.5'
 )
 
@@ -288,29 +291,27 @@ process.selectedPatElectronsAfterScaling = selectedPatElectrons.clone(
 ####################################################################
 ## Set up selections for PF2PAT & PAT objects: Muons
 
-process.pfSelectedMuons.cut = 'pt > 5' \
+getattr(process, 'pfSelectedMuons'+pfpostfix).cut = 'pt > 5' \
                               '&& muonRef.isNonnull()' \
                               '&& (muonRef.isGlobalMuon() || muonRef.isTrackerMuon())'
 
-
 # Switch isolation cone to 0.3 and set cut to 0.15
-process.pfIsolatedMuons.doDeltaBetaCorrection = True
-process.pfIsolatedMuons.deltaBetaIsolationValueMap = cms.InputTag("muPFIsoValuePU03", "", "")
-process.pfIsolatedMuons.isolationValueMapsCharged = [cms.InputTag("muPFIsoValueCharged03")]
-process.pfIsolatedMuons.isolationValueMapsNeutral = [cms.InputTag("muPFIsoValueNeutral03"), cms.InputTag("muPFIsoValueGamma03")]
-process.pfIsolatedMuons.isolationCut = 0.15
+getattr(process, 'pfIsolatedMuons'+pfpostfix).doDeltaBetaCorrection = True
+getattr(process, 'pfIsolatedMuons'+pfpostfix).deltaBetaIsolationValueMap = cms.InputTag("muPFIsoValuePU03"+pfpostfix, "", "")
+getattr(process, 'pfIsolatedMuons'+pfpostfix).isolationValueMapsCharged = [cms.InputTag("muPFIsoValueCharged03"+pfpostfix)]
+getattr(process, 'pfIsolatedMuons'+pfpostfix).isolationValueMapsNeutral = [cms.InputTag("muPFIsoValueNeutral03"+pfpostfix), cms.InputTag("muPFIsoValueGamma03"+pfpostfix)]
+getattr(process, 'pfIsolatedMuons'+pfpostfix).isolationCut = 0.15
 
-
-process.patMuons.isolationValues = cms.PSet(
-        pfNeutralHadrons = cms.InputTag("muPFIsoValueNeutral03"),
-        pfChargedAll = cms.InputTag("muPFIsoValueChargedAll03"),
-        pfPUChargedHadrons = cms.InputTag("muPFIsoValuePU03"),
-        pfPhotons = cms.InputTag("muPFIsoValueGamma03"),
-        pfChargedHadrons = cms.InputTag("muPFIsoValueCharged03")
+getattr(process,'patMuons'+pfpostfix).isolationValues = cms.PSet(
+        pfNeutralHadrons = cms.InputTag("muPFIsoValueNeutral03"+pfpostfix),
+        pfChargedAll = cms.InputTag("muPFIsoValueChargedAll03"+pfpostfix),
+        pfPUChargedHadrons = cms.InputTag("muPFIsoValuePU03"+pfpostfix),
+        pfPhotons = cms.InputTag("muPFIsoValueGamma03"+pfpostfix),
+        pfChargedHadrons = cms.InputTag("muPFIsoValueCharged03"+pfpostfix)
 )
 
 
-process.selectedPatMuons.cut = 'isPFMuon && pt > 20 && abs(eta) < 2.4'
+getattr(process,'selectedPatMuons'+pfpostfix).cut = 'isPFMuon && pt > 20 && abs(eta) < 2.4'
 
 
 
@@ -318,6 +319,29 @@ process.selectedPatMuons.cut = 'isPFMuon && pt > 20 && abs(eta) < 2.4'
 ## Set up selections for PF2PAT & PAT objects: Jets
 
 process.selectedPatJets.cut = 'abs(eta)<5.4'
+
+
+####################################################################
+##  MVA met
+if createMvaMet:
+    process.load('RecoMET.METPUSubtraction.mvaPFMET_leptons_cff')
+    process.calibratedAK5PFJetsForPFMEtMVA.src = 'pfJets' +pfpostfix
+    if options.runOnMC:
+        process.calibratedAK5PFJetsForPFMEtMVA.correctors= cms.vstring("ak5PFL1FastL2L3")
+    else:
+        process.calibratedAK5PFJetsForPFMEtMVA.correctors= cms.vstring("ak5PFL1FastL2L3Residual")
+    process.pfMEtMVA.srcUncorrJets='pfJets' +pfpostfix
+    process.pfMEtMVA.srcVertices = 'goodOfflinePrimaryVertices'
+    process.pfMEtMVA.inputFileNames = cms.PSet(
+        U = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrmet_53_June2013_type1.root'),
+        DPhi = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrmetphi_53_June2013_type1.root'),
+        CovU1 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru1cov_53_Dec2012.root'),
+        CovU2 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru2cov_53_Dec2012.root')
+        )
+    process.pfMEtMVA.srcLeptons=cms.VInputTag("isomuons","isoelectrons","isotaus") #should be adapted to analysis selection..
+    process.pfMEtMVA.srcRho = cms.InputTag("kt6PFJets","rho","RECO")
+    process.patMEtMVA= getattr(process,'patMETs'+pfpostfix).clone()
+    process.patMEtMVA.metSource = 'pfMEtMVA'
 
 
 
@@ -386,20 +410,22 @@ else:
     exit(8)
 
 
+if signal:
+    process.goodOfflinePrimaryVertices.filter = cms.bool(False)
 
 ####################################################################
 ## Define which collections (including which corrections) to be used in nTuple
 
-isolatedMuonCollection = "selectedPatMuons"
+isolatedMuonCollection = "selectedPatMuons"+pfpostfix
 
 #isolatedElecCollection = "selectedPatElectrons"
 isolatedElecCollection = "selectedPatElectronsAfterScaling"
 
 jetCollection = "hardJets"
 
-jetForMETCollection = "scaledJetEnergy:selectedPatJets"
+jetForMETCollection = "scaledJetEnergy:selectedPatJets"+pfpostfix
 
-metCollection = "scaledJetEnergy:patMETs"
+metCollection = "scaledJetEnergy:patMETs"+pfpostfix
 
 genJetCollection = "ak5GenJetsPlusHadron"
 
@@ -446,7 +472,7 @@ if topfilter:
 process.load("TopAnalysis.TopUtils.JetEnergyScale_cfi")
 
 process.load("TopAnalysis.TopFilter.filters.JetIdFunctorFilter_cfi")
-process.goodIdJets.jets    = cms.InputTag("scaledJetEnergy:selectedPatJets")
+process.goodIdJets.jets    = cms.InputTag("scaledJetEnergy:selectedPatJets"+pfpostfix)
 process.goodIdJets.jetType = cms.string('PF')
 process.goodIdJets.version = cms.string('FIRSTDATA')
 process.goodIdJets.quality = cms.string('LOOSE')
@@ -459,7 +485,7 @@ process.jetProperties.src = jetCollection
 
 process.buildJets = cms.Sequence(
             process.scaledJetEnergy *
-	    process.selectedPatElectronsAfterScaling *
+            process.selectedPatElectronsAfterScaling *
             process.goodIdJets * 
             process.hardJets *
             process.jetProperties
@@ -534,11 +560,18 @@ writeNTuple.pdfWeights = "pdfWeights:cteq66"
 writeNTuple.includeZdecay = zproducer
 writeNTuple.saveHadronMothers = False
 
+if createMvaMet:
+    mvametCollection = 'patMEtMVA'
+else:
+    mvametCollection = metCollection
+
+
 process.writeNTuple = writeNTuple.clone(
     muons = isolatedMuonCollection,
     elecs = isolatedElecCollection,
     jets = jetCollection,
     met = metCollection,
+    mvamet = mvametCollection,
     genMET = "genMetTrue",
     genJets = genJetCollection,
 
@@ -550,7 +583,6 @@ process.writeNTuple = writeNTuple.clone(
     AntiBHadronFromTopB = cms.InputTag(genLevelBJetProducerInput, "AntiBHadronFromTopB"),
     BHadronVsJet = cms.InputTag(genLevelBJetProducerInput, "BHadronVsJet"),
     AntiBHadronVsJet = cms.InputTag(genLevelBJetProducerInput, "AntiBHadronVsJet"),
-
     genBHadPlusMothers = cms.InputTag(genHFBHadronMatcherInput,"genBHadPlusMothers"),
     genBHadPlusMothersIndices = cms.InputTag(genHFBHadronMatcherInput,"genBHadPlusMothersIndices"),
     genBHadIndex = cms.InputTag(genHFBHadronMatcherInput,"genBHadIndex"),
@@ -571,8 +603,8 @@ process.writeNTuple = writeNTuple.clone(
     genCHadLeptonHadronIndex = cms.InputTag(genHFCHadronMatcherInput,"genCHadLeptonHadronIndex"),
     genCHadLeptonViaTau = cms.InputTag(genHFCHadronMatcherInput,"genCHadLeptonViaTau"), 
 )
-process.writeNTuple.jetsForMET    = cms.InputTag("scaledJetEnergy:selectedPatJets")
-process.writeNTuple.jetsForMETuncorr    = cms.InputTag("selectedPatJets")
+process.writeNTuple.jetsForMET    = cms.InputTag("scaledJetEnergy:selectedPatJets"+pfpostfix)
+process.writeNTuple.jetsForMETuncorr    = cms.InputTag("selectedPatJets"+pfpostfix)
 
 
 
@@ -710,7 +742,7 @@ if topfilter:
             process.generatorTopFilter *
             process.produceGenLevelBJets *
             process.matchGenHFBHadronJets *
-	    process.matchGenHFCHadronJets)
+            process.matchGenHFCHadronJets)
     else:
         process.topsequence = cms.Sequence(
             process.makeGenEvt *
@@ -749,54 +781,56 @@ removeSpecificPATObjects( process
                         , outputModules = []
                         , postfix = pfpostfix
                         )
-# Remove the full pftau sequence as it is not needed for us
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'pfTauPFJets08Region'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'pfTauPileUpVertices'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'pfTauTagInfoProducer'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'pfJetsPiZeros'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'pfJetsLegacyTaNCPiZeros'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'pfJetsLegacyHPSPiZeros'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'pfTausBase'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsSelectionDiscriminator'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauProducerSansRefs'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauProducer'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'pfTausBaseDiscriminationByDecayModeFinding'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'pfTausBaseDiscriminationByLooseCombinedIsolationDBSumPtCorr'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'pfTaus'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'pfNoTau'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByDecayModeFinding'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByVLooseChargedIsolation'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByLooseChargedIsolation'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByMediumChargedIsolation'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByTightChargedIsolation'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByVLooseIsolation'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByLooseIsolation'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByMediumIsolation'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByTightIsolation'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByVLooseIsolationDBSumPtCorr'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByLooseIsolationDBSumPtCorr'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByMediumIsolationDBSumPtCorr'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByTightIsolationDBSumPtCorr'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByRawChargedIsolationDBSumPtCorr'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByRawGammaIsolationDBSumPtCorr'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByLooseElectronRejection'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByMediumElectronRejection'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByTightElectronRejection'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByMVAElectronRejection'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByLooseMuonRejection'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByMediumMuonRejection'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByTightMuonRejection'+pfpostfix))
+if not createMvaMet:
+    # Remove the full pftau sequence as it is not needed for us
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'pfTauPFJets08Region'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'pfTauPileUpVertices'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'pfTauTagInfoProducer'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'pfJetsPiZeros'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'pfJetsLegacyTaNCPiZeros'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'pfJetsLegacyHPSPiZeros'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'pfTausBase'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsSelectionDiscriminator'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauProducerSansRefs'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauProducer'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'pfTausBaseDiscriminationByDecayModeFinding'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'pfTausBaseDiscriminationByLooseCombinedIsolationDBSumPtCorr'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'pfTaus'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'pfNoTau'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByDecayModeFinding'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByVLooseChargedIsolation'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByLooseChargedIsolation'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByMediumChargedIsolation'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByTightChargedIsolation'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByVLooseIsolation'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByLooseIsolation'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByMediumIsolation'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByTightIsolation'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByVLooseIsolationDBSumPtCorr'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByLooseIsolationDBSumPtCorr'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByMediumIsolationDBSumPtCorr'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByTightIsolationDBSumPtCorr'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByRawChargedIsolationDBSumPtCorr'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByRawGammaIsolationDBSumPtCorr'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByLooseElectronRejection'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByMediumElectronRejection'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByTightElectronRejection'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByMVAElectronRejection'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByLooseMuonRejection'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByMediumMuonRejection'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'hpsPFTauDiscriminationByTightMuonRejection'+pfpostfix))
 
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'tauIsoDepositPFCandidates'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'tauIsoDepositPFChargedHadrons'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'tauIsoDepositPFNeutralHadrons'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'tauIsoDepositPFGammas'+pfpostfix))
-getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'patTaus'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'tauIsoDepositPFCandidates'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'tauIsoDepositPFChargedHadrons'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'tauIsoDepositPFNeutralHadrons'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'tauIsoDepositPFGammas'+pfpostfix))
+    getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'patTaus'+pfpostfix))
+
 getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'selectedPatTaus'+pfpostfix))
 getattr(process,'patPF2PATSequence'+pfpostfix).remove(getattr(process,'countPatTaus'+pfpostfix))
 
@@ -844,6 +878,13 @@ if signal or higgsSignal or zGenInfo:
         )
 
 
+if createMvaMet:
+    getattr(process, 'p').replace(process.filterDiLeptonMassQCDveto,
+                                process.filterDiLeptonMassQCDveto * process.pfMEtMVAsequence * process.patMEtMVA)
+
+    if signal or higgsSignal or zGenInfo:
+        getattr(process, 'pNtuple').replace(process.zsequence,
+                                          process.zsequence * process.pfMEtMVAsequence * process.patMEtMVA)
 
 ####################################################################
 ## Prepend PF2PAT
@@ -868,9 +909,9 @@ for pathname in pathnames:
 if signal or higgsSignal or zGenInfo:
     process.pNtuple.remove(process.filterTrigger)
 
-process.scaledJetEnergy.inputElectrons       = "selectedPatElectrons"
-process.scaledJetEnergy.inputJets            = "selectedPatJets"
-process.scaledJetEnergy.inputMETs            = "patMETs"
+process.scaledJetEnergy.inputElectrons       = "selectedPatElectrons"+pfpostfix
+process.scaledJetEnergy.inputJets            = "selectedPatJets"+pfpostfix
+process.scaledJetEnergy.inputMETs            = "patMETs"+pfpostfix
 process.scaledJetEnergy.JECUncSrcFile        = cms.FileInPath("TopAnalysis/Configuration/analysis/common/data/Summer13_V4_DATA_UncertaintySources_AK5PFchs.txt")
 process.scaledJetEnergy.scaleType = "abs"   #abs = 1, jes:up, jes:down
 

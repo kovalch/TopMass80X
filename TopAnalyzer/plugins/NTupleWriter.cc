@@ -105,6 +105,7 @@ private:
     edm::InputTag jetsForMET_;
     edm::InputTag jetsForMETuncorr_;
     edm::InputTag met_;
+    edm::InputTag mvamet_;
     edm::InputTag vertices_, genEvent_ ;
     edm::InputTag FullLepEvt_, hypoKey_;
     edm::InputTag genEventHiggs_;
@@ -280,6 +281,7 @@ private:
 
     /////////met///////////
     LV met;
+    LV mvamet;
 
     ////////triggers/////////
     std::vector<std::string> VfiredTriggers;
@@ -316,6 +318,7 @@ NTupleWriter::NTupleWriter(const edm::ParameterSet& iConfig):
     jetsForMET_(iConfig.getParameter<edm::InputTag>("jetsForMET")),
     jetsForMETuncorr_(iConfig.getParameter<edm::InputTag>("jetsForMETuncorr")),
     met_(iConfig.getParameter<edm::InputTag>("met")),
+    mvamet_(iConfig.getParameter<edm::InputTag>("mvamet")),
 
     vertices_(iConfig.getParameter<edm::InputTag>("vertices")),
     genEvent_(iConfig.getParameter<edm::InputTag>("src")),
@@ -1224,6 +1227,10 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
     iEvent.getByLabel(met_, h_met);
     met = h_met->at(0).polarP4();
 
+    edm::Handle<edm::View<pat::MET> > h_mvamet;
+    iEvent.getByLabel(mvamet_, h_mvamet);
+    mvamet = h_mvamet->at(0).polarP4();
+
     //////////////////////////////Event Info/////////////////////
     runno = iEvent.id().run();
     lumibl = iEvent.id().luminosityBlock();
@@ -1435,6 +1442,7 @@ NTupleWriter::beginJob()
 
     /////////////met properties///////////
     Ntuple->Branch("met", &met);
+    Ntuple->Branch("mvamet", &mvamet);
 
     ///////////event info///////////
     Ntuple->Branch("runNumber", &runno, "runNumber/i");

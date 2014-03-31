@@ -176,6 +176,13 @@ git cms-addpkg TopQuarkAnalysis/TopKinFitter
 git cms-addpkg TopQuarkAnalysis/TopObjectResolutions
 cd -
 
+######### MVA MET ######
+cd $CMSSW_BASE/src
+git cms-merge-topic cms-analysis-tools:5_3_14-updateSelectorUtils
+git cms-merge-topic cms-analysis-tools:5_3_13_patch2-testNewTau
+git cms-merge-topic -u TaiSakuma:53X-met-131120-01
+git-cms-merge-topic -u cms-met:53X-MVaNoPuMET-20131217-01
+cd -
 
 ###### For full memory option of LHAPDF, we NEED to compile ElectroWeakAnalysis/Utilities after scram setup lhapdffull for speeding it up.
 ### For more information check the ElectroWeakAnalysis/Utilities/README file
@@ -192,7 +199,12 @@ cd -
 topAnalysis $1
 
 
-
+##### Fix to avoid crash on MVA Met producer when no PV exist
+## The JetMet people were contacted and they will fix (hopefully) the bug soon
+## in the meantime...
+if [[ "$minimalInstall" == False ]] ; then
+cp $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/common/macros/PFMETProducerMVA.cc $CMSSW_BASE/src/RecoMET/METPUSubtraction/plugins/PFMETProducerMVA.cc
+fi
 
 
 ###### Compile everything ######
