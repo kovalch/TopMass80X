@@ -7,11 +7,11 @@ import fileinput,os,subprocess,sys
 
 
 class config:
-  dcache_desy   = "dcap://dcache-cms-dcap.desy.de"
+  dcache_desy   = "" #"dcap://dcache-cms-dcap.desy.de"
   dcache_prefix = "/pnfs/desy.de/cms/tier2"
 #  dcache_cms    = "/store/user/mseidel"
 #  dcache_cms    = "/store/user/eschliec/Skim_03_Data01"
-  dcache_cms    = "/store/user/eschliec/Skim_03_MC02"
+  dcache_cms    = "/store/user/eschliec/Skim_03_MC03"
   L_samples     = [
                    ##'TT_cluster_8TeV-sherpa',
                    ##'TT_lund_8TeV-sherpa'
@@ -79,7 +79,8 @@ def cleanUp():
 
 
 def createDatasetFile(sample):
-  ls_cmd    = 'dcls ' + config.dcache_prefix + '/' + config.dcache_cms + '/' + sample
+  #ls_cmd    = 'dcls ' + config.dcache_prefix + '/' + config.dcache_cms + '/' + sample
+  ls_cmd    = 'ls ' + config.dcache_prefix + '/' + config.dcache_cms + '/' + sample
   L_files   = subprocess.Popen(ls_cmd, stdout=subprocess.PIPE, bufsize=0, shell=True).stdout
   list_file = open(config.list_file,'w')
   for file in L_files:
