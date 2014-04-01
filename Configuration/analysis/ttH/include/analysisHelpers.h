@@ -12,13 +12,19 @@ namespace AnalysisMode{
     
     /// Analysis modes for analysis
     enum AnalysisMode{
-        cp,         // Basic control plots
-        mvaP,       // Produce MVA input
-        mvaA,       // Access MVA output
+        cp,         // Basic control plots analyser
         dijet,      // Dijet analyser
         charge,     // Jet charge analyser
         match,      // Jet matching analyser
-        playg,      // Playground
+        playg,      // Playground analyser
+        weight,     // Event weight analyser
+        gen,        // Generator event analyser
+        mvaTopP,    // Produce MVA input for top system jet assignment
+        mvaTopA,    // Apply MVA weights for top system jet assignment
+        mvaEventP,  // Produce MVA input for event classification
+        mvaEventA,  // Apply MVA weights for event classification
+        mvaChargeP, // Produce MVA input for jet charge
+        mvaChargeA, // Apply MVA weights for jet charge
         undefined   // Undefined mode
     };
     
@@ -26,7 +32,7 @@ namespace AnalysisMode{
     
     /// All analysis modes allowed for analysis
     const std::vector<AnalysisMode> allowedAnalysisModes
-        {cp, mvaP, mvaA, dijet, charge, match, playg};
+        {cp, dijet, charge, match, playg, weight, gen, mvaTopP, mvaTopA, mvaEventP, mvaEventA, mvaChargeP, mvaChargeA};
     
     
     

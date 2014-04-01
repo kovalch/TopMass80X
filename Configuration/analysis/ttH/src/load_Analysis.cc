@@ -19,7 +19,7 @@
 #include "JetCategories.h"
 #include "MvaTreeHandlerBase.h"
 #include "MvaTreeHandlerTopJets.h"
-
+#include "MvaTreeHandlerEventClassification.h"
 #include "AnalyzerBaseClass.h"
 #include "AnalyzerMvaTopJets.h"
 #include "AnalyzerDijet.h"
@@ -227,22 +227,32 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
         v_analyzer.push_back(analyzerDijet);
     }
     
-    // Set up MVA validation, including reading in MVA weights in case they exist
+    // Set up MVA validation for top system jet assignment
     AnalyzerMvaTopJets* analyzerMvaTopJets(0);
-    if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::mvaA) != v_analysisMode.end()){
+    if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::mvaTopA) != v_analysisMode.end()){
         analyzerMvaTopJets = new AnalyzerMvaTopJets(Mva2dWeightsFILE, {"7"}, {"7"}, jetCategories);
         v_analyzer.push_back(analyzerMvaTopJets);
     }
     
+    
+    
     // Vector setting up all tree handlers for MVA input variables
     std::vector<MvaTreeHandlerBase*> v_mvaTreeHandler;
     
-    // Set up production of MVA input tree
+    // Set up production of MVA input tree for top system jet assignment
     MvaTreeHandlerTopJets* mvaTreeHandlerTopJets(0);
-    if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::mvaP) != v_analysisMode.end()){
+    if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::mvaTopP) != v_analysisMode.end()){
         mvaTreeHandlerTopJets = new MvaTreeHandlerTopJets(MvaInputDIR, {"7"}, {"7"}, jetCategories);
         v_mvaTreeHandler.push_back(mvaTreeHandlerTopJets);
     }
+    
+    // Set up production of MVA input tree for event classification
+    MvaTreeHandlerEventClassification* mvaTreeHandlerEventClassification(0);
+    if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::mvaEventP) != v_analysisMode.end()){
+        mvaTreeHandlerEventClassification = new MvaTreeHandlerEventClassification(MvaInputDIR, {"7"}, {"7"}, jetCategories);
+        v_mvaTreeHandler.push_back(mvaTreeHandlerEventClassification);
+    }
+    
     
     // Set up the analysis
     HiggsAnalysis* selector = new HiggsAnalysis();
@@ -489,7 +499,13 @@ int main(int argc, char** argv)
             common::makeStringCheck(Systematic::convertSystematics(Systematic::allowedSystematicsHiggsAnalysis)));
     CLParameter<int> opt_jetCategoriesId("j", "ID for jet categories (# jets, # b-jets). If not specified, use default categories (=0)", false, 1, 1,
             [](int id){return id>=0 && id<=3;});
-    CLParameter<std::string> opt_mode("m", "Mode of analysis: control plots (cp), Produce MVA input (mvaP), Apply MVA weights (mvaA), dijet analyser (dijet), playground (playg), jet charge analyser (charge), jet match analyser (match). Default is cp", false, 1, 100,
+    CLParameter<std::string> opt_mode("m", "Mode of analysis: control plots (cp), "
+                                           "dijet analyser (dijet), jet charge analyser (charge), jet match analyser (match), playground (playg), "
+                                           "event weight analyser (weight), gen event analyser(gen), "
+                                           "Produce MVA input or Apply MVA weights for top jets (mvaTopP/mvaTopA), "
+                                           "Produce MVA input or Apply MVA weights for event classification (mvaEventP/mvaEventA), "
+                                           "Produce MVA input or Apply MVA weights for jet charge (mvaChargeP/mvaChargeA). "
+                                           "Default is cp", false, 1, 100,
             common::makeStringCheck(AnalysisMode::convertAnalysisModes(AnalysisMode::allowedAnalysisModes)));
     CLParameter<Long64_t> opt_maxEvents("maxEvents", "Maximum number of events to process", false, 1, 1,
             [](const Long64_t mE){return mE > 0;});

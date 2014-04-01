@@ -14,7 +14,7 @@
 
 MvaTreePlotterTopJets::MvaTreePlotterTopJets(const std::map<TString, std::vector<MvaVariablesBase*> >& m_stepMvaVariables,
                                              const bool separationPowerPlots):
-MvaTreePlotterBase("mvaP_", m_stepMvaVariables, separationPowerPlots)
+MvaTreePlotterBase("mvaTopP_", m_stepMvaVariables, separationPowerPlots)
 {
     std::cout<<"--- Beginning setting up top jets MVA variables plotter\n";
     

@@ -13,8 +13,10 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   HiggsAnalysis
   MvaTreeHandlerBase
   MvaTreeHandlerTopJets
+  MvaTreeHandlerEventClassification
   MvaTreePlotterBase
   MvaTreePlotterTopJets
+  MvaTreePlotterEventClassification
   MvaWeights2d
   MvaReaderBase
   MvaReaderTopJets
