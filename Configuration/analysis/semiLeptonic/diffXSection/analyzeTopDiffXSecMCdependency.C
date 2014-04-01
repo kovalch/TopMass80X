@@ -479,6 +479,8 @@ void analyzeTopDiffXSecMCdependency(double luminosity = constLumiMuon, std::stri
       // if SF is derived by full PS
       for(int bin=0; bin<=SF_[variable_[i]+Var]->GetNbinsX()+1; ++bin){
 	if(verbose>2) std::cout << "bin #" << bin << "(" << SF_[variable_[i]+Var]->GetBinCenter(bin) << "): " << SF_[variable_[i]+Var]->GetBinContent(bin) << std::endl;
+	// replace SF=0 by SF=1
+	if(SF_[variable_[i]+Var]->GetBinContent(bin)==0)SF_[variable_[i]+Var]->SetBinContent(bin,1);
 	// replace full PS parton truth plot by limited PS plot
 	// and apply weight from full PS
 	double SFbin=SF_[variable_[i]+Var]->GetBinContent(bin);
