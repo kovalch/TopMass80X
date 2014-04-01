@@ -12,16 +12,20 @@ SystematicUncertainties::SystematicUncertainties()
   deriveSystematics();
 }
 
+
 void SystematicUncertainties::fillLeptonJets()
 {
   enum lepton              { kElectron, kMuon, kAll, kMuon_BReg };
   std::string lepton_[4] = {"electron", "muon", "lepton", "muon_BReg"};
 
   //int channel = 3;
-  int channel = 2;
+  int channel = 3;
 
-  std::string path("/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_131012/");
-  //std::string path("/nfs/dust/test/cms/user/kirschen/BRegression_PE_NewCalibrationJan2014Applied_MCS3250MinEvtsBReg/");
+  int selectComparisonSet = 0; //0: full set of uncertainties for Moriond; 1: only uncertainties also determined for B-Regression study; 2: minimal set used for BReg-study
+
+  std::string path;
+  if(channel==3||channel==1)path = "/nfs/dust/test/cms/user/kirschen/BRegression_PE_NewCalibrationJan2014Applied_MCS3250MinEvtsBReg/";
+  else path = "/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_131012/";
 
   path += lepton_[channel]; path += "/";
 
@@ -32,8 +36,8 @@ void SystematicUncertainties::fillLeptonJets()
   sample.variables = {"mass_mTop_JES", "JES_mTop_JES", "mass_mTop"};
 
   sample.ensembles["calibration"] = ensemble("", 0, {std::make_pair("mass_mTop_JES",std::make_pair(172.5,0.02)), std::make_pair("JES_mTop_JES",std::make_pair(1.0,0.0)), std::make_pair("mass_mTop",std::make_pair(172.5,0.01))});
-  sample.ensembles["default"] = ensemble("job_*_ensemble.root", 7000000./1.75);
-  //sample.ensembles["default"] = ensemble("Summer12_TTJets1725_1.00/job_*_ensemble.root", 7000000./1.75);
+  if(channel==3)sample.ensembles["default"] = ensemble("Summer12_TTJets1725_1.00/job_*_ensemble.root", 7000000./1.75);
+  else sample.ensembles["default"] = ensemble("job_*_ensemble.root", 7000000./1.75);
   sample.ensembles["defaultNewWeights"] = ensemble("weight.combinedWeight/job_*_ensemble.root", 7000000./1.75);
 
   sample.ensembles["puUp"] = ensemble("weight.combinedWeight/weight.puWeight*weight.puWeightUp/job_*_ensemble.root", 7000000./1.75);
@@ -103,34 +107,52 @@ void SystematicUncertainties::fillLeptonJets()
 
   ///////////////////////////////////
 
-  sample.comparisons["Pile-up (pp cross-section)       "] = comparison("defaultNewWeights", "puUp", "puDown");
-  sample.comparisons["Jet energy response (udsc)       "] = comparison("defaultNewWeights", "flavorQUp", "flavorQDown", true);//
-  sample.comparisons["Jet energy response (gluon)      "] = comparison("defaultNewWeights", "flavorGUp", "flavorGDown", true);//
-  sample.comparisons["Jet energy response (b)          "] = comparison("default", "flavorBUp", "flavorBDown", true);
-  sample.comparisons["Jet energy response (FlavorQCD)  "] = comparison("default", "flavorQCDUp", "flavorQCDDown", true, false);
-  sample.comparisons["b fragmentation                  "] = comparison("defaultNewWeights", "bFragLEP");
-  sample.comparisons["Semi-leptonic B hadron decays    "] = comparison("defaultNewWeights", "bFNuUp", "bFNuDown");
-  sample.comparisons["b-tag rate                       "] = comparison("defaultNewWeights", "bTagSFUp", "bTagSFDown");//
-  sample.comparisons["b-tag (mistag rate)              "] = comparison("defaultNewWeights", "misTagSFUp", "misTagSFDown");//
-  sample.comparisons["Top-pt reweighting               "] = comparison("defaultNewWeights", "topPt", "");//
-  sample.comparisons["ME-PS matching threshold         "] = comparison("calibration", "matchingUp", "matchingDown", false);
-  sample.comparisons["$Q^{2}$ scale                    "] = comparison("calibration", "scaleUp", "scaleDown", false);
-  sample.comparisons["Jet energy resolution            "] = comparison("default", "jerUp", "jerDown");
-  sample.comparisons["\\pt- and $\\eta$-dependent JES  "] = comparison("default", "jesUp", "jesDown");
-  sample.comparisons["Pile-up (JES)                    "] = comparison("defaultNewWeights", "jesPuUp", "jesPuDown");
-  sample.comparisons["MadGraph (no SC) vs. Powheg      "] = comparison("calibration", "powheg", "", false, false);
-  sample.comparisons["Powheg+Pythia6 vs. MC@NLO+Herwig6"] = comparison("powheg", "mcatnlo", "", false, false);
-  sample.comparisons["Powheg+Pythia6 vs. Powheg+Herwig6"] = comparison("powheg", "powhegHerwig", "", false, false);
-  sample.comparisons["MC@NLO+Herwig6 vs. Powheg+Herwig6"] = comparison("mcatnlo", "powhegHerwig", "", false, false);
-  sample.comparisons["ME generator                     "] = comparison("defaultSC", "powheg", "", false);
-  sample.comparisons["Spin correlations                "] = comparison("calibration", "defaultSC", "", false, true);
-  sample.comparisons["Pythia Z2* vs. P11               "] = comparison("defaultSC", "P11", "", false, false);
-  sample.comparisons["Color reconnection               "] = comparison("P11", "P11noCR", "", false);
-  sample.comparisons["Underlying event                 "] = comparison("P11", "P11mpiHi", "P11TeV", false);
-  sample.comparisons["Non-\\ttbar background           "] = comparison("defaultNewWeights", "fSig0.9", "fSig1.0");
-  sample.comparisons["Lepton energy scale (electron)   "] = comparison("defaultNewWeights", "eesUp", "eesDown");
-  sample.comparisons["Lepton energy scale (muon)       "] = comparison("defaultNewWeights", "mesUp", "mesDown");
-  sample.comparisons["MET                              "] = comparison("defaultNewWeights", "metcl2");
+
+  switch( selectComparisonSet )
+    {
+    case 0: // uncertainties not (yet) determined or considered for b-regression study
+      sample.comparisons["Jet energy response (b)          "] = comparison("default", "flavorBUp", "flavorBDown", true); // not meaningful for b-regression study
+      sample.comparisons["Jet energy response (FlavorQCD)  "] = comparison("default", "flavorQCDUp", "flavorQCDDown", true, false);// not meaningful for b-regression study
+      sample.comparisons["\\pt- and $\\eta$-dependent JES  "] = comparison("default", "jesUp", "jesDown"); // no change expected for b-regression study
+      sample.comparisons["Jet energy resolution            "] = comparison("default", "jerUp", "jerDown"); // no change expected for b-regression study
+      sample.comparisons["Pile-up (JES)                    "] = comparison("defaultNewWeights", "jesPuUp", "jesPuDown");
+      sample.comparisons["Non-\\ttbar background           "] = comparison("defaultNewWeights", "fSig0.9", "fSig1.0");
+      sample.comparisons["Lepton energy scale (electron)   "] = comparison("defaultNewWeights", "eesUp", "eesDown");
+      sample.comparisons["Lepton energy scale (muon)       "] = comparison("defaultNewWeights", "mesUp", "mesDown");
+      sample.comparisons["MET                              "] = comparison("defaultNewWeights", "metcl2");
+      sample.comparisons["Spin correlations                "] = comparison("calibration", "defaultSC", "", false, true); // not relevant anymore when using MadSpin samples consistently, not considered as common for both anymore
+      
+    case 1: // uncertainties determined for both variants
+      sample.comparisons["Pile-up (pp cross-section)       "] = comparison("defaultNewWeights", "puUp", "puDown");
+      sample.comparisons["Jet energy response (udsc)       "] = comparison("defaultNewWeights", "flavorQUp", "flavorQDown", true);//
+      sample.comparisons["Jet energy response (gluon)      "] = comparison("defaultNewWeights", "flavorGUp", "flavorGDown", true);//
+      sample.comparisons["b fragmentation                  "] = comparison("defaultNewWeights", "bFragLEP");
+      sample.comparisons["Semi-leptonic B hadron decays    "] = comparison("defaultNewWeights", "bFNuUp", "bFNuDown");
+      sample.comparisons["b-tag rate                       "] = comparison("defaultNewWeights", "bTagSFUp", "bTagSFDown");//
+      sample.comparisons["b-tag (mistag rate)              "] = comparison("defaultNewWeights", "misTagSFUp", "misTagSFDown");//
+      sample.comparisons["Top-pt reweighting               "] = comparison("defaultNewWeights", "topPt", "");//
+      sample.comparisons["ME-PS matching threshold         "] = comparison("calibration", "matchingUp", "matchingDown", false);
+      sample.comparisons["$Q^{2}$ scale                    "] = comparison("calibration", "scaleUp", "scaleDown", false);
+      sample.comparisons["MadGraph (no SC) vs. Powheg      "] = comparison("calibration", "powheg", "", false, false);
+      sample.comparisons["Powheg+Pythia6 vs. MC@NLO+Herwig6"] = comparison("powheg", "mcatnlo", "", false, false);
+      sample.comparisons["Powheg+Pythia6 vs. Powheg+Herwig6"] = comparison("powheg", "powhegHerwig", "", false, false);
+      sample.comparisons["MC@NLO+Herwig6 vs. Powheg+Herwig6"] = comparison("mcatnlo", "powhegHerwig", "", false, false);
+      sample.comparisons["ME generator                     "] = comparison("defaultSC", "powheg", "", false);
+      sample.comparisons["Pythia Z2* vs. P11               "] = comparison("defaultSC", "P11", "", false, false);
+      sample.comparisons["Color reconnection               "] = comparison("P11", "P11noCR", "", false);
+      sample.comparisons["Underlying event                 "] = comparison("P11", "P11mpiHi", "P11TeV", false);
+      break;
+      
+    case 3: // minimal set of comparison to determine differences with/ without b-regression
+      sample.comparisons["Powheg+Pythia6 vs. Powheg+Herwig6"] = comparison("powheg", "powhegHerwig", "", false);
+      sample.comparisons["b fragmentation                  "] = comparison("defaultNewWeights", "bFragLEP");
+      sample.comparisons["Semi-leptonic B hadron decays    "] = comparison("defaultNewWeights", "bFNuUp", "bFNuDown");
+      break;
+    }
+
+    
+
+
 }
 
 void SystematicUncertainties::fillAllJets()
@@ -251,8 +273,8 @@ void SystematicUncertainties::fillAllJets()
 
 void SystematicUncertainties::deriveSystematics()
 {
-  //fillLeptonJets();
-  fillAllJets();
+  fillLeptonJets();
+  //  fillAllJets();
 
   std::map<std::string, double> totalUncertainties2;
   for(auto& var : sample.variables)
