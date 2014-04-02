@@ -57,6 +57,9 @@ void MvaTreeHandlerEventClassification::createAndFillBranches(TTree* tree, const
     this->createBranch(tree, mvaVariablesEventClassification->btagDiscriminatorAverage_untagged_);
     this->createBranch(tree, mvaVariablesEventClassification->minDeltaR_jet_jet_);
     this->createBranch(tree, mvaVariablesEventClassification->ptSum_jets_leptons_);
+    this->createBranch(tree, mvaVariablesEventClassification->multiplicity_higgsLikeDijet15_);
+    this->createBranch(tree, mvaVariablesEventClassification->mass_higgsLikeDijet_);
+    this->createBranch(tree, mvaVariablesEventClassification->mass_higgsLikeDijet2_);
     
     for(const MvaVariablesBase* mvaVariablesTmp : v_mvaVariables){
         const MvaVariablesEventClassification* mvaVariablesEventClassificationTmp = dynamic_cast<const MvaVariablesEventClassification*>(mvaVariablesTmp);
@@ -87,6 +90,9 @@ void MvaTreeHandlerEventClassification::importBranches(TTree* tree, std::vector<
     this->importBranch(tree, mvaVariablesEventClassification.btagDiscriminatorAverage_untagged_);
     this->importBranch(tree, mvaVariablesEventClassification.minDeltaR_jet_jet_);
     this->importBranch(tree, mvaVariablesEventClassification.ptSum_jets_leptons_);
+    this->importBranch(tree, mvaVariablesEventClassification.multiplicity_higgsLikeDijet15_);
+    this->importBranch(tree, mvaVariablesEventClassification.mass_higgsLikeDijet_);
+    this->importBranch(tree, mvaVariablesEventClassification.mass_higgsLikeDijet2_);
     
     // Loop over all tree entries and fill vector of structs
     for(Long64_t iEntry = 0; iEntry < tree->GetEntries(); ++iEntry){
