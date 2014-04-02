@@ -54,7 +54,17 @@ void MvaTreePlotterEventClassification::bookHistos(const TString& step, std::map
     this->bookHistosInclExcl(m_histogram, prefix_, step, name, name+";#DeltaR_{min}^{jj};# events",20,0,4);
     
     name = nameDummy.ptSum_jets_leptons_.name();
-    this->bookHistosInclExcl(m_histogram, prefix_, step, name, name+"; #Sump_{T}^{l,j}  [GeV];# jet pairs",20,0,800);
+    this->bookHistosInclExcl(m_histogram, prefix_, step, name, name+"; #Sump_{T}^{l,j}  [GeV];# events",20,0,1000);
+    
+    name = nameDummy.multiplicity_higgsLikeDijet15_.name();
+    this->bookHistosInclExcl(m_histogram, prefix_, step, name, name+"; # higgs-like dijets;# events",10,0,10);
+    
+    name = nameDummy.mass_higgsLikeDijet_.name();
+    this->bookHistosInclExcl(m_histogram, prefix_, step, name, name+"; M_{higgs-like}^{jj}  [GeV];# events",20,0,400);
+    
+    name = nameDummy.mass_higgsLikeDijet2_.name();
+    this->bookHistosInclExcl(m_histogram, prefix_, step, name, name+"; M_{higgs-like}^{bj}  [GeV];# events",20,0,400);
+    
 }
 
 
@@ -95,6 +105,18 @@ void MvaTreePlotterEventClassification::fillHistos(const TString&,
         
         name = mvaVariablesEventClassification->ptSum_jets_leptons_.name();
         value = mvaVariablesEventClassification->ptSum_jets_leptons_.value_;
+        this->fillHistosInclExcl(m_histogram, name, value, mvaVariablesEventClassification, weight);
+        
+        name = mvaVariablesEventClassification->multiplicity_higgsLikeDijet15_.name();
+        value = mvaVariablesEventClassification->multiplicity_higgsLikeDijet15_.value_;
+        this->fillHistosInclExcl(m_histogram, name, value, mvaVariablesEventClassification, weight);
+        
+        name = mvaVariablesEventClassification->mass_higgsLikeDijet_.name();
+        value = mvaVariablesEventClassification->mass_higgsLikeDijet_.value_;
+        this->fillHistosInclExcl(m_histogram, name, value, mvaVariablesEventClassification, weight);
+        
+        name = mvaVariablesEventClassification->mass_higgsLikeDijet2_.name();
+        value = mvaVariablesEventClassification->mass_higgsLikeDijet2_.value_;
         this->fillHistosInclExcl(m_histogram, name, value, mvaVariablesEventClassification, weight);
     }
 }
