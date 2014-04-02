@@ -995,9 +995,7 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
             }
             //std::cout<<"Legend: "<<legends.at(i)<<std::endl;
             if(legends.at(i) == "t#bar{t} Signal"){
-                signalHist = i; //What is happening for the combined channel?? only 1 integer value??
-                aRecHist = drawhists[i]->Rebin(bins,"aRecHist",Xbins); //What happens in the combined channel? Are the 3 channels summed up?? NO!!
-                //std::cout<<"Added "<<legends.at(i)<<" to aRecHist"<<std::endl;
+                addAndDelete_or_Assign(aRecHist, drawhists[i]->Rebin(bins,"aRecHist",Xbins));
             }else if(legends.at(i) == "t#bar{t} Other"){//IMPORTANT: TTbar Other are added to the ttbarbackground histogram AND the Background Hist gram
                 addAndDelete_or_Assign(aTtBgrHist, drawhists[i]->Rebin(bins,"aTtBgrHist",Xbins));
                 addAndDelete_or_Assign(aBgrHist, drawhists[i]->Rebin(bins,"aTtBgrHist",Xbins));
