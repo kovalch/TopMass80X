@@ -144,6 +144,9 @@ private:
 
     /// Whether to do comparison of dR and improved hadron-quark-jet matching
     bool doHadronMatchingComparison_;
+    
+    double sigJetPt_min_;
+    double sigJetEta_max_;
 
 };
 
