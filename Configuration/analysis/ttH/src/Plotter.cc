@@ -227,7 +227,8 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
         if(lastHist || (legendEntry!=incrementIterator->first.legendEntry())){
             if(!newHist)tmpHist->Add(hist);
             if(sampleType == Sample::data) dataHist = LegendHistPair(legendEntry, tmpHist);
-            else if(sampleType == Sample::higgssignal) higgsHists.push_back(LegendHistPair(legendEntry, tmpHist));
+            else if(sampleType == Sample::ttHbb) higgsHists.push_back(LegendHistPair(legendEntry, tmpHist));
+            else if(sampleType == Sample::ttHother) higgsHists.push_back(LegendHistPair(legendEntry, tmpHist));
             else stackHists.push_back(LegendHistPair(legendEntry, tmpHist));
             tmpHist = 0;
         }
@@ -461,7 +462,7 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     TH1* sumMC(0);
     TH1* sumSignal(0);
     for(const auto& sampleHistPair : v_sampleHistPair_){
-        if(sampleHistPair.first.sampleType() == Sample::SampleType::higgssignal){
+        if(sampleHistPair.first.sampleType() == Sample::SampleType::ttHbb || sampleHistPair.first.sampleType() == Sample::SampleType::ttHother){
             if (sumSignal) sumSignal->Add(sampleHistPair.second);
             else sumSignal = static_cast<TH1*>(sampleHistPair.second->Clone());
             // Do not add Higgs samples to sumMC (all MC samples) in case of overlaid drawing

@@ -91,7 +91,7 @@ void DyScaleFactors::produceScaleFactors(const TString& step, const Systematic::
     for(Channel::Channel channel : v_channel){
         const std::vector<Sample>& v_sample(channelSamples[channel]);
         for(Sample sample : v_sample){
-            if(sample.sampleType()==Sample::higgssignal)continue;
+            if(sample.sampleType()==Sample::ttHbb || sample.sampleType()==Sample::ttHother) continue;
             
             const double luminosityWeight(Tools::luminosityWeight(sample, luminosity_, fileReader_));
             const double allWeights = luminosityWeight; // calculate here all the flat-weights we apply: Lumi*others*...
