@@ -15,7 +15,7 @@
 #include "HiggsAnalysis.h"
 #include "higgsUtils.h"
 #include "analysisStructs.h"
-#include "AnalyzerBaseClass.h"
+#include "AnalyzerBase.h"
 #include "MvaTreeHandlerBase.h"
 #include "MvaTreePlotterBase.h"
 #include "../../common/include/analysisUtils.h"
@@ -798,7 +798,7 @@ void HiggsAnalysis::SetAdditionalBjetMode(const int additionalBjetMode)
 
 
 
-void HiggsAnalysis::SetAllAnalyzers(std::vector<AnalyzerBaseClass*> v_analyzer)
+void HiggsAnalysis::SetAllAnalyzers(std::vector<AnalyzerBase*> v_analyzer)
 {
     v_analyzer_ = v_analyzer;
 }
@@ -888,7 +888,7 @@ void HiggsAnalysis::fillAll(const std::string& selectionStep,
                             const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
                             const double& defaultWeight)const
 {
-    for(AnalyzerBaseClass* analyzer : v_analyzer_){
+    for(AnalyzerBase* analyzer : v_analyzer_){
         if(analyzer) analyzer->fill(recoObjects, commonGenObjects,
                                     topGenObjects, higgsGenObjects,
                                     kinRecoObjects,
@@ -911,7 +911,7 @@ void HiggsAnalysis::fillAll(const std::string& selectionStep,
 
 void HiggsAnalysis::bookAll()
 {
-    for(AnalyzerBaseClass* analyzer : v_analyzer_){
+    for(AnalyzerBase* analyzer : v_analyzer_){
         if(analyzer) analyzer->book(fOutput);
     }
 }
@@ -920,7 +920,7 @@ void HiggsAnalysis::bookAll()
 
 void HiggsAnalysis::clearAll()
 {
-    for(AnalyzerBaseClass* analyzer : v_analyzer_){
+    for(AnalyzerBase* analyzer : v_analyzer_){
         if(analyzer) analyzer->clear();
     }
 }

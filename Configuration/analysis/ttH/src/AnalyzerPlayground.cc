@@ -24,7 +24,7 @@
 AnalyzerPlayground::AnalyzerPlayground(const std::vector<TString>& selectionStepsNoCategories,
                                        const std::vector<TString>& stepsForCategories,
                                        const JetCategories* jetCategories):
-AnalyzerBaseClass("test_", selectionStepsNoCategories, stepsForCategories, jetCategories)
+AnalyzerBase("test_", selectionStepsNoCategories, stepsForCategories, jetCategories)
 {
     std::cout<<"--- Beginning setting up playground\n";
     std::cout<<"=== Finishing setting up playground\n\n";

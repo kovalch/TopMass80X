@@ -7,7 +7,7 @@
 class TString;
 class TH1;
 
-#include "AnalyzerBaseClass.h"
+#include "AnalyzerBase.h"
 
 class JetCategories;
 class RecoObjects;
@@ -25,7 +25,7 @@ namespace tth{
 
 
 /// Class for basic histograms that are filled simultaneously for any step
-class AnalyzerControlPlots : public AnalyzerBaseClass{
+class AnalyzerControlPlots : public AnalyzerBase{
 
 public:
     

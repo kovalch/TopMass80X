@@ -7,7 +7,7 @@
 class TString;
 class TH1;
 
-#include "AnalyzerBaseClass.h"
+#include "AnalyzerBase.h"
 #include "../../common/include/classesFwd.h"
 
 
@@ -27,7 +27,7 @@ namespace tth{
 
 
 /// Class for basic histograms that are filled simultaneously for any step
-class AnalyzerJetCharge : public AnalyzerBaseClass{
+class AnalyzerJetCharge : public AnalyzerBase{
 
 public:
     

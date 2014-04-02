@@ -26,7 +26,7 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   MvaVariablesBase
   MvaVariablesTopJets
   MvaVariablesEventClassification
-  AnalyzerBaseClass
+  AnalyzerBase
   AnalyzerControlPlots
   AnalyzerMvaTopJets
   AnalyzerJetCharge

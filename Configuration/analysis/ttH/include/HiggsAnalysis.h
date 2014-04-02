@@ -11,7 +11,7 @@ class TTree;
 #include "../../common/include/classesFwd.h"
 
 class MvaTreeHandlerBase;
-class AnalyzerBaseClass;
+class AnalyzerBase;
 class RecoObjects;
 class CommonGenObjects;
 class TopGenObjects;
@@ -58,8 +58,8 @@ public:
     
     
     
-    /// Set up all analysers of type AnalyzerBaseClass
-    void SetAllAnalyzers(std::vector<AnalyzerBaseClass*> v_analyzer);
+    /// Set up all analysers of type AnalyzerBase
+    void SetAllAnalyzers(std::vector<AnalyzerBase*> v_analyzer);
     
     /// Set up all tree handlers of type MvaTreeHandlerBase
     void SetAllTreeHandlers(std::vector<MvaTreeHandlerBase*> v_mvaTreeHandler);
@@ -138,8 +138,8 @@ private:
     
     
     
-    /// All analysers of type AnalyzerBaseClass
-    std::vector<AnalyzerBaseClass*> v_analyzer_;
+    /// All analysers of type AnalyzerBase
+    std::vector<AnalyzerBase*> v_analyzer_;
     
     /// All tree handlers of type MvaTreeHandlerBase
     std::vector<MvaTreeHandlerBase*> v_mvaTreeHandler_;

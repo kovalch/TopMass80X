@@ -20,7 +20,7 @@
 #include "MvaTreeHandlerBase.h"
 #include "MvaTreeHandlerTopJets.h"
 #include "MvaTreeHandlerEventClassification.h"
-#include "AnalyzerBaseClass.h"
+#include "AnalyzerBase.h"
 #include "AnalyzerMvaTopJets.h"
 #include "AnalyzerDijet.h"
 #include "AnalyzerControlPlots.h"
@@ -179,7 +179,7 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
     }
     
     // Vector for setting up all analysers
-    std::vector<AnalyzerBaseClass*> v_analyzer;
+    std::vector<AnalyzerBase*> v_analyzer;
     
     // Set up event yield histograms
     AnalyzerEventYields* analyzerEventYields(0);

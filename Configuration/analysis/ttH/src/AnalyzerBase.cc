@@ -9,7 +9,7 @@
 #include <TString.h>
 #include <TSelectorList.h>
 
-#include "AnalyzerBaseClass.h"
+#include "AnalyzerBase.h"
 #include "analysisStructs.h"
 #include "JetCategories.h"
 #include "higgsUtils.h"
@@ -25,7 +25,7 @@
 
 
 
-AnalyzerBaseClass::AnalyzerBaseClass(const TString& prefix,
+AnalyzerBase::AnalyzerBase(const TString& prefix,
                                      const std::vector<TString>& selectionStepsNoCategories,
                                      const std::vector<TString>& stepsForCategories,
                                      const JetCategories* jetCategories):
@@ -49,7 +49,7 @@ selectorList_(0)
 
 
 
-void AnalyzerBaseClass::book(TSelectorList* output)
+void AnalyzerBase::book(TSelectorList* output)
 {
     // Set pointer to output, so that histograms are owned by it
     selectorList_ = output;
@@ -89,7 +89,7 @@ void AnalyzerBaseClass::book(TSelectorList* output)
 
 
 
-void AnalyzerBaseClass::addStep(const TString& step)
+void AnalyzerBase::addStep(const TString& step)
 {
     // Check whether step already exists
     if(this->checkExistence(step)){
@@ -105,14 +105,14 @@ void AnalyzerBaseClass::addStep(const TString& step)
 
 
 
-bool AnalyzerBaseClass::checkExistence(const TString& step)const
+bool AnalyzerBase::checkExistence(const TString& step)const
 {
     return m_stepHistograms_.find(step) != m_stepHistograms_.end();
 }
 
 
 
-void AnalyzerBaseClass::bookHistos(const TString&, std::map<TString, TH1*>&)
+void AnalyzerBase::bookHistos(const TString&, std::map<TString, TH1*>&)
 {
     // WARNING: this is empty template method, overwrite for inherited histogram class
     
@@ -123,7 +123,7 @@ void AnalyzerBaseClass::bookHistos(const TString&, std::map<TString, TH1*>&)
 
 
 
-void AnalyzerBaseClass::fill(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+void AnalyzerBase::fill(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                              const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
                              const KinRecoObjects& kinRecoObjects,
                              const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
@@ -173,7 +173,7 @@ void AnalyzerBaseClass::fill(const RecoObjects& recoObjects, const CommonGenObje
 
 
 
-void AnalyzerBaseClass::fillHistos(const RecoObjects&, const CommonGenObjects&,
+void AnalyzerBase::fillHistos(const RecoObjects&, const CommonGenObjects&,
                                    const TopGenObjects&, const HiggsGenObjects&,
                                    const KinRecoObjects&,
                                    const tth::RecoObjectIndices&, const tth::GenObjectIndices&,
@@ -190,7 +190,7 @@ void AnalyzerBaseClass::fillHistos(const RecoObjects&, const CommonGenObjects&,
 
 
 
-void AnalyzerBaseClass::clear()
+void AnalyzerBase::clear()
 {
     for(auto stepHistograms : m_stepHistograms_){
         stepHistograms.second.m_histogram_.clear();
@@ -212,7 +212,7 @@ void AnalyzerBaseClass::clear()
 AnalyzerEventYields::AnalyzerEventYields(const std::vector<TString>& selectionStepsNoCategories,
                                          const std::vector<TString>& stepsForCategories,
                                          const JetCategories* jetCategories):
-AnalyzerBaseClass("events_", selectionStepsNoCategories, stepsForCategories, jetCategories)
+AnalyzerBase("events_", selectionStepsNoCategories, stepsForCategories, jetCategories)
 {
     std::cout<<"--- Beginning setting up event yield histograms\n";
     std::cout<<"=== Finishing setting up event yield histograms\n\n";
@@ -258,7 +258,7 @@ void AnalyzerEventYields::fillHistos(const RecoObjects&, const CommonGenObjects&
 
 
 AnalyzerDyScaling::AnalyzerDyScaling(const std::vector<TString>& selectionSteps, const TString& looseStep):
-AnalyzerBaseClass("dyScaling_", selectionSteps),
+AnalyzerBase("dyScaling_", selectionSteps),
 looseStep_(looseStep)
 {
     std::cout<<"--- Beginning setting up Drell-Yan scaling histograms\n";

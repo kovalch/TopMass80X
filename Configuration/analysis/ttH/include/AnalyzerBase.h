@@ -1,5 +1,5 @@
-#ifndef AnalyzerBaseClass_h
-#define AnalyzerBaseClass_h
+#ifndef AnalyzerBase_h
+#define AnalyzerBase_h
 
 #include <map>
 #include <vector>
@@ -27,18 +27,18 @@ namespace tth{
 
 
 /// Base class for histograms for analysis, useful to handle same set of histograms for different selection steps
-class AnalyzerBaseClass{
+class AnalyzerBase{
     
 public:
     
     /// Constructor with setting up selection steps
-    AnalyzerBaseClass(const TString& prefix,
+    AnalyzerBase(const TString& prefix,
                       const std::vector<TString>& selectionStepsNoCategories,
                       const std::vector<TString>& stepsForCategories =std::vector<TString>(),
                       const JetCategories* jetCategories =0);
     
     /// Destructor
-    ~AnalyzerBaseClass(){};
+    ~AnalyzerBase(){};
     
     /// Book all histograms for all defined selection steps
     void book(TSelectorList* output);
@@ -127,7 +127,7 @@ private:
 
 
 /// Class for histograms needed for event yields
-class AnalyzerEventYields : public AnalyzerBaseClass{
+class AnalyzerEventYields : public AnalyzerBase{
     
 public:
     
@@ -161,7 +161,7 @@ private:
 
 
 /// Class for histograms needed for Drell-Yan reweighting
-class AnalyzerDyScaling : public AnalyzerBaseClass{
+class AnalyzerDyScaling : public AnalyzerBase{
 
 public:
 

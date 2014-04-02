@@ -7,7 +7,7 @@
 class TString;
 class TH1;
 
-#include "AnalyzerBaseClass.h"
+#include "AnalyzerBase.h"
 
 class JetCategories;
 class RecoObjects;
@@ -30,7 +30,7 @@ namespace tth{
 
 
 /// Playground class, test here whatever you want to test
-class AnalyzerPlayground : public AnalyzerBaseClass{
+class AnalyzerPlayground : public AnalyzerBase{
     
 public:
     

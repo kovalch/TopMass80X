@@ -29,7 +29,7 @@ AnalyzerDijet::AnalyzerDijet(const char* mva2dWeightsFile, const std::string& co
                              const std::vector<TString>& selectionStepsNoCategories,
                              const std::vector<TString>& stepsForCategories,
                              const JetCategories* jetCategories, bool doHadronMatchingComparison):
-AnalyzerBaseClass("dijet_", selectionStepsNoCategories, stepsForCategories, jetCategories),
+AnalyzerBase("dijet_", selectionStepsNoCategories, stepsForCategories, jetCategories),
 weightsCorrect_(0),
 weightsSwapped_(0),
 doHadronMatchingComparison_(doHadronMatchingComparison),

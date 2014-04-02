@@ -35,7 +35,7 @@ AnalyzerMvaTopJets::AnalyzerMvaTopJets(const char* mva2dWeightsFile,
                                        const std::vector<TString>& selectionStepsNoCategories,
                                        const std::vector<TString>& stepsForCategories,
                                        const JetCategories* jetCategories):
-AnalyzerBaseClass("mvaA_", selectionStepsNoCategories, stepsForCategories, jetCategories)
+AnalyzerBase("mvaA_", selectionStepsNoCategories, stepsForCategories, jetCategories)
 {
     std::cout<<"--- Beginning setting up MVA validation\n";
 

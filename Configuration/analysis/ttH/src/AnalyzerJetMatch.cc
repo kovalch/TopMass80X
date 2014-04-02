@@ -25,7 +25,7 @@
 AnalyzerJetMatch::AnalyzerJetMatch(const std::vector<TString>& selectionStepsNoCategories,
                                    const std::vector<TString>& stepsForCategories,
                                    const JetCategories* jetCategories):
-AnalyzerBaseClass("jetMatch_", selectionStepsNoCategories, stepsForCategories, jetCategories)
+AnalyzerBase("jetMatch_", selectionStepsNoCategories, stepsForCategories, jetCategories)
 {
     std::cout<<"--- Beginning setting up jet match analyzer\n";
     std::cout<<"=== Finishing setting up jet match analyzer\n\n";

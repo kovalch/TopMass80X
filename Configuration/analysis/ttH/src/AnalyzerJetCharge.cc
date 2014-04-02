@@ -35,7 +35,7 @@
 AnalyzerJetCharge::AnalyzerJetCharge(const std::vector<TString>& selectionStepsNoCategories,
                                      const std::vector<TString>& stepsForCategories,
                                      const JetCategories* jetCategories):
-AnalyzerBaseClass("jetCharge_", selectionStepsNoCategories, stepsForCategories, jetCategories)
+AnalyzerBase("jetCharge_", selectionStepsNoCategories, stepsForCategories, jetCategories)
 {
     std::cout<<"--- Beginning setting up jet charge analyzer\n";
     std::cout<<"=== Finishing setting up jet charge analyzer\n\n";
@@ -52,8 +52,8 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
                                    const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
                                    const double& weight, const TString&,
                                    std::map<TString, TH1*>& m_histogram)
-  
-{
+{}
+/*{
     TString name;
 
     // Extracting input data to more comfortable variables
@@ -697,7 +697,7 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
     mvaStruct.isMuonEvent_.clear();
         
     
-} //END OF JET CHARGE ANALYZER FUNCTION
+}*/ //END OF JET CHARGE ANALYZER FUNCTION
 
 void AnalyzerJetCharge::bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram)
 {

@@ -11,7 +11,7 @@ class TH1;
 class TString;
 
 #include "JetCategories.h"
-#include "AnalyzerBaseClass.h"
+#include "AnalyzerBase.h"
 #include "../../common/include/storeTemplate.h"
 #include "../../common/include/classesFwd.h"
 
@@ -32,7 +32,7 @@ class MvaReaderBase;
 
 /// Class that analyzes all b-jet pairs from the input jet collection
 /// In addition produces other plots about input jets, their origin, other properties
-class AnalyzerDijet : public AnalyzerBaseClass{
+class AnalyzerDijet : public AnalyzerBase{
 
 public:
 
