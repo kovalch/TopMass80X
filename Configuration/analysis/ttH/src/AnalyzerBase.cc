@@ -26,9 +26,9 @@
 
 
 AnalyzerBase::AnalyzerBase(const TString& prefix,
-                                     const std::vector<TString>& selectionStepsNoCategories,
-                                     const std::vector<TString>& stepsForCategories,
-                                     const JetCategories* jetCategories):
+                           const std::vector<TString>& selectionStepsNoCategories,
+                           const std::vector<TString>& stepsForCategories,
+                           const JetCategories* jetCategories):
 prefix_(prefix),
 selectionSteps_(selectionStepsNoCategories),
 stepsForCategories_(stepsForCategories),
@@ -124,11 +124,11 @@ void AnalyzerBase::bookHistos(const TString&, std::map<TString, TH1*>&)
 
 
 void AnalyzerBase::fill(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
-                             const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
-                             const KinRecoObjects& kinRecoObjects,
-                             const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
-                             const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
-                             const double& weight, const TString& stepShort)
+                        const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
+                        const KinRecoObjects& kinRecoObjects,
+                        const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
+                        const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
+                        const double& weight, const TString& stepShort)
 {
     // Number of selected jets and bjets
     const int numberOfJets = recoObjectIndices.jetIndices_.size();
@@ -174,12 +174,12 @@ void AnalyzerBase::fill(const RecoObjects& recoObjects, const CommonGenObjects& 
 
 
 void AnalyzerBase::fillHistos(const RecoObjects&, const CommonGenObjects&,
-                                   const TopGenObjects&, const HiggsGenObjects&,
-                                   const KinRecoObjects&,
-                                   const tth::RecoObjectIndices&, const tth::GenObjectIndices&,
-                                   const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
-                                   const double&, const TString&,
-                                   std::map<TString, TH1*>&)
+                              const TopGenObjects&, const HiggsGenObjects&,
+                              const KinRecoObjects&,
+                              const tth::RecoObjectIndices&, const tth::GenObjectIndices&,
+                              const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
+                              const double&, const TString&,
+                              std::map<TString, TH1*>&)
 {
     // WARNING: this is empty template method, overwrite for inherited histogram class
     

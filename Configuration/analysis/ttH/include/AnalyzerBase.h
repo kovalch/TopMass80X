@@ -33,9 +33,9 @@ public:
     
     /// Constructor with setting up selection steps
     AnalyzerBase(const TString& prefix,
-                      const std::vector<TString>& selectionStepsNoCategories,
-                      const std::vector<TString>& stepsForCategories =std::vector<TString>(),
-                      const JetCategories* jetCategories =0);
+                 const std::vector<TString>& selectionStepsNoCategories,
+                 const std::vector<TString>& stepsForCategories =std::vector<TString>(),
+                 const JetCategories* jetCategories =0);
     
     /// Destructor
     ~AnalyzerBase(){};
