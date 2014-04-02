@@ -671,7 +671,7 @@ void analyzeTopDiffXSecMCdependency(double luminosity = constLumiMuon, std::stri
 	// correlation plots
 	finalPlots2D_[variable_[i]][variable_[i]+Var]->Fill(value_[folderRec(variable_[i], addSel)][varGenLep], value_[folderRec(variable_[i], addSel)][varRecLep], weight*LepShapeWeight);
 	// second entry for splitted leptonic/hadronic or particle/antiparticle distributions
-	if(HadShapeWeight!=LepShapeWeight){
+	if(varGenHad!=varGenLep){
 	  //finalPlots_  [variable_[i]+"PartonTruth"][variable_[i]+Var]->Fill(value_[varGenHad]                   , weight*HadShapeWeight);
 	  finalPlots_  [variable_[i]              ][variable_[i]+Var]->Fill(value_[folderRec(variable_[i], addSel)][varRecHad]                                 , weight*HadShapeWeight);
 	  finalPlots2D_[variable_[i]              ][variable_[i]+Var]->Fill(value_[folderRec(variable_[i], addSel)][varGenHad], value_[folderRec(variable_[i], addSel)][varRecHad], weight*HadShapeWeight);
