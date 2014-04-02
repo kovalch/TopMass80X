@@ -42,7 +42,7 @@ TString DilepSVDFunctions::SVD_GetSteering(TString channel, TString particle, TS
     int flag_lowersidebin = 3;       // Cut out side bin on rec, not on gen level (3)
     int flag_uppersidebin = 3;       // Cut out side bin on rec, not on gen level (3)
     int flag_matrixorientation = 1;  // Transpose matrix prior to unfolding (1)
-    int flag_norm = 2;               // Extrinsic Normalization (1) 
+    int flag_norm = 3;               // Extrinsic Normalization (1)
     int flag_closure = 1;            // Turn off closure test (1) 
     int flag_preweighting = 1;       // Reweighting prior to unfolding off (1)
     
@@ -380,13 +380,11 @@ double DilepSVDFunctions::SVD_DoUnfoldSys(
         double valunfUp = unfUp->GetBinContent(i);
         double valunfDown = unfDown->GetBinContent(i);  
         
-        // Square the shifts and calculate average of up and down shift
-        double Sys_Error_Up_Sq   = (valunfUp   - valunfNom)*(valunfUp   - valunfNom);
-        double Sys_Error_Down_Sq = (valunfDown - valunfNom)*(valunfDown - valunfNom); 
-        double Sys_Error_Sq      = (Sys_Error_Up_Sq + Sys_Error_Down_Sq) / 2.; 
+        // Calculate average of up and down shift
+        double Sys_Error_Up   = std::fabs(valunfUp   - valunfNom);
+        double Sys_Error_Down = std::fabs(valunfDown - valunfNom);
         
-        // Square Root
-        double Sys_Error = TMath::Sqrt(Sys_Error_Sq);
+        double Sys_Error = 0.5* (Sys_Error_Up + Sys_Error_Down) ;
        
         // Make a relative uncertainty from that
         double Sys_Error_Relative = SVD_Divide(Sys_Error, valunfNom);
