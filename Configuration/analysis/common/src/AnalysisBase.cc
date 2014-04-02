@@ -501,6 +501,7 @@ void AnalysisBase::clearBranches()
     b_AntiBHadronFromTopB = 0;
     b_BHadronVsJet = 0;
     b_AntiBHadronVsJet = 0;
+    
     b_genBHadPlusMothersPdgId = 0;
     b_genBHadPlusMothersStatus = 0;
     b_genBHadPlusMothersIndices = 0;
@@ -512,6 +513,14 @@ void AnalysisBase::clearBranches()
     b_genBHadLeptonHadronIndex = 0;
     b_genBHadLeptonViaTau = 0;
     b_genBHadFromTopWeakDecay = 0;
+    
+    b_genCHadJetIndex = 0;
+    b_genCHadLeptonIndex = 0;
+    b_genCHadLeptonHadronIndex = 0;
+    b_genCHadLeptonViaTau = 0;
+    b_genCHadFromBHadron = 0;
+    
+    b_genExtraTopJetNumberId = 0;
 
 
     // nTuple branches for Higgs signal samples on generator level
@@ -780,6 +789,7 @@ void AnalysisBase::SetTopSignalBranchAddresses()
     chain_->SetBranchAddress("AntiBHadronFromTopB", &topGenObjects_->AntiBHadronFromTopB_, &b_AntiBHadronFromTopB);
     chain_->SetBranchAddress("BHadronVsJet", &topGenObjects_->BHadronVsJet_, &b_BHadronVsJet);
     chain_->SetBranchAddress("AntiBHadronVsJet", &topGenObjects_->AntiBHadronVsJet_, &b_AntiBHadronVsJet);
+    
     if(chain_->GetBranch("genBHadPlusMothersPdgId")) // need to check whether branch exists
        chain_->SetBranchAddress("genBHadPlusMothersPdgId", &topGenObjects_->genBHadPlusMothersPdgId_, &b_genBHadPlusMothersPdgId);
     //if(chain_->GetBranch("genBHadPlusMothersStatus")) // need to check whether branch exists
@@ -794,17 +804,34 @@ void AnalysisBase::SetTopSignalBranchAddresses()
         chain_->SetBranchAddress("genBHadFlavour", &topGenObjects_->genBHadFlavour_, &b_genBHadFlavour);
     if(chain_->GetBranch("genBHadJetIndex")) // need to check whether branch exists
         chain_->SetBranchAddress("genBHadJetIndex", &topGenObjects_->genBHadJetIndex_, &b_genBHadJetIndex);
-    //if(chain_->GetBranch("genBHadLeptonIndex")) // new variable, keep check a while for compatibility
-    //  chain_->SetBranchAddress("genBHadLeptonIndex", &topGenObjects_->genBHadLeptonIndex_, &b_genBHadLeptonIndex);
-    //else b_genBHadLeptonIndex = 0;
-    //if(chain_->GetBranch("genBHadLeptonHadronIndex")) // new variable, keep check a while for compatibility
-    //  chain_->SetBranchAddress("genBHadLeptonHadronIndex", &topGenObjects_->genBHadLeptonHadronIndex_, &b_genBHadLeptonHadronIndex);
-    //else b_genBHadLeptonHadronIndex = 0;
-    //if(chain_->GetBranch("genBHadLeptonViaTau")) // new variable, keep check a while for compatibility
-    //  chain_->SetBranchAddress("genBHadLeptonViaTau", &topGenObjects_->genBHadLeptonViaTau_, &b_genBHadLeptonViaTau);
-    //else b_genBHadLeptonViaTau = 0;
+    if(chain_->GetBranch("genBHadLeptonIndex")) // new variable, keep check a while for compatibility
+     chain_->SetBranchAddress("genBHadLeptonIndex", &topGenObjects_->genBHadLeptonIndex_, &b_genBHadLeptonIndex);
+    else b_genBHadLeptonIndex = 0;
+    if(chain_->GetBranch("genBHadLeptonHadronIndex")) // new variable, keep check a while for compatibility
+     chain_->SetBranchAddress("genBHadLeptonHadronIndex", &topGenObjects_->genBHadLeptonHadronIndex_, &b_genBHadLeptonHadronIndex);
+    else b_genBHadLeptonHadronIndex = 0;
+    if(chain_->GetBranch("genBHadLeptonViaTau")) // new variable, keep check a while for compatibility
+     chain_->SetBranchAddress("genBHadLeptonViaTau", &topGenObjects_->genBHadLeptonViaTau_, &b_genBHadLeptonViaTau);
+    else b_genBHadLeptonViaTau = 0;
     if(chain_->GetBranch("genBHadFromTopWeakDecay")) // need to check whether branch exists
         chain_->SetBranchAddress("genBHadFromTopWeakDecay", &topGenObjects_->genBHadFromTopWeakDecay_, &b_genBHadFromTopWeakDecay);
+    
+    if(chain_->GetBranch("genCHadJetIndex")) // need to check whether branch exists
+        chain_->SetBranchAddress("genCHadJetIndex", &topGenObjects_->genCHadJetIndex_, &b_genCHadJetIndex);
+    if(chain_->GetBranch("genCHadLeptonIndex")) // new variable, keep check a while for compatibility
+     chain_->SetBranchAddress("genCHadLeptonIndex", &topGenObjects_->genCHadLeptonIndex_, &b_genCHadLeptonIndex);
+    else b_genCHadLeptonIndex = 0;
+    if(chain_->GetBranch("genCHadLeptonHadronIndex")) // new variable, keep check a while for compatibility
+     chain_->SetBranchAddress("genCHadLeptonHadronIndex", &topGenObjects_->genCHadLeptonHadronIndex_, &b_genCHadLeptonHadronIndex);
+    else b_genCHadLeptonHadronIndex = 0;
+    if(chain_->GetBranch("genCHadLeptonViaTau")) // new variable, keep check a while for compatibility
+     chain_->SetBranchAddress("genCHadLeptonViaTau", &topGenObjects_->genCHadLeptonViaTau_, &b_genCHadLeptonViaTau);
+    else b_genCHadLeptonViaTau = 0;
+    if(chain_->GetBranch("genCHadFromBHadron")) // need to check whether branch exists
+        chain_->SetBranchAddress("genCHadFromBHadron", &topGenObjects_->genCHadFromBHadron_, &b_genCHadFromBHadron);
+    
+    if(chain_->GetBranch("genExtraTopJetNumberId")) // need to check whether branch exists
+        chain_->SetBranchAddress("genExtraTopJetNumberId", &topGenObjects_->genExtraTopJetNumberId_, &b_genExtraTopJetNumberId);
 }
 
 
@@ -1037,6 +1064,7 @@ void AnalysisBase::GetTopSignalBranchesEntry(const Long64_t& entry)const
     //if(b_genBHadLeptonHadronIndex) b_genBHadLeptonHadronIndex->GetEntry(entry);
     //if(b_genBHadLeptonViaTau) b_genBHadLeptonViaTau->GetEntry(entry);
     if(b_genBHadFromTopWeakDecay) b_genBHadFromTopWeakDecay->GetEntry(entry);
+    if(b_genExtraTopJetNumberId) b_genExtraTopJetNumberId->GetEntry(entry);
 }
 
 

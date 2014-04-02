@@ -138,10 +138,18 @@ struct TopGenObjects{
     std::vector<int>* genBHadIndex_;
     std::vector<int>* genBHadFlavour_;
     std::vector<int>* genBHadJetIndex_;
-    //std::vector<int>* genBHadLeptonIndex_;
-    //std::vector<int>* genBHadLeptonHadronIndex_;
-    //std::vector<int>* genBHadLeptonViaTau_;
+    std::vector<int>* genBHadLeptonIndex_;
+    std::vector<int>* genBHadLeptonHadronIndex_;
+    std::vector<int>* genBHadLeptonViaTau_;
     std::vector<int>* genBHadFromTopWeakDecay_;
+    
+    std::vector<int>* genCHadJetIndex_;
+    std::vector<int>* genCHadLeptonIndex_;
+    std::vector<int>* genCHadLeptonHadronIndex_;
+    std::vector<int>* genCHadLeptonViaTau_;
+    std::vector<int>* genCHadFromBHadron_;
+    
+    int genExtraTopJetNumberId_;
 };
 
 

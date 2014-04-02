@@ -132,6 +132,7 @@ void TopGenObjects::clear()
     AntiBHadronFromTopB_ = 0;
     BHadronVsJet_ = 0;
     AntiBHadronVsJet_ = 0;
+    
     genBHadPlusMothersPdgId_ = 0;
     //genBHadPlusMothersStatus_ = 0;
     //genBHadPlusMothersIndices_ = 0;
@@ -139,10 +140,18 @@ void TopGenObjects::clear()
     genBHadIndex_ = 0;
     genBHadFlavour_ = 0;
     genBHadJetIndex_ = 0;
-    //genBHadLeptonIndex_ = 0;
-    //genBHadLeptonHadronIndex_ = 0;
-    //genBHadLeptonViaTau_ = 0;
+    genBHadLeptonIndex_ = 0;
+    genBHadLeptonHadronIndex_ = 0;
+    genBHadLeptonViaTau_ = 0;
     genBHadFromTopWeakDecay_ = 0;
+    
+    genCHadJetIndex_ = 0;
+    genCHadLeptonIndex_ = 0;
+    genCHadLeptonHadronIndex_ = 0;
+    genCHadLeptonViaTau_ = 0;
+    genCHadFromBHadron_ = 0;
+    
+    genExtraTopJetNumberId_ = 0;
 }
 
 

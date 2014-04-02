@@ -537,6 +537,7 @@ private:
     TBranch* b_AntiBHadronFromTopB;
     TBranch* b_BHadronVsJet;
     TBranch* b_AntiBHadronVsJet;
+    
     TBranch* b_genBHadPlusMothersPdgId;
     TBranch* b_genBHadPlusMothersStatus;
     TBranch* b_genBHadPlusMothersIndices;
@@ -548,6 +549,14 @@ private:
     TBranch* b_genBHadLeptonHadronIndex;
     TBranch* b_genBHadLeptonViaTau;
     TBranch* b_genBHadFromTopWeakDecay;
+    
+    TBranch* b_genCHadJetIndex;
+    TBranch* b_genCHadLeptonIndex;
+    TBranch* b_genCHadLeptonHadronIndex;
+    TBranch* b_genCHadLeptonViaTau;
+    TBranch* b_genCHadFromBHadron;
+    
+    TBranch* b_genExtraTopJetNumberId;
     
     
     /// nTuple branches for Higgs signal samples on generator level
