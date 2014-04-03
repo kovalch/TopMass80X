@@ -28,11 +28,13 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   MvaVariablesEventClassification
   AnalyzerBase
   AnalyzerControlPlots
-  AnalyzerMvaTopJets
+  AnalyzerDijet
+  AnalyzerEventWeight
+  AnalyzerGenEvent
   AnalyzerJetCharge
   AnalyzerJetMatch
+  AnalyzerMvaTopJets
   AnalyzerPlayground
-  AnalyzerDijet
   JetCategories
   plotterHelpers
   Samples

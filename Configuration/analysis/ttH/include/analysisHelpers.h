@@ -18,7 +18,7 @@ namespace AnalysisMode{
         match,      // Jet matching analyser
         playg,      // Playground analyser
         weight,     // Event weight analyser
-        gen,        // Generator event analyser
+        genEvent,   // Generator event analyser
         mvaTopP,    // Produce MVA input for top system jet assignment
         mvaTopA,    // Apply MVA weights for top system jet assignment
         mvaEventP,  // Produce MVA input for event classification
@@ -32,7 +32,7 @@ namespace AnalysisMode{
     
     /// All analysis modes allowed for analysis
     const std::vector<AnalysisMode> allowedAnalysisModes
-        {cp, dijet, charge, match, playg, weight, gen, mvaTopP, mvaTopA, mvaEventP, mvaEventA, mvaChargeP, mvaChargeA};
+        {cp, dijet, charge, match, playg, weight, genEvent, mvaTopP, mvaTopA, mvaEventP, mvaEventA, mvaChargeP, mvaChargeA};
     
     
     
@@ -58,7 +58,7 @@ namespace AnalysisMode{
 
 
 
-#endif // analysisHelpers_h
+#endif
 
 
 

@@ -16,7 +16,7 @@ AnalysisMode::AnalysisMode AnalysisMode::convertAnalysisMode(const std::string& 
     if(analysisMode == "match") return match;
     if(analysisMode == "playg") return playg;
     if(analysisMode == "weight") return weight;
-    if(analysisMode == "gen") return gen;
+    if(analysisMode == "genEvent") return genEvent;
     if(analysisMode == "mvaTopP") return mvaTopP;
     if(analysisMode == "mvaTopA") return mvaTopA;
     if(analysisMode == "mvaEventP") return mvaEventP;
@@ -37,7 +37,7 @@ std::string AnalysisMode::convertAnalysisMode(const AnalysisMode& analysisMode)
     if(analysisMode == match) return "match";
     if(analysisMode == playg) return "playg";
     if(analysisMode == weight) return "weight";
-    if(analysisMode == gen) return "gen";
+    if(analysisMode == genEvent) return "genEvent";
     if(analysisMode == mvaTopP) return "mvaTopP";
     if(analysisMode == mvaTopA) return "mvaTopA";
     if(analysisMode == mvaEventP) return "mvaEventP";

@@ -27,6 +27,8 @@
 #include "AnalyzerJetMatch.h"
 #include "AnalyzerJetCharge.h"
 #include "AnalyzerPlayground.h"
+#include "AnalyzerEventWeight.h"
+#include "AnalyzerGenEvent.h"
 #include "../../common/include/sampleHelpers.h"
 #include "../../common/include/utils.h"
 #include "../../common/include/CommandLineParameters.h"
@@ -225,6 +227,20 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
     if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::dijet) != v_analysisMode.end()){
         analyzerDijet = new AnalyzerDijet(Mva2dWeightsFILE, "", "", {}, {"7"}, jetCategories);
         v_analyzer.push_back(analyzerDijet);
+    }
+    
+    // Set up event weight analyzer
+    AnalyzerEventWeight* analyzerEventWeight(0);
+    if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::weight) != v_analysisMode.end()){
+        analyzerEventWeight = new AnalyzerEventWeight({"0b", "1", "2", "3", "4", "5", "6", "7"}, {"7"}, jetCategories);
+        v_analyzer.push_back(analyzerEventWeight);
+    }
+    
+    // Set up gen event analyzer
+    AnalyzerGenEvent* analyzerGenEvent(0);
+    if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::genEvent) != v_analysisMode.end()){
+        analyzerGenEvent = new AnalyzerGenEvent({"7"}, {"7"}, jetCategories);
+        v_analyzer.push_back(analyzerGenEvent);
     }
     
     // Set up MVA validation for top system jet assignment
@@ -501,7 +517,7 @@ int main(int argc, char** argv)
             [](int id){return id>=0 && id<=3;});
     CLParameter<std::string> opt_mode("m", "Mode of analysis: control plots (cp), "
                                            "dijet analyser (dijet), jet charge analyser (charge), jet match analyser (match), playground (playg), "
-                                           "event weight analyser (weight), gen event analyser(gen), "
+                                           "event weight analyser (weight), gen event analyser(genEvent), "
                                            "Produce MVA input or Apply MVA weights for top jets (mvaTopP/mvaTopA), "
                                            "Produce MVA input or Apply MVA weights for event classification (mvaEventP/mvaEventA), "
                                            "Produce MVA input or Apply MVA weights for jet charge (mvaChargeP/mvaChargeA). "
