@@ -147,7 +147,7 @@ void TopGenObjects::clear()
     genCHadLeptonViaTau_ = 0;
     genCHadFromBHadron_ = 0;
     
-    genExtraTopJetNumberId_ = 0;
+    genExtraTopJetNumberId_ = -2;
 }
 
 

@@ -851,31 +851,39 @@ bool HiggsAnalysis::failsAdditionalJetFlavourSelection(const Long64_t& entry)con
     }   // End of loop over all b-hadrons
     const unsigned int nTopBjets = genBJetIdFromTop.size();
     
-    
+    // Need to check N jets from Top (not done in N005 ntuples)
     if((additionalBjetMode_==2 || additionalBjetMode_==1) && nTopBjets<2) return true;
     if(additionalBjetMode_==0 && nTopBjets<2) return false;
-
     
-    // Identifying additional b-jets not from top
-    std::vector<int> genAddBJetIdNotFromTop;
-    for(size_t iHad=0; iHad<topGenObjects.genBHadJetIndex_->size(); iHad++) {
-        if(topGenObjects.genBHadFromTopWeakDecay_->at(iHad)!=0) continue;
-        int genJetId = topGenObjects.genBHadJetIndex_->at(iHad);
-        if(genJetId<0) continue;
-        if(std::find(genBJetIdFromTop.begin(), genBJetIdFromTop.end(), genJetId) != genBJetIdFromTop.end()) continue;
-        if(commonGenObjects.allGenJets_->at(genJetId).Pt()<signalJetPt_min || std::fabs(commonGenObjects.allGenJets_->at(genJetId).Eta())>signalJetEta_max) continue;
-        if(std::find(genAddBJetIdNotFromTop.begin(), genAddBJetIdNotFromTop.end(), genJetId) != genAddBJetIdNotFromTop.end()) continue;
-        
-        genAddBJetIdNotFromTop.push_back(genJetId);
-    }   // End of loop over all b-hadrons
-
-    const unsigned int nExtraBjets = genAddBJetIdNotFromTop.size();
-
-    if(additionalBjetMode_==2 && nExtraBjets>=2) return false;
-    if(additionalBjetMode_==1 && nExtraBjets==1) return false;
-    if(additionalBjetMode_==0 && nExtraBjets==0) return false;
-
+    const int jetAddId = topGenObjects.genExtraTopJetNumberId_;
+    
+    // Can be used starting from N005 ntuples
+    if(additionalBjetMode_==2 && jetAddId==2) return false;
+    if(additionalBjetMode_==1 && jetAddId==1) return false;
+    if(additionalBjetMode_==0 && jetAddId!=2 && jetAddId!=1) return false;
     return true;
+    
+    // Should be used prior to N005 ntuples
+//     // Identifying additional b-jets not from top
+//     std::vector<int> genAddBJetIdNotFromTop;
+//     for(size_t iHad=0; iHad<topGenObjects.genBHadJetIndex_->size(); iHad++) {
+//         if(topGenObjects.genBHadFromTopWeakDecay_->at(iHad)!=0) continue;
+//         int genJetId = topGenObjects.genBHadJetIndex_->at(iHad);
+//         if(genJetId<0) continue;
+//         if(std::find(genBJetIdFromTop.begin(), genBJetIdFromTop.end(), genJetId) != genBJetIdFromTop.end()) continue;
+//         if(commonGenObjects.allGenJets_->at(genJetId).Pt()<signalJetPt_min || std::fabs(commonGenObjects.allGenJets_->at(genJetId).Eta())>signalJetEta_max) continue;
+//         if(std::find(genAddBJetIdNotFromTop.begin(), genAddBJetIdNotFromTop.end(), genJetId) != genAddBJetIdNotFromTop.end()) continue;
+//         
+//         genAddBJetIdNotFromTop.push_back(genJetId);
+//     }   // End of loop over all b-hadrons
+// 
+//     const unsigned int nExtraBjets = genAddBJetIdNotFromTop.size();
+// 
+//     if(additionalBjetMode_==2 && nExtraBjets>=2) return false;
+//     if(additionalBjetMode_==1 && nExtraBjets==1) return false;
+//     if(additionalBjetMode_==0 && nExtraBjets==0) return false;
+// 
+//     return true;
 }
 
 
