@@ -34,7 +34,7 @@ public:
     /// Constructor
     AnalyzerJetCharge(const std::vector<TString>& selectionStepsNoCategories,
                       const std::vector<TString>& stepsForCategories =std::vector<TString>(),
-                      const JetCategories* jetCategories =0);
+                      const JetCategories* jetCategories =0, const int debug=0);
 
     /// Destructor
     ~AnalyzerJetCharge(){}
@@ -73,6 +73,9 @@ public:
 
 
 private:
+    
+    ///Debug boolean
+    bool debug_;
 
     /// Book all histograms for given selection step
     virtual void bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram);
