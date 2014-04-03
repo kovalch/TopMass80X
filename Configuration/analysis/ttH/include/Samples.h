@@ -127,9 +127,15 @@ private:
 
     /// Place where to define the samples as they will be used in the analysis
     std::vector<std::pair<TString, Sample> > setSamples(const Channel::Channel& channel, const Systematic::Systematic& systematic);
-
+    
+    
+    /// Combines samples with all corresponding input files
+    /// Input files are identified by name patterns which need to be contained in the input file name
+    std::vector<std::pair<TString, Sample> > samplesByNamePatterns(const std::vector<TString>& v_filename,
+                                                                   const std::vector<std::pair<Sample, std::vector<TString> > >& v_sampleNamepatternsPair);
+    
     /// Assign options to each sample via its filename
-    std::vector<Sample> setSampleOptions(const Systematic::Systematic& systematic, const std::vector< std::pair< TString, Sample > >& v_filenameSamplePair);
+    std::vector<Sample> setSampleOptions(const Systematic::Systematic& systematic, const std::vector<std::pair<TString, Sample> >& v_filenameSamplePair);
 
     /// Order samples by their legend
     /// when a legend already exists, the sample is moved directly behind it

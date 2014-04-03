@@ -72,11 +72,11 @@ std::vector<std::pair<TString, Sample> > Samples::setSamples(const Channel::Chan
     Sample ttbarW("t#bar{t}W", kViolet-4, 0.232);
     Sample ttbarZ("t#bar{t}Z", kTeal+1, 0.2057);
     Sample ttbarHinclusiveOther("t#bar{t}H Other", kTeal+3, 0.1302, Sample::ttHother);
-    // Sample ttbarHinclusiveBbbar("t#bar{t}H (b#bar{b} via incl.)", kSpring+9, 0.1302, Sample::ttHbb);
+    Sample ttbarHinclusiveBbbar("t#bar{t}H (b#bar{b} via incl.)", kSpring+9, 0.1302, Sample::ttHbb);
     Sample ttbarHtobbbar("t#bar{t}H (b#bar{b})", 2, 0.1302*0.577, Sample::ttHbb);
-
-
-    // Access FileList containing list of input root files
+    
+    
+    // Access fileList containing list of input root files
     const TString histoListName(FileListBASE + Systematic::convertSystematic(systematic) + "_" + Channel::convertChannel(channel) + ".txt");
     std::cout << "Reading file: " << histoListName << std::endl;
     ifstream fileList(histoListName);
@@ -84,90 +84,55 @@ std::vector<std::pair<TString, Sample> > Samples::setSamples(const Channel::Chan
         std::cerr << "Error reading file: " << histoListName << std::endl;
         exit(1);
     }
-
-
-    // Fill vector with samples defined above, based on their filename
-    std::vector<std::pair<TString, Sample> > v_filenameSamplePair;
+    
+    // Read in fileList to a vector
+    std::vector<TString> v_filename;
     while(!fileList.eof()){
         TString filename;
         fileList>>filename;
-        if(filename==""){continue;} // Skip empty lines
+        if(filename == ""){continue;} // Skip empty lines
         if(filename.BeginsWith("#")){continue;} // Comment lines in FileList with '#'
-        if(filename.Contains("run"))
-            v_filenameSamplePair.push_back(std::pair<TString, Sample>(filename, data));
-        else if(filename.Contains("ttbarsignal") && filename.Contains("PlusBbbar"))
-            v_filenameSamplePair.push_back(std::pair<TString, Sample>(filename, ttbarsignalPlusBbbar));
-        else if(filename.Contains("ttbarsignal") && filename.Contains("PlusB"))
-            v_filenameSamplePair.push_back(std::pair<TString, Sample>(filename, ttbarsignalPlusB));
-        else if(filename.Contains("ttbarsignal") && filename.Contains("PlusOther"))
-            v_filenameSamplePair.push_back(std::pair<TString, Sample>(filename, ttbarsignalPlusOther));
-        else if(filename.Contains("ttbarbg"))
-            v_filenameSamplePair.push_back(std::pair<TString, Sample>(filename, ttbarbkg));
-        else if(filename.Contains("single"))
-            v_filenameSamplePair.push_back(std::pair<TString, Sample>(filename, singletop));
-        else if(filename.Contains("ww"))
-            v_filenameSamplePair.push_back(std::pair<TString, Sample>(filename, ww));
-        else if(filename.Contains("wz"))
-            v_filenameSamplePair.push_back(std::pair<TString, Sample>(filename, wz));
-        else if(filename.Contains("zz"))
-            v_filenameSamplePair.push_back(std::pair<TString, Sample>(filename, zz));
-        else if(filename.Contains("dyee") && filename.Contains("1050"))
-            v_filenameSamplePair.push_back(std::pair<TString, Sample>(filename, dyee1050));
-        else if(filename.Contains("dyee") && filename.Contains("50inf"))
-            v_filenameSamplePair.push_back(std::pair<TString, Sample>(filename, dyee50inf));
-        else if(filename.Contains("dymumu") && filename.Contains("1050"))
-            v_filenameSamplePair.push_back(std::pair<TString, Sample>(filename, dymumu1050));
-        else if(filename.Contains("dymumu") && filename.Contains("50inf"))
-            v_filenameSamplePair.push_back(std::pair<TString, Sample>(filename, dymumu50inf));
-        else if(filename.Contains("dytautau") && filename.Contains("1050"))
-            v_filenameSamplePair.push_back(std::pair<TString, Sample>(filename, dytautau1050));
-        else if(filename.Contains("dytautau") && filename.Contains("50inf"))
-            v_filenameSamplePair.push_back(std::pair<TString, Sample>(filename, dytautau50inf));
-        else if(filename.Contains("wtolnu"))
-            v_filenameSamplePair.push_back(std::pair<TString, Sample>(filename, wlnu));
-
-        else if(filename.Contains("qcdmu15"))
-            v_filenameSamplePair.push_back(std::pair<TString, Sample>(filename, qcdmu15));
-        else if(filename.Contains("qcdmu2030"))
-            v_filenameSamplePair.push_back(std::pair<TString, Sample>(filename, qcdmu2030));
-        else if(filename.Contains("qcdmu3050"))
-            v_filenameSamplePair.push_back(std::pair<TString, Sample>(filename, qcdmu3050));
-        else if(filename.Contains("qcdmu5080"))
-            v_filenameSamplePair.push_back(std::pair<TString, Sample>(filename, qcdmu5080));
-        else if(filename.Contains("qcdmu80120"))
-            v_filenameSamplePair.push_back(std::pair<TString, Sample>(filename, qcdmu80120));
-        else if(filename.Contains("qcdmu120170"))
-            v_filenameSamplePair.push_back(std::pair<TString, Sample>(filename, qcdmu120170));
-        else if(filename.Contains("qcdem2030"))
-            v_filenameSamplePair.push_back(std::pair<TString, Sample>(filename, qcdem2030));
-        else if(filename.Contains("qcdem3080"))
-            v_filenameSamplePair.push_back(std::pair<TString, Sample>(filename, qcdem3080));
-        else if(filename.Contains("qcdem80170"))
-            v_filenameSamplePair.push_back(std::pair<TString, Sample>(filename, qcdem80170));
-        else if(filename.Contains("qcdbcem2030"))
-            v_filenameSamplePair.push_back(std::pair<TString, Sample>(filename, qcdbcem2030));
-        else if(filename.Contains("qcdbcem3080"))
-            v_filenameSamplePair.push_back(std::pair<TString, Sample>(filename, qcdbcem3080));
-        else if(filename.Contains("qcdbcem80170"))
-            v_filenameSamplePair.push_back(std::pair<TString, Sample>(filename, qcdbcem80170));
-
-        else if(filename.Contains("ttbarW"))
-            v_filenameSamplePair.push_back(std::pair<TString, Sample>(filename, ttbarW));
-        else if(filename.Contains("ttbarZ"))
-            v_filenameSamplePair.push_back(std::pair<TString, Sample>(filename, ttbarZ));
-        else if(filename.Contains("ttbarH") && filename.Contains("inclusiveOther"))
-            v_filenameSamplePair.push_back(std::pair<TString, Sample>(filename, ttbarHinclusiveOther));
-        // else if(filename.Contains("ttbarH") && filename.Contains("inclusiveBbbar"))
-            // v_filenameSamplePair.push_back(std::pair<TString, Sample>(filename, ttbarHinclusiveBbbar));
-        else if(filename.Contains("ttbarH") && filename.Contains("tobbbar"))
-            v_filenameSamplePair.push_back(std::pair<TString, Sample>(filename, ttbarHtobbbar));
-        else{
-            std::cout<<"Sample of FileList ("<<filename<<") is not defined in default samples, skip it...\n";
-            continue;
-        }
+        v_filename.push_back(filename);
     }
-
-    return v_filenameSamplePair;
+    
+    // Fill vector with samples defined above, based on their filename
+    // Samples will appear in the order defined here (however samples with same legend will be combined in blocks later)
+    std::vector<std::pair<Sample, std::vector<TString> > > v_sampleNamepatternsPair;
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(data, {"run"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(qcdmu15, {"qcdmu15"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(qcdmu2030, {"qcdmu2030"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(qcdmu3050, {"qcdmu3050"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(qcdmu5080, {"qcdmu5080"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(qcdmu80120, {"qcdmu80120"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(qcdmu120170, {"qcdmu120170"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(qcdem2030, {"qcdem2030"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(qcdem3080, {"qcdem3080"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(qcdem80170, {"qcdem80170"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(qcdbcem2030, {"qcdbcem2030"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(qcdbcem3080, {"qcdbcem3080"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(qcdbcem80170, {"qcdbcem80170"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(wlnu, {"wtolnu"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(dyee1050, {"dyee", "1050"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(dyee50inf, {"dyee", "50inf"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(dymumu1050, {"dymumu", "1050"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(dymumu50inf, {"dymumu", "50inf"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(dytautau1050, {"dytautau", "1050"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(dytautau50inf, {"dytautau", "50inf"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(singletop, {"single"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ww, {"ww"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(wz, {"wz"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(zz, {"zz"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarbkg, {"ttbarbg"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarsignalPlusOther, {"ttbarsignal", "PlusOther"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarsignalPlusB, {"ttbarsignal", "PlusB."}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarsignalPlusBbbar, {"ttbarsignal", "PlusBbbar"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarW, {"ttbarW"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarZ, {"ttbarZ"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarHinclusiveOther, {"ttbarH", "inclusiveOther"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarHinclusiveBbbar, {"ttbarH", "inclusiveBbbar"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarHtobbbar, {"ttbarH", "tobbbar"}));
+    
+    return this->samplesByNamePatterns(v_filename, v_sampleNamepatternsPair);
 }
 
 
@@ -255,6 +220,53 @@ Samples::Samples(const std::vector< Channel::Channel >& v_channel, const std::ve
     }
 
     std::cout<<"\n=== Finishing to set up the samples\n\n";
+}
+
+
+
+std::vector<std::pair<TString, Sample> > Samples::samplesByNamePatterns(const std::vector<TString>& v_filename,
+                                                                        const std::vector<std::pair<Sample, std::vector<TString> > >& v_sampleNamepatternsPair)
+{
+    std::vector<std::pair<TString, Sample> > result;
+    
+    std::vector<size_t> v_selectedFileIndex;
+    for(const auto& sampleNamepatternsPair : v_sampleNamepatternsPair){
+        const Sample& sample = sampleNamepatternsPair.first;
+        const std::vector<TString>& v_namepattern = sampleNamepatternsPair.second;
+        if(!v_namepattern.size()){
+            std::cerr<<"ERROR in Samples::sampleByNamePatterns()! No name patterns are specified\n...break\n"<<std::endl;
+            exit(512);
+        }
+        
+        
+        for(size_t iFile = 0; iFile < v_filename.size(); ++iFile){// filename : v_filename){
+            const TString& filename = v_filename.at(iFile);
+            
+            bool allPatternsContained(true);
+            for(const TString& namePattern : v_namepattern){
+                if(!filename.Contains(namePattern)){
+                    allPatternsContained = false;
+                    break;
+                }
+            }
+            
+            if(allPatternsContained){
+                if(std::find(v_selectedFileIndex.begin(), v_selectedFileIndex.end(), iFile) != v_selectedFileIndex.end()){
+                    std::cerr<<"ERROR in Samples::sampleByNamePatterns()! Input file selected twice for different samples: "
+                             <<filename<<"\n...break\n"<<std::endl;
+                    exit(513);
+                }
+                v_selectedFileIndex.push_back(iFile);
+                result.push_back(std::make_pair(filename, sample));
+            }
+        }
+    }
+    
+    if(result.size() != v_filename.size()){
+        std::cout<<"WARNING: Not all samples of input file list will be used (# input, # usage): "<<v_filename.size()<<" , "<<result.size()<<"\n";
+    }
+    
+    return result;
 }
 
 
