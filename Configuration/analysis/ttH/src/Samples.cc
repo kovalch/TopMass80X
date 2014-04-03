@@ -71,9 +71,30 @@ std::vector<std::pair<TString, Sample> > Samples::setSamples(const Channel::Chan
     Sample qcdbcem80170("QCD Multijet", kOrange-2, 1.191E6*10.90E-3);
     Sample ttbarW("t#bar{t}W", kViolet-4, 0.232);
     Sample ttbarZ("t#bar{t}Z", kTeal+1, 0.2057);
-    Sample ttbarHinclusiveOther("t#bar{t}H Other", kTeal+3, 0.1302, Sample::ttHother);
-    Sample ttbarHinclusiveBbbar("t#bar{t}H (b#bar{b} via incl.)", kSpring+9, 0.1302, Sample::ttHbb);
-    Sample ttbarHtobbbar("t#bar{t}H (b#bar{b})", 2, 0.1302*0.577, Sample::ttHbb);
+    Sample ttbarH125inclusiveOther("t#bar{t}H Other", kTeal+3, 0.1293, Sample::ttHother);
+    Sample ttbarH125inclusiveBbbar("t#bar{t}H (b#bar{b} via incl.)", kSpring+9, 0.1293, Sample::ttHbb);
+    Sample ttbarH125tobbbar("t#bar{t}H (b#bar{b})", 2, 0.1293*0.577, Sample::ttHbb);
+    Sample ttbarH110inclusiveOther("t#bar{t}H110 Other", kTeal+4, 0.1871, Sample::ttHother);
+    Sample ttbarH110inclusiveBbbar("t#bar{t}H110 (b#bar{b} via incl.)", kSpring+10, 0.1871, Sample::ttHbb);
+    Sample ttbarH110tobbbar("t#bar{t}H110 (b#bar{b})", 3, 0.1871*0.744, Sample::ttHbb);
+    Sample ttbarH115inclusiveOther("t#bar{t}H115 Other", kTeal+5, 0.1651, Sample::ttHother);
+    Sample ttbarH115inclusiveBbbar("t#bar{t}H115 (b#bar{b} via incl.)", kSpring+11, 0.1651, Sample::ttHbb);
+    Sample ttbarH115tobbbar("t#bar{t}H115 (b#bar{b})", 4, 0.1651*0.703, Sample::ttHbb);
+    Sample ttbarH120inclusiveOther("t#bar{t}H120 Other", kTeal+6, 0.1459, Sample::ttHother);
+    Sample ttbarH120inclusiveBbbar("t#bar{t}H120 (b#bar{b} via incl.)", kSpring+12, 0.1459, Sample::ttHbb);
+    Sample ttbarH120tobbbar("t#bar{t}H120 (b#bar{b})", 5, 0.1459*0.648, Sample::ttHbb);
+    Sample ttbarH1225inclusiveOther("t#bar{t}H122.5 Other", kTeal+7, 0.1373, Sample::ttHother);
+    Sample ttbarH1225inclusiveBbbar("t#bar{t}H122.5 (b#bar{b} via incl.)", kSpring+13, 0.1373, Sample::ttHbb);
+    Sample ttbarH1275inclusiveOther("t#bar{t}H127.5 Other", kTeal+8, 0.1218, Sample::ttHother);
+    Sample ttbarH1275inclusiveBbbar("t#bar{t}H127.5 (b#bar{b} via incl.)", kSpring+14, 0.1218, Sample::ttHbb);
+    Sample ttbarH130inclusiveOther("t#bar{t}H130 Other", kTeal+9, 0.1149, Sample::ttHother);
+    Sample ttbarH130inclusiveBbbar("t#bar{t}H130 (b#bar{b} via incl.)", kSpring+15, 0.1149, Sample::ttHbb);
+    Sample ttbarH130tobbbar("t#bar{t}H130 (b#bar{b})", 6, 0.1149*0.494, Sample::ttHbb);
+    Sample ttbarH135inclusiveOther("t#bar{t}H135 Other", kTeal+10, 0.1024, Sample::ttHother);
+    Sample ttbarH135inclusiveBbbar("t#bar{t}H135 (b#bar{b} via incl.)", kSpring+16, 0.1024, Sample::ttHbb);
+    Sample ttbarH135tobbbar("t#bar{t}H135 (b#bar{b})", 7, 0.1024*0.404, Sample::ttHbb);
+    Sample ttbarH140inclusiveOther("t#bar{t}H140 Other", kTeal+11, 0.09150, Sample::ttHother);
+    Sample ttbarH140inclusiveBbbar("t#bar{t}H140 (b#bar{b} via incl.)", kSpring+17, 0.09150, Sample::ttHbb);
     
     
     // Access fileList containing list of input root files
@@ -128,10 +149,32 @@ std::vector<std::pair<TString, Sample> > Samples::setSamples(const Channel::Chan
     v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarsignalPlusBbbar, {"ttbarsignal", "PlusBbbar"}));
     v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarW, {"ttbarW"}));
     v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarZ, {"ttbarZ"}));
-    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarHinclusiveOther, {"ttbarH", "inclusiveOther"}));
-    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarHinclusiveBbbar, {"ttbarH", "inclusiveBbbar"}));
-    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarHtobbbar, {"ttbarH", "tobbbar"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarH125inclusiveOther, {"ttbarH125inclusiveOther"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarH125inclusiveBbbar, {"ttbarH125inclusiveBbbar"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarH125tobbbar, {"ttbarH125tobbbar"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarH110inclusiveOther, {"ttbarH110inclusiveOther"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarH110inclusiveBbbar, {"ttbarH110inclusiveBbbar"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarH110tobbbar, {"ttbarH110tobbbar"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarH115inclusiveOther, {"ttbarH115inclusiveOther"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarH115inclusiveBbbar, {"ttbarH115inclusiveBbbar"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarH115tobbbar, {"ttbarH115tobbbar"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarH120inclusiveOther, {"ttbarH120inclusiveOther"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarH120inclusiveBbbar, {"ttbarH120inclusiveBbbar"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarH120tobbbar, {"ttbarH120tobbbar"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarH1225inclusiveOther, {"ttbarH1225inclusiveOther"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarH1225inclusiveBbbar, {"ttbarH1225inclusiveBbbar"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarH1275inclusiveOther, {"ttbarH1275inclusiveOther"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarH1275inclusiveBbbar, {"ttbarH1275inclusiveBbbar"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarH130inclusiveOther, {"ttbarH130inclusiveOther"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarH130inclusiveBbbar, {"ttbarH130inclusiveBbbar"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarH130tobbbar, {"ttbarH130tobbbar"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarH135inclusiveOther, {"ttbarH135inclusiveOther"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarH135inclusiveBbbar, {"ttbarH135inclusiveBbbar"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarH135tobbbar, {"ttbarH135tobbbar"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarH140inclusiveOther, {"ttbarH140inclusiveOther"}));
+    v_sampleNamepatternsPair.push_back(std::pair<Sample, std::vector<TString> >(ttbarH140inclusiveBbbar, {"ttbarH140inclusiveBbbar"}));
     
+    // Return the input files and corresponding samples, ordered by the name patterns
     return this->samplesByNamePatterns(v_filename, v_sampleNamepatternsPair);
 }
 
