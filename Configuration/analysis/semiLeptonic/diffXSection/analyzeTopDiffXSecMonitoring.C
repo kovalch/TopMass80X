@@ -1362,8 +1362,8 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	leg ->AddEntry(histo_[plotList_[plot]][sample], leglabel, "F");
 	leg0->AddEntry(histo_[plotList_[plot]][sample], leglabel, "F");
 	leg1->AddEntry(histo_[plotList_[plot]][sample], leglabel, "F");
-	if(legSplit1->GetNRows()<5) legSplit1->AddEntry(histo_[plotList_[plot]][sample], leglabel, "F");
-	else                        legSplit2->AddEntry(histo_[plotList_[plot]][sample], leglabel, "F");
+	if(legSplit1->GetNRows()<=5) legSplit1->AddEntry(histo_[plotList_[plot]][sample], leglabel, "F");
+	else                         legSplit2->AddEntry(histo_[plotList_[plot]][sample], leglabel, "F");
 	break;
       }
     }
@@ -1978,8 +1978,12 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	  histo_[newLabel][kData]->SetBinContent(bin, (histo_[oldLabel][kData]->GetBinContent(bin)/DataIntegral));
 	  histo_[newLabel][kData]->SetBinError  (bin, sqrt(histo_[oldLabel][kData]->GetBinContent(bin))/DataIntegral); 
 	  // calculate data uncertainty for ratio(MC, data)
-	  double ratio = histo_[newLabel][kData]->GetBinContent(bin)/(invert ? histo_[newLabel][kData]->GetBinContent(bin) : histo_[newLabel][kSig]->GetBinContent(bin));
-	  temp_.push_back(ratio*(histo_[newLabel][kData]->GetBinError(bin)/histo_[newLabel][kData]->GetBinContent(bin)));
+	  double ratio = histo_[newLabel][kData]->GetBinContent(bin)/ histo_[newLabel][kSig]->GetBinContent(bin);
+	  if(invert) ratio=1./ratio;
+	  double relDataUnc=histo_[newLabel][kData]->GetBinError(bin)/histo_[newLabel][kData]->GetBinContent(bin);
+	  if(histo_[newLabel][kData]->GetBinContent(bin)==0.|| histo_[newLabel][kSig]->GetBinContent(bin)==0.){ratio=1.0;relDataUnc=2.0;}
+	  temp_.push_back(ratio*relDataUnc);
+	  if(verbose>2) std::cout << "bin " << bin << ": ratio=" << ratio << "data unc=" << relDataUnc << std::endl;
 	}
 	errPUDa_[newLabel]=temp_;
       }
@@ -2017,7 +2021,10 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	histoErrorBandPU_[nameErr]->SetBinError(bin, uncRelSymm*histoErrorBandPU_[nameErr]->GetBinContent(bin));
 	if(verbose>2) std::cout << "bin" << bin << ": " << histoErrorBandPU_[nameErr]->GetBinContent(bin) << "+/-" << histoErrorBandPU_[nameErr]->GetBinError(bin) << std::endl;
 	// calulate MC error for ratio(MC, data)
-	double ratio = histo_[namestd][kSig]->GetBinContent(bin)/(invert ? histo_[namestd][kData]->GetBinContent(bin) : histo_[namestd][kSig]->GetBinContent(bin));
+	double ratio = histo_[namestd][kData]->GetBinContent(bin) / histo_[namestd][kSig]->GetBinContent(bin);
+	ratio=1.;
+	if(invert) ratio=1./ratio;
+	if(histo_[namestd][kData]->GetBinContent(bin)==0.||histo_[namestd][kSig]->GetBinContent(bin)==0.){ratio=1.0;uncRelSymm=2.0;}
 	temp_.push_back(uncRelSymm*ratio);
       }
       errPUMC_[nameErr]=temp_;
@@ -2218,7 +2225,6 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	      //if(plotList_[plot].Contains("")){max=;}
 	      //if(plotList_[plot].Contains("")){max=;}
 	      //if(plotList_[plot].Contains("")){max=;}
-	      
 	    }
 	    // axis style
 	    TString titleY=getStringEntry(axisLabel_[plot],2,";");
@@ -2378,7 +2384,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	      if(topPtReweighting                       ){ x1-=0.05;  x2-=0.05;} // closure tests
 	      if(plotList_[plot].Contains("ttbarDelPhi")){ x1-=0.05 ; x2-=0.05;
 		if(!topPtReweighting)  x1-=0.05 ; x2-=0.05;
-} // avoid overlap
+	      } // avoid overlap
 	      x1+=0.015;
 	      double y1=1.0 - gStyle->GetPadTopMargin() - gStyle->GetTickLength() -0.05 - 0.03 * leg->GetNRows();
 	      double y2=1.0-gStyle->GetPadTopMargin()-0.8*gStyle->GetTickLength();
@@ -2420,9 +2426,10 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	      //std::cout << "leg2, y1="  << std::setprecision(4) << std::fixed << legSplit2->GetY1NDC() << std::endl;
 	      //std::cout << "leg2, y2="  << std::setprecision(4) << std::fixed << legSplit2->GetY2NDC() << std::endl;
 	      // nPV legend (including PU unc. band)
-	      legPU->SetX1NDC(x1);
+	      double xRightShift=0.1;
+	      legPU->SetX1NDC(x1+xRightShift);
 	      legPU->SetY1NDC(1.0 - gStyle->GetPadTopMargin() - gStyle->GetTickLength() -0.05 - 0.03 * legPU->GetNRows());
-	      legPU->SetX2NDC(x2);
+	      legPU->SetX2NDC(x2+xRightShift);
 	      legPU->SetY2NDC(y2);
 	      legPU->SetTextSize(0.03);
 	      // shift plot (including JE unc. band)
@@ -2441,11 +2448,11 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 		  if(JEPlotList_[entry]==plotList_[plot]) existingJEBand=true;	
 		}
 	      }
-	      if(existingJEBand) legJE->DrawClone("SAME");
+	      if(existingJEBand&&!PHD) legJE->DrawClone("SAME");
 	      // ii) normal
 	      else if(!plotList_[plot].Contains("KinFitEff")&&!plotList_[plot].Contains("ProbEff")&&!plotList_[plot].Contains("BGSubNorm")&&!(plotList_[plot].Contains("efficiency")||plotList_[plot].Contains("acceptance"))&&!(plotList_[plot].Contains("efficiency")||plotList_[plot].Contains("acceptance"))&&!(plotList_[plot].Contains("reweightedNorm")||(plotList_[plot].Contains("reweightedNorm")&&drawnPVPUunc))){
 		// splitted legend
-		if(paperPlot&&splitlegends){
+		if(paperPlot&&splitlegends&&!PHD){
 		  if(verbose>3) std::cout << "splitted legends!" << std::endl;
 		  legSplit1->DrawClone("SAME");
 		  legSplit2->DrawClone("SAME");
@@ -2460,7 +2467,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 		  //std::cout << "leg2, y2="  << std::setprecision(4) << std::fixed << legSplit2->GetY2NDC() << std::endl;
 		}
 		// ordinary legend
-		else leg->Draw("SAME");
+		else if(!PHD) leg->Draw("SAME");
 	      }
 	      // iii) with PU uncertainty band 
 	      else if(drawnPVPUunc&&plotList_[plot].Contains("reweightedNorm")) legPU->Draw("SAME");
@@ -2565,8 +2572,12 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 		  // b2ii) MC shape errorband
 		  else if(histoErrorBand_.count(plotList_[plot])>0&&rval==0){
 		    for(int bin=1; bin<=histoErrorBand_[plotList_[plot]]->GetNbinsX(); ++bin){
-		      double ratio = histo_[plotList_[plot]][kSig]->GetBinContent(bin)/(invert ? histo_[plotList_[plot]][kData]->GetBinContent(bin) : histo_[plotList_[plot]][kSig]->GetBinContent(bin));
-		      err2_.push_back(ratio*(histoErrorBand_[plotList_[plot]]->GetBinError(bin)/histoErrorBand_[plotList_[plot]]->GetBinContent(bin)));
+		      double ratio = histo_[plotList_[plot]][kData]->GetBinContent(bin)/ histo_[plotList_[plot]][kSig]->GetBinContent(bin);
+		      if(invert) ratio=1./ratio;
+		      ratio=1.0;
+		      double relUncBand=(histoErrorBand_[plotList_[plot]]->GetBinError(bin)/histoErrorBand_[plotList_[plot]]->GetBinContent(bin));
+		      if(histoErrorBand_[plotList_[plot]]->GetBinContent(bin)==0.||histo_[plotList_[plot]][kData]->GetBinContent(bin)==0.){ratio=1.0;relUncBand=2.0;}
+		      err2_.push_back(ratio*relUncBand);
 		    }
 		    int rval2 = drawRatio(histoErrorBand_[plotList_[plot]], histoErrorBand_[plotList_[plot]], ratMin, ratMax, myStyle, verbose, err2_, ratioLabelNominator, ratioLabelDenominator, "e2 same", kBlack, true, 0.8, ndivisions, invert);
 		    if (rval2!=0) std::cout << " Problem occured when creating errorband ratio plot for " << plotList_[plot] << std::endl;		    
@@ -2575,9 +2586,15 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 		  // data unc.: around the ratio, taken directly from err_ OR statistical error 
 		  //            of Ndata (for error=true and err_=std::vector<double>(0) in drawRatio)		  
 		  if(!plotList_[plot].Contains("PU")||plotList_[plot].Contains("reweightedNorm")){
-		    for(int bin=1; bin<=histo_[plotList_[plot]][kSig]->GetNbinsX(); ++bin){
-		      double ratio = histo_[plotList_[plot]][kData]->GetBinContent(bin)/(invert ? histo_[plotList_[plot]][kData]->GetBinContent(bin) : histo_[plotList_[plot]][kSig]->GetBinContent(bin));
-		      err_.push_back(ratio*(1/sqrt(histo_[plotList_[plot]][kData]->GetBinContent(bin))));
+		    if(plotList_[plot].Contains("reweightedNorm")) err_=errPUDa_[plotList_[plot]];
+		    else {		      
+		      for(int bin=1; bin<=histo_[plotList_[plot]][kSig]->GetNbinsX(); ++bin){
+			double ratio = histo_[plotList_[plot]][kData]->GetBinContent(bin)/histo_[plotList_[plot]][kSig]->GetBinContent(bin);
+			if(invert) ratio=1./ratio;
+			double relDataUnc=(1/sqrt(histo_[plotList_[plot]][kData]->GetBinContent(bin)));
+			if(histo_[plotList_[plot]][kSig]->GetBinContent(bin)==0.||histo_[plotList_[plot]][kData]->GetBinContent(bin)==0.){ratio=1.0;relDataUnc=2.0;}
+			err_.push_back(ratio*relDataUnc);
+		      }
 		    }
 		    rval=drawRatio(histo_[plotList_[plot]][kData], histo_[plotList_[plot]][kSig], ratMin, ratMax, myStyle, verbose, err_, ratioLabelNominator, ratioLabelDenominator, "p e X0 same", kBlack, true, 0.8, ndivisions, invert);
 		    if (rval!=0) std::cout << " Problem occured when creating ratio plot for " << plotList_[plot] << std::endl;
@@ -2636,6 +2653,26 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
   plotCanvas_[canvasNumber]->SetTitle("legendMonitoringAfterBtagging");
   leg1->Draw("");
   ++canvasNumber;
+
+  //
+  // b2) after btagging
+  //
+  if(splitlegends){
+    plotCanvas_[canvasNumber]->cd(0);
+    plotCanvas_[canvasNumber]->SetTitle("legendSplittedEntries");
+    legSplit1->SetX1NDC(0.1);
+    legSplit1->SetY1NDC(0.1);
+    legSplit1->SetX2NDC(0.5);
+    legSplit1->SetY2NDC(0.9);
+    legSplit1->SetTextSize(0.05);    
+    legSplit2->SetX1NDC(0.5);
+    legSplit2->SetY1NDC(0.1);
+    legSplit2->SetX2NDC(0.9);
+    legSplit2->SetY2NDC(0.9);
+    legSplit2->SetTextSize(0.05);
+    legSplit1->Draw("");
+    legSplit2->Draw("same");
+  }
 	
   // ==============
   //  Saving plots
