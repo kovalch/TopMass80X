@@ -134,7 +134,7 @@ bool Plotter::prepareDataset(const std::vector<Sample>& v_sample, const Systemat
     for(const auto& sample : v_sample){
         SampleHistPair p_sampleHist;
         TH1D *hist = fileReader_->GetClone<TH1D>(sample.inputFile(), name_, true, false);
-        if (!hist){
+        if(!hist){
             // Print message only for one histogram
             if(allHistosAvailable)
                 std::cout<<"Histogram ("<<name_<<") not found e.g. in file ("<<sample.inputFile()<<")\n";
@@ -144,7 +144,7 @@ bool Plotter::prepareDataset(const std::vector<Sample>& v_sample, const Systemat
         else{
             //Rescaling to the data luminosity
             if(sample.sampleType() != Sample::data){
-                const double lumiWeight = Tools::luminosityWeight(sample, luminosity_, fileReader_);
+                const double& lumiWeight = sample.luminosityWeight(luminosity_);
                 hist->Scale(lumiWeight);
             }
 

@@ -14,82 +14,91 @@ class TString;
 
 /// Class defining a sample for processing keeping all information as needed
 class Sample{
-
+    
 public:
-
+    
     /// Specific type of sample as needed to be known for eg. plotting or Drell-Yan scale factor calculation
     enum SampleType{data, dyee, dymumu, dytautau, ttHbb, ttHother, ttbb, ttb, ttother, dummy};
-
-
-
+    
+    
+    
     /// Default constructor
     Sample();
-
+    
     /// Constructor for setting up a sample
     Sample(const TString legendEntry, const int color, const double crossSection, const SampleType sampleType=dummy);
-
+    
     /// Default destructor
     ~Sample(){};
-
-
-
+    
+    
+    
     /// Return sample legend entry for drawing
     TString legendEntry()const;
-
+    
     /// Return sample colour for drawing (needs to be identical for samples same legendEntry)
     int color()const;
-
+    
     /// Return cross section corresponding to the sample
     double crossSection()const;
-
+    
+    /// Get the luminosity weight, for a luminosity in inverse fb
+    double luminosityWeight(const double& luminosityInInverseFb)const;
+    
     /// Return the specific type of sample
     SampleType sampleType()const;
-
-
-
+    
+    
+    
     /// Set real final state of sample, ie. only "ee", "emu", "mumu", but not "combined"
     void setFinalState(const Channel::Channel& channel);
-
+    
     /// Get real final state of sample, ie. only "ee", "emu", "mumu", but not "combined"
     Channel::Channel finalState()const;
-
+    
     /// Set real systematic assigned to this sample, i.e. either nominal or specific systematic
     void setSystematic(const Systematic::Systematic& systematic);
-
+    
     /// Get real systematic assigned to this sample, i.e. either nominal or specific systematic
     Systematic::Systematic systematic()const;
-
+    
     /// Set the path of the input root file
     void setInputFile(const TString& inputFileName);
-
+    
+    /// Calculate the luminosity weight
+    void calculateLuminosityWeight();
+    
     /// Return the path of the input root file
     TString inputFile()const;
-
-
-
+    
+    
+    
 private:
-
+    
     /// Sample legend entry for drawing
     /// Samples will be ordered by legend entry and those with identical ones are merged in certain steps of further processing
     TString legendEntry_;
-
+    
     /// Sample colour for drawing (needs to be identical for samples same legendEntry)
     int color_;
-
+    
     /// Cross section corresponding to the sample
     double crossSection_;
-
+    
     /// Specific type of sample as needed to be known for eg. plotting or Drell-Yan scale factor calculation
     SampleType sampleType_;
-
+    
     /// Real final state of sample, ie. only "ee", "emu", "mumu", but not "combined"
     Channel::Channel finalState_;
-
+    
     /// Real systematic of sample, i.e. what should be used for given systematic (nominal or specific systematic)
     Systematic::Systematic systematic_;
-
+    
     /// Path of the input root file
     TString inputFileName_;
+    
+    /// Weight corresponding to the sample per 1 inverse fb
+    double luminosityWeightPerInverseFb_;
 };
 
 
@@ -129,6 +138,7 @@ private:
     std::vector<std::pair<TString, Sample> > setSamples(const Channel::Channel& channel, const Systematic::Systematic& systematic);
     
     
+    
     /// Combines samples with all corresponding input files
     /// Input files are identified by name patterns which need to be contained in the input file name
     std::vector<std::pair<TString, Sample> > samplesByNamePatterns(const std::vector<TString>& v_filename,
@@ -158,18 +168,9 @@ private:
 
 
 
-namespace Tools{
-
-    /// Get the luminosity weight for a specific sample
-    double luminosityWeight(const Sample& sample, const double luminosity, RootFileReader* fileReader);
-}
 
 
-
-
-
-
-#endif // Samples_h
+#endif
 
 
 

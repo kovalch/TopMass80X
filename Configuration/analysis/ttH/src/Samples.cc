@@ -23,17 +23,27 @@ constexpr const char* FileListBASE = "FileLists_plot/HistoFileList_";
 
 
 Sample::Sample():
-legendEntry_(""), color_(0), crossSection_(0),
-sampleType_(dummy), finalState_(Channel::undefined), systematic_(Systematic::undefined),
-inputFileName_("")
+legendEntry_(""),
+color_(0),
+crossSection_(0),
+sampleType_(dummy),
+finalState_(Channel::undefined),
+systematic_(Systematic::undefined),
+inputFileName_(""),
+luminosityWeightPerInverseFb_(-999.)
 {}
 
 
 
 Sample::Sample(const TString legendEntry, const int color, const double crossSection, const SampleType sampleType):
-legendEntry_(legendEntry), color_(color), crossSection_(crossSection),
-sampleType_(sampleType), finalState_(Channel::undefined), systematic_(Systematic::undefined),
-inputFileName_("")
+legendEntry_(legendEntry),
+color_(color),
+crossSection_(crossSection),
+sampleType_(sampleType),
+finalState_(Channel::undefined),
+systematic_(Systematic::undefined),
+inputFileName_(""),
+luminosityWeightPerInverseFb_(-999.)
 {}
 
 
@@ -41,6 +51,7 @@ inputFileName_("")
 std::vector<std::pair<TString, Sample> > Samples::setSamples(const Channel::Channel& channel, const Systematic::Systematic& systematic)
 {
     // Define all samples as differential as they are needed
+    // Samples with same legend will appear as one single sample (requires also same colour)
     Sample data("Data", kBlack, 1., Sample::data);
     Sample ttbarsignalPlusBbbar("t#bar{t}b#bar{b}", 18, 234.0, Sample::ttbb);
     Sample ttbarsignalPlusB("t#bar{t}b", 12, 234.0, Sample::ttb);
@@ -238,6 +249,37 @@ TString Sample::inputFile()const{return inputFileName_;}
 
 
 
+double Sample::luminosityWeight(const double& luminosityInInverseFb)const
+{
+    if(sampleType_ == data) return 1.;
+    if(luminosityWeightPerInverseFb_ < 0.){
+        std::cerr<<"ERROR in Sample::luminosityWeight()! Value is negative (probably not calculated): "
+                 <<luminosityWeightPerInverseFb_<<"\n...break\n"<<std::endl;
+        exit(886);
+    }
+    return luminosityInInverseFb*luminosityWeightPerInverseFb_;
+}
+
+
+
+void Sample::calculateLuminosityWeight()
+{
+    if(sampleType_ == SampleType::data) return;
+    if(crossSection_ <= 0.){
+        std::cerr<<"ERROR: Sample XSection is <0. Can't calculate luminosity weight!!\n...break\n"<<std::endl;
+        exit(887);
+    }
+    
+    RootFileReader* fileReader = RootFileReader::getInstance();
+    const TH1* const h_weightedEvents = fileReader->Get<TH1>(inputFileName_, "weightedEvents");
+    const double weightedEvents(h_weightedEvents->GetBinContent(1));
+    
+    luminosityWeightPerInverseFb_ = crossSection_/weightedEvents;
+    //std::cout<<"Input file: "<<inputFileName_<<std::endl;
+    //std::cout<<"Xsection, weighted events, lumi weight: "
+    //         <<crossSection<<" , "<<weightedEvents<<" , "<<luminosityWeightPerInverseFb_<<std::endl;
+}
+
 
 
 
@@ -281,8 +323,7 @@ std::vector<std::pair<TString, Sample> > Samples::samplesByNamePatterns(const st
             exit(512);
         }
         
-        
-        for(size_t iFile = 0; iFile < v_filename.size(); ++iFile){// filename : v_filename){
+        for(size_t iFile = 0; iFile < v_filename.size(); ++iFile){
             const TString& filename = v_filename.at(iFile);
             
             bool allPatternsContained(true);
@@ -318,16 +359,16 @@ void Samples::addSamples(const Channel::Channel& channel, const Systematic::Syst
 {
     // Add all samples as they are defined in setSamples()
     std::vector< std::pair< TString, Sample > > v_filenameSamplePair(this->setSamples(channel, systematic));
-
+    
     // Set sample options via filename
     std::vector<Sample> v_sample(this->setSampleOptions(systematic, v_filenameSamplePair));
-
+    
     // Order files by legendEntry
     this->orderByLegend(v_sample);
-
+    
     // Create map of maps, containing Sample per channel per systematic
     m_systematicChannelSample_[systematic][channel] = v_sample;
-
+    
     //for(auto systematicChannelSample : m_systematicChannelSample_){
     //    for(auto channelSample : systematicChannelSample.second){
     //        for(auto sample : channelSample.second){
@@ -349,12 +390,19 @@ std::vector<Sample> Samples::setSampleOptions(const Systematic::Systematic& syst
     for(auto filenameSamplePair : v_filenameSamplePair){
         TString filename(filenameSamplePair.first);
         Sample sample(filenameSamplePair.second);
+        
         // Assign dilepton final state to each sample
         sample.setFinalState(this->assignFinalState(filename));
+        
         // Assign specific systematic to each sample and adjust filename accordingly
         sample.setSystematic(this->assignSystematic(filename, systematic));
+        
         // Check if input file really exists and set it
         sample.setInputFile(filename);
+        
+        // Calculate the luminosity weight of the sample
+        sample.calculateLuminosityWeight();
+        
         v_sample.push_back(sample);
     }
 
@@ -448,40 +496,6 @@ const std::vector<Sample>& Samples::getSamples(const Channel::Channel& channel, 
     }
     return m_systematicChannelSample_.at(systematic).at(channel);
 }
-
-
-
-
-
-
-
-
-// ------------------------------------ Functions defined in namespace Tools ---------------------------------------
-
-
-
-double Tools::luminosityWeight(const Sample& sample, const double luminosity, RootFileReader* fileReader)
-{
-    double luminosityWeight=0;
-    if(sample.sampleType() == Sample::SampleType::data)return 1;
-    const TString& inputFile(sample.inputFile());
-    const double crossSection(sample.crossSection());
-    if(crossSection<=0.){
-        std::cout<<"Sample XSection is <0. Can't calculate luminosity weight!! returning\n";
-        return 0;
-    }
-    const TH1* h_weightedEvents = fileReader->Get<TH1>(inputFile, "weightedEvents");
-    const double weightedEvents(h_weightedEvents->GetBinContent(1));
-    luminosityWeight = luminosity*crossSection/weightedEvents;
-    //std::cout<<"Input file: "<<inputFile<<std::endl;
-    //std::cout<<"Luminosity, Xsection, weighted events, lumi weight: "
-    //         <<luminosity<<" , "<<crossSection<<" , "<<weightedEvents<<" , "<<luminosityWeight<<std::endl;
-
-    return luminosityWeight;
-}
-
-
-
 
 
 

@@ -93,30 +93,31 @@ void DyScaleFactors::produceScaleFactors(const TString& step, const Systematic::
         for(Sample sample : v_sample){
             if(sample.sampleType()==Sample::ttHbb || sample.sampleType()==Sample::ttHother) continue;
             
-            const double luminosityWeight(Tools::luminosityWeight(sample, luminosity_, fileReader_));
-            const double allWeights = luminosityWeight; // calculate here all the flat-weights we apply: Lumi*others*...
-            
             TH1D* h_loose = fileReader_->GetClone<TH1D>(sample.inputFile(), "dyScaling_Looseh1");
             TH1D* h_zWindow = fileReader_->GetClone<TH1D>(sample.inputFile(), TString("dyScaling_Zh1").Append(step).Append("zWindow"));
             TH1D* h_zVeto = fileReader_->GetClone<TH1D>(sample.inputFile(), TString("dyScaling_TTh1").Append(step));
             TH1D* h_all = fileReader_->GetClone<TH1D>(sample.inputFile(), TString("dyScaling_Allh1").Append(step));
             
-            h_loose->Scale(allWeights);
-            h_zWindow->Scale(allWeights);
-            h_zVeto->Scale(allWeights);
-            h_all->Scale(allWeights);
+            if(sample.sampleType() != Sample::data){
+                const double& luminosityWeight = sample.luminosityWeight(luminosity_);
+                const double allWeights = luminosityWeight; // calculate here all the flat-weights we apply: Lumi*others*...
+                h_loose->Scale(allWeights);
+                h_zWindow->Scale(allWeights);
+                h_zVeto->Scale(allWeights);
+                h_all->Scale(allWeights);
+            }
             
             // FIXME: here Integral() is used, but this does not account for the overflow, so it is wrong !?
-            if(sample.sampleType()==Sample::data){
-                if(channel==Channel::ee){
+            if(sample.sampleType() == Sample::data){
+                if(channel == Channel::ee){
                     nIn_ee_data += h_zWindow->Integral();
                     nIn_ee_data_loose += h_loose->Integral();
                 }
-                else if(channel==Channel::mumu){
+                else if(channel == Channel::mumu){
                     nIn_mumu_data += h_zWindow->Integral();
                     nIn_mumu_data_loose += h_loose->Integral();
                 }
-                else if(channel==Channel::emu){
+                else if(channel == Channel::emu){
                     nIn_emu_data += h_zWindow->Integral();
                 }
                 continue;

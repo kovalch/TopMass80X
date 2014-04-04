@@ -66,8 +66,10 @@ void EventYields::writeYields(const Channel::Channel& channel, const std::vector
         std::vector<SampleHistPair> v_numhist;
         for(const auto& sample : v_sample){
             TH1D* temp_hist = fileReader_->GetClone<TH1D>(sample.inputFile(), i_nameStepPair->first);
-            double lumiWeight = Tools::luminosityWeight(sample, luminosity_, fileReader_);
-            temp_hist->Scale(lumiWeight);
+            if(sample.sampleType() != Sample::data){
+                const double& lumiWeight = sample.luminosityWeight(luminosity_);
+                temp_hist->Scale(lumiWeight);
+            }
             v_numhist.push_back(SampleHistPair(sample, temp_hist));
         }
         
