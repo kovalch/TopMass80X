@@ -15,7 +15,9 @@
 #include <Rtypes.h>
 
 #include "TopAnalysis.h"
-#include "AnalysisHistograms.h"
+
+#include "AnalyzerBaseClass.h"
+#include "AnalyzerControlPlots.h"
 #include "../../common/include/CommandLineParameters.h"
 #include "../../common/include/utils.h"
 #include "../../common/include/ScaleFactors.h"
@@ -149,17 +151,24 @@ void load_Analysis(const TString& validFilenamePattern,
     
     
     // Vector for setting up all analysers
-    std::vector<AnalysisHistogramsBase*> v_analysisHistograms;
+    std::vector<AnalyzerBaseClass*> v_analyzer;
     
     // Set up event yield histograms
-    EventYieldHistograms* eventYieldHistograms(0);
-    eventYieldHistograms = new EventYieldHistograms({"1", "2", "3", "4", "5", "6", "7", "8"});
-    v_analysisHistograms.push_back(eventYieldHistograms);
+    AnalyzerEventYields* eventYieldHistograms(0);
+    eventYieldHistograms = new AnalyzerEventYields({"1", "2", "3", "4", "5", "6", "7", "8"});
+    v_analyzer.push_back(eventYieldHistograms);
     
     // Set up Drell-Yan scaling histograms
-    DyScalingHistograms* dyScalingHistograms(0);
-    dyScalingHistograms = new DyScalingHistograms({"4", "5", "6", "7", "8"}, "5");
-    v_analysisHistograms.push_back(dyScalingHistograms);
+    AnalyzerDyScaling* dyScalingHistograms(0);
+    dyScalingHistograms = new AnalyzerDyScaling({"4", "5", "6", "7", "8"}, "5");
+    v_analyzer.push_back(dyScalingHistograms);
+    
+    // Set up basic histograms
+    AnalyzerControlPlots* analyzerControlPlots(0);
+    analyzerControlPlots = new AnalyzerControlPlots({"1", "2", "3", "4", "5", "6", "7", "8"});
+    v_analyzer.push_back(analyzerControlPlots);
+    
+    
     
     // Set up the analysis
     TopAnalysis *selector = new TopAnalysis();
@@ -170,7 +179,8 @@ void load_Analysis(const TString& validFilenamePattern,
     selector->SetTriggerScaleFactors(triggerScaleFactors);
     selector->SetJetEnergyResolutionScaleFactors(jetEnergyResolutionScaleFactors);
     selector->SetJetEnergyScaleScaleFactors(jetEnergyScaleScaleFactors);
-    selector->SetAllAnalysisHistograms(v_analysisHistograms);
+    selector->SetAllAnalyzers(v_analyzer);
+    
     
     // Access selectionList containing all input sample nTuples
     ifstream infile("selectionList.txt");

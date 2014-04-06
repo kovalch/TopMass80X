@@ -10,7 +10,7 @@ class TH2;
 #include "../../common/include/classesFwd.h"
 #include "analysisStructsFwd.h"
 
-class AnalysisHistogramsBase;
+class AnalyzerBaseClass;
 class RecoObjects;
 class CommonGenObjects;
 class TopGenObjects;
@@ -183,14 +183,6 @@ class TopAnalysis : public AnalysisBase
     TH1 *h_PUSF, *h_TrigSF, *h_LepSF, *h_BTagSF, *h_KinRecoSF, *h_EventWeight;
 
     /// Control Plots
-    TH1 *h_AllLeptonEta_step2, *h_AllLeptonpT_step2, *h_AllJetsEta_step2, *h_AllJetspT_step2;
-    TH1 *h_AllLeptonEta_step3, *h_AllLeptonpT_step3, *h_AllJetsEta_step3, *h_AllJetspT_step3;
-    TH1 *h_AllLeptonEta_step4, *h_AllLeptonpT_step4, *h_AllJetsEta_step4, *h_AllJetspT_step4;
-    TH1 *h_AllLeptonEta_step5, *h_AllLeptonpT_step5, *h_AllJetsEta_step5, *h_AllJetspT_step5;
-    TH1 *h_AllLeptonEta_step6, *h_AllLeptonpT_step6, *h_AllJetsEta_step6, *h_AllJetspT_step6;
-    TH1 *h_AllLeptonEta_step7, *h_AllLeptonpT_step7, *h_AllJetsEta_step7, *h_AllJetspT_step7;
-    TH1 *h_AllLeptonEta_step8, *h_AllLeptonpT_step8, *h_AllJetsEta_step8, *h_AllJetspT_step8;
-    TH1 *h_AllLeptonEta_step9, *h_AllLeptonpT_step9, *h_AllJetsEta_step9, *h_AllJetspT_step9;
     TH1 *h_LeptonEta_step2, *h_LeptonpT_step2, *h_JetsEta_step2, *h_JetspT_step2;
     TH1 *h_LeptonEta_step3, *h_LeptonpT_step3, *h_JetsEta_step3, *h_JetspT_step3;
     TH1 *h_LeptonEta_step4, *h_LeptonpT_step4, *h_JetsEta_step4, *h_JetspT_step4;
@@ -199,14 +191,6 @@ class TopAnalysis : public AnalysisBase
     TH1 *h_LeptonEta_step7, *h_LeptonpT_step7, *h_JetsEta_step7, *h_JetspT_step7;
     TH1 *h_LeptonEta_step8, *h_LeptonpT_step8, *h_JetsEta_step8, *h_JetspT_step8;
     TH1 *h_LeptonEta_step9, *h_LeptonpT_step9, *h_JetsEta_step9, *h_JetspT_step9;
-    TH1 *h_LeptonMult_step2, *h_JetsMult_step2, *h_BJetsMult_step2;
-    TH1 *h_LeptonMult_step3, *h_JetsMult_step3, *h_BJetsMult_step3;
-    TH1 *h_LeptonMult_step4, *h_JetsMult_step4, *h_BJetsMult_step4;
-    TH1 *h_LeptonMult_step5, *h_JetsMult_step5, *h_BJetsMult_step5;
-    TH1 *h_LeptonMult_step6, *h_JetsMult_step6, *h_BJetsMult_step6;
-    TH1 *h_LeptonMult_step7, *h_JetsMult_step7, *h_BJetsMult_step7;
-    TH1 *h_LeptonMult_step8, *h_JetsMult_step8, *h_BJetsMult_step8;
-    TH1 *h_LeptonMult_step9, *h_JetsMult_step9, *h_BJetsMult_step9;
     
     ///Ievgen
        TH1 *h_signalTopEvents_vs_JetMult; 
@@ -263,7 +247,13 @@ class TopAnalysis : public AnalysisBase
        
        TH2 *h_HypTopRapidityvsToppT;
        TH2 *h_HypAntiTopRapidityvsAntiToppT;
+       
+       TH2 *h_VisGenTopRapidityvsToppT;
+       TH2 *h_VisGenAntiTopRapidityvsAntiToppT;
+       
        TH2 *h_HypTTBarRapidityvsTTBarpT;
+       
+       TH2 *h_VisGenTTBarRapidityvsTTBarpT;
        
     /// ... 
     
@@ -319,9 +309,8 @@ public:
     /// Class definition
     ClassDef(TopAnalysis, 0);    
     
-    /// Set up all analysers of type AnalysisHistogramsBase
-    void SetAllAnalysisHistograms(std::vector<AnalysisHistogramsBase*> v_analysisHistograms);
-    //void fabs(double DeltaPhi); ?????????
+    /// Set up all analysers of type AnalyzerBaseClass
+    void SetAllAnalyzers(std::vector<AnalyzerBaseClass*> v_analyzer);
     
 private:
     
@@ -396,8 +385,8 @@ private:
     /// Clear all analysers in one method
     void clearAll();
     
-    /// All analysers of type AnalysisHistogramsBase
-    std::vector<AnalysisHistogramsBase*> v_analysisHistograms_;
+    /// All analysers of type AnalyzerBaseClass
+    std::vector<AnalyzerBaseClass*> v_analyzer_;
     
 };
 

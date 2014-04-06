@@ -11,7 +11,8 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   TopAnalysis
   ttbarUtils
   analysisStructs
-  AnalysisHistograms
+  AnalyzerBaseClass
+  AnalyzerControlPlots
   plotterclass
   DilepSVDFunctions
   )

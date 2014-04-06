@@ -15,7 +15,7 @@ echo "******************************************************************"
 echo
 echo
 
-plotList="BjetEtaakr  BjetEtabkr   DIMFull_fullSel  DIMFull AllJetpT_step8 AllLeptonpT_step8
+plotList="BjetEtaakr  BjetEtabkr   DIMFull_fullSel  DIMFull basic_jet_pt_step7 basic_lepton_pt_step7
           ElectronEta  ElectronEta_postMETcut  ElectronpT  ElectronpT_postMETcut
           HypBBBarMass  HypBJetEta  HypBjetMulti_noBTag  HypBjetMulti  HypBJetpT  HypjetMulti_diLep  HypjetMulti_noBTag  HypjetMulti  HypjetMultiXSec  HypLeptonBjetMass
           HypLeptonEta  HypLeptonpT  HypLLBarMass  HypLLBarpT  HypMet  HypTopMass  HypToppT  HypToppTTTRestFrame  HypTopRapidity  HypTTBarDeltaPhi  HypTTBarMass  HypTTBarpT  HypTTBarRapidity

@@ -26,8 +26,7 @@
 #include "../../common/include/ScaleFactors.h"
 #include "../../common/include/analysisObjectStructs.h"
 #include "analysisStructs.h"
-#include "AnalysisHistograms.h"
-
+#include "AnalyzerBaseClass.h"
 
 ///top production xsec in pb
 constexpr double TOPXSEC = 234.;
@@ -530,101 +529,45 @@ void TopAnalysis::SlaveBegin(TTree*)
     h_ClosureTotalWeight = store(new TH1D("ClosureTotalWeight", "Total Weights from closure test",1,0,2));
     h_PDFTotalWeight = store(new TH1D("PDFTotalWeight", "PDF Weights",1,0,2));
 
-    h_AllLeptonpT_step2 = store(new TH1D("AllLeptonpT_step2", "p_{T} of all leptons before 2 lepton", 80, 0, 400));
-    h_AllLeptonEta_step2 = store(new TH1D("AllLeptonEta_step2", "#eta of all leptons before 2 lepton", 20, -2.4, 2.4));
     h_LeptonpT_step2 = store(new TH1D("LeptonpT_step2", "p_{T} of  leptons before 2 lepton", 80, 0, 400));
     h_LeptonEta_step2 = store(new TH1D("LeptonEta_step2", "#eta of  leptons before 2 lepton", 20, -2.4, 2.4));
-    h_LeptonMult_step2 = store(new TH1D("LeptonMult_step2", "Number of all leptons before 2 lepton", 21, -0.5, 20.5));
-    h_AllJetspT_step2 = store(new TH1D("AllJetpT_step2", "p_{T} of all jets before 2 lepton", 80, 0, 400));
-    h_AllJetsEta_step2 = store(new TH1D("AllJetEta_step2", "#eta of all jets before 2 lepton", 20, -2.4, 2.4));
     h_JetspT_step2 = store(new TH1D("JetpT_step2", "p_{T} of  jets before 2 lepton", 80, 0, 400));
     h_JetsEta_step2 = store(new TH1D("JetEta_step2", "#eta of  jets before 2 lepton", 20, -2.4, 2.4));
-    h_JetsMult_step2 = store(new TH1D("JetsMult_step2", "Number of the jets before 2 lepton", 21, -0.5, 20.5));
-    h_BJetsMult_step2 = store(new TH1D("BJetsMult_step2", "Number of the jets before 2 lepton", 21, -0.5, 20.5));
 
-    h_AllLeptonpT_step3 = store(new TH1D("AllLeptonpT_step3", "p_{T} of all leptons before m_{ll}>20 cut", 80, 0, 400));
-    h_AllLeptonEta_step3 = store(new TH1D("AllLeptonEta_step3", "#eta of all leptons before m_{ll}>20 cut", 20, -2.4, 2.4));
     h_LeptonpT_step3 = store(new TH1D("LeptonpT_step3", "p_{T} of  leptons before m_{ll}>20 cut", 80, 0, 400));
     h_LeptonEta_step3 = store(new TH1D("LeptonEta_step3", "#eta of  leptons before m_{ll}>20 cut", 20, -2.4, 2.4));
-    h_LeptonMult_step3 = store(new TH1D("LeptonMult_step3", "Number of all leptons before m_{ll}>20 cut", 21, -0.5, 20.5));
-    h_AllJetspT_step3 = store(new TH1D("AllJetpT_step3", "p_{T} of all jets before m_{ll}>20 cut", 80, 0, 400));
-    h_AllJetsEta_step3 = store(new TH1D("AllJetEta_step3", "#eta of all jets before m_{ll}>20 cut", 20, -2.4, 2.4));
     h_JetspT_step3 = store(new TH1D("JetpT_step3", "p_{T} of  jets before m_{ll}>20 cut", 80, 0, 400));
     h_JetsEta_step3 = store(new TH1D("JetEta_step3", "#eta of  jets before m_{ll}>20 cut", 20, -2.4, 2.4));
-    h_JetsMult_step3 = store(new TH1D("JetsMult_step3", "Number of the jets before m_{ll}>20 cut", 21, -0.5, 20.5));
-    h_BJetsMult_step3 = store(new TH1D("BJetsMult_step3", "Number of the jets before m_{ll}>20 cut", 21, -0.5, 20.5));
 
-    h_AllLeptonpT_step4 = store(new TH1D("AllLeptonpT_step4", "p_{T} of all leptons before Zpeakcut", 80, 0, 400));
-    h_AllLeptonEta_step4 = store(new TH1D("AllLeptonEta_step4", "#eta of all leptons before Zpeakcut", 20, -2.4, 2.4));
     h_LeptonpT_step4 = store(new TH1D("LeptonpT_step4", "p_{T} of  leptons before Zpeakcut", 80, 0, 400));
     h_LeptonEta_step4 = store(new TH1D("LeptonEta_step4", "#eta of  leptons before Zpeakcut", 20, -2.4, 2.4));
-    h_LeptonMult_step4 = store(new TH1D("LeptonMult_step4", "Number of all leptons before Zpeakcut", 21, -0.5, 20.5));
-    h_AllJetspT_step4 = store(new TH1D("AllJetpT_step4", "p_{T} of all jets before Zpeakcut", 80, 0, 400));
-    h_AllJetsEta_step4 = store(new TH1D("AllJetEta_step4", "#eta of all jets before Zpeakcut", 20, -2.4, 2.4));
     h_JetspT_step4 = store(new TH1D("JetpT_step4", "p_{T} of  jets before Zpeakcut", 80, 0, 400));
     h_JetsEta_step4 = store(new TH1D("JetEta_step4", "#eta of  jets before Zpeakcut", 20, -2.4, 2.4));
-    h_JetsMult_step4 = store(new TH1D("JetsMult_step4", "Number of the jets before Zpeakcut", 21, -0.5, 20.5));
-    h_BJetsMult_step4 = store(new TH1D("BJetsMult_step4", "Number of the jets before Zpeakcut", 21, -0.5, 20.5));
-
-    h_AllLeptonpT_step5 = store(new TH1D("AllLeptonpT_step5", "p_{T} of all leptons before 2jets", 80, 0, 400));
-    h_AllLeptonEta_step5 = store(new TH1D("AllLeptonEta_step5", "#eta of all leptons before 2jets", 20, -2.4, 2.4));
+    
     h_LeptonpT_step5 = store(new TH1D("LeptonpT_step5", "p_{T} of  leptons before 2jets", 80, 0, 400));
     h_LeptonEta_step5 = store(new TH1D("LeptonEta_step5", "#eta of  leptons before 2jets", 20, -2.4, 2.4));
-    h_LeptonMult_step5 = store(new TH1D("LeptonMult_step5", "Number of all leptons before 2jets", 21, -0.5, 20.5));
-    h_AllJetspT_step5 = store(new TH1D("AllJetpT_step5", "p_{T} of all jets before 2jets", 80, 0, 400));
-    h_AllJetsEta_step5 = store(new TH1D("AllJetEta_step5", "#eta of all jets before 2jets", 20, -2.4, 2.4));
     h_JetspT_step5 = store(new TH1D("JetpT_step5", "p_{T} of  jets before 2jets", 80, 0, 400));
     h_JetsEta_step5 = store(new TH1D("JetEta_step5", "#eta of  jets before 2jets", 20, -2.4, 2.4));
-    h_JetsMult_step5 = store(new TH1D("JetsMult_step5", "Number of the jets before 2jets", 21, -0.5, 20.5));
-    h_BJetsMult_step5 = store(new TH1D("BJetsMult_step5", "Number of the jets before 2jets", 21, -0.5, 20.5));
-
-    h_AllLeptonpT_step6 = store(new TH1D("AllLeptonpT_step6", "p_{T} of all leptons before MET", 80, 0, 400));
-    h_AllLeptonEta_step6 = store(new TH1D("AllLeptonEta_step6", "#eta of all leptons before MET", 20, -2.4, 2.4));
-    h_LeptonpT_step6 = store(new TH1D("LeptonpT_step6", "p_{T} of  leptons before MET", 80, 0, 400));
-    h_LeptonEta_step6 = store(new TH1D("LeptonEta_step6", "#eta of  leptons before MET", 20, -2.4, 2.4));
-    h_LeptonMult_step6 = store(new TH1D("LeptonMult_step6", "Number of all leptons before MET", 21, -0.5, 20.5));
-    h_AllJetspT_step6 = store(new TH1D("AllJetpT_step6", "p_{T} of all jets before MET", 80, 0, 400));
-    h_AllJetsEta_step6 = store(new TH1D("AllJetEta_step6", "#eta of all jets before MET", 20, -2.4, 2.4));
+    
+    h_LeptonpT_step6 = store(new TH1D("LeptonpT_step6", "p_{T} of  leptons before 2jets", 80, 0, 400));
+    h_LeptonEta_step6 = store(new TH1D("LeptonEta_step6", "#eta of  leptons before 2jets", 20, -2.4, 2.4));
     h_JetspT_step6 = store(new TH1D("JetpT_step6", "p_{T} of  jets before MET", 80, 0, 400));
     h_JetsEta_step6 = store(new TH1D("JetEta_step6", "#eta of  jets before MET", 20, -2.4, 2.4));
-    h_JetsMult_step6 = store(new TH1D("JetsMult_step6", "Number of the jets before MET", 21, -0.5, 20.5));
-    h_BJetsMult_step6 = store(new TH1D("BJetsMult_step6", "Number of the jets before MET", 21, -0.5, 20.5));
-
-    h_AllLeptonpT_step7 = store(new TH1D("AllLeptonpT_step7", "p_{T} of all leptons before 1b-tag", 80, 0, 400));
-    h_AllLeptonEta_step7 = store(new TH1D("AllLeptonEta_step7", "#eta of all leptons before 1b-tag", 20, -2.4, 2.4));
+    
     h_LeptonpT_step7 = store(new TH1D("LeptonpT_step7", "p_{T} of  leptons before 1b-tag", 80, 0, 400));
     h_LeptonEta_step7 = store(new TH1D("LeptonEta_step7", "#eta of  leptons before 1b-tag", 20, -2.4, 2.4));
-    h_LeptonMult_step7 = store(new TH1D("LeptonMult_step7", "Number of all leptons before 1b-tag", 21, -0.5, 20.5));
-    h_AllJetspT_step7 = store(new TH1D("AllJetpT_step7", "p_{T} of all jets before 1b-tag", 80, 0, 400));
-    h_AllJetsEta_step7 = store(new TH1D("AllJetEta_step7", "#eta of all jets before 1b-tag", 20, -2.4, 2.4));
     h_JetspT_step7 = store(new TH1D("JetpT_step7", "p_{T} of  jets before 1b-tag", 80, 0, 400));
     h_JetsEta_step7 = store(new TH1D("JetEta_step7", "#eta of  jets before 1b-tag", 20, -2.4, 2.4));
-    h_JetsMult_step7 = store(new TH1D("JetsMult_step7", "Number of the jets before 1b-tag", 21, -0.5, 20.5));
-    h_BJetsMult_step7 = store(new TH1D("BJetsMult_step7", "Number of the jets before 1b-tag", 21, -0.5, 20.5));
-
-    h_AllLeptonpT_step8 = store(new TH1D("AllLeptonpT_step8", "p_{T} of all leptons before kinReco", 80, 0, 400));
-    h_AllLeptonEta_step8 = store(new TH1D("AllLeptonEta_step8", "#eta of all leptons before kinReco", 20, -2.4, 2.4));
+    
     h_LeptonpT_step8 = store(new TH1D("LeptonpT_step8", "p_{T} of  leptons before kinReco", 80, 0, 400));
     h_LeptonEta_step8 = store(new TH1D("LeptonEta_step8", "#eta of  leptons before kinReco", 20, -2.4, 2.4));
-    h_LeptonMult_step8 = store(new TH1D("LeptonMult_step8", "Number of all leptons before kinReco", 21, -0.5, 20.5));
-    h_AllJetspT_step8 = store(new TH1D("AllJetpT_step8", "p_{T} of all jets before kinReco", 80, 0, 400));
-    h_AllJetsEta_step8 = store(new TH1D("AllJetEta_step8", "#eta of all jets before kinReco", 20, -2.4, 2.4));
     h_JetspT_step8 = store(new TH1D("JetpT_step8", "p_{T} of  jets before kinReco", 80, 0, 400));
     h_JetsEta_step8 = store(new TH1D("JetEta_step8", "#eta of  jets before kinReco", 20, -2.4, 2.4));
-    h_JetsMult_step8 = store(new TH1D("JetsMult_step8", "Number of the jets before kinReco", 21, -0.5, 20.5));
-    h_BJetsMult_step8 = store(new TH1D("BJetsMult_step8", "Number of the jets before kinReco", 21, -0.5, 20.5));
-
-    h_AllLeptonpT_step9 = store(new TH1D("AllLeptonpT_step9", "p_{T} of the leptons after kinReco", 80, 0, 400));
-    h_AllLeptonEta_step9 = store(new TH1D("AllLeptonEta_step9", "#eta of the leptons after kinReco", 20, -2.4, 2.4));
+    
     h_LeptonpT_step9 = store(new TH1D("LeptonpT_step9", "p_{T} of  leptons after kinReco", 80, 0, 400));
     h_LeptonEta_step9 = store(new TH1D("LeptonEta_step9", "#eta of  leptons after kinReco", 20, -2.4, 2.4));
-    h_LeptonMult_step9 = store(new TH1D("LeptonMult_step9", "Number of the leptons after kinReco", 21, -0.5, 20.5));
-    h_AllJetspT_step9 = store(new TH1D("AllJetpT_step9", "p_{T} of the jets after kinReco", 80, 0, 400));
-    h_AllJetsEta_step9 = store(new TH1D("AllJetEta_step9", "#eta of the jets after kinReco", 20, -2.4, 2.4));
     h_JetspT_step9 = store(new TH1D("JetpT_step9", "p_{T} of jets after kinReco", 80, 0, 400));
     h_JetsEta_step9 = store(new TH1D("JetEta_step9", "#eta of jets after kinReco", 20, -2.4, 2.4));
-    h_JetsMult_step9 = store(new TH1D("JetsMult_step9", "Number of the jets after kinReco", 21, -0.5, 20.5));
-    h_BJetsMult_step9 = store(new TH1D("BJetsMult_step9", "Number of the jets after kinReco", 21, -0.5, 20.5));
 
 
     // Set b-tagging working point
@@ -709,9 +652,14 @@ void TopAnalysis::SlaveBegin(TTree*)
         h_RMSvsGenTTBarMass = store(new TH2D ( "RMSvsGenTTBarMass", "RMS vs Gen", 2000, 0, 2000, 4000, -2000, 2000 ));
         
         //2d cs
-        h_HypTopRapidityvsToppT = store(new TH2D ("HypTopRapidityvsToppT","TopRapidity vs ToppT; p_{T}^{t} [GeV];y(t)",800,0,800,100,-2.4,2.4));
-        h_HypAntiTopRapidityvsAntiToppT = store(new TH2D ("HypAntiTopRapidityvsAntiToppT","TopRapidity vs ToppT; p_{T}^{t} [GeV];y(t)",800,0,800,100,-2.4,2.4));
+        h_HypTopRapidityvsToppT = store(new TH2D ("HypTopRapidityvsToppT","TopRapidity vs ToppT; p_{T}^{t} [GeV];y(t)",1200,0,1200,100,-2.4,2.4));
+        h_HypAntiTopRapidityvsAntiToppT = store(new TH2D ("HypAntiTopRapidityvsAntiToppT","TopRapidity vs ToppT; p_{T}^{t} [GeV];y(t)",1200,0,1200,100,-2.4,2.4));
+        
+        h_VisGenTopRapidityvsToppT = store(new TH2D ("VisGenTopRapidityvsToppT","TopRapidity vs ToppT; p_{T}^{t} [GeV];y(t)",1200,0,1200,100,-2.4,2.4));
+        h_VisGenAntiTopRapidityvsAntiToppT = store(new TH2D ("VisGenAntiTopRapidityvsAntiToppT","TopRapidity vs ToppT; p_{T}^{t} [GeV];y(t)",1200,0,1200,100,-2.4,2.4));
+        
         h_HypTTBarRapidityvsTTBarpT = store(new TH2D ("HypTTBarRapidityvsTTBarpT","TTBarRapidity vs TTBarpT;p_{T}^{t#bar{t}} [GeV];y(t#bar{t})",400,0,400,100,-2.4,2.4));
+        h_VisGenTTBarRapidityvsTTBarpT = store(new TH2D ("VisGenTTBarRapidityvsTTBarpT","TTBarRapidity vs TTBarpT;p_{T}^{t#bar{t}} [GeV];y(t#bar{t})",400,0,400,100,-2.4,2.4));
     /// ...
     // Book histograms of all analyzers
     this->bookAll();
@@ -949,25 +897,12 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     h_PUSF->Fill(weightPU, 1);
 
     // ++++ Control Plots ++++
-    for(const int index : allLeptonIndices){
-        h_AllLeptonEta_step2->Fill((*recoObjects.allLeptons_).at(index).Eta(), 1);
-        h_AllLeptonpT_step2->Fill((*recoObjects.allLeptons_).at(index).Pt(), 1);
-    }
     if(numberOfAllLeptons>1){
         h_LeptonEta_step2->Fill((*recoObjects.allLeptons_).at(allLeptonIndices.at(0)).Eta(), 1);
         h_LeptonpT_step2->Fill((*recoObjects.allLeptons_).at(allLeptonIndices.at(0)).Pt(), 1);
         h_LeptonEta_step2->Fill((*recoObjects.allLeptons_).at(allLeptonIndices.at(1)).Eta(), 1);
         h_LeptonpT_step2->Fill((*recoObjects.allLeptons_).at(allLeptonIndices.at(1)).Pt(), 1);
     }
-
-    for(const int index : jetIndices){
-        h_AllJetsEta_step2->Fill((*recoObjects.jets_).at(index).Eta(), 1);
-        h_AllJetspT_step2->Fill((*recoObjects.jets_).at(index).Pt(), 1);
-    }
-    h_LeptonMult_step2->Fill(numberOfAllLeptons, 1);
-    h_JetsMult_step2->Fill(numberOfJets, 1);
-    h_BJetsMult_step2->Fill(numberOfBjets, 1);
-
 
 
     //===CUT===
@@ -980,31 +915,20 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                   kinRecoObjectsDummy,
                   genObjectIndicesDummy, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
-                  weight);
+                  1.);
     
     // ++++ Control Plots ++++
-    for(const int index : allLeptonIndices){
-        h_AllLeptonEta_step3->Fill((*recoObjects.allLeptons_).at(index).Eta(), 1);
-        h_AllLeptonpT_step3->Fill((*recoObjects.allLeptons_).at(index).Pt(), 1);
-    }
     h_LeptonEta_step3->Fill((*recoObjects.allLeptons_).at(allLeptonIndices.at(0)).Eta(), 1);
     h_LeptonpT_step3->Fill((*recoObjects.allLeptons_).at(allLeptonIndices.at(0)).Pt(), 1);
     h_LeptonEta_step3->Fill((*recoObjects.allLeptons_).at(allLeptonIndices.at(1)).Eta(), 1);
     h_LeptonpT_step3->Fill((*recoObjects.allLeptons_).at(allLeptonIndices.at(1)).Pt(), 1);
 
-    for(const int index : jetIndices){
-        h_AllJetsEta_step3->Fill((*recoObjects.jets_).at(index).Eta(), 1);
-        h_AllJetspT_step3->Fill((*recoObjects.jets_).at(index).Pt(), 1);
-    }
     if(numberOfJets>1){
         h_JetsEta_step3->Fill((*recoObjects.jets_).at(0).Eta(), 1);
         h_JetspT_step3->Fill((*recoObjects.jets_).at(0).Pt(), 1);
         h_JetsEta_step3->Fill((*recoObjects.jets_).at(1).Eta(), 1);
         h_JetspT_step3->Fill((*recoObjects.jets_).at(1).Pt(), 1);
     }
-    h_LeptonMult_step3->Fill(numberOfAllLeptons, 1);
-    h_JetsMult_step3->Fill(numberOfJets, 1);
-    h_BJetsMult_step3->Fill(numberOfBjets, 1);
 
     //===CUT===
     selectionStep = "3";
@@ -1109,28 +1033,17 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     }
 
     // ++++ Control Plots ++++
-    for(const int index : allLeptonIndices){
-        h_AllLeptonEta_step4->Fill((*recoObjects.allLeptons_).at(index).Eta(), weight);
-        h_AllLeptonpT_step4->Fill((*recoObjects.allLeptons_).at(index).Pt(), weight);
-    }
     h_LeptonEta_step4->Fill((*recoObjects.allLeptons_).at(allLeptonIndices.at(0)).Eta(), weight);
     h_LeptonpT_step4->Fill((*recoObjects.allLeptons_).at(allLeptonIndices.at(0)).Pt(), weight);
     h_LeptonEta_step4->Fill((*recoObjects.allLeptons_).at(allLeptonIndices.at(1)).Eta(), weight);
     h_LeptonpT_step4->Fill((*recoObjects.allLeptons_).at(allLeptonIndices.at(1)).Pt(), weight);
 
-    for(const int index : jetIndices){
-        h_AllJetsEta_step4->Fill((*recoObjects.jets_).at(index).Eta(), weight);
-        h_AllJetspT_step4->Fill((*recoObjects.jets_).at(index).Pt(), weight);
-    }
     if(numberOfJets>1){
         h_JetsEta_step4->Fill((*recoObjects.jets_).at(0).Eta(), weight);
         h_JetspT_step4->Fill((*recoObjects.jets_).at(0).Pt(), weight);
         h_JetsEta_step4->Fill((*recoObjects.jets_).at(1).Eta(), weight);
         h_JetspT_step4->Fill((*recoObjects.jets_).at(1).Pt(), weight);
     }
-    h_LeptonMult_step4->Fill(numberOfAllLeptons, weight);
-    h_JetsMult_step4->Fill(numberOfJets, weight);
-    h_BJetsMult_step4->Fill(numberOfBjets, weight);
 
     //=== CUT ===
     selectionStep = "4";
@@ -1164,28 +1077,17 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     }
     
     // ++++ Control Plots ++++
-    for(const int index : allLeptonIndices){
-        h_AllLeptonEta_step5->Fill((*recoObjects.allLeptons_).at(index).Eta(), weight);
-        h_AllLeptonpT_step5->Fill((*recoObjects.allLeptons_).at(index).Pt(), weight);
-    }
     h_LeptonEta_step5->Fill((*recoObjects.allLeptons_).at(allLeptonIndices.at(0)).Eta(), weight);
     h_LeptonpT_step5->Fill((*recoObjects.allLeptons_).at(allLeptonIndices.at(0)).Pt(), weight);
     h_LeptonEta_step5->Fill((*recoObjects.allLeptons_).at(allLeptonIndices.at(1)).Eta(), weight);
     h_LeptonpT_step5->Fill((*recoObjects.allLeptons_).at(allLeptonIndices.at(1)).Pt(), weight);
 
-    for(const int index : jetIndices){
-        h_AllJetsEta_step5->Fill((*recoObjects.jets_).at(index).Eta(), weight);
-        h_AllJetspT_step5->Fill((*recoObjects.jets_).at(index).Pt(), weight);
-    }
     if(numberOfJets>1){
         h_JetsEta_step5->Fill((*recoObjects.jets_).at(0).Eta(), weight);
         h_JetspT_step5->Fill((*recoObjects.jets_).at(0).Pt(), weight);
         h_JetsEta_step5->Fill((*recoObjects.jets_).at(1).Eta(), weight);
         h_JetspT_step5->Fill((*recoObjects.jets_).at(1).Pt(), weight);
     }
-    h_LeptonMult_step5->Fill(numberOfAllLeptons, weight);
-    h_JetsMult_step5->Fill(numberOfJets, weight);
-    h_BJetsMult_step5->Fill(numberOfBjets, weight);
     
     //=== CUT ===
     selectionStep = "5";
@@ -1202,28 +1104,17 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     
     
     // ++++ Control Plots ++++
-    for(const int index : allLeptonIndices){
-        h_AllLeptonEta_step6->Fill((*recoObjects.allLeptons_).at(index).Eta(), weight);
-        h_AllLeptonpT_step6->Fill((*recoObjects.allLeptons_).at(index).Pt(), weight);
-    }
     h_LeptonEta_step6->Fill((*recoObjects.allLeptons_).at(allLeptonIndices.at(0)).Eta(), weight);
     h_LeptonpT_step6->Fill((*recoObjects.allLeptons_).at(allLeptonIndices.at(0)).Pt(), weight);
     h_LeptonEta_step6->Fill((*recoObjects.allLeptons_).at(allLeptonIndices.at(1)).Eta(), weight);
     h_LeptonpT_step6->Fill((*recoObjects.allLeptons_).at(allLeptonIndices.at(1)).Pt(), weight);
 
-    for (const int index : jetIndices){
-        h_AllJetsEta_step6->Fill((*recoObjects.jets_).at(index).Eta(), weight);
-        h_AllJetspT_step6->Fill((*recoObjects.jets_).at(index).Pt(), weight);
-    }
     if(numberOfJets>1){
         h_JetsEta_step6->Fill((*recoObjects.jets_).at(0).Eta(), weight);
         h_JetspT_step6->Fill((*recoObjects.jets_).at(0).Pt(), weight);
         h_JetsEta_step6->Fill((*recoObjects.jets_).at(1).Eta(), weight);
         h_JetspT_step6->Fill((*recoObjects.jets_).at(1).Pt(), weight);
     }
-    h_LeptonMult_step6->Fill(numberOfAllLeptons, weight);
-    h_JetsMult_step6->Fill(numberOfJets, weight);
-    h_BJetsMult_step6->Fill(numberOfBjets, weight);
     
     //=== CUT ===
     selectionStep = "6";
@@ -1267,29 +1158,17 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     }
 
     // ++++ Control Plots ++++
-    for(const int index : allLeptonIndices){
-        h_AllLeptonEta_step7->Fill((*recoObjects.allLeptons_).at(index).Eta(), weight);
-        h_AllLeptonpT_step7->Fill((*recoObjects.allLeptons_).at(index).Pt(), weight);
-    }
     h_LeptonEta_step7->Fill((*recoObjects.allLeptons_).at(allLeptonIndices.at(0)).Eta(), weight);
     h_LeptonpT_step7->Fill((*recoObjects.allLeptons_).at(allLeptonIndices.at(0)).Pt(), weight);
     h_LeptonEta_step7->Fill((*recoObjects.allLeptons_).at(allLeptonIndices.at(1)).Eta(), weight);
     h_LeptonpT_step7->Fill((*recoObjects.allLeptons_).at(allLeptonIndices.at(1)).Pt(), weight);
 
-    for (const int index : jetIndices){
-        h_AllJetsEta_step7->Fill((*recoObjects.jets_).at(index).Eta(), weight);
-        h_AllJetspT_step7->Fill((*recoObjects.jets_).at(index).Pt(), weight);
-    }
     if(numberOfJets>1){
         h_JetsEta_step7->Fill((*recoObjects.jets_).at(0).Eta(), weight);
         h_JetspT_step7->Fill((*recoObjects.jets_).at(0).Pt(), weight);
         h_JetsEta_step7->Fill((*recoObjects.jets_).at(1).Eta(), weight);
         h_JetspT_step7->Fill((*recoObjects.jets_).at(1).Pt(), weight);
     }
-    h_LeptonMult_step7->Fill(numberOfAllLeptons, weight);
-    h_JetsMult_step7->Fill(numberOfJets, weight);
-    int nbjets_step7 = numberOfBjets;
-    h_BJetsMult_step7->Fill(nbjets_step7, weight);
     
     // Fill the b-tagging efficiency plots
     if(this->makeBtagEfficiencies()){
@@ -1340,29 +1219,17 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
         h_bjetetaBeforeKinReco->Fill((*recoObjects.jets_).at(index).Eta(), weight);
 
     // ++++ Control Plots ++++
-    for(const int index : allLeptonIndices){
-        h_AllLeptonEta_step8->Fill((*recoObjects.allLeptons_).at(index).Eta(), weight);
-        h_AllLeptonpT_step8->Fill((*recoObjects.allLeptons_).at(index).Pt(), weight);
-    }
     h_LeptonEta_step8->Fill((*recoObjects.allLeptons_).at(allLeptonIndices.at(0)).Eta(), weight);
     h_LeptonpT_step8->Fill((*recoObjects.allLeptons_).at(allLeptonIndices.at(0)).Pt(), weight);
     h_LeptonEta_step8->Fill((*recoObjects.allLeptons_).at(allLeptonIndices.at(1)).Eta(), weight);
     h_LeptonpT_step8->Fill((*recoObjects.allLeptons_).at(allLeptonIndices.at(1)).Pt(), weight);
 
-    for (const int index : jetIndices){
-        h_AllJetsEta_step8->Fill((*recoObjects.jets_).at(index).Eta(), weight);
-        h_AllJetspT_step8->Fill((*recoObjects.jets_).at(index).Pt(), weight);
-    }
     if(numberOfJets>1){
         h_JetsEta_step8->Fill((*recoObjects.jets_).at(0).Eta(), weight);
         h_JetspT_step8->Fill((*recoObjects.jets_).at(0).Pt(), weight);
         h_JetsEta_step8->Fill((*recoObjects.jets_).at(1).Eta(), weight);
         h_JetspT_step8->Fill((*recoObjects.jets_).at(1).Pt(), weight);
     }
-    h_LeptonMult_step8->Fill(numberOfAllLeptons, weight);
-    h_JetsMult_step8->Fill(numberOfJets, weight);
-    int nbjets_step8 = numberOfBjets;
-    h_BJetsMult_step8->Fill(nbjets_step8, weight);
     
     
 
@@ -1446,29 +1313,17 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     h_EventWeight->Fill(weight, 1);
     
      // ++++ Control Plots ++++
-    for(const int index : allLeptonIndices){
-        h_AllLeptonEta_step9->Fill((*recoObjects.allLeptons_).at(index).Eta(), weight);
-        h_AllLeptonpT_step9->Fill((*recoObjects.allLeptons_).at(index).Pt(), weight);
-    }
     h_LeptonEta_step9->Fill((*recoObjects.allLeptons_).at(allLeptonIndices.at(0)).Eta(), weight);
     h_LeptonpT_step9->Fill((*recoObjects.allLeptons_).at(allLeptonIndices.at(0)).Pt(), weight);
     h_LeptonEta_step9->Fill((*recoObjects.allLeptons_).at(allLeptonIndices.at(1)).Eta(), weight);
     h_LeptonpT_step9->Fill((*recoObjects.allLeptons_).at(allLeptonIndices.at(1)).Pt(), weight);
 
-    for (const int index : jetIndices){
-        h_AllJetsEta_step9->Fill((*recoObjects.jets_).at(index).Eta(), weight);
-        h_AllJetspT_step9->Fill((*recoObjects.jets_).at(index).Pt(), weight);
-    }
     if(numberOfJets>1){
         h_JetsEta_step9->Fill((*recoObjects.jets_).at(0).Eta(), weight);
         h_JetspT_step9->Fill((*recoObjects.jets_).at(0).Pt(), weight);
         h_JetsEta_step9->Fill((*recoObjects.jets_).at(1).Eta(), weight);
         h_JetspT_step9->Fill((*recoObjects.jets_).at(1).Pt(), weight);
     }
-    h_LeptonMult_step9->Fill(numberOfAllLeptons, weight);
-    h_JetsMult_step9->Fill(numberOfJets, weight);
-    int nbjets_step9 = numberOfBjets;
-    h_BJetsMult_step9->Fill(nbjets_step9, weight);
     
     h_jetMultiXSec->Fill(numberOfJets, weight);
     h_jetMultiNoPU->Fill(numberOfJets, weight / weightPU );
@@ -2414,7 +2269,12 @@ void TopAnalysis::generatorTopEvent(LV& leadGenTop, LV& nLeadGenTop,
     h_VisGenTTBarMass->Fill(genttbar.M(), trueLevelWeight );
     h_VisGenTTBarRapidity->Fill(genttbar.Rapidity(), trueLevelWeight );
     h_VisGenTTBarpT->Fill(genttbar.Pt(), trueLevelWeight );
-
+    
+    h_VisGenTopRapidityvsToppT->Fill((*topGenObjects.GenTop_).Pt(),(*topGenObjects.GenTop_).Rapidity(),trueLevelWeight);
+    h_VisGenAntiTopRapidityvsAntiToppT->Fill((*topGenObjects.GenAntiTop_).Pt(),(*topGenObjects.GenAntiTop_).Rapidity(),trueLevelWeight);
+    
+    h_VisGenTTBarRapidityvsTTBarpT->Fill(((*topGenObjects.GenTop_)+(*topGenObjects.GenAntiTop_)).Pt(),((*topGenObjects.GenTop_)+(*topGenObjects.GenAntiTop_)).Rapidity(),trueLevelWeight);
+    
     h_VisGenToppT->Fill((*topGenObjects.GenTop_).Pt(), trueLevelWeight );
     h_VisGenAntiToppT->Fill((*topGenObjects.GenAntiTop_).Pt(), trueLevelWeight );
     h_VisGenTopRapidity->Fill((*topGenObjects.GenTop_).Rapidity(), trueLevelWeight );
@@ -2598,10 +2458,9 @@ void TopAnalysis::FillBinnedControlPlot(TH1* h_differential, double binvalue,
     h->Fill(value, weight);
 }
 
-
-void TopAnalysis::SetAllAnalysisHistograms(std::vector<AnalysisHistogramsBase*> v_analysisHistograms)
+void TopAnalysis::SetAllAnalyzers(std::vector<AnalyzerBaseClass*> v_analyzer)
 {
-    v_analysisHistograms_ = v_analysisHistograms;
+    v_analyzer_ = v_analyzer;
 }
 
 
@@ -2613,8 +2472,8 @@ void TopAnalysis::fillAll(const std::string& selectionStep,
                             const ttbar::GenLevelWeights& genLevelWeights, const ttbar::RecoLevelWeights& recoLevelWeights,
                             const double& defaultWeight)const
 {
-    for(AnalysisHistogramsBase* analysisHistograms : v_analysisHistograms_){
-        if(analysisHistograms) analysisHistograms->fill(recoObjects, commonGenObjects,
+    for(AnalyzerBaseClass* analyzer : v_analyzer_){
+        if(analyzer) analyzer->fill(recoObjects, commonGenObjects,
                                                    topGenObjects,
                                                    kinRecoObjects,
                                                    recoObjectIndices, genObjectIndices,
@@ -2626,15 +2485,15 @@ void TopAnalysis::fillAll(const std::string& selectionStep,
 
 void TopAnalysis::bookAll()
 {
-    for(AnalysisHistogramsBase* analysisHistograms : v_analysisHistograms_){
-        if(analysisHistograms) analysisHistograms->book(fOutput);
+    for(AnalyzerBaseClass* analyzer : v_analyzer_){
+        if(analyzer) analyzer->book(fOutput);
     }
 }
 
 void TopAnalysis::clearAll()
 {
-    for(AnalysisHistogramsBase* analysisHistograms : v_analysisHistograms_){
-        if(analysisHistograms) analysisHistograms->clear();
+    for(AnalyzerBaseClass* analyzer : v_analyzer_){
+        if(analyzer) analyzer->clear();
     }
 }
 
