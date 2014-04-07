@@ -174,7 +174,7 @@ TPaveLabel* DrawLabel(TString text, const double x1, const double y1, const doub
 }
 
 void DrawCMSPrel() {
-  DrawLabel("CMS Preliminary, 3.54 fb^{-1},  #sqrt{s}=7 TeV", 0.2, 0.93, 0.9);
+  DrawLabel("CMS Preliminary, 18.2 fb^{-1},  #sqrt{s}=8 TeV", 0.2, 0.93, 0.9);
 }
 
 void DrawCMSPrel8LeptonJets() {

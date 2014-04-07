@@ -18,12 +18,12 @@ private:
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
   void getEvents(edm::Event& evt);
-  void processOneEvent(edm::EventPrincipal const& eventPrincipal, edm::Event& evt);
+  void processOneEvent(edm::EventPrincipal& eventPrincipal, edm::Event& evt);
   void fillCombos();
   void putOneEvent(edm::Event& evt);
   void cleanUp();
 
-  edm::VectorInputSource *eventSrc_;
+  std::auto_ptr<edm::VectorInputSource> eventSrc_;
 
   const unsigned int nMix_, nMixMin_, speedUp_;
   unsigned int comboIndex_;

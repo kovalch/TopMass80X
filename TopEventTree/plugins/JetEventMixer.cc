@@ -27,11 +27,11 @@ oriPatJetsCalo_(0),
 oriPFCandidates_(0),
 oriPUInfos_(0)
 {
-  if(nMix_ > 12){
-    throw edm::Exception( edm::errors::Configuration, "Cannot run JetEventMixer with with nMix > 12" );
+  if(nMix_ > 10){
+    throw edm::Exception( edm::errors::Configuration, "Cannot run JetEventMixer with with nMix > 10" );
   }
 
-  eventSrc_ = edm::VectorInputSourceFactory::get()->makeVectorInputSource(cfg.getParameterSet("input"), edm::InputSourceDescription()).release();
+  eventSrc_ = edm::VectorInputSourceFactory::get()->makeVectorInputSource(cfg.getParameterSet("input"), edm::InputSourceDescription());
   // DOES NOT WORK, skip() IS NOT IMPLEMENTED IN edm::VectorInputSource
   //if(cfg.getParameterSet("input").exists("skipEvents")){
   //  unsigned int offset = cfg.getParameterSet("input").getUntrackedParameter<unsigned int>("skipEvents");
@@ -97,7 +97,7 @@ JetEventMixer::getEvents(edm::Event& evt)
 }
 
 void
-JetEventMixer::processOneEvent(edm::EventPrincipal const& eventPrincipal, edm::Event& evt)
+JetEventMixer::processOneEvent(edm::EventPrincipal& eventPrincipal, edm::Event& evt)
 {
   //std::cout << "Run: "     << eventPrincipal.aux().run()             << " -> " << evt.eventAuxiliary().run()             ;
   //std::cout << ", Lumi: "  << eventPrincipal.aux().luminosityBlock() << " -> " << evt.eventAuxiliary().luminosityBlock() ;
@@ -107,17 +107,18 @@ JetEventMixer::processOneEvent(edm::EventPrincipal const& eventPrincipal, edm::E
   //  std::cout << (*it)->moduleLabel() << " : " << (*it)->productInstanceName() << " : " << (*it)->processName() << " : " << (*it)->productType().className() << std::endl;
   //}
 
-  size_t cachedOffset2;
-  int fillCount2;
+  size_t cachedOffset2 = 0;
+  int fillCount2 = 0;
   edm::BasicHandle hPatJetsCalo = eventPrincipal.getByLabel(edm::TypeID(typeid(std::vector<pat::Jet>)), "selectedPatJetsAK5Calo", "", "FullHadTreeWriter", cachedOffset2, fillCount2);
   edm::Wrapper<std::vector<pat::Jet> > const* wPatJetsCalo = static_cast<edm::Wrapper<std::vector<pat::Jet> > const*>(hPatJetsCalo.wrapper());
   std::vector<pat::Jet> pPatJetsCalo = *wPatJetsCalo->product();
   if(pPatJetsCalo.size() > nMix_) pPatJetsCalo.resize(nMix_);
   if(pPatJetsCalo.size() < 4 || pPatJetsCalo[3].pt() < 60) return;
   oriPatJetsCalo_.push_back(pPatJetsCalo);
+  //delete wPatJetsCalo;
 
-  size_t cachedOffset;
-  int fillCount;
+  size_t cachedOffset = 0;
+  int fillCount = 0;
   edm::BasicHandle hPatJets = eventPrincipal.getByLabel(edm::TypeID(typeid(std::vector<pat::Jet>)), "tightLeadingJets", "", "FullHadTreeWriter", cachedOffset, fillCount);
   //std::cout << "cachedOffset: " << cachedOffset << ", fillCount: " << fillCount << std::endl;
   //std::cout << "failedToGet: " << hPatJets.failedToGet() << std::endl;
@@ -129,26 +130,32 @@ JetEventMixer::processOneEvent(edm::EventPrincipal const& eventPrincipal, edm::E
   //std::cout << "pPatJets: " << pPatJets->at(0).pt() << std::endl;
   oriPatJets_.push_back(pPatJets);
   //oriPatJets_.push_back(*(static_cast<edm::Wrapper<std::vector<pat::Jet> > const*>(hPatJets.wrapper())->product()));
+  //delete wPatJets;
 
   ////edm::BasicHandle hGenJets = eventPrincipal.getByLabel(edm::TypeID(typeid(std::vector<reco::GenJet>)), "tightLeadingJets", "genJets", "FullHadTreeWriter", cachedOffset, fillCount);
   //edm::BasicHandle hGenJets = eventPrincipal.getByType(edm::TypeID(typeid(std::vector<reco::GenJet>)));
   //edm::Wrapper<std::vector<reco::GenJet> > const* wGenJets = static_cast<edm::Wrapper<std::vector<reco::GenJet> > const*>(hGenJets.wrapper());
   //std::vector<reco::GenJet> pGenJets = *wGenJets->product();
   //oriGenJets_.push_back(pGenJets);
+  //delete wGenJets;
 
   //edm::BasicHandle hPFCandidates = eventPrincipal.getByLabel(edm::TypeID(typeid(std::vector<reco::PFCandidate>)), "tightLeadingJets", "pfCandidates", "FullHadTreeWriter", cachedOffset, fillCount);
   edm::BasicHandle hPFCandidates = eventPrincipal.getByType(edm::TypeID(typeid(std::vector<reco::PFCandidate>)));
   edm::Wrapper<std::vector<reco::PFCandidate> > const* wPFCandidates = static_cast<edm::Wrapper<std::vector<reco::PFCandidate> > const*>(hPFCandidates.wrapper());
   std::vector<reco::PFCandidate> pPFCandidates = *wPFCandidates->product();
   oriPFCandidates_.push_back(pPFCandidates);
+  //delete wPFCandidates;
 
   //edm::BasicHandle hPileupSummaryInfos = eventPrincipal.getByLabel(edm::TypeID(typeid(std::vector<reco::PileupSummaryInfo>)), "tightLeadingJets", "pfCandidates", "FullHadTreeWriter", cachedOffset, fillCount);
   edm::BasicHandle hPileupSummaryInfos = eventPrincipal.getByType(edm::TypeID(typeid(std::vector<PileupSummaryInfo>)));
-  if(hPileupSummaryInfos.isValid()){
+  //if(hPileupSummaryInfos.isValid()){
+  if(false){
     edm::Wrapper<std::vector<PileupSummaryInfo> > const* wPileupSummaryInfos = static_cast<edm::Wrapper<std::vector<PileupSummaryInfo> > const*>(hPileupSummaryInfos.wrapper());
     std::vector<PileupSummaryInfo> pPileupSummaryInfos = *wPileupSummaryInfos->product();
     oriPUInfos_.push_back(pPileupSummaryInfos);
+    //delete wPileupSummaryInfos;
   }
+  eventPrincipal.clearEventPrincipal();
 }
 
 int factorial(int n)
@@ -232,8 +239,8 @@ JetEventMixer::putOneEvent(edm::Event& evt)
 
   std::auto_ptr< std::vector<PileupSummaryInfo> > puInfos ( new std::vector<PileupSummaryInfo>() );
 
-  int nPU0 = 0, nPU1 = 0, nPU2 = 0;
-  double nPUTrue0 = 0, nPUTrue1 = 0, nPUTrue2 = 0;
+  //int nPU0 = 0, nPU1 = 0, nPU2 = 0;
+  //double nPUTrue0 = 0, nPUTrue1 = 0, nPUTrue2 = 0;
   for(unsigned int i = 0; i < nMix_; ++i){
 
     // update the forward pointers to the PFCandidates of the jet
@@ -241,6 +248,11 @@ JetEventMixer::putOneEvent(edm::Event& evt)
     unsigned int pfCandidateIndex = 0;
     for(std::vector<reco::PFCandidate>::const_iterator iPart = oriPFCandidates_[i].begin(), partEnd = oriPFCandidates_[i].end(); iPart != partEnd; ++iPart, ++pfCandidateIndex){
       //std::cout << pfCandidateIndex << " " << iPart - oriPFCandidates_[i].begin() << " " << oriPatJets_[i][jetIdx].pfCandidatesFwdPtr().size() << " " << oriPFCandidates_[i].size() << std::endl;
+      //std::vector<pat::Jet>& myVPJs = oriPatJets_[i];
+      //pat::Jet& myPJ = myVPJs[jetIdx];
+      //const std::vector<reco::PFCandidateFwdPtr> myVFP = myPJ.pfCandidatesFwdPtr();
+      //unsigned int mySize = myVFP.size();
+      //if(pfCandidateIndex == mySize){
       if(pfCandidateIndex == oriPatJets_[i][jetIdx].pfCandidatesFwdPtr().size()){
         ++jetIdx;
         pfCandidateIndex = 0;
@@ -283,29 +295,29 @@ JetEventMixer::putOneEvent(edm::Event& evt)
     }
 
     // create new PileupSummaryInfo for the combined event
-    if(oriPUInfos_.size()){
-      for(std::vector<PileupSummaryInfo>::const_iterator iterPU = oriPUInfos_[i].begin(), iterEnd = oriPUInfos_[i].end(); iterPU != iterEnd; ++iterPU){
-        // vector size is 3
-        // -1: previous BX, 0: current BX,  1: next BX
-        if     (iterPU->getBunchCrossing()==-1) { nPU0 += iterPU->getPU_NumInteractions(); nPUTrue0 += iterPU->getTrueNumInteractions(); }
-        else if(iterPU->getBunchCrossing()== 0) { nPU1 += iterPU->getPU_NumInteractions(); nPUTrue1 += iterPU->getTrueNumInteractions(); }
-        else if(iterPU->getBunchCrossing()== 1) { nPU2 += iterPU->getPU_NumInteractions(); nPUTrue2 += iterPU->getTrueNumInteractions(); }
-      }
-    }
+    //if(oriPUInfos_.size()){
+    //  for(std::vector<PileupSummaryInfo>::const_iterator iterPU = oriPUInfos_[i].begin(), iterEnd = oriPUInfos_[i].end(); iterPU != iterEnd; ++iterPU){
+    //    // vector size is 3
+    //    // -1: previous BX, 0: current BX,  1: next BX
+    //    if     (iterPU->getBunchCrossing()==-1) { nPU0 += iterPU->getPU_NumInteractions(); nPUTrue0 += iterPU->getTrueNumInteractions(); }
+    //    else if(iterPU->getBunchCrossing()== 0) { nPU1 += iterPU->getPU_NumInteractions(); nPUTrue1 += iterPU->getTrueNumInteractions(); }
+    //    else if(iterPU->getBunchCrossing()== 1) { nPU2 += iterPU->getPU_NumInteractions(); nPUTrue2 += iterPU->getTrueNumInteractions(); }
+    //  }
+    //}
   }
-  if(oriPUInfos_.size()){
-    nPU0 /= nMix_;
-    nPU1 /= nMix_;
-    nPU2 /= nMix_;
-    nPUTrue0 /= nMix_;
-    nPUTrue1 /= nMix_;
-    nPUTrue2 /= nMix_;
-    std::vector< float > zpositions, sumpT_lowpT, sumpT_highpT;
-    std::vector< int > ntrks_lowpT, ntrks_highpT;
-    puInfos->push_back(PileupSummaryInfo(nPU0, zpositions, sumpT_lowpT, sumpT_highpT, ntrks_lowpT, ntrks_highpT, -1, nPUTrue0));
-    puInfos->push_back(PileupSummaryInfo(nPU1, zpositions, sumpT_lowpT, sumpT_highpT, ntrks_lowpT, ntrks_highpT,  0, nPUTrue1));
-    puInfos->push_back(PileupSummaryInfo(nPU2, zpositions, sumpT_lowpT, sumpT_highpT, ntrks_lowpT, ntrks_highpT, +1, nPUTrue2));
-  }
+  //if(oriPUInfos_.size()){
+  //  nPU0 /= nMix_;
+  //  nPU1 /= nMix_;
+  //  nPU2 /= nMix_;
+  //  nPUTrue0 /= nMix_;
+  //  nPUTrue1 /= nMix_;
+  //  nPUTrue2 /= nMix_;
+  //  std::vector< float > zpositions, sumpT_lowpT, sumpT_highpT;
+  //  std::vector< int > ntrks_lowpT, ntrks_highpT;
+  //  puInfos->push_back(PileupSummaryInfo(nPU0, zpositions, sumpT_lowpT, sumpT_highpT, ntrks_lowpT, ntrks_highpT, -1, nPUTrue0));
+  //  puInfos->push_back(PileupSummaryInfo(nPU1, zpositions, sumpT_lowpT, sumpT_highpT, ntrks_lowpT, ntrks_highpT,  0, nPUTrue1));
+  //  puInfos->push_back(PileupSummaryInfo(nPU2, zpositions, sumpT_lowpT, sumpT_highpT, ntrks_lowpT, ntrks_highpT, +1, nPUTrue2));
+  //}
 
   if(combo.size() > 0 && oriPatJets_[combo[0]].size() > 0) { patJets->push_back(oriPatJets_[combo[0]][0]); if(oriPatJetsCalo_[combo[0]].size() > 0) patJetsCalo->push_back(oriPatJetsCalo_[combo[0]][0]); }
   if(combo.size() > 1 && oriPatJets_[combo[1]].size() > 1) { patJets->push_back(oriPatJets_[combo[1]][1]); if(oriPatJetsCalo_[combo[1]].size() > 1) patJetsCalo->push_back(oriPatJetsCalo_[combo[1]][1]); }
