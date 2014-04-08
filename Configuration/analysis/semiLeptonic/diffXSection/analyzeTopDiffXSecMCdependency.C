@@ -256,6 +256,11 @@ void analyzeTopDiffXSecMCdependency(double luminosity = constLumiMuon, std::stri
     // weight
     trees_[variable_[i]]->SetBranchStatus("weight",1);
     trees_[variable_[i]]->SetBranchAddress("weight",(&value_[folderRec(variable_[i], addSel)]["weight"]));
+    //bSwap
+    if(variable_[i].Contains("bq")){
+      trees_[variable_[i]]->SetBranchStatus("bbSwapBetter",1);
+      trees_[variable_[i]]->SetBranchAddress("bbSwapBetter",(&value_[folderRec(variable_[i], addSel)]["bbSwapBetter"]));
+    }
     // variable names in tree
     TString GenExt=treeGenExtension(variable_[i]);
     TString RecExt=treeRecExtension(variable_[i]);
@@ -639,6 +644,7 @@ void analyzeTopDiffXSecMCdependency(double luminosity = constLumiMuon, std::stri
       if(variable_[i]==testVar&&verbose>1) std::cout << "event " << event+1 << "/" << trees_[variable_[i]]->GetEntries() << std::endl;
       trees_[variable_[i]]->GetEntry(event);
       double weight=value_[folderRec(variable_[i], addSel)]["weight"];
+      bool bSwap=variable_[i].Contains("bq") ? value_[folderRec(variable_[i], addSel)]["bbSwapBetter"] : false;
       if(weight==0) std::cout << "WARNING: standard event weight (from tree) is 0!" << std::endl;
       if(verbose>3) std::cout << "SF for variable: " << variable_[i] << std::endl; 
       // loop all variations (Up/Down) 
@@ -669,12 +675,14 @@ void analyzeTopDiffXSecMCdependency(double luminosity = constLumiMuon, std::stri
 	if(verbose>3||(variable_[i]==testVar&&verbose>1)) std::cout << "filling x=" << value_[folderRec(variable_[i], addSel)][varRecLep] << ", weight=" <<  weight*LepShapeWeight << std::endl;
 	finalPlots_[variable_[i]][variable_[i]+Var]->Fill(value_[folderRec(variable_[i], addSel)][varRecLep], weight*LepShapeWeight);
 	// correlation plots
-	finalPlots2D_[variable_[i]][variable_[i]+Var]->Fill(value_[folderRec(variable_[i], addSel)][varGenLep], value_[folderRec(variable_[i], addSel)][varRecLep], weight*LepShapeWeight);
+	if(bSwap)finalPlots2D_[variable_[i]][variable_[i]+Var]->Fill(value_[folderRec(variable_[i], addSel)][varGenLep], value_[folderRec(variable_[i], addSel)][varRecHad], weight*LepShapeWeight);
+	else finalPlots2D_[variable_[i]][variable_[i]+Var]->Fill(value_[folderRec(variable_[i], addSel)][varGenLep], value_[folderRec(variable_[i], addSel)][varRecLep], weight*LepShapeWeight);
 	// second entry for splitted leptonic/hadronic or particle/antiparticle distributions
 	if(varGenHad!=varGenLep){
 	  //finalPlots_  [variable_[i]+"PartonTruth"][variable_[i]+Var]->Fill(value_[varGenHad]                   , weight*HadShapeWeight);
-	  finalPlots_  [variable_[i]              ][variable_[i]+Var]->Fill(value_[folderRec(variable_[i], addSel)][varRecHad]                                 , weight*HadShapeWeight);
-	  finalPlots2D_[variable_[i]              ][variable_[i]+Var]->Fill(value_[folderRec(variable_[i], addSel)][varGenHad], value_[folderRec(variable_[i], addSel)][varRecHad], weight*HadShapeWeight);
+	  finalPlots_  [variable_[i]  ][variable_[i]+Var]->Fill(value_[folderRec(variable_[i], addSel)][varRecHad]                                                    , weight*HadShapeWeight);
+	  if(bSwap)finalPlots2D_[variable_[i]][variable_[i]+Var]->Fill(value_[folderRec(variable_[i], addSel)][varGenHad], value_[folderRec(variable_[i], addSel)][varRecLep], weight*HadShapeWeight);
+	  else finalPlots2D_[variable_[i]][variable_[i]+Var]->Fill(value_[folderRec(variable_[i], addSel)][varGenHad], value_[folderRec(variable_[i], addSel)][varRecHad], weight*HadShapeWeight);
 	}
       } // end for loop var (Up/Down)
     } // end for loop tree entries
