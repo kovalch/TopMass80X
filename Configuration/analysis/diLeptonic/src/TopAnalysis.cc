@@ -757,7 +757,6 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     selectIndices(allLeptonIndices, lepPdgId, *recoObjects.lepDxyVertex0_, DVertex, false);
     selectIndices(allLeptonIndices, lepPdgId, *recoObjects.lepDxyVertex0_, -DVertex, true);
     orderIndices(allLeptonIndices, allLeptons, LVpt);
-    const int numberOfAllLeptons = allLeptonIndices.size();
 
     // Get indices of leptons and antiLeptons separated by charge, and get the leading ones if they exist
     std::vector<int> leptonIndices = allLeptonIndices;

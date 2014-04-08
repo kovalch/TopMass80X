@@ -344,6 +344,28 @@ if createMvaMet:
     process.patMEtMVA.metSource = 'pfMEtMVA'
 
 
+####################################################################
+## Phi correction of the PFMET
+process.load("JetMETCorrections.Type1MET.pfMETsysShiftCorrections_cfi")
+
+process.pfMEtSysShiftCorrParameters_2012runABCDvsNvtx_data = cms.PSet( # CV: ReReco data + Summer'13 JEC
+    px = cms.string("+4.83642e-02 + 2.48870e-01*Nvtx"),
+    py = cms.string("-1.50135e-01 - 8.27917e-02*Nvtx")
+)
+
+process.pfMEtSysShiftCorrParameters_2012runABCDvsNvtx_mc = cms.PSet( # CV: Summer'12 MC + Summer'13 JEC
+    px = cms.string("+1.62861e-01 - 2.38517e-02*Nvtx"),
+    py = cms.string("+3.60860e-01 - 1.30335e-01*Nvtx")
+)
+
+process.pfMEtSysShiftCorr.src = cms.InputTag('pfMet')
+
+if options.runOnMC:
+    process.pfMEtSysShiftCorr.parameter = process.pfMEtSysShiftCorrParameters_2012runABCDvsNvtx_mc
+else:
+    process.pfMEtSysShiftCorr.parameter = process.pfMEtSysShiftCorrParameters_2012runABCDvsNvtx_data
+
+
 
 ####################################################################
 ## Basic debugging analyzer
@@ -860,6 +882,7 @@ applyPostfix(process, "patJets", pfpostfix).addTagInfos = True
 process.p = cms.Path(
     process.goodOfflinePrimaryVertices *
     getattr(process,'patPF2PATSequence'+pfpostfix) *
+    process.pfMEtSysShiftCorrSequence     *
     process.buildJets                     *
     process.filterOppositeCharge          *
     process.filterChannel                 *
@@ -872,6 +895,7 @@ if signal or higgsSignal or zGenInfo:
     process.pNtuple = cms.Path(
         process.goodOfflinePrimaryVertices *
         getattr(process,'patPF2PATSequence'+pfpostfix) *
+        process.pfMEtSysShiftCorrSequence *
         process.buildJets *
         process.zsequence *
         process.writeNTuple

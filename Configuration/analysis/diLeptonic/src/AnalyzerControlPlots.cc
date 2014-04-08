@@ -45,7 +45,7 @@ void AnalyzerControlPlots::bookHistos(const TString& step, std::map<TString, TH1
     name = "lepton_eta";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Lepton #eta;#eta^{l};Leptons",20,-2.4,2.4));
     name = "lepton_phi";
-    //m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Lepton #phi;#phi^{l};Leptons",50,-3.2,3.2));
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Lepton #phi;#phi^{l};Leptons",50,-3.2,3.2));
     name = "lepton_dxy";
     //m_histogram[name] = this->store(new TH1D(prefix_+name+step,"Lepton d_{xy};d_{xy}^{l} [cm];Events",60,-0.25,0.25));
     //name = "lepton_dz";
@@ -54,6 +54,8 @@ void AnalyzerControlPlots::bookHistos(const TString& step, std::map<TString, TH1
     m_histogram[name] = this->store(new TH1D(prefix_+name+step,"p_{t} of 2 leading leptons;p_{t}^{l} [GeV];Leptons", 80, 0, 400));
     name = "lepton2lead_eta";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "#eta of 2 leading leptons;#eta^{l};Leptons",20,-2.4,2.4));
+    name = "lepton2lead_phi";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "#phi of 2 leading leptons;#phi^{l};Leptons",50,-3.2,3.2));
     
     // Leading lepton and antilepton
     name = "lepton1st_pt";
@@ -71,13 +73,13 @@ void AnalyzerControlPlots::bookHistos(const TString& step, std::map<TString, TH1
 
     // Dilepton
     name = "dilepton_mass";
-    //m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Dilepton mass;m^{l^{+}l^{-}} [GeV];Events",50,0,350));
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Dilepton mass;m^{l^{+}l^{-}} [GeV];Events",50,0,350));
     name = "dilepton_pt";
-    //m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Dilepton p_{t};p_{t}^{l^{+}l^{-}} [GeV];Events",50,0,300));
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Dilepton p_{t};p_{t}^{l^{+}l^{-}} [GeV];Events",50,0,300));
     name = "dilepton_rapidity";
-    //m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Dilepton rapidity;y^{l^{+}l^{-}};Events",50,-2.6,2.6));
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Dilepton rapidity;y^{l^{+}l^{-}};Events",50,-2.6,2.6));
     name = "dilepton_phi";
-    //m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Dilepton #phi;#phi^{l^{+}l^{-}};Events",50,-3.2,3.2));
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Dilepton #phi;#phi^{l^{+}l^{-}};Events",50,-3.2,3.2));
     name = "dilepton_deltaEta";
     //m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Dilepton #Delta#eta;#eta^{l^{+}}-#eta^{l^{-}};Events",50,-5,5));
     name = "dilepton_deltaPhi";
@@ -97,7 +99,7 @@ void AnalyzerControlPlots::bookHistos(const TString& step, std::map<TString, TH1
     name = "jet_eta";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Jet #eta;#eta^{jet};Jets",20,-2.4,2.4));
     name = "jet_phi";
-    //m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Jet #phi;#phi^{jet};Jets",50,-3.2,3.2));
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Jet #phi;#phi^{jet};Jets",50,-3.2,3.2));
     name = "jet_btagDiscriminator";
     //m_histogram[name] = this->store(new TH1D(prefix_+name+step, "b-tag Discriminator d;d;Jets",60,-0.1,1.1));
     name = "jet_chargeGlobalPtWeighted";
@@ -126,7 +128,7 @@ void AnalyzerControlPlots::bookHistos(const TString& step, std::map<TString, TH1
     name = "met_et";
     //m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Met E_{t};E_{t}^{met};Events",50,0,300));
     name = "met_phi";
-    //m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Met #phi;#phi^{met};Events",50,-3.2,3.2));
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Met #phi;#phi^{met};Events",50,-3.2,3.2));
 }
 
 
@@ -142,27 +144,28 @@ void AnalyzerControlPlots::fillHistos(const RecoObjects& recoObjects, const Comm
     // Vertices
     //m_histogram["vertex_multiplicity"]->Fill(recoObjects.vertMulti_, weight);    
     
-    
     // Leptons
     m_histogram["lepton_multiplicity"]->Fill(recoObjectIndices.allLeptonIndices_.size(), weight);
     for(const int index : recoObjectIndices.leptonIndices_){
         m_histogram["lepton_pt"]->Fill(recoObjects.allLeptons_->at(index).Pt(), weight);
         m_histogram["lepton_eta"]->Fill(recoObjects.allLeptons_->at(index).Eta(), weight);
-        //m_histogram["lepton_phi"]->Fill(recoObjects.allLeptons_->at(index).Phi(), weight);
+        m_histogram["lepton_phi"]->Fill(recoObjects.allLeptons_->at(index).Phi(), weight);
         //m_histogram["lepton_dxy"]->Fill(recoObjects.lepDxyVertex0_->at(index), weight);
     }
     for(const int index : recoObjectIndices.antiLeptonIndices_){
         m_histogram["lepton_pt"]->Fill(recoObjects.allLeptons_->at(index).Pt(), weight);
         m_histogram["lepton_eta"]->Fill(recoObjects.allLeptons_->at(index).Eta(), weight);
-        //m_histogram["lepton_phi"]->Fill(recoObjects.allLeptons_->at(index).Phi(), weight);
+        m_histogram["lepton_phi"]->Fill(recoObjects.allLeptons_->at(index).Phi(), weight);
         //m_histogram["lepton_dxy"]->Fill(recoObjects.lepDxyVertex0_->at(index), weight);
     }
     
     if(recoObjectIndices.allLeptonIndices_.size()>1){
         m_histogram["lepton2lead_eta"]->Fill((*recoObjects.allLeptons_).at(recoObjectIndices.allLeptonIndices_.at(0)).Eta(), weight);
         m_histogram["lepton2lead_pt"]->Fill((*recoObjects.allLeptons_).at(recoObjectIndices.allLeptonIndices_.at(0)).Pt(), weight);
+        m_histogram["lepton2lead_phi"]->Fill((*recoObjects.allLeptons_).at(recoObjectIndices.allLeptonIndices_.at(0)).Phi(), weight);
         m_histogram["lepton2lead_eta"]->Fill((*recoObjects.allLeptons_).at(recoObjectIndices.allLeptonIndices_.at(1)).Eta(), weight);
         m_histogram["lepton2lead_pt"]->Fill((*recoObjects.allLeptons_).at(recoObjectIndices.allLeptonIndices_.at(1)).Pt(), weight);
+        m_histogram["lepton2lead_phi"]->Fill((*recoObjects.allLeptons_).at(recoObjectIndices.allLeptonIndices_.at(1)).Phi(), weight);
     }
     
     const int leptonIndex = recoObjectIndices.leptonIndices_.size()>0 ? recoObjectIndices.leptonIndices_.at(0) : -1;
@@ -189,10 +192,10 @@ void AnalyzerControlPlots::fillHistos(const RecoObjects& recoObjects, const Comm
         LV dilepton(0.,0.,0.,0.);
         dilepton = recoObjects.allLeptons_->at(leadingLeptonIndex) + recoObjects.allLeptons_->at(nLeadingLeptonIndex);
         
-        //m_histogram["dilepton_mass"]->Fill(dilepton.M(), weight);
-        //m_histogram["dilepton_pt"]->Fill(dilepton.Pt(), weight);
-        //m_histogram["dilepton_rapidity"]->Fill(dilepton.Rapidity(), weight);
-        //m_histogram["dilepton_phi"]->Fill(dilepton.Phi(), weight);
+        m_histogram["dilepton_mass"]->Fill(dilepton.M(), weight);
+        m_histogram["dilepton_pt"]->Fill(dilepton.Pt(), weight);
+        m_histogram["dilepton_rapidity"]->Fill(dilepton.Rapidity(), weight);
+        m_histogram["dilepton_phi"]->Fill(dilepton.Phi(), weight);
 
         //m_histogram["dilepton_deltaEta"]->Fill(recoObjects.allLeptons_->at(leptonIndex).Eta() - recoObjects.allLeptons_->at(antiLeptonIndex).Eta(), weight);
         //m_histogram["dilepton_deltaPhi"]->Fill(ROOT::Math::VectorUtil::DeltaPhi(recoObjects.allLeptons_->at(antiLeptonIndex), recoObjects.allLeptons_->at(leptonIndex)), weight);
@@ -207,7 +210,7 @@ void AnalyzerControlPlots::fillHistos(const RecoObjects& recoObjects, const Comm
     for(const int index : recoObjectIndices.jetIndices_){
         m_histogram["jet_pt"]->Fill(recoObjects.jets_->at(index).Pt(), weight);
         m_histogram["jet_eta"]->Fill(recoObjects.jets_->at(index).Eta(), weight);
-        //m_histogram["jet_phi"]->Fill(recoObjects.jets_->at(index).Phi(), weight);
+        m_histogram["jet_phi"]->Fill(recoObjects.jets_->at(index).Phi(), weight);
         double btagDiscriminator = recoObjects.jetBTagCSV_->at(index);
         if(btagDiscriminator < -0.1) btagDiscriminator = -0.05;
         //m_histogram["jet_btagDiscriminator"]->Fill(btagDiscriminator, weight);
@@ -223,7 +226,7 @@ void AnalyzerControlPlots::fillHistos(const RecoObjects& recoObjects, const Comm
     }
     
     // Bjets
-     m_histogram["bjet_multiplicity"]->Fill(recoObjectIndices.bjetIndices_.size(), weight);
+    m_histogram["bjet_multiplicity"]->Fill(recoObjectIndices.bjetIndices_.size(), weight);
     for(const int index : recoObjectIndices.bjetIndices_){
         //m_histogram["bjet_pt"]->Fill(recoObjects.jets_->at(index).Pt(), weight);
         //m_histogram["bjet_eta"]->Fill(recoObjects.jets_->at(index).Eta(), weight);
@@ -234,7 +237,7 @@ void AnalyzerControlPlots::fillHistos(const RecoObjects& recoObjects, const Comm
     
     // Met
     //m_histogram["met_et"]->Fill(recoObjects.met_->E(), weight);
-    //m_histogram["met_phi"]->Fill(recoObjects.met_->Phi(), weight);
+    m_histogram["met_phi"]->Fill(recoObjects.met_->Phi(), weight);
 }
 
 

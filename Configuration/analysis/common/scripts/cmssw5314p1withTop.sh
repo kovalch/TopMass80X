@@ -176,6 +176,11 @@ git cms-addpkg TopQuarkAnalysis/TopKinFitter
 git cms-addpkg TopQuarkAnalysis/TopObjectResolutions
 cd -
 
+######### MET Phi corrections ######
+cd $CMSSW_BASE/src
+git cms-addpkg JetMETCorrections/Type1MET
+cd -
+
 ######### MVA MET ######
 cd $CMSSW_BASE/src
 git cms-merge-topic cms-analysis-tools:5_3_14-updateSelectorUtils
