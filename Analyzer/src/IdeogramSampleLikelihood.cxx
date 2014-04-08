@@ -16,6 +16,7 @@ double IdeogramSampleLikelihood::DoEval(const double *x) const {
   for (const auto& event : eventFunctions_) {
     bool eventIsActive = false;
     int flavour = 0;
+    double weight = 1;
     double eventResult  = 0;
     double eventSumProb = 0;
     for (const auto& permutation : event) {
@@ -26,17 +27,18 @@ double IdeogramSampleLikelihood::DoEval(const double *x) const {
         temp[1] = x[1];
         temp[2] = x[2];
         temp[3] = x[3];
-        double p[] = {0., 0., 0., 0., 0., 0., 0.};
+        double p[] = {0., 0., 0., 0., 0., 0., 0., 0.};
         eventResult  += permutation->Evaluate(temp, p);
         eventSumProb += permutation->GetFixedParam(0);
         flavour       = permutation->GetFixedParam(3);
+        weight        = permutation->GetFixedParam(7);
       }
     }
     if (eventIsActive) {
       double pullWidthFlavour = (flavour == 11) ? pullWidthEle : pullWidth;
-      sampleResult  += -2.*log(eventResult)*eventSumProb / (pullWidthFlavour*pullWidthFlavour);
-      sampleSumProb += eventSumProb;
-      sampleNEvent  += 1.;
+      sampleResult  += weight * -2.*log(eventResult)*eventSumProb / (pullWidthFlavour*pullWidthFlavour);
+      sampleSumProb += weight * eventSumProb;
+      sampleNEvent  += weight;
     }
   }
   return sampleResult * sampleNEvent / sampleSumProb;
