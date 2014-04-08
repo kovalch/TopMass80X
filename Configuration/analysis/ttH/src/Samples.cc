@@ -8,6 +8,8 @@
 #include <TH1.h>
 
 #include "Samples.h"
+#include "GlobalScaleFactors.h"
+#include "higgsUtils.h"
 #include "../../common/include/sampleHelpers.h"
 #include "../../common/include/RootFileReader.h"
 
@@ -30,7 +32,7 @@ sampleType_(dummy),
 finalState_(Channel::undefined),
 systematic_(Systematic::undefined),
 inputFileName_(""),
-luminosityWeightPerInverseFb_(-999.)
+luminosityWeightPerInversePb_(-999.)
 {}
 
 
@@ -43,7 +45,7 @@ sampleType_(sampleType),
 finalState_(Channel::undefined),
 systematic_(Systematic::undefined),
 inputFileName_(""),
-luminosityWeightPerInverseFb_(-999.)
+luminosityWeightPerInversePb_(-999.)
 {}
 
 
@@ -249,15 +251,15 @@ TString Sample::inputFile()const{return inputFileName_;}
 
 
 
-double Sample::luminosityWeight(const double& luminosityInInverseFb)const
+double Sample::luminosityWeight(const double& luminosityInInversePb)const
 {
     if(sampleType_ == data) return 1.;
-    if(luminosityWeightPerInverseFb_ < 0.){
+    if(luminosityWeightPerInversePb_ < 0.){
         std::cerr<<"ERROR in Sample::luminosityWeight()! Value is negative (probably not calculated): "
-                 <<luminosityWeightPerInverseFb_<<"\n...break\n"<<std::endl;
+                 <<luminosityWeightPerInversePb_<<"\n...break\n"<<std::endl;
         exit(886);
     }
-    return luminosityInInverseFb*luminosityWeightPerInverseFb_;
+    return luminosityInInversePb*luminosityWeightPerInversePb_;
 }
 
 
@@ -274,10 +276,10 @@ void Sample::calculateLuminosityWeight()
     const TH1* const h_weightedEvents = fileReader->Get<TH1>(inputFileName_, "weightedEvents");
     const double weightedEvents(h_weightedEvents->GetBinContent(1));
     
-    luminosityWeightPerInverseFb_ = crossSection_/weightedEvents;
+    luminosityWeightPerInversePb_ = crossSection_/weightedEvents;
     //std::cout<<"Input file: "<<inputFileName_<<std::endl;
     //std::cout<<"Xsection, weighted events, lumi weight: "
-    //         <<crossSection<<" , "<<weightedEvents<<" , "<<luminosityWeightPerInverseFb_<<std::endl;
+    //         <<crossSection<<" , "<<weightedEvents<<" , "<<luminosityWeightPerInversePb_<<std::endl;
 }
 
 
@@ -290,21 +292,33 @@ void Sample::calculateLuminosityWeight()
 
 
 
-Samples::Samples(){}
+Samples::Samples():
+globalScaleFactors_(0)
+{}
 
 
 
-Samples::Samples(const std::vector< Channel::Channel >& v_channel, const std::vector< Systematic::Systematic >& v_systematic)
+Samples::Samples(const std::vector<Channel::Channel>& v_channel,
+                 const std::vector<Systematic::Systematic>& v_systematic,
+                 const GlobalScaleFactors* globalScaleFactors):
+globalScaleFactors_(globalScaleFactors)
 {
     std::cout<<"--- Beginning to set up the samples\n\n";
-
-    for (auto systematic : v_systematic) {
-        for (auto channel : v_channel) {
+    
+    for(const auto& systematic : v_systematic){
+        for(const auto& channel : v_channel){
             this->addSamples(channel, systematic);
         }
     }
-
+    
     std::cout<<"\n=== Finishing to set up the samples\n\n";
+}
+
+
+
+void Samples::setGlobalWeights(const GlobalScaleFactors* globalScaleFactors)
+{
+    globalScaleFactors_ = globalScaleFactors;
 }
 
 
@@ -358,7 +372,7 @@ std::vector<std::pair<TString, Sample> > Samples::samplesByNamePatterns(const st
 void Samples::addSamples(const Channel::Channel& channel, const Systematic::Systematic& systematic)
 {
     // Add all samples as they are defined in setSamples()
-    std::vector< std::pair< TString, Sample > > v_filenameSamplePair(this->setSamples(channel, systematic));
+    std::vector<std::pair<TString, Sample> > v_filenameSamplePair(this->setSamples(channel, systematic));
     
     // Set sample options via filename
     std::vector<Sample> v_sample(this->setSampleOptions(systematic, v_filenameSamplePair));
@@ -383,7 +397,8 @@ void Samples::addSamples(const Channel::Channel& channel, const Systematic::Syst
 
 
 
-std::vector<Sample> Samples::setSampleOptions(const Systematic::Systematic& systematic, const std::vector< std::pair<TString, Sample> >& v_filenameSamplePair)
+std::vector<Sample> Samples::setSampleOptions(const Systematic::Systematic& systematic,
+                                              const std::vector<std::pair<TString, Sample> >& v_filenameSamplePair)
 {
     std::vector<Sample> v_sample;
 
@@ -497,6 +512,26 @@ const std::vector<Sample>& Samples::getSamples(const Channel::Channel& channel, 
     return m_systematicChannelSample_.at(systematic).at(channel);
 }
 
+
+
+std::pair<SystematicChannelFactors, bool> Samples::globalWeights(const TString& objectname,
+                                                                 const bool dyCorrection,
+                                                                 const bool ttbbCorrection)const
+{
+    const TString fullStepname = tth::extractSelectionStepAndJetCategory(objectname);
+    
+    return globalScaleFactors_->scaleFactors(*this, fullStepname, dyCorrection, ttbbCorrection);
+}
+
+
+
+
+std::pair<SystematicChannelFactors, bool> Samples::globalWeights(const TString& objectname)const
+{
+    const TString fullStepname = tth::extractSelectionStepAndJetCategory(objectname);
+    
+    return globalScaleFactors_->scaleFactors(*this, fullStepname);
+}
 
 
 

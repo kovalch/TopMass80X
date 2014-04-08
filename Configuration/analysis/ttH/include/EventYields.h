@@ -22,7 +22,7 @@ class EventYields{
 public:
     
     /// Constructor for producing event yield tables
-    EventYields(const Samples& samples, const double& luminosity, const DyScaleFactors& m_dyScaleFactors);
+    EventYields(const Samples& samples);
     
     /// Default destructor
     ~EventYields(){};
@@ -35,17 +35,11 @@ private:
     void produceYields(const Samples& samples)const;
     
     /// Write the yields to txt files, either without or with additional corrections (e.g. Drell-Yan scaling)
-    void writeYields(const Channel::Channel& channel, const std::vector<Sample>& v_sample,
-                     const std::vector<std::pair<TString, TString> >& v_nameStepPair,
+    void writeYields(const Samples& samples,
+                     const std::pair<TString, TString>& nameStepPair,
                      const bool useCorrections =false)const;
     
     
-    
-    /// Luminosity
-    const double& luminosity_;
-    
-    /// Map containing the Drell-Yan scale factors
-    const DyScaleFactors& dyScaleFactors_;
     
     /// File reader for accessing specific histogram from given file
     RootFileReader* fileReader_;

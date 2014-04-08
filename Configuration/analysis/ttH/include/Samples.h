@@ -7,8 +7,11 @@
 #include "SamplesFwd.h"
 #include "../../common/include/sampleHelpers.h"
 
+class GlobalScaleFactors;
 class RootFileReader;
 class TString;
+
+
 
 
 
@@ -42,8 +45,8 @@ public:
     /// Return cross section corresponding to the sample
     double crossSection()const;
     
-    /// Get the luminosity weight, for a luminosity in inverse fb
-    double luminosityWeight(const double& luminosityInInverseFb)const;
+    /// Get the luminosity weight, for a luminosity in inverse pb
+    double luminosityWeight(const double& luminosityInInversePb)const;
     
     /// Return the specific type of sample
     SampleType sampleType()const;
@@ -97,8 +100,8 @@ private:
     /// Path of the input root file
     TString inputFileName_;
     
-    /// Weight corresponding to the sample per 1 inverse fb
-    double luminosityWeightPerInverseFb_;
+    /// Weight corresponding to the sample per 1 inverse pb
+    double luminosityWeightPerInversePb_;
 };
 
 
@@ -107,33 +110,48 @@ private:
 
 /// Class for administration of all samples, all dilepton channels and all systematics
 class Samples{
-
+    
 public:
-
+    
     /// Default constructor
     Samples();
-
+    
     /// Constructor setting up samples
-    Samples(const std::vector<Channel::Channel>& v_channel, const std::vector<Systematic::Systematic>& v_systematic);
-
+    Samples(const std::vector<Channel::Channel>& v_channel,
+            const std::vector<Systematic::Systematic>& v_systematic,
+            const GlobalScaleFactors* globalScaleFactors =0);
+    
     /// Default destructor
     ~Samples(){};
-
-
-
+    
+    
+    
     /// Get map containing all samples per dilepton analysis channel and per systematic
     const SystematicChannelSamples& getSystematicChannelSamples()const;
-
+    
     /// Get all samples of specific dilepton analysis channel and specific systematic
     const std::vector<Sample>& getSamples(const Channel::Channel& channel, const Systematic::Systematic& systematic)const;
-
-
-
+    
+    
+    void setGlobalWeights(const GlobalScaleFactors* globalScaleFactors);
+    
+    /// Apply weights to samples based on luminosity and additional corrections if specified
+    /// The selection step is extracted from the object name
+    std::pair<SystematicChannelFactors, bool> globalWeights(const TString& objectname,
+                                                            const bool dyCorrection,
+                                                            const bool ttbbCorrection)const;
+    
+    /// Apply weights to samples based on all corrections which are set up for the GlobalScaleFactors
+    /// The selection step is extracted from the object name
+    std::pair<SystematicChannelFactors, bool> globalWeights(const TString& objectname)const;
+    
+    
+    
 private:
-
+    
     /// Add samples for specific dilepton analysis channel and specific systematic
     void addSamples(const Channel::Channel& channel, const Systematic::Systematic& systematic);
-
+    
     /// Place where to define the samples as they will be used in the analysis
     std::vector<std::pair<TString, Sample> > setSamples(const Channel::Channel& channel, const Systematic::Systematic& systematic);
     
@@ -146,22 +164,25 @@ private:
     
     /// Assign options to each sample via its filename
     std::vector<Sample> setSampleOptions(const Systematic::Systematic& systematic, const std::vector<std::pair<TString, Sample> >& v_filenameSamplePair);
-
+    
     /// Order samples by their legend
     /// when a legend already exists, the sample is moved directly behind it
     void orderByLegend(std::vector<Sample>& v_sample);
-
+    
     /// Assign the real final state to each sample, ie. only "ee", "emu", "mumu", but not "combined"
     Channel::Channel assignFinalState(const TString& filename);
-
+    
     /// Assign the real systematic to each sample, i.e. what should be used for given systematic (nominal or specific systematic)
     /// and modify filename accordingly
     Systematic::Systematic assignSystematic(TString& filename, const Systematic::Systematic& systematic);
-
-
-
+    
+    
+    
     /// Map containing all samples per dilepton analysis channel and per systematic
     SystematicChannelSamples m_systematicChannelSample_;
+    
+    /// Pointer to the global scale factors
+    const GlobalScaleFactors* globalScaleFactors_;
 };
 
 

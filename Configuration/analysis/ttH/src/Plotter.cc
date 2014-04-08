@@ -41,11 +41,9 @@ constexpr const char* ControlPlotDIR = "Plots";
 
 Plotter::Plotter(const Samples& samples,
                  const double& luminosity,
-                 const DyScaleFactors& dyScaleFactors,
                  const DrawMode::DrawMode& drawMode):
 samples_(samples),
 luminosity_(luminosity),
-dyScaleFactors_(dyScaleFactors),
 drawMode_(drawMode),
 fileReader_(RootFileReader::getInstance()),
 name_("defaultName"),
@@ -59,7 +57,6 @@ YAxis_(""),
 XAxis_(""),
 logX_(false),
 logY_(false),
-doDYScale_(false),
 scaleMCtoData_(false),
 ttbbScale_(1.0)
 {
@@ -71,7 +68,7 @@ ttbbScale_(1.0)
 
 void Plotter::setOptions(const TString& name, const TString&,
                          const TString& YAxis, const TString& XAxis,
-                         const int rebin, const bool doDYScale,
+                         const int rebin, const bool,
                          const bool logX, const bool logY,
                          const double& ymin, const double& ymax,
                          const double& rangemin, const double& rangemax,
@@ -82,7 +79,6 @@ void Plotter::setOptions(const TString& name, const TString&,
     YAxis_ = YAxis; //Y-axis title
     XAxis_ = XAxis; //X-axis title
     rebin_ = rebin; //Nr. of bins to be merged together
-    doDYScale_ = doDYScale; //Apply DY scale factor?
     logX_ = logX; //Draw X-axis in Log scale
     logY_ = logY; //Draw Y-axis in Log scale
     ymin_ = ymin; //Min. value in Y-axis
@@ -101,14 +97,19 @@ void Plotter::setOptions(const TString& name, const TString&,
 void Plotter::producePlots()
 {
     //std::cout<<"--- Beginning of plot production\n\n";
-
+    
+    // Access correction factors
+    const SystematicChannelFactors globalWeights = this->scaleFactors();
+    
+    // Loop over all channels and systematics and produce plots
     const SystematicChannelSamples& m_systematicChannelSample(samples_.getSystematicChannelSamples());
     for(const auto& systematicChannelSamples : m_systematicChannelSample){
         const Systematic::Systematic& systematic(systematicChannelSamples.first);
         for(const auto& channelSample : systematicChannelSamples.second){
             const Channel::Channel& channel(channelSample.first);
             const std::vector<Sample>& v_sample(channelSample.second);
-            if(!this->prepareDataset(v_sample, systematic)){
+            const std::vector<double>& v_weight(globalWeights.at(systematic).at(channel));
+            if(!this->prepareDataset(v_sample, v_weight)){
                 std::cout<<"WARNING! Cannot find histograms for all datasets, for (channel/systematic): "
                          << Channel::convertChannel(channel) << "/" << Systematic::convertSystematic(systematic)
                          <<"\n... skip this plot\n";
@@ -117,21 +118,36 @@ void Plotter::producePlots()
             this->write(channel, systematic);
         }
     }
-
+    
     //std::cout<<"\n=== Finishing of plot production\n\n";
 }
 
 
 
-bool Plotter::prepareDataset(const std::vector<Sample>& v_sample, const Systematic::Systematic& systematic)
+const SystematicChannelFactors& Plotter::scaleFactors()
+{
+    const TString fullStepname = tth::extractSelectionStepAndJetCategory(name_);
+    
+    // Check if map contains already scale factors for this step, else access and fill them
+    if(m_stepFactors_.find(fullStepname) == m_stepFactors_.end()){
+        m_stepFactors_[fullStepname] = samples_.globalWeights(fullStepname).first;
+    }
+    
+    return m_stepFactors_.at(fullStepname);
+}
+
+
+
+bool Plotter::prepareDataset(const std::vector<Sample>& v_sample,
+                             const std::vector<double>& v_weight)
 {
     bool allHistosAvailable(true);
-
-
+    
     // Associate histogram to dataset if histogram can be found
     v_sampleHistPair_.clear();
     TH1::AddDirectory(kFALSE);
-    for(const auto& sample : v_sample){
+    for(size_t iSample = 0; iSample < v_sample.size(); ++iSample){
+        const auto& sample(v_sample.at(iSample));
         SampleHistPair p_sampleHist;
         TH1D *hist = fileReader_->GetClone<TH1D>(sample.inputFile(), name_, true, false);
         if(!hist){
@@ -142,15 +158,10 @@ bool Plotter::prepareDataset(const std::vector<Sample>& v_sample, const Systemat
             allHistosAvailable = false;
         }
         else{
-            //Rescaling to the data luminosity
+            // Apply weights
             if(sample.sampleType() != Sample::data){
-                const double& lumiWeight = sample.luminosityWeight(luminosity_);
-                hist->Scale(lumiWeight);
-            }
-
-            // Drell-Yan reweighting
-            if(doDYScale_){
-                dyScaleFactors_.applyDyScaleFactor(hist, sample, systematic);
+                const double& weight = v_weight.at(iSample);
+                hist->Scale(weight);
             }
 
             // Set style

@@ -38,6 +38,7 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   JetCategories
   plotterHelpers
   Samples
+  GlobalScaleFactors
   DyScaleFactors
   EventYields
   Plotter

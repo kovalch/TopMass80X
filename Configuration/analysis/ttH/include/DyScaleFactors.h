@@ -27,7 +27,7 @@ public:
     
     
     /// Constructor for producing Drell-Yan scale factors
-    DyScaleFactors(const Samples& samples, const double& luminosity);
+    DyScaleFactors(const Samples& samples);
     
     /// Default destructor
     ~DyScaleFactors(){}
@@ -36,11 +36,12 @@ public:
     
     /// Apply Drell-Yan scale factor to histogram automatically depending on its name
     /// Returns 0 if it is not a Drell-Yan sample and nothing needs to be done
-    /// Returns -1 in case of no available scale factor for this step (if non-existing step is allowed)
+    /// Returns -1 in case of no available scale factor for this step
     /// Returns +1 in case of successful application of scale factor
-    int applyDyScaleFactor(TH1* histogram, const Sample& sample,
-                           const Systematic::Systematic& systematic,
-                           const bool allowNonexistingStep =false)const;
+    int applyScaleFactor(double& weight,
+                         const TString& fullStepname,
+                         const Sample& sample,
+                         const Systematic::Systematic& systematic)const;
     
     
     
@@ -59,8 +60,8 @@ private:
     /// Produce the Drell-Yan scale factors
     void produceScaleFactors(const Samples& samples);
     
-    /// Produce the Drell-Yan scale factors for each selection step and each systematic
-    void produceScaleFactors(const TString& step, const Systematic::Systematic& systematic, std::map<Channel::Channel, std::vector<Sample> >& channelSamples);
+    /// Produce the Drell-Yan scale factors for each selection step
+    void produceScaleFactors(const TString& step, const Samples& samples);
     
     /// Print full information about all ingoing numbers (deactivated by default)
     void printFullInformation(const double dyScaleFactor_ee, const double dyScaleFactor_mumu, 
@@ -75,9 +76,6 @@ private:
                               const TString& step)const;
     
     
-    
-    /// Luminosity
-    const double& luminosity_;
     
     /// File reader for accessing specific histogram from given file
     RootFileReader* fileReader_;

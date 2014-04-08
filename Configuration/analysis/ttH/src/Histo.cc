@@ -6,7 +6,7 @@
 #include <TString.h>
 
 #include "Samples.h"
-#include "DyScaleFactors.h"
+#include "GlobalScaleFactors.h"
 #include "EventYields.h"
 #include "plotterHelpers.h"
 #include "Plotter.h"
@@ -22,8 +22,8 @@
 
 /// Set data luminosity in pb-1
 //constexpr double Luminosity = 19624.8;
-//constexpr double Luminosity = 19789;
-constexpr double Luminosity = 19712;
+//constexpr double Luminosity = 19789.;
+constexpr double Luminosity = 19712.;
 
 
 
@@ -34,20 +34,17 @@ void Histo(const std::vector<std::string> v_plot,
            const std::vector<Systematic::Systematic> v_systematic,
            const DrawMode::DrawMode drawMode)
 {
+    // Set up scale factors
+    const GlobalScaleFactors* globalScaleFactors = new GlobalScaleFactors(v_channel, v_systematic, Luminosity, true, true);
     
     // Access all samples
-    const Samples samples(v_channel, v_systematic);
-    
-    // Produce Drell-Yan scalings and access map containing scale factors
-    // Requires Samples for channels "ee" "emu" "mumu", independent of selected channels for analysis
-    const Samples dyScalingSamples(Channel::realChannels, v_systematic);
-    const DyScaleFactors dyScaleFactors(dyScalingSamples, Luminosity);
+    const Samples samples(v_channel, v_systematic, globalScaleFactors);
     
     // Produce event yields
-    const EventYields eventYields(samples, Luminosity, dyScaleFactors);
+    const EventYields eventYields(samples);
     
     // Create Plotter
-    Plotter generalPlot(samples, Luminosity, dyScaleFactors, drawMode);
+    Plotter generalPlot(samples, Luminosity, drawMode);
     
     // Access the histoList specifying printing parameters of histograms
     const std::string histoListFile(tth::DATA_PATH_TTH() + "/" + "HistoList_control");
@@ -83,7 +80,7 @@ void Histo(const std::vector<std::string> v_plot,
         }
         
         // Set plot properties
-        generalPlot.setOptions(plotProperties.name,plotProperties.specialComment,plotProperties.ytitle,plotProperties.xtitle, 
+        generalPlot.setOptions(plotProperties.name, plotProperties.specialComment, plotProperties.ytitle, plotProperties.xtitle, 
                                plotProperties.rebin, plotProperties.do_dyscale, plotProperties.logX, plotProperties.logY, 
                                plotProperties.ymin, plotProperties.ymax, plotProperties.xmin, plotProperties.xmax,
                                plotProperties.bins, plotProperties.xbinbounds, plotProperties.bincenters);
