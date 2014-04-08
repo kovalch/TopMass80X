@@ -60,14 +60,15 @@ TopMass::TopMass() :
   else if (!strcmp(fBinning_.c_str(),"sqrt(pow(top.fitB1.Eta()-top.fitB2.Eta(),2) + pow(TVector2::Phi_mpi_pi(top.fitB1.Phi()-top.fitB2.Phi()),2))")) {
     vBinning = {0.5, 1, 2, 3, 6};
   }
-  else if (!strcmp(fBinning_.c_str(),"top.fitB1.Pt()+top.fitB1.Pt()+top.fitW1Prod1.Pt()+top.fitW1Prod2.Pt()")) {
+  else if (!strcmp(fBinning_.c_str(),"top.fitB1.Pt()+top.fitB2.Pt()+top.fitW1Prod1.Pt()+top.fitW1Prod2.Pt()")) {
     vBinning = {100, 200, 300, 400, 500, 600};
   }
   else if (!strcmp(fBinning_.c_str(),"jet.@jet.size()")) {
     vBinning = {3.5, 4.5, 5.5, 6.5};
   }
-  
-  
+  else if (!strcmp(fBinning_.c_str(),"Max$(Iteration$*(jet.jet.Pt()>30)) + 1")) {
+    vBinning = {3.5, 4.5, 5.5, 6.5};
+  }
   
   else if (!strcmp(fBinning_.c_str(),"topMass")) {
     vBinning = {100, 550};

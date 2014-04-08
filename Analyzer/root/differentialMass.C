@@ -44,18 +44,18 @@ enum lepton          { kElectron, kMuon, kAll};
 TString lepton_ [] = { "electron", "muon", "all"};
 enum cat             { kCR, kRad, kBoth};
 
-TString sBinning[] = {"TopPt", "TopEta", "B1Pt", "B1Eta", "TTBarMass", "TTBarPt", "DeltaRqq", "DeltaRbb", "HT", "NJet", "Q1Pt", "Q1Eta", "WPt", "WEta"};
-TString sData[] = {"top_fitTop1_Pt__", "top_fitTop1_Eta__", "top_fitB1_Pt__", "top_fitB1_Eta__", "top_fitTTBar_M__", "top_fitTTBar_Pt__", "sqrt_pow_top_fitW1Prod1_Eta__-top_fitW1Prod2_Eta___2__+_pow_TVector2__Phi_mpi_pi_top_fitW1Prod1_Phi__-top_fitW1Prod2_Phi____2__", "sqrt_pow_top_fitB1_Eta__-top_fitB2_Eta___2__+_pow_TVector2__Phi_mpi_pi_top_fitB1_Phi__-top_fitB2_Phi____2__", "top_fitB1_Pt__+top_fitB1_Pt__+top_fitW1Prod1_Pt__+top_fitW1Prod2_Pt__", "jet__jet_size__", "top_fitW1Prod1_Pt__", "top_fitW1Prod1_Eta__", "top_fitW1_Pt__", "top_fitW1_Eta__"};
-TString sBinNice[] = {"p_{T,t,had} [GeV]", "|#eta_{t,had}|", "p_{T,b,had} [GeV]", "|#eta_{b,had}|", "m_{t#bar{t}} [GeV]", "p_{T,t#bar{t}} [GeV]", "#DeltaR_{q#bar{q}}", "#DeltaR_{b#bar{b}}", "H_{T}^{4} [GeV]", "Number of jets", "p_{T,q} [GeV]", "|#eta_{q}|", "p_{T,W} [GeV]", "|#eta_{W}|"};
-int binCat[] = {/*"p_{T,t,had} [GeV]"*/ kCR, /*"|#eta_{t,had}|"*/ kCR, /*"p_{T,b,had} [GeV]"*/ kBoth, /*"|#eta_{b,had}|"*/ kBoth, /*"m_{t#bar{t}} [GeV]"*/ kRad, /*"p_{T,t#bar{t}} [GeV]"*/ kRad, /*"#DeltaR_{q#bar{q}}"*/ kCR, /*"#DeltaR_{b#bar{b}}"*/ kBoth, /*"p_{T,b,lep} [GeV]"*/ kBoth, /*"|#eta_{b,lep}|"*/ kBoth, /*"#Delta#phi_{q#bar{q}}"*/ kCR, /*"#Delta#phi_{b#bar{b}}"*/ kBoth, /*"p_{T,lep} [GeV]"*/ kRad, /*"|#eta_{lep}|"*/ kRad, /*"MET [GeV]"*/ kRad, /*"H_{T} [GeV]"*/ kRad, /*"Number of jets"*/ kRad, /*"Number of b-tagged jets"*/ kRad, kBoth, kBoth};
-bool pas[] = {/*"p_{T,t,had} [GeV]"*/ true, /*"|#eta_{t,had}|"*/ true, /*"p_{T,b,had} [GeV]"*/ true, /*"|#eta_{b,had}|"*/ true, /*"m_{t#bar{t}} [GeV]"*/ true, /*"p_{T,t#bar{t}} [GeV]"*/ true, /*"#DeltaR_{q#bar{q}}"*/ true, /*"#DeltaR_{b#bar{b}}"*/ true, /*"p_{T,b,lep} [GeV]"*/ false, /*"|#eta_{b,lep}|"*/ false, /*"#Delta#phi_{q#bar{q}}"*/ true, /*"#Delta#phi_{b#bar{b}}"*/ true, /*"p_{T,lep} [GeV]"*/ false, /*"|#eta_{lep}|"*/ false, /*"MET [GeV]"*/ false, /*"H_{T} [GeV]"*/ true, /*"Number of jets"*/ true, /*"Number of b-tagged jets"*/ false, false, false};
+TString sBinning[] = {"TopPt", "TopEta", "B1Pt", "B1Eta", "TTBarMass", "TTBarPt", "DeltaRqq", "DeltaRbb", "HTfix", "NJet", "Q1Pt", "Q1Eta", "WPt", "WEta"/*, "NVertex"*/};
+TString sData[] = {"top_fitTop1_Pt__", "top_fitTop1_Eta__", "top_fitB1_Pt__", "top_fitB1_Eta__", "top_fitTTBar_M__", "top_fitTTBar_Pt__", "sqrt_pow_top_fitW1Prod1_Eta__-top_fitW1Prod2_Eta__2____pow_TVector2Phi_mpi_pi_top_fitW1Prod1_Phi__-top_fitW1Prod2_Phi___2__", "sqrt_pow_top_fitB1_Eta__-top_fitB2_Eta__2____pow_TVector2Phi_mpi_pi_top_fitB1_Phi__-top_fitB2_Phi___2__", "top_fitB1_Pt___top_fitB2_Pt___top_fitW1Prod1_Pt___top_fitW1Prod2_Pt__", "Max__Iteration___jet_jet_Pt___gt_30_____1", "top_fitW1Prod1_Pt__", "top_fitW1Prod1_Eta__", "top_fitW1_Pt__", "top_fitW1_Eta__", "weight_nVertex"};
+TString sBinNice[] = {"p_{T,t,had} [GeV]", "|#eta_{t,had}|", "p_{T,b,had} [GeV]", "|#eta_{b,had}|", "m_{t#bar{t}} [GeV]", "p_{T,t#bar{t}} [GeV]", "#DeltaR_{q#bar{q}}", "#DeltaR_{b#bar{b}}", "H_{T}^{4} [GeV]", "Number of jets", "p_{T,q} [GeV]", "|#eta_{q}|", "p_{T,W} [GeV]", "|#eta_{W}|", "N(PV)"};
+int binCat[] = {/*"p_{T,t,had} [GeV]"*/ kCR, /*"|#eta_{t,had}|"*/ kCR, /*"p_{T,b,had} [GeV]"*/ kBoth, /*"|#eta_{b,had}|"*/ kBoth, /*"m_{t#bar{t}} [GeV]"*/ kRad, /*"p_{T,t#bar{t}} [GeV]"*/ kRad, /*"#DeltaR_{q#bar{q}}"*/ kCR, /*"#DeltaR_{b#bar{b}}"*/ kBoth, /*"p_{T,b,lep} [GeV]"*/ kBoth, /*"|#eta_{b,lep}|"*/ kBoth, /*"#Delta#phi_{q#bar{q}}"*/ kCR, /*"#Delta#phi_{b#bar{b}}"*/ kBoth, /*"p_{T,lep} [GeV]"*/ kRad, /*"|#eta_{lep}|"*/ kRad, /*"MET [GeV]"*/ kRad, /*"H_{T} [GeV]"*/ kRad, /*"Number of jets"*/ kRad, /*"Number of b-tagged jets"*/ kRad, kBoth, kBoth, kBoth};
+bool pas[] = {/*"p_{T,t,had} [GeV]"*/ true, /*"|#eta_{t,had}|"*/ true, /*"p_{T,b,had} [GeV]"*/ true, /*"|#eta_{b,had}|"*/ true, /*"m_{t#bar{t}} [GeV]"*/ true, /*"p_{T,t#bar{t}} [GeV]"*/ true, /*"#DeltaR_{q#bar{q}}"*/ true, /*"#DeltaR_{b#bar{b}}"*/ true, /*"p_{T,b,lep} [GeV]"*/ false, /*"|#eta_{b,lep}|"*/ false, /*"#Delta#phi_{q#bar{q}}"*/ true, /*"#Delta#phi_{b#bar{b}}"*/ true, /*"p_{T,lep} [GeV]"*/ false, /*"|#eta_{lep}|"*/ false, /*"MET [GeV]"*/ false, /*"H_{T} [GeV]"*/ true, /*"Number of jets"*/ true, /*"Number of b-tagged jets"*/ false, false, false, false};
 
 TString sObservable[4] = {"Entries", "mass_mTop_JES", "mass_mTop", "JES_mTop_JES"};
 TString sObsLowCase[4] = {"Entries", "mass_mTop_JES", "mass_mTop", "JES_mTop_JES"};
 TString sObsFile[4]    = {"Entries", "MT2D", "MT1D", "JES"};
 TString sObsCanvas[4] = {"canvas_1", "canvas_2", "canvas_4", "canvas_3"};
-TString sObsNice[4] = {"Number of permutations / bin width", "m_{t}^{2D} - <m_{t}^{2D}> [GeV]", "m_{t}^{1D} - <m_{t}^{1D}> [GeV]", "JES - <JES>"};
-TString sObsNice2[4] = {"Number of permutations / bin width", "(m_{t}^{2D} - <m_{t}^{2D}>)_{MC} - (m_{t}^{2D} - <m_{t}^{2D}>)_{data} [GeV]", "(m_{t}^{1D} - <m_{t}^{1D}>)_{MC} - (m_{t}^{1D} - <m_{t}^{1D}>)_{data} [GeV]", "(JES - <JES>)_{MC} - (JES - <JES>)_{data}"};
+TString sObsNice[4] = {"Number of permutations / bin width", "m_{t}^{2D} - <m_{t}^{2D}> [GeV]", "m_{t}^{1D} - <m_{t}^{1D}> [GeV]", "JSF - <JSF>"};
+TString sObsNice2[4] = {"Number of permutations / bin width", "(m_{t}^{2D} - <m_{t}^{2D}>)_{MC} - (m_{t}^{2D} - <m_{t}^{2D}>)_{data} [GeV]", "(m_{t}^{1D} - <m_{t}^{1D}>)_{MC} - (m_{t}^{1D} - <m_{t}^{1D}>)_{data} [GeV]", "(JSF - <JSF>)_{MC} - (JSF - <JSF>)_{data}"};
 
 double chi2matrix[14][4];
 
@@ -158,7 +158,7 @@ void differentialMass(int iBinning = 0, int iObs = 2, bool batch = false)
   samples.push_back(sample(false, false, true, true, true, "Summer12_TTJets1725_MGDecays_P11", "MG, Pythia P11", kMagenta+1, 5, 27000000./1.7));
   samples.push_back(sample(false, false, true, true, true, "Summer12_TTJets1725_MGDecays_P11noCR", "MG, Pythia P11noCR", kCyan+1, 6, 27000000./1.7));
   //samples.push_back(sample(false, false, true, true, true, "powheg_herwig", "Powheg, Herwig 6", kOrange+2, 7, 27684235./1.7));
-  samples.push_back(sample(false, false, true, true, true, "Summer12_TTJets1725_mcatnlo_herwig", "MC@NLO, Herwig 6", kBlue+1, 2, 32852589./1.7));
+  samples.push_back(sample(false, false, true, true, true, "Summer12_TTJets1725_mcatnlo_herwig_fix", "MC@NLO, Herwig 6", kBlue+1, 2, 32852589./1.7));
   //samples.push_back(sample(false, false, true, true, true, "sherpa", "Sherpa", kYellow+1, 3, 44000000./1.7));
   //*/
   //
@@ -170,14 +170,14 @@ void differentialMass(int iBinning = 0, int iObs = 2, bool batch = false)
   
   for (it = samples.begin(); it != samples.end(); ++it) {
     if (it->data) {
-      TFile* inclFile     = new TFile("/afs/desy.de/user/m/mseidel/xxl/CMSSW_5_3_11/src/TopMass/Analyzer/plot/IdeogramMin_Run2012_top_fitTop1_0__M__.root");
+      TFile* inclFile     = new TFile("/afs/desy.de/user/m/mseidel/xxl/CMSSW_5_3_11/src/TopMass/Analyzer/plot/IdeogramMin_PtFixV2_Run2012.root");
       TCanvas* inclCanvas = (TCanvas*) inclFile  ->Get("canvas");
       TPad* inclPad       = (TPad*)    inclCanvas->GetPrimitive(sObsCanvas[iObs]);
       TH1F* inclProfile   = (TH1F*)    inclPad   ->GetPrimitive(sObservable[iObs]);
       it->incl            = inclProfile->GetBinContent(1);
       inclFile->Close();
       
-      it->file    = new TFile("/afs/desy.de/user/m/mseidel/xxl/CMSSW_5_3_11/src/TopMass/Analyzer/plot/IdeogramMin_Run2012_" + sData[iBinning] + ".root");
+      it->file    = new TFile("/afs/desy.de/user/m/mseidel/xxl/CMSSW_5_3_11/src/TopMass/Analyzer/plot/IdeogramMin_PtFixV2_Run2012_" + sData[iBinning] + ".root");
       it->canvas  = (TCanvas*) it->file  ->Get("canvas");
       it->pad     = (TPad*)    it->canvas->GetPrimitive(sObsCanvas[iObs]);
       it->profile = (TH1F*)    it->pad   ->GetPrimitive(sObservable[iObs]);
@@ -357,7 +357,7 @@ void differentialMass(int iBinning = 0, int iObs = 2, bool batch = false)
   //int ref = 0; // DATA
   double range = maxVal - minVal;
   double minRange = minVal - range * 0.1;
-  double maxRange = maxVal + range * 0.55;
+  double maxRange = maxVal + range * 0.75;
   if (iObs != 0) hNull->GetYaxis()->SetRangeUser(minRange, maxRange);
   else hNull->GetYaxis()->SetRangeUser(0, maxRange);
   hNull->GetXaxis()->SetTitle(sBinNice[iBinning]);
@@ -581,15 +581,15 @@ void differentialBatch() {
   double sum_ndf  = 0.;
   for (unsigned int b = 0; b < sizeof(sBinning) / sizeof(sBinning[0]); ++b) {
     printf("$%s$ & %2.2f & %2.2f & %2.2f & %1.0f \\\\ \n", sBinNice[b].Data(), chi2matrix[b][2], chi2matrix[b][3], chi2matrix[b][1], chi2matrix[b][0]);
-    if (pas[b]) {
+//    if (pas[b]) {
       chi2_m1d += chi2matrix[b][2];
       chi2_jes += chi2matrix[b][3];
       chi2_m2d += chi2matrix[b][1];
       sum_ndf  += chi2matrix[b][0];
-    }
+//    }
   }
   
-  printf("PAS chi2 & %2.2f & %2.2f & %2.2f & %1.0f \\\\ \n", chi2_m1d, chi2_jes, chi2_m2d, sum_ndf);
+  printf("Total & %2.2f & %2.2f & %2.2f & %1.0f \\\\ \n", chi2_m1d, chi2_jes, chi2_m2d, sum_ndf);
 }
 
 void differentialSys(int iBinning = 0) {
