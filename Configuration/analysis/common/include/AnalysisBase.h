@@ -434,9 +434,9 @@ private:
     TBranch* b_jetSecondaryVertex;
     TBranch* b_jetSecondaryVertexFlightDistanceValue;
     TBranch* b_jetSecondaryVertexFlightDistanceSignificance;
-    TBranch* b_jetSecondaryVertexTrack;
     TBranch* b_jetSecondaryVertexTrackJetIndex;
     TBranch* b_jetSecondaryVertexTrackVertexIndex;
+    TBranch* b_jetSecondaryVertexTrackSelectedTrackIndex;
     
     TBranch* b_met;
     TBranch* b_jetForMET;

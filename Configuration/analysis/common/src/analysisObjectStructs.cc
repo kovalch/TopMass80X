@@ -52,9 +52,9 @@ void RecoObjects::clear()
     jetSecondaryVertex_ = 0;
     jetSecondaryVertexFlightDistanceValue_ = 0;
     jetSecondaryVertexFlightDistanceSignificance_ = 0;
-    jetSecondaryVertexTrack_ = 0;
     jetSecondaryVertexTrackJetIndex_ = 0;
     jetSecondaryVertexTrackVertexIndex_ = 0;
+    jetSecondaryVertexTrackSelectedTrackIndex_ = 0;
     met_ = 0;
     jetJERSF_ = 0;
     jetsForMET_ = 0;

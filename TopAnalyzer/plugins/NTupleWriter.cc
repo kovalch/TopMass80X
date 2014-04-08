@@ -272,7 +272,7 @@ private:
     std::vector<LV> VjetSecondaryVertex;
     std::vector<double> VjetSecondaryVertexFlightDistanceValue;
     std::vector<double> VjetSecondaryVertexFlightDistanceSignificance;
-    std::vector<LV> VjetSecondaryVertexTrack;
+    std::vector<int> VjetSecondaryVertexTrackSelectedTrackIndex;
     std::vector<int> VjetSecondaryVertexTrackJetIndex;
     std::vector<int> VjetSecondaryVertexTrackVertexIndex;
     
@@ -1179,9 +1179,9 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
             VjetSelectedTrackIndex.push_back(i_jetProperties-jetPropertiesHandle->begin());  
         }
         
-        for (size_t iSecVertTrack=0;iSecVertTrack != i_jetProperties->jetSecondaryVertexTrack().size();iSecVertTrack++)
+        for (size_t iSecVertTrack=0;iSecVertTrack != i_jetProperties->jetSecondaryVertexTrackVertexIndex().size();iSecVertTrack++)
         {
-            VjetSecondaryVertexTrack.push_back(i_jetProperties->jetSecondaryVertexTrack().at(iSecVertTrack));
+            VjetSecondaryVertexTrackSelectedTrackIndex.push_back(i_jetProperties->jetSecondaryVertexTrackSelectedTrackIndex().at(iSecVertTrack));
             VjetSecondaryVertexTrackJetIndex.push_back(i_jetProperties-jetPropertiesHandle->begin());
             VjetSecondaryVertexTrackVertexIndex.push_back(i_jetProperties->jetSecondaryVertexTrackVertexIndex().at(iSecVertTrack));
         }
@@ -1434,7 +1434,7 @@ NTupleWriter::beginJob()
     Ntuple->Branch("jetSecondaryVertex", &VjetSecondaryVertex);
     Ntuple->Branch("jetSecondaryVertexFlightDistanceValue", &VjetSecondaryVertexFlightDistanceValue);
     Ntuple->Branch("jetSecondaryVertexFlightDistanceSignificance", &VjetSecondaryVertexFlightDistanceSignificance);
-    Ntuple->Branch("jetSecondaryVertexTrack", &VjetSecondaryVertexTrack);
+    Ntuple->Branch("jetSecondaryVertexTrackSelectedTrackIndex", &VjetSecondaryVertexTrackSelectedTrackIndex);
     Ntuple->Branch("jetSecondaryVertexTrackJetIndex", &VjetSecondaryVertexTrackJetIndex);
     Ntuple->Branch("jetSecondaryVertexTrackVertexIndex", &VjetSecondaryVertexTrackVertexIndex);
     
@@ -1621,7 +1621,7 @@ void NTupleWriter::clearVariables()
     VjetSecondaryVertex.clear();
     VjetSecondaryVertexFlightDistanceValue.clear();
     VjetSecondaryVertexFlightDistanceSignificance.clear();
-    VjetSecondaryVertexTrack.clear();
+    VjetSecondaryVertexTrackSelectedTrackIndex.clear();
     VjetSecondaryVertexTrackJetIndex.clear();
     VjetSecondaryVertexTrackVertexIndex.clear();
     

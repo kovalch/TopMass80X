@@ -106,6 +106,9 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     //edm::Handle<edm::View< pat::Jet > > jetHandle;
     iEvent.getByLabel(jets, jetHandle);
     
+    // The sum of the multiplicities of the jetSelectedTracks for all the jets before the jet that is currently analysed
+    // This variable is used so that we can give the proper value to the jetSecondaryVertexTrackSelectedTrackIndex
+    int JetSelTrackMultiplicity_total = 0; 
     
     for(std::vector<pat::Jet>::const_iterator i_jet = jetHandle->begin(); i_jet != jetHandle->end(); ++i_jet){
         
@@ -254,6 +257,27 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
             
         }
         
+        // Find the Index of the jetSelectedTracks that are matched to the jetSecondaryVertexTracks
+        std::vector<int> jetSecondaryVertexTrackSelectedTrackIndex;
+        
+        for(size_t iSecVertTrack=0; iSecVertTrack<jetSecondaryVertexTrackVertexIndex.size(); iSecVertTrack++) {
+                        
+            for(size_t iSelTrack=0; iSelTrack<jetSelectedTrack.size(); iSelTrack++) {
+                                
+                //require that their pt, eta and phi should be the same until an accuracy of 10^-10
+                if(std::abs(jetSelectedTrack.at(iSelTrack).pt()-jetSecondaryVertexTrack.at(iSecVertTrack).pt())>1.e-10 || 
+                    std::abs(jetSelectedTrack.at(iSelTrack).eta()-jetSecondaryVertexTrack.at(iSecVertTrack).eta())>1.e-10 || 
+                    std::abs(jetSelectedTrack.at(iSelTrack).phi()-jetSecondaryVertexTrack.at(iSecVertTrack).phi())>1.e-10) continue;
+                
+                //Find the proper index for the matched tracks
+                jetSecondaryVertexTrackSelectedTrackIndex.push_back(iSelTrack+JetSelTrackMultiplicity_total);
+            }
+        }
+        
+        for(size_t iSelTrack=0; iSelTrack<jetSelectedTrack.size(); iSelTrack++) {
+            JetSelTrackMultiplicity_total++; //find the total #SelectedTracks per event for all the jets
+        }
+        
         // Access Lorentz vector and PDG ID of parton associated to jet by PAT
         // If it does not exist, this can be identified by PDG ID =0
         int jetAssociatedPartonPdgId(0);
@@ -264,7 +288,7 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
             jetAssociatedParton = genParton->polarP4();
         }
         
-        JetProperties jetProperties(jetChargeGlobalPtWeighted, jetChargeRelativePtWeighted, jetAssociatedPartonPdgId, jetAssociatedParton, jetPfCandidateTrack, jetPfCandidateTrackCharge,jetPfCandidateTrackId, jetSelectedTrack, jetSelectedTrackIPValue, jetSelectedTrackIPSignificance, jetSelectedTrackCharge, jetSecondaryVertexTrack, jetSecondaryVertexTrackVertexIndex, jetSecondaryVertex, jetSecondaryVertexFlightDistanceValue, jetSecondaryVertexFlightDistanceSignificance);
+        JetProperties jetProperties(jetChargeGlobalPtWeighted, jetChargeRelativePtWeighted, jetAssociatedPartonPdgId, jetAssociatedParton, jetPfCandidateTrack, jetPfCandidateTrackCharge,jetPfCandidateTrackId, jetSelectedTrack, jetSelectedTrackIPValue, jetSelectedTrackIPSignificance, jetSelectedTrackCharge, jetSecondaryVertexTrackSelectedTrackIndex, jetSecondaryVertexTrackVertexIndex, jetSecondaryVertex, jetSecondaryVertexFlightDistanceValue, jetSecondaryVertexFlightDistanceSignificance);
         v_jetProperties->push_back(jetProperties);
         
         edm::LogVerbatim log("JetPropertiesProducer");
@@ -290,6 +314,7 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         jetSecondaryVertexFlightDistanceSignificance.clear();
         jetSecondaryVertexTrack.clear();
         jetSecondaryVertexTrackVertexIndex.clear();
+        jetSecondaryVertexTrackSelectedTrackIndex.clear();
         
     }
     
