@@ -182,15 +182,15 @@ void TopMassControlPlots::doPlots()
 
 	  hists.push_back(MyHistogram("pullChargedW1Prod1_W1Prod2_deltaR_0",
 			  "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxW1Prod1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitW1Prod2.Phi()-top.fitW1Prod1.Phi()),-(top.fitW1Prod2.Eta()-top.fitW1Prod1.Eta())))))",
-			  "sqrt(pow(top.fitW1Prod2.Eta()-top.fitW1Prod1.Eta(),2)+pow(top.fitW1Prod2.Phi()-top.fitW1Prod1.Phi(),2)) < 1.",
+			  "sqrt(pow(top.fitW1Prod2.Eta()-top.fitW1Prod1.Eta(),2)+pow(TVector2::Phi_mpi_pi(top.fitW1Prod2.Phi()-top.fitW1Prod1.Phi()),2)) < 1.",
 			  ";#theta_{pull,ch}^{q_{1} #rightarrow q_{2}}, #DeltaR < 1; Permutations", 20, 0, 3.1416));
 	  hists.push_back(MyHistogram("pullChargedW1Prod1_W1Prod2_deltaR_1",
 			  "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxW1Prod1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitW1Prod2.Phi()-top.fitW1Prod1.Phi()),-(top.fitW1Prod2.Eta()-top.fitW1Prod1.Eta())))))",
-			  "sqrt(pow(top.fitW1Prod2.Eta()-top.fitW1Prod1.Eta(),2)+pow(top.fitW1Prod2.Phi()-top.fitW1Prod1.Phi(),2)) > 1.",
+			  "sqrt(pow(top.fitW1Prod2.Eta()-top.fitW1Prod1.Eta(),2)+pow(TVector2::Phi_mpi_pi(top.fitW1Prod2.Phi()-top.fitW1Prod1.Phi()),2)) > 1.",
 			  ";#theta_{pull,ch}^{q_{1} #rightarrow q_{2}}, #DeltaR > 1; Permutations", 20, 0, 3.1416));
 	  hists.push_back(MyHistogram("pullChargedW1Prod1_W1Prod2_deltaR_2",
 			  "abs(TVector2::Phi_mpi_pi(jet.pullCharged[top.recoJetIdxW1Prod1].Phi()-(TMath::Pi()+TMath::ATan2(-(top.fitW1Prod2.Phi()-top.fitW1Prod1.Phi()),-(top.fitW1Prod2.Eta()-top.fitW1Prod1.Eta())))))",
-			  "sqrt(pow(top.fitW1Prod2.Eta()-top.fitW1Prod1.Eta(),2)+pow(top.fitW1Prod2.Phi()-top.fitW1Prod1.Phi(),2)) > 2.",
+			  "sqrt(pow(top.fitW1Prod2.Eta()-top.fitW1Prod1.Eta(),2)+pow(TVector2::Phi_mpi_pi(top.fitW1Prod2.Phi()-top.fitW1Prod1.Phi()),2)) > 2.",
 			  ";#theta_{pull,ch}^{q_{1} #rightarrow q_{2}}, #DeltaR > 2; Permutations", 20, 0, 3.1416));
   }
 
@@ -310,6 +310,11 @@ void TopMassControlPlots::doPlots()
 	  hists.push_back(MyHistogram("nChargedHadronsBJetM", "jet.nChargedHadrons", "jet.bTagCSV>0.679", ";N_{ch}; B Jets", 40, 0, 200));
 	  hists.push_back(MyHistogram("nChargedHadronsLJetT", "jet.nChargedHadrons", "jet.bTagCSV<0.898", ";N_{ch}; Non B Jets", 40, 0, 200));
 	  hists.push_back(MyHistogram("nChargedHadronsLJetM", "jet.nChargedHadrons", "jet.bTagCSV<0.679", ";N_{ch}; Non B Jets", 40, 0, 200));
+  }
+  
+  // b-tagging
+  if(plotSelectedForPlotting.find("JetBTag")!=plotSelectedForPlotting.end()){
+	  hists.push_back(MyHistogram("nBJet4", "(jet.bTagCSV[0]>0.679) + (jet.bTagCSV[1]>0.679) + (jet.bTagCSV[2]>0.679) + (jet.bTagCSV[3]>0.679)", "", ";N_{b jet}^{4}; Events", 5, 0, 5));
   }
 
   // event observables
@@ -603,7 +608,7 @@ void TopMassControlPlots::doPlots()
   // Lepton+jets channel
   else {
     if(plotSelectedForPlotting.find("StandardPlots")!=plotSelectedForPlotting.end()){
-      samples.push_back(MySample("Data", "Run2012", kData, kBlack));
+      samples.push_back(MySample("Data", "PtFixV2_Run2012", kData, kBlack));
       //samples.push_back(MySample("t#bar{t} w.o. b-regression", "Summer12_TTJets1725_1.00", kData, kBlack));
       samples.push_back(MySample("t#bar{t}", "Summer12_TTJets1725_1.00", kSig, kRed+1, 1, lumi_/1000.));
       samples.push_back(MySample("Z+Jets", "Summer12_ZJets", kBkg, kAzure-2, 1, lumi_/1000.));
@@ -799,6 +804,7 @@ void TopMassControlPlots::doPlots()
       //  boost::replace_all(tempSel, "&& jet.alternativeJet[3].Pt() > 60", "");
       //}
       TTreeFormula sel   ("sel"   ,  tempSel.c_str(), chain);
+      
       TTreeFormula selCP ("selCP" , (po::GetOptionReplaced("analysisConfig.selection",sample.replaceVar)
 				 +std::string(" & ")+po::GetOptionReplaced("analysisConfig.selectionCP",sample.replaceVar)).c_str(), chain);
       TTreeFormula selWP ("selWP" , (po::GetOptionReplaced("analysisConfig.selection",sample.replaceVar)
@@ -945,7 +951,7 @@ void TopMassControlPlots::doPlots()
     }
     if (firstHist) std::cout << "Background: " << integralB << std::endl;
     if (firstHist) std::cout << "MC Total:   " << integralS+integralB << std::endl;
-    if (firstHist) std::cout << "fSig: " << integralS/integralD << std::endl;
+    if (firstHist) std::cout << "fSig: " << integralS/(integralS+integralB) << std::endl;
     firstHist = false;
     
     // Alljets: Normalize to data, use fixed signal fraction
@@ -1210,21 +1216,23 @@ void TopMassControlPlots::doPlots()
       leg0->SetTextSize(0.04);
       leg0->SetFillStyle(0);
       leg0->SetBorderSize(0);
-      for(TH1F* sig : hist.Sig1D())
-        if(!(channelID == Helper::kAllJets && TString(sig->GetTitle()).Contains("unmatched"))) leg0->AddEntry( sig, sig->GetTitle(), "F" );
+      if (po::GetOption<bool>("analysisConfig.plotPermutations")) {
+        for(TH1F* sig : hist.Sig1D())
+          if(!(channelID == Helper::kAllJets && TString(sig->GetTitle()).Contains("unmatched"))) leg0->AddEntry( sig, sig->GetTitle(), "F" );
+      }
       leg0->Draw();
 
       TLegend *leg1 = new TLegend(0.6, 0.75, 0.9, 0.925);
       leg1->SetTextSize(0.04);
       leg1->SetFillStyle(0);
       leg1->SetBorderSize(0);
+      if (!(po::GetOption<bool>("analysisConfig.plotPermutations"))) leg1->AddEntry( hist.Sig1D()[0], "t#bar{t}", "F" );
       for(TH1F* bkg : hist.Bkg1D()) leg1->AddEntry( bkg, bkg->GetTitle(), "F" );
       hist.DataContainsMC()==false ? leg1->AddEntry( hist.Data1D(), hist.Data1D()->GetTitle(), "P" ) : leg1->AddEntry( hist.Data1D(), hist.Data1D()->GetTitle(), "L" );
       leg1->Draw();
 
-      helper->DrawCMS();
-
       gPad->RedrawAxis();
+      helper->DrawCMS();
 
       canv->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+outPath_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string(".eps")).c_str(),"eps");
       canv->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+outPath_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string(".png")).c_str(),"png");
@@ -1280,12 +1288,13 @@ void TopMassControlPlots::doPlots()
       leg1->Draw();
 
       canvWRatio->cd();
-
-      helper->DrawCMS();
+      
       gPad->RedrawAxis();
+      helper->DrawCMS();
 
       canvWRatio->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+outPath_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_Ratio.eps")).c_str(),"eps");
       canvWRatio->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+outPath_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_Ratio.png")).c_str(),"png");
+      canvWRatio->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+outPath_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_Ratio.root")).c_str(),"root");
 
       hist.Data1D()->SetLabelSize(oldLabelSize);
       hist.Data1D()->SetTitleSize(oldTitleSize);
