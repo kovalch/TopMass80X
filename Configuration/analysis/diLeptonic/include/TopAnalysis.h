@@ -181,16 +181,6 @@ class TopAnalysis : public AnalysisBase
 
     /// Histograms for event weights due to specific scale factor
     TH1 *h_PUSF, *h_TrigSF, *h_LepSF, *h_BTagSF, *h_KinRecoSF, *h_EventWeight;
-
-    /// Control Plots
-    TH1 *h_LeptonEta_step2, *h_LeptonpT_step2, *h_JetsEta_step2, *h_JetspT_step2;
-    TH1 *h_LeptonEta_step3, *h_LeptonpT_step3, *h_JetsEta_step3, *h_JetspT_step3;
-    TH1 *h_LeptonEta_step4, *h_LeptonpT_step4, *h_JetsEta_step4, *h_JetspT_step4;
-    TH1 *h_LeptonEta_step5, *h_LeptonpT_step5, *h_JetsEta_step5, *h_JetspT_step5;
-    TH1 *h_LeptonEta_step6, *h_LeptonpT_step6, *h_JetsEta_step6, *h_JetspT_step6;
-    TH1 *h_LeptonEta_step7, *h_LeptonpT_step7, *h_JetsEta_step7, *h_JetspT_step7;
-    TH1 *h_LeptonEta_step8, *h_LeptonpT_step8, *h_JetsEta_step8, *h_JetspT_step8;
-    TH1 *h_LeptonEta_step9, *h_LeptonpT_step9, *h_JetsEta_step9, *h_JetspT_step9;
     
     ///Ievgen
        TH1 *h_signalTopEvents_vs_JetMult; 

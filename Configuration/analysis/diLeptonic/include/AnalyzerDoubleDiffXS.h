@@ -1,5 +1,5 @@
-#ifndef AnalyzerControlPlots_h
-#define AnalyzerControlPlots_h
+#ifndef AnalyzerDoubleDiffXS_h
+#define AnalyzerDoubleDiffXS_h
 
 #include <map>
 #include <vector>
@@ -23,15 +23,15 @@ namespace ttbar{
 
 
 /// Class for basic histograms that are filled simultaneously for any step
-class AnalyzerControlPlots : public AnalyzerBaseClass{
+class AnalyzerDoubleDiffXS : public AnalyzerBaseClass{
 
 public:
     
     /// Constructor
-    AnalyzerControlPlots(const std::vector<TString>& selectionStepsNoCategories);
+    AnalyzerDoubleDiffXS(const std::vector<TString>& selectionStepsNoCategories);
 
     /// Destructor
-    ~AnalyzerControlPlots(){}
+    ~AnalyzerDoubleDiffXS(){}
 
 
 

@@ -18,6 +18,7 @@
 
 #include "AnalyzerBaseClass.h"
 #include "AnalyzerControlPlots.h"
+#include "AnalyzerDoubleDiffXS.h"
 #include "../../common/include/CommandLineParameters.h"
 #include "../../common/include/utils.h"
 #include "../../common/include/ScaleFactors.h"
@@ -168,7 +169,10 @@ void load_Analysis(const TString& validFilenamePattern,
     analyzerControlPlots = new AnalyzerControlPlots({"1", "2", "3", "4", "5", "6", "7", "8"});
     v_analyzer.push_back(analyzerControlPlots);
     
-    
+    // Set up dda histograms
+    AnalyzerDoubleDiffXS* analyzerDoubleDiffXS(0);
+    analyzerDoubleDiffXS = new AnalyzerDoubleDiffXS({"8"});
+    v_analyzer.push_back(analyzerDoubleDiffXS);
     
     // Set up the analysis
     TopAnalysis *selector = new TopAnalysis();

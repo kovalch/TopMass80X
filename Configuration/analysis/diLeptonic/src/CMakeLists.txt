@@ -13,6 +13,7 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   analysisStructs
   AnalyzerBaseClass
   AnalyzerControlPlots
+  AnalyzerDoubleDiffXS
   plotterclass
   DilepSVDFunctions
   )

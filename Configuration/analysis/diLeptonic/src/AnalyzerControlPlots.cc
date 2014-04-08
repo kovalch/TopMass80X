@@ -50,6 +50,10 @@ void AnalyzerControlPlots::bookHistos(const TString& step, std::map<TString, TH1
     //m_histogram[name] = this->store(new TH1D(prefix_+name+step,"Lepton d_{xy};d_{xy}^{l} [cm];Events",60,-0.25,0.25));
     //name = "lepton_dz";
     //m_histogram[name] = this->store(new TH1D(prefix_+name+step,"Lepton d_{z};d_{z} [cm];Events",60,-1,1));
+    name = "lepton2lead_pt";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step,"p_{t} of 2 leading leptons;p_{t}^{l} [GeV];Leptons", 80, 0, 400));
+    name = "lepton2lead_eta";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "#eta of 2 leading leptons;#eta^{l};Leptons",20,-2.4,2.4));
     
     // Leading lepton and antilepton
     name = "lepton1st_pt";
@@ -100,6 +104,11 @@ void AnalyzerControlPlots::bookHistos(const TString& step, std::map<TString, TH1
     //m_histogram[name] = this->store(new TH1D(prefix_+name+step, "jetChargeGlobalPtWeighted c_{glob}^{jet}; c_{glob}^{jet};# jets", 110, -1.1, 1.1));
     name = "jet_chargeRelativePtWeighted";
     //m_histogram[name] = this->store(new TH1D(prefix_+name+step, "jetChargeRelativePtWeighted c_{rel}^{jet}; c_{rel}^{jet};# jets", 110, -1.1, 1.1));
+    name = "jet2lead_pt";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step,"p_{t} of 2 leading jets;p_{t}^{jet} [GeV];Jets", 80, 0, 400));
+    name = "jet2lead_eta";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "#eta of 2 leading jets;#eta^{jet};Jets",20,-2.4,2.4));
+    
     
     // Bjets
     name = "bjet_multiplicity";
@@ -149,6 +158,13 @@ void AnalyzerControlPlots::fillHistos(const RecoObjects& recoObjects, const Comm
         //m_histogram["lepton_dxy"]->Fill(recoObjects.lepDxyVertex0_->at(index), weight);
     }
     
+    if(recoObjectIndices.allLeptonIndices_.size()>1){
+        m_histogram["lepton2lead_eta"]->Fill((*recoObjects.allLeptons_).at(recoObjectIndices.allLeptonIndices_.at(0)).Eta(), weight);
+        m_histogram["lepton2lead_pt"]->Fill((*recoObjects.allLeptons_).at(recoObjectIndices.allLeptonIndices_.at(0)).Pt(), weight);
+        m_histogram["lepton2lead_eta"]->Fill((*recoObjects.allLeptons_).at(recoObjectIndices.allLeptonIndices_.at(1)).Eta(), weight);
+        m_histogram["lepton2lead_pt"]->Fill((*recoObjects.allLeptons_).at(recoObjectIndices.allLeptonIndices_.at(1)).Pt(), weight);
+    }
+    
     const int leptonIndex = recoObjectIndices.leptonIndices_.size()>0 ? recoObjectIndices.leptonIndices_.at(0) : -1;
     const int antiLeptonIndex = recoObjectIndices.antiLeptonIndices_.size()>0 ? recoObjectIndices.antiLeptonIndices_.at(0) : -1;
     const bool hasLeptonPair = (leptonIndex!=-1 && antiLeptonIndex!=-1);
@@ -167,7 +183,6 @@ void AnalyzerControlPlots::fillHistos(const RecoObjects& recoObjects, const Comm
         //m_histogram["lepton2nd_eta"]->Fill(recoObjects.allLeptons_->at(nLeadingLeptonIndex).Eta(), weight);
         //m_histogram["lepton2nd_phi"]->Fill(recoObjects.allLeptons_->at(nLeadingLeptonIndex).Phi(), weight);
     }
-    
     
     // Dilepton
     if(hasLeptonPair){
@@ -200,6 +215,12 @@ void AnalyzerControlPlots::fillHistos(const RecoObjects& recoObjects, const Comm
         //m_histogram["jet_chargeRelativePtWeighted"]->Fill(recoObjects.jetChargeRelativePtWeighted_->at(index), weight);
     }
     
+    if(recoObjectIndices.jetIndices_.size()>1){
+        m_histogram["jet2lead_eta"]->Fill((*recoObjects.jets_).at(0).Eta(), weight);
+        m_histogram["jet2lead_pt"]->Fill((*recoObjects.jets_).at(0).Pt(), weight);
+        m_histogram["jet2lead_eta"]->Fill((*recoObjects.jets_).at(1).Eta(), weight);
+        m_histogram["jet2lead_pt"]->Fill((*recoObjects.jets_).at(1).Pt(), weight);
+    }
     
     // Bjets
      m_histogram["bjet_multiplicity"]->Fill(recoObjectIndices.bjetIndices_.size(), weight);
