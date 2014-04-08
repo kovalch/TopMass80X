@@ -336,10 +336,20 @@ TH1* HelperFunctions::createRatioPlot(const TH1 *h1, const TH1 *h2, const std::s
   assert( h1->GetNbinsX() == h2->GetNbinsX() );
   std::string name = (std::string("Ratio_") + h1->GetName())+h2->GetName();
   TH1 *hRatio = static_cast<TH1*>(h1->Clone(name.c_str()));
+  TH1 *h2Temp = static_cast<TH1*>(h2->Clone("h2Temp"));
+  if(h1==h2){
+	  std::cout << "both histograms are the same; setting demoninator errors to zero" << std::endl;
+	  for(int i=1; i<h2Temp->GetNbinsX();i++){
+		  h2Temp->SetBinError(i,0);
+	  }
+  }
   hRatio->SetMarkerStyle(h1->GetMarkerStyle());
   hRatio->SetMarkerColor(h1->GetLineColor());
   hRatio->SetYTitle(yTitle.c_str());
-  hRatio->Divide(h2);
+//  hRatio->Divide(h2);
+  hRatio->Divide(h2Temp);
+  hRatio->GetYaxis()->SetRangeUser(0,-1);
+  delete h2Temp;
   return hRatio;
 }
 
@@ -442,5 +452,20 @@ if( h->Fit(gauss,"0QIR","",mean-sig,mean+sig) == 0 ) {
   return result;
 }
 
+// -------------------------------------------------------------------------------------
+bool HelperFunctions::equidistLogBins(std::vector<double>& binEdges, double min, double max, bool logarithm) {
+  if( binEdges.size() < 2 ) return false;
+  if( (min <= 0. && logarithm) || (max <= 0. && logarithm) || min >= max ) return false;
+
+  binEdges.front() = min;
+  binEdges.back() = max;
+  const double minLog = log10(binEdges.front());
+  const double maxLog = log10(binEdges.back());
+  for(unsigned int i = 1; i < binEdges.size()-1; ++i) {
+	  if(logarithm)binEdges.at(i) = pow(10., minLog + i*(maxLog-minLog)/(binEdges.size()-1));
+	  else binEdges.at(i) = min + i*(max-min)/(binEdges.size()-1);
+  }
+  return true;
+}
 
 

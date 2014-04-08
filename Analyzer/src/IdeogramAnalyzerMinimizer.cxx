@@ -27,9 +27,11 @@ IdeogramAnalyzerMinimizer::IdeogramAnalyzerMinimizer(const std::string& identifi
     MassAnalyzer(identifier, tree),
     sample_(*(new DataSample())),
     channelID_(Helper::channelID()),
-    isFastSim_                    (po::GetOption<int   >("fastsim"  )),
-    shapeSystematic_              (po::GetOption<double>("shape"    )),
-    permutationFractionSystematic_(po::GetOption<double>("permu"    ))
+    entries_(0),
+    maxPermutations_              (po::GetOption<int   >("analysisConfig.maxPermutations")),
+    isFastSim_                    (po::GetOption<int   >("fastsim")),
+    shapeSystematic_              (po::GetOption<double>("shape"  )),
+    permutationFractionSystematic_(po::GetOption<double>("permu"  ))
     //topBranchName_                (po::GetOption<std::string>("topBranchName"))
 {
 }
@@ -65,8 +67,10 @@ void IdeogramAnalyzerMinimizer::Scan(const std::string& cuts, int iBin, int jBin
       std::vector<IdeogramCombLikelihood*> permutationFunctions;
       
       if (channelID_ == Helper::kAllJets) {
-        permutationFunctions.push_back(new IdeogramCombLikelihoodAllJets());
-        permutationFunctions.back()->SetActive(false);
+        for (int iComb = 0; iComb < maxPermutations_; ++iComb) {
+          permutationFunctions.push_back(new IdeogramCombLikelihoodAllJets());
+          permutationFunctions.back()->SetActive(false);
+        }
       }
       else {
         for (int iComb = 0; iComb < 4; ++iComb) {

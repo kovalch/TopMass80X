@@ -42,6 +42,9 @@ Skimmer::Skimmer()
   //std::string samplePath("dcap://dcache-cms-dcap.desy.de//pnfs/desy.de/cms/tier2/store/user/eschliec/TopMassTreeWriter_04_DataMix01/");
   std::string outputPath("/nfs/dust/cms/user/eschliec/TopMass/2012/Skim_04/");
 
+  if(po::GetOption<std::string>("task") == "local")
+    outputPath = "";
+
   std::string inputFolder = po::GetOption<std::string>("input");
   std::string inputSample = po::GetOption<std::string>("outPath");
 

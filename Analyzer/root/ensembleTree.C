@@ -184,9 +184,10 @@ void ensembleTree()
   canvasFit->cd();
   
   //// Get histos
-  TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140305_1201/");
-  //sFile += "ensemble_S12_Uncalibrated.root";
-  sFile += "ensemble_S12_Calibrated.root";
+  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140317_1201/");
+  TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140401_1200/");
+  sFile += "ensemble_S12_Uncalibrated.root";
+  //sFile += "ensemble_S12_Calibrated.root";
 
   std::cout << "Doing calibration on: " << sFile << std::endl;
   TFile* fEnsemble = new TFile(sFile);

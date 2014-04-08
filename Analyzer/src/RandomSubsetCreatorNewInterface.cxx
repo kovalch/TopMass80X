@@ -51,7 +51,12 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface(const std::vect
 
   if (channelID_ == Helper::kAllJets) {
     PrepareEvents(samplePath_+fIdentifier_+std::string(".root"));
-    if(fLumi_>0) PrepareEvents(samplePath_+"QCDMixing_MJPS12_v1_data.root");
+    if(fLumi_>0){
+      if(fIdentifier_.find("BackgroundSystematic")!=std::string::npos)
+        PrepareEvents(samplePath_+"QCDMixing_Z2_S12_Madspin_sig.root");
+      else
+        PrepareEvents(samplePath_+"QCDMixing_MJPS12_v1_data.root");
+    }
   }
   if (channelID_ == Helper::kMuonJets || channelID_ == Helper::kLeptonJets) {
     PrepareEvents(samplePath_+fIdentifier_+std::string("_muon/job_*.root"));
