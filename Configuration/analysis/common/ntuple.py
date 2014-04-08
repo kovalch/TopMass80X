@@ -318,7 +318,7 @@ getattr(process,'selectedPatMuons'+pfpostfix).cut = 'isPFMuon && pt > 20 && abs(
 ####################################################################
 ## Set up selections for PF2PAT & PAT objects: Jets
 
-process.selectedPatJets.cut = 'abs(eta)<5.4'
+getattr(process,'selectedPatJets'+pfpostfix).cut = 'abs(eta)<5.4'
 
 
 ####################################################################
