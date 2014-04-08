@@ -1040,9 +1040,9 @@ void AnalysisBase::GetTopSignalBranchesEntry(const Long64_t& entry)const
     if(b_genBHadIndex) b_genBHadIndex->GetEntry(entry);
     if(b_genBHadFlavour) b_genBHadFlavour->GetEntry(entry);
     if(b_genBHadJetIndex) b_genBHadJetIndex->GetEntry(entry);
-    //if(b_genBHadLeptonIndex) b_genBHadLeptonIndex->GetEntry(entry);
-    //if(b_genBHadLeptonHadronIndex) b_genBHadLeptonHadronIndex->GetEntry(entry);
-    //if(b_genBHadLeptonViaTau) b_genBHadLeptonViaTau->GetEntry(entry);
+    if(b_genBHadLeptonIndex) b_genBHadLeptonIndex->GetEntry(entry);
+    if(b_genBHadLeptonHadronIndex) b_genBHadLeptonHadronIndex->GetEntry(entry);
+    if(b_genBHadLeptonViaTau) b_genBHadLeptonViaTau->GetEntry(entry);
     if(b_genBHadFromTopWeakDecay) b_genBHadFromTopWeakDecay->GetEntry(entry);
     if(b_genExtraTopJetNumberId) b_genExtraTopJetNumberId->GetEntry(entry);
 }
