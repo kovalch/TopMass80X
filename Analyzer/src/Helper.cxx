@@ -395,7 +395,7 @@ void HelperFunctions::findYRange(const TH1 *h, double& min, double& max) {
 
 
 // -------------------------------------------------------------------------------------
-void HelperFunctions::setCommonYRange(std::vector <TH1 *> histos, double RelTopOffset) {
+void HelperFunctions::setCommonYRange(std::vector <TH1 *> histos, double RelTopOffset, double logMin) {
   if(histos.size()>0){
     double min = 0.;
     double max = 0.;
@@ -408,7 +408,8 @@ void HelperFunctions::setCommonYRange(std::vector <TH1 *> histos, double RelTopO
       if( maxTmp > max ) max = maxTmp;
     }
     for(unsigned int i = 0; i < histos.size(); i++) {
-      histos.at(i)->GetYaxis()->SetRangeUser(min-((max-min)*0.1),(max-min)/(1-RelTopOffset)+min);
+      if(logMin>0) histos.at(i)->GetYaxis()->SetRangeUser(logMin, logMin* pow(max/min, 1./ (1-RelTopOffset)));
+      else histos.at(i)->GetYaxis()->SetRangeUser(min-((max-min)*0.1),(max-min)/(1-RelTopOffset)+min);
     }
   }
 }
@@ -465,6 +466,14 @@ bool HelperFunctions::equidistLogBins(std::vector<double>& binEdges, double min,
 	  else binEdges.at(i) = min + i*(max-min)/(binEdges.size()-1);
   }
   return true;
+}
+
+
+// -------------------------------------------------------------------------------------
+std::string HelperFunctions::addProperArrayIndex(std::string inputexpression, std::string arrayIndex) {
+  boost::replace_all(inputexpression,"/",arrayIndex + "/");
+  inputexpression+=arrayIndex;
+  return inputexpression;
 }
 
 

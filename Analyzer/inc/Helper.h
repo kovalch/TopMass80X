@@ -49,9 +49,10 @@ namespace HelperFunctions {
   TH1* createRatioPlot(const TH1 *h1, const TH1 *h2, const std::string &yTitle);
   std::string cleanedName(std::string toBeCleaned);
   void findYRange(const TH1 *h, double& min, double& max);
-  void setCommonYRange(std::vector <TH1 *> histos, double RelTopOffset=0);
+  void setCommonYRange(std::vector <TH1 *> histos, double RelTopOffset=0, double logMin =-1.);
   bool fitCoreWidth(const TH1* hist, double nSig, TF1* &gauss, double &width, double &widthErr, double &rms, double &rmsErr);
   bool equidistLogBins(std::vector<double>& binEdges, double min, double max, bool logarithm=true);
+  std::string addProperArrayIndex(std::string inputexpression, std::string arrayIndex="");
 }
 
 #endif
