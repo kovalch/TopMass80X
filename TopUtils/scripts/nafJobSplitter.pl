@@ -19,13 +19,9 @@ use constant C_FILE => 'bold';
 use constant C_ERROR => 'red bold';
 use constant C_RESUBMIT => 'magenta';
 
-
-
 ########################
 ### PROGRAM BEGINS
 ########################
-
-
 
 my %args;
 getopts('SsbW:kJjp:P:q:o:m:t:c:O:d:nQ:M:D:', \%args);
@@ -209,7 +205,6 @@ sub getDatasetPythonFile {
     return qq{\ncopyjson=False\nif(hasattr(process.source,'lumisToProcess')):\n\tlumisToProcess=process.source.lumisToProcess\n\tcopyjson=True\nprocess.load("$localFileName")\nif copyjson:\n\tprocess.source.lumisToProcess=lumisToProcess};
 #     return qq{process.load("TopAnalysis.Configuration.$localFileName")};
 }
-
 
 sub submitNewJob {
     my ($numberOfJobs, $config) = @_;
@@ -626,7 +621,7 @@ if [ -e $current/naf_DIRECTORY/out$SGE_TASK_ID.txt.part.1 ] ; then
     if [ -z "CMSRUNPARAMETER" ] ; then
         PARAMS="skipEvents=$NSkip"
     else
-        PARAMS="CMSRUNPARAMETER,skipEvents=$NSkip"
+        PARAMS="CMSRUNPARAMETER skipEvents=$NSkip"
     fi
     
     PYTHONDONTWRITEBYTECODE=1 cmsRun -j $tmp/jobreport.xml $tmp/run.py $PARAMS
@@ -743,7 +738,6 @@ sub getDiskLimit {
     return $dlimit;
 }
 
-
 sub getGroupID {
     my $gid = $ENV{NJS_GROUPID} || "af-cms";
     my $mygroups=`id`;
@@ -753,7 +747,6 @@ sub getGroupID {
     print "using group $gid\n";
     return $gid;
 }
-
 
 ################################################################################################
 ##  Classes to read qstat
@@ -772,7 +765,7 @@ sub peek {
     if ($self->queue() =~ /\@(.+)/) {
         print "Please wait, this can take up to a few minutes...\n";
         my $jid = $self->fullId();
-        system("qrsh -l h_rt=00:01:00 -l h=$1 -l h_vmem=100M -now n 'sh -c \"cd \$TMP; cd ../$jid.*/njs_*/; tail -f stdout.txt\"'");
+        system("qrsh -l h_rt=00:01:00 -l h=$1 -l h_vmem=400M -now n 'cat \$TMP/../$jid.*/njs_*/stdout.txt'");
     } else {
         die "Didn't find hostname\n";
     }
