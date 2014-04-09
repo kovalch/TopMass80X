@@ -45,7 +45,8 @@ private:
       plotRangeYRatioMax(po::GetOption<double>("analysisConfig.ratioYMax")),
       data(new TH1F((std::string("hD")+name).c_str(), (std::string("Data")+title).c_str(), nBins, min, max)),
       histogramDimension(1), dataContainsMC(false), fitGaussToCore(false), 
-      exportSigVarToRoot(false), logX(false), logY(false)
+      exportSigVarToRoot(false), logX(false), logY(false),
+      plotStackNorm(false)
     {
 
       SetDataStyle(data);
@@ -55,9 +56,12 @@ private:
       varx(0), vary(0), sel(0), histoweight(0),
       name(name_), selection(selection_),CustomHistoWeight("1."),
       formulaex(formulaex_), formulaey({"1."}),legendHeader(""),
+      plotRangeYMin(-99), plotRangeYMax(-99), plotRangeYRatioMin(po::GetOption<double>("analysisConfig.ratioYMin")),
+      plotRangeYRatioMax(po::GetOption<double>("analysisConfig.ratioYMax")),
       data(new TH1F((std::string("hD")+name).c_str(), (std::string("Data")+title).c_str(), nBins, min, max)),
       histogramDimension(1), dataContainsMC(false), fitGaussToCore(false), 
-      exportSigVarToRoot(false), logX(false), logY(false)
+      exportSigVarToRoot(false), logX(false), logY(false),
+      plotStackNorm(false)
    {
       SetDataStyle(data);
     }
@@ -70,7 +74,8 @@ private:
       plotRangeYRatioMax(po::GetOption<double>("analysisConfig.ratioYMax")),
       data(new TH2F((std::string("h2D")+name).c_str(), (std::string("Data")+title).c_str(), x_nBins, x_min, x_max, y_nBins, y_min, y_max)),
       histogramDimension(2), dataContainsMC(false), fitGaussToCore(false), 
-      exportSigVarToRoot(false), logX(false), logY(false)
+      exportSigVarToRoot(false), logX(false), logY(false),
+      plotStackNorm(false)
     {
       SetDataStyle(data);
     }
@@ -83,7 +88,8 @@ private:
       plotRangeYRatioMax(po::GetOption<double>("analysisConfig.ratioYMax")),
       data(new TH2F((std::string("h2D")+name).c_str(), (std::string("Data")+title).c_str(), x_nBins, x_min, x_max, y_nBins, y_min, y_max)),
       histogramDimension(2), dataContainsMC(false), fitGaussToCore(false), 
-      exportSigVarToRoot(false), logX(false), logY(false)
+      exportSigVarToRoot(false), logX(false), logY(false),
+      plotStackNorm(false)
    {
       SetDataStyle(data);
     }
@@ -149,16 +155,27 @@ private:
     }
     void AddSignal(MySample* sample)
     {
-      int colorShift[] =  {0, -8, -11};
-      std::string combinationType[] = {" correct", " wrong", " unmatched"};
-      for(int i = 0; i < 3; ++i) {
+      Helper* helpertemp = new Helper();
+      std::vector<std::string> reuseCombinationTypes = helpertemp->readParametersString("analysisConfig.renameCombinationTypes");
+      std::vector<double> redefineColorShifts = helpertemp->readParameters("analysisConfig.redefineCombinationTypeColorShifts");
+      
+      if(redefineColorShifts.size()!=reuseCombinationTypes.size() || reuseCombinationTypes.size()>3){
+	std::cout << "Size of analysisConfig.renameCombinationTypes and analysisConfig.redefineCombinationTypeColorShifts configurations do not match or are larger than 3 (currently just reusing correct/wrong/unmatched slots); Check config... exiting!" << std::endl;
+	std::_Exit(99);
+      }
+      
+      //      int colorShift[] =  {0, -8, -11};
+      //      std::string combinationType[] = {" correct", " wrong", " unmatched"};
+      for(unsigned int i = 0; i < redefineColorShifts.size(); ++i) { //has to be smaller than 3 so far
         sig.push_back((TH1*)data->Clone());
         sig.back()->Reset();
         sig.back()->SetLineWidth(1);
-        sig.back()->SetFillColor(sample->color+colorShift[i]);
-        sig.back()->SetName(HelperFunctions::cleanedName(data->GetName()+sample->name + combinationType[i]).c_str());
-        sig.back()->SetTitle((sample->name + combinationType[i]).c_str());
+        sig.back()->SetFillColor(sample->color+redefineColorShifts[i]);
+        sig.back()->SetName(HelperFunctions::cleanedName(data->GetName()+sample->name + reuseCombinationTypes[i]).c_str());
+        sig.back()->SetTitle((sample->name + reuseCombinationTypes[i]).c_str());
       }
+      
+      delete helpertemp;
     }
     void AddBackground(MySample* sample)
     {
@@ -205,6 +222,10 @@ private:
       return (TH1F*) data;
     }
 
+    void setData1D(TH1F* newData){
+      data = newData;
+    }
+
     std::vector<TH2F*> Sigvar2D(){
       std::vector<TH2F*> sigvar2D;
       if(histogramDimension == 2){
@@ -244,6 +265,8 @@ private:
 
     void ConfigureExtraOptions(bool SetFitGaussToCore, std::string SetCustomHistoweight="1.", bool ExportSigVarToRoot = false, std::string LegendHeader="", bool useLogXBins = false, bool setLogYOnPads = false, bool useLogYBins = false);
 
+    void ConfigureMoreExtraOptions(bool plotStackNormalized=false);
+
     void ConfigurePlotRanges(double PlotRangeYRatioMin, double PlotRangeYRatioMax, double PlotRangeYMin=-99, double PlotRangeYMax=-99);
 
 
@@ -267,6 +290,10 @@ private:
       return logY;
     }
 
+    bool PlotStackNorm(){
+      return plotStackNorm;
+    }
+
 
     std::vector<TTreeFormula*> varx;
     std::vector<TTreeFormula*> vary;
@@ -282,9 +309,7 @@ private:
     short histogramDimension;
     bool dataContainsMC;
     bool fitGaussToCore;
-    bool exportSigVarToRoot;
-    bool logX;
-    bool logY;
+    bool exportSigVarToRoot, logX, logY, plotStackNorm;
   };
 
   class MyBRegVarInfo{
@@ -344,16 +369,18 @@ private:
         addVariable("#rho_{25}"                               , "BRegJet.Rho25"                     , 0   , 50    );
         addVariable("jet area"                                , "BRegJet.jetArea"                   , 0.5 , 1     );
         addVariable("width in #varphi"                        , "BRegJet.EtWeightedSigmaPhi"        , 0   , 0.3   );  //5 width and PU
-        addVariable("leading chargedConstPt"                  , "BRegJet.leadingChargedConstPt"     , 0   , 200   );
+        addVariable("leading chargedConstPt"                  , "BRegJet.leadingChargedConstPt"     , 0   , 200   ); 
+        addVariable("p_{T}^{leading charged const.}/corr. p_{T}", "BRegJet.leadingChargedConstPt/BRegJet.jetPtCorr"     , 0   , 1   );
         addVariable("CHF"                                     , "jet.fChargedHadron"                , 0   , 1     );
         addVariable("electron fraction"                       , "jet.fElectron"                     , 0   , 1     );
         addVariable("muon fraction"                           , "jet.fMuon"                         , 0   , 1     );  //9 charged constituents
-        addVariable("electron fraction_2"                     , "jet.fElectron"                     , 0.01, 1     );
-        addVariable("muon fraction_2"                         , "jet.fMuon"                         , 0.01, 1     );  //9 charged constituents
+        addVariable("electron fraction "                      , "jet.fElectron"                     , 0.01, 1     );
+        addVariable("muon fraction "                          , "jet.fMuon"                         , 0.01, 1     );  //9 charged constituents
         addVariable("SV flight length"                        , "BRegJet.SV3DLength"                , 0   , 5     );
         addVariable("SV flight length unc."                   , "BRegJet.SV3DLengthError"           , 0   , 1     );
         addVariable("SV mass"                                 , "BRegJet.SVMass"                    , 0   , 20    );
         addVariable("SV p_{T}"                                , "BRegJet.SVPt"                      , 0   , 200   );
+        addVariable("relative SV p_{T} fraction"              , "BRegJet.SVPt/BRegJet.jetPtCorr"    , 0   , 1     );
         addVariable("CSV b-tag"                               , "jet.bTagCSV"                       , 0   , 1     );  //14 SVtx and btag
         addVariable("p_{T}^{SoftMuon}"                        , "BRegJet.SoftMuonPt"                , 0   , 200   );
         addVariable("relative p_{T}^{SoftMuon} fraction"      , "BRegJet.SoftMuonRatioRel"          , 0   , 2     );
@@ -362,6 +389,7 @@ private:
         addVariable("relative p_{T}^{SoftElectron} fraction"  , "BRegJet.SoftElectronRatioRel"      , 0   , 2     );
         addVariable("#Delta R(SoftElectron)"                  , "BRegJet.SoftElectronDeltaR"        , 0   , 0.5   );  //20 soft lepton variables
         addVariable("raw p_{T}"                               , "BRegJet.jetPtRaw"                  , 0   , 500   );
+        addVariable("JES corr. factor"                        , "BRegJet.jetPtCorr/BRegJet.jetPtRaw", 0   , 3     );
         addVariable("m_{T}"                                   , "BRegJet.jetMt"                     , 0   , 500   );
         addVariable("JES uncertainty"                         , "BRegJet.jesTotUnc"                 , 0   , 0.05  );
         addVariable("number of constituents"                  , "jet.nConstituents"                 , 0   , 100   );
