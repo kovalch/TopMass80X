@@ -24,7 +24,7 @@ use constant C_RESUBMIT => 'magenta';
 ########################
 
 my %args;
-getopts('SsbW:kJjp:P:q:o:m:t:c:O:d:nQ:M:D:', \%args);
+getopts('SsbW:kJCjp:P:q:o:m:t:c:O:d:nQ:M:D:', \%args);
 $args{'Q'} ||= ""; # to suppress unitialised warning when not set
 
 if ($args{'p'}) {
@@ -113,6 +113,7 @@ Available Parameters
       rather copy output files with a given name (for production jobs)
       WARNING: you need to save your file to the local temp dir, i.e.
       ....fileName=cms.untracked.string(os.getenv('TMPDIR', '.') + '/file.root')
+  -C switch OFF! comma separated varParsing to cmsRun and use spaces
 
 
    The environment variable NJS_GROUPID can specify another
@@ -600,15 +601,33 @@ sub getBatchsystemTemplate {
 # request disk space. 
 #$ -l h_fsize=__FSIZE__G
 
+
+
 tmp=$(mktemp -d -t njs_XXXXXX)
 
+current=`pwd`
+mkdir -p $current/naf_DIRECTORY/stdout_running
+
 exec > "$tmp/stdout.txt" 2>&1
+nafDirStdout=$current/naf_DIRECTORY/stdout_running/stdout$SGE_TASK_ID.txt
+if [ -e $nafDirStdout ]
+    then
+    oldStdFile=$current/naf_DIRECTORY/stdout_running/old_stdout$SGE_TASK_ID.txt
+    if [ -e $oldStdFile ]
+    then
+        rm -f $oldStdFile
+    fi
+    mv $nafDirStdout $oldStdFile
+fi
+
+tail -f $tmp/stdout.txt > $current/naf_DIRECTORY/stdout_running/stdout$SGE_TASK_ID.txt&
+tailjobid=$!
+
 
 echo "Running on host"
 hostname
 
 #Creating configuration file
-current=`pwd`
 perl -pe "s!FINALOUTPUTPATH!$current/naf_DIRECTORY!g; s!OUTPUTPATH!$tmp!g" < $current/naf_DIRECTORY/CONFIGFILE.py > $tmp/run.py
 
 trap '' USR1 XCPU
@@ -621,7 +640,7 @@ if [ -e $current/naf_DIRECTORY/out$SGE_TASK_ID.txt.part.1 ] ; then
     if [ -z "CMSRUNPARAMETER" ] ; then
         PARAMS="skipEvents=$NSkip"
     else
-        PARAMS="CMSRUNPARAMETER skipEvents=$NSkip"
+        PARAMS="CMSRUNPARAMETER__COMMA__skipEvents=$NSkip"
     fi
     
     PYTHONDONTWRITEBYTECODE=1 cmsRun -j $tmp/jobreport.xml $tmp/run.py $PARAMS
@@ -655,6 +674,7 @@ if [ "$?" = "0" ] ; then
         #job ends with success
         if [ -z "${alternativeOutput}" ]; then
             if [ $thisPart -gt 1 ] ; then
+                kill $tailjobid
                 set -e
                 mv $tmp/jobreport.xml $current/naf_DIRECTORY/jobreport$SGE_TASK_ID.xml.part.$thisPart
                 mv $tmp/CONFIGFILE-$SGE_TASK_ID.root $current/naf_DIRECTORY/CONFIGFILE-$SGE_TASK_ID.root.part.$thisPart
@@ -666,6 +686,7 @@ if [ "$?" = "0" ] ; then
                 sumTriggerReports2.pl $current/naf_DIRECTORY/out$SGE_TASK_ID.txt.part.* > $current/naf_DIRECTORY/out$SGE_TASK_ID.txt
                 set +e
             else
+                kill $tailjobid
                 set -e
                 mv $tmp/jobreport.xml $current/naf_DIRECTORY/jobreport$SGE_TASK_ID.xml
                 mv $tmp/CONFIGFILE-$SGE_TASK_ID.root $current/naf_DIRECTORY/
@@ -682,6 +703,7 @@ if [ "$?" = "0" ] ; then
                     hadd -f $current/naf_DIRECTORY/`basename $joined`.$SGE_TASK_ID $current/naf_DIRECTORY/CONFIGFILE-*.root
                     if [ "$?" = "0" ] ; then
                         mv -f $current/naf_DIRECTORY/`basename $joined`.$SGE_TASK_ID $current/naf_DIRECTORY/`basename $joined`
+                        kill $tailjobid
                         cp -f $tmp/stdout.txt $current/naf_DIRECTORY/out$SGE_TASK_ID.txt
                         sumTriggerReports2.pl $current/naf_DIRECTORY/out*.txt > $current/naf_DIRECTORY/`basename $joined .root`.txt
                         if [ -e $current/naf_DIRECTORY/autoremove ] ; then
@@ -690,13 +712,16 @@ if [ "$?" = "0" ] ; then
                     fi
                 fi
             fi
-        else
+        else 
+            kill $tailjobid
             mv $tmp/${alternativeOutput} $current/naf_DIRECTORY/`basename ${alternativeOutput} .root`${SGE_TASK_ID}.root && mv $tmp/stdout.txt $current/naf_DIRECTORY/out$SGE_TASK_ID.txt
         fi
     fi
 else
+    kill $tailjobid
     mv $tmp/stdout.txt $current/naf_DIRECTORY/err$SGE_TASK_ID.txt
 fi
+
 rm -r $tmp
 
 END_OF_BATCH_TEMPLATE
@@ -710,6 +735,11 @@ END_OF_BATCH_TEMPLATE
     $templ =~ s/__SVMEM__/$svmem/g;
     $templ =~ s/__GPID__/$afgid/g;
     $templ =~ s/__FSIZE__/$dlimit/g;
+    if ($args{'C'}) {
+       $templ =~ s/__COMMA__/ /g;
+    } else{
+       $templ =~ s/__COMMA__/,/g;
+    }    
     $args{'c'} ||= '';
     $templ =~ s/CMSRUNPARAMETER/$args{'c'}/g;
     $args{'O'} ||= '';
