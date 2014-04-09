@@ -21,9 +21,11 @@ struct dict {
 
     std::vector<TH2D> ijij;
     std::map<TString, std::vector<TH2D> > kokd;
+    std::vector<TH1D> ifffjij;
 
     std::map<std::string, std::vector<TH2D> > sdfdsf;
     std::map<std::string, std::vector<float> > formedianmap;
+    std::vector<std::vector<std::vector<TH1D> > > forshapRWhistos;
 
     ztop::bTagBase ked;
     ztop::JECBase kkss;
