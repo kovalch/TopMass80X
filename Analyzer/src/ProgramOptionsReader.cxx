@@ -97,6 +97,8 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("analysisConfig.plotsToDraw", boost::program_options::value<std::string>()->default_value("StandardPlots|UETunePlots|MCGeneratorPlots|JESVariationPlots|SignalModellingPlots|BasicMasses|LightPulls|BJetPulls|MixedPulls|ExtraPlotsFitCombTypeEtc|JetPts|TopPts|FitPts|LeptonJetsExtra|JetDetails|EventObservables"))
         ("analysisConfig.ratioYMin", boost::program_options::value<double>()->default_value(0.49))
         ("analysisConfig.ratioYMax", boost::program_options::value<double>()->default_value(1.51))
+        ("analysisConfig.renameCombinationTypes", boost::program_options::value<std::string>()->default_value(" correct| wrong| unmatched"))
+        ("analysisConfig.redefineCombinationTypeColorShifts", boost::program_options::value<std::string>()->default_value("0|-8|-11"))
         ("templates.fSig", boost::program_options::value<double>()->default_value(0.0))
         ("templates.fCP", boost::program_options::value<double>()->default_value(0.0))
         ("templates.fWP", boost::program_options::value<double>()->default_value(0.0))
