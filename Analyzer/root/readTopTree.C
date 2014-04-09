@@ -24,14 +24,7 @@
 
 void readTopTree(){
 
-//  TFile *f = new TFile("/nfs/dust/test/cms/user/kirschen/BRegression_MCS3250MinEvtsBReg/Summer12_TTJets1725_1.00_muon/merged.root");
-//  TTree *chain = (TTree*)f->Get("analyzeHitFit/eventTree");
-
-
-// In principle, this should also work for TChains... 
-// solution:   Long64_t nentries = chain->GetEntries();   chain->GetEntry(5); before chain->GetBranch(X);
   TChain* chain = new TChain("analyzeHitFit/eventTree");
-  //  std::cout << "added " << chain->Add("/nfs/dust/test/cms/user/kirschen/BRegression_MCS3250MinEvtsBReg/Summer12_TTJets1725_1.00_muon/job_*_analyzeTop.root") << " files" << std::endl;
   std::cout << "added " << chain->Add("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1725_1.00_muon/job_*_analyzeTop.root") << " files" << std::endl;
 
   Long64_t nentries = chain->GetEntries();
@@ -39,23 +32,17 @@ void readTopTree(){
   // create a pointer to an event object. This will be used
   // to read the branch values.
   JetEvent        *jet            = new JetEvent();
-  BRegJetEvent    *BRegJet        = new BRegJetEvent(); //not available in all trees
   TopEvent        *top            = new TopEvent();
-  TopEvent        *bRegTop        = new TopEvent(); //not available in all trees
   WeightEvent     *weight         = new WeightEvent();
   
   chain->SetBranchStatus("*",1);
 
-  chain->GetEntry(5); //needed to have full access to TChain
+  chain->GetEntry(5); //needed to have full access to TChain; otherwise chain->GetBranch does not work
 
-  //  TBranch *branchBRegJet = chain->GetBranch("BRegJet.");
-  //  branchBRegJet->SetAddress(&BRegJet);
   TBranch *branchjet = chain->GetBranch("jet.");
   branchjet->SetAddress(&jet);
   TBranch *branchtop = chain->GetBranch("top.");
   branchtop->SetAddress(&top);
-  //  TBranch *branchbregtop = chain->GetBranch("bRegTop.");
-  //  branchbregtop->SetAddress(&bRegTop);
   TBranch *branchweight = chain->GetBranch("weight.");
   branchweight->SetAddress(&weight);
 
