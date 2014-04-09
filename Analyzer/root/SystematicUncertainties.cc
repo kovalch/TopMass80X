@@ -269,7 +269,7 @@ void SystematicUncertainties::fillAllJets()
   sample.comparisons["Powheg+Pythia6 vs. Powheg+Herwig6"] = comparison("powheg", "powhegHerwig", "", false, false);
   sample.comparisons["MC@NLO+Herwig6 vs. Powheg+Herwig6"] = comparison("mcatnlo", "powhegHerwig", "", false, false);
   sample.comparisons["ME generator                     "] = comparison("defaultSC", "powheg", "", false);
-  sample.comparisons["Spin correlations                "] = comparison("default", "defaultSC", "", false, true);
+  sample.comparisons["Spin correlations                "] = comparison("default", "defaultSC", "", false, false);
   sample.comparisons["Pythia Z2* vs. P11               "] = comparison("defaultSC", "P11", "", false, false);
   sample.comparisons["Color reconnection               "] = comparison("P11", "P11noCR", "", false);
   sample.comparisons["Underlying event                 "] = comparison("P11", "P11mpiHi", "P11TeV", false);
