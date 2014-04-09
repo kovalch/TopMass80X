@@ -122,22 +122,6 @@ std::pair<SystematicChannelFactors, bool> GlobalScaleFactors::scaleFactors(const
 
 
 
-GlobalScaleFactors::ScaleFactorStruct::ScaleFactorStruct(const TString& step, const bool dyCorrection, const bool ttbbCorrection):
-step_(step),
-dyCorrection_(dyCorrection),
-ttbbCorrection_(ttbbCorrection),
-anyCorrectionApplied_(false)
-{}
-
-
-
-bool GlobalScaleFactors::ScaleFactorStruct::scaleFactorsExist(const TString& step, const bool dyCorrection, const bool ttbbCorrection)const
-{
-    return step_==step && dyCorrection_==dyCorrection && ttbbCorrection_==ttbbCorrection;
-}
-
-
-
 
 
 

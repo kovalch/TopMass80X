@@ -132,7 +132,7 @@ public:
     /// Get all samples of specific dilepton analysis channel and specific systematic
     const std::vector<Sample>& getSamples(const Channel::Channel& channel, const Systematic::Systematic& systematic)const;
     
-    
+    /// Set the class pointer to global scale factors to be associated to the Samples
     void setGlobalWeights(const GlobalScaleFactors* globalScaleFactors);
     
     /// Apply weights to samples based on luminosity and additional corrections if specified

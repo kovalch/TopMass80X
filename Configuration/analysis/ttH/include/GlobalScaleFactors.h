@@ -21,49 +21,34 @@ class  GlobalScaleFactors{
     
 public:
     
-    struct ScaleFactorStruct{
-        ScaleFactorStruct(const TString& step, const bool dyCorrection =false, const bool ttbbCorrection =false);
-        ~ScaleFactorStruct(){}
-        
-        bool scaleFactorsExist(const TString& step, const bool dyCorrection, const bool ttbbCorrection)const;
-        
-        TString step_;
-        bool dyCorrection_;
-        bool ttbbCorrection_;
-        
-        bool anyCorrectionApplied_;
-        
-        SystematicChannelFactors systematicChannelScaleFactors_;
-    };
-    
-    
-    
-public:
-    
+    /// Constructor setting up all requested scale factors for all specified channels and systematics
     GlobalScaleFactors(const std::vector<Channel::Channel>& v_channel,
                        const std::vector<Systematic::Systematic>& v_systematic,
                        const double& luminosityInInverseFb =1.,
                        const bool dyCorrection =false,
                        const bool ttbbCorrection =false);
+    
+    /// Destructor
     ~GlobalScaleFactors(){}
     
+    /// Access the scale factors for a given selection step by requesting explicitely which corrections to be used
     std::pair<SystematicChannelFactors, bool> scaleFactors(const Samples& samples, const TString& step,
                                                            const bool dyCorrection, const bool ttbbCorrection)const;
     
+    /// Access the scale factors for a given selection step, using all corrections which are set up in constructor
     std::pair<SystematicChannelFactors, bool> scaleFactors(const Samples& samples, const TString& step)const;
     
     
     
 private:
     
-    
-    
+    /// Pointer to the Drell-Yan scale factors
     DyScaleFactors* dyScaleFactors_;
     
+    /// Pointer to the tt+HF scale factors
     TtbbScaleFactors* ttbbScaleFactors_;
     
-//    std::vector<ScaleFactorStruct> v_scaleFactorStruct_;
-    
+    /// Map containing the luminosity weights for all samples
     SystematicChannelFactors m_luminosityWeight_;
 };
 

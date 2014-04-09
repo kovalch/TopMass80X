@@ -37,7 +37,7 @@ class Samples;
 
 
 
-#endif // SamplesFwd_h
+#endif
 
 
 
