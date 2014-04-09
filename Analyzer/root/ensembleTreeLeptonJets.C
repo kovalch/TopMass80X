@@ -90,14 +90,14 @@ void DrawLegend(bool bwlines = false) {
   leg1->SetFillColor(kWhite);
   leg1->SetBorderSize(0);
   if (bwlines) {
-    leg1->AddEntry( linearFit096, "JES=0.96", "LP");
-    leg1->AddEntry( linearFit100, "JES=1.00", "LP");
-    leg1->AddEntry( linearFit104, "JES=1.04", "LP");
+    leg1->AddEntry( linearFit096, "JSF=0.96", "LP");
+    leg1->AddEntry( linearFit100, "JSF=1.00", "LP");
+    leg1->AddEntry( linearFit104, "JSF=1.04", "LP");
   }
   else {
-    leg1->AddEntry( linearFit096, "JES=0.96", "P");
-    leg1->AddEntry( linearFit100, "JES=1.00", "P");
-    leg1->AddEntry( linearFit104, "JES=1.04", "P");
+    leg1->AddEntry( linearFit096, "JSF=0.96", "P");
+    leg1->AddEntry( linearFit100, "JSF=1.00", "P");
+    leg1->AddEntry( linearFit104, "JSF=1.04", "P");
   }
   /*
   leg->AddEntry( constFit, "Const. fit", "L");
@@ -171,18 +171,18 @@ void ensembleTreeLeptonJets(std::string pathToPE = "/nfs/dust/cms/user/mseidel/p
   mgMass->SetTitle(";m_{t,gen} [GeV];<m_{t,extr}-m_{t,gen}> [GeV]"); 
 
   TMultiGraph *mgJES = new TMultiGraph();
-  mgJES->SetTitle(";m_{t,gen} [GeV];<JES_{extr}-JES>");
+  mgJES->SetTitle(";m_{t,gen} [GeV];<JSF_{extr}-JSF>");
   
   if (channel == 2) {
     mgMass->SetTitle(";m_{t,gen} [GeV];<m_{t,cal}-m_{t,gen}> [GeV]");
-    mgJES->SetTitle(";m_{t,gen} [GeV];<JES_{cal}-JES>");
+    mgJES->SetTitle(";m_{t,gen} [GeV];<JSF_{cal}-JSF>");
   }
   
   TMultiGraph *mgMassPull = new TMultiGraph();
   mgMassPull->SetTitle(";m_{t,gen} [GeV];Width of mass pull ");
   
   TMultiGraph *mgJESPull = new TMultiGraph();
-  mgJESPull->SetTitle(";m_{t,gen} [GeV];Width of JES pull ");
+  mgJESPull->SetTitle(";m_{t,gen} [GeV];Width of JSF pull ");
   
   TH2D* h2Mass = new TH2D("h2Mass", "h2Mass", 1000, 150, 200, 1000, 0.9, 1.1);
   TH2D* h2JES = new TH2D("h2JES", "h2JES", 1000, 150, 200, 1000, 0.9, 1.1);
@@ -322,9 +322,9 @@ void ensembleTreeLeptonJets(std::string pathToPE = "/nfs/dust/cms/user/mseidel/p
   gMass[2]->Fit("linearFit104", "EM");
   mgMass->SetMinimum(-1.9);
   mgMass->SetMaximum( 1.9);
-  if (channel==2 && false) {
-    mgMass->SetMinimum(-0.49);
-    mgMass->SetMaximum( 0.49);
+  if (channel==2) {
+    mgMass->SetMinimum(-0.75);
+    mgMass->SetMaximum( 0.75);
   }
   mgMass->Draw("AP");
   gPad->SetBottomMargin(0.005);
@@ -360,6 +360,10 @@ void ensembleTreeLeptonJets(std::string pathToPE = "/nfs/dust/cms/user/mseidel/p
   gJES[2]->Fit("linearFit104", "EM");
   mgJES->SetMinimum(-0.019);
   mgJES->SetMaximum( 0.019);
+  if (channel==2) {
+    mgJES->SetMinimum(-0.0075);
+    mgJES->SetMaximum( 0.0075);
+  }
   mgJES->Draw("AP");
   gPad->SetTopMargin(0.005);
   //canvasFit->Update();

@@ -21,7 +21,7 @@
 //double genMasses[] = {161.5, 163.5, 166.5, 169.5, 172.5, 175.5, 178.5, 181.5, 184.5};
 //double genJESes [] = {0.96, 1.00, 1.04};
 
-double genMasses[] = {161.5, 163.5, 166.5, 169.5, 172.5, 175.5, 178.5, 181.5, 184.5};
+double genMasses[] = {166.5, 169.5, 171.5, 172.5, 173.5, 175.5, 178.5};
 double genJESes [] = {0.96, 0.98, 1.00, 1.02, 1.04};
 
 std::vector<std::vector<TH1D*> > hErrors;
@@ -60,16 +60,16 @@ void ensemblePlots()
   
   //// Get histos
   
-  TString sFile("/scratch/hh/current/cms/user/eschliec/TopMass/");
+  TString sFile("/nfs/dust/cms/user/eschliec/TopMass/");
   //TString sFile("/scratch/hh/dust/naf/cms/user/eschliec/TopMass/");
   //sFile += "ensemble_F11_ROOFIT_Recalibrated_NEWER.root";
   //sFile += "ensemble_F11_ROOFIT_Calibrated_BUGFIXED_5JES_NEW.root";
-  sFile += "ensemble_F11_TemplateRooFit_Uncalibrated.root";
+  sFile += "topmass_140401_1201/ensemble_S12_Calibrated.root";
   //sFile += "ensemble_F11_TemplateRooFit_Calibrated.root";
   TFile* fEnsemble = new TFile(sFile);
   tree = (TTree*) fEnsemble->Get("tree");
   
-  TH1D * hError = new TH1D("hError", "hError", 200, 0, 2);
+  TH1D * hError = new TH1D("hError", "hError", 200, 0.2, 0.4);
   hError->GetYaxis()->SetTitle("Number of pseudo-experiments / 10 MeV");
   hError->GetYaxis()->SetTitleSize(0.05);
   hError->GetYaxis()->SetTitleOffset(1.5);
@@ -82,7 +82,7 @@ void ensemblePlots()
   hPull->GetYaxis()->SetTitleOffset(1.5);
   hPull->GetXaxis()->SetTitle("pull m_{t}");
 
-  TH1D * hMass = new TH1D("hMass", "hMass", 300, 140, 200);
+  TH1D * hMass = new TH1D("hMass", "hMass", 300, 160, 190);
   hMass->GetYaxis()->SetTitle("Number of pseudo-experiments / 1 GeV");
   hMass->GetYaxis()->SetTitleSize(0.05);
   hMass->GetYaxis()->SetTitleOffset(1.5);
@@ -121,31 +121,31 @@ void ensemblePlots()
   }
   
   double massError;
-  tree->SetBranchAddress("massError", &massError);
+  tree->SetBranchAddress("mass_mTop_JES_fSig_fCP_Error", &massError);
   
   double massErrorConstJES;
-  tree->SetBranchAddress("massConstJESError", &massErrorConstJES);
+  tree->SetBranchAddress("mass_mTop_Error", &massErrorConstJES);
   
   double massErrorFSig;
-  tree->SetBranchAddress("massFSigError", &massErrorFSig);
+  tree->SetBranchAddress("mass_mTop_fSig_Error", &massErrorFSig);
   
   double massPull;
-  tree->SetBranchAddress("massPull", &massPull);
+  tree->SetBranchAddress("mass_mTop_JES_fSig_fCP_Pull", &massPull);
   
   double massPullConstJES;
-  tree->SetBranchAddress("massConstJESPull", &massPullConstJES);
+  tree->SetBranchAddress("mass_mTop_Pull", &massPullConstJES);
   
   double massPullFSig;
-  tree->SetBranchAddress("massFSigPull", &massPullFSig);
+  tree->SetBranchAddress("mass_mTop_fSig_Pull", &massPullFSig);
   
   double mass;
-  tree->SetBranchAddress("mass", &mass);
+  tree->SetBranchAddress("mass_mTop_JES_fSig_fCP", &mass);
   
   double massConstJES;
-  tree->SetBranchAddress("massConstJES", &massConstJES);
+  tree->SetBranchAddress("mass_mTop", &massConstJES);
   
   double massFSig;
-  tree->SetBranchAddress("massFSig", &massFSig);
+  tree->SetBranchAddress("mass_mTop_fSig", &massFSig);
   
   double genMass;
   tree->SetBranchAddress("genMass", &genMass);
@@ -195,8 +195,8 @@ void ensemblePlots()
       hErrors[i][j]->GetYaxis()->SetRangeUser(0, 1.2*max);
       hErrors[i][j]->Draw();
       hErrors[i][j]->Fit("gaus");//,"LIME");
-      drawArrow(1.00, 1.05*max);
-      DrawLabel("3.54 fb^{-1} collision data", 0.36, 0.85, 0.46, kRed+1);
+      drawArrow(0.35, 1.05*max);
+      DrawLabel("18.2 fb^{-1} collision data", 0.36, 0.85, 0.46, kRed+1);
 
       DrawCMSPrel();
 
@@ -210,8 +210,8 @@ void ensemblePlots()
       hErrorsConstJES[i][j]->GetYaxis()->SetRangeUser(0, 1.2*max);
       hErrorsConstJES[i][j]->Draw();
       hErrorsConstJES[i][j]->Fit("gaus");//,"LIME");
-      drawArrow(0.69, 1.05*max);
-      DrawLabel("3.54 fb^{-1} collision data", 0.36, 0.85, 0.46, kRed+1);
+      drawArrow(0.26, 1.05*max);
+      DrawLabel("18.2 fb^{-1} collision data", 0.36, 0.85, 0.46, kRed+1);
 
       DrawCMSPrel();
 
@@ -225,8 +225,8 @@ void ensemblePlots()
       hErrorsFSig[i][j]->GetYaxis()->SetRangeUser(0, 1.2*max);
       hErrorsFSig[i][j]->Draw();
       hErrorsFSig[i][j]->Fit("gaus");//,"LIME");
-      drawArrow(1.00, 1.05*max);
-      DrawLabel("3.54 fb^{-1} collision data", 0.36, 0.85, 0.46, kRed+1);
+      drawArrow(0.26, 1.05*max);
+      DrawLabel("18.2 fb^{-1} collision data", 0.36, 0.85, 0.46, kRed+1);
 
       DrawCMSPrel();
 
@@ -241,7 +241,7 @@ void ensemblePlots()
       hPulls[i][j]->Draw();
       hPulls[i][j]->Fit("gaus");//,"LIME");
       drawArrow(0, 1.05*max);
-      DrawLabel("3.54 fb^{-1} collision data", 0.36, 0.85, 0.46, kRed+1);
+      DrawLabel("18.2 fb^{-1} collision data", 0.36, 0.85, 0.46, kRed+1);
 
       DrawCMSPrel();
 
@@ -256,7 +256,7 @@ void ensemblePlots()
       hPullsConstJES[i][j]->Draw();
       hPullsConstJES[i][j]->Fit("gaus");//,"LIME");
       drawArrow(0, 1.05*max);
-      DrawLabel("3.54 fb^{-1} collision data", 0.36, 0.85, 0.46, kRed+1);
+      DrawLabel("18.2 fb^{-1} collision data", 0.36, 0.85, 0.46, kRed+1);
 
       DrawCMSPrel();
 
@@ -271,7 +271,7 @@ void ensemblePlots()
       hPullsFSig[i][j]->Draw();
       hPullsFSig[i][j]->Fit("gaus");//,"LIME");
       drawArrow(0, 1.05*max);
-      DrawLabel("3.54 fb^{-1} collision data", 0.36, 0.85, 0.46, kRed+1);
+      DrawLabel("18.2 fb^{-1} collision data", 0.36, 0.85, 0.46, kRed+1);
 
       DrawCMSPrel();
 

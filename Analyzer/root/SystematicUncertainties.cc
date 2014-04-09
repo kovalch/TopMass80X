@@ -157,106 +157,107 @@ void SystematicUncertainties::fillLeptonJets()
 
 void SystematicUncertainties::fillAllJets()
 {
-  sample.path = "/nfs/dust/cms/user/eschliec/TopMass/topmass_140317_1201/";
+  //sample.path = "/nfs/dust/cms/user/eschliec/TopMass/topmass_140317_1201/";
+  sample.path = "/nfs/dust/cms/user/eschliec/TopMass/topmass_140401_1201/";
   sample.crossSection = 245.794;
   sample.peLumi = 18192.;
 
   //sample.variables = {"mass_mTop_JES", "JES_mTop_JES", "mass_mTop"};
   sample.variables = {"mass_mTop_JES_fSig_fCP", "JES_mTop_JES_fSig_fCP", "mass_mTop"};
+  //sample.variables = {"mass_mTop_JES_fSig_fCP", "JES_mTop_JES_fSig_fCP", "mass_mTop_fSig"};
 
   sample.ensembles["calibration"] = ensemble("", 0, {std::make_pair(sample.variables[0],std::make_pair(172.5,0.0585859)), std::make_pair(sample.variables[1],std::make_pair(1.0,0.000489326)), std::make_pair(sample.variables[2],std::make_pair(172.5,0.058894))});
   sample.ensembles["default"] = ensemble("Z2_S12_ABS_JES_100_172_5/job_*_ensemble.root", 62131965./1.8);
 
-  sample.ensembles["puUp"  ] = ensemble("Z2_S12_PU_Up/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["puUp"  ] = ensemble("Z2_S12_PU_Up/job_*_ensemble.root"  , 62131965./1.8);
   sample.ensembles["puDown"] = ensemble("Z2_S12_PU_Down/job_*_ensemble.root", 62131965./1.8);
 
-  sample.ensembles["bFragLEP"    ] = ensemble("Z2_S12_FRAG/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["bFragLEP"    ] = ensemble("Z2_S12_FRAG/job_*_ensemble.root"     , 62131965./1.8);
   sample.ensembles["bFragLEPHard"] = ensemble("Z2_S12_FRAG_Hard/job_*_ensemble.root", 62131965./1.8);
   sample.ensembles["bFragLEPSoft"] = ensemble("Z2_S12_FRAG_Soft/job_*_ensemble.root", 62131965./1.8);
 
-  sample.ensembles["bFNuUp"  ] = ensemble("Z2_S12_NU_Up/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["bFNuUp"  ] = ensemble("Z2_S12_NU_Up/job_*_ensemble.root"  , 62131965./1.8);
   sample.ensembles["bFNuDown"] = ensemble("Z2_S12_NU_Down/job_*_ensemble.root", 62131965./1.8);
 
-  //sample.ensembles["flavorQCDUp"] = ensemble("Summer12_TTJets1725_flavor:up_FlavorQCD/job_*_ensemble.root", 62131965./1.8);
-  //sample.ensembles["flavorQCDDown"] = ensemble("Summer12_TTJets1725_flavor:down_FlavorQCD/job_*_ensemble.root", 62131965./1.8);
-
-  sample.ensembles["flavorBUp"  ] = ensemble("Z2_S12_BJES_Up/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["flavorBUp"  ] = ensemble("Z2_S12_BJES_Up/job_*_ensemble.root"  , 62131965./1.8);
   sample.ensembles["flavorBDown"] = ensemble("Z2_S12_BJES_Down/job_*_ensemble.root", 62131965./1.8);
 
-  sample.ensembles["flavorQUp"  ] = ensemble("Z2_S12_LJES_Up/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["flavorQUp"  ] = ensemble("Z2_S12_LJES_Up/job_*_ensemble.root"  , 62131965./1.8);
   sample.ensembles["flavorQDown"] = ensemble("Z2_S12_LJES_Down/job_*_ensemble.root", 62131965./1.8);
 
-  sample.ensembles["flavorGUp"  ] = ensemble("Z2_S12_GJES_Up/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["flavorGUp"  ] = ensemble("Z2_S12_GJES_Up/job_*_ensemble.root"  , 62131965./1.8);
   sample.ensembles["flavorGDown"] = ensemble("Z2_S12_GJES_Down/job_*_ensemble.root", 62131965./1.8);
 
-  sample.ensembles["bTagSFUp"    ] = ensemble("Z2_S12_BTAG_Up/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["bTagSFUp"    ] = ensemble("Z2_S12_BTAG_Up/job_*_ensemble.root"  , 62131965./1.8);
   sample.ensembles["bTagSFDown"  ] = ensemble("Z2_S12_BTAG_Down/job_*_ensemble.root", 62131965./1.8);
-  sample.ensembles["misTagSFUp"  ] = ensemble("Z2_S12_MTAG_Up/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["misTagSFUp"  ] = ensemble("Z2_S12_MTAG_Up/job_*_ensemble.root"  , 62131965./1.8);
   sample.ensembles["misTagSFDown"] = ensemble("Z2_S12_MTAG_Down/job_*_ensemble.root", 62131965./1.8);
 
   sample.ensembles["topPt"] = ensemble("Z2_S12_TopPt/job_*_ensemble.root", 62131965./1.8);
 
-  sample.ensembles["fSigUp"  ] = ensemble("Z2_S12_FSIG_Up/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["fSigUp"  ] = ensemble("Z2_S12_FSIG_Up/job_*_ensemble.root"  , 62131965./1.8);
   sample.ensembles["fSigDown"] = ensemble("Z2_S12_FSIG_Down/job_*_ensemble.root", 62131965./1.8);
 
-  sample.ensembles["shape"] = ensemble("../topmass_140317_1201a/Z2_S12_BackgroundSys/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["shape"] = ensemble("Z2_S12_BackgroundSys/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["shapeAlt"] = ensemble("../topmass_140401_1201a/Z2_S12_BackgroundSys2/job_*_ensemble.root", 62131965./1.8);
 
-  sample.ensembles["matchingUp"  ] = ensemble("Z2_S12_Matching_Up/job_*_ensemble.root", 37083003./1.8);
+  sample.ensembles["matchingUp"  ] = ensemble("Z2_S12_Matching_Up/job_*_ensemble.root"  , 37083003./1.8);
   sample.ensembles["matchingDown"] = ensemble("Z2_S12_Matching_Down/job_*_ensemble.root", 34053113./1.8);
 
-  sample.ensembles["scaleUp"  ] = ensemble("Z2_S12_Scale_Up/job_*_ensemble.root", 41908271./1.8);
+  sample.ensembles["scaleUp"  ] = ensemble("Z2_S12_Scale_Up/job_*_ensemble.root"  , 41908271./1.8);
   sample.ensembles["scaleDown"] = ensemble("Z2_S12_Scale_Down/job_*_ensemble.root", 39286663./1.8);
 
-  sample.ensembles["jerUp"  ] = ensemble("Z2_S12_JER_Up/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["jerUp"  ] = ensemble("Z2_S12_JER_Up/job_*_ensemble.root"  , 62131965./1.8);
   sample.ensembles["jerDown"] = ensemble("Z2_S12_JER_Down/job_*_ensemble.root", 62131965./1.8);
 
-  sample.ensembles["jer3Up"     ] = ensemble("Z2_S12_NEWJER3_Up/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["jer3Up"     ] = ensemble("Z2_S12_NEWJER3_Up/job_*_ensemble.root"     , 62131965./1.8);
   sample.ensembles["jer3Central"] = ensemble("Z2_S12_NEWJER3_Central/job_*_ensemble.root", 62131965./1.8);
-  sample.ensembles["jer3Down"   ] = ensemble("Z2_S12_NEWJER3_Down/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["jer3Down"   ] = ensemble("Z2_S12_NEWJER3_Down/job_*_ensemble.root"   , 62131965./1.8);
 
-  sample.ensembles["jes1Up"  ] = ensemble("Z2_S12_COR1JES_Up/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["jes1Up"  ] = ensemble("Z2_S12_COR1JES_Up/job_*_ensemble.root"  , 62131965./1.8);
   sample.ensembles["jes1Down"] = ensemble("Z2_S12_COR1JES_Down/job_*_ensemble.root", 62131965./1.8);
-  sample.ensembles["jes2Up"  ] = ensemble("Z2_S12_COR2JES_Up/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["jes2Up"  ] = ensemble("Z2_S12_COR2JES_Up/job_*_ensemble.root"  , 62131965./1.8);
   sample.ensembles["jes2Down"] = ensemble("Z2_S12_COR2JES_Down/job_*_ensemble.root", 62131965./1.8);
-  sample.ensembles["jes3Up"  ] = ensemble("Z2_S12_COR3JES_Up/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["jes3Up"  ] = ensemble("Z2_S12_COR3JES_Up/job_*_ensemble.root"  , 62131965./1.8);
   sample.ensembles["jes3Down"] = ensemble("Z2_S12_COR3JES_Down/job_*_ensemble.root", 62131965./1.8);
-  sample.ensembles["jes4Up"  ] = ensemble("Z2_S12_COR4JES_Up/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["jes4Up"  ] = ensemble("Z2_S12_COR4JES_Up/job_*_ensemble.root"  , 62131965./1.8);
   sample.ensembles["jes4Down"] = ensemble("Z2_S12_COR4JES_Down/job_*_ensemble.root", 62131965./1.8);
 
-  sample.ensembles["triggerUp"  ] = ensemble("Z2_S12_TRIGGERJES_Up/job_*_ensemble.root", 62131965./1.8);
-  sample.ensembles["triggerDown"] = ensemble("Z2_S12_TRIGGERJES_Down/job_*_ensemble.root", 62131965./1.8);
-  sample.ensembles["trigger2Up"  ] = ensemble("../topmass_140317_1201b/Z2_S12_TRIGGERJES2_Up/job_*_ensemble.root", 62131965./1.8);
-  sample.ensembles["trigger2Down"] = ensemble("../topmass_140317_1201b/Z2_S12_TRIGGERJES2_Down/job_*_ensemble.root", 62131965./1.8);
-  sample.ensembles["trigger3Up"  ] = ensemble("../topmass_140317_1201c/Z2_S12_TRIGGERJES3_Up/job_*_ensemble.root", 62131965./1.8);
-  sample.ensembles["trigger3Down"] = ensemble("../topmass_140317_1201c/Z2_S12_TRIGGERJES3_Down/job_*_ensemble.root", 62131965./1.8);
-  sample.ensembles["trigger4Up"  ] = ensemble("../topmass_140317_1201c/Z2_S12_TRIGGERJES4_Up/job_*_ensemble.root", 62131965./1.8);
-  sample.ensembles["trigger4Down"] = ensemble("../topmass_140317_1201c/Z2_S12_TRIGGERJES4_Down/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["triggerUp"   ] = ensemble("Z2_S12_TRIGGERJES_Up/job_*_ensemble.root"  , 62131965./1.8);
+  sample.ensembles["triggerDown" ] = ensemble("Z2_S12_TRIGGERJES_Down/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["trigger2Up"  ] = ensemble("Z2_S12_TRIGGERJES2_Up/job_*_ensemble.root"  , 62131965./1.8);
+  sample.ensembles["trigger2Down"] = ensemble("Z2_S12_TRIGGERJES2_Down/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["trigger3Up"  ] = ensemble("Z2_S12_TRIGGERJES3_Up/job_*_ensemble.root"  , 62131965./1.8);
+  sample.ensembles["trigger3Down"] = ensemble("Z2_S12_TRIGGERJES3_Down/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["trigger4Up"  ] = ensemble("Z2_S12_TRIGGERJES4_Up/job_*_ensemble.root"  , 62131965./1.8);
+  sample.ensembles["trigger4Down"] = ensemble("Z2_S12_TRIGGERJES4_Down/job_*_ensemble.root", 62131965./1.8);
 
-  sample.ensembles["jesPuBBUp"  ] = ensemble("Z2_S12_PUPTBBJES_Up/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["jesPuBBUp"  ] = ensemble("Z2_S12_PUPTBBJES_Up/job_*_ensemble.root"  , 62131965./1.8);
   sample.ensembles["jesPuBBDown"] = ensemble("Z2_S12_PUPTBBJES_Down/job_*_ensemble.root", 62131965./1.8);
-  sample.ensembles["jesPuECUp"  ] = ensemble("Z2_S12_PUPTECJES_Up/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["jesPuECUp"  ] = ensemble("Z2_S12_PUPTECJES_Up/job_*_ensemble.root"  , 62131965./1.8);
   sample.ensembles["jesPuECDown"] = ensemble("Z2_S12_PUPTECJES_Down/job_*_ensemble.root", 62131965./1.8);
 
-  sample.ensembles["mcatnlo"     ] = ensemble("Z2_S12_MCNLO/job_*_ensemble.root", 32852589./1.8);
+  sample.ensembles["mcatnlo"     ] = ensemble("Z2_S12_MCNLO/job_*_ensemble.root" , 32852589./1.8);
   sample.ensembles["powheg"      ] = ensemble("Z2_S12_POWHEG/job_*_ensemble.root", 21675970./1.8);
   sample.ensembles["powhegHerwig"] = ensemble("Z2_S12_POWHER/job_*_ensemble.root", 27684235./1.8);
 
-  sample.ensembles["defaultSC"] = ensemble("Z2_S12_Z2/job_*_ensemble.root", 41761265./6./6.*9.*9./1.8);
-  sample.ensembles["P11"      ] = ensemble("Z2_S12_P11/job_*_ensemble.root", 11651739./6./6.*9.*9./1.8);
-  sample.ensembles["P11noCR"  ] = ensemble("Z2_S12_P11NoCR/job_*_ensemble.root", 11919063./6./6.*9.*9./1.8);
-  sample.ensembles["P11mpiHi" ] = ensemble("Z2_S12_P11mpiHi/job_*_ensemble.root", 7953758./6./6.*9.*9./1.8);
-  sample.ensembles["P11TeV"   ] = ensemble("Z2_S12_P11TeV/job_*_ensemble.root", 7946264./6./6.*9.*9./1.8);
+  sample.ensembles["defaultSC"] = ensemble("Z2_S12_Z2/job_*_ensemble.root"      , 41761265./6./6.*9.*9./1.8);
+  sample.ensembles["P11"      ] = ensemble("Z2_S12_P11/job_*_ensemble.root"     , 11651739./6./6.*9.*9./1.8);
+  sample.ensembles["P11noCR"  ] = ensemble("Z2_S12_P11NoCR/job_*_ensemble.root" , 11919063./6./6.*9.*9./1.8);
+  sample.ensembles["P11mpiHi" ] = ensemble("Z2_S12_P11mpiHi/job_*_ensemble.root",  7953758./6./6.*9.*9./1.8);
+  sample.ensembles["P11TeV"   ] = ensemble("Z2_S12_P11TeV/job_*_ensemble.root"  ,  7946264./6./6.*9.*9./1.8);
 
+  sample.ensembles["RD"] = ensemble("../topmass_140401_1201b/Z2_S12_RD1/job_*_ensemble.root", 31228390./6./6.*9.*9./1.8);
 
-  sample.ensembles["defaultPFTest"     ] = ensemble("../topmass_140317_1201d/Z2_S12_ABS_JES_100_172_5/job_*_ensemble.root", 62131965./1.8);
-  sample.ensembles["triggerPFTestUp"   ] = ensemble("../topmass_140317_1201d/Z2_S12_TRIGGERJES_Up/job_*_ensemble.root", 62131965./1.8);
-  sample.ensembles["triggerPFTestDown" ] = ensemble("../topmass_140317_1201d/Z2_S12_TRIGGERJES_Down/job_*_ensemble.root", 62131965./1.8);
-  sample.ensembles["trigger2PFTestUp"  ] = ensemble("../topmass_140317_1201d/Z2_S12_TRIGGERJES2_Up/job_*_ensemble.root", 62131965./1.8);
-  sample.ensembles["trigger2PFTestDown"] = ensemble("../topmass_140317_1201d/Z2_S12_TRIGGERJES2_Down/job_*_ensemble.root", 62131965./1.8);
-  sample.ensembles["trigger3PFTestUp"  ] = ensemble("../topmass_140317_1201d/Z2_S12_TRIGGERJES3_Up/job_*_ensemble.root", 62131965./1.8);
-  sample.ensembles["trigger3PFTestDown"] = ensemble("../topmass_140317_1201d/Z2_S12_TRIGGERJES3_Down/job_*_ensemble.root", 62131965./1.8);
-  sample.ensembles["trigger4PFTestUp"  ] = ensemble("../topmass_140317_1201d/Z2_S12_TRIGGERJES4_Up/job_*_ensemble.root", 62131965./1.8);
-  sample.ensembles["trigger4PFTestDown"] = ensemble("../topmass_140317_1201d/Z2_S12_TRIGGERJES4_Down/job_*_ensemble.root", 62131965./1.8);
+  //sample.ensembles["defaultPFTest"     ] = ensemble("../topmass_140317_1201d/Z2_S12_ABS_JES_100_172_5/job_*_ensemble.root", 62131965./1.8);
+  //sample.ensembles["triggerPFTestUp"   ] = ensemble("../topmass_140317_1201g/Z2_S12_TRIGGERJES_Up/job_*_ensemble.root"    , 62131965./1.8);
+  //sample.ensembles["triggerPFTestDown" ] = ensemble("../topmass_140317_1201g/Z2_S12_TRIGGERJES_Down/job_*_ensemble.root"  , 62131965./1.8);
+  //sample.ensembles["trigger2PFTestUp"  ] = ensemble("../topmass_140317_1201g/Z2_S12_TRIGGERJES2_Up/job_*_ensemble.root"   , 62131965./1.8);
+  //sample.ensembles["trigger2PFTestDown"] = ensemble("../topmass_140317_1201g/Z2_S12_TRIGGERJES2_Down/job_*_ensemble.root" , 62131965./1.8);
+  //sample.ensembles["trigger3PFTestUp"  ] = ensemble("../topmass_140317_1201g/Z2_S12_TRIGGERJES3_Up/job_*_ensemble.root"   , 62131965./1.8);
+  //sample.ensembles["trigger3PFTestDown"] = ensemble("../topmass_140317_1201g/Z2_S12_TRIGGERJES3_Down/job_*_ensemble.root" , 62131965./1.8);
+  //sample.ensembles["trigger4PFTestUp"  ] = ensemble("../topmass_140317_1201g/Z2_S12_TRIGGERJES4_Up/job_*_ensemble.root"   , 62131965./1.8);
+  //sample.ensembles["trigger4PFTestDown"] = ensemble("../topmass_140317_1201g/Z2_S12_TRIGGERJES4_Down/job_*_ensemble.root" , 62131965./1.8);
 
   ///////////////////////////////////
 
@@ -296,11 +297,13 @@ void SystematicUncertainties::fillAllJets()
   sample.comparisons["Underlying event                 "] = comparison("P11", "P11mpiHi", "P11TeV", false);
   sample.comparisons["Non-\\ttbar background \\fsig    "] = comparison("default", "fSigUp", "fSigDown", true);
   sample.comparisons["Non-\\ttbar background shape     "] = comparison("default", "shape", "", true);
+  sample.comparisons["Non-\\ttbar background shapeAlt  "] = comparison("default", "shapeAlt", "", true, false);
+  sample.comparisons["Run dependent                    "] = comparison("defaultSC", "RD", "", true, false);
 
-  sample.comparisons["TriggerPFTest                    "] = comparison("defaultPFTest", "triggerPFTestUp" , "triggerPFTestDown", true, false);
-  sample.comparisons["Trigger2PFTest                   "] = comparison("defaultPFTest", "trigger2PFTestUp", "trigger2PFTestDown", true, false);
-  sample.comparisons["Trigger3PFTest                   "] = comparison("defaultPFTest", "trigger3PFTestUp", "trigger3PFTestDown", true, false);
-  sample.comparisons["Trigger4PFTest                   "] = comparison("defaultPFTest", "trigger4PFTestUp", "trigger4PFTestDown", true, false);
+  //sample.comparisons["TriggerPFTest                    "] = comparison("defaultPFTest", "triggerPFTestUp" , "triggerPFTestDown", true, false);
+  //sample.comparisons["Trigger2PFTest                   "] = comparison("defaultPFTest", "trigger2PFTestUp", "trigger2PFTestDown", true, false);
+  //sample.comparisons["Trigger3PFTest                   "] = comparison("defaultPFTest", "trigger3PFTestUp", "trigger3PFTestDown", true, false);
+  //sample.comparisons["Trigger4PFTest                   "] = comparison("defaultPFTest", "trigger4PFTestUp", "trigger4PFTestDown", true, false);
 
   }
 

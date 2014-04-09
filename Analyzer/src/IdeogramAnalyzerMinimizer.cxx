@@ -96,14 +96,15 @@ void IdeogramAnalyzerMinimizer::Scan(const std::string& cuts, int iBin, int jBin
         double wMass   = event.permutations.at(iComb).wMass;
         double prob    = event.permutations.at(iComb).prob;
         int leptonFlavour = event.leptonFlavour;
+        double weight  = event.weight/fabs(event.weight);
         int bin        = event.permutations.at(iComb).bin;
         
         if (bin != iBin) continue;
 
-        ++entries_;
+        entries_ = entries_ + (int) weight;
 
         if (prob != 0) {
-          eventFunctions_[iEvent][iComb]->SetFixedParams(prob, topMass, wMass, abs(leptonFlavour), shapeSystematic_, permutationFractionSystematic_, isFastSim_);
+          eventFunctions_[iEvent][iComb]->SetFixedParams(prob, topMass, wMass, abs(leptonFlavour), shapeSystematic_, permutationFractionSystematic_, isFastSim_, weight);
           eventFunctions_[iEvent][iComb]->SetActive(true);
         }
       }
@@ -277,12 +278,12 @@ void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min, IdeogramA
 
   std::string plotNamePostfix("_");
   if     (x == kMass) { gr3.GetXaxis()->SetTitle("m_{t} [GeV]"); plotNamePostfix += "mass_"; }
-  else if(x == kJES ) { gr3.GetXaxis()->SetTitle("JES");         plotNamePostfix += "JES_" ; }
+  else if(x == kJES ) { gr3.GetXaxis()->SetTitle("JSF");         plotNamePostfix += "JES_" ; }
   else if(x == kFSig) { gr3.GetXaxis()->SetTitle("f_{sig}");     plotNamePostfix += "fSig_"; }
   else if(x == kFCP ) { gr3.GetXaxis()->SetTitle("f_{CP}");      plotNamePostfix += "fCP_" ; }
   plotNamePostfix += "vs_";
   if     (y == kMass) { gr3.GetYaxis()->SetTitle("m_{t} [GeV]"); plotNamePostfix += "mass"; }
-  else if(y == kJES ) { gr3.GetYaxis()->SetTitle("JES");         plotNamePostfix += "JES" ; }
+  else if(y == kJES ) { gr3.GetYaxis()->SetTitle("JSF");         plotNamePostfix += "JES" ; }
   else if(y == kFSig) { gr3.GetYaxis()->SetTitle("f_{sig}");     plotNamePostfix += "fSig"; }
   else if(y == kFCP ) { gr3.GetYaxis()->SetTitle("f_{CP}");      plotNamePostfix += "fCP" ; }
   gr3.GetYaxis()->SetTitleOffset(1.7);

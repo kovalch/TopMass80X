@@ -45,8 +45,8 @@ DuplicateRemover::DuplicateRemover()
 
 void DuplicateRemover::removeDuplicates()
 {
-  TFile* fromFile = new TFile("/scratch/hh/dust/naf/cms/user/mseidel/trees/Run2012_electron/job_Run2012D_analyzeTop.root", "READ");
-  TTree* fromTree = (TTree*) fromFile->Get("analyzeHitFit/eventTree");
+  TChain* fromTree = new TChain("analyzeHitFit/eventTree");
+  fromTree->Add("/nfs/dust/cms/user/mseidel/trees/PtFixV2_Run2012D_electron/job*.root");
   
   fromTree->SetBranchStatus("*", 0);
   fromTree->SetBranchStatus("jet.*"   , 1);
@@ -65,7 +65,7 @@ void DuplicateRemover::removeDuplicates()
   int nEntries = fromTree->GetEntries();
   int nDuplicates = 0;
   
-  TFile* toFile = new TFile("/scratch/hh/dust/naf/cms/user/mseidel/trees/Run2012_electron/job_Run2012Dv2_analyzeTop.root", "RECREATE");
+  TFile* toFile = new TFile("/nfs/dust/cms/user/mseidel/trees/PtFixV2_Run2012_electron/job_Run2012D_analyzeTop.root", "RECREATE");
   toFile->mkdir("analyzeHitFit");
   toFile->cd("analyzeHitFit");
   
@@ -95,7 +95,6 @@ void DuplicateRemover::removeDuplicates()
   
   toFile->Write();
   toFile->Close();
-  fromFile->Close();
 }
 
 

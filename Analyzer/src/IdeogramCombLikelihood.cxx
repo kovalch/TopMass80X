@@ -115,7 +115,7 @@ std::vector<double> IdeogramCombLikelihood::readParameters(const char *whichPara
   return pars;
 }
 
-void IdeogramCombLikelihood::SetFixedParams(double p0, double p1, double p2, double p3, double p4, double p5, double p6) {
+void IdeogramCombLikelihood::SetFixedParams(double p0, double p1, double p2, double p3, double p4, double p5, double p6, double p7) {
   fp_.push_back(p0);
   fp_.push_back(p1);
   fp_.push_back(p2);
@@ -123,6 +123,7 @@ void IdeogramCombLikelihood::SetFixedParams(double p0, double p1, double p2, dou
   fp_.push_back(p4);
   fp_.push_back(p5);
   fp_.push_back(p6);
+  fp_.push_back(p7);
 
   useFixedParams_ = true;
 }

@@ -375,6 +375,7 @@ std::string HelperFunctions::cleanedName(std::string toBeCleaned){
     boost::replace_all(toBeCleaned,"[","_"      );
     boost::replace_all(toBeCleaned,"]","_"      );
     boost::replace_all(toBeCleaned,"@","_"      );
+    boost::replace_all(toBeCleaned,"$","_"      );
     return toBeCleaned;
 }
 

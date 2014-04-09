@@ -23,6 +23,7 @@ options.register('csvm', 0.679, VarParsing.VarParsing.multiplicity.singleton,Var
 options.register('nbjets', 2, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.int, "Minimum number of bjets")
 
 options.register('brCorrection', True, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.bool, "Do BR correction (MadGraph)")
+options.register('bSFNewRecipe', False, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.bool, "Use new b-tag SF recipe")
 
 # define the syntax for parsing
 # you need to enter in the cfg file:
@@ -145,7 +146,7 @@ if not data:
     from TopAnalysis.TopUtils.JetEnergyScale_cff import *
 
     scaledJetEnergy.scaleType    = options.scaleType
-    scaledJetEnergy.JECUncSrcFile= "TopAnalysis/TopUtils/data/Summer13_V4_DATA_UncertaintySources_AK5PFchs.txt"
+    scaledJetEnergy.JECUncSrcFile= "TopAnalysis/TopUtils/data/Summer13_V5_DATA_UncertaintySources_AK5PFchs.txt"
     scaledJetEnergy.sourceName   = options.jessource
     scaledJetEnergy.flavor       = options.flavor
     scaledJetEnergy.scaleFactor  = options.lJesFactor
@@ -345,6 +346,9 @@ if not data:
     process.bTagSFEventWeight.jets     = "tightLeadingPFJets"
     process.bTagSFEventWeight.bTagAlgo = "CSVM"
     process.bTagSFEventWeight.version  = "2012"
+    if options.bSFNewRecipe:
+        process.bTagSFEventWeight.newRecipe= True
+        process.bTagSFEventWeight.maxJets  = 4
     process.bTagSFEventWeight.sysVar   = "" # bTagSFUp, bTagSFDown, misTagSFUp, misTagSFDown possible;
     process.bTagSFEventWeight.filename = "TopAnalysis/Configuration/data/analyzeBTagEfficiency2012.root" 
     process.bTagSFEventWeight.verbose  = 0
@@ -529,13 +533,14 @@ PFoptions = {
         'analyzersBeforeElecIso':cms.Sequence(),
         'excludeElectronsFromWsFromGenJets': True,
         'METCorrectionLevel': options.metcl,
+        'addMETSignificance': False,
         }
 if data:
     PFoptions['JECEra' ] = 'FT_53_V21_AN5'
-    PFoptions['JECFile'] = '../data/FT_53_V21_AN5_private.db'
+    PFoptions['JECFile'] = '../data/PTFIXV2_FT_53_V21_AN5_private.db'
     if os.getenv('GC_CONF'):
         print "Running with GC, resetting address of JECFile!"
-        PFoptions['JECFile'] = '../src/TopMass/Configuration/data/FT_53_V21_AN5_private.db'
+        PFoptions['JECFile'] = '../src/TopMass/Configuration/data/PTFIXV2_FT_53_V21_AN5_private.db'
 
 prependPF2PATSequence(process, options = PFoptions)
 

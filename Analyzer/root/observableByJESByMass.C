@@ -31,6 +31,7 @@ int iMassMax = nMass;
 bool plotByMass = false;
 bool pas = false;
 
+int iTarget[]     = {1, 0, -10};
 TString sTarget[] = {"wp", "cp", "un"};
 TString sFObs[]   = {"mt", "mW"};
 TString sObs[]    = {"m_{t}", "m_{W}^{reco}"};
@@ -364,11 +365,11 @@ void FindParametersMass(int iMass)
 	linearFit->SetParLimits(1, -50, 200);
 	linearFit->SetParameters(100, 50);
 	
-	TH1F* h096;
-  TH1F* h100;
-  TH1F* h104;
-  TH1F* h166;
-  TH1F* h178;
+	TH1F* h096 = new TH1F();
+  TH1F* h100 = new TH1F();
+  TH1F* h104 = new TH1F();
+  TH1F* h166 = new TH1F();
+  TH1F* h178 = new TH1F();
   
   if (!plotByMass) {
     switch(iMass) {
@@ -418,9 +419,9 @@ void FindParametersMass(int iMass)
   }
   else if (plotByMass) {
     std::cout << "PLOT BY MASS" << std::endl;
-    h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1665_1.00", 0);
-    h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1725_1.00", 1);
-    h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1785_1.00", 2);
+    h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1665_1.00", 0);
+    h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1725_1.00", 1);
+    h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1785_1.00", 2);
   }
   else {
     if (obs==0) h166 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1665_1.00", 3);
@@ -451,22 +452,22 @@ void FindParametersMass(int iMass)
   leg0->SetFillStyle(0);
   leg0->SetBorderSize(0);
   if (!plotByMass) {
-    leg0->AddEntry( h096, "JES = 0.96", "PL");
-    leg0->AddEntry( h100, "JES = 1.00", "PL");
-    leg0->AddEntry( h104, "JES = 1.04", "PL");
+    leg0->AddEntry( h096, "JSF = 0.96", "PL");
+    leg0->AddEntry( h100, "JSF = 1.00", "PL");
+    leg0->AddEntry( h104, "JSF = 1.04", "PL");
     leg0->AddEntry((TObject*)0, sX[iMass], "");
   }
   else if (plotByMass) {
     leg0->AddEntry( h096, "m_{t,gen} = 166.5 GeV", "PL");
     leg0->AddEntry( h100, "m_{t,gen} = 172.5 GeV", "PL");
     leg0->AddEntry( h104, "m_{t,gen} = 178.5 GeV", "PL");
-    leg0->AddEntry((TObject*)0, "JES = 1.00", "");
+    leg0->AddEntry((TObject*)0, "JSF = 1.00", "");
   }
   else {
     if (obs==0) leg0->AddEntry( h166, "m_{t,gen} = 166.5 GeV", "PL");
-    leg0->AddEntry( h096, "m_{t,gen} = 172.5 GeV, JES -4%", "PL");
+    leg0->AddEntry( h096, "m_{t,gen} = 172.5 GeV, JSF -4%", "PL");
     leg0->AddEntry( h100, "m_{t,gen} = 172.5 GeV", "PL");
-    leg0->AddEntry( h104, "m_{t,gen} = 172.5 GeV, JES +4%", "PL");
+    leg0->AddEntry( h104, "m_{t,gen} = 172.5 GeV, JSF +4%", "PL");
     if (obs==0) leg0->AddEntry( h178, "m_{t,gen} = 178.5 GeV", "PL");
   }
   
@@ -570,7 +571,7 @@ TH1F* FindParameters(TString filename, int i)
   TChain* eventTree = new TChain("analyzeHitFit/eventTree");
   eventTree->Add(filename);
   
-  TF1* fit;
+  TF1* fit = new TF1();
   
   if (obs == 0) {
     switch(target) {
@@ -675,30 +676,30 @@ TH1F* FindParameters(TString filename, int i)
     case 0: {
       switch(target) {
         case   1: {
-          sObservable = "top.fitTop1.M() >> h1(30, 100, 250)";
+          sObservable = "top.fitTop1.M() >> htemp(30, 100, 250)";
           break;
         }
         case   0: {
-          sObservable = "top.fitTop1.M() >> h1(30, 100, 400)";
+          sObservable = "top.fitTop1.M() >> htemp(30, 100, 400)";
           break;
         }
         case -10: {
-          sObservable = "top.fitTop1.M() >> h1(30, 100, 400)";
+          sObservable = "top.fitTop1.M() >> htemp(30, 100, 400)";
           break;
         }
       }
       break;
     }
     case 1: {
-      sObservable = "top.recoW1.M() >> h1(30, 60, 120)";
+      sObservable = "top.recoW1.M() >> htemp(30, 60, 120)";
       break;
     }
     case 4: {
-      sObservable = "deltaRHadWHadB/deltaRHadQHadQBar >> h1(40, 0, 4)";
+      sObservable = "deltaRHadWHadB/deltaRHadQHadQBar >> htemp(40, 0, 4)";
       break;
     }
     case 5: {
-      sObservable = "-(hadWPt-lepWPt)/(hadBPt-lepBPt) >> h1(50, -5, 5)";
+      sObservable = "-(hadWPt-lepWPt)/(hadBPt-lepBPt) >> htemp(50, -5, 5)";
       break;
     }
   }
@@ -724,7 +725,7 @@ TH1F* FindParameters(TString filename, int i)
   // Get observable
   eventTree->Draw(sObservable, sCutAndWeight);
   
-  TH1F *h1 = (TH1F*)gDirectory->Get("h1");
+  TH1F *h1 = (TH1F*)gDirectory->Get("htemp")->Clone();
   
   switch(obs) {
     case 0: {
@@ -786,4 +787,26 @@ TH1F* FindParameters(TString filename, int i)
   h1->Scale(1/h1->Integral());
   
   return h1;
+}
+
+void batchObservableByJESByMass() {
+  pas = true;
+  
+  for (int t = 0; t < 3; ++t) { // target
+    for (int o = 0; o < 2; ++o) { // obs
+      for (int l = 0; l < 2; ++l) { // lepton
+        observableByJESByMass(iTarget[t], o, l);
+      }
+    }
+  }
+  
+  plotByMass = true;
+  
+  for (int t = 0; t < 3; ++t) { // target
+    for (int o = 0; o < 2; ++o) { // obs
+      for (int l = 0; l < 2; ++l) { // lepton
+        observableByJESByMass(iTarget[t], o, l);
+      }
+    }
+  }
 }
