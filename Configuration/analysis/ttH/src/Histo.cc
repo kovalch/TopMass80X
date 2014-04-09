@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <vector>
 #include <string>
+#include <algorithm>
 
 #include <TString.h>
 
@@ -29,13 +30,16 @@ constexpr double Luminosity = 19712.;
 
 
 
-void Histo(const std::vector<std::string> v_plot, 
-           const std::vector<Channel::Channel> v_channel,
-           const std::vector<Systematic::Systematic> v_systematic,
-           const DrawMode::DrawMode drawMode)
+void Histo(const std::vector<std::string>& v_plot, 
+           const std::vector<Channel::Channel>& v_channel,
+           const std::vector<Systematic::Systematic>& v_systematic,
+           const std::vector<GlobalCorrection::GlobalCorrection> v_globalCorrection,
+           const DrawMode::DrawMode& drawMode)
 {
     // Set up scale factors
-    const GlobalScaleFactors* globalScaleFactors = new GlobalScaleFactors(v_channel, v_systematic, Luminosity, true, true);
+    const bool dyCorrection = std::find(v_globalCorrection.begin(), v_globalCorrection.end(), GlobalCorrection::dy) != v_globalCorrection.end();
+    const bool ttbbCorrection = std::find(v_globalCorrection.begin(), v_globalCorrection.end(), GlobalCorrection::ttbb) != v_globalCorrection.end();
+    const GlobalScaleFactors* globalScaleFactors = new GlobalScaleFactors(v_channel, v_systematic, Luminosity, dyCorrection, ttbbCorrection);
     
     // Access all samples
     const Samples samples(v_channel, v_systematic, globalScaleFactors);
@@ -101,7 +105,9 @@ int main(int argc, char** argv){
         common::makeStringCheck(Channel::convertChannels(Channel::allowedChannelsPlotting)));
     CLParameter<std::string> opt_systematic("s", "Systematic variation - default is Nominal, use 'all' for all", false, 1, 100,
         common::makeStringCheck(Systematic::convertSystematics(Systematic::allowedSystematicsHiggsPlotting)));
-    CLParameter<std::string> opt_drawMode("m", "Specify draw mode of Higgs sample, valid: stacked, overlaid, scaledoverlaid. Default: scaledoverlaid", false, 1, 1,
+    CLParameter<std::string> opt_globalCorrection("g", "Specify global correction, valid: empty argument for none, Drell-Yan (dy), tt+HF (ttbb). Default: all", false, 0, 2,
+        common::makeStringCheck(GlobalCorrection::convertGlobalCorrections(GlobalCorrection::allowedGlobalCorrections)));
+    CLParameter<std::string> opt_drawMode("d", "Specify draw mode of Higgs sample, valid: stacked, overlaid, scaledoverlaid. Default: scaledoverlaid", false, 1, 1,
         common::makeStringCheck(DrawMode::convertDrawModes(DrawMode::allowedDrawModes)));
     CLAnalyser::interpretGlobal(argc, argv);
     
@@ -130,6 +136,14 @@ int main(int argc, char** argv){
     for (auto systematic : v_systematic) std::cout << Systematic::convertSystematic(systematic) << " ";
     std::cout << "\n\n";
     
+    // Set up global corrections
+    std::vector<GlobalCorrection::GlobalCorrection> v_globalCorrection({GlobalCorrection::dy, GlobalCorrection::ttbb});
+    if(opt_globalCorrection.isSet()) v_globalCorrection = GlobalCorrection::convertGlobalCorrections(opt_globalCorrection.getArguments());
+    std::cout << "\n";
+    std::cout << "Using global corrections: ";
+    for(auto globalCorrection : v_globalCorrection) std::cout << GlobalCorrection::convertGlobalCorrection(globalCorrection) << " ";
+    std::cout << "\n\n";
+    
     // Set up draw mode (default is scaledOverlaid)
     DrawMode::DrawMode drawMode(DrawMode::undefined);
     if(opt_drawMode.isSet()) drawMode = DrawMode::convertDrawMode(opt_drawMode[0]);
@@ -139,7 +153,7 @@ int main(int argc, char** argv){
     std::cout << "\n\n";
     
     // Start analysis
-    Histo(v_plot, v_channel, v_systematic, drawMode);
+    Histo(v_plot, v_channel, v_systematic, v_globalCorrection, drawMode);
 }
 
 

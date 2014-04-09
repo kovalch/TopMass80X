@@ -97,11 +97,11 @@ std::pair<SystematicChannelFactors, bool> GlobalScaleFactors::scaleFactors(const
                 if(sample.sampleType() != Sample::data){
                     weight = m_luminosityWeight_.at(systematic).at(channel).at(iSample);
                     
-                    const int dyStatus = dyCorrection ? dyScaleFactors_->applyScaleFactor(weight, step, sample, systematic) : 0;
+                    const int dyStatus = (dyCorrection && dyScaleFactors_) ? dyScaleFactors_->applyScaleFactor(weight, step, sample, systematic) : 0;
                     if(dyStatus == 1) anyCorrectionApplied = true;
                     
                     // FIXME: implement tt+HF correction
-                    const int ttbbStatus = ttbbCorrection ? 0 : 0;
+                    const int ttbbStatus = (ttbbCorrection && ttbbScaleFactors_) ? 0 : 0;
                     if(ttbbStatus == 1) anyCorrectionApplied = true;
                 }
                 

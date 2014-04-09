@@ -39,11 +39,25 @@ namespace DrawMode{
 
 
 
+namespace GlobalCorrection{
+    
+    enum GlobalCorrection{dy, ttbb, undefined};
+    
+    const std::vector<GlobalCorrection> allowedGlobalCorrections
+        {dy, ttbb, undefined};
+    
+    GlobalCorrection convertGlobalCorrection(const std::string& globalCorrection);
+    std::string convertGlobalCorrection(const GlobalCorrection& globalCorrection);
+    std::vector<GlobalCorrection> convertGlobalCorrections(const std::vector<std::string>& globalCorrections);
+    std::vector<std::string> convertGlobalCorrections(const std::vector<GlobalCorrection>& globalCorrections);
+}
 
 
 
 
-#endif // plotterHelpers_h
+
+
+#endif
 
 
 
