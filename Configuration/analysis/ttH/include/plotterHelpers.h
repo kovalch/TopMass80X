@@ -41,14 +41,25 @@ namespace DrawMode{
 
 namespace GlobalCorrection{
     
+    /// Global corrections for analysis, i.e. scale factors which are applied to whole samples
     enum GlobalCorrection{dy, ttbb, undefined};
     
+    /// All global corrections allowed for analysis
     const std::vector<GlobalCorrection> allowedGlobalCorrections
-        {dy, ttbb, undefined};
+        {dy, ttbb};
     
+    
+    
+    /// Convert a GlobalCorrection from string to typedef
     GlobalCorrection convertGlobalCorrection(const std::string& globalCorrection);
+    
+    /// Convert a GlobalCorrection from typedef to string
     std::string convertGlobalCorrection(const GlobalCorrection& globalCorrection);
+    
+    /// Convert a vector of GlobalCorrections from string to typedef
     std::vector<GlobalCorrection> convertGlobalCorrections(const std::vector<std::string>& globalCorrections);
+    
+    /// Convert a vector of GlobalCorrections from typedef to string
     std::vector<std::string> convertGlobalCorrections(const std::vector<GlobalCorrection>& globalCorrections);
 }
 
