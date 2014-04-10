@@ -3,13 +3,13 @@
 #include "../../unfolding/TopSVDFunctions.C" 
 
 void analyzeHypothesisKinFit(double luminosity = 19712.,
-			     bool save = true, int systematicVariation=sysPUUp, unsigned int verbose=0,
+			     bool save = true, int systematicVariation=sysNo, unsigned int verbose=0,
 			     TString inputFolderName=AnalysisFolder,
 			     //TString dataFile= groupSpace+AnalysisFolder+"/muonDiffXSecData2012ABCDAll.root",
 			     //TString dataFile= groupSpace+AnalysisFolder+"/elecDiffXSecData2012ABCDAll.root",
 			     TString dataFile= groupSpace+AnalysisFolder+"/elecDiffXSecData2012ABCDAll.root:"+groupSpace+AnalysisFolder+"/muonDiffXSecData2012ABCDAll.root",
 			     std::string decayChannel = "combined", bool SVDunfold=true, bool extrapolate=true, bool hadron=false,
-			     bool addCrossCheckVariables=false, bool redetermineopttau =true, TString closureTestSpecifier="", TString addSel="ProbSel")
+			     bool addCrossCheckVariables=false, bool redetermineopttau =false, TString closureTestSpecifier="", TString addSel="ProbSel")
 {
   // ============================
   //  Set ROOT Style
