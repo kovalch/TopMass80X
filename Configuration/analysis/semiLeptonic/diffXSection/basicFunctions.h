@@ -52,7 +52,7 @@ namespace semileptonic {
   //TString groupSpace="/afs/naf.desy.de/group/cms/scratch/tophh/";
   TString AnalysisFolder="RecentAnalysisRun8TeV_doubleKinFit"; // used mostly as default argument
   // large madspin or smaller madgraph samples?
-  bool MadSpin=true;
+  bool MadSpin=true; //#############
   // adapt several things like removing official labels for my PHD
   bool PHD=false;
   // use global switch to rm/add Preliminary to plots 
@@ -91,9 +91,15 @@ namespace semileptonic {
   // Enumerator to assign an unique integer value to each sample
 
                    /*0:*/    /*1:*/    /*2:*/    /*3:*/    
-  enum samples    {kSig    , kBkg    , kZjets  , kWjets  , 
-		   /*4:*/    /*5:*/    /*6:*/    /*7:*/  
-		   kQCD    , kSTop   , kDiBos  , kData,   
+  enum samples    {kSig    , kBkg    , kZjets  , kWjets  ,
+                   /*4b:*/
+                   kTTVjets, //######
+		   /*4:*/    /*5:*/     
+		   kQCD    , kSTop   ,   
+                    /*6:*/    /*7:*/                 
+                   kDiBos  , kData,   
+                   /*8b*/     /*9b*/     /*10b*/
+                   kTTGjets , kTTZjets, kTTWjets,  //###########
 		   /*8*/     /*9*/     /*10*/    /*11*/    /*12*/    /*13*/
 		   kQCDEM1 , kQCDEM2 , kQCDEM3 , kQCDBCE1, kQCDBCE2, kQCDBCE3,  
 		   /*14*/    /*15*/    /*16*/
@@ -113,8 +119,11 @@ namespace semileptonic {
 
   // Colors for event samples (<=kSAToptW)
 
-  int color_[] ={ kRed+1  , kRed-7  , kAzure-2, kGreen-3, 
-		  kYellow , kMagenta, 10      , kBlack  , 
+  int color_[] ={ kRed+1  , kRed-7  , kAzure-2, kGreen-3,
+                  kOrange-2,//########## 
+		  kYellow , kMagenta, 
+                  10      , kBlack  , 
+                  kOrange-2 , kOrange-2, kOrange-2, //####### 
 		  kYellow , kYellow , kYellow , kYellow , kYellow , kYellow ,
 		  10      , 10      , 10      , 
 		  kMagenta, kMagenta, kMagenta, kMagenta, kMagenta, kMagenta };
@@ -162,7 +171,10 @@ namespace semileptonic {
   // Marker style (<=kSAToptW)
 
   int marker_[] = {20, 22, 29, 23, 
-		   21, 27, 28, 20, 
+                   23,//############ 
+		   21, 27,
+                   28, 20, 
+                   23, 23, 23,//######  
 		   21, 21, 21, 21, 21, 21,
 		   28, 28, 28,
 		   27, 27, 27, 27, 27, 27};
@@ -199,7 +211,7 @@ namespace semileptonic {
 			     /*41:*/ sysQCDUp,                   /*42:*/ sysQCDDown,                 
 			     /*43:*/ sysSTopUp,                  /*44:*/ sysSTopDown,               
 			     /*45:*/ sysDiBosUp,                 /*46:*/ sysDiBosDown,  
-			     /*47:*/ sysVjetsUp,                 /*48:*/ sysVjetsDown,
+			     /*47:*/ sysVjetsUp,                 /*48:*/ sysVjetsDown, //##### ttV is added to these
 			     /*49:*/ sysBRUp   ,                 /*50:*/ sysBRDown,
 			     /*51:*/ sysPDFUp,                   /*52:*/ sysPDFDown,
 			     /*53:*/ sysUnf,                     /*54:*/ sysMad,
@@ -431,7 +443,11 @@ namespace semileptonic {
     if(sample==kSAToptW1) return "Single Antitop tW t->had W->lep";
     if(sample==kSToptW1 ) return "Single Top tW t->lep W->had";
     if(sample==kSAToptW1) return "Single Antitop tW t->lep W->had";
-    if(sample==kWjets  ) return "W+Jets";
+    if(sample==kWjets  ) return "W+Jets"; 
+    if(sample==kTTGjets  ) return "t#bar{t}+#gamma"; //###############
+    if(sample==kTTZjets  ) return "t#bar{t}+Z"; //###############
+    if(sample==kTTWjets  ) return "t#bar{t}+W"; //###############
+    if(sample==kTTVjets  ) return "t#bar{t}+V"; //###############
     if(sample==kZjets  ) return "Z / #gamma_{#lower[-0.7]{*}}+Jets";
     if(sample==kDiBos  ) return "Diboson";
     if(sample==kWW     ) return "WW";
@@ -540,6 +556,7 @@ namespace semileptonic {
     // identify subsamples with main sample
     if(sampleType>=kSTops&&sampleType<=kSAToptW ) sampleType=kSTop;
     if(sampleType>=kQCDEM1&&sampleType<=kQCDBCE3) sampleType=kQCD;
+    if(sampleType>=kTTGjets&&sampleType<=kTTWjets) sampleType=kTTVjets; //######
 
     hist.SetStats(kFALSE);
     if(sampleType==kData || !filled){
@@ -1141,6 +1158,22 @@ namespace semileptonic {
       if(kSys==sysVBosonMatchUp  ) Nevents=20976082;
       if(kSys==sysVBosonMatchDown) Nevents=21364637;  
     }
+    //###########################
+    else if(sample==kTTGjets){ 
+      crossSection=1.8;
+      // Summer12
+      Nevents = 1719954;
+    }
+    else if(sample==kTTZjets){
+      crossSection=0.2057;
+      // Summer12
+      Nevents = 210160;
+    }
+    else if(sample==kTTWjets){
+      crossSection=0.232;
+      Nevents = 196046;
+    } 
+    //###########################
     // MadGraph: DY->ll+jets
     else if(sample==kZjets){
       crossSection=3503;
@@ -1276,6 +1309,15 @@ namespace semileptonic {
       Nevents=1;
       crossSection=1.;
     }
+    //################
+    else if(sample==kTTVjets){
+      // already added in combineMCsamples.C
+      // with cross section as weight,
+      // lumi normalization is done here
+      Nevents=1;
+      crossSection=1.;
+    }
+    //#################
     // Pythia6: DiBoson Samples
     // Summer12
     // a) subsamples
@@ -1352,7 +1394,8 @@ namespace semileptonic {
 	if(kSys==sysSTopDown) weight*=(1.0-scale);
       }
     }
-    if(sample==kWjets||sample==kZjets){
+    // (iv) more/less v+jets
+    if(sample==kWjets||sample==kZjets||sample==kTTVjets||sample==kTTGjets||sample==kTTZjets||sample==kTTWjets){ //#### added ttV samples
       scale=1.0;
       if(kSys!=sysNo){
 	if(kSys==sysVjetsUp  ) weight*=(1.0+scale);
@@ -1462,6 +1505,7 @@ namespace semileptonic {
     if(sample==kSigMca )fileName += "SigMcatnlo";
     if(sample==kBkgMca )fileName += "BkgMcatnlo";
     if(sample==kWjets  )fileName += "Wjets";
+    if(sample==kTTVjets  )fileName += "TTVjets"; //########## 
     if(sample==kZjets  )fileName += "Zjets";
     if(sample==kDiBos  )fileName += "VV";
     if(sample==kQCD    )fileName += "QCD";
@@ -1475,7 +1519,12 @@ namespace semileptonic {
     if(sample==kQCDEM3 )fileName = "MergedFiles/"+fileName+"QCDEM3";
     if(sample==kQCDBCE1)fileName = "MergedFiles/"+fileName+"QCDBCE1"; 
     if(sample==kQCDBCE2)fileName = "MergedFiles/"+fileName+"QCDBCE2";
-    if(sample==kQCDBCE3)fileName = "MergedFiles/"+fileName+"QCDBCE3";  
+    if(sample==kQCDBCE3)fileName = "MergedFiles/"+fileName+"QCDBCE3"; 
+    //####################
+    if(sample==kTTGjets)fileName = "MergedFiles/"+fileName+"TTGjets";
+    if(sample==kTTZjets)fileName = "MergedFiles/"+fileName+"TTZjets";
+    if(sample==kTTWjets)fileName = "MergedFiles/"+fileName+"TTWjets";
+    //################### 
     if(sample==kSToptW ||sample==kSToptW1 ||sample==kSToptW2 ||sample==kSToptW3 )fileName = "MergedFiles/"+fileName+"SingleTopTW";
     if(sample==kSTops  )fileName = "MergedFiles/"+fileName+"SingleTopS";
     if(sample==kSTopt  )fileName = "MergedFiles/"+fileName+"SingleTopT";
@@ -1485,10 +1534,10 @@ namespace semileptonic {
     // take care of systematic variations
     // they are located in dedicated subfolders
     // JES
-    if(sys==sysJESUp  ) fileName = "JESUp/"+fileName+"JESUp";
+    if(sys==sysJESUp  ) fileName = "JESUp/"+fileName+"JESUp"; 
     if(sys==sysJESDown) fileName = "JESDown/"+fileName+"JESDown";
     // JER
-    if(sys==sysJERUp  ) fileName = "JERUp/"+fileName+"JERUp";
+    if(sys==sysJERUp  ) fileName = "JERUp/"+fileName+"JERUp"; 
     if(sys==sysJERDown) fileName = "JERDown/"+fileName+"JERDown";
     // PDF Shape variation
     // only for new MC and ttbar signal
@@ -1677,7 +1726,8 @@ namespace semileptonic {
 
     // loop plots
     for(unsigned int plot=0; plot<plotList_.size(); ++plot){
-      TString testPlotNameForTrackingDownErrors="NotUsedAtTheMoment";//"analyzeTopRecoKinematicsKinFitProbSel/topPt";//"NotUsedAtTheMoment";
+      //TString testPlotNameForTrackingDownErrors="NotUsedAtTheMoment";//"analyzeTopRecoKinematicsKinFitProbSel/topPt";//"NotUsedAtTheMoment";
+      TString testPlotNameForTrackingDownErrors="analyzeTopRecoKinematicsKinFitPUupProbSel/topPt";//"NotUsedAtTheMoment";
       bool hugo=plotList_[plot].Contains(testPlotNameForTrackingDownErrors) ? true : false;
       // check if plot exists in any sample
       bool existsInAnySample=false;

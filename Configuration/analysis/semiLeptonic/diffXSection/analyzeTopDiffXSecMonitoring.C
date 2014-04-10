@@ -21,6 +21,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
   samples_.push_back(kSTop);
   samples_.push_back(kWjets);
   samples_.push_back(kZjets);
+  samples_.push_back(kTTVjets); //#########
   samples_.push_back(kDiBos);
   samples_.push_back(kQCD);
   samples_.push_back(kData);
@@ -46,6 +47,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
   // a) enumerator sample convention (as defined in basicFunctions.h)
 
   //  0: kSig      1: kBkg      2: kZjets    3: kWjets
+  //  4: kTTGjets  5:kTTZjets   6:kTTWjets//#########
   //  4: kQCD      5: kSTop     6: kDiBos    7: kData
   //  8: kQCDEM1   9: kQCDEM2  10: kQCDEM3  11: kQCDBCE1  12: kQCDBCE2  13: kQCDBCE3  
   // 14: kWW      15: kWZ      16: kZZ      
@@ -57,7 +59,9 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
   // decayChannel+"DiffXSec"+sampleName+systematicVariation+MCProduction+"PF.root"
 
   // decayChannel      = "electron", "muon", "combined"
-  // sampleName        = "Sig", "Bkg", Wjets", "Zjets", "WW", "WZ", "ZZ", "VV", "SingleTopSchannel", 
+  // sampleName        = "Sig", "Bkg", "Wjets", "TTVjets", //######## 
+  //                     "TTGjets", "TTZjets", "TTWjets",//#######
+  //                     "Zjets", "WW", "WZ", "ZZ", "VV", "SingleTopSchannel", 
   //                     "SingleTopTchannel", "SingleTopTWchannel", "QCD"
   // MCProductionCycle = "Summer11","Fall11"
 	
@@ -1166,7 +1170,9 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
       std::cout << " Expected event composition:"   << std::endl; 
       std::cout << " ttbar SG:   " << std::setprecision(4) << std::fixed << events_[selection_[step]][kSig  ] / NAllMC << std::endl;
       std::cout << " ttbar BG:   " << std::setprecision(4) << std::fixed << events_[selection_[step]][kBkg  ] / NAllMC << std::endl;
-      std::cout << " W + Jets:   " << std::setprecision(4) << std::fixed << events_[selection_[step]][kWjets] / NAllMC << std::endl; 
+      std::cout << " W + Jets:   " << std::setprecision(4) << std::fixed << events_[selection_[step]][kWjets] / NAllMC << std::endl;
+      //std::cout << " #Nevts TTV + Jets:   " << std::setprecision(4) << std::fixed << events_[selection_[step]][kTTVjets] << std::endl; //##########
+      std::cout << " TTV + Jets:   " << std::setprecision(4) << std::fixed << events_[selection_[step]][kTTVjets] / NAllMC << std::endl; //########## 
       std::cout << " Z + Jets:   " << std::setprecision(4) << std::fixed << events_[selection_[step]][kZjets] / NAllMC << std::endl;
       std::cout << " QCD:        " << std::setprecision(4) << std::fixed << events_[selection_[step]][kQCD  ] / NAllMC;
       if(setQCDtoZero&&events_[selection_[step]][kQCD]==0.0)  std::cout  << " (artificially set to 0)";
