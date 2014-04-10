@@ -28,6 +28,7 @@ SET( ${PROJECT_NAME}_EXECUTABLES
   load_Analysis
   Histo
   TypicalErrors
+  PlotRelDiffs
   kinRecoEfficienciesAndSF
   createSystCovMatrix
   )
