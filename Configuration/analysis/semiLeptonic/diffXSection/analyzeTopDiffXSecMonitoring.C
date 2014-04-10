@@ -10,7 +10,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 				  //TString dataFile= groupSpace+AnalysisFolder+"/elecDiffXSecData2012ABCDAll.root",
 				  TString dataFile= groupSpace+AnalysisFolder+"/elecDiffXSecData2012ABCDAll.root:"+groupSpace+AnalysisFolder+"/muonDiffXSecData2012ABCDAll.root",
 				  const std::string decayChannel = "combined", 
-				  bool withRatioPlot = true, bool extrapolate=true, bool hadron=false, TString addSel="ProbSel")
+				  bool withRatioPlot = false, bool extrapolate=true, bool hadron=false, TString addSel="ProbSel")
 { 
   // ===================================
   // Define plotting order
@@ -747,7 +747,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     "#chi^{2};Events;1;10",
     "#Delta#phi(t,#bar{t});Events;0;4",
     // gen distributions
-    "t#bar{t} other decay channel;events;0;1",
+    "t#bar{t} other decay channel;rel. Events;0;1",
     "m^{t#bar{t}} #left[GeV#right] parton all truth;Events;1;1",
     "m^{t#bar{t}} #left[GeV#right] parton lv PS parton truth;Events;1;1",
     "p_{T}^{lep} #left[GeV#right] hadron lv PS truth;Events;1;1",
@@ -1095,6 +1095,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	if(plotList_[plot].Contains("Njets")&&plotList_[plot].Contains("compositedKinematics")) histo_[plotList_[plot]][sample]->SetNdivisions(010);
 	// set QCD to 0
 	if(setQCDtoZero&&sample==kQCD&&(plotList_[plot].Contains("Tagged")||plotList_[plot].Contains("AfterBtagging")||plotList_[plot].Contains("analyzeTopReco")||plotList_[plot].Contains("compositedKinematicsKinFit"))) histo_[plotList_[plot]][sample]->Scale(0.);
+	if(plotList_[plot].Contains("decayChannel")&&sample!=kBkg) histo_[plotList_[plot]][sample]->Scale(0.);
       }
       // b) 2D
       if((plot>=N1Dplots)&&(histo2_.count(plotList_[plot])>0)&&(histo2_[plotList_[plot]].count(sample)>0)){
@@ -1402,6 +1403,15 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     for(int sample=kDiBos-1; sample>=kSig; --sample){
       // check if plot exists
       if((plot<N1Dplots)&&(histo_.count(plotList_[plot])>0)&&(histo_[plotList_[plot]].count(samples_[sample])>0)){
+	// shape normalization and individual range and title for ttbar other decayChannel plot
+	if(plotList_[plot].Contains("decayChannel")){
+	  if(sample==kBkg){
+	    histo_[plotList_[plot]][samples_[sample]]->Scale(1/histo_[plotList_[plot]][samples_[sample]]->Integral(0, histo_[plotList_[plot]][samples_[sample]]->GetNbinsX()+1)) ;
+	  }
+	  histo_[plotList_[plot]][sample]->GetXaxis()->SetRangeUser(0,25);
+	  histo_[plotList_[plot]][sample]->GetYaxis()->SetTitle("rel. Events");
+	}
+
 	// check if previous plot also exists
 	if(histo_[plotList_[plot]].count(samples_[sample+1])>0){
 	  histo_[plotList_[plot]][samples_[sample]]->Add((TH1F*)histo_[plotList_[plot]][samples_[sample+1]]->Clone());
@@ -2121,6 +2131,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	      if(getStringEntry(plotList_[plot], 1).Contains("analyzeTopRecoKinematicsKinFit")){xDn=0;xUp=100;}
 	      else{xDn=0;xUp=10;}
 	    }
+
 	    if(getStringEntry(plotList_[plot], 2)=="dB"                                                                ){xDn=0.  ;xUp=0.02;}
 	    if(plotList_[plot].Contains("relIso")&&!plotList_[plot].Contains("test")                                   ){xDn=0.  ;xUp=0.15;}
 	    if(plotList_[plot].Contains("tightJetKinematics/n")||plotList_[plot].Contains("tightJetKinematicsTagged/n")){xDn=3.5 ;xUp=10.5;}
@@ -2188,6 +2199,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	    }
 	    if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/ttbarMass")                          ){xDn=250.   ;xUp=1200.; }
 	    if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/neutrinoPt")                         ){xDn=0.     ;xUp=400. ; }
+            //if(plotList_[plot].Contains("decayChanel")                                                                 ){xDn=5      ;xUp=25; }
 	    // adjust range
 	    if(xUp!=histo_[plotList_[plot]][sample]->GetXaxis()->GetXmax()||xDn!=histo_[plotList_[plot]][sample]->GetXaxis()->GetXmin()) histo_[plotList_[plot]][sample]->GetXaxis()->SetRangeUser(xDn,xUp-0.000000001);
 	    // adjust labels if overlapping because of too many large numbers
@@ -2231,7 +2243,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	    if((plotList_[plot].Contains("tightLeptonKinematicsTagged/pt")||
 		plotList_[plot].Contains("tightJetKinematicsTagged/pt"   )||
 		plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"))&&
-	       !(plotList_[plot].Contains("Eff"))){
+	       !(plotList_[plot].Contains("Eff")||plotList_[plot].Contains("decayChannel"))){
 	      double width=histo_[plotList_[plot]][sample]->GetBinWidth(1);
 	      TString argument2=" / %";
 	      TString precMain="2";
