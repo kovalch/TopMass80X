@@ -10,7 +10,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 				  //TString dataFile= groupSpace+AnalysisFolder+"/elecDiffXSecData2012ABCDAll.root",
 				  TString dataFile= groupSpace+AnalysisFolder+"/elecDiffXSecData2012ABCDAll.root:"+groupSpace+AnalysisFolder+"/muonDiffXSecData2012ABCDAll.root",
 				  const std::string decayChannel = "combined", 
-				  bool withRatioPlot = false, bool extrapolate=true, bool hadron=false, TString addSel="ProbSel")
+				  bool withRatioPlot = true, bool extrapolate=true, bool hadron=false, TString addSel="ProbSel")
 { 
   // ===================================
   // Define plotting order
@@ -340,6 +340,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     // (iii) btag monitoring    
     "tightJetQualityTagged/btagCombSecVtx_",
     "bottomJetKinematicsTagged/n"          ,
+    "tightlightJetKinematics/n"            ,
     // (iv) MET monitoring
     "analyzeMETMuonTagged/metEt"   ,
     "analyzeMETMuonTagged/metPhi"  ,
@@ -480,6 +481,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     // (III) after btagging 
     "tightLeptonQualityTagged/relIso",
     "tightLeptonKinematicsTagged/pt",
+    "tightLeptonKinematicsTagged/eta",
    };
 
   TString plots1Dmu[ ] = { 
@@ -652,6 +654,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     "p_{t}(lead 2^{nd} b-tagged jet) #left[GeV#right];Events;1;5",
     "#eta(lead 1^{st} b-tagged jet);Events;0;5" ,
     "#eta(lead 2^{nd} b-tagged jet);Events;0;5" ,
+    "N_{non-b jets};Events;1;1",
     // (iii) btag monitoring    
     "b-discr.(CSV);Jets;0;2",
     "N_{b jets};Events;1;1" ,
@@ -791,6 +794,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     // (III) after btagging 
     "PF relIso;Leptons;0;1",
     "p^{l}_{T} [GeV];Leptons;0;2",
+    "#eta^{l} ;Leptons;0;2",
   };
 
   TString axisLabel1Dmu[ ] = {
@@ -1119,6 +1123,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
   std::vector<TString> selection_;
   selection_.push_back("tightJetKinematics/n"      );
   selection_.push_back("tightJetKinematicsTagged/n");
+  selection_.push_back("tightlightJetKinematics/n" );
   selection_.push_back("compositedKinematicsKinFit/shiftLepPt");  
   selection_.push_back("analyzeTopRecoKinematicsKinFit"+addSel+"/ttbarMass");  
   unsigned int MCBG=ENDOFSAMPLEENUM;
@@ -1126,13 +1131,22 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
   events_[selection_[1]][MCBG]=0; 
   events_[selection_[2]][MCBG]=0;
   events_[selection_[3]][MCBG]=0;
+  events_[selection_[4]][MCBG]=0;
   // loop pretagged/tagged
   for(unsigned int step=0; step<selection_.size(); ++step){
     // loop samples
     for(unsigned int sample=kSig; sample<=kData; ++sample){
       if(verbose>1) std::cout << selection_[step] << " in " << sampleLabel(sample, decayChannel) << std::endl;
       // save number
-      events_[selection_[step]][sample]=histo_[selection_[step]][sample]->Integral(0,histo_[selection_[step]][sample]->GetNbinsX()+1);
+      if(histo_[selection_[step]].count(sample)>0){
+	events_[selection_[step]][sample]=histo_[selection_[step]][sample]->Integral(0,histo_[selection_[step]][sample]->GetNbinsX()+1);
+      }
+      // fix for non-existing contributions
+      else{
+	events_[selection_[step]][sample]=0;
+	histo_[selection_[step]][sample]=histo_[selection_[step]][kSig];
+	histo_[selection_[step]][sample]->Scale(0);
+      }
       // add non ttbar MC
       if(sample>kSig&&sample<kData) events_[selection_[step]][MCBG]+=events_[selection_[step]][sample];
     }
@@ -1153,8 +1167,9 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
       switch (step){
       case 0 : std::cout << std::endl << " Event composition ---- pre-tagged, derived from: "+selection_[step]          << std::endl; break;
       case 1 : std::cout << std::endl << " Event composition ---- after b-tagging, derived from: "+selection_[step]     << std::endl; break;
-      case 2 : std::cout << std::endl << " Event composition ---- after kinematic fit (before prob selection), derived from: "+selection_[step] << std::endl; break;
-      case 3 : std::cout << std::endl << " Event composition ---- after kinematic fit, derived from: "+selection_[step] << std::endl; break;
+      case 2 : std::cout << std::endl << " Event composition ---- after light jet sel., derived from: "+selection_[step] << std::endl; break;
+      case 3 : std::cout << std::endl << " Event composition ---- after kinematic fit (before prob selection), derived from: "+selection_[step] << std::endl; break;
+      case 4 : std::cout << std::endl << " Event composition ---- after kinematic fit, derived from: "+selection_[step] << std::endl; break;
       default: break;
       }
     }
@@ -1172,7 +1187,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
       std::cout << " ttbar BG:   " << std::setprecision(4) << std::fixed << events_[selection_[step]][kBkg  ] / NAllMC << std::endl;
       std::cout << " W + Jets:   " << std::setprecision(4) << std::fixed << events_[selection_[step]][kWjets] / NAllMC << std::endl;
       //std::cout << " #Nevts TTV + Jets:   " << std::setprecision(4) << std::fixed << events_[selection_[step]][kTTVjets] << std::endl; //##########
-      std::cout << " TTV + Jets:   " << std::setprecision(4) << std::fixed << events_[selection_[step]][kTTVjets] / NAllMC << std::endl; //########## 
+      std::cout << " TTV + Jets: " << std::setprecision(4) << std::fixed << events_[selection_[step]][kTTVjets] / NAllMC << std::endl; //########## 
       std::cout << " Z + Jets:   " << std::setprecision(4) << std::fixed << events_[selection_[step]][kZjets] / NAllMC << std::endl;
       std::cout << " QCD:        " << std::setprecision(4) << std::fixed << events_[selection_[step]][kQCD  ] / NAllMC;
       if(setQCDtoZero&&events_[selection_[step]][kQCD]==0.0)  std::cout  << " (artificially set to 0)";
@@ -1180,7 +1195,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
       std::cout << " Single Top: " << std::setprecision(4) << std::fixed << events_[selection_[step]][kSTop ] / NAllMC << std::endl;
     }
     // investigate single top composition
-    if(decayChannel != "combined"){
+    if(decayChannel != "combined"&&!selection_[step].Contains("light")){
       double Nschannel= histo_[selection_[step]][kSTops  ]->Integral(0,histo_[selection_[step]][kSTops  ]->GetNbinsX()+1);
       Nschannel+=       histo_[selection_[step]][kSATops ]->Integral(0,histo_[selection_[step]][kSATops ]->GetNbinsX()+1);
       double Ntchannel= histo_[selection_[step]][kSTopt  ]->Integral(0,histo_[selection_[step]][kSTopt  ]->GetNbinsX()+1);
@@ -1202,8 +1217,8 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     double luminosity2=luminosity;
     if(decayChannel=="combined") luminosity2=luminosityMu+luminosityEl;
     xSec=(NData-NnonTtbarBG)*ttbarSigFrac/(A*eff*BR*luminosity2);
-    if(selection_[step].Contains("shift" ))  KinFitxSec=xSec;
-    else if(selection_[step].Contains("Tagged")) TaggedxSec=xSec;
+    if     (selection_[step].Contains("shift"    )) KinFitxSec =xSec;
+    else if(selection_[step].Contains("Tagged"   )) TaggedxSec =xSec;
     else if(selection_[step].Contains("ttbarMass")) ProbSelxSec=xSec;
     if(verbose>=0&&withRatioPlot){
       std::cout << std::endl;
@@ -1353,7 +1368,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
   leg1     ->AddEntry(histo_[plotList_[0]][kData], sampleLabel(kData,decayChannel)+", "+lumilabel+TXT ,"PL");
 
   // empty dummy
-  legSplit2->AddEntry((TObject*)0, " ", "");
+  //legSplit2->AddEntry((TObject*)0, " ", "");
 
   // MC samples (add only if sample exists in at least one plot, then quit plot-loop to avoid duplication of entries)
   TLegend *legTheo=(TLegend*)leg->Clone();
@@ -1369,8 +1384,8 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	leg ->AddEntry(histo_[plotList_[plot]][sample], leglabel, "F");
 	leg0->AddEntry(histo_[plotList_[plot]][sample], leglabel, "F");
 	leg1->AddEntry(histo_[plotList_[plot]][sample], leglabel, "F");
-	if(legSplit1->GetNRows()<=5) legSplit1->AddEntry(histo_[plotList_[plot]][sample], leglabel, "F");
-	else                         legSplit2->AddEntry(histo_[plotList_[plot]][sample], leglabel, "F");
+	if(legSplit1->GetNRows()<5) legSplit1->AddEntry(histo_[plotList_[plot]][sample], leglabel, "F");
+	else                        legSplit2->AddEntry(histo_[plotList_[plot]][sample], leglabel, "F");
 	break;
       }
     }
@@ -2150,6 +2165,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	    if(plotList_[plot].Contains("bottomJetKinematicsTagged/n")                                                 ){xDn=2   ;xUp=5;   }
 	    if(plotList_[plot].Contains("JetKinematicsTagged")&&plotList_[plot].Contains("pt")                         ){xDn=30  ;xUp=350; }
 	    if(plotList_[plot].Contains("LeptonKinematicsTagged")&&plotList_[plot].Contains("pt")                      ){xDn=30  ;xUp=150; }
+            if(plotList_[plot].Contains("LeptonKinematicsTagged")&&plotList_[plot].Contains("eta")                     ){xDn=-2.1;xUp=2.1; }
 	    if(plotList_[plot].Contains("btagSimpleSecVtx")                                                            ){xDn=-1  ;xUp=7;   }
 	    if(plotList_[plot].Contains("btagCombSecVtx")                                                              ){xDn=0.  ;xUp=1.;  }
 	    if(plotList_[plot].Contains("lepPt" )                                                                      ){xDn=30. ;xUp=250.;}
