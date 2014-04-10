@@ -2,7 +2,6 @@
 #define GlobalScaleFactors_h
 
 #include <vector>
-#include <map>
 
 class TString;
 
@@ -10,8 +9,10 @@ class TString;
 #include "../../common/include/sampleHelpers.h"
 
 class RootFileReader;
+class LuminosityScaleFactors;
 class DyScaleFactors;
 class TtbbScaleFactors;
+
 
 
 
@@ -24,7 +25,7 @@ public:
     /// Constructor setting up all requested scale factors for all specified channels and systematics
     GlobalScaleFactors(const std::vector<Channel::Channel>& v_channel,
                        const std::vector<Systematic::Systematic>& v_systematic,
-                       const double& luminosityInInverseFb =1.,
+                       const double& luminosityInInversePb =1.,
                        const bool dyCorrection =false,
                        const bool ttbbCorrection =false);
     
@@ -38,9 +39,18 @@ public:
     /// Access the scale factors for a given selection step, using all corrections which are set up in constructor
     std::pair<SystematicChannelFactors, bool> scaleFactors(const Samples& samples, const TString& step)const;
     
+    /// Return the used luminosity value in inverse pb
+    double luminosityInInversePb()const;
+    
     
     
 private:
+    
+    /// The luminosity in inverse pb
+    const double luminosityInInversePb_;
+    
+    /// Pointer to the luminosity scale factors
+    LuminosityScaleFactors* luminosityScaleFactors_;
     
     /// Pointer to the Drell-Yan scale factors
     DyScaleFactors* dyScaleFactors_;
@@ -48,18 +58,15 @@ private:
     /// Pointer to the tt+HF scale factors
     TtbbScaleFactors* ttbbScaleFactors_;
     
-    /// Map containing the luminosity weights for all samples
-    SystematicChannelFactors m_luminosityWeight_;
+    /// File reader for accessing specific histogram from given file
+    RootFileReader* rootFileReader_;
 };
 
 
 
 
 
-
-
 #endif
-
 
 
 

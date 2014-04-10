@@ -1,5 +1,5 @@
-#ifndef plotterclass_h
-#define plotterclass_h
+#ifndef Plotter_h
+#define Plotter_h
 
 #include <vector>
 #include <map>
@@ -25,7 +25,6 @@ public:
     
     /// Constructor
     Plotter(const Samples& samples,
-            const double& luminosity,
             const DrawMode::DrawMode& drawMode);
     
     /// Destructor
@@ -59,29 +58,22 @@ private:
     
     
     
-    /// Prepare a separate legend for the plots, which can have e.g. a different order
-    TLegend* controlLegend(const LegendHistPair& dataHist, const std::vector<LegendHistPair>& stackHists,
-                           const std::vector<LegendHistPair>& higgsHists, TLegend* leg);
-    
     /// Set the style of the plot
-    void setStyle(SampleHistPair&, const bool isControlPlot=false);
+    void setStyle(SampleHistPair& sampleHistPair, const bool isControlPlot =false);
     
     /// Draw label for decay channel in upper left corner of plot
-    void drawDecayChannelLabel(const Channel::Channel&, const double& textSize=0.04);
+    void drawDecayChannelLabel(const Channel::Channel& channel, const double& textSize =0.04)const;
     
     /// Draw official labels (CMS [Preliminary], luminosity and CM energy) above plot
-    void drawCmsLabels(const int cmsprelim=1, const double& energy=8, const double& textSize=0.04);
+    void drawCmsLabels(const int cmsprelim =1, const double& energy =8, const double& textSize =0.04)const;
     
     /// Draw signal significance label over the plot
-    TPaveText* drawSignificance(TH1* signal, TH1* bkg, float Xmin,  float Xmax, float yOffset = 0.f, std::string sLabel = "");
+    TPaveText* drawSignificance(TH1* signal, TH1* bkg, float Xmin,  float Xmax, float yOffset = 0.f, std::string sLabel ="")const;
     
     
     
     /// Samples to be analysed
     const Samples& samples_;
-    
-    /// Luminosity
-    const double& luminosity_;
     
     /// Draw mode for Higgs
     const DrawMode::DrawMode drawMode_;

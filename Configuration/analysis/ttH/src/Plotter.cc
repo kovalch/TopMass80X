@@ -23,7 +23,6 @@
 #include "Plotter.h"
 #include "higgsUtils.h"
 #include "Samples.h"
-#include "DyScaleFactors.h"
 #include "../../common/include/sampleHelpers.h"
 #include "../../common/include/RootFileReader.h"
 #include "../../common/include/plotterUtils.h"
@@ -40,10 +39,8 @@ constexpr const char* ControlPlotDIR = "Plots";
 
 
 Plotter::Plotter(const Samples& samples,
-                 const double& luminosity,
                  const DrawMode::DrawMode& drawMode):
 samples_(samples),
-luminosity_(luminosity),
 drawMode_(drawMode),
 fileReader_(RootFileReader::getInstance()),
 name_("defaultName"),
@@ -360,9 +357,6 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
         stack->Add(stackHist->second);
     }
 
-    // In fact the legend is filled oppositely than the stack, so this is used for turning the order (but not completely)
-//    legend = ControlLegend(dataHist, stackHists, higgsHists, legend);
-
     
     // FIXME: is this histo for error band on stack? but it is commented out ?!
     TH1D* syshist(0);
@@ -539,57 +533,7 @@ void Plotter::setStyle(SampleHistPair& sampleHistPair, const bool isControlPlot)
 
 
 
-TLegend* Plotter::controlLegend(const LegendHistPair& dataHist, const std::vector<LegendHistPair>& stackHists,
-                                const std::vector<LegendHistPair>& higgsHists, TLegend* leg)
-{
-    //hardcoded ControlPlot legend
-    std::vector<TString> v_orderedLegend;
-    v_orderedLegend.push_back("Data");
-    v_orderedLegend.push_back("t#bar{t} Signal");
-    v_orderedLegend.push_back("t#bar{t} Other");
-    v_orderedLegend.push_back("Single Top");
-    v_orderedLegend.push_back("W+Jets");
-    v_orderedLegend.push_back("Z / #gamma* #rightarrow ee/#mu#mu");
-    v_orderedLegend.push_back("Z / #gamma* #rightarrow #tau#tau");
-    v_orderedLegend.push_back("Diboson");
-    v_orderedLegend.push_back("QCD Multijet");
-    v_orderedLegend.push_back("t#bar{t}H (incl.)");
-    v_orderedLegend.push_back("t#bar{t}H (b#bar{b})");
-
-    leg->Clear();
-    leg->SetX1NDC(1.0-gStyle->GetPadRightMargin()-gStyle->GetTickLength()-0.25);
-    leg->SetY1NDC(1.0-gStyle->GetPadTopMargin()-gStyle->GetTickLength()-0.30);
-    leg->SetX2NDC(1.0-gStyle->GetPadRightMargin()-gStyle->GetTickLength());
-    leg->SetY2NDC(1.0-gStyle->GetPadTopMargin()-gStyle->GetTickLength());
-    leg->SetTextFont(42);
-    leg->SetTextSize(0.03);
-    leg->SetFillStyle(0);
-    leg->SetBorderSize(0);
-    leg->SetTextAlign(12);
-    for(const auto& orderedLegend : v_orderedLegend){
-        if(dataHist.first.Contains(orderedLegend)){
-            leg->AddEntry(dataHist.second, dataHist.first, "pe");
-            continue;
-        }
-        for(const auto& stackHist : stackHists){
-            if(stackHist.first.Contains(orderedLegend)){
-                leg->AddEntry(stackHist.second, stackHist.first, "f");
-                break;
-            }
-        }
-        for(const auto& higgsHist : higgsHists){
-            if(higgsHist.first.Contains(orderedLegend)){
-                leg->AddEntry(higgsHist.second, higgsHist.first, "l");
-                break;
-            }
-        }
-    }
-    return leg;
-}
-
-
-
-void Plotter::drawDecayChannelLabel(const Channel::Channel& channel, const double& textSize)
+void Plotter::drawDecayChannelLabel(const Channel::Channel& channel, const double& textSize)const
 {
     TPaveText* decayChannel = new TPaveText();
 
@@ -609,34 +553,30 @@ void Plotter::drawDecayChannelLabel(const Channel::Channel& channel, const doubl
 
 
 
-void Plotter::drawCmsLabels(const int cmsprelim, const double& energy, const double& textSize)
+void Plotter::drawCmsLabels(const int cmsprelim, const double& energy, const double& textSize)const
 {
     const char* text;
-    if(cmsprelim ==2 ) {//Private work for PhDs students
-        text = "Private Work, %2.1f fb^{-1} at #sqrt{s} = %2.f TeV";
-    } else if (cmsprelim==1) {//CMS preliminary label
-        text = "CMS Preliminary, %2.1f fb^{-1} at #sqrt{s} = %2.f TeV";
-    } else {//CMS label
-        text = "CMS, %2.1f fb^{-1} at #sqrt{s} = %2.f TeV";
-    }
+    if(cmsprelim == 2) text = "Private Work, %2.1f fb^{-1} at #sqrt{s} = %2.f TeV"; // Private work for PhDs students
+    else if (cmsprelim == 1) text = "CMS Preliminary, %2.1f fb^{-1} at #sqrt{s} = %2.f TeV"; // CMS preliminary label
+    else text = "CMS, %2.1f fb^{-1} at #sqrt{s} = %2.f TeV"; // CMS label
 
-    TPaveText *label = new TPaveText();
+    TPaveText* label = new TPaveText();
     label->SetX1NDC(gStyle->GetPadLeftMargin());
-    label->SetY1NDC(1.0-gStyle->GetPadTopMargin());
-    label->SetX2NDC(1.0-gStyle->GetPadRightMargin());
+    label->SetY1NDC(1.0 - gStyle->GetPadTopMargin());
+    label->SetX2NDC(1.0 - gStyle->GetPadRightMargin());
     label->SetY2NDC(1.0);
     label->SetTextFont(42);
-    label->AddText(Form(text, luminosity_/1000, energy));
+    label->AddText(Form(text, samples_.luminosityInInversePb()/1000., energy));
     label->SetFillStyle(0);
     label->SetBorderSize(0);
-    if (textSize!=0) label->SetTextSize(textSize);
+    if(textSize != 0) label->SetTextSize(textSize);
     label->SetTextAlign(32);
     label->Draw("same");
 }
 
 
 
-TPaveText* Plotter::drawSignificance(TH1* signal, TH1* sigBkg, float min, float max, float yOffset, std::string sLabel)
+TPaveText* Plotter::drawSignificance(TH1* signal, TH1* sigBkg, float min, float max, float yOffset, std::string sLabel)const
 {
     if(max<=min) {
         std::cout<<"Wrong range for signal significance in  histogram ("<<name_<<")\n";

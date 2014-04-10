@@ -7,7 +7,6 @@
 #include "EventYields.h"
 #include "higgsUtils.h"
 #include "Samples.h"
-#include "DyScaleFactors.h"
 #include "../../common/include/sampleHelpers.h"
 #include "../../common/include/RootFileReader.h"
 

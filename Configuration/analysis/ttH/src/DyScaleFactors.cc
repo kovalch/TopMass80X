@@ -1,8 +1,8 @@
+#include <map>
+#include <utility>
 #include <iostream>
 #include <iomanip>
-#include <sstream>
 
-#include <TH1.h>
 #include <TH1D.h>
 #include <TMath.h>
 #include <TString.h>
@@ -17,18 +17,20 @@
 
 
 
-DyScaleFactors::DyScaleFactors(const Samples& samples):
-fileReader_(RootFileReader::getInstance())
+DyScaleFactors::DyScaleFactors(const Samples& samples, RootFileReader* const rootFileReader):
+rootFileReader_(rootFileReader)
 {
+    std::cout<<"--- Beginning production of Drell-Yan scale factors\n\n";
+    
     this->produceScaleFactors(samples);
+    
+    std::cout<<"\n=== Finishing production of Drell-Yan scale factors\n\n";
 }
 
 
 
 void DyScaleFactors::produceScaleFactors(const Samples& samples)
 {
-    std::cout<<"--- Beginning production of Drell-Yan scale factors\n\n";
-    
     // Extract steps for Drell-Yan scaling from first file in map
     const SystematicChannelSamples& m_systematicChannelSamples = samples.getSystematicChannelSamples();
     const TString& filename = m_systematicChannelSamples.begin()->second.begin()->second.begin()->inputFile();
@@ -58,7 +60,6 @@ void DyScaleFactors::produceScaleFactors(const Samples& samples)
                     <<std::fixed<<std::setprecision(3)<<eeScaleFactor<<" , "<<mumuScaleFactor<<"\n";
        }
     }
-    std::cout<<"\n=== Finishing production of Drell-Yan scale factors\n\n";
 }
 
 
@@ -87,10 +88,10 @@ void DyScaleFactors::produceScaleFactors(const TString& step, const Samples& sam
                 const Sample& sample = v_sample.at(iSample);
                 if(sample.sampleType()==Sample::ttHbb || sample.sampleType()==Sample::ttHother) continue;
                 
-                TH1D* h_loose = fileReader_->GetClone<TH1D>(sample.inputFile(), "dyScaling_Looseh1");
-                TH1D* h_zWindow = fileReader_->GetClone<TH1D>(sample.inputFile(), TString("dyScaling_Zh1").Append(step).Append("zWindow"));
-                TH1D* h_zVeto = fileReader_->GetClone<TH1D>(sample.inputFile(), TString("dyScaling_TTh1").Append(step));
-                TH1D* h_all = fileReader_->GetClone<TH1D>(sample.inputFile(), TString("dyScaling_Allh1").Append(step));
+                TH1D* h_loose = rootFileReader_->GetClone<TH1D>(sample.inputFile(), "dyScaling_Looseh1");
+                TH1D* h_zWindow = rootFileReader_->GetClone<TH1D>(sample.inputFile(), TString("dyScaling_Zh1").Append(step).Append("zWindow"));
+                TH1D* h_zVeto = rootFileReader_->GetClone<TH1D>(sample.inputFile(), TString("dyScaling_TTh1").Append(step));
+                TH1D* h_all = rootFileReader_->GetClone<TH1D>(sample.inputFile(), TString("dyScaling_Allh1").Append(step));
                 
                 if(sample.sampleType() != Sample::data){
                     const double& weight = globalWeights.at(systematic).at(channel).at(iSample);

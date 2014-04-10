@@ -37,8 +37,11 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   AnalyzerPlayground
   JetCategories
   plotterHelpers
+  Sample
+  SampleDefinitions
   Samples
   GlobalScaleFactors
+  LuminosityScaleFactors
   DyScaleFactors
   EventYields
   Plotter

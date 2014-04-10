@@ -42,13 +42,13 @@ void Histo(const std::vector<std::string>& v_plot,
     const GlobalScaleFactors* globalScaleFactors = new GlobalScaleFactors(v_channel, v_systematic, Luminosity, dyCorrection, ttbbCorrection);
     
     // Access all samples
-    const Samples samples(v_channel, v_systematic, globalScaleFactors);
+    const Samples samples("FileLists_plot", v_channel, v_systematic, globalScaleFactors);
     
     // Produce event yields
     const EventYields eventYields(samples);
     
     // Create Plotter
-    Plotter generalPlot(samples, Luminosity, drawMode);
+    Plotter generalPlot(samples, drawMode);
     
     // Access the histoList specifying printing parameters of histograms
     const std::string histoListFile(tth::DATA_PATH_TTH() + "/" + "HistoList_control");
