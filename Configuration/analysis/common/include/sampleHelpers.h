@@ -175,6 +175,9 @@ namespace common{
     /// Access an already existing input folder
     TString accessFolder(const char* baseDir, const Channel::Channel& channel,
                          const Systematic::Systematic& systematic, const bool allowNonexisting =false);
+    
+    /// Access the real final state from a filename, ie. only "ee", "emu", "mumu", but not "combined"
+    Channel::Channel finalState(const TString& filename);
 }
 
 

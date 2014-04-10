@@ -294,7 +294,19 @@ TString common::accessFolder(const char* baseDir, const Channel::Channel& channe
 
 
 
-
+Channel::Channel common::finalState(const TString& filename)
+{
+    std::vector<Channel::Channel> v_channel {Channel::ee, Channel::emu, Channel::mumu};
+    for(auto channel : v_channel){
+        TString finalState(Channel::convertChannel(channel));
+        finalState.Prepend("/");
+        finalState.Append("/");
+        if(filename.Contains(finalState)){
+            return channel;
+        }
+    }
+    return Channel::undefined;
+}
 
 
 
