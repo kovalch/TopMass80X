@@ -422,6 +422,17 @@ nafJobSplitter.pl -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElWZJESDn -c m
 nafJobSplitter.pl -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuZZJESDn -c mctag=Summer12,triggerTag=HLT,sample=ZZ,JEtag=JESDown,lepton=muon     462 analyzeTopDiffXSec_cfg.py
 nafJobSplitter.pl -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElZZJESDn -c mctag=Summer12,triggerTag=HLT,sample=ZZ,JEtag=JESDown,lepton=electron 443 analyzeTopDiffXSec_cfg.py
 
+#######
+# ttV #
+#######
+# standard
+nafJobSplitter.pl -q 3 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuTTGjets -c mctag=Summer12,triggerTag=HLT,sample=ttgjets,lepton=muon     84 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -q 3 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElTTGjets -c mctag=Summer12,triggerTag=HLT,sample=ttgjets,lepton=electron     84 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -q 3 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuTTZjets -c mctag=Summer12,triggerTag=HLT,sample=ttzjets,lepton=muon       10 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -q 3 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElTTZjets -c mctag=Summer12,triggerTag=HLT,sample=ttzjets,lepton=electron       10 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -q 3 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuTTWjets -c mctag=Summer12,triggerTag=HLT,sample=ttwjets,lepton=muon       10 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -q 3 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElTTWjets -c mctag=Summer12,triggerTag=HLT,sample=ttwjets,lepton=electron       10 analyzeTopDiffXSec_cfg.py
+
 ###############
 #closure tests#
 ###############
