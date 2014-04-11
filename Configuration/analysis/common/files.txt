@@ -68,7 +68,7 @@
 # ttV (V = W,Z,gamma)
 120  Summer12.TTWJets_8TeV_madgraph_Summer12_DR53X_PU_S10_START53_V7A_v1_cff               ttbarW.root                  ttbarw
 30   Summer12.TTZJets_8TeV_madgraph_v2_Summer12_DR53X_PU_S10_START53_V7A_v1_cff            ttbarZ.root                  ttbarz
-1    Summer12.TTGJets_8TeV_madgraph_Summer12_DR53X_PU_S10_START53_V7A_v1_cff 	           ttgjets.root                 ttg
+20   Summer12.TTGJets_8TeV_madgraph_Summer12_DR53X_PU_S10_START53_V19_v1_cff               ttgjets.root                 ttg
 
 
 
