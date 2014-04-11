@@ -233,7 +233,8 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "t#bar{t}Z",
         kTeal+1,
         0.2057,
-        {"ttbarZ.root"}
+        {"ttbarZ.root"},
+        Sample::ttZ
     );
     
     result["ttbarH125inclusiveOther"] = Sample(
