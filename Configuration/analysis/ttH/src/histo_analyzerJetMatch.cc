@@ -32,7 +32,7 @@
 constexpr const char* InputBaseDIR = "selectionRoot/Nominal/";
 
 /// The output base folder
-constexpr const char* OutputBaseDIR = "Plots_genLevel_genRecoMatching";
+constexpr const char* OutputBaseDIR = "Plots_genRecoMatching";
 
 
 void setStyle(){
@@ -451,210 +451,7 @@ void printHistogram(TString fileName, TString legFileName, TString prefix_histna
                 plot_TH1 (outputFolder, v_Overlapping_All_histname1D.at(1), name, name_leg, "matchedBjet", 8, "Top/Higgs Jets", false);
                 
             }
-            if (!mismatched){
                 
-                //=============================        Plots for testing overlapping   ================================//
-                
-                //-----------Plots for all Jets (No matter if they are Top or Higgs)-----------//
-                //set the names for the histograms
-                std::vector<TString> v_Overlapping_All_histname1D_;{
-                    v_Overlapping_All_histname1D_.push_back(prefix_histname+"HasOverlappingHadrons"+ending_histname);
-                    v_Overlapping_All_histname1D_.push_back(prefix_histname+"NOverlappingHadrons"+ending_histname);
-                }
-                std::vector<TString> v_Overlapping_All_histname2D_;{
-                    v_Overlapping_All_histname2D_.push_back(prefix_histname+"GenJetsID_VS_NOverlappingHadrons_2D"+ending_histname);
-                }
-                
-                // set up histograms
-                std::vector<TH1D*> v_Overlapping_All_histname1D;
-                std::vector<TH2D*> v_Overlapping_All_histname2D;
-                
-                for(size_t iHist = 0; iHist < v_Overlapping_All_histname1D_.size(); ++iHist){
-                    TH1D *histname1D  = (TH1D*) file->Get(v_Overlapping_All_histname1D_.at(iHist));
-                    v_Overlapping_All_histname1D.push_back(histname1D);
-                }
-                for(size_t iHist = 0; iHist < v_Overlapping_All_histname2D_.size(); ++iHist){
-                    TH2D *histname2D  = (TH2D*) file->Get(v_Overlapping_All_histname2D_.at(iHist));
-                    v_Overlapping_All_histname2D.push_back(histname2D);
-                }
- 
-                //Print Histograms
-                plot_TH1 (outputFolder, v_Overlapping_All_histname1D.at(0), name, name_leg, "HasOverlappingHadrons_All", 8, "All Jets", false);
-                plot_TH1 (outputFolder, v_Overlapping_All_histname1D.at(1), name, name_leg, "NOverlappingHadrons_All", 8, "All Jets", false);
-                plot_TH2 (outputFolder, v_Overlapping_All_histname2D.at(0), name, name_leg, "GenJetsID_VS_NOverlappingHadrons_2D_All","All Jets");
-           
-                //----------------            Plots for the Top Jets           -------------------//
-                //set the names for the histograms
-                std::vector<TString> v_Overlapping_Top_histname1D_;{
-                    v_Overlapping_Top_histname1D_.push_back(prefix_histname+"HasOverlappingHadrons_Top"+ending_histname);
-                    v_Overlapping_Top_histname1D_.push_back(prefix_histname+"NOverlappingHadrons_Top"+ending_histname);
-                }
-                std::vector<TString> v_Overlapping_Top_histname2D_;{
-                    v_Overlapping_Top_histname2D_.push_back(prefix_histname+"GenJetsID_VS_NOverlappingHadrons_Top_2D"+ending_histname);
-                }
-
-                // set up histograms
-                std::vector<TH1D*> v_Overlapping_Top_histname1D;
-                std::vector<TH2D*> v_Overlapping_Top_histname2D;
-                for(size_t iHist = 0; iHist < v_Overlapping_Top_histname1D_.size(); ++iHist){
-                    TH1D *histname1D  = (TH1D*) file->Get(v_Overlapping_Top_histname1D_.at(iHist));
-                    v_Overlapping_Top_histname1D.push_back(histname1D);
-                }
-                for(size_t iHist = 0; iHist < v_Overlapping_Top_histname2D_.size(); ++iHist){
-                    TH2D *histname2D  = (TH2D*) file->Get(v_Overlapping_Top_histname2D_.at(iHist));
-                    v_Overlapping_Top_histname2D.push_back(histname2D);
-                } 
-                
-                //Print Histograms
-                plot_TH1 (outputFolder, v_Overlapping_Top_histname1D.at(0), name, name_leg, "HasOverlappingHadrons_Top", 4, "Top Jets", false);
-                plot_TH1 (outputFolder, v_Overlapping_Top_histname1D.at(1), name, name_leg, "NOverlappingHadrons_Top", 4, "Top Jets", false);
-                plot_TH2 (outputFolder, v_Overlapping_Top_histname2D.at(0), name, name_leg, "GenJetsID_VS_NOverlappingHadrons_2D_Top","Top Jets");
-  
-                
-                //-----------------           Plots for the Higgs Jets         ---------------------//
-                //set the names for the histograms
-                std::vector<TString> v_Overlapping_Higgs_histname1D_;{
-                    v_Overlapping_Higgs_histname1D_.push_back(prefix_histname+"HasOverlappingHadrons_Higgs"+ending_histname);
-                    v_Overlapping_Higgs_histname1D_.push_back(prefix_histname+"NOverlappingHadrons_Higgs"+ending_histname);
-                }
-                std::vector<TString> v_Overlapping_Higgs_histname2D_;{
-                    v_Overlapping_Higgs_histname2D_.push_back(prefix_histname+"GenJetsID_VS_NOverlappingHadrons_Higgs_2D"+ending_histname);
-                }
-   
-                // set up histograms
-                std::vector<TH1D*> v_Overlapping_Higgs_histname1D;
-                std::vector<TH2D*> v_Overlapping_Higgs_histname2D;
-                for(size_t iHist = 0; iHist < v_Overlapping_Higgs_histname1D_.size(); ++iHist){
-                    TH1D *histname1D  = (TH1D*) file->Get(v_Overlapping_Higgs_histname1D_.at(iHist));
-                    v_Overlapping_Higgs_histname1D.push_back(histname1D);
-                }
-                for(size_t iHist = 0; iHist < v_Overlapping_Higgs_histname2D_.size(); ++iHist){
-                    TH2D *histname2D  = (TH2D*) file->Get(v_Overlapping_Higgs_histname2D_.at(iHist));
-                    v_Overlapping_Higgs_histname2D.push_back(histname2D);
-                }  
-                
-                //Print Histograms
-                plot_TH1 (outputFolder, v_Overlapping_Higgs_histname1D.at(0), name, name_leg, "HasOverlappingHadrons_Higgs", 7, "Higgs Jets", false);
-                plot_TH1 (outputFolder, v_Overlapping_Higgs_histname1D.at(1), name, name_leg, "NOverlappingHadrons_Higgs", 7, "Higgs Jets", false);
-                plot_TH2 (outputFolder, v_Overlapping_Higgs_histname2D.at(0), name, name_leg, "GenJetsID_VS_NOverlappingHadrons_2D_Higgs","Higgs Jets");
-
-                
-                //-------------------        Plots for Top + Higgs Jets   ---------------------//
-                //set the names for the histograms
-                std::vector<TString> v_Overlapping_TopHiggs_histname1D_;{
-                    v_Overlapping_TopHiggs_histname1D_.push_back(prefix_histname+"HasOverlappingHadrons_TopHiggs"+ending_histname);
-                    v_Overlapping_TopHiggs_histname1D_.push_back(prefix_histname+"NOverlappingHadrons_TopHiggs"+ending_histname);
-                }
-                std::vector<TString> v_Overlapping_TopHiggs_histname2D_;{
-                    v_Overlapping_TopHiggs_histname2D_.push_back(prefix_histname+"GenJetsID_VS_NOverlappingHadrons_TopHiggs_2D"+ending_histname);
-                }
-                
-                // set up histograms
-                std::vector<TH1D*> v_Overlapping_TopHiggs_histname1D;
-                std::vector<TH2D*> v_Overlapping_TopHiggs_histname2D;
-                for(size_t iHist = 0; iHist < v_Overlapping_TopHiggs_histname1D_.size(); ++iHist){
-                    TH1D *histname1D  = (TH1D*) file->Get(v_Overlapping_TopHiggs_histname1D_.at(iHist));
-                    v_Overlapping_TopHiggs_histname1D.push_back(histname1D);
-                }
-                for(size_t iHist = 0; iHist < v_Overlapping_TopHiggs_histname2D_.size(); ++iHist){
-                    TH2D *histname2D  = (TH2D*) file->Get(v_Overlapping_TopHiggs_histname2D_.at(iHist));
-                    v_Overlapping_TopHiggs_histname2D.push_back(histname2D);
-                }
-                
-                //Print Histograms
-                plot_TH1 (outputFolder, v_Overlapping_TopHiggs_histname1D.at(0), name, name_leg, "HasOverlappingHadrons_TopHiggs", 8, "Top+Higgs Jets", false);
-                plot_TH1 (outputFolder, v_Overlapping_TopHiggs_histname1D.at(1), name, name_leg, "NOverlappingHadrons_TopHiggs", 8, "Top+Higgs Jets", false);
-                plot_TH2 (outputFolder, v_Overlapping_TopHiggs_histname2D.at(0), name, name_leg, "GenJetsID_VS_NOverlappingHadrons_2D_TopHiggs","Top+Higgs Jets");
-   
-                
-                //===============                   Gen Level Plots                   =================//
-                //----------------------          Plots for the Top Jets        ---------------------------------//
-                //set the names for the histograms
-                std::vector<TString> v_Gen_Top_histname1D_;{
-                    v_Gen_Top_histname1D_.push_back(prefix_histname+"leading_Topjet_Pt"+ending_histname);
-                    v_Gen_Top_histname1D_.push_back(prefix_histname+"subleading_Topjet_Pt"+ending_histname);
-                    v_Gen_Top_histname1D_.push_back(prefix_histname+"leading_Topjet_eta"+ending_histname);
-                    v_Gen_Top_histname1D_.push_back(prefix_histname+"subleading_Topjet_eta"+ending_histname);
-                    v_Gen_Top_histname1D_.push_back(prefix_histname+"DeltaEta_Topjet"+ending_histname);
-                    v_Gen_Top_histname1D_.push_back(prefix_histname+"DeltaPhi_Topjet"+ending_histname);
-                    v_Gen_Top_histname1D_.push_back(prefix_histname+"DeltaR_Topjet"+ending_histname);
-                }
-                
-                // set up histograms
-                std::vector<TH1D*> v_Gen_Top_histname1D;
-                for(size_t iHist = 0; iHist < v_Gen_Top_histname1D_.size(); ++iHist){
-                    TH1D *histname1D  = (TH1D*) file->Get(v_Gen_Top_histname1D_.at(iHist));
-                    v_Gen_Top_histname1D.push_back(histname1D);
-                }
-                 
-                //Print Histograms
-                plot_2TH1(outputFolder, v_Gen_Top_histname1D.at(0), v_Gen_Top_histname1D.at(1), name, name_leg, "TopJetsPt", 4, 2, "Top Leading Jet", "Top nLeading Jet");
-                plot_2TH1(outputFolder, v_Gen_Top_histname1D.at(2), v_Gen_Top_histname1D.at(3), name, name_leg, "TopJetsEta", 4, 2, "Top Leading Jet", "Top nLeading Jet");
-                plot_TH1 (outputFolder, v_Gen_Top_histname1D.at(4), name, name_leg, "DeltaEta_lead_nlead_TopJets", 4, "Top Jets", false);
-                plot_TH1 (outputFolder, v_Gen_Top_histname1D.at(5), name, name_leg, "DeltaPhi_lead_nlead_TopJets", 4, "Top Jets", false);
-                plot_TH1 (outputFolder, v_Gen_Top_histname1D.at(6), name, name_leg, "DeltaR_lead_nlead_TopJets", 4, "Top Jets", false);
-                
-                //---------------------                Plots for the Higgs Jets         --------------------------------------//
-                //set the names for the histograms
-                std::vector<TString> v_Gen_Higgs_histname1D_;{
-                    v_Gen_Higgs_histname1D_.push_back(prefix_histname+"leading_Higgsjet_Pt"+ending_histname);
-                    v_Gen_Higgs_histname1D_.push_back(prefix_histname+"subleading_Higgsjet_Pt"+ending_histname);
-                    v_Gen_Higgs_histname1D_.push_back(prefix_histname+"leading_Higgsjet_eta"+ending_histname);
-                    v_Gen_Higgs_histname1D_.push_back(prefix_histname+"subleading_Higgsjet_eta"+ending_histname);
-                    v_Gen_Higgs_histname1D_.push_back(prefix_histname+"DeltaEta_Higgsjet"+ending_histname);
-                    v_Gen_Higgs_histname1D_.push_back(prefix_histname+"DeltaPhi_Higgsjet"+ending_histname);
-                    v_Gen_Higgs_histname1D_.push_back(prefix_histname+"DeltaR_Higgsjet"+ending_histname);
-                }
-                
-                // set up histograms
-                std::vector<TH1D*> v_Gen_Higgs_histname1D;
-                for(size_t iHist = 0; iHist < v_Gen_Higgs_histname1D_.size(); ++iHist){
-                    TH1D *histname1D  = (TH1D*) file->Get(v_Gen_Higgs_histname1D_.at(iHist));
-                    v_Gen_Higgs_histname1D.push_back(histname1D);
-                }
-                   
-                //Print Histograms
-                plot_2TH1(outputFolder, v_Gen_Higgs_histname1D.at(0), v_Gen_Higgs_histname1D.at(1), name, name_leg, "HiggsJetsPt", 7, 6, "Higgs Leading Jet", "Higgs nLeading Jet");
-                plot_2TH1(outputFolder, v_Gen_Higgs_histname1D.at(2), v_Gen_Higgs_histname1D.at(3), name, name_leg, "HiggsJetsEta", 7, 6, "Higgs Leading Jet", "Higgs nLeading Jet");
-                plot_TH1 (outputFolder, v_Gen_Higgs_histname1D.at(4), name, name_leg, "DeltaEta_lead_nlead_HiggsJets", 7, "Higgs Jets", false);
-                plot_TH1 (outputFolder, v_Gen_Higgs_histname1D.at(5), name, name_leg, "DeltaPhi_lead_nlead_HiggsJets", 7, "Higgs Jets", false);
-                plot_TH1 (outputFolder, v_Gen_Higgs_histname1D.at(6), name, name_leg, "DeltaR_lead_nlead_HiggsJets", 7, "Higgs Jets", false);
-                   
-                //--------------------       Plots for Top + Higgs Jets  ----------------------------------------//
-                //set the names for the histograms
-                std::vector<TString> v_Gen_TopHiggs_histname1D_;{
-                    v_Gen_TopHiggs_histname1D_.push_back(prefix_histname+"Topleading_TopHiggsJets_Pt"+ending_histname);
-                    v_Gen_TopHiggs_histname1D_.push_back(prefix_histname+"Topsubleading_TopHiggsJets_Pt"+ending_histname);
-                    v_Gen_TopHiggs_histname1D_.push_back(prefix_histname+"Higgsleading_TopHiggsJets_Pt"+ending_histname);
-                    v_Gen_TopHiggs_histname1D_.push_back(prefix_histname+"Higgssubleading_TopHiggsJets_Pt"+ending_histname);
-                    v_Gen_TopHiggs_histname1D_.push_back(prefix_histname+"Topleading_TopHiggsJets_eta"+ending_histname);
-                    v_Gen_TopHiggs_histname1D_.push_back(prefix_histname+"Topsubleading_TopHiggsJets_eta"+ending_histname);
-                    v_Gen_TopHiggs_histname1D_.push_back(prefix_histname+"Higgsleading_TopHiggsJets_eta"+ending_histname);
-                    v_Gen_TopHiggs_histname1D_.push_back(prefix_histname+"Higgssubleading_TopHiggsJets_eta"+ending_histname);
-                    v_Gen_TopHiggs_histname1D_.push_back(prefix_histname+"MinDeltaEta"+ending_histname);
-                    v_Gen_TopHiggs_histname1D_.push_back(prefix_histname+"MinDeltaPhi"+ending_histname);
-                    v_Gen_TopHiggs_histname1D_.push_back(prefix_histname+"MinDeltaR"+ending_histname);
-                }
-                
-                // set up histograms
-                std::vector<TH1D*> v_Gen_TopHiggs_histname1D;
-                for(size_t iHist = 0; iHist < v_Gen_TopHiggs_histname1D_.size(); ++iHist){
-                    TH1D *histname1D  = (TH1D*) file->Get(v_Gen_TopHiggs_histname1D_.at(iHist));
-                    v_Gen_TopHiggs_histname1D.push_back(histname1D);
-                }   
-                
-                //Print Histograms
-                plot_4TH1(outputFolder, v_Gen_TopHiggs_histname1D.at(0), v_Gen_TopHiggs_histname1D.at(1), v_Gen_TopHiggs_histname1D.at(2), v_Gen_TopHiggs_histname1D.at(3), name, name_leg, "TopHiggsJetsPt", 4, 2, 7, 6,"Top Leading Jet", "Top nLeading Jet","Higgs Leading Jet", "Higgs nLeading Jet");
-                plot_4TH1(outputFolder, v_Gen_TopHiggs_histname1D.at(4), v_Gen_TopHiggs_histname1D.at(5), v_Gen_TopHiggs_histname1D.at(6), v_Gen_TopHiggs_histname1D.at(7), name, name_leg, "TopHiggsJetsEta", 4, 2, 7, 6,"Top Leading Jet", "Top nLeading Jet","Higgs Leading Jet", "Higgs nLeading Jet");
-                plot_TH1 (outputFolder, v_Gen_TopHiggs_histname1D.at(8), name, name_leg, "DeltaEta_TopHiggsJets", 8, "Top+Higgs Jets", false);
-                plot_TH1 (outputFolder, v_Gen_TopHiggs_histname1D.at(9), name, name_leg, "DeltaPhi_TopHiggsJets", 8, "Top+Higgs Jets", false);
-                plot_TH1 (outputFolder, v_Gen_TopHiggs_histname1D.at(10), name, name_leg, "DeltaR_TopHiggsJets", 8, "Top+Higgs Jets", false);
-            }
-
-
-        
-            //===============       Gen-Reco Matching Plots        =================//
-        
             //----------------   Plots for all Jets (No matter if they are Top or Higgs)   ---------------------------//
             //set the names for the histograms
             std::vector<TString> v_GenReco_All_histname1D_;{
@@ -663,8 +460,7 @@ void printHistogram(TString fileName, TString legFileName, TString prefix_histna
                 v_GenReco_All_histname1D_.push_back(prefix_histname+"MinDeltaR_RecoGen"+ending_histname);
             }
   
-            std::vector<TString> v_GenReco_All_histname2D_;
-            {
+            std::vector<TString> v_GenReco_All_histname2D_;{
                 v_GenReco_All_histname2D_.push_back(prefix_histname+"MinDeltaR_RecoGen_VS_PtGen_2D"+ending_histname);
                 v_GenReco_All_histname2D_.push_back(prefix_histname+"GenP_VS_RecoP_2D"+ending_histname); 
                 v_GenReco_All_histname2D_.push_back(prefix_histname+"GenPtVSGenPtMinusRecoPt_2D"+ending_histname); 

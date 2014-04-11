@@ -52,6 +52,10 @@ private:
                             const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
                             const double& weight, const TString& step,
                             std::map<TString, TH1*>& m_histogram);
+    
+    /// Find if there are any overlapping Hadrons
+    int overlappingHadrons( const std::vector<int>& genIndx);
+    bool MismatchedJets( const std::vector<int>& genIndx, const std::vector<int>& recoIndx, const int& i);
 };
 
 

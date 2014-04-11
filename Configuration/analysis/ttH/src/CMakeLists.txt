@@ -52,6 +52,7 @@ SET( ${PROJECT_NAME}_EXECUTABLES
   train_mvaTopJets
   Histo
   histo_analyzerJetMatch
+  histo_analyzerGenEvent
   histo_analyzerMvaTopJets
   histo_mvaTopJetsInputVariables
   )

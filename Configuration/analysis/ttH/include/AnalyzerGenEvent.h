@@ -52,6 +52,10 @@ private:
                             const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
                             const double& weight, const TString& step,
                             std::map<TString, TH1*>& m_histogram);
+    
+    /// Find the overlapping Hadrons and fill all the relevant histograms
+    int overlappingHadrons( const std::vector<int>& genIndex, const bool& returnNOverlapping);
+    
 };
 
 
