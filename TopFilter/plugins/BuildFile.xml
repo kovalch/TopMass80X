@@ -1,4 +1,5 @@
 <use   name="AnalysisDataFormats/TopObjects"/>
+<use   name="DataFormats/RecoCandidate"/>
 <use   name="DataFormats/PatCandidates"/>
 <use   name="PhysicsTools/CandUtils"/>
 <use   name="FWCore/MessageLogger"/>
