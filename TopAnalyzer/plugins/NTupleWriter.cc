@@ -535,15 +535,14 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
 
         //the ntuple now only stores maximum 1 solution: the best one
         // - if a two btag solution is found, take it
-        // - else if one tag solution is fount, take the best one
+        // - else if one tag solution is found, take the best one
         if (FullLepEvt->isHypoAvailable(hypoKey) && FullLepEvt->isHypoValid(hypoKey))
         {
             int best = -1;
-            for ( size_t i=0; i<FullLepEvt->numberOfAvailableHypos (hypoKey); ++i )
+            for ( size_t i=0; i<FullLepEvt->numberOfAvailableHypos(hypoKey); ++i )
             {
-                const pat::Jet &jet1 = jets->at(FullLepEvt->jetLeptonCombination(hypoKey,i)[0]);
-                const pat::Jet &jet2 = jets->at(FullLepEvt->jetLeptonCombination(hypoKey,i)[1]);
-                if (jet1.pt() <= 30 || jet2.pt() <= 30 || abs(jet1.eta()) > 2.4 || abs(jet2.eta()) > 2.4 ) continue;
+                const pat::Jet& jet1 = jets->at(FullLepEvt->jetLeptonCombination(hypoKey,i)[0]);
+                const pat::Jet& jet2 = jets->at(FullLepEvt->jetLeptonCombination(hypoKey,i)[1]);
                 bool jet1tagged = jet1.bDiscriminator("combinedSecondaryVertexBJetTags")>0.244;
                 bool jet2tagged = jet2.bDiscriminator("combinedSecondaryVertexBJetTags")>0.244;
                 if (jet1tagged && jet2tagged) { best = i; break; }
