@@ -84,7 +84,7 @@ void AnalyzerGenEvent::bookHistos(const TString& step, std::map<TString, TH1*>& 
     name = "GenJetsID_VS_NOverlappingHadrons_2D";
     m_histogram[name] = this->store(new TH2D(prefix_+name+step,"# GenJets Vs # Overlapping Hadrons;# overlapping hadrons ;# Gen jets",10,0,10,5,0,5));
   
-    ///==================================               Top + Higgs jets              =========================================//
+    //==================================               Top + Higgs jets              =========================================//
     name = "MinDeltaR";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step,"Top+Higgs Jets;Min_{#DeltaR_{jj}};Entries",bins_MinDR,min_MinDR,max_MinDR));
 
@@ -95,7 +95,7 @@ void AnalyzerGenEvent::bookHistos(const TString& step, std::map<TString, TH1*>& 
     m_histogram[name] = this->store(new TH1D(prefix_+name+step,"Top+Higgs jets;Min_{#Delta#phi_{jj}};Entries",bins_MinDPhi,min_MinDPhi,max_MinDPhi));
     
 
-    ///==================================               Top jets              =========================================//
+    //==================================               Top jets              =========================================//
     name = "Topleading_TopHiggsJets_Pt";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step,"Leading Top jet in Top+Higgs Jets;p_{T} [GeV];Entries",bins_pt,0,max_pt));
     
@@ -131,7 +131,7 @@ void AnalyzerGenEvent::bookHistos(const TString& step, std::map<TString, TH1*>& 
     m_histogram[name] = this->store(new TH1D(prefix_+name+step,"Top jets;#DeltaR_{jj};Entries",bins_DR,min_DR,max_DR));
 
 
-   ///==================================               Higgs Jets              =========================================//
+   //==================================               Higgs Jets              =========================================//
     name = "Higgsleading_TopHiggsJets_Pt";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step,"Leading Higgs jet in Top+Higgs Jets;p_{T} [GeV];Entries",bins_pt,0,max_pt));
 
@@ -181,7 +181,7 @@ void AnalyzerGenEvent::fillHistos(const RecoObjects&, const CommonGenObjects& co
     TString name;
     
    
-    /// Get jet indices, apply selection cuts and order them by pt (beginning with the highest value)
+    // Get jet indices, apply selection cuts and order them by pt (beginning with the highest value)
     const VLV& genJets = (commonGenObjects.valuesSet_) ? *commonGenObjects.allGenJets_ : VLV(0);
     std::vector<int> genJetsIndices = common::initialiseIndices(genJets);
     common::orderIndices(genJetsIndices, genJets, common::LVpt);
@@ -194,7 +194,7 @@ void AnalyzerGenEvent::fillHistos(const RecoObjects&, const CommonGenObjects& co
                         double deltaEta_Abs=999.; double deltaPhi_Abs=999.9; 
     double minR = 999.; double minEta = 999.; double minPhi = 999.;
         
-    ///Loop over the GenJets and choose the jets that are also included in the Hadronic List (bHadJetIndex) 
+    //Loop over the GenJets and choose the jets that are also included in the Hadronic List (bHadJetIndex) 
     if (genJetsIndices.size()>0){
         for(const int Jetindex : genJetsIndices){ 
             for (const int Hadindex : bHadJetIndex){
@@ -204,7 +204,7 @@ void AnalyzerGenEvent::fillHistos(const RecoObjects&, const CommonGenObjects& co
         }
     }
         
-    ///============================     Find the Top and Higgs Jets  (Gen Level)  ================================================//
+    //============================     Find the Top and Higgs Jets  (Gen Level)  ================================================//
     std::vector<int> topGenJetsIndex;       topGenJetsIndex.clear();
     std::vector<int> higgsGenJetsIndex;     higgsGenJetsIndex.clear();
     std::vector<int> topHiggsGenJetsIndex;  topHiggsGenJetsIndex.clear();
@@ -231,7 +231,7 @@ void AnalyzerGenEvent::fillHistos(const RecoObjects&, const CommonGenObjects& co
     common::orderIndices(topHiggsGenJetsIndex, genJets, common::LVpt);  //pt ordered jets 
  
 
-    ///============================       Find the events with overlapping hadrons      =========================================//
+    //============================       Find the events with overlapping hadrons      =========================================//
     
     if(bHadGenJetIndex.size()>1){ //Count the overlapping hadrons only for the cases with at least 2 Jets
         int nOverlapping = overlappingHadrons( bHadGenJetIndex, true);
@@ -293,7 +293,7 @@ void AnalyzerGenEvent::fillHistos(const RecoObjects&, const CommonGenObjects& co
         ((TH2D*)m_histogram[name])->Fill(nOverlappingTopHiggs,nTopHiggsGenJets);
     }    
     
-    ///===================================               Find the leading Jet            =================================//  
+    //===================================               Find the leading Jet            =================================//  
     //Top Jets
     int LeadingTopJetIndx =-1;
     int SubLeadingTopJetIndx =-1;
@@ -313,7 +313,7 @@ void AnalyzerGenEvent::fillHistos(const RecoObjects&, const CommonGenObjects& co
     }
 
  
- ///============================  Find the Minimum values for DeltaEta, DeltaPhi and DeltaR ===============================//
+ //============================  Find the Minimum values for DeltaEta, DeltaPhi and DeltaR ===============================//
     if(genObjectIndices.uniqueGenMatching() ){  
         if (topHiggsGenJetsIndex.size()<4) std::cout<<"topHiggsGenJetsIndex.size()= "<<topHiggsGenJetsIndex.size()<<std::endl;
         minR = 999.;
@@ -393,7 +393,7 @@ void AnalyzerGenEvent::fillHistos(const RecoObjects&, const CommonGenObjects& co
     }
      
 
-    ///========================================            Top Jets          =========================================//
+    //========================================            Top Jets          =========================================//
     if(genObjectIndices.uniqueGenTopMatching()){       
         deltaR = ROOT::Math::VectorUtil::DeltaR(commonGenObjects.allGenJets_->at(LeadingTopJetIndx),commonGenObjects.allGenJets_->at(SubLeadingTopJetIndx));
         if (deltaR==999.) std::cout<<"ERROR!!"<<std::endl;
@@ -427,7 +427,7 @@ void AnalyzerGenEvent::fillHistos(const RecoObjects&, const CommonGenObjects& co
         m_histogram[name]->Fill(commonGenObjects.allGenJets_->at(SubLeadingTopJetIndx).Eta(), weight);
     }
 
-    ///=======================================           Higgs Jets        ===========================================//
+    //=======================================           Higgs Jets        ===========================================//
     if (genObjectIndices.uniqueGenHiggsMatching()){         
         deltaR = ROOT::Math::VectorUtil::DeltaR(commonGenObjects.allGenJets_->at(LeadingHiggsJetIndx),commonGenObjects.allGenJets_->at(SubLeadingHiggsJetIndx));
         if (deltaR==999.) std::cout<<"ERROR!!"<<std::endl;
@@ -474,7 +474,7 @@ int AnalyzerGenEvent::overlappingHadrons( const std::vector<int>& genIndex, cons
 
     int returnValue = 0;
     
-    ///Count how many (in total) overlapping hadrons there are in each event
+    //Count how many (in total) overlapping hadrons there are in each event
     for(size_t i=0;i!=genIndex.size();i++){
         for(size_t j=i+1;j!=genIndex.size();j++){
             if(genIndex.at(i)==genIndex.at(j)){
