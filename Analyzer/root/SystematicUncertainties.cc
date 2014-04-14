@@ -163,10 +163,13 @@ void SystematicUncertainties::fillAllJets()
   sample.peLumi = 18192.;
 
   //sample.variables = {"mass_mTop_JES", "JES_mTop_JES", "mass_mTop"};
+  //sample.variables = {"mass_mTop_JES_fSig", "JES_mTop_JES_fSig", "mass_mTop"};
   sample.variables = {"mass_mTop_JES_fSig_fCP", "JES_mTop_JES_fSig_fCP", "mass_mTop"};
   //sample.variables = {"mass_mTop_JES_fSig_fCP", "JES_mTop_JES_fSig_fCP", "mass_mTop_fSig"};
+  //sample.variables = {"mass_mTop_JES_fSig_fCP", "mass_mTop_JES_fSig", "mass_mTop_JES"};
 
   sample.ensembles["calibration"] = ensemble("", 0, {std::make_pair(sample.variables[0],std::make_pair(172.5,0.0585859)), std::make_pair(sample.variables[1],std::make_pair(1.0,0.000489326)), std::make_pair(sample.variables[2],std::make_pair(172.5,0.058894))});
+  sample.ensembles["calibrationDummy"] = ensemble("", 0, {std::make_pair(sample.variables[0],std::make_pair(172.5,0.)), std::make_pair(sample.variables[1],std::make_pair(1.0,0.)), std::make_pair(sample.variables[2],std::make_pair(172.5,0.))});
   sample.ensembles["default"] = ensemble("Z2_S12_ABS_JES_100_172_5/job_*_ensemble.root", 62131965./1.8);
 
   sample.ensembles["puUp"  ] = ensemble("Z2_S12_PU_Up/job_*_ensemble.root"  , 62131965./1.8);
@@ -247,21 +250,14 @@ void SystematicUncertainties::fillAllJets()
   sample.ensembles["P11mpiHi" ] = ensemble("Z2_S12_P11mpiHi/job_*_ensemble.root",  7953758./6./6.*9.*9./1.8);
   sample.ensembles["P11TeV"   ] = ensemble("Z2_S12_P11TeV/job_*_ensemble.root"  ,  7946264./6./6.*9.*9./1.8);
 
-  sample.ensembles["RD"] = ensemble("../topmass_140401_1201b/Z2_S12_RD1/job_*_ensemble.root", 31228390./6./6.*9.*9./1.8);
+  sample.ensembles["RD"] = ensemble("../topmass_140401_1201b/Z2_S12_RD1/job_*_ensemble.root", 31228390./6./6.*9.*9.);
 
-  //sample.ensembles["defaultPFTest"     ] = ensemble("../topmass_140317_1201d/Z2_S12_ABS_JES_100_172_5/job_*_ensemble.root", 62131965./1.8);
-  //sample.ensembles["triggerPFTestUp"   ] = ensemble("../topmass_140317_1201g/Z2_S12_TRIGGERJES_Up/job_*_ensemble.root"    , 62131965./1.8);
-  //sample.ensembles["triggerPFTestDown" ] = ensemble("../topmass_140317_1201g/Z2_S12_TRIGGERJES_Down/job_*_ensemble.root"  , 62131965./1.8);
-  //sample.ensembles["trigger2PFTestUp"  ] = ensemble("../topmass_140317_1201g/Z2_S12_TRIGGERJES2_Up/job_*_ensemble.root"   , 62131965./1.8);
-  //sample.ensembles["trigger2PFTestDown"] = ensemble("../topmass_140317_1201g/Z2_S12_TRIGGERJES2_Down/job_*_ensemble.root" , 62131965./1.8);
-  //sample.ensembles["trigger3PFTestUp"  ] = ensemble("../topmass_140317_1201g/Z2_S12_TRIGGERJES3_Up/job_*_ensemble.root"   , 62131965./1.8);
-  //sample.ensembles["trigger3PFTestDown"] = ensemble("../topmass_140317_1201g/Z2_S12_TRIGGERJES3_Down/job_*_ensemble.root" , 62131965./1.8);
-  //sample.ensembles["trigger4PFTestUp"  ] = ensemble("../topmass_140317_1201g/Z2_S12_TRIGGERJES4_Up/job_*_ensemble.root"   , 62131965./1.8);
-  //sample.ensembles["trigger4PFTestDown"] = ensemble("../topmass_140317_1201g/Z2_S12_TRIGGERJES4_Down/job_*_ensemble.root" , 62131965./1.8);
+  sample.ensembles["PDFDown"] = ensemble("", 0, {std::make_pair(sample.variables[0],std::make_pair(172.322,0.0)), std::make_pair(sample.variables[1],std::make_pair(1.0007,0.0)), std::make_pair(sample.variables[2],std::make_pair(172.337,0.0))});
+  sample.ensembles["PDFUp"  ] = ensemble("", 0, {std::make_pair(sample.variables[0],std::make_pair(172.347,0.0)), std::make_pair(sample.variables[1],std::make_pair(1.0010,0.0)), std::make_pair(sample.variables[2],std::make_pair(172.362,0.0))});
 
   ///////////////////////////////////
 
-  sample.comparisons["Calibration                      "] = comparison("calibration", "calibration", "", false);
+  sample.comparisons["Calibration                      "] = comparison("calibration", "calibrationDummy", "", false);
   sample.comparisons["Pile-up (pp cross-section)       "] = comparison("default", "puUp", "puDown", true);
   sample.comparisons["Jet energy response (udsc)       "] = comparison("default", "flavorQUp", "flavorQDown", true);
   sample.comparisons["Jet energy response (gluon)      "] = comparison("default", "flavorGUp", "flavorGDown", true);
@@ -298,19 +294,15 @@ void SystematicUncertainties::fillAllJets()
   sample.comparisons["Non-\\ttbar background \\fsig    "] = comparison("default", "fSigUp", "fSigDown", true);
   sample.comparisons["Non-\\ttbar background shape     "] = comparison("default", "shape", "", true);
   sample.comparisons["Non-\\ttbar background shapeAlt  "] = comparison("default", "shapeAlt", "", true, false);
-  sample.comparisons["Run dependent                    "] = comparison("defaultSC", "RD", "", true, false);
+  sample.comparisons["Run dependent                    "] = comparison("defaultSC", "RD", "", false, false);
+  sample.comparisons["PDF                              "] = comparison("default", "PDFDown", "PDFUp", true, true);
 
-  //sample.comparisons["TriggerPFTest                    "] = comparison("defaultPFTest", "triggerPFTestUp" , "triggerPFTestDown", true, false);
-  //sample.comparisons["Trigger2PFTest                   "] = comparison("defaultPFTest", "trigger2PFTestUp", "trigger2PFTestDown", true, false);
-  //sample.comparisons["Trigger3PFTest                   "] = comparison("defaultPFTest", "trigger3PFTestUp", "trigger3PFTestDown", true, false);
-  //sample.comparisons["Trigger4PFTest                   "] = comparison("defaultPFTest", "trigger4PFTestUp", "trigger4PFTestDown", true, false);
-
-  }
+}
 
 void SystematicUncertainties::deriveSystematics()
 {
-  fillLeptonJets();
-  //  fillAllJets();
+  //fillLeptonJets();
+  fillAllJets();
 
   std::map<std::string, double> totalUncertainties2;
   for(auto& var : sample.variables)

@@ -34,21 +34,8 @@ struct ensemble {
   : file(f), takeLargest(t), expectedJES(j), reference(r) {}
 };
 
-//TString path("/scratch/hh/dust/naf/cms/user/eschliec/topmass_120522_1500/");
-//TString path("/scratch/hh/current/cms/user/eschliec/topmass_120522_1500/");
 std::string path("/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_140305/lepton");
-
-double genMass[]      = {161.5, 163.5, 166.5, 169.5, 172.5, 175.5, 178.5, 181.5, 184.5};
-double genMassError[] = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
-double genMassN[]     = {1620072, 1633197, 1669034, 1606570, 59613991, 1538301, 1648519, 1665350, 1671859};
-//double genMassN[]     = {1620072, 1.5, 1.5, 1.5, 59613991, 1.5, 1.5, 1.5, 1.5};
-double maxMCWeight[]  = {1.7, 1.7, 1.7, 1.7, 1.7, 1.7, 1.7, 1.7, 1.7};
-double crossSection   = 164.4;
-double peLumi         = 3544.844;
-  
-
-std::vector<TFile*> files;
-std::vector<TTree*> trees;
+//std::string path("/nfs/dust/cms/user/eschliec/TopMass/topmass_140401_1201c/Z2_S12_ABS_JES_100_172_5");
 
 std::string itos(int number)
 {
@@ -61,10 +48,14 @@ void ensembleTreeSysLeptonJetsPDF()
 {
   std::vector<ensemble> ensembles;
   
-  double totalMassUncertainty2 = 0;
-  double totalmass1dUncertainty2 = 0;
-  double totalJESUncertainty2  = 0;
-  
+  TString massName   = "mass_mTop_JES";
+  TString  jesName   =  "JES_mTop_JES";
+  TString mass1dName = "mass_mTop";
+
+  //TString massName   = "mass_mTop_JES_fSig_fCP";
+  //TString  jesName   =  "JES_mTop_JES_fSig_fCP";
+  //TString mass1dName = "mass_mTop";
+
   double massMin =  1000.;
   double massMax = -1000.;
   
@@ -80,17 +71,17 @@ void ensembleTreeSysLeptonJetsPDF()
   for (int i = 0; i < (int) ensembles.size(); ++i) {
     TF1* gaus = new TF1("gaus", "gaus");
     
-    ensembles[i].chain->Fit("gaus", "mass_mTop_JES", "mass_mTop_JES>0 & JES_mTop_JES>0 & genMass==172.5 & genJES==1", "LEMQ0");
+    ensembles[i].chain->Fit("gaus", massName, massName+">0 &"+jesName+">0 & genMass==172.5 & genJES==1", "LEMQ0");
     ensembles[i].mass = gaus->GetParameter(1);
     std::cout << i << " mass: " << ensembles[i].mass << std::endl;
     if (massMin>ensembles[i].mass) massMin = ensembles[i].mass;
     if (massMax<ensembles[i].mass) massMax = ensembles[i].mass;
-    
-    ensembles[i].chain->Fit("gaus", "JES_mTop_JES", "mass_mTop_JES>0 & JES_mTop_JES>0 & genMass==172.5 & genJES==1", "LEMQ0");
+
+    ensembles[i].chain->Fit("gaus", jesName, massName+">0 &"+jesName+">0 & genMass==172.5 & genJES==1", "LEMQ0");
     ensembles[i].jes = gaus->GetParameter(1);
 
-    ensembles[i].chain->Fit("gaus", "mass_mTop", "mass_mTop>0 & genMass==172.5 & genJES==1", "LEMQ0");
-    ensembles[i].mass1d = gaus->GetParameter(1);   
+    ensembles[i].chain->Fit("gaus", mass1dName, mass1dName+">0 & genMass==172.5 & genJES==1", "LEMQ0");
+    ensembles[i].mass1d = gaus->GetParameter(1);
   }
   
   std::cout << "CTEQ6l1: " << 172.57 << std::endl;
@@ -162,7 +153,7 @@ void ensembleTreeSysLeptonJetsPDF()
   double mstwmass1dMinus = ensembles[55].mass1d - sqrt(mass1dMinus2);
   
   // NNPDF PDF+alpha_s uncertainty
-  TH1F* massNNPDF = new TH1F("massNNPDF", "massNNPDF", 100, 172.5, 172.7);
+  TH1F* massNNPDF = new TH1F("massNNPDF", "massNNPDF", 500, 172.0, 173.0);
   TH1F* jesNNPDF = new TH1F("jesNNPDF", "jesNNPDF", 100, 0.99, 1.01);
   TH1F* mass1dNNPDF = new TH1F("mass1dNNPDF", "mass1dNNPDF", 100, 172.0, 173.0);
   for (int i = 98; i <= 147; ++i) {
@@ -214,8 +205,8 @@ void ensembleTreeSysLeptonJetsPDF()
   printf("Systematic uncertainty on mTop(1D): %4.2f GeV \n", sqrt(totalmass1dUncertainty2));
   */
   
-  printf("Lower envelope mass: %4.2f GeV, upper envelope mass: %4.2f GeV \n", min(min(ct10massMinus,mstwmassMinus),nnpdfmassMinus), max(max(ct10massPlus,mstwmassPlus),nnpdfmassPlus));
-  printf("Lower envelope jes: %4.3f GeV, upper envelope jes: %4.3f GeV \n", min(min(ct10jesMinus,mstwjesMinus),nnpdfjesMinus), max(max(ct10jesPlus,mstwjesPlus),nnpdfjesPlus));
-  printf("Lower envelope mass1d: %4.2f GeV, upper envelope mass1d: %4.2f GeV \n", min(min(ct10mass1dMinus,mstwmass1dMinus),nnpdfmass1dMinus), max(max(ct10mass1dPlus,mstwmass1dPlus),nnpdfmass1dPlus));
+  printf("Lower envelope mass: %4.3f GeV, upper envelope mass: %4.3f GeV \n", min(min(ct10massMinus,mstwmassMinus),nnpdfmassMinus), max(max(ct10massPlus,mstwmassPlus),nnpdfmassPlus));
+  printf("Lower envelope jes: %4.4f GeV, upper envelope jes: %4.4f GeV \n", min(min(ct10jesMinus,mstwjesMinus),nnpdfjesMinus), max(max(ct10jesPlus,mstwjesPlus),nnpdfjesPlus));
+  printf("Lower envelope mass1d: %4.3f GeV, upper envelope mass1d: %4.3f GeV \n", min(min(ct10mass1dMinus,mstwmass1dMinus),nnpdfmass1dMinus), max(max(ct10mass1dPlus,mstwmass1dPlus),nnpdfmass1dPlus));
 }
 
