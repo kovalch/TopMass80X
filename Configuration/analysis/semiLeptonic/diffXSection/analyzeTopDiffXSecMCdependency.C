@@ -198,10 +198,10 @@ void analyzeTopDiffXSecMCdependency(double luminosity = constLumiMuon, std::stri
       varRecHad=variable_[i]+"Had"+RecExt;
     }
     else if(variable_[i].Contains("bqPt")){
-      varGenLep=variable_[i]+"Lead"   +GenExt;
-      varGenHad=variable_[i]+"SubLead"+GenExt;
-      varRecLep=variable_[i]+"Lead"   +RecExt;
-      varRecHad=variable_[i]+"SubLead"+RecExt;
+      varGenLep=variable_[i]+GenExt;
+      varGenHad="bbarqPt"   +GenExt;
+      varRecLep=variable_[i]+RecExt;
+      varRecHad="bbarqPt"   +RecExt;
     }
     else if(variable_[i].Contains("bqEta")){
       varGenLep=variable_[i]+GenExt;
@@ -279,10 +279,10 @@ void analyzeTopDiffXSecMCdependency(double luminosity = constLumiMuon, std::stri
       varRecHad=variable_[i]+"Had"+RecExt;
     }
     else if(variable_[i].Contains("bqPt")){
-      varGenLep=variable_[i]+"Lead"   +GenExt;
-      varGenHad=variable_[i]+"SubLead"+GenExt;
-      varRecLep=variable_[i]+"Lead"   +RecExt;
-      varRecHad=variable_[i]+"SubLead"+RecExt;
+      varGenLep=variable_[i]+GenExt;
+      varGenHad="bbarqPt"   +GenExt;
+      varRecLep=variable_[i]+RecExt;
+      varRecHad="bbarqPt"   +RecExt;
     }
     else if(variable_[i].Contains("bqEta")){
       varGenLep=variable_[i]+GenExt;
@@ -621,10 +621,10 @@ void analyzeTopDiffXSecMCdependency(double luminosity = constLumiMuon, std::stri
       varRecHad=variable_[i]+"Had"+RecExt;
     }
     else if(variable_[i].Contains("bqPt")){
-      varGenLep=variable_[i]+"Lead"   +GenExt;
-      varGenHad=variable_[i]+"SubLead"+GenExt;
-      varRecLep=variable_[i]+"Lead"   +RecExt;
-      varRecHad=variable_[i]+"SubLead"+RecExt;
+      varGenLep=variable_[i]+GenExt;
+      varGenHad="bbarqPt"   +GenExt;
+      varRecLep=variable_[i]+RecExt;
+      varRecHad="bbarqPt"   +RecExt;
     }
     else if(variable_[i].Contains("bqEta")){
       varGenLep=variable_[i]+GenExt;
