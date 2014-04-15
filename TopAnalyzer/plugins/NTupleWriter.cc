@@ -869,15 +869,18 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
 
             // Id of the event depending on the number of additional b(c)-jets in the event
             // -1  : Something went wrong
-            // 2   : 2 or more extra b-jets coming not from the top weak decay chain (and any number of c/light jets)
-            // 1   : Exactly 1 extra b-jet coming not from the top weak decay chain (and any number of c/light jets)
-            // 12  : 2 or more extra b-jets coming from the top weak decay chain but not directly from top (and any number of c/light jets)
-            // 11  : Exactly 1 extra b-jet coming from the top weak decay chain but not directly from top (and any number of c/light jets)
-            // 22  : No extra b-jets and 2 or more c-jets coming not from the top weak decay chain (and any number of light jets)
-            // 21  : No extra b-jets and exactly 1 c-jet coming not from the top weak decay chain (and any number of light jets)
-            // 32  : No extra b-jets and 2 or more c-jets coming from the top weak decay chain (and any number of light jets)
-            // 31  : No extra b-jets and exactly 1 c-jet coming from the top weak decay chain (and any number of light jets)
-            // 0   : No extra b-jets that come not directly from top and no c-jets that come not from b-hadrons
+            // 202 : 2 b-jets from top & >=2 extra b-jets coming not from the top weak decay chain (and any number of c/light jets)
+            // 201 : 2 b-jets from top & exactly 1 extra b-jet coming not from the top weak decay chain (and any number of c/light jets)
+            // 212 : 2 b-jets from top & >=2 extra b-jets coming from the top weak decay chain but not directly from top (and any number of c/light jets)
+            // 211 : 2 b-jets from top & exactly 1 extra b-jet coming from the top weak decay chain but not directly from top (and any number of c/light jets)
+            // 222 : 2 b-jets from top & no extra b-jets and >=2 c-jets coming not from the top weak decay chain (and any number of light jets)
+            // 221 : 2 b-jets from top & no extra b-jets and exactly 1 c-jet coming not from the top weak decay chain (and any number of light jets)
+            // 232 : 2 b-jets from top & no extra b-jets and >=2 c-jets coming from the top weak decay chain (and any number of light jets)
+            // 231 : 2 b-jets from top & no extra b-jets and exactly 1 c-jet coming from the top weak decay chain (and any number of light jets)
+            // 200 : 2 b-jets from top & no extra b-jets that come not directly from top and no c-jets that come not from b-hadrons
+            // 102 : 1 b-jet from top & >=2 extra b-jets coming not from the top weak decay chain (and any number of c/light jets)
+            //  - - - - - - - - - - - - - - 
+            // 100 : 1 b-jet from top & no extra b-jets that come not directly from top and no c-jets that come not from b-hadrons
             genExtraTopJetNumberId = -1;
                 
             // Signal definition cuts
@@ -935,20 +938,20 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
                     }
                 }       
             }       
-                
-            int nGenBJetNotFromTopDecayChain = genBJetNotFromTopDecayChainIndex.size();
-            int nGenBJetFromTopDecayChain = genBJetFromTopDecayChainIndex.size();
-            int nGenCJetNotFromTopDecayChain = genCJetNotFromTopDecayChainIndex.size();
-            int nGenCJetFromTopDecayChain = genCJetFromTopDecayChainIndex.size();
-            if(nGenBJetNotFromTopDecayChain>=2) genExtraTopJetNumberId=2;
-            else if(nGenBJetNotFromTopDecayChain==1) genExtraTopJetNumberId=1;
-            else if(nGenBJetFromTopDecayChain>=2) genExtraTopJetNumberId = 12;
-            else if(nGenBJetFromTopDecayChain==1) genExtraTopJetNumberId=11;
-            else if(nGenCJetNotFromTopDecayChain>=2) genExtraTopJetNumberId=22;
-            else if(nGenCJetNotFromTopDecayChain==1) genExtraTopJetNumberId=21;
-            else if(nGenCJetFromTopDecayChain>=2) genExtraTopJetNumberId = 32;
-            else if(nGenCJetFromTopDecayChain==1) genExtraTopJetNumberId=31;
-            else genExtraTopJetNumberId = 0;
+            const int nGenBJetNotFromTopDecayChain = genBJetNotFromTopDecayChainIndex.size();
+            const int nGenBJetFromTopDecayChain = genBJetFromTopDecayChainIndex.size();
+            const int nGenCJetNotFromTopDecayChain = genCJetNotFromTopDecayChainIndex.size();
+            const int nGenCJetFromTopDecayChain = genCJetFromTopDecayChainIndex.size();
+            const int genTopJetNumberId = 100*genBJetFromTopIds.size();
+            if(nGenBJetNotFromTopDecayChain>=2) genExtraTopJetNumberId=2+genTopJetNumberId;
+            else if(nGenBJetNotFromTopDecayChain==1) genExtraTopJetNumberId=1+genTopJetNumberId;
+            else if(nGenBJetFromTopDecayChain>=2) genExtraTopJetNumberId = 12+genTopJetNumberId;
+            else if(nGenBJetFromTopDecayChain==1) genExtraTopJetNumberId=11+genTopJetNumberId;
+            else if(nGenCJetNotFromTopDecayChain>=2) genExtraTopJetNumberId=22+genTopJetNumberId;
+            else if(nGenCJetNotFromTopDecayChain==1) genExtraTopJetNumberId=21+genTopJetNumberId;
+            else if(nGenCJetFromTopDecayChain>=2) genExtraTopJetNumberId = 32+genTopJetNumberId;
+            else if(nGenCJetFromTopDecayChain==1) genExtraTopJetNumberId=31+genTopJetNumberId;
+            else genExtraTopJetNumberId = 0+genTopJetNumberId;
             
         }       
         else
