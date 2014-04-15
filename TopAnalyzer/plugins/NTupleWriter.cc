@@ -199,9 +199,12 @@ private:
     std::vector<int>             VgenBHadFromTopWeakDecay;
     std::vector<int>             VgenBHadLeptonHadronIndex, VgenBHadLeptonIndex, VgenBHadLeptonViaTau;
     
-    std::vector<int>             VgenCHadFromBHadron, VgenCHadJetIndex;
+    std::vector<LV>              VgenCHadPlusMothers;
+    std::vector<int>             VgenCHadPlusMothersPdg, VgenCHadPlusMothersStatus;
+    std::vector<std::vector<int> >  VgenCHadPlusMothersIndices;
+    std::vector<int>             VgenCHadIndex, VgenCHadFromBHadron, VgenCHadJetIndex;
     std::vector<int>             VgenCHadFromTopWeakDecay;
-    std::vector<int>             VgenCHadLeptonHadronIndex, VgenCHadLeptonViaTau;
+    std::vector<int>             VgenCHadLeptonHadronIndex, VgenCHadLeptonIndex, VgenCHadLeptonViaTau;
 
     // True level info from Zs and their decays
     std::vector<LV> VGenZ;
@@ -535,14 +538,15 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
 
         //the ntuple now only stores maximum 1 solution: the best one
         // - if a two btag solution is found, take it
-        // - else if one tag solution is found, take the best one
+        // - else if one tag solution is fount, take the best one
         if (FullLepEvt->isHypoAvailable(hypoKey) && FullLepEvt->isHypoValid(hypoKey))
         {
             int best = -1;
-            for ( size_t i=0; i<FullLepEvt->numberOfAvailableHypos(hypoKey); ++i )
+            for ( size_t i=0; i<FullLepEvt->numberOfAvailableHypos (hypoKey); ++i )
             {
-                const pat::Jet& jet1 = jets->at(FullLepEvt->jetLeptonCombination(hypoKey,i)[0]);
-                const pat::Jet& jet2 = jets->at(FullLepEvt->jetLeptonCombination(hypoKey,i)[1]);
+                const pat::Jet &jet1 = jets->at(FullLepEvt->jetLeptonCombination(hypoKey,i)[0]);
+                const pat::Jet &jet2 = jets->at(FullLepEvt->jetLeptonCombination(hypoKey,i)[1]);
+                if (jet1.pt() <= 30 || jet2.pt() <= 30 || abs(jet1.eta()) > 2.4 || abs(jet2.eta()) > 2.4 ) continue;
                 bool jet1tagged = jet1.bDiscriminator("combinedSecondaryVertexBJetTags")>0.244;
                 bool jet2tagged = jet2.bDiscriminator("combinedSecondaryVertexBJetTags")>0.244;
                 if (jet1tagged && jet2tagged) { best = i; break; }
@@ -785,12 +789,12 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
                     VgenBHadFromTopWeakDecay.push_back(*it);
                 }
             }
-                        
-            edm::Handle<std::vector<int> > genCHadLeptonHadronIndex;
-            iEvent.getByLabel(genCHadLeptonHadronIndex_, genCHadLeptonHadronIndex);
-            if(!genCHadLeptonHadronIndex.failedToGet()) {
-                for(std::vector<int>::const_iterator it=genCHadLeptonHadronIndex->begin(); it!=genCHadLeptonHadronIndex->end(); ++it) {
-                    VgenCHadLeptonHadronIndex.push_back(*it);
+            
+            edm::Handle<std::vector<int> > genCHadIndex;
+            iEvent.getByLabel(genCHadIndex_, genCHadIndex);
+            if(!genCHadIndex.failedToGet()) {
+                for (std::vector<int>::const_iterator it=genCHadIndex->begin(); it!=genCHadIndex->end(); ++it) {
+                    VgenCHadIndex.push_back(*it);
                 }
             }
             
@@ -800,8 +804,25 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
             iEvent.getByLabel(genCHadPlusMothersIndices_, genCHadPlusMothersIndices);
             edm::Handle<std::vector<int> > genCHadLeptonIndex;
             iEvent.getByLabel(genCHadLeptonIndex_, genCHadLeptonIndex);
-            if(!genCHadPlusMothers.failedToGet() && !genCHadPlusMothersIndices.failedToGet() && !genCHadLeptonIndex.failedToGet()) {
+            if(!genCHadPlusMothers.failedToGet()) {
+                if(saveHadronMothers) {         // If all particles have to be stored
+                    for (std::vector<reco::GenParticle>::const_iterator it=genCHadPlusMothers->begin(); it!=genCHadPlusMothers->end(); ++it){
+                        VgenCHadPlusMothers.push_back(it->polarP4());
+                        VgenCHadPlusMothersPdg.push_back(it->pdgId());
+                        VgenCHadPlusMothersStatus.push_back(it->status());
+                    }       
+                }   else {      // If only hadrons/leptons have to be stored
+                    for (unsigned int i=0; i<genCHadIndex->size(); ++i) {
+                        VgenCHadIndex.at(i)=-1;
+                        continue;   // We don't need actual c-hadrons stored at the moment
+                        VgenCHadPlusMothers.push_back(genCHadPlusMothers->at(genCHadIndex->at(i)).polarP4());
+                        VgenCHadPlusMothersPdg.push_back(genCHadPlusMothers->at(genCHadIndex->at(i)).pdgId());
+                        VgenCHadIndex.at(i)=VgenCHadPlusMothers.size()-1;
+                    }      
                     for (unsigned int i=0; i<genCHadLeptonIndex->size(); ++i) {
+                        VgenCHadPlusMothers.push_back(genCHadPlusMothers->at(genCHadLeptonIndex->at(i)).polarP4());
+                        VgenCHadPlusMothersPdg.push_back(genCHadPlusMothers->at(genCHadLeptonIndex->at(i)).pdgId());
+                        VgenCHadLeptonIndex.at(i)=VgenCHadPlusMothers.size()-1;
                         int viaTau = -1;
                         if(!genCHadPlusMothersIndices.failedToGet()) {
                             int leptonMotherIndex = genCHadPlusMothersIndices->at(genCHadLeptonIndex->at(i)).at(0);
@@ -810,9 +831,18 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
                             }
                         }
                         VgenCHadLeptonViaTau.push_back(viaTau);
+                        
                     }       
-            }       
+                }
+            }
 
+            edm::Handle<std::vector<int> > genCHadLeptonHadronIndex;
+            iEvent.getByLabel(genCHadLeptonHadronIndex_, genCHadLeptonHadronIndex);
+            if(!genCHadLeptonHadronIndex.failedToGet()) {
+                for(std::vector<int>::const_iterator it=genCHadLeptonHadronIndex->begin(); it!=genCHadLeptonHadronIndex->end(); ++it) {
+                    VgenCHadLeptonHadronIndex.push_back(*it);
+                }
+            }
             
             edm::Handle<std::vector<int> > genCHadFromBHadron;
             iEvent.getByLabel(genCHadFromBHadron_, genCHadFromBHadron);
@@ -1510,7 +1540,16 @@ NTupleWriter::beginJob()
         Ntuple->Branch("genBHadLeptonViaTau", &VgenBHadLeptonViaTau);
         Ntuple->Branch("genBHadFromTopWeakDecay", &VgenBHadFromTopWeakDecay);
         
+        
+        Ntuple->Branch("genCHadPlusMothers", &VgenCHadPlusMothers);
+        Ntuple->Branch("genCHadPlusMothersPdgId", &VgenCHadPlusMothersPdg);
+        if(saveHadronMothers) {
+            Ntuple->Branch("genCHadPlusMothersStatus", &VgenCHadPlusMothersStatus);
+            Ntuple->Branch("genCHadPlusMothersIndices", &VgenCHadPlusMothersIndices);
+        }
+//         Ntuple->Branch("genCHadIndex", &VgenCHadIndex);      // We don't need actual c-hadrons stored at the moment
         Ntuple->Branch("genCHadJetIndex", &VgenCHadJetIndex);
+        Ntuple->Branch("genCHadLeptonIndex", &VgenCHadLeptonIndex);
         Ntuple->Branch("genCHadLeptonHadronIndex", &VgenCHadLeptonHadronIndex);
         Ntuple->Branch("genCHadLeptonViaTau", &VgenCHadLeptonViaTau);
         Ntuple->Branch("genCHadFromBHadron", &VgenCHadFromBHadron);
@@ -1646,7 +1685,13 @@ void NTupleWriter::clearVariables()
     VgenBHadLeptonViaTau.clear();
     VgenBHadFromTopWeakDecay.clear();
     
+    VgenCHadPlusMothers.clear();
+    VgenCHadPlusMothersIndices.clear();
+    VgenCHadPlusMothersStatus.clear();
+    VgenCHadPlusMothersPdg.clear();
+    VgenCHadIndex.clear();
     VgenCHadJetIndex.clear();
+    VgenCHadLeptonIndex.clear();
     VgenCHadLeptonHadronIndex.clear();
     VgenCHadLeptonViaTau.clear();
     VgenCHadFromTopWeakDecay.clear();
