@@ -797,12 +797,18 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
                 }
             }
             
+            edm::Handle<std::vector<int> > genCHadLeptonIndex;
+            iEvent.getByLabel(genCHadLeptonIndex_, genCHadLeptonIndex);
+            if(!genCHadLeptonIndex.failedToGet()) {
+                for(std::vector<int>::const_iterator it=genCHadLeptonIndex->begin(); it!=genCHadLeptonIndex->end(); ++it) {
+                    VgenCHadLeptonIndex.push_back(*it);
+                }
+            }
+            
             edm::Handle<std::vector<reco::GenParticle> > genCHadPlusMothers;
             iEvent.getByLabel(genCHadPlusMothers_, genCHadPlusMothers);
             edm::Handle<std::vector<std::vector<int> > > genCHadPlusMothersIndices;
             iEvent.getByLabel(genCHadPlusMothersIndices_, genCHadPlusMothersIndices);
-            edm::Handle<std::vector<int> > genCHadLeptonIndex;
-            iEvent.getByLabel(genCHadLeptonIndex_, genCHadLeptonIndex);
             if(!genCHadPlusMothers.failedToGet()) {
                 if(saveHadronMothers) {         // If all particles have to be stored
                     for (std::vector<reco::GenParticle>::const_iterator it=genCHadPlusMothers->begin(); it!=genCHadPlusMothers->end(); ++it){
