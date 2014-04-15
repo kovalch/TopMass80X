@@ -61,18 +61,24 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
     //   VLV* allGenJets = commonGenObjects.allGenJets_;
     const VLV& genJets = (commonGenObjects.valuesSet_) ? *commonGenObjects.allGenJets_ : VLV(0);
     const VLV& allJets = *recoObjects.jets_; 
+    //const std::vector<LV>& bHadPlusMothers = (topGenObjects.valuesSet_) ? *topGenObjects.genBHadPlusMothers_ : std::vector<LV*>(0);
+    const std::vector<LV>& bHadPlusMothers = *topGenObjects.genBHadPlusMothers_;
+    const std::vector<double>& jetChargeRelativePtWeighted = *recoObjects.jetChargeRelativePtWeighted_;
+    
+    //b-hadron + c-hadron information
     const std::vector<int>& bHadIndex = (topGenObjects.valuesSet_) ? *topGenObjects.genBHadIndex_ : std::vector<int>(0);
     const std::vector<int>& bHadJetIndex = (topGenObjects.valuesSet_) ? *topGenObjects.genBHadJetIndex_ : std::vector<int>(0);
     const std::vector<int>& bHadFlavour = (topGenObjects.valuesSet_) ? *topGenObjects.genBHadFlavour_ : std::vector<int>(0);
     const std::vector<int>& bHadPlusMothersPdgId = (topGenObjects.valuesSet_) ? *topGenObjects.genBHadPlusMothersPdgId_ : std::vector<int>(0);
-    //const std::vector<LV>& bHadPlusMothers = (topGenObjects.valuesSet_) ? *topGenObjects.genBHadPlusMothers_ : std::vector<LV*>(0);
-    const std::vector<LV>& bHadPlusMothers = *topGenObjects.genBHadPlusMothers_;
-    const std::vector<double>& jetChargeRelativePtWeighted = *recoObjects.jetChargeRelativePtWeighted_;
+    //const std::vector<int>& cHadJetIndex = (topGenObjects.valuesSet_) ? *topGenObjects.genCHadJetIndex_ : std::vector<int>(0);
+    //const std::vector<int>& cHadFromBHad = (topGenObjects.valuesSet_) ? *topGenObjects.genCHadFromBHadron_ : std::vector<int>(0);
     
     //genLepton information
     const std::vector<int> genBHadLeptonIndex = (topGenObjects.valuesSet_) ? *topGenObjects.genBHadLeptonIndex_ : std::vector<int>(0);
     const std::vector<int> genBHadLeptonHadronIndex = (topGenObjects.valuesSet_) ? *topGenObjects.genBHadLeptonHadronIndex_ : std::vector<int>(0);
     const std::vector<int> genBHadLeptonViaTau = (topGenObjects.valuesSet_) ? *topGenObjects.genBHadLeptonViaTau_ : std::vector<int>(0);
+    const std::vector<int> genCHadLeptonHadronIndex = (topGenObjects.valuesSet_) ? *topGenObjects.genCHadLeptonHadronIndex_ : std::vector<int>(0);
+    const std::vector<int> genCHadLeptonViaTau = (topGenObjects.valuesSet_) ? *topGenObjects.genCHadLeptonViaTau_ : std::vector<int>(0);
     
     //specific selected tracks information (tracks with quality requirements applied already at ntuple level) 
     const std::vector<LV>& jetSelectedTrack = *recoObjects.jetSelectedTrack_;
@@ -133,6 +139,7 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
     std::vector<int> genLeptonFlavour;
     std::vector<double> genLeptonPt;
     std::vector<double> genMuonPt;
+    std::vector<LV> genMuonLV;
     
     std::vector <double> charge;
     std::vector<double> chargePerJet;
@@ -189,6 +196,7 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
         LV jets = allJets.at(jetIdx);
         if (debug_==2) std::cout<<"jets are = "<<jetIdx<<std::endl;
       
+        //std::cout<<"test1"<<std::endl;
         //================================HERE B-QUARK-B-HADRON THINGS================================
         
         int isMatched = -1;
@@ -197,25 +205,32 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
         bool isMuon = false;
         bool isGenPlusMuon = false;
         bool isGenMinMuon = false;
-        //bool isGenElectron = false;
+        bool isGenElectron = false;
         bool isElectron = false;
         bool isGenPlusElectron = false;
         bool isGenMinElectron = false;
         
         //matching distance between reco and gen jets
         const float dR_max = 0.5;
+        
         //call the matching function between reco and gen jets->returns an index. 
         int genJetIndex = genJetIdOfRecoJet (jets,genJets,dR_max);
         
+        //std::cout<<"test1.1"<<std::endl;
+        //TEST WHEN COMPARING TO DATA, WE CAN'T REQUIRE GENERATOR LEVEL INFORMATION
         if (genJetIndex==-1) continue;
         
+        //std::cout<<"test1.2"<<std::endl;
+        //TEST WHEN COMPARING TO DATA, WE CAN'T REQUIRE GENERATOR LEVEL INFORMATION
         m_histogram["h_GenJetPt"]->Fill(genJets.at(genJetIndex).pt(),weight);
         //FIXME should I also require the eta and pt cuts in gen jets??
         
         //find if the jet with the smallest R is associated to a hadron
         std::vector<int> numHadMatched;
+        
         for (size_t i_had=0;i_had!=bHadJetIndex.size();++i_had)
         {
+            //std::cout<<"test2"<<std::endl;
             //FIXME There are cases in which the same gen jet is matched to two different reco jets... what do I do with this?
             if (genJetIndex!=bHadJetIndex.at(i_had)) continue;
             numHadMatched.push_back(1);
@@ -225,10 +240,14 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
             charge.push_back(jetChargeValue);
             isMatched=1;
             
+            //only continue if the jet is a true b-jet
+            if (isMatched==-1) continue;
+            //std::cout<<"test3"<<std::endl;
             //TEST Here test the genLepton new features. 
             //for each jet check if there's a lepton associated to a hadron associated to this jet. 
             for (size_t i_genLep = 0;i_genLep!=genBHadLeptonIndex.size();i_genLep++)
             {
+                //std::cout<<"test4"<<std::endl;
                 //if the hadron is not matched to a jet, we skip checking if it has a lepton associated to it 
                 if (isMatched==-1) continue;
                 //now we check if the index of the hadron is the same of the one of the jet
@@ -238,14 +257,16 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
                 //isGenLepton = true;
                 genLeptonFlavour.push_back(bHadPlusMothersPdgId.at(genBHadLeptonIndex.at(i_genLep)));
                 genLeptonPt.push_back(bHadPlusMothers.at(genBHadLeptonIndex.at(i_genLep)).pt());
-                if (std::abs(bHadPlusMothersPdgId.at(genBHadLeptonIndex.at(i_genLep))) == 13) genMuonPt.push_back(bHadPlusMothers.at(genBHadLeptonIndex.at(i_genLep)).pt());
+                if (std::abs(bHadPlusMothersPdgId.at(genBHadLeptonIndex.at(i_genLep))) == 13) 
+                {
+                    genMuonPt.push_back(bHadPlusMothers.at(genBHadLeptonIndex.at(i_genLep)).pt());
+                    genMuonLV.push_back(bHadPlusMothers.at(genBHadLeptonIndex.at(i_genLep)));
+                }
                 if (std::abs(bHadPlusMothersPdgId.at(genBHadLeptonIndex.at(i_genLep))) == 13) isGenMuon = true;
-                //if (std::abs(bHadPlusMothersPdgId.at(genBHadLeptonIndex.at(i_genLep))) == 11) isGenElectron = true;
+                if (std::abs(bHadPlusMothersPdgId.at(genBHadLeptonIndex.at(i_genLep))) == 11) isGenElectron = true;
                 //std::cout<<"Per hadron we have such leptons = "<<genLeptonFlavour.size()<<std::endl;
             }
         }
-        //only continue if the jet is a true b-jet
-        if (isMatched==-1) continue;
         
         //choose the lepton with highest pt and take its flavour. Needed to compare charge and pt with the highest pt muon track.
         if (genLeptonPt.size()==1&&genLeptonFlavour.at(0)==-13) isGenPlusMuon = true;
@@ -272,7 +293,7 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
             
         }
         
-        
+        //std::cout<<"test5"<<std::endl;
         
         if (debug_==2) std::cout<<"number of hadrons per jet is = "<<numHadMatched.size()<<std::endl;
         
@@ -316,6 +337,7 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
         
         //lepton-tracks variables
         std::vector<double> trueBJetLeptonTracksPt;
+        std::vector<LV> trueBJetLeptonTracksLV;
         std::vector<double> trueBJetLeptonTracksCharge;
         bool isB = false;
         bool isSecB = false;
@@ -327,11 +349,11 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
         bool isNonLeadingLepton = false;
         bool isSecLeadingLepton = false;
         
-        
+        //std::cout<<"test6"<<std::endl;
         //====================================================================================WE ENTER TRACK LOOP!!=======================================
         for (size_t i_pfTrack=0; i_pfTrack!=jetPfCandidateTrack.size();i_pfTrack++)
         {
-            
+            //std::cout<<"test7"<<std::endl;
             //access the pt ordered pftrack collection
             int pfTrackIdx = ptOrderedJetTrackIdx.at(i_pfTrack);
             
@@ -343,6 +365,7 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
             
             //here we require only tracks above a certain threshold of pt
             if (trueBJetPfTrackPt < ptTracksCUT) continue;
+            //std::cout<<"test8"<<std::endl;
             
             //here check if the track is matched to a selected jet and in case it is, add one to the multiplicity.
             int trueMatched = 0;
@@ -351,7 +374,7 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
             if (trueMatched == -1) continue;
             if (debug_==2)  std::cout<<"tracks belong to the jet = "<<jetPfCandidateTrackIndex.at(pfTrackIdx)<<std::endl;  
             trueBJetTrackMultiplicity++;
-            
+            //std::cout<<"test9"<<std::endl;
             //double trueBJetPfTrackPx = pfTracks->px();
             //double trueBJetPfTrackPy = pfTracks->py();
             //double trueBJetPfTrackPz = pfTracks->pz();
@@ -365,6 +388,7 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
             
             for (size_t i_jetSelectedTrack=0; i_jetSelectedTrack!=ptOrderedSelTrackIdx.size();i_jetSelectedTrack++)
             {
+                //std::cout<<"test10"<<std::endl;
                 int jetSelectedTrackIdx = ptOrderedSelTrackIdx.at(i_jetSelectedTrack);
                 
                 //access the track-LV and putting some easy definitions to help.
@@ -378,9 +402,11 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
                 
                 //match jetSelectedTracks to pfTracks using px, py, pz, charge and jetId
                 if (jetSelectedTrackJetIdx!=pfTrackJetIdx) continue;
+                //std::cout<<"test11"<<std::endl;
                 //if( std::abs(trueBJetPfTrackPx-trueBJetSelTrackPx)>1.e-6 || std::abs(trueBJetPfTrackPy-trueBJetSelTrackPy)>1.e-6 || std::abs(trueBJetPfTrackPz-trueBJetSelTrackPz)>1.e-6 || jetSelectedTrackCharge.at(jetSelectedTrackIdx)!=jetPfCandidateTrackCharge.at(pfTrackIdx)) continue;
                 if(std::abs(pfTracks->eta()-jetSelectedTracks->eta())>1.e-6 || std::abs(pfTracks->phi()-jetSelectedTracks->phi())>1.e-6 || std::abs(pfTracks->pt()-jetSelectedTracks->pt())>1.e-6 || jetSelectedTrackCharge.at(jetSelectedTrackIdx)!=jetPfCandidateTrackCharge.at(pfTrackIdx)) continue;
                 if (debug_==3) std::cout<<"Pf-track with index "<<pfTrackIdx<<" is matched to sel-track with index "<<jetSelectedTrackIdx<<std::endl;
+                //std::cout<<"test12"<<std::endl;
                 
                 //boolean to determine if the sel-tracks are matched to a pf-track or not
                 pfMatchedToSelTrack = true;
@@ -412,9 +438,9 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
             
             //countinue ONLY if the pfTrack was checked to a jetSelectedTrack. Otherwise, no calculation is performed.
             if (pfMatchedToSelTrack==false) continue;
+            //std::cout<<"test13"<<std::endl;
             if (debug_==3) std::cout<<"Sanity check: This should only be printed when the pf track is matched to a selected track"<<std::endl;
             
-            if (debug_==1) std::cout<<"test1"<<std::endl;
             
             //access the impact parameter
             m_histogram["h_trueBJetTrackIPValue"]->Fill(trueBJetTrackIPValue, weight);
@@ -430,19 +456,20 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
                 maxPtChargeTrueTrack = trueBJetPfTrackPt*jetPfCandidateTrackCharge.at(pfTrackIdx);
                 trueBJetIPSigForMaxPtTrack = trueBJetTrackIPSignificance;
             }
-            if (debug_==1) std::cout<<"test2"<<std::endl;
+            //std::cout<<"test14"<<std::endl;
            
             //check if the track is a lepton or not:
             int particleId = jetPfCandidateTrackId.at(pfTrackIdx);
             leptonTrackPdgId.push_back(particleId);
             
             if (debug_==2) std::cout<<"Track pdgId is = "<<particleId<<" for the track "<<pfTrackIdx<<std::endl;
-            if (debug_==1) std::cout<<"test3"<<std::endl;
+            //std::cout<<"test15"<<std::endl;
             
             //if track is a muon (3), fill some muon-specific histograms
             if (particleId==3) 
             {
                 trueBJetLeptonTracksPt.push_back(trueBJetPfTrackPt);
+                trueBJetLeptonTracksLV.push_back(*pfTracks);
                 trueBJetLeptonTracksCharge.push_back(jetPfCandidateTrackCharge.at(pfTrackIdx));
                 m_histogram["h_trueBJetLeptonTrackPt"]->Fill(trueBJetPfTrackPt, weight);
                 m_histogram["h_trueBJetLeptonTrackEta"]->Fill(pfTracks->Eta(), weight);
@@ -456,17 +483,17 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
                 isMuon = true;
             }
             if (particleId==2) isElectron = true;
-            if (debug_==1) std::cout<<"test4"<<std::endl;
+            //std::cout<<"test16"<<std::endl;
             
             // We set some boolean to later on identify if the b-quark has the same charge as the lepton with highest pt in the jet.
             if (trueBJetLeptonTracksCharge.size()>0 && trueBJetLeptonTracksCharge.at(0) <0 ) isB=true;
             if (trueBJetLeptonTracksCharge.size()>1 && trueBJetLeptonTracksCharge.at(1) <0 ) isSecB=true;
-            if (debug_==1) std::cout<<"test5"<<std::endl;
+            //std::cout<<"test17"<<std::endl;
             
             //pt of track to pt of jet relation histograms
             double ptRatio = trueBJetPfTrackPt/trueBJetPt;
             ptRatioValues.push_back(ptRatio);
-            if (debug_==1) std::cout<<"test6"<<std::endl;
+            //std::cout<<"test18"<<std::endl;
             
             if (ptRatioValues.size()==1&&particleId==2) 
             {
@@ -482,7 +509,7 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
             else if (ptRatioValues.size()>1&&particleId==3&&isLeadingMuon==false)  isNonLeadingLepton = true;
             else if (ptRatioValues.size()>1&&particleId==3&&isLeadingMuon)  isSecLeadingLepton = true;
                
-            if (debug_==1) std::cout<<"test7"<<std::endl;
+            //std::cout<<"test19"<<std::endl;
             
             m_histogram["h_trueBJetToTrackPtRatio"]->Fill(ptRatio, weight);
             
@@ -496,14 +523,14 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
             const double constituentTrueBPy = pfTracks->py();
             const double constituentTrueBPz = pfTracks->pz();
             const double trueProduct = constituentTrueBPx*jetTrueBPx + constituentTrueBPy*jetTrueBPy + constituentTrueBPz*jetTrueBPz;
-            if (debug_==1) std::cout<<"test8"<<std::endl;
+            //std::cout<<"test20"<<std::endl;
             
             std::vector<double> vectProductMomentumQ;
             double xTrueComponent = (jetTrueBPy*constituentTrueBPz-jetTrueBPz*constituentTrueBPy);
             double yTrueComponent = (jetTrueBPx*constituentTrueBPz-jetTrueBPz*constituentTrueBPx);
             double zTrueComponent = (jetTrueBPx*constituentTrueBPy-jetTrueBPy*constituentTrueBPx); 
             const double trueMagnitude = std::sqrt(xTrueComponent*xTrueComponent+yTrueComponent*yTrueComponent+zTrueComponent*zTrueComponent);
-            if (debug_==1) std::cout<<"test9"<<std::endl;
+            //std::cout<<"test21"<<std::endl;
             
             std::vector<double> trueProductPow;
             std::vector<double> trueMagnitudePow;
@@ -513,7 +540,7 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
                 trueProductPow.push_back(std::pow(trueProduct,i_pow));
                 trueMagnitudePow.push_back(std::pow(trueMagnitude,i_pow));
             }
-            if (debug_==1) std::cout<<"test10"<<std::endl;
+            //std::cout<<"test22"<<std::endl;
             
             for (size_t i_sum=0;i_sum!=sumTrueBMomentum.size();i_sum++)
             {
@@ -523,7 +550,7 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
                 sumTrueBMagnitudeQ.at(i_sum) += (trueMagnitudePow.at(i_sum))*jetPfCandidateTrackCharge.at(pfTrackIdx);
             }
             
-            if (debug_==1) std::cout<<"test11"<<std::endl;
+            //std::cout<<"test23"<<std::endl;
             if (trueProduct>maxTrueProduct) maxTrueProduct = trueProduct;
             if (trueMagnitude>maxTrueMagnitude) maxTrueMagnitude = trueMagnitude;
             
@@ -539,7 +566,7 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
         m_histogram["h_trueBJetSelTrackMultiplicity"]->Fill(trueBJetSelTrackMultiplicity, weight);
         ((TH2D*)m_histogram["h_pfSizeVsSelSizeNoMatching"])->Fill(trueBJetSelTrackMultiplicity,trueBJetTrackMultiplicity,weight);
         //((TH2D*) m_histogram["h_trueBJetLeptonTrackPtMultiplicity"])->Fill(trueBJetPt,trueBJetTrackMultiplicity,weight);
-        if (debug_==1)  std::cout<<"test12"<<std::endl;
+         //std::cout<<"test24"<<std::endl;
         
         //Which particle leads our tracks?
         if(leptonTrackPdgId.size()>=1) m_histogram["h_trueBJetLeptonLeadingTrackPdgId"] -> Fill(leptonTrackPdgId.at(0));
@@ -547,7 +574,7 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
         if(leptonTrackPdgId.size()>=3) m_histogram["h_trueBJetLeptonThirdLeadingTrackPdgId"] -> Fill(leptonTrackPdgId.at(2));
         if(leptonTrackPdgId.size()>=4) m_histogram["h_trueBJetLeptonFourthLeadingTrackPdgId"] -> Fill(leptonTrackPdgId.at(3));
         
-        if (debug_==1) std::cout<<"test13"<<std::endl;
+        //std::cout<<"test25"<<std::endl;
         //Where are our muons in the track list? 
         if (leptonTrackPdgId.size()>0) 
         {
@@ -560,11 +587,11 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
             }
         }
         
-        if (debug_==1) std::cout<<"test14"<<std::endl;
+        //std::cout<<"test26"<<std::endl;
         if (ptRatioValues.size()!=0) m_histogram["h_trueBJetToLeadingTrackPtRatio"]->Fill(ptRatioValues.at(0),weight);
-        if (debug_==1) std::cout<<"test15"<<std::endl;
+        //std::cout<<"test27"<<std::endl;
         if (isLeadingMuon==true) m_histogram["h_trueBJetToLeadingLeptonTrackPtRatio"]->Fill(ptRatioValuesMuon, weight);
-        if (debug_==1) std::cout<<"test16"<<std::endl;
+        //std::cout<<"test28"<<std::endl;
         
         //lepton histograms
         if (trueBJetLeptonTracksPt.size()>0) 
@@ -580,10 +607,10 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
         else if (isGenMuon==false && isMuon==true) m_histogram["h_trueBJetAgreementMuons"]->Fill(2);
         else if (isGenMuon==true && isMuon==true) m_histogram["h_trueBJetAgreementMuons"]->Fill(3);
         
-        if (isGenMuon==false && isMuon==false) m_histogram["h_trueBJetAgreementElectrons"]->Fill(0);
-        else if (isGenMuon==true && isMuon==false) m_histogram["h_trueBJetAgreementElectrons"]->Fill(1);
-        else if (isGenMuon==false && isMuon==true) m_histogram["h_trueBJetAgreementElectrons"]->Fill(2);
-        else if (isGenMuon==true && isMuon==true) m_histogram["h_trueBJetAgreementElectrons"]->Fill(3);
+        if (isGenElectron==false && isElectron==false) m_histogram["h_trueBJetAgreementElectrons"]->Fill(0);
+        else if (isGenElectron==true && isElectron==false) m_histogram["h_trueBJetAgreementElectrons"]->Fill(1);
+        else if (isGenElectron==false && isElectron==true) m_histogram["h_trueBJetAgreementElectrons"]->Fill(2);
+        else if (isGenElectron==true && isElectron==true) m_histogram["h_trueBJetAgreementElectrons"]->Fill(3);
         
         if (isLeadingMuon&&isB&&isMuon&&isGenMinMuon) m_histogram["h_trueBJetAgreementChargeMuons"]->Fill(0);
         if (isLeadingMuon&&isB==false&&isMuon&&isGenPlusMuon) m_histogram["h_trueBJetAgreementChargeMuons"]->Fill(1);
@@ -595,30 +622,41 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
         if (isLeadingElectron&&isB&&isElectron&&isGenPlusElectron) m_histogram["h_trueBJetAgreementChargeElectrons"]->Fill(2);
         if (isLeadingElectron&&isB==false&&isElectron&&isGenMinElectron) m_histogram["h_trueBJetAgreementChargeElectrons"]->Fill(3);
         
-        
-        //find closes pt between reco and gen leptons
-        std::vector<int> minPtVectorIndex;
+        //find mean distances on pt between all reco and gen leptons
         if (genMuonPt.size()>0 && trueBJetLeptonTracksPt.size()>0)
         {
+            
             for (size_t i_recoLep = 0; i_recoLep!=trueBJetLeptonTracksPt.size(); i_recoLep++)
             {
-                double minPtDistance = 999.;
-                int minPtIndex = -1;
+                std::cout<<"The reco lep has a pt = "<<trueBJetLeptonTracksPt.at(i_recoLep)<<std::endl;
+                std::cout<<"The reco lep has a phi = "<<trueBJetLeptonTracksLV.at(i_recoLep).phi()<<std::endl;
+                std::cout<<"The reco lep has an eta = "<<trueBJetLeptonTracksLV.at(i_recoLep).eta()<<std::endl;
                 for (size_t i_genLep = 0; i_genLep!=genMuonPt.size(); i_genLep++)
                 {
-                    //bool checkIfInVector = false;
-                    //checkIfInVector = isInVector(minPtVectorIndex, i_genLep);
-                    //if (checkIfInVector == true) continue;
-                    if (std::abs(trueBJetLeptonTracksPt.at(i_recoLep)-genMuonPt.at(i_genLep))<minPtDistance) 
-                    {
-                        minPtDistance = std::abs(trueBJetLeptonTracksPt.at(i_recoLep)-genMuonPt.at(i_genLep));
-                        minPtIndex = i_genLep;
-                    }
+                    std::cout<<"The gen lep has a pt = "<<genMuonPt.at(i_genLep)<<std::endl;
+                    std::cout<<"The gen lep has a phi = "<<genMuonLV.at(i_genLep).phi()<<std::endl;
+                    std::cout<<"The gen lep has an eta = "<<genMuonLV.at(i_genLep).eta()<<std::endl;
+                    //pt difference between gen and reco muons
+                    m_histogram["h_trueBJetGenToRecoPtDifferenceMuons"]->Fill(std::abs(trueBJetLeptonTracksPt.at(i_recoLep)-genMuonPt.at(i_genLep)));
+                    m_histogram["h_trueBJetGenToRecoPtDifferenceMuonsExtended"]->Fill(std::abs(trueBJetLeptonTracksPt.at(i_recoLep)-genMuonPt.at(i_genLep)));
+                    std::cout<<"the deltaPt is = "<<std::abs(trueBJetLeptonTracksPt.at(i_recoLep)-genMuonPt.at(i_genLep))<<std::endl;
+                    
+                    //phi difference between reco and gen muons
+                    m_histogram["h_trueBJetGenToRecoPhiDifferenceMuons"]->Fill(ROOT::Math::VectorUtil::DeltaPhi(trueBJetLeptonTracksLV.at(i_recoLep), genMuonLV.at(i_genLep)));
+                    std::cout<<"the deltaPhi is = "<<ROOT::Math::VectorUtil::DeltaPhi(trueBJetLeptonTracksLV.at(i_recoLep), genMuonLV.at(i_genLep))<<std::endl;;
+                    
+                    //eta difference between reco and gen muons
+                    m_histogram["h_trueBJetGenToRecoEtaDifferenceMuons"]->Fill(std::abs(trueBJetLeptonTracksLV.at(i_recoLep).eta()-genMuonLV.at(i_genLep).eta()));
+                    std::cout<<"the deltaEta is = "<<std::abs(trueBJetLeptonTracksLV.at(i_recoLep).eta()-genMuonLV.at(i_genLep).eta())<<std::endl;
+                    
+                    //deltaR between reco and gen muons
+                    m_histogram["h_trueBJetGenToRecoDeltaRMuons"]->Fill(ROOT::Math::VectorUtil::DeltaR(trueBJetLeptonTracksLV.at(i_recoLep), genMuonLV.at(i_genLep)));
+                    std::cout<<"the deltaR is = "<<ROOT::Math::VectorUtil::DeltaR(trueBJetLeptonTracksLV.at(i_recoLep), genMuonLV.at(i_genLep))<<std::endl;
                 }
-                minPtVectorIndex.push_back(minPtIndex);
-                if (minPtDistance!=999.) m_histogram["h_trueBJetGenToRecoPtDifferenceMuons"]->Fill(minPtDistance);
             }
+            std::cout<<"==========================================================="<<std::endl;
         }
+        
         
         //IP histograms (only filled if there was a matching to a selected track!
         if (trueBJetTrackMaxIPValue>=0.) m_histogram["h_trueBJetTrackMaxIPValue"]->Fill(trueBJetTrackMaxIPValue, weight);
@@ -649,16 +687,16 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
        
         //charge histograms
         m_histogram["h_trueBJetScalarChargeValidation"]->Fill(trueBJetScalarCharge, weight);
-        if (debug_==1)  std::cout<<"test17"<<std::endl;
+         //std::cout<<"test29"<<std::endl;
         
         const double trueBJetScalarCharge10(sumTrueBMomentum.at(4)>0 ? sumTrueBMomentumQ.at(4)/sumTrueBMomentum.at(4) : 0);
         ((TH2D*)m_histogram["h_trueBJetScalarChargeVsMultip"])->Fill(trueBJetTrackMultiplicity,trueBJetScalarCharge10,weight);
-        if (debug_==1) std::cout<<"test18"<<std::endl;
+        //std::cout<<"test30"<<std::endl;
         
         
         //check if lepton track and charge of the jet coincide
         if (trueBJetLeptonTracksPt.size()>0) 
-            if (debug_==1) std::cout<<"test19"<<std::endl;
+            //std::cout<<"test31"<<std::endl;
         
         {
             if(isB&&isLeadingMuon&&trueBJetScalarCharge10<0)
@@ -723,7 +761,7 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
                 m_histogram["h_trueBJetSecLeadingLeptonRelChargeMatch"]->Fill(0);
             }
         }
-        if (debug_==1) std::cout<<"test20"<<std::endl;
+        //std::cout<<"test32"<<std::endl;
         
         
         //create a vector of histograms: contains histograms for x=0.2 to x=2.0
@@ -745,7 +783,7 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
             trueBJetHistogramRelVector.push_back(histoRel);
           
         }
-        if (debug_==1) std::cout<<"test21"<<std::endl;
+        //std::cout<<"test33"<<std::endl;
         
         //fill the histograms with the corresponding value of the charge (we take values from the sumTrueBMagnitude and sumTrueBMomentum vectors)
         std::vector<double> trueBJetScalarChargeVector;
@@ -765,7 +803,7 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
             trueBJetScalarChargeVector.push_back(trueBJetScalarCharge);
             trueBJetRelChargeVector.push_back(trueBJetRelCharge);
         }
-        if (debug_==1) std::cout<<"test22"<<std::endl;
+        //std::cout<<"test34"<<std::endl;
         
         
         //fill a vector with the charge value for the different x taking into account that a jet might have more than one hadron associated
@@ -792,7 +830,7 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
             trueBJetRelCharge16V.push_back(trueBJetRelChargeVector.at(7));
             trueBJetRelCharge18V.push_back(trueBJetRelChargeVector.at(8));
             trueBJetRelCharge20V.push_back(trueBJetRelChargeVector.at(9));
-            if (debug_==1) std::cout<<"test23"<<std::endl;
+            //std::cout<<"test35"<<std::endl;
             
             //for mva exclusive:
             //if (isMuon == false)  
@@ -808,11 +846,11 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
                 //if (isMuon) isMuonV.push_back(1);
                 //else if (isMuon==false) isMuonV.push_back(0);
             //}   
-                if (debug_==1) std::cout<<"test24"<<std::endl;
+                //std::cout<<"test36"<<std::endl;
                 
             // else if (isMuon == true)
             //   {
-            //        //std::cout<<"test25"<<std::endl;
+            //        ////std::cout<<"test25"<<std::endl;
             //       trueBJetMaxPtTrackV.push_back(-999.);
             //       trueBJetMaxChargeTrackV.push_back(-999.);
             //       trueBJetTrackMultiplicityV.push_back(-999.);
@@ -831,6 +869,7 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
   
     for (size_t i_fill=0;i_fill!=charge.size();++i_fill) //loop for charge.size()=flavour.size()->one entry per hadron/bquark, not per jet
     {
+        //std::cout<<"test37"<<std::endl;
         ((TH2D*)m_histogram["h_trueBJetBQuarkCharge"])->Fill(charge.at(i_fill),flavour.at(i_fill), weight);
       
         //FIXME this would only work for Pythia. Herwig contains flavour oscillations!! Check from which hadron it's coming to take into account hadron oscillations
@@ -898,6 +937,7 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
         //mva variables filling
         if (trueBJetPtV.at(i_fill)!=-999.)
         {
+            //std::cout<<"test38"<<std::endl;
             if (flavour.at(i_fill)<0) mvaStruct.trueBJetId_ .push_back(-1);
             else if (flavour.at(i_fill)>0) mvaStruct.trueBJetId_.push_back(0);
             
@@ -913,7 +953,7 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
             fillTree = true;
         }
         
-        
+        //std::cout<<"test39"<<std::endl;
         
         if (flavour.at(i_fill) == 6)  m_histogram["h_trueBJetTopCharge"]->Fill(trueBJetScalarCharge10V.at(i_fill),weight);
         else if (flavour.at(i_fill) == -6) m_histogram["h_trueBJetAntiTopCharge"]->Fill(trueBJetScalarCharge10V.at(i_fill),weight);
@@ -950,6 +990,7 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
     }
     //Fill the mva trees
     
+    //std::cout<<"test40"<<std::endl;
     if (fillTree == true) 
     {
         if (nTrees == 0 ) mvaChargeTestTree->Fill();
@@ -1416,7 +1457,19 @@ void AnalyzerJetCharge::bookHistos(const TString& step, std::map<TString, TH1*>&
     m_histogram[name] = store(new TH1I(prefix_+name+step,"Agreement between reco and gen electrons charge;Charge (both b, both anti-b, mismatch;#jets",4,0,4));
     
     name = "h_trueBJetGenToRecoPtDifferenceMuons";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Difference between the Pt of the gen-muons associated to a b-hadron and it's pt-closest reco muon;Pt difference;# of leptons combinations",40,0.,120.));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Difference between the Pt of all the gen-muons associated to a b-hadron and all the reco muon;Pt difference;# of lepton combinations",10,0.,1.));
+    
+    name = "h_trueBJetGenToRecoPtDifferenceMuonsExtended";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Difference between the Pt of all the gen-muons associated to a b-hadron and all the reco muon;Pt difference;Pt difference;# of lepton combinations",30,0.,30.));
+    
+    name = "h_trueBJetGenToRecoPhiDifferenceMuons";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Difference between the Phi of all the gen-muons associated to a b-hadron and all the reco muon;Phi difference;# of lepton combinations",40,-6.,2.));
+    
+    name = "h_trueBJetGenToRecoEtaDifferenceMuons";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Difference between the Eta of all the gen-muons associated to a b-hadron and all the reco muon;Eta difference;# of lepton combinations",40,0.,2.));
+    
+    name = "h_trueBJetGenToRecoDeltaRMuons";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"DeltaR of all the gen-muons associated to a b-hadron and all the reco muon;DeltaR;# of lepton combinations",40,0.,10.));
     
     //Impact parameter====================================================
     
