@@ -205,22 +205,27 @@ std::pair<const reco::RecoCandidate*, const reco::RecoCandidate*> DileptonKinRec
 void
 DileptonKinRecoLeptons::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+    // Result vectors for the two electrons+muons
+    std::auto_ptr<std::vector<pat::Electron> > selectedElectrons(new std::vector<pat::Electron>);
+    std::auto_ptr<std::vector<pat::Muon> > selectedMuons(new std::vector<pat::Muon>);
+    
     // Access electrons and muons
     edm::Handle<std::vector<pat::Electron> > electrons;
     iEvent.getByLabel(electrons_, electrons);
+    size_t nElectrons = electrons->size();
     edm::Handle<std::vector<pat::Muon> > muons;
     iEvent.getByLabel(muons_, muons);
-    
-    size_t nElectrons = electrons->size();
     size_t nMuons = muons->size();
     
-    // Skip events with less than 2 relevant leptons
-    if(filterChannel_==undefined && nElectrons+nMuons<2) return;
-    if(filterChannel_==ee && nElectrons<2) return;
-    if(filterChannel_==emu && !nElectrons && !nMuons) return;
-    if(filterChannel_==mumu && nMuons<2) return;
+    // Skip events with less than 2 relevant leptons, but create empty collections
+    if((filterChannel_==undefined && nElectrons+nMuons<2) || (filterChannel_==ee && nElectrons<2) ||
+       (filterChannel_==emu && !nElectrons && !nMuons) || (filterChannel_==mumu && nMuons<2)){
+        iEvent.put(selectedElectrons);
+        iEvent.put(selectedMuons);
+        return;
+    }
     
-    // Result vector
+    // Vector containing all lepton pairs fulfilling the selection
     std::auto_ptr<std::vector<std::pair<const reco::RecoCandidate*, const reco::RecoCandidate*> > > leptonPairs(new std::vector<std::pair<const reco::RecoCandidate*, const reco::RecoCandidate*> >);
     
     // Check all ee candidates
@@ -248,9 +253,6 @@ DileptonKinRecoLeptons::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         }
     }
     
-    // If no good pair is found return
-    if(!leptonPairs->size()) return;
-    
     // Find best pair as: search leading lepton, in case of several combinations choose the 2nd lepton with highest pt
     const reco::RecoCandidate* leadingLepton(0);
     const reco::RecoCandidate* subleadingLepton(0);
@@ -272,9 +274,7 @@ DileptonKinRecoLeptons::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         }
     }
     
-    // Result vectors for the two electrons+muons (from all dileptons the combination of: leading lepton, and corresponding most subleading lepton)
-    std::auto_ptr<std::vector<pat::Electron> > selectedElectrons(new std::vector<pat::Electron>);
-    std::auto_ptr<std::vector<pat::Muon> > selectedMuons(new std::vector<pat::Muon>);
+    // Fill result vectors for the two electrons+muons (from all dileptons the combination of: leading lepton, and corresponding most subleading lepton)
     if(leadingLepton && subleadingLepton){
         const pat::Electron* electron(0);
         electron = dynamic_cast<const pat::Electron*>(leadingLepton);

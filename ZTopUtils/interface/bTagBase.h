@@ -107,7 +107,7 @@ public:
     enum histoTypes {tag, eff};
 
     void setWorkingPoint(workingPoints wp) { wp_ = wp; }
-    const float& getWPDiscrValue()const{return wpvals_[wp_];}
+    const float& getWPDiscrValue()const;
     std::string getWorkingPointString()const;
 
     workingPoints getWorkingPoint() const { return wp_;}
@@ -140,6 +140,9 @@ public:
     /**
      * Input as .root files with histograms. See:
      * https://twiki.cern.ch/twiki/bin/viewauth/CMS/BTagShapeCalibration
+     * can be found in ZTopUtils/data/
+     * - csv_rwt_hf.root -> heavy flavour
+     * - csv_rwt_lf.root -> light flavour
      */
     void readShapeReweightingFiles(const TString& heavy,const TString& light);
 

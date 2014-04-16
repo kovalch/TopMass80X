@@ -41,7 +41,12 @@ bTagBase::bTagBase():showWarnings(false),debug(false),init_(false),wp_(length_wp
 
 
 }
-
+const float& bTagBase::getWPDiscrValue()const{
+    if(wp_==length_wp){ //default value
+        throw std::logic_error("bTagBase::getWPDiscrValue: working point not set");
+    }
+    return wpvals_[wp_];
+}
 
 bTagBase::bTagBase(const bTagBase& rhs){
     copyFrom(rhs);
@@ -344,7 +349,7 @@ void bTagBase::makeEffs() {
                 float err = 0.99; //to avoid zeros!
                 if (histp_->at(2 * i).GetBinContent(binx, biny) > 0) {
                     cont = histp_->at(2 * i + 1).GetBinContent(binx, biny)
-                        						                                                                                                                                                         / histp_->at(2 * i).GetBinContent(binx, biny);
+                        						                                                                                                                                                                 / histp_->at(2 * i).GetBinContent(binx, biny);
                     if (debug)
                         std::cout << "makeEffs: content: " << cont;
                     err = sqrt(
