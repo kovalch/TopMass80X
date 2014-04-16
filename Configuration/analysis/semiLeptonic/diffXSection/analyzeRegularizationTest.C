@@ -2202,7 +2202,7 @@ void analyzeRegularizationTest(TString test="mix", double luminosity = 19712.,
 	// =================================================
 	if(systematicVariation==sysNo&&variable!="inclusive"&&closureTestSpecifier!=""&&!closureTestSpecifier.Contains("NoDistort")){
 	  // get ttbar signal files (with reweighting applied or without for zprime)
-	  TString rewfold="/afs/naf.desy.de/group/cms/scratch/tophh/"+inputFolderName+"/";
+	  TString rewfold=groupSpace+inputFolderName+"/";
 	  if(zprime=="") rewfold+="ttbarReweight/";
 	  TString muReweighted=rewfold+TopFilename(kSig, sysNo, "muon"    );
 	  TString elReweighted=rewfold+TopFilename(kSig, sysNo, "electron");
