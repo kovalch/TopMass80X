@@ -4,7 +4,6 @@ void analyzeFileComparison(bool save = true,  bool usePAPERbinning=true, int ver
  
   // usePAPERbinning: use paper binning instead of equidistant binning for cross section quantities
   // usePAPERbinning=true / false
-
   // ============================
   //  Set Root Style
   // ============================
@@ -15,7 +14,7 @@ void analyzeFileComparison(bool save = true,  bool usePAPERbinning=true, int ver
   myStyle.cd();
   gROOT->SetStyle("HHStyle");
   gROOT->ForceStyle();
-  TGaxis::SetMaxDigits(2);
+  TGaxis::SetMaxDigits(3);
 
   // ============================
   //  load rootfiles
@@ -23,8 +22,8 @@ void analyzeFileComparison(bool save = true,  bool usePAPERbinning=true, int ver
   std::vector<TFile* > file_;
   TString MS= ""; //MadSpin ? "MadSpin" : ""; -> keep old files for the moment
   TString targetfolder=groupSpace+AnalysisFolder;
-  file_.push_back(TFile::Open(targetfolder+"/elecDiffXSecSig"+MS+"Summer12PF.root"                                  , "Open"));
-  file_.push_back(TFile::Open(targetfolder+"/muonDiffXSecSigSummer12PF.root"                                        , "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/elecDiffXSecSig"+MS+"Summer12PF.root"                                        , "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/muonDiffXSecSig"+MS+"Summer12PF.root"                                        , "Open"));
   file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/elecDiffXSecSig"+MS+"TopMassConstraint173p5Summer12PF.root", "Open"));
   file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/muonDiffXSecSig"+MS+"TopMassConstraint173p5Summer12PF.root", "Open"));
   file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/elecDiffXSecSig"+MS+"TopMassConstraint171p5Summer12PF.root", "Open"));
@@ -33,11 +32,10 @@ void analyzeFileComparison(bool save = true,  bool usePAPERbinning=true, int ver
   file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/muonDiffXSecSig"+MS+"TopMassConstraint174p5Summer12PF.root", "Open"));
   file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/elecDiffXSecSig"+MS+"TopMassConstraint170p5Summer12PF.root", "Open"));
   file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/muonDiffXSecSig"+MS+"TopMassConstraint170p5Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/elecDiffXSecSig"+MS+"TopMassConstraint180p0Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/muonDiffXSecSig"+MS+"TopMassConstraint180p0Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/elecDiffXSecSig"+MS+"TopMassConstraint160p0Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/muonDiffXSecSig"+MS+"TopMassConstraint160p0Summer12PF.root", "Open"));
-
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/elecDiffXSecSig"+MS+"TopMassConstraint"+(MS=="" ? "180p0" : "176p5")+"Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/muonDiffXSecSig"+MS+"TopMassConstraint"+(MS=="" ? "180p0" : "176p5")+"Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/elecDiffXSecSig"+MS+"TopMassConstraint"+(MS=="" ? "160p0" : "168p5")+"Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/muonDiffXSecSig"+MS+"TopMassConstraint"+(MS=="" ? "160p0" : "168p5")+"Summer12PF.root", "Open"));
 
   std::vector<double > massConstraint_;
   massConstraint_.push_back(172.5);
@@ -50,17 +48,17 @@ void analyzeFileComparison(bool save = true,  bool usePAPERbinning=true, int ver
   massConstraint_.push_back(174.5);
   massConstraint_.push_back(170.5);
   massConstraint_.push_back(170.5);
-  massConstraint_.push_back(180.0);
-  massConstraint_.push_back(180.0);
-  massConstraint_.push_back(160.0);
-  massConstraint_.push_back(160.0);
-
+  massConstraint_.push_back(MS=="" ? 180.0 : 176.5);
+  massConstraint_.push_back(MS=="" ? 180.0 : 176.5);
+  massConstraint_.push_back(MS=="" ? 160.0 : 168.5);
+  massConstraint_.push_back(MS=="" ? 160.0 : 168.5);
 
   // list plots of relevance
   std::vector<TString> plotList_, axisLabel_;
   TString plots1D[ ] = {
     // KinFit plots before prob cut 
     "analyzeTopRecoKinematicsKinFit/prob",
+    "analyzeTopRecoKinematicsKinFit/chi2",
     "analyzeTopRecoKinematicsKinFit/ttbarAngle",
     "analyzeTopRecoKinematicsKinFit/topPt",
     "analyzeTopRecoKinematicsKinFit/topPtTtbarSys",
@@ -143,22 +141,23 @@ void analyzeFileComparison(bool save = true,  bool usePAPERbinning=true, int ver
   };
   TString axisLabel1D[ ] = { 
     // KinFit plots before prob cut 
-    "probability (best fit hypothesis);Events;1;50", 
+    "probability (best fit hypothesis);Events;1;25", 
+    "#chi^{2} (best fit hypothesis);Events;1;20",
     "#angle(t,#bar{t});Events;0;35",
-    "p_{T}^{t} #left[GeV#right];Top quarks;0;20",
+    "p_{T}^{t} #left[GeV#right];Top quarks;0;2",
     "p_{T}^{t} #left[GeV#right] (t#bar{t} system);Events;0;20",
     "y^{t};Top quarks;0;5",
-    "m^{t};Top quarks;0;10",
+    "m^{t};Top quarks;0;20",
     "p_{T}^{t#bar{t}} #left[GeV#right];Top-quark pairs;0;20",
     "y^{t#bar{t}};Top-quark pairs;0;5",
     "m^{t#bar{t}} #left[GeV#right];Top-quark pairs;0;50",
     "H_{T}^{t#bar{t}}=#Sigma(E_{T}(jets)) #left[GeV#right];#frac{dN}{dH_{T}^{t#bar{t}}};0;20",
     "p_{T}^{l} #left[GeV#right];N^{l};0;10",
     "#eta^{l};Leptons;0;5",
-    "p_{T}^{q} #left[GeV#right];tt jets;0;50",    
-    "#eta^{q};tt jets;0;10",
-    "p_{T}^{b} #left[GeV#right];b-jets;0;20",    
-    "#eta^{b};b-jets;0;5",
+    "p_{T}^{q} #left[GeV#right];light jets;0;50",    
+    "#eta^{q};light jets;0;10",
+    "p_{T}^{b} #left[GeV#right];b jets;0;20",    
+    "#eta^{b};b jets;0;5",
     "#eta^{l+};Events;0;5",
     "#eta^{l-};Events;0;5",
     "#eta^{t+};Events;0;25",
@@ -187,24 +186,24 @@ void analyzeFileComparison(bool save = true,  bool usePAPERbinning=true, int ver
     "#Delta p_{T}^{neutrino} #left[GeV#right];Events;0;20",
     "#Delta #eta^{neutrino};Events;0;50",
     "#Delta #phi^{neutrino};Events;0;50",
-    xSecLabelName("rhos" )+";events;0;22",
-    xSecLabelName("Njets")+";events;0;1",
+    xSecLabelName("rhos" )+";Events;0;11",
+    xSecLabelName("Njets")+";Events;0;1",
     // KinFit plots after prob cut 
     "#angle(t,#bar{t});Events;0;35",
     "p_{T}^{t} #left[GeV#right];Top quarks;0;20",
     "p_{T}^{t} #left[GeV#right] (t#bar{t} system);Events;0;20",
     "y^{t};Top quarks;0;5",
-    "m^{t};Top quarks;0;10",
+    "m^{t};Top quarks;0;20",
     "p_{T}^{t#bar{t}} #left[GeV#right];Top-quark pairs;0;20",
     "y^{t#bar{t}};Top-quark pairs;0;5",
     "m^{t#bar{t}} #left[GeV#right];Top-quark pairs;0;50",
     "H_{T}^{t#bar{t}}=#Sigma(E_{T}(jets)) #left[GeV#right];#frac{dN}{dH_{T}^{t#bar{t}}};0;20",
-    "p_{T}^{l} #left[GeV#right];N^{l};0;10",
+    "p_{T}^{l} #left[GeV#right];Leptons;0;10",
     "#eta^{l};Leptons;0;5",
-    "p_{T}^{q} #left[GeV#right];tt jets;0;50",    
-    "#eta^{q};tt jets;0;10",
-    "p_{T}^{b} #left[GeV#right];b-jets;0;20",    
-    "#eta^{b};b-jets;0;5",
+    "p_{T}^{q} #left[GeV#right];light jets;0;50",    
+    "#eta^{q};light jets;0;10",
+    "p_{T}^{b} #left[GeV#right];b jets;0;20",    
+    "#eta^{b};b jets;0;5",
     "#eta^{l+};Events;0;5",
     "#eta^{l-};Events;0;5",
     "#eta^{t+};Events;0;25",
@@ -322,32 +321,36 @@ void analyzeFileComparison(bool save = true,  bool usePAPERbinning=true, int ver
     // adjust range (x-axis)
     double xUp=histo_[name][1725]->GetXaxis()->GetXmax();
     double xDn=histo_[name][1725]->GetXaxis()->GetXmin();
-    if(name.Contains("topPt" )){xDn=0.  ; xUp=400.;}
+    if(name.Contains("topPt" )){xDn=0.  ; xUp=500.;}
+    if(name.Contains("topMass")){xDn=100.  ; xUp=300.;}
     if(name.Contains("topY"  )){xDn=-2.5; xUp=2.5 ;}
     if(name.Contains("ttbarY")){xDn=-2.5; xUp=2.5 ;}
-    if(name.Contains("ttbarMass")){xDn=300.;xUp=1000.;}
+    if(name.Contains("ttbarMass")){xDn=300.;xUp=1100.;}
     if(name.Contains("ttbarHT"  )){xDn=50. ;xUp=500.;}
     if(name.Contains("lepPt" )){xDn=0.;xUp=200.;}
-    if(name.Contains("lepEta")){xDn=-2.0;xUp=2.0;}
+    if(name.Contains("lepEta")){xDn=-2.1;xUp=2.1;}
     if(name.Contains("leadqPt" )){xDn=0.;xUp=300.;}
     if(name.Contains("leadqEta")){xDn=-3.;xUp=3.;}
-    if(name.Contains("bqPt" )){xDn=0. ;xUp=300.;}
-    if(name.Contains("bqEta")){xDn=-3.;xUp=3.;}
-    if(name.Contains("bbbarPt")){xDn=0.;xUp=300.;}
+    if(name.Contains("bqPt" )){xDn=0. ;xUp=400.;}
+    if(name.Contains("lightqPt" )){xDn=0. ;xUp=400.;}
+
+
+    if(name.Contains("bqEta")){xDn=-2.4;xUp=2.4;}
+    if(name.Contains("bbbarPt")){xDn=0.;xUp=500.;}
     if(name.Contains("bbbarY"   )){xDn=-2.5;xUp=2.5;}
-    if(name.Contains("bbbarMass")){xDn=0.;xUp=500.;}
+    if(name.Contains("bbbarMass")){xDn=0.;xUp=504.;}
     if(name.Contains("shiftLqPt"  )){xDn=-80    ;xUp=80;    }
     if(name.Contains("shiftLqEta" )){xDn=-0.02  ;xUp=0.02;  }
     if(name.Contains("shiftLqPhi" )){xDn=-0.02  ;xUp=0.02;  }
     if(name.Contains("shiftBqPt"  )){xDn=-30    ;xUp=30;    }
-    if(name.Contains("shiftBqEta" )){xDn=-0.01  ;xUp=0.01;  }
-    if(name.Contains("shiftBqPhi" )){xDn=-0.005 ;xUp=0.005; }
+    if(name.Contains("shiftBqEta" )){xDn=-0.012 ;xUp=0.012; }
+    if(name.Contains("shiftBqPhi" )){xDn=-0.008 ;xUp=0.008; }
     if(name.Contains("shiftLepPt" )){xDn=-0.4   ;xUp=0.4;   }
     if(name.Contains("shiftLepEta")){xDn=-0.000001 ;xUp=0.000001; }
     if(name.Contains("shiftLepPhi")){xDn=-0.0000005;xUp=0.0000005;}
     if(name.Contains("shiftNuPt"  )){xDn=-60    ;xUp=60;    }
     if(name.Contains("shiftNuEta" )){xDn=-4.    ;xUp=4.;    }
-    if(name.Contains("shiftNuPhi" )){xDn=-0.25  ;xUp=0.25;  }
+    if(name.Contains("shiftNuPhi" )){xDn=-0.3  ;xUp=0.3;  }
 //     if(name.Contains("shiftLqEta")){xDn=-0.4;xUp=0.4;}
 //     if(name.Contains("shiftLqPhi")){xDn=-0.2;xUp=0.2;}
 //     if(name.Contains("shiftBqPt")){xDn=-30.;xUp=30.;}
@@ -356,7 +359,7 @@ void analyzeFileComparison(bool save = true,  bool usePAPERbinning=true, int ver
 //     if(name.Contains("shiftLepPt")){xDn=-5.;xUp=5.;}
 //     if(name.Contains("shiftNuPt" )){xDn=-50.;xUp=50.;}
 //     if(name.Contains("shiftNuPhi" )){xDn=-1.;xUp=1.;}
-    //if(name.Contains("")){xDn=;xUp=;}
+    if(name.Contains("Njets")){xDn=3.51;xUp=9.49;}
     //if(name.Contains("")){xDn=;xUp=;}
     if(xUp!=histo_[name][1725]->GetXaxis()->GetXmax()||xDn!=histo_[name][1725]->GetXaxis()->GetXmin()) histo_[name][1725]->GetXaxis()->SetRangeUser(xDn,xUp-0.000001);
     
@@ -371,7 +374,7 @@ void analyzeFileComparison(bool save = true,  bool usePAPERbinning=true, int ver
       histo_[name][kcon]->Draw("hist same");
     }
     histo_[name][1725]->Draw("hist same");
-    leg->Draw("same");
+    if(!PHD||(name.Contains("bqPt")||(name.Contains("lepPt")||(name.Contains("topPt")&&!name.Contains("Sys"))||name.Contains("ttbarMass")))) leg->Draw("same");
     // draw cut label
     TString cutLabel="1 lepton, #geq4 Jets";
     if(name.Contains("Tagged")||plotList_[plot].Contains("AfterBtagging")) cutLabel+=", #geq2 b-tags";
@@ -382,7 +385,11 @@ void analyzeFileComparison(bool save = true,  bool usePAPERbinning=true, int ver
     }
     double positionX=xUp+0.045*(xUp-xDn)*(gStyle->GetCanvasDefW()/600.);
     double positionY=min;
-    //std::cout << plotList_[plot] << ": " << xUp << "+0.03*(" << xUp << "-" << xDn << ")=" << positionX << std::endl;
+    //double xUpp=histo_[name][1725]->GetBinLowEdge(histo_[name][1725]->FindBin(xUp)+1);
+    //if((name.Contains("bbbarPt"))||(name.Contains("bbbarMass"))){
+    //  positionX=xUpp+0.045*(xUpp-xDn)*(gStyle->GetCanvasDefW()/600.);
+    //  std::cout << name << ": " << xDn << ".." << xUp << " -> " << positionX << std::endl;
+    //}
     TLatex *sellabel = new TLatex(positionX,positionY,cutLabel);
     sellabel->SetTextAlign(11);
     sellabel->SetTextAngle(90);
@@ -396,14 +403,17 @@ void analyzeFileComparison(bool save = true,  bool usePAPERbinning=true, int ver
       double a =histo_[name][1725]->GetBinContent(bin);
       err_.push_back(sqrt(a)/(a));
     }
-    drawRatio(histo_[name][1725], histo_[name][1725], 0.9, 1.12, myStyle, verbose, err_, "constraint", "#scale[0.7]{m_{top}^{constr}=172.5 GeV}", "e p", kBlack, false, 0.2);
+    TString nominator="m_{top} constrain";
+    TString denominator="172.5 GeV";
+    drawRatio(histo_[name][1725], histo_[name][1725], 0.9, 1.12, myStyle, verbose, err_, denominator, nominator, "e p", kBlack, false, 0.2);
     for(int sample=0; sample<int(file_.size()); sample=sample+2){
       double mcon=massConstraint_[sample];
       int kcon=roundToInt(mcon*10);
       //std::cout << kcon << std::endl;      
       //gStyle->SetErrorX(0.5);
-      drawRatio(histo_[name][kcon], histo_[name][1725], 0.9, 1.12, myStyle, verbose, err_, "constraint", "m_{top}^{constr}=172.5 GeV", "hist same", histo_[name][kcon]->GetLineColor(), false, 0.2);
+      drawRatio(histo_[name][kcon], histo_[name][1725], 0.9, 1.12, myStyle, verbose, err_, denominator, nominator, "hist same", histo_[name][kcon]->GetLineColor(), false, 0.2);
     }
+    drawRatio(histo_[name][1725], histo_[name][1725], 0.9, 1.12, myStyle, verbose, err_, denominator, nominator, "e p same", kBlack, false, 0.2);
   }
 
   if(save){
