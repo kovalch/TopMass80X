@@ -15,7 +15,7 @@ bool fullPS(TString variable="topPt");
 
 void analyzeTopDiffXSecMCdependency(double luminosity = constLumiMuon, std::string decayChannel="electron", bool save=true, int verbose=0, TString inputFolderName=AnalysisFolder,
 				    TString dataFile=groupSpace+AnalysisFolder+"/elecDiffXSecData2012ABCDAll.root",
-				    //TString dataFile= groupSpace+AnalysisFolder+"/muonDiffXSecData2012ABCDAll.root"
+				    //TString dataFile= groupSpace+AnalysisFolder+"/muonDiffXSecData2012ABCDAll.root",
                                     bool doPDFuncertainty=true, bool addCrossCheckVariables=false, TString addSel="ProbSel")
 {
   // ---
