@@ -52,10 +52,12 @@ namespace semileptonic {
   //TString groupSpace="/afs/naf.desy.de/group/cms/scratch/tophh/";
   TString AnalysisFolder="RecentAnalysisRun8TeV_doubleKinFit"; // used mostly as default argument
   // large madspin or smaller madgraph samples?
-  bool MadSpin=true; //#############
+  bool MadSpin=true; 
   // adapt several things like removing official labels for my PHD
-  bool PHD=false;
-  // use global switch to rm/add Preliminary to plots 
+  bool PHD=false;//false;
+  // exclude ttV contribution from all plots and in calculation
+  bool excludettV=true;
+  // Use global switch to rm/add Preliminary to plots 
   bool globalPrelim   =false; // value used in DrawCMSLabels
   bool useGlobalPrelim=true;  // for false the value above is ignored
   // label extension for center of mass in topPt in ttbar center of mass system
@@ -1316,7 +1318,8 @@ namespace semileptonic {
       // lumi normalization is done here
       Nevents=1;
       crossSection=1.;
-    }
+      if(excludettV) crossSection=0.;
+   }
     //#################
     // Pythia6: DiBoson Samples
     // Summer12
@@ -3839,7 +3842,7 @@ namespace semileptonic {
     int sysListMain [ ] = { sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysHadUp, sysHadDown, sysJESUp, sysJESDown, sysJERUp, sysJERDown, sysBtagSFUp, sysBtagSFDown, sysBtagSFShapeUpPt65, sysBtagSFShapeDownPt65, sysBtagSFShapeUpEta0p7, sysBtagSFShapeDownEta0p7 }; // ttbar modeling
     //int sysListPaper[ ] = {sysBtagSFUp, sysBtagSFDown, sysBtagSFShapeDownPt65, sysBtagSFShapeUpEta0p7};
     int sysListPaper[ ] = { sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysHadUp, sysHadDown, sysTopMassUp, sysTopMassDown, sysPDFUp, sysPDFDown}; // ttbar main modeling unc.
-
+    int sysListPHD[ ] = {  sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysHadUp, sysHadDown, sysJESUp, sysJESDown, sysJERUp, sysJERDown, sysBtagSFUp, sysBtagSFDown, sysBtagSFShapeUpPt65, sysBtagSFShapeDownPt65, sysBtagSFShapeUpEta0p7, sysBtagSFShapeDownEta0p7, sysMisTagSFUp, sysMisTagSFDown}; // separate list used for martins thesis
     int sysListAll  [ ] = { sysTopMatchUp, sysTopMatchDown, sysTopScaleUp, sysTopScaleDown, sysTopMassUp, sysTopMassDown, sysJESUp, sysJESDown ,sysJERUp, sysJERDown, sysPUUp, sysPUDown, sysLepEffSFNormUp, sysLepEffSFNormDown, sysLepEffSFShapeUpEta, sysLepEffSFShapeDownEta, sysLepEffSFShapeUpPt, sysLepEffSFShapeDownPt, sysBtagSFUp, sysBtagSFDown, sysBtagSFShapeUpPt65, sysBtagSFShapeDownPt65, sysBtagSFShapeUpEta0p7, sysBtagSFShapeDownEta0p7, sysMisTagSFUp, sysMisTagSFDown, sysBRUp, sysBRDown, sysPDFUp, sysPDFDown, sysHadUp, sysHadDown};
     
     if(     type =="model") RelevantSys_.insert(RelevantSys_.begin(), sysListModel, sysListModel+ sizeof(sysListModel)/sizeof(int));
@@ -3847,6 +3850,7 @@ namespace semileptonic {
     else if(type =="all"  ) RelevantSys_.insert(RelevantSys_.begin(), sysListAll  , sysListAll  + sizeof(sysListAll  )/sizeof(int));
     else if(type =="main" ) RelevantSys_.insert(RelevantSys_.begin(), sysListMain , sysListMain + sizeof(sysListMain )/sizeof(int));
     else if(type =="paper") RelevantSys_.insert(RelevantSys_.begin(), sysListPaper, sysListPaper+ sizeof(sysListPaper)/sizeof(int));
+    else if(type =="phd"  ) RelevantSys_.insert(RelevantSys_.begin(), sysListPHD  , sysListPHD  + sizeof(sysListPHD)  /sizeof(int));
     else{ 
       std::cout << "ERROR in function  " << std::endl;
       exit(0);
