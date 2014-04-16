@@ -2,6 +2,9 @@
 
 bool PaperPlot(std::vector<TString> plotList_, int plot, TString addSel, const std::string decayChannel);
 bool PaperPlot2(TString title, TString addSel, const std::string decayChannel);
+bool PHDPlot(TString title, TString addSel, const std::string decayChannel);
+std::pair<double,double> yRangeForPHD(std::vector<TString> plotList_, int plot, TString addSel, double min, double max);
+std::pair<double,double> ratioRangeForPHD(std::vector<TString> plotList_, int plot, TString addSel, double ratMin, double ratMax);
 
 void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 				  bool save = true, int verbose=0,
@@ -21,7 +24,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
   samples_.push_back(kSTop);
   samples_.push_back(kWjets);
   samples_.push_back(kZjets);
-  samples_.push_back(kTTVjets); //#########
+  samples_.push_back(kTTVjets); 
   samples_.push_back(kDiBos);
   samples_.push_back(kQCD);
   samples_.push_back(kData);
@@ -101,6 +104,11 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
   // b) for chi2 related plots (prob, chi2, KinFitShift)
   TString unctypeJE="main";
   TString unctypeLabelJE=unctypeLabel;
+  // -> for PHD: use independend configuration
+  if(PHD){
+    unctype  ="phd";
+    unctypeJE="phd";
+  }
   // choose if you want to set QCD artificially to 0 to avoid problems with large SF for single events
   bool setQCDtoZero=true;
   //if(addSel=="ProbSel") setQCDtoZero=false;
@@ -320,6 +328,11 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     "PUControlDistributionsBeforeBtagging/npvertex_reweighted_down",
     // (III) after btagging 
     // (ii) jet monitoring
+    "tightJetQualityTagged/nhf"   ,
+    "tightJetQualityTagged/nef"   ,
+    "tightJetQualityTagged/chf"   ,
+    "tightJetQualityTagged/cef"   ,
+    "tightJetQualityTagged/ncp"   ,
     "tightJetKinematicsTagged/n"  ,
     "tightJetKinematicsTagged/pt" ,
     "tightJetKinematicsTagged/eta",
@@ -631,17 +644,22 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     "Number of PU Events (Reweighted);Events;1;1",
     "Number of PU Events (Reweighted sysUp);Events;1;1",
     "Number of PU Events (Reweighted sysDown);Events;1;1",
-    "Number of Vertices;Events;1;10",
+    "Number of Vertices;Events;0;10",
     //"Number of Vertices (Reweighted);Events;1;10",
     "Number of Vertices (Reweighted sysUp);Events;1;10",
     "Number of Vertices (Reweighted sysDown);Events;1;10",
     // (III) after btagging 
     // (ii) jet monitoring
+    "neutral hadron fraction (jets);Jets;1;1"         ,
+    "neutral electromagnetic fraction (jets);Jets;0;2",
+    "charged hadron fraction (jets);Jets;0;1"         ,
+    "charged electromagnetic fraction (jets);Jets;1;1",
+    "N_{charged particles} (jets);Jets;0;2"           ,
     "N_{jets};Events;1;1",
     "p_{T}^{jet} #left[GeV#right];Jets;1;2",
-    "#eta(jets);Jets;0;5" ,
+    "#eta(jets);Jets;0;1" ,
     "#phi(jets);Jets;0;10",
-    "H_{T} [GeV];Events;0;100",
+    "H_{T} [GeV];Events;1;100",
     "p_{t}(lead 1^{st} jet) #left[GeV#right];Events;1;5",
     "#eta(lead 1^{st} jet);Events;0;5" ,
     "p_{t}(lead 2^{nd} jet) #left[GeV#right];Events;1;5",
@@ -654,10 +672,10 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     "p_{t}(lead 2^{nd} b-tagged jet) #left[GeV#right];Events;1;5",
     "#eta(lead 1^{st} b-tagged jet);Events;0;5" ,
     "#eta(lead 2^{nd} b-tagged jet);Events;0;5" ,
-    "N_{non-b jets};Events;1;1",
     // (iii) btag monitoring    
     "b-discr.(CSV);Jets;0;2",
     "N_{b jets};Events;1;1" ,
+    "N_{non-b jets};Events;1;1",
     // (iv) MET monitoring 
     "#slash{E}_{T} #left[GeV#right];Events;0;20",
     "#phi(#slash{E}_{T});Events;0;5",
@@ -754,7 +772,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     "#chi^{2};Events;1;10",
     "#Delta#phi(t,#bar{t});Events;0;4",
     // gen distributions
-    "t#bar{t} other decay channel;rel. Events;0;1",
+    "t#bar{t} other final state;rel. Events;0;1",
     "m^{t#bar{t}} #left[GeV#right] parton all truth;Events;1;1",
     "m^{t#bar{t}} #left[GeV#right] parton lv PS parton truth;Events;1;1",
     "p_{T}^{lep} #left[GeV#right] hadron lv PS truth;Events;1;1",
@@ -794,7 +812,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     // (III) after btagging 
     "PF relIso;Leptons;0;1",
     "p^{l}_{T} [GeV];Leptons;0;2",
-    "#eta^{l} ;Leptons;0;2",
+    "#eta^{l} ;Leptons;0;1",
   };
 
   TString axisLabel1Dmu[ ] = {
@@ -931,7 +949,6 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     plotListEl_ = plotList_;
     plotListMu_ = plotList_;
   }
-
   // Renaming: for the naming used to save the plots and later to access them internally
   if(verbose>1) std::cout << "internal renaming" << std::endl;
   if(decayChannel != "combined"){
@@ -1073,6 +1090,13 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
   if(effA) axisLabel_.insert(axisLabel_.end(), axisLabel1Deff,     axisLabel1Deff     + sizeof(axisLabel1Deff)/sizeof(TString));
   if(extra) axisLabel_.insert(axisLabel_.end(), axisLabel1Dextra,     axisLabel1Dextra     + sizeof(axisLabel1Dextra)/sizeof(TString));
   axisLabel_.insert( axisLabel_.end()  , axisLabel2D, axisLabel2D + sizeof(axisLabel2D)/sizeof(TString) );
+  // adaptions for Martins PHD in contrast to PAPER
+  if(PHD){
+    // loop plots
+    for(unsigned int plot=0; plot<plotList_.size(); ++plot){
+      if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/lepPt")) axisLabel_[plot].ReplaceAll("N^{l}","Leptons");
+    }
+  }
   if(verbose>1){
     std::cout << "(plot, x Axis label, y Axis label, log scale?, rebinning factor):" << std::endl;
     // loop plots
@@ -1381,11 +1405,13 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	TString leglabel=sampleLabel(sample,decayChannel);
 	if((topPtReweighting)&&(sample==kSig||sample==kBkg)) leglabel+="-p_{T}^{t} corr";
 	leglabel+=TXT;
-	leg ->AddEntry(histo_[plotList_[plot]][sample], leglabel, "F");
-	leg0->AddEntry(histo_[plotList_[plot]][sample], leglabel, "F");
-	leg1->AddEntry(histo_[plotList_[plot]][sample], leglabel, "F");
-	if(legSplit1->GetNRows()<5) legSplit1->AddEntry(histo_[plotList_[plot]][sample], leglabel, "F");
-	else                        legSplit2->AddEntry(histo_[plotList_[plot]][sample], leglabel, "F");
+	if(!excludettV||sample!=kTTVjets){
+	  leg ->AddEntry(histo_[plotList_[plot]][sample], leglabel, "F");
+	  leg0->AddEntry(histo_[plotList_[plot]][sample], leglabel, "F");
+	  leg1->AddEntry(histo_[plotList_[plot]][sample], leglabel, "F");
+	  if(legSplit1->GetNRows()<5) legSplit1->AddEntry(histo_[plotList_[plot]][sample], leglabel, "F");
+	  else                        legSplit2->AddEntry(histo_[plotList_[plot]][sample], leglabel, "F");
+	}
 	break;
       }
     }
@@ -2153,13 +2179,14 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	      else{xDn=0;xUp=10;}
 	    }
 
-	    if(getStringEntry(plotList_[plot], 2)=="dB"                                                                ){xDn=0.  ;xUp=0.02;}
-	    if(plotList_[plot].Contains("relIso")&&!plotList_[plot].Contains("test")                                   ){xDn=0.  ;xUp=0.15;}
+	    if(getStringEntry(plotList_[plot], 2)=="dB"                                                                ){xDn=0.  ;xUp=0.11;}
+	    if(plotList_[plot].Contains("relIso")&&!plotList_[plot].Contains("test")                                   ){xDn=0.  ;xUp=0.2; }
+	    if(plotList_[plot].Contains("tightLeptonQualityTagged/relIso")                                             ){xDn=0.  ;xUp=0.13;}
 	    if(plotList_[plot].Contains("tightJetKinematics/n")||plotList_[plot].Contains("tightJetKinematicsTagged/n")){xDn=3.5 ;xUp=10.5;}
 	    if(plotList_[plot].Contains("tightJetKinematicsNjets1/n")                                                  ){xDn=1.5 ;xUp=10.5;}
 	    if(plotList_[plot].Contains("_JetKinematics/en")                                                           ){xDn=0   ;xUp=500; }
 	    if(plotList_[plot].Contains("_JetKinematics/pt")                                                           ){xDn=0   ;xUp=300; }
-	    if(plotList_[plot].Contains("analyzeMETMuon/metSumEt")                                                     ){xDn=200 ;xUp=1400;}
+	    if(plotList_[plot].Contains("analyzeMETMuonTagged/metSumEt")                                               ){xDn=400 ;xUp=2000;}
 	    if(plotList_[plot].Contains("analyzeMETMuon/metEt")                                                        ){xDn=0   ;xUp=300; }
 	    if(plotList_[plot].Contains("bottomJetKinematics/n")                                                       ){xDn=0   ;xUp=4;   }
 	    if(plotList_[plot].Contains("bottomJetKinematicsTagged/n")                                                 ){xDn=2   ;xUp=5;   }
@@ -2211,7 +2238,9 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	    if(plotList_[plot].Contains("npvertex_reweighted")                                                         ){xDn=0.     ;xUp=40.;   }
 	    if(plotList_[plot].Contains("lbMass")                                                                      ){xDn=20.    ;xUp=300.;  }
 	    if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/ttbarDelPhi")                        ){xDn=0      ;xUp=3.2;   }
-
+	    if(plotList_[plot].Contains("tightJetKinematicsTagged/eta")                                                ){xDn=-2.4   ;xUp=2.4;   }
+            if(plotList_[plot].Contains("tightJetKinematicsTagged/ht" )                                                ){xDn=100.   ;xUp=1800.; }
+	    
 	    // FIXME: intermediate by hand fix of the vertex distribution
 	    // needed because analyzeTopDiffXSec_cfg.py has removed no-PU weight when running with option reduced so that they are not included in the plot...
 	    if(plotList_[plot].Contains("PUControlDistributionsAfterBtagging/npvertex_reweighted")&&!plotList_[plot].Contains("Norm")){
@@ -2230,30 +2259,37 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	    if (decayChannel == "combined"){
 	      bool paperPlot=PaperPlot(plotList_, plot, addSel, decayChannel);
 	      // Optimized y-range for paper control plots & PHD relevant plots
-	      if(plotList_[plot].Contains("tightJetKinematicsTagged/n"    )){min=1.0; max=5.0E08; if((!paperPlot||!splitlegends)&&ttbarTheoryBands) max*= 10; if(paperPlot&&splitlegends){max*=1.5;}}
-	      if(plotList_[plot].Contains("bottomJetKinematics/n"         )){min=1.0; max=1.0E11; if((!paperPlot||!splitlegends)&&ttbarTheoryBands) max*=100; }
-	      if(plotList_[plot].Contains("bottomJetKinematicsTagged/n"   )){min=1.0; max=5.0E08; if((!paperPlot||!splitlegends)&&ttbarTheoryBands){max*= 10;} else if(!ttbarTheoryBands&&paperPlot&&splitlegends){max*=10;} }
-	      if(plotList_[plot].Contains("tightJetKinematicsTagged/pt"   )){min=1.0; max=1.0E08; if((!paperPlot||!splitlegends)&&ttbarTheoryBands) max*= 10; }
-	      if(plotList_[plot].Contains("tightLeptonKinematicsTagged/pt")){min=0.0; max=3.5E04;}
-	      if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/topPt")&&!plotList_[plot].Contains("_Y")){
-		min=0; max=1.7E04;
-		if(getStringEntry(axisLabel_[plot],2,";").Contains("Events")) max*=0.5; // splitted topPt control plots
+	      if(PHD){
+		std::pair<double, double> yPHDrange = yRangeForPHD(plotList_, plot, addSel, min, max);
+		min=yPHDrange.first; max=yPHDrange.second;
 	      }
-	      if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/topPtTtbarSys")){min=0; max=9.0E03;}
-	      if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/ttbarMass"    )){min=0; max=1.5E04;histo_[plotList_[plot]][sample]->GetXaxis()->SetLabelSize(0.035);}
-	      if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/topY"         )){min=0; max= ttbarTheoryBands ? 9.5E03 : 9.0E03; if(paperPlot&&splitlegends){max+=1.0E03;}}
-	      if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/ttbarPt"      )){min=0; max=2.0E04; if(paperPlot&&splitlegends){max=1.8E04;}}
-	      if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/ttbarY"       )){min=0; max=6.0E03; if(paperPlot&&splitlegends){max+=0.5E03;}}
-	      if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/lepEta"       )){min=0; max=ttbarTheoryBands ?  5.0E03 : 4.0E03;}
-	      if(plotList_[plot].Contains("compositedKinematicsKinFit"+addSel+"/rhos"             )){min=1; max= ttbarTheoryBands ? 5.0E08 : 5.0E07;}
-	      if(plotList_[plot].Contains("compositedKinematicsKinFit"+addSel+"/Njets"            )){min=1; max=1.0E07;}
-	      if(getStringEntry(plotList_[plot], 2)=="chi2"&&getStringEntry(plotList_[plot], 1).Contains("analyzeTopRecoKinematicsKinFit")) max=10000000; 
-	      if(getStringEntry(plotList_[plot], 2)=="prob") max=50000000000; 
-	      if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/bqEta"        )){max=ttbarTheoryBands ? 9.0E03 : 7.5E03;}
-	      if(plotList_[plot].Contains("shiftNuEta"                                            )){max=1.3E04;}
-	      if(plotList_[plot].Contains("shiftBqPt"                                             )){max=4.5E04;}
-	      if(plotList_[plot].Contains("lbMass"                                                )){max=1.5E05;}
-	      if(plotList_[plot].Contains("compositedKinematicsKinFit/shiftLepPhi")               ){histo_[plotList_[plot]][sample]->GetXaxis()->SetLabelSize(0.035);}
+	      else{
+		if(plotList_[plot].Contains("tightJetKinematicsTagged/n"    )){min=1.0; max=5.0E08; if((!paperPlot||!splitlegends)&&ttbarTheoryBands) max*= 10; if(paperPlot&&splitlegends){max*=1.5;}}
+		if(plotList_[plot].Contains("bottomJetKinematics/n"         )){min=1.0; max=1.0E11; if((!paperPlot||!splitlegends)&&ttbarTheoryBands) max*=100; }
+		if(plotList_[plot].Contains("bottomJetKinematicsTagged/n"   )){min=1.0; max=5.0E08; if((!paperPlot||!splitlegends)&&ttbarTheoryBands){max*= 10;} else if(!ttbarTheoryBands&&paperPlot&&splitlegends){max*=10;} }
+		if(plotList_[plot].Contains("tightJetKinematicsTagged/pt"   )){min=1.0; max=1.0E08; if((!paperPlot||!splitlegends)&&ttbarTheoryBands) max*= 10; }
+		if(plotList_[plot].Contains("tightLeptonKinematicsTagged/pt")){min=0.0; max=3.5E04;}
+		if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/topPt")&&!plotList_[plot].Contains("_Y")){
+		  min=0; max=1.7E04;
+		  if(getStringEntry(axisLabel_[plot],2,";").Contains("Events")) max*=0.5; // splitted topPt control plots
+		}
+		if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/topPtTtbarSys")){min=0; max=9.0E03;}
+		if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/ttbarMass"    )){min=0; max=1.5E04;}
+		if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/topY"         )){min=0; max= ttbarTheoryBands ? 9.5E03 : 9.0E03; if(paperPlot&&splitlegends){max+=1.0E03;}}
+		if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/ttbarPt"      )){min=0; max=2.0E04; if(paperPlot&&splitlegends){max=1.8E04;}}
+		if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/ttbarY"       )){min=0; max=6.0E03; if(paperPlot&&splitlegends){max+=0.5E03;}}
+		if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/lepEta"       )){min=0; max=ttbarTheoryBands ?  5.0E03 : 4.0E03;}
+		if(plotList_[plot].Contains("compositedKinematicsKinFit"+addSel+"/rhos"             )){min=1; max= ttbarTheoryBands ? 5.0E08 : 5.0E07;}
+		if(plotList_[plot].Contains("compositedKinematicsKinFit"+addSel+"/Njets"            )){min=1; max=1.0E07;}
+		if(getStringEntry(plotList_[plot], 2)=="chi2"&&getStringEntry(plotList_[plot], 1).Contains("analyzeTopRecoKinematicsKinFit")) max=10000000; 
+		if(getStringEntry(plotList_[plot], 2)=="prob") max=50000000000; 
+		if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/bqEta"        )){max=ttbarTheoryBands ? 9.0E03 : 7.5E03;}
+		if(plotList_[plot].Contains("shiftNuEta"                                            )){max=1.3E04;}
+		if(plotList_[plot].Contains("shiftBqPt"                                             )){max=4.5E04;}
+		if(plotList_[plot].Contains("lbMass"                                                )){max=1.5E05;}
+	      }
+	      if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/ttbarMass"))histo_[plotList_[plot]][sample]->GetXaxis()->SetLabelSize(0.035);
+	      if(plotList_[plot].Contains("compositedKinematicsKinFit/shiftLepPhi"            ))histo_[plotList_[plot]][sample]->GetXaxis()->SetLabelSize(0.035);
 	      //if(plotList_[plot].Contains("")){max=;}
 	      //if(plotList_[plot].Contains("")){max=;}
 	      //if(plotList_[plot].Contains("")){max=;}
@@ -2262,7 +2298,14 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	    }
 	    // axis style
 	    TString titleY=getStringEntry(axisLabel_[plot],2,";");
-	    if((plotList_[plot].Contains("tightLeptonKinematicsTagged/pt")||
+	    if((!PHD)&&
+	       (plotList_[plot].Contains("metEt")||
+		(plotList_[plot].Contains("tightJet")&&plotList_[plot].Contains("Tagged")&&!plotList_[plot].Contains("/n"))||
+		(plotList_[plot].Contains("pt")&&plotList_[plot].Contains("Tagged"))||
+		(plotList_[plot].Contains("relIso"))||
+		//plotList_[plot].Contains("tightLeptonKinematics")||
+		//(PHDPlot(plotList_[plot], addSel, decayChannel)&&!(plotList_[plot].Contains("/n")||plotList_[plot].Contains("/N")||plotList_[plot].Contains("decay")))||
+		plotList_[plot].Contains("tightLeptonKinematicsTagged/pt")||
 		plotList_[plot].Contains("tightJetKinematicsTagged/pt"   )||
 		plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"))&&
 	       !(plotList_[plot].Contains("Eff")||plotList_[plot].Contains("decayChannel"))){
@@ -2400,7 +2443,10 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 		if(plotList_[plot].Contains("shiftNuPhi"                                   )) positionX+=0.01;
 		if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/bqPt")) positionX+=9.685;
 		if(plotList_[plot].Contains("bottomJetKinematicsTagged/n"                  )) positionX+=0.533;
-		//double positionX=histo_[plotList_[plot]][kSig]->GetBinLowEdge(histo_[plotList_[plot]][kSig]->FindBin(xUp)+1)+0.045*(xUp-xDn)*(gStyle->GetCanvasDefW()/600.);
+		double xUpp=histo_[plotList_[plot]][kSig]->GetBinLowEdge(histo_[plotList_[plot]][kSig]->FindBin(xUp)+1);
+		if(plotList_[plot].Contains("relIso")||(plotList_[plot].Contains("tightJetKinematicsTagged/eta"))||(plotList_[plot].Contains("bottomJetKinematicsTagged/n"))) positionX=xUpp+0.045*(xUpp-xDn)*(gStyle->GetCanvasDefW()/600.);
+		if(plotList_[plot].Contains("bottomJetKinematicsTagged/n"))  positionX +=0.04;
+                if(plotList_[plot].Contains("decayChannel"))  positionX -=0.06;
 		//if() std::cout << plotList_[plot] << ": xSellab=" << positionX << std::endl;
 		double positionY=min;
 		//std::cout << plotList_[plot] << ":" << positionY << std::endl;
@@ -2512,7 +2558,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	      DrawCMSLabels(true,luminosity); 
 	      // draw data/MC ratio
 	      // a) for gen level plots
-	      if((histo_[plotList_[plot]].count(kSig)>0) && withRatioPlot && !plotList_[plot].Contains("PartonLevel")){
+	      if((histo_[plotList_[plot]].count(kSig)>0) && withRatioPlot && !plotList_[plot].Contains("PartonLevel") && !plotList_[plot].Contains("decayChannel")){
 		if(plotList_[plot].Contains("BGSubNorm")){
 		  std::vector<TH1F*>ratiohists_;
 		  // get theory
@@ -2569,6 +2615,10 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 		  if(paperPlot&&!PHD){ 
 		    if(verbose>2) std::cout << "paperPlot: " << plotList_[plot] << " - using synchronnized axis ranges" << std::endl;
 		    ratMin=0.51; ratMax=1.49; ndivisions=405;
+		  }
+		  if(PHD){
+		    std::pair<double,double> rangePHD=ratioRangeForPHD(plotList_, plot, addSel, ratMin, ratMax);
+		    ratMin=rangePHD.first; ratMax=rangePHD.second;
 		  }
 		  // labels of ratio
 		  TString ratioLabelNominator  ="N_{MC}";
@@ -2714,7 +2764,9 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
   //std::cout << "test0" << std::endl;
   if(save){
     TString paperpdfname=outputFolder+"PAPERPlots"+ttsampleExt+".pdf";
+    TString phdpdfname  =outputFolder+"PHDPlots"+ttsampleExt+".pdf";
     bool firstPAPER=true;
+    bool firstPHD=true;
     // eps and png
     if(verbose==0) gErrorIgnoreLevel=kWarning;
     saveCanvas(plotCanvas_, outputFolder, pdfName, true, false);
@@ -2746,10 +2798,23 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
       // paperPlots in extra pdf file
       bool paperPlot=PaperPlot2(title, addSel, decayChannel);
       if(paperPlot){
-	if(firstPAPER) plotCanvas_[idx]->Print(paperpdfname+"(");
-	else           plotCanvas_[idx]->Print(paperpdfname);
+	if(firstPAPER){
+	  plotCanvas_[idx]->Print(paperpdfname+"(");
+	  firstPAPER=false;
+	}
+	else plotCanvas_[idx]->Print(paperpdfname);
       }
       if(idx==plotCanvas_.size()-1) plotCanvas_[idx]->Print(paperpdfname+")");
+      // PHDPlots in extra pdf file
+      bool phdPlot=PHDPlot(title, addSel, decayChannel);
+      if(paperPlot||phdPlot){
+	if(firstPHD){
+	  plotCanvas_[idx]->Print(phdpdfname+"(");
+	  firstPHD=false;
+	}
+        else plotCanvas_[idx]->Print(phdpdfname);
+      }
+      if(idx==plotCanvas_.size()-1) plotCanvas_[idx]->Print(phdpdfname+")");
     }
     // root file
     if(verbose>0) std::cout << "will save into outputfile named " << outputFileName << std::endl;
@@ -2799,4 +2864,122 @@ bool PaperPlot2(TString title, TString addSel, const std::string decayChannel){
     if(title.Contains("ttbarYanalyzeTopRecoKinematicsKinFit"+addSel       )) paperPlot=true;
   }
   return paperPlot;
+}
+
+bool PHDPlot(TString title, TString addSel, const std::string decayChannel){
+  bool phdPlot=false;
+  if(decayChannel == "combined"){
+    if(title.Contains("decayChannel")&&title.Contains("analyzeTopRecoKinematicsKinFit"+addSel)) phdPlot=true;
+    if(title.Contains("pt")&&title.Contains("tightLeptonKinematicsTagged")) phdPlot=true;
+    if(title.Contains("relIso")&&title.Contains("tightLeptonQualityTagged")) phdPlot=true;
+    if(title.Contains("eta")&&title.Contains("tightLeptonKinematicsTagged")) phdPlot=true;
+    if(title.Contains("ntightJetKinematicsTagged")||title.Contains("tightJetKinematicsTagged/n")) phdPlot=true;
+    if(title.Contains("pt")&&title.Contains("tightJetKinematicsTagged")) phdPlot=true;
+    if(title.Contains("eta")&&title.Contains("tightJetKinematicsTagged")) phdPlot=true;
+    //if(title.Contains("phitightJetKinematicsTagged")) phdPlot=true;
+    if(title.Contains("httightJetKinematicsTagged")||title.Contains("tightJetKinematicsTagged/ht")) phdPlot=true;
+    if(title.Contains("cef")&&title.Contains("tightJetQualityTagged")) phdPlot=true;
+    if(title.Contains("nef")&&title.Contains("tightJetQualityTagged")) phdPlot=true;
+    if(title.Contains("chf")&&title.Contains("tightJetQualityTagged")) phdPlot=true;
+    if(title.Contains("nhf")&&title.Contains("tightJetQualityTagged")) phdPlot=true;
+    if(title.Contains("ncp")&&title.Contains("tightJetQualityTagged")) phdPlot=true;
+    if(title.Contains("pt")&&title.Contains("tightLead_0_JetKinematicsTagged")) phdPlot=true;
+    if(title.Contains("pt")&&title.Contains("tightLead_1_JetKinematicsTagged")) phdPlot=true;
+    if(title.Contains("pt")&&title.Contains("tightLead_2_JetKinematicsTagged")) phdPlot=true;
+    if(title.Contains("pt")&&title.Contains("tightLead_3_JetKinematicsTagged")) phdPlot=true;
+    if(title.Contains("btagCombSecVtx_")&&title.Contains("tightJetQualityTagged")) phdPlot=true;
+    if(title.Contains("nbottomJetKinematicsTagged")||title.Contains("bottomJetKinematicsTagged/n")) phdPlot=true;
+    if(title.Contains("pt")&&title.Contains("bottomLead_0_JetKinematicsTagged")) phdPlot=true;
+    if(title.Contains("pt")&&title.Contains("bottomLead_1_JetKinematicsTagged")) phdPlot=true;
+    if(title.Contains("metEt")&&title.Contains("analyzeMETMuonTagged")) phdPlot=true;
+    //if(title.Contains("metSumEtanalyzeMETMuonTagged")) phdPlot=true;
+    if(title.Contains("npvertex_reweightedNorm")&&title.Contains("PUControlDistributionsBeforeBtagging")) phdPlot=true;
+    if(title.Contains("npvertex_reweightedNorm")&&title.Contains("PUControlDistributionsAfterBtagging" )) phdPlot=true;
+    if(title.Contains("toppt")&&title.Contains("analyzeTopRecoKinematicsKinFit"+addSel)&&title.Contains("Lead")) phdPlot=true;
+    if(title.Contains("bbbarPt")&&title.Contains("analyzeTopRecoKinematicsKinFit"+addSel  )) phdPlot=true;
+    if(title.Contains("bbbarMass")&&title.Contains("analyzeTopRecoKinematicsKinFit"+addSel)) phdPlot=true;
+    if(title.Contains("lbMass" )) phdPlot=true;
+    if(title.Contains("lepPt")&&title.Contains("analyzeTopRecoKinematicsKinFit"+addSel )) phdPlot=true;
+    if(title.Contains("lepEt")&&title.Contains("aanalyzeTopRecoKinematicsKinFit"+addSel)) phdPlot=true;
+    if(title.Contains("bqPt")&&title.Contains("analyzeTopRecoKinematicsKinFit"+addSel  )) phdPlot=true;
+    if(title.Contains("bqEt")&&title.Contains("aanalyzeTopRecoKinematicsKinFit"+addSel )) phdPlot=true;
+    if(title.Contains("Njets")&&title.Contains("compositedKinematicsKinFit"+addSel)) phdPlot=true;
+    if(title.Contains("rhos")&&title.Contains("compositedKinematicsKinFit"+addSel )) phdPlot=true;
+    if(title.Contains("ttbarDelPhi")&&title.Contains("analyzeTopRecoKinematicsKinFit"+addSel)) phdPlot=true;
+    //if(title.Contains("")) phdPlot=true;
+    //if(title.Contains("")) phdPlot=true;
+  }
+  return phdPlot;
+}
+
+std::pair<double,double> yRangeForPHD(std::vector<TString> plotList_, int plot, TString addSel, double min, double max){
+   if(plotList_[plot].Contains("bottomLead_0_JetKinematicsTagged/pt")){min=1.0; max=1.0E06;}
+   if(plotList_[plot].Contains("bottomLead_1_JetKinematicsTagged/pt")){min=1.0; max=1.0E06;}
+   if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/topPtTtbarSys")){min=0;}
+   /*if(plotList_[plot].Contains("tightJetKinematicsTagged/n"    )){min=1.0; max=5.0E08*1.5;}
+  if(plotList_[plot].Contains("bottomJetKinematicsTagged/n"   )){min=1.0; max=5.0E08;}
+  if(plotList_[plot].Contains("tightJetKinematicsTagged/pt"   )){min=1.0; max=1.0E08;}
+  if(plotList_[plot].Contains("tightLeptonKinematicsTagged/pt")){min=0.0; max=3.5E04;}
+  if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/topPt")&&!plotList_[plot].Contains("_Y")){
+    min=0; max=1.7E04;
+    if(getStringEntry(axisLabel_[plot],2,";").Contains("Events")) max*=0.5; // splitted topPt control plots
+  }
+  if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/topPtTtbarSys")){min=0; max=9.0E03;}
+  if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/ttbarMass"    )){min=0; max=1.5E04;}
+  if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/topY"         )){min=0; max=9.5E03+1.0E03;}
+  if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/ttbarPt"      )){min=0; max=1.8E04;}
+  if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/ttbarY"       )){min=0; max=6.0E03+0.5E03;}
+  if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/lepEta"       )){min=0; max=5.0E03;}
+  if(plotList_[plot].Contains("compositedKinematicsKinFit"+addSel+"/rhos"             )){min=1; max=5.0E08;}
+  if(plotList_[plot].Contains("compositedKinematicsKinFit"+addSel+"/Njets"            )){min=1; max=1.0E07;}
+  if(getStringEntry(plotList_[plot], 2)=="chi2"&&getStringEntry(plotList_[plot], 1).Contains("analyzeTopRecoKinematicsKinFit")) max=10000000;
+  if(getStringEntry(plotList_[plot], 2)=="prob") max=50000000000;
+  if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/bqEta"        )){max=9.0E03;}
+  if(plotList_[plot].Contains("shiftNuEta"                                            )){max=1.3E04;}
+  if(plotList_[plot].Contains("shiftBqPt"                                             )){max=4.5E04;}
+  if(plotList_[plot].Contains("lbMass"                                                )){max=1.5E05;}
+   */
+   return make_pair(min,max);
+}
+std::pair<double,double> ratioRangeForPHD(std::vector<TString> plotList_, int plot, TString addSel, double ratMin, double ratMax){
+  ratMin=0.51; ratMax=1.49;
+  if(plotList_[plot].Contains("tightLeptonKinematicsTagged/pt")){ratMin=0.85; ratMax=1.15;}
+  if(plotList_[plot].Contains("tightLeptonQualityTagged/relIso")){ratMin=0.71; ratMax=1.39;}
+  if(plotList_[plot].Contains("tightLeptonKinematicsTagged/eta")){ratMin=0.81; ratMax=1.19;}
+  if(plotList_[plot].Contains("tightJetKinematicsTagged/n")){ratMin=0.91; ratMax=1.09;}
+  if(plotList_[plot].Contains("tightJetKinematicsTagged/pt")){ratMin=0.75; ratMax=1.15;}
+  if(plotList_[plot].Contains("tightJetKinematicsTagged/eta")){ratMin=0.81; ratMax=1.19;}
+  if(plotList_[plot].Contains("tightJetKinematicsTagged/phi")){ratMin=0.985; ratMax=1.015;}
+  if(plotList_[plot].Contains("tightJetKinematicsTagged/ht")){ratMin=0.51; ratMax=1.49;}
+  if(plotList_[plot].Contains("tightJetQualityTagged/cef")){ratMin=0.51; ratMax=1.49;}
+  if(plotList_[plot].Contains("tightJetQualityTagged/nef")){ratMin=0.71; ratMax=1.69;}
+  if(plotList_[plot].Contains("tightJetQualityTagged/chf")){ratMin=0.71; ratMax=1.49;}
+  if(plotList_[plot].Contains("tightJetQualityTagged/nhf")){ratMin=0.51; ratMax=1.49;}
+  if(plotList_[plot].Contains("tightJetQualityTagged/ncp")){ratMin=0.51; ratMax=1.49;}
+  if(plotList_[plot].Contains("tightLead_0_JetKinematicsTagged/pt")){ratMin=0.41; ratMax=1.39;}
+  if(plotList_[plot].Contains("tightLead_1_JetKinematicsTagged/pt")){ratMin=0.41; ratMax=1.39;}
+  if(plotList_[plot].Contains("tightLead_2_JetKinematicsTagged/pt")){ratMin=0.41; ratMax=1.39;}
+  if(plotList_[plot].Contains("tightLead_3_JetKinematicsTagged/pt")){ratMin=0.41; ratMax=1.39;}
+  if(plotList_[plot].Contains("tightJetQualityTagged/btagCombSecVtx_")){ratMin=0.51; ratMax=1.49;}
+  if(plotList_[plot].Contains("bottomJetKinematicsTagged/n")){ratMin=0.91; ratMax=1.49;}
+  if(plotList_[plot].Contains("bottomLead_0_JetKinematicsTagged/pt")){ratMin=0.41; ratMax=1.39;}
+  if(plotList_[plot].Contains("bottomLead_1_JetKinematicsTagged/pt")){ratMin=0.41; ratMax=1.39;}
+  if(plotList_[plot].Contains("analyzeMETMuonTagged/metEt")){ratMin=0.51; ratMax=1.29;}
+  if(plotList_[plot].Contains("analyzeMETMuonTagged/metSumEt")){ratMin=0.21; ratMax=1.29;}
+  //if(plotList_[plot].Contains("npvertex_reweightedNorm")&&plotList_[plot].Contains("PUControlDistributionsBeforeBtagging")){ratMin=0.51; ratMax=1.49;}
+  //if(plotList_[plot].Contains("npvertex_reweightedNorm")&&plotList_[plot].Contains("PUControlDistributionsAfterBtagging" )){ratMin=0.51; ratMax=1.49;} 
+  
+  if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/topPt")&&!plotList_[plot].Contains("_Y")){ ratMin=0.41; ratMax=1.39;}
+  if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/topPtTtbarSys")){ratMin=0.31; ratMax=1.39;}
+  if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/ttbarMass"    )){ratMin=0.81; ratMax=1.29;}
+  if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/topY"         )){ratMin=0.85; ratMax=1.15;}
+  if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/ttbarPt"      )){ratMin=0.71; ratMax=1.29;}
+  if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/ttbarY"       )){ratMin=0.81; ratMax=1.19;}
+  if(plotList_[plot].Contains("rhos"                                                  )){ratMin=0.51; ratMax=1.49;}
+  if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/bqPt"         )){ratMin=0.71; ratMax=1.35;}
+  if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/bqEta"        )){ratMin=0.81; ratMax=1.19;}
+  if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/lepPt"        )){ratMin=0.71; ratMax=1.19;}
+  if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/lepEta"       )){ratMin=0.81; ratMax=1.19;}
+  
+  return make_pair(ratMin,ratMax);
 }
