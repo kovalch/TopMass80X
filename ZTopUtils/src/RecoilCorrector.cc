@@ -252,7 +252,7 @@ float RecoilCorrector::correctMet(float& MetPx, float& MetPy, float genZPx, floa
             double q[1];
             double sumProb[1];
 
-            sumProb[0] = metZParalMC->Integral(xminMetZParalMC_[ZptBin][njets],U1);
+            sumProb[0] = metZParalMC->Integral(xminMetZParalMC_[ZptBin][njets],U1, (const Double_t *)0, 1.e-5);
 
             if (sumProb[0]<0) {
                 std::cout << "Warning ! ProbSum[0] = " << sumProb[0] << std::endl;
@@ -276,7 +276,7 @@ float RecoilCorrector::correctMet(float& MetPx, float& MetPy, float genZPx, floa
             int nSumProb = 1;
             double q[1];
             double sumProb[1];
-            sumProb[0] = metZPerpMC->Integral(xminMetZPerpMC_[ZptBin][njets],U2);
+            sumProb[0] = metZPerpMC->Integral(xminMetZPerpMC_[ZptBin][njets],U2, (const Double_t *)0, 1.e-5);
 
             if (sumProb[0]<0) {
                 sumProb[0] = 1e-10;
