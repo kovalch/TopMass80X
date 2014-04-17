@@ -354,6 +354,7 @@ void TopMassControlPlots::doPlots()
 	  hists.push_back(MyHistogram("MET", "top.recoW2Prod2[0].Pt()", "", ";p_{T}^{miss} [GeV]; Events", 40, 0, 200));
 	  hists.push_back(MyHistogram("fitW1Pt", "top.fitW1.Pt()"   , "", ";p_{T,W,had}^{fit} [GeV]; Permutations", 40, 0, 400));
 	  hists.push_back(MyHistogram("fitW2Pt", "top.fitW2.Pt()"   , "", ";p_{T,W,lep}^{fit} [GeV]; Permutations", 40, 0, 400));
+	  hists.push_back(MyHistogram("fitTop1MassAtlas"    , "top.fitTop1.M()"   , "", ";m_{t}^{fit} [GeV]; Permutations / 5 GeV", 90, 130, 220));
 	  hists.push_back(MyHistogram("recoW1MassZoom"    , "top.recoW1.M()"   , "", ";m_{W}^{reco} [GeV]; Permutations / 2 GeV", 50, 60, 110));
 //	  hists.back().SetFitGaussToCore();
 	  hists.push_back(MyHistogram("recoW2Mass"    , "top.recoW2.M()"   , "", ";m_{W,lep}^{reco} [GeV]; Permutations / 5 GeV", 60, 0, 300));
@@ -1070,6 +1071,12 @@ void TopMassControlPlots::doPlots()
       samples.push_back(MySample("t#bar{t}, bJES up (FlavorQCD)", "Summer12_TTJets1725_flavor:up_FlavorQCD", kSigVar, kGreen+1, 1, lumi_/1000.));
     }
     
+    // JER
+    if(plotSelectedForPlotting.find("JERUncVariationPlots")!=plotSelectedForPlotting.end()){
+      samples.push_back(MySample("t#bar{t}, JER down", "Summer12_TTJetsMS1725_jer:down", kSigVar, kRed+1, 1, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t}, JER default", "Summer12_TTJetsMS1725_1.00", kSigVar, kBlue+1, 1, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t}, JER up", "Summer12_TTJetsMS1725_jer:up", kSigVar, kGreen+1, 1, lumi_/1000.));
+    }    
 
     // Nu fraction and frag function weighting
     if(plotSelectedForPlotting.find("WeightVariationPlots")!=plotSelectedForPlotting.end()){
