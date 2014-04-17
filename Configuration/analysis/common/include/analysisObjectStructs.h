@@ -60,6 +60,7 @@ struct RecoObjects{
     std::vector<int>* jetSecondaryVertexTrackSelectedTrackIndex_;
     
     LV* met_;
+    LV* mvamet_;
     std::vector<double>* jetJERSF_;
     VLV* jetsForMET_;
     std::vector<double>* jetForMETJERSF_;

@@ -402,6 +402,7 @@ void AnalysisBase::clearBranches()
     b_jetSecondaryVertexFlightDistanceSignificance = 0;
     
     b_met = 0;
+    b_mvamet = 0;
     b_jetJERSF = 0;
     b_jetForMET = 0;
     b_jetForMETJERSF = 0;
@@ -623,7 +624,7 @@ void AnalysisBase::SetRecoBranchAddresses()
     else b_jetSelectedTrackIndex = 0;
     if(chain_->GetBranch("jetSecondaryVertex")) // new variable, keep check a while for compatibility
        chain_->SetBranchAddress("jetSecondaryVertex", &recoObjects_->jetSecondaryVertex_, &b_jetSecondaryVertex);
-    else b_jetSecondaryVertex = 0;    
+    else b_jetSecondaryVertex = 0;
     if(chain_->GetBranch("jetSecondaryVertexFlightDistanceValue")) // new variable, keep check a while for compatibility
        chain_->SetBranchAddress("jetSecondaryVertexFlightDistanceValue", &recoObjects_->jetSecondaryVertexFlightDistanceValue_, &b_jetSecondaryVertexFlightDistanceValue);
     else b_jetSecondaryVertexFlightDistanceValue = 0;
@@ -632,15 +633,19 @@ void AnalysisBase::SetRecoBranchAddresses()
     else b_jetSecondaryVertexFlightDistanceSignificance = 0;
     if(chain_->GetBranch("jetSecondaryVertexTrackJetIndex")) // new variable, keep check a while for compatibility
      chain_->SetBranchAddress("jetSecondaryVertexTrackJetIndex", &recoObjects_->jetSecondaryVertexTrackJetIndex_, &b_jetSecondaryVertexTrackJetIndex);
-    else b_jetSecondaryVertexTrackJetIndex = 0;    
+    else b_jetSecondaryVertexTrackJetIndex = 0;
     if(chain_->GetBranch("jetSecondaryVertexTrackVertexIndex")) // new variable, keep check a while for compatibility
      chain_->SetBranchAddress("jetSecondaryVertexTrackVertexIndex", &recoObjects_->jetSecondaryVertexTrackVertexIndex_, &b_jetSecondaryVertexTrackVertexIndex);
-    else b_jetSecondaryVertexTrackVertexIndex = 0;    
+    else b_jetSecondaryVertexTrackVertexIndex = 0;
     if(chain_->GetBranch("jetSecondaryVertexTrackSelectedTrackIndex")) // new variable, keep check a while for compatibility
      chain_->SetBranchAddress("jetSecondaryVertexTrackSelectedTrackIndex", &recoObjects_->jetSecondaryVertexTrackSelectedTrackIndex_, &b_jetSecondaryVertexTrackSelectedTrackIndex);
     else b_jetSecondaryVertexTrackSelectedTrackIndex = 0; 
     
     chain_->SetBranchAddress("met", &recoObjects_->met_, &b_met);
+    if(chain_->GetBranch("mvamet")) // new variable for Mva MET, keep check a while for compatibility
+        chain_->SetBranchAddress("mvamet", &recoObjects_->mvamet_, &b_mvamet);
+    else b_mvamet = 0;
+    
     if(jetEnergyResolutionScaleFactors_ || jetEnergyScaleScaleFactors_){
         chain_->SetBranchAddress("jetsForMET", &recoObjects_->jetsForMET_, &b_jetForMET);
     }
@@ -875,6 +880,7 @@ void AnalysisBase::GetRecoBranchesEntry(const Long64_t& entry)const
     if(b_jetSecondaryVertexTrackVertexIndex) b_jetSecondaryVertexTrackVertexIndex->GetEntry(entry);
     if(b_jetSecondaryVertexTrackSelectedTrackIndex) b_jetSecondaryVertexTrackSelectedTrackIndex->GetEntry(entry);
     b_met->GetEntry(entry);
+    if(b_mvamet)b_mvamet->GetEntry(entry);
     if(b_jetForMET) b_jetForMET->GetEntry(entry);
     if(b_jetJERSF) b_jetJERSF->GetEntry(entry);
     if(b_jetForMETJERSF) b_jetForMETJERSF->GetEntry(entry);
@@ -1428,6 +1434,7 @@ const RecoObjects& AnalysisBase::getRecoObjects(const Long64_t& entry)const
         VLV* jets = recoObjects_->jets_;
         VLV* jetsForMET = recoObjects_->jetsForMET_;
         LV* met = recoObjects_->met_;
+        LV* mvamet = recoObjects_->mvamet_;
         
         // Get references for all relevant reco objects which are NOT modified
         const std::vector<double>* jetJERSF = recoObjects_->jetJERSF_;
@@ -1450,6 +1457,7 @@ const RecoObjects& AnalysisBase::getRecoObjects(const Long64_t& entry)const
         VLV* jets = recoObjects_->jets_;
         VLV* jetsForMET = recoObjects_->jetsForMET_;
         LV* met = recoObjects_->met_;
+        LV* mvamet = recoObjects_->mvamet_;
         
         // Apply systematic variation
         jetEnergyScaleScaleFactors_->applySystematic(jets, jetsForMET, met);

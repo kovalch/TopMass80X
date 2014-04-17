@@ -439,6 +439,7 @@ private:
     TBranch* b_jetSecondaryVertexTrackSelectedTrackIndex;
     
     TBranch* b_met;
+    TBranch* b_mvamet;
     TBranch* b_jetForMET;
     TBranch* b_jetJERSF;
     TBranch* b_jetForMETJERSF;
