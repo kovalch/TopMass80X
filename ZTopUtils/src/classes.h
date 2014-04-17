@@ -2,6 +2,7 @@
 #include "../interface/JERBase.h"
 #include "../interface/JECBase.h"
 #include "../interface/bTagBase.h"
+#include "../interface/RecoilCorrector.h"
 
 #include "../ext/interface/JetCorrectorParameters.h"
 #include "../ext/interface/JetCorrectionUncertainty.h"
@@ -27,9 +28,11 @@ struct dict {
     std::map<std::string, std::vector<float> > formedianmap;
     std::vector<std::vector<std::vector<TH1D> > > forshapRWhistos;
 
+    ztop::RecoilCorrector corrector;
     ztop::bTagBase ked;
     ztop::JECBase kkss;
     ztop::JERBase ksdsk;
+    std::vector<ztop::RecoilCorrector> correctorV;
     std::vector<ztop::bTagBase> kedV;
     std::vector<ztop::JECBase> kkssV;
     std::vector<ztop::JERBase> ksdskV;
