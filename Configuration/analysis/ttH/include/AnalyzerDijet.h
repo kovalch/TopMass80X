@@ -41,7 +41,7 @@ public:
     AnalyzerDijet(const char* mva2dWeightsFile, const std::string& corName, const std::string& swpName,
                   const std::vector<TString>& selectionStepsNoCategories,
                   const std::vector<TString>& stepsForCategories =std::vector<TString>(),
-                  const JetCategories* jetCategories =0, bool doHadronMatchingComparison = false);
+                  const JetCategories* jetCategories =0, bool doHadronMatchingComparison = false, bool doLeadingJetsAnalysis_ = false);
 
     /// Empty destructor
     ~AnalyzerDijet(){};
@@ -111,6 +111,17 @@ private:
                                              const VLV& bHadLVs, const std::vector<int>& bHadFlavour, const std::vector<int>& bHadJetIndex,
                                              const VLV& genJets, std::map<TString, TH1*>& m_histogram, const double weight);
     
+    /// Analyze jets (b-jets) from tt system and additional jets (b-jets)
+    void fillTopAdditionalJetsHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+                                     const TopGenObjects& topGenObjects, const KinRecoObjects& kinRecoObjects,
+                                     const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
+                                     const double& weight, std::map<TString, TH1*>& m_histogram);
+    
+    /// Filling histograms about leading top/additional jets
+    void fillLeadingJetsHistos(const std::string& name, const VLV& allGenJets, const std::vector<int>& genJetsId,
+                               const VLV& allJets, const std::vector<int>& jetsId,
+                               const double& weight, std::map<TString, TH1*>& m_histogram);
+    
     /// Returns list of jets pairs that are not from H according to the MVA
     std::vector<std::pair<int,int> > jetPairsFromMVA(std::map<TString, TH1*>& m_histogram, const tth::RecoObjectIndices& recoObjectIndices,
                                                      const tth::GenObjectIndices& genObjectIndices, const RecoObjects& recoObjects, 
@@ -144,6 +155,9 @@ private:
 
     /// Whether to do comparison of dR and improved hadron-quark-jet matching
     bool doHadronMatchingComparison_;
+    
+    /// Whether to analyse leading additional-top jets
+    bool doLeadingJetsAnalysis_;
     
     double sigJetPt_min_;
     double sigJetEta_max_;
