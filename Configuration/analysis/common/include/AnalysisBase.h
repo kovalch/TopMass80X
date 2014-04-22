@@ -30,6 +30,7 @@ class HiggsGenObjects;
 class KinRecoObjects;
 namespace ztop{
     class PUReweighter;
+    class RecoilCorrector;
 }
 
 
@@ -88,6 +89,9 @@ public:
     /// Set folder for basic analysis output
     void SetAnalysisOutputBase(const char* analysisOutputBase);
     
+    /// Set the Met recoil corrector
+    void SetMetRecoilCorrector(ztop::RecoilCorrector* recoilCorrector);
+    
     /// Set the kinematic reconstruction
     void SetKinematicReconstruction(KinematicReconstruction* kinematicReconstruction);
     
@@ -122,7 +126,9 @@ public:
     /// Class definition
     ClassDef(AnalysisBase, 0);
     
-    
+    ///  Recoil Correction of the Mva Met
+    void correctMvaMet(LV& met, LV dilepton, int njets);
+
     
 protected:
     
@@ -497,7 +503,7 @@ private:
     
     /// nTuple branch for Drell-Yan decay mode
     TBranch* b_ZDecayMode;
-    
+    TBranch* b_genZ;
     
     /// nTuple branch for Top decay mode
     TBranch* b_TopDecayMode;
@@ -598,6 +604,9 @@ private:
     /// Variables associated to nTuple branch for Drell-Yan decay mode
     std::vector<int>* ZDecayMode_;
 
+    /// Variables associated to nTuple branch for generator level Z-boson TLorentzVector
+    VLV* genZ_;
+    
     /// Variables associated to nTuple branch for Top decay mode
     Int_t topDecayMode_;
     
@@ -652,6 +661,9 @@ private:
     
     /// Pointer to the pileup reweighter instance
     ztop::PUReweighter* puReweighter_;
+    
+    /// Pointer to the Met Recoil correction tools
+    ztop::RecoilCorrector *recoilCorrector_;
     
     /// Pointer to lepton scale factors instance
     const LeptonScaleFactors* leptonScaleFactors_;

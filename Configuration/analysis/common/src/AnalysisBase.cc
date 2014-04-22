@@ -32,6 +32,7 @@
 #include "KinematicReconstruction.h"
 #include "analysisObjectStructs.h"
 #include "TopAnalysis/ZTopUtils/interface/PUReweighter.h"
+#include "TopAnalysis/ZTopUtils/interface/RecoilCorrector.h"
 
 
 
@@ -64,6 +65,7 @@ eventCounter_(0),
 analysisOutputBase_(0),
 kinematicReconstruction_(0),
 puReweighter_(0),
+recoilCorrector_(0),
 leptonScaleFactors_(0),
 triggerScaleFactors_(0),
 jetEnergyResolutionScaleFactors_(0),
@@ -301,6 +303,11 @@ void AnalysisBase::SetAnalysisOutputBase(const char* analysisOutputBase)
 }
 
 
+void AnalysisBase::SetMetRecoilCorrector(ztop::RecoilCorrector* recoilCorrector)
+{
+    recoilCorrector_ = recoilCorrector;
+}
+
 
 void AnalysisBase::SetKinematicReconstruction(KinematicReconstruction* kinematicReconstruction)
 {
@@ -461,6 +468,7 @@ void AnalysisBase::clearBranches()
 
     // nTuple branch for Drell-Yan decay mode
     b_ZDecayMode = 0;
+    b_genZ = 0;
 
 
     // nTuple branch for Top decay mode
@@ -553,6 +561,7 @@ void AnalysisBase::clearBranchVariables()
     
     // Set values to null for Drell-Yan decay branch
     ZDecayMode_ = 0;
+    genZ_ = 0;
     
     // Set values to null for Top decay branch
     topDecayMode_ = 0;
@@ -645,7 +654,7 @@ void AnalysisBase::SetRecoBranchAddresses()
     if(chain_->GetBranch("mvamet")) // new variable for Mva MET, keep check a while for compatibility
         chain_->SetBranchAddress("mvamet", &recoObjects_->mvamet_, &b_mvamet);
     else b_mvamet = 0;
-    
+
     if(jetEnergyResolutionScaleFactors_ || jetEnergyScaleScaleFactors_){
         chain_->SetBranchAddress("jetsForMET", &recoObjects_->jetsForMET_, &b_jetForMET);
     }
@@ -730,6 +739,7 @@ void AnalysisBase::SetPdfBranchAddress()
 void AnalysisBase::SetDyDecayBranchAddress()
 {
     chain_->SetBranchAddress("ZDecayMode", &ZDecayMode_, &b_ZDecayMode);
+    chain_->SetBranchAddress("GenZ", &genZ_, &b_genZ);
 }
 
 
@@ -972,6 +982,7 @@ void AnalysisBase::SetTrueLevelDYChannel(const int dy)
         //create function to check the DY decay channel
         checkZDecayMode_ = [&, dy](Long64_t entry) -> bool {
             b_ZDecayMode->GetEntry(entry);
+            b_genZ->GetEntry(entry);
             bool pass = false;
             for (const auto decayMode : *ZDecayMode_) {
                 if ((dy == 15 && decayMode > 15110000) ||
@@ -988,6 +999,7 @@ void AnalysisBase::SetTrueLevelDYChannel(const int dy)
     }
     else{
         checkZDecayMode_ = nullptr;
+        genZ_ = nullptr;
     }
 }
 
@@ -1415,6 +1427,15 @@ double AnalysisBase::topPtReweightValue(const double& pt)const
 
 
 
+void AnalysisBase::correctMvaMet(LV& met, LV dilepton, int njets)
+{
+    if(!this->genZ_) return;
+    
+    float metx = met.Px();
+    float mety = met.Py();
+    recoilCorrector_->correctMet(metx, mety, genZ_->at(0).Px(), genZ_->at(0).Py(), dilepton.Px(), dilepton.Py(), (int)njets);
+    met.SetPxPyPzE(metx, mety, met.Pz(), met.E());
+}
 
 
 
