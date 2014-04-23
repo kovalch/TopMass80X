@@ -99,7 +99,7 @@ private:
                               const std::vector<std::pair<int, int> > &pairsToIgnore = std::vector<std::pair<int, int> >(0) );
     
     /// Fill dijet mass for pairs of jets
-    void fillDijetMassForPairs(const VLV& allJets, const std::vector<int>& jetsId, const std::vector<int>& higgsJetsId,
+    void fillDijetMassForPairs(const VLV& allJets, const std::vector<int>& higgsJetsId,
                                const std::vector<std::pair<int, int> > &jetPairs, const double weight, 
                                std::map<TString, TH1*>& m_histogram, std::string histoName, const bool normaliseWeight = false );
     
@@ -113,8 +113,8 @@ private:
     
     /// Analyze jets (b-jets) from tt system and additional jets (b-jets)
     void fillTopAdditionalJetsHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
-                                     const TopGenObjects& topGenObjects, const KinRecoObjects& kinRecoObjects,
-                                     const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
+                                     const KinRecoObjects& kinRecoObjects, const tth::RecoObjectIndices& recoObjectIndices, 
+                                     const tth::GenObjectIndices& genObjectIndices,
                                      const double& weight, std::map<TString, TH1*>& m_histogram);
     
     /// Filling histograms about leading top/additional jets
