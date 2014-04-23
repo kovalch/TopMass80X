@@ -198,6 +198,38 @@ private:
 
 
 
+/// Class for histograms needed for Heavy-Flavour fraction rescaling
+class AnalyzerHfFracScaling : public AnalyzerBase{
+
+public:
+
+    /// Constructor
+    AnalyzerHfFracScaling(const std::vector<TString>& selectionSteps);
+
+    /// Destructor
+    ~AnalyzerHfFracScaling(){}
+
+
+
+private:
+
+    /// Book all histograms for given selection step
+    virtual void bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram);
+    
+    /// Fill all histograms for given selection step
+    virtual void fillHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+                            const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
+                            const KinRecoObjects& kinRecoObjects,
+                            const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
+                            const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
+                            const double& weight, const TString& step,
+                            std::map<TString, TH1*>& m_histogram);
+};
+
+
+
+
+
 
 #endif
 

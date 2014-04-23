@@ -193,6 +193,11 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
     analyzerDyScaling = new AnalyzerDyScaling({"4", "5", "6", "7"}, "5");
     v_analyzer.push_back(analyzerDyScaling);
     
+    // Set up Heavy-Flavour fraction scaling histograms
+    AnalyzerHfFracScaling* analyzerHfFracScaling(0);
+    analyzerHfFracScaling = new AnalyzerHfFracScaling({"3", "5", "7"});
+    v_analyzer.push_back(analyzerHfFracScaling);
+    
     // Set up basic histograms
     AnalyzerControlPlots* analyzerControlPlots(0);
     if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::cp) != v_analysisMode.end()){
