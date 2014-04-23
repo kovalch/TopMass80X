@@ -2794,37 +2794,37 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
     madgraphhistBinned->GetYaxis()->SetTitle(varhists[0]->GetYaxis()->GetTitle());
     madgraphhistBinned->Draw();
 
-
+    gStyle->SetErrorX(0.5);
     if (drawNLOCurves && drawMCATNLO) {
         setTheoryStyleAndFillLegend(mcnlohist, "mcatnloherwig");
         setTheoryStyleAndFillLegend(mcnlohistBinned, "mcatnloherwig", leg2);
-        mcnlohistBinned->Draw("SAME,HISTO");
+        mcnlohistBinned->Draw("SAME");
     }
     if(drawNLOCurves && drawPOWHEGHERWIG){
         setTheoryStyleAndFillLegend(powhegHerwighist, "powhegherwig");
         setTheoryStyleAndFillLegend(powhegHerwighistBinned, "powhegherwig", leg2);
-        powhegHerwighistBinned->Draw("SAME,HISTO");
+        powhegHerwighistBinned->Draw("SAME");
     }
     if(drawNLOCurves && drawPOWHEG){
         setTheoryStyleAndFillLegend(powheghist, "powhegpythia");
         setTheoryStyleAndFillLegend(powheghistBinned, "powhegpythia", leg2);
-        powheghistBinned->Draw("SAME,HISTO");
+        powheghistBinned->Draw("SAME");
     }
     if(drawNLOCurves && drawPERUGIA11){
         setTheoryStyleAndFillLegend(perugia11hist, "perugia11");
         setTheoryStyleAndFillLegend(perugia11histBinned, "perugia11", leg2);
-        perugia11histBinned->Draw("SAME,HISTO");
+        perugia11histBinned->Draw("SAME");
     }
     if(drawNLOCurves && drawKidonakis &&
         (name== "HypToppT" || name == "HypTopRapidity") &&
         !name.Contains("Lead") && !name.Contains("RestFrame")){
         setTheoryStyleAndFillLegend(Kidoth1_Binned, "kidonakis", leg2);
-        Kidoth1_Binned->Draw("SAME,HISTO");
+        Kidoth1_Binned->Draw("SAME,][");
     }
     if(drawNLOCurves && drawAhrens && (name == "HypTTBarMass" || name == "HypTTBarpT"))
     {
         setTheoryStyleAndFillLegend(Ahrensth1_Binned, "ahrens", leg2);
-        Ahrensth1_Binned->Draw("SAME,HISTO");
+        Ahrensth1_Binned->Draw("SAME,][");
     }
     if(drawNLOCurves && (drawMadScaleMatching || drawMadMass)){
         if(drawMadScaleMatching){
@@ -3740,36 +3740,37 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
         leg2->AddEntry(realTruthBinned, "Simu. Reweighted", "l");
     }
 
+    gStyle->SetErrorX(0.5);
     if (drawNLOCurves && drawMCATNLO) {
         setTheoryStyleAndFillLegend(mcnlohist, "mcatnloherwig");
         setTheoryStyleAndFillLegend(mcnlohistBinned, "mcatnloherwig", leg2);
-        mcnlohistBinned->Draw("SAME,histo");
+        mcnlohistBinned->Draw("SAME");
     }
     if(drawNLOCurves && drawPOWHEGHERWIG){
         setTheoryStyleAndFillLegend(powhegHerwighist, "powhegherwig");
         setTheoryStyleAndFillLegend(powhegHerwighistBinned, "powhegherwig", leg2);
-        powhegHerwighistBinned->Draw("SAME,histo");
+        powhegHerwighistBinned->Draw("SAME");
     }
     if(drawNLOCurves && drawPOWHEG){
         setTheoryStyleAndFillLegend(powheghist, "powhegpythia");
         setTheoryStyleAndFillLegend(powheghistBinned, "powhegpythia", leg2);
-        powheghistBinned->Draw("SAME,histo");
+        powheghistBinned->Draw("SAME");
     }
     if(drawNLOCurves && drawPERUGIA11){
         setTheoryStyleAndFillLegend(perugia11hist, "perugia11");
         setTheoryStyleAndFillLegend(perugia11histBinned, "perugia11", leg2);
-        perugia11histBinned->Draw("SAME,histo");
+        perugia11histBinned->Draw("SAME");
     }
     if(drawNLOCurves && drawKidonakis &&
         (name== "HypToppT" || name == "HypTopRapidity") && 
         !name.Contains("Lead") && !name.Contains("RestFrame")){
         setTheoryStyleAndFillLegend(Kidoth1_Binned, "kidonakis", leg2);
-        Kidoth1_Binned->Draw("SAME,histo");
+        Kidoth1_Binned->Draw("SAME,][");
     }
     if(drawNLOCurves && drawAhrens && (name == "HypTTBarMass" || name == "HypTTBarpT"))
     {
         setTheoryStyleAndFillLegend(Ahrensth1_Binned, "ahrens", leg2);
-        Ahrensth1_Binned->Draw("SAME,histo");
+        Ahrensth1_Binned->Draw("SAME,][");
     }
     if(drawNLOCurves && (drawMadScaleMatching || drawMadMass)){
         if(drawMadScaleMatching){
@@ -4291,7 +4292,7 @@ void Plotter::setControlPlotLegendStyle(std::vector< TH1* > drawhists, std::vect
     OrderedLegends.push_back("t#bar{t} Signal");
     OrderedLegends.push_back("t#bar{t} Other");
     OrderedLegends.push_back("Single Top");
-    OrderedLegends.push_back("t#bar{t}+V");
+//    OrderedLegends.push_back("t#bar{t}+V");
     OrderedLegends.push_back("W+Jets");
     OrderedLegends.push_back("Z / #gamma* #rightarrow ee/#mu#mu");
     OrderedLegends.push_back("Z / #gamma* #rightarrow #tau#tau");
