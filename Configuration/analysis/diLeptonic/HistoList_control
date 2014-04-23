@@ -38,7 +38,7 @@ HypTTBarpT Standard Toppairs p_{T}^{t#bar{t}} 10 1 0 0 0 0 0 295 0 0
 HypBJetpT Standard b-jets p_{T}^{b} 2 1 0 1 1 0 39 400 0 0
 HypBJetEta Standard b-jets #eta^{b} 2 1 0 0 0 1.7e4 -2.5 2.5 0 0
 HypLeptonEta Standard Leptons #eta^{l} 5 1 0 0 0 0 -3 3 0 0
-HypLeptonpT Standard Leptons p_{T}^{l} 5 1 0 0 0 0 0 0 0 0
+HypLeptonpT Standard Leptons p_{T}^{l} 2 1 0 0 0 0 20 159 0 0
 HypLeptonBjetMass Standard N_{Events} m^{lb} 10 1 0 0 0 7e4 0 179 0 0
 
 HypBBBarpT Standard N_{Events} p_{T}^{b#bar{b}} 5 1 0 0 0 0 0 350 0 0
@@ -135,6 +135,13 @@ EventWeight Standard Events SF_{Evt.} 1 1 0 0 0 0 0 0 0 0
 #bcp_HypTopRapidity_bin_8_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
 #bcp_HypTopRapidity_bin_9_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
 
+
+
+dyScaling_Allh1_step4 Standard Entries_PostZCut m^{ll} 1 0 0 0 0 0 0 0 0 0
+dyScaling_Allh1_step5 Standard Entries_Post2Jets m^{ll} 1 0 0 0 0 0 0 0 0 0
+dyScaling_Allh1_step6 Standard Entries_PostMETcut m^{ll} 1 0 0 0 0 0 0 0 0 0
+dyScaling_Allh1_step7 Standard Entries_Post1BTag m^{ll} 1 0 0 0 0 0 0 0 0 0
+dyScaling_Allh1_step8 Standard Entries_PostKinReco m^{ll} 1 0 0 0 0 0 0 0 0 0
 
 
 basic_met_et_step1 Standard Entries_PostTrigg E^{met} 1 0 0 0 0 0 0 0 0 0
@@ -339,14 +346,14 @@ HypBJetEtaNLead Standard b-jets #eta^{N.Lead.b-jet} 2 1 0 0 0 0 -2.5 2.5 0 0
 HypLLBarDPhi Standard Events #Delta#phi{l,#bar{l}} 8 1 0 0 0 0 -0.1 2.9 0 0
 HypBJetpTLead Standard b-jets p_{T}^{Lead.b-jet} 5 1 0 0 0 0 0 0 0 0
 HypBJetpTNLead Standard b-jets p_{T}^{N.Lead.b-jet} 5 1 0 0 0 0 0 0 0 0
-HypLeptonEtaLead Standard Events #eta^{Lead.l} 1 1 0 0 0 0 -3 3 0 0
-HypLeptonEtaNLead Standard Events #eta^{N.Lead.l} 1 1 0 0 0 0 -3 3 0 0
-HypLeptonpTLead Standard Events p_{T}^{Lead.l} 5 1 0 0 0 0 20 400 0 0
-HypLeptonpTNLead Standard Events p_{T}^{N.Lead.l} 5 1 0 0 0 0 20 400 0 0
-HypTopRapidityLead Standard Topquarks y^{Lead.t} 2 1 0 0 0 0 -2.5 2.5 0 0
-HypTopRapidityNLead Standard Topquarks y^{N.Lead.t} 2 1 0 0 0 0 -2.5 2.5 0 0
-HypToppTLead Standard Topquarks p_{T}^{Lead.t} 10 1 0 0 0 0 0 0 0 0
-HypToppTNLead Standard Topquarks p_{T}^{N.Leadl.t} 10 1 0 0 0 0 0 0 0 0
+HypLeptonEtaLead Standard Events #eta^{Lead.l} 5 1 0 0 0 0 -3 3 0 0
+HypLeptonEtaNLead Standard Events #eta^{N.Lead.l} 5 1 0 0 0 0 -3 3 0 0
+HypLeptonpTLead Standard Events p_{T}^{Lead.l} 10 1 0 0 0 0 20 200 0 0
+HypLeptonpTNLead Standard Events p_{T}^{N.Lead.l} 10 1 0 0 0 0 20 200 0 0
+HypTopRapidityLead Standard Topquarks "y (lead. t)" 2 1 0 0 0 1e4 -2.5 2.5 0 0
+HypTopRapidityNLead Standard Topquarks "y (2^{nd} lead. t)" 2 1 0 0 0 1e4 -2.5 2.5 0 0
+HypToppTLead Standard Topquarks "p_{T} (lead. t)" 20 1 0 0 0 0 0 399 0 0
+HypToppTNLead Standard Topquarks "p_{T} (2^{nd} lead. t)" 20 1 0 0 0 0 0 399 0 0
 HypLLBarpT Standard Events p_{T}^{l^{+}l^{-}} 4 1 0 0 0 0 0 500 0 0
 HypLLBarMass Standard Events m^{l^{+}l^{-}} 10 1 0 0 0 0 0 500 0 0
 HypMet Standard Events E_{T}^{miss} 1 1 0 0 0 0 0 0 0 0
