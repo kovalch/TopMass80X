@@ -1,3 +1,12 @@
+//
+//
+// Original Author: Jakob Salfeld
+// Modified by: Ivan Asin
+// Created: Apr 24 2014
+//
+//
+
+
 #ifndef RecoilCorrector_h
 #define RecoilCorrector_h
 
@@ -89,8 +98,11 @@ private:
     /// Correct the MET using the width of the fit
     void  U1U2CorrectionsByWidth(float& U1, float& U2, int nZptBin, int njets);
     
+    /// Get position in a vector for a given value, the vector is expected to be ordered
+    size_t getBinFromVector(std::vector<double>& vector_of_boundaries, const float value)const;
+    
     /// Get the bin number to which corresponds the pt value of the Z-boson
-    int getBinNumber(float x, const std::vector<int> bins)const;
+    int getBinNumber(float x, const std::vector<int>& bins)const;
     
     /// Get the fitted function
     TF1* getFuncRecoil(TF1* initFunc, bool left);
@@ -102,23 +114,31 @@ private:
     
     /// Number of jet bins: harcoded according to the histograms stored in the ROOT files
     std::vector<int> nJets_;
-
+    
+    /// Number of bins to use for integral calculation
+    static const int nbins_for_integral_ = 5000;
+    
+    /// Bin boundaries used in the semi-continuous integral calculation
+    std::vector<std::vector<std::vector<double> > > metZParal_boundaries_vect_, metZPerp_boundaries_vect_;
+    
     /// Number of Z-pt bins, hardcoded since this should match the number of TF1's in the ROOT files
     static const int nZPtBins_ = 5;
     
     /// Number of jets, hardcoded since this should match the number of TF1's in the ROOT files
     static const int nJetsBins_ = 3;
 
+    /** Vector of integrals of TF1, depends on the particular Z Pt bin, nr of Jets
+     *  be careful when filling the vector elements, using 'array' style
+     *      vec[zptbin][njets][particular_value] = double_value
+     */
+    std::vector<std::vector<std::vector<double> > > metZParalMC_integral_vect_, metZPerpMC_integral_vect_;
+    std::vector<std::vector<std::vector<double> > > metZParalData_integral_vect_, metZPerpData_integral_vect_;
+    
     TF1* metZParalData_[nZPtBins_][nJetsBins_];
     TF1* metZPerpData_[nZPtBins_][nJetsBins_];
     TF1* metZParalMC_[nZPtBins_][nJetsBins_];
     TF1* metZPerpMC_[nZPtBins_][nJetsBins_];
-
-    TH1* metZParalDataHist_[nZPtBins_][nJetsBins_];
-    TH1* metZPerpDataHist_[nZPtBins_][nJetsBins_];
-    TH1* metZParalMCHist_[nZPtBins_][nJetsBins_];
-    TH1* metZPerpMCHist_[nZPtBins_][nJetsBins_];
-
+    
     float meanMetZParalData_[nZPtBins_][nJetsBins_];
     float meanMetZParalMC_[nZPtBins_][nJetsBins_];
     float meanMetZPerpData_[nZPtBins_][nJetsBins_];
