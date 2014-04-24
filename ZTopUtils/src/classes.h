@@ -16,6 +16,7 @@ struct dict {
 
     std::vector<double> klklkl;
     std::vector<TString> kkj;
+    std::vector<std::vector<std::vector<double> > > vvv;
     std::pair<TString, std::vector<double> > jj;
     std::vector<std::pair<TString, std::vector<double> > > j;
     std::vector<long int> kl;
