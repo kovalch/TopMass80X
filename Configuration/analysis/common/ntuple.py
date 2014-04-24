@@ -514,7 +514,7 @@ process.goodIdJets.jets    = cms.InputTag("scaledJetEnergy:selectedPatJets"+pfpo
 process.goodIdJets.jetType = cms.string('PF')
 process.goodIdJets.version = cms.string('FIRSTDATA')
 process.goodIdJets.quality = cms.string('LOOSE')
-process.hardJets = selectedPatJets.clone(src = 'goodIdJets', cut = 'pt > 5 & abs(eta) < 2.4') 
+process.hardJets = selectedPatJets.clone(src = 'goodIdJets', cut = 'pt > 12 & abs(eta) < 2.4') 
 
 process.finalCollectionsSequence = cms.Sequence(
     process.scaledJetEnergy *
@@ -528,18 +528,23 @@ process.finalCollectionsSequence = cms.Sequence(
 ####################################################################
 ## Define which collections (including which corrections) to be used in nTuple
 
-#isolatedElecCollection = "selectedPatElectrons"+pfpostfix
-isolatedElecCollection = "selectedPatElectronsAfterScaling"
+#isolatedElectronCollection = "selectedPatElectrons"+pfpostfix
+isolatedElectronCollection = "selectedPatElectronsAfterScaling"
 
 isolatedMuonCollection = "selectedPatMuons"+pfpostfix
 
 jetCollection = "hardJets"
 
-jetForMETCollection = "scaledJetEnergy:selectedPatJets"+pfpostfix
+jetForMetCollectionUncorrected = "selectedPatJets"+pfpostfix
+jetForMetCollection = "scaledJetEnergy:selectedPatJets"+pfpostfix
 
 metCollection = "scaledJetEnergy:patMETs"+pfpostfix
 
+mvaMetCollection = "patMEtMVA"
+
 genJetCollection = "ak5GenJetsPlusHadron"
+
+genMetCollection = "genMetTrue"
 
 genLevelBJetProducerInput = "produceGenLevelBJets"
 
@@ -554,7 +559,7 @@ genHFCHadronMatcherInput = "matchGenHFCHadronJets"
 # Filter on events containing dilepton system of opposite charge and above m(ll) > 12 GeV
 from TopAnalysis.TopFilter.filters.DileptonPreselection_cfi import *
 process.dileptonPreselection = dileptonPreselection.clone(
-    electrons = isolatedElecCollection,
+    electrons = isolatedElectronCollection,
     muons = isolatedMuonCollection,
     filterCharge = -1,
     filterChannel = options.mode,
@@ -692,7 +697,7 @@ else:
 # Select the two leptons fulfilling dilepton selection
 from TopAnalysis.TopUtils.DileptonKinRecoLeptons_cfi import *
 process.kinRecoLeptons = dileptonKinRecoLeptons.clone(
-    electrons = isolatedElecCollection,
+    electrons = isolatedElectronCollection,
     muons = isolatedMuonCollection,
     filterChannel = options.mode,
     excludeMasses = (-999., 20.),
@@ -788,11 +793,13 @@ writeNTuple.saveHadronMothers = False
 
 process.writeNTuple = writeNTuple.clone(
     muons = isolatedMuonCollection,
-    elecs = isolatedElecCollection,
+    elecs = isolatedElectronCollection,
     jets = jetCollection,
+    jetsForMET = jetForMetCollection,
+    jetsForMETuncorr = jetForMetCollectionUncorrected,
     met = metCollection,
-    mvamet = "patMEtMVA",
-    genMET = "genMetTrue",
+    mvamet = mvaMetCollection,
+    genMET = genMetCollection,
     genJets = genJetCollection,
 
     BHadJetIndex = cms.InputTag(genLevelBJetProducerInput, "BHadJetIndex"),
@@ -803,28 +810,26 @@ process.writeNTuple = writeNTuple.clone(
     AntiBHadronFromTopB = cms.InputTag(genLevelBJetProducerInput, "AntiBHadronFromTopB"),
     BHadronVsJet = cms.InputTag(genLevelBJetProducerInput, "BHadronVsJet"),
     AntiBHadronVsJet = cms.InputTag(genLevelBJetProducerInput, "AntiBHadronVsJet"),
-    genBHadPlusMothers = cms.InputTag(genHFBHadronMatcherInput,"genBHadPlusMothers"),
-    genBHadPlusMothersIndices = cms.InputTag(genHFBHadronMatcherInput,"genBHadPlusMothersIndices"),
-    genBHadIndex = cms.InputTag(genHFBHadronMatcherInput,"genBHadIndex"),
-    genBHadFlavour = cms.InputTag(genHFBHadronMatcherInput,"genBHadFlavour"),
-    genBHadJetIndex = cms.InputTag(genHFBHadronMatcherInput,"genBHadJetIndex"),
-    genBHadFromTopWeakDecay = cms.InputTag(genHFBHadronMatcherInput,"genBHadFromTopWeakDecay"),
-    genBHadLeptonIndex = cms.InputTag(genHFBHadronMatcherInput,"genBHadLeptonIndex"),
-    genBHadLeptonHadronIndex = cms.InputTag(genHFBHadronMatcherInput,"genBHadLeptonHadronIndex"),
-    genBHadLeptonViaTau = cms.InputTag(genHFBHadronMatcherInput,"genBHadLeptonViaTau"),
+    genBHadPlusMothers = cms.InputTag(genHFBHadronMatcherInput, "genBHadPlusMothers"),
+    genBHadPlusMothersIndices = cms.InputTag(genHFBHadronMatcherInput, "genBHadPlusMothersIndices"),
+    genBHadIndex = cms.InputTag(genHFBHadronMatcherInput, "genBHadIndex"),
+    genBHadFlavour = cms.InputTag(genHFBHadronMatcherInput, "genBHadFlavour"),
+    genBHadJetIndex = cms.InputTag(genHFBHadronMatcherInput, "genBHadJetIndex"),
+    genBHadFromTopWeakDecay = cms.InputTag(genHFBHadronMatcherInput, "genBHadFromTopWeakDecay"),
+    genBHadLeptonIndex = cms.InputTag(genHFBHadronMatcherInput, "genBHadLeptonIndex"),
+    genBHadLeptonHadronIndex = cms.InputTag(genHFBHadronMatcherInput, "genBHadLeptonHadronIndex"),
+    genBHadLeptonViaTau = cms.InputTag(genHFBHadronMatcherInput, "genBHadLeptonViaTau"),
 
-    genCHadPlusMothers = cms.InputTag(genHFCHadronMatcherInput,"genCHadPlusMothers"),
-    genCHadPlusMothersIndices = cms.InputTag(genHFCHadronMatcherInput,"genCHadPlusMothersIndices"),
-    genCHadIndex = cms.InputTag(genHFCHadronMatcherInput,"genCHadIndex"),
-    genCHadFlavour = cms.InputTag(genHFCHadronMatcherInput,"genCHadFlavour"),
-    genCHadJetIndex = cms.InputTag(genHFCHadronMatcherInput,"genCHadJetIndex"),
-    genCHadFromTopWeakDecay = cms.InputTag(genHFCHadronMatcherInput,"genCHadFromTopWeakDecay"),
-    genCHadLeptonIndex = cms.InputTag(genHFCHadronMatcherInput,"genCHadLeptonIndex"),
-    genCHadLeptonHadronIndex = cms.InputTag(genHFCHadronMatcherInput,"genCHadLeptonHadronIndex"),
-    genCHadLeptonViaTau = cms.InputTag(genHFCHadronMatcherInput,"genCHadLeptonViaTau"), 
+    genCHadPlusMothers = cms.InputTag(genHFCHadronMatcherInput, "genCHadPlusMothers"),
+    genCHadPlusMothersIndices = cms.InputTag(genHFCHadronMatcherInput, "genCHadPlusMothersIndices"),
+    genCHadIndex = cms.InputTag(genHFCHadronMatcherInput, "genCHadIndex"),
+    genCHadFlavour = cms.InputTag(genHFCHadronMatcherInput, "genCHadFlavour"),
+    genCHadJetIndex = cms.InputTag(genHFCHadronMatcherInput, "genCHadJetIndex"),
+    genCHadFromTopWeakDecay = cms.InputTag(genHFCHadronMatcherInput, "genCHadFromTopWeakDecay"),
+    genCHadLeptonIndex = cms.InputTag(genHFCHadronMatcherInput, "genCHadLeptonIndex"),
+    genCHadLeptonHadronIndex = cms.InputTag(genHFCHadronMatcherInput, "genCHadLeptonHadronIndex"),
+    genCHadLeptonViaTau = cms.InputTag(genHFCHadronMatcherInput, "genCHadLeptonViaTau"), 
 )
-process.writeNTuple.jetsForMET = cms.InputTag("scaledJetEnergy:selectedPatJets"+pfpostfix)
-process.writeNTuple.jetsForMETuncorr = cms.InputTag("selectedPatJets"+pfpostfix)
 
 if signal:
     process.ntupleInRecoSeq = cms.Sequence()
