@@ -77,7 +77,7 @@ std::string common::accessFolder(const char* baseDir, const TString& channel,
         }
         else{
             std::cerr<<"ERROR! Request to access directory is not possible, because it does not exist. Directory name: "<<path
-                    <<"\n...break\n"<<std::endl;
+                     <<"\n...break\n"<<std::endl;
             exit(237);
         }
     }
@@ -168,7 +168,7 @@ TH2* LeptonScaleFactors::prepareLeptonIDSF(const std::string& inputFileName,
     TFile scaleFactorFile(inputFileName.c_str());
     if (scaleFactorFile.IsZombie()){
         std::cout<<"File containing lepton Id/Iso scale factors not found: "<<inputFileName
-                <<"\nAssuming ScaleFactor = 1.\n";
+                 <<"\nAssuming ScaleFactor = 1.\n";
         return 0;
     }
 
@@ -177,7 +177,7 @@ TH2* LeptonScaleFactors::prepareLeptonIDSF(const std::string& inputFileName,
     h_scaleFactorPtEta = dynamic_cast<TH2*>(scaleFactorFile.Get(histogramName.c_str()));
     if(!h_scaleFactorPtEta){
         std::cout<<"TH2 for lepton Id/Iso scale factors not found: "<<histogramName
-                <<"\nAssuming ScaleFactor = 1.\n";
+                 <<"\nAssuming ScaleFactor = 1.\n";
         return 0;
     }
 
@@ -194,7 +194,7 @@ TH2* LeptonScaleFactors::prepareLeptonIDSF(const std::string& inputFileName,
         for (int i = 1; i <= h_scaleFactorPtEta->GetNbinsX(); ++i) {
             for (int j = 1; j <= h_scaleFactorPtEta->GetNbinsY(); ++j) {
                 h_scaleFactorPtEta->SetBinContent(i, j,
-                        h_scaleFactorPtEta->GetBinContent(i,j) + factor*h_scaleFactorPtEta->GetBinError(i,j));
+                    h_scaleFactorPtEta->GetBinContent(i,j) + factor*h_scaleFactorPtEta->GetBinError(i,j));
             }
         }
     }
@@ -254,7 +254,6 @@ double LeptonScaleFactors::scaleFactorAllLeptons(const std::vector<int>& allLept
                     <<absPdgId<<"\n...will use scale factor = 1.\n";
             continue;
         }
-
         result *= ScaleFactorHelpers::get2DSF(histo, leptons.at(index).eta(), leptons.at(index).pt());
     }
 
@@ -349,10 +348,9 @@ TH2* TriggerScaleFactors::prepareTriggerSF(const TString& fileName, const System
             exit(24);
         }
 
-        for (int i = 1; i <= h_TrigSFeta->GetNbinsX(); ++i) {
-            for (int j = 1; j <= h_TrigSFeta->GetNbinsY(); ++j) {
-                h_TrigSFeta->SetBinContent(i, j,
-                        h_TrigSFeta->GetBinContent(i,j) + factor*h_TrigSFeta->GetBinError(i,j));
+        for(int i = 1; i <= h_TrigSFeta->GetNbinsX(); ++i){
+            for(int j = 1; j <= h_TrigSFeta->GetNbinsY(); ++j){
+                h_TrigSFeta->SetBinContent(i, j, h_TrigSFeta->GetBinContent(i,j) + factor*h_TrigSFeta->GetBinError(i,j));
             }
         }
     }
@@ -638,7 +636,7 @@ void BtagScaleFactors::fillHistograms(const std::vector<int>& jetIndices,
 {
     for(const int index : jetIndices){
         this->fillEff(jets.at(index).pt(), std::abs(jets.at(index).eta()),
-                      std::abs(jetPartonFlavours.at(index)), bTagDiscriminant.at(index), weight);
+            std::abs(jetPartonFlavours.at(index)), bTagDiscriminant.at(index), weight);
     }
 }
 
@@ -723,8 +721,8 @@ JetEnergyResolutionScaleFactors::JetEnergyResolutionScaleFactors(const JetEnergy
     // Check correct size
     if(v_etaRange_.size() != v_etaScaleFactor_.size()){
         std::cerr<<"Error in constructor of JetEnergyResolutionScaleFactors! "
-                <<"Different number of intervals in eta and corresponding scale factors (intervals, scale factors): "
-                <<v_etaRange_.size()<<" , "<<v_etaScaleFactor_.size()<<"\n...break\n"<<std::endl;
+                 <<"Different number of intervals in eta and corresponding scale factors (intervals, scale factors): "
+                 <<v_etaRange_.size()<<" , "<<v_etaScaleFactor_.size()<<"\n...break\n"<<std::endl;
         exit(622);
     }
 
@@ -734,8 +732,8 @@ JetEnergyResolutionScaleFactors::JetEnergyResolutionScaleFactors(const JetEnergy
 
 
 void JetEnergyResolutionScaleFactors::applySystematic(VLV* jets, VLV* jetsForMET, LV* met,
-        const std::vector<double>* jetJERSF, const std::vector<double>* jetForMETJERSF,
-        const VLV* associatedGenJet, const VLV* associatedGenJetForMET)const
+                                                      const std::vector<double>* jetJERSF, const std::vector<double>* jetForMETJERSF,
+                                                      const VLV* associatedGenJet, const VLV* associatedGenJetForMET)const
 {
     // This first loop will correct the jet collection that is used for jet selections
     for(size_t iJet = 0; iJet < jets->size(); ++iJet){
@@ -808,9 +806,9 @@ void JetEnergyResolutionScaleFactors::applySystematic(VLV* jets, VLV* jetsForMET
 
 
 JetEnergyScaleScaleFactors::JetEnergyScaleScaleFactors(const char* jesUncertaintySourceFile,
-        const JetEnergyScaleScaleFactors::Systematic& systematic):
-						        jetCorrectionUncertainty_(0),
-						        varyUp_(false)
+                                                       const JetEnergyScaleScaleFactors::Systematic& systematic):
+jetCorrectionUncertainty_(0),
+varyUp_(false)
 {
     std::cout<<"--- Beginning preparation of JES scale factors\n";
 
