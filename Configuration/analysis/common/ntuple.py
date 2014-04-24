@@ -535,7 +535,7 @@ isolatedMuonCollection = "selectedPatMuons"+pfpostfix
 
 jetCollection = "hardJets"
 
-jetForMetCollectionUncorrected = "selectedPatJets"+pfpostfix
+jetForMetUncorrectedCollection = "selectedPatJets"+pfpostfix
 jetForMetCollection = "scaledJetEnergy:selectedPatJets"+pfpostfix
 
 metCollection = "scaledJetEnergy:patMETs"+pfpostfix
@@ -796,7 +796,7 @@ process.writeNTuple = writeNTuple.clone(
     elecs = isolatedElectronCollection,
     jets = jetCollection,
     jetsForMET = jetForMetCollection,
-    jetsForMETuncorr = jetForMetCollectionUncorrected,
+    jetsForMETuncorr = jetForMetUncorrectedCollection,
     met = metCollection,
     mvamet = mvaMetCollection,
     genMET = genMetCollection,
