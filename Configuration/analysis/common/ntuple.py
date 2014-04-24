@@ -308,7 +308,7 @@ pfpostfix = "PFlow"
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
 from PhysicsTools.PatAlgos.tools.pfTools import *
 usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=options.runOnMC, postfix=pfpostfix, jetCorrections=jetCorr, pvCollection=cms.InputTag('goodOfflinePrimaryVertices'), typeIMetCorrections=True)
-#process.pfPileUpPFlow.checkClosestZVertex = False
+process.pfPileUpPFlow.checkClosestZVertex = False
 
 # Set to true to access b-tagging information in PAT jets
 applyPostfix(process, "patJets", pfpostfix).addTagInfos = True
