@@ -32,15 +32,26 @@ private:
     std::string nominal;
     std::string up;
     std::string down;
+    std::map<std::string, double> shifts;
+    std::map<std::string, double> shiftUncs;
     bool correlated;
     bool active;
     comparison(std::string n = "", std::string u = "", std::string d = "", bool c = true, bool a = true)
     : nominal(n), up(u), down(d), correlated(c), active(a) {}
   };
 
+  struct mergedcomparison {
+    std::vector<std::string> comparisons;
+    mergedcomparison()
+    : comparisons(0) {}
+    mergedcomparison(std::vector<std::string> c)
+    : comparisons(c) {}
+  };
+
   struct dataSample {
     std::map<std::string, ensemble> ensembles;
     std::map<std::string, comparison> comparisons;
+    std::map<std::string, mergedcomparison> mergedcomparisons;
     std::vector<std::string> variables;
     std::string path;
     double peLumi;
