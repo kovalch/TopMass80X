@@ -4700,9 +4700,11 @@ void Plotter::setTheoryStyleAndFillLegend(TH1* histo, TString theoryName, TLegen
 
 bool Plotter::addQCDToControlPlot()const
 {
-    if( name.Contains("_step2") || name.Contains("_step3") || name.Contains("_step4") || name.Contains("_step5") || name.Contains("_step6") || name.Contains("_step7") ||
-        name.Contains("_noBTag") || name.Contains("_diLep") || name.Contains("Electron") || name.Contains("Muon") || name == "MET" ||
-        (!name.Contains("Hyp") && (!name.Contains("jet_pt", TString::kIgnoreCase) || name.Contains("jetHT")) ))
+    if( (name.Contains("_step") && !name.Contains("7") && !name.Contains("8")) ||
+        (name.Contains("events_") && !name.Contains("7") && !name.Contains("8")) ||
+        (!name.Contains("Hyp") && (name.Contains("jetHT") || name.Contains("jetpT") )) ||
+        name == "MET" ||  name.Contains("_noBTag") ||  name.Contains("_diLep") ||  name.Contains("Electron") || name.Contains("Muon")
+      )
        {
             return 1;
         }
