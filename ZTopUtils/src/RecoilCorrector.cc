@@ -346,11 +346,7 @@ float RecoilCorrector::correctMet(float& MetPx, float& MetPy, float genZPx, floa
 size_t RecoilCorrector::getBinFromVector(std::vector<double>& vector_of_boundaries, const float value)const
 {
     size_t bin = std::lower_bound(vector_of_boundaries.begin(), vector_of_boundaries.end(), value) - vector_of_boundaries.begin();
-    if ((vector_of_boundaries.at(bin) == value || bin == vector_of_boundaries.size()) &&
-        vector_of_boundaries.at(0) != value) {
-        --bin;
-    }
-    if (bin >0) --bin;
+    if (bin == vector_of_boundaries.size()) return --bin;
     
     return bin;
 }
