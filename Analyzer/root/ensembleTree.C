@@ -185,7 +185,8 @@ void ensembleTree()
   
   //// Get histos
   //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140317_1201/");
-  TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140401_1201/");
+  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140401_1201/");
+  TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140418_1201/");
   //sFile += "ensemble_S12_Uncalibrated.root";
   sFile += "ensemble_S12_Calibrated.root";
 
