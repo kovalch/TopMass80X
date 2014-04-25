@@ -183,57 +183,10 @@ class TopAnalysis : public AnalysisBase
     TH1 *h_PUSF, *h_TrigSF, *h_LepSF, *h_BTagSF, *h_KinRecoSF, *h_EventWeight;
     
     ///Ievgen
-       TH1 *h_signalTopEvents_vs_JetMult; 
-       TH1 *h_MatchedJets_vs_JetMult; 
-       TH1 *h_nSolTtJets_vs_JetMult;
-       TH1 *h_nSolCorrSignJets_vs_JetMult;
-       
-       TH1 *h_nRecoEvt_vs_JetMult;
-       TH1 *h_nKinRecoSol_vs_JetMult;
-       
-       TH1 *h_nRecoEvt_vs_LepEta;
-       TH1 *h_nKinRecoSol_vs_LepEta;
-       TH1 *h_nRecoEvt_vs_LepEta2;
-       TH1 *h_nKinRecoSol_vs_LepEta2;
-       
-       TH1 *h_nRecoEvt_vs_JetEta;
-       TH1 *h_nKinRecoSol_vs_JetEta;
-       TH1 *h_nRecoEvt_vs_JetEta2;
-       TH1 *h_nKinRecoSol_vs_JetEta2;
-       
-       TH1 *h_nRecoEvt_vs_LeppT;
-       TH1 *h_nKinRecoSol_vs_LeppT;
-       TH1 *h_nRecoEvt_vs_LeppT2;
-       TH1 *h_nKinRecoSol_vs_LeppT2;
-       
-       TH1 *h_nRecoEvt_vs_LeptonEta;
-       TH1 *h_nKinRecoSol_vs_LeptonEta;
-       TH1 *h_nRecoEvt_vs_AntiLeptonEta;
-       TH1 *h_nKinRecoSol_vs_AntiLeptonEta;
-       
-       TH1 *h_nRecoEvt_vs_LeptonpT;
-       TH1 *h_nKinRecoSol_vs_LeptonpT;
-       TH1 *h_nRecoEvt_vs_AntiLeptonpT;
-       TH1 *h_nKinRecoSol_vs_AntiLeptonpT;
-
-       
-       TH1 *h_nRecoEvt_vs_JetpT;
-       TH1 *h_nKinRecoSol_vs_JetpT;
-       TH1 *h_nRecoEvt_vs_JetpT2;
-       TH1 *h_nKinRecoSol_vs_JetpT2;
-       
-       TH1 *h_nRecoEvt_vs_MET;
-       TH1 *h_nKinRecoSol_vs_MET;
-       
-       TH1 *h_nRecoEvt_Eff;
-       TH1 *h_nKinRecoSol_Eff;
        
        TH1 *h_RMSvsGenToppT;
        TH1 *h_RMSvsGenTopRapidity;
        TH1 *h_RMSvsGenTTBarMass; 
-       
-       TH1 *h_true_vE;
-       TH1 *h_reco_vE;
        
        TH2 *h_HypTopRapidityvsToppT;
        TH2 *h_HypAntiTopRapidityvsAntiToppT;

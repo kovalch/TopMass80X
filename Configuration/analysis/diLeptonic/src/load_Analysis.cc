@@ -19,6 +19,7 @@
 #include "AnalyzerBaseClass.h"
 #include "AnalyzerControlPlots.h"
 #include "AnalyzerDoubleDiffXS.h"
+#include "AnalyzerKinReco.h"
 #include "../../common/include/CommandLineParameters.h"
 #include "../../common/include/utils.h"
 #include "../../common/include/ScaleFactors.h"
@@ -171,8 +172,13 @@ void load_Analysis(const TString& validFilenamePattern,
     
     // Set up dda histograms
     AnalyzerDoubleDiffXS* analyzerDoubleDiffXS(0);
-    analyzerDoubleDiffXS = new AnalyzerDoubleDiffXS({"8"});
+    analyzerDoubleDiffXS = new AnalyzerDoubleDiffXS({"0","8"});
     v_analyzer.push_back(analyzerDoubleDiffXS);
+    
+    // Set up KinReco histograms
+    AnalyzerKinReco* analyzerKinReco(0);
+    analyzerKinReco = new AnalyzerKinReco({"7","8"});
+    v_analyzer.push_back(analyzerKinReco);
     
     // Set up the analysis
     TopAnalysis *selector = new TopAnalysis();
