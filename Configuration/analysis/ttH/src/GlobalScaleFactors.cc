@@ -9,6 +9,7 @@
 #include "GlobalScaleFactors.h"
 #include "LuminosityScaleFactors.h"
 #include "DyScaleFactors.h"
+#include "HfFracScaleFactors.h"
 #include "Samples.h"
 #include "../../common/include/sampleHelpers.h"
 #include "../../common/include/RootFileReader.h"
@@ -27,11 +28,11 @@ GlobalScaleFactors::GlobalScaleFactors(const std::vector<Channel::Channel>& v_ch
                                        const std::vector<Systematic::Systematic>& v_systematic,
                                        const double& luminosityInInversePb,
                                        const bool dyCorrection,
-                                       const bool ttbbCorrection):
+                                       const bool hfFracCorrection):
 luminosityInInversePb_(luminosityInInversePb),
 luminosityScaleFactors_(0),
 dyScaleFactors_(0),
-ttbbScaleFactors_(0),
+hfFracScaleFactors_(0),
 rootFileReader_(RootFileReader::getInstance())
 {
     std::cout<<"--- Beginning to set up global scale factors\n";
@@ -57,9 +58,9 @@ rootFileReader_(RootFileReader::getInstance())
     }
     
     // Produce ttbb scale factors
-    if(ttbbCorrection){
+    if(hfFracCorrection){
         // FIXME: implement scaling here
-        ttbbScaleFactors_ = 0;
+        hfFracScaleFactors_ = new HfFracScaleFactors(scalingSamples, rootFileReader_);
         scalingSamples.setGlobalWeights(this);
     }
     
@@ -69,7 +70,7 @@ rootFileReader_(RootFileReader::getInstance())
 
 
 std::pair<SystematicChannelFactors, bool> GlobalScaleFactors::scaleFactors(const Samples& samples, const TString& step,
-                                                                           const bool dyCorrection, const bool ttbbCorrection)const
+                                                                           const bool dyCorrection, const bool hfFracCorrection)const
 {
     bool anyCorrectionApplied(false);
     SystematicChannelFactors systematicChannelFactors;
@@ -90,7 +91,7 @@ std::pair<SystematicChannelFactors, bool> GlobalScaleFactors::scaleFactors(const
                     if(dyStatus == 1) anyCorrectionApplied = true;
                     
                     // FIXME: implement tt+HF correction
-                    const int ttbbStatus = (ttbbCorrection && ttbbScaleFactors_) ? 0 : 0;
+                    const int ttbbStatus = (hfFracCorrection && hfFracScaleFactors_) ? hfFracScaleFactors_->applyScaleFactor(weight, step, sample, systematic) : 0;
                     if(ttbbStatus == 1) anyCorrectionApplied = true;
                 }
                 
@@ -106,7 +107,7 @@ std::pair<SystematicChannelFactors, bool> GlobalScaleFactors::scaleFactors(const
 
 std::pair<SystematicChannelFactors, bool> GlobalScaleFactors::scaleFactors(const Samples& samples, const TString& step)const
 {
-    return this->scaleFactors(samples, step, dyScaleFactors_, ttbbScaleFactors_);
+    return this->scaleFactors(samples, step, dyScaleFactors_, hfFracScaleFactors_);
 }
 
 

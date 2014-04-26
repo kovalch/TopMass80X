@@ -195,7 +195,7 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
     
     // Set up Heavy-Flavour fraction scaling histograms
     AnalyzerHfFracScaling* analyzerHfFracScaling(0);
-    analyzerHfFracScaling = new AnalyzerHfFracScaling({"3", "5", "7"});
+    analyzerHfFracScaling = new AnalyzerHfFracScaling({"0a", "0b", "1", "2", "3", "4", "5", "6", "7"});
     v_analyzer.push_back(analyzerHfFracScaling);
     
     // Set up basic histograms
