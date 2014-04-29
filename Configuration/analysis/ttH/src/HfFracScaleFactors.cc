@@ -6,6 +6,9 @@
 #include <TH1D.h>
 #include <TMath.h>
 #include <TString.h>
+#include <TObjArray.h>
+#include <TFractionFitter.h>
+#include <TCanvas.h>
 
 #include "HfFracScaleFactors.h"
 #include "higgsUtils.h"
@@ -40,21 +43,27 @@ void HfFracScaleFactors::produceScaleFactors(const Samples& samples)
     for(const auto& nameStepPair : v_nameStepPair) this->produceScaleFactors(nameStepPair.second, samples);
     
     // Print table
-    std::cout<<"Step     \t\tSystematic\tChannel\t\tScale factor (ttbb | ttb | ttother)\n";
-    std::cout<<"---------\t\t----------\t-------\t\t-----------------------------------\n";
+    std::cout<<"Step   \t\tSystematic\tChannel\t\tScale factor (ttbb | ttb | ttother)\n";
+    std::cout<<"-------\t\t----------\t-------\t\t-----------------------------------\n";
     for(auto hfFracScaleFactorsPerStep : m_hfFracScaleFactors_){
         const TString& step(hfFracScaleFactorsPerStep.first);
         for(auto hfFracScaleFactorsPerSystematic : hfFracScaleFactorsPerStep.second){
            const Systematic::Systematic& systematic(hfFracScaleFactorsPerSystematic.first);
            for(auto hfFracScaleFactorsPerChannel : hfFracScaleFactorsPerSystematic.second){
                const Channel::Channel& channel(hfFracScaleFactorsPerChannel.first);
+               if(channel != Channel::emu) continue;
                std::cout<<step<<"\t\t"<<Systematic::convertSystematic(systematic)<<"\t\t"
-                        <<channel<<"\t\t"
+                        <<Channel::convertChannel(channel)<<"\t\t   "
                         <<std::fixed<<std::setprecision(3)
-                        <<hfFracScaleFactorsPerChannel.second.at(Sample::ttbb)<<" | "
-                        <<hfFracScaleFactorsPerChannel.second.at(Sample::ttb)<<" | "
-                        <<hfFracScaleFactorsPerChannel.second.at(Sample::ttother)<<" | "
-                        <<"\n";
+                        <<hfFracScaleFactorsPerChannel.second.at(Sample::SampleType::ttbb).val<<" |    "
+                        <<hfFracScaleFactorsPerChannel.second.at(Sample::SampleType::ttb).val<<" |    "
+                        <<hfFracScaleFactorsPerChannel.second.at(Sample::SampleType::ttother).val<<" | \n";
+                        
+//                 std::cout<<"\t\t\t\t\t\t+- "
+//                         <<std::fixed<<std::setprecision(3)
+//                         <<hfFracScaleFactorsPerChannel.second.at(Sample::SampleType::ttbb).err<<" | +- "
+//                         <<hfFracScaleFactorsPerChannel.second.at(Sample::SampleType::ttb).err<<" | +- "
+//                         <<hfFracScaleFactorsPerChannel.second.at(Sample::SampleType::ttother).err<<" | \n";
            }
         }
     }
@@ -72,7 +81,8 @@ void HfFracScaleFactors::produceScaleFactors(const TString& step, const Samples&
         const Systematic::Systematic& systematic(systematicChannelSamples.first);
         const auto& channelSamples(systematicChannelSamples.second);
         
-        const std::vector<Channel::Channel> v_channel {Channel::ee, Channel::emu, Channel::mumu};
+//         const std::vector<Channel::Channel> v_channel = {Channel::ee, Channel::emu, Channel::mumu, Channel::combined};
+        const std::vector<Channel::Channel> v_channel = {Channel::emu};
         
         TH1 *h_data_comb=0, *h_bkg_comb=0, *h_ttbb_comb=0, *h_ttb_comb=0, *h_tto_comb=0;
         
@@ -83,7 +93,7 @@ void HfFracScaleFactors::produceScaleFactors(const TString& step, const Samples&
                 const Sample& sample = v_sample.at(iSample);
                 const Sample::SampleType& sampleType = sample.sampleType();
                 
-                TH1D* h = rootFileReader_->GetClone<TH1D>(sample.inputFile(), TString("hfFracScaling_bTag_mult").Append(step));
+                TH1* h = rootFileReader_->GetClone<TH1D>(sample.inputFile(), TString("hfFracScaling_bTag_mult").Append(step));
                 
                 if(sampleType != Sample::data){
                     const double& weight = globalWeights.at(systematic).at(channel).at(iSample);
@@ -116,11 +126,11 @@ void HfFracScaleFactors::produceScaleFactors(const TString& step, const Samples&
                 
             }
             
-//             SampleTypeValueMap sampleSFs = getScaleFactorsFromHistos(h_data, h_ttbb, h_ttb, h_tto, h_bkg);
+            SampleTypeValueMap sampleSFs = getScaleFactorsFromHistos(h_data, h_ttbb, h_ttb, h_tto, h_bkg, step, channel);
             
-            m_hfFracScaleFactors_[step][systematic][channel][Sample::SampleType::ttbb] = 1.954;
-            m_hfFracScaleFactors_[step][systematic][channel][Sample::SampleType::ttb] = 1.954;
-            m_hfFracScaleFactors_[step][systematic][channel][Sample::SampleType::ttother] = 0.977;
+            m_hfFracScaleFactors_[step][systematic][channel][Sample::SampleType::ttbb] = sampleSFs.at(Sample::SampleType::ttbb);
+            m_hfFracScaleFactors_[step][systematic][channel][Sample::SampleType::ttb] = sampleSFs.at(Sample::SampleType::ttb);
+            m_hfFracScaleFactors_[step][systematic][channel][Sample::SampleType::ttother] = sampleSFs.at(Sample::SampleType::ttother);
             
             delete h_data;
             delete h_ttbb;
@@ -130,9 +140,11 @@ void HfFracScaleFactors::produceScaleFactors(const TString& step, const Samples&
             
         }
         
-        m_hfFracScaleFactors_[step][systematic][Channel::combined][Sample::SampleType::ttbb] = 1.954;
-        m_hfFracScaleFactors_[step][systematic][Channel::combined][Sample::SampleType::ttb] = 1.954;
-        m_hfFracScaleFactors_[step][systematic][Channel::combined][Sample::SampleType::ttother] = 0.977;
+        SampleTypeValueMap sampleSFs = getScaleFactorsFromHistos(h_data_comb, h_ttbb_comb, h_ttb_comb, h_tto_comb, h_bkg_comb, step, Channel::combined);
+        
+        m_hfFracScaleFactors_[step][systematic][Channel::combined][Sample::SampleType::ttbb] = sampleSFs.at(Sample::SampleType::ttbb);
+        m_hfFracScaleFactors_[step][systematic][Channel::combined][Sample::SampleType::ttb] = sampleSFs.at(Sample::SampleType::ttb);
+        m_hfFracScaleFactors_[step][systematic][Channel::combined][Sample::SampleType::ttother] = sampleSFs.at(Sample::SampleType::ttother);
         
         delete h_data_comb;
         delete h_ttbb_comb;
@@ -143,12 +155,107 @@ void HfFracScaleFactors::produceScaleFactors(const TString& step, const Samples&
 }
 
 
-// SampleTypeValueMap HfFracScaleFactors::getScaleFactorsFromHistos(TH1* h_data, TH1* h_ttbb, TH1* h_ttb, TH1* h_tto, TH1* h_bkg)const
-// {
-//     SampleTypeValueMap map;
-//     
-//     return map;
-// }
+const HfFracScaleFactors::SampleTypeValueMap HfFracScaleFactors::getScaleFactorsFromHistos(TH1* h_data, TH1* h_ttbb, TH1* h_ttb, 
+                                                                                           TH1* h_tto, TH1* h_bkg, 
+                                                                                           const TString& step, 
+                                                                                           const Channel::Channel channel)const
+{
+    std::vector<Sample::SampleType> sampleTypes;
+    sampleTypes.push_back(Sample::SampleType::ttbb);
+    sampleTypes.push_back(Sample::SampleType::ttb);
+    sampleTypes.push_back(Sample::SampleType::ttother);
+    // Initialisation of identity scale factors
+    SampleTypeValueMap map;
+    for(auto sample : sampleTypes) map[sample] = {1., 1.};
+    
+    // Subtracting background from data
+    h_data->Add(h_bkg, -1);
+    // Putting all histograms to the vector
+    std::vector<TH1*> v_hist;
+    v_hist.push_back(h_data);
+    v_hist.push_back(h_ttbb);
+    v_hist.push_back(h_ttb);
+    v_hist.push_back(h_tto);
+    
+    // Setting the integrals of the initial histograms
+    double hInt_data = h_data->Integral();
+    std::vector<double> hInts;
+    
+    if(hInt_data<=0) {
+        std::cout << "    WARNING: Background larger than data. Skipping.." << std::endl;
+        return map;
+    }
+    
+    TObjArray* mc = new TObjArray(3);
+    for(size_t hId=0; hId<v_hist.size(); ++hId) {
+        TH1* histo = v_hist.at(hId);
+        histo->SetLineColor(hId+1);
+//         normalize(histo);
+//         histo->Scale(histo->GetEntries());
+        if(hId==0) continue;
+        hInts.push_back(histo->Integral());
+        mc->Add(histo);
+    }
+    
+    // Fitting the histograms
+    TFractionFitter* fitter = new TFractionFitter(h_data, mc, "Q");
+    
+    int sampleId = 2;
+    double sampleFrac = hInts.at(sampleId)/hInt_data;
+    fitter->Constrain(sampleId+1, 0.8*sampleFrac, 1.2*sampleFrac);     // tt+other
+    sampleId = 1;
+    sampleFrac = hInts.at(sampleId)/hInt_data;
+    fitter->Constrain(sampleId+1, 0.8*sampleFrac, 6*sampleFrac);     // tt+b
+    sampleId = 0;
+    sampleFrac = hInts.at(sampleId)/hInt_data;
+    fitter->Constrain(sampleId+1, 0.8*sampleFrac, 6*sampleFrac);     // tt+bb
+    
+//     fitter->SetRangeX(1,7);
+    Int_t status = fitter->Fit();
+    fitter->ErrorAnalysis(1.);
+    if(status != 0) {
+        std::cerr << "ERROR!!! Fit failed with status: " << status << " [step: " << step << "; channel: " << channel << "]" << std::endl;
+        return map;
+//         exit(12);
+    }
+    TH1* h_fit = (TH1*)fitter->GetPlot();
+    h_fit->SetLineColor(6);
+    h_fit->SetLineStyle(7);
+    // Extracting fit result for each sample
+    for(size_t sampleId = 0; sampleId<3; ++sampleId) {
+        Double_t v(0.), e(0.);
+        fitter->GetResult(sampleId, v, e);
+        
+        map[sampleTypes.at(sampleId)].val = v / (hInts.at(sampleId) / hInt_data);
+        map[sampleTypes.at(sampleId)].err = e / (hInts.at(sampleId) / hInt_data);
+    }
+    
+    return map;
+    
+    // Plotting the fit result (for testing)
+    TCanvas* c = new TCanvas("c", "", 800, 600);
+    
+    TH1* h_sum = (TH1*)h_ttbb->Clone("h_sum");
+    h_sum->SetLineColor(5);
+    h_sum->Scale(map[Sample::SampleType::ttbb].val);
+    h_sum->Add(h_ttb, map[Sample::SampleType::ttb].val);
+    h_sum->Add(h_tto, map[Sample::SampleType::ttother].val);
+    
+    
+    h_data->Draw();
+    for(size_t hId=1; hId<v_hist.size(); ++hId) {
+        v_hist.at(hId)->Draw("same");
+    }
+    h_sum->Draw("same");
+    h_fit->Draw("same");
+    
+    char fileName[150];
+    sprintf(fileName, "plots/%s_%d.eps", h_data->GetName(), channel);
+    c->SaveAs(fileName);
+    delete c;
+    
+    return map;
+}
 
 
 const double& HfFracScaleFactors::hfFracScaleFactor(const TString& step,
@@ -161,7 +268,13 @@ const double& HfFracScaleFactors::hfFracScaleFactor(const TString& step,
                  <<"\n...break\n"<<std::endl;
         exit(16);
     }
-    return m_hfFracScaleFactors_.at(step).at(systematic).at(channel).at(sampleType);
+    if(m_hfFracScaleFactors_.at(step).at(systematic).find(channel) == m_hfFracScaleFactors_.at(step).at(systematic).end()) {
+        std::cerr<<"Heavy-Flavour fraction scale factor requested, but not existent for Channel: "<<Channel::convertChannel(channel)
+                 <<"\n...break\n"<<std::endl;
+        exit(16);
+    }
+    
+    return m_hfFracScaleFactors_.at(step).at(systematic).at(channel).at(sampleType).val;
 }
 
 
@@ -187,13 +300,13 @@ int HfFracScaleFactors::applyScaleFactor(double& weight,
     if(m_hfFracScaleFactors_.find(step) == m_hfFracScaleFactors_.end()) return -1;
     
     // Access the Heavy-Flavour fraction scale factor
-    weight *= this->hfFracScaleFactor(step, systematic, sample.finalState(), sample.sampleType());
+//     weight *= this->hfFracScaleFactor(step, systematic, sample.finalState(), sample.sampleType());
+    weight *= this->hfFracScaleFactor(step, systematic, Channel::emu, sample.sampleType());
     return 1;
 }
 
-
-
-
-
-
-
+void HfFracScaleFactors::normalize ( TH1* histo )const
+{
+    double integral = histo->Integral();
+    histo->Scale ( 1.0/integral );
+}

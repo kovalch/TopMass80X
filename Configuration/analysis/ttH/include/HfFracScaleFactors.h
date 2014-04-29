@@ -36,7 +36,8 @@ public:
                          const Sample& sample,
                          const Systematic::Systematic& systematic)const;
     
-    
+    /// Normalising histogram
+    void normalize ( TH1* histo )const;
     
 private:
     
@@ -53,11 +54,15 @@ private:
     /// Produce the Heavy-Flavour fraction scale factors for each selection step
     void produceScaleFactors(const TString& step, const Samples& samples);
     
+    /// Struct to hold value-error pair
+    struct ValErr {double val; double err;};
+    
     /// Typedef for the map of scale factor value to the sample name
-    typedef std::map<Sample::SampleType, double> SampleTypeValueMap;
+    typedef std::map<Sample::SampleType, ValErr> SampleTypeValueMap;
     
     /// Produce map of scale factors for each sample from fitting the histograms
-    SampleTypeValueMap getScaleFactorsFromHistos(TH1* h_data, TH1* h_ttbb, TH1* h_ttb, TH1* h_tto, TH1* h_bkg);
+    const std::map<Sample::SampleType, ValErr> getScaleFactorsFromHistos(TH1* h_data, TH1* h_ttbb, TH1* h_ttb, TH1* h_tto, TH1* h_bkg, 
+                                                                         const TString& step, const Channel::Channel channel)const;
 
     
     
