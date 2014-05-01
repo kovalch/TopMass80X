@@ -73,11 +73,6 @@ private:
                                                         const std::map<TString, Sample>& m_samples,
                                                         const std::vector<TString>& v_sampleIdentifier)const;
     
-    /// Read the FileList for given channel and systematic, and return the input file names
-    std::vector<TString> readFilelist(const TString& filelistDirectory,
-                                      const Channel::Channel& channel,
-                                      const Systematic::Systematic& systematic)const;
-    
     
     
     /// Assign options to each sample via its filename

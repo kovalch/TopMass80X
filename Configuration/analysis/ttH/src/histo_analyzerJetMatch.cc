@@ -237,7 +237,7 @@ void printHistogram(const TString& fileName, const TString& legendName, const TS
             path.Append(fileName).Append("/");
             gSystem->MakeDirectory(path.Data());
             
-            const TString channelName = Channel::convertChannel(channel);
+            const TString channelName = Channel::convert(channel);
             const TString inputFilename = inputFolder + channelName + "_" + fileName + ".root";
             
             for(const TString& whichSelection : v_whichSelection){
@@ -298,7 +298,7 @@ void printHistogram(const TString& fileName, const TString& legendName, const TS
 
 int main(int argc, char** argv){
     CLParameter<std::string> opt_channel("c", "Specify channel(s), valid: emu, ee, mumu, combined. Default: combined", false, 1, 4,
-        common::makeStringCheck(Channel::convertChannels(Channel::allowedChannelsPlotting)));    
+        common::makeStringCheck(Channel::convert(Channel::allowedChannelsPlotting)));    
     CLAnalyser::interpretGlobal(argc, argv);
     
     // Set up systematics
@@ -323,9 +323,9 @@ int main(int argc, char** argv){
     
     // Set up channels
     std::vector<Channel::Channel> v_channel = {Channel::mumu, Channel::emu, Channel::ee};
-    if(opt_channel.isSet()) v_channel = Channel::convertChannels(opt_channel.getArguments());
+    if(opt_channel.isSet()) v_channel = Channel::convert(opt_channel.getArguments());
     std::cout << "Processing channels: ";
-    for (auto i_channel : v_channel)std::cout << Channel::convertChannel(i_channel) << " ";
+    for(auto i_channel : v_channel) std::cout << Channel::convert(i_channel) << " ";
     std::cout << "\n\n";
     
     // Loop over all samples and plot the histograms

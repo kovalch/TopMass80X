@@ -52,10 +52,10 @@ void trainMvaTopJets(const std::vector<Channel::Channel>& v_channel,
                      const std::vector<std::string>& v_mode)
 {
     // Access all MVA input file names for all systematics and channels
-    tth::mvaHelpers::SystematicChannelFileNames m_systematicChannelFileNamesTraining =
-        tth::mvaHelpers::systematicChannelFileNames(FileListBASE, v_channel, v_systematic);
-    tth::mvaHelpers::SystematicChannelFileNames m_systematicChannelFileNamesTesting =
-        tth::mvaHelpers::systematicChannelFileNames(FileListBASE, v_channel, v_systematic, false);
+    mvaSetup::SystematicChannelFileNames m_systematicChannelFileNamesTraining =
+        mvaSetup::systematicChannelFileNames(FileListBASE, v_channel, v_systematic);
+    mvaSetup::SystematicChannelFileNames m_systematicChannelFileNamesTesting =
+        mvaSetup::systematicChannelFileNames(FileListBASE, v_channel, v_systematic, false);
     
     // Set up several parameters for automated application of zillions of test trainings
     std::vector<TString> v_NTrees = {"100", "200", "400", "600", "800", "1000"};
@@ -160,12 +160,21 @@ void trainMvaTopJets(const std::vector<Channel::Channel>& v_channel,
 
 
 
+/// All systematics allowed as steering parameter
+namespace Systematic{
+    const std::vector<Type> allowedSystematics = {
+        nominal,
+    };
+}
+
+
+
 int main(int argc, char** argv)
 {
     CLParameter<std::string> opt_channel("c", "Specify channel(s), valid: emu, ee, mumu, combined. Default: combined", false, 1, 4,
-        common::makeStringCheck(Channel::convertChannels(Channel::allowedChannelsPlotting)));
+        common::makeStringCheck(Channel::convert(Channel::allowedChannelsPlotting)));
     CLParameter<std::string> opt_systematic("s", "Systematic variation - default is Nominal", false, 1, 100,
-        common::makeStringCheck({"Nominal", ""}));
+        common::makeStringCheckBegin(Systematic::convertType(Systematic::allowedSystematics)));
     CLParameter<std::string> opt_mode("m", "Mode: separation plots (cp), run MVA (mva). Default is cp", false, 1, 2,
         //[](const std::string& m){return m=="" || m=="cp" || m=="mva";});
         common::makeStringCheck({"", "cp", "mva"}));
@@ -173,22 +182,22 @@ int main(int argc, char** argv)
     
     // Set up channels
     std::vector<Channel::Channel> v_channel({Channel::combined});
-    if(opt_channel.isSet()) v_channel = Channel::convertChannels(opt_channel.getArguments());
+    if(opt_channel.isSet()) v_channel = Channel::convert(opt_channel.getArguments());
     std::cout << "Processing channels: ";
-    for (auto channel : v_channel)std::cout << Channel::convertChannel(channel) << " ";
+    for(auto channel : v_channel) std::cout << Channel::convert(channel) << " ";
     std::cout << "\n\n";
     
     // Set up systematics
-    std::vector<Systematic::Systematic> v_systematic({Systematic::nominal});
-    if(opt_systematic.isSet()) v_systematic = Systematic::convertSystematics(opt_systematic.getArguments());
+    std::vector<Systematic::Systematic> v_systematic({Systematic::nominalSystematic()});
+    if(opt_systematic.isSet()) v_systematic = Systematic::setSystematics(opt_systematic.getArguments());
     std::cout << "Processing systematics: "; 
-    for (auto systematic : v_systematic) std::cout << Systematic::convertSystematic(systematic) << " ";
+    for(auto systematic : v_systematic) std::cout << systematic.name() << " ";
     std::cout << "\n\n";
     
     // Set up modes
     const std::vector<std::string> v_mode = opt_mode.isSet() ? opt_mode.getArguments() : std::vector<std::string>{"cp"};
     std::cout << "Running following modes: ";
-    for (auto mode : v_mode)std::cout << mode << " ";
+    for(auto mode : v_mode) std::cout << mode << " ";
     std::cout << "\n\n";
     
     trainMvaTopJets(v_channel, v_systematic, v_mode);

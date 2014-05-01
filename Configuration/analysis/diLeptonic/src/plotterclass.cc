@@ -27,7 +27,6 @@
 #include "ttbarUtils.h"
 #include "../../common/include/RootFileReader.h"
 #include "../../common/include/plotterUtils.h"
-#include "../../common/include/ScaleFactors.h"
 
 
 // DAVID
@@ -1060,7 +1059,7 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
     if(XAxisbins.size()>1 && doUnfolding){//only distributions we want to unfold will have a binning vector
         aDataHist = drawhists[0]->Rebin(bins,"aDataHist",Xbins);
 
-        TString outdir = common::assignFolder("preunfolded", Channel, Systematic);
+        TString outdir = ttbar::assignFolder("preunfolded", Channel, Systematic);
         TFile *f15 = new TFile(outdir.Copy()+name+"_UnfoldingHistos.root","RECREATE");
         aDataHist->Write("aDataHist"); delete aDataHist;
         aTtBgrHist->Write("aTtBgrHist"); delete aTtBgrHist;
@@ -1181,7 +1180,7 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
     }
 
     // Create Directory for Output Plots 
-    TString outdir = common::assignFolder(outpathPlots, Channel, Systematic);
+    TString outdir = ttbar::assignFolder(outpathPlots, Channel, Systematic);
     c->Print(outdir.Copy()+name+".eps");
 
     // Get the ratio plot from the canvas
@@ -1250,7 +1249,7 @@ void Plotter::PlotXSec(TString Channel){
 
     double InclusiveXsectionPlot[4] = {0.}, InclusiveXsectionStatErrorPlot[4] = {0.}, InclusiveXsectionSysErrorPlot[4] = {0.}, InclusiveXsectionTotalErrorPlot[4] = {0.};
     for (int j=0; j<(int)vec_channel.size(); j++){
-        TString outdir = common::assignFolder(outpathPlots, vec_channel.at(j), TString("FinalResults"));
+        TString outdir = ttbar::assignFolder(outpathPlots, vec_channel.at(j), TString("FinalResults"));
         ifstream SysResultsList("Plots/Nominal/"+vec_channel.at(j)+"/InclusiveXSec.txt");
         TString DUMMY;
         SysResultsList>>DUMMY>>DUMMY>>DUMMY>>DUMMY>>DUMMY>>InclusiveXsectionPlot[j]>>DUMMY>>InclusiveXsectionStatErrorPlot[j];
@@ -1441,7 +1440,7 @@ void Plotter::PlotXSec(TString Channel){
     box3->Draw("SAME");
     box4->Draw("SAME");
 
-    TString outdir = common::assignFolder(outpathPlots, Channel, TString("FinalResults"));
+    TString outdir = ttbar::assignFolder(outpathPlots, Channel, TString("FinalResults"));
     c->Print(outdir.Copy()+"InclusiveXSec.eps");
     c->Print(outdir.Copy()+"InclusiveXSec.C");
     c->Clear();
@@ -1498,7 +1497,7 @@ void Plotter::MakeTable(TString Channel, TString Systematic){
     double tmp_num8 = 0;
     double tmp_num9 = 0;
 
-    TString outdir = common::assignFolder(outpathPlots, Channel, Systematic);
+    TString outdir = ttbar::assignFolder(outpathPlots, Channel, Systematic);
     ofstream EventFile5; EventFile5.open(outdir.Copy()+"Events5.txt");
     ofstream EventFile6; EventFile6.open(outdir.Copy()+"Events6.txt");
     ofstream EventFile7; EventFile7.open(outdir.Copy()+"Events7.txt");
@@ -1660,7 +1659,7 @@ double Plotter::CalcXSec(std::vector<TString> datasetVec, double InclusiveXsecti
     double tmp_num = 0;
 
     ofstream EventFile, XSecFile;
-    TString outdir = common::assignFolder(outpathPlots, subfolderChannel.Copy().Remove(0,1), Systematic);
+    TString outdir = ttbar::assignFolder(outpathPlots, subfolderChannel.Copy().Remove(0,1), Systematic);
     EventFile.open(outdir.Copy()+"Events.txt");
     XSecFile.open(outdir.Copy()+"InclusiveXSec.txt");
 
@@ -2197,7 +2196,7 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
     setResultLegendStyle(leg3, 0);
     leg3->Draw("SAME");
 
-    TString outdir = common::assignFolder(outpathPlots, Channel, TString("FinalResults"));
+    TString outdir = ttbar::assignFolder(outpathPlots, Channel, TString("FinalResults"));
     cESP->Print(outdir.Copy()+"ESP_"+name+".eps");
     cESP->Clear();
     delete cESP;
@@ -3309,7 +3308,7 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
     setResultLegendStyle(leg3, 0);
     leg3->Draw("SAME");
 
-    TString outdir = common::assignFolder(outpathPlots, Channel, Systematic);
+    TString outdir = ttbar::assignFolder(outpathPlots, Channel, Systematic);
     cESP->Print(outdir.Copy()+"ESP_"+name+".eps");
     cESP->Clear();
     delete cESP;
@@ -4582,7 +4581,7 @@ void Plotter::CalcUpDownDifference( TString Channel, TString Syst_Up, TString Sy
         Syst_Up.Remove(Syst_Up.Length()-2,2);
     }
 
-    ofstream SystematicRelError (common::assignFolder("UnfoldingResults", Channel, Syst_Up)+Variable+"Results.txt");
+    ofstream SystematicRelError (ttbar::assignFolder("UnfoldingResults", Channel, Syst_Up)+Variable+"Results.txt");
     if(!SystematicRelError.is_open()){
         std::cout<<"The output file cannot be opened. Exiting!!"<<std::endl;
         exit(434);

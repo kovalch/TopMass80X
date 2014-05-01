@@ -16,8 +16,10 @@ class TH1;
 
 #include "classesFwd.h"
 #include "storeTemplate.h"
+#include "sampleHelpers.h"
 
 class KinematicReconstruction;
+class PileupScaleFactors;
 class TriggerScaleFactors;
 class LeptonScaleFactors;
 class BtagScaleFactors;
@@ -29,7 +31,6 @@ class TopGenObjects;
 class HiggsGenObjects;
 class KinRecoObjects;
 namespace ztop{
-    class PUReweighter;
     class RecoilCorrector;
 }
 
@@ -60,13 +61,13 @@ public:
     void SetSamplename(const TString& samplename);
     
     /// Set generator parameters
-    void SetGeneratorBools(const TString& samplename, const TString& systematic);
+    void SetGeneratorBools(const TString& samplename, const Systematic::Systematic& systematic);
     
     /// Set Channel
-    void SetChannel(const TString& channel);
+    void SetChannel(const Channel::Channel& channel);
     
     /// Set systematic
-    void SetSystematic(const TString& systematic);
+    void SetSystematic(const Systematic::Systematic& systematic);
     
     /// Set whether it is MC sample
     void SetMC(const bool isMC);
@@ -96,7 +97,7 @@ public:
     void SetKinematicReconstruction(KinematicReconstruction* kinematicReconstruction);
     
     /// Set the pileup reweighter
-    void SetPUReweighter(ztop::PUReweighter* puReweighter);
+    void SetPileupScaleFactors(const PileupScaleFactors* pileupScaleFactors);
     
     /// Set the lepton scale factors
     void SetLeptonScaleFactors(const LeptonScaleFactors& scaleFactors);
@@ -277,10 +278,10 @@ protected:
     const int& channelPdgIdProduct()const{return channelPdgIdProduct_;}
     
     /// Returns the decay channel
-    const TString& channel()const{return channel_;}
+    const Channel::Channel& channel()const{return channel_;}
     
     /// Returns the analysed systematic
-    const TString& systematic()const{return systematic_;}
+    const Systematic::Systematic& systematic()const{return systematic_;}
     
     /// Whether it is a MC sample
     const bool& isMC()const{return isMC_;}
@@ -622,8 +623,8 @@ private:
     
     /// Information in nTuple stored in TObjString once per file, but added from outside and potentially configured
     TString samplename_;
-    TString channel_;
-    TString systematic_;
+    Channel::Channel channel_;
+    Systematic::Systematic systematic_;
     bool isMC_;
     bool isTopSignal_;
     bool isHiggsSignal_;
@@ -660,10 +661,10 @@ private:
     KinematicReconstruction* kinematicReconstruction_;
     
     /// Pointer to the pileup reweighter instance
-    ztop::PUReweighter* puReweighter_;
+    const PileupScaleFactors* pileupScaleFactors_;
     
     /// Pointer to the Met Recoil correction tools
-    ztop::RecoilCorrector *recoilCorrector_;
+    ztop::RecoilCorrector* recoilCorrector_;
     
     /// Pointer to lepton scale factors instance
     const LeptonScaleFactors* leptonScaleFactors_;

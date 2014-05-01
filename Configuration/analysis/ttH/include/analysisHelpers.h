@@ -1,9 +1,10 @@
 #ifndef analysisHelpers_h
 #define analysisHelpers_h
 
-#include <string>
 #include <vector>
+#include <string>
 
+class TString;
 
 
 
@@ -36,17 +37,20 @@ namespace AnalysisMode{
     
     
     
-    /// Convert an AnalysisMode from string to typedef
-    AnalysisMode convertAnalysisMode(const std::string& analysisMode);
+    /// Convert an AnalysisMode from string to enum
+    AnalysisMode convert(const TString& analysisMode);
     
-    /// Convert an AnalysisMode from typedef to string
-    std::string convertAnalysisMode(const AnalysisMode& analysisMode);
+    /// Convert an AnalysisMode from enum to string
+    TString convert(const AnalysisMode& analysisMode);
     
-    /// Convert a vector of AnalysisModes from string to typedef
-    std::vector<AnalysisMode> convertAnalysisModes(const std::vector<std::string>& analysisModes);
+    /// Convert a vector of AnalysisModes from string to enum
+    std::vector<AnalysisMode> convert(const std::vector<TString>& analysisModes);
     
-    /// Convert a vector of AnalysisModes from typedef to string
-    std::vector<std::string> convertAnalysisModes(const std::vector<AnalysisMode>& analysisModes);
+    /// Convert a vector of AnalysisModes from string to enum
+    std::vector<AnalysisMode> convert(const std::vector<std::string>& analysisModes);
+    
+    /// Convert a vector of AnalysisModes from enum to string
+    std::vector<TString> convert(const std::vector<AnalysisMode>& analysisModes);
 }
 
 

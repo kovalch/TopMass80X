@@ -31,7 +31,6 @@
 #include "ScaleFactors.h"
 #include "KinematicReconstruction.h"
 #include "analysisObjectStructs.h"
-#include "TopAnalysis/ZTopUtils/interface/PUReweighter.h"
 #include "TopAnalysis/ZTopUtils/interface/RecoilCorrector.h"
 
 
@@ -48,8 +47,8 @@ higgsGenObjects_(0),
 kinRecoObjects_(0),
 h_weightedEvents(0),
 samplename_(""),
-channel_(""),
-systematic_(""),
+channel_(Channel::undefined),
+systematic_(),
 isMC_(false),
 isTopSignal_(false),
 isHiggsSignal_(false),
@@ -64,7 +63,7 @@ weightKinFit_(0),
 eventCounter_(0),
 analysisOutputBase_(0),
 kinematicReconstruction_(0),
-puReweighter_(0),
+pileupScaleFactors_(0),
 recoilCorrector_(0),
 leptonScaleFactors_(0),
 triggerScaleFactors_(0),
@@ -128,7 +127,9 @@ Bool_t AnalysisBase::Process(Long64_t)
 
     if(++eventCounter_ % 100000 == 0)
         std::cout<<"Event Counter: "<<eventCounter_<<"\t--  Channel, Systematic, Sample:"
-                 <<std::setw(5)<<channel_<<" ,"<<std::setw(10)<<systematic_<<" , "<<samplename_<<std::endl;
+                 <<std::setw(5)<<Channel::convert(channel_)<<" ,"
+                 <<std::setw(10)<<systematic_.name()<<" , "
+                 <<samplename_<<std::endl;
     return kTRUE;
 }
 
@@ -148,12 +149,13 @@ void AnalysisBase::Terminate()
         std::cerr<<"ERROR! No base directory for analysis output specified\n...break\n"<<std::endl;
         exit(3);
     }
-    std::string f_savename = common::assignFolder(analysisOutputBase_, channel_, systematic_);
-    f_savename.append(outputfilename_);
+    TString f_savename = common::assignFolder(analysisOutputBase_, channel_, systematic_);
+    f_savename.Append(outputfilename_);
     std::cout<<"!!!!!!!!!!!!!!!!!!!!!!!!Finishing: "<<samplename_<<"!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-    TFile outputFile(f_savename.c_str(), "RECREATE");
+    TFile outputFile(f_savename, "RECREATE");
     if (outputFile.IsZombie()) {
-        std::cerr << "Cannot open " << f_savename << " for writing!\n";
+        std::cerr<<"ERROR in AnalysisBase::Terminate()! Cannot open file for writing: "
+                 <<f_savename<<"\n...break\n"<<std::endl;
         exit(2);
     }
 
@@ -167,8 +169,8 @@ void AnalysisBase::Terminate()
 
     // Write additional information into file
     h_weightedEvents->Write();
-    TObjString(channel_).Write("channelName");
-    TObjString(systematic_).Write("systematicsName");
+    TObjString(Channel::convert(channel_)).Write("channelName");
+    TObjString(systematic_.name()).Write("systematicsName");
     TObjString(samplename_).Write("sampleName");
     TObjString(isTopSignal_ ? "1" : "0").Write("isSignal");
     TObjString(isHiggsSignal_ ? "1" : "0").Write("isHiggsSignal");
@@ -220,12 +222,12 @@ void AnalysisBase::Init(TTree *tree)
 
 
 
-void AnalysisBase::SetChannel(const TString& channel)
+void AnalysisBase::SetChannel(const Channel::Channel& channel)
 {
     channel_ = channel;
     channelPdgIdProduct_ =
-        channel == "ee" ? -11*11
-        : channel == "emu" ? -11*13
+        channel == Channel::ee ? -11*11
+        : channel == Channel::emu ? -11*13
         : -13*13;
 }
 
@@ -245,20 +247,24 @@ void AnalysisBase::SetHiggsSignal(const bool higgsSignal)
 
 
 
-void AnalysisBase::SetSystematic(const TString& systematic)
+void AnalysisBase::SetSystematic(const Systematic::Systematic& systematic)
 {
     systematic_ = systematic;
 }
 
 
-void AnalysisBase::SetGeneratorBools(const TString& samplename, const TString& systematic)
+
+void AnalysisBase::SetGeneratorBools(const TString& samplename, const Systematic::Systematic& systematic)
 {
     isTtbarSample_ = samplename.BeginsWith("ttbar") && !samplename.BeginsWith("ttbarhiggs") &&
                         !(samplename=="ttbarw") && !(samplename=="ttbarz");
     isTtbarPlusTauSample_ = isTtbarSample_ && !samplename.BeginsWith("ttbarbg");
-    correctMadgraphBR_ = samplename.BeginsWith("ttbar") && !samplename.BeginsWith("ttbarhiggs") && !systematic.Contains("SPIN") &&
-                            !systematic.Contains("POWHEG") && !systematic.Contains("MCATNLO");
+    
+    const TString systematicName = systematic.name();
+    correctMadgraphBR_ = samplename.BeginsWith("ttbar") && !samplename.BeginsWith("ttbarhiggs") && !systematicName.Contains("SPIN") &&
+                            !systematicName.Contains("POWHEG") && !systematicName.Contains("MCATNLO");
 }
+
 
 
 void AnalysisBase::SetSamplename(const TString& samplename)
@@ -316,9 +322,9 @@ void AnalysisBase::SetKinematicReconstruction(KinematicReconstruction* kinematic
 
 
 
-void AnalysisBase::SetPUReweighter(ztop::PUReweighter* puReweighter)
+void AnalysisBase::SetPileupScaleFactors(const PileupScaleFactors* pileupScaleFactors)
 {
-    puReweighter_ = puReweighter;
+    pileupScaleFactors_ = pileupScaleFactors;
 }
 
 
@@ -651,7 +657,7 @@ void AnalysisBase::SetRecoBranchAddresses()
     else b_jetSecondaryVertexTrackSelectedTrackIndex = 0; 
     
     chain_->SetBranchAddress("met", &recoObjects_->met_, &b_met);
-    if(chain_->GetBranch("mvamet")) // new variable for Mva MET, keep check a while for compatibility
+    if(chain_->GetBranch("mvamet")) // new variable, keep check a while for compatibility
         chain_->SetBranchAddress("mvamet", &recoObjects_->mvamet_, &b_mvamet);
     else b_mvamet = 0;
 
@@ -890,7 +896,7 @@ void AnalysisBase::GetRecoBranchesEntry(const Long64_t& entry)const
 //     if(b_jetSecondaryVertexTrackVertexIndex) b_jetSecondaryVertexTrackVertexIndex->GetEntry(entry);
 //     if(b_jetSecondaryVertexTrackSelectedTrackIndex) b_jetSecondaryVertexTrackSelectedTrackIndex->GetEntry(entry);
     b_met->GetEntry(entry);
-    if(b_mvamet)b_mvamet->GetEntry(entry);
+    if(b_mvamet) b_mvamet->GetEntry(entry);
     if(b_jetForMET) b_jetForMET->GetEntry(entry);
     if(b_jetJERSF) b_jetJERSF->GetEntry(entry);
     if(b_jetForMETJERSF) b_jetForMETJERSF->GetEntry(entry);
@@ -1096,33 +1102,37 @@ void AnalysisBase::prepareKinRecoSF()
 {
     // --> uncomment the following line to determine the Kin Reco SFs
     // --> then make && ./runNominalParallel.sh && ./Histo -t cp -p akr bkr step && ./kinRecoEfficienciesAndSF
-//     weightKinFit=1; return;
+//     weightKinFit_ = 1; return;
 
-    if (!isMC_) { weightKinFit_ = 1; return; }
+    if (!isMC_) { weightKinFit_ = 1.; return; }
 
     //SF = 1
-    //const static std::map<TString, double> sfNominal { {"ee", 1}, {"emu", 1}, {"mumu", 1} };
-    //const static std::map<TString, double> sfUnc { {"ee", 0}, {"emu", 0}, {"mumu", 0} };
+    //const static std::map<Channel::Channel, double> sfNominal { {Channel::ee, 1}, {Channel::emu, 1}, {Channel::mumu, 1} };
+    //const static std::map<Channel::Channel, double> sfUnc { {Channel::ee, 0}, {Channel::emu, 0}, {Channel::mumu, 0} };
 
     
     //SF for mass(top) = 100..300 GeV
-//     const static std::map<TString, double> sfNominal { {"ee", 0.9779}, {"emu", 0.9871}, {"mumu", 0.9879} };
-//     const static std::map<TString, double> sfUnc { {"ee", 0.0066}, {"emu", 0.0032}, {"mumu", 0.0056} };
+//     const static std::map<Channel::Channel, double> sfNominal { {Channel::ee, 0.9779}, {Channel::emu, 0.9871}, {Channel::mumu, 0.9879} };
+//     const static std::map<Channel::Channel, double> sfUnc { {Channel::ee, 0.0066}, {Channel::emu, 0.0032}, {Channel::mumu, 0.0056} };
 
     //SF for newKinReco flat
-   const static std::map<TString, double> sfNominal { {"ee", 0.9876}, {"emu", 0.9921}, {"mumu", 0.9949} };
-   const static std::map<TString, double> sfUnc { {"ee", 0.0043}, {"emu", 0.0019}, {"mumu", 0.0037} };
+   const static std::map<Channel::Channel, double> sfNominal { {Channel::ee, 0.9876}, {Channel::emu, 0.9921}, {Channel::mumu, 0.9949} };
+   const static std::map<Channel::Channel, double> sfUnc { {Channel::ee, 0.0043}, {Channel::emu, 0.0019}, {Channel::mumu, 0.0037} };
     
     //SF for mass(top) = 173 GeV
-//     const static std::map<TString, double> sfNominal { {"ee", 0.9696}, {"emu", 0.9732}, {"mumu", 0.9930} };
-//     const static std::map<TString, double> sfUnc { {"ee", 0.0123}, {"emu", 0.0060}, {"mumu", 0.0105} };
+//     const static std::map<Channel::Channel, double> sfNominal { {Channel::ee, 0.9696}, {Channel::emu, 0.9732}, {Channel::mumu, 0.9930} };
+//     const static std::map<Channel::Channel, double> sfUnc { {Channel::ee, 0.0123}, {Channel::emu, 0.0060}, {Channel::mumu, 0.0105} };
 
     
     
     weightKinFit_ = sfNominal.at(channel_);
-    if (systematic_ == "KIN_UP") weightKinFit_ += sfUnc.at(channel_);
-    else if (systematic_ == "KIN_DOWN") weightKinFit_ -= sfUnc.at(channel_);
+    if(systematic_.type() == Systematic::kin){
+        if(systematic_.variation() == Systematic::up) weightKinFit_ += sfUnc.at(channel_);
+        else if(systematic_.variation() == Systematic::down) weightKinFit_ -= sfUnc.at(channel_);
+    }
 }
+
+
 
 bool AnalysisBase::calculateKinReco(const int leptonIndex, const int antiLeptonIndex, const std::vector<int>& jetIndices,
                                     const VLV& allLeptons, const VLV& jets,
@@ -1288,9 +1298,9 @@ double AnalysisBase::madgraphWDecayCorrection(const Long64_t& entry)const
 
 double AnalysisBase::weightPileup(const Long64_t& entry)const
 {
-    if(!isMC_ || !puReweighter_)return 1.;
+    if(!isMC_ || !pileupScaleFactors_) return 1.;
     this->GetVertMultiTrueEntry(entry);
-    return puReweighter_->getPUweight(vertMultiTrue_);
+    return pileupScaleFactors_->getSF(vertMultiTrue_);
 }
 
 
@@ -1327,7 +1337,7 @@ double AnalysisBase::weightLeptonSF(const int leadingLeptonIndex, const int nLea
 {
     if(!isMC_) return 1.;
     if(leadingLeptonIndex<0 || nLeadingLeptonIndex<0) return 1.;
-    return leptonScaleFactors_->getLeptonIDSF(leadingLeptonIndex, nLeadingLeptonIndex, allLeptons, lepPdgId);
+    return leptonScaleFactors_->getSFDilepton(leadingLeptonIndex, nLeadingLeptonIndex, allLeptons, lepPdgId);
 }
 
 
@@ -1337,7 +1347,7 @@ double AnalysisBase::weightTriggerSF(const int leptonXIndex, const int leptonYIn
 {
     if(!isMC_) return 1.;
     if(leptonXIndex<0 || leptonYIndex<0) return 1.;
-    return triggerScaleFactors_->getTriggerSF(leptonXIndex, leptonYIndex, allLeptons, channel_);
+    return triggerScaleFactors_->getSF(leptonXIndex, leptonYIndex, allLeptons, channel_);
 }
 
 
@@ -1347,7 +1357,7 @@ double AnalysisBase::weightBtagSF(const std::vector<int>& jetIndices,
 {
     if(!isMC_) return 1.;
     if(btagScaleFactors_->makeEfficiencies()) return 1.;
-    return btagScaleFactors_->calculateSF(jetIndices, jets, jetPartonFlavour);
+    return btagScaleFactors_->getSFGreaterEqualOneTag(jetIndices, jets, jetPartonFlavour);
 }
 
 

@@ -11,26 +11,18 @@ class TString;
 class TSelectorList;
 
 namespace ztop{
+    class PUReweighter;
     class JetCorrectionUncertainty;
 }
 
 #include "classesFwd.h"
 #include "storeTemplate.h"
+#include "sampleHelpers.h"
 #include "TopAnalysis/ZTopUtils/interface/bTagBase.h"
 
 
 
 
-// FIXME: replace these functions with enum type ones
-namespace common{
-
-    /// Assign a folder depending on channel and systematic
-    std::string assignFolder(const char* baseDir, const TString& channel, const TString& systematic);
-
-    /// Access an already existing input folder
-    std::string accessFolder(const char* baseDir, const TString& channel,
-                             const TString& systematic, const bool allowNonexisting =false);
-}
 
 
 
@@ -38,7 +30,7 @@ namespace common{
 namespace ScaleFactorHelpers{
 
     /// Get 2-dimensional scale factor from histogram
-    double get2DSF(TH2* histo, const double x, const double y);
+    double get2DSF(const TH2* const histo, const double x, const double y);
 }
 
 
@@ -47,49 +39,78 @@ namespace ScaleFactorHelpers{
 
 
 
-class LeptonScaleFactors{
-
-private:
-
-    /// Enumeration for lepton types
-    enum Lepton{electron, muon};
-
-
-
+class PileupScaleFactors{
+    
 public:
+    
+    /// Constructor setting up data and MC input
+    PileupScaleFactors(const std::string& inputFilename,
+                       const std::string& mcEra, const std::string& pileupScenario,
+                       const Systematic::Systematic& systematic);
+    
+    /// Destructor
+    ~PileupScaleFactors(){}
+    
+    
+    
+    /// Get the scale factor for a given true vertex multiplicity
+    double getSF(const size_t trueVertexMultiplicity)const;
+    
+    
+    
+private:
+    
+    /// Pointer to the pileup reweighter instance
+    ztop::PUReweighter* const puReweighter_;
+};
 
-    /// Enumeration for possible systematics
-    enum Systematic{nominal, vary_up, vary_down};
 
+
+
+
+
+class LeptonScaleFactors{
+    
+public:
+    
     /// Constructor
     LeptonScaleFactors(const char* electronSFInputFileName,
                        const char* muonSFInputFileName,
-                       const Systematic& systematic);
-
+                       const Systematic::Systematic& systematic);
+    
     /// Destructor
     ~LeptonScaleFactors(){}
-
+    
     /// Get lepton per-event scale factor for exactly two leptons
-    double getLeptonIDSF(const int leadingLeptonIndex, const int nLeadingLeptonIndex,
+    double getSFDilepton(const int leadingLeptonIndex, const int nLeadingLeptonIndex,
                          const VLV& leptons, const std::vector<int>& lepPdgIds)const;
-
+    
     /// Get lepton per-event scale factor for all leptons in the event
-    double scaleFactorAllLeptons(const std::vector<int>& allLeptonIndices,
-                                 const VLV& leptons, const std::vector<int>& lepPdgIds)const;
-
-
-
+    double getSFAllLeptons(const std::vector<int>& allLeptonIndices,
+                           const VLV& leptons, const std::vector<int>& lepPdgIds)const;
+    
+    
+    
 private:
-
+    
+    /// Enumeration for lepton types
+    enum Lepton{electron, muon};
+    
+    /// Enumeration for possible systematics
+    enum SystematicInternal{nominal, vary_up, vary_down};
+    
     /// Return the scale factor histogram
-    TH2* prepareLeptonIDSF(const std::string& inputFileName,
-                           const std::string& histogramName,
-                           const Systematic& systematic)const;
-
+    const TH2* prepareSF(const std::string& inputFileName,
+                         const std::string& histogramName,
+                         const SystematicInternal& systematic)const;
+    
+    
+    
     /// Electron scale factor histogram differential in eta, pt    
-    TH2* h2_ElectronIDSFpteta;
+    const TH2* h2_electronSFpteta_;
+    
     /// Muon scale factor histogram differential in eta, pt
-    TH2* h2_MuonIDSFpteta;
+    const TH2* h2_muonSFpteta_;
 };
 
 
@@ -98,41 +119,43 @@ private:
 
 
 class TriggerScaleFactors{
-
+    
 public:
-
-    /// Enumeration for possible systematics
-    enum Systematic{nominal, vary_up, vary_down};
-
+    
     /// Constructor
     TriggerScaleFactors(const char* inputFileSuffix,
-                        const std::vector<std::string>& channels,
-                        const Systematic& systematic);
-
+                        const std::vector<Channel::Channel>& channels,
+                        const Systematic::Systematic& systematic);
+    
     /// Destructor
     ~TriggerScaleFactors(){}
-
-
-
+    
+    
+    
     /// Get trigger per-event scale factor
-    double getTriggerSF(const int leptonXIndex, const int leptonYIndex,
-                        const VLV& leptons, const TString& channel)const;
-
-
-
+    double getSF(const int leptonXIndex, const int leptonYIndex,
+                 const VLV& leptons, const Channel::Channel& channel)const;
+    
+    
+    
 private:
-
+    
+    /// Enumeration for possible systematics
+    enum SystematicInternal{nominal, vary_up, vary_down};
+    
     /// Return the trigger scale factor histogram
-    TH2* prepareTriggerSF(const TString& fileName, const Systematic& systematic)const;
-
+    const TH2* prepareSF(const TString& fileName, const SystematicInternal& systematic)const;
+    
+    
+    
     /// Trigger scale factor histogram for ee trigger, differential in eta
-    TH2* h2_eeTrigSFeta;
-
+    const TH2* h2_eeSFeta_;
+    
     /// Trigger scale factor histogram for ee trigger, differential in eta
-    TH2* h2_emuTrigSFeta;
-
+    const TH2* h2_emuSFeta_;
+    
     /// Trigger scale factor histogram for ee trigger, differential in eta
-    TH2* h2_mumuTrigSFeta;
+    const TH2* h2_mumuSFeta_;
 };
 
 
@@ -144,20 +167,30 @@ private:
 
 
 class BtagScaleFactors : public ztop::bTagBase{
-
+    
 public:
-
+    
+    /// Enum for the implemented modes of btag corrections
+    enum CorrectionMode{
+        none,                       // Do not apply any corrections, i.e. scale factors event SF=1
+        greaterEqualOneTagReweight, // Correct selection efficiency for given working point via event SF for >=1 b-tag
+        randomNumberRetag,          // Random-number based tag flipping for b-/c-/l-jets to correct for selection efficiency
+        discriminatorReweight,      // Reweight with event-wise SF to describe b-tag discriminator distribution
+        undefinedMode               // Undefined
+    };
+    
     /// Constructor
     BtagScaleFactors(const char* btagEfficiencyInputDir,
                      const char* btagEfficiencyOutputDir,
-                     const std::vector<std::string>& channels,
-                     const TString& systematic);
-
+                     const std::vector<Channel::Channel>& channels,
+                     const Systematic::Systematic& systematic,
+                     const CorrectionMode& correctionMode);
+    
     /// Destructor
     ~BtagScaleFactors(){}
-
-
-
+    
+    
+    
     /// Whether to produce b-tag efficiencies during Analysis
     /// If efficiencies can be found, they are used in the Analysis, but not produced
     /// If efficiencies cannot be found, they are not used in the Analysis, but produced
@@ -166,7 +199,7 @@ public:
 
 
     /// Prepare b-tagging scale factors (efficiency histograms and medians of jet eta, pt)
-    void prepareSF(const std::string& channel);
+    void prepareSF(const Channel::Channel& channel);
     
     /// Book histograms needed for b-tag efficiencies
     void bookHistograms(TSelectorList* output);
@@ -183,10 +216,10 @@ public:
 
 
 
-    /// Get b-tag per-event scale factor
-    double calculateSF(const std::vector<int>& jetIndices,
-                       const VLV& jets,
-                       const std::vector<int>& jetPartonFlavours);
+    /// Get b-tag per-event scale factor for selections >=1 b-tag
+    double getSFGreaterEqualOneTag(const std::vector<int>& jetIndices,
+                                   const VLV& jets,
+                                   const std::vector<int>& jetPartonFlavours);
 
     /// Method takes the indices of b-tagged jets,
     /// and overwrites them with the b-tagged jets after randomised tag flipping
@@ -208,13 +241,16 @@ private:
     TSelectorList* selectorList_;
     
     /// Map of the file names for each channel
-    std::map<std::string, std::string> m_channelFilename_;
+    std::map<Channel::Channel, TString> m_channelFilename_;
     
     /// Map of the sample names for each channel
-    std::map<std::string, std::string> m_channelSamplename_;
+    std::map<Channel::Channel, TString> m_channelSamplename_;
     
     /// The channel which is processed
-    std::string channel_;
+    Channel::Channel channel_;
+    
+    /// Which correction mode is used
+    const CorrectionMode correctionMode_;
 };
 
 
@@ -225,11 +261,8 @@ class JetEnergyResolutionScaleFactors{
 
 public:
 
-    /// Enumeration for possible systematics
-    enum Systematic{vary_up, vary_down};
-
     /// Constructor
-    JetEnergyResolutionScaleFactors(const Systematic& systematic);
+    JetEnergyResolutionScaleFactors(const Systematic::Systematic& systematic);
 
     /// Destructor
     ~JetEnergyResolutionScaleFactors(){}
@@ -242,6 +275,9 @@ public:
 
 
 private:
+
+    /// Enumeration for possible systematics
+    enum SystematicInternal{vary_up, vary_down, undefined};
 
     /// The intervals in eta for granularity of scale factor
     std::vector<double> v_etaRange_;
@@ -259,12 +295,9 @@ class JetEnergyScaleScaleFactors{
 
 public:
 
-    /// Enumeration for possible systematics
-    enum Systematic{vary_up, vary_down};
-
     /// Constructor
     JetEnergyScaleScaleFactors(const char* jesUncertaintySourceFile,
-                               const Systematic& systematic);
+                               const Systematic::Systematic& systematic);
 
     /// Destructor
     ~JetEnergyScaleScaleFactors();
@@ -275,6 +308,9 @@ public:
 
 
 private:
+
+    /// Enumeration for possible systematics
+    enum SystematicInternal{vary_up, vary_down, undefined};
 
     /// Object for retrieving uncertainty values
     ztop::JetCorrectionUncertainty* jetCorrectionUncertainty_;

@@ -52,8 +52,8 @@ void HfFracScaleFactors::produceScaleFactors(const Samples& samples)
            for(auto hfFracScaleFactorsPerChannel : hfFracScaleFactorsPerSystematic.second){
                const Channel::Channel& channel(hfFracScaleFactorsPerChannel.first);
                if(channel != Channel::emu) continue;
-               std::cout<<step<<"\t\t"<<Systematic::convertSystematic(systematic)<<"\t\t"
-                        <<Channel::convertChannel(channel)<<"\t\t   "
+               std::cout<<step<<"\t\t"<<systematic.name()<<"\t\t"
+                        <<Channel::convert(channel)<<"\t\t   "
                         <<std::fixed<<std::setprecision(3)
                         <<hfFracScaleFactorsPerChannel.second.at(Sample::SampleType::ttbb).val<<" |    "
                         <<hfFracScaleFactorsPerChannel.second.at(Sample::SampleType::ttb).val<<" |    "
@@ -264,12 +264,12 @@ const double& HfFracScaleFactors::hfFracScaleFactor(const TString& step,
                                                     const Sample::SampleType& sampleType)const
 {
     if(m_hfFracScaleFactors_.at(step).find(systematic) == m_hfFracScaleFactors_.at(step).end()){
-        std::cerr<<"Heavy-Flavour fraction scale factor requested, but not existent for Systematic: "<<Systematic::convertSystematic(systematic)
+        std::cerr<<"Heavy-Flavour fraction scale factor requested, but not existent for Systematic: "<<systematic.name()
                  <<"\n...break\n"<<std::endl;
         exit(16);
     }
     if(m_hfFracScaleFactors_.at(step).at(systematic).find(channel) == m_hfFracScaleFactors_.at(step).at(systematic).end()) {
-        std::cerr<<"Heavy-Flavour fraction scale factor requested, but not existent for Channel: "<<Channel::convertChannel(channel)
+        std::cerr<<"Heavy-Flavour fraction scale factor requested, but not existent for Channel: "<<Channel::convert(channel)
                  <<"\n...break\n"<<std::endl;
         exit(16);
     }

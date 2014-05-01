@@ -1,5 +1,8 @@
+#include <vector>
 #include <iostream>
 #include <cstdlib>
+
+#include <TString.h>
 
 #include "analysisHelpers.h"
 
@@ -8,7 +11,7 @@
 
 
 
-AnalysisMode::AnalysisMode AnalysisMode::convertAnalysisMode(const std::string& analysisMode)
+AnalysisMode::AnalysisMode AnalysisMode::convert(const TString& analysisMode)
 {
     if(analysisMode == "cp") return cp;
     if(analysisMode == "dijet") return dijet;
@@ -29,7 +32,7 @@ AnalysisMode::AnalysisMode AnalysisMode::convertAnalysisMode(const std::string& 
 
 
 
-std::string AnalysisMode::convertAnalysisMode(const AnalysisMode& analysisMode)
+TString AnalysisMode::convert(const AnalysisMode& analysisMode)
 {
     if(analysisMode == cp) return "cp";
     if(analysisMode == dijet) return "dijet";
@@ -51,19 +54,28 @@ std::string AnalysisMode::convertAnalysisMode(const AnalysisMode& analysisMode)
 
 
 
-std::vector<AnalysisMode::AnalysisMode> AnalysisMode::convertAnalysisModes(const std::vector<std::string>& analysisModes)
+std::vector<AnalysisMode::AnalysisMode> AnalysisMode::convert(const std::vector<TString>& analysisModes)
 {
     std::vector<AnalysisMode> v_analysisMode;
-    for(auto analysisMode : analysisModes)v_analysisMode.push_back(convertAnalysisMode(analysisMode));
+    for(auto analysisMode : analysisModes) v_analysisMode.push_back(convert(analysisMode));
     return v_analysisMode;
 }
 
 
 
-std::vector<std::string> AnalysisMode::convertAnalysisModes(const std::vector<AnalysisMode>& analysisModes)
+std::vector<AnalysisMode::AnalysisMode> AnalysisMode::convert(const std::vector<std::string>& analysisModes)
 {
-    std::vector<std::string> v_analysisMode;
-    for(auto analysisMode : analysisModes)v_analysisMode.push_back(convertAnalysisMode(analysisMode));
+    std::vector<AnalysisMode> v_analysisMode;
+    for(auto analysisMode : analysisModes) v_analysisMode.push_back(convert(analysisMode));
+    return v_analysisMode;
+}
+
+
+
+std::vector<TString> AnalysisMode::convert(const std::vector<AnalysisMode>& analysisModes)
+{
+    std::vector<TString> v_analysisMode;
+    for(auto analysisMode : analysisModes) v_analysisMode.push_back(convert(analysisMode));
     return v_analysisMode;
 }
 

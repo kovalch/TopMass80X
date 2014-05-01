@@ -52,7 +52,7 @@ namespace mvaSetup{
     
     /// Find all files from file list for MVA, separated by channels and by systematics
     /// Flag forTraining is used to separate training and testing files
-    SystematicChannelFileNames systematicChannelFileNames(const char* fileListBase,
+    SystematicChannelFileNames systematicChannelFileNames(const char* filelistDirectory,
                                                           const std::vector<Channel::Channel>& v_channel,
                                                           const std::vector<Systematic::Systematic>& v_systematic,
                                                           const bool forTraining =true);

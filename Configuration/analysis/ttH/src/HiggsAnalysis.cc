@@ -99,9 +99,7 @@ void HiggsAnalysis::Terminate()
     for(MvaTreeHandlerBase* mvaTreeHandler : v_mvaTreeHandler_){
         if(mvaTreeHandler){
             // Produce and write tree
-            mvaTreeHandler->writeTrees(static_cast<std::string>(this->outputFilename()),
-                                        Channel::convertChannel(static_cast<std::string>(this->channel())),
-                                        Systematic::convertSystematic(static_cast<std::string>(this->systematic())));
+            mvaTreeHandler->writeTrees(this->outputFilename(), this->channel(), this->systematic());
             //mvaTreeHandler->writeTrees(fOutput);
 
             // Create and store control plots in fOutput
