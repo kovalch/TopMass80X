@@ -14,23 +14,23 @@
 ################################################################
 
 
-50   Summer12.TTH_HToBB_M_125_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff         ttbarH125tobbbar.root        ttbarhiggstobbbar
-50   Summer12.TTH_Inclusive_M_125_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff     ttbarH125inclusive.root      ttbarhiggsinclusive
+100   Summer12.TTH_HToBB_M_125_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff         ttbarH125tobbbar.root        ttbarhiggstobbbar
+100   Summer12.TTH_Inclusive_M_125_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff     ttbarH125inclusive.root      ttbarhiggsinclusive
 
-50   Summer12.TTH_HToBB_M_110_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff         ttbarH110tobbbar.root        ttbarhiggstobbbar
-50   Summer12.TTH_HToBB_M_115_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff         ttbarH115tobbbar.root        ttbarhiggstobbbar
-50   Summer12.TTH_HToBB_M_120_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff         ttbarH120tobbbar.root        ttbarhiggstobbbar
-50   Summer12.TTH_HToBB_M_130_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff         ttbarH130tobbbar.root        ttbarhiggstobbbar
-50   Summer12.TTH_HToBB_M_135_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff         ttbarH135tobbbar.root        ttbarhiggstobbbar
+100   Summer12.TTH_HToBB_M_110_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff         ttbarH110tobbbar.root        ttbarhiggstobbbar
+100   Summer12.TTH_HToBB_M_115_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff         ttbarH115tobbbar.root        ttbarhiggstobbbar
+100   Summer12.TTH_HToBB_M_120_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff         ttbarH120tobbbar.root        ttbarhiggstobbbar
+100   Summer12.TTH_HToBB_M_130_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff         ttbarH130tobbbar.root        ttbarhiggstobbbar
+100   Summer12.TTH_HToBB_M_135_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff         ttbarH135tobbbar.root        ttbarhiggstobbbar
 
-50   Summer12.TTH_Inclusive_M_110_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff     ttbarH110inclusive.root      ttbarhiggsinclusive
-50   Summer12.TTH_Inclusive_M_115_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff     ttbarH115inclusive.root      ttbarhiggsinclusive
-50   Summer12.TTH_Inclusive_M_120_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff     ttbarH120inclusive.root      ttbarhiggsinclusive
-50   Summer12.TTH_Inclusive_M_122_5_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff   ttbarH1225inclusive.root     ttbarhiggsinclusive
-50   Summer12.TTH_Inclusive_M_127_5_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff   ttbarH1275inclusive.root     ttbarhiggsinclusive
-50   Summer12.TTH_Inclusive_M_130_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff     ttbarH130inclusive.root      ttbarhiggsinclusive
-50   Summer12.TTH_Inclusive_M_135_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff     ttbarH135inclusive.root      ttbarhiggsinclusive
-50   Summer12.TTH_Inclusive_M_140_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff     ttbarH140inclusive.root      ttbarhiggsinclusive
+100   Summer12.TTH_Inclusive_M_110_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff     ttbarH110inclusive.root      ttbarhiggsinclusive
+100   Summer12.TTH_Inclusive_M_115_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff     ttbarH115inclusive.root      ttbarhiggsinclusive
+100   Summer12.TTH_Inclusive_M_120_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff     ttbarH120inclusive.root      ttbarhiggsinclusive
+100   Summer12.TTH_Inclusive_M_122_5_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff   ttbarH1225inclusive.root     ttbarhiggsinclusive
+100   Summer12.TTH_Inclusive_M_127_5_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff   ttbarH1275inclusive.root     ttbarhiggsinclusive
+100   Summer12.TTH_Inclusive_M_130_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff     ttbarH130inclusive.root      ttbarhiggsinclusive
+100   Summer12.TTH_Inclusive_M_135_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff     ttbarH135inclusive.root      ttbarhiggsinclusive
+100   Summer12.TTH_Inclusive_M_140_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff     ttbarH140inclusive.root      ttbarhiggsinclusive
 
 
 
