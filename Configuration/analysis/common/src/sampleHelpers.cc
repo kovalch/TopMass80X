@@ -22,6 +22,7 @@
 
 Systematic::Type Systematic::convertType(const TString& type)
 {
+    // Attention: the order here is important, since the first line where the BeginsWith is true is returned
     if(type.BeginsWith("Nominal")) return nominal;
     if(type.BeginsWith("mH110")) return mH110;
     if(type.BeginsWith("mH115")) return mH115;
@@ -53,6 +54,8 @@ Systematic::Type Systematic::convertType(const TString& type)
     if(type.BeginsWith("SCALE")) return scale;
     if(type.BeginsWith("POWHEG")) return powheg;
     if(type.BeginsWith("MCATNLO")) return mcatnlo;
+    if(type.BeginsWith("PERUGIA11NoCR")) return perugia11NoCR;
+    if(type.BeginsWith("PERUGIA11")) return perugia11;
     if(type.BeginsWith("PDF")) return pdf;
     if(type.BeginsWith("closure")) return closure;
     if(type.BeginsWith("all")) return all;
@@ -95,6 +98,8 @@ TString Systematic::convertType(const Type& type)
     if(type == scale) return "SCALE";
     if(type == powheg) return "POWHEG";
     if(type == mcatnlo) return "MCATNLO";
+    if(type == perugia11NoCR) return "PERUGIA11NoCR";
+    if(type == perugia11) return "PERUGIA11";
     if(type == pdf) return "PDF";
     if(type == closure) return "closure";
     if(type == all) return "all";
