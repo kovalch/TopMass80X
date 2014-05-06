@@ -544,7 +544,7 @@ int main(int argc, char** argv){
     CLAnalyser::interpretGlobal(argc, argv);
     
     // Set up systematics
-    std::vector<Systematic::Systematic> v_systematic({Systematic::nominal});
+    std::vector<Systematic::Systematic> v_systematic({Systematic::nominalSystematic()});
     
     //Hardcoded input files, since detailed validation makes sense only on samples containing ttbar system, and some only on real ttH events
     const std::vector<TString> v_inputFileTtbar = {
@@ -578,7 +578,7 @@ int main(int argc, char** argv){
 
             printHistogram(fileName, legendName , step, v_channel, v_systematic);
         }
-    } 
+    }
 }
 
 
