@@ -486,8 +486,7 @@ namespace Systematic{
         nominal,
         pu, lept, trig,
         jer, jes,
-        btag, btagPt, btagEta,
-        btagLjet, btagLjetPt, btagLjetEta,
+        btag, btagLjet,
         //kin,
     };
 }
