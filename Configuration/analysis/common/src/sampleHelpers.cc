@@ -22,6 +22,7 @@
 
 Systematic::Type Systematic::convertType(const TString& type)
 {
+    // Attention: the order here is important, since the first line where the BeginsWith is true is returned
     if(type.BeginsWith("Nominal")) return nominal;
     if(type.BeginsWith("mH110")) return mH110;
     if(type.BeginsWith("mH115")) return mH115;
@@ -53,6 +54,8 @@ Systematic::Type Systematic::convertType(const TString& type)
     if(type.BeginsWith("SCALE")) return scale;
     if(type.BeginsWith("POWHEG")) return powheg;
     if(type.BeginsWith("MCATNLO")) return mcatnlo;
+    if(type.BeginsWith("PERUGIA11NoCR")) return perugia11NoCR;
+    if(type.BeginsWith("PERUGIA11")) return perugia11;
     if(type.BeginsWith("PDF")) return pdf;
     if(type.BeginsWith("closure")) return closure;
     if(type.BeginsWith("all")) return all;
@@ -95,6 +98,8 @@ TString Systematic::convertType(const Type& type)
     if(type == scale) return "SCALE";
     if(type == powheg) return "POWHEG";
     if(type == mcatnlo) return "MCATNLO";
+    if(type == perugia11NoCR) return "PERUGIA11NoCR";
+    if(type == perugia11) return "PERUGIA11";
     if(type == pdf) return "PDF";
     if(type == closure) return "closure";
     if(type == all) return "all";
@@ -150,7 +155,7 @@ Systematic::Variation Systematic::convertVariation(const TString& variation)
     if(variation.EndsWith("_UP")) return up;
     if(variation.EndsWith("_DOWN")) return down;
     if(variation.EndsWith("_CENTRAL")) return central;
-    std::cout<<"Warning! The following variation conversion is not implemented: "<<variation<<std::endl<<std::endl;
+    //std::cout<<"Warning! The following variation conversion is not implemented: "<<variation<<std::endl<<std::endl;
     return undefinedVariation;
 }
 
@@ -159,8 +164,8 @@ Systematic::Variation Systematic::convertVariation(const TString& variation)
 TString Systematic::convertVariation(const Variation& variation)
 {
     if(variation == up) return "_UP";
-    if(variation == up) return "_DOWN";
-    if(variation == up) return "_CENTRAL";
+    if(variation == down) return "_DOWN";
+    if(variation == central) return "_CENTRAL";
     if(variation == undefinedVariation) return "";
     std::cerr<<"Error! Variation conversion is not implemented,\n...break\n"<<std::endl;
     exit(99);
@@ -334,7 +339,7 @@ variationNumber_(-1)
         if(!(stream>>variationNumber)){
             std::cerr<<"ERROR in constructor of Systematic! Could not fragment systematic name (name --- type, variation, variationNumber): "
                      <<systematicName<<" --- "<<convertType(type_)<<" , "<<convertVariation(variation_)<<" , "<<variationNumber_<<"\n...break\n"<<std::endl;
-            exit(1);
+            exit(8);
         }
         variationNumber_ = variationNumber;
         if(variationNumber_ < 0){
@@ -376,8 +381,9 @@ Channel::Channel Channel::convert(const TString& channel)
     if(channel == "mumu") return mumu;
     if(channel == "combined") return combined;
     if(channel == "tautau") return tautau;
-    std::cout<<"Warning! The following channel conversion is not implemented: "<<channel<<std::endl<<std::endl;
-    return undefined;
+    if(channel == "") return undefined;
+    std::cerr<<"Error! The following channel conversion is not implemented: "<<channel<<"\n...break\n"<<std::endl;
+    exit(98);
 }
 
 
@@ -405,7 +411,7 @@ TString Channel::label(const Channel& channel)
     if(channel == tautau) return "#tau#tau";
     if(channel == undefined) return "";
     std::cerr<<"Error! Channel label is not implemented,\n...break\n"<<std::endl;
-    exit(97);
+    exit(98);
 }
 
 

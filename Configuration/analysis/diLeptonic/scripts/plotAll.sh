@@ -4,7 +4,7 @@ source $(dirname `readlink -f $0`)/parallelTools.sh
 
 # in the excludeList, put all distributions that you dont want. Separate them with a |, i.e. HypLLBarDPhi|HypNeutrinopT
 excludeList='HypNeutrinopT|HypLLBarDPhi'
-unfoldList=`awk '{print $1}' HistoList | grep Hyp | grep -v Lead | grep -Ev $excludeList`
+unfoldList=`awk '{print $1}' HistoList | grep Hyp | grep -Ev $excludeList`
 
 #unfoldList="HypToppT HypToppTLead"
 

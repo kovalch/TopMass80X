@@ -27,7 +27,7 @@
 
 using namespace std;
 
-void angle_rot(double alpha, double e, TLorentzVector jet, TLorentzVector & jet_sm)
+void KinematicReconstruction::angle_rot(double alpha, double e, TLorentzVector jet, TLorentzVector & jet_sm)
 {
     /*Ganna Dolinska*/
   double px_1, py_1, pz_1; // sistema koordinat, gde impul's vdol' Oz
@@ -43,9 +43,11 @@ void angle_rot(double alpha, double e, TLorentzVector jet, TLorentzVector & jet_
   if(fabs(jet.Pz())<=e){jet.SetPz(0);}
   
   /// Rotation in syst 1 ///
- int seed_random = (int)(( jet.Pt() - (int)(jet.Pt()) )*1000000000);
-  TRandom3 r(seed_random);  ///random seed
-  double phi = 2*TMath::Pi()*r.Rndm();
+//  int seed_random = (int)(( jet.Pt() - (int)(jet.Pt()) )*1000000000);
+//  
+//   TRandom3 r(seed_random);  ///random seed
+  
+  double phi = 2*TMath::Pi()*r3_->Rndm();
   pz_1 = jet.Vect().Mag()*cos(alpha);
   px_1 = - jet.Vect().Mag()*sin(alpha)*sin(phi);
   py_1 = jet.Vect().Mag()*sin(alpha)*cos(phi);  
@@ -141,6 +143,9 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
     TLorentzVector leptonMinus_tlv = common::LVtoTLV(leptonMinus);
     TLorentzVector met_tlv = common::LVtoTLV(*met);
 
+        gRandom->SetSeed((int)(( leptonPlus_tlv.Pt() - (int)(leptonPlus_tlv.Pt()) )*1000000000));
+    r3_->SetSeed(( leptonPlus_tlv.Pt() - (int)(leptonPlus_tlv.Pt()) )*1000000000);
+    
     //jets selection
 
     vector<int> b1_id;
@@ -380,12 +385,7 @@ if(b1_id.size()<2)return;
 //             double b_w=1;
 //          double bbar_w=1;
 
-//          TRandom3 r((int)(( leptonMinus_tlv.Pt() - (int)(leptonMinus_tlv.Pt()) )*1000000000)); ///random seed
-//  	gRandom->SetSeed((int)(( leptonMinus_tlv.Pt() - (int)(leptonMinus_tlv.Pt()) )*1000000000));
 
-    TRandom3 r((int)(( jets_tlv[0].Pt() - (int)(jets_tlv[0].Pt()) )*1000000000)); ///random seed
-    gRandom->SetSeed((int)(( jets_tlv[0].Pt() - (int)(jets_tlv[0].Pt()) )*1000000000));
-          
         TVector3 vX_reco =  - b_temp.Vect() - bbar_temp.Vect() - l_temp.Vect() - al_temp.Vect() - met_temp.Vect();       
 
         for(int sm=0; sm<100; sm++) {
@@ -461,8 +461,9 @@ if(b1_id.size()<2)return;
             met_sm.SetXYZM(metV3_sm.Px(),metV3_sm.Py(),0,0);
             
             
+            KinematicReconstruction_LSroutines tp_sm(0.0,0.0,h_wmass_->GetRandom(),h_wmass_->GetRandom());
 //            KinematicReconstruction_LSroutines tp_sm(0.0,0.0,h_wmass_->GetRandom(),h_wmass_->GetRandom(),(*h_nwcuts_));
-            KinematicReconstruction_LSroutines tp_sm(0.0,0.0,h_wmass_->GetRandom(),h_wmass_->GetRandom(),(*h_neuEta_w_));
+            //KinematicReconstruction_LSroutines tp_sm(0.0,0.0,h_wmass_->GetRandom(),h_wmass_->GetRandom(),(*h_neuEta_w_));
 //              KinematicReconstruction_LSroutines tp_sm(0.0,0.0,h_wmass_->GetRandom(),h_wmass_->GetRandom(),hvE_);
 //             KinematicReconstruction_LSroutines tp_sm(0.0,0.0,h_wmass_->GetRandom(),h_wmass_->GetRandom(),hvE_,(*h_neuEta_w_));
 //              KinematicReconstruction_LSroutines tp_sm(0.0,0.0,h_wmass_->GetRandom(),h_wmass_->GetRandom(),(*h_costheta_w_),1);
@@ -486,7 +487,6 @@ if(b1_id.size()<2)return;
             }
             
 			} // for sm=100 end
-
 
 //         if(isHaveSol) {
 //             
@@ -585,6 +585,8 @@ vector< Struct_KinematicReconstruction > KinematicReconstruction::getSols() cons
 
 void KinematicReconstruction::loadData()
 {
+    
+    r3_ = new TRandom3();
     
 //     // W mass
 
@@ -882,10 +884,10 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
                 tp_sm.setConstraints(al_sm, l_sm, b_sm, bbar_sm, met_sm.Px(), met_sm.Py());
 
                 if(!(tp_sm.getNsol()<1 || tp_sm.getNsol()==1 || tp_sm.getNsol()==3)) {
-                    if(tp_sm.getTtSol()->at(0).vw>vw_max) {
+                    if(tp_sm.getTtSol()->at(0).weight>vw_max) {
                         nSol_++;
 
-                        vw_max=tp_sm.getTtSol()->at(0).vw;
+                        vw_max=tp_sm.getTtSol()->at(0).weight;
                         sol_.jetB = b_temp;
                         sol_.jetBbar = bbar_temp;
                         sol_.lm = leptonMinus_tlv;
@@ -893,7 +895,7 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
                         sol_.met = met_temp;
                         sol_.neutrino = tp_sm.getTtSol()->at(0).neutrino;
                         sol_.neutrinoBar = tp_sm.getTtSol()->at(0).neutrinobar;
-                        sol_.weight = tp_sm.getTtSol()->at(0).vw;
+                        sol_.weight = tp_sm.getTtSol()->at(0).weight;
                         sol_.Wplus = sol_.lp + sol_.neutrino;
                         sol_.Wminus = sol_.lm + sol_.neutrinoBar;
                         sol_.top = sol_.Wplus + sol_.jetB;
@@ -923,11 +925,11 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
 //                 if(tp_m.GetNsol()<1 || tp_m.GetNsol()==1 || tp_m.GetNsol()==3) continue;
                 if(tp_m.getNsol()<1) continue;
                 
-                if(!(tp_m.getTtSol()->at(0).vw>vw_max)) continue;
+                if(!(tp_m.getTtSol()->at(0).weight>vw_max)) continue;
                 
                 nSol_++;
                 
-                vw_max=tp_m.getTtSol()->at(0).vw;
+                vw_max=tp_m.getTtSol()->at(0).weight;
                 sol_.jetB = b_temp;
                 sol_.jetBbar = bbar_temp;
                 sol_.lm = leptonMinus_tlv;
@@ -935,7 +937,7 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
                 sol_.met = met_temp;
                 sol_.neutrino = tp_m.getTtSol()->at(0).neutrino;
                 sol_.neutrinoBar = tp_m.getTtSol()->at(0).neutrinobar;
-                sol_.weight = tp_m.getTtSol()->at(0).vw;
+                sol_.weight = tp_m.getTtSol()->at(0).weight;
                 sol_.Wplus = sol_.lp + sol_.neutrino;
                 sol_.Wminus = sol_.lm + sol_.neutrinoBar;
                 sol_.top = sol_.Wplus + sol_.jetB;

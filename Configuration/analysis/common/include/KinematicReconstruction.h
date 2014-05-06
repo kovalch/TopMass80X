@@ -12,6 +12,7 @@
 #include <Math/PtEtaPhiM4D.h>
 #include <Math/LorentzVector.h>
 #include <Rtypes.h>
+#include <TRandom3.h>
 #include "classesFwd.h"
 
 
@@ -29,7 +30,6 @@ struct Struct_KinematicReconstruction {
     double recMtop;
     double weight;
     int ntags;
-    void angle_rot(double alpha, double e, TLorentzVector jet, TLorentzVector & jet_sm);
 };
 
 class KinematicReconstruction {
@@ -49,6 +49,9 @@ void doJetsMerging(const VLV *jets,const std::vector<double> *btags);
 
 private:
 
+    TRandom3* r3_;
+    void angle_rot(double alpha, double e, TLorentzVector jet, TLorentzVector & jet_sm);
+    
     int nSol_;
     Struct_KinematicReconstruction sol_;
     std::vector<Struct_KinematicReconstruction> sols_;
