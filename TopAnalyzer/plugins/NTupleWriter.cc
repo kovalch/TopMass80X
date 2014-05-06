@@ -772,12 +772,13 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
             if(!genBHadJetIndex.failedToGet()) {
                 unsigned int iHad=0;
                 for (std::vector<int>::const_iterator it=genBHadJetIndex->begin(); it!=genBHadJetIndex->end(); ++it) {
+                    iHad++;
                     VgenBHadJetIndex.push_back(*it);
                     // Building a vector of b-jets from top
-                    if(VgenBHadFlavour.size()>iHad) {
-                        if(std::abs(VgenBHadFlavour.at(iHad))==6) genBJetFromTopIds.push_back(*it);
-                    }
-                    iHad++;
+                    if(VgenBHadFlavour.size()<iHad) continue;
+                    if(std::abs(VgenBHadFlavour.at(iHad))!=6) continue;
+                    if(std::find(genBJetFromTopIds.begin(), genBJetFromTopIds.end(), *it) != genBJetFromTopIds.end()) continue;
+                    genBJetFromTopIds.push_back(*it);
                 }
             }
             
