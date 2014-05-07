@@ -329,7 +329,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
 
     // Get MET
     const LV& met = *recoObjects.met_;
-    const bool hasMetOrEmu = this->channel()=="emu" || met.pt()>MetCUT;
+    const bool hasMetOrEmu = this->channel()==Channel::emu || met.pt()>MetCUT;
 
     const tth::RecoObjectIndices recoObjectIndices(allLeptonIndices,
                                                    leptonIndices, antiLeptonIndices,
@@ -473,7 +473,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     selectionStep = "4";
 
     //Exclude the Z window
-    if(this->channel()!="emu" && isZregion) return kTRUE;
+    if(this->channel()!=Channel::emu && isZregion) return kTRUE;
 
     // ++++ Control Plots ++++
 
