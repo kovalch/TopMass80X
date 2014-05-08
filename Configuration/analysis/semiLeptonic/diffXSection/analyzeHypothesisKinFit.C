@@ -3,12 +3,12 @@
 #include "../../unfolding/TopSVDFunctions.C" 
 
 void analyzeHypothesisKinFit(double luminosity = 19712.,
-			     bool save = true, int systematicVariation=sysNo, unsigned int verbose=0,
+			     bool save = false, int systematicVariation=sysNo, unsigned int verbose=0,
 			     TString inputFolderName=AnalysisFolder,
 			     //TString dataFile= groupSpace+AnalysisFolder+"/muonDiffXSecData2012ABCDAll.root",
 			     //TString dataFile= groupSpace+AnalysisFolder+"/elecDiffXSecData2012ABCDAll.root",
 			     TString dataFile= groupSpace+AnalysisFolder+"/elecDiffXSecData2012ABCDAll.root:"+groupSpace+AnalysisFolder+"/muonDiffXSecData2012ABCDAll.root",
-			     std::string decayChannel = "combined", bool SVDunfold=true, bool extrapolate=true, bool hadron=false,
+			     std::string decayChannel = "combined", bool SVDunfold=true, bool extrapolate=false, bool hadron=true,
 			     bool addCrossCheckVariables=false, bool redetermineopttau =false, TString closureTestSpecifier="", TString addSel="ProbSel")
 {
   // ============================
@@ -148,7 +148,10 @@ void analyzeHypothesisKinFit(double luminosity = 19712.,
       exit(0);
     }
   }
-  if(closureTestSpecifier!=""&&!dataFile.Contains("PseudoData")) dataFile=inputFolder+"/pseudodata/"+pseudoDataFileName(closureTestSpecifier, "electron")+":"+inputFolder+"/pseudodata/"+pseudoDataFileName(closureTestSpecifier, "muon");
+  if(closureTestSpecifier!=""&&!dataFile.Contains("PseudoData")){
+    dataFile=inputFolder+"/pseudodata/"+pseudoDataFileName(closureTestSpecifier, "electron")+":"+inputFolder+"/pseudodata/"+pseudoDataFileName(closureTestSpecifier, "muon");
+    dataFile.ReplaceAll("MadSpin", "");// pseudo data is created from simulation without MadSpin
+  }
   // save all plots into the following foldre
   TString outputFolder = "./diffXSecFromSignal/plots/"+decayChannel+"/";
   if(dataSample!="") outputFolder+=dataSample+"/";
@@ -2466,7 +2469,7 @@ void analyzeHypothesisKinFit(double luminosity = 19712.,
       //          3 means: 125 scan points (default)
       //          4 means: 625 scan points
       int scanpoints= (scan==2 ? 3 : 0);
-      //scanpoints=1; // FIXME: fast tauscan results
+      //scanpoints=4; // FIXME: fast tauscan results
       steering=getTStringFromInt(scanpoints)+steering;
       //     (9)  SCANRANGE
       //          0 means: Default value, same as 2
