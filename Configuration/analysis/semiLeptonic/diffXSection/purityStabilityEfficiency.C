@@ -303,7 +303,7 @@ void purityStabilityEfficiency(TString variable = "topPt", bool save=true, TStri
     }
     // list relevant tree entries
     std::vector<TString> variable_;
-    if(variable.Contains("top")&&!variable.Contains("TtbarSys")){
+    if(variable.Contains("top")&&!variable.Contains("TtbarSys")&&!variable.Contains("Lead")){
       variable_.push_back(variable+"Lep");
       variable_.push_back(variable+"Had");
     }
@@ -390,7 +390,7 @@ void purityStabilityEfficiency(TString variable = "topPt", bool save=true, TStri
 	double gen =value_[genName];
 	// swap b and bbar if deltaR is better
 	if(genName.Contains("bq" )&&swapBb && bbSwapBetter){
-	  gen = (i==0) ? value_[variable_[1]+genExtTree] : value_[variable_[0]+genExtTree];
+	  gen = (i==0) ? value_[variable_[1]+genExtTree] : value_[variable_[0]+genExtTree]; //e.g. rec i=0->gen i=1
 	}
 	if(rec==-9999||gen==-9999){ 
 	  std::cout << "variable " << variable << " is not filled properly:" << std::endl;
