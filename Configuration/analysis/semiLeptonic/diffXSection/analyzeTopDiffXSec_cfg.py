@@ -380,6 +380,10 @@ if(not options.sample=="none"):
             usedSample="TopAnalysis/Configuration/Summer12/TTJets_MSDecays_central_TuneZ2star_8TeV_madgraph_tauola__Summer12_DR53X_PU_S10_START53_V19_v1_cff" 
             additionalEventWeights=False
             outputFileName+="MadSpin"
+        elif("MadGraph" in options.sample):
+            usedSample="TopAnalysis/Configuration/Summer12/TTJets_MassiveBinDECAY_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff"
+            additionalEventWeights=False
+            outputFileName+="MadGraph"
         if(not options.massfix==172.5):        
             outputFileName+="TopMassConstraint"
             outputFileName+=((str(options.massfix)).replace(".", "p"))
@@ -1876,9 +1880,9 @@ elif( sysDistort.find('ttbarMass')>-1):
     process.eventWeightDileptonModelVariation.weightVariable = cms.string('ttbarmass')
     process.eventWeightDileptonModelVariation.weight1x = cms.double(350.) 
     if( sysDistort.find('Up'  )>-1):
-        process.eventWeightDileptonModelVariation.slope = cms.double( 0.015)
+        process.eventWeightDileptonModelVariation.slope = cms.double( 0.0008)
     elif( sysDistort.find('Down')>-1):
-        process.eventWeightDileptonModelVariation.slope = cms.double(-0.015)
+        process.eventWeightDileptonModelVariation.slope = cms.double(-0.0008)
 elif( sysDistort.find('topPt')>-1):
     process.eventWeightDileptonModelVariation.weight1x = cms.double(0.318)    # equals 2*a from exp(a+bx) fit to 8TeV l+jets 12/fb data/MadGraph+Pythia
     process.eventWeightDileptonModelVariation.slope = cms.double(-0.00282)    # equals 2*b from exp(a+bx) fit to 8TeV l+jets 12/fb data/MadGraph+Pythia
