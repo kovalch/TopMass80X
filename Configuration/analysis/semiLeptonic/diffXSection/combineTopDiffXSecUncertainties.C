@@ -1,7 +1,7 @@
 #include "basicFunctions.h"
 #include <numeric>
 
-void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, unsigned int verbose=0, TString decayChannel="combined", bool extrapolate=true, bool hadron=false, bool addCrossCheckVariables=false, TString closureTestSpecifier="", bool useBCC=false){
+void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=false, unsigned int verbose=0, TString decayChannel="combined", bool extrapolate=false, bool hadron=true, bool addCrossCheckVariables=false, TString closureTestSpecifier="", bool useBCC=false){
 
   // ============================
   //  Systematic Variations:
@@ -1089,7 +1089,7 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, u
 	      finalInclusiveXSec->SetBinContent(xSecBin, 1);
 	      finalInclusiveXSec->SetBinError(xSecBin, 0);
 	      histogramStyle(*finalInclusiveXSec, kData , false);
-	      TString inclXSeclabel=" #sigma(t#bar{t}#rightarrowX)";
+	      TString inclXSeclabel=" #sigma(pp#rightarrowt#bar{t},#sqrt{s}=8TeV)";
 	      if(!extrapolate) inclXSeclabel+="*BR(#mu or e)*A";
 	      inclXSeclabel+=" [pb]";
 	      axesStyle(*finalInclusiveXSec, inclXSeclabel, " ", 0, 4);
@@ -1099,19 +1099,20 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, u
 	      finalInclusiveXSec->GetYaxis()->SetTitleSize(0.0);							
 	      finalInclusiveXSec->Draw("axis");
 	      // draw Theory expectation     
-	      double theoryXSecNLL=245.8;
+	      double theoryXSecNLL=252.89;
 	      double theoryXSecNLO=225.197;
 	      double theoryErrorNLOUp  =23.2/157.5*theoryXSecNLO; // FIXME: use relative uncertainty from 7TeV
 	      double theoryErrorNLODown=24.4/157.5*theoryXSecNLO; // FIXME: use relative uncertainty from 7TeV
-	      double theoryErrorNLLUp  =sqrt(6.2*6.2+6.2*6.2);
-	      double theoryErrorNLLDown=sqrt(8.4*8.4+6.4*6.4);
+	      double theoryErrorNLLUp  =sqrt(6.39*6.39+11.67*11.67);
+	      double theoryErrorNLLDown=sqrt(8.64*8.64+11.67*11.67);
 	      TBox* TheoryError = new TBox(theoryXSecNLO-theoryErrorNLODown, 0.0, theoryXSecNLO+theoryErrorNLOUp, 4.0);
 	      TBox* TheoryError2= new TBox(theoryXSecNLL-theoryErrorNLLDown, 0.0 ,theoryXSecNLL+theoryErrorNLLUp, 4.0);
-	      TheoryError->SetFillColor(kGray);
+	      TheoryError ->SetFillColor(kGray  );
 	      TheoryError2->SetFillColor(kGray+1);
 	      if(extrapolate){
-		TheoryError->Draw ("same");
+		//TheoryError->Draw ("same");
 		TheoryError2->Draw("same");
+		drawLine(theoryXSecNLL, 0.0, theoryXSecNLL, 4.0, kGray+2, 2, 1);
 	      }
 	      // our Analysis result
 	      double xSecValue=histo_["inclusive"][sysNo]->GetBinContent(1);
@@ -1124,58 +1125,69 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, u
 	      double cmsLJetsErrorDown=cmsLJetsErrorUp;
 	      double cmsLJetsStatError=9;
 	      // 2011 CMS 1fb combined result - TOP-11-024 
-	      double cmsDiLepxSecValue=227;
-	      double cmsDiLepErrorUp  =sqrt(3*3+11*11+10*10);
+	      double cmsDiLepxSecValue=239;
+	      double cmsDiLepErrorUp  =sqrt(2*2+11*11+6*6);
 	      double cmsDiLepErrorDown=cmsDiLepErrorUp;
-	      double cmsDiLepStatError=3;
+	      double cmsDiLepStatError=2;
 	      if(verbose>0){
 		std::cout << "xSec:            " << xSecValue      << std::endl;
 		std::cout << "stat. error: +/- " << xSecError      << " (" << xSecError/xSecValue      << ")" << std::endl;
 		std::cout << "tot. error up  : " << totalErrorUp   << " (" << totalErrorUp/xSecValue   << ")" << std::endl;	      
 		std::cout << "tot. error down: " << totalErrorDown << " (" << totalErrorDown/xSecValue << ")" << std::endl;
 	      }
-	      totalErrors_[xSecVariables_[i]+"AllInclusive"] = new TGraphAsymmErrors(3);  // number of data point as argument to constructor
+	      totalErrors_[xSecVariables_[i]+"AllInclusive"] = new TGraphAsymmErrors(1);  // number of data point as argument to constructor
+	      totalErrors_[xSecVariables_[i]+"AllInclusive2"] = new TGraphAsymmErrors(2);  // number of data point as argument to constructor
 	      totalErrors_[xSecVariables_[i]+"AllInclusive"]->SetPoint(0, xSecValue,        1);
 	      if(extrapolate){
-		totalErrors_[xSecVariables_[i]+"AllInclusive"]->SetPoint(1, cmsDiLepxSecValue, 2);
-		totalErrors_[xSecVariables_[i]+"AllInclusive"]->SetPoint(2, cmsLJetsxSecValue, 3);
+		totalErrors_[xSecVariables_[i]+"AllInclusive2"]->SetPoint(0, cmsDiLepxSecValue, 2);
+		totalErrors_[xSecVariables_[i]+"AllInclusive2"]->SetPoint(1, cmsLJetsxSecValue, 3);
 	      }
 	      else{
-		totalErrors_[xSecVariables_[i]+"AllInclusive"]->SetPoint(1, -1, 2);
-		totalErrors_[xSecVariables_[i]+"AllInclusive"]->SetPoint(2, -1, 3);
+		totalErrors_[xSecVariables_[i]+"AllInclusive2"]->SetPoint(1, -1, 2);
+		totalErrors_[xSecVariables_[i]+"AllInclusive2"]->SetPoint(2, -1, 3);
 	      }
 	      totalErrors_[xSecVariables_[i]+"AllInclusive"]->SetPointError(0, totalErrorDown,   totalErrorUp,   0, 0);
 	      if(extrapolate){
-		totalErrors_[xSecVariables_[i]+"AllInclusive"]->SetPointError(1, cmsDiLepErrorDown, cmsDiLepErrorUp, 0, 0);
-		totalErrors_[xSecVariables_[i]+"AllInclusive"]->SetPointError(2, cmsLJetsErrorDown, cmsLJetsErrorUp, 0, 0);
+		totalErrors_[xSecVariables_[i]+"AllInclusive2"]->SetPointError(0, cmsDiLepErrorDown, cmsDiLepErrorUp, 0, 0);
+		totalErrors_[xSecVariables_[i]+"AllInclusive2"]->SetPointError(1, cmsLJetsErrorDown, cmsLJetsErrorUp, 0, 0);
 	      }
 	      totalErrors_[xSecVariables_[i]+"AllInclusive"]->SetLineWidth(3);
 	      totalErrors_[xSecVariables_[i]+"AllInclusive"]->SetMarkerSize(1.5);
 	      totalErrors_[xSecVariables_[i]+"AllInclusive"]->SetMarkerStyle(20);
 	      totalErrors_[xSecVariables_[i]+"AllInclusive"]->SetMarkerColor(kRed+1);
 	      totalErrors_[xSecVariables_[i]+"AllInclusive"]->SetLineColor(kRed+1);
+              totalErrors_[xSecVariables_[i]+"AllInclusive2"]->SetLineWidth(3);
+              totalErrors_[xSecVariables_[i]+"AllInclusive2"]->SetMarkerSize(1.5);
+              totalErrors_[xSecVariables_[i]+"AllInclusive2"]->SetMarkerStyle(20);
+              totalErrors_[xSecVariables_[i]+"AllInclusive2"]->SetMarkerColor(kBlue+1);
+              totalErrors_[xSecVariables_[i]+"AllInclusive2"]->SetLineColor(kBlue+1);
 	      finalInclusiveXSec->Draw("axis same");
 	      drawLine(xSecValue-xSecError,               1.0, xSecValue+xSecError,               1.0, kRed+1, 6, 1);
 	      if(extrapolate){
-		drawLine(cmsDiLepxSecValue-cmsDiLepStatError, 2.0, cmsDiLepxSecValue+cmsDiLepStatError, 2.0, kRed+1, 6, 1);	  
-		drawLine(cmsLJetsxSecValue-cmsLJetsStatError, 3.0, cmsLJetsxSecValue+cmsLJetsStatError, 3.0, kRed+1, 6, 1);
+		drawLine(cmsDiLepxSecValue-cmsDiLepStatError, 2.0, cmsDiLepxSecValue+cmsDiLepStatError, 2.0, kBlue+1, 6, 1);	  
+		drawLine(cmsLJetsxSecValue-cmsLJetsStatError, 3.0, cmsLJetsxSecValue+cmsLJetsStatError, 3.0, kBlue+1, 6, 1);
 	      }
-	      totalErrors_[xSecVariables_[i]+"AllInclusive"]->Draw("p same");
+	      totalErrors_[xSecVariables_[i]+"AllInclusive" ]->Draw("p same");
+              totalErrors_[xSecVariables_[i]+"AllInclusive2"]->Draw("p same");
 	      //Labels
 	      if(extrapolate){
-		DrawLabel("CMS preliminary 8TeV" , 0.07, 0.70, 0.4, 0.75); 
-		DrawLabel("e/#mu + Jets, 2.8/fb"   , 0.07, 0.65, 0.4, 0.70);
-		DrawLabel("(CMS-PAS-TOP-12-006)" , 0.07, 0.60, 0.4, 0.65);
+		DrawLabel("#color[12]{#scale[0.85]{NNLO+NNLL pert.QCD (m_{top}=172.5GeV)}}" , 0.16, 0.82, 0.4, 0.87);
+                DrawLabel("#color[12]{#scale[0.85]{(doi:10.1103/PhysRevLett.110.252004)}}"  , 0.16, 0.77, 0.4, 0.82);
+
+		DrawLabel("CMS preliminary"        , 0.07, 0.70, 0.4, 0.75); 
+		DrawLabel("e/#mu + Jets, 2.8 fb^{-1}"   , 0.07, 0.65, 0.4, 0.70);
+		DrawLabel("#scale[0.8]{(CMS-PAS-TOP-12-006)}"   , 0.07, 0.60, 0.4, 0.65);
 		
-		DrawLabel("CMS preliminary 8TeV"   , 0.07, 0.50, 0.4, 0.55); 
-		DrawLabel("#mu#mu/e#mu/ee, 2.4/fb" , 0.07, 0.45, 0.4, 0.50);
-		DrawLabel("(CMS-PAS-TOP-12-007)"   , 0.07, 0.40, 0.4, 0.45);
+		DrawLabel("CMS public"             , 0.07, 0.50, 0.4, 0.55); 
+		DrawLabel("#mu#mu/e#mu/ee, 2.4 fb^{-1}" , 0.07, 0.45, 0.4, 0.50);
+		DrawLabel("#scale[0.8]{(doi:10.1007/JHEP02(2014)024)}"      , 0.07, 0.40, 0.4, 0.45);
 	      }
 	      TString channelLabel="unknown";
-	      TString dataLabel=Form(dataSample+" data, %2.1f fb^{-1}",luminosity/1000);
+	      TString dataLabel=Form(dataSample+" CMS data, %2.1f fb^{-1}",luminosity/1000);
 	      if(decayChannel.Contains("mu"  )) channelLabel="#mu + Jets";
 	      if(decayChannel.Contains("el"  )) channelLabel="e + Jets";
 	      if(decayChannel.Contains("comb")) channelLabel="e/#mu + Jets";
+	      channelLabel="this thesis, "+channelLabel;
 	      if(!extrapolate){
 		if(hadron) channelLabel+=" (particle lv PS)";
 		else  channelLabel+=" (parton lv PS)";
