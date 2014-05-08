@@ -162,9 +162,11 @@ void AnalyzerJetMatch::fillHistos(const RecoObjects& recoObjects, const CommonGe
     common::selectIndices(genIndices_mismatchedInR, v_deltaR, 0.5);
     std::vector<int> genIndices_matchedInR = selectedGenIndices;
     common::selectIndices(genIndices_matchedInR, v_deltaR, 0.4, false);
-    std::vector<int> genIndices_mismatchedInPt = genIndices_matchedInR;
-    common::selectIndices(genIndices_mismatchedInPt, v_deltaPtRel, 0.6);
-    common::selectIndices(genIndices_mismatchedInPt, v_deltaPtRel, -0.4, false);
+    std::vector<int> genIndices_mismatchedInPt_up = genIndices_matchedInR;
+    std::vector<int> genIndices_mismatchedInPt_down = genIndices_matchedInR;
+    common::selectIndices(genIndices_mismatchedInPt_up, v_deltaPtRel, 0.6);
+    common::selectIndices(genIndices_mismatchedInPt_down, v_deltaPtRel, -0.4, false);
+    const std::vector<int> genIndices_mismatchedInPt = common::mergeIndices(genIndices_mismatchedInPt_up, genIndices_mismatchedInPt_down);
     std::vector<int> genIndices_matchedInPt = genIndices_matchedInR;
     common::selectIndices(genIndices_matchedInPt, v_deltaPtRel, 0.6, false);
     common::selectIndices(genIndices_matchedInPt, v_deltaPtRel, -0.4);
