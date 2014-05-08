@@ -19,6 +19,7 @@ void treeComparison(double luminosity = 19712, bool save = true, int verbose=0, 
   samples_.push_back(kSTop);
   samples_.push_back(kWjets);
   samples_.push_back(kZjets);
+  samples_.push_back(kTTVjets);
   samples_.push_back(kDiBos);
   samples_.push_back(kQCD);
   samples_.push_back(kData);
@@ -402,7 +403,7 @@ void treeComparison(double luminosity = 19712, bool save = true, int verbose=0, 
     int sampleMod=samples_[sampleOri];
     if(verbose>1) std::cout << "processing " << sampleLabel(sampleMod, decayChannel) << "(= " << sampleMod <<", last sample=" << lastSample << ")" << std::endl;
     // exclude QCD and Diboson
-    if(sampleMod!=kQCD&&sampleMod!=kDiBos){
+    if(sampleMod!=kQCD&&sampleMod!=kDiBos&&sampleMod!=kTTVjets){
       if(lastSample>-1){
 	if(verbose>1) std::cout << "adding " << sampleLabel(lastSample, decayChannel) << " to " << sampleLabel(sampleMod, decayChannel) << std::endl;	 	
 	// loop plots
@@ -410,10 +411,13 @@ void treeComparison(double luminosity = 19712, bool save = true, int verbose=0, 
 	  TString nameNr= plot==0 ? "" : "TestSlice"+getTStringFromInt(plot);
 	  if(verbose>1) std::cout << "processing " << "topPt"+nameNr << std::endl;
 	  // add to stack
+	  bool there=false;
 	  if(!histo_.count("topPt"+nameNr)>0) std::cout << "WARNING: topPt"+nameNr+" does not exist in histo_!" << std::endl;
 	  else if(!histo_["topPt"+nameNr].count(sampleMod )>0) std::cout << "WARNING: sample " << sampleMod << " does not exist in histo_[topPt"+nameNr+"]!" << std::endl;
 	  else if(!histo_["topPt"+nameNr].count(lastSample)>0) std::cout << "WARNING: sample " << lastSample << " does not exist in histo_[topPt"+nameNr+"]!" << std::endl;
-	  histo_["topPt"+nameNr][sampleMod]->Add((TH1F*)histo_["topPt"+nameNr][lastSample]->Clone());
+	  else there=true;
+	  if(there) histo_["topPt"+nameNr][sampleMod]->Add((TH1F*)histo_["topPt"+nameNr][lastSample]->Clone());
+	  else histo_["topPt"+nameNr][sampleMod]=(TH1F*)histo_["topPt"+nameNr][lastSample]->Clone();
 	} // end for loop plots
 	if(verbose>1) std::cout << "done" <<  std::endl;
       } // if not last sample
@@ -501,7 +505,7 @@ void treeComparison(double luminosity = 19712, bool save = true, int verbose=0, 
       // draw other MC samples, excluding QCD 
       if(sampleMod!=kQCD&&sampleMod!=kDiBos){
 	if(verbose>2) std::cout << "-> drawing!" << sampleMod << std::endl;
-	histo_["topPt"+nameNr][sampleMod]->Draw("hist same");	
+	if(sampleMod!=kTTVjets) histo_["topPt"+nameNr][sampleMod]->Draw("hist same");	
       }
     } // end for loop ori samples
     //histo_["topPt"+nameNr][kAllMC]->Draw("hist same");
@@ -547,7 +551,7 @@ void treeComparison(double luminosity = 19712, bool save = true, int verbose=0, 
 bool isValidsample(unsigned int sample, unsigned int systematicVariation){
   // exclude combined samples as they contain no tree
   // and ENDOFENUMs as they represent no sample
-  if(sample==kQCD||sample==kSTop||sample==kDiBos||sample==ENDOFSAMPLEENUM||sample==ENDOFSAMPLEENUM2) return false;
+  if(sample==kTTVjets||sample==kQCD||sample==kSTop||sample==kDiBos||sample==ENDOFSAMPLEENUM||sample==ENDOFSAMPLEENUM2) return false;
   // exclude all QCD samples (statistical fluctuations)
   if(sample>=kQCDEM1&&sample<=kQCDBCE3  ) return false;
   // exclude systematic signal samples
