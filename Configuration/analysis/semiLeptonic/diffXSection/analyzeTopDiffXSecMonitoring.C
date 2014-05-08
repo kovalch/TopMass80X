@@ -13,7 +13,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 				  //TString dataFile= groupSpace+AnalysisFolder+"/elecDiffXSecData2012ABCDAll.root",
 				  TString dataFile= groupSpace+AnalysisFolder+"/elecDiffXSecData2012ABCDAll.root:"+groupSpace+AnalysisFolder+"/muonDiffXSecData2012ABCDAll.root",
 				  const std::string decayChannel = "combined", 
-				  bool withRatioPlot = true, bool extrapolate=true, bool hadron=false, TString addSel="ProbSel")
+				  bool withRatioPlot = true, bool extrapolate=false, bool hadron=true, TString addSel="ProbSel")
 { 
   // ===================================
   // Define plotting order
@@ -446,6 +446,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     "compositedKinematicsKinFit"+addSel+"/leadNonttjetPt",
     "compositedKinematicsKinFit"+addSel+"/leadNonttjetY",
     "compositedKinematicsKinFit"+addSel+"/leadNonttjetEta",
+    "compositedKinematicsKinFit"+addSel+"//MWFitJJ",
     "analyzeTopRecoKinematicsKinFit/prob", 
     "analyzeTopRecoKinematicsKinFit/chi2",
     "analyzeTopRecoKinematicsKinFit"+addSel+"/ttbarDelPhi",
@@ -726,7 +727,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     "m^{jj} #left[GeV#right];Events;1;10",
     "m^{bb} (KinFit non t#bar{t} b jets) #left[GeV#right];4 b-tag events;0;50",
     "m^{bb} #left[GeV#right];permutations;1;10",
-    "m^{lb} #left[GeV#right];events;1;5",
+    "m^{lb} #left[GeV#right];Events;1;5",
     // complementary plots - with or without probability selection to have both versions for sure
     "#angle(t,#bar{t});Events;0;15",
     "p_{T}^{t} #left[GeV#right];Top quarks;0;20",
@@ -768,6 +769,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     "p_{T}^{leading non t#bar{t}-jet} #left[GeV#right];Events;1;50",
     "y^{leading non t#bar{t}-jet};Events;0;4",
     "#eta^{leading non t#bar{t}-jet};Events;0;4",
+    "m^{jj} (jets assigned to W boson) #left[GeV#right];Events;0;5",    
     "#chi^{2}-probability;Events;1;25", 
     "#chi^{2};Events;1;10",
     "#Delta#phi(t,#bar{t});Events;0;4",
@@ -1298,14 +1300,30 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     }
   }
 
+  // make an unscaled BU copy from the probability for the data over MC plot later
+  for(unsigned int sample=kSig; sample<=kData; ++sample){
+    TString targetname="analyzeTopRecoKinematicsKinFit/prob";
+    histo_["analyzeTopRecoKinematicsKinFit/BUprob"][samples_[sample]]=(TH1F*)(histo_[targetname][samples_[sample]]->Clone());
+    if(sample==kSig){
+      plotList_ .insert(plotList_ .begin()+N1Dplots, "analyzeTopRecoKinematicsKinFit/BUprob");
+      axisLabel_.insert(axisLabel_.begin()+N1Dplots, "#chi^{2}-probability;Events;1;25");
+      N1Dplots++;
+      Nplots++;
+    }
+  }
+
   // =========================================
   //  scale ttbar component to measured xSec
   // =========================================
   if(scaleToMeasured){
     if(verbose>2) std::cout << "data/NNLO+NNLL=" << xSec/ttbarCrossSection << std::endl;
+    // loop ttbar components
     for(unsigned int sample=kSig; sample<=kBkg; ++sample){
+      // loop all plots
       for(unsigned int plot=0; plot<plotList_.size(); ++plot){
-	if((histo_.count(plotList_[plot])>0)&&(histo_[plotList_[plot]].count(sample)>0)){
+	// check existence of plot
+	if((histo_.count(plotList_[plot])>0)&&(histo_[plotList_[plot]].count(sample)>0)&&plotList_[plot]!="analyzeTopRecoKinematicsKinFit/BUprob"){
+	  // scale 
 	  if     (plotList_[plot].Contains("Tagged")) histo_[plotList_[plot]][sample]->Scale(TaggedxSec/ttbarCrossSection);
 	  else if(addSel!=""&&plotList_[plot].Contains("ProbSel")) histo_[plotList_[plot]][sample]->Scale(ProbSelxSec/ttbarCrossSection); 
 	  else if(plotList_[plot].Contains("shift" )||(plotList_[plot].Contains("KinFit"))) histo_[plotList_[plot]][sample]->Scale(KinFitxSec/ttbarCrossSection);
@@ -1449,7 +1467,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
     // loop samples backwards
     for(int sample=kDiBos-1; sample>=kSig; --sample){
       // check if plot exists
-      if((plot<N1Dplots)&&(histo_.count(plotList_[plot])>0)&&(histo_[plotList_[plot]].count(samples_[sample])>0)){
+      if((plot<N1Dplots||plotList_[plot].Contains("BUprob"))&&(histo_.count(plotList_[plot])>0)&&(histo_[plotList_[plot]].count(samples_[sample])>0)){
 	// shape normalization and individual range and title for ttbar other decayChannel plot
 	if(plotList_[plot].Contains("decayChannel")){
 	  if(sample==kBkg){
@@ -1468,6 +1486,48 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
       }
     }
   }
+  // ---
+  //    differential data/MC agreement as function of a minimal chi2-prob 
+  // ---
+  TString probn="analyzeTopRecoKinematicsKinFit/BUprob";
+  TString dOs="analyzeTopRecoKinematicsKinFit/dataOverMC";
+  // create histo for all samples
+  for(int sample=kData; sample>=kSig; --sample){
+    // check if plot exists
+    if((histo_.count(probn)>0)&&(histo_[probn].count(samples_[sample])>0)){
+      //std::cout << "for data OverMC: found sample " << samples_[sample] << std::endl;
+      histo_[dOs][samples_[sample]]=(TH1F*)(histo_[probn][samples_[sample]]->Clone());
+      histo_[dOs][samples_[sample]]->Scale(0.);
+      histogramStyle(*histo_[dOs][samples_[sample]], kData, false);
+      histo_[dOs][samples_[sample]]->SetLineColor(kBlack);
+      histo_[dOs][samples_[sample]]->SetMarkerColor(kBlack);
+      histo_[dOs][samples_[sample]]->SetLineWidth(2);
+      histo_[dOs][samples_[sample]]->SetLineStyle(1);
+      histo_[dOs][samples_[sample]]->SetFillStyle(0);
+    }
+  }
+  int binMax=(int)histo_[dOs][kSig]->GetNbinsX()+1;
+  // calculate ration for each bin i
+  for(int i=1; i<(int)histo_[probn][kSig]->GetNbinsX()+1; ++i){
+    double Ndata=histo_[probn][kData]->Integral(i,binMax);
+    double NMC  =histo_[probn][kSig ]->Integral(i,binMax);
+    //std::cout << i << ": "  << histo_[probn][kData]->GetBinCenter(i) << std::endl;
+    //std::cout << "NMC: "  << NMC   << std::endl;
+    //std::cout << "Ndata: "<< Ndata << std::endl;
+    //std::cout << "ratio: "<< Ndata/NMC << std::endl;
+    if(NMC==0.){Ndata=1.; NMC=Ndata;} 
+    for(int sample=kDiBos; sample>=kSig; --sample){
+      histo_[dOs][samples_[sample]]->SetBinContent(i, Ndata/NMC      );
+      histo_[dOs][samples_[sample]]->SetBinError  (i, sqrt(Ndata)/NMC);
+    }
+  }
+  // add to list of samples to process
+  TString dOsLab="minimal #chi^{2}-probability requirement;#frac{N_{Data}}{N_{Prediction}};0;1";
+  plotList_ .insert(plotList_ .begin()+N1Dplots, dOs   );
+  axisLabel_.insert(axisLabel_.begin()+N1Dplots, dOsLab);
+  N1Dplots++;
+  Nplots++;
+
   if(verbose>1) std::cout << std::endl;
   if(verbose>2) std::cout << "reweighted difference: " << histo_["analyzeTopRecoKinematicsKinFit"+addSel+"/topPt"][kSig]->Integral(0,histo_["analyzeTopRecoKinematicsKinFit"+addSel+"/topPt"][kSig]->GetNbinsX()+1)-histo_["analyzeTopRecoKinematicsKinFit"+addSel+"/topPt"][kData]->Integral(0,histo_["analyzeTopRecoKinematicsKinFit"+addSel+"/topPt"][kData]->GetNbinsX()+1) << std::endl;
 
@@ -2169,9 +2229,8 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	    // get nicer int values if maximum is large enough
 	    if(max>3) max = (double)roundToInt(max);
 	    if(plotList_[plot].Contains("btagSimpleSecVtx"))max*=0.8;
-
-
-
+	    // special treatment for data over MC plot
+            if(plotList_[plot]==dOs){min=0.92;max=1.08;}
 	    // Set x-axis range for special plots
 	    if(getStringEntry(plotList_[plot], 2)=="nHit"  ){xDn=10;xUp=30;}
 	    if(getStringEntry(plotList_[plot], 2)=="chi2"  ){ 
@@ -2237,6 +2296,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	    if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFitProbEff/bbbarMass")                             ){xDn=0.     ;xUp=700.;  }
 	    if(plotList_[plot].Contains("npvertex_reweighted")                                                         ){xDn=0.     ;xUp=40.;   }
 	    if(plotList_[plot].Contains("lbMass")                                                                      ){xDn=20.    ;xUp=300.;  }
+            if(plotList_[plot].Contains("MWFitJJ")                                                                     ){xDn=55.    ;xUp=130.;  }
 	    if(plotList_[plot].Contains("analyzeTopRecoKinematicsKinFit"+addSel+"/ttbarDelPhi")                        ){xDn=0      ;xUp=3.2;   }
 	    if(plotList_[plot].Contains("tightJetKinematicsTagged/eta")                                                ){xDn=-2.4   ;xUp=2.4;   }
             if(plotList_[plot].Contains("tightJetKinematicsTagged/ht" )                                                ){xDn=100.   ;xUp=1800.; }
@@ -2337,7 +2397,11 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	      histo_[plotList_[plot]][sample]->SetFillStyle(1001);
 	      gStyle->SetErrorX(0.5);  
 	      drawLabel="e2";
-	    } 
+	    }
+	    if(plotList_[plot]==dOs){
+	      drawLabel="e2";
+	      plotCanvas_[canvasNumber]->SetGrid(0,1);
+	    }
 	    if(plotList_[plot].Contains("shift")&&(plotList_[plot].Contains("Eta")||plotList_[plot].Contains("Phi"))&&(!plotList_[plot].Contains("Nu"))){
 	      histo_[plotList_[plot]][sample]->GetXaxis()->SetNoExponent(false);
 	    }
@@ -2387,7 +2451,9 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	  // draw other plots into same canvas 
 	  else{ 
 	    // draw MC contributions as histo (looks like stack in the end)
-	    if(sample!=kData) histo_[plotList_[plot]][sample]->Draw("hist X0 same");
+	    if(sample!=kData){
+	      if(plotList_[plot]!=dOs) histo_[plotList_[plot]][sample]->Draw("hist X0 same");
+	    }
 	    else{
 	      // optional: draw MC uncertainties as errorbands 
 	      int errorbandFillStyle=3354;
@@ -2416,6 +2482,8 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	      }
 	      // draw data as points
 	      histo_[plotList_[plot]][sample]->Draw("p e X0 same");
+	      // line at one for data/MC ratio
+	      if(plotList_[plot]==dOs) drawLine(0.,1.,1.,1.);
 	    } // end else !kData
 	  } // end else first plot
 	  first=false;
@@ -2556,7 +2624,9 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 	      else if (decayChannel=="electron") DrawDecayChLabel("e + Jets");
 	      else DrawDecayChLabel("e/#mu + Jets Combined");	      
 	      DrawCMSLabels(true,luminosity); 
-	      // draw data/MC ratio
+	      // ---
+	      //    draw data/MC ratio
+	      // ---
 	      // a) for gen level plots
 	      if((histo_[plotList_[plot]].count(kSig)>0) && withRatioPlot && !plotList_[plot].Contains("PartonLevel") && !plotList_[plot].Contains("decayChannel")){
 		if(plotList_[plot].Contains("BGSubNorm")){
@@ -2580,7 +2650,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 		  plotCanvasRatio_[0]->Update();
 		}
 		// b) for data-MC plots
-		else{
+		else if(plotList_[plot]!=dOs){
 		  // range of ratio
 		  double ratMin=0.1;
 		  double ratMax=1.9;
@@ -2589,7 +2659,7 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 		  // customizing for certain plots
 		  if(plotList_[plot].Contains("shift")){ratMin=0.88; ratMax=1.12;}
 		  if(plotList_[plot].Contains("TopRecoKinematics")){ratMin=0.49; ratMax=1.49; ndivisions=405;}
-		  if(getStringEntry(plotList_[plot], 2)=="prob"){ratMin=0.75; ratMax=1.25;}
+		  if(getStringEntry(plotList_[plot], 2)=="prob"){ratMin=0.75; ratMax=1.28;}
 		  // beautify paper plots
 		  if (decayChannel == "combined"){
 		    if(plotList_[plot].Contains("tightJetKinematicsTagged/n"    )){ratMin=0.71; ratMax=1.39; ndivisions=407;}
@@ -2619,6 +2689,9 @@ void analyzeTopDiffXSecMonitoring(double luminosity = 19712,
 		  if(PHD){
 		    std::pair<double,double> rangePHD=ratioRangeForPHD(plotList_, plot, addSel, ratMin, ratMax);
 		    ratMin=rangePHD.first; ratMax=rangePHD.second;
+		    if(plotList_[plot].Contains("shift")){ratMin=0.80; ratMax=1.23;}
+		    if(plotList_[plot].Contains("MWFitJJ")){ratMin=0.70; ratMax=1.33;}
+		    if(plotList_[plot].Contains("chi2")||plotList_[plot].Contains("prob")){ratMin=0.80; ratMax=1.25;}
 		  }
 		  // labels of ratio
 		  TString ratioLabelNominator  ="N_{MC}";
