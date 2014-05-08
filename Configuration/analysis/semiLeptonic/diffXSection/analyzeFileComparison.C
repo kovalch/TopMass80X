@@ -20,22 +20,22 @@ void analyzeFileComparison(bool save = true,  bool usePAPERbinning=true, int ver
   //  load rootfiles
   // ============================
   std::vector<TFile* > file_;
-  TString MS= ""; //MadSpin ? "MadSpin" : ""; -> keep old files for the moment
+  TString MS= MadSpin ? "MadSpin" : "";
   TString targetfolder=groupSpace+AnalysisFolder;
   file_.push_back(TFile::Open(targetfolder+"/elecDiffXSecSig"+MS+"Summer12PF.root"                                        , "Open"));
   file_.push_back(TFile::Open(targetfolder+"/muonDiffXSecSig"+MS+"Summer12PF.root"                                        , "Open"));
-  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/elecDiffXSecSig"+MS+"TopMassConstraint173p5Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/muonDiffXSecSig"+MS+"TopMassConstraint173p5Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/elecDiffXSecSig"+MS+"TopMassConstraint171p5Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/muonDiffXSecSig"+MS+"TopMassConstraint171p5Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/elecDiffXSecSig"+MS+"TopMassConstraint174p5Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/muonDiffXSecSig"+MS+"TopMassConstraint174p5Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/elecDiffXSecSig"+MS+"TopMassConstraint170p5Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/muonDiffXSecSig"+MS+"TopMassConstraint170p5Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/elecDiffXSecSig"+MS+"TopMassConstraint"+(MS=="" ? "180p0" : "176p5")+"Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/muonDiffXSecSig"+MS+"TopMassConstraint"+(MS=="" ? "180p0" : "176p5")+"Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/elecDiffXSecSig"+MS+"TopMassConstraint"+(MS=="" ? "160p0" : "168p5")+"Summer12PF.root", "Open"));
-  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/muonDiffXSecSig"+MS+"TopMassConstraint"+(MS=="" ? "160p0" : "168p5")+"Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/elecDiffXSecSigTopMassConstraint173p5"+MS+"Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/muonDiffXSecSigTopMassConstraint173p5"+MS+"Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/elecDiffXSecSigTopMassConstraint171p5"+MS+"Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/muonDiffXSecSigTopMassConstraint171p5"+MS+"Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/elecDiffXSecSigTopMassConstraint174p5"+MS+"Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/muonDiffXSecSigTopMassConstraint174p5"+MS+"Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/elecDiffXSecSigTopMassConstraint170p5"+MS+"Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/muonDiffXSecSigTopMassConstraint170p5"+MS+"Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/elecDiffXSecSigTopMassConstraint"+(MS=="" ? "180p0" : "176p5")+MS+"Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/muonDiffXSecSigTopMassConstraint"+(MS=="" ? "180p0" : "176p5")+MS+"Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/elecDiffXSecSigTopMassConstraint"+(MS=="" ? "160p0" : "168p5")+MS+"Summer12PF.root", "Open"));
+  file_.push_back(TFile::Open(targetfolder+"/TopMassConstraint/muonDiffXSecSigTopMassConstraint"+(MS=="" ? "160p0" : "168p5")+MS+"Summer12PF.root", "Open"));
 
   std::vector<double > massConstraint_;
   massConstraint_.push_back(172.5);
@@ -220,8 +220,8 @@ void analyzeFileComparison(bool save = true,  bool usePAPERbinning=true, int ver
     "p_{T}^{b#bar{b}}(assigned to t#bar{t} system) #left[GeV#right];Events;0;20",  
     "y^{b#bar{b}}(assigned to t#bar{t} system);Events;0;5",
     "m^{b#bar{b}}(assigned to t#bar{t} system) #left[GeV#right];Events;0;25",
-    xSecLabelName("rhos" )+";events;0;22",
-    xSecLabelName("Njets")+";events;0;1",
+    xSecLabelName("rhos" )+";Events;0;22",
+    xSecLabelName("Njets")+";Events;0;1",
   };
   plotList_ .insert(plotList_ .begin(), plots1D    , plots1D    + sizeof(plots1D    )/sizeof(TString));
   axisLabel_.insert(axisLabel_.begin(), axisLabel1D, axisLabel1D+ sizeof(axisLabel1D)/sizeof(TString));
@@ -282,8 +282,8 @@ void analyzeFileComparison(bool save = true,  bool usePAPERbinning=true, int ver
       else if(mcon==171.5) color=kMagenta;
       else if(mcon==173.5) color=kRed;
       else if(mcon==174.5) color=kBlue;
-      else if(mcon==160.0) color=kOrange+3;
-      else if(mcon==180.0) color=kGreen+3;
+      else if(mcon==160.0||mcon==168.5) color=kOrange+3;
+      else if(mcon==180.0||mcon==176.5) color=kGreen+3;
       histo_[name][kcon]->SetLineColor(color);
       histo_[name][kcon]->SetLineWidth(2);
       if     (mcon==172.5) histo_[name][kcon]->SetLineStyle(2);
@@ -405,15 +405,17 @@ void analyzeFileComparison(bool save = true,  bool usePAPERbinning=true, int ver
     }
     TString nominator="m_{top} constrain";
     TString denominator="172.5 GeV";
-    drawRatio(histo_[name][1725], histo_[name][1725], 0.9, 1.12, myStyle, verbose, err_, denominator, nominator, "e p", kBlack, false, 0.2);
+    double ratMin= (name.Contains("rhos")||name.Contains("angle")||name.Contains("topMass")) ? 0.90 : 0.951;
+    double ratMax= (name.Contains("rhos")||name.Contains("angle")||name.Contains("topMass")) ? 1.12 : 1.049;
+    drawRatio(histo_[name][1725], histo_[name][1725], ratMin, ratMax, myStyle, verbose, err_, denominator, nominator, "e p", kBlack, false, 0.2);
     for(int sample=0; sample<int(file_.size()); sample=sample+2){
       double mcon=massConstraint_[sample];
       int kcon=roundToInt(mcon*10);
       //std::cout << kcon << std::endl;      
       //gStyle->SetErrorX(0.5);
-      drawRatio(histo_[name][kcon], histo_[name][1725], 0.9, 1.12, myStyle, verbose, err_, denominator, nominator, "hist same", histo_[name][kcon]->GetLineColor(), false, 0.2);
+      drawRatio(histo_[name][kcon], histo_[name][1725], ratMin, ratMax, myStyle, verbose, err_, denominator, nominator, "hist same", histo_[name][kcon]->GetLineColor(), false, 0.2);
     }
-    drawRatio(histo_[name][1725], histo_[name][1725], 0.9, 1.12, myStyle, verbose, err_, denominator, nominator, "e p same", kBlack, false, 0.2);
+    drawRatio(histo_[name][1725], histo_[name][1725], ratMin, ratMax, myStyle, verbose, err_, denominator, nominator, "e p same", kBlack, false, 0.2);
   }
 
   if(save){
