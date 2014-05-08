@@ -54,9 +54,9 @@ namespace semileptonic {
   // large madspin or smaller madgraph samples?
   bool MadSpin=true; 
   // adapt several things like removing official labels for my PHD
-  bool PHD=false;//false;
+  bool PHD=false;//true;//false;
   // exclude ttV contribution from all plots and in calculation
-  bool excludettV=true;
+  bool excludettV=false;
   // Use global switch to rm/add Preliminary to plots 
   bool globalPrelim   =false; // value used in DrawCMSLabels
   bool useGlobalPrelim=true;  // for false the value above is ignored
@@ -4083,8 +4083,8 @@ namespace semileptonic {
 	    int sysNow=RelevantSys_[sys];
 	    // debug output
 	    if(verbose>2||test) std::cout << "    - " << sysLabel(sysNow);
-	    // check if considered systematics exists for this plot 
-	    if(histoSys_[plotName].count(sysNow)>0){
+	    // check if considered systematics exists for this plot and define some special cases
+	    if(histoSys_[plotName].count(sysNow)>0&&(!PHD||!(plotName.Contains("MWFitJJ")&&(sysNow!=sysJESUp&&sysNow!=sysJESDown&&sysNow!=sysJERUp&&sysNow!=sysJERDown)))){
 	      if(verbose>2||test) std::cout << " (considered)" << std::endl;
 	      // process up and down at the same time (during dn is looped)
 	      if(verbose>2) std::cout << sys+1 << "%2=" << (sys+1)%2 << std::endl;
