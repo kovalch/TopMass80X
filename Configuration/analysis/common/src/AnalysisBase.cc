@@ -745,7 +745,7 @@ void AnalysisBase::SetPdfBranchAddress()
 void AnalysisBase::SetDyDecayBranchAddress()
 {
     chain_->SetBranchAddress("ZDecayMode", &ZDecayMode_, &b_ZDecayMode);
-    chain_->SetBranchAddress("GenZ", &genZ_, &b_genZ);
+    if(chain_->GetBranch("b_genZ")) chain_->SetBranchAddress("GenZ", &genZ_, &b_genZ);
 }
 
 
@@ -988,7 +988,7 @@ void AnalysisBase::SetTrueLevelDYChannel(const int dy)
         //create function to check the DY decay channel
         checkZDecayMode_ = [&, dy](Long64_t entry) -> bool {
             b_ZDecayMode->GetEntry(entry);
-            b_genZ->GetEntry(entry);
+            if(b_genZ) b_genZ->GetEntry(entry);
             bool pass = false;
             for (const auto decayMode : *ZDecayMode_) {
                 if ((dy == 15 && decayMode > 15110000) ||
