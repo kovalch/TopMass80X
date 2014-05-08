@@ -1234,7 +1234,8 @@ void Plotter::setStyle(TH1 *hist, unsigned int i, bool isControlPlot)
         hist->SetMarkerStyle(20);
         hist->SetMarkerSize(1.2);
         hist->SetLineWidth(2);
-        if ((name.Contains("pT", TString::kIgnoreCase) || name.Contains("Mass", TString::kIgnoreCase)) && (!name.Contains("1st") && !name.Contains("Rapidity") && !name.Contains("Phi"))) {
+        if ((name.Contains("pT", TString::kIgnoreCase) || name.Contains("Mass", TString::kIgnoreCase)) && 
+            (!name.Contains("1st") && !name.Contains("Rapidity") && !name.Contains("Eta") && !name.Contains("Phi"))) {
             hist->GetXaxis()->SetTitle(XAxis+" #left[GeV#right]");
             hist->GetYaxis()->SetTitle("#frac{1}{#sigma} #frac{d#sigma}{d"+XAxis+"}"+" #left[GeV^{-1}#right]"); 
         } else {
