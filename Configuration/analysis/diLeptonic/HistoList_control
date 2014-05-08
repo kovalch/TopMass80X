@@ -27,18 +27,18 @@ LeptonEta_diLep Standard Leptons #eta_{l} 4 0 0 0 0 0 -2.5 2.5 0 0
 jetpT Standard Jets p_{T} 2 1 0 1 10 1.e5 30 400 0 0
 jetHT Standard Jets H_{T} 4 1 0 0 0 0 0 0 0 0
 MET Standard Events MET 2 0 0 1 1 0 0 200 0 0
-HypBjetMulti Standard Events "N_{b jets}" 1 1 0 1 0.3 1e8 1 6 0 0
+HypBjetMulti Standard Events "N_{b jets}" 1 1 0 1 0.3 5e8 1 6 0 0
 HypBjetMulti_noBTag Standard Events "N_{b jets}" 1 1 0 1 1 5E6 0 5 0 0
 HypTopMass Standard Topquarks m_{t} 2 1 0 0 0 0 100 300 0 0
 HypTopRapidity Standard Topquarks y^{t} 2 1 0 0 0 2.2e4 -2.5 2.5 0 0
-HypToppT Standard Topquarks p_{T}^{t} 20 1 0 0 0 0 0 0 0 0
+HypToppT Standard Topquarks p_{T}^{t} 20 1 0 0 0 0 0 399 0 0
 HypTTBarMass Standard Toppairs m^{t#bar{t}} 40 1 0 0 0 0 0 0 0 0
 HypTTBarRapidity Standard Toppairs y^{t#bar{t}} 2 1 0 0 0 1.3e4 -2.5 2.5 0 0
 HypTTBarpT Standard Toppairs p_{T}^{t#bar{t}} 10 1 0 0 0 0 0 295 0 0
 HypBJetpT Standard b-jets p_{T}^{b} 2 1 0 1 1 0 39 400 0 0
 HypBJetEta Standard b-jets #eta^{b} 2 1 0 0 0 1.7e4 -2.5 2.5 0 0
 HypLeptonEta Standard Leptons #eta^{l} 5 1 0 0 0 0 -3 3 0 0
-HypLeptonpT Standard Leptons p_{T}^{l} 5 1 0 0 0 0 0 0 0 0
+HypLeptonpT Standard Leptons p_{T}^{l} 2 1 0 0 0 0 20 159 0 0
 HypLeptonBjetMass Standard N_{Events} m^{lb} 10 1 0 0 0 7e4 0 179 0 0
 
 HypBBBarpT Standard N_{Events} p_{T}^{b#bar{b}} 5 1 0 0 0 0 0 350 0 0
@@ -136,6 +136,80 @@ EventWeight Standard Events SF_{Evt.} 1 1 0 0 0 0 0 0 0 0
 #bcp_HypTopRapidity_bin_9_DIMFull Standard Events m^{ll} 2 1 0 0 0 0 0 0 0 0
 
 
+
+dyScaling_Allh1_step4 Standard Entries_PostZCut m^{ll} 1 0 0 0 0 0 0 0 0 0
+dyScaling_Allh1_step5 Standard Entries_Post2Jets m^{ll} 1 0 0 0 0 0 0 0 0 0
+dyScaling_Allh1_step6 Standard Entries_PostMETcut m^{ll} 1 0 0 0 0 0 0 0 0 0
+dyScaling_Allh1_step7 Standard Entries_Post1BTag m^{ll} 1 0 0 0 0 0 0 0 0 0
+dyScaling_Allh1_step8 Standard Entries_PostKinReco m^{ll} 1 0 0 0 0 0 0 0 0 0
+
+
+basic_met_et_step1 Standard Entries_PostTrigg E^{met} 1 0 0 0 0 0 0 0 0 0
+basic_met_et_step2 Standard Entries_PostDiLept E^{met} 1 1 0 0 0 0 0 0 0 0
+basic_met_et_step3 Standard Entries_PostMll20Cut E^{met} 1 1 0 0 0 0 0 0 0 0
+basic_met_et_step4 Standard Entries_PostZCut E^{met} 1 1 0 0 0 0 0 0 0 0
+basic_met_et_step5 Standard Entries_Post2Jets E^{met} 1 1 0 0 0 0 0 0 0 0
+basic_met_et_step6 Standard Entries_PostMETcut E^{met} 1 1 0 0 0 0 0 0 0 0
+basic_met_et_step7 Standard Entries_Post1BTag E^{met} 1 1 0 0 0 0 0 0 0 0
+basic_met_et_step8 Standard Entries_PostKinReco E^{met} 1 1 0 0 0 0 0 0 0 0
+
+basic_met_eta_step1 Standard Entries_PostTrigg \eta^{met} 1 0 0 0 0 0 0 0 0 0
+basic_met_eta_step2 Standard Entries_PostDiLept \eta^{met} 1 1 0 0 0 0 0 0 0 0
+basic_met_eta_step3 Standard Entries_PostMll20Cut \eta^{met} 1 1 0 0 0 0 0 0 0 0
+basic_met_eta_step4 Standard Entries_PostZCut \eta^{met} 1 1 0 0 0 0 0 0 0 0
+basic_met_eta_step5 Standard Entries_Post2Jets \eta^{met} 1 1 0 0 0 0 0 0 0 0
+basic_met_eta_step6 Standard Entries_PostMETcut \eta^{met} 1 1 0 0 0 0 0 0 0 0
+basic_met_eta_step7 Standard Entries_Post1BTag \eta^{met} 1 1 0 0 0 0 0 0 0 0
+basic_met_eta_step8 Standard Entries_PostKinReco \eta^{met} 1 1 0 0 0 0 0 0 0 0
+
+basic_met_phi_step1 Standard Entries_PostTrigg \phi^{met} 1 0 0 0 0 0 0 0 0 0
+basic_met_phi_step2 Standard Entries_PostDiLept \phi^{met} 1 1 0 0 0 0 0 0 0 0
+basic_met_phi_step3 Standard Entries_PostMll20Cut \phi^{met} 1 1 0 0 0 0 0 0 0 0
+basic_met_phi_step4 Standard Entries_PostZCut \phi^{met} 1 1 0 0 0 0 0 0 0 0
+basic_met_phi_step5 Standard Entries_Post2Jets \phi^{met} 1 1 0 0 0 0 0 0 0 0
+basic_met_phi_step6 Standard Entries_PostMETcut \phi^{met} 1 1 0 0 0 0 0 0 0 0
+basic_met_phi_step7 Standard Entries_Post1BTag \phi^{met} 1 1 0 0 0 0 0 0 0 0
+basic_met_phi_step8 Standard Entries_PostKinReco \phi^{met} 1 1 0 0 0 0 0 0 0 0
+
+
+basic_dilepton_mass_step1 Standard Entries_PostTrigg m^{ll} 1 0 0 0 0 0 0 0 0 0
+basic_dilepton_mass_step2 Standard Entries_PostDiLept m^{ll} 1 1 0 0 0 0 0 0 0 0
+basic_dilepton_mass_step3 Standard Entries_PostMll20Cut m^{ll} 1 1 0 0 0 0 0 0 0 0
+basic_dilepton_mass_step4 Standard Entries_PostZCut m^{ll} 1 1 0 0 0 0 0 0 0 0
+basic_dilepton_mass_step5 Standard Entries_Post2Jets m^{ll} 1 1 0 0 0 0 0 0 0 0
+basic_dilepton_mass_step6 Standard Entries_PostMETcut m^{ll} 1 1 0 0 0 0 0 0 0 0
+basic_dilepton_mass_step7 Standard Entries_Post1BTag m^{ll} 1 1 0 0 0 0 0 0 0 0
+basic_dilepton_mass_step8 Standard Entries_PostKinReco m^{ll} 1 1 0 0 0 0 0 0 0 0
+
+
+basic_dilepton_pt_step1 Standard Entries_PostTrigg p_{T}^{ll} 1 0 0 0 0 0 0 0 0 0
+basic_dilepton_pt_step2 Standard Entries_PostDiLept p_{T}^{ll} 1 1 0 0 0 0 0 0 0 0
+basic_dilepton_pt_step3 Standard Entries_PostMll20Cut p_{T}^{ll} 1 1 0 0 0 0 0 0 0 0
+basic_dilepton_pt_step4 Standard Entries_PostZCut p_{T}^{ll} 1 1 0 0 0 0 0 0 0 0
+basic_dilepton_pt_step5 Standard Entries_Post2Jets p_{T}^{ll} 1 1 0 0 0 0 0 0 0 0
+basic_dilepton_pt_step6 Standard Entries_PostMETcut p_{T}^{ll} 1 1 0 0 0 0 0 0 0 0
+basic_dilepton_pt_step7 Standard Entries_Post1BTag p_{T}^{ll} 1 1 0 0 0 0 0 0 0 0
+basic_dilepton_pt_step8 Standard Entries_PostKinReco p_{T}^{ll} 1 1 0 0 0 0 0 0 0 0
+
+basic_dilepton_phi_step1 Standard Entries_PostTrigg \phi^{ll} 1 0 0 0 0 0 0 0 0 0
+basic_dilepton_phi_step2 Standard Entries_PostDiLephi \phi^{ll} 1 1 0 0 0 0 0 0 0 0
+basic_dilepton_phi_step3 Standard Entries_PostMll20Cut \phi^{ll} 1 1 0 0 0 0 0 0 0 0
+basic_dilepton_phi_step4 Standard Entries_PostZCut \phi^{ll} 1 1 0 0 0 0 0 0 0 0
+basic_dilepton_phi_step5 Standard Entries_Post2Jets \phi^{ll} 1 1 0 0 0 0 0 0 0 0
+basic_dilepton_phi_step6 Standard Entries_PostMETcut \phi^{ll} 1 1 0 0 0 0 0 0 0 0
+basic_dilepton_phi_step7 Standard Entries_Post1BTag \phi^{ll} 1 1 0 0 0 0 0 0 0 0
+basic_dilepton_phi_step8 Standard Entries_PostKinReco \phi^{ll} 1 1 0 0 0 0 0 0 0 0
+
+basic_dilepton_rapidity_step1 Standard Entries_PostTrigg \eta^{ll} 1 0 0 0 0 0 0 0 0 0
+basic_dilepton_rapidity_step2 Standard Entries_PostDiLerapidity \eta^{ll} 1 1 0 0 0 0 0 0 0 0
+basic_dilepton_rapidity_step3 Standard Entries_PostMll20Cut \eta^{ll} 1 1 0 0 0 0 0 0 0 0
+basic_dilepton_rapidity_step4 Standard Entries_PostZCut \eta^{ll} 1 1 0 0 0 0 0 0 0 0
+basic_dilepton_rapidity_step5 Standard Entries_Post2Jets \eta^{ll} 1 1 0 0 0 0 0 0 0 0
+basic_dilepton_rapidity_step6 Standard Entries_PostMETcut \eta^{ll} 1 1 0 0 0 0 0 0 0 0
+basic_dilepton_rapidity_step7 Standard Entries_Post1BTag \eta^{ll} 1 1 0 0 0 0 0 0 0 0
+basic_dilepton_rapidity_step8 Standard Entries_PostKinReco \eta^{ll} 1 1 0 0 0 0 0 0 0 0
+
+
 basic_lepton_eta_step1 Standard Leptons_PostTrigg #eta^{l} 1 0 0 0 0 0 0 0 0 0
 basic_lepton_eta_step2 Standard Leptons_PostDiLept #eta^{l} 1 1 0 0 0 0 0 0 0 0
 basic_lepton_eta_step3 Standard Leptons_PostMll20Cut #eta^{l} 1 1 0 0 0 0 0 0 0 0
@@ -154,6 +228,17 @@ basic_lepton_pt_step6 Standard Leptons_PostMETcut p_{T}^{l} 1 1 0 0 0 0 20 150 0
 basic_lepton_pt_step7 Standard Leptons p_{T}^{l} 2 1 0 0 1e-1 3e4 20 150 0 0
 basic_lepton_pt_step8 Standard Leptons_PostKinReco p_{T}^{l} 1 1 0 0 0 0 20 150 0 0
 
+basic_lepton_phi_step1 Standard Leptons_PostTrigg #phi^{l} 1 0 0 0 0 0 0 0 0 0
+basic_lepton_phi_step2 Standard Leptons_PostDiLept #phi^{l} 1 1 0 0 0 0 0 0 0 0
+basic_lepton_phi_step3 Standard Leptons_PostMll20Cut #phi^{l} 1 1 0 0 0 0 0 0 0 0
+basic_lepton_phi_step4 Standard Leptons_PostZCut #phi^{l} 1 1 0 0 0 0 0 0 0 0
+basic_lepton_phi_step5 Standard Leptons_Post2Jets #phi^{l} 1 1 0 0 0 0 0 0 0 0
+basic_lepton_phi_step6 Standard Leptons_PostMETcut #phi^{l} 1 1 0 0 0 0 0 0 0 0
+basic_lepton_phi_step7 Standard Leptons_Post1BTag #phi^{l} 1 1 0 0 0 0 0 0 0 0
+basic_lepton_phi_step8 Standard Leptons_PostKinReco #phi^{l} 1 1 0 0 0 0 0 0 0 0
+
+
+
 basic_jet_eta_step1 Standard Jets_PostTrigg #eta^{jet} 1 0 0 0 0 0 0 0 0 0
 basic_jet_eta_step2 Standard Jets_PostDiLept #eta^{jet} 1 1 0 0 0 0 0 0 0 0
 basic_jet_eta_step3 Standard Jets_PostMll20Cut #eta^{jet} 1 1 0 0 0 0 0 0 0 0
@@ -163,6 +248,15 @@ basic_jet_eta_step6 Standard Jets_PostMETcut #eta^{jet} 1 1 0 0 0 0 0 0 0 0
 basic_jet_eta_step7 Standard Jets_Post1BTag #eta^{jet} 1 1 0 0 0 0 0 0 0 0
 basic_jet_eta_step8 Standard Jets_PostKinReco #eta^{jet} 1 1 0 0 0 0 0 0 0 0
 
+basic_jet_phi_step1 Standard Jets_PostTrigg #phi^{jet} 1 0 0 0 0 0 0 0 0 0
+basic_jet_phi_step2 Standard Jets_PostDiLept #phi^{jet} 1 1 0 0 0 0 0 0 0 0
+basic_jet_phi_step3 Standard Jets_PostMll20Cut #phi^{jet} 1 1 0 0 0 0 0 0 0 0
+basic_jet_phi_step4 Standard Jets_PostZCut #phi^{jet} 1 1 0 0 0 0 0 0 0 0
+basic_jet_phi_step5 Standard Jets_Post2AllJets #phi^{jet} 1 1 0 0 0 0 0 0 0 0
+basic_jet_phi_step6 Standard Jets_PostMETcut #phi^{jet} 1 1 0 0 0 0 0 0 0 0
+basic_jet_phi_step7 Standard Jets_Post1BTag #phi^{jet} 1 1 0 0 0 0 0 0 0 0
+basic_jet_phi_step8 Standard Jets_PostKinReco #phi^{jet} 1 1 0 0 0 0 0 0 0 0
+
 basic_jet_pt_step1 Standard Jets_PostTrigg p_{T}^{jet} 2 1 0 1 1 1e6 30 250 0 0
 basic_jet_pt_step2 Standard Jets_PostDiLept p_{T}^{jet} 2 1 0 1 1 1e6 30 250 0 0
 basic_jet_pt_step3 Standard Jets_PostMll20Cut p_{T}^{jet} 2 1 0 1 1 1e6 30 250 0 0
@@ -171,6 +265,7 @@ basic_jet_pt_step5 Standard Jets_Post2AllJets p_{T}^{jet} 2 1 0 1 1 1e6 30 250 0
 basic_jet_pt_step6 Standard Jets_PostMETcut p_{T}^{jet} 2 1 0 1 1 1e6 30 250 0 0
 basic_jet_pt_step7 Standard Jets p_{T}^{jet} 2 1 0 1 10 1e7 30 250 0 0
 basic_jet_pt_step8 Standard Jets_PostKinReco p_{T}^{jet} 2 1 0 1 1 1e6 30 250 0 0
+
 
 basic_lepton2lead_eta_step1 Standard Leptons_PostTrigg #eta^{l} 1 0 0 0 0 0 0 0 0 0
 basic_lepton2lead_eta_step2 Standard Leptons_PostDiLept #eta^{l} 1 1 0 0 0 0 0 0 0 0
@@ -189,6 +284,16 @@ basic_lepton2lead_pt_step5 Standard Leptons_Post2Jets p_{T}^{l} 1 1 0 0 0 0 0 0 
 basic_lepton2lead_pt_step6 Standard Leptons_PostMETcut p_{T}^{l} 1 1 0 0 0 0 0 0 0 0
 basic_lepton2lead_pt_step7 Standard Leptons_Post1BTag p_{T}^{l} 1 1 0 0 0 0 0 0 0 0
 basic_lepton2lead_pt_step8 Standard Leptons_PostKinReco p_{T}^{l} 1 1 0 0 0 0 0 0 0 0
+
+basic_lepton2lead_phi_step1 Standard Lephions_PostTrigg #phi^{l} 1 0 0 0 0 0 0 0 0 0
+basic_lepton2lead_phi_step2 Standard Lephions_PostDiLephi #phi^{l} 1 1 0 0 0 0 0 0 0 0
+basic_lepton2lead_phi_step3 Standard Lephions_PostMll20Cut #phi^{l} 1 1 0 0 0 0 0 0 0 0
+basic_lepton2lead_phi_step4 Standard Lephions_PostZCut #phi^{l} 1 1 0 0 0 0 0 0 0 0
+basic_lepton2lead_phi_step5 Standard Lephions_Post2Jets #phi^{l} 1 1 0 0 0 0 0 0 0 0
+basic_lepton2lead_phi_step6 Standard Lephions_PostMETcut #phi^{l} 1 1 0 0 0 0 0 0 0 0
+basic_lepton2lead_phi_step7 Standard Lephions_Post1BTag #phi^{l} 1 1 0 0 0 0 0 0 0 0
+basic_lepton2lead_phi_step8 Standard Lephions_PostKinReco #phi^{l} 1 1 0 0 0 0 0 0 0 0
+
 
 basic_jet2lead_eta_step1 Standard Jets_PostTrigg #eta^{jet} 1 0 0 0 0 0 0 0 0 0
 basic_jet2lead_eta_step2 Standard Jets_PostDiLept #eta^{jet} 1 1 0 0 0 0 0 0 0 0
@@ -241,14 +346,14 @@ HypBJetEtaNLead Standard b-jets #eta^{N.Lead.b-jet} 2 1 0 0 0 0 -2.5 2.5 0 0
 HypLLBarDPhi Standard Events #Delta#phi{l,#bar{l}} 8 1 0 0 0 0 -0.1 2.9 0 0
 HypBJetpTLead Standard b-jets p_{T}^{Lead.b-jet} 5 1 0 0 0 0 0 0 0 0
 HypBJetpTNLead Standard b-jets p_{T}^{N.Lead.b-jet} 5 1 0 0 0 0 0 0 0 0
-HypLeptonEtaLead Standard Events #eta^{Lead.l} 1 1 0 0 0 0 -3 3 0 0
-HypLeptonEtaNLead Standard Events #eta^{N.Lead.l} 1 1 0 0 0 0 -3 3 0 0
-HypLeptonpTLead Standard Events p_{T}^{Lead.l} 5 1 0 0 0 0 20 400 0 0
-HypLeptonpTNLead Standard Events p_{T}^{N.Lead.l} 5 1 0 0 0 0 20 400 0 0
-HypTopRapidityLead Standard Topquarks y^{Lead.t} 2 1 0 0 0 0 -2.5 2.5 0 0
-HypTopRapidityNLead Standard Topquarks y^{N.Lead.t} 2 1 0 0 0 0 -2.5 2.5 0 0
-HypToppTLead Standard Topquarks p_{T}^{Lead.t} 10 1 0 0 0 0 0 0 0 0
-HypToppTNLead Standard Topquarks p_{T}^{N.Leadl.t} 10 1 0 0 0 0 0 0 0 0
+HypLeptonEtaLead Standard Events #eta^{Lead.l} 5 1 0 0 0 0 -3 3 0 0
+HypLeptonEtaNLead Standard Events #eta^{N.Lead.l} 5 1 0 0 0 0 -3 3 0 0
+HypLeptonpTLead Standard Events p_{T}^{Lead.l} 10 1 0 0 0 0 20 200 0 0
+HypLeptonpTNLead Standard Events p_{T}^{N.Lead.l} 10 1 0 0 0 0 20 200 0 0
+HypTopRapidityLead Standard Topquarks "y (lead. t)" 2 1 0 0 0 1e4 -2.5 2.5 0 0
+HypTopRapidityNLead Standard Topquarks "y (2^{nd} lead. t)" 2 1 0 0 0 1e4 -2.5 2.5 0 0
+HypToppTLead Standard Topquarks "p_{T} (lead. t)" 20 1 0 0 0 0 0 399 0 0
+HypToppTNLead Standard Topquarks "p_{T} (2^{nd} lead. t)" 20 1 0 0 0 0 0 399 0 0
 HypLLBarpT Standard Events p_{T}^{l^{+}l^{-}} 4 1 0 0 0 0 0 500 0 0
 HypLLBarMass Standard Events m^{l^{+}l^{-}} 10 1 0 0 0 0 0 500 0 0
 HypMet Standard Events E_{T}^{miss} 1 1 0 0 0 0 0 0 0 0

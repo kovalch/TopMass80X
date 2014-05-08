@@ -99,9 +99,7 @@ void HiggsAnalysis::Terminate()
     for(MvaTreeHandlerBase* mvaTreeHandler : v_mvaTreeHandler_){
         if(mvaTreeHandler){
             // Produce and write tree
-            mvaTreeHandler->writeTrees(static_cast<std::string>(this->outputFilename()),
-                                        Channel::convertChannel(static_cast<std::string>(this->channel())),
-                                        Systematic::convertSystematic(static_cast<std::string>(this->systematic())));
+            mvaTreeHandler->writeTrees(this->outputFilename(), this->channel(), this->systematic());
             //mvaTreeHandler->writeTrees(fOutput);
 
             // Create and store control plots in fOutput
@@ -331,7 +329,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
 
     // Get MET
     const LV& met = *recoObjects.met_;
-    const bool hasMetOrEmu = this->channel()=="emu" || met.pt()>MetCUT;
+    const bool hasMetOrEmu = this->channel()==Channel::emu || met.pt()>MetCUT;
 
     const tth::RecoObjectIndices recoObjectIndices(allLeptonIndices,
                                                    leptonIndices, antiLeptonIndices,
@@ -475,7 +473,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     selectionStep = "4";
 
     //Exclude the Z window
-    if(this->channel()!="emu" && isZregion) return kTRUE;
+    if(this->channel()!=Channel::emu && isZregion) return kTRUE;
 
     // ++++ Control Plots ++++
 

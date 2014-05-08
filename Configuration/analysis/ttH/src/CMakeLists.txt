@@ -43,6 +43,7 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   GlobalScaleFactors
   LuminosityScaleFactors
   DyScaleFactors
+  HfFracScaleFactors
   EventYields
   Plotter
   )

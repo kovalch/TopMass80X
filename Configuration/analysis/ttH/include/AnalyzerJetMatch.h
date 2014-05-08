@@ -8,6 +8,7 @@ class TString;
 class TH1;
 
 #include "AnalyzerBase.h"
+#include "../../common/include/classesFwd.h"
 
 class JetCategories;
 class RecoObjects;
@@ -53,9 +54,35 @@ private:
                             const double& weight, const TString& step,
                             std::map<TString, TH1*>& m_histogram);
     
-    /// Find if there are any overlapping Hadrons
-    int overlappingHadrons( const std::vector<int>& genIndx);
-    bool MismatchedJets( const std::vector<int>& genIndx, const std::vector<int>& recoIndx, const int& i);
+    
+    
+    /// Book jet specific histos
+    void bookJetHistos(const TString& whichSelection, const TString& step, std::map<TString, TH1*>& m_histogram);
+    
+    /// Book jet histos for all jets, and separately for top jets only and Higgs jets only
+    void bookJetHistosInclExcl(const TString& whichSelection, const TString& whichJets,
+                               const TString& step, std::map<TString, TH1*>& m_histogram);
+    
+    
+    
+    /// Fill jet specific histos
+    void fillJetHistos(const TString& whichSelection,
+                       const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+                       const int genIndex, const int recoIndex,
+                       const tth::GenObjectIndices& genObjectIndices,
+                       const double& weight,
+                       std::map<TString, TH1*>& m_histogram);
+    
+    /// Fill jet histos for all jets, and separately for top jets only and Higgs jets only
+    void fillJetHistosInclExcl(const TString& whichSelection, const TString& whichJets,
+                               const LV& genJet, const LV& recoJet,
+                               const double& weight,
+                               std::map<TString, TH1*>& m_histogram);
+    
+    
+    
+    /// Check for the specified genJet is matched to the same reco jet as another one of the specified genJet collection
+    bool isAmbiguous(const int genIndex, const std::vector<int>& genIndices, const std::vector<int>& closestRecoIndices)const;
 };
 
 

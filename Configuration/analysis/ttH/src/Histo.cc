@@ -97,23 +97,37 @@ void Histo(const std::vector<std::string>& v_plot,
 
 
 
+/// All systematics allowed for plotting
+namespace Systematic{
+    const std::vector<Type> allowedSystematics = {
+        nominal, all,
+        pu, lept, trig,
+        jer, jes,
+        btag, btagPt, btagEta,
+        btagLjet, btagLjetPt, btagLjetEta,
+        kin,
+    };
+}
+
+
+
 int main(int argc, char** argv){
     
     // Get and check configuration parameters
     CLParameter<std::string> opt_plot("p", "Name (pattern) of plot; multiple patterns possible; use '+Name' to match name exactly", false, 1, 100);
     CLParameter<std::string> opt_channel("c", "Specify channel(s), valid: emu, ee, mumu, combined. Default: all channels", false, 1, 4,
-        common::makeStringCheck(Channel::convertChannels(Channel::allowedChannelsPlotting)));
+        common::makeStringCheck(Channel::convert(Channel::allowedChannelsPlotting)));
     CLParameter<std::string> opt_systematic("s", "Systematic variation - default is Nominal, use 'all' for all", false, 1, 100,
-        common::makeStringCheck(Systematic::convertSystematics(Systematic::allowedSystematicsHiggsPlotting)));
+        common::makeStringCheckBegin(Systematic::convertType(Systematic::allowedSystematics)));
     CLParameter<std::string> opt_globalCorrection("g", "Specify global correction, valid: empty argument for none, Drell-Yan (dy), tt+HF (ttbb). Default: all", false, 0, 2,
-        common::makeStringCheck(GlobalCorrection::convertGlobalCorrections(GlobalCorrection::allowedGlobalCorrections)));
+        common::makeStringCheck(GlobalCorrection::convert(GlobalCorrection::allowedGlobalCorrections)));
     CLParameter<std::string> opt_drawMode("d", "Specify draw mode of Higgs sample, valid: stacked, overlaid, scaledoverlaid. Default: scaledoverlaid", false, 1, 1,
-        common::makeStringCheck(DrawMode::convertDrawModes(DrawMode::allowedDrawModes)));
+        common::makeStringCheck(DrawMode::convert(DrawMode::allowedDrawModes)));
     CLAnalyser::interpretGlobal(argc, argv);
     
     // Set up plots
     std::vector<std::string> v_plot {""};
-    if (opt_plot.isSet()){
+    if(opt_plot.isSet()){
         v_plot = opt_plot.getArguments();
         std::cout<< "Processing only histograms containing in name: ";
         for(auto plot : v_plot)std::cout<< plot << " ";
@@ -122,34 +136,34 @@ int main(int argc, char** argv){
     
     // Set up channels
     std::vector<Channel::Channel> v_channel(Channel::allowedChannelsPlotting);
-    if(opt_channel.isSet()) v_channel = Channel::convertChannels(opt_channel.getArguments());
+    if(opt_channel.isSet()) v_channel = Channel::convert(opt_channel.getArguments());
     std::cout << "Processing channels: ";
-    for (auto channel : v_channel)std::cout << Channel::convertChannel(channel) << " ";
+    for(auto channel : v_channel) std::cout << Channel::convert(channel) << " ";
     std::cout << "\n\n";
     
     // Set up systematics
-    std::vector<Systematic::Systematic> v_systematic(Systematic::allowedSystematicsHiggsPlotting);
-    if(opt_systematic.isSet() && opt_systematic[0]!="all") v_systematic = Systematic::convertSystematics(opt_systematic.getArguments());
-    else if(opt_systematic.isSet() && opt_systematic[0]=="all"); // do nothing
-    else {v_systematic.clear(); v_systematic.push_back(Systematic::nominal);}
+    std::vector<Systematic::Systematic> v_systematic = Systematic::allowedSystematicsAnalysis(Systematic::allowedSystematics);
+    if(opt_systematic.isSet() && opt_systematic[0]!=Systematic::convertType(Systematic::all)) v_systematic = Systematic::setSystematics(opt_systematic.getArguments());
+    else if(opt_systematic.isSet() && opt_systematic[0]==Systematic::convertType(Systematic::all)); // do nothing
+    else{v_systematic.clear(); v_systematic.push_back(Systematic::nominalSystematic());}
     std::cout << "Processing systematics (use >>-s all<< to process all known systematics): "; 
-    for (auto systematic : v_systematic) std::cout << Systematic::convertSystematic(systematic) << " ";
+    for(auto systematic : v_systematic) std::cout << systematic.name() << " ";
     std::cout << "\n\n";
     
     // Set up global corrections
     std::vector<GlobalCorrection::GlobalCorrection> v_globalCorrection({GlobalCorrection::dy, GlobalCorrection::ttbb});
-    if(opt_globalCorrection.isSet()) v_globalCorrection = GlobalCorrection::convertGlobalCorrections(opt_globalCorrection.getArguments());
+    if(opt_globalCorrection.isSet()) v_globalCorrection = GlobalCorrection::convert(opt_globalCorrection.getArguments());
     std::cout << "\n";
     std::cout << "Using global corrections: ";
-    for(auto globalCorrection : v_globalCorrection) std::cout << GlobalCorrection::convertGlobalCorrection(globalCorrection) << " ";
+    for(auto globalCorrection : v_globalCorrection) std::cout << GlobalCorrection::convert(globalCorrection) << " ";
     std::cout << "\n\n";
     
     // Set up draw mode (default is scaledOverlaid)
     DrawMode::DrawMode drawMode(DrawMode::undefined);
-    if(opt_drawMode.isSet()) drawMode = DrawMode::convertDrawMode(opt_drawMode[0]);
+    if(opt_drawMode.isSet()) drawMode = DrawMode::convert(opt_drawMode[0]);
     else drawMode = DrawMode::scaledoverlaid;
     std::cout << "\n";
-    std::cout << "Draw mode of Higgs sample: "<<DrawMode::convertDrawMode(drawMode);
+    std::cout << "Draw mode of Higgs sample: "<<DrawMode::convert(drawMode);
     std::cout << "\n\n";
     
     // Start analysis

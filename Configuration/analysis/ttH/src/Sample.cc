@@ -20,7 +20,7 @@ color_(0),
 crossSection_(0),
 sampleType_(dummy),
 finalState_(Channel::undefined),
-systematic_(Systematic::undefined),
+systematic_(),
 inputFileName_("")
 {}
 
@@ -36,7 +36,7 @@ color_(color),
 crossSection_(crossSection),
 sampleType_(sampleType),
 finalState_(Channel::undefined),
-systematic_(Systematic::undefined),
+systematic_(),
 inputFileName_(""),
 v_filename_(v_filename)
 {}
@@ -72,7 +72,7 @@ bool Sample::checkFilename(const TString& filename)const
     }
     
     // Strip off the corresponding channel prefix of format "channel_"
-    const std::string channelPrefix = Channel::convertChannel(channel) + "_";
+    const TString channelPrefix = Channel::convert(channel) + "_";
     filenameBase.ReplaceAll(channelPrefix, "");
     
     // Return whether the filename is associated to this sample

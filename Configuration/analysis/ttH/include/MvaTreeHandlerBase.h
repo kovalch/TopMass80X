@@ -2,7 +2,6 @@
 #define MvaTreeHandlerBase_h
 
 #include <vector>
-#include <string>
 #include <map>
 #include <utility>
 
@@ -64,7 +63,7 @@ public:
               const double& weight, const TString& stepShort);
     
     /// Write trees with MVA input variables in own file
-    void writeTrees(const std::string& outputFilename,
+    void writeTrees(const TString& outputFilename,
                     const Channel::Channel& channel, const Systematic::Systematic& systematic);
     
     /// Write trees with MVA input variables owned by a given selectorList
@@ -74,7 +73,7 @@ public:
     const std::map<TString, std::vector<MvaVariablesBase*> >& stepMvaVariablesMap()const;
     
     /// Import written TTrees
-    void importTrees(const std::string& f_savename, const std::string& prefix ="");
+    void importTrees(const TString& f_savename, const TString& prefix ="");
     
     
     
@@ -164,30 +163,7 @@ private:
 
 
 
-
-namespace tth{
-    namespace mvaHelpers{
-        typedef std::map<Systematic::Systematic, std::map<Channel::Channel, std::vector<TString> > > SystematicChannelFileNames;
-        
-        SystematicChannelFileNames systematicChannelFileNames(const char* fileListBase,
-                                                              const std::vector<Channel::Channel>& v_channel,
-                                                              const std::vector<Systematic::Systematic>& v_systematic,
-                                                              const bool forTraining =true);
-        
-        SystematicChannelFileNames mergeTrees(const char* mvaInputDir,
-                                              const SystematicChannelFileNames& m_systematicChannelFileNamesTraining,
-                                              const SystematicChannelFileNames& m_systematicChannelFileNamesTesting,
-                                              const std::vector<std::pair<TString, TString> >& v_nameStepPair);
-    }
-}
-
-
-
-
-
-
 #endif
-
 
 
 

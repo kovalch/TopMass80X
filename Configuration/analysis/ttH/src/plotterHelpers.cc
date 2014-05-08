@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cstdlib>
 
+#include <TString.h>
+
 #include "plotterHelpers.h"
 
 
@@ -8,7 +10,7 @@
 
 
 
-DrawMode::DrawMode DrawMode::convertDrawMode(const std::string& drawMode)
+DrawMode::DrawMode DrawMode::convert(const TString& drawMode)
 {
     if(drawMode == "stacked") return stacked;
     if(drawMode == "overlaid") return overlaid;
@@ -20,7 +22,7 @@ DrawMode::DrawMode DrawMode::convertDrawMode(const std::string& drawMode)
 
 
 
-std::string DrawMode::convertDrawMode(const DrawMode& drawMode)
+TString DrawMode::convert(const DrawMode& drawMode)
 {
     if(drawMode == stacked) return "stacked";
     if(drawMode == overlaid) return "overlaid";
@@ -33,19 +35,28 @@ std::string DrawMode::convertDrawMode(const DrawMode& drawMode)
 
 
 
-std::vector<DrawMode::DrawMode> DrawMode::convertDrawModes(const std::vector<std::string>& drawModes)
+std::vector<DrawMode::DrawMode> DrawMode::convert(const std::vector<TString>& drawModes)
 {
     std::vector<DrawMode> v_drawMode;
-    for(auto drawMode : drawModes) v_drawMode.push_back(convertDrawMode(drawMode));
+    for(auto drawMode : drawModes) v_drawMode.push_back(convert(drawMode));
     return v_drawMode;
 }
 
 
 
-std::vector<std::string> DrawMode::convertDrawModes(const std::vector<DrawMode>& drawModes)
+std::vector<DrawMode::DrawMode> DrawMode::convert(const std::vector<std::string>& drawModes)
 {
-    std::vector<std::string> v_drawMode;
-    for(auto drawMode : drawModes) v_drawMode.push_back(convertDrawMode(drawMode));
+    std::vector<DrawMode> v_drawMode;
+    for(auto drawMode : drawModes) v_drawMode.push_back(convert(drawMode));
+    return v_drawMode;
+}
+
+
+
+std::vector<TString> DrawMode::convert(const std::vector<DrawMode>& drawModes)
+{
+    std::vector<TString> v_drawMode;
+    for(auto drawMode : drawModes) v_drawMode.push_back(convert(drawMode));
     return v_drawMode;
 }
 
@@ -55,7 +66,7 @@ std::vector<std::string> DrawMode::convertDrawModes(const std::vector<DrawMode>&
 
 
 
-GlobalCorrection::GlobalCorrection GlobalCorrection::convertGlobalCorrection(const std::string& globalCorrection)
+GlobalCorrection::GlobalCorrection GlobalCorrection::convert(const TString& globalCorrection)
 {
     if(globalCorrection == "dy") return dy;
     if(globalCorrection == "ttbb") return ttbb;
@@ -65,7 +76,7 @@ GlobalCorrection::GlobalCorrection GlobalCorrection::convertGlobalCorrection(con
 
 
 
-std::string GlobalCorrection::convertGlobalCorrection(const GlobalCorrection& globalCorrection)
+TString GlobalCorrection::convert(const GlobalCorrection& globalCorrection)
 {
     if(globalCorrection == dy) return "dy";
     if(globalCorrection == ttbb) return "ttbb";
@@ -76,19 +87,28 @@ std::string GlobalCorrection::convertGlobalCorrection(const GlobalCorrection& gl
 
 
 
-std::vector<GlobalCorrection::GlobalCorrection> GlobalCorrection::convertGlobalCorrections(const std::vector<std::string>& globalCorrections)
+std::vector<GlobalCorrection::GlobalCorrection> GlobalCorrection::convert(const std::vector<TString>& globalCorrections)
 {
     std::vector<GlobalCorrection> v_globalCorrection;
-    for(auto globalCorrection : globalCorrections) v_globalCorrection.push_back(convertGlobalCorrection(globalCorrection));
+    for(auto globalCorrection : globalCorrections) v_globalCorrection.push_back(convert(globalCorrection));
     return v_globalCorrection;
 }
 
 
 
-std::vector<std::string> GlobalCorrection::convertGlobalCorrections(const std::vector<GlobalCorrection>& globalCorrections)
+std::vector<GlobalCorrection::GlobalCorrection> GlobalCorrection::convert(const std::vector<std::string>& globalCorrections)
 {
-    std::vector<std::string> v_globalCorrection;
-    for(auto globalCorrection : globalCorrections) v_globalCorrection.push_back(convertGlobalCorrection(globalCorrection));
+    std::vector<GlobalCorrection> v_globalCorrection;
+    for(auto globalCorrection : globalCorrections) v_globalCorrection.push_back(convert(globalCorrection));
+    return v_globalCorrection;
+}
+
+
+
+std::vector<TString> GlobalCorrection::convert(const std::vector<GlobalCorrection>& globalCorrections)
+{
+    std::vector<TString> v_globalCorrection;
+    for(auto globalCorrection : globalCorrections) v_globalCorrection.push_back(convert(globalCorrection));
     return v_globalCorrection;
 }
 

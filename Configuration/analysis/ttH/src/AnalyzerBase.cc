@@ -346,3 +346,43 @@ void AnalyzerDyScaling::fillHistos(const RecoObjects& recoObjects, const CommonG
 
 
 
+
+// --------------------------- Methods for HfFracScalingHistograms ---------------------------------------------
+
+
+
+AnalyzerHfFracScaling::AnalyzerHfFracScaling(const std::vector<TString>& selectionSteps):
+AnalyzerBase("hfFracScaling_", selectionSteps)
+{
+    std::cout<<"--- Beginning setting up Heavy-Flavour Fraction scaling histograms\n";
+    std::cout<<"=== Finishing setting up Heavy-Flavour Fraction scaling histograms\n\n";
+}
+
+
+
+void AnalyzerHfFracScaling::bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram)
+{
+    TString name = "bTag_mult";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "B-tagged jet multiplicity; N b-tags; events",10,0,10));
+}
+
+
+
+void AnalyzerHfFracScaling::fillHistos(const RecoObjects&, const CommonGenObjects&,
+                                   const TopGenObjects&, const HiggsGenObjects&,
+                                   const KinRecoObjects&,
+                                   const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices&,
+                                   const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
+                                   const double& weight, const TString&,
+                                   std::map<TString, TH1*>& m_histogram)
+{
+    const int nBJets = recoObjectIndices.bjetIndices_.size();
+    m_histogram["bTag_mult"]->Fill(nBJets, weight);
+}
+
+
+
+
+
+
+

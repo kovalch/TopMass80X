@@ -11,7 +11,7 @@ class TString;
 class RootFileReader;
 class LuminosityScaleFactors;
 class DyScaleFactors;
-class TtbbScaleFactors;
+class HfFracScaleFactors;
 
 
 
@@ -27,14 +27,14 @@ public:
                        const std::vector<Systematic::Systematic>& v_systematic,
                        const double& luminosityInInversePb =1.,
                        const bool dyCorrection =false,
-                       const bool ttbbCorrection =false);
+                       const bool hfFracCorrection =false);
     
     /// Destructor
     ~GlobalScaleFactors(){}
     
     /// Access the scale factors for a given selection step by requesting explicitely which corrections to be used
     std::pair<SystematicChannelFactors, bool> scaleFactors(const Samples& samples, const TString& step,
-                                                           const bool dyCorrection, const bool ttbbCorrection)const;
+                                                           const bool dyCorrection, const bool hfFracCorrection)const;
     
     /// Access the scale factors for a given selection step, using all corrections which are set up in constructor
     std::pair<SystematicChannelFactors, bool> scaleFactors(const Samples& samples, const TString& step)const;
@@ -56,7 +56,7 @@ private:
     DyScaleFactors* dyScaleFactors_;
     
     /// Pointer to the tt+HF scale factors
-    TtbbScaleFactors* ttbbScaleFactors_;
+    HfFracScaleFactors* hfFracScaleFactors_;
     
     /// File reader for accessing specific histogram from given file
     RootFileReader* rootFileReader_;

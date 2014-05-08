@@ -14,6 +14,7 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   AnalyzerBaseClass
   AnalyzerControlPlots
   AnalyzerDoubleDiffXS
+  AnalyzerKinReco
   plotterclass
   DilepSVDFunctions
   )

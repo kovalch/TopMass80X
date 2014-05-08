@@ -5,6 +5,7 @@
 #include <functional>
 #include <vector>
 
+class TString;
 
 
 
@@ -20,16 +21,26 @@ namespace common{
     
     
     /**
-     * Helper function to create a function which checks if a string found is in the
-     * passed vector of string.
+     * Helper function to create a function which checks if a string is in the passed vector of string
+     * (Check for exact agreement)
      * 
-     * @param v_string a vector of allowed strings (std::string)
+     * @param v_string a vector of allowed strings (TString)
      * @return a function taking a std::string and returning a bool
      */
     #ifndef __CINT__
-    std::function<bool(const std::string& s)> makeStringCheck(const std::vector<std::string> v_string);
+    std::function<bool(const std::string& s)> makeStringCheck(const std::vector<TString> v_string);
     #endif
     
+    /**
+     * Helper function to create a function which checks if a string is in the passed vector of string
+     * (Check only if the beginning of the string is contained in the vector of string)
+     * 
+     * @param v_string a vector of allowed strings (TString)
+     * @return a function taking a std::string and returning a bool
+     */
+    #ifndef __CINT__
+    std::function<bool(const std::string& s)> makeStringCheckBegin(const std::vector<TString> v_string);
+    #endif
 }
 
 

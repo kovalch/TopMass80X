@@ -53,9 +53,51 @@ private:
                             const double& weight, const TString& step,
                             std::map<TString, TH1*>& m_histogram);
     
-    /// Find the overlapping Hadrons and fill all the relevant histograms
-    int overlappingHadrons( const std::vector<int>& genIndex, const bool& returnNOverlapping);
     
+    
+    /// Book histograms for the hadron-genJet-recoJet matching of top and Higgs jets
+    void bookMatchingHistos(const TString& step, std::map<TString, TH1*>& m_histogram);
+    
+    /// Book histos for b jets and their B hadron constituents
+    void bookBhadronHistos(const TString& topOrHiggsName, const TString& step, std::map<TString, TH1*>& m_histogram);
+    
+    /// Book histos for the two jets either from top system or from Higgs
+    /// Only for events with both jets of the requested type separated
+    void bookTopOrHiggsHistos(const TString& topOrHiggsName,
+                              const TString& step,
+                              std::map<TString, TH1*>& m_histogram);
+    
+    /// Book histos for all four jets from top system and Higgs
+    /// Only for events with all four jets separated
+    void bookTopAndHiggsHistos(const TString& step,
+                               std::map<TString, TH1*>& m_histogram);
+    
+    
+    
+    /// Fill histograms for the hadron-genJet-recoJet matching of top and Higgs jets
+    void fillMatchingHistos(const tth::GenObjectIndices& genObjectIndices,
+                                    const double& weight, std::map<TString, TH1*>& m_histogram);
+    
+    /// Fill histos for b jets and their B hadron constituents
+    void fillBhadronHistos(const TString& topOrHiggsName,
+                           const tth::GenObjectIndices& genObjectIndices,
+                           const double& weight,
+                           std::map<TString, TH1*>& m_histogram);
+    
+    /// Fill histos for the two jets either from top system or from Higgs
+    /// Only for events with both jets of the requested type separated
+    void fillTopOrHiggsHistos(const TString& topOrHiggsName,
+                              const CommonGenObjects& commonGenObjects,
+                              const tth::GenObjectIndices& genObjectIndices,
+                              const double& weight,
+                              std::map<TString, TH1*>& m_histogram);
+    
+    /// Fill histos for all four jets from top system and Higgs
+    /// Only for events with all four jets separated
+    void fillTopAndHiggsHistos(const CommonGenObjects& commonGenObjects,
+                               const tth::GenObjectIndices& genObjectIndices,
+                               const double& weight,
+                               std::map<TString, TH1*>& m_histogram);
 };
 
 

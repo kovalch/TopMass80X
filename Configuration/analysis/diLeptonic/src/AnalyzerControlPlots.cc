@@ -126,9 +126,11 @@ void AnalyzerControlPlots::bookHistos(const TString& step, std::map<TString, TH1
 
     // Met
     name = "met_et";
-    //m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Met E_{t};E_{t}^{met};Events",50,0,300));
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Met E_{t};E_{t}^{met};Events",50,0,300));
     name = "met_phi";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Met #phi;#phi^{met};Events",50,-3.2,3.2));
+    name = "met_eta";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Met #eta;#eta^{met};Events",50,-3.2,3.2));
 }
 
 
@@ -142,7 +144,7 @@ void AnalyzerControlPlots::fillHistos(const RecoObjects& recoObjects, const Comm
                                       std::map< TString, TH1* >& m_histogram)
 {
     // Vertices
-    //m_histogram["vertex_multiplicity"]->Fill(recoObjects.vertMulti_, weight);    
+    //m_histogram["vertex_multiplicity"]->Fill(recoObjects.vertMulti_, weight);
     
     // Leptons
     m_histogram["lepton_multiplicity"]->Fill(recoObjectIndices.allLeptonIndices_.size(), weight);
@@ -227,17 +229,19 @@ void AnalyzerControlPlots::fillHistos(const RecoObjects& recoObjects, const Comm
     
     // Bjets
     m_histogram["bjet_multiplicity"]->Fill(recoObjectIndices.bjetIndices_.size(), weight);
-    for(const int index : recoObjectIndices.bjetIndices_){
-        //m_histogram["bjet_pt"]->Fill(recoObjects.jets_->at(index).Pt(), weight);
-        //m_histogram["bjet_eta"]->Fill(recoObjects.jets_->at(index).Eta(), weight);
-        //m_histogram["bjet_phi"]->Fill(recoObjects.jets_->at(index).Phi(), weight);
-        //m_histogram["bjet_chargeRelativePtWeighted"]->Fill(recoObjects.jetChargeRelativePtWeighted_->at(index), weight);
-    }
+//     for(const int index : recoObjectIndices.bjetIndices_){
+//         m_histogram["bjet_pt"]->Fill(recoObjects.jets_->at(index).Pt(), weight);
+//         m_histogram["bjet_eta"]->Fill(recoObjects.jets_->at(index).Eta(), weight);
+//         m_histogram["bjet_phi"]->Fill(recoObjects.jets_->at(index).Phi(), weight);
+//         m_histogram["bjet_chargeRelativePtWeighted"]->Fill(recoObjects.jetChargeRelativePtWeighted_->at(index), weight);
+//     }
+
     
     
     // Met
-    //m_histogram["met_et"]->Fill(recoObjects.met_->E(), weight);
+    m_histogram["met_et"]->Fill(recoObjects.met_->E(), weight);
     m_histogram["met_phi"]->Fill(recoObjects.met_->Phi(), weight);
+    m_histogram["met_eta"]->Fill(recoObjects.met_->Eta(), weight);
 }
 
 

@@ -1,7 +1,6 @@
 #include <vector>
 #include <map>
 #include <iostream>
-#include <fstream>
 #include <algorithm>
 #include <cstdlib>
 
@@ -99,7 +98,7 @@ void Samples::addSamples(const TString& filelistDirectory,
                          const Systematic::Systematic& systematic)
 {
     // Read the full input filenames from the FileList
-    const auto& v_filename = this->readFilelist(filelistDirectory, channel, systematic);
+    const auto& v_filename = common::readFilelist(filelistDirectory, channel, systematic);
     
     // Add all samples as they are defined
     std::vector<std::pair<TString, Sample> > v_filenameSamplePair =
@@ -124,35 +123,6 @@ void Samples::addSamples(const TString& filelistDirectory,
     //        }
     //    }
     //}
-}
-
-
-
-std::vector<TString> Samples::readFilelist(const TString& filelistDirectory,
-                                           const Channel::Channel& channel,
-                                           const Systematic::Systematic& systematic)const
-{
-    // Access fileList containing list of input root files
-    const TString histoListName(filelistDirectory + "/HistoFileList_" + Systematic::convertSystematic(systematic) + "_" + Channel::convertChannel(channel) + ".txt");
-    std::cout << "Reading file: " << histoListName << std::endl;
-    ifstream fileList(histoListName);
-    if (fileList.fail()) {
-        std::cerr << "Error reading file: " << histoListName << std::endl;
-        exit(1);
-    }
-    
-    // Read in fileList to a vector
-    std::vector<TString> v_filename;
-    while(!fileList.eof()){
-        TString filename;
-        fileList>>filename;
-        // Skip empty lines
-        if(filename == "") continue;
-        // Comment lines in FileList with '#'
-        if(filename.BeginsWith("#")) continue;
-        v_filename.push_back(filename);
-    }
-    return v_filename;
 }
 
 
@@ -228,12 +198,14 @@ Channel::Channel Samples::assignFinalState(const TString& filename)const
 
 
 
-Systematic::Systematic Samples::assignSystematic(TString&, const Systematic::Systematic&)
+Systematic::Systematic Samples::assignSystematic(TString&, const Systematic::Systematic& systematic)
 //Systematic::Systematic Samples::assignSystematic(TString& filename, const Systematic::Systematic& systematic)
 {
+    Systematic::Systematic result = systematic;
+    
     // FIXME: adjust filename corresponding to specific systematic
-
-    return Systematic::undefined;
+    
+    return result;
 }
 
 
@@ -248,12 +220,12 @@ const SystematicChannelSamples& Samples::getSystematicChannelSamples()const
 const std::vector<Sample>& Samples::getSamples(const Channel::Channel& channel, const Systematic::Systematic& systematic)const
 {
     if(m_systematicChannelSample_.find(systematic) == m_systematicChannelSample_.end()){
-        std::cerr<<"ERROR in getSamples! No samples available for requested systematic: "<<Systematic::convertSystematic(systematic)
+        std::cerr<<"ERROR in getSamples! No samples available for requested systematic: "<<systematic.name()
                  <<"\n...break\n"<<std::endl;
         exit(321);
     }
     if(m_systematicChannelSample_.at(systematic).find(channel) == m_systematicChannelSample_.at(systematic).end()){
-        std::cerr<<"ERROR in getSamples! No samples available for requested channel: "<<Channel::convertChannel(channel)
+        std::cerr<<"ERROR in getSamples! No samples available for requested channel: "<<Channel::convert(channel)
                  <<"\n...break\n"<<std::endl;
         exit(322);
     }

@@ -108,7 +108,7 @@ void Plotter::producePlots()
             const std::vector<double>& v_weight(globalWeights.at(systematic).at(channel));
             if(!this->prepareDataset(v_sample, v_weight)){
                 std::cout<<"WARNING! Cannot find histograms for all datasets, for (channel/systematic): "
-                         << Channel::convertChannel(channel) << "/" << Systematic::convertSystematic(systematic)
+                         << Channel::convert(channel) << "/" << systematic.name()
                          <<"\n... skip this plot\n";
                 return;
             }
@@ -537,7 +537,7 @@ void Plotter::drawDecayChannelLabel(const Channel::Channel& channel, const doubl
 {
     TPaveText* decayChannel = new TPaveText();
 
-    decayChannel->AddText(Channel::channelLabel(channel).c_str());
+    decayChannel->AddText(Channel::label(channel));
 
     decayChannel->SetX1NDC(      gStyle->GetPadLeftMargin() + gStyle->GetTickLength()        );
     decayChannel->SetY1NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength() - 0.05 );

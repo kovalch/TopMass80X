@@ -56,6 +56,7 @@ void RecoObjects::clear()
     jetSecondaryVertexTrackVertexIndex_ = 0;
     jetSecondaryVertexTrackSelectedTrackIndex_ = 0;
     met_ = 0;
+    mvamet_ = 0;
     jetJERSF_ = 0;
     jetsForMET_ = 0;
     jetForMETJERSF_ = 0;

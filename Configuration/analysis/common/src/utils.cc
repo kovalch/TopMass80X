@@ -2,6 +2,8 @@
 #include <cstdlib>
 #include <algorithm>
 
+#include <TString.h>
+
 #include "utils.h"
 
 
@@ -33,12 +35,31 @@ const std::string common::DATA_PATH_COMMON()
 
 
 
-std::function<bool(const std::string& s)> common::makeStringCheck(const std::vector<std::string> v_string)
+std::function<bool(const std::string& s)> common::makeStringCheck(const std::vector<TString> v_string)
 {
-    return [v_string](const std::string& test){
-        return std::find(begin(v_string), end(v_string), test) != end(v_string);
+    return [v_string](const std::string& test) -> bool {
+        const TString tTest(test);
+        return std::find(begin(v_string), end(v_string), tTest) != end(v_string);
     };
 }
+
+
+
+std::function<bool(const std::string& s)> common::makeStringCheckBegin(const std::vector<TString> v_string)
+{
+    return [v_string](const std::string& test) -> bool {
+        const TString tTest(test);
+        for(const auto& string : v_string){
+            if(string == ""){
+                if(tTest == "") return true;
+                else return false;
+            }
+            else if(tTest.BeginsWith(string)) return true;
+        }
+        return false;
+    };
+}
+
 
 
 

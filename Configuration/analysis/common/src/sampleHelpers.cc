@@ -1,5 +1,8 @@
 #include <iostream>
 #include <cstdlib>
+#include <fstream>
+#include <algorithm>
+#include <sstream>
 
 #include <TString.h>
 #include <TSystem.h>
@@ -13,148 +16,352 @@
 
 
 
-// --------------------- Functions defined in namespace Systematic -------------------------
+// --------------------- Functions defined in namespace Systematic for Type -------------------------
 
 
 
-Systematic::Systematic Systematic::convertSystematic(const std::string& systematic)
+Systematic::Type Systematic::convertType(const TString& type)
 {
-    if(systematic == "Nominal") return nominal;
-    if(systematic == "mH110") return mH110;
-    if(systematic == "mH115") return mH115;
-    if(systematic == "mH120") return mH120;
-    if(systematic == "mH1225") return mH1225;
-    if(systematic == "mH1275") return mH1275;
-    if(systematic == "mH130") return mH130;
-    if(systematic == "mH135") return mH135;
-    if(systematic == "mH140") return mH140;
-    if(systematic == "LEPT_UP") return lept_up;
-    if(systematic == "LEPT_DOWN") return lept_down;
-    if(systematic == "TRIG_UP") return trig_up;
-    if(systematic == "TRIG_DOWN") return trig_down;
-    if(systematic == "PU_UP") return pu_up;
-    if(systematic == "PU_DOWN") return pu_down;
-    if(systematic == "DY_UP") return dy_up;
-    if(systematic == "DY_DOWN") return dy_down;
-    if(systematic == "BG_UP") return bg_up;
-    if(systematic == "BG_DOWN") return bg_down;
-    if(systematic == "KIN_UP") return kin_up;
-    if(systematic == "KIN_DOWN") return kin_down;
-    if(systematic == "BTAG_UP") return btag_up;
-    if(systematic == "BTAG_DOWN") return btag_down;
-    if(systematic == "BTAG_PT_UP") return btagPt_up;
-    if(systematic == "BTAG_PT_DOWN") return btagPt_down;
-    if(systematic == "BTAG_ETA_UP") return btagEta_up;
-    if(systematic == "BTAG_ETA_DOWN") return btagEta_down;
-    if(systematic == "BTAG_LJET_UP") return btagLjet_up;
-    if(systematic == "BTAG_LJET_DOWN") return btagLjet_down;
-    if(systematic == "BTAG_LJET_PT_UP") return btagLjetPt_up;
-    if(systematic == "BTAG_LJET_PT_DOWN") return btagLjetPt_down;
-    if(systematic == "BTAG_LJET_ETA_UP") return btagLjetEta_up;
-    if(systematic == "BTAG_LJET_ETA_DOWN") return btagLjetEta_down;
-    if(systematic == "BTAG_BEFF_UP") return btagBeff_up;
-    if(systematic == "BTAG_BEFF_DOWN") return btagBeff_down;
-    if(systematic == "BTAG_CEFF_UP") return btagCeff_up;
-    if(systematic == "BTAG_CEFF_DOWN") return btagCeff_down;
-    if(systematic == "BTAG_LEFF_UP") return btagLeff_up;
-    if(systematic == "BTAG_LEFF_DOWN") return btagLeff_down;
-    if(systematic == "JER_UP") return jer_up;
-    if(systematic == "JER_DOWN") return jer_down;
-    if(systematic == "JES_UP") return jes_up;
-    if(systematic == "JES_DOWN") return jes_down;
-    if(systematic == "MASS_UP") return mass_up;
-    if(systematic == "MASS_DOWN") return mass_down;
-    if(systematic == "MATCH_UP") return match_up;
-    if(systematic == "MATCH_DOWN") return match_down;
-    if(systematic == "SCALE_UP") return scale_up;
-    if(systematic == "SCALE_DOWN") return scale_down;
-    if(systematic == "POWHEG") return powheg;
-    if(systematic == "MCATNLO") return mcatnlo;
-    if(systematic == "PDF") return pdf;
-    if(systematic == "all") return all;
-    std::cout<<"Warning! The following systematic conversion is not implemented: "<<systematic<<std::endl<<std::endl;
-    return undefined;
+    // Attention: the order here is important, since the first line where the BeginsWith is true is returned
+    if(type.BeginsWith("Nominal")) return nominal;
+    if(type.BeginsWith("mH110")) return mH110;
+    if(type.BeginsWith("mH115")) return mH115;
+    if(type.BeginsWith("mH120")) return mH120;
+    if(type.BeginsWith("mH1225")) return mH1225;
+    if(type.BeginsWith("mH1275")) return mH1275;
+    if(type.BeginsWith("mH130")) return mH130;
+    if(type.BeginsWith("mH135")) return mH135;
+    if(type.BeginsWith("mH140")) return mH140;
+    if(type.BeginsWith("LEPT")) return lept;
+    if(type.BeginsWith("TRIG")) return trig;
+    if(type.BeginsWith("PU")) return pu;
+    if(type.BeginsWith("DY")) return dy;
+    if(type.BeginsWith("BG")) return bg;
+    if(type.BeginsWith("KIN")) return kin;
+    if(type.BeginsWith("BTAG_LJET_PT")) return btagLjetPt;
+    if(type.BeginsWith("BTAG_LJET_ETA")) return btagLjetEta;
+    if(type.BeginsWith("BTAG_LJET")) return btagLjet;
+    if(type.BeginsWith("BTAG_BEFF")) return btagBeff;
+    if(type.BeginsWith("BTAG_CEFF")) return btagCeff;
+    if(type.BeginsWith("BTAG_LEFF")) return btagLeff;
+    if(type.BeginsWith("BTAG_PT")) return btagPt;
+    if(type.BeginsWith("BTAG_ETA")) return btagEta;
+    if(type.BeginsWith("BTAG")) return btag;
+    if(type.BeginsWith("JER")) return jer;
+    if(type.BeginsWith("JES")) return jes;
+    if(type.BeginsWith("MASS")) return mass;
+    if(type.BeginsWith("MATCH")) return match;
+    if(type.BeginsWith("SCALE")) return scale;
+    if(type.BeginsWith("POWHEG")) return powheg;
+    if(type.BeginsWith("MCATNLO")) return mcatnlo;
+    if(type.BeginsWith("PERUGIA11NoCR")) return perugia11NoCR;
+    if(type.BeginsWith("PERUGIA11")) return perugia11;
+    if(type.BeginsWith("PDF")) return pdf;
+    if(type.BeginsWith("closure")) return closure;
+    if(type.BeginsWith("all")) return all;
+    std::cout<<"Warning! The following systematic type conversion is not implemented: "<<type<<std::endl<<std::endl;
+    return undefinedType;
 }
 
 
 
-std::string Systematic::convertSystematic(const Systematic& systematic)
+TString Systematic::convertType(const Type& type)
 {
-    if(systematic == nominal) return "Nominal";
-    if(systematic == mH110) return "mH110";
-    if(systematic == mH115) return "mH115";
-    if(systematic == mH120) return "mH120";
-    if(systematic == mH1225) return "mH1225";
-    if(systematic == mH1275) return "mH1275";
-    if(systematic == mH130) return "mH130";
-    if(systematic == mH135) return "mH135";
-    if(systematic == mH140) return "mH140";
-    if(systematic == lept_up) return "LEPT_UP";
-    if(systematic == lept_down) return "LEPT_DOWN";
-    if(systematic == trig_up) return "TRIG_UP";
-    if(systematic == trig_down) return "TRIG_DOWN";
-    if(systematic == pu_up) return "PU_UP";
-    if(systematic == pu_down) return "PU_DOWN";
-    if(systematic == dy_up) return "DY_UP";
-    if(systematic == dy_down) return "DY_DOWN";
-    if(systematic == bg_up) return "BG_UP";
-    if(systematic == bg_down) return "BG_DOWN";
-    if(systematic == kin_up) return "KIN_UP";
-    if(systematic == kin_down) return "KIN_DOWN";
-    if(systematic == btag_up) return "BTAG_UP";
-    if(systematic == btag_down) return "BTAG_DOWN";
-    if(systematic == btagPt_up) return "BTAG_PT_UP";
-    if(systematic == btagPt_down) return "BTAG_PT_DOWN";
-    if(systematic == btagEta_up) return "BTAG_ETA_UP";
-    if(systematic == btagEta_down) return "BTAG_ETA_DOWN";
-    if(systematic == btagLjet_up) return "BTAG_LJET_UP";
-    if(systematic == btagLjet_down) return "BTAG_LJET_DOWN";
-    if(systematic == btagLjetPt_up) return "BTAG_LJET_PT_UP";
-    if(systematic == btagLjetPt_down) return "BTAG_LJET_PT_DOWN";
-    if(systematic == btagLjetEta_up) return "BTAG_LJET_ETA_UP";
-    if(systematic == btagLjetEta_down) return "BTAG_LJET_ETA_DOWN";
-    if(systematic == btagBeff_up) return "BTAG_BEFF_UP";
-    if(systematic == btagBeff_down) return "BTAG_BEFF_DOWN";
-    if(systematic == btagCeff_up) return "BTAG_CEFF_UP";
-    if(systematic == btagCeff_down) return "BTAG_CEFF_DOWN";
-    if(systematic == btagLeff_up) return "BTAG_LEFF_UP";
-    if(systematic == btagLeff_down) return "BTAG_LEFF_DOWN";
-    if(systematic == jer_up) return "JER_UP";
-    if(systematic == jer_down) return "JER_DOWN";
-    if(systematic == jes_up) return "JES_UP";
-    if(systematic == jes_down) return "JES_DOWN";
-    if(systematic == mass_up) return "MASS_UP";
-    if(systematic == mass_down) return "MASS_DOWN";
-    if(systematic == match_up) return "MATCH_UP";
-    if(systematic == match_down) return "MATCH_DOWN";
-    if(systematic == scale_up) return "SCALE_UP";
-    if(systematic == scale_down) return "SCALE_DOWN";
-    if(systematic == powheg) return "POWHEG";
-    if(systematic == mcatnlo) return "MCATNLO";
-    if(systematic == pdf) return "PDF";
-    if(systematic == all) return "all";
-    if(systematic == undefined) return "";
-    std::cout<<"Error! Systematic conversion is not implemented, break...\n"<<std::endl;
+    if(type == nominal) return "Nominal";
+    if(type == mH110) return "mH110";
+    if(type == mH115) return "mH115";
+    if(type == mH120) return "mH120";
+    if(type == mH1225) return "mH1225";
+    if(type == mH1275) return "mH1275";
+    if(type == mH130) return "mH130";
+    if(type == mH135) return "mH135";
+    if(type == mH140) return "mH140";
+    if(type == lept) return "LEPT";
+    if(type == trig) return "TRIG";
+    if(type == pu) return "PU";
+    if(type == dy) return "DY";
+    if(type == bg) return "BG";
+    if(type == kin) return "KIN";
+    if(type == btagLjetPt) return "BTAG_LJET_PT";
+    if(type == btagLjetEta) return "BTAG_LJET_ETA";
+    if(type == btagLjet) return "BTAG_LJET";
+    if(type == btagBeff) return "BTAG_BEFF";
+    if(type == btagCeff) return "BTAG_CEFF";
+    if(type == btagLeff) return "BTAG_LEFF";
+    if(type == btagPt) return "BTAG_PT";
+    if(type == btagEta) return "BTAG_ETA";
+    if(type == btag) return "BTAG";
+    if(type == jer) return "JER";
+    if(type == jes) return "JES";
+    if(type == mass) return "MASS";
+    if(type == match) return "MATCH";
+    if(type == scale) return "SCALE";
+    if(type == powheg) return "POWHEG";
+    if(type == mcatnlo) return "MCATNLO";
+    if(type == perugia11NoCR) return "PERUGIA11NoCR";
+    if(type == perugia11) return "PERUGIA11";
+    if(type == pdf) return "PDF";
+    if(type == closure) return "closure";
+    if(type == all) return "all";
+    if(type == undefinedType) return "";
+    std::cerr<<"Error! Type conversion is not implemented,\n...break\n"<<std::endl;
     exit(99);
 }
 
 
 
-std::vector<Systematic::Systematic> Systematic::convertSystematics(const std::vector<std::string>& systematics)
+std::vector<Systematic::Type> Systematic::convertType(const std::vector<TString>& types)
 {
-    std::vector<Systematic> v_systematic;
-    for(const auto& systematic : systematics) v_systematic.push_back(convertSystematic(systematic));
-    return v_systematic;
+    std::vector<Type> v_type;
+    for(const auto& type : types) v_type.push_back(convertType(type));
+    return v_type;
 }
 
 
 
-std::vector<std::string> Systematic::convertSystematics(const std::vector<Systematic>& systematics)
+std::vector<Systematic::Type> Systematic::convertType(const std::vector<std::string>& types)
 {
-    std::vector<std::string> v_systematic;
-    for(const auto& systematic : systematics) v_systematic.push_back(convertSystematic(systematic));
-    return v_systematic;
+    std::vector<Type> v_type;
+    for(const auto& type : types) v_type.push_back(convertType(type));
+    return v_type;
 }
+
+
+
+std::vector<TString> Systematic::convertType(const std::vector<Type>& types)
+{
+    std::vector<TString> v_type;
+    for(const auto& type : types) v_type.push_back(convertType(type));
+    return v_type;
+}
+
+
+
+
+
+
+
+
+
+
+// --------------------- Functions defined in namespace Systematic for Variation -------------------------
+
+
+
+
+
+Systematic::Variation Systematic::convertVariation(const TString& variation)
+{
+    if(variation.EndsWith("_UP")) return up;
+    if(variation.EndsWith("_DOWN")) return down;
+    if(variation.EndsWith("_CENTRAL")) return central;
+    //std::cout<<"Warning! The following variation conversion is not implemented: "<<variation<<std::endl<<std::endl;
+    return undefinedVariation;
+}
+
+
+
+TString Systematic::convertVariation(const Variation& variation)
+{
+    if(variation == up) return "_UP";
+    if(variation == down) return "_DOWN";
+    if(variation == central) return "_CENTRAL";
+    if(variation == undefinedVariation) return "";
+    std::cerr<<"Error! Variation conversion is not implemented,\n...break\n"<<std::endl;
+    exit(99);
+}
+
+
+
+std::vector<Systematic::Variation> Systematic::convertVariation(const std::vector<TString>& variations)
+{
+    std::vector<Variation> v_variation;
+    for(const auto& variation : variations) v_variation.push_back(convertVariation(variation));
+    return v_variation;
+}
+
+
+
+std::vector<Systematic::Variation> Systematic::convertVariation(const std::vector<std::string>& variations)
+{
+    std::vector<Variation> v_variation;
+    for(const auto& variation : variations) v_variation.push_back(convertVariation(variation));
+    return v_variation;
+}
+
+
+
+std::vector<TString> Systematic::convertVariation(const std::vector<Variation>& variations)
+{
+    std::vector<TString> v_variation;
+    for(const auto& variation : variations) v_variation.push_back(convertVariation(variation));
+    return v_variation;
+}
+
+
+
+
+
+
+
+
+
+
+// --------------------- Further functions defined in namespace Systematic -------------------------
+
+
+
+void Systematic::isValid(const Type& type, const Variation& variation, const int variationNumber)
+{
+    // Check validity of variationNumber
+    if(variationNumber >= 0){
+        if(std::find(centralTypes.begin(), centralTypes.end(), type) == centralTypes.end()){
+            std::cerr<<"ERROR in Systematic::isValid()! Given type does not allow variation numbers (type, variationNumber): "
+                     <<convertType(type)<<" , "<<variationNumber<<"\n...break\n"<<std::endl;
+            exit(7);
+        }
+    }
+    
+    // Check validity of variation
+    if(variation == undefinedVariation) return;
+    else if(variation==up || variation==down){
+        if(std::find(upDownTypes.begin(), upDownTypes.end(), type) == upDownTypes.end()){
+            std::cerr<<"ERROR in Systematic::isValid()! Given type does not allow variation (type, variation): "
+                     <<convertType(type)<<" , "<<convertVariation(variation)<<"\n...break\n"<<std::endl;
+            exit(7);
+        }
+    }
+    else if(variation == central){
+        if(std::find(centralTypes.begin(), centralTypes.end(), type) == centralTypes.end()){
+            std::cerr<<"ERROR in Systematic::isValid()! Given type does not allow variation (type, variation): "
+                     <<convertType(type)<<" , "<<convertVariation(variation)<<"\n...break\n"<<std::endl;
+            exit(7);
+        }
+    }
+    else{
+        std::cerr<<"ERROR in Systematic::isValid()! Variation is not defined for validity check: "
+                 <<convertVariation(variation)<<"\n...break\n"<<std::endl;
+        exit(7);
+    }
+}
+
+
+
+
+std::vector<Systematic::Systematic> Systematic::allowedSystematicsAnalysis(const std::vector<Type>& allowedTypes)
+{
+    std::vector<Systematic> result;
+    
+    for(const Type& type : allowedTypes){
+        // Exclude non-real types
+        if(type == all) continue;
+        
+        if(std::find(centralTypes.begin(), centralTypes.end(), type) != centralTypes.end()){
+            // Central types need specific treatment using variation numbers, e.g. PDF variations
+            // They require detailed specifications at the place where they are used
+            result.push_back(Systematic(type, undefinedVariation));
+        }
+        else if(std::find(upDownTypes.begin(), upDownTypes.end(), type) != upDownTypes.end()){
+            // Up/down types need the two variations
+            result.push_back(Systematic(type, up));
+            result.push_back(Systematic(type, down));
+        }
+        else{
+            // All others have no variations
+            result.push_back(Systematic(type, undefinedVariation));
+        }
+    }
+    
+    return result;
+}
+
+
+
+std::vector<Systematic::Systematic> Systematic::setSystematics(const std::vector<std::string>& systematicNames)
+{
+    std::vector<Systematic> result;
+    
+    for(const auto& name : systematicNames) result.push_back(Systematic(name));
+    
+    return result;
+}
+
+
+Systematic::Systematic Systematic::nominalSystematic()
+{
+    return Systematic(nominal, undefinedVariation);
+}
+
+
+
+Systematic::Systematic Systematic::undefinedSystematic()
+{
+    return Systematic(undefinedType, undefinedVariation);
+}
+
+
+
+
+// --------------------- Methods of class Systematic in namespace Systematic -------------------------
+
+
+
+Systematic::Systematic::Systematic():
+type_(undefinedType),
+variation_(undefinedVariation),
+variationNumber_(-1)
+{}
+
+
+
+Systematic::Systematic::Systematic(const Type& type, const Variation& variation, const int variationNumber):
+type_(type),
+variation_(variation),
+variationNumber_(variationNumber)
+{}
+
+
+
+Systematic::Systematic::Systematic(const TString& systematicName):
+type_(undefinedType),
+variation_(undefinedVariation),
+variationNumber_(-1)
+{
+    TString fragment(systematicName);
+    type_ = convertType(systematicName);
+    fragment.ReplaceAll(convertType(type_), "");
+    variation_ = convertVariation(fragment);
+    fragment.ReplaceAll(convertVariation(variation_), "");
+    if(fragment != ""){
+        fragment.ReplaceAll("_", "");
+        int variationNumber = -1;
+        std::stringstream stream(fragment.Data());
+        if(!(stream>>variationNumber)){
+            std::cerr<<"ERROR in constructor of Systematic! Could not fragment systematic name (name --- type, variation, variationNumber): "
+                     <<systematicName<<" --- "<<convertType(type_)<<" , "<<convertVariation(variation_)<<" , "<<variationNumber_<<"\n...break\n"<<std::endl;
+            exit(8);
+        }
+        variationNumber_ = variationNumber;
+        if(variationNumber_ < 0){
+            std::cerr<<"ERROR in constructor of Systematic! Variation numbers must be >=0, but is (systematicName, extracted variationNumber): "
+                     <<systematicName<<" , "<<variationNumber_<<"\n...break\n"<<std::endl;
+            exit(8);
+        }
+    }
+    isValid(type_, variation_, variationNumber_);
+}
+
+
+
+TString Systematic::Systematic::name()const
+{
+    TString result = convertType(type_);
+    if(variationNumber_ >= 0) result.Append("_").Append(variationNumber_);
+    result.Append(convertVariation(variation_));
+    return result;
+}
+
+
 
 
 
@@ -167,20 +374,21 @@ std::vector<std::string> Systematic::convertSystematics(const std::vector<System
 
 
 
-Channel::Channel Channel::convertChannel(const std::string& channel)
+Channel::Channel Channel::convert(const TString& channel)
 {
     if(channel == "ee") return ee;
     if(channel == "emu") return emu;
     if(channel == "mumu") return mumu;
     if(channel == "combined") return combined;
     if(channel == "tautau") return tautau;
-    std::cout<<"Warning! The following channel conversion is not implemented: "<<channel<<std::endl<<std::endl;
-    return undefined;
+    if(channel == "") return undefined;
+    std::cerr<<"Error! The following channel conversion is not implemented: "<<channel<<"\n...break\n"<<std::endl;
+    exit(98);
 }
 
 
 
-std::string Channel::convertChannel(const Channel& channel)
+TString Channel::convert(const Channel& channel)
 {
     if(channel == ee) return "ee";
     if(channel == emu) return "emu";
@@ -188,13 +396,13 @@ std::string Channel::convertChannel(const Channel& channel)
     if(channel == combined) return "combined";
     if(channel == tautau) return "tautau";
     if(channel == undefined) return "";
-    std::cout<<"Error! Channel conversion is not implemented, break...\n"<<std::endl;
+    std::cerr<<"Error! Channel conversion is not implemented,\n...break\n"<<std::endl;
     exit(98);
 }
 
 
 
-std::string Channel::channelLabel(const Channel& channel)
+TString Channel::label(const Channel& channel)
 {
     if(channel == ee) return "ee";
     if(channel == emu) return "e#mu";
@@ -202,25 +410,34 @@ std::string Channel::channelLabel(const Channel& channel)
     if(channel == combined) return "Dilepton Combined";
     if(channel == tautau) return "#tau#tau";
     if(channel == undefined) return "";
-    std::cout<<"Error! Channel label is not implemented, break...\n"<<std::endl;
-    exit(97);
+    std::cerr<<"Error! Channel label is not implemented,\n...break\n"<<std::endl;
+    exit(98);
 }
 
 
 
-std::vector<Channel::Channel> Channel::convertChannels(const std::vector<std::string>& channels)
+std::vector<Channel::Channel> Channel::convert(const std::vector<TString>& channels)
 {
     std::vector<Channel> v_channel;
-    for(const auto& channel : channels) v_channel.push_back(convertChannel(channel));
+    for(const auto& channel : channels) v_channel.push_back(convert(channel));
     return v_channel;
 }
 
 
 
-std::vector<std::string> Channel::convertChannels(const std::vector<Channel>& channels)
+std::vector<Channel::Channel> Channel::convert(const std::vector<std::string>& channels)
 {
-    std::vector<std::string> v_channel;
-    for(const auto& channel : channels) v_channel.push_back(convertChannel(channel));
+    std::vector<Channel> v_channel;
+    for(const auto& channel : channels) v_channel.push_back(convert(channel));
+    return v_channel;
+}
+
+
+
+std::vector<TString> Channel::convert(const std::vector<Channel>& channels)
+{
+    std::vector<TString> v_channel;
+    for(const auto& channel : channels) v_channel.push_back(convert(channel));
     return v_channel;
 }
 
@@ -238,24 +455,24 @@ std::vector<std::string> Channel::convertChannels(const std::vector<Channel>& ch
 
 TString common::assignFolder(const char* baseDir, const Channel::Channel& channel, const Systematic::Systematic& systematic)
 {
-    std::string path("");
+    TString path("");
     
     // Create all subdirectories contained in baseDir
     TObjArray* a_subDir = TString(baseDir).Tokenize("/");
     for(Int_t iSubDir = 0; iSubDir < a_subDir->GetEntriesFast(); ++iSubDir){
         const TString& subDir = a_subDir->At(iSubDir)->GetName();
-        path.append(subDir);
-        path.append("/");
-        gSystem->MakeDirectory(path.c_str());
+        path.Append(subDir);
+        path.Append("/");
+        gSystem->MakeDirectory(path);
     }
     
     // Create subdirectories for systematic and channel
-    path.append(Systematic::convertSystematic(systematic));
-    path.append("/");
-    gSystem->MakeDirectory(path.c_str());
-    path.append(Channel::convertChannel(channel));
-    path.append("/");
-    gSystem->MakeDirectory(path.c_str());
+    path.Append(systematic.name());
+    path.Append("/");
+    gSystem->MakeDirectory(path);
+    path.Append(Channel::convert(channel));
+    path.Append("/");
+    gSystem->MakeDirectory(path);
     
     // FIXME: why not using directly gSystem->mkdir("...", true);   ???
     // Should recursively create all needed directories
@@ -266,25 +483,25 @@ TString common::assignFolder(const char* baseDir, const Channel::Channel& channe
 
 
 TString common::accessFolder(const char* baseDir, const Channel::Channel& channel,
-                            const Systematic::Systematic& systematic, const bool allowNonexisting)
+                             const Systematic::Systematic& systematic, const bool allowNonexisting)
 {
     // Build directory path
-    std::string path(baseDir);
-    path.append("/");
-    path.append(Systematic::convertSystematic(systematic));
-    path.append("/");
-    path.append(Channel::convertChannel(channel));
-    path.append("/");
+    TString path(baseDir);
+    path.Append("/");
+    path.Append(systematic.name());
+    path.Append("/");
+    path.Append(Channel::convert(channel));
+    path.Append("/");
     
     // Check if directory really exists
-    if(!gSystem->OpenDirectory(path.c_str())){
+    if(!gSystem->OpenDirectory(path)){
         if(allowNonexisting){
             // It is allowed to request a folder which does not exist, so return empty string silently
             return "";
         }
         else{
-            std::cerr<<"ERROR! Request to access directory is not possible, because it does not exist. Directory name: "<<path
-                     <<"\n...break\n"<<std::endl;
+            std::cerr<<"ERROR! Request to access directory is not possible, because it does not exist. Directory name: "
+                     <<path<<"\n...break\n"<<std::endl;
             exit(237);
         }
     }
@@ -298,7 +515,7 @@ Channel::Channel common::finalState(const TString& filename)
 {
     std::vector<Channel::Channel> v_channel {Channel::ee, Channel::emu, Channel::mumu};
     for(auto channel : v_channel){
-        TString finalState(Channel::convertChannel(channel));
+        TString finalState(Channel::convert(channel));
         finalState.Prepend("/");
         finalState.Append("/");
         if(filename.Contains(finalState)){
@@ -308,6 +525,38 @@ Channel::Channel common::finalState(const TString& filename)
     return Channel::undefined;
 }
 
+
+
+std::vector<TString> common::readFilelist(const TString& filelistDirectory,
+                                          const Channel::Channel& channel,
+                                          const Systematic::Systematic& systematic,
+                                          const std::vector<TString>& v_pattern)
+{
+    // Access fileList containing list of input root files
+    const TString filelistName(filelistDirectory + "/HistoFileList_" + systematic.name() + "_" + Channel::convert(channel) + ".txt");
+    std::cout<<"Reading file: "<<filelistName<<std::endl;
+    ifstream fileList(filelistName);
+    if(fileList.fail()){
+        std::cerr<<"Error in common::readFilelist! Cannot find file with name: "
+                 <<filelistName<<"\n...break\n"<<std::endl;
+        exit(1);
+    }
+    
+    // Read in fileList to a vector
+    std::vector<TString> v_filename;
+    while(!fileList.eof()){
+        TString filename;
+        fileList>>filename;
+        // Skip empty lines
+        if(filename == "") continue;
+        // Comment lines in FileList with '#'
+        if(filename.BeginsWith("#")) continue;
+        // Check that all patterns are contained in the filename
+        for(const auto& pattern : v_pattern) if(!filename.Contains(pattern)) continue;
+        v_filename.push_back(filename);
+    }
+    return v_filename;
+}
 
 
 

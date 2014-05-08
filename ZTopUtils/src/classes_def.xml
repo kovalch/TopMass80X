@@ -1,5 +1,6 @@
 <lcgdict>
   <class name="std::vector<double>"/>
+      <class name="std::vector<std::vector<std::vector<double> > >"/>
   <class name="std::vector<TString>"/>
   <class name="std::pair<TString,std::vector<double> >"/>
   <class name="std::vector<std::pair<TString,std::vector<double> > >"/>
@@ -16,6 +17,8 @@
   <class name="std::vector<ztop::JERBase>"/>
   <class name="ztop::JECBase"/>
   <class name="std::vector<ztop::JECBase>"/>
+  <class name="ztop::RecoilCorrector"/>
+  <class name="std::vector<ztop::RecoilCorrector>"/>
 
 <selection>
   <!---class name="ztop::FactorizedJetCorrector"/-->

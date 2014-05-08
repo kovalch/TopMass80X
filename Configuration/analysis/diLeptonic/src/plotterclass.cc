@@ -27,7 +27,6 @@
 #include "ttbarUtils.h"
 #include "../../common/include/RootFileReader.h"
 #include "../../common/include/plotterUtils.h"
-#include "../../common/include/ScaleFactors.h"
 
 
 // DAVID
@@ -1060,7 +1059,7 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
     if(XAxisbins.size()>1 && doUnfolding){//only distributions we want to unfold will have a binning vector
         aDataHist = drawhists[0]->Rebin(bins,"aDataHist",Xbins);
 
-        TString outdir = common::assignFolder("preunfolded", Channel, Systematic);
+        TString outdir = ttbar::assignFolder("preunfolded", Channel, Systematic);
         TFile *f15 = new TFile(outdir.Copy()+name+"_UnfoldingHistos.root","RECREATE");
         aDataHist->Write("aDataHist"); delete aDataHist;
         aTtBgrHist->Write("aTtBgrHist"); delete aTtBgrHist;
@@ -1125,7 +1124,7 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
     width<<binwidth;
 
     if(name.Contains("Rapidity") || name.Contains("Eta") || name.Contains("Phi") || (name.Contains("Mass") && name.Contains("1st"))){ytitle.Append(" / ").Append(width.str());}
-    else if(name.Contains("pT") || (name.Contains("Mass") && ! name.Contains("1st")) || name.Contains("mass") || name.Contains("MET") || name.Contains("HT")){ytitle.Append(" / ").Append(width.str()).Append(" GeV");};
+    else if(name.Contains("pT", TString::kIgnoreCase) || (name.Contains("Mass", TString::kIgnoreCase) && ! name.Contains("1st")) || name.Contains("MET") || name.Contains("HT")){ytitle.Append(" / ").Append(width.str()).Append(" GeV");};
     drawhists[0]->GetYaxis()->SetTitle(ytitle);
     drawhists[0]->Draw("e1");
     gStyle->SetEndErrorSize(0);
@@ -1150,7 +1149,16 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
         }
         uncBandPlot->Draw("same,e2");
         leg->AddEntry(uncBand, "Uncertainty", "f");
-        if(leg2)leg2->AddEntry(uncBand, "Uncertainty", "f");
+        if(leg2){
+            leg2->AddEntry(uncBand, "Uncertainty", "f");
+            // stupid resizing of the legend to have same size if leg1 and leg2 have different number of entries
+            const float y1 = leg2->GetY1NDC();
+            const float y2 = leg2->GetY2NDC();
+            const float deltaY = std::fabs(y2 -y1);
+            const int nentriesLeg1 = leg1->GetNRows();
+            const int nentriesLeg2 = leg2->GetNRows();
+            leg2->SetY1NDC(y2 - 1.*nentriesLeg2/nentriesLeg1 * deltaY);
+        }
     }
 
     gPad->RedrawAxis();
@@ -1181,7 +1189,7 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
     }
 
     // Create Directory for Output Plots 
-    TString outdir = common::assignFolder(outpathPlots, Channel, Systematic);
+    TString outdir = ttbar::assignFolder(outpathPlots, Channel, Systematic);
     c->Print(outdir.Copy()+name+".eps");
 
     // Get the ratio plot from the canvas
@@ -1226,7 +1234,7 @@ void Plotter::setStyle(TH1 *hist, unsigned int i, bool isControlPlot)
         hist->SetMarkerStyle(20);
         hist->SetMarkerSize(1.2);
         hist->SetLineWidth(2);
-        if ((name.Contains("pT") || name.Contains("Mass")) && (!name.Contains("1st") && !name.Contains("Rapidity") && !name.Contains("Phi"))) {
+        if ((name.Contains("pT", TString::kIgnoreCase) || name.Contains("Mass", TString::kIgnoreCase)) && (!name.Contains("1st") && !name.Contains("Rapidity") && !name.Contains("Phi"))) {
             hist->GetXaxis()->SetTitle(XAxis+" #left[GeV#right]");
             hist->GetYaxis()->SetTitle("#frac{1}{#sigma} #frac{d#sigma}{d"+XAxis+"}"+" #left[GeV^{-1}#right]"); 
         } else {
@@ -1250,7 +1258,7 @@ void Plotter::PlotXSec(TString Channel){
 
     double InclusiveXsectionPlot[4] = {0.}, InclusiveXsectionStatErrorPlot[4] = {0.}, InclusiveXsectionSysErrorPlot[4] = {0.}, InclusiveXsectionTotalErrorPlot[4] = {0.};
     for (int j=0; j<(int)vec_channel.size(); j++){
-        TString outdir = common::assignFolder(outpathPlots, vec_channel.at(j), TString("FinalResults"));
+        TString outdir = ttbar::assignFolder(outpathPlots, vec_channel.at(j), TString("FinalResults"));
         ifstream SysResultsList("Plots/Nominal/"+vec_channel.at(j)+"/InclusiveXSec.txt");
         TString DUMMY;
         SysResultsList>>DUMMY>>DUMMY>>DUMMY>>DUMMY>>DUMMY>>InclusiveXsectionPlot[j]>>DUMMY>>InclusiveXsectionStatErrorPlot[j];
@@ -1441,7 +1449,7 @@ void Plotter::PlotXSec(TString Channel){
     box3->Draw("SAME");
     box4->Draw("SAME");
 
-    TString outdir = common::assignFolder(outpathPlots, Channel, TString("FinalResults"));
+    TString outdir = ttbar::assignFolder(outpathPlots, Channel, TString("FinalResults"));
     c->Print(outdir.Copy()+"InclusiveXSec.eps");
     c->Print(outdir.Copy()+"InclusiveXSec.C");
     c->Clear();
@@ -1498,7 +1506,7 @@ void Plotter::MakeTable(TString Channel, TString Systematic){
     double tmp_num8 = 0;
     double tmp_num9 = 0;
 
-    TString outdir = common::assignFolder(outpathPlots, Channel, Systematic);
+    TString outdir = ttbar::assignFolder(outpathPlots, Channel, Systematic);
     ofstream EventFile5; EventFile5.open(outdir.Copy()+"Events5.txt");
     ofstream EventFile6; EventFile6.open(outdir.Copy()+"Events6.txt");
     ofstream EventFile7; EventFile7.open(outdir.Copy()+"Events7.txt");
@@ -1660,7 +1668,7 @@ double Plotter::CalcXSec(std::vector<TString> datasetVec, double InclusiveXsecti
     double tmp_num = 0;
 
     ofstream EventFile, XSecFile;
-    TString outdir = common::assignFolder(outpathPlots, subfolderChannel.Copy().Remove(0,1), Systematic);
+    TString outdir = ttbar::assignFolder(outpathPlots, subfolderChannel.Copy().Remove(0,1), Systematic);
     EventFile.open(outdir.Copy()+"Events.txt");
     XSecFile.open(outdir.Copy()+"InclusiveXSec.txt");
 
@@ -2197,7 +2205,7 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
     setResultLegendStyle(leg3, 0);
     leg3->Draw("SAME");
 
-    TString outdir = common::assignFolder(outpathPlots, Channel, TString("FinalResults"));
+    TString outdir = ttbar::assignFolder(outpathPlots, Channel, TString("FinalResults"));
     cESP->Print(outdir.Copy()+"ESP_"+name+".eps");
     cESP->Clear();
     delete cESP;
@@ -2794,37 +2802,37 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
     madgraphhistBinned->GetYaxis()->SetTitle(varhists[0]->GetYaxis()->GetTitle());
     madgraphhistBinned->Draw();
 
-
+    gStyle->SetErrorX(0.5);
     if (drawNLOCurves && drawMCATNLO) {
         setTheoryStyleAndFillLegend(mcnlohist, "mcatnloherwig");
         setTheoryStyleAndFillLegend(mcnlohistBinned, "mcatnloherwig", leg2);
-        mcnlohistBinned->Draw("SAME,HISTO");
+        mcnlohistBinned->Draw("SAME");
     }
     if(drawNLOCurves && drawPOWHEGHERWIG){
         setTheoryStyleAndFillLegend(powhegHerwighist, "powhegherwig");
         setTheoryStyleAndFillLegend(powhegHerwighistBinned, "powhegherwig", leg2);
-        powhegHerwighistBinned->Draw("SAME,HISTO");
+        powhegHerwighistBinned->Draw("SAME");
     }
     if(drawNLOCurves && drawPOWHEG){
         setTheoryStyleAndFillLegend(powheghist, "powhegpythia");
         setTheoryStyleAndFillLegend(powheghistBinned, "powhegpythia", leg2);
-        powheghistBinned->Draw("SAME,HISTO");
+        powheghistBinned->Draw("SAME");
     }
     if(drawNLOCurves && drawPERUGIA11){
         setTheoryStyleAndFillLegend(perugia11hist, "perugia11");
         setTheoryStyleAndFillLegend(perugia11histBinned, "perugia11", leg2);
-        perugia11histBinned->Draw("SAME,HISTO");
+        perugia11histBinned->Draw("SAME");
     }
     if(drawNLOCurves && drawKidonakis &&
         (name== "HypToppT" || name == "HypTopRapidity") &&
         !name.Contains("Lead") && !name.Contains("RestFrame")){
         setTheoryStyleAndFillLegend(Kidoth1_Binned, "kidonakis", leg2);
-        Kidoth1_Binned->Draw("SAME,HISTO");
+        Kidoth1_Binned->Draw("SAME");
     }
     if(drawNLOCurves && drawAhrens && (name == "HypTTBarMass" || name == "HypTTBarpT"))
     {
         setTheoryStyleAndFillLegend(Ahrensth1_Binned, "ahrens", leg2);
-        Ahrensth1_Binned->Draw("SAME,HISTO");
+        Ahrensth1_Binned->Draw("SAME");
     }
     if(drawNLOCurves && (drawMadScaleMatching || drawMadMass)){
         if(drawMadScaleMatching){
@@ -3085,7 +3093,7 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
     std::ostringstream width;
     width<<binwidth;
     if(name.Contains("Rapidity") || name.Contains("Eta")){ytitle.Append(" / ").Append(width.str());}
-    else if(name.Contains("pT") || name.Contains("Mass") || name.Contains("mass") || name.Contains("MET") || name.Contains("HT")){ytitle.Append(" / ").Append(width.str()).Append(" GeV");};
+    else if(name.Contains("pT", TString::kIgnoreCase) || name.Contains("Mass", TString::kIgnoreCase) || name.Contains("MET") || name.Contains("HT")){ytitle.Append(" / ").Append(width.str()).Append(" GeV");};
     varhists[0]->GetYaxis()->SetTitle(ytitle);
 
     stack->Draw("same HIST");
@@ -3309,7 +3317,7 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
     setResultLegendStyle(leg3, 0);
     leg3->Draw("SAME");
 
-    TString outdir = common::assignFolder(outpathPlots, Channel, Systematic);
+    TString outdir = ttbar::assignFolder(outpathPlots, Channel, Systematic);
     cESP->Print(outdir.Copy()+"ESP_"+name+".eps");
     cESP->Clear();
     delete cESP;
@@ -3740,36 +3748,37 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
         leg2->AddEntry(realTruthBinned, "Simu. Reweighted", "l");
     }
 
+    gStyle->SetErrorX(0.5);
     if (drawNLOCurves && drawMCATNLO) {
         setTheoryStyleAndFillLegend(mcnlohist, "mcatnloherwig");
         setTheoryStyleAndFillLegend(mcnlohistBinned, "mcatnloherwig", leg2);
-        mcnlohistBinned->Draw("SAME,histo");
+        mcnlohistBinned->Draw("SAME");
     }
     if(drawNLOCurves && drawPOWHEGHERWIG){
         setTheoryStyleAndFillLegend(powhegHerwighist, "powhegherwig");
         setTheoryStyleAndFillLegend(powhegHerwighistBinned, "powhegherwig", leg2);
-        powhegHerwighistBinned->Draw("SAME,histo");
+        powhegHerwighistBinned->Draw("SAME");
     }
     if(drawNLOCurves && drawPOWHEG){
         setTheoryStyleAndFillLegend(powheghist, "powhegpythia");
         setTheoryStyleAndFillLegend(powheghistBinned, "powhegpythia", leg2);
-        powheghistBinned->Draw("SAME,histo");
+        powheghistBinned->Draw("SAME");
     }
     if(drawNLOCurves && drawPERUGIA11){
         setTheoryStyleAndFillLegend(perugia11hist, "perugia11");
         setTheoryStyleAndFillLegend(perugia11histBinned, "perugia11", leg2);
-        perugia11histBinned->Draw("SAME,histo");
+        perugia11histBinned->Draw("SAME");
     }
     if(drawNLOCurves && drawKidonakis &&
         (name== "HypToppT" || name == "HypTopRapidity") && 
         !name.Contains("Lead") && !name.Contains("RestFrame")){
         setTheoryStyleAndFillLegend(Kidoth1_Binned, "kidonakis", leg2);
-        Kidoth1_Binned->Draw("SAME,histo");
+        Kidoth1_Binned->Draw("SAME");
     }
     if(drawNLOCurves && drawAhrens && (name == "HypTTBarMass" || name == "HypTTBarpT"))
     {
         setTheoryStyleAndFillLegend(Ahrensth1_Binned, "ahrens", leg2);
-        Ahrensth1_Binned->Draw("SAME,histo");
+        Ahrensth1_Binned->Draw("SAME");
     }
     if(drawNLOCurves && (drawMadScaleMatching || drawMadMass)){
         if(drawMadScaleMatching){
@@ -3953,7 +3962,7 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
     std::ostringstream width;
     width<<binwidth;
     if(name.Contains("Rapidity") || name.Contains("Eta")){ytitle.Append(" / ").Append(width.str());}
-    else if(name.Contains("pT") || name.Contains("Mass") || name.Contains("mass") || name.Contains("MET") || name.Contains("HT")){ytitle.Append(" / ").Append(width.str()).Append(" GeV");};
+    else if(name.Contains("pT", TString::kIgnoreCase) || name.Contains("Mass", TString::kIgnoreCase) || name.Contains("MET") || name.Contains("HT")){ytitle.Append(" / ").Append(width.str()).Append(" GeV");};
     varhists[0]->GetYaxis()->SetTitle(ytitle);
 
     stack->Draw("same HIST");
@@ -4291,10 +4300,10 @@ void Plotter::setControlPlotLegendStyle(std::vector< TH1* > drawhists, std::vect
     OrderedLegends.push_back("t#bar{t} Signal");
     OrderedLegends.push_back("t#bar{t} Other");
     OrderedLegends.push_back("Single Top");
-    OrderedLegends.push_back("t#bar{t}+V");
     OrderedLegends.push_back("W+Jets");
     OrderedLegends.push_back("Z / #gamma* #rightarrow ee/#mu#mu");
     OrderedLegends.push_back("Z / #gamma* #rightarrow #tau#tau");
+    OrderedLegends.push_back("t#bar{t}+V");
     OrderedLegends.push_back("Diboson");
     OrderedLegends.push_back("QCD Multijet");
 
@@ -4312,7 +4321,7 @@ void Plotter::setControlPlotLegendStyle(std::vector< TH1* > drawhists, std::vect
                 else{
                     leg->AddEntry(drawhists.at(j), OrderedLegends.at(i)+appendix, "f");
                     if (leg1 && i < 5) leg1->AddEntry(drawhists.at(j), OrderedLegends.at(i)+appendix, "f");
-                    if (leg2 && i > 4) leg2->AddEntry(drawhists.at(j), OrderedLegends.at(i)+appendix, "f");
+                    if (leg2 && i >=5) leg2->AddEntry(drawhists.at(j), OrderedLegends.at(i)+appendix, "f");
                     break;
                 }
             }
@@ -4582,7 +4591,7 @@ void Plotter::CalcUpDownDifference( TString Channel, TString Syst_Up, TString Sy
         Syst_Up.Remove(Syst_Up.Length()-2,2);
     }
 
-    ofstream SystematicRelError (common::assignFolder("UnfoldingResults", Channel, Syst_Up)+Variable+"Results.txt");
+    ofstream SystematicRelError (ttbar::assignFolder("UnfoldingResults", Channel, Syst_Up)+Variable+"Results.txt");
     if(!SystematicRelError.is_open()){
         std::cout<<"The output file cannot be opened. Exiting!!"<<std::endl;
         exit(434);
@@ -4700,9 +4709,11 @@ void Plotter::setTheoryStyleAndFillLegend(TH1* histo, TString theoryName, TLegen
 
 bool Plotter::addQCDToControlPlot()const
 {
-    if( name.Contains("_step2") || name.Contains("_step3") || name.Contains("_step4") || name.Contains("_step5") || name.Contains("_step6") || name.Contains("_step7") ||
-        name.Contains("_noBTag") || name.Contains("_diLep") || name.Contains("Electron") || name.Contains("Muon") || name == "MET" ||
-        (!name.Contains("Hyp") && (name.Contains("jetpT") || name.Contains("jetHT")) ))
+    if( (name.Contains("_step") && !name.Contains("7") && !name.Contains("8")) ||
+        (name.Contains("events_") && !name.Contains("7") && !name.Contains("8")) ||
+        (!name.Contains("Hyp") && (name.Contains("jetHT") || name.Contains("jetpT") )) ||
+        name == "MET" ||  name.Contains("_noBTag") ||  name.Contains("_diLep") ||  name.Contains("Electron") || name.Contains("Muon")
+      )
        {
             return 1;
         }

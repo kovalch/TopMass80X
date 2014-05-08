@@ -56,7 +56,7 @@ void DyScaleFactors::produceScaleFactors(const Samples& samples)
                //std::cout<<"DY scale factors: "<<step<<" , "<<Systematic::convertSystematic(systematic)<<" , "
                //         <<Channel::convertChannel(channel)<<" , "<<scaleFactor<<"\n";
            }
-           std::cout<<step<<"\t\t"<<Systematic::convertSystematic(systematic)<<"\t\t"
+           std::cout<<step<<"\t\t"<<systematic.name()<<"\t\t"
                     <<std::fixed<<std::setprecision(3)<<eeScaleFactor<<" , "<<mumuScaleFactor<<"\n";
        }
     }
@@ -212,12 +212,12 @@ const double& DyScaleFactors::dyScaleFactor(const TString& step,
         exit(15);
     }
     if(m_dyScaleFactors_.at(step).find(systematic) == m_dyScaleFactors_.at(step).end()){
-        std::cerr<<"Drell-Yan scale factor requested, but not existent for Systematic: "<<Systematic::convertSystematic(systematic)
+        std::cerr<<"Drell-Yan scale factor requested, but not existent for Systematic: "<<systematic.name()
                  <<"\n...break\n"<<std::endl;
         exit(16);
     }
     if(channel!=Channel::ee && channel!=Channel::mumu){
-        std::cerr<<"Drell-Yan scale factor requested for invalid channel: "<<Channel::convertChannel(channel)
+        std::cerr<<"Drell-Yan scale factor requested for invalid channel: "<<Channel::convert(channel)
                  <<"\n...break\n"<<std::endl;
         exit(17);
     }
