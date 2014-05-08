@@ -34,10 +34,6 @@ for i in $plotList; do
     w
 done
 
-## wait until all jobs are ready: wait for 5minutes
-echo "Sleep 5mins until all control plots of the signal systematics are done"
-sleep 5m
-
 ########################
 ## draw Nominal control plot including uncertainty band
 ##   plese notice the ' -b'
