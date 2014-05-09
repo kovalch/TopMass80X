@@ -776,7 +776,7 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
                     VgenBHadJetIndex.push_back(*it);
                     // Building a vector of b-jets from top
                     if(VgenBHadFlavour.size()<iHad) continue;
-                    if(std::abs(VgenBHadFlavour.at(iHad))!=6) continue;
+                    if(std::abs(VgenBHadFlavour.at(iHad-1))!=6) continue;
                     if(std::find(genBJetFromTopIds.begin(), genBJetFromTopIds.end(), *it) != genBJetFromTopIds.end()) continue;
                     genBJetFromTopIds.push_back(*it);
                 }
