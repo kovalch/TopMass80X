@@ -124,7 +124,7 @@ void DrawLegend() {
   leg1->SetTextSizePixels(textsize);
   leg1->SetFillColor(kWhite);
   leg1->SetBorderSize(0);
-  leg1->AddEntry(gMass[0], "JES=0.96", "EP");
+  leg1->AddEntry(gMass[0], "JSF=0.96", "EP");
   /*
   leg->AddEntry( constFit, "Const. fit", "L");
   char chi2[6]; sprintf(chi2, "%3.1f", fitResult->Chi2());
@@ -138,7 +138,7 @@ void DrawLegend() {
     leg2->SetTextSizePixels(textsize);
     leg2->SetFillColor(kWhite);
     leg2->SetBorderSize(0);
-    leg2->AddEntry(gMass[1], "JES=0.98", "EP");
+    leg2->AddEntry(gMass[1], "JSF=0.98", "EP");
     leg2->Draw();
   }
 
@@ -146,7 +146,7 @@ void DrawLegend() {
   leg3->SetTextSizePixels(textsize);
   leg3->SetFillColor(kWhite);
   leg3->SetBorderSize(0);
-  leg3->AddEntry(gMass[nJES==5?2:1], "JES=1.00", "EP");
+  leg3->AddEntry(gMass[nJES==5?2:1], "JSF=1.00", "EP");
   leg3->Draw();
   
   if(nJES==5){
@@ -154,7 +154,7 @@ void DrawLegend() {
     leg4->SetTextSizePixels(textsize);
     leg4->SetFillColor(kWhite);
     leg4->SetBorderSize(0);
-    leg4->AddEntry(gMass[3], "JES=1.02", "EP");
+    leg4->AddEntry(gMass[3], "JSF=1.02", "EP");
     leg4->Draw();
   }
   
@@ -162,7 +162,7 @@ void DrawLegend() {
   leg5->SetTextSizePixels(textsize);
   leg5->SetFillColor(kWhite);
   leg5->SetBorderSize(0);
-  leg5->AddEntry(gMass[nJES==5?4:2], "JES=1.04", "EP");
+  leg5->AddEntry(gMass[nJES==5?4:2], "JSF=1.04", "EP");
   leg5->Draw();
 }
 
@@ -180,13 +180,13 @@ void ensembleTree()
   tdrStyle->SetTitleYOffset(1.);
   //*/
   
-  TCanvas* canvasFit = new TCanvas("canvasFit", "mt-JES measurement calibration", 500, 500);
+  TCanvas* canvasFit = new TCanvas("canvasFit", "mt-JSF measurement calibration", 500, 500);
   canvasFit->cd();
   
   //// Get histos
   //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140317_1201/");
-  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140401_1201/");
-  TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140418_1201/");
+  TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140401_1201/");
+  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140418_1201/");
   //sFile += "ensemble_S12_Uncalibrated.root";
   sFile += "ensemble_S12_Calibrated.root";
 
@@ -202,14 +202,14 @@ void ensembleTree()
   else                               mgMass->SetTitle(";m_{t,gen} [GeV];<m_{t,cal}-m_{t,gen}> [GeV]");
   
   TMultiGraph *mgJES = new TMultiGraph();
-  if(sFile.Contains("Uncalibrated")) mgJES->SetTitle(";m_{t,gen} [GeV];<JES_{extr}-JES>");
-  else                               mgJES->SetTitle(";m_{t,gen} [GeV];<JES_{cal}-JES>");
+  if(sFile.Contains("Uncalibrated")) mgJES->SetTitle(";m_{t,gen} [GeV];<JSF_{extr}-JSF>");
+  else                               mgJES->SetTitle(";m_{t,gen} [GeV];<JSF_{cal}-JSF>");
   
   TMultiGraph *mgMassPull = new TMultiGraph();
   mgMassPull->SetTitle(";m_{t,gen} [GeV];Mass pull width");
   
   TMultiGraph *mgJESPull = new TMultiGraph();
-  mgJESPull->SetTitle(";m_{t,gen} [GeV];JES pull width");
+  mgJESPull->SetTitle(";m_{t,gen} [GeV];JSF pull width");
   
   TH2D* h2Mass = new TH2D("h2Mass", "h2Mass", 1000, 150, 200, 1000, 0.9, 1.1);
   TH2D* h2JES = new TH2D("h2JES", "h2JES", 1000, 150, 200, 1000, 0.9, 1.1);
