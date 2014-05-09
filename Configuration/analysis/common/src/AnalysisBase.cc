@@ -745,7 +745,7 @@ void AnalysisBase::SetPdfBranchAddress()
 void AnalysisBase::SetDyDecayBranchAddress()
 {
     chain_->SetBranchAddress("ZDecayMode", &ZDecayMode_, &b_ZDecayMode);
-    if(chain_->GetBranch("b_genZ")) chain_->SetBranchAddress("GenZ", &genZ_, &b_genZ);
+    if(chain_->GetBranch("GenZ")) chain_->SetBranchAddress("GenZ", &genZ_, &b_genZ);
 }
 
 
