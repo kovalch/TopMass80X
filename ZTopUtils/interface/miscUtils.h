@@ -21,6 +21,12 @@
 
 namespace ztop {
 
+/**
+ * following numbers and mass dependence provided in NNLO paper arXiv:1303.6254
+ * errors are NOT returned in % (so e.g. 0.026)
+ */
+float getTtbarXsec(float topmass, float energy=8, float* scaleerr=0, float * pdferr=0);
+
 template<class t>
 bool isApprox(t a, t b, double eps = 0.01) {
     if (fabs(a - b) < eps)

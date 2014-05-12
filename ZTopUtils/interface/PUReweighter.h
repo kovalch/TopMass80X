@@ -18,6 +18,9 @@ namespace ztop {
 class PUReweighter {
 
 public:
+    PUReweighter():dataint_(0), mcint_(0),switchedoff_(false){}
+    ~PUReweighter(){}
+
     void setDataTruePUInput(TH1* dataPUdist);
     void setDataTruePUInput(const char * rootfile);
     void setMCTruePUInput(TH1* MCPUdist);
@@ -27,11 +30,14 @@ public:
     void setMCDistrFall11(TString scenario = "S06");
     void clear();
 
+    void switchOff(bool switchoff){switchedoff_=switchoff;}
+
 private:
     std::vector<double> datapu_;
     std::vector<double> mcpu_;
     double dataint_;
     double mcint_;
+    bool switchedoff_;
 };
 
 }
