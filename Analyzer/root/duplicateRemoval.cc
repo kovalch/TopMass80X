@@ -1,28 +1,5 @@
 #include "duplicateRemoval.h"
 
-//#include "TArrow.h"
-#include "TAxis.h"
-#include "TCanvas.h"
-#include "TF1.h"
-//#include "TF2.h"
-#include "TFile.h"
-//#include "TGraphErrors.h"
-//#include "TGraph2DErrors.h"
-//#include "TH1F.h"
-#include "TLatex.h"
-#include "TLegend.h"
-//#include "TPaveText.h"
-//#include "TMath.h"
-//#include "TRandom3.h"
-#include "TROOT.h"
-#include "TString.h"
-#include "TStyle.h"
-//#include "TSystem.h"
-#include "TLorentzVector.h"
-#include "TClonesArray.h"
-#include "TEventList.h"
-#include "TTreeFormula.h"
-
 #include "TopMass/TopEventTree/interface/JetEvent.h"
 #include "TopMass/TopEventTree/interface/TopEvent.h"
 #include "TopMass/TopEventTree/interface/WeightEvent.h"
@@ -46,7 +23,7 @@ DuplicateRemover::DuplicateRemover()
 void DuplicateRemover::removeDuplicates()
 {
   TChain* fromTree = new TChain("analyzeHitFit/eventTree");
-  fromTree->Add("/nfs/dust/cms/user/mseidel/trees/PtFixV2_Run2012D_electron/job*.root");
+  fromTree->Add(po::GetOption<std::string>("input"));
   
   fromTree->SetBranchStatus("*", 0);
   fromTree->SetBranchStatus("jet.*"   , 1);
@@ -65,7 +42,7 @@ void DuplicateRemover::removeDuplicates()
   int nEntries = fromTree->GetEntries();
   int nDuplicates = 0;
   
-  TFile* toFile = new TFile("/nfs/dust/cms/user/mseidel/trees/PtFixV2_Run2012_electron/job_Run2012D_analyzeTop.root", "RECREATE");
+  TFile* toFile = new TFile(po::GetOption<std::string>("outPath"), "RECREATE");
   toFile->mkdir("analyzeHitFit");
   toFile->cd("analyzeHitFit");
   
