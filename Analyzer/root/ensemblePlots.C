@@ -192,10 +192,11 @@ void ensemblePlots()
 
       double max = hErrors[i][j]->GetMaximum();
       //hErrors[i][j]->GetXaxis()->SetRangeUser(0.6, 1.4);
+      hErrors[i][j]->GetXaxis()->SetNdivisions(504);
       hErrors[i][j]->GetYaxis()->SetRangeUser(0, 1.2*max);
       hErrors[i][j]->Draw();
       hErrors[i][j]->Fit("gaus");//,"LIME");
-      drawArrow(0.35, 1.05*max);
+      drawArrow(0.356239, 1.05*max);
       DrawLabel("18.2 fb^{-1} collision data", 0.36, 0.85, 0.46, kRed+1);
 
       DrawCMSPrel();
@@ -207,10 +208,11 @@ void ensemblePlots()
 
       max = hErrorsConstJES[i][j]->GetMaximum();
       //hErrorsConstJES[i][j]->GetXaxis()->SetRangeUser(0.4, 1.);
+      hErrorsConstJES[i][j]->GetXaxis()->SetNdivisions(504);
       hErrorsConstJES[i][j]->GetYaxis()->SetRangeUser(0, 1.2*max);
       hErrorsConstJES[i][j]->Draw();
       hErrorsConstJES[i][j]->Fit("gaus");//,"LIME");
-      drawArrow(0.26, 1.05*max);
+      drawArrow(0.27311, 1.05*max);
       DrawLabel("18.2 fb^{-1} collision data", 0.36, 0.85, 0.46, kRed+1);
 
       DrawCMSPrel();
@@ -222,6 +224,7 @@ void ensemblePlots()
 
       max = hErrorsFSig[i][j]->GetMaximum();
       //hErrorsFSig[i][j]->GetXaxis()->SetRangeUser(0.6, 1.4);
+      hErrorsFSig[i][j]->GetXaxis()->SetNdivisions(504);
       hErrorsFSig[i][j]->GetYaxis()->SetRangeUser(0, 1.2*max);
       hErrorsFSig[i][j]->Draw();
       hErrorsFSig[i][j]->Fit("gaus");//,"LIME");

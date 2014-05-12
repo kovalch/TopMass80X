@@ -36,6 +36,7 @@ void modifyAndSaveCanvas(TCanvas* canvas)
     }
   }
   canvas->Print((std::string(canvas->GetName())+std::string(".eps")).c_str());
+  canvas->Print((std::string(canvas->GetName())+std::string(".png")).c_str());
 }
 
 void plotter(std::string prefix, std::vector<std::string> samples, std::vector<std::string> pdfsTMP)
@@ -94,9 +95,9 @@ void plotter(std::string prefix, std::vector<std::string> samples, std::vector<s
         }
         else if(pdf == "_jes096mass1725"){
           leg->SetX1(0.6);
-          leg->AddEntry(hists[0], "JES=0.96", "L");
-          leg->AddEntry(hists[1], "JES=1.00", "L");
-          leg->AddEntry(hists[2], "JES=1.04", "L");
+          leg->AddEntry(hists[0], "JSF=0.96", "L");
+          leg->AddEntry(hists[1], "JSF=1.00", "L");
+          leg->AddEntry(hists[2], "JSF=1.04", "L");
         }
       }
     }
@@ -169,12 +170,12 @@ void PlotsFromRooWorkspace()
     hists[i]->SetLineColor(color_[i]);
   }
 
-  //plotter("mTop1", {"sig_0", "sig_1"}, {"_jes100mass1665", "_jes100mass1725", "_jes100mass1785"});
-  //plotter("mTop2", {"sig_0", "sig_1"}, {"_jes096mass1725", "_jes100mass1725", "_jes104mass1725"});
-  //plotter("mW1"  , {"sig_2", "sig_3"}, {"_jes100mass1665", "_jes100mass1725", "_jes100mass1785"});
-  //plotter("mW2"  , {"sig_2", "sig_3"}, {"_jes096mass1725", "_jes100mass1725", "_jes104mass1725"});
+  plotter("mTop1", {"sig_0", "sig_1"}, {"_jes100mass1665", "_jes100mass1725", "_jes100mass1785"});
+  plotter("mTop2", {"sig_0", "sig_1"}, {"_jes096mass1725", "_jes100mass1725", "_jes104mass1725"});
+  plotter("mW1"  , {"sig_2", "sig_3"}, {"_jes100mass1665", "_jes100mass1725", "_jes100mass1785"});
+  plotter("mW2"  , {"sig_2", "sig_3"}, {"_jes096mass1725", "_jes100mass1725", "_jes104mass1725"});
   //plotter("mTop", {"topBKG"}, {""});
   //plotter("mW"  , {"wBKG"  }, {""});
-  function2();
+  //function2();
 }
 

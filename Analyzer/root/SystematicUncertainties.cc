@@ -159,14 +159,20 @@ void SystematicUncertainties::fillAllJets()
 {
   //sample.path = "/nfs/dust/cms/user/eschliec/TopMass/topmass_140317_1201/";
   sample.path = "/nfs/dust/cms/user/eschliec/TopMass/topmass_140401_1201/";
+  //sample.path = "/nfs/dust/cms/user/eschliec/TopMass/topmass_140418_1201a/";
   sample.crossSection = 245.794;
   sample.peLumi = 18192.;
 
   //sample.variables = {"mass_mTop_JES", "JES_mTop_JES", "mass_mTop"};
   //sample.variables = {"mass_mTop_JES_fSig", "JES_mTop_JES_fSig", "mass_mTop"};
-  sample.variables = {"mass_mTop_JES_fSig_fCP", "JES_mTop_JES_fSig_fCP", "mass_mTop"};
+  //sample.variables = {"mass_mTop_JES_fSig_fCP", "JES_mTop_JES_fSig_fCP", "mass_mTop"};
+  sample.variables = {"mass_mTop_JES_fSig_fCP", "JES_mTop_JES_fSig_fCP", "mass_mTop_fSig_fCP"};
   //sample.variables = {"mass_mTop_JES_fSig_fCP", "JES_mTop_JES_fSig_fCP", "mass_mTop_fSig"};
   //sample.variables = {"mass_mTop_JES_fSig_fCP", "mass_mTop_JES_fSig", "mass_mTop_JES"};
+  //sample.variables = {"fCP_mTop_JES_fSig_fCP", "fCP_mTop_JES_fCP", "fCP_mTop_fCP"};
+  //sample.variables = {"fSig_mTop_JES_fSig_fCP", "fSig_mTop_JES_fSig", "fSig_mTop_fSig"};
+  //sample.variables = {"fCP_mTop_JES_fSig_fCP", "JES_mTop_JES_fSig_fCP", "fCP_mTop_fSig_fCP"};
+  //sample.variables = {"fSig_mTop_JES_fSig_fCP", "JES_mTop_JES_fSig_fCP", "fSig_mTop_fSig_fCP"};
 
   sample.ensembles["calibration"] = ensemble("", 0, {std::make_pair(sample.variables[0],std::make_pair(172.5,0.0585859)), std::make_pair(sample.variables[1],std::make_pair(1.0,0.000489326)), std::make_pair(sample.variables[2],std::make_pair(172.5,0.058894))});
   sample.ensembles["calibrationDummy"] = ensemble("", 0, {std::make_pair(sample.variables[0],std::make_pair(172.5,0.)), std::make_pair(sample.variables[1],std::make_pair(1.0,0.)), std::make_pair(sample.variables[2],std::make_pair(172.5,0.))});
@@ -201,8 +207,10 @@ void SystematicUncertainties::fillAllJets()
   sample.ensembles["fSigUp"  ] = ensemble("Z2_S12_FSIG_Up/job_*_ensemble.root"  , 62131965./1.8);
   sample.ensembles["fSigDown"] = ensemble("Z2_S12_FSIG_Down/job_*_ensemble.root", 62131965./1.8);
 
-  sample.ensembles["shape"] = ensemble("Z2_S12_BackgroundSys/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["shape"   ] = ensemble("Z2_S12_BackgroundSys/job_*_ensemble.root", 62131965./1.8);
   sample.ensembles["shapeAlt"] = ensemble("../topmass_140401_1201a/Z2_S12_BackgroundSys2/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["bkg0x"   ] = ensemble("../topmass_140401_1201d/Z2_S12_ABS_JES_100_172_5/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["bkg2x"   ] = ensemble("../topmass_140401_1201e/Z2_S12_BKG_2X/job_*_ensemble.root", 62131965./1.8);
 
   sample.ensembles["matchingUp"  ] = ensemble("Z2_S12_Matching_Up/job_*_ensemble.root"  , 37083003./1.8);
   sample.ensembles["matchingDown"] = ensemble("Z2_S12_Matching_Down/job_*_ensemble.root", 34053113./1.8);
@@ -257,7 +265,7 @@ void SystematicUncertainties::fillAllJets()
 
   ///////////////////////////////////
 
-  sample.comparisons["Calibration                      "] = comparison("calibration", "calibrationDummy", "", false);
+  //sample.comparisons["Calibration                      "] = comparison("calibration", "calibrationDummy", "", false);
   sample.comparisons["Pile-up (pp cross-section)       "] = comparison("default", "puUp", "puDown", true);
   sample.comparisons["Jet energy response (udsc)       "] = comparison("default", "flavorQUp", "flavorQDown", true);
   sample.comparisons["Jet energy response (gluon)      "] = comparison("default", "flavorGUp", "flavorGDown", true);
@@ -292,10 +300,36 @@ void SystematicUncertainties::fillAllJets()
   sample.comparisons["Color reconnection               "] = comparison("P11", "P11noCR", "", false);
   sample.comparisons["Underlying event                 "] = comparison("P11", "P11mpiHi", "P11TeV", false);
   sample.comparisons["Non-\\ttbar background \\fsig    "] = comparison("default", "fSigUp", "fSigDown", true);
+  sample.comparisons["Non-\\ttbar background \\fsig 2  "] = comparison("default", "bkg0x", "bkg2x", true, false);
   sample.comparisons["Non-\\ttbar background shape     "] = comparison("default", "shape", "", true);
   sample.comparisons["Non-\\ttbar background shapeAlt  "] = comparison("default", "shapeAlt", "", true, false);
   sample.comparisons["Run dependent                    "] = comparison("defaultSC", "RD", "", false, false);
-  sample.comparisons["PDF                              "] = comparison("default", "PDFDown", "PDFUp", true, true);
+  //sample.comparisons["PDF                              "] = comparison("default", "PDFDown", "PDFUp", true, true);
+
+  sample.mergedcomparisons["JEC"] = mergedcomparison(
+      {"JES Flavor                       ",
+       "JES Intercalibration             ",
+       "JES MPFInSitu                    ",
+       "JES Uncorrelated                 "}
+  );
+  sample.mergedcomparisons["JEC Flavor"] = mergedcomparison(
+      {"Jet energy response (udsc)       ",
+       "Jet energy response (gluon)      ",
+       "Jet energy response (b)          "}
+  );
+  sample.mergedcomparisons["JES PileUpPt"] = mergedcomparison(
+      {"Pile-up (JES) BB                 ",
+       "Pile-up (JES) EC                 "}
+  );
+  sample.mergedcomparisons["PileUp"] = mergedcomparison(
+      {"Pile-up (JES) BB                 ",
+       "Pile-up (JES) EC                 ",
+       "Pile-up (pp cross-section)       "}
+  );
+  sample.mergedcomparisons["b-tagging"] = mergedcomparison(
+      {"b-tag rate                       ",
+       "b-tag (mistag rate)              "}
+  );
 
 }
 
@@ -361,21 +395,21 @@ void SystematicUncertainties::deriveSystematics()
     }
     else down = sample.ensembles.find(it->second.down)->second;
 
-    std::map<std::string, double> shifts;
+    //std::map<std::string, double> shifts;
     for(auto& var : sample.variables)
-      shifts[var] = std::max(std::abs(nominal.values[var].first-up.values[var].first), std::abs(nominal.values[var].first-down.values[var].first));
+      it->second.shifts[var] = std::max(std::abs(nominal.values[var].first-up.values[var].first), std::abs(nominal.values[var].first-down.values[var].first));
 
-    std::map<std::string, double> shiftUncs;
+    //std::map<std::string, double> shiftUncs;
     for(auto& var : sample.variables)
-      shiftUncs[var] = 0.;
+      it->second.shiftUncs[var] = 0.;
 
     if (!it->second.correlated) {
       for(auto& var : sample.variables)
-        shiftUncs[var] = std::max(sqrt(pow(nominal.values[var].second,2)+pow(up.values[var].second,2)),sqrt(pow(nominal.values[var].second,2)+pow(down.values[var].second,2)));
+        it->second.shiftUncs[var] = std::max(sqrt(pow(nominal.values[var].second,2)+pow(up.values[var].second,2)),sqrt(pow(nominal.values[var].second,2)+pow(down.values[var].second,2)));
     }
 
-    sprintf(buffer," & %.2lf$\\pm$%.2lf & %.3lf$\\pm$%.3lf & %.2lf$\\pm$%.2lf \\tabularnewline\n", shifts[sample.variables[0]], shiftUncs[sample.variables[0]], shifts[sample.variables[1]], shiftUncs[sample.variables[1]], shifts[sample.variables[2]], shiftUncs[sample.variables[2]]);
-    printf(" \t  %.2lf +/- %.2lf   %.3lf +/- %.3lf   %.2lf +/- %.2lf \n", shifts[sample.variables[0]], shiftUncs[sample.variables[0]], shifts[sample.variables[1]], shiftUncs[sample.variables[1]], shifts[sample.variables[2]], shiftUncs[sample.variables[2]]);
+    sprintf(buffer," & %.2lf$\\pm$%.2lf & %.3lf$\\pm$%.3lf & %.2lf$\\pm$%.2lf \\tabularnewline\n", it->second.shifts[sample.variables[0]], it->second.shiftUncs[sample.variables[0]], it->second.shifts[sample.variables[1]], it->second.shiftUncs[sample.variables[1]], it->second.shifts[sample.variables[2]], it->second.shiftUncs[sample.variables[2]]);
+    printf(" \t  %.2lf +/- %.2lf   %.3lf +/- %.3lf   %.2lf +/- %.2lf \n", it->second.shifts[sample.variables[0]], it->second.shiftUncs[sample.variables[0]], it->second.shifts[sample.variables[1]], it->second.shiftUncs[sample.variables[1]], it->second.shifts[sample.variables[2]], it->second.shiftUncs[sample.variables[2]]);
     myfile << buffer;
 
     if (upDown) {
@@ -397,7 +431,7 @@ void SystematicUncertainties::deriveSystematics()
 
     if (it->second.active) {
       for(auto& var : sample.variables){
-        totalUncertainties2[var] += pow(std::max(shifts[var], shiftUncs[var]), 2);
+        totalUncertainties2[var] += pow(std::max(it->second.shifts[var], it->second.shiftUncs[var]), 2);
       }
     }
   }
@@ -407,6 +441,31 @@ void SystematicUncertainties::deriveSystematics()
   sprintf(buffer, "& %.2lf & %.3lf & %.2lf \n", sqrt(totalUncertainties2[sample.variables[0]]), sqrt(totalUncertainties2[sample.variables[1]]), sqrt(totalUncertainties2[sample.variables[2]]));
   printf("\t 2D mass = %.2lf GeV, JSF = %.3lf, 1D mass = %.2lf GeV\n", sqrt(totalUncertainties2[sample.variables[0]]), sqrt(totalUncertainties2[sample.variables[1]]), sqrt(totalUncertainties2[sample.variables[2]]));
   myfile << buffer;
+
+  for(std::map<std::string, mergedcomparison>::const_iterator it = sample.mergedcomparisons.begin(); it != sample.mergedcomparisons.end(); ++it) {
+    std::cout << it->first;
+    myfile    << it->first;
+
+    std::map<std::string, double> mergedUncertainties2;
+    for(auto& var : sample.variables)
+      mergedUncertainties2[var] = 0;
+
+    for(std::vector<std::string>::const_iterator it2 = it->second.comparisons.begin(); it2 != it->second.comparisons.end(); ++it2){
+      for(auto& var : sample.variables){
+        mergedUncertainties2[var] += pow(sample.comparisons.find(*it2)->second.shifts[var],2);
+        //if (it->first == "JEC") {
+        //  if(it2->substr(0,3) == "JES"){
+        //    mergedUncertainties2[var] -= pow(0.0138, 2);
+        //  }
+        //}
+      }
+    }
+    sprintf(buffer, " & %.2lf & %.3lf & %.2lf \\tabularnewline\n", sqrt(mergedUncertainties2[sample.variables[0]]), sqrt(mergedUncertainties2[sample.variables[1]]), sqrt(mergedUncertainties2[sample.variables[2]]));
+    printf(" \t  %.2lf             %.3lf             %.2lf           \n", sqrt(mergedUncertainties2[sample.variables[0]]), sqrt(mergedUncertainties2[sample.variables[1]]), sqrt(mergedUncertainties2[sample.variables[2]]));
+    myfile << buffer;
+  }
+
+
   myfile.close();
 }
 

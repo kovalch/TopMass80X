@@ -74,7 +74,7 @@ TopMassCalibration::TopMassCalibration() :
     fChannel_   (po::GetOption<std::string>("channel")),
     activeBranches_(po::GetOption<std::string>("analysisConfig.activeBranches")),
     maxPermutations_(po::GetOption<int>("analysisConfig.maxPermutations")),
-    doCalibration_(false),
+    doCalibration_(true),
     fitBackground_(true)
     //doMeasurement_(false)
 {

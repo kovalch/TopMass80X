@@ -719,9 +719,16 @@ void TopMassControlPlots::doPlots()
   // Alljets channel
   if (channelID == Helper::kAllJets) {
     if(plotSelectedForPlotting.find("StandardPlots")!=plotSelectedForPlotting.end()){
-      samples.push_back(MySample("Data", "MJP12_v1_data", kData, kBlack));
+      //samples.push_back(MySample("Data", "MJP12*_v1_data", kData, kBlack));
+      samples.push_back(MySample("Data", "MJP12*_PTRESI_v1_data", kData, kBlack));
       samples.push_back(MySample("t#bar{t}", "Z2_S12_ABS_JES_100_172_5_MadSpin_sig", kSig, kRed+1));
       samples.push_back(MySample("Background", "QCDMixing_MJPS12_v1_data", kBkg, kYellow, 1));
+      //samples.push_back(MySample("Background B", "dcap://dcache-cms-dcap.desy.de//pnfs/desy.de/cms/tier2/store/user/eschliec/TopMassTreeWriter_04_DataMix03/QCDMixing_MJPS12B_v1_data/*", kBkg, kYellow, 1));
+      //samples.push_back(MySample("Background C1", "dcap://dcache-cms-dcap.desy.de//pnfs/desy.de/cms/tier2/store/user/eschliec/TopMassTreeWriter_04_DataMix03/QCDMixing_MJPS12C1_v1_data/*", kBkg, kYellow, 1));
+      //samples.push_back(MySample("Background C2", "dcap://dcache-cms-dcap.desy.de//pnfs/desy.de/cms/tier2/store/user/eschliec/TopMassTreeWriter_04_DataMix03/QCDMixing_MJPS12C2_v1_data/*", kBkg, kYellow, 1));
+      //samples.push_back(MySample("Background D1", "dcap://dcache-cms-dcap.desy.de//pnfs/desy.de/cms/tier2/store/user/eschliec/TopMassTreeWriter_04_DataMix03/QCDMixing_MJPS12D1_v1_data/*", kBkg, kYellow, 1));
+      //samples.push_back(MySample("Background D2", "dcap://dcache-cms-dcap.desy.de//pnfs/desy.de/cms/tier2/store/user/eschliec/TopMassTreeWriter_04_DataMix03/QCDMixing_MJPS12D2_v1_data/*", kBkg, kYellow, 1));
+      //samples.push_back(MySample("Background D3", "dcap://dcache-cms-dcap.desy.de//pnfs/desy.de/cms/tier2/store/user/eschliec/TopMassTreeWriter_04_DataMix03/QCDMixing_MJPS12D3_v1_data/*", kBkg, kYellow, 1));
     }
 
     // Signal variations (UE Tune)
@@ -762,11 +769,11 @@ void TopMassControlPlots::doPlots()
 
     // Signal variations (JES)
     if(plotSelectedForPlotting.find("TriggerPlots")!=plotSelectedForPlotting.end()){
-      samples.push_back(MySample("t#bar{t}, trigger 1.15", "Z2_S12_TRIGGERJES_Up_sig"            , kSigVar, kRed+1    , 1,1,"weight.combinedWeight|top.combinationType==0?1.0:-0.0733331462*weight.combinedWeight"));
-      samples.push_back(MySample("t#bar{t}, trigger 1.05", "Z2_S12_TRIGGERJES2_Up_sig"           , kSigVar, kMagenta+1, 1));
+      samples.push_back(MySample("t#bar{t}, trigger 1.15", "Z2_S12_TRIGGERJES_Up_sig"            , kSigVar, kRed+1    , 1,1));
+      //samples.push_back(MySample("t#bar{t}, trigger 1.05", "Z2_S12_TRIGGERJES2_Up_sig"           , kSigVar, kMagenta+1, 1));
       samples.push_back(MySample("t#bar{t}"              , "Z2_S12_ABS_JES_100_172_5_MadSpin_sig", kSigVar, kBlue+1   , 1));
-      samples.push_back(MySample("t#bar{t}, trigger 0.95", "Z2_S12_TRIGGERJES2_Down_sig"         , kSigVar, kGreen+1  , 1));
-      samples.push_back(MySample("t#bar{t}, trigger 0.85", "Z2_S12_TRIGGERJES_Down_sig"          , kSigVar, kCyan+1   , 1,1,"weight.combinedWeight|top.combinationType==0?1.0:-0.0733331462*weight.combinedWeight"));
+      //samples.push_back(MySample("t#bar{t}, trigger 0.95", "Z2_S12_TRIGGERJES2_Down_sig"         , kSigVar, kGreen+1  , 1));
+      samples.push_back(MySample("t#bar{t}, trigger 0.85", "Z2_S12_TRIGGERJES_Down_sig"          , kSigVar, kCyan+1   , 1,1));
     }
   }
   
@@ -1151,7 +1158,10 @@ void TopMassControlPlots::doPlots()
       TChain* chain; int nFiles = 0;
       if (channelID == Helper::kAllJets) {
         chain = new TChain("analyzeKinFit/eventTree");
-        nFiles = chain->Add((path_+sample.file+std::string(".root")).c_str());
+        //if(sample.type == kBkg)
+        //  nFiles = chain->Add((sample.file+std::string(".root")).c_str());
+        //else
+          nFiles = chain->Add((path_+sample.file+std::string(".root")).c_str());
       }
       else if(plotSelectedForPlotting.find("GBRTesting")!=plotSelectedForPlotting.end()){
     	  chain = new TChain("hmvacor");
@@ -1191,19 +1201,6 @@ void TopMassControlPlots::doPlots()
       //TTreeFormula weight("weight",  po::GetOption<std::string>("weight").c_str(), chain);
       TTreeFormula weight("weight",  po::GetOptionReplaced("weight",sample.replaceVar).c_str(), chain);
       std::string tempSel(po::GetOptionReplaced("analysisConfig.selection",sample.replaceVar));
-      //if(channelID == Helper::kAllJets && sample.type == kBkg) {
-      //  std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
-      //  std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
-      //  std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
-      //  std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
-      //  std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
-      //  std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
-      //  std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
-      //  std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
-      //  std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
-      //  std::cout << "ICH FIND DICH SCHEISSE, SO RICHTIG SCH SCH SCH SCH SCH SCH SCHEISSE !!!" << std::endl;
-      //  boost::replace_all(tempSel, "&& jet.alternativeJet[3].Pt() > 60", "");
-      //}
       TTreeFormula sel   ("sel"   ,  tempSel.c_str(), chain);
       TTreeFormula selCP ("selCP" , (po::GetOptionReplaced("analysisConfig.selection",sample.replaceVar)
 				 +std::string(" & ")+po::GetOptionReplaced("analysisConfig.selectionCP",sample.replaceVar)).c_str(), chain);
@@ -1471,7 +1468,6 @@ void TopMassControlPlots::doPlots()
         collectAll2D.push_back(hist.Data2D());
         for(TH2F* sigvar : hist.Sigvar2D()) collectAll2D.push_back(sigvar);
 
-
         for (size_t h_i=0;h_i<collectAll2D.size();++h_i){
           //std::cout << " title " << collectAll2D.at(h_i)->GetTitle() << " " << collectAll2D.at(h_i)->GetFillColor() << std::endl;
           collectAll2D.at(h_i)->SetMarkerStyle(20+h_i);
@@ -1487,10 +1483,10 @@ void TopMassControlPlots::doPlots()
           collectAll2DProfiles.at(h_i)->SetMarkerStyle(collectAll2D.at(h_i)->GetMarkerStyle());
 	  
           collectAll2DProfiles.at(h_i)->GetYaxis()->SetTitle(collectAll2D.at(h_i)->GetYaxis()->GetTitle());
-	  if(hist.ExportSigVarToRoot()){
-	    //std::cout << "this should go into a root file" << std::endl;
-	    outFile->WriteTObject(collectAll2DProfiles.back());
-	  }
+          if(hist.ExportSigVarToRoot()){
+            //std::cout << "this should go into a root file" << std::endl;
+            outFile->WriteTObject(collectAll2DProfiles.back());
+          }
 
         }
 
@@ -1530,6 +1526,7 @@ void TopMassControlPlots::doPlots()
         pad2->SetTopMargin(0.71);
         pad2->Draw();
         pad2->cd();
+        pad2->SetGridy();
         pad2->SetLogx(hist.LogX());
 
         canvWRatio->cd();
@@ -1537,7 +1534,7 @@ void TopMassControlPlots::doPlots()
         TPad *pad1 = new TPad("pad1","pad1",0,0.0,1,1,10); //top
         pad1->SetFillStyle(4100);
         pad1->SetBottomMargin(0.3);
-	//        pad1->SetTopMargin(gStyle->GetPadTopMargin()/0.7);
+        //pad1->SetTopMargin(gStyle->GetPadTopMargin()/0.7);
         pad1->Draw();
         pad1->cd();
         pad1->SetLogx(hist.LogX());
@@ -1628,31 +1625,30 @@ void TopMassControlPlots::doPlots()
       }
       else for(TH1* sig : hist.Sig1D()) stack->Add(sig);
 
-      for(int i = 0; i< hist.Data1D()->GetNbinsX(); i++){
-	std::cout <<   ((TH1*)stack->GetStack()->Last())->GetBinContent(i) <<  " error" << ((TH1*)stack->GetStack()->Last())->GetBinError(i) << " data" << hist.Data1D()->GetBinContent(i)  << "; " << std::endl;
-      }
-      //      hs->GetStack()->Last()->Draw();
+      //for(int i = 0; i< hist.Data1D()->GetNbinsX(); i++){
+      //  std::cout << ((TH1*)stack->GetStack()->Last())->GetBinContent(i) << " error" << ((TH1*)stack->GetStack()->Last())->GetBinError(i) << " data" << hist.Data1D()->GetBinContent(i)  << "; " << std::endl;
+      //}
+      //hs->GetStack()->Last()->Draw();
       if(hist.PlotStackNorm()){ //work in progress... normalize stack plot bin-by-bin
-	TH1* sumstack = (TH1*) stack->GetStack()->Last()->Clone();
-	stack = new THStack("stackNORM", "");
-	TH1* dataTemp = (TH1*) hist.Data1D()->Clone();
+        TH1* sumstack = (TH1*) stack->GetStack()->Last()->Clone();
+        stack = new THStack("stackNORM", "");
+        TH1* dataTemp = (TH1*) hist.Data1D()->Clone();
 
-	hist.	setData1D((TH1F*) HelperFunctions::createRatioPlot(dataTemp, dataTemp, (std::string)"fraction "+hist.Data1D()->GetYaxis()->GetTitle()));
-	hist.DataContainsMC()==false ? hist.Data1D()->Draw("p") : hist.Data1D()->Draw("hist");
-	hist.Data1D()->GetYaxis()->SetRangeUser(0.01, 1.6);
-	hist.DataContainsMC()==false ? hist.Data1D()->Draw("p") : hist.Data1D()->Draw("hist");
-	
+        hist.setData1D((TH1F*) HelperFunctions::createRatioPlot(dataTemp, dataTemp, (std::string)"fraction "+hist.Data1D()->GetYaxis()->GetTitle()));
+        hist.DataContainsMC()==false ? hist.Data1D()->Draw("p") : hist.Data1D()->Draw("hist");
+        hist.Data1D()->GetYaxis()->SetRangeUser(0.01, 1.6);
+        hist.DataContainsMC()==false ? hist.Data1D()->Draw("p") : hist.Data1D()->Draw("hist");
 
-	std::vector <TH1F*> TEMPHistBkg1D = hist.Bkg1D();
-	for(TH1F* bkg : boost::adaptors::reverse(TEMPHistBkg1D)) stack->Add(HelperFunctions::createRatioPlot(bkg,sumstack,bkg->GetTitle()+(std::string)"_norm"));
-	std::vector <TH1F*> TEMPHistSig1D = hist.Sig1D();
-	if (channelID == Helper::kAllJets) {
-	  std::vector <TH1F*> TEMPHistSig1D = hist.Sig1D();
-	  for(TH1* sig : boost::adaptors::reverse(TEMPHistSig1D)) stack->Add(HelperFunctions::createRatioPlot(sig,sumstack,sig->GetTitle()+(std::string)"_norm"));
-	}
-	else for(TH1* sig : hist.Sig1D()) stack->Add(HelperFunctions::createRatioPlot(sig,sumstack,sig->GetTitle()+(std::string)"_norm"));
+        std::vector <TH1F*> TEMPHistBkg1D = hist.Bkg1D();
+        for(TH1F* bkg : boost::adaptors::reverse(TEMPHistBkg1D)) stack->Add(HelperFunctions::createRatioPlot(bkg,sumstack,bkg->GetTitle()+(std::string)"_norm"));
+        std::vector <TH1F*> TEMPHistSig1D = hist.Sig1D();
+        if (channelID == Helper::kAllJets) {
+          std::vector <TH1F*> TEMPHistSig1D = hist.Sig1D();
+          for(TH1* sig : boost::adaptors::reverse(TEMPHistSig1D)) stack->Add(HelperFunctions::createRatioPlot(sig,sumstack,sig->GetTitle()+(std::string)"_norm"));
+        }
+        else for(TH1* sig : hist.Sig1D()) stack->Add(HelperFunctions::createRatioPlot(sig,sumstack,sig->GetTitle()+(std::string)"_norm"));
 
-	std::cout << "trying to normalize stacks" << std::endl;
+        std::cout << "trying to normalize stacks" << std::endl;
       }	
       std::cout << stack->GetName() << std::endl;
       stack->Draw("hist same");
@@ -1698,11 +1694,12 @@ void TopMassControlPlots::doPlots()
       pad2->SetTopMargin(0.71);
       pad2->Draw();
       pad2->cd();
+      pad2->SetGridy();
       pad2->SetLogx(hist.LogX());
       ratioToTHStack->Draw();
       ratioToTHStack->GetXaxis()->SetNdivisions(506);
 
-      std::cout << "hist.plotRangeYRatioMin" <<  hist.plotRangeYRatioMin << " hist.plotRangeYRatioMax "<< hist.plotRangeYRatioMax << std::endl;
+      //std::cout << "hist.plotRangeYRatioMin" << hist.plotRangeYRatioMin << " hist.plotRangeYRatioMax " << hist.plotRangeYRatioMax << std::endl;
       ratioToTHStack->GetYaxis()->SetRangeUser(hist.plotRangeYRatioMin,hist.plotRangeYRatioMax);
       ratioToTHStack->GetYaxis()->SetTickLength(gStyle->GetTickLength("Y")/0.2);
       ratioToTHStack->GetYaxis()->SetNdivisions(205);
@@ -1711,10 +1708,10 @@ void TopMassControlPlots::doPlots()
       canvWRatio->cd();
 
       TPad *pad1 = new TPad("pad1","pad1",0,0.0,1,1,10); //top
-      //      pad1->SetFillStyle(4100);
+      //pad1->SetFillStyle(4100);
       pad1->SetFillStyle(4000);
       pad1->SetBottomMargin(0.3);
-      //      pad1->SetTopMargin(gStyle->GetPadTopMargin()/0.7);
+      //pad1->SetTopMargin(gStyle->GetPadTopMargin()/0.7);
       pad1->Draw();
       pad1->cd();
       pad1->SetLogx(hist.LogX());
@@ -1733,9 +1730,9 @@ void TopMassControlPlots::doPlots()
       hist.Data1D()->GetYaxis()->SetLabelSize(gStyle->GetLabelSize("Y"));
       stack->Draw("hist same");
       hist.DataContainsMC()==false ? hist.Data1D()->Draw("p same") : hist.Data1D()->Draw("hist same");
-      //      leg0->SetY1NDC(0.675);
+      //leg0->SetY1NDC(0.675);
       leg0->Draw();
-      //      leg1->SetY1NDC(0.675);
+      //leg1->SetY1NDC(0.675);
       leg1->Draw();
 
       canvWRatio->cd();
@@ -1768,14 +1765,14 @@ void TopMassControlPlots::doPlots()
 
         hist1DData->GetYaxis()->UnZoom();
         if(hist.DataContainsMC()==false) hist1DData->Draw("p");
-	else {
-	  hist1DData->Draw("hist");
-	  hist1DData->SetFillStyle(3445);
-	  hist1DData->SetFillColor(hist1DData->GetLineColor());
-	}
+        else {
+          hist1DData->Draw("hist");
+          hist1DData->SetFillStyle(3445);
+          hist1DData->SetFillColor(hist1DData->GetLineColor());
+        }
 
-	hist1DData->GetYaxis()->SetRangeUser(1, hist1DData->GetMaximum()*1.5);
-	if(hist.LogY())hist.Data1D()->GetYaxis()->SetRangeUser(2, 2 *pow(hist.Data1D()->GetMaximum()/2,1/0.7));
+        hist1DData->GetYaxis()->SetRangeUser(1, hist1DData->GetMaximum()*1.5);
+        if(hist.LogY())hist.Data1D()->GetYaxis()->SetRangeUser(2, 2 *pow(hist.Data1D()->GetMaximum()/2,1/0.7));
 
 
         for(TH1F* sigvar : hist.Sigvar1D()) sigvar->DrawClone("hist same");
@@ -1867,11 +1864,11 @@ void TopMassControlPlots::doPlots()
 	    double oldTitleSize = hist1DData->GetTitleSize();
 	    hist1DData->SetLabelSize(0);
 	    hist1DData->SetTitleSize(0);
-        hist1DData->GetYaxis()->UnZoom();
-	hist1DData->GetYaxis()->SetRangeUser(1, hist1DData->GetMaximum()*1.75);
-	if(hist.LogY())hist.Data1D()->GetYaxis()->SetRangeUser(2, 2 *pow(hist.Data1D()->GetMaximum()/2,1/0.7));
-        hist.DataContainsMC()==false ? hist1DData->Draw("p") : hist1DData->Draw("hist");
-        for(TH1F* sigvar : hist.Sigvar1D()) sigvar->Draw("hist same");
+	    hist1DData->GetYaxis()->UnZoom();
+	    hist1DData->GetYaxis()->SetRangeUser(1, hist1DData->GetMaximum()*1.75);
+	    if(hist.LogY())hist.Data1D()->GetYaxis()->SetRangeUser(2, 2 *pow(hist.Data1D()->GetMaximum()/2,1/0.7));
+	    hist.DataContainsMC()==false ? hist1DData->Draw("p") : hist1DData->Draw("hist");
+	    for(TH1F* sigvar : hist.Sigvar1D()) sigvar->Draw("hist same");
         hist.DataContainsMC()==false ? hist1DData->Draw("p same") : hist1DData->Draw("hist same");
         leg1->Draw();
 
