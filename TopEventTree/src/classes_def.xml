@@ -6,6 +6,7 @@
   <class name="JetEvent"/>
   <class name="BRegJetEvent"/>
   <class name="WeightEvent"/>
+  <class name="SherpaGenEvent"/>
   <class name="edm::RefToBase<pat::Jet>"/>
   <class name="pat::UserHolder<edm::RefToBase<pat::Jet> >" />
 </lcgdict>
