@@ -50,6 +50,9 @@ void WeightEvent::init()
   Q  = -1.;
   id1 = -100;
   id2 = -100;
+  
+  meTop1 = TLorentzVector();
+  meTop2 = TLorentzVector();
 
   combinedWeight = 1.;
 }

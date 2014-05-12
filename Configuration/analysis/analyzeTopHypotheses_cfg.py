@@ -23,7 +23,7 @@ options.register('csvm', 0.679, VarParsing.VarParsing.multiplicity.singleton,Var
 options.register('nbjets', 2, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.int, "Minimum number of bjets")
 
 options.register('brCorrection', True, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.bool, "Do BR correction (MadGraph)")
-options.register('bSFNewRecipe', False, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.bool, "Use new b-tag SF recipe")
+options.register('bSFNewRecipe', True, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.bool, "Use new b-tag SF recipe")
 
 # define the syntax for parsing
 # you need to enter in the cfg file:
@@ -74,6 +74,12 @@ elif (options.mcversion == "Summer12"):
   readFiles.extend( [
          '/store/mc/Summer12_DR53X/TTJets_SemiLeptMGDecays_8TeV-madgraph/AODSIM/PU_S10_START53_V7A-v1/00001/FC5CECAE-8B14-E211-8578-0025B3E0652A.root'
   ] )
+elif (options.mcversion == "Summer12W0Jets"):
+  readFiles.extend( [
+         '/store/mc/Summer12_DR53X/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball/AODSIM/PU_S10_START53_V7A-v2/0004/FE9FA8F7-2BF3-E111-A34E-001E672CC1E7.root',
+         '/store/mc/Summer12_DR53X/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball/AODSIM/PU_S10_START53_V7A-v2/0004/FE7A6C35-FAF2-E111-97BC-D8D385FF4ABA.root',
+         '/store/mc/Summer12_DR53X/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball/AODSIM/PU_S10_START53_V7A-v2/0004/FE777AEF-CBF2-E111-AD95-001E67398223.root',
+  ] )
 elif (data and options.lepton == "muon"):
   readFiles.extend( [
          '/store/data/Run2012A/SingleMu/AOD/22Jan2013-v1/30000/FEDCB8E2-5270-E211-8FD6-00266CFFBC38.root'
@@ -113,7 +119,7 @@ process.maxEvents = cms.untracked.PSet(
 
 ## configure process options
 process.options = cms.untracked.PSet(
-#    wantSummary = cms.untracked.bool(True),
+    wantSummary = cms.untracked.bool(True),
 #    SkipEvent = cms.untracked.vstring('ProductNotFound')
 )
 
@@ -129,6 +135,11 @@ elif os.getenv('CMSSW_VERSION').startswith('CMSSW_5_3_'):
   process.GlobalTag.globaltag = cms.string('START53_V27::All')
 if data:
   process.GlobalTag.globaltag = cms.string('FT_53_V21_AN5::All')
+
+## generator filters
+if (options.mcversion == 'Summer12W0Jets'):
+    process.load("TopAnalysis.TopFilter.filters.GeneratorWNJetsFilter_cfi")
+    process.filterWNJets.NJet = 0
 
 ## std sequence for pat
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
@@ -151,12 +162,16 @@ if not data:
     scaledJetEnergy.flavor       = options.flavor
     scaledJetEnergy.scaleFactor  = options.lJesFactor
     scaledJetEnergy.scaleFactorB = options.bJesFactor
+    if (options.resolution=='down3'):
+      scaledJetEnergy.resolutionFactors   = [0.866 , 0.889 , 0.904 , 0.858 , 0.691]
     if (options.resolution=='down'):
       scaledJetEnergy.resolutionFactors   = [0.990 , 1.001 , 1.032 , 1.042 , 1.089]
     if (options.resolution=='nominal'):
       scaledJetEnergy.resolutionFactors   = [1.052 , 1.057 , 1.096 , 1.134 , 1.288]
     if (options.resolution=='up'):
       scaledJetEnergy.resolutionFactors   = [1.115 , 1.114 , 1.161 , 1.228 , 1.488]
+    if (options.resolution=='up3'):
+      scaledJetEnergy.resolutionFactors   = [1.241 , 1.228 , 1.291 , 1.416 , 1.888]
     scaledJetEnergy.resolutionEtaRanges   = [0.0,0.5,0.5,1.1,1.1,1.7,1.7,2.3,2.3,-1.]
 
     scaledJetEnergy.inputJets    = "selectedPatJets"
@@ -180,7 +195,7 @@ if not data:
     process.scaledMuonEnergy.src      = "selectedPatMuons"
     process.scaledMuonEnergy.mets     = "scaledElectronEnergy:METs"
     process.scaledMuonEnergy.shiftBy  = options.mesShift
-    process.vertexSelectedMuons.src   = "scaledMuonEnergy:selectedPatMuons"
+    process.vertexSelectedMuons2012.src   = "scaledMuonEnergy:selectedPatMuons"
 
     ## unclustered energy scale
     process.load("TopAnalysis.TopUtils.UnclusteredMETScale_cfi")
@@ -555,6 +570,8 @@ for pathname in pathnames:
         getattr(process, pathname).insert(0,process.decaySubset)
         getattr(process, pathname).remove(process.initSubset)
         getattr(process, pathname).insert(0,process.initSubset)
+    if (options.mcversion == 'Summer12W0Jets'):
+        getattr(process, pathname).insert(0,process.filterWNJets)
     ## move the trigger to the beginning of the sequence
     getattr(process, pathname).remove(process.hltFilter)
     getattr(process, pathname).insert(0,process.hltFilter)

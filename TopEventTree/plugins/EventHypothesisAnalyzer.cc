@@ -232,13 +232,12 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
   }
   if(semiLepTtEvent){
     //////////////////////////////////////////////////////////////////////////////
-    // Fetch reconstructed permutations without fit solution, get leptonFlavour
+    // Fetch ONE reconstructed permutation without fit solution, get leptonFlavour
+    // (avoids implementing a LeptonEvent class...)
     // not implemented for fullHad version up to now
     ///////////////////////////////////////////////////////////////////////////
 
     top->leptonFlavour = -lepton_ * semiLepTtEvent->singleLepton(TtEvent::kMVADisc)->charge();
-
-    //std::cout << "leptonFlavour: " << top->leptonFlavour << std::endl;
 
     for (unsigned int h = 0; h < ttEvent->numberOfAvailableHypos(TtEvent::kMVADisc); ++h) {
       if (!ttEvent->isHypoValid(TtEvent::kMVADisc, h)) break;
@@ -270,6 +269,8 @@ EventHypothesisAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& s
       else{
         top->combinationType.push_back(6);
       }
+      
+      break;
     }
   }
   trs->Fill();

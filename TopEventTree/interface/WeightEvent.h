@@ -19,7 +19,7 @@ public:
   WeightEvent();
   void init();
 
-  ClassDef(WeightEvent,3);
+  ClassDef(WeightEvent,4);
 
   // WeightEvent data
 
@@ -66,6 +66,10 @@ public:
   double x1, x2;
   float Q;
   int id1, id2;
+  
+  // ME level top quarks
+  TLorentzVector meTop1;
+  TLorentzVector meTop2;
 
   // default combined event weight
   double combinedWeight;

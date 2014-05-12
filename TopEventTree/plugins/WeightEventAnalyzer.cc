@@ -236,6 +236,32 @@ WeightEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
   edm::Handle<double> triggerWeight_h;
   evt.getByLabel(triggerWeightSrc_, triggerWeight_h);
   if(triggerWeight_h.isValid()) { weight->triggerWeight = *triggerWeight_h; weight->combinedWeight *= weight->triggerWeight; }
+  
+  
+  //////////////////////////////////////////////////////////////////////////
+  // ME TOP QUARKS
+  ////////////////////////////////////////////////////////////////////////
+  
+  edm::Handle<reco::GenParticleCollection> genParticles;
+  evt.getByLabel("genParticles", genParticles);
+  if (genParticles.isValid()) {
+    for(size_t i = 0; i < genParticles->size(); ++ i) {
+      const reco::GenParticle & p = (*genParticles)[i];
+      if (p.pdgId() == 6) {
+        weight->meTop1 = TLorentzVector(p.px(), p.py(), p.pz(), p.energy());
+        break;
+      }
+    }
+    for(size_t i = 0; i < genParticles->size(); ++ i) {
+      const reco::GenParticle & p = (*genParticles)[i];
+      if (p.pdgId() == -6) {
+        weight->meTop2 = TLorentzVector(p.px(), p.py(), p.pz(), p.energy());
+        break;
+      }
+    }
+  }
+  
+  ///////////
 
   trs->Fill();
 }
