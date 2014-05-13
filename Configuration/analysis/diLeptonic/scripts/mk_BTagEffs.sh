@@ -37,7 +37,7 @@ for c in ee emu mumu; do
     $LA -f tau_scaledown.root -c $c -s SCALE_DOWN &
     $LA -f tau_mcatnlo.root -c $c -s MCATNLO &
     $LA -f tau_powheg.root -c $c -s POWHEG &
-    $LA -f tau_powhegHerwig.root -c $c -s POWHEGHERWIG &
+#    $LA -f tau_powhegHerwig.root -c $c -s POWHEGHERWIG &
 done
 
 
