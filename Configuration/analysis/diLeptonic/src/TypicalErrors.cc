@@ -43,6 +43,7 @@ std::vector<TString> Systematics()
                                 "BTAG_PT_", "BTAG_LJET_PT_",
                                 "KIN_",
                                 "HAD_", "MASS_", "SCALE_", "MATCH_"
+                                ,"PDF_"
                                 };
 
         return systematics;
