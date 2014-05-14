@@ -381,11 +381,12 @@ int main(int argc, char** argv) {
             std::cerr << "Insonsistent systematic parameter: " << systematic.name() << " cannot be used with PDF systematic!\n";
             std::exit(1);
         }
-        if(pdf_no == 0) systematic = Systematic::Systematic(Systematic::pdf, Systematic::central, pdf_no);
-        else systematic = Systematic::Systematic(Systematic::pdf, pdf_no % 2 ? Systematic::up : Systematic::down, (pdf_no+1)/2);
+        const Systematic::Variation variation = !pdf_no ? Systematic::central : pdf_no%2 ? Systematic::up : Systematic::down;
+        const int variationNumber = (pdf_no+1)/2;
+        systematic = Systematic::Systematic(Systematic::pdf, variation, variationNumber);
         std::cout << "Running PDF variation: " << systematic.name() << "\n";
     }
-
+    
     // Set up maximum number of events to process
     const Long64_t bigNumber(TChain::kBigNumber);
     const Long64_t maxEvents = opt_maxEvents.isSet() ? opt_maxEvents[0] : bigNumber;

@@ -356,7 +356,11 @@ variationNumber_(-1)
 TString Systematic::Systematic::name()const
 {
     TString result = convertType(type_);
-    if(variationNumber_ >= 0) result.Append("_").Append(variationNumber_);
+    if(variationNumber_ >= 0){
+        std::stringstream stream;
+        stream<<"_"<<variationNumber_;
+        result.Append(stream.str());
+    }
     result.Append(convertVariation(variation_));
     return result;
 }
