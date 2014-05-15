@@ -49,6 +49,7 @@ Systematic::Type Systematic::convertType(const TString& type)
     if(type.BeginsWith("BTAG")) return btag;
     if(type.BeginsWith("JER")) return jer;
     if(type.BeginsWith("JES")) return jes;
+    if(type.BeginsWith("TOP_PT")) return topPt;
     if(type.BeginsWith("MASS")) return mass;
     if(type.BeginsWith("MATCH")) return match;
     if(type.BeginsWith("SCALE")) return scale;
@@ -93,6 +94,7 @@ TString Systematic::convertType(const Type& type)
     if(type == btag) return "BTAG";
     if(type == jer) return "JER";
     if(type == jes) return "JES";
+    if(type == topPt) return "TOP_PT";
     if(type == mass) return "MASS";
     if(type == match) return "MATCH";
     if(type == scale) return "SCALE";

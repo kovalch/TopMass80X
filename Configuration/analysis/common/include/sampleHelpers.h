@@ -43,6 +43,7 @@ namespace Systematic{
         btagLeff,       // scale the b-tagging efficiencies as estimated from MC for l-jets for stat. uncertainty (not applied anywhere)
         jer,            // scale jet energy resolution scale factors
         jes,            // scale jet energy scale scale factors
+        topPt,          // scale top pt as estimated in ttbar differential cross-section measurements
         mass,           // variations of masses used in process generation (here top quark mass)
         match,          // matching uncertainty in process generation
         scale,          // scale uncertainty in process generation
@@ -110,6 +111,7 @@ namespace Systematic{
         btagLjet, btagLjetPt, btagLjetEta,
         btagBeff, btagCeff, btagLeff,
         jer, jes,
+        topPt,
         mass, match, scale,
         pdf
     };
