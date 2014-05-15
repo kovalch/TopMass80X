@@ -62,7 +62,7 @@ BCC::BCC(TString filename, std::vector<TString> vecPathnames, std::vector<TStrin
     // Please provide your own function 'makeVariableBinning' producing a std::map with your binning
     
     mapBinning  = makeVariableBinning(addCrossCheckVariables);
-           
+    
     // Set variable 'largeMGFile', open file and get tree
 
     largeMGFile = (filename.Contains("Large")) ? 1 : 0;
@@ -174,13 +174,13 @@ BCC::BCC(TString filename, std::vector<TString> vecPathnames, std::vector<TStrin
 	    }
 	}
 	else
-	{
+	  {
 	    for (BCCMap::iterator iter = mapData.begin(); iter != mapData.end(); iter++) 
 
-		std::cout << " Creating new branch .... " << iter->first << " with " << iter->second.size() << " entries." << std::endl;
+	      std::cout << " Creating new branch .... " << iter->first << " with " << iter->second.size() << " entries." << std::endl;
 
 	    MakeHistos();	    
-	}	
+	  }	
     }
     else 
     {
@@ -254,9 +254,13 @@ void BCC::MakeHistos()
   BinWidthScaler["lepEtaMinus"] = 80.0;
   BinWidthScaler["lepPt"]       =    2;
   BinWidthScaler["topPt"]       =  0.4;
+  BinWidthScaler["topPtLead"]   =  0.4;
+  BinWidthScaler["topPtSubLead"]=  0.4;
+  BinWidthScaler["topPtTtbarSys"]= 0.4;
   BinWidthScaler["topPtPlus"]   =  0.4;
   BinWidthScaler["topPtminus"]  =  0.4;
   BinWidthScaler["topY"]        = 40.0;
+  BinWidthScaler["ttbarDelPhi"] = 40.0;
   BinWidthScaler["topYPlus"]    = 40.0;
   BinWidthScaler["topYMinus"]   = 40.0;
   BinWidthScaler["ttbarMass"]   =  1.0;
@@ -270,10 +274,14 @@ void BCC::MakeHistos()
   HistoBins["lepEtaMinus"] = 200;
   HistoBins["lepPt"]       = 160;
   HistoBins["topPt"]       = 160;
+  HistoBins["topPtLead"]   = 160;
+  HistoBins["topPtSubLead"]= 160;
+  HistoBins["topPtTtbarSys"]= 160;
   HistoBins["topPtPlus"]   = 160;
   HistoBins["topPtMinus"]  = 160;
   HistoBins["topY"]        = 200;
   HistoBins["topYPlus"]    = 200;
+  HistoBins["ttbarDelPhi"] = 200;
   HistoBins["topYMinus"]   = 200;
   HistoBins["ttbarMass"]   = 240;
   HistoBins["ttbarPt"]     = 300;
@@ -311,8 +319,8 @@ void BCC::MakeHistos()
     hname  = iter->first;
     hname.ReplaceAll("Gen","");
     plotname.ReplaceAll("Gen","");
-    //std::cout << "refVecTempBinning.size(): " << refVecTempBinning.size() << std::endl;
-    //std::cout << "mapData entry valid? " << iter->first << std::endl;
+    std::cout << "refVecTempBinning.size(): " << refVecTempBinning.size() << std::endl;
+    std::cout << "mapData entry valid? " << iter->first << std::endl;
     binmin = refVecTempBinning[0];
     binmax = refVecTempBinning[refVecTempBinning.size()-1];
 
@@ -323,7 +331,7 @@ void BCC::MakeHistos()
     for (iterVecData = refVecTempData.begin(); iterVecData != refVecTempData.end(); iterVecData++ )
       temphisto.Fill(*iterVecData);
 
-    temphisto.Smooth(HistoSmoothingValue[hname]);
+    //temphisto.Smooth(HistoSmoothingValue[hname]);
 
     mapHistos[hname] = temphisto;
   }
@@ -485,7 +493,7 @@ void BCC::setBCCinX_MeanOverBin()
     {
       for (unsigned int bin = 1; bin < refVecTempBinning.size(); bin++)
       {
-	// std::cout << "Upper Bin Boundary: " << refVecTempBinning[bin]; 
+	std::cout << "Upper Bin Boundary: " << refVecTempBinning[bin]; 
 	
 	sum  = 0;
 	NEVE = 0;
