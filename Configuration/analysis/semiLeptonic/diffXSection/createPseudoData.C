@@ -27,18 +27,18 @@ void createPseudoData(double luminosity=19712.){
   //tests_.push_back("NoDistort"    );
   //tests_.push_back("topPtUp"      );
   //tests_.push_back("topPtDown"    );
-  //tests_.push_back("ttbarMassUp"  );
-  //tests_.push_back("ttbarMassDown");
+  tests_.push_back("ttbarMassUp"  );
+  tests_.push_back("ttbarMassDown");
   //tests_.push_back("data"         );
   //tests_.push_back("1000"         );
-  tests_.push_back("topMass161p5"   );
-  tests_.push_back("topMass163p5"   );
-  tests_.push_back("topMass166p5"   );
-  tests_.push_back("topMass169p5"   );
-  tests_.push_back("topMass175p5"   );
-  tests_.push_back("topMass178p5"   );
-  tests_.push_back("topMass181p5"   );
-  tests_.push_back("topMass184p5"   );
+  //tests_.push_back("topMass161p5"   );
+  //tests_.push_back("topMass163p5"   );
+  //tests_.push_back("topMass166p5"   );
+  //tests_.push_back("topMass169p5"   );
+  //tests_.push_back("topMass175p5"   );
+  //tests_.push_back("topMass178p5"   );
+  //tests_.push_back("topMass181p5"   );
+  //tests_.push_back("topMass184p5"   );
 
   // create all relevant files
   for(unsigned int lepton=0; lepton<leptons_.size(); ++lepton){
@@ -114,8 +114,9 @@ void createPseudoDataFunc(double luminosity, const std::string decayChannel, TSt
     else if(specifier=="topMass178p5") sys=sysTopMassUp2;
     else if(specifier=="topMass181p5") sys=sysTopMassUp3;
     else if(specifier=="topMass184p5") sys=sysTopMassUp4;
-    nameTtbarReweighted+=TopFilename(kSig, sys, decayChannel);
+    nameTtbarReweighted+=TopFilename(kSig, sys, decayChannel, false);// false: NO MADSPIN!
   }
+  std::cout << nameTtbarReweighted << std::endl;
   // BG
   TString nameTtbarBGReweighted=nameTtbarReweighted;
   nameTtbarBGReweighted.ReplaceAll("Sig","Bkg");
@@ -128,7 +129,7 @@ void createPseudoDataFunc(double luminosity, const std::string decayChannel, TSt
     histo_["avWeight"][kSig] = (TH1F*)(ttbarRewfile->Get(weightPlot)->Clone());
     avWeight=histo_ ["avWeight"][kSig]->GetBinContent(2)/histo_ ["avWeight"][kSig]->GetBinContent(1);
     histo_["avWeight"].erase(kSig);
-    TFile* sigfile = new (TFile)(groupSpace+AnalysisFolder+"/"+TopFilename(kSig, sysNo, decayChannel));
+    TFile* sigfile = new (TFile)(groupSpace+AnalysisFolder+"/"+TopFilename(kSig, sysNo, decayChannel, false));
     TString partonPlot="analyzeTopPartonLevelKinematics/ttbarMass";
     gROOT->cd();
     histo_["parton"   ][kSig] = (TH1F*)(sigfile     ->Get(partonPlot)->Clone());
@@ -138,7 +139,7 @@ void createPseudoDataFunc(double luminosity, const std::string decayChannel, TSt
     if(verbose>1){
       std::cout << "ratio unweighted/weighted" << std::endl;
       std::cout << avWeight  << " (from " << weightPlot << ")" << std::endl;
-      std::cout << avWeight2 << TString(" (from entries in ")+partonPlot+" wrt "+groupSpace+AnalysisFolder+"/"+TopFilename(kSig, sysNo, decayChannel)+"): " << std::endl;
+      std::cout << avWeight2 << TString(" (from entries in ")+partonPlot+" wrt "+groupSpace+AnalysisFolder+"/"+TopFilename(kSig, sysNo, decayChannel,false)+"): " << std::endl;
     }
   }
 
@@ -382,7 +383,7 @@ void poisson(std::map< TString, std::map <unsigned int, TH1F*> > histo_, std::ve
 	if(!(useZprime&&sample==kZprime&&plotList_[plot].Contains("PUControlDistributions"))){
 	  // do lumiweighting
 	  if     (useZprime       &&sample==kZprime) histo_[plotList_[plot]][sample]->Scale(zPrimeLumiWeight);
-	  else histo_[plotList_[plot]][sample]->Scale(lumiweight(sample, luminosity, sysNo, decayChannel));
+	  else histo_[plotList_[plot]][sample]->Scale(lumiweight(sample, luminosity, sysNo, decayChannel, false));
 	  // for reweighted ttbar: weight to keep same normalization
 	  if(useReweightedTop&&(sample==kSig||sample==kBkg)) histo_[plotList_[plot]][sample]->Scale(1.0/avReweight);
 	  // first subsample (should be ttbar signal)
@@ -398,7 +399,7 @@ void poisson(std::map< TString, std::map <unsigned int, TH1F*> > histo_, std::ve
 	  if(verbose>1){ 
 	    if(useZprime&&sample==kZprime) std::cout << "z prime, weight " << zPrimeLumiWeight << std::endl;
 	    else if(useReweightedTop&&(sample==kSig||sample==kBkg))  std::cout << "reweighted "+sampleLabel(sample,decayChannel)+", weight " << 1.0/avReweight << std::endl;
-	    else std::cout << sampleLabel(sample,decayChannel) << ", weight " << lumiweight(sample, luminosity, sysNo, decayChannel) << std::endl;
+	    else std::cout << sampleLabel(sample,decayChannel) << ", weight " << lumiweight(sample, luminosity, sysNo, decayChannel, false) << std::endl;
 	  }
 	}
       }
