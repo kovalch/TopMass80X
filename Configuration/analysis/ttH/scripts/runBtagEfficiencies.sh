@@ -21,6 +21,7 @@ systematics=(
     BTAG_UP BTAG_DOWN
     BTAG_LJET_UP BTAG_LJET_DOWN
     #KIN_UP KIN_DOWN
+    #TOP_PT_UP TOP_PT_DOWN
 )
 
 for syst in "${systematics[@]}" ; do
