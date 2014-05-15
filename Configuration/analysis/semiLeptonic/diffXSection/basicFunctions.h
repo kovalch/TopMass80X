@@ -54,7 +54,7 @@ namespace semileptonic {
   // large madspin or smaller madgraph samples?
   bool MadSpin=true; 
   // adapt several things like removing official labels for my PHD
-  bool PHD=false;//true;//false;
+  bool PHD=false;//false;
   // exclude ttV contribution from all plots and in calculation
   bool excludettV=false;
   // Use global switch to rm/add Preliminary to plots 
@@ -631,6 +631,17 @@ namespace semileptonic {
     return -1.;
   }
 
+  bool checkFileExistence (const std::string& name) {
+    ifstream f(name.c_str());
+    if (f.good()) {
+        f.close();
+        return true;
+    } else {
+      f.close();
+      return false;
+    }   
+  }
+
   TString readLineFromFile(int line, TString file="crossSectionCalculation.txt")
   {
     // this function to reads and returns a TString expression
@@ -639,6 +650,11 @@ namespace semileptonic {
     // used functions: NONE
     // used enumerators: NONE
 
+    // check existence
+    if(!checkFileExistence(file.Data())){
+      std::cout << "ERROR: file " << file << " not found" << std::endl;
+      exit(0);
+    }
     // define variables
     std::ifstream finDouble (file);
     std::string readIn;
@@ -2370,13 +2386,16 @@ namespace semileptonic {
       // modified quantities: none
       // used functions: none
       // used enumerators: none
-
       std::map<TString, std::vector<double> > result;
       std::vector<double> bins_;
 
       // pt(top)
       double topPtBins[]={0.0, 60.0, 100.0, 150.0, 200.0, 260.0, 320.0, 400.0, 500.0};
       //double topPtBins[]={0.0, 50.0, 85.0, 120.0, 160.0, 205.0, 255.0, 320.0, 400.0, 500.0};//alternative: smaller bins
+      //double topPtBins[]={0.0, 65.0, 125.0, 200.0, 290.0, 400.0};//DESY
+      //double topPtBins[]={0.0, 75.0, 130.0, 200.0, 290.0, 400.0};//Lead DESY
+      //double topPtBins[]={0.0, 55.0, 120.0, 200.0, 290.0, 400.0};//SubLead DESY
+      //double topPtBins[]={0.0, 60.0, 115.0, 190.0, 275.0, 380.0, 500};//ttbar restframe DESY
       bins_.insert( bins_.begin(), topPtBins, topPtBins + sizeof(topPtBins)/sizeof(double) );
       result["topPt"        ] = bins_;
       result["topPtLead"    ] = bins_;
@@ -2391,6 +2410,7 @@ namespace semileptonic {
       // y(top)
       double topYBins[]={-2.5, -1.6, -1.2, -0.8, -0.4, 0.0, 0.4, 0.8, 1.2, 1.6, 2.5}; 
       // PAS binning: double topYBins[]={-5., -2.5, -1.5, -1., -0.5, 0., 0.5, 1., 1.5, 2.5, 5.};
+      //double topYBins[]={-2.5, -1.6, -1.0, -0.5, 0.0, 0.5, 1.0, 1.6, 2.5}; // DESY
       bins_.insert( bins_.begin(), topYBins, topYBins + sizeof(topYBins)/sizeof(double) );
       result["topY"   ]   = bins_;
       if (addCrossCheckVariables){
@@ -2402,6 +2422,7 @@ namespace semileptonic {
       // pt(ttbar)
       double ttbarPtBins[]={0.0, 20.0, 45.0, 75.0, 120.0, 190.0, 300.0};
       // PAS binning: double ttbarPtBins[]={0., 20., 60., 110., 200., 300.}; // PAS Binning
+      //double ttbarPtBins[]={0., 30., 80., 170., 300.}; // DESY
       bins_.insert( bins_.begin(), ttbarPtBins, ttbarPtBins + sizeof(ttbarPtBins)/sizeof(double) );
       result["ttbarPt"]=bins_;
       bins_.clear();
@@ -2410,6 +2431,7 @@ namespace semileptonic {
       // old: double ttbarYBins[]={-5., -1.3, -0.9, -0.6, -0.3, 0., 0.3, 0.6, 0.9, 1.3, 5.};
       double ttbarYBins[]={-2.5, -1.3, -0.9, -0.6, -0.3, 0.0, 0.3, 0.6, 0.9, 1.3, 2.5};
       // PAS binning: double ttbarYBins[]={-5., -1.3, -0.9, -0.6, -0.3, 0., 0.3, 0.6, 0.9, 1.3, 5.};
+      //double ttbarYBins[]={-2.5, -1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.5}; // DESY
       bins_.insert( bins_.begin(), ttbarYBins, ttbarYBins + sizeof(ttbarYBins)/sizeof(double) );
       result["ttbarY"]=bins_;
       bins_.clear();
@@ -2420,6 +2442,7 @@ namespace semileptonic {
       // First option: double ttbarMassBins[]={0.0, 345.0, 400.0, 470.0, 550.0, 650.0, 800.0, 1200.0};  
       // Korea:        double ttbarMassBins[]={0.0, 345.0, 400.0, 450.0, 500.0, 550.0, 600.0, 700.0, 800.0, 1200.0}; 
       // PAS binning:  double ttbarMassBins[]={0., 345., 410., 480., 580., 750., 1200.};
+      //double ttbarMassBins[]={340.0, 380.0, 470.0, 620.0, 820.0, 1100.0, 1600}; // DESY
       bins_.insert( bins_.begin(), ttbarMassBins, ttbarMassBins + sizeof(ttbarMassBins)/sizeof(double) );
       result["ttbarMass"]=bins_;
       bins_.clear();
@@ -2484,6 +2507,7 @@ namespace semileptonic {
 
       // Delta phi(tops)
       double topDelPhiBins[]={0., 2., 2.75, 3., 3.15};
+      //double topDelPhiBins[]={0., 1.89, 2.77, 3.04, 3.15}; // DESY
       bins_.insert( bins_.begin(), topDelPhiBins, topDelPhiBins + sizeof(topDelPhiBins)/sizeof(double) );
       result["ttbarDelPhi"]   = bins_;
       bins_.clear();
@@ -5198,28 +5222,28 @@ namespace semileptonic {
 	    else if(variable.Contains("ttbarPhiStar")) k = MadSpin ? 10.96 : 10.75;
 	  }
 	  else if(closureTestSpecifier=="ttbarMassUp"){
-	    if     (variable.Contains("topPtLead")   ) k = 5.78;
-	    else if(variable.Contains("topPtSubLead")) k = 3.21;
-	    else if(variable.Contains("topPtTtbarSys"))k = 3.94;
-	    else if(variable.Contains("topPt")       ) k = 6.36;
-	    else if(variable.Contains("topY" )       ) k = 9.91;
-	    else if(variable.Contains("ttbarPt")     ) k = 5.88;
-	    else if(variable.Contains("ttbarY")      ) k = 7.77;
-	    else if(variable.Contains("ttbarMass")   ) k = 4.54;
-	    else if(variable.Contains("ttbarDelPhi" )) k = 10.92;
-	    else if(variable.Contains("ttbarPhiStar")) k = 10.62;
+	    if     (variable.Contains("topPtLead")   ) k = 5.33;
+	    else if(variable.Contains("topPtSubLead")) k = 3.02;
+	    else if(variable.Contains("topPtTtbarSys"))k = 3.51;
+	    else if(variable.Contains("topPt")       ) k = 5.86;
+	    else if(variable.Contains("topY" )       ) k = 9.97;
+	    else if(variable.Contains("ttbarPt")     ) k = 5.73;
+	    else if(variable.Contains("ttbarY")      ) k = 7.91;
+	    else if(variable.Contains("ttbarMass")   ) k = 3.94;
+	    else if(variable.Contains("ttbarDelPhi" )) k = 11.10;
+	    else if(variable.Contains("ttbarPhiStar")) k = 10.89;
 	  }
 	  else if(closureTestSpecifier=="ttbarMassDown"){
-	    if     (variable.Contains("topPtLead")   ) k = 9.15;
-	    else if(variable.Contains("topPtSubLead")) k = 5.37;
-	    else if(variable.Contains("topPtTtbarSys"))k = 6.97;
-	    else if(variable.Contains("topPt")       ) k = 11.18;
-	    else if(variable.Contains("topY" )       ) k = 11.12;
-	    else if(variable.Contains("ttbarPt")     ) k = 6.56;
-	    else if(variable.Contains("ttbarY")      ) k = 8.01;
-	    else if(variable.Contains("ttbarMass")   ) k = 8.35;
-	    else if(variable.Contains("ttbarDelPhi" )) k = 10.92;
-	    else if(variable.Contains("ttbarPhiStar")) k = 11.07;
+	    if     (variable.Contains("topPtLead")   ) k = 7.14;
+	    else if(variable.Contains("topPtSubLead")) k = 4.50;
+	    else if(variable.Contains("topPtTtbarSys"))k = 5.13;
+	    else if(variable.Contains("topPt")       ) k = 8.08;
+	    else if(variable.Contains("topY" )       ) k = 10.25;
+	    else if(variable.Contains("ttbarPt")     ) k = 5.83;
+	    else if(variable.Contains("ttbarY")      ) k = 7.89;
+	    else if(variable.Contains("ttbarMass")   ) k = 6.30;
+	    else if(variable.Contains("ttbarDelPhi" )) k = 11.01;
+	    else if(variable.Contains("ttbarPhiStar")) k = 10.84;
 	  }
 	  else if(closureTestSpecifier=="1000"){
 	    if     (variable.Contains("topPtLead")   ) k = MadSpin ?  5.21 : 5.32;
@@ -5293,25 +5317,25 @@ namespace semileptonic {
 	  }
 	  else if(closureTestSpecifier=="ttbarMassUp"){
 	    if(     variable.Contains("lepPt")       ) k = 5.44 ;
-	    else if(variable.Contains("lepEta")      ) k = 3.32 ;
-	    else if(variable.Contains("bqPt")        ) k = 11.71;
-	    else if(variable.Contains("bqEta")       ) k = 6.48 ;
-	    else if(variable.Contains("bbbarMass")   ) k = 1.46 ;
-	    else if(variable.Contains("bbbarPt"  )   ) k = 5.02 ;
-	    else if(variable.Contains("lbMass")      ) k = 12.22;
-	    else if(variable.Contains("Njets")       ) k = 2.18 ;
-	    else if(variable.Contains("rho"  )       ) k = 4.68 ; 
+	    else if(variable.Contains("lepEta")      ) k = 3.60 ;
+	    else if(variable.Contains("bqPt")        ) k = 11.34;
+	    else if(variable.Contains("bqEta")       ) k = 6.62 ;
+	    else if(variable.Contains("bbbarMass")   ) k = 1.14 ;
+	    else if(variable.Contains("bbbarPt"  )   ) k = 3.35 ;
+	    else if(variable.Contains("lbMass")      ) k = 12.23;
+	    else if(variable.Contains("Njets")       ) k = 1.82 ;
+	    else if(variable.Contains("rho"  )       ) k = 4.20 ; 
 	  }
 	  else if(closureTestSpecifier=="ttbarMassDown"){
-	    if(     variable.Contains("lepPt")       ) k = 7.15 ;
-	    else if(variable.Contains("lepEta")      ) k = 3.50 ;
-	    else if(variable.Contains("bqPt")        ) k = 17.62;
-	    else if(variable.Contains("bqEta")       ) k = 6.65 ;
-	    else if(variable.Contains("bbbarMass")   ) k = 1.95 ;
-	    else if(variable.Contains("bbbarPt"  )   ) k = 5.60 ;
-	    else if(variable.Contains("lbMass")      ) k = 12.92;
-	    else if(variable.Contains("Njets")       ) k = 2.52 ;
-	    else if(variable.Contains("rho"  )       ) k = 5.76 ; 
+	    if(     variable.Contains("lepPt")       ) k = 5.73 ;
+	    else if(variable.Contains("lepEta")      ) k = 3.71 ;
+	    else if(variable.Contains("bqPt")        ) k = 13.32;
+	    else if(variable.Contains("bqEta")       ) k = 6.51 ;
+	    else if(variable.Contains("bbbarMass")   ) k = 1.67 ;
+	    else if(variable.Contains("bbbarPt"  )   ) k = 3.62 ;
+	    else if(variable.Contains("lbMass")      ) k = 12.27;
+	    else if(variable.Contains("Njets")       ) k = 1.88 ;
+	    else if(variable.Contains("rho"  )       ) k = 4.64 ; 
 	  }
 	  else if(closureTestSpecifier=="1000"){
 	    if(     variable.Contains("lepPt")       ) k = MadSpin ?  5.50 : 5.47 ;
