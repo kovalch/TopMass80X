@@ -52,22 +52,19 @@ constexpr double JetPtCUT = 30.;
 /// Cut value for jet pt
 constexpr double JetPtCUT2 = 30.;
 
-/// CSV Loose working point
-constexpr BtagScaleFactors::workingPoints BtagWP = BtagScaleFactors::csvl_wp;
+/// B-tag algorithm and working point
+constexpr Btag::Algorithm BtagALGO = Btag::csv;
+constexpr Btag::WorkingPoint BtagWP = Btag::L;
+
+/// MET selection for same-flavour channels (ee, mumu)
+constexpr double MetCUT = 40.;
 
 /// Dxy(vertex) cut for electrons
 constexpr double DVertex = 0.04;
 
-
-/// Select the b-tagging method: Apply SF to the histogram or re-tag a jet via a random method
-///  default method is the re-tagging of the jetBTagCSV_: true
-constexpr bool ReTagJet = true;
-
-
-/// Apply Top Pt reweighting from fit calculated by Martin
-constexpr bool ApplyTopPtReweight = false;
-
+/// ???
 constexpr double rho0 = 340.0;
+
 
 
 
@@ -77,17 +74,16 @@ void TopAnalysis::Begin(TTree*)
     // Defaults from AnalysisBase
     AnalysisBase::Begin(0);
     
-    // FIXME: move this also in ScaleFactors.h ?
-    prepareKinRecoSF();
-    
+    // Set b-tagging working point
+    this->setBtagAlgorithmAndWorkingPoint(BtagALGO, BtagWP);
 }
 
 
 
 void TopAnalysis::Terminate()
 {
-    // Produce b-tag efficiencies
-    if(this->makeBtagEfficiencies()) this->btagScaleFactors()->produceEfficiencies();
+    // Produce b-tag efficiencies if required for given correction mode
+    this->produceBtagEfficiencies();
     
     // Calculate an overall weight due to the shape reweighting, and apply it
     const double globalNormalisationFactor = this->overallGlobalNormalisationFactor();
@@ -529,12 +525,8 @@ void TopAnalysis::SlaveBegin(TTree*)
     h_ClosureTotalWeight = store(new TH1D("ClosureTotalWeight", "Total Weights from closure test",1,0,2));
     h_PDFTotalWeight = store(new TH1D("PDFTotalWeight", "PDF Weights",1,0,2));
     
-    // Set b-tagging working point
-    this->btagScaleFactors()->setWorkingPoint(BtagWP);
-    
-    // Book histograms for b-tagging efficiencies
-    if(this->makeBtagEfficiencies()) this->btagScaleFactors()->bookHistograms(fOutput);
-    
+    // Book histograms for b-tagging efficiencies if required for given correction mode
+    this->bookBtagEfficiencyHistos();
     
     h_PUSF = store(new TH1D("PUSF", "PU SF per event", 200, 0.5, 1.5));
     h_TrigSF = store(new TH1D("TrigSF", "Trigger SF per event", 200, 0.5, 1.5));
@@ -558,7 +550,7 @@ void TopAnalysis::SlaveBegin(TTree*)
     CreateBinnedControlPlots(h_HypTopRapidity, h_MET);
     CreateBinnedControlPlots(h_HypTopRapidity, h_diLepMassFull);
     
-    /// Ievgen
+    // Ievgen
         
         h_RMSvsGenToppT = store(new TH2D ( "RMSvsGenToppT", "RMS vs Gen", 500, 0, 500, 1000, -500, 500 ));
         h_RMSvsGenTopRapidity = store(new TH2D ( "RMSvsGenTopRapidity", "RMS vs Gen", 400, -5, 5, 400, -5, 5 ));
@@ -573,7 +565,8 @@ void TopAnalysis::SlaveBegin(TTree*)
         
         h_HypTTBarRapidityvsTTBarpT = store(new TH2D ("HypTTBarRapidityvsTTBarpT","TTBarRapidity vs TTBarpT;p_{T}^{t#bar{t}} [GeV];y(t#bar{t})",400,0,400,100,-2.4,2.4));
         h_VisGenTTBarRapidityvsTTBarpT = store(new TH2D ("VisGenTTBarRapidityvsTTBarpT","TTBarRapidity vs TTBarpT;p_{T}^{t#bar{t}} [GeV];y(t#bar{t})",400,0,400,100,-2.4,2.4));
-    /// ...
+    // ...
+    
     // Book histograms of all analyzers
     this->bookAll();
 }
@@ -590,6 +583,7 @@ void TopAnalysis::SlaveTerminate()
     }
     delete binnedControlPlots_;
     
+    // Defaults from AnalysisBase
     AnalysisBase::SlaveTerminate();
 }
 
@@ -598,7 +592,7 @@ void TopAnalysis::SlaveTerminate()
 Bool_t TopAnalysis::Process ( Long64_t entry )
 {
     // Defaults from AnalysisBase
-    AnalysisBase::Process(entry);
+    if(!AnalysisBase::Process(entry)) return kFALSE;
     
     
     // Use utilities without namespaces
@@ -622,7 +616,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
 
     // Separate dileptonic ttbar decays via tau
     if(this->failsTopGeneratorSelection(entry)) return kTRUE;
-// std::cout<<"Ivan"<<std::endl;
+    
     // Count events for closure test here, where no more taus are available
     if (doClosureTest_) {
         static int closureTestEventCounter = 0;
@@ -642,27 +636,25 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     // Get weight due to generator weights
     const double weightGenerator = this->weightGenerator(entry);
 
-    // Access Top signal generator info
-    const TopGenObjects& topGenObjects = this->getTopGenObjects(entry);
-
-    // Apply the top-quark pT reweighting if the bool 'ApplyTopReweight' says so ;)
-    const double weightTopPtReweighting = (ApplyTopPtReweight && this->isTopSignal()) ? this->weightTopPtReweighting((*topGenObjects.GenTop_).Pt(), (*topGenObjects.GenAntiTop_).Pt()) : 1.;
-
+    // Get weight due to top-pt reweighting
+    const double weightTopPt = this->weightTopPtReweighting(entry);
+    
     // Get true level weights
-    const double trueLevelWeightNoPileupNoClosure = weightGenerator*weightMadgraphCorrection*pdfWeight*weightTopPtReweighting;
-    const double trueLevelWeightNoPileup = doClosureTest_ ? calculateClosureTestWeight(entry) : trueLevelWeightNoPileupNoClosure;
+    const double trueLevelWeightNoPileupNoClosure = weightGenerator*weightMadgraphCorrection*pdfWeight*weightTopPt;
+    const double trueLevelWeightNoPileup = doClosureTest_ ? this->calculateClosureTestWeight(entry) : trueLevelWeightNoPileupNoClosure;
     const double trueLevelWeight = trueLevelWeightNoPileup*weightPU;
-
-        const ttbar::GenLevelWeights genLevelWeights(weightMadgraphCorrection, weightPU, weightGenerator,
-                                               trueLevelWeightNoPileup, trueLevelWeight);
     
+    const ttbar::GenLevelWeights genLevelWeights(weightMadgraphCorrection, weightPU, weightGenerator,
+                                                 trueLevelWeightNoPileup, trueLevelWeight);
     
+    const RecoObjects recoObjectsDummy;
     const CommonGenObjects commonGenObjectsDummy;
+
     // Access MC general generator info
     const CommonGenObjects& commonGenObjects = this->getCommonGenObjects(entry); 
-
-    // Access objects info
-    const RecoObjects& recoObjects = this->getRecoObjects(entry);
+    
+    // Access Top signal generator info
+    const TopGenObjects& topGenObjects = this->getTopGenObjects(entry);
 
     // Get indices of B and anti-B hadrons steming from ttbar system
     int BHadronIndex=-1;
@@ -693,13 +685,14 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
 
     
     selectionStep = "0";
-       const KinRecoObjects kinRecoObjectsDummy;
-       const ttbar::GenObjectIndices genObjectIndicesDummy(-1, -1, -1, -1, -1, -1, -1, -1);
-       const ttbar::RecoObjectIndices recoObjectIndicesDummy({0},{0},{0},0,0,0,0,0,0,{0},{0});
-       ttbar::RecoLevelWeights recoLevelWeightsDummy(0,0,0,0,0);
-
-        this->fillAll(selectionStep,
-                  recoObjects, commonGenObjects,
+    
+    const KinRecoObjects kinRecoObjectsDummy;
+    const ttbar::GenObjectIndices genObjectIndicesDummy(-1, -1, -1, -1, -1, -1, -1, -1);
+    const ttbar::RecoObjectIndices recoObjectIndicesDummy({0},{0},{0},0,0,0,0,0,0,{0},{0});
+    ttbar::RecoLevelWeights recoLevelWeightsDummy(0,0,0,0,0);
+    
+    this->fillAll(selectionStep,
+                  recoObjectsDummy, commonGenObjects,
                   topGenObjects,
                   kinRecoObjectsDummy,
                   genObjectIndicesDummy, recoObjectIndicesDummy,
@@ -713,8 +706,11 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
 
     
     
-    // === FULL OBJECT SELECTION === (can thus be used at each selection step)
-
+    // === FULL RECO OBJECT SELECTION === (can thus be used at each selection step)
+    
+    // Access objects info
+    const RecoObjects& recoObjects = this->getRecoObjects(entry);
+    
     // Get allLepton indices, apply selection cuts and order them by pt (beginning with the highest value)
     const VLV& allLeptons = *recoObjects.allLeptons_;
     const std::vector<int>& lepPdgId = *recoObjects.lepPdgId_;
@@ -764,7 +760,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     
     // Get jet indices, apply selection cuts and order them by pt (beginning with the highest value)
     const VLV& jets = *recoObjects.jets_;
-    std::vector<int> jetIndices = initialiseIndices((*recoObjects.jets_));
+    std::vector<int> jetIndices = initialiseIndices(jets);
     selectIndices(jetIndices, jets, LVeta, JetEtaCUT, false);
     selectIndices(jetIndices, jets, LVeta, -JetEtaCUT);
     selectIndices(jetIndices, jets, LVpt, JetPtCUT);
@@ -773,21 +769,20 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     const bool has2Jets = numberOfJets > 1;
 
     // Get b-jet indices, apply selection cuts
-    // and apply b-tag efficiency MC correction using random number based tag flipping
+    // and apply b-tag efficiency MC correction using random number based tag flipping (if requested correction mode is applied)
     // and order b-jets by btag discriminator (beginning with the highest value)
     const std::vector<double>& jetBTagCSV = *recoObjects.jetBTagCSV_;
     const std::vector<int>& jetPartonFlavour = *commonGenObjects.jetPartonFlavour_;
     std::vector<int> bjetIndices = jetIndices;
-    selectIndices(bjetIndices, jetBTagCSV, (double)this->btagScaleFactors()->getWPDiscrValue());
-    if(ReTagJet) this->retagJets(bjetIndices, jetIndices, jets, jetPartonFlavour, jetBTagCSV);
+    selectIndices(bjetIndices, jetBTagCSV, this->btagCutValue());
+    this->retagJets(bjetIndices, jetIndices, jets, jetPartonFlavour, jetBTagCSV);
     orderIndices(bjetIndices, jetBTagCSV);
     const int numberOfBjets = bjetIndices.size();
     const bool hasBtag = numberOfBjets > 0;
     
     // Get MET
     const LV& met = *recoObjects.met_;
-
-    const bool hasMetOrEmu = this->channel()==Channel::emu || met.Pt()>40;
+    const bool hasMetOrEmu = this->channel()==Channel::emu || met.Pt()>MetCUT;
     
     const ttbar::RecoObjectIndices recoObjectIndices(allLeptonIndices,
                                                     leptonIndices, antiLeptonIndices,
@@ -800,14 +795,14 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     const double weightLeptonSF = this->weightLeptonSF(leadingLeptonIndex, nLeadingLeptonIndex, allLeptons, lepPdgId);
     const double weightTriggerSF = this->weightTriggerSF(leptonXIndex, leptonYIndex, allLeptons);
     const double weightNoPileup = trueLevelWeightNoPileup*weightTriggerSF*weightLeptonSF;
-    const double weightBtagSF = ReTagJet ? 1. : this->weightBtagSF(jetIndices, jets, (*commonGenObjects.jetPartonFlavour_));
+    const double weightBtagSF = this->weightBtagSF(jetIndices, jets, jetPartonFlavour, jetBTagCSV);
     const double weightKinReco = this->weightKinReco();
     
     // The weight to be used for filling the histograms
     double weight = weightNoPileup*weightPU;
     
     ttbar::RecoLevelWeights recoLevelWeights(weightLeptonSF, weightTriggerSF, weightBtagSF,
-                                           weightNoPileup, weight);
+                                             weightNoPileup, weight);
     
     this->fillAll(selectionStep,
                   recoObjects, commonGenObjects,
@@ -834,7 +829,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     //===CUT===
     selectionStep = "3";
     // with at least 20 GeV invariant mass
-    if (dilepton.M() < 20) return kTRUE;
+    if (dilepton.M() < 20.) return kTRUE;
     
     // weight even without PU reweighting
     h_vertMulti_noPU->Fill(recoObjects.vertMulti_, weightNoPileup);
@@ -853,14 +848,10 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
         h_GenAll_RecoCuts->Fill((*topGenObjects.GenTop_).M(), weight);
     }
 
-    //****************************************
-    //handle inverted Z cut
-    const bool isZregion = dilepton.M() > 76. && dilepton.M() < 106.;
-
     // Access kinematic reconstruction info
     //const KinRecoObjects& kinRecoObjects = this->getKinRecoObjects(entry);
-    const KinRecoObjects& kinRecoObjects = (!this->makeBtagEfficiencies() ? this->getKinRecoObjectsOnTheFly(leptonIndex, antiLeptonIndex, jetIndices,(*recoObjects.allLeptons_), (*recoObjects.jets_), (*recoObjects.jetBTagCSV_), met) : kinRecoObjectsDummy );
-    bool hasSolution=kinRecoObjects.valuesSet_;
+    const KinRecoObjects& kinRecoObjects = !this->makeBtagEfficiencies() ? this->getKinRecoObjectsOnTheFly(leptonIndex, antiLeptonIndex, jetIndices, allLeptons, jets, jetBTagCSV, met) : kinRecoObjectsDummy;
+    bool hasSolution = kinRecoObjects.valuesSet_;
     
     
     this->fillAll(selectionStep,
@@ -872,6 +863,10 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                   weight);
     
     
+    
+    //****************************************
+    // Handle inverted Z cut
+    const bool isZregion = dilepton.M() > 76. && dilepton.M() < 106.;
     if ( isZregion ) {
         double fullWeights = weight;
         selectionStep = "4zWindow";
@@ -905,6 +900,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                 
                 if ( hasBtag ) {
                     selectionStep = "7zWindow";
+                    fullWeights *= weightBtagSF;
                     this->fillAll(selectionStep,
                         recoObjects, commonGenObjects,
                         topGenObjects,
@@ -913,11 +909,8 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                         genLevelWeights, recoLevelWeights,
                         fullWeights);
                     
-                    fullWeights *= weightBtagSF;
-                    
                     if ( hasSolution ) {
                         fullWeights *= weightKinReco;
-
                         selectionStep = "8zWindow";
                         this->fillAll(selectionStep,
                             recoObjects, commonGenObjects,
@@ -926,7 +919,6 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                             genObjectIndicesDummy, recoObjectIndices,
                             genLevelWeights, recoLevelWeights,
                             fullWeights);
-                            
                     }
                 }
             }
@@ -1019,12 +1011,10 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
         h_jetpT->Fill((*recoObjects.jets_).at(index).Pt(), weight);
     }
     
-    // Fill the b-tagging efficiency plots
-    if(this->makeBtagEfficiencies()){
-        this->btagScaleFactors()->fillHistograms(jetIndices, jetBTagCSV, jets, jetPartonFlavour, weight);
-        return kTRUE;
-    }
-    
+    // Fill b-tagging efficiencies if required for given correction mode, and in case do not process further steps
+    this->fillBtagEfficiencyHistos(jetIndices, jetBTagCSV, jets, jetPartonFlavour, weight);
+    if(this->makeBtagEfficiencies()) return kTRUE;
+
     //=== CUT ===
     selectionStep = "7";
     //Require at least one b tagged jet
@@ -1266,7 +1256,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     h_HypTTBarRapidityvsTTBarpT->Fill(hypttbar.Pt(),hypttbar.Rapidity(),weight);
     
     // ...
-    /// Parton momentum fraction
+    // Parton momentum fraction
     double RecoPartonMomFraction = ((*kinRecoObjects.HypTop_).at(solutionIndex).energy() - (*kinRecoObjects.HypTop_).at(solutionIndex).Pz() + (*kinRecoObjects.HypAntiTop_).at(solutionIndex).energy() - (*kinRecoObjects.HypAntiTop_).at(solutionIndex).Pz()) / (2 * 4000);
     double RecoAntipartonMomFraction = ((*kinRecoObjects.HypTop_).at(solutionIndex).energy() + (*kinRecoObjects.HypTop_).at(solutionIndex).Pz() + (*kinRecoObjects.HypAntiTop_).at(solutionIndex).energy() + (*kinRecoObjects.HypAntiTop_).at(solutionIndex).Pz()) / (2 * 4000);
     h_HypPartonFraction->Fill(RecoPartonMomFraction, weight);
@@ -2193,6 +2183,9 @@ void TopAnalysis::fillAll(const std::string& selectionStep,
                             const ttbar::GenLevelWeights& genLevelWeights, const ttbar::RecoLevelWeights& recoLevelWeights,
                             const double& defaultWeight)const
 {
+    // In case b-tag efficiencies are produced, analysis output is not
+    if(this->makeBtagEfficiencies()) return;
+    
     for(AnalyzerBaseClass* analyzer : v_analyzer_){
         if(analyzer) analyzer->fill(recoObjects, commonGenObjects,
                                                    topGenObjects,

@@ -15,7 +15,6 @@
 #include <Rtypes.h>
 
 #include "TopAnalysis.h"
-
 #include "AnalyzerBaseClass.h"
 #include "AnalyzerControlPlots.h"
 #include "AnalyzerDoubleDiffXS.h"
@@ -25,13 +24,17 @@
 #include "../../common/include/ScaleFactors.h"
 #include "../../common/include/sampleHelpers.h"
 #include "../../common/include/KinematicReconstruction.h"
-#include "TopAnalysis/ZTopUtils/interface/PUReweighter.h"
+
+
+
+
 
 /// Set pileup distribution file corresponding to data sample in use
 /// The file ending is automatically adjusted for different systematics
 //constexpr const char* PileupInputFILE = "Data_PUDist_19624pb.root";
 //constexpr const char* PileupInputFILE = "Data_PUDist_19789pb.root";
 constexpr const char* PileupInputFILE = "Data_PUDist_Full2012ReReco_FinalRecommendation.root";
+
 
 
 /// Input file for electron ID scale factor
@@ -45,14 +48,17 @@ constexpr const char* ElectronSFInputFILE = "ElectronSF_198fbReReco.root";
 constexpr const char* MuonSFInputFILE = "MuonSF_198fbReReco.root";
 
 
+
 /// File ending of dilepton trigger scale factors input file
 //constexpr const char* TriggerSFInputSUFFIX = ".root";
 //constexpr const char* TriggerSFInputSUFFIX = "_19fb.root";
 constexpr const char* TriggerSFInputSUFFIX = "_rereco198fb.root";
 
 
+
 /// File containing the uncertainties associated to JES
 //constexpr const char* JesUncertaintySourceFILE = "Fall12_V7_DATA_UncertaintySources_AK5PFchs.txt";
+// constexpr const char* JesUncertaintySourceFILE = "Summer13_V1_DATA_UncertaintySources_AK5PFchs.txt";
 constexpr const char* JesUncertaintySourceFILE = "Summer13_V4_DATA_UncertaintySources_AK5PFchs.txt";
 
 
@@ -63,16 +69,11 @@ constexpr const char* JesUncertaintySourceFILE = "Summer13_V4_DATA_UncertaintySo
 constexpr BtagScaleFactors::CorrectionMode BtagCorrectionMODE = BtagScaleFactors::randomNumberRetag;
 //constexpr BtagScaleFactors::CorrectionMode BtagCorrectionMODE = BtagScaleFactors::discriminatorReweight;
 
-/// Folder where to find the b-/c-/l-tagging efficiencies
-constexpr const char* BtagEfficiencyInputDIR = "BTagEff";
+/// File for the official heavy flavour scale factors for b-tag discriminator reweighting
+constexpr const char* BtagHeavyFlavourFILE = "csv_rwt_hf.root";
 
-/// Folder for b-tag efficiency file storage (in case efficiencies are produced)
-constexpr const char* BtagEfficiencyOutputDIR = "selectionRoot/BTagEff";
-
-
-
-/// Folder for basic analysis output
-constexpr const char* AnalysisOutputDIR = "selectionRoot";
+/// File for the official light flavour scale factors for b-tag discriminator reweighting
+constexpr const char* BtagLightFlavourFILE = "csv_rwt_lf.root";
 
 
 
@@ -103,22 +104,31 @@ void load_Analysis(const TString& validFilenamePattern,
     KinematicReconstruction* kinematicReconstruction(0);
     kinematicReconstruction = new KinematicReconstruction();
     
+    // Set up kinematic reconstruction scale factors (null-pointer means no application)
+    KinematicReconstructionScaleFactors* kinematicReconstructionScaleFactors(0);
+    kinematicReconstructionScaleFactors = new KinematicReconstructionScaleFactors(channels, systematic);
+    
     // Set up pileup reweighter
     const PileupScaleFactors* const pileupScaleFactors = new PileupScaleFactors(PileupInputFILE, "Summer12", "S10", systematic);
     
     // Set up lepton efficiency scale factors
     const LeptonScaleFactors leptonScaleFactors(ElectronSFInputFILE, MuonSFInputFILE, systematic);
     
-    // Set up trigger efficiency scale factors (do it for all channels)
-    const TriggerScaleFactors triggerScaleFactors(TriggerSFInputSUFFIX, Channel::realChannels, systematic);
+    // Set up trigger efficiency scale factors
+    TriggerScaleFactors triggerScaleFactors(TriggerSFInputSUFFIX, channels, systematic);
     
-    // Set up JER systematic scale factors
+    // Set up JER systematic scale factors (null-pointer means no application)
     JetEnergyResolutionScaleFactors* jetEnergyResolutionScaleFactors(0);
     if(systematic.type() == Systematic::jer) jetEnergyResolutionScaleFactors = new JetEnergyResolutionScaleFactors(systematic);
     
-    // Set up JES systematic scale factors
+    // Set up JES systematic scale factors (null-pointer means no application)
     JetEnergyScaleScaleFactors* jetEnergyScaleScaleFactors(0);
     if(systematic.type() == Systematic::jes) jetEnergyScaleScaleFactors = new JetEnergyScaleScaleFactors(JesUncertaintySourceFILE, systematic);
+    
+    // Set up top-pt reweighting scale factors (null-pointer means no application)
+    TopPtScaleFactors* topPtScaleFactors(0);
+    //topPtScaleFactors = new TopPtScaleFactors(systematic);
+    
     
     // Vector for setting up all analysers
     std::vector<AnalyzerBaseClass*> v_analyzer;
@@ -148,15 +158,17 @@ void load_Analysis(const TString& validFilenamePattern,
     analyzerKinReco = new AnalyzerKinReco({"7","8"});
     v_analyzer.push_back(analyzerKinReco);
     
+    
     // Set up the analysis
-    TopAnalysis *selector = new TopAnalysis();
-    selector->SetAnalysisOutputBase(AnalysisOutputDIR);
-    selector->SetKinematicReconstruction(kinematicReconstruction);
+    TopAnalysis* selector = new TopAnalysis();
+    selector->SetAnalysisOutputBase("selectionRoot");
+    selector->SetKinematicReconstruction(kinematicReconstruction, kinematicReconstructionScaleFactors);
     selector->SetPileupScaleFactors(pileupScaleFactors);
     selector->SetLeptonScaleFactors(leptonScaleFactors);
     selector->SetTriggerScaleFactors(triggerScaleFactors);
     selector->SetJetEnergyResolutionScaleFactors(jetEnergyResolutionScaleFactors);
     selector->SetJetEnergyScaleScaleFactors(jetEnergyScaleScaleFactors);
+    selector->SetTopPtScaleFactors(topPtScaleFactors);
     selector->SetAllAnalyzers(v_analyzer);
     
     // Access selectionList containing all input sample nTuples
@@ -243,7 +255,8 @@ void load_Analysis(const TString& validFilenamePattern,
         
         // Set up btag efficiency scale factors
         // This has to be done only after potentially setting systematic from file, since it is varied with signal systematics
-        BtagScaleFactors btagScaleFactors(BtagEfficiencyInputDIR, BtagEfficiencyOutputDIR, channels, systematicForBtagEfficiencies, BtagCorrectionMODE);
+        BtagScaleFactors btagScaleFactors("BTagEff", "selectionRoot/BTagEff", BtagHeavyFlavourFILE, BtagLightFlavourFILE,
+                                          channels, systematicForBtagEfficiencies, BtagCorrectionMODE);
         
         // Configure selector
         selector->SetTopSignal(isTopSignal);
@@ -262,7 +275,9 @@ void load_Analysis(const TString& validFilenamePattern,
             // Set the channel
             const TString channelName = Channel::convert(selectedChannel);
             TString outputfilename = filenameBase.BeginsWith(channelName+"_") ? filenameBase : channelName+"_"+filenameBase;
-            btagScaleFactors.prepareSF(selectedChannel);
+            triggerScaleFactors.prepareChannel(selectedChannel);
+            btagScaleFactors.prepareChannel(selectedChannel);
+            if(kinematicReconstructionScaleFactors) kinematicReconstructionScaleFactors->prepareChannel(selectedChannel);
             selector->SetChannel(selectedChannel);
             
             // Set up nTuple chain
@@ -330,6 +345,7 @@ namespace Systematic{
         btag, btagPt, btagEta,
         btagLjet, btagLjetPt, btagLjetEta,
         kin,
+        //topPt,
         pdf, closure,
     };
 }

@@ -42,14 +42,9 @@ constexpr double JetPtCUT = 30.;
 /// Leading 2 jet pt selection in GeV (For cut based approach)
 constexpr double Lead2JetPtCUT = JetPtCUT;
 
-
-/// B-tag working point
-/// Available options: 
-///  csvl_wp (0.244) 
-///  csvm_wp (0.679)
-///  csvt_wp (0.898)
-constexpr BtagScaleFactors::workingPoints BtagWP = BtagScaleFactors::csvl_wp;
-
+/// B-tag algorithm and working point
+constexpr Btag::Algorithm BtagALGO = Btag::csv;
+constexpr Btag::WorkingPoint BtagWP = Btag::L;
 
 /// MET selection for same-flavour channels (ee, mumu)
 constexpr double MetCUT = 40.;
@@ -79,7 +74,10 @@ void HiggsAnalysis::Begin(TTree*)
 {
     // Defaults from AnalysisBase
     AnalysisBase::Begin(0);
-
+    
+    // Set b-tagging working point
+    this->setBtagAlgorithmAndWorkingPoint(BtagALGO, BtagWP);
+    
     // Set up selection steps of MVA tree handlers
     for(MvaTreeHandlerBase* mvaTreeHandler : v_mvaTreeHandler_){
         if(mvaTreeHandler) mvaTreeHandler->book();
@@ -91,10 +89,9 @@ void HiggsAnalysis::Begin(TTree*)
 
 void HiggsAnalysis::Terminate()
 {
-    // Produce b-tag efficiencies
-    // FIXME: Shouldn't we also clear b-tagging efficiency histograms if they are produced ?
-    if(this->makeBtagEfficiencies()) this->btagScaleFactors()->produceEfficiencies();
-
+    // Produce b-tag efficiencies if required for given correction mode
+    this->produceBtagEfficiencies();
+    
     // Do everything needed for MVA
     for(MvaTreeHandlerBase* mvaTreeHandler : v_mvaTreeHandler_){
         if(mvaTreeHandler){
@@ -113,7 +110,6 @@ void HiggsAnalysis::Terminate()
         }
     }
     
-    
     // Defaults from AnalysisBase
     AnalysisBase::Terminate();
 }
@@ -125,11 +121,8 @@ void HiggsAnalysis::SlaveBegin(TTree *)
     // Defaults from AnalysisBase
     AnalysisBase::SlaveBegin(0);
     
-    // Set b-tagging working point
-    this->btagScaleFactors()->setWorkingPoint(BtagWP);
-    
-    // Book histograms for b-tagging efficiencies
-    if(this->makeBtagEfficiencies()) this->btagScaleFactors()->bookHistograms(fOutput);
+    // Book histograms for b-tagging efficiencies if required for given correction mode
+    this->bookBtagEfficiencyHistos();
     
     // Book histograms of all analyzers
     this->bookAll();
@@ -179,8 +172,8 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     // Set up dummies for weights and indices, as needed for generic functions
     const tth::GenObjectIndices genObjectIndicesDummy({}, {}, {}, {}, {}, {}, -1, -1, -1, -1, -1, -1, -1, -1);
     const tth::RecoObjectIndices recoObjectIndicesDummy({}, {}, {}, -1, -1, -1, -1, -1, -1, {}, {}, {});
-    const tth::GenLevelWeights genLevelWeightsDummy(0., 0., 0., 0., 0.);
-    const tth::RecoLevelWeights recoLevelWeightsDummy(0., 0., 0., 0., 0.);
+    const tth::GenLevelWeights genLevelWeightsDummy(0., 0., 0., 0., 0., 0.);
+    const tth::RecoLevelWeights recoLevelWeightsDummy(0., 0., 0., 0., 0., 0.);
     
     // ++++ Control Plots ++++
     
@@ -191,44 +184,48 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
                   genObjectIndicesDummy, recoObjectIndicesDummy,
                   genLevelWeightsDummy, recoLevelWeightsDummy,
                   1.);
-
-
-
+    
+    
+    
     //===CUT===
     // this is step0b, select events on generator level and access true level weights
     selectionStep = "0b";
-
+    
     // Separate DY dilepton decays in lepton flavours
     if(this->failsDrellYanGeneratorSelection(entry)) return kTRUE;
-
+    
     // Separate dileptonic ttbar decays via tau
     //if(this->failsTopGeneratorSelection(entry)) return kTRUE;
-
+    
     // Separate inclusive ttH sample in decays H->bbbar and others
     const int higgsDecayMode = this->higgsDecayMode(entry);
     if(this->failsHiggsGeneratorSelection(higgsDecayMode)) return kTRUE;
-
+    
     // Separate tt+bb from tt+other
     if(this->failsAdditionalJetFlavourSelection(entry)) return kTRUE;
-
+    
     // Correct for the MadGraph branching fraction being 1/9 for dileptons (PDG average is .108)
     const double weightMadgraphCorrection = this->madgraphWDecayCorrection(entry);
-
+    
     // Get weight due to pileup reweighting
     const double weightPU = this->weightPileup(entry);
-
+    
     // Get weight due to generator weights
     const double weightGenerator = this->weightGenerator(entry);
-
+    
+    // Get weight due to top-pt reweighting
+    const double weightTopPt = this->weightTopPtReweighting(entry);
+    
     // Get true level weights
-    const double trueLevelWeightNoPileup = weightGenerator*weightMadgraphCorrection;
+    const double trueLevelWeightNoPileup = weightTopPt*weightGenerator*weightMadgraphCorrection;
     const double trueLevelWeight = trueLevelWeightNoPileup*weightPU;
-
-    const tth::GenLevelWeights genLevelWeights(weightMadgraphCorrection, weightPU, weightGenerator,
+    
+    const tth::GenLevelWeights genLevelWeights(weightMadgraphCorrection, weightPU,
+                                               weightGenerator, weightTopPt,
                                                trueLevelWeightNoPileup, trueLevelWeight);
-
+    
     // ++++ Control Plots ++++
-
+    
     this->fillAll(selectionStep,
                   recoObjectsDummy, commonGenObjectsDummy,
                   topGenObjectsDummy, higgsGenObjectsDummy,
@@ -236,23 +233,23 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
                   genObjectIndicesDummy, recoObjectIndicesDummy,
                   genLevelWeights, recoLevelWeightsDummy,
                   1.);
-
-
-
+    
+    
+    
     //===CUT===
     selectionStep = "1";
-
+    
     // Check if event was triggered with the same dilepton trigger as the specified analysis channel
     if(this->failsDileptonTrigger(entry)) return kTRUE;
-
-
-
+    
+    
+    
     // === FULL RECO OBJECT SELECTION === (can thus be used at each selection step)
-
+    
     // Access reco objects, and common generator objects
     const RecoObjects& recoObjects = this->getRecoObjects(entry);
     const CommonGenObjects& commonGenObjects = this->getCommonGenObjects(entry);
-
+    
     // Get allLepton indices, apply selection cuts and order them by pt (beginning with the highest value)
     const VLV& allLeptons = *recoObjects.allLeptons_;
     const std::vector<int>& lepPdgId = *recoObjects.lepPdgId_;
@@ -262,7 +259,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     selectIndices(allLeptonIndices, allLeptons, LVpt, LeptonPtCut);
     orderIndices(allLeptonIndices, allLeptons, LVpt);
     //const int numberOfAllLeptons = allLeptonIndices.size();
-
+    
     // Get indices of leptons and antiLeptons separated by charge, and get the leading ones if they exist
     std::vector<int> leptonIndices = allLeptonIndices;
     std::vector<int> antiLeptonIndices = allLeptonIndices;
@@ -272,7 +269,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     const int numberOfAntiLeptons = antiLeptonIndices.size();
     const int leptonIndex = numberOfLeptons>0 ? leptonIndices.at(0) : -1;
     const int antiLeptonIndex = numberOfAntiLeptons>0 ? antiLeptonIndices.at(0) : -1;
-
+    
     // In case of an existing opposite-charge dilepton system,
     // get their indices for leading and next-to-leading lepton
     int leadingLeptonIndex(-1);
@@ -283,7 +280,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
         orderIndices(leadingLeptonIndex, nLeadingLeptonIndex, allLeptons, LVpt);
     }
     const bool hasLeptonPair = this->hasLeptonPair(leadingLeptonIndex, nLeadingLeptonIndex, lepPdgId);
-
+    
     // Get two indices of the two leptons in the right order for trigger scale factor, if existing
     int leptonXIndex(leadingLeptonIndex);
     int leptonYIndex(nLeadingLeptonIndex);
@@ -294,11 +291,11 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
             orderIndices(leptonYIndex, leptonXIndex, lepPdgId, true);
         }
     }
-
+    
     // Get dilepton system, if existing
     const LV dummyLV(0.,0.,0.,0.);
     const LV dilepton(hasLeptonPair ? allLeptons.at(leadingLeptonIndex)+allLeptons.at(nLeadingLeptonIndex) : dummyLV);
-
+    
     // Get jet indices, apply selection cuts and order them by pt (beginning with the highest value)
     const VLV& jets = *recoObjects.jets_;
     std::vector<int> jetIndices = initialiseIndices(jets);
@@ -307,30 +304,30 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     selectIndices(jetIndices, jets, LVpt, JetPtCUT);
     orderIndices(jetIndices, jets, LVpt);
     const int numberOfJets = jetIndices.size();
-    const bool has2Jets = numberOfJets > 1 && jets.at(jetIndices.at(0)).pt() >= Lead2JetPtCUT && jets.at(jetIndices.at(1)).pt() >= Lead2JetPtCUT;
-
+    const bool has2Jets = numberOfJets > 1 && jets.at(jetIndices.at(1)).pt() >= Lead2JetPtCUT;
+    
     // Fill a vector with all jet pair indices, while sorting each pair by the jet charge:
     // first entry is antiBIndex i.e. with higher jet charge, second entry is bIndex
     //const std::vector<double>& jetChargeGlobalPtWeighted = *recoObjects.jetChargeGlobalPtWeighted_;
     const std::vector<double>& jetChargeRelativePtWeighted = *recoObjects.jetChargeRelativePtWeighted_;
     const tth::IndexPairs& jetIndexPairs = this->chargeOrderedJetPairIndices(jetIndices, jetChargeRelativePtWeighted);
-
+    
     // Get b-jet indices, apply selection cuts
-    // and apply b-tag efficiency MC correction using random number based tag flipping
+    // and apply b-tag efficiency MC correction using random number based tag flipping (if requested correction mode is applied)
     // and order b-jets by btag discriminator (beginning with the highest value)
     const std::vector<double>& jetBTagCSV = *recoObjects.jetBTagCSV_;
     const std::vector<int>& jetPartonFlavour = *commonGenObjects.jetPartonFlavour_;
     std::vector<int> bjetIndices = jetIndices;
-    selectIndices(bjetIndices, jetBTagCSV, (double)this->btagScaleFactors()->getWPDiscrValue());
+    selectIndices(bjetIndices, jetBTagCSV, this->btagCutValue());
     this->retagJets(bjetIndices, jetIndices, jets, jetPartonFlavour, jetBTagCSV);
     orderIndices(bjetIndices, jetBTagCSV);
     const int numberOfBjets = bjetIndices.size();
     const bool hasBtag = numberOfBjets > 0;
-
+    
     // Get MET
     const LV& met = *recoObjects.met_;
     const bool hasMetOrEmu = this->channel()==Channel::emu || met.pt()>MetCUT;
-
+    
     const tth::RecoObjectIndices recoObjectIndices(allLeptonIndices,
                                                    leptonIndices, antiLeptonIndices,
                                                    leptonIndex, antiLeptonIndex,
@@ -344,20 +341,20 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     const double weightLeptonSF = this->weightLeptonSF(leadingLeptonIndex, nLeadingLeptonIndex, allLeptons, lepPdgId);
     const double weightTriggerSF = this->weightTriggerSF(leptonXIndex, leptonYIndex, allLeptons);
     const double weightNoPileup = trueLevelWeightNoPileup*weightTriggerSF*weightLeptonSF;
-    // We do not apply a b-tag scale factor
-    //const double weightBtagSF = ReTagJet ? 1. : this->weightBtagSF(jetIndices, jets, jetPartonFlavour);
-    constexpr double weightBtagSF = 1.;
-
+    const double weightBtagSF = this->weightBtagSF(jetIndices, jets, jetPartonFlavour, jetBTagCSV);
+    const double weightKinReco = this->weightKinReco();
+    
     // The weight to be used for filling the histograms
     double weight = weightNoPileup*weightPU;
-
-
-    tth::RecoLevelWeights recoLevelWeights(weightLeptonSF, weightTriggerSF, weightBtagSF,
+    
+    
+    tth::RecoLevelWeights recoLevelWeights(weightLeptonSF, weightTriggerSF,
+                                           weightBtagSF, weightKinReco,
                                            weightNoPileup, weight);
-
-
+    
+    
     // ++++ Control Plots ++++
-
+    
     this->fillAll(selectionStep,
                   recoObjects, commonGenObjects,
                   topGenObjectsDummy, higgsGenObjectsDummy,
@@ -365,17 +362,17 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
                   genObjectIndicesDummy, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   1.);
-
-
-
+    
+    
+    
     //===CUT===
     selectionStep = "2";
-
+    
     // we need an OS lepton pair matching the trigger selection...
     if (!hasLeptonPair) return kTRUE;
-
+    
     // ++++ Control Plots ++++
-
+    
     this->fillAll(selectionStep,
                   recoObjects, commonGenObjects,
                   topGenObjectsDummy, higgsGenObjectsDummy,
@@ -383,19 +380,18 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
                   genObjectIndicesDummy, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   weight);
-
-
-
+    
+    
+    
     //===CUT===
     selectionStep = "3";
-
+    
     // ...with at least 20 GeV invariant mass
     if(dilepton.M() < 20.) return kTRUE;
-
-    const bool isZregion = dilepton.M() > 76 && dilepton.M() < 106;
+    
+    // Access kinematic reconstruction info
     //const KinRecoObjects& kinRecoObjects = this->getKinRecoObjects(entry);
-    //const KinRecoObjects& kinRecoObjects = this->getKinRecoObjectsOnTheFly(leptonIndex, antiLeptonIndex, jetIndices,
-    //                                                                       allLeptons, jets, jetBTagCSV, met);
+    //const KinRecoObjects& kinRecoObjects = !this->makeBtagEfficiencies() ? this->getKinRecoObjectsOnTheFly(leptonIndex, antiLeptonIndex, jetIndices, allLeptons, jets, jetBTagCSV, met) : kinRecoObjectsDummy;
     const KinRecoObjects& kinRecoObjects = kinRecoObjectsDummy;
     //const bool hasSolution = kinRecoObjects.valuesSet_;
 
@@ -410,15 +406,16 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
                   genObjectIndicesDummy, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   weight);
-
-
-
+    
+    
+    
     // ****************************************
-    //handle inverted Z cut
+    // Handle inverted Z cut
     // Z window plots need to be filled here, in order to rescale the contribution to data
+    const bool isZregion = dilepton.M() > 76. && dilepton.M() < 106.;
     if(isZregion){
         selectionStep = "4zWindow";
-
+        
         this->fillAll(selectionStep,
                       recoObjects, commonGenObjects,
                       topGenObjectsDummy, higgsGenObjectsDummy,
@@ -426,10 +423,10 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
                       genObjectIndicesDummy, recoObjectIndices,
                       genLevelWeights, recoLevelWeights,
                       weight);
-
+        
         if(has2Jets){
             selectionStep = "5zWindow";
-
+            
             this->fillAll(selectionStep,
                           recoObjects, commonGenObjects,
                           topGenObjectsDummy, higgsGenObjectsDummy,
@@ -437,10 +434,10 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
                           genObjectIndicesDummy, recoObjectIndices,
                           genLevelWeights, recoLevelWeights,
                           weight);
-
+            
             if(hasMetOrEmu){
                 selectionStep = "6zWindow";
-
+                
                 this->fillAll(selectionStep,
                               recoObjects, commonGenObjects,
                               topGenObjectsDummy, higgsGenObjectsDummy,
@@ -448,27 +445,25 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
                               genObjectIndicesDummy, recoObjectIndices,
                               genLevelWeights, recoLevelWeights,
                               weight);
-
+                
                 if(hasBtag){
                     selectionStep = "7zWindow";
-
-                    // FIXME: do not use b-tag scale factor
-                    //fullWeights *= weightBtagSF;
-
+                    const double fullWeight = weight * weightBtagSF;
+                    
                     this->fillAll(selectionStep,
                                   recoObjects, commonGenObjects,
                                   topGenObjectsDummy, higgsGenObjectsDummy,
                                   kinRecoObjects,
                                   genObjectIndicesDummy, recoObjectIndices,
                                   genLevelWeights, recoLevelWeights,
-                                  weight);
+                                  fullWeight);
                 }
             }
         }
     }
-
-
-
+    
+    
+    
     //=== CUT ===
     selectionStep = "4";
 
@@ -521,11 +516,9 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
                   genLevelWeights, recoLevelWeights,
                   weight);
 
-    // Fill the b-tagging efficiency plots
-    if(this->makeBtagEfficiencies()){
-        this->btagScaleFactors()->fillHistograms(jetIndices, jetBTagCSV, jets, jetPartonFlavour, weight);
-        return kTRUE;
-    }
+    // Fill b-tagging efficiencies if required for given correction mode, and in case do not process further steps
+    this->fillBtagEfficiencyHistos(jetIndices, jetBTagCSV, jets, jetPartonFlavour, weight);
+    if(this->makeBtagEfficiencies()) return kTRUE;
 
     
 
@@ -826,7 +819,7 @@ bool HiggsAnalysis::failsAdditionalJetFlavourSelection(const Long64_t& entry)con
 {
     if(additionalBjetMode_ == -999) return false;
     
-    // Use the full sample for creating btag efficiencies
+    // Use the full ttbar sample for creating btag efficiencies
     if(this->makeBtagEfficiencies()) return false;
     
     // FIXME: this is a workaround as long as there is no specific additional jet flavour info written to nTuple
@@ -894,6 +887,9 @@ void HiggsAnalysis::fillAll(const std::string& selectionStep,
                             const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
                             const double& defaultWeight)const
 {
+    // In case b-tag efficiencies are produced, analysis output is not
+    if(this->makeBtagEfficiencies()) return;
+    
     for(AnalyzerBase* analyzer : v_analyzer_){
         if(analyzer) analyzer->fill(recoObjects, commonGenObjects,
                                     topGenObjects, higgsGenObjects,

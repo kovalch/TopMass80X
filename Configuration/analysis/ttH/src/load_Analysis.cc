@@ -73,30 +73,21 @@ constexpr const char* JesUncertaintySourceFILE = "Summer13_V4_DATA_UncertaintySo
 
 
 
-
 /// The correction mode for the b-tagging
 //constexpr BtagScaleFactors::CorrectionMode BtagCorrectionMODE = BtagScaleFactors::none;
 constexpr BtagScaleFactors::CorrectionMode BtagCorrectionMODE = BtagScaleFactors::randomNumberRetag;
 //constexpr BtagScaleFactors::CorrectionMode BtagCorrectionMODE = BtagScaleFactors::discriminatorReweight;
 
-/// Folder where to find the b-/c-/l-tagging efficiencies
-constexpr const char* BtagEfficiencyInputDIR = "BTagEff";
+/// File for the official heavy flavour scale factors for b-tag discriminator reweighting
+constexpr const char* BtagHeavyFlavourFILE = "csv_rwt_hf.root";
 
-/// Folder for b-tag efficiency file storage (in case efficiencies are produced)
-constexpr const char* BtagEfficiencyOutputDIR = "selectionRoot/BTagEff";
-
-
-
-/// Folder for storage of MVA input TTree
-constexpr const char* MvaInputDIR = "mvaInput";
+/// File for the official light flavour scale factors for b-tag discriminator reweighting
+constexpr const char* BtagLightFlavourFILE = "csv_rwt_lf.root";
 
 
-/// Histogram containing the 2D distribution of MVA weights (needs to fit with the two weights also specified here)
+
+/// Histogram containing the 2D distributions of MVA weights
 constexpr const char* Mva2dWeightsFILE = "mvaOutput/Nominal/combined/weights/weights2d.root";
-
-
-/// Folder for basic analysis output
-constexpr const char* AnalysisOutputDIR = "selectionRoot";
 
 
 
@@ -126,22 +117,31 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
     KinematicReconstruction* kinematicReconstruction(0);
     //kinematicReconstruction = new KinematicReconstruction();
     
+    // Set up kinematic reconstruction scale factors (null-pointer means no application)
+    KinematicReconstructionScaleFactors* kinematicReconstructionScaleFactors(0);
+    //kinematicReconstructionScaleFactors = new KinematicReconstructionScaleFactors(channels, systematic);
+    
     // Set up pileup reweighter
     const PileupScaleFactors* const pileupScaleFactors = new PileupScaleFactors(PileupInputFILE, "Summer12", "S10", systematic);
     
     // Set up lepton efficiency scale factors
     const LeptonScaleFactors leptonScaleFactors(ElectronSFInputFILE, MuonSFInputFILE, systematic);
     
-    // Set up trigger efficiency scale factors (do it for all channels)
-    const TriggerScaleFactors triggerScaleFactors(TriggerSFInputSUFFIX, Channel::realChannels, systematic);
+    // Set up trigger efficiency scale factors
+    TriggerScaleFactors triggerScaleFactors(TriggerSFInputSUFFIX, channels, systematic);
     
-    // Set up JER systematic scale factors
+    // Set up JER systematic scale factors (null-pointer means no application)
     JetEnergyResolutionScaleFactors* jetEnergyResolutionScaleFactors(0);
     if(systematic.type() == Systematic::jer) jetEnergyResolutionScaleFactors = new JetEnergyResolutionScaleFactors(systematic);
     
-    // Set up JES systematic scale factors
+    // Set up JES systematic scale factors (null-pointer means no application)
     JetEnergyScaleScaleFactors* jetEnergyScaleScaleFactors(0);
     if(systematic.type() == Systematic::jes) jetEnergyScaleScaleFactors = new JetEnergyScaleScaleFactors(JesUncertaintySourceFILE, systematic);
+    
+    // Set up top-pt reweighting scale factors (null-pointer means no application)
+    TopPtScaleFactors* topPtScaleFactors(0);
+    //topPtScaleFactors = new TopPtScaleFactors(systematic);
+    
     
     // Set up jet categories
     JetCategories* jetCategories(0);
@@ -153,6 +153,7 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
         std::cerr<<"Error in load_Analysis! No jet categories defined\n...break\n"<<std::endl;
         exit(832);
     }
+    
     
     // Vector for setting up all analysers
     std::vector<AnalyzerBase*> v_analyzer;
@@ -236,27 +237,28 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
     // Set up production of MVA input tree for top system jet assignment
     MvaTreeHandlerTopJets* mvaTreeHandlerTopJets(0);
     if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::mvaTopP) != v_analysisMode.end()){
-        mvaTreeHandlerTopJets = new MvaTreeHandlerTopJets(MvaInputDIR, {"7"}, {"7"}, jetCategories);
+        mvaTreeHandlerTopJets = new MvaTreeHandlerTopJets("mvaInput", {"7"}, {"7"}, jetCategories);
         v_mvaTreeHandler.push_back(mvaTreeHandlerTopJets);
     }
     
     // Set up production of MVA input tree for event classification
     MvaTreeHandlerEventClassification* mvaTreeHandlerEventClassification(0);
     if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::mvaEventP) != v_analysisMode.end()){
-        mvaTreeHandlerEventClassification = new MvaTreeHandlerEventClassification(MvaInputDIR, {"7"}, {"7"}, jetCategories);
+        mvaTreeHandlerEventClassification = new MvaTreeHandlerEventClassification("mvaInput", {"7"}, {"7"}, jetCategories);
         v_mvaTreeHandler.push_back(mvaTreeHandlerEventClassification);
     }
     
     
     // Set up the analysis
     HiggsAnalysis* selector = new HiggsAnalysis();
-    selector->SetAnalysisOutputBase(AnalysisOutputDIR);
-    selector->SetKinematicReconstruction(kinematicReconstruction);
+    selector->SetAnalysisOutputBase("selectionRoot");
+    selector->SetKinematicReconstruction(kinematicReconstruction, kinematicReconstructionScaleFactors);
     selector->SetPileupScaleFactors(pileupScaleFactors);
     selector->SetLeptonScaleFactors(leptonScaleFactors);
     selector->SetTriggerScaleFactors(triggerScaleFactors);
     selector->SetJetEnergyResolutionScaleFactors(jetEnergyResolutionScaleFactors);
     selector->SetJetEnergyScaleScaleFactors(jetEnergyScaleScaleFactors);
+    selector->SetTopPtScaleFactors(topPtScaleFactors);
     selector->SetAllAnalyzers(v_analyzer);
     selector->SetAllTreeHandlers(v_mvaTreeHandler);
     
@@ -343,7 +345,8 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
         
         // Set up btag efficiency scale factors
         // This has to be done only after potentially setting systematic from file, since it is varied with signal systematics
-        BtagScaleFactors btagScaleFactors(BtagEfficiencyInputDIR, BtagEfficiencyOutputDIR, channels, systematicForBtagEfficiencies, BtagCorrectionMODE);
+        BtagScaleFactors btagScaleFactors("BTagEff", "selectionRoot/BTagEff", BtagHeavyFlavourFILE, BtagLightFlavourFILE,
+                                          channels, systematicForBtagEfficiencies, BtagCorrectionMODE);
         
         // Configure selector
         selector->SetTopSignal(isTopSignal);
@@ -365,7 +368,9 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
             // Set the channel
             const TString channelName = Channel::convert(selectedChannel);
             const TString outputfilename = filenameBase.BeginsWith(channelName+"_") ? filenameBase : channelName+"_"+filenameBase;
-            btagScaleFactors.prepareSF(selectedChannel);
+            triggerScaleFactors.prepareChannel(selectedChannel);
+            btagScaleFactors.prepareChannel(selectedChannel);
+            if(kinematicReconstructionScaleFactors) kinematicReconstructionScaleFactors->prepareChannel(selectedChannel);
             selector->SetChannel(selectedChannel);
             
             // Set up nTuple chain
@@ -488,6 +493,7 @@ namespace Systematic{
         jer, jes,
         btag, btagLjet,
         //kin,
+        //topPt,
     };
 }
 
