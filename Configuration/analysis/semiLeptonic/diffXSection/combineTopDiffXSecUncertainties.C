@@ -1,7 +1,10 @@
 #include "basicFunctions.h"
 #include <numeric>
 
-void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=false, unsigned int verbose=0, TString decayChannel="combined", bool extrapolate=false, bool hadron=true, bool addCrossCheckVariables=false, TString closureTestSpecifier="", bool useBCC=false){
+bool hadronPlot(TString name);
+bool partonPlot(TString name);
+
+void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, unsigned int verbose=0, TString decayChannel="combined", bool extrapolate=false, bool hadron=true, bool addCrossCheckVariables=false, TString closureTestSpecifier="", bool useBCC=false){
 
   // ============================
   //  Systematic Variations:
@@ -118,26 +121,32 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=false, 
   // NOTE: these must be identical to those defined in xSecVariables_ in analyzeHypothesisKinFit.C
 
   std::vector<TString> xSecVariables_;
-  int NormxSecs=0;
   // a) top and ttbar quantities
   if(!hadron){
     xSecVariables_.insert(xSecVariables_.end(), xSecVariablesKinFit    , xSecVariablesKinFit     + sizeof(xSecVariablesKinFit    )/sizeof(TString));
     xSecVariables_.insert(xSecVariables_.end(), xSecVariablesKinFitNorm, xSecVariablesKinFitNorm + sizeof(xSecVariablesKinFitNorm)/sizeof(TString));
-    NormxSecs+=sizeof(xSecVariablesKinFitNorm)/sizeof(TString);
   }
   // b) lepton and b-jet quantities
   if(hadron||!extrapolate){
     xSecVariables_.insert(xSecVariables_.end(), xSecVariablesFinalState    , xSecVariablesFinalState     + sizeof(xSecVariablesFinalState    )/sizeof(TString));
     xSecVariables_.insert(xSecVariables_.end(), xSecVariablesFinalStateNorm, xSecVariablesFinalStateNorm + sizeof(xSecVariablesFinalStateNorm)/sizeof(TString));
-    NormxSecs+=sizeof(xSecVariablesFinalStateNorm)/sizeof(TString);
   }
   // c) cross check variables presently only available for parton level cross-sections
   if (addCrossCheckVariables && !hadron){
     xSecVariables_.insert( xSecVariables_.end(),   xSecVariablesCCVar,     xSecVariablesCCVar     + sizeof(xSecVariablesCCVar    )/sizeof(TString)    );
     xSecVariables_.insert( xSecVariables_.end(),   xSecVariablesCCVarNorm, xSecVariablesCCVarNorm + sizeof(xSecVariablesCCVarNorm)/sizeof(TString));
-    NormxSecs+=sizeof(xSecVariablesCCVarNorm)/sizeof(TString);
   }
   xSecVariables_.insert( xSecVariables_.end(),   xSecVariablesIncl,      xSecVariablesIncl      + sizeof(xSecVariablesIncl)/sizeof(TString)     );
+  // number of considered normalised cross sections for the calculation of the average median
+  double NormxSecs=0.;
+  for(int i=0; i<(int)xSecVariables_.size(); ++i){
+    if(xSecVariables_.at(i).Contains("Norm")){
+      if( extrapolate&&!hadron&&partonPlot(xSecVariables_.at(i))) NormxSecs++;
+      if(!extrapolate&& hadron&&hadronPlot(xSecVariables_.at(i))) NormxSecs++;
+    }
+  }
+  if(verbose>1) std::cout << "NormxSecs= "<< NormxSecs << std::endl;
+
   // chose min/max value[%] for relative uncertainty plots
   double errMax=15.0;
   double errMin= 0.0;
@@ -862,28 +871,38 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=false, 
 	    float median = ( vecValues.size() % 2 != 0 ) ? vecValues[vecSize/2] : (vecValues[vecSize/2-1] + vecValues[vecSize/2]) / 2;
 
 	    // calculate minimum and maximum of medians for uncertainty table (in the plotted variables)
-	    if((((xSecVariables_[i].Contains("bq") || xSecVariables_[i].Contains("lep")) && universalplotLabel=="HadronLvPS") ||
-	    (   !(xSecVariables_[i].Contains("bq") || xSecVariables_[i].Contains("lep")) && universalplotLabel=="FullPS"    )   ) 
-	    &&    xSecVariables_[i].Contains("Norm")){
-	      if(!minMedian[label])minMedian[label]=1000.;
+	    if(((hadronPlot(xSecVariables_[i])&&universalplotLabel=="HadronLvPS") || //considered visible PS plot
+		(partonPlot(xSecVariables_[i])&&universalplotLabel=="FullPS"    ))   // considered full PS plot
+	       &&xSecVariables_[i].Contains("Norm")){                                // normalised cross section
+	      // minimal median
+	      if(!minMedian[label]) minMedian[label]=1000.;
 	      if(median < minMedian[label])minMedian[label] = median;
-	      if(!maxMedian[label])maxMedian[label]=0.;
+	      // maximal median
+	      if(!maxMedian[label]) maxMedian[label]=0.;	      
 	      if(median > maxMedian[label])maxMedian[label] = median;
+	      // average median
 	      aveMedian[label]+=median;
 	    }
 	    // fill uncertainty table with minimum and maximum (for last plot)
 	    if(i==xSecVariables_.size()-1 && universalplotLabel!="PartonLvPS"){
-	      TString uncTable2 = label;
-	      uncTable2+=fillspaceT(label, 20);
+	      TString uncTable2 = "";
+	      //uncTable2+=fillspaceT(label, 20);
 	      uncTable2+=Form(" & %3.1f",aveMedian[label]/NormxSecs);
+	      uncTable2+="\\%"; 
 	      uncTable2+=fillspace(minMedian[label], 3);
 	      uncTable2+=Form(" & %3.1f",minMedian[label]); 
 	      uncTable2+="\\%"; 
 	      uncTable2+=fillspace(maxMedian[label], 3);
 	      uncTable2+=Form(" & %3.1f",maxMedian[label]); 
 	      uncTable2+="\\% \\\\";
+	      TString uncTable3=uncTable2;
+	      uncTable2=label+"uncTable2";
 	      uncTable2.ReplaceAll("sys","");
-	      if(save) writeToFile(uncTable2, outputFolder+"/uncertaintyDistributionsOverview/uncertaintyTable_"+decayChannel+"_"+universalplotLabel+"_minmax.txt", true);
+	      if(PHD) uncTable3.ReplaceAll("0.0","\\sms0.1");
+	      if(save){
+		writeToFile(uncTable2, outputFolder+"/uncertaintyDistributionsOverview/uncertaintyTable_"+decayChannel+"_"+universalplotLabel+"_minmax.txt", true );
+		writeToFile(uncTable3, outputFolder+"/uncertaintyDistributionsOverview/uncertaintyTable_"+decayChannel+"_"+universalplotLabel+"_minmax_"+label+".txt", false);
+	      }
 	    }
 
 	    // prepare line for the complete uncertainty table
@@ -1283,3 +1302,34 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=false, 
   file->Close();
 
 }
+
+bool hadronPlot(TString name){
+  // this function returns true if 'name' is a cross section quantity considered 
+  // for the final measurement in the visible particle level phase space
+  if(name.Contains(     "lepPt"    )) return true;
+  else if(name.Contains("lepEta"   )) return true;
+  else if(name.Contains("bqPt"     )) return true;
+  else if(name.Contains("bqEta"    )) return true;
+  else if(name.Contains("bbbarMass")) return true;
+  else if(name.Contains("bbbarPt"  )) return true;
+  else if(name.Contains("lbMass"   )) return true;
+  else if(name.Contains("Njets"    )) return (PHD ? true : false);
+  else if(name.Contains("rhos"     )) return (PHD ? true : false);
+  return false; // else
+}
+
+bool partonPlot(TString name){
+  // this function returns true if 'name' is a cross section quantity considered 
+  // for the final measurement in the extrapolated parton level phase space
+  if(name.Contains("topPtLead"         )) return true;
+  else if(name.Contains("topPtSubLead" )) return true;
+  else if(name.Contains("topPtTtbarSys")) return true;
+  else if(name.Contains("topPt"        )) return true;
+  else if(name.Contains("topY"         )) return true;
+  else if(name.Contains("ttbarPt"      )) return true;
+  else if(name.Contains("ttbarY"       )) return true;
+  else if(name.Contains("ttbarMass"    )) return true;
+  else if(name.Contains("ttbarDelPhi"  )) return true;
+  return false; // else
+}
+
