@@ -27,6 +27,18 @@
 
 using namespace std;
 
+
+
+
+
+
+
+
+
+// -------------------------------------- Methods for KinematicReconstruction --------------------------------------
+
+
+
 void KinematicReconstruction::angle_rot(double alpha, double e, TLorentzVector jet, TLorentzVector & jet_sm)
 {
     /*Ganna Dolinska*/
@@ -966,8 +978,101 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
         sol_=vect_sol[0];
     }
 
-}       // End of KinematicReconstruction constructor
+}
 
+
+
+
+
+
+
+
+
+// -------------------------------------- Methods for KinematicReconstructionScaleFactors --------------------------------------
+
+
+
+
+
+KinematicReconstructionScaleFactors::KinematicReconstructionScaleFactors(const std::vector<Channel::Channel>& channels,
+                                                                         const Systematic::Systematic& systematic):
+scaleFactor_(-999.)
+{
+    std::cout<<"--- Beginning preparation of kinematic reconstruction scale factors\n";
+    
+    // Set up proper internal systematic
+    SystematicInternal systematicInternal(nominal);
+    if(systematic.type() == Systematic::kin){
+        if(systematic.variation() == Systematic::up) systematicInternal = vary_up;
+        else if(systematic.variation() == Systematic::down) systematicInternal = vary_down;
+    }
+    
+    // Set the scale factors according to specific systematic, and check whether all requested channels are defined
+    this->prepareSF(systematicInternal);
+    for(const auto& channel : channels){
+        if(m_scaleFactor_.find(channel) == m_scaleFactor_.end()){
+            std::cerr<<"ERROR in constructor of KinematicReconstructionScaleFactors! No scale factors defined for given channel: "
+                     <<Channel::convert(channel)<<"\n...break\n"<<std::endl;
+            exit(857);
+        }
+    }
+    std::cout<<"Found scale factors for all requested channels\n";
+    
+    std::cout<<"=== Finishing preparation of kinematic reconstruction scale factors\n\n";
+}
+
+
+
+void KinematicReconstructionScaleFactors::prepareSF(const SystematicInternal& systematic)
+{
+    // FIXME: make proper documentation for SF determination (where?)
+    // --> uncomment the following line to determine the Kin Reco SFs
+    // --> then make && ./runNominalParallel.sh && ./Histo -t cp -p akr bkr step && ./kinRecoEfficienciesAndSF
+
+    // SF = 1
+    //const std::map<Channel::Channel, double> m_sfNominal { {Channel::ee, 1.}, {Channel::emu, 1.}, {Channel::mumu, 1.} };
+    //const std::map<Channel::Channel, double> m_sfUnc { {Channel::ee, 0.}, {Channel::emu, 0.}, {Channel::mumu, 0.} };
+    
+    //SF for mass(top) = 100..300 GeV
+    //const std::map<Channel::Channel, double> m_sfNominal { {Channel::ee, 0.9779}, {Channel::emu, 0.9871}, {Channel::mumu, 0.9879} };
+    //const std::map<Channel::Channel, double> m_sfUnc { {Channel::ee, 0.0066}, {Channel::emu, 0.0032}, {Channel::mumu, 0.0056} };
+    
+    // SF for newKinReco flat
+    const std::map<Channel::Channel, double> m_sfNominal { {Channel::ee, 0.9876}, {Channel::emu, 0.9921}, {Channel::mumu, 0.9949} };
+    const std::map<Channel::Channel, double> m_sfUnc { {Channel::ee, 0.0043}, {Channel::emu, 0.0019}, {Channel::mumu, 0.0037} };
+    
+    // SF for mass(top) = 173 GeV
+    //const std::map<Channel::Channel, double> m_sfNominal { {Channel::ee, 0.9696}, {Channel::emu, 0.9732}, {Channel::mumu, 0.9930} };
+    //const std::map<Channel::Channel, double> m_sfUnc { {Channel::ee, 0.0123}, {Channel::emu, 0.0060}, {Channel::mumu, 0.0105} };
+    
+    for(const auto& sfNominal : m_sfNominal){
+        const Channel::Channel& channel = sfNominal.first;
+        const double& centralValue = sfNominal.second;
+        const double& uncertainty = m_sfUnc.at(channel);
+        if(systematic == nominal) m_scaleFactor_[channel] = centralValue;
+        else if(systematic == vary_up) m_scaleFactor_[channel] = centralValue + uncertainty;
+        else if(systematic == vary_down) m_scaleFactor_[channel] = centralValue - uncertainty;
+        else{
+           std::cerr<<"ERROR in KinematicReconstructionScaleFactors::prepareSF()! "
+                    <<"No treatment defined for specified systematic\n...break\n"<<std::endl;
+           exit(857);
+        }
+    }
+}
+
+
+
+void KinematicReconstructionScaleFactors::prepareChannel(const Channel::Channel& channel)
+{
+    scaleFactor_ = m_scaleFactor_.at(channel);
+}
+
+
+
+double KinematicReconstructionScaleFactors::getSF()const
+{
+    return scaleFactor_;
+}
 
 
 

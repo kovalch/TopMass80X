@@ -29,15 +29,15 @@ done
 #######################################################
 for c in ee emu mumu; do
     w
-    $LA -f tau_massup.root -c $c -s MASS_UP &
-    $LA -f tau_massdown.root -c $c -s MASS_DOWN &
-    $LA -f tau_matchingup.root -c $c -s MATCH_UP &
-    $LA -f tau_matchingdown.root -c $c -s MATCH_DOWN &
-    $LA -f tau_scaleup.root -c $c -s SCALE_UP &
-    $LA -f tau_scaledown.root -c $c -s SCALE_DOWN &
-    $LA -f tau_mcatnlo.root -c $c -s MCATNLO &
-    $LA -f tau_powheg.root -c $c -s POWHEG &
-    $LA -f tau_powhegHerwig.root -c $c -s POWHEGHERWIG &
+    $LA -f tau_massup.root -c $c &
+    $LA -f tau_massdown.root -c $c &
+    $LA -f tau_matchingup.root -c $c &
+    $LA -f tau_matchingdown.root -c $c &
+    $LA -f tau_scaleup.root -c $c &
+    $LA -f tau_scaledown.root -c $c &
+    $LA -f tau_mcatnlo.root -c $c &
+    $LA -f tau_powheg.root -c $c &
+#    $LA -f tau_powhegHerwig.root -c $c &
 done
 
 

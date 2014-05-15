@@ -275,7 +275,8 @@ TriggerScaleFactors::TriggerScaleFactors(const char* inputFileSuffix,
                                          const Systematic::Systematic& systematic):
 h2_eeSFeta_(0),
 h2_emuSFeta_(0),
-h2_mumuSFeta_(0)
+h2_mumuSFeta_(0),
+h2_channelSF_(0)
 {
     std::cout<<"--- Beginning preparation of trigger scale factors\n";
     
@@ -366,25 +367,30 @@ const TH2* TriggerScaleFactors::prepareSF(const TString& fileName, const Systema
 
 
 
-double TriggerScaleFactors::getSF(const int leptonXIndex, const int leptonYIndex,
-                                  const VLV& leptons, const Channel::Channel& channel)const
+void TriggerScaleFactors::prepareChannel(const Channel::Channel& channel)
 {
-    const TH2* h_TrigSFeta(0);
-    if(channel == Channel::ee) h_TrigSFeta = h2_eeSFeta_;
-    else if(channel == Channel::emu) h_TrigSFeta = h2_emuSFeta_;
-    else if(channel == Channel::mumu) h_TrigSFeta = h2_mumuSFeta_;
+    if(channel == Channel::ee) h2_channelSF_ = h2_eeSFeta_;
+    else if(channel == Channel::emu) h2_channelSF_ = h2_emuSFeta_;
+    else if(channel == Channel::mumu) h2_channelSF_ = h2_mumuSFeta_;
     else{
-        std::cerr<<"ERROR in TriggerScaleFactors! Invalid channel requested: "
+        std::cerr<<"ERROR in TriggerScaleFactors::prepareChannel()! Invalid channel requested: "
                  <<Channel::convert(channel)<<"\n...break\n"<<std::endl;
         exit(25);
     }
-    if (!h_TrigSFeta) return 1.;
+}
+
+
+
+double TriggerScaleFactors::getSF(const int leptonXIndex, const int leptonYIndex,
+                                  const VLV& leptons)const
+{
+    if (!h2_channelSF_) return 1.;
 
     //For 'ee' and 'mumu' channels Xaxis of the 2D plots is the highest pT lepton
     // for the 'emu' channel Xaxis is the electron and Y axis muon
     const LV& leptonX(leptons.at(leptonXIndex));
     const LV& leptonY(leptons.at(leptonYIndex));
-    return ScaleFactorHelpers::get2DSF(h_TrigSFeta, std::fabs(leptonX.eta()), std::fabs(leptonY.eta()));
+    return ScaleFactorHelpers::get2DSF(h2_channelSF_, std::fabs(leptonX.eta()), std::fabs(leptonY.eta()));
 }
 
 
@@ -406,8 +412,10 @@ double TriggerScaleFactors::getSF(const int leptonXIndex, const int leptonYIndex
 
 
 
-BtagScaleFactors::BtagScaleFactors(const char* btagEfficiencyInputDir,
-                                   const char* btagEfficiencyOutputDir,
+BtagScaleFactors::BtagScaleFactors(const char* efficiencyInputDir,
+                                   const char* efficiencyOutputDir,
+                                   const char* inputFileHeavyFlavour,
+                                   const char* inputFileLightFlavour,
                                    const std::vector<Channel::Channel>& channels,
                                    const Systematic::Systematic& systematic,
                                    const CorrectionMode& correctionMode):
@@ -418,40 +426,194 @@ correctionMode_(correctionMode)
 {
     std::cout<<"--- Beginning preparation of b-tagging scale factors\n";
     
-    // Set systematic if it is an allowed one for btag efficiencies, else set to nominal
+    // Set systematic if it is an allowed one for b-tag efficiencies, else set to nominal
+    this->btagSystematic(systematic);
+    
+    // Adapt behaviour for requested correction mode
+    this->setMakeEff(false);
+    if(correctionMode_ == none){
+        std::cout<<"Correction mode: none\n";
+        std::cout<<"No corrections will be applied\n";
+    }
+    else if(correctionMode_==greaterEqualOneTagReweight || correctionMode_==randomNumberRetag){
+        if(correctionMode_ == greaterEqualOneTagReweight)
+            std::cout<<"Correction mode: Event scale factor correcting (mis-)tagging efficiency for >=1 b-tagged jet\n";
+        else if(correctionMode_ == randomNumberRetag)
+            std::cout<<"Correction mode: Random number based (un-)tagging of b-/c-/l- jets correcting b-tag multiplicity\n";
+        std::cout<<"Requires b-/c-/l-tagging efficiency histograms from MC\n";
+        this->prepareEfficiencies(efficiencyInputDir, efficiencyOutputDir, channels, systematic);
+    }
+    else if(correctionMode_ == discriminatorReweight){
+        std::cout<<"Correction mode: Event scale factor correcting the b-tag discriminator distribution\n";
+        std::cout<<"Requires files containing the official flavour-specific per-jet correction factors\n";
+        this->prepareDiscriminatorReweighting(inputFileHeavyFlavour, inputFileLightFlavour);
+    }
+    else{
+        std::cerr<<"ERROR in constructor of BtagScaleFactors! Requested a correction mode which is not implemented\n...break\n"<<std::endl;
+        exit(90);
+    }
+
+    std::cout<<"=== Finishing preparation of b-tagging scale factors\n\n";
+}
+
+
+
+void BtagScaleFactors::btagSystematic(const Systematic::Systematic& systematic)
+{
     ztop::bTagBase::systematics systematicInternal(nominal);
     if(systematic.type() == Systematic::btag){
         if(systematic.variation() == Systematic::up) systematicInternal = heavyup;
         else if(systematic.variation() == Systematic::down) systematicInternal = heavydown;
     }
-    if(systematic.type() == Systematic::btagPt){
+    else if(systematic.type() == Systematic::btagPt){
         if(systematic.variation() == Systematic::up) systematicInternal = heavyuppt;
         else if(systematic.variation() == Systematic::down) systematicInternal = heavydownpt;
     }
-    if(systematic.type() == Systematic::btagEta){
+    else if(systematic.type() == Systematic::btagEta){
         if(systematic.variation() == Systematic::up) systematicInternal = heavyupeta;
         else if(systematic.variation() == Systematic::down) systematicInternal = heavydowneta;
     }
-    if(systematic.type() == Systematic::btagLjet){
+    else if(systematic.type() == Systematic::btagLjet){
         if(systematic.variation() == Systematic::up) systematicInternal = lightup;
         else if(systematic.variation() == Systematic::down) systematicInternal = lightdown;
     }
-    if(systematic.type() == Systematic::btagLjetPt){
+    else if(systematic.type() == Systematic::btagLjetPt){
         if(systematic.variation() == Systematic::up) systematicInternal = lightuppt;
         else if(systematic.variation() == Systematic::down) systematicInternal = lightdownpt;
     }
-    if(systematic.type() == Systematic::btagLjetEta){
+    else if(systematic.type() == Systematic::btagLjetEta){
         if(systematic.variation() == Systematic::up) systematicInternal = lightupeta;
         else if(systematic.variation() == Systematic::down) systematicInternal = lightdowneta;
     }
     this->setSystematic(systematicInternal);
+}
+
+
+
+void BtagScaleFactors::prepareChannel(const Channel::Channel& channel)
+{
+    channel_ = channel;
     
-    // FIXME: need to adapt behaviour for requested correction mode
-    //if(correctionMode_ == none) ;
-    //else if(correctionMode_==greaterEqualOneTagReweight || correctionMode_==randomNumberRetag) ;
-    //else if(correctionMode_==discriminatorReweight) ;
-    //else ;
+    if(correctionMode_==randomNumberRetag || correctionMode_==greaterEqualOneTagReweight) this->loadEfficiencies();
+}
+
+
+
+void BtagScaleFactors::algorithmAndWorkingPoint(const Btag::Algorithm& algorithm,
+                                                const Btag::WorkingPoint& workingPoint)
+{
+    if(algorithm == Btag::csv){
+        if(workingPoint == Btag::L) this->setWorkingPoint(csvl_wp);
+        else if(workingPoint == Btag::M) this->setWorkingPoint(csvm_wp);
+        else if(workingPoint == Btag::T) this->setWorkingPoint(csvt_wp);
+        else{
+            std::cerr<<"ERROR in BtagScaleFactors::algorithmAndWorkingPoint()! Working point is not implemented for algorithm 'csv'\n...break\n"<<std::endl;
+            exit(232);
+        }
+    }
+    else{
+        std::cerr<<"ERROR in BtagScaleFactors::algorithmAndWorkingPoint()! Algorithm is not implemented\n...break\n"<<std::endl;
+        exit(232);
+    }
+}
+
+
+
+void BtagScaleFactors::indexOfBtags(std::vector<int>& bjetIndices,
+                                    const std::vector<int>& jetIndices,
+                                    const VLV& jets,
+                                    const std::vector<int>& jetPartonFlavours,
+                                    const std::vector<double>& btagDiscriminants)const
+{
+    // In case efficiencies are produced, the input needs to be without any retagging
+    if(this->makeEfficiencies()) return;
     
+    if(correctionMode_ != randomNumberRetag) return;
+    
+    bjetIndices.clear();
+    for(const int index : jetIndices){
+        // Skip jets where there is no partonFlavour
+        if(jetPartonFlavours.at(index) == 0) continue;
+        const LV& jet = jets.at(index);
+
+        // Preparing a seed for the random jet retagging
+        const unsigned int seed = std::abs( static_cast<int>( 1.e6*sin( 1.e6*jet.Phi() ) ) );
+        const bool isTagged = this->jetIsTagged( jet.pt(), std::fabs(jet.eta()), jetPartonFlavours.at(index), btagDiscriminants.at(index), seed );
+        if(isTagged) bjetIndices.push_back(index);
+    }
+}
+
+
+
+double BtagScaleFactors::getSF(const std::vector<int>& jetIndices,
+                               const VLV& jets,
+                               const std::vector<int>& jetPartonFlavours,
+                               const std::vector<double>& btagDiscriminators)
+{
+    // In case efficiencies are produced, the input needs to be without scale factors
+    if(this->makeEfficiencies()) return 1.;
+    
+    if(correctionMode_ == greaterEqualOneTagReweight)
+        return this->scaleFactorGreaterEqualOneTag(jetIndices, jets, jetPartonFlavours);
+    else if(correctionMode_ == discriminatorReweight)
+        return this->scaleFactorDiscriminatorReweight(jetIndices, jets, jetPartonFlavours, btagDiscriminators);
+    else return 1.;
+}
+
+
+
+double BtagScaleFactors::scaleFactorDiscriminatorReweight(const std::vector<int>& jetIndices,
+                                                          const VLV& jets,
+                                                          const std::vector<int>& jetPartonFlavours,
+                                                          const std::vector<double>& btagDiscriminators)const
+{
+    double result(1.);
+    
+    // Loop over all jets and multiply the individual weights
+    for(const int index : jetIndices){
+        const LV& jet = jets.at(index);
+        const int& jetPartonFlavour = jetPartonFlavours.at(index);
+        const double& btagDiscriminator = btagDiscriminators.at(index);
+        const double weight = this->getJetDiscrShapeWeight(jet.pt(), std::abs(jet.eta()), jetPartonFlavour, btagDiscriminator);
+        result *= weight;
+    }
+    
+    return result;
+}
+
+
+
+double BtagScaleFactors::scaleFactorGreaterEqualOneTag(const std::vector<int>& jetIndices,
+                                                       const VLV& jets,
+                                                       const std::vector<int>& jetPartonFlavours)
+{
+    this->resetCounter();
+    for(const int index : jetIndices){
+        this->countJet(jets.at(index).pt(), std::abs(jets.at(index).eta()), jetPartonFlavours.at(index));
+    }
+
+    // per-event SF calculation
+    //this is plain wrong and especially leads to underestimated uncertainties!
+    //double scale_factor = this->getEventSF();
+    //if(std::abs(scale_factor-1.) > 0.05) scale_factor = 1.;
+
+    return this->getEventSF();
+}
+
+
+
+bool BtagScaleFactors::makeEfficiencies()const
+{
+    return this->getMakeEff();
+}
+
+
+
+void BtagScaleFactors::prepareEfficiencies(const char* efficiencyInputDir,
+                                           const char* efficiencyOutputDir,
+                                           const std::vector<Channel::Channel>& channels,
+                                           const Systematic::Systematic& systematic)
+{
     // Hardcoded filename, since btag efficiencies are produced and used always from this one
     const TString filename("ttbarsignalplustau.root"); 
     
@@ -461,9 +623,9 @@ correctionMode_(correctionMode)
     // Checking whether files with btag efficiencies exist for all channels
     bool allInputFilesAvailable(true);
     for(const auto& channel : channels){
-        TString btagInputFile = common::accessFolder(btagEfficiencyInputDir, channel, systematic, true);
+        TString btagInputFile = common::accessFolder(efficiencyInputDir, channel, systematic, true);
         if(btagInputFile == "") allInputFilesAvailable = false;
-        btagInputFile.Append(m_channelSamplename_.at(channel));
+        btagInputFile.Append(filename);
         
         ifstream inputFileStream;
         if(allInputFilesAvailable) inputFileStream.open(btagInputFile);
@@ -475,51 +637,41 @@ correctionMode_(correctionMode)
         else{
             std::cout<< "******************************************************\n"
                     << "Btag efficiency file [" << btagInputFile << "] doesn't exist.\n"
-                    << "RUNNING WITHOUT BTAGSF!!!\n"
                     << "To create the file, run (for each systematic 'SYST'):\n"
-                    << "\t> ./build/load_Analysis -f ttbarsignalplustau.root -c emu -s SYST\n"
-                    << "\t> ./build/load_Analysis -f ttbarsignalplustau.root -c ee -s SYST\n"
-                    << "\t> ./build/load_Analysis -f ttbarsignalplustau.root -c mumu -s SYST\n"
+                    << "\t> ./install/bin/load_Analysis -f ttbarsignalplustau.root -c emu -s SYST\n"
+                    << "\t> ./install/bin/load_Analysis -f ttbarsignalplustau.root -c ee -s SYST\n"
+                    << "\t> ./install/bin/load_Analysis -f ttbarsignalplustau.root -c mumu -s SYST\n"
                     << " and move the selectionRoot/BTagEff directory to the cwd:\n"
                     << "\t> mv selectionRoot/BTagEff .\n"
-                    << "This error is NOT fatal, not applying any b-tag rescaling\n"
+                    << "WARNING: Analysis results are not produced\n"
                     << "*******************************************************\n";
             allInputFilesAvailable = false;
             break;
         }
     }
-
+    
     if(!allInputFilesAvailable){
         std::cout<<"Not all input files for b-tagging efficiencies available\n"
                  <<"\t-->  Efficiencies will not be used, but produced in Analysis\n";
         this->setMakeEff(true);
         // Setting the root file names for storing btagging efficiencies for each channel in the map
         for(const auto& channel : channels){
-            const TString btagOutputFile = common::assignFolder(btagEfficiencyOutputDir, channel, systematic).Append(m_channelSamplename_.at(channel));
+            const TString btagOutputFile = common::assignFolder(efficiencyOutputDir, channel, systematic).Append(filename);
             m_channelFilename_[channel] = btagOutputFile;
         }
     }
     else{
         std::cout<<"Found all input files for b-tagging efficiencies\n";
-        this->setMakeEff(false);
     }
-
-    std::cout<<"=== Finishing preparation of b-tagging scale factors\n\n";
 }
 
 
 
-void BtagScaleFactors::prepareSF(const Channel::Channel& channel)
+void BtagScaleFactors::loadEfficiencies()
 {
-    channel_ = channel;
-    
-    // Stopping if no efficiency histograms need to be read (production mode)
+    // Stop if no efficiency histograms need to be read (production mode)
     if(this->makeEfficiencies()) return;
     
-    std::vector<TH2D> histos;
-    std::vector<TH2D> effhistos;
-    std::vector<float> medians;
-
     // Load per-jet efficiencies file
     const TString& inputFileName = m_channelFilename_.at(channel_);
     TFile file(inputFileName,"READ");
@@ -528,140 +680,73 @@ void BtagScaleFactors::prepareSF(const Channel::Channel& channel)
     TH1::AddDirectory(false);
     TH2D* tempHisto(0);
 
-    //read the histograms in the right order from file. this is sufficient, since getJetHistoOrderedNames() and
-    //getEffHistoOrderedNames() take care of the right index <-> name association
-    //get filled histograms
-    for(size_t i = 0; i < this->getJetHistoOrderedNames().size(); ++i){
-        file.GetObject(this->getJetHistoOrderedNames().at(i).c_str(), tempHisto);
-        if(!tempHisto)
-            throw std::runtime_error("BtagScaleFactors::prepareBtagSF Couldn't find all histograms in the input root file");
+    // Read the histograms for jets and b-jets of different flavour in the right order from file
+    // getJetHistoOrderedNames() takes care of the right index <-> name association
+    std::vector<TH2D> histos;
+    for(size_t iHisto = 0; iHisto < this->getJetHistoOrderedNames().size(); ++iHisto){
+        file.GetObject(this->getJetHistoOrderedNames().at(iHisto).c_str(), tempHisto);
+        if(!tempHisto) throw std::runtime_error("ERROR in BtagScaleFactors::prepareBtagSF()! Couldn't find all histograms in the input root file");
         histos.push_back(*tempHisto);
         tempHisto = 0;
     }
     
-    //get efficiency histograms
-    for(size_t i = 0; i < this->getEffHistoOrderedNames().size(); ++i){
-        file.GetObject(this->getEffHistoOrderedNames().at(i).c_str(), tempHisto);
-        if(!tempHisto)
-            throw std::runtime_error("BtagScaleFactors::prepareBtagSF Couldn't find all histograms in the input root file");
+    // Read efficiency histograms in the right order from file
+    // getEffHistoOrderedNames() takes care of the right index <-> name association
+    std::vector<TH2D> effhistos;
+    for(size_t iHisto = 0; iHisto < this->getEffHistoOrderedNames().size(); ++iHisto){
+        file.GetObject(this->getEffHistoOrderedNames().at(iHisto).c_str(), tempHisto);
+        if(!tempHisto) throw std::runtime_error("BtagScaleFactors::prepareBtagSF Couldn't find all histograms in the input root file");
         effhistos.push_back(*tempHisto);
         tempHisto = 0;
     }
     
-    // Reading the tag and efficiency histograms from the file and adding them to the maps in proper order
-    /* nazars impl  for(int id = 0; ; ++id) {
-        std::string histoName = histoNameAtId(id, histoTypes::tag);
-        if(histoName != "") {
-            file.GetObject(histoName.c_str(), tempHisto);
-            if(!tempHisto) 
-                throw std::runtime_error("BtagScaleFactors::prepareBTags Couldn't find all [tag] histograms in the input root file");
-            histos.push_back(*tempHisto);
-            tempHisto = 0;
-        }
-
-        std::string effHistoName = histoNameAtId(id, histoTypes::eff);
-        if(effHistoName != "") {
-            file.GetObject(effHistoName.c_str(), tempHisto);
-            if(!tempHisto) 
-                throw std::runtime_error("BtagScaleFactors::prepareBTags Couldn't find all [eff] histograms in the input root file");
-            effhistos.push_back(*tempHisto);
-        }
-
-        if(histoName == "" && effHistoName == "") break;
-    }
-     */
-    
-    // Reading and extracting madian values from the histogram
+    // Extract median values from histogram
+    std::vector<float> medians;
     TH1* medianHisto(0);
     file.GetObject("medians", medianHisto);
     if(!medianHisto) throw std::runtime_error("BtagScaleFactors::prepareBTags Couldn't find [medians] histogram in the input root file");
-    for(int i = 0; i < medianHisto->GetNbinsX(); ++i) medians.push_back((float)medianHisto->GetBinContent(i+1));
-
-    const TString& sampleName = m_channelSamplename_.at(channel_);
-    histos_[sampleName.Data()] = histos;
-    effhistos_[sampleName.Data()] = effhistos;
-    medianMap_[sampleName.Data()] = medians;
-
-    file.Close();
-
-    if(this->setSampleName(sampleName.Data()) < 0)
-        throw std::runtime_error("BtagScaleFactors::prepareBTags Tried to set a non-existing sampleName");
-}
-
-
-
-bool BtagScaleFactors::makeEfficiencies()
-{
-    return this->getMakeEff();
-}
-
-
-
-void BtagScaleFactors::indexOfBtags(std::vector<int>& bjetIndices,
-                                    const std::vector<int>& jetIndices,
-                                    const VLV& jets,
-                                    const std::vector<int>& jetPartonFlavours,
-                                    const std::vector<double>& btagDiscriminants)const
-{
-    bjetIndices.clear();
+    for(int iBin = 0; iBin < medianHisto->GetNbinsX(); ++iBin) medians.push_back((float)medianHisto->GetBinContent(iBin+1));
     
-    std::vector<int> tagged_indices;
-    for(const int index : jetIndices){
-        //Skip jets where there is no partonFlavour
-        if(jetPartonFlavours.at(index) == 0) continue;
-        const LV& jet = jets.at(index);
-
-        // Preparing a seed for the random jet retagging
-        const unsigned int seed = std::abs( static_cast<int>( 1.e6*sin( 1.e6*jet.Phi() ) ) );
-        const bool isTagged = this->jetIsTagged( jet.pt(), std::fabs(jet.eta()), jetPartonFlavours.at(index), btagDiscriminants.at(index), seed );
-        if(isTagged) tagged_indices.push_back(index);
-    }
-    bjetIndices = tagged_indices;
+    // Set data members for using efficiency in correction tools
+    const std::string& sampleName = m_channelSamplename_.at(channel_);
+    histos_[sampleName] = histos;
+    effhistos_[sampleName] = effhistos;
+    medianMap_[sampleName] = medians;
+    if(this->setSampleName(sampleName) < 0) throw std::runtime_error("ERROR in BtagScaleFactors::prepareSF()! Tried to set a non-existing sampleName");
+    
+    // Cleanup
+    file.Close();
 }
 
 
 
-double BtagScaleFactors::getSFGreaterEqualOneTag(const std::vector<int>& jetIndices,
-                                                 const VLV& jets,
-                                                 const std::vector<int>& jetPartonFlavours)
+void BtagScaleFactors::bookEfficiencyHistograms(TSelectorList* output)
 {
-    this->resetCounter();
-    for(const int index : jetIndices){
-        this->countJet(jets.at(index).pt(), std::abs(jets.at(index).eta()), jetPartonFlavours.at(index));
-    }
-
-    // per-event SF calculation
-    //double scale_factor = getEventSF();
-
-    //this is plain wrong and especially leads to underestimated uncertainties!
-    //if(std::abs(scale_factor-1.) > 0.05) scale_factor = 1.;
-
-    return this->getEventSF();
-}
-
-
-
-void BtagScaleFactors::bookHistograms(TSelectorList* output)
-{
-    // Set pointer to output, so that selectorList_histograms are owned by it
+    // If no efficiencies should be produced, return
+    if(!this->makeEfficiencies()) return;
+    
+    // Set pointer to output, so that selectorList_ histograms are owned by it
     // (not used in current implementation)
     selectorList_ = output;
-
-    const TString& sampleName = m_channelSamplename_.at(channel_);
-    this->setSampleName(sampleName.Data());
+    
+    // Book histograms
+    this->setSampleName(m_channelSamplename_.at(channel_));
 }
 
 
 
-void BtagScaleFactors::fillHistograms(const std::vector<int>& jetIndices,
-                                      const std::vector<double>& bTagDiscriminant,
-                                      const VLV& jets,
-                                      const std::vector<int>& jetPartonFlavours,
-                                      const double& weight)
+void BtagScaleFactors::fillEfficiencyHistograms(const std::vector<int>& jetIndices,
+                                                const std::vector<double>& btagDiscriminators,
+                                                const VLV& jets,
+                                                const std::vector<int>& jetPartonFlavours,
+                                                const double& weight)
 {
+    // If no efficiencies should be produced, return
+    if(!this->makeEfficiencies()) return;
+    
     for(const int index : jetIndices){
         this->fillEff(jets.at(index).pt(), std::abs(jets.at(index).eta()),
-            std::abs(jetPartonFlavours.at(index)), bTagDiscriminant.at(index), weight);
+                      std::abs(jetPartonFlavours.at(index)), btagDiscriminators.at(index), weight);
     }
 }
 
@@ -669,42 +754,47 @@ void BtagScaleFactors::fillHistograms(const std::vector<int>& jetIndices,
 
 void BtagScaleFactors::produceEfficiencies()
 {
+    // If no efficiencies should be produced, return
+    if(!this->makeEfficiencies()) return;
+    
     const TString& outputFileName = m_channelFilename_.at(channel_);
-    const TString& sampleName = m_channelSamplename_.at(channel_);
-
     TFile file(outputFileName, "RECREATE");
 
     // Creating the histograms
     this->makeEffs();
 
-    // Writing each histogram to file
-    const std::vector<TH2D>& histos = histos_.at(sampleName.Data());
-    for(const TH2D& histo : histos) {
-        histo.Write();
-    }
+    const std::string& sampleName = m_channelSamplename_.at(channel_);
+
+    // Writing each jet and b-jet histogram to file
+    const std::vector<TH2D>& histos = histos_.at(sampleName);
+    for(const TH2D& histo : histos) histo.Write();
 
     // Writing each efficiency hitogram to file
-    const std::vector<TH2D>& effhistos = effhistos_.at(sampleName.Data());
-    for(const TH2D& histo : effhistos){
-        histo.Write();
-    }
+    const std::vector<TH2D>& effhistos = effhistos_.at(sampleName);
+    for(const TH2D& histo : effhistos) histo.Write();
 
     // Writing medians to the histogram and then to the file
     const size_t nMedians = (size_t)medians::length_median;
     TH1D histo("medians", "Medians;Property id;Median value", nMedians, 0, nMedians);
-
-    if(nMedians != medianMap_.at(sampleName.Data()).size()){
-        throw std::range_error("BtagScaleFactors::produceBtagEfficiencies Numbers of stored and designed median values differ");
-    }
-
-    for(size_t i = 0; i<nMedians; ++i){
-        histo.SetBinContent(i+1, medianMap_.at(sampleName.Data()).at(i));
-    }
-    histo.Write();
+    if(nMedians != medianMap_.at(sampleName).size())
+        throw std::range_error("ERROR in BtagScaleFactors::produceBtagEfficiencies()! Numbers of stored and designed median values differ");
+    for(size_t i = 0; i < nMedians; ++i) histo.SetBinContent(i+1, medianMap_.at(sampleName).at(i));
     
+    // Cleanup
+    histo.Write();
     file.Close();
     
     std::cout<<"Done with production of b-tag efficiency file: "<<outputFileName<<"\n\n"<<std::endl;
+}
+
+
+
+void BtagScaleFactors::prepareDiscriminatorReweighting(const char* inputFileHeavyFlavour, const char* inputFileLightFlavour)
+{
+    TString inputFolder = common::DATA_PATH_COMMON();
+    inputFolder.Append("/");
+    this->readShapeReweightingFiles(inputFolder+inputFileHeavyFlavour, inputFolder+inputFileLightFlavour);
+    std::cout<<"Found all input files for scale factors\n";
 }
 
 
@@ -922,6 +1012,81 @@ void JetEnergyScaleScaleFactors::applySystematic(VLV* jets, VLV* jetsForMET, LV*
     const double scaledMETPy = met->py() - JEC_dpY;
     met->SetPt(std::sqrt(scaledMETPx*scaledMETPx + scaledMETPy*scaledMETPy));
 }
+
+
+
+
+
+
+
+// --------------------------- Methods for TopPtScaleFactors ---------------------------------------------
+
+
+TopPtScaleFactors::TopPtScaleFactors(const Systematic::Systematic& systematic):
+reweightValue_(0)
+{
+    std::cout<<"--- Beginning preparation of top-pt scale factors\n";
+    
+    // Set up internal systematic
+    SystematicInternal systematicInternal(nominal);
+    if(systematic.type() == Systematic::topPt){
+        if(systematic.variation() == Systematic::up){
+            systematicInternal = vary_up;
+            std::cout<<"Using systematic variation up\n";
+        }
+        else if(systematic.variation() == Systematic::down){
+            systematicInternal = vary_down;
+            std::cout<<"Using systematic variation down\n";
+        }
+    }
+    
+    // Set up reweighting function
+    this->reweightFunction(systematicInternal);
+    
+    std::cout<<"=== Finishing preparation of top-pt scale factors\n\n";
+}
+
+
+double TopPtScaleFactors::getSF(const double& topPt, const double& antiTopPt)const
+{
+    return std::sqrt(reweightValue_(topPt) * reweightValue_(antiTopPt));
+}
+
+
+
+void TopPtScaleFactors::reweightFunction(const SystematicInternal& systematic)
+{
+    reweightValue_ = [systematic](const double& pt) -> double {
+        
+        // Fit parameters f0 and f1 of function exp(f0 - f1*pt)
+        // only dilepton
+        constexpr double p0 = 0.128;
+        constexpr double p1 = 0.00121;
+        // only semileptons
+        //constexpr double p0 = 0.130;
+        //constexpr double p1 = 0.00116;
+        // dilepton + semileptons
+        //constexpr double p0 = 0.130;
+        //constexpr double p1 = 0.00118;
+        
+        if(systematic == nominal){
+            return std::exp(p0-p1*pt);
+        }
+        else if(systematic == vary_up){
+            // Systematic uncertainty such, that compatible with no correction (scale factor =1.)
+            return 1.;
+        }
+        else if(systematic == vary_down){
+            // Systematic uncertainty such, that twice the correction is assigned
+            return 2.*std::exp(p0-p1*pt) - 1.;
+        }
+        else{
+            std::cerr<<"ERROR in TopPtScaleFactors::reweightFunction()! Systematic is invalid\n...break\n"<<std::endl;
+            exit(5);
+        }
+    };
+}
+
 
 
 

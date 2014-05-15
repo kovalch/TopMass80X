@@ -12,7 +12,7 @@
 #include "iostream"
 #include "iomanip"
 
-const TString basedir = TString("Plots_FullAnalysis/");
+const TString basedir = TString("Plots/");
 const TString baseOutDir = TString("correlationMatrix/");
 
 std::vector<TString> createVecFiles(TString channel, const std::vector<TString>systematics)

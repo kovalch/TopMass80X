@@ -817,9 +817,9 @@ std::vector<TString> Plotter::InputFileList(TString mode, TString Systematic)
     FileVector.push_back(tempName + "_qcdem3080.root");
     FileVector.push_back(tempName + "_qcdem80170.root");
     FileVector.push_back(tempName + "_qcdmu15.root");
-//     FileVector.push_back(tempName + "_ttbarW.root");
-//     FileVector.push_back(tempName + "_ttbarZ.root");
-//     FileVector.push_back(tempName + "_ttgjets.root");
+    FileVector.push_back(tempName + "_ttbarW.root");
+    FileVector.push_back(tempName + "_ttbarZ.root");
+    FileVector.push_back(tempName + "_ttgjets.root");
     
     
     TString ttbarsignalplustau = TString("selectionRoot/") + Systematic + "/" + mode + "/" + mode + "_ttbarsignalplustau.root";
@@ -1234,7 +1234,8 @@ void Plotter::setStyle(TH1 *hist, unsigned int i, bool isControlPlot)
         hist->SetMarkerStyle(20);
         hist->SetMarkerSize(1.2);
         hist->SetLineWidth(2);
-        if ((name.Contains("pT", TString::kIgnoreCase) || name.Contains("Mass", TString::kIgnoreCase)) && (!name.Contains("1st") && !name.Contains("Rapidity") && !name.Contains("Phi"))) {
+        if ((name.Contains("pT", TString::kIgnoreCase) || name.Contains("Mass", TString::kIgnoreCase)) && 
+            (!name.Contains("1st") && !name.Contains("Rapidity") && !name.Contains("Eta") && !name.Contains("Phi"))) {
             hist->GetXaxis()->SetTitle(XAxis+" #left[GeV#right]");
             hist->GetYaxis()->SetTitle("#frac{1}{#sigma} #frac{d#sigma}{d"+XAxis+"}"+" #left[GeV^{-1}#right]"); 
         } else {
@@ -4724,7 +4725,11 @@ bool Plotter::addQCDToControlPlot()const
 void Plotter::getSignalUncertaintyBand(TH1* uncBand, TString channel_)
 {
     if(!uncBand)  return;
-    std::vector<TString> syst {"MASS_", "SCALE_", "MATCH_", "HAD_", "PDF_"};
+    std::vector<TString> syst {"MASS_", "SCALE_", "MATCH_", "HAD_",
+                               "JES_", "JER_", "PU_", "LEPT_", "TRIG_",
+                               "BTAG_", "BTAG_PT_", "BTAG_ETA_",
+                               "BTAG_LJET_", "BTAG_LJET_PT_", "BTAG_LJET_ETA_"
+                               };
 
     double norm_Events = uncBand->Integral(-1e6, 1e6);
     int nbins = uncBand->GetNbinsX();

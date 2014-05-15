@@ -13,7 +13,8 @@
 namespace tth{
     
     struct GenLevelWeights{
-        GenLevelWeights(const double& weightMadgraphCorrection, const double& weightPileup, const double& weightGenerator,
+        GenLevelWeights(const double& weightMadgraphCorrection, const double& weightPileup,
+                        const double& weightGenerator, const double& weightTopPt,
                         const double& trueLevelWeightNoPileup, const double& trueLevelWeight);
         ~GenLevelWeights(){}
         
@@ -21,6 +22,7 @@ namespace tth{
         const double& weightMadgraphCorrection_;
         const double& weightPileup_;
         const double& weightGenerator_;
+        const double& weightTopPt_;
         
         const double& trueLevelWeightNoPileup_;
         const double& trueLevelWeight_;
@@ -30,7 +32,8 @@ namespace tth{
     
     
     struct RecoLevelWeights{
-        RecoLevelWeights(const double& weightLeptonSF, const double& weightTriggerSF, const double& weightBtagSF,
+        RecoLevelWeights(const double& weightLeptonSF, const double& weightTriggerSF,
+                         const double& weightBtagSF, const double& weightKinReco,
                          const double& weightNoPileup, const double& weight);
         ~RecoLevelWeights(){}
         
@@ -38,6 +41,7 @@ namespace tth{
         const double& weightLeptonSF_;
         const double& weightTriggerSF_;
         const double& weightBtagSF_;
+        const double& weightKinReco_;
         
         const double& weightNoPileup_;
         const double& weight_;

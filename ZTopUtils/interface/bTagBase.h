@@ -110,7 +110,7 @@ public:
     const float& getWPDiscrValue()const;
     std::string getWorkingPointString()const;
 
-    workingPoints getWorkingPoint() const { return wp_;}
+    workingPoints getWorkingPoint() const;
     /**
      * switches on SF for 7 TeV data
      */

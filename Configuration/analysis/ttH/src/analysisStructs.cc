@@ -4,22 +4,26 @@
 
 
 
-tth::GenLevelWeights::GenLevelWeights(const double& weightMadgraphCorrection, const double& weightPileup, const double& weightGenerator,
+tth::GenLevelWeights::GenLevelWeights(const double& weightMadgraphCorrection, const double& weightPileup,
+                                      const double& weightGenerator, const double& weightTopPt,
                                       const double& trueLevelWeightNoPileup, const double& trueLevelWeight):
 weightMadgraphCorrection_(weightMadgraphCorrection),
 weightPileup_(weightPileup),
 weightGenerator_(weightGenerator),
+weightTopPt_(weightTopPt),
 trueLevelWeightNoPileup_(trueLevelWeightNoPileup),
 trueLevelWeight_(trueLevelWeight)
 {}
 
 
 
-tth::RecoLevelWeights::RecoLevelWeights(const double& weightLeptonSF, const double& weightTriggerSF, const double& weightBtagSF,
+tth::RecoLevelWeights::RecoLevelWeights(const double& weightLeptonSF, const double& weightTriggerSF,
+                                        const double& weightBtagSF, const double& weightKinReco,
                                         const double& weightNoPileup, const double& weight):
 weightLeptonSF_(weightLeptonSF),
 weightTriggerSF_(weightTriggerSF),
 weightBtagSF_(weightBtagSF),
+weightKinReco_(weightKinReco),
 weightNoPileup_(weightNoPileup),
 weight_(weight)
 {}

@@ -14,6 +14,8 @@ bTagBase::bTagBase():showWarnings(false),debug(false),init_(false),wp_(length_wp
     wpvals_.resize(workingPoints::length_wp, 0);
     minpt_.resize (workingPoints::length_wp, 0);
     maxpt_.resize (workingPoints::length_wp, 0);
+    //load all variables
+    initWorkingpoints();
 
     //setting up naming scheme:
     histoNames_.   resize(histoNames_en::length_histoNames_en, "");
@@ -46,6 +48,13 @@ const float& bTagBase::getWPDiscrValue()const{
         throw std::logic_error("bTagBase::getWPDiscrValue: working point not set");
     }
     return wpvals_[wp_];
+}
+
+bTagBase::workingPoints bTagBase::getWorkingPoint() const {
+    if(wp_==length_wp){ //default value
+        throw std::logic_error("bTagBase::getWorkingPoint: working point not set");
+    }
+    return wp_;
 }
 
 bTagBase::bTagBase(const bTagBase& rhs){
@@ -349,7 +358,7 @@ void bTagBase::makeEffs() {
                 float err = 0.99; //to avoid zeros!
                 if (histp_->at(2 * i).GetBinContent(binx, biny) > 0) {
                     cont = histp_->at(2 * i + 1).GetBinContent(binx, biny)
-                        						                                                                                                                                                                 / histp_->at(2 * i).GetBinContent(binx, biny);
+                        						                                                                                                                                                                         / histp_->at(2 * i).GetBinContent(binx, biny);
                     if (debug)
                         std::cout << "makeEffs: content: " << cont;
                     err = sqrt(

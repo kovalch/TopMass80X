@@ -70,6 +70,9 @@ void PUReweighter::setMCTruePUInput(const char * rootfile) {
 /////////
 
 double PUReweighter::getPUweight(size_t trueBX) {
+    if(switchedoff_)
+        return 1.;
+
     if (trueBX < datapu_.size() && trueBX < mcpu_.size()) {
         return (datapu_[trueBX] / dataint_) / (mcpu_[trueBX] / mcint_);
     }
