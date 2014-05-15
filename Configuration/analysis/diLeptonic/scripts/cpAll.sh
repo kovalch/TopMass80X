@@ -29,8 +29,12 @@ echo ""
 ## draw all systematic variations for control plots
 ## no unceratinty band will be plotted yet
 ########################
-for i in $plotList; do 
-    $HISTO -t cp -s MATCH_UP -s MATCH_DOWN -s Nominal -s SCALE_UP -s SCALE_DOWN -s MCATNLO -s POWHEG -p +$i &
+for i in $plotList; do
+    $HISTO -t cp -s MATCH_UP -s MATCH_DOWN -s SCALE_UP -s SCALE_DOWN -s MCATNLO -s POWHEG -p +$i &
+    $HISTO -t cp -s JES_UP -s JES_DOWN -s JER_UP -s JER_DOWN -p +$i &
+    $HISTO -t cp -s PU_UP -s PU_DOWN -s LEPT_UP -s LEPT_DOWN -s TRIG_UP -s TRIG_DOWN -p +$i &
+    $HISTO -t cp -s BTAG_UP -s BTAG_DOWN -s BTAG_PT_UP -s BTAG_PT_DOWN -s BTAG_ETA_UP -s BTAG_ETA_DOWN -p +$i &
+    $HISTO -t cp -s BTAG_LJET_UP -s BTAG_LJET_DOWN -s BTAG_LJET_PT_UP -s BTAG_LJET_PT_DOWN -s BTAG_LJET_ETA_UP -s BTAG_LJET_ETA_DOWN -p +$i &
     w
 done
 
@@ -38,6 +42,9 @@ done
 ## draw Nominal control plot including uncertainty band
 ##   plese notice the ' -b'
 ########################
+
+echo "----------------------------------------------------------------"
+echo "Now sumbitting jobs to draw the control plot with the error band"
 for i in $plotList; do 
     $HISTO -t cp -s Nominal -p +$i  -b&
     w

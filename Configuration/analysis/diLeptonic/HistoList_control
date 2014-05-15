@@ -148,7 +148,7 @@ basic_lepton_pt_step3 Standard Leptons p_{T}^{l} 2 1 0 1 10 0 20 400 0 0
 basic_lepton_pt_step4 Standard Leptons p_{T}^{l} 4 1 0 1 10 5e7 20 400 0 0
 basic_lepton_pt_step5 Standard Leptons p_{T}^{l} 4 1 0 1 10 1e7 20 400 0 0
 basic_lepton_pt_step6 Standard Leptons p_{T}^{l} 4 1 0 1 1 2.55e7 20 400 0 0
-basic_lepton_pt_step7 Standard Leptons p_{T}^{l} 2 1 0 1 1e-1 5e7 20 400 0 0
+basic_lepton_pt_step7 Standard Leptons p_{T}^{l} 2 1 0 0 0 3e4 20 160 0 0
 basic_lepton_pt_step8 Standard Leptons p_{T}^{l} 4 1 0 1 1e-1 5e7 20 400 0 0
 
 basic_lepton_phi_step2 Standard Leptons #phi^{l} 1 1 0 0 0 0 0 0 0 0
