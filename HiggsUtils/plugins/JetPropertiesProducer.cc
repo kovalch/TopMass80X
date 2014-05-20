@@ -239,6 +239,10 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
                                     
                                     // Assign the proper index for the jetSecondaryVertexTracks in order to find the index of the Secondary Vertex they belong to
                                     jetSecondaryVertexTrackVertexIndex.push_back(iVertex);
+                                    
+                                    // Since the matching between the jetSecondaryVertexTracks and the jetSelectedTracks is unique, as soon as we find one matching pair,
+                                    // there's no need to search for an other track of the jetSecondaryVertexTracks matched to the same track of the jetSelectedTracks
+                                    break;
                                 }  
                             }
                             
