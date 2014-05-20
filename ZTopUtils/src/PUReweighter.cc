@@ -6,10 +6,13 @@
 #include <string>
 #include "TString.h"
 #include "../interface/PUReweighter.h"
+#include <stdexcept>
 
 namespace ztop {
 
 void PUReweighter::setDataTruePUInput(TH1* dataPUdist) {
+    if(!dataPUdist || dataPUdist->IsZombie())
+        throw std::runtime_error("PUReweighter::setDataTruePUInput: histogram not found/valid");
     datapu_.clear();
     datapu_.push_back(1); //zero bin
     for (int i = 1; i < dataPUdist->GetNbinsX() + 1; ++i) {
@@ -27,18 +30,21 @@ void PUReweighter::setDataTruePUInput(const char * rootfile) {
     TFile f(rootfile);
     if (f.IsZombie()) {
         std::cerr << "Cannot find PU file: " << rootfile << std::endl;
-        exit(1);
+        throw std::runtime_error("PUReweighter::setDataTruePUInput: file not found/valid");
     }
     TH1 *datapileup = dynamic_cast<TH1*>(f.Get("pileup"));
     if (!datapileup) {
         std::cerr << "Cannot find PU histogram: " << rootfile << std::endl;
-        exit(2);
+        throw std::runtime_error("PUReweighter::setDataTruePUInput: histogram not found/valid");
     }
     setDataTruePUInput(datapileup);
     f.Close();
 }
 
 void PUReweighter::setMCTruePUInput(TH1* mcPUdist) {
+    if(!mcPUdist || mcPUdist->IsZombie())
+        throw std::runtime_error("PUReweighter::setMCTruePUInput: histogram not found/valid");
+
     mcpu_.clear();
     mcpu_.push_back(1); //zero bin
     for (int i = 1; i < mcPUdist->GetNbinsX() + 1; ++i) {
@@ -56,12 +62,12 @@ void PUReweighter::setMCTruePUInput(const char * rootfile) {
     TFile f(rootfile);
     if (f.IsZombie()) {
         std::cerr << "Cannot find PU file: " << rootfile << std::endl;
-        exit(1);
+        throw std::runtime_error("PUReweighter::setMCTruePUInput: file not found/valid");
     }
     TH1 *mcpileup = dynamic_cast<TH1*>(f.Get("pileup"));
     if (!mcpileup) {
         std::cerr << "Cannot find PU histogram: " << rootfile << std::endl;
-        exit(2);
+        throw std::runtime_error("PUReweighter::setMCTruePUInput: histogram not found/valid");
     }
     setMCTruePUInput(mcpileup);
     f.Close();
@@ -101,7 +107,7 @@ void PUReweighter::setMCDistrSum12(TString scenario) {
                 6.947E-08, 2.047E-08 };
         V = std::vector<double>(Summer2012_S07,
                 Summer2012_S07
-                        + sizeof(Summer2012_S07) / sizeof(Summer2012_S07[0]));
+                + sizeof(Summer2012_S07) / sizeof(Summer2012_S07[0]));
     }
 
     if (scenario == "S10") {
@@ -120,7 +126,7 @@ void PUReweighter::setMCDistrSum12(TString scenario) {
                 1.570E-05, 5.005E-06 };
         V = std::vector<double>(Summer2012_S10,
                 Summer2012_S10
-                        + sizeof(Summer2012_S10) / sizeof(Summer2012_S10[0]));
+                + sizeof(Summer2012_S10) / sizeof(Summer2012_S10[0]));
     }
     ////////for other PU scenarios!!!
 
@@ -166,8 +172,8 @@ void PUReweighter::setMCDistrFall11(TString scenario) {
 }
 void PUReweighter::clear() {
     std::cout
-            << "\n\nWARNING!!! RESETTING ALL PU WEIGHTS! ONLY FOR TESTING!!\n\n"
-            << std::endl;
+    << "\n\nWARNING!!! RESETTING ALL PU WEIGHTS! ONLY FOR TESTING!!\n\n"
+    << std::endl;
     datapu_.clear();
     mcpu_.clear();
 }
