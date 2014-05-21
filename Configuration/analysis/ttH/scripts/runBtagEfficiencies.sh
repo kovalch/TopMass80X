@@ -20,14 +20,16 @@ systematics=(
     JES_UP JES_DOWN
     BTAG_UP BTAG_DOWN
     BTAG_LJET_UP BTAG_LJET_DOWN
-    #KIN_UP KIN_DOWN
-    #TOP_PT_UP TOP_PT_DOWN
+    KIN_UP KIN_DOWN
+    TOP_PT_UP TOP_PT_DOWN
 )
 
-for syst in "${systematics[@]}" ; do
-    for c in ee emu mumu ; do
+for systematic in "${systematics[@]}" ; do
+    printf "\n\n\n\033[1;1mStart running on systematic: ${systematic}\033[1;m\n\n\n"
+    
+    for channel in ee emu mumu ; do
         w
-        $LA -f ttbarsignalplustau.root -p 0 -c $c -s $syst&
+        $LA -f ttbarsignalplustau.root -p 0 -c $channel -s $systematic &
     done
 done
 
