@@ -492,6 +492,9 @@ namespace Systematic{
         pu, lept, trig,
         jer, jes,
         btag, btagLjet,
+        btagDiscrBstat1, btagDiscrBstat2,
+        btagDiscrLstat1, btagDiscrLstat2,
+        btagDiscrCerr1, btagDiscrCerr2,
         //kin,
         //topPt,
     };

@@ -460,6 +460,32 @@ correctionMode_(correctionMode)
 
 void BtagScaleFactors::btagSystematic(const Systematic::Systematic& systematic)
 {
+    // Check if given systematic should be processed, i.e. whether it is valid for the given correction mode, else stop
+    if(std::find(Systematic::btagTypes.begin(), Systematic::btagTypes.end(), systematic.type()) != Systematic::btagTypes.end()){
+        std::ostringstream stream;
+        stream<<"Correction mode of b-tag not compatible with specified systematic: "<<systematic.name()
+              <<"\nStop running of analysis --- this is NOT an error, just avoiding double running\n";
+        if(correctionMode_ == none){
+            std::cout<<stream.str()<<std::endl;
+            exit(111);
+        }
+        else if(correctionMode_==greaterEqualOneTagReweight || correctionMode_==randomNumberRetag){
+            const std::vector<Systematic::Type>& efficiencyTypes = Systematic::btagEfficiencyCorrectionTypes;
+            if(std::find(efficiencyTypes.begin(), efficiencyTypes.end(), systematic.type()) == efficiencyTypes.end()){
+                std::cout<<stream.str()<<std::endl;
+                exit(111);
+            }
+        }
+        else if(correctionMode_ == discriminatorReweight){
+            const std::vector<Systematic::Type>& discriminatorTypes = Systematic::btagDiscriminatorReweightTypes;
+            if(std::find(discriminatorTypes.begin(), discriminatorTypes.end(), systematic.type()) == discriminatorTypes.end()){
+                std::cout<<stream.str()<<std::endl;
+                exit(111);
+            }
+        }
+    }
+    
+    // Assign the internal systematic
     ztop::bTagBase::systematics systematicInternal(nominal);
     if(systematic.type() == Systematic::btag){
         if(systematic.variation() == Systematic::up) systematicInternal = heavyup;
@@ -484,6 +510,37 @@ void BtagScaleFactors::btagSystematic(const Systematic::Systematic& systematic)
     else if(systematic.type() == Systematic::btagLjetEta){
         if(systematic.variation() == Systematic::up) systematicInternal = lightupeta;
         else if(systematic.variation() == Systematic::down) systematicInternal = lightdowneta;
+    }
+    else if(systematic.type() == Systematic::btagDiscrBstat1){
+        if(systematic.variation() == Systematic::up) systematicInternal = hfstat1up;
+        else if(systematic.variation() == Systematic::down) systematicInternal = hfstat1down;
+    }
+    else if(systematic.type() == Systematic::btagDiscrBstat2){
+        if(systematic.variation() == Systematic::up) systematicInternal = hfstat2up;
+        else if(systematic.variation() == Systematic::down) systematicInternal = hfstat2down;
+    }
+    else if(systematic.type() == Systematic::btagDiscrLstat1){
+        if(systematic.variation() == Systematic::up) systematicInternal = lfstat1up;
+        else if(systematic.variation() == Systematic::down) systematicInternal = lfstat1down;
+    }
+    else if(systematic.type() == Systematic::btagDiscrLstat2){
+        if(systematic.variation() == Systematic::up) systematicInternal = lfstat2up;
+        else if(systematic.variation() == Systematic::down) systematicInternal = lfstat2down;
+    }
+    else if(systematic.type() == Systematic::btagDiscrCerr1){
+        if(systematic.variation() == Systematic::up) systematicInternal = cerr1up;
+        else if(systematic.variation() == Systematic::down) systematicInternal = cerr1down;
+    }
+    else if(systematic.type() == Systematic::btagDiscrCerr2){
+        if(systematic.variation() == Systematic::up) systematicInternal = cerr2up;
+        else if(systematic.variation() == Systematic::down) systematicInternal = cerr2down;
+    }
+    else if(systematic.type() == Systematic::jes){
+        // This variation covers the with JES correlated uncertainty, only needed for discriminator reweighting
+        if(correctionMode_ == discriminatorReweight){
+            if(systematic.variation() == Systematic::up) systematicInternal = jesup;
+            else if(systematic.variation() == Systematic::down) systematicInternal = jesdown;
+        }
     }
     this->setSystematic(systematicInternal);
 }

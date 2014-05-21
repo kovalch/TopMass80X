@@ -17,44 +17,50 @@ namespace Systematic{
     
     /// All systematic types as needed in any part of the framework
     enum Type{
-        nominal,        // nominal, i.e. no systematic variation applied
-        mH110,          // Higgs mass of 110 GeV
-        mH115,          // Higgs mass of 115 GeV
-        mH120,          // Higgs mass of 120 GeV
-        mH1225,         // Higgs mass of 122.5 GeV
-        mH1275,         // Higgs mass of 127.5 GeV
-        mH130,          // Higgs mass of 130 GeV
-        mH135,          // Higgs mass of 135 GeV
-        mH140,          // Higgs mass of 140 GeV
-        lept,           // scale lepton ID/ISO data-to-MC scale factors
-        trig,           // scale trigger data-to-MC scale factors
-        pu,             // scale pileup data-to-MC scale factors
-        dy,             // uncertainty on the Drell-Yan same-flavour background
-        bg,             // general background uncertainty
-        kin,            // scale kinematic reconstruction scale factors
-        btag,           // scale b-tagging data-to-MC scale factors of the b-/c-jets
-        btagPt,         // median method: scale b-tagging data-to-MC scale factors of the b-/c-jets below/above median pt down/up or up/down
-        btagEta,        // median method: scale b-tagging data-to-MC scale factors of the b-/c-jets below/above median eta down/up or up/down
-        btagLjet,       // scale b-tagging data-to-MC scale factors of the l-jets
-        btagLjetPt,     // median method: scale b-tagging data-to-MC scale factors of the l-jets below/above median pt down/up or up/down
-        btagLjetEta,    // median method: scale b-tagging data-to-MC scale factors of the l-jets below/above median eta down/up or up/down
-        btagBeff,       // scale the b-tagging efficiencies as estimated from MC for b-jets for stat. uncertainty (not applied anywhere)
-        btagCeff,       // scale the b-tagging efficiencies as estimated from MC for c-jets for stat. uncertainty (not applied anywhere)
-        btagLeff,       // scale the b-tagging efficiencies as estimated from MC for l-jets for stat. uncertainty (not applied anywhere)
-        jer,            // scale jet energy resolution scale factors
-        jes,            // scale jet energy scale scale factors
-        topPt,          // scale top pt as estimated in ttbar differential cross-section measurements
-        mass,           // variations of masses used in process generation (here top quark mass)
-        match,          // matching uncertainty in process generation
-        scale,          // scale uncertainty in process generation
-        powheg,         // POWHEG event generator
-        mcatnlo,        // MC@NLO event generator
-        perugia11,      // Perugia11 parton shower tune
-        perugia11NoCR,  // Perugia11 parton shower tune, no colour-reconnection
-        pdf,            // PDF variations
-        closure,        // Closure test
-        all,            // All allowed systematics
-        undefinedType   // No systematic defined (also not nominal)
+        nominal,            // nominal, i.e. no systematic variation applied
+        mH110,              // Higgs mass of 110 GeV
+        mH115,              // Higgs mass of 115 GeV
+        mH120,              // Higgs mass of 120 GeV
+        mH1225,             // Higgs mass of 122.5 GeV
+        mH1275,             // Higgs mass of 127.5 GeV
+        mH130,              // Higgs mass of 130 GeV
+        mH135,              // Higgs mass of 135 GeV
+        mH140,              // Higgs mass of 140 GeV
+        lept,               // scale lepton ID/ISO data-to-MC scale factors
+        trig,               // scale trigger data-to-MC scale factors
+        pu,                 // scale pileup data-to-MC scale factors
+        dy,                 // uncertainty on the Drell-Yan same-flavour background
+        bg,                 // general background uncertainty
+        kin,                // scale kinematic reconstruction scale factors
+        btag,               // scale b-tagging data-to-MC scale factors of the b-/c-jets
+        btagPt,             // median method: scale b-tagging data-to-MC scale factors of the b-/c-jets below/above median pt down/up or up/down
+        btagEta,            // median method: scale b-tagging data-to-MC scale factors of the b-/c-jets below/above median eta down/up or up/down
+        btagLjet,           // scale b-tagging data-to-MC scale factors of the l-jets
+        btagLjetPt,         // median method: scale b-tagging data-to-MC scale factors of the l-jets below/above median pt down/up or up/down
+        btagLjetEta,        // median method: scale b-tagging data-to-MC scale factors of the l-jets below/above median eta down/up or up/down
+        btagBeff,           // scale the b-tagging efficiencies as estimated from MC for b-jets for stat. uncertainty (not applied anywhere, should it be removed?)
+        btagCeff,           // scale the b-tagging efficiencies as estimated from MC for c-jets for stat. uncertainty (not applied anywhere, should it be removed?)
+        btagLeff,           // scale the b-tagging efficiencies as estimated from MC for l-jets for stat. uncertainty (not applied anywhere, should it be removed?)
+        btagDiscrBstat1,    // for b-tag discriminator reweighting: scale part 1 of the statistical uncertainty for b-jets
+        btagDiscrBstat2,    // for b-tag discriminator reweighting: scale part 2 of the statistical uncertainty for b-jets
+        btagDiscrLstat1,    // for b-tag discriminator reweighting: scale part 1 of the statistical uncertainty for l-jets
+        btagDiscrLstat2,    // for b-tag discriminator reweighting: scale part 2 of the statistical uncertainty for l-jets
+        btagDiscrCerr1,    // for b-tag discriminator reweighting: scale part 1 of the uncertainty for c-jets
+        btagDiscrCerr2,    // for b-tag discriminator reweighting: scale part 2 of the uncertainty for c-jets
+        jer,                // scale jet energy resolution scale factors
+        jes,                // scale jet energy scale scale factors
+        topPt,              // scale top pt as estimated in ttbar differential cross-section measurements
+        mass,               // variations of masses used in process generation (here top quark mass)
+        match,              // matching uncertainty in process generation
+        scale,              // scale uncertainty in process generation
+        powheg,             // POWHEG event generator
+        mcatnlo,            // MC@NLO event generator
+        perugia11,          // Perugia11 parton shower tune
+        perugia11NoCR,      // Perugia11 parton shower tune, no colour-reconnection
+        pdf,                // PDF variations
+        closure,            // Closure test
+        all,                // All allowed systematics
+        undefinedType       // No systematic defined (also not nominal)
     };
     
     
@@ -110,6 +116,9 @@ namespace Systematic{
         btag, btagPt, btagEta,
         btagLjet, btagLjetPt, btagLjetEta,
         btagBeff, btagCeff, btagLeff,
+        btagDiscrBstat1, btagDiscrBstat2,
+        btagDiscrLstat1, btagDiscrLstat2,
+        btagDiscrCerr1, btagDiscrCerr2,
         jer, jes,
         topPt,
         mass, match, scale,
@@ -126,6 +135,36 @@ namespace Systematic{
     
     /// Check the validity of a variation for a given type
     void isValid(const Type& type, const Variation& variation, const int variationNumber =-1);
+    
+    
+    
+    
+    
+    /// Define b-tag systematics, valid for all b-tag corrections
+    const std::vector<Type> btagTypes{
+        btag, btagPt, btagEta,
+        btagLjet, btagLjetPt, btagLjetEta,
+        btagBeff, btagCeff, btagLeff,
+        btagDiscrBstat1, btagDiscrBstat2,
+        btagDiscrLstat1, btagDiscrLstat2,
+        btagDiscrCerr1, btagDiscrCerr2,
+    };
+    
+    /// Define b-tag systematics, valid for b-tag corrections concerning efficiency
+    const std::vector<Type> btagDiscriminatorReweightTypes{
+        btag, btagLjet,
+        btagDiscrBstat1, btagDiscrBstat2,
+        btagDiscrLstat1, btagDiscrLstat2,
+        btagDiscrCerr1, btagDiscrCerr2,
+    };
+    
+    /// Define b-tag systematics, valid for b-tag corrections concerning discriminator reweighting
+    const std::vector<Type> btagEfficiencyCorrectionTypes{
+        btag, btagPt, btagEta,
+        btagLjet, btagLjetPt, btagLjetEta,
+        btagBeff, btagCeff, btagLeff,
+    };
+    
     
     
     
