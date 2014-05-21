@@ -120,6 +120,11 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
     // Set up kinematic reconstruction scale factors (null-pointer means no application)
     KinematicReconstructionScaleFactors* kinematicReconstructionScaleFactors(0);
     //kinematicReconstructionScaleFactors = new KinematicReconstructionScaleFactors(channels, systematic);
+    if(systematic.type()==Systematic::kin && !kinematicReconstructionScaleFactors){
+        std::cout<<"Systematic for kinematic reconstruction requested, but scale factors not applied"
+                 <<"\nStop running of analysis --- this is NOT an error, just avoiding double running\n"<<std::endl;
+        exit(1);
+    }
     
     // Set up pileup reweighter
     const PileupScaleFactors* const pileupScaleFactors = new PileupScaleFactors(PileupInputFILE, "Summer12", "S10", systematic);
@@ -141,6 +146,11 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
     // Set up top-pt reweighting scale factors (null-pointer means no application)
     TopPtScaleFactors* topPtScaleFactors(0);
     //topPtScaleFactors = new TopPtScaleFactors(systematic);
+    if(systematic.type()==Systematic::topPt && !topPtScaleFactors){
+        std::cout<<"Systematic for top-pt reweighting requested, but scale factors not applied"
+                 <<"\nStop running of analysis --- this is NOT an error, just avoiding double running\n"<<std::endl;
+        exit(1);
+    }
     
     
     // Set up jet categories
@@ -495,8 +505,8 @@ namespace Systematic{
         btagDiscrBstat1, btagDiscrBstat2,
         btagDiscrLstat1, btagDiscrLstat2,
         btagDiscrCerr1, btagDiscrCerr2,
-        //kin,
-        //topPt,
+        kin,
+        topPt,
     };
 }
 
