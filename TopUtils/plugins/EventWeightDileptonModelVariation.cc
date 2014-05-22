@@ -10,6 +10,7 @@
 #include "TMath.h"
 #include <TH2.h>
 #include <TF1.h>
+#include <Math/Boost.h>
 
 class EventWeightDileptonModelVariation : public edm::EDProducer {
 
@@ -23,6 +24,7 @@ private:
     double getTopPtDataWeight();
     double getTopPtSoftenWeight();
     double getTopPtHardenWeight();
+    double getTopPtTTsysWeight();
     double getTopEtaWeight();
     double getTopMassWeight();
     double getTopMassWeightLandau();
@@ -165,6 +167,25 @@ double EventWeightDileptonModelVariation::getTopPtHardenWeight()
   return TMath::Sqrt(weightTop * weightATop);
 }
 
+double EventWeightDileptonModelVariation::getTopPtTTsysWeight()
+{
+  // get values
+  ROOT::Math::Boost CoMBoostGenTtbar((genEvt->top()->p4() + genEvt->topBar()->p4()).BoostToCM());
+  reco::Particle::LorentzVector TopBoosted = genEvt->top()->p4();
+  TopBoosted = CoMBoostGenTtbar(TopBoosted);
+  double ptTop=TopBoosted.pt();
+  // get weights for both tops
+  double weightTop =TMath::Exp(slope_*(weight1x_-ptTop ));
+  // draw reweighting function
+  if(!function) {
+    function=new TF1("function", "TMath::Exp([1]*([0]-x))", 0., 800.);
+    function->SetParameter(0, weight1x_);
+    function->SetParameter(1, slope_   );
+    weightVsPt_->Add((TF1*)function->Clone());
+  }
+  return weightTop;
+}
+
 double EventWeightDileptonModelVariation::getTopEtaWeight()
 {
     double weight = (1+(std::abs(genEvt->top()->eta())-weight1x_)*slope_) 
@@ -215,6 +236,7 @@ void EventWeightDileptonModelVariation::produce(edm::Event& evt, const edm::Even
     else if (!weightVariable_.compare("ttbarmass")) *eventWeight = getTopMassWeight();
     else if (!weightVariable_.compare("ttbarmasslandau")) *eventWeight = getTopMassWeightLandau();
     else if (!weightVariable_.compare("data")) *eventWeight = getTopPtDataWeight();
+    else if (!weightVariable_.compare("topptTTsys")) *eventWeight = getTopPtTTsysWeight();
     else if (!weightVariable_.compare("topptHard")) *eventWeight = getTopPtSoftenWeight();
     else if (!weightVariable_.compare("topptSoft")) *eventWeight = getTopPtHardenWeight();
 

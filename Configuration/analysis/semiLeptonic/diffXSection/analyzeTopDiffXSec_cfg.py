@@ -333,7 +333,7 @@ if(not options.sample=="none"):
 	elif(eventFilter=='background only'):
 	    outputFileName+="Bkg"
 	if(sysDistort!=""):
-            if(sysDistort!="data"):
+            if(sysDistort!="data" and sysDistort!="topptTTsys"):
                 additionalEventWeights=False # if set to false no variations (SF+-, ...) are done
 	    outputFileName+="SysDistort"+sysDistort
         if("ttbarMatchingDown" in options.sample):        
@@ -376,14 +376,14 @@ if(not options.sample=="none"):
             usedSample="TopAnalysis/Configuration/Summer12/TTJets_MSDecays_mass173_5_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff"
             additionalEventWeights=False
             outputFileName+="TopMassUp"
-        elif("MadSpin" in options.sample):        
-            usedSample="TopAnalysis/Configuration/Summer12/TTJets_MSDecays_central_TuneZ2star_8TeV_madgraph_tauola__Summer12_DR53X_PU_S10_START53_V19_v1_cff" 
-            additionalEventWeights=False
-            outputFileName+="MadSpin"
         elif("MadGraph" in options.sample):
             usedSample="TopAnalysis/Configuration/Summer12/TTJets_MassiveBinDECAY_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff"
             additionalEventWeights=False
             outputFileName+="MadGraph"
+        elif("ttbar"==options.sample or "ttbarBG"==options.sample):        
+            usedSample="TopAnalysis/Configuration/Summer12/TTJets_MSDecays_central_TuneZ2star_8TeV_madgraph_tauola__Summer12_DR53X_PU_S10_START53_V19_v1_cff" 
+            additionalEventWeights=False
+            outputFileName+="MadSpin"
         if(not options.massfix==172.5):        
             outputFileName+="TopMassConstraint"
             outputFileName+=((str(options.massfix)).replace(".", "p"))
@@ -1876,6 +1876,10 @@ if(sysDistort=='data'):
     process.eventWeightDileptonModelVariation.weightVariable = cms.string('data')
     process.eventWeightDileptonModelVariation.weight1x = cms.double(112.766) 
     process.eventWeightDileptonModelVariation.slope    = cms.double(0.00141)
+elif(sysDistort=='topptTTsys'):
+    process.eventWeightDileptonModelVariation.weightVariable = cms.string('topptTTsys')
+    process.eventWeightDileptonModelVariation.weight1x = cms.double(102.4) 
+    process.eventWeightDileptonModelVariation.slope    = cms.double(0.00125)
 elif( sysDistort.find('ttbarMass')>-1):
     process.eventWeightDileptonModelVariation.weightVariable = cms.string('ttbarmass')
     process.eventWeightDileptonModelVariation.weight1x = cms.double(350.) 
