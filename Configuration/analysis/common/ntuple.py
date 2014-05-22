@@ -391,6 +391,7 @@ getattr(process, 'selectedPatJets'+pfpostfix).cut = 'abs(eta)<5.4'
 ## Phi correction of the PFMET
 
 process.load("JetMETCorrections.Type1MET.pfMETsysShiftCorrections_cfi")
+process.load("JetMETCorrections.Type1MET.pfMETCorrections_cff")
 
 process.pfMEtSysShiftCorrParameters_2012runABCDvsNvtx_data = cms.PSet( # CV: ReReco data + Summer'13 JEC
     px = cms.string("+4.83642e-02 + 2.48870e-01*Nvtx"),
@@ -401,11 +402,52 @@ process.pfMEtSysShiftCorrParameters_2012runABCDvsNvtx_mc = cms.PSet( # CV: Summe
     py = cms.string("+3.60860e-01 - 1.30335e-01*Nvtx")
 )
 
-process.pfMEtSysShiftCorr.src = cms.InputTag('pfMet')
+process.pfMEtSysShiftCorr.src = cms.InputTag('pfMET'+pfpostfix)
 if options.runOnMC:
+    process.pfJetMETcorr.jetCorrLabel = "ak5PFL1FastL2L3"
     process.pfMEtSysShiftCorr.parameter = process.pfMEtSysShiftCorrParameters_2012runABCDvsNvtx_mc
 else:
+    process.pfJetMETcorr.jetCorrLabel = "ak5PFL1FastL2L3Residual"
     process.pfMEtSysShiftCorr.parameter = process.pfMEtSysShiftCorrParameters_2012runABCDvsNvtx_data
+
+# Type1 correction + phi correction
+process.pfMetT1Txy = process.pfType1CorrectedMet.clone()
+process.pfMetT1Txy.applyType0Corrections = cms.bool(False)
+process.pfMetT1Txy.srcType1Corrections = cms.VInputTag(
+    cms.InputTag('pfJetMETcorr', 'type1'),
+    cms.InputTag('pfMEtSysShiftCorr')
+    )
+
+process.patpfMetT1Txy = getattr(process,'patPFMet'+pfpostfix).clone()
+process.patpfMetT1Txy.metSource = 'pfMetT1Txy'
+
+# Type0 and type1 correction + phi correction
+process.pfMetT0T1Txy = process.pfType1CorrectedMet.clone()
+process.pfMetT0T1Txy.applyType0Corrections = cms.bool(True)
+process.pfMetT0T1Txy.srcType1Corrections = cms.VInputTag(
+    cms.InputTag('pfJetMETcorr', 'type1'),
+    cms.InputTag('pfMEtSysShiftCorr')
+    )
+
+process.patpfMetT0T1Txy = getattr(process,'patPFMet'+pfpostfix).clone()
+process.patpfMetT0T1Txy.metSource = 'pfMetT0T1Txy'
+
+# Sequence for full inclusion of phi corrections
+process.pfMetPhiCorrectionSequence = cms.Sequence(
+    process.pfMEtSysShiftCorrSequence*
+    process.producePFMETCorrections*
+    #process.pfMetT0T1Txy*
+    #process.patpfMetT0T1Txy*
+    process.pfMetT1Txy*
+    process.patpfMetT1Txy
+    )
+
+getattr(process,'patPF2PATSequence'+pfpostfix).replace(getattr(process,'patMETs'+pfpostfix),
+                                                       process.pfMetPhiCorrectionSequence*
+                                                       getattr(process,'patMETs'+pfpostfix))
+
+#correctedPatMet = "patpfMetT0T1Txy"
+correctedPatMet = "patpfMetT1Txy"
 
 
 
@@ -468,7 +510,7 @@ massSearchReplaceAnyInputTag(getattr(process, 'patPF2PATSequence'+pfpostfix), 'p
 process.load("TopAnalysis.TopUtils.JetEnergyScale_cfi")
 process.scaledJetEnergy.inputElectrons = "selectedPatElectrons"+pfpostfix
 process.scaledJetEnergy.inputJets = "selectedPatJets"+pfpostfix
-process.scaledJetEnergy.inputMETs = "patMETs"+pfpostfix
+process.scaledJetEnergy.inputMETs = correctedPatMet
 process.scaledJetEnergy.JECUncSrcFile = cms.FileInPath("TopAnalysis/Configuration/analysis/common/data/Summer13_V4_DATA_UncertaintySources_AK5PFchs.txt")
 process.scaledJetEnergy.scaleType = "abs"   #abs = 1, jes:up, jes:down
 
@@ -538,7 +580,7 @@ jetCollection = "hardJets"
 jetForMetUncorrectedCollection = "selectedPatJets"+pfpostfix
 jetForMetCollection = "scaledJetEnergy:selectedPatJets"+pfpostfix
 
-metCollection = "scaledJetEnergy:patMETs"+pfpostfix
+metCollection = "scaledJetEnergy:"+correctedPatMet
 
 mvaMetCollection = "patMEtMVA"
 
@@ -846,11 +888,10 @@ p = cms.Path(
     process.prefilterSequence *
     process.goodOfflinePrimaryVertices *
     getattr(process, 'patPF2PATSequence'+pfpostfix) *
-    process.pfMEtSysShiftCorrSequence *
+    process.mvaMetSequence *
     process.finalCollectionsSequence *
     process.preselectionSequence *
     process.jetProperties *
-    process.mvaMetSequence *
     process.kinRecoSequence *
     process.zsequence *
     process.ntupleInRecoSeq
@@ -863,10 +904,9 @@ pNtuple = cms.Path(
     process.zGenSequence *
     process.goodOfflinePrimaryVertices *
     getattr(process, 'patPF2PATSequence'+pfpostfix) *
-    process.pfMEtSysShiftCorrSequence *
+    process.mvaMetSequence *
     process.finalCollectionsSequence *
     process.jetProperties *
-    process.mvaMetSequence *
     process.zsequence *
     process.writeNTuple
     )
