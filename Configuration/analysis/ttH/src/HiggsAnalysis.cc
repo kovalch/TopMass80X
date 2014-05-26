@@ -824,29 +824,13 @@ bool HiggsAnalysis::failsAdditionalJetFlavourSelection(const Long64_t& entry)con
     
     // FIXME: this is a workaround as long as there is no specific additional jet flavour info written to nTuple
     const TopGenObjects& topGenObjects = this->getTopGenObjects(entry);
-    const CommonGenObjects& commonGenObjects = this->getCommonGenObjects(entry);
-
-    float signalJetPt_min = 20.;
-    float signalJetEta_max = 2.5;
     
-    // Identifying unique gen b-jets from top
-    std::vector<int> genBJetIdFromTop;
-    for(size_t iHad=0; iHad<topGenObjects.genBHadJetIndex_->size(); iHad++) {
-        if(std::abs(topGenObjects.genBHadFlavour_->at(iHad)) != 6) continue;
-        int genJetId = topGenObjects.genBHadJetIndex_->at(iHad);
-        if(genJetId<0) continue;
-        if(std::find(genBJetIdFromTop.begin(), genBJetIdFromTop.end(), genJetId) != genBJetIdFromTop.end()) continue;
-        if(commonGenObjects.allGenJets_->at(genJetId).Pt()<signalJetPt_min || std::fabs(commonGenObjects.allGenJets_->at(genJetId).Eta())>signalJetEta_max) continue;
-        
-        genBJetIdFromTop.push_back(genJetId);
-    }   // End of loop over all b-hadrons
-    const unsigned int nTopBjets = genBJetIdFromTop.size();
-    
-    // Need to check N jets from Top (not done in N005 ntuples)
-    if((additionalBjetMode_==2 || additionalBjetMode_==1) && nTopBjets<2) return true;
-    if(additionalBjetMode_==0 && nTopBjets<2) return false;
-    
-    const int jetAddId = topGenObjects.genExtraTopJetNumberId_;
+    int jetAddId = topGenObjects.genExtraTopJetNumberId_;
+    if(jetAddId < 200) {
+        if(additionalBjetMode_==0) return false;
+        else return true;
+    }
+    jetAddId -= 200;
     
     // Can be used starting from N005 ntuples
     if(additionalBjetMode_==2 && jetAddId==2) return false;
