@@ -15,6 +15,7 @@
 #include <Rtypes.h>
 
 #include "TopAnalysis.h"
+#include "analysisHelpers.h"
 #include "AnalyzerBaseClass.h"
 #include "AnalyzerControlPlots.h"
 #include "AnalyzerDoubleDiffXS.h"
@@ -85,6 +86,7 @@ constexpr const char* BtagLightFlavourFILE = "csv_rwt_lf.root";
 void load_Analysis(const TString& validFilenamePattern, 
                    const Channel::Channel& channel, 
                    const Systematic::Systematic& systematic,
+                   const std::vector<AnalysisMode::AnalysisMode>& v_analysisMode,
                    const int specific_PDF,
                    const int dy,
                    const TString& closure,
@@ -144,30 +146,34 @@ void load_Analysis(const TString& validFilenamePattern,
     std::vector<AnalyzerBaseClass*> v_analyzer;
     
     // Set up event yield histograms
-    AnalyzerEventYields* eventYieldHistograms(0);
-    eventYieldHistograms = new AnalyzerEventYields({"1", "2", "3", "4", "5", "6", "7", "8"});
-    v_analyzer.push_back(eventYieldHistograms);
+    AnalyzerEventYields* analyzerEventYields(0);
+    analyzerEventYields = new AnalyzerEventYields({"1", "2", "3", "4", "5", "6", "7", "8"});
+    v_analyzer.push_back(analyzerEventYields);
     
     // Set up Drell-Yan scaling histograms
-    AnalyzerDyScaling* dyScalingHistograms(0);
-    dyScalingHistograms = new AnalyzerDyScaling({"4", "5", "6", "7", "8"}, "5");
-    v_analyzer.push_back(dyScalingHistograms);
+    AnalyzerDyScaling* analyzerDyScaling(0);
+    analyzerDyScaling = new AnalyzerDyScaling({"4", "5", "6", "7", "8"}, "5");
+    v_analyzer.push_back(analyzerDyScaling);
     
     // Set up basic histograms
     AnalyzerControlPlots* analyzerControlPlots(0);
-    analyzerControlPlots = new AnalyzerControlPlots({"1", "2", "3", "4", "5", "6", "7", "8"});
-    v_analyzer.push_back(analyzerControlPlots);
-    
+    if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::cp) != v_analysisMode.end()){
+        analyzerControlPlots = new AnalyzerControlPlots({"1", "2", "3", "4", "5", "6", "7", "8"});
+        v_analyzer.push_back(analyzerControlPlots);
+    }
     // Set up dda histograms
     AnalyzerDoubleDiffXS* analyzerDoubleDiffXS(0);
-    analyzerDoubleDiffXS = new AnalyzerDoubleDiffXS({"0","8"});
-    v_analyzer.push_back(analyzerDoubleDiffXS);
+    if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::dda) != v_analysisMode.end()){
+        analyzerDoubleDiffXS = new AnalyzerDoubleDiffXS({"0","8"});
+        v_analyzer.push_back(analyzerDoubleDiffXS);
+    }
     
     // Set up KinReco histograms
     AnalyzerKinReco* analyzerKinReco(0);
-    analyzerKinReco = new AnalyzerKinReco({"7","8"});
-    v_analyzer.push_back(analyzerKinReco);
-    
+    if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::kinReco) != v_analysisMode.end()){
+        analyzerKinReco = new AnalyzerKinReco({"7","8"});
+        v_analyzer.push_back(analyzerKinReco);
+    }
     
     // Set up the analysis
     TopAnalysis* selector = new TopAnalysis();
@@ -368,6 +374,10 @@ int main(int argc, char** argv) {
             common::makeStringCheck(Channel::convert(Channel::allowedChannelsAnalysis)));
     CLParameter<std::string> opt_s("s", "Run with a systematic that runs on the nominal ntuples, e.g. 'PDF', 'PU_UP' or 'TRIG_DOWN'", false, 1, 1,
             common::makeStringCheckBegin(Systematic::convertType(Systematic::allowedSystematics)));
+    CLParameter<std::string> opt_mode("m", "Mode of analysis: control plots (cp), "
+                                           "double differential analysis (dda), kin. reco. efficiency plots (kinReco), "
+                                           "Default is cp, dda, kinReco", false, 1, 100,
+            common::makeStringCheck(AnalysisMode::convert(AnalysisMode::allowedAnalysisModes)));
     CLParameter<int> opt_pdfno("pdf", "Run a certain PDF systematic only, sets -s PDF. Use e.g. --pdf n, where n=0 is central, 1=variation 1 up, 2=1down, 3=2up, 4=2down, ...", false, 1, 1);
     CLParameter<int> opt_dy("d", "Drell-Yan mode (11 for ee, 13 for mumu, 15 for tautau)", false, 1, 1,
             [](int dy){return dy == 11 || dy == 13 || dy == 15;});
@@ -382,10 +392,22 @@ int main(int argc, char** argv) {
     CLAnalyser::interpretGlobal(argc, argv);
 
     TString validFilenamePattern = opt_f.isSet() ? opt_f[0] : "";
+    
+    // Set up channel
     Channel::Channel channel(Channel::undefined);
     if(opt_c.isSet()) channel = Channel::convert(opt_c[0]);
+    
+    // Set up systematic
     Systematic::Systematic systematic(Systematic::undefinedSystematic());
     if(opt_s.isSet()) systematic = Systematic::Systematic(opt_s[0]);
+    
+    // Set up analysis mode
+    std::vector<AnalysisMode::AnalysisMode> v_analysisMode({AnalysisMode::cp,AnalysisMode::dda,AnalysisMode::kinReco});
+    if(opt_mode.isSet()) v_analysisMode = AnalysisMode::convert(opt_mode.getArguments());
+    std::cout<<"\nRunning the following analysis modes:\n";
+    for(const auto& analysisMode : v_analysisMode) std::cout<<AnalysisMode::convert(analysisMode)<<" , ";
+    std::cout<<"\n\n";
+    
     int dy = opt_dy.isSet() ? opt_dy[0] : 0;
     TString closure = opt_closure.isSet() ? opt_closure[0] : "";
     double slope = 0;
@@ -419,8 +441,8 @@ int main(int argc, char** argv) {
 
     // Set up number of events to be skipped
     const Long64_t skipEvents = opt_skipEvents.isSet() ? opt_skipEvents[0] : 0;
-
+    
 //     TProof* p = TProof::Open(""); // not before ROOT 5.34
-    load_Analysis(validFilenamePattern, channel, systematic, pdf_no, dy, closure, slope, maxEvents, skipEvents);
+    load_Analysis(validFilenamePattern, channel, systematic, v_analysisMode, pdf_no, dy, closure, slope, maxEvents, skipEvents);
 //     delete p;
 }

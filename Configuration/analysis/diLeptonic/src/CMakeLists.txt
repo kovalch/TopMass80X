@@ -11,6 +11,7 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   TopAnalysis
   ttbarUtils
   analysisStructs
+  analysisHelpers
   AnalyzerBaseClass
   AnalyzerControlPlots
   AnalyzerDoubleDiffXS
