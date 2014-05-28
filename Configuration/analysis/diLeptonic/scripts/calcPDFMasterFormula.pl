@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# % cat UnfoldingResults/PDF_CENTRAL/Nominal/combined/HypToppTResults.txt
+# % cat UnfoldingResults/PDF_0_CENTRAL/Nominal/combined/HypToppTResults.txt
 # XAxisbinCenters[bin]: 35 bin: 0 to 65 DiffXsec: 0.00403064 StatError: 5.86689e-05 GenDiffXsec: 0.980369
 #XAxisbinCenters[bin]: 100 bin: 65 to 125 DiffXsec: 0.00663165 StatError: 6.96881e-05 GenDiffXsec: 1.53973
 # XAxisbinCenters[bin]: 165 bin: 125 to 200 DiffXsec: 0.00367398 StatError: 2.49495e-05 GenDiffXsec: 0.834946
@@ -19,7 +19,7 @@ my $outputPath = "UnfoldingResults/PDF_";
 
 sub pdfSum {
     my ($quantity, $channel) = @_;
-    my $nominal = UnfoldedResult->new("UnfoldingResults/PDF_CENTRAL/Nominal/$channel/${quantity}Results.txt");
+    my $nominal = UnfoldedResult->new("UnfoldingResults/PDF_0_CENTRAL/Nominal/$channel/${quantity}Results.txt");
     #print Dumper $result;
     my (@up, @down);
     for my $var_no (1..22) { 
@@ -55,7 +55,7 @@ sub pdfSum {
 
 sub pdfSumIncl {
     my ($channel) = @_;
-    my $nominalIncl = InclusiveResult->new("Plots/PDF_CENTRAL/Nominal/$channel/InclusiveXSec.txt");
+    my $nominalIncl = InclusiveResult->new("Plots/PDF_0_CENTRAL/Nominal/$channel/InclusiveXSec.txt");
     my $nominal = InclusiveResult->new("Plots/Nominal/$channel/InclusiveXSec.txt");
     my (@upIncl, @downIncl);
     for my $var_no (1..22) { 

@@ -640,9 +640,6 @@ void Plotter::setOptions(TString name_, TString specialComment_, TString YAxis_,
     if(XAxis.Contains("l^{+}andl^{-}")){//Histogram naming convention has to be smarter
         XAxis.ReplaceAll("l^{+}andl^{-}",13,"l^{+} and l^{-}",15);
     }
-    if(XAxis.Contains("p_{T}^{t}(t#bar{t}c.o.m.)")){//Histogram naming convention has to be smarter
-        XAxis.ReplaceAll("p_{T}^{t}(t#bar{t}c.o.m.)",25,"p_{T}^{t}(t#bar{t} c.o.m.)",26);
-    }
     if(YAxis.Contains("Toppairs")){
         YAxis.ReplaceAll("Toppairs",8,"Top-quark pairs",15);
     }
@@ -724,7 +721,7 @@ void Plotter::setDataSet(TString mode, TString Systematic)
         else if(filename.Contains("dymumu")||filename.Contains("dyee")){legends.push_back("Z / #gamma* #rightarrow ee/#mu#mu"); colors.push_back(kAzure-2);}
         else if(filename.Contains("wtolnu")){legends.push_back("W+Jets"); colors.push_back(kGreen-3);}
         else if(filename.Contains("qcd")){legends.push_back("QCD Multijet"); colors.push_back(kYellow);}
-        else if(filename.Contains("ttbarZ") ||filename.Contains("ttbarW") || filename.Contains("ttgjets")){legends.push_back("t#bar{t}+V"); colors.push_back(kOrange-2);}
+        else if(filename.Contains("ttbarZ") ||filename.Contains("ttbarW") || filename.Contains("ttgjets")){legends.push_back("t#bar{t}+Z/W/#gamma"); colors.push_back(kOrange-2);}
     }
     FileList.close();
 }
@@ -4304,7 +4301,7 @@ void Plotter::setControlPlotLegendStyle(std::vector< TH1* > drawhists, std::vect
     OrderedLegends.push_back("W+Jets");
     OrderedLegends.push_back("Z / #gamma* #rightarrow ee/#mu#mu");
     OrderedLegends.push_back("Z / #gamma* #rightarrow #tau#tau");
-    OrderedLegends.push_back("t#bar{t}+V");
+    OrderedLegends.push_back("t#bar{t}+Z/W/#gamma");
     OrderedLegends.push_back("Diboson");
     OrderedLegends.push_back("QCD Multijet");
 

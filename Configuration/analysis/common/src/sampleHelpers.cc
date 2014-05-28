@@ -59,6 +59,7 @@ Systematic::Type Systematic::convertType(const TString& type)
     if(type.BeginsWith("MASS")) return mass;
     if(type.BeginsWith("MATCH")) return match;
     if(type.BeginsWith("SCALE")) return scale;
+    if(type.BeginsWith("POWHEGHERWIG")) return powhegHerwig;
     if(type.BeginsWith("POWHEG")) return powheg;
     if(type.BeginsWith("MCATNLO")) return mcatnlo;
     if(type.BeginsWith("PERUGIA11NoCR")) return perugia11NoCR;
@@ -110,6 +111,7 @@ TString Systematic::convertType(const Type& type)
     if(type == mass) return "MASS";
     if(type == match) return "MATCH";
     if(type == scale) return "SCALE";
+    if(type == powhegHerwig) return "POWHEGHERWIG";
     if(type == powheg) return "POWHEG";
     if(type == mcatnlo) return "MCATNLO";
     if(type == perugia11NoCR) return "PERUGIA11NoCR";

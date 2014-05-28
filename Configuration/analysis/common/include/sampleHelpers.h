@@ -53,7 +53,8 @@ namespace Systematic{
         mass,               // variations of masses used in process generation (here top quark mass)
         match,              // matching uncertainty in process generation
         scale,              // scale uncertainty in process generation
-        powheg,             // POWHEG event generator
+        powheg,             // POWHEG event generator matched to PYTHIA shower
+        powhegHerwig,       // POWHEG event generator matched to HERWIG shower
         mcatnlo,            // MC@NLO event generator
         perugia11,          // Perugia11 parton shower tune
         perugia11NoCR,      // Perugia11 parton shower tune, no colour-reconnection

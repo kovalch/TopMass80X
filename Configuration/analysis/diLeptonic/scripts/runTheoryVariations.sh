@@ -10,12 +10,8 @@ source $(dirname `readlink -f $0`)/parallelTools.sh
 #     done
 # done
 
-# for chann in ee emu mumu; do
-#     $LA -f powhegHerwig -c ${chann} -s POWHEGHERWIG &
-#     w
-# done
-
 for chann in ee emu mumu; do
+    $LA -f powhegHerwig -c ${chann} &
     $LA -f massup -c ${chann} &
     $LA -f massdown -c ${chann} &
     $LA -f matchingup -c ${chann} &
