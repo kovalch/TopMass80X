@@ -477,12 +477,13 @@ private:
     TBranch* b_jetSelectedTrackIPSignificance;
     TBranch* b_jetSelectedTrackCharge;
     TBranch* b_jetSelectedTrackIndex;
+    TBranch* b_jetSelectedTrackMatchToPfCandidateIndex;
     TBranch* b_jetSecondaryVertex;
+    TBranch* b_jetSecondaryVertexJetIndex;
     TBranch* b_jetSecondaryVertexFlightDistanceValue;
     TBranch* b_jetSecondaryVertexFlightDistanceSignificance;
-    TBranch* b_jetSecondaryVertexTrackJetIndex;
     TBranch* b_jetSecondaryVertexTrackVertexIndex;
-    TBranch* b_jetSecondaryVertexTrackSelectedTrackIndex;
+    TBranch* b_jetSecondaryVertexTrackMatchToSelectedTrackIndex;
     
     TBranch* b_met;
     TBranch* b_mvamet;

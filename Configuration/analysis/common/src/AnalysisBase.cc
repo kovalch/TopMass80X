@@ -441,10 +441,11 @@ void AnalysisBase::clearBranches()
     b_jetSelectedTrackIPSignificance = 0;
     b_jetSelectedTrackCharge = 0;
     b_jetSelectedTrackIndex = 0;
-    b_jetSecondaryVertexTrackSelectedTrackIndex = 0;
-    b_jetSecondaryVertexTrackJetIndex = 0;
+    b_jetSelectedTrackMatchToPfCandidateIndex = 0;
+    b_jetSecondaryVertexTrackMatchToSelectedTrackIndex = 0;
     b_jetSecondaryVertexTrackVertexIndex = 0;
     b_jetSecondaryVertex = 0;
+    b_jetSecondaryVertexJetIndex = 0;
     b_jetSecondaryVertexFlightDistanceValue = 0;
     b_jetSecondaryVertexFlightDistanceSignificance = 0;
     
@@ -671,24 +672,27 @@ void AnalysisBase::SetRecoBranchAddresses()
     if(chain_->GetBranch("jetSelectedTrackIndex")) // new variable, keep check a while for compatibility
       chain_->SetBranchAddress("jetSelectedTrackIndex", &recoObjects_->jetSelectedTrackIndex_, &b_jetSelectedTrackIndex);
     else b_jetSelectedTrackIndex = 0;
+    if(chain_->GetBranch("jetSelectedTrackMatchToPfCandidateIndex")) // new variable, keep check a while for compatibility
+      chain_->SetBranchAddress("jetSelectedTrackMatchToPfCandidateIndex", &recoObjects_->jetSelectedTrackMatchToPfCandidateIndex_, &b_jetSelectedTrackMatchToPfCandidateIndex);
+    else b_jetSelectedTrackMatchToPfCandidateIndex = 0;
     if(chain_->GetBranch("jetSecondaryVertex")) // new variable, keep check a while for compatibility
        chain_->SetBranchAddress("jetSecondaryVertex", &recoObjects_->jetSecondaryVertex_, &b_jetSecondaryVertex);
     else b_jetSecondaryVertex = 0;
+    if(chain_->GetBranch("jetSecondaryVertexJetIndex")) // new variable, keep check a while for compatibility
+     chain_->SetBranchAddress("jetSecondaryVertexJetIndex", &recoObjects_->jetSecondaryVertexJetIndex_, &b_jetSecondaryVertexJetIndex);
+    else b_jetSecondaryVertexJetIndex = 0;
     if(chain_->GetBranch("jetSecondaryVertexFlightDistanceValue")) // new variable, keep check a while for compatibility
        chain_->SetBranchAddress("jetSecondaryVertexFlightDistanceValue", &recoObjects_->jetSecondaryVertexFlightDistanceValue_, &b_jetSecondaryVertexFlightDistanceValue);
     else b_jetSecondaryVertexFlightDistanceValue = 0;
     if(chain_->GetBranch("jetSecondaryVertexFlightDistanceSignificance")) // new variable, keep check a while for compatibility
        chain_->SetBranchAddress("jetSecondaryVertexFlightDistanceSignificance", &recoObjects_->jetSecondaryVertexFlightDistanceSignificance_, &b_jetSecondaryVertexFlightDistanceSignificance);
     else b_jetSecondaryVertexFlightDistanceSignificance = 0;
-    if(chain_->GetBranch("jetSecondaryVertexTrackJetIndex")) // new variable, keep check a while for compatibility
-     chain_->SetBranchAddress("jetSecondaryVertexTrackJetIndex", &recoObjects_->jetSecondaryVertexTrackJetIndex_, &b_jetSecondaryVertexTrackJetIndex);
-    else b_jetSecondaryVertexTrackJetIndex = 0;
     if(chain_->GetBranch("jetSecondaryVertexTrackVertexIndex")) // new variable, keep check a while for compatibility
      chain_->SetBranchAddress("jetSecondaryVertexTrackVertexIndex", &recoObjects_->jetSecondaryVertexTrackVertexIndex_, &b_jetSecondaryVertexTrackVertexIndex);
     else b_jetSecondaryVertexTrackVertexIndex = 0;
-    if(chain_->GetBranch("jetSecondaryVertexTrackSelectedTrackIndex")) // new variable, keep check a while for compatibility
-     chain_->SetBranchAddress("jetSecondaryVertexTrackSelectedTrackIndex", &recoObjects_->jetSecondaryVertexTrackSelectedTrackIndex_, &b_jetSecondaryVertexTrackSelectedTrackIndex);
-    else b_jetSecondaryVertexTrackSelectedTrackIndex = 0; 
+    if(chain_->GetBranch("jetSecondaryVertexTrackMatchToSelectedTrackIndex")) // new variable, keep check a while for compatibility
+     chain_->SetBranchAddress("jetSecondaryVertexTrackMatchToSelectedTrackIndex", &recoObjects_->jetSecondaryVertexTrackMatchToSelectedTrackIndex_, &b_jetSecondaryVertexTrackMatchToSelectedTrackIndex);
+    else b_jetSecondaryVertexTrackMatchToSelectedTrackIndex = 0; 
     
     chain_->SetBranchAddress("met", &recoObjects_->met_, &b_met);
     if(chain_->GetBranch("mvamet")) // new variable, keep check a while for compatibility
@@ -926,16 +930,17 @@ void AnalysisBase::GetRecoBranchesEntry(const Long64_t& entry)const
 //     if(b_jetPfCandidateTrackId) b_jetPfCandidateTrackId->GetEntry(entry);
 //     if(b_jetPfCandidateTrackIndex) b_jetPfCandidateTrackIndex->GetEntry(entry);
 //     if(b_jetSelectedTrack) b_jetSelectedTrack->GetEntry(entry);
+//     if(b_jetSelectedTrackMatchToPfCandidateIndex) b_jetSelectedTrackMatchToPfCandidateIndex->GetEntry(entry);
 //     if(b_jetSelectedTrackIPValue) b_jetSelectedTrackIPValue->GetEntry(entry);
 //     if(b_jetSelectedTrackIPSignificance) b_jetSelectedTrackIPSignificance->GetEntry(entry);
 //     if(b_jetSelectedTrackCharge) b_jetSelectedTrackCharge->GetEntry(entry);
 //     if(b_jetSelectedTrackIndex) b_jetSelectedTrackIndex->GetEntry(entry);
 //     if(b_jetSecondaryVertex) b_jetSecondaryVertex->GetEntry(entry);
+//     if(b_jetSecondaryVertexJetIndex) b_jetSecondaryVertexJetIndex->GetEntry(entry);
 //     if(b_jetSecondaryVertexFlightDistanceValue) b_jetSecondaryVertexFlightDistanceValue->GetEntry(entry);
 //     if(b_jetSecondaryVertexFlightDistanceSignificance) b_jetSecondaryVertexFlightDistanceSignificance->GetEntry(entry);
-//     if(b_jetSecondaryVertexTrackJetIndex) b_jetSecondaryVertexTrackJetIndex->GetEntry(entry);
 //     if(b_jetSecondaryVertexTrackVertexIndex) b_jetSecondaryVertexTrackVertexIndex->GetEntry(entry);
-//     if(b_jetSecondaryVertexTrackSelectedTrackIndex) b_jetSecondaryVertexTrackSelectedTrackIndex->GetEntry(entry);
+//     if(b_jetSecondaryVertexTrackMatchToSelectedTrackIndex) b_jetSecondaryVertexTrackMatchToSelectedTrackIndex->GetEntry(entry);
     b_met->GetEntry(entry);
     if(b_mvamet) b_mvamet->GetEntry(entry);
     if(b_jetForMET) b_jetForMET->GetEntry(entry);

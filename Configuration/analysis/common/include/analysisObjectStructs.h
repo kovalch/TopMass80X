@@ -52,12 +52,13 @@ struct RecoObjects{
     std::vector<double>* jetSelectedTrackIPSignificance_;
     std::vector<int>* jetSelectedTrackCharge_;
     std::vector<int>* jetSelectedTrackIndex_;
+    std::vector<int>* jetSelectedTrackMatchToPfCandidateIndex_;
     std::vector<LV>* jetSecondaryVertex_;
+    std::vector<int>* jetSecondaryVertexJetIndex_;
     std::vector<double>* jetSecondaryVertexFlightDistanceValue_;
     std::vector<double>* jetSecondaryVertexFlightDistanceSignificance_;
-    std::vector<int>* jetSecondaryVertexTrackJetIndex_;
     std::vector<int>* jetSecondaryVertexTrackVertexIndex_;
-    std::vector<int>* jetSecondaryVertexTrackSelectedTrackIndex_;
+    std::vector<int>* jetSecondaryVertexTrackMatchToSelectedTrackIndex_;
     
     LV* met_;
     LV* mvamet_;

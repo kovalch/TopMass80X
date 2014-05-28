@@ -107,8 +107,12 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     iEvent.getByLabel(jets, jetHandle);
     
     // The sum of the multiplicities of the jetSelectedTracks for all the jets before the jet that is currently analysed
-    // This variable is used so that we can give the proper value to the jetSecondaryVertexTrackSelectedTrackIndex
+    // This variable is used so that we can give the proper value to the jetSecondaryVertexTrackMatchToSelectedTrackIndex
     int jetSelectedTrackMultiplicity_total = 0; 
+    
+    // The sum of the multiplicities of the jetSecondaryVertex for all the jets before the jet that is currently analysed
+    // This variable is used so that we can give the proper value to the jetSecondaryVertexTrackVertexIndex
+    int jetSecondaryVertexMultiplicity_total = 0;
     
     for(std::vector<pat::Jet>::const_iterator i_jet = jetHandle->begin(); i_jet != jetHandle->end(); ++i_jet){
         
@@ -148,7 +152,7 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         std::vector<double> jetSecondaryVertexFlightDistanceSignificance;
         
         // Find the Index of the jetSelectedTracks that are matched to the jetSecondaryVertexTracks
-        std::vector<int> jetSecondaryVertexTrackSelectedTrackIndex;
+        std::vector<int> jetSecondaryVertexTrackMatchToSelectedTrackIndex;
         
         
         for(std::vector<reco::PFCandidatePtr>::const_iterator i_candidate = pfConstituents.begin(); i_candidate != pfConstituents.end(); ++i_candidate){
@@ -258,10 +262,10 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
                                     if(secondaryVertexTrackPtr != selectedTrackPtr) continue;
                                     
                                     // Assign the proper index to the jetSecondaryVertexTracks in order to find the corresponding index of the matched jetSelectedTracks
-                                    jetSecondaryVertexTrackSelectedTrackIndex.push_back(iSelectedTrack+jetSelectedTrackMultiplicity_total);
+                                    jetSecondaryVertexTrackMatchToSelectedTrackIndex.push_back(iSelectedTrack+jetSelectedTrackMultiplicity_total);
                                     
                                     // Assign the proper index for the jetSecondaryVertexTracks in order to find the index of the Secondary Vertex they belong to
-                                    jetSecondaryVertexTrackVertexIndex.push_back(iVertex);
+                                    jetSecondaryVertexTrackVertexIndex.push_back(iVertex+jetSecondaryVertexMultiplicity_total);
                                     
                                     // Since the matching between the jetSecondaryVertexTracks and the jetSelectedTracks is unique, as soon as we find one matching pair,
                                     // there's no need to search for an other track of the jetSecondaryVertexTracks matched to the same track of the jetSelectedTracks
@@ -282,6 +286,9 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         // Find the total #SelectedTracks per event for all the jets
         jetSelectedTrackMultiplicity_total = jetSelectedTrackMultiplicity_total + jetSelectedTrack.size();
         
+        // Find the total #SecondaryVertices per event for all the jets
+        jetSecondaryVertexMultiplicity_total = jetSecondaryVertexMultiplicity_total + jetSecondaryVertex.size();
+        
         // Access Lorentz vector and PDG ID of parton associated to jet by PAT
         // If it does not exist, this can be identified by PDG ID =0
         int jetAssociatedPartonPdgId(0);
@@ -292,7 +299,7 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
             jetAssociatedParton = genParton->polarP4();
         }
         
-        JetProperties jetProperties(jetChargeGlobalPtWeighted, jetChargeRelativePtWeighted, jetAssociatedPartonPdgId, jetAssociatedParton, jetPfCandidateTrack, jetPfCandidateTrackCharge,jetPfCandidateTrackId, jetSelectedTrackMatchToPfCandidateIndex, jetSelectedTrack, jetSelectedTrackIPValue, jetSelectedTrackIPSignificance, jetSelectedTrackCharge, jetSecondaryVertexTrackSelectedTrackIndex, jetSecondaryVertexTrackVertexIndex, jetSecondaryVertex, jetSecondaryVertexFlightDistanceValue, jetSecondaryVertexFlightDistanceSignificance);
+        JetProperties jetProperties(jetChargeGlobalPtWeighted, jetChargeRelativePtWeighted, jetAssociatedPartonPdgId, jetAssociatedParton, jetPfCandidateTrack, jetPfCandidateTrackCharge,jetPfCandidateTrackId, jetSelectedTrackMatchToPfCandidateIndex, jetSelectedTrack, jetSelectedTrackIPValue, jetSelectedTrackIPSignificance, jetSelectedTrackCharge, jetSecondaryVertexTrackMatchToSelectedTrackIndex, jetSecondaryVertexTrackVertexIndex, jetSecondaryVertex, jetSecondaryVertexFlightDistanceValue, jetSecondaryVertexFlightDistanceSignificance);
         v_jetProperties->push_back(jetProperties);
         
         edm::LogVerbatim log("JetPropertiesProducer");
@@ -318,7 +325,7 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         jetSecondaryVertexFlightDistanceValue.clear();
         jetSecondaryVertexFlightDistanceSignificance.clear();
         jetSecondaryVertexTrackVertexIndex.clear();
-        jetSecondaryVertexTrackSelectedTrackIndex.clear();
+        jetSecondaryVertexTrackMatchToSelectedTrackIndex.clear();
         
     }
     
