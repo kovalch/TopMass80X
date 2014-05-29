@@ -450,7 +450,7 @@ void common::setHHStyle(TStyle& HHStyle)
     HHStyle.SetPadColor(kWhite);
     HHStyle.SetPadGridX(false);
     HHStyle.SetPadGridY(false);
-    HHStyle.SetGridColor(0);
+    HHStyle.SetGridColor(kGray);
     HHStyle.SetGridStyle(3);
     HHStyle.SetGridWidth(1);
             

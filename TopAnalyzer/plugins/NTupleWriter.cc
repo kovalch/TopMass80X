@@ -274,10 +274,10 @@ private:
     std::vector<int> VjetSelectedTrackCharge;
     std::vector<int> VjetSelectedTrackIndex;
     std::vector<LV> VjetSecondaryVertex;
+    std::vector<int> VjetSecondaryVertexJetIndex;
     std::vector<double> VjetSecondaryVertexFlightDistanceValue;
     std::vector<double> VjetSecondaryVertexFlightDistanceSignificance;
-    std::vector<int> VjetSecondaryVertexTrackSelectedTrackIndex;
-    std::vector<int> VjetSecondaryVertexTrackJetIndex;
+    std::vector<int> VjetSecondaryVertexTrackMatchToSelectedTrackIndex;
     std::vector<int> VjetSecondaryVertexTrackVertexIndex;
     
     
@@ -500,8 +500,8 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
         edm::Handle<edm::View<PileupSummaryInfo> > pPUInfo;
         iEvent.getByLabel(inTag_PUSource, pPUInfo);
         edm::View<PileupSummaryInfo>::const_iterator iterPU;
-        for(iterPU = pPUInfo->begin(); iterPU != pPUInfo->end(); ++iterPU)  // vector size is 3
-        {
+        for(iterPU = pPUInfo->begin(); iterPU != pPUInfo->end(); ++iterPU) {  // vector size is 3
+        
             if (iterPU->getBunchCrossing() == 0) { // -1: previous BX, 0: current BX,  1: next BX
                 vertMultiTrue = iterPU->getTrueNumInteractions();
             }
@@ -530,8 +530,8 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
     iEvent.getByLabel(jetsForMETuncorr_, jetsForMETuncorr);
 
 
-    if (! hypoKeyHandle.failedToGet())
-    {
+    if (! hypoKeyHandle.failedToGet()){
+        
         TtEvent::HypoClassKey& hypoKey = ( TtEvent::HypoClassKey& ) *hypoKeyHandle;
 
         //////////////////////////////dilepton and lepton properties/////////////////////
@@ -540,11 +540,10 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
         //the ntuple now only stores maximum 1 solution: the best one
         // - if a two btag solution is found, take it
         // - else if one tag solution is found, take the best one
-        if (FullLepEvt->isHypoAvailable(hypoKey) && FullLepEvt->isHypoValid(hypoKey))
-        {
+        if (FullLepEvt->isHypoAvailable(hypoKey) && FullLepEvt->isHypoValid(hypoKey)){
+            
             int best = -1;
-            for ( size_t i=0; i<FullLepEvt->numberOfAvailableHypos(hypoKey); ++i )
-            {
+            for ( size_t i=0; i<FullLepEvt->numberOfAvailableHypos(hypoKey); ++i ){
                 const pat::Jet& jet1 = jets->at(FullLepEvt->jetLeptonCombination(hypoKey,i)[0]);
                 const pat::Jet& jet2 = jets->at(FullLepEvt->jetLeptonCombination(hypoKey,i)[1]);
                 bool jet1tagged = jet1.bDiscriminator("combinedSecondaryVertexBJetTags")>0.244;
@@ -556,8 +555,7 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
             //std::cout << iEvent.eventAuxiliary().id() <<  ": choose combination #" << best << "\n";
             
             //for ( size_t i=0; i<FullLepEvt->numberOfAvailableHypos (hypoKey); ++i )
-            if (best >= 0)
-            {
+            if (best >= 0){
                 size_t i = best;
 
                 const reco::Candidate* Top    = FullLepEvt->top(hypoKey, i);
@@ -589,8 +587,7 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
     }
 
 
-    if ( isTtBarSample_ )
-    {
+    if ( isTtBarSample_ ) {
 
         //Generator info
         edm::Handle<TtGenEvent> genEvt;
@@ -962,8 +959,7 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
             else genExtraTopJetNumberId = 0+genTopJetNumberId;
             
         }       
-        else
-        {
+        else {
             std::cerr << "Error: no gen event?!\n";
             TopProductionMode = -1;
             GenTop = nullP4; GenAntiTop = nullP4;
@@ -988,7 +984,7 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
     
         
     if ( isHiggsSample_ ) {
-        //Generator info
+        // Generator info
         edm::Handle<HiggsGenEvent> genEvtHiggs;
         iEvent.getByLabel ( genEventHiggs_, genEvtHiggs );
         if (! genEvtHiggs.failedToGet())
@@ -1010,7 +1006,7 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
     }
 
     if(isZSample_){
-        //Generator info
+        // Generator info
         edm::Handle<std::vector<GenZDecayProperties> > v_genZDecayProperties;
         iEvent.getByLabel(genZDecay_, v_genZDecayProperties);
         if(!v_genZDecayProperties.failedToGet()){
@@ -1053,9 +1049,8 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
         else writeelec=true;
 
 
-        if ( writemuon )
-        {
-            //Fill muonstuff
+        if ( writemuon ) {
+            // Fill muonstuff
             Vlep.push_back( amuon->polarP4());
             VlepPdgId.push_back(amuon->pdgId());
             VlepID.push_back(-1);
@@ -1096,11 +1091,10 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
 
 
         }
-        if ( writeelec )
-        {
-            //Fill elestuff
+        if ( writeelec ) {
+            // Fill elestuff
 
-            //Electron MVAID values
+            // Electron MVAID values
 
             std::vector<std::pair<std::string,float> > electronMVAIDs = anelectron->electronIDs();
 
@@ -1155,7 +1149,7 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
         }
     }
 
-    //store the information in which channel the lepton is reconstructed
+    // Store the information in which channel the lepton is reconstructed
     for (size_t i = 1; i < VlepPdgId.size(); ++i) {
         int product = VlepPdgId.at(0) * VlepPdgId.at(i);
         if (product < 0) {
@@ -1169,8 +1163,7 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
     double jetPTThresholdForMET_ =10.;
     double jetEMLimitForMET_ = 0.9;
 //     bool ptJetTooLow;    
-    for ( edm::View<pat::Jet>::const_iterator ajet  = jets->begin() ; ajet != jets->end(); ++ajet )
-    {
+    for ( edm::View<pat::Jet>::const_iterator ajet  = jets->begin() ; ajet != jets->end(); ++ajet ){
         Vjet.push_back(ajet->polarP4());
         VjetJERSF.push_back(ajet->userFloat("jerSF"));
         if (! iEvent.isRealData()) {
@@ -1201,36 +1194,35 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
         VjetAssociatedPartonPdgId.push_back(i_jetProperties->jetAssociatedPartonPdgId());
         VjetAssociatedParton.push_back(i_jetProperties->jetAssociatedParton());
         
-        for (size_t i_pfTrack=0;i_pfTrack != i_jetProperties->jetPfCandidateTrack().size();++i_pfTrack)
-        {
-            VjetPfCandidateTrack.push_back(i_jetProperties->jetPfCandidateTrack().at(i_pfTrack));
-            VjetPfCandidateTrackCharge.push_back(i_jetProperties->jetPfCandidateTrackCharge().at(i_pfTrack));
-            VjetPfCandidateTrackId.push_back(i_jetProperties->jetPfCandidateTrackId().at(i_pfTrack));
-            VjetPfCandidateTrackIndex.push_back(i_jetProperties-jetPropertiesHandle->begin());
+        const int jetIndex = i_jetProperties-jetPropertiesHandle->begin();
+                
+        // FIXME: all these vectors could be directly inserted at the end of the corresponding vector instead of doing it element-wise
+        for (size_t iTrack=0; iTrack != i_jetProperties->jetPfCandidateTrack().size(); ++iTrack){
+            VjetPfCandidateTrack.push_back(i_jetProperties->jetPfCandidateTrack().at(iTrack));
+            VjetPfCandidateTrackCharge.push_back(i_jetProperties->jetPfCandidateTrackCharge().at(iTrack));
+            VjetPfCandidateTrackId.push_back(i_jetProperties->jetPfCandidateTrackId().at(iTrack));
+            VjetPfCandidateTrackIndex.push_back(jetIndex);
         }
         
-        for (size_t i_selTrack=0;i_selTrack != i_jetProperties->jetSelectedTrack().size();++i_selTrack)
-        {
-            VjetSelectedTrack.push_back(i_jetProperties->jetSelectedTrack().at(i_selTrack));
-            VjetSelectedTrackIPValue.push_back(i_jetProperties->jetSelectedTrackIPValue().at(i_selTrack));
-            VjetSelectedTrackIPSignificance.push_back(i_jetProperties->jetSelectedTrackIPSignificance().at(i_selTrack));
-            VjetSelectedTrackCharge.push_back(i_jetProperties->jetSelectedTrackCharge().at(i_selTrack));
-            VjetSelectedTrackMatchToPfCandidateIndex.push_back(i_jetProperties->jetSelectedTrackMatchToPfCandidateIndex().at(i_selTrack));
-            VjetSelectedTrackIndex.push_back(i_jetProperties-jetPropertiesHandle->begin());  
+        for (size_t iTrack=0; iTrack != i_jetProperties->jetSelectedTrack().size(); ++iTrack){
+            VjetSelectedTrack.push_back(i_jetProperties->jetSelectedTrack().at(iTrack));
+            VjetSelectedTrackIPValue.push_back(i_jetProperties->jetSelectedTrackIPValue().at(iTrack));
+            VjetSelectedTrackIPSignificance.push_back(i_jetProperties->jetSelectedTrackIPSignificance().at(iTrack));
+            VjetSelectedTrackCharge.push_back(i_jetProperties->jetSelectedTrackCharge().at(iTrack));
+            VjetSelectedTrackMatchToPfCandidateIndex.push_back(i_jetProperties->jetSelectedTrackMatchToPfCandidateIndex().at(iTrack));
+            VjetSelectedTrackIndex.push_back(jetIndex);  
         }
         
-        for (size_t iSecVertTrack=0;iSecVertTrack != i_jetProperties->jetSecondaryVertexTrackVertexIndex().size();++iSecVertTrack)
-        {
-            VjetSecondaryVertexTrackSelectedTrackIndex.push_back(i_jetProperties->jetSecondaryVertexTrackSelectedTrackIndex().at(iSecVertTrack));
-            VjetSecondaryVertexTrackJetIndex.push_back(i_jetProperties-jetPropertiesHandle->begin());
-            VjetSecondaryVertexTrackVertexIndex.push_back(i_jetProperties->jetSecondaryVertexTrackVertexIndex().at(iSecVertTrack));
+        for (size_t iTrack=0; iTrack != i_jetProperties->jetSecondaryVertexTrackVertexIndex().size(); ++iTrack){
+            VjetSecondaryVertexTrackMatchToSelectedTrackIndex.push_back(i_jetProperties->jetSecondaryVertexTrackMatchToSelectedTrackIndex().at(iTrack));
+            VjetSecondaryVertexTrackVertexIndex.push_back(i_jetProperties->jetSecondaryVertexTrackVertexIndex().at(iTrack));
         }
         
-        for (size_t iSecVert=0;iSecVert != i_jetProperties->jetSecondaryVertex().size();++iSecVert)
-        {
-            VjetSecondaryVertex.push_back(i_jetProperties->jetSecondaryVertex().at(iSecVert));
-            VjetSecondaryVertexFlightDistanceValue.push_back(i_jetProperties->jetSecondaryVertexFlightDistanceValue().at(iSecVert));
-            VjetSecondaryVertexFlightDistanceSignificance.push_back(i_jetProperties->jetSecondaryVertexFlightDistanceSignificance().at(iSecVert));
+        for (size_t iVertex=0; iVertex != i_jetProperties->jetSecondaryVertex().size(); ++iVertex){
+            VjetSecondaryVertex.push_back(i_jetProperties->jetSecondaryVertex().at(iVertex));
+            VjetSecondaryVertexJetIndex.push_back(jetIndex);
+            VjetSecondaryVertexFlightDistanceValue.push_back(i_jetProperties->jetSecondaryVertexFlightDistanceValue().at(iVertex));
+            VjetSecondaryVertexFlightDistanceSignificance.push_back(i_jetProperties->jetSecondaryVertexFlightDistanceSignificance().at(iVertex));
         }
         
     }
@@ -1240,8 +1232,8 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
     //because even bad-id jets are used for the MET
 
     //    for ( edm::View<pat::Jet>::const_iterator ajet  = jetsForMETuncorr->begin() ; ajet != jetsForMETuncorr->end(); ++ajet )
-    for ( size_t jet_it =  0 ; jet_it < jetsForMETuncorr->size(); ++jet_it )
-    {
+    for ( size_t jet_it =  0 ; jet_it < jetsForMETuncorr->size(); ++jet_it ){
+        
         if(jetsForMETuncorr->at(jet_it).correctedJet("Uncorrected").pt() > jetPTThresholdForMET_ &&
             ((!jetsForMETuncorr->at(jet_it).isPFJet() && jetsForMETuncorr->at(jet_it).emEnergyFraction() < jetEMLimitForMET_) ||
             (jetsForMETuncorr->at(jet_it).isPFJet() && jetsForMETuncorr->at(jet_it).neutralEmEnergyFraction() + jetsForMETuncorr->at(jet_it).chargedEmEnergyFraction() < jetEMLimitForMET_)))
@@ -1294,10 +1286,10 @@ int NTupleWriter::getTriggerBits (const edm::Event &iEvent, const edm::Handle< e
     edm::TriggerNames trigName = iEvent.triggerNames(*trigResults);
     int result = 0;
 
-    for ( int i_Trig = 0; i_Trig<n_Triggers; ++i_Trig )
-    {
-        if ( trigResults.product()->accept(i_Trig))
-        {
+    for ( int i_Trig = 0; i_Trig<n_Triggers; ++i_Trig ) {
+        
+        if ( trigResults.product()->accept(i_Trig)) {
+            
             if (includeTrig_) VfiredTriggers.push_back(trigName.triggerName(i_Trig));
             const std::string &triggerName = trigName.triggerName(i_Trig);
             std::string triggerNameWithoutVersion(triggerName);
@@ -1343,10 +1335,10 @@ int NTupleWriter::getTriggerBitsTau(const edm::Event &iEvent, const edm::Handle<
     edm::TriggerNames trigName = iEvent.triggerNames(*trigResults);
     int result = 0;
 
-    for ( int i_Trig = 0; i_Trig<n_Triggers; ++i_Trig )
-    {
-        if ( trigResults.product()->accept(i_Trig))
-        {
+    for ( int i_Trig = 0; i_Trig<n_Triggers; ++i_Trig ) {
+        
+        if ( trigResults.product()->accept(i_Trig)) {
+            
             const std::string &triggerName = trigName.triggerName(i_Trig);
             std::string triggerNameWithoutVersion(triggerName);
             while (triggerNameWithoutVersion.length() > 0
@@ -1473,10 +1465,10 @@ NTupleWriter::beginJob()
     Ntuple->Branch("jetSelectedTrackCharge", &VjetSelectedTrackCharge);
     Ntuple->Branch("jetSelectedTrackIndex", &VjetSelectedTrackIndex);
     Ntuple->Branch("jetSecondaryVertex", &VjetSecondaryVertex);
+    Ntuple->Branch("jetSecondaryVertexJetIndex", &VjetSecondaryVertexJetIndex);
     Ntuple->Branch("jetSecondaryVertexFlightDistanceValue", &VjetSecondaryVertexFlightDistanceValue);
     Ntuple->Branch("jetSecondaryVertexFlightDistanceSignificance", &VjetSecondaryVertexFlightDistanceSignificance);
-    Ntuple->Branch("jetSecondaryVertexTrackSelectedTrackIndex", &VjetSecondaryVertexTrackSelectedTrackIndex);
-    Ntuple->Branch("jetSecondaryVertexTrackJetIndex", &VjetSecondaryVertexTrackJetIndex);
+    Ntuple->Branch("jetSecondaryVertexTrackMatchToSelectedTrackIndex", &VjetSecondaryVertexTrackMatchToSelectedTrackIndex);
     Ntuple->Branch("jetSecondaryVertexTrackVertexIndex", &VjetSecondaryVertexTrackVertexIndex);
     
     if (isTtBarSample_) Ntuple->Branch("jetAssociatedPartonPdgId", &VjetAssociatedPartonPdgId);
@@ -1669,10 +1661,10 @@ void NTupleWriter::clearVariables()
     VjetSelectedTrackCharge.clear();
     VjetSelectedTrackIndex.clear();
     VjetSecondaryVertex.clear();
+    VjetSecondaryVertexJetIndex.clear();
     VjetSecondaryVertexFlightDistanceValue.clear();
     VjetSecondaryVertexFlightDistanceSignificance.clear();
-    VjetSecondaryVertexTrackSelectedTrackIndex.clear();
-    VjetSecondaryVertexTrackJetIndex.clear();
+    VjetSecondaryVertexTrackMatchToSelectedTrackIndex.clear();
     VjetSecondaryVertexTrackVertexIndex.clear();
     
     VBHadJetIdx.clear();

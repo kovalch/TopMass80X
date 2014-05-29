@@ -27,7 +27,7 @@ constexpr double lumi = 19712;
 // constexpr double topxsec = 244.794; //Mitov, arXiv:1303.6254
 //constexpr double topxsec = 247.998; //Measured XSection after normalization to Mitov, and statistical combination of channels
 //constexpr double topxsec = 248.207; //Measured XSection after normalization to Mitov, and after combination of channels at yield level
-constexpr double topxsec = 246.21; //Measured XSection using MadSpin, after normalization to Mitov and statistical combination of channels
+constexpr double topxsec = 245.102; //Measured XSection using MadSpin, after normalization to Mitov and statistical combination of channels
 
 using namespace std;
 

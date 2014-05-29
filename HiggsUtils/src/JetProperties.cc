@@ -14,7 +14,7 @@ JetProperties::JetProperties(const double& jetChargeGlobalPtWeighted, const doub
                  const std::vector<int>& jetPfCandidateTrackId, const std::vector<int>& jetSelectedTrackMatchToPfCandidateIndex,
                  const std::vector<math::PtEtaPhiMLorentzVectorD>& jetSelectedTrack, 
                  const std::vector<double>& jetSelectedTrackIPValue, const std::vector<double>& jetSelectedTrackIPSignificance, 
-                 const std::vector<int>& jetSelectedTrackCharge, const std::vector<int>& jetSecondaryVertexTrackSelectedTrackIndex, 
+                 const std::vector<int>& jetSelectedTrackCharge, const std::vector<int>& jetSecondaryVertexTrackMatchToSelectedTrackIndex, 
                  const std::vector<int>& jetSecondaryVertexTrackVertexIndex, const std::vector<math::PtEtaPhiMLorentzVectorD>& jetSecondaryVertex, 
                  const std::vector<double>& jetSecondaryVertexFlightDistanceValue, const std::vector<double>& jetSecondaryVertexFlightDistanceSignificance):
 			     
@@ -22,7 +22,7 @@ jetChargeGlobalPtWeighted_(jetChargeGlobalPtWeighted), jetChargeRelativePtWeight
 jetAssociatedPartonPdgId_(jetAssociatedPartonPdgId), jetAssociatedParton_(jetAssociatedParton),
 jetPfCandidateTrack_(jetPfCandidateTrack), jetPfCandidateTrackCharge_(jetPfCandidateTrackCharge), jetPfCandidateTrackId_(jetPfCandidateTrackId), jetSelectedTrackMatchToPfCandidateIndex_(jetSelectedTrackMatchToPfCandidateIndex),
 jetSelectedTrack_(jetSelectedTrack), jetSelectedTrackIPValue_(jetSelectedTrackIPValue), jetSelectedTrackIPSignificance_(jetSelectedTrackIPSignificance), jetSelectedTrackCharge_(jetSelectedTrackCharge),
-jetSecondaryVertexTrackSelectedTrackIndex_(jetSecondaryVertexTrackSelectedTrackIndex), jetSecondaryVertexTrackVertexIndex_(jetSecondaryVertexTrackVertexIndex), jetSecondaryVertex_(jetSecondaryVertex),
+jetSecondaryVertexTrackMatchToSelectedTrackIndex_(jetSecondaryVertexTrackMatchToSelectedTrackIndex), jetSecondaryVertexTrackVertexIndex_(jetSecondaryVertexTrackVertexIndex), jetSecondaryVertex_(jetSecondaryVertex),
 jetSecondaryVertexFlightDistanceValue_(jetSecondaryVertexFlightDistanceValue), jetSecondaryVertexFlightDistanceSignificance_(jetSecondaryVertexFlightDistanceSignificance)
 {}
     
@@ -31,7 +31,7 @@ jetChargeGlobalPtWeighted_(jetProperties.jetChargeGlobalPtWeighted_), jetChargeR
 jetAssociatedPartonPdgId_(jetProperties.jetAssociatedPartonPdgId_), jetAssociatedParton_(jetProperties.jetAssociatedParton_),jetPfCandidateTrack_(jetProperties.jetPfCandidateTrack_), 
 jetPfCandidateTrackCharge_(jetProperties.jetPfCandidateTrackCharge_), jetPfCandidateTrackId_(jetProperties.jetPfCandidateTrackId_), jetSelectedTrackMatchToPfCandidateIndex_(jetProperties.jetSelectedTrackMatchToPfCandidateIndex_),
 jetSelectedTrack_(jetProperties.jetSelectedTrack_), jetSelectedTrackIPValue_(jetProperties.jetSelectedTrackIPValue_), jetSelectedTrackIPSignificance_(jetProperties.jetSelectedTrackIPSignificance_), jetSelectedTrackCharge_(jetProperties.jetSelectedTrackCharge_),
-jetSecondaryVertexTrackSelectedTrackIndex_(jetProperties.jetSecondaryVertexTrackSelectedTrackIndex_), jetSecondaryVertexTrackVertexIndex_(jetProperties.jetSecondaryVertexTrackVertexIndex_), jetSecondaryVertex_(jetProperties.jetSecondaryVertex_),
+jetSecondaryVertexTrackMatchToSelectedTrackIndex_(jetProperties.jetSecondaryVertexTrackMatchToSelectedTrackIndex_), jetSecondaryVertexTrackVertexIndex_(jetProperties.jetSecondaryVertexTrackVertexIndex_), jetSecondaryVertex_(jetProperties.jetSecondaryVertex_),
 jetSecondaryVertexFlightDistanceValue_(jetProperties.jetSecondaryVertexFlightDistanceValue_), jetSecondaryVertexFlightDistanceSignificance_(jetProperties.jetSecondaryVertexFlightDistanceSignificance_)
 {}
     
@@ -102,7 +102,7 @@ JetProperties::jetSelectedTrackCharge()const{return jetSelectedTrackCharge_;}
 
 
 std::vector<int>
-JetProperties::jetSecondaryVertexTrackSelectedTrackIndex()const{return jetSecondaryVertexTrackSelectedTrackIndex_;}
+JetProperties::jetSecondaryVertexTrackMatchToSelectedTrackIndex()const{return jetSecondaryVertexTrackMatchToSelectedTrackIndex_;}
 
 
 

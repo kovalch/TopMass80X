@@ -49,12 +49,13 @@ void RecoObjects::clear()
     jetSelectedTrackIPSignificance_ = 0;
     jetSelectedTrackCharge_ = 0;
     jetSelectedTrackIndex_ = 0;
+    jetSelectedTrackMatchToPfCandidateIndex_ = 0;
     jetSecondaryVertex_ = 0;
+    jetSecondaryVertexJetIndex_ = 0;
     jetSecondaryVertexFlightDistanceValue_ = 0;
     jetSecondaryVertexFlightDistanceSignificance_ = 0;
-    jetSecondaryVertexTrackJetIndex_ = 0;
     jetSecondaryVertexTrackVertexIndex_ = 0;
-    jetSecondaryVertexTrackSelectedTrackIndex_ = 0;
+    jetSecondaryVertexTrackMatchToSelectedTrackIndex_ = 0;
     met_ = 0;
     mvamet_ = 0;
     jetJERSF_ = 0;
