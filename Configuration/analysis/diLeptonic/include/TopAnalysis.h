@@ -167,8 +167,10 @@ class TopAnalysis : public AnalysisBase
 
     TH2 *h_GenRecoDeltaRExtraJet12;
     TH1 *h_VisGenDeltaRExtraJet12, *h_RecoDeltaRExtraJet12, *h_HypDeltaRExtraJet12;
-    TH2 *h_GenRecoDeltaPhiExtraJet12, *h_GenRecoPhiExtraJet12,*h_GenRecoTTBar1stJetMass, *h_GenRecoTTBar0Mass;
+    TH2 *h_GenRecoDeltaPhiExtraJet12, *h_GenRecoPhiExtraJet12,*h_GenRecoTTBar1stJetMass, *h_GenRecoTTBar0Mass, *h_GenRecoMassExtraJet12; 
     TH1 *h_VisGenDeltaPhiExtraJet12, *h_RecoDeltaPhiExtraJet12, *h_HypDeltaPhiExtraJet12, *h_VisGenPhiExtraJet12, *h_RecoPhiExtraJet12, *h_HypPhiExtraJet12;
+    TH1 *h_VisGenMassExtraJet12, *h_RecoMassExtraJet12, *h_HypMassExtraJet12;
+
     TH1 *h_VisGenTTBar1stJetMass, *h_RecoTTBar1stJetMass, *h_HypTTBar1stJetMass;
     TH1 *h_VisGenTTBar0Mass, *h_RecoTTBar0Mass, *h_HypTTBar0Mass;
     //End: Plots for Carmen
@@ -300,7 +302,7 @@ private:
     void generatorTTbarjetsEvent(double& jetHTGen,
                                  const int bHadronIndex, const int antiBHadronIndex,
                                  const double trueLevelWeight,
-                                 int& GenJets_cut, int& GenJets_cut40, int& GenJets_cut60, int& GenJets_cut100,
+                                 int& GenJets_cut, int& GenJets_cut40, int& GenJets_cut60, int& GenJets_cut100, int& jetnum,
                                  double extragenjet[4],
                                  const CommonGenObjects& commonGenObjects,
                                  const TopGenObjects& topGenObjects);
