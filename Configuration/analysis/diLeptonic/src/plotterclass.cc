@@ -56,10 +56,10 @@ void Plotter::UnfoldingOptions(bool doSVD)
 
   drawPlotRatio    = true;
   drawSmoothMadgraph = false;
-  drawMCATNLO      = true;
+  drawMCATNLO      = false;
   drawKidonakis    = true;
   drawAhrens       = true;
-  drawPOWHEG       = true;;
+  drawPOWHEG       = false;
   drawPOWHEGHERWIG = false;
   drawPERUGIA11 = false;
   drawMadScaleMatching = false;
@@ -1121,7 +1121,7 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
     width<<binwidth;
 
     if(name.Contains("Rapidity") || name.Contains("Eta") || name.Contains("Phi") || (name.Contains("Mass") && name.Contains("1st"))){ytitle.Append(" / ").Append(width.str());}
-    else if(name.Contains("pT", TString::kIgnoreCase) || (name.Contains("Mass", TString::kIgnoreCase) && ! name.Contains("1st")) || name.Contains("MET") || name.Contains("HT")){ytitle.Append(" / ").Append(width.str()).Append(" GeV");};
+    else if((name.Contains("pT", TString::kIgnoreCase) && !name.Contains("JetMult")) || (name.Contains("Mass", TString::kIgnoreCase) && ! name.Contains("1st")) || name.Contains("MET") || name.Contains("HT")){ytitle.Append(" / ").Append(width.str()).Append(" GeV");};
     drawhists[0]->GetYaxis()->SetTitle(ytitle);
     drawhists[0]->Draw("e1");
     gStyle->SetEndErrorSize(0);
@@ -1232,7 +1232,7 @@ void Plotter::setStyle(TH1 *hist, unsigned int i, bool isControlPlot)
         hist->SetMarkerSize(1.2);
         hist->SetLineWidth(2);
         if ((name.Contains("pT", TString::kIgnoreCase) || name.Contains("Mass", TString::kIgnoreCase)) && 
-            (!name.Contains("1st") && !name.Contains("Rapidity") && !name.Contains("Eta") && !name.Contains("Phi"))) {
+            (!name.Contains("1st") && !name.Contains("Rapidity") && !name.Contains("Eta") && !name.Contains("Phi") && !name.Contains("JetMult"))) {
             hist->GetXaxis()->SetTitle(XAxis+" #left[GeV#right]");
             hist->GetYaxis()->SetTitle("#frac{1}{#sigma} #frac{d#sigma}{d"+XAxis+"}"+" #left[GeV^{-1}#right]"); 
         } else {
