@@ -35,10 +35,10 @@ void AnalyzerDoubleDiffXS::bookHistos(const TString& step, std::map<TString, TH1
     TString name;
     
      name = "top_rapidity_vs_top_pt";
-     m_histogram[name] = this->store(new TH2D (prefix_+name+step,"Top Rapidity vs Top pT; p_{T}^{t} [GeV];y(t)",1200,0,1200,100,-2.4,2.4));
+     m_histogram[name] = this->store(new TH2D (prefix_+name+step,"Top Rapidity vs Top pT; p_{T}^{t} [GeV];y(t)",1200,0,1200,200,-5,5));
     
      name = "gen_top_rapidity_vs_top_pt";
-     m_histogram[name] = this->store(new TH2D (prefix_+name+step,"Top Rapidity vs Top pT; p_{T}^{t} [GeV];y(t)",1200,0,1200,100,-2.4,2.4));
+     m_histogram[name] = this->store(new TH2D (prefix_+name+step,"Top Rapidity vs Top pT; p_{T}^{t} [GeV];y(t)",1200,0,1200,200,-5,5));
     
     name = "bjet_multiplicity_vs_x1";
     m_histogram[name] = this->store(new TH2D(prefix_+name+step,"B-Jet Multiplicity vs x1;;N b-jets",400,0,1,21,-0.5,20.5));
@@ -56,11 +56,11 @@ void AnalyzerDoubleDiffXS::bookHistos(const TString& step, std::map<TString, TH1
     name = "jet_multiplicity_vs_top_pt";
     m_histogram[name] = this->store(new TH2D(prefix_+name+step,"Jet Multiplicity vs top pt;pt(top), [GeV];N b-jets",1200,0,1200,21,-0.5,20.5));
     name = "jet_multiplicity_vs_top_y";
-    m_histogram[name] = this->store(new TH2D(prefix_+name+step,"Jet Multiplicity vs top y;y(top) ;N b-jets",100,-2.4,2.4,21,-0.5,20.5));
+    m_histogram[name] = this->store(new TH2D(prefix_+name+step,"Jet Multiplicity vs top y;y(top) ;N b-jets",200,-5,5,21,-0.5,20.5));
     name = "jet_multiplicity_vs_ttbar_pt";
     m_histogram[name] = this->store(new TH2D(prefix_+name+step,"Jet Multiplicity vs ttbar pt;pt(ttbar), [GeV];N b-jets",400,0,400,21,-0.5,20.5));
     name = "jet_multiplicity_vs_ttbar_y";
-    m_histogram[name] = this->store(new TH2D(prefix_+name+step,"Jet Multiplicity vs ttbar y;y(ttbar) ;N b-jets",100,-2.4,2.4,21,-0.5,20.5));
+    m_histogram[name] = this->store(new TH2D(prefix_+name+step,"Jet Multiplicity vs ttbar y;y(ttbar) ;N b-jets",200,-5,5,21,-0.5,20.5));
     name = "jet_multiplicity_vs_ttbar_mass";
     m_histogram[name] = this->store(new TH2D(prefix_+name+step,"Jet Multiplicity vs ttbar mass;mass(ttbar), [GeV];N b-jets",2000,0,2000,21,-0.5,20.5));
     
@@ -72,11 +72,11 @@ void AnalyzerDoubleDiffXS::bookHistos(const TString& step, std::map<TString, TH1
 //     name = "ttbar_pt_vs_x";
 //     m_histogram[name] = this->store(new TH2D(prefix_+name," vs x;x;N b-jets",400,0,1,400,0,400));
 //     name = "ttbar_rapidity_vs_x";
-//     m_histogram[name] = this->store(new TH2D(prefix_+name," vs x;x;N b-jets",400,0,1,100,-2.4,2.4));
+//     m_histogram[name] = this->store(new TH2D(prefix_+name," vs x;x;N b-jets",400,0,1,200,-5,5));
 //     name = "top_pt_vs_x";
 //     m_histogram[name] = this->store(new TH2D(prefix_+name," vs x;x;N b-jets",400,0,1,1200,0,1200));
 //     name = "top_rapidity_vs_x";
-//     m_histogram[name] = this->store(new TH2D(prefix_+name," vs x;x;N b-jets",400,0,1,100,-2.4,2.4));
+//     m_histogram[name] = this->store(new TH2D(prefix_+name," vs x;x;N b-jets",400,0,1,200,-5,5));
     
 }
 

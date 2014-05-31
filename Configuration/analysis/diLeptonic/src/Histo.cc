@@ -17,18 +17,6 @@
 #include "../../common/include/CommandLineParameters.h"
 #include "../../common/include/sampleHelpers.h"
 
-
-//constexpr double lumi = 12210;
-//constexpr double lumi = 19624.8;
-//constexpr double lumi = 19789;
-constexpr double lumi = 19712;
-
-//constexpr double topxsec = 244.849; //again changes with normalization, must be set outside of the class
-// constexpr double topxsec = 244.794; //Mitov, arXiv:1303.6254
-//constexpr double topxsec = 247.998; //Measured XSection after normalization to Mitov, and statistical combination of channels
-//constexpr double topxsec = 248.207; //Measured XSection after normalization to Mitov, and after combination of channels at yield level
-constexpr double topxsec = 245.102; //Measured XSection using MadSpin, after normalization to Mitov and statistical combination of channels
-
 using namespace std;
 
 ///Please put the variation of each systematics one after each other, satarting from the UP variation.
@@ -78,7 +66,6 @@ void Histo(bool doControlPlots, bool doUnfold, bool doDiffXSPlotOnly,
 
         // Create Plotter 
         Plotter h_generalPlot;
-        h_generalPlot.setLumi(lumi, topxsec);
         h_generalPlot.ListOfSystematics(SetOfValidSystematics);
         
         /////////////////////////////////////////////////////

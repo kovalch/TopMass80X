@@ -46,6 +46,9 @@ void AnalyzerKinReco::bookHistos(const TString& step, std::map<TString, TH1*>& m
         m_histogram[name]  = store(new TH1D ( prefix_+name+step, "lead-LeptonpT - Kin. Reco. behaviour;p_{T}[GeV];eff.", 20, 0, 400 ));
         name = "nRecoEvt_vs_LeppT2";
         m_histogram[name]  = store(new TH1D ( prefix_+name+step, "nLead-LeptonpT - Kin. Reco. behaviour;p_{T}[GeV];eff.", 20, 0, 400 ));
+        name = "nRecoEvt_vs_LeppT_10Bins";
+        m_histogram[name]  = store(new TH1D ( prefix_+name+step, "lead-LeptonpT - Kin. Reco. behaviour;p_{T}[GeV];eff.", 10, 0, 400 ));
+        
         
         name = "nRecoEvt_vs_JetEta";
         m_histogram[name]  = store(new TH1D ( prefix_+name+step, "JetEta - Kin. Reco. behaviour;#eta;eff.", 10, -2.5, 2.5 ));
@@ -106,6 +109,7 @@ void AnalyzerKinReco::fillHistos(const RecoObjects& recoObjects, const CommonGen
         m_histogram["nRecoEvt_vs_LepEta"]->Fill((*recoObjects.allLeptons_).at(recoObjectIndices.leadingLeptonIndex_).Eta(),weight7);
         m_histogram["nRecoEvt_vs_LepEta2"]->Fill((*recoObjects.allLeptons_).at(recoObjectIndices.nLeadingLeptonIndex_).Eta(),weight7);
         m_histogram["nRecoEvt_vs_LeppT"]->Fill((*recoObjects.allLeptons_).at(recoObjectIndices.leadingLeptonIndex_).Pt(),weight7);
+        m_histogram["nRecoEvt_vs_LeppT_10Bins"]->Fill((*recoObjects.allLeptons_).at(recoObjectIndices.leadingLeptonIndex_).Pt(),weight7);
         m_histogram["nRecoEvt_vs_LeppT2"]->Fill((*recoObjects.allLeptons_).at(recoObjectIndices.nLeadingLeptonIndex_).Pt(),weight7);
         
         m_histogram["nRecoEvt_vs_LeptonEta"]->Fill((*recoObjects.allLeptons_).at(recoObjectIndices.leptonIndex_).Eta(),weight7);
