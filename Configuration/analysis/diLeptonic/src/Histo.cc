@@ -14,26 +14,13 @@
 
 #include "plotterclass.h"
 #include "HistoListReader.h"
+#include <homelessFunctions.h>
 #include "../../common/include/CommandLineParameters.h"
 #include "../../common/include/sampleHelpers.h"
 
 using namespace std;
 
-///Please put the variation of each systematics one after each other, satarting from the UP variation.
-///    NOT valid example: MATCH_UP, MASS_DOWN, MASS_UP
-const std::vector<const char*> VectorOfValidSystematics 
-    {"Nominal",
-    "JER_UP", "JER_DOWN", "JES_UP", "JES_DOWN",
-    "PU_UP", "PU_DOWN", "TRIG_UP", "TRIG_DOWN", "LEPT_UP", "LEPT_DOWN",
-    "DY_UP", "DY_DOWN", "BG_UP", "BG_DOWN", 
-    "KIN_UP", "KIN_DOWN",
-    "BTAG_UP", "BTAG_DOWN", "BTAG_LJET_UP", "BTAG_LJET_DOWN",
-    "BTAG_PT_UP", "BTAG_PT_DOWN", "BTAG_ETA_UP", "BTAG_ETA_DOWN",
-    "BTAG_LJET_PT_UP", "BTAG_LJET_PT_DOWN", "BTAG_LJET_ETA_UP", "BTAG_LJET_ETA_DOWN",
-//     "BTAG_BEFF_UP", "BTAG_BEFF_DOWN", "BTAG_CEFF_UP", "BTAG_CEFF_DOWN", "BTAG_LEFF_UP", "BTAG_LEFF_DOWN",
-    "MASS_UP", "MASS_DOWN", "MATCH_UP", "MATCH_DOWN", "SCALE_UP", "SCALE_DOWN", 
-    "POWHEG", "POWHEGHERWIG", "MCATNLO",// "PERUGIA11", // "SPINCORR", 
-    "all"};
+std::vector<const char*> VectorOfValidSystematics;
     
 void Histo(bool doControlPlots, bool doUnfold, bool doDiffXSPlotOnly,
            std::vector<std::string> plots, 
@@ -43,7 +30,8 @@ void Histo(bool doControlPlots, bool doUnfold, bool doDiffXSPlotOnly,
 {
     //to stay compatible with old code
     std::set<TString> SetOfValidSystematics;
-    for (auto s: VectorOfValidSystematics) SetOfValidSystematics.insert(s);
+    homelessFunctions::fillSetListOfSystematics(SetOfValidSystematics);
+    for (auto s: SetOfValidSystematics) VectorOfValidSystematics.push_back(s);
 
     HistoListReader histoList(doControlPlots ? "HistoList_control" : "HistoList");
     if (histoList.IsZombie()) exit(12);
@@ -66,7 +54,6 @@ void Histo(bool doControlPlots, bool doUnfold, bool doDiffXSPlotOnly,
 
         // Create Plotter 
         Plotter h_generalPlot;
-        h_generalPlot.ListOfSystematics(SetOfValidSystematics);
         
         /////////////////////////////////////////////////////
         /////////   UNFOLDING OPTIONS     ///////////////////

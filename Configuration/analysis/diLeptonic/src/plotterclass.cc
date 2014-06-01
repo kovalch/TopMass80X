@@ -576,16 +576,6 @@ void Plotter::setDataSet(TString mode, TString Systematic)
     FileList.close();
 }
 
-
-void Plotter::ListOfSystematics(set<TString> listofsystematics){
-    
-    //List of systematics valid for running. Please check (or add any new systematic) the function 'ListOfSystematics' in Histo.C
-    
-    ListOfSyst = listofsystematics;
-    homelessFunc->setListOfSystematics(listofsystematics);
-}
-
-
 bool Plotter::fillHisto()
 {   
     TH1::AddDirectory(kFALSE);

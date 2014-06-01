@@ -29,7 +29,9 @@ public:
     
     void DYScaleFactor(TString SpetialComment,std::vector<double>& DYScale,TString name);
     
-    void setListOfSystematics(std::set<TString>);
+    
+   static void fillSetListOfSystematics(std::set<TString>& SetOfValidSystematics);
+    
     std::set<TString> ListOfSyst;
     double lumi, topxsec;
     

@@ -19,7 +19,7 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   plotterclass
   homelessFunctions
   DilepSVDFunctions
-#  EffHist
+  EffHist
   )
 
 SET( Unfold_LIBSOURCES
@@ -31,7 +31,7 @@ SET( Unfold_LIBSOURCES
 SET( ${PROJECT_NAME}_EXECUTABLES
   load_Analysis
   Histo
-#  kinRecoEff
+  kinRecoEff
   TypicalErrors
   PlotRelDiffs
   kinRecoEfficienciesAndSF

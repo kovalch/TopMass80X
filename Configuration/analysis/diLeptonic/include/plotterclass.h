@@ -66,9 +66,7 @@ public:
     void DrawLabel(TString text, const double x1, const double y1, const double x2, const double y2, int centering, double textSize);
 
     double CalculateIntegral(TGraphAsymmErrors *tga_DiffXSecPlot, double Xbins[]);
-
-    void ListOfSystematics(std::set<TString>);
-    std::set<TString> ListOfSyst;
+    
 
 private:
 

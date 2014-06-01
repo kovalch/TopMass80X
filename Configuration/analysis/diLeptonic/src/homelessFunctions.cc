@@ -10,9 +10,21 @@
 #include "homelessFunctions.h"
 #include "../../common/include/RootFileReader.h"
 
-
-
-
+      ///Please put the variation of each systematics one after each other, satarting from the UP variation.
+  ///    NOT valid example: MATCH_UP, MASS_DOWN, MASS_UP
+   const std::vector<const char*> VectorOfValidSystematics 
+    {"Nominal",
+    "JER_UP", "JER_DOWN", "JES_UP", "JES_DOWN",
+    "PU_UP", "PU_DOWN", "TRIG_UP", "TRIG_DOWN", "LEPT_UP", "LEPT_DOWN",
+    "DY_UP", "DY_DOWN", "BG_UP", "BG_DOWN", 
+    "KIN_UP", "KIN_DOWN",
+    "BTAG_UP", "BTAG_DOWN", "BTAG_LJET_UP", "BTAG_LJET_DOWN",
+    "BTAG_PT_UP", "BTAG_PT_DOWN", "BTAG_ETA_UP", "BTAG_ETA_DOWN",
+    "BTAG_LJET_PT_UP", "BTAG_LJET_PT_DOWN", "BTAG_LJET_ETA_UP", "BTAG_LJET_ETA_DOWN",
+//     "BTAG_BEFF_UP", "BTAG_BEFF_DOWN", "BTAG_CEFF_UP", "BTAG_CEFF_DOWN", "BTAG_LEFF_UP", "BTAG_LEFF_DOWN",
+    "MASS_UP", "MASS_DOWN", "MATCH_UP", "MATCH_DOWN", "SCALE_UP", "SCALE_DOWN", 
+    "POWHEG", "POWHEGHERWIG", "MCATNLO",// "PERUGIA11", // "SPINCORR", 
+    "all"};
 
 homelessFunctions::homelessFunctions( RootFileReader* rootFileReader,bool isClosureTest,bool isDYScale):
 
@@ -28,7 +40,13 @@ fileReader(rootFileReader),
 doClosureTest(isClosureTest),
 doDYScale(isDYScale)
 {
-    
+    for (auto s: VectorOfValidSystematics) ListOfSyst.insert(s);
+}
+
+void homelessFunctions::fillSetListOfSystematics(std::set<TString>& set)
+{
+
+    for (auto s: VectorOfValidSystematics) set.insert(s);
 }
 
 double homelessFunctions::SampleXSection(const TString& filename){
@@ -90,12 +108,6 @@ double homelessFunctions::CalcLumiWeight(const TString& WhichSample){
 	std::cout << WhichSample << " has lumi weight 0\n";
 	}
 	return lumiWeight;
-}
-
-
-void homelessFunctions::setListOfSystematics(std::set<TString> listofsystematics)
-{
-    ListOfSyst = listofsystematics;
 }
 
 std::vector<TString> homelessFunctions::InputFileList(TString mode, TString Systematic)
