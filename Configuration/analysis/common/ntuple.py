@@ -832,6 +832,7 @@ writeNTuple.includePDFWeights = options.includePDFWeights
 writeNTuple.pdfWeights = "pdfWeights:cteq66"
 writeNTuple.includeZdecay = zproducer
 writeNTuple.saveHadronMothers = False
+writeNTuple.saveCHadronParticles = False
 
 process.writeNTuple = writeNTuple.clone(
     muons = isolatedMuonCollection,
@@ -868,6 +869,7 @@ process.writeNTuple = writeNTuple.clone(
     genCHadFlavour = cms.InputTag(genHFCHadronMatcherInput, "genCHadFlavour"),
     genCHadJetIndex = cms.InputTag(genHFCHadronMatcherInput, "genCHadJetIndex"),
     genCHadFromTopWeakDecay = cms.InputTag(genHFCHadronMatcherInput, "genCHadFromTopWeakDecay"),
+    genCHadBHadronId = cms.InputTag(genHFCHadronMatcherInput, "genCHadBHadronId"),
     genCHadLeptonIndex = cms.InputTag(genHFCHadronMatcherInput, "genCHadLeptonIndex"),
     genCHadLeptonHadronIndex = cms.InputTag(genHFCHadronMatcherInput, "genCHadLeptonHadronIndex"),
     genCHadLeptonViaTau = cms.InputTag(genHFCHadronMatcherInput, "genCHadLeptonViaTau"), 
