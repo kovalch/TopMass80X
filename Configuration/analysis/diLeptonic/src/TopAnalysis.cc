@@ -784,7 +784,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     this->retagJets(bjetIndices, jetIndices, jets, jetPartonFlavour, jetBTagCSV);
     orderIndices(bjetIndices, jetBTagCSV);
     const int numberOfBjets = bjetIndices.size();
-    const bool hasBtag = numberOfBjets > 1;
+    const bool hasBtag = numberOfBjets > 0;
     
     // Get MET
     const LV& met = *recoObjects.met_;
