@@ -44,7 +44,7 @@ constexpr double Lead2JetPtCUT = JetPtCUT;
 
 /// B-tag algorithm and working point
 constexpr Btag::Algorithm BtagALGO = Btag::csv;
-constexpr Btag::WorkingPoint BtagWP = Btag::L;
+constexpr Btag::WorkingPoint BtagWP = Btag::M;
 
 /// MET selection for same-flavour channels (ee, mumu)
 constexpr double MetCUT = 40.;
