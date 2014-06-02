@@ -784,7 +784,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     this->retagJets(bjetIndices, jetIndices, jets, jetPartonFlavour, jetBTagCSV);
     orderIndices(bjetIndices, jetBTagCSV);
     const int numberOfBjets = bjetIndices.size();
-    const bool hasBtag = numberOfBjets > 0;
+    const bool hasBtag = numberOfBjets > 1;
     
     // Get MET
     const LV& met = *recoObjects.met_;
@@ -1517,18 +1517,18 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
             double ptaddgen = -1000.;
             double etaaddgen = -1000.;
             double DeltaRgen = -1000.;
-            double massgen = - 1000.;
+            double massgen = -1000.;
             if(jetnumReco>2){
                 if(jetnum >2) {ptaddgen = (*commonGenObjects.allGenJets_).at(extragenjet[3]).Pt(); etaaddgen = (*commonGenObjects.allGenJets_).at(extragenjet[3]).Eta();}
                 h_GenRecoExtraJetpT4->Fill((*recoObjects.jets_).at(extrarecojet[fourth]).Pt(),ptaddgen,weight);
                 h_GenRecoExtraJetEta4->Fill((*recoObjects.jets_).at(extrarecojet[fourth]).Eta(),etaaddgen,weight);
             }
-            else if (jetnumReco>1){
+            if (jetnumReco>1){
                 if(jetnum >1) {ptaddgen = (*commonGenObjects.allGenJets_).at(extragenjet[2]).Pt(); etaaddgen = (*commonGenObjects.allGenJets_).at(extragenjet[2]).Eta();}
                 h_GenRecoExtraJetpT3->Fill((*recoObjects.jets_).at(extrarecojet[third]).Pt(),ptaddgen,weight);
                 h_GenRecoExtraJetEta3->Fill((*recoObjects.jets_).at(extrarecojet[third]).Eta(),etaaddgen,weight);
             }
-            else if (jetnumReco>0){
+            if (jetnumReco>0){
                 if(jetnum >0) {
                 ptaddgen = (*commonGenObjects.allGenJets_).at(extragenjet[1]).Pt(); etaaddgen = (*commonGenObjects.allGenJets_).at(extragenjet[1]).Eta();
                 DeltaRgen = std::fabs(DeltaR((*commonGenObjects.allGenJets_).at(extragenjet[1]),(*commonGenObjects.allGenJets_).at(extragenjet[0])));               
@@ -1546,7 +1546,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                     h_GenRecoPhiExtraJet12->Fill((*recoObjects.jets_).at(extrarecojet[first]).Phi()+(*recoObjects.jets_).at(extrarecojet[second]).Phi(),(*commonGenObjects.allGenJets_).at(extragenjet[0]).Phi()+(*commonGenObjects.allGenJets_).at(extragenjet[1]).Phi(),weight);
                 }
             }
-            else if (jetnumReco >-1){
+            if (jetnumReco >-1){
 //               if(jetnum > -1 && std::fabs(DeltaR((*commonGenObjects.allGenJets_).at(extrarecojet[0]),(*commonGenObjects.allGenJets_).at(extragenjet[0])))<0.5 ) {
                if(jetnum > -1) {
                     ptaddgen = (*commonGenObjects.allGenJets_).at(extragenjet[0]).Pt(); etaaddgen = (*commonGenObjects.allGenJets_).at(extragenjet[0]).Eta();
@@ -2072,8 +2072,6 @@ void TopAnalysis::generatorTTbarjetsEvent(double& jetHTGen,
     jetHTGen = 0.;
     
     if(!topGenObjects.valuesSet_) return;
-
-    int jetAddId = topGenObjects.genExtraTopJetNumberId_; 
 
     const int BHadronIndex(bHadronIndex);
     const int AntiBHadronIndex(antiBHadronIndex);
