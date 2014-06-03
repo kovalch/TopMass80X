@@ -51,11 +51,11 @@ void Plotter::UnfoldingOptions(bool doSVD)
 
   drawPlotRatio    = true;
   drawSmoothMadgraph = false;
-  drawMCATNLO      = true;
+  drawMCATNLO      = false;
   drawKidonakis    = true;
   drawAhrens       = true;
-  drawPOWHEG       = true;
-  drawPOWHEGHERWIG = true;
+  drawPOWHEG       = false;
+  drawPOWHEGHERWIG = false;
   drawPERUGIA11 = false;
   drawMadScaleMatching = false;
   drawMadMass     = false;
@@ -684,7 +684,7 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
             if (sumttbar.get()) sumttbar->Add(drawhists[i]);
             else sumttbar = std::unique_ptr<TH1>{static_cast<TH1*>(drawhists[i]->Clone())};
         }
-        if (legends.at(i).Contains("t#bar{t}")){
+        if (legends.at(i) == "t#bar{t} Signal" || legends.at(i) == "t#bar{t} Other"){
             if (allttbar.get()) allttbar->Add(drawhists[i]);
             else allttbar = std::unique_ptr<TH1>{static_cast<TH1*>(drawhists[i]->Clone())};
         }
@@ -696,7 +696,7 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
         
 
         if(XAxisbins.size()>1){//only distributions we want to unfold will have a binning vector
-        //if(XAxisbins.size()>1||1){//only distributions we want to unfold will have a binning vector
+        //if(XAxisbins.size()>1||1){//only distributions we want to unfold will have a binning vector //to compare
             if(legends.at(i) == "t#bar{t} Signal" && doUnfolding){
                 TString ftemp = dataset.at(i);
                 double LumiWeight = homelessFunc->CalcLumiWeight(dataset.at(i));
@@ -2537,15 +2537,15 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
         setTheoryStyleAndFillLegend(mcnlohistBinned, "mcatnloherwig", leg2);
         mcnlohistBinned->Draw("SAME");
     }
-    if(drawNLOCurves && drawPOWHEG){
-        setTheoryStyleAndFillLegend(powheghist, "powhegpythia");
-        setTheoryStyleAndFillLegend(powheghistBinned, "powhegpythia", leg2);
-        powheghistBinned->Draw("SAME");
-    }
     if(drawNLOCurves && drawPOWHEGHERWIG){
         setTheoryStyleAndFillLegend(powhegHerwighist, "powhegherwig");
         setTheoryStyleAndFillLegend(powhegHerwighistBinned, "powhegherwig", leg2);
         powhegHerwighistBinned->Draw("SAME");
+    }
+    if(drawNLOCurves && drawPOWHEG){
+        setTheoryStyleAndFillLegend(powheghist, "powhegpythia");
+        setTheoryStyleAndFillLegend(powheghistBinned, "powhegpythia", leg2);
+        powheghistBinned->Draw("SAME");
     }
     if(drawNLOCurves && drawPERUGIA11){
         setTheoryStyleAndFillLegend(perugia11hist, "perugia11");
@@ -3483,15 +3483,15 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
         setTheoryStyleAndFillLegend(mcnlohistBinned, "mcatnloherwig", leg2);
         mcnlohistBinned->Draw("SAME");
     }
-    if(drawNLOCurves && drawPOWHEG){
-        setTheoryStyleAndFillLegend(powheghist, "powhegpythia");
-        setTheoryStyleAndFillLegend(powheghistBinned, "powhegpythia", leg2);
-        powheghistBinned->Draw("SAME");
-    }
     if(drawNLOCurves && drawPOWHEGHERWIG){
         setTheoryStyleAndFillLegend(powhegHerwighist, "powhegherwig");
         setTheoryStyleAndFillLegend(powhegHerwighistBinned, "powhegherwig", leg2);
         powhegHerwighistBinned->Draw("SAME");
+    }
+    if(drawNLOCurves && drawPOWHEG){
+        setTheoryStyleAndFillLegend(powheghist, "powhegpythia");
+        setTheoryStyleAndFillLegend(powheghistBinned, "powhegpythia", leg2);
+        powheghistBinned->Draw("SAME");
     }
     if(drawNLOCurves && drawPERUGIA11){
         setTheoryStyleAndFillLegend(perugia11hist, "perugia11");

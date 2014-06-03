@@ -18,6 +18,7 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   AnalyzerKinReco
   plotterclass
   homelessFunctions
+#  utils
   DilepSVDFunctions
   EffHist
   )
@@ -32,6 +33,8 @@ SET( ${PROJECT_NAME}_EXECUTABLES
   load_Analysis
   Histo
   kinRecoEff
+#  controlPlot2d
+#  compareHisto
   TypicalErrors
   PlotRelDiffs
   kinRecoEfficienciesAndSF

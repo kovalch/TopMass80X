@@ -7,6 +7,9 @@
 #include <TMath.h>
 #include <TString.h>
 
+#include <TH1.h>
+#include <TH2.h>
+
 #include "homelessFunctions.h"
 #include "../../common/include/RootFileReader.h"
 
@@ -47,6 +50,12 @@ void homelessFunctions::fillSetListOfSystematics(std::set<TString>& set)
 {
 
     for (auto s: VectorOfValidSystematics) set.insert(s);
+}
+
+void homelessFunctions::fillVectorOfValidSystematics(std::vector<const char*>& vect)
+{
+
+    for (auto s: VectorOfValidSystematics) vect.push_back(s);
 }
 
 double homelessFunctions::SampleXSection(const TString& filename){
@@ -221,6 +230,13 @@ std::vector<TString> homelessFunctions::InputFileList(TString mode, TString Syst
 }
 
 void homelessFunctions::ApplyFlatWeights(TH1* varhists, const double weight){
+
+    if(weight == 0) {std::cout<<"Warning: the weight your applying is 0. This will remove your distribution."<<std::endl;}
+    //if(weight >=1e3){std::cout<<"Warning: the weight your applying is >= 1e3. This will enlarge too much your distribution."<<std::endl;}
+    varhists->Scale(weight);
+}
+
+void homelessFunctions::ApplyFlatWeights(TH2* varhists, const double weight){
 
     if(weight == 0) {std::cout<<"Warning: the weight your applying is 0. This will remove your distribution."<<std::endl;}
     //if(weight >=1e3){std::cout<<"Warning: the weight your applying is >= 1e3. This will enlarge too much your distribution."<<std::endl;}

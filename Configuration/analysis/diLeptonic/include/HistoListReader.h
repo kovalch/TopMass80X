@@ -57,4 +57,57 @@ private:
     void readString(std::stringstream &input, TString &output)const;
 };
 
+////                                  !!!  2d - part of HistoListReader  !!!                                      ////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct PlotProperties_2d {
+    TString name;
+    TString ytitle;
+    int nbinY;
+    std::vector<Double_t> y_binsArr;
+    TString xtitle;
+    int nbinX;
+    std::vector<Double_t> x_binsArr;
+    
+    Double_t ymin;
+    Double_t ymax;
+    Double_t xmin;
+    Double_t xmax;
+    Double_t Rmin;
+    Double_t Rmax;
+    Double_t binWidthY;
+    Double_t binWidthX;
+    TString fileNameY;
+    TString fileNameX;
+    PlotProperties_2d();
+    ~PlotProperties_2d();
+};
+
+class HistoListReader_2d {
+    const char *filename_;
+    bool isZombie_;
+    std::map<TString, PlotProperties_2d> plots_;
+    
+public:
+    HistoListReader_2d(const char *filename);
+    bool IsZombie() const;
+    PlotProperties_2d& getPlotProperties(TString name);
+    //rootcint does not like decltype! :-(
+    //auto begin() -> decltype(plots_.begin()) { return plots_.begin(); }
+    //auto end() -> decltype(plots_.end()) { return plots_.end(); }
+    std::map <TString, PlotProperties_2d >::iterator begin()  { return plots_.begin(); }
+    std::map <TString, PlotProperties_2d >::iterator end()  { return plots_.end(); }
+
+private:
+
+    /// Read string and keep blank spaces if string starts with quotes  "... ..."
+    void readString(std::stringstream &input, TString &output)const;
+};
+
+
+
+
+
+
+
 #endif

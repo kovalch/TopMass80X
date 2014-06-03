@@ -5,6 +5,7 @@
 #include <set>
 
 class TH1;
+class TH2;
 class TString;
 class RootFileReader;
 
@@ -26,11 +27,13 @@ public:
     double CalcLumiWeight(const TString& WhichSample);
     std::vector<TString> InputFileList(TString mode, TString Systematic);
     void ApplyFlatWeights(TH1* varhists,   const double weight);
+    void ApplyFlatWeights(TH2* varhists,   const double weight);
     
     void DYScaleFactor(TString SpetialComment,std::vector<double>& DYScale,TString name);
     
     
    static void fillSetListOfSystematics(std::set<TString>& SetOfValidSystematics);
+   static void fillVectorOfValidSystematics(std::vector<const char*>& vect);
     
     std::set<TString> ListOfSyst;
     double lumi, topxsec;

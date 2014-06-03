@@ -28,10 +28,6 @@ void Histo(bool doControlPlots, bool doUnfold, bool doDiffXSPlotOnly,
            std::vector<std::string> channels,
            const bool drawUncBand)
 {
-    //to stay compatible with old code
-    std::set<TString> SetOfValidSystematics;
-    homelessFunctions::fillSetListOfSystematics(SetOfValidSystematics);
-    for (auto s: SetOfValidSystematics) VectorOfValidSystematics.push_back(s);
 
     HistoListReader histoList(doControlPlots ? "HistoList_control" : "HistoList");
     if (histoList.IsZombie()) exit(12);
@@ -142,6 +138,10 @@ std::function<bool(const std::string &s)> makeStringChecker(const std::vector<co
 }
 
 int main(int argc, char** argv) {
+    
+    homelessFunctions::fillVectorOfValidSystematics(VectorOfValidSystematics);
+    for (auto s: VectorOfValidSystematics){std::cout << s << std::endl;}
+    
     CLParameter<std::string> opt_type("t", "cp|unfold|plot - required, cp=contol plots, unfold, or only plot diffXS", true, 1, 1,
         makeStringChecker({"cp", "unfold", "plot"}));
     CLParameter<std::string> opt_plots("p", "Name (pattern) of plot; multiple patterns possible; use '+Name' to match name exactly", false, 1, 100);
