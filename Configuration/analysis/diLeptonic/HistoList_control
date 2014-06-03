@@ -238,15 +238,15 @@ basic_jet2lead_pt_step7 Standard Jets p_{T}^{jet} 2 1 0 1 10 2e6 30 300 0 0
 basic_jet2lead_pt_step8 Standard Jets p_{T}^{jet} 2 1 0 1 10 2e6 30 300 0 0
 
 
-HypBJetEtaLead Standard b-jets #eta^{Lead.b-jet} 2 1 0 0 0 0 -2.5 2.5 0 0
-HypBJetEtaNLead Standard b-jets #eta^{N.Lead.b-jet} 2 1 0 0 0 0 -2.5 2.5 0 0
+HypBJetEtaLead Standard b-jets "#eta (lead. b-jet)" 2 1 0 0 0 0 -2.5 2.5 0 0
+HypBJetEtaNLead Standard b-jets "#eta (2^{nd} lead. b-jet)" 2 1 0 0 0 0 -2.5 2.5 0 0
 HypLLBarDPhi Standard Events #Delta#phi{l,#bar{l}} 8 1 0 0 0 0 -0.1 2.9 0 0
-HypBJetpTLead Standard b-jets p_{T}^{Lead.b-jet} 5 1 0 0 0 0 0 0 0 0
-HypBJetpTNLead Standard b-jets p_{T}^{N.Lead.b-jet} 5 1 0 0 0 0 0 0 0 0
-HypLeptonEtaLead Standard Events #eta^{Lead.l} 5 1 0 0 0 2.5e4 -3 3 0 0
-HypLeptonEtaNLead Standard Events #eta^{N.Lead.l} 5 1 0 0 0 2.5e4 -3 3 0 0
-HypLeptonpTLead Standard Events p_{T}^{Lead.l} 10 1 0 0 0 0 20 200 0 0
-HypLeptonpTNLead Standard Events p_{T}^{N.Lead.l} 10 1 0 0 0 0 20 200 0 0
+HypBJetpTLead Standard b-jets "p_{T} (lead. b-jet)" 5 1 0 0 0 0 0 0 0 0
+HypBJetpTNLead Standard b-jets "p_{T} (2^{nd} lead. b-jet") 5 1 0 0 0 0 0 0 0 0
+HypLeptonEtaLead Standard Events "#eta (lead. l)" 5 1 0 0 0 2.5e4 -3 3 0 0
+HypLeptonEtaNLead Standard Events "#eta (2^{nd} lead. l)" 5 1 0 0 0 2.5e4 -3 3 0 0
+HypLeptonpTLead Standard Events "p_{T} (lead. l)" 10 1 0 0 0 0 20 200 0 0
+HypLeptonpTNLead Standard Events "p_{T} (2^{nd} lead. l)" 10 1 0 0 0 0 20 200 0 0
 HypTopRapidityLead Standard Topquarks "y (lead. t)" 2 1 0 0 0 1e4 -2.5 2.5 0 0
 HypTopRapidityNLead Standard Topquarks "y (2^{nd} lead. t)" 2 1 0 0 0 1e4 -2.5 2.5 0 0
 HypToppTLead Standard Topquarks "p_{T} (lead. t)" 20 1 0 0 0 0 0 399 0 0

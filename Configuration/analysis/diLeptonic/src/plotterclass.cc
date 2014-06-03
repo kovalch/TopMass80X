@@ -51,11 +51,11 @@ void Plotter::UnfoldingOptions(bool doSVD)
 
   drawPlotRatio    = true;
   drawSmoothMadgraph = false;
-  drawMCATNLO      = false;
+  drawMCATNLO      = true;
   drawKidonakis    = true;
   drawAhrens       = true;
-  drawPOWHEG       = false;
-  drawPOWHEGHERWIG = false;
+  drawPOWHEG       = true;
+  drawPOWHEGHERWIG = true;
   drawPERUGIA11 = false;
   drawMadScaleMatching = false;
   drawMadMass     = false;
@@ -2537,15 +2537,15 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
         setTheoryStyleAndFillLegend(mcnlohistBinned, "mcatnloherwig", leg2);
         mcnlohistBinned->Draw("SAME");
     }
-    if(drawNLOCurves && drawPOWHEGHERWIG){
-        setTheoryStyleAndFillLegend(powhegHerwighist, "powhegherwig");
-        setTheoryStyleAndFillLegend(powhegHerwighistBinned, "powhegherwig", leg2);
-        powhegHerwighistBinned->Draw("SAME");
-    }
     if(drawNLOCurves && drawPOWHEG){
         setTheoryStyleAndFillLegend(powheghist, "powhegpythia");
         setTheoryStyleAndFillLegend(powheghistBinned, "powhegpythia", leg2);
         powheghistBinned->Draw("SAME");
+    }
+    if(drawNLOCurves && drawPOWHEGHERWIG){
+        setTheoryStyleAndFillLegend(powhegHerwighist, "powhegherwig");
+        setTheoryStyleAndFillLegend(powhegHerwighistBinned, "powhegherwig", leg2);
+        powhegHerwighistBinned->Draw("SAME");
     }
     if(drawNLOCurves && drawPERUGIA11){
         setTheoryStyleAndFillLegend(perugia11hist, "perugia11");
@@ -3483,15 +3483,15 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
         setTheoryStyleAndFillLegend(mcnlohistBinned, "mcatnloherwig", leg2);
         mcnlohistBinned->Draw("SAME");
     }
-    if(drawNLOCurves && drawPOWHEGHERWIG){
-        setTheoryStyleAndFillLegend(powhegHerwighist, "powhegherwig");
-        setTheoryStyleAndFillLegend(powhegHerwighistBinned, "powhegherwig", leg2);
-        powhegHerwighistBinned->Draw("SAME");
-    }
     if(drawNLOCurves && drawPOWHEG){
         setTheoryStyleAndFillLegend(powheghist, "powhegpythia");
         setTheoryStyleAndFillLegend(powheghistBinned, "powhegpythia", leg2);
         powheghistBinned->Draw("SAME");
+    }
+    if(drawNLOCurves && drawPOWHEGHERWIG){
+        setTheoryStyleAndFillLegend(powhegHerwighist, "powhegherwig");
+        setTheoryStyleAndFillLegend(powhegHerwighistBinned, "powhegherwig", leg2);
+        powhegHerwighistBinned->Draw("SAME");
     }
     if(drawNLOCurves && drawPERUGIA11){
         setTheoryStyleAndFillLegend(perugia11hist, "perugia11");
