@@ -10,8 +10,9 @@
 #include <TFile.h>
 #include <TSystem.h>
 
-#include "EffHist.h"
 #include "../../common/include/RootFileReader.h"
+#include "../../common/include/utils.h"
+#include "EffHist.h"
 #include "homelessFunctions.h"
 
 using namespace std;
@@ -24,14 +25,14 @@ double sqr(double value) { return value*value; }
 int main(int argc, char *argv[])
 {
   
-              gSystem->Exec("mkdir Plots");
+  gSystem->Exec("mkdir Plots");
     
   RootFileReader *fileReader_ = RootFileReader::getInstance();
   
   vector<TString> systematics {"Nominal"};
   vector<TString> channels {"ee","emu","mumu"};
 
-  TString rootFilePrePath("/data/user/korol/CMSSW_5_3_11/src/TopAnalysis/Configuration/analysis/diLeptonic/");
+  TString rootFilePrePath(common::CMSSW_BASE()+"/src/TopAnalysis/Configuration/analysis/diLeptonic/");
   
   vector<TString> effHistNames {"KinReco_nRecoEvt","KinReco_nRecoEvt","_Eff","_vs_JetMult","_vs_LepEta","_vs_JetEta","_vs_LeppT","_vs_MET","_vs_LepEta2","_vs_JetEta2","_vs_LeppT2","_vs_AntiLeptonpT","_vs_LeptonpT","_vs_LeptonEta","_vs_AntiLeptonEta","_vs_JetpT","_vs_JetpT2"};
   
