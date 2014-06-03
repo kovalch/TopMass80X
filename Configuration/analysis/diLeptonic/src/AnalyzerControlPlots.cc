@@ -239,7 +239,8 @@ void AnalyzerControlPlots::fillHistos(const RecoObjects& recoObjects, const Comm
     
     
     // Met
-    const LV& met = *recoObjects.mvamet_;
+    const LV& met = *recoObjects.met_;
+    //const LV& met = *recoObjects.mvamet_;
 
     m_histogram["met_et"]->Fill(met.E(), weight);
     m_histogram["met_phi"]->Fill(met.Phi(), weight);

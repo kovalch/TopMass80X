@@ -14,14 +14,12 @@
 
 #include "plotterclass.h"
 #include "HistoListReader.h"
-#include <homelessFunctions.h>
+#include "homelessFunctions.h"
 #include "../../common/include/CommandLineParameters.h"
 #include "../../common/include/sampleHelpers.h"
 
 using namespace std;
 
-std::vector<const char*> VectorOfValidSystematics;
-    
 void Histo(bool doControlPlots, bool doUnfold, bool doDiffXSPlotOnly,
            std::vector<std::string> plots, 
            std::vector<std::string> systematics, 
@@ -81,8 +79,6 @@ void Histo(bool doControlPlots, bool doUnfold, bool doDiffXSPlotOnly,
                 //unfold all channels except combined in parallel
                 std::vector<std::future<void>> unfoldJobs;
                 for (auto channel:channels) {
-/// This part of the code was only necessary for the statistical combination of the 3 channels
-//                     if (channel != "combined") {
                         TString ch(channel.c_str());
                         TString sys(systematic.c_str());
                         unfoldJobs.push_back(std::async(std::launch::async, [ch, sys](Plotter p) -> void { 
@@ -92,17 +88,11 @@ void Histo(bool doControlPlots, bool doUnfold, bool doDiffXSPlotOnly,
                         //it seems unfolding is not thread safe! 
                         //fix that and remove the next line
                         unfoldJobs.at(unfoldJobs.size()-1).wait();
-//                     }
                 }
                 //wait for the 3 channels to finish
                 for (auto &i : unfoldJobs) {
                     i.get();
                 }
-/// This part of the code was only necessary for the statistical combination of the 3 channels
-//                 //only now do combined (if requested)
-//                 for (auto channel:channels) {
-//                     if (channel == "combined") h_generalPlot.unfolding(channel,systematic);
-//                 }
             }
         std::cout << "Done with the unfolding\n";
         }
@@ -139,8 +129,8 @@ std::function<bool(const std::string &s)> makeStringChecker(const std::vector<co
 
 int main(int argc, char** argv) {
     
+    std::vector<const char*> VectorOfValidSystematics;
     homelessFunctions::fillVectorOfValidSystematics(VectorOfValidSystematics);
-    for (auto s: VectorOfValidSystematics){std::cout << s << std::endl;}
     
     CLParameter<std::string> opt_type("t", "cp|unfold|plot - required, cp=contol plots, unfold, or only plot diffXS", true, 1, 1,
         makeStringChecker({"cp", "unfold", "plot"}));

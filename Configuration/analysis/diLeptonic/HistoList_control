@@ -242,7 +242,7 @@ HypBJetEtaLead Standard b-jets "#eta (lead. b-jet)" 2 1 0 0 0 0 -2.5 2.5 0 0
 HypBJetEtaNLead Standard b-jets "#eta (2^{nd} lead. b-jet)" 2 1 0 0 0 0 -2.5 2.5 0 0
 HypLLBarDPhi Standard Events #Delta#phi{l,#bar{l}} 8 1 0 0 0 0 -0.1 2.9 0 0
 HypBJetpTLead Standard b-jets "p_{T} (lead. b-jet)" 5 1 0 0 0 0 0 0 0 0
-HypBJetpTNLead Standard b-jets "p_{T} (2^{nd} lead. b-jet") 5 1 0 0 0 0 0 0 0 0
+HypBJetpTNLead Standard b-jets "p_{T} (2^{nd} lead. b-jet)" 5 1 0 0 0 0 0 0 0 0
 HypLeptonEtaLead Standard Events "#eta (lead. l)" 5 1 0 0 0 2.5e4 -3 3 0 0
 HypLeptonEtaNLead Standard Events "#eta (2^{nd} lead. l)" 5 1 0 0 0 2.5e4 -3 3 0 0
 HypLeptonpTLead Standard Events "p_{T} (lead. l)" 10 1 0 0 0 0 20 200 0 0
