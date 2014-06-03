@@ -1614,11 +1614,11 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
             h_GenRecoExtraJetpT4->Fill((*recoObjects.jets_).at(extrarecojet[fourth]).Pt(),-1000.,weight);
             h_GenRecoExtraJetEta4->Fill((*recoObjects.jets_).at(extrarecojet[fourth]).Eta(),-1000.,weight);
         }
-        else if (jetnumReco>1){
+        if(jetnumReco>1){
             h_GenRecoExtraJetpT3->Fill((*recoObjects.jets_).at(extrarecojet[third]).Pt(),-1000.,weight);
             h_GenRecoExtraJetEta3->Fill((*recoObjects.jets_).at(extrarecojet[third]).Eta(),-1000.,weight);
         }
-        else if (jetnumReco>0){
+        if (jetnumReco>0){
             h_GenRecoExtraJetpT2->Fill((*recoObjects.jets_).at(extrarecojet[second]).Pt(),-1000.,weight);
             h_GenRecoExtraJetEta2->Fill((*recoObjects.jets_).at(extrarecojet[second]).Eta(),-1000.,weight);
             h_GenRecoDeltaRExtraJet12->Fill(std::fabs(DeltaR((*recoObjects.jets_).at(extrarecojet[second]),(*recoObjects.jets_).at(extrarecojet[first]))),-1000.,weight);
@@ -1626,7 +1626,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
             h_GenRecoDeltaPhiExtraJet12->Fill(DeltaPhi((*recoObjects.jets_).at(extrarecojet[first]),(*recoObjects.jets_).at(extrarecojet[second])),-1000,weight);
             h_GenRecoPhiExtraJet12->Fill((*recoObjects.jets_).at(extrarecojet[first]).Phi()+(*recoObjects.jets_).at(extrarecojet[second]).Phi(),-1000,weight);
         }
-        else if (jetnumReco >-1 ){
+        if (jetnumReco >-1 ){
             h_GenRecoExtraJetpT->Fill((*recoObjects.jets_).at(extrarecojet[first]).Pt(),-1000.,weight);
             h_GenRecoExtraJetEta->Fill((*recoObjects.jets_).at(extrarecojet[first]).Eta(),-1000.,weight);
             h_GenRecoTTBar1stJetMass->Fill(rho0/(hypttbar+(*recoObjects.jets_).at(extrarecojet[first])).M(),-1000.,weight);
@@ -2072,6 +2072,7 @@ void TopAnalysis::generatorTTbarjetsEvent(double& jetHTGen,
     jetHTGen = 0.;
     
     if(!topGenObjects.valuesSet_) return;
+
 
     const int BHadronIndex(bHadronIndex);
     const int AntiBHadronIndex(antiBHadronIndex);
