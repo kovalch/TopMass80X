@@ -454,10 +454,6 @@ Plotter::Plotter()
 
     fileReader = RootFileReader::getInstance();
     
-    homelessFunc = new homelessFunctions(fileReader,doClosureTest,doDYScale);
-    this->lumi = homelessFunc->lumi;
-    this->topxsec = homelessFunc->topxsec;
-    
 }
 
 void Plotter::setOptions(TString name_, TString specialComment_, TString YAxis_, TString XAxis_, int rebin_, bool doDYScale_, bool logX_, bool logY_, double ymin_, double ymax_, double rangemin_, double rangemax_, int bins_, std::vector<double> XAxisbins_, std::vector<double> XAxisbinCenters_)
@@ -501,6 +497,11 @@ void Plotter::setOptions(TString name_, TString specialComment_, TString YAxis_,
     }
 
     DYScale.insert(DYScale.begin(), 4, 1.);//Initialize the DY scale-factor to (1., 1., 1., 1.)
+    
+    homelessFunc = new homelessFunctions(fileReader,doClosureTest,doDYScale);
+    this->lumi = homelessFunc->lumi;
+    this->topxsec = homelessFunc->topxsec;
+    
 }
 
 
