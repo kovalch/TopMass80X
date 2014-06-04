@@ -2118,15 +2118,15 @@ void TopAnalysis::generatorTTbarjetsEvent(double& jetHTGen,
                 if(jetnum>2){
                     h_VisGenExtraJetpT4->Fill((*commonGenObjects.allGenJets_).at(extragenjet[3]).Pt(),trueLevelWeight);
                     h_VisGenExtraJetEta4->Fill((*commonGenObjects.allGenJets_).at(extragenjet[3]).Eta(),trueLevelWeight);
-                } else if(jetnum>1){
+                } if(jetnum>1){
                     h_VisGenExtraJetpT3->Fill((*commonGenObjects.allGenJets_).at(extragenjet[2]).Pt(),trueLevelWeight);
                     h_VisGenExtraJetEta3->Fill((*commonGenObjects.allGenJets_).at(extragenjet[2]).Eta(),trueLevelWeight);
-                } else if(jetnum>0){
+                } if(jetnum>0){
                     h_VisGenExtraJetpT2->Fill((*commonGenObjects.allGenJets_).at(extragenjet[1]).Pt(),trueLevelWeight);
                     h_VisGenExtraJetEta2->Fill((*commonGenObjects.allGenJets_).at(extragenjet[1]).Eta(),trueLevelWeight);
                     h_VisGenMassExtraJet12->Fill(((*commonGenObjects.allGenJets_).at(extragenjet[0])+(*commonGenObjects.allGenJets_).at(extragenjet[1])).M(),trueLevelWeight);
                     h_VisGenDeltaRExtraJet12->Fill(std::fabs(DeltaR((*commonGenObjects.allGenJets_).at(extragenjet[0]),(*commonGenObjects.allGenJets_).at(extragenjet[1]))),trueLevelWeight);
-                } else if(jetnum > -1 ){
+                } if(jetnum > -1 ){
                     h_VisGenExtraJetpT->Fill((*commonGenObjects.allGenJets_).at(extragenjet[0]).Pt(),trueLevelWeight);
                     h_VisGenExtraJetEta->Fill((*commonGenObjects.allGenJets_).at(extragenjet[0]).Eta(),trueLevelWeight);
                     LV genttbar((*topGenObjects.GenTop_) + (*topGenObjects.GenAntiTop_));
