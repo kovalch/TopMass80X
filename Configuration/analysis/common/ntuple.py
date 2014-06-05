@@ -102,7 +102,7 @@ process.TFileService = cms.Service("TFileService",
 
 
 ####################################################################
-## Output module for edm files
+## Output module for edm files (needed for PAT sequence, even if not used in EndPath)
 
 process.load("Configuration.EventContent.EventContent_cff")
 process.out = cms.OutputModule("PoolOutputModule",
@@ -189,8 +189,9 @@ process.options = cms.untracked.PSet(
 ####################################################################
 ## Geometry and Detector Conditions
 
-process.load("Configuration.Geometry.GeometryIdeal_cff")
+process.load("Configuration.Geometry.GeometryDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 
 if options.globalTag != '':
     print "Setting global tag to the command-line value"
@@ -203,8 +204,6 @@ else:
         process.GlobalTag.globaltag = cms.string('FT53_V21A_AN6::All')
 
 print "Using global tag: ", process.GlobalTag.globaltag
-
-process.load("Configuration.StandardSequences.MagneticField_cff")
 
 
 
@@ -308,10 +307,9 @@ pfpostfix = "PFlow"
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
 from PhysicsTools.PatAlgos.tools.pfTools import *
 usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=options.runOnMC, postfix=pfpostfix, jetCorrections=jetCorr, pvCollection=cms.InputTag('goodOfflinePrimaryVertices'), typeIMetCorrections=True)
-process.pfPileUpPFlow.checkClosestZVertex = False
+getattr(process, 'pfPileUp'+pfpostfix).checkClosestZVertex = False
 
-# Set to true to access b-tagging information in PAT jets
-applyPostfix(process, "patJets", pfpostfix).addTagInfos = True
+process.userPatSequence = getattr(process, 'patPF2PATSequence'+pfpostfix)
 
 
 
@@ -319,16 +317,18 @@ applyPostfix(process, "patJets", pfpostfix).addTagInfos = True
 ## Set up selections for PF2PAT & PAT objects: Electrons
 
 # MVA ID
+# All IDs except of MVA ID are removed, and this needs to be done in case of electron energy correction application (else code crashes)
 process.load('EgammaAnalysis.ElectronTools.electronIdMVAProducer_cfi')
 process.electronMvaIdSequence = cms.Sequence(process.mvaTrigV0 + process.mvaNonTrigV0)
-getattr(process, 'patElectrons'+pfpostfix).electronIDSources.mvaTrigV0 = cms.InputTag("mvaTrigV0")
-getattr(process, 'patElectrons'+pfpostfix).electronIDSources.mvaNonTrigV0 = cms.InputTag("mvaNonTrigV0")
-getattr(process, 'patPF2PATSequence'+pfpostfix).replace(getattr(process, 'patElectrons'+pfpostfix),
-                                                        process.electronMvaIdSequence *
-                                                        getattr(process, 'patElectrons'+pfpostfix))
+getattr(process, 'patElectrons'+pfpostfix).electronIDSources = cms.PSet(
+    mvaTrigV0 = cms.InputTag("mvaTrigV0"),
+    mvaNonTrigV0 = cms.InputTag("mvaNonTrigV0")
+    )
+process.userPatSequence.replace(getattr(process, 'patElectrons'+pfpostfix),
+                                process.electronMvaIdSequence *
+                                getattr(process, 'patElectrons'+pfpostfix))
 
-# Basic selection for PF2PAT, default is:
-#process.pfSelectedElectrons.cut = 'pt > 5 && gsfTrackRef.isNonnull && gsfTrackRef.trackerExpectedHitsInner.numberOfLostHits<2'
+# Basic selection for PF2PAT
 getattr(process, 'pfSelectedElectrons'+pfpostfix).cut = 'pt > 5 && gsfTrackRef.isNonnull && gsfTrackRef.trackerExpectedHitsInner.numberOfHits <= 0'
 
 # Switch isolation cone to 0.3 and set cut to 0.15
@@ -348,6 +348,37 @@ getattr(process, 'patElectrons'+pfpostfix).isolationValues = cms.PSet(
 
 # Electron ID
 getattr(process, 'selectedPatElectrons'+pfpostfix).cut = 'electronID("mvaTrigV0") > 0.5 && passConversionVeto'
+
+
+
+####################################################################
+## Electron energy scale and resolution corrections
+
+process.load("EgammaAnalysis.ElectronTools.electronRegressionEnergyProducer_cfi")
+process.eleRegressionEnergy.inputElectronsTag = 'gsfElectrons'
+process.eleRegressionEnergy.inputCollectionType = 0
+process.eleRegressionEnergy.useRecHitCollections = True
+process.eleRegressionEnergy.produceValueMaps = True
+
+process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
+    calibratedElectrons = cms.PSet(
+        initialSeed = cms.untracked.uint32(123456789),
+        engineName = cms.untracked.string('TRandom3')
+        ))
+
+process.load("EgammaAnalysis.ElectronTools.calibratedElectrons_cfi")
+process.calibratedElectrons.inputElectronsTag = 'gsfElectrons'
+process.calibratedElectrons.isMC = options.runOnMC
+if options.runOnMC:
+    process.calibratedElectrons.inputDataset = "Summer12_LegacyPaper"
+process.calibratedElectrons.updateEnergyError = True
+process.calibratedElectrons.correctionsType = 2
+process.calibratedElectrons.combinationType = 3
+
+process.electronCorrectionSequence = cms.Sequence(
+    process.eleRegressionEnergy *
+    process.calibratedElectrons
+    )
 
 
 
@@ -380,7 +411,31 @@ getattr(process, 'selectedPatMuons'+pfpostfix).cut = 'isPFMuon && pt > 20 && abs
 
 
 ####################################################################
+## Muon energy scale and resolution corrections
+## For safety also done for reco muons (i.e. not pf), in case they are used somewhere as input)
+
+process.load("TopAnalysis.ZTopUtils.correctmuonenergy_cff")
+process.correctMuonEnergy.muonSrc = 'pfMuonsFromVertex'+pfpostfix
+process.correctMuonEnergy.muonType = "pfMuons"
+process.correctMuonEnergy.isMC = options.runOnMC
+process.correctMuonEnergy.debug = False
+process.userPatSequence.replace(getattr(process,'pfMuonsFromVertex'+pfpostfix),
+                                getattr(process,'pfMuonsFromVertex'+pfpostfix) *
+                                process.correctMuonEnergy)
+
+process.correctRecoMuonEnergy = process.correctMuonEnergy.clone()
+process.correctRecoMuonEnergy.muonSrc = 'muons'
+process.correctRecoMuonEnergy.muonType = "recoMuons"
+
+
+
+####################################################################
 ## Set up selections for PF2PAT & PAT objects: Jets
+
+getattr(process, 'patJetCorrFactors'+pfpostfix).rho = cms.InputTag("kt6PFJets", "rho", "RECO")
+
+# Set to true to access b-tagging information in PAT jets
+applyPostfix(process, "patJets", pfpostfix).addTagInfos = True
 
 # Jet selection
 getattr(process, 'selectedPatJets'+pfpostfix).cut = 'abs(eta)<5.4'
@@ -442,9 +497,9 @@ process.pfMetPhiCorrectionSequence = cms.Sequence(
     process.patpfMetT1Txy
     )
 
-getattr(process,'patPF2PATSequence'+pfpostfix).replace(getattr(process,'patMETs'+pfpostfix),
-                                                       process.pfMetPhiCorrectionSequence*
-                                                       getattr(process,'patMETs'+pfpostfix))
+process.userPatSequence.replace(getattr(process,'patMETs'+pfpostfix),
+                                process.pfMetPhiCorrectionSequence *
+                                getattr(process,'patMETs'+pfpostfix))
 
 #correctedPatMet = "patpfMetT0T1Txy"
 correctedPatMet = "patpfMetT1Txy"
@@ -460,6 +515,7 @@ if options.runOnMC:
     process.calibratedAK5PFJetsForPFMEtMVA.correctors = cms.vstring("ak5PFL1FastL2L3")
 else:
     process.calibratedAK5PFJetsForPFMEtMVA.correctors = cms.vstring("ak5PFL1FastL2L3Residual")
+
 process.pfMEtMVA.srcUncorrJets = 'pfJets'+pfpostfix
 process.pfMEtMVA.srcVertices = 'goodOfflinePrimaryVertices'
 process.pfMEtMVA.inputFileNames = cms.PSet(
@@ -470,6 +526,7 @@ process.pfMEtMVA.inputFileNames = cms.PSet(
     )
 process.pfMEtMVA.srcLeptons = cms.VInputTag("isomuons", "isoelectrons", "isotaus") # should be adapted to analysis selection..
 process.pfMEtMVA.srcRho = cms.InputTag("kt6PFJets", "rho", "RECO")
+
 process.patMEtMVA = getattr(process, 'patMETs'+pfpostfix).clone()
 process.patMEtMVA.metSource = 'pfMEtMVA'
 
@@ -478,28 +535,27 @@ process.mvaMetSequence = cms.Sequence(process.pfMEtMVAsequence * process.patMEtM
 
 
 ####################################################################
-## Remove all unneeded PAT modules
+## Remove all unneeded PAT modules (taus and photons are fully removed)
 
 from PhysicsTools.PatAlgos.tools.coreTools import removeSpecificPATObjects
 removeSpecificPATObjects(process, names = ['Taus', 'Photons'], outputModules = [], postfix = pfpostfix)
 
-getattr(process, 'patPF2PATSequence'+pfpostfix).remove(getattr(process, 'selectedPatTaus'+pfpostfix))
-getattr(process, 'patPF2PATSequence'+pfpostfix).remove(getattr(process, 'countPatTaus'+pfpostfix))
+process.userPatSequence.remove(getattr(process, 'selectedPatTaus'+pfpostfix))
+process.userPatSequence.remove(getattr(process, 'countPatTaus'+pfpostfix))
 
-getattr(process, 'patPF2PATSequence'+pfpostfix).remove(getattr(process, 'patPFParticles'+pfpostfix))
-getattr(process, 'patPF2PATSequence'+pfpostfix).remove(getattr(process, 'patCandidateSummary'+pfpostfix))
+process.userPatSequence.remove(getattr(process, 'patPFParticles'+pfpostfix))
+process.userPatSequence.remove(getattr(process, 'patCandidateSummary'+pfpostfix))
+process.userPatSequence.remove(getattr(process, 'selectedPatPFParticles'+pfpostfix))
+process.userPatSequence.remove(getattr(process, 'selectedPatCandidateSummary'+pfpostfix))
+process.userPatSequence.remove(getattr(process, 'countPatElectrons'+pfpostfix))
+process.userPatSequence.remove(getattr(process, 'countPatMuons'+pfpostfix))
+process.userPatSequence.remove(getattr(process, 'countPatLeptons'+pfpostfix))
+process.userPatSequence.remove(getattr(process, 'countPatJets'+pfpostfix))
+process.userPatSequence.remove(getattr(process, 'countPatPFParticles'+pfpostfix))
 
-getattr(process, 'patPF2PATSequence'+pfpostfix).remove(getattr(process, 'selectedPatPFParticles'+pfpostfix))
-getattr(process, 'patPF2PATSequence'+pfpostfix).remove(getattr(process, 'selectedPatCandidateSummary'+pfpostfix))
-getattr(process, 'patPF2PATSequence'+pfpostfix).remove(getattr(process, 'countPatElectrons'+pfpostfix))
-getattr(process, 'patPF2PATSequence'+pfpostfix).remove(getattr(process, 'countPatMuons'+pfpostfix))
-getattr(process, 'patPF2PATSequence'+pfpostfix).remove(getattr(process, 'countPatLeptons'+pfpostfix))
-getattr(process, 'patPF2PATSequence'+pfpostfix).remove(getattr(process, 'countPatJets'+pfpostfix))
-getattr(process, 'patPF2PATSequence'+pfpostfix).remove(getattr(process, 'countPatPFParticles'+pfpostfix))
+process.userPatSequence.remove(getattr(process, 'pfPhotonSequence'+pfpostfix))
 
-getattr(process, 'patPF2PATSequence'+pfpostfix).remove(getattr(process, 'pfPhotonSequence'+pfpostfix))
-
-massSearchReplaceAnyInputTag(getattr(process, 'patPF2PATSequence'+pfpostfix), 'pfNoTau'+pfpostfix, 'pfJets'+pfpostfix)
+massSearchReplaceAnyInputTag(process.userPatSequence, 'pfNoTau'+pfpostfix, 'pfJets'+pfpostfix)
 
 
 
@@ -578,7 +634,7 @@ isolatedMuonCollection = "selectedPatMuons"+pfpostfix
 jetCollection = "hardJets"
 
 jetForMetUncorrectedCollection = "selectedPatJets"+pfpostfix
-jetForMetCollection = "scaledJetEnergy:selectedPatJets"+pfpostfix
+jetForMetCollection = "scaledJetEnergy:"+jetForMetUncorrectedCollection
 
 metCollection = "scaledJetEnergy:"+correctedPatMet
 
@@ -886,10 +942,12 @@ else:
 ## Paths, one with preselection, one without for signal samples
 
 # Path containing selections and kinematic reconstruction
-p = cms.Path(
+path = cms.Path(
     process.prefilterSequence *
     process.goodOfflinePrimaryVertices *
-    getattr(process, 'patPF2PATSequence'+pfpostfix) *
+    process.electronCorrectionSequence *
+    process.correctRecoMuonEnergy *
+    process.userPatSequence *
     process.mvaMetSequence *
     process.finalCollectionsSequence *
     process.preselectionSequence *
@@ -900,12 +958,14 @@ p = cms.Path(
 )
 
 # Path keeping all events and storing generator information
-pNtuple = cms.Path(
+pathNtuple = cms.Path(
     process.genMatchSequence *
     process.higgsGenSequence *
     process.zGenSequence *
     process.goodOfflinePrimaryVertices *
-    getattr(process, 'patPF2PATSequence'+pfpostfix) *
+    process.electronCorrectionSequence *
+    process.correctRecoMuonEnergy *
+    process.userPatSequence *
     process.mvaMetSequence *
     process.finalCollectionsSequence *
     process.jetProperties *
@@ -914,23 +974,52 @@ pNtuple = cms.Path(
     )
 
 if signal:
-    process.p = p
-    process.pNtuple = pNtuple
+    process.path = path
+    process.pathNtuple = pathNtuple
 else:
-    process.p = p
+    process.path = path
+
+pathnames = process.paths_().keys()
+
+
+
+####################################################################
+## Replace all input collections coherently to use corrections
+
+# Corrected electrons
+for pathname in pathnames:
+    massSearchReplaceAnyInputTag(getattr(process, pathname),
+                                 cms.InputTag("gsfElectrons", ""),
+                                 cms.InputTag("calibratedElectrons", "calibratedGsfElectrons"),
+                                 True)
+process.eleRegressionEnergy.inputElectronsTag = cms.InputTag('gsfElectrons', '', 'RECO')
+process.calibratedElectrons.inputElectronsTag = cms.InputTag('gsfElectrons', '', 'RECO')
+
+# Corrected muons
+for pathname in pathnames:
+    massSearchReplaceAnyInputTag(getattr(process, pathname),
+                                 cms.InputTag("pfMuonsFromVertex"+pfpostfix),
+                                 cms.InputTag("correctMuonEnergy"),
+                                 True)
+    massSearchReplaceAnyInputTag(getattr(process, pathname),
+                                 cms.InputTag('muons'),
+                                 cms.InputTag("correctRecoMuonEnergy"),
+                                 True)
+process.correctMuonEnergy.muonSrc = 'pfMuonsFromVertex'+pfpostfix
+process.correctRecoMuonEnergy.muonSrc = 'muons'
 
 
 
 ####################################################################
 ## Prepend the paths
+## Cannot be before massSearchReplaceAnyInputTag(getattr(process, pathname), ...), else it crashes !?!
 
 from TopAnalysis.TopAnalyzer.CountEventAnalyzer_cfi import countEvents
 process.EventsBeforeSelection = countEvents.clone()
 process.EventsBeforeSelection.includePDFWeights = options.includePDFWeights
 process.EventsBeforeSelection.pdfWeights = "pdfWeights:cteq66"
 
-pathnames = process.paths_().keys()
-print 'prepending trigger sequence to paths:', pathnames
+print 'prepending common sequence to paths:', pathnames
 for pathname in pathnames:
     getattr(process, pathname).insert(0, cms.Sequence(
         process.pdfWeights *
@@ -961,17 +1050,9 @@ process.load("TopAnalysis.TopUtils.SignalCatcher_cfi")
 #             #                      printIndex = cms.untracked.bool(False),
 #             #                      status = cms.untracked.vint32( 3 )
 #                                   )
-#process.p = cms.Path(process.printTree)
-#process.pNtuple = cms.Path()
+#process.path = cms.Path(process.printTree)
+#process.pathNtuple = cms.Path()
 
-
-
-####################################################################
-## Basic debugging analyzer
-
-#process.load("TopAnalysis.TopAnalyzer.CheckDiLeptonAnalyzer_cfi")
-#process.analyzeDiLepton.electrons = 'fullySelectedPatElectronsCiC'
-#process.analyzeDiLepton.muons = 'fullySelectedPatMuons'
 
 
 
