@@ -130,6 +130,31 @@ TH1* getSymmError(TH1* hCent, TH1* hUp, TH1* hDo, int sign)
     return  tmp_Up;
 }
 
+const TH2D combineStatCovMatrices(const TH2D ee_StatCov, const double ee_statError[], const TH2D emu_StatCov, const double emu_statError[], const TH2D mumu_StatCov, const double mumu_statError[])
+{
+    TH2D result_h = ee_StatCov;
+//     TH2D *result_h = (TH2D*) ee_StatCov.Clone("result");
+    const int nbins = ee_StatCov.GetNbinsX();
+    
+    for (int iterX = 1; iterX<nbins+1; iterX++){
+        double ee_Stat = ee_statError[iterX-1];
+        double emu_Stat = emu_statError[iterX-1];
+        double mumu_Stat = mumu_statError[iterX-1];
+        
+        for (int iterY = 1; iterY<nbins+1; iterY++){
+            const double ee_Value = ee_StatCov.GetBinContent(iterX, iterY);
+            const double emu_Value = emu_StatCov.GetBinContent(iterX, iterY);
+            const double mumu_Value = mumu_StatCov.GetBinContent(iterX, iterY);
+        
+            const double numerator = ee_Value/(ee_Stat*ee_Stat) + emu_Value/(emu_Stat*emu_Stat) + mumu_Value/(mumu_Stat*mumu_Stat);
+            const double denominator = 1./(ee_Stat*ee_Stat) + 1./(emu_Stat*emu_Stat) + 1./(mumu_Stat*mumu_Stat);
+            
+            result_h.SetBinContent(iterX, iterY, numerator/denominator);
+        }
+    }
+    return result_h;
+}
+
 
 const TH2D statCovValues(TString variable, TString channel)
 {
@@ -150,6 +175,30 @@ const TH2D statCovValues(TString variable, TString channel)
     else if (variable.Contains("HypTTBar"))     { particle_ = "TtBar";}
     else if (variable.Contains("HypJet"))       { particle_ = "Jets";}
     
+    if(channel == "combined")
+    {
+        // Statistically combine the individual channel __NORMALIZED__ covariance matrices
+        TH2D ee_StatCov = statCovValues(variable, "ee");
+        TH2D emu_StatCov = statCovValues(variable, "emu");
+        TH2D mumu_StatCov = statCovValues(variable, "mumu");
+        
+        ifstream eeResult ("UnfoldingResults/Nominal/ee/"+variable+"Results.txt");
+        ifstream emuResult ("UnfoldingResults/Nominal/emu/"+variable+"Results.txt");
+        ifstream mumuResult ("UnfoldingResults/Nominal/mumu/"+variable+"Results.txt");
+        
+        const int nbins = ee_StatCov.GetNbinsX();
+        TString Dummy_str="";
+        double dummy=0;
+        double ee_statError[nbins], emu_statError[nbins], mumu_statError[nbins];
+        
+        for(int iter=0;iter<nbins; iter++){
+            eeResult>>Dummy_str>>dummy>>Dummy_str>>dummy>>Dummy_str>>dummy>>Dummy_str>>dummy>>Dummy_str>>ee_statError[iter]>>Dummy_str>>dummy;
+            emuResult>>Dummy_str>>dummy>>Dummy_str>>dummy>>Dummy_str>>dummy>>Dummy_str>>dummy>>Dummy_str>>emu_statError[iter]>>Dummy_str>>dummy;
+            mumuResult>>Dummy_str>>dummy>>Dummy_str>>dummy>>Dummy_str>>dummy>>Dummy_str>>dummy>>Dummy_str>>mumu_statError[iter]>>Dummy_str>>dummy;
+        }
+        return combineStatCovMatrices(ee_StatCov, ee_statError, emu_StatCov, emu_statError, mumu_StatCov, mumu_statError);
+    }
+    
     TString file_ = "SVD/Unfolding_"+channel+"_"+particle_+"_"+variable_+"_"+variable+".root";
     ifstream file(file_);
     if(!file.is_open()){
@@ -165,8 +214,8 @@ const TH2D statCovValues(TString variable, TString channel)
     Double_t bins[nbins-1];
     for (int iter=0; iter<=nbins; iter++) {bins[iter] = histo->GetXaxis()->GetBinLowEdge(iter+2);}
     TH2D newStatCov = TH2D("newHisto", "newHisto", nbins, bins, nbins, bins);
-    for (int iterX=2; iterX<=nbins; iterX++) {
-        for (int iterY=2; iterY<=nbins; iterY++) {
+    for (int iterX=2; iterX<=nbins+1; iterX++) {
+        for (int iterY=2; iterY<=nbins+1; iterY++) {
             newStatCov.SetBinContent(iterX-1, iterY-1, histo->GetBinContent(iterX, iterY));
         }
     }
@@ -281,7 +330,7 @@ int main()
     // AN-13-266  and   AN-13-267
     
     gErrorIgnoreLevel = 1001;
-    const std::vector<TString> channels = {"mumu", "emu", "ee"};
+    const std::vector<TString> channels = {"mumu", "emu", "ee", "combined"};
     const std::vector<TString> systematics = {"Nominal", "DY_UP", "DY_DOWN", "BG_UP", "BG_DOWN", "KIN_UP", "KIN_DOWN",
                                               "PU_UP", "PU_DOWN", "TRIG_UP", "TRIG_DOWN", "LEPT_UP", "LEPT_DOWN",
                                               "JER_UP", "JER_DOWN", "JES_UP", "JES_DOWN", 
@@ -301,6 +350,7 @@ int main()
                                             "HypToppTTTRestFrame",
                                             "HypLeptonBjetMass",
                                             "HypBBBarpT","HypBBBarMass"};
+    
     for(auto chan: channels){
         std::vector<TString> files = createVecFiles(chan, systematics);
         TString outdir = baseOutDir.Copy().Append(chan+"/");
