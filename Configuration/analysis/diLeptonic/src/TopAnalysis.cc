@@ -788,6 +788,8 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     
     // Get MET
     const LV& met = *recoObjects.met_;
+//     LV& met = *recoObjects.mvamet_;
+//     this->correctMvaMet(met, dilepton, numberOfJets);
     const bool hasMetOrEmu = this->channel()==Channel::emu || met.Pt()>MetCUT;
     
     const ttbar::RecoObjectIndices recoObjectIndices(allLeptonIndices,
@@ -2027,8 +2029,8 @@ void TopAnalysis::generatorTopEvent(LV& leadGenTop, LV& nLeadGenTop,
     h_VisGenAntiNeutrinopT->Fill((*topGenObjects.GenAntiNeutrino_).Pt(), trueLevelWeight);
 
     /// Parton momentum fraction
-    double partonMomFraction = ((*topGenObjects.GenTop_).energy() - (*topGenObjects.GenTop_).Pz() + (*topGenObjects.GenAntiTop_).energy() - (*topGenObjects.GenAntiTop_).Pz()) / 2 * 4000;
-    double antipartonMomFraction = ((*topGenObjects.GenTop_).energy() + (*topGenObjects.GenTop_).Pz() + (*topGenObjects.GenAntiTop_).energy() + (*topGenObjects.GenAntiTop_).Pz()) / 2 * 4000;
+    double partonMomFraction = ((*topGenObjects.GenTop_).energy() - (*topGenObjects.GenTop_).Pz() + (*topGenObjects.GenAntiTop_).energy() - (*topGenObjects.GenAntiTop_).Pz()) / (2 * 4000);
+    double antipartonMomFraction = ((*topGenObjects.GenTop_).energy() + (*topGenObjects.GenTop_).Pz() + (*topGenObjects.GenAntiTop_).energy() + (*topGenObjects.GenAntiTop_).Pz()) / (2 * 4000);
     h_VisGenPartonFraction->Fill(partonMomFraction, trueLevelWeight);
     h_VisGenAntiPartonFraction->Fill(antipartonMomFraction, trueLevelWeight);
 
