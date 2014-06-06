@@ -37,6 +37,8 @@ HypTTBarDeltaPhi Standard N_{Events} #Delta#phi(t,#bar{t}) 1 1 0 0 1e-3 0 0 3.15
 HypBBBarpT Standard N_{Events} p_{T}^{b#bar{b}} 1 1 0 0 1e-6 0.01 0 340 5 0 30 60 100 180 400 15 45 80 150 340
 HypBBBarMass Standard N_{Events} m^{b#bar{b}} 1 1 0 0 1e-4 6e-3 0 600 4 0 60 120 240 600 30 90 180 420
 
+HypTopPartonFraction Standard N_{Events} "x" 1 1 0 1 3e-2 1e2 0 1 5 0 0.02 0.04 0.08 0.18 1 0.01 0.03 0.075 0.125 0.5
+
 HypToppTTTRestFrame Standard N_{Events} "p_{T}^{t}(t#bar{t})*" 1 1 0 0 0.00001 0.01 0 0 6 0 60 115 190 275 380 500 30 87 152 232 327 450
 HypTTBarDeltaRapidity Standard N_{Events} |y^{t}|-|y^{#bar{t}}| 1 1 0 0 0 0 -2.5 2.5 6 -2.5 -1.1 -0.5 0 0.5 1.1 2.5 -1.65 -0.55 -0.15 0.15 0.55 1.65
 

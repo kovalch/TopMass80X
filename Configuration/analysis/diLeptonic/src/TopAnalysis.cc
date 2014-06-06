@@ -495,15 +495,15 @@ void TopAnalysis::SlaveBegin(TTree*)
     h_RecoTTBar0Mass = store(new TH1D("RecoTTBar0Mass", "TTBar0Mass (Reco)",200,0,2));
     h_HypTTBar0Mass = store(new TH1D("HypTTBar0Mass","TTBar0Mass (HYP)",200,0,2));
 
-    h_HypPartonFraction = store(new TH1D("HypPartonFraction","Parton Momentum Fraction (HYP)",100,0,1));
-    h_VisGenPartonFraction = store(new TH1D("VisGenPartonFraction","Parton Momentum Fraction (VisGEN)",100,0,1));
-    h_RecoPartonFraction = store(new TH1D("RecoPartonFraction","Parton Momentum Fraction (reco)",100,0,1));
-    h_GenRecoPartonFraction = store(new TH2D("GenRecoPartonFraction","Parton Momentum Fraction (Gen/Reco)",100,0,1, 100, 0,1));
+    h_HypTopPartonFraction = store(new TH1D("HypTopPartonFraction","Parton Momentum Fraction (HYP)",100,0,1));
+    h_VisGenTopPartonFraction = store(new TH1D("VisGenTopPartonFraction","Parton Momentum Fraction (VisGEN)",100,0,1));
+    h_RecoTopPartonFraction = store(new TH1D("RecoTopPartonFraction","Parton Momentum Fraction (reco)",100,0,1));
+    h_GenRecoTopPartonFraction = store(new TH2D("GenRecoTopPartonFraction","Parton Momentum Fraction (Gen/Reco)",100,0,1, 100, 0,1));
 
-    h_HypAntiPartonFraction = store(new TH1D("HypAntiPartonFraction","AntiParton Momentum Fraction (HYP)",100,0,1));
-    h_VisGenAntiPartonFraction = store(new TH1D("VisGenAntiPartonFraction","AntiParton Momentum Fraction (VisGEN)",100,0,1));
-    h_RecoAntiPartonFraction = store(new TH1D("RecoAntiPartonFraction","AntiParton Momentum Fraction (reco)",100,0,1));
-    h_GenRecoAntiPartonFraction = store(new TH2D("GenRecoAntiPartonFraction","AntiParton Momentum Fraction (Gen/Reco)",100,0,1, 100, 0,1));
+    h_HypAntiTopPartonFraction = store(new TH1D("HypAntiTopPartonFraction","AntiParton Momentum Fraction (HYP)",100,0,1));
+    h_VisGenAntiTopPartonFraction = store(new TH1D("VisGenAntiTopPartonFraction","AntiParton Momentum Fraction (VisGEN)",100,0,1));
+    h_RecoAntiTopPartonFraction = store(new TH1D("RecoAntiTopPartonFraction","AntiParton Momentum Fraction (reco)",100,0,1));
+    h_GenRecoAntiTopPartonFraction = store(new TH2D("GenRecoAntiTopPartonFraction","AntiParton Momentum Fraction (Gen/Reco)",100,0,1, 100, 0,1));
 
 //    double xbin[20]={30.,40.,50.,60.,70.,80.,90.,100.,120.,140.,160.,180.,200.,220.,240.,260.,280.,320.,360.,400.};
     double xbin[21]={20.,30.,40.,50.,60.,70.,80.,90.,100.,120.,140.,160.,180.,200.,220.,240.,260.,280.,320.,360.,400.};
@@ -1267,10 +1267,10 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     // Parton momentum fraction
     double RecoPartonMomFraction = ((*kinRecoObjects.HypTop_).at(solutionIndex).energy() - (*kinRecoObjects.HypTop_).at(solutionIndex).Pz() + (*kinRecoObjects.HypAntiTop_).at(solutionIndex).energy() - (*kinRecoObjects.HypAntiTop_).at(solutionIndex).Pz()) / (2 * 4000);
     double RecoAntipartonMomFraction = ((*kinRecoObjects.HypTop_).at(solutionIndex).energy() + (*kinRecoObjects.HypTop_).at(solutionIndex).Pz() + (*kinRecoObjects.HypAntiTop_).at(solutionIndex).energy() + (*kinRecoObjects.HypAntiTop_).at(solutionIndex).Pz()) / (2 * 4000);
-    h_HypPartonFraction->Fill(RecoPartonMomFraction, weight);
-    h_HypAntiPartonFraction->Fill(RecoAntipartonMomFraction, weight);
-    h_RecoPartonFraction->Fill(RecoPartonMomFraction, recoWeight);
-    h_RecoAntiPartonFraction->Fill(RecoAntipartonMomFraction, recoWeight);
+    h_HypTopPartonFraction->Fill(RecoPartonMomFraction, weight);
+    h_HypAntiTopPartonFraction->Fill(RecoAntipartonMomFraction, weight);
+    h_RecoTopPartonFraction->Fill(RecoPartonMomFraction, recoWeight);
+    h_RecoAntiTopPartonFraction->Fill(RecoAntipartonMomFraction, recoWeight);
 
     //New plots from Carmen: Begin
     h_RecoTTBar0Mass->Fill(rho0/(hypttbar).M(), recoWeight);
@@ -1450,8 +1450,8 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     // Parton momentum fraction as defined by Olaf
     double GenPartonMomFraction = ((*topGenObjects.GenTop_).energy() - (*topGenObjects.GenTop_).Pz() + (*topGenObjects.GenAntiTop_).energy() - (*topGenObjects.GenAntiTop_).Pz()) / (2 * 4000);
     double GenAntipartonMomFraction = ((*topGenObjects.GenTop_).energy() + (*topGenObjects.GenTop_).Pz() + (*topGenObjects.GenAntiTop_).energy() + (*topGenObjects.GenAntiTop_).Pz()) / (2 * 4000);
-    h_GenRecoPartonFraction->Fill(RecoPartonMomFraction,GenPartonMomFraction, weight);
-    h_GenRecoAntiPartonFraction->Fill(RecoAntipartonMomFraction, GenAntipartonMomFraction, weight);
+    h_GenRecoTopPartonFraction->Fill(RecoPartonMomFraction,GenPartonMomFraction, weight);
+    h_GenRecoAntiTopPartonFraction->Fill(RecoAntipartonMomFraction, GenAntipartonMomFraction, weight);
 
 
     // fill object in visible phase-space
@@ -2031,8 +2031,8 @@ void TopAnalysis::generatorTopEvent(LV& leadGenTop, LV& nLeadGenTop,
     /// Parton momentum fraction
     double partonMomFraction = ((*topGenObjects.GenTop_).energy() - (*topGenObjects.GenTop_).Pz() + (*topGenObjects.GenAntiTop_).energy() - (*topGenObjects.GenAntiTop_).Pz()) / (2 * 4000);
     double antipartonMomFraction = ((*topGenObjects.GenTop_).energy() + (*topGenObjects.GenTop_).Pz() + (*topGenObjects.GenAntiTop_).energy() + (*topGenObjects.GenAntiTop_).Pz()) / (2 * 4000);
-    h_VisGenPartonFraction->Fill(partonMomFraction, trueLevelWeight);
-    h_VisGenAntiPartonFraction->Fill(antipartonMomFraction, trueLevelWeight);
+    h_VisGenTopPartonFraction->Fill(partonMomFraction, trueLevelWeight);
+    h_VisGenAntiTopPartonFraction->Fill(antipartonMomFraction, trueLevelWeight);
 
     //Begin: Fill histograms with Leading pT and 2nd Leading pT: Top
     orderLV(LeadGenTop, NLeadGenTop, (*topGenObjects.GenTop_), (*topGenObjects.GenAntiTop_), LVpt);

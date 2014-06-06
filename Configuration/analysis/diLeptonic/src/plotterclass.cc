@@ -852,7 +852,7 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
     std::ostringstream width;
     width<<binwidth;
 
-    if(name.Contains("Rapidity") || name.Contains("Eta") || name.Contains("Phi") || (name.Contains("Mass") && name.Contains("1st"))){ytitle.Append(" / ").Append(width.str());}
+    if(name.Contains("Rapidity") || name.Contains("Eta") || name.Contains("Phi") || name.Contains("Fraction") || (name.Contains("Mass") && name.Contains("1st"))){ytitle.Append(" / ").Append(width.str());}
     else if((name.Contains("pT", TString::kIgnoreCase) && !name.Contains("JetMult")) || (name.Contains("Mass", TString::kIgnoreCase) && ! name.Contains("1st")) || name.Contains("MET") || name.Contains("HT")){ytitle.Append(" / ").Append(width.str()).Append(" GeV");};
     drawhists[0]->GetYaxis()->SetTitle(ytitle);
     drawhists[0]->Draw("e1");
@@ -964,7 +964,7 @@ void Plotter::setStyle(TH1 *hist, unsigned int i, bool isControlPlot)
         hist->SetMarkerSize(1.2);
         hist->SetLineWidth(2);
         if ((name.Contains("pT", TString::kIgnoreCase) || name.Contains("Mass", TString::kIgnoreCase)) && 
-            (!name.Contains("1st") && !name.Contains("Rapidity") && !name.Contains("Eta") && !name.Contains("Phi") && !name.Contains("JetMult"))) {
+            (!name.Contains("1st") && !name.Contains("Rapidity") && !name.Contains("Eta") && !name.Contains("Phi") && !name.Contains("JetMult") && !name.Contains("Fraction"))) {
             hist->GetXaxis()->SetTitle(XAxis+" #left[GeV#right]");
             hist->GetYaxis()->SetTitle("#frac{1}{#sigma} #frac{d#sigma}{d"+XAxis+"}"+" #left[GeV^{-1}#right]"); 
         } else {
@@ -2822,7 +2822,7 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
     double binwidth = varhists[0]->GetXaxis()->GetBinWidth(1);
     std::ostringstream width;
     width<<binwidth;
-    if(name.Contains("Rapidity") || name.Contains("Eta")){ytitle.Append(" / ").Append(width.str());}
+    if(name.Contains("Rapidity") || name.Contains("Eta") || name.Contains("Fraction")){ytitle.Append(" / ").Append(width.str());}
     else if(name.Contains("pT", TString::kIgnoreCase) || name.Contains("Mass", TString::kIgnoreCase) || name.Contains("MET") || name.Contains("HT")){ytitle.Append(" / ").Append(width.str()).Append(" GeV");};
     varhists[0]->GetYaxis()->SetTitle(ytitle);
 

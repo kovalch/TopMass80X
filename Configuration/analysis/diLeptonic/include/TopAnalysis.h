@@ -176,10 +176,10 @@ class TopAnalysis : public AnalysisBase
     //End: Plots for Carmen
 
     /// Plots for the parton momentum fraction defined by Olaf
-    TH1 *h_HypPartonFraction, *h_HypAntiPartonFraction;
-    TH1 *h_VisGenPartonFraction, *h_VisGenAntiPartonFraction;
-    TH1 *h_RecoPartonFraction, *h_RecoAntiPartonFraction;
-    TH2 *h_GenRecoPartonFraction, *h_GenRecoAntiPartonFraction;
+    TH1 *h_HypTopPartonFraction, *h_HypAntiTopPartonFraction;
+    TH1 *h_VisGenTopPartonFraction, *h_VisGenAntiTopPartonFraction;
+    TH1 *h_RecoTopPartonFraction, *h_RecoAntiTopPartonFraction;
+    TH2 *h_GenRecoTopPartonFraction, *h_GenRecoAntiTopPartonFraction;
 
     /// Histograms for event weights due to specific scale factor
     TH1 *h_PUSF, *h_TrigSF, *h_LepSF, *h_BTagSF, *h_KinRecoSF, *h_EventWeight;
