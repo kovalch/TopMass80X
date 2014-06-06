@@ -4487,6 +4487,7 @@ void Plotter::setResultRatioRanges(double &yminRes_, double &ymaxRes_ )const
     yminRes_ = 0.49;
     ymaxRes_ = 1.51;
 
+    if(name.Contains("HypTopPartonFraction"))   { yminRes_ = 0.75; ymaxRes_ = 1.35; return;}
     if(name.Contains("HypToppTTTRestFrame"))    { yminRes_ = 0.70; ymaxRes_ = 1.65; return;}
     if(name.Contains("HypToppTNLead"))          { yminRes_ = 0.70; ymaxRes_ = 1.65; return;}
     if(name.Contains("HypToppTLead"))           { yminRes_ = 0.70; ymaxRes_ = 1.65; return;}
