@@ -12,8 +12,8 @@ process.options = cms.untracked.PSet(
 )
 
 
-#process.load("TopAnalysis.Configuration.Summer12.TTH_HToBB_M125_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff")
-process.load("TopAnalysis.Configuration.Summer12.TTH_Inclusive_M125_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff")
+#process.load("TopAnalysis.Configuration.Summer12.TTH_HToBB_M_125_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff")
+process.load("TopAnalysis.Configuration.Summer12.TTH_Inclusive_M_125_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff")
 process.maxEvents.input = 11
 
 
