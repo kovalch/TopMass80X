@@ -111,7 +111,7 @@ void plot_TH1(RootFileReader* rootFileReader,
     
     // Set up Legend
     TLegend* legend(0);
-    legend = new TLegend(0.5759, 0.669774, 0.882119, 0.799263);
+    legend = new TLegend(0.196309, 0.905923, 0.501678, 0.996516);
     legend->SetLineColor(kWhite); 
     legend->SetFillStyle(0);
     legend->SetTextSize(0.038);
@@ -183,7 +183,7 @@ void plot_TH2(RootFileReader* rootFileReader,
     hist->Draw("COLZ");
     
     TLegend* legend(0);
-    legend = new TLegend(0.5759, 0.669774, 0.882119, 0.799263);
+    legend = new TLegend(0.196309, 0.905923, 0.501678, 0.996516);
     legend->SetLineColor(kWhite); 
     legend->SetFillStyle(0);
     legend->SetTextSize(0.038);
@@ -192,7 +192,7 @@ void plot_TH2(RootFileReader* rootFileReader,
     legend->Draw("same"); 
     
     canvas->Print(outputFolder+plotName+".eps");
-
+    
     legend->Delete();
     canvas->Close();
 }
@@ -209,20 +209,100 @@ void printHistogram(const TString& fileName, const TString& legendName, const TS
     
     const std::vector<TString> v_whichSelection = {
         "initial_",
+        "initialAmbiguous_",
+        "initialUnambiguous_",
         "mismatchedInR_",
         "matchedInR_",
         "matchedInRAmbiguous_",
         "matchedInRUnambiguous_",
-        "mismatchedInPt_",
-        "mismatchedInPtAmbiguous_",
-        "mismatchedInPtUnambiguous_",
-        "matchedInPt_",
-        "matchedInPtAmbiguous_",
-        "matchedInPtUnambiguous_",
+        
+        "mismatchedInPt_m05_p07_",
+        "mismatchedInPtAmbiguousMatchedInR_m05_p07_",
+        "mismatchedInPtUnambiguousMatchedInR_m05_p07_",
+        "mismatchedInPtAmbiguous_m05_p07_",
+        "mismatchedInPtUnambiguous_m05_p07_",
+        "matchedInPt_m05_p07_",
+        "matchedInPtAmbiguous_m05_p07_",
+        "matchedInPtUnambiguous_m05_p07_",
+        
+        "mismatchedInPt_m05_p06_",
+        "mismatchedInPtAmbiguousMatchedInR_m05_p06_",
+        "mismatchedInPtUnambiguousMatchedInR_m05_p06_",
+        "mismatchedInPtAmbiguous_m05_p06_",
+        "mismatchedInPtUnambiguous_m05_p06_",
+        "matchedInPt_m05_p06_",
+        "matchedInPtAmbiguous_m05_p06_",
+        "matchedInPtUnambiguous_m05_p06_",
+        
+        "mismatchedInPt_m05_p05_",
+        "mismatchedInPtAmbiguousMatchedInR_m05_p05_",
+        "mismatchedInPtUnambiguousMatchedInR_m05_p05_",
+        "mismatchedInPtAmbiguous_m05_p05_",
+        "mismatchedInPtUnambiguous_m05_p05_",
+        "matchedInPt_m05_p05_",
+        "matchedInPtAmbiguous_m05_p05_",
+        "matchedInPtUnambiguous_m05_p05_",
+        
+        "mismatchedInPt_m04_p07_",
+        "mismatchedInPtAmbiguousMatchedInR_m04_p07_",
+        "mismatchedInPtUnambiguousMatchedInR_m04_p07_",
+        "mismatchedInPtAmbiguous_m04_p07_",
+        "mismatchedInPtUnambiguous_m04_p07_",
+        "matchedInPt_m04_p07_",
+        "matchedInPtAmbiguous_m04_p07_",
+        "matchedInPtUnambiguous_m04_p07_",
+        
+        "mismatchedInPt_m04_p06_",
+        "mismatchedInPtAmbiguousMatchedInR_m04_p06_",
+        "mismatchedInPtUnambiguousMatchedInR_m04_p06_",
+        "mismatchedInPtAmbiguous_m04_p06_",
+        "mismatchedInPtUnambiguous_m04_p06_",
+        "matchedInPt_m04_p06_",
+        "matchedInPtAmbiguous_m04_p06_",
+        "matchedInPtUnambiguous_m04_p06_",
+        
+        "mismatchedInPt_m04_p05_",
+        "mismatchedInPtAmbiguousMatchedInR_m04_p05_",
+        "mismatchedInPtUnambiguousMatchedInR_m04_p05_",
+        "mismatchedInPtAmbiguous_m04_p05_",
+        "mismatchedInPtUnambiguous_m04_p05_",
+        "matchedInPt_m04_p05_",
+        "matchedInPtAmbiguous_m04_p05_",
+        "matchedInPtUnambiguous_m04_p05_",
+        
+        "mismatchedInPt_m03_p07_",
+        "mismatchedInPtAmbiguousMatchedInR_m03_p07_",
+        "mismatchedInPtUnambiguousMatchedInR_m03_p07_",
+        "mismatchedInPtAmbiguous_m03_p07_",
+        "mismatchedInPtUnambiguous_m03_p07_",
+        "matchedInPt_m03_p07_",
+        "matchedInPtAmbiguous_m03_p07_",
+        "matchedInPtUnambiguous_m03_p07_",
+        
+        "mismatchedInPt_m03_p06_",
+        "mismatchedInPtAmbiguousMatchedInR_m03_p06_",
+        "mismatchedInPtUnambiguousMatchedInR_m03_p06_",
+        "mismatchedInPtAmbiguous_m03_p06_",
+        "mismatchedInPtUnambiguous_m03_p06_",
+        "matchedInPt_m03_p06_",
+        "matchedInPtAmbiguous_m03_p06_",
+        "matchedInPtUnambiguous_m03_p06_",
+        
+        "mismatchedInPt_m03_p05_",
+        "mismatchedInPtAmbiguousMatchedInR_m03_p05_",
+        "mismatchedInPtUnambiguousMatchedInR_m03_p05_",
+        "mismatchedInPtAmbiguous_m03_p05_",
+        "mismatchedInPtUnambiguous_m03_p05_",
+        "matchedInPt_m03_p05_",
+        "matchedInPtAmbiguous_m03_p05_",
+        "matchedInPtUnambiguous_m03_p05_",
+        
+        
     };
     
     const std::vector<TString> v_whichJets = {
         "all_",
+        "topORhiggs_",
         "top_",
         "higgs_",
     };
@@ -245,49 +325,50 @@ void printHistogram(const TString& fileName, const TString& legendName, const TS
                     const TString identifier = whichSelection + whichJets;
                     
                     name = identifier + "deltaR";
-                    plot_TH1(rootFileReader, path, inputFilename, legendName, prefix+name+step, whichJets, true);
+                    plot_TH1(rootFileReader, path, inputFilename, channelName+" "+legendName, prefix+name+step, whichJets, true);
                     
                     name = identifier + "deltaR_zoom";
-                    plot_TH1(rootFileReader, path, inputFilename, legendName, prefix+name+step, whichJets, true);
+                    plot_TH1(rootFileReader, path, inputFilename, channelName+" "+legendName, prefix+name+step, whichJets, true);
                     
                     name = identifier + "recoPtOverGenPt";
-                    plot_TH1(rootFileReader, path, inputFilename, legendName, prefix+name+step, whichJets, true);
+                    plot_TH1(rootFileReader, path, inputFilename, channelName+" "+legendName, prefix+name+step, whichJets, true);
                     
                     name = identifier + "deltaPtOverGenPt";
-                    plot_TH1(rootFileReader, path, inputFilename, legendName, prefix+name+step, whichJets, true);
+                    plot_TH1(rootFileReader, path, inputFilename, channelName+" "+legendName, prefix+name+step, whichJets, true);
                     
                     name = identifier + "genPtVsRecoPt";
-                    plot_TH2(rootFileReader, path, inputFilename, legendName, prefix+name+step, whichJets);
+                    plot_TH2(rootFileReader, path, inputFilename, channelName+" "+legendName, prefix+name+step, whichJets);
                     
                     name = identifier + "genEtaVsRecoEta";
-                    plot_TH2(rootFileReader, path, inputFilename, legendName, prefix+name+step, whichJets);
+                    plot_TH2(rootFileReader, path, inputFilename, channelName+" "+legendName, prefix+name+step, whichJets);
                     
                     name = identifier + "genPhiVsRecoPhi";
-                    plot_TH2(rootFileReader, path, inputFilename, legendName, prefix+name+step, whichJets);
+                    plot_TH2(rootFileReader, path, inputFilename, channelName+" "+legendName, prefix+name+step, whichJets);
                     
                     name = identifier + "genPVsRecoP";
-                    plot_TH2(rootFileReader, path, inputFilename, legendName, prefix+name+step, whichJets);
+                    plot_TH2(rootFileReader, path, inputFilename, channelName+" "+legendName, prefix+name+step, whichJets);
                     
                     name = identifier + "genPtVsDeltaPt";
-                    plot_TH2(rootFileReader, path, inputFilename, legendName, prefix+name+step, whichJets);
+                    plot_TH2(rootFileReader, path, inputFilename, channelName+" "+legendName, prefix+name+step, whichJets);
                     
                     name = identifier + "deltaRVsGenPt";
-                    plot_TH2(rootFileReader, path, inputFilename, legendName, prefix+name+step, whichJets);
+                    plot_TH2(rootFileReader, path, inputFilename, channelName+" "+legendName, prefix+name+step, whichJets);
                     
                     name = identifier + "recoPtOverGenPtVsGenPt";
-                    plot_TH2(rootFileReader, path, inputFilename, legendName, prefix+name+step, whichJets);
+                    plot_TH2(rootFileReader, path, inputFilename, channelName+" "+legendName, prefix+name+step, whichJets);
                     
                     name = identifier + "recoPtOverGenPtVsGenEta";
-                    plot_TH2(rootFileReader, path, inputFilename, legendName, prefix+name+step, whichJets);
+                    plot_TH2(rootFileReader, path, inputFilename, channelName+" "+legendName, prefix+name+step, whichJets);
                     
                     name = identifier + "recoPtOverGenPtVsGenPhi";
-                    plot_TH2(rootFileReader, path, inputFilename, legendName, prefix+name+step, whichJets);
+                    plot_TH2(rootFileReader, path, inputFilename, channelName+" "+legendName, prefix+name+step, whichJets);
                     
                     name = identifier + "recoPtOverGenPtVsDeltaR";
-                    plot_TH2(rootFileReader, path, inputFilename, legendName, prefix+name+step, whichJets);
+                    plot_TH2(rootFileReader, path, inputFilename, channelName+" "+legendName, prefix+name+step, whichJets);
                     
                     name = identifier + "deltaPtOverGenPtVsDeltaR";
-                    plot_TH2(rootFileReader, path, inputFilename, legendName, prefix+name+step, whichJets);
+                    plot_TH2(rootFileReader, path, inputFilename, channelName+" "+legendName, prefix+name+step, whichJets);
+                    
                 }
             }
         }
@@ -296,14 +377,20 @@ void printHistogram(const TString& fileName, const TString& legendName, const TS
 
 
 
+/// All systematics allowed as steering parameter for executable
+namespace Systematic{
+    const std::vector<Type> allowedSystematics = {
+        nominal,
+    };
+}
+
 int main(int argc, char** argv){
     CLParameter<std::string> opt_channel("c", "Specify channel(s), valid: emu, ee, mumu, combined. Default: combined", false, 1, 4,
-        common::makeStringCheck(Channel::convert(Channel::allowedChannelsPlotting)));    
+        common::makeStringCheck(Channel::convert(Channel::allowedChannelsPlotting)));
+    CLParameter<std::string> opt_systematic("s", "Systematic variation - default is Nominal", false, 1, 100,
+        common::makeStringCheckBegin(Systematic::convertType(Systematic::allowedSystematics)));
     CLAnalyser::interpretGlobal(argc, argv);
-    
-    // Set up systematics
-    std::vector<Systematic::Systematic> v_systematic({Systematic::nominalSystematic()});
-    
+        
     //Hardcoded input files, since detailed validation makes sense only on samples containing ttbar system, and some only on real ttH events
     const std::vector<TString> v_inputFileTtbar = {
         //"ttbarsignalPlusBbbar",
@@ -322,10 +409,18 @@ int main(int argc, char** argv){
     };  
     
     // Set up channels
+    //std::vector<Channel::Channel> v_channel(Channel::allowedChannelsPlotting);
     std::vector<Channel::Channel> v_channel = {Channel::mumu, Channel::emu, Channel::ee};
     if(opt_channel.isSet()) v_channel = Channel::convert(opt_channel.getArguments());
     std::cout << "Processing channels: ";
     for(auto i_channel : v_channel) std::cout << Channel::convert(i_channel) << " ";
+    std::cout << "\n\n";
+    
+    // Set up systematics
+    std::vector<Systematic::Systematic> v_systematic = Systematic::allowedSystematicsAnalysis(Systematic::allowedSystematics);
+    if(opt_systematic.isSet()) v_systematic = Systematic::setSystematics(opt_systematic.getArguments());
+    std::cout << "Processing systematics: ";
+    for (auto systematic : v_systematic) std::cout << systematic.name() << " ";
     std::cout << "\n\n";
     
     // Loop over all samples and plot the histograms
