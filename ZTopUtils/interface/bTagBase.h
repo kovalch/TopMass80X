@@ -117,7 +117,7 @@ public:
     void setIs2011(bool is) {is2011_ = is;}
 
     void setSystematic(systematics sys);
-    systematics getSystematic() { return syst_;}
+    systematics getSystematic() const{ return syst_;}
 
 
     int setSampleName(const std::string &); //checks if effs should be made, if sample exists,..

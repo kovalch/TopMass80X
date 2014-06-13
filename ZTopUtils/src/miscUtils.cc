@@ -1,6 +1,16 @@
 #include "../interface/miscUtils.h"
+#include <cmath>
+
 
 namespace ztop {
+
+double logPoisson(const double & k, const double& lambda){
+    return k * log(lambda) - lgamma(k+1.) - lambda;
+}
+double poisson(const double & k, const double& lambda){
+    return exp(logPoisson(k,lambda));
+}
+
 
 float getTtbarXsec(float topmass, float energy, float* scaleerr, float * pdferr){
     /*
@@ -60,7 +70,7 @@ void addRelError(TH1D &h, double err) {
 
 void displayStatusBar(Long64_t event, Long64_t nEvents, int ndiv) {
 
-    if ((event + 1) * ndiv % nEvents < ndiv) { //2% steps
+    if ((event + 1) * ndiv % nEvents < ndiv) {
         int statusbar = (event + 1) * ndiv / nEvents;
         std::cout << "\r[";
         for (int i = 0; i < statusbar * 50 / ndiv; i++) {
