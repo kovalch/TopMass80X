@@ -44,6 +44,8 @@ class BTagSFEventWeight : public edm::EDProducer {
   edm::InputTag jets_;
   std::string bTagAlgo_;
   std::string version_;
+  bool newRecipe_;
+  int maxJets_;
   std::string sysVar_;
   double shapeVarPtThreshold_;
   double shapeVarEtaThreshold_;

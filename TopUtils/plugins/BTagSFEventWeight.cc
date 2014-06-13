@@ -10,6 +10,8 @@ BTagSFEventWeight::BTagSFEventWeight(const edm::ParameterSet& cfg):
   jets_                   ( cfg.getParameter<edm::InputTag>    ( "jets"   ) ),
   bTagAlgo_               ( cfg.getParameter<std::string>      ("bTagAlgo") ),
   version_                ( cfg.getParameter<std::string>      ("version"  ) ),
+  newRecipe_              ( cfg.getParameter<bool>             ("newRecipe") ),
+  maxJets_                ( cfg.getParameter<int>              ("maxJets" ) ),
   sysVar_                 ( cfg.getParameter<std::string>      ("sysVar"  ) ),
   shapeVarPtThreshold_    ( cfg.getParameter<double>           ("shapeVarPtThreshold"  ) ),
   shapeVarEtaThreshold_   ( cfg.getParameter<double>           ("shapeVarEtaThreshold"  ) ),
@@ -108,34 +110,85 @@ BTagSFEventWeight::produce(edm::Event& evt, const edm::EventSetup& setup)
   std::vector<double> oneMinusBEffies(0) , oneMinusBEffies_scaled(0);
   std::vector<double> oneMinusBMistags(0), oneMinusBMistags_scaled(0);
   
+  double effBTagEvent_unscaled = 1.;
+  double effBTagEvent_scaled   = 1.;
+  
+  if (!newRecipe_) {
     for(edm::View<pat::Jet>::const_iterator jet = jets->begin();jet != jets->end(); ++jet) {
       pt  = jet->pt();
       eta = std::abs(jet->eta());
       if(jet->partonFlavour() == 5 || jet->partonFlavour() == -5){
-	oneMinusBEffies               .push_back(1.- effBTag(pt, eta));
-	oneMinusBEffies_scaled        .push_back(1.- (effBTag(pt, eta) * effBTagSF(pt, eta, false)));
+	      oneMinusBEffies               .push_back(1.- effBTag(pt, eta));
+	      oneMinusBEffies_scaled        .push_back(1.- (effBTag(pt, eta) * effBTagSF(pt, eta, false)));
       }
-  
+
       else if(jet->partonFlavour() == 4 || jet->partonFlavour() == -4){
-	oneMinusBMistags               .push_back(1.- effBTagCjet(pt, eta));
-	oneMinusBMistags_scaled        .push_back(1.-(effBTagCjet(pt, eta) * effBTagSF(pt, eta, true))); // ATTENTION: btag SF used for c-jets to with 2x the uncertainty!
+	      oneMinusBMistags               .push_back(1.- effBTagCjet(pt, eta));
+	      oneMinusBMistags_scaled        .push_back(1.-(effBTagCjet(pt, eta) * effBTagSF(pt, eta, true))); // ATTENTION: btag SF used for c-jets to with 2x the uncertainty!
       }
   
       else{
-	oneMinusBMistags               .push_back(1.- effMisTag(pt, eta));
-	oneMinusBMistags_scaled        .push_back(1.-(effMisTag(pt, eta) * effMisTagSF(pt, eta)));
+        oneMinusBMistags               .push_back(1.- effMisTag(pt, eta));
+        oneMinusBMistags_scaled        .push_back(1.-(effMisTag(pt, eta) * effMisTagSF(pt, eta)));
       }
-   }
+    }
      
-   double effBTagEvent_unscaled = effBTagEvent( oneMinusBEffies, oneMinusBMistags );
-   double effBTagEvent_scaled   = effBTagEvent( oneMinusBEffies_scaled, oneMinusBMistags_scaled );
-   double effBTagEventSF = effBTagEvent_scaled / effBTagEvent_unscaled;
+  effBTagEvent_unscaled = effBTagEvent( oneMinusBEffies, oneMinusBMistags );
+  effBTagEvent_scaled   = effBTagEvent( oneMinusBEffies_scaled, oneMinusBMistags_scaled );
+  }
   
-   if(verbose_>=1) std::cout<<"effBTagEvent_unscaled= "<<effBTagEvent_unscaled
-	                    <<" effBTagEvent_scaled = " <<effBTagEvent_scaled
-	                    <<" effBTagEventSF ="       <<effBTagEventSF << std::endl;
-   
-   if(!noHistograms_) hists_.find("effBTagEventSF" )->second->Fill( effBTagEventSF );
+  // Use new recipe: https://twiki.cern.ch/twiki/bin/viewauth/CMS/BTagSFMethods#1a_Event_reweighting_using_scale
+  else {
+    if (bTagAlgo_ != "CSVM") std::cout<< "WARNING!!! New recipe only implemented for CSVM!!! CHECK!!!"<<std::endl;
+    
+    for(edm::View<pat::Jet>::const_iterator jet = jets->begin();jet != jets->end(); ++jet) {
+      if (jet - jets->begin() == maxJets_) break;
+      pt  = jet->pt();
+      eta = std::abs(jet->eta());
+      
+      // tagged jets
+      if (jet->bDiscriminator("combinedSecondaryVertexBJetTags")>0.679) {
+        if (abs(jet->partonFlavour()) == 5) {
+          effBTagEvent_unscaled *= effBTag(pt, eta);
+          effBTagEvent_scaled   *= effBTag(pt, eta) * effBTagSF(pt, eta, false);
+        }
+        else if (abs(jet->partonFlavour()) == 4) {
+          effBTagEvent_unscaled *= effBTagCjet(pt, eta);
+          effBTagEvent_scaled   *= effBTagCjet(pt, eta) * effBTagSF(pt, eta, true);
+        }
+        else {
+          effBTagEvent_unscaled *= effMisTag(pt, eta);
+          effBTagEvent_scaled   *= effMisTag(pt, eta) * effMisTagSF(pt, eta);
+        }
+      }
+      
+      // untagged jets
+      else {
+        if (abs(jet->partonFlavour()) == 5) {
+          effBTagEvent_unscaled *= 1.- effBTag(pt, eta);
+          effBTagEvent_scaled   *= 1.-(effBTag(pt, eta) * effBTagSF(pt, eta, false));
+        }
+        else if (abs(jet->partonFlavour()) == 4) {
+          effBTagEvent_unscaled *= 1.- effBTagCjet(pt, eta);
+          effBTagEvent_scaled   *= 1.-(effBTagCjet(pt, eta) * effBTagSF(pt, eta, true));
+        }
+        else {
+          effBTagEvent_unscaled *= 1.- effMisTag(pt, eta);
+          effBTagEvent_scaled   *= 1.-(effMisTag(pt, eta) * effMisTagSF(pt, eta));
+        }
+      }
+    }
+  }
+
+  double effBTagEventSF = effBTagEvent_scaled / effBTagEvent_unscaled;
+  // Catch inf and nan
+  if (effBTagEventSF>9999. || effBTagEventSF!=effBTagEventSF) effBTagEventSF = 0;
+
+  if(verbose_>=1) std::cout<<"effBTagEvent_unscaled= "<<effBTagEvent_unscaled
+                    <<" effBTagEvent_scaled = " <<effBTagEvent_scaled
+                    <<" effBTagEventSF ="       <<effBTagEventSF << std::endl;
+
+  if(!noHistograms_) hists_.find("effBTagEventSF" )->second->Fill( effBTagEventSF );
 
   std::auto_ptr<double> bTagSFEventWeight(new double);
   *bTagSFEventWeight = effBTagEventSF;    

@@ -4,6 +4,8 @@ bTagSFEventWeight = cms.EDProducer("BTagSFEventWeight",
   jets  = cms.InputTag("tightLeadingPFJets"), ## jet collection (after jet selection, before b-tagging)
   bTagAlgo = cms.string("CSVM"),              ## name of b tag algorithm (short, i.e. "CSVM")
   version  = cms.string("2012"),              ## "12-470" for value from AN for moriond 2013,
+  newRecipe = cms.bool(False),                ## use recipe 1a,
+  maxJets   = cms.int32(4),                   ## maximum number of jets for new recipe,
   sysVar   = cms.string(""),                  ## bTagSFUp, bTagSFDown, misTagSFUp, misTagSFDown possible;
                                               ## bTagSFShapeUpPt, bTagSFShapeDownPt, bTagSFShapeUpEta, bTagSFShapeDownEta,
                                               ## everything else: no systematic variation is made
