@@ -105,6 +105,7 @@ private:
     edm::InputTag jetsForMET_;
     edm::InputTag jetsForMETuncorr_;
     edm::InputTag met_;
+    edm::InputTag mvamet_;
     edm::InputTag vertices_, genEvent_ ;
     edm::InputTag FullLepEvt_, hypoKey_;
     edm::InputTag genEventHiggs_;
@@ -123,15 +124,16 @@ private:
 
     edm::InputTag genBHadPlusMothers_, genBHadPlusMothersIndices_;
     edm::InputTag genBHadIndex_, genBHadFlavour_, genBHadJetIndex_;
-    edm::InputTag genBHadFromTopWeakDecay_, genBHadFromBHadron_;
+    edm::InputTag genBHadFromTopWeakDecay_, genBHadBHadronId_;
     edm::InputTag genBHadLeptonIndex_, genBHadLeptonHadronIndex_;
     
     edm::InputTag genCHadPlusMothers_, genCHadPlusMothersIndices_;
     edm::InputTag genCHadIndex_, genCHadFlavour_, genCHadJetIndex_;
-    edm::InputTag genCHadFromTopWeakDecay_, genCHadFromBHadron_;
+    edm::InputTag genCHadFromTopWeakDecay_, genCHadBHadronId_;
     edm::InputTag genCHadLeptonIndex_, genCHadLeptonHadronIndex_;
     
     bool saveHadronMothers;
+    bool saveCHadronParticles;
 
     bool includeTrig_;
     bool isTtBarSample_, isHiggsSample_, isZSample_;
@@ -198,9 +200,12 @@ private:
     std::vector<int>             VgenBHadFromTopWeakDecay;
     std::vector<int>             VgenBHadLeptonHadronIndex, VgenBHadLeptonIndex, VgenBHadLeptonViaTau;
     
-    std::vector<int>             VgenCHadFromBHadron, VgenCHadJetIndex;
+    std::vector<LV>              VgenCHadPlusMothers;
+    std::vector<int>             VgenCHadPlusMothersPdg, VgenCHadPlusMothersStatus;
+    std::vector<std::vector<int> >  VgenCHadPlusMothersIndices;
+    std::vector<int>             VgenCHadIndex, VgenCHadBHadronId, VgenCHadJetIndex;
     std::vector<int>             VgenCHadFromTopWeakDecay;
-    std::vector<int>             VgenCHadLeptonHadronIndex, VgenCHadLeptonViaTau;
+    std::vector<int>             VgenCHadLeptonHadronIndex, VgenCHadLeptonIndex, VgenCHadLeptonViaTau;
 
     // True level info from Zs and their decays
     std::vector<LV> VGenZ;
@@ -263,16 +268,25 @@ private:
     std::vector<int> VjetPfCandidateTrackCharge;
     std::vector<int> VjetPfCandidateTrackId;
     std::vector<int> VjetPfCandidateTrackIndex;
+    std::vector<int> VjetSelectedTrackMatchToPfCandidateIndex;
     std::vector<LV> VjetSelectedTrack;
     std::vector<double> VjetSelectedTrackIPValue;
     std::vector<double> VjetSelectedTrackIPSignificance;
     std::vector<int> VjetSelectedTrackCharge;
     std::vector<int> VjetSelectedTrackIndex;
-
+    std::vector<LV> VjetSecondaryVertex;
+    std::vector<int> VjetSecondaryVertexJetIndex;
+    std::vector<double> VjetSecondaryVertexFlightDistanceValue;
+    std::vector<double> VjetSecondaryVertexFlightDistanceSignificance;
+    std::vector<int> VjetSecondaryVertexTrackMatchToSelectedTrackIndex;
+    std::vector<int> VjetSecondaryVertexTrackVertexIndex;
+    
+    
     std::vector<double> VPdfWeights;
 
     /////////met///////////
     LV met;
+    LV mvamet;
 
     ////////triggers/////////
     std::vector<std::string> VfiredTriggers;
@@ -309,6 +323,7 @@ NTupleWriter::NTupleWriter(const edm::ParameterSet& iConfig):
     jetsForMET_(iConfig.getParameter<edm::InputTag>("jetsForMET")),
     jetsForMETuncorr_(iConfig.getParameter<edm::InputTag>("jetsForMETuncorr")),
     met_(iConfig.getParameter<edm::InputTag>("met")),
+    mvamet_(iConfig.getParameter<edm::InputTag>("mvamet")),
 
     vertices_(iConfig.getParameter<edm::InputTag>("vertices")),
     genEvent_(iConfig.getParameter<edm::InputTag>("src")),
@@ -341,7 +356,7 @@ NTupleWriter::NTupleWriter(const edm::ParameterSet& iConfig):
     genBHadFlavour_(iConfig.getParameter<edm::InputTag> ("genBHadFlavour")),
     genBHadJetIndex_(iConfig.getParameter<edm::InputTag> ("genBHadJetIndex")),
     genBHadFromTopWeakDecay_(iConfig.getParameter<edm::InputTag> ("genBHadFromTopWeakDecay")),
-    genBHadFromBHadron_(iConfig.getParameter<edm::InputTag> ("genBHadFromBHadron")),
+    genBHadBHadronId_(iConfig.getParameter<edm::InputTag> ("genBHadBHadronId")),
     genBHadLeptonIndex_(iConfig.getParameter<edm::InputTag> ("genBHadLeptonIndex")),
     genBHadLeptonHadronIndex_(iConfig.getParameter<edm::InputTag> ("genBHadLeptonHadronIndex")),
     
@@ -351,11 +366,12 @@ NTupleWriter::NTupleWriter(const edm::ParameterSet& iConfig):
     genCHadFlavour_(iConfig.getParameter<edm::InputTag> ("genCHadFlavour")),
     genCHadJetIndex_(iConfig.getParameter<edm::InputTag> ("genCHadJetIndex")),
     genCHadFromTopWeakDecay_(iConfig.getParameter<edm::InputTag> ("genCHadFromTopWeakDecay")),
-    genCHadFromBHadron_(iConfig.getParameter<edm::InputTag> ("genCHadFromBHadron")),
+    genCHadBHadronId_(iConfig.getParameter<edm::InputTag> ("genCHadBHadronId")),
     genCHadLeptonIndex_(iConfig.getParameter<edm::InputTag> ("genCHadLeptonIndex")),
     genCHadLeptonHadronIndex_(iConfig.getParameter<edm::InputTag> ("genCHadLeptonHadronIndex")),
 
     saveHadronMothers(iConfig.getParameter<bool>("saveHadronMothers")),
+    saveCHadronParticles(iConfig.getParameter<bool>("saveCHadronParticles")),
 
     includeTrig_(iConfig.getParameter<bool>("includeTrigger")),
     isTtBarSample_(iConfig.getParameter<bool>("isTtBarSample")),
@@ -486,8 +502,8 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
         edm::Handle<edm::View<PileupSummaryInfo> > pPUInfo;
         iEvent.getByLabel(inTag_PUSource, pPUInfo);
         edm::View<PileupSummaryInfo>::const_iterator iterPU;
-        for(iterPU = pPUInfo->begin(); iterPU != pPUInfo->end(); ++iterPU)  // vector size is 3
-        {
+        for(iterPU = pPUInfo->begin(); iterPU != pPUInfo->end(); ++iterPU) {  // vector size is 3
+        
             if (iterPU->getBunchCrossing() == 0) { // -1: previous BX, 0: current BX,  1: next BX
                 vertMultiTrue = iterPU->getTrueNumInteractions();
             }
@@ -516,8 +532,8 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
     iEvent.getByLabel(jetsForMETuncorr_, jetsForMETuncorr);
 
 
-    if (! hypoKeyHandle.failedToGet())
-    {
+    if (! hypoKeyHandle.failedToGet()){
+        
         TtEvent::HypoClassKey& hypoKey = ( TtEvent::HypoClassKey& ) *hypoKeyHandle;
 
         //////////////////////////////dilepton and lepton properties/////////////////////
@@ -525,15 +541,13 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
 
         //the ntuple now only stores maximum 1 solution: the best one
         // - if a two btag solution is found, take it
-        // - else if one tag solution is fount, take the best one
-        if (FullLepEvt->isHypoAvailable(hypoKey) && FullLepEvt->isHypoValid(hypoKey))
-        {
+        // - else if one tag solution is found, take the best one
+        if (FullLepEvt->isHypoAvailable(hypoKey) && FullLepEvt->isHypoValid(hypoKey)){
+            
             int best = -1;
-            for ( size_t i=0; i<FullLepEvt->numberOfAvailableHypos (hypoKey); ++i )
-            {
-                const pat::Jet &jet1 = jets->at(FullLepEvt->jetLeptonCombination(hypoKey,i)[0]);
-                const pat::Jet &jet2 = jets->at(FullLepEvt->jetLeptonCombination(hypoKey,i)[1]);
-                if (jet1.pt() <= 30 || jet2.pt() <= 30 || abs(jet1.eta()) > 2.4 || abs(jet2.eta()) > 2.4 ) continue;
+            for ( size_t i=0; i<FullLepEvt->numberOfAvailableHypos(hypoKey); ++i ){
+                const pat::Jet& jet1 = jets->at(FullLepEvt->jetLeptonCombination(hypoKey,i)[0]);
+                const pat::Jet& jet2 = jets->at(FullLepEvt->jetLeptonCombination(hypoKey,i)[1]);
                 bool jet1tagged = jet1.bDiscriminator("combinedSecondaryVertexBJetTags")>0.244;
                 bool jet2tagged = jet2.bDiscriminator("combinedSecondaryVertexBJetTags")>0.244;
                 if (jet1tagged && jet2tagged) { best = i; break; }
@@ -543,8 +557,7 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
             //std::cout << iEvent.eventAuxiliary().id() <<  ": choose combination #" << best << "\n";
             
             //for ( size_t i=0; i<FullLepEvt->numberOfAvailableHypos (hypoKey); ++i )
-            if (best >= 0)
-            {
+            if (best >= 0){
                 size_t i = best;
 
                 const reco::Candidate* Top    = FullLepEvt->top(hypoKey, i);
@@ -576,8 +589,7 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
     }
 
 
-    if ( isTtBarSample_ )
-    {
+    if ( isTtBarSample_ ) {
 
         //Generator info
         edm::Handle<TtGenEvent> genEvt;
@@ -715,13 +727,13 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
                         VgenBHadPlusMothers.push_back(it->polarP4());
                         VgenBHadPlusMothersPdg.push_back(it->pdgId());
                         VgenBHadPlusMothersStatus.push_back(it->status());
-                    }       // End of loop over all particles
+                    }       
                 }   else {      // If only hadrons/leptons have to be stored
                     for (unsigned int i=0; i<genBHadIndex->size(); ++i) {
                         VgenBHadPlusMothers.push_back(genBHadPlusMothers->at(genBHadIndex->at(i)).polarP4());
                         VgenBHadPlusMothersPdg.push_back(genBHadPlusMothers->at(genBHadIndex->at(i)).pdgId());
                         VgenBHadIndex.at(i)=VgenBHadPlusMothers.size()-1;
-                    }       // End of loop over hadrons
+                    }      
                     for (unsigned int i=0; i<genBHadLeptonIndex->size(); ++i) {
                         VgenBHadPlusMothers.push_back(genBHadPlusMothers->at(genBHadLeptonIndex->at(i)).polarP4());
                         VgenBHadPlusMothersPdg.push_back(genBHadPlusMothers->at(genBHadLeptonIndex->at(i)).pdgId());
@@ -735,9 +747,9 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
                         }
                         VgenBHadLeptonViaTau.push_back(viaTau);
                         
-                    }       // End of loop over leptons
+                    }       
                 }
-            }       // If genBHadPlusMothers is not empty
+            }       
             
             edm::Handle<std::vector<int> > genBHadLeptonHadronIndex;
             iEvent.getByLabel(genBHadLeptonHadronIndex_, genBHadLeptonHadronIndex);
@@ -760,12 +772,13 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
             if(!genBHadJetIndex.failedToGet()) {
                 unsigned int iHad=0;
                 for (std::vector<int>::const_iterator it=genBHadJetIndex->begin(); it!=genBHadJetIndex->end(); ++it) {
+                    iHad++;
                     VgenBHadJetIndex.push_back(*it);
                     // Building a vector of b-jets from top
-                    if(VgenBHadFlavour.size()>iHad) {
-                        if(std::abs(VgenBHadFlavour.at(iHad))==6) genBJetFromTopIds.push_back(*it);
-                    }
-                    iHad++;
+                    if(VgenBHadFlavour.size()<iHad) continue;
+                    if(std::abs(VgenBHadFlavour.at(iHad-1))!=6) continue;
+                    if(std::find(genBJetFromTopIds.begin(), genBJetFromTopIds.end(), *it) != genBJetFromTopIds.end()) continue;
+                    genBJetFromTopIds.push_back(*it);
                 }
             }
             
@@ -777,11 +790,19 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
                 }
             }
                         
-            edm::Handle<std::vector<int> > genCHadLeptonHadronIndex;
-            iEvent.getByLabel(genCHadLeptonHadronIndex_, genCHadLeptonHadronIndex);
-            if(!genCHadLeptonHadronIndex.failedToGet()) {
-                for(std::vector<int>::const_iterator it=genCHadLeptonHadronIndex->begin(); it!=genCHadLeptonHadronIndex->end(); ++it) {
-                    VgenCHadLeptonHadronIndex.push_back(*it);
+            edm::Handle<std::vector<int> > genCHadIndex;
+            iEvent.getByLabel(genCHadIndex_, genCHadIndex);
+            if(!genCHadIndex.failedToGet()) {
+                for (std::vector<int>::const_iterator it=genCHadIndex->begin(); it!=genCHadIndex->end(); ++it) {
+                    VgenCHadIndex.push_back(*it);
+                }
+            }
+            
+            edm::Handle<std::vector<int> > genCHadLeptonIndex;
+            iEvent.getByLabel(genCHadLeptonIndex_, genCHadLeptonIndex);
+            if(!genCHadLeptonIndex.failedToGet()) {
+                for(std::vector<int>::const_iterator it=genCHadLeptonIndex->begin(); it!=genCHadLeptonIndex->end(); ++it) {
+                    VgenCHadLeptonIndex.push_back(*it);
                 }
             }
             
@@ -789,10 +810,25 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
             iEvent.getByLabel(genCHadPlusMothers_, genCHadPlusMothers);
             edm::Handle<std::vector<std::vector<int> > > genCHadPlusMothersIndices;
             iEvent.getByLabel(genCHadPlusMothersIndices_, genCHadPlusMothersIndices);
-            edm::Handle<std::vector<int> > genCHadLeptonIndex;
-            iEvent.getByLabel(genCHadLeptonIndex_, genCHadLeptonIndex);
-            if(!genCHadPlusMothers.failedToGet() && !genCHadPlusMothersIndices.failedToGet() && !genCHadLeptonIndex.failedToGet()) {
+            if(!genCHadPlusMothers.failedToGet()) {
+                if(saveHadronMothers) {         // If all particles have to be stored
+                    for (std::vector<reco::GenParticle>::const_iterator it=genCHadPlusMothers->begin(); it!=genCHadPlusMothers->end(); ++it){
+                        VgenCHadPlusMothers.push_back(it->polarP4());
+                        VgenCHadPlusMothersPdg.push_back(it->pdgId());
+                        VgenCHadPlusMothersStatus.push_back(it->status());
+                    }       
+                }   else {      // If only hadrons/leptons have to be stored
+                    for (unsigned int i=0; i<genCHadIndex->size(); ++i) {
+                        VgenCHadIndex.at(i)=-1;
+                        if(!saveCHadronParticles) continue; // Do not store actual c-hadrons but store leptons
+                        VgenCHadPlusMothers.push_back(genCHadPlusMothers->at(genCHadIndex->at(i)).polarP4());
+                        VgenCHadPlusMothersPdg.push_back(genCHadPlusMothers->at(genCHadIndex->at(i)).pdgId());
+                        VgenCHadIndex.at(i)=VgenCHadPlusMothers.size()-1;
+                    }      
                     for (unsigned int i=0; i<genCHadLeptonIndex->size(); ++i) {
+                        VgenCHadPlusMothers.push_back(genCHadPlusMothers->at(genCHadLeptonIndex->at(i)).polarP4());
+                        VgenCHadPlusMothersPdg.push_back(genCHadPlusMothers->at(genCHadLeptonIndex->at(i)).pdgId());
+                        VgenCHadLeptonIndex.at(i)=VgenCHadPlusMothers.size()-1;
                         int viaTau = -1;
                         if(!genCHadPlusMothersIndices.failedToGet()) {
                             int leptonMotherIndex = genCHadPlusMothersIndices->at(genCHadLeptonIndex->at(i)).at(0);
@@ -801,15 +837,40 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
                             }
                         }
                         VgenCHadLeptonViaTau.push_back(viaTau);
-                    }       // End of loop over leptons
-            }       // If genCHadPlusMothers is not empty
+                        
+                    }       
+                }
+            }
 
+            edm::Handle<std::vector<int> > genCHadLeptonHadronIndex;
+            iEvent.getByLabel(genCHadLeptonHadronIndex_, genCHadLeptonHadronIndex);
+            if(!genCHadLeptonHadronIndex.failedToGet()) {
+                for(std::vector<int>::const_iterator it=genCHadLeptonHadronIndex->begin(); it!=genCHadLeptonHadronIndex->end(); ++it) {
+                    VgenCHadLeptonHadronIndex.push_back(*it);
+                }
+            }
             
-            edm::Handle<std::vector<int> > genCHadFromBHadron;
-            iEvent.getByLabel(genCHadFromBHadron_, genCHadFromBHadron);
-            if(!genCHadFromBHadron.failedToGet()) {
-                for(std::vector<int>::const_iterator it=genCHadFromBHadron->begin(); it!=genCHadFromBHadron->end(); ++it) {
-                    VgenCHadFromBHadron.push_back(*it);
+            // Converting the index of parent b-hadron to point to the specifically identified collection of b-hadrons
+            // -1  - c-hadron doesn't come from a b-hadron'
+            // -2  - c-hadron comes from a b-hadron that was not identified in b-hadron specific run 
+            //       [comes from a non weakly-decaying b-hadron, decay products of the b-hadron not clustered to any jet]
+            edm::Handle<std::vector<int> > genCHadBHadronId;
+            iEvent.getByLabel(genCHadBHadronId_, genCHadBHadronId);
+            if(!genCHadBHadronId.failedToGet()) {
+                for(std::vector<int>::const_iterator it=genCHadBHadronId->begin(); it!=genCHadBHadronId->end(); ++it) {
+                    const int bHadId = *it;
+                    int bHadId_cor = -1;
+                    if(bHadId >= 0) {
+                        // Looking for the same particle in the lsit of hadrons from b-hadron related set of particles
+                        for(std::vector<int>::const_iterator jt=VgenBHadIndex.begin(); jt!=VgenBHadIndex.end(); ++jt) {
+                            if(genCHadPlusMothers->at(bHadId).pdgId() != VgenBHadPlusMothersPdg.at(*jt)) continue;
+                            if(std::fabs(genCHadPlusMothers->at(bHadId).pt() - VgenBHadPlusMothers.at(*jt).Pt()) > 1e-9) continue;
+                            bHadId_cor = jt-VgenBHadIndex.begin();
+                            break;
+                        }
+                        if(bHadId_cor<0) bHadId_cor = -2;
+                    }
+                    VgenCHadBHadronId.push_back(bHadId_cor);
                 }
             }
             
@@ -831,18 +892,23 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
 
             // Id of the event depending on the number of additional b(c)-jets in the event
             // -1  : Something went wrong
-            // 2   : 2 or more extra b-jets coming not from the top weak decay chain (and any number of c/light jets)
-            // 1   : Exactly 1 extra b-jet coming not from the top weak decay chain (and any number of c/light jets)
-            // 12  : 2 or more extra b-jets coming from the top weak decay chain but not directly from top (and any number of c/light jets)
-            // 11  : Exactly 1 extra b-jet coming from the top weak decay chain but not directly from top (and any number of c/light jets)
-            // 22  : No extra b-jets and 2 or more c-jets coming not from the top weak decay chain (and any number of light jets)
-            // 21  : No extra b-jets and exactly 1 c-jet coming not from the top weak decay chain (and any number of light jets)
-            // 32  : No extra b-jets and 2 or more c-jets coming from the top weak decay chain (and any number of light jets)
-            // 31  : No extra b-jets and exactly 1 c-jet coming from the top weak decay chain (and any number of light jets)
-            // 0   : No extra b-jets that come not directly from top and no c-jets that come not from b-hadrons
+            // 202 : 2 b-jets from top & >=2 extra b-jets coming not from the top weak decay chain (and any number of c/light jets)
+            // 201 : 2 b-jets from top & exactly 1 extra b-jet coming not from the top weak decay chain (and any number of c/light jets)
+            // 212 : 2 b-jets from top & >=2 extra b-jets coming from the top weak decay chain but not directly from top (and any number of c/light jets)
+            // 211 : 2 b-jets from top & exactly 1 extra b-jet coming from the top weak decay chain but not directly from top (and any number of c/light jets)
+            // 222 : 2 b-jets from top & no extra b-jets and >=2 c-jets coming not from the top weak decay chain (and any number of light jets)
+            // 221 : 2 b-jets from top & no extra b-jets and exactly 1 c-jet coming not from the top weak decay chain (and any number of light jets)
+            // 232 : 2 b-jets from top & no extra b-jets and >=2 c-jets coming from the top weak decay chain (and any number of light jets)
+            // 231 : 2 b-jets from top & no extra b-jets and exactly 1 c-jet coming from the top weak decay chain (and any number of light jets)
+            // 200 : 2 b-jets from top & no extra b-jets that come not directly from top and no c-jets that come not from b-hadrons
+            // 102 : 1 b-jet from top & >=2 extra b-jets coming not from the top weak decay chain (and any number of c/light jets)
+            //  - - - - - - - - - - - - - - 
+            // 100 : 1 b-jet from top & no extra b-jets that come not directly from top and no c-jets that come not from b-hadrons
             genExtraTopJetNumberId = -1;
                 
-            // Signal definition cuts
+            // ################################################################################################################
+            // ############################### Signal definition cuts for gen b-jets ##########################################
+            // ################################################################################################################
             double genSignalJetPt_min = 20.0;
             double genSignalJetEta_max = 2.5;
             
@@ -868,8 +934,8 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
                     } else if(VgenBHadFromTopWeakDecay.at(iHad)==1) {
                         genBJetFromTopDecayChainIndex.push_back(jetId);
                     }
-                }       // End of loop over b-hadrons
-            }       // If jet index for b-hadrons exists
+                }       
+            }       
             
             // Making the list of jets that contain c-hadrons not coming from the top weak decay
             std::vector<int> genCJetNotFromTopDecayChainIndex;
@@ -880,7 +946,7 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
                     // Skipping c-hadrons from top
                     if(genBHadFlavour->size()>iHad && std::abs(genBHadFlavour->at(iHad))==6) continue;
                     // Skipping c-hadrons coming from b-hadrons
-                    if(genCHadFromBHadron->size()>iHad && genCHadFromBHadron->at(iHad)) continue;
+                    if(genCHadBHadronId->size()>iHad && genCHadBHadronId->at(iHad)<0) continue;
                     int jetId = genCHadJetIndex->at(iHad);
                     if(jetId<0) continue;
                     // Checking that the jet satisfies the signal definition
@@ -895,26 +961,25 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
                     } else if(VgenCHadFromTopWeakDecay.at(iHad)==1) {
                         genCJetFromTopDecayChainIndex.push_back(jetId);
                     }
-                }       // End of loop over c-hadrons
-            }       // If jet index for c-hadrons exists
-                
-            int nGenBJetNotFromTopDecayChain = genBJetNotFromTopDecayChainIndex.size();
-            int nGenBJetFromTopDecayChain = genBJetFromTopDecayChainIndex.size();
-            int nGenCJetNotFromTopDecayChain = genCJetNotFromTopDecayChainIndex.size();
-            int nGenCJetFromTopDecayChain = genCJetFromTopDecayChainIndex.size();
-            if(nGenBJetNotFromTopDecayChain>=2) genExtraTopJetNumberId=2;
-            else if(nGenBJetNotFromTopDecayChain==1) genExtraTopJetNumberId=1;
-            else if(nGenBJetFromTopDecayChain>=2) genExtraTopJetNumberId = 12;
-            else if(nGenBJetFromTopDecayChain==1) genExtraTopJetNumberId=11;
-            else if(nGenCJetNotFromTopDecayChain>=2) genExtraTopJetNumberId=22;
-            else if(nGenCJetNotFromTopDecayChain==1) genExtraTopJetNumberId=21;
-            else if(nGenCJetFromTopDecayChain>=2) genExtraTopJetNumberId = 32;
-            else if(nGenCJetFromTopDecayChain==1) genExtraTopJetNumberId=31;
-            else genExtraTopJetNumberId = 0;
+                }       
+            }       
+            const int nGenBJetNotFromTopDecayChain = genBJetNotFromTopDecayChainIndex.size();
+            const int nGenBJetFromTopDecayChain = genBJetFromTopDecayChainIndex.size();
+            const int nGenCJetNotFromTopDecayChain = genCJetNotFromTopDecayChainIndex.size();
+            const int nGenCJetFromTopDecayChain = genCJetFromTopDecayChainIndex.size();
+            const int genTopJetNumberId = 100*genBJetFromTopIds.size();
+            if(nGenBJetNotFromTopDecayChain>=2) genExtraTopJetNumberId=2+genTopJetNumberId;
+            else if(nGenBJetNotFromTopDecayChain==1) genExtraTopJetNumberId=1+genTopJetNumberId;
+            else if(nGenBJetFromTopDecayChain>=2) genExtraTopJetNumberId = 12+genTopJetNumberId;
+            else if(nGenBJetFromTopDecayChain==1) genExtraTopJetNumberId=11+genTopJetNumberId;
+            else if(nGenCJetNotFromTopDecayChain>=2) genExtraTopJetNumberId=22+genTopJetNumberId;
+            else if(nGenCJetNotFromTopDecayChain==1) genExtraTopJetNumberId=21+genTopJetNumberId;
+            else if(nGenCJetFromTopDecayChain>=2) genExtraTopJetNumberId = 32+genTopJetNumberId;
+            else if(nGenCJetFromTopDecayChain==1) genExtraTopJetNumberId=31+genTopJetNumberId;
+            else genExtraTopJetNumberId = 0+genTopJetNumberId;
             
-        }       // If GenEvent is available
-        else
-        {
+        }       
+        else {
             std::cerr << "Error: no gen event?!\n";
             TopProductionMode = -1;
             GenTop = nullP4; GenAntiTop = nullP4;
@@ -939,7 +1004,7 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
     
         
     if ( isHiggsSample_ ) {
-        //Generator info
+        // Generator info
         edm::Handle<HiggsGenEvent> genEvtHiggs;
         iEvent.getByLabel ( genEventHiggs_, genEvtHiggs );
         if (! genEvtHiggs.failedToGet())
@@ -961,7 +1026,7 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
     }
 
     if(isZSample_){
-        //Generator info
+        // Generator info
         edm::Handle<std::vector<GenZDecayProperties> > v_genZDecayProperties;
         iEvent.getByLabel(genZDecay_, v_genZDecayProperties);
         if(!v_genZDecayProperties.failedToGet()){
@@ -1004,9 +1069,8 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
         else writeelec=true;
 
 
-        if ( writemuon )
-        {
-            //Fill muonstuff
+        if ( writemuon ) {
+            // Fill muonstuff
             Vlep.push_back( amuon->polarP4());
             VlepPdgId.push_back(amuon->pdgId());
             VlepID.push_back(-1);
@@ -1047,11 +1111,10 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
 
 
         }
-        if ( writeelec )
-        {
-            //Fill elestuff
+        if ( writeelec ) {
+            // Fill elestuff
 
-            //Electron MVAID values
+            // Electron MVAID values
 
             std::vector<std::pair<std::string,float> > electronMVAIDs = anelectron->electronIDs();
 
@@ -1106,7 +1169,7 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
         }
     }
 
-    //store the information in which channel the lepton is reconstructed
+    // Store the information in which channel the lepton is reconstructed
     for (size_t i = 1; i < VlepPdgId.size(); ++i) {
         int product = VlepPdgId.at(0) * VlepPdgId.at(i);
         if (product < 0) {
@@ -1120,8 +1183,7 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
     double jetPTThresholdForMET_ =10.;
     double jetEMLimitForMET_ = 0.9;
 //     bool ptJetTooLow;    
-    for ( edm::View<pat::Jet>::const_iterator ajet  = jets->begin() ; ajet != jets->end(); ++ajet )
-    {
+    for ( edm::View<pat::Jet>::const_iterator ajet  = jets->begin() ; ajet != jets->end(); ++ajet ){
         Vjet.push_back(ajet->polarP4());
         VjetJERSF.push_back(ajet->userFloat("jerSF"));
         if (! iEvent.isRealData()) {
@@ -1152,22 +1214,37 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
         VjetAssociatedPartonPdgId.push_back(i_jetProperties->jetAssociatedPartonPdgId());
         VjetAssociatedParton.push_back(i_jetProperties->jetAssociatedParton());
         
-        for (size_t i_pfTrack=0;i_pfTrack != i_jetProperties->jetPfCandidateTrack().size();i_pfTrack++)
-        {
-            VjetPfCandidateTrack.push_back(i_jetProperties->jetPfCandidateTrack().at(i_pfTrack));
-            VjetPfCandidateTrackCharge.push_back(i_jetProperties->jetPfCandidateTrackCharge().at(i_pfTrack));
-            VjetPfCandidateTrackId.push_back(i_jetProperties->jetPfCandidateTrackId().at(i_pfTrack));
-            VjetPfCandidateTrackIndex.push_back(i_jetProperties-jetPropertiesHandle->begin());
+        const int jetIndex = i_jetProperties-jetPropertiesHandle->begin();
+                
+        // FIXME: all these vectors could be directly inserted at the end of the corresponding vector instead of doing it element-wise
+        for (size_t iTrack=0; iTrack != i_jetProperties->jetPfCandidateTrack().size(); ++iTrack){
+            VjetPfCandidateTrack.push_back(i_jetProperties->jetPfCandidateTrack().at(iTrack));
+            VjetPfCandidateTrackCharge.push_back(i_jetProperties->jetPfCandidateTrackCharge().at(iTrack));
+            VjetPfCandidateTrackId.push_back(i_jetProperties->jetPfCandidateTrackId().at(iTrack));
+            VjetPfCandidateTrackIndex.push_back(jetIndex);
         }
         
-        for (size_t i_selTrack=0;i_selTrack != i_jetProperties->jetSelectedTrack().size();i_selTrack++)
-        {
-            VjetSelectedTrack.push_back(i_jetProperties->jetSelectedTrack().at(i_selTrack));
-            VjetSelectedTrackIPValue.push_back(i_jetProperties->jetSelectedTrackIPValue().at(i_selTrack));
-            VjetSelectedTrackIPSignificance.push_back(i_jetProperties->jetSelectedTrackIPSignificance().at(i_selTrack));
-            VjetSelectedTrackCharge.push_back(i_jetProperties->jetSelectedTrackCharge().at(i_selTrack));
-            VjetSelectedTrackIndex.push_back(i_jetProperties-jetPropertiesHandle->begin());
+        for (size_t iTrack=0; iTrack != i_jetProperties->jetSelectedTrack().size(); ++iTrack){
+            VjetSelectedTrack.push_back(i_jetProperties->jetSelectedTrack().at(iTrack));
+            VjetSelectedTrackIPValue.push_back(i_jetProperties->jetSelectedTrackIPValue().at(iTrack));
+            VjetSelectedTrackIPSignificance.push_back(i_jetProperties->jetSelectedTrackIPSignificance().at(iTrack));
+            VjetSelectedTrackCharge.push_back(i_jetProperties->jetSelectedTrackCharge().at(iTrack));
+            VjetSelectedTrackMatchToPfCandidateIndex.push_back(i_jetProperties->jetSelectedTrackMatchToPfCandidateIndex().at(iTrack));
+            VjetSelectedTrackIndex.push_back(jetIndex);  
         }
+        
+        for (size_t iTrack=0; iTrack != i_jetProperties->jetSecondaryVertexTrackVertexIndex().size(); ++iTrack){
+            VjetSecondaryVertexTrackMatchToSelectedTrackIndex.push_back(i_jetProperties->jetSecondaryVertexTrackMatchToSelectedTrackIndex().at(iTrack));
+            VjetSecondaryVertexTrackVertexIndex.push_back(i_jetProperties->jetSecondaryVertexTrackVertexIndex().at(iTrack));
+        }
+        
+        for (size_t iVertex=0; iVertex != i_jetProperties->jetSecondaryVertex().size(); ++iVertex){
+            VjetSecondaryVertex.push_back(i_jetProperties->jetSecondaryVertex().at(iVertex));
+            VjetSecondaryVertexJetIndex.push_back(jetIndex);
+            VjetSecondaryVertexFlightDistanceValue.push_back(i_jetProperties->jetSecondaryVertexFlightDistanceValue().at(iVertex));
+            VjetSecondaryVertexFlightDistanceSignificance.push_back(i_jetProperties->jetSecondaryVertexFlightDistanceSignificance().at(iVertex));
+        }
+        
     }
 
 
@@ -1175,8 +1252,8 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
     //because even bad-id jets are used for the MET
 
     //    for ( edm::View<pat::Jet>::const_iterator ajet  = jetsForMETuncorr->begin() ; ajet != jetsForMETuncorr->end(); ++ajet )
-    for ( size_t jet_it =  0 ; jet_it < jetsForMETuncorr->size(); ++jet_it )
-    {
+    for ( size_t jet_it =  0 ; jet_it < jetsForMETuncorr->size(); ++jet_it ){
+        
         if(jetsForMETuncorr->at(jet_it).correctedJet("Uncorrected").pt() > jetPTThresholdForMET_ &&
             ((!jetsForMETuncorr->at(jet_it).isPFJet() && jetsForMETuncorr->at(jet_it).emEnergyFraction() < jetEMLimitForMET_) ||
             (jetsForMETuncorr->at(jet_it).isPFJet() && jetsForMETuncorr->at(jet_it).neutralEmEnergyFraction() + jetsForMETuncorr->at(jet_it).chargedEmEnergyFraction() < jetEMLimitForMET_)))
@@ -1202,6 +1279,10 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
     iEvent.getByLabel(met_, h_met);
     met = h_met->at(0).polarP4();
 
+    edm::Handle<edm::View<pat::MET> > h_mvamet;
+    iEvent.getByLabel(mvamet_, h_mvamet);
+    mvamet = h_mvamet->at(0).polarP4();
+
     //////////////////////////////Event Info/////////////////////
     runno = iEvent.id().run();
     lumibl = iEvent.id().luminosityBlock();
@@ -1225,10 +1306,10 @@ int NTupleWriter::getTriggerBits (const edm::Event &iEvent, const edm::Handle< e
     edm::TriggerNames trigName = iEvent.triggerNames(*trigResults);
     int result = 0;
 
-    for ( int i_Trig = 0; i_Trig<n_Triggers; ++i_Trig )
-    {
-        if ( trigResults.product()->accept(i_Trig))
-        {
+    for ( int i_Trig = 0; i_Trig<n_Triggers; ++i_Trig ) {
+        
+        if ( trigResults.product()->accept(i_Trig)) {
+            
             if (includeTrig_) VfiredTriggers.push_back(trigName.triggerName(i_Trig));
             const std::string &triggerName = trigName.triggerName(i_Trig);
             std::string triggerNameWithoutVersion(triggerName);
@@ -1274,10 +1355,10 @@ int NTupleWriter::getTriggerBitsTau(const edm::Event &iEvent, const edm::Handle<
     edm::TriggerNames trigName = iEvent.triggerNames(*trigResults);
     int result = 0;
 
-    for ( int i_Trig = 0; i_Trig<n_Triggers; ++i_Trig )
-    {
-        if ( trigResults.product()->accept(i_Trig))
-        {
+    for ( int i_Trig = 0; i_Trig<n_Triggers; ++i_Trig ) {
+        
+        if ( trigResults.product()->accept(i_Trig)) {
+            
             const std::string &triggerName = trigName.triggerName(i_Trig);
             std::string triggerNameWithoutVersion(triggerName);
             while (triggerNameWithoutVersion.length() > 0
@@ -1395,17 +1476,26 @@ NTupleWriter::beginJob()
     Ntuple->Branch("jetChargeRelativePtWeighted", &VjetChargeRelativePtWeighted);
     Ntuple->Branch("jetPfCandidateTrack", &VjetPfCandidateTrack);
     Ntuple->Branch("jetPfCandidateTrackCharge", &VjetPfCandidateTrackCharge);
+    Ntuple->Branch("jetPfCandidateTrackId", &VjetPfCandidateTrackId);
     Ntuple->Branch("jetPfCandidateTrackIndex", &VjetPfCandidateTrackIndex);
+    Ntuple->Branch("jetSelectedTrackMatchToPfCandidateIndex",&VjetSelectedTrackMatchToPfCandidateIndex);
     Ntuple->Branch("jetSelectedTrack", &VjetSelectedTrack);
     Ntuple->Branch("jetSelectedTrackIPValue", &VjetSelectedTrackIPValue);
     Ntuple->Branch("jetSelectedTrackIPSignificance", &VjetSelectedTrackIPSignificance);
     Ntuple->Branch("jetSelectedTrackCharge", &VjetSelectedTrackCharge);
     Ntuple->Branch("jetSelectedTrackIndex", &VjetSelectedTrackIndex);
+    Ntuple->Branch("jetSecondaryVertex", &VjetSecondaryVertex);
+    Ntuple->Branch("jetSecondaryVertexJetIndex", &VjetSecondaryVertexJetIndex);
+    Ntuple->Branch("jetSecondaryVertexFlightDistanceValue", &VjetSecondaryVertexFlightDistanceValue);
+    Ntuple->Branch("jetSecondaryVertexFlightDistanceSignificance", &VjetSecondaryVertexFlightDistanceSignificance);
+    Ntuple->Branch("jetSecondaryVertexTrackMatchToSelectedTrackIndex", &VjetSecondaryVertexTrackMatchToSelectedTrackIndex);
+    Ntuple->Branch("jetSecondaryVertexTrackVertexIndex", &VjetSecondaryVertexTrackVertexIndex);
     
     if (isTtBarSample_) Ntuple->Branch("jetAssociatedPartonPdgId", &VjetAssociatedPartonPdgId);
 
     /////////////met properties///////////
     Ntuple->Branch("met", &met);
+    Ntuple->Branch("mvamet", &mvamet);
 
     ///////////event info///////////
     Ntuple->Branch("runNumber", &runno, "runNumber/i");
@@ -1474,10 +1564,20 @@ NTupleWriter::beginJob()
         Ntuple->Branch("genBHadLeptonViaTau", &VgenBHadLeptonViaTau);
         Ntuple->Branch("genBHadFromTopWeakDecay", &VgenBHadFromTopWeakDecay);
         
+        Ntuple->Branch("genCHadPlusMothers", &VgenCHadPlusMothers);
+        Ntuple->Branch("genCHadPlusMothersPdgId", &VgenCHadPlusMothersPdg);
+        if(saveHadronMothers) {
+            Ntuple->Branch("genCHadPlusMothersStatus", &VgenCHadPlusMothersStatus);
+            Ntuple->Branch("genCHadPlusMothersIndices", &VgenCHadPlusMothersIndices);
+        }
+        if(saveHadronMothers || saveCHadronParticles) {
+            Ntuple->Branch("genCHadIndex", &VgenCHadIndex);
+        }
         Ntuple->Branch("genCHadJetIndex", &VgenCHadJetIndex);
+        Ntuple->Branch("genCHadLeptonIndex", &VgenCHadLeptonIndex);
         Ntuple->Branch("genCHadLeptonHadronIndex", &VgenCHadLeptonHadronIndex);
         Ntuple->Branch("genCHadLeptonViaTau", &VgenCHadLeptonViaTau);
-        Ntuple->Branch("genCHadFromBHadron", &VgenCHadFromBHadron);
+        Ntuple->Branch("genCHadBHadronId", &VgenCHadBHadronId);
 
         Ntuple->Branch("jetAssociatedParton", &VjetAssociatedParton);
     }
@@ -1574,13 +1674,21 @@ void NTupleWriter::clearVariables()
     VjetAssociatedParton.clear();
     VjetPfCandidateTrack.clear();
     VjetPfCandidateTrackCharge.clear();
+    VjetPfCandidateTrackId.clear();
     VjetPfCandidateTrackIndex.clear();
+    VjetSelectedTrackMatchToPfCandidateIndex.clear();
     VjetSelectedTrack.clear();
     VjetSelectedTrackIPValue.clear();
     VjetSelectedTrackIPSignificance.clear();
     VjetSelectedTrackCharge.clear();
     VjetSelectedTrackIndex.clear();
-
+    VjetSecondaryVertex.clear();
+    VjetSecondaryVertexJetIndex.clear();
+    VjetSecondaryVertexFlightDistanceValue.clear();
+    VjetSecondaryVertexFlightDistanceSignificance.clear();
+    VjetSecondaryVertexTrackMatchToSelectedTrackIndex.clear();
+    VjetSecondaryVertexTrackVertexIndex.clear();
+    
     VBHadJetIdx.clear();
     VAntiBHadJetIdx.clear();
     VBHadron.clear();
@@ -1603,11 +1711,17 @@ void NTupleWriter::clearVariables()
     VgenBHadLeptonViaTau.clear();
     VgenBHadFromTopWeakDecay.clear();
     
+    VgenCHadPlusMothers.clear();
+    VgenCHadPlusMothersIndices.clear();
+    VgenCHadPlusMothersStatus.clear();
+    VgenCHadPlusMothersPdg.clear();
+    VgenCHadIndex.clear();
     VgenCHadJetIndex.clear();
+    VgenCHadLeptonIndex.clear();
     VgenCHadLeptonHadronIndex.clear();
     VgenCHadLeptonViaTau.clear();
     VgenCHadFromTopWeakDecay.clear();
-    VgenCHadFromBHadron.clear();
+    VgenCHadBHadronId.clear();
 
     /////////Triggers/////////
     VfiredTriggers.clear();

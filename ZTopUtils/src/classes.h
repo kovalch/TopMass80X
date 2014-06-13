@@ -2,6 +2,7 @@
 #include "../interface/JERBase.h"
 #include "../interface/JECBase.h"
 #include "../interface/bTagBase.h"
+#include "../interface/RecoilCorrector.h"
 
 #include "../ext/interface/JetCorrectorParameters.h"
 #include "../ext/interface/JetCorrectionUncertainty.h"
@@ -15,19 +16,24 @@ struct dict {
 
     std::vector<double> klklkl;
     std::vector<TString> kkj;
+    std::vector<std::vector<std::vector<double> > > vvv;
     std::pair<TString, std::vector<double> > jj;
     std::vector<std::pair<TString, std::vector<double> > > j;
     std::vector<long int> kl;
 
     std::vector<TH2D> ijij;
     std::map<TString, std::vector<TH2D> > kokd;
+    std::vector<TH1D> ifffjij;
 
     std::map<std::string, std::vector<TH2D> > sdfdsf;
     std::map<std::string, std::vector<float> > formedianmap;
+    std::vector<std::vector<std::vector<TH1D> > > forshapRWhistos;
 
+    ztop::RecoilCorrector corrector;
     ztop::bTagBase ked;
     ztop::JECBase kkss;
     ztop::JERBase ksdsk;
+    std::vector<ztop::RecoilCorrector> correctorV;
     std::vector<ztop::bTagBase> kedV;
     std::vector<ztop::JECBase> kkssV;
     std::vector<ztop::JERBase> ksdskV;

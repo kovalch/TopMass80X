@@ -30,7 +30,7 @@ struct RecoObjects{
     //std::vector<double>* lepPuChargedHadronIso_;
     std::vector<double>* lepCombIso_;
     std::vector<double>* lepDxyVertex0_;
-    //std::vector<double>* lepDzVertex0_;
+    std::vector<double>* lepDzVertex0_;
     //std::vector<int>* lepTrigger_;
     VLV* jets_;
     std::vector<double>* jetBTagTCHE_;
@@ -43,20 +43,25 @@ struct RecoObjects{
     //std::vector<double>* jetBTagCSVMVA_;
     std::vector<double>* jetChargeGlobalPtWeighted_;
     std::vector<double>* jetChargeRelativePtWeighted_;
-    std::vector<int>* jetTrackIndex_;
-    std::vector<int>* jetTrackCharge_;
-    std::vector<LV>* jetTrack_;
-    std::vector<int>* trackPdgId_;
-    //std::vector<LV>* jetPfCandidateTrack_;
-    //std::vector<int>* jetPfCandidateTrackCharge_;
-    //std::vector<int>* jetPfCandidateTrackId_;
-    //std::vector<int>* jetPfCandidateTrackIndex_;
-    //std::vector<LV>* jetSelectedTrack_;
-    //std::vector<double>* jetSelectedTrackIPValue_;
-    //std::vector<double>* jetSelectedTrackIPSignificance_;
-    //std::vector<int>* jetSelectedTrackCharge_;
-    //std::vector<int>* jetSelectedTrackIndex_;
+    std::vector<LV>* jetPfCandidateTrack_;
+    std::vector<int>* jetPfCandidateTrackCharge_;
+    std::vector<int>* jetPfCandidateTrackId_;
+    std::vector<int>* jetPfCandidateTrackIndex_;
+    std::vector<LV>* jetSelectedTrack_;
+    std::vector<double>* jetSelectedTrackIPValue_;
+    std::vector<double>* jetSelectedTrackIPSignificance_;
+    std::vector<int>* jetSelectedTrackCharge_;
+    std::vector<int>* jetSelectedTrackIndex_;
+    std::vector<int>* jetSelectedTrackMatchToPfCandidateIndex_;
+    std::vector<LV>* jetSecondaryVertex_;
+    std::vector<int>* jetSecondaryVertexJetIndex_;
+    std::vector<double>* jetSecondaryVertexFlightDistanceValue_;
+    std::vector<double>* jetSecondaryVertexFlightDistanceSignificance_;
+    std::vector<int>* jetSecondaryVertexTrackVertexIndex_;
+    std::vector<int>* jetSecondaryVertexTrackMatchToSelectedTrackIndex_;
+    
     LV* met_;
+    LV* mvamet_;
     std::vector<double>* jetJERSF_;
     VLV* jetsForMET_;
     std::vector<double>* jetForMETJERSF_;
@@ -131,10 +136,18 @@ struct TopGenObjects{
     std::vector<int>* genBHadIndex_;
     std::vector<int>* genBHadFlavour_;
     std::vector<int>* genBHadJetIndex_;
-    //std::vector<int>* genBHadLeptonIndex_;
-    //std::vector<int>* genBHadLeptonHadronIndex_;
-    //std::vector<int>* genBHadLeptonViaTau_;
+    std::vector<int>* genBHadLeptonIndex_;
+    std::vector<int>* genBHadLeptonHadronIndex_;
+    std::vector<int>* genBHadLeptonViaTau_;
     std::vector<int>* genBHadFromTopWeakDecay_;
+    
+    std::vector<int>* genCHadJetIndex_;
+    std::vector<int>* genCHadLeptonIndex_;
+    std::vector<int>* genCHadLeptonHadronIndex_;
+    std::vector<int>* genCHadLeptonViaTau_;
+    std::vector<int>* genCHadFromBHadron_;
+    
+    int genExtraTopJetNumberId_;
 };
 
 

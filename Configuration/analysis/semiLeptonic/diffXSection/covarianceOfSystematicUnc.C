@@ -3,7 +3,7 @@
 TString unfShortLabel(TString variable="");
 TString space(int val, int ref);
 
-void covarianceOfSystematicUnc(bool save=true, unsigned int verbose=0, TString decayChannel="combined", bool extrapolate=true, bool hadron=false, TString closureTestSpecifier=""){
+void covarianceOfSystematicUnc(bool save=true, unsigned int verbose=0, TString decayChannel="combined", bool extrapolate=false, bool hadron=true, TString closureTestSpecifier=""){
 
   // close all open files
   CloseOpenFiles();
@@ -723,7 +723,8 @@ void covarianceOfSystematicUnc(bool save=true, unsigned int verbose=0, TString d
     TString name=xSecVariables_[i];
     name.ReplaceAll("Norm","");
     TString xseclab=xSecLabelName(name);
-    TString lab=TString("total (stat+sys) correlation of ")+xseclab+" [%]";
+    TString lab=TString("total (stat.+syst.) correlation of ")+xseclab+" [%]";
+    lab.ReplaceAll("(p_{T}>30 GeV, |#eta|<2.4)","");
     if(lab.Contains("GeV")){
       lab.ReplaceAll("#left[GeV#right]", "");
       totCorr_[xSecVariables_[i]]->GetXaxis()->SetTitle(TString(totCorr_[xSecVariables_[i]]->GetXaxis()->GetTitle())+" #left[GeV#right]");

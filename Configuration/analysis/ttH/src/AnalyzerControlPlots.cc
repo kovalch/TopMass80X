@@ -24,7 +24,7 @@
 AnalyzerControlPlots::AnalyzerControlPlots(const std::vector<TString>& selectionStepsNoCategories,
                                            const std::vector<TString>& stepsForCategories,
                                            const JetCategories* jetCategories):
-AnalyzerBaseClass("basic_", selectionStepsNoCategories, stepsForCategories, jetCategories)
+AnalyzerBase("basic_", selectionStepsNoCategories, stepsForCategories, jetCategories)
 {
     std::cout<<"--- Beginning setting up basic histograms\n";
     std::cout<<"=== Finishing setting up basic histograms\n\n";

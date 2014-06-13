@@ -15,21 +15,26 @@ class TTree;
 class TH1;
 
 #include "classesFwd.h"
+#include "ScaleFactorsFwd.h"
 #include "storeTemplate.h"
+#include "sampleHelpers.h"
 
 class KinematicReconstruction;
+class KinematicReconstructionScaleFactors;
+class PileupScaleFactors;
 class TriggerScaleFactors;
 class LeptonScaleFactors;
 class BtagScaleFactors;
 class JetEnergyResolutionScaleFactors;
 class JetEnergyScaleScaleFactors;
+class TopPtScaleFactors;
 class RecoObjects;
 class CommonGenObjects;
 class TopGenObjects;
 class HiggsGenObjects;
 class KinRecoObjects;
 namespace ztop{
-    class PUReweighter;
+    class RecoilCorrector;
 }
 
 
@@ -59,13 +64,13 @@ public:
     void SetSamplename(const TString& samplename);
     
     /// Set generator parameters
-    void SetGeneratorBools(const TString& samplename, const TString& systematic);
+    void SetGeneratorBools(const TString& samplename, const Systematic::Systematic& systematic);
     
     /// Set Channel
-    void SetChannel(const TString& channel);
+    void SetChannel(const Channel::Channel& channel);
     
     /// Set systematic
-    void SetSystematic(const TString& systematic);
+    void SetSystematic(const Systematic::Systematic& systematic);
     
     /// Set whether it is MC sample
     void SetMC(const bool isMC);
@@ -88,11 +93,15 @@ public:
     /// Set folder for basic analysis output
     void SetAnalysisOutputBase(const char* analysisOutputBase);
     
+    /// Set the Met recoil corrector
+    void SetMetRecoilCorrector(ztop::RecoilCorrector* recoilCorrector);
+    
     /// Set the kinematic reconstruction
-    void SetKinematicReconstruction(KinematicReconstruction* kinematicReconstruction);
+    void SetKinematicReconstruction(KinematicReconstruction* kinematicReconstruction,
+                                    const KinematicReconstructionScaleFactors* const kinematicReconstructionScaleFactors);
     
     /// Set the pileup reweighter
-    void SetPUReweighter(ztop::PUReweighter* puReweighter);
+    void SetPileupScaleFactors(const PileupScaleFactors* pileupScaleFactors);
     
     /// Set the lepton scale factors
     void SetLeptonScaleFactors(const LeptonScaleFactors& scaleFactors);
@@ -111,6 +120,9 @@ public:
     
     /// Set jet energy scale scale factors
     void SetJetEnergyScaleScaleFactors(const JetEnergyScaleScaleFactors* jetEnergyScaleScaleFactors);
+    
+    /// Set top-pt scale factors
+    void SetTopPtScaleFactors(const TopPtScaleFactors* topPtScaleFactors);
     
     /// Set histogram containing the number of weighted events in full sample
     void SetWeightedEvents(TH1* weightedEvents);
@@ -156,7 +168,99 @@ protected:
     
     
     
-// ----------------------- Various protected methods -----------------------
+// ----------------------- Protected methods for event and object selection -----------------------
+    
+    /// Check if opposite-charge dilepton combination exists,
+    /// and check if lepton pair is correct flavour combination for the specified analysis channel (ee, emu, mumu)
+    bool hasLeptonPair(const int leadingLeptonIndex, const int nLeadingLeptonIndex,
+                       const std::vector<int>& lepPdgId)const;
+    
+    /// Check if event was triggered with the same dilepton trigger as the specified analysis channel
+    bool failsDileptonTrigger(const Long64_t& entry)const;
+    
+    /// Set the b-tag algoritm and working point used for b-tag corrections and also for the discriminator cut value
+    void setBtagAlgorithmAndWorkingPoint(const Btag::Algorithm& algorithm,
+                                         const Btag::WorkingPoint& workingPoint);
+    
+    /// Returns the b-tag discriminator cut value associated to the algorithm and working point set in the b-tag tool
+    double btagCutValue()const;
+    
+    /// Select events from Drell-Yan samples which need to be removed due to generator selection
+    bool failsDrellYanGeneratorSelection(const Long64_t& entry)const;
+
+    /// Select events from Top signal samples which need to be removed due to generator selection
+    bool failsTopGeneratorSelection(const Long64_t& entry)const;
+    
+    
+    
+    
+    
+// ----------------------- Protected methods for application of corrections (e.g. scale factors) stored in the ntuple -----------------------
+    
+    /// Correct branching ratios of W decays in MadGraph samples
+    double madgraphWDecayCorrection(const Long64_t& entry)const;
+    
+    /// Get weight due to pileup reweighting
+    double weightPileup(const Long64_t& entry)const;
+    
+    /// Get weight due to generator weights
+    double weightGenerator(const Long64_t& entry)const;
+    
+    /// Get weight of PDF variation
+    double weightPdf(const Long64_t& entry, const int pdfNo)const;
+    
+    
+    
+// ----------------------- Protected methods for application of corrections (e.g. scale factors) NOT stored in the ntuple -----------------------
+    
+    ///  Recoil Correction of the Mva Met
+    void correctMvaMet(LV& met, const LV& dilepton, const int njets)const;
+
+    /// Get weight due to top-pt reweighting
+    double weightTopPtReweighting(const Long64_t& entry)const;
+    
+    /// Get weight due to lepton efficiency MC-to-data scale factors
+    double weightLeptonSF(const int leadingLeptonIndex, const int nLeadingLeptonIndex,
+                          const VLV& allLeptons, const std::vector<int>& lepPdgId)const;
+    
+    /// Get weight due to trigger efficiency MC-to-data scale factors
+    double weightTriggerSF(const int leptonXIndex, const int leptonYIndex,
+                           const VLV& allLeptons)const;
+    
+    /// Get weight due to b-tagging efficiency MC-to-data scale factors
+    double weightBtagSF(const std::vector<int>& jetIndices,
+                        const VLV& jets, const std::vector<int>& jetPartonFlavour,
+                        const std::vector<double>& btagDiscriminators)const;
+    
+    /// Apply b-tag efficiency MC correction using random number based tag flipping
+    void retagJets(std::vector<int>& bjetIndices, const std::vector<int>& jetIndices,
+                   const VLV& jets, const std::vector<int>& jetPartonFlavours,
+                   const std::vector<double>& btagDiscriminants)const;
+    
+    /// Get weight due to efficiency of kinematic reconstruction
+    double weightKinReco()const;
+    
+    /// Whether to or not to produce b-tag efficiencies
+    /// If it is true, no analysis output is produced, but only files containing the efficiencies
+    bool makeBtagEfficiencies()const;
+    
+    /// Book histograms for b-tag efficiencies, in case the specified b-tag correction mode requires it
+    void bookBtagEfficiencyHistos();
+    
+    /// Fill histograms for b-tag efficiencies, in case the specified b-tag correction mode requires it
+    void fillBtagEfficiencyHistos(const std::vector<int>& jetIndices,
+                                  const std::vector<double>& btagDiscriminators,
+                                  const VLV& jets,
+                                  const std::vector<int>& jetPartonFlavours,
+                                  const double& weight);
+    
+    /// Produce b-tag efficiencies, in case the specified b-tag correction mode requires it
+    void produceBtagEfficiencies();
+    
+    
+    
+    
+// ----------------------- Various protected helper methods -----------------------
     
     /** Return a string describing the true level W+/W- decays from the ttbar system
      *
@@ -169,16 +273,6 @@ protected:
      */
     const std::string topDecayModeString()const;
 
-    /** Set up the scale factor for the Kinematic Reconstruction
-     *
-     * Currently a flat per-channel SF is used. For the systematic KIN_UP and KIN_DOWN,
-     * the SF is modified by its uncertainty.
-     *
-     * To calculate the SF, you need to set the SF to 1 and rerun. Then determine the
-     * SF with kinRecoEfficienciesAndSF
-     */
-    void prepareKinRecoSF();
-    
     /** Calculate the kinematic reconstruction and return whether at least one solution exists
      *
      * reconstruct the top quarks and store the result in the Hyp* member variables,
@@ -196,14 +290,6 @@ protected:
      */
     bool calculateKinReco(const int leptonIndex, const int antiLeptonIndex, const std::vector<int>& jetIndices,
                           const VLV& allLeptons, const VLV& jets, const std::vector<double>& jetBTagCSV, const LV& met);
-
-    /// Check if opposite-charge dilepton combination exists,
-    /// and check if lepton pair is correct flavour combination for the specified analysis channel (ee, emu, mumu)
-    bool hasLeptonPair(const int leadingLeptonIndex, const int nLeadingLeptonIndex,
-                       const std::vector<int>& lepPdgId)const;
-    
-    /// Check if event was triggered with the same dilepton trigger as the specified analysis channel
-    bool failsDileptonTrigger(const Long64_t& entry)const;
     
     /// Get H_t of jets
     double getJetHT(const std::vector<int>& jetIndices, const VLV& jets)const;
@@ -211,55 +297,8 @@ protected:
     /// Access identifier key of Higgs decay mode
     int higgsDecayMode(const Long64_t& entry)const;
     
-    /// Select events from Drell-Yan samples which need to be removed due to generator selection
-    bool failsDrellYanGeneratorSelection(const Long64_t& entry)const;
-
-    /// Select events from Top signal samples which need to be removed due to generator selection
-    bool failsTopGeneratorSelection(const Long64_t& entry)const;
-    
-    /// Correct branching ratios of W decays in MadGraph samples
-    double madgraphWDecayCorrection(const Long64_t& entry)const;
-    
-    /// Get weight due to pileup reweighting
-    double weightPileup(const Long64_t& entry)const;
-    
-    /// Get weight due to generator weights
-    double weightGenerator(const Long64_t& entry)const;
-    
-    /// Get weight of PDF variation
-    double weightPdf(const Long64_t& entry, const int pdfNo)const;
-    
-    /// Get weight due to top pt reweighting
-    double weightTopPtReweighting(const double& topPt, const double& antiTopPt)const;
-    
-    /// Get weight due to lepton efficiency MC-to-data scale factors
-    double weightLeptonSF(const int leadingLeptonIndex, const int nLeadingLeptonIndex,
-                          const VLV& allLeptons, const std::vector<int>& lepPdgId)const;
-    
-    /// Get weight due to trigger efficiency MC-to-data scale factors
-    double weightTriggerSF(const int leptonXIndex, const int leptonYIndex,
-                           const VLV& allLeptons)const;
-    
-    /// Get weight due to b-tagging efficiency MC-to-data scale factors
-    double weightBtagSF(const std::vector<int>& jetIndices,
-                        const VLV& jets, const std::vector<int>& jetPartonFlavour)const;
-    
-    /// Get weight due to efficiency of kinematic reconstruction
-    double weightKinReco()const;
-    
     /// Store the object in the output list and return it
     template<class T> T* store(T* obj){return common::store(obj, fOutput);}
-    
-    /// Whether to or not to produce b-tag efficiencies for the analysed sample
-    bool makeBtagEfficiencies()const;
-    
-    /// Apply b-tag efficiency MC correction using random number based tag flipping
-    void retagJets(std::vector<int>& bjetIndices, const std::vector<int>& jetIndices,
-                   const VLV& jets, const std::vector<int>& jetPartonFlavours,
-                   const std::vector<double>& btagDiscriminants)const;
-    
-    /// Get a pointer to the BtagScaleFactors (probably not the best implementation, should put individual functionality in separate functions)
-    BtagScaleFactors* btagScaleFactors(){return btagScaleFactors_;}
     
     /// Returns the samplename which is written as metadata in ingoing and outgoing root-file
     const TString& samplename()const{return samplename_;}
@@ -271,10 +310,10 @@ protected:
     const int& channelPdgIdProduct()const{return channelPdgIdProduct_;}
     
     /// Returns the decay channel
-    const TString& channel()const{return channel_;}
+    const Channel::Channel& channel()const{return channel_;}
     
     /// Returns the analysed systematic
-    const TString& systematic()const{return systematic_;}
+    const Systematic::Systematic& systematic()const{return systematic_;}
     
     /// Whether it is a MC sample
     const bool& isMC()const{return isMC_;}
@@ -334,6 +373,8 @@ private:
     /// Access event entry for nTuple branch for Higgs decay mode
     void GetHiggsDecayModeEntry(const Long64_t& entry)const;
     
+    /// Access event entry for nTuple branches of generated top and anti-top quark, used for reweighting
+    void GetGenTopBranchesEntry(const Long64_t& entry)const;
     
     
     
@@ -376,6 +417,9 @@ private:
     /// Set address of nTuple branch for Higgs decay mode
     void SetHiggsDecayBranchAddress();
     
+    /// Set addresses of nTuple branches for generated top and anti-top quark, used for reweighting
+    void SetGenTopBranchAddresses();
+    
     /// Set addresses of nTuple branches for Top signal samples on generator level
     void SetTopSignalBranchAddresses();
     
@@ -384,10 +428,12 @@ private:
     
     
     
+    
 // ----------------------- Private helper methods -----------------------
     
-    /// Reweight funtion estimated by Martin Goerner
-    double topPtReweightValue(const double& pt)const;
+    /// Write analysis output to root file
+    void writeOutput();
+    
     
     
     
@@ -422,10 +468,6 @@ private:
     TBranch* b_jetBTagCSVMVA;
     TBranch* b_jetChargeGlobalPtWeighted;
     TBranch* b_jetChargeRelativePtWeighted;
-    TBranch* b_jetTrackIndex;
-    TBranch* b_jetTrackCharge;
-    TBranch* b_jetTrack;
-    TBranch* b_trackPdgId;
     TBranch* b_jetPfCandidateTrack;
     TBranch* b_jetPfCandidateTrackCharge;
     TBranch* b_jetPfCandidateTrackId;
@@ -435,8 +477,16 @@ private:
     TBranch* b_jetSelectedTrackIPSignificance;
     TBranch* b_jetSelectedTrackCharge;
     TBranch* b_jetSelectedTrackIndex;
+    TBranch* b_jetSelectedTrackMatchToPfCandidateIndex;
+    TBranch* b_jetSecondaryVertex;
+    TBranch* b_jetSecondaryVertexJetIndex;
+    TBranch* b_jetSecondaryVertexFlightDistanceValue;
+    TBranch* b_jetSecondaryVertexFlightDistanceSignificance;
+    TBranch* b_jetSecondaryVertexTrackVertexIndex;
+    TBranch* b_jetSecondaryVertexTrackMatchToSelectedTrackIndex;
     
     TBranch* b_met;
+    TBranch* b_mvamet;
     TBranch* b_jetForMET;
     TBranch* b_jetJERSF;
     TBranch* b_jetForMETJERSF;
@@ -494,6 +544,7 @@ private:
     
     /// nTuple branch for Drell-Yan decay mode
     TBranch* b_ZDecayMode;
+    TBranch* b_genZ;
     
     
     /// nTuple branch for Top decay mode
@@ -505,9 +556,9 @@ private:
     
     
     /// nTuple branches for Top signal samples on generator level
-    TBranch* b_GenMet;
     TBranch* b_GenTop;
     TBranch* b_GenAntiTop;
+    TBranch* b_GenMet;
     TBranch* b_GenLepton;
     TBranch* b_GenAntiLepton;
     TBranch* b_GenLeptonPdgId;
@@ -531,6 +582,7 @@ private:
     TBranch* b_AntiBHadronFromTopB;
     TBranch* b_BHadronVsJet;
     TBranch* b_AntiBHadronVsJet;
+    
     TBranch* b_genBHadPlusMothersPdgId;
     TBranch* b_genBHadPlusMothersStatus;
     TBranch* b_genBHadPlusMothersIndices;
@@ -542,6 +594,14 @@ private:
     TBranch* b_genBHadLeptonHadronIndex;
     TBranch* b_genBHadLeptonViaTau;
     TBranch* b_genBHadFromTopWeakDecay;
+    
+    TBranch* b_genCHadJetIndex;
+    TBranch* b_genCHadLeptonIndex;
+    TBranch* b_genCHadLeptonHadronIndex;
+    TBranch* b_genCHadLeptonViaTau;
+    TBranch* b_genCHadFromBHadron;
+    
+    TBranch* b_genExtraTopJetNumberId;
     
     
     /// nTuple branches for Higgs signal samples on generator level
@@ -586,6 +646,9 @@ private:
     /// Variables associated to nTuple branch for Drell-Yan decay mode
     std::vector<int>* ZDecayMode_;
 
+    /// Variables associated to nTuple branch for generator level Z-boson TLorentzVector
+    VLV* genZ_;
+    
     /// Variables associated to nTuple branch for Top decay mode
     Int_t topDecayMode_;
     
@@ -601,8 +664,8 @@ private:
     
     /// Information in nTuple stored in TObjString once per file, but added from outside and potentially configured
     TString samplename_;
-    TString channel_;
-    TString systematic_;
+    Channel::Channel channel_;
+    Systematic::Systematic systematic_;
     bool isMC_;
     bool isTopSignal_;
     bool isHiggsSignal_;
@@ -624,9 +687,6 @@ private:
     /// Whether it is a ttbar sample (and not ttbarH, ttbarW, ttbarZ, or any other thing)
     bool isTtbarSample_;
     
-    /// Scale factor due to kinematic reconstruction
-    double weightKinFit_; //this is per channel and does not need to be calculated inside the event loop
-    
     /// Event counter
     Int_t eventCounter_;
     
@@ -638,8 +698,14 @@ private:
     /// Pointer to the kinematic reconstruction instance
     KinematicReconstruction* kinematicReconstruction_;
     
+    /// Pointer to the kinematic reconstruction scale factors instance
+    const KinematicReconstructionScaleFactors* kinematicReconstructionScaleFactors_;
+    
     /// Pointer to the pileup reweighter instance
-    ztop::PUReweighter* puReweighter_;
+    const PileupScaleFactors* pileupScaleFactors_;
+    
+    /// Pointer to the Met Recoil correction tools
+    ztop::RecoilCorrector* recoilCorrector_;
     
     /// Pointer to lepton scale factors instance
     const LeptonScaleFactors* leptonScaleFactors_;
@@ -647,14 +713,17 @@ private:
     /// Pointer to trigger scale factors instance
     const TriggerScaleFactors* triggerScaleFactors_;
     
-    /// Pointer to jet energy resolution scale factors
+    /// Pointer to jet energy resolution scale factors instance
     const JetEnergyResolutionScaleFactors* jetEnergyResolutionScaleFactors_;
     
-    /// Pointer to jet energy resolution scale factors
+    /// Pointer to jet energy resolution scale factors instance
     const JetEnergyScaleScaleFactors* jetEnergyScaleScaleFactors_;
     
     /// Pointer to btag scale factors instance
     BtagScaleFactors* btagScaleFactors_;
+    
+    /// Pointer to the top-pt scale factors instance
+    const TopPtScaleFactors* topPtScaleFactors_;
     
     /// Whether the sample should be used for production of btag efficiencies
     bool isSampleForBtagEfficiencies_;

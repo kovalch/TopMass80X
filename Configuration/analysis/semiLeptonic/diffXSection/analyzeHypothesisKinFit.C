@@ -3,13 +3,13 @@
 #include "../../unfolding/TopSVDFunctions.C" 
 
 void analyzeHypothesisKinFit(double luminosity = 19712.,
-			     bool save = true, int systematicVariation=sysPUUp, unsigned int verbose=0,
+			     bool save = false, int systematicVariation=sysNo, unsigned int verbose=0,
 			     TString inputFolderName=AnalysisFolder,
 			     //TString dataFile= groupSpace+AnalysisFolder+"/muonDiffXSecData2012ABCDAll.root",
 			     //TString dataFile= groupSpace+AnalysisFolder+"/elecDiffXSecData2012ABCDAll.root",
 			     TString dataFile= groupSpace+AnalysisFolder+"/elecDiffXSecData2012ABCDAll.root:"+groupSpace+AnalysisFolder+"/muonDiffXSecData2012ABCDAll.root",
-			     std::string decayChannel = "combined", bool SVDunfold=true, bool extrapolate=true, bool hadron=false,
-			     bool addCrossCheckVariables=false, bool redetermineopttau =true, TString closureTestSpecifier="", TString addSel="ProbSel")
+			     std::string decayChannel = "combined", bool SVDunfold=true, bool extrapolate=false, bool hadron=true,
+			     bool addCrossCheckVariables=false, bool redetermineopttau =false, TString closureTestSpecifier="", TString addSel="ProbSel")
 {
   // ============================
   //  Set ROOT Style
@@ -148,7 +148,10 @@ void analyzeHypothesisKinFit(double luminosity = 19712.,
       exit(0);
     }
   }
-  if(closureTestSpecifier!=""&&!dataFile.Contains("PseudoData")) dataFile=inputFolder+"/pseudodata/"+pseudoDataFileName(closureTestSpecifier, "electron")+":"+inputFolder+"/pseudodata/"+pseudoDataFileName(closureTestSpecifier, "muon");
+  if(closureTestSpecifier!=""&&!dataFile.Contains("PseudoData")){
+    dataFile=inputFolder+"/pseudodata/"+pseudoDataFileName(closureTestSpecifier, "electron")+":"+inputFolder+"/pseudodata/"+pseudoDataFileName(closureTestSpecifier, "muon");
+    dataFile.ReplaceAll("MadSpin", "");// pseudo data is created from simulation without MadSpin
+  }
   // save all plots into the following foldre
   TString outputFolder = "./diffXSecFromSignal/plots/"+decayChannel+"/";
   if(dataSample!="") outputFolder+=dataSample+"/";
@@ -1606,6 +1609,7 @@ void analyzeHypothesisKinFit(double luminosity = 19712.,
   TH1F* BkgYield  =(TH1F*)(histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/topPt"][kBkg  ]->Clone());
   TH1F* STopYield =(TH1F*)(histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/topPt"][kSTop ]->Clone());
   TH1F* WjetYield =(TH1F*)(histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/topPt"][kWjets]->Clone());
+  TH1F* TTVjetYield =(TH1F*)(histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/topPt"][kTTVjets]->Clone()); //######
   TH1F* ZjetYield =(TH1F*)(histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/topPt"][kZjets]->Clone());
   TH1F* DiBosYield=(TH1F*)(histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/topPt"][kDiBos]->Clone());
   TH1F* QCDYield  =(TH1F*)(histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/topPt"][kQCD  ]->Clone());
@@ -1830,6 +1834,7 @@ void analyzeHypothesisKinFit(double luminosity = 19712.,
       // subtract BG(MC)
       //histo_[xSec][kData]->Add((TH1F*)(histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable][kBkg  ]->Clone()), -1); // other ttbar BG is accessed by a signal fraction (see below) 
       histo_[xSec][kData]->Add((TH1F*)(histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable][kZjets]->Clone()), -1);
+      histo_[xSec][kData]->Add((TH1F*)(histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable][kTTVjets]->Clone()), -1); //#####
       histo_[xSec][kData]->Add((TH1F*)(histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable][kWjets]->Clone()), -1);
       histo_[xSec][kData]->Add((TH1F*)(histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable][kSTop ]->Clone()), -1);
       histo_[xSec][kData]->Add((TH1F*)(histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable][kDiBos]->Clone()), -1);
@@ -1888,8 +1893,10 @@ void analyzeHypothesisKinFit(double luminosity = 19712.,
   double NBGW   = 0.5 * WjetYield ->Integral(0, WjetYield ->GetNbinsX()+1);
   double NBGsTop= 0.5 * STopYield ->Integral(0, STopYield ->GetNbinsX()+1);
   double NBGVV  = 0.5 * DiBosYield->Integral(0, DiBosYield->GetNbinsX()+1);
+  double NBGTTV = 0.5 * TTVjetYield->Integral(0, TTVjetYield->GetNbinsX()+1); //####
   double NBGQCD = 0.5 * QCDYield  ->Integral(0, QCDYield  ->GetNbinsX()+1);
-  double NBG= NBGZ+NBGW+NBGsTop+NBGVV+NBGQCD; //other ttbar BG is handled by a signal fraction (see below sigFrac)
+  //double NBG= NBGZ+NBGW+NBGsTop+NBGVV+NBGQCD; //other ttbar BG is handled by a signal fraction (see below sigFrac)
+  double NBG= NBGZ+NBGW+NBGsTop+NBGVV+NBGQCD+NBGTTV; //other ttbar BG is handled by a signal fraction (see below sigFrac) //#####
   double NAllMC=NSig+NBGtop+NBG;
   double sigFrac=NSig/(NSig+NBGtop);
   // print event composition
@@ -1926,6 +1933,11 @@ void analyzeHypothesisKinFit(double luminosity = 19712.,
     std::cout << "Z+jets    :" << std::setprecision(4) << std::fixed << NBGZ   / NAllMC;
     std::cout << " (" << lumiweight(kZjets, luminosity, systematicVariation, decayChannel) << "*";
     std::cout << NBGZ/lumiweight(kZjets, luminosity, systematicVariation, decayChannel) << "=" << NBGZ << ") " << std::endl;
+    //#######################
+     std::cout << "TTV+jets    :" << std::setprecision(4) << std::fixed << NBGTTV   / NAllMC;
+    std::cout << " (" << lumiweight(kTTVjets, luminosity, systematicVariation, decayChannel) << "*";
+    std::cout << NBGTTV/lumiweight(kTTVjets, luminosity, systematicVariation, decayChannel) << "=" << NBGTTV << ") " << std::endl;
+    //#######################
     std::cout << "Diboson   :" << std::setprecision(4) << std::fixed << NBGVV  / NAllMC; 
     std::cout << " (" << NBGVV << ") " << std::endl;
   }
@@ -2044,6 +2056,7 @@ void analyzeHypothesisKinFit(double luminosity = 19712.,
 	// NBGVariable+=getInclusiveXSec(histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable][kBkg],verbose-1);
 	// BG from other ttbar events is treated in the signal fraction
 	NBGVariable+=getInclusiveXSec(histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable][kSTop ],verbose-1);
+        NBGVariable+=getInclusiveXSec(histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable][kTTVjets],verbose-1); //#####
 	NBGVariable+=getInclusiveXSec(histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable][kDiBos],verbose-1);
 	NBGVariable+=getInclusiveXSec(histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable][kQCD  ],verbose-1);
 	NBGVariable+=getInclusiveXSec(histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable][kZjets],verbose-1);
@@ -2072,6 +2085,7 @@ void analyzeHypothesisKinFit(double luminosity = 19712.,
 	  //NBGBin+=histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable][kBkg]->GetBinContent(bin);
 	  // BG from other ttbar events is treated in the signal fraction
 	  NBGBin+=histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable][kWjets]->GetBinContent(bin);
+          NBGBin+=histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable][kTTVjets ]->GetBinContent(bin); //##########
 	  NBGBin+=histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable][kSTop ]->GetBinContent(bin);
 	  NBGBin+=histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable][kDiBos]->GetBinContent(bin);
 	  NBGBin+=histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable][kQCD  ]->GetBinContent(bin);
@@ -2455,7 +2469,7 @@ void analyzeHypothesisKinFit(double luminosity = 19712.,
       //          3 means: 125 scan points (default)
       //          4 means: 625 scan points
       int scanpoints= (scan==2 ? 3 : 0);
-      //scanpoints=1; // FIXME: fast tauscan results
+      //scanpoints=4; // FIXME: fast tauscan results
       steering=getTStringFromInt(scanpoints)+steering;
       //     (9)  SCANRANGE
       //          0 means: Default value, same as 2
@@ -2565,11 +2579,13 @@ void analyzeHypothesisKinFit(double luminosity = 19712.,
 	  double NumBkg  = histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable][kBkg  ]->GetBinContent(bin)*histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable][kBkg  ]->GetBinWidth(bin);     
 	  double NumQCD  = histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable][kQCD  ]->GetBinContent(bin)*histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable][kQCD  ]->GetBinWidth(bin);
 	  double NumVV   = histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable][kDiBos]->GetBinContent(bin)*histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable][kDiBos]->GetBinWidth(bin);
+          double NumTTV   = histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable][kTTVjets]->GetBinContent(bin)*histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable][kTTVjets]->GetBinWidth(bin); //###
 	  double NumStop = histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable][kSTop ]->GetBinContent(bin)*histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable][kSTop ]->GetBinWidth(bin);
 	  double NumWjet = histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable][kWjets]->GetBinContent(bin)*histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable][kWjets]->GetBinWidth(bin);
 	  double NumZjet = histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable][kZjets]->GetBinContent(bin)*histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable][kZjets]->GetBinWidth(bin);
 	  double dataVal = histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable ][kData]->GetBinContent(bin)* histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable ][kData]->GetBinWidth(bin);
-	  double allBGVal=NumStop+NumWjet+NumZjet+NumVV+NumQCD;
+	  //double allBGVal=NumStop+NumWjet+NumZjet+NumVV+NumQCD;
+          double allBGVal=NumStop+NumWjet+NumZjet+NumVV+NumQCD+NumTTV; //##########
 	  if(allBGVal>dataVal){
 	    std::cout << "WARNING: data=" << dataVal << "<BG=" << allBGVal << " in bin " << bin;
 	    std::cout << "("<< histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable ][kData]->GetBinLowEdge(bin) << ".." << histo_["analyzeTopRecoKinematicsKinFit"+sysInputFolderExtension+"/"+variable ][kData]->GetBinLowEdge(bin+1) << ")"<< std::endl;
@@ -2589,6 +2605,7 @@ void analyzeHypothesisKinFit(double luminosity = 19712.,
 	    std::cout << "     N(Wjets): "  << NumWjet << std::endl;
 	    std::cout << "     N(Zjets): "  << NumZjet << std::endl;
 	    std::cout << "     N(VV): "     << NumVV   << std::endl;
+            std::cout << "     N(TTVjets): " << NumTTV   << std::endl; //##########
 	    std::cout << "     N(QCD): "    << NumQCD  << std::endl;
  	  }
 	}

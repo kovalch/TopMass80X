@@ -14,47 +14,18 @@
 
 #include "plotterclass.h"
 #include "HistoListReader.h"
+#include "homelessFunctions.h"
 #include "../../common/include/CommandLineParameters.h"
 #include "../../common/include/sampleHelpers.h"
 
-
-//constexpr double lumi = 12210;
-//constexpr double lumi = 19624.8;
-//constexpr double lumi = 19789;
-constexpr double lumi = 19712;
-
-//constexpr double topxsec = 244.849; //again changes with normalization, must be set outside of the class
-// constexpr double topxsec = 244.794; //Mitov, arXiv:1303.6254
-constexpr double topxsec = 247.998; //Measured XSection after normalization to Mitov, and statistical combination of channels
-//constexpr double topxsec = 248.207; //Measured XSection after normalization to Mitov, and after combination of channels at yield level
-
 using namespace std;
 
-///Please put the variation of each systematics one after each other, satarting from the UP variation.
-///    NOT valid example: MATCH_UP, MASS_DOWN, MASS_UP
-const std::vector<const char*> VectorOfValidSystematics 
-    {"Nominal",
-    "JER_UP", "JER_DOWN", "JES_UP", "JES_DOWN",
-    "PU_UP", "PU_DOWN", "TRIG_UP", "TRIG_DOWN", "LEPT_UP", "LEPT_DOWN",
-    "DY_UP", "DY_DOWN", "BG_UP", "BG_DOWN", 
-    "KIN_UP", "KIN_DOWN",
-    "BTAG_UP", "BTAG_DOWN", "BTAG_LJET_UP", "BTAG_LJET_DOWN",
-    "BTAG_PT_UP", "BTAG_PT_DOWN", "BTAG_ETA_UP", "BTAG_ETA_DOWN",
-    "BTAG_LJET_PT_UP", "BTAG_LJET_PT_DOWN", "BTAG_LJET_ETA_UP", "BTAG_LJET_ETA_DOWN",
-//     "BTAG_BEFF_UP", "BTAG_BEFF_DOWN", "BTAG_CEFF_UP", "BTAG_CEFF_DOWN", "BTAG_LEFF_UP", "BTAG_LEFF_DOWN",
-    "MASS_UP", "MASS_DOWN", "MATCH_UP", "MATCH_DOWN", "SCALE_UP", "SCALE_DOWN", 
-    "POWHEG", "POWHEGHERWIG", "MCATNLO",// "PERUGIA11", // "SPINCORR", 
-    "all"};
-    
 void Histo(bool doControlPlots, bool doUnfold, bool doDiffXSPlotOnly,
            std::vector<std::string> plots, 
            std::vector<std::string> systematics, 
            std::vector<std::string> channels,
            const bool drawUncBand)
 {
-    //to stay compatible with old code
-    std::set<TString> SetOfValidSystematics;
-    for (auto s: VectorOfValidSystematics) SetOfValidSystematics.insert(s);
 
     HistoListReader histoList(doControlPlots ? "HistoList_control" : "HistoList");
     if (histoList.IsZombie()) exit(12);
@@ -77,8 +48,6 @@ void Histo(bool doControlPlots, bool doUnfold, bool doDiffXSPlotOnly,
 
         // Create Plotter 
         Plotter h_generalPlot;
-        h_generalPlot.setLumi(lumi, topxsec);
-        h_generalPlot.ListOfSystematics(SetOfValidSystematics);
         
         /////////////////////////////////////////////////////
         /////////   UNFOLDING OPTIONS     ///////////////////
@@ -110,8 +79,6 @@ void Histo(bool doControlPlots, bool doUnfold, bool doDiffXSPlotOnly,
                 //unfold all channels except combined in parallel
                 std::vector<std::future<void>> unfoldJobs;
                 for (auto channel:channels) {
-/// This part of the code was only necessary for the statistical combination of the 3 channels
-//                     if (channel != "combined") {
                         TString ch(channel.c_str());
                         TString sys(systematic.c_str());
                         unfoldJobs.push_back(std::async(std::launch::async, [ch, sys](Plotter p) -> void { 
@@ -121,17 +88,11 @@ void Histo(bool doControlPlots, bool doUnfold, bool doDiffXSPlotOnly,
                         //it seems unfolding is not thread safe! 
                         //fix that and remove the next line
                         unfoldJobs.at(unfoldJobs.size()-1).wait();
-//                     }
                 }
                 //wait for the 3 channels to finish
                 for (auto &i : unfoldJobs) {
                     i.get();
                 }
-/// This part of the code was only necessary for the statistical combination of the 3 channels
-//                 //only now do combined (if requested)
-//                 for (auto channel:channels) {
-//                     if (channel == "combined") h_generalPlot.unfolding(channel,systematic);
-//                 }
             }
         std::cout << "Done with the unfolding\n";
         }
@@ -167,6 +128,10 @@ std::function<bool(const std::string &s)> makeStringChecker(const std::vector<co
 }
 
 int main(int argc, char** argv) {
+    
+    std::vector<const char*> VectorOfValidSystematics;
+    homelessFunctions::fillVectorOfValidSystematics(VectorOfValidSystematics);
+    
     CLParameter<std::string> opt_type("t", "cp|unfold|plot - required, cp=contol plots, unfold, or only plot diffXS", true, 1, 1,
         makeStringChecker({"cp", "unfold", "plot"}));
     CLParameter<std::string> opt_plots("p", "Name (pattern) of plot; multiple patterns possible; use '+Name' to match name exactly", false, 1, 100);

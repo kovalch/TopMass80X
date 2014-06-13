@@ -19,8 +19,8 @@ ee_Leptons_Pt_HypLeptonpT                                                       
 ee_Leptons_Pt_HypLeptonpTLead                                                                       1.25614     5   6   4   7
 ee_Leptons_Pt_HypLeptonpTNLead                                                                      0.36990     5   6   4   7
 ee_TopQuarks_Pt_HypToppT                                                                            5.26553     4   5   3   7
-ee_TopQuarks_Pt_HypToppTLead                                                                        4.04947     4   5   3   7
-ee_TopQuarks_Pt_HypToppTNLead                                                                       2.94112     4   5   4   7
+ee_TopQuarks_Pt_HypToppTLead                                                                        4.13971     4   5   3   7
+ee_TopQuarks_Pt_HypToppTNLead                                                                       3.14599     4   5   3   7
 ee_TopQuarks_Pt_HypToppTTTRestFrame                                                                 2.80980     5   6   3   8
 ee_TopQuarks_Rapidity_HypTopRapidity                                                                4.96786     6   7   6   10
 ee_TopQuarks_Rapidity_HypTopRapidityLead                                                            3.12730     6   7   3   10
@@ -51,8 +51,8 @@ emu_Leptons_Pt_HypLeptonpT                                                      
 emu_Leptons_Pt_HypLeptonpTLead                                                                      2.39506     5   6   2   7
 emu_Leptons_Pt_HypLeptonpTNLead                                                                     0.71301     5   6   4   7
 emu_TopQuarks_Pt_HypToppT                                                                           8.89069     4   5   4   7
-emu_TopQuarks_Pt_HypToppTLead                                                                       7.23999     4   5   2   7
-emu_TopQuarks_Pt_HypToppTNLead                                                                      4.54759     4   5   4   7
+emu_TopQuarks_Pt_HypToppTLead                                                                       7.37500     4   5   2   7
+emu_TopQuarks_Pt_HypToppTNLead                                                                      4.85183     4   5   4   7
 emu_TopQuarks_Pt_HypToppTTTRestFrame                                                                3.98730     5   6   5   8
 emu_TopQuarks_Rapidity_HypTopRapidity                                                               9.72189     6   7   2   10
 emu_TopQuarks_Rapidity_HypTopRapidityLead                                                           6.02235     6   7   3   10
@@ -83,8 +83,8 @@ mumu_Leptons_Pt_HypLeptonpT                                                     
 mumu_Leptons_Pt_HypLeptonpTLead                                                                     1.70632     5   6   3   7
 mumu_Leptons_Pt_HypLeptonpTNLead                                                                    0.76010     5   6   2   7
 mumu_TopQuarks_Pt_HypToppT                                                                          5.85253     4   5   3   7
-mumu_TopQuarks_Pt_HypToppTLead                                                                      4.55485     4   5   3   7
-mumu_TopQuarks_Pt_HypToppTNLead                                                                     3.22318     4   5   4   7
+mumu_TopQuarks_Pt_HypToppTLead                                                                      4.64719     4   5   3   7
+mumu_TopQuarks_Pt_HypToppTNLead                                                                     3.47105     4   5   3   7
 mumu_TopQuarks_Pt_HypToppTTTRestFrame                                                               3.11924     5   6   4   8
 mumu_TopQuarks_Rapidity_HypTopRapidity                                                              5.66939     6   7   6   10
 mumu_TopQuarks_Rapidity_HypTopRapidityLead                                                          3.46828     6   7   5   10

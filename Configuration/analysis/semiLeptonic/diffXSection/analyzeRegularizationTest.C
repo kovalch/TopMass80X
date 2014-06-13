@@ -7,7 +7,7 @@ void analyzeRegularizationTest(TString test="mix", double luminosity = 19712.,
 			       TString inputFolderName="RecentAnalysisRun8TeV_doubleKinFit",
 			       TString dataFile= groupSpace+AnalysisFolder+"/elecDiffXSecData2012ABCDAll.root:"+groupSpace+AnalysisFolder+"/muonDiffXSecData2012ABCDAll.root",
 			       std::string decayChannel = "combined", bool SVDunfold=true, bool extrapolate=true, bool hadron=false, 
-			       bool redetermineopttau =false, TString closureTestSpecifier="data", TString addSel="ProbSel")
+			       bool redetermineopttau =false, TString closureTestSpecifier="", TString addSel="ProbSel")
 {
   // iterative unfolding?
   bool iterative=false;
@@ -164,7 +164,11 @@ void analyzeRegularizationTest(TString test="mix", double luminosity = 19712.,
       exit(0);
     }
   }
-  if(closureTestSpecifier!=""&&!dataFile.Contains("PseudoData")) dataFile=inputFolder+"/pseudodata/"+pseudoDataFileName(closureTestSpecifier, "electron")+":"+inputFolder+"/pseudodata/"+pseudoDataFileName(closureTestSpecifier, "muon");
+  if(closureTestSpecifier!=""&&!dataFile.Contains("PseudoData")){
+    dataFile=inputFolder+"/pseudodata/"+pseudoDataFileName(closureTestSpecifier, "electron")+":"+inputFolder+"/pseudodata/"+pseudoDataFileName(closureTestSpecifier, "muon");
+    // closure test pseudo data is created from ttbar simulation without madspin
+    dataFile.ReplaceAll("MadSpin", "");
+  }
   // save all plots into the following foldre
   TString outputFolder = "./diffXSecFromSignal/plots/"+decayChannel+"/";
   if(dataSample!="") outputFolder+=dataSample+"/";
@@ -2202,7 +2206,7 @@ void analyzeRegularizationTest(TString test="mix", double luminosity = 19712.,
 	// =================================================
 	if(systematicVariation==sysNo&&variable!="inclusive"&&closureTestSpecifier!=""&&!closureTestSpecifier.Contains("NoDistort")){
 	  // get ttbar signal files (with reweighting applied or without for zprime)
-	  TString rewfold="/afs/naf.desy.de/group/cms/scratch/tophh/"+inputFolderName+"/";
+	  TString rewfold=groupSpace+inputFolderName+"/";
 	  if(zprime=="") rewfold+="ttbarReweight/";
 	  TString muReweighted=rewfold+TopFilename(kSig, sysNo, "muon"    );
 	  TString elReweighted=rewfold+TopFilename(kSig, sysNo, "electron");
@@ -2210,7 +2214,10 @@ void analyzeRegularizationTest(TString test="mix", double luminosity = 19712.,
 	  if(zprime==""){
 	    muReweighted.ReplaceAll("Summer", "SysDistort"+closureTestSpecifier+"Summer");
 	    elReweighted.ReplaceAll("Summer", "SysDistort"+closureTestSpecifier+"Summer");
-	  }
+	  }								\
+	  // closure test pseudo data is created from ttbar simulation without madspin
+	  muReweighted.ReplaceAll("MadSpin", "");
+	  elReweighted.ReplaceAll("MadSpin", "");
 	  TFile* mufile = new (TFile)(muReweighted);
 	  TFile* elfile = new (TFile)(elReweighted);
 	  // get plot
@@ -2246,6 +2253,8 @@ void analyzeRegularizationTest(TString test="mix", double luminosity = 19712.,
 	    if(zprime=="1000") massextension="ZprimeM1000W100";
 	    muzprime.ReplaceAll("Sig", massextension+"Sig");
 	    elzprime.ReplaceAll("Sig", massextension+"Sig");
+	    muzprime.ReplaceAll("MadSpin", "");
+	    elzprime.ReplaceAll("MadSpin", "");
 	    // get files
 	    TFile* zprimemufile = new (TFile)(muzprime);
 	    TFile* zprimeelfile = new (TFile)(elzprime);
@@ -2257,8 +2266,8 @@ void analyzeRegularizationTest(TString test="mix", double luminosity = 19712.,
 	    if     (zprime=="1000") zPrimeLumiWeight=(zPrimeLumiWeight*5*luminosity)/104043;
 	    if(histo_["zprime"+variable+"Mu"].count(kSig)>0) histo_["zprime"+variable+"Mu"][kSig]->Scale(zPrimeLumiWeight);
 	    if(histo_["zprime"+variable+"El"].count(kSig)>0) histo_["zprime"+variable+"El"][kSig]->Scale(zPrimeLumiWeight);
-	    histo_["reweighted"+variable+"Mu"][kSig]->Scale(lumiweight(kSig, constLumiMuon, 0, "muon"    ));
-	    histo_["reweighted"+variable+"El"][kSig]->Scale(lumiweight(kSig, constLumiElec, 0, "electron"));
+	    histo_["reweighted"+variable+"Mu"][kSig]->Scale(lumiweight(kSig, constLumiMuon, 0, "muon"    ,false));
+	    histo_["reweighted"+variable+"El"][kSig]->Scale(lumiweight(kSig, constLumiElec, 0, "electron",false));
 	    // add zprime to signal
 	    if(histo_["zprime"+variable+"Mu"].count(kSig)>0) histo_["reweighted"+variable+"Mu"][kSig]->Add((TH1F*)histo_["zprime"+variable+"Mu"][kSig]->Clone());
 	    if(histo_["zprime"+variable+"El"].count(kSig)>0) histo_["reweighted"+variable+"El"][kSig]->Add((TH1F*)histo_["zprime"+variable+"El"][kSig]->Clone());
@@ -2683,7 +2692,7 @@ void analyzeRegularizationTest(TString test="mix", double luminosity = 19712.,
 		      if(closureTestSpecifier=="") histo_["xSecNorm/topPtclosure"][kSig]=histo_[plotList_[plot]][42];
 		      double ratioMin=closureTestSpecifier=="" ? 0.5 : 0.7;
 		      double ratioMax=closureTestSpecifier=="" ? 1.25 : 1.35;
-		      drawRatio(histo_[plotList_[plot]][42], histo_[plotList_[plot]][42], ratioMin, ratioMax, myStyle, verbose, zeroerr_, "unfolded", (closureTestSpecifier=="" ? "prediction" : "gen truth"), "AXIS", histo_["xSecNorm/topPtclosure"][kSig]->GetLineColor() , false, 0.1);
+		      drawRatio(histo_[plotList_[plot]][42], histo_[plotList_[plot]][42], ratioMin, ratioMax, myStyle, verbose, zeroerr_, (closureTestSpecifier=="" ? "prediction" : "unfolded"), (closureTestSpecifier=="" ? "unfolded" : "gen truth"), "AXIS", histo_["xSecNorm/topPtclosure"][kSig]->GetLineColor() , false, 0.1);
 		      drawRatio(histo_["xSecNorm/topPtclosure"][kSig], histo_["xSecNorm/topPtclosure"][kSig], 0.8, 1.35, myStyle, verbose, zeroerr_, "unfolded", "gen truth", "hist same", histo_["xSecNorm/topPtclosure"][kSig]->GetLineColor() , false, 0.1);
 		      for(int xSecnum=0; xSecnum<(int)tauxSecNorm_.size(); ++xSecnum){
 			TGraphAsymmErrors* tempRatio=(TGraphAsymmErrors*)tauxSecNormM_[xSecnum]->Clone();

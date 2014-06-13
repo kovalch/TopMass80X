@@ -9,7 +9,7 @@
 #include <TString.h>
 #include <TSelectorList.h>
 
-#include "AnalysisHistograms.h"
+#include "AnalyzerBaseClass.h"
 #include "analysisStructs.h"
 #include "ttbarUtils.h"
 #include "../../common/include/analysisObjectStructs.h"
@@ -24,7 +24,7 @@
 
 
 
-AnalysisHistogramsBase::AnalysisHistogramsBase(const TString& prefix,
+AnalyzerBaseClass::AnalyzerBaseClass(const TString& prefix,
                                                const std::vector<TString>& selectionStepsNoCategories):
 prefix_(prefix),
 selectorList_(0),
@@ -33,7 +33,7 @@ selectionSteps_(selectionStepsNoCategories)
 
 
 
-void AnalysisHistogramsBase::book(TSelectorList* output)
+void AnalyzerBaseClass::book(TSelectorList* output)
 {
     // Set pointer to output, so that histograms are owned by it
     selectorList_ = output;
@@ -50,7 +50,7 @@ void AnalysisHistogramsBase::book(TSelectorList* output)
 
 
 
-void AnalysisHistogramsBase::addStep(const TString& step)
+void AnalyzerBaseClass::addStep(const TString& step)
 {
     // Check whether step already exists
     if(this->checkExistence(step)){
@@ -66,25 +66,25 @@ void AnalysisHistogramsBase::addStep(const TString& step)
 
 
 
-bool AnalysisHistogramsBase::checkExistence(const TString& step)const
+bool AnalyzerBaseClass::checkExistence(const TString& step)const
 {
     return m_stepHistograms_.find(step) != m_stepHistograms_.end();
 }
 
 
 
-void AnalysisHistogramsBase::bookHistos(const TString&, std::map<TString, TH1*>&)
+void AnalyzerBaseClass::bookHistos(const TString&, std::map<TString, TH1*>&)
 {
     // WARNING: this is empty template method, overwrite for inherited histogram class
     
-    std::cerr<<"ERROR! Dummy method bookHistos() in AnalysisHistogramBase is called, but overridden one should be used\n"
+    std::cerr<<"ERROR! Dummy method bookHistos() in AnalyzerBaseClass is called, but overridden one should be used\n"
              <<"...break\n"<<std::endl;
     exit(567);
 }
 
 
 
-void AnalysisHistogramsBase::fill(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+void AnalyzerBaseClass::fill(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                                   const TopGenObjects& topGenObjects,
                                   const KinRecoObjects& kinRecoObjects,
                                   const ttbar::RecoObjectIndices& recoObjectIndices, const ttbar::GenObjectIndices& genObjectIndices,
@@ -109,7 +109,7 @@ void AnalysisHistogramsBase::fill(const RecoObjects& recoObjects, const CommonGe
 
 
 
-void AnalysisHistogramsBase::fillHistos(const RecoObjects&, const CommonGenObjects&,
+void AnalyzerBaseClass::fillHistos(const RecoObjects&, const CommonGenObjects&,
                                         const TopGenObjects&,
                                         const KinRecoObjects&,
                                         const ttbar::RecoObjectIndices&, const ttbar::GenObjectIndices&,
@@ -119,14 +119,14 @@ void AnalysisHistogramsBase::fillHistos(const RecoObjects&, const CommonGenObjec
 {
     // WARNING: this is empty template method, overwrite for inherited histogram class
     
-    std::cerr<<"ERROR! Dummy method fillHistos() in AnalysisHistogramBase is called, but overridden one should be used\n"
+    std::cerr<<"ERROR! Dummy method fillHistos() in AnalyzerBaseClass is called, but overridden one should be used\n"
              <<"...break\n"<<std::endl;
     exit(568);
 }
 
 
 
-void AnalysisHistogramsBase::clear()
+void AnalyzerBaseClass::clear()
 {
     for(auto stepHistograms : m_stepHistograms_){
         stepHistograms.second.m_histogram_.clear();
@@ -141,12 +141,12 @@ void AnalysisHistogramsBase::clear()
 
 
 
-// --------------------------- Methods for EventYieldHistograms ---------------------------------------------
+// --------------------------- Methods for AnalyzerEventYields ---------------------------------------------
 
 
 
-EventYieldHistograms::EventYieldHistograms(const std::vector<TString>& selectionStepsNoCategories):
-AnalysisHistogramsBase("events_", selectionStepsNoCategories)
+AnalyzerEventYields::AnalyzerEventYields(const std::vector<TString>& selectionStepsNoCategories):
+AnalyzerBaseClass("events_", selectionStepsNoCategories)
 {
     std::cout<<"--- Beginning setting up event yield histograms\n";
     std::cout<<"=== Finishing setting up event yield histograms\n\n";
@@ -154,7 +154,7 @@ AnalysisHistogramsBase("events_", selectionStepsNoCategories)
 
 
 
-void EventYieldHistograms::bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram)
+void AnalyzerEventYields::bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram)
 {
     TString name;
     name = "weighted";
@@ -164,7 +164,7 @@ void EventYieldHistograms::bookHistos(const TString& step, std::map<TString, TH1
 
 
 
-void EventYieldHistograms::fillHistos(const RecoObjects&, const CommonGenObjects&,
+void AnalyzerEventYields::fillHistos(const RecoObjects&, const CommonGenObjects&,
                                       const TopGenObjects&,
                                       const KinRecoObjects&,
                                       const ttbar::RecoObjectIndices&, const ttbar::GenObjectIndices&,
@@ -186,17 +186,17 @@ void EventYieldHistograms::fillHistos(const RecoObjects&, const CommonGenObjects
 
 
 
-// --------------------------- Methods for DyScalingHistograms ---------------------------------------------
+// --------------------------- Methods for AnalyzerDyScaling ---------------------------------------------
 
 
 
-DyScalingHistograms::DyScalingHistograms(const std::vector<TString>& selectionSteps, const TString& looseStep):
-AnalysisHistogramsBase("dyScaling_", selectionSteps),
+AnalyzerDyScaling::AnalyzerDyScaling(const std::vector<TString>& selectionSteps, const TString& looseStep):
+AnalyzerBaseClass("dyScaling_", selectionSteps),
 looseStep_(looseStep)
 {
     std::cout<<"--- Beginning setting up Drell-Yan scaling histograms\n";
     if(std::find(selectionSteps_.begin(), selectionSteps_.end(), looseStep_) == selectionSteps_.end()){
-        std::cerr<<"ERROR in constructor of DyScalingHistograms!"
+        std::cerr<<"ERROR in constructor of AnalyzerDyScaling!"
                  <<"Could not find in selection steps the step specified for loose histogram: "<<looseStep_
                  <<"\n...break\n"<<std::endl;
         exit(987);
@@ -206,7 +206,7 @@ looseStep_(looseStep)
 
 
 
-void DyScalingHistograms::bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram)
+void AnalyzerDyScaling::bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram)
 {
     const TString looseStep = ttbar::stepName(looseStep_) + "zWindow";
     if(step == looseStep){
@@ -225,7 +225,7 @@ void DyScalingHistograms::bookHistos(const TString& step, std::map<TString, TH1*
 
 
 
-TH1* DyScalingHistograms::bookHisto(TH1* histo, const TString& name)
+TH1* AnalyzerDyScaling::bookHisto(TH1* histo, const TString& name)
 {
     histo = this->store(new TH1D(name,"Dilepton Mass; m_{ll}; events",40,0,400));
     return histo;
@@ -233,7 +233,7 @@ TH1* DyScalingHistograms::bookHisto(TH1* histo, const TString& name)
 
 
 
-void DyScalingHistograms::fillHistos(const RecoObjects& recoObjects, const CommonGenObjects&,
+void AnalyzerDyScaling::fillHistos(const RecoObjects& recoObjects, const CommonGenObjects&,
                                      const TopGenObjects&,
                                      const KinRecoObjects&,
                                      const ttbar::RecoObjectIndices& recoObjectIndices, const ttbar::GenObjectIndices&,

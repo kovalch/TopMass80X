@@ -2,7 +2,7 @@
 
 TH1F* convertToHist(TGraphAsymmErrors* in,  TH1F* templatePlot, double NbinsIn);
 
-void ATLASCMSCOMPARISON(TString quantity="ttbarMass"){
+void ATLASCMSCOMPARISON(TString quantity="ttbarY"){
 
   bool cmssim=true;
 
@@ -16,6 +16,7 @@ void ATLASCMSCOMPARISON(TString quantity="ttbarMass"){
   gROOT->SetStyle("HHStyle");
   gStyle->SetEndErrorSize(10);
   gStyle->SetOptFit(0);
+  TGaxis::SetMaxDigits(2);
 
   // ---
   //    top Pt 7 TeV
@@ -253,6 +254,7 @@ void ATLASCMSCOMPARISON(TString quantity="ttbarMass"){
   if(quantity=="ttbarY"   ){max=1.0  ; min=0.;}
   dummy->SetMaximum(max);
   dummy->SetMinimum(min);
+  dummy->GetXaxis()->SetNoExponent(true);
   TH1F* A=convertToHist(ATLASdata7, dummy, Nbins7);
   TH1F* C=convertToHist(CMSdata7  , dummy, Nbins7);
   histogramStyle(*A, kSig, true, 1.2, kRed);
@@ -280,21 +282,21 @@ void ATLASCMSCOMPARISON(TString quantity="ttbarMass"){
   M->SetMarkerColor(kAzure+6);
   M->SetLineColor(kAzure+6);
 
+
   // ---
   //    legend
   // ---
-  TLegend *leg0 = new TLegend(0.45, 0.65, 0.95, 0.85);
+  TLegend *leg0 = new TLegend(0.38, 0.63, 0.95, 0.89);
   leg0->SetFillStyle(0);
   leg0->SetBorderSize(0);
-  leg0->SetHeader("#sqrt{s}=7TeV data (e/#mu channel)");
+  leg0->SetHeader("LHC, #sqrt{s}=7TeV (t#bar{t} #rightarrow e/#mu+Jets final state)");
   TLegend *leg1=(TLegend*)leg0->Clone(); 
   if(cmssim) leg0->AddEntry( CMSMadGraph7, "CMS MadGraph+Pythia(Z2*)", "LP");
-  leg0->AddEntry( CMSdata7    , "CMS data in ATLAS binning"   , "LP");
-  leg0->AddEntry( ATLASdata7  , "ATLAS data" , "LP");
-  leg1->AddEntry( ATLASdata7  , "ATLAS (ATLAS-CONF-2013-099)" , "FP");
-  leg1->AddEntry( CMSdata7    , "CMS (TOP-11-013 in ATLAS binning)"   , "FP");
-  if(cmssim) leg1->AddEntry( CMSMadGraph7, "CMS MadGraph+Pythia(Z2*)", "LP");
-
+  leg0->AddEntry( CMSdata7    , "#splitline{CMS data, 5.0 fb^{-1} (Eur.Phys.J.C73(2013)2339}{in ATLAS binning)}", "LP");
+  leg0->AddEntry( ATLASdata7  , "ATLAS data, 4.6 fb^{-1}"                         , "LP");
+  leg1->AddEntry( ATLASdata7  , "#splitline{ATLAS data, 4.6 fb^{-1}}{(ATLAS-CONF-2013-099)}"   , "FP");
+  leg1->AddEntry( CMSdata7    , "#splitline{CMS data, 5.0 fb^{-1} (Eur.Phys.J. C73}{(2013) 2339, redone in ATLAS binning)}", "FP");
+  if(cmssim) leg1->AddEntry( CMSMadGraph7, "#splitline{CMS MC (MadGraph+Pythia,}{CTEQ6L1 PDF, Z2* UE tune)}", "LP");
 
   // ---
   //    privatworklabel
@@ -323,7 +325,7 @@ void ATLASCMSCOMPARISON(TString quantity="ttbarMass"){
   ATLASdata7  ->Draw("p e2 same");
   CMSdata7    ->Draw("p e2 same");
   leg0 ->Draw("same");
-  privatworklabel->Draw("same");
+  if(!PHD) privatworklabel->Draw("same");
   // b) log scale
   TH1F* dummy2=(TH1F*)dummy->Clone();
   dummy2->SetMinimum(0.00001);
@@ -338,7 +340,7 @@ void ATLASCMSCOMPARISON(TString quantity="ttbarMass"){
   CMSdata7    ->Draw("p e2 same");
   ATLASdata7  ->Draw("p e2 same");
   leg0 ->Draw("same");
-  privatworklabel->Draw("same");
+  if(!PHD) privatworklabel->Draw("same");
   // c) both data with bands
   addCanvas(plotCanvas_);
   plotCanvas_[plotCanvas_.size()-1]->cd(0);
@@ -370,7 +372,7 @@ void ATLASCMSCOMPARISON(TString quantity="ttbarMass"){
   CMSdata7    ->Draw("p e2 same");
   ATLASdata7  ->Draw("p e2 same");
   leg1->Draw("same");
-  privatworklabel->Draw("same");
+  if(!PHD) privatworklabel->Draw("same");
   // d) both data with ratio
   addCanvas(plotCanvas_);
   plotCanvas_[plotCanvas_.size()-1]->cd(0);
@@ -385,7 +387,7 @@ void ATLASCMSCOMPARISON(TString quantity="ttbarMass"){
   CMSdata7    ->Draw("p e2 same");
   ATLASdata7  ->Draw("p e2 same");
   leg1 ->Draw("same");
-  privatworklabel->Draw("same");
+  if(!PHD) privatworklabel->Draw("same");
   std::vector<double> errA_;
   for(int bin=1; bin<=Nbins7; ++bin){
     errA_.push_back((ATLASdata7->GetY()[bin-1]/CMSdata7->GetY()[bin-1])*((ATLASdata7->GetErrorYhigh(bin-1)/ATLASdata7->GetY()[bin-1])));
@@ -394,18 +396,19 @@ void ATLASCMSCOMPARISON(TString quantity="ttbarMass"){
   for(int bin=1; bin<=Nbins7; ++bin){
     errC_.push_back((CMSdata7->GetErrorYhigh(bin-1)/CMSdata7->GetY()[bin-1]));
   }
+  TString denomlab  ="data";
+  TString nomlab="#scale[0.75]{MadGraph+Pythia}";
   if(cmssim){
     std::vector<double> errM_;
     for(int bin=1; bin<=Nbins7; ++bin){
       errM_.push_back(0.);
       //errM_.push_back((CMSMadGraph7->GetY()[bin-1]/CMSdata7->GetY()[bin-1])*((CMSMadGraph7->GetErrorYhigh(bin-1)/CMSMadGraph7->GetY()[bin-1])));
     }
-    drawRatio(M, C, 0.5, 1.5,  myStyle, 0, errM_, "x", "CMS data", "hist ", kAzure+6, false, 0.7);
-    drawRatio(C, C, 0.5, 1.5,  myStyle, 0, errC_, "x", "CMS data", "p e2 same"     , kBlue, true, 0.7);
-
+    drawRatio(dummy, dummy, 0.5, 1.5,  myStyle, 0, errM_, nomlab, denomlab, "axis", 10, false, 0.7);
+    //drawRatio(M, M, 0.5, 1.5,  myStyle, 0, errM_, nomlab, denomlab, "hist same" , kAzure+6, false, 0.7);
+    drawRatio(C, M, 0.5, 1.5,  myStyle, 0, errC_, nomlab, denomlab, "p e2 same" , kBlue, true, 0.7);
+    drawRatio(A, M, 0.5, 1.5,  myStyle, 0, errA_, nomlab, denomlab, "p e2 same" , kRed , true, 0.7);
   }
-  else drawRatio(C, C, 0.5, 1.5,  myStyle, 0, errC_, "x", "CMS data", "p e2"     , kBlue, true, 0.7);
-  drawRatio(A, C, 0.5, 1.5,  myStyle, 0, errA_, "x", "CMS data", "p e2 same", kRed , true, 0.7);
 
   //saving
   TString path="./diffXSecFromSignal/plots/combined/2012/comparisonATLAS/";

@@ -1,8 +1,8 @@
 #ifndef sampleHelpers_h
 #define sampleHelpers_h
 
-#include <string>
 #include <vector>
+#include <string>
 
 class TString;
 
@@ -15,102 +15,215 @@ class TString;
 /// Namespace to treat systematics as enum types
 namespace Systematic{
     
-    /// All systematics as needed in any part of the framework
-    enum Systematic{
-        nominal,    // nominal, i.e. no systematic variation applied
-        mH110,      // Higgs mass of 110 GeV
-        mH115,      // Higgs mass of 115 GeV
-        mH120,      // Higgs mass of 120 GeV
-        mH1225,     // Higgs mass of 122.5 GeV
-        mH1275,     // Higgs mass of 127.5 GeV
-        mH130,      // Higgs mass of 130 GeV
-        mH135,      // Higgs mass of 135 GeV
-        mH140,      // Higgs mass of 140 GeV
-        lept_up,    // scale up lepton ID/ISO data-to-MC scale factors
-        lept_down,  // scale down lepton ID/ISO data-to-MC scale factors
-        trig_up,    // scale up trigger data-to-MC scale factors
-        trig_down,  // scale down trigger ID/ISO data-to-MC scale factors
-        pu_up,
-        pu_down,
-        dy_up,
-        dy_down,
-        bg_up,
-        bg_down,
-        kin_up,
-        kin_down,
-        btag_up,    // scale up b-tagging data-to-MC scale factors of the b-/c-jets
-        btag_down,  // scale down b-tagging data-to-MC scale factors of the b-/c-jets
-        btagPt_up,
-        btagPt_down,
-        btagEta_up,
-        btagEta_down,
-        btagLjet_up,   // scale up b-tagging data-to-MC scale factors of the l-jets
-        btagLjet_down, // scale down b-tagging data-to-MC scale factors of the l-jets
-        btagLjetPt_up,
-        btagLjetPt_down,
-        btagLjetEta_up,
-        btagLjetEta_down,
-        btagBeff_up,
-        btagBeff_down,
-        btagCeff_up,
-        btagCeff_down,
-        btagLeff_up,
-        btagLeff_down,
-        jer_up,     // scale up jet energy resolution scale factors
-        jer_down,   // scale down jet energy resolution scale factors
-        jes_up,     // scale up jet energy scale scale factors
-        jes_down,   // scale down jet energy scale scale factors
-        mass_up,
-        mass_down,
-        match_up,
-        match_down,
-        scale_up,
-        scale_down,
-        powheg,
-        mcatnlo,
-        pdf,        // PDF variations
-        all,        // All allowed systematics
-        undefined   // No systematic defined (also not nominal)
+    /// All systematic types as needed in any part of the framework
+    enum Type{
+        nominal,            // nominal, i.e. no systematic variation applied
+        mH110,              // Higgs mass of 110 GeV
+        mH115,              // Higgs mass of 115 GeV
+        mH120,              // Higgs mass of 120 GeV
+        mH1225,             // Higgs mass of 122.5 GeV
+        mH1275,             // Higgs mass of 127.5 GeV
+        mH130,              // Higgs mass of 130 GeV
+        mH135,              // Higgs mass of 135 GeV
+        mH140,              // Higgs mass of 140 GeV
+        lept,               // scale lepton ID/ISO data-to-MC scale factors
+        trig,               // scale trigger data-to-MC scale factors
+        pu,                 // scale pileup data-to-MC scale factors
+        dy,                 // uncertainty on the Drell-Yan same-flavour background
+        bg,                 // general background uncertainty
+        kin,                // scale kinematic reconstruction scale factors
+        btag,               // scale b-tagging data-to-MC scale factors of the b-/c-jets
+        btagPt,             // median method: scale b-tagging data-to-MC scale factors of the b-/c-jets below/above median pt down/up or up/down
+        btagEta,            // median method: scale b-tagging data-to-MC scale factors of the b-/c-jets below/above median eta down/up or up/down
+        btagLjet,           // scale b-tagging data-to-MC scale factors of the l-jets
+        btagLjetPt,         // median method: scale b-tagging data-to-MC scale factors of the l-jets below/above median pt down/up or up/down
+        btagLjetEta,        // median method: scale b-tagging data-to-MC scale factors of the l-jets below/above median eta down/up or up/down
+        btagBeff,           // scale the b-tagging efficiencies as estimated from MC for b-jets for stat. uncertainty (not applied anywhere, should it be removed?)
+        btagCeff,           // scale the b-tagging efficiencies as estimated from MC for c-jets for stat. uncertainty (not applied anywhere, should it be removed?)
+        btagLeff,           // scale the b-tagging efficiencies as estimated from MC for l-jets for stat. uncertainty (not applied anywhere, should it be removed?)
+        btagDiscrBstat1,    // for b-tag discriminator reweighting: scale part 1 of the statistical uncertainty for b-jets
+        btagDiscrBstat2,    // for b-tag discriminator reweighting: scale part 2 of the statistical uncertainty for b-jets
+        btagDiscrLstat1,    // for b-tag discriminator reweighting: scale part 1 of the statistical uncertainty for l-jets
+        btagDiscrLstat2,    // for b-tag discriminator reweighting: scale part 2 of the statistical uncertainty for l-jets
+        btagDiscrCerr1,    // for b-tag discriminator reweighting: scale part 1 of the uncertainty for c-jets
+        btagDiscrCerr2,    // for b-tag discriminator reweighting: scale part 2 of the uncertainty for c-jets
+        jer,                // scale jet energy resolution scale factors
+        jes,                // scale jet energy scale scale factors
+        topPt,              // scale top pt as estimated in ttbar differential cross-section measurements
+        mass,               // variations of masses used in process generation (here top quark mass)
+        match,              // matching uncertainty in process generation
+        scale,              // scale uncertainty in process generation
+        powheg,             // POWHEG event generator matched to PYTHIA shower
+        powhegHerwig,       // POWHEG event generator matched to HERWIG shower
+        mcatnlo,            // MC@NLO event generator
+        perugia11,          // Perugia11 parton shower tune
+        perugia11NoCR,      // Perugia11 parton shower tune, no colour-reconnection
+        pdf,                // PDF variations
+        closure,            // Closure test
+        all,                // All allowed systematics
+        undefinedType       // No systematic defined (also not nominal)
     };
     
     
     
-    /// All systematics allowed for analysis step in Top analysis
-    /// Only systematics which run on the nominal ntuples, e.g. pileup reweighting
-    /// (allow undefined to set default behaviour if no option is set, i.e. option is empty)
-    const std::vector<Systematic> allowedSystematicsTopAnalysis
-        {nominal, undefined};
+    /// Convert a type from string to enum
+    Type convertType(const TString& type);
     
-    /// All systematics allowed for plotting step in Top analysis
-    const std::vector<Systematic> allowedSystematicsTopPlotting
-        {nominal};
+    /// Convert a type from enum to string
+    TString convertType(const Type& type);
     
+    /// Convert a vector of types from string to enum
+    std::vector<Type> convertType(const std::vector<TString>& types);
     
+    /// Convert a vector of types from string to enum
+    std::vector<Type> convertType(const std::vector<std::string>& types);
     
-    /// All systematics allowed for analysis step in Higgs analysis
-    /// Only systematics which run on the nominal ntuples, e.g. pileup reweighting
-    /// (allow undefined to set default behaviour if no option is set, i.e. option is empty)
-    const std::vector<Systematic> allowedSystematicsHiggsAnalysis
-        {nominal, lept_up, lept_down, trig_up, trig_down, undefined};
-    
-    /// All systematics allowed for plotting step in Higgs analysis
-    const std::vector<Systematic> allowedSystematicsHiggsPlotting
-        {nominal, mH110, mH115, mH120, mH1225, mH1275, mH130, mH135, mH140};
+    /// Convert a vector of types from string to enum
+    std::vector<TString> convertType(const std::vector<Type>& types);
     
     
     
-    /// Convert a systematic from string to typedef
-    Systematic convertSystematic(const std::string& systematic);
     
-    /// Convert a systematic from typedef to string
-    std::string convertSystematic(const Systematic& systematic);
+    /// All variations as needed in any part of the framework
+    enum Variation{up, down, central, undefinedVariation};
     
-    /// Convert a vector of systematics from string to typedef
-    std::vector<Systematic> convertSystematics(const std::vector<std::string>& systematics);
     
-    /// Convert a vector of systematics from string to typedef
-    std::vector<std::string> convertSystematics(const std::vector<Systematic>& systematics);
+    
+    /// Convert a variation from string to enum
+    Variation convertVariation(const TString& variation);
+    
+    /// Convert a variation from enum to string
+    TString convertVariation(const Variation& variation);
+    
+    /// Convert a vector of variations from string to enum
+    std::vector<Variation> convertVariation(const std::vector<TString>& variations);
+    
+    /// Convert a vector of variations from string to enum
+    std::vector<Variation> convertVariation(const std::vector<std::string>& variations);
+    
+    /// Convert a vector of variations from string to enum
+    std::vector<TString> convertVariation(const std::vector<Variation>& variations);
+    
+    
+    
+    
+    
+    
+    
+    /// Define for which systematics up/down variations are allowed
+    const std::vector<Type> upDownTypes{
+        lept, trig, pu,
+        dy, bg, kin,
+        btag, btagPt, btagEta,
+        btagLjet, btagLjetPt, btagLjetEta,
+        btagBeff, btagCeff, btagLeff,
+        btagDiscrBstat1, btagDiscrBstat2,
+        btagDiscrLstat1, btagDiscrLstat2,
+        btagDiscrCerr1, btagDiscrCerr2,
+        jer, jes,
+        topPt,
+        mass, match, scale,
+        pdf
+    };
+    
+    /// Define for which systematics central variations are allowed
+    /// This is also used to identify for which systematics variation numbers can be assigned
+    const std::vector<Type> centralTypes{
+        pdf
+    };
+    
+    
+    
+    /// Check the validity of a variation for a given type
+    void isValid(const Type& type, const Variation& variation, const int variationNumber =-1);
+    
+    
+    
+    
+    
+    /// Define b-tag systematics, valid for all b-tag corrections
+    const std::vector<Type> btagTypes{
+        btag, btagPt, btagEta,
+        btagLjet, btagLjetPt, btagLjetEta,
+        btagBeff, btagCeff, btagLeff,
+        btagDiscrBstat1, btagDiscrBstat2,
+        btagDiscrLstat1, btagDiscrLstat2,
+        btagDiscrCerr1, btagDiscrCerr2,
+    };
+    
+    /// Define b-tag systematics, valid for b-tag corrections concerning efficiency
+    const std::vector<Type> btagDiscriminatorReweightTypes{
+        btag, btagLjet,
+        btagDiscrBstat1, btagDiscrBstat2,
+        btagDiscrLstat1, btagDiscrLstat2,
+        btagDiscrCerr1, btagDiscrCerr2,
+    };
+    
+    /// Define b-tag systematics, valid for b-tag corrections concerning discriminator reweighting
+    const std::vector<Type> btagEfficiencyCorrectionTypes{
+        btag, btagPt, btagEta,
+        btagLjet, btagLjetPt, btagLjetEta,
+        btagBeff, btagCeff, btagLeff,
+    };
+    
+    
+    
+    
+    
+    /// Class for proper handling of systematic
+    class Systematic{
+        
+    public:
+        
+        Systematic();
+        
+        Systematic(const Type& type, const Variation& variation, const int variationNumber =-1);
+        
+        Systematic(const TString& systematicName);
+        
+        ~Systematic(){}
+        
+        bool operator<(const Systematic& rhs)const{return this->name() < rhs.name();}
+        
+        TString name()const;
+        
+        Type type()const{return type_;}
+        
+        Variation variation()const{return variation_;}
+        
+        int variationNumber()const{return variationNumber_;}
+        
+        
+        
+    private:
+        
+        Type type_;
+        
+        Variation variation_;
+        
+        int variationNumber_;
+    };
+    
+    
+    
+    /// Set all systematics from a list of allowed types, using the defined variations
+    std::vector<Systematic> allowedSystematicsAnalysis(const std::vector<Type>& allowedTypes);
+    
+    /// Set up systematics from vector of systematicNames
+    std::vector<Systematic> setSystematics(const std::vector<std::string>& systematicNames);
+    
+    /// Set up systematic for nominal (i.e. no systematic variation)
+    Systematic nominalSystematic();
+    
+    /// Set up undefined systematic
+    Systematic undefinedSystematic();
 }
+
+
+
+
+
+
 
 
 
@@ -145,20 +258,23 @@ namespace Channel{
     
     
     
-    /// Convert a channel from string to typedef
-    Channel convertChannel(const std::string& channel);
+    /// Convert a channel from string to enum
+    Channel convert(const TString& channel);
     
-    /// Convert a channel from typedef to string
-    std::string convertChannel(const Channel& channel);
+    /// Convert a channel from enum to string
+    TString convert(const Channel& channel);
     
     /// Return the label of a channel as used for drawing
-    std::string channelLabel(const Channel& channel);
+    TString label(const Channel& channel);
     
-    /// Convert a vector of channels from string to typedef
-    std::vector<Channel> convertChannels(const std::vector<std::string>& channels);
+    /// Convert a vector of channels from string to enum
+    std::vector<Channel> convert(const std::vector<TString>& channels);
     
-    /// Convert a vector of channels from string to typedef
-    std::vector<std::string> convertChannels(const std::vector<Channel>& channels);
+    /// Convert a vector of channels from string to enum
+    std::vector<Channel> convert(const std::vector<std::string>& channels);
+    
+    /// Convert a vector of channels from string to enum
+    std::vector<TString> convert(const std::vector<Channel>& channels);
 }
 
 
@@ -175,6 +291,16 @@ namespace common{
     /// Access an already existing input folder
     TString accessFolder(const char* baseDir, const Channel::Channel& channel,
                          const Systematic::Systematic& systematic, const bool allowNonexisting =false);
+    
+    /// Access the real final state from a filename, ie. only "ee", "emu", "mumu", but not "combined"
+    Channel::Channel finalState(const TString& filename);
+    
+    /// Read the file list for given channel and systematic, and return the input file names
+    /// In case a vector of patterns is specified, only files containing this pattern in the full path name will be read
+    std::vector<TString> readFilelist(const TString& filelistDirectory,
+                                      const Channel::Channel& channel,
+                                      const Systematic::Systematic& systematic,
+                                      const std::vector<TString>& v_pattern =std::vector<TString>());
 }
 
 

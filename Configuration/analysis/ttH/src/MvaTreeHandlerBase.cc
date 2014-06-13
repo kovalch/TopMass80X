@@ -1,3 +1,6 @@
+#include <string>
+#include <vector>
+#include <map>
 #include <iostream>
 #include <cstdlib>
 #include <fstream>
@@ -9,7 +12,6 @@
 #include <TSelectorList.h>
 #include <TIterator.h>
 #include <TObject.h>
-#include <TList.h>
 #include <Rtypes.h>
 
 #include "MvaTreeHandlerBase.h"
@@ -132,13 +134,13 @@ void MvaTreeHandlerBase::fill(const RecoObjects& recoObjects, const CommonGenObj
 
 
 
-void MvaTreeHandlerBase::writeTrees(const std::string& outputFilename,
+void MvaTreeHandlerBase::writeTrees(const TString& outputFilename,
                                     const Channel::Channel& channel, const Systematic::Systematic& systematic)
 {
     // Create output file for MVA tree
-    std::string f_savename = static_cast<std::string>(common::assignFolder(mvaInputDir_, channel, systematic));
-    f_savename.append(outputFilename);
-    TFile outputFile(f_savename.c_str(),"RECREATE");
+    TString f_savename = common::assignFolder(mvaInputDir_, channel, systematic);
+    f_savename.Append(outputFilename);
+    TFile outputFile(f_savename, "RECREATE");
     std::cout<<"\nOutput file for MVA input trees: "<<f_savename<<"\n";
     
     // Produce MVA input TTree and store it in output
@@ -214,12 +216,12 @@ void MvaTreeHandlerBase::createBranch(TTree* tree, const MvaVariableFloat& varia
 
 
 
-void MvaTreeHandlerBase::importTrees(const std::string& f_savename, const std::string& prefix)
+void MvaTreeHandlerBase::importTrees(const TString& f_savename, const TString& prefix)
 {
     std::cout<<"--- Beginning import of TTrees with MVA variables\n";
     
     // Open input file
-    TFile* inputFile = TFile::Open(f_savename.c_str());
+    TFile* inputFile = TFile::Open(f_savename);
     if(inputFile->IsZombie()){
         std::cerr<<"ERROR in importTrees()! Cannot open input file to import TTrees, filename is: "
                  <<f_savename<<"\n...break\n"<<std::endl;
@@ -227,9 +229,9 @@ void MvaTreeHandlerBase::importTrees(const std::string& f_savename, const std::s
     }
     
     // Find all trees of all steps/categories containing MVA input variables
-    const TString treeName = prefix;
+    const TString& treeName = prefix;
     const std::vector<std::pair<TString, TString> > v_nameStepPair =
-        tth::nameStepPairs(f_savename.c_str(), treeName);
+        tth::nameStepPairs(f_savename, treeName);
     
     // Loop over steps and import trees
     this->clear();
@@ -309,58 +311,6 @@ void MvaTreeHandlerBase::clear()
 
 
 
-
-
-
-
-
-
-
-tth::mvaHelpers::SystematicChannelFileNames tth::mvaHelpers::systematicChannelFileNames(const char* fileListBase,
-                                                                                        const std::vector<Channel::Channel>& v_channel,
-                                                                                        const std::vector< Systematic::Systematic >& v_systematic,
-                                                                                        const bool forTraining)
-{
-    SystematicChannelFileNames m_systematicChannelFileNames;
-    
-    for(const auto& systematic : v_systematic){
-        std::map<Channel::Channel, std::vector<TString> >& m_channelFileNames = m_systematicChannelFileNames[systematic];
-        for(const auto& channel : v_channel){
-            std::vector<TString>& v_inputFileName = m_channelFileNames[channel];
-            // FIXME: for now systematic is not used to study systematic variations which modify Higgs samples,
-            // FIXME: but running on all Higgs masses
-            for(const auto& systematicMass : Systematic::allowedSystematicsHiggsPlotting){
-                
-                // Access FileList containing list of input root files
-                // FIXME: almost same functionality as in Samples.cc, unify after MVA training is established
-                const TString histoListName(fileListBase + Systematic::convertSystematic(systematicMass) + "_" + Channel::convertChannel(channel) + ".txt");
-                //std::cout << "Reading file: " << histoListName << std::endl;
-                ifstream fileList(histoListName);
-                if(fileList.fail()){
-                    std::cerr<<"Error reading file: "<<histoListName<<std::endl;
-                    exit(1);
-                }
-                while(!fileList.eof()){
-                    TString filename;
-                    fileList>>filename;
-                    if(filename==""){continue;} // Skip empty lines
-                    if(filename.BeginsWith("#")){continue;} // Comment lines in FileList with '#'
-                    
-                    if(forTraining && filename.Contains("ttbarH") && filename.Contains("inclusiveBbbar"))
-                        v_inputFileName.push_back(filename);
-                    else if(!forTraining && filename.Contains("ttbarH") && filename.Contains("tobbbar"))
-                        v_inputFileName.push_back(filename);
-                    else continue;
-                }
-            }
-        }
-    }
-    
-    return m_systematicChannelFileNames;
-}
-
-
-
 void MvaTreeHandlerBase::fillVariables(const RecoObjects&, const CommonGenObjects&,
                                        const TopGenObjects&, const HiggsGenObjects&,
                                        const KinRecoObjects&,
@@ -375,103 +325,6 @@ void MvaTreeHandlerBase::fillVariables(const RecoObjects&, const CommonGenObject
              <<"...break\n"<<std::endl;
     exit(568);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-tth::mvaHelpers::SystematicChannelFileNames tth::mvaHelpers::mergeTrees(
-                    const char* mvaInputDir,
-                    const tth::mvaHelpers::SystematicChannelFileNames& m_systematicChannelFileNamesTraining,
-                    const tth::mvaHelpers::SystematicChannelFileNames& m_systematicChannelFileNamesTesting,
-                    const std::vector<std::pair<TString, TString> >& v_nameStepPair)
-{
-    SystematicChannelFileNames result;
-    
-    // Loop over all channels and systematics
-    for(const auto& systematicChannelFileNamesTraining : m_systematicChannelFileNamesTraining){
-        const Systematic::Systematic& systematic = systematicChannelFileNamesTraining.first;
-        for(const auto& channelFileNamesTraining : systematicChannelFileNamesTraining.second){
-            const Channel::Channel& channel = channelFileNamesTraining.first;
-            const std::vector<TString>& v_fileNameTraining = channelFileNamesTraining.second;
-            const std::vector<TString>& v_fileNameTesting = m_systematicChannelFileNamesTesting.at(systematic).at(channel);
-            std::cout<<"\nProcessing (Channel, Systematic): "<<Channel::convertChannel(channel)<<" , "<<Systematic::convertSystematic(systematic)<<"\n\n";
-            
-            // Open the input files and access the MVA input training trees
-            std::map<TString, TList*> m_stepListTraining;
-            for(const auto& fileName : v_fileNameTraining){
-                std::cout<<"File for training: "<<fileName<<std::endl;
-                // FIXME: need to check whether input file really exists
-                TFile* inputFile(0);
-                inputFile = TFile::Open(fileName);
-                for(const auto& nameStepPair : v_nameStepPair){
-                    //std::cout<<"Tree and step: "<<nameStepPair.first<<" , "<<nameStepPair.second<<"\n\n";
-                    // FIXME: need to check whether input tree really exists
-                    TTree* inputTree = (TTree*)inputFile->Get(nameStepPair.first);
-                    if(m_stepListTraining.find(nameStepPair.second) == m_stepListTraining.end()){
-                        m_stepListTraining[nameStepPair.second] = new TList;
-                    }
-                    m_stepListTraining.at(nameStepPair.second)->Add(inputTree);
-                }
-            }
-            std::cout<<std::endl;
-            
-            // Open the input files and access the MVA input testing trees
-            std::map<TString, TList*> m_stepListTesting;
-            for(const auto& fileName : v_fileNameTesting){
-                std::cout<<"File for testing: "<<fileName<<std::endl;
-                // FIXME: need to check whether input file really exists
-                TFile* inputFile(0);
-                inputFile = TFile::Open(fileName);
-                for(const auto& nameStepPair : v_nameStepPair){
-                    //std::cout<<"Tree and step: "<<nameStepPair.first<<" , "<<nameStepPair.second<<"\n\n";
-                    // FIXME: need to check whether input tree really exists
-                    TTree* inputTree = (TTree*)inputFile->Get(nameStepPair.first);
-                    if(m_stepListTesting.find(nameStepPair.second) == m_stepListTesting.end()){
-                        m_stepListTesting[nameStepPair.second] = new TList;
-                    }
-                    m_stepListTesting.at(nameStepPair.second)->Add(inputTree);
-                }
-            }
-            std::cout<<std::endl;
-            
-            // Unfortunately this output file is needed to prevent from strange ROOT message
-            TString mergedTreesFileName = common::assignFolder(mvaInputDir, channel, systematic);
-            mergedTreesFileName.Append("/");
-            mergedTreesFileName.Append("mergedTrees.root");
-            TFile* mergedTrees = new TFile(mergedTreesFileName, "RECREATE");
-            for(const auto& nameStepPair : v_nameStepPair){
-                TTree* treeTraining = TTree::MergeTrees(m_stepListTraining.at(nameStepPair.second));
-                treeTraining->SetName("training"+nameStepPair.first);
-                TTree* treeTesting = TTree::MergeTrees(m_stepListTesting.at(nameStepPair.second));
-                treeTesting->SetName("testing"+nameStepPair.first);
-                treeTraining->Write();
-                treeTesting->Write();
-            }
-            mergedTrees->Close();
-            result[systematic][channel].push_back(mergedTreesFileName);
-        }
-    }
-    
-    return result;
-}
-
-
-
 
 
 

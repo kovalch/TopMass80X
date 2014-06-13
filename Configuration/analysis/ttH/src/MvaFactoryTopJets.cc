@@ -53,28 +53,28 @@ void MvaFactoryTopJets::configureFactory(TMVA::Factory* const factory,
                                          const TCut& cutSignal, const TCut& cutBackground,
                                          TTree* const treeTraining, TTree* const treeTesting)const
 {
-    // Set all branches of MVA input which should be used for training
-    MvaVariablesTopJets mvaTopJetsVariables;
+    MvaVariablesTopJets mvaVariablesTopJets;
     
-    this->addVariable(factory, mvaTopJetsVariables.jetChargeDiff_);
-    this->addVariable(factory, mvaTopJetsVariables.meanDeltaPhi_b_met_);
-    this->addVariable(factory, mvaTopJetsVariables.massDiff_recoil_bbbar_);
-    this->addVariable(factory, mvaTopJetsVariables.pt_b_antiLepton_);
-    this->addVariable(factory, mvaTopJetsVariables.pt_antiB_lepton_);
-    this->addVariable(factory, mvaTopJetsVariables.deltaR_b_antiLepton_);
-    this->addVariable(factory, mvaTopJetsVariables.deltaR_antiB_lepton_);
-    this->addVariable(factory, mvaTopJetsVariables.btagDiscriminatorSum_);
-    this->addVariable(factory, mvaTopJetsVariables.deltaPhi_antiBLepton_bAntiLepton_);
-    this->addVariable(factory, mvaTopJetsVariables.massDiff_fullBLepton_bbbar_);
-    this->addVariable(factory, mvaTopJetsVariables.meanMt_b_met_);
-    this->addVariable(factory, mvaTopJetsVariables.massSum_antiBLepton_bAntiLepton_);
-    this->addVariable(factory, mvaTopJetsVariables.massDiff_antiBLepton_bAntiLepton_);
+    // Set all branches of MVA input which should be used for training
+    this->addVariable(factory, mvaVariablesTopJets.jetChargeDiff_);
+    this->addVariable(factory, mvaVariablesTopJets.meanDeltaPhi_b_met_);
+    this->addVariable(factory, mvaVariablesTopJets.massDiff_recoil_bbbar_);
+    this->addVariable(factory, mvaVariablesTopJets.pt_b_antiLepton_);
+    this->addVariable(factory, mvaVariablesTopJets.pt_antiB_lepton_);
+    this->addVariable(factory, mvaVariablesTopJets.deltaR_b_antiLepton_);
+    this->addVariable(factory, mvaVariablesTopJets.deltaR_antiB_lepton_);
+    this->addVariable(factory, mvaVariablesTopJets.btagDiscriminatorSum_);
+    this->addVariable(factory, mvaVariablesTopJets.deltaPhi_antiBLepton_bAntiLepton_);
+    this->addVariable(factory, mvaVariablesTopJets.massDiff_fullBLepton_bbbar_);
+    this->addVariable(factory, mvaVariablesTopJets.meanMt_b_met_);
+    this->addVariable(factory, mvaVariablesTopJets.massSum_antiBLepton_bAntiLepton_);
+    this->addVariable(factory, mvaVariablesTopJets.massDiff_antiBLepton_bAntiLepton_);
     
     // Set all branches of MVA input which should NOT be used for training,
     // but are needed otherwise (e.g. for defining separation cuts)
-    this->addSpectator(factory, mvaTopJetsVariables.bQuarkRecoJetMatched_);
-    this->addSpectator(factory, mvaTopJetsVariables.correctCombination_);
-    this->addSpectator(factory, mvaTopJetsVariables.swappedCombination_);
+    this->addSpectator(factory, mvaVariablesTopJets.bQuarkRecoJetMatched_);
+    this->addSpectator(factory, mvaVariablesTopJets.correctCombination_);
+    this->addSpectator(factory, mvaVariablesTopJets.swappedCombination_);
     
     // Set global weights for individual input
     constexpr Double_t signalWeight = 1.;
@@ -89,8 +89,8 @@ void MvaFactoryTopJets::configureFactory(TMVA::Factory* const factory,
     factory->AddBackgroundTree(treeTesting, backgroundWeight, TMVA::Types::kTesting);
     
     // Set the branch from which the event weight is taken
-    factory->SetSignalWeightExpression(mvaTopJetsVariables.eventWeight_.name());
-    factory->SetBackgroundWeightExpression(mvaTopJetsVariables.eventWeight_.name());
+    factory->SetSignalWeightExpression(mvaVariablesTopJets.eventWeight_.name());
+    factory->SetBackgroundWeightExpression(mvaVariablesTopJets.eventWeight_.name());
     
     // Prepare the training and test trees
     factory->PrepareTrainingAndTestTree(cutSignal, cutBackground,

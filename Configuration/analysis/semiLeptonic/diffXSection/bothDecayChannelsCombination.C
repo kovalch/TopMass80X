@@ -454,6 +454,9 @@ void bothDecayChannelsCombination(double luminosity=19712, bool save=true, unsig
 	      muReweighted.ReplaceAll("Summer", "SysDistort"+closureTestSpecifier+"Summer");
 	      elReweighted.ReplaceAll("Summer", "SysDistort"+closureTestSpecifier+"Summer");
 	    }
+	    // closure test pseudo data is created from ttbar simulation without madspin
+	    muReweighted.ReplaceAll("MadSpin", "");
+	    elReweighted.ReplaceAll("MadSpin", "");
 	    TFile* mufile = new (TFile)(muReweighted);
 	    TFile* elfile = new (TFile)(elReweighted);
 	    // get plot
@@ -489,6 +492,8 @@ void bothDecayChannelsCombination(double luminosity=19712, bool save=true, unsig
 	      if(zprime=="1000") massextension="ZprimeM1000W100";
 	      muzprime.ReplaceAll("Sig", massextension+"Sig");
 	      elzprime.ReplaceAll("Sig", massextension+"Sig");
+	      muzprime.ReplaceAll("MadSpin", "");
+              elzprime.ReplaceAll("MadSpin", "");
 	      // get files
 	      TFile* zprimemufile = new (TFile)(muzprime);
 	      TFile* zprimeelfile = new (TFile)(elzprime);
@@ -500,8 +505,8 @@ void bothDecayChannelsCombination(double luminosity=19712, bool save=true, unsig
 	      if     (zprime=="1000") zPrimeLumiWeight=(zPrimeLumiWeight*5*luminosity)/104043;
 	      if(histo_["zprime"+plotName+"Mu"].count(kSig)>0) histo_["zprime"+plotName+"Mu"][kSig]->Scale(zPrimeLumiWeight);
 	      if(histo_["zprime"+plotName+"El"].count(kSig)>0) histo_["zprime"+plotName+"El"][kSig]->Scale(zPrimeLumiWeight);
-	      histo_["reweighted"+plotName+"Mu"][kSig]->Scale(lumiweight(kSig, constLumiMuon, 0, "muon"    ));
-	      histo_["reweighted"+plotName+"El"][kSig]->Scale(lumiweight(kSig, constLumiElec, 0, "electron"));
+	      histo_["reweighted"+plotName+"Mu"][kSig]->Scale(lumiweight(kSig, constLumiMuon, 0, "muon"    ,false));
+	      histo_["reweighted"+plotName+"El"][kSig]->Scale(lumiweight(kSig, constLumiElec, 0, "electron",false));
 	      // add zprime to signal
 	      if(histo_["zprime"+plotName+"Mu"].count(kSig)>0) histo_["reweighted"+plotName+"Mu"][kSig]->Add((TH1F*)histo_["zprime"+plotName+"Mu"][kSig]->Clone());
 	      if(histo_["zprime"+plotName+"El"].count(kSig)>0) histo_["reweighted"+plotName+"El"][kSig]->Add((TH1F*)histo_["zprime"+plotName+"El"][kSig]->Clone());
@@ -573,6 +578,7 @@ void bothDecayChannelsCombination(double luminosity=19712, bool save=true, unsig
 	    if(closureTestSpecifier!=""){
 	      plotTheo->SetMinimum(0.9*plotTheo->GetMinimum());
 	      plotTheo->SetMaximum(1.1*plotTheo->GetMaximum());
+	      if(plotName.Contains("Eta")) plotTheo->SetMaximum(1.3*plotTheo->GetMaximum());
 	    }
 	    // remove y axis 10^x label style
 	    if(plotName.Contains("lepEta")||plotName=="bqEta"||plotName.Contains("topY")||plotName=="ttbarY"||plotName.Contains("rhos")) plotTheo->GetYaxis()->SetNoExponent(true);	    

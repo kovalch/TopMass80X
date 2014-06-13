@@ -5,13 +5,14 @@
 #include <string>
 #include <map>
 
+class TString;
 class TTree;
 class TSelectorList;
 class TH1;
 class TString;
 
 #include "JetCategories.h"
-#include "AnalyzerBaseClass.h"
+#include "AnalyzerBase.h"
 #include "../../common/include/storeTemplate.h"
 #include "../../common/include/classesFwd.h"
 
@@ -32,7 +33,7 @@ class MvaReaderBase;
 
 /// Class that analyzes all b-jet pairs from the input jet collection
 /// In addition produces other plots about input jets, their origin, other properties
-class AnalyzerDijet : public AnalyzerBaseClass{
+class AnalyzerDijet : public AnalyzerBase{
 
 public:
 
@@ -41,7 +42,7 @@ public:
     AnalyzerDijet(const char* mva2dWeightsFile, const std::string& corName, const std::string& swpName,
                   const std::vector<TString>& selectionStepsNoCategories,
                   const std::vector<TString>& stepsForCategories =std::vector<TString>(),
-                  const JetCategories* jetCategories =0, bool doHadronMatchingComparison = false);
+                  const JetCategories* jetCategories =0, bool doHadronMatchingComparison = false, bool doLeadingJetsAnalysis_ = false);
 
     /// Empty destructor
     ~AnalyzerDijet(){};
@@ -66,6 +67,12 @@ public:
     
     /// Creates a vector of all possible jet pairs from allJets except pairs containing any jet from jetsToIgnore
     std::vector<std::pair<int,int> > allPairsFromJets(const std::vector<int>& allJets, const std::vector<int>& jetsToIgnore);
+    
+    /// Matching reco jets to gen jets [Copied from HiggsAnalysis.cc]
+    int matchRecoToGenJet(const std::vector<int>& jetIndices, const VLV& jets, const int genJetIndex, const VLV& genJets)const;
+    
+    /// Getting b-hadrons matched to each gen jet
+    std::vector<std::vector<int> > matchBhadronsToGenJets(const VLV& allGenJets, const TopGenObjects& topGenObjects)const;
 
 
 
@@ -76,6 +83,14 @@ private:
     
     /// Book set of histograms for dijet mass
     void bookPairHistos(TH1* histo, std::map<TString, TH1*>& m_histogram, const TString& name);
+    
+    /// Book set of histograms for a particular set of histograms regarding top/additional jets/b-jets
+    void bookLeadingJetsHistos (std::map<TString, TH1*>& m_histogram, const TString addName, const TString& step, 
+                                const TString& label);
+    
+    /// Book set of histograms for a particular set of histograms regarding gen-reco jets correlations
+    void bookAddGenJetsCorrelationHistos (std::map<TString, TH1*>& m_histogram, const TString addName, const TString& step, 
+                                          const TString& label, const bool bookJetwiseHistos = false);
 
     /// Fill all histograms for given selection step
     virtual void fillHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
@@ -85,6 +100,10 @@ private:
                             const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
                             const double& weight, const TString& step,
                             std::map<TString, TH1*>& m_histogram);
+    
+    /// Check how we additional b-jets in tt+bb events
+    void checkAdditionalGenBJetAcceptance(const TopGenObjects& topGenObjects, const CommonGenObjects& commonGenObjects, 
+                                          std::map<TString, TH1*>& m_histogram, const float jetPt_min, const float jetEta_max, const double weight);
 
     /// Analyze jet pairs of given jets for the given b-jets from top. Returns ration of correct pairs to wrong pairs
     float correctPairFraction(const VLV& allJets, const std::vector<int>& jetsId,
@@ -95,7 +114,7 @@ private:
                               const std::vector<std::pair<int, int> > &pairsToIgnore = std::vector<std::pair<int, int> >(0) );
     
     /// Fill dijet mass for pairs of jets
-    void fillDijetMassForPairs(const VLV& allJets, const std::vector<int>& jetsId, const std::vector<int>& higgsJetsId,
+    void fillDijetMassForPairs(const VLV& allJets, const std::vector<int>& higgsJetsId,
                                const std::vector<std::pair<int, int> > &jetPairs, const double weight, 
                                std::map<TString, TH1*>& m_histogram, std::string histoName, const bool normaliseWeight = false );
     
@@ -106,6 +125,23 @@ private:
     void fillGenRecoMatchingComparisonHistos(const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
                                              const VLV& bHadLVs, const std::vector<int>& bHadFlavour, const std::vector<int>& bHadJetIndex,
                                              const VLV& genJets, std::map<TString, TH1*>& m_histogram, const double weight);
+    
+    /// Analyze jets (b-jets) from tt system and additional jets (b-jets)
+    void fillTopAdditionalJetsHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+                                     const KinRecoObjects& kinRecoObjects, const tth::RecoObjectIndices& recoObjectIndices, 
+                                     const tth::GenObjectIndices& genObjectIndices,
+                                     const double& weight, std::map<TString, TH1*>& m_histogram);
+    
+    /// Filling histograms about leading top/additional jets vs gen
+    void fillLeadingJetsHistosVsGen(const std::string& name, const VLV& allGenJets,
+                                    const std::vector<int>& genJetsId, const VLV& allJets, 
+                                    const std::vector<int>& jetsId, const std::vector<int>& genJetsRecoId,
+                                    const std::vector<int>& topJetsId_gen, const std::vector<int>& topJetsId_reco,
+                                    const double& weight, std::map<TString, TH1*>& m_histogram);
+    
+    /// Filling histograms about leading top/additional jets vs true
+    void fillLeadingJetsHistosVsTrue(const std::string& name, const std::vector<int>& trueJetsId,
+                                     const std::vector<int>& jetsId, const double& weight, std::map<TString, TH1*>& m_histogram);
     
     /// Returns list of jets pairs that are not from H according to the MVA
     std::vector<std::pair<int,int> > jetPairsFromMVA(std::map<TString, TH1*>& m_histogram, const tth::RecoObjectIndices& recoObjectIndices,
@@ -140,6 +176,12 @@ private:
 
     /// Whether to do comparison of dR and improved hadron-quark-jet matching
     bool doHadronMatchingComparison_;
+    
+    /// Whether to analyse leading additional-top jets
+    bool doLeadingJetsAnalysis_;
+    
+    double sigJetPt_min_;
+    double sigJetEta_max_;
 
 };
 

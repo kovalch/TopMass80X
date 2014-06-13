@@ -1,7 +1,7 @@
 #include "basicFunctions.h"
 #include <stdlib.h>
 
-void makeResultTables(std::string decayChannel = "combined", bool extrapolate=true, bool hadron=false, bool addCrossCheckVariables=false, bool useBCC=false, int verbose=1){
+void makeResultTables(std::string decayChannel = "combined", bool extrapolate=false, bool hadron=true, bool addCrossCheckVariables=false, bool useBCC=false, int verbose=1){
   
   // ============================
   //  Set Root Style
@@ -152,6 +152,9 @@ void makeResultTables(std::string decayChannel = "combined", bool extrapolate=tr
 	precXBCC=1;
 	precX=0;
       }
+      if(plotName.Contains("ttbarDelPhi")||plotName.Contains("rhos")) precX=2;
+
+
 //       if(plotName.Contains("ttbarY")){
 // 	std::cout << std::endl << "xValueDn=" << xValueDn << std::endl;
 // 	std::cout << "precX=" << precX << std::endl;
@@ -185,11 +188,13 @@ void makeResultTables(std::string decayChannel = "combined", bool extrapolate=tr
       out+=" \\\\ ";
       bool append= (bin==1 ? false : true);
       TString txtfile="./diffXSecFromSignal/plots/"+TString(decayChannel)+"/2012/"+filename;
-      txtfile.ReplaceAll(".root",plotName+".txt");
+      txtfile.ReplaceAll(".root", plotName+".txt");
+      TString txtfile2=txtfile;
+      txtfile2.ReplaceAll(plotName, plotName+"chi2");
       writeToFile(out, txtfile, append);
       // chi2 for this distribution
       if(xValueDn>=xMin&&xValueUp<=xMax){
-	++ndof;
+	++ndof;	
 	chi2+=                 ((std::abs(MCxSec  -xSec)/totError)*(std::abs(MCxSec  -xSec)/totError));
 	if(MCxSecMc!=0)chi2Mc+=((std::abs(MCxSecMc-xSec)/totError)*(std::abs(MCxSecMc-xSec)/totError));
 	if(MCxSecPo!=0)chi2Po+=((std::abs(MCxSecPo-xSec)/totError)*(std::abs(MCxSecPo-xSec)/totError));
@@ -220,18 +225,59 @@ void makeResultTables(std::string decayChannel = "combined", bool extrapolate=tr
 	   std::cout << std::setprecision(2) << std::fixed << " (" << std::abs(MCxSecNN-xSec)/totError << " std variations)" << std::endl;
 	}
       }
+      int precchi=2;
       if(bin==binned->GetNbinsX()&&ndof!=0){
+	TString out2=" ";//"$"+xSecLabelName(plotName)+"$";
+	//out2.ReplaceAll("GeV", "\\GeV");
+	//out2.ReplaceAll("p_{T}^{", "{\\rm p}_{\\rm T}^{\\rm ");
+	//out2.ReplaceAll("y^{", "{\\rm y}^{\\rm ");
+	//out2.ReplaceAll("m^{", "m^{\\rm ");
+	//out2.ReplaceAll("#eta^{", "#eta^{\\rm ");
+	//out2.ReplaceAll("N_{jets} (p_{T}>30 GeV, |#eta|<2.4)", "{\\rm N}_{\\rm jets}");
+	//out2.ReplaceAll("#rho_{S}= #frac{#scale[0.55]{2#upoint170 GeV}}{#scale[0.55]{m(t#bar{t}+1jet)}}", "#rho_{\\rm S}");
+	//out2.ReplaceAll("#", "\\");
+
+	ndof--;// normalisation eats up one dof
 	chi2  /=ndof;
 	chi2Mc/=ndof;
 	chi2Po/=ndof;
 	chi2PoHer/=ndof;
 	chi2NN/=ndof;
 	if(verbose>1) std::cout << std::endl;
-	if(chi2  !=0   ){writeToFile("%chi2(MadGraph+Pythia): "+getTStringFromDouble(chi2     ), txtfile, true); if(verbose>0){std::cout << "chi2(MadGraph+Pythia): " << chi2      << std::endl;}}
-	if(chi2Mc!=0   ){writeToFile("%chi2(MC@NLO+Herwig  ): "+getTStringFromDouble(chi2Mc   ), txtfile, true); if(verbose>0){std::cout << "chi2(MC@NLO+Herwig  ): " << chi2Mc    << std::endl;}}
-	if(chi2Po!=0   ){writeToFile("%chi2(Powheg+Pythia  ): "+getTStringFromDouble(chi2Po   ), txtfile, true); if(verbose>0){std::cout << "chi2(Powheg+Pythia  ): " << chi2Po    << std::endl;}}
-	if(chi2PoHer!=0){writeToFile("%chi2(Powheg+Herwig  ): "+getTStringFromDouble(chi2PoHer), txtfile, true); if(verbose>0){std::cout << "chi2(Powheg+Herwig  ): " << chi2PoHer << std::endl;}}
-	if(chi2NN!=0   ){writeToFile("%chi2(NNLO/NLO+NNLL  ): "+getTStringFromDouble(chi2NN   ), txtfile, true); if(verbose>0){std::cout << "chi2(NNLO/NLO+NNLL  ): " << chi2NN    << std::endl;}}
+	if(chi2  !=0   ){
+	  writeToFile("%chi2(MadGraph+Pythia): "+getTStringFromDouble(chi2), txtfile, true); 
+	  if(verbose>0){std::cout << "chi2(MadGraph+Pythia): " << chi2      << std::endl;}
+	  out2+=" & "+getTStringFromDouble(chi2, precchi);
+	}
+	else out2+=" & - ";
+	if(chi2Mc!=0   ){
+	  writeToFile("%chi2(MC@NLO+Herwig  ): "+getTStringFromDouble(chi2Mc   ), txtfile, true); 
+	  if(verbose>0){std::cout << "chi2(MC@NLO+Herwig  ): " << chi2Mc    << std::endl;}
+	   out2+=" & "+getTStringFromDouble(chi2Mc, precchi);
+	}
+	else out2+=" & - ";
+	if(chi2Po!=0   ){
+	  writeToFile("%chi2(Powheg+Pythia  ): "+getTStringFromDouble(chi2Po   ), txtfile, true); 
+	  if(verbose>0){std::cout << "chi2(Powheg+Pythia  ): " << chi2Po    << std::endl;}
+	   out2+=" & "+getTStringFromDouble(chi2Po, precchi);
+	}
+	else out2+=" & - ";
+	if(chi2PoHer!=0){
+	  writeToFile("%chi2(Powheg+Herwig  ): "+getTStringFromDouble(chi2PoHer), txtfile, true); 
+	  if(verbose>0){std::cout << "chi2(Powheg+Herwig  ): " << chi2PoHer << std::endl;}
+	  out2+=" & "+getTStringFromDouble(chi2PoHer, precchi);
+	}
+	//else out2+=" & - ";
+	if(chi2NN!=0   ){
+	  writeToFile("%chi2(NNLO/NLO+NNLL  ): "+getTStringFromDouble(chi2NN   ), txtfile, true); 
+	  if(verbose>0){std::cout << "chi2(NNLO/NLO+NNLL  ): " << chi2NN    << std::endl;}
+	   out2+=" & "+getTStringFromDouble(chi2NN, precchi);
+	}
+	else{
+	  if(extrapolate) out2+=" & - ";
+	}
+	out2+=" \\\\ ";	
+	writeToFile(out2, txtfile2, false); 
       }
     }
   }

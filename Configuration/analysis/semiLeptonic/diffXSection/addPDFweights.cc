@@ -259,7 +259,6 @@ void AddPDFweights::addPDFweights()
 	  }
 	  unsigned first = hist_PDF[variables_[folders_[iFolder]][iVar]][0]->FindBin(binning_[pureVariables_[variables_[folders_[iFolder]][iVar]]].front());
 	  unsigned last = hist_PDF[variables_[folders_[iFolder]][iVar]][0]->FindBin(binning_[pureVariables_[variables_[folders_[iFolder]][iVar]]].back());
-	  std::cout<<first<<", "<<last<<std::endl;
 	  if(iBin<first){
 	    hist_PDFdown[variables_[folders_[iFolder]][iVar]]->SetBinContent(iBin,min);
 	    hist_PDFup[variables_[folders_[iFolder]][iVar]]->SetBinContent(iBin,max);

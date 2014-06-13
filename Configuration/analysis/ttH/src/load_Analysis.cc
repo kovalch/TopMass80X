@@ -19,20 +19,21 @@
 #include "JetCategories.h"
 #include "MvaTreeHandlerBase.h"
 #include "MvaTreeHandlerTopJets.h"
-
-#include "AnalyzerBaseClass.h"
+#include "MvaTreeHandlerEventClassification.h"
+#include "AnalyzerBase.h"
 #include "AnalyzerMvaTopJets.h"
 #include "AnalyzerDijet.h"
 #include "AnalyzerControlPlots.h"
 #include "AnalyzerJetMatch.h"
 #include "AnalyzerJetCharge.h"
 #include "AnalyzerPlayground.h"
+#include "AnalyzerEventWeight.h"
+#include "AnalyzerGenEvent.h"
 #include "../../common/include/sampleHelpers.h"
 #include "../../common/include/utils.h"
 #include "../../common/include/CommandLineParameters.h"
 #include "../../common/include/KinematicReconstruction.h"
 #include "../../common/include/ScaleFactors.h"
-#include "TopAnalysis/ZTopUtils/interface/PUReweighter.h"
 
 
 
@@ -72,25 +73,21 @@ constexpr const char* JesUncertaintySourceFILE = "Summer13_V4_DATA_UncertaintySo
 
 
 
+/// The correction mode for the b-tagging
+//constexpr BtagScaleFactors::CorrectionMode BtagCorrectionMODE = BtagScaleFactors::none;
+//constexpr BtagScaleFactors::CorrectionMode BtagCorrectionMODE = BtagScaleFactors::randomNumberRetag;
+constexpr BtagScaleFactors::CorrectionMode BtagCorrectionMODE = BtagScaleFactors::discriminatorReweight;
 
-/// Folder where to find the b-/c-/l-tagging efficiencies
-constexpr const char* BtagEfficiencyInputDIR = "BTagEff";
+/// File for the official heavy flavour scale factors for b-tag discriminator reweighting
+constexpr const char* BtagHeavyFlavourFILE = "csv_rwt_hf.root";
 
-/// Folder for b-tag efficiency file storage (in case efficiencies are produced)
-constexpr const char* BtagEfficiencyOutputDIR = "selectionRoot/BTagEff";
-
-
-
-/// Folder for storage of MVA input TTree
-constexpr const char* MvaInputDIR = "mvaInput";
+/// File for the official light flavour scale factors for b-tag discriminator reweighting
+constexpr const char* BtagLightFlavourFILE = "csv_rwt_lf.root";
 
 
-/// Histogram containing the 2D distribution of MVA weights (needs to fit with the two weights also specified here)
+
+/// Histogram containing the 2D distributions of MVA weights
 constexpr const char* Mva2dWeightsFILE = "mvaOutput/Nominal/combined/weights/weights2d.root";
-
-
-/// Folder for basic analysis output
-constexpr const char* AnalysisOutputDIR = "selectionRoot";
 
 
 
@@ -113,57 +110,46 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
     
     // Set up the channels to run over
     std::vector<Channel::Channel> channels;
-    if(channel != Channel::undefined){
-        channels.push_back(channel);
-    }
-    else{
-        channels = Channel::realChannels;
-    }
+    if(channel != Channel::undefined) channels.push_back(channel);
+    else channels = Channel::realChannels;
     
     // Set up kinematic reconstruction
     KinematicReconstruction* kinematicReconstruction(0);
     //kinematicReconstruction = new KinematicReconstruction();
     
-    // Set up pileup reweighter
-    std::cout<<"--- Beginning preparation of pileup reweighter\n";
-    ztop::PUReweighter* puReweighter = new ztop::PUReweighter();
-    puReweighter->setMCDistrSum12("S10");
-    TString pileupInput(common::DATA_PATH_COMMON());
-    pileupInput.Append("/").Append(PileupInputFILE);
-    if(systematic == Systematic::pu_up) pileupInput.ReplaceAll(".root", "_sysUp.root");
-    else if(systematic == Systematic::pu_down) pileupInput.ReplaceAll(".root", "_sysDown.root");
-    std::cout<<"Using PU input file:\n"<<pileupInput<<std::endl;
-    puReweighter->setDataTruePUInput(pileupInput.Data());
-    std::cout<<"=== Finishing preparation of pileup reweighter\n\n";
-    
-    // Set up lepton efficiency scale factors
-    LeptonScaleFactors::Systematic leptonSFSystematic(LeptonScaleFactors::nominal);
-    if(systematic == Systematic::lept_up) leptonSFSystematic = LeptonScaleFactors::vary_up;
-    else if(systematic == Systematic::lept_down) leptonSFSystematic = LeptonScaleFactors::vary_down;
-    const LeptonScaleFactors leptonScaleFactors(ElectronSFInputFILE, MuonSFInputFILE, leptonSFSystematic);
-    
-    // Set up trigger efficiency scale factors (do it for all channels)
-    TriggerScaleFactors::Systematic triggerSFSystematic(TriggerScaleFactors::nominal);
-    if(systematic == Systematic::trig_up) triggerSFSystematic = TriggerScaleFactors::vary_up;
-    else if(systematic == Systematic::trig_down) triggerSFSystematic = TriggerScaleFactors::vary_down;
-    const TriggerScaleFactors triggerScaleFactors(TriggerSFInputSUFFIX,
-                                                  Channel::convertChannels(Channel::realChannels),
-                                                  triggerSFSystematic);
-    
-    // Set up JER systematic scale factors
-    JetEnergyResolutionScaleFactors* jetEnergyResolutionScaleFactors(0);
-    if(systematic==Systematic::jer_up || systematic==Systematic::jer_down){
-        JetEnergyResolutionScaleFactors::Systematic jerSystematic(JetEnergyResolutionScaleFactors::vary_up);
-        if(systematic == Systematic::jer_down) jerSystematic = JetEnergyResolutionScaleFactors::vary_down;
-        jetEnergyResolutionScaleFactors = new JetEnergyResolutionScaleFactors(jerSystematic);
+    // Set up kinematic reconstruction scale factors (null-pointer means no application)
+    KinematicReconstructionScaleFactors* kinematicReconstructionScaleFactors(0);
+    //kinematicReconstructionScaleFactors = new KinematicReconstructionScaleFactors(channels, systematic);
+    if(systematic.type()==Systematic::kin && !kinematicReconstructionScaleFactors){
+        std::cout<<"Systematic for kinematic reconstruction requested, but scale factors not applied"
+                 <<"\nStop running of analysis --- this is NOT an error, just avoiding double running\n"<<std::endl;
+        exit(1);
     }
     
-    // Set up JES systematic scale factors
+    // Set up pileup reweighter
+    const PileupScaleFactors* const pileupScaleFactors = new PileupScaleFactors(PileupInputFILE, "Summer12", "S10", systematic);
+    
+    // Set up lepton efficiency scale factors
+    const LeptonScaleFactors leptonScaleFactors(ElectronSFInputFILE, MuonSFInputFILE, systematic);
+    
+    // Set up trigger efficiency scale factors
+    TriggerScaleFactors triggerScaleFactors(TriggerSFInputSUFFIX, channels, systematic);
+    
+    // Set up JER systematic scale factors (null-pointer means no application)
+    JetEnergyResolutionScaleFactors* jetEnergyResolutionScaleFactors(0);
+    if(systematic.type() == Systematic::jer) jetEnergyResolutionScaleFactors = new JetEnergyResolutionScaleFactors(systematic);
+    
+    // Set up JES systematic scale factors (null-pointer means no application)
     JetEnergyScaleScaleFactors* jetEnergyScaleScaleFactors(0);
-    if(systematic==Systematic::jes_up || systematic==Systematic::jes_down){
-        JetEnergyScaleScaleFactors::Systematic jesSystematic(JetEnergyScaleScaleFactors::vary_up);
-        if(systematic == Systematic::jes_down) jesSystematic = JetEnergyScaleScaleFactors::vary_down;
-        jetEnergyScaleScaleFactors = new JetEnergyScaleScaleFactors(JesUncertaintySourceFILE, jesSystematic);
+    if(systematic.type() == Systematic::jes) jetEnergyScaleScaleFactors = new JetEnergyScaleScaleFactors(JesUncertaintySourceFILE, systematic);
+    
+    // Set up top-pt reweighting scale factors (null-pointer means no application)
+    TopPtScaleFactors* topPtScaleFactors(0);
+    //topPtScaleFactors = new TopPtScaleFactors(systematic);
+    if(systematic.type()==Systematic::topPt && !topPtScaleFactors){
+        std::cout<<"Systematic for top-pt reweighting requested, but scale factors not applied"
+                 <<"\nStop running of analysis --- this is NOT an error, just avoiding double running\n"<<std::endl;
+        exit(1);
     }
     
     
@@ -178,18 +164,24 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
         exit(832);
     }
     
+    
     // Vector for setting up all analysers
-    std::vector<AnalyzerBaseClass*> v_analyzer;
+    std::vector<AnalyzerBase*> v_analyzer;
     
     // Set up event yield histograms
     AnalyzerEventYields* analyzerEventYields(0);
-    analyzerEventYields = new AnalyzerEventYields({"1", "2", "3", "4", "5", "6", "7"}, {"7"}, jetCategories);
+    analyzerEventYields = new AnalyzerEventYields({"0a", "0b", "1", "2", "3", "4", "5", "6", "7"}, {"7"}, jetCategories);
     v_analyzer.push_back(analyzerEventYields);
     
     // Set up Drell-Yan scaling histograms
     AnalyzerDyScaling* analyzerDyScaling(0);
     analyzerDyScaling = new AnalyzerDyScaling({"4", "5", "6", "7"}, "5");
     v_analyzer.push_back(analyzerDyScaling);
+    
+    // Set up Heavy-Flavour fraction scaling histograms
+    AnalyzerHfFracScaling* analyzerHfFracScaling(0);
+    analyzerHfFracScaling = new AnalyzerHfFracScaling({"5", "6", "7"});
+    v_analyzer.push_back(analyzerHfFracScaling);
     
     // Set up basic histograms
     AnalyzerControlPlots* analyzerControlPlots(0);
@@ -227,32 +219,56 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
         v_analyzer.push_back(analyzerDijet);
     }
     
-    // Set up MVA validation, including reading in MVA weights in case they exist
+    // Set up event weight analyzer
+    AnalyzerEventWeight* analyzerEventWeight(0);
+    if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::weight) != v_analysisMode.end()){
+        analyzerEventWeight = new AnalyzerEventWeight({"0b", "1", "2", "3", "4", "5", "6", "7"}, {"7"}, jetCategories);
+        v_analyzer.push_back(analyzerEventWeight);
+    }
+    
+    // Set up gen event analyzer
+    AnalyzerGenEvent* analyzerGenEvent(0);
+    if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::genEvent) != v_analysisMode.end()){
+        analyzerGenEvent = new AnalyzerGenEvent({"7"}, {"7"}, jetCategories);
+        v_analyzer.push_back(analyzerGenEvent);
+    }
+    
+    // Set up MVA validation for top system jet assignment
     AnalyzerMvaTopJets* analyzerMvaTopJets(0);
-    if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::mvaA) != v_analysisMode.end()){
+    if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::mvaTopA) != v_analysisMode.end()){
         analyzerMvaTopJets = new AnalyzerMvaTopJets(Mva2dWeightsFILE, {"7"}, {"7"}, jetCategories);
         v_analyzer.push_back(analyzerMvaTopJets);
     }
     
+    
     // Vector setting up all tree handlers for MVA input variables
     std::vector<MvaTreeHandlerBase*> v_mvaTreeHandler;
     
-    // Set up production of MVA input tree
+    // Set up production of MVA input tree for top system jet assignment
     MvaTreeHandlerTopJets* mvaTreeHandlerTopJets(0);
-    if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::mvaP) != v_analysisMode.end()){
-        mvaTreeHandlerTopJets = new MvaTreeHandlerTopJets(MvaInputDIR, {"7"}, {"7"}, jetCategories);
+    if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::mvaTopP) != v_analysisMode.end()){
+        mvaTreeHandlerTopJets = new MvaTreeHandlerTopJets("mvaInput", {"7"}, {"7"}, jetCategories);
         v_mvaTreeHandler.push_back(mvaTreeHandlerTopJets);
     }
     
+    // Set up production of MVA input tree for event classification
+    MvaTreeHandlerEventClassification* mvaTreeHandlerEventClassification(0);
+    if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::mvaEventP) != v_analysisMode.end()){
+        mvaTreeHandlerEventClassification = new MvaTreeHandlerEventClassification("mvaInput", {"7"}, {"7"}, jetCategories);
+        v_mvaTreeHandler.push_back(mvaTreeHandlerEventClassification);
+    }
+    
+    
     // Set up the analysis
     HiggsAnalysis* selector = new HiggsAnalysis();
-    selector->SetAnalysisOutputBase(AnalysisOutputDIR);
-    selector->SetKinematicReconstruction(kinematicReconstruction);
-    selector->SetPUReweighter(puReweighter);
+    selector->SetAnalysisOutputBase("selectionRoot");
+    selector->SetKinematicReconstruction(kinematicReconstruction, kinematicReconstructionScaleFactors);
+    selector->SetPileupScaleFactors(pileupScaleFactors);
     selector->SetLeptonScaleFactors(leptonScaleFactors);
     selector->SetTriggerScaleFactors(triggerScaleFactors);
     selector->SetJetEnergyResolutionScaleFactors(jetEnergyResolutionScaleFactors);
     selector->SetJetEnergyScaleScaleFactors(jetEnergyScaleScaleFactors);
+    selector->SetTopPtScaleFactors(topPtScaleFactors);
     selector->SetAllAnalyzers(v_analyzer);
     selector->SetAllTreeHandlers(v_mvaTreeHandler);
     
@@ -272,9 +288,7 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
         infile>>filename;
         if(filename=="" || filename[0]=='#') continue; //empty or commented line? --> skip
         if(!filename.Contains(validFilenamePattern)) continue;
-        std::cout<<std::endl;
-        std::cout<<"PROCESSING File "<<++filecounter<<" ("<<filename<<") from selectionList.txt"<<std::endl;
-        std::cout<<std::endl;
+        std::cout<<"\nPROCESSING File "<<++filecounter<<" ("<<filename<<") from selectionList.txt\n"<<std::endl;
         
         // Access the basic filename by stripping off the folders
         TString filenameBase(filename);
@@ -306,9 +320,11 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
         TObjString* o_isMC = dynamic_cast<TObjString*>(file.Get("writeNTuple/isMC"));
         TH1* weightedEvents = dynamic_cast<TH1*>(file.Get("EventsBeforeSelection/weightedEvents"));
         if(!channel_from_file || !systematics_from_file || !o_isSignal || !o_isMC || !samplename){
-            std::cout<<"Error: info about sample missing!"<<std::endl;
-            return;
+            std::cerr<<"Error: info about sample missing!"<<std::endl; 
+            exit(855);
         }
+        const Channel::Channel channelFromFile = Channel::convert(channel_from_file->GetString());
+        const Systematic::Systematic systematicFromFile = Systematic::Systematic(systematics_from_file->GetString());
         
         // Configure information about samples
         const bool isTopSignal = o_isSignal->GetString() == "1";
@@ -319,30 +335,28 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
         const bool isDrellYan(samplename->GetString()=="dy1050" || samplename->GetString()=="dy50inf");
         
         // Checks avoiding running on ill-defined configurations
-        if(!isMC && systematic!=Systematic::undefined){
+        if(!isMC && systematic.type()!=Systematic::undefinedType){
             std::cout<<"Sample is DATA, so not running again for systematic variation\n";
             continue;
         }
         
         // Is the channel given in the file? This is true only for data which is preselected due to trigger,
         // and guarantees that only the proper channel is processed
-        if(channel_from_file->GetString() != ""){
+        if(channelFromFile != Channel::undefined){
             channels.clear();
-            channels.push_back(Channel::convertChannel(static_cast<std::string>(channel_from_file->GetString())));
+            channels.push_back(channelFromFile);
         }
         
         // If no systematic is specified, read it from the file and use this (used for systematic variations of signal samples)
-        const Systematic::Systematic selectedSystematic = systematic==Systematic::undefined ? Systematic::convertSystematic(static_cast<std::string>(systematics_from_file->GetString())) : systematic;
+        const Systematic::Systematic selectedSystematic = systematic.type()==Systematic::undefinedType ? systematicFromFile : systematic;
         
         // If for specific systematic variations the nominal btagging efficiencies should be used
         const Systematic::Systematic systematicForBtagEfficiencies = selectedSystematic;
         
         // Set up btag efficiency scale factors
         // This has to be done only after potentially setting systematic from file, since it is varied with signal systematics
-        BtagScaleFactors btagScaleFactors(BtagEfficiencyInputDIR,
-                                          BtagEfficiencyOutputDIR,
-                                          Channel::convertChannels(channels),
-                                          Systematic::convertSystematic(systematicForBtagEfficiencies));
+        BtagScaleFactors btagScaleFactors("BTagEff", "selectionRoot/BTagEff", BtagHeavyFlavourFILE, BtagLightFlavourFILE,
+                                          channels, systematicForBtagEfficiencies, BtagCorrectionMODE);
         
         // Configure selector
         selector->SetTopSignal(isTopSignal);
@@ -354,18 +368,20 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
         // Needs to be changed: for ttbarW, also correction for 3rd W needs to be applied, for ttbarhiggs corrections for 2 or 4 Ws needed, depending on Higgs decay (H->WW?)
         // and what about Wlnu sample, or possible others ?
         selector->SetSamplename(samplename->GetString());
-        selector->SetGeneratorBools(samplename->GetString(), Systematic::convertSystematic(selectedSystematic));
-        selector->SetSystematic(Systematic::convertSystematic(selectedSystematic));
+        selector->SetGeneratorBools(samplename->GetString(), selectedSystematic);
+        selector->SetSystematic(selectedSystematic);
         selector->SetBtagScaleFactors(btagScaleFactors);
         
         // Loop over channels and run selector
         for(const auto& selectedChannel : channels){
             
             // Set the channel
-            const TString channelName = Channel::convertChannel(selectedChannel);
+            const TString channelName = Channel::convert(selectedChannel);
             const TString outputfilename = filenameBase.BeginsWith(channelName+"_") ? filenameBase : channelName+"_"+filenameBase;
-            btagScaleFactors.prepareSF(static_cast<std::string>(channelName));
-            selector->SetChannel(channelName);
+            triggerScaleFactors.prepareChannel(selectedChannel);
+            btagScaleFactors.prepareChannel(selectedChannel);
+            if(kinematicReconstructionScaleFactors) kinematicReconstructionScaleFactors->prepareChannel(selectedChannel);
+            selector->SetChannel(selectedChannel);
             
             // Set up nTuple chain
             TChain chain("writeNTuple/NTuple");
@@ -378,7 +394,7 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
                     selector->SetTrueLevelDYChannel(11);
                     const Channel::Channel dyChannel = Channel::ee;
                     TString modifiedOutputfilename(outputfilename);
-                    modifiedOutputfilename.ReplaceAll("_dy", TString("_dy").Append(Channel::convertChannel(dyChannel)));
+                    modifiedOutputfilename.ReplaceAll("_dy", TString("_dy").Append(Channel::convert(dyChannel)));
                     selector->SetOutputfilename(modifiedOutputfilename);
                     chain.Process(selector, "", maxEvents, skipEvents);
                 }
@@ -386,7 +402,7 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
                     selector->SetTrueLevelDYChannel(13);
                     const Channel::Channel dyChannel = Channel::mumu;
                     TString modifiedOutputfilename(outputfilename);
-                    modifiedOutputfilename.ReplaceAll("_dy", TString("_dy").Append(Channel::convertChannel(dyChannel)));
+                    modifiedOutputfilename.ReplaceAll("_dy", TString("_dy").Append(Channel::convert(dyChannel)));
                     selector->SetOutputfilename(modifiedOutputfilename);
                     chain.Process(selector, "", maxEvents, skipEvents);
                 }
@@ -394,7 +410,7 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
                     selector->SetTrueLevelDYChannel(15);
                     const Channel::Channel dyChannel = Channel::tautau;
                     TString modifiedOutputfilename(outputfilename);
-                    modifiedOutputfilename.ReplaceAll("_dy", TString("_dy").Append(Channel::convertChannel(dyChannel)));
+                    modifiedOutputfilename.ReplaceAll("_dy", TString("_dy").Append(Channel::convert(dyChannel)));
                     selector->SetOutputfilename(modifiedOutputfilename);
                     chain.Process(selector, "", maxEvents, skipEvents);
                 }
@@ -478,19 +494,43 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
 
 
 
+/// All systematics allowed for analysis step
+/// Only systematics which run on the nominal ntuples, e.g. pileup reweighting
+namespace Systematic{
+    const std::vector<Type> allowedSystematics = {
+        nominal,
+        pu, lept, trig,
+        jer, jes,
+        btag, btagLjet,
+        btagDiscrBstat1, btagDiscrBstat2,
+        btagDiscrLstat1, btagDiscrLstat2,
+        btagDiscrCerr1, btagDiscrCerr2,
+        kin,
+        topPt,
+    };
+}
+
+
+
 int main(int argc, char** argv)
 {
     CLParameter<std::string> opt_filenamePattern("f", "Restrict to filename pattern, e.g. ttbar", false, 1, 1);
     CLParameter<int> opt_partToRun("p", "Specify a part to be run for samples which are split in subsamples (via ID). Default is no splitting", false, 1, 1,
             [](int part){return part>=0 && part<3;});
     CLParameter<std::string> opt_channel("c", "Specify a certain channel (ee, emu, mumu). No channel specified = run on all channels", false, 1, 1,
-            common::makeStringCheck(Channel::convertChannels(Channel::allowedChannelsAnalysis)));
+            common::makeStringCheck(Channel::convert(Channel::allowedChannelsAnalysis)));
     CLParameter<std::string> opt_systematic("s", "Run with a systematic that runs on the nominal ntuples, e.g. 'PU_UP'", false, 1, 1,
-            common::makeStringCheck(Systematic::convertSystematics(Systematic::allowedSystematicsHiggsAnalysis)));
+            common::makeStringCheckBegin(Systematic::convertType(Systematic::allowedSystematics)));
     CLParameter<int> opt_jetCategoriesId("j", "ID for jet categories (# jets, # b-jets). If not specified, use default categories (=0)", false, 1, 1,
             [](int id){return id>=0 && id<=3;});
-    CLParameter<std::string> opt_mode("m", "Mode of analysis: control plots (cp), Produce MVA input (mvaP), Apply MVA weights (mvaA), dijet analyser (dijet), playground (playg), jet charge analyser (charge), jet match analyser (match). Default is cp", false, 1, 100,
-            common::makeStringCheck(AnalysisMode::convertAnalysisModes(AnalysisMode::allowedAnalysisModes)));
+    CLParameter<std::string> opt_mode("m", "Mode of analysis: control plots (cp), "
+                                           "dijet analyser (dijet), jet charge analyser (charge), jet match analyser (match), playground (playg), "
+                                           "event weight analyser (weight), gen event analyser(genEvent), "
+                                           "Produce MVA input or Apply MVA weights for top jets (mvaTopP/mvaTopA), "
+                                           "Produce MVA input or Apply MVA weights for event classification (mvaEventP/mvaEventA), "
+                                           "Produce MVA input or Apply MVA weights for jet charge (mvaChargeP/mvaChargeA). "
+                                           "Default is cp", false, 1, 100,
+            common::makeStringCheck(AnalysisMode::convert(AnalysisMode::allowedAnalysisModes)));
     CLParameter<Long64_t> opt_maxEvents("maxEvents", "Maximum number of events to process", false, 1, 1,
             [](const Long64_t mE){return mE > 0;});
     CLParameter<Long64_t> opt_skipEvents("skipEvents", "Number of events to be skipped", false, 1, 1,
@@ -505,20 +545,20 @@ int main(int argc, char** argv)
     
     // Set up channel
     Channel::Channel channel(Channel::undefined);
-    if(opt_channel.isSet()) channel = Channel::convertChannel(opt_channel[0]);
+    if(opt_channel.isSet()) channel = Channel::convert(opt_channel[0]);
     
     // Set up systematic
-    Systematic::Systematic systematic(Systematic::undefined);
-    if(opt_systematic.isSet()) systematic = Systematic::convertSystematic(opt_systematic[0]);
+    Systematic::Systematic systematic(Systematic::undefinedSystematic());
+    if(opt_systematic.isSet()) systematic = Systematic::Systematic(opt_systematic[0]);
     
     // Set up jet categories
     const int jetCategoriesId = opt_jetCategoriesId.isSet() ? opt_jetCategoriesId[0] : 0;
     
     // Set up analysis mode
     std::vector<AnalysisMode::AnalysisMode> v_analysisMode({AnalysisMode::cp});
-    if(opt_mode.isSet()) v_analysisMode = AnalysisMode::convertAnalysisModes(opt_mode.getArguments());
+    if(opt_mode.isSet()) v_analysisMode = AnalysisMode::convert(opt_mode.getArguments());
     std::cout<<"\nRunning the following analysis modes:\n";
-    for(const auto& analysisMode : v_analysisMode) std::cout<<AnalysisMode::convertAnalysisMode(analysisMode)<<" , ";
+    for(const auto& analysisMode : v_analysisMode) std::cout<<AnalysisMode::convert(analysisMode)<<" , ";
     std::cout<<"\n\n";
     
     // Set up maximum number of events to process

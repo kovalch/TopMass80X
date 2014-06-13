@@ -13,8 +13,10 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   HiggsAnalysis
   MvaTreeHandlerBase
   MvaTreeHandlerTopJets
+  MvaTreeHandlerEventClassification
   MvaTreePlotterBase
   MvaTreePlotterTopJets
+  MvaTreePlotterEventClassification
   MvaWeights2d
   MvaReaderBase
   MvaReaderTopJets
@@ -24,17 +26,24 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   MvaVariablesBase
   MvaVariablesTopJets
   MvaVariablesEventClassification
-  AnalyzerBaseClass
+  AnalyzerBase
   AnalyzerControlPlots
-  AnalyzerMvaTopJets
+  AnalyzerDijet
+  AnalyzerEventWeight
+  AnalyzerGenEvent
   AnalyzerJetCharge
   AnalyzerJetMatch
+  AnalyzerMvaTopJets
   AnalyzerPlayground
-  AnalyzerDijet
   JetCategories
   plotterHelpers
+  Sample
+  SampleDefinitions
   Samples
+  GlobalScaleFactors
+  LuminosityScaleFactors
   DyScaleFactors
+  HfFracScaleFactors
   EventYields
   Plotter
   )
@@ -44,6 +53,7 @@ SET( ${PROJECT_NAME}_EXECUTABLES
   train_mvaTopJets
   Histo
   histo_analyzerJetMatch
+  histo_analyzerGenEvent
   histo_analyzerMvaTopJets
   histo_mvaTopJetsInputVariables
   )

@@ -20,12 +20,12 @@ runSpecificVariation() {
 
     #move directories to avoid overwritting them
     mv -f Plots Plots_temp
-    mv -f UnfoldingResults UnfoldingResults_tmp
+    mv -f UnfoldingResults UnfoldingResults_temp
     mv -f preunfolded preunfolded_temp
     if [ -d "Plots_temp/$variation" ] ; then mv "Plots_temp/${variation}" Plots ; fi
-    if [ -d "UnfoldingResults_tmp/$variation" ] ; then mv "UnfoldingResults_tmp/${variation}" UnfoldingResults ; fi
+    if [ -d "UnfoldingResults_temp/$variation" ] ; then mv "UnfoldingResults_temp/${variation}" UnfoldingResults ; fi
     if [ -d "preunfolded_temp/$variation" ] ; then mv "preunfolded_temp/${variation}" preunfolded ; fi
-    mkdir -p Plots/combined
+    mkdir -p Plots
     mkdir -p UnfoldingResults
     mkdir -p preunfolded
 
@@ -36,36 +36,38 @@ runSpecificVariation() {
 
     # now calculate differential distributions
     for plot in `awk '{print $1}' HistoList | grep Hyp`; do
-    #for plot in HypTTBarMass; do
         install/bin/Histo -t unfold -p +$plot -s Nominal &
     done
     wait
 
+    if [ ! -f Plots_temp ]; then mkdir Plots_temp; fi
+    if [ ! -f preunfolded_temp ]; then mkdir preunfolded_temp; fi
+    if [ ! -f UnfoldingResults_temp ]; then mkdir UnfoldingResults_temp; fi
+
     # move back directories
     mv -f Plots "Plots_temp/${variation}"
-    mv -f UnfoldingResults "UnfoldingResults_tmp/${variation}"
+    mv -f UnfoldingResults "UnfoldingResults_temp/${variation}"
     mv -f preunfolded "preunfolded_temp/${variation}"
 
     mv -f Plots_temp Plots
-    mv -f UnfoldingResults_tmp UnfoldingResults
-    mv -f preunfolded_tmp preunfolded
+    mv -f UnfoldingResults_temp UnfoldingResults
+    mv -f preunfolded_temp preunfolded
 }
 
 
-scripts/mk_HistoFileList.sh
+install/bin/mk_HistoFileList.sh
 
 for i in ee emu mumu combined; do
     grep -v ttbarsignalplustau.root < FileLists/HistoFileList_Nominal_$i.txt >| HistoFileList_Nominal_$i.txt 
 done
 
-runSpecificVariation PDF_CENTRAL
+runSpecificVariation PDF_0_CENTRAL
 for no in `seq 1 22`; do
-#for no in 1; do
     for var in UP DOWN; do
         runSpecificVariation "PDF_${no}_${var}"
     done
 done
 
-scripts/mk_HistoFileList.sh
+install/bin/mk_HistoFileList.sh
 
 echo "Done"

@@ -5,6 +5,7 @@ void addTAE(TGraphAsymmErrors* in, TGraphAsymmErrors* out);
 void getMCcorrectionfactors(TString func = "exp"){
 
   // some parameters
+  bool sepLeg=true;
   bool grey=false;
   bool plotsepfit   =true;
   bool plotfiterrors=false;
@@ -121,7 +122,7 @@ void getMCcorrectionfactors(TString func = "exp"){
   // c) l+jets 8TeV data points
   for(int p=0; p<NbinsLjets8; ++p){
     // get line with all informations
-    TString line= readLineFromFile(p+1, "/afs/naf.desy.de/group/cms/scratch/tophh/CommonFiles/topPtInputForReweighting/diffXSecTopSemiLepPartontopPt.txt");
+    TString line= readLineFromFile(p+1, groupSpace+"CommonFiles/topPtInputForReweighting/diffXSecTopSemiLepPartontopPt.txt");
     // data value
     TString temp = getStringEntry(line, 3 , "&");
     temp.ReplaceAll(" ","");
@@ -154,7 +155,7 @@ void getMCcorrectionfactors(TString func = "exp"){
   MCdilep_.push_back(0.000228163); 
   for(int p=0; p<NbinsDilep8; ++p){
     // get line with all informations
-    TString line= readLineFromFile(p+4, "/afs/naf.desy.de/group/cms/scratch/tophh/CommonFiles/topPtInputForReweighting/HypToppTLaTeX.txt");
+    TString line= readLineFromFile(p+4, groupSpace+"CommonFiles/topPtInputForReweighting/HypToppTLaTeX.txt");
     // data value
     TString temp = getStringEntry(line, 3 , "&");
     temp.ReplaceAll(" ","");
@@ -213,22 +214,22 @@ void getMCcorrectionfactors(TString func = "exp"){
   dummy->GetXaxis()->SetTitle("p_{T}^{t} [GeV]");
   dummy->GetYaxis()->SetTitle("#frac{1}{#sigma} #frac{d#sigma}{dp_{T}^{t}} Ratio: (Data / Simulation)");
   dummy->GetYaxis()->SetTitleOffset(0.9*dummy->GetYaxis()->GetTitleOffset());
-  dummy->SetMaximum(1.8);
+  dummy->SetMaximum(sepLeg? 1.3 : 1.8);
   dummy->SetMinimum(0.5);
 
   // ---
   //    legends
   // ---
-  double x1=0.29;
-  double x2=0.86;
-    
-  TLegend *leg0 = new TLegend(x1, 0.69, x2, 0.87);
+  double x1=sepLeg ? 0.1 : 0.29;
+  double x2=sepLeg ? 0.9 : 0.86;
+
+  TLegend *leg0 = new TLegend(x1, sepLeg ? 0.65 : 0.69, x2, sepLeg? 0.92 : 0.87);
   leg0->SetFillStyle(0);
   leg0->SetTextSize(0.035);
   leg0->SetBorderSize(0);
   leg0->SetHeader("#font[22]{Data / MadGraph+PYTHIA(CTEQ6L1)}");
 
-  TLegend *leg1 = new TLegend(x1, 0.57, x2, 0.69);
+  TLegend *leg1 = new TLegend(x1, sepLeg ? 0.3 : 0.57, x2, sepLeg ? 0.55 : 0.69);
   leg1->SetFillStyle(0);
   leg1->SetTextSize(0.035);
   leg1->SetBorderSize(0);
@@ -447,14 +448,14 @@ void getMCcorrectionfactors(TString func = "exp"){
   leg0->AddEntry(SFdilep, "7 TeV ee/e#mu/#mu#mu (TOP-11-013)", "P");
   leg0->AddEntry(SFljets8,"8 TeV e/#mu+jets  (TOP-12-028)"   , "P");
   leg0->AddEntry(SFdilep8,"8 TeV ee/e#mu/#mu#mu (TOP-12-028)", "P");
-  leg0->Draw("same");
+  if(!sepLeg) leg0->Draw("same");
   leg1->AddEntry( function7, fitEntry7, "L");
   if(plotsepfit) leg1->AddEntry( functiondilep7, fitEntrydilep7, "L");
   if(plotsepfit) leg1->AddEntry( functionljets7, fitEntryljets7, "L");
   leg1->AddEntry( function8, fitEntry8, "L");
   if(plotsepfit) leg1->AddEntry( functiondilep8, fitEntrydilep8, "L");
   if(plotsepfit) leg1->AddEntry( functionljets8, fitEntryljets8, "L");
-  leg1->Draw("same");
+  if(!sepLeg) leg1->Draw("same");
   // Draw cms label
   TPaveText *label = new TPaveText();
   label -> SetX1NDC(gStyle->GetPadLeftMargin());
@@ -557,9 +558,11 @@ void getMCcorrectionfactors(TString func = "exp"){
   label2->SetFillStyle(0);
   label2->SetBorderSize(0);
   label2->SetTextSize(0.04);
-  label2->SetTextAlign(32);
+  label2->SetTextAlign(32);  
+  double x12= 0.29;
+  double x22= 0.86;
   label2->Draw("same");
-  TLegend *leg3 = new TLegend(x1+0.05, 0.7, x2+0.05, 0.85);
+  TLegend *leg3 = new TLegend(x12+0.05, 0.7, x22+0.05, 0.85);
   leg3->SetFillStyle(0);
   leg3->SetTextSize(0.035);
   leg3->SetBorderSize(0);
@@ -573,7 +576,18 @@ void getMCcorrectionfactors(TString func = "exp"){
   if(grey) plotCanvas_[1]->SetGrayscale();
   plotCanvas_[1]->Print("diffXSecFromSignal/plots/combined/2012/xSec/topPtReweighting8TeVunc.eps");
   plotCanvas_[1]->Print("diffXSecFromSignal/plots/combined/2012/xSec/topPtReweighting8TeVunc.png");
-
+  
+  // ratio legend
+  if(sepLeg){
+    addCanvas(plotCanvas_);
+    plotCanvas_[plotCanvas_.size()-1]->cd(0);
+    plotCanvas_[plotCanvas_.size()-1]->SetTitle("legend");
+    leg0->Draw("same");
+    leg1->Draw("same");
+    if(grey) plotCanvas_[2]->SetGrayscale();
+    plotCanvas_[2]->Print("diffXSecFromSignal/plots/combined/2012/xSec/topPtReweightingLegend.eps");
+    plotCanvas_[2]->Print("diffXSecFromSignal/plots/combined/2012/xSec/topPtReweightingLegend.png");
+  }
 }
 
 

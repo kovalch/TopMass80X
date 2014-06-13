@@ -13,6 +13,7 @@ class TH1F;
 class TH1D;
 
 class RootFileReader;
+class homelessFunctions;
 
 
 
@@ -35,7 +36,6 @@ public:
     ///add addThis to addToThis (and delete it afterwards) - or assign it it to addToThis if addToThis is nullptr.
     void   addAndDelete_or_Assign(TH1*& addToThis, TH1* addThis);
     void   write(TString, TString);
-    void   setLumi(double, double);
     
     double CalcXSec(std::vector<TString> datasetVec, double InclusiveXsectionVec[4],double InclusiveXsectionStatErrorVec[4], TString Systematic, TString Shift);
     void MakeTable(TString Channel, TString Systematic);
@@ -60,21 +60,13 @@ public:
     double GetChi2 (TGraphAsymmErrors *data, TH1 *mc);
     TH1F* reBinTH1FIrregularNewBinning(TH1F *histoOldBinning, TString plotname, bool rescale);
 
-    //IVAN's Scaling Code
-    void ApplyFlatWeights(TH1* varhists,   const double weight);
-    double SampleXSection(const TString& filename);
-    double CalcLumiWeight(const TString& WhichSample);
-    std::vector<TString> InputFileList(TString mode, TString Systematic);
-
     // DAVID
     void UnfoldingOptions(bool doSVD);
     void SetOutpath(TString path); 
     void DrawLabel(TString text, const double x1, const double y1, const double x2, const double y2, int centering, double textSize);
 
     double CalculateIntegral(TGraphAsymmErrors *tga_DiffXSecPlot, double Xbins[]);
-
-    void ListOfSystematics(std::set<TString>);
-    std::set<TString> ListOfSyst;
+    
 
 private:
 
@@ -125,6 +117,7 @@ private:
 
     static const bool doClosureTest;
     RootFileReader *fileReader;
+    homelessFunctions *homelessFunc;
     void DrawDecayChLabel(TString decaychannel="", double textSize=0.04);
     void DrawCMSLabels(int cmsprelim=true, double energy=8, double textSize=0.04);
     

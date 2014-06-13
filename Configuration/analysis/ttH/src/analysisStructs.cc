@@ -4,32 +4,48 @@
 
 
 
-tth::GenLevelWeights::GenLevelWeights(const double& weightMadgraphCorrection, const double& weightPileup, const double& weightGenerator,
+tth::GenLevelWeights::GenLevelWeights(const double& weightMadgraphCorrection, const double& weightPileup,
+                                      const double& weightGenerator, const double& weightTopPt,
                                       const double& trueLevelWeightNoPileup, const double& trueLevelWeight):
 weightMadgraphCorrection_(weightMadgraphCorrection),
 weightPileup_(weightPileup),
 weightGenerator_(weightGenerator),
+weightTopPt_(weightTopPt),
 trueLevelWeightNoPileup_(trueLevelWeightNoPileup),
 trueLevelWeight_(trueLevelWeight)
 {}
 
 
 
-tth::RecoLevelWeights::RecoLevelWeights(const double& weightLeptonSF, const double& weightTriggerSF, const double& weightBtagSF,
-                                        const double& weightNoPileup, double& weight):
+tth::RecoLevelWeights::RecoLevelWeights(const double& weightLeptonSF, const double& weightTriggerSF,
+                                        const double& weightBtagSF, const double& weightKinReco,
+                                        const double& weightNoPileup, const double& weight):
 weightLeptonSF_(weightLeptonSF),
 weightTriggerSF_(weightTriggerSF),
 weightBtagSF_(weightBtagSF),
+weightKinReco_(weightKinReco),
 weightNoPileup_(weightNoPileup),
 weight_(weight)
 {}
 
 
 
-tth::GenObjectIndices::GenObjectIndices(const int& genBjetFromTopIndex, const int& genAntiBjetFromTopIndex,
+tth::GenObjectIndices::GenObjectIndices(const std::vector<int>& genBjetIndices,
+                                        const std::vector<std::vector<int> >& genJetBhadronIndices,
+                                        const std::vector<int>& genJetMatchedRecoBjetIndices,
+                                        const std::vector<int>& genCjetIndices,
+                                        const std::vector<std::vector<int> >& genJetChadronIndices,
+                                        const std::vector<int>& genJetMatchedRecoCjetIndices,
+                                        const int& genBjetFromTopIndex, const int& genAntiBjetFromTopIndex,
                                         const int& recoBjetFromTopIndex, const int& recoAntiBjetFromTopIndex,
                                         const int& genBjetFromHiggsIndex, const int& genAntiBjetFromHiggsIndex,
                                         const int& recoBjetFromHiggsIndex, const int& recoAntiBjetFromHiggsIndex):
+genBjetIndices_(genBjetIndices),
+genJetBhadronIndices_(genJetBhadronIndices),
+genJetMatchedRecoBjetIndices_(genJetMatchedRecoBjetIndices),
+genCjetIndices_(genCjetIndices),
+genJetChadronIndices_(genJetChadronIndices),
+genJetMatchedRecoCjetIndices_(genJetMatchedRecoCjetIndices),
 genBjetFromTopIndex_(genBjetFromTopIndex),
 genAntiBjetFromTopIndex_(genAntiBjetFromTopIndex),
 recoBjetFromTopIndex_(recoBjetFromTopIndex),

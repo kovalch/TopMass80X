@@ -71,12 +71,7 @@
 200  Summer12.TT_CT10_AUET2_8TeV_powheg_herwig_Summer12_DR53X-PU_S10_START53_V19_v1_cff                   ttbarsignalplustau_powhegHerwig.root      ttbarsignalplustau,systematicsName=POWHEGHERWIG
 200  Summer12.TT_CT10_AUET2_8TeV_powheg_herwig_Summer12_DR53X-PU_S10_START53_V19_v1_cff                   ttbarbg_powhegHerwig.root                 ttbarbg,systematicsName=POWHEGHERWIG
 
-#Madgraph with spin correlations exclusive samples
-300  Summer12.TTJets_FullLeptMGDecays_8TeV_madgraph_Summer12_DR53X_PU_S10_START53_V7A_v2_cff                 ttbarsignalplustau_FullLeptMadgraphWithSpinCorrelation.root  ttbarsignalplustau,systematicsName=SPINCORR
-200  Summer12.TTJets_SemiLeptMGDecays_8TeV_madgraph_Summer12_DR53X_PU_S10_START53_V7A_v1_cff                 ttbarbg_SemiLeptMadgraphWithSpinCorrelation.root             ttbarbg,systematicsName=SPINCORR
-200  Summer12.TTJets_HadronicMGDecays_8TeV_madgraph_Summer12_DR53X_PU_S10_START53_V7A_v1_cff                 ttbarbg_HadronicMadgraphWithSpinCorrelation.root             ttbarbg,systematicsName=SPINCORR
-
 
 #   MadGraph+Pythia with Perugia11 Tune
-60   Summer12.TTJets_FullLeptMGDecays_TuneP11_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff       ttbarsignalplustau_Perugia11.root       ttbarsignalplustau,systematicsName=PERUGIA11
-60   Summer12.TTJets_FullLeptMGDecays_TuneP11noCR_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff   ttbarsignalplustau_Perugia11NoCR.root   ttbarsignalplustau,systematicsName=PERUGIA11NoCR
+500   Summer12.TTJets_FullLeptMGDecays_TuneP11_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff       ttbarsignalplustau_Perugia11.root       ttbarsignalplustau,systematicsName=PERUGIA11
+500   Summer12.TTJets_FullLeptMGDecays_TuneP11noCR_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff   ttbarsignalplustau_Perugia11NoCR.root   ttbarsignalplustau,systematicsName=PERUGIA11NoCR

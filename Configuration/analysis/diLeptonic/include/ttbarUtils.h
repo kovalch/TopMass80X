@@ -48,6 +48,15 @@ namespace ttbar{
         /// Flag allowMultiple to switch whether pattern can exist several times or only once
         TString searchFragmentByToken(const TString& name, const TString& searchPattern, const TString& token, const bool allowMultiple =false);
     }
+    
+    
+    
+    /// Assign a folder depending on channel and systematic
+    TString assignFolder(const char* baseDir, const TString& channel, const TString& systematic);
+
+    /// Access an already existing input folder
+    TString accessFolder(const char* baseDir, const TString& channel,
+                         const TString& systematic, const bool allowNonexisting =false);
 }
 
 

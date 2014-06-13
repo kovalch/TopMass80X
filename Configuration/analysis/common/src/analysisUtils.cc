@@ -65,6 +65,27 @@ const LV common::TLVtoLV(const TLorentzVector& lv)
 
 // --- Functions concerning the treatment of indices of vectors (for working with data stored in nTuple branches) -------------
 
+std::vector<int> common::mergeIndices(const std::vector<int>& v_index1, const std::vector<int>& v_index2, const bool allowOverlap)
+{
+    std::vector<int> result(v_index1);
+    
+    for(const int index : v_index2){
+        // Check if index is already contained in first vector
+        if(std::find(v_index1.begin(), v_index1.end(), index) != v_index1.end()){
+            if(allowOverlap) continue;
+            else{
+                std::cerr<<"ERROR in common::mergeIndices()! Two collections should be merged, but they overlap (not allowed)\n...break\n"<<std::endl;
+                exit(92);
+            }
+        }
+        else result.push_back(index);
+    }
+    
+    return result;
+}
+
+
+
 std::vector<double> common::parametersLV(const VLV& v_lv, const common::LVParameter& parameter)
 {
     std::vector<double> v_variable;

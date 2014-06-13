@@ -15,19 +15,27 @@
 #include <Rtypes.h>
 
 #include "TopAnalysis.h"
-#include "AnalysisHistograms.h"
+#include "analysisHelpers.h"
+#include "AnalyzerBaseClass.h"
+#include "AnalyzerControlPlots.h"
+#include "AnalyzerDoubleDiffXS.h"
+#include "AnalyzerKinReco.h"
 #include "../../common/include/CommandLineParameters.h"
 #include "../../common/include/utils.h"
 #include "../../common/include/ScaleFactors.h"
 #include "../../common/include/sampleHelpers.h"
 #include "../../common/include/KinematicReconstruction.h"
-#include "TopAnalysis/ZTopUtils/interface/PUReweighter.h"
+
+
+
+
 
 /// Set pileup distribution file corresponding to data sample in use
 /// The file ending is automatically adjusted for different systematics
 //constexpr const char* PileupInputFILE = "Data_PUDist_19624pb.root";
 //constexpr const char* PileupInputFILE = "Data_PUDist_19789pb.root";
 constexpr const char* PileupInputFILE = "Data_PUDist_Full2012ReReco_FinalRecommendation.root";
+
 
 
 /// Input file for electron ID scale factor
@@ -41,48 +49,44 @@ constexpr const char* ElectronSFInputFILE = "ElectronSF_198fbReReco.root";
 constexpr const char* MuonSFInputFILE = "MuonSF_198fbReReco.root";
 
 
+
 /// File ending of dilepton trigger scale factors input file
 //constexpr const char* TriggerSFInputSUFFIX = ".root";
 //constexpr const char* TriggerSFInputSUFFIX = "_19fb.root";
 constexpr const char* TriggerSFInputSUFFIX = "_rereco198fb.root";
 
 
+
 /// File containing the uncertainties associated to JES
 //constexpr const char* JesUncertaintySourceFILE = "Fall12_V7_DATA_UncertaintySources_AK5PFchs.txt";
+// constexpr const char* JesUncertaintySourceFILE = "Summer13_V1_DATA_UncertaintySources_AK5PFchs.txt";
 constexpr const char* JesUncertaintySourceFILE = "Summer13_V4_DATA_UncertaintySources_AK5PFchs.txt";
 
 
 
-/// Folder where to find the b-/c-/l-tagging efficiencies
-constexpr const char* BtagEfficiencyInputDIR = "BTagEff";
+/// The correction mode for the b-tagging
+//constexpr BtagScaleFactors::CorrectionMode BtagCorrectionMODE = BtagScaleFactors::none;
+//constexpr BtagScaleFactors::CorrectionMode BtagCorrectionMODE = BtagScaleFactors::greaterEqualOneTagReweight;
+constexpr BtagScaleFactors::CorrectionMode BtagCorrectionMODE = BtagScaleFactors::randomNumberRetag;
+//constexpr BtagScaleFactors::CorrectionMode BtagCorrectionMODE = BtagScaleFactors::discriminatorReweight;
 
-/// Folder for b-tag efficiency file storage (in case efficiencies are produced)
-constexpr const char* BtagEfficiencyOutputDIR = "selectionRoot/BTagEff";
+/// File for the official heavy flavour scale factors for b-tag discriminator reweighting
+constexpr const char* BtagHeavyFlavourFILE = "csv_rwt_hf.root";
 
-
-
-/// Folder for basic analysis output
-constexpr const char* AnalysisOutputDIR = "selectionRoot";
-
-
-
+/// File for the official light flavour scale factors for b-tag discriminator reweighting
+constexpr const char* BtagLightFlavourFILE = "csv_rwt_lf.root";
 
 
 
 
 
-const TString pdfDirName(const int pdf_no) {
-    TString result("PDF_");
-    if (pdf_no == 0) result += "CENTRAL";
-    else result += TString::Format("%d", (pdf_no+1)/2) + "_" + (pdf_no % 2 ? "UP" : "DOWN");
-    return result;
-}
 
 
 
 void load_Analysis(const TString& validFilenamePattern, 
-                   const TString& channel, 
-                   const TString& systematic,
+                   const Channel::Channel& channel, 
+                   const Systematic::Systematic& systematic,
+                   const std::vector<AnalysisMode::AnalysisMode>& v_analysisMode,
                    const int specific_PDF,
                    const int dy,
                    const TString& closure,
@@ -91,86 +95,97 @@ void load_Analysis(const TString& validFilenamePattern,
                    const Long64_t& skipEvents
                   )
 {   
+    std::cout<<std::endl;
+    
     // Set up the channels to run over
-    std::vector<std::string> channels;
-    if(channel != ""){
-        channels.push_back(static_cast<std::string>(channel));
-    }
-    else{
-        channels = {"ee", "emu", "mumu"};
-    }
+    std::vector<Channel::Channel> channels;
+    if(channel != Channel::undefined) channels.push_back(channel);
+    else channels = Channel::realChannels;
     
     // Set up kinematic reconstruction
-    std::cout<<std::endl;
     KinematicReconstruction* kinematicReconstruction(0);
     kinematicReconstruction = new KinematicReconstruction();
     
-    // Set up pileup reweighter
-    std::cout<<"--- Beginning preparation of pileup reweighter\n";
-    ztop::PUReweighter* puReweighter = new ztop::PUReweighter();
-    puReweighter->setMCDistrSum12("S10");
-    TString pileupInput(common::DATA_PATH_COMMON());
-    pileupInput.Append("/").Append(PileupInputFILE);
-    if(systematic == "PU_UP") pileupInput.ReplaceAll(".root", "_sysUp.root");
-    else if(systematic == "PU_DOWN") pileupInput.ReplaceAll(".root", "_sysDown.root");
-    std::cout<<"Using PU input file:\n"<<pileupInput<<std::endl;
-    puReweighter->setDataTruePUInput(pileupInput.Data());
-    std::cout<<"=== Finishing preparation of pileup reweighter\n\n";
-    
-    // Set up lepton efficiency scale factors
-    LeptonScaleFactors::Systematic leptonSFSystematic(LeptonScaleFactors::nominal);
-    if(systematic == "LEPT_UP") leptonSFSystematic = LeptonScaleFactors::vary_up;
-    else if(systematic == "LEPT_DOWN") leptonSFSystematic = LeptonScaleFactors::vary_down;
-    const LeptonScaleFactors leptonScaleFactors(ElectronSFInputFILE, MuonSFInputFILE, leptonSFSystematic);
-    
-    // Set up trigger efficiency scale factors (do it for all channels)
-    TriggerScaleFactors::Systematic triggerSFSystematic(TriggerScaleFactors::nominal);
-    if(systematic == "TRIG_UP") triggerSFSystematic = TriggerScaleFactors::vary_up;
-    else if(systematic == "TRIG_DOWN") triggerSFSystematic = TriggerScaleFactors::vary_down;
-    const TriggerScaleFactors triggerScaleFactors(TriggerSFInputSUFFIX,
-                                                  {"ee", "emu", "mumu"},
-                                                  triggerSFSystematic);
-    
-    // Set up JER systematic scale factors
-    JetEnergyResolutionScaleFactors* jetEnergyResolutionScaleFactors(0);
-    if(systematic=="JER_UP" || systematic=="JER_DOWN"){
-        JetEnergyResolutionScaleFactors::Systematic jerSystematic(JetEnergyResolutionScaleFactors::vary_up);
-        if(systematic == "JER_DOWN") jerSystematic = JetEnergyResolutionScaleFactors::vary_down;
-        jetEnergyResolutionScaleFactors = new JetEnergyResolutionScaleFactors(jerSystematic);
+    // Set up kinematic reconstruction scale factors (null-pointer means no application)
+    KinematicReconstructionScaleFactors* kinematicReconstructionScaleFactors(0);
+    kinematicReconstructionScaleFactors = new KinematicReconstructionScaleFactors(channels, systematic);
+    if(systematic.type()==Systematic::kin && !kinematicReconstructionScaleFactors){
+        std::cout<<"Systematic for kinematic reconstruction requested, but scale factors not applied"
+                 <<"\nStop running of analysis --- this is NOT an error, just avoiding double running\n"<<std::endl;
+        exit(1);
     }
     
-    // Set up JES systematic scale factors
+    // Set up pileup reweighter
+    const PileupScaleFactors* const pileupScaleFactors = new PileupScaleFactors(PileupInputFILE, "Summer12", "S10", systematic);
+    
+    // Set up lepton efficiency scale factors
+    const LeptonScaleFactors leptonScaleFactors(ElectronSFInputFILE, MuonSFInputFILE, systematic);
+    
+    // Set up trigger efficiency scale factors
+    TriggerScaleFactors triggerScaleFactors(TriggerSFInputSUFFIX, channels, systematic);
+    
+    // Set up JER systematic scale factors (null-pointer means no application)
+    JetEnergyResolutionScaleFactors* jetEnergyResolutionScaleFactors(0);
+    if(systematic.type() == Systematic::jer) jetEnergyResolutionScaleFactors = new JetEnergyResolutionScaleFactors(systematic);
+    
+    // Set up JES systematic scale factors (null-pointer means no application)
     JetEnergyScaleScaleFactors* jetEnergyScaleScaleFactors(0);
-    if(systematic=="JES_UP" || systematic=="JES_DOWN"){
-        JetEnergyScaleScaleFactors::Systematic jesSystematic(JetEnergyScaleScaleFactors::vary_up);
-        if(systematic == "JES_DOWN") jesSystematic = JetEnergyScaleScaleFactors::vary_down;
-        jetEnergyScaleScaleFactors = new JetEnergyScaleScaleFactors(JesUncertaintySourceFILE, jesSystematic);
+    if(systematic.type() == Systematic::jes) jetEnergyScaleScaleFactors = new JetEnergyScaleScaleFactors(JesUncertaintySourceFILE, systematic);
+    
+    // Set up top-pt reweighting scale factors (null-pointer means no application)
+    TopPtScaleFactors* topPtScaleFactors(0);
+    //topPtScaleFactors = new TopPtScaleFactors(systematic);
+    if(systematic.type()==Systematic::topPt && !topPtScaleFactors){
+        std::cout<<"Systematic for top-pt reweighting requested, but scale factors not applied"
+                 <<"\nStop running of analysis --- this is NOT an error, just avoiding double running\n"<<std::endl;
+        exit(1);
     }
     
     
     // Vector for setting up all analysers
-    std::vector<AnalysisHistogramsBase*> v_analysisHistograms;
+    std::vector<AnalyzerBaseClass*> v_analyzer;
     
     // Set up event yield histograms
-    EventYieldHistograms* eventYieldHistograms(0);
-    eventYieldHistograms = new EventYieldHistograms({"1", "2", "3", "4", "5", "6", "7", "8"});
-    v_analysisHistograms.push_back(eventYieldHistograms);
+    AnalyzerEventYields* analyzerEventYields(0);
+    analyzerEventYields = new AnalyzerEventYields({"1", "2", "3", "4", "5", "6", "7", "8"});
+    v_analyzer.push_back(analyzerEventYields);
     
     // Set up Drell-Yan scaling histograms
-    DyScalingHistograms* dyScalingHistograms(0);
-    dyScalingHistograms = new DyScalingHistograms({"4", "5", "6", "7", "8"}, "5");
-    v_analysisHistograms.push_back(dyScalingHistograms);
+    AnalyzerDyScaling* analyzerDyScaling(0);
+    analyzerDyScaling = new AnalyzerDyScaling({"4", "5", "6", "7", "8"}, "5");
+    v_analyzer.push_back(analyzerDyScaling);
+    
+    // Set up basic histograms
+    AnalyzerControlPlots* analyzerControlPlots(0);
+    if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::cp) != v_analysisMode.end()){
+        analyzerControlPlots = new AnalyzerControlPlots({"1", "2", "3", "4", "5", "6", "7", "8"});
+        v_analyzer.push_back(analyzerControlPlots);
+    }
+    // Set up dda histograms
+    AnalyzerDoubleDiffXS* analyzerDoubleDiffXS(0);
+    if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::dda) != v_analysisMode.end()){
+        analyzerDoubleDiffXS = new AnalyzerDoubleDiffXS({"0","8"});
+        v_analyzer.push_back(analyzerDoubleDiffXS);
+    }
+    
+    // Set up KinReco histograms
+    AnalyzerKinReco* analyzerKinReco(0);
+    if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::kinReco) != v_analysisMode.end()){
+        analyzerKinReco = new AnalyzerKinReco({"7","8"});
+        v_analyzer.push_back(analyzerKinReco);
+    }
     
     // Set up the analysis
-    TopAnalysis *selector = new TopAnalysis();
-    selector->SetAnalysisOutputBase(AnalysisOutputDIR);
-    selector->SetKinematicReconstruction(kinematicReconstruction);
-    selector->SetPUReweighter(puReweighter);
+    TopAnalysis* selector = new TopAnalysis();
+    selector->SetAnalysisOutputBase("selectionRoot");
+    selector->SetKinematicReconstruction(kinematicReconstruction, kinematicReconstructionScaleFactors);
+    selector->SetPileupScaleFactors(pileupScaleFactors);
     selector->SetLeptonScaleFactors(leptonScaleFactors);
     selector->SetTriggerScaleFactors(triggerScaleFactors);
     selector->SetJetEnergyResolutionScaleFactors(jetEnergyResolutionScaleFactors);
     selector->SetJetEnergyScaleScaleFactors(jetEnergyScaleScaleFactors);
-    selector->SetAllAnalysisHistograms(v_analysisHistograms);
+    selector->SetTopPtScaleFactors(topPtScaleFactors);
+    selector->SetAllAnalyzers(v_analyzer);
     
     // Access selectionList containing all input sample nTuples
     ifstream infile("selectionList.txt");
@@ -188,9 +203,7 @@ void load_Analysis(const TString& validFilenamePattern,
         infile>>filename;
         if(filename=="" || filename[0]=='#') continue; //empty or commented line? --> skip
         if(!filename.Contains(validFilenamePattern)) continue;
-        std::cout<<std::endl;
-        std::cout<<"PROCESSING File "<<++filecounter<<" ("<<filename<<") from selectionList.txt"<<std::endl;
-        std::cout<<std::endl;
+        std::cout<<"\nPROCESSING File "<<++filecounter<<" ("<<filename<<") from selectionList.txt\n"<<std::endl;
         
         // Access the basic filename by stripping off the folders
         TString filenameBase(filename);
@@ -222,9 +235,11 @@ void load_Analysis(const TString& validFilenamePattern,
         TObjString* o_isMC = dynamic_cast<TObjString*>(file.Get("writeNTuple/isMC"));
         TH1* weightedEvents = dynamic_cast<TH1*>(file.Get("EventsBeforeSelection/weightedEvents"));
         if(!channel_from_file || !systematics_from_file || !o_isSignal || !o_isMC || !samplename){ 
-            std::cout<<"Error: info about sample missing!"<<std::endl; 
-            return;
+            std::cerr<<"Error: info about sample missing!"<<std::endl; 
+            exit(855);
         }
+        const Channel::Channel channelFromFile = Channel::convert(channel_from_file->GetString());
+        const Systematic::Systematic systematicFromFile = Systematic::Systematic(systematics_from_file->GetString());
         
         // Configure information about samples
         const bool isTopSignal = o_isSignal->GetString() == "1";
@@ -232,34 +247,32 @@ void load_Analysis(const TString& validFilenamePattern,
         const bool isHiggsSignal(o_isHiggsSignal && o_isHiggsSignal->GetString()=="1");
         
         // Checks avoiding running on ill-defined configurations
-        if(!isMC && systematic!=""){
+        if(!isMC && systematic.type()!=Systematic::undefinedType){
             std::cout<<"Sample is DATA, so not running again for systematic variation\n";
             continue;
         }
-        if (systematic=="PDF" && (!isTopSignal || !(systematics_from_file->GetString()=="Nominal"))) {
+        if (systematic.type()==Systematic::pdf && (!isTopSignal || !(systematicFromFile.type()==Systematic::nominal))) {
             std::cout << "Skipping file: is not signal or not nominal -- and running PDFs\n";
             continue;
         }
         
         // Is the channel given in the file? This is true only for data which is preselected due to trigger,
         // and guarantees that only the proper channel is processed
-        if(channel_from_file->GetString() != ""){
+        if(channelFromFile != Channel::undefined){
             channels.clear();
-            channels.push_back(static_cast<std::string>(channel_from_file->GetString()));
+            channels.push_back(channelFromFile);
         }
         
         // If no systematic is specified, read it from the file and use this (used for systematic variations of signal samples, and for nominal)
-        const TString selectedSystematic = systematic=="" ? systematics_from_file->GetString() : systematic;
+        const Systematic::Systematic selectedSystematic = systematic.type()==Systematic::undefinedType ? systematicFromFile : systematic;
         
         // If for specific systematic variations the nominal btagging efficiencies should be used
-        const TString systematicForBtagEfficiencies = (selectedSystematic=="PDF" || selectedSystematic=="closure") ? "Nominal" : selectedSystematic;
+        const Systematic::Systematic systematicForBtagEfficiencies = (selectedSystematic.type()==Systematic::pdf || selectedSystematic.type()==Systematic::closure) ? Systematic::nominalSystematic() : selectedSystematic;
         
         // Set up btag efficiency scale factors
         // This has to be done only after potentially setting systematic from file, since it is varied with signal systematics
-        BtagScaleFactors btagScaleFactors(BtagEfficiencyInputDIR,
-                                          BtagEfficiencyOutputDIR,
-                                          channels,
-                                          systematicForBtagEfficiencies);
+        BtagScaleFactors btagScaleFactors("BTagEff", "selectionRoot/BTagEff", BtagHeavyFlavourFILE, BtagLightFlavourFILE,
+                                          channels, systematicForBtagEfficiencies, BtagCorrectionMODE);
         
         // Configure selector
         selector->SetTopSignal(isTopSignal);
@@ -276,10 +289,12 @@ void load_Analysis(const TString& validFilenamePattern,
         for(const auto& selectedChannel : channels){
             
             // Set the channel
-            const TString channelName = selectedChannel;
+            const TString channelName = Channel::convert(selectedChannel);
             TString outputfilename = filenameBase.BeginsWith(channelName+"_") ? filenameBase : channelName+"_"+filenameBase;
-            btagScaleFactors.prepareSF(static_cast<std::string>(channelName));
-            selector->SetChannel(channelName);
+            triggerScaleFactors.prepareChannel(selectedChannel);
+            btagScaleFactors.prepareChannel(selectedChannel);
+            if(kinematicReconstructionScaleFactors) kinematicReconstructionScaleFactors->prepareChannel(selectedChannel);
+            selector->SetChannel(selectedChannel);
             
             // Set up nTuple chain
             TChain chain("writeNTuple/NTuple");
@@ -294,8 +309,8 @@ void load_Analysis(const TString& validFilenamePattern,
                     std::cerr << outputfilename << " must start with 'channel_dy'\n";
                     exit(1);
                 }
-                const TString dyChannel = dy == 11 ? "ee" : dy == 13 ? "mumu" : "tautau";
-                outputfilename.ReplaceAll("_dy", TString("_dy").Append(dyChannel));
+                const Channel::Channel dyChannel = dy == 11 ? Channel::ee : dy == 13 ? Channel::mumu : Channel::tautau;
+                outputfilename.ReplaceAll("_dy", TString("_dy").Append(Channel::convert(dyChannel)));
             }
             
             // Run the selector
@@ -306,7 +321,7 @@ void load_Analysis(const TString& validFilenamePattern,
             selector->SetSampleForBtagEfficiencies(false);
             
             // For running on PDF systematics
-            if(selectedSystematic == "PDF"){
+            if(selectedSystematic.type() == Systematic::pdf){
                 TH1* pdfWeights = dynamic_cast<TH1*>(file.Get("EventsBeforeSelection/pdfEventWeights"));
                 if(!pdfWeights){
                     std::cerr << "Error: pdfEventWeights histo missing!\n";
@@ -314,7 +329,6 @@ void load_Analysis(const TString& validFilenamePattern,
                 }
                 for(int pdf_no = 0; pdfWeights->GetBinContent(pdf_no+1) > 0; ++pdf_no){
                     if(specific_PDF >=0 && pdf_no != specific_PDF) continue;
-                    selector->SetSystematic(pdfDirName(pdf_no));
                     //weightedEvents->SetBinContent(1, pdfWeights->GetBinContent(pdf_no+1));
                     selector->SetWeightedEvents(weightedEvents);
                     selector->SetPDF(pdf_no);
@@ -335,12 +349,36 @@ void load_Analysis(const TString& validFilenamePattern,
     }
 }
 
+
+
+/// All systematics allowed for analysis step
+/// Only systematics which run on the nominal ntuples, e.g. pileup reweighting
+namespace Systematic{
+    const std::vector<Type> allowedSystematics = {
+        nominal,
+        pu, lept, trig,
+        jer, jes,
+        btag, btagPt, btagEta,
+        btagLjet, btagLjetPt, btagLjetEta,
+        kin,
+        //topPt,
+        pdf, closure,
+    };
+}
+
+
+
 int main(int argc, char** argv) {
     CLParameter<std::string> opt_f("f", "Restrict to filename pattern, e.g. ttbar", false, 1, 1);
-    CLParameter<std::string> opt_s("s", "Run with a systematic that runs on the nominal ntuples, e.g. 'PDF', 'PU_UP' or 'TRIG_DOWN'", false, 1, 1);
-    CLParameter<int> opt_pdfno("pdf", "Run a certain PDF systematic only, sets -s PDF. Use e.g. --pdf n, where n=0 is central, 1=variation 1 up, 2=1down, 3=2up, 4=2down, ...", false, 1, 1);
     CLParameter<std::string> opt_c("c", "Specify a certain channel (ee, emu, mumu). No channel specified = run on all channels", false, 1, 1,
-            [](const std::string &ch){return ch == "" || ch == "ee" || ch == "emu" || ch == "mumu";});
+            common::makeStringCheck(Channel::convert(Channel::allowedChannelsAnalysis)));
+    CLParameter<std::string> opt_s("s", "Run with a systematic that runs on the nominal ntuples, e.g. 'PDF', 'PU_UP' or 'TRIG_DOWN'", false, 1, 1,
+            common::makeStringCheckBegin(Systematic::convertType(Systematic::allowedSystematics)));
+    CLParameter<std::string> opt_mode("m", "Mode of analysis: control plots (cp), "
+                                           "double differential analysis (dda), kin. reco. efficiency plots (kinReco), "
+                                           "Default is cp, dda, kinReco", false, 1, 100,
+            common::makeStringCheck(AnalysisMode::convert(AnalysisMode::allowedAnalysisModes)));
+    CLParameter<int> opt_pdfno("pdf", "Run a certain PDF systematic only, sets -s PDF. Use e.g. --pdf n, where n=0 is central, 1=variation 1 up, 2=1down, 3=2up, 4=2down, ...", false, 1, 1);
     CLParameter<int> opt_dy("d", "Drell-Yan mode (11 for ee, 13 for mumu, 15 for tautau)", false, 1, 1,
             [](int dy){return dy == 11 || dy == 13 || dy == 15;});
     CLParameter<std::string> opt_closure("closure", "Enable the closure test. Valid: pttop|ytop|nominal", false, 1, 1,
@@ -354,8 +392,22 @@ int main(int argc, char** argv) {
     CLAnalyser::interpretGlobal(argc, argv);
 
     TString validFilenamePattern = opt_f.isSet() ? opt_f[0] : "";
-    TString syst = opt_s.isSet() ? opt_s[0] : "";
-    TString channel = opt_c.isSet() ? opt_c[0] : "";
+    
+    // Set up channel
+    Channel::Channel channel(Channel::undefined);
+    if(opt_c.isSet()) channel = Channel::convert(opt_c[0]);
+    
+    // Set up systematic
+    Systematic::Systematic systematic(Systematic::undefinedSystematic());
+    if(opt_s.isSet()) systematic = Systematic::Systematic(opt_s[0]);
+    
+    // Set up analysis mode
+    std::vector<AnalysisMode::AnalysisMode> v_analysisMode({AnalysisMode::cp,AnalysisMode::dda,AnalysisMode::kinReco});
+    if(opt_mode.isSet()) v_analysisMode = AnalysisMode::convert(opt_mode.getArguments());
+    std::cout<<"\nRunning the following analysis modes:\n";
+    for(const auto& analysisMode : v_analysisMode) std::cout<<AnalysisMode::convert(analysisMode)<<" , ";
+    std::cout<<"\n\n";
+    
     int dy = opt_dy.isSet() ? opt_dy[0] : 0;
     TString closure = opt_closure.isSet() ? opt_closure[0] : "";
     double slope = 0;
@@ -369,23 +421,28 @@ int main(int argc, char** argv) {
     int pdf_no = -1;
     if (opt_pdfno.isSet()) {
         pdf_no = opt_pdfno[0];
-        if (pdf_no >= 0)
-            std::cout << "Running PDF variation: " << pdfDirName(pdf_no) << "\n";
-        if (!(syst == "" || syst == "PDF")) {
-            std::cout << "Insonsistent systematic parameter: " << syst << " cannot be used with PDF systematic!\n";
+        if(pdf_no < 0){
+            std::cerr<<"ERROR! PDF number is negative: "<<pdf_no<<"\n...break\n"<<std::endl;
             std::exit(1);
         }
-        syst = "PDF";
+        if (!(systematic.type() == Systematic::undefinedType || systematic.type() == Systematic::pdf)) {
+            std::cerr << "Insonsistent systematic parameter: " << systematic.name() << " cannot be used with PDF systematic!\n";
+            std::exit(1);
+        }
+        const Systematic::Variation variation = !pdf_no ? Systematic::central : pdf_no%2 ? Systematic::up : Systematic::down;
+        const int variationNumber = (pdf_no+1)/2;
+        systematic = Systematic::Systematic(Systematic::pdf, variation, variationNumber);
+        std::cout << "Running PDF variation: " << systematic.name() << "\n";
     }
-
+    
     // Set up maximum number of events to process
     const Long64_t bigNumber(TChain::kBigNumber);
     const Long64_t maxEvents = opt_maxEvents.isSet() ? opt_maxEvents[0] : bigNumber;
 
     // Set up number of events to be skipped
     const Long64_t skipEvents = opt_skipEvents.isSet() ? opt_skipEvents[0] : 0;
-
+    
 //     TProof* p = TProof::Open(""); // not before ROOT 5.34
-    load_Analysis(validFilenamePattern, channel, syst, pdf_no, dy, closure, slope, maxEvents, skipEvents);
+    load_Analysis(validFilenamePattern, channel, systematic, v_analysisMode, pdf_no, dy, closure, slope, maxEvents, skipEvents);
 //     delete p;
 }

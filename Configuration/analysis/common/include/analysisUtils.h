@@ -72,6 +72,11 @@ namespace common{
     
     
     
+    /// Merge the indices of two collections in one
+    /// If allowOverlap=false, it is checked that there is no duplicated index, else an error is thrown
+    /// If allowOverlap=true, both collections can have identical indices, the merged collection contains it then once
+    std::vector<int> mergeIndices(const std::vector<int>& v_index1, const std::vector<int>& v_index2, const bool allowOverlap =false);
+    
     
     
     /// Possible parameters of a lorentz vector to be used in following tools

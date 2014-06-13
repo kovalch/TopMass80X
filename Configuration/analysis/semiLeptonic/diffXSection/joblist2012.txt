@@ -422,34 +422,45 @@ nafJobSplitter.pl -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElWZJESDn -c m
 nafJobSplitter.pl -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuZZJESDn -c mctag=Summer12,triggerTag=HLT,sample=ZZ,JEtag=JESDown,lepton=muon     462 analyzeTopDiffXSec_cfg.py
 nafJobSplitter.pl -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElZZJESDn -c mctag=Summer12,triggerTag=HLT,sample=ZZ,JEtag=JESDown,lepton=electron 443 analyzeTopDiffXSec_cfg.py
 
+#######
+# ttV #
+#######
+# standard
+nafJobSplitter.pl -q 3 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuTTGjets -c mctag=Summer12,triggerTag=HLT,sample=ttgjets,lepton=muon     84 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -q 3 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElTTGjets -c mctag=Summer12,triggerTag=HLT,sample=ttgjets,lepton=electron     84 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -q 3 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuTTZjets -c mctag=Summer12,triggerTag=HLT,sample=ttzjets,lepton=muon       10 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -q 3 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElTTZjets -c mctag=Summer12,triggerTag=HLT,sample=ttzjets,lepton=electron       10 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -q 3 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuTTWjets -c mctag=Summer12,triggerTag=HLT,sample=ttwjets,lepton=muon       10 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -q 3 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElTTWjets -c mctag=Summer12,triggerTag=HLT,sample=ttwjets,lepton=electron       10 analyzeTopDiffXSec_cfg.py
+
 ###############
 #closure tests#
 ###############
 # ttbar -> topPt data shape
-nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarSGReweightTopPt -c mctag=Summer12,triggerTag=HLT,sample=ttbar,sysDistort='data',lepton=muon     1221 analyzeTopDiffXSec_cfg.py
-nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarSGReweightTopPt -c mctag=Summer12,triggerTag=HLT,sample=ttbar,sysDistort='data',lepton=electron 1221 analyzeTopDiffXSec_cfg.py
-nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarBGReweightTopPt -c mctag=Summer12,triggerTag=HLT,sample=ttbarBG,sysDistort='data',lepton=muon     1221 analyzeTopDiffXSec_cfg.py
-nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarBGReweightTopPt -c mctag=Summer12,triggerTag=HLT,sample=ttbarBG,sysDistort='data',lepton=electron 1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarSGReweightTopPt -c mctag=Summer12,triggerTag=HLT,sample=ttbarMadGraph,sysDistort='data',lepton=muon     1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarSGReweightTopPt -c mctag=Summer12,triggerTag=HLT,sample=ttbarMadGraph,sysDistort='data',lepton=electron 1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarBGReweightTopPt -c mctag=Summer12,triggerTag=HLT,sample=ttbarBGMadGraph,sysDistort='data',lepton=muon     1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarBGReweightTopPt -c mctag=Summer12,triggerTag=HLT,sample=ttbarBGMadGraph,sysDistort='data',lepton=electron 1221 analyzeTopDiffXSec_cfg.py
 
 # topPt shape
-nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarSGClosureTopPtUp -c mctag=Summer12,triggerTag=HLT,sample=ttbar,sysDistort='topPtUp',lepton=muon     1221 analyzeTopDiffXSec_cfg.py
-nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarSGClosureTopPtUp -c mctag=Summer12,triggerTag=HLT,sample=ttbar,sysDistort='topPtUp',lepton=electron 1221 analyzeTopDiffXSec_cfg.py
-nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarBGClosureTopPtUp -c mctag=Summer12,triggerTag=HLT,sample=ttbarBG,sysDistort='topPtUp',lepton=muon     1221 analyzeTopDiffXSec_cfg.py
-nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarBGClosureTopPtUp -c mctag=Summer12,triggerTag=HLT,sample=ttbarBG,sysDistort='topPtUp',lepton=electron 1221 analyzeTopDiffXSec_cfg.py
-nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarSGClosureTopPtDn -c mctag=Summer12,triggerTag=HLT,sample=ttbar,sysDistort='topPtDown',lepton=muon     1221 analyzeTopDiffXSec_cfg.py
-nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarSGClosureTopPtDn -c mctag=Summer12,triggerTag=HLT,sample=ttbar,sysDistort='topPtDown',lepton=electron 1221 analyzeTopDiffXSec_cfg.py
-nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarBGClosureTopPtDn -c mctag=Summer12,triggerTag=HLT,sample=ttbarBG,sysDistort='topPtDown',lepton=muon     1221 analyzeTopDiffXSec_cfg.py
-nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarBGClosureTopPtDn -c mctag=Summer12,triggerTag=HLT,sample=ttbarBG,sysDistort='topPtDown',lepton=electron 1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarSGClosureTopPtUp -c mctag=Summer12,triggerTag=HLT,sample=ttbarMadGraph,sysDistort='topPtUp',lepton=muon     1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarSGClosureTopPtUp -c mctag=Summer12,triggerTag=HLT,sample=ttbarMadGraph,sysDistort='topPtUp',lepton=electron 1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarBGClosureTopPtUp -c mctag=Summer12,triggerTag=HLT,sample=ttbarBGMadGraph,sysDistort='topPtUp',lepton=muon     1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarBGClosureTopPtUp -c mctag=Summer12,triggerTag=HLT,sample=ttbarBGMadGraph,sysDistort='topPtUp',lepton=electron 1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarSGClosureTopPtDn -c mctag=Summer12,triggerTag=HLT,sample=ttbarMadGraph,sysDistort='topPtDown',lepton=muon     1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarSGClosureTopPtDn -c mctag=Summer12,triggerTag=HLT,sample=ttbarMadGraph,sysDistort='topPtDown',lepton=electron 1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarBGClosureTopPtDn -c mctag=Summer12,triggerTag=HLT,sample=ttbarBGMadGraph,sysDistort='topPtDown',lepton=muon     1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarBGClosureTopPtDn -c mctag=Summer12,triggerTag=HLT,sample=ttbarBGMadGraph,sysDistort='topPtDown',lepton=electron 1221 analyzeTopDiffXSec_cfg.py
 
 # ttbarMass shape
-nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarSGClosureTtbarMassUp -c mctag=Summer12,triggerTag=HLT,sample=ttbar,sysDistort='ttbarMassUp',lepton=muon     1221 analyzeTopDiffXSec_cfg.py
-nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarSGClosureTtbarMassUp -c mctag=Summer12,triggerTag=HLT,sample=ttbar,sysDistort='ttbarMassUp',lepton=electron 1221 analyzeTopDiffXSec_cfg.py
-nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarBGClosureTtbarMassUp -c mctag=Summer12,triggerTag=HLT,sample=ttbarBG,sysDistort='ttbarMassUp',lepton=muon     1221 analyzeTopDiffXSec_cfg.py
-nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarBGClosureTtbarMassUp -c mctag=Summer12,triggerTag=HLT,sample=ttbarBG,sysDistort='ttbarMassUp',lepton=electron 1221 analyzeTopDiffXSec_cfg.py
-nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarSGClosureTtbarMassDn -c mctag=Summer12,triggerTag=HLT,sample=ttbar,sysDistort='ttbarMassDown',lepton=muon     1221 analyzeTopDiffXSec_cfg.py
-nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarSGClosureTtbarMassDn -c mctag=Summer12,triggerTag=HLT,sample=ttbar,sysDistort='ttbarMassDown',lepton=electron 1221 analyzeTopDiffXSec_cfg.py
-nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarBGClosureTtbarMassDn -c mctag=Summer12,triggerTag=HLT,sample=ttbarBG,sysDistort='ttbarMassDown',lepton=muon     1221 analyzeTopDiffXSec_cfg.py
-nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarBGClosureTtbarMassDn -c mctag=Summer12,triggerTag=HLT,sample=ttbarBG,sysDistort='ttbarMassDown',lepton=electron 1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarSGClosureTtbarMassUp -c mctag=Summer12,triggerTag=HLT,sample=ttbarMadGraph,sysDistort='ttbarMassUp',lepton=muon     1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarSGClosureTtbarMassUp -c mctag=Summer12,triggerTag=HLT,sample=ttbarMadGraph,sysDistort='ttbarMassUp',lepton=electron 1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarBGClosureTtbarMassUp -c mctag=Summer12,triggerTag=HLT,sample=ttbarBGMadGraph,sysDistort='ttbarMassUp',lepton=muon     1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarBGClosureTtbarMassUp -c mctag=Summer12,triggerTag=HLT,sample=ttbarBGMadGraph,sysDistort='ttbarMassUp',lepton=electron 1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarSGClosureTtbarMassDn -c mctag=Summer12,triggerTag=HLT,sample=ttbarMadGraph,sysDistort='ttbarMassDown',lepton=muon     1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarSGClosureTtbarMassDn -c mctag=Summer12,triggerTag=HLT,sample=ttbarMadGraph,sysDistort='ttbarMassDown',lepton=electron 1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarBGClosureTtbarMassDn -c mctag=Summer12,triggerTag=HLT,sample=ttbarBGMadGraph,sysDistort='ttbarMassDown',lepton=muon     1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarBGClosureTtbarMassDn -c mctag=Summer12,triggerTag=HLT,sample=ttbarBGMadGraph,sysDistort='ttbarMassDown',lepton=electron 1221 analyzeTopDiffXSec_cfg.py
 
 # other top mass samples 
 
@@ -473,7 +484,6 @@ nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarBGMa
 nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarBGMass3Dn -c mctag=Summer12,triggerTag=HLT,sample=ttbarMassDown3BG,lepton=muon     914 analyzeTopDiffXSec_cfg.py
 nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarBGMass3Dn -c mctag=Summer12,triggerTag=HLT,sample=ttbarMassDown3BG,lepton=electron 914 analyzeTopDiffXSec_cfg.py
 
-
 # different top mass constraints
 nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarSGMassConstraintUp1 -c mctag=Summer12,triggerTag=HLT,sample=ttbar,lepton=muon,massfix=173.5     1221 analyzeTopDiffXSec_cfg.py
 nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarSGMassConstraintUp1 -c mctag=Summer12,triggerTag=HLT,sample=ttbar,lepton=electron,massfix=173.5 1221 analyzeTopDiffXSec_cfg.py
@@ -483,14 +493,22 @@ nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarSGMa
 nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarSGMassConstraintDn1 -c mctag=Summer12,triggerTag=HLT,sample=ttbar,lepton=electron,massfix=171.5 1221 analyzeTopDiffXSec_cfg.py
 nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarBGMassConstraintDn1 -c mctag=Summer12,triggerTag=HLT,sample=ttbarBG,lepton=muon,massfix=171.5     1221 analyzeTopDiffXSec_cfg.py
 nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarBGMassConstraintDn1 -c mctag=Summer12,triggerTag=HLT,sample=ttbarBG,lepton=electron,massfix=171.5 1221 analyzeTopDiffXSec_cfg.py
-nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarSGMassConstraintUp2 -c mctag=Summer12,triggerTag=HLT,sample=ttbar,lepton=muon,massfix=180.0     1221 analyzeTopDiffXSec_cfg.py
-nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarSGMassConstraintUp2 -c mctag=Summer12,triggerTag=HLT,sample=ttbar,lepton=electron,massfix=180.0 1221 analyzeTopDiffXSec_cfg.py
-nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarBGMassConstraintUp2 -c mctag=Summer12,triggerTag=HLT,sample=ttbarBG,lepton=muon,massfix=180.0     1221 analyzeTopDiffXSec_cfg.py
-nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarBGMassConstraintUp2 -c mctag=Summer12,triggerTag=HLT,sample=ttbarBG,lepton=electron,massfix=180.0 1221 analyzeTopDiffXSec_cfg.py
-nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarSGMassConstraintDn2 -c mctag=Summer12,triggerTag=HLT,sample=ttbar,lepton=muon,massfix=160.0     1221 analyzeTopDiffXSec_cfg.py
-nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarSGMassConstraintDn2 -c mctag=Summer12,triggerTag=HLT,sample=ttbar,lepton=electron,massfix=160.0 1221 analyzeTopDiffXSec_cfg.py
-nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarBGMassConstraintDn2 -c mctag=Summer12,triggerTag=HLT,sample=ttbarBG,lepton=muon,massfix=160.0     1221 analyzeTopDiffXSec_cfg.py
-nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarBGMassConstraintDn2 -c mctag=Summer12,triggerTag=HLT,sample=ttbarBG,lepton=electron,massfix=160.0 1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarSGMassConstraintUp2 -c mctag=Summer12,triggerTag=HLT,sample=ttbar,lepton=muon,massfix=174.5     1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarSGMassConstraintUp2 -c mctag=Summer12,triggerTag=HLT,sample=ttbar,lepton=electron,massfix=174.5 1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarBGMassConstraintUp2 -c mctag=Summer12,triggerTag=HLT,sample=ttbarBG,lepton=muon,massfix=174.5     1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarBGMassConstraintUp2 -c mctag=Summer12,triggerTag=HLT,sample=ttbarBG,lepton=electron,massfix=174.5 1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarSGMassConstraintDn2 -c mctag=Summer12,triggerTag=HLT,sample=ttbar,lepton=muon,massfix=170.5     1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarSGMassConstraintDn2 -c mctag=Summer12,triggerTag=HLT,sample=ttbar,lepton=electron,massfix=170.5 1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarBGMassConstraintDn2 -c mctag=Summer12,triggerTag=HLT,sample=ttbarBG,lepton=muon,massfix=170.5     1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarBGMassConstraintDn2 -c mctag=Summer12,triggerTag=HLT,sample=ttbarBG,lepton=electron,massfix=170.5 1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarSGMassConstraintUp3 -c mctag=Summer12,triggerTag=HLT,sample=ttbar,lepton=muon,massfix=176.5     1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarSGMassConstraintUp3 -c mctag=Summer12,triggerTag=HLT,sample=ttbar,lepton=electron,massfix=176.5 1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarBGMassConstraintUp3 -c mctag=Summer12,triggerTag=HLT,sample=ttbarBG,lepton=muon,massfix=176.5     1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarBGMassConstraintUp3 -c mctag=Summer12,triggerTag=HLT,sample=ttbarBG,lepton=electron,massfix=176.5 1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarSGMassConstraintDn3 -c mctag=Summer12,triggerTag=HLT,sample=ttbar,lepton=muon,massfix=168.5     1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarSGMassConstraintDn3 -c mctag=Summer12,triggerTag=HLT,sample=ttbar,lepton=electron,massfix=168.5 1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d MuttbarBGMassConstraintDn3 -c mctag=Summer12,triggerTag=HLT,sample=ttbarBG,lepton=muon,massfix=168.5     1221 analyzeTopDiffXSec_cfg.py
+nafJobSplitter.pl -J -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElttbarBGMassConstraintDn3 -c mctag=Summer12,triggerTag=HLT,sample=ttbarBG,lepton=electron,massfix=168.5 1221 analyzeTopDiffXSec_cfg.py
 
 # zprime
 nafJobSplitter.pl -q 24 -M 6000 -o /nfs/dust/cms/user/`whoami` -d ElZprimeM1000_w100SG -c mctag=Summer12,triggerTag=HLT,sample=zprime_m1000gev_w100gev,lepton=electron 15 analyzeTopDiffXSec_cfg.py

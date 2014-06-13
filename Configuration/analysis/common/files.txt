@@ -40,7 +40,7 @@
 
 # Drell Yan
 160    Summer12.DYJetsToLL_M_10To50filter_8TeV_madgraph_Summer12_DR53X_PU_S10_START53_V7A_v1_cff             dy1050.root      dy1050
-180    Summer12.DYJetsToLL_M_50_TuneZ2Star_8TeV_madgraph_tarball_Summer12_DR53X_PU_S10_START53_V7A_v1_cff    dy50inf.root     dy50inf
+360    Summer12.DYJetsToLL_M_50_TuneZ2Star_8TeV_madgraph_tarball_Summer12_DR53X_PU_S10_START53_V7A_v1_cff    dy50inf.root     dy50inf
 
 # WW, WZ and ZZ
 80   Summer12.WW_TuneZ2star_8TeV_pythia6_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff    wwtoall.root      ww
@@ -65,15 +65,10 @@
 80   Summer12.QCD_Pt_30_80_BCtoE_TuneZ2star_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff               qcdbcem3080.root             qcdbcem3080
 80   Summer12.QCD_Pt_80_170_BCtoE_TuneZ2star_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff              qcdbcem80170.root            qcdbcem80170
 
-
-################################################################
-############# Higgs samples ####################################
-################################################################
-
-# ttH
-50   Summer12.TTH_HToBB_M_125_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff         ttbarH125tobbbar.root        ttbarhiggstobbbar
-50   Summer12.TTH_Inclusive_M_125_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff     ttbarH125inclusive.root      ttbarhiggsinclusive
-
-# ttV (V = W,Z)
-30   Summer12.TTWJets_8TeV_madgraph_Summer12_DR53X_PU_S10_START53_V7A_v1_cff               ttbarW.root                  ttbarw
+# ttV (V = W,Z,gamma)
+120  Summer12.TTWJets_8TeV_madgraph_Summer12_DR53X_PU_S10_START53_V7A_v1_cff               ttbarW.root                  ttbarw
 30   Summer12.TTZJets_8TeV_madgraph_v2_Summer12_DR53X_PU_S10_START53_V7A_v1_cff            ttbarZ.root                  ttbarz
+20   Summer12.TTGJets_8TeV_madgraph_Summer12_DR53X_PU_S10_START53_V19_v1_cff               ttgjets.root                 ttg
+
+
+

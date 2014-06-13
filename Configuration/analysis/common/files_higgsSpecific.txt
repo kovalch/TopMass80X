@@ -1,0 +1,69 @@
+# cff files in TopAnalysis.Configuration.
+
+# Syntax:
+# (1) Number of Jobs
+# (2) CFF File containing the input ROOT files
+# (3) Output ROOTFile
+# (4) Options for nafJobSplitter, including JSON file
+
+
+
+
+################################################################
+############# ttH samples ######################################
+################################################################
+
+
+100   Summer12.TTH_HToBB_M_125_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff         ttbarH125tobbbar.root        ttbarhiggstobbbar
+100   Summer12.TTH_Inclusive_M_125_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff     ttbarH125inclusive.root      ttbarhiggsinclusive
+
+100   Summer12.TTH_HToBB_M_110_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff         ttbarH110tobbbar.root        ttbarhiggstobbbar
+100   Summer12.TTH_HToBB_M_115_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff         ttbarH115tobbbar.root        ttbarhiggstobbbar
+100   Summer12.TTH_HToBB_M_120_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff         ttbarH120tobbbar.root        ttbarhiggstobbbar
+100   Summer12.TTH_HToBB_M_130_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff         ttbarH130tobbbar.root        ttbarhiggstobbbar
+100   Summer12.TTH_HToBB_M_135_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff         ttbarH135tobbbar.root        ttbarhiggstobbbar
+
+100   Summer12.TTH_Inclusive_M_110_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff     ttbarH110inclusive.root      ttbarhiggsinclusive
+100   Summer12.TTH_Inclusive_M_115_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff     ttbarH115inclusive.root      ttbarhiggsinclusive
+100   Summer12.TTH_Inclusive_M_120_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff     ttbarH120inclusive.root      ttbarhiggsinclusive
+100   Summer12.TTH_Inclusive_M_122_5_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff   ttbarH1225inclusive.root     ttbarhiggsinclusive
+100   Summer12.TTH_Inclusive_M_127_5_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff   ttbarH1275inclusive.root     ttbarhiggsinclusive
+100   Summer12.TTH_Inclusive_M_130_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff     ttbarH130inclusive.root      ttbarhiggsinclusive
+100   Summer12.TTH_Inclusive_M_135_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff     ttbarH135inclusive.root      ttbarhiggsinclusive
+100   Summer12.TTH_Inclusive_M_140_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff     ttbarH140inclusive.root      ttbarhiggsinclusive
+
+
+
+################################################################
+############# H->ZZ samples ####################################
+################################################################
+
+
+50   Summer12.GluGluToHToZZTo4L_M_125_8TeV_powheg_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff	ggH125zz4l.root		gghiggstozzto4l
+5    Summer12.VBF_HToZZTo4L_M_125_8TeV_powheg_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff		vbfH125zz4l.root	vbfhiggstozzto4l
+
+
+
+################################################################
+############# Samples for ttZ(4l) analysis #####################
+################################################################
+
+
+### Dibosons
+
+60 Summer12.ZZJetsTo4L_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff 	zzto4l.root        zz
+18 Summer12.WZJetsTo3LNu_TuneZ2_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff 		wzto3lnu.root      wz
+17 Summer12.WWJetsTo2L2Nu_TuneZ2star_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff 	wwto2l2nu.root     ww
+
+### Tribosons
+3 Summer12.ZZZNoGstarJets_8TeV_madgraph_Summer12_DR53X_PU_S10_START53_V7A_v1_cff 			zzz.root           zzz
+3 Summer12.WWZNoGstarJets_8TeV_madgraph_Summer12_DR53X_PU_S10_START53_V7A_v1_cff 			wwz.root           wwz
+3 Summer12.WWWJets_8TeV_madgraph_Summer12_DR53X_PU_S10_START53_V7A_v1_cff 				www.root           www
+
+### ttWW
+3 Summer12.TTWWJets_8TeV_madgraph_Summer12_DR53X_PU_S10_START53_V7A_v1_cff 				ttww.root          ttww
+
+### ww+gjets
+2 Summer12.WWGJets_8TeV_madgraph_Summer12_DR53X_PU_S10_START53_V7A_v1_cff 				wwgjets.root       wwg
+
+

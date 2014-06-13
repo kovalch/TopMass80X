@@ -9,6 +9,7 @@
 
 #include <TObjArray.h>
 #include <TString.h>
+#include <TSystem.h>
 #include <Rtypes.h>
 
 #include "ttbarUtils.h"
@@ -146,5 +147,62 @@ TString ttbar::helper::searchFragmentByToken(const TString& name, const TString&
     }
     return result;
 }
+
+
+
+TString ttbar::assignFolder(const char* baseDir, const TString& channel, const TString& systematic)
+{
+    TString path("");
+
+    // Create all subdirectories contained in baseDir
+    TObjArray* a_subDir = TString(baseDir).Tokenize("/");
+    for(Int_t iSubDir = 0; iSubDir < a_subDir->GetEntriesFast(); ++iSubDir){
+        const TString& subDir = a_subDir->At(iSubDir)->GetName();
+        path.Append(subDir);
+        path.Append("/");
+        gSystem->MakeDirectory(path);
+    }
+
+    // Create subdirectories for systematic and channel
+    path.Append(systematic);
+    path.Append("/");
+    gSystem->MakeDirectory(path);
+    path.Append(channel);
+    path.Append("/");
+    gSystem->MakeDirectory(path);
+
+    return path;
+}
+
+
+
+TString ttbar::accessFolder(const char* baseDir, const TString& channel,
+                            const TString& systematic, const bool allowNonexisting)
+{
+    // Build directory path
+    TString path(baseDir);
+    path.Append("/");
+    path.Append(systematic);
+    path.Append("/");
+    path.Append(channel);
+    path.Append("/");
+
+    // Check if directory really exists
+    if(!gSystem->OpenDirectory(path)){
+        if(allowNonexisting){
+            // It is allowed to request a folder which does not exist, so return empty string silently
+            return "";
+        }
+        else{
+            std::cerr<<"ERROR! Request to access directory is not possible, because it does not exist. Directory name: "<<path
+                     <<"\n...break\n"<<std::endl;
+            exit(237);
+        }
+    }
+
+    return path;
+}
+
+
 
 

@@ -16,7 +16,7 @@ trueLevelWeight_(trueLevelWeight)
 
 
 ttbar::RecoLevelWeights::RecoLevelWeights(const double& weightLeptonSF, const double& weightTriggerSF, const double& weightBtagSF,
-                                        const double& weightNoPileup, double& weight):
+                                        const double& weightNoPileup,const double& weight):
 weightLeptonSF_(weightLeptonSF),
 weightTriggerSF_(weightTriggerSF),
 weightBtagSF_(weightBtagSF),

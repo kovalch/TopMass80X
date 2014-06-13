@@ -262,28 +262,37 @@ void histoMvaTopJetsinputVariables(const std::vector<Channel::Channel>& v_channe
 
 
 
+/// All systematics allowed as steering parameter for executable
+namespace Systematic{
+    const std::vector<Type> allowedSystematics = {
+        nominal,
+    };
+}
+
+
+
 int main(int argc, char** argv)
 {
     CLParameter<std::string> opt_channel("c", "Specify channel(s), valid: emu, ee, mumu, combined. Default: combined", false, 1, 4,
-        common::makeStringCheck(Channel::convertChannels(Channel::allowedChannelsPlotting)));
+        common::makeStringCheck(Channel::convert(Channel::allowedChannelsPlotting)));
     CLParameter<std::string> opt_systematic("s", "Systematic variation - default is Nominal", false, 1, 100,
-        common::makeStringCheck({"Nominal", ""}));
+        common::makeStringCheckBegin(Systematic::convertType(Systematic::allowedSystematics)));
     CLParameter<std::string> opt_drawMode("d", "Draw modes - whether to draw curve for swapped combinations (swap)", false, 1, 1,
         common::makeStringCheck({"swap", ""}));
     CLAnalyser::interpretGlobal(argc, argv);
     
     // Set up channels
     std::vector<Channel::Channel> v_channel({Channel::combined});
-    if(opt_channel.isSet()) v_channel = Channel::convertChannels(opt_channel.getArguments());
+    if(opt_channel.isSet()) v_channel = Channel::convert(opt_channel.getArguments());
     std::cout << "Processing channels: ";
-    for (auto channel : v_channel)std::cout << Channel::convertChannel(channel) << " ";
+    for (auto channel : v_channel)std::cout << Channel::convert(channel) << " ";
     std::cout << "\n\n";
     
     // Set up systematics
-    std::vector<Systematic::Systematic> v_systematic({Systematic::nominal});
-    if(opt_systematic.isSet()) v_systematic = Systematic::convertSystematics(opt_systematic.getArguments());
+    std::vector<Systematic::Systematic> v_systematic = Systematic::allowedSystematicsAnalysis(Systematic::allowedSystematics);
+    if(opt_systematic.isSet()) v_systematic = Systematic::setSystematics(opt_systematic.getArguments());
     std::cout << "Processing systematics: ";
-    for (auto systematic : v_systematic) std::cout << Systematic::convertSystematic(systematic) << " ";
+    for (auto systematic : v_systematic) std::cout << systematic.name() << " ";
     std::cout << "\n\n";
     
     // Set up draw modes

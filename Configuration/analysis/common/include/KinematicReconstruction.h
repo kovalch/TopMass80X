@@ -2,6 +2,7 @@
 #define KinematicReconstruction_h
 
 #include <vector>
+#include <map>
 #include <iostream>
 #include <stdio.h>
 
@@ -12,10 +13,13 @@
 #include <Math/PtEtaPhiM4D.h>
 #include <Math/LorentzVector.h>
 #include <Rtypes.h>
+#include <TRandom3.h>
 #include "classesFwd.h"
+#include "sampleHelpers.h"
 
 
-//typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > LV;
+
+
 
 struct Struct_KinematicReconstruction {
     TLorentzVector lp, lm;
@@ -29,8 +33,9 @@ struct Struct_KinematicReconstruction {
     double recMtop;
     double weight;
     int ntags;
-    void angle_rot(double alpha, double e, TLorentzVector jet, TLorentzVector & jet_sm);
 };
+
+
 
 class KinematicReconstruction {
 
@@ -49,6 +54,9 @@ void doJetsMerging(const VLV *jets,const std::vector<double> *btags);
 
 private:
 
+    TRandom3* r3_;
+    void angle_rot(double alpha, double e, TLorentzVector jet, TLorentzVector & jet_sm);
+    
     int nSol_;
     Struct_KinematicReconstruction sol_;
     std::vector<Struct_KinematicReconstruction> sols_;
@@ -90,8 +98,64 @@ private:
 // neuEta 0d weight
         TH1F *h_neuEta_w_;
 //
-        
-  };
+};
+
+
+
+
+
+
+
+class KinematicReconstructionScaleFactors{
+    
+public:
+    
+    /// Constructor
+    KinematicReconstructionScaleFactors(const std::vector<Channel::Channel>& channels,
+                                        const Systematic::Systematic& systematic);
+    
+    /// Destructor
+    ~KinematicReconstructionScaleFactors(){}
+    
+    
+    
+    /// Prepare scale factors per channel
+    void prepareChannel(const Channel::Channel& channel);
+    
+    /// Get kinematic reconstruction per-event scale factor
+    double getSF()const;
+    
+    
+    
+private:
+    
+    /// Enumeration for possible systematics
+    enum SystematicInternal{nominal, vary_up, vary_down, undefined};
+    
+    /** Set up the scale factor for the Kinematic Reconstruction
+     *
+     * Currently a flat per-channel SF is used. For the systematic KIN_UP and KIN_DOWN,
+     * the SF is modified by its uncertainty.
+     *
+     * To calculate the SF, you need to set the SF to 1 and rerun. Then determine the
+     * SF with kinRecoEfficienciesAndSF
+     */
+    void prepareSF(const SystematicInternal& systematic);
+    
+    
+    
+    /// Map containing the flat scale factors for all channels
+    std::map<Channel::Channel, double> m_scaleFactor_;
+    
+    /// The per-channel scale factor
+    double scaleFactor_;
+};
+
+
+
+
+
+
 
 
 #endif

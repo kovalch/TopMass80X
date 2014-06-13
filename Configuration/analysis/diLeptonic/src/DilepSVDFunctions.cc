@@ -34,7 +34,7 @@ TString DilepSVDFunctions::SVD_GetSteering(TString channel, TString particle, TS
     int flag_regpar = 2;             // Always use Tau (2)
     int flag_scan = 1;               // Turn scan on (2) or off (1) 
     int flag_ps = 4;                 // Write everything to PS (4)
-    int flag_root = 1;               // Do not make a ROOT file (1)
+    int flag_root = 2;               // Do not make a ROOT file (1)
     int flag_text = 2;               // Do write Text file with optimal tau (2)
     int flag_verbose = 2;            // Medium Verbosity (2)
     int flag_scanpoints = 3;         // Use 125 Scan Points (3)
@@ -42,7 +42,7 @@ TString DilepSVDFunctions::SVD_GetSteering(TString channel, TString particle, TS
     int flag_lowersidebin = 3;       // Cut out side bin on rec, not on gen level (3)
     int flag_uppersidebin = 3;       // Cut out side bin on rec, not on gen level (3)
     int flag_matrixorientation = 1;  // Transpose matrix prior to unfolding (1)
-    int flag_norm = 2;               // Extrinsic Normalization (1) 
+    int flag_norm = 3;               // Extrinsic Normalization (1)
     int flag_closure = 1;            // Turn off closure test (1) 
     int flag_preweighting = 1;       // Reweighting prior to unfolding off (1)
     
@@ -142,7 +142,7 @@ void DilepSVDFunctions::SVD_Tex(TString channel, TString particle, TString quant
     } else if ( strcmp(quantity, "Rapidity") == 0 ) {
         quantityTex.Append("y");
     } else if ( strcmp(quantity, "Mass") == 0 ) {
-        quantityTex.Append("M_{t #bar{t}}");
+        quantityTex.Append("m");
     } else {
         quantityTex.Append(quantity);
     } 
@@ -380,13 +380,11 @@ double DilepSVDFunctions::SVD_DoUnfoldSys(
         double valunfUp = unfUp->GetBinContent(i);
         double valunfDown = unfDown->GetBinContent(i);  
         
-        // Square the shifts and calculate average of up and down shift
-        double Sys_Error_Up_Sq   = (valunfUp   - valunfNom)*(valunfUp   - valunfNom);
-        double Sys_Error_Down_Sq = (valunfDown - valunfNom)*(valunfDown - valunfNom); 
-        double Sys_Error_Sq      = (Sys_Error_Up_Sq + Sys_Error_Down_Sq) / 2.; 
+        // Calculate average of up and down shift
+        double Sys_Error_Up   = std::fabs(valunfUp   - valunfNom);
+        double Sys_Error_Down = std::fabs(valunfDown - valunfNom);
         
-        // Square Root
-        double Sys_Error = TMath::Sqrt(Sys_Error_Sq);
+        double Sys_Error = 0.5* (Sys_Error_Up + Sys_Error_Down) ;
        
         // Make a relative uncertainty from that
         double Sys_Error_Relative = SVD_Divide(Sys_Error, valunfNom);

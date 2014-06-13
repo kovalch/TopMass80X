@@ -8,7 +8,7 @@ class TString;
 class TH1;
 class TH2D;
 
-#include "AnalyzerBaseClass.h"
+#include "AnalyzerBase.h"
 #include "MvaVariablesTopJets.h"
 
 class JetCategories;
@@ -35,7 +35,7 @@ namespace tth{
 
 
 /// Class for basic histograms that are filled simultaneously for any step
-class AnalyzerMvaTopJets : public AnalyzerBaseClass{
+class AnalyzerMvaTopJets : public AnalyzerBase{
 
 public:
 

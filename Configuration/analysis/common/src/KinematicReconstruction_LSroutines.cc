@@ -68,86 +68,86 @@ KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(double ma
 
 }
 
-KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(double mass_l, double mass_al,double mass_Wp, double mass_Wm, TH1F* hvE[])
-{
-    mt_    = topmass;
-    mtbar_ = topmass;
-    mb_    = 4.8;
-    mbbar_ = 4.8;
-    mw_    = mass_Wp;
-    mwbar_ = mass_Wm; 
-    ml_    = mass_l;
-    mal_    = mass_al;
-    mv_=0;
-    mav_=0;
+// KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(double mass_l, double mass_al,double mass_Wp, double mass_Wm, TH1F* hvE[])
+// {
+//     mt_    = topmass;
+//     mtbar_ = topmass;
+//     mb_    = 4.8;
+//     mbbar_ = 4.8;
+//     mw_    = mass_Wp;
+//     mwbar_ = mass_Wm; 
+//     ml_    = mass_l;
+//     mal_    = mass_al;
+//     mv_=0;
+//     mav_=0;
+// 
+//         for(int i=0;i<6;i++)hneutrino_E_[i]= hvE[i];
+// 
+//     weight_option_=0;
+// }
 
-        for(int i=0;i<6;i++)hneutrino_E_[i]= hvE[i];
-
-    weight_option_=0;
-}
-
-KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(double mass_l, double mass_al, double mass_Wp, double mass_Wm, TH1F* hvE[], TH1F hneutrino)
-{
-    mt_    = topmass;
-    mtbar_ = topmass;
-    mb_    = 4.8;
-    mbbar_ = 4.8;
-    mw_    = mass_Wp;
-    mwbar_ = mass_Wm; 
-    ml_    = mass_l;
-    mal_    = mass_al;
-    mv_=0;
-    mav_=0;
-
-        for(int i=0;i<6;i++)hneutrino_E_[i]= hvE[i];
-        hnw_cuts_= hneutrino;
-        
-    weight_option_=0;
-
-}
+// KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(double mass_l, double mass_al, double mass_Wp, double mass_Wm, TH1F* hvE[], TH1F hneutrino)
+// {
+//     mt_    = topmass;
+//     mtbar_ = topmass;
+//     mb_    = 4.8;
+//     mbbar_ = 4.8;
+//     mw_    = mass_Wp;
+//     mwbar_ = mass_Wm; 
+//     ml_    = mass_l;
+//     mal_    = mass_al;
+//     mv_=0;
+//     mav_=0;
+// 
+//         for(int i=0;i<6;i++)hneutrino_E_[i]= hvE[i];
+//         hnw_cuts_= hneutrino;
+//         
+//     weight_option_=0;
+// 
+// }
 
 
-KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(double mass_l, double mass_al,double mass_Wp, double mass_Wm, TH1F hneutrino)
-{
-    mt_    = topmass;
-    mtbar_ = topmass;
-    mb_    = 4.8;
-    mbbar_ = 4.8;
-    mw_    = mass_Wp;
-    mwbar_ = mass_Wm; 
-    ml_    = mass_l;
-    mal_    = mass_al;
-    mv_=0;
-    mav_=0;
-    
-    hnw_cuts_= hneutrino;
-    
-    //pol4_neutrinoPx_ = new TF1("pol4_neutrinoPx","pol4",-100,100);
-    //((TAttLine*)pol4_neutrinoPx_->GetParent())->SetLineWidth(1);
-    weight_option_=0;
-}
+// KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(double mass_l, double mass_al,double mass_Wp, double mass_Wm, TH1F hneutrino)
+// {
+//     mt_    = topmass;
+//     mtbar_ = topmass;
+//     mb_    = 4.8;
+//     mbbar_ = 4.8;
+//     mw_    = mass_Wp;
+//     mwbar_ = mass_Wm; 
+//     ml_    = mass_l;
+//     mal_    = mass_al;
+//     mv_=0;
+//     mav_=0;
+//     
+//     hnw_cuts_= hneutrino;
+//     
+//     //pol4_neutrinoPx_ = new TF1("pol4_neutrinoPx","pol4",-100,100);
+//     //((TAttLine*)pol4_neutrinoPx_->GetParent())->SetLineWidth(1);
+//     weight_option_=0;
+// }
 
-KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(double mass_l, double mass_al,double mass_Wp, double mass_Wm, TH1F hcostheta, int index)
-{
-    mt_=index;
-    
-    mt_    = topmass;
-    mtbar_ = topmass;
-    mb_    = 4.8;
-    mbbar_ = 4.8;
-    mw_    = mass_Wp;
-    mwbar_ = mass_Wm; 
-    ml_    = mass_l;
-    mal_    = mass_al;
-    mv_=0;
-    mav_=0;
-    
-    hcosw_= hcostheta;
-    
-    //pol4_neutrinoPx_ = new TF1("pol4_neutrinoPx","pol4",-100,100);
-    //((TAttLine*)pol4_neutrinoPx_->GetParent())->SetLineWidth(1);
-    weight_option_=0;
-}
+// KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(double mass_l, double mass_al,double mass_Wp, double mass_Wm, TH1F hcostheta, int index)
+// {
+//     mt_=index;
+//     
+//     mt_    = topmass;
+//     mtbar_ = topmass;
+//     mb_    = 4.8;
+//     mbbar_ = 4.8;
+//     mw_    = mass_Wp;
+//     mwbar_ = mass_Wm; 
+//     ml_    = mass_l;
+//     mal_    = mass_al;
+//     mv_=0;
+//     mav_=0;
+//     
+//     hcosw_= hcostheta;
+//     
+//     //pol4_neutrinoPx_ = new TF1("pol4_neutrinoPx","pol4",-100,100);
+//     //((TAttLine*)pol4_neutrinoPx_->GetParent())->SetLineWidth(1);
+//     weight_option_=0;
+// }
 
 
 KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(double mass_top, double mass_b, double mass_w, double mass_l, double mass_al)
@@ -190,8 +190,7 @@ void KinematicReconstruction_LSroutines::ini(double mass_l, double mass_al,doubl
     mv_=0;
     mav_=0;
     
-    
-    //weight_option_=0;
+    weight_option_=0;
 }
 
 void KinematicReconstruction_LSroutines::setConstraints(TLorentzVector LV_al, TLorentzVector LV_l, TLorentzVector LV_b, TLorentzVector LV_bbar, double missPx, double missPy)
@@ -237,31 +236,30 @@ vector< KinematicReconstruction_LSroutines::TopSolution >* KinematicReconstructi
 }
 
 
-void KinematicReconstruction_LSroutines::setTrueInfo(TLorentzVector LV_Top, TLorentzVector LV_AntiTop,TLorentzVector LV_Neutrino, TLorentzVector LV_AntiNeutrino)
-{
-    true_top_         = LV_Top;
-    true_topbar_      = LV_AntiTop;
-    true_neutrino_    = LV_Neutrino;
-    true_neutrinobar_ = LV_AntiNeutrino;
-    filldTS();
-    filldR();
-    filldN();
-}
+// void KinematicReconstruction_LSroutines::setTrueInfo(TLorentzVector LV_Top, TLorentzVector LV_AntiTop,TLorentzVector LV_Neutrino, TLorentzVector LV_AntiNeutrino)
+// {
+//     true_top_         = LV_Top;
+//     true_topbar_      = LV_AntiTop;
+//     true_neutrino_    = LV_Neutrino;
+//     true_neutrinobar_ = LV_AntiNeutrino;
+//     filldTS();
+//     filldR();
+//     filldN();
+// }
 
 void KinematicReconstruction_LSroutines::print()
 {
-    for(int i=0;i<(int)ttSol_.size();i++)
-    {
-        printf("\nSol: %d:   vw: %f dTS: %f\n",i+1,ttSol_[i].vw,ttSol_[i].dTS);
-//         ttSol_[i].top.Print();
-//         ttSol_[i].topbar.Print();
-           ttSol_[i].neutrino.Print();
-           ttSol_[i].neutrinobar.Print();
-        
-        
-        //printf("vw: %f dTS: %f\n",ttSol_[i].vw,ttSol_[i].dTS);
-        
-    }
+//     for(int i=0;i<(int)ttSol_.size();i++)
+//     {
+//         printf("\nSol: %d:   weight: %f dTS: %f\n",i+1,ttSol_[i].weight,ttSol_[i].dTS);
+// //         ttSol_[i].top.Print();
+// //         ttSol_[i].topbar.Print();
+//            ttSol_[i].neutrino.Print();
+//            ttSol_[i].neutrinobar.Print();
+// 
+//         //printf("vw: %f dTS: %f\n",ttSol_[i].vw,ttSol_[i].dTS);
+//         
+//     }
 }
 
 TF1* KinematicReconstruction_LSroutines::getNeutrinoPxF()
@@ -297,7 +295,6 @@ void KinematicReconstruction_LSroutines::doAll()
        // TH1F * hvw=0;
     /// ...
     
-
         findCoeff(coeffs_);
         quartic_equation(coeffs_[0],coeffs_[1],coeffs_[2],coeffs_[3],coeffs_[4],vect_pxv_);
         nSol_=vect_pxv_[0];
@@ -318,7 +315,7 @@ void KinematicReconstruction_LSroutines::doAll()
                 TS_temp.mAntiTop=topbar_.M();
                   
                 //...
-                    double vw1=1,vw2=1;
+//                    double vw1=1,vw2=1;
                     //char hvw_name[20];
  //pt 1d                   
 //                         for(int i=0;i<5;i++)
@@ -450,7 +447,7 @@ void KinematicReconstruction_LSroutines::doAll()
 //                             
 //                         }
 //                         
-                    // TS_temp.vw=vw1*vw2;
+                    // TS_temp.weight=vw1*vw2;
                   //...
                        
                        
@@ -458,14 +455,14 @@ void KinematicReconstruction_LSroutines::doAll()
 //                     double vw1=1,vw2=1;
 //                             vw1=hnw_cuts_.GetBinContent(hnw_cuts_.FindBin(neutrino_.E()));
 //                             vw2=hnw_cuts_.GetBinContent(hnw_cuts_.FindBin(neutrinobar_.E()));
-//                 TS_temp.vw=vw1*vw2;
+//                 TS_temp.weight=vw1*vw2;
   // ...                   
    
    
   //neutrino 1d Eta weight
 //                             vw1=vw1*hnw_cuts_.GetBinContent(hnw_cuts_.FindBin(neutrino_.Eta()));
 //                             vw2=vw2*hnw_cuts_.GetBinContent(hnw_cuts_.FindBin(neutrinobar_.Eta()));
-//                 TS_temp.vw=vw1*vw2;
+//                 TS_temp.weight=vw1*vw2;
   // ...                   
      
    
@@ -473,34 +470,31 @@ void KinematicReconstruction_LSroutines::doAll()
 //                     double vw1=1,vw2=1;
 //                             vw1=hnw_cuts_.GetBinContent(hnw_cuts_.FindBin((b_+neutrinobar_).M()));
 //                             vw2=hnw_cuts_.GetBinContent(hnw_cuts_.FindBin((bbar_+neutrino_).M()));
-//                 TS_temp.vw=vw1*vw2;
-  // ...   
+//                 TS_temp.weight=vw1*vw2;
+  // ...
                     
                     
-            
-                       
+                    
+                    
+//              TS_temp.weight=Landau2D(neutrino_.E(),neutrinobar_.E());
                 
-//              TS_temp.vw=Landau2D(neutrino_.E(),neutrinobar_.E());
-                
-                    if(weight_option_==1)
-                    {
-//                         TF1 f_nm("f_nm","pol2");f_nm.SetParameters(52.8498,-0.010801,0.000480966);
-//                         TF1 f_ns("f_ns","pol2");f_ns.SetParameters(15.8754,0.0274776 ,0.000146676);
-//                         TF1 landau_n_temp("landau_n","[0]*TMath::Landau(x,[1],[2])");landau_n_temp.SetParameters(1.0/f_ns.Eval(top_.Pt()),f_nm.Eval(top_.Pt()),f_ns.Eval(top_.Pt()));
-//                         TF1 landau_an_temp("landau_an","[0]*TMath::Landau(x,[1],[2])");landau_an_temp.SetParameters(1.0/f_ns.Eval(topbar_.Pt()),f_nm.Eval(topbar_.Pt()),f_ns.Eval(topbar_.Pt()));
-                        TF1 landau_n_temp("landau_n","[0]*TMath::Landau(x,[1],[2])");landau_n_temp.SetParameters(1.0/20.3864,59.91,20.3864);
-                        TF1 landau_an_temp("landau_an","[0]*TMath::Landau(x,[1],[2])");landau_an_temp.SetParameters(1.0/20.3864,59.91,20.3864);
-                        
-                        
-                        TS_temp.vw=landau_n_temp.Eval(neutrino_.E())*landau_an_temp.Eval(neutrinobar_.E()); 
-                        
-                        //TF1 f_mbl("f_mbl","[0]*exp(-(x-[1])*(x-[1])/[2])*([3]+[4]*x)");
-                        //f_mbl.SetParameters(-0.000110874,1.90958e+02,7.14791e+03,-9.70099e+02,6.31507e+00);
-                        //TS_temp.vw=10000000*NeutrinoEventShape->Eval(neutrino_.E(),neutrinobar_.E())*f_mbl.Eval((b_+al_).M())*f_mbl.Eval((bbar_+l_).M())*landau_n_temp.Eval(neutrino_.E())*landau_an_temp.Eval(neutrinobar_.E());
-
-
-                        
-                    }
+//                     if(weight_option_==1)
+//                     {
+// //                         TF1 f_nm("f_nm","pol2");f_nm.SetParameters(52.8498,-0.010801,0.000480966);
+// //                         TF1 f_ns("f_ns","pol2");f_ns.SetParameters(15.8754,0.0274776 ,0.000146676);
+// //                         TF1 landau_n_temp("landau_n","[0]*TMath::Landau(x,[1],[2])");landau_n_temp.SetParameters(1.0/f_ns.Eval(top_.Pt()),f_nm.Eval(top_.Pt()),f_ns.Eval(top_.Pt()));
+// //                         TF1 landau_an_temp("landau_an","[0]*TMath::Landau(x,[1],[2])");landau_an_temp.SetParameters(1.0/f_ns.Eval(topbar_.Pt()),f_nm.Eval(topbar_.Pt()),f_ns.Eval(topbar_.Pt()));
+//                         TF1 landau_n_temp("landau_n","[0]*TMath::Landau(x,[1],[2])");landau_n_temp.SetParameters(1.0/20.3864,59.91,20.3864);
+//                         TF1 landau_an_temp("landau_an","[0]*TMath::Landau(x,[1],[2])");landau_an_temp.SetParameters(1.0/20.3864,59.91,20.3864);
+//                         
+//                         
+//                         TS_temp.weight=landau_n_temp.Eval(neutrino_.E())*landau_an_temp.Eval(neutrinobar_.E()); 
+//                         
+//                         //TF1 f_mbl("f_mbl","[0]*exp(-(x-[1])*(x-[1])/[2])*([3]+[4]*x)");
+//                         //f_mbl.SetParameters(-0.000110874,1.90958e+02,7.14791e+03,-9.70099e+02,6.31507e+00);
+//                         //TS_temp.weight=10000000*NeutrinoEventShape->Eval(neutrino_.E(),neutrinobar_.E())*f_mbl.Eval((b_+al_).M())*f_mbl.Eval((bbar_+l_).M())*landau_n_temp.Eval(neutrino_.E())*landau_an_temp.Eval(neutrinobar_.E());
+//                     }
+                    
                 TS_temp.top = top_;
                 TS_temp.topbar = topbar_;
                 TS_temp.wp = w_;
@@ -508,70 +502,65 @@ void KinematicReconstruction_LSroutines::doAll()
                 TS_temp.neutrino = neutrino_;
                 TS_temp.neutrinobar = neutrinobar_;
                 
-                TLorentzVector b_boost_top=b_,bbar_boost_topbar=bbar_;
-                    b_boost_top.Boost(-top_.BoostVector());
-                    bbar_boost_topbar.Boost(-topbar_.BoostVector());
-                TLorentzVector topbar_boost_top=topbar_,top_boost_topbar=top_;
-                    topbar_boost_top.Boost(-top_.BoostVector());
-                    top_boost_topbar.Boost(-topbar_.BoostVector());
+                //TLorentzVector b_boost_top=b_,bbar_boost_topbar=bbar_;
+                   //b_boost_top.Boost(-top_.BoostVector());
+                   //bbar_boost_topbar.Boost(-topbar_.BoostVector());
+                //TLorentzVector topbar_boost_top=topbar_,top_boost_topbar=top_;
+                    //topbar_boost_top.Boost(-top_.BoostVector());
+                    //top_boost_topbar.Boost(-topbar_.BoostVector());
                 
-                TLorentzVector l_boost_topbar=l_,al_boost_top=al_;
-                    al_boost_top.Boost(-top_.BoostVector());
-                    l_boost_topbar.Boost(-topbar_.BoostVector());
+                //TLorentzVector l_boost_topbar=l_,al_boost_top=al_;
+                    //al_boost_top.Boost(-top_.BoostVector());
+                    //l_boost_topbar.Boost(-topbar_.BoostVector());
                 
-                TS_temp.cos_bTR_top = cos(top_.Vect().Angle(b_boost_top.Vect()));
-                TS_temp.cos_bbarTR_topbar = cos(topbar_.Vect().Angle(bbar_boost_topbar.Vect()));
+                //TS_temp.cos_bTR_top = cos(top_.Vect().Angle(b_boost_top.Vect()));
+                //TS_temp.cos_bbarTR_topbar = cos(topbar_.Vect().Angle(bbar_boost_topbar.Vect()));
                 
-                TLorentzVector top_boost=top_,topbar_boost=topbar_,b_boost=b_,bbar_boost=bbar_;
+                //TLorentzVector top_boost=top_,topbar_boost=topbar_,b_boost=b_,bbar_boost=bbar_;
                 
                 
-                TS_temp.ttpt_top=top_boost.Pt();
-                TS_temp.ttpt_topbar=topbar_boost.Pt();
+                //TS_temp.ttpt_top=top_boost.Pt();
+                //TS_temp.ttpt_topbar=topbar_boost.Pt();
                 
-                b_boost.Boost(-tt_.BoostVector());
-                bbar_boost.Boost(-tt_.BoostVector());
+                //b_boost.Boost(-tt_.BoostVector());
+                //bbar_boost.Boost(-tt_.BoostVector());
              
-                TS_temp.costheta=cos(topbar_boost_top.Vect().Angle(b_boost_top.Vect()));
-                TS_temp.costhetabar=cos(top_boost_topbar.Vect().Angle(bbar_boost_topbar.Vect()));
+                //TS_temp.costheta=cos(topbar_boost_top.Vect().Angle(b_boost_top.Vect()));
+                //TS_temp.costhetabar=cos(top_boost_topbar.Vect().Angle(bbar_boost_topbar.Vect()));
                 
             //          costheta 1d weight
 //                             vw1=hcosw_.GetBinContent(hcosw_.FindBin(TS_temp.costheta));
 //                             vw2=hcosw_.GetBinContent(hcosw_.FindBin(TS_temp.costhetabar));
-//                             TS_temp.vw=vw1*vw2;
+//                             TS_temp.weight=vw1*vw2;
               //          ...                         
            
                 
                 
-                b_boost.Boost(-top_boost.BoostVector());
-                TS_temp.cos1 = cos(top_boost.Vect().Angle(b_boost.Vect()));
+                //b_boost.Boost(-top_boost.BoostVector());
+                //TS_temp.cos1 = cos(top_boost.Vect().Angle(b_boost.Vect()));
                 
-                TLorentzVector wb = w_+b_,w_boost=w_,al_boost=al_;
+                //TLorentzVector wb = w_+b_,w_boost=w_,al_boost=al_;
                 //w_boost.Boost(-wb.BoostVector());
-                al_boost.Boost(-w_.BoostVector());
+                //al_boost.Boost(-w_.BoostVector());
                 //al_boost.Boost(-w_boost.BoostVector());
                 
-                TS_temp.cos2 = cos(w_boost.Vect().Angle(al_boost.Vect()));
-                TS_temp.Mtt = tt_.M();
+                //TS_temp.cos2 = cos(w_boost.Vect().Angle(al_boost.Vect()));
                 
+                TS_temp.Mtt = tt_.M();
                 TS_temp.mttw = 1.0/TS_temp.Mtt;
                 
+                //TS_temp.weight = 1.0/(neutrino_.Pt()+neutrinobar_.Pt());
                 
+                //vw1=4*mt_*al_boost_top.E()*(mt_*mt_-mb_*mb_-2*mt_*al_boost_top.E())/(pow((mt_*mt_-mb_*mb_),2)+mw_*mw_*(mt_*mt_-mb_*mb_)-2*pow(mw_,4));
+                //vw2=4*mt_*l_boost_topbar.E()*(mt_*mt_-mb_*mb_-2*mt_*l_boost_topbar.E())/(pow((mt_*mt_-mb_*mb_),2)+mwbar_*mwbar_*(mt_*mt_-mb_*mb_)-2*pow(mwbar_,4));
                 
-                //TS_temp.vw = 1.0/(neutrino_.Pt()+neutrinobar_.Pt());
+                //TS_temp.lepEw=vw1*vw2;
                 
+                //TS_temp.mbl    = (b_+al_).M();
+                //TS_temp.mblbar = (bbar_+l_).M();
                 
-                
-                vw1=4*mt_*al_boost_top.E()*(mt_*mt_-mb_*mb_-2*mt_*al_boost_top.E())/(pow((mt_*mt_-mb_*mb_),2)+mw_*mw_*(mt_*mt_-mb_*mb_)-2*pow(mw_,4));
-                vw2=4*mt_*l_boost_topbar.E()*(mt_*mt_-mb_*mb_-2*mt_*l_boost_topbar.E())/(pow((mt_*mt_-mb_*mb_),2)+mwbar_*mwbar_*(mt_*mt_-mb_*mb_)-2*pow(mwbar_,4));
-                
-                TS_temp.lepEw=vw1*vw2;
-                
-                TS_temp.mbl    = (b_+al_).M();
-                TS_temp.mblbar = (bbar_+l_).M();
-                
-                TS_temp.vw=TS_temp.mttw;
-                
-                //if((fabs(top_.M()-mt_)+fabs(topbar_.M()-mtbar_))<0.01)
+                TS_temp.weight=TS_temp.mttw;
+
                 ttSol_.push_back(TS_temp);
                   
             }
@@ -580,37 +569,37 @@ void KinematicReconstruction_LSroutines::doAll()
 
 }
 
-void KinematicReconstruction_LSroutines::filldTS()
-{
-    double dellta_alpha;
-    double dellta_E;
-    for(int i=0;i<nSol_;i++)
-            {
-                dellta_alpha = pow(ttSol_[i].top.Angle(true_top_.Vect())/TMath::Pi(),2) + pow(ttSol_[i].topbar.Angle(true_topbar_.Vect())/TMath::Pi(),2);
-                dellta_E = pow((ttSol_[i].top.E()-true_top_.E())/true_top_.E(),2) + pow((ttSol_[i].topbar.E()-true_topbar_.E())/true_topbar_.E(),2);
-                //dellta_E = pow((ttSol_[i].top.Pt()-true_top_.Pt())/true_top_.Pt(),2) + pow((ttSol_[i].topbar.Pt()-true_topbar_.Pt())/true_topbar_.Pt(),2);
-                ttSol_[i].dTS = sqrt(dellta_alpha+dellta_E);
-                
-                
-                
-            }
-}
-void KinematicReconstruction_LSroutines::filldR()
-{
-    for(int i=0;i<nSol_;i++)
-            {
-                ttSol_[i].dR = sqrt(pow(ttSol_[i].top.DeltaR(true_top_),2)+pow(ttSol_[i].topbar.DeltaR(true_topbar_),2));   
-            }
-}
+// void KinematicReconstruction_LSroutines::filldTS()
+// {
+//     double dellta_alpha;
+//     double dellta_E;
+//     for(int i=0;i<nSol_;i++)
+//             {
+//                 dellta_alpha = pow(ttSol_[i].top.Angle(true_top_.Vect())/TMath::Pi(),2) + pow(ttSol_[i].topbar.Angle(true_topbar_.Vect())/TMath::Pi(),2);
+//                 dellta_E = pow((ttSol_[i].top.E()-true_top_.E())/true_top_.E(),2) + pow((ttSol_[i].topbar.E()-true_topbar_.E())/true_topbar_.E(),2);
+//                 //dellta_E = pow((ttSol_[i].top.Pt()-true_top_.Pt())/true_top_.Pt(),2) + pow((ttSol_[i].topbar.Pt()-true_topbar_.Pt())/true_topbar_.Pt(),2);
+//                 ttSol_[i].dTS = sqrt(dellta_alpha+dellta_E);
+//                 
+//                 
+//                 
+//             }
+// }
+// void KinematicReconstruction_LSroutines::filldR()
+// {
+//     for(int i=0;i<nSol_;i++)
+//             {
+//                 ttSol_[i].dR = sqrt(pow(ttSol_[i].top.DeltaR(true_top_),2)+pow(ttSol_[i].topbar.DeltaR(true_topbar_),2));   
+//             }
+// }
 
-void KinematicReconstruction_LSroutines::filldN()
-{
-    for(int i=0;i<nSol_;i++)
-       {
-           ttSol_[i].dN = sqrt(pow((ttSol_[i].neutrino.Px()-true_neutrino_.Px()),2)+pow((ttSol_[i].neutrino.Py()-true_neutrino_.Py()),2)+pow((ttSol_[i].neutrino.Pz()-true_neutrino_.Pz()),2)+pow((ttSol_[i].neutrinobar.Px()-true_neutrinobar_.Px()),2)+pow((ttSol_[i].neutrinobar.Py()-true_neutrinobar_.Py()),2)+pow((ttSol_[i].neutrinobar.Pz()-true_neutrinobar_.Pz()),2));   
-           //ttSol_[i].dN = sqrt(pow((ttSol_[i].neutrino.Px()-true_neutrino_.Px()),2)+pow((ttSol_[i].neutrinobar.Px()-true_neutrinobar_.Px()),2));   
-       }
-}
+// void KinematicReconstruction_LSroutines::filldN()
+// {
+//     for(int i=0;i<nSol_;i++)
+//        {
+//            ttSol_[i].dN = sqrt(pow((ttSol_[i].neutrino.Px()-true_neutrino_.Px()),2)+pow((ttSol_[i].neutrino.Py()-true_neutrino_.Py()),2)+pow((ttSol_[i].neutrino.Pz()-true_neutrino_.Pz()),2)+pow((ttSol_[i].neutrinobar.Px()-true_neutrinobar_.Px()),2)+pow((ttSol_[i].neutrinobar.Py()-true_neutrinobar_.Py()),2)+pow((ttSol_[i].neutrinobar.Pz()-true_neutrinobar_.Pz()),2));   
+//            //ttSol_[i].dN = sqrt(pow((ttSol_[i].neutrino.Px()-true_neutrino_.Px()),2)+pow((ttSol_[i].neutrinobar.Px()-true_neutrinobar_.Px()),2));   
+//        }
+// }
 
 void KinematicReconstruction_LSroutines::swapTopSol(KinematicReconstruction_LSroutines::TopSolution& sol1, KinematicReconstruction_LSroutines::TopSolution& sol2)
 {
@@ -619,52 +608,48 @@ void KinematicReconstruction_LSroutines::swapTopSol(KinematicReconstruction_LSro
     sol2 = aux;
 }
 
-void KinematicReconstruction_LSroutines::sortBy(string ch)
-{
-    
-    if(ch=="dTS"&&ttSol_.size()>0)
-    {
-     for(uint i=0;i<ttSol_.size()-1;i++)
-        {
-            if(ttSol_[i].dTS > ttSol_[i+1].dTS){ swapTopSol(ttSol_[i],ttSol_[i+1]);i=-1;}
-        }   
-    }
-    if(ch=="dR"&&ttSol_.size()>0)
-    {
-     for(uint i=0;i<ttSol_.size()-1;i++)
-        {
-            if(ttSol_[i].dR > ttSol_[i+1].dR){ swapTopSol(ttSol_[i],ttSol_[i+1]);i=-1;}
-        }   
-    }
-    if(ch=="dN"&&ttSol_.size()>0)
-    {
-     for(uint i=0;i<ttSol_.size()-1;i++)
-        {
-            if(ttSol_[i].dN > ttSol_[i+1].dN){ swapTopSol(ttSol_[i],ttSol_[i+1]);i=-1; }
-        }   
-    }
-    if(ch=="dRN"&&ttSol_.size()>0)
-    {
-     for(uint i=0;i<ttSol_.size()-1;i++)
-        {
-            if(ttSol_[i].dN*ttSol_[i].dR > ttSol_[i+1].dN*ttSol_[i+1].dR){ swapTopSol(ttSol_[i],ttSol_[i+1]);i=-1; }
-        }   
-    }
-    
-}
+// void KinematicReconstruction_LSroutines::sortBy(string ch)
+// {
+//     if(ch=="dTS"&&ttSol_.size()>0)
+//     {
+//      for(uint i=0;i<ttSol_.size()-1;i++)
+//         {
+//             if(ttSol_[i].dTS > ttSol_[i+1].dTS){ swapTopSol(ttSol_[i],ttSol_[i+1]);i=-1;}
+//         }   
+//     }
+//     if(ch=="dR"&&ttSol_.size()>0)
+//     {
+//      for(uint i=0;i<ttSol_.size()-1;i++)
+//         {
+//             if(ttSol_[i].dR > ttSol_[i+1].dR){ swapTopSol(ttSol_[i],ttSol_[i+1]);i=-1;}
+//         }   
+//     }
+//     if(ch=="dN"&&ttSol_.size()>0)
+//     {
+//      for(uint i=0;i<ttSol_.size()-1;i++)
+//         {
+//             if(ttSol_[i].dN > ttSol_[i+1].dN){ swapTopSol(ttSol_[i],ttSol_[i+1]);i=-1; }
+//         }   
+//     }
+//     if(ch=="dRN"&&ttSol_.size()>0)
+//     {
+//      for(uint i=0;i<ttSol_.size()-1;i++)
+//         {
+//             if(ttSol_[i].dN*ttSol_[i].dR > ttSol_[i+1].dN*ttSol_[i+1].dR){ swapTopSol(ttSol_[i],ttSol_[i+1]);i=-1; }
+//         }
+//     }
+// }
 
 void KinematicReconstruction_LSroutines::sortTopSol(vector< KinematicReconstruction_LSroutines::TopSolution >& v)
 {
     //std::vector< KinematicReconstruction_LSroutines::TopSolution > result;
     for(uint i=0;i<v.size()-1;i++)
     {
-      if(v[i].vw < v[i+1].vw){ swapTopSol(v[i],v[i+1]);i=-1;}
+      if(v[i].weight < v[i+1].weight){ swapTopSol(v[i],v[i+1]);i=-1;}
     }
     
     //v.swap(result);
 }
-
-
 
 
 void KinematicReconstruction_LSroutines::topRec(double sol)
@@ -757,7 +742,6 @@ void KinematicReconstruction_LSroutines::findCoeff(double* koeficienty)
         //printf("Koefs_in_f: %15.15f %f %f %f %f\n",koeficienty[0],koeficienty[1],koeficienty[2],koeficienty[3],koeficienty[4]); //printout
 
 }
-
 
 
 double KinematicReconstruction_LSroutines::sqr(double x)

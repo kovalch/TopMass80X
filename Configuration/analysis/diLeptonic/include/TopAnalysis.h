@@ -10,7 +10,7 @@ class TH2;
 #include "../../common/include/classesFwd.h"
 #include "analysisStructsFwd.h"
 
-class AnalysisHistogramsBase;
+class AnalyzerBaseClass;
 class RecoObjects;
 class CommonGenObjects;
 class TopGenObjects;
@@ -35,14 +35,8 @@ class TopAnalysis : public AnalysisBase
     TH2 *h_GenRecoMet;
     
     TH1 *h_NJetMatching;
-
-    TH1 *TTh1_postZcut, *Allh1_postZcut, *Zh1_postZcut;
-    TH1 *TTh1_post2jets, *Allh1_post2jets, *Zh1_post2jets;
-    TH1 *TTh1_postMET, *Allh1_postMET, *Zh1_postMET;
-    TH1 *TTh1_post1btag, *Allh1_post1btag, *Zh1_post1btag;
-    TH1 *TTh1_postKinReco, *Allh1_postKinReco, *Zh1_postKinReco;
     
-    TH1 *Looseh1, *Allh1, *Zh1, *TTh1, *h_diLepMassFull, *h_diLepMassFull_fullSel,
+    TH1 *h_diLepMassFull, *h_diLepMassFull_fullSel,
         *h_jetMultiXSec,*h_jetMultiAll, *h_jetMultiNoPU, *h_jetMultiVisTop,
         *h_jetMulti, *h_jetMulti_noBTag, *h_jetMulti_diLep, *h_BjetMulti, *h_BjetMulti_noBTag;
 
@@ -100,8 +94,6 @@ class TopAnalysis : public AnalysisBase
 
     TH1 *h_HypAntiLeptonpT, *h_HypAntiLeptonEta;
     TH1 *h_HypLeptonpT, *h_HypLeptonEta;
-
-    TH1 *h_step3, *h_step4, *h_step5,*h_step6,*h_step7,*h_step8,*h_step9;
 
     TH1 *h_VisGenAntiToppT, *h_VisGenAntiTopEta;
     TH1 *h_VisGenToppT, *h_VisGenTopEta;
@@ -175,103 +167,38 @@ class TopAnalysis : public AnalysisBase
 
     TH2 *h_GenRecoDeltaRExtraJet12;
     TH1 *h_VisGenDeltaRExtraJet12, *h_RecoDeltaRExtraJet12, *h_HypDeltaRExtraJet12;
-    TH2 *h_GenRecoDeltaPhiExtraJet12, *h_GenRecoPhiExtraJet12,*h_GenRecoTTBar1stJetMass, *h_GenRecoTTBar0Mass;
+    TH2 *h_GenRecoDeltaPhiExtraJet12, *h_GenRecoPhiExtraJet12,*h_GenRecoTTBar1stJetMass, *h_GenRecoTTBar0Mass, *h_GenRecoMassExtraJet12; 
     TH1 *h_VisGenDeltaPhiExtraJet12, *h_RecoDeltaPhiExtraJet12, *h_HypDeltaPhiExtraJet12, *h_VisGenPhiExtraJet12, *h_RecoPhiExtraJet12, *h_HypPhiExtraJet12;
+    TH1 *h_VisGenMassExtraJet12, *h_RecoMassExtraJet12, *h_HypMassExtraJet12;
+
     TH1 *h_VisGenTTBar1stJetMass, *h_RecoTTBar1stJetMass, *h_HypTTBar1stJetMass;
     TH1 *h_VisGenTTBar0Mass, *h_RecoTTBar0Mass, *h_HypTTBar0Mass;
     //End: Plots for Carmen
 
     /// Plots for the parton momentum fraction defined by Olaf
-    TH1 *h_HypPartonFraction, *h_HypAntiPartonFraction;
-    TH1 *h_VisGenPartonFraction, *h_VisGenAntiPartonFraction;
-    TH1 *h_RecoPartonFraction, *h_RecoAntiPartonFraction;
-    TH2 *h_GenRecoPartonFraction, *h_GenRecoAntiPartonFraction;
+    TH1 *h_HypTopPartonFraction, *h_HypAntiTopPartonFraction;
+    TH1 *h_VisGenTopPartonFraction, *h_VisGenAntiTopPartonFraction;
+    TH1 *h_RecoTopPartonFraction, *h_RecoAntiTopPartonFraction;
+    TH2 *h_GenRecoTopPartonFraction, *h_GenRecoAntiTopPartonFraction;
 
     /// Histograms for event weights due to specific scale factor
     TH1 *h_PUSF, *h_TrigSF, *h_LepSF, *h_BTagSF, *h_KinRecoSF, *h_EventWeight;
-
-    /// Control Plots
-    TH1 *h_AllLeptonEta_step2, *h_AllLeptonpT_step2, *h_AllJetsEta_step2, *h_AllJetspT_step2;
-    TH1 *h_AllLeptonEta_step3, *h_AllLeptonpT_step3, *h_AllJetsEta_step3, *h_AllJetspT_step3;
-    TH1 *h_AllLeptonEta_step4, *h_AllLeptonpT_step4, *h_AllJetsEta_step4, *h_AllJetspT_step4;
-    TH1 *h_AllLeptonEta_step5, *h_AllLeptonpT_step5, *h_AllJetsEta_step5, *h_AllJetspT_step5;
-    TH1 *h_AllLeptonEta_step6, *h_AllLeptonpT_step6, *h_AllJetsEta_step6, *h_AllJetspT_step6;
-    TH1 *h_AllLeptonEta_step7, *h_AllLeptonpT_step7, *h_AllJetsEta_step7, *h_AllJetspT_step7;
-    TH1 *h_AllLeptonEta_step8, *h_AllLeptonpT_step8, *h_AllJetsEta_step8, *h_AllJetspT_step8;
-    TH1 *h_AllLeptonEta_step9, *h_AllLeptonpT_step9, *h_AllJetsEta_step9, *h_AllJetspT_step9;
-    TH1 *h_LeptonEta_step2, *h_LeptonpT_step2, *h_JetsEta_step2, *h_JetspT_step2;
-    TH1 *h_LeptonEta_step3, *h_LeptonpT_step3, *h_JetsEta_step3, *h_JetspT_step3;
-    TH1 *h_LeptonEta_step4, *h_LeptonpT_step4, *h_JetsEta_step4, *h_JetspT_step4;
-    TH1 *h_LeptonEta_step5, *h_LeptonpT_step5, *h_JetsEta_step5, *h_JetspT_step5;
-    TH1 *h_LeptonEta_step6, *h_LeptonpT_step6, *h_JetsEta_step6, *h_JetspT_step6;
-    TH1 *h_LeptonEta_step7, *h_LeptonpT_step7, *h_JetsEta_step7, *h_JetspT_step7;
-    TH1 *h_LeptonEta_step8, *h_LeptonpT_step8, *h_JetsEta_step8, *h_JetspT_step8;
-    TH1 *h_LeptonEta_step9, *h_LeptonpT_step9, *h_JetsEta_step9, *h_JetspT_step9;
-    TH1 *h_LeptonMult_step2, *h_JetsMult_step2, *h_BJetsMult_step2;
-    TH1 *h_LeptonMult_step3, *h_JetsMult_step3, *h_BJetsMult_step3;
-    TH1 *h_LeptonMult_step4, *h_JetsMult_step4, *h_BJetsMult_step4;
-    TH1 *h_LeptonMult_step5, *h_JetsMult_step5, *h_BJetsMult_step5;
-    TH1 *h_LeptonMult_step6, *h_JetsMult_step6, *h_BJetsMult_step6;
-    TH1 *h_LeptonMult_step7, *h_JetsMult_step7, *h_BJetsMult_step7;
-    TH1 *h_LeptonMult_step8, *h_JetsMult_step8, *h_BJetsMult_step8;
-    TH1 *h_LeptonMult_step9, *h_JetsMult_step9, *h_BJetsMult_step9;
     
     ///Ievgen
-       TH1 *h_signalTopEvents_vs_JetMult; 
-       TH1 *h_MatchedJets_vs_JetMult; 
-       TH1 *h_nSolTtJets_vs_JetMult;
-       TH1 *h_nSolCorrSignJets_vs_JetMult;
-       
-       TH1 *h_nRecoEvt_vs_JetMult;
-       TH1 *h_nKinRecoSol_vs_JetMult;
-       
-       TH1 *h_nRecoEvt_vs_LepEta;
-       TH1 *h_nKinRecoSol_vs_LepEta;
-       TH1 *h_nRecoEvt_vs_LepEta2;
-       TH1 *h_nKinRecoSol_vs_LepEta2;
-       
-       TH1 *h_nRecoEvt_vs_JetEta;
-       TH1 *h_nKinRecoSol_vs_JetEta;
-       TH1 *h_nRecoEvt_vs_JetEta2;
-       TH1 *h_nKinRecoSol_vs_JetEta2;
-       
-       TH1 *h_nRecoEvt_vs_LeppT;
-       TH1 *h_nKinRecoSol_vs_LeppT;
-       TH1 *h_nRecoEvt_vs_LeppT2;
-       TH1 *h_nKinRecoSol_vs_LeppT2;
-       
-       TH1 *h_nRecoEvt_vs_LeptonEta;
-       TH1 *h_nKinRecoSol_vs_LeptonEta;
-       TH1 *h_nRecoEvt_vs_AntiLeptonEta;
-       TH1 *h_nKinRecoSol_vs_AntiLeptonEta;
-       
-       TH1 *h_nRecoEvt_vs_LeptonpT;
-       TH1 *h_nKinRecoSol_vs_LeptonpT;
-       TH1 *h_nRecoEvt_vs_AntiLeptonpT;
-       TH1 *h_nKinRecoSol_vs_AntiLeptonpT;
-
-       
-       TH1 *h_nRecoEvt_vs_JetpT;
-       TH1 *h_nKinRecoSol_vs_JetpT;
-       TH1 *h_nRecoEvt_vs_JetpT2;
-       TH1 *h_nKinRecoSol_vs_JetpT2;
-       
-       TH1 *h_nRecoEvt_vs_MET;
-       TH1 *h_nKinRecoSol_vs_MET;
-       
-       TH1 *h_nRecoEvt_Eff;
-       TH1 *h_nKinRecoSol_Eff;
        
        TH1 *h_RMSvsGenToppT;
        TH1 *h_RMSvsGenTopRapidity;
        TH1 *h_RMSvsGenTTBarMass; 
        
-       TH1 *h_true_vE;
-       TH1 *h_reco_vE;
-       
        TH2 *h_HypTopRapidityvsToppT;
        TH2 *h_HypAntiTopRapidityvsAntiToppT;
+       
+       TH2 *h_VisGenTopRapidityvsToppT;
+       TH2 *h_VisGenAntiTopRapidityvsAntiToppT;
+       
        TH2 *h_HypTTBarRapidityvsTTBarpT;
+       
+       TH2 *h_VisGenTTBarRapidityvsTTBarpT;
        
     /// ... 
     
@@ -327,9 +254,8 @@ public:
     /// Class definition
     ClassDef(TopAnalysis, 0);    
     
-    /// Set up all analysers of type AnalysisHistogramsBase
-    void SetAllAnalysisHistograms(std::vector<AnalysisHistogramsBase*> v_analysisHistograms);
-    //void fabs(double DeltaPhi); ?????????
+    /// Set up all analysers of type AnalyzerBaseClass
+    void SetAllAnalyzers(std::vector<AnalyzerBaseClass*> v_analyzer);
     
 private:
     
@@ -376,7 +302,7 @@ private:
     void generatorTTbarjetsEvent(double& jetHTGen,
                                  const int bHadronIndex, const int antiBHadronIndex,
                                  const double trueLevelWeight,
-                                 int& GenJets_cut, int& GenJets_cut40, int& GenJets_cut60, int& GenJets_cut100,
+                                 int& GenJets_cut, int& GenJets_cut40, int& GenJets_cut60, int& GenJets_cut100, int& jetnum,
                                  double extragenjet[4],
                                  const CommonGenObjects& commonGenObjects,
                                  const TopGenObjects& topGenObjects);
@@ -404,8 +330,8 @@ private:
     /// Clear all analysers in one method
     void clearAll();
     
-    /// All analysers of type AnalysisHistogramsBase
-    std::vector<AnalysisHistogramsBase*> v_analysisHistograms_;
+    /// All analysers of type AnalyzerBaseClass
+    std::vector<AnalyzerBaseClass*> v_analyzer_;
     
 };
 

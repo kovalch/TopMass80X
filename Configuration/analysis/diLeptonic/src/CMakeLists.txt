@@ -11,9 +11,16 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   TopAnalysis
   ttbarUtils
   analysisStructs
-  AnalysisHistograms
+  analysisHelpers
+  AnalyzerBaseClass
+  AnalyzerControlPlots
+  AnalyzerDoubleDiffXS
+  AnalyzerKinReco
   plotterclass
+  homelessFunctions
+#  utils
   DilepSVDFunctions
+  EffHist
   )
 
 SET( Unfold_LIBSOURCES
@@ -25,7 +32,11 @@ SET( Unfold_LIBSOURCES
 SET( ${PROJECT_NAME}_EXECUTABLES
   load_Analysis
   Histo
+  kinRecoEff
+#  controlPlot2d
+#  compareHisto
   TypicalErrors
+  PlotRelDiffs
   kinRecoEfficienciesAndSF
   createSystCovMatrix
   )

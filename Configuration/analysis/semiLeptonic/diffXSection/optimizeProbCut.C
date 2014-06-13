@@ -42,28 +42,28 @@ void optimizeProbCut(double forceProb = 0.02, unsigned int ndof = 2, int verbose
 
   // initialize histograms
   // only right permutaions
-  TH1F* sigHisto = new TH1F("probHistSig","signal probability",1000000,0.,1.);
+  TH1F* sigHisto = new TH1F("probHistSig","t#bar{t} signal probability",1000000,0.,1.);
   // wrong permutations and ttbar bkg
-  TH1F* bkgHisto = new TH1F("probHistBkg","background probability",1000000,0.,1.);
+  TH1F* bkgHisto = new TH1F("probHistBkg","t#bar{t} background probability",1000000,0.,1.);
   // wrong permutations
-  TH1F* bkgPermuHisto = new TH1F("probHistBkgPermu","non correct permutation probability",1000000,0.,1.);
+  TH1F* bkgPermuHisto = new TH1F("probHistBkgPermu","t#bar{t} non-correct assignment probability",1000000,0.,1.);
   // all ttbar signal (right+wrong permutations)
   TH1F* ttSigHisto = new TH1F("histTtSig","ttSig probability",1000000,0.,1.);
   // all ttbar background
   TH1F* ttBkgHisto = new TH1F("histTtBkg","ttBkg probability",1000000,0.,1.);
   // kinFit permutations
   TH1F* permutation     = new TH1F("permutation","permutation", 10, 0., 10. );
-  permutation->GetXaxis()->SetBinLabel(1, "#splitline{all jets correct}{assigned}");
+  permutation->GetXaxis()->SetBinLabel(1, "#splitline{all jets correctly}{assigned}");
   permutation->GetXaxis()->SetBinLabel(2, "b^{lep}#leftrightarrowb^{had}");
   permutation->GetXaxis()->SetBinLabel(3, "b^{lep}#leftrightarrowq"   );
   permutation->GetXaxis()->SetBinLabel(4, "b^{had}#leftrightarrowq"   );
   //permutation->GetXaxis()->SetBinLabel(5, "#splitline{b^{lep}#rightarrowb^{had},q#rightarrowb^{lep}}{& b^{had}#rightarrowq}");
   //permutation->GetXaxis()->SetBinLabel(6, "#splitline{b^{had}#rightarrowb^{lep},q#rightarrowb^{had}}{& b^{lep}#rightarrowq}"  );
 
-  permutation->GetXaxis()->SetBinLabel(5, "#splitline{    gen: b^{lep}qb^{had}}{#rightarrow rec: b^{had}b^{lep}q}");
-  permutation->GetXaxis()->SetBinLabel(6, "#splitline{    gen: b^{had}qb^{lep}}{#rightarrow rec: b^{lep}b^{had}q}");
+  permutation->GetXaxis()->SetBinLabel(5, "#splitline{    true: b^{lep}qb^{had}}{#rightarrow reco: b^{had}b^{lep}q}");
+  permutation->GetXaxis()->SetBinLabel(6, "#splitline{    true: b^{had}qb^{lep}}{#rightarrow reco: b^{lep}b^{had}q}");
   permutation->GetXaxis()->SetBinLabel(7, "#splitline{all jets}{swapped}"       );
-  permutation->GetXaxis()->SetBinLabel(8, "#splitline{#geq1 jet not}{in lead 5}" );
+  permutation->GetXaxis()->SetBinLabel(8, "#splitline{#geq1 jet not in}{leading 5}" );
   permutation->GetXaxis()->SetBinLabel(9, "#splitline{#geq1 wrong}{jet chosen}");
   permutation->GetXaxis()->SetBinLabel(10,"#splitline{no jet-parton}{matching}"   );
   // ttbar decaymode
@@ -82,6 +82,10 @@ void optimizeProbCut(double forceProb = 0.02, unsigned int ndof = 2, int verbose
   decaychannel->GetXaxis()->SetBinLabel(20, "#mu#tau" );
   decaychannel->GetXaxis()->SetBinLabel(21, "#tau#tau");
   decaychannel->GetXaxis()->SetBinLabel(25, "jj"      );
+  decaychannel->GetXaxis()->SetLabelSize(1.3*decaychannel->GetXaxis()->GetLabelSize());
+  decaychannel->GetXaxis()->SetTitleSize(1.3*decaychannel->GetXaxis()->GetTitleSize());
+  decaychannel->GetYaxis()->SetTitleSize(decaychannel->GetXaxis()->GetTitleSize());
+
   TH1F* decaychannelProb =(TH1F*)decaychannel->Clone("decaychannelProb");
   
   // kinFit permutations for a optimal probability selection
@@ -312,18 +316,41 @@ void optimizeProbCut(double forceProb = 0.02, unsigned int ndof = 2, int verbose
   canv7->cd()->SetRightMargin (0.03);
   canv7->cd()->SetBottomMargin(0.10);
   canv7->cd()->SetTopMargin   (0.05);
-
-  // draw graph s/sqrt(s+b) or s/sqrt(b) vs probability
+  TCanvas *canv8 = new TCanvas("canv8","OldvsNewSetup",10,10,900,600);
+  canv8->cd()->SetLeftMargin  (0.20);
+  canv8->cd()->SetRightMargin (0.03);
+  canv8->cd()->SetBottomMargin(0.10);
+  canv8->cd()->SetTopMargin   (0.05);
+  // simulation label
+  TPaveText *simlabel = new TPaveText();
+  simlabel -> SetX1NDC(0.2);
+  simlabel -> SetY1NDC(1.0-0.05);
+  simlabel -> SetX2NDC(1.0-0.03);
+  simlabel -> SetY2NDC(1.0);
+  simlabel -> SetTextFont(42);
+  simlabel-> AddText("Simulation at #sqrt{s} = 8 TeV");
+  simlabel->SetFillStyle(0);
+  simlabel->SetBorderSize(0);
+  simlabel->SetTextSize(0.04);
+  simlabel->SetTextAlign(32);
+    // draw graph s/sqrt(s+b) or s/sqrt(b) vs probability
   canv->cd(1);
   TGraph* optSoB = new TGraph((int)probVec.size(),&probVec.front(),&SoBVec.front());
   optSoB->SetMarkerStyle(20);
-  sigHisto->SetMaximum(1.1*optimalSoB);
-  sigHisto->GetXaxis()->SetTitle("probability");
+  sigHisto->SetMaximum(1.05*optimalSoB);
+  sigHisto->GetXaxis()->SetTitle("minimal #chi^{2}-probability requirement");
   sigHisto->GetYaxis()->SetTitle(optimize);
-  sigHisto->GetYaxis()->SetTitleOffset(1.65);
+
+  sigHisto->GetXaxis()->SetTitleSize(1.3*sigHisto->GetXaxis()->GetTitleSize());
+  sigHisto->GetYaxis()->SetTitleSize(0.85*sigHisto->GetYaxis()->GetTitleSize());
+
+  sigHisto->GetYaxis()->SetTitleOffset(1.9);
+  sigHisto->GetXaxis()->SetTitleOffset(0.9*sigHisto->GetXaxis()->GetTitleOffset());
+
   sigHisto->DrawClone("axis");
   optSoB->DrawClone("p same");
-  TPad *rPad = new TPad("rPad","",0.2,0.12,0.7,0.62);
+  simlabel->Draw("same");
+  TPad *rPad = new TPad("rPad","",0.2,0.125,0.7,0.625);
   rPad->SetFillStyle(0);
   rPad->SetFillColor(0);
   rPad->SetBorderSize(0);
@@ -333,8 +360,8 @@ void optimizeProbCut(double forceProb = 0.02, unsigned int ndof = 2, int verbose
   rPad->SetTicky(1);
   rPad->Draw("");
   rPad->cd();
-  sigHisto->GetXaxis()->SetRangeUser(optimalProb-0.01,optimalProb+0.01);
-  sigHisto->GetYaxis()->SetRangeUser(optimalSoB-0.4, optimalSoB+0.1);
+  sigHisto->GetXaxis()->SetRangeUser(optimalProb-0.015,optimalProb+0.01);
+  sigHisto->GetYaxis()->SetRangeUser(optimalSoB-0.4, optimalSoB+0.25);
   sigHisto->GetYaxis()->SetTitle("");
   sigHisto->DrawClone("axis");
   drawLine(optimalProb, optimalSoB-0.4, optimalProb, optimalSoB+0.05, kRed, 3, 1);
@@ -351,29 +378,33 @@ void optimizeProbCut(double forceProb = 0.02, unsigned int ndof = 2, int verbose
   effBG->SetMarkerColor(kBlue);
   sigHisto->SetMaximum(0.6);
   sigHisto->GetYaxis()->SetTitle("efficiency");
+  sigHisto->GetYaxis()->SetTitleSize(1.3*sigHisto->GetYaxis()->GetTitleSize());  
+  sigHisto->GetYaxis()->SetTitleOffset(0.8*sigHisto->GetYaxis()->GetTitleOffset());
+
   sigHisto->GetXaxis()->SetRangeUser(0.,1.);
   sigHisto->DrawClone("axis");
   effCorrect->DrawClone("p same");
   effSG->DrawClone("p same");
   effBG->DrawClone("p same");
   TLegend *legEff  = new TLegend(); 
-  legEff->SetX1NDC(0.3);
+  legEff->SetX1NDC(0.25);
   legEff->SetY1NDC(0.65);
-  legEff->SetX2NDC(0.9);
+  legEff->SetX2NDC(0.85);
   legEff->SetY2NDC(0.9);
   legEff ->SetFillStyle(1001);
   legEff ->SetFillColor(10);
   legEff ->SetBorderSize(0);
   legEff ->SetTextAlign(12);
-  legEff ->SetHeader(" t#bar{t} Simulation");
-  legEff ->AddEntry(effCorrect, "SG correct permutation"  , "P");
-  legEff ->AddEntry(effSG, "SG all permutations"  , "P");
+  legEff ->SetTextSize(0.04);
+  legEff ->SetHeader(" t#bar{t} Simulation at #sqrt{s} = 8 TeV");
+  legEff ->AddEntry(effCorrect, "SG, correct jet assignment"  , "P");
+  legEff ->AddEntry(effSG, "SG, all "  , "P");
   legEff ->AddEntry(effBG, "BG"  , "P");
   legEff->DrawClone("same");
   // draw prob distribution
   canv2->cd();
   sigHisto->SetTitle("");
-  sigHisto->GetXaxis()->SetTitle("Probability (best hypothesis)");
+  sigHisto->GetXaxis()->SetTitle("#chi^{2}-probability (best hypothesis)");
   sigHisto->GetYaxis()->SetTitle("Events");
   sigHisto->GetYaxis()->SetTitleOffset(0.85);
   TH1F* sigFracHisto=(TH1F*)sigHisto->Clone("sigFracHisto");
@@ -390,7 +421,7 @@ void optimizeProbCut(double forceProb = 0.02, unsigned int ndof = 2, int verbose
   sigHisto->DrawClone("h");
   TH1F* bkgFracHisto=(TH1F*)bkgPermuHisto->Clone("bkgFracHisto");
   bkgFracHisto->SetLineWidth(3);
-  bkgFracHisto->SetLineStyle(9);
+  bkgFracHisto->SetLineStyle(2);
   bkgFracHisto->SetLineColor(kRed);
   bkgHisto->SetFillStyle(1001);
   bkgHisto->SetFillColor(10);
@@ -404,7 +435,7 @@ void optimizeProbCut(double forceProb = 0.02, unsigned int ndof = 2, int verbose
   int ttBkgColor=kBlue;//kRed-7
   ttBkgFracHisto->SetLineColor(ttBkgColor);
   ttBkgFracHisto->SetLineWidth(3);
-  ttBkgFracHisto->SetLineStyle(2);
+  ttBkgFracHisto->SetLineStyle(6);
   ttBkgHisto->SetFillColor(10);
   ttBkgHisto->SetFillStyle(1001);
   ttBkgHisto->Rebin(10000);
@@ -424,16 +455,16 @@ void optimizeProbCut(double forceProb = 0.02, unsigned int ndof = 2, int verbose
   leg ->SetBorderSize(0);
   //leg ->SetTextSize(0.1);
   leg ->SetTextAlign(12);
-  leg ->SetHeader(" t#bar{t} Simulation");
+  leg ->SetHeader(" t#bar{t} Simulation at #sqrt{s} = 8 TeV");
   TLegend *leg2=(TLegend *)leg->Clone();
-  leg ->AddEntry(sigHisto, "SG correct permutation"  , "F");
-  leg ->AddEntry(bkgHisto, "SG other permutation"    , "F");
-  leg ->AddEntry(ttBkgHisto, "BG (non prompt l+jets signal)", "F");
-  leg ->AddEntry(effPermu, "optimal cut: prob>"+getTStringFromDouble(optimalProb, 2, false), "L");
-  leg2 ->AddEntry(sigFracHisto, "SG correct permutation"  , "L");
-  leg2 ->AddEntry(bkgFracHisto, "SG other permutation"    , "L");
-  leg2 ->AddEntry(ttBkgFracHisto, "BG (non prompt l+jets signal)", "L");
-  leg2 ->AddEntry(effPermu, "optimal cut: prob>"+getTStringFromDouble(optimalProb, 2, false), "L");
+  leg ->AddEntry(sigHisto, "t#bar{t} SG, correct jet assignment"  , "F");
+  leg ->AddEntry(bkgHisto, "t#bar{t} SG, other"    , "F");
+  leg ->AddEntry(ttBkgHisto, "t#bar{t} BG" , "F");
+  leg ->AddEntry(effPermu, "optimal value: #chi^{2}-probability>"+getTStringFromDouble(optimalProb, 2, false), "L");
+  leg2 ->AddEntry(sigFracHisto, "t#bar{t} SG, correct jet assignment"  , "L");
+  leg2 ->AddEntry(bkgFracHisto, "t#bar{t} SG, other"    , "L");
+  leg2 ->AddEntry(ttBkgFracHisto, "t#bar{t} BG", "L");
+  leg2 ->AddEntry(effPermu, "optimal value: #chi^{2}-probability>"+getTStringFromDouble(optimalProb, 2, false), "L");
   leg ->Draw("same");
   drawLine(optimalProb, sigHisto->GetMinimum(), optimalProb, 0.6*sigHisto->GetMaximum(), kBlack, 2, 1);
   drawArrow(optimalProb, sigHisto->GetMaximum()/10, optimalProb+0.05, kBlack, 2, 1, 1.2);
@@ -441,6 +472,8 @@ void optimizeProbCut(double forceProb = 0.02, unsigned int ndof = 2, int verbose
 
   // draw normalized prob distribution
   canv3->cd();
+  canv3->SetLeftMargin(1.3*canv3->GetLeftMargin());
+  canv3->SetBottomMargin(1.2*canv3->GetBottomMargin());
   sigFracHisto->DrawClone("axis");
   sigFracHisto->DrawNormalized("same");
   bkgFracHisto->DrawNormalized("same");
@@ -451,11 +484,13 @@ void optimizeProbCut(double forceProb = 0.02, unsigned int ndof = 2, int verbose
   leg2->Draw("same");
   // draw permutation distribution
   canv4->cd();
+  canv4->SetBottomMargin(1.2*canv4->GetBottomMargin());
   double maxPerm     = permutation->GetMaximum();
   double maxPermProb = permutationProb->GetMaximum();
   permutation->SetTitle("");
-  permutation->GetXaxis()->SetTitle("jet permutation wrt. machted parton truth");
+  permutation->GetXaxis()->SetTitle("jet assignment wrt. machted parton truth");
   permutation->GetYaxis()->SetTitle("rel. Events");
+  permutation->GetYaxis()->SetTitleSize(1.3*permutation->GetYaxis()->GetTitleSize());
   permutation->GetXaxis()->SetTitleOffset(2.5);
   permutation->GetXaxis()->SetLabelOffset(0.008);
   permutation->SetLineWidth(3);
@@ -485,17 +520,67 @@ void optimizeProbCut(double forceProb = 0.02, unsigned int ndof = 2, int verbose
   leg3 ->SetFillColor(10);
   leg3 ->SetBorderSize(0);
   leg3 ->SetTextAlign(12);
-  leg3->AddEntry(permutation, "t#bar{t}#rightarrowl+jets prompt", "F");
-  leg3->AddEntry(permutationProb, "  + prob>"+getTStringFromDouble(optimalProb, 2, false), "F");
+  leg3->AddEntry(permutation, "t#bar{t} SG", "F");
+  leg3->AddEntry(permutationProb, "  + #chi^{2}-prob>"+getTStringFromDouble(optimalProb, 2, false), "F");
   canv4->SetGrid(1,1);
   leg3->Draw("same");
+  simlabel->Draw("same");  
+  // permutation Comparison wrt old setup
+  canv8->cd();
+  canv8->SetBottomMargin(1.2*canv8->GetBottomMargin());
+  TH1F* permutationOld=(TH1F*)permutation->Clone("permutationOld");
+  permutationOld->SetBinContent(1, 0.261); //"#splitline{all jets correctly}{assigned}");
+  permutationOld->SetBinContent(2, 0.097); //"b^{lep}#leftrightarrowb^{had}");
+  permutationOld->SetBinContent(3, 0.011); //"b^{lep}#leftrightarrowq"   );
+  permutationOld->SetBinContent(4, 0.015); //"b^{had}#leftrightarrowq"   );
+  permutationOld->SetBinContent(5, 0.009); //"#splitline{    true: b^{lep}qb^{had}}{#rightarrow reco: b^{had}b^{lep}q}");
+  permutationOld->SetBinContent(6, 0.010); //"#splitline{    true: b^{had}qb^{lep}}{#rightarrow reco: b^{lep}b^{had}q}");
+  permutationOld->SetBinContent(7, 0.001); //"#splitline{all jets}{swapped}"       );
+  permutationOld->SetBinContent(8, 0.038); //"#splitline{#geq1 jet not in}{leading 5}" );
+  permutationOld->SetBinContent(9, 0.043); //"#splitline{#geq1 wrong}{jet chosen}");
+  permutationOld->SetBinContent(10, 0.5198);//,"#splitline{no jet-parton}{matching}"   );
+  double maxPermOld = permutationOld->GetMaximum();
+  permutationOld->SetTitle("");
+  permutationOld->GetXaxis()->SetTitle("jet assignment wrt. machted parton truth");
+  permutationOld->GetYaxis()->SetTitle("rel. Events");
+  //permutationOld->GetYaxis()->SetTitleSize(1.3*permutation->GetYaxis()->GetTitleSize());
+  permutationOld->GetXaxis()->SetTitleOffset(2.5);
+  permutationOld->GetXaxis()->SetLabelOffset(0.008);
+  permutationOld->SetLineWidth(3);
+  permutationOld->SetLineColor(kBlue);
+  permutationOld->SetFillColor(kBlue);
+  permutationOld->SetLineStyle(1);
+  permutationOld->SetFillStyle(1001);
+  permutationOld->SetBarWidth(0.4);
+  permutationOld->SetBarOffset(0.55);
+  permutationOld->SetMaximum(1.05*(maxPermOld<maxPermProb ? maxPermProb : maxPermOld));
+  permutationOld->DrawClone("hbar");
+  permutationProb->DrawClone("hbar same");
+  permutationOld ->DrawClone("hbar same");
+  TLegend *legON  = new TLegend();
+  legON->SetX1NDC(0.5);
+  legON->SetY1NDC(0.4);
+  legON->SetX2NDC(0.9);
+  legON->SetY2NDC(0.7);
+  legON ->SetFillStyle(1001);
+  legON ->SetFillColor(10);
+  legON ->SetBorderSize(0);
+  legON ->SetTextAlign(12);
+  legON->AddEntry(permutationOld , "equal top masses"    , "F");
+  legON->AddEntry(permutationProb, "Double Kin. Fit + prob", "F");
+  canv8->SetGrid(1,1);
+  legON->Draw("same");
+  simlabel->Draw("same");
+ 
   // draw efficiency per permutation
   canv5->cd();
+  canv5->SetBottomMargin(1.2*canv5->GetBottomMargin());
   effPermu->SetTitle("");
-  effPermu->GetXaxis()->SetTitle("jet permutation wrt. machted parton truth");
-  effPermu->GetYaxis()->SetTitle("eff(prob>"+getTStringFromDouble(optimalProb, 2, false)+")");
+  effPermu->GetXaxis()->SetTitle("jet assignment wrt. machted parton truth");
+  effPermu->GetYaxis()->SetTitle("efficiency(#chi^{2}-probability>"+getTStringFromDouble(optimalProb, 2, false)+")");
   effPermu->GetXaxis()->SetTitleOffset(2.5);
   effPermu->GetXaxis()->SetLabelOffset(0.008);
+  effPermu->GetYaxis()->SetTitleSize(1.3*effPermu->GetYaxis()->GetTitleSize());
   effPermu->SetBarWidth(0.5);
   effPermu->SetBarOffset(0.3);
   effPermu->SetLineWidth(3);
@@ -505,8 +590,11 @@ void optimizeProbCut(double forceProb = 0.02, unsigned int ndof = 2, int verbose
   effPermu->SetLineStyle(1);
   effPermu->Draw("hbar");
   canv5->SetGrid(1,1);
+  simlabel->Draw("same");
   // draw ttbarBG composition
   canv6->cd();
+  canv6->SetLeftMargin(1.3*canv6->GetLeftMargin());
+  canv6->SetBottomMargin(1.2*canv6->GetBottomMargin());
   decaychannel->SetTitle("");
   decaychannel->GetXaxis()->SetTitle("t#bar{t} BG decay channel");
   decaychannel->GetYaxis()->SetTitle("rel. Events");
@@ -529,22 +617,25 @@ void optimizeProbCut(double forceProb = 0.02, unsigned int ndof = 2, int verbose
   leg4 ->SetFillColor(10);
   leg4 ->SetBorderSize(0);
   leg4 ->SetTextAlign(12);
-  leg4->AddEntry(decaychannel, "t#bar{t} BG (non prompt l+jets signal)", "L");
+  leg4->AddEntry(decaychannel, "t#bar{t} BG", "L");
   leg4->AddEntry(decaychannelProb, "  + prob>"+getTStringFromDouble(optimalProb, 2, false), "L");
   canv6->SetGrid(1,1);
   leg4->Draw("same");
+  simlabel->Draw("same");
   // draw efficiency per ttbarBG composition
   canv7->cd();
+  canv7->SetLeftMargin(1.3*canv7->GetLeftMargin());
+  canv7->SetBottomMargin(1.2*canv7->GetBottomMargin());
   effDecay->SetTitle("");
   effDecay->GetXaxis()->SetTitle("t#bar{t} BG decay channel");
-  effDecay->GetYaxis()->SetTitle("eff(prob>"+getTStringFromDouble(optimalProb, 2, false)+")");
+  effDecay->GetYaxis()->SetTitle("efficiency(#chi^{2}-probability>"+getTStringFromDouble(optimalProb, 2, false)+")");
   effDecay->GetXaxis()->SetRange(5,25);
   effDecay    ->SetLineWidth(3);
   effDecay    ->SetLineColor(kBlack);
   effDecay    ->SetLineStyle(1);
   effDecay    ->Draw();
   canv7->SetGrid(1,1);
-
+  simlabel->Draw("same");
   if(save){
     if(verbose>0) std::cout << "will save all plots as png/eps/pdf" << std::endl;
     if(verbose<=1) gErrorIgnoreLevel=kWarning;
@@ -557,6 +648,7 @@ void optimizeProbCut(double forceProb = 0.02, unsigned int ndof = 2, int verbose
     canv5->Print(outputFolder+(TString)(canv5->GetTitle())+".eps");
     canv6->Print(outputFolder+(TString)(canv6->GetTitle())+".eps");
     canv7->Print(outputFolder+(TString)(canv7->GetTitle())+".eps");
+    canv8->Print(outputFolder+(TString)(canv8->GetTitle())+".eps");
     // as png
     canv ->Print(outputFolder+(TString)(canv->GetTitle())+".png");
     canv2->Print(outputFolder+(TString)(canv2->GetTitle())+".png");
@@ -565,6 +657,7 @@ void optimizeProbCut(double forceProb = 0.02, unsigned int ndof = 2, int verbose
     canv5->Print(outputFolder+(TString)(canv5->GetTitle())+".png");
     canv6->Print(outputFolder+(TString)(canv6->GetTitle())+".png");
     canv7->Print(outputFolder+(TString)(canv7->GetTitle())+".png");
+    canv8->Print(outputFolder+(TString)(canv8->GetTitle())+".png");
     // as pdf
     canv ->Print(outputFolder+"optimalProbCut.pdf(");
     canv2->Print(outputFolder+"optimalProbCut.pdf" );
@@ -572,7 +665,8 @@ void optimizeProbCut(double forceProb = 0.02, unsigned int ndof = 2, int verbose
     canv4->Print(outputFolder+"optimalProbCut.pdf" );
     canv5->Print(outputFolder+"optimalProbCut.pdf" );
     canv6->Print(outputFolder+"optimalProbCut.pdf" );
-    canv7->Print(outputFolder+"optimalProbCut.pdf)");
+    canv7->Print(outputFolder+"optimalProbCut.pdf" );
+    canv8->Print(outputFolder+"optimalProbCut.pdf)");
   }
 }
 

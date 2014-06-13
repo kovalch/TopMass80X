@@ -1,9 +1,10 @@
 #ifndef plotterHelpers_h
 #define plotterHelpers_h
 
-#include <string>
 #include <vector>
+#include <string>
 
+class TString;
 
 
 
@@ -21,17 +22,20 @@ namespace DrawMode{
     
     
     
-    /// Convert a DrawMode from string to typedef
-    DrawMode convertDrawMode(const std::string& drawMode);
+    /// Convert a DrawMode from string to enum
+    DrawMode convert(const TString& drawMode);
     
-    /// Convert a DrawMode from typedef to string
-    std::string convertDrawMode(const DrawMode& drawMode);
+    /// Convert a DrawMode from enum to string
+    TString convert(const DrawMode& drawMode);
     
-    /// Convert a vector of DrawModes from string to typedef
-    std::vector<DrawMode> convertDrawModes(const std::vector<std::string>& drawModes);
+    /// Convert a vector of DrawModes from string to enum
+    std::vector<DrawMode> convert(const std::vector<TString>& drawModes);
     
-    /// Convert a vector of DrawModes from typedef to string
-    std::vector<std::string> convertDrawModes(const std::vector<DrawMode>& drawModes);
+    /// Convert a vector of DrawModes from string to enum
+    std::vector<DrawMode> convert(const std::vector<std::string>& drawModes);
+    
+    /// Convert a vector of DrawModes from enum to string
+    std::vector<TString> convert(const std::vector<DrawMode>& drawModes);
 }
 
 
@@ -39,11 +43,39 @@ namespace DrawMode{
 
 
 
+namespace GlobalCorrection{
+    
+    /// Global corrections for analysis, i.e. scale factors which are applied to whole samples
+    enum GlobalCorrection{dy, ttbb, undefined};
+    
+    /// All global corrections allowed for analysis
+    const std::vector<GlobalCorrection> allowedGlobalCorrections
+        {dy, ttbb};
+    
+    
+    
+    /// Convert a GlobalCorrection from string to enum
+    GlobalCorrection convert(const TString& globalCorrection);
+    
+    /// Convert a GlobalCorrection from enum to string
+    TString convert(const GlobalCorrection& globalCorrection);
+    
+    /// Convert a vector of GlobalCorrections from string to enum
+    std::vector<GlobalCorrection> convert(const std::vector<TString>& globalCorrections);
+    
+    /// Convert a vector of GlobalCorrections from string to enum
+    std::vector<GlobalCorrection> convert(const std::vector<std::string>& globalCorrections);
+    
+    /// Convert a vector of GlobalCorrections from enum to string
+    std::vector<TString> convert(const std::vector<GlobalCorrection>& globalCorrections);
+}
 
 
 
 
-#endif // plotterHelpers_h
+
+
+#endif
 
 
 

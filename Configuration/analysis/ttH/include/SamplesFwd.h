@@ -20,6 +20,9 @@ class Sample;
 /// These are all samples per dilepton analysis channel and per systematic
 typedef std::map<Systematic::Systematic, std::map<Channel::Channel, std::vector<Sample> > > SystematicChannelSamples;
 
+/// Storage type for factors in association to samples, e.g. used for scale factors
+typedef std::map<Systematic::Systematic, std::map <Channel::Channel, std::vector<double> > > SystematicChannelFactors;
+
 /// Type for associating a specific histogram of the input file to the sample
 typedef std::pair<Sample, TH1*> SampleHistPair;
 
@@ -34,7 +37,7 @@ class Samples;
 
 
 
-#endif // SamplesFwd_h
+#endif
 
 
 

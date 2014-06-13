@@ -60,42 +60,44 @@ public:
         double ttPt;
         double mTop;
         double mAntiTop;
-        double vw;
+        //double vw;
         double mttw;
-        double lepEw;
-        double dTS;
-        double dR;
-        double dN;
+        //double lepEw;
+        //double dTS;
+        //double dR;
+        //double dN;
         TLorentzVector top;
         TLorentzVector topbar;
         TLorentzVector neutrino;
         TLorentzVector neutrinobar;
         TLorentzVector wp;
         TLorentzVector wm;
-        double cos_bTR_top;
-        double cos_bbarTR_topbar;
-        double cos1;
-        double cos2;
+        //double cos_bTR_top;
+        //double cos_bbarTR_topbar;
+        //double cos1;
+        //double cos2;
         double Mtt;
-        double ttpt_top;
-        double ttpt_topbar;
+        //double ttpt_top;
+        //double ttpt_topbar;
         double mbl;
         double mblbar;
-        double costheta;
-        double costhetabar;
+        //double costheta;
+        //double costhetabar;
+        double weight;
+        double dTS;
         
     };
   std::vector<TopSolution>* getTtSol();
     
-void setTrueInfo(TLorentzVector LV_Top,TLorentzVector LV_AntiTop,TLorentzVector LV_Neutrino, TLorentzVector LV_AntiNeutrino);
-void sortBy(std::string ch);
+//void setTrueInfo(TLorentzVector LV_Top,TLorentzVector LV_AntiTop,TLorentzVector LV_Neutrino, TLorentzVector LV_AntiNeutrino);
+// void sortBy(std::string ch);
 void print();
 TF1* getNeutrinoPxF();
 
 private:
-    void filldTS();
-    void filldR();
-    void filldN();
+//     void filldTS();
+//     void filldR();
+//     void filldN();
     void swapTopSol(TopSolution& sol1, TopSolution& sol2);
     void sortTopSol(std::vector<TopSolution> &v);
     void doAll(); 
@@ -131,17 +133,17 @@ private:
     TLorentzVector wbar_;
     TLorentzVector tt_;
     
-    TLorentzVector true_top_;
-    TLorentzVector true_topbar_;
-    TLorentzVector true_neutrino_;
-    TLorentzVector true_neutrinobar_;
+    //TLorentzVector true_top_;
+    //TLorentzVector true_topbar_;
+    //TLorentzVector true_neutrino_;
+    //TLorentzVector true_neutrinobar_;
 
     TF1 * pol4_neutrinoPx_; //("pol4_neutrinoPx","pol4",-100,100);
     
-    TH1F hnw_cuts_;
+    //TH1F hnw_cuts_;
     
-    TH1F* hneutrino_E_[6];
-    TH1F hcosw_;
+    //TH1F* hneutrino_E_[6];
+    //TH1F hcosw_;
     
     double px_miss_;
     double py_miss_;

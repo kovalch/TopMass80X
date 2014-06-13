@@ -11,7 +11,7 @@ class TTree;
 #include "../../common/include/classesFwd.h"
 
 class MvaTreeHandlerBase;
-class AnalyzerBaseClass;
+class AnalyzerBase;
 class RecoObjects;
 class CommonGenObjects;
 class TopGenObjects;
@@ -58,8 +58,8 @@ public:
     
     
     
-    /// Set up all analysers of type AnalyzerBaseClass
-    void SetAllAnalyzers(std::vector<AnalyzerBaseClass*> v_analyzer);
+    /// Set up all analysers of type AnalyzerBase
+    void SetAllAnalyzers(std::vector<AnalyzerBase*> v_analyzer);
     
     /// Set up all tree handlers of type MvaTreeHandlerBase
     void SetAllTreeHandlers(std::vector<MvaTreeHandlerBase*> v_mvaTreeHandler);
@@ -77,23 +77,40 @@ private:
     
     
     
-    /// Get indices of generated b jet and anti-b jet for particles with given PDG ID
-    /// Returns whether a unique solution is found, and only in this case indices are set unequal to -1
-    bool getGenBjetIndices(int& genBjetIndex, int& genAntiBjetIndex,
-                           const TopGenObjects& topGenObjects, const int pdgId);
+    /// Create vector of size of gen jets, and assign for each element a vector of indices of associated B hadrons
+    std::vector<std::vector<int> > matchBhadronsToGenJets(const VLV& allGenJets, const TopGenObjects& topGenObjects)const;
     
-    /// Match the two generated input jets to the reco jet collection
-    bool matchRecoToGenJets(int& matchedBjetIndex, int& matchedAntiBjetIndex,
-                            const std::vector<int>& jetIndices,
-                            const VLV& jets,
-                            const LV* genBjet, const LV* genAntiBjet);
+    /// Create vector of size of gen jets, and assign for each element a vector of indices of associated C hadrons
+    std::vector<std::vector<int> > matchChadronsToGenJets(const VLV& allGenJets, const TopGenObjects& topGenObjects)const;
+    
+    /// Returns vector of indices of gen jets containing B hadrons
+    std::vector<int> genBjetIndices(const std::vector<std::vector<int> >& genJetBhadronIndices)const;
+    
+    /// Returns vector of indices of gen jets containing C hadrons, but no B hadrons
+    std::vector<int> genCjetIndices(const std::vector<std::vector<int> >& genJetBhadronIndices,
+                                    const std::vector<std::vector<int> >& genJetChadronIndices)const;
+    
+    /// Get indices of generated (anti-)b jet by its mother particle ID ("signed" mother PDG ID, "+" is b, "-" is anti-b)
+    /// Requires that exactly one (anti-)b quark is found for the given ID
+    /// Returns index of corresponding gen jet, or negative value for indicating cases no jet could be identified
+    int genBjetIndex(const TopGenObjects& topGenObjects, const int pdgId)const;
+    
+    
+    /// Match generated jet with given index to reco jets
+    /// Returns the index of the matched reco jet, or negative value for indicating cases no jet could be identified
+    int matchRecoToGenJet(const std::vector<int>& jetIndices, const VLV& jets, const int genJetIndex, const VLV& genJets)const;
+    
+    /// Create vector of size of gen jets,
+    /// and assign for each element the index of the matched reco jet, or negative value for indicating cases no jet could be identified
+    std::vector<int> matchRecoToGenJets(const std::vector<int>& jetIndices, const VLV& jets,
+                                        const std::vector<int>& genJetIndices, const VLV& allGenJets)const;
     
     
     
     /// Return vector of pair of indices for dijet combinations, each pair ordered by jet charge
     tth::IndexPairs chargeOrderedJetPairIndices(const std::vector<int>& jetIndices,
                                                 const std::vector<double>& jetCharges);
-
+    
     
     
     /// Fill all analysers and histograms in one method
@@ -121,8 +138,8 @@ private:
     
     
     
-    /// All analysers of type AnalyzerBaseClass
-    std::vector<AnalyzerBaseClass*> v_analyzer_;
+    /// All analysers of type AnalyzerBase
+    std::vector<AnalyzerBase*> v_analyzer_;
     
     /// All tree handlers of type MvaTreeHandlerBase
     std::vector<MvaTreeHandlerBase*> v_mvaTreeHandler_;

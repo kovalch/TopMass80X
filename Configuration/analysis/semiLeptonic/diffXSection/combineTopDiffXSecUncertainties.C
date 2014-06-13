@@ -1,7 +1,10 @@
 #include "basicFunctions.h"
 #include <numeric>
 
-void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, unsigned int verbose=0, TString decayChannel="combined", bool extrapolate=true, bool hadron=false, bool addCrossCheckVariables=false, TString closureTestSpecifier="", bool useBCC=false){
+bool hadronPlot(TString name);
+bool partonPlot(TString name);
+
+void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, unsigned int verbose=0, TString decayChannel="combined", bool extrapolate=false, bool hadron=true, bool addCrossCheckVariables=false, TString closureTestSpecifier="", bool useBCC=false){
 
   // ============================
   //  Systematic Variations:
@@ -118,26 +121,32 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, u
   // NOTE: these must be identical to those defined in xSecVariables_ in analyzeHypothesisKinFit.C
 
   std::vector<TString> xSecVariables_;
-  int NormxSecs=0;
   // a) top and ttbar quantities
   if(!hadron){
     xSecVariables_.insert(xSecVariables_.end(), xSecVariablesKinFit    , xSecVariablesKinFit     + sizeof(xSecVariablesKinFit    )/sizeof(TString));
     xSecVariables_.insert(xSecVariables_.end(), xSecVariablesKinFitNorm, xSecVariablesKinFitNorm + sizeof(xSecVariablesKinFitNorm)/sizeof(TString));
-    NormxSecs+=sizeof(xSecVariablesKinFitNorm)/sizeof(TString);
   }
   // b) lepton and b-jet quantities
   if(hadron||!extrapolate){
     xSecVariables_.insert(xSecVariables_.end(), xSecVariablesFinalState    , xSecVariablesFinalState     + sizeof(xSecVariablesFinalState    )/sizeof(TString));
     xSecVariables_.insert(xSecVariables_.end(), xSecVariablesFinalStateNorm, xSecVariablesFinalStateNorm + sizeof(xSecVariablesFinalStateNorm)/sizeof(TString));
-    NormxSecs+=sizeof(xSecVariablesFinalStateNorm)/sizeof(TString);
   }
   // c) cross check variables presently only available for parton level cross-sections
   if (addCrossCheckVariables && !hadron){
     xSecVariables_.insert( xSecVariables_.end(),   xSecVariablesCCVar,     xSecVariablesCCVar     + sizeof(xSecVariablesCCVar    )/sizeof(TString)    );
     xSecVariables_.insert( xSecVariables_.end(),   xSecVariablesCCVarNorm, xSecVariablesCCVarNorm + sizeof(xSecVariablesCCVarNorm)/sizeof(TString));
-    NormxSecs+=sizeof(xSecVariablesCCVarNorm)/sizeof(TString);
   }
   xSecVariables_.insert( xSecVariables_.end(),   xSecVariablesIncl,      xSecVariablesIncl      + sizeof(xSecVariablesIncl)/sizeof(TString)     );
+  // number of considered normalised cross sections for the calculation of the average median
+  double NormxSecs=0.;
+  for(int i=0; i<(int)xSecVariables_.size(); ++i){
+    if(xSecVariables_.at(i).Contains("Norm")){
+      if( extrapolate&&!hadron&&partonPlot(xSecVariables_.at(i))) NormxSecs++;
+      if(!extrapolate&& hadron&&hadronPlot(xSecVariables_.at(i))) NormxSecs++;
+    }
+  }
+  if(verbose>1) std::cout << "NormxSecs= "<< NormxSecs << std::endl;
+
   // chose min/max value[%] for relative uncertainty plots
   double errMax=15.0;
   double errMin= 0.0;
@@ -862,28 +871,38 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, u
 	    float median = ( vecValues.size() % 2 != 0 ) ? vecValues[vecSize/2] : (vecValues[vecSize/2-1] + vecValues[vecSize/2]) / 2;
 
 	    // calculate minimum and maximum of medians for uncertainty table (in the plotted variables)
-	    if((((xSecVariables_[i].Contains("bq") || xSecVariables_[i].Contains("lep")) && universalplotLabel=="HadronLvPS") ||
-	    (   !(xSecVariables_[i].Contains("bq") || xSecVariables_[i].Contains("lep")) && universalplotLabel=="FullPS"    )   ) 
-	    &&    xSecVariables_[i].Contains("Norm")){
-	      if(!minMedian[label])minMedian[label]=1000.;
+	    if(((hadronPlot(xSecVariables_[i])&&universalplotLabel=="HadronLvPS") || //considered visible PS plot
+		(partonPlot(xSecVariables_[i])&&universalplotLabel=="FullPS"    ))   // considered full PS plot
+	       &&xSecVariables_[i].Contains("Norm")){                                // normalised cross section
+	      // minimal median
+	      if(!minMedian[label]) minMedian[label]=1000.;
 	      if(median < minMedian[label])minMedian[label] = median;
-	      if(!maxMedian[label])maxMedian[label]=0.;
+	      // maximal median
+	      if(!maxMedian[label]) maxMedian[label]=0.;	      
 	      if(median > maxMedian[label])maxMedian[label] = median;
+	      // average median
 	      aveMedian[label]+=median;
 	    }
 	    // fill uncertainty table with minimum and maximum (for last plot)
 	    if(i==xSecVariables_.size()-1 && universalplotLabel!="PartonLvPS"){
-	      TString uncTable2 = label;
-	      uncTable2+=fillspaceT(label, 20);
+	      TString uncTable2 = "";
+	      //uncTable2+=fillspaceT(label, 20);
 	      uncTable2+=Form(" & %3.1f",aveMedian[label]/NormxSecs);
+	      uncTable2+="\\%"; 
 	      uncTable2+=fillspace(minMedian[label], 3);
 	      uncTable2+=Form(" & %3.1f",minMedian[label]); 
 	      uncTable2+="\\%"; 
 	      uncTable2+=fillspace(maxMedian[label], 3);
 	      uncTable2+=Form(" & %3.1f",maxMedian[label]); 
 	      uncTable2+="\\% \\\\";
+	      TString uncTable3=uncTable2;
+	      uncTable2=label+"uncTable2";
 	      uncTable2.ReplaceAll("sys","");
-	      if(save) writeToFile(uncTable2, outputFolder+"/uncertaintyDistributionsOverview/uncertaintyTable_"+decayChannel+"_"+universalplotLabel+"_minmax.txt", true);
+	      if(PHD) uncTable3.ReplaceAll("0.0","\\sms0.1");
+	      if(save){
+		writeToFile(uncTable2, outputFolder+"/uncertaintyDistributionsOverview/uncertaintyTable_"+decayChannel+"_"+universalplotLabel+"_minmax.txt", true );
+		writeToFile(uncTable3, outputFolder+"/uncertaintyDistributionsOverview/uncertaintyTable_"+decayChannel+"_"+universalplotLabel+"_minmax_"+label+".txt", false);
+	      }
 	    }
 
 	    // prepare line for the complete uncertainty table
@@ -1089,7 +1108,7 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, u
 	      finalInclusiveXSec->SetBinContent(xSecBin, 1);
 	      finalInclusiveXSec->SetBinError(xSecBin, 0);
 	      histogramStyle(*finalInclusiveXSec, kData , false);
-	      TString inclXSeclabel=" #sigma(t#bar{t}#rightarrowX)";
+	      TString inclXSeclabel=" #sigma(pp#rightarrowt#bar{t},#sqrt{s}=8TeV)";
 	      if(!extrapolate) inclXSeclabel+="*BR(#mu or e)*A";
 	      inclXSeclabel+=" [pb]";
 	      axesStyle(*finalInclusiveXSec, inclXSeclabel, " ", 0, 4);
@@ -1099,19 +1118,20 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, u
 	      finalInclusiveXSec->GetYaxis()->SetTitleSize(0.0);							
 	      finalInclusiveXSec->Draw("axis");
 	      // draw Theory expectation     
-	      double theoryXSecNLL=245.8;
+	      double theoryXSecNLL=252.89;
 	      double theoryXSecNLO=225.197;
 	      double theoryErrorNLOUp  =23.2/157.5*theoryXSecNLO; // FIXME: use relative uncertainty from 7TeV
 	      double theoryErrorNLODown=24.4/157.5*theoryXSecNLO; // FIXME: use relative uncertainty from 7TeV
-	      double theoryErrorNLLUp  =sqrt(6.2*6.2+6.2*6.2);
-	      double theoryErrorNLLDown=sqrt(8.4*8.4+6.4*6.4);
+	      double theoryErrorNLLUp  =sqrt(6.39*6.39+11.67*11.67);
+	      double theoryErrorNLLDown=sqrt(8.64*8.64+11.67*11.67);
 	      TBox* TheoryError = new TBox(theoryXSecNLO-theoryErrorNLODown, 0.0, theoryXSecNLO+theoryErrorNLOUp, 4.0);
 	      TBox* TheoryError2= new TBox(theoryXSecNLL-theoryErrorNLLDown, 0.0 ,theoryXSecNLL+theoryErrorNLLUp, 4.0);
-	      TheoryError->SetFillColor(kGray);
+	      TheoryError ->SetFillColor(kGray  );
 	      TheoryError2->SetFillColor(kGray+1);
 	      if(extrapolate){
-		TheoryError->Draw ("same");
+		//TheoryError->Draw ("same");
 		TheoryError2->Draw("same");
+		drawLine(theoryXSecNLL, 0.0, theoryXSecNLL, 4.0, kGray+2, 2, 1);
 	      }
 	      // our Analysis result
 	      double xSecValue=histo_["inclusive"][sysNo]->GetBinContent(1);
@@ -1124,58 +1144,69 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, u
 	      double cmsLJetsErrorDown=cmsLJetsErrorUp;
 	      double cmsLJetsStatError=9;
 	      // 2011 CMS 1fb combined result - TOP-11-024 
-	      double cmsDiLepxSecValue=227;
-	      double cmsDiLepErrorUp  =sqrt(3*3+11*11+10*10);
+	      double cmsDiLepxSecValue=239;
+	      double cmsDiLepErrorUp  =sqrt(2*2+11*11+6*6);
 	      double cmsDiLepErrorDown=cmsDiLepErrorUp;
-	      double cmsDiLepStatError=3;
+	      double cmsDiLepStatError=2;
 	      if(verbose>0){
 		std::cout << "xSec:            " << xSecValue      << std::endl;
 		std::cout << "stat. error: +/- " << xSecError      << " (" << xSecError/xSecValue      << ")" << std::endl;
 		std::cout << "tot. error up  : " << totalErrorUp   << " (" << totalErrorUp/xSecValue   << ")" << std::endl;	      
 		std::cout << "tot. error down: " << totalErrorDown << " (" << totalErrorDown/xSecValue << ")" << std::endl;
 	      }
-	      totalErrors_[xSecVariables_[i]+"AllInclusive"] = new TGraphAsymmErrors(3);  // number of data point as argument to constructor
+	      totalErrors_[xSecVariables_[i]+"AllInclusive"] = new TGraphAsymmErrors(1);  // number of data point as argument to constructor
+	      totalErrors_[xSecVariables_[i]+"AllInclusive2"] = new TGraphAsymmErrors(2);  // number of data point as argument to constructor
 	      totalErrors_[xSecVariables_[i]+"AllInclusive"]->SetPoint(0, xSecValue,        1);
 	      if(extrapolate){
-		totalErrors_[xSecVariables_[i]+"AllInclusive"]->SetPoint(1, cmsDiLepxSecValue, 2);
-		totalErrors_[xSecVariables_[i]+"AllInclusive"]->SetPoint(2, cmsLJetsxSecValue, 3);
+		totalErrors_[xSecVariables_[i]+"AllInclusive2"]->SetPoint(0, cmsDiLepxSecValue, 2);
+		totalErrors_[xSecVariables_[i]+"AllInclusive2"]->SetPoint(1, cmsLJetsxSecValue, 3);
 	      }
 	      else{
-		totalErrors_[xSecVariables_[i]+"AllInclusive"]->SetPoint(1, -1, 2);
-		totalErrors_[xSecVariables_[i]+"AllInclusive"]->SetPoint(2, -1, 3);
+		totalErrors_[xSecVariables_[i]+"AllInclusive2"]->SetPoint(1, -1, 2);
+		totalErrors_[xSecVariables_[i]+"AllInclusive2"]->SetPoint(2, -1, 3);
 	      }
 	      totalErrors_[xSecVariables_[i]+"AllInclusive"]->SetPointError(0, totalErrorDown,   totalErrorUp,   0, 0);
 	      if(extrapolate){
-		totalErrors_[xSecVariables_[i]+"AllInclusive"]->SetPointError(1, cmsDiLepErrorDown, cmsDiLepErrorUp, 0, 0);
-		totalErrors_[xSecVariables_[i]+"AllInclusive"]->SetPointError(2, cmsLJetsErrorDown, cmsLJetsErrorUp, 0, 0);
+		totalErrors_[xSecVariables_[i]+"AllInclusive2"]->SetPointError(0, cmsDiLepErrorDown, cmsDiLepErrorUp, 0, 0);
+		totalErrors_[xSecVariables_[i]+"AllInclusive2"]->SetPointError(1, cmsLJetsErrorDown, cmsLJetsErrorUp, 0, 0);
 	      }
 	      totalErrors_[xSecVariables_[i]+"AllInclusive"]->SetLineWidth(3);
 	      totalErrors_[xSecVariables_[i]+"AllInclusive"]->SetMarkerSize(1.5);
 	      totalErrors_[xSecVariables_[i]+"AllInclusive"]->SetMarkerStyle(20);
 	      totalErrors_[xSecVariables_[i]+"AllInclusive"]->SetMarkerColor(kRed+1);
 	      totalErrors_[xSecVariables_[i]+"AllInclusive"]->SetLineColor(kRed+1);
+              totalErrors_[xSecVariables_[i]+"AllInclusive2"]->SetLineWidth(3);
+              totalErrors_[xSecVariables_[i]+"AllInclusive2"]->SetMarkerSize(1.5);
+              totalErrors_[xSecVariables_[i]+"AllInclusive2"]->SetMarkerStyle(20);
+              totalErrors_[xSecVariables_[i]+"AllInclusive2"]->SetMarkerColor(kBlue+1);
+              totalErrors_[xSecVariables_[i]+"AllInclusive2"]->SetLineColor(kBlue+1);
 	      finalInclusiveXSec->Draw("axis same");
 	      drawLine(xSecValue-xSecError,               1.0, xSecValue+xSecError,               1.0, kRed+1, 6, 1);
 	      if(extrapolate){
-		drawLine(cmsDiLepxSecValue-cmsDiLepStatError, 2.0, cmsDiLepxSecValue+cmsDiLepStatError, 2.0, kRed+1, 6, 1);	  
-		drawLine(cmsLJetsxSecValue-cmsLJetsStatError, 3.0, cmsLJetsxSecValue+cmsLJetsStatError, 3.0, kRed+1, 6, 1);
+		drawLine(cmsDiLepxSecValue-cmsDiLepStatError, 2.0, cmsDiLepxSecValue+cmsDiLepStatError, 2.0, kBlue+1, 6, 1);	  
+		drawLine(cmsLJetsxSecValue-cmsLJetsStatError, 3.0, cmsLJetsxSecValue+cmsLJetsStatError, 3.0, kBlue+1, 6, 1);
 	      }
-	      totalErrors_[xSecVariables_[i]+"AllInclusive"]->Draw("p same");
+	      totalErrors_[xSecVariables_[i]+"AllInclusive" ]->Draw("p same");
+              totalErrors_[xSecVariables_[i]+"AllInclusive2"]->Draw("p same");
 	      //Labels
 	      if(extrapolate){
-		DrawLabel("CMS preliminary 8TeV" , 0.07, 0.70, 0.4, 0.75); 
-		DrawLabel("e/#mu + Jets, 2.8/fb"   , 0.07, 0.65, 0.4, 0.70);
-		DrawLabel("(CMS-PAS-TOP-12-006)" , 0.07, 0.60, 0.4, 0.65);
+		DrawLabel("#color[12]{#scale[0.85]{NNLO+NNLL pert.QCD (m_{top}=172.5GeV)}}" , 0.16, 0.82, 0.4, 0.87);
+                DrawLabel("#color[12]{#scale[0.85]{(doi:10.1103/PhysRevLett.110.252004)}}"  , 0.16, 0.77, 0.4, 0.82);
+
+		DrawLabel("CMS preliminary"        , 0.07, 0.70, 0.4, 0.75); 
+		DrawLabel("e/#mu + Jets, 2.8 fb^{-1}"   , 0.07, 0.65, 0.4, 0.70);
+		DrawLabel("#scale[0.8]{(CMS-PAS-TOP-12-006)}"   , 0.07, 0.60, 0.4, 0.65);
 		
-		DrawLabel("CMS preliminary 8TeV"   , 0.07, 0.50, 0.4, 0.55); 
-		DrawLabel("#mu#mu/e#mu/ee, 2.4/fb" , 0.07, 0.45, 0.4, 0.50);
-		DrawLabel("(CMS-PAS-TOP-12-007)"   , 0.07, 0.40, 0.4, 0.45);
+		DrawLabel("CMS public"             , 0.07, 0.50, 0.4, 0.55); 
+		DrawLabel("#mu#mu/e#mu/ee, 2.4 fb^{-1}" , 0.07, 0.45, 0.4, 0.50);
+		DrawLabel("#scale[0.8]{(doi:10.1007/JHEP02(2014)024)}"      , 0.07, 0.40, 0.4, 0.45);
 	      }
 	      TString channelLabel="unknown";
-	      TString dataLabel=Form(dataSample+" data, %2.1f fb^{-1}",luminosity/1000);
+	      TString dataLabel=Form(dataSample+" CMS data, %2.1f fb^{-1}",luminosity/1000);
 	      if(decayChannel.Contains("mu"  )) channelLabel="#mu + Jets";
 	      if(decayChannel.Contains("el"  )) channelLabel="e + Jets";
 	      if(decayChannel.Contains("comb")) channelLabel="e/#mu + Jets";
+	      channelLabel="this thesis, "+channelLabel;
 	      if(!extrapolate){
 		if(hadron) channelLabel+=" (particle lv PS)";
 		else  channelLabel+=" (parton lv PS)";
@@ -1271,3 +1302,34 @@ void combineTopDiffXSecUncertainties(double luminosity=19712., bool save=true, u
   file->Close();
 
 }
+
+bool hadronPlot(TString name){
+  // this function returns true if 'name' is a cross section quantity considered 
+  // for the final measurement in the visible particle level phase space
+  if(name.Contains(     "lepPt"    )) return true;
+  else if(name.Contains("lepEta"   )) return true;
+  else if(name.Contains("bqPt"     )) return true;
+  else if(name.Contains("bqEta"    )) return true;
+  else if(name.Contains("bbbarMass")) return true;
+  else if(name.Contains("bbbarPt"  )) return true;
+  else if(name.Contains("lbMass"   )) return true;
+  else if(name.Contains("Njets"    )) return (PHD ? true : false);
+  else if(name.Contains("rhos"     )) return (PHD ? true : false);
+  return false; // else
+}
+
+bool partonPlot(TString name){
+  // this function returns true if 'name' is a cross section quantity considered 
+  // for the final measurement in the extrapolated parton level phase space
+  if(name.Contains("topPtLead"         )) return true;
+  else if(name.Contains("topPtSubLead" )) return true;
+  else if(name.Contains("topPtTtbarSys")) return true;
+  else if(name.Contains("topPt"        )) return true;
+  else if(name.Contains("topY"         )) return true;
+  else if(name.Contains("ttbarPt"      )) return true;
+  else if(name.Contains("ttbarY"       )) return true;
+  else if(name.Contains("ttbarMass"    )) return true;
+  else if(name.Contains("ttbarDelPhi"  )) return true;
+  return false; // else
+}
+

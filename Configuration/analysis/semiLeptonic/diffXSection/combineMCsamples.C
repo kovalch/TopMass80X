@@ -11,7 +11,8 @@
 void addDir(const std::string& path, const std::vector< std::pair< TFile*, double > >& files, TFile *target, int verbose);
 void combineAllPlots(int sysTag, int sample, TString decayChannel, int verbose, TString inputFolderName, TString outputFolder);
 
-void combineMCsamples(int verbose=1, TString inputFolderName="newRecentAnalysisRun8TeV", TString outputFolder="", bool qcdSys=true) {
+void combineMCsamples(int verbose=1, TString inputFolderName=AnalysisFolder, TString outputFolder="", bool qcdSys=true, bool ttvSys=false) {
+
   // ---
   //    list all of all subsamples to be combined 
   // ---
@@ -25,6 +26,7 @@ void combineMCsamples(int verbose=1, TString inputFolderName="newRecentAnalysisR
   samples_.push_back(kQCD  );
   samples_.push_back(kDiBos);
   samples_.push_back(kSTop );
+  samples_.push_back(kTTVjets);
   // c) systematic variations
   //    (based on enum systematicVariation in basicFunctions.h)
   // N.B: exclude variations that
@@ -55,7 +57,8 @@ void combineMCsamples(int verbose=1, TString inputFolderName="newRecentAnalysisR
 	for(unsigned int sys=0; sys<sysVariation_.size(); ++sys){
 	  // scale variation exists only for single top
 	  // qcd systematics can be excluded
-	  if(!(((sysVariation_[sys]==sysTopScaleUp)||(sysVariation_[sys]==sysTopScaleDown))&&(samples_[sample]!=kSTop))&&(qcdSys||!(samples_[sample]==kQCD&&sysVariation_[sys]!=sysNo))){
+	  // ttV systematics can be excluded
+          if( !(((sysVariation_[sys]==sysTopScaleUp)||(sysVariation_[sys]==sysTopScaleDown))&&(samples_[sample]!=kSTop)) && (qcdSys||!(samples_[sample]==kQCD&&sysVariation_[sys]!=sysNo)) && (ttvSys||!(samples_[sample]==kTTVjets&&sysVariation_[sys]!=sysNo)) ){ 
 	    combineAllPlots(sysVariation_[sys], samples_[sample], leptons_[lepton], verbose, inputFolderName, outputFolder);
 	  }
 	}
@@ -65,11 +68,11 @@ void combineMCsamples(int verbose=1, TString inputFolderName="newRecentAnalysisR
 }
 
 void combineAllPlots(int sysTag, int sample, TString decayChannel, int verbose, TString inputFolderName, TString outputFolder){
-  // ---
+ // ---
   //    check input 
   // ---
   // a) check if sample input is valid
-  if(!(sample==kQCD||sample==kDiBos||sample==kSTop)){
+  if(!(sample==kQCD||sample==kDiBos||sample==kSTop||sample==kTTVjets)){
     std::cout << "chosen input sample enumerator " << sample << " is invalid" << std::endl;
     std::cout << "please check the list of allowed sample inputs" << std::endl;
     exit(0);
@@ -78,7 +81,7 @@ void combineAllPlots(int sysTag, int sample, TString decayChannel, int verbose, 
   // b) check if decayChannel input is valid
   if(!(decayChannel=="electron"||decayChannel=="muon")){
     std::cout << "chosen decay channel " << decayChannel << " is invalid" << std::endl;
-    std::cout << "must be electron or muon" << std::endl;
+    std::cout << "has to be electron or muon" << std::endl;
     exit(0);
   }
 
@@ -102,6 +105,12 @@ void combineAllPlots(int sysTag, int sample, TString decayChannel, int verbose, 
     first=kWW;
     last =kZZ;
   }
+  // TTV samples
+  else if(sample==kTTVjets){
+    first=kTTGjets;
+    last =kTTWjets;
+  }
+
   // (ii) list subsamples in vector
   std::vector<int> subSamples_;
   for(int subsample=first; subsample<=last; ++subsample){
@@ -124,7 +133,7 @@ void combineAllPlots(int sysTag, int sample, TString decayChannel, int verbose, 
   //    input & output
   // ---
   // folder were subsamples can be found
-  TString inputFolder = "/afs/naf.desy.de/group/cms/scratch/tophh/"+inputFolderName;
+  TString inputFolder = groupSpace+inputFolderName;
   // folder and name of the (combined) output file
   TString outputFilename= (outputFolder=="" ? inputFolder : outputFolder);
   outputFilename+="/"+TopFilename(sample, sysTag, std::string(decayChannel));

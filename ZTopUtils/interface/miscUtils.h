@@ -10,6 +10,7 @@
 #include "TH1D.h"
 #include "TH2D.h"
 #include <fstream>
+#include <cmath>
 
 /*
  WHATEVER you add here, please don't use exit() in case an error occurs.
@@ -20,6 +21,42 @@
  */
 
 namespace ztop {
+
+template<class T>
+long double gammaFunc(T in, float eps=0.00001){
+    if(eps && rint(in)>1 &&fabs(rint(in) - in) < eps){
+        long double out=1;
+        for(int i=in-1;i>0;i--)
+            out*=i;
+        return out;
+    }
+    else{
+        return tgammal(in);
+    }
+}
+
+/**
+ *
+ * @param k expectation value
+ * @param lambda scanned value
+ * @return the log of a continuous poisson prob for lambda
+ */
+double logPoisson(const double & k, const double& lambda);
+
+
+/**
+ *
+ * @param k expectation value
+ * @param lambda scanned value
+ * @return  continuous poisson prob for lambda
+ */
+double poisson(const double & k, const double& lambda);
+
+/**
+ * following numbers and mass dependence provided in NNLO paper arXiv:1303.6254
+ * errors are NOT returned in % (so e.g. 0.026)
+ */
+float getTtbarXsec(float topmass, float energy=8, float* scaleerr=0, float * pdferr=0);
 
 template<class t>
 bool isApprox(t a, t b, double eps = 0.01) {

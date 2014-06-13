@@ -53,51 +53,6 @@ v_mvaConfigSwapped_(v_mvaConfigSwapped)
 
 
 
-mvaSetup::SystematicChannelFileNames mvaSetup::systematicChannelFileNames(const char* fileListBase,
-                                                                          const std::vector<Channel::Channel>& v_channel,
-                                                                          const std::vector<Systematic::Systematic>& v_systematic,
-                                                                          const bool forTraining)
-{
-    SystematicChannelFileNames m_systematicChannelFileNames;
-    
-    for(const auto& systematic : v_systematic){
-        std::map<Channel::Channel, std::vector<TString> >& m_channelFileNames = m_systematicChannelFileNames[systematic];
-        for(const auto& channel : v_channel){
-            std::vector<TString>& v_inputFileName = m_channelFileNames[channel];
-            // FIXME: for now systematic is not used to study systematic variations which modify Higgs samples,
-            // FIXME: but running on all Higgs masses
-            for(const auto& systematicMass : Systematic::allowedSystematicsHiggsPlotting){
-                
-                // Access FileList containing list of input root files
-                // FIXME: almost same functionality as in Samples.cc, unify after MVA training is established
-                const TString histoListName(fileListBase + Systematic::convertSystematic(systematicMass) + "_" + Channel::convertChannel(channel) + ".txt");
-                //std::cout << "Reading file: " << histoListName << std::endl;
-                ifstream fileList(histoListName);
-                if(fileList.fail()){
-                    std::cerr<<"Error reading file: "<<histoListName<<std::endl;
-                    exit(1);
-                }
-                while(!fileList.eof()){
-                    TString filename;
-                    fileList>>filename;
-                    if(filename==""){continue;} // Skip empty lines
-                    if(filename.BeginsWith("#")){continue;} // Comment lines in FileList with '#'
-                    
-                    if(forTraining && filename.Contains("ttbarH") && filename.Contains("inclusiveBbbar"))
-                        v_inputFileName.push_back(filename);
-                    else if(!forTraining && filename.Contains("ttbarH") && filename.Contains("tobbbar"))
-                        v_inputFileName.push_back(filename);
-                    else continue;
-                }
-            }
-        }
-    }
-    
-    return m_systematicChannelFileNames;
-}
-
-
-
 std::vector<mvaSetup::MvaSet> mvaSetup::cleanForChannel(const std::vector<mvaSetup::MvaSet>& v_mvaSet, const Channel::Channel& channel)
 {
     std::vector<MvaSet> result;
@@ -132,7 +87,7 @@ mvaSetup::SystematicChannelFileNames mvaSetup::mergeTrees(const char* mvaInputDi
             const Channel::Channel& channel = channelFileNamesTraining.first;
             const std::vector<TString>& v_fileNameTraining = channelFileNamesTraining.second;
             const std::vector<TString>& v_fileNameTesting = m_systematicChannelFileNamesTesting.at(systematic).at(channel);
-            std::cout<<"\nProcessing (Channel, Systematic): "<<Channel::convertChannel(channel)<<" , "<<Systematic::convertSystematic(systematic)<<"\n\n";
+            std::cout<<"\nProcessing (Channel, Systematic): "<<Channel::convert(channel)<<" , "<<systematic.name()<<"\n\n";
             
             // Access sets which are valid for the channel
             const std::vector<MvaSet> v_cleanSet = cleanForChannel(v_mvaSet, channel);
@@ -221,6 +176,50 @@ mvaSetup::SystematicChannelFileNames mvaSetup::mergeTrees(const char* mvaInputDi
     }
     
     return result;
+}
+
+
+
+
+
+
+
+
+
+
+
+// FIXME: for now systematic is not used to study systematic variations which modify Higgs samples,
+// FIXME: but running on all Higgs masses
+namespace Systematic{
+    const std::vector<Type> allowedSystematics = {
+        nominal, mH110, mH115, mH120, mH1225, mH1275, mH130, mH135, mH140
+    };
+}
+
+
+
+mvaSetup::SystematicChannelFileNames mvaSetup::systematicChannelFileNames(const char* filelistDirectory,
+                                                                          const std::vector<Channel::Channel>& v_channel,
+                                                                          const std::vector<Systematic::Systematic>& v_systematic,
+                                                                          const bool forTraining)
+{
+    SystematicChannelFileNames m_systematicChannelFileNames;
+    
+    for(const auto& systematic : v_systematic){
+        std::map<Channel::Channel, std::vector<TString> >& m_channelFileNames = m_systematicChannelFileNames[systematic];
+        for(const auto& channel : v_channel){
+            std::vector<TString>& v_filename = m_channelFileNames[channel];
+            // FIXME: for now systematic is not used to study systematic variations which modify Higgs samples,
+            // FIXME: but running on all Higgs masses
+            for(const auto& systematicMass : Systematic::allowedSystematicsAnalysis(Systematic::allowedSystematics)){
+                // Read the full input filenames from the FileList
+                if(forTraining) v_filename = common::readFilelist(filelistDirectory, channel, systematicMass, {"ttbarH", "inclusiveBbbar"});
+                else v_filename = common::readFilelist(filelistDirectory, channel, systematicMass, {"ttbarH", "tobbbar"});
+            }
+        }
+    }
+    
+    return m_systematicChannelFileNames;
 }
 
 

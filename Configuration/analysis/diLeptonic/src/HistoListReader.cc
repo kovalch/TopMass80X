@@ -172,3 +172,159 @@ PlotProperties::~PlotProperties()
 {
     delete histo_;
 }
+
+
+
+////                                  !!!  2d - part of HistoListReader  !!!                                      ////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+HistoListReader_2d::HistoListReader_2d(const char* filename) : 
+    filename_ ( filename ),
+    isZombie_ ( false )
+{
+    std::ifstream controlHistStream(filename, std::ifstream::in);
+    if (!controlHistStream.good()) {
+        isZombie_ = true;
+        std::cerr << "HistoListReader: cannot read " << filename << std::endl;
+        return;
+    }
+    plots_.clear();
+    
+    while(controlHistStream.good()){
+        // Read HistoList-File
+        std::string line;
+        getline(controlHistStream, line);
+        //remove leading whitespace
+        line.erase(0, line.find_first_not_of(" \t"));
+        
+        //skip empty lines and/or comments
+        if (line.size() == 0 || line[0] == '#') continue;
+        
+        PlotProperties_2d m;
+        //std::string dummy;
+        //std::ostringstream combined;
+        std::stringstream linestream(line);
+        std::string trash;
+//        # Name, yAxisName_, nbinY, y_binsArr_, # xAxisName_, nbinX, x_binsArr_, # fileNameY, binWidthY, ymin, ymax # fileNameX, binWidthX, xmin, xmax # Rmin , Rmax
+        
+        m.y_binsArr.clear();
+        m.x_binsArr.clear();
+        
+        linestream 
+            >> m.name;
+            
+            readString(linestream, m.ytitle);
+            linestream >> m.nbinY;
+            for(int i = 0; i <= m.nbinY; ++i){
+            Double_t temp;
+            linestream>>temp;
+            m.y_binsArr.push_back(temp);
+            }
+            linestream >> trash;
+            
+            readString(linestream, m.xtitle);
+            linestream >> m.nbinX;
+            for(int i = 0; i <= m.nbinX; ++i){
+            Double_t temp;
+            linestream>>temp;
+            m.x_binsArr.push_back(temp);
+            }
+            linestream >> trash;
+            
+            linestream >> m.fileNameY
+            >> m.binWidthY
+            >> m.ymin
+            >> m.ymax
+            >> trash
+            >> m.fileNameX
+            >> m.binWidthX
+            >> m.xmin
+            >> m.xmax
+            >> trash
+            >> m.Rmin
+            >> m.Rmax;
+            
+        plots_[m.name] = m;
+        
+        if (linestream.fail()) {
+            std::cerr 
+            << "********************************************************************\n"
+            << "Error reading file (too few entries?)\n" 
+            << "File: '" << filename << "'\n"
+            << "Line: '" << line << "'\n"
+            << "********************************************************************\n"
+            << std::endl; 
+            exit(981);
+        }
+        
+        if (!linestream.eof()) {
+            std::string rest;
+            getline(linestream, rest);
+            std::cerr 
+            << "********************************************************************\n"
+            << "Too many entries!\n" 
+            << "File: '" << filename << "'\n"
+            << "Line: '" << line << "'\n"
+            << "Not used: '" << rest << "'\n"
+            << "********************************************************************\n"
+            << std::endl; 
+            exit(981);
+        }
+    }
+}
+
+void HistoListReader_2d::readString(std::stringstream &input, TString &output)const
+{
+    std::string dummy;
+    std::stringstream combined;
+
+    input >> dummy;
+
+    if(dummy.size() > 0 && dummy[0] == '"'){
+        dummy.erase(0,1);
+        if(dummy.size() ==0) input >> dummy;
+        int nTokens =0;
+        while(dummy[dummy.size()-1] != '"' && !input.eof())
+        {
+            if (nTokens++ > 0) combined << " ";
+            combined << dummy;
+            input >> dummy;
+        }
+        if(dummy[dummy.size()-1] == '"')
+        {
+            dummy.erase(dummy.size()-1);
+        }
+        if (nTokens++ > 0) combined << " ";
+        combined << dummy;
+        output = combined.str();
+    } else {
+        output = dummy;
+    }
+}
+
+bool HistoListReader_2d::IsZombie() const
+{
+    return isZombie_;
+}
+
+/////////////////////////////////////////
+
+PlotProperties_2d& HistoListReader_2d::getPlotProperties(TString name)
+{
+    std::map <TString, PlotProperties_2d >::iterator it = plots_.find(name);
+    if (it == plots_.end()) { std::cerr << "no such plot in " << filename_ << ": ``" << name << "''" <<std::endl; exit(671); }
+    return it->second;
+}
+
+
+PlotProperties_2d::PlotProperties_2d(){}
+
+PlotProperties_2d::~PlotProperties_2d(){}
+
+
+
+
+
+
+
+

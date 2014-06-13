@@ -1,11 +1,9 @@
 #ifndef dyScaleFactors_h
 #define dyScaleFactors_h
 
-#include <vector>
 #include <map>
 
 class TString;
-class TH1;
 
 #include "../../common/include/sampleHelpers.h"
 
@@ -21,33 +19,26 @@ class DyScaleFactors{
 
 public:
     
-    /// Typedef for the map containing the Drell-Yan scale factors
-    typedef std::map<TString, std::map<Systematic::Systematic, std::map<Channel::Channel, double> > > DyScaleFactorMap;
-    
-    
-    
     /// Constructor for producing Drell-Yan scale factors
-    DyScaleFactors(const Samples& samples, const double& luminosity);
+    DyScaleFactors(const Samples& samples, RootFileReader* const rootFileReader);
     
     /// Default destructor
     ~DyScaleFactors(){}
     
     
     
-    /// Apply Drell-Yan scale factor to histogram automatically depending on its name
+    /// Apply Drell-Yan scale factor
     /// Returns 0 if it is not a Drell-Yan sample and nothing needs to be done
-    /// Returns -1 in case of no available scale factor for this step (if non-existing step is allowed)
+    /// Returns -1 in case of no available scale factor for this step
     /// Returns +1 in case of successful application of scale factor
-    int applyDyScaleFactor(TH1* histogram, const Sample& sample,
-                           const Systematic::Systematic& systematic,
-                           const bool allowNonexistingStep =false)const;
+    int applyScaleFactor(double& weight,
+                         const TString& fullStepname,
+                         const Sample& sample,
+                         const Systematic::Systematic& systematic)const;
     
     
     
 private:
-    
-    /// Get the map containing the Drell-Yan scale factors
-    //const DyScaleFactorMap& getScaleFactors()const;
     
     /// Get Drell-Yan scale factor for given selection step, systematic and channel
     const double& dyScaleFactor(const TString& step,
@@ -59,8 +50,8 @@ private:
     /// Produce the Drell-Yan scale factors
     void produceScaleFactors(const Samples& samples);
     
-    /// Produce the Drell-Yan scale factors for each selection step and each systematic
-    void produceScaleFactors(const TString& step, const Systematic::Systematic& systematic, std::map<Channel::Channel, std::vector<Sample> >& channelSamples);
+    /// Produce the Drell-Yan scale factors for each selection step
+    void produceScaleFactors(const TString& step, const Samples& samples);
     
     /// Print full information about all ingoing numbers (deactivated by default)
     void printFullInformation(const double dyScaleFactor_ee, const double dyScaleFactor_mumu, 
@@ -76,11 +67,13 @@ private:
     
     
     
-    /// Luminosity
-    const double& luminosity_;
+    /// Typedef for the map containing the Drell-Yan scale factors
+    typedef std::map<TString, std::map<Systematic::Systematic, std::map<Channel::Channel, double> > > DyScaleFactorMap;
+    
+    
     
     /// File reader for accessing specific histogram from given file
-    RootFileReader* fileReader_;
+    RootFileReader* const rootFileReader_;
     
     /// Map containing the Drell-Yan scale factors
     DyScaleFactorMap m_dyScaleFactors_;
@@ -92,7 +85,7 @@ private:
 
 
 
-#endif //dyScaleFactors_h
+#endif
 
 
 

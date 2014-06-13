@@ -1,7 +1,7 @@
 #include "basicFunctions.h"
 #include "BCC.C"
 
-void applyBCCs(TString inputFolderName="newRecentAnalysisRun8TeV", bool save=true, TString decayChannel="combined", bool extrapolate=true, bool hadron=false, bool mergeLepHad=true, bool addCrossCheckVariables=false)
+void applyBCCs(TString inputFolderName=AnalysisFolder, bool save=false, TString decayChannel="combined", bool extrapolate=true, bool hadron=false, bool mergeLepHad=true, bool addCrossCheckVariables=false)
 {
     // INFO: this is the macro part to process the variables needed for differenetial cross sections
 
@@ -10,9 +10,9 @@ void applyBCCs(TString inputFolderName="newRecentAnalysisRun8TeV", bool save=tru
     if(decayChannel=="electron") inputFile.ReplaceAll("muon", "elec");
     else if (decayChannel=="combined"){
       inputFile.ReplaceAll("muon", "combined");
-      inputFile.ReplaceAll(".root", "Large.root");
+      //inputFile.ReplaceAll(".root", "Large.root");
     }
-    inputFile="/afs/naf.desy.de/group/cms/scratch/tophh/"+inputFolderName+"/"+inputFile;
+    inputFile=groupSpace+inputFolderName+"/"+inputFile;
     std::cout << std::endl << "input file: " << inputFile << std::endl;
   
     // name of file to add calculted BCC x values to
@@ -27,24 +27,26 @@ void applyBCCs(TString inputFolderName="newRecentAnalysisRun8TeV", bool save=tru
     std::vector<TString> xSecVariables_;
     // a) top and ttbar quantities
     //if(!hadron){
-    xSecVariables_.insert(xSecVariables_.end(), xSecVariablesKinFit    , xSecVariablesKinFit     + sizeof(xSecVariablesKinFit    )/sizeof(TString));
-    xSecVariables_.insert(xSecVariables_.end(), xSecVariablesKinFitNorm, xSecVariablesKinFitNorm + sizeof(xSecVariablesKinFitNorm)/sizeof(TString));
+    xSecVariables_.push_back("ttbarDelPhi");
+    
+    //xSecVariables_.insert(xSecVariables_.end(), xSecVariablesKinFit    , xSecVariablesKinFit     + sizeof(xSecVariablesKinFit    )/sizeof(TString)-1);
+    //xSecVariables_.insert(xSecVariables_.end(), xSecVariablesKinFitNorm, xSecVariablesKinFitNorm + sizeof(xSecVariablesKinFitNorm)/sizeof(TString)-1);
       //}
     // b) lepton and b-jet quantities
     //if(hadron||!extrapolate){
-    xSecVariables_.insert(xSecVariables_.end(), xSecVariablesFinalState    , xSecVariablesFinalState     + sizeof(xSecVariablesFinalState    )/sizeof(TString));
-    xSecVariables_.insert(xSecVariables_.end(), xSecVariablesFinalStateNorm, xSecVariablesFinalStateNorm + sizeof(xSecVariablesFinalStateNorm)/sizeof(TString));
+    //xSecVariables_.insert(xSecVariables_.end(), xSecVariablesFinalState    , xSecVariablesFinalState     + sizeof(xSecVariablesFinalState    )/sizeof(TString));
+    //xSecVariables_.insert(xSecVariables_.end(), xSecVariablesFinalStateNorm, xSecVariablesFinalStateNorm + sizeof(xSecVariablesFinalStateNorm)/sizeof(TString));
     //}
     // c) cross check variables (only available for parton level cross-sections)
-    if (addCrossCheckVariables && !hadron){
-      xSecVariables_.insert( xSecVariables_.end(),   xSecVariablesCCVar,     xSecVariablesCCVar     + sizeof(xSecVariablesCCVar)/sizeof(TString)    );
-      xSecVariables_.insert( xSecVariables_.end(),   xSecVariablesCCVarNorm, xSecVariablesCCVarNorm + sizeof(xSecVariablesCCVarNorm)/sizeof(TString));
-    }
-    xSecVariables_.insert( xSecVariables_.end(),   xSecVariablesIncl,      xSecVariablesIncl      + sizeof(xSecVariablesIncl)/sizeof(TString)     );
+    //if (addCrossCheckVariables && !hadron){
+    //  xSecVariables_.insert( xSecVariables_.end(),   xSecVariablesCCVar,     xSecVariablesCCVar     + sizeof(xSecVariablesCCVar)/sizeof(TString)    );
+    //  xSecVariables_.insert( xSecVariables_.end(),   xSecVariablesCCVarNorm, xSecVariablesCCVarNorm + sizeof(xSecVariablesCCVarNorm)/sizeof(TString));
+    //}
+    //xSecVariables_.insert( xSecVariables_.end(),   xSecVariablesIncl,      xSecVariablesIncl      + sizeof(xSecVariablesIncl)/sizeof(TString)     );
     // collect tree folder names and branchnames of variables for BCC
     std::vector<TString> xSecVariableBranchNames_, folderNamesBCC_;
     for(unsigned int i=0; i<xSecVariables_.size(); ++i){
-      if(!xSecVariables_[i].Contains("Norm")&&xSecVariables_[i]!="inclusive"){
+      if(!xSecVariables_[i].Contains("Norm")&&xSecVariables_[i]!="inclusive"&&!xSecVariables_[i].Contains("Star")){
 	// collect names of branch entries and names of cross section folder(s)
 	if(xSecVariables_[i]=="topPt" || xSecVariables_[i]=="topY"){ 
 	  xSecVariableBranchNames_.push_back(xSecVariables_[i]+"Had");
@@ -93,6 +95,12 @@ void applyBCCs(TString inputFolderName="newRecentAnalysisRun8TeV", bool save=tru
     // container for results of BCC
     std::map<TString, std::vector<double> > correctedCenters_= b.getMapWithCorrectedCentersInX();
     std::map<TString, std::vector<double> > corrCenterErrors_= b.getMapWithCenterErrorsInX();
+    for(unsigned int i=0; i<xSecVariables_.size(); ++i){
+      std:: cout << xSecVariables_[i] << std::endl;
+      for(int bin=0; bin<(int)correctedCenters_[i].size(); ++bin){
+	std::cout << correctedCenters_[i].at(bin) << std::endl;
+      }
+    }
     // do saving
     if(save){
       std::cout << "saving:" << std::endl;

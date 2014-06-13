@@ -9,7 +9,7 @@
 #include <TString.h>
 #include <TSelectorList.h>
 
-#include "AnalyzerBaseClass.h"
+#include "AnalyzerBase.h"
 #include "analysisStructs.h"
 #include "JetCategories.h"
 #include "higgsUtils.h"
@@ -25,10 +25,10 @@
 
 
 
-AnalyzerBaseClass::AnalyzerBaseClass(const TString& prefix,
-                                     const std::vector<TString>& selectionStepsNoCategories,
-                                     const std::vector<TString>& stepsForCategories,
-                                     const JetCategories* jetCategories):
+AnalyzerBase::AnalyzerBase(const TString& prefix,
+                           const std::vector<TString>& selectionStepsNoCategories,
+                           const std::vector<TString>& stepsForCategories,
+                           const JetCategories* jetCategories):
 prefix_(prefix),
 selectionSteps_(selectionStepsNoCategories),
 stepsForCategories_(stepsForCategories),
@@ -49,7 +49,7 @@ selectorList_(0)
 
 
 
-void AnalyzerBaseClass::book(TSelectorList* output)
+void AnalyzerBase::book(TSelectorList* output)
 {
     // Set pointer to output, so that histograms are owned by it
     selectorList_ = output;
@@ -89,7 +89,7 @@ void AnalyzerBaseClass::book(TSelectorList* output)
 
 
 
-void AnalyzerBaseClass::addStep(const TString& step)
+void AnalyzerBase::addStep(const TString& step)
 {
     // Check whether step already exists
     if(this->checkExistence(step)){
@@ -105,14 +105,14 @@ void AnalyzerBaseClass::addStep(const TString& step)
 
 
 
-bool AnalyzerBaseClass::checkExistence(const TString& step)const
+bool AnalyzerBase::checkExistence(const TString& step)const
 {
     return m_stepHistograms_.find(step) != m_stepHistograms_.end();
 }
 
 
 
-void AnalyzerBaseClass::bookHistos(const TString&, std::map<TString, TH1*>&)
+void AnalyzerBase::bookHistos(const TString&, std::map<TString, TH1*>&)
 {
     // WARNING: this is empty template method, overwrite for inherited histogram class
     
@@ -123,12 +123,12 @@ void AnalyzerBaseClass::bookHistos(const TString&, std::map<TString, TH1*>&)
 
 
 
-void AnalyzerBaseClass::fill(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
-                             const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
-                             const KinRecoObjects& kinRecoObjects,
-                             const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
-                             const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
-                             const double& weight, const TString& stepShort)
+void AnalyzerBase::fill(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+                        const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
+                        const KinRecoObjects& kinRecoObjects,
+                        const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
+                        const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
+                        const double& weight, const TString& stepShort)
 {
     // Number of selected jets and bjets
     const int numberOfJets = recoObjectIndices.jetIndices_.size();
@@ -173,13 +173,13 @@ void AnalyzerBaseClass::fill(const RecoObjects& recoObjects, const CommonGenObje
 
 
 
-void AnalyzerBaseClass::fillHistos(const RecoObjects&, const CommonGenObjects&,
-                                   const TopGenObjects&, const HiggsGenObjects&,
-                                   const KinRecoObjects&,
-                                   const tth::RecoObjectIndices&, const tth::GenObjectIndices&,
-                                   const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
-                                   const double&, const TString&,
-                                   std::map<TString, TH1*>&)
+void AnalyzerBase::fillHistos(const RecoObjects&, const CommonGenObjects&,
+                              const TopGenObjects&, const HiggsGenObjects&,
+                              const KinRecoObjects&,
+                              const tth::RecoObjectIndices&, const tth::GenObjectIndices&,
+                              const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
+                              const double&, const TString&,
+                              std::map<TString, TH1*>&)
 {
     // WARNING: this is empty template method, overwrite for inherited histogram class
     
@@ -190,7 +190,7 @@ void AnalyzerBaseClass::fillHistos(const RecoObjects&, const CommonGenObjects&,
 
 
 
-void AnalyzerBaseClass::clear()
+void AnalyzerBase::clear()
 {
     for(auto stepHistograms : m_stepHistograms_){
         stepHistograms.second.m_histogram_.clear();
@@ -212,7 +212,7 @@ void AnalyzerBaseClass::clear()
 AnalyzerEventYields::AnalyzerEventYields(const std::vector<TString>& selectionStepsNoCategories,
                                          const std::vector<TString>& stepsForCategories,
                                          const JetCategories* jetCategories):
-AnalyzerBaseClass("events_", selectionStepsNoCategories, stepsForCategories, jetCategories)
+AnalyzerBase("events_", selectionStepsNoCategories, stepsForCategories, jetCategories)
 {
     std::cout<<"--- Beginning setting up event yield histograms\n";
     std::cout<<"=== Finishing setting up event yield histograms\n\n";
@@ -258,7 +258,7 @@ void AnalyzerEventYields::fillHistos(const RecoObjects&, const CommonGenObjects&
 
 
 AnalyzerDyScaling::AnalyzerDyScaling(const std::vector<TString>& selectionSteps, const TString& looseStep):
-AnalyzerBaseClass("dyScaling_", selectionSteps),
+AnalyzerBase("dyScaling_", selectionSteps),
 looseStep_(looseStep)
 {
     std::cout<<"--- Beginning setting up Drell-Yan scaling histograms\n";
@@ -339,6 +339,46 @@ void AnalyzerDyScaling::fillHistos(const RecoObjects& recoObjects, const CommonG
     }
 }
 
+
+
+
+
+
+
+
+
+// --------------------------- Methods for HfFracScalingHistograms ---------------------------------------------
+
+
+
+AnalyzerHfFracScaling::AnalyzerHfFracScaling(const std::vector<TString>& selectionSteps):
+AnalyzerBase("hfFracScaling_", selectionSteps)
+{
+    std::cout<<"--- Beginning setting up Heavy-Flavour Fraction scaling histograms\n";
+    std::cout<<"=== Finishing setting up Heavy-Flavour Fraction scaling histograms\n\n";
+}
+
+
+
+void AnalyzerHfFracScaling::bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram)
+{
+    TString name = "bTag_mult";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "B-tagged jet multiplicity; N b-tags; events",10,0,10));
+}
+
+
+
+void AnalyzerHfFracScaling::fillHistos(const RecoObjects&, const CommonGenObjects&,
+                                   const TopGenObjects&, const HiggsGenObjects&,
+                                   const KinRecoObjects&,
+                                   const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices&,
+                                   const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
+                                   const double& weight, const TString&,
+                                   std::map<TString, TH1*>& m_histogram)
+{
+    const int nBJets = recoObjectIndices.bjetIndices_.size();
+    m_histogram["bTag_mult"]->Fill(nBJets, weight);
+}
 
 
 
