@@ -2739,38 +2739,34 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
     delete c;
     gStyle->SetEndErrorSize(0);
 
-    std::cout<<"-------------------------------------------------------------------"<<std::endl;
-    std::cout<<"Starting the calculation of Chi2/ndof\n"<<std::endl;
-    double chi2 = Plotter::GetChi2 (tga_DiffXSecPlotwithSys, madgraphhistBinned);
-    std::cout<<"The CHI2/ndof (vs Madgraph) value for '"<<name<<"' in channel '"<<subfolderChannel.Copy().Remove(0, 1)<<"' is "<<chi2<<std::endl;
-
+    
+    FILE *file;
+    file = fopen(outdir.Copy()+name+"_Chi2Values.txt", "w");
+    fprintf(file, "Variable: %s  Channel: %s \n", name.Data(), subfolderChannel.Copy().Remove(0, 1).Data());
+    fprintf(file, "Theory & $\\chi^{2}/ndof$ \\\\ \n");
+    fprintf(file, "\\hline \n");
+    fprintf(file, "MadGraph+Pythia & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlotwithSys, madgraphhistBinned));
     if(drawNLOCurves && drawPOWHEG && powheghistBinned && powheghistBinned->GetEntries()){
-        double chi2Powheg = Plotter::GetChi2 (tga_DiffXSecPlotwithSys, powheghistBinned);
-        std::cout<<"The CHI2/ndof (vs Powheg+Pythia) value for '"<<name<<"' in channel '"<<subfolderChannel.Copy().Remove(0, 1)<<"' is "<<chi2Powheg<<std::endl;
+        fprintf(file, "PowHeg+Pythia & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlotwithSys, powheghistBinned));
     }
     if(drawNLOCurves && drawPOWHEGHERWIG && powhegHerwighistBinned && powhegHerwighistBinned->GetEntries()){
-        double chi2PowhegHerwig = Plotter::GetChi2 (tga_DiffXSecPlotwithSys, powhegHerwighistBinned);
-        std::cout<<"The CHI2/ndof (vs Powheg+Herwig) value for '"<<name<<"' in channel '"<<subfolderChannel.Copy().Remove(0, 1)<<"' is "<<chi2PowhegHerwig<<std::endl;
+        fprintf(file, "PowHeg+Herwig & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlotwithSys, powhegHerwighistBinned));
     }
     if(drawNLOCurves && drawMCATNLO && mcnlohistBinned && mcnlohistBinned->GetEntries()){
-        double chi2McAtNlo = Plotter::GetChi2 (tga_DiffXSecPlotwithSys, mcnlohistBinned);
-        std::cout<<"The CHI2/ndof (vs MC@NLO+Herwig) value for '"<<name<<"' in channel '"<<subfolderChannel.Copy().Remove(0, 1)<<"' is "<<chi2McAtNlo<<std::endl;
+        fprintf(file, "MC\\@NLO+Herwig & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlotwithSys, mcnlohistBinned));
     }
     if(drawNLOCurves && drawKidonakis && Kidoth1_Binned && (name.Contains("ToppT") || name.Contains("TopRapidity")) && !name.Contains("Lead") && !name.Contains("RestFrame")){
-        double chi2Kidonakis = Plotter::GetChi2 (tga_DiffXSecPlotwithSys, Kidoth1_Binned);
-        std::cout<<"The CHI2/ndof (vs Kidonakis) value for '"<<name<<"' in channel '"<<subfolderChannel.Copy().Remove(0, 1)<<"' is "<<chi2Kidonakis<<std::endl;
+        fprintf(file, "Approx. NNLO & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlotwithSys, Kidoth1_Binned));
+    }
+    if(drawAhrens && Ahrensth1_Binned && (name.Contains("TTBarpT") || name.Contains("TTBarMass"))){
+        fprintf(file, "NLO+NNLL & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlotwithSys, Ahrensth1_Binned));
     }
     if(drawNLOCurves && drawMadScaleMatching){
-        double chi2 = Plotter::GetChi2 (tga_DiffXSecPlotwithSys, madupBinned);
-        std::cout<<"The CHI2/ndof (vs SCALE UP) value for '"<<name<<"' in channel '"<<subfolderChannel.Copy().Remove(0, 1)<<"' is "<<chi2<<endl;
-        chi2 = Plotter::GetChi2 (tga_DiffXSecPlotwithSys, maddownBinned);
-        std::cout<<"The CHI2/ndof (vs SCALE DOWN) value for '"<<name<<"' in channel '"<<subfolderChannel.Copy().Remove(0, 1)<<"' is "<<chi2<<endl;
-        chi2 = Plotter::GetChi2 (tga_DiffXSecPlotwithSys, matchupBinned);
-        std::cout<<"The CHI2/ndof (vs MATCH UP) value for '"<<name<<"' in channel '"<<subfolderChannel.Copy().Remove(0, 1)<<"' is "<<chi2<<endl;
-        chi2 = Plotter::GetChi2 (tga_DiffXSecPlotwithSys, matchdownBinned);
-        std::cout<<"The CHI2/ndof (vs MATCH DOWN) value for '"<<name<<"' in channel '"<<subfolderChannel.Copy().Remove(0, 1)<<"' is "<<chi2<<endl;
+        fprintf(file, "Q^{2} Up & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlotwithSys, madupBinned));
+        fprintf(file, "Q^{2} Down & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlotwithSys, maddownBinned));
+        fprintf(file, "ME/PS Up & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlotwithSys, matchupBinned));
+        fprintf(file, "ME/PS Down & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlotwithSys, matchdownBinned));
     }
-    std::cout<<"-------------------------------------------------------------------"<<std::endl;
 
     PrintResultTotxtFile(Channel, binCenters, tga_DiffXSecPlot, tga_DiffXSecPlotwithSys);
 
@@ -3617,32 +3613,33 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
     gStyle->SetEndErrorSize(0);
 
 //    double result_Integral = Plotter::CalculateIntegral(tga_DiffXSecPlot, Xbins);
-    std::cout<<"-------------------------------------------------------------------"<<std::endl;
-    std::cout<<"Starting the calculation of Chi2/ndof\n"<<std::endl;
-    double chi2 = Plotter::GetChi2 (tga_DiffXSecPlot, madgraphhistBinned);
-    std::cout<<"The CHI2/ndof (vs Madgraph) value for '"<<name<<"' in channel '"<<Channel<<"' is "<<chi2<<std::endl;
-
-    if(drawPOWHEG && powheghistBinned && powheghistBinned->GetEntries()){
-        double chi2Powheg = Plotter::GetChi2 (tga_DiffXSecPlot, powheghistBinned);
-        std::cout<<"The CHI2/ndof (vs Powheg+Pythia) value for '"<<name<<"' in channel '"<<Channel<<"' is "<<chi2Powheg<<std::endl;
+    FILE *file;
+    file = fopen(outdir.Copy()+name+"_Chi2Values.txt", "w");
+    fprintf(file, "Variable: %s  Channel: %s \n", name.Data(), subfolderChannel.Copy().Remove(0, 1).Data());
+    fprintf(file, "Theory & $\\chi^{2}/ndof$ \\\\ \n");
+    fprintf(file, "\\hline \n");
+    fprintf(file, "MadGraph+Pythia & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlot, madgraphhistBinned));
+    if(drawNLOCurves && drawPOWHEG && powheghistBinned && powheghistBinned->GetEntries()){
+        fprintf(file, "PowHeg+Pythia & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlot, powheghistBinned));
     }
-    if(drawPOWHEGHERWIG && powhegHerwighistBinned && powhegHerwighistBinned->GetEntries()){
-        double chi2PowhegHerwig = Plotter::GetChi2 (tga_DiffXSecPlot, powhegHerwighistBinned);
-        std::cout<<"The CHI2/ndof (vs Powheg+Herwig) value for '"<<name<<"' in channel '"<<Channel<<"' is "<<chi2PowhegHerwig<<std::endl;
+    if(drawNLOCurves && drawPOWHEGHERWIG && powhegHerwighistBinned && powhegHerwighistBinned->GetEntries()){
+        fprintf(file, "PowHeg+Herwig & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlot, powhegHerwighistBinned));
     }
-    if(drawMCATNLO && mcnlohistBinned && mcnlohistBinned->GetEntries()){
-        double chi2McAtNlo = Plotter::GetChi2 (tga_DiffXSecPlot, mcnlohistBinned);
-        std::cout<<"The CHI2/ndof (vs MC@NLO+Herwig) value for '"<<name<<"' in channel '"<<Channel<<"' is "<<chi2McAtNlo<<std::endl;
+    if(drawNLOCurves && drawMCATNLO && mcnlohistBinned && mcnlohistBinned->GetEntries()){
+        fprintf(file, "MC\\@NLO+Herwig & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlot, mcnlohistBinned));
     }
-    if(drawPERUGIA11 && perugia11histBinned && perugia11histBinned->GetEntries()){
-        double chi2perugia11 = Plotter::GetChi2 (tga_DiffXSecPlot, perugia11histBinned);
-        std::cout<<"The CHI2/ndof (vs MadGraph+Pythia (Perugia11 tune)) value for '"<<name<<"' in channel '"<<Channel<<"' is "<<chi2perugia11<<std::endl;
+    if(drawNLOCurves && drawKidonakis && Kidoth1_Binned && (name.Contains("ToppT") || name.Contains("TopRapidity")) && !name.Contains("Lead") && !name.Contains("RestFrame")){
+        fprintf(file, "Approx. NNLO & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlot, Kidoth1_Binned));
     }
-    if(drawKidonakis && Kidoth1_Binned && (name.Contains("ToppT") || name.Contains("TopRapidity")) && !name.Contains("Lead") && !name.Contains("RestFrame")){
-        double chi2Kidonakis = Plotter::GetChi2 (tga_DiffXSecPlot, Kidoth1_Binned);
-        std::cout<<"The CHI2/ndof (vs Kidonakis) value for '"<<name<<"' in channel '"<<Channel<<"' is "<<chi2Kidonakis<<std::endl;
+    if(drawAhrens && Ahrensth1_Binned && (name.Contains("TTBarpT") || name.Contains("TTBarMass"))){
+        fprintf(file, "NLO+NNLL & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlot, Ahrensth1_Binned));
     }
-    std::cout<<"-------------------------------------------------------------------"<<std::endl;
+    if(drawNLOCurves && drawMadScaleMatching){
+        fprintf(file, "Q^{2} Up & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlot, madupBinned));
+        fprintf(file, "Q^{2} Down & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlot, maddownBinned));
+        fprintf(file, "ME/PS Up & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlot, matchupBinned));
+        fprintf(file, "ME/PS Down & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlot, matchdownBinned));
+    }
 
     TCanvas * c1 = new TCanvas("DiffXS","DiffXS");
     TH1* stacksum = common::summedStackHisto(stack);
@@ -4166,15 +4163,13 @@ void Plotter::DrawCMSLabels(int cmsprelim, double energy, double textSize) {
 }
 
 
-void Plotter::PrintResultTotxtFile (TString channel, double binCenters[], TGraphAsymmErrors *tga_DiffXSecPlot, TGraphAsymmErrors *tga_DiffXSecPlotwithSys){
-    
-    ofstream SavingFile;
-    string filename = string("Plots/FinalResults/"+channel+"/"+name+"LaTeX.txt");
-    SavingFile.open(filename.c_str(), ios_base::out);
-    
-    SavingFile<<"Variable: "<<name<<"   Channel: "<<channelLabel.at(channelType)<<std::endl;
-    SavingFile<<"BinCenter & LowXbinEdge  &  HighXbinEdge  &   DiffXSec  &  StatError(\\%)  & SystError(\\%)  & TotalError(\\%) \\\\"<<std::endl;
-    SavingFile<<"\\hline"<<std::endl;
+void Plotter::PrintResultTotxtFile (TString channel, double binCenters[], TGraphAsymmErrors *tga_DiffXSecPlot, TGraphAsymmErrors *tga_DiffXSecPlotwithSys)
+{
+    FILE *file;
+    file = fopen("Plots/FinalResults/"+channel+"/"+name+"LaTeX.txt", "w");
+    fprintf(file, "Variable: %s Channel: %s \n", name.Data(), channelLabel.at(channelType).Data());
+    fprintf(file, "BinCenter & LowXbinEdge  &  HighXbinEdge  &   DiffXSec  &  StatError(\\%%)  & SystError(\\%%)  & TotalError(\\%%) \\\\ \n");
+    fprintf(file, "\\hline \n");
     for(int i=0; i<(int)tga_DiffXSecPlot->GetN(); i++){
         double DiffXSec=tga_DiffXSecPlot->GetY()[i];
         double RelStatErr=0, RelSysErr=0, RelTotErr=0;
@@ -4183,11 +4178,9 @@ void Plotter::PrintResultTotxtFile (TString channel, double binCenters[], TGraph
             RelTotErr  = 100*(tga_DiffXSecPlotwithSys->GetErrorY(i))/DiffXSec;
             if(RelTotErr>=RelStatErr) RelSysErr = TMath::Sqrt(RelTotErr*RelTotErr - RelStatErr*RelStatErr);
         }
-        SavingFile<<"$"<<setprecision(3)<<binCenters[i]<<"$ & $"<<XAxisbins.at(i)<<"$ to $"<<setprecision(3)<<XAxisbins.at(i+1)<<"$   &  ";
-        SavingFile<<setprecision(5)<<DiffXSec<<"  &   "<<setprecision(3)<<RelStatErr<<" &    "<<setprecision(3)<<RelSysErr<<" &    ";
-        SavingFile<<setprecision(3)<<RelTotErr<<" \\\\"<<std::endl;
+        fprintf(file, "$%5.2f$ & $%5.2f$ to $%5.2f$ & %1.7f & %2.1f & %2.1f & %2.1f \\\\ \n", binCenters[i], XAxisbins.at(i), XAxisbins.at(i+1),DiffXSec, RelStatErr, RelSysErr, RelTotErr);
     }
-    SavingFile.close();
+    fclose(file);
 }
 
 
