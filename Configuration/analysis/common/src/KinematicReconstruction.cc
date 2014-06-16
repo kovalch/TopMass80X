@@ -609,27 +609,45 @@ void KinematicReconstruction::loadData()
     h_wmass_->SetDirectory(0);
     wmassfile.Close();
     
-    // jet resolution
-    TString data_path1 = common::DATA_PATH_COMMON();
-    data_path1.Append("/KinReco_d_angle_jet.root");
-    TFile danglejetfile(data_path1);
-    h_jetAngleRes_ = (TH1F*)danglejetfile.Get("d_angle_jet");
-    h_jetEres_ = (TH1F*)danglejetfile.Get("fE");
-    h_jetAngleRes_->SetDirectory(0);
-    h_jetEres_->SetDirectory(0);
-    danglejetfile.Close();
-    //
+//     // jet resolution
+//     TString data_path1 = common::DATA_PATH_COMMON();
+//     data_path1.Append("/KinReco_d_angle_jet.root");
+//     TFile danglejetfile(data_path1);
+//     h_jetAngleRes_ = (TH1F*)danglejetfile.Get("d_angle_jet");
+//     h_jetEres_ = (TH1F*)danglejetfile.Get("fE");
+//     h_jetAngleRes_->SetDirectory(0);
+//     h_jetEres_->SetDirectory(0);
+//     danglejetfile.Close();
+//     //
+//     
+//     //lepton resolution
+//     TString data_path2 = common::DATA_PATH_COMMON();
+//     data_path2.Append("/KinReco_d_angle_lep.root");
+//     TFile lepangleresfile(data_path2);
+//     h_lepAngleRes_ = (TH1F*)lepangleresfile.Get("d_angle_jet");
+//     h_lepEres_ = (TH1F*)lepangleresfile.Get("fE");
+//     h_lepAngleRes_->SetDirectory(0);
+//     h_lepEres_->SetDirectory(0);
+//     lepangleresfile.Close();
+//     //
     
-    //lepton resolution
-    TString data_path2 = common::DATA_PATH_COMMON();
-    data_path2.Append("/KinReco_d_angle_lep.root");
-    TFile lepangleresfile(data_path2);
-    h_lepAngleRes_ = (TH1F*)lepangleresfile.Get("d_angle_jet");
-    h_lepEres_ = (TH1F*)lepangleresfile.Get("fE");
-    h_lepAngleRes_->SetDirectory(0);
-    h_lepEres_->SetDirectory(0);
-    lepangleresfile.Close();
-    //
+     TString data_path1 = common::DATA_PATH_COMMON();
+     //data_path1.Append("/../../diLeptonic/N006/NEW-KinReco_d_angle_fE.root");
+     //data_path1.Append("/../../diLeptonic/N007/NEW-KinReco_d_angle_fE.root");
+     //data_path1.Append("/../../diLeptonic/N007met/NEW-KinReco_d_angle_fE.root");
+     data_path1.Append("/KinReco_d_angle_fE.root");
+     TFile tempTFile(data_path1);
+     h_jetAngleRes_ = (TH1F*)tempTFile.Get("KinReco_d_angle_lep_step7");
+     h_jetEres_ = (TH1F*)tempTFile.Get("KinReco_fE_jet_step7");
+     h_lepAngleRes_ = (TH1F*)tempTFile.Get("KinReco_d_angle_lep_step7");
+     h_lepEres_ = (TH1F*)tempTFile.Get("KinReco_fE_lep_step7");
+     h_lepAngleRes_->SetDirectory(0);
+     h_lepEres_->SetDirectory(0);
+     h_jetAngleRes_->SetDirectory(0);
+     h_jetEres_->SetDirectory(0);
+     tempTFile.Close();
+     
+     
 // 
 //     //MET resolution
     
@@ -1037,9 +1055,13 @@ void KinematicReconstructionScaleFactors::prepareSF(const SystematicInternal& sy
     //const std::map<Channel::Channel, double> m_sfNominal { {Channel::ee, 0.9779}, {Channel::emu, 0.9871}, {Channel::mumu, 0.9879} };
     //const std::map<Channel::Channel, double> m_sfUnc { {Channel::ee, 0.0066}, {Channel::emu, 0.0032}, {Channel::mumu, 0.0056} };
     
-    // SF for newKinReco flat
-    const std::map<Channel::Channel, double> m_sfNominal { {Channel::ee, 0.9876}, {Channel::emu, 0.9921}, {Channel::mumu, 0.9949} };
-    const std::map<Channel::Channel, double> m_sfUnc { {Channel::ee, 0.0043}, {Channel::emu, 0.0019}, {Channel::mumu, 0.0037} };
+    // SF for newKinReco flat Old
+    //const std::map<Channel::Channel, double> m_sfNominal { {Channel::ee, 0.9876}, {Channel::emu, 0.9921}, {Channel::mumu, 0.9949} };
+    //const std::map<Channel::Channel, double> m_sfUnc { {Channel::ee, 0.0043}, {Channel::emu, 0.0019}, {Channel::mumu, 0.0037} };
+    
+    // SF for newKinReco flat N007mvamet
+    const std::map<Channel::Channel, double> m_sfNominal { {Channel::ee, 0.9854}, {Channel::emu, 0.9934}, {Channel::mumu, 0.9934} };
+    const std::map<Channel::Channel, double> m_sfUnc { {Channel::ee, 0.0041}, {Channel::emu, 0.0018}, {Channel::mumu, 0.0036} };
     
     // SF for mass(top) = 173 GeV
     //const std::map<Channel::Channel, double> m_sfNominal { {Channel::ee, 0.9696}, {Channel::emu, 0.9732}, {Channel::mumu, 0.9930} };
