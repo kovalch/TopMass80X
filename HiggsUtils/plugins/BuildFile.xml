@@ -1,9 +1,11 @@
 <use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
 <use name="DataFormats/HepMCCandidate"/>
-<use name="FWCore/MessageLogger"/>
+
+<use name="RecoBTau/JetTagComputer"/>
 <use name="TopQuarkAnalysis/TopEventProducers"/>
 <library file="*.cc" name="TopAnalysisHiggsUtilsPlugins">
   <use name="TopAnalysis/HiggsUtils"/>

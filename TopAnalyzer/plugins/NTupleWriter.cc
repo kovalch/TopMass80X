@@ -275,6 +275,7 @@ private:
     std::vector<int> VjetSelectedTrackCharge;
     std::vector<int> VjetSelectedTrackIndex;
     std::vector<LV> VjetSecondaryVertex;
+    std::vector<double> VjetSecondaryVertexPtCorrectedMass;
     std::vector<int> VjetSecondaryVertexJetIndex;
     std::vector<double> VjetSecondaryVertexFlightDistanceValue;
     std::vector<double> VjetSecondaryVertexFlightDistanceSignificance;
@@ -1214,6 +1215,8 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
         VjetAssociatedPartonPdgId.push_back(i_jetProperties->jetAssociatedPartonPdgId());
         VjetAssociatedParton.push_back(i_jetProperties->jetAssociatedParton());
         
+        VjetSecondaryVertexPtCorrectedMass.push_back(i_jetProperties->jetSecondaryVertexPtCorrectedMass());
+
         const int jetIndex = i_jetProperties-jetPropertiesHandle->begin();
                 
         // FIXME: all these vectors could be directly inserted at the end of the corresponding vector instead of doing it element-wise
@@ -1485,6 +1488,7 @@ NTupleWriter::beginJob()
     Ntuple->Branch("jetSelectedTrackCharge", &VjetSelectedTrackCharge);
     Ntuple->Branch("jetSelectedTrackIndex", &VjetSelectedTrackIndex);
     Ntuple->Branch("jetSecondaryVertex", &VjetSecondaryVertex);
+    Ntuple->Branch("jetSecondaryVertexPtCorrectedMass", &VjetSecondaryVertexPtCorrectedMass);
     Ntuple->Branch("jetSecondaryVertexJetIndex", &VjetSecondaryVertexJetIndex);
     Ntuple->Branch("jetSecondaryVertexFlightDistanceValue", &VjetSecondaryVertexFlightDistanceValue);
     Ntuple->Branch("jetSecondaryVertexFlightDistanceSignificance", &VjetSecondaryVertexFlightDistanceSignificance);
@@ -1683,6 +1687,7 @@ void NTupleWriter::clearVariables()
     VjetSelectedTrackCharge.clear();
     VjetSelectedTrackIndex.clear();
     VjetSecondaryVertex.clear();
+    VjetSecondaryVertexPtCorrectedMass.clear();
     VjetSecondaryVertexJetIndex.clear();
     VjetSecondaryVertexFlightDistanceValue.clear();
     VjetSecondaryVertexFlightDistanceSignificance.clear();

@@ -40,6 +40,12 @@
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 #include "DataFormats/Common/interface/RefVector.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
+#include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
+#include "RecoBTau/JetTagComputer/interface/GenericMVAJetTagComputer.h"
+#include "RecoBTau/JetTagComputer/interface/GenericMVAJetTagComputerWrapper.h"
+
 
 //
 // class declaration
@@ -106,6 +112,15 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     //edm::Handle<edm::View< pat::Jet > > jetHandle;
     iEvent.getByLabel(jets, jetHandle);
     
+    // Get a JetTagComputer in order to retrieve the pT-corrected secondary vertex mass used by the CSV algorithm
+    edm::ESHandle<JetTagComputer> computerHandle;
+    edm::InputTag secondaryVertexComputer(parameterSet_.getParameter<edm::InputTag>("svComputer"));
+    iSetup.get<JetTagComputerRecord>().get( secondaryVertexComputer.label(), computerHandle );
+    const GenericMVAJetTagComputer *computer ;
+    computer = dynamic_cast<const GenericMVAJetTagComputer*>( computerHandle.product() );        
+    computer->passEventSetup(iSetup);
+
+    
     // The sum of the multiplicities of the jetSelectedTracks for all the jets before the jet that is currently analysed
     // This variable is used so that we can give the proper value to the jetSecondaryVertexTrackMatchToSelectedTrackIndex
     int jetSelectedTrackMultiplicity_total = 0; 
@@ -150,6 +165,9 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         std::vector<int> jetSecondaryVertexTrackVertexIndex;
         std::vector<double> jetSecondaryVertexFlightDistanceValue;
         std::vector<double> jetSecondaryVertexFlightDistanceSignificance;
+        
+        // pT-corrected secondary vertex mass used by the CSV algorithm (if there's no secondary vertex in the jet then it is set to -8888.)
+        double jetSecondaryVertexPtCorrectedMass = -8888.;
         
         // Find the Index of the jetSelectedTracks that are matched to the jetSecondaryVertexTracks
         std::vector<int> jetSecondaryVertexTrackMatchToSelectedTrackIndex;
@@ -230,6 +248,20 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
                         if (secondaryVertexTagInfo != NULL){
                             
                             unsigned int nVertex = secondaryVertexTagInfo->nVertices();
+                            
+                            // Pass the TagInfos to the JetTagComputer
+                            std::vector<const reco::BaseTagInfo*>  baseTagInfos;
+                            JetTagComputer::TagInfoHelper helper(baseTagInfos);
+                            baseTagInfos.push_back( trackIPTagInfo );
+                            baseTagInfos.push_back( secondaryVertexTagInfo );
+                            reco::TaggingVariableList vars = computer->taggingVariables(helper);
+                            
+                            // Retrieve the pT-corrected secondary vertex mass used by the CSV algorithm
+                            if ( nVertex > 0) {
+                                jetSecondaryVertexPtCorrectedMass = ( vars.checkTag(reco::btau::vertexMass) ? vars.get(reco::btau::vertexMass) : -9999 );
+                            }
+                            
+                            
                             for(size_t iVertex=0; iVertex<nVertex; ++iVertex){   
                                 
                                 const reco::Vertex& secVertex = secondaryVertexTagInfo->secondaryVertex(iVertex);
@@ -299,7 +331,7 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
             jetAssociatedParton = genParton->polarP4();
         }
         
-        JetProperties jetProperties(jetChargeGlobalPtWeighted, jetChargeRelativePtWeighted, jetAssociatedPartonPdgId, jetAssociatedParton, jetPfCandidateTrack, jetPfCandidateTrackCharge,jetPfCandidateTrackId, jetSelectedTrackMatchToPfCandidateIndex, jetSelectedTrack, jetSelectedTrackIPValue, jetSelectedTrackIPSignificance, jetSelectedTrackCharge, jetSecondaryVertexTrackMatchToSelectedTrackIndex, jetSecondaryVertexTrackVertexIndex, jetSecondaryVertex, jetSecondaryVertexFlightDistanceValue, jetSecondaryVertexFlightDistanceSignificance);
+        JetProperties jetProperties(jetChargeGlobalPtWeighted, jetChargeRelativePtWeighted, jetAssociatedPartonPdgId, jetAssociatedParton, jetPfCandidateTrack, jetPfCandidateTrackCharge,jetPfCandidateTrackId, jetSelectedTrackMatchToPfCandidateIndex, jetSelectedTrack, jetSelectedTrackIPValue, jetSelectedTrackIPSignificance, jetSelectedTrackCharge, jetSecondaryVertexTrackMatchToSelectedTrackIndex, jetSecondaryVertexTrackVertexIndex, jetSecondaryVertex, jetSecondaryVertexFlightDistanceValue, jetSecondaryVertexFlightDistanceSignificance, jetSecondaryVertexPtCorrectedMass);
         v_jetProperties->push_back(jetProperties);
         
         edm::LogVerbatim log("JetPropertiesProducer");
@@ -375,6 +407,7 @@ JetPropertiesProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
     // An exception is thrown when the parameter is not defined in the config files, instead of silently using the default given here
     edm::ParameterSetDescription desc;
     desc.add<edm::InputTag>("src");
+    desc.add<edm::InputTag>("svComputer");
     descriptions.add("jetProperties", desc);
 }
 
