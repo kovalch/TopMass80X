@@ -479,6 +479,7 @@ private:
     TBranch* b_jetSelectedTrackIndex;
     TBranch* b_jetSelectedTrackMatchToPfCandidateIndex;
     TBranch* b_jetSecondaryVertex;
+    TBranch* b_jetSecondaryVertexPtCorrectedMass;
     TBranch* b_jetSecondaryVertexJetIndex;
     TBranch* b_jetSecondaryVertexFlightDistanceValue;
     TBranch* b_jetSecondaryVertexFlightDistanceSignificance;

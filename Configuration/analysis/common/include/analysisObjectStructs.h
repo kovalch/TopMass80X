@@ -54,6 +54,7 @@ struct RecoObjects{
     std::vector<int>* jetSelectedTrackIndex_;
     std::vector<int>* jetSelectedTrackMatchToPfCandidateIndex_;
     std::vector<LV>* jetSecondaryVertex_;
+    std::vector<double>* jetSecondaryVertexPtCorrectedMass_;
     std::vector<int>* jetSecondaryVertexJetIndex_;
     std::vector<double>* jetSecondaryVertexFlightDistanceValue_;
     std::vector<double>* jetSecondaryVertexFlightDistanceSignificance_;

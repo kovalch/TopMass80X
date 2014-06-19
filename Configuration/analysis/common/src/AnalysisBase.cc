@@ -445,6 +445,7 @@ void AnalysisBase::clearBranches()
     b_jetSecondaryVertexTrackMatchToSelectedTrackIndex = 0;
     b_jetSecondaryVertexTrackVertexIndex = 0;
     b_jetSecondaryVertex = 0;
+    b_jetSecondaryVertexPtCorrectedMass = 0;
     b_jetSecondaryVertexJetIndex = 0;
     b_jetSecondaryVertexFlightDistanceValue = 0;
     b_jetSecondaryVertexFlightDistanceSignificance = 0;
@@ -677,7 +678,10 @@ void AnalysisBase::SetRecoBranchAddresses()
     else b_jetSelectedTrackMatchToPfCandidateIndex = 0;
     if(chain_->GetBranch("jetSecondaryVertex")) // new variable, keep check a while for compatibility
        chain_->SetBranchAddress("jetSecondaryVertex", &recoObjects_->jetSecondaryVertex_, &b_jetSecondaryVertex);
-    else b_jetSecondaryVertex = 0;
+    else b_jetSecondaryVertex = 0; 
+    if(chain_->GetBranch("jetSecondaryVertexPtCorrectedMass")) // new variable, keep check a while for compatibility
+       chain_->SetBranchAddress("jetSecondaryVertexPtCorrectedMass", &recoObjects_->jetSecondaryVertexPtCorrectedMass_, &b_jetSecondaryVertexPtCorrectedMass);
+    else b_jetSecondaryVertexPtCorrectedMass = 0;
     if(chain_->GetBranch("jetSecondaryVertexJetIndex")) // new variable, keep check a while for compatibility
      chain_->SetBranchAddress("jetSecondaryVertexJetIndex", &recoObjects_->jetSecondaryVertexJetIndex_, &b_jetSecondaryVertexJetIndex);
     else b_jetSecondaryVertexJetIndex = 0;
@@ -936,6 +940,7 @@ void AnalysisBase::GetRecoBranchesEntry(const Long64_t& entry)const
 //     if(b_jetSelectedTrackCharge) b_jetSelectedTrackCharge->GetEntry(entry);
 //     if(b_jetSelectedTrackIndex) b_jetSelectedTrackIndex->GetEntry(entry);
 //     if(b_jetSecondaryVertex) b_jetSecondaryVertex->GetEntry(entry);
+//     if(b_jetSecondaryVertexPtCorrectedMass) b_jetSecondaryVertexPtCorrectedMass->GetEntry(entry);
 //     if(b_jetSecondaryVertexJetIndex) b_jetSecondaryVertexJetIndex->GetEntry(entry);
 //     if(b_jetSecondaryVertexFlightDistanceValue) b_jetSecondaryVertexFlightDistanceValue->GetEntry(entry);
 //     if(b_jetSecondaryVertexFlightDistanceSignificance) b_jetSecondaryVertexFlightDistanceSignificance->GetEntry(entry);

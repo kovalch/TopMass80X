@@ -51,6 +51,7 @@ void RecoObjects::clear()
     jetSelectedTrackIndex_ = 0;
     jetSelectedTrackMatchToPfCandidateIndex_ = 0;
     jetSecondaryVertex_ = 0;
+    jetSecondaryVertexPtCorrectedMass_ = 0;
     jetSecondaryVertexJetIndex_ = 0;
     jetSecondaryVertexFlightDistanceValue_ = 0;
     jetSecondaryVertexFlightDistanceSignificance_ = 0;
