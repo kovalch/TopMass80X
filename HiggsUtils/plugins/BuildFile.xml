@@ -4,7 +4,6 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
 <use name="DataFormats/HepMCCandidate"/>
-
 <use name="RecoBTau/JetTagComputer"/>
 <use name="TopQuarkAnalysis/TopEventProducers"/>
 <library file="*.cc" name="TopAnalysisHiggsUtilsPlugins">

@@ -44,7 +44,7 @@
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
 #include "RecoBTau/JetTagComputer/interface/GenericMVAJetTagComputer.h"
-#include "RecoBTau/JetTagComputer/interface/GenericMVAJetTagComputerWrapper.h"
+#include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 
 
 //
@@ -258,7 +258,7 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
                             
                             // Retrieve the pT-corrected secondary vertex mass used by the CSV algorithm
                             if ( nVertex > 0) {
-                                jetSecondaryVertexPtCorrectedMass = ( vars.checkTag(reco::btau::vertexMass) ? vars.get(reco::btau::vertexMass) : -9999 );
+                                jetSecondaryVertexPtCorrectedMass = ( vars.checkTag(reco::btau::vertexMass) ? vars.get(reco::btau::vertexMass) : -9999. );
                             }
                             
                             
