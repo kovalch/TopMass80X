@@ -10,7 +10,10 @@ double logPoisson(const double & k, const double& lambda){
 double poisson(const double & k, const double& lambda){
     return exp(logPoisson(k,lambda));
 }
-
+double mcLnPoisson(const float & centreN, const float & mcstat2, const float& evalpoint){
+    double mcnorm=mcstat2/centreN;
+    return logPoisson(evalpoint+mcnorm*centreN, centreN+mcnorm*centreN);
+}
 
 float getTtbarXsec(float topmass, float energy, float* scaleerr, float * pdferr){
     /*
@@ -104,7 +107,7 @@ TH2D divideTH2DBinomial(TH2D &h1, TH2D &h2) { //! out = h1 / h2
             double err = 1;
             if (h2.GetBinContent(binx, biny) != 0) {
                 cont = h1.GetBinContent(binx, biny)
-                                                / h2.GetBinContent(binx, biny);
+                                                        / h2.GetBinContent(binx, biny);
                 err = sqrt(cont * (1 - cont) / h1.GetBinContent(binx, biny));
             }
             out.SetBinContent(binx, biny, cont);
@@ -128,7 +131,7 @@ TH2D divideTH2D(TH2D &h1, TH2D &h2) {
             double err = 1;
             if (h2.GetBinContent(binx, biny) != 0) {
                 cont = h1.GetBinContent(binx, biny)
-                                                / h2.GetBinContent(binx, biny);
+                                                        / h2.GetBinContent(binx, biny);
                 err = sqrt(
                         pow(
                                 h1.GetBinError(binx, biny)

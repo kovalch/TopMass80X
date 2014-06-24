@@ -52,6 +52,8 @@ double logPoisson(const double & k, const double& lambda);
  */
 double poisson(const double & k, const double& lambda);
 
+double mcLnPoisson(const float & centreN, const float & mcstat2, const float& evalpoint);
+
 /**
  * following numbers and mass dependence provided in NNLO paper arXiv:1303.6254
  * errors are NOT returned in % (so e.g. 0.026)
@@ -119,13 +121,13 @@ template<class t, class u>
 double dR(t &first, u &sec) {
     return sqrt(
             (first.eta() - sec.eta()) * (first.eta() - sec.eta())
-                    + (first.phi() - sec.phi()) * (first.phi() - sec.phi()));
+            + (first.phi() - sec.phi()) * (first.phi() - sec.phi()));
 }
 template<class t, class u>
 double dR(t *first, u *sec) {
     return sqrt(
             (first->eta() - sec->eta()) * (first->eta() - sec->eta())
-                    + (first->phi() - sec->phi()) * (first->phi() - sec->phi()));
+            + (first->phi() - sec->phi()) * (first->phi() - sec->phi()));
 }
 
 template<class t, class u>
@@ -133,7 +135,7 @@ bool noOverlap(t *first, u *sec, double deltaR) {
     bool nooverlap = true;
     if ((deltaR * deltaR)
             > square(first->eta() - sec->eta())
-                    + square(first->phi() - sec->phi())) {
+            + square(first->phi() - sec->phi())) {
         nooverlap = false;
     }
     return nooverlap;
@@ -202,48 +204,48 @@ bool fileExists(const char * filename);
  * return -1 if no match is found.
  * the input elements are NOT changed but passing by const& leads to errors in some cases
  */
-template<class T, class U>
+ template<class T, class U>
 int getClosestInDR(T* element, std::vector<U*>& coll, double & dRmax = 999,
         const double & dptrel = 200) {
-    double dRmin = 9999;
-    if (dRmax)
-        dRmin = dRmax;
-    int idx = -1;
-    for (size_t i = 0; i < coll.size(); i++) {
-        double dr = dR(element, coll.at(i));
-        if (dr < dRmin
-                && dptrel
-                        > fabs(element->pt() - coll.at(i)->pt())
-                                / element->pt()) {
-            dRmin = dr;
-            idx = i;
-        }
-    }
-    if (!dRmax)
-        dRmax = dRmin;
-    return idx;
-}
+     double dRmin = 9999;
+     if (dRmax)
+         dRmin = dRmax;
+     int idx = -1;
+     for (size_t i = 0; i < coll.size(); i++) {
+         double dr = dR(element, coll.at(i));
+         if (dr < dRmin
+                 && dptrel
+                 > fabs(element->pt() - coll.at(i)->pt())
+                 / element->pt()) {
+             dRmin = dr;
+             idx = i;
+         }
+     }
+     if (!dRmax)
+         dRmax = dRmin;
+     return idx;
+ }
 
-template<class T, class U>
-int getClosestInDR(T& element, std::vector<U>& coll, double & dRmax = 999,
-        const double & dptrel = 200) {
-    double dRmin = 9999;
-    if (dRmax)
-        dRmin = dRmax;
-    int idx = -1;
-    for (size_t i = 0; i < coll.size(); i++) {
-        double dr = dR(element, coll.at(i));
-        if (dr < dRmin
-                && dptrel
-                        > fabs(element.pt() - coll.at(i).pt()) / element.pt()) {
-            dRmin = dr;
-            idx = i;
-        }
-    }
-    if (!dRmax)
-        dRmax = dRmin;
-    return idx;
-}
+ template<class T, class U>
+ int getClosestInDR(T& element, std::vector<U>& coll, double & dRmax = 999,
+         const double & dptrel = 200) {
+     double dRmin = 9999;
+     if (dRmax)
+         dRmin = dRmax;
+     int idx = -1;
+     for (size_t i = 0; i < coll.size(); i++) {
+         double dr = dR(element, coll.at(i));
+         if (dr < dRmin
+                 && dptrel
+                 > fabs(element.pt() - coll.at(i).pt()) / element.pt()) {
+             dRmin = dr;
+             idx = i;
+         }
+     }
+     if (!dRmax)
+         dRmax = dRmin;
+     return idx;
+ }
 
 }
 
