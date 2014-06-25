@@ -449,12 +449,12 @@ process.load("JetMETCorrections.Type1MET.pfMETsysShiftCorrections_cfi")
 process.load("JetMETCorrections.Type1MET.pfMETCorrections_cff")
 
 process.pfMEtSysShiftCorrParameters_2012runABCDvsNvtx_data = cms.PSet( # CV: ReReco data + Summer'13 JEC
-    px = cms.string("+4.83642e-02 + 2.48870e-01*Nvtx"),
-    py = cms.string("-1.50135e-01 - 8.27917e-02*Nvtx")
+    px = cms.string("+7.99e-02 + 2.393e-01*Nvtx"),
+    py = cms.string("-1.370e-01 - 8.02e-02*Nvtx")
 )
 process.pfMEtSysShiftCorrParameters_2012runABCDvsNvtx_mc = cms.PSet( # CV: Summer'12 MC + Summer'13 JEC
-    px = cms.string("+1.62861e-01 - 2.38517e-02*Nvtx"),
-    py = cms.string("+3.60860e-01 - 1.30335e-01*Nvtx")
+    px = cms.string("+0.982e-01 + 1.38e-02*Nvtx"),
+    py = cms.string("+1.802e-01 - 1.347e-01*Nvtx")
 )
 
 process.pfMEtSysShiftCorr.src = cms.InputTag('pfMET'+pfpostfix)
@@ -473,7 +473,7 @@ process.pfMetT1Txy.srcType1Corrections = cms.VInputTag(
     cms.InputTag('pfMEtSysShiftCorr')
     )
 
-process.patpfMetT1Txy = getattr(process,'patPFMet'+pfpostfix).clone()
+process.patpfMetT1Txy = getattr(process, 'patPFMet'+pfpostfix).clone()
 process.patpfMetT1Txy.metSource = 'pfMetT1Txy'
 
 # Type0 and type1 correction + phi correction
@@ -484,7 +484,7 @@ process.pfMetT0T1Txy.srcType1Corrections = cms.VInputTag(
     cms.InputTag('pfMEtSysShiftCorr')
     )
 
-process.patpfMetT0T1Txy = getattr(process,'patPFMet'+pfpostfix).clone()
+process.patpfMetT0T1Txy = getattr(process, 'patPFMet'+pfpostfix).clone()
 process.patpfMetT0T1Txy.metSource = 'pfMetT0T1Txy'
 
 # Sequence for full inclusion of phi corrections
@@ -497,9 +497,9 @@ process.pfMetPhiCorrectionSequence = cms.Sequence(
     process.patpfMetT1Txy
     )
 
-process.userPatSequence.replace(getattr(process,'patMETs'+pfpostfix),
+process.userPatSequence.replace(getattr(process, 'patMETs'+pfpostfix),
                                 process.pfMetPhiCorrectionSequence *
-                                getattr(process,'patMETs'+pfpostfix))
+                                getattr(process, 'patMETs'+pfpostfix))
 
 #correctedPatMet = "patpfMetT0T1Txy"
 correctedPatMet = "patpfMetT1Txy"
