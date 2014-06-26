@@ -2181,13 +2181,15 @@ void AnalyzerDijet::fillTopAdditionalJetsHistos(const RecoObjects& recoObjects, 
     // Identifying reco jets from tt by MVA
     std::vector<float> v_mvaWeights;
     std::vector<MvaVariablesBase*> v_mvaVariables = MvaVariablesTopJets::fillVariables(recoObjectIndices, genObjectIndices, recoObjects, weight);
-    if(weightsCorrect_) v_mvaWeights = weightsCorrect_->mvaWeights(v_mvaVariables);
-    const tth::IndexPairs& jetIndexPairs = recoObjectIndices.jetIndexPairs_;
-    std::vector<int> jetIndexPairsIndices = common::initialiseIndices(jetIndexPairs);
-    common::orderIndices(jetIndexPairsIndices, v_mvaWeights);
-    if(jetIndexPairsIndices.size()>0) {
-        topJetsId_mva.push_back(jetIndexPairs.at(jetIndexPairsIndices.at(0)).first);
-        topJetsId_mva.push_back(jetIndexPairs.at(jetIndexPairsIndices.at(0)).second);
+    if(weightsCorrect_) {
+        v_mvaWeights = weightsCorrect_->mvaWeights(v_mvaVariables);
+        const tth::IndexPairs& jetIndexPairs = recoObjectIndices.jetIndexPairs_;
+        std::vector<int> jetIndexPairsIndices = common::initialiseIndices(jetIndexPairs);
+        common::orderIndices(jetIndexPairsIndices, v_mvaWeights);
+        if(jetIndexPairsIndices.size()>0) {
+            topJetsId_mva.push_back(jetIndexPairs.at(jetIndexPairsIndices.at(0)).first);
+            topJetsId_mva.push_back(jetIndexPairs.at(jetIndexPairsIndices.at(0)).second);
+        }
     }
     common::orderIndices(topJetsId_mva, allJets, common::LVpt);
     // Setting variables of gen. level if available
