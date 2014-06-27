@@ -777,7 +777,8 @@ if options.includePDFWeights:
         GenTag = cms.untracked.InputTag("genParticles"),
         PdfInfoTag = cms.untracked.InputTag("generator"),
         PdfSetNames = cms.untracked.vstring(
-            "cteq66.LHgrid"
+            "CT10.LHgrid"
+            #"cteq66.LHgrid"
             #, "MRST2006nnlo.LHgrid"
             #, "NNPDF10_100.LHgrid"
             #"cteq6mE.LHgrid"
@@ -885,7 +886,8 @@ writeNTuple.isTtBarSample = topSignal
 writeNTuple.isHiggsSample = higgsSignal
 writeNTuple.isZSample = zGenInfo
 writeNTuple.includePDFWeights = options.includePDFWeights
-writeNTuple.pdfWeights = "pdfWeights:cteq66"
+writeNTuple.pdfWeights = "pdfWeights:CT10"
+#writeNTuple.pdfWeights = "pdfWeights:cteq66"
 writeNTuple.includeZdecay = zproducer
 writeNTuple.saveHadronMothers = False
 writeNTuple.saveCHadronParticles = False
@@ -1017,7 +1019,8 @@ process.correctRecoMuonEnergy.muonSrc = 'muons'
 from TopAnalysis.TopAnalyzer.CountEventAnalyzer_cfi import countEvents
 process.EventsBeforeSelection = countEvents.clone()
 process.EventsBeforeSelection.includePDFWeights = options.includePDFWeights
-process.EventsBeforeSelection.pdfWeights = "pdfWeights:cteq66"
+process.EventsBeforeSelection.pdfWeights = "pdfWeights:CT10"
+#process.EventsBeforeSelection.pdfWeights = "pdfWeights:cteq66"
 
 print 'prepending common sequence to paths:', pathnames
 for pathname in pathnames:
