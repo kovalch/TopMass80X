@@ -55,14 +55,23 @@ private:
     void produceScaleFactors(const TString& step, const Samples& samples);
     
     /// Struct to hold value-error pair
-    struct ValErr {double val; double err;};
+    struct ValErr {
+        double val; double err;
+        ValErr(double v, double e):val(v), err(e){}
+        ValErr():val(1.), err(1.){}
+            
+    };
     
     /// Typedef for the map of scale factor value to the sample name
     typedef std::map<Sample::SampleType, ValErr> SampleTypeValueMap;
     
     /// Produce map of scale factors for each sample from fitting the histograms
-    const std::map<Sample::SampleType, ValErr> getScaleFactorsFromHistos(TH1* h_data, TH1* h_ttbb, TH1* h_ttb, TH1* h_tto, TH1* h_bkg, 
-                                                                         const TString& step, const Channel::Channel channel)const;
+    const std::vector<ValErr> getScaleFactorsFromHistos(const std::vector<TH1*> histos, const TString& step, 
+                                                        const Channel::Channel channel)const;
+                                                        
+    /// Produce map of scale factors for each sample from fitting the histograms (using RooFit)
+    const std::vector<ValErr> getScaleFactorsFromHistos_roofit(const std::vector<TH1*> histos, const TString& step, 
+                                                               const Channel::Channel channel)const;
 
     
     
@@ -75,6 +84,9 @@ private:
     
     /// Map containing the Heavy-Flavour fraction scale factors
     HfFracScaleFactorMap m_hfFracScaleFactors_;
+    
+    /// Map containing the list of sample types with ids: to set specific combinations of samples to be fitted to data
+    std::map<Sample::SampleType, int> sampleTypeIds_;
 };
 
 

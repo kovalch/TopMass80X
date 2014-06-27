@@ -30,7 +30,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         {"ttbarsignalPlusBbbar.root"},
         Sample::ttbb
     );
-    
+
     result["ttbarsignalPlusB"] = Sample(
         "t#bar{t}b",
         12,
@@ -38,7 +38,23 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         {"ttbarsignalPlusB.root"},
         Sample::ttb
     );
-    
+
+    result["ttbarsignalPlus2B"] = Sample(
+        "t#bar{t}2b",
+        28,
+        234.0,
+        {"ttbarsignalPlus2B.root"},
+        Sample::tt2b
+    );
+
+    result["ttbarsignalPlusCcbar"] = Sample(
+        "t#bar{t}cc",
+        29,
+        234.0,
+        {"ttbarsignalPlusCcbar.root"},
+        Sample::ttcc
+    );
+
     result["ttbarsignalPlusOther"] = Sample(
         "t#bar{t}Other",
         23,

@@ -822,20 +822,48 @@ bool HiggsAnalysis::failsAdditionalJetFlavourSelection(const Long64_t& entry)con
     // Use the full ttbar sample for creating btag efficiencies
     if(this->makeBtagEfficiencies()) return false;
     
-    // FIXME: this is a workaround as long as there is no specific additional jet flavour info written to nTuple
+    // Signal definition for b-jets
+    const float signalJetPt_min = 20.;
+    const float signalJetEta_max = 2.5;
+    
     const TopGenObjects& topGenObjects = this->getTopGenObjects(entry);
     
     int jetAddId = topGenObjects.genExtraTopJetNumberId_;
     if(jetAddId < 200) {
-        if(additionalBjetMode_==0) return false;
+        if(additionalBjetMode_==0) return false;                                // tt+other (if <2 b-jets from tt)
         else return true;
     }
     jetAddId -= 200;
     
     // Can be used starting from N005 ntuples
-    if(additionalBjetMode_==2 && jetAddId==2) return false;
-    if(additionalBjetMode_==1 && jetAddId==1) return false;
-    if(additionalBjetMode_==0 && jetAddId!=2 && jetAddId!=1) return false;
+    if(additionalBjetMode_==4 && (jetAddId==21 || jetAddId==22)) return false;  // tt+c (tt+cc)
+    if(additionalBjetMode_==3 && jetAddId==2) return false;                     // tt+bb
+    if(additionalBjetMode_==0 && ( jetAddId==0
+                              || (jetAddId>2 && jetAddId<21)
+                              ||  jetAddId>22 ) ) return false;                 // tt+other
+    // Separating 2 cases of tt+b
+    if(jetAddId == 1) {
+        const CommonGenObjects& commonGenObjects = this->getCommonGenObjects(entry);
+        if(topGenObjects.valuesSet_){
+            const VLV& allGenJets = *commonGenObjects.allGenJets_;
+            std::vector<std::vector<int> > genJetBhadronIndices = this->matchBhadronsToGenJets(allGenJets, topGenObjects);
+            for(size_t iJet = 0; iJet<genJetBhadronIndices.size(); ++iJet) {
+                if(allGenJets.at(iJet).Pt()<signalJetPt_min || std::fabs(allGenJets.at(iJet).Eta())>signalJetEta_max) continue;
+                std::vector<int> bHadIds = genJetBhadronIndices.at(iJet);
+                int nHads_top = 0;
+                int nHads_add = 0;
+                for(unsigned int hadId : bHadIds) {
+                    if(std::abs(topGenObjects.genBHadFlavour_->at(hadId)) == 6) nHads_top++;
+                    if(std::abs(topGenObjects.genBHadFromTopWeakDecay_->at(hadId)) == 0) nHads_add++;
+                }
+                // If b-jet overlaps with a b-jet from tt - treated as not in acceptance (to represent matrix element additional b)
+                if(nHads_top > 0) continue;
+                if(nHads_add > 1 && additionalBjetMode_==1) return false;       // tt+b (two b-hadrons in 1 jet)
+            }
+            if(additionalBjetMode_==2) return false;                            // tt+b (other b-jet not in acceptance)
+        }
+    }
+    
     return true;
     
     // Should be used prior to N005 ntuples

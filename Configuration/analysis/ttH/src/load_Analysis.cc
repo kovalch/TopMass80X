@@ -433,21 +433,35 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
                     chain.Process(selector, "", maxEvents, skipEvents);
                     selector->SetSampleForBtagEfficiencies(false);
                 }
-                if(part==1 || part==-1){ // output is ttbar+b
+                if(part==1 || part==-1){ // output is ttbar+b with >=2 b-hadrons in a single jet
                     selector->SetAdditionalBjetMode(1);
+                    TString modifiedOutputfilename(outputfilename);
+                    modifiedOutputfilename.ReplaceAll("signalplustau", "signalPlus2B");
+                    selector->SetOutputfilename(modifiedOutputfilename);
+                    chain.Process(selector, "", maxEvents, skipEvents);
+                }
+                if(part==2 || part==-1){ // output is ttbar+b
+                    selector->SetAdditionalBjetMode(2);
                     TString modifiedOutputfilename(outputfilename);
                     modifiedOutputfilename.ReplaceAll("signalplustau", "signalPlusB");
                     selector->SetOutputfilename(modifiedOutputfilename);
                     chain.Process(selector, "", maxEvents, skipEvents);
                 }
-                if(part==2 || part==-1){ // output is ttbar+bbbar
-                    selector->SetAdditionalBjetMode(2);
+                if(part==3 || part==-1){ // output is ttbar+bbbar
+                    selector->SetAdditionalBjetMode(3);
                     TString modifiedOutputfilename(outputfilename);
                     modifiedOutputfilename.ReplaceAll("signalplustau", "signalPlusBbbar");
                     selector->SetOutputfilename(modifiedOutputfilename);
                     chain.Process(selector, "", maxEvents, skipEvents);
                 }
-                if(part >= 3){
+                if(part==4 || part==-1){ // output is ttbar+ccbar
+                    selector->SetAdditionalBjetMode(4);
+                    TString modifiedOutputfilename(outputfilename);
+                    modifiedOutputfilename.ReplaceAll("signalplustau", "signalPlusCcbar");
+                    selector->SetOutputfilename(modifiedOutputfilename);
+                    chain.Process(selector, "", maxEvents, skipEvents);
+                }
+                if(part >= 5){
                     std::cerr<<"ERROR in load_Analysis! Specified part for ttbar+HF separation is not allowed (sample, part): "
                              <<outputfilename<<" , "<<part<<"\n...break\n"<<std::endl;
                     exit(647);
@@ -516,7 +530,7 @@ int main(int argc, char** argv)
 {
     CLParameter<std::string> opt_filenamePattern("f", "Restrict to filename pattern, e.g. ttbar", false, 1, 1);
     CLParameter<int> opt_partToRun("p", "Specify a part to be run for samples which are split in subsamples (via ID). Default is no splitting", false, 1, 1,
-            [](int part){return part>=0 && part<3;});
+            [](int part){return part>=0 && part<5;});
     CLParameter<std::string> opt_channel("c", "Specify a certain channel (ee, emu, mumu). No channel specified = run on all channels", false, 1, 1,
             common::makeStringCheck(Channel::convert(Channel::allowedChannelsAnalysis)));
     CLParameter<std::string> opt_systematic("s", "Run with a systematic that runs on the nominal ntuples, e.g. 'PU_UP'", false, 1, 1,

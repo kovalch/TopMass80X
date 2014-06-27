@@ -364,11 +364,13 @@ void AnalyzerHfFracScaling::bookHistos(const TString& step, std::map<TString, TH
 {
     TString name = "bTag_mult";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "B-tagged jet multiplicity; N b-tags; events",10,0,10));
+    name = "bTag_sum";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Sum of b-tag discriminants; Sum of b-tags; # events",30,0.,15.));
 }
 
 
 
-void AnalyzerHfFracScaling::fillHistos(const RecoObjects&, const CommonGenObjects&,
+void AnalyzerHfFracScaling::fillHistos(const RecoObjects& recoObjects, const CommonGenObjects&,
                                    const TopGenObjects&, const HiggsGenObjects&,
                                    const KinRecoObjects&,
                                    const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices&,
@@ -376,8 +378,15 @@ void AnalyzerHfFracScaling::fillHistos(const RecoObjects&, const CommonGenObject
                                    const double& weight, const TString&,
                                    std::map<TString, TH1*>& m_histogram)
 {
+    const std::vector<int>& jetIndices = recoObjectIndices.jetIndices_;
     const int nBJets = recoObjectIndices.bjetIndices_.size();
+    const std::vector<double>& jetsBtagDiscriminant = *recoObjects.jetBTagCSV_;
+    double bTag_sum = 0.;
+    for(size_t jetId = 0; jetId < jetIndices.size(); ++jetId) {
+        bTag_sum += jetsBtagDiscriminant.at(jetId);
+    }
     m_histogram["bTag_mult"]->Fill(nBJets, weight);
+    m_histogram["bTag_sum"]->Fill(bTag_sum, weight);
 }
 
 
