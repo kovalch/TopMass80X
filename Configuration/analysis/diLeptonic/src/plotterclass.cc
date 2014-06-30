@@ -1921,9 +1921,14 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
     recBinHist->Reset();
     recBinHist->Draw();
     recBinHist->SetMaximum(1.);
-    recBinHist->GetXaxis()->SetTitle(TString("Reconstructed ").Copy().Append(XAxis));
     recBinHist->GetXaxis()->SetNoExponent(kTRUE);
-    grE->GetXaxis()->SetNoExponent(kTRUE);
+    if(name.Contains("pT") ||name.Contains("Mass") ){
+        recBinHist->GetXaxis()->SetTitle(XAxis.Copy().Prepend("Reconstructed ").Append(" #left[GeV#right]"));
+        if(name.Contains("Rapidity")) recBinHist->GetXaxis()->SetTitle(XAxis.Copy().Prepend("Reconstructed "));
+    }
+    else recBinHist->GetXaxis()->SetTitle(XAxis.Copy().Prepend("Reconstructed "));
+    DrawCMSLabels(0, 8);
+    DrawDecayChLabel(channelLabel[channelType]);
     grE->Draw("P,SAME");
     grP->Draw("P,SAME");
     grS->Draw("P,SAME");
@@ -3030,12 +3035,18 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
     recBinHist->Reset();
     recBinHist->Draw();
     recBinHist->SetMaximum(1.);
-    recBinHist->GetXaxis()->SetTitle(TString("Reconstructed ").Copy().Append(XAxis));
     recBinHist->GetXaxis()->SetNoExponent(kTRUE);
-    grE->GetXaxis()->SetNoExponent(kTRUE);
+    if(name.Contains("pT") ||name.Contains("Mass") ){
+        recBinHist->GetXaxis()->SetTitle(XAxis.Copy().Prepend("Reconstructed ").Append(" #left[GeV#right]"));
+        if(name.Contains("Rapidity")) recBinHist->GetXaxis()->SetTitle(XAxis.Copy().Prepend("Reconstructed "));
+    }
+    else recBinHist->GetXaxis()->SetTitle(XAxis.Copy().Prepend("Reconstructed "));
+    DrawCMSLabels(0, 8);
+    DrawDecayChLabel(channelLabel[channelType]);
     grE->Draw("P,SAME");
     grP->Draw("P,SAME");
     grS->Draw("P,SAME");
+
     TLegend* leg3 = new TLegend();
     leg3->AddEntry(grE, "Efficiency", "p" );
     leg3->AddEntry(grP, "Purity",    "p" );
