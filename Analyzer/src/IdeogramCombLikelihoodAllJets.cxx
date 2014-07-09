@@ -45,17 +45,17 @@ double IdeogramCombLikelihoodAllJets::Evaluate(double *x, double *p) {
   
   // for IdeogramMinimizer
   if (useFixedParams_) {
-    double ep[7];
-    for (int i = 0; i < 7; ++i) {
+    double ep[9];
+    for (int i = 0; i < 9; ++i) {
       ep[i] = fp_[i];
     }
     p = ep;
   }
   
-  if(p[5]){
-    fCP_ -= 0.5*p[5];
-    fWP_ -= 0.5*p[5];
-    fUN_ += p[5];
+  if(p[6]){
+    fCP_ -= 0.5*p[6];
+    fWP_ -= 0.5*p[6];
+    fUN_ += p[6];
   }
 
   //if(fSigOfMtop){
@@ -75,7 +75,7 @@ double IdeogramCombLikelihoodAllJets::Evaluate(double *x, double *p) {
 
     for(unsigned int i = 0, l = massOffset_.size(); i < l; ++i){
       // skip last calibration step if not using FastSim
-      if(i == l-1 && p[6] == 0) break;
+      if(i == l-1 && p[7] == 0) break;
       double m0 = x[0];
       double j0 = x[1];
 
@@ -200,7 +200,7 @@ double IdeogramCombLikelihoodAllJets::PWPJES1(double *x, double *p)
   //double q[12] = {82.6125, 0.0113286, 14.1711, 0.94118, 4.20692, 0.000889332, -1.78333, 0.300516, 6.74883, -0.0193121, -6.19779, -0.343831}; // L7Correction
   const std::vector<double> &q = parsWPJES_;
 
-  return PJES(x, p, q);
+  return PJESOTHER(x, p, q);
 }
 
 double IdeogramCombLikelihoodAllJets::PUNJES1(double *x, double *p)
@@ -221,13 +221,32 @@ double IdeogramCombLikelihoodAllJets::PJES(double* x, double* p, const std::vect
   double t1 = (p[2] - mu) / sigma1;
   double t2 = (p[2] - mu) / sigma2;
   
-  static const double sqrt2 = sqrt(2.0);
+  static const double sqrt2  = sqrt(2.0);
   double N = sqrt2/(sigma1+sigma2);
   
   if(t1 < 0)
     return N * TMath::Exp(-t1*t1/2);
   else
     return N * TMath::Exp(-t2*t2/2);
+}
+
+double IdeogramCombLikelihoodAllJets::PJESOTHER(double* x, double* p, const std::vector<double> &q)
+{
+  double mu     = q[ 0] + q[ 1] * (x[0]-172.5) + (q[ 2] + q[ 3] * (x[0]-172.5)) * (x[1]-1.);
+  double sigma1 = q[ 4] + q[ 5] * (x[0]-172.5) + (q[ 6] + q[ 7] * (x[0]-172.5)) * (x[1]-1.);
+  double sigma2 = q[ 8] + q[ 9] * (x[0]-172.5) + (q[10] + q[11] * (x[0]-172.5)) * (x[1]-1.);
+  double sigma3 = q[12] + q[13] * (x[0]-172.5) + (q[14] + q[15] * (x[0]-172.5)) * (x[1]-1.);
+   
+  double t1 = (p[2] - (mu - 7.5)) / sigma1;
+  double t2 = (p[2] -  mu       ) / sigma2;
+  double t3 = (p[2] - (mu + 7.5)) / sigma3;
+  
+  static const double sqrt2 = sqrt(2.0);
+  double N1 = 0.25/(sqrt2*sigma1);
+  double N2 = 0.50/(sqrt2*sigma2);
+  double N3 = 0.25/(sqrt2*sigma3);
+
+  return ((N1 * TMath::Exp(-t1*t1/2)) + (N2 * TMath::Exp(-t2*t2/2)) + (N3 * TMath::Exp(-t3*t3/2)));
 }
 
 double IdeogramCombLikelihoodAllJets::PBKG(double *x, double *p)
@@ -239,7 +258,7 @@ double IdeogramCombLikelihoodAllJets::PBKG(double *x, double *p)
 
   if(q[6] < 0.){
     TF1 funcGamma = TF1("funcGamma", gamma, 100., 550., 3);
-    funcGamma.SetParameter(0, p[4]*q[1]);
+    funcGamma.SetParameter(0, p[4]>0 ? p[4]*q[1] : q[1]);
     funcGamma.SetParameter(1, q[2]);
     funcGamma.SetParameter(2, q[3]);
     q[6] = funcGamma.Integral(100.,550.);
@@ -253,7 +272,7 @@ double IdeogramCombLikelihoodAllJets::PBKG(double *x, double *p)
 
   if(PBKGintegral_ < 0.){
     TF1 func = TF1("func", gammaland, 100., 550., 8);
-    q[1] = p[4]*q[1];
+    q[1] = p[4]>0 ? p[4]*q[1] : q[1];
     func.SetParameters(&q[0]);
     PBKGintegral_ = 1. / func.Integral(100.,550.);
   }
@@ -272,7 +291,7 @@ double IdeogramCombLikelihoodAllJets::PBKGJES1(double *x, double *p)
 
 double IdeogramCombLikelihoodAllJets::PBKGJES(double *x, double *p, const std::vector<double> &q)
 {
-  double mu     = q[0];
+  double mu     = p[5]>0 ? q[0]*p[5] : q[0];
   double sigma1 = q[1];
   double sigma2 = q[2];
    

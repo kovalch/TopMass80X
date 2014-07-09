@@ -27,11 +27,11 @@ double IdeogramSampleLikelihood::DoEval(const double *x) const {
         temp[1] = x[1];
         temp[2] = x[2];
         temp[3] = x[3];
-        double p[] = {0., 0., 0., 0., 0., 0., 0., 0.};
+        double p[] = {0., 0., 0., 0., 0., 0., 0., 0., 0.};
         eventResult  += permutation->Evaluate(temp, p);
         eventSumProb += permutation->GetFixedParam(0);
         flavour       = permutation->GetFixedParam(3);
-        weight        = permutation->GetFixedParam(7);
+        weight        = permutation->GetFixedParam(8);
       }
     }
     if (eventIsActive) {
