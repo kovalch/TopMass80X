@@ -37,12 +37,23 @@
 //double crossSection   = 247.0;
 //double peLumi         = 18352.0;
 
-const int nJES = 5;
+//const int nJES = 5;
+//const int nMasses = 7;
+//enum styles          { kDown1, kDown2, kNominal, kUp1, kUp2 };
+//int color_ [] = { kRed+1, kMagenta, kBlue+1, kCyan, kGreen+1 };
+//int marker_[] = { 23, 23, 20, 22, 22 };
+//double genJES[]       = {0.96, 0.98, 1.00, 1.02, 1.04};
+////double genJESError[]  = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
+//double genMass[]      = {166.5, 169.5, 171.5, 172.5, 173.5, 175.5, 178.5};
+//double genMassError[] = { 1e-6,  1e-6,  1e-6,  1e-6,  1e-6,  1e-6,  1e-6};
+//double genMassN[]     = {27078777, 39518234, 24439341, 62131965, 26489020, 40244328, 24359161};
+//double maxMCWeight[]  = {1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8};
+
+const int nJES = 3;
 const int nMasses = 7;
-enum styles          { kDown1, kDown2, kNominal, kUp1, kUp2 };
-int color_ [] = { kRed+1, kMagenta, kBlue+1, kCyan, kGreen+1 };
-int marker_[] = { 23, 23, 20, 22, 22 };
-double genJES[]       = {0.96, 0.98, 1.00, 1.02, 1.04};
+int color_ [] = { kRed+1, kBlue+1, kGreen+1 };
+int marker_[] = { 23, 20, 22 };
+double genJES[]       = {0.98, 1.00, 1.02};
 //double genJESError[]  = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
 double genMass[]      = {166.5, 169.5, 171.5, 172.5, 173.5, 175.5, 178.5};
 double genMassError[] = { 1e-6,  1e-6,  1e-6,  1e-6,  1e-6,  1e-6,  1e-6};
@@ -120,11 +131,13 @@ void DrawLegend() {
 void DrawLegend() {
   double y1 = 0.915; double y2 = 0.955;
   int textsize = 7;
+  
   TLegend *leg1 = new TLegend(0.170, y1, 0.334, y2);
   leg1->SetTextSizePixels(textsize);
   leg1->SetFillColor(kWhite);
   leg1->SetBorderSize(0);
-  leg1->AddEntry(gMass[0], "JSF=0.96", "EP");
+  if(nJES==3) leg1->AddEntry(gMass[0], "JSF=0.98", "EP");
+  if(nJES==5) leg1->AddEntry(gMass[0], "JSF=0.96", "EP");
   /*
   leg->AddEntry( constFit, "Const. fit", "L");
   char chi2[6]; sprintf(chi2, "%3.1f", fitResult->Chi2());
@@ -132,7 +145,7 @@ void DrawLegend() {
   leg->AddEntry((TObject*)0, sConstFit, "");
   */
   leg1->Draw();
-
+  
   if(nJES==5){
     TLegend *leg2 = new TLegend(0.334, y1, 0.498, y2);
     leg2->SetTextSizePixels(textsize);
@@ -162,7 +175,8 @@ void DrawLegend() {
   leg5->SetTextSizePixels(textsize);
   leg5->SetFillColor(kWhite);
   leg5->SetBorderSize(0);
-  leg5->AddEntry(gMass[nJES==5?4:2], "JSF=1.04", "EP");
+  if(nJES==3) leg5->AddEntry(gMass[2], "JSF=1.02", "EP");
+  if(nJES==5) leg5->AddEntry(gMass[4], "JSF=1.04", "EP");
   leg5->Draw();
 }
 
@@ -185,8 +199,9 @@ void ensembleTree()
   
   //// Get histos
   //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140317_1201/");
-  TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140401_1201/");
+  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140401_1201/");
   //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140418_1201/");
+  TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140520_1801/");
   //sFile += "ensemble_S12_Uncalibrated.root";
   sFile += "ensemble_S12_Calibrated.root";
 
@@ -374,8 +389,10 @@ void ensembleTree()
 
     gMass[1]->Fit("topMass1DUncertaintyFit", "EM0");
   }
-  //mgMass->SetMinimum(-2.9);
-  //mgMass->SetMaximum( 2.9);
+  if(sFile.Contains("Calibrated")){
+    mgMass->SetMinimum(-0.45);
+    mgMass->SetMaximum( 0.45);
+  }
   mgMass->Draw("AP");
   gPad->SetBottomMargin(0.005);
   mgMass->GetYaxis()->SetTitleSize(0.11);
@@ -433,8 +450,10 @@ void ensembleTree()
     gJES[1]->Fit("linearFit100", "EM");
     gJES[2]->Fit("linearFit104", "EM");
   }
-  //mgJES->SetMinimum(-0.029);
-  //mgJES->SetMaximum( 0.029);
+  if(sFile.Contains("Calibrated")){
+    mgJES->SetMinimum(-0.0045);
+    mgJES->SetMaximum( 0.0045);
+  }
   mgJES->Draw("AP");
   gPad->SetTopMargin(0.005);
   //DrawLegend();
@@ -523,6 +542,8 @@ void ensembleTree()
   //mgMassPull->SetMaximum(1.22);
   //mgMassPull->SetMinimum(0.96);
   //mgMassPull->SetMaximum(1.39);
+  mgMassPull->SetMinimum(0.89);
+  mgMassPull->SetMaximum(1.11);
   mgMassPull->Draw("AP");
   gPad->SetBottomMargin(0.005);
   mgMassPull->GetYaxis()->SetTitleSize(0.11);
@@ -552,6 +573,8 @@ void ensembleTree()
   //mgJESPull->SetMaximum(1.12);
   //mgJESPull->SetMinimum(0.88);
   //mgJESPull->SetMaximum(1.38);
+  mgJESPull->SetMinimum(0.89);
+  mgJESPull->SetMaximum(1.11);
   mgJESPull->Draw("AP");
   gPad->SetTopMargin(0.005);
   //DrawLegend();
@@ -575,8 +598,8 @@ void ensembleTree()
     gMass[1]    ->Fit("constFit", "EM");
     gMassPull[1]->Fit("constFit", "EM");
   }
-  std::cout << "topmass 1D calibration uncertainty: " << std::sqrt(     pow(topMass1DUncertaintyFit->GetParError(0),2) +      pow((171.7-172.50)*topMass1DUncertaintyFit->GetParError(1),2)) << std::endl;
-  std::cout << "topmass 2D calibration uncertainty: " << std::sqrt(nJES*pow(topMass2DUncertaintyFit->GetParError(0),2) + nJES*pow((171.7-172.50)*topMass2DUncertaintyFit->GetParError(1),2)) << std::endl;
-  std::cout << "JES        calibration uncertainty: " << std::sqrt(nJES*pow(      jesUncertaintyFit->GetParError(0),2) + nJES*pow((171.7-172.50)*      jesUncertaintyFit->GetParError(1),2)) << std::endl;
+  std::cout << "topmass 1D calibration uncertainty: " << std::sqrt(     pow(topMass1DUncertaintyFit->GetParError(0),2) +      pow((172.59-172.50)*topMass1DUncertaintyFit->GetParError(1),2)) << std::endl;
+  std::cout << "topmass 2D calibration uncertainty: " << std::sqrt(nJES*pow(topMass2DUncertaintyFit->GetParError(0),2) + nJES*pow((172.08-172.50)*topMass2DUncertaintyFit->GetParError(1),2)) << std::endl;
+  std::cout << "JES        calibration uncertainty: " << std::sqrt(nJES*pow(      jesUncertaintyFit->GetParError(0),2) + nJES*pow((172.08-172.50)*      jesUncertaintyFit->GetParError(1),2)) << std::endl;
 }
 
