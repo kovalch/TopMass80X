@@ -421,7 +421,8 @@ void TopMassControlPlots::doPlots()
   
   // b-tagging
   if(plotSelectedForPlotting.find("JetBTag")!=plotSelectedForPlotting.end()){
-    hists.push_back(MyHistogram("nBJet4", "(jet.bTagCSV[0]>0.679) + (jet.bTagCSV[1]>0.679) + (jet.bTagCSV[2]>0.679) + (jet.bTagCSV[3]>0.679)", "", ";N_{b jet}^{4}; Events", 5, 0, 5));
+	  hists.push_back(MyHistogram("nBJet4", "(jet.bTagCSV[0]>0.679) + (jet.bTagCSV[1]>0.679) + (jet.bTagCSV[2]>0.679) + (jet.bTagCSV[3]>0.679)", "", ";N_{b jet}^{4} (CSVM); Events", 5, 0, 5));
+	  hists.push_back(MyHistogram("nBJet", "Sum$((jet.jet.Pt()>30 & jet.bTagCSV>0.679))", "", ";N_{b jet} (CSVM); Events", 5, 0, 5));
   }
 
   // event observables

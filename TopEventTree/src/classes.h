@@ -18,6 +18,7 @@
 #include "TopMass/TopEventTree/interface/JetEvent.h"
 #include "TopMass/TopEventTree/interface/BRegJetEvent.h"
 #include "TopMass/TopEventTree/interface/WeightEvent.h"
+#include "TopMass/TopEventTree/interface/SherpaGenEvent.h"
 
 namespace {
   struct dictionary {
@@ -28,6 +29,7 @@ namespace {
     JetEvent     je;
     BRegJetEvent BRegje;
     WeightEvent  we;
+    SherpaGenEvent sge;
 
     edm::RefToBase<pat::Jet> rtb;
     pat::UserHolder<edm::RefToBase<pat::Jet> > uhrtb;
