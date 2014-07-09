@@ -13,5 +13,8 @@ void SherpaGenEvent::init()
   
   parton.clear();
   genJet.clear();
+  
+  genJetTop.clear();
+  genJetW.clear();
 }
 

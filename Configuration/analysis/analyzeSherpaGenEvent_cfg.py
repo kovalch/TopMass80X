@@ -9,10 +9,10 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 
 ## configure message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 inputfiles = []
-hepmcfiles = glob.glob('*.hepmc2g')
+hepmcfiles = glob.glob('*.hepmc2g') + glob.glob('../../prolog/*.hepmc2g')
 for hepmcfile in hepmcfiles:
   inputfiles.append('file:' + hepmcfile)
 print inputfiles
@@ -85,7 +85,7 @@ process.load("RecoJets.Configuration.RecoGenJets_cff")
 process.load("TopMass.TopEventTree.SherpaGenEventAnalyzer_cfi")
 
 process.printTree = cms.EDAnalyzer("ParticleListDrawer",
-   maxEventsToPrint = cms.untracked.int32(10),
+   maxEventsToPrint = cms.untracked.int32(1),
    printVertex = cms.untracked.bool(False),
    src = cms.InputTag("genParticles")
 )
@@ -104,7 +104,7 @@ process.TreeRegistryService.treeTitle = ""
 process.path = cms.Path(
                         process.genParticles *
                         process.genJetParticles *
-                        process.printTree *
+                        #process.printTree *
                         process.ak5GenJets *
                         process.analyzeSherpaGenEvent
                         )

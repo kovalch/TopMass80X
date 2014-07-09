@@ -20,6 +20,9 @@ public:
   
   std::vector<TLorentzVector> parton;
   std::vector<TLorentzVector> genJet;
+  
+  std::vector<TLorentzVector> genJetTop;
+  std::vector<TLorentzVector> genJetW;
 };
 
 #endif
