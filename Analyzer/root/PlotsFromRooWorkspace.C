@@ -35,8 +35,9 @@ void modifyAndSaveCanvas(TCanvas* canvas)
       hist->GetYaxis()->SetRangeUser(0,hist->GetMaximum()*1.1);
     }
   }
-  canvas->Print((std::string(canvas->GetName())+std::string(".eps")).c_str());
-  canvas->Print((std::string(canvas->GetName())+std::string(".png")).c_str());
+  canvas->Print((std::string(canvas->GetName())+std::string(".eps" )).c_str());
+  canvas->Print((std::string(canvas->GetName())+std::string(".png" )).c_str());
+  canvas->Print((std::string(canvas->GetName())+std::string(".root")).c_str());
 }
 
 void plotter(std::string prefix, std::vector<std::string> samples, std::vector<std::string> pdfsTMP)
@@ -48,7 +49,9 @@ void plotter(std::string prefix, std::vector<std::string> samples, std::vector<s
   //  file = TFile::Open("Calibration_AllJets_bkg.root", "READ");
   //else
   //  file = TFile::Open("Calibration_AllJets_sig.root", "READ");
-  file = TFile::Open("Calibration_AllJets_new.root", "READ");
+  //file = TFile::Open("Calibration_AllJets_new.root", "READ"); // needed for topMass
+  //file = TFile::Open("Calibration_AllJets_sig_mW_new.root", "READ"); // needed for wMass
+  file = TFile::Open("Calibration_AllJets_bkg.root", "READ"); // needed for background
 
   RooWorkspace* ws = (RooWorkspace*)file->Get("workspaceMtop");
 
@@ -58,9 +61,9 @@ void plotter(std::string prefix, std::vector<std::string> samples, std::vector<s
   //RooArgSet set2 = ws->allVars();
   //set2.dump();
 
-  //std::list<RooAbsData*> set3 = ws->allData();
-  //for(const auto& dat : set3)
-  //  std::cout << dat->GetName() << std::endl;
+  std::list<RooAbsData*> set3 = ws->allData();
+  for(const auto& dat : set3)
+    std::cout << dat->GetName() << std::endl;
 
   TCanvas* canvas = new TCanvas("canvas", "canvas", 10, 10, 600, 600);
   canvas->cd();
@@ -170,12 +173,12 @@ void PlotsFromRooWorkspace()
     hists[i]->SetLineColor(color_[i]);
   }
 
-  plotter("mTop1", {"sig_0", "sig_1"}, {"_jes100mass1665", "_jes100mass1725", "_jes100mass1785"});
-  plotter("mTop2", {"sig_0", "sig_1"}, {"_jes096mass1725", "_jes100mass1725", "_jes104mass1725"});
-  plotter("mW1"  , {"sig_2", "sig_3"}, {"_jes100mass1665", "_jes100mass1725", "_jes100mass1785"});
-  plotter("mW2"  , {"sig_2", "sig_3"}, {"_jes096mass1725", "_jes100mass1725", "_jes104mass1725"});
-  //plotter("mTop", {"topBKG"}, {""});
-  //plotter("mW"  , {"wBKG"  }, {""});
+  //plotter("mTop1", {"sig_0", "sig_1"}, {"_jes100mass1665", "_jes100mass1725", "_jes100mass1785"});
+  //plotter("mTop2", {"sig_0", "sig_1"}, {"_jes096mass1725", "_jes100mass1725", "_jes104mass1725"});
+  //plotter("mW1"  , {"sig_2", "sig_3"}, {"_jes100mass1665", "_jes100mass1725", "_jes100mass1785"});
+  //plotter("mW2"  , {"sig_2", "sig_3"}, {"_jes096mass1725", "_jes100mass1725", "_jes104mass1725"});
+  plotter("mTop", {"topBKG"}, {""});
+  plotter("mW"  , {"wBKG"  }, {""});
   //function2();
 }
 

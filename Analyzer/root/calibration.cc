@@ -25,8 +25,10 @@
 
 #include "RooAddition.h"
 #include "RooAddPdf.h"
+#include "RooBernstein.h"
 #include "RooBifurGauss.h"
 #include "RooCategory.h"
+#include "RooChebychev.h"
 #include "RooDataHist.h"
 #include "RooDataSet.h"
 #include "RooFitResult.h"
@@ -74,7 +76,7 @@ TopMassCalibration::TopMassCalibration() :
     fChannel_   (po::GetOption<std::string>("channel")),
     activeBranches_(po::GetOption<std::string>("analysisConfig.activeBranches")),
     maxPermutations_(po::GetOption<int>("analysisConfig.maxPermutations")),
-    doCalibration_(true),
+    doCalibration_(false),
     fitBackground_(true)
     //doMeasurement_(false)
 {
@@ -381,9 +383,10 @@ TopMassCalibration::rooFitTopMass_()
               //iniPar = {85.2743, -0.0165617, 26.6677, -0.332143,
               //          5.58215, -0.0131054, 6.19793, -0.200832,
               //          7.56877, 0.00863095, -9.94996, 0.100932};
-              iniPar = {86.8557, -0.0238499 ,  56.0143, -0.0907859,
-                        6.60509, -0.00966986,  12.8897, -0.166508,
-                        7.63725,  0.0112471 , -27.3866,  0.0187517};
+              iniPar = {87.8575 ,-0.00611223 , 23.263  ,-0.0799637,
+			 3.97723, 0.00219132 ,  3.87362,-0.126715,
+			 4.91875, 0.000554983,-12.4331 ,-0.0850448,
+			 4.68122, 0.0118248  ,-13.8524 , 0.146203};
            }
             else if(comboType == 2){ // mW, unmatched
               //double a[] = {84.6333,  0.0205799 , 16.0275, -0.280052,
@@ -391,6 +394,7 @@ TopMassCalibration::rooFitTopMass_()
               //              7.08441, -0.00812571, -6.2732,  0.22637 };
               //iniPar = std::vector<double>(a,a+sizeof(a)/sizeof(double));
               iniPar = {86.6185, -0.0184471, 32.1242, 0.0815632,
+                        6.48169, -0.0108763, 7.37265, 0.0139849,
                         6.48169, -0.0108763, 7.37265, 0.0139849,
                         7.91363, 0.00815331, -17.3423, -0.00100213};
             }
@@ -440,13 +444,34 @@ TopMassCalibration::rooFitTopMass_()
             }
           }
           else if(templType == 1){
-            var = meanWMass;
-            fillAlpha(alpha, h, RooArgSet(*par[0], *par[1], *par[ 2], *par[ 3], mTop_corrected, JES_corrected));
-            fillAlpha(alpha, h, RooArgSet(*par[4], *par[5], *par[ 6], *par[ 7], mTop_corrected, JES_corrected));
-            fillAlpha(alpha, h, RooArgSet(*par[8], *par[9], *par[10], *par[11], mTop_corrected, JES_corrected));
-            RooBifurGauss *asymGaus = new RooBifurGauss(name, name, *var, *alpha[0], *alpha[1], *alpha[2]);
-            workspace[0]->import(*asymGaus);
-          }
+	    var = meanWMass;
+            if (comboType == 0){ // mW, correct
+	      fillAlpha(alpha, h, RooArgSet(*par[ 0], *par[ 1], *par[ 2], *par[ 3], mTop_corrected, JES_corrected));
+	      fillAlpha(alpha, h, RooArgSet(*par[ 4], *par[ 5], *par[ 6], *par[ 7], mTop_corrected, JES_corrected));
+	      fillAlpha(alpha, h, RooArgSet(*par[ 8], *par[ 9], *par[10], *par[11], mTop_corrected, JES_corrected));
+	      RooBifurGauss *asymGaus = new RooBifurGauss(name, name, *var, *alpha[0], *alpha[1], *alpha[2]);
+	      workspace[0]->import(*asymGaus);
+	    }
+	    else{
+	      fillAlpha(alpha, h, RooArgSet(*par[ 0], *par[ 1], *par[ 2], *par[ 3], mTop_corrected, JES_corrected), "-7.5");
+	      fillAlpha(alpha, h, RooArgSet(*par[ 0], *par[ 1], *par[ 2], *par[ 3], mTop_corrected, JES_corrected));
+	      fillAlpha(alpha, h, RooArgSet(*par[ 0], *par[ 1], *par[ 2], *par[ 3], mTop_corrected, JES_corrected), "+7.5");
+	      fillAlpha(alpha, h, RooArgSet(*par[ 4], *par[ 5], *par[ 6], *par[ 7], mTop_corrected, JES_corrected));
+	      fillAlpha(alpha, h, RooArgSet(*par[ 8], *par[ 9], *par[10], *par[11], mTop_corrected, JES_corrected));
+	      fillAlpha(alpha, h, RooArgSet(*par[12], *par[13], *par[14], *par[15], mTop_corrected, JES_corrected));
+	      varName = "gaus1_"; varName += h;
+	      RooRealVar *ratio1 = new RooRealVar("ratioGaus1","",0.25);
+	      RooRealVar *ratio2 = new RooRealVar("ratioGaus2","",0.5 );
+	      RooRealVar *ratio3 = new RooRealVar("ratioGaus3","",0.25);
+	      RooGaussian *gaus1 = new RooGaussian(varName, varName, *var, *alpha[0], *alpha[3]);
+	      varName = "gaus2_"; varName += h;
+	      RooGaussian *gaus2 = new RooGaussian(varName, varName, *var, *alpha[1], *alpha[4]);
+	      varName = "gaus3_"; varName += h;
+	      RooGaussian *gaus3 = new RooGaussian(varName, varName, *var, *alpha[2], *alpha[5]);
+	      RooAddPdf *add = new RooAddPdf(name, name, RooArgList(*gaus1, *gaus2, *gaus3), RooArgList(*ratio1, *ratio2, *ratio3));
+	      workspace[0]->import(*add);
+	    }
+	  }
         }
         simWST[h] = new RooSimWSTool(*workspace[0]);
         name = "sim_"; name += h;
@@ -688,8 +713,12 @@ TopMassCalibration::rooFitTopMass_()
 
     //TString fileName = "QCDEstimationMix_2011_NEW_skimmed2.root";
     //TString fileName = "QCDMixing_MJPS12*_data.root";
-    //TString fileName = "QCDMixing_MJPS12_v1_data.root";
-    TString fileName = "QCDMixing_Z2_S12_Madspin_sig.root";
+    TString fileName = "QCDMixing_MJPS12_v1_data.root";  //// DEFAULT
+    //TString fileName = "QCDMixing_MJPS12_v1_loose_data.root";
+    //TString fileName = "QCDMixing_Z2_S12_Madspin_sig.root";
+    //TString fileName = "QCD_Alp.root";
+    //TString fileName = "QCD_Mad_Pt*.root";
+    //TString fileName = "MJP12_PTRESI_v1_data.root";
     //TFile* file = TFile::Open(samplePath_+fileName);
     //TTree* oldTree = (TTree*)file->Get("tree");
     TChain* oldTree = new TChain("analyzeKinFit/eventTree");
@@ -712,28 +741,41 @@ TopMassCalibration::rooFitTopMass_()
     TString name_pdf = "";
     std::ofstream myfile;
 
-    RooRealVar *topBKGGammaNorm  = new RooRealVar("topBKGGammaNorm" , "topBKGGammaNorm" ,  0.605524,  0, 1);
-    RooRealVar *topBKGGammaGamma = new RooRealVar("topBKGGammaGamma", "topBKGGammaGamma",   5.79618,  0, 8);
-    RooRealVar *topBKGGammaBeta  = new RooRealVar("topBKGGammaBeta" , "topBKGGammaBeta" , 27.8151  ,  0, 60);
-    RooRealVar *topBKGGammaMu    = new RooRealVar("topBKGGammaMu"   , "topBKGGammaMu"   , 120  , 85, 150);
-    RooGamma *topBKGGamma = new RooGamma("topBKGGamma","topBKGGamma",MTOP,*topBKGGammaGamma,*topBKGGammaBeta,*topBKGGammaMu);
-    topBKGGamma->setNormRange("mTopFitRange");
-
-    RooRealVar *topBKGLandauMean  = new RooRealVar("topBKGLandauMean" , "topBKGLandauMean" ,  199.835, 100, 300);
+    RooRealVar *topBKGLandauMean  = new RooRealVar("topBKGLandauMean" , "topBKGLandauMean" ,  199.835, 150, 250);
     RooRealVar *topBKGLandauSigma = new RooRealVar("topBKGLandauSigma", "topBKGLandauSigma",  37.6189,   0,  50);
     RooLandau *topBKGLandau = new RooLandau("topBKGLandau","topBKGLandau",MTOP,*topBKGLandauMean,*topBKGLandauSigma);
     topBKGLandau->setNormRange("mTopFitRange");
 
+    RooRealVar *topBKGGammaNorm  = new RooRealVar("topBKGGammaNorm" , "topBKGGammaNorm" ,  0.605524,  0, 1);
+    RooRealVar *topBKGGammaGamma = new RooRealVar("topBKGGammaGamma", "topBKGGammaGamma",   5.79618,  0, 8);
+    RooRealVar *topBKGGammaBeta  = new RooRealVar("topBKGGammaBeta" , "topBKGGammaBeta" , 27.8151  ,  0, 100);
+    //RooRealVar *topBKGGammaBeta  = new RooRealVar("topBKGGammaBeta" , "topBKGGammaBeta" , 74.6  ,  0, 100);
+    RooRealVar *topBKGGammaMu    = new RooRealVar("topBKGGammaMu"   , "topBKGGammaMu"   , 120  , 100, 150);
+    //RooRealVar *topBKGGammaMu    = new RooRealVar("topBKGGammaMu"   , "topBKGGammaMu"   , 77.9919 , 0, 150);
+    RooGamma *topBKGGamma = new RooGamma("topBKGGamma","topBKGGamma",MTOP,*topBKGGammaGamma,*topBKGGammaBeta,*topBKGGammaMu);
+    topBKGGamma->setNormRange("mTopFitRange");
     RooAddPdf *topBKG = new RooAddPdf("topBKG", "topBKG", *topBKGGamma, *topBKGLandau, *topBKGGammaNorm);
+
+    //RooRealVar *topBKGGammaNorm  = new RooRealVar("topBKGGammaNorm" , "topBKGGammaNorm" ,   1.0    ,   0,   1);
+    //RooRealVar *topBKGGammaBeta  = new RooRealVar("topBKGGammaBeta" , "topBKGGammaBeta" ,  42.3623 ,   0, 100);
+    //RooRealVar *topBKGGammaGamma = new RooRealVar("topBKGGammaGamma", "topBKGGammaGamma",   4.15584,   1,   8);
+    //RooRealVar *topBKGGammaMu    = new RooRealVar("topBKGGammaMu"   , "topBKGGammaMu"   , 100.0    , 100, 150);
+    //RooGamma *topBKG = new RooGamma("topBKG","topBKG",MTOP,*topBKGGammaGamma,*topBKGGammaBeta,*topBKGGammaMu);
+
     topBKG->setNormRange("mTopFitRange");
 
   //if(fitBackground_){
     topBKGGammaNorm  ->setConstant(kFALSE);
+    //topBKGGammaNorm  ->setConstant(kTRUE);
     topBKGGammaGamma ->setConstant(kFALSE);
     topBKGGammaBeta  ->setConstant(kFALSE);
     topBKGGammaMu    ->setConstant(kFALSE);
     topBKGLandauMean ->setConstant(kFALSE);
     topBKGLandauSigma->setConstant(kFALSE);
+    //topBKGGammaBeta  ->setConstant(kTRUE);
+    //topBKGGammaMu    ->setConstant(kTRUE);
+    //topBKGLandauMean ->setConstant(kTRUE);
+    //topBKGLandauSigma->setConstant(kTRUE);
 
     RooAbsReal* nllTopBKG = topBKG->createNLL(*BKG);
     RooMinuit miniTopBKG(*nllTopBKG);
@@ -755,16 +797,18 @@ TopMassCalibration::rooFitTopMass_()
 
     frame = MTOP.frame(RooFit::Range(100., 550.));;
     BKG->statOn(frame, RooFit::Layout(.6, .9, .9));
-    BKG->plotOn(frame);
+    BKG->plotOn(frame, RooFit::Binning(15,100,550));
 
     name_pdf = "topBKG";
     std::cout << "PDF Name: " << name_pdf << std::endl;
-    workspace[0]->pdf(name_pdf)->plotOn(frame, RooFit::FillColor(kGray), RooFit::VisualizeError(*result));
+    workspace[0]->pdf(name_pdf)->plotOn(frame, RooFit::FillColor(kGray), RooFit::VisualizeError(*result,5));
     workspace[0]->pdf(name_pdf)->plotOn(frame, RooFit::LineColor(kRed+1));
+    BKG->plotOn(frame, RooFit::Binning(15,100,550));
     frame->SetMinimum(.0);
     frame->SetTitle(name_pdf);
     frame->Draw();
     canvas->Print(outDir + "/template_topBKG.eps");
+    canvas->Print(outDir + "/template_topBKG.root");
 
     myfile.open(outDir + "/variables.txt", std::ios::out | std::ios::app);
     myfile << "Template Type: background top mass" << "\n";
@@ -772,8 +816,10 @@ TopMassCalibration::rooFitTopMass_()
     myfile.close();
 
     RooRealVar *wBKGMean       = new RooRealVar("wBKGMean"      , "wBKGMean"      ,  95.8329, 50, 120);
-    RooRealVar *wBKGSigmaLeft  = new RooRealVar("wBKGSigmaLeft" , "wBKGSigmaLeft" ,  7.67187, 0, 20);
-    RooRealVar *wBKGSigmaRight = new RooRealVar("wBKGSigmaRight", "wBKGSigmaRight",  4.62903, 0, 20);
+    //RooRealVar *wBKGSigmaLeft  = new RooRealVar("wBKGSigmaLeft" , "wBKGSigmaLeft" ,  7.67187, 0, 20);
+    //RooRealVar *wBKGSigmaRight = new RooRealVar("wBKGSigmaRight", "wBKGSigmaRight",  4.62903, 0, 20);
+    RooRealVar *wBKGSigmaLeft  = new RooRealVar("wBKGSigmaLeft" , "wBKGSigmaLeft" , 11.4327, 0, 20);
+    RooRealVar *wBKGSigmaRight = new RooRealVar("wBKGSigmaRight", "wBKGSigmaRight",  9.10334, 0, 20);
     //RooRealVar *wBKGMean2       = new RooRealVar("wBKGMean2"      , "wBKGMean2"      ,  82.4964, 50, 120);
     //RooRealVar *wBKGSigmaLeft2  = new RooRealVar("wBKGSigmaLeft2" , "wBKGSigmaLeft2" ,  4.31474, 0, 20);
     //RooRealVar *wBKGSigmaRight2 = new RooRealVar("wBKGSigmaRight2", "wBKGSigmaRight2",  11.6268, 0, 30);
@@ -781,16 +827,65 @@ TopMassCalibration::rooFitTopMass_()
     //RooBifurGauss *wBKG2 = new RooBifurGauss("wBKG2", "wBKG2", meanMW, *wBKGMean2, *wBKGSigmaLeft2, *wBKGSigmaRight2);
     //RooRealVar *wBKGRatio = new RooRealVar("wBKGRatio", "wBKGRatio",  0.597629, 0, 1);
     //RooAddPdf *wBKG = new RooAddPdf("wBKG", "wBKG", *wBKG1, *wBKG2, *wBKGRatio);
+
+    /*
+    RooRealVar *wBKGMean1 = new RooRealVar("wBKGMean1" , "wBKGMean1" ,  78.65, 77, 80);
+    RooRealVar *wBKGMean2 = new RooRealVar("wBKGMean2" , "wBKGMean2" ,  86.78, 85, 87);
+    RooRealVar *wBKGMean3 = new RooRealVar("wBKGMean3" , "wBKGMean3" ,  96.21, 95, 98);
+    RooRealVar *wBKGMean4 = new RooRealVar("wBKGMean4" , "wBKGMean4" , 101.59,100, 103);
+    RooRealVar *wBKGMean5 = new RooRealVar("wBKGMean5" , "wBKGMean5" ,  91.66, 90, 93);
+
+    RooRealVar *wBKGSigma1 = new RooRealVar("wBKGSigma1" , "wBKGSigma1" ,  3.107, 3, 3.5);
+    RooRealVar *wBKGSigma2 = new RooRealVar("wBKGSigma2" , "wBKGSigma2" ,  4.663, 4.3, 4.9);
+    RooRealVar *wBKGSigma3 = new RooRealVar("wBKGSigma3" , "wBKGSigma3" ,  4.826, 4.5, 5);
+    RooRealVar *wBKGSigma4 = new RooRealVar("wBKGSigma4" , "wBKGSigma4" , 10.018, 9, 11);
+    RooRealVar *wBKGSigma5 = new RooRealVar("wBKGSigma5" , "wBKGSigma5" ,  0.849, 0, 2);
+
+    RooGaussian *wBKG1 = new RooGaussian("wBKG1", "wBKG1", meanMW, *wBKGMean1, *wBKGSigma1);
+    RooGaussian *wBKG2 = new RooGaussian("wBKG2", "wBKG2", meanMW, *wBKGMean2, *wBKGSigma2);
+    RooGaussian *wBKG3 = new RooGaussian("wBKG3", "wBKG3", meanMW, *wBKGMean3, *wBKGSigma3);
+    RooGaussian *wBKG4 = new RooGaussian("wBKG4", "wBKG4", meanMW, *wBKGMean4, *wBKGSigma4);
+    RooGaussian *wBKG5 = new RooGaussian("wBKG5", "wBKG5", meanMW, *wBKGMean5, *wBKGSigma5);
+
+    //RooRealVar *ratio1 = new RooRealVar("wBKGRatio1" , "wBKGRatio1" , 0.067, 0, 1.0);
+    //RooRealVar *ratio2 = new RooRealVar("wBKGRatio2" , "wBKGRatio2" , 0.393, 0, 1.0);
+    //RooRealVar *ratio3 = new RooRealVar("wBKGRatio3" , "wBKGRatio3" , 0.517, 0, 1.0);
+    //RooRealVar *ratio4 = new RooRealVar("wBKGRatio4" , "wBKGRatio4" , 0.3  , 0, 1.0);
+
+    RooRealVar *ratio1 = new RooRealVar("wBKGRatio1" , "wBKGRatio1" , 0.066, 0.06 , 0.07);
+    RooRealVar *ratio2 = new RooRealVar("wBKGRatio2" , "wBKGRatio2" , 0.385, 0.38 , 0.41);
+    RooRealVar *ratio3 = new RooRealVar("wBKGRatio3" , "wBKGRatio3" , 0.510, 0.50 , 0.53);
+    RooRealVar *ratio4 = new RooRealVar("wBKGRatio4" , "wBKGRatio4" , 0.022, 0.015, 0.03);
+
+    RooAddPdf *wBKG = new RooAddPdf("wBKG", "wBKG", RooArgList(*wBKG1,*wBKG2,*wBKG3,*wBKG4,*wBKG5), RooArgList(*ratio1,*ratio2,*ratio3,*ratio4));
+    */
     wBKG->setNormRange("mWFitRange");
 
   //if(fitBackground_){
-    wBKGMean      ->setConstant(kFALSE);
-    wBKGSigmaLeft ->setConstant(kFALSE);
-    wBKGSigmaRight->setConstant(kFALSE);
-    //wBKGMean2      ->setConstant(kFALSE);
-    //wBKGSigmaLeft2 ->setConstant(kFALSE);
-    //wBKGSigmaRight2->setConstant(kFALSE);
-    //wBKGRatio      ->setConstant(kFALSE);
+    //wBKGMean      ->setConstant(kFALSE);
+    //wBKGSigmaLeft ->setConstant(kFALSE);
+    //wBKGSigmaRight->setConstant(kFALSE);
+    //wBKGSigmaLeft ->setConstant(kTRUE);
+    //wBKGSigmaRight->setConstant(kTRUE);
+    ////wBKGMean2      ->setConstant(kFALSE);
+    ////wBKGSigmaLeft2 ->setConstant(kFALSE);
+    ////wBKGSigmaRight2->setConstant(kFALSE);
+    ////wBKGRatio      ->setConstant(kFALSE);
+
+    //ratio1->setConstant(kTRUE);
+    //ratio2->setConstant(kTRUE);
+    //ratio3->setConstant(kTRUE);
+    ////ratio4->setConstant(kFALSE);
+
+    //wBKGMean1 ->setConstant(kTRUE);
+    //wBKGMean2 ->setConstant(kTRUE);
+    //wBKGMean3 ->setConstant(kTRUE);
+    //wBKGMean4 ->setConstant(kTRUE);
+    //
+    //wBKGSigma1->setConstant(kTRUE);
+    //wBKGSigma2->setConstant(kTRUE);
+    //wBKGSigma3->setConstant(kTRUE);
+    //wBKGSigma4->setConstant(kTRUE);
 
     RooAbsReal* nllWBKG = wBKG->createNLL(*BKG);
     RooMinuit miniWBKG(*nllWBKG);
@@ -801,33 +896,38 @@ TopMassCalibration::rooFitTopMass_()
     result = miniWBKG.save();
     workspace[0]->import(*result);
 
-    wBKGMean      ->setConstant(kTRUE);
-    wBKGSigmaLeft ->setConstant(kTRUE);
-    wBKGSigmaRight->setConstant(kTRUE);
-    //wBKGMean2      ->setConstant(kTRUE);
-    //wBKGSigmaLeft2 ->setConstant(kTRUE);
-    //wBKGSigmaRight2->setConstant(kTRUE);
-    //wBKGRatio      ->setConstant(kTRUE);
+    //wBKGMean      ->setConstant(kTRUE);
+    //wBKGSigmaLeft ->setConstant(kTRUE);
+    //wBKGSigmaRight->setConstant(kTRUE);
+    ////wBKGMean2      ->setConstant(kTRUE);
+    ////wBKGSigmaLeft2 ->setConstant(kTRUE);
+    ////wBKGSigmaRight2->setConstant(kTRUE);
+    ////wBKGRatio      ->setConstant(kTRUE);
+
 
     //}
     workspace[0]->import(*wBKG);
 
     frame = meanMW.frame(RooFit::Range(60., 130.));;
     BKG->statOn(frame, RooFit::Layout(.6, .9, .9));
-    BKG->plotOn(frame);
+    BKG->plotOn(frame, RooFit::Binning(14,60,130));
 
     name_pdf = "wBKG";
     std::cout << "PDF Name: " << name_pdf << std::endl;
     workspace[0]->pdf(name_pdf)->plotOn(frame, RooFit::FillColor(kGray), RooFit::VisualizeError(*result));
     workspace[0]->pdf(name_pdf)->plotOn(frame, RooFit::LineColor(kRed+1));
+    BKG->plotOn(frame, RooFit::Binning(14,60,130));
     frame->SetMinimum(.0);
     frame->SetTitle(name_pdf);
     frame->Draw();
     canvas->Print(outDir + "/template_wBKG.eps");
+    canvas->Print(outDir + "/template_wBKG.root");
 
     myfile.open(outDir + "/variables.txt", std::ios::out | std::ios::app);
     myfile << "Template Type: background W mass" << "\n";
     myfile << wBKGMean->getVal() << "|" << wBKGSigmaLeft->getVal() << "|" << wBKGSigmaRight->getVal() << "|" << std::endl;// wBKGMean2->getVal() << "|" << wBKGSigmaLeft2->getVal() << "|" << wBKGSigmaRight2->getVal() << "|" << wBKGRatio->getVal() << "\n";
+    //myfile << wBKGMean->getVal() << "|" << wBKGSigma1->getVal() << "|" << wBKGSigma2->getVal() << "|" << wBKGSigma3->getVal() << std::endl;
+    
     myfile.close();
 
   /*
@@ -1432,8 +1532,10 @@ void TopMassCalibration::UnknownChannelAbort(){
   exit(1);
 }
 
-void TopMassCalibration::fillAlpha(std::vector<RooFormulaVar*>& alpha, int& h, RooArgSet argSet){
-  static TString formula_alpha = "@0+@1*(@4-172.5)+(@2+@3*(@4-172.5))*(@5-1.)";
+void TopMassCalibration::fillAlpha(std::vector<RooFormulaVar*>& alpha, int& h, RooArgSet argSet, std::string add){
+  TString formula_alpha = "@0+@1*(@4-172.5)+(@2+@3*(@4-172.5))*(@5-1.)";
+  if(add.size()>0) formula_alpha += add.c_str();
+  std::cout << formula_alpha << std::endl;
   TString varName = "alpha_"; varName += h; varName += "_"; varName += alpha.size();
   alpha.push_back(new RooFormulaVar(varName, varName, formula_alpha, argSet));
 }
