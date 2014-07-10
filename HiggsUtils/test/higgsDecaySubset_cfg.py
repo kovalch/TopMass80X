@@ -15,6 +15,7 @@ process.options = cms.untracked.PSet(
 
 #process.load("TopAnalysis.Configuration.Summer12.TTH_HToBB_M_125_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff")
 process.load("TopAnalysis.Configuration.Summer12.TTH_Inclusive_M_125_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff")
+#process.source.skipEvents = cms.untracked.uint32(200000)
 process.maxEvents.input = 101
 
 
@@ -33,8 +34,8 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('test_higgsDecaySubset.root'),
     outputCommands = cms.untracked.vstring(
         'drop *',
-	'keep recoGenParticles_*_*_SIM',
-	'keep recoGenParticles_*_*_HiggsDecayTest',
+        'keep recoGenParticles_*_*_SIM',
+        'keep recoGenParticles_*_*_HiggsDecayTest',
     ),
 )
 

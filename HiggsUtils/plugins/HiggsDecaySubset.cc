@@ -122,19 +122,19 @@ genParticleSource_(iConfig.getParameter<edm::InputTag>("src")),
 addRadiation_(iConfig.getParameter<bool>("addRadiation")),
 showerModel_(TopDecaySubset::kStart)
 {
-  // mapping of the corresponding fillMode; see FillMode 
-  // enumerator of TopDecaySubset for available modes
-  std::string mode = iConfig.getParameter<std::string>( "fillMode" );
-  if(mode=="kME")
-    fillMode_ = TopDecaySubset::kME;
-  else if(mode=="kStable")
-    fillMode_ = TopDecaySubset::kStable;
-  else
-    throw cms::Exception("Configuration") << mode << " is not a supported FillMode!\n";
-  
-  // produces a set of GenParticles following
-  // the decay branch of Higgs
-  produces<reco::GenParticleCollection>(); 
+    // Mapping of the corresponding fillMode;
+    // see FillMode enumerator of TopDecaySubset for available modes
+    const std::string mode = iConfig.getParameter<std::string>("fillMode");
+    if(mode=="kME")
+        fillMode_ = TopDecaySubset::kME;
+    else if(mode=="kStable")
+        fillMode_ = TopDecaySubset::kStable;
+    else
+        throw cms::Exception("Configuration")<<mode<<" is not a supported FillMode!\n";
+    
+    // Produces a set of GenParticles following
+    // the decay branch of Higgs
+    produces<reco::GenParticleCollection>(); 
 }
 
 
@@ -151,50 +151,50 @@ HiggsDecaySubset::~HiggsDecaySubset()
 void
 HiggsDecaySubset::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  // create target vector
-  std::auto_ptr<reco::GenParticleCollection> target( new reco::GenParticleCollection );
-
-  // get source collection
-  edm::Handle<reco::GenParticleCollection> src;
-  iEvent.getByLabel(genParticleSource_, src);
-  
-  // find Higgs in list of input particles
-  std::vector<const reco::GenParticle*> v_higgs = this->findHiggs(*src);
-  
-  // determine shower model (only in first event)
-  if(showerModel_==TopDecaySubset::kStart)showerModel_ = this->checkShowerModel(v_higgs);
-  
-  // find decay chain
-  if(showerModel_!=TopDecaySubset::kNone){
-    // get ref product from the event
-    const reco::GenParticleRefProd ref = iEvent.getRefBeforePut<reco::GenParticleCollection>();
-    // clear existing refs
-    this->clearReferences();
-    // fill output
-    this->fillListing(v_higgs, *target);
-    // fill references
-    this->fillReferences(ref, *target);
-  }
-  
-  // write vectors to the event
-  iEvent.put(target);
+    // Create target vector
+    std::auto_ptr<reco::GenParticleCollection> target(new reco::GenParticleCollection);
+    
+    // Get source collection
+    edm::Handle<reco::GenParticleCollection> src;
+    iEvent.getByLabel(genParticleSource_, src);
+    
+    // Find Higgs in list of input particles
+    const std::vector<const reco::GenParticle*> v_higgs = this->findHiggs(*src);
+    
+    // Determine shower model (only in first event)
+    if(showerModel_==TopDecaySubset::kStart) showerModel_ = this->checkShowerModel(v_higgs);
+    
+    // Find decay chain
+    if(showerModel_!=TopDecaySubset::kNone){
+        // get ref product from the event
+        const reco::GenParticleRefProd ref = iEvent.getRefBeforePut<reco::GenParticleCollection>();
+        // clear existing refs
+        this->clearReferences();
+        // fill output
+        this->fillListing(v_higgs, *target);
+        // fill references
+        this->fillReferences(ref, *target);
+    }
+    
+    // Write vectors to the event
+    iEvent.put(target);
 }
 
 
 
-// find Higgs in list of input particles
+// Find Higgs in list of input particles
 std::vector<const reco::GenParticle*>
 HiggsDecaySubset::findHiggs(const reco::GenParticleCollection& v_particle)
 {
-  std::vector<const reco::GenParticle*> v_higgs;
-  for(reco::GenParticleCollection::const_iterator i_particle=v_particle.begin(); i_particle!=v_particle.end(); ++i_particle){
-    if(i_particle->pdgId()==25 && i_particle->status()==3){
-      //std::cout<<"\t"<<i_particle->pdgId()<<" "<<i_particle->status()<<" "<<i_particle->numberOfMothers()<<" "<<i_particle->numberOfDaughters()<<std::endl;
-      v_higgs.push_back( &(*i_particle) );
+    std::vector<const reco::GenParticle*> v_higgs;
+    for(reco::GenParticleCollection::const_iterator i_particle=v_particle.begin(); i_particle!=v_particle.end(); ++i_particle){
+        if(i_particle->pdgId()==25 && i_particle->status()==3){
+            //std::cout<<"\t"<<i_particle->pdgId()<<" "<<i_particle->status()<<" "<<i_particle->numberOfMothers()<<" "<<i_particle->numberOfDaughters()<<std::endl;
+            v_higgs.push_back( &(*i_particle) );
+        }
     }
-  }
-  if(v_higgs.size()!=1)edm::LogWarning("decayChain")<<"Not exactly 1 Higgs found in event, but: "<<v_higgs.size();
-  return v_higgs;
+    if(v_higgs.size() != 1) edm::LogWarning("decayChain")<<"Not exactly 1 Higgs found in event, but: "<<v_higgs.size();
+    return v_higgs;
 }
 
 
@@ -203,54 +203,53 @@ HiggsDecaySubset::findHiggs(const reco::GenParticleCollection& v_particle)
 TopDecaySubset::ShowerModel
 HiggsDecaySubset::checkShowerModel(const std::vector<const reco::GenParticle*>& v_higgs)const
 {
-  for(std::vector<const reco::GenParticle*>::const_iterator i_higgs=v_higgs.begin(); i_higgs!=v_higgs.end(); ++i_higgs){
-    const reco::GenParticle* higgs = *i_higgs;
-    // check for kHerwig type showers: here the status 3 Higgs will 
-    // have a single status 2 Higgs as daughter, which has again 3 
-    // or more status 2 daughters
-    // WARNING: I did not explicitely check for Higgs in HERWIG, only in PYTHIA, so HERWIG criterion can be wrong
-    if( higgs->numberOfDaughters()==1){
-        if( higgs->begin()->pdgId()==higgs->pdgId() && higgs->begin()->status()==2 && higgs->begin()->numberOfDaughters()>1)
-	        return TopDecaySubset::kHerwig;
-    }
-    // check for kPythia type showers: here the status 3 Higgs will 
-    // have all decay products and a status 2 Higgs as daughters
-    // the status 2 Higgs will be w/o further daughters
-    if( higgs->numberOfDaughters()>1 ){
-        bool daughterHiggsHasNoDaughters(false);
-        for(reco::GenParticle::const_iterator i_higgsDaughter=higgs->begin(); i_higgsDaughter!=higgs->end(); ++i_higgsDaughter){
-	        //std::cout<<"\t"<<i_higgsDaughter->pdgId()<<" "<<i_higgsDaughter->status()<<" "<<i_higgsDaughter->numberOfDaughters()<<std::endl;
-	        if( i_higgsDaughter->pdgId() == 25 && i_higgsDaughter->status()==2 && i_higgsDaughter->numberOfDaughters()==0)daughterHiggsHasNoDaughters = true;
+    for(std::vector<const reco::GenParticle*>::const_iterator i_higgs = v_higgs.begin(); i_higgs != v_higgs.end(); ++i_higgs){
+        const reco::GenParticle* higgs = *i_higgs;
+        // check for kHerwig type showers: here the status 3 Higgs will 
+        // have a single status 2 Higgs as daughter, which has again 3 
+        // or more status 2 daughters
+        // WARNING: I did not explicitely check for Higgs in HERWIG, only in PYTHIA, so HERWIG criterion can be wrong
+        if(higgs->numberOfDaughters() == 1){
+            if(higgs->begin()->pdgId()==higgs->pdgId() && higgs->begin()->status()==2 && higgs->begin()->numberOfDaughters()>1)
+                return TopDecaySubset::kHerwig;
         }
-        if(daughterHiggsHasNoDaughters)
-	        return TopDecaySubset::kPythia;
+        // Check for kPythia type showers: here the status 3 Higgs will 
+        // have all decay products and a status 2 Higgs as daughters
+        // the status 2 Higgs will be w/o further daughters
+        if(higgs->numberOfDaughters() > 1){
+            bool daughterHiggsHasNoDaughters(false);
+            for(reco::GenParticle::const_iterator i_higgsDaughter = higgs->begin(); i_higgsDaughter != higgs->end(); ++i_higgsDaughter){
+                //std::cout<<"\t"<<i_higgsDaughter->pdgId()<<" "<<i_higgsDaughter->status()<<" "<<i_higgsDaughter->numberOfDaughters()<<std::endl;
+                if(i_higgsDaughter->pdgId()==25 && i_higgsDaughter->status()==2 && i_higgsDaughter->numberOfDaughters()==0) daughterHiggsHasNoDaughters = true;
+            }
+            if(daughterHiggsHasNoDaughters) return TopDecaySubset::kPythia;
+        }
     }
-  }
-  // if neither Herwig nor Pythia like
-  if(v_higgs.size()==0)
-    edm::LogWarning("decayChain")
-      << " Failed to find Higgs in decay chain. Will assume that this a \n"
-      << " non-Higgs sample and produce an empty decaySubset.\n";
-  else
-    throw edm::Exception(edm::errors::LogicError,
-			 " Can not find back any of the supported hadronization models. Models \n"
-			 " which are supported are:                                            \n"
-			 " Pythia  LO(+PS): Higgs(status 3) --> particle(status 3) antiparticle(status 3)\n"
-			 " Herwig NLO(+PS): Higgs(status 2) --> Higgs(status 3) --> Higgs(status 2)  \n");
-  return TopDecaySubset::kNone;
+    // If neither Herwig nor Pythia like
+    if(v_higgs.size() == 0)
+        edm::LogWarning("decayChain")
+            <<" Failed to find Higgs in decay chain. Will assume that this a \n"
+            <<" non-Higgs sample and produce an empty decaySubset.\n";
+    else
+        throw edm::Exception(edm::errors::LogicError,
+            " Can not find back any of the supported hadronization models. Models \n"
+            " which are supported are:                                            \n"
+            " Pythia  LO(+PS): Higgs(status 3) --> particle(status 3) antiparticle(status 3)\n"
+            " Herwig NLO(+PS): Higgs(status 2) --> Higgs(status 3) --> Higgs(status 2)  \n");
+    return TopDecaySubset::kNone;
 }
 
 
 
-// clear references
+// Clear references
 void
 HiggsDecaySubset::clearReferences()
 {
-  // clear vector of references 
-  refs_.clear();  
-  // set idx for mother particles to a start value
-  // of -1 (the first entry will raise it to 0)
-  motherPartIdx_=-1;
+    // Clear vector of references 
+    refs_.clear();  
+    // Set idx for mother particles to a start value
+    // of -1 (the first entry will raise it to 0)
+    motherPartIdx_ = -1;
 }
 
 
@@ -258,209 +257,256 @@ HiggsDecaySubset::clearReferences()
 void 
 HiggsDecaySubset::fillListing(const std::vector<const reco::GenParticle*>& v_higgs, reco::GenParticleCollection& target)
 {
-  // determine status flag of the new 
-  // particle depending on the FillMode
-  unsigned int statusFlag;
-  fillMode_ == TopDecaySubset::kME ? statusFlag=3 : statusFlag=2;
-  
-  for(std::vector<const reco::GenParticle*>::const_iterator i_higgs=v_higgs.begin(); i_higgs!=v_higgs.end(); ++i_higgs){
-    const reco::GenParticle* higgs = *i_higgs;
+    // Determine status flag of the new 
+    // particle depending on the FillMode
+    unsigned int statusFlag;
+    fillMode_ == TopDecaySubset::kME ? statusFlag=3 : statusFlag=2;
     
-    // Do we need a case distiction for additional radiation off the Higgs? I do not think so, so p4(i_higgs, statusFlag) is not implemented, and no further particles are kept in case of addRadiation_
-    //std::auto_ptr<reco::GenParticle> higgsPtr( new reco::GenParticle( higgs->threeCharge(), this->p4(i_higgs, statusFlag), higgs->vertex(), higgs->pdgId(), statusFlag, false ) );
-    std::auto_ptr<reco::GenParticle> higgsPtr( new reco::GenParticle( higgs->threeCharge(), (*i_higgs)->p4(), higgs->vertex(), higgs->pdgId(), statusFlag, false ) );
-    target.push_back( *higgsPtr );
-    ++motherPartIdx_;
-    
-    // keep the higgs index for the map to manage the daughter refs
-    int iHiggs=motherPartIdx_; 
-    std::vector<int> higgsDaughters;
-    
-    // sanity check
-    if(showerModel_!=TopDecaySubset::kPythia && higgs->begin()==higgs->end())
-        throw edm::Exception(edm::errors::LogicError,
-			   "showerModel_!=kPythia && higgs->begin()==higgs->end()\n");
-    
-    // iterate over Higgs daughters
-    // WARNING: what happens if particles build a loop and the final decay is e.g. gammagamma ? This distinction would need to be introduced probably
-    for(reco::GenParticle::const_iterator i_higgsDaughter=((showerModel_==TopDecaySubset::kPythia)?higgs->begin():higgs->begin()->begin()); i_higgsDaughter!=((showerModel_==TopDecaySubset::kPythia)?higgs->end():higgs->begin()->end()); ++i_higgsDaughter){
-        //std::cout<<"\t"<<i_higgsDaughter->pdgId()<<" "<<i_higgsDaughter->status()<<" "<<i_higgsDaughter->numberOfDaughters()<<std::endl;
+    for(std::vector<const reco::GenParticle*>::const_iterator i_higgs = v_higgs.begin(); i_higgs != v_higgs.end(); ++i_higgs){
+        const reco::GenParticle* higgs = *i_higgs;
         
-        // if particle is beauty or other lighter quark
-        if( i_higgsDaughter->status()==3 && std::abs( i_higgsDaughter->pdgId() )<=5 ){ 
-            std::auto_ptr<reco::GenParticle> bPtr( new reco::GenParticle( i_higgsDaughter->threeCharge(), this->p4( i_higgsDaughter, statusFlag ), i_higgsDaughter->vertex(), i_higgsDaughter->pdgId(), statusFlag, false ) );
-            target.push_back( *bPtr );	  
-            // increment & push index of the higgs daughter
-            higgsDaughters.push_back( ++motherPartIdx_ ); 
-            if(addRadiation_){
-                addRadiation(motherPartIdx_,i_higgsDaughter,target); 
+        // Do we need a case distiction for additional radiation off the Higgs? I do not think so, so p4(i_higgs, statusFlag) is not implemented, and no further particles are kept in case of addRadiation_
+        //std::auto_ptr<reco::GenParticle> higgsPtr(new reco::GenParticle(higgs->threeCharge(), this->p4(i_higgs, statusFlag), higgs->vertex(), higgs->pdgId(), statusFlag, false));
+        std::auto_ptr<reco::GenParticle> higgsPtr(new reco::GenParticle(higgs->threeCharge(), (*i_higgs)->p4(), higgs->vertex(), higgs->pdgId(), statusFlag, false));
+        target.push_back(*higgsPtr);
+        ++motherPartIdx_;
+        
+        // Keep the higgs index for the map to manage the daughter refs
+        const int iHiggs = motherPartIdx_; 
+        std::vector<int> higgsDaughters;
+        
+        // Sanity check
+        if(showerModel_!=TopDecaySubset::kPythia && higgs->begin()==higgs->end())
+            throw edm::Exception(edm::errors::LogicError,
+                "showerModel_!=kPythia && higgs->begin()==higgs->end()\n");
+        
+        // Iterate over Higgs daughters
+        // WARNING: what happens if particles build a loop and the final decay is e.g. gammagamma ? This distinction would need to be introduced probably
+        for(reco::GenParticle::const_iterator i_higgsDaughter = ((showerModel_==TopDecaySubset::kPythia)?higgs->begin():higgs->begin()->begin()); i_higgsDaughter != ((showerModel_==TopDecaySubset::kPythia)?higgs->end():higgs->begin()->end()); ++i_higgsDaughter){
+            //std::cout<<"\t"<<i_higgsDaughter->pdgId()<<" "<<i_higgsDaughter->status()<<" "<<i_higgsDaughter->numberOfDaughters()<<std::endl;
+            
+            // If particle is beauty or other lighter quark
+            if(i_higgsDaughter->status()==3 && std::abs(i_higgsDaughter->pdgId())<=5){ 
+                std::auto_ptr<reco::GenParticle> bPtr(new reco::GenParticle(i_higgsDaughter->threeCharge(), this->p4(i_higgsDaughter, statusFlag), i_higgsDaughter->vertex(), i_higgsDaughter->pdgId(), statusFlag, false));
+                target.push_back(*bPtr);
+                // increment & push index of the higgs daughter
+                higgsDaughters.push_back(++motherPartIdx_); 
+                if(addRadiation_){
+                    this->addRadiation(motherPartIdx_, i_higgsDaughter, target); 
+                }
+            }
+            
+            // Sanity check
+            if(showerModel_!=TopDecaySubset::kPythia && i_higgsDaughter->begin()==i_higgsDaughter->end())
+                throw edm::Exception(edm::errors::LogicError,
+                    "showerModel_!=kPythia && i_higgsDaughter->begin()==i_higgsDaughter->end()\n");
+            
+            reco::GenParticle::const_iterator buffer = showerModel_==TopDecaySubset::kPythia ? i_higgsDaughter : i_higgsDaughter->begin();
+            const int status(buffer->status());
+            const int absPdgId(std::abs(buffer->pdgId()));
+            
+            // If particle is a muon
+            if(status==3 && absPdgId==13){
+                std::auto_ptr<reco::GenParticle> muonPtr(new reco::GenParticle(buffer->threeCharge(), p4(buffer, statusFlag), buffer->vertex(), buffer->pdgId(), statusFlag, true));
+                target.push_back(*muonPtr);
+                // Increment & push index of the top daughter
+                higgsDaughters.push_back(++motherPartIdx_);
+                if(addRadiation_){
+                    this->addRadiation(motherPartIdx_, buffer, target);
+                }
+            }
+            
+            // If particle is a tau lepton
+            else if(status==3 && absPdgId==15){
+                std::auto_ptr<reco::GenParticle> tauPtr(new reco::GenParticle(buffer->threeCharge(), p4(buffer, statusFlag), buffer->vertex(), buffer->pdgId(), statusFlag, true));
+                target.push_back(*tauPtr);
+                // Increment & push index of the top daughter
+                higgsDaughters.push_back(++motherPartIdx_);
+                if(addRadiation_){
+                    this->addRadiation(motherPartIdx_, buffer, target);
+                }
+                // If further decay chain of tau becomes interesting, add it here (would need tau lepton index to manage daughter refs)
+            }
+            
+            // If particle is a gluon
+            else if(status==3 && absPdgId==21){
+                std::auto_ptr<reco::GenParticle> gluonPtr(new reco::GenParticle(buffer->threeCharge(), p4(buffer, statusFlag), buffer->vertex(), buffer->pdgId(), statusFlag, true));
+                target.push_back(*gluonPtr);
+                // Increment & push index of the top daughter
+                higgsDaughters.push_back(++motherPartIdx_);
+                if(addRadiation_){
+                    this->addRadiation(motherPartIdx_, buffer, target);
+                }
+            }
+            
+            // If particle is a photon
+            else if(status==3 && absPdgId==22){
+                std::auto_ptr<reco::GenParticle> photonPtr(new reco::GenParticle(buffer->threeCharge(), p4(buffer, statusFlag), buffer->vertex(), buffer->pdgId(), statusFlag, true));
+                target.push_back(*photonPtr);
+                // Increment & push index of the top daughter
+                higgsDaughters.push_back(++motherPartIdx_);
+                if(addRadiation_){
+                    this->addRadiation(motherPartIdx_, buffer, target);
+                }
+            }
+            
+            // If particle is a Z boson
+            else if(status==3 && absPdgId==23){
+                std::auto_ptr<reco::GenParticle> zPtr(new reco::GenParticle(buffer->threeCharge(), p4(buffer, statusFlag), buffer->vertex(), buffer->pdgId(), statusFlag, true));
+                target.push_back(*zPtr);
+                // Increment & push index of the top daughter
+                higgsDaughters.push_back(++motherPartIdx_);
+                if(addRadiation_){
+                    addRadiation(motherPartIdx_, buffer, target); 
+                }
+                // If further decay chain of Z becomes interesting, add it here (would need Z boson index to manage daughter refs)
+            }
+            
+            // If particle is a W boson
+            else if(status==3 && absPdgId==24){
+                std::auto_ptr<reco::GenParticle> wPtr(new reco::GenParticle(buffer->threeCharge(), p4(buffer, statusFlag), buffer->vertex(), buffer->pdgId(), statusFlag, true));
+                target.push_back(*wPtr);
+                // Increment & push index of the top daughter
+                higgsDaughters.push_back(++motherPartIdx_);
+                if(addRadiation_){
+                    addRadiation(motherPartIdx_, buffer, target); 
+                }
+                // If further decay chain of W becomes interesting, add it here (would need W boson index to manage daughter refs)
+            }
+            
+            // Here would be the space to implement other Higgs decay particles and their decay chains (e.g. top, invisible, ...)
+        }
+        
+        // Add potential sisters of the Higgs
+        //std::cout<<"Number of mothers: "<<higgs->numberOfMothers()<<std::endl;
+        //std::cout<<"\t"<<higgs->mother(0)->pdgId()<<" "<<higgs->mother(0)->status()<<" "<<higgs->mother(0)->numberOfDaughters()<<std::endl;
+        //std::cout<<"\t"<<higgs->mother(1)->pdgId()<<" "<<higgs->mother(1)->status()<<" "<<higgs->mother(1)->numberOfDaughters()<<"\n\n";
+        if(higgs->numberOfMothers()>0 && higgs->pdgId()==25){
+            // Loop over all daughters of the Higgs mother i.e.
+            // the Higgs and its potential sisters
+            for(reco::GenParticle::const_iterator i_higgsSister = higgs->mother()->begin(); i_higgsSister!=higgs->mother()->end(); ++i_higgsSister){
+                //std::cout<<"\t"<<i_higgsSister->pdgId()<<" "<<i_higgsSister->status()<<" "<<i_higgsSister->numberOfDaughters()<<std::endl;
+                // Add all further particles but the Higgs and potential 
+                // cases where the mother of the Higgs has itself as daughter
+                if(i_higgsSister->pdgId()!=higgs->pdgId() && i_higgsSister->pdgId()!=higgs->mother()->pdgId()){
+                    reco::GenParticle* cand = new reco::GenParticle(i_higgsSister->threeCharge(), i_higgsSister->p4(), i_higgsSister->vertex(), i_higgsSister->pdgId(), i_higgsSister->status(), false);
+                    std::auto_ptr<reco::GenParticle> sisterPtr(cand);
+                    target.push_back(*sisterPtr);
+                    if(i_higgsSister->begin() != i_higgsSister->end()){
+                        // In case the sister has daughters increment
+                        // and add the first generation of daughters
+                        this->addDaughters(++motherPartIdx_, i_higgsSister->begin(), target, false);
+                    }
+                }
             }
         }
         
-        // sanity check
-        if(showerModel_!=TopDecaySubset::kPythia && i_higgsDaughter->begin()==i_higgsDaughter->end())
-	        throw edm::Exception(edm::errors::LogicError,
-			     "showerModel_!=kPythia && i_higgsDaughter->begin()==i_higgsDaughter->end()\n");
-        reco::GenParticle::const_iterator buffer = (showerModel_==TopDecaySubset::kPythia)?i_higgsDaughter:i_higgsDaughter->begin();
-        
-        // if particle is a W boson
-        if( buffer->status()==3 && std::abs( buffer->pdgId() )==24 ){
-            std::auto_ptr<reco::GenParticle> wPtr(  new reco::GenParticle( buffer->threeCharge(), p4( buffer, statusFlag), buffer->vertex(), buffer->pdgId(), statusFlag, true ) );
-            target.push_back( *wPtr );
-            // increment & push index of the top daughter
-            higgsDaughters.push_back( ++motherPartIdx_ );
-            if(addRadiation_){
-                addRadiation(motherPartIdx_,buffer,target); 
-            }
-            // if further decay chain of W becomes interesting, add it here (would need W boson index to manage daughter refs)
-        }
-        
-        // if particle is a tau lepton
-        if( buffer->status()==3 && std::abs( buffer->pdgId() )==15 ){
-            std::auto_ptr<reco::GenParticle> tauPtr(  new reco::GenParticle( buffer->threeCharge(), p4( buffer, statusFlag), buffer->vertex(), buffer->pdgId(), statusFlag, true ) );
-            target.push_back( *tauPtr );
-            // increment & push index of the top daughter
-            higgsDaughters.push_back( ++motherPartIdx_ );
-            if(addRadiation_){
-                addRadiation(motherPartIdx_,buffer,target); 
-            }
-            // if further decay chain of tau becomes interesting, add it here (would need tau boson index to manage daughter refs)
-        }
-        
-        // here would be the space to implement other Higgs decays and their decay chains (e.g. ttbar, mumu, ZZ, gammagamma, invisible, ...)
+        // Fill the map for the administration of daughter indices
+        refs_[iHiggs] = higgsDaughters;
     }
-    
-    // add potential sisters of the Higgs
-    //std::cout<<"Number of mothers: "<<higgs->numberOfMothers()<<std::endl;
-    //std::cout<<"\t"<<higgs->mother(0)->pdgId()<<" "<<higgs->mother(0)->status()<<" "<<higgs->mother(0)->numberOfDaughters()<<std::endl;
-    //std::cout<<"\t"<<higgs->mother(1)->pdgId()<<" "<<higgs->mother(1)->status()<<" "<<higgs->mother(1)->numberOfDaughters()<<"\n\n";
-    if(higgs->numberOfMothers()>0 && higgs->pdgId()==25){
-        // loop over all daughters of the Higgs mother i.e.
-        // the Higgs and its potential sisters
-        for(reco::GenParticle::const_iterator i_higgsSister = higgs->mother()->begin(); i_higgsSister!=higgs->mother()->end(); ++i_higgsSister){
-            //std::cout<<"\t"<<i_higgsSister->pdgId()<<" "<<i_higgsSister->status()<<" "<<i_higgsSister->numberOfDaughters()<<std::endl;
-            // add all further particles but the Higgs and potential 
-            // cases where the mother of the Higgs has itself as daughter
-            if(i_higgsSister->pdgId()!=higgs->pdgId() && i_higgsSister->pdgId()!=higgs->mother()->pdgId()){
-                reco::GenParticle* cand = new reco::GenParticle( i_higgsSister->threeCharge(), i_higgsSister->p4(), i_higgsSister->vertex(), i_higgsSister->pdgId(), i_higgsSister->status(), false );
-                std::auto_ptr<reco::GenParticle> sisterPtr( cand );
-                target.push_back( *sisterPtr );
-                if(i_higgsSister->begin()!=i_higgsSister->end()){ 
-                    // in case the sister has daughters increment
-                    // and add the first generation of daughters
-                    addDaughters(++motherPartIdx_,i_higgsSister->begin(),target,false);
+}
+
+
+
+// Calculate lorentz vector from input
+reco::Particle::LorentzVector 
+HiggsDecaySubset::p4(const reco::GenParticle::const_iterator part, int statusFlag)
+{
+    // Calculate the four vector for all higgs daughters from 
+    // their daughters including additional radiation 
+    if(statusFlag == 3){
+        // Return 4 momentum as it is
+        return part->p4();
+    }
+    reco::Particle::LorentzVector vec;
+    for(reco::GenParticle::const_iterator p = part->begin(); p != part->end(); ++p){
+        if(p->status()<=2 && std::abs(p->pdgId())==24){
+            vec = p->p4();
+        }
+        else{
+            if(p->status() <= 2){
+                // Sum up the p4 of all stable particles 
+                // (of status 1 or 2)
+                vec += p->p4();
+            }
+            else{
+                if(p->status() == 3){
+                    // If the particle is unfragmented (i.e.
+                    // status 3) descend by one level
+                    vec += p4(p, statusFlag);   
                 }
             }
         }
     }
-
-    // fill the map for the administration of daughter indices
-    refs_[ iHiggs ] = higgsDaughters;
-  }
+    return vec;
 }
 
 
 
-// calculate lorentz vector from input
-reco::Particle::LorentzVector 
-HiggsDecaySubset::p4(const reco::GenParticle::const_iterator part, int statusFlag)
-{
-  // calculate the four vector for all higgs daughters from 
-  // their daughters including additional radiation 
-  if(statusFlag==3){
-    // return 4 momentum as it is
-    return part->p4();
-  }
-  reco::Particle::LorentzVector vec;
-  for(reco::GenParticle::const_iterator p=part->begin(); p!=part->end(); ++p){
-    if( p->status()<=2 && std::abs(p->pdgId ())==24){
-      vec=p->p4();
-    }
-    else{
-      if(p->status()<=2){
-	// sum up the p4 of all stable particles 
-	// (of status 1 or 2)
-	vec+=p->p4();
-      }
-      else{
-	if( p->status()==3){
-	  // if the particle is unfragmented (i.e.
-	  // status 3) descend by one level
-	  vec+=p4(p, statusFlag);   
-	}
-      }
-    }
-  }
-  return vec;
-}
-
-
-
-// fill vector including all radiations from quarks
+// Fill vector including all radiations from quarks
 void 
 HiggsDecaySubset::addRadiation(int& idx, const reco::GenParticle::const_iterator part, reco::GenParticleCollection& target)
 {
-  std::vector<int> daughters;
-  int idxBuffer = idx;
-  for(reco::GenParticle::const_iterator daughter=part->begin(); daughter!=part->end(); ++daughter){
-    if(daughter->status()<=2 && daughter->pdgId()!=part->pdgId()){
-      // skip comment lines and make sure that
-      // the particle is not double counted as 
-      // daughter of itself
-      std::auto_ptr<reco::GenParticle> ptr(  new reco::GenParticle( daughter->threeCharge(), daughter->p4(), daughter->vertex(), daughter->pdgId(), daughter->status(), false) );
-      target.push_back( *ptr );
-      daughters.push_back( ++idx ); //push index of daughter
+    std::vector<int> daughters;
+    int idxBuffer = idx;
+    for(reco::GenParticle::const_iterator daughter = part->begin(); daughter != part->end(); ++daughter){
+        if(daughter->status()<=2 && daughter->pdgId()!=part->pdgId()){
+            // Skip comment lines and make sure that
+            // the particle is not double counted as 
+            // daughter of itself
+            std::auto_ptr<reco::GenParticle> ptr(new reco::GenParticle(daughter->threeCharge(), daughter->p4(), daughter->vertex(), daughter->pdgId(), daughter->status(), false));
+            target.push_back(*ptr);
+            daughters.push_back(++idx); // Push index of daughter
+        }
     }
-  }  
-  if(daughters.size()) {
-    refs_[ idxBuffer ] = daughters;
-  }
+    if(daughters.size()){
+        refs_[idxBuffer] = daughters;
+    }
 }
 
 
 
-// fill references for output vector
+// Fill references for output vector
 void 
 HiggsDecaySubset::fillReferences(const reco::GenParticleRefProd& ref, reco::GenParticleCollection& sel)
 { 
-  int idx=0;
-  for(reco::GenParticleCollection::iterator p=sel.begin(); p!=sel.end(); ++p, ++idx){
-    //find daughter reference vectors in refs_ and add daughters
-    std::map<int, std::vector<int> >::const_iterator daughters=refs_.find( idx );
-    if( daughters!=refs_.end() ){
-      for(std::vector<int>::const_iterator daughter = daughters->second.begin(); 
-      daughter!=daughters->second.end(); ++daughter){
-        reco::GenParticle* part = dynamic_cast<reco::GenParticle* > (&(*p));
-	    if(part == 0)
-          throw edm::Exception( edm::errors::InvalidReference, "Not a GenParticle" );
-        part->addDaughter( reco::GenParticleRef(ref, *daughter) );
-        sel[*daughter].addMother( reco::GenParticleRef(ref, idx) );
-      }
+    int idx = 0;
+    for(reco::GenParticleCollection::iterator p = sel.begin(); p != sel.end(); ++p, ++idx){
+        //find daughter reference vectors in refs_ and add daughters
+        std::map<int, std::vector<int> >::const_iterator daughters=refs_.find(idx);
+        if(daughters != refs_.end()){
+            for(std::vector<int>::const_iterator daughter = daughters->second.begin(); daughter != daughters->second.end(); ++daughter){
+                reco::GenParticle* part = dynamic_cast<reco::GenParticle*>(&(*p));
+                if(part == 0)
+                    throw edm::Exception( edm::errors::InvalidReference, "Not a GenParticle");
+                part->addDaughter(reco::GenParticleRef(ref, *daughter));
+                sel[*daughter].addMother(reco::GenParticleRef(ref, idx));
+            }
+        }
     }
-  }
 }
 
 
 
-// recursively fill vector for all further decay particles of a given particle
+// Recursively fill vector for all further decay particles of a given particle
 void 
-HiggsDecaySubset::addDaughters(int& idx, const reco::GenParticle::const_iterator part, reco::GenParticleCollection& target, bool recursive)
+HiggsDecaySubset::addDaughters(int& idx, const reco::GenParticle::const_iterator part, reco::GenParticleCollection& target, const bool recursive)
 {
-  std::vector<int> daughters;
-  int idxBuffer = idx;
-  for(reco::GenParticle::const_iterator daughter=part->begin(); daughter!=part->end(); ++daughter){
-      std::auto_ptr<reco::GenParticle> ptr( new reco::GenParticle( daughter->threeCharge(), daughter->p4(), daughter->vertex(), daughter->pdgId(), daughter->status(), false) );
-      target.push_back( *ptr );
-      // increment & push index of daughter
-      daughters.push_back( ++idx );
-      // continue recursively if desired
-      if(recursive){
-          addDaughters(idx,daughter,target);  
-      }
-  }  
-  if(daughters.size()) {
-      refs_[ idxBuffer ] = daughters;
-  }
+    std::vector<int> daughters;
+    int idxBuffer = idx;
+    for(reco::GenParticle::const_iterator daughter = part->begin(); daughter != part->end(); ++daughter){
+        std::auto_ptr<reco::GenParticle> ptr(new reco::GenParticle(daughter->threeCharge(), daughter->p4(), daughter->vertex(), daughter->pdgId(), daughter->status(), false));
+        target.push_back(*ptr);
+        // Increment & push index of daughter
+        daughters.push_back(++idx);
+        // Continue recursively if desired
+        if(recursive){
+            this->addDaughters(idx, daughter, target);  
+        }
+    }
+    if(daughters.size()){
+        refs_[idxBuffer] = daughters;
+    }
 }
 
 
