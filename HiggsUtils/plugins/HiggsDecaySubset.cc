@@ -281,7 +281,6 @@ HiggsDecaySubset::fillListing(const std::vector<const reco::GenParticle*>& v_hig
                 "showerModel_!=kPythia && higgs->begin()==higgs->end()\n");
         
         // Iterate over Higgs daughters
-        // WARNING: what happens if particles build a loop and the final decay is e.g. gammagamma ? This distinction would need to be introduced probably
         for(reco::GenParticle::const_iterator i_higgsDaughter = ((showerModel_==TopDecaySubset::kPythia)?higgs->begin():higgs->begin()->begin()); i_higgsDaughter != ((showerModel_==TopDecaySubset::kPythia)?higgs->end():higgs->begin()->end()); ++i_higgsDaughter){
             //std::cout<<"\t"<<i_higgsDaughter->pdgId()<<" "<<i_higgsDaughter->status()<<" "<<i_higgsDaughter->numberOfDaughters()<<std::endl;
             
