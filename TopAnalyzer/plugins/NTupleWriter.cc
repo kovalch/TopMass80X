@@ -107,7 +107,6 @@ private:
     edm::InputTag met_;
     edm::InputTag mvamet_;
     edm::InputTag vertices_, genEvent_ ;
-    edm::InputTag FullLepEvt_, hypoKey_;
     edm::InputTag genEventHiggs_;
     edm::InputTag genZDecay_;
     edm::InputTag genParticles_;
@@ -220,18 +219,6 @@ private:
     std::vector<int> GenParticlePdgId;
     std::vector<int> GenParticleStatus;
 
-    std::vector<LV> HypTop;
-    std::vector<LV> HypAntiTop;
-    std::vector<LV> HypLepton;
-    std::vector<LV> HypAntiLepton;
-    std::vector<LV> HypNeutrino;
-    std::vector<LV> HypAntiNeutrino;
-    std::vector<LV> HypB;
-    std::vector<LV> HypAntiB;
-    std::vector<LV> HypWPlus;
-    std::vector<LV> HypWMinus;
-    std::vector<int> HypJet0index;
-    std::vector<int> HypJet1index;
 
 
     int TopProductionMode;
@@ -328,8 +315,6 @@ NTupleWriter::NTupleWriter(const edm::ParameterSet& iConfig):
 
     vertices_(iConfig.getParameter<edm::InputTag>("vertices")),
     genEvent_(iConfig.getParameter<edm::InputTag>("src")),
-    FullLepEvt_(iConfig.getParameter<edm::InputTag>("FullLepEvent")),
-    hypoKey_(iConfig.getParameter<edm::InputTag>("hypoKey")),
     genEventHiggs_(iConfig.getParameter<edm::InputTag>("genEventHiggs")),
     genZDecay_(iConfig.getParameter<edm::InputTag>("genZDecay")),
     genParticles_( iConfig.getParameter<edm::InputTag>("genParticles")),
@@ -514,12 +499,6 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
     }
 
     //top event
-    edm::Handle<TtFullLeptonicEvent> FullLepEvt;
-    iEvent.getByLabel(FullLepEvt_, FullLepEvt);
-
-    edm::Handle<int> hypoKeyHandle;
-    iEvent.getByLabel(hypoKey_, hypoKeyHandle);
-
     edm::Handle<edm::View< pat::Jet > > jets;
     iEvent.getByLabel(jets_, jets);
 
@@ -531,63 +510,6 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup )
 
     edm::Handle<edm::View< pat::Jet > > jetsForMETuncorr;
     iEvent.getByLabel(jetsForMETuncorr_, jetsForMETuncorr);
-
-
-    if (! hypoKeyHandle.failedToGet()){
-        
-        TtEvent::HypoClassKey& hypoKey = ( TtEvent::HypoClassKey& ) *hypoKeyHandle;
-
-        //////////////////////////////dilepton and lepton properties/////////////////////
-
-
-        //the ntuple now only stores maximum 1 solution: the best one
-        // - if a two btag solution is found, take it
-        // - else if one tag solution is found, take the best one
-        if (FullLepEvt->isHypoAvailable(hypoKey) && FullLepEvt->isHypoValid(hypoKey)){
-            
-            int best = -1;
-            for ( size_t i=0; i<FullLepEvt->numberOfAvailableHypos(hypoKey); ++i ){
-                const pat::Jet& jet1 = jets->at(FullLepEvt->jetLeptonCombination(hypoKey,i)[0]);
-                const pat::Jet& jet2 = jets->at(FullLepEvt->jetLeptonCombination(hypoKey,i)[1]);
-                bool jet1tagged = jet1.bDiscriminator("combinedSecondaryVertexBJetTags")>0.244;
-                bool jet2tagged = jet2.bDiscriminator("combinedSecondaryVertexBJetTags")>0.244;
-                if (jet1tagged && jet2tagged) { best = i; break; }
-                if ((jet1tagged || jet2tagged) && best < 0) { best = i; }
-            }
-
-            //std::cout << iEvent.eventAuxiliary().id() <<  ": choose combination #" << best << "\n";
-            
-            //for ( size_t i=0; i<FullLepEvt->numberOfAvailableHypos (hypoKey); ++i )
-            if (best >= 0){
-                size_t i = best;
-
-                const reco::Candidate* Top    = FullLepEvt->top(hypoKey, i);
-                const reco::Candidate* TopBar = FullLepEvt->topBar(hypoKey, i);
-                const reco::Candidate* Lep    = FullLepEvt->lepton(hypoKey, i);
-                const reco::Candidate* LepBar = FullLepEvt->leptonBar(hypoKey, i);
-                const reco::Candidate* Nu     = FullLepEvt->neutrino(hypoKey, i);
-                const reco::Candidate* NuBar  = FullLepEvt->neutrinoBar(hypoKey, i);
-                const reco::Candidate* B      = FullLepEvt->b(hypoKey, i);
-                const reco::Candidate* BBar   = FullLepEvt->bBar(hypoKey, i);
-                const reco::Candidate* Wplus  = FullLepEvt->wPlus(hypoKey, i);
-                const reco::Candidate* Wminus = FullLepEvt->wMinus(hypoKey, i);
-
-                HypTop.push_back(Top->polarP4());
-                HypAntiTop.push_back( TopBar->polarP4());
-                HypLepton.push_back( Lep->polarP4());
-                HypAntiLepton.push_back( LepBar->polarP4());
-                HypNeutrino.push_back( Nu->polarP4());
-                HypAntiNeutrino.push_back( NuBar->polarP4());
-                HypB.push_back( B->polarP4());
-                HypAntiB.push_back( BBar->polarP4());
-                HypWPlus.push_back( Wplus->polarP4());
-                HypWMinus.push_back(Wminus->polarP4());
-
-                HypJet0index.push_back(FullLepEvt->jetLeptonCombination(hypoKey,i)[0]);
-                HypJet1index.push_back(FullLepEvt->jetLeptonCombination(hypoKey,i)[1]);
-            }
-        }
-    }
 
 
     if ( isTtBarSample_ ) {
@@ -1604,19 +1526,6 @@ NTupleWriter::beginJob()
         Ntuple->Branch("GenZDecayMode", &VGenZDecayMode);
     }
 
-    //Hypothesis Info
-    Ntuple->Branch("HypTop", &HypTop);
-    Ntuple->Branch("HypAntiTop", &HypAntiTop);
-    Ntuple->Branch("HypLepton", &HypLepton);
-    Ntuple->Branch("HypAntiLepton", &HypAntiLepton);
-    Ntuple->Branch("HypNeutrino", &HypNeutrino);
-    Ntuple->Branch("HypAntiNeutrino", &HypAntiNeutrino);
-    Ntuple->Branch("HypB", &HypB);
-    Ntuple->Branch("HypAntiB", &HypAntiB);
-    Ntuple->Branch("HypWPlus", &HypWPlus);
-    Ntuple->Branch("HypWMinus", &HypWMinus);
-    Ntuple->Branch("HypJet0index", &HypJet0index);
-    Ntuple->Branch("HypJet1index", &HypJet1index);
 
     Ntuple->Branch("TopDecayMode", &TopDecayMode, "TopDecayMode/I");
     Ntuple->Branch("ZDecayMode", &ZDecayMode);
@@ -1735,19 +1644,6 @@ void NTupleWriter::clearVariables()
     vertMulti=0;
     vertMultiTrue=0;
 
-    HypTop.clear();
-    HypAntiTop.clear();
-    HypLepton.clear();
-    HypAntiLepton.clear();
-    HypNeutrino.clear();
-    HypAntiNeutrino.clear();
-    HypB.clear();
-    HypAntiB.clear();
-    HypWPlus.clear();
-    HypWMinus.clear();
-
-    HypJet0index.clear();
-    HypJet1index.clear();
 
     VGenZ.clear();
     VGenZMeDaughterParticle.clear();

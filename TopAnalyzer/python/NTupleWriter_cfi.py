@@ -62,8 +62,5 @@ writeNTuple = cms.EDAnalyzer('NTupleWriter',
                        pdfWeights = cms.InputTag('pdfWeights:cteq66'),
                        includeZdecay = cms.bool(False),
                        Zdecay = cms.InputTag('ZDecayProducer','zDecayMode'),
-                       #maybe remove/change these two in the future?
-                       hypoKey = cms.InputTag("ttFullLepHypKinSolution","Key"),
-                       FullLepEvent = cms.InputTag("ttFullLepEvent"),
 )
 

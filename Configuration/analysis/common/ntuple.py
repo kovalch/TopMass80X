@@ -791,90 +791,6 @@ else:
 
 
 ####################################################################
-## Select input for kinematic reconstruction
-
-# Select the two leptons fulfilling dilepton selection
-from TopAnalysis.TopUtils.DileptonKinRecoLeptons_cfi import *
-process.kinRecoLeptons = dileptonKinRecoLeptons.clone(
-    electrons = isolatedElectronCollection,
-    muons = isolatedMuonCollection,
-    filterChannel = options.mode,
-    excludeMasses = (-999., 20.),
-    )
-
-# Select jets
-process.kinRecoJets = process.selectedPatJets.clone(
-    src = jetCollection,
-    cut = 'pt > 30 && abs(eta) < 2.4',
-    )
-
-
-
-####################################################################
-## Kinematic reconstruction
-
-# Standard sequence to produce the ttFullLepEvent
-process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttFullLepEvtBuilder_cff")
-from TopQuarkAnalysis.TopEventProducers.sequences.ttFullLepEvtBuilder_cff import *
-if not topSignal:
-    removeTtFullLepHypGenMatch(process)
-
-setForAllTtFullLepHypotheses(process, "muons", 'kinRecoLeptons')
-setForAllTtFullLepHypotheses(process, "electrons", 'kinRecoLeptons')
-setForAllTtFullLepHypotheses(process, "jets", 'kinRecoJets')
-setForAllTtFullLepHypotheses(process, "mets", metCollection)
-if options.runOnMC:
-    setForAllTtFullLepHypotheses(process, "jetCorrectionLevel", "L3Absolute")
-    print "L3Absolute"
-else:
-    setForAllTtFullLepHypotheses(process, "jetCorrectionLevel", "L2L3Residual")
-    print "L2L3Residual"
-setForAllTtFullLepHypotheses(process, "maxNJets", -1)
-
-process.kinSolutionTtFullLepEventHypothesis.maxNComb = -1
-process.kinSolutionTtFullLepEventHypothesis.searchWrongCharge = True
-process.kinSolutionTtFullLepEventHypothesis.tmassbegin = 100.0
-process.kinSolutionTtFullLepEventHypothesis.tmassend = 300.0
-process.kinSolutionTtFullLepEventHypothesis.neutrino_parameters = (30.641, 57.941, 22.344, 57.533, 22.232)
-#according to our MC 8 TeV values are:
-#nu    mpv 40.567 sigma = 16.876
-#nubar mpv 40.639 sigma = 17.021
-
-#process.kinSolutionTtFullLepEventHypothesis.mumuChannel = False
-#process.kinSolutionTtFullLepEventHypothesis.eeChannel = False
-#process.kinSolutionTtFullLepEventHypothesis.emuChannel = True
-process.ttFullLepEvent.decayChannel1 = cms.int32(1)
-process.ttFullLepEvent.decayChannel2 = cms.int32(2)
-
-process.kinSolutionTtFullLepEventHypothesis.mumuChannel = True
-process.kinSolutionTtFullLepEventHypothesis.emuChannel  = True
-process.kinSolutionTtFullLepEventHypothesis.eeChannel = True
-
-#process.ttFullLepEvent.decayChannel1 = cms.int32(1)
-#process.ttFullLepEvent.decayChannel2 = cms.int32(2)
-
-#if options.mode == 'mumu':
-    #process.kinSolutionTtFullLepEventHypothesis.mumuChannel = True
-    #process.ttFullLepEvent.decayChannel1 = cms.int32(2)
-    #process.ttFullLepEvent.decayChannel2 = cms.int32(2)
-#elif options.mode == 'emu':
-    #process.kinSolutionTtFullLepEventHypothesis.emuChannel = True
-    #process.ttFullLepEvent.decayChannel1 = cms.int32(1)
-    #process.ttFullLepEvent.decayChannel2 = cms.int32(2)
-#elif options.mode == 'ee':
-    #process.kinSolutionTtFullLepEventHypothesis.eeChannel = True
-    #process.ttFullLepEvent.decayChannel1 = cms.int32(1)
-    #process.ttFullLepEvent.decayChannel2 = cms.int32(1)
-
-process.kinRecoSequence = cms.Sequence(
-    process.kinRecoLeptons *
-    process.kinRecoJets *
-    process.makeTtFullLepEvent
-    )
-
-
-
-####################################################################
 ## Write Ntuple
 
 from TopAnalysis.TopAnalyzer.NTupleWriter_cfi import writeNTuple
@@ -887,7 +803,6 @@ writeNTuple.isHiggsSample = higgsSignal
 writeNTuple.isZSample = zGenInfo
 writeNTuple.includePDFWeights = options.includePDFWeights
 writeNTuple.pdfWeights = "pdfWeights:CT10"
-#writeNTuple.pdfWeights = "pdfWeights:cteq66"
 writeNTuple.includeZdecay = zproducer
 writeNTuple.saveHadronMothers = False
 writeNTuple.saveCHadronParticles = False
@@ -943,7 +858,7 @@ else:
 ####################################################################
 ## Paths, one with preselection, one without for signal samples
 
-# Path containing selections and kinematic reconstruction
+# Path containing selections
 path = cms.Path(
     process.prefilterSequence *
     process.goodOfflinePrimaryVertices *
@@ -954,7 +869,6 @@ path = cms.Path(
     process.finalCollectionsSequence *
     process.preselectionSequence *
     process.jetProperties *
-    process.kinRecoSequence *
     process.zsequence *
     process.ntupleInRecoSeq
 )
@@ -976,7 +890,6 @@ pathNtuple = cms.Path(
     )
 
 if signal:
-    process.path = path
     process.pathNtuple = pathNtuple
 else:
     process.path = path
@@ -1020,7 +933,6 @@ from TopAnalysis.TopAnalyzer.CountEventAnalyzer_cfi import countEvents
 process.EventsBeforeSelection = countEvents.clone()
 process.EventsBeforeSelection.includePDFWeights = options.includePDFWeights
 process.EventsBeforeSelection.pdfWeights = "pdfWeights:CT10"
-#process.EventsBeforeSelection.pdfWeights = "pdfWeights:cteq66"
 
 print 'prepending common sequence to paths:', pathnames
 for pathname in pathnames:
