@@ -2,13 +2,16 @@
 #include <utility>
 #include <iostream>
 #include <iomanip>
+#include <fstream>
 
 #include <TH1D.h>
 #include <TMath.h>
 #include <TString.h>
-
+#include <TStyle.h>
 #include <TH1.h>
 #include <TH2.h>
+#include <TPaveText.h>
+
 
 #include "homelessFunctions.h"
 #include "../../common/include/RootFileReader.h"
@@ -97,6 +100,42 @@ double homelessFunctions::SampleXSection(const TString& filename){
     
     return -1;
 }
+
+
+void homelessFunctions::fillLegendColorDataset(const TString& fileListName, std::vector<TString>& legends, std::vector<int>& colors, std::vector<TString>& dataset){
+
+        std::cout << "reading " << fileListName << std::endl;
+    
+        ifstream FileList(fileListName);
+        if (FileList.fail()){
+            std::cerr << "Error reading " << fileListName << std::endl;
+            exit(1);
+        }
+        
+        TString filename;
+        
+        dataset.clear();
+        legends.clear();
+        colors.clear();
+    
+        while(!FileList.eof()){ 
+        FileList>>filename;
+        if(filename==""){continue;}//Skip empty lines
+        dataset.push_back(filename);
+        if(filename.Contains("run")){legends.push_back("Data"); colors.push_back(kBlack);}
+        else if(filename.Contains("ttbarsignal")){legends.push_back("t#bar{t} Signal"); colors.push_back(kRed+1);}
+        else if(filename.Contains("ttbarbg")){legends.push_back("t#bar{t} Other"); colors.push_back(kRed-7);}
+        else if(filename.Contains("single")){legends.push_back("Single Top"); colors.push_back(kMagenta);}
+        else if(filename.Contains("ww") ||filename.Contains("wz")||filename.Contains("zz")){legends.push_back("Diboson"); colors.push_back(10);}
+        else if(filename.Contains("dytautau")){legends.push_back("Z / #gamma* #rightarrow #tau#tau"); colors.push_back(kAzure+8);}
+        else if(filename.Contains("dymumu")||filename.Contains("dyee")){legends.push_back("Z / #gamma* #rightarrow ee/#mu#mu"); colors.push_back(kAzure-2);}
+        else if(filename.Contains("wtolnu")){legends.push_back("W+Jets"); colors.push_back(kGreen-3);}
+        else if(filename.Contains("qcd")){legends.push_back("QCD Multijet"); colors.push_back(kYellow);}
+        else if(filename.Contains("ttbarZ") ||filename.Contains("ttbarW") || filename.Contains("ttgjets")){legends.push_back("t#bar{t}+Z/W/#gamma"); colors.push_back(kOrange-2);}
+    }
+    FileList.close();
+}
+
 
 double homelessFunctions::CalcLumiWeight(const TString& WhichSample){
 	if (WhichSample.Contains("run")) return 1;
@@ -399,7 +438,64 @@ void homelessFunctions::DYScaleFactor(TString SpecialComment,std::vector<double>
 
 }
 
+// Draw official labels (CMS Preliminary, luminosity and CM energy) above plot
+void homelessFunctions::DrawCMSLabels(int cmsprelim, double energy, double textSize) {
+
+    const char *text;
+    if(cmsprelim ==2 ) {//Private work for PhDs students
+        text = "Private Work, %2.1f fb^{-1} at #sqrt{s} = %2.f TeV";
+    } else if (cmsprelim==1) {//CMS preliminary label
+        text = "CMS Preliminary, %2.1f fb^{-1} at #sqrt{s} = %2.f TeV";
+    } else {//CMS label
+        text = "CMS, %2.1f fb^{-1} at #sqrt{s} = %2.f TeV";
+    }
+    
+    TPaveText *label = new TPaveText();
+    label->SetX1NDC(gStyle->GetPadLeftMargin());
+    //label->SetY1NDC(1.0-gStyle->GetPadTopMargin());
+    label->SetX2NDC(1.0-gStyle->GetPadRightMargin());
+    //label->SetY2NDC(1.0);
+    label->SetY1NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength() - 0.02 );
+    label->SetY2NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength() + 0.03 );
+    
+    label->SetTextFont(42);
+    label->AddText(Form(text, lumi/1000, energy));
+    label->SetFillStyle(0);
+    label->SetBorderSize(0);
+    if (textSize!=0) label->SetTextSize(textSize);
+    label->SetTextAlign(32);
+    label->Draw("same");
+}
 
 
+void homelessFunctions::setStyle(TH1 *hist, TString Axis)
+{
+//     hist->SetLineColor(2);
+//     hist->SetLineWidth(1);
+//     hist->GetXaxis()->SetLabelFont(42);
+//     hist->GetYaxis()->SetLabelFont(42);
+//     hist->GetXaxis()->SetTitleFont(42);
+//     hist->GetYaxis()->SetTitleFont(42);
+//     hist->GetXaxis()->SetTitleSize(0.05);
+//     hist->GetYaxis()->SetTitleSize(0.05);
+//     hist->GetXaxis()->SetTitleOffset(1.08);
+//     hist->GetYaxis()->SetTitleOffset(1.7);
+//     hist->GetXaxis()->SetLabelOffset(0.007);
+//     hist->GetYaxis()->SetLabelOffset(0.007);
+// 
+// 
+//         hist->SetFillColor(0);
+//     hist->SetMarkerStyle(20);
+        if ((Axis.Contains("p_{T}", TString::kIgnoreCase) || Axis.Contains("m(t#bar{t})", TString::kIgnoreCase)) && 
+            (!name.Contains("1st") && !name.Contains("Rapidity") && !name.Contains("Eta") && !name.Contains("Phi") && !name.Contains("JetMult"))) {
+            hist->GetXaxis()->SetTitle(Axis+" #left[GeV#right]");
+            hist->GetYaxis()->SetTitle("#frac{1}{#sigma} #frac{d#sigma}{d"+Axis+"}"+" #left[GeV^{-1}#right]"); 
+            
+        } else {
+            hist->GetXaxis()->SetTitle(Axis);
+            hist->GetYaxis()->SetTitle("#frac{1}{#sigma} #frac{d#sigma}{d"+Axis+"}");
+        }
+
+}
 
 

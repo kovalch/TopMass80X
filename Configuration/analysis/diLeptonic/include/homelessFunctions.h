@@ -31,9 +31,13 @@ public:
     
     void DYScaleFactor(TString SpetialComment,std::vector<double>& DYScale,TString name);
     
+    // Draw official labels (CMS Preliminary, luminosity and CM energy) above plot
+    void DrawCMSLabels(int cmsprelim, double energy =8 , double textSize = 0.04);
+    void setStyle(TH1 *hist, TString Axis);
     
    static void fillSetListOfSystematics(std::set<TString>& SetOfValidSystematics);
    static void fillVectorOfValidSystematics(std::vector<const char*>& vect);
+   static void fillLegendColorDataset(const TString& fileListName, std::vector<TString>& legends, std::vector<int>& colors, std::vector<TString>& dataset);
     
     std::set<TString> ListOfSyst;
     double lumi, topxsec;

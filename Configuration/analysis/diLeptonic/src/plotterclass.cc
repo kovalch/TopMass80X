@@ -547,6 +547,10 @@ void Plotter::setDataSet(TString mode, TString Systematic)
 
     TString histoListName = "FileLists/HistoFileList_"+Systematic+"_"+mode+".txt";
     std::cout << "reading " << histoListName << std::endl;
+    
+    //FIXME: 
+    /// This block can be deleted if "datafiles" not using
+    // Counting number of data files
     ifstream FileList(histoListName);
     if (FileList.fail()) {
         std::cerr << "Error reading " << histoListName << std::endl;
@@ -555,26 +559,18 @@ void Plotter::setDataSet(TString mode, TString Systematic)
     TString filename;
     datafiles=0;
 
-    dataset.clear();
-    legends.clear();
-    colors.clear();
-
     while(!FileList.eof()){
         FileList>>filename;
         if(filename==""){continue;}//Skip empty lines
-        dataset.push_back(filename);
-        if(filename.Contains("run")){legends.push_back("Data"); colors.push_back(kBlack);datafiles++;}
-        else if(filename.Contains("ttbarsignal")){legends.push_back("t#bar{t} Signal"); colors.push_back(kRed+1);}
-        else if(filename.Contains("ttbarbg")){legends.push_back("t#bar{t} Other"); colors.push_back(kRed-7);}
-        else if(filename.Contains("single")){legends.push_back("Single Top"); colors.push_back(kMagenta);}
-        else if(filename.Contains("ww") ||filename.Contains("wz")||filename.Contains("zz")){legends.push_back("Diboson"); colors.push_back(10);}
-        else if(filename.Contains("dytautau")){legends.push_back("Z / #gamma* #rightarrow #tau#tau"); colors.push_back(kAzure+8);}
-        else if(filename.Contains("dymumu")||filename.Contains("dyee")){legends.push_back("Z / #gamma* #rightarrow ee/#mu#mu"); colors.push_back(kAzure-2);}
-        else if(filename.Contains("wtolnu")){legends.push_back("W+Jets"); colors.push_back(kGreen-3);}
-        else if(filename.Contains("qcd")){legends.push_back("QCD Multijet"); colors.push_back(kYellow);}
-        else if(filename.Contains("ttbarZ") ||filename.Contains("ttbarW") || filename.Contains("ttgjets")){legends.push_back("t#bar{t}+Z/W/#gamma"); colors.push_back(kOrange-2);}
+        if(filename.Contains("run")){datafiles++;}
+
     }
     FileList.close();
+    /// This block can be deleted if "datafiles" not using
+    
+    //Fill 
+    homelessFunctions::fillLegendColorDataset(histoListName,legends,colors,dataset);
+    
 }
 
 bool Plotter::fillHisto()
@@ -1921,14 +1917,9 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
     recBinHist->Reset();
     recBinHist->Draw();
     recBinHist->SetMaximum(1.);
+    recBinHist->GetXaxis()->SetTitle(TString("Reconstructed ").Copy().Append(XAxis));
     recBinHist->GetXaxis()->SetNoExponent(kTRUE);
-    if(name.Contains("pT") ||name.Contains("Mass") ){
-        recBinHist->GetXaxis()->SetTitle(XAxis.Copy().Prepend("Reconstructed ").Append(" #left[GeV#right]"));
-        if(name.Contains("Rapidity")) recBinHist->GetXaxis()->SetTitle(XAxis.Copy().Prepend("Reconstructed "));
-    }
-    else recBinHist->GetXaxis()->SetTitle(XAxis.Copy().Prepend("Reconstructed "));
-    DrawCMSLabels(0, 8);
-    DrawDecayChLabel(channelLabel[channelType]);
+    grE->GetXaxis()->SetNoExponent(kTRUE);
     grE->Draw("P,SAME");
     grP->Draw("P,SAME");
     grS->Draw("P,SAME");
@@ -3035,18 +3026,12 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
     recBinHist->Reset();
     recBinHist->Draw();
     recBinHist->SetMaximum(1.);
+    recBinHist->GetXaxis()->SetTitle(TString("Reconstructed ").Copy().Append(XAxis));
     recBinHist->GetXaxis()->SetNoExponent(kTRUE);
-    if(name.Contains("pT") ||name.Contains("Mass") ){
-        recBinHist->GetXaxis()->SetTitle(XAxis.Copy().Prepend("Reconstructed ").Append(" #left[GeV#right]"));
-        if(name.Contains("Rapidity")) recBinHist->GetXaxis()->SetTitle(XAxis.Copy().Prepend("Reconstructed "));
-    }
-    else recBinHist->GetXaxis()->SetTitle(XAxis.Copy().Prepend("Reconstructed "));
-    DrawCMSLabels(0, 8);
-    DrawDecayChLabel(channelLabel[channelType]);
+    grE->GetXaxis()->SetNoExponent(kTRUE);
     grE->Draw("P,SAME");
     grP->Draw("P,SAME");
     grS->Draw("P,SAME");
-
     TLegend* leg3 = new TLegend();
     leg3->AddEntry(grE, "Efficiency", "p" );
     leg3->AddEntry(grP, "Purity",    "p" );
