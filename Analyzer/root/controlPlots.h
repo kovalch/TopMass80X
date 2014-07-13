@@ -90,7 +90,7 @@ private:
       histogramDimension(2), dataContainsMC(false), fitGaussToCore(false), 
       exportSigVarToRoot(false), logX(false), logY(false),
       plotStackNorm(false)
-   {
+    {
       SetDataStyle(data);
     }
 

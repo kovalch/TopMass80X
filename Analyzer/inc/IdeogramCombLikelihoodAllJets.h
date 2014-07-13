@@ -15,6 +15,7 @@ private:
   double PUN(double *x, double *p);
   
   double PJES(double *x, double *p, const std::vector<double> &q);
+  double PJESOTHER(double *x, double *p, const std::vector<double> &q);
   
   double PCPJES1(double *x, double *p);
   double PWPJES1(double *x, double *p);

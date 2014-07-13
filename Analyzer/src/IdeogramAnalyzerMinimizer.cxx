@@ -12,6 +12,7 @@
 
 #include <boost/progress.hpp>
 
+#include "TArrow.h"
 #include "TCanvas.h"
 #include "TGraph.h"
 #include "TLegend.h"
@@ -31,6 +32,7 @@ IdeogramAnalyzerMinimizer::IdeogramAnalyzerMinimizer(const std::string& identifi
     maxPermutations_              (po::GetOption<int   >("analysisConfig.maxPermutations")),
     isFastSim_                    (po::GetOption<int   >("fastsim")),
     shapeSystematic_              (po::GetOption<double>("shape"  )),
+    shapeSystematic2_             (po::GetOption<double>("shape2" )),
     permutationFractionSystematic_(po::GetOption<double>("permu"  ))
     //topBranchName_                (po::GetOption<std::string>("topBranchName"))
 {
@@ -104,7 +106,7 @@ void IdeogramAnalyzerMinimizer::Scan(const std::string& cuts, int iBin, int jBin
         entries_ = entries_ + (int) weight;
 
         if (prob != 0) {
-          eventFunctions_[iEvent][iComb]->SetFixedParams(prob, topMass, wMass, abs(leptonFlavour), shapeSystematic_, permutationFractionSystematic_, isFastSim_, weight);
+          eventFunctions_[iEvent][iComb]->SetFixedParams(prob, topMass, wMass, abs(leptonFlavour), shapeSystematic_, shapeSystematic2_, permutationFractionSystematic_, isFastSim_, weight);
           eventFunctions_[iEvent][iComb]->SetActive(true);
         }
       }
@@ -198,7 +200,14 @@ void IdeogramAnalyzerMinimizer::IterateVariableCombinations(ROOT::Math::Minimize
     else if(toFit[i] == kFCP ) { SetValue("fCP" +nameFreeVariables, min->X()[3], min->Errors()[3]); }
   }
   SetValue("Entries", entries_, sqrt(entries_));
-
+  /*
+  for(short i=0; i<4; ++i){
+    for(short j=0; j<4; ++j){
+      std::cout << min->Correlation(i,j) << " ";
+    }
+    std::cout << std::endl;
+  }
+  */
   // DRAW
   if (po::GetOption<bool>("minPlot")) {
     if(channelID_ == Helper::kAllJets){
@@ -305,11 +314,27 @@ void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min, IdeogramA
   leg0.SetFillStyle(1001);
   leg0.SetFillColor(kWhite);
   leg0.SetBorderSize(1);
-  leg0.AddEntry(&gr1, "1#sigma contour", "F");
-  leg0.AddEntry(&gr2, "2#sigma contour", "F");
-  leg0.AddEntry(&gr3, "3#sigma contour", "F");
+  leg0.AddEntry(&gr1, "-2#Delta log(L) = 1", "F");
+  leg0.AddEntry(&gr2, "-2#Delta log(L) = 4", "F");
+  leg0.AddEntry(&gr3, "-2#Delta log(L) = 9", "F");
   leg0.Draw();
 
+  // draw tangents to -2#Delta log(L) = 1 ellipse
+  double minX = min->X()[x]-min->Errors()[x];
+  double maxX = min->X()[x]+min->Errors()[x];
+  double minY = min->X()[y]-min->Correlation(x,y)*min->Errors()[y];
+  double maxY = min->X()[y]+min->Correlation(x,y)*min->Errors()[y];
+  double yAtXaxis = gr3.GetYaxis()->GetXmin();
+  TArrow line1(minX,minY,minX,yAtXaxis,0.04,"-------|>");
+  TArrow line2(maxX,maxY,maxX,yAtXaxis,0.04,"-------|>");
+  line1.SetAngle(45);
+  line2.SetAngle(45);
+  line1.SetLineColor(1);
+  line2.SetLineColor(1);
+
+  line1.Draw();
+  line2.Draw();
+  
   helper.DrawCMS();
 
   std::string path("plot/Ideogram/"); path+=HelperFunctions::cleanedName(fIdentifier_)+plotNamePostfix;

@@ -158,15 +158,16 @@ void SystematicUncertainties::fillLeptonJets()
 void SystematicUncertainties::fillAllJets()
 {
   //sample.path = "/nfs/dust/cms/user/eschliec/TopMass/topmass_140317_1201/";
-  sample.path = "/nfs/dust/cms/user/eschliec/TopMass/topmass_140401_1201/";
+  //sample.path = "/nfs/dust/cms/user/eschliec/TopMass/topmass_140401_1201/";
   //sample.path = "/nfs/dust/cms/user/eschliec/TopMass/topmass_140418_1201a/";
+  sample.path = "/nfs/dust/cms/user/eschliec/TopMass/topmass_140520_1801/";
   sample.crossSection = 245.794;
   sample.peLumi = 18192.;
 
   //sample.variables = {"mass_mTop_JES", "JES_mTop_JES", "mass_mTop"};
-  //sample.variables = {"mass_mTop_JES_fSig", "JES_mTop_JES_fSig", "mass_mTop"};
+  //sample.variables = {"mass_mTop_JES_fSig", "JES_mTop_JES_fSig", "mass_mTop_fSig"};
   //sample.variables = {"mass_mTop_JES_fSig_fCP", "JES_mTop_JES_fSig_fCP", "mass_mTop"};
-  sample.variables = {"mass_mTop_JES_fSig_fCP", "JES_mTop_JES_fSig_fCP", "mass_mTop_fSig_fCP"};
+  sample.variables = {"mass_mTop_JES_fSig_fCP", "JES_mTop_JES_fSig_fCP", "mass_mTop_fSig_fCP"};  // DEFAULT
   //sample.variables = {"mass_mTop_JES_fSig_fCP", "JES_mTop_JES_fSig_fCP", "mass_mTop_fSig"};
   //sample.variables = {"mass_mTop_JES_fSig_fCP", "mass_mTop_JES_fSig", "mass_mTop_JES"};
   //sample.variables = {"fCP_mTop_JES_fSig_fCP", "fCP_mTop_JES_fCP", "fCP_mTop_fCP"};
@@ -174,7 +175,7 @@ void SystematicUncertainties::fillAllJets()
   //sample.variables = {"fCP_mTop_JES_fSig_fCP", "JES_mTop_JES_fSig_fCP", "fCP_mTop_fSig_fCP"};
   //sample.variables = {"fSig_mTop_JES_fSig_fCP", "JES_mTop_JES_fSig_fCP", "fSig_mTop_fSig_fCP"};
 
-  sample.ensembles["calibration"] = ensemble("", 0, {std::make_pair(sample.variables[0],std::make_pair(172.5,0.0585859)), std::make_pair(sample.variables[1],std::make_pair(1.0,0.000489326)), std::make_pair(sample.variables[2],std::make_pair(172.5,0.058894))});
+  sample.ensembles["calibration"] = ensemble("", 0, {std::make_pair(sample.variables[0],std::make_pair(172.5,0.0544808)), std::make_pair(sample.variables[1],std::make_pair(1.0,0.00046571)), std::make_pair(sample.variables[2],std::make_pair(172.5,0.0542347))});
   sample.ensembles["calibrationDummy"] = ensemble("", 0, {std::make_pair(sample.variables[0],std::make_pair(172.5,0.)), std::make_pair(sample.variables[1],std::make_pair(1.0,0.)), std::make_pair(sample.variables[2],std::make_pair(172.5,0.))});
   sample.ensembles["default"] = ensemble("Z2_S12_ABS_JES_100_172_5/job_*_ensemble.root", 62131965./1.8);
 
@@ -211,6 +212,28 @@ void SystematicUncertainties::fillAllJets()
   sample.ensembles["shapeAlt"] = ensemble("../topmass_140401_1201a/Z2_S12_BackgroundSys2/job_*_ensemble.root", 62131965./1.8);
   sample.ensembles["bkg0x"   ] = ensemble("../topmass_140401_1201d/Z2_S12_ABS_JES_100_172_5/job_*_ensemble.root", 62131965./1.8);
   sample.ensembles["bkg2x"   ] = ensemble("../topmass_140401_1201e/Z2_S12_BKG_2X/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["shapeSid"] = ensemble("../topmass_140520_1805/Z2_S12_ABS_JES_100_172_5/job_*_ensemble.root", 62131965./1.8);
+
+  //sample.ensembles["shapeDef"  ] = ensemble("../topmass_140520_1808/Z2_S12_ABS_JES_100_172_5/job_*_ensemble.root", 62131965./1.8); // identical to default, as hoped
+  sample.ensembles["shapeTUp"  ] = ensemble("../topmass_140520_1808/Z2_S12_BackgroundShapeT_Up/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["shapeTDown"] = ensemble("../topmass_140520_1808/Z2_S12_BackgroundShapeT_Down/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["shapeWUp"  ] = ensemble("../topmass_140520_1808/Z2_S12_BackgroundShapeW_Up/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["shapeWDown"] = ensemble("../topmass_140520_1808/Z2_S12_BackgroundShapeW_Down/job_*_ensemble.root", 62131965./1.8);
+
+  //sample.ensembles["shapeDef2" ] = ensemble("../topmass_140520_1809/Z2_S12_ABS_JES_100_172_5/job_*_ensemble.root", 62131965./1.8); // identical to default, as hoped
+  sample.ensembles["shapeVar"  ] = ensemble("../topmass_140520_1809/Z2_S12_BackgroundShapeSys/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["shapeTEST1"] = ensemble("../topmass_140520_1809a/Z2_S12_BackgroundShapeSys1/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["shapeTEST2"] = ensemble("../topmass_140520_1809a/Z2_S12_BackgroundShapeSys2/job_*_ensemble.root", 62131965./1.8);
+
+  sample.ensembles["shape0"] = ensemble("../topmass_140520_1814/Z2_S12_BackgroundShapeSys0/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["shape1"] = ensemble("../topmass_140520_1814/Z2_S12_BackgroundShapeSys1/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["shape2"] = ensemble("../topmass_140520_1814/Z2_S12_BackgroundShapeSys2/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["shape3"] = ensemble("../topmass_140520_1814/Z2_S12_BackgroundShapeSys3/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["shape4"] = ensemble("../topmass_140520_1814/Z2_S12_BackgroundShapeSys4/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["shape5"] = ensemble("../topmass_140520_1814/Z2_S12_BackgroundShapeSys5/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["shape6"] = ensemble("../topmass_140520_1814/Z2_S12_BackgroundShapeSys6/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["shape7"] = ensemble("../topmass_140520_1814/Z2_S12_BackgroundShapeSys7/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["shape8"] = ensemble("../topmass_140520_1814/Z2_S12_BackgroundShapeSys8/job_*_ensemble.root", 62131965./1.8);
 
   sample.ensembles["matchingUp"  ] = ensemble("Z2_S12_Matching_Up/job_*_ensemble.root"  , 37083003./1.8);
   sample.ensembles["matchingDown"] = ensemble("Z2_S12_Matching_Down/job_*_ensemble.root", 34053113./1.8);
@@ -242,6 +265,11 @@ void SystematicUncertainties::fillAllJets()
   sample.ensembles["trigger3Down"] = ensemble("Z2_S12_TRIGGERJES3_Down/job_*_ensemble.root", 62131965./1.8);
   sample.ensembles["trigger4Up"  ] = ensemble("Z2_S12_TRIGGERJES4_Up/job_*_ensemble.root"  , 62131965./1.8);
   sample.ensembles["trigger4Down"] = ensemble("Z2_S12_TRIGGERJES4_Down/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["triggerKosta"] = ensemble("../topmass_140520_1802/Z2_S12_ABS_JES_100_172_5/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["triggerTEST" ] = ensemble("../topmass_140520_1803/Z2_S12_ABS_JES_100_172_5/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["triggerTEST2"] = ensemble("../topmass_140520_1804/Z2_S12_ABS_JES_100_172_5/job_*_ensemble.root", 62131965./1.8);
+  sample.ensembles["triggerTEST3"] = ensemble("../topmass_140520_1806/Z2_S12_ABS_JES_100_172_5/job_*_ensemble.root", 62131965./1.8); //should be identical to triggerTEST2 and/or default !!!!
+  sample.ensembles["triggerTEST4"] = ensemble("../topmass_140520_1807/Z2_S12_ABS_JES_100_172_5/job_*_ensemble.root", 62131965./1.8); //identical to triggerTEST3 !!!!
 
   sample.ensembles["jesPuBBUp"  ] = ensemble("Z2_S12_PUPTBBJES_Up/job_*_ensemble.root"  , 62131965./1.8);
   sample.ensembles["jesPuBBDown"] = ensemble("Z2_S12_PUPTBBJES_Down/job_*_ensemble.root", 62131965./1.8);
@@ -265,7 +293,7 @@ void SystematicUncertainties::fillAllJets()
 
   ///////////////////////////////////
 
-  //sample.comparisons["Calibration                      "] = comparison("calibration", "calibrationDummy", "", false);
+  sample.comparisons["Calibration                      "] = comparison("calibration", "calibrationDummy", "", false);
   sample.comparisons["Pile-up (pp cross-section)       "] = comparison("default", "puUp", "puDown", true);
   sample.comparisons["Jet energy response (udsc)       "] = comparison("default", "flavorQUp", "flavorQDown", true);
   sample.comparisons["Jet energy response (gluon)      "] = comparison("default", "flavorGUp", "flavorGDown", true);
@@ -279,6 +307,10 @@ void SystematicUncertainties::fillAllJets()
   sample.comparisons["Trigger2                         "] = comparison("default", "trigger2Up", "trigger2Down", true);
   sample.comparisons["Trigger3                         "] = comparison("default", "trigger3Up", "trigger3Down", true, false);
   sample.comparisons["Trigger4                         "] = comparison("default", "trigger4Up", "trigger4Down", true, false);
+  sample.comparisons["TriggerKostas                    "] = comparison("default", "triggerKosta", "", true, false);
+  sample.comparisons["TriggerTEST                      "] = comparison("default", "triggerTEST", "", true, false);
+  sample.comparisons["TriggerTEST2                     "] = comparison("default", "triggerTEST2", "", true, false);
+  sample.comparisons["TriggerTEST Bug?                 "] = comparison("default", "triggerTEST3", "triggerTEST4", true, false);
   sample.comparisons["Top-\\pt reweighting             "] = comparison("default", "topPt", "", true);
   sample.comparisons["ME-PS matching threshold         "] = comparison("default", "matchingUp", "matchingDown", false);
   sample.comparisons["$Q^{2}$ scale                    "] = comparison("default", "scaleUp", "scaleDown", false);
@@ -291,6 +323,7 @@ void SystematicUncertainties::fillAllJets()
   sample.comparisons["Pile-up (JES) BB                 "] = comparison("default", "jesPuBBUp", "jesPuBBDown", true);
   sample.comparisons["Pile-up (JES) EC                 "] = comparison("default", "jesPuECUp", "jesPuECDown", true);
   sample.comparisons["MadGraph (no SC) vs. Powheg      "] = comparison("default", "powheg", "", false, false);
+  sample.comparisons["MadGraph vs. MC@NLO+Herwig6      "] = comparison("default", "mcatnlo", "", false, false);
   sample.comparisons["Powheg+Pythia6 vs. MC@NLO+Herwig6"] = comparison("powheg", "mcatnlo", "", false, false);
   sample.comparisons["Powheg+Pythia6 vs. Powheg+Herwig6"] = comparison("powheg", "powhegHerwig", "", false, false);
   sample.comparisons["MC@NLO+Herwig6 vs. Powheg+Herwig6"] = comparison("mcatnlo", "powhegHerwig", "", false, false);
@@ -301,8 +334,17 @@ void SystematicUncertainties::fillAllJets()
   sample.comparisons["Underlying event                 "] = comparison("P11", "P11mpiHi", "P11TeV", false);
   sample.comparisons["Non-\\ttbar background \\fsig    "] = comparison("default", "fSigUp", "fSigDown", true);
   sample.comparisons["Non-\\ttbar background \\fsig 2  "] = comparison("default", "bkg0x", "bkg2x", true, false);
-  sample.comparisons["Non-\\ttbar background shape     "] = comparison("default", "shape", "", true);
+  sample.comparisons["Non-\\ttbar background shape     "] = comparison("default", "shape", "", true, false);
   sample.comparisons["Non-\\ttbar background shapeAlt  "] = comparison("default", "shapeAlt", "", true, false);
+  sample.comparisons["Non-\\ttbar background shapeSide "] = comparison("default", "shapeSid", "", true, false);
+  sample.comparisons["Non-\\ttbar background shapeT    "] = comparison("default", "shapeTUp", "shapeTDown", true, false);
+  sample.comparisons["Non-\\ttbar background shapeW    "] = comparison("default", "shapeWUp", "shapeWDown", true, false);
+  sample.comparisons["Non-\\ttbar background shapeVar  "] = comparison("default", "shapeVar", "", true, false);
+  sample.comparisons["Non-\\ttbar background shapeTEST "] = comparison("shapeTEST1", "shapeTEST2", "", true, false);
+  sample.comparisons["Non-\\ttbar background shape1    "] = comparison("shape0", "shape1", "shape2", true, false);
+  sample.comparisons["Non-\\ttbar background shape2    "] = comparison("shape0", "shape3", "shape4", true, false);
+  sample.comparisons["Non-\\ttbar background shape3    "] = comparison("shape0", "shape5", "shape6", true, true);
+  sample.comparisons["Non-\\ttbar background shape4    "] = comparison("shape0", "shape7", "shape8", true, true);
   sample.comparisons["Run dependent                    "] = comparison("defaultSC", "RD", "", false, false);
   //sample.comparisons["PDF                              "] = comparison("default", "PDFDown", "PDFUp", true, true);
 
@@ -329,6 +371,15 @@ void SystematicUncertainties::fillAllJets()
   sample.mergedcomparisons["b-tagging"] = mergedcomparison(
       {"b-tag rate                       ",
        "b-tag (mistag rate)              "}
+  );
+  sample.mergedcomparisons["Non-\\ttbar background shape"] = mergedcomparison(
+      {"Non-\\ttbar background shape1    ",
+       "Non-\\ttbar background shape2    "}
+  );
+  sample.mergedcomparisons["Non-\\ttbar background"] = mergedcomparison(
+      {"Non-\\ttbar background \\fsig    ",
+       "Non-\\ttbar background shape1    ",
+       "Non-\\ttbar background shape2    "}
   );
 
 }

@@ -61,9 +61,9 @@ void combinationplot()
   measurements.push_back(measurement(173.49, 0.69, 1.21, "CMS 2011, all-hadronic", "arXiv:1307.4617, 3.5 fb^{-1}"));
   
   measurements.push_back(measurement(172.04, 0.188, 0.75, "CMS 2012, lepton+jets", "PAS TOP-14-001, 19.7 fb^{-1}"));
-  measurements.push_back(measurement(171.79, 0.36 , 0.79, "CMS 2012, all+jets", "PAS TOP-14-002, 18.2 fb^{-1}"));
+  measurements.push_back(measurement(172.03, 0.36 , 0.82, "CMS 2012, all+jets", "PAS TOP-14-002, 18.2 fb^{-1}"));
   
-  measurements.push_back(measurement(172.13, 0.13, 0.726, "CMS combination", "April 2014", kRed+1));
+  measurements.push_back(measurement(172.21, 0.13, 0.73, "CMS combination", "May 2014", kRed+1));
   
   measurements.push_back(measurement(173.18, 0.56, 0.75, "Tevatron combination", "Phys. Rev. D86 (2012) 092003", kGray+3));
   

@@ -76,7 +76,8 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("lumi,L", boost::program_options::value<double>()->default_value(0.0), "Luminosity for each pseudo-experiment")
         ("number,N", boost::program_options::value<int>()->default_value(10000), "Number of pseudo-experiments per job")
         ("walltime,W", boost::program_options::value<double>()->default_value(10), "set walltime limit for pseudo-experiments in minutes")
-        ("shape,S", boost::program_options::value<double>()->default_value(1.0), "Background shape scaling factor for gamma")
+        ("shape,S", boost::program_options::value<double>()->default_value(0.0), "Background shape scaling factor for top distribution")
+        ("shape2,T", boost::program_options::value<double>()->default_value(0.0), "Background shape scaling factor for w distribution")
         ("permu,P", boost::program_options::value<double>()->default_value(0.0), "Change permutation fractions by: fUN-P, fWP+0.5P, fCP+0.5P")
         ("fastsim,F", boost::program_options::value<int>()->default_value(0), "use additional calibration for FastSim")
         ("preliminary,p", boost::program_options::value<int>()->default_value(1), "use \"Preliminary\" label for plots")
@@ -204,12 +205,12 @@ ProgramOptionsReader::GetProgramOptions(){
 
 
 std::string ProgramOptionsReader::GetOptionReplaced(std::string whichParameter,std::string replaceHelper){
-	std::string tempReturn = GetOption<std::string>(whichParameter);
-    if(replaceHelper!=""){
-    	std::vector<std::string> vsPars;
-    	boost::split(vsPars, replaceHelper, boost::is_any_of("|"));
-    	assert(vsPars.size()==2);
-    	boost::replace_all(tempReturn,  vsPars.at(0), vsPars.at(1));
-    }
-    return tempReturn;
+  std::string tempReturn = GetOption<std::string>(whichParameter);
+  if(replaceHelper!=""){
+    std::vector<std::string> vsPars;
+    boost::split(vsPars, replaceHelper, boost::is_any_of("|"));
+    assert(vsPars.size()==2);
+    boost::replace_all(tempReturn,  vsPars.at(0), vsPars.at(1));
+  }
+  return tempReturn;
 }

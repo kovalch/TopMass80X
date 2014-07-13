@@ -34,7 +34,7 @@ class IdeogramAnalyzerMinimizer : public MassAnalyzer {
   int entries_;
   int maxPermutations_;
   double isFastSim_;
-  double shapeSystematic_;
+  double shapeSystematic_, shapeSystematic2_;
   double permutationFractionSystematic_;
   //std::string topBranchName_;
   

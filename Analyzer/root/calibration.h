@@ -53,7 +53,7 @@ private:
   TTree* modifiedTree_(TChain *tree, int minComboType, int maxComboType, bool isData);
   void UnknownChannelAbort();
 
-  void fillAlpha(std::vector<RooFormulaVar*>& alpha, int& h, RooArgSet argSet);
+  void fillAlpha(std::vector<RooFormulaVar*>& alpha, int& h, RooArgSet argSet, std::string add = "");
 };
 
 #endif /* ROOFITTOPMASS_C */

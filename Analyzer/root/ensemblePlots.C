@@ -64,7 +64,8 @@ void ensemblePlots()
   //TString sFile("/scratch/hh/dust/naf/cms/user/eschliec/TopMass/");
   //sFile += "ensemble_F11_ROOFIT_Recalibrated_NEWER.root";
   //sFile += "ensemble_F11_ROOFIT_Calibrated_BUGFIXED_5JES_NEW.root";
-  sFile += "topmass_140401_1201/ensemble_S12_Calibrated.root";
+  //sFile += "topmass_140401_1201/ensemble_S12_Calibrated.root";
+  sFile += "topmass_140520_1801/ensemble_S12_Calibrated.root";
   //sFile += "ensemble_F11_TemplateRooFit_Calibrated.root";
   TFile* fEnsemble = new TFile(sFile);
   tree = (TTree*) fEnsemble->Get("tree");

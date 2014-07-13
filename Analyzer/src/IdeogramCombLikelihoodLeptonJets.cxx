@@ -140,8 +140,8 @@ double IdeogramCombLikelihoodLeptonJets::Evaluate(double *x, double *p) {
   
   // for IdeogramMinimizer
   if (useFixedParams_) {
-    double ep[7];
-    for (int i = 0; i < 7; ++i) {
+    double ep[9];
+    for (int i = 0; i < 9; ++i) {
       ep[i] = fp_[i];
     }
     p = ep;
