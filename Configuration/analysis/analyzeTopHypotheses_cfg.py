@@ -15,6 +15,7 @@ options.register('flavor', 'bottom', VarParsing.VarParsing.multiplicity.singleto
 options.register('lJesFactor', 1.0, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "JES")
 options.register('bJesFactor', 1.0, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "bJES")
 options.register('resolution', 'nominal', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "JER")
+options.register('resolutionSigma', 1.0, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "JER sigma")
 options.register('mesShift', 0.0, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "Muon energy scale shift in sigma")
 options.register('eesShift', 0.0, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "Electron energy scale shift in sigma")
 options.register('uncFactor', 1.0, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "Unclustered energy factor")
@@ -72,7 +73,7 @@ if (options.mcversion == "Fall11"):
   ] )
 elif (options.mcversion == "Summer12"):
   readFiles.extend( [
-         '/store/mc/Summer12_DR53X/TTJets_SemiLeptMGDecays_8TeV-madgraph/AODSIM/PU_S10_START53_V7A-v1/00001/FC5CECAE-8B14-E211-8578-0025B3E0652A.root'
+         '/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/20003/0094CB21-174B-E311-B3C8-7845C4FC3A7F.root'
   ] )
 elif (options.mcversion == "Summer12W0Jets"):
   readFiles.extend( [
@@ -106,7 +107,7 @@ elif (options.mcversion == "Sherpa12"):
   ] )
 else:
   readFiles.extend( [
-          '/store/user/mgosseli/mc/TT_TuneZ2_7TeV_madgraph_FASTSIM_172_5GeV_matchingdown_v1/TT_TuneZ2_7TeV_madgraph_FASTSIM_172_5GeV_matchingdown_v1_139.root',
+          '/store/mc/Summer12_DR53X/TTJets_SemiLeptMGDecays_8TeV-madgraph/AODSIM/PU_S10_START53_V7A-v1/00001/FC5CECAE-8B14-E211-8578-0025B3E0652A.root',
   ] )
 
 secFiles.extend( [
@@ -162,16 +163,36 @@ if not data:
     scaledJetEnergy.flavor       = options.flavor
     scaledJetEnergy.scaleFactor  = options.lJesFactor
     scaledJetEnergy.scaleFactorB = options.bJesFactor
-    if (options.resolution=='down3'):
-      scaledJetEnergy.resolutionFactors   = [0.866 , 0.889 , 0.904 , 0.858 , 0.691]
-    if (options.resolution=='down'):
-      scaledJetEnergy.resolutionFactors   = [0.990 , 1.001 , 1.032 , 1.042 , 1.089]
+    
+    resolutionNominal = [1.052 , 1.057 , 1.096 , 1.134 , 1.288]
+    resolutionUp      = [1.115 , 1.114 , 1.161 , 1.228 , 1.488]
+    resolutionDown    = [0.990 , 1.001 , 1.032 , 1.042 , 1.089]
+    
     if (options.resolution=='nominal'):
-      scaledJetEnergy.resolutionFactors   = [1.052 , 1.057 , 1.096 , 1.134 , 1.288]
+      scaledJetEnergy.resolutionFactors   = resolutionNominal
+    if (options.resolution=='down'):
+      scaledJetEnergy.resolutionFactors   = []
+      for nom,down in zip(resolutionNominal,resolutionDown):
+        scaledJetEnergy.resolutionFactors.append(nom-options.resolutionSigma*(nom-down))
     if (options.resolution=='up'):
-      scaledJetEnergy.resolutionFactors   = [1.115 , 1.114 , 1.161 , 1.228 , 1.488]
-    if (options.resolution=='up3'):
-      scaledJetEnergy.resolutionFactors   = [1.241 , 1.228 , 1.291 , 1.416 , 1.888]
+      scaledJetEnergy.resolutionFactors   = []
+      for nom,up in zip(resolutionNominal,resolutionUp):
+        scaledJetEnergy.resolutionFactors.append(nom+options.resolutionSigma*(up-nom))
+    
+    #if (options.resolution=='down5'):
+    #  scaledJetEnergy.resolutionFactors   = [0.742 , 0.777 , 0.776 , 0.674 , 0.293]
+    #if (options.resolution=='down3'):
+    #  scaledJetEnergy.resolutionFactors   = [0.866 , 0.889 , 0.904 , 0.858 , 0.691]
+    #if (options.resolution=='down'):
+    #  scaledJetEnergy.resolutionFactors   = [0.990 , 1.001 , 1.032 , 1.042 , 1.089]
+    #if (options.resolution=='nominal'):
+    #  scaledJetEnergy.resolutionFactors   = [1.052 , 1.057 , 1.096 , 1.134 , 1.288]
+    #if (options.resolution=='up'):
+    #  scaledJetEnergy.resolutionFactors   = [1.115 , 1.114 , 1.161 , 1.228 , 1.488]
+    #if (options.resolution=='up3'):
+    #  scaledJetEnergy.resolutionFactors   = [1.241 , 1.228 , 1.291 , 1.416 , 1.888]
+    #if (options.resolution=='up5'):
+    #  scaledJetEnergy.resolutionFactors   = [1.367 , 1.342 , 1.421 , 1.604 , 2.288]
     scaledJetEnergy.resolutionEtaRanges   = [0.0,0.5,0.5,1.1,1.1,1.7,1.7,2.3,2.3,-1.]
 
     scaledJetEnergy.inputJets    = "selectedPatJets"
@@ -551,11 +572,18 @@ PFoptions = {
         'addMETSignificance': False,
         }
 if data:
-    PFoptions['JECEra' ] = 'FT_53_V21_AN5'
-    PFoptions['JECFile'] = '../data/PTFIXV2_FT_53_V21_AN5_private.db'
+    PFoptions['JECEra' ] = 'Winter14_V2_DATA'
+    PFoptions['JECFile'] = '../data/Winter14_DATA_V2PT.db'
     if os.getenv('GC_CONF'):
         print "Running with GC, resetting address of JECFile!"
-        PFoptions['JECFile'] = '../src/TopMass/Configuration/data/PTFIXV2_FT_53_V21_AN5_private.db'
+        PFoptions['JECFile'] = '../src/TopMass/Configuration/data/Winter14_DATA_V2PT.db'
+
+if options.mcversion == "Summer12RD":
+    PFoptions['JECEra' ] = 'Winter14_V1_MC'
+    PFoptions['JECFile'] = '../data/Winter14_V1_MC.db'
+    if os.getenv('GC_CONF'):
+        print "Running with GC, resetting address of JECFile!"
+        PFoptions['JECFile'] = '../src/TopMass/Configuration/data/Winter14_V1_MC.db'
 
 prependPF2PATSequence(process, options = PFoptions)
 
