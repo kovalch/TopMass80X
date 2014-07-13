@@ -1,10 +1,6 @@
 #ifndef DUPREMOVAL_C
 #define DUPREMOVAL_C
 
-#include "TTree.h"
-#include "TChain.h"
-#include "TH2F.h"
-
 #include "RooFormulaVar.h"
 
 #include <string>

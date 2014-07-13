@@ -6,6 +6,11 @@
 
 #include "ProgramOptionsReader.h"
 
+#include "TTree.h"
+#include "TChain.h"
+#include "TH2F.h"
+#include "TFile.h"
+
 #include "iostream"
 #include "fstream"
 #include "sstream"
@@ -23,7 +28,7 @@ DuplicateRemover::DuplicateRemover()
 void DuplicateRemover::removeDuplicates()
 {
   TChain* fromTree = new TChain("analyzeHitFit/eventTree");
-  fromTree->Add(po::GetOption<std::string>("input"));
+  fromTree->Add(po::GetOption<std::string>("input").c_str());
   
   fromTree->SetBranchStatus("*", 0);
   fromTree->SetBranchStatus("jet.*"   , 1);
@@ -42,7 +47,7 @@ void DuplicateRemover::removeDuplicates()
   int nEntries = fromTree->GetEntries();
   int nDuplicates = 0;
   
-  TFile* toFile = new TFile(po::GetOption<std::string>("outPath"), "RECREATE");
+  TFile* toFile = new TFile(po::GetOption<std::string>("outPath").c_str(), "RECREATE");
   toFile->mkdir("analyzeHitFit");
   toFile->cd("analyzeHitFit");
   
