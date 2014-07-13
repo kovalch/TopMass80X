@@ -72,6 +72,12 @@ void TopMassControlPlots::doPlots()
   //
 
   // others (do these first to get correct event yield)
+  if(plotSelectedForPlotting.find("test")!=plotSelectedForPlotting.end()){
+    //hists.push_back(MyHistogram("leptonFlavour", "top.leptonFlavour[0]"   , "", ";Lepton flavour; Events", 40, -20, 20));
+    hists.push_back(MyHistogram("Nbjet", "Sum$(jet.jet.Pt()>30 & jet.bTagCSV>0.679)"   , "", ";b-jet multiplicity; Events", 6, 0, 6));
+    hists.push_back(MyHistogram("leptonFlavour", "top.leptonFlavour[0]"   , "", ";Lepton flavour; Events", 40, -20, 20));
+  }
+  
   if(plotSelectedForPlotting.find("ExtraPlotsFitCombTypeEtc")!=plotSelectedForPlotting.end()){
       hists.push_back(MyHistogram("leptonFlavour", "top.leptonFlavour[0]"   , "", ";Lepton flavour; Events", 40, -20, 20));
 	  hists.push_back(MyHistogram("fitProb"    , "top.fitProb"   , "", ";P_{gof}; Permutations", 50, 0, 1.0));
@@ -990,12 +996,13 @@ void TopMassControlPlots::doPlots()
   // Lepton+jets channel
   else {
     if(plotSelectedForPlotting.find("StandardPlots")!=plotSelectedForPlotting.end()){
-      samples.push_back(MySample("Data", "Run2012", kData, kBlack));
+      samples.push_back(MySample("Data", "Run2012_JEC_Winter14_V2", kData, kBlack));
       //samples.push_back(MySample("t#bar{t} w.o. b-regression", "Summer12_TTJets1725_1.00", kData, kBlack));
-      samples.push_back(MySample("t#bar{t}", "Summer12_TTJets1725_1.00", kSig, kRed+1, 1, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t}", "Summer12_TTJetsMS1725_nob", kSig, kRed+1, 1, lumi_/1000.));
       samples.push_back(MySample("Z+Jets", "Summer12_ZJets", kBkg, kAzure-2, 1, lumi_/1000.));
       samples.push_back(MySample("W+Jets", "Summer12_WJets", kBkg, kGreen-3, 1, lumi_/1000.));
       samples.push_back(MySample("single top", "Summer12_singleTop", kBkg, kMagenta, 1, lumi_/1000.));
+      samples.push_back(MySample("QCD", "Summer12_QCD", kBkg, kYellow, 1, lumi_/1000.));
     }
 
     if(plotSelectedForPlotting.find("BasicTestsNoData")!=plotSelectedForPlotting.end()){
@@ -1068,9 +1075,9 @@ void TopMassControlPlots::doPlots()
     }
     
     if(plotSelectedForPlotting.find("JESUncVariationPlots")!=plotSelectedForPlotting.end()){
-      samples.push_back(MySample("t#bar{t}, JES down", "Summer12_TTJets1725_source:down_Total", kSigVar, kRed+1, 1, lumi_/1000.));
-      samples.push_back(MySample("t#bar{t}, JES default", "Summer12_TTJets1725_1.00", kSigVar, kBlue+1, 1, lumi_/1000.));
-      samples.push_back(MySample("t#bar{t}, JES up", "Summer12_TTJets1725_source:up_Total", kSigVar, kGreen+1, 1, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t}, JES down", "Summer12_TTJetsMS1725_source:down_Total", kSigVar, kRed+1, 1, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t}, JES default", "Summer12_TTJetsMS1725_1.00", kSigVar, kBlue+1, 1, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t}, JES up", "Summer12_TTJetsMS1725_source:up_Total", kSigVar, kGreen+1, 1, lumi_/1000.));
     }
     
     if(plotSelectedForPlotting.find("bJESUncVariationPlots")!=plotSelectedForPlotting.end()){
@@ -1211,7 +1218,9 @@ void TopMassControlPlots::doPlots()
 
 
       //  Loop over all events
-      for(int i = 0; ; ++i){
+      int    loopSize     = chain->GetEntries();
+      double loopFraction = 0.01;
+      for(int i = 0; i < loopSize*loopFraction; ++i){
         //if(i%1000==0)std::cout << "event " << (Long_t) i << std::endl;
         long entry = chain->LoadTree(i);
         if(entry  < 0) break;
@@ -1287,7 +1296,10 @@ void TopMassControlPlots::doPlots()
               for(auto& var : hist.varx) hist.Bkg1D()[bkgCounter]->Fill(var->EvalInstance(j), weight.EvalInstance(j)*hist.histoweight->EvalInstance(j)*sample.scale);
               // Add background also to histogram for signal variation
               // TODO: Background normalization in signal variations not correct for AllJets
-              for(TH1F* sigvar : hist.Sigvar1D()) for(auto& var : hist.varx) sigvar->Fill(var->EvalInstance(j), weight.EvalInstance(j)*hist.histoweight->EvalInstance(j)*sample.scale);
+              for(TH1F* sigvar : hist.Sigvar1D()) for(auto& var : hist.varx) {
+                std::cout << "Filling background to signal variation" << std::endl;
+                sigvar->Fill(var->EvalInstance(j), weight.EvalInstance(j)*hist.histoweight->EvalInstance(j)*sample.scale);
+              }
             }
             else if(sample.type == kBkg  && hist.Dimension() == 2) {
               for(auto& var : hist.varx) for(auto& var2 : hist.vary) hist.Bkg2D()[bkgCounter]->Fill(var->EvalInstance(j), var2->EvalInstance(j), weight.EvalInstance(j)*hist.histoweight->EvalInstance(j)*sample.scale);
@@ -1362,10 +1374,11 @@ void TopMassControlPlots::doPlots()
     }
     // Lepton+jets: Normalize to data
     else {
+      /*
       for(TH1F* sig    : hist.Sig1D())    sig->Scale(integralD/(integralS+integralB));
       for(TH1F* bkg    : hist.Bkg1D())    bkg->Scale(integralD/(integralS+integralB));
       for(TH1F* sigvar : hist.Sigvar1D()) sigvar->Scale(integralD/sigvar->Integral(0,bins));
-      
+      */
       // Double bin error due to correlations
       // (Many observables do not change for different neutrino solutions or b assignments)
       for (int i = 0; i < hist.Data1D()->GetNbinsX(); ++i) {
@@ -1734,10 +1747,11 @@ void TopMassControlPlots::doPlots()
       leg0->Draw();
       //leg1->SetY1NDC(0.675);
       leg1->Draw();
+      
+      gPad->RedrawAxis();
 
       canvWRatio->cd();
       
-      gPad->RedrawAxis();
       helper->DrawCMS();
 
       canvWRatio->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+outPath_+std::string("_")+std::string(hist.Data1D()->GetName())+std::string("_Ratio.eps")).c_str(),"eps");
