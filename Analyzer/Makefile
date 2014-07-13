@@ -22,6 +22,9 @@ OBJ_FILES_CONTROLPLOT := $(patsubst root/%.cc,obj/3/%.o,$(filter-out $(wildcard 
 # files needed to run duplicate removal program
 CXX_FILES_DUPREMOVAL := $(wildcard root/duplicateRemoval*.cc)
 OBJ_FILES_DUPREMOVAL := $(patsubst root/%.cc,obj/3/%.o,$(filter-out $(wildcard root/*_main.cc), $(CXX_FILES_DUPREMOVAL))) obj/1/ProgramOptionsReader.o
+# files needed to run infinity removal program
+CXX_FILES_INFREMOVAL := $(wildcard root/infRemoval*.cc)
+OBJ_FILES_INFREMOVAL := $(patsubst root/%.cc,obj/3/%.o,$(filter-out $(wildcard root/*_main.cc), $(CXX_FILES_INFREMOVAL))) obj/1/ProgramOptionsReader.o
 # files needed to run skimmer program
 CXX_FILES_SKIMMER := $(wildcard root/skimmer*.cc)
 OBJ_FILES_SKIMMER := $(patsubst root/%.cc,obj/3/%.o,$(filter-out $(wildcard root/*_main.cc), $(CXX_FILES_SKIMMER))) obj/1/ProgramOptionsReader.o
@@ -32,9 +35,9 @@ OBJ_FILES_ADDPDFWEIGHTS := $(patsubst root/%.cc,obj/4/%.o,$(filter-out $(wildcar
 CXX_FILES_SYSTEMATICUNCERTAINTIES := $(wildcard root/SystematicUncertainties*.cc)
 OBJ_FILES_SYSTEMATICUNCERTAINTIES := $(patsubst root/%.cc,obj/3/%.o,$(filter-out $(wildcard root/*_main.cc), $(CXX_FILES_SYSTEMATICUNCERTAINTIES)))
 
-.PHONY: clean all top tem con dup ski pdf sys
+.PHONY: clean all top tem con dup ski pdf sys inf
 
-all: top tem con dup ski pdf sys
+all: top tem con dup ski pdf sys inf
 
 top: TopMass
 
@@ -43,6 +46,8 @@ tem: TemplateDerivation
 con: ControlPlots
 
 dup: DuplicateRemoval
+
+inf: InfRemoval
 
 ski: Skimmer
 
@@ -56,6 +61,7 @@ clean:
 	@rm -f TemplateDerivation
 	@rm -f ControlPlots
 	@rm -f DuplicateRemoval
+	@rm -f InfRemoval
 	@rm -f Skimmer
 	@rm -f AddPDFweights
 	@rm -f SystematicUncertainties
@@ -78,15 +84,19 @@ ControlPlots: obj $(OBJ_FILES_CONTROLPLOT) obj/3/controlPlots_main.o
 	@echo -e "\033[32m\033[1mSuccessfully compiled ControlPlots\033[0m"
 
 DuplicateRemoval: obj $(OBJ_FILES) $(OBJ_FILES_DUPREMOVAL) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT) obj/3/duplicateRemoval_main.o
-	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) $(ROOFITLIBS) -Wl,-rpath -Wl,lib -L/cvmfs/cms.cern.ch/slc5_amd64_gcc462/external/boost/1.51.0/lib -lboost_program_options -o $@ obj/3/duplicateRemoval_main.o $(OBJ_FILES_DUPREMOVAL) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
+	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) -Wl,-rpath -Wl,lib -L/cvmfs/cms.cern.ch/slc5_amd64_gcc462/external/boost/1.51.0/lib -lboost_program_options -o $@ obj/3/duplicateRemoval_main.o $(OBJ_FILES_DUPREMOVAL) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
 	@echo -e "\033[32m\033[1mSuccessfully compiled DuplicateRemoval\033[0m"
+
+InfRemoval: obj $(OBJ_FILES) $(OBJ_FILES_INFREMOVAL) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT) obj/3/infRemoval_main.o
+	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) -Wl,-rpath -Wl,lib -L/cvmfs/cms.cern.ch/slc5_amd64_gcc462/external/boost/1.51.0/lib -lboost_program_options -o $@ obj/3/infRemoval_main.o $(OBJ_FILES_INFREMOVAL) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
+	@echo -e "\033[32m\033[1mSuccessfully compiled InfRemoval\033[0m"
 
 Skimmer: obj $(OBJ_FILES) $(OBJ_FILES_SKIMMER) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT) obj/3/skimmer_main.o
 	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) -Wl,-rpath -Wl,lib -L/cvmfs/cms.cern.ch/slc5_amd64_gcc462/external/boost/1.51.0/lib -lboost_program_options -o $@ obj/3/skimmer_main.o $(OBJ_FILES_SKIMMER) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
 	@echo -e "\033[32m\033[1mSuccessfully compiled Skimmer\033[0m"
 
 AddPDFweights: obj $(OBJ_FILES) $(OBJ_FILES_ADDPDFWEIGHTS) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT) obj/4/addPDFweights_main.o
-	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) $(ROOFITLIBS) -Wl,-rpath -Wl,lib -L/cvmfs/cms.cern.ch/slc5_amd64_gcc462/external/boost/1.51.0/lib -lboost_program_options -L/afs/desy.de/user/e/eschliec/xxl-af-cms/wd/LHAPDF-605/lib -lLHAPDF -o $@ obj/4/addPDFweights_main.o $(OBJ_FILES_ADDPDFWEIGHTS) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
+	$(L) $(ROOTLDFLAGS) $(ROOTLIBS) -Wl,-rpath -Wl,lib -L/cvmfs/cms.cern.ch/slc5_amd64_gcc462/external/boost/1.51.0/lib -lboost_program_options -L/afs/desy.de/user/e/eschliec/xxl-af-cms/wd/LHAPDF-605/lib -lLHAPDF -o $@ obj/4/addPDFweights_main.o $(OBJ_FILES_ADDPDFWEIGHTS) $(OBJ_FILES_CMSSW) $(OBJ_FILES_CMSSW_DICT)
 	@echo -e "\033[32m\033[1mSuccessfully compiled AddPDFweights\033[0m"
 
 SystematicUncertainties: obj $(OBJ_FILES_SYSTEMATICUNCERTAINTIES) obj/3/SystematicUncertainties_main.o
