@@ -4184,7 +4184,7 @@ void Plotter::PrintResultTotxtFile (TString channel, double binCenters[], TGraph
             RelTotErr  = 100*(tga_DiffXSecPlotwithSys->GetErrorY(i))/DiffXSec;
             if(RelTotErr>=RelStatErr) RelSysErr = TMath::Sqrt(RelTotErr*RelTotErr - RelStatErr*RelStatErr);
         }
-        fprintf(file, "$%5.2f$ & $%5.2f$ to $%5.2f$ & %1.7f & %2.1f & %2.1f & %2.1f \\\\ \n", binCenters[i], XAxisbins.at(i), XAxisbins.at(i+1),DiffXSec, RelStatErr, RelSysErr, RelTotErr);
+        fprintf(file, "$%5.2f$ & $%5.2f$ to $%5.2f$ & %5.2e & %2.1f & %2.1f & %2.1f \\\\ \n", binCenters[i], XAxisbins.at(i), XAxisbins.at(i+1),DiffXSec, RelStatErr, RelSysErr, RelTotErr);
     }
     fclose(file);
 }
