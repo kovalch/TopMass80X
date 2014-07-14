@@ -13,7 +13,7 @@
 #include <TPaveText.h>
 
 
-#include "homelessFunctions.h"
+#include "UsefulTools.h"
 #include "../../common/include/RootFileReader.h"
 
       ///Please put the variation of each systematics one after each other, satarting from the UP variation.
@@ -32,7 +32,7 @@
     "POWHEG", "POWHEGHERWIG", "MCATNLO",// "PERUGIA11", // "SPINCORR", 
     "all"};
 
-homelessFunctions::homelessFunctions( RootFileReader* rootFileReader,bool isClosureTest,bool isDYScale):
+UsefulTools::UsefulTools( RootFileReader* rootFileReader,bool isClosureTest,bool isDYScale):
 
 lumi(19712),
 
@@ -49,19 +49,19 @@ doDYScale(isDYScale)
     for (auto s: VectorOfValidSystematics) ListOfSyst.insert(s);
 }
 
-void homelessFunctions::fillSetListOfSystematics(std::set<TString>& set)
+void UsefulTools::fillSetListOfSystematics(std::set<TString>& set)
 {
 
     for (auto s: VectorOfValidSystematics) set.insert(s);
 }
 
-void homelessFunctions::fillVectorOfValidSystematics(std::vector<const char*>& vect)
+void UsefulTools::fillVectorOfValidSystematics(std::vector<const char*>& vect)
 {
 
     for (auto s: VectorOfValidSystematics) vect.push_back(s);
 }
 
-double homelessFunctions::SampleXSection(const TString& filename){
+double UsefulTools::SampleXSection(const TString& filename){
     
     //MC cross sections taken from:
     //  https://twiki.cern.ch/twiki/bin/view/CMS/StandardModelCrossSectionsat8TeV
@@ -102,7 +102,7 @@ double homelessFunctions::SampleXSection(const TString& filename){
 }
 
 
-void homelessFunctions::fillLegendColorDataset(const TString& fileListName, std::vector<TString>& legends, std::vector<int>& colors, std::vector<TString>& dataset){
+void UsefulTools::fillLegendColorDataset(const TString& fileListName, std::vector<TString>& legends, std::vector<int>& colors, std::vector<TString>& dataset){
 
         std::cout << "reading " << fileListName << std::endl;
     
@@ -137,7 +137,7 @@ void homelessFunctions::fillLegendColorDataset(const TString& fileListName, std:
 }
 
 
-double homelessFunctions::CalcLumiWeight(const TString& WhichSample){
+double UsefulTools::CalcLumiWeight(const TString& WhichSample){
 	if (WhichSample.Contains("run")) return 1;
 	double lumiWeight=0;
 	if(WhichSample!=""){
@@ -158,7 +158,7 @@ double homelessFunctions::CalcLumiWeight(const TString& WhichSample){
 	return lumiWeight;
 }
 
-std::vector<TString> homelessFunctions::InputFileList(TString mode, TString Systematic)
+std::vector<TString> UsefulTools::InputFileList(TString mode, TString Systematic)
 {
     //Hard code the input file list. This functions handles correctly the data files. So no symlinks are anymore needed
     //The file structure must be: selectionRoot/SYSTEMATIC/channel/XXX.root
@@ -182,9 +182,9 @@ std::vector<TString> homelessFunctions::InputFileList(TString mode, TString Syst
     }
     
     if(!mode.CompareTo("combined")){
-        std::vector<TString> eemode   = homelessFunctions::InputFileList(TString("ee"), Systematic);
-        std::vector<TString> emumode  = homelessFunctions::InputFileList(TString("emu"), Systematic);
-        std::vector<TString> mumumode = homelessFunctions::InputFileList(TString("mumu"), Systematic);
+        std::vector<TString> eemode   = UsefulTools::InputFileList(TString("ee"), Systematic);
+        std::vector<TString> emumode  = UsefulTools::InputFileList(TString("emu"), Systematic);
+        std::vector<TString> mumumode = UsefulTools::InputFileList(TString("mumu"), Systematic);
         FileVector.insert(FileVector.end(), eemode.begin(), eemode.end());
         FileVector.insert(FileVector.end(), emumode.begin(), emumode.end());
         FileVector.insert(FileVector.end(), mumumode.begin(), mumumode.end());
@@ -268,21 +268,21 @@ std::vector<TString> homelessFunctions::InputFileList(TString mode, TString Syst
     
 }
 
-void homelessFunctions::ApplyFlatWeights(TH1* varhists, const double weight){
+void UsefulTools::ApplyFlatWeights(TH1* varhists, const double weight){
 
     if(weight == 0) {std::cout<<"Warning: the weight your applying is 0. This will remove your distribution."<<std::endl;}
     //if(weight >=1e3){std::cout<<"Warning: the weight your applying is >= 1e3. This will enlarge too much your distribution."<<std::endl;}
     varhists->Scale(weight);
 }
 
-void homelessFunctions::ApplyFlatWeights(TH2* varhists, const double weight){
+void UsefulTools::ApplyFlatWeights(TH2* varhists, const double weight){
 
     if(weight == 0) {std::cout<<"Warning: the weight your applying is 0. This will remove your distribution."<<std::endl;}
     //if(weight >=1e3){std::cout<<"Warning: the weight your applying is >= 1e3. This will enlarge too much your distribution."<<std::endl;}
     varhists->Scale(weight);
 }
 
-void homelessFunctions::DYScaleFactor(TString SpecialComment,std::vector<double>& DYScale,TString name){
+void UsefulTools::DYScaleFactor(TString SpecialComment,std::vector<double>& DYScale,TString name){
 
     DYScale = {1,1,1,1};
 
@@ -439,7 +439,7 @@ void homelessFunctions::DYScaleFactor(TString SpecialComment,std::vector<double>
 }
 
 // Draw official labels (CMS Preliminary, luminosity and CM energy) above plot
-void homelessFunctions::DrawCMSLabels(int cmsprelim, double energy, double textSize) {
+void UsefulTools::DrawCMSLabels(int cmsprelim, double energy, double textSize) {
 
     const char *text;
     if(cmsprelim ==2 ) {//Private work for PhDs students
@@ -468,7 +468,7 @@ void homelessFunctions::DrawCMSLabels(int cmsprelim, double energy, double textS
 }
 
 
-void homelessFunctions::setStyle(TH1 *hist, TString Axis)
+void UsefulTools::setStyle(TH1 *hist, TString Axis)
 {
 //     hist->SetLineColor(2);
 //     hist->SetLineWidth(1);

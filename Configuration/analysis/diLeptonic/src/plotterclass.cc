@@ -24,7 +24,7 @@
 #include <TError.h>
 
 #include "plotterclass.h"
-#include "homelessFunctions.h"
+#include "UsefulTools.h"
 #include "ttbarUtils.h"
 #include "../../common/include/RootFileReader.h"
 #include "../../common/include/plotterUtils.h"
@@ -123,7 +123,7 @@ void Plotter::preunfolding(TString Channel, TString Systematic)
 void Plotter::DYScaleFactor(TString SpecialComment){
 
     DYScale = {1,1,1,1};
-    homelessFunc->DYScaleFactor(SpecialComment,DYScale,name);
+    usefulTools->DYScaleFactor(SpecialComment,DYScale,name);
 }
 
 
@@ -498,9 +498,9 @@ void Plotter::setOptions(TString name_, TString specialComment_, TString YAxis_,
 
     DYScale.insert(DYScale.begin(), 4, 1.);//Initialize the DY scale-factor to (1., 1., 1., 1.)
     
-    homelessFunc = new homelessFunctions(fileReader,doClosureTest,doDYScale);
-    this->lumi = homelessFunc->lumi;
-    this->topxsec = homelessFunc->topxsec;
+    usefulTools = new UsefulTools(fileReader,doClosureTest,doDYScale);
+    this->lumi = usefulTools->lumi;
+    this->topxsec = usefulTools->topxsec;
     
 }
 
@@ -569,7 +569,7 @@ void Plotter::setDataSet(TString mode, TString Systematic)
     /// This block can be deleted if "datafiles" not using
     
     //Fill 
-    homelessFunctions::fillLegendColorDataset(histoListName,legends,colors,dataset);
+    UsefulTools::fillLegendColorDataset(histoListName,legends,colors,dataset);
     
 }
 
@@ -595,10 +595,10 @@ bool Plotter::fillHisto()
         }
 
         //Rescaling to the data luminosity
-        double LumiWeight = homelessFunc->CalcLumiWeight(dataset.at(i));
+        double LumiWeight = usefulTools->CalcLumiWeight(dataset.at(i));
         //std::cout << "File " << dataset.at(i) << " has weight " << LumiWeight << "\n";
 
-        homelessFunc->ApplyFlatWeights(hist, LumiWeight);
+        usefulTools->ApplyFlatWeights(hist, LumiWeight);
 
         common::setHHStyle(*gStyle);
         hists.push_back(*hist);
@@ -696,7 +696,7 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
         //if(XAxisbins.size()>1||1){//only distributions we want to unfold will have a binning vector //to compare
             if(legends.at(i) == "t#bar{t} Signal" && doUnfolding){
                 TString ftemp = dataset.at(i);
-                double LumiWeight = homelessFunc->CalcLumiWeight(dataset.at(i));
+                double LumiWeight = usefulTools->CalcLumiWeight(dataset.at(i));
                 if (!init) {
                     aRespHist = fileReader->GetClone<TH2>(ftemp, "GenReco"+newname);
                     aGenHist = fileReader->GetClone<TH1D>(ftemp, "VisGen"+newname);
@@ -1200,12 +1200,12 @@ void Plotter::MakeTable(TString Channel, TString Systematic){
         TH1D *temp_hist8 = fileReader->GetClone<TH1D>(dataset[i], "events_weighted_step7");//TH1D *temp_hist8 = fileReader->GetClone<TH1D>(dataset[i], "step8");
         TH1D *temp_hist9 = fileReader->GetClone<TH1D>(dataset[i], "events_weighted_step8");//TH1D *temp_hist9 = fileReader->GetClone<TH1D>(dataset[i], "step9");
 
-        double LumiWeight = homelessFunc->CalcLumiWeight(dataset.at(i));
-        homelessFunc->ApplyFlatWeights(temp_hist5, LumiWeight);
-        homelessFunc->ApplyFlatWeights(temp_hist6, LumiWeight);
-        homelessFunc->ApplyFlatWeights(temp_hist7, LumiWeight);
-        homelessFunc->ApplyFlatWeights(temp_hist8, LumiWeight);
-        homelessFunc->ApplyFlatWeights(temp_hist9, LumiWeight);
+        double LumiWeight = usefulTools->CalcLumiWeight(dataset.at(i));
+        usefulTools->ApplyFlatWeights(temp_hist5, LumiWeight);
+        usefulTools->ApplyFlatWeights(temp_hist6, LumiWeight);
+        usefulTools->ApplyFlatWeights(temp_hist7, LumiWeight);
+        usefulTools->ApplyFlatWeights(temp_hist8, LumiWeight);
+        usefulTools->ApplyFlatWeights(temp_hist9, LumiWeight);
 
         numhists5[i]=temp_hist5;
         numhists6[i]=temp_hist6;
@@ -1322,7 +1322,7 @@ double Plotter::CalcXSec(std::vector<TString> datasetVec, double InclusiveXsecti
 
     for(unsigned int i=0; i<datasetVec.size(); i++){
         TH1D *hist = fileReader->GetClone<TH1D>(datasetVec[i], "events_weighted_step8");
-        homelessFunc->ApplyFlatWeights(hist, homelessFunc->CalcLumiWeight(datasetVec.at(i)));
+        usefulTools->ApplyFlatWeights(hist, usefulTools->CalcLumiWeight(datasetVec.at(i)));
         numhists[i]=hist;
     }
 
@@ -1343,14 +1343,14 @@ double Plotter::CalcXSec(std::vector<TString> datasetVec, double InclusiveXsecti
             TH1D *RecoGenPlot_noweight = fileReader->GetClone<TH1D>(datasetVec.at(i), "GenAll_RecoCuts_noweight");
             TH1 *h_NrOfEvts = fileReader->GetClone<TH1>(datasetVec.at(i), "weightedEvents");
 
-            double LumiWeight = homelessFunc->CalcLumiWeight(datasetVec.at(i));
-            homelessFunc->ApplyFlatWeights(GenPlot, LumiWeight);
-            homelessFunc->ApplyFlatWeights(GenPlot_noweight, LumiWeight);
-            homelessFunc->ApplyFlatWeights(VisGenPlot, LumiWeight);
-            homelessFunc->ApplyFlatWeights(VisGenPlot_noweight, LumiWeight);
-            homelessFunc->ApplyFlatWeights(RecoGenPlot, LumiWeight);
-            homelessFunc->ApplyFlatWeights(RecoGenPlot_noweight, LumiWeight);
-            homelessFunc->ApplyFlatWeights(h_NrOfEvts, LumiWeight);
+            double LumiWeight = usefulTools->CalcLumiWeight(datasetVec.at(i));
+            usefulTools->ApplyFlatWeights(GenPlot, LumiWeight);
+            usefulTools->ApplyFlatWeights(GenPlot_noweight, LumiWeight);
+            usefulTools->ApplyFlatWeights(VisGenPlot, LumiWeight);
+            usefulTools->ApplyFlatWeights(VisGenPlot_noweight, LumiWeight);
+            usefulTools->ApplyFlatWeights(RecoGenPlot, LumiWeight);
+            usefulTools->ApplyFlatWeights(RecoGenPlot_noweight, LumiWeight);
+            usefulTools->ApplyFlatWeights(h_NrOfEvts, LumiWeight);
 
             NrOfEvts += h_NrOfEvts->GetBinContent(1);
             NrOfEvts_afterSelection += GenPlot->Integral();

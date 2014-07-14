@@ -17,7 +17,7 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   AnalyzerDoubleDiffXS
   AnalyzerKinReco
   plotterclass
-  homelessFunctions
+  UsefulTools
 #  utils
   DilepSVDFunctions
   EffHist
@@ -34,6 +34,7 @@ SET( ${PROJECT_NAME}_EXECUTABLES
   Histo
   kinRecoEff
 #  controlPlot2d
+#  Histo2d
 #  compareHisto
   TypicalErrors
   PlotRelDiffs

@@ -14,7 +14,7 @@
 
 #include "plotterclass.h"
 #include "HistoListReader.h"
-#include "homelessFunctions.h"
+#include "UsefulTools.h"
 #include "../../common/include/CommandLineParameters.h"
 #include "../../common/include/sampleHelpers.h"
 
@@ -130,7 +130,7 @@ std::function<bool(const std::string &s)> makeStringChecker(const std::vector<co
 int main(int argc, char** argv) {
     
     std::vector<const char*> VectorOfValidSystematics;
-    homelessFunctions::fillVectorOfValidSystematics(VectorOfValidSystematics);
+    UsefulTools::fillVectorOfValidSystematics(VectorOfValidSystematics);
     
     CLParameter<std::string> opt_type("t", "cp|unfold|plot - required, cp=contol plots, unfold, or only plot diffXS", true, 1, 1,
         makeStringChecker({"cp", "unfold", "plot"}));

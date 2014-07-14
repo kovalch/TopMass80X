@@ -13,7 +13,7 @@ class TH1F;
 class TH1D;
 
 class RootFileReader;
-class homelessFunctions;
+class UsefulTools;
 
 
 
@@ -117,7 +117,7 @@ private:
 
     static const bool doClosureTest;
     RootFileReader *fileReader;
-    homelessFunctions *homelessFunc;
+    UsefulTools *usefulTools;
     void DrawDecayChLabel(TString decaychannel="", double textSize=0.04);
     void DrawCMSLabels(int cmsprelim=true, double energy=8, double textSize=0.04);
     

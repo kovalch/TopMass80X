@@ -1,5 +1,5 @@
-#ifndef homelessFunctions_h
-#define homelessFunctions_h
+#ifndef UsefulTools_h
+#define UsefulTools_h
 
 #include <vector>
 #include <set>
@@ -10,15 +10,15 @@ class TString;
 class RootFileReader;
 
 
-class homelessFunctions{
+class UsefulTools{
 
 public:
     
     /// Constructor for producing Drell-Yan scale factors
-    homelessFunctions(RootFileReader*  rootFileReader,bool doClosureTest,bool doDYScale);
+    UsefulTools(RootFileReader*  rootFileReader,bool doClosureTest,bool doDYScale);
     
     /// Default destructor
-    ~homelessFunctions(){}
+    ~UsefulTools(){}
     
     void setLumi(double newLumi, double xSec);
     
