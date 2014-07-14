@@ -12,11 +12,12 @@ class KinematicReconstruction_MeanSol {
 
 public:
     
-  KinematicReconstruction_MeanSol(double topm);
+  KinematicReconstruction_MeanSol(const double& topm);
  ~KinematicReconstruction_MeanSol();  
-  void add(TLorentzVector top,TLorentzVector topbar,TLorentzVector n,TLorentzVector nbar, double weight,double mbl_weight);
-  void add(TLorentzVector top,TLorentzVector topbar,TLorentzVector n,TLorentzVector nbar, double weight);
-  void getMeanVect(TLorentzVector& lv,vector<TLorentzVector> vlv,double mass);
+  void add(const TLorentzVector& top, const TLorentzVector& topbar, const TLorentzVector& n, const TLorentzVector& nbar,const double& weight,const double& mbl_weight);
+  void add(const TLorentzVector& top, const TLorentzVector& topbar, const TLorentzVector& n, const TLorentzVector& nbar,const double& weight);
+  
+  void getMeanVect(TLorentzVector& lv, const vector<TLorentzVector>& vlv,double mass);
   void getMeanSol(TLorentzVector& top,TLorentzVector& topbar,TLorentzVector& n,TLorentzVector& nbar);
   double getSumWeight();
   int getNsol();
