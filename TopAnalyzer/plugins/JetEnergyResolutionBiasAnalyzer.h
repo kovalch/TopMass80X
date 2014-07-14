@@ -1,6 +1,8 @@
 #ifndef JetEnergyResolutionBiasAnalyzer_h
 #define JetEnergyResolutionBiasAnalyzer_h
 
+#include <map>
+
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "TLorentzVector.h"

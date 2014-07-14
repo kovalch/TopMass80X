@@ -18,8 +18,9 @@ EventWeightMC::produce(edm::Event& evt, const edm::EventSetup& setup)
   //---------------------------------------------
   // get event weight
   //---------------------------------------------
+  edm::InputTag genEventInfoTag("generator");
   edm::Handle<GenEventInfoProduct> evt_info;
-  evt.getByType(evt_info);
+  evt.getByLabel(genEventInfoTag, evt_info);
   weight_ = evt_info->weight();
   hists_.find("eventWeightMC")->second->Fill(weight_);
   std::auto_ptr<double> eventWeight(new double);

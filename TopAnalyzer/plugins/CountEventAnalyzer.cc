@@ -51,8 +51,9 @@ void CountEventAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     unweightedEvents_->Fill(1);
     if (iEvent.isRealData()) return; //we are done for data
     
+    edm::InputTag genEventInfoTag("generator");
     edm::Handle<GenEventInfoProduct> evt_info;
-    iEvent.getByType(evt_info);
+    iEvent.getByLabel(genEventInfoTag, evt_info);
     weightedEvents_->Fill(1, evt_info->weight());
         
     if (includepdfweights_) {
