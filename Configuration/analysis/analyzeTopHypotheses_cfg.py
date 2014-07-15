@@ -14,8 +14,7 @@ options.register('jessource', '', VarParsing.VarParsing.multiplicity.singleton,V
 options.register('flavor', 'bottom', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "Jet flavor for flavor:up/down")
 options.register('lJesFactor', 1.0, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "JES")
 options.register('bJesFactor', 1.0, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "bJES")
-options.register('resolution', 'nominal', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "JER")
-options.register('resolutionSigma', 1.0, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "JER sigma")
+options.register('resolutionSigma', 0.0, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "JER sigma")
 options.register('mesShift', 0.0, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "Muon energy scale shift in sigma")
 options.register('eesShift', 0.0, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "Electron energy scale shift in sigma")
 options.register('uncFactor', 1.0, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "Unclustered energy factor")
@@ -164,36 +163,14 @@ if not data:
     scaledJetEnergy.scaleFactor  = options.lJesFactor
     scaledJetEnergy.scaleFactorB = options.bJesFactor
     
-    resolutionNominal = [1.052 , 1.057 , 1.096 , 1.134 , 1.288]
-    resolutionUp      = [1.115 , 1.114 , 1.161 , 1.228 , 1.488]
-    resolutionDown    = [0.990 , 1.001 , 1.032 , 1.042 , 1.089]
+    resolutionNominal = [1.079, 1.099, 1.121, 1.208, 1.254, 1.395, 1.056]
+    resolutionUnc     = [0.026, 0.028, 0.029, 0.046, 0.062, 0.063, 0.191]
     
-    if (options.resolution=='nominal'):
-      scaledJetEnergy.resolutionFactors   = resolutionNominal
-    if (options.resolution=='down'):
-      scaledJetEnergy.resolutionFactors   = []
-      for nom,down in zip(resolutionNominal,resolutionDown):
-        scaledJetEnergy.resolutionFactors.append(nom-options.resolutionSigma*(nom-down))
-    if (options.resolution=='up'):
-      scaledJetEnergy.resolutionFactors   = []
-      for nom,up in zip(resolutionNominal,resolutionUp):
-        scaledJetEnergy.resolutionFactors.append(nom+options.resolutionSigma*(up-nom))
+    scaledJetEnergy.resolutionFactors   = []
+    for nom,unc in zip(resolutionNominal,resolutionUnc):
+      scaledJetEnergy.resolutionFactors.append(nom+options.resolutionSigma*unc)
     
-    #if (options.resolution=='down5'):
-    #  scaledJetEnergy.resolutionFactors   = [0.742 , 0.777 , 0.776 , 0.674 , 0.293]
-    #if (options.resolution=='down3'):
-    #  scaledJetEnergy.resolutionFactors   = [0.866 , 0.889 , 0.904 , 0.858 , 0.691]
-    #if (options.resolution=='down'):
-    #  scaledJetEnergy.resolutionFactors   = [0.990 , 1.001 , 1.032 , 1.042 , 1.089]
-    #if (options.resolution=='nominal'):
-    #  scaledJetEnergy.resolutionFactors   = [1.052 , 1.057 , 1.096 , 1.134 , 1.288]
-    #if (options.resolution=='up'):
-    #  scaledJetEnergy.resolutionFactors   = [1.115 , 1.114 , 1.161 , 1.228 , 1.488]
-    #if (options.resolution=='up3'):
-    #  scaledJetEnergy.resolutionFactors   = [1.241 , 1.228 , 1.291 , 1.416 , 1.888]
-    #if (options.resolution=='up5'):
-    #  scaledJetEnergy.resolutionFactors   = [1.367 , 1.342 , 1.421 , 1.604 , 2.288]
-    scaledJetEnergy.resolutionEtaRanges   = [0.0,0.5,0.5,1.1,1.1,1.7,1.7,2.3,2.3,-1.]
+    scaledJetEnergy.resolutionEtaRanges   = [0.0,0.5, 0.5,1.1, 1.1,1.7, 1.7,2.3, 2.3,2.8, 2.8,3.2, 3.2,-1.]
 
     scaledJetEnergy.inputJets    = "selectedPatJets"
     scaledJetEnergy.inputMETs    = "patMETs"
