@@ -1060,6 +1060,13 @@ void TopMassControlPlots::doPlots()
       samples.push_back(MySample("Data", "Run2012_JEC_Winter14_V2", kData, kBlack));
       //samples.push_back(MySample("t#bar{t} w.o. b-regression", "Summer12_TTJets1725_1.00", kData, kBlack));
       samples.push_back(MySample("t#bar{t}", "Summer12_TTJetsMS1725_nob", kSig, kRed+1, 1, lumi_/1000.));
+      
+      if(plotSelectedForPlotting.find("JESUncVariationPlots")!=plotSelectedForPlotting.end()){
+        samples.push_back(MySample("t#bar{t}, JES down", "Summer12_TTJetsMS1725_source:down_Total", kSigVar, kRed+1, 1, lumi_/1000.));
+        samples.push_back(MySample("t#bar{t}, JES default", "Summer12_TTJetsMS1725_nob", kSigVar, kBlue+1, 1, lumi_/1000.));
+        samples.push_back(MySample("t#bar{t}, JES up", "Summer12_TTJetsMS1725_source:up_Total", kSigVar, kGreen+1, 1, lumi_/1000.));
+      }
+      
       samples.push_back(MySample("Z+Jets", "Summer12_ZJets", kBkg, kAzure-2, 1, lumi_/1000.));
       samples.push_back(MySample("W+Jets", "Summer12_WJets", kBkg, kGreen-3, 1, lumi_/1000.));
       samples.push_back(MySample("single top", "Summer12_singleTop", kBkg, kMagenta, 1, lumi_/1000.));
@@ -1135,11 +1142,7 @@ void TopMassControlPlots::doPlots()
       //samples.push_back(MySample("t#bar{t}, JES = 1.04", "Summer12_TTJets1725_1.04", kSigVar, kGreen+1, 1, lumi_/1000.));
     }
     
-    if(plotSelectedForPlotting.find("JESUncVariationPlots")!=plotSelectedForPlotting.end()){
-      samples.push_back(MySample("t#bar{t}, JES down", "Summer12_TTJetsMS1725_source:down_Total", kSigVar, kRed+1, 1, lumi_/1000.));
-      samples.push_back(MySample("t#bar{t}, JES default", "Summer12_TTJetsMS1725_1.00", kSigVar, kBlue+1, 1, lumi_/1000.));
-      samples.push_back(MySample("t#bar{t}, JES up", "Summer12_TTJetsMS1725_source:up_Total", kSigVar, kGreen+1, 1, lumi_/1000.));
-    }
+    
     
     if(plotSelectedForPlotting.find("bJESUncVariationPlots")!=plotSelectedForPlotting.end()){
       samples.push_back(MySample("t#bar{t}, bJES down (FlavorQCD)", "Summer12_TTJets1725_flavor:down_FlavorQCD", kSigVar, kRed+1, 1, lumi_/1000.));
@@ -1280,7 +1283,8 @@ void TopMassControlPlots::doPlots()
 
       //  Loop over all events
       int    loopSize     = chain->GetEntries();
-      double loopFraction = 0.01;
+      double loopFraction = 1.;
+      if (po::GetOption<bool>("test")) loopFraction = 0.01;
       for(int i = 0; i < loopSize*loopFraction; ++i){
         //if(i%1000==0)std::cout << "event " << (Long_t) i << std::endl;
         long entry = chain->LoadTree(i);
@@ -1359,10 +1363,7 @@ void TopMassControlPlots::doPlots()
               for(auto& var : hist.varx) hist.Bkg1D()[bkgCounter]->Fill(var->EvalInstance(j), weight.EvalInstance(j)*hist.histoweight->EvalInstance(j)*sample.scale);
               // Add background also to histogram for signal variation
               // TODO: Background normalization in signal variations not correct for AllJets
-              for(TH1F* sigvar : hist.Sigvar1D()) for(auto& var : hist.varx) {
-                std::cout << "Filling background to signal variation" << std::endl;
-                sigvar->Fill(var->EvalInstance(j), weight.EvalInstance(j)*hist.histoweight->EvalInstance(j)*sample.scale);
-              }
+              for(TH1F* sigvar : hist.Sigvar1D()) for(auto& var : hist.varx) sigvar->Fill(var->EvalInstance(j), weight.EvalInstance(j)*hist.histoweight->EvalInstance(j)*sample.scale);
             }
             else if(sample.type == kBkg  && hist.Dimension() == 2) {
               for(auto& var : hist.varx) for(auto& var2 : hist.vary) hist.Bkg2D()[bkgCounter]->Fill(var->EvalInstance(j), var2->EvalInstance(j), weight.EvalInstance(j)*hist.histoweight->EvalInstance(j)*sample.scale);
@@ -1967,33 +1968,33 @@ void TopMassControlPlots::doPlots()
         pad2->cd();
         pad2->Draw();
         for (size_t h_i=0;h_i<collectRatios.size();++h_i){
-	  collectRatios.at(h_i)->GetYaxis()->SetRangeUser(hist.plotRangeYRatioMin,hist.plotRangeYRatioMax);
+          collectRatios.at(h_i)->GetYaxis()->SetRangeUser(hist.plotRangeYRatioMin,hist.plotRangeYRatioMax);
           if(h_i==0){
             collectRatios.at(h_i)->Draw("hist");
-	    collectRatios.at(h_i)->GetYaxis()->SetRangeUser(hist.plotRangeYRatioMin,hist.plotRangeYRatioMax);
-	    collectRatios.at(h_i)->GetYaxis()->SetTickLength(gStyle->GetTickLength("Y")/0.2);
+            collectRatios.at(h_i)->GetYaxis()->SetRangeUser(hist.plotRangeYRatioMin,hist.plotRangeYRatioMax);
+            collectRatios.at(h_i)->GetYaxis()->SetTickLength(gStyle->GetTickLength("Y")/0.2);
             collectRatios.at(h_i)->GetYaxis()->SetNdivisions(205);
             collectRatios.at(h_i)->GetYaxis()->CenterTitle();
-	    collectRatios.at(h_i)->SetMarkerSize(0);
-	    collectRatios.at(h_i)->SetFillColor(collectRatios.at(h_i)->GetLineColor());
-	    collectRatios.at(h_i)->SetFillStyle(3254);
-	    collectRatios.at(h_i)->DrawClone("e2 same");
-	    collectRatios.at(h_i)->SetFillStyle(0);
+            collectRatios.at(h_i)->SetMarkerSize(0);
+            collectRatios.at(h_i)->SetFillColor(collectRatios.at(h_i)->GetLineColor());
+            collectRatios.at(h_i)->SetFillStyle(3254);
+            collectRatios.at(h_i)->DrawClone("e2 same");
+            collectRatios.at(h_i)->SetFillStyle(0);
           }
           else collectRatios.at(h_i)->DrawClone("hist same");
         }
-	collectRatios.at(0)->Draw("axissame");
+        collectRatios.at(0)->Draw("axissame");
         pad1->Draw();
         pad1->cd();
-	double oldLabelSize = hist1DData->GetLabelSize();
-	double oldTitleSize = hist1DData->GetTitleSize();
-	hist1DData->SetLabelSize(0);
-	hist1DData->SetTitleSize(0);
-	hist1DData->GetYaxis()->UnZoom();
-	hist1DData->GetYaxis()->SetRangeUser(1, maxForPlot*1.75); //was 0.75 for thesis plot of nVertex
-	if(hist.LogY())hist.Data1D()->GetYaxis()->SetRangeUser(2, 2 *pow(hist.Data1D()->GetMaximum()/2,1/0.7));
-	hist.DataContainsMC()==false ? hist1DData->Draw("p") : hist1DData->Draw("hist");
-	for(TH1F* sigvar : hist1DSigVars) sigvar->Draw("hist same");
+        double oldLabelSize = hist1DData->GetLabelSize();
+        double oldTitleSize = hist1DData->GetTitleSize();
+        hist1DData->SetLabelSize(0);
+        hist1DData->SetTitleSize(0);
+        hist1DData->GetYaxis()->UnZoom();
+        hist1DData->GetYaxis()->SetRangeUser(1, maxForPlot*1.75); //was 0.75 for thesis plot of nVertex
+        if(hist.LogY())hist.Data1D()->GetYaxis()->SetRangeUser(2, 2 *pow(hist.Data1D()->GetMaximum()/2,1/0.7));
+        hist.DataContainsMC()==false ? hist1DData->Draw("p") : hist1DData->Draw("hist");
+        for(TH1F* sigvar : hist1DSigVars) sigvar->Draw("hist same");
         hist.DataContainsMC()==false ? hist1DData->Draw("p same") : hist1DData->Draw("hist same");
 	hist1DData->Draw("axissame");
         leg1->Draw();
@@ -2014,6 +2015,8 @@ void TopMassControlPlots::doPlots()
   }
   logResultsFile.close();
   outFile->Close();
+  
+  std::_Exit(0);
 }
 
 void TopMassControlPlots::MyHistogram::ConfigureExtraOptions(bool SetFitGaussToCore, std::string SetCustomHistoweight, bool ExportSigVarToRoot, std::string LegendHeader, bool useLogXBins, bool setLogYOnPads, bool useLogYBins)

@@ -27,6 +27,9 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
     boost::program_options::options_description desc("Allowed options", 150);
     desc.add_options()
         ("help,h", "produce help message")
+        ("test", boost::program_options::value<bool>()->default_value(false),
+            "Speed-ups for code testing purposes (restricts sample size)\n"
+        )
         ("outPath,o", boost::program_options::value<std::string>()->default_value(""))
         ("method,m", boost::program_options::value<std::string>()->default_value("Ideogram"),
             "Top mass measurement method\n"
