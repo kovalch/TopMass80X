@@ -222,7 +222,7 @@ void AnalysisBase::Init(TTree *tree)
     this->SetRecoBranchAddresses();
     this->SetTriggerBranchAddresses();
     if(isMC_) this->SetCommonGenBranchAddresses();
-    this->SetKinRecoBranchAddresses();
+    //this->SetKinRecoBranchAddresses();
     if(isMC_) this->SetVertMultiTrueBranchAddress();
     if(isMC_) this->SetWeightGeneratorBranchAddress();
     this->SetPdfBranchAddress();
@@ -449,20 +449,18 @@ void AnalysisBase::clearBranches()
     b_jetSecondaryVertexJetIndex = 0;
     b_jetSecondaryVertexFlightDistanceValue = 0;
     b_jetSecondaryVertexFlightDistanceSignificance = 0;
-    
     b_met = 0;
     b_mvamet = 0;
     b_jetJERSF = 0;
     b_jetForMET = 0;
     b_jetForMETJERSF = 0;
+    b_vertMulti = 0;
     
     // nTuple branches relevant for reconstruction level
     // Concerning event
     b_runNumber = 0;
     b_lumiBlock = 0;
     b_eventNumber = 0;
-    b_recoInChannel = 0;
-    b_vertMulti = 0;
     
     
     // nTuple branches holding trigger bits
@@ -697,12 +695,10 @@ void AnalysisBase::SetRecoBranchAddresses()
     if(chain_->GetBranch("jetSecondaryVertexTrackMatchToSelectedTrackIndex")) // new variable, keep check a while for compatibility
      chain_->SetBranchAddress("jetSecondaryVertexTrackMatchToSelectedTrackIndex", &recoObjects_->jetSecondaryVertexTrackMatchToSelectedTrackIndex_, &b_jetSecondaryVertexTrackMatchToSelectedTrackIndex);
     else b_jetSecondaryVertexTrackMatchToSelectedTrackIndex = 0; 
-    
     chain_->SetBranchAddress("met", &recoObjects_->met_, &b_met);
     if(chain_->GetBranch("mvamet")) // new variable, keep check a while for compatibility
         chain_->SetBranchAddress("mvamet", &recoObjects_->mvamet_, &b_mvamet);
     else b_mvamet = 0;
-
     if(jetEnergyResolutionScaleFactors_ || jetEnergyScaleScaleFactors_){
         chain_->SetBranchAddress("jetsForMET", &recoObjects_->jetsForMET_, &b_jetForMET);
     }
@@ -710,13 +706,12 @@ void AnalysisBase::SetRecoBranchAddresses()
         chain_->SetBranchAddress("jetJERSF", &recoObjects_->jetJERSF_, &b_jetJERSF);
         chain_->SetBranchAddress("jetForMETJERSF", &recoObjects_->jetForMETJERSF_, &b_jetForMETJERSF);
     }
+    chain_->SetBranchAddress("vertMulti", &recoObjects_->vertMulti_, &b_vertMulti);
     
     // Concerning event
     chain_->SetBranchAddress("runNumber", &recoObjects_->runNumber_, &b_runNumber);
     chain_->SetBranchAddress("lumiBlock", &recoObjects_->lumiBlock_, &b_lumiBlock);
     chain_->SetBranchAddress("eventNumber", &recoObjects_->eventNumber_, &b_eventNumber);
-    //chain_->SetBranchAddress("recoInChannel", &recoObjects_->recoInChannel_, &b_recoInChannel);
-    chain_->SetBranchAddress("vertMulti", &recoObjects_->vertMulti_, &b_vertMulti);
 }
 
 
@@ -747,6 +742,12 @@ void AnalysisBase::SetCommonGenBranchAddresses()
 
 void AnalysisBase::SetKinRecoBranchAddresses()
 {
+    // WARNING: At present, no kinReco solutions are written to ntuple, so this function cannot be used!!!
+    // However, it might be interesting to write the improved kinReco into the ntuple, and re-use this function
+    std::cerr<<"ERROR in AnalysisBase::SetKinRecoBranchAddresses()! Tried to access branches for solutions of kinematic reconstruction from ntuple, "
+             <<"but no solutions stored anymore. Do not use this function!\n...break\n"<<std::endl;
+    exit(834);
+    
     chain_->SetBranchAddress("HypTop", &kinRecoObjects_->HypTop_, &b_HypTop);
     chain_->SetBranchAddress("HypAntiTop", &kinRecoObjects_->HypAntiTop_, &b_HypAntiTop);
     chain_->SetBranchAddress("HypLepton", &kinRecoObjects_->HypLepton_, &b_HypLepton);
@@ -951,13 +952,12 @@ void AnalysisBase::GetRecoBranchesEntry(const Long64_t& entry)const
     if(b_jetForMET) b_jetForMET->GetEntry(entry);
     if(b_jetJERSF) b_jetJERSF->GetEntry(entry);
     if(b_jetForMETJERSF) b_jetForMETJERSF->GetEntry(entry);
+    b_vertMulti->GetEntry(entry);
 
     // Concerning event
     b_runNumber->GetEntry(entry);
     b_lumiBlock->GetEntry(entry);
     b_eventNumber->GetEntry(entry);
-    //b_recoInChannel->GetEntry(entry);
-    b_vertMulti->GetEntry(entry);
 }
 
 
@@ -1235,6 +1235,12 @@ const HiggsGenObjects& AnalysisBase::getHiggsGenObjects(const Long64_t& entry)co
 
 const KinRecoObjects& AnalysisBase::getKinRecoObjects(const Long64_t& entry)const
 {
+    // WARNING: At present, no kinReco solutions are written to ntuple, so this function cannot be used!!!
+    // However, it might be interesting to write the improved kinReco into the ntuple, and re-use this function
+    std::cerr<<"ERROR in AnalysisBase::getKinRecoObjects()! Tried to read solutions of kinematic reconstruction from ntuple, "
+             <<"but no solutions stored anymore. Do not use this function!\n...break\n"<<std::endl;
+    exit(834);
+    
     if(kinRecoObjects_->valuesSet_) return *kinRecoObjects_;
     if(kinRecoObjects_->HypTop_->size() > 0) this->GetKinRecoBranchesEntry(entry);
 
@@ -1550,6 +1556,21 @@ bool AnalysisBase::calculateKinReco(const int leptonIndex, const int antiLeptonI
                                     const VLV& allLeptons, const VLV& jets,
                                     const std::vector<double>& jetBTagCSV, const LV& met)
 {
+    // Check if solutions of kinematic reconstruction are stored in the ntuple, and variables are set to branch addresses
+    // If not, objects need to be created in the first visit of this function
+    if(!kinRecoObjects_->HypTop_){
+        kinRecoObjects_->HypTop_ = new VLV;
+        kinRecoObjects_->HypAntiTop_ = new VLV;
+        kinRecoObjects_->HypLepton_ = new VLV;
+        kinRecoObjects_->HypAntiLepton_ = new VLV;
+        kinRecoObjects_->HypBJet_ = new VLV;
+        kinRecoObjects_->HypAntiBJet_ = new VLV;
+        kinRecoObjects_->HypNeutrino_ = new VLV;
+        kinRecoObjects_->HypAntiNeutrino_ = new VLV;
+        kinRecoObjects_->HypJet0index_ = new std::vector<int>;
+        kinRecoObjects_->HypJet1index_ = new std::vector<int>;
+    }
+    
     // Clean the results of the kinematic reconstruction as stored in the nTuple
     kinRecoObjects_->HypTop_->clear();
     kinRecoObjects_->HypAntiTop_->clear();
