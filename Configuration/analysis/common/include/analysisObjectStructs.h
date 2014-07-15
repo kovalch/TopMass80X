@@ -60,19 +60,17 @@ struct RecoObjects{
     std::vector<double>* jetSecondaryVertexFlightDistanceSignificance_;
     std::vector<int>* jetSecondaryVertexTrackVertexIndex_;
     std::vector<int>* jetSecondaryVertexTrackMatchToSelectedTrackIndex_;
-    
     LV* met_;
     LV* mvamet_;
     std::vector<double>* jetJERSF_;
     VLV* jetsForMET_;
     std::vector<double>* jetForMETJERSF_;
+    Int_t vertMulti_;
     
     // Concerning event
     UInt_t runNumber_;
     UInt_t lumiBlock_;
     UInt_t eventNumber_;
-    //int recoInChannel_;
-    Int_t vertMulti_;
 };
 
 

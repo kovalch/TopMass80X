@@ -62,13 +62,12 @@ void RecoObjects::clear()
     jetJERSF_ = 0;
     jetsForMET_ = 0;
     jetForMETJERSF_ = 0;
+    vertMulti_ = 0;
     
     // Concerning event
     runNumber_ = 0;
     lumiBlock_ = 0;
     eventNumber_ = 0;
-    //recoInChannel_ = 0;
-    vertMulti_ = 0;
 }
 
 
