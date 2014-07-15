@@ -791,62 +791,67 @@ else:
 
 
 ####################################################################
-## Write Ntuple
+## Write ntuple
 
 from TopAnalysis.TopAnalyzer.NTupleWriter_cfi import writeNTuple
+
 writeNTuple.sampleName = options.samplename
 writeNTuple.channelName = options.mode
 writeNTuple.systematicsName = options.systematicsName
 writeNTuple.isMC = options.runOnMC
-writeNTuple.isTtBarSample = topSignal
+writeNTuple.isTtbarSample = topSignal
 writeNTuple.isHiggsSample = higgsSignal
 writeNTuple.isZSample = zGenInfo
-writeNTuple.includePDFWeights = options.includePDFWeights
-writeNTuple.pdfWeights = "pdfWeights:CT10"
-writeNTuple.includeZdecay = zproducer
+
+writeNTuple.includeTrigger = False
+writeNTuple.includePdfWeights = options.includePDFWeights
+writeNTuple.includeZDecay = zproducer
 writeNTuple.saveHadronMothers = False
 writeNTuple.saveCHadronParticles = False
 
-process.writeNTuple = writeNTuple.clone(
-    muons = isolatedMuonCollection,
-    elecs = isolatedElectronCollection,
-    jets = jetCollection,
-    jetsForMET = jetForMetCollection,
-    jetsForMETuncorr = jetForMetUncorrectedCollection,
-    met = metCollection,
-    mvamet = mvaMetCollection,
-    genMET = genMetCollection,
-    genJets = genJetCollection,
+writeNTuple.electrons = isolatedElectronCollection
+writeNTuple.muons = isolatedMuonCollection
+writeNTuple.jets = jetCollection
+writeNTuple.jetsForMet = jetForMetCollection
+writeNTuple.jetsForMetUncorrected = jetForMetUncorrectedCollection
+writeNTuple.met = metCollection
+writeNTuple.mvaMet = mvaMetCollection
 
-    BHadJetIndex = cms.InputTag(genLevelBJetProducerInput, "BHadJetIndex"),
-    AntiBHadJetIndex = cms.InputTag(genLevelBJetProducerInput, "AntiBHadJetIndex"),
-    BHadrons = cms.InputTag(genLevelBJetProducerInput, "BHadrons"),
-    AntiBHadrons = cms.InputTag(genLevelBJetProducerInput, "AntiBHadrons"),
-    BHadronFromTopB = cms.InputTag(genLevelBJetProducerInput, "BHadronFromTopB"),
-    AntiBHadronFromTopB = cms.InputTag(genLevelBJetProducerInput, "AntiBHadronFromTopB"),
-    BHadronVsJet = cms.InputTag(genLevelBJetProducerInput, "BHadronVsJet"),
-    AntiBHadronVsJet = cms.InputTag(genLevelBJetProducerInput, "AntiBHadronVsJet"),
-    genBHadPlusMothers = cms.InputTag(genHFBHadronMatcherInput, "genBHadPlusMothers"),
-    genBHadPlusMothersIndices = cms.InputTag(genHFBHadronMatcherInput, "genBHadPlusMothersIndices"),
-    genBHadIndex = cms.InputTag(genHFBHadronMatcherInput, "genBHadIndex"),
-    genBHadFlavour = cms.InputTag(genHFBHadronMatcherInput, "genBHadFlavour"),
-    genBHadJetIndex = cms.InputTag(genHFBHadronMatcherInput, "genBHadJetIndex"),
-    genBHadFromTopWeakDecay = cms.InputTag(genHFBHadronMatcherInput, "genBHadFromTopWeakDecay"),
-    genBHadLeptonIndex = cms.InputTag(genHFBHadronMatcherInput, "genBHadLeptonIndex"),
-    genBHadLeptonHadronIndex = cms.InputTag(genHFBHadronMatcherInput, "genBHadLeptonHadronIndex"),
-    genBHadLeptonViaTau = cms.InputTag(genHFBHadronMatcherInput, "genBHadLeptonViaTau"),
+writeNTuple.genJets = genJetCollection
+writeNTuple.genMet = genMetCollection
+writeNTuple.pdfWeights = "pdfWeights:CT10"
 
-    genCHadPlusMothers = cms.InputTag(genHFCHadronMatcherInput, "genCHadPlusMothers"),
-    genCHadPlusMothersIndices = cms.InputTag(genHFCHadronMatcherInput, "genCHadPlusMothersIndices"),
-    genCHadIndex = cms.InputTag(genHFCHadronMatcherInput, "genCHadIndex"),
-    genCHadFlavour = cms.InputTag(genHFCHadronMatcherInput, "genCHadFlavour"),
-    genCHadJetIndex = cms.InputTag(genHFCHadronMatcherInput, "genCHadJetIndex"),
-    genCHadFromTopWeakDecay = cms.InputTag(genHFCHadronMatcherInput, "genCHadFromTopWeakDecay"),
-    genCHadBHadronId = cms.InputTag(genHFCHadronMatcherInput, "genCHadBHadronId"),
-    genCHadLeptonIndex = cms.InputTag(genHFCHadronMatcherInput, "genCHadLeptonIndex"),
-    genCHadLeptonHadronIndex = cms.InputTag(genHFCHadronMatcherInput, "genCHadLeptonHadronIndex"),
-    genCHadLeptonViaTau = cms.InputTag(genHFCHadronMatcherInput, "genCHadLeptonViaTau"), 
-)
+writeNTuple.BHadJetIndex = cms.InputTag(genLevelBJetProducerInput, "BHadJetIndex")
+writeNTuple.AntiBHadJetIndex = cms.InputTag(genLevelBJetProducerInput, "AntiBHadJetIndex")
+writeNTuple.BHadrons = cms.InputTag(genLevelBJetProducerInput, "BHadrons")
+writeNTuple.AntiBHadrons = cms.InputTag(genLevelBJetProducerInput, "AntiBHadrons")
+writeNTuple.BHadronFromTopB = cms.InputTag(genLevelBJetProducerInput, "BHadronFromTopB")
+writeNTuple.AntiBHadronFromTopB = cms.InputTag(genLevelBJetProducerInput, "AntiBHadronFromTopB")
+writeNTuple.BHadronVsJet = cms.InputTag(genLevelBJetProducerInput, "BHadronVsJet")
+writeNTuple.AntiBHadronVsJet = cms.InputTag(genLevelBJetProducerInput, "AntiBHadronVsJet")
+
+writeNTuple.genBHadPlusMothers = cms.InputTag(genHFBHadronMatcherInput, "genBHadPlusMothers")
+writeNTuple.genBHadPlusMothersIndices = cms.InputTag(genHFBHadronMatcherInput, "genBHadPlusMothersIndices")
+writeNTuple.genBHadIndex = cms.InputTag(genHFBHadronMatcherInput, "genBHadIndex")
+writeNTuple.genBHadFlavour = cms.InputTag(genHFBHadronMatcherInput, "genBHadFlavour")
+writeNTuple.genBHadJetIndex = cms.InputTag(genHFBHadronMatcherInput, "genBHadJetIndex")
+writeNTuple.genBHadFromTopWeakDecay = cms.InputTag(genHFBHadronMatcherInput, "genBHadFromTopWeakDecay")
+writeNTuple.genBHadLeptonIndex = cms.InputTag(genHFBHadronMatcherInput, "genBHadLeptonIndex")
+writeNTuple.genBHadLeptonHadronIndex = cms.InputTag(genHFBHadronMatcherInput, "genBHadLeptonHadronIndex")
+writeNTuple.genBHadLeptonViaTau = cms.InputTag(genHFBHadronMatcherInput, "genBHadLeptonViaTau")
+
+writeNTuple.genCHadPlusMothers = cms.InputTag(genHFCHadronMatcherInput, "genCHadPlusMothers")
+writeNTuple.genCHadPlusMothersIndices = cms.InputTag(genHFCHadronMatcherInput, "genCHadPlusMothersIndices")
+writeNTuple.genCHadIndex = cms.InputTag(genHFCHadronMatcherInput, "genCHadIndex")
+writeNTuple.genCHadFlavour = cms.InputTag(genHFCHadronMatcherInput, "genCHadFlavour")
+writeNTuple.genCHadJetIndex = cms.InputTag(genHFCHadronMatcherInput, "genCHadJetIndex")
+writeNTuple.genCHadFromTopWeakDecay = cms.InputTag(genHFCHadronMatcherInput, "genCHadFromTopWeakDecay")
+writeNTuple.genCHadBHadronId = cms.InputTag(genHFCHadronMatcherInput, "genCHadBHadronId")
+writeNTuple.genCHadLeptonIndex = cms.InputTag(genHFCHadronMatcherInput, "genCHadLeptonIndex")
+writeNTuple.genCHadLeptonHadronIndex = cms.InputTag(genHFCHadronMatcherInput, "genCHadLeptonHadronIndex")
+writeNTuple.genCHadLeptonViaTau = cms.InputTag(genHFCHadronMatcherInput, "genCHadLeptonViaTau")
+
+process.writeNTuple = writeNTuple.clone()
 
 if signal:
     process.ntupleInRecoSeq = cms.Sequence()
