@@ -485,19 +485,17 @@ private:
     TBranch* b_jetSecondaryVertexFlightDistanceSignificance;
     TBranch* b_jetSecondaryVertexTrackVertexIndex;
     TBranch* b_jetSecondaryVertexTrackMatchToSelectedTrackIndex;
-    
     TBranch* b_met;
     TBranch* b_mvamet;
     TBranch* b_jetForMET;
     TBranch* b_jetJERSF;
     TBranch* b_jetForMETJERSF;
+    TBranch* b_vertMulti;
     
     // Concerning event
     TBranch* b_runNumber;
     TBranch* b_lumiBlock;
     TBranch* b_eventNumber;
-    TBranch* b_recoInChannel;
-    TBranch* b_vertMulti;
     
     
     /// nTuple branches holding trigger bits
