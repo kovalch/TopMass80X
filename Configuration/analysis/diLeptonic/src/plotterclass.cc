@@ -4038,7 +4038,7 @@ void Plotter::setControlPlotLegendStyle(std::vector< TH1* > drawhists, std::vect
     OrderedLegends.push_back("Z / #gamma* #rightarrow #tau#tau");
     OrderedLegends.push_back("t#bar{t}+Z/W/#gamma");
     OrderedLegends.push_back("Diboson");
-//     OrderedLegends.push_back("QCD Multijet");
+    if (this->addQCDToControlPlot()) OrderedLegends.push_back("QCD Multijet");
 
     leg->Clear();
     if(leg1) leg1->Clear();
