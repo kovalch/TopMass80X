@@ -123,7 +123,7 @@ topfilter = False
 topSignal = False
 higgsSignal = False
 alsoViaTau = False
-ttbarV = False
+ttbarZ = False
 
 if options.samplename == 'ttbarsignal':
     topfilter = True
@@ -152,18 +152,18 @@ elif options.samplename == 'ttbarhiggstobbbar' or options.samplename == 'ttbarhi
 elif options.samplename == 'gghiggstozzto4l' or options.samplename == 'vbfhiggstozzto4l':
     zGenInfo = True
     higgsSignal = True
-elif options.samplename == 'ttbarw' or options.samplename == 'ttbarz':
+elif options.samplename == 'ttbarz':
     topfilter = True
     topSignal = True
     viaTau = False
     alsoViaTau = True
-    ttbarV = True
+    ttbarZ = True
 elif options.samplename in ['data', 'singletop', 'singleantitop', 'ww',
         'wz', 'zz', 'wjets',
         'qcdmu15', 'qcdem2030', 'qcdem3080', 'qcdem80170',
         'qcdbcem2030', 'qcdbcem3080', 'qcdbcem80170',
-        'zzz', 'wwz', 'www', 'ttww', 'ttg', 'wwg']:
-    #no special treatment needed, put here to avoid typos
+        'zzz', 'wwz', 'www', 'ttww', 'ttg', 'wwg', 'ttbarw']:
+    # No special treatment needed, put here to avoid typos
     pass
 else:
     print "Error: Unknown samplename!"
@@ -242,7 +242,7 @@ process.load("RecoMET.METFilters.ecalLaserCorrFilter_cfi")
 from PhysicsTools.SelectorUtils.pvSelector_cfi import pvSelector
 process.goodOfflinePrimaryVertices = cms.EDFilter(
     "PrimaryVertexObjectFilter",
-    filterParams = pvSelector.clone( minNdof = cms.double(4.0), maxZ = cms.double(24.0) ),
+    filterParams = pvSelector.clone(minNdof = cms.double(4.0), maxZ = cms.double(24.0)),
     src = cms.InputTag('offlinePrimaryVertices')
     )
 if signal:
@@ -332,7 +332,7 @@ process.userPatSequence.replace(getattr(process, 'patElectrons'+pfpostfix),
 getattr(process, 'pfSelectedElectrons'+pfpostfix).cut = 'pt > 5 && gsfTrackRef.isNonnull && gsfTrackRef.trackerExpectedHitsInner.numberOfHits <= 0'
 
 # Switch isolation cone to 0.3 and set cut to 0.15
-getattr(process, 'pfIsolatedElectrons'+pfpostfix).doDeltaBetaCorrection = True   # not really a 'deltaBeta' correction, but it serves
+getattr(process, 'pfIsolatedElectrons'+pfpostfix).doDeltaBetaCorrection = True   # Not really a 'deltaBeta' correction, but it serves
 getattr(process, 'pfIsolatedElectrons'+pfpostfix).deltaBetaIsolationValueMap = cms.InputTag("elPFIsoValuePU03PFId"+pfpostfix)
 getattr(process, 'pfIsolatedElectrons'+pfpostfix).isolationValueMapsCharged = cms.VInputTag(cms.InputTag("elPFIsoValueCharged03PFId"+pfpostfix))
 getattr(process, 'pfIsolatedElectrons'+pfpostfix).isolationValueMapsNeutral = cms.VInputTag(cms.InputTag("elPFIsoValueNeutral03PFId"+pfpostfix), cms.InputTag("elPFIsoValueGamma03PFId"+pfpostfix))
@@ -448,11 +448,11 @@ getattr(process, 'selectedPatJets'+pfpostfix).cut = 'abs(eta)<5.4'
 process.load("JetMETCorrections.Type1MET.pfMETsysShiftCorrections_cfi")
 process.load("JetMETCorrections.Type1MET.pfMETCorrections_cff")
 
-process.pfMEtSysShiftCorrParameters_2012runABCDvsNvtx_data = cms.PSet( # CV: ReReco data + Summer'13 JEC
+process.pfMEtSysShiftCorrParameters_2012runABCDvsNvtx_data = cms.PSet(
     px = cms.string("+7.99e-02 + 2.393e-01*Nvtx"),
     py = cms.string("-1.370e-01 - 8.02e-02*Nvtx")
 )
-process.pfMEtSysShiftCorrParameters_2012runABCDvsNvtx_mc = cms.PSet( # CV: Summer'12 MC + Summer'13 JEC
+process.pfMEtSysShiftCorrParameters_2012runABCDvsNvtx_mc = cms.PSet(
     px = cms.string("+0.982e-01 + 1.38e-02*Nvtx"),
     py = cms.string("+1.802e-01 - 1.347e-01*Nvtx")
 )
@@ -524,7 +524,7 @@ process.pfMEtMVA.inputFileNames = cms.PSet(
     CovU1 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru1cov_53_Dec2012.root'),
     CovU2 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru2cov_53_Dec2012.root')
     )
-process.pfMEtMVA.srcLeptons = cms.VInputTag("isomuons", "isoelectrons", "isotaus") # should be adapted to analysis selection..
+process.pfMEtMVA.srcLeptons = cms.VInputTag("isomuons", "isoelectrons", "isotaus") # Should be adapted to analysis selection..
 process.pfMEtMVA.srcRho = cms.InputTag("kt6PFJets", "rho", "RECO")
 
 process.patMEtMVA = getattr(process, 'patMETs'+pfpostfix).clone()
@@ -568,13 +568,12 @@ process.scaledJetEnergy.inputElectrons = "selectedPatElectrons"+pfpostfix
 process.scaledJetEnergy.inputJets = "selectedPatJets"+pfpostfix
 process.scaledJetEnergy.inputMETs = correctedPatMet
 process.scaledJetEnergy.JECUncSrcFile = cms.FileInPath("TopAnalysis/Configuration/analysis/common/data/Summer13_V4_DATA_UncertaintySources_AK5PFchs.txt")
-process.scaledJetEnergy.scaleType = "abs"   #abs = 1, jes:up, jes:down
+process.scaledJetEnergy.scaleType = "abs"   # abs = 1, jes:up, jes:down
 
 if options.runOnMC:
     process.scaledJetEnergy.resolutionEtaRanges  = cms.vdouble(0, 0.5, 0.5, 1.1, 1.1, 1.7, 1.7, 2.3, 2.3, 5.4)
     process.scaledJetEnergy.resolutionFactors    = cms.vdouble(1.052, 1.057, 1.096, 1.134, 1.288) # JER standard
 
-    #please change this on the top where the defaults for the VarParsing are given
     if options.systematicsName == "JES_UP":
         process.scaledJetEnergy.scaleType = "jes:up"
     if options.systematicsName == "JES_DOWN":
@@ -683,9 +682,9 @@ process.jetProperties.src = jetCollection
 if topfilter:
     process.load("TopAnalysis.TopFilter.filters.GeneratorTopFilter_cfi")
     process.generatorTopFilter.rejectNonBottomDecaysOfTops = False
-    if higgsSignal or ttbarV:
+    if higgsSignal or ttbarZ:
         process.generatorTopFilter.invert_selection = True
-        process.generatorTopFilter.channels = ["none"] #empty array would use some defaults
+        process.generatorTopFilter.channels = ["none"] # Empty array would use some defaults
     else:
         all = ['ElectronElectron', 'ElectronElectronViaTau', 
                'MuonMuon', 'MuonMuonViaTau', 
@@ -728,7 +727,7 @@ else:
 
 if topSignal:
     #process.load("TopAnalysis.TopUtils.HadronLevelBJetProducer_cfi")
-    process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi") # supplies PDG ID to real name resolution of MC particles, necessary for GenLevelBJetProducer
+    process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi") # Supplies PDG ID to real name resolution of MC particles, necessary for GenLevelBJetProducer
     process.load("TopAnalysis.TopUtils.GenLevelBJetProducer_cfi")
     process.produceGenLevelBJets.deltaR = 5.0
     process.produceGenLevelBJets.noBBbarResonances = True
