@@ -149,7 +149,6 @@ KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(double ma
 //     weight_option_=0;
 // }
 
-
 KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(double mass_top, double mass_b, double mass_w, double mass_l, double mass_al)
 {
     mt_    = mass_top;
@@ -166,6 +165,7 @@ KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(double ma
    // NeutrinoEventShape->SetParameters(30.641,57.941,22.344,57.533,22.232);
     weight_option_=0;
 }
+
 
 KinematicReconstruction_LSroutines::~KinematicReconstruction_LSroutines()
 {
@@ -193,7 +193,7 @@ void KinematicReconstruction_LSroutines::ini(double mass_l, double mass_al,doubl
     weight_option_=0;
 }
 
-void KinematicReconstruction_LSroutines::setConstraints(TLorentzVector LV_al, TLorentzVector LV_l, TLorentzVector LV_b, TLorentzVector LV_bbar, double missPx, double missPy)
+void KinematicReconstruction_LSroutines::setConstraints(const TLorentzVector& LV_al, const TLorentzVector& LV_l, const TLorentzVector& LV_b, const TLorentzVector& LV_bbar, const double& missPx, const double& missPy)
 {
     l_  = LV_l;
     al_ = LV_al;
@@ -204,7 +204,7 @@ void KinematicReconstruction_LSroutines::setConstraints(TLorentzVector LV_al, TL
     doAll();
 }
 
-void KinematicReconstruction_LSroutines::setConstraints(LV LV_al, LV LV_l, LV LV_b, LV LV_bbar, double missPx, double missPy)
+void KinematicReconstruction_LSroutines::setConstraints(const LV& LV_al, const LV& LV_l, const LV& LV_b, const LV& LV_bbar, const double& missPx, const double& missPy)
 {
     TLorentzVector temp_al(LV_al.Px(),LV_al.Py(),LV_al.Pz(),LV_al.E());
     TLorentzVector temp_l(LV_l.Px(),LV_l.Py(),LV_l.Pz(),LV_l.E());
@@ -302,17 +302,7 @@ void KinematicReconstruction_LSroutines::doAll()
             for(int i=1;i<=nSol_;i++)
             {
                 topRec(vect_pxv_[i]);
-                 //printf("Sol: %d: \n",i);
-                 //top_.Print();
-                 //topbar_.Print();
                 TopSolution TS_temp;
-                TS_temp.ttPt=tt_.Pt();
-                TS_temp.TopPt=top_.Pt();
-                TS_temp.AntiTopPt=topbar_.Pt();
-                TS_temp.NeutrinoPx=neutrino_.Px();
-                TS_temp.AntiNeutrinoPx=neutrinobar_.Px();
-                TS_temp.mTop=top_.M();
-                TS_temp.mAntiTop=topbar_.M();
                   
                 //...
 //                    double vw1=1,vw2=1;
@@ -400,7 +390,6 @@ void KinematicReconstruction_LSroutines::doAll()
 //                                 vw2=hvw->GetBinContent(hvw->FindBin(neutrinobar_.E()));
 //                             }
 //                         }
-       
        
        
  //pt,eta 2d
@@ -546,8 +535,6 @@ void KinematicReconstruction_LSroutines::doAll()
                 
                 //TS_temp.cos2 = cos(w_boost.Vect().Angle(al_boost.Vect()));
                 
-                TS_temp.Mtt = tt_.M();
-                TS_temp.mttw = 1.0/TS_temp.Mtt;
                 
                 //TS_temp.weight = 1.0/(neutrino_.Pt()+neutrinobar_.Pt());
                 
@@ -559,7 +546,7 @@ void KinematicReconstruction_LSroutines::doAll()
                 //TS_temp.mbl    = (b_+al_).M();
                 //TS_temp.mblbar = (bbar_+l_).M();
                 
-                TS_temp.weight=TS_temp.mttw;
+                TS_temp.weight = 1.0/tt_.M();
 
                 ttSol_.push_back(TS_temp);
                   
@@ -652,7 +639,7 @@ void KinematicReconstruction_LSroutines::sortTopSol(vector< KinematicReconstruct
 }
 
 
-void KinematicReconstruction_LSroutines::topRec(double sol)
+void KinematicReconstruction_LSroutines::topRec(double sol) //FIXME: Rename sol -> px_neutrino ???
 {
   double pxp, pyp, pzp, pup, pvp, pwp;
   
@@ -744,7 +731,7 @@ void KinematicReconstruction_LSroutines::findCoeff(double* koeficienty)
 }
 
 
-double KinematicReconstruction_LSroutines::sqr(double x)
+double KinematicReconstruction_LSroutines::sqr(const double& x)
 {
     return (x*x);
 }
@@ -758,14 +745,14 @@ void KinematicReconstruction_LSroutines::swap(double& realone, double& realtwo)
   }
 }
 
-int KinematicReconstruction_LSroutines::sign(long double ld)
+int KinematicReconstruction_LSroutines::sign(const long double& ld)
 {
         
         if(fabs(ld)<0.0000000000001) return 0;
         return (ld>0)?1:-1;
 }
 
-void KinematicReconstruction_LSroutines::quartic_equation(double h0, double h1, double h2, double h3, double h4, std::vector< double >& v)
+void KinematicReconstruction_LSroutines::quartic_equation(const double& h0, const double& h1, const double& h2, const double& h3, const double& h4, std::vector< double >& v)
 {
      std::vector<double> result;
     
@@ -951,7 +938,7 @@ void KinematicReconstruction_LSroutines::cubic_equation(double a, double b, doub
     }
 }
 
-void KinematicReconstruction_LSroutines::quadratic_equation(double a, double b, double c, std::vector< double >& v)
+void KinematicReconstruction_LSroutines::quadratic_equation(const double& a, const double& b, const double& c, std::vector< double >& v)
 {
      std::vector<double> result;
      //printf("a: %10.10f\n",a);//printout
@@ -988,7 +975,7 @@ void KinematicReconstruction_LSroutines::quadratic_equation(double a, double b, 
     }
 }
 
-void KinematicReconstruction_LSroutines::linear_equation(double a, double b, std::vector< double >& v)
+void KinematicReconstruction_LSroutines::linear_equation(const double& a, const double& b, std::vector< double >& v)
 {
         std::vector<double> result;
     if(a==0)

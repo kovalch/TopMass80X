@@ -55,7 +55,7 @@ void doJetsMerging(const VLV *jets,const std::vector<double> *btags);
 private:
 
     TRandom3* r3_;
-    void angle_rot(double alpha, double e, TLorentzVector jet, TLorentzVector & jet_sm);
+    void angle_rot(const double& alpha, const double& e, const TLorentzVector& inJet, TLorentzVector & jet_sm);
     
     int nSol_;
     Struct_KinematicReconstruction sol_;
@@ -67,16 +67,16 @@ private:
 //     // W mass
     TH1F * h_wmass_;
 // 
-//     // jet resolution
+    // jet resolution
     TH1F * h_jetAngleRes_;
     TH1F * h_jetEres_;
-//        
-//     //lepton resolution
+       
+    //lepton resolution
     TH1F * h_lepAngleRes_;
     TH1F * h_lepEres_;
-// 
-//     //MET resolution
-//     double ptBins[14];
+    
+    //MET resolution
+    double ptBins[14];
     std::vector<double> ptBins_;
     TH1F * h_metAngleRes_[13];
     TH1F * h_metPtres_[13];

@@ -37,74 +37,68 @@ using namespace std;
 
 // -------------------------------------- Methods for KinematicReconstruction --------------------------------------
 
-
-
-void KinematicReconstruction::angle_rot(double alpha, double e, TLorentzVector jet, TLorentzVector & jet_sm)
+void KinematicReconstruction::angle_rot(const double& alpha, const double& e, const TLorentzVector& inJet, TLorentzVector& jet_sm)
 {
-    /*Ganna Dolinska*/
-  double px_1, py_1, pz_1; // sistema koordinat, gde impul's vdol' Oz
-  
-  /// Transition matrix detector -> syst1 ///
-  double x1, y1, z1;
-  double x2, y2, z2;
-  double x3, y3, z3;
-  ///
-  
-  if(fabs(jet.Px())<=e){jet.SetPx(0);}
-  if(fabs(jet.Py())<=e){jet.SetPy(0);}
-  if(fabs(jet.Pz())<=e){jet.SetPz(0);}
-  
-  /// Rotation in syst 1 ///
-//  int seed_random = (int)(( jet.Pt() - (int)(jet.Pt()) )*1000000000);
-//  
-//   TRandom3 r(seed_random);  ///random seed
-  
-  double phi = 2*TMath::Pi()*r3_->Rndm();
-  pz_1 = jet.Vect().Mag()*cos(alpha);
-  px_1 = - jet.Vect().Mag()*sin(alpha)*sin(phi);
-  py_1 = jet.Vect().Mag()*sin(alpha)*cos(phi);  
-  ///
-  
-  /// Transition detector <- syst1 ///
-  if (jet.Py()!=0||jet.Pz()!=0)
-  {
-    double d = sqrt(jet.Pz()*jet.Pz() + jet.Py()*jet.Py());
-    double p = jet.Vect().Mag();
+    double px_1, py_1, pz_1; // Coordinate system where momentum is along Z-axis
     
-    x1 = d/p;
-    y1 = 0;
-    z1 = jet.Px()/p;
+    //Transition matrix detector -> syst1 ...
+    double x1, y1, z1;
+    double x2, y2, z2;
+    double x3, y3, z3;
+    // ...
     
-    x2 = - jet.Px()*jet.Py()/d/p;
-    y2 = jet.Pz()/d;
-    z2 = jet.Py()/p;
+    TLorentzVector jet = inJet;
+    if(fabs(jet.Px())<=e){jet.SetPx(0);}
+    if(fabs(jet.Py())<=e){jet.SetPy(0);}
+    if(fabs(jet.Pz())<=e){jet.SetPz(0);}
     
-    x3 = - jet.Px()*jet.Pz()/d/p;
-    y3 = - jet.Py()/d;
-    z3 = jet.Pz()/p;
+    //Rotation in syst 1 ...
+    double phi = 2*TMath::Pi()*r3_->Rndm();
+    pz_1 = jet.Vect().Mag()*cos(alpha);
+    px_1 = - jet.Vect().Mag()*sin(alpha)*sin(phi);
+    py_1 = jet.Vect().Mag()*sin(alpha)*cos(phi);  
+    // ...
     
-    jet_sm.SetPx(x1*px_1+y1*py_1+z1*pz_1);
-    jet_sm.SetPy(x2*px_1+y2*py_1+z2*pz_1);
-    jet_sm.SetPz(x3*px_1+y3*py_1+z3*pz_1);
-    jet_sm.SetE(jet.E());
-  }
-  
-  if (jet.Px()==0&&jet.Py()==0&&jet.Pz()==0)
-  {
-    jet_sm.SetPx(jet.Px());
-    jet_sm.SetPy(jet.Py());
-    jet_sm.SetPz(jet.Pz());
-    jet_sm.SetE(jet.E());
-  }
-
-  if (jet.Px()!=0&&jet.Py()==0&&jet.Pz()==0)
-  {
-    jet_sm.SetPx(pz_1);
-    jet_sm.SetPy(px_1);
-    jet_sm.SetPz(py_1);
-    jet_sm.SetE(jet.E());
-  }
-  ///
+    //Transition detector <- syst1 ...
+    if (jet.Py()!=0||jet.Pz()!=0)
+    {
+        double d = sqrt(jet.Pz()*jet.Pz() + jet.Py()*jet.Py());
+        double p = jet.Vect().Mag();
+        
+        x1 = d/p;
+        y1 = 0;
+        z1 = jet.Px()/p;
+        
+        x2 = - jet.Px()*jet.Py()/d/p;
+        y2 = jet.Pz()/d;
+        z2 = jet.Py()/p;
+        
+        x3 = - jet.Px()*jet.Pz()/d/p;
+        y3 = - jet.Py()/d;
+        z3 = jet.Pz()/p;
+        
+        jet_sm.SetPx(x1*px_1+y1*py_1+z1*pz_1);
+        jet_sm.SetPy(x2*px_1+y2*py_1+z2*pz_1);
+        jet_sm.SetPz(x3*px_1+y3*py_1+z3*pz_1);
+        jet_sm.SetE(jet.E());
+    }
+    
+    if (jet.Px()==0&&jet.Py()==0&&jet.Pz()==0)
+    {
+        jet_sm.SetPx(jet.Px());
+        jet_sm.SetPy(jet.Py());
+        jet_sm.SetPz(jet.Pz());
+        jet_sm.SetE(jet.E());
+    }
+    
+    if (jet.Px()!=0&&jet.Py()==0&&jet.Pz()==0)
+    {
+        jet_sm.SetPx(pz_1);
+        jet_sm.SetPy(px_1);
+        jet_sm.SetPz(py_1);
+        jet_sm.SetE(jet.E());
+    }
+    // ...
 }
 
 
@@ -155,7 +149,7 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
     TLorentzVector leptonMinus_tlv = common::LVtoTLV(leptonMinus);
     TLorentzVector met_tlv = common::LVtoTLV(*met);
 
-        gRandom->SetSeed((int)(( leptonPlus_tlv.Pt() - (int)(leptonPlus_tlv.Pt()) )*1000000000));
+    gRandom->SetSeed((int)(( leptonPlus_tlv.Pt() - (int)(leptonPlus_tlv.Pt()) )*1000000000));
     r3_->SetSeed(( leptonPlus_tlv.Pt() - (int)(leptonPlus_tlv.Pt()) )*1000000000);
     
     //jets selection
@@ -168,99 +162,99 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
     
     double btag_wp=0.244;
     
-if(!isJetsMerging_)
-{
-            
-    for (const auto& jet : *jets) {
-        jets_tlv.push_back(common::LVtoTLV(jet));
-    }
-    
-    for(int i=0; i<(int)btags->size(); i++) {
-//         new_btags.push_back(btags->at(i));
+    if(!isJetsMerging_)
+    {
+                
+        for (const auto& jet : *jets) {
+            jets_tlv.push_back(common::LVtoTLV(jet));
+        }
         
-        for(int j=0; j<(int)btags->size(); j++) {
-            double wi = btags->at(i);
-            double wj = btags->at(j);
-//                  if(i==j || (wi<0.244 && wj<0.244) || (wi<0 || wj<0))continue;
-            if(i==j || (wi<btag_wp && wj<btag_wp))continue;
-
-            if(wi>btag_wp && wj>btag_wp){nb_tag.push_back(2); }
-            else{nb_tag.push_back(1); }
-
-            b1_id.push_back(i);
-            b2_id.push_back(j);
+        for(int i=0; i<(int)btags->size(); i++) {
+    //         new_btags.push_back(btags->at(i));
+            
+            for(int j=0; j<(int)btags->size(); j++) {
+                double wi = btags->at(i);
+                double wj = btags->at(j);
+    //                  if(i==j || (wi<0.244 && wj<0.244) || (wi<0 || wj<0))continue;
+                if(i==j || (wi<btag_wp && wj<btag_wp))continue;
+    
+                if(wi>btag_wp && wj>btag_wp){nb_tag.push_back(2); }
+                else{nb_tag.push_back(1); }
+    
+                b1_id.push_back(i);
+                b2_id.push_back(j);
+            }
         }
     }
-}
-else
-{
-    
-    //fill new jets:  logik I.
-//     std::vector<TLorentzVector> new_jets_tlv;
-//     std::vector<double> new_btag;
-//     std::vector<int> veto_i;
-//     std::vector<int> veto_j;
-//         for(int i=0; i<(int)alljets_.size(); i++)
-//         {
-//             if(allbtags_.at(i)<btag_wp)continue;
-//             TLorentzVector ijet=alljets_.at(i);
-//             
-//             for(int j=0; j<(int)alljets_.size(); j++)
-//             {
-//                  if(i==j)continue;
-//                  if(allbtags_.at(j)>=btag_wp)continue; 
-//                 TLorentzVector jjet=alljets_.at(j);
-//                 double dRij=ijet.DeltaR(jjet);
-//                  if(dRij>1)continue;
-//                 TLorentzVector new_jet=ijet+jjet;
-//                     if(new_jet.Pt()<30)continue;
-//                     if(fabs(new_jet.Eta())>2.4)continue;
-//                 new_jets_tlv.push_back(new_jet);
-//                 new_btag.push_back(allbtags_.at(i));
-//                 veto_i.push_back(i);
-//                 veto_j.push_back(j);
-//             }   
-//         }
-//  
-//      std::vector<int> index_i;
-//      std::vector<int> index_j;
-//      for(int i=0; i<(int)alljets_.size(); i++)
-//         {
-//                 if(alljets_.at(i).Pt()<30)continue;
-//                 if(fabs(alljets_.at(i).Eta())>2.4)continue;
-//                 jets_tlv.push_back(alljets_.at(i));
-//                 new_btags.push_back(allbtags_.at(i));
-//                 index_i.push_back(i);
-//                 index_j.push_back(i);
-//         }
-//     
-//     
-//     for(int i=0; i<(int)new_jets_tlv.size(); i++)
-//     {
-//         jets_tlv.push_back(new_jets_tlv.at(i));
-//         new_btags.push_back(new_btag.at(i));
-//         index_i.push_back(veto_i.at(i));
-//         index_j.push_back(veto_j.at(i));
-//     }
-//     
-//         for(int i=0; i<(int)jets_tlv.size(); i++) 
-//         {
-//                 for(int j=0; j<(int)jets_tlv.size(); j++) 
-//                 {
-//                                 if(index_i[i]==index_i[j] || index_i[i]==index_j[j] || index_j[i]==index_i[j] || index_j[i]==index_j[j])continue;                   
-//                                double wi = new_btags.at(i);
-//                                double wj = new_btags.at(j);
-// //                                 //if(i==j || (wi<0.244 && wj<0.244) || (wi<0 || wj<0))continue;
-//                                 if(i==j || (wi<btag_wp && wj<btag_wp))continue;
-//                                 if(wi>btag_wp && wj>btag_wp){nb_tag.push_back(2); }
-//                                 else{nb_tag.push_back(1); }
-//                                 b1_id.push_back(i);
-//                                 b2_id.push_back(j);
-//                 }
-//         }
+    else
+    {
+        
+        //fill new jets:  logik I.
+    //     std::vector<TLorentzVector> new_jets_tlv;
+    //     std::vector<double> new_btag;
+    //     std::vector<int> veto_i;
+    //     std::vector<int> veto_j;
+    //         for(int i=0; i<(int)alljets_.size(); i++)
+    //         {
+    //             if(allbtags_.at(i)<btag_wp)continue;
+    //             TLorentzVector ijet=alljets_.at(i);
+    //             
+    //             for(int j=0; j<(int)alljets_.size(); j++)
+    //             {
+    //                  if(i==j)continue;
+    //                  if(allbtags_.at(j)>=btag_wp)continue; 
+    //                 TLorentzVector jjet=alljets_.at(j);
+    //                 double dRij=ijet.DeltaR(jjet);
+    //                  if(dRij>1)continue;
+    //                 TLorentzVector new_jet=ijet+jjet;
+    //                     if(new_jet.Pt()<30)continue;
+    //                     if(fabs(new_jet.Eta())>2.4)continue;
+    //                 new_jets_tlv.push_back(new_jet);
+    //                 new_btag.push_back(allbtags_.at(i));
+    //                 veto_i.push_back(i);
+    //                 veto_j.push_back(j);
+    //             }   
+    //         }
+    //  
+    //      std::vector<int> index_i;
+    //      std::vector<int> index_j;
+    //      for(int i=0; i<(int)alljets_.size(); i++)
+    //         {
+    //                 if(alljets_.at(i).Pt()<30)continue;
+    //                 if(fabs(alljets_.at(i).Eta())>2.4)continue;
+    //                 jets_tlv.push_back(alljets_.at(i));
+    //                 new_btags.push_back(allbtags_.at(i));
+    //                 index_i.push_back(i);
+    //                 index_j.push_back(i);
+    //         }
+    //     
+    //     
+    //     for(int i=0; i<(int)new_jets_tlv.size(); i++)
+    //     {
+    //         jets_tlv.push_back(new_jets_tlv.at(i));
+    //         new_btags.push_back(new_btag.at(i));
+    //         index_i.push_back(veto_i.at(i));
+    //         index_j.push_back(veto_j.at(i));
+    //     }
+    //     
+    //         for(int i=0; i<(int)jets_tlv.size(); i++) 
+    //         {
+    //                 for(int j=0; j<(int)jets_tlv.size(); j++) 
+    //                 {
+    //                                 if(index_i[i]==index_i[j] || index_i[i]==index_j[j] || index_j[i]==index_i[j] || index_j[i]==index_j[j])continue;                   
+    //                                double wi = new_btags.at(i);
+    //                                double wj = new_btags.at(j);
+    // //                                 //if(i==j || (wi<0.244 && wj<0.244) || (wi<0 || wj<0))continue;
+    //                                 if(i==j || (wi<btag_wp && wj<btag_wp))continue;
+    //                                 if(wi>btag_wp && wj>btag_wp){nb_tag.push_back(2); }
+    //                                 else{nb_tag.push_back(1); }
+    //                                 b1_id.push_back(i);
+    //                                 b2_id.push_back(j);
+    //                 }
+    //         }
 
 
-//fill new jets:  logik II.
+    //fill new jets:  logik II.
 
     std::vector<TLorentzVector> new_jets_tlv;
     std::vector<double> new_btag;
@@ -319,38 +313,38 @@ else
      
      vector<int> used_index;
      
-     for(int i=0; i<(int)alljets_.size(); i++)
-     {
-         bool flag=false;
-         for(int k=0; k<(int)used_index.size(); k++)
+         for(int i=0; i<(int)alljets_.size(); i++)
          {
-             if(used_index[k]==i)flag=true;
-        }
-        if(flag)continue;
-         
-        if(index_dR[i]<0)
-        {
-                if(alljets_.at(i).Pt()<30)continue;
-                if(fabs(alljets_.at(i).Eta())>2.4)continue;
-                jets_tlv.push_back(alljets_.at(i));
-                new_btags.push_back(allbtags_.at(i));
-                
-        }
-        else
-        {
-            if(index_dR[i]>-1)
-            {
-                TLorentzVector temp = alljets_.at(i) + alljets_.at((index_dR[i]));
-                used_index.push_back(index_dR[i]);
-                if(temp.Pt()<30)continue;
-                if(fabs(temp.Eta())>2.4)continue;
-                jets_tlv.push_back(temp);
-                new_btags.push_back(allbtags_.at(i)*(allbtags_.at(i)>allbtags_.at(index_dR[i])) + allbtags_.at(index_dR[i])*(allbtags_.at(index_dR[i])>allbtags_.at(i)));
+             bool flag=false;
+             for(int k=0; k<(int)used_index.size(); k++)
+             {
+                 if(used_index[k]==i)flag=true;
             }
-        }
-        
-        
-     }
+            if(flag)continue;
+             
+            if(index_dR[i]<0)
+            {
+                    if(alljets_.at(i).Pt()<30)continue;
+                    if(fabs(alljets_.at(i).Eta())>2.4)continue;
+                    jets_tlv.push_back(alljets_.at(i));
+                    new_btags.push_back(allbtags_.at(i));
+                    
+            }
+            else
+            {
+                if(index_dR[i]>-1)
+                {
+                    TLorentzVector temp = alljets_.at(i) + alljets_.at((index_dR[i]));
+                    used_index.push_back(index_dR[i]);
+                    if(temp.Pt()<30)continue;
+                    if(fabs(temp.Eta())>2.4)continue;
+                    jets_tlv.push_back(temp);
+                    new_btags.push_back(allbtags_.at(i)*(allbtags_.at(i)>allbtags_.at(index_dR[i])) + allbtags_.at(index_dR[i])*(allbtags_.at(index_dR[i])>allbtags_.at(i)));
+                }
+            }
+            
+            
+         }
      
         for(int i=0; i<(int)jets_tlv.size(); i++) 
         {
@@ -368,10 +362,10 @@ else
         }
      
     
-} //else !isJetsMerging_
+    } //else !isJetsMerging_
 
 
-if(b1_id.size()<2)return;     
+    if(b1_id.size()<2)return;     
 
     KinematicReconstruction_MeanSol meanSol(topmass);
     //double max_sum_weight=0;
@@ -381,29 +375,27 @@ if(b1_id.size()<2)return;
         isHaveSol=0;
         int j1=b1_id[ib];
         int j2=b2_id[ib];
-//         if((*jets)[j1].Pt()<30 || (*jets)[j2].Pt()<30)continue;
-//         if(fabs((*jets)[j1].Eta())>2.4 || fabs((*jets)[j2].Eta())>2.4)continue;
+        
         TLorentzVector l_temp, al_temp, b_temp, bbar_temp, met_temp;
         l_temp=leptonMinus_tlv;
         al_temp=leptonPlus_tlv;
         b_temp=jets_tlv.at(j1);
         bbar_temp=jets_tlv.at(j2);
         met_temp.SetXYZM(met->Px(), met->Py(), 0, 0);
-
+        
         if((al_temp + b_temp).M()>180 || (l_temp + bbar_temp).M()>180)continue;
-
-//           double b_w=new_btags.at(j1)/(1-new_btags.at(j1));
-//           double bbar_w=new_btags.at(j2)/(1-new_btags.at(j2));
-//             double b_w=1;
+        
+//          double b_w=new_btags.at(j1)/(1-new_btags.at(j1));
+//          double bbar_w=new_btags.at(j2)/(1-new_btags.at(j2));
+//          double b_w=1;
 //          double bbar_w=1;
-
-
-        TVector3 vX_reco =  - b_temp.Vect() - bbar_temp.Vect() - l_temp.Vect() - al_temp.Vect() - met_temp.Vect();       
-
+        
+        TVector3 vX_reco =  - b_temp.Vect() - bbar_temp.Vect() - l_temp.Vect() - al_temp.Vect() - met_temp.Vect();
+        
         for(int sm=0; sm<100; sm++) {
             TLorentzVector b_sm=b_temp;
             TLorentzVector bbar_sm=bbar_temp;
-            TLorentzVector met_sm;//=met_temp;
+            TLorentzVector met_sm;
             TLorentzVector l_sm=l_temp;
             TLorentzVector al_sm=al_temp;
             TLorentzVector vX_sm;
@@ -412,24 +404,24 @@ if(b1_id.size()<2)return;
             double xB=sqrt((fB*fB*b_sm.E()*b_sm.E()-b_sm.M2())/(b_sm.P()*b_sm.P()));
             double fBbar=h_jetEres_->GetRandom();//fBbar=1; //sm off
             double xBbar=sqrt((fBbar*fBbar*bbar_sm.E()*bbar_sm.E()-bbar_sm.M2())/(bbar_sm.P()*bbar_sm.P()));
-                           
+            
             double fL=h_lepEres_->GetRandom();//fL=1; //sm off
             double xL=sqrt((fL*fL*l_sm.E()*l_sm.E()-l_sm.M2())/(l_sm.P()*l_sm.P()));
             double faL=h_lepEres_->GetRandom();//faL=1;  //sm off
             double xaL=sqrt((faL*faL*al_sm.E()*al_sm.E()-al_sm.M2())/(al_sm.P()*al_sm.P()));
-                           
+            
             b_sm.SetXYZT(b_sm.Px()*xB,b_sm.Py()*xB,b_sm.Pz()*xB,b_sm.E()*fB);
             angle_rot(h_jetAngleRes_->GetRandom(),0.001,b_sm,b_sm);
-                           
+            
             bbar_sm.SetXYZT(bbar_sm.Px()*xBbar,bbar_sm.Py()*xBbar,bbar_sm.Pz()*xBbar,bbar_sm.E()*fBbar);    
             angle_rot(h_jetAngleRes_->GetRandom(),0.001,bbar_sm,bbar_sm);
-                                
+            
             l_sm.SetXYZT(l_sm.Px()*xL,l_sm.Py()*xL,l_sm.Pz()*xL,l_sm.E()*fL);
             angle_rot(h_lepAngleRes_->GetRandom(),0.001,l_sm,l_sm);
-                           
+            
             al_sm.SetXYZT(al_sm.Px()*xaL,al_sm.Py()*xaL,al_sm.Pz()*xaL,al_sm.E()*faL);
             angle_rot(h_lepAngleRes_->GetRandom(),0.001,al_sm,al_sm);
-                           
+            
 // met Pt+angle smearing
 //             double fX=1;
 //             double dAX=0;
@@ -439,9 +431,6 @@ if(b1_id.size()<2)return;
 //                   {
 //                        //fX=h_metPtres_[i]->GetRandom();
 //                        //dAX=h_metAngleRes_[i]->GetRandom();
-//                        
-//                        fX=1;
-//                         dAX=0;
 //                   }
 //             }
 //             double tempX= vX_reco.Px()*fX;
@@ -451,27 +440,24 @@ if(b1_id.size()<2)return;
 //                            
 // ...
 
-//met Pt+angle smearing
+//X Pt+angle smearing
             double fPx=1;
-            double fPy=0;
-            for(int i=0;i<((int)(ptBins_.size()));i++)
-            {
-                  if(vX_reco.Pt()>ptBins_[i]&&vX_reco.Pt()<=ptBins_[i+1])
-                  {
-                       //fPx=h_metPxRes_[i]->GetRandom();
-                       //fPy=h_metPyRes_[i]->GetRandom();
-                       fPx=1;
-                       fPy=1;
-                  }
-            }
+            double fPy=1;
+//             for(int i=0;i<((int)(ptBins_.size()));i++)
+//             {
+//                   if(vX_reco.Pt()>ptBins_[i]&&vX_reco.Pt()<=ptBins_[i+1])
+//                   {
+//                        fPx=h_metPxRes_[i]->GetRandom();
+//                        fPy=h_metPyRes_[i]->GetRandom();
+//                   }
+//             }
             double tempX= vX_reco.Px()*fPx;
             double tempY= vX_reco.Py()*fPy;
             vX_sm.SetXYZM(tempX,tempY,0,0);
-       
 //...
+            
             TVector3 metV3_sm= -b_sm.Vect()-bbar_sm.Vect()-l_sm.Vect()-al_sm.Vect()-vX_sm.Vect();
             met_sm.SetXYZM(metV3_sm.Px(),metV3_sm.Py(),0,0);
-            
             
             KinematicReconstruction_LSroutines tp_sm(0.0,0.0,h_wmass_->GetRandom(),h_wmass_->GetRandom());
 //            KinematicReconstruction_LSroutines tp_sm(0.0,0.0,h_wmass_->GetRandom(),h_wmass_->GetRandom(),(*h_nwcuts_));
@@ -481,7 +467,6 @@ if(b1_id.size()<2)return;
 //              KinematicReconstruction_LSroutines tp_sm(0.0,0.0,h_wmass_->GetRandom(),h_wmass_->GetRandom(),(*h_costheta_w_),1);
             
             tp_sm.setConstraints(al_sm, l_sm, b_sm, bbar_sm, met_sm.Px(), met_sm.Py());
-
 
             if(tp_sm.getNsol()>0)
             {
@@ -493,12 +478,11 @@ if(b1_id.size()<2)return;
                   double mbl_weight=h_mbl_w_->GetBinContent(h_mbl_w_->FindBin((al_sm+b_sm).M()))*h_mbl_w_->GetBinContent(h_mbl_w_->FindBin((l_sm+bbar_sm).M()))/100000000;
                   meanSol.add(tp_sm.getTtSol()->at(i).top,tp_sm.getTtSol()->at(i).topbar,tp_sm.getTtSol()->at(i).neutrino,tp_sm.getTtSol()->at(i).neutrinobar,mbl_weight);//
                   //meanSol.add(tp_sm.GetTtSol()->at(i).top,tp_sm.GetTtSol()->at(i).topbar,tp_sm.GetTtSol()->at(i).neutrino,tp_sm.GetTtSol()->at(i).neutrinobar,(tp_sm.GetTtSol()->at(i).vw));//
-
-                   
+                
                 }
             }
             
-			} // for sm=100 end
+	} // for sm=100 end
 
 //         if(isHaveSol) {
 //             
@@ -582,8 +566,6 @@ int KinematicReconstruction::getNSol()const
     return nSol_;
 }
 
-
-
 Struct_KinematicReconstruction KinematicReconstruction::getSol()const
 {
     return sol_;
@@ -597,11 +579,9 @@ vector< Struct_KinematicReconstruction > KinematicReconstruction::getSols() cons
 
 void KinematicReconstruction::loadData()
 {
-    
     r3_ = new TRandom3();
     
-//     // W mass
-
+    // W mass
     TString data_path = common::DATA_PATH_COMMON();
     data_path.Append("/KinReco_wmass.root");
     TFile wmassfile(data_path);
@@ -609,52 +589,25 @@ void KinematicReconstruction::loadData()
     h_wmass_->SetDirectory(0);
     wmassfile.Close();
     
-//     // jet resolution
-//     TString data_path1 = common::DATA_PATH_COMMON();
-//     data_path1.Append("/KinReco_d_angle_jet.root");
-//     TFile danglejetfile(data_path1);
-//     h_jetAngleRes_ = (TH1F*)danglejetfile.Get("d_angle_jet");
-//     h_jetEres_ = (TH1F*)danglejetfile.Get("fE");
-//     h_jetAngleRes_->SetDirectory(0);
-//     h_jetEres_->SetDirectory(0);
-//     danglejetfile.Close();
-//     //
-//     
-//     //lepton resolution
-//     TString data_path2 = common::DATA_PATH_COMMON();
-//     data_path2.Append("/KinReco_d_angle_lep.root");
-//     TFile lepangleresfile(data_path2);
-//     h_lepAngleRes_ = (TH1F*)lepangleresfile.Get("d_angle_jet");
-//     h_lepEres_ = (TH1F*)lepangleresfile.Get("fE");
-//     h_lepAngleRes_->SetDirectory(0);
-//     h_lepEres_->SetDirectory(0);
-//     lepangleresfile.Close();
-//     //
+    // jet and lepton resolution
+    TString data_path1 = common::DATA_PATH_COMMON();
+    data_path1.Append("/KinReco_d_angle_fE.root");
+    TFile tempTFile(data_path1);
+    h_jetAngleRes_ = (TH1F*)tempTFile.Get("KinReco_d_angle_lep_step7");
+    h_jetEres_ = (TH1F*)tempTFile.Get("KinReco_fE_jet_step7");
+    h_lepAngleRes_ = (TH1F*)tempTFile.Get("KinReco_d_angle_lep_step7");
+    h_lepEres_ = (TH1F*)tempTFile.Get("KinReco_fE_lep_step7");
+    h_lepAngleRes_->SetDirectory(0);
+    h_lepEres_->SetDirectory(0);
+    h_jetAngleRes_->SetDirectory(0);
+    h_jetEres_->SetDirectory(0);
+    tempTFile.Close();
     
-     TString data_path1 = common::DATA_PATH_COMMON();
-     //data_path1.Append("/../../diLeptonic/N006/NEW-KinReco_d_angle_fE.root");
-     //data_path1.Append("/../../diLeptonic/N007/NEW-KinReco_d_angle_fE.root");
-     //data_path1.Append("/../../diLeptonic/N007met/NEW-KinReco_d_angle_fE.root");
-     data_path1.Append("/KinReco_d_angle_fE.root");
-     TFile tempTFile(data_path1);
-     h_jetAngleRes_ = (TH1F*)tempTFile.Get("KinReco_d_angle_lep_step7");
-     h_jetEres_ = (TH1F*)tempTFile.Get("KinReco_fE_jet_step7");
-     h_lepAngleRes_ = (TH1F*)tempTFile.Get("KinReco_d_angle_lep_step7");
-     h_lepEres_ = (TH1F*)tempTFile.Get("KinReco_fE_lep_step7");
-     h_lepAngleRes_->SetDirectory(0);
-     h_lepEres_->SetDirectory(0);
-     h_jetAngleRes_->SetDirectory(0);
-     h_jetEres_->SetDirectory(0);
-     tempTFile.Close();
-     
-     
-// 
-//     //MET resolution
-    
+    //MET resolution
     ptBins_ =  {0,7,13,18,27,37,48,59,70,100,200,500,1000,1500};
-    TString data_path3 = common::DATA_PATH_COMMON();
-    data_path3.Append("/KinReco_rmshistA_dAngle_vs_Pt.root");
-    TFile metangleresfile(data_path3);
+    TString data_path2 = common::DATA_PATH_COMMON();
+    data_path2.Append("/KinReco_rmshistA_dAngle_vs_Pt.root");
+    TFile metangleresfile(data_path2);
     for(int i=0;i<13;i++)
     {
         char temp_name[100];
@@ -1000,17 +953,7 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
 
 
 
-
-
-
-
-
-
 // -------------------------------------- Methods for KinematicReconstructionScaleFactors --------------------------------------
-
-
-
-
 
 KinematicReconstructionScaleFactors::KinematicReconstructionScaleFactors(const std::vector<Channel::Channel>& channels,
                                                                          const Systematic::Systematic& systematic):

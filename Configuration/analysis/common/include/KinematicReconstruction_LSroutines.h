@@ -32,20 +32,20 @@ public:
       
   void ini(double mass_l, double mass_al,double mass_Wp, double mass_Wm);
     
-  void setConstraints(TLorentzVector LV_al, 
-                      TLorentzVector LV_l, 
-                      TLorentzVector LV_b, 
-                      TLorentzVector LV_bbar,
-                      double missPx,
-                      double missPy
+  void setConstraints(const TLorentzVector& LV_al, 
+                      const TLorentzVector& LV_l, 
+                      const TLorentzVector& LV_b, 
+                      const TLorentzVector& LV_bbar,
+                      const double& missPx,
+                      const double& missPy
                      );
   
-  void setConstraints(LV LV_al, 
-                      LV LV_l, 
-                      LV LV_b, 
-                      LV LV_bbar,
-                      double missPx,
-                      double missPy
+  void setConstraints(const LV& LV_al, 
+                      const LV& LV_l, 
+                      const LV& LV_b, 
+                      const LV& LV_bbar,
+                      const double& missPx,
+                      const double& missPy
                      );
   
   int getNsol();
@@ -53,15 +53,7 @@ public:
   void setWeightOption(int wo);
   
   struct TopSolution {
-        double TopPt;
-        double AntiTopPt;
-        double NeutrinoPx;
-        double AntiNeutrinoPx;
-        double ttPt;
-        double mTop;
-        double mAntiTop;
         //double vw;
-        double mttw;
         //double lepEw;
         //double dTS;
         //double dR;
@@ -76,7 +68,6 @@ public:
         //double cos_bbarTR_topbar;
         //double cos1;
         //double cos2;
-        double Mtt;
         //double ttpt_top;
         //double ttpt_topbar;
         double mbl;
@@ -103,16 +94,16 @@ private:
     void doAll(); 
     void topRec(double sol);
     void findCoeff(double* koeficienty);
-    void quartic_equation(double h0,double h1,double h2,double h3,double h4,std::vector<double>& v);
+    void quartic_equation(const double& h0, const double& h1, const double& h2, const double& h3, const double& h4, std::vector< double >& v);
     void cubic_equation(double a,double b,double c,double d,std::vector<double> &v);
-    void quadratic_equation(double a,double b,double c,std::vector<double> &v);
-    void linear_equation(double a,double b,std::vector<double> &v);
-    int sign(long double ld);
+    void quadratic_equation(const double& a, const double& b, const double& c, std::vector< double >& v);
+    void linear_equation(const double& a, const double& b, std::vector< double >& v);
+    int sign(const long double& ld);
     double landau2D(double x,double y);
     
   
       //Utility Methods
-    double sqr(double x);
+    double sqr(const double& x);
     void swap(double& realone, double& realtwo);
     
 //private:
