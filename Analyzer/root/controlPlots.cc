@@ -1069,9 +1069,9 @@ void TopMassControlPlots::doPlots()
         */
       }
       
-      samples.push_back(MySample("Z+Jets", "Summer12_ZJets", kBkg, kAzure-2, 1, lumi_/1000.));
-      samples.push_back(MySample("W+Jets", "Summer12_WJets", kBkg, kGreen-3, 1, lumi_/1000.));
-      samples.push_back(MySample("single top", "Summer12_singleTop", kBkg, kMagenta, 1, lumi_/1000.));
+      samples.push_back(MySample("Z+Jets", "Summer12_ZJets", kBkg, kAzure-2, 1, lumi_/1000., "", 0.2));
+      samples.push_back(MySample("W+Jets", "Summer12_WJets", kBkg, kGreen-3, 1, lumi_/1000., "", 0.2));
+      samples.push_back(MySample("single top", "Summer12_singleTop", kBkg, kMagenta, 1, lumi_/1000., "", 0.1));
       samples.push_back(MySample("QCD", "Summer12_QCD", kBkg, kYellow, 1, lumi_/1000., "", 1.));
     }
 
@@ -1431,8 +1431,78 @@ void TopMassControlPlots::doPlots()
   // NORMALIZATION
   //
   
-  if (po::GetOption<bool>("analysisConfig.normalizeToData")) {
+  bool firstHist = true;
+  for(MyHistogram& hist : hists) {
+    if (hist.name == "combinationType") {
+      std::cout << "PERMUTATION YIELD" << std::endl;
+      firstHist = true;
+    }
+
+    // Show event yields for first histogram
+    int bins = hist.Data1D()->GetNbinsX()+1;
+    double integralD = hist.Data1D()->Integral(0,bins);
+    if (firstHist){
+      std::cout << "Yields" << std::endl;
+      std::cout << "Data:       " << integralD << std::endl;
+    }
+    double integralS = 0;
+    for(TH1F* sig : hist.Sig1D()) {
+      if (firstHist) std::cout << "  " << sig->GetTitle() << ": " << sig->Integral(0,bins) << std::endl;
+      integralS += sig->Integral(0,bins);
+    }
+    if (firstHist) std::cout << "Signal:     " << integralS << std::endl;
+    double integralB = 0;
+    for(TH1F* bkg : hist.Bkg1D()) {
+      if (firstHist) std::cout << "  " << bkg->GetTitle() << ": " << bkg->Integral(0,bins) << std::endl;
+      integralB += bkg->Integral(0,bins);
+    }
+    if (firstHist){
+      std::cout << "Background: " << integralB << std::endl;
+      std::cout << "MC Total:   " << integralS+integralB << std::endl;
+      if (channelID == Helper::kAllJets) {
+	std::cout << "fSig: " << integralS/integralD << std::endl;
+      }
+      else {
+	std::cout << "fSig: " << integralS/(integralS+integralB) << std::endl;
+      }
+      firstHist = false;
+    }
     
+    // Alljets: Normalize to data
+    if (channelID == Helper::kAllJets) {
+      //double fSig = po::GetOption<double>("templates.fSig");
+      //for(TH1F* sig    : hist.Sig1D())    sig->Scale(    fSig *integralD/integralS);
+      //for(TH1F* bkg    : hist.Bkg1D())    bkg->Scale((1.-fSig)*integralD/integralB);
+      //for(TH1F* sigvar : hist.Sigvar1D()) sigvar->Scale(integralD/sigvar->Integral(0,bins));
+
+      for(TH1F* bkg    : hist.Bkg1D())    bkg->Scale((integralD-integralS)/integralB);
+    }
+    // Lepton+jets: Normalize to data
+    else {
+      if (po::GetOption<bool>("analysisConfig.normalizeToData")) {
+        for(TH1F* sig    : hist.Sig1D())    sig->Scale(integralD/(integralS+integralB));
+        for(TH1F* bkg    : hist.Bkg1D())    bkg->Scale(integralD/(integralS+integralB));
+        for(TH1F* sigvar : hist.Sigvar1D()) sigvar->Scale(integralD/sigvar->Integral(0,bins));
+      }
+      //*/
+      // Double bin error due to correlations
+      // (Many observables do not change for different neutrino solutions or b assignments)
+      if (po::GetOption<bool>("analysisConfig.plotPermutations")) {
+        for (int i = 0; i < hist.Data1D()->GetNbinsX(); ++i) {
+          hist.Data1D()->SetBinError(i, hist.Data1D()->GetBinError(i) * 2);
+        }
+        for(TH1F* sig : hist.Sig1D()) {
+          for (int i = 0; i < sig->GetNbinsX(); ++i) {
+            sig->SetBinError(i, sig->GetBinError(i) * 2);
+          }
+        }
+        for(TH1F* bkg : hist.Bkg1D()) {
+          for (int i = 0; i < bkg->GetNbinsX(); ++i) {
+            bkg->SetBinError(i, bkg->GetBinError(i) * 2);
+          }
+        }
+      }
+    }
   }
   
   //
@@ -1488,67 +1558,8 @@ void TopMassControlPlots::doPlots()
   // initialize root file for optional plot saving
   TFile* outFile = new TFile((std::string("plot/controlplots/")+channel_+".root").c_str(),"RECREATE");
 
-  bool firstHist = true;
   for(MyHistogram& hist : hists){
     if(hist.Dimension() == -1) continue;
-    
-    if (hist.name == "combinationType") {
-      std::cout << "PERMUTATION YIELD" << std::endl;
-      firstHist = true;
-    }
-
-    // Show event yields for first histogram
-    int bins = hist.Data1D()->GetNbinsX()+1;
-    double integralD = hist.Data1D()->Integral(0,bins);
-    if (firstHist){
-      std::cout << "Yields" << std::endl;
-      std::cout << "Data:       " << integralD << std::endl;
-    }
-    double integralS = 0;
-    for(TH1F* sig : hist.Sig1D()) {
-      if (firstHist) std::cout << "  " << sig->GetTitle() << ": " << sig->Integral(0,bins) << std::endl;
-      integralS += sig->Integral(0,bins);
-    }
-    if (firstHist) std::cout << "Signal:     " << integralS << std::endl;
-    double integralB = 0;
-    for(TH1F* bkg : hist.Bkg1D()) {
-      if (firstHist) std::cout << "  " << bkg->GetTitle() << ": " << bkg->Integral(0,bins) << std::endl;
-      integralB += bkg->Integral(0,bins);
-    }
-    if (firstHist){
-      std::cout << "Background: " << integralB << std::endl;
-      std::cout << "MC Total:   " << integralS+integralB << std::endl;
-      if (channelID == Helper::kAllJets) {
-	std::cout << "fSig: " << integralS/integralD << std::endl;
-      }
-      else {
-	std::cout << "fSig: " << integralS/(integralS+integralB) << std::endl;
-      }
-      firstHist = false;
-    }
-    
-    // Alljets: Normalize to data
-    if (channelID == Helper::kAllJets) {
-      //double fSig = po::GetOption<double>("templates.fSig");
-      //for(TH1F* sig    : hist.Sig1D())    sig->Scale(    fSig *integralD/integralS);
-      //for(TH1F* bkg    : hist.Bkg1D())    bkg->Scale((1.-fSig)*integralD/integralB);
-      //for(TH1F* sigvar : hist.Sigvar1D()) sigvar->Scale(integralD/sigvar->Integral(0,bins));
-
-      for(TH1F* bkg    : hist.Bkg1D())    bkg->Scale((integralD-integralS)/integralB);
-    }
-    // Lepton+jets: Normalize to data
-    else {
-      /*
-      for(TH1F* sig    : hist.Sig1D())    sig->Scale(integralD/(integralS+integralB));
-      for(TH1F* bkg    : hist.Bkg1D())    bkg->Scale(integralD/(integralS+integralB));
-      for(TH1F* sigvar : hist.Sigvar1D()) sigvar->Scale(integralD/sigvar->Integral(0,bins));
-      //*/
-      // Double bin error due to correlations
-      // (Many observables do not change for different neutrino solutions or b assignments)
-      for (int i = 0; i < hist.Data1D()->GetNbinsX(); ++i) {
-        hist.Data1D()->SetBinError(i, hist.Data1D()->GetBinError(i) * 2);
-      }
-    }
     
     // move exponent for y-axis
     //TGaxis::SetExponentOffset(-0.05, 0.01, "y");
