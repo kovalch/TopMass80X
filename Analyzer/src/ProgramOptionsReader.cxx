@@ -103,7 +103,7 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("analysisConfig.ratioYMax", boost::program_options::value<double>()->default_value(1.51))
         ("analysisConfig.plotPermutations", boost::program_options::value<bool>()->default_value(true))
         ("analysisConfig.renameCombinationTypes", boost::program_options::value<std::string>()->default_value(" correct| wrong| unmatched"))
-        ("analysisConfig.redefineCombinationTypeColorShifts", boost::program_options::value<std::string>()->default_value("0|-8|-11"))
+        ("analysisConfig.normalizeToData", boost::program_options::value<bool>()->default_value(false))
         ("templates.fSig", boost::program_options::value<double>()->default_value(0.0))
         ("templates.fCP", boost::program_options::value<double>()->default_value(0.0))
         ("templates.fWP", boost::program_options::value<double>()->default_value(0.0))

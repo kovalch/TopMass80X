@@ -26,13 +26,14 @@ private:
 
   class MySample{
   public:
-    MySample(std::string name_, std::string file_, int type_, int color_, int line_ = 1, double scale_ = 1., std::string replaceVar_="") :
-      name(name_), file(file_), type(type_), color(color_), line(line_), scale(scale_),replaceVar(replaceVar_) {}
+    MySample(std::string name_, std::string file_, int type_, int color_, int line_ = 1, double scale_ = 1., std::string replaceVar_="", double scaleunc_ = 0.) :
+      name(name_), file(file_), type(type_), color(color_), line(line_), scale(scale_),replaceVar(replaceVar_), scaleunc(scaleunc_) {}
     
     std::string name, file;
     int type, color, line;
     double scale;
     std::string replaceVar;
+    double scaleunc;
   };
 
   class MyHistogram{
@@ -44,12 +45,13 @@ private:
       plotRangeYMin(-99), plotRangeYMax(-99), plotRangeYRatioMin(po::GetOption<double>("analysisConfig.ratioYMin")),
       plotRangeYRatioMax(po::GetOption<double>("analysisConfig.ratioYMax")),
       data(new TH1F((std::string("hD")+name).c_str(), (std::string("Data")+title).c_str(), nBins, min, max)),
+      unc(new TH1F((std::string("hD")+name).c_str(), (std::string("Unc")+title).c_str(), nBins, min, max)),
       histogramDimension(1), dataContainsMC(false), fitGaussToCore(false), 
       exportSigVarToRoot(false), logX(false), logY(false),
       plotStackNorm(false)
     {
-
       SetDataStyle(data);
+      SetUncStyle(unc);
     }
 
     MyHistogram(std::string name_, std::vector<std::string> formulaex_, std::string selection_, std::string title, int nBins, double min, double max) :
@@ -59,11 +61,13 @@ private:
       plotRangeYMin(-99), plotRangeYMax(-99), plotRangeYRatioMin(po::GetOption<double>("analysisConfig.ratioYMin")),
       plotRangeYRatioMax(po::GetOption<double>("analysisConfig.ratioYMax")),
       data(new TH1F((std::string("hD")+name).c_str(), (std::string("Data")+title).c_str(), nBins, min, max)),
+      unc(new TH1F((std::string("hD")+name).c_str(), (std::string("Unc")+title).c_str(), nBins, min, max)),
       histogramDimension(1), dataContainsMC(false), fitGaussToCore(false), 
       exportSigVarToRoot(false), logX(false), logY(false),
       plotStackNorm(false)
    {
       SetDataStyle(data);
+      SetUncStyle(unc);
     }
 
     MyHistogram(std::string name_, std::string formulax_, std::string formulay_, std::string selection_, std::string title, int x_nBins, double x_min, double x_max, int y_nBins, double y_min, double y_max/*, double y_plotmin =0., double y_plotmax=-1.*/) :
@@ -100,6 +104,15 @@ private:
       data->SetLineColor(kBlack);
       data->SetMarkerStyle(20);
       data->SetMarkerColor(kBlack);
+    }
+    
+    void SetUncStyle(TH1* unc){
+      unc->SetLineWidth(0);
+      unc->SetLineColor(kBlack);
+      unc->SetMarkerStyle(0);
+      unc->SetMarkerColor(kBlack);
+      unc->SetFillColor(kBlack);
+      unc->SetFillStyle(3254);
     }
 
     void Init(TChain* chain, std::string topBranchName, std::string replaceVar)
@@ -160,8 +173,8 @@ private:
       std::vector<double> redefineColorShifts = helpertemp->readParameters("analysisConfig.redefineCombinationTypeColorShifts");
       
       if(redefineColorShifts.size()!=reuseCombinationTypes.size() || reuseCombinationTypes.size()>3){
-	std::cout << "Size of analysisConfig.renameCombinationTypes and analysisConfig.redefineCombinationTypeColorShifts configurations do not match or are larger than 3 (currently just reusing correct/wrong/unmatched slots); Check config... exiting!" << std::endl;
-	std::_Exit(99);
+        std::cout << "Size of analysisConfig.renameCombinationTypes and analysisConfig.redefineCombinationTypeColorShifts configurations do not match or are larger than 3 (currently just reusing correct/wrong/unmatched slots); Check config... exiting!" << std::endl;
+        std::_Exit(99);
       }
       
       //      int colorShift[] =  {0, -8, -11};
@@ -196,6 +209,17 @@ private:
       sigvar.back()->SetName(HelperFunctions::cleanedName(data->GetName()+sample->name).c_str());
       sigvar.back()->SetTitle(sample->name.c_str());
     }
+    void AddNormVariation(MySample* sample, std::string normUnc)
+    {
+      sigvar.push_back((TH1*)data->Clone());
+      sigvar.back()->Reset();
+      sigvar.back()->SetLineWidth(2);
+      sigvar.back()->SetLineColor(sample->color);
+      sigvar.back()->SetLineStyle(sample->line);
+      sigvar.back()->SetFillStyle(0);
+      sigvar.back()->SetName(HelperFunctions::cleanedName(data->GetName()+sample->name+normUnc).c_str());
+      sigvar.back()->SetTitle(std::string(sample->name+std::string(" ")+normUnc).c_str());
+    }
     
     std::vector<TH1F*> Sigvar1D(){
       std::vector<TH1F*> sigvar1D;
@@ -224,6 +248,10 @@ private:
 
     void setData1D(TH1F* newData){
       data = newData;
+    }
+    
+    TH1F* Unc1D(){
+      return (TH1F*) unc;
     }
 
     std::vector<TH2F*> Sigvar2D(){
@@ -304,8 +332,9 @@ private:
     std::string legendHeader;
     double plotRangeYMin, plotRangeYMax, plotRangeYRatioMin, plotRangeYRatioMax;
   private:
-    TH1 *data;
-    std::vector<TH1*> sig, bkg, sigvar;
+    TH1* data;
+    TH1* unc;
+    std::vector<TH1*> sig, bkg, sigvar, normvar;
     short histogramDimension;
     bool dataContainsMC;
     bool fitGaussToCore;

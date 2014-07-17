@@ -1063,14 +1063,16 @@ void TopMassControlPlots::doPlots()
       
       if(plotSelectedForPlotting.find("JESUncVariationPlots")!=plotSelectedForPlotting.end()){
         samples.push_back(MySample("t#bar{t}, JES down", "Summer12_TTJetsMS1725_source:down_Total", kSigVar, kRed+1, 1, lumi_/1000.));
+        /*
         samples.push_back(MySample("t#bar{t}, JES default", "Summer12_TTJetsMS1725_nob", kSigVar, kBlue+1, 1, lumi_/1000.));
         samples.push_back(MySample("t#bar{t}, JES up", "Summer12_TTJetsMS1725_source:up_Total", kSigVar, kGreen+1, 1, lumi_/1000.));
+        */
       }
       
       samples.push_back(MySample("Z+Jets", "Summer12_ZJets", kBkg, kAzure-2, 1, lumi_/1000.));
       samples.push_back(MySample("W+Jets", "Summer12_WJets", kBkg, kGreen-3, 1, lumi_/1000.));
       samples.push_back(MySample("single top", "Summer12_singleTop", kBkg, kMagenta, 1, lumi_/1000.));
-      samples.push_back(MySample("QCD", "Summer12_QCD", kBkg, kYellow, 1, lumi_/1000.));
+      samples.push_back(MySample("QCD", "Summer12_QCD", kBkg, kYellow, 1, lumi_/1000., "", 1.));
     }
 
     if(plotSelectedForPlotting.find("BasicTestsNoData")!=plotSelectedForPlotting.end()){
@@ -1232,7 +1234,7 @@ void TopMassControlPlots::doPlots()
         //if(sample.type == kBkg)
         //  nFiles = chain->Add((sample.file+std::string(".root")).c_str());
         //else
-	nFiles = chain->Add((path_+sample.file+std::string(".root")).c_str());
+        nFiles = chain->Add((path_+sample.file+std::string(".root")).c_str());
       }
       else if(plotSelectedForPlotting.find("GBRTesting")!=plotSelectedForPlotting.end()){
     	  chain = new TChain("hmvacor");
@@ -1360,10 +1362,12 @@ void TopMassControlPlots::doPlots()
             }
             // Fill background
             else if(sample.type == kBkg  && hist.Dimension() == 1) {
-              for(auto& var : hist.varx) hist.Bkg1D()[bkgCounter]->Fill(var->EvalInstance(j), weight.EvalInstance(j)*hist.histoweight->EvalInstance(j)*sample.scale);
-              // Add background also to histogram for signal variation
-              // TODO: Background normalization in signal variations not correct for AllJets
-              for(TH1F* sigvar : hist.Sigvar1D()) for(auto& var : hist.varx) sigvar->Fill(var->EvalInstance(j), weight.EvalInstance(j)*hist.histoweight->EvalInstance(j)*sample.scale);
+              for(auto& var : hist.varx) {
+                hist.Bkg1D()[bkgCounter]->Fill(var->EvalInstance(j), weight.EvalInstance(j)*hist.histoweight->EvalInstance(j)*sample.scale);
+                // Add background also to histogram for signal variation
+                // TODO: Background normalization in signal variations not correct for AllJets
+                //for(TH1F* sigvar : hist.Sigvar1D()) sigvar->Fill(var->EvalInstance(j), weight.EvalInstance(j)*hist.histoweight->EvalInstance(j)*sample.scale);
+              }
             }
             else if(sample.type == kBkg  && hist.Dimension() == 2) {
               for(auto& var : hist.varx) for(auto& var2 : hist.vary) hist.Bkg2D()[bkgCounter]->Fill(var->EvalInstance(j), var2->EvalInstance(j), weight.EvalInstance(j)*hist.histoweight->EvalInstance(j)*sample.scale);
@@ -1385,6 +1389,93 @@ void TopMassControlPlots::doPlots()
   }
   
   std::cout << "ended filling histograms" << std::endl;
+  
+  // TODO
+  // ADD BACKGROUND TO VARIATIONS
+  //
+  
+  
+  for(MyHistogram& hist : hists) {
+    for(TH1F* sigvar : hist.Sigvar1D()) {
+      for(TH1F* bkg : hist.Bkg1D()) {
+        sigvar->Add(bkg);
+      }
+    }
+    
+
+    // Loop over all samples to add background norm variations
+    int bkgCounter = -1;
+    for(MySample& sample : samples){
+      if(sample.type == kBkg) ++bkgCounter;
+      if(sample.scaleunc == 0) continue;
+      
+      hist.AddNormVariation(&sample, "up");
+      for(TH1F* sig : hist.Sig1D()) hist.Sigvar1D().back()->Add(sig);
+      for(TH1F* bkg : hist.Bkg1D()) hist.Sigvar1D().back()->Add(bkg);
+      
+      if(sample.type == kBkg) {
+        hist.Sigvar1D().back()->Add(hist.Bkg1D()[bkgCounter], sample.scaleunc);
+      }
+      
+      hist.AddNormVariation(&sample, "down");
+      for(TH1F* sig : hist.Sig1D()) hist.Sigvar1D().back()->Add(sig);
+      for(TH1F* bkg : hist.Bkg1D()) hist.Sigvar1D().back()->Add(bkg);
+      
+      if(sample.type == kBkg) {
+        hist.Sigvar1D().back()->Add(hist.Bkg1D()[bkgCounter], -sample.scaleunc);
+      }
+    }
+  }
+  
+  // TODO
+  // NORMALIZATION
+  //
+  
+  if (po::GetOption<bool>("analysisConfig.normalizeToData")) {
+    
+  }
+  
+  //
+  // CACLCULATE UNCERTAINTIES
+  //
+  
+  for(MyHistogram& hist : hists) {
+    if(hist.Dimension() != 1) continue;
+    
+    // Add all stacked histos to uncertainty histogram, reset their uncertainty
+    for(TH1F* sig : hist.Sig1D()) {
+      hist.Unc1D()->Add(sig);
+      for(int i = 0; i < sig->GetNbinsX(); ++i) sig->SetBinError(i, 0);
+    }
+    for(TH1F* bkg : hist.Bkg1D()) {
+      hist.Unc1D()->Add(bkg);
+      for(int i = 0; i < bkg->GetNbinsX(); ++i) bkg->SetBinError(i, 0);
+    }
+    
+    // Init uncertainty vectors
+    std::vector<double> up, down;
+    for(int i = 0; i < hist.Unc1D()->GetNbinsX(); ++i) {
+      up.push_back(0); down.push_back(0);
+    }
+    
+    // Fill uncertainty vectors
+    for(TH1F* sigvar : hist.Sigvar1D()) {
+      for(int i = 0; i < hist.Unc1D()->GetNbinsX(); ++i) {
+        if (sigvar->GetBinContent(i) > hist.Unc1D()->GetBinContent(i)) {
+          up[i] = sqrt(pow(up[i], 2) + pow(sigvar->GetBinContent(i) - hist.Unc1D()->GetBinContent(i), 2));
+        }
+        else {
+          down[i] = sqrt(pow(down[i], 2) + pow(sigvar->GetBinContent(i) - hist.Unc1D()->GetBinContent(i), 2));
+        }
+      }
+    }
+    
+    // Set bin center and error for uncertainty band
+    for(int i = 0; i < hist.Unc1D()->GetNbinsX(); ++i) {
+      hist.Unc1D()->SetBinContent(i, hist.Unc1D()->GetBinContent(i) + (up[i]-down[i])/2.);
+      hist.Unc1D()->SetBinError(i, sqrt(pow(hist.Unc1D()->GetBinError(i), 2) + pow((up[i]+down[i])/2., 2)));
+    }
+  }
 
   //
   // DRAW CONTROL PLOTS
@@ -1451,7 +1542,7 @@ void TopMassControlPlots::doPlots()
       for(TH1F* sig    : hist.Sig1D())    sig->Scale(integralD/(integralS+integralB));
       for(TH1F* bkg    : hist.Bkg1D())    bkg->Scale(integralD/(integralS+integralB));
       for(TH1F* sigvar : hist.Sigvar1D()) sigvar->Scale(integralD/sigvar->Integral(0,bins));
-      */
+      //*/
       // Double bin error due to correlations
       // (Many observables do not change for different neutrino solutions or b assignments)
       for (int i = 0; i < hist.Data1D()->GetNbinsX(); ++i) {
@@ -1637,12 +1728,12 @@ void TopMassControlPlots::doPlots()
 
         std::vector<TH1*> collectRatios;
         for(TH1* sigvar : collectAll2DProfiles){
-	  collectRatios.push_back(HelperFunctions::createRatioPlot(sigvar, data2DProfile, (std::string)"MC/"+hist.Data2D()->GetTitle()));
-	  collectRatios.back()->UseCurrentStyle();
-	  //std::cout << collectRatios.back()->GetName() << std::endl;
-	  collectRatios.back()->SetMarkerColor(sigvar->GetLineColor());
-	  collectRatios.back()->SetLineColor(sigvar->GetLineColor());
-	  collectRatios.back()->SetLineStyle(sigvar->GetLineStyle());
+          collectRatios.push_back(HelperFunctions::createRatioPlot(sigvar, data2DProfile, (std::string)"MC/"+hist.Data2D()->GetTitle()));
+          collectRatios.back()->UseCurrentStyle();
+          //std::cout << collectRatios.back()->GetName() << std::endl;
+          collectRatios.back()->SetMarkerColor(sigvar->GetLineColor());
+          collectRatios.back()->SetLineColor(sigvar->GetLineColor());
+          collectRatios.back()->SetLineStyle(sigvar->GetLineStyle());
         }
         pad2->cd();
         pad2->Draw();
@@ -1768,6 +1859,7 @@ void TopMassControlPlots::doPlots()
 
       //draw together with ratio underneath
       TH1* ratioToTHStack = HelperFunctions::createRatioPlot((TH1*)hist.Data1D(), ((TH1*)(stack->GetStack()->Last())), hist.Data1D()->GetTitle()+(std::string)"/MC");
+      TH1* ratioUncTHStack = HelperFunctions::createRatioPlot((TH1*)hist.Unc1D(), ((TH1*)(stack->GetStack()->Last())), hist.Unc1D()->GetTitle()+(std::string)"/MC");
       TCanvas* canvWRatio = new TCanvas("cControlPlotsWRatio", "cControlPlotsWRatio", 600, 600);
       canvWRatio->Range(0,0,1,1);
       canvWRatio->cd();
@@ -1790,6 +1882,8 @@ void TopMassControlPlots::doPlots()
       ratioToTHStack->GetYaxis()->SetTickLength(gStyle->GetTickLength("Y")/0.2);
       ratioToTHStack->GetYaxis()->SetNdivisions(205);
       ratioToTHStack->GetYaxis()->CenterTitle();
+      
+      ratioUncTHStack->Draw("e2 same");
 
       canvWRatio->cd();
 
@@ -1815,6 +1909,7 @@ void TopMassControlPlots::doPlots()
       //hist.Data1D()->GetXaxis()->SetLabelSize(gStyle->GetLabelSize("X"));
       hist.Data1D()->GetYaxis()->SetLabelSize(gStyle->GetLabelSize("Y"));
       stack->Draw("hist same");
+      hist.Unc1D()->Draw("e2 same");
       hist.DataContainsMC()==false ? hist.Data1D()->Draw("p same") : hist.Data1D()->Draw("hist same");
       //leg0->SetY1NDC(0.675);
       leg0->Draw();
@@ -1836,22 +1931,22 @@ void TopMassControlPlots::doPlots()
 
       // Draw signal variation plot only if there are signal variations
       if(hist.Sigvar1D().size()){
-    	std::cout << "plotting sigvar" << std::endl;
+        std::cout << "plotting sigvar" << std::endl;
         TH1F* hist1DData = hist.Data1D();
-	std::vector<TH1F*> hist1DSigVars;
-	std::vector<double> fSigVars;
+        std::vector<TH1F*> hist1DSigVars;
+        std::vector<double> fSigVars;
 
-	double sigIntegral = 0;
-	for(TH1F* sig : hist.Sig1D()){
-	  sigIntegral += sig->Integral(0,sig->GetNbinsX()+1);
-	}
-	double fSig = sigIntegral/hist1DData->Integral(0,hist1DData->GetNbinsX()+1);
+        double sigIntegral = 0;
+        for(TH1F* sig : hist.Sig1D()){
+          sigIntegral += sig->Integral(0,sig->GetNbinsX()+1);
+        }
+        double fSig = sigIntegral/hist1DData->Integral(0,hist1DData->GetNbinsX()+1);
 
-	double maxForPlot = hist1DData->GetMaximum();
-        for(TH1F* sigvar : hist.Sigvar1D()){
-	  if(sigvar->GetMaximum() > maxForPlot) maxForPlot = sigvar->GetMaximum();
-	  hist1DSigVars.push_back((TH1F*)sigvar->Clone(sigvar->GetName()));
-	}
+        double maxForPlot = hist1DData->GetMaximum();
+          for(TH1F* sigvar : hist.Sigvar1D()){
+            if(sigvar->GetMaximum() > maxForPlot) maxForPlot = sigvar->GetMaximum();
+            hist1DSigVars.push_back((TH1F*)sigvar->Clone(sigvar->GetName()));
+        }
 
         //if(channelID == Helper::kAllJets){
         //  hist1DData = (TH1F*)hist.Data1D()->Clone(hist.Data1D()->GetName());
@@ -1862,14 +1957,14 @@ void TopMassControlPlots::doPlots()
         //}
 
         if(channelID == Helper::kAllJets){
-	  for(TH1F* sigvar : hist1DSigVars){
-	    double varIntegral = sigvar->Integral(0,sigvar->GetNbinsX()+1);
-	    double fSigVar = varIntegral/sigIntegral;
-	    fSigVars.push_back(fSigVar);
-	    sigvar->Add(hist.Bkg1D().at(0),(hist1DData->Integral(0,hist1DData->GetNbinsX()+1)-varIntegral)/hist.Bkg1D().at(0)->Integral(0,hist.Bkg1D().at(0)->GetNbinsX()+1));
-	    //std::cout << "data: "<< hist1DData->Integral(0,hist1DData->GetNbinsX()+1) << ", sigvar: " << varIntegral << ", bkg: " << hist.Bkg1D().at(0)->Integral(0,hist.Bkg1D().at(0)->GetNbinsX()+1) << ", fsig: " << fSig << ", fsigvar: " << fSigVar << ", sigInt: " << sigIntegral << ", after: " << sigvar->Integral(0,sigvar->GetNbinsX()+1) << std::endl;
-	  }
-	}
+          for(TH1F* sigvar : hist1DSigVars){
+            double varIntegral = sigvar->Integral(0,sigvar->GetNbinsX()+1);
+            double fSigVar = varIntegral/sigIntegral;
+            fSigVars.push_back(fSigVar);
+            sigvar->Add(hist.Bkg1D().at(0),(hist1DData->Integral(0,hist1DData->GetNbinsX()+1)-varIntegral)/hist.Bkg1D().at(0)->Integral(0,hist.Bkg1D().at(0)->GetNbinsX()+1));
+            //std::cout << "data: "<< hist1DData->Integral(0,hist1DData->GetNbinsX()+1) << ", sigvar: " << varIntegral << ", bkg: " << hist.Bkg1D().at(0)->Integral(0,hist.Bkg1D().at(0)->GetNbinsX()+1) << ", fsig: " << fSig << ", fsigvar: " << fSigVar << ", sigInt: " << sigIntegral << ", after: " << sigvar->Integral(0,sigvar->GetNbinsX()+1) << std::endl;
+          }
+        }
 
         canv->cd();
         canv->Clear();
@@ -1888,27 +1983,27 @@ void TopMassControlPlots::doPlots()
 
         for(TH1F* sigvar : hist1DSigVars) sigvar->DrawClone("hist same");
         for(TH1F* sigvar : hist1DSigVars){
-	  sigvar->SetMarkerSize(0);
-	  sigvar->SetFillColor(sigvar->GetLineColor());
-	  sigvar->SetFillStyle(3254);
-	  sigvar->DrawClone("e2 same");
-	  sigvar->SetFillStyle(0);
+          sigvar->SetMarkerSize(0);
+          sigvar->SetFillColor(sigvar->GetLineColor());
+          sigvar->SetFillStyle(3254);
+          sigvar->DrawClone("e2 same");
+          sigvar->SetFillStyle(0);
         }
         hist.DataContainsMC()==false ? hist1DData->Draw("p same") : hist1DData->Draw("hist same");
 
         leg1->Clear();
-        if(hist.legendHeader!="")leg1->SetHeader(hist.legendHeader.c_str()); 
-	leg1->SetY1NDC(0.7);
-	leg1->SetX1NDC(0.25);
-	leg1->SetX2NDC(0.9);
-	leg1->SetMargin(0.125);
-	//leg1->SetX1NDC(0.63);
-	//leg1->SetX2NDC(0.9);
-	//leg1->SetMargin(0.3);
-	gPad->Update();
-	gPad->Modified();
+        if(hist.legendHeader!="") leg1->SetHeader(hist.legendHeader.c_str()); 
+        leg1->SetY1NDC(0.7);
+        leg1->SetX1NDC(0.25);
+        leg1->SetX2NDC(0.9);
+        leg1->SetMargin(0.125);
+        //leg1->SetX1NDC(0.63);
+        //leg1->SetX2NDC(0.9);
+        //leg1->SetMargin(0.3);
+        gPad->Update();
+        gPad->Modified();
 
-	if(hist.FitGaussToCore()){
+        if(hist.FitGaussToCore()){
           TF1* gauss;
           double width, widthErr, rms, rmsErr;
           char buffer [50];
@@ -1930,24 +2025,24 @@ void TopMassControlPlots::doPlots()
 
         }
         else {
-	  if(channelID == Helper::kAllJets) {
-	    for(unsigned int i = 0; i < hist1DSigVars.size(); ++i) {
-	      char temp[99];
-	      sprintf (temp, "%s + Bkg, f_{sig} = %4.1f%%", hist1DSigVars[i]->GetTitle(), 100.*fSig*fSigVars.at(i));
-	      //sprintf (temp, "%s", hist1DSigVars[i]->GetTitle());
-	      leg1->AddEntry( hist1DSigVars[i], temp, "L" );
-	    }
-	  }
-	  else for(TH1F* sigvar : hist1DSigVars) leg1->AddEntry( sigvar, sigvar->GetTitle(), "L" );
-          hist.DataContainsMC()==false ? leg1->AddEntry( hist1DData, hist1DData->GetTitle(), "P" ) : leg1->AddEntry( hist1DData, hist1DData->GetTitle(), "L" );
+          if(channelID == Helper::kAllJets) {
+            for(unsigned int i = 0; i < hist1DSigVars.size(); ++i) {
+              char temp[99];
+              sprintf (temp, "%s + Bkg, f_{sig} = %4.1f%%", hist1DSigVars[i]->GetTitle(), 100.*fSig*fSigVars.at(i));
+              //sprintf (temp, "%s", hist1DSigVars[i]->GetTitle());
+              leg1->AddEntry( hist1DSigVars[i], temp, "L" );
+            }
+          }
+          else for(TH1F* sigvar : hist1DSigVars) leg1->AddEntry( sigvar, sigvar->GetTitle(), "L" );
+                hist.DataContainsMC()==false ? leg1->AddEntry( hist1DData, hist1DData->GetTitle(), "P" ) : leg1->AddEntry( hist1DData, hist1DData->GetTitle(), "L" );
         }
-	outFile->WriteTObject(hist1DData);
-	for(TH1F* sigvar : hist1DSigVars) outFile->WriteTObject(sigvar);
+        outFile->WriteTObject(hist1DData);
+        for(TH1F* sigvar : hist1DSigVars) outFile->WriteTObject(sigvar);
         leg1->Draw();
 
         helper->DrawCMS();
 
-	hist1DData->Draw("axissame");
+        hist1DData->Draw("axissame");
 
         canv->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+outPath_+std::string("_")+std::string(hist1DData->GetName())+std::string("_sigvar.eps")).c_str(),"eps");
         canv->Print((std::string("plot/controlplots/")+channel_+outPath_+std::string("/")+channel_+outPath_+std::string("_")+std::string(hist1DData->GetName())+std::string("_sigvar.png")).c_str(),"png");
