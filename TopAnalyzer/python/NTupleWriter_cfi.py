@@ -10,6 +10,7 @@ writeNTuple = cms.EDAnalyzer('NTupleWriter',
     isTtbarSample = cms.bool(True),
     isHiggsSample = cms.bool(False),
     isZSample = cms.bool(False),
+    isMadgraphSample = cms.bool(False),
     
     # Bools for inclusion/exclusion of specific info
     includeTrigger = cms.bool(False),
@@ -70,5 +71,6 @@ writeNTuple = cms.EDAnalyzer('NTupleWriter',
     ttbarDecayMode = cms.InputTag("generatorTopFilter", "decayMode"),
     higgsDecayMode = cms.InputTag("generatorHiggsFilter", "higgsDecayMode"),
     zDecayMode = cms.InputTag('ZDecayProducer', 'zDecayMode'),
+    madgraphWDecay = cms.InputTag("MadgraphWDecayProducer", "madgraphWDecay"),
 )
 

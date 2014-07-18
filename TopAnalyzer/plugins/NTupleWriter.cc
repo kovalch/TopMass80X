@@ -114,6 +114,7 @@ private:
     const bool isTtbarSample_;
     const bool isHiggsSample_;
     const bool isZSample_;
+    const bool isMadgraphSample_;
     const bool includeTrigger_;
     const bool includePdfWeights_;
     const bool includeZDecay_;
@@ -176,6 +177,7 @@ private:
     const edm::InputTag ttbarDecayModeTag_;
     const edm::InputTag higgsDecayModeTag_;
     const edm::InputTag zDecayModeTag_;
+    const edm::InputTag madgraphWDecayTag_;
     
     
     
@@ -332,6 +334,9 @@ private:
     std::vector<int> v_genCHadLeptonIndex_;
     std::vector<int> v_genCHadLeptonViaTau_;
     
+    // ... for W decays of MadGraph samples
+    std::vector<int> v_madgraphWDecay_;
+    
     
     
     // Helper variables
@@ -365,6 +370,7 @@ isMC_(iConfig.getParameter<bool>("isMC")),
 isTtbarSample_(iConfig.getParameter<bool>("isTtbarSample")),
 isHiggsSample_(iConfig.getParameter<bool>("isHiggsSample")),
 isZSample_(iConfig.getParameter<bool>("isZSample")),
+isMadgraphSample_(iConfig.getParameter<bool>("isMadgraphSample")),
 includeTrigger_(iConfig.getParameter<bool>("includeTrigger")),
 includePdfWeights_ (iConfig.getParameter<bool>("includePdfWeights")),
 includeZDecay_(iConfig.getParameter<bool>("includeZDecay")),
@@ -421,6 +427,7 @@ genCHadBHadronIdTag_(iConfig.getParameter<edm::InputTag>("genCHadBHadronId")),
 ttbarDecayModeTag_(iConfig.getParameter<edm::InputTag>("ttbarDecayMode")),
 higgsDecayModeTag_(iConfig.getParameter<edm::InputTag>("higgsDecayMode")),
 zDecayModeTag_(iConfig.getParameter<edm::InputTag>("zDecayMode")),
+madgraphWDecayTag_(iConfig.getParameter<edm::InputTag>("madgraphWDecay")),
 
 nullP4_(0., 0., 0., 0.)
 {
@@ -717,6 +724,13 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         else{
             std::cerr<<"\nError: no GenZDecayProperties ?!\n\n";
         }
+    }
+    
+    // W decay modes for MadGraph samples
+    if(isMadgraphSample_){
+        edm::Handle<std::vector<int> > madgraphWDecays;
+        iEvent.getByLabel(madgraphWDecayTag_, madgraphWDecays);
+        v_madgraphWDecay_ = *(madgraphWDecays.product());
     }
     
     // Improved quark-to-genJet association scheme
@@ -1474,6 +1488,10 @@ NTupleWriter::beginJob()
         ntuple_->Branch("GenZDecayMode", &v_genZDecayMode_);
     }
     
+    // MadGraph W decay modes
+    if(isMadgraphSample_)
+        ntuple_->Branch("madgraphWDecay", &v_madgraphWDecay_);
+    
     // Full parton-to-genJet matching of b/c quarks
     if(isTtbarSample_){
         ntuple_->Branch("genExtraTopJetNumberId", &genExtraTopJetNumberId_);
@@ -1635,6 +1653,9 @@ void NTupleWriter::clearVariables()
     v_genZStableLepton_.clear();
     v_genZStableAntiLepton_.clear();
     v_genZDecayMode_.clear();
+    
+    // MadGraph W decay modes
+    v_madgraphWDecay_.clear();
     
     // Full parton-to-genJet matching of b/c quarks
     genExtraTopJetNumberId_ = -1;

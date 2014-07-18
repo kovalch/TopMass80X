@@ -763,6 +763,19 @@ else:
 
 
 ####################################################################
+## W decay modes for MadGraph samples, in order to correct branching ratios
+
+madgraphSample = False
+if options.inputScript.find("_madgraph_") == -1:
+    process.madgraphWDecaySequence = cms.Sequence()
+else:
+    madgraphSample = True
+    process.load("TopAnalysis.TopUtils.MadgraphWDecayProducer_cfi")
+    process.madgraphWDecaySequence = cms.Sequence(process.MadgraphWDecayProducer)
+
+
+
+####################################################################
 ## Include PDF weights for systematic signal samples
 
 if options.includePDFWeights:
@@ -801,6 +814,7 @@ writeNTuple.isMC = options.runOnMC
 writeNTuple.isTtbarSample = topSignal
 writeNTuple.isHiggsSample = higgsSignal
 writeNTuple.isZSample = zGenInfo
+writeNTuple.isMadgraphSample = madgraphSample
 
 writeNTuple.includeTrigger = False
 writeNTuple.includePdfWeights = options.includePDFWeights
@@ -874,6 +888,7 @@ path = cms.Path(
     process.preselectionSequence *
     process.jetProperties *
     process.zsequence *
+    process.madgraphWDecaySequence *
     process.ntupleInRecoSeq
 )
 
@@ -890,6 +905,7 @@ pathNtuple = cms.Path(
     process.finalCollectionsSequence *
     process.jetProperties *
     process.zsequence *
+    process.madgraphWDecaySequence *
     process.writeNTuple
     )
 
