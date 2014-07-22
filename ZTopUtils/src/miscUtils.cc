@@ -10,9 +10,69 @@ double logPoisson(const double & k, const double& lambda){
 double poisson(const double & k, const double& lambda){
     return exp(logPoisson(k,lambda));
 }
-double mcLnPoisson(const float & centreN, const float & mcstat2, const float& evalpoint){
-    double mcnorm=mcstat2/centreN;
-    return logPoisson(evalpoint+mcnorm*centreN, centreN+mcnorm*centreN);
+double shiftedLnPoisson(const float & centre, const float & stat2, const float& evalpoint){
+    // if(centre<1) return -9999999999999;
+    double out=0;
+    double shift=stat2/centre;
+
+    out=logPoisson(evalpoint*shift, stat2);
+    //keep integral
+    out+=log(shift);
+    return out;
+}
+
+//uses gaussian approx starting at 200 for mc and data: TBI
+double shiftedLnPoissonMCStat(const float & centre, const float & stat2, const float & mcstat2, const float& evalpoint){
+
+    //convolute two shifted poissons
+    //conv: shiftedLnPoisson(centre, stat2, evalpoint) otimes shiftedLnPoisson(centre, mcstat2, evalpoint)
+
+    // adjusted formula  from caldwell, etc arxiv 1112.2593
+    // P = a / b * c / d
+    //logP = parta - partb + partc - partd
+
+    double shift=stat2/centre;
+    double mcshift=mcstat2/centre;
+
+    const double log4=1.386294361119891;
+
+    double out=0;
+    if(mcstat2< 200 || stat2<200){
+
+        double s=mcshift /shift;
+        double n=mcstat2 ;
+        double o=evalpoint* shift;
+
+        double parta=0,partb=0,partc=0,partd=0;
+
+        if(s-1 < 0.01 ){
+            parta=0;
+        }
+        else{
+            parta=(n+0.5)*log(s);
+        }
+
+
+        if(o==0){
+            out= (n+0.5) * log(s/(s+1));
+        }
+        else{
+            partb=(o+n+0.5) * log(1+s);
+            partc=lgamma(n+1.) + lgamma(2*(o+n) +1);
+            partd = o*log4 + lgamma(o+1) + lgamma(2*n +1)+ lgamma(n+o+1);
+
+            out=parta - partb + partc - partd;
+
+        }
+        out+=log(shift);
+    }
+    else{ //both gaussian
+        out=(log(1/sqrt(2*(3.14159265358979323846)*(stat2/(shift*shift)+mcstat2/(mcshift*mcshift))))
+                + (-((long double)(evalpoint-centre))*((long double)(evalpoint-centre))/((long double)(2*(stat2/(shift*shift)+mcstat2/(mcshift*mcshift))))));
+    }
+    //out=logPoisson(evalpoint*shift,stat2);
+    //out+=log(shift);
+    return out;
 }
 
 float getTtbarXsec(float topmass, float energy, float* scaleerr, float * pdferr){
@@ -107,7 +167,7 @@ TH2D divideTH2DBinomial(TH2D &h1, TH2D &h2) { //! out = h1 / h2
             double err = 1;
             if (h2.GetBinContent(binx, biny) != 0) {
                 cont = h1.GetBinContent(binx, biny)
-                                                        / h2.GetBinContent(binx, biny);
+                                                                                                                        / h2.GetBinContent(binx, biny);
                 err = sqrt(cont * (1 - cont) / h1.GetBinContent(binx, biny));
             }
             out.SetBinContent(binx, biny, cont);
@@ -131,7 +191,7 @@ TH2D divideTH2D(TH2D &h1, TH2D &h2) {
             double err = 1;
             if (h2.GetBinContent(binx, biny) != 0) {
                 cont = h1.GetBinContent(binx, biny)
-                                                        / h2.GetBinContent(binx, biny);
+                                                                                                                        / h2.GetBinContent(binx, biny);
                 err = sqrt(
                         pow(
                                 h1.GetBinError(binx, biny)

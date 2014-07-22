@@ -52,7 +52,15 @@ double logPoisson(const double & k, const double& lambda);
  */
 double poisson(const double & k, const double& lambda);
 
-double mcLnPoisson(const float & centreN, const float & mcstat2, const float& evalpoint);
+/**
+ * returns poisson(evalpoint) with maximum at centre value, but shape according to stat2
+ */
+double shiftedLnPoisson(const float & centreN, const float & stat2, const float& evalpoint);
+/**
+ * includes statistics of prediction when comparing a data point to prediction
+ */
+double shiftedLnPoissonMCStat(const float & centre, const float & stat2, const float & mcstat2, const float& evalpoint);
+
 
 /**
  * following numbers and mass dependence provided in NNLO paper arXiv:1303.6254
