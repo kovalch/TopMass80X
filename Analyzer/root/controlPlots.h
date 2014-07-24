@@ -45,7 +45,7 @@ private:
       plotRangeYMin(-99), plotRangeYMax(-99), plotRangeYRatioMin(po::GetOption<double>("analysisConfig.ratioYMin")),
       plotRangeYRatioMax(po::GetOption<double>("analysisConfig.ratioYMax")),
       data(new TH1F((std::string("hD")+name).c_str(), (std::string("Data")+title).c_str(), nBins, min, max)),
-      unc(new TH1F((std::string("hD")+name).c_str(), (std::string("Unc")+title).c_str(), nBins, min, max)),
+      unc(new TH1F((std::string("hUnc")+name).c_str(), (std::string("Unc")+title).c_str(), nBins, min, max)),
       histogramDimension(1), dataContainsMC(false), fitGaussToCore(false), 
       exportSigVarToRoot(false), logX(false), logY(false),
       plotStackNorm(false)
@@ -61,7 +61,7 @@ private:
       plotRangeYMin(-99), plotRangeYMax(-99), plotRangeYRatioMin(po::GetOption<double>("analysisConfig.ratioYMin")),
       plotRangeYRatioMax(po::GetOption<double>("analysisConfig.ratioYMax")),
       data(new TH1F((std::string("hD")+name).c_str(), (std::string("Data")+title).c_str(), nBins, min, max)),
-      unc(new TH1F((std::string("hD")+name).c_str(), (std::string("Unc")+title).c_str(), nBins, min, max)),
+      unc(new TH1F((std::string("hUnc")+name).c_str(), (std::string("Unc")+title).c_str(), nBins, min, max)),
       histogramDimension(1), dataContainsMC(false), fitGaussToCore(false), 
       exportSigVarToRoot(false), logX(false), logY(false),
       plotStackNorm(false)
