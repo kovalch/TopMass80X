@@ -53,13 +53,16 @@ double logPoisson(const double & k, const double& lambda);
 double poisson(const double & k, const double& lambda);
 
 /**
- * returns poisson(evalpoint) with maximum at centre value, but shape according to stat2
+ * returns poisson(evalpoint) with maximum at centre value, but shape according to stat
+ * stat is NOT stat2! its just the stat you e.g. get from a histogram by calling getBinError()
  */
-double shiftedLnPoisson(const float & centreN, const float & stat2, const float& evalpoint);
+double shiftedLnPoisson(const float & centreN, const float & stat, const float& evalpoint);
 /**
  * includes statistics of prediction when comparing a data point to prediction
+ * stat is NOT stat2! its just the stat you e.g. get from a histogram by calling getBinError()
+ * same for mcstat
  */
-double shiftedLnPoissonMCStat(const float & centre, const float & stat2, const float & mcstat2, const float& evalpoint);
+double shiftedLnPoissonMCStat(const float & centre, const float & stat, const float & mcstat, const float& evalpoint);
 
 
 /**
