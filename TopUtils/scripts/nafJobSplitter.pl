@@ -396,21 +396,27 @@ sub checkJob {
         open my $JOINED, '<', "$dir/joined.txt" or die "Cannot open joined.txt: $!\n";
         my $joined = <$JOINED>;
         if (!-e "$dir/$joined") {
-            my $config = $dir; $config =~ s/naf_//;
+	    my @scripts=glob("$dir/j_*.sh");
+	    my $config = $dir; $config =~ s/naf_//;
+	    foreach my $jobfile (@scripts){
+		$config=$jobfile;
+	    }
+	    $config =~ s/j_//;
+	    $config =~ s/.sh//;
             if ($args{'j'}) {
-                print "Joining output files...\n";
-                system('hadd', "$dir/$joined", glob("$dir/$config-*.root")) == 0 or die "hadd failed: $?";
+                print "Joining output files $config-*.root to $dir/$joined\n"; 
+		system('hadd', "$dir/$joined", glob("$config-*.root")) == 0 or die "hadd failed: $?";
                 my $str = fileparse($joined, '.root') . '.txt';
-                system("sumTriggerReports2.pl $dir/out*.txt > $dir/$str");
+		system("sumTriggerReports2.pl $dir/out*.txt > $dir/$str");
                 print colored("Joined output file is: ", C_OK),
-                    colored("$dir/$joined\n", C_FILE),
-                    colored("Joined TrigReport is ", C_OK),
-                    colored("$dir/$str\n", C_FILE);
+		colored("$dir/$joined\n", C_FILE),
+		colored("Joined TrigReport is ", C_OK),
+		colored("$dir/$str\n", C_FILE);
             } else {
                 print " - Hint: pass the -j option to join files\n";
             }
         } else {
-            #print colored(" - results have already been joined\n", C_OK);
+            print colored(" - results have already been joined\n", C_OK);
         }
     }
     return $isComplete;
