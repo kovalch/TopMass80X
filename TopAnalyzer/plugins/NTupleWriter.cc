@@ -1097,15 +1097,10 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             v_leptonPdgId_.push_back(i_muon->pdgId());
             v_leptonId_.push_back(-1);
             
-            if(i_muon->globalTrack().isAvailable()){
-                v_leptonDxyVertex0_.push_back(i_muon->globalTrack()->dxy(vertices->at(0).position()));
-                v_leptonDzVertex0_.push_back(i_muon->globalTrack()->dz(vertices->at(0).position()));
-            }
-            else{
-                //no such value available
-                v_leptonDxyVertex0_.push_back(-1000);
-                v_leptonDzVertex0_.push_back(-1000);
-            }
+            // Following https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideMuonId, these functions should be used for dxy and dz
+            v_leptonDxyVertex0_.push_back(-i_muon->dB());
+            if(i_muon->muonBestTrack().isAvailable()) v_leptonDzVertex0_.push_back(i_muon->muonBestTrack()->dz(vertices->at(0).position()));
+            else v_leptonDzVertex0_.push_back(-999.);
             
             // Isolation
             v_leptonChargedHadronIso_.push_back(i_muon->chargedHadronIso());
