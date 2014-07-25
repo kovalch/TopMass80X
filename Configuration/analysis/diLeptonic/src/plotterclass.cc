@@ -3918,7 +3918,7 @@ double Plotter::GetChi2 (TGraphAsymmErrors *data, TH1 *mc){
         double dataError   = (data->GetErrorYhigh(i) + data->GetErrorYlow(i))/2;
         chi2 += dataMinusMC * dataMinusMC / (dataError * dataError);
     }
-    return chi2/data->GetN();
+    return chi2/(data->GetN()-1);
 }
 
 
