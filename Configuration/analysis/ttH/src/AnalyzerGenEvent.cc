@@ -35,6 +35,8 @@ AnalyzerBase("genEvent_", selectionStepsNoCategories, stepsForCategories, jetCat
 
 void AnalyzerGenEvent::bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram)
 {
+    this->bookEventHistos(step, m_histogram);
+    
     this->bookMatchingHistos(step, m_histogram);
     
     this->bookBhadronHistos("allB_", step, m_histogram);
@@ -46,6 +48,28 @@ void AnalyzerGenEvent::bookHistos(const TString& step, std::map<TString, TH1*>& 
     this->bookTopOrHiggsHistos("higgs_", step, m_histogram);
     
     this->bookTopAndHiggsHistos(step, m_histogram);
+}
+
+
+
+void AnalyzerGenEvent::bookEventHistos(const TString& step, std::map<TString, TH1*>& m_histogram)
+{
+    TString name;
+    
+    name = "genJet_all_multiplicity";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step,"All Gen Jet Multiplicity;# jets_{gen}^{all};# events",80,0,80));
+    
+    name = "genJet_multiplicity";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step,"Gen Jet Multiplicity;# jets_{gen};# events",80,0,80));
+    
+    name = "genJet_pt";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step,"Gen Jet Pt;jet p_{T};# jets_{gen}",50,0,300));
+    
+    name = "genJet_eta";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step,"Gen Jet Eta;jet #eta;# jets_{gen}",50,-2.6,2.6));
+    
+    name = "genJet_phi";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step,"Gen Jet Eta;jet #eta;# jets_{gen}",50,-3.2,3.2));
 }
 
 
@@ -209,6 +233,8 @@ void AnalyzerGenEvent::fillHistos(const RecoObjects&, const CommonGenObjects& co
 {
     if(!commonGenObjects.valuesSet_) return;
     
+    this->fillEventHistos(commonGenObjects, genObjectIndices, weight, m_histogram);
+    
     this->fillMatchingHistos(genObjectIndices, weight, m_histogram);
     
     this->fillBhadronHistos("allB_", genObjectIndices, weight, m_histogram);
@@ -227,6 +253,39 @@ void AnalyzerGenEvent::fillHistos(const RecoObjects&, const CommonGenObjects& co
     if(genObjectIndices.uniqueGenMatching()){
         this->fillTopAndHiggsHistos(commonGenObjects, genObjectIndices, weight, m_histogram);
     }
+}
+
+
+void AnalyzerGenEvent::fillEventHistos(const CommonGenObjects& commonGenObjects,
+                                       const tth::GenObjectIndices& genObjectIndices,
+                                       const double& weight, std::map<TString, TH1*>& m_histogram)
+{
+    TString name;
+    
+    const VLV& allGenJets = (commonGenObjects.valuesSet_) ? *commonGenObjects.allGenJets_ : VLV(0);
+    const std::vector<int> genJetIndices = genObjectIndices.genJetIndices_;
+    
+    const int nGenJets_all = allGenJets.size();
+    const int nGenJets = genJetIndices.size();
+    
+    
+    name = "genJet_all_multiplicity";
+    m_histogram[name]->Fill(nGenJets_all, weight);
+    
+    name = "genJet_multiplicity";
+    m_histogram[name]->Fill(nGenJets, weight);
+    
+    for(const int jetId : genJetIndices) {
+        name = "genJet_pt";
+        m_histogram[name]->Fill(allGenJets.at(jetId).Pt());
+        
+        name = "genJet_eta";
+        m_histogram[name]->Fill(allGenJets.at(jetId).Eta());
+        
+        name = "genJet_phi";
+        m_histogram[name]->Fill(allGenJets.at(jetId).Phi());
+    }
+    
 }
 
 

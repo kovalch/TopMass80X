@@ -55,6 +55,9 @@ private:
     
     
     
+    /// Book histograms for the event-wise properties
+    void bookEventHistos(const TString& step, std::map<TString, TH1*>& m_histogram);
+    
     /// Book histograms for the hadron-genJet-recoJet matching of top and Higgs jets
     void bookMatchingHistos(const TString& step, std::map<TString, TH1*>& m_histogram);
     
@@ -74,9 +77,14 @@ private:
     
     
     
+    /// Fill histograms for the event-wise properties
+    void fillEventHistos(const CommonGenObjects& commonGenObjects, 
+                            const tth::GenObjectIndices& genObjectIndices,
+                            const double& weight, std::map<TString, TH1*>& m_histogram);
+    
     /// Fill histograms for the hadron-genJet-recoJet matching of top and Higgs jets
     void fillMatchingHistos(const tth::GenObjectIndices& genObjectIndices,
-                                    const double& weight, std::map<TString, TH1*>& m_histogram);
+                            const double& weight, std::map<TString, TH1*>& m_histogram);
     
     /// Fill histos for b jets and their B hadron constituents
     void fillBhadronHistos(const TString& topOrHiggsName,
