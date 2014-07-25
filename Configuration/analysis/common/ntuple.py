@@ -597,12 +597,16 @@ process.selectedPatElectronsAfterScaling = selectedPatElectrons.clone(
     src = 'scaledJetEnergy:selectedPatElectrons'+pfpostfix,
     cut = 'pt > 20 && abs(eta) < 2.5'
 )
-# FIXME:
-# Cannot do this on python level :-(
-# ' && abs(gsfTrack().dxy(vertex_.position())) < 0.04'
 
 # Muons
 from PhysicsTools.PatAlgos.selectionLayer1.muonSelector_cfi import *
+
+# Electrons and muons dxy and dz selection
+from TopAnalysis.TopUtils.LeptonVertexSelector_cfi import *
+process.leptonVertexSelector = leptonVertexSelector.clone()
+process.leptonVertexSelector.electrons = "selectedPatElectronsAfterScaling"
+process.leptonVertexSelector.muons = "selectedPatMuons"+pfpostfix
+process.leptonVertexSelector.electronDxyMax = 0.04
 
 # Jets
 from PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi import *
@@ -616,6 +620,7 @@ process.hardJets = selectedPatJets.clone(src = 'goodIdJets', cut = 'pt > 12 & ab
 process.finalCollectionsSequence = cms.Sequence(
     process.scaledJetEnergy *
     process.selectedPatElectronsAfterScaling *
+    process.leptonVertexSelector *
     process.goodIdJets * 
     process.hardJets
     )
@@ -626,9 +631,9 @@ process.finalCollectionsSequence = cms.Sequence(
 ## Define which collections (including which corrections) to be used in nTuple
 
 #isolatedElectronCollection = "selectedPatElectrons"+pfpostfix
-isolatedElectronCollection = "selectedPatElectronsAfterScaling"
+isolatedElectronCollection = "leptonVertexSelector"
 
-isolatedMuonCollection = "selectedPatMuons"+pfpostfix
+isolatedMuonCollection = "leptonVertexSelector"
 
 jetCollection = "hardJets"
 
