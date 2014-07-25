@@ -827,7 +827,7 @@ sub statusInfo {
 
 sub clearError {
     my $self = shift;
-    system('qmod -cj ' . $self->fullId());
+    system('rqmod -c ' . $self->fullId());
 }
 
 sub extract {
