@@ -50,7 +50,11 @@ constexpr Btag::WorkingPoint BtagWP = Btag::M;
 constexpr double MetCUT = 40.;
 
 
+/// Generated jet eta selection (absolute value)
+constexpr double GenJetEtaCUT = 2.5;
 
+/// Generated jet pt selection in GeV
+constexpr double GenJetPtCUT = JetPtCUT;
 
 
 
@@ -170,7 +174,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     const HiggsGenObjects higgsGenObjectsDummy;
 
     // Set up dummies for weights and indices, as needed for generic functions
-    const tth::GenObjectIndices genObjectIndicesDummy({}, {}, {}, {}, {}, {}, -1, -1, -1, -1, -1, -1, -1, -1);
+    const tth::GenObjectIndices genObjectIndicesDummy({}, {}, {}, {}, {}, {}, {}, -1, -1, -1, -1, -1, -1, -1, -1);
     const tth::RecoObjectIndices recoObjectIndicesDummy({}, {}, {}, -1, -1, -1, -1, -1, -1, {}, {}, {});
     const tth::GenLevelWeights genLevelWeightsDummy(0., 0., 0., 0., 0., 0.);
     const tth::RecoLevelWeights recoLevelWeightsDummy(0., 0., 0., 0., 0., 0.);
@@ -538,13 +542,16 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     const TopGenObjects& topGenObjects = this->getTopGenObjects(entry);
     const HiggsGenObjects& higgsGenObjects = this->getHiggsGenObjects(entry);
     
+    // Generated jets
+    const VLV& allGenJets =  topGenObjects.valuesSet_ ? *commonGenObjects.allGenJets_ : VLV(0);
+    std::vector<int> genJetIndices = this->genJetIndices(allGenJets);
+    
     // Match for all genJets all B hadrons
     std::vector<std::vector<int> > genJetBhadronIndices;
     std::vector<int> genBjetIndices;
     std::vector<int> genJetMatchedRecoBjetIndices;
     if(topGenObjects.valuesSet_){
-        const VLV& allGenJets = *commonGenObjects.allGenJets_;
-        genJetBhadronIndices = this->matchBhadronsToGenJets(allGenJets, topGenObjects);
+        genJetBhadronIndices = this->matchBhadronsToGenJets(genJetIndices, allGenJets, topGenObjects);
         genBjetIndices = this->genBjetIndices(genJetBhadronIndices);
         genJetMatchedRecoBjetIndices = this->matchRecoToGenJets(jetIndices, jets, genBjetIndices, allGenJets);
     }
@@ -554,8 +561,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     std::vector<int> genCjetIndices;
     std::vector<int> genJetMatchedRecoCjetIndices;
     if(topGenObjects.valuesSet_){
-        const VLV& allGenJets = *commonGenObjects.allGenJets_;
-        genJetChadronIndices = this->matchChadronsToGenJets(allGenJets, topGenObjects);
+        genJetChadronIndices = this->matchChadronsToGenJets(genJetIndices, allGenJets, topGenObjects);
         genCjetIndices = this->genCjetIndices(genJetBhadronIndices, genJetChadronIndices);
         genJetMatchedRecoCjetIndices = this->matchRecoToGenJets(jetIndices, jets, genCjetIndices, allGenJets);
     }
@@ -585,7 +591,8 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     }
     
     
-    const tth::GenObjectIndices genObjectIndices(genBjetIndices,
+    const tth::GenObjectIndices genObjectIndices(genJetIndices,
+                                                 genBjetIndices,
                                                  genJetBhadronIndices,
                                                  genJetMatchedRecoBjetIndices,
                                                  genCjetIndices,
@@ -640,7 +647,20 @@ tth::IndexPairs HiggsAnalysis::chargeOrderedJetPairIndices(const std::vector<int
 
 
 
-std::vector<std::vector<int> > HiggsAnalysis::matchBhadronsToGenJets(const VLV& allGenJets, const TopGenObjects& topGenObjects)const
+std::vector<int> HiggsAnalysis::genJetIndices(const VLV& allGenJets)const
+{
+    std::vector<int> result = common::initialiseIndices(allGenJets);
+    selectIndices(result, allGenJets, common::LVeta, GenJetEtaCUT, false);
+    selectIndices(result, allGenJets, common::LVeta, -GenJetEtaCUT);
+    selectIndices(result, allGenJets, common::LVpt, GenJetPtCUT);
+    
+    return result;
+}
+
+
+
+std::vector<std::vector<int> > HiggsAnalysis::matchBhadronsToGenJets(const std::vector<int>& genJetIndices, const VLV& allGenJets, 
+                                                                     const TopGenObjects& topGenObjects)const
 {
     std::vector<std::vector<int> > result = std::vector<std::vector<int> >(allGenJets.size());
     
@@ -648,7 +668,8 @@ std::vector<std::vector<int> > HiggsAnalysis::matchBhadronsToGenJets(const VLV& 
     for(size_t iHadron = 0; iHadron < genBHadJetIndex.size(); ++iHadron){
         const int& jetIndex = genBHadJetIndex.at(iHadron);
         // Protect against hadrons not clustered to any jet
-        if(jetIndex == -1) continue;
+        if(jetIndex < 0) continue;
+        if(std::find(genJetIndices.begin(), genJetIndices.end(), jetIndex) == genJetIndices.end()) continue;
         result.at(jetIndex).push_back(iHadron);
     }
     
@@ -657,7 +678,8 @@ std::vector<std::vector<int> > HiggsAnalysis::matchBhadronsToGenJets(const VLV& 
 
 
 
-std::vector<std::vector<int> > HiggsAnalysis::matchChadronsToGenJets(const VLV& allGenJets, const TopGenObjects&)const
+std::vector<std::vector<int> > HiggsAnalysis::matchChadronsToGenJets(const std::vector<int>& genJetIndices, const VLV& allGenJets, 
+                                                                     const TopGenObjects&)const
 {
     std::vector<std::vector<int> > result = std::vector<std::vector<int> >(allGenJets.size());
     
@@ -823,8 +845,8 @@ bool HiggsAnalysis::failsAdditionalJetFlavourSelection(const Long64_t& entry)con
     if(this->makeBtagEfficiencies()) return false;
     
     // Signal definition for b-jets
-    const float signalJetPt_min = 20.;
-    const float signalJetEta_max = 2.5;
+//     const float signalJetPt_min = 20.;
+//     const float signalJetEta_max = 2.5;
     
     const TopGenObjects& topGenObjects = this->getTopGenObjects(entry);
     
@@ -843,12 +865,14 @@ bool HiggsAnalysis::failsAdditionalJetFlavourSelection(const Long64_t& entry)con
                               ||  jetAddId>22 ) ) return false;                 // tt+other
     // Separating 2 cases of tt+b
     if(jetAddId == 1) {
-        const CommonGenObjects& commonGenObjects = this->getCommonGenObjects(entry);
         if(topGenObjects.valuesSet_){
+            const CommonGenObjects& commonGenObjects = this->getCommonGenObjects(entry);
+//         const GenObjectIndices& genObjectIndices= this->get(entry);
             const VLV& allGenJets = *commonGenObjects.allGenJets_;
-            std::vector<std::vector<int> > genJetBhadronIndices = this->matchBhadronsToGenJets(allGenJets, topGenObjects);
+            const std::vector<int> genJetIndices = this->genJetIndices(allGenJets);
+            std::vector<std::vector<int> > genJetBhadronIndices = this->matchBhadronsToGenJets(genJetIndices, allGenJets, topGenObjects);
             for(size_t iJet = 0; iJet<genJetBhadronIndices.size(); ++iJet) {
-                if(allGenJets.at(iJet).Pt()<signalJetPt_min || std::fabs(allGenJets.at(iJet).Eta())>signalJetEta_max) continue;
+//                 if(allGenJets.at(iJet).Pt()<signalJetPt_min || std::fabs(allGenJets.at(iJet).Eta())>signalJetEta_max) continue;
                 std::vector<int> bHadIds = genJetBhadronIndices.at(iJet);
                 int nHads_top = 0;
                 int nHads_add = 0;

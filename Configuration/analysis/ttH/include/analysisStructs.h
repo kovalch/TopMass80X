@@ -51,7 +51,8 @@ namespace tth{
     
     
     struct GenObjectIndices{
-        GenObjectIndices(const std::vector<int>& genBjetIndices,
+        GenObjectIndices(const std::vector<int>& genJetIndices,
+                         const std::vector<int>& genBjetIndices,
                          const std::vector<std::vector<int> >& genJetBhadronIndices,
                          const std::vector<int>& genJetMatchedRecoBjetIndices,
                          const std::vector<int>& genCjetIndices,
@@ -82,6 +83,7 @@ namespace tth{
         bool isPairFromHiggs(const int& bIndex, const int& antiBIndex)const;
         
         #ifndef __CINT__
+        const std::vector<int>& genJetIndices_;
         const std::vector<int>& genBjetIndices_;
         const std::vector<std::vector<int> >& genJetBhadronIndices_;
         const std::vector<int>& genJetMatchedRecoBjetIndices_;
