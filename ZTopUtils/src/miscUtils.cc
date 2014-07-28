@@ -14,6 +14,7 @@ double poisson(const double & k, const double& lambda){
 /**
  * all inputs in input coordinate system! rescaling will be done by function
  * E.g. a however scaled point has 10 entries with stat=sqrt(stat2) of 2, then stat will be 2! Nothing else
+ * Try to keep shifts small here! in case, rescale before
  */
 double shiftedLnPoisson(const float & centre, const float & stat, const float& evalpoint){
 	// if(centre<1) return -9999999999999;
@@ -32,6 +33,7 @@ double shiftedLnPoisson(const float & centre, const float & stat, const float& e
 /**
  * all inputs in input coordinate system! rescaling will be done by function
  * no stat vlaues are squared!
+ * Try to keep shifts small here! in case, rescale before
  */
 double shiftedLnPoissonMCStat(const float & centre, const float & stat, const float & mcstat, const float& evalpoint){
 
@@ -49,7 +51,7 @@ double shiftedLnPoissonMCStat(const float & centre, const float & stat, const fl
 	// this way get rid of any scaling
 	double realcentre = centre / shift; // = npred
 	// double realstat2 = realcentre = centre / shift = centre2 / stat2 = npred
-	double realmcstat2 = mcstat2 / shift;
+	double realmcstat2 = mcstat2 / shift / shift;
 	double realevalpoint = evalpoint / shift;
 
 	// adjusted formula  from caldwell, etc arxiv 1112.2593
@@ -59,7 +61,7 @@ double shiftedLnPoissonMCStat(const float & centre, const float & stat, const fl
 	// s: scale factor with N_pred = N_gen / s
 	// o: observed value in scale ~N_pred
 
-	double s=1 / (realmcstat2/(realcentre*shift))  ;
+	double s=1 / (realmcstat2/(realcentre));//*shift))  ;
 	double n=realcentre * s  ;
 	double o=realevalpoint;
 
@@ -87,10 +89,18 @@ double shiftedLnPoissonMCStat(const float & centre, const float & stat, const fl
 		out=parta - partb + partc - partd;
 
 	}
-	out-=log(shift);
+	//out-=log(shift);
 	if(out > 1){
-		std::cout << "\ncentre: "<< centre<< "\nstat2: "<<stat2
-				<< "\nmcstat2: "<<mcstat2 << "\nevalpoint * scale: "<<o << std::endl;
+		std::cout << "\ncentre: "<< centre
+				<<  "\nrealcentre: "<< realcentre
+				<< "\nstat2: "<<stat2
+				<< "\nmcstat2: "<<mcstat2
+				<< "\nrealmcstat2: " <<realmcstat2
+				<< "\nrealevalpoint: "<<o
+				<< "\nshift: "<< shift
+				<< "\ns: "<< s
+				<< "\nn: "<< n<<std::endl;
+
 		throw std::runtime_error("shiftedLnPoissonMCStat: you exceeded the range, where the approximations used here are valid by far");
 	}
 	return out;
