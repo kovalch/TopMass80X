@@ -78,7 +78,7 @@ private:
     
     
     /// Returns a vector of indices of gen jets which are in acceptance
-    std::vector<int> genJetIndices(const VLV& allGenJets)const;
+    std::vector<int> genJetIndices(const VLV& allGenJets, const TopGenObjects& topGenObjects)const;
     
     /// Create vector of size of gen jets, and assign for each element a vector of indices of associated B hadrons
     std::vector<std::vector<int> > matchBhadronsToGenJets(const std::vector<int>& genJetIndices, const VLV& allGenJets, 

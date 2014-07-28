@@ -544,7 +544,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     
     // Generated jets
     const VLV& allGenJets =  topGenObjects.valuesSet_ ? *commonGenObjects.allGenJets_ : VLV(0);
-    std::vector<int> genJetIndices = this->genJetIndices(allGenJets);
+    std::vector<int> genJetIndices = this->genJetIndices(allGenJets, topGenObjects);
     
     // Match for all genJets all B hadrons
     std::vector<std::vector<int> > genJetBhadronIndices;
@@ -647,14 +647,39 @@ tth::IndexPairs HiggsAnalysis::chargeOrderedJetPairIndices(const std::vector<int
 
 
 
-std::vector<int> HiggsAnalysis::genJetIndices(const VLV& allGenJets)const
+std::vector<int> HiggsAnalysis::genJetIndices(const VLV& allGenJets, const TopGenObjects& topGenObjects)const
 {
-    std::vector<int> result = common::initialiseIndices(allGenJets);
-    selectIndices(result, allGenJets, common::LVeta, GenJetEtaCUT, false);
-    selectIndices(result, allGenJets, common::LVeta, -GenJetEtaCUT);
-    selectIndices(result, allGenJets, common::LVpt, GenJetPtCUT);
+    const double leptonJet_dR_min = 0.4;
     
-    return result;
+    std::vector<int> jetIds;
+    
+    std::vector<int> jetIds_kin = common::initialiseIndices(allGenJets);
+    selectIndices(jetIds_kin, allGenJets, common::LVeta, GenJetEtaCUT, false);
+    selectIndices(jetIds_kin, allGenJets, common::LVeta, -GenJetEtaCUT);
+    selectIndices(jetIds_kin, allGenJets, common::LVpt, GenJetPtCUT);
+    
+    // Building the vector of gen leptons which shouldn't be contained in jets
+    std::vector<LV*> genLeptons;
+    if(topGenObjects.valuesSet_) {
+        if(topGenObjects.GenLepton_) genLeptons.push_back(topGenObjects.GenLepton_);
+        if(topGenObjects.GenAntiLepton_) genLeptons.push_back(topGenObjects.GenAntiLepton_);
+    }
+    
+    // Filtering indices of jets that are far enough from leptons
+    for(int jetId : jetIds_kin) {
+        bool hasLeptonNearby = false;
+        LV jet = allGenJets.at(jetId);
+        for(LV* lepton : genLeptons) {
+            double dR = ROOT::Math::VectorUtil::DeltaR(jet, *lepton);
+            if(dR >= leptonJet_dR_min) continue;
+            hasLeptonNearby = true;
+            break;
+        }
+        if(hasLeptonNearby) continue;
+        jetIds.push_back(jetId);
+    }
+
+    return jetIds;
 }
 
 
@@ -844,10 +869,6 @@ bool HiggsAnalysis::failsAdditionalJetFlavourSelection(const Long64_t& entry)con
     // Use the full ttbar sample for creating btag efficiencies
     if(this->makeBtagEfficiencies()) return false;
     
-    // Signal definition for b-jets
-//     const float signalJetPt_min = 20.;
-//     const float signalJetEta_max = 2.5;
-    
     const TopGenObjects& topGenObjects = this->getTopGenObjects(entry);
     
     int jetAddId = topGenObjects.genExtraTopJetNumberId_;
@@ -867,12 +888,10 @@ bool HiggsAnalysis::failsAdditionalJetFlavourSelection(const Long64_t& entry)con
     if(jetAddId == 1) {
         if(topGenObjects.valuesSet_){
             const CommonGenObjects& commonGenObjects = this->getCommonGenObjects(entry);
-//         const GenObjectIndices& genObjectIndices= this->get(entry);
             const VLV& allGenJets = *commonGenObjects.allGenJets_;
-            const std::vector<int> genJetIndices = this->genJetIndices(allGenJets);
+            const std::vector<int> genJetIndices = this->genJetIndices(allGenJets, topGenObjects);
             std::vector<std::vector<int> > genJetBhadronIndices = this->matchBhadronsToGenJets(genJetIndices, allGenJets, topGenObjects);
             for(size_t iJet = 0; iJet<genJetBhadronIndices.size(); ++iJet) {
-//                 if(allGenJets.at(iJet).Pt()<signalJetPt_min || std::fabs(allGenJets.at(iJet).Eta())>signalJetEta_max) continue;
                 std::vector<int> bHadIds = genJetBhadronIndices.at(iJet);
                 int nHads_top = 0;
                 int nHads_add = 0;
