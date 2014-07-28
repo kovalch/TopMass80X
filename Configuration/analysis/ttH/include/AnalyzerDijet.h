@@ -183,6 +183,7 @@ private:
     
     double sigJetPt_min_;
     double sigJetEta_max_;
+    
 
 };
 
