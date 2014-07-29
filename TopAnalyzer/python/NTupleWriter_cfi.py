@@ -71,6 +71,6 @@ writeNTuple = cms.EDAnalyzer('NTupleWriter',
     ttbarDecayMode = cms.InputTag("generatorTopFilter", "decayMode"),
     higgsDecayMode = cms.InputTag("generatorHiggsFilter", "higgsDecayMode"),
     zDecayMode = cms.InputTag('ZDecayProducer', 'zDecayMode'),
-    madgraphWDecay = cms.InputTag("MadgraphWDecayProducer", "madgraphWDecay"),
+    madgraphWDecay = cms.InputTag("madgraphWDecayProducer", "madgraphWDecay"),
 )
 

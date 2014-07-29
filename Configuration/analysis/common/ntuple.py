@@ -124,31 +124,43 @@ topSignal = False
 higgsSignal = False
 alsoViaTau = False
 ttbarZ = False
+containsWs = False
 
 if options.samplename == 'ttbarsignal':
     topfilter = True
     topSignal = True
     viaTau = False
+    containsWs = True
 elif options.samplename == 'ttbarsignalviatau':
     topfilter = True
     topSignal = True
     viaTau = True
+    containsWs = True
 elif options.samplename == 'ttbarsignalplustau':
     topfilter = True
     topSignal = True
     viaTau = False
     alsoViaTau = True
+    containsWs = True
 elif options.samplename == 'ttbarbg':
     topfilter = True
+    containsWs = True
 elif options.samplename == 'dy1050' or options.samplename == 'dy50inf':
     zproducer = True
     zGenInfo = True
-elif options.samplename == 'ttbarhiggstobbbar' or options.samplename == 'ttbarhiggsinclusive':
+elif options.samplename == 'ttbarhiggstobbbar':
     topfilter = True
     topSignal = True
     viaTau = False
     alsoViaTau = True
     higgsSignal = True
+elif options.samplename == 'ttbarhiggsinclusive':
+    topfilter = True
+    topSignal = True
+    viaTau = False
+    alsoViaTau = True
+    higgsSignal = True
+    containsWs = True
 elif options.samplename == 'gghiggstozzto4l' or options.samplename == 'vbfhiggstozzto4l':
     zGenInfo = True
     higgsSignal = True
@@ -158,11 +170,17 @@ elif options.samplename == 'ttbarz':
     viaTau = False
     alsoViaTau = True
     ttbarZ = True
-elif options.samplename in ['data', 'singletop', 'singleantitop', 'ww',
-        'wz', 'zz', 'wjets',
+    containsWs = True
+elif options.samplename in [
+        'singletop', 'singleantitop',
+        'wjets', 'ww', 'wz',
+        'wwz', 'www', 'wwg',
+        'ttww', 'ttg', 'ttbarw']:
+    containsWs = True
+elif options.samplename in [
+        'data', 'zz', 'zzz',
         'qcdmu15', 'qcdem2030', 'qcdem3080', 'qcdem80170',
-        'qcdbcem2030', 'qcdbcem3080', 'qcdbcem80170',
-        'zzz', 'wwz', 'www', 'ttww', 'ttg', 'wwg', 'ttbarw']:
+        'qcdbcem2030', 'qcdbcem3080', 'qcdbcem80170']:
     # No special treatment needed, put here to avoid typos
     pass
 else:
@@ -771,12 +789,14 @@ else:
 ## W decay modes for MadGraph samples, in order to correct branching ratios
 
 madgraphSample = False
-if options.inputScript.find("_madgraph_") == -1:
-    process.madgraphWDecaySequence = cms.Sequence()
-else:
-    madgraphSample = True
-    process.load("TopAnalysis.TopUtils.MadgraphWDecayProducer_cfi")
-    process.madgraphWDecaySequence = cms.Sequence(process.MadgraphWDecayProducer)
+process.madgraphWDecaySequence = cms.Sequence()
+if containsWs:
+    if options.inputScript.find("_madgraph_") == -1:
+        pass
+    else:
+        madgraphSample = True
+        process.load("TopAnalysis.TopUtils.MadgraphWDecayProducer_cfi")
+        process.madgraphWDecaySequence = cms.Sequence(process.madgraphWDecayProducer)
 
 
 
