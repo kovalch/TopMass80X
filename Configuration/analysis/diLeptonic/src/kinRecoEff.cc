@@ -22,7 +22,8 @@ double sqr(double value) { return value*value; }
 
 
 
-int main(int argc, char *argv[])
+// int main(int argc, char *argv[])
+int main()
 {
   
   gSystem->Exec("mkdir Plots");
@@ -75,7 +76,7 @@ int main(int argc, char *argv[])
         
         for(Size_t i=0;i<DYScale.size();++i) std::cout << "DYScale " << i << " " << DYScale.at(i) << std::endl;
         
-        TString fileListName("/data/user/korol/CMSSW_5_3_11/src/TopAnalysis/Configuration/analysis/diLeptonic/FileLists/HistoFileList_");
+        TString fileListName(common::CMSSW_BASE()+"/src/TopAnalysis/Configuration/analysis/diLeptonic/FileLists/HistoFileList_");
         fileListName.Append(systematic+"_"+channel+".txt");
         ifstream FileList(fileListName);
         if (FileList.fail()) std::cerr << "Error reading " << fileListName << std::endl;
@@ -169,8 +170,8 @@ int main(int argc, char *argv[])
           EffHist effHist(effHistNames.at(j));
 
           TString savepath;
-          //savepath.Append(+"./Plots/"+systematic+"/"+channel+"/"+"KinRecoEff_"+effHistNames.at(j)+".root");
-          savepath.Append(+"./Plots/"+systematic+"/"+channel+"/"+"KinRecoEff_"+effHistNames.at(j)+".pdf");
+          savepath.Append(+"./Plots/"+systematic+"/"+channel+"/"+"KinRecoEff_"+effHistNames.at(j)+".root");
+//           savepath.Append(+"./Plots/"+systematic+"/"+channel+"/"+"KinRecoEff_"+effHistNames.at(j)+".pdf");
           savepath.ReplaceAll("_vs_",4,"",0);
 
             //TString title(channel);
@@ -190,7 +191,7 @@ int main(int argc, char *argv[])
             if(effHistNames.at(j)=="_vs_AntiLeptonEta")title.Append("  Anti-LeptonEta - Kin. Reco. behaviour; #eta(antiLepton); eff.");
             if(effHistNames.at(j)=="_vs_MET")title.Append("  MET - Kin. Reco. behaviour; MET; eff.");
             effHist.setTitle(title);
-            std::cout << title << std::endl;
+//             std::cout << title << std::endl;
             
             
             if(j==2){
