@@ -23,6 +23,7 @@
 #include <TRandom3.h>
 #include <TIterator.h>
 #include <TObject.h>
+#include <TObjString.h>
 
 #include "AnalysisBase.h"
 #include "KinReco.h"
@@ -50,6 +51,7 @@ recoObjects_(0),
 commonGenObjects_(0),
 topGenObjects_(0),
 higgsGenObjects_(0),
+zGenObjects_(0),
 kinRecoObjects_(0),
 h_weightedEvents(0),
 samplename_(""),
@@ -58,6 +60,7 @@ systematic_(),
 isMC_(false),
 isTopSignal_(false),
 isHiggsSignal_(false),
+isDrellYan_(false),
 isTtbarPlusTauSample_(false),
 correctMadgraphBR_(false),
 channelPdgIdProduct_(0),
@@ -105,6 +108,7 @@ void AnalysisBase::SlaveBegin(TTree*)
     commonGenObjects_ = new CommonGenObjects();
     topGenObjects_ = new TopGenObjects();
     higgsGenObjects_ = new HiggsGenObjects();
+    zGenObjects_ = new ZGenObjects();
     kinRecoObjects_ = new KinRecoObjects();
 }
 
@@ -122,6 +126,7 @@ void AnalysisBase::SlaveTerminate()
     if(commonGenObjects_) delete commonGenObjects_;
     if(topGenObjects_) delete topGenObjects_;
     if(higgsGenObjects_) delete higgsGenObjects_;
+    if(zGenObjects_) delete zGenObjects_;
     if(kinRecoObjects_) delete kinRecoObjects_;
 }
 
@@ -221,17 +226,18 @@ void AnalysisBase::Init(TTree *tree)
     chain_->SetMakeClass(0);
     this->SetRecoBranchAddresses();
     this->SetTriggerBranchAddresses();
-    if(isMC_) this->SetCommonGenBranchAddresses();
     //this->SetKinRecoBranchAddresses();
+    if(isMC_) this->SetCommonGenBranchAddresses();
     if(isMC_) this->SetVertMultiTrueBranchAddress();
     if(isMC_) this->SetWeightGeneratorBranchAddress();
     this->SetPdfBranchAddress();
-    this->SetDyDecayBranchAddress();
     this->SetTopDecayBranchAddress();
-    if(isHiggsSignal_) this->SetHiggsDecayBranchAddress();
     if(isTopSignal_ && isTtbarSample_ && topPtScaleFactors_) this->SetGenTopBranchAddresses();
     if(isTopSignal_) this->SetTopSignalBranchAddresses();
+    if(isHiggsSignal_) this->SetHiggsDecayBranchAddress();
     if(isHiggsSignal_) this->SetHiggsSignalBranchAddresses();
+    if(isDrellYan_) this->SetZDecayBranchAddress();
+    if(isDrellYan_) this->SetZSignalBranchAddresses();
 }
 
 
@@ -263,6 +269,13 @@ void AnalysisBase::SetTopSignal(const bool isTopSignal)
 void AnalysisBase::SetHiggsSignal(const bool higgsSignal)
 {
     isHiggsSignal_ = higgsSignal;
+}
+
+
+
+void AnalysisBase::SetDrellYan(const bool isDrellYan)
+{
+    isDrellYan_ = isDrellYan;
 }
 
 
@@ -506,17 +519,16 @@ void AnalysisBase::clearBranches()
     b_weightPDF = 0;
     
     
-    // nTuple branch for Drell-Yan decay mode
-    b_ZDecayMode = 0;
-    b_genZ = 0;
-    
-    
     // nTuple branch for Top decay mode
     b_TopDecayMode = 0;
     
     
     // nTuple branch for Higgs decay mode
     b_HiggsDecayMode = 0;
+    
+    
+    // nTuple branch for Drell-Yan decay mode
+    b_GenZDecayMode = 0;
     
     
     // nTuple branches for Top signal samples on generator level
@@ -558,13 +570,11 @@ void AnalysisBase::clearBranches()
     b_genBHadLeptonHadronIndex = 0;
     b_genBHadLeptonViaTau = 0;
     b_genBHadFromTopWeakDecay = 0;
-    
     b_genCHadJetIndex = 0;
     b_genCHadLeptonIndex = 0;
     b_genCHadLeptonHadronIndex = 0;
     b_genCHadLeptonViaTau = 0;
     b_genCHadFromBHadron = 0;
-    
     b_genExtraTopJetNumberId = 0;
 
 
@@ -572,6 +582,13 @@ void AnalysisBase::clearBranches()
     b_GenH = 0;
     b_GenBFromH = 0;
     b_GenAntiBFromH = 0;
+    
+    // nTuple branches for Z signal samples on generator level
+    b_GenZ = 0;
+    b_GenZMeDaughterParticle = 0;
+    b_GenZMeDaughterAntiParticle = 0;
+    b_GenZStableLepton = 0;
+    b_GenZStableAntiLepton = 0;
 }
 
 
@@ -583,6 +600,7 @@ void AnalysisBase::clearBranchVariables()
     if(commonGenObjects_) commonGenObjects_->clear();
     if(topGenObjects_) topGenObjects_->clear();
     if(higgsGenObjects_) higgsGenObjects_->clear();
+    if(zGenObjects_) zGenObjects_->clear();
     if(kinRecoObjects_) kinRecoObjects_->clear();
     
     // Set values to null for trigger bits
@@ -599,15 +617,14 @@ void AnalysisBase::clearBranchVariables()
     // Set values to null for PDF weight
     weightPDF_ = 0;
     
-    // Set values to null for Drell-Yan decay branch
-    ZDecayMode_ = 0;
-    genZ_ = 0;
-    
     // Set values to null for Top decay branch
     topDecayMode_ = 0;
     
     // Set values to null for Higgs decay branch
     higgsDecayMode_ = 0;
+    
+    // Set values to null for Z decay branch
+    v_genZDecayMode_ = 0;
 }
 
 
@@ -785,14 +802,6 @@ void AnalysisBase::SetPdfBranchAddress()
 
 
 
-void AnalysisBase::SetDyDecayBranchAddress()
-{
-    chain_->SetBranchAddress("ZDecayMode", &ZDecayMode_, &b_ZDecayMode);
-    if(chain_->GetBranch("GenZ")) chain_->SetBranchAddress("GenZ", &genZ_, &b_genZ);
-}
-
-
-
 void AnalysisBase::SetTopDecayBranchAddress()
 {
     chain_->SetBranchAddress("TopDecayMode", &topDecayMode_, &b_TopDecayMode);
@@ -803,6 +812,13 @@ void AnalysisBase::SetTopDecayBranchAddress()
 void AnalysisBase::SetHiggsDecayBranchAddress()
 {
     chain_->SetBranchAddress("HiggsDecayMode", &higgsDecayMode_, &b_HiggsDecayMode);
+}
+
+
+
+void AnalysisBase::SetZDecayBranchAddress()
+{
+    chain_->SetBranchAddress("GenZDecayMode", &v_genZDecayMode_, &b_GenZDecayMode);
 }
 
 
@@ -896,6 +912,17 @@ void AnalysisBase::SetHiggsSignalBranchAddresses()
     chain_->SetBranchAddress("GenH", &higgsGenObjects_->GenH_, &b_GenH);
     chain_->SetBranchAddress("GenBFromH", &higgsGenObjects_->GenBFromH_, &b_GenBFromH);
     chain_->SetBranchAddress("GenAntiBFromH", &higgsGenObjects_->GenAntiBFromH_, &b_GenAntiBFromH);
+}
+
+
+
+void AnalysisBase::SetZSignalBranchAddresses()
+{
+    chain_->SetBranchAddress("GenZ", &zGenObjects_->GenZ_, &b_GenZ);
+    chain_->SetBranchAddress("GenZMeDaughterParticle", &zGenObjects_->GenZMeDaughterParticle_, &b_GenZMeDaughterParticle);
+    chain_->SetBranchAddress("GenZMeDaughterAntiParticle", &zGenObjects_->GenZMeDaughterAntiParticle_, &b_GenZMeDaughterAntiParticle);
+    chain_->SetBranchAddress("GenZStableLepton", &zGenObjects_->GenZStableLepton_, &b_GenZStableLepton);
+    chain_->SetBranchAddress("GenZStableAntiLepton", &zGenObjects_->GenZStableAntiLepton_, &b_GenZStableAntiLepton);
 }
 
 
@@ -1034,18 +1061,17 @@ void AnalysisBase::GetPDFEntry(const Long64_t& entry)const
 void AnalysisBase::SetTrueLevelDYChannel(const int dy)
 {
     if(dy){
-        std::cout << "Include true-level filter for Z decay to pdgid " << dy << "\n";
+        std::cout<<"Include true-level filter for Z decay to PDG ID: "<<dy<<"\n";
         
-        //create function to check the DY decay channel
+        // Create function to check the Z decay channel
         checkZDecayMode_ = [&, dy](Long64_t entry) -> bool {
-            b_ZDecayMode->GetEntry(entry);
-            if(b_genZ) b_genZ->GetEntry(entry);
+            this->GetZDecayModeEntry(entry);
             bool pass = false;
-            for (const auto decayMode : *ZDecayMode_) {
-                if ((dy == 15 && decayMode > 15110000) ||
-                    (dy == 13 && decayMode == 1313) ||
-                    (dy == 11 && decayMode == 1111))
-                {
+            // Loop over all Zs
+            for(const auto decayMode : *v_genZDecayMode_){
+                if((dy == 15 && decayMode >= 150000) ||
+                   (dy == 13 && decayMode == 13) ||
+                   (dy == 11 && decayMode == 11)){
                     pass = true;
                     break;
                 }
@@ -1056,7 +1082,6 @@ void AnalysisBase::SetTrueLevelDYChannel(const int dy)
     }
     else{
         checkZDecayMode_ = nullptr;
-        genZ_ = nullptr;
     }
 }
 
@@ -1074,6 +1099,12 @@ void AnalysisBase::GetHiggsDecayModeEntry(const Long64_t& entry)const
     b_HiggsDecayMode->GetEntry(entry);
 }
 
+
+
+void AnalysisBase::GetZDecayModeEntry(const Long64_t& entry)const
+{
+    b_GenZDecayMode->GetEntry(entry);
+}
 
 
 void AnalysisBase::GetGenTopBranchesEntry(const Long64_t& entry)const
@@ -1140,6 +1171,21 @@ void AnalysisBase::GetHiggsSignalBranchesEntry(const Long64_t& entry)const
     b_GenH->GetEntry(entry);
     b_GenBFromH->GetEntry(entry);
     b_GenAntiBFromH->GetEntry(entry);
+}
+
+
+
+void AnalysisBase::GetZSignalBranchesEntry(const Long64_t& entry)const
+{
+    // Check if branches' entry is already read
+    if(zGenObjects_->valuesSet_) return;
+    zGenObjects_->valuesSet_ = true;
+    
+    b_GenZ->GetEntry(entry);
+    b_GenZMeDaughterParticle->GetEntry(entry);
+    b_GenZMeDaughterAntiParticle->GetEntry(entry);
+    b_GenZStableLepton->GetEntry(entry);
+    b_GenZStableAntiLepton->GetEntry(entry);
 }
 
 
@@ -1233,6 +1279,17 @@ const HiggsGenObjects& AnalysisBase::getHiggsGenObjects(const Long64_t& entry)co
 
 
 
+const ZGenObjects& AnalysisBase::getZGenObjects(const Long64_t& entry)const
+{
+    if(!isDrellYan_) return *zGenObjects_;
+    if(zGenObjects_->valuesSet_) return *zGenObjects_;
+
+    this->GetZSignalBranchesEntry(entry);
+    return *zGenObjects_;
+}
+
+
+
 const KinRecoObjects& AnalysisBase::getKinRecoObjects(const Long64_t& entry)const
 {
     // WARNING: At present, no kinReco solutions are written to ntuple, so this function cannot be used!!!
@@ -1266,6 +1323,7 @@ void AnalysisBase::resetObjectStructEntry()const
     commonGenObjects_->valuesSet_ = false;
     topGenObjects_->valuesSet_ = false;
     higgsGenObjects_->valuesSet_ = false;
+    zGenObjects_->valuesSet_ = false;
     kinRecoObjects_->valuesSet_ = false;
 }
 
@@ -1305,7 +1363,7 @@ bool AnalysisBase::failsDrellYanGeneratorSelection(const Long64_t& entry)const
 bool AnalysisBase::failsTopGeneratorSelection(const Long64_t& entry)const
 {
     if(!isTtbarPlusTauSample_) return false;
-    GetTopDecayModeEntry(entry);
+    this->GetTopDecayModeEntry(entry);
     //decayMode contains the decay of the top (*10) + the decay of the antitop
     //1=hadron, 2=e, 3=mu, 4=tau->hadron, 5=tau->e, 6=tau->mu
     //i.e. 23 == top decays to e, tbar decays to mu
@@ -1522,14 +1580,22 @@ void AnalysisBase::produceBtagEfficiencies()
 
 
 
-void AnalysisBase::correctMvaMet(LV& met, const LV& dilepton, const int njets)const
+void AnalysisBase::correctMvaMet(LV& met, const LV& dilepton, const int njets, const Long64_t& entry)const
 {
-    if(!this->genZ_) return;
+    if(!isDrellYan_) return;
     
-    float metx = met.Px();
-    float mety = met.Py();
-    recoilCorrector_->correctMet(metx, mety, genZ_->at(0).Px(), genZ_->at(0).Py(), dilepton.Px(), dilepton.Py(), (int)njets);
-    met.SetPxPyPzE(metx, mety, met.Pz(), met.E());
+    const ZGenObjects& zGenObjects = this->getZGenObjects(entry);
+    if(zGenObjects.GenZ_->size() != 1){
+        std::cerr<<"ERROR in AnalysisBase::correctMvaMet()! Not exactly one Z stored, but: "<<zGenObjects.GenZ_->size()
+                 <<"\n...break\n"<<std::endl;
+        exit(292);
+    }
+    
+    const LV& genZ = zGenObjects.GenZ_->at(0);
+    float metX = met.Px();
+    float metY = met.Py();
+    recoilCorrector_->correctMet(metX, metY, genZ.px(), genZ.py(), dilepton.px(), dilepton.py(), (int)njets);
+    met.SetPxPyPzE(metX, metY, met.pz(), met.E());
 }
 
 

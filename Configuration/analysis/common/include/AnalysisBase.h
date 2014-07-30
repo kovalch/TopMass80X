@@ -32,6 +32,7 @@ class RecoObjects;
 class CommonGenObjects;
 class TopGenObjects;
 class HiggsGenObjects;
+class ZGenObjects;
 class KinRecoObjects;
 namespace ztop{
     class RecoilCorrector;
@@ -80,6 +81,9 @@ public:
     
     /// Set whether it is Higgs signal sample
     void SetHiggsSignal(const bool higgsSignal);
+    
+    /// Set whether it is Drell-Yan sample
+    void SetDrellYan(const bool isDrellYan);
     
     /// Set Drell-Yan decay channel for selection, access decay mode from nTuple branch
     void SetTrueLevelDYChannel(const int dy);
@@ -144,19 +148,22 @@ protected:
     
     /// Get a constant reference to nTuple branches relevant for reconstruction level
     const RecoObjects& getRecoObjects(const Long64_t& entry)const;
-
+    
     /// Get a constant reference to nTuple branches holding generator information for all MC samples
     const CommonGenObjects& getCommonGenObjects(const Long64_t& entry)const;
-
+    
     /// Get a constant reference to nTuple branches for Top signal samples on generator level
     const TopGenObjects& getTopGenObjects(const Long64_t& entry)const;
-
+    
     /// Get a constant reference to nTuple branches for Higgs signal samples on generator level
     const HiggsGenObjects& getHiggsGenObjects(const Long64_t& entry)const;
-
+    
+    /// Get a constant reference to nTuple branches for Z signal samples on generator level
+    const ZGenObjects& getZGenObjects(const Long64_t& entry)const;
+    
     /// Get a constant reference to nTuple branches for kinematic reconstruction
     const KinRecoObjects& getKinRecoObjects(const Long64_t& entry)const;
-
+    
     /// Get a constant reference to on-the-fly kinematic reconstruction results
     const KinRecoObjects& getKinRecoObjectsOnTheFly(const int leptonIndex, const int antiLeptonIndex, const std::vector<int>& jetIndices,
                                                     const VLV& allLeptons, const VLV& jets, const std::vector<double>& jetBTagCSV,
@@ -214,7 +221,7 @@ protected:
 // ----------------------- Protected methods for application of corrections (e.g. scale factors) NOT stored in the ntuple -----------------------
     
     ///  Recoil Correction of the Mva Met
-    void correctMvaMet(LV& met, const LV& dilepton, const int njets)const;
+    void correctMvaMet(LV& met, const LV& dilepton, const int njets, const Long64_t& entry)const;
 
     /// Get weight due to top-pt reweighting
     double weightTopPtReweighting(const Long64_t& entry)const;
@@ -324,6 +331,9 @@ protected:
     /// Whether generator information about a Higgs system is stored (and whether it should be used for analysis)
     const bool& isHiggsSignal()const{return isHiggsSignal_;}
     
+    /// Whether it is a Drell-Yan sample
+    const bool& isDrellYan()const{return isDrellYan_;};
+    
     /// Whether it is a ttbar sample (not ttbar + something)
     const bool& isTtbarSample()const{return isTtbarSample_;}
     
@@ -355,6 +365,9 @@ private:
     /// Access event entry for nTuple branches for Higgs signal samples on generator level
     void GetHiggsSignalBranchesEntry(const Long64_t& entry)const;
     
+    /// Access event entry for nTuple branches for Z signal samples on generator level
+    void GetZSignalBranchesEntry(const Long64_t& entry)const;
+    
     /// Access event entry for nTuple branches for trigger bits
     void GetTriggerBranchesEntry(const Long64_t& entry)const;
     
@@ -372,6 +385,9 @@ private:
     
     /// Access event entry for nTuple branch for Higgs decay mode
     void GetHiggsDecayModeEntry(const Long64_t& entry)const;
+    
+    /// Access event entry for nTuple branch for Z decay mode
+    void GetZDecayModeEntry(const Long64_t& entry)const;
     
     /// Access event entry for nTuple branches of generated top and anti-top quark, used for reweighting
     void GetGenTopBranchesEntry(const Long64_t& entry)const;
@@ -408,14 +424,14 @@ private:
     /// Set address of nTuple branch for PDF weights
     void SetPdfBranchAddress();
     
-    /// Set address of nTuple branch for Drell-Yan decay mode
-    void SetDyDecayBranchAddress();
-    
     /// Set address of nTuple branch for Top decay mode
     void SetTopDecayBranchAddress();
     
     /// Set address of nTuple branch for Higgs decay mode
     void SetHiggsDecayBranchAddress();
+    
+    /// Set address of nTuple branch for Z decay mode
+    void SetZDecayBranchAddress();
     
     /// Set addresses of nTuple branches for generated top and anti-top quark, used for reweighting
     void SetGenTopBranchAddresses();
@@ -425,6 +441,9 @@ private:
     
     /// Set addresses of nTuple branches for Higgs signal samples on generator level
     void SetHiggsSignalBranchAddresses();
+    
+    /// Set addresses of nTuple branches for Z signal samples on generator level
+    void SetZSignalBranchAddresses();
     
     
     
@@ -541,17 +560,16 @@ private:
     TBranch* b_weightPDF;
     
     
-    /// nTuple branch for Drell-Yan decay mode
-    TBranch* b_ZDecayMode;
-    TBranch* b_genZ;
-    
-    
     /// nTuple branch for Top decay mode
     TBranch* b_TopDecayMode;
     
     
     /// nTuple branch for Higgs decay mode
     TBranch* b_HiggsDecayMode;
+    
+    
+    /// nTuple branch for Z decay mode
+    TBranch* b_GenZDecayMode;
     
     
     /// nTuple branches for Top signal samples on generator level
@@ -609,50 +627,59 @@ private:
     TBranch* b_GenAntiBFromH;
     
     
+    /// nTuple branches for Z signal samples on generator level
+    TBranch* b_GenZ;
+    TBranch* b_GenZMeDaughterParticle;
+    TBranch* b_GenZMeDaughterAntiParticle;
+    TBranch* b_GenZStableLepton;
+    TBranch* b_GenZStableAntiLepton;
+    
+    
+    
     
 // ----------------------- Variables associated to the nTuple branches -----------------------
     
     /// Struct for holding variables associated to nTuple branches relevant for reconstruction level
     RecoObjects* recoObjects_;
-
+    
     /// Struct for holding variables associated to nTuple branches holding generator information for all MC samples
     CommonGenObjects* commonGenObjects_;
-
+    
     /// Struct for holding variables associated to nTuple branches for Top signal samples on generator level
     TopGenObjects* topGenObjects_;
-
+    
     /// Struct for holding variables associated to nTuple branches for Higgs signal samples on generator level
     HiggsGenObjects* higgsGenObjects_;
-
+    
+    /// Struct for holding variables associated to nTuple branches for Z signal samples on generator level
+    ZGenObjects* zGenObjects_;
+    
     /// Struct for holding variables associated to nTuple branches of kinematic reconstruction
     KinRecoObjects* kinRecoObjects_;
     
-
+    
     /// Variables associated to nTuple branches holding trigger bits
     UInt_t triggerBits_;
     //UInt_t triggerBitsTau_;
     //std::vector<std::string>* firedTriggers_;
-
+    
     /// Variables associated to nTuple branch of true vertex multiplicity
     Int_t vertMultiTrue_;
-
+    
     /// Variables associated to nTuple branch for generator event weight
     Double_t weightGenerator_;
-
+    
     /// Variables associated to nTuple branch for PDF weights
     std::vector<double>* weightPDF_;
-
-    /// Variables associated to nTuple branch for Drell-Yan decay mode
-    std::vector<int>* ZDecayMode_;
-
-    /// Variables associated to nTuple branch for generator level Z-boson TLorentzVector
-    VLV* genZ_;
     
     /// Variables associated to nTuple branch for Top decay mode
     Int_t topDecayMode_;
     
     /// Variables associated to nTuple branch for Higgs decay mode
     Int_t higgsDecayMode_;
+    
+    /// Variables associated to nTuple branch for Z decay mode
+    std::vector<int>* v_genZDecayMode_;
     
     
     
@@ -674,6 +701,7 @@ private:
 // ----------------------- Helper variables needed for AnalysisBase -----------------------
     
     /// Further variables added from the outside
+    bool isDrellYan_;
     bool isTtbarPlusTauSample_;
     bool correctMadgraphBR_;
     int channelPdgIdProduct_;
@@ -704,7 +732,7 @@ private:
     const PileupScaleFactors* pileupScaleFactors_;
     
     /// Pointer to the Met Recoil correction tools
-    ztop::RecoilCorrector* recoilCorrector_;
+    const ztop::RecoilCorrector* recoilCorrector_;
     
     /// Pointer to lepton scale factors instance
     const LeptonScaleFactors* leptonScaleFactors_;

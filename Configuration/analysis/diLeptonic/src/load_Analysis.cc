@@ -309,8 +309,12 @@ void load_Analysis(const TString& validFilenamePattern,
                     std::cerr << outputfilename << " must start with 'channel_dy'\n";
                     exit(1);
                 }
+                selector->SetDrellYan(true);
                 const Channel::Channel dyChannel = dy == 11 ? Channel::ee : dy == 13 ? Channel::mumu : Channel::tautau;
                 outputfilename.ReplaceAll("_dy", TString("_dy").Append(Channel::convert(dyChannel)));
+            }
+            else{
+                selector->SetDrellYan(false);
             }
             
             // Run the selector

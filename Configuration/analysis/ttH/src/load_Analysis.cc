@@ -362,6 +362,7 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
         selector->SetTopSignal(isTopSignal);
         selector->SetHiggsSignal(isHiggsSignal);
         selector->SetMC(isMC);
+        selector->SetDrellYan(isDrellYan);
         selector->SetWeightedEvents(weightedEvents);
         // FIXME: correction for MadGraph W decay branching fractions are not correctly applied
         // Recently it is done for W from ttbar decays, set via SetGeneratorBools
