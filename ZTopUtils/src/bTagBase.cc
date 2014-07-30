@@ -509,9 +509,6 @@ float bTagBase::getEventSF() {
 float bTagBase::getJetDiscrShapeWeight(const float & pt, const float& abs_eta,
         const int & genPartonFlavor, const float& jetdiscr)const{
 
-    if(genPartonFlavor==0) //covers data
-        return 1;
-
     if(!hf_rewfile_ || !lf_rewfile_){
         throw std::logic_error("bTagBase::getJetDiscrShapeWeight: first read in weight files!");
     }
@@ -1101,13 +1098,13 @@ TString bTagBase::assoLFSysHistoName(systematics sys)const{
 
 
 void bTagBase::setupShapeReweightingBins(){
-    shapeRWPtBinsHF_  << 30 << 40 << 60 << 100 << 160 << 140000;
+    shapeRWPtBinsHF_  << 20 << 30 << 40 << 60 << 100 << 160 << 140000;
 
-    shapeRWPtBinsLF_  << 30 << 40 << 60 << 140000;
+    shapeRWPtBinsLF_  << 20 << 30 << 40 << 60 << 140000;
     shapeRWEtaBinsLF_ << 0 << 0.8 << 1.6 << 6; //<< 2.4;
 
 
-    ////the following works automativally
+    ////the following works automatically
     TH1::AddDirectory(false);
 
     h_csv_wgt_hf_.resize(shapeRWPtBinsHF_.size()-1);

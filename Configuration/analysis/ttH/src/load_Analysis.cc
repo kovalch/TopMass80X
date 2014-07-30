@@ -79,10 +79,10 @@ constexpr const char* JesUncertaintySourceFILE = "Summer13_V4_DATA_UncertaintySo
 constexpr BtagScaleFactors::CorrectionMode BtagCorrectionMODE = BtagScaleFactors::discriminatorReweight;
 
 /// File for the official heavy flavour scale factors for b-tag discriminator reweighting
-constexpr const char* BtagHeavyFlavourFILE = "csv_rwt_hf.root";
+constexpr const char* BtagHeavyFlavourFILE = "csv_rwt_hf_20pt_7_2_14.root";
 
 /// File for the official light flavour scale factors for b-tag discriminator reweighting
-constexpr const char* BtagLightFlavourFILE = "csv_rwt_lf.root";
+constexpr const char* BtagLightFlavourFILE = "csv_rwt_lf_20pt_7_2_14.root";
 
 
 
@@ -215,7 +215,7 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
     // Set up DijetAnalyzer
     AnalyzerDijet* analyzerDijet(0);
     if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::dijet) != v_analysisMode.end()){
-        analyzerDijet = new AnalyzerDijet(Mva2dWeightsFILE, "", "", {}, {"7"}, jetCategories);
+        analyzerDijet = new AnalyzerDijet(Mva2dWeightsFILE, "correct_step7_cate0_cate1_cate2_d1", "", {"7"}, {"7"}, jetCategories, false, true);
         v_analyzer.push_back(analyzerDijet);
     }
     
