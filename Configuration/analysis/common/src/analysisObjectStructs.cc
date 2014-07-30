@@ -172,6 +172,26 @@ void HiggsGenObjects::clear()
 
 
 
+ZGenObjects::ZGenObjects()
+{
+    this->clear();
+}
+
+
+
+void ZGenObjects::clear()
+{
+    valuesSet_ = false;
+    
+    GenZ_ = 0;
+    GenZMeDaughterParticle_ = 0;
+    GenZMeDaughterAntiParticle_ = 0;
+    GenZStableLepton_ = 0;
+    GenZStableAntiLepton_ = 0;
+}
+
+
+
 KinRecoObjects::KinRecoObjects()
 {
     this->clear();

@@ -139,13 +139,11 @@ struct TopGenObjects{
     std::vector<int>* genBHadLeptonHadronIndex_;
     std::vector<int>* genBHadLeptonViaTau_;
     std::vector<int>* genBHadFromTopWeakDecay_;
-    
     std::vector<int>* genCHadJetIndex_;
     std::vector<int>* genCHadLeptonIndex_;
     std::vector<int>* genCHadLeptonHadronIndex_;
     std::vector<int>* genCHadLeptonViaTau_;
     std::vector<int>* genCHadFromBHadron_;
-    
     int genExtraTopJetNumberId_;
 };
 
@@ -162,6 +160,23 @@ struct HiggsGenObjects{
     LV* GenH_;
     LV* GenBFromH_;
     LV* GenAntiBFromH_;
+};
+
+
+
+/// Struct for holding variables associated to nTuple branches for Z signal samples on generator level
+struct ZGenObjects{
+    ZGenObjects();
+    ~ZGenObjects(){}
+    void clear();
+    
+    bool valuesSet_;
+    
+    VLV* GenZ_;
+    VLV* GenZMeDaughterParticle_;
+    VLV* GenZMeDaughterAntiParticle_;
+    VLV* GenZStableLepton_;
+    VLV* GenZStableAntiLepton_;
 };
 
 
