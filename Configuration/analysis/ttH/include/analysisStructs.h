@@ -52,9 +52,11 @@ namespace tth{
     
     struct GenObjectIndices{
         GenObjectIndices(const std::vector<int>& genJetIndices,
+                         const std::vector<int>& allGenBjetIndices,
                          const std::vector<int>& genBjetIndices,
                          const std::vector<std::vector<int> >& genJetBhadronIndices,
                          const std::vector<int>& genJetMatchedRecoBjetIndices,
+                         const std::vector<int>& allGenCjetIndices,
                          const std::vector<int>& genCjetIndices,
                          const std::vector<std::vector<int> >& genJetChadronIndices,
                          const std::vector<int>& genJetMatchedRecoCjetIndices,
@@ -84,10 +86,12 @@ namespace tth{
         
         #ifndef __CINT__
         const std::vector<int>& genJetIndices_;
+        const std::vector<int>& allGenBjetIndices_;
         const std::vector<int>& genBjetIndices_;
         const std::vector<std::vector<int> >& genJetBhadronIndices_;
         const std::vector<int>& genJetMatchedRecoBjetIndices_;
         
+        const std::vector<int>& allGenCjetIndices_;
         const std::vector<int>& genCjetIndices_;
         const std::vector<std::vector<int> >& genJetChadronIndices_;
         const std::vector<int>& genJetMatchedRecoCjetIndices_;

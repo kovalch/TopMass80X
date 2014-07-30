@@ -33,9 +33,7 @@ AnalyzerBase("dijet_", selectionStepsNoCategories, stepsForCategories, jetCatego
 weightsCorrect_(0),
 weightsSwapped_(0),
 doHadronMatchingComparison_(doHadronMatchingComparison),
-doLeadingJetsAnalysis_(doLeadingJetsAnalysis),
-sigJetPt_min_(20.),
-sigJetEta_max_(2.5)
+doLeadingJetsAnalysis_(doLeadingJetsAnalysis)
 {
     std::cout<<"--- Beginning setting up dijet analyzer\n";
     
@@ -94,9 +92,9 @@ void AnalyzerDijet::fillHistos(const RecoObjects& recoObjects, const CommonGenOb
     // Setting variables of gen. level if available
     const VLV& genAllJets = (commonGenObjects.valuesSet_) ? *commonGenObjects.allGenJets_ : VLV(0);
     const std::vector<int>& jetPartonFlavour = (commonGenObjects.valuesSet_) ? *commonGenObjects.jetPartonFlavour_ : std::vector<int>(0);
-    std::vector<int> genAllJetsId;
-    std::vector<int> genJetsId;
-    std::vector<int> genBJetsId;
+    std::vector<int> genAllJetsId = common::initialiseIndices(genAllJets);
+    std::vector<int> genJetsId = genObjectIndices.genJetIndices_;
+    std::vector<int> genBJetsId = genObjectIndices.genBjetIndices_;
     const std::vector<int>& bHadJetIndex = (topGenObjects.valuesSet_) ? *topGenObjects.genBHadJetIndex_ : std::vector<int>(0);
     const std::vector<int>& bHadFlavour = (topGenObjects.valuesSet_) ? *topGenObjects.genBHadFlavour_ : std::vector<int>(0);
     const std::vector<int>& bHadIndex = (topGenObjects.valuesSet_) ? *topGenObjects.genBHadIndex_ : std::vector<int>(0);
@@ -115,16 +113,7 @@ void AnalyzerDijet::fillHistos(const RecoObjects& recoObjects, const CommonGenOb
     std::vector<int> genHiggsJetsId;            // Gen jets coming from higgs
     
     // Checking how we loose additional b-jets from tt+bb events causing tt+b, tt+other events
-    checkAdditionalGenBJetAcceptance(topGenObjects, commonGenObjects, m_histogram, 20.0, 2.5, weight);
-    
-    for(unsigned int jetId = 0; jetId<genAllJets.size(); ++jetId) {
-        genAllJetsId.push_back(jetId);
-        if(genAllJets.at(jetId).Pt()<sigJetPt_min_) continue;
-        if(std::abs(genAllJets.at(jetId).Eta())>sigJetEta_max_) continue;
-        genJetsId.push_back(jetId);
-        if(!isInVector(genObjectIndices.genBjetIndices_, jetId)) continue;
-        genBJetsId.push_back(jetId);
-    }
+    checkAdditionalGenBJetAcceptance(topGenObjects, genObjectIndices, m_histogram, weight);
     
     // Checking how many additional b-hadrons there are in b-jets
     std::vector<std::vector<int> > genJetBhadronIndices;
@@ -202,8 +191,7 @@ void AnalyzerDijet::fillHistos(const RecoObjects& recoObjects, const CommonGenOb
         if(jetId<0) continue;
         if(flavour==6) putUniquelyInVector(genTopAllJetsId, jetId);
         else if(flavour==25) putUniquelyInVector(genHiggsAllJetsId, jetId);
-        if(genAllJets.at(jetId).Pt()<sigJetPt_min_) continue;
-        if(genAllJets.at(jetId).Eta()>sigJetEta_max_) continue;
+        if(!isInVector(genBJetsId, jetId)) continue;
         if(flavour==6) putUniquelyInVector(genTopJetsId, jetId);
         else if(flavour==25) putUniquelyInVector(genHiggsJetsId, jetId);
     }
@@ -1422,12 +1410,13 @@ std::vector<std::pair<int,int> > AnalyzerDijet::jetPairsFromMVA(std::map<TString
 }
 
 
-void AnalyzerDijet::checkAdditionalGenBJetAcceptance(const TopGenObjects& topGenObjects, const CommonGenObjects& commonGenObjects, 
-                                                     std::map<TString, TH1*>& m_histogram, const float jetPt_min, const float jetEta_max, const double weight) 
+void AnalyzerDijet::checkAdditionalGenBJetAcceptance(const TopGenObjects& topGenObjects, const tth::GenObjectIndices& genObjectIndices, 
+                                                     std::map<TString, TH1*>& m_histogram, const double weight) 
 {
     // Setting variables of gen. level if available
-    const VLV& genJets = (commonGenObjects.valuesSet_) ? *commonGenObjects.allGenJets_ : VLV(0);
+    std::vector<int> genJetIndices = genObjectIndices.genJetIndices_;
     const std::vector<int>& bHadJetIndex = (topGenObjects.valuesSet_) ? *topGenObjects.genBHadJetIndex_ : std::vector<int>(0);
+    std::vector<int> genBJetsId = genObjectIndices.genBjetIndices_;
     const std::vector<int>& bHadFlavour = (topGenObjects.valuesSet_) ? *topGenObjects.genBHadFlavour_ : std::vector<int>(0);
     const std::vector<int>& bHadFromTopWeakDecay = (topGenObjects.valuesSet_) ? *topGenObjects.genBHadFromTopWeakDecay_ : std::vector<int>(0);
     
@@ -1453,7 +1442,7 @@ void AnalyzerDijet::checkAdditionalGenBJetAcceptance(const TopGenObjects& topGen
         m_histogram["extraGenBHadronsJets"]->Fill(1., weight);
         int jetId = bHadJetIndex.at(hadId);
         // Jet not in acceptance
-        if(genJets.at(jetId).Pt()<jetPt_min || std::fabs(genJets.at(jetId).Eta())>jetEta_max) continue;
+        if(!isInVector(genJetIndices, jetId)) continue;
         m_histogram["extraGenBHadronsJets"]->Fill(2., weight);
         // Jet overlaps with b-jets from tt
         if(isInVector(topJetIds, jetId)) continue;
@@ -1468,16 +1457,9 @@ void AnalyzerDijet::checkAdditionalGenBJetAcceptance(const TopGenObjects& topGen
     m_histogram["extraGenBHadronMultiplicity"]->Fill((int)addHadronIds.size(), weight);
     m_histogram["extraGenBJetMultiplicity"]->Fill((int)addJetIds.size(), weight);
     
-    for(int iJet1 : bHadJetIndex) {
-        if(iJet1<0) continue;
-        if(genJets.at(iJet1).Pt()<sigJetPt_min_) continue;
-        if(std::fabs(genJets.at(iJet1).Eta())>sigJetEta_max_) continue;
-        
-        for(int iJet2 : bHadJetIndex) {
-            if(iJet2<0) continue;
+    for(int iJet1 : genBJetsId) {
+        for(int iJet2 : genBJetsId) {
             if(iJet2==iJet1) continue;
-            if(genJets.at(iJet2).Pt()<sigJetPt_min_) continue;
-            if(std::fabs(genJets.at(iJet2).Eta())>sigJetEta_max_) continue;
             if(!isInVector(addJetIds, iJet1)) continue;
             if(!isInVector(addJetIds, iJet2)) continue;
         }
@@ -2214,8 +2196,8 @@ void AnalyzerDijet::fillTopAdditionalJetsHistos(const RecoObjects& recoObjects, 
     }
     // Setting variables of gen. level if available
     const VLV& allGenJets = (commonGenObjects.valuesSet_) ? *commonGenObjects.allGenJets_ : VLV(0);
-    std::vector<int> genJetsId;
-    std::vector<int> genBJetsId;
+    std::vector<int> genJetsId = genObjectIndices.genJetIndices_;
+    std::vector<int> genBJetsId = genObjectIndices.genBjetIndices_;
     std::vector<int> genJetsRecoId;
 //     const std::vector<int>& bHadJetIndex = (topGenObjects.valuesSet_) ? *topGenObjects.genBHadJetIndex_ : std::vector<int>(0);
 //     const std::vector<int>& bHadFlavour = (topGenObjects.valuesSet_) ? *topGenObjects.genBHadFlavour_ : std::vector<int>(0);
@@ -2240,13 +2222,9 @@ void AnalyzerDijet::fillTopAdditionalJetsHistos(const RecoObjects& recoObjects, 
     
     // Selecting gen jets/b-jets in acceptance
     for(int jetId = 0; jetId<(int)allGenJets.size(); ++jetId) {
-        LV jet = allGenJets.at(jetId);
         if(jetId==genObjectIndices.genBjetFromTopIndex_) topAllJetsId_gen.push_back(jetId);
         if(jetId==genObjectIndices.genAntiBjetFromTopIndex_) topAllJetsId_gen.push_back(jetId);
-        if(jet.Pt()<sigJetPt_min_) continue;
-        if(jet.Eta()>sigJetEta_max_) continue;
-        genJetsId.push_back(jetId);
-        if(isInVector(genObjectIndices.genBjetIndices_, jetId)) genBJetsId.push_back(jetId);
+        if(!isInVector(genObjectIndices.genJetIndices_, jetId)) continue;
         // Jets from top
         if(jetId==genObjectIndices.genBjetFromTopIndex_) {
             topJetsId_gen.push_back(jetId);

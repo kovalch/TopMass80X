@@ -174,7 +174,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     const HiggsGenObjects higgsGenObjectsDummy;
 
     // Set up dummies for weights and indices, as needed for generic functions
-    const tth::GenObjectIndices genObjectIndicesDummy({}, {}, {}, {}, {}, {}, {}, -1, -1, -1, -1, -1, -1, -1, -1);
+    const tth::GenObjectIndices genObjectIndicesDummy({}, {}, {}, {}, {}, {}, {}, {}, {}, -1, -1, -1, -1, -1, -1, -1, -1);
     const tth::RecoObjectIndices recoObjectIndicesDummy({}, {}, {}, -1, -1, -1, -1, -1, -1, {}, {}, {});
     const tth::GenLevelWeights genLevelWeightsDummy(0., 0., 0., 0., 0., 0.);
     const tth::RecoLevelWeights recoLevelWeightsDummy(0., 0., 0., 0., 0., 0.);
@@ -544,26 +544,35 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     
     // Generated jets
     const VLV& allGenJets =  topGenObjects.valuesSet_ ? *commonGenObjects.allGenJets_ : VLV(0);
+    std::vector<int> allGenJetIndices = initialiseIndices(allGenJets);
     std::vector<int> genJetIndices = this->genJetIndices(allGenJets, topGenObjects);
     
     // Match for all genJets all B hadrons
+    std::vector<std::vector<int> > allGenJetBhadronIndices;
     std::vector<std::vector<int> > genJetBhadronIndices;
+    std::vector<int> allGenBjetIndices;
     std::vector<int> genBjetIndices;
     std::vector<int> genJetMatchedRecoBjetIndices;
     if(topGenObjects.valuesSet_){
+        allGenJetBhadronIndices = this->matchBhadronsToGenJets(allGenJetIndices, allGenJets, topGenObjects);
         genJetBhadronIndices = this->matchBhadronsToGenJets(genJetIndices, allGenJets, topGenObjects);
+        allGenBjetIndices = this->genBjetIndices(allGenJetBhadronIndices);
         genBjetIndices = this->genBjetIndices(genJetBhadronIndices);
-        genJetMatchedRecoBjetIndices = this->matchRecoToGenJets(jetIndices, jets, genBjetIndices, allGenJets);
+        genJetMatchedRecoBjetIndices = this->matchRecoToGenJets(jetIndices, jets, allGenBjetIndices, allGenJets);
     }
     
     // Match for all genJets all C hadrons
+    std::vector<std::vector<int> > allGenJetChadronIndices;
     std::vector<std::vector<int> > genJetChadronIndices;
+    std::vector<int> allGenCjetIndices;
     std::vector<int> genCjetIndices;
     std::vector<int> genJetMatchedRecoCjetIndices;
     if(topGenObjects.valuesSet_){
+        allGenJetChadronIndices = this->matchChadronsToGenJets(allGenJetIndices, allGenJets, topGenObjects);
         genJetChadronIndices = this->matchChadronsToGenJets(genJetIndices, allGenJets, topGenObjects);
+        allGenCjetIndices = this->genCjetIndices(allGenJetBhadronIndices, allGenJetChadronIndices);
         genCjetIndices = this->genCjetIndices(genJetBhadronIndices, genJetChadronIndices);
-        genJetMatchedRecoCjetIndices = this->matchRecoToGenJets(jetIndices, jets, genCjetIndices, allGenJets);
+        genJetMatchedRecoCjetIndices = this->matchRecoToGenJets(jetIndices, jets, allGenCjetIndices, allGenJets);
     }
     
     // Jet matchings for ttbar system
@@ -593,8 +602,10 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     
     const tth::GenObjectIndices genObjectIndices(genJetIndices,
                                                  genBjetIndices,
+                                                 allGenBjetIndices,
                                                  genJetBhadronIndices,
                                                  genJetMatchedRecoBjetIndices,
+                                                 allGenCjetIndices,
                                                  genCjetIndices,
                                                  genJetChadronIndices,
                                                  genJetMatchedRecoCjetIndices,

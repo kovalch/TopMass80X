@@ -102,8 +102,8 @@ private:
                             std::map<TString, TH1*>& m_histogram);
     
     /// Check how we additional b-jets in tt+bb events
-    void checkAdditionalGenBJetAcceptance(const TopGenObjects& topGenObjects, const CommonGenObjects& commonGenObjects, 
-                                          std::map<TString, TH1*>& m_histogram, const float jetPt_min, const float jetEta_max, const double weight);
+    void checkAdditionalGenBJetAcceptance(const TopGenObjects& topGenObjects, const tth::GenObjectIndices& genObjectIndices, 
+                                          std::map<TString, TH1*>& m_histogram, const double weight);
 
     /// Analyze jet pairs of given jets for the given b-jets from top. Returns ration of correct pairs to wrong pairs
     float correctPairFraction(const VLV& allJets, const std::vector<int>& jetsId,
@@ -181,10 +181,6 @@ private:
     /// Whether to analyse leading additional-top jets
     bool doLeadingJetsAnalysis_;
     
-    double sigJetPt_min_;
-    double sigJetEta_max_;
-    
-
 };
 
 

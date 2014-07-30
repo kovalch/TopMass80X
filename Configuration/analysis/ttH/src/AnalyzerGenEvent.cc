@@ -352,7 +352,7 @@ void AnalyzerGenEvent::fillBhadronHistos(const TString& topOrHiggsName,
     // Access all b jets for requested selection, avoiding double-counting
     std::vector<int> bjetIndices;
     if(topOrHiggsName == "allB_"){
-        bjetIndices = common::initialiseIndices(genObjectIndices.genBjetIndices_);
+        bjetIndices = common::initialiseIndices(genObjectIndices.allGenBjetIndices_);
     }
     else if(topOrHiggsName == "top_"){
         if(genObjectIndices.genBjetFromTopIndex_ >= 0) bjetIndices.push_back(genObjectIndices.genBjetFromTopIndex_);
