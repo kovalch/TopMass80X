@@ -115,10 +115,8 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 ####################################################################
 ## Set up sample-specific flags for individual treatment in nTuple production
-# FIXME: can get rid of zproducer, since zGenInfo contains all relevant information for Drell-Yan sample separation (also in ntuple)
 
 zGenInfo = False
-zproducer = False
 topfilter = False
 topSignal = False
 higgsSignal = False
@@ -146,7 +144,6 @@ elif options.samplename == 'ttbarbg':
     topfilter = True
     containsWs = True
 elif options.samplename == 'dy1050' or options.samplename == 'dy50inf':
-    zproducer = True
     zGenInfo = True
 elif options.samplename == 'ttbarhiggstobbbar':
     topfilter = True
@@ -736,12 +733,6 @@ else:
 ####################################################################
 ## Sample-specific sequences for generator level information
 
-if zproducer:
-    process.load("TopAnalysis.TopUtils.ZDecayProducer_cfi")
-    process.zsequence = cms.Sequence(process.ZDecayProducer)
-else:
-    process.zsequence = cms.Sequence()
-
 if zGenInfo:
     process.load("TopAnalysis.HiggsUtils.producers.GenZDecay_cfi")
     process.zGenSequence = cms.Sequence(process.genZDecay)
@@ -843,7 +834,6 @@ writeNTuple.isMadgraphSample = madgraphSample
 
 writeNTuple.includeTrigger = False
 writeNTuple.includePdfWeights = options.includePDFWeights
-writeNTuple.includeZDecay = zproducer
 writeNTuple.saveHadronMothers = False
 writeNTuple.saveCHadronParticles = False
 
@@ -912,7 +902,6 @@ path = cms.Path(
     process.finalCollectionsSequence *
     process.preselectionSequence *
     process.jetProperties *
-    process.zsequence *
     process.madgraphWDecaySequence *
     process.ntupleInRecoSeq
 )
@@ -929,7 +918,6 @@ pathNtuple = cms.Path(
     process.mvaMetSequence *
     process.finalCollectionsSequence *
     process.jetProperties *
-    process.zsequence *
     process.madgraphWDecaySequence *
     process.writeNTuple
     )

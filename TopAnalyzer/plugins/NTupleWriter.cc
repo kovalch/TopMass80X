@@ -117,7 +117,6 @@ private:
     const bool isMadgraphSample_;
     const bool includeTrigger_;
     const bool includePdfWeights_;
-    const bool includeZDecay_;
     const bool saveHadronMothers_;
     const bool saveCHadronParticles_;
     
@@ -146,8 +145,6 @@ private:
     const edm::InputTag genEventTtbarTag_;
     const edm::InputTag genEventHiggsTag_;
     const edm::InputTag genZDecayTag_;
-    const edm::InputTag bIndexTag_;
-    const edm::InputTag antiBIndexTag_;
     const edm::InputTag bHadJetIndexTag_;
     const edm::InputTag antiBHadJetIndexTag_;
     const edm::InputTag BHadronsTag_;
@@ -164,7 +161,7 @@ private:
     const edm::InputTag genBHadLeptonIndexTag_;
     const edm::InputTag genBHadLeptonHadronIndexTag_;
     const edm::InputTag genBHadFromTopWeakDecayTag_;
-    const edm::InputTag genBHadBHadronIdTag_;
+    const edm::InputTag genBHadBHadronIdTag_; // FIXME NAZAR: this variable is initialised, but not used at all ???
     const edm::InputTag genCHadPlusMothersTag_;
     const edm::InputTag genCHadPlusMothersIndicesTag_;
     const edm::InputTag genCHadIndexTag_;
@@ -176,7 +173,6 @@ private:
     const edm::InputTag genCHadBHadronIdTag_;
     const edm::InputTag ttbarDecayModeTag_;
     const edm::InputTag higgsDecayModeTag_;
-    const edm::InputTag zDecayModeTag_;
     const edm::InputTag madgraphWDecayTag_;
     
     
@@ -278,8 +274,6 @@ private:
     LV genAntiNeutrino_;
     LV genB_;
     LV genAntiB_;
-    //LV hadronGenB;
-    //LV hadronGenAntiB;
     LV genWPlus_;
     LV genWMinus_;
     LV genMet_;
@@ -301,7 +295,6 @@ private:
     LV genAntiBFromH_;
     
     // ... for Z boson (+decay) generator info
-    std::vector<int> v_zDecayMode_;
     std::vector<LV> v_genZ_;
     std::vector<LV> v_genZMeDaughterParticle_;
     std::vector<LV> v_genZMeDaughterAntiParticle_;
@@ -325,7 +318,7 @@ private:
     std::vector<LV> v_genCHadPlusMothers_;
     std::vector<int> v_genCHadPlusMothersPdgId_;
     std::vector<int> v_genCHadPlusMothersStatus_;
-    std::vector<std::vector<int> > v_genCHadPlusMothersIndices_;
+    std::vector<std::vector<int> > v_genCHadPlusMothersIndices_;  // FIXME NAZAR: written to branch, but never used
     std::vector<int> v_genCHadIndex_;
     std::vector<int> v_genCHadBHadronId_;
     std::vector<int> v_genCHadJetIndex_;
@@ -373,7 +366,6 @@ isZSample_(iConfig.getParameter<bool>("isZSample")),
 isMadgraphSample_(iConfig.getParameter<bool>("isMadgraphSample")),
 includeTrigger_(iConfig.getParameter<bool>("includeTrigger")),
 includePdfWeights_ (iConfig.getParameter<bool>("includePdfWeights")),
-includeZDecay_(iConfig.getParameter<bool>("includeZDecay")),
 saveHadronMothers_(iConfig.getParameter<bool>("saveHadronMothers")),
 saveCHadronParticles_(iConfig.getParameter<bool>("saveCHadronParticles")),
 
@@ -396,8 +388,6 @@ pdfWeightTag_(iConfig.getParameter<edm::InputTag>("pdfWeights")),
 genEventTtbarTag_(iConfig.getParameter<edm::InputTag>("genEventTtbar")),
 genEventHiggsTag_(iConfig.getParameter<edm::InputTag>("genEventHiggs")),
 genZDecayTag_(iConfig.getParameter<edm::InputTag>("genZDecay")),
-bIndexTag_(iConfig.getParameter<edm::InputTag>("BJetIndex")),
-antiBIndexTag_(iConfig.getParameter<edm::InputTag>("AntiBJetIndex")),
 bHadJetIndexTag_(iConfig.getParameter<edm::InputTag>("BHadJetIndex")),
 antiBHadJetIndexTag_(iConfig.getParameter<edm::InputTag>("AntiBHadJetIndex")),
 BHadronsTag_(iConfig.getParameter<edm::InputTag>("BHadrons")),
@@ -426,7 +416,6 @@ genCHadFromTopWeakDecayTag_(iConfig.getParameter<edm::InputTag>("genCHadFromTopW
 genCHadBHadronIdTag_(iConfig.getParameter<edm::InputTag>("genCHadBHadronId")),
 ttbarDecayModeTag_(iConfig.getParameter<edm::InputTag>("ttbarDecayMode")),
 higgsDecayModeTag_(iConfig.getParameter<edm::InputTag>("higgsDecayMode")),
-zDecayModeTag_(iConfig.getParameter<edm::InputTag>("zDecayMode")),
 madgraphWDecayTag_(iConfig.getParameter<edm::InputTag>("madgraphWDecay")),
 
 nullP4_(0., 0., 0., 0.)
@@ -662,11 +651,11 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         
         // Put full true info about genParticles
         //edm::Handle<std::vector<reco::GenParticle> > genParticles;
-        //iEvent.getByLabel(genParticles_, genParticles);
-        //for(std::vector<reco::GenParticle>::const_iterator p = genParticles->begin(); p != genParticles->end(); ++p){
-        //    GenParticleP4.push_back(p->polarP4());
-        //    GenParticlePdgId.push_back(p->pdgId());
-        //    GenParticleStatus.push_back(p->status());
+        //iEvent.getByLabel(genParticlesTag_, genParticles);
+        //for(std::vector<reco::GenParticle>::const_iterator i_particle = genParticles->begin(); i_particle != genParticles->end(); ++i_particle){
+        //    v_genParticleP4_.push_back(i_particle->polarP4());
+        //    v_genParticlePdgId_.push_back(i_particle->pdgId());
+        //    v_genParticleStatus_.push_back(i_particle->status());
         //}
     }
     
@@ -694,14 +683,6 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         edm::Handle<int> higgsDecayMode;
         iEvent.getByLabel(higgsDecayModeTag_, higgsDecayMode);
         higgsDecayMode_ = higgsDecayMode.failedToGet() ? 0 : *higgsDecayMode;
-    }
-    
-    // Decay mode of Z bosons
-    // FIXME: can be removed, since information is also contained in GenZDecayProperties
-    if(includeZDecay_){
-        edm::Handle<std::vector<int> > zDecayModes;
-        iEvent.getByLabel(zDecayModeTag_, zDecayModes);
-        v_zDecayMode_ = *zDecayModes;
     }
     
     // Generator info for Z samples
@@ -1418,9 +1399,9 @@ NTupleWriter::beginJob()
     // General true-level info
     if(isMC_){
         ntuple_->Branch("vertMultiTrue", &vertexMultiplicityTrue_, "vertMultiTrue/I");
-        //ntuple_->Branch("GenParticleP4", &GenParticleP4);
-        //ntuple_->Branch("GenParticlePdgId", &GenParticlePdgId);
-        //ntuple_->Branch("GenParticleStatus", &GenParticleStatus);
+        //ntuple_->Branch("GenParticleP4", &v_genParticleP4_);
+        //ntuple_->Branch("GenParticlePdgId", &v_genParticlePdgId_);
+        //ntuple_->Branch("GenParticleStatus", &v_genParticleStatus_);
         ntuple_->Branch("allGenJets", &v_allGenJet_);
         ntuple_->Branch("associatedGenJet", &v_associatedGenJet_);
         ntuple_->Branch("associatedGenJetForMET", &v_associatedGenJetForMet_);
@@ -1446,8 +1427,6 @@ NTupleWriter::beginJob()
         ntuple_->Branch("GenAntiNeutrino", &genAntiNeutrino_);
         ntuple_->Branch("GenB", &genB_);
         ntuple_->Branch("GenAntiB", &genAntiB_);
-        //ntuple_->Branch("GenJetHadronB", &hadronGenB);
-        //ntuple_->Branch("GenJetHadronAntiB", &hadronGenAntiB);
         ntuple_->Branch("GenWPlus", &genWPlus_);
         ntuple_->Branch("GenWMinus", &genWMinus_);
         ntuple_->Branch("GenMET", &genMet_);
@@ -1473,7 +1452,6 @@ NTupleWriter::beginJob()
     }
     
     // Z boson generator info
-    ntuple_->Branch("ZDecayMode", &v_zDecayMode_);
     if(isZSample_){
         ntuple_->Branch("GenZ", &v_genZ_);
         ntuple_->Branch("GenZMeDaughterParticle", &v_genZMeDaughterParticle_);
@@ -1618,8 +1596,6 @@ void NTupleWriter::clearVariables()
     genAntiNeutrino_ = nullP4_;
     genB_ = nullP4_;
     genAntiB_ = nullP4_;
-    //hadronGenB = nullP4;
-    //hadronGenAntiB = nullP4;
     genWPlus_ = nullP4_;
     genWMinus_ = nullP4_;
     genMet_ = nullP4_;
@@ -1641,7 +1617,6 @@ void NTupleWriter::clearVariables()
     genAntiBFromH_ = nullP4_;
     
     // Z boson generator info
-    v_zDecayMode_.clear();
     v_genZ_.clear();
     v_genZMeDaughterParticle_.clear();
     v_genZMeDaughterAntiParticle_.clear();
