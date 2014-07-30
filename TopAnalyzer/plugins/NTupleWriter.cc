@@ -246,10 +246,6 @@ private:
     
     // ... for general true level info
     int vertexMultiplicityTrue_;
-    std::vector<LV> v_genParticleP4_;
-    std::vector<int> v_genParticlePdgId_;
-    std::vector<int> v_genParticleStatus_;
-    std::vector<LV> v_allGenJet_;
     std::vector<LV> v_associatedGenJet_;
     std::vector<LV> v_associatedGenJetForMet_;
     std::vector<int> v_jetPartonFlavour_;
@@ -275,6 +271,10 @@ private:
     LV genWPlus_;
     LV genWMinus_;
     LV genMet_;
+    std::vector<LV> v_allGenJet_;
+    std::vector<LV> v_genParticleP4_;
+    std::vector<int> v_genParticlePdgId_;
+    std::vector<int> v_genParticleStatus_;
     std::vector<int> v_bHadJetIndex_;
     std::vector<int> v_antiBHadJetIndex_;
     std::vector<LV> v_bHadron_;
@@ -592,12 +592,19 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         genMet_ = genMet->at(0).polarP4();
         
         // All gen jets
-        // FIXME: filled only for ttbar, but stored in all MC samples. What is right???
         edm::Handle<reco::GenJetCollection> genJets;
         iEvent.getByLabel(genJetsTag_, genJets);
         for(std::vector<reco::GenJet>::const_iterator i_jet = genJets->begin(); i_jet != genJets->end(); ++i_jet)
             v_allGenJet_.push_back(i_jet->polarP4());
         
+        // Put full true info about genParticles
+        //edm::Handle<std::vector<reco::GenParticle> > genParticles;
+        //iEvent.getByLabel(genParticlesTag_, genParticles);
+        //for(std::vector<reco::GenParticle>::const_iterator i_particle = genParticles->begin(); i_particle != genParticles->end(); ++i_particle){
+        //    v_genParticleP4_.push_back(i_particle->polarP4());
+        //    v_genParticlePdgId_.push_back(i_particle->pdgId());
+        //    v_genParticleStatus_.push_back(i_particle->status());
+        //}
         
         
         // Old quark-to-genJet association scheme
@@ -642,15 +649,6 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         iEvent.getByLabel(AntiBHadronVsJetTag_, AntiBHadronVsJet);
         for(size_t iHadron = 0; iHadron < AntiBHadronVsJet->size(); ++iHadron)
             v_antiBHadVsJet_.push_back(AntiBHadronVsJet->at(iHadron));
-        
-        // Put full true info about genParticles
-        //edm::Handle<std::vector<reco::GenParticle> > genParticles;
-        //iEvent.getByLabel(genParticlesTag_, genParticles);
-        //for(std::vector<reco::GenParticle>::const_iterator i_particle = genParticles->begin(); i_particle != genParticles->end(); ++i_particle){
-        //    v_genParticleP4_.push_back(i_particle->polarP4());
-        //    v_genParticlePdgId_.push_back(i_particle->pdgId());
-        //    v_genParticleStatus_.push_back(i_particle->status());
-        //}
     }
     
     // Generator info for Higgs samples
@@ -1373,10 +1371,6 @@ NTupleWriter::beginJob()
     // General true-level info
     if(isMC_){
         ntuple_->Branch("vertMultiTrue", &vertexMultiplicityTrue_, "vertMultiTrue/I");
-        //ntuple_->Branch("GenParticleP4", &v_genParticleP4_);
-        //ntuple_->Branch("GenParticlePdgId", &v_genParticlePdgId_);
-        //ntuple_->Branch("GenParticleStatus", &v_genParticleStatus_);
-        ntuple_->Branch("allGenJets", &v_allGenJet_);
         ntuple_->Branch("associatedGenJet", &v_associatedGenJet_);
         ntuple_->Branch("associatedGenJetForMET", &v_associatedGenJetForMet_);
         ntuple_->Branch("jetPartonFlavour", &v_jetPartonFlavour_);
@@ -1404,6 +1398,10 @@ NTupleWriter::beginJob()
         ntuple_->Branch("GenWPlus", &genWPlus_);
         ntuple_->Branch("GenWMinus", &genWMinus_);
         ntuple_->Branch("GenMET", &genMet_);
+        ntuple_->Branch("allGenJets", &v_allGenJet_);
+        //ntuple_->Branch("GenParticleP4", &v_genParticleP4_);
+        //ntuple_->Branch("GenParticlePdgId", &v_genParticlePdgId_);
+        //ntuple_->Branch("GenParticleStatus", &v_genParticleStatus_);
         ntuple_->Branch("BHadJetIndex", &v_bHadJetIndex_);
         ntuple_->Branch("AntiBHadJetIndex", &v_antiBHadJetIndex_);
         ntuple_->Branch("BHadrons", &v_bHadron_);
@@ -1543,10 +1541,6 @@ void NTupleWriter::clearVariables()
     
     // General true-level info
     vertexMultiplicityTrue_ = 0;
-    v_genParticleP4_.clear();
-    v_genParticlePdgId_.clear();
-    v_genParticleStatus_.clear();
-    v_allGenJet_.clear();
     v_associatedGenJet_.clear();
     v_associatedGenJetForMet_.clear();
     v_jetPartonFlavour_.clear();
@@ -1572,6 +1566,10 @@ void NTupleWriter::clearVariables()
     genWPlus_ = nullP4_;
     genWMinus_ = nullP4_;
     genMet_ = nullP4_;
+    v_allGenJet_.clear();
+    v_genParticleP4_.clear();
+    v_genParticlePdgId_.clear();
+    v_genParticleStatus_.clear();
     v_bHadJetIndex_.clear();
     v_antiBHadJetIndex_.clear();
     v_bHadron_.clear();
