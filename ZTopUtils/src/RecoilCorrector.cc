@@ -33,6 +33,8 @@ Double_t FitFuncGauss(Double_t* x, Double_t* par)
     return par[0]*(aGauss+bGauss+cGauss);
 }
 
+
+
 RecoilCorrector::RecoilCorrector():
 basedir_(""),
 cannotCorrectMet_(0),
@@ -41,7 +43,9 @@ dataset_(-1),
 debug_(0)
 {}
 
-RecoilCorrector::RecoilCorrector(const std::string basedir, const int method, const int dataset, const int debug):
+
+
+RecoilCorrector::RecoilCorrector(const std::string& basedir, const int method, const int dataset, const int debug):
 basedir_(""),
 cannotCorrectMet_(0),
 method_(-1),
@@ -55,6 +59,7 @@ debug_(0)
 }
 
 
+
 RecoilCorrector::~RecoilCorrector()
 {
     delete metZParalData_;
@@ -63,7 +68,9 @@ RecoilCorrector::~RecoilCorrector()
     delete metZPerpMC_;
 }
 
-void RecoilCorrector::setFiles(std::string fileData, std::string fileMC)
+
+
+void RecoilCorrector::setFiles(const std::string& fileData, const std::string& fileMC)
 {
     
     std::cout<<"\n--- Beginning preparation of Mva Met recoil correction"<<std::endl;
@@ -226,7 +233,12 @@ void RecoilCorrector::setFiles(std::string fileData, std::string fileMC)
     std::cout<<"=== Finish preparation of Mva Met recoil correction\n"<<std::endl;
 }
 
-float RecoilCorrector::correctMet(float& MetPx, float& MetPy, float genZPx, float genZPy, float diLepPx, float diLepPy, int njets)
+
+
+float RecoilCorrector::correctMet(float& MetPx, float& MetPy,
+                                  const float genZPx, const float genZPy,
+                                  const float diLepPx, const float diLepPy,
+                                  int njets)const
 {
     // input parameters
     // MetPx, MetPy - missing transverse momentum 
@@ -343,7 +355,8 @@ float RecoilCorrector::correctMet(float& MetPx, float& MetPy, float genZPx, floa
 }
 
 
-size_t RecoilCorrector::getBinFromVector(std::vector<double>& vector_of_boundaries, const float value)const
+
+size_t RecoilCorrector::getBinFromVector(const std::vector<double>& vector_of_boundaries, const float value)const
 {
     size_t bin = std::lower_bound(vector_of_boundaries.begin(), vector_of_boundaries.end(), value) - vector_of_boundaries.begin();
     if (bin == vector_of_boundaries.size()) return --bin;
@@ -351,7 +364,9 @@ size_t RecoilCorrector::getBinFromVector(std::vector<double>& vector_of_boundari
     return bin;
 }
 
-void RecoilCorrector::U1U2CorrectionsByWidth(float & U1, float & U2, int ZptBin, int njets)
+
+
+void RecoilCorrector::U1U2CorrectionsByWidth(float& U1, float& U2, const int ZptBin, int njets)const
 {
     if (njets>=nJetsBins_) {njets = nJetsBins_-1;}
     
@@ -377,11 +392,11 @@ void RecoilCorrector::U1U2CorrectionsByWidth(float & U1, float & U2, int ZptBin,
 
 
 
-void RecoilCorrector::CalculateU1U2FromMet(float metPx, float metPy,
-                                        float genZPx, float genZPy,
-                                        float diLepPx, float diLepPy,
-                                        float& U1, float& U2,
-                                        float& metU1, float& metU2)
+void RecoilCorrector::CalculateU1U2FromMet(const float metPx, const float metPy,
+                                           const float genZPx, const float genZPy,
+                                           const float diLepPx, const float diLepPy,
+                                           float& U1, float& U2,
+                                           float& metU1, float& metU2)const
 {
     if (debug_) { std::cout<<"Calculating the U1 and U2 components from the MET"<<std::endl; }
     
@@ -415,10 +430,11 @@ void RecoilCorrector::CalculateU1U2FromMet(float metPx, float metPy,
 }
 
 
-void RecoilCorrector::CalculateMetFromU1U2(float U1, float U2,
-                                           float genZPx, float genZPy,
-                                           float diLepPx, float diLepPy,
-                                           float& metPx, float& metPy)
+
+void RecoilCorrector::CalculateMetFromU1U2(const float U1, const float U2,
+                                           const float genZPx, const float genZPy,
+                                           const float diLepPx, const float diLepPy,
+                                           float& metPx, float& metPy)const
 {
     if (debug_) { std::cout<<"Calculating the U1 and U2 components from the MET"<<std::endl; }
     
@@ -441,7 +457,8 @@ void RecoilCorrector::CalculateMetFromU1U2(float U1, float U2,
 }
 
 
-int RecoilCorrector::getBinNumber(float x, const std::vector<int>& bins)const
+
+int RecoilCorrector::getBinNumber(const float x, const std::vector<int>& bins)const
 {
     for (size_t iB=0; iB<bins.size(); ++iB) {
         if (x>=1.*bins.at(iB) && x<1.*bins.at(iB+1)) return iB;
@@ -450,7 +467,8 @@ int RecoilCorrector::getBinNumber(float x, const std::vector<int>& bins)const
 }
 
 
-TF1* RecoilCorrector::getFuncRecoil(TF1* initFunc, bool left)
+
+TF1* RecoilCorrector::getFuncRecoil(const TF1* const initFunc, const bool left)const
 {
     double xminD;
     double xmaxD;
