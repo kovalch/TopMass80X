@@ -586,20 +586,11 @@ process.scaledJetEnergy.JECUncSrcFile = cms.FileInPath("TopAnalysis/Configuratio
 process.scaledJetEnergy.scaleType = "abs"   # abs = 1, jes:up, jes:down
 
 if options.runOnMC:
-    process.scaledJetEnergy.resolutionEtaRanges  = cms.vdouble(0, 0.5, 0.5, 1.1, 1.1, 1.7, 1.7, 2.3, 2.3, 5.4)
-    process.scaledJetEnergy.resolutionFactors    = cms.vdouble(1.052, 1.057, 1.096, 1.134, 1.288) # JER standard
-
-    if options.systematicsName == "JES_UP":
-        process.scaledJetEnergy.scaleType = "jes:up"
-    if options.systematicsName == "JES_DOWN":
-        process.scaledJetEnergy.scaleType = "jes:down"
-    if options.systematicsName == "JER_UP":
-        process.scaledJetEnergy.resolutionFactors = cms.vdouble(1.115, 1.114, 1.161, 1.228, 1.488)
-    if options.systematicsName == "JER_DOWN":
-        process.scaledJetEnergy.resolutionFactors = cms.vdouble(0.990, 1.001, 1.032, 1.042, 1.089)
+    process.scaledJetEnergy.resolutionEtaRanges = cms.vdouble(0, 0.5, 0.5, 1.1, 1.1, 1.7, 1.7, 2.3, 2.3, 2.8, 2.8, 3.2, 3.2, 5.0)
+    process.scaledJetEnergy.resolutionFactors = cms.vdouble(1.079, 1.099, 1.121, 1.208, 1.254, 1.395, 1.056)
 else:
-    process.scaledJetEnergy.resolutionEtaRanges  = cms.vdouble(0, -1)
-    process.scaledJetEnergy.resolutionFactors    = cms.vdouble(1.0) # JER standard
+    process.scaledJetEnergy.resolutionEtaRanges = cms.vdouble(0, -1)
+    process.scaledJetEnergy.resolutionFactors = cms.vdouble(1.0)
 
 
 
