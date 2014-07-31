@@ -543,7 +543,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     const HiggsGenObjects& higgsGenObjects = this->getHiggsGenObjects(entry);
     
     // Generated jets
-    const VLV& allGenJets =  topGenObjects.valuesSet_ ? *commonGenObjects.allGenJets_ : VLV(0);
+    const VLV& allGenJets =  topGenObjects.valuesSet_ ? *topGenObjects.allGenJets_ : VLV();
     std::vector<int> allGenJetIndices = initialiseIndices(allGenJets);
     std::vector<int> genJetIndices = this->genJetIndices(allGenJets, topGenObjects);
     
@@ -898,8 +898,7 @@ bool HiggsAnalysis::failsAdditionalJetFlavourSelection(const Long64_t& entry)con
     // Separating 2 cases of tt+b
     if(jetAddId == 1) {
         if(topGenObjects.valuesSet_){
-            const CommonGenObjects& commonGenObjects = this->getCommonGenObjects(entry);
-            const VLV& allGenJets = *commonGenObjects.allGenJets_;
+            const VLV& allGenJets = *topGenObjects.allGenJets_;
             const std::vector<int> genJetIndices = this->genJetIndices(allGenJets, topGenObjects);
             std::vector<std::vector<int> > genJetBhadronIndices = this->matchBhadronsToGenJets(genJetIndices, allGenJets, topGenObjects);
             for(size_t iJet = 0; iJet<genJetBhadronIndices.size(); ++iJet) {

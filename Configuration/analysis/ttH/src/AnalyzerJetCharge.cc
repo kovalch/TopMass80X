@@ -45,7 +45,7 @@ AnalyzerBase ("jetCharge_", selectionStepsNoCategories, stepsForCategories, jetC
                                      
 
 
-void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonGenObjects&,
                                    const TopGenObjects& topGenObjects, const HiggsGenObjects&,
                                    const KinRecoObjects&,
                                    const tth::RecoObjectIndices&, const tth::GenObjectIndices&,
@@ -59,7 +59,7 @@ void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonG
     // Extracting input data to more comfortable variables
     
     //   VLV* allGenJets = commonGenObjects.allGenJets_;
-    const VLV& genJets = (commonGenObjects.valuesSet_) ? *commonGenObjects.allGenJets_ : VLV(0);
+    const VLV& genJets = (topGenObjects.valuesSet_) ? *topGenObjects.allGenJets_ : VLV();
     const VLV& allJets = *recoObjects.jets_; 
     //const std::vector<LV>& bHadPlusMothers = (topGenObjects.valuesSet_) ? *topGenObjects.genBHadPlusMothers_ : std::vector<LV*>(0);
     const std::vector<LV>& bHadPlusMothers = *topGenObjects.genBHadPlusMothers_;

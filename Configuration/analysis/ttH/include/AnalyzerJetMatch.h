@@ -67,7 +67,7 @@ private:
     
     /// Fill jet specific histos
     void fillJetHistos(const TString& whichSelection,
-                       const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+                       const RecoObjects& recoObjects, const TopGenObjects& topGenObjects,
                        const int genIndex, const int recoIndex,
                        const tth::GenObjectIndices& genObjectIndices,
                        const double& weight,

@@ -127,7 +127,7 @@ private:
                                              const VLV& genJets, std::map<TString, TH1*>& m_histogram, const double weight);
     
     /// Analyze jets (b-jets) from tt system and additional jets (b-jets)
-    void fillTopAdditionalJetsHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+    void fillTopAdditionalJetsHistos(const RecoObjects& recoObjects, const TopGenObjects& topGenObjects,
                                      const KinRecoObjects& kinRecoObjects, const tth::RecoObjectIndices& recoObjectIndices, 
                                      const tth::GenObjectIndices& genObjectIndices,
                                      const double& weight, std::map<TString, TH1*>& m_histogram);

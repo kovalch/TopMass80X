@@ -223,17 +223,17 @@ void AnalyzerGenEvent::bookTopAndHiggsHistos(const TString& step,
 
 
 
-void AnalyzerGenEvent::fillHistos(const RecoObjects&, const CommonGenObjects& commonGenObjects,
-                                  const TopGenObjects&, const HiggsGenObjects&,
+void AnalyzerGenEvent::fillHistos(const RecoObjects&, const CommonGenObjects&,
+                                  const TopGenObjects& topGenObjects, const HiggsGenObjects&,
                                   const KinRecoObjects&,
                                   const tth::RecoObjectIndices&, const tth::GenObjectIndices& genObjectIndices,
                                   const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
                                   const double& weight, const TString&,
                                   std::map<TString, TH1*>& m_histogram)
 {
-    if(!commonGenObjects.valuesSet_) return;
+    if(!topGenObjects.valuesSet_) return;
     
-    this->fillEventHistos(commonGenObjects, genObjectIndices, weight, m_histogram);
+    this->fillEventHistos(topGenObjects, genObjectIndices, weight, m_histogram);
     
     this->fillMatchingHistos(genObjectIndices, weight, m_histogram);
     
@@ -243,26 +243,26 @@ void AnalyzerGenEvent::fillHistos(const RecoObjects&, const CommonGenObjects& co
     this->fillBhadronHistos("topHiggs_", genObjectIndices, weight, m_histogram);
     
     if(genObjectIndices.uniqueGenTopMatching()){
-        this->fillTopOrHiggsHistos("top_", commonGenObjects, genObjectIndices, weight, m_histogram);
+        this->fillTopOrHiggsHistos("top_", topGenObjects, genObjectIndices, weight, m_histogram);
     }
     
     if(genObjectIndices.uniqueGenHiggsMatching()){
-        this->fillTopOrHiggsHistos("higgs_", commonGenObjects, genObjectIndices, weight, m_histogram);
+        this->fillTopOrHiggsHistos("higgs_", topGenObjects, genObjectIndices, weight, m_histogram);
     }
     
     if(genObjectIndices.uniqueGenMatching()){
-        this->fillTopAndHiggsHistos(commonGenObjects, genObjectIndices, weight, m_histogram);
+        this->fillTopAndHiggsHistos(topGenObjects, genObjectIndices, weight, m_histogram);
     }
 }
 
 
-void AnalyzerGenEvent::fillEventHistos(const CommonGenObjects& commonGenObjects,
+void AnalyzerGenEvent::fillEventHistos(const TopGenObjects& topGenObjects,
                                        const tth::GenObjectIndices& genObjectIndices,
                                        const double& weight, std::map<TString, TH1*>& m_histogram)
 {
     TString name;
     
-    const VLV& allGenJets = (commonGenObjects.valuesSet_) ? *commonGenObjects.allGenJets_ : VLV(0);
+    const VLV& allGenJets = (topGenObjects.valuesSet_) ? *topGenObjects.allGenJets_ : VLV(0);
     const std::vector<int> genJetIndices = genObjectIndices.genJetIndices_;
     
     const int nGenJets_all = allGenJets.size();
@@ -408,7 +408,7 @@ void AnalyzerGenEvent::fillBhadronHistos(const TString& topOrHiggsName,
 
 
 void AnalyzerGenEvent::fillTopOrHiggsHistos(const TString& topOrHiggsName,
-                                            const CommonGenObjects& commonGenObjects,
+                                            const TopGenObjects& topGenObjects,
                                             const tth::GenObjectIndices& genObjectIndices,
                                             const double& weight,
                                             std::map<TString, TH1*>& m_histogram)
@@ -431,9 +431,9 @@ void AnalyzerGenEvent::fillTopOrHiggsHistos(const TString& topOrHiggsName,
                  <<topOrHiggsName<<"\n...break\n"<<std::endl;
         exit(98);
     }
-    common::orderIndices(leadingJetIndex, subleadingJetIndex, *commonGenObjects.allGenJets_, common::LVpt);
-    const LV& leadingJet(commonGenObjects.allGenJets_->at(leadingJetIndex));
-    const LV& subleadingJet(commonGenObjects.allGenJets_->at(subleadingJetIndex));
+    common::orderIndices(leadingJetIndex, subleadingJetIndex, *topGenObjects.allGenJets_, common::LVpt);
+    const LV& leadingJet(topGenObjects.allGenJets_->at(leadingJetIndex));
+    const LV& subleadingJet(topGenObjects.allGenJets_->at(subleadingJetIndex));
     
     // Calculate quantities
     const double deltaEta = leadingJet.eta() - subleadingJet.eta();
@@ -465,7 +465,7 @@ void AnalyzerGenEvent::fillTopOrHiggsHistos(const TString& topOrHiggsName,
 
 
 
-void AnalyzerGenEvent::fillTopAndHiggsHistos(const CommonGenObjects& commonGenObjects,
+void AnalyzerGenEvent::fillTopAndHiggsHistos(const TopGenObjects& topGenObjects,
                                              const tth::GenObjectIndices& genObjectIndices,
                                              const double& weight,
                                              std::map<TString, TH1*>& m_histogram)
@@ -475,16 +475,16 @@ void AnalyzerGenEvent::fillTopAndHiggsHistos(const CommonGenObjects& commonGenOb
     // Access the top jets, ordered by pt
     int topLeadingJetIndex(genObjectIndices.genBjetFromTopIndex_);
     int topSubleadingJetIndex(genObjectIndices.genAntiBjetFromTopIndex_);
-    common::orderIndices(topLeadingJetIndex, topSubleadingJetIndex, *commonGenObjects.allGenJets_, common::LVpt);
-    const LV& topLeadingJet(commonGenObjects.allGenJets_->at(topLeadingJetIndex));
-    const LV& topSubleadingJet(commonGenObjects.allGenJets_->at(topSubleadingJetIndex));
+    common::orderIndices(topLeadingJetIndex, topSubleadingJetIndex, *topGenObjects.allGenJets_, common::LVpt);
+    const LV& topLeadingJet(topGenObjects.allGenJets_->at(topLeadingJetIndex));
+    const LV& topSubleadingJet(topGenObjects.allGenJets_->at(topSubleadingJetIndex));
     
     // Access the Higgs jets, ordered by pt
     int higgsLeadingJetIndex(genObjectIndices.genBjetFromHiggsIndex_);
     int higgsSubleadingJetIndex(genObjectIndices.genAntiBjetFromHiggsIndex_);
-    common::orderIndices(higgsLeadingJetIndex, higgsSubleadingJetIndex, *commonGenObjects.allGenJets_, common::LVpt);
-    const LV& higgsLeadingJet(commonGenObjects.allGenJets_->at(higgsLeadingJetIndex));
-    const LV& higgsSubleadingJet(commonGenObjects.allGenJets_->at(higgsSubleadingJetIndex));
+    common::orderIndices(higgsLeadingJetIndex, higgsSubleadingJetIndex, *topGenObjects.allGenJets_, common::LVpt);
+    const LV& higgsLeadingJet(topGenObjects.allGenJets_->at(higgsLeadingJetIndex));
+    const LV& higgsSubleadingJet(topGenObjects.allGenJets_->at(higgsSubleadingJetIndex));
     
     // Calculate quantities
     double minDeltaEta = 999.;

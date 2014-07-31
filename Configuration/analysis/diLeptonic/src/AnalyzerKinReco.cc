@@ -90,7 +90,7 @@ void AnalyzerKinReco::bookHistos(const TString& step, std::map<TString, TH1*>& m
 
 
 
-void AnalyzerKinReco::fillHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+void AnalyzerKinReco::fillHistos(const RecoObjects& recoObjects, const CommonGenObjects&,
                                       const TopGenObjects& topGenObjects,
                                       const KinRecoObjects& kinRecoObjects,
                                       const ttbar::RecoObjectIndices& recoObjectIndices, const ttbar::GenObjectIndices&,
@@ -143,8 +143,8 @@ void AnalyzerKinReco::fillHistos(const RecoObjects& recoObjects, const CommonGen
             }
         if(bjet_index>=0&&bbarjet_index>=0&&bjet_index!=bbarjet_index){
             
-            TLorentzVector truejetB = common::LVtoTLV((*commonGenObjects.allGenJets_).at(bjet_index));
-            TLorentzVector truejetBbar = common::LVtoTLV((*commonGenObjects.allGenJets_).at(bbarjet_index));
+            TLorentzVector truejetB = common::LVtoTLV((*topGenObjects.allGenJets_).at(bjet_index));
+            TLorentzVector truejetBbar = common::LVtoTLV((*topGenObjects.allGenJets_).at(bbarjet_index));
             TLorentzVector bjetHyp=common::LVtoTLV((*kinRecoObjects.HypBJet_).at(0));
             TLorentzVector bBarjetHyp=common::LVtoTLV((*kinRecoObjects.HypAntiBJet_).at(0));
             
@@ -166,9 +166,9 @@ void AnalyzerKinReco::fillHistos(const RecoObjects& recoObjects, const CommonGen
          { 
             double dr=100;
             TLorentzVector recojet = common::LVtoTLV((*recoObjects.jets_).at(index));
-            dr=recojet.DeltaR(common::LVtoTLV((*commonGenObjects.allGenJets_).at(bjet_index)));
+            dr=recojet.DeltaR(common::LVtoTLV((*topGenObjects.allGenJets_).at(bjet_index)));
             if(dr<0.3)b_matched_jetIndex=index;
-            dr=recojet.DeltaR(common::LVtoTLV((*commonGenObjects.allGenJets_).at(bbarjet_index)));
+            dr=recojet.DeltaR(common::LVtoTLV((*topGenObjects.allGenJets_).at(bbarjet_index)));
             if(dr<0.3)bbar_matched_jetIndex=index;
          }
          if(b_matched_jetIndex>=0 && bbar_matched_jetIndex>=0 && b_matched_jetIndex!=bbar_matched_jetIndex)

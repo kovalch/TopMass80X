@@ -84,12 +84,10 @@ struct CommonGenObjects{
     bool valuesSet_;
     
     // Concerning physics objects
-    VLV* allGenJets_;
-    std::vector<int>* jetPartonFlavour_;
     VLV* associatedGenJet_;
     VLV* associatedGenJetForMET_;
-    //std::vector<int>* jetAssociatedPartonPdgId_;
-    //std::vector<LV>* jetAssociatedParton_;
+    std::vector<int>* jetPartonFlavour_;
+    //std::vector<int>* jetPartonFlavourForMET_;
 };
 
 
@@ -102,7 +100,6 @@ struct TopGenObjects{
     
     bool valuesSet_;
     
-    LV* GenMet_;
     LV* GenTop_;
     LV* GenAntiTop_;
     LV* GenLepton_;
@@ -117,6 +114,8 @@ struct TopGenObjects{
     LV* GenAntiB_;
     LV* GenWPlus_;
     LV* GenWMinus_;
+    LV* GenMet_;
+    VLV* allGenJets_;
     //std::vector<LV>* GenParticleP4_;
     //std::vector<int>* GenParticlePdgId_;
     //std::vector<int>* GenParticleStatus_;
@@ -128,6 +127,9 @@ struct TopGenObjects{
     std::vector<bool>* AntiBHadronFromTopB_;
     std::vector<int>* BHadronVsJet_;
     std::vector<int>* AntiBHadronVsJet_;
+    //std::vector<int>* jetAssociatedPartonPdgId_;
+    //std::vector<LV>* jetAssociatedParton_;
+    
     std::vector<int>* genBHadPlusMothersPdgId_;
     //std::vector<int>* genBHadPlusMothersStatus_;
     //std::vector<std::vector<int> >* genBHadPlusMothersIndices_;

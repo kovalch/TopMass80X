@@ -525,12 +525,10 @@ private:
     
     /// nTuple branches holding generator information for all MC samples
     // Concerning physics objects
-    TBranch* b_allGenJets;
-    TBranch* b_jetPartonFlavour;
     TBranch* b_associatedGenJet;
     TBranch* b_associatedGenJetForMET;
-    TBranch* b_jetAssociatedPartonPdgId;
-    TBranch* b_jetAssociatedParton;
+    TBranch* b_jetPartonFlavour;
+    TBranch* b_jetPartonFlavourForMET;
     
     
     /// nTuple branches of kinematic reconstruction
@@ -575,7 +573,6 @@ private:
     /// nTuple branches for Top signal samples on generator level
     TBranch* b_GenTop;
     TBranch* b_GenAntiTop;
-    TBranch* b_GenMet;
     TBranch* b_GenLepton;
     TBranch* b_GenAntiLepton;
     TBranch* b_GenLeptonPdgId;
@@ -588,6 +585,8 @@ private:
     TBranch* b_GenAntiB;
     TBranch* b_GenWPlus;
     TBranch* b_GenWMinus;
+    TBranch* b_GenMet;
+    TBranch* b_allGenJets;
     TBranch* b_GenParticleP4;
     TBranch* b_GenParticlePdgId;
     TBranch* b_GenParticleStatus;
@@ -599,6 +598,8 @@ private:
     TBranch* b_AntiBHadronFromTopB;
     TBranch* b_BHadronVsJet;
     TBranch* b_AntiBHadronVsJet;
+    TBranch* b_jetAssociatedPartonPdgId;
+    TBranch* b_jetAssociatedParton;
     
     TBranch* b_genBHadPlusMothersPdgId;
     TBranch* b_genBHadPlusMothersStatus;

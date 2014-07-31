@@ -78,7 +78,7 @@ private:
     
     
     /// Fill histograms for the event-wise properties
-    void fillEventHistos(const CommonGenObjects& commonGenObjects, 
+    void fillEventHistos(const TopGenObjects& topGenObjects, 
                             const tth::GenObjectIndices& genObjectIndices,
                             const double& weight, std::map<TString, TH1*>& m_histogram);
     
@@ -95,14 +95,14 @@ private:
     /// Fill histos for the two jets either from top system or from Higgs
     /// Only for events with both jets of the requested type separated
     void fillTopOrHiggsHistos(const TString& topOrHiggsName,
-                              const CommonGenObjects& commonGenObjects,
+                              const TopGenObjects& topGenObjects,
                               const tth::GenObjectIndices& genObjectIndices,
                               const double& weight,
                               std::map<TString, TH1*>& m_histogram);
     
     /// Fill histos for all four jets from top system and Higgs
     /// Only for events with all four jets separated
-    void fillTopAndHiggsHistos(const CommonGenObjects& commonGenObjects,
+    void fillTopAndHiggsHistos(const TopGenObjects& topGenObjects,
                                const tth::GenObjectIndices& genObjectIndices,
                                const double& weight,
                                std::map<TString, TH1*>& m_histogram);

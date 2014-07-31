@@ -193,23 +193,23 @@ void AnalyzerJetMatch::bookJetHistosInclExcl(const TString& whichSelection, cons
 
 
 
-void AnalyzerJetMatch::fillHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
-                                  const TopGenObjects&, const HiggsGenObjects&,
+void AnalyzerJetMatch::fillHistos(const RecoObjects& recoObjects, const CommonGenObjects&,
+                                  const TopGenObjects& topGenObjects, const HiggsGenObjects&,
                                   const KinRecoObjects&,
                                   const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
                                   const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
                                   const double& weight, const TString&,
                                   std::map<TString, TH1*>& m_histogram)
 {
-    if(!commonGenObjects.valuesSet_) return;
+    if(!topGenObjects.valuesSet_) return;
     
     //For each gen jet find the reco jet with the minimum deltaR, and store values for selection criteria in R and pt
     std::vector<int> selectedGenIndices;
     std::vector<int> closestRecoJetIndices;
     std::vector<double> v_deltaR;
     std::vector<double> v_deltaPtRel;
-    for(const int genIndex : common::initialiseIndices(*commonGenObjects.allGenJets_)){
-        const LV& genJet = commonGenObjects.allGenJets_->at(genIndex);
+    for(const int genIndex : common::initialiseIndices(*topGenObjects.allGenJets_)){
+        const LV& genJet = topGenObjects.allGenJets_->at(genIndex);
         double minDeltaR(999.);
         double deltaPtRel(999.);
         int recoJetIndex(-1);
@@ -339,15 +339,15 @@ void AnalyzerJetMatch::fillHistos(const RecoObjects& recoObjects, const CommonGe
         // 1) inclusively
         // 2) for jets with ambiguous matching (i.e. another genJet is matched to same recoJet - both of the genJets should be compatible with all the applied cuts)
         // 3) for the unambiguous cases
-        this->fillJetHistos("initial_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+        this->fillJetHistos("initial_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
         if(this->isAmbiguous(genIndex, genIndices_matchedInR, closestRecoJetIndices))
-            this->fillJetHistos("initialAmbiguous_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+            this->fillJetHistos("initialAmbiguous_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
         else
-            this->fillJetHistos("initialUnambiguous_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+            this->fillJetHistos("initialUnambiguous_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
 
         // Fill histograms for jets mismatched in R
         if(std::find(genIndices_mismatchedInR.begin(), genIndices_mismatchedInR.end(), genIndex) != genIndices_mismatchedInR.end())
-            this->fillJetHistos("mismatchedInR_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+            this->fillJetHistos("mismatchedInR_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
         
         // Select jets matched in R
         if(std::find(genIndices_matchedInR.begin(), genIndices_matchedInR.end(), genIndex) == genIndices_matchedInR.end()) continue;
@@ -356,11 +356,11 @@ void AnalyzerJetMatch::fillHistos(const RecoObjects& recoObjects, const CommonGe
         // 1) inclusively
         // 2) for jets with ambiguous matching (i.e. another genJet is matched to same recoJet - both of the genJets should be compatible with all the applied cuts)
         // 3) for the unambiguous cases
-        this->fillJetHistos("matchedInR_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+        this->fillJetHistos("matchedInR_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
         if(this->isAmbiguous(genIndex, genIndices_matchedInR, closestRecoJetIndices))
-            this->fillJetHistos("matchedInRAmbiguous_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+            this->fillJetHistos("matchedInRAmbiguous_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
         else
-            this->fillJetHistos("matchedInRUnambiguous_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+            this->fillJetHistos("matchedInRUnambiguous_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
         
         
         // Select jets mismatched in pt
@@ -369,128 +369,128 @@ void AnalyzerJetMatch::fillHistos(const RecoObjects& recoObjects, const CommonGe
   
         // -0.5< pt < 0.7    
         if(std::find(genIndices_mismatchedInPt_m05_p07.begin(), genIndices_mismatchedInPt_m05_p07.end(), genIndex) != genIndices_mismatchedInPt_m05_p07.end()){
-            this->fillJetHistos("mismatchedInPt_m05_p07_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+            this->fillJetHistos("mismatchedInPt_m05_p07_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             if(this->isAmbiguous(genIndex, genIndices_mismatchedInPt_m05_p07, closestRecoJetIndices))
-                this->fillJetHistos("mismatchedInPtAmbiguous_m05_p07_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtAmbiguous_m05_p07_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             else
-                this->fillJetHistos("mismatchedInPtUnambiguous_m05_p07_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtUnambiguous_m05_p07_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             
             if(this->isAmbiguous(genIndex, genIndices_matchedInR, closestRecoJetIndices))
-                this->fillJetHistos("mismatchedInPtAmbiguousMatchedInR_m05_p07_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtAmbiguousMatchedInR_m05_p07_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             else
-                this->fillJetHistos("mismatchedInPtUnambiguousMatchedInR_m05_p07_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtUnambiguousMatchedInR_m05_p07_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
         }
          
         // -0.5< pt < 0.6
         if(std::find(genIndices_mismatchedInPt_m05_p06.begin(), genIndices_mismatchedInPt_m05_p06.end(), genIndex) != genIndices_mismatchedInPt_m05_p06.end()){
-            this->fillJetHistos("mismatchedInPt_m05_p06_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+            this->fillJetHistos("mismatchedInPt_m05_p06_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             if(this->isAmbiguous(genIndex, genIndices_mismatchedInPt_m05_p06, closestRecoJetIndices))
-                this->fillJetHistos("mismatchedInPtAmbiguous_m05_p06_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtAmbiguous_m05_p06_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             else
-                this->fillJetHistos("mismatchedInPtUnambiguous_m05_p06_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtUnambiguous_m05_p06_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             
             if(this->isAmbiguous(genIndex, genIndices_matchedInR, closestRecoJetIndices))
-                this->fillJetHistos("mismatchedInPtAmbiguousMatchedInR_m05_p06_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtAmbiguousMatchedInR_m05_p06_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             else
-                this->fillJetHistos("mismatchedInPtUnambiguousMatchedInR_m05_p06_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtUnambiguousMatchedInR_m05_p06_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
         }
         
         // -0.5< pt < 0.5
         if(std::find(genIndices_mismatchedInPt_m05_p05.begin(), genIndices_mismatchedInPt_m05_p05.end(), genIndex) != genIndices_mismatchedInPt_m05_p05.end()){
-            this->fillJetHistos("mismatchedInPt_m05_p05_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+            this->fillJetHistos("mismatchedInPt_m05_p05_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             if(this->isAmbiguous(genIndex, genIndices_mismatchedInPt_m05_p05, closestRecoJetIndices))
-                this->fillJetHistos("mismatchedInPtAmbiguous_m05_p05_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtAmbiguous_m05_p05_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             else
-                this->fillJetHistos("mismatchedInPtUnambiguous_m05_p05_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtUnambiguous_m05_p05_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             
             if(this->isAmbiguous(genIndex, genIndices_matchedInR, closestRecoJetIndices))
-                this->fillJetHistos("mismatchedInPtAmbiguousMatchedInR_m05_p05_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtAmbiguousMatchedInR_m05_p05_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             else
-                this->fillJetHistos("mismatchedInPtUnambiguousMatchedInR_m05_p05_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtUnambiguousMatchedInR_m05_p05_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
         }
         
         // -0.4< pt < 0.7
         if(std::find(genIndices_mismatchedInPt_m04_p07.begin(), genIndices_mismatchedInPt_m04_p07.end(), genIndex) != genIndices_mismatchedInPt_m04_p07.end()){
-            this->fillJetHistos("mismatchedInPt_m04_p07_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+            this->fillJetHistos("mismatchedInPt_m04_p07_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             if(this->isAmbiguous(genIndex, genIndices_mismatchedInPt_m04_p07, closestRecoJetIndices))
-                this->fillJetHistos("mismatchedInPtAmbiguous_m04_p07_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtAmbiguous_m04_p07_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             else
-                this->fillJetHistos("mismatchedInPtUnambiguous_m04_p07_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtUnambiguous_m04_p07_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             
             if(this->isAmbiguous(genIndex, genIndices_matchedInR, closestRecoJetIndices))
-                this->fillJetHistos("mismatchedInPtAmbiguousMatchedInR_m04_p07_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtAmbiguousMatchedInR_m04_p07_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             else
-                this->fillJetHistos("mismatchedInPtUnambiguousMatchedInR_m04_p07_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtUnambiguousMatchedInR_m04_p07_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
         }
         
         //-0.4< pt < 0.6
         if(std::find(genIndices_mismatchedInPt_m04_p06.begin(), genIndices_mismatchedInPt_m04_p06.end(), genIndex) != genIndices_mismatchedInPt_m04_p06.end()){
-            this->fillJetHistos("mismatchedInPt_m04_p06_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+            this->fillJetHistos("mismatchedInPt_m04_p06_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             if(this->isAmbiguous(genIndex, genIndices_mismatchedInPt_m04_p06, closestRecoJetIndices))
-                this->fillJetHistos("mismatchedInPtAmbiguous_m04_p06_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtAmbiguous_m04_p06_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             else
-                this->fillJetHistos("mismatchedInPtUnambiguous_m04_p06_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtUnambiguous_m04_p06_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             
             if(this->isAmbiguous(genIndex, genIndices_matchedInR, closestRecoJetIndices))
-                this->fillJetHistos("mismatchedInPtAmbiguousMatchedInR_m04_p06_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtAmbiguousMatchedInR_m04_p06_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             else
-                this->fillJetHistos("mismatchedInPtUnambiguousMatchedInR_m04_p06_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtUnambiguousMatchedInR_m04_p06_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
         }
         
         // -0.4< pt < 0.5
         if(std::find(genIndices_mismatchedInPt_m04_p05.begin(), genIndices_mismatchedInPt_m04_p05.end(), genIndex) != genIndices_mismatchedInPt_m04_p05.end()){
-            this->fillJetHistos("mismatchedInPt_m04_p05_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+            this->fillJetHistos("mismatchedInPt_m04_p05_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             if(this->isAmbiguous(genIndex, genIndices_mismatchedInPt_m04_p05, closestRecoJetIndices))
-                this->fillJetHistos("mismatchedInPtAmbiguous_m04_p05_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtAmbiguous_m04_p05_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             else
-                this->fillJetHistos("mismatchedInPtUnambiguous_m04_p05_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtUnambiguous_m04_p05_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             
             if(this->isAmbiguous(genIndex, genIndices_matchedInR, closestRecoJetIndices))
-                this->fillJetHistos("mismatchedInPtAmbiguousMatchedInR_m04_p05_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtAmbiguousMatchedInR_m04_p05_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             else
-                this->fillJetHistos("mismatchedInPtUnambiguousMatchedInR_m04_p05_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtUnambiguousMatchedInR_m04_p05_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
         }
         
         // -0.3< pt < 0.7
         if(std::find(genIndices_mismatchedInPt_m03_p07.begin(), genIndices_mismatchedInPt_m03_p07.end(), genIndex) != genIndices_mismatchedInPt_m03_p07.end()){
-            this->fillJetHistos("mismatchedInPt_m03_p07_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+            this->fillJetHistos("mismatchedInPt_m03_p07_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             if(this->isAmbiguous(genIndex, genIndices_mismatchedInPt_m03_p07, closestRecoJetIndices))
-                this->fillJetHistos("mismatchedInPtAmbiguous_m03_p07_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtAmbiguous_m03_p07_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             else
-                this->fillJetHistos("mismatchedInPtUnambiguous_m03_p07_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtUnambiguous_m03_p07_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             
             if(this->isAmbiguous(genIndex, genIndices_matchedInR, closestRecoJetIndices))
-                this->fillJetHistos("mismatchedInPtAmbiguousMatchedInR_m03_p07_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtAmbiguousMatchedInR_m03_p07_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             else
-                this->fillJetHistos("mismatchedInPtUnambiguousMatchedInR_m03_p07_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtUnambiguousMatchedInR_m03_p07_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
         }
         
         // -0.3< pt < 0.6
         if(std::find(genIndices_mismatchedInPt_m03_p06.begin(), genIndices_mismatchedInPt_m03_p06.end(), genIndex) != genIndices_mismatchedInPt_m03_p06.end()){
-            this->fillJetHistos("mismatchedInPt_m03_p06_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+            this->fillJetHistos("mismatchedInPt_m03_p06_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             if(this->isAmbiguous(genIndex, genIndices_mismatchedInPt_m03_p06, closestRecoJetIndices))
-                this->fillJetHistos("mismatchedInPtAmbiguous_m03_p06_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtAmbiguous_m03_p06_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             else
-                this->fillJetHistos("mismatchedInPtUnambiguous_m03_p06_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtUnambiguous_m03_p06_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             
             if(this->isAmbiguous(genIndex, genIndices_matchedInR, closestRecoJetIndices))
-                this->fillJetHistos("mismatchedInPtAmbiguousMatchedInR_m03_p06_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtAmbiguousMatchedInR_m03_p06_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             else
-                this->fillJetHistos("mismatchedInPtUnambiguousMatchedInR_m03_p06_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtUnambiguousMatchedInR_m03_p06_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
         }
         
         // -0.3< pt < 0.5
         if(std::find(genIndices_mismatchedInPt_m03_p05.begin(), genIndices_mismatchedInPt_m03_p05.end(), genIndex) != genIndices_mismatchedInPt_m03_p05.end()){
-            this->fillJetHistos("mismatchedInPt_m03_p05_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+            this->fillJetHistos("mismatchedInPt_m03_p05_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             if(this->isAmbiguous(genIndex, genIndices_mismatchedInPt_m03_p05, closestRecoJetIndices))
-                this->fillJetHistos("mismatchedInPtAmbiguous_m03_p05_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtAmbiguous_m03_p05_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             else
-                this->fillJetHistos("mismatchedInPtUnambiguous_m03_p05_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtUnambiguous_m03_p05_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             
             if(this->isAmbiguous(genIndex, genIndices_matchedInR, closestRecoJetIndices))
-                this->fillJetHistos("mismatchedInPtAmbiguousMatchedInR_m03_p05_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtAmbiguousMatchedInR_m03_p05_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             else
-                this->fillJetHistos("mismatchedInPtUnambiguousMatchedInR_m03_p05_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("mismatchedInPtUnambiguousMatchedInR_m03_p05_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
         }
         
         
@@ -501,91 +501,91 @@ void AnalyzerJetMatch::fillHistos(const RecoObjects& recoObjects, const CommonGe
         if(std::find(genIndices_matchedInPt_m05_p07.begin(), genIndices_matchedInPt_m05_p07.end(), genIndex) == genIndices_matchedInPt_m05_p07.end()) continue;
         
         // Fill histograms for jets matched in pt, same separation of plots as for the mismatched in pt
-        this->fillJetHistos("matchedInPt_m05_p07_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+        this->fillJetHistos("matchedInPt_m05_p07_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
         if(this->isAmbiguous(genIndex, genIndices_matchedInPt_m05_p07, closestRecoJetIndices))
-            this->fillJetHistos("matchedInPtAmbiguous_m05_p07_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+            this->fillJetHistos("matchedInPtAmbiguous_m05_p07_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
         else
-            this->fillJetHistos("matchedInPtUnambiguous_m05_p07_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+            this->fillJetHistos("matchedInPtUnambiguous_m05_p07_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
         
         
         // -0.5< pt < 0.6
         if(std::find(genIndices_matchedInPt_m05_p06.begin(), genIndices_matchedInPt_m05_p06.end(), genIndex) != genIndices_matchedInPt_m05_p06.end()){
             // Fill histograms for jets matched in pt, same separation of plots as for the matched in R
-            this->fillJetHistos("matchedInPt_m05_p06_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+            this->fillJetHistos("matchedInPt_m05_p06_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             if(this->isAmbiguous(genIndex, genIndices_matchedInPt_m05_p06, closestRecoJetIndices))
-                this->fillJetHistos("matchedInPtAmbiguous_m05_p06_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("matchedInPtAmbiguous_m05_p06_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             else
-                this->fillJetHistos("matchedInPtUnambiguous_m05_p06_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("matchedInPtUnambiguous_m05_p06_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
         }
         
         // -0.5< pt < 0.5
         if(std::find(genIndices_matchedInPt_m05_p05.begin(), genIndices_matchedInPt_m05_p05.end(), genIndex) != genIndices_matchedInPt_m05_p05.end()){
             // Fill histograms for jets matched in pt, same separation of plots as for the matched in R
-            this->fillJetHistos("matchedInPt_m05_p05_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+            this->fillJetHistos("matchedInPt_m05_p05_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             if(this->isAmbiguous(genIndex, genIndices_matchedInPt_m05_p05, closestRecoJetIndices))
-                this->fillJetHistos("matchedInPtAmbiguous_m05_p05_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("matchedInPtAmbiguous_m05_p05_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             else
-                this->fillJetHistos("matchedInPtUnambiguous_m05_p05_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("matchedInPtUnambiguous_m05_p05_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
         }
         
         // -0.4< pt < 0.7
         if(std::find(genIndices_matchedInPt_m04_p07.begin(), genIndices_matchedInPt_m04_p07.end(), genIndex) != genIndices_matchedInPt_m04_p07.end()){
             // Fill histograms for jets matched in pt, same separation of plots as for the matched in R
-            this->fillJetHistos("matchedInPt_m04_p07_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+            this->fillJetHistos("matchedInPt_m04_p07_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             if(this->isAmbiguous(genIndex, genIndices_matchedInPt_m04_p07, closestRecoJetIndices))
-                this->fillJetHistos("matchedInPtAmbiguous_m04_p07_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("matchedInPtAmbiguous_m04_p07_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             else
-                this->fillJetHistos("matchedInPtUnambiguous_m04_p07_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("matchedInPtUnambiguous_m04_p07_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
         }
         
         //-0.4< pt < 0.6
         if(std::find(genIndices_matchedInPt_m04_p06.begin(), genIndices_matchedInPt_m04_p06.end(), genIndex) != genIndices_matchedInPt_m04_p06.end()){
             // Fill histograms for jets matched in pt, same separation of plots as for the matched in R
-            this->fillJetHistos("matchedInPt_m04_p06_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+            this->fillJetHistos("matchedInPt_m04_p06_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             if(this->isAmbiguous(genIndex, genIndices_matchedInPt_m04_p06, closestRecoJetIndices))
-                this->fillJetHistos("matchedInPtAmbiguous_m04_p06_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("matchedInPtAmbiguous_m04_p06_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             else
-                this->fillJetHistos("matchedInPtUnambiguous_m04_p06_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("matchedInPtUnambiguous_m04_p06_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
         }
                 
         // -0.4< pt < 0.5
         if(std::find(genIndices_matchedInPt_m04_p05.begin(), genIndices_matchedInPt_m04_p05.end(), genIndex) != genIndices_matchedInPt_m04_p05.end()){
             // Fill histograms for jets matched in pt, same separation of plots as for the matched in R
-            this->fillJetHistos("matchedInPt_m04_p05_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+            this->fillJetHistos("matchedInPt_m04_p05_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             if(this->isAmbiguous(genIndex, genIndices_matchedInPt_m04_p05, closestRecoJetIndices))
-                this->fillJetHistos("matchedInPtAmbiguous_m04_p05_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("matchedInPtAmbiguous_m04_p05_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             else
-                this->fillJetHistos("matchedInPtUnambiguous_m04_p05_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("matchedInPtUnambiguous_m04_p05_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
         }
         
         // -0.3< pt < 0.7
         if(std::find(genIndices_matchedInPt_m03_p07.begin(), genIndices_matchedInPt_m03_p07.end(), genIndex) != genIndices_matchedInPt_m03_p07.end()){
             // Fill histograms for jets matched in pt, same separation of plots as for the matched in R
-            this->fillJetHistos("matchedInPt_m03_p07_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+            this->fillJetHistos("matchedInPt_m03_p07_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             if(this->isAmbiguous(genIndex, genIndices_matchedInPt_m03_p07, closestRecoJetIndices))
-                this->fillJetHistos("matchedInPtAmbiguous_m03_p07_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("matchedInPtAmbiguous_m03_p07_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             else
-                this->fillJetHistos("matchedInPtUnambiguous_m03_p07_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("matchedInPtUnambiguous_m03_p07_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
         }
         
         // -0.3< pt < 0.6
         if(std::find(genIndices_matchedInPt_m03_p06.begin(), genIndices_matchedInPt_m03_p06.end(), genIndex) != genIndices_matchedInPt_m03_p06.end()){ 
             // Fill histograms for jets matched in pt, same separation of plots as for the matched in R
-            this->fillJetHistos("matchedInPt_m03_p06_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+            this->fillJetHistos("matchedInPt_m03_p06_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             if(this->isAmbiguous(genIndex, genIndices_matchedInPt_m03_p06, closestRecoJetIndices))
-                this->fillJetHistos("matchedInPtAmbiguous_m03_p06_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("matchedInPtAmbiguous_m03_p06_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             else
-                this->fillJetHistos("matchedInPtUnambiguous_m03_p06_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("matchedInPtUnambiguous_m03_p06_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
         }
         
         // -0.3< pt < 0.5
         if(std::find(genIndices_matchedInPt_m03_p05.begin(), genIndices_matchedInPt_m03_p05.end(), genIndex) != genIndices_matchedInPt_m03_p05.end()){ 
             // Fill histograms for jets matched in pt, same separation of plots as for the matched in R
-            this->fillJetHistos("matchedInPt_m03_p05_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+            this->fillJetHistos("matchedInPt_m03_p05_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             if(this->isAmbiguous(genIndex, genIndices_matchedInPt_m03_p05, closestRecoJetIndices))
-                this->fillJetHistos("matchedInPtAmbiguous_m03_p05_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("matchedInPtAmbiguous_m03_p05_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
             else
-                this->fillJetHistos("matchedInPtUnambiguous_m03_p05_", recoObjects, commonGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
+                this->fillJetHistos("matchedInPtUnambiguous_m03_p05_", recoObjects, topGenObjects, genIndex, recoIndex, genObjectIndices, weight, m_histogram);
         }
  
     }
@@ -594,13 +594,13 @@ void AnalyzerJetMatch::fillHistos(const RecoObjects& recoObjects, const CommonGe
 
 
 void AnalyzerJetMatch::fillJetHistos(const TString& whichSelection,
-                                     const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+                                     const RecoObjects& recoObjects, const TopGenObjects& topGenObjects,
                                      const int genIndex, const int recoIndex,
                                      const tth::GenObjectIndices& genObjectIndices,
                                      const double& weight,
                                      std::map<TString, TH1*>& m_histogram)
 {
-    const LV& genJet = commonGenObjects.allGenJets_->at(genIndex);
+    const LV& genJet = topGenObjects.allGenJets_->at(genIndex);
     const LV& recoJet = recoObjects.jets_->at(recoIndex);
     
     // Check whether the jet is a top and/or a Higgs jet

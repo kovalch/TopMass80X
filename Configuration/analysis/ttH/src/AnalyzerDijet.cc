@@ -90,7 +90,7 @@ void AnalyzerDijet::fillHistos(const RecoObjects& recoObjects, const CommonGenOb
     const std::vector<double>& allJetsBtagDiscriminant = *recoObjects.jetBTagCSV_;
 
     // Setting variables of gen. level if available
-    const VLV& genAllJets = (commonGenObjects.valuesSet_) ? *commonGenObjects.allGenJets_ : VLV(0);
+    const VLV& genAllJets = (topGenObjects.valuesSet_) ? *topGenObjects.allGenJets_ : VLV();
     const std::vector<int>& jetPartonFlavour = (commonGenObjects.valuesSet_) ? *commonGenObjects.jetPartonFlavour_ : std::vector<int>(0);
     std::vector<int> genAllJetsId = common::initialiseIndices(genAllJets);
     std::vector<int> genJetsId = genObjectIndices.genJetIndices_;
@@ -580,7 +580,7 @@ void AnalyzerDijet::fillHistos(const RecoObjects& recoObjects, const CommonGenOb
 //     correctPairFraction(allJets, bJetsId, allJetsBtagDiscriminant, emptyVector, trueHiggsJetsId, weight, m_histogram["dijet_mass_noWrongMVApairs"], 0, fillAllCombinations, 0.0, 1, wrongJetPairs);
 //     correctPairFraction(allJets, bJetsId, allJetsBtagDiscriminant, emptyVector, trueHiggsJetsId, weight, m_histogram["dijet_mass_noCorrectMVApairs"], 0, fillAllCombinations, 0.0, 1, correctJetPairs);
     
-    if(doLeadingJetsAnalysis_) fillTopAdditionalJetsHistos( recoObjects, commonGenObjects, kinRecoObjects, 
+    if(doLeadingJetsAnalysis_) fillTopAdditionalJetsHistos( recoObjects, topGenObjects, kinRecoObjects,
                                                             recoObjectIndices, genObjectIndices, weight, m_histogram);
     
 }
@@ -2156,7 +2156,7 @@ bool AnalyzerDijet::areAmongPairs( const std::vector< std::pair<int,int> >& pair
 }
 
 
-void AnalyzerDijet::fillTopAdditionalJetsHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+void AnalyzerDijet::fillTopAdditionalJetsHistos(const RecoObjects& recoObjects, const TopGenObjects& topGenObjects,
                                                 const KinRecoObjects& kinRecoObjects, const tth::RecoObjectIndices& recoObjectIndices,
                                                 const tth::GenObjectIndices& genObjectIndices,
                                                 const double& weight, std::map<TString, TH1*>& m_histogram)
@@ -2195,7 +2195,7 @@ void AnalyzerDijet::fillTopAdditionalJetsHistos(const RecoObjects& recoObjects, 
         }
     }
     // Setting variables of gen. level if available
-    const VLV& allGenJets = (commonGenObjects.valuesSet_) ? *commonGenObjects.allGenJets_ : VLV(0);
+    const VLV& allGenJets = (topGenObjects.valuesSet_) ? *topGenObjects.allGenJets_ : VLV(0);
     std::vector<int> genJetsId = genObjectIndices.genJetIndices_;
     std::vector<int> genBJetsId = genObjectIndices.genBjetIndices_;
     std::vector<int> genJetsRecoId;

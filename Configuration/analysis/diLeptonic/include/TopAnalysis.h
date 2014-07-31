@@ -288,7 +288,7 @@ private:
     double calculateClosureTestWeight(const Long64_t& entry);
     
     /// Get indices of B hadron and anti-B hadron
-    void bHadronIndices(int& bHadronIndex, int& antiBHadronIndex,const CommonGenObjects& commonGenObjects,const TopGenObjects& topGenObjects);
+    void bHadronIndices(int& bHadronIndex, int& antiBHadronIndex, const TopGenObjects& topGenObjects);
     
     void generatorTopEvent(LV& leadGenTop, LV& nLeadGenTop,
                            LV& leadGenLepton, LV& nLeadGenLepton,
@@ -296,7 +296,6 @@ private:
                            double& genHT,
                            const int bHadronIndex, const int antiBHadronIndex,
                            const double trueLevelWeightNoPileup, const double trueLevelWeight,
-                           const CommonGenObjects& commonGenObjects,
                            const TopGenObjects& topGenObjects);
 
     void generatorTTbarjetsEvent(double& jetHTGen,
@@ -304,7 +303,6 @@ private:
                                  const double trueLevelWeight,
                                  int& GenJets_cut, int& GenJets_cut40, int& GenJets_cut60, int& GenJets_cut100, int& jetnum,
                                  double extragenjet[4],
-                                 const CommonGenObjects& commonGenObjects,
                                  const TopGenObjects& topGenObjects);
     
     

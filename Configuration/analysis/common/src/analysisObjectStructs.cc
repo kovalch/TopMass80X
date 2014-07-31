@@ -83,12 +83,10 @@ void CommonGenObjects::clear()
 {
     valuesSet_ = false;
     
-    allGenJets_ = 0;
-    jetPartonFlavour_ = 0;
     associatedGenJet_ = 0;
     associatedGenJetForMET_ = 0;
-    //jetAssociatedPartonPdgId_ = 0;
-    //jetAssociatedParton_ = 0;
+    jetPartonFlavour_ = 0;
+    //jetPartonFlavourForMET_ = 0;
 }
 
 
@@ -104,7 +102,6 @@ void TopGenObjects::clear()
 {
     valuesSet_ = false;
     
-    GenMet_ = 0;
     GenTop_ = 0;
     GenAntiTop_ = 0;
     GenLepton_ = 0;
@@ -119,6 +116,8 @@ void TopGenObjects::clear()
     GenAntiB_ = 0;
     //GenWPlus_ = 0;
     //GenWMinus_ = 0;
+    GenMet_ = 0;
+    allGenJets_ = 0;
     //GenParticleP4_= 0;
     //GenParticlePdgId_= 0;
     //GenParticleStatus_= 0;
@@ -130,6 +129,8 @@ void TopGenObjects::clear()
     AntiBHadronFromTopB_ = 0;
     BHadronVsJet_ = 0;
     AntiBHadronVsJet_ = 0;
+    //jetAssociatedPartonPdgId_ = 0;
+    //jetAssociatedParton_ = 0;
     
     genBHadPlusMothersPdgId_ = 0;
     //genBHadPlusMothersStatus_ = 0;
@@ -142,13 +143,11 @@ void TopGenObjects::clear()
     genBHadLeptonHadronIndex_ = 0;
     genBHadLeptonViaTau_ = 0;
     genBHadFromTopWeakDecay_ = 0;
-    
     genCHadJetIndex_ = 0;
     genCHadLeptonIndex_ = 0;
     genCHadLeptonHadronIndex_ = 0;
     genCHadLeptonViaTau_ = 0;
     genCHadFromBHadron_ = 0;
-    
     genExtraTopJetNumberId_ = -2;
 }
 

@@ -484,12 +484,10 @@ void AnalysisBase::clearBranches()
     
     // nTuple branches holding generator information for all MC samples
     // Concerning physics objects
-    b_allGenJets = 0;
-    b_jetPartonFlavour = 0;
     b_associatedGenJet = 0;
     b_associatedGenJetForMET = 0;
-    b_jetAssociatedPartonPdgId = 0;
-    b_jetAssociatedParton = 0;
+    b_jetPartonFlavour = 0;
+    b_jetPartonFlavourForMET = 0;
     
     
     // nTuple branches of kinematic reconstruction
@@ -534,7 +532,6 @@ void AnalysisBase::clearBranches()
     // nTuple branches for Top signal samples on generator level
     b_GenTop = 0;
     b_GenAntiTop = 0;
-    b_GenMet = 0;
     b_GenLepton = 0;
     b_GenAntiLepton = 0;
     b_GenLeptonPdgId = 0;
@@ -547,6 +544,8 @@ void AnalysisBase::clearBranches()
     b_GenAntiB = 0;
     b_GenWPlus = 0;
     b_GenWMinus = 0;
+    b_GenMet = 0;
+    b_allGenJets = 0;
     b_GenParticleP4 = 0;
     b_GenParticlePdgId = 0;
     b_GenParticleStatus = 0;
@@ -558,6 +557,8 @@ void AnalysisBase::clearBranches()
     b_AntiBHadronFromTopB = 0;
     b_BHadronVsJet = 0;
     b_AntiBHadronVsJet = 0;
+    b_jetAssociatedPartonPdgId = 0;
+    b_jetAssociatedParton = 0;
     
     b_genBHadPlusMothersPdgId = 0;
     b_genBHadPlusMothersStatus = 0;
@@ -582,6 +583,7 @@ void AnalysisBase::clearBranches()
     b_GenH = 0;
     b_GenBFromH = 0;
     b_GenAntiBFromH = 0;
+    
     
     // nTuple branches for Z signal samples on generator level
     b_GenZ = 0;
@@ -745,14 +747,12 @@ void AnalysisBase::SetTriggerBranchAddresses()
 void AnalysisBase::SetCommonGenBranchAddresses()
 {
     // Concerning physics objects
-    chain_->SetBranchAddress("allGenJets", &commonGenObjects_->allGenJets_, &b_allGenJets);
-    chain_->SetBranchAddress("jetPartonFlavour", &commonGenObjects_->jetPartonFlavour_, &b_jetPartonFlavour);
     chain_->SetBranchAddress("associatedGenJet", &commonGenObjects_->associatedGenJet_, &b_associatedGenJet);
+    chain_->SetBranchAddress("jetPartonFlavour", &commonGenObjects_->jetPartonFlavour_, &b_jetPartonFlavour);
     if(jetEnergyResolutionScaleFactors_){
         chain_->SetBranchAddress("associatedGenJetForMET", &commonGenObjects_->associatedGenJetForMET_, &b_associatedGenJetForMET);
+        //chain_->SetBranchAddress("jetPartonFlavourForMET", &commonGenObjects_->jetPartonFlavourForMET_, &b_jetPartonFlavourForMET);
     }
-    //chain_->SetBranchAddress("jetAssociatedPartonPdgId", &commonGenObjects_->jetAssociatedPartonPdgId_, &b_jetAssociatedPartonPdgId);
-    //chain_->SetBranchAddress("jetAssociatedParton", &commonGenObjects_->jetAssociatedParton_, &b_jetAssociatedParton);
 }
 
 
@@ -834,7 +834,6 @@ void AnalysisBase::SetGenTopBranchAddresses()
 void AnalysisBase::SetTopSignalBranchAddresses()
 {
     this->SetGenTopBranchAddresses();
-    chain_->SetBranchAddress("GenMET", &topGenObjects_->GenMet_, &b_GenMet);
     chain_->SetBranchAddress("GenLepton", &topGenObjects_->GenLepton_, &b_GenLepton);
     chain_->SetBranchAddress("GenAntiLepton", &topGenObjects_->GenAntiLepton_, &b_GenAntiLepton);
     //chain_->SetBranchAddress("GenLeptonPdgId", &topGenObjects_->GenLeptonPdgId_, &b_GenLeptonPdgId);
@@ -849,6 +848,8 @@ void AnalysisBase::SetTopSignalBranchAddresses()
     //chain_->SetBranchAddress("GenWMinus", &topGenObjects_->GenWMinus_, &b_GenWMinus);
     //chain_->SetBranchAddress("GenWPlus.fCoordinates.fX", &topGenObjects_->GenWPluspX_, &b_GenWPluspX);
     //chain_->SetBranchAddress("GenWMinus.fCoordinates.fX", &topGenObjects_->GenWMinuspX_, &b_GenWMinuspX);
+    chain_->SetBranchAddress("GenMET", &topGenObjects_->GenMet_, &b_GenMet);
+    chain_->SetBranchAddress("allGenJets", &topGenObjects_->allGenJets_, &b_allGenJets);
     //chain_->SetBranchAddress("GenParticleP4", &topGenObjects_->GenParticleP4_, &b_GenParticleP4);
     //chain_->SetBranchAddress("GenParticlePdgId", &topGenObjects_->GenParticlePdgId_, &b_GenParticlePdgId);
     //chain_->SetBranchAddress("GenParticleStatus", &topGenObjects_->GenParticleStatus_, &b_GenParticleStatus);
@@ -860,6 +861,8 @@ void AnalysisBase::SetTopSignalBranchAddresses()
     chain_->SetBranchAddress("AntiBHadronFromTopB", &topGenObjects_->AntiBHadronFromTopB_, &b_AntiBHadronFromTopB);
     chain_->SetBranchAddress("BHadronVsJet", &topGenObjects_->BHadronVsJet_, &b_BHadronVsJet);
     chain_->SetBranchAddress("AntiBHadronVsJet", &topGenObjects_->AntiBHadronVsJet_, &b_AntiBHadronVsJet);
+    //chain_->SetBranchAddress("jetAssociatedPartonPdgId", &topGenObjects_->jetAssociatedPartonPdgId_, &b_jetAssociatedPartonPdgId);
+    //chain_->SetBranchAddress("jetAssociatedParton", &topGenObjects_->jetAssociatedParton_, &b_jetAssociatedParton);
     
     if(chain_->GetBranch("genBHadPlusMothersPdgId")) // need to check whether branch exists
        chain_->SetBranchAddress("genBHadPlusMothersPdgId", &topGenObjects_->genBHadPlusMothersPdgId_, &b_genBHadPlusMothersPdgId);
@@ -1005,12 +1008,10 @@ void AnalysisBase::GetCommonGenBranchesEntry(const Long64_t& entry)const
     commonGenObjects_->valuesSet_ = true;
 
     // Concerning physics objects
-    b_allGenJets->GetEntry(entry);
-    b_jetPartonFlavour->GetEntry(entry);
     b_associatedGenJet->GetEntry(entry);
+    b_jetPartonFlavour->GetEntry(entry);
     if(b_associatedGenJetForMET) b_associatedGenJetForMET->GetEntry(entry);
-    //if(b_jetAssociatedPartonPdgId) b_jetAssociatedPartonPdgId->GetEntry(entry);
-    //if(b_jetAssociatedParton) b_jetAssociatedParton->GetEntry(entry);
+    //if(b_jetPartonFlavourForMET) b_jetPartonFlavourForMET->GetEntry(entry);
 }
 
 
@@ -1122,7 +1123,6 @@ void AnalysisBase::GetTopSignalBranchesEntry(const Long64_t& entry)const
     topGenObjects_->valuesSet_ = true;
 
     this->GetGenTopBranchesEntry(entry);
-    b_GenMet->GetEntry(entry);
     b_GenLepton->GetEntry(entry);
     b_GenAntiLepton->GetEntry(entry);
     //b_GenLeptonPdgId->GetEntry(entry);
@@ -1135,6 +1135,8 @@ void AnalysisBase::GetTopSignalBranchesEntry(const Long64_t& entry)const
     b_GenAntiB->GetEntry(entry);
     //b_GenWPlus->GetEntry(entry);
     //b_GenWMinus->GetEntry(entry);
+    b_GenMet->GetEntry(entry);
+    b_allGenJets->GetEntry(entry);
     //b_GenParticleP4->GetEntry(entry);
     //b_GenParticlePdgId->GetEntry(entry);
     //b_GenParticleStatus->GetEntry(entry);
@@ -1146,6 +1148,8 @@ void AnalysisBase::GetTopSignalBranchesEntry(const Long64_t& entry)const
     b_AntiBHadronFromTopB->GetEntry(entry);
     b_BHadronVsJet->GetEntry(entry);
     b_AntiBHadronVsJet->GetEntry(entry);
+    //if(b_jetAssociatedPartonPdgId) b_jetAssociatedPartonPdgId->GetEntry(entry);
+    //if(b_jetAssociatedParton) b_jetAssociatedParton->GetEntry(entry);
     if(b_genBHadPlusMothersPdgId) b_genBHadPlusMothersPdgId->GetEntry(entry);
     if(b_genBHadPlusMothersStatus) b_genBHadPlusMothersStatus->GetEntry(entry);
     if(b_genBHadPlusMothersIndices) b_genBHadPlusMothersIndices->GetEntry(entry);
