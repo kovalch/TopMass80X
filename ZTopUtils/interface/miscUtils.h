@@ -24,15 +24,15 @@ namespace ztop {
 
 template<class T>
 long double gammaFunc(T in, float eps=0.00001){
-    if(eps && rint(in)>1 &&fabs(rint(in) - in) < eps){
-        long double out=1;
-        for(int i=in-1;i>0;i--)
-            out*=i;
-        return out;
-    }
-    else{
-        return tgammal(in);
-    }
+	if(eps && rint(in)>1 &&fabs(rint(in) - in) < eps){
+		long double out=1;
+		for(int i=in-1;i>0;i--)
+			out*=i;
+		return out;
+	}
+	else{
+		return tgammal(in);
+	}
 }
 
 /**
@@ -73,35 +73,35 @@ float getTtbarXsec(float topmass, float energy=8, float* scaleerr=0, float * pdf
 
 template<class t>
 bool isApprox(t a, t b, double eps = 0.01) {
-    if (fabs(a - b) < eps)
-        return true;
-    else
-        return false;
+	if (fabs(a - b) < eps)
+		return true;
+	else
+		return false;
 }
 template<class t>
 bool isAbsApprox(t a, t b, double eps = 0.01) {
-    return (isApprox(a, b, eps) || isApprox(a, -b, eps));
+	return (isApprox(a, b, eps) || isApprox(a, -b, eps));
 }
 
 template<class t>
 t square(const t & in) {
-    return in * in;
+	return in * in;
 }
 
 template<class t>
 TString toTString(t in) {
-    std::ostringstream s;
-    s << in;
-    TString out = s.str();
-    return out;
+	std::ostringstream s;
+	s << in;
+	TString out = s.str();
+	return out;
 }
 
 template<class t>
 std::string toString(t in) {
-    std::ostringstream s;
-    s << in;
-    std::string out = s.str();
-    return out;
+	std::ostringstream s;
+	s << in;
+	std::string out = s.str();
+	return out;
 }
 
 TH2D divideTH2DBinomial(TH2D &h1, TH2D &h2);
@@ -114,97 +114,97 @@ TH1D divideTH1DBinomial(TH1D &h1, TH1D &h2);
 
 template<class t>
 std::vector<unsigned int> getOrderAscending(typename std::vector<t> vec) {
-    typename std::vector<t> vec2 = vec;
-    std::sort(vec.begin(), vec.end());
-    std::vector<unsigned int> out;
-    for (unsigned int i = 0; i < vec.size(); i++) {
-        for (unsigned int j = 0; j < vec2.size(); j++) {
-            if (vec.at(i) == vec2.at(j)) {
-                out.push_back(j);
-                break;
-            }
-        }
-    }
-    return out;
+	typename std::vector<t> vec2 = vec;
+	std::sort(vec.begin(), vec.end());
+	std::vector<unsigned int> out;
+	for (unsigned int i = 0; i < vec.size(); i++) {
+		for (unsigned int j = 0; j < vec2.size(); j++) {
+			if (vec.at(i) == vec2.at(j)) {
+				out.push_back(j);
+				break;
+			}
+		}
+	}
+	return out;
 }
 
 template<class t, class u>
 double dR(t &first, u &sec) {
-    return sqrt(
-            (first.eta() - sec.eta()) * (first.eta() - sec.eta())
-            + (first.phi() - sec.phi()) * (first.phi() - sec.phi()));
+	return sqrt(
+			(first.eta() - sec.eta()) * (first.eta() - sec.eta())
+			+ (first.phi() - sec.phi()) * (first.phi() - sec.phi()));
 }
 template<class t, class u>
 double dR(t *first, u *sec) {
-    return sqrt(
-            (first->eta() - sec->eta()) * (first->eta() - sec->eta())
-            + (first->phi() - sec->phi()) * (first->phi() - sec->phi()));
+	return sqrt(
+			(first->eta() - sec->eta()) * (first->eta() - sec->eta())
+			+ (first->phi() - sec->phi()) * (first->phi() - sec->phi()));
 }
 
 template<class t, class u>
 bool noOverlap(t *first, u *sec, double deltaR) {
-    bool nooverlap = true;
-    if ((deltaR * deltaR)
-            > square(first->eta() - sec->eta())
-            + square(first->phi() - sec->phi())) {
-        nooverlap = false;
-    }
-    return nooverlap;
+	bool nooverlap = true;
+	if ((deltaR * deltaR)
+			> square(first->eta() - sec->eta())
+			+ square(first->phi() - sec->phi())) {
+		nooverlap = false;
+	}
+	return nooverlap;
 }
 
 template<class T, class U>
 bool noOverlap(T * first, typename std::vector<U*> &vecsec, double deltaR) {
-    bool nooverlap = true;
-    for (size_t i = 0; i < vecsec.size(); i++) {
-        if (!noOverlap(first, vecsec.at(i), deltaR)) {
-            nooverlap = false;
-            break;
-        }
-    }
-    return nooverlap;
+	bool nooverlap = true;
+	for (size_t i = 0; i < vecsec.size(); i++) {
+		if (!noOverlap(first, vecsec.at(i), deltaR)) {
+			nooverlap = false;
+			break;
+		}
+	}
+	return nooverlap;
 }
 
 template<class t>
 int isIn(t element, typename std::vector<t> vec) {
-    int IsIn = -1;
-    for (unsigned int i = 0; i < vec.size(); i++) {
-        if (vec[i] == element) {
-            IsIn = i;
-            break;
-        }
-    }
-    return IsIn;
+	int IsIn = -1;
+	for (unsigned int i = 0; i < vec.size(); i++) {
+		if (vec[i] == element) {
+			IsIn = i;
+			break;
+		}
+	}
+	return IsIn;
 }
 
 template<class T, class U>
 std::vector<T>& operator<<(std::vector<T>& vec, const U& x) {
-    vec.push_back((T) x);
-    return vec;
+	vec.push_back((T) x);
+	return vec;
 }
 
 template<class T, class U>
 std::vector<T>& operator<<(std::vector<T>& vec, const std::vector<U> & x) {
-    vec.insert(vec.end(), x.begin(), x.end());
-    return vec;
+	vec.insert(vec.end(), x.begin(), x.end());
+	return vec;
 }
 
 void displayStatusBar(Long64_t event, Long64_t nEvents, int ndiv = 50);
 
 template<class T>
 bool allEqual(std::vector<T> vec, T val) {
-    for (size_t i = 0; i < vec.size(); i++) {
-        if (vec.at(i) != val)
-            return false;
-    }
-    return true;
+	for (size_t i = 0; i < vec.size(); i++) {
+		if (vec.at(i) != val)
+			return false;
+	}
+	return true;
 }
 template<class T>
 bool NoneEqual(std::vector<T> vec, T val) {
-    for (size_t i = 0; i < vec.size(); i++) {
-        if (vec.at(i) == val)
-            return false;
-    }
-    return true;
+	for (size_t i = 0; i < vec.size(); i++) {
+		if (vec.at(i) == val)
+			return false;
+	}
+	return true;
 }
 
 bool fileExists(const char * filename);
@@ -215,49 +215,108 @@ bool fileExists(const char * filename);
  * return -1 if no match is found.
  * the input elements are NOT changed but passing by const& leads to errors in some cases
  */
- template<class T, class U>
+template<class T, class U>
 int getClosestInDR(T* element, std::vector<U*>& coll, double & dRmax = 999,
-        const double & dptrel = 200) {
-     double dRmin = 9999;
-     if (dRmax)
-         dRmin = dRmax;
-     int idx = -1;
-     for (size_t i = 0; i < coll.size(); i++) {
-         double dr = dR(element, coll.at(i));
-         if (dr < dRmin
-                 && dptrel
-                 > fabs(element->pt() - coll.at(i)->pt())
-                 / element->pt()) {
-             dRmin = dr;
-             idx = i;
-         }
-     }
-     if (!dRmax)
-         dRmax = dRmin;
-     return idx;
- }
+		const double & dptrel = 200) {
+	double dRmin = 9999;
+	if (dRmax)
+		dRmin = dRmax;
+	int idx = -1;
+	for (size_t i = 0; i < coll.size(); i++) {
+		double dr = dR(element, coll.at(i));
+		if (dr < dRmin
+				&& dptrel
+				> fabs(element->pt() - coll.at(i)->pt())
+				/ element->pt()) {
+			dRmin = dr;
+			idx = i;
+		}
+	}
+	if (!dRmax)
+		dRmax = dRmin;
+	return idx;
+}
 
- template<class T, class U>
- int getClosestInDR(T& element, std::vector<U>& coll, double & dRmax = 999,
-         const double & dptrel = 200) {
-     double dRmin = 9999;
-     if (dRmax)
-         dRmin = dRmax;
-     int idx = -1;
-     for (size_t i = 0; i < coll.size(); i++) {
-         double dr = dR(element, coll.at(i));
-         if (dr < dRmin
-                 && dptrel
-                 > fabs(element.pt() - coll.at(i).pt()) / element.pt()) {
-             dRmin = dr;
-             idx = i;
-         }
-     }
-     if (!dRmax)
-         dRmax = dRmin;
-     return idx;
- }
+template<class T, class U>
+int getClosestInDR(T& element, std::vector<U>& coll, double & dRmax = 999,
+		const double & dptrel = 200) {
+	double dRmin = 9999;
+	if (dRmax)
+		dRmin = dRmax;
+	int idx = -1;
+	for (size_t i = 0; i < coll.size(); i++) {
+		double dr = dR(element, coll.at(i));
+		if (dr < dRmin
+				&& dptrel
+				> fabs(element.pt() - coll.at(i).pt()) / element.pt()) {
+			dRmin = dr;
+			idx = i;
+		}
+	}
+	if (!dRmax)
+		dRmax = dRmin;
+	return idx;
+}
+/**
+ * works like std::sort but returns a vector of indecies that has the following form:
+ * vector.at(unsrotedindex) == sortedindex
+ */
+template<typename _RandomAccessIterator, typename _Compare>
+inline std::vector<size_t>
+retsort(_RandomAccessIterator __first, _RandomAccessIterator __last,
+		_Compare __comp);
+/**
+ * works like std::sort but returns a vector of indecies that has the following form:
+ * vector.at(unsrotedindex) == sortedindex
+ */
+template<typename _RandomAccessIterator>
+inline std::vector<size_t>
+retsort(_RandomAccessIterator __first, _RandomAccessIterator __last);
 
 }
+
+
+#include <algorithm>
+#include <iterator>
+
+template<typename _RandomAccessIterator, typename _Compare>
+inline std::vector<size_t>
+ztop::retsort(_RandomAccessIterator __first, _RandomAccessIterator __last,
+		_Compare __comp){
+	typedef typename std::iterator_traits<_RandomAccessIterator>::value_type
+			_ValueType;
+	std::vector<_ValueType> copy(__first,__last); //copy
+	std::vector<size_t> sortedilo;
+	std::sort(copy.begin(),copy.end(),__comp);
+
+	for(_RandomAccessIterator it=__first;it!=__last;++it){
+		//get the position in input
+		size_t pos=std::find(copy.begin(),copy.end(),*it)-copy.begin();
+		sortedilo.push_back(pos);
+	}
+	std::sort(__first,__last,__comp);
+	return sortedilo;
+}
+
+
+template<typename _RandomAccessIterator>
+inline std::vector<size_t>
+ztop::retsort(_RandomAccessIterator __first, _RandomAccessIterator __last){
+	typedef typename std::iterator_traits<_RandomAccessIterator>::value_type
+			_ValueType;
+	std::vector<_ValueType> copy(__first,__last); //copy
+	std::vector<size_t> sortedilo;
+	std::sort(copy.begin(),copy.end());
+
+	for(_RandomAccessIterator it=__first;it!=__last;++it){
+		//get the position in input
+		size_t pos=std::find(copy.begin(),copy.end(),*it)-copy.begin();
+		sortedilo.push_back(pos);
+	}
+	std::sort(__first,__last);
+	return sortedilo;
+}
+
+
 
 #endif
