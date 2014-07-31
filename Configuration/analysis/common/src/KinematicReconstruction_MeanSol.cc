@@ -1,18 +1,26 @@
+#include <vector>
+
+#include <TLorentzVector.h>
 
 #include "KinematicReconstruction_MeanSol.h"
 
 
+
+
+
 KinematicReconstruction_MeanSol::KinematicReconstruction_MeanSol(const double& topm):
 sum_weight_(0),
-max_sum_weight_(0)
-{
-    mass_top_=topm;
-}
+max_sum_weight_(0),
+mass_top_(topm)
+{}
+
+
 
 KinematicReconstruction_MeanSol::~KinematicReconstruction_MeanSol()
-{
+{}
 
-}
+
+
 void KinematicReconstruction_MeanSol::clear()
 {
     v_top_.clear();
@@ -23,6 +31,8 @@ void KinematicReconstruction_MeanSol::clear()
     sum_weight_=0;
     max_sum_weight_=0;
 }
+
+
 
 void KinematicReconstruction_MeanSol::add(const TLorentzVector& top, const TLorentzVector& topbar, const TLorentzVector& n, const TLorentzVector& nbar,const double& weight,const double& mbl_weight)
 {
@@ -37,6 +47,7 @@ void KinematicReconstruction_MeanSol::add(const TLorentzVector& top, const TLore
 }
 
 
+
 void KinematicReconstruction_MeanSol::add(const TLorentzVector& top, const TLorentzVector& topbar,const TLorentzVector& n,const TLorentzVector& nbar,const double& weight)
 {
     v_top_.push_back(top);
@@ -49,7 +60,9 @@ void KinematicReconstruction_MeanSol::add(const TLorentzVector& top, const TLore
     max_sum_weight_ = max_sum_weight_ +weight;
 }
 
-void KinematicReconstruction_MeanSol::getMeanVect(TLorentzVector& lv,const vector<TLorentzVector>& vlv,double mass)
+
+
+void KinematicReconstruction_MeanSol::getMeanVect(TLorentzVector& lv, const std::vector<TLorentzVector>& vlv, const double& mass)const
 {
     double px_sum=0;
     double py_sum=0;
@@ -73,23 +86,29 @@ void KinematicReconstruction_MeanSol::getMeanVect(TLorentzVector& lv,const vecto
 }
 
 
-void KinematicReconstruction_MeanSol::getMeanSol(TLorentzVector& top, TLorentzVector& topbar, TLorentzVector& n, TLorentzVector& nbar)
+
+void KinematicReconstruction_MeanSol::getMeanSol(TLorentzVector& top, TLorentzVector& topbar, TLorentzVector& n, TLorentzVector& nbar)const
 {
-        getMeanVect(top,v_top_,mass_top_);
-        getMeanVect(topbar,v_topbar_,mass_top_);
-        getMeanVect(n,v_n_,0);
-        getMeanVect(nbar,v_nbar_,0);
+    this->getMeanVect(top,v_top_,mass_top_);
+    this->getMeanVect(topbar,v_topbar_,mass_top_);
+    this->getMeanVect(n,v_n_,0);
+    this->getMeanVect(nbar,v_nbar_,0);
 }
 
-double KinematicReconstruction_MeanSol::getSumWeight()
+
+
+double KinematicReconstruction_MeanSol::getSumWeight()const
 {
     return sum_weight_; // for 1 weight
 //     return max_sum_weight_; // for 2 weights
     
 }
 
-int KinematicReconstruction_MeanSol::getNsol()
+
+
+int KinematicReconstruction_MeanSol::getNsol()const
 {
     return (int)v_top_.size();
 }
+
 

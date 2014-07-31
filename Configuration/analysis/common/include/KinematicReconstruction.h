@@ -3,17 +3,12 @@
 
 #include <vector>
 #include <map>
-#include <iostream>
-#include <stdio.h>
 
 #include <TLorentzVector.h>
-#include <TMath.h>
-#include <TH1F.h>
 
-#include <Math/PtEtaPhiM4D.h>
-#include <Math/LorentzVector.h>
-#include <Rtypes.h>
-#include <TRandom3.h>
+class TH1F;
+class TRandom3;
+
 #include "classesFwd.h"
 #include "sampleHelpers.h"
 
@@ -21,7 +16,7 @@
 
 
 
-struct Struct_KinematicReconstruction {
+struct Struct_KinematicReconstruction{
     TLorentzVector lp, lm;
     TLorentzVector jetB, jetBbar;
     size_t jetB_index, jetBbar_index;
@@ -37,25 +32,31 @@ struct Struct_KinematicReconstruction {
 
 
 
-class KinematicReconstruction {
 
+
+class KinematicReconstruction{
+    
 public:
-
-  KinematicReconstruction();
-  
-int getNSol()const;
-Struct_KinematicReconstruction getSol()const;
-std::vector<Struct_KinematicReconstruction> getSols()const;
-
-void loadData();
-void kinReco(const LV& leptonMinus, const LV& leptonPlus, const VLV *jets, const std::vector<double> *btags, const LV* met);
-void kinReco(const LV& leptonMinus, const LV& leptonPlus, const VLV *jets, const std::vector<double> *btags, const LV* met, bool mass_loop_on);
-void doJetsMerging(const VLV *jets,const std::vector<double> *btags); 
-
+    
+    KinematicReconstruction();
+    ~KinematicReconstruction(){}
+    
+    int getNSol()const;
+    Struct_KinematicReconstruction getSol()const;
+    std::vector<Struct_KinematicReconstruction> getSols()const;
+    
+    void loadData();
+    void kinReco(const LV& leptonMinus, const LV& leptonPlus, const VLV* jets, const std::vector<double>* btags, const LV* met);
+    void kinReco(const LV& leptonMinus, const LV& leptonPlus, const VLV* jets, const std::vector<double>* btags, const LV* met, const bool mass_loop_on);
+    void doJetsMerging(const VLV* jets, const std::vector<double>* btags);
+    
+    
+    
 private:
-
+    
+    void angle_rot(const double& alpha, const double& e, const TLorentzVector& inJet, TLorentzVector& jet_sm)const;
+    
     TRandom3* r3_;
-    void angle_rot(const double& alpha, const double& e, const TLorentzVector& inJet, TLorentzVector & jet_sm);
     
     int nSol_;
     Struct_KinematicReconstruction sol_;
@@ -84,20 +85,19 @@ private:
     TH1F * h_metPxRes_[13];
     TH1F * h_metPyRes_[13];
     
-// 
+    
     TH1F *h_nwcuts_;
-// 
+    
 // //  E 1d bins
-        TH1F* hvE_[6];
-// 
+    TH1F* hvE_[6];
+    
 // // mbl
-        TH1F *h_mbl_w_;
+    TH1F *h_mbl_w_;
 // // costheta        
-        TH1F *h_costheta_w_;
-
+    TH1F *h_costheta_w_;
+    
 // neuEta 0d weight
-        TH1F *h_neuEta_w_;
-//
+    TH1F *h_neuEta_w_;
 };
 
 

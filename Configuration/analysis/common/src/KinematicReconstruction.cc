@@ -1,34 +1,35 @@
-#include <cmath>
-#include <cassert>
-#include <algorithm>
-#include <utility>
+#include <vector>
+#include <map>
+#include <iostream>
 #include <cmath>
 
-//#include <TH1.h>
+#include <TLorentzVector.h>
+#include <TH1F.h>
+#include <TRandom3.h>
 #include <TFile.h>
 #include <TString.h>
-#include <TLorentzVector.h>
-// #include <TAttLine.h>
 #include <TMath.h>
 #include <TVector3.h>
-#include <TRandom3.h>
 
 #include "classes.h"
 #include "utils.h"
 #include "analysisUtils.h"
-// #include "KinReco.h"
 #include "KinematicReconstruction.h"
 #include "KinematicReconstruction_LSroutines.h"
 #include "KinematicReconstruction_MeanSol.h"
 
-#define printout 0
 
-#define topmass (172.5)
 
+
+constexpr double TopMASS = 172.5;
+
+
+
+
+
+// FIXME: This should not be declared in whole file, if at all only in individual functions
+// FIXME: Removal needs to be done with care, since esp. "abs" needs the std::abs for working properly
 using namespace std;
-
-
-
 
 
 
@@ -37,7 +38,7 @@ using namespace std;
 
 // -------------------------------------- Methods for KinematicReconstruction --------------------------------------
 
-void KinematicReconstruction::angle_rot(const double& alpha, const double& e, const TLorentzVector& inJet, TLorentzVector& jet_sm)
+void KinematicReconstruction::angle_rot(const double& alpha, const double& e, const TLorentzVector& inJet, TLorentzVector& jet_sm)const
 {
     double px_1, py_1, pz_1; // Coordinate system where momentum is along Z-axis
     
@@ -102,6 +103,7 @@ void KinematicReconstruction::angle_rot(const double& alpha, const double& e, co
 }
 
 
+
 KinematicReconstruction::KinematicReconstruction():
 nSol_(0),
 isJetsMerging_(false),
@@ -125,7 +127,9 @@ h_neuEta_w_(0)
     std::cout<<"=== Finishing preparation of kinematic reconstruction\n\n";
 }
 
-void KinematicReconstruction::doJetsMerging(const VLV* jets,const std::vector<double> *btags)
+
+
+void KinematicReconstruction::doJetsMerging(const VLV* jets,const std::vector<double>* btags)
 {
     isJetsMerging_=true;   
     
@@ -140,7 +144,9 @@ void KinematicReconstruction::doJetsMerging(const VLV* jets,const std::vector<do
     
 }
 
-void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlus, const VLV *jets, const std::vector<double> *btags, const LV* met)
+
+
+void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlus, const VLV* jets, const std::vector<double>* btags, const LV* met)
 {
     
     sols_.clear();
@@ -148,7 +154,8 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
     TLorentzVector leptonPlus_tlv = common::LVtoTLV(leptonPlus);
     TLorentzVector leptonMinus_tlv = common::LVtoTLV(leptonMinus);
     TLorentzVector met_tlv = common::LVtoTLV(*met);
-
+    
+    // FIMXE: This is a mixture of ints and doubles for some calculation, thus veeery dangerous --> clean up
     gRandom->SetSeed((int)(( leptonPlus_tlv.Pt() - (int)(leptonPlus_tlv.Pt()) )*1000000000));
     r3_->SetSeed(( leptonPlus_tlv.Pt() - (int)(leptonPlus_tlv.Pt()) )*1000000000);
     
@@ -367,7 +374,7 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
 
     if(b1_id.size()<2)return;     
 
-    KinematicReconstruction_MeanSol meanSol(topmass);
+    KinematicReconstruction_MeanSol meanSol(TopMASS);
     //double max_sum_weight=0;
     int /*nbtag=0,*/ isHaveSol=0;
 
@@ -482,7 +489,7 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
                 }
             }
             
-	} // for sm=100 end
+        } // for sm=100 end
 
 //         if(isHaveSol) {
 //             
@@ -566,15 +573,20 @@ int KinematicReconstruction::getNSol()const
     return nSol_;
 }
 
+
+
 Struct_KinematicReconstruction KinematicReconstruction::getSol()const
 {
     return sol_;
 }
 
+
+
 vector< Struct_KinematicReconstruction > KinematicReconstruction::getSols() const
 {
     return sols_;
 }
+
 
 
 void KinematicReconstruction::loadData()
@@ -673,7 +685,7 @@ void KinematicReconstruction::loadData()
     h_nwcuts_->SetDirectory(0);
     fnw.Close();
     
-///  E 1d bins
+//  E 1d bins
         TString data_path6 = common::DATA_PATH_COMMON();
         data_path6.Append("/KinReco_wneutrino_E.root"); // no norm
 //         data_path6.Append("/KinReco_wneutrino_E_normilyze.root"); // norm
@@ -687,9 +699,9 @@ void KinematicReconstruction::loadData()
                                     hvE_[i]->SetDirectory(0);
                         }
     frootNeut.Close();
-///...
+//...
 
-/// mbl
+// mbl
 
         TString data_path7 = common::DATA_PATH_COMMON();
         data_path7.Append("/KinReco_mbl.root");
@@ -705,9 +717,9 @@ void KinematicReconstruction::loadData()
 //         h_mbl_w_->SetDirectory(0);
         fmbl_wrong.Close();
         
-/// ...        
+// ...        
         
-/// cos_theta*
+// cos_theta*
 
         TString data_path8 = common::DATA_PATH_COMMON();
         data_path8.Append("/KinReco_costheta_true.root");
@@ -715,21 +727,23 @@ void KinematicReconstruction::loadData()
         h_costheta_w_ = (TH1F*)fcostheta.Get("cos_theta_true");
         h_costheta_w_->SetDirectory(0);
         fcostheta.Close();
-/// ...
+// ...
         
-/// neuEta
+// neuEta
         TString data_path9 = common::DATA_PATH_COMMON();
         data_path9.Append("/KinReco_wneutrinoEta.root");
         TFile fneuEta(data_path9);
         h_neuEta_w_ = (TH1F*)fneuEta.Get("Etaneu_true");
         h_neuEta_w_->SetDirectory(0);
         fneuEta.Close();
-/// ...        
+// ...        
         
         
 }
 
-void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlus, const VLV *jets, const std::vector<double> *btags, const LV* met, bool mass_loop_on)
+
+
+void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlus, const VLV* jets, const std::vector<double>* btags, const LV* met, const bool mass_loop_on)
 {
 
     std::vector<Struct_KinematicReconstruction> vect_sol;
@@ -791,7 +805,7 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
     }
 
 
-    ///jets loop
+    //jets loop
 
     nSol_=0;
     for(int ib=0; ib<(int)b1_id.size(); ib++) {
@@ -807,7 +821,7 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
         met_temp.SetXYZM(met->Px(), met->Py(), 0, 0);
 //         if((al_temp + b_temp).M()>180 || (l_temp + bbar_temp).M()>180)continue;
 
-        /*smearing*/
+        // smearing
         double vw_max=0;
         if(!mass_loop_on){
 
@@ -863,7 +877,7 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
                 l_sm.SetXYZT(l_sm.Px()*xL, l_sm.Py()*xL, l_sm.Pz()*xL, l_sm.E()*fL);
                 al_sm.SetXYZT(al_sm.Px()*xaL, al_sm.Py()*xaL, al_sm.Pz()*xaL, al_sm.E()*faL);
 
-                KinematicReconstruction_LSroutines tp_sm(topmass, 4.8, 80.4, 0.0, 0.0);
+                KinematicReconstruction_LSroutines tp_sm(TopMASS, 4.8, 80.4, 0.0, 0.0);
                 tp_sm.setConstraints(al_sm, l_sm, b_sm, bbar_sm, met_sm.Px(), met_sm.Py());
 
                 if(!(tp_sm.getNsol()<1 || tp_sm.getNsol()==1 || tp_sm.getNsol()==3)) {
@@ -894,8 +908,8 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
         }
 
 
-        /*smearing*/
-        /*mass scan*/
+        // smearing
+        // mass scan
 
         if(mass_loop_on){
            for(double im=100; im<300.5; im+=1){
