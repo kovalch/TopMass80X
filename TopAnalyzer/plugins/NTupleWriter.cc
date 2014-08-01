@@ -1166,7 +1166,7 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     met_ = met->at(0).polarP4();
     edm::Handle<edm::View<pat::MET> > mvaMet;
     iEvent.getByLabel(mvaMetTag_, mvaMet);
-    mvaMet_ = mvaMet->at(0).polarP4();
+    if(!mvaMet.failedToGet()) mvaMet_ = mvaMet->at(0).polarP4();
 
     // Fill ntuple
     ntuple_->Fill();
