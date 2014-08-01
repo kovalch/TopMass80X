@@ -534,7 +534,7 @@ else:
 process.pfMEtMVA.srcUncorrJets = 'pfJets'+pfpostfix
 process.pfMEtMVA.srcVertices = 'goodOfflinePrimaryVertices'
 process.pfMEtMVA.inputFileNames = cms.PSet(
-    U = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrmet_53_June2013_type1.root'),
+    U = cms.FileInPath('TopAnalysis/Configuration/analysis/common/data/gbrmet_53_Sep2013_type1.root'),
     DPhi = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrmetphi_53_June2013_type1.root'),
     CovU1 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru1cov_53_Dec2012.root'),
     CovU2 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru2cov_53_Dec2012.root')
