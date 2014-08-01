@@ -207,9 +207,6 @@ private:
     
     // ... for jets
     std::vector<LV> v_jet_;
-    std::vector<LV> v_jetForMet_;
-    std::vector<double> v_jetJerSF_;
-    std::vector<double> v_jetForMetJerSF_;
     std::vector<double> v_jetBtagTCHE_;
     std::vector<double> v_jetBtagTCHP_;
     std::vector<double> v_jetBtagJetProbability_;
@@ -243,6 +240,11 @@ private:
     // ... for MET
     LV met_;
     LV mvaMet_;
+    
+    // ... for jets, but used only for MC corrections (not needed in data)
+    std::vector<LV> v_jetForMet_;
+    std::vector<double> v_jetJerSF_;
+    std::vector<double> v_jetForMetJerSF_;
     
     // ... for general true level info
     int vertexMultiplicityTrue_;
@@ -1083,8 +1085,8 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.getByLabel(jetsTag_, jets);
     for(edm::View<pat::Jet>::const_iterator i_jet  = jets->begin(); i_jet != jets->end(); ++i_jet){
         v_jet_.push_back(i_jet->polarP4());
-        v_jetJerSF_.push_back(i_jet->userFloat("jerSF"));
         if(!iEvent.isRealData()){
+            v_jetJerSF_.push_back(i_jet->userFloat("jerSF"));
             v_jetPartonFlavour_.push_back(i_jet->partonFlavour());
             if(i_jet->genJet()) v_associatedGenJet_.push_back(i_jet->genJet()->polarP4());
             else v_associatedGenJet_.push_back(nullP4_);
@@ -1105,17 +1107,17 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     // because even bad-id jets are used for MET
     constexpr double jetPtThresholdForMet = 10.;
     constexpr double jetEmLimitForMet = 0.9;
-    edm::Handle<edm::View<pat::Jet> > jetsForMet;
-    iEvent.getByLabel(jetsForMetTag_, jetsForMet);
-    edm::Handle<edm::View<pat::Jet> > jetsForMetUncorrected;
-    iEvent.getByLabel(jetsForMetUncorrectedTag_, jetsForMetUncorrected);
-    for(size_t iJet = 0; iJet < jetsForMetUncorrected->size(); ++iJet){
-        if(jetsForMetUncorrected->at(iJet).correctedJet("Uncorrected").pt() > jetPtThresholdForMet &&
-            ((!jetsForMetUncorrected->at(iJet).isPFJet() && jetsForMetUncorrected->at(iJet).emEnergyFraction() < jetEmLimitForMet) ||
-             (jetsForMetUncorrected->at(iJet).isPFJet() && jetsForMetUncorrected->at(iJet).neutralEmEnergyFraction() + jetsForMetUncorrected->at(iJet).chargedEmEnergyFraction() < jetEmLimitForMet))){
-            v_jetForMet_.push_back(jetsForMet->at(iJet).polarP4());
-            v_jetForMetJerSF_.push_back(jetsForMet->at(iJet).userFloat("jerSF"));
-            if(!iEvent.isRealData()){
+    if(!iEvent.isRealData()){
+        edm::Handle<edm::View<pat::Jet> > jetsForMet;
+        iEvent.getByLabel(jetsForMetTag_, jetsForMet);
+        edm::Handle<edm::View<pat::Jet> > jetsForMetUncorrected;
+        iEvent.getByLabel(jetsForMetUncorrectedTag_, jetsForMetUncorrected);
+        for(size_t iJet = 0; iJet < jetsForMetUncorrected->size(); ++iJet){
+            if(jetsForMetUncorrected->at(iJet).correctedJet("Uncorrected").pt() > jetPtThresholdForMet &&
+                ((!jetsForMetUncorrected->at(iJet).isPFJet() && jetsForMetUncorrected->at(iJet).emEnergyFraction() < jetEmLimitForMet) ||
+                 (jetsForMetUncorrected->at(iJet).isPFJet() && jetsForMetUncorrected->at(iJet).neutralEmEnergyFraction() + jetsForMetUncorrected->at(iJet).chargedEmEnergyFraction() < jetEmLimitForMet))){
+                v_jetForMet_.push_back(jetsForMet->at(iJet).polarP4());
+                v_jetForMetJerSF_.push_back(jetsForMet->at(iJet).userFloat("jerSF"));
                 v_jetPartonFlavourForMet_.push_back(jetsForMet->at(iJet).partonFlavour());
                 if(jetsForMet->at(iJet).genJet()) v_associatedGenJetForMet_.push_back(jetsForMet->at(iJet).genJet()->polarP4());
                 else v_associatedGenJetForMet_.push_back(nullP4_);
@@ -1331,9 +1333,6 @@ NTupleWriter::beginJob()
     
     // Jets
     ntuple_->Branch("jets", &v_jet_);
-    ntuple_->Branch("jetsForMET", &v_jetForMet_);
-    ntuple_->Branch("jetJERSF", &v_jetJerSF_);
-    ntuple_->Branch("jetForMETJERSF", &v_jetForMetJerSF_);
     ntuple_->Branch("jetBTagTCHE", &v_jetBtagTCHE_);
     ntuple_->Branch("jetBTagTCHP", &v_jetBtagTCHP_);
     ntuple_->Branch("jetBTagJetProbability", &v_jetBtagJetProbability_);
@@ -1363,6 +1362,13 @@ NTupleWriter::beginJob()
     ntuple_->Branch("jetSecondaryVertexFlightDistanceSignificance", &v_jetSecondaryVertexFlightDistanceSignificance_);
     ntuple_->Branch("jetSecondaryVertexTrackMatchToSelectedTrackIndex", &v_jetSecondaryVertexTrackMatchToSelectedTrackIndex_);
     ntuple_->Branch("jetSecondaryVertexTrackVertexIndex", &v_jetSecondaryVertexTrackVertexIndex_);
+    
+    // Jets, but used only for MC corrections (not needed in data)
+    if(isMC_){
+        ntuple_->Branch("jetsForMET", &v_jetForMet_);
+        ntuple_->Branch("jetJERSF", &v_jetJerSF_);
+        ntuple_->Branch("jetForMETJERSF", &v_jetForMetJerSF_);
+    }
     
     // MET
     ntuple_->Branch("met", &met_);
@@ -1502,9 +1508,6 @@ void NTupleWriter::clearVariables()
     
     // Jets
     v_jet_.clear();
-    v_jetForMet_.clear();
-    v_jetJerSF_.clear();
-    v_jetForMetJerSF_.clear();
     v_jetBtagTCHE_.clear();
     v_jetBtagTCHP_.clear();
     v_jetBtagJetProbability_.clear();
@@ -1538,6 +1541,11 @@ void NTupleWriter::clearVariables()
     // MET
     met_ = nullP4_;
     mvaMet_ = nullP4_;
+    
+    // Jets, but used only for MC corrections (not needed in data)
+    v_jetForMet_.clear();
+    v_jetJerSF_.clear();
+    v_jetForMetJerSF_.clear();
     
     // General true-level info
     vertexMultiplicityTrue_ = 0;
