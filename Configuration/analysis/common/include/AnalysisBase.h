@@ -507,9 +507,6 @@ private:
     TBranch* b_met;
     TBranch* b_mvamet;
     TBranch* b_jetForMET;
-    TBranch* b_jetJERSF;
-    TBranch* b_jetForMETJERSF;
-    TBranch* b_vertMulti;
     
     // Concerning event
     TBranch* b_runNumber;
@@ -525,6 +522,9 @@ private:
     
     /// nTuple branches holding generator information for all MC samples
     // Concerning physics objects
+    TBranch* b_jetJERSF;
+    TBranch* b_jetForMETJERSF;
+    TBranch* b_vertMulti;
     TBranch* b_associatedGenJet;
     TBranch* b_associatedGenJetForMET;
     TBranch* b_jetPartonFlavour;

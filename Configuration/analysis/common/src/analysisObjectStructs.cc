@@ -59,9 +59,6 @@ void RecoObjects::clear()
     jetSecondaryVertexTrackMatchToSelectedTrackIndex_ = 0;
     met_ = 0;
     mvamet_ = 0;
-    jetJERSF_ = 0;
-    jetsForMET_ = 0;
-    jetForMETJERSF_ = 0;
     vertMulti_ = 0;
     
     // Concerning event
@@ -83,6 +80,9 @@ void CommonGenObjects::clear()
 {
     valuesSet_ = false;
     
+    jetJERSF_ = 0;
+    jetsForMET_ = 0;
+    jetForMETJERSF_ = 0;
     associatedGenJet_ = 0;
     associatedGenJetForMET_ = 0;
     jetPartonFlavour_ = 0;

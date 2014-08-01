@@ -464,9 +464,6 @@ void AnalysisBase::clearBranches()
     b_jetSecondaryVertexFlightDistanceSignificance = 0;
     b_met = 0;
     b_mvamet = 0;
-    b_jetJERSF = 0;
-    b_jetForMET = 0;
-    b_jetForMETJERSF = 0;
     b_vertMulti = 0;
     
     // nTuple branches relevant for reconstruction level
@@ -484,6 +481,9 @@ void AnalysisBase::clearBranches()
     
     // nTuple branches holding generator information for all MC samples
     // Concerning physics objects
+    b_jetJERSF = 0;
+    b_jetForMET = 0;
+    b_jetForMETJERSF = 0;
     b_associatedGenJet = 0;
     b_associatedGenJetForMET = 0;
     b_jetPartonFlavour = 0;
@@ -718,13 +718,6 @@ void AnalysisBase::SetRecoBranchAddresses()
     if(chain_->GetBranch("mvamet")) // new variable, keep check a while for compatibility
         chain_->SetBranchAddress("mvamet", &recoObjects_->mvamet_, &b_mvamet);
     else b_mvamet = 0;
-    if(jetEnergyResolutionScaleFactors_ || jetEnergyScaleScaleFactors_){
-        chain_->SetBranchAddress("jetsForMET", &recoObjects_->jetsForMET_, &b_jetForMET);
-    }
-    if(jetEnergyResolutionScaleFactors_){
-        chain_->SetBranchAddress("jetJERSF", &recoObjects_->jetJERSF_, &b_jetJERSF);
-        chain_->SetBranchAddress("jetForMETJERSF", &recoObjects_->jetForMETJERSF_, &b_jetForMETJERSF);
-    }
     chain_->SetBranchAddress("vertMulti", &recoObjects_->vertMulti_, &b_vertMulti);
     
     // Concerning event
@@ -747,6 +740,13 @@ void AnalysisBase::SetTriggerBranchAddresses()
 void AnalysisBase::SetCommonGenBranchAddresses()
 {
     // Concerning physics objects
+    if(jetEnergyResolutionScaleFactors_ || jetEnergyScaleScaleFactors_){
+        chain_->SetBranchAddress("jetsForMET", &commonGenObjects_->jetsForMET_, &b_jetForMET);
+    }
+    if(jetEnergyResolutionScaleFactors_){
+        chain_->SetBranchAddress("jetJERSF", &commonGenObjects_->jetJERSF_, &b_jetJERSF);
+        chain_->SetBranchAddress("jetForMETJERSF", &commonGenObjects_->jetForMETJERSF_, &b_jetForMETJERSF);
+    }
     chain_->SetBranchAddress("associatedGenJet", &commonGenObjects_->associatedGenJet_, &b_associatedGenJet);
     chain_->SetBranchAddress("jetPartonFlavour", &commonGenObjects_->jetPartonFlavour_, &b_jetPartonFlavour);
     if(jetEnergyResolutionScaleFactors_){
@@ -979,9 +979,6 @@ void AnalysisBase::GetRecoBranchesEntry(const Long64_t& entry)const
 //     if(b_jetSecondaryVertexTrackMatchToSelectedTrackIndex) b_jetSecondaryVertexTrackMatchToSelectedTrackIndex->GetEntry(entry);
     b_met->GetEntry(entry);
     if(b_mvamet) b_mvamet->GetEntry(entry);
-    if(b_jetForMET) b_jetForMET->GetEntry(entry);
-    if(b_jetJERSF) b_jetJERSF->GetEntry(entry);
-    if(b_jetForMETJERSF) b_jetForMETJERSF->GetEntry(entry);
     b_vertMulti->GetEntry(entry);
 
     // Concerning event
@@ -1008,6 +1005,9 @@ void AnalysisBase::GetCommonGenBranchesEntry(const Long64_t& entry)const
     commonGenObjects_->valuesSet_ = true;
 
     // Concerning physics objects
+    if(b_jetForMET) b_jetForMET->GetEntry(entry);
+    if(b_jetJERSF) b_jetJERSF->GetEntry(entry);
+    if(b_jetForMETJERSF) b_jetForMETJERSF->GetEntry(entry);
     b_associatedGenJet->GetEntry(entry);
     b_jetPartonFlavour->GetEntry(entry);
     if(b_associatedGenJetForMET) b_associatedGenJetForMET->GetEntry(entry);
@@ -1212,16 +1212,16 @@ const RecoObjects& AnalysisBase::getRecoObjects(const Long64_t& entry)const
         
         // Get references for all relevant reco objects which are modified by JER systematics
         VLV* jets = recoObjects_->jets_;
-        VLV* jetsForMET = recoObjects_->jetsForMET_;
         LV* met = recoObjects_->met_;
         LV* mvamet = recoObjects_->mvamet_;
         
-        // Get references for all relevant reco objects which are NOT modified
-        const std::vector<double>* jetJERSF = recoObjects_->jetJERSF_;
-        const std::vector<double>* jetForMETJERSF = recoObjects_->jetForMETJERSF_;
+        // Get references for all relevant gen objects which are modified by JER systematics
+        VLV* jetsForMET = commonGenObjects_->jetsForMET_;
         
         // Get references for all relevant gen objects which are NOT modified
         if(!commonGenObjects_->valuesSet_) this->GetCommonGenBranchesEntry(entry);
+        const std::vector<double>* jetJERSF = commonGenObjects_->jetJERSF_;
+        const std::vector<double>* jetForMETJERSF = commonGenObjects_->jetForMETJERSF_;
         const VLV* associatedGenJet = commonGenObjects_->associatedGenJet_;
         const VLV* associatedGenJetForMet = commonGenObjects_->associatedGenJetForMET_;
         
@@ -1235,9 +1235,11 @@ const RecoObjects& AnalysisBase::getRecoObjects(const Long64_t& entry)const
         
         // Get references for all relevant reco objects which are modified by JES systematics
         VLV* jets = recoObjects_->jets_;
-        VLV* jetsForMET = recoObjects_->jetsForMET_;
         LV* met = recoObjects_->met_;
         LV* mvamet = recoObjects_->mvamet_;
+        
+        // Get references for all relevant gen objects which are modified by JER systematics
+        VLV* jetsForMET = commonGenObjects_->jetsForMET_;
         
         // Apply systematic variation
         jetEnergyScaleScaleFactors_->applySystematic(jets, jetsForMET, met);

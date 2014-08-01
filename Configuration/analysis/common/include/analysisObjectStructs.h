@@ -62,9 +62,6 @@ struct RecoObjects{
     std::vector<int>* jetSecondaryVertexTrackMatchToSelectedTrackIndex_;
     LV* met_;
     LV* mvamet_;
-    std::vector<double>* jetJERSF_;
-    VLV* jetsForMET_;
-    std::vector<double>* jetForMETJERSF_;
     Int_t vertMulti_;
     
     // Concerning event
@@ -84,6 +81,9 @@ struct CommonGenObjects{
     bool valuesSet_;
     
     // Concerning physics objects
+    std::vector<double>* jetJERSF_;
+    VLV* jetsForMET_;
+    std::vector<double>* jetForMETJERSF_;
     VLV* associatedGenJet_;
     VLV* associatedGenJetForMET_;
     std::vector<int>* jetPartonFlavour_;
