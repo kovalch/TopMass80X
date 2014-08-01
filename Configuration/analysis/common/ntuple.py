@@ -576,13 +576,14 @@ massSearchReplaceAnyInputTag(process.userPatSequence, 'pfNoTau'+pfpostfix, 'pfJe
 
 ####################################################################
 ## Configure jet energy resolution, and use corrected electrons, and propagate to MET
-## FIXME: should also port to MVA Met ?
+# Only JER is applied here, JES is already corrected in PAT sequence
+# However, an existing file needs to be provided for "JECUncSrcFile", else it crashes (although results do not depend on it)
 
 process.load("TopAnalysis.TopUtils.JetEnergyScale_cfi")
 process.scaledJetEnergy.inputElectrons = "selectedPatElectrons"+pfpostfix
 process.scaledJetEnergy.inputJets = "selectedPatJets"+pfpostfix
 process.scaledJetEnergy.inputMETs = correctedPatMet
-process.scaledJetEnergy.JECUncSrcFile = cms.FileInPath("TopAnalysis/Configuration/analysis/common/data/Summer13_V4_DATA_UncertaintySources_AK5PFchs.txt")
+process.scaledJetEnergy.JECUncSrcFile = cms.FileInPath("TopAnalysis/Configuration/analysis/common/data/Summer13_V5_DATA_UncertaintySources_AK5PFchs.txt")
 process.scaledJetEnergy.scaleType = "abs"   # abs = 1, jes:up, jes:down
 
 if options.runOnMC:
