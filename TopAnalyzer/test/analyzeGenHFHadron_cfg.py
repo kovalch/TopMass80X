@@ -39,33 +39,23 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('analyzeGenHFHadronJetsAnalyzer_test.root')
 )
 
-## ---
-##    load GenParticle
-## ---
-
-# get gen ttbar event
-process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
-
-# get genJets with hadrons in it
-process.load("TopAnalysis.TopUtils.sequences.improvedJetHadronQuarkMatching_cff")
 
 # supply PDG ID to real name resolution of MC particles, necessary for GenHFHadronAnalyzer
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
+# get sequence for B-hadron matching
+process.load("TopAnalysis.TopUtils.sequences.GenHFHadronMatching_cff")
+
 ## get particle content of sample with IDs
-process.load("TopAnalysis.TopAnalyzer.GenHFHadronAnalyzer_cff")
-process.analyzeGenHFHadronJets = process.analyzeGenHFHadronJets.clone()
+from TopAnalysis.TopAnalyzer.GenHFHadronAnalyzer_cfi import analyzeGenHFHadron
+process.analyzeGenBHadron = analyzeGenHFHadron.clone(
+    flavour = 5,
+    genJets = cms.InputTag("ak5GenJetsPlusBHadron", "", "")
+)
 
-process.analyzeGenHFHadronJets.noBBbarResonances = True
-
-
-## ---
-##    run the final sequence
-## ---
 
 process.p1 = cms.Path(
-    ## apply the analyzer
-    process.makeGenEvt *
-    process.improvedJetHadronQuarkMatchingSequence *
-    process.analyzeGenHFHadronJets
+    process.genParticlesForJetsPlusBHadron *
+    process.ak5GenJetsPlusBHadron *
+    process.analyzeGenBHadron
     )
