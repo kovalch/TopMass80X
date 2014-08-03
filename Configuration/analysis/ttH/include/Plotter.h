@@ -68,7 +68,7 @@ private:
     void drawCmsLabels(const int cmsprelim =1, const double& energy =8, const double& textSize =0.04)const;
     
     /// Draw signal significance label over the plot
-    TPaveText* drawSignificance(TH1* signal, TH1* bkg, float Xmin,  float Xmax, float yOffset = 0.f, std::string sLabel ="")const;
+    TPaveText* drawSignificance(TH1* signal, TH1* bkg, float Xmin,  float Xmax, float yOffset = 0.f, std::string sLabel ="", const int type=0)const;
     
     
     
@@ -95,18 +95,16 @@ private:
     
     /// Name of histogram under consideration
     TString name_;
+    TString drawOpt_;
     
     /// Options for the histogram under consideration
     int bins_, rebin_;
+    bool stackToNEntries_;
     double rangemin_, rangemax_, ymin_, ymax_;
     std::vector<double> XAxisbins_, XAxisbinCenters_;
     TString YAxis_;
     TString XAxis_;
     bool logX_, logY_; // The variable logX_ is not used at all...
-    
-    /// Temporary hardcoded options
-    bool scaleMCtoData_;
-    double ttbbScale_;
 };
 
 
