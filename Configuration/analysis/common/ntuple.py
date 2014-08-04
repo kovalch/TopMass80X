@@ -472,7 +472,7 @@ process.pfMEtSysShiftCorrParameters_2012runABCDvsNvtx_mc = cms.PSet(
     py = cms.string("+1.802e-01 - 1.347e-01*Nvtx")
 )
 
-process.pfMEtSysShiftCorr.src = cms.InputTag('pfMET'+pfpostfix)
+process.pfMEtSysShiftCorr.src = 'pfMET'+pfpostfix
 if options.runOnMC:
     process.pfJetMETcorr.jetCorrLabel = "ak5PFL1FastL2L3"
     process.pfMEtSysShiftCorr.parameter = process.pfMEtSysShiftCorrParameters_2012runABCDvsNvtx_mc
@@ -504,11 +504,11 @@ process.patpfMetT0T1Txy.metSource = 'pfMetT0T1Txy'
 
 # Sequence for full inclusion of phi corrections
 process.pfMetPhiCorrectionSequence = cms.Sequence(
-    process.pfMEtSysShiftCorrSequence*
-    process.producePFMETCorrections*
-    #process.pfMetT0T1Txy*
-    #process.patpfMetT0T1Txy*
-    process.pfMetT1Txy*
+    process.pfMEtSysShiftCorrSequence *
+    process.producePFMETCorrections *
+    #process.pfMetT0T1Txy *
+    #process.patpfMetT0T1Txy *
+    process.pfMetT1Txy *
     process.patpfMetT1Txy
     )
 
@@ -522,7 +522,7 @@ correctedPatMet = "patpfMetT1Txy"
 
 
 ####################################################################
-##  MVA met
+##  MVA MET
 
 process.load('RecoMET.METPUSubtraction.mvaPFMET_leptons_cff')
 process.calibratedAK5PFJetsForPFMEtMVA.src = 'pfJets'+pfpostfix
@@ -539,6 +539,7 @@ process.pfMEtMVA.inputFileNames = cms.PSet(
     CovU1 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru1cov_53_Dec2012.root'),
     CovU2 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru2cov_53_Dec2012.root')
     )
+process.pfMEtMVA.useType1 = True
 process.pfMEtMVA.srcLeptons = cms.VInputTag("isomuons", "isoelectrons", "isotaus") # Should be adapted to analysis selection..
 process.pfMEtMVA.srcRho = cms.InputTag("kt6PFJets", "rho", "RECO")
 
@@ -546,6 +547,56 @@ process.patMEtMVA = getattr(process, 'patMETs'+pfpostfix).clone()
 process.patMEtMVA.metSource = 'pfMEtMVA'
 
 process.mvaMetSequence = cms.Sequence(process.pfMEtMVAsequence * process.patMEtMVA)
+
+
+
+####################################################################
+## Phi correction of the MVA MET
+
+process.mvaMEtSysShiftCorrParameters_2012runABCDvsNvtx_data = cms.PSet(
+    px = cms.string("+1.376e-01 + 0.503e-01*Nvtx"),
+    py = cms.string("-0.936e-01 - 0.695e-01*Nvtx")
+)
+process.mvaMEtSysShiftCorrParameters_2012runABCDvsNvtx_mc = cms.PSet(
+    px = cms.string("-1.612e-01 - 0.124e-01*Nvtx"),
+    py = cms.string("+0.139e-01 - 0.303e-01*Nvtx")
+)
+
+process.mvaMEtSysShiftCorr = process.pfMEtSysShiftCorr.clone(src = 'pfMEtMVA')    
+if options.runOnMC:
+    process.mvaMEtSysShiftCorr.parameter = process.mvaMEtSysShiftCorrParameters_2012runABCDvsNvtx_mc
+else:
+    process.mvaMEtSysShiftCorr.parameter = process.mvaMEtSysShiftCorrParameters_2012runABCDvsNvtx_data
+
+process.mvaMetTxy = cms.EDProducer("CorrectedPFMETProducer",
+    src = cms.InputTag('pfMEtMVA'),
+    applyType0Corrections = cms.bool(False),
+    applyType1Corrections = cms.bool(True),
+    srcType1Corrections = cms.VInputTag(
+        cms.InputTag('mvaMEtSysShiftCorr')
+    ),
+    applyType2Corrections = cms.bool(False)
+)
+
+process.patMvaMetTxy = getattr(process, 'patPFMet'+pfpostfix).clone()
+process.patMvaMetTxy.metSource = 'mvaMetTxy'
+
+process.mvaMEtSysShiftCorrSequence = cms.Sequence(
+    process.selectedVerticesForMEtCorr *
+    process.mvaMEtSysShiftCorr
+    )
+
+# Sequence for full inclusion of phi corrections
+process.mvaMetPhiCorrectionSequence = cms.Sequence(
+    process.mvaMEtSysShiftCorrSequence *
+    process.mvaMetTxy *
+    process.patMvaMetTxy
+    )
+
+process.mvaMetSequence.replace(process.patMEtMVA,
+                               process.mvaMetPhiCorrectionSequence * process.patMEtMVA)
+
+correctedMvaMet = "patMvaMetTxy"
 
 
 
@@ -649,7 +700,7 @@ jetForMetCollection = "scaledJetEnergy:"+jetForMetUncorrectedCollection
 
 metCollection = "scaledJetEnergy:"+correctedPatMet
 
-mvaMetCollection = "patMEtMVA"
+mvaMetCollection = correctedMvaMet
 
 genJetCollection = "ak5GenJetsPlusBCHadron"
 
@@ -741,8 +792,8 @@ if topSignal:
     process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi") # Supplies PDG ID to real name resolution of MC particles, necessary for GenLevelBJetProducer
     process.load("TopAnalysis.TopUtils.sequences.GenHFHadronMatching_cff")
     process.genMatchSequence = cms.Sequence(
-	process.produceGenLevelBJets *
-	process.GenBCHadronMatchingSequence
+        process.produceGenLevelBJets *
+        process.GenBCHadronMatchingSequence
     )
 else:
     process.genMatchSequence = cms.Sequence()
