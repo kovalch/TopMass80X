@@ -19,7 +19,7 @@ genParticlesForJetsPlusNoHadron = cms.EDProducer("myInputGenJetsParticleSelector
          39),
     partonicFinalState = cms.bool(False),
     excludeResonances = cms.bool(True),
-    excludeFromResonancePids = cms.vuint32(12, 13, 14, 16),
+    excludeFromResonancePids = cms.vuint32(11, 12, 13, 14, 16),
     tausAsJets = cms.bool(False),
     injectHadronFlavours = cms.vint32()
 )
