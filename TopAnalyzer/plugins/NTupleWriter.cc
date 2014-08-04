@@ -1178,7 +1178,7 @@ int NTupleWriter::getTriggerBits(const edm::Event& iEvent, const edm::Handle<edm
 {
     int result = 0;
 
-    edm::TriggerNames triggerNames = iEvent.triggerNames(*triggerResults);
+    const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResults);
     const unsigned int nTrigger = triggerResults->size();
     for(unsigned int iTrigger = 0; iTrigger < nTrigger; ++iTrigger){
         if(!(triggerResults.product()->accept(iTrigger))) continue;
@@ -1222,7 +1222,7 @@ int NTupleWriter::getTriggerBitsTau(const edm::Event& iEvent, const edm::Handle<
 {
     int result = 0;
 
-    edm::TriggerNames triggerNames = iEvent.triggerNames(*triggerResults);
+    const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResults);
     const unsigned int nTrigger = triggerResults->size();
     for(unsigned int iTrigger = 0; iTrigger < nTrigger; ++iTrigger){
         if(!(triggerResults.product()->accept(iTrigger))) continue;
@@ -1292,7 +1292,7 @@ NTupleWriter::beginJob()
 {
     edm::Service<TFileService> fileService;
     if(!fileService) throw edm::Exception(edm::errors::Configuration, "TFileService is not registered in cfg file");
-    ntuple_ = fileService->make<TTree>("NTuple","NTuple");
+    ntuple_ = fileService->make<TTree>("NTuple", "NTuple");
     
     // Sample header
     //TFileDirectory header = fs->mkdir("Header");
