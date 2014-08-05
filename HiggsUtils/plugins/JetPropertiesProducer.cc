@@ -24,27 +24,28 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-
-#include "TopAnalysis/HiggsUtils/interface/JetProperties.h"
-#include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
-#include "DataFormats/Common/interface/RefVector.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
+#include "DataFormats/BTauReco/interface/BaseTagInfo.h"
+
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
 #include "RecoBTau/JetTagComputer/interface/GenericMVAJetTagComputer.h"
-#include "DataFormats/BTauReco/interface/BaseTagInfo.h"
+
+#include "TopAnalysis/HiggsUtils/interface/JetProperties.h"
+
+
+
 
 
 //
