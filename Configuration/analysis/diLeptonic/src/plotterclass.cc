@@ -4235,8 +4235,13 @@ void Plotter::CalcUpDownDifference( TString Channel, TString Syst_Up, TString Sy
         if(CentralValue_Nom != 0){
             double up = std::fabs(CentralValue_Up - CentralValue_Nom);
             double down = std::fabs(CentralValue_Down - CentralValue_Nom);
+            
+            if(Syst_Up.Contains("POWHEG") || Syst_Down.Contains("POWHEG"))
+            {
+                up = std::fabs(CentralValue_Up - CentralValue_Down);
+                down = up;
+            }
             double rel_err = 0.5*(up + down)/CentralValue_Nom;
-
             RelativeError.push_back(rel_err);
         }
     }
