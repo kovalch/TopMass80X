@@ -209,6 +209,7 @@ topAnalysis $1
 ## in the meantime...
 if [[ "$minimalInstall" == False ]] ; then
 cp $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/common/macros/PFMETProducerMVA.cc $CMSSW_BASE/src/RecoMET/METPUSubtraction/plugins/PFMETProducerMVA.cc
+cp $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/common/macros/RecoMET_METAnalyzers_BuildFile.xml $CMSSW_BASE/src/RecoMET/METAnalyzers/BuildFile.xml
 fi
 
 
