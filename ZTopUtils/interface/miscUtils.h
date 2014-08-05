@@ -260,7 +260,9 @@ int getClosestInDR(T& element, std::vector<U>& coll, double & dRmax = 999,
 /**
  * works like std::sort but returns a vector of indecies that has the following form:
  * vector.at(unsrotedindex) == sortedindex
+ * switched off in ROOT!!!
  */
+#ifndef __MAKECINT__
 template<typename _RandomAccessIterator, typename _Compare>
 inline std::vector<size_t>
 retsort(_RandomAccessIterator __first, _RandomAccessIterator __last,
@@ -272,10 +274,10 @@ retsort(_RandomAccessIterator __first, _RandomAccessIterator __last,
 template<typename _RandomAccessIterator>
 inline std::vector<size_t>
 retsort(_RandomAccessIterator __first, _RandomAccessIterator __last);
-
+#endif
 }
 
-
+#ifndef __MAKECINT__
 #include <algorithm>
 #include <iterator>
 
@@ -294,7 +296,7 @@ ztop::retsort(_RandomAccessIterator __first, _RandomAccessIterator __last,
 		size_t pos=std::find(copy.begin(),copy.end(),*it)-copy.begin();
 		sortedilo.push_back(pos);
 	}
-	std::sort(__first,__last,__comp);
+	std::copy(copy.begin(),copy.end(),__first);
 	return sortedilo;
 }
 
@@ -313,10 +315,10 @@ ztop::retsort(_RandomAccessIterator __first, _RandomAccessIterator __last){
 		size_t pos=std::find(copy.begin(),copy.end(),*it)-copy.begin();
 		sortedilo.push_back(pos);
 	}
-	std::sort(__first,__last);
+	std::copy(copy.begin(),copy.end(),__first);
 	return sortedilo;
 }
 
-
+#endif
 
 #endif
