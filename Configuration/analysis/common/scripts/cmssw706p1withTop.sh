@@ -203,11 +203,10 @@ cd -
 topAnalysis $1
 
 
-##### Fix to avoid crash on MVA Met producer when no PV exist
-## The JetMet people were contacted and they will fix (hopefully) the bug soon
-## in the meantime...
+##### Fix to avoid compilation errors from TopAnalysis/TopUtils/plugins/CandidateCleaner.h
+## This is due to removal of getByToken in CMSSW_7_x_x
 if [[ "$minimalInstall" == False ]] ; then
-cp $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/common/macros/PFMETProducerMVA.cc $CMSSW_BASE/src/RecoMET/METPUSubtraction/plugins/PFMETProducerMVA.cc
+    cp $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/common/hacks/TopAnalysis_TopUtils_plugins_SealModule.cc $CMSSW_BASE/src/TopAnalysis/TopUtils/plugins/SealModule.cc
 fi
 
 
