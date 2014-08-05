@@ -783,17 +783,18 @@ else:
     process.zGenSequence = cms.Sequence()
 
 if topSignal:
-    #process.load("TopAnalysis.TopUtils.HadronLevelBJetProducer_cfi")
-    process.load("TopAnalysis.TopUtils.GenLevelBJetProducer_cfi")
-    process.produceGenLevelBJets.deltaR = 5.0
-    process.produceGenLevelBJets.noBBbarResonances = True
-
     # FIXME: Can it be integrated into the GenHFHadronMatching_cff sequence itself?
     process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi") # Supplies PDG ID to real name resolution of MC particles, necessary for GenLevelBJetProducer
     process.load("TopAnalysis.TopUtils.sequences.GenHFHadronMatching_cff")
+
+    process.load("TopAnalysis.TopUtils.GenLevelBJetProducer_cfi")
+    process.produceGenLevelBJets.deltaR = 5.0
+    process.produceGenLevelBJets.noBBbarResonances = True
+    process.produceGenLevelBJets.genJets = process.matchGenBCHadronB.genJets
+
     process.genMatchSequence = cms.Sequence(
-        process.produceGenLevelBJets *
-        process.GenBCHadronMatchingSequence
+        process.GenBCHadronMatchingSequence *
+        process.produceGenLevelBJets
     )
 else:
     process.genMatchSequence = cms.Sequence()
