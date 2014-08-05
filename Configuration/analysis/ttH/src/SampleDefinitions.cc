@@ -479,6 +479,7 @@ std::vector<TString> SampleDefinitions::selectAndOrderSamples8TeV()
         "zz",
         "ttbarbkg",
         "ttbarsignalPlusOther",
+        "ttbarsignalPlus2B",
         "ttbarsignalPlusB",
         "ttbarsignalPlusBbbar",
         "ttbarW",
