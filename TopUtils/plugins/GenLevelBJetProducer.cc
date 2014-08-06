@@ -333,6 +333,12 @@ std::vector<int> GenLevelBJetProducer::getGenJetWith ( const reco::Candidate* bQ
 
         for ( unsigned int iParticle = 0; iParticle < particles.size(); ++iParticle ) {
             const reco::GenParticle* thisParticle = particles[iParticle];
+            
+            // Skipping possible injected ghost B/C hadrons
+            int thisPdgId_abs = std::abs(thisParticle->pdgId());
+            if ( thisPdgId_abs / 1000 == 5 || thisPdgId_abs / 100 % 10 == 5 ||
+                 thisPdgId_abs / 1000 == 4 || thisPdgId_abs / 100 % 10 == 4 ) continue;
+            
             const reco::Candidate* bHadron = 0;
             std::vector<const reco::Candidate*> particleChain;
             checkForLoop ( particleChain,thisParticle );
@@ -458,7 +464,6 @@ bool GenLevelBJetProducer::searchInMothers ( const reco::Candidate* bQuark, cons
                  || ( thisParticle->pdgId() / 100 % 10 == -bQuark->pdgId() // b-mesons
                       && ! ( noBBbarResonances_ && thisParticle->pdgId() / 10 % 100 == 55 ) // but not a b-bbar resonance
                     ) )
-            && (thisParticle->p() > 1e-14)      // Skipping possible injected hadrons
        ) {
         *bHadron = thisParticle;
     }
