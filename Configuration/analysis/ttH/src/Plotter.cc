@@ -557,9 +557,15 @@ void Plotter::drawCmsLabels(const int cmsprelim, const double& energy, const dou
 
 TPaveText* Plotter::drawSignificance(TH1* signal, TH1* sigBkg, float min, float max, float yOffset, std::string sLabel, const int type)const
 {
+    TPaveText *label = new TPaveText();
     if(max<=min) {
         std::cout<<"Wrong range for signal significance in  histogram ("<<name_<<")\n";
-        return 0;
+        return label;
+    }
+    
+    if(!signal || !sigBkg) {
+        std::cout<<"Some input histogram for the signal significance calculation not available\n";
+        return label;
     }
 
     // Finding the bin range corresponding to [min;max]
@@ -578,7 +584,6 @@ TPaveText* Plotter::drawSignificance(TH1* signal, TH1* sigBkg, float min, float 
     char text[40];
     sprintf(text,"%s = %.2f", sLabel.c_str(), sigSign);
     
-    TPaveText *label = new TPaveText();
     label->SetX1NDC(gStyle->GetPadLeftMargin()+0.4);
     label->SetX2NDC(label->GetX1NDC()+0.1);
     label->SetY2NDC(1.0-gStyle->GetPadTopMargin()-0.13 - yOffset);
