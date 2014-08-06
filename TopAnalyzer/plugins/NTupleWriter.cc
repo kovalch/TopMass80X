@@ -711,27 +711,32 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     // Improved quark-to-genJet association scheme
     // Only stored for samples containing ttbar generator info
     if(isTtbarSample_){
-        // FIXME NAZAR: cleanup of logics --- most failedToGet() should be removed, only those relevant for some check should stay
+        // ############################### Signal definition cuts for gen b-jets ##########################################
+        constexpr double genSignalJetPt_min = 20.0;
+        constexpr double genSignalJetEta_max = 2.5;
+        
+        std::vector<int> genBJetFromTopIds;
+        // List of jets containing B hadrons (not) coming from the top weak decay for event categorisation
+        std::vector<int> genBJetNotFromTopDecayChainIndex;
+        std::vector<int> genBJetFromTopDecayChainIndex;
         
         edm::Handle<std::vector<int> > genBHadIndex;
         iEvent.getByLabel(genBHadIndexTag_, genBHadIndex);
-        if(!genBHadIndex.failedToGet())
+        if(!genBHadIndex.failedToGet()) {
             v_genBHadIndex_ = *(genBHadIndex.product());
-        
-        edm::Handle<std::vector<std::vector<int> > > genBHadPlusMothersIndices;
-        iEvent.getByLabel(genBHadPlusMothersIndicesTag_, genBHadPlusMothersIndices);
-        // Only if all hadron mothers have to be stored
-        if(!genBHadPlusMothersIndices.failedToGet() && saveHadronMothers_)
-            v_genBHadPlusMothersIndices_ = *(genBHadPlusMothersIndices.product());
-        
-        edm::Handle<std::vector<int> > genBHadLeptonIndex;
-        iEvent.getByLabel(genBHadLeptonIndexTag_, genBHadLeptonIndex);
-        if(!genBHadLeptonIndex.failedToGet())
+            
+            edm::Handle<std::vector<std::vector<int> > > genBHadPlusMothersIndices;
+            iEvent.getByLabel(genBHadPlusMothersIndicesTag_, genBHadPlusMothersIndices);
+            // Only if all hadron mothers have to be stored
+            if(saveHadronMothers_)
+                v_genBHadPlusMothersIndices_ = *(genBHadPlusMothersIndices.product());
+            
+            edm::Handle<std::vector<int> > genBHadLeptonIndex;
+            iEvent.getByLabel(genBHadLeptonIndexTag_, genBHadLeptonIndex);
             v_genBHadLeptonIndex_ = *(genBHadLeptonIndex.product());
-        
-        edm::Handle<std::vector<reco::GenParticle> > genBHadPlusMothers;
-        iEvent.getByLabel(genBHadPlusMothersTag_, genBHadPlusMothers);
-        if(!genBHadPlusMothers.failedToGet()){
+            
+            edm::Handle<std::vector<reco::GenParticle> > genBHadPlusMothers;
+            iEvent.getByLabel(genBHadPlusMothersTag_, genBHadPlusMothers);
             // If all particles have to be stored
             if(saveHadronMothers_){
                 for(std::vector<reco::GenParticle>::const_iterator i_particle = genBHadPlusMothers->begin(); i_particle != genBHadPlusMothers->end(); ++i_particle){
@@ -752,30 +757,23 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                     v_genBHadPlusMothersPdgId_.push_back(genBHadPlusMothers->at(genBHadLeptonIndex->at(iParticle)).pdgId());
                     v_genBHadLeptonIndex_.at(iParticle) = v_genBHadPlusMothers_.size() - 1;
                     int viaTau = -1;
-                    if(!genBHadPlusMothersIndices.failedToGet()){
-                        const int leptonMotherIndex = genBHadPlusMothersIndices->at(genBHadLeptonIndex->at(iParticle)).at(0);
-                        if(leptonMotherIndex >= 0)
-                            viaTau = std::abs(genBHadPlusMothers->at(leptonMotherIndex).pdgId())==15 ? 1 : 0;
-                    }
+                    const int leptonMotherIndex = genBHadPlusMothersIndices->at(genBHadLeptonIndex->at(iParticle)).at(0);
+                    if(leptonMotherIndex >= 0)
+                        viaTau = std::abs(genBHadPlusMothers->at(leptonMotherIndex).pdgId())==15 ? 1 : 0;
                     v_genBHadLeptonViaTau_.push_back(viaTau);
                 }
             }
-        }
-        
-        edm::Handle<std::vector<int> > genBHadLeptonHadronIndex;
-        iEvent.getByLabel(genBHadLeptonHadronIndexTag_, genBHadLeptonHadronIndex);
-        if(!genBHadLeptonHadronIndex.failedToGet())
+            
+            edm::Handle<std::vector<int> > genBHadLeptonHadronIndex;
+            iEvent.getByLabel(genBHadLeptonHadronIndexTag_, genBHadLeptonHadronIndex);
             v_genBHadLeptonHadronIndex_ = *(genBHadLeptonHadronIndex.product());
-        
-        edm::Handle<std::vector<int> > genBHadFlavour;
-        iEvent.getByLabel(genBHadFlavourTag_, genBHadFlavour);
-        if(!genBHadFlavour.failedToGet())
+            
+            edm::Handle<std::vector<int> > genBHadFlavour;
+            iEvent.getByLabel(genBHadFlavourTag_, genBHadFlavour);
             v_genBHadFlavour_ = *(genBHadFlavour.product());
-        
-        std::vector<int> genBJetFromTopIds;
-        edm::Handle<std::vector<int> > genBHadJetIndex;
-        iEvent.getByLabel(genBHadJetIndexTag_, genBHadJetIndex);
-        if(!genBHadJetIndex.failedToGet()){
+            
+            edm::Handle<std::vector<int> > genBHadJetIndex;
+            iEvent.getByLabel(genBHadJetIndexTag_, genBHadJetIndex);
             unsigned int iHadron = 0;
             for(std::vector<int>::const_iterator i_index = genBHadJetIndex->begin(); i_index != genBHadJetIndex->end(); ++i_index){
                 ++iHadron;
@@ -786,28 +784,50 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 if(std::find(genBJetFromTopIds.begin(), genBJetFromTopIds.end(), *i_index) != genBJetFromTopIds.end()) continue;
                 genBJetFromTopIds.push_back(*i_index);
             }
+            
+            edm::Handle<std::vector<int> > genBHadFromTopWeakDecay;
+            iEvent.getByLabel(genBHadFromTopWeakDecayTag_, genBHadFromTopWeakDecay);
+            v_genBHadFromTopWeakDecay_ = *(genBHadFromTopWeakDecay.product());
+            
+            
+            // Selecting jets from different sources for event categorisation
+            for(size_t index = 0; index < genBHadJetIndex->size(); ++index){
+                if(v_genBHadFromTopWeakDecay_.size() <= index) break;
+                // Skip B hadrons from top
+                if(genBHadFlavour->size()>index && std::abs(genBHadFlavour->at(index))==6) continue;
+                const int jetId = genBHadJetIndex->at(index);
+                if(jetId < 0) continue;
+                // Check that jet satisfies the signal definition
+                if(v_allGenJet_.at(jetId).Pt() < genSignalJetPt_min) continue;
+                if(std::fabs(v_allGenJet_.at(jetId).Eta()) > genSignalJetEta_max) continue;
+                // Skip jet if already identified as b jet from top
+                if(std::find(genBJetFromTopIds.begin(), genBJetFromTopIds.end(), jetId) != genBJetFromTopIds.end()) continue;
+                // Check that jet is counted only once
+                if(std::find(genBJetNotFromTopDecayChainIndex.begin(), genBJetNotFromTopDecayChainIndex.end(), jetId) != genBJetNotFromTopDecayChainIndex.end()) continue;
+                if(v_genBHadFromTopWeakDecay_.at(index) == 0)
+                    genBJetNotFromTopDecayChainIndex.push_back(jetId);
+                else if(v_genBHadFromTopWeakDecay_.at(index) == 1)
+                    genBJetFromTopDecayChainIndex.push_back(jetId);
+            }
         }
         
-        edm::Handle<std::vector<int> > genBHadFromTopWeakDecay;
-        iEvent.getByLabel(genBHadFromTopWeakDecayTag_, genBHadFromTopWeakDecay);
-        if(!genBHadFromTopWeakDecay.failedToGet())
-            v_genBHadFromTopWeakDecay_ = *(genBHadFromTopWeakDecay.product());
+        // List of jets containing C hadrons (not) coming from the top weak decay for event categorisation
+        std::vector<int> genCJetNotFromTopDecayChainIndex;
+        std::vector<int> genCJetFromTopDecayChainIndex;
         
         edm::Handle<std::vector<int> > genCHadIndex;
         iEvent.getByLabel(genCHadIndexTag_, genCHadIndex);
-        if(!genCHadIndex.failedToGet())
+        if(!genCHadIndex.failedToGet()) {
             v_genCHadIndex_ = *(genCHadIndex.product());
-        
-        edm::Handle<std::vector<int> > genCHadLeptonIndex;
-        iEvent.getByLabel(genCHadLeptonIndexTag_, genCHadLeptonIndex);
-        if(!genCHadLeptonIndex.failedToGet())
+            
+            edm::Handle<std::vector<int> > genCHadLeptonIndex;
+            iEvent.getByLabel(genCHadLeptonIndexTag_, genCHadLeptonIndex);
             v_genCHadLeptonIndex_ = *(genCHadLeptonIndex.product());
-        
-        edm::Handle<std::vector<reco::GenParticle> > genCHadPlusMothers;
-        iEvent.getByLabel(genCHadPlusMothersTag_, genCHadPlusMothers);
-        edm::Handle<std::vector<std::vector<int> > > genCHadPlusMothersIndices;
-        iEvent.getByLabel(genCHadPlusMothersIndicesTag_, genCHadPlusMothersIndices);
-        if(!genCHadPlusMothers.failedToGet()){
+            
+            edm::Handle<std::vector<reco::GenParticle> > genCHadPlusMothers;
+            iEvent.getByLabel(genCHadPlusMothersTag_, genCHadPlusMothers);
+            edm::Handle<std::vector<std::vector<int> > > genCHadPlusMothersIndices;
+            iEvent.getByLabel(genCHadPlusMothersIndicesTag_, genCHadPlusMothersIndices);
             // If all particles have to be stored
             if(saveHadronMothers_){
                 for(std::vector<reco::GenParticle>::const_iterator i_particle = genCHadPlusMothers->begin(); i_particle != genCHadPlusMothers->end(); ++i_particle){
@@ -831,57 +851,70 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                     v_genCHadPlusMothersPdgId_.push_back(genCHadPlusMothers->at(genCHadLeptonIndex->at(iParticle)).pdgId());
                     v_genCHadLeptonIndex_.at(iParticle) = v_genCHadPlusMothers_.size() - 1;
                     int viaTau = -1;
-                    if(!genCHadPlusMothersIndices.failedToGet()){
-                        const int leptonMotherIndex = genCHadPlusMothersIndices->at(genCHadLeptonIndex->at(iParticle)).at(0);
-                        if(leptonMotherIndex >= 0)
-                            viaTau = std::abs(genCHadPlusMothers->at(leptonMotherIndex).pdgId())==15 ? 1 : 0;
-                    }
+                    const int leptonMotherIndex = genCHadPlusMothersIndices->at(genCHadLeptonIndex->at(iParticle)).at(0);
+                    if(leptonMotherIndex >= 0)
+                        viaTau = std::abs(genCHadPlusMothers->at(leptonMotherIndex).pdgId())==15 ? 1 : 0;
                     v_genCHadLeptonViaTau_.push_back(viaTau);
                 }
             }
-        }
-        
-        edm::Handle<std::vector<int> > genCHadLeptonHadronIndex;
-        iEvent.getByLabel(genCHadLeptonHadronIndexTag_, genCHadLeptonHadronIndex);
-        if(!genCHadLeptonHadronIndex.failedToGet())
+            
+            edm::Handle<std::vector<int> > genCHadLeptonHadronIndex;
+            iEvent.getByLabel(genCHadLeptonHadronIndexTag_, genCHadLeptonHadronIndex);
             v_genCHadLeptonHadronIndex_ = *(genCHadLeptonHadronIndex.product());
-        
-        // Convert index of parent b-hadron to point to the specifically identified collection of b-hadrons
-        // -1  - c-hadron doesn't come from a b-hadron'
-        // -2  - c-hadron comes from a b-hadron that was not identified in b-hadron specific run 
-        //       [comes from a non weakly-decaying b-hadron, decay products of the b-hadron not clustered to any jet]
-        edm::Handle<std::vector<int> > genCHadBHadronId;
-        iEvent.getByLabel(genCHadBHadronIdTag_, genCHadBHadronId);
-        if(!genCHadBHadronId.failedToGet()){
+            
+            edm::Handle<std::vector<int> > genCHadJetIndex;
+            iEvent.getByLabel(genCHadJetIndexTag_, genCHadJetIndex);
+            v_genCHadJetIndex_ = *(genCHadJetIndex.product());
+            
+            edm::Handle<std::vector<int> > genCHadFromTopWeakDecay;
+            iEvent.getByLabel(genCHadFromTopWeakDecayTag_, genCHadFromTopWeakDecay);
+            std::vector<int> v_genCHadFromTopWeakDecay;
+            v_genCHadFromTopWeakDecay = *(genCHadFromTopWeakDecay.product());
+            
+            // Convert index of parent b-hadron to point to the specifically identified collection of b-hadrons
+            // -1  - c-hadron doesn't come from a b-hadron'
+            // -2  - c-hadron comes from a b-hadron that was not identified in b-hadron specific run 
+            //       [comes from a non weakly-decaying b-hadron, decay products of the b-hadron not clustered to any jet]
+            edm::Handle<std::vector<int> > genCHadBHadronId;
+            iEvent.getByLabel(genCHadBHadronIdTag_, genCHadBHadronId);
             for(std::vector<int>::const_iterator i_id = genCHadBHadronId->begin(); i_id!=genCHadBHadronId->end(); ++i_id){
                 const int bHadId = *i_id;
                 // ID for B hadrons as mothers of C hadrons is different than: ID directly from the B hadrons, as written to ntuple
                 // Needs to be corrected
-                int bHadIdCorrected = -1;
+                int bHadIdConverted = -1;
                 if(bHadId >= 0){
                     // Look for the same particle in list of hadrons from B hadron related set of particles
                     for(std::vector<int>::const_iterator i_index = v_genBHadIndex_.begin(); i_index != v_genBHadIndex_.end(); ++i_index){
                         if(genCHadPlusMothers->at(bHadId).pdgId() != v_genBHadPlusMothersPdgId_.at(*i_index)) continue;
                         if(std::fabs(genCHadPlusMothers->at(bHadId).pt() - v_genBHadPlusMothers_.at(*i_index).Pt()) > 1e-9) continue;
-                        bHadIdCorrected = i_index - v_genBHadIndex_.begin();
+                        bHadIdConverted = i_index - v_genBHadIndex_.begin();
                         break;
                     }
-                    if(bHadIdCorrected < 0) bHadIdCorrected = -2;
+                    if(bHadIdConverted < 0) bHadIdConverted = -2;
                 }
-                v_genCHadBHadronId_.push_back(bHadIdCorrected);
+                v_genCHadBHadronId_.push_back(bHadIdConverted);
+            }
+            
+            // Selecting jets from different sources for event categorisation
+            for(size_t index = 0; index < genCHadJetIndex->size(); ++index){
+                if(v_genCHadFromTopWeakDecay.size() <= index) break;
+                // Skip C hadrons coming from B hadrons
+                if(genCHadBHadronId->size()>index && genCHadBHadronId->at(index)>=0) continue;
+                const int jetId = genCHadJetIndex->at(index);
+                if(jetId < 0) continue;
+                // Check that jet satisfies the signal definition
+                if(v_allGenJet_.at(jetId).Pt() < genSignalJetPt_min) continue;
+                if(std::fabs(v_allGenJet_.at(jetId).Eta()) > genSignalJetEta_max) continue;
+                // Skip jet if already identified as b jet from top
+                if(std::find(genBJetFromTopIds.begin(), genBJetFromTopIds.end(), jetId) != genBJetFromTopIds.end()) continue;
+                // Check that jet is counted only once
+                if(std::find(genCJetNotFromTopDecayChainIndex.begin(), genCJetNotFromTopDecayChainIndex.end(), jetId) != genCJetNotFromTopDecayChainIndex.end()) continue;
+                if(v_genCHadFromTopWeakDecay.at(index) == 0)
+                    genCJetNotFromTopDecayChainIndex.push_back(jetId);
+                else if(v_genCHadFromTopWeakDecay.at(index) == 1)
+                    genCJetFromTopDecayChainIndex.push_back(jetId);
             }
         }
-        
-        edm::Handle<std::vector<int> > genCHadJetIndex;
-        iEvent.getByLabel(genCHadJetIndexTag_, genCHadJetIndex);
-        if(!genCHadJetIndex.failedToGet())
-            v_genCHadJetIndex_ = *(genCHadJetIndex.product());
-        
-        edm::Handle<std::vector<int> > genCHadFromTopWeakDecay;
-        iEvent.getByLabel(genCHadFromTopWeakDecayTag_, genCHadFromTopWeakDecay);
-        std::vector<int> v_genCHadFromTopWeakDecay;
-        if(!genCHadFromTopWeakDecay.failedToGet())
-            v_genCHadFromTopWeakDecay = *(genCHadFromTopWeakDecay.product());
         
         // Id of the event depending on the number of additional b(c)-jets in the event
         // -1  : Something went wrong
@@ -899,61 +932,6 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         // 100 : 1 b-jet from top & no extra b-jets that come not directly from top and no c-jets that come not from b-hadrons
         genExtraTopJetNumberId_ = -1;
             
-        // ################################################################################################################
-        // ############################### Signal definition cuts for gen b-jets ##########################################
-        // ################################################################################################################
-        constexpr double genSignalJetPt_min = 20.0;
-        constexpr double genSignalJetEta_max = 2.5;
-        
-        // Make list of jets containing B hadrons not coming from the top weak decay
-        std::vector<int> genBJetNotFromTopDecayChainIndex;
-        std::vector<int> genBJetFromTopDecayChainIndex;
-        if(!genBHadJetIndex.failedToGet()){
-            for(size_t index = 0; index < genBHadJetIndex->size(); ++index){
-                if(v_genBHadFromTopWeakDecay_.size() <= index) break;
-                // Skip B hadrons from top
-                if(genBHadFlavour->size()>index && std::abs(genBHadFlavour->at(index))==6) continue;
-                const int jetId = genBHadJetIndex->at(index);
-                if(jetId < 0) continue;
-                // Check that jet satisfies the signal definition
-                if(v_allGenJet_.at(jetId).Pt() < genSignalJetPt_min) continue;
-                if(std::fabs(v_allGenJet_.at(jetId).Eta()) > genSignalJetEta_max) continue;
-                // Skip jet if already identified as b jet from top
-                if(std::find(genBJetFromTopIds.begin(), genBJetFromTopIds.end(), jetId) != genBJetFromTopIds.end()) continue;
-                // Check that jet is counted only once
-                if(std::find(genBJetNotFromTopDecayChainIndex.begin(), genBJetNotFromTopDecayChainIndex.end(), jetId) != genBJetNotFromTopDecayChainIndex.end()) continue;
-                if(v_genBHadFromTopWeakDecay_.at(index) == 0)
-                    genBJetNotFromTopDecayChainIndex.push_back(jetId);
-                else if(v_genBHadFromTopWeakDecay_.at(index) == 1)
-                    genBJetFromTopDecayChainIndex.push_back(jetId);
-            }
-        }
-        
-        // Make list of jets containing C hadrons not coming from the top weak decay
-        std::vector<int> genCJetNotFromTopDecayChainIndex;
-        std::vector<int> genCJetFromTopDecayChainIndex;
-        if(!genCHadJetIndex.failedToGet()){
-            for(size_t index = 0; index < genCHadJetIndex->size(); ++index){
-                if(v_genCHadFromTopWeakDecay.size() <= index) break;
-                // Skip C hadrons from top
-                if(genBHadFlavour->size()>index && std::abs(genBHadFlavour->at(index))==6) continue;
-                // Skip C hadrons coming from B hadrons
-                if(genCHadBHadronId->size()>index && genCHadBHadronId->at(index)<0) continue;
-                const int jetId = genCHadJetIndex->at(index);
-                if(jetId < 0) continue;
-                // Check that jet satisfies the signal definition
-                if(v_allGenJet_.at(jetId).Pt() < genSignalJetPt_min) continue;
-                if(std::fabs(v_allGenJet_.at(jetId).Eta()) > genSignalJetEta_max) continue;
-                // Skip jet if already identified as b jet from top
-                if(std::find(genBJetFromTopIds.begin(), genBJetFromTopIds.end(), jetId) != genBJetFromTopIds.end()) continue;
-                // Check that jet is counted only once
-                if(std::find(genCJetNotFromTopDecayChainIndex.begin(), genCJetNotFromTopDecayChainIndex.end(), jetId) != genCJetNotFromTopDecayChainIndex.end()) continue;
-                if(v_genCHadFromTopWeakDecay.at(index) == 0)
-                    genCJetNotFromTopDecayChainIndex.push_back(jetId);
-                else if(v_genCHadFromTopWeakDecay.at(index) == 1)
-                    genCJetFromTopDecayChainIndex.push_back(jetId);
-            }
-        }
         const int nGenBJetNotFromTopDecayChain = genBJetNotFromTopDecayChainIndex.size();
         const int nGenBJetFromTopDecayChain = genBJetFromTopDecayChainIndex.size();
         const int nGenCJetNotFromTopDecayChain = genCJetNotFromTopDecayChainIndex.size();
