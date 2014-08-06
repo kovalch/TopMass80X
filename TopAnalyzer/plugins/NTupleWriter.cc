@@ -22,6 +22,7 @@ Implementation:
 #include <memory>
 #include <string>
 #include <map>
+#include <algorithm>
 #include <boost/lexical_cast.hpp>
 
 // user include files
@@ -57,8 +58,7 @@ Implementation:
 #include "TopAnalysis/HiggsUtils/interface/JetProperties.h"
 #include "TopAnalysis/HiggsUtils/interface/GenZDecayProperties.h"
 
-#include "Math/Vector3D.h"
-
+#include <Math/Vector3D.h>
 #include <TTree.h>
 #include <TLorentzVector.h>
 
@@ -711,18 +711,18 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     // Improved quark-to-genJet association scheme
     // Only stored for samples containing ttbar generator info
     if(isTtbarSample_){
-        // ############################### Signal definition cuts for gen b-jets ##########################################
+        // Signal definition cuts for gen b jets
         constexpr double genSignalJetPt_min = 20.0;
         constexpr double genSignalJetEta_max = 2.5;
         
-        std::vector<int> genBJetFromTopIds;
         // List of jets containing B hadrons (not) coming from the top weak decay for event categorisation
         std::vector<int> genBJetNotFromTopDecayChainIndex;
         std::vector<int> genBJetFromTopDecayChainIndex;
+        std::vector<int> genBJetFromTopIds;
         
         edm::Handle<std::vector<int> > genBHadIndex;
         iEvent.getByLabel(genBHadIndexTag_, genBHadIndex);
-        if(!genBHadIndex.failedToGet()) {
+        if(!genBHadIndex.failedToGet()){
             v_genBHadIndex_ = *(genBHadIndex.product());
             
             edm::Handle<std::vector<std::vector<int> > > genBHadPlusMothersIndices;
@@ -778,7 +778,7 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             for(std::vector<int>::const_iterator i_index = genBHadJetIndex->begin(); i_index != genBHadJetIndex->end(); ++i_index){
                 ++iHadron;
                 v_genBHadJetIndex_.push_back(*i_index);
-                // Building a vector of b jets from top
+                // Build a vector of b jets from top
                 if(v_genBHadFlavour_.size() < iHadron) continue;
                 if(std::abs(v_genBHadFlavour_.at(iHadron-1)) != 6) continue;
                 if(std::find(genBJetFromTopIds.begin(), genBJetFromTopIds.end(), *i_index) != genBJetFromTopIds.end()) continue;
@@ -790,7 +790,7 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             v_genBHadFromTopWeakDecay_ = *(genBHadFromTopWeakDecay.product());
             
             
-            // Selecting jets from different sources for event categorisation
+            // Select jets from different sources for event categorisation
             for(size_t index = 0; index < genBHadJetIndex->size(); ++index){
                 if(v_genBHadFromTopWeakDecay_.size() <= index) break;
                 // Skip B hadrons from top
@@ -817,7 +817,7 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         
         edm::Handle<std::vector<int> > genCHadIndex;
         iEvent.getByLabel(genCHadIndexTag_, genCHadIndex);
-        if(!genCHadIndex.failedToGet()) {
+        if(!genCHadIndex.failedToGet()){
             v_genCHadIndex_ = *(genCHadIndex.product());
             
             edm::Handle<std::vector<int> > genCHadLeptonIndex;
@@ -871,10 +871,10 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             std::vector<int> v_genCHadFromTopWeakDecay;
             v_genCHadFromTopWeakDecay = *(genCHadFromTopWeakDecay.product());
             
-            // Convert index of parent b-hadron to point to the specifically identified collection of b-hadrons
-            // -1  - c-hadron doesn't come from a b-hadron'
-            // -2  - c-hadron comes from a b-hadron that was not identified in b-hadron specific run 
-            //       [comes from a non weakly-decaying b-hadron, decay products of the b-hadron not clustered to any jet]
+            // Convert index of parent B hadron to point to the specifically identified collection of B hadrons
+            // -1  - C hadron doesn't come from a B hadron'
+            // -2  - C hadron comes from a B hadron that was not identified in B hadron specific run
+            //       [comes from a non-weakly decaying B hadron, decay products of the B hadron not clustered to any jet]
             edm::Handle<std::vector<int> > genCHadBHadronId;
             iEvent.getByLabel(genCHadBHadronIdTag_, genCHadBHadronId);
             for(std::vector<int>::const_iterator i_id = genCHadBHadronId->begin(); i_id!=genCHadBHadronId->end(); ++i_id){
@@ -895,7 +895,7 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 v_genCHadBHadronId_.push_back(bHadIdConverted);
             }
             
-            // Selecting jets from different sources for event categorisation
+            // Select jets from different sources for event categorisation
             for(size_t index = 0; index < genCHadJetIndex->size(); ++index){
                 if(v_genCHadFromTopWeakDecay.size() <= index) break;
                 // Skip C hadrons coming from B hadrons
@@ -916,20 +916,20 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             }
         }
         
-        // Id of the event depending on the number of additional b(c)-jets in the event
+        // Id of the event depending on the number of additional b(c) jets in the event
         // -1  : Something went wrong
-        // 202 : 2 b-jets from top & >=2 extra b-jets coming not from the top weak decay chain (and any number of c/light jets)
-        // 201 : 2 b-jets from top & exactly 1 extra b-jet coming not from the top weak decay chain (and any number of c/light jets)
-        // 212 : 2 b-jets from top & >=2 extra b-jets coming from the top weak decay chain but not directly from top (and any number of c/light jets)
-        // 211 : 2 b-jets from top & exactly 1 extra b-jet coming from the top weak decay chain but not directly from top (and any number of c/light jets)
-        // 222 : 2 b-jets from top & no extra b-jets and >=2 c-jets coming not from the top weak decay chain (and any number of light jets)
-        // 221 : 2 b-jets from top & no extra b-jets and exactly 1 c-jet coming not from the top weak decay chain (and any number of light jets)
-        // 232 : 2 b-jets from top & no extra b-jets and >=2 c-jets coming from the top weak decay chain (and any number of light jets)
-        // 231 : 2 b-jets from top & no extra b-jets and exactly 1 c-jet coming from the top weak decay chain (and any number of light jets)
-        // 200 : 2 b-jets from top & no extra b-jets that come not directly from top and no c-jets that come not from b-hadrons
-        // 102 : 1 b-jet from top & >=2 extra b-jets coming not from the top weak decay chain (and any number of c/light jets)
+        // 202 : 2 b jets from top & >=2 extra b jets coming not from the top weak decay chain (and any number of c/light jets)
+        // 201 : 2 b jets from top & exactly 1 extra b jet coming not from the top weak decay chain (and any number of c/light jets)
+        // 212 : 2 b jets from top & >=2 extra b jets coming from the top weak decay chain but not directly from top (and any number of c/light jets)
+        // 211 : 2 b jets from top & exactly 1 extra b jet coming from the top weak decay chain but not directly from top (and any number of c/light jets)
+        // 222 : 2 b jets from top & no extra b jets and >=2 c jets coming not from the top weak decay chain (and any number of light jets)
+        // 221 : 2 b jets from top & no extra b jets and exactly 1 c jet coming not from the top weak decay chain (and any number of light jets)
+        // 232 : 2 b jets from top & no extra b jets and >=2 c jets coming from the top weak decay chain (and any number of light jets)
+        // 231 : 2 b jets from top & no extra b jets and exactly 1 c jet coming from the top weak decay chain (and any number of light jets)
+        // 200 : 2 b jets from top & no extra b jets that come not directly from top and no c jets that come not from B hadrons
+        // 102 : 1 b jet from top & >=2 extra b jets coming not from the top weak decay chain (and any number of c/light jets)
         //  - - - - - - - - - - - - - - 
-        // 100 : 1 b-jet from top & no extra b-jets that come not directly from top and no c-jets that come not from b-hadrons
+        // 100 : 1 b jet from top & no extra b jets that come not directly from top and no c jets that come not from B hadrons
         genExtraTopJetNumberId_ = -1;
             
         const int nGenBJetNotFromTopDecayChain = genBJetNotFromTopDecayChainIndex.size();
@@ -1008,10 +1008,10 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 ) / i_electron->pt());
             // Barrel region
             if(std::fabs(i_electron->superCluster()->eta()) <= 1.479)
-                v_leptonCombIso_.push_back((i_electron->dr03TkSumPt() + TMath::Max(0., i_electron->dr03EcalRecHitSumEt()-1.) + i_electron->dr03HcalTowerSumEt())/TMath::Max(20., i_electron->pt()));
+                v_leptonCombIso_.push_back((i_electron->dr03TkSumPt() + std::max(0., i_electron->dr03EcalRecHitSumEt()-1.) + i_electron->dr03HcalTowerSumEt())/std::max<double>(20., i_electron->pt()));
             // Endcap region
             else
-                v_leptonCombIso_.push_back((i_electron->dr03TkSumPt() + i_electron->dr03EcalRecHitSumEt() + i_electron->dr03HcalTowerSumEt())/TMath::Max(20., i_electron->pt()));
+                v_leptonCombIso_.push_back((i_electron->dr03TkSumPt() + i_electron->dr03EcalRecHitSumEt() + i_electron->dr03HcalTowerSumEt())/std::max<double>(20., i_electron->pt()));
             
             // Trigger matches
             int triggerResult = 0;
