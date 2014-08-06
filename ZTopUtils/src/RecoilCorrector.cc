@@ -62,10 +62,14 @@ debug_(0)
 
 RecoilCorrector::~RecoilCorrector()
 {
-    delete metZParalData_;
-    delete metZPerpData_;
-    delete metZParalMC_;
-    delete metZPerpMC_;
+    for(int iZPtBins = 0; iZPtBins < 5; ++iZPtBins){
+        for(int iJetsBins = 0; iJetsBins < nJetsBins_; ++iJetsBins){
+            delete metZParalData_[iZPtBins][iJetsBins];
+            delete metZPerpData_[iZPtBins][iJetsBins];
+            delete metZParalMC_[iZPtBins][iJetsBins];
+            delete metZPerpMC_[iZPtBins][iJetsBins];
+        }
+    }
 }
 
 
