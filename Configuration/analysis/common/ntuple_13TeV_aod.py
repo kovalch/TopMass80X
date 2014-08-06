@@ -587,7 +587,7 @@ massSearchReplaceAnyInputTag(process.userPatSequence, 'pfNoTau'+pfpostfix, 'pfJe
 process.load("TopAnalysis.TopUtils.JetEnergyScale_cfi")
 process.scaledJetEnergy.inputElectrons = "selectedPatElectrons"+pfpostfix
 process.scaledJetEnergy.inputJets = "selectedPatJets"+pfpostfix
-process.scaledJetEnergy.inputMETs = correctedPatMet
+process.scaledJetEnergy.inputMETs = "patMETs"+pfpostfix
 process.scaledJetEnergy.JECUncSrcFile = cms.FileInPath("TopAnalysis/Configuration/analysis/common/data/Summer13_V4_DATA_UncertaintySources_AK5PFchs.txt")
 process.scaledJetEnergy.scaleType = "abs"   # abs = 1, jes:up, jes:down
 
@@ -661,7 +661,7 @@ jetCollection = "hardJets"
 jetForMetUncorrectedCollection = "selectedPatJets"+pfpostfix
 jetForMetCollection = "scaledJetEnergy:"+jetForMetUncorrectedCollection
 
-metCollection = "scaledJetEnergy:"+correctedPatMet
+metCollection = "scaledJetEnergy:patMETs"+pfpostfix
 
 mvaMetCollection = "patMEtMVA"
 
