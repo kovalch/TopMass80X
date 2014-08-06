@@ -1417,6 +1417,7 @@ void AnalyzerDijet::checkAdditionalGenBJetAcceptance(const TopGenObjects& topGen
     std::vector<int> genJetIndices = genObjectIndices.genJetIndices_;
     const std::vector<int>& bHadJetIndex = (topGenObjects.valuesSet_) ? *topGenObjects.genBHadJetIndex_ : std::vector<int>(0);
     std::vector<int> genBJetsId = genObjectIndices.genBjetIndices_;
+    std::vector<std::vector<int> > genJetBhadronIndices = genObjectIndices.genJetBhadronIndices_;
     const std::vector<int>& bHadFlavour = (topGenObjects.valuesSet_) ? *topGenObjects.genBHadFlavour_ : std::vector<int>(0);
     const std::vector<int>& bHadFromTopWeakDecay = (topGenObjects.valuesSet_) ? *topGenObjects.genBHadFromTopWeakDecay_ : std::vector<int>(0);
     
@@ -1424,11 +1425,16 @@ void AnalyzerDijet::checkAdditionalGenBJetAcceptance(const TopGenObjects& topGen
     std::vector<int> addJetIds;
     
     std::vector<int> topJetIds;
-    // Creating the list of gen b-jets coming from top
+    // Creating the list of gen b-jets coming from  or not from top
     for(size_t hadId = 0; hadId < bHadFlavour.size(); ++hadId) {
-        if(std::abs(bHadFlavour.at(hadId))!=6) continue;
         if(bHadJetIndex.at(hadId)<0) continue;
-        putUniquelyInVector(topJetIds, bHadJetIndex.at(hadId));
+        if(!isInVector(genJetIndices, bHadJetIndex.at(hadId))) continue;
+        if(std::abs(bHadFlavour.at(hadId))==6) {
+            putUniquelyInVector(topJetIds, bHadJetIndex.at(hadId));
+        } else {
+            if(bHadFromTopWeakDecay.at(hadId)==1) continue;
+            putUniquelyInVector(addJetIds, bHadJetIndex.at(hadId));
+        }
     }
     
     for(size_t hadId = 0; hadId < bHadFlavour.size(); ++hadId) {
@@ -1448,23 +1454,12 @@ void AnalyzerDijet::checkAdditionalGenBJetAcceptance(const TopGenObjects& topGen
         if(isInVector(topJetIds, jetId)) continue;
         m_histogram["extraGenBHadronsJets"]->Fill(3., weight);
         // Jet overlaps with extra b-jets
-        if(isInVector(addJetIds, jetId)) continue;
+        if(genJetBhadronIndices.at(jetId).size()>1) continue;
         m_histogram["extraGenBHadronsJets"]->Fill(4., weight);
-        
-        putUniquelyInVector(addJetIds, jetId);
     }       // End of loop over all b-hadrons
     
     m_histogram["extraGenBHadronMultiplicity"]->Fill((int)addHadronIds.size(), weight);
     m_histogram["extraGenBJetMultiplicity"]->Fill((int)addJetIds.size(), weight);
-    
-    for(int iJet1 : genBJetsId) {
-        for(int iJet2 : genBJetsId) {
-            if(iJet2==iJet1) continue;
-            if(!isInVector(addJetIds, iJet1)) continue;
-            if(!isInVector(addJetIds, iJet2)) continue;
-        }
-    }
-    
 }
 
 
