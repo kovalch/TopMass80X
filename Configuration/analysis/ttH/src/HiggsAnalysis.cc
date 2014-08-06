@@ -899,8 +899,9 @@ bool HiggsAnalysis::failsAdditionalJetFlavourSelection(const Long64_t& entry)con
     if(jetAddId == 1) {
         if(topGenObjects.valuesSet_){
             const VLV& allGenJets = *topGenObjects.allGenJets_;
-            const std::vector<int> genJetIndices = this->genJetIndices(allGenJets, topGenObjects);
-            std::vector<std::vector<int> > genJetBhadronIndices = this->matchBhadronsToGenJets(genJetIndices, allGenJets, topGenObjects);
+            const std::vector<int> allGenJetIndices = common::initialiseIndices(allGenJets);
+            std::vector<std::vector<int> > genJetBhadronIndices = this->matchBhadronsToGenJets(allGenJetIndices, allGenJets, topGenObjects);
+            bool hasOverlappingBJets = false;
             for(size_t iJet = 0; iJet<genJetBhadronIndices.size(); ++iJet) {
                 std::vector<int> bHadIds = genJetBhadronIndices.at(iJet);
                 int nHads_top = 0;
@@ -909,11 +910,11 @@ bool HiggsAnalysis::failsAdditionalJetFlavourSelection(const Long64_t& entry)con
                     if(std::abs(topGenObjects.genBHadFlavour_->at(hadId)) == 6) nHads_top++;
                     if(std::abs(topGenObjects.genBHadFromTopWeakDecay_->at(hadId)) == 0) nHads_add++;
                 }
-                // If b-jet overlaps with a b-jet from tt - treated as not in acceptance (to represent matrix element additional b)
-                if(nHads_top > 0) continue;
-                if(nHads_add > 1 && additionalBjetMode_==1) return false;       // tt+b (two b-hadrons in 1 jet)
+                // If b-jet overlaps only with a b-jet from tt - will be treated as not in acceptance (to represent matrix element additional b)
+                if(nHads_add > 1) hasOverlappingBJets = true;
             }
-            if(additionalBjetMode_==2) return false;                            // tt+b (other b-jet not in acceptance)
+            if(hasOverlappingBJets && additionalBjetMode_==1) return false;      // tt+b (two b-hadrons in 1 jet)
+            if(!hasOverlappingBJets && additionalBjetMode_==2) return false;     // tt+b (other b-jet not in acceptance OR overlaps with top b-jet)
         }
     }
     
