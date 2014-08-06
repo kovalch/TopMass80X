@@ -453,12 +453,12 @@ std::vector<int> GenLevelBJetProducer::getGenJetWith ( const reco::Candidate* bQ
 */
 bool GenLevelBJetProducer::searchInMothers ( const reco::Candidate* bQuark, const reco::Candidate* thisParticle, std::vector<const reco::Candidate*> particleChain, pCRC *bHadron )
 {
-
     if ( *bHadron == 0 // find only the first b-hadron on the way (the one that decays weekly)
             && ( thisParticle->pdgId() / 1000  == bQuark->pdgId()  // b-baryions
                  || ( thisParticle->pdgId() / 100 % 10 == -bQuark->pdgId() // b-mesons
                       && ! ( noBBbarResonances_ && thisParticle->pdgId() / 10 % 100 == 55 ) // but not a b-bbar resonance
                     ) )
+            && (thisParticle->p() > 1e-14)      // Skipping possible injected hadrons
        ) {
         *bHadron = thisParticle;
     }
