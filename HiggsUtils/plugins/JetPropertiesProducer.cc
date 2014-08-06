@@ -27,6 +27,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -52,26 +53,27 @@
 // class declaration
 //
 
-class JetPropertiesProducer : public edm::EDProducer {
-   public:
-      explicit JetPropertiesProducer(const edm::ParameterSet&);
-      ~JetPropertiesProducer();
-
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
-   private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-      
-      virtual void beginRun(edm::Run&, edm::EventSetup const&);
-      virtual void endRun(edm::Run&, edm::EventSetup const&);
-      virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-      virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-
-      // ----------member data ---------------------------
-      
-      const edm::ParameterSet parameterSet_;
+class JetPropertiesProducer : public edm::EDProducer
+{
+public:
+    explicit JetPropertiesProducer(const edm::ParameterSet&);
+    ~JetPropertiesProducer();
+    
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+    
+private:
+    virtual void beginJob() ;
+    virtual void produce(edm::Event&, const edm::EventSetup&);
+    virtual void endJob() ;
+    
+    virtual void beginRun(edm::Run&, edm::EventSetup const&);
+    virtual void endRun(edm::Run&, edm::EventSetup const&);
+    virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+    virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+    
+    // ----------member data ---------------------------
+    
+    const edm::ParameterSet parameterSet_;
 };
 
 //
@@ -93,8 +95,10 @@ parameterSet_(iConfig)
 }
 
 
+
 JetPropertiesProducer::~JetPropertiesProducer()
 {}
+
 
 
 //
@@ -103,7 +107,8 @@ JetPropertiesProducer::~JetPropertiesProducer()
 
 // ------------ method called to produce the data  ------------
 void
-JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
+JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
     std::auto_ptr<std::vector<JetProperties> > v_jetProperties(new std::vector<JetProperties>);
     
     
@@ -114,13 +119,17 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     iEvent.getByLabel(jets, jetHandle);
     
     // Get a JetTagComputer in order to retrieve the pT-corrected secondary vertex mass used by the CSV algorithm
-    edm::ESHandle<JetTagComputer> computerHandle;
-    edm::InputTag secondaryVertexComputer(parameterSet_.getParameter<edm::InputTag>("svComputer"));
-    iSetup.get<JetTagComputerRecord>().get( secondaryVertexComputer.label(), computerHandle );
-    const GenericMVAJetTagComputer *computer ;
-    computer = dynamic_cast<const GenericMVAJetTagComputer*>( computerHandle.product() );        
-    computer->passEventSetup(iSetup);
-
+    // Check that the ES record really exists
+    const GenericMVAJetTagComputer* computer(0);
+    const edm::eventsetup::EventSetupRecordKey eventSetupRecordKey = JetTagComputerRecord::keyForClass();
+    if(iSetup.find(eventSetupRecordKey)){
+        edm::ESHandle<JetTagComputer> computerHandle;
+        edm::InputTag secondaryVertexComputer(parameterSet_.getParameter<edm::InputTag>("svComputer"));
+        iSetup.get<JetTagComputerRecord>().get(secondaryVertexComputer.label(), computerHandle);
+        computer = dynamic_cast<const GenericMVAJetTagComputer*>(computerHandle.product());
+        computer->passEventSetup(iSetup);
+    }
+    
     
     // The sum of the multiplicities of the jetSelectedTracks for all the jets before the jet that is currently analysed
     // This variable is used so that we can give the proper value to the jetSecondaryVertexTrackMatchToSelectedTrackIndex
@@ -145,7 +154,7 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         
         
         // Jet charge as weighted sum
-   	    // weight = projection of charged pflow object momentum on jet axis 
+        // weight = projection of charged pflow object momentum on jet axis 
         double jetPx = i_jet->px();
         double jetPy = i_jet->py();
         double jetPz = i_jet->pz();
@@ -176,9 +185,9 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         
         for(std::vector<reco::PFCandidatePtr>::const_iterator i_candidate = pfConstituents.begin(); i_candidate != pfConstituents.end(); ++i_candidate){
             const int charge = (*i_candidate)->charge();
-	    
+            
             if(charge == 0) continue;
-	    
+            
             jetPfCandidateTrack.push_back( (*i_candidate)->polarP4());
             jetPfCandidateTrackCharge.push_back(charge);
             jetPfCandidateTrackId.push_back((*i_candidate)->particleId());
@@ -250,18 +259,19 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
                             
                             unsigned int nVertex = secondaryVertexTagInfo->nVertices();
                             
-                            // Pass the TagInfos to the JetTagComputer
-                            std::vector<const reco::BaseTagInfo*>  baseTagInfos;
-                            JetTagComputer::TagInfoHelper helper(baseTagInfos);
-                            baseTagInfos.push_back( trackIPTagInfo );
-                            baseTagInfos.push_back( secondaryVertexTagInfo );
-                            reco::TaggingVariableList vars = computer->taggingVariables(helper);
-                            
-                            // Retrieve the pT-corrected secondary vertex mass used by the CSV algorithm
-                            if ( nVertex > 0) {
-                                jetSecondaryVertexPtCorrectedMass = ( vars.checkTag(reco::btau::vertexMass) ? vars.get(reco::btau::vertexMass) : -9999. );
+                            if(computer){
+                                // Pass the TagInfos to the JetTagComputer
+                                std::vector<const reco::BaseTagInfo*>  baseTagInfos;
+                                const JetTagComputer::TagInfoHelper helper(baseTagInfos);
+                                baseTagInfos.push_back(trackIPTagInfo);
+                                baseTagInfos.push_back(secondaryVertexTagInfo);
+                                const reco::TaggingVariableList vars = computer->taggingVariables(helper);
+                                
+                                // Retrieve the pT-corrected secondary vertex mass used by the CSV algorithm
+                                if(nVertex > 0)
+                                    jetSecondaryVertexPtCorrectedMass = vars.checkTag(reco::btau::vertexMass) ? vars.get(reco::btau::vertexMass) : -9999.;
                             }
-                            
+                            else jetSecondaryVertexPtCorrectedMass = -9990.;
                             
                             for(size_t iVertex=0; iVertex<nVertex; ++iVertex){   
                                 
@@ -366,40 +376,49 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     
 }
 
+
+
 // ------------ Method called once each job just before starting event loop  ------------
 void 
 JetPropertiesProducer::beginJob()
-{
-}
+{}
+
+
 
 // ------------ Method called once each job just after ending the event loop  ------------
 void 
-JetPropertiesProducer::endJob() {
-}
+JetPropertiesProducer::endJob()
+{}
+
+
 
 // ------------ Method called when starting to processes a run  ------------
 void 
 JetPropertiesProducer::beginRun(edm::Run&, edm::EventSetup const&)
-{
-}
+{}
+
+
 
 // ------------ Method called when ending the processing of a run  ------------
 void 
 JetPropertiesProducer::endRun(edm::Run&, edm::EventSetup const&)
-{
-}
+{}
+
+
 
 // ------------ Method called when starting to processes a luminosity block  ------------
 void 
 JetPropertiesProducer::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-}
+{}
+
+
 
 // ------------ Method called when ending the processing of a luminosity block  ------------
 void 
 JetPropertiesProducer::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-}
+{}
+
+
 
 // ------------ Method fills 'descriptions' with the allowed parameters for the module  ------------
 void
@@ -411,6 +430,8 @@ JetPropertiesProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
     desc.add<edm::InputTag>("svComputer");
     descriptions.add("jetProperties", desc);
 }
+
+
 
 // Define this as a plug-in
 DEFINE_FWK_MODULE(JetPropertiesProducer);
