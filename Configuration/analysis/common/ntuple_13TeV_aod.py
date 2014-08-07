@@ -512,7 +512,9 @@ process.jetProperties.src = jetCollection
 if topfilter:
     process.load("TopAnalysis.TopFilter.filters.GeneratorTopFilter_cfi")
     process.generatorTopFilter.rejectNonBottomDecaysOfTops = False
-    if higgsSignal or ttbarZ:
+    # FIXME: ttGenEvent is not working in several samples, so not possible to filter dileptonic ttbar decays...
+    # FIXME: As workaround, the " or topSignal" is placed here, switching off the filtering
+    if higgsSignal or ttbarZ or topSignal:
         process.generatorTopFilter.invert_selection = True
         process.generatorTopFilter.channels = ["none"] # Empty array would use some defaults
     else:

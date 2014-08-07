@@ -20,6 +20,7 @@ Implementation:
 
 // system include files
 #include <memory>
+#include <iostream>
 #include <string>
 #include <map>
 #include <algorithm>
@@ -38,7 +39,6 @@ Implementation:
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
-#include "AnalysisDataFormats/TopObjects/interface/TtFullLeptonicEvent.h"
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -492,7 +492,7 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     runNumber_ = iEvent.id().run();
     lumiBlock_ = iEvent.id().luminosityBlock();
     eventNumber_ = iEvent.id().event();
-
+    
     // MC weights for generators providing weighted events
     if(!iEvent.isRealData()){
         const edm::InputTag genEventInfoTag("generator");
@@ -537,8 +537,10 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             else ttbarProductionMode_ = 2;
             
             // Top quarks, and for dileptonic decays also decay products
-            genTop_ = ttbarGenEvent->top()->polarP4();
-            genAntiTop_ = ttbarGenEvent->topBar()->polarP4();
+            if(ttbarGenEvent->top()) genTop_ = ttbarGenEvent->top()->polarP4();
+            else genTop_ = nullP4_;
+            if(ttbarGenEvent->topBar()) genAntiTop_ = ttbarGenEvent->topBar()->polarP4();
+            else genAntiTop_ = nullP4_;
             if(ttbarGenEvent->lepton()){
                 this->assignLeptonAndTau(ttbarGenEvent->lepton(), genLepton_, genLeptonPdgId_, genTau_);
             }
