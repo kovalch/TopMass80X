@@ -4,6 +4,7 @@ import sys
 import os
 
 
+
 ####################################################################
 ## Global job options
 
@@ -17,6 +18,10 @@ WANTSUMMARY = True
 
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 process = cms.Process("topDileptonNtuple")
+process.options = cms.untracked.PSet(
+    wantSummary = cms.untracked.bool(WANTSUMMARY)
+)
+process.options.allowUnscheduled = cms.untracked.bool(True)
 #SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",ignoreTotal = cms.untracked.int32(1) )
 
 
@@ -196,10 +201,6 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
 process.MessageLogger.cerr.FwkReport.reportEvery = REPORTEVERY
 
-process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(WANTSUMMARY)
-)
-
 
 
 ####################################################################
@@ -321,30 +322,15 @@ pfpostfix = "PFlow"
 # PF2PAT
 # Parameter checkClosestZVertex = False needs to be set to False when using PF Jets with Charged Hadron Subtraction, see https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookJetEnergyCorrections#JetEnCorPFnoPU2012
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
-process.options.allowUnscheduled = cms.untracked.bool(True)
 from PhysicsTools.PatAlgos.tools.pfTools import *
 usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=options.runOnMC, postfix=pfpostfix, jetCorrections=jetCorr, pvCollection=cms.InputTag('goodOfflinePrimaryVertices'), typeIMetCorrections=True)
 getattr(process, 'pfPileUp'+pfpostfix).checkClosestZVertex = False
-
-#process.userPatSequence = getattr(process, 'patPF2PATSequence'+pfpostfix) # patPF2PATSequence doesn't exist any more
 
 
 
 ####################################################################
 ## Set up selections for PF2PAT & PAT objects: Electrons
-''' it couldn't find mvaNonTrigV0 and it creashed when trying to create an ntuple
-# MVA ID
-# All IDs except of MVA ID are removed, and this needs to be done in case of electron energy correction application (else code crashes)
-process.load('EgammaAnalysis.ElectronTools.electronIdMVAProducer_cfi')
-process.electronMvaIdSequence = cms.Sequence(process.mvaTrigV0 + process.mvaNonTrigV0)
-getattr(process, 'patElectrons'+pfpostfix).electronIDSources = cms.PSet(
-    mvaTrigV0 = cms.InputTag("mvaTrigV0"),
-    mvaNonTrigV0 = cms.InputTag("mvaNonTrigV0")
-    )
-process.userPatSequence.replace(getattr(process, 'patElectrons'+pfpostfix),
-                                process.electronMvaIdSequence *
-                                getattr(process, 'patElectrons'+pfpostfix))
-'''
+
 # Basic selection for PF2PAT
 #getattr(process, 'pfSelectedElectrons'+pfpostfix).cut = 'pt > 5 && gsfTrackRef.isNonnull && gsfTrackRef.trackerExpectedHitsInner.numberOfHits <= 0'  # it couldn't find pfSelectedElectrons
 
@@ -364,38 +350,7 @@ getattr(process, 'patElectrons'+pfpostfix).isolationValues = cms.PSet(
 )
 
 # Electron ID
-#getattr(process, 'selectedPatElectrons'+pfpostfix).cut = 'electronID("mvaTrigV0") > 0.5 && passConversionVeto'
-getattr(process, 'selectedPatElectrons'+pfpostfix).cut = 'electronID("eidLoose") > 0.5 && passConversionVeto' # added just to replace "mvaTrigV0"
-
-
-####################################################################
-## Electron energy scale and resolution corrections
-
-process.load("EgammaAnalysis.ElectronTools.electronRegressionEnergyProducer_cfi")
-process.eleRegressionEnergy.inputElectronsTag = 'gsfElectrons'
-process.eleRegressionEnergy.inputCollectionType = 0
-process.eleRegressionEnergy.useRecHitCollections = True
-process.eleRegressionEnergy.produceValueMaps = True
-
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    calibratedElectrons = cms.PSet(
-        initialSeed = cms.untracked.uint32(123456789),
-        engineName = cms.untracked.string('TRandom3')
-        ))
-
-process.load("EgammaAnalysis.ElectronTools.calibratedElectrons_cfi")
-process.calibratedElectrons.inputElectronsTag = 'gsfElectrons'
-process.calibratedElectrons.isMC = options.runOnMC
-if options.runOnMC:
-    process.calibratedElectrons.inputDataset = "Summer12_LegacyPaper"
-process.calibratedElectrons.updateEnergyError = True
-process.calibratedElectrons.correctionsType = 2
-process.calibratedElectrons.combinationType = 3
-
-process.electronCorrectionSequence = cms.Sequence(
-    process.eleRegressionEnergy *
-    process.calibratedElectrons
-    )
+getattr(process, 'selectedPatElectrons'+pfpostfix).cut = 'electronID("eidLoose") > 0.5 && passConversionVeto'
 
 
 
@@ -428,28 +383,6 @@ getattr(process, 'selectedPatMuons'+pfpostfix).cut = 'isPFMuon && pt > 20 && abs
 
 
 ####################################################################
-## Muon energy scale and resolution corrections
-## For safety also done for reco muons (i.e. not pf), in case they are used somewhere as input)
-
-process.load("TopAnalysis.ZTopUtils.correctmuonenergy_cff")
-process.correctMuonEnergy.muonSrc = 'pfMuonsFromVertex'+pfpostfix
-process.correctMuonEnergy.muonType = "pfMuons"
-process.correctMuonEnergy.isMC = options.runOnMC
-process.correctMuonEnergy.debug = False
-
-process.userPatSequence = cms.Sequence(getattr(process, 'pfMuonsFromVertex'+pfpostfix)) # This was added so that the next line doesn't crash
-
-process.userPatSequence.replace(getattr(process,'pfMuonsFromVertex'+pfpostfix),
-                                getattr(process,'pfMuonsFromVertex'+pfpostfix) *
-                                process.correctMuonEnergy)
-
-process.correctRecoMuonEnergy = process.correctMuonEnergy.clone()
-process.correctRecoMuonEnergy.muonSrc = 'muons'
-process.correctRecoMuonEnergy.muonType = "recoMuons"
-
-
-
-####################################################################
 ## Set up selections for PF2PAT & PAT objects: Jets
 
 #getattr(process, 'patJetCorrFactors'+pfpostfix).rho = cms.InputTag("kt6PFJets", "rho", "RECO")  # problems with "kt6PFJets", "rho"
@@ -463,126 +396,7 @@ getattr(process, 'selectedPatJets'+pfpostfix).cut = 'abs(eta)<5.4'
 
 
 ####################################################################
-## Phi correction of the PFMET
-
-process.load("JetMETCorrections.Type1MET.pfMETsysShiftCorrections_cfi")
-process.load("JetMETCorrections.Type1MET.pfMETCorrections_cff")
-
-process.pfMEtSysShiftCorrParameters_2012runABCDvsNvtx_data = cms.PSet(
-    px = cms.string("+7.99e-02 + 2.393e-01*Nvtx"),
-    py = cms.string("-1.370e-01 - 8.02e-02*Nvtx")
-)
-process.pfMEtSysShiftCorrParameters_2012runABCDvsNvtx_mc = cms.PSet(
-    px = cms.string("+0.982e-01 + 1.38e-02*Nvtx"),
-    py = cms.string("+1.802e-01 - 1.347e-01*Nvtx")
-)
-
-process.pfMEtSysShiftCorr.src = cms.InputTag('pfMET'+pfpostfix)
-if options.runOnMC:
-    process.pfJetMETcorr.jetCorrLabel = "ak5PFL1FastL2L3"
-    process.pfMEtSysShiftCorr.parameter = process.pfMEtSysShiftCorrParameters_2012runABCDvsNvtx_mc
-else:
-    process.pfJetMETcorr.jetCorrLabel = "ak5PFL1FastL2L3Residual"
-    process.pfMEtSysShiftCorr.parameter = process.pfMEtSysShiftCorrParameters_2012runABCDvsNvtx_data
-
-# Type1 correction + phi correction
-process.pfMetT1Txy = process.pfType1CorrectedMet.clone()
-process.pfMetT1Txy.applyType0Corrections = cms.bool(False)
-process.pfMetT1Txy.srcType1Corrections = cms.VInputTag(
-    cms.InputTag('pfJetMETcorr', 'type1'),
-    cms.InputTag('pfMEtSysShiftCorr')
-    )
-
-#process.patpfMetT1Txy = getattr(process, 'patPFMet'+pfpostfix).clone()
-#process.patpfMetT1Txy.metSource = 'pfMetT1Txy'
-
-# Type0 and type1 correction + phi correction
-process.pfMetT0T1Txy = process.pfType1CorrectedMet.clone()
-process.pfMetT0T1Txy.applyType0Corrections = cms.bool(True)
-process.pfMetT0T1Txy.srcType1Corrections = cms.VInputTag(
-    cms.InputTag('pfJetMETcorr', 'type1'),
-    cms.InputTag('pfMEtSysShiftCorr')
-    )
-
-#process.patpfMetT0T1Txy = getattr(process, 'patPFMet'+pfpostfix).clone()
-#process.patpfMetT0T1Txy.metSource = 'pfMetT0T1Txy'
-
-# Sequence for full inclusion of phi corrections
-process.pfMetPhiCorrectionSequence = cms.Sequence(
-    process.pfMEtSysShiftCorrSequence*
-    process.producePFMETCorrections*
-    #process.pfMetT0T1Txy*
-    #process.patpfMetT0T1Txy*
-    #process.pfMetT1Txy*
-    process.pfMetT1Txy
-    # process.patpfMetT1Txy
-    )
-
-process.userPatSequence.replace(getattr(process, 'patMETs'+pfpostfix),
-                                process.pfMetPhiCorrectionSequence *
-                                getattr(process, 'patMETs'+pfpostfix))
-
-#correctedPatMet = "patpfMetT0T1Txy"
-#correctedPatMet = "patpfMetT1Txy"
-correctedPatMet = "pfMetT1Txy"   # just a test
-
-
-####################################################################
-##  MVA met
-'''  RecoMET.METPUSubtraction.mvaPFMET_leptons_cff doesn't exist any more!!
-process.load('RecoMET.METPUSubtraction.mvaPFMET_leptons_cff')
-process.calibratedAK5PFJetsForPFMEtMVA.src = 'pfJets'+pfpostfix
-if options.runOnMC:
-    process.calibratedAK5PFJetsForPFMEtMVA.correctors = cms.vstring("ak5PFL1FastL2L3")
-else:
-    process.calibratedAK5PFJetsForPFMEtMVA.correctors = cms.vstring("ak5PFL1FastL2L3Residual")
-
-process.pfMEtMVA.srcUncorrJets = 'pfJets'+pfpostfix
-process.pfMEtMVA.srcVertices = 'goodOfflinePrimaryVertices'
-process.pfMEtMVA.inputFileNames = cms.PSet(
-    U = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrmet_53_June2013_type1.root'),
-    DPhi = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrmetphi_53_June2013_type1.root'),
-    CovU1 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru1cov_53_Dec2012.root'),
-    CovU2 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru2cov_53_Dec2012.root')
-    )
-process.pfMEtMVA.srcLeptons = cms.VInputTag("isomuons", "isoelectrons", "isotaus") # Should be adapted to analysis selection..
-process.pfMEtMVA.srcRho = cms.InputTag("kt6PFJets", "rho", "RECO")
-
-process.patMEtMVA = getattr(process, 'patMETs'+pfpostfix).clone()
-process.patMEtMVA.metSource = 'pfMEtMVA'
-
-process.mvaMetSequence = cms.Sequence(process.pfMEtMVAsequence * process.patMEtMVA)
-
-
-
-####################################################################
-## Remove all unneeded PAT modules (taus and photons are fully removed)
-
-from PhysicsTools.PatAlgos.tools.coreTools import removeSpecificPATObjects
-removeSpecificPATObjects(process, names = ['Taus', 'Photons'], outputModules = [], postfix = pfpostfix)
-
-process.userPatSequence.remove(getattr(process, 'selectedPatTaus'+pfpostfix))
-process.userPatSequence.remove(getattr(process, 'countPatTaus'+pfpostfix))
-
-process.userPatSequence.remove(getattr(process, 'patPFParticles'+pfpostfix))
-process.userPatSequence.remove(getattr(process, 'patCandidateSummary'+pfpostfix))
-process.userPatSequence.remove(getattr(process, 'selectedPatPFParticles'+pfpostfix))
-process.userPatSequence.remove(getattr(process, 'selectedPatCandidateSummary'+pfpostfix))
-process.userPatSequence.remove(getattr(process, 'countPatElectrons'+pfpostfix))
-process.userPatSequence.remove(getattr(process, 'countPatMuons'+pfpostfix))
-process.userPatSequence.remove(getattr(process, 'countPatLeptons'+pfpostfix))
-process.userPatSequence.remove(getattr(process, 'countPatJets'+pfpostfix))
-process.userPatSequence.remove(getattr(process, 'countPatPFParticles'+pfpostfix))
-
-process.userPatSequence.remove(getattr(process, 'pfPhotonSequence'+pfpostfix))
-
-massSearchReplaceAnyInputTag(process.userPatSequence, 'pfNoTau'+pfpostfix, 'pfJets'+pfpostfix)
-
-'''
-
-####################################################################
 ## Configure jet energy resolution, and use corrected electrons, and propagate to MET
-## FIXME: should also port to MVA Met ?
 
 process.load("TopAnalysis.TopUtils.JetEnergyScale_cfi")
 process.scaledJetEnergy.inputElectrons = "selectedPatElectrons"+pfpostfix
@@ -594,15 +408,6 @@ process.scaledJetEnergy.scaleType = "abs"   # abs = 1, jes:up, jes:down
 if options.runOnMC:
     process.scaledJetEnergy.resolutionEtaRanges  = cms.vdouble(0, 0.5, 0.5, 1.1, 1.1, 1.7, 1.7, 2.3, 2.3, 5.4)
     process.scaledJetEnergy.resolutionFactors    = cms.vdouble(1.052, 1.057, 1.096, 1.134, 1.288) # JER standard
-
-    if options.systematicsName == "JES_UP":
-        process.scaledJetEnergy.scaleType = "jes:up"
-    if options.systematicsName == "JES_DOWN":
-        process.scaledJetEnergy.scaleType = "jes:down"
-    if options.systematicsName == "JER_UP":
-        process.scaledJetEnergy.resolutionFactors = cms.vdouble(1.115, 1.114, 1.161, 1.228, 1.488)
-    if options.systematicsName == "JER_DOWN":
-        process.scaledJetEnergy.resolutionFactors = cms.vdouble(0.990, 1.001, 1.032, 1.042, 1.089)
 else:
     process.scaledJetEnergy.resolutionEtaRanges  = cms.vdouble(0, -1)
     process.scaledJetEnergy.resolutionFactors    = cms.vdouble(1.0) # JER standard
@@ -632,7 +437,7 @@ process.leptonVertexSelector.electronDxyMax = 0.04
 # Jets
 from PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi import *
 process.load("TopAnalysis.TopFilter.filters.JetIdFunctorFilter_cfi")
-process.goodIdJets.jets    = cms.InputTag("scaledJetEnergy:selectedPatJets"+pfpostfix)
+process.goodIdJets.jets = cms.InputTag("scaledJetEnergy:selectedPatJets"+pfpostfix)
 process.goodIdJets.jetType = cms.string('PF')
 process.goodIdJets.version = cms.string('FIRSTDATA')
 process.goodIdJets.quality = cms.string('LOOSE')
@@ -651,7 +456,6 @@ process.finalCollectionsSequence = cms.Sequence(
 ####################################################################
 ## Define which collections (including which corrections) to be used in nTuple
 
-#isolatedElectronCollection = "selectedPatElectrons"+pfpostfix
 isolatedElectronCollection = "leptonVertexSelector"
 
 isolatedMuonCollection = "leptonVertexSelector"
@@ -746,17 +550,16 @@ else:
     process.zGenSequence = cms.Sequence()
 
 if topSignal:
-    # FIXME: Can it be integrated into the GenHFHadronMatching_cff sequence itself?
-    process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi") # Supplies PDG ID to real name resolution of MC particles, necessary for GenLevelBJetProducer
     process.load("TopAnalysis.TopUtils.sequences.GenHFHadronMatching_cff")
 
+    process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi") # Supplies PDG ID to real name resolution of MC particles
     process.load("TopAnalysis.TopUtils.GenLevelBJetProducer_cfi")
     process.produceGenLevelBJets.deltaR = 5.0
     process.produceGenLevelBJets.noBBbarResonances = True
     process.produceGenLevelBJets.genJets = process.matchGenBCHadronB.genJets
 
     process.genMatchSequence = cms.Sequence(
-        process.GenBCHadronMatchingSequence *
+        process.genBCHadronMatchingSequence *
         process.produceGenLevelBJets
     )
 else:
@@ -886,7 +689,7 @@ if signal:
     process.ntupleInRecoSeq = cms.Sequence()
 else:
     process.ntupleInRecoSeq = cms.Sequence(process.writeNTuple)
-    
+
 
 
 ####################################################################
@@ -896,10 +699,6 @@ else:
 path = cms.Path(
     process.prefilterSequence *
     process.goodOfflinePrimaryVertices *
-    #process.electronCorrectionSequence *  # it couldn't find RegressionEnergyPatElectronProducer/'eleRegressionEnergy' and CalibratedElectronProducer/'calibratedElectrons'
-    #process.correctRecoMuonEnergy *
-    process.userPatSequence *
-    #process.mvaMetSequence *
     process.finalCollectionsSequence *
     process.preselectionSequence *
     process.jetProperties *
@@ -913,10 +712,6 @@ pathNtuple = cms.Path(
     process.higgsGenSequence *
     process.zGenSequence *
     process.goodOfflinePrimaryVertices *
-    #process.electronCorrectionSequence *  # it couldn't find RegressionEnergyPatElectronProducer/'eleRegressionEnergy' and CalibratedElectronProducer/'calibratedElectrons'
-    #process.correctRecoMuonEnergy *
-    process.userPatSequence *
-    #process.mvaMetSequence *
     process.finalCollectionsSequence *
     process.jetProperties *
     process.madgraphWDecaySequence *
@@ -931,33 +726,6 @@ else:
 pathnames = process.paths_().keys()
 
 
-
-####################################################################
-## Replace all input collections coherently to use corrections
-'''
-# Corrected electrons
-for pathname in pathnames:
-    massSearchReplaceAnyInputTag(getattr(process, pathname),
-                                 cms.InputTag("gsfElectrons", ""),
-                                 cms.InputTag("calibratedElectrons", "calibratedGsfElectrons"),
-                                 True)
-process.eleRegressionEnergy.inputElectronsTag = cms.InputTag('gsfElectrons', '', 'RECO')
-process.calibratedElectrons.inputElectronsTag = cms.InputTag('gsfElectrons', '', 'RECO')
-
-# Corrected muons
-for pathname in pathnames:
-    massSearchReplaceAnyInputTag(getattr(process, pathname),
-                                 cms.InputTag("pfMuonsFromVertex"+pfpostfix),
-                                 cms.InputTag("correctMuonEnergy"),
-                                 True)
-    massSearchReplaceAnyInputTag(getattr(process, pathname),
-                                 cms.InputTag('muons'),
-                                 cms.InputTag("correctRecoMuonEnergy"),
-                                 True)
-process.correctMuonEnergy.muonSrc = 'pfMuonsFromVertex'+pfpostfix
-process.correctRecoMuonEnergy.muonSrc = 'muons'
-
-'''
 
 ####################################################################
 ## Prepend the paths
@@ -985,19 +753,5 @@ process.load("TopAnalysis.TopUtils.SignalCatcher_cfi")
 
 
 
-####################################################################
-## Particle tree drawer
 
-# see https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideCandidateModules#ParticleTreeDrawer_Utility
-#process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-#process.printTree = cms.EDAnalyzer("ParticleTreeDrawer",
-#                                   src = cms.InputTag("genParticles"),                                                                 
-#             #                      printP4 = cms.untracked.bool(False),
-#             #                      printPtEtaPhi = cms.untracked.bool(False),
-#             #                      printVertex = cms.untracked.bool(False),
-#             #                      printStatus = cms.untracked.bool(False),
-#             #                      printIndex = cms.untracked.bool(False),
-#             #                      status = cms.untracked.vint32( 3 )
-#                                   )
-#process.path = cms.Path(process.printTree)
-#process.pathNtuple = cms.Path()
+
