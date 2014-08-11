@@ -20,6 +20,9 @@
 #include "AnalyzerControlPlots.h"
 #include "AnalyzerDoubleDiffXS.h"
 #include "AnalyzerKinReco.h"
+#include "TreeHandlerBase.h"
+#include "TreeHandlerTTBar.h"
+//#include "TopAnalysis/ZTopUtils/interface/RecoilCorrector.h"//metmva
 #include "../../common/include/CommandLineParameters.h"
 #include "../../common/include/utils.h"
 #include "../../common/include/ScaleFactors.h"
@@ -175,6 +178,19 @@ void load_Analysis(const TString& validFilenamePattern,
         v_analyzer.push_back(analyzerKinReco);
     }
     
+    
+    // Vector setting up all tree handlers for MVA input variables
+    std::vector<TreeHandlerBase*> v_treeHandler;
+    
+    // Set up production of TTree for ttbar analysis
+    TreeHandlerTTBar* treeHandlerTTBar(0);
+    if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::ddaTree) != v_analysisMode.end()){
+        treeHandlerTTBar = new TreeHandlerTTBar("ddaInput", {"0","8"});
+        v_treeHandler.push_back(treeHandlerTTBar);
+    }
+    
+    
+    
     // Set up the analysis
     TopAnalysis* selector = new TopAnalysis();
     selector->SetAnalysisOutputBase("selectionRoot");
@@ -186,6 +202,7 @@ void load_Analysis(const TString& validFilenamePattern,
     selector->SetJetEnergyScaleScaleFactors(jetEnergyScaleScaleFactors);
     selector->SetTopPtScaleFactors(topPtScaleFactors);
     selector->SetAllAnalyzers(v_analyzer);
+    selector->SetAllTreeHandlers(v_treeHandler);
     
     // Access selectionList containing all input sample nTuples
     ifstream infile("selectionList.txt");
@@ -304,6 +321,11 @@ void load_Analysis(const TString& validFilenamePattern,
             // Split Drell-Yan sample in decay modes ee, mumu, tautau
             selector->SetTrueLevelDYChannel(dy);
             if(dy){
+                
+                //ztop::RecoilCorrector *recoilCorrector = new ztop::RecoilCorrector(common::CMSSW_BASE()+"/src/TopAnalysis/ZTopUtils/data/"); //metmva
+                //recoilCorrector->setFiles("METrecoil_Fits_DataSummer2013.root", "METrecoil_Fits_MCSummer2013.root"); //metmva
+                //selector->SetMetRecoilCorrector(recoilCorrector); //metmva
+                
                 if(outputfilename.First("_dy") == kNPOS){ 
                     std::cerr << "DY variations must be run on DY samples!\n";
                     std::cerr << outputfilename << " must start with 'channel_dy'\n";
@@ -379,7 +401,7 @@ int main(int argc, char** argv) {
     CLParameter<std::string> opt_s("s", "Run with a systematic that runs on the nominal ntuples, e.g. 'PDF', 'PU_UP' or 'TRIG_DOWN'", false, 1, 1,
             common::makeStringCheckBegin(Systematic::convertType(Systematic::allowedSystematics)));
     CLParameter<std::string> opt_mode("m", "Mode of analysis: control plots (cp), "
-                                           "double differential analysis (dda), kin. reco. efficiency plots (kinReco), "
+                                           "double differential analysis (dda), kin. reco. efficiency plots (kinReco), tree for 2d unfolding (ddaTree), "
                                            "Default is cp, dda, kinReco", false, 1, 100,
             common::makeStringCheck(AnalysisMode::convert(AnalysisMode::allowedAnalysisModes)));
     CLParameter<int> opt_pdfno("pdf", "Run a certain PDF systematic only, sets -s PDF. Use e.g. --pdf n, where n=0 is central, 1=variation 1 up, 2=1down, 3=2up, 4=2down, ...", false, 1, 1);

@@ -11,6 +11,7 @@ class TH2;
 #include "analysisStructsFwd.h"
 
 class AnalyzerBaseClass;
+class TreeHandlerBase;
 class RecoObjects;
 class CommonGenObjects;
 class TopGenObjects;
@@ -190,16 +191,9 @@ class TopAnalysis : public AnalysisBase
        TH1 *h_RMSvsGenTopRapidity;
        TH1 *h_RMSvsGenTTBarMass; 
        
-       TH2 *h_HypTopRapidityvsToppT;
-       TH2 *h_HypAntiTopRapidityvsAntiToppT;
-       
-       TH2 *h_VisGenTopRapidityvsToppT;
-       TH2 *h_VisGenAntiTopRapidityvsAntiToppT;
-       
        TH2 *h_HypTTBarRapidityvsTTBarpT;
        
        TH2 *h_VisGenTTBarRapidityvsTTBarpT;
-       
     /// ... 
     
     /// Do kinematic reconstruction on nTuple level
@@ -257,6 +251,9 @@ public:
     /// Set up all analysers of type AnalyzerBaseClass
     void SetAllAnalyzers(std::vector<AnalyzerBaseClass*> v_analyzer);
     
+    /// Set up all tree handlers of type TreeHandlerBase
+    void SetAllTreeHandlers(std::vector<TreeHandlerBase*> v_treeHandler);
+    
 private:
     
     /// Create binned control plots
@@ -305,6 +302,10 @@ private:
                                  double extragenjet[4],
                                  const TopGenObjects& topGenObjects);
     
+    void generatorVisJets(const TopGenObjects& topGenObjects,std::vector<int>& genVisJetIndices);
+    
+
+    
     
     /// Map holding binned control plots
     //binnedControlPlots contains:
@@ -330,6 +331,9 @@ private:
     
     /// All analysers of type AnalyzerBaseClass
     std::vector<AnalyzerBaseClass*> v_analyzer_;
+    
+        /// All tree handlers of type TreeHandlerBase
+    std::vector<TreeHandlerBase*> v_treeHandler_;
     
 };
 

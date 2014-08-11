@@ -29,7 +29,8 @@ weight_(weight)
 ttbar::GenObjectIndices::GenObjectIndices(const int& genBjetFromTopIndex, const int& genAntiBjetFromTopIndex,
                                         const int& recoBjetFromTopIndex, const int& recoAntiBjetFromTopIndex,
                                         const int& genBjetFromHiggsIndex, const int& genAntiBjetFromHiggsIndex,
-                                        const int& recoBjetFromHiggsIndex, const int& recoAntiBjetFromHiggsIndex):
+                                        const int& recoBjetFromHiggsIndex, const int& recoAntiBjetFromHiggsIndex,
+                                        const std::vector<int>& genVisJetIndices):
 genBjetFromTopIndex_(genBjetFromTopIndex),
 genAntiBjetFromTopIndex_(genAntiBjetFromTopIndex),
 recoBjetFromTopIndex_(recoBjetFromTopIndex),
@@ -37,7 +38,8 @@ recoAntiBjetFromTopIndex_(recoAntiBjetFromTopIndex),
 genBjetFromHiggsIndex_(genBjetFromHiggsIndex),
 genAntiBjetFromHiggsIndex_(genAntiBjetFromHiggsIndex),
 recoBjetFromHiggsIndex_(recoBjetFromHiggsIndex),
-recoAntiBjetFromHiggsIndex_(recoAntiBjetFromHiggsIndex)
+recoAntiBjetFromHiggsIndex_(recoAntiBjetFromHiggsIndex),
+genVisJetIndices_(genVisJetIndices)
 {}
 
 

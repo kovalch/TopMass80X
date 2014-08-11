@@ -16,9 +16,12 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   AnalyzerControlPlots
   AnalyzerDoubleDiffXS
   AnalyzerKinReco
+  TreeHandlerBase
+  TreeHandlerTTBar
+  VariablesBase
+  VariablesTTBar
   plotterclass
   UsefulTools
-#  utils
   DilepSVDFunctions
   EffHist
   )
@@ -33,9 +36,6 @@ SET( ${PROJECT_NAME}_EXECUTABLES
   load_Analysis
   Histo
   kinRecoEff
-#  controlPlot2d
-#  Histo2d
-#  compareHisto
   TypicalErrors
   PlotRelDiffs
   kinRecoEfficienciesAndSF

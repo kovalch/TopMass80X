@@ -34,7 +34,7 @@
 
 UsefulTools::UsefulTools( RootFileReader* rootFileReader,bool isClosureTest,bool isDYScale):
 
-lumi(19712),
+lumi(19712), // data luminosity in pb-1
 
 //topxsec(244.849), //again changes with normalization, must be set outside of the class
 //topxsec(244.794), //Mitov, arXiv:1303.6254

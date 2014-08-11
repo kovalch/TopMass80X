@@ -26,7 +26,8 @@
 #include "../../common/include/ScaleFactors.h"
 #include "../../common/include/analysisObjectStructs.h"
 #include "analysisStructs.h"
-#include "AnalyzerBaseClass.h"
+#include "AnalyzerBaseClass.h" //FIXME: rename to AnalyzerBase.
+#include "TreeHandlerBase.h"
 
 ///top production xsec in pb
 constexpr double TOPXSEC = 234.;
@@ -76,6 +77,12 @@ void TopAnalysis::Begin(TTree*)
     
     // Set b-tagging working point
     this->setBtagAlgorithmAndWorkingPoint(BtagALGO, BtagWP);
+    
+    // Set up selection steps of tree handlers
+    for(TreeHandlerBase* treeHandler : v_treeHandler_){
+        if(treeHandler) treeHandler->book();
+    }
+    
 }
 
 
@@ -84,6 +91,19 @@ void TopAnalysis::Terminate()
 {
     // Produce b-tag efficiencies if required for given correction mode
     this->produceBtagEfficiencies();
+    
+    // Do everything needed for TTree
+    for(TreeHandlerBase* treeHandler : v_treeHandler_){
+        if(treeHandler){
+            // Produce and write tree
+            treeHandler->writeTrees(this->outputFilename(), this->channel(), this->systematic());
+            //treeHandler->writeTrees(fOutput);
+
+            // Cleanup
+            treeHandler->clear();
+        }
+    }
+    
     
     // Calculate an overall weight due to the shape reweighting, and apply it
     const double globalNormalisationFactor = this->overallGlobalNormalisationFactor();
@@ -563,11 +583,6 @@ void TopAnalysis::SlaveBegin(TTree*)
         h_RMSvsGenTTBarMass = store(new TH2D ( "RMSvsGenTTBarMass", "RMS vs Gen", 2000, 0, 2000, 4000, -2000, 2000 ));
         
         //2d cs
-        h_HypTopRapidityvsToppT = store(new TH2D ("HypTopRapidityvsToppT","TopRapidity vs ToppT; p_{T}^{t} [GeV];y(t)",1200,0,1200,100,-2.4,2.4));
-        h_HypAntiTopRapidityvsAntiToppT = store(new TH2D ("HypAntiTopRapidityvsAntiToppT","TopRapidity vs ToppT; p_{T}^{t} [GeV];y(t)",1200,0,1200,100,-2.4,2.4));
-        
-        h_VisGenTopRapidityvsToppT = store(new TH2D ("VisGenTopRapidityvsToppT","TopRapidity vs ToppT; p_{T}^{t} [GeV];y(t)",1200,0,1200,100,-2.4,2.4));
-        h_VisGenAntiTopRapidityvsAntiToppT = store(new TH2D ("VisGenAntiTopRapidityvsAntiToppT","TopRapidity vs ToppT; p_{T}^{t} [GeV];y(t)",1200,0,1200,100,-2.4,2.4));
         
         h_HypTTBarRapidityvsTTBarpT = store(new TH2D ("HypTTBarRapidityvsTTBarpT","TTBarRapidity vs TTBarpT;p_{T}^{t#bar{t}} [GeV];y(t#bar{t})",400,0,400,100,-2.4,2.4));
         h_VisGenTTBarRapidityvsTTBarpT = store(new TH2D ("VisGenTTBarRapidityvsTTBarpT","TTBarRapidity vs TTBarpT;p_{T}^{t#bar{t}} [GeV];y(t#bar{t})",400,0,400,100,-2.4,2.4));
@@ -687,13 +702,15 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                                   BHadronIndex, AntiBHadronIndex,
                                   trueLevelWeight,
                                   GenJets_cut, GenJets_cut40, GenJets_cut60, GenJets_cut100, jetnum,
-                                  extragenjet, topGenObjects);
-
+                                  extragenjet,topGenObjects);
+    
+    std::vector<int> genVisJetIndices;
+    this->generatorVisJets(topGenObjects,genVisJetIndices);
     
     selectionStep = "0";
     
     const KinRecoObjects kinRecoObjectsDummy;
-    const ttbar::GenObjectIndices genObjectIndicesDummy(-1, -1, -1, -1, -1, -1, -1, -1);
+    const ttbar::GenObjectIndices genObjectIndices(-1, -1, -1, -1, -1, -1, -1, -1,genVisJetIndices);
     const ttbar::RecoObjectIndices recoObjectIndicesDummy({0},{0},{0},0,0,0,0,0,0,{0},{0});
     ttbar::RecoLevelWeights recoLevelWeightsDummy(0,0,0,0,0);
     
@@ -701,7 +718,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                   recoObjectsDummy, commonGenObjects,
                   topGenObjects,
                   kinRecoObjectsDummy,
-                  genObjectIndicesDummy, recoObjectIndicesDummy,
+                  genObjectIndices, recoObjectIndicesDummy,
                   genLevelWeights, recoLevelWeightsDummy,
                   1.);
     
@@ -816,7 +833,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                   recoObjects, commonGenObjects,
                   topGenObjects,
                   kinRecoObjectsDummy,
-                  genObjectIndicesDummy, recoObjectIndices,
+                  genObjectIndices, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   1.);
     
@@ -830,7 +847,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                   recoObjects, commonGenObjects,
                   topGenObjects,
                   kinRecoObjectsDummy,
-                  genObjectIndicesDummy, recoObjectIndices,
+                  genObjectIndices, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   1.);
     
@@ -866,7 +883,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                   recoObjects, commonGenObjects,
                   topGenObjects,
                   kinRecoObjects,
-                  genObjectIndicesDummy, recoObjectIndices,
+                  genObjectIndices, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   weight);
     
@@ -882,7 +899,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                   recoObjects, commonGenObjects,
                   topGenObjects,
                   kinRecoObjects,
-                  genObjectIndicesDummy, recoObjectIndices,
+                  genObjectIndices, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   fullWeights);
         
@@ -892,7 +909,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                   recoObjects, commonGenObjects,
                   topGenObjects,
                   kinRecoObjects,
-                  genObjectIndicesDummy, recoObjectIndices,
+                  genObjectIndices, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   fullWeights);
             
@@ -902,7 +919,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                   recoObjects, commonGenObjects,
                   topGenObjects,
                   kinRecoObjects,
-                  genObjectIndicesDummy, recoObjectIndices,
+                  genObjectIndices, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   fullWeights);
                 
@@ -913,7 +930,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                         recoObjects, commonGenObjects,
                         topGenObjects,
                         kinRecoObjects,
-                        genObjectIndicesDummy, recoObjectIndices,
+                        genObjectIndices, recoObjectIndices,
                         genLevelWeights, recoLevelWeights,
                         fullWeights);
                     
@@ -924,7 +941,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                             recoObjects, commonGenObjects,
                             topGenObjects,
                             kinRecoObjects,
-                            genObjectIndicesDummy, recoObjectIndices,
+                            genObjectIndices, recoObjectIndices,
                             genLevelWeights, recoLevelWeights,
                             fullWeights);
                     }
@@ -942,7 +959,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                   recoObjects, commonGenObjects,
                   topGenObjects,
                   kinRecoObjects,
-                  genObjectIndicesDummy, recoObjectIndices,
+                  genObjectIndices, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   weight);
     
@@ -973,7 +990,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                   recoObjects, commonGenObjects,
                   topGenObjects,
                   kinRecoObjects,
-                  genObjectIndicesDummy, recoObjectIndices,
+                  genObjectIndices, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   weight);
     
@@ -987,7 +1004,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                   recoObjects, commonGenObjects,
                   topGenObjects,
                   kinRecoObjects,
-                  genObjectIndicesDummy, recoObjectIndices,
+                  genObjectIndices, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   weight);
  
@@ -1034,7 +1051,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                   recoObjects, commonGenObjects,
                   topGenObjects,
                   kinRecoObjects,
-                  genObjectIndicesDummy, recoObjectIndices,
+                  genObjectIndices, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   weight);
     
@@ -1077,7 +1094,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                   recoObjects, commonGenObjects,
                   topGenObjects,
                   kinRecoObjects,
-                  genObjectIndicesDummy, recoObjectIndices,
+                  genObjectIndices, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   weight);
     
@@ -1258,8 +1275,6 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     h_HypBJetEtaNLead->Fill(NLeadHypBJet.Eta(), weight);
 
     //Ievgen 
-    h_HypTopRapidityvsToppT->Fill((*kinRecoObjects.HypTop_).at(0).Pt(),(*kinRecoObjects.HypTop_).at(0).Rapidity(),weight);
-    h_HypAntiTopRapidityvsAntiToppT->Fill((*kinRecoObjects.HypAntiTop_).at(0).Pt(),(*kinRecoObjects.HypAntiTop_).at(0).Rapidity(),weight);
     
     h_HypTTBarRapidityvsTTBarpT->Fill(hypttbar.Pt(),hypttbar.Rapidity(),weight);
     
@@ -2011,9 +2026,6 @@ void TopAnalysis::generatorTopEvent(LV& leadGenTop, LV& nLeadGenTop,
     h_VisGenTTBarRapidity->Fill(genttbar.Rapidity(), trueLevelWeight );
     h_VisGenTTBarpT->Fill(genttbar.Pt(), trueLevelWeight );
     
-    h_VisGenTopRapidityvsToppT->Fill((*topGenObjects.GenTop_).Pt(),(*topGenObjects.GenTop_).Rapidity(),trueLevelWeight);
-    h_VisGenAntiTopRapidityvsAntiToppT->Fill((*topGenObjects.GenAntiTop_).Pt(),(*topGenObjects.GenAntiTop_).Rapidity(),trueLevelWeight);
-    
     h_VisGenTTBarRapidityvsTTBarpT->Fill(((*topGenObjects.GenTop_)+(*topGenObjects.GenAntiTop_)).Pt(),((*topGenObjects.GenTop_)+(*topGenObjects.GenAntiTop_)).Rapidity(),trueLevelWeight);
     
     h_VisGenToppT->Fill((*topGenObjects.GenTop_).Pt(), trueLevelWeight );
@@ -2147,6 +2159,20 @@ void TopAnalysis::generatorTTbarjetsEvent(double& jetHTGen,
 }
 
 
+void TopAnalysis::generatorVisJets(const TopGenObjects& topGenObjects,std::vector<int>& genVisJetIndices)
+{
+    if(topGenObjects.valuesSet_)
+    {
+        for(int genJet=0; genJet<(int)(*topGenObjects.allGenJets_).size(); genJet++)
+        {
+            if(std::fabs((*topGenObjects.allGenJets_).at(genJet).Eta() ) < JetEtaCUT && (*topGenObjects.allGenJets_).at(genJet).Pt() <= JetPtCUT  )
+            {
+                genVisJetIndices.push_back(genJet);
+            }
+        }
+    }
+}
+
 
 void TopAnalysis::CreateBinnedControlPlots(TH1* h_differential, TH1* h_control, const bool fromHistoList)
 {
@@ -2207,6 +2233,10 @@ void TopAnalysis::SetAllAnalyzers(std::vector<AnalyzerBaseClass*> v_analyzer)
     v_analyzer_ = v_analyzer;
 }
 
+void TopAnalysis::SetAllTreeHandlers(std::vector<TreeHandlerBase*> v_treeHandler)
+{
+    v_treeHandler_ = v_treeHandler;
+}
 
 void TopAnalysis::fillAll(const std::string& selectionStep,
                             const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
@@ -2227,6 +2257,16 @@ void TopAnalysis::fillAll(const std::string& selectionStep,
                                                    genLevelWeights, recoLevelWeights,
                                                    defaultWeight, selectionStep);
     }
+    
+    for(TreeHandlerBase* treeHandler : v_treeHandler_){
+        if(treeHandler) treeHandler->fill(recoObjects, commonGenObjects,
+                                                topGenObjects,
+                                                kinRecoObjects,
+                                                recoObjectIndices, genObjectIndices,
+                                                genLevelWeights, recoLevelWeights,
+                                                defaultWeight, selectionStep);
+    }
+    
 }
 
 void TopAnalysis::bookAll()
