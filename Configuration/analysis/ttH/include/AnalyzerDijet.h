@@ -137,8 +137,8 @@ private:
                                     const std::vector<int>& genJetsId, const VLV& allJets, 
                                     const std::vector<int>& jetsId, const std::vector<int>& genJetsRecoId,
                                     const std::vector<int>& topJetsId_gen, const std::vector<int>& topJetsId_reco,
-                                    const std::vector<double>& bTagDiscriminator, const double& weight, std::map<TString, TH1*>& m_histogram,
-                                    const bool fillAllGen = false);
+                                    const double& weight, std::map<TString, TH1*>& m_histogram,
+                                    const RecoObjects& recoObjects, const bool fillAllGen = true);
     
     /// Filling histograms about leading top/additional jets vs true
     void fillLeadingJetsHistosVsTrue(const std::string& name, const std::vector<int>& trueJetsId,
