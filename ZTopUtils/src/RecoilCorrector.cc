@@ -35,28 +35,11 @@ Double_t FitFuncGauss(Double_t* x, Double_t* par)
 
 
 
-RecoilCorrector::RecoilCorrector():
-basedir_(""),
-cannotCorrectMet_(0),
-method_(-1),
-dataset_(-1),
-debug_(0)
+RecoilCorrector::RecoilCorrector(const int method, const int dataset, const int debug):
+method_(method),
+dataset_(dataset),
+debug_(debug)
 {}
-
-
-
-RecoilCorrector::RecoilCorrector(const std::string& basedir, const int method, const int dataset, const int debug):
-basedir_(""),
-cannotCorrectMet_(0),
-method_(-1),
-dataset_(-1),
-debug_(0)
-{
-    basedir_ = basedir;
-    method_ = method;
-    dataset_ = dataset;
-    debug_ = debug;
-}
 
 
 
@@ -74,39 +57,29 @@ RecoilCorrector::~RecoilCorrector()
 
 
 
-void RecoilCorrector::setFiles(const std::string& fileData, const std::string& fileMC)
+void RecoilCorrector::setFiles(const std::string& inputFileData, const std::string& inputFileMC)
 {
-    
-    std::cout<<"\n--- Beginning preparation of Mva Met recoil correction"<<std::endl;
-    
-    std::string fileData_ = basedir_+fileData;
-    std::string fileMC_ = basedir_+fileMC;
-    
     std::ifstream file;
-    file.open(fileData_.c_str(), std::ifstream::in);
-    if (!file.is_open()) {
-        std::cout<<"RecoilCorrector::SetFiles"<<std::endl;
-        std::cout<<"The file '"<<fileData_<<"'doesn't exit"<<std::endl;
-        std::cout<<"The MvaMet will __NOT BE__ corrected"<<std::endl;
-        cannotCorrectMet_ = 1;
+    file.open(inputFileData.c_str(), std::ifstream::in);
+    if(!file.is_open()){
+        std::cerr<<"ERROR in RecoilCorrector::SetFiles()! Input file for data not found: "<<inputFileData
+                 <<"\n...break\n"<<std::endl;
+        exit(281);
     }
     file.close();
     
-    file.open(fileMC_.c_str(), std::ifstream::in);
-    if (!file.is_open()) {
-        std::cout<<"RecoilCorrector::SetFiles"<<std::endl;
-        std::cout<<"The file '"<<fileMC_<<"'doesn't exit"<<std::endl;
-        std::cout<<"The MvaMet will __NOT BE__ corrected"<<std::endl;
-        cannotCorrectMet_ = 1;
+    file.open(inputFileMC.c_str(), std::ifstream::in);
+    if(!file.is_open()){
+        std::cerr<<"ERROR in RecoilCorrector::SetFiles()! Input file for MC not found: "<<inputFileMC
+                 <<"\n...break\n"<<std::endl;
+        exit(281);
     }
     file.close();
-    
-    if (cannotCorrectMet_) return;
     
     std::cout<<"Found all ROOT files needed for recoil correction"<<std::endl;
     
-    data_ = new TFile(fileData_.c_str());
-    mc_ = new TFile(fileMC_.c_str());
+    data_ = new TFile(inputFileData.c_str());
+    mc_ = new TFile(inputFileMC.c_str());
     
     std::cout<<"Calculating integrals of the different fits on Data and MC"<<std::endl;
     
@@ -232,9 +205,11 @@ void RecoilCorrector::setFiles(const std::string& fileData, const std::string& f
         }
     }
     
-    data_->Close(); delete data_;
-    mc_->Close();   delete mc_;
-    std::cout<<"=== Finish preparation of Mva Met recoil correction\n"<<std::endl;
+    // Cleanup
+    data_->Close();
+    delete data_;
+    mc_->Close();
+    delete mc_;
 }
 
 
@@ -253,8 +228,6 @@ float RecoilCorrector::correctMet(float& MetPx, float& MetPy,
     // method : 2 - corrections by width w(MC)=w(Data)/w(MC) w(Process)
     // method : 3 - corrections by sampling 
     //              ( calculations of quantiles )
-    
-    if (cannotCorrectMet_) return 1;
     
     if (debug_) {
         std::cout<<"*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-"<<std::endl;
@@ -275,19 +248,19 @@ float RecoilCorrector::correctMet(float& MetPx, float& MetPy,
     if (Zpt>1000) { Zpt = 999; }
     if (njets>=nJetsBins_) { njets = nJetsBins_-1;}
     
-    int ZptBin = this->getBinNumber(Zpt, ZPtBins_);
+    int ZptBin = this->binNumber(Zpt, ZPtBins_);
     
     if (method_==3) {
         if (debug_) { std::cout<<"Correcting the MET by using the quantiles"<<std::endl; }
         
         if (U1>xminMetZParal_[ZptBin][njets] && U1<xmaxMetZParal_[ZptBin][njets]) {
-            size_t u1bin = this->getBinFromVector(metZParal_boundaries_vect_.at(ZptBin).at(njets), U1);
+            size_t u1bin = this->binFromVector(metZParal_boundaries_vect_.at(ZptBin).at(njets), U1);
             double sumProb[1] = {metZParalMC_integral_vect_.at(ZptBin).at(njets).at(u1bin)};
             
             if (sumProb[0]<0) { sumProb[0] = 1e-4; }
             if (sumProb[0]>1) { sumProb[0] = 0.9999; }
             
-            const size_t bin = this->getBinFromVector(metZParalData_integral_vect_.at(ZptBin).at(njets), sumProb[0]);
+            const size_t bin = this->binFromVector(metZParalData_integral_vect_.at(ZptBin).at(njets), sumProb[0]);
             const float U1reco = metZParal_boundaries_vect_.at(ZptBin).at(njets).at(bin);
             
             if (U1reco>xminMetZParal_[ZptBin][njets] && U1reco<xmaxMetZParal_[ZptBin][njets]) {
@@ -296,13 +269,13 @@ float RecoilCorrector::correctMet(float& MetPx, float& MetPy,
         }
         
         if (U2>xminMetZPerp_[ZptBin][njets] && U2<xmaxMetZPerp_[ZptBin][njets]) {
-            size_t u2bin = this->getBinFromVector(metZPerp_boundaries_vect_.at(ZptBin).at(njets), U2);
+            size_t u2bin = this->binFromVector(metZPerp_boundaries_vect_.at(ZptBin).at(njets), U2);
             double sumProb[1] = {metZPerpMC_integral_vect_.at(ZptBin).at(njets).at(u2bin)};
             
             if (sumProb[0]<0) { sumProb[0] = 1e-4; }
             if (sumProb[0]>1) { sumProb[0] = 0.9999; }
             
-            const size_t bin = this->getBinFromVector(metZPerpData_integral_vect_.at(ZptBin).at(njets), sumProb[0]);
+            const size_t bin = this->binFromVector(metZPerpData_integral_vect_.at(ZptBin).at(njets), sumProb[0]);
             const float U2reco = metZPerp_boundaries_vect_.at(ZptBin).at(njets).at(bin);
             
             if (U2reco>xminMetZPerp_[ZptBin][njets] && U2reco<xmaxMetZPerp_[ZptBin][njets]) {
@@ -360,7 +333,7 @@ float RecoilCorrector::correctMet(float& MetPx, float& MetPy,
 
 
 
-size_t RecoilCorrector::getBinFromVector(const std::vector<double>& vector_of_boundaries, const float value)const
+size_t RecoilCorrector::binFromVector(const std::vector<double>& vector_of_boundaries, const float value)const
 {
     size_t bin = std::lower_bound(vector_of_boundaries.begin(), vector_of_boundaries.end(), value) - vector_of_boundaries.begin();
     if (bin == vector_of_boundaries.size()) return --bin;
@@ -462,7 +435,7 @@ void RecoilCorrector::CalculateMetFromU1U2(const float U1, const float U2,
 
 
 
-int RecoilCorrector::getBinNumber(const float x, const std::vector<int>& bins)const
+int RecoilCorrector::binNumber(const float x, const std::vector<int>& bins)const
 {
     for (size_t iB=0; iB<bins.size(); ++iB) {
         if (x>=1.*bins.at(iB) && x<1.*bins.at(iB+1)) return iB;

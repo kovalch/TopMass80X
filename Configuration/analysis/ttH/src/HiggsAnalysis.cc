@@ -46,9 +46,11 @@ constexpr double Lead2JetPtCUT = JetPtCUT;
 constexpr Btag::Algorithm BtagALGO = Btag::csv;
 constexpr Btag::WorkingPoint BtagWP = Btag::M;
 
+/// PF MET or MVA MET
+constexpr bool MvaMET = true;
+
 /// MET selection for same-flavour channels (ee, mumu)
 constexpr double MetCUT = 40.;
-
 
 /// Generated jet eta selection (absolute value)
 constexpr double GenJetEtaCUT = 2.5;
@@ -65,7 +67,9 @@ constexpr double GenJetPtCUT = JetPtCUT;
 HiggsAnalysis::HiggsAnalysis(TTree*):
 inclusiveHiggsDecayMode_(-999),
 additionalBjetMode_(-999)
-{}
+{
+    if(MvaMET) this->mvaMet();
+}
 
 
 
@@ -328,7 +332,8 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     const int numberOfBjets = bjetIndices.size();
     const bool hasBtag = numberOfBjets > 0;
     
-    // Get MET
+    // Get MET, and in case of MVA MET apply recoil correction for Drell-Yan sample
+    this->correctMvaMet(dilepton, numberOfJets, entry);
     const LV& met = *recoObjects.met_;
     const bool hasMetOrEmu = this->channel()==Channel::emu || met.pt()>MetCUT;
     

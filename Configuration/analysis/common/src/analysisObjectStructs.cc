@@ -58,7 +58,6 @@ void RecoObjects::clear()
     jetSecondaryVertexTrackVertexIndex_ = 0;
     jetSecondaryVertexTrackMatchToSelectedTrackIndex_ = 0;
     met_ = 0;
-    mvamet_ = 0;
     vertMulti_ = 0;
     
     // Concerning event

@@ -34,6 +34,7 @@
 #include "../../common/include/CommandLineParameters.h"
 #include "../../common/include/KinematicReconstruction.h"
 #include "../../common/include/ScaleFactors.h"
+#include "../../common/include/Correctors.h"
 
 
 
@@ -86,6 +87,14 @@ constexpr const char* BtagLightFlavourFILE = "csv_rwt_lf_20pt_7_2_14.root";
 
 
 
+/// File containing the fits for the MVA MET recoil corrections in data
+constexpr const char* MvaMetRecoilDataFILE = "METrecoil_Fits_DataSummer2013.root";
+
+/// File containing the fits for the MVA MET recoil corrections in MC
+constexpr const char* MvaMetRecoilMcFILE = "METrecoil_Fits_MCSummer2013.root";
+
+
+
 /// Histogram containing the 2D distributions of MVA weights
 constexpr const char* Mva2dWeightsFILE = "mvaOutput/Nominal/combined/weights/weights2d.root";
 
@@ -97,14 +106,14 @@ constexpr const char* Mva2dWeightsFILE = "mvaOutput/Nominal/combined/weights/wei
 
 
 
-void load_HiggsAnalysis(const TString& validFilenamePattern,
-                        const int part,
-                        const Channel::Channel& channel,
-                        const Systematic::Systematic& systematic,
-                        const int jetCategoriesId,
-                        const std::vector<AnalysisMode::AnalysisMode>& v_analysisMode,
-                        const Long64_t& maxEvents,
-                        const Long64_t& skipEvents)
+void load_Analysis(const TString& validFilenamePattern,
+                   const int part,
+                   const Channel::Channel& channel,
+                   const Systematic::Systematic& systematic,
+                   const int jetCategoriesId,
+                   const std::vector<AnalysisMode::AnalysisMode>& v_analysisMode,
+                   const Long64_t& maxEvents,
+                   const Long64_t& skipEvents)
 {
     std::cout<<std::endl;
     
@@ -136,21 +145,24 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
     TriggerScaleFactors triggerScaleFactors(TriggerSFInputSUFFIX, channels, systematic);
     
     // Set up JER systematic scale factors (null-pointer means no application)
-    JetEnergyResolutionScaleFactors* jetEnergyResolutionScaleFactors(0);
+    const JetEnergyResolutionScaleFactors* jetEnergyResolutionScaleFactors(0);
     if(systematic.type() == Systematic::jer) jetEnergyResolutionScaleFactors = new JetEnergyResolutionScaleFactors(systematic);
     
     // Set up JES systematic scale factors (null-pointer means no application)
-    JetEnergyScaleScaleFactors* jetEnergyScaleScaleFactors(0);
+    const JetEnergyScaleScaleFactors* jetEnergyScaleScaleFactors(0);
     if(systematic.type() == Systematic::jes) jetEnergyScaleScaleFactors = new JetEnergyScaleScaleFactors(JesUncertaintySourceFILE, systematic);
     
     // Set up top-pt reweighting scale factors (null-pointer means no application)
-    TopPtScaleFactors* topPtScaleFactors(0);
+    const TopPtScaleFactors* topPtScaleFactors(0);
     //topPtScaleFactors = new TopPtScaleFactors(systematic);
     if(systematic.type()==Systematic::topPt && !topPtScaleFactors){
         std::cout<<"Systematic for top-pt reweighting requested, but scale factors not applied"
                  <<"\nStop running of analysis --- this is NOT an error, just avoiding double running\n"<<std::endl;
         exit(1);
     }
+    
+    // Set up recoil corrector for MVA MET in Drell-Yan samples (initialised only in first Drell-Yan sample)
+    const MetRecoilCorrector* metRecoilCorrector(0);
     
     
     // Set up jet categories
@@ -391,6 +403,10 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
             
             // Split specific samples into subsamples and run the selector
             if(isDrellYan){ // For splitting of Drell-Yan sample in decay modes ee, mumu, tautau
+                if(selector->useMvaMet() && !metRecoilCorrector){
+                    metRecoilCorrector = new MetRecoilCorrector(MvaMetRecoilDataFILE, MvaMetRecoilMcFILE);
+                    selector->SetMetRecoilCorrector(metRecoilCorrector);
+                }
                 if(part==0 || part==-1){ // output is DY->ee
                     selector->SetTrueLevelDYChannel(11);
                     const Channel::Channel dyChannel = Channel::ee;
@@ -585,7 +601,7 @@ int main(int argc, char** argv)
     
     // Start plotting
     //TProof* p = TProof::Open(""); // not before ROOT 5.34
-    load_HiggsAnalysis(validFilenamePattern, part, channel, systematic, jetCategoriesId, v_analysisMode, maxEvents, skipEvents);
+    load_Analysis(validFilenamePattern, part, channel, systematic, jetCategoriesId, v_analysisMode, maxEvents, skipEvents);
     //delete p;
 }
 

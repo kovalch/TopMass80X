@@ -30,9 +30,9 @@
 #include "analysisUtils.h"
 #include "classes.h"
 #include "ScaleFactors.h"
+#include "Correctors.h"
 #include "KinematicReconstruction.h"
 #include "analysisObjectStructs.h"
-#include "TopAnalysis/ZTopUtils/interface/RecoilCorrector.h"
 
 
 
@@ -72,14 +72,15 @@ eventCounter_(0),
 analysisOutputBase_(0),
 kinematicReconstruction_(0),
 pileupScaleFactors_(0),
-recoilCorrector_(0),
 leptonScaleFactors_(0),
 triggerScaleFactors_(0),
 jetEnergyResolutionScaleFactors_(0),
 jetEnergyScaleScaleFactors_(0),
 btagScaleFactors_(0),
 topPtScaleFactors_(0),
-isSampleForBtagEfficiencies_(false)
+isSampleForBtagEfficiencies_(false),
+mvaMet_(false),
+metRecoilCorrector_(0)
 {
     this->clearBranches();
     this->clearBranchVariables();
@@ -342,9 +343,9 @@ void AnalysisBase::SetAnalysisOutputBase(const char* analysisOutputBase)
 }
 
 
-void AnalysisBase::SetMetRecoilCorrector(ztop::RecoilCorrector* recoilCorrector)
+void AnalysisBase::SetMetRecoilCorrector(const MetRecoilCorrector* const metRecoilCorrector)
 {
-    recoilCorrector_ = recoilCorrector;
+    metRecoilCorrector_ = metRecoilCorrector;
 }
 
 
@@ -463,7 +464,6 @@ void AnalysisBase::clearBranches()
     b_jetSecondaryVertexFlightDistanceValue = 0;
     b_jetSecondaryVertexFlightDistanceSignificance = 0;
     b_met = 0;
-    b_mvamet = 0;
     b_vertMulti = 0;
     
     // nTuple branches relevant for reconstruction level
@@ -714,10 +714,17 @@ void AnalysisBase::SetRecoBranchAddresses()
     if(chain_->GetBranch("jetSecondaryVertexTrackMatchToSelectedTrackIndex")) // new variable, keep check a while for compatibility
      chain_->SetBranchAddress("jetSecondaryVertexTrackMatchToSelectedTrackIndex", &recoObjects_->jetSecondaryVertexTrackMatchToSelectedTrackIndex_, &b_jetSecondaryVertexTrackMatchToSelectedTrackIndex);
     else b_jetSecondaryVertexTrackMatchToSelectedTrackIndex = 0; 
-    chain_->SetBranchAddress("met", &recoObjects_->met_, &b_met);
-    if(chain_->GetBranch("mvamet")) // new variable, keep check a while for compatibility
-        chain_->SetBranchAddress("mvamet", &recoObjects_->mvamet_, &b_mvamet);
-    else b_mvamet = 0;
+    if(mvaMet_){
+        if(chain_->GetBranch("mvamet")) // new variable, keep check a while for compatibility
+            chain_->SetBranchAddress("mvamet", &recoObjects_->met_, &b_met);
+        else{
+            std::cerr<<"ERROR in AnalysisBase::SetRecoBranchAddresses()! MVA MET is requested, but not found in nTuple\n...break\n"<<std::endl;
+            exit(237);
+        }
+    }
+    else{
+        chain_->SetBranchAddress("met", &recoObjects_->met_, &b_met);
+    }
     chain_->SetBranchAddress("vertMulti", &recoObjects_->vertMulti_, &b_vertMulti);
     
     // Concerning event
@@ -978,7 +985,6 @@ void AnalysisBase::GetRecoBranchesEntry(const Long64_t& entry)const
 //     if(b_jetSecondaryVertexTrackVertexIndex) b_jetSecondaryVertexTrackVertexIndex->GetEntry(entry);
 //     if(b_jetSecondaryVertexTrackMatchToSelectedTrackIndex) b_jetSecondaryVertexTrackMatchToSelectedTrackIndex->GetEntry(entry);
     b_met->GetEntry(entry);
-    if(b_mvamet) b_mvamet->GetEntry(entry);
     b_vertMulti->GetEntry(entry);
 
     // Concerning event
@@ -1209,40 +1215,38 @@ const RecoObjects& AnalysisBase::getRecoObjects(const Long64_t& entry)const
     if(!isMC_) return *recoObjects_;
     
     if(jetEnergyResolutionScaleFactors_){
-        
-        // Get references for all relevant reco objects which are modified by JER systematics
-        VLV* jets = recoObjects_->jets_;
-        LV* met = recoObjects_->met_;
-        LV* mvamet = recoObjects_->mvamet_;
-        
-        // Get references for all relevant gen objects which are modified by JER systematics
-        VLV* jetsForMET = commonGenObjects_->jetsForMET_;
-        
-        // Get references for all relevant gen objects which are NOT modified
+        // Get references for all relevant objects for jet variation
+        VLV* v_jet = recoObjects_->jets_;
         if(!commonGenObjects_->valuesSet_) this->GetCommonGenBranchesEntry(entry);
-        const std::vector<double>* jetJERSF = commonGenObjects_->jetJERSF_;
-        const std::vector<double>* jetForMETJERSF = commonGenObjects_->jetForMETJERSF_;
-        const VLV* associatedGenJet = commonGenObjects_->associatedGenJet_;
-        const VLV* associatedGenJetForMet = commonGenObjects_->associatedGenJetForMET_;
+        const std::vector<double>* v_jetJerSF = commonGenObjects_->jetJERSF_;
+        const VLV* v_associatedGenJet = commonGenObjects_->associatedGenJet_;
+        // Apply systematic variation to jets
+        jetEnergyResolutionScaleFactors_->applyJetSystematic(v_jet, v_jetJerSF, v_associatedGenJet);
         
-        // Apply systematic variation
-        jetEnergyResolutionScaleFactors_->applySystematic(jets, jetsForMET, met,
-                                                          jetJERSF, jetForMETJERSF,
-                                                          associatedGenJet, associatedGenJetForMet);
+        if(!mvaMet_){
+            // Get references for all relevant objects for MET variation
+            LV* met = recoObjects_->met_;
+            VLV* v_jetForMet = commonGenObjects_->jetsForMET_;
+            const std::vector<double>* v_jetForMetJerSF = commonGenObjects_->jetForMETJERSF_;
+            const VLV* v_associatedGenJetForMet = commonGenObjects_->associatedGenJetForMET_;
+            // Apply systematic variation to MET
+            jetEnergyResolutionScaleFactors_->applyMetSystematic(v_jetForMet, met, v_jetForMetJerSF, v_associatedGenJetForMet);
+        }
     }
     
     if(jetEnergyScaleScaleFactors_){
+        // Get references for all relevant objects for jet variation
+        VLV* v_jet = recoObjects_->jets_;
+        // Apply systematic variation to jets
+        jetEnergyScaleScaleFactors_->applyJetSystematic(v_jet);
         
-        // Get references for all relevant reco objects which are modified by JES systematics
-        VLV* jets = recoObjects_->jets_;
-        LV* met = recoObjects_->met_;
-        LV* mvamet = recoObjects_->mvamet_;
-        
-        // Get references for all relevant gen objects which are modified by JER systematics
-        VLV* jetsForMET = commonGenObjects_->jetsForMET_;
-        
-        // Apply systematic variation
-        jetEnergyScaleScaleFactors_->applySystematic(jets, jetsForMET, met);
+        if(!mvaMet_){
+            // Get references for all relevant objects for MET variation
+            LV* met = recoObjects_->met_;
+            VLV* v_jetForMet = commonGenObjects_->jetsForMET_;
+            // Apply systematic variation to MET
+            jetEnergyScaleScaleFactors_->applyMetSystematic(v_jetForMet, met);
+        }
     }
     
     return *recoObjects_;
@@ -1430,6 +1434,12 @@ bool AnalysisBase::failsDileptonTrigger(const Long64_t& entry)const
 
 
 
+void AnalysisBase::mvaMet()
+{
+    mvaMet_ = true;
+}
+
+
 
 
 // ------------------------------------- Methods for application of corrections (e.g. scale factors) stored in ntuple -------------------------------------
@@ -1586,9 +1596,9 @@ void AnalysisBase::produceBtagEfficiencies()
 
 
 
-void AnalysisBase::correctMvaMet(LV& met, const LV& dilepton, const int njets, const Long64_t& entry)const
+void AnalysisBase::correctMvaMet(const LV& dilepton, const int nJet, const Long64_t& entry)const
 {
-    if(!isDrellYan_) return;
+    if(!isDrellYan_ || !mvaMet_) return;
     
     const ZGenObjects& zGenObjects = this->getZGenObjects(entry);
     if(zGenObjects.GenZ_->size() != 1){
@@ -1596,12 +1606,11 @@ void AnalysisBase::correctMvaMet(LV& met, const LV& dilepton, const int njets, c
                  <<"\n...break\n"<<std::endl;
         exit(292);
     }
-    
     const LV& genZ = zGenObjects.GenZ_->at(0);
-    float metX = met.Px();
-    float metY = met.Py();
-    recoilCorrector_->correctMet(metX, metY, genZ.px(), genZ.py(), dilepton.px(), dilepton.py(), (int)njets);
-    met.SetPxPyPzE(metX, metY, met.pz(), met.E());
+    
+    LV& met = *recoObjects_->met_;
+    
+    metRecoilCorrector_->applyCorrection(met, genZ, dilepton, nJet);
 }
 
 

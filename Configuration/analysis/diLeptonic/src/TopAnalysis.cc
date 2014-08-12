@@ -29,6 +29,10 @@
 #include "AnalyzerBaseClass.h" //FIXME: rename to AnalyzerBase.
 #include "TreeHandlerBase.h"
 
+
+
+
+
 ///top production xsec in pb
 constexpr double TOPXSEC = 234.;
 
@@ -57,6 +61,9 @@ constexpr double JetPtCUT2 = 30.;
 constexpr Btag::Algorithm BtagALGO = Btag::csv;
 constexpr Btag::WorkingPoint BtagWP = Btag::L;
 
+/// PF MET or MVA MET
+constexpr bool MvaMET = false;
+
 /// MET selection for same-flavour channels (ee, mumu)
 constexpr double MetCUT = 40.;
 
@@ -68,6 +75,24 @@ constexpr double rho0 = 340.0;
 
 /// DeltaR(l,jet) cut for tt+jets
 constexpr bool isttdiffXS = true;
+
+
+
+
+
+
+
+TopAnalysis::TopAnalysis():
+kinRecoOnTheFly_(false),
+doClosureTest_(false),
+pdf_no_(-1),
+closureFunction_(nullptr),
+binnedControlPlots_(0)
+{
+    if(MvaMET) this->mvaMet();
+}
+
+
 
 
 void TopAnalysis::Begin(TTree*)
@@ -803,18 +828,17 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     const int numberOfBjets = bjetIndices.size();
     const bool hasBtag = numberOfBjets > 0;
     
-    // Get MET
+    // Get MET, and in case of MVA MET apply recoil correction for Drell-Yan sample
+    this->correctMvaMet(dilepton, numberOfJets, entry);
     const LV& met = *recoObjects.met_;
-//     LV& met = *recoObjects.mvamet_;
-//     this->correctMvaMet(met, dilepton, numberOfJets, entry);
     const bool hasMetOrEmu = this->channel()==Channel::emu || met.Pt()>MetCUT;
     
     const ttbar::RecoObjectIndices recoObjectIndices(allLeptonIndices,
-                                                    leptonIndices, antiLeptonIndices,
-                                                    leptonIndex, antiLeptonIndex,
-                                                    leadingLeptonIndex, nLeadingLeptonIndex,
-                                                    leptonXIndex, leptonYIndex,
-                                                    jetIndices, bjetIndices);
+                                                     leptonIndices, antiLeptonIndices,
+                                                     leptonIndex, antiLeptonIndex,
+                                                     leadingLeptonIndex, nLeadingLeptonIndex,
+                                                     leptonXIndex, leptonYIndex,
+                                                     jetIndices, bjetIndices);
 
     // Determine all reco level weights
     const double weightLeptonSF = this->weightLeptonSF(leadingLeptonIndex, nLeadingLeptonIndex, allLeptons, lepPdgId);

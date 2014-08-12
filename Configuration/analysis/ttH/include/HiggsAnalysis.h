@@ -29,22 +29,22 @@ namespace tth{
 
 /// Class for the analysis step of the Higgs analysis, reading the nTuples
 class HiggsAnalysis : public AnalysisBase{
-
+    
 public:
-
+    
     /// Constructor
     HiggsAnalysis(TTree* =0);
-
+    
     /// Destructor
     virtual ~HiggsAnalysis();
-
+    
     /// Methods inherited from AnalysisBase
     virtual void Begin(TTree*);
     virtual void SlaveBegin(TTree*);
     virtual Bool_t Process(Long64_t entry);
     virtual void SlaveTerminate();
     virtual void Terminate();
-
+    
     /// Class definition
     ClassDef(HiggsAnalysis, 0);
     

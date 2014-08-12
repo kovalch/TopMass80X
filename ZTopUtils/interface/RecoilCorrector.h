@@ -27,10 +27,7 @@ class RecoilCorrector {
 public:
     
     /// Constructor
-    RecoilCorrector();
-    
-    /// Constructor
-    RecoilCorrector(const std::string& basedir, const int method = 3, const int dataset = -1, const int debug = 0);
+    RecoilCorrector(const int method =3, const int dataset =-1, const int debug =0);
     
     /// Destructor
     ~RecoilCorrector();
@@ -55,12 +52,6 @@ public:
                      const float diLepPx, const float diLepPy,
                      int njets)const;
 
-    /// Base directory where the ROOT files with the fit results are stored
-    std::string basedir_;
-    
-    /// Boolean to decide if we can or cannot correct the MET
-    bool cannotCorrectMet_;
-    
     /**
       * Decide how is the MET corrected
       *   method_ == 2 - corrections by width w(MC)=w(Data)/w(MC) * w(Process)
@@ -102,10 +93,10 @@ private:
     void  U1U2CorrectionsByWidth(float& U1, float& U2, const int nZptBin, int njets)const;
     
     /// Get position in a vector for a given value, the vector is expected to be ordered
-    size_t getBinFromVector(const std::vector<double>& vector_of_boundaries, const float value)const;
+    size_t binFromVector(const std::vector<double>& vector_of_boundaries, const float value)const;
     
     /// Get the bin number to which corresponds the pt value of the Z-boson
-    int getBinNumber(const float x, const std::vector<int>& bins)const;
+    int binNumber(const float x, const std::vector<int>& bins)const;
     
     /// Get the fitted function
     TF1* getFuncRecoil(const TF1* const initFunc, const bool left)const;

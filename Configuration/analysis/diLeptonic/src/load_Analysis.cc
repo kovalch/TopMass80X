@@ -22,12 +22,12 @@
 #include "AnalyzerKinReco.h"
 #include "TreeHandlerBase.h"
 #include "TreeHandlerTTBar.h"
-//#include "TopAnalysis/ZTopUtils/interface/RecoilCorrector.h"//metmva
-#include "../../common/include/CommandLineParameters.h"
-#include "../../common/include/utils.h"
-#include "../../common/include/ScaleFactors.h"
 #include "../../common/include/sampleHelpers.h"
+#include "../../common/include/utils.h"
+#include "../../common/include/CommandLineParameters.h"
 #include "../../common/include/KinematicReconstruction.h"
+#include "../../common/include/ScaleFactors.h"
+#include "../../common/include/Correctors.h"
 
 
 
@@ -74,10 +74,18 @@ constexpr BtagScaleFactors::CorrectionMode BtagCorrectionMODE = BtagScaleFactors
 //constexpr BtagScaleFactors::CorrectionMode BtagCorrectionMODE = BtagScaleFactors::discriminatorReweight;
 
 /// File for the official heavy flavour scale factors for b-tag discriminator reweighting
-constexpr const char* BtagHeavyFlavourFILE = "csv_rwt_hf.root";
+constexpr const char* BtagHeavyFlavourFILE = "csv_rwt_hf_20pt_7_2_14.root";
 
 /// File for the official light flavour scale factors for b-tag discriminator reweighting
-constexpr const char* BtagLightFlavourFILE = "csv_rwt_lf.root";
+constexpr const char* BtagLightFlavourFILE = "csv_rwt_lf_20pt_7_2_14.root";
+
+
+
+/// File containing the fits for the MVA MET recoil corrections in data
+constexpr const char* MvaMetRecoilDataFILE = "METrecoil_Fits_DataSummer2013.root";
+
+/// File containing the fits for the MVA MET recoil corrections in MC
+constexpr const char* MvaMetRecoilMcFILE = "METrecoil_Fits_MCSummer2013.root";
 
 
 
@@ -128,21 +136,24 @@ void load_Analysis(const TString& validFilenamePattern,
     TriggerScaleFactors triggerScaleFactors(TriggerSFInputSUFFIX, channels, systematic);
     
     // Set up JER systematic scale factors (null-pointer means no application)
-    JetEnergyResolutionScaleFactors* jetEnergyResolutionScaleFactors(0);
+    const JetEnergyResolutionScaleFactors* jetEnergyResolutionScaleFactors(0);
     if(systematic.type() == Systematic::jer) jetEnergyResolutionScaleFactors = new JetEnergyResolutionScaleFactors(systematic);
     
     // Set up JES systematic scale factors (null-pointer means no application)
-    JetEnergyScaleScaleFactors* jetEnergyScaleScaleFactors(0);
+    const JetEnergyScaleScaleFactors* jetEnergyScaleScaleFactors(0);
     if(systematic.type() == Systematic::jes) jetEnergyScaleScaleFactors = new JetEnergyScaleScaleFactors(JesUncertaintySourceFILE, systematic);
     
     // Set up top-pt reweighting scale factors (null-pointer means no application)
-    TopPtScaleFactors* topPtScaleFactors(0);
+    const TopPtScaleFactors* topPtScaleFactors(0);
     //topPtScaleFactors = new TopPtScaleFactors(systematic);
     if(systematic.type()==Systematic::topPt && !topPtScaleFactors){
         std::cout<<"Systematic for top-pt reweighting requested, but scale factors not applied"
                  <<"\nStop running of analysis --- this is NOT an error, just avoiding double running\n"<<std::endl;
         exit(1);
     }
+    
+    // Set up recoil corrector for MVA MET in Drell-Yan samples (initialised only in first Drell-Yan sample)
+    const MetRecoilCorrector* metRecoilCorrector(0);
     
     
     // Vector for setting up all analysers
@@ -321,15 +332,15 @@ void load_Analysis(const TString& validFilenamePattern,
             // Split Drell-Yan sample in decay modes ee, mumu, tautau
             selector->SetTrueLevelDYChannel(dy);
             if(dy){
-                
-                //ztop::RecoilCorrector *recoilCorrector = new ztop::RecoilCorrector(common::CMSSW_BASE()+"/src/TopAnalysis/ZTopUtils/data/"); //metmva
-                //recoilCorrector->setFiles("METrecoil_Fits_DataSummer2013.root", "METrecoil_Fits_MCSummer2013.root"); //metmva
-                //selector->SetMetRecoilCorrector(recoilCorrector); //metmva
-                
                 if(outputfilename.First("_dy") == kNPOS){ 
                     std::cerr << "DY variations must be run on DY samples!\n";
                     std::cerr << outputfilename << " must start with 'channel_dy'\n";
                     exit(1);
+                }
+                
+                if(selector->useMvaMet() && !metRecoilCorrector){
+                    metRecoilCorrector = new MetRecoilCorrector(MvaMetRecoilDataFILE, MvaMetRecoilMcFILE);
+                    selector->SetMetRecoilCorrector(metRecoilCorrector);
                 }
                 selector->SetDrellYan(true);
                 const Channel::Channel dyChannel = dy == 11 ? Channel::ee : dy == 13 ? Channel::mumu : Channel::tautau;

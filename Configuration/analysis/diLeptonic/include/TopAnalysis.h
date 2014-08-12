@@ -224,13 +224,7 @@ class TopAnalysis : public AnalysisBase
 public:
     
     /// Constructor
-    TopAnalysis():
-        kinRecoOnTheFly_(false),
-        doClosureTest_(false),
-        pdf_no_(-1),
-        closureFunction_(nullptr),
-        binnedControlPlots_(0)
-        {}
+    TopAnalysis();
     
     /// Inherited from AnalysisBase and overwritten for needs of TopAnalysis
     virtual void Begin(TTree*);

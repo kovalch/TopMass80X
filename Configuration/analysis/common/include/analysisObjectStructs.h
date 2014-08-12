@@ -61,7 +61,6 @@ struct RecoObjects{
     std::vector<int>* jetSecondaryVertexTrackVertexIndex_;
     std::vector<int>* jetSecondaryVertexTrackMatchToSelectedTrackIndex_;
     LV* met_;
-    LV* mvamet_;
     Int_t vertMulti_;
     
     // Concerning event

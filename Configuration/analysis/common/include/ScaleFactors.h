@@ -332,14 +332,27 @@ public:
     
     
     
-    /// Scale the jet and MET collections
-    void applySystematic(VLV* jets, VLV* jetsForMET, LV* met,
-                         const std::vector<double>* jetJERSF, const std::vector<double>* jetForMETJERSF,
-                         const VLV* associatedGenJet, const VLV* associatedGenJetForMET)const;
+    /// Scale the jet collection
+    void applyJetSystematic(VLV* const v_jet,
+                            const std::vector<double>* const v_jetJerSF,
+                            const VLV* const v_associatedGenJet)const;
+    
+    /// Scale the MET collection
+    void applyMetSystematic(VLV* const v_jetForMet, LV* const met,
+                            const std::vector<double>* const v_jetForMetJerSF,
+                            const VLV* const v_associatedGenJetForMet)const;
     
     
     
 private:
+    
+    /// Scale jet according to systematic variation
+    void scaleJet(LV& jet, const double& jetJerSF, const LV& associatedGenJet)const;
+    
+    /// Bin number of eta interval for given jet
+    int jetEtaBin(const LV& jet)const;
+    
+    
     
     /// Enumeration for possible systematics
     enum SystematicInternal{vary_up, vary_down, undefined};
@@ -371,12 +384,20 @@ public:
     
     
     
-    /// Scale the jet and MET collections
-    void applySystematic(VLV* jets, VLV* jetsForMET, LV* met)const;
+    /// Scale the jet collection
+    void applyJetSystematic(VLV* v_jet)const;
+    
+    /// Scale the MET collection
+    void applyMetSystematic(VLV* v_jetForMet, LV* met)const;
     
     
     
 private:
+    
+    /// Scale jet according to systematic variation
+    void scaleJet(LV& jet)const;
+    
+    
     
     /// Enumeration for possible systematics
     enum SystematicInternal{vary_up, vary_down, undefined};

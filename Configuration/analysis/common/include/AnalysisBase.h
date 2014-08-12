@@ -34,9 +34,7 @@ class TopGenObjects;
 class HiggsGenObjects;
 class ZGenObjects;
 class KinRecoObjects;
-namespace ztop{
-    class RecoilCorrector;
-}
+class MetRecoilCorrector;
 
 
 
@@ -98,7 +96,10 @@ public:
     void SetAnalysisOutputBase(const char* analysisOutputBase);
     
     /// Set the Met recoil corrector
-    void SetMetRecoilCorrector(ztop::RecoilCorrector* recoilCorrector);
+    void SetMetRecoilCorrector(const MetRecoilCorrector* const metRecoilCorrector);
+    
+    /// Whether MVA MET is used
+    const bool& useMvaMet()const{return mvaMet_;}
     
     /// Set the kinematic reconstruction
     void SetKinematicReconstruction(KinematicReconstruction* kinematicReconstruction,
@@ -198,6 +199,9 @@ protected:
     /// Select events from Top signal samples which need to be removed due to generator selection
     bool failsTopGeneratorSelection(const Long64_t& entry)const;
     
+    /// Set usage of MVA MET instead of PF MET
+    void mvaMet();
+    
     
     
     
@@ -220,8 +224,8 @@ protected:
     
 // ----------------------- Protected methods for application of corrections (e.g. scale factors) NOT stored in the ntuple -----------------------
     
-    ///  Recoil Correction of the Mva Met
-    void correctMvaMet(LV& met, const LV& dilepton, const int njets, const Long64_t& entry)const;
+    ///  Recoil Correction of the MVA MET
+    void correctMvaMet(const LV& dilepton, const int nJet, const Long64_t& entry)const;
 
     /// Get weight due to top-pt reweighting
     double weightTopPtReweighting(const Long64_t& entry)const;
@@ -505,7 +509,6 @@ private:
     TBranch* b_jetSecondaryVertexTrackVertexIndex;
     TBranch* b_jetSecondaryVertexTrackMatchToSelectedTrackIndex;
     TBranch* b_met;
-    TBranch* b_mvamet;
     TBranch* b_jetForMET;
     
     // Concerning event
@@ -732,9 +735,6 @@ private:
     /// Pointer to the pileup reweighter instance
     const PileupScaleFactors* pileupScaleFactors_;
     
-    /// Pointer to the Met Recoil correction tools
-    const ztop::RecoilCorrector* recoilCorrector_;
-    
     /// Pointer to lepton scale factors instance
     const LeptonScaleFactors* leptonScaleFactors_;
     
@@ -755,6 +755,12 @@ private:
     
     /// Whether the sample should be used for production of btag efficiencies
     bool isSampleForBtagEfficiencies_;
+    
+    /// Whether to use MVA MET
+    bool mvaMet_;
+    
+    /// Pointer to the Met Recoil correction tools
+    const MetRecoilCorrector* metRecoilCorrector_;
 };
 
 
