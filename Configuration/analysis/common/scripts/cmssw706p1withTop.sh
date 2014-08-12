@@ -130,36 +130,6 @@ git cms-addpkg PhysicsTools/PatAlgos
 git cms-merge-topic 4330 # new!!! Not sure if needed  Taken from https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuidePATReleaseNotes70X#Tau_update_for_miniAOD_CMSSW_7_0
 cd -
 
-###### Jet Energy Corrections ######
-
-
-
-###### Electron MVA ID ######
-### From: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideTopRefEventSel (revision 64), for CMSSW_5_3_15
-
-cd $CMSSW_BASE/src
-git cms-addpkg EgammaAnalysis/ElectronTools
-cd -
-cd $CMSSW_BASE/src/EgammaAnalysis/ElectronTools/data/
-cat download.url | xargs wget
-cd -
-
-
-###### ParticleFlow ######
-
-#cd $CMSSW_BASE/src
-#git cms-addpkg RecoParticleFlow/PFProducer
-#cd -
-
-
-###### MET Filters #####
-### From: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideTopRefEventSel (revision 64), for CMSSW_5_3_15
-
-cd $CMSSW_BASE/src
-git cms-addpkg RecoMET/METFilters
-cd -
-
-
 ###### TQAF ######
 ### From: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideTQAFRecipes (revision 229), for CMSSW_5_3_13
 
@@ -174,19 +144,6 @@ git cms-addpkg TopQuarkAnalysis/TopJetCombination
 git cms-addpkg TopQuarkAnalysis/TopKinFitter
 git cms-addpkg TopQuarkAnalysis/TopObjectResolutions
 cd -
-
-######### MET Phi corrections ######
-cd $CMSSW_BASE/src
-git cms-addpkg JetMETCorrections/Type1MET
-cd -
-
-######### MVA MET ######
-#cd $CMSSW_BASE/src
-#git cms-merge-topic cms-analysis-tools:5_3_14-updateSelectorUtils
-#git cms-merge-topic cms-analysis-tools:5_3_13_patch2-testNewTau
-#git cms-merge-topic -u TaiSakuma:53X-met-131120-01
-#git-cms-merge-topic -u cms-met:53X-MVaNoPuMET-20131217-01
-#cd -
 
 ###### For full memory option of LHAPDF, we NEED to compile ElectroWeakAnalysis/Utilities after scram setup lhapdffull for speeding it up.
 ### For more information check the ElectroWeakAnalysis/Utilities/README file
