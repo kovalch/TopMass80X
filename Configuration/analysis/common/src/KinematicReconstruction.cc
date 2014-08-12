@@ -138,7 +138,7 @@ void KinematicReconstruction::doJetsMerging(const VLV* jets,const std::vector<do
         for (const auto& jet : *jets) {
         alljets_.push_back(common::LVtoTLV(jet));
     }
-    for(int i=0; i<(int)btags->size(); i++) {
+    for(int i=0; i<(int)btags->size(); ++i) {
         allbtags_.push_back(btags->at(i));
     }
     
@@ -176,10 +176,10 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
             jets_tlv.push_back(common::LVtoTLV(jet));
         }
         
-        for(int i=0; i<(int)btags->size(); i++) {
+        for(int i=0; i<(int)btags->size(); ++i) {
     //         new_btags.push_back(btags->at(i));
             
-            for(int j=0; j<(int)btags->size(); j++) {
+            for(int j=0; j<(int)btags->size(); ++j) {
                 double wi = btags->at(i);
                 double wj = btags->at(j);
     //                  if(i==j || (wi<0.244 && wj<0.244) || (wi<0 || wj<0))continue;
@@ -201,12 +201,12 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
     //     std::vector<double> new_btag;
     //     std::vector<int> veto_i;
     //     std::vector<int> veto_j;
-    //         for(int i=0; i<(int)alljets_.size(); i++)
+    //         for(int i=0; i<(int)alljets_.size(); ++i)
     //         {
     //             if(allbtags_.at(i)<btag_wp)continue;
     //             TLorentzVector ijet=alljets_.at(i);
     //             
-    //             for(int j=0; j<(int)alljets_.size(); j++)
+    //             for(int j=0; j<(int)alljets_.size(); ++j)
     //             {
     //                  if(i==j)continue;
     //                  if(allbtags_.at(j)>=btag_wp)continue; 
@@ -225,7 +225,7 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
     //  
     //      std::vector<int> index_i;
     //      std::vector<int> index_j;
-    //      for(int i=0; i<(int)alljets_.size(); i++)
+    //      for(int i=0; i<(int)alljets_.size(); ++i)
     //         {
     //                 if(alljets_.at(i).Pt()<30)continue;
     //                 if(fabs(alljets_.at(i).Eta())>2.4)continue;
@@ -236,7 +236,7 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
     //         }
     //     
     //     
-    //     for(int i=0; i<(int)new_jets_tlv.size(); i++)
+    //     for(int i=0; i<(int)new_jets_tlv.size(); ++i)
     //     {
     //         jets_tlv.push_back(new_jets_tlv.at(i));
     //         new_btags.push_back(new_btag.at(i));
@@ -244,9 +244,9 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
     //         index_j.push_back(veto_j.at(i));
     //     }
     //     
-    //         for(int i=0; i<(int)jets_tlv.size(); i++) 
+    //         for(int i=0; i<(int)jets_tlv.size(); ++i) 
     //         {
-    //                 for(int j=0; j<(int)jets_tlv.size(); j++) 
+    //                 for(int j=0; j<(int)jets_tlv.size(); ++j) 
     //                 {
     //                                 if(index_i[i]==index_i[j] || index_i[i]==index_j[j] || index_j[i]==index_i[j] || index_j[i]==index_j[j])continue;                   
     //                                double wi = new_btags.at(i);
@@ -269,7 +269,7 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
     int index_i;
     int index_j;
     
-    for(int i=0; i<(int)alljets_.size(); i++)
+    for(int i=0; i<(int)alljets_.size(); ++i)
     {
             index_dR.push_back(-1);
 
@@ -280,13 +280,13 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
        min_dR=1;
        index_i=-1;
        index_j=-1;
-        for(int i=0; i<(int)alljets_.size(); i++)
+        for(int i=0; i<(int)alljets_.size(); ++i)
         {
             if(alljets_.at(i).Pt()<10)continue;
             if(index_dR[i]>-1)continue;
             TLorentzVector ijet=alljets_.at(i);
              
-            for(int j=0; j<(int)alljets_.size(); j++)
+            for(int j=0; j<(int)alljets_.size(); ++j)
             {
                 if(i==j)continue;
                 if(alljets_.at(j).Pt()<10)continue;
@@ -320,10 +320,10 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
      
      vector<int> used_index;
      
-         for(int i=0; i<(int)alljets_.size(); i++)
+         for(int i=0; i<(int)alljets_.size(); ++i)
          {
              bool flag=false;
-             for(int k=0; k<(int)used_index.size(); k++)
+             for(int k=0; k<(int)used_index.size(); ++k)
              {
                  if(used_index[k]==i)flag=true;
             }
@@ -353,9 +353,9 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
             
          }
      
-        for(int i=0; i<(int)jets_tlv.size(); i++) 
+        for(int i=0; i<(int)jets_tlv.size(); ++i) 
         {
-                for(int j=0; j<(int)jets_tlv.size(); j++) 
+                for(int j=0; j<(int)jets_tlv.size(); ++j) 
                 {
                                double wi = new_btags.at(i);
                                double wj = new_btags.at(j);
@@ -378,7 +378,7 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
     //double max_sum_weight=0;
     int /*nbtag=0,*/ isHaveSol=0;
 
-    for(int ib=0; ib<(int)b1_id.size(); ib++) {
+    for(int ib=0; ib<(int)b1_id.size(); ++ib) {
         isHaveSol=0;
         int j1=b1_id[ib];
         int j2=b2_id[ib];
@@ -399,7 +399,7 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
         
         TVector3 vX_reco =  - b_temp.Vect() - bbar_temp.Vect() - l_temp.Vect() - al_temp.Vect() - met_temp.Vect();
         
-        for(int sm=0; sm<100; sm++) {
+        for(int sm=0; sm<100; ++sm) {
             TLorentzVector b_sm=b_temp;
             TLorentzVector bbar_sm=bbar_temp;
             TLorentzVector met_sm;
@@ -432,7 +432,7 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
 // met Pt+angle smearing
 //             double fX=1;
 //             double dAX=0;
-//             for(int i=0;i<((int)(ptBins_.size()));i++)
+//             for(int i=0;i<((int)(ptBins_.size()));++i)
 //             {
 //                   if(vX_reco.Pt()>ptBins_[i]&&vX_reco.Pt()<=ptBins_[i+1])
 //                   {
@@ -450,7 +450,7 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
 //X Pt+angle smearing
             double fPx=1;
             double fPy=1;
-//             for(int i=0;i<((int)(ptBins_.size()));i++)
+//             for(int i=0;i<((int)(ptBins_.size()));++i)
 //             {
 //                   if(vX_reco.Pt()>ptBins_[i]&&vX_reco.Pt()<=ptBins_[i+1])
 //                   {
@@ -478,7 +478,7 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
             if(tp_sm.getNsol()>0)
             {
                 isHaveSol=1;
-                for(int i=0; i<=tp_sm.getNsol()*0; i++) 
+                for(int i=0; i<=tp_sm.getNsol()*0; ++i) 
                 {
                    // meanSol.add(tp_sm.GetTtSol()->at(i).top,tp_sm.GetTtSol()->at(i).topbar,tp_sm.GetTtSol()->at(i).neutrino,tp_sm.GetTtSol()->at(i).neutrinobar,1);
                   //meanSol.add(tp_sm.GetTtSol()->at(i).top,tp_sm.GetTtSol()->at(i).topbar,tp_sm.GetTtSol()->at(i).neutrino,tp_sm.GetTtSol()->at(i).neutrinobar,(tp_sm.GetTtSol()->at(i).lepEw));//*b_w*bbar_w
@@ -620,7 +620,7 @@ void KinematicReconstruction::loadData()
     TString data_path2 = common::DATA_PATH_COMMON();
     data_path2.Append("/KinReco_rmshistA_dAngle_vs_Pt.root");
     TFile metangleresfile(data_path2);
-    for(int i=0;i<13;i++)
+    for(int i=0;i<13;++i)
     {
         char temp_name[100];
         sprintf(temp_name,"bin_%.0f_%.0f",ptBins_[i],ptBins_[i+1]);
@@ -634,7 +634,7 @@ void KinematicReconstruction::loadData()
     TString data_path4 = common::DATA_PATH_COMMON();
     data_path4.Append("/KinReco_rmshistA_fPt_vs_Pt.root");
     TFile metptresfile(data_path4);
-    for(int i=0;i<13;i++)
+    for(int i=0;i<13;++i)
     {
         char temp_name[100];
         sprintf(temp_name,"bin_%.0f_%.0f",ptBins_[i],ptBins_[i+1]);
@@ -649,7 +649,7 @@ void KinematicReconstruction::loadData()
     TString data_path41 = common::DATA_PATH_COMMON(); 
     data_path41.Append("/KinReco_rmshist_fPx_vs_Pt.root");
     TFile metpxresfile(data_path41);
-    for(int i=0;i<13;i++)
+    for(int i=0;i<13;++i)
     {
         char temp_name[100];
         sprintf(temp_name,"bin_%.0f_%.0f",ptBins_[i],ptBins_[i+1]);
@@ -665,7 +665,7 @@ void KinematicReconstruction::loadData()
     TString data_path42 = common::DATA_PATH_COMMON(); 
     data_path42.Append("/KinReco_rmshist_fPy_vs_Pt.root");
     TFile metpyresfile(data_path42);
-    for(int i=0;i<13;i++)
+    for(int i=0;i<13;++i)
     {
         char temp_name[100];
         sprintf(temp_name,"bin_%.0f_%.0f",ptBins_[i],ptBins_[i+1]);
@@ -692,7 +692,7 @@ void KinematicReconstruction::loadData()
         TFile frootNeut(data_path6);
         char hvE_name[20];
         
-                        for(int i=0;i<6;i++)
+                        for(int i=0;i<6;++i)
                         {
                             sprintf(hvE_name,"Eneu_true%d",i+1);
                                     hvE_[i] = (TH1F*)frootNeut.Get(hvE_name);
@@ -763,8 +763,8 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
     vector<double> btag_ww;
     vector<int> nb_tag;
 
-    for(int i=0; i<(int)btags->size(); i++) {
-        for(int j=0; j<(int)btags->size(); j++) {
+    for(int i=0; i<(int)btags->size(); ++i) {
+        for(int j=0; j<(int)btags->size(); ++j) {
             double wi = btags->at(i);
             double wj = btags->at(j);
 //             if(i==j || (wi<0.244 && wj<0.244) || (wi<0 || wj<0))continue;
@@ -784,7 +784,7 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
         return;
     }
 
-    for(int i=0; i<(int)btag_ww.size() - 1; i++) {
+    for(int i=0; i<(int)btag_ww.size() - 1; ++i) {
         if(btag_ww[i]>=btag_ww[i+1]) continue;
 
         double aux = btag_ww[i];
@@ -808,7 +808,7 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
     //jets loop
 
     nSol_=0;
-    for(int ib=0; ib<(int)b1_id.size(); ib++) {
+    for(int ib=0; ib<(int)b1_id.size(); ++ib) {
         int j1=b1_id[ib];
         int j2=b2_id[ib];
 //         if((*jets)[j1].Pt()<30 || (*jets)[j2].Pt()<30)continue;
@@ -846,7 +846,7 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
             TVector3 vX_reco =  - b_temp.Vect() - bbar_temp.Vect() - l_temp.Vect() - al_temp.Vect() - met_temp.Vect();
 
             double xRMS=20/vX_reco.Pt(); //%
-            for(int sm=0; sm<100; sm++) {
+            for(int sm=0; sm<100; ++sm) {
                 TLorentzVector b_sm=b_temp;
                 TLorentzVector bbar_sm=bbar_temp;
                 TLorentzVector met_sm=met_temp;

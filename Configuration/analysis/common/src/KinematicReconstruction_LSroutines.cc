@@ -98,7 +98,7 @@ KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(const dou
 //     mv_=0;
 //     mav_=0;
 // 
-//         for(int i=0;i<6;i++)hneutrino_E_[i]= hvE[i];
+//         for(int i=0;i<6;++i)hneutrino_E_[i]= hvE[i];
 // 
 //     weight_option_=0;
 // }
@@ -118,7 +118,7 @@ KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(const dou
 //     mv_=0;
 //     mav_=0;
 // 
-//         for(int i=0;i<6;i++)hneutrino_E_[i]= hvE[i];
+//         for(int i=0;i<6;++i)hneutrino_E_[i]= hvE[i];
 //         hnw_cuts_= hneutrino;
 //         
 //     weight_option_=0;
@@ -291,7 +291,7 @@ const std::vector<KinematicReconstruction_LSroutines::TopSolution>* KinematicRec
 
 void KinematicReconstruction_LSroutines::print()const
 {
-//     for(int i=0;i<(int)ttSol_.size();i++)
+//     for(int i=0;i<(int)ttSol_.size();++i)
 //     {
 //         printf("\nSol: %d:   weight: %f dTS: %f\n",i+1,ttSol_[i].weight,ttSol_[i].dTS);
 // //         ttSol_[i].top.Print();
@@ -347,7 +347,7 @@ void KinematicReconstruction_LSroutines::doAll()
         this->quartic_equation(coeffs_[0],coeffs_[1],coeffs_[2],coeffs_[3],coeffs_[4],vect_pxv_);
         nSol_=vect_pxv_[0];
         
-            for(int i=1;i<=nSol_;i++)
+            for(int i=1;i<=nSol_;++i)
             {
                 this->topRec(vect_pxv_[i]);
                 TopSolution TS_temp;
@@ -356,7 +356,7 @@ void KinematicReconstruction_LSroutines::doAll()
 //                    double vw1=1,vw2=1;
                     //char hvw_name[20];
  //pt 1d                   
-//                         for(int i=0;i<5;i++)
+//                         for(int i=0;i<5;++i)
 //                         {
 //                             sprintf(hvw_name,"Eneu_true%d",i+1);
 //                             if(top_.Pt()>pt_bins[i]&&top_.Pt()<=pt_bins[i+1])
@@ -384,7 +384,7 @@ void KinematicReconstruction_LSroutines::doAll()
 //                         }
 
  //E 1d loaded inside
-//                         for(int i=0;i<5;i++)
+//                         for(int i=0;i<5;++i)
 //                         {
 //                             sprintf(hvw_name,"Eneu_true%d",i+1);
 //                             if(top_.E()>pt_bins[i]&&top_.E()<=pt_bins[i+1])
@@ -413,7 +413,7 @@ void KinematicReconstruction_LSroutines::doAll()
        
 // E 1d loaded outside
        
-//                         for(int i=0;i<5;i++)
+//                         for(int i=0;i<5;++i)
 //                         {
 //                             if(top_.E()>pt_bins[i]&&top_.E()<=pt_bins[i+1])
 //                                 {
@@ -444,7 +444,7 @@ void KinematicReconstruction_LSroutines::doAll()
 //                         int Nptbins=(int)(sizeof(pt_top_bins_2d)/sizeof(pt_top_bins_2d[0]));
 //                         int Netabins=(int)(sizeof(eta_top_bins_2d)/sizeof(eta_top_bins_2d[0]))-1;
 //                         
-//                         for(int i=0;i<Nptbins*Netabins;i++)
+//                         for(int i=0;i<Nptbins*Netabins;++i)
 //                         {
 //                                 sprintf(hvw_name,"Eneu_true%d",i+1);
 //                                 hvw = (TH1F*)frootNeut.Get(hvw_name);
@@ -609,7 +609,7 @@ void KinematicReconstruction_LSroutines::doAll()
 // {
 //     double dellta_alpha;
 //     double dellta_E;
-//     for(int i=0;i<nSol_;i++)
+//     for(int i=0;i<nSol_;++i)
 //             {
 //                 dellta_alpha = pow(ttSol_[i].top.Angle(true_top_.Vect())/TMath::Pi(),2) + pow(ttSol_[i].topbar.Angle(true_topbar_.Vect())/TMath::Pi(),2);
 //                 dellta_E = pow((ttSol_[i].top.E()-true_top_.E())/true_top_.E(),2) + pow((ttSol_[i].topbar.E()-true_topbar_.E())/true_topbar_.E(),2);
@@ -622,7 +622,7 @@ void KinematicReconstruction_LSroutines::doAll()
 // }
 // void KinematicReconstruction_LSroutines::filldR()
 // {
-//     for(int i=0;i<nSol_;i++)
+//     for(int i=0;i<nSol_;++i)
 //             {
 //                 ttSol_[i].dR = sqrt(pow(ttSol_[i].top.DeltaR(true_top_),2)+pow(ttSol_[i].topbar.DeltaR(true_topbar_),2));   
 //             }
@@ -630,7 +630,7 @@ void KinematicReconstruction_LSroutines::doAll()
 
 // void KinematicReconstruction_LSroutines::filldN()
 // {
-//     for(int i=0;i<nSol_;i++)
+//     for(int i=0;i<nSol_;++i)
 //        {
 //            ttSol_[i].dN = sqrt(pow((ttSol_[i].neutrino.Px()-true_neutrino_.Px()),2)+pow((ttSol_[i].neutrino.Py()-true_neutrino_.Py()),2)+pow((ttSol_[i].neutrino.Pz()-true_neutrino_.Pz()),2)+pow((ttSol_[i].neutrinobar.Px()-true_neutrinobar_.Px()),2)+pow((ttSol_[i].neutrinobar.Py()-true_neutrinobar_.Py()),2)+pow((ttSol_[i].neutrinobar.Pz()-true_neutrinobar_.Pz()),2));   
 //            //ttSol_[i].dN = sqrt(pow((ttSol_[i].neutrino.Px()-true_neutrino_.Px()),2)+pow((ttSol_[i].neutrinobar.Px()-true_neutrinobar_.Px()),2));   
@@ -652,28 +652,28 @@ void KinematicReconstruction_LSroutines::swapTopSol(KinematicReconstruction_LSro
 // {
 //     if(ch=="dTS"&&ttSol_.size()>0)
 //     {
-//      for(uint i=0;i<ttSol_.size()-1;i++)
+//      for(uint i=0;i<ttSol_.size()-1;++i)
 //         {
 //             if(ttSol_[i].dTS > ttSol_[i+1].dTS){ swapTopSol(ttSol_[i],ttSol_[i+1]);i=-1;}
 //         }   
 //     }
 //     if(ch=="dR"&&ttSol_.size()>0)
 //     {
-//      for(uint i=0;i<ttSol_.size()-1;i++)
+//      for(uint i=0;i<ttSol_.size()-1;++i)
 //         {
 //             if(ttSol_[i].dR > ttSol_[i+1].dR){ swapTopSol(ttSol_[i],ttSol_[i+1]);i=-1;}
 //         }   
 //     }
 //     if(ch=="dN"&&ttSol_.size()>0)
 //     {
-//      for(uint i=0;i<ttSol_.size()-1;i++)
+//      for(uint i=0;i<ttSol_.size()-1;i)
 //         {
 //             if(ttSol_[i].dN > ttSol_[i+1].dN){ swapTopSol(ttSol_[i],ttSol_[i+1]);i=-1; }
 //         }   
 //     }
 //     if(ch=="dRN"&&ttSol_.size()>0)
 //     {
-//      for(uint i=0;i<ttSol_.size()-1;i++)
+//      for(uint i=0;i<ttSol_.size()-1;++i)
 //         {
 //             if(ttSol_[i].dN*ttSol_[i].dR > ttSol_[i+1].dN*ttSol_[i+1].dR){ swapTopSol(ttSol_[i],ttSol_[i+1]);i=-1; }
 //         }
@@ -685,7 +685,7 @@ void KinematicReconstruction_LSroutines::swapTopSol(KinematicReconstruction_LSro
 void KinematicReconstruction_LSroutines::sortTopSol(vector<KinematicReconstruction_LSroutines::TopSolution>& v)const
 {
     //std::vector< KinematicReconstruction_LSroutines::TopSolution > result;
-    for(uint i=0;i<v.size()-1;i++)
+    for(uint i=0;i<v.size()-1;++i)
     {
       if(v[i].weight < v[i+1].weight){this->swapTopSol(v[i],v[i+1]);i=-1;}
     }
@@ -859,7 +859,7 @@ void KinematicReconstruction_LSroutines::quartic_equation(const double& h0, cons
                     if(sign(K3)==0)
                     {
                        this->cubic_equation(1,0,K1,K2,result);
-                       for(int i=1;i<=result[0];i++)
+                       for(int i=1;i<=result[0];++i)
                        {
                            result[i]=result[i]-H1/4;
                        }
@@ -883,7 +883,7 @@ void KinematicReconstruction_LSroutines::quartic_equation(const double& h0, cons
                         //std::cout << "hehehe:  " << result_t12[0]  <<  std::endl; //printout
                         
                         
-                        for(int i=1;i<=result_t12[0];i++)
+                        for(int i=1;i<=result_t12[0];++i)
                         {
                             //std::cout << "heh:  " << result_t12[i]  << std::endl; //printout
                             
@@ -904,18 +904,18 @@ void KinematicReconstruction_LSroutines::quartic_equation(const double& h0, cons
                         std::vector<double> pre_result1;
 
                         result.push_back(0);
-                        for(int i=1;i<=result_t1[0];i++)
+                        for(int i=1;i<=result_t1[0];++i)
                         {
                             //std::cout << "quadric_equation:   " << i << " " << result_t1[i] << " " << result_t2[i] << std::endl; //printout
                              
                              this->quadratic_equation(1,result_t1[i],result_t2[i],pre_result1);
                              
-                             for(int j=1;j<=pre_result1[0];j++)
+                             for(int j=1;j<=pre_result1[0];++j)
                              {
                                 // if(pre_result1[0]==2)std::cout << "quadric_equation:   " << i << " " << pre_result1[1] << " " << pre_result1[2] << std::endl; //printout
 
                                  int flag=1;
-                                for(int r=1;r<=result[0];r++)
+                                for(int r=1;r<=result[0];++r)
                                 {
                                  if(fabs(result[r]-pre_result1[j])<0.01)flag=0;
                                  //printf("Result-result: %10.10f  \n",result[r]-pre_result1[j]);
@@ -928,7 +928,7 @@ void KinematicReconstruction_LSroutines::quartic_equation(const double& h0, cons
                              }
                             pre_result1.clear();                          
                         }                          
-                       for(int k=1;k<=result[0];k++)
+                       for(int k=1;k<=result[0];++k)
                        {
                            
                            //printf("Result: %f   %f \n",H1/4,h1/4); //printout

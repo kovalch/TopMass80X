@@ -71,7 +71,7 @@ void KinematicReconstruction_MeanSol::getMeanVect(TLorentzVector& lv, const std:
     double py=0;
     double pz=0;
     
-    for(int i=0;i<((int)vlv.size());i++)
+    for(int i=0;i<((int)vlv.size());++i)
     {
           px_sum=px_sum+v_weight_.at(i)*vlv.at(i).Px();
           py_sum=py_sum+v_weight_.at(i)*vlv.at(i).Py();

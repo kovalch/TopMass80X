@@ -66,38 +66,38 @@ private:
     std::vector<TLorentzVector> alljets_;
     std::vector<double> allbtags_;
 //     // W mass
-    TH1F * h_wmass_;
+    TH1F* h_wmass_;
 // 
     // jet resolution
-    TH1F * h_jetAngleRes_;
-    TH1F * h_jetEres_;
+    TH1F* h_jetAngleRes_;
+    TH1F* h_jetEres_;
        
     //lepton resolution
-    TH1F * h_lepAngleRes_;
-    TH1F * h_lepEres_;
+    TH1F* h_lepAngleRes_;
+    TH1F* h_lepEres_;
     
     //MET resolution
     double ptBins[14];
     std::vector<double> ptBins_;
-    TH1F * h_metAngleRes_[13];
-    TH1F * h_metPtres_[13];
+    TH1F* h_metAngleRes_[13];
+    TH1F* h_metPtres_[13];
     
-    TH1F * h_metPxRes_[13];
-    TH1F * h_metPyRes_[13];
+    TH1F* h_metPxRes_[13];
+    TH1F* h_metPyRes_[13];
     
     
-    TH1F *h_nwcuts_;
+    TH1F* h_nwcuts_;
     
 // //  E 1d bins
     TH1F* hvE_[6];
     
 // // mbl
-    TH1F *h_mbl_w_;
+    TH1F* h_mbl_w_;
 // // costheta        
-    TH1F *h_costheta_w_;
+    TH1F* h_costheta_w_;
     
 // neuEta 0d weight
-    TH1F *h_neuEta_w_;
+    TH1F* h_neuEta_w_;
 };
 
 
