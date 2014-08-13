@@ -16,6 +16,7 @@
 #include <TString.h>
 #include <TH1.h>
 #include <TH2.h>
+#include <TGraphErrors.h>
 #include <TGaxis.h>
 #include <TPaveText.h>
 #include <TClass.h>
@@ -93,10 +94,10 @@ void Plotter::setOptions(const TString& name, const TString& drawOpt,
     // Setting the list of sample types which should be used in stack for 2D histograms
     for(int type = Sample::data; type != Sample::dummy; ++type) {
         if(samplesToStack2D == "ttJets") {
-            if(type!=Sample::ttbb && type!=Sample::ttb && type!=Sample::tt2b && type!=Sample::ttcc && type!=Sample::ttother && type!=Sample::ttHbb ) continue;
+            if(type!=Sample::ttbb && type!=Sample::ttb && type!=Sample::tt2b && type!=Sample::ttcc && type!=Sample::ttother ) continue;
         }
         if(samplesToStack2D == "ttbb") {
-            if(type!=Sample::ttbb && type!=Sample::ttHbb ) continue;
+            if(type!=Sample::ttbb ) continue;
         }
         if(samplesToStack2D == "ttLightJets") {
             if(type!=Sample::ttother ) continue;
@@ -461,6 +462,42 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     const TString eventFileString = common::assignFolder(ControlPlotDIR, channel, systematic);
     canvas->Print(eventFileString+name_+".eps");
     
+    // Plotting Purity/Stability if this is a 2D histogram
+    if(isTH2) {
+        TGraphErrors* g_purity = purityStabilityGraph((TH2*)firstHistToDraw, 0);
+        TGraphErrors* g_stability = purityStabilityGraph((TH2*)firstHistToDraw, 1);
+        
+        
+        // Styling graphs and axis
+        firstHistToDraw = ((TH2*)firstHistToDraw)->ProjectionX();
+        firstHistToDraw->SetAxisRange(0., 0.8, "Y");
+        firstHistToDraw->GetYaxis()->SetTitle("Values");
+        setGraphStyle(g_purity, 21, 1, 1.5, 1, 1);
+        setGraphStyle(g_stability, 20, 2, 1.5, 1, 2);
+        gPad->SetRightMargin(0.05);
+        
+        // Drawing axis and graphs
+        firstHistToDraw->Draw("AXIS");
+        g_purity->Draw("LP0same");
+        g_stability->Draw("LP0same");
+        gPad->Update();
+        
+        
+        // Adding a legend
+        TLegend *leg;
+        leg = new TLegend ( 0.7,0.84,0.98,0.95,NULL,"brNDC" );
+        leg->SetFillColor ( 0 );
+        leg->AddEntry(g_purity, "Purity", "p");
+        leg->AddEntry(g_stability, "Stability", "p");
+        leg->Draw();
+        
+        // Storing the same canvas with a different name
+        canvas->Print(eventFileString+name_+"_PurStab"+".eps");
+        
+        delete g_purity;
+        delete g_stability;
+    }
+    
     // Prepare additional histograms for root-file
     TH1* sumMC(0);
     TH1* sumSignal(0);
@@ -607,8 +644,46 @@ TPaveText* Plotter::drawSignificance(TH1* signal, TH1* sigBkg, float min, float 
 }
 
 
+TGraphErrors* Plotter::purityStabilityGraph(TH2* h2d, const int type)const {
+
+    const int nBins = h2d->GetNbinsX();
+
+    TGraphErrors* graph = new TGraphErrors(nBins);
+
+    // Calculating each point of graph for each diagonal bin
+    for(int iBin = 1; iBin<=nBins; ++iBin) {
+        const double diag = h2d->GetBinContent(iBin, iBin);
+        const double reco = h2d->Integral(iBin, iBin, 0, -1)+1e-30;
+        const double gen = h2d->Integral(0, -1, iBin, iBin)+1e-30;
+        
+        const double value = type == 0 ? diag/reco : diag/gen;
+        const double error = type == 0 ? uncertaintyBinomial(diag, reco) : uncertaintyBinomial(diag, gen);
+
+        const double bin = h2d->GetXaxis()->GetBinCenter(iBin);
+        
+        graph->SetPoint(iBin-1, bin, value);
+        graph->SetPointError(iBin-1, 0., error);
+    }
+
+    return graph;
+
+}
+
+
+double Plotter::uncertaintyBinomial(const double pass, const double all)const 
+{
+    return (1./all)*sqrt(pass - pass*pass/all);
+}
 
 
 
-
-
+void Plotter::setGraphStyle( TGraph* graph, Style_t marker, Color_t markerColor, Size_t markerSize, 
+                             Style_t line, Color_t lineColor, Size_t lineWidth)const 
+{
+    graph->SetMarkerStyle(marker);
+    graph->SetMarkerColor(markerColor);
+    graph->SetMarkerSize(markerSize);
+    graph->SetLineStyle(line);
+    graph->SetLineColor(lineColor);
+    graph->SetLineWidth(lineWidth);
+}

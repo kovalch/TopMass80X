@@ -9,6 +9,9 @@
 class TLegend;
 class RootFileReader;
 class TH1;
+class TH2;
+class TGraph;
+class TGraphErrors;
 class TPaveText;
 
 #include "plotterHelpers.h"
@@ -62,6 +65,10 @@ private:
     /// Set the style of the plot
     void setStyle(SampleHistPair& sampleHistPair);
     
+    /// Set the style of the graph
+    void setGraphStyle( TGraph* graph, Style_t marker = 21, Color_t markerColor = 1, Size_t markerSize = 1, 
+                        Style_t line = 0, Color_t lineColor = 0, Size_t lineWidth = 1)const;
+    
     /// Draw label for decay channel in upper left corner of plot
     void drawDecayChannelLabel(const Channel::Channel& channel, const double& textSize =0.04)const;
 
@@ -70,6 +77,13 @@ private:
     
     /// Draw signal significance label over the plot
     TPaveText* drawSignificance(TH1* signal, TH1* bkg, float Xmin,  float Xmax, float yOffset = 0.f, std::string sLabel ="", const int type=0)const;
+    
+    /// Calculates purity (type=0) and stability (type=1) curves for a 2D distribution
+    TGraphErrors* purityStabilityGraph(TH2* h2d, const int type)const;
+    
+    /// Calculates binomial uncertainty of the subset/set ratio
+    double uncertaintyBinomial(const double pass, const double all)const;
+    
     
     
     
