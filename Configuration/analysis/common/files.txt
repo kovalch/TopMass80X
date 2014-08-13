@@ -35,12 +35,12 @@
 ################################################################
 
 # TTMadSpin
-730   Summer12.TTJets_MSDecays_central_TuneZ2star_8TeV_madgraph_tauola__Summer12_DR53X_PU_S10_START53_V19_v1_cff  ttbarsignalplustau.root      ttbarsignalplustau,includePDFWeights=True
-300   Summer12.TTJets_MSDecays_central_TuneZ2star_8TeV_madgraph_tauola__Summer12_DR53X_PU_S10_START53_V19_v1_cff  ttbarbg.root                 ttbarbg
+730  Summer12.TTJets_MSDecays_central_TuneZ2star_8TeV_madgraph_tauola__Summer12_DR53X_PU_S10_START53_V19_v1_cff  ttbarsignalplustau.root      ttbarsignalplustau,includePDFWeights=True
+300  Summer12.TTJets_MSDecays_central_TuneZ2star_8TeV_madgraph_tauola__Summer12_DR53X_PU_S10_START53_V19_v1_cff  ttbarbg.root                 ttbarbg
 
 # Drell Yan
-160    Summer12.DYJetsToLL_M_10To50filter_8TeV_madgraph_Summer12_DR53X_PU_S10_START53_V7A_v1_cff             dy1050.root      dy1050
-360    Summer12.DYJetsToLL_M_50_TuneZ2Star_8TeV_madgraph_tarball_Summer12_DR53X_PU_S10_START53_V7A_v1_cff    dy50inf.root     dy50inf
+160  Summer12.DYJetsToLL_M_10To50filter_8TeV_madgraph_Summer12_DR53X_PU_S10_START53_V7A_v1_cff             dy1050.root      dy1050
+360  Summer12.DYJetsToLL_M_50_TuneZ2Star_8TeV_madgraph_tarball_Summer12_DR53X_PU_S10_START53_V7A_v1_cff    dy50inf.root     dy50inf
 
 # WW, WZ and ZZ
 80   Summer12.WW_TuneZ2star_8TeV_pythia6_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff    wwtoall.root      ww
@@ -66,7 +66,7 @@
 80   Summer12.QCD_Pt_80_170_BCtoE_TuneZ2star_8TeV_pythia6_Summer12_DR53X_PU_S10_START53_V7A_v1_cff              qcdbcem80170.root            qcdbcem80170
 
 # ttV (V = W,Z,gamma)
-120  Summer12.TTWJets_8TeV_madgraph_Summer12_DR53X_PU_S10_START53_V7A_v1_cff               ttbarW.root                  ttbarw
+20   Summer12.TTWJets_8TeV_madgraph_Summer12_DR53X_PU_S10_START53_V7A_v1_cff               ttbarW.root                  ttbarw
 30   Summer12.TTZJets_8TeV_madgraph_v2_Summer12_DR53X_PU_S10_START53_V7A_v1_cff            ttbarZ.root                  ttbarz
 20   Summer12.TTGJets_8TeV_madgraph_Summer12_DR53X_PU_S10_START53_V19_v1_cff               ttgjets.root                 ttg
 
