@@ -13,6 +13,7 @@ class TPaveText;
 
 #include "plotterHelpers.h"
 #include "SamplesFwd.h"
+#include "Sample.h"
 #include "../../common/include/sampleHelpers.h"
 
 
@@ -59,11 +60,11 @@ private:
     
     
     /// Set the style of the plot
-    void setStyle(SampleHistPair& sampleHistPair, const bool isControlPlot =false);
+    void setStyle(SampleHistPair& sampleHistPair);
     
     /// Draw label for decay channel in upper left corner of plot
     void drawDecayChannelLabel(const Channel::Channel& channel, const double& textSize =0.04)const;
-    
+
     /// Draw official labels (CMS [Preliminary], luminosity and CM energy) above plot
     void drawCmsLabels(const int cmsprelim =1, const double& energy =8, const double& textSize =0.04)const;
     
@@ -102,7 +103,7 @@ private:
     bool stackToNEntries_;
     double rangemin_, rangemax_, ymin_, ymax_;
     std::vector<double> XAxisbins_, XAxisbinCenters_;
-    TString YAxis_;
+    std::vector<Sample::SampleType> sampleTypesToStack2D_;
     TString XAxis_;
     bool logX_, logY_; // The variable logX_ is not used at all...
 };

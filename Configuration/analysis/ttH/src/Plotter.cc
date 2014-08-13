@@ -53,7 +53,7 @@ rangemin_(0),
 rangemax_(3),
 ymin_(0),
 ymax_(0),
-YAxis_(""),
+sampleTypesToStack2D_(std::vector<Sample::SampleType>(0)),
 XAxis_(""),
 logX_(false),
 logY_(false)
@@ -65,7 +65,7 @@ logY_(false)
 
 
 void Plotter::setOptions(const TString& name, const TString& drawOpt,
-                         const TString& YAxis, const TString& XAxis,
+                         const TString& samplesToStack2D, const TString& XAxis,
                          const int rebin, const bool stackToNEntries,
                          const bool logX, const bool logY,
                          const double& ymin, const double& ymax,
@@ -75,7 +75,6 @@ void Plotter::setOptions(const TString& name, const TString& drawOpt,
 {
     name_ = name; //Variable name you want to plot
     drawOpt_ = drawOpt; // Option used for a Draw command
-    YAxis_ = YAxis; //Y-axis title
     XAxis_ = XAxis; //X-axis title
     rebin_ = rebin; //Nr. of bins to be merged together
     stackToNEntries_ = stackToNEntries; // For 2D histograms fill by N entries
@@ -90,6 +89,21 @@ void Plotter::setOptions(const TString& name, const TString& drawOpt,
     XAxisbins_ = XAxisbins; // Bins edges=bins+1
     XAxisbinCenters_.clear();
     XAxisbinCenters_ = XAxisbinCenters; //Central point for BinCenterCorrection=bins
+    
+    // Setting the list of sample types which should be used in stack for 2D histograms
+    for(int type = Sample::data; type != Sample::dummy; ++type) {
+        if(samplesToStack2D == "ttJets") {
+            if(type!=Sample::ttbb && type!=Sample::ttb && type!=Sample::tt2b && type!=Sample::ttcc && type!=Sample::ttother && type!=Sample::ttHbb ) continue;
+        }
+        if(samplesToStack2D == "ttbb") {
+            if(type!=Sample::ttbb && type!=Sample::ttHbb ) continue;
+        }
+        if(samplesToStack2D == "ttLightJets") {
+            if(type!=Sample::ttother ) continue;
+        }
+        sampleTypesToStack2D_.push_back(Sample::SampleType(type));
+    }
+    
 }
 
 
@@ -204,7 +218,7 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     for(auto sampleHistPair : v_sampleHistPair_){
         TH1* tmp_hist = sampleHistPair.second;
         if(rebin_>1) tmp_hist->Rebin(rebin_);
-        setStyle(sampleHistPair, true);
+        setStyle(sampleHistPair);
     }
     
     
@@ -217,6 +231,11 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     // Specific histograms for ttbb and ttHbb to calculate signal significances
     TH1* ttbbHist(0);
     TH1* ttHbbHist(0);
+    
+        // Generic information about the histogram being plotted
+    TString histo_name = v_sampleHistPair_.size() > 0 ? TString(v_sampleHistPair_.at(0).second->GetName()) : "";
+    const bool isTH2 = TString(v_sampleHistPair_.at(0).second->ClassName()).Contains("TH2");
+    
     
     // Loop over all samples and add those with identical legendEntry
     // And sort them into the categories data, Higgs, other
@@ -243,8 +262,11 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
             if(sampleType == Sample::data) dataHist = LegendHistPair(legendEntry, tmpHist);
             else if(sampleType == Sample::ttHbb) higgsHists.push_back(LegendHistPair(legendEntry, tmpHist));
             else if(sampleType == Sample::ttHother) higgsHists.push_back(LegendHistPair(legendEntry, tmpHist));
-            else stackHists.push_back(LegendHistPair(legendEntry, tmpHist));
-            // Assigning hitograms for specific samples
+            else if(std::find(sampleTypesToStack2D_.begin(), sampleTypesToStack2D_.end(), sampleType) != sampleTypesToStack2D_.end() || !isTH2) 
+            {   // Adding histogram to the stack (for 2D only if the sample was selected via samplesToStack2D option)
+                stackHists.push_back(LegendHistPair(legendEntry, tmpHist));
+            }
+            // Assigning histograms for specific samples
             if(sampleType == Sample::ttHbb) ttHbbHist = tmpHist;
             else if(sampleType == Sample::ttbb) ttbbHist = tmpHist;
             tmpHist = 0;
@@ -274,9 +296,6 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
         }
     }
     
-    // Generic information about the histogram being plotted
-    TString histo_name = stackHists.size() > 0 ? TString(stackHists.at(0).second->GetName()) : "";
-    const bool isTH2 = TString(stacksum->ClassName()).Contains("TH2");
 
     // Drawing signal significance for dijet_mass H->bb
     std::vector<TPaveText*> significanceLabels;
@@ -342,7 +361,7 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     
     // Set x and y axis
     TH1* firstHistToDraw(0);
-    if(dataHist.second) firstHistToDraw = (TH1*)dataHist.second->Clone();
+    if(dataHist.second && !isTH2) firstHistToDraw = (TH1*)dataHist.second->Clone();
     else if(stacksum){
         firstHistToDraw = (TH1*)stacksum->Clone();
     }
@@ -387,14 +406,14 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     firstHistToDraw->GetXaxis()->SetNoExponent(kTRUE);
 
     
-    //Add the binwidth to the yaxis in yield plots (FIXME: works only correctly for equidistant bins)
-    TString ytitle = TString(firstHistToDraw->GetYaxis()->GetTitle()).Copy();
-    const double binWidth = firstHistToDraw->GetXaxis()->GetBinWidth(1);
-    std::ostringstream width;
-    width<<binWidth;
-    if(name_.Contains("Rapidity") || name_.Contains("Eta")){ytitle.Append(" / ").Append(width.str());}
-    else if(name_.Contains("pT") || name_.Contains("Mass") || name_.Contains("mass") || name_.Contains("MET") || name_.Contains("HT")){ytitle.Append(" / ").Append(width.str()).Append(" GeV");};
-    firstHistToDraw->GetYaxis()->SetTitle(ytitle);
+//     //Add the binwidth to the yaxis in yield plots (FIXME: works only correctly for equidistant bins)
+//     TString ytitle = TString(firstHistToDraw->GetYaxis()->GetTitle()).Copy();
+//     const double binWidth = firstHistToDraw->GetXaxis()->GetBinWidth(1);
+//     std::ostringstream width;
+//     width<<binWidth;
+//     if(name_.Contains("Rapidity") || name_.Contains("Eta")){ytitle.Append(" / ").Append(width.str());}
+//     else if(name_.Contains("pT") || name_.Contains("Mass") || name_.Contains("mass") || name_.Contains("MET") || name_.Contains("HT")){ytitle.Append(" / ").Append(width.str()).Append(" GeV");};
+//     firstHistToDraw->GetYaxis()->SetTitle(ytitle);
 
     // Draw data histogram and stack and error bars
     firstHistToDraw->SetLineColor(0);
@@ -432,7 +451,7 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
             label->Draw("same");
         }
     }
-    if(dataHist.second && stacksum){
+    if(dataHist.second && stacksum && !isTH2){
         common::drawRatio(dataHist.second, stacksum, 0, 0.5, 1.7);
         firstHistToDraw->GetXaxis()->SetLabelSize(0);
         firstHistToDraw->GetXaxis()->SetTitleSize(0);
@@ -477,16 +496,13 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
 
 
 
-void Plotter::setStyle(SampleHistPair& sampleHistPair, const bool isControlPlot)
+void Plotter::setStyle(SampleHistPair& sampleHistPair)
 {
     TH1* hist(sampleHistPair.second);
 
     hist->SetFillColor(sampleHistPair.first.color());
     hist->SetLineColor(sampleHistPair.first.color());
     hist->SetLineWidth(1);
-
-    if(XAxis_ == "-")XAxis_ = hist->GetXaxis()->GetTitle();
-    if(YAxis_ == "-")YAxis_ = hist->GetYaxis()->GetTitle();
 
     if(sampleHistPair.first.sampleType() == Sample::SampleType::data){
         hist->SetFillColor(0);
@@ -499,14 +515,6 @@ void Plotter::setStyle(SampleHistPair& sampleHistPair, const bool isControlPlot)
         hist->GetYaxis()->SetTitleFont(42);
         hist->GetYaxis()->SetTitleOffset(1.7);
         hist->GetXaxis()->SetTitleOffset(1.25);
-        if ((name_.Contains("pT") || name_.Contains("Mass")) && !name_.Contains("Rapidity")) {
-            hist->GetXaxis()->SetTitle(XAxis_+" #left[GeV#right]");
-            hist->GetYaxis()->SetTitle("#frac{1}{#sigma} #frac{d#sigma}{d"+XAxis_+"}"+" #left[GeV^{-1}#right]");
-        } else {
-            hist->GetXaxis()->SetTitle(XAxis_);
-            hist->GetYaxis()->SetTitle("#frac{1}{#sigma} #frac{d#sigma}{d"+XAxis_+"}");
-        }
-        if (isControlPlot) hist->GetYaxis()->SetTitle(YAxis_);
     }
 }
 
