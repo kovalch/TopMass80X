@@ -470,7 +470,7 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
         
         // Styling graphs and axis
         firstHistToDraw = ((TH2*)firstHistToDraw)->ProjectionX();
-        firstHistToDraw->SetAxisRange(0., 0.8, "Y");
+        firstHistToDraw->SetAxisRange(0., 1.1, "Y");
         firstHistToDraw->GetYaxis()->SetTitle("Values");
         setGraphStyle(g_purity, 21, 1, 1.5, 1, 1);
         setGraphStyle(g_stability, 20, 2, 1.5, 1, 2);
