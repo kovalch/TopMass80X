@@ -151,7 +151,7 @@ int main(int argc, char** argv){
     std::cout << "\n\n";
     
     // Set up global corrections
-    std::vector<GlobalCorrection::GlobalCorrection> v_globalCorrection({GlobalCorrection::dy, GlobalCorrection::ttbb});
+    std::vector<GlobalCorrection::GlobalCorrection> v_globalCorrection({GlobalCorrection::dy});
     if(opt_globalCorrection.isSet()) v_globalCorrection = GlobalCorrection::convert(opt_globalCorrection.getArguments());
     std::cout << "\n";
     std::cout << "Using global corrections: ";

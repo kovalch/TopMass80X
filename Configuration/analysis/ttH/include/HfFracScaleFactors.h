@@ -68,11 +68,6 @@ private:
     /// Produce map of scale factors for each sample from fitting the histograms
     const std::vector<ValErr> getScaleFactorsFromHistos(const std::vector<TH1*> histos, const TString& step, 
                                                         const Channel::Channel channel)const;
-                                                        
-    /// Produce map of scale factors for each sample from fitting the histograms (using RooFit)
-    const std::vector<ValErr> getScaleFactorsFromHistos_roofit(const std::vector<TH1*> histos, const TString& step, 
-                                                               const Channel::Channel channel)const;
-
     
     
     /// Typedef for the map containing the Heavy-Flavour fraction scale factors
@@ -87,6 +82,9 @@ private:
     
     /// Map containing the list of sample types with ids: to set specific combinations of samples to be fitted to data
     std::map<Sample::SampleType, int> sampleTypeIds_;
+    
+    /// Name base of the histogram used for the template fit
+    TString histoTemplateName_;
 };
 
 
