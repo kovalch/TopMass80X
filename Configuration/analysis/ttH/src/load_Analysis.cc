@@ -171,6 +171,8 @@ void load_Analysis(const TString& validFilenamePattern,
     else if(jetCategoriesId == 1) jetCategories = new JetCategories(2, 5, 0, 5, true, true); // Overview categories
     else if(jetCategoriesId == 2) jetCategories = new JetCategories(4, 4, 1, 3, true, true); // 4-jet categories of default categories
     else if(jetCategoriesId == 3) jetCategories = new JetCategories(4, 4, 2, 4, true, true); // Nazar's categories
+    else if(jetCategoriesId == 4) jetCategories = new JetCategories(4, 4, 4, 4, true, false); // 4 exclusive b-tags for tt+bb diff. xsection (dijet)
+    else if(jetCategoriesId == 5) jetCategories = new JetCategories(3, 3, 3, 3, true, true);  // 3 inclusive b-tags for tt+bb diff. xsection (jet)
     if(!jetCategories){
         std::cerr<<"Error in load_Analysis! No jet categories defined\n...break\n"<<std::endl;
         exit(832);
@@ -227,7 +229,7 @@ void load_Analysis(const TString& validFilenamePattern,
     // Set up DijetAnalyzer
     AnalyzerDijet* analyzerDijet(0);
     if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::dijet) != v_analysisMode.end()){
-        analyzerDijet = new AnalyzerDijet(Mva2dWeightsFILE, "correct_step7_cate0_cate1_cate2_d1", "", {"7"}, {"7"}, jetCategories, false, true);
+        analyzerDijet = new AnalyzerDijet(Mva2dWeightsFILE, "correct_step7_cate0_cate1_cate2_c1", "", {}, {"7"}, jetCategories, false, true);
         v_analyzer.push_back(analyzerDijet);
     }
     
@@ -553,7 +555,7 @@ int main(int argc, char** argv)
     CLParameter<std::string> opt_systematic("s", "Run with a systematic that runs on the nominal ntuples, e.g. 'PU_UP'", false, 1, 1,
             common::makeStringCheckBegin(Systematic::convertType(Systematic::allowedSystematics)));
     CLParameter<int> opt_jetCategoriesId("j", "ID for jet categories (# jets, # b-jets). If not specified, use default categories (=0)", false, 1, 1,
-            [](int id){return id>=0 && id<=3;});
+            [](int id){return id>=0 && id<=5;});
     CLParameter<std::string> opt_mode("m", "Mode of analysis: control plots (cp), "
                                            "dijet analyser (dijet), jet charge analyser (charge), jet match analyser (match), playground (playg), "
                                            "event weight analyser (weight), gen event analyser(genEvent), "
