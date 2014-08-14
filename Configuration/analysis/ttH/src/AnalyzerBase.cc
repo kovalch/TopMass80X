@@ -364,7 +364,7 @@ void AnalyzerHfFracScaling::bookHistos(const TString& step, std::map<TString, TH
 {
     TString name = "btag_multiplicity";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "B-tagged jet multiplicity; N b-tags; events",10,0,10));
-    name = "btag_sum";
+    name = "btag_discriminatorSum";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Sum of b-tag discriminants; Sum of b-tags; # events",30,0.,15.));
 }
 
@@ -386,7 +386,7 @@ void AnalyzerHfFracScaling::fillHistos(const RecoObjects& recoObjects, const Com
         bTag_sum += jetsBtagDiscriminant.at(jetId);
     }
     m_histogram["btag_multiplicity"]->Fill(nBJets, weight);
-    m_histogram["btag_sum"]->Fill(bTag_sum, weight);
+    m_histogram["btag_discriminatorSum"]->Fill(bTag_sum, weight);
 }
 
 

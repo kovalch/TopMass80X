@@ -26,7 +26,7 @@ rootFileReader_(rootFileReader)
     std::cout<<"--- Beginning production of Heavy-Flavour fraction scale factors\n\n";
     
     // Setting name of the histogram used for template fit
-    histoTemplateName_ = "hfFracScaling_bTag_multiplicity";
+    histoTemplateName_ = "hfFracScaling_btag_multiplicity";
     
     // Setting id for each sample type as it will appear in the list of histograms for the fit
     // Data MUST go first
