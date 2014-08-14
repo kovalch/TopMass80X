@@ -23,8 +23,9 @@ use constant C_RESUBMIT => 'magenta';
 ### PROGRAM BEGINS
 ########################
 
+# Variables defined followed by ":" take additional parameters, others are only switches
 my %args;
-getopts('SsbW:kJCjp:P:q:o:m:t:c:O:d:nQ:M:D:', \%args);
+getopts('SsbW:kJCjp:P:q:o:m:t:c:O:d:nQ:M:D:v:', \%args);
 $args{'Q'} ||= ""; # to suppress unitialised warning when not set
 
 if ($args{'p'}) {
@@ -101,11 +102,11 @@ Available Parameters
       use for VarParsing
   -m: maximum number of events per job
         default: -1 (i.e. no limit)
-  -J: Don't automatically join output files and sum up TrigReports
+  -J: Do not automatically join output files and sum up TrigReports
        If you forget to pass this parameter, touch 'naf_DIR/autojoin'
        to enable automatic joining. Remove the autojoin file to
        disable auto joining.
-  -k: keep all source root files after hadd'ing them
+  -k: keep all source root files after hadd-ing them
        touch/remove the file 'autoremove' to enable/disable the
        feature at some later point in time
   -W: waiting time in secs before submission (default: 2 secs)
@@ -113,6 +114,7 @@ Available Parameters
       rather copy output files with a given name (for production jobs)
       WARNING: you need to save your file to the local temp dir, i.e.
       ....fileName=cms.untracked.string(os.getenv('TMPDIR', '.') + '/file.root')
+  -v: verbose mode
   -C switch OFF! comma separated varParsing to cmsRun and use spaces
 
 
@@ -396,22 +398,22 @@ sub checkJob {
         open my $JOINED, '<', "$dir/joined.txt" or die "Cannot open joined.txt: $!\n";
         my $joined = <$JOINED>;
         if (!-e "$dir/$joined") {
-	    my @scripts=glob("$dir/j_*.sh");
-	    my $config = $dir; $config =~ s/naf_//;
-	    foreach my $jobfile (@scripts){
-		$config=$jobfile;
-	    }
-	    $config =~ s/j_//;
-	    $config =~ s/.sh//;
+            my @scripts=glob("$dir/j_*.sh");
+            my $config = $dir; $config =~ s/naf_//;
+            foreach my $jobfile (@scripts){
+                $config=$jobfile;
+            }
+            $config =~ s/j_//;
+            $config =~ s/.sh//;
             if ($args{'j'}) {
                 print "Joining output files $config-*.root to $dir/$joined\n"; 
-		system('hadd', "$dir/$joined", glob("$config-*.root")) == 0 or die "hadd failed: $?";
+                system('hadd', "$dir/$joined", glob("$config-*.root")) == 0 or die "hadd failed: $?";
                 my $str = fileparse($joined, '.root') . '.txt';
-		system("sumTriggerReports2.pl $dir/out*.txt > $dir/$str");
+                system("sumTriggerReports2.pl $dir/out*.txt > $dir/$str");
                 print colored("Joined output file is: ", C_OK),
-		colored("$dir/$joined\n", C_FILE),
-		colored("Joined TrigReport is ", C_OK),
-		colored("$dir/$str\n", C_FILE);
+                colored("$dir/$joined\n", C_FILE),
+                colored("Joined TrigReport is ", C_OK),
+                colored("$dir/$str\n", C_FILE);
             } else {
                 print " - Hint: pass the -j option to join files\n";
             }
@@ -632,6 +634,17 @@ tailjobid=$!
 
 echo "Running on host"
 hostname
+echo
+
+if [ __VERBOSITY__ -ge 1 ] ; then
+    echo "Running on OS"
+    cat /etc/issue
+    echo
+    
+    echo "Dumb environment"
+    env
+    echo
+fi
 
 #Creating configuration file
 perl -pe "s!FINALOUTPUTPATH!$current/naf_DIRECTORY!g; s!OUTPUTPATH!$tmp!g" < $current/naf_DIRECTORY/CONFIGFILE.py > $tmp/run.py
@@ -670,7 +683,7 @@ if [ "$?" = "0" ] ; then
             mv $tmp/CONFIGFILE-$SGE_TASK_ID.root $current/naf_DIRECTORY/CONFIGFILE-$SGE_TASK_ID.root.part.$thisPart
             mv $tmp/stdout.txt $current/naf_DIRECTORY/tmp.out$SGE_TASK_ID.txt.part.$thisPart
             grep TrigReport $current/naf_DIRECTORY/tmp.out$SGE_TASK_ID.txt.part.$thisPart >/dev/null 2>&1
-	    mv $current/naf_DIRECTORY/tmp.out$SGE_TASK_ID.txt.part.$thisPart $current/naf_DIRECTORY/out$SGE_TASK_ID.txt.part.$thisPart
+            mv $current/naf_DIRECTORY/tmp.out$SGE_TASK_ID.txt.part.$thisPart $current/naf_DIRECTORY/out$SGE_TASK_ID.txt.part.$thisPart
             set +e
         else
             #bad luck, not supported!
@@ -685,8 +698,8 @@ if [ "$?" = "0" ] ; then
                 mv $tmp/jobreport.xml $current/naf_DIRECTORY/jobreport$SGE_TASK_ID.xml.part.$thisPart
                 mv $tmp/CONFIGFILE-$SGE_TASK_ID.root $current/naf_DIRECTORY/CONFIGFILE-$SGE_TASK_ID.root.part.$thisPart
                 mv $tmp/stdout.txt $current/naf_DIRECTORY/tmp.out$SGE_TASK_ID.txt.part.$thisPart
-		grep TrigReport $current/naf_DIRECTORY/tmp.out$SGE_TASK_ID.txt.part.$thisPart >/dev/null 2>&1
-		mv $current/naf_DIRECTORY/tmp.out$SGE_TASK_ID.txt.part.$thisPart $current/naf_DIRECTORY/out$SGE_TASK_ID.txt.part.$thisPart
+                grep TrigReport $current/naf_DIRECTORY/tmp.out$SGE_TASK_ID.txt.part.$thisPart >/dev/null 2>&1
+                mv $current/naf_DIRECTORY/tmp.out$SGE_TASK_ID.txt.part.$thisPart $current/naf_DIRECTORY/out$SGE_TASK_ID.txt.part.$thisPart
                 hadd $tmp/hadd.root $current/naf_DIRECTORY/CONFIGFILE-$SGE_TASK_ID.root.part.*
                 mv $tmp/hadd.root $current/naf_DIRECTORY/CONFIGFILE-$SGE_TASK_ID.root
                 sumTriggerReports2.pl $current/naf_DIRECTORY/out$SGE_TASK_ID.txt.part.* > $current/naf_DIRECTORY/out$SGE_TASK_ID.txt
@@ -697,8 +710,8 @@ if [ "$?" = "0" ] ; then
                 mv $tmp/jobreport.xml $current/naf_DIRECTORY/jobreport$SGE_TASK_ID.xml
                 mv $tmp/CONFIGFILE-$SGE_TASK_ID.root $current/naf_DIRECTORY/
                 mv $tmp/stdout.txt $current/naf_DIRECTORY/tmp.out$SGE_TASK_ID.txt
-		grep TrigReport $current/naf_DIRECTORY/tmp.out$SGE_TASK_ID.txt >/dev/null 2>&1
-		mv $current/naf_DIRECTORY/tmp.out$SGE_TASK_ID.txt $current/naf_DIRECTORY/out$SGE_TASK_ID.txt
+                grep TrigReport $current/naf_DIRECTORY/tmp.out$SGE_TASK_ID.txt >/dev/null 2>&1
+                mv $current/naf_DIRECTORY/tmp.out$SGE_TASK_ID.txt $current/naf_DIRECTORY/out$SGE_TASK_ID.txt
                 set +e
             fi
             if [ -e $current/naf_DIRECTORY/autojoin ] ; then
@@ -735,12 +748,14 @@ END_OF_BATCH_TEMPLATE
     my ($hvmem, $svmem) = getMemoryLimits();
     my $afgid = getGroupID();
     my $dlimit = getDiskLimit();
+    my $verbosity = getVerbosity();
     $templ =~ s/__HCPU__/$hcpu/g;
     $templ =~ s/__SCPU__/$scpu/g;
     $templ =~ s/__HVMEM__/$hvmem/g;
     $templ =~ s/__SVMEM__/$svmem/g;
     $templ =~ s/__GPID__/$afgid/g;
     $templ =~ s/__FSIZE__/$dlimit/g;
+    $templ =~ s/__VERBOSITY__/$verbosity/g;
     if ($args{'C'}) {
        $templ =~ s/__COMMA__/ /g;
     } else{
@@ -778,10 +793,19 @@ sub getGroupID {
     my $gid = $ENV{NJS_GROUPID} || "af-cms";
     my $mygroups=`id`;
     if(index($mygroups, $gid) == -1) {
-	die "invalid group id: $gid\n";
+        die "invalid group id: $gid\n";
     }
     print "using group $gid\n";
     return $gid;
+}
+
+sub getVerbosity {
+    if ($args{'v'}) {
+        return $args{'v'};
+    }
+    else {
+        return 0;
+    }
 }
 
 ################################################################################################
