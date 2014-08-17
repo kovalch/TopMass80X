@@ -119,7 +119,7 @@ int main(int argc, char** argv){
         common::makeStringCheck(Channel::convert(Channel::allowedChannelsPlotting)));
     CLParameter<std::string> opt_systematic("s", "Systematic variation - default is Nominal, use 'all' for all", false, 1, 100,
         common::makeStringCheckBegin(Systematic::convertType(Systematic::allowedSystematics)));
-    CLParameter<std::string> opt_globalCorrection("g", "Specify global correction, valid: empty argument for none, Drell-Yan (dy), tt+HF (ttbb). Default: all", false, 0, 2,
+    CLParameter<std::string> opt_globalCorrection("g", "Specify global correction, valid: empty argument for none, Drell-Yan (dy), tt+HF (ttbb). Default: dy", false, 0, 2,
         common::makeStringCheck(GlobalCorrection::convert(GlobalCorrection::allowedGlobalCorrections)));
     CLParameter<std::string> opt_drawMode("d", "Specify draw mode of Higgs sample, valid: stacked, overlaid, scaledoverlaid. Default: scaledoverlaid", false, 1, 1,
         common::makeStringCheck(DrawMode::convert(DrawMode::allowedDrawModes)));
