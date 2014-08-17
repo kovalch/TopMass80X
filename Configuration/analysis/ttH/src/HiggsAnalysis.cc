@@ -66,7 +66,8 @@ constexpr double GenJetPtCUT = JetPtCUT;
 
 HiggsAnalysis::HiggsAnalysis(TTree*):
 inclusiveHiggsDecayMode_(-999),
-additionalBjetMode_(-999)
+additionalBjetMode_(-999),
+toRemoveLeptonGenJets_(false)
 {
     if(MvaMET) this->mvaMet();
 }
@@ -606,8 +607,8 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     
     
     const tth::GenObjectIndices genObjectIndices(genJetIndices,
-                                                 genBjetIndices,
                                                  allGenBjetIndices,
+                                                 genBjetIndices,
                                                  genJetBhadronIndices,
                                                  genJetMatchedRecoBjetIndices,
                                                  allGenCjetIndices,
@@ -665,14 +666,15 @@ tth::IndexPairs HiggsAnalysis::chargeOrderedJetPairIndices(const std::vector<int
 
 std::vector<int> HiggsAnalysis::genJetIndices(const VLV& allGenJets, const TopGenObjects& topGenObjects)const
 {
-    const double leptonJet_dR_min = 0.4;
-    
-    std::vector<int> jetIds;
-    
     std::vector<int> jetIds_kin = common::initialiseIndices(allGenJets);
     selectIndices(jetIds_kin, allGenJets, common::LVeta, GenJetEtaCUT, false);
     selectIndices(jetIds_kin, allGenJets, common::LVeta, -GenJetEtaCUT);
     selectIndices(jetIds_kin, allGenJets, common::LVpt, GenJetPtCUT);
+
+    if(!toRemoveLeptonGenJets_) return jetIds_kin;
+
+    std::vector<int> jetIds;
+    const double leptonJet_dR_min = 0.4;
     
     // Building the vector of gen leptons which shouldn't be contained in jets
     std::vector<LV*> genLeptons;

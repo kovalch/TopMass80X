@@ -140,6 +140,9 @@ private:
     
     /// For a ttbar sample, select tt+bb, tt+b, or tt+other events (no separation for default value -999)
     int additionalBjetMode_;
+
+    /// Whether gen. jets that are close to leptons from tt decays should be removed
+    bool toRemoveLeptonGenJets_;
     
     
     
