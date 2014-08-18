@@ -1600,6 +1600,8 @@ void AnalysisBase::correctMvaMet(const LV& dilepton, const int nJet, const Long6
 {
     if(!isDrellYan_ || !mvaMet_) return;
     
+    if(!metRecoilCorrector_) return;
+    
     const ZGenObjects& zGenObjects = this->getZGenObjects(entry);
     if(zGenObjects.GenZ_->size() != 1){
         std::cerr<<"ERROR in AnalysisBase::correctMvaMet()! Not exactly one Z stored, but: "<<zGenObjects.GenZ_->size()

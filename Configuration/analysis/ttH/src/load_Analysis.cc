@@ -413,6 +413,7 @@ void load_Analysis(const TString& validFilenamePattern,
             // Split specific samples into subsamples and run the selector
             if(isDrellYan){ // For splitting of Drell-Yan sample in decay modes ee, mumu, tautau
                 if(selector->useMvaMet() && !metRecoilCorrector){
+                    // Initialise recoil corrector for MVA MET in Drell-Yan samples (null-pointer means no application)
                     metRecoilCorrector = new MetRecoilCorrector(MvaMetRecoilDataFILE, MvaMetRecoilMcFILE);
                     selector->SetMetRecoilCorrector(metRecoilCorrector);
                 }

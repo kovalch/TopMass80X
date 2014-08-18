@@ -346,6 +346,7 @@ void load_Analysis(const TString& validFilenamePattern,
                 }
                 
                 if(selector->useMvaMet() && !metRecoilCorrector){
+                    // Initialise recoil corrector for MVA MET in Drell-Yan samples (null-pointer means no application)
                     metRecoilCorrector = new MetRecoilCorrector(MvaMetRecoilDataFILE, MvaMetRecoilMcFILE);
                     selector->SetMetRecoilCorrector(metRecoilCorrector);
                 }
