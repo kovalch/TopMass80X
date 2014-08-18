@@ -325,7 +325,8 @@ class JetEnergyResolutionScaleFactors{
 public:
     
     /// Constructor
-    JetEnergyResolutionScaleFactors(const Systematic::Systematic& systematic);
+    JetEnergyResolutionScaleFactors(const char* scaleFactorSource,
+                                    const Systematic::Systematic& systematic);
     
     /// Destructor
     ~JetEnergyResolutionScaleFactors(){}
@@ -346,8 +347,8 @@ public:
     
 private:
     
-    /// Scale jet according to systematic variation
-    void scaleJet(LV& jet, const double& jetJerSF, const LV& associatedGenJet)const;
+    /// Scale jet according to systematic variation, return false if jet is not scaled for some reason
+    bool scaleJet(LV& jet, const double& jetJerSF, const LV& associatedGenJet)const;
     
     /// Bin number of eta interval for given jet
     int jetEtaBin(const LV& jet)const;
@@ -356,6 +357,12 @@ private:
     
     /// Enumeration for possible systematics
     enum SystematicInternal{vary_up, vary_down, undefined};
+    
+    
+    
+    /// Set values for the scale factors according to the chosen source
+    void scaleFactors(const std::string& scaleFactorSource,
+                      const SystematicInternal& systematicInternal);
     
     
     

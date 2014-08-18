@@ -67,10 +67,17 @@ constexpr const char* TriggerSFInputSUFFIX = "_rereco198fb.root";
 
 
 
+/// Source for the uncertainties associated to JER
+constexpr const char* JerUncertaintySourceNAME = "jer2011";
+//constexpr const char* JerUncertaintySourceNAME = "jer2012";
+
+
+
 /// File containing the uncertainties associated to JES
 //constexpr const char* JesUncertaintySourceFILE = "Fall12_V7_DATA_UncertaintySources_AK5PFchs.txt";
-// constexpr const char* JesUncertaintySourceFILE = "Summer13_V1_DATA_UncertaintySources_AK5PFchs.txt";
+//constexpr const char* JesUncertaintySourceFILE = "Summer13_V1_DATA_UncertaintySources_AK5PFchs.txt";
 constexpr const char* JesUncertaintySourceFILE = "Summer13_V4_DATA_UncertaintySources_AK5PFchs.txt";
+//constexpr const char* JesUncertaintySourceFILE = "Summer13_V5_DATA_UncertaintySources_AK5PFchs.txt";
 
 
 
@@ -146,7 +153,7 @@ void load_Analysis(const TString& validFilenamePattern,
     
     // Set up JER systematic scale factors (null-pointer means no application)
     const JetEnergyResolutionScaleFactors* jetEnergyResolutionScaleFactors(0);
-    if(systematic.type() == Systematic::jer) jetEnergyResolutionScaleFactors = new JetEnergyResolutionScaleFactors(systematic);
+    if(systematic.type() == Systematic::jer) jetEnergyResolutionScaleFactors = new JetEnergyResolutionScaleFactors(JerUncertaintySourceNAME, systematic);
     
     // Set up JES systematic scale factors (null-pointer means no application)
     const JetEnergyScaleScaleFactors* jetEnergyScaleScaleFactors(0);

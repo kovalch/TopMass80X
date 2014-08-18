@@ -866,10 +866,12 @@ void BtagScaleFactors::prepareDiscriminatorReweighting(const char* inputFileHeav
 
 
 
-JetEnergyResolutionScaleFactors::JetEnergyResolutionScaleFactors(const Systematic::Systematic& systematic)
+JetEnergyResolutionScaleFactors::JetEnergyResolutionScaleFactors(const char* scaleFactorSource,
+                                                                 const Systematic::Systematic& systematic)
 {
     std::cout<<"--- Beginning preparation of JER scale factors\n";
     
+    // Set internal systematic
     SystematicInternal systematicInternal(undefined);
     if(systematic.type() == Systematic::jer){
         if(systematic.variation() == Systematic::up) systematicInternal = vary_up;
@@ -881,22 +883,22 @@ JetEnergyResolutionScaleFactors::JetEnergyResolutionScaleFactors(const Systemati
         exit(98);
     }
     
-    // Hardcoded eta ranges
-    v_etaRange_ = {0.5, 1.1, 1.7, 2.3, 10.};
-    
-    // Hardcoded scale factors for eta ranges, nominal is = {1.052, 1.057, 1.096, 1.134, 1.288};
+    // Sanity check
+    std::cout<<"Using scale factor source: "<<scaleFactorSource<<"\n";
     if(systematicInternal == vary_up){
-        v_etaScaleFactor_ = {1.115, 1.114, 1.161, 1.228, 1.488};
         std::cout<<"Apply systematic variation: up\n";
     }
     else if(systematicInternal == vary_down){
-        v_etaScaleFactor_ = {0.990, 1.001, 1.032, 1.042, 1.089};
         std::cout<<"Apply systematic variation: down\n";
     }
     else{
         std::cerr<<"Error in constructor of JetEnergyResolutionScaleFactors! Systematic variation not allowed\n...break\n"<<std::endl;
         exit(621);
     }
+    
+    // Set scale factors corresponding to specified source
+    this->scaleFactors(scaleFactorSource, systematicInternal);
+    
     
     // Check correct size
     if(v_etaRange_.size() != v_etaScaleFactor_.size()){
@@ -907,6 +909,37 @@ JetEnergyResolutionScaleFactors::JetEnergyResolutionScaleFactors(const Systemati
     }
     
     std::cout<<"=== Finishing preparation of JER scale factors\n\n";
+}
+
+
+
+void JetEnergyResolutionScaleFactors::scaleFactors(const std::string& scaleFactorSource,
+                                                   const SystematicInternal& systematicInternal)
+{
+    // Scale factor values for all sources
+    if(scaleFactorSource == "jer2011"){
+        // Eta ranges
+        v_etaRange_ = {0.5, 1.1, 1.7, 2.3, 10.};
+        // Scale factors for eta ranges, nominal is = {1.052, 1.057, 1.096, 1.134, 1.288};
+        if(systematicInternal == vary_up)
+            v_etaScaleFactor_ = {1.115, 1.114, 1.161, 1.228, 1.488};
+        else if(systematicInternal == vary_down)
+            v_etaScaleFactor_ = {0.990, 1.001, 1.032, 1.042, 1.089};
+    }
+    else if(scaleFactorSource == "jer2012"){
+        // Eta ranges
+        v_etaRange_ = {0.5, 1.1, 1.7, 2.3, 2.8, 3.2, 5.0};
+        // Scale factors for eta ranges, nominal is = {1.079, 1.099, 1.121, 1.208, 1.254, 1.395, 1.056};
+        if(systematicInternal == vary_up)
+            v_etaScaleFactor_ = {1.105, 1.127, 1.150, 1.254, 1.316, 1.458, 1.247};
+        else if(systematicInternal == vary_down)
+            v_etaScaleFactor_ = {1.053, 1.071, 1.092, 1.162, 1.192, 1.332, 0.865};
+    }
+    else{
+        std::cerr<<"ERROR in JetEnergyResolutionScaleFactors::scaleFactors()! Name of scale factor source not defined: "
+                 <<scaleFactorSource<<"\n...break\n"<<std::endl;
+        exit(883);
+    }
 }
 
 
@@ -941,9 +974,10 @@ void JetEnergyResolutionScaleFactors::applyMetSystematic(VLV* const v_jetForMet,
         
         const double storedPx = jet.px();
         const double storedPy = jet.py();
-        this->scaleJet(jet, jetJerSF, associatedGenJet);
-        deltaPx += jet.px() - storedPx;
-        deltaPy += jet.py() - storedPy;
+        if(this->scaleJet(jet, jetJerSF, associatedGenJet)){
+            deltaPx += jet.px() - storedPx;
+            deltaPy += jet.py() - storedPy;
+        }
     }
     
     // Adjust the MET
@@ -954,20 +988,23 @@ void JetEnergyResolutionScaleFactors::applyMetSystematic(VLV* const v_jetForMet,
 
 
 
-void JetEnergyResolutionScaleFactors::scaleJet(LV& jet, const double& jetJerSF, const LV& associatedGenJet)const
+bool JetEnergyResolutionScaleFactors::scaleJet(LV& jet, const double& jetJerSF, const LV& associatedGenJet)const
 {
-    if(jetJerSF != 0.){
-        jet *= 1./jetJerSF;
-        
-        double factor = 0.;
-        if(associatedGenJet.pt() != 0.){
-            const int jetEtaBin = this->jetEtaBin(jet);
-            factor = 1. + (v_etaScaleFactor_.at(jetEtaBin) - 1.)*(1. - (associatedGenJet.pt()/jet.pt()));
-        }
-        if(jetJerSF == 1.) factor = 1.;
-        
-        jet *= factor;
-    }
+    // Avoid division by 0, and do not scale if original scale factor is 1.
+    if(jetJerSF==0. || jetJerSF==1.) return false;
+    
+    // Do not scale if no associated genJet is found
+    if(associatedGenJet.pt() == 0.) return false;
+    
+    // Do not scale if jet is outside range defined for scale factors (i.e. in a range where no scale factors are derived)
+    const int jetEtaBin = this->jetEtaBin(jet);
+    if(jetEtaBin == -1) return false;
+    
+    // Scale the jet
+    jet *= 1./jetJerSF;
+    const double factor = 1. + (v_etaScaleFactor_.at(jetEtaBin) - 1.)*(1. - (associatedGenJet.pt()/jet.pt()));
+    jet *= factor;
+    return true;
 }
 
 
