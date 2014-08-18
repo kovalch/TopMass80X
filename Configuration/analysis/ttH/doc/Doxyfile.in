@@ -977,7 +977,16 @@ SKIP_FUNCTION_MACROS   = YES
 # If a tag file is not located in the directory in which doxygen
 # is run, you must also specify the path to the tagfile here.
 
-TAGFILES               =
+# NOTE: Using an absolute path for defining the folder where to find the html-files (e.g. based on ${ntupleCommon_DOC_INSTALL_DIR})
+# NOTE: does not allow to browse the files when mounting the installation directories, but only when starting a browser from the used machine.
+# NOTE: Thus, relative paths are specified here, but this requires an adjustment based on the installation target directory.
+# NOTE: - The first line would work for any directory, but has absoulute paths, only browsable on the installation machine
+# NOTE: - The second line works in case the code is installed in one single directory (specifying a directory in compileAll.sh)
+# NOTE: - The third line works in case the code in installed in the default directories (not specifying any directory in compileAll.sh)
+#TAGFILES               = ${ntupleCommon_DOC_INSTALL_DIR}/../../../build_ntupleCommon/ntupleCommon.tag=${ntupleCommon_DOC_INSTALL_DIR}/html
+TAGFILES               = ${ntupleCommon_DOC_INSTALL_DIR}/../../../build_ntupleCommon/ntupleCommon.tag=../../ntupleCommon/html
+#TAGFILES               = ${ntupleCommon_DOC_INSTALL_DIR}/../../../build_ntupleCommon/ntupleCommon.tag=../../../../../common/install/doc/ntupleCommon/html
+
 
 # When a file name is specified after GENERATE_TAGFILE, doxygen will create
 # a tag file that is based on the input files it reads.
