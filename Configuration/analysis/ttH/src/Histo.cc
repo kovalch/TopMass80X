@@ -45,7 +45,7 @@ void Histo(const std::vector<std::string>& v_plot,
     const Samples samples("FileLists_plot", v_channel, v_systematic, globalScaleFactors);
     
     // Produce event yields
-    const EventYields eventYields(samples);
+    const EventYields eventYields("EventYields", samples);
     
     // Create Plotter
     Plotter generalPlot(samples, drawMode);

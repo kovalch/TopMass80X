@@ -22,7 +22,7 @@ class EventYields{
 public:
     
     /// Constructor for producing event yield tables
-    EventYields(const Samples& samples);
+    EventYields(const char* outputDirectory, const Samples& samples);
     
     /// Default destructor
     ~EventYields(){};
@@ -32,10 +32,11 @@ public:
 private:
     
     /// Produce the yields
-    void produceYields(const Samples& samples)const;
+    void produceYields(const char* outputDirectory, const Samples& samples)const;
     
     /// Write the yields to txt files, either without or with additional corrections (e.g. Drell-Yan scaling)
-    void writeYields(const Samples& samples,
+    void writeYields(const char* outputDirectory,
+                     const Samples& samples,
                      const std::pair<TString, TString>& nameStepPair,
                      const bool useCorrections =false)const;
     
@@ -49,7 +50,7 @@ private:
 
 
 
-#endif // EventYields_h
+#endif
 
 
 
