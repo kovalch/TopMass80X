@@ -233,7 +233,7 @@ void AnalysisBase::Init(TTree *tree)
     if(isMC_) this->SetWeightGeneratorBranchAddress();
     this->SetPdfBranchAddress();
     this->SetTopDecayBranchAddress();
-    if(isTopSignal_ && isTtbarSample_ && topPtScaleFactors_) this->SetGenTopBranchAddresses();
+    if(isTtbarPlusTauSample_ && topPtScaleFactors_) this->SetGenTopBranchAddresses();
     if(isTopSignal_) this->SetTopSignalBranchAddresses();
     if(isHiggsSignal_) this->SetHiggsDecayBranchAddress();
     if(isHiggsSignal_) this->SetHiggsSignalBranchAddresses();
@@ -1501,7 +1501,7 @@ double AnalysisBase::weightPdf(const Long64_t& entry, const int pdfNo)const
 double AnalysisBase::weightTopPtReweighting(const Long64_t& entry)const
 {
     // Apply only for ttbar dilepton sample
-    if(!isTopSignal_ && !isTtbarSample_) return 1.;
+    if(!isTtbarPlusTauSample_) return 1.;
     // Do not apply if topPtScaleFactors_ is not set up
     if(!topPtScaleFactors_) return 1.;
     
