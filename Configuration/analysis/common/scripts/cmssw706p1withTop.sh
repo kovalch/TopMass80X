@@ -162,9 +162,11 @@ topAnalysis $1
 
 ##### Fix to avoid compilation errors from TopAnalysis/TopUtils/plugins/CandidateCleaner.h
 ## This is due to removal of getByToken in CMSSW_7_x_x
-if [[ "$minimalInstall" == False ]] ; then
-    cp $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/common/hacks/TopAnalysis_TopUtils_plugins_SealModule.cc $CMSSW_BASE/src/TopAnalysis/TopUtils/plugins/SealModule.cc
-fi
+cp $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/common/hacks/TopAnalysis_TopUtils_plugins_SealModule.cc $CMSSW_BASE/src/TopAnalysis/TopUtils/plugins/SealModule.cc
+
+##### Fix to avoid nafJobSplitter crashes due to not propagated environment to batch farm
+cp $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/common/hacks/TopAnalysis_TopUtils_scripts_nafJobSplitter.pl $CMSSW_BASE/src/TopAnalysis/TopUtils/scripts/nafJobSplitter.pl
+
 
 
 ###### Compile everything ######

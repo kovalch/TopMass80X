@@ -189,10 +189,12 @@ topAnalysis $1
 ##### Fix to avoid crash on MVA Met producer when no PV exist
 ## The JetMet people were contacted and they will fix (hopefully) the bug soon
 ## in the meantime...
-if [[ "$minimalInstall" == False ]] ; then
-    cp $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/common/hacks/RecoMET_METPUSubtraction_plugins_PFMETProducerMVA.cc $CMSSW_BASE/src/RecoMET/METPUSubtraction/plugins/PFMETProducerMVA.cc
-    cp $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/common/hacks/RecoMET_METAnalyzers_BuildFile.xml $CMSSW_BASE/src/RecoMET/METAnalyzers/BuildFile.xml
-fi
+cp $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/common/hacks/RecoMET_METPUSubtraction_plugins_PFMETProducerMVA.cc $CMSSW_BASE/src/RecoMET/METPUSubtraction/plugins/PFMETProducerMVA.cc
+cp $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/common/hacks/RecoMET_METAnalyzers_BuildFile.xml $CMSSW_BASE/src/RecoMET/METAnalyzers/BuildFile.xml
+
+##### Fix to avoid nafJobSplitter crashes due to not propagated environment to batch farm
+cp $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/common/hacks/TopAnalysis_TopUtils_scripts_nafJobSplitter.pl $CMSSW_BASE/src/TopAnalysis/TopUtils/scripts/nafJobSplitter.pl
+
 
 
 ###### Compile everything ######
