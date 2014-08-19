@@ -384,7 +384,7 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     else firstHistToDraw->SetMinimum(ymin_);
 
     if(rangemin_!=0. || rangemax_!=0.) {firstHistToDraw->SetAxisRange(rangemin_, rangemax_, "X");}
-
+    
     if(ymax_==0.){
         // Determining the highest Y value that is plotted
         float yMax = dataHist.second ? dataHist.second->GetBinContent(dataHist.second->GetMaximumBin()) : 0.f;
@@ -435,7 +435,8 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
         }
     } else {
         // Moving the pad to the left to fit the color palette
-        if(stackToNEntries_) firstHistToDraw->Scale(firstHistToDraw->GetEntries()/firstHistToDraw->Integral());
+        if(stackToNEntries_) firstHistToDraw->Scale(firstHistToDraw->GetEntries()/((TH2*)firstHistToDraw)->Integral(0,-1,0,-1));
+        if(ymax_ != 0) firstHistToDraw->SetMaximum(ymax_);
         gPad->SetRightMargin(0.15);
         gPad->SetLeftMargin(0.1);      
     }
@@ -468,18 +469,19 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
         TGraphErrors* g_stability = purityStabilityGraph((TH2*)firstHistToDraw, 1);
         
         
-        // Styling graphs and axis
+        // Styling axis
         firstHistToDraw = ((TH2*)firstHistToDraw)->ProjectionX();
+        firstHistToDraw->Draw("AXIS");
         firstHistToDraw->SetAxisRange(0., 1.1, "Y");
         firstHistToDraw->GetYaxis()->SetTitle("Values");
+        // Styling graphs
         setGraphStyle(g_purity, 21, 1, 1.5, 1, 1);
         setGraphStyle(g_stability, 20, 2, 1.5, 1, 2);
         gPad->SetRightMargin(0.05);
         
-        // Drawing axis and graphs
-        firstHistToDraw->Draw("AXIS");
-        g_purity->Draw("LP0same");
-        g_stability->Draw("LP0same");
+        // Drawing graphs
+        g_purity->Draw("P0same");
+        g_stability->Draw("P0same");
         gPad->Update();
         
         
@@ -660,9 +662,10 @@ TGraphErrors* Plotter::purityStabilityGraph(TH2* h2d, const int type)const {
         const double error = type == 0 ? uncertaintyBinomial(diag, reco) : uncertaintyBinomial(diag, gen);
 
         const double bin = h2d->GetXaxis()->GetBinCenter(iBin);
+        const double binW = h2d->GetXaxis()->GetBinWidth(iBin);
         
         graph->SetPoint(iBin-1, bin, value);
-        graph->SetPointError(iBin-1, 0., error);
+        graph->SetPointError(iBin-1, binW/2., error);
     }
 
     return graph;
