@@ -383,7 +383,7 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     }
     else firstHistToDraw->SetMinimum(ymin_);
 
-    if(rangemin_!=0. || rangemax_!=0.) {firstHistToDraw->SetAxisRange(rangemin_, rangemax_, "X");}
+//     if(rangemin_!=0. || rangemax_!=0.) {firstHistToDraw->SetAxisRange(rangemin_, rangemax_, "X");}
     
     if(ymax_==0.){
         // Determining the highest Y value that is plotted
@@ -405,6 +405,21 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     else{firstHistToDraw->SetMaximum(ymax_);}
 
     firstHistToDraw->GetXaxis()->SetNoExponent(kTRUE);
+    
+    // Blinding the data histogram region
+    if((rangemin_!=0. || rangemax_!=0.) && dataHist.second) {
+        if(rangemax_ < rangemin_) {
+            std::cerr<<"ERROR in Plotter! Blinding region has right border with lower value than left border\n...break\n"<<std::endl;
+            exit(238);
+        }
+        int bin1 = dataHist.second->FindBin(rangemin_);
+        int bin2 = dataHist.second->FindBin(rangemax_);
+        while(bin1 <= bin2) {
+            dataHist.second->SetBinContent(bin1, -1e10);
+            dataHist.second->SetBinError(bin1, 0);
+            bin1++;
+        }
+    }
 
     
 //     //Add the binwidth to the yaxis in yield plots (FIXME: works only correctly for equidistant bins)
