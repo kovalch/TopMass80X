@@ -35,6 +35,7 @@ Implementation:
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Common/interface/TriggerNames.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
@@ -587,13 +588,12 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             genAntiNeutrino_ = nullP4_;
             genWMinus_ = nullP4_;
             genWPlus_ = nullP4_;
-            genMet_ = nullP4_;
         }
         
-        // MET
+        // Gen MET --- for CSA14, need to check whether really produced
         edm::Handle<std::vector<reco::GenMET> > genMet;
         iEvent.getByLabel(genMetTag_, genMet);
-        genMet_ = genMet->at(0).polarP4();
+        if(!genMet.failedToGet()) genMet_ = genMet->at(0).polarP4();
         
         // All gen jets
         edm::Handle<reco::GenJetCollection> genJets;
@@ -1106,44 +1106,49 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
     
     // Jet properties concerning constituents and secondary vertices
-    edm::Handle<std::vector<JetProperties> > v_jetProperties;
-    iEvent.getByLabel(jetPropertiesTag_, v_jetProperties);
-    for(std::vector<JetProperties>::const_iterator i_jetProperties = v_jetProperties->begin(); i_jetProperties != v_jetProperties->end(); ++i_jetProperties){
-        v_jetChargeGlobalPtWeighted_.push_back(i_jetProperties->jetChargeGlobalPtWeighted());
-        v_jetChargeRelativePtWeighted_.push_back(i_jetProperties->jetChargeRelativePtWeighted());
-        if(isTtbarSample_){
-            v_jetAssociatedPartonPdgId_.push_back(i_jetProperties->jetAssociatedPartonPdgId());
-            v_jetAssociatedParton_.push_back(i_jetProperties->jetAssociatedParton());
+    // CSA14: Workaround as long as jetProperties are not working by setting label to "NONE"
+    if(jetPropertiesTag_.label() != "NONE"){
+        edm::Handle<std::vector<JetProperties> > v_jetProperties;
+        iEvent.getByLabel(jetPropertiesTag_, v_jetProperties);
+        for(std::vector<JetProperties>::const_iterator i_jetProperties = v_jetProperties->begin(); i_jetProperties != v_jetProperties->end(); ++i_jetProperties){
+            v_jetChargeGlobalPtWeighted_.push_back(i_jetProperties->jetChargeGlobalPtWeighted());
+            v_jetChargeRelativePtWeighted_.push_back(i_jetProperties->jetChargeRelativePtWeighted());
+            if(isTtbarSample_){
+                v_jetAssociatedPartonPdgId_.push_back(i_jetProperties->jetAssociatedPartonPdgId());
+                v_jetAssociatedParton_.push_back(i_jetProperties->jetAssociatedParton());
+            }
+            v_jetSecondaryVertexPtCorrectedMass_.push_back(i_jetProperties->jetSecondaryVertexPtCorrectedMass());
+            
+            const int jetIndex = i_jetProperties - v_jetProperties->begin();
+            
+            v_jetPfCandidateTrack_.insert(v_jetPfCandidateTrack_.end(), i_jetProperties->jetPfCandidateTrack().begin(), i_jetProperties->jetPfCandidateTrack().end());
+            v_jetPfCandidateTrackCharge_.insert(v_jetPfCandidateTrackCharge_.end(), i_jetProperties->jetPfCandidateTrackCharge().begin(), i_jetProperties->jetPfCandidateTrackCharge().end());
+            v_jetPfCandidateTrackId_.insert(v_jetPfCandidateTrackId_.end(), i_jetProperties->jetPfCandidateTrackId().begin(), i_jetProperties->jetPfCandidateTrackId().end());
+            v_jetPfCandidateTrackIndex_.insert(v_jetPfCandidateTrackIndex_.end(), i_jetProperties->jetPfCandidateTrack().size(), jetIndex);
+            
+            v_jetSelectedTrack_.insert(v_jetSelectedTrack_.end(), i_jetProperties->jetSelectedTrack().begin(), i_jetProperties->jetSelectedTrack().end());
+            v_jetSelectedTrackIPValue_.insert(v_jetSelectedTrackIPValue_.end(), i_jetProperties->jetSelectedTrackIPValue().begin(), i_jetProperties->jetSelectedTrackIPValue().end());
+            v_jetSelectedTrackIPSignificance_.insert(v_jetSelectedTrackIPSignificance_.end(), i_jetProperties->jetSelectedTrackIPSignificance().begin(), i_jetProperties->jetSelectedTrackIPSignificance().end());
+            v_jetSelectedTrackCharge_.insert(v_jetSelectedTrackCharge_.end(), i_jetProperties->jetSelectedTrackCharge().begin(), i_jetProperties->jetSelectedTrackCharge().end());
+            v_jetSelectedTrackMatchToPfCandidateIndex_.insert(v_jetSelectedTrackMatchToPfCandidateIndex_.end(), i_jetProperties->jetSelectedTrackMatchToPfCandidateIndex().begin(), i_jetProperties->jetSelectedTrackMatchToPfCandidateIndex().end());
+            v_jetSelectedTrackIndex_.insert(v_jetSelectedTrackIndex_.end(), i_jetProperties->jetSelectedTrack().size(), jetIndex);
+            
+            v_jetSecondaryVertexTrackMatchToSelectedTrackIndex_.insert(v_jetSecondaryVertexTrackMatchToSelectedTrackIndex_.end(), i_jetProperties->jetSecondaryVertexTrackMatchToSelectedTrackIndex().begin(), i_jetProperties->jetSecondaryVertexTrackMatchToSelectedTrackIndex().end());
+            v_jetSecondaryVertexTrackVertexIndex_.insert(v_jetSecondaryVertexTrackVertexIndex_.end(), i_jetProperties->jetSecondaryVertexTrackVertexIndex().begin(), i_jetProperties->jetSecondaryVertexTrackVertexIndex().end());
+            
+            v_jetSecondaryVertex_.insert(v_jetSecondaryVertex_.end(), i_jetProperties->jetSecondaryVertex().begin(), i_jetProperties->jetSecondaryVertex().end());
+            v_jetSecondaryVertexFlightDistanceValue_.insert(v_jetSecondaryVertexFlightDistanceValue_.end(), i_jetProperties->jetSecondaryVertexFlightDistanceValue().begin(), i_jetProperties->jetSecondaryVertexFlightDistanceValue().end());
+            v_jetSecondaryVertexFlightDistanceSignificance_.insert(v_jetSecondaryVertexFlightDistanceSignificance_.end(), i_jetProperties->jetSecondaryVertexFlightDistanceSignificance().begin(), i_jetProperties->jetSecondaryVertexFlightDistanceSignificance().end());
+            v_jetSecondaryVertexJetIndex_.insert(v_jetSecondaryVertexJetIndex_.end(), i_jetProperties->jetSecondaryVertex().size(), jetIndex);
         }
-        v_jetSecondaryVertexPtCorrectedMass_.push_back(i_jetProperties->jetSecondaryVertexPtCorrectedMass());
-        
-        const int jetIndex = i_jetProperties - v_jetProperties->begin();
-        
-        v_jetPfCandidateTrack_.insert(v_jetPfCandidateTrack_.end(), i_jetProperties->jetPfCandidateTrack().begin(), i_jetProperties->jetPfCandidateTrack().end());
-        v_jetPfCandidateTrackCharge_.insert(v_jetPfCandidateTrackCharge_.end(), i_jetProperties->jetPfCandidateTrackCharge().begin(), i_jetProperties->jetPfCandidateTrackCharge().end());
-        v_jetPfCandidateTrackId_.insert(v_jetPfCandidateTrackId_.end(), i_jetProperties->jetPfCandidateTrackId().begin(), i_jetProperties->jetPfCandidateTrackId().end());
-        v_jetPfCandidateTrackIndex_.insert(v_jetPfCandidateTrackIndex_.end(), i_jetProperties->jetPfCandidateTrack().size(), jetIndex);
-        
-        v_jetSelectedTrack_.insert(v_jetSelectedTrack_.end(), i_jetProperties->jetSelectedTrack().begin(), i_jetProperties->jetSelectedTrack().end());
-        v_jetSelectedTrackIPValue_.insert(v_jetSelectedTrackIPValue_.end(), i_jetProperties->jetSelectedTrackIPValue().begin(), i_jetProperties->jetSelectedTrackIPValue().end());
-        v_jetSelectedTrackIPSignificance_.insert(v_jetSelectedTrackIPSignificance_.end(), i_jetProperties->jetSelectedTrackIPSignificance().begin(), i_jetProperties->jetSelectedTrackIPSignificance().end());
-        v_jetSelectedTrackCharge_.insert(v_jetSelectedTrackCharge_.end(), i_jetProperties->jetSelectedTrackCharge().begin(), i_jetProperties->jetSelectedTrackCharge().end());
-        v_jetSelectedTrackMatchToPfCandidateIndex_.insert(v_jetSelectedTrackMatchToPfCandidateIndex_.end(), i_jetProperties->jetSelectedTrackMatchToPfCandidateIndex().begin(), i_jetProperties->jetSelectedTrackMatchToPfCandidateIndex().end());
-        v_jetSelectedTrackIndex_.insert(v_jetSelectedTrackIndex_.end(), i_jetProperties->jetSelectedTrack().size(), jetIndex);
-        
-        v_jetSecondaryVertexTrackMatchToSelectedTrackIndex_.insert(v_jetSecondaryVertexTrackMatchToSelectedTrackIndex_.end(), i_jetProperties->jetSecondaryVertexTrackMatchToSelectedTrackIndex().begin(), i_jetProperties->jetSecondaryVertexTrackMatchToSelectedTrackIndex().end());
-        v_jetSecondaryVertexTrackVertexIndex_.insert(v_jetSecondaryVertexTrackVertexIndex_.end(), i_jetProperties->jetSecondaryVertexTrackVertexIndex().begin(), i_jetProperties->jetSecondaryVertexTrackVertexIndex().end());
-        
-        v_jetSecondaryVertex_.insert(v_jetSecondaryVertex_.end(), i_jetProperties->jetSecondaryVertex().begin(), i_jetProperties->jetSecondaryVertex().end());
-        v_jetSecondaryVertexFlightDistanceValue_.insert(v_jetSecondaryVertexFlightDistanceValue_.end(), i_jetProperties->jetSecondaryVertexFlightDistanceValue().begin(), i_jetProperties->jetSecondaryVertexFlightDistanceValue().end());
-        v_jetSecondaryVertexFlightDistanceSignificance_.insert(v_jetSecondaryVertexFlightDistanceSignificance_.end(), i_jetProperties->jetSecondaryVertexFlightDistanceSignificance().begin(), i_jetProperties->jetSecondaryVertexFlightDistanceSignificance().end());
-        v_jetSecondaryVertexJetIndex_.insert(v_jetSecondaryVertexJetIndex_.end(), i_jetProperties->jetSecondaryVertex().size(), jetIndex);
     }
     
-    // MET (PF MET and MVA MET)
+    // PF MET
     edm::Handle<edm::View<pat::MET> > met;
     iEvent.getByLabel(metTag_, met);
     met_ = met->at(0).polarP4();
+    
+    // MVA MET --- for CSA14, need to check whether really produced
     edm::Handle<edm::View<pat::MET> > mvaMet;
     iEvent.getByLabel(mvaMetTag_, mvaMet);
     if(!mvaMet.failedToGet()) mvaMet_ = mvaMet->at(0).polarP4();
