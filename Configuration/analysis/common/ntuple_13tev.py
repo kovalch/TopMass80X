@@ -16,7 +16,6 @@ WANTSUMMARY = True
 ####################################################################
 ## Define the process
 
-from PhysicsTools.PatAlgos.patTemplate_cfg import *
 process = cms.Process("topDileptonNtuple")
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(WANTSUMMARY)
@@ -42,7 +41,7 @@ options.register('json', '', VarParsing.VarParsing.multiplicity.singleton, VarPa
 options.register('skipEvents', 0, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "skip N events")
 options.register('includePDFWeights', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "include the PDF weights *slow!!!*")
 
-## Get and parse the command line arguments
+# Get and parse the command line arguments
 if( hasattr(sys, "argv") ):
     for args in sys.argv :
         arg = args.split(',')
@@ -50,6 +49,11 @@ if( hasattr(sys, "argv") ):
             val = val.split('=')
             if(len(val)==2):
                 setattr(options,val[0], val[1])
+
+if options.runOnAOD:
+    print 'Configuration for data type: AOD'
+else:
+    print 'Configuration for data type: miniAOD'
 
 
 
@@ -89,33 +93,6 @@ if options.json != '':
     myLumis = LumiList.LumiList(filename = options.json).getCMSSWString().split(',')
     process.source.lumisToProcess = CfgTypes.untracked(CfgTypes.VLuminosityBlockRange())
     process.source.lumisToProcess.extend(myLumis)
-
-
-
-####################################################################
-## Create output path
-
-if options.outputFile == '':
-    fn = options.mode + '_test.root'
-else:
-    fn = options.outputFile
-print 'Using output file ' + fn
-
-process.TFileService = cms.Service("TFileService",
-    fileName = cms.string(fn)
-)
-
-
-
-####################################################################
-## Output module for edm files (needed for PAT sequence, even if not used in EndPath)
-
-process.load("Configuration.EventContent.EventContent_cff")
-process.out = cms.OutputModule("PoolOutputModule",
-    process.FEVTEventContent,
-    dataset = cms.untracked.PSet(dataTier = cms.untracked.string('RECO')),
-    fileName = cms.untracked.string("eh.root"),
-)
 
 
 
@@ -225,6 +202,21 @@ print "Using global tag: ", process.GlobalTag.globaltag
 
 
 ####################################################################
+## Configure TFileService
+
+if options.outputFile == '':
+    fn = options.mode + '_test.root'
+else:
+    fn = options.outputFile
+print 'Using output file ' + fn
+
+process.TFileService = cms.Service("TFileService",
+    fileName = cms.string(fn)
+)
+
+
+
+####################################################################
 ## HCAL Noise filter
 
 process.load('CommonTools/RecoAlgos/HBHENoiseFilter_cfi')
@@ -250,21 +242,6 @@ process.scrapingFilter = cms.EDFilter("FilterOutScraping",
 ## ECAL laser correction filter
 
 process.load("RecoMET.METFilters.ecalLaserCorrFilter_cfi")
-
-
-
-####################################################################
-## Primary vertex filtering
-
-from PhysicsTools.SelectorUtils.pvSelector_cfi import pvSelector
-process.goodOfflinePrimaryVertices = cms.EDFilter(
-    "PrimaryVertexObjectFilter",
-    filterParams = pvSelector.clone(minNdof = cms.double(4.0), maxZ = cms.double(24.0)),
-    src = cms.InputTag('offlinePrimaryVertices')
-    )
-if signal:
-    process.goodOfflinePrimaryVertices.filter = cms.bool(False)
-
 
 
 
@@ -305,93 +282,131 @@ else:
 
 
 ####################################################################
-## Jet corrections
+## Primary vertex filtering
 
-if options.runOnMC:
-    jetCorr = ('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'])
+selectedPrimaryVertices = ''
+
+if options.runOnAOD:
+    selectedPrimaryVertices = 'goodOfflinePrimaryVertices'
+    from PhysicsTools.SelectorUtils.pvSelector_cfi import pvSelector
+    process.goodOfflinePrimaryVertices = cms.EDFilter(
+        "PrimaryVertexObjectFilter",
+        filterParams = pvSelector.clone(minNdof = cms.double(4.0), maxZ = cms.double(24.0)),
+        src = cms.InputTag('offlinePrimaryVertices')
+        )
+    if signal:
+        process.goodOfflinePrimaryVertices.filter = cms.bool(False)
 else:
-    jetCorr = ('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])
+    selectedPrimaryVertices = 'offlineSlimmedPrimaryVertices'
 
 
 
 ####################################################################
-## PF2PAT sequence
+## Full configuration for PF2PAT
 
-pfpostfix = "PFlow"
 
-# PF2PAT
-# Parameter checkClosestZVertex = False needs to be set to False when using PF Jets with Charged Hadron Subtraction, see https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookJetEnergyCorrections#JetEnCorPFnoPU2012
-process.load("PhysicsTools.PatAlgos.patSequences_cff")
-from PhysicsTools.PatAlgos.tools.pfTools import *
-usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=options.runOnMC, postfix=pfpostfix, jetCorrections=jetCorr, pvCollection=cms.InputTag('goodOfflinePrimaryVertices'), typeIMetCorrections=True)
-getattr(process, 'pfPileUp'+pfpostfix).checkClosestZVertex = False
+if options.runOnAOD:
+    ## Postfix
+    pfpostfix = "PFlow"
+    
+    
+    ## Output module for edm files (needed for PAT sequence, even if not used in EndPath)
+    process.load("Configuration.EventContent.EventContent_cff")
+    process.out = cms.OutputModule("PoolOutputModule",
+        process.FEVTEventContent,
+        dataset = cms.untracked.PSet(dataTier = cms.untracked.string('RECO')),
+        fileName = cms.untracked.string("eh.root"),
+    )
+    
+    
+    ## Jet corrections
+    if options.runOnMC:
+        jetCorr = ('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'])
+    else:
+        jetCorr = ('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])
+    
+    
+    ## PF2PAT sequence
+    # Parameter checkClosestZVertex = False needs to be set to False when using PF Jets with Charged Hadron Subtraction, see https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookJetEnergyCorrections#JetEnCorPFnoPU2012
+    process.load("PhysicsTools.PatAlgos.patSequences_cff")
+    from PhysicsTools.PatAlgos.tools.pfTools import *
+    usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=options.runOnMC, postfix=pfpostfix, jetCorrections=jetCorr, pvCollection=cms.InputTag(selectedPrimaryVertices), typeIMetCorrections=True)
+    getattr(process, 'pfPileUp'+pfpostfix).checkClosestZVertex = False
+    
+    
+    ## Selections for PF2PAT objects: Electrons
+    # FIXME: pfSelectedElectrons does not exist anymore
+    # FIXME: pfIsolatedElectrons is now sth different, takes now cut value (as previously pfSelectedElectrons + relative isolation based on variables of gsfTrackRef)
+    # FIXME: See: https://cmssdt.cern.ch/SDT/lxr/source/CommonTools/ParticleFlow/python/Isolation/pfIsolatedElectrons_cfi.py
+    # FIXME: Where to set isolation value and cone pfIsolatedElectrons?
+    getattr(process, 'patElectrons'+pfpostfix).isolationValues = cms.PSet(
+        pfChargedHadrons = cms.InputTag("elPFIsoValueCharged03PFId"+pfpostfix),
+        pfChargedAll = cms.InputTag("elPFIsoValueChargedAll03PFId"+pfpostfix),
+        pfPUChargedHadrons = cms.InputTag("elPFIsoValuePU03PFId"+pfpostfix),
+        pfNeutralHadrons = cms.InputTag("elPFIsoValueNeutral03PFId"+pfpostfix),
+        pfPhotons = cms.InputTag("elPFIsoValueGamma03PFId"+pfpostfix)
+    )
+    
+    
+    ## Selections for PF2PAT objects: Muons
+    # FIXME: same as for electrons
+    getattr(process, 'patMuons'+pfpostfix).isolationValues = cms.PSet(
+        pfNeutralHadrons = cms.InputTag("muPFIsoValueNeutral03"+pfpostfix),
+        pfChargedAll = cms.InputTag("muPFIsoValueChargedAll03"+pfpostfix),
+        pfPUChargedHadrons = cms.InputTag("muPFIsoValuePU03"+pfpostfix),
+        pfPhotons = cms.InputTag("muPFIsoValueGamma03"+pfpostfix),
+        pfChargedHadrons = cms.InputTag("muPFIsoValueCharged03"+pfpostfix)
+    )
+    
+    
+    ## Selections for PF2PAT objects: Jets
+    # FIXME: line not working, is it relevant?
+    #getattr(process, 'patJetCorrFactors'+pfpostfix).rho = cms.InputTag("kt6PFJets", "rho", "RECO")
+    # FIXME: not working, tag infos not added
+    # Set to true to access b-tagging information in PAT jets
+    #applyPostfix(process, "patJets", pfpostfix).addTagInfos = True
 
 
 
 ####################################################################
-## Set up selections for PF2PAT & PAT objects: Electrons
+## Object preselection for any correction based on final PAT objects
 
-# Basic selection for PF2PAT
-#getattr(process, 'pfSelectedElectrons'+pfpostfix).cut = 'pt > 5 && gsfTrackRef.isNonnull && gsfTrackRef.trackerExpectedHitsInner.numberOfHits <= 0'  # it couldn't find pfSelectedElectrons
+preselectedElectronCollection = ''
+preselectedMuonCollection = ''
+preselectedJetCollection = ''
+preselectedMetCollection = ''
 
-# Switch isolation cone to 0.3 and set cut to 0.15
-#getattr(process, 'pfIsolatedElectrons'+pfpostfix).doDeltaBetaCorrection = True   # Not really a 'deltaBeta' correction, but it serves # it couldn't find doDeltaBetaCorrection 
-getattr(process, 'pfIsolatedElectrons'+pfpostfix).deltaBetaIsolationValueMap = cms.InputTag("elPFIsoValuePU03PFId"+pfpostfix)
-getattr(process, 'pfIsolatedElectrons'+pfpostfix).isolationValueMapsCharged = cms.VInputTag(cms.InputTag("elPFIsoValueCharged03PFId"+pfpostfix))
-getattr(process, 'pfIsolatedElectrons'+pfpostfix).isolationValueMapsNeutral = cms.VInputTag(cms.InputTag("elPFIsoValueNeutral03PFId"+pfpostfix), cms.InputTag("elPFIsoValueGamma03PFId"+pfpostfix))
-#getattr(process, 'pfIsolatedElectrons'+pfpostfix).isolationCut = 0.15 # it couldn't find isolationCut
+from PhysicsTools.PatAlgos.selectionLayer1.electronSelector_cfi import *
+from PhysicsTools.PatAlgos.selectionLayer1.muonSelector_cfi import *
+from PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi import *
 
-getattr(process, 'patElectrons'+pfpostfix).isolationValues = cms.PSet(
-    pfChargedHadrons = cms.InputTag("elPFIsoValueCharged03PFId"+pfpostfix),
-    pfChargedAll = cms.InputTag("elPFIsoValueChargedAll03PFId"+pfpostfix),
-    pfPUChargedHadrons = cms.InputTag("elPFIsoValuePU03PFId"+pfpostfix),
-    pfNeutralHadrons = cms.InputTag("elPFIsoValueNeutral03PFId"+pfpostfix),
-    pfPhotons = cms.InputTag("elPFIsoValueGamma03PFId"+pfpostfix)
-)
-
-# Electron ID
-getattr(process, 'selectedPatElectrons'+pfpostfix).cut = 'electronID("eidLoose") > 0.5 && passConversionVeto'
-
-
-
-####################################################################
-## Set up selections for PF2PAT & PAT objects: Muons
-
-# Basic selection for PF2PAT
-#getattr(process, 'pfSelectedMuons'+pfpostfix).cut = 'pt > 5' \  # couldn't find pfSelectedMuons
-#                                                    '&& muonRef.isNonnull()' \    
-#                                                    '&& (muonRef.isGlobalMuon() || muonRef.isTrackerMuon())'   
-
-# Switch isolation cone to 0.3 and set cut to 0.15
-#getattr(process, 'pfIsolatedMuons'+pfpostfix).doDeltaBetaCorrection = True   # couldn't find doDeltaBetaCorrection
-getattr(process, 'pfIsolatedMuons'+pfpostfix).deltaBetaIsolationValueMap = cms.InputTag("muPFIsoValuePU03"+pfpostfix, "", "")
-#getattr(process, 'pfIsolatedMuons'+pfpostfix).isolationValueMapsCharged = [cms.InputTag("muPFIsoValueCharged03"+pfpostfix)]  # couldn't find isolationValueMapsCharged
-#getattr(process, 'pfIsolatedMuons'+pfpostfix).isolationValueMapsNeutral = [cms.InputTag("muPFIsoValueNeutral03"+pfpostfix), cms.InputTag("muPFIsoValueGamma03"+pfpostfix)]   # couldn't find isolationValueMapsNeutral
-#getattr(process, 'pfIsolatedMuons'+pfpostfix).isolationCut = 0.15   # couldn't find isolationCut
-
-getattr(process, 'patMuons'+pfpostfix).isolationValues = cms.PSet(
-    pfNeutralHadrons = cms.InputTag("muPFIsoValueNeutral03"+pfpostfix),
-    pfChargedAll = cms.InputTag("muPFIsoValueChargedAll03"+pfpostfix),
-    pfPUChargedHadrons = cms.InputTag("muPFIsoValuePU03"+pfpostfix),
-    pfPhotons = cms.InputTag("muPFIsoValueGamma03"+pfpostfix),
-    pfChargedHadrons = cms.InputTag("muPFIsoValueCharged03"+pfpostfix)
-)
-
-# Muon selection
-getattr(process, 'selectedPatMuons'+pfpostfix).cut = 'isPFMuon && pt > 20 && abs(eta) < 2.4'
-
-
-
-####################################################################
-## Set up selections for PF2PAT & PAT objects: Jets
-
-#getattr(process, 'patJetCorrFactors'+pfpostfix).rho = cms.InputTag("kt6PFJets", "rho", "RECO")  # problems with "kt6PFJets", "rho"
-
-# Set to true to access b-tagging information in PAT jets
-applyPostfix(process, "patJets", pfpostfix).addTagInfos = True
-
-# Jet selection
-getattr(process, 'selectedPatJets'+pfpostfix).cut = 'abs(eta)<5.4'
+if options.runOnAOD:
+    preselectedElectronCollection = 'selectedPatElectrons'+pfpostfix
+    preselectedMuonCollection = 'selectedPatMuons'+pfpostfix
+    preselectedJetCollection = 'selectedPatJets'+pfpostfix
+    preselectedMetCollection = 'patMETs'+pfpostfix
+    
+    getattr(process, preselectedElectronCollection).cut = 'electronID("eidLoose")>0.5 && passConversionVeto'
+    getattr(process, preselectedMuonCollection).cut = 'isPFMuon && pt>20 && abs(eta)<2.4'
+    getattr(process, preselectedJetCollection).cut = 'abs(eta)<5.4'
+else:
+    preselectedElectronCollection = 'preselectedElectrons'
+    preselectedMuonCollection = 'preselectedMuons'
+    preselectedJetCollection = 'preselectedJets'
+    preselectedMetCollection = 'slimmedMETs'
+    
+    process.preselectedElectrons = selectedPatElectrons.clone(
+        src = 'slimmedElectrons',
+        cut = 'pt>5 && electronID("eidLoose")>0.5 && passConversionVeto'
+    )
+    process.preselectedMuons = selectedPatMuons.clone(
+        src = 'slimmedMuons',
+        cut = 'isPFMuon && pt>20 && abs(eta)<2.4'
+    )
+    process.preselectedJets = selectedPatJets.clone(
+        src = 'slimmedJets',
+        cut = 'abs(eta)<5.4'
+    )
 
 
 
@@ -399,9 +414,9 @@ getattr(process, 'selectedPatJets'+pfpostfix).cut = 'abs(eta)<5.4'
 ## Configure jet energy resolution, and use corrected electrons, and propagate to MET
 
 process.load("TopAnalysis.TopUtils.JetEnergyScale_cfi")
-process.scaledJetEnergy.inputElectrons = "selectedPatElectrons"+pfpostfix
-process.scaledJetEnergy.inputJets = "selectedPatJets"+pfpostfix
-process.scaledJetEnergy.inputMETs = "patMETs"+pfpostfix
+process.scaledJetEnergy.inputElectrons = preselectedElectronCollection
+process.scaledJetEnergy.inputJets = preselectedJetCollection
+process.scaledJetEnergy.inputMETs = preselectedMetCollection
 process.scaledJetEnergy.JECUncSrcFile = cms.FileInPath("TopAnalysis/Configuration/analysis/common/data/Summer13_V4_DATA_UncertaintySources_AK5PFchs.txt")
 process.scaledJetEnergy.scaleType = "abs"   # abs = 1, jes:up, jes:down
 
@@ -418,70 +433,55 @@ else:
 ## Build Final Collections
 
 # Electrons
-from PhysicsTools.PatAlgos.selectionLayer1.electronSelector_cfi import *
-process.selectedPatElectronsAfterScaling = selectedPatElectrons.clone(
-    src = 'scaledJetEnergy:selectedPatElectrons'+pfpostfix,
-    cut = 'pt > 20 && abs(eta) < 2.5'
+process.selectedElectrons = selectedPatElectrons.clone(
+    src = 'scaledJetEnergy:'+preselectedElectronCollection,
+    cut = 'pt>20 && abs(eta)<2.5'
 )
 
 # Muons
-from PhysicsTools.PatAlgos.selectionLayer1.muonSelector_cfi import *
+# -- no additional selection required
 
 # Electrons and muons dxy and dz selection
 from TopAnalysis.TopUtils.LeptonVertexSelector_cfi import *
 process.leptonVertexSelector = leptonVertexSelector.clone()
-process.leptonVertexSelector.electrons = "selectedPatElectronsAfterScaling"
-process.leptonVertexSelector.muons = "selectedPatMuons"+pfpostfix
+process.leptonVertexSelector.electrons = "selectedElectrons"
+process.leptonVertexSelector.muons = preselectedMuonCollection
+process.leptonVertexSelector.vertices = selectedPrimaryVertices
 process.leptonVertexSelector.electronDxyMax = 0.04
 
 # Jets
-from PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi import *
 process.load("TopAnalysis.TopFilter.filters.JetIdFunctorFilter_cfi")
-process.goodIdJets.jets = cms.InputTag("scaledJetEnergy:selectedPatJets"+pfpostfix)
+process.goodIdJets.jets = cms.InputTag("scaledJetEnergy:"+preselectedJetCollection)
 process.goodIdJets.jetType = cms.string('PF')
 process.goodIdJets.version = cms.string('FIRSTDATA')
 process.goodIdJets.quality = cms.string('LOOSE')
-process.hardJets = selectedPatJets.clone(src = 'goodIdJets', cut = 'pt > 12 & abs(eta) < 2.4') 
-
-process.finalCollectionsSequence = cms.Sequence(
-    process.scaledJetEnergy *
-    process.selectedPatElectronsAfterScaling *
-    process.leptonVertexSelector *
-    process.goodIdJets * 
-    process.hardJets
-    )
+process.selectedJets = selectedPatJets.clone(
+    src = 'goodIdJets',
+    cut = 'pt>12 & abs(eta)<2.4'
+)
 
 
 
 ####################################################################
-## Define which collections (including which corrections) to be used in nTuple
+## Final RECO object collections to be used in nTuple
 
 isolatedElectronCollection = "leptonVertexSelector"
 
 isolatedMuonCollection = "leptonVertexSelector"
 
-jetCollection = "hardJets"
+jetCollection = "selectedJets"
 
-jetForMetUncorrectedCollection = "selectedPatJets"+pfpostfix
+jetForMetUncorrectedCollection = preselectedJetCollection
 jetForMetCollection = "scaledJetEnergy:"+jetForMetUncorrectedCollection
 
-metCollection = "scaledJetEnergy:patMETs"+pfpostfix
+metCollection = "scaledJetEnergy:"+preselectedMetCollection
 
 mvaMetCollection = "patMEtMVA"
-
-genJetCollection = "ak5GenJetsPlusBCHadron"
-
-genMetCollection = "genMetTrue"
-
-genLevelBJetProducerInput = "produceGenLevelBJets"
-
-genBHadronMatcherInput = "matchGenBCHadronB"
-genCHadronMatcherInput = "matchGenBCHadronC"
 
 
 
 ####################################################################
-## Preselection based on final input collections
+## Event preselection based on final input collections
 
 # Filter on events containing dilepton system of opposite charge and above m(ll) > 12 GeV
 from TopAnalysis.TopFilter.filters.DileptonPreselection_cfi import *
@@ -507,9 +507,33 @@ process.jetProperties.src = jetCollection
 
 
 ####################################################################
+## Final GEN object collections to be used in nTuple
+
+genJetCollection = 'ak5GenJetsPlusBCHadron'
+
+genMetCollection = 'genMetTrue'
+
+genParticleCollection = ''
+if options.runOnAOD:
+    genParticleCollection = 'genParticles'
+else:
+    genParticleCollection = 'prunedGenParticles'
+
+genLevelBJetProducerInput = 'produceGenLevelBJets'
+
+genBHadronMatcherInput = 'matchGenBCHadronB'
+genCHadronMatcherInput = 'matchGenBCHadronC'
+
+
+
+####################################################################
 ## Separation of ttbar samples in dileptonic and other decays
 
 if topfilter:
+    process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
+    process.initSubset.src = genParticleCollection
+    process.decaySubset.src = genParticleCollection
+    process.decaySubset.fillMode = "kME" # Status3, use kStable for Status2
     process.load("TopAnalysis.TopFilter.filters.GeneratorTopFilter_cfi")
     process.generatorTopFilter.rejectNonBottomDecaysOfTops = False
     # FIXME: ttGenEvent is not working in several samples, so not possible to filter dileptonic ttbar decays...
@@ -532,11 +556,7 @@ if topfilter:
         else:
             process.generatorTopFilter.channels = all
             process.generatorTopFilter.invert_selection = True
-    process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
-    process.decaySubset.fillMode = "kME" # Status3, use kStable for Status2
-    process.topSplittingSequence = cms.Sequence(
-        process.makeGenEvt *
-        process.generatorTopFilter)
+    process.topSplittingSequence = cms.Sequence(process.generatorTopFilter)
 else:
     process.topSplittingSequence = cms.Sequence()
 
@@ -547,12 +567,11 @@ else:
 
 if zGenInfo:
     process.load("TopAnalysis.HiggsUtils.producers.GenZDecay_cfi")
-    process.zGenSequence = cms.Sequence(process.genZDecay)
-else:
-    process.zGenSequence = cms.Sequence()
+    process.genZDecay.src = genParticleCollection
 
 if topSignal:
     process.load("TopAnalysis.TopUtils.sequences.GenHFHadronMatching_cff")
+    process.genParticlesForJetsPlusBCHadron.src = genParticleCollection
 
     process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi") # Supplies PDG ID to real name resolution of MC particles
     process.load("TopAnalysis.TopUtils.GenLevelBJetProducer_cfi")
@@ -560,23 +579,14 @@ if topSignal:
     process.produceGenLevelBJets.noBBbarResonances = True
     process.produceGenLevelBJets.genJets = process.matchGenBCHadronB.genJets
 
-    process.genMatchSequence = cms.Sequence(
-        process.genBCHadronMatchingSequence *
-        process.produceGenLevelBJets
-    )
-else:
-    process.genMatchSequence = cms.Sequence()
-
 if higgsSignal:
+    process.load("TopAnalysis.HiggsUtils.sequences.higgsGenEvent_cff")
+    process.decaySubsetHiggs.src = genParticleCollection
+    process.decaySubsetHiggs.fillMode = "kME" # Status3, use kStable for Status2
     process.load("TopAnalysis.HiggsUtils.filters.GeneratorHiggsFilter_cfi")
     process.generatorHiggsFilter.channels = ["none"]
     process.generatorHiggsFilter.invert_selection = True
-    process.load("TopAnalysis.HiggsUtils.sequences.higgsGenEvent_cff")
-    process.decaySubsetHiggs.fillMode = "kME" # Status3, use kStable for Status2
-    process.higgsGenSequence = cms.Sequence(
-        process.makeGenEvtHiggs *
-        process.generatorHiggsFilter
-    )
+    process.higgsGenSequence = cms.Sequence(process.generatorHiggsFilter)
 else:
     process.higgsGenSequence = cms.Sequence()
 
@@ -586,14 +596,13 @@ else:
 ## W decay modes for MadGraph samples, in order to correct branching ratios
 
 madgraphSample = False
-process.madgraphWDecaySequence = cms.Sequence()
 if containsWs:
     if options.inputScript.find("_madgraph_") == -1:
         pass
     else:
         madgraphSample = True
         process.load("TopAnalysis.TopUtils.MadgraphWDecayProducer_cfi")
-        process.madgraphWDecaySequence = cms.Sequence(process.madgraphWDecayProducer)
+        process.madgraphWDecayProducer.src = genParticleCollection
 
 
 
@@ -608,7 +617,7 @@ if options.includePDFWeights:
         # Fix POWHEG if buggy (this PDF set will also appear on output,
         # so only two more PDF sets can be added in PdfSetNames if not "")
         #FixPOWHEG = cms.untracked.string("cteq66.LHgrid"),
-        GenTag = cms.untracked.InputTag("genParticles"),
+        GenTag = cms.untracked.InputTag(genParticleCollection),
         PdfInfoTag = cms.untracked.InputTag("generator"),
         PdfSetNames = cms.untracked.vstring(
             "CT10.LHgrid"
@@ -618,9 +627,18 @@ if options.includePDFWeights:
             #"cteq6mE.LHgrid"
             # ,"cteq6m.LHpdf"
             #"cteq6m.LHpdf"
-        ))
-else:
-    process.pdfWeights = cms.Sequence()
+        )
+    )
+
+
+
+####################################################################
+## Event counter for events before any selection, including generator weights
+
+from TopAnalysis.TopAnalyzer.CountEventAnalyzer_cfi import countEvents
+process.EventsBeforeSelection = countEvents.clone()
+process.EventsBeforeSelection.includePDFWeights = options.includePDFWeights
+process.EventsBeforeSelection.pdfWeights = "pdfWeights:CT10"
 
 
 
@@ -650,7 +668,9 @@ writeNTuple.jetsForMet = jetForMetCollection
 writeNTuple.jetsForMetUncorrected = jetForMetUncorrectedCollection
 writeNTuple.met = metCollection
 writeNTuple.mvaMet = mvaMetCollection
+writeNTuple.vertices = selectedPrimaryVertices
 
+writeNTuple.genParticles = genParticleCollection
 writeNTuple.genJets = genJetCollection
 writeNTuple.genMet = genMetCollection
 writeNTuple.pdfWeights = "pdfWeights:CT10"
@@ -685,6 +705,10 @@ writeNTuple.genCHadLeptonIndex = cms.InputTag(genCHadronMatcherInput, "genCHadLe
 writeNTuple.genCHadLeptonHadronIndex = cms.InputTag(genCHadronMatcherInput, "genCHadLeptonHadronIndex")
 writeNTuple.genCHadLeptonViaTau = cms.InputTag(genCHadronMatcherInput, "genCHadLeptonViaTau")
 
+# Workaround to avoid crash on miniAOD: Running the jetProperties not yet possible
+if not options.runOnAOD:
+    writeNTuple.jetProperties = "NONE"
+
 process.writeNTuple = writeNTuple.clone()
 
 if signal:
@@ -699,26 +723,20 @@ else:
 
 # Path containing selections
 path = cms.Path(
+    process.EventsBeforeSelection *
+    process.topSplittingSequence *
     process.prefilterSequence *
-    process.goodOfflinePrimaryVertices *
-    process.finalCollectionsSequence *
     process.preselectionSequence *
-    process.jetProperties *
-    process.madgraphWDecaySequence *
     process.ntupleInRecoSeq
 )
 
 # Path keeping all events and storing generator information
 pathNtuple = cms.Path(
-    process.genMatchSequence *
+    process.EventsBeforeSelection *
+    process.topSplittingSequence *
     process.higgsGenSequence *
-    process.zGenSequence *
-    process.goodOfflinePrimaryVertices *
-    process.finalCollectionsSequence *
-    process.jetProperties *
-    process.madgraphWDecaySequence *
     process.writeNTuple
-    )
+)
 
 if signal:
     process.pathNtuple = pathNtuple
@@ -726,25 +744,6 @@ else:
     process.path = path
 
 pathnames = process.paths_().keys()
-
-
-
-####################################################################
-## Prepend the paths
-## Cannot be before massSearchReplaceAnyInputTag(getattr(process, pathname), ...), else it crashes !?!
-
-from TopAnalysis.TopAnalyzer.CountEventAnalyzer_cfi import countEvents
-process.EventsBeforeSelection = countEvents.clone()
-process.EventsBeforeSelection.includePDFWeights = options.includePDFWeights
-process.EventsBeforeSelection.pdfWeights = "pdfWeights:CT10"
-
-print 'prepending common sequence to paths:', pathnames
-for pathname in pathnames:
-    getattr(process, pathname).insert(0, cms.Sequence(
-        process.pdfWeights *
-        process.EventsBeforeSelection *
-        process.topSplittingSequence
-        ))
 
 
 

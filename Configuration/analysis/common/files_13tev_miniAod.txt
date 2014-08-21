@@ -1,0 +1,15 @@
+# cff files in TopAnalysis.Configuration.
+
+# Syntax:
+# (1) Number of Jobs
+# (2) CFF File containing the input ROOT files
+# (3) Output ROOTFile
+# (4) Options for nafJobSplitter, including JSON file (first argument is sampleName)
+
+
+# ttbar pythia8
+1     Spring14.miniAOD.TT_Tune4C_13TeV_pythia8_tauola_PU_S14_PAT_cff                               ttbarsignalplustauPythia8_miniAod.root      ttbarsignalplustau,runOnAOD=False,includePDFWeights=True
+
+# ttH
+1     Spring14.miniAOD.TTbarH_HToBB_M_125_13TeV_pythia6_PU_S14_PAT_cff                             ttbarH125tobbbar_miniAod.root               ttbarhiggstobbbar,runOnAOD=False
+
