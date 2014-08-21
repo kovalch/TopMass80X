@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 
-from RecoJets.Configuration.RecoGenJets_cff import ak5GenJets
+from RecoJets.JetProducers.ak5GenJets_cfi import ak5GenJets
 from TopAnalysis.TopUtils.GenJetParticles_cfi import genParticlesForJetsPlusNoHadron
 from TopAnalysis.TopUtils.GenJetParticles_cff import genParticlesForJetsNoNuPlusNoHadron
 from TopAnalysis.TopUtils.GenHFHadronMatcher_cfi import matchGenHFHadron
