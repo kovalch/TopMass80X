@@ -14,7 +14,6 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   AnalysisBase
   analysisUtils
   analysisObjectStructs
-  KinReco
   KinematicReconstruction
   KinematicReconstruction_LSroutines
   KinematicReconstruction_MeanSol

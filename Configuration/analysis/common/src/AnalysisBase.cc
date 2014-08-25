@@ -26,7 +26,6 @@
 #include <TObjString.h>
 
 #include "AnalysisBase.h"
-#include "KinReco.h"
 #include "analysisUtils.h"
 #include "classes.h"
 #include "ScaleFactors.h"
@@ -1680,12 +1679,7 @@ bool AnalysisBase::calculateKinReco(const int leptonIndex, const int antiLeptonI
         selectedJetIndices.push_back(index);
     }
 
-
-    // 2 lines needed for OLD kinReco
-//     const auto& sols = GetKinSolutions(leptonMinus, leptonPlus, &selectedJets, &btagValues, &met);
-//     const int nSolution = sols.size();
-
-    // 6 lines needed for NEW kinReco
+    // Get solutions of kinematic reconstruction
     if(!kinematicReconstruction_){
         std::cerr<<"Error in AnalysisBase::calculateKinReco()! Kinematic reconstruction is not initialised\n...break\n"<<std::endl;
         exit(659);
@@ -1694,12 +1688,9 @@ bool AnalysisBase::calculateKinReco(const int leptonIndex, const int antiLeptonI
     const auto& sols = kinematicReconstruction_->getSols();
     const int nSolution = sols.size();
     
-    //////////kinematicReconstruction_->doJetsMerging(&jets,&jetBTagCSV);
-    
     // Check if solution exists, take first one
     if(nSolution == 0) return false;
     const auto& sol = sols.at(0);
-    
     
     // Fill the results of the on-the-fly kinematic reconstruction
     kinRecoObjects_->HypTop_->push_back(common::TLVtoLV(sol.top));
