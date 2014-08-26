@@ -11,6 +11,7 @@ void JECBase::copyFrom(const ztop::JECBase & old) {
 		setFile(old.pathToFile_, true); // JECUncertainties... don't provide a copy contructor..
 	noupdown_ = old.noupdown_;
 	sources_ = old.sources_;
+	sourcenames_=old.sourcenames_;
 }
 
 JECBase::JECBase(const ztop::JECBase & old) {
@@ -33,16 +34,28 @@ JECBase::~JECBase() {
 
 }
 
+void JECBase::setSource(const std::string& str){
+	std::map< std::string,unsigned int>::const_iterator mit=sourcenames_.find(str);
+	if(mit!=sourcenames_.end()){
+		sources_.push_back(mit->second);
+		return;
+	}
+	std::cout << "JECBase::setSource: available JEC sources: " << std::endl;
+	for(mit=sourcenames_.begin();mit!=sourcenames_.end();++mit)
+		std::cout << mit->first << std::endl;
+	throw std::runtime_error("JECBase::setSource: Source unknown, chose one of the above");
+}
+
 void JECBase::setFile(std::string pathToFile, bool quiet) {
 	if (pathToFile.empty()) {
 		std::cout << "JECBase::setFile: path empty!" << std::endl;
-		std::exit (EXIT_FAILURE);
+		throw std::runtime_error("JECBase::setFile: path empty!");
 	}
 	std::ifstream check_file(pathToFile.data());
 	if (!check_file.good()) {
 		std::cout << "JECBase::setFile: cannot open file!" << pathToFile
 				<< std::endl;
-		std::exit (EXIT_FAILURE);
+		throw std::runtime_error("JECBase::setFile: cannot open file!");
 	}
 	if (!quiet)
 		std::cout << "setting JEC uncertainties file to: " << pathToFile
@@ -125,6 +138,7 @@ void JECBase::setFile(std::string pathToFile, bool quiet) {
 	if (is2012_) {
 		for (int isrc = 0; isrc < nsrc12; isrc++) {
 			const char *name = srcnames12[isrc];
+			sourcenames_[name] = isrc;
 			bool got = true;
 			JetCorrectionUncertainty *unc = 0;
 			try {
@@ -143,6 +157,7 @@ void JECBase::setFile(std::string pathToFile, bool quiet) {
 	} else {
 		for (int isrc = 0; isrc < nsrc; isrc++) {
 			const char *name = srcnames[isrc];
+			sourcenames_[name] = isrc;
 			bool got = true;
 			JetCorrectionUncertainty *unc = 0;
 			try {

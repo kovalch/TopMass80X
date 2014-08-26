@@ -5,7 +5,12 @@
 namespace ztop {
 
 double logPoisson(const double & k, const double& lambda){
-	return k * log(lambda) - lgamma(k+1.) - lambda;
+	//changes to int!
+
+	if(k==0) return -lambda;
+
+	double	out=k * log(lambda) -  lgamma(k+1)- lambda;
+	return out;
 }
 double poisson(const double & k, const double& lambda){
 	return exp(logPoisson(k,lambda));
@@ -35,35 +40,71 @@ double shiftedLnPoisson(const float & centre, const float & stat, const float& e
  * no stat vlaues are squared!
  * Try to keep shifts small here! in case, rescale before
  */
-double shiftedLnPoissonMCStat(const float & centre, const float & stat, const float & mcstat, const float& evalpoint){
-
+double shiftedLnPoissonMCStat(const float & centre, const float & stat, const float & mcstat, const float& evalpoint,bool useold){
+	double out=0;
 	//convolute two shifted poissons
 	//conv: shiftedLnPoisson(centre, stat2, evalpoint) otimes shiftedLnPoisson(centre, mcstat2, evalpoint)
 
+	//new implementation:
+	//here, rho is the stat entry
+
+	double rho=stat;
+
+	double n = 0;//centre*centre/(mcstat*mcstat);
+	double s = 0;//centre*rho/(mcstat*mcstat);
+	double o = 0;//evalpoint/rho;
+
+	if(!useold){
+		n = centre*centre/(mcstat*mcstat);
+		s = centre*rho/(mcstat*mcstat);
+		o=evalpoint/rho;
+	}
+	else{
 
 
+		double stat2=stat*stat;
+		double mcstat2=mcstat*mcstat;
+		double shift=stat2/centre;
+		// go to real prediction level
+		// this way get rid of any scaling
+		double realcentre = centre / shift; // = npred
+		// double realstat2 = realcentre = centre / shift = centre2 / stat2 = npred
+		double realmcstat2 = mcstat2 / shift / shift;
+		double realevalpoint = evalpoint / shift;
 
-	double out=0;
-	double stat2=stat*stat;
-	double mcstat2=mcstat*mcstat;
-	double shift=stat2/centre;
-	// go to real prediction level
-	// this way get rid of any scaling
-	double realcentre = centre / shift; // = npred
-	// double realstat2 = realcentre = centre / shift = centre2 / stat2 = npred
-	double realmcstat2 = mcstat2 / shift / shift;
-	double realevalpoint = evalpoint / shift;
+		// adjusted formula  from caldwell, etc arxiv 1112.2593
+		// P = a / b * c / d
+		//logP = parta - partb + partc - partd
+		// n: initial MC statistics
+		// s: scale factor with N_pred = N_gen / s
+		// o: observed value in scale ~N_pred
 
-	// adjusted formula  from caldwell, etc arxiv 1112.2593
-	// P = a / b * c / d
-	//logP = parta - partb + partc - partd
-	// n: initial MC statistics
-	// s: scale factor with N_pred = N_gen / s
-	// o: observed value in scale ~N_pred
+		s=1 / (realmcstat2/(realcentre));//*shift))  ;
+		n=realcentre * s  ;
+		o=realevalpoint;
+		rho=shift;
+	}
+	//changes
+	//	n=(floor(n*(1.0f/1) + 0.5)/(1.0f/1));
+	//	o=(floor(o*(1.0f/1) + 0.5)/(1.0f/1));
+	//n=(int)n;
+	//o=(int)o;
+	//end changes
+	//in the real world, o and n are ints!
 
-	double s=1 / (realmcstat2/(realcentre));//*shift))  ;
-	double n=realcentre * s  ;
-	double o=realevalpoint;
+	if(n){
+		n=(floor(n*(1.0f/1) + 0.5)/(1.0f/1));//better treatment if weights have been applied
+	}
+		//n=static_cast<long>(n);
+	if(o)
+		o=static_cast<long>(o);
+
+	if(o==0 && n ==0) return 0;
+
+	if(s!=s){
+		if(o==0) return 0;
+		else return s; //will return a nan!!!
+	}
 
 	double parta=0,partb=0,partc=0,partd=0;
 
@@ -75,7 +116,7 @@ double shiftedLnPoissonMCStat(const float & centre, const float & stat, const fl
 	//  else{
 	parta=(n+0.5)*log(s);
 	//   }
-	if(parta!=parta)parta=0;
+	if(parta!=parta)parta=0; //nan protection
 
 
 	if(o==0){
@@ -89,15 +130,15 @@ double shiftedLnPoissonMCStat(const float & centre, const float & stat, const fl
 		out=parta - partb + partc - partd;
 
 	}
-	//out-=log(shift);
+	//out-=log(rho);
 	if(out > 1){
 		std::cout << "\ncentre: "<< centre
-				<<  "\nrealcentre: "<< realcentre
-				<< "\nstat2: "<<stat2
-				<< "\nmcstat2: "<<mcstat2
-				<< "\nrealmcstat2: " <<realmcstat2
+				//			<<  "\nrealcentre: "<< realcentre
+				<< "\nstat2: "<<stat*stat
+				<< "\nmcstat2: "<<mcstat*mcstat
+				//		<< "\nrealmcstat2: " <<realmcstat2
 				<< "\nrealevalpoint: "<<o
-				<< "\nshift: "<< shift
+				//		<< "\nshift: "<< shift
 				<< "\ns: "<< s
 				<< "\nn: "<< n<<std::endl;
 
@@ -144,6 +185,12 @@ float getTtbarXsec(float topmass, float energy, float* scaleerr, float * pdferr)
 	return out;
 }
 
+float getTWXsec(float topmass){
+
+	return 11.1 * (78.031 -1.18762*topmass + 0.00617683*topmass*topmass -1.09003e-05*topmass*topmass*topmass);
+
+}
+
 void addRelError(TH2D &h, double err) {
 	for (int binx = 1; binx <= h.GetNbinsX() + 1; binx++) {
 		for (int biny = 1; biny <= h.GetNbinsY() + 1; biny++) {
@@ -166,22 +213,24 @@ void displayStatusBar(Long64_t event, Long64_t nEvents, int ndiv) {
 
 	if ((event + 1) * ndiv % nEvents < ndiv) {
 		int statusbar = (event + 1) * ndiv / nEvents;
-		std::cout << "\r[";
+
+		std::cout << "[";
 		for (int i = 0; i < statusbar * 50 / ndiv; i++) {
 			std::cout << "=";
 		}
 		for (int i = statusbar * 50 / ndiv; i < 50; i++) {
 			std::cout << " ";
 		}
-		std::cout << "] " << statusbar * 100 / ndiv << "%   ";
+		std::cout << "] " << statusbar * 100 / ndiv << "%   \r";
 		flush(std::cout);
 		statusbar++;
 	}
 	if (event == 0) {
 		std::cout << "[                                                  ] "
-				<< "0%   ";
+				<< "0%   \r";
 		flush(std::cout);
 	}
+
 }
 
 TH2D divideTH2DBinomial(TH2D &h1, TH2D &h2) { //! out = h1 / h2
@@ -198,7 +247,7 @@ TH2D divideTH2DBinomial(TH2D &h1, TH2D &h2) { //! out = h1 / h2
 			double err = 1;
 			if (h2.GetBinContent(binx, biny) != 0) {
 				cont = h1.GetBinContent(binx, biny)
-                                                                                                                        				/ h2.GetBinContent(binx, biny);
+                                                                                                                        								/ h2.GetBinContent(binx, biny);
 				err = sqrt(cont * (1 - cont) / h1.GetBinContent(binx, biny));
 			}
 			out.SetBinContent(binx, biny, cont);
@@ -222,7 +271,7 @@ TH2D divideTH2D(TH2D &h1, TH2D &h2) {
 			double err = 1;
 			if (h2.GetBinContent(binx, biny) != 0) {
 				cont = h1.GetBinContent(binx, biny)
-                                                                                                                        				/ h2.GetBinContent(binx, biny);
+                                                                                                                        								/ h2.GetBinContent(binx, biny);
 				err = sqrt(
 						pow(
 								h1.GetBinError(binx, biny)

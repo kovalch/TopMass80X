@@ -62,7 +62,7 @@ double shiftedLnPoisson(const float & centreN, const float & stat, const float& 
  * stat is NOT stat2! its just the stat you e.g. get from a histogram by calling getBinError()
  * same for mcstat
  */
-double shiftedLnPoissonMCStat(const float & centre, const float & stat, const float & mcstat, const float& evalpoint);
+double shiftedLnPoissonMCStat(const float & centre, const float & stat, const float & mcstat, const float& evalpoint,bool useold=true);
 
 
 /**
@@ -70,6 +70,12 @@ double shiftedLnPoissonMCStat(const float & centre, const float & stat, const fl
  * errors are NOT returned in % (so e.g. 0.026)
  */
 float getTtbarXsec(float topmass, float energy=8, float* scaleerr=0, float * pdferr=0);
+
+/**
+ * slope from Hathor, central value form Kidonakis as
+ * https://twiki.cern.ch/twiki/bin/viewauth/CMS/StandardModelCrossSectionsat8TeV
+ */
+float getTWXsec(float topmass);
 
 template<class t>
 bool isApprox(t a, t b, double eps = 0.01) {
