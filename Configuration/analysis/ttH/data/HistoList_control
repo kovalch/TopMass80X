@@ -291,7 +291,7 @@ basic_met_phi_step7 - - - 1 1 0 0 0 0 0 0 0 0
 
 
 
-# basic_vertex_multiplicity_step1 - - - 1 1 0 0 0 0 0 0 0 0
+#basic_vertex_multiplicity_step1 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_lepton_multiplicity_step1 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_lepton_pt_step1 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_lepton_eta_step1 - - - 1 0 0 0 0 0 0 0 0 0
@@ -323,6 +323,66 @@ basic_met_phi_step7 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_met_et_step1 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_met_phi_step1 - - - 1 0 0 0 0 0 0 0 0 0
 
+
+
+
+##
+## Kinematic reconstruction variables
+##
+kinReco_top_pt_step7 - - - 1 0 0 0 0 0 0 0 0 0
+kinReco_antiTop_pt_step7 - - - 1 0 0 0 0 0 0 0 0 0
+kinReco_lepton_pt_step7 - - - 1 0 0 0 0 0 0 0 0 0
+kinReco_antiLepton_pt_step7 - - - 1 0 0 0 0 0 0 0 0 0
+kinReco_neutrino_pt_step7 - - - 1 0 0 0 0 0 0 0 0 0
+kinReco_antiNeutrino_pt_step7 - - - 1 0 0 0 0 0 0 0 0 0
+kinReco_bjet_pt_step7 - - - 1 0 0 0 0 0 0 0 0 0
+kinReco_antiBjet_pt_step7 - - - 1 0 0 0 0 0 0 0 0 0
+kinReco_bjet_index_step7 - - - 1 0 0 0 0 0 0 0 0 0
+kinReco_antiBjet_index_step7 - - - 1 0 0 0 0 0 0 0 0 0
+
+#kinReco_top_pt_step6 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_antiTop_pt_step6 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_lepton_pt_step6 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_antiLepton_pt_step6 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_neutrino_pt_step6 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_antiNeutrino_pt_step6 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_bjet_pt_step6 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_antiBjet_pt_step6 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_bjet_index_step6 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_antiBjet_index_step6 - - - 1 0 0 0 0 0 0 0 0 0
+
+#kinReco_top_pt_step5 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_antiTop_pt_step5 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_lepton_pt_step5 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_antiLepton_pt_step5 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_neutrino_pt_step5 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_antiNeutrino_pt_step5 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_bjet_pt_step5 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_antiBjet_pt_step5 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_bjet_index_step5 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_antiBjet_index_step5 - - - 1 0 0 0 0 0 0 0 0 0
+
+#kinReco_top_pt_step4 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_antiTop_pt_step4 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_lepton_pt_step4 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_antiLepton_pt_step4 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_neutrino_pt_step4 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_antiNeutrino_pt_step4 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_bjet_pt_step4 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_antiBjet_pt_step4 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_bjet_index_step4 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_antiBjet_index_step4 - - - 1 0 0 0 0 0 0 0 0 0
+
+#kinReco_top_pt_step3 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_antiTop_pt_step3 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_lepton_pt_step3 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_antiLepton_pt_step3 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_neutrino_pt_step3 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_antiNeutrino_pt_step3 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_bjet_pt_step3 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_antiBjet_pt_step3 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_bjet_index_step3 - - - 1 0 0 0 0 0 0 0 0 0
+#kinReco_antiBjet_index_step3 - - - 1 0 0 0 0 0 0 0 0 0
 
 
 

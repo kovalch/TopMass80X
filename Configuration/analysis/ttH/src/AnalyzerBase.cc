@@ -146,7 +146,7 @@ void AnalyzerBase::fill(const RecoObjects& recoObjects, const CommonGenObjects& 
         if(this->checkExistence(stepForJetCategories)){
             std::map<TString, TH1*>& m_histogram = m_stepHistograms_[stepForJetCategories].m_histogram_;
             TString name = "jetCategories";
-            m_histogram[name]->Fill(categoryId, weight);
+            m_histogram.at(name)->Fill(categoryId, weight);
         }
         
         // Here check the individual jet categories
@@ -242,7 +242,7 @@ void AnalyzerEventYields::fillHistos(const RecoObjects&, const CommonGenObjects&
     TString name;
     
     name = "weighted";
-    m_histogram[name]->Fill(1., weight);
+    m_histogram.at(name)->Fill(1., weight);
 }
 
 
@@ -325,17 +325,17 @@ void AnalyzerDyScaling::fillHistos(const RecoObjects& recoObjects, const CommonG
     
     // Fill histograms
     const TString looseStep = tth::stepName(looseStep_) + "zWindow";
-    if(step == looseStep) m_stepHistograms_[looseStep].m_histogram_["h_loose"]->Fill(dileptonMass, weight);
+    if(step == looseStep) m_stepHistograms_[looseStep].m_histogram_.at("h_loose")->Fill(dileptonMass, weight);
     
     if(step.Contains("zWindow")){
-        m_histogram["h_zWindow"]->Fill(dileptonMass, weight);
+        m_histogram.at("h_zWindow")->Fill(dileptonMass, weight);
         TString stepNoZ(step);
         stepNoZ.ReplaceAll("zWindow", "");
-        m_stepHistograms_[stepNoZ].m_histogram_["h_all"]->Fill(dileptonMass, weight);
+        m_stepHistograms_[stepNoZ].m_histogram_.at("h_all")->Fill(dileptonMass, weight);
     }
     else if(!isZregion){
-        m_histogram["h_zVeto"]->Fill(dileptonMass, weight);
-        m_histogram["h_all"]->Fill(dileptonMass, weight);
+        m_histogram.at("h_zVeto")->Fill(dileptonMass, weight);
+        m_histogram.at("h_all")->Fill(dileptonMass, weight);
     }
 }
 
@@ -371,12 +371,12 @@ void AnalyzerHfFracScaling::bookHistos(const TString& step, std::map<TString, TH
 
 
 void AnalyzerHfFracScaling::fillHistos(const RecoObjects& recoObjects, const CommonGenObjects&,
-                                   const TopGenObjects&, const HiggsGenObjects&,
-                                   const KinRecoObjects&,
-                                   const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices&,
-                                   const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
-                                   const double& weight, const TString&,
-                                   std::map<TString, TH1*>& m_histogram)
+                                       const TopGenObjects&, const HiggsGenObjects&,
+                                       const KinRecoObjects&,
+                                       const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices&,
+                                       const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
+                                       const double& weight, const TString&,
+                                       std::map<TString, TH1*>& m_histogram)
 {
     const std::vector<int>& jetIndices = recoObjectIndices.jetIndices_;
     const int nBJets = recoObjectIndices.bjetIndices_.size();
@@ -385,8 +385,8 @@ void AnalyzerHfFracScaling::fillHistos(const RecoObjects& recoObjects, const Com
     for(size_t jetId = 0; jetId < jetIndices.size(); ++jetId) {
         bTag_sum += jetsBtagDiscriminant.at(jetId);
     }
-    m_histogram["btag_multiplicity"]->Fill(nBJets, weight);
-    m_histogram["btag_discriminatorSum"]->Fill(bTag_sum, weight);
+    m_histogram.at("btag_multiplicity")->Fill(nBJets, weight);
+    m_histogram.at("btag_discriminatorSum")->Fill(bTag_sum, weight);
 }
 
 

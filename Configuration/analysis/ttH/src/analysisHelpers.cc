@@ -20,6 +20,7 @@ AnalysisMode::AnalysisMode AnalysisMode::convert(const TString& analysisMode)
     if(analysisMode == "playg") return playg;
     if(analysisMode == "weight") return weight;
     if(analysisMode == "genEvent") return genEvent;
+    if(analysisMode == "kinReco") return kinReco;
     if(analysisMode == "mvaTopP") return mvaTopP;
     if(analysisMode == "mvaTopA") return mvaTopA;
     if(analysisMode == "mvaEventP") return mvaEventP;
@@ -41,6 +42,7 @@ TString AnalysisMode::convert(const AnalysisMode& analysisMode)
     if(analysisMode == playg) return "playg";
     if(analysisMode == weight) return "weight";
     if(analysisMode == genEvent) return "genEvent";
+    if(analysisMode == kinReco) return "kinReco";
     if(analysisMode == mvaTopP) return "mvaTopP";
     if(analysisMode == mvaTopA) return "mvaTopA";
     if(analysisMode == mvaEventP) return "mvaEventP";

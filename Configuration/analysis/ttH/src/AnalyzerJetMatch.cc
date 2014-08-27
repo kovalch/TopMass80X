@@ -681,8 +681,7 @@ void AnalyzerJetMatch::fillJetHistosInclExcl(const TString& whichSelection, cons
 }
 
 
-// isAmbiguous -> true : >1 genJets matched to the same recoJet
-// isAmbiguous -> false: unique matching
+
 bool AnalyzerJetMatch::isAmbiguous(const int genIndex, const std::vector<int>& genIndices, const std::vector<int>& closestRecoIndices)const
 {
     const int recoIndex = closestRecoIndices.at(genIndex);

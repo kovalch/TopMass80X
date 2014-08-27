@@ -6,6 +6,7 @@
 #include <TH1.h>
 #include <TH1D.h>
 #include <TH2.h>
+#include <TH2D.h>
 #include <TString.h>
 #include <Math/VectorUtil.h>
 
@@ -270,20 +271,20 @@ void AnalyzerGenEvent::fillEventHistos(const TopGenObjects& topGenObjects,
     
     
     name = "genJet_all_multiplicity";
-    m_histogram[name]->Fill(nGenJets_all, weight);
+    m_histogram.at(name)->Fill(nGenJets_all, weight);
     
     name = "genJet_multiplicity";
-    m_histogram[name]->Fill(nGenJets, weight);
+    m_histogram.at(name)->Fill(nGenJets, weight);
     
     for(const int jetId : genJetIndices) {
         name = "genJet_pt";
-        m_histogram[name]->Fill(allGenJets.at(jetId).Pt());
+        m_histogram.at(name)->Fill(allGenJets.at(jetId).Pt());
         
         name = "genJet_eta";
-        m_histogram[name]->Fill(allGenJets.at(jetId).Eta());
+        m_histogram.at(name)->Fill(allGenJets.at(jetId).Eta());
         
         name = "genJet_phi";
-        m_histogram[name]->Fill(allGenJets.at(jetId).Phi());
+        m_histogram.at(name)->Fill(allGenJets.at(jetId).Phi());
     }
     
 }
@@ -402,7 +403,7 @@ void AnalyzerGenEvent::fillBhadronHistos(const TString& topOrHiggsName,
     m_histogram.at(name)->Fill(nBhadrons, weight);
     
     name = topOrHiggsName + "bhadronsVsBjets_multiplicity";
-    ((TH2D*)m_histogram.at(name))->Fill(nBhadrons, nBjets, weight);
+    ((TH2*)m_histogram.at(name))->Fill(nBhadrons, nBjets, weight);
 }
 
 

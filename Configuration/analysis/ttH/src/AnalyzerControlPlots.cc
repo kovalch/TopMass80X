@@ -173,10 +173,10 @@ void AnalyzerControlPlots::fillHistos(const RecoObjects& recoObjects, const Comm
                                       const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices&,
                                       const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
                                       const double& weight, const TString&,
-                                      std::map< TString, TH1* >& m_histogram)
+                                      std::map<TString, TH1*>& m_histogram)
 {
     // Vertices
-    m_histogram["vertex_multiplicity"]->Fill(recoObjects.vertMulti_, weight);    
+    m_histogram.at("vertex_multiplicity")->Fill(recoObjects.vertMulti_, weight);    
     
     // Secondary Vertex
     const std::vector<int>& jetSecondaryVertexTrackVertexIndex = (recoObjects.valuesSet_) ? *recoObjects.jetSecondaryVertexTrackVertexIndex_ : std::vector<int>(0);
@@ -192,16 +192,16 @@ void AnalyzerControlPlots::fillHistos(const RecoObjects& recoObjects, const Comm
     if(!commonGenObjects.valuesSet_) isMC = false;
     
     unsigned int nSecondaryVertex=jetSecondaryVertex.size();
-    m_histogram["secondaryVertex_multiplicityPerEvent"]->Fill(nSecondaryVertex, weight);    
+    m_histogram.at("secondaryVertex_multiplicityPerEvent")->Fill(nSecondaryVertex, weight);    
     
     for(size_t iSecondaryVertex=0; iSecondaryVertex<jetSecondaryVertex.size(); ++iSecondaryVertex) {
-        m_histogram["secondaryVertex_mass"]->Fill(jetSecondaryVertex.at(iSecondaryVertex).M(), weight);
+        m_histogram.at("secondaryVertex_mass")->Fill(jetSecondaryVertex.at(iSecondaryVertex).M(), weight);
         
         // Correct for effects on MC by multiplying the secondary vertex mass of MC with 0.98
-        if (isMC)  m_histogram["secondaryVertex_correctedMass"]->Fill(0.98*jetSecondaryVertex.at(iSecondaryVertex).M(), weight);
-        else m_histogram["secondaryVertex_correctedMass"]->Fill(jetSecondaryVertex.at(iSecondaryVertex).M(), weight);
+        if (isMC)  m_histogram.at("secondaryVertex_correctedMass")->Fill(0.98*jetSecondaryVertex.at(iSecondaryVertex).M(), weight);
+        else m_histogram.at("secondaryVertex_correctedMass")->Fill(jetSecondaryVertex.at(iSecondaryVertex).M(), weight);
         
-        m_histogram["secondaryVertex_pt"]->Fill(jetSecondaryVertex.at(iSecondaryVertex).Pt(), weight);        
+        m_histogram.at("secondaryVertex_pt")->Fill(jetSecondaryVertex.at(iSecondaryVertex).Pt(), weight);        
     }
     
     
@@ -215,11 +215,11 @@ void AnalyzerControlPlots::fillHistos(const RecoObjects& recoObjects, const Comm
         
         // Fill the histogram with the allSecondaryVertexTracks_mass as it was retrieved by the CSV algorithm: 
         // https://twiki.cern.ch/twiki/bin/viewauth/CMS/BTagSoftware#FAQ (check pT-corrected secondary vertex mass)
-        m_histogram["allSecondaryVertexTracks_mass"]->Fill(jetSecondaryVertexPtCorrectedMass.at(iJet), weight);
+        m_histogram.at("allSecondaryVertexTracks_mass")->Fill(jetSecondaryVertexPtCorrectedMass.at(iJet), weight);
         
         // Apply the correction for MC effects (factor 0.98) on the allSecondaryVertexTracks_mass
-        if (isMC)  m_histogram["allSecondaryVertexTracks_correctedMass"]->Fill(0.98*jetSecondaryVertexPtCorrectedMass.at(iJet), weight);
-        else m_histogram["allSecondaryVertexTracks_correctedMass"]->Fill(jetSecondaryVertexPtCorrectedMass.at(iJet), weight);
+        if (isMC)  m_histogram.at("allSecondaryVertexTracks_correctedMass")->Fill(0.98*jetSecondaryVertexPtCorrectedMass.at(iJet), weight);
+        else m_histogram.at("allSecondaryVertexTracks_correctedMass")->Fill(jetSecondaryVertexPtCorrectedMass.at(iJet), weight);
         
         // Loop over all the secondary vertices of the current analyzed event
         for(size_t iSecondaryVertex=0; iSecondaryVertex<jetSecondaryVertex.size(); ++iSecondaryVertex) {
@@ -235,26 +235,26 @@ void AnalyzerControlPlots::fillHistos(const RecoObjects& recoObjects, const Comm
             break;
         }
 
-        m_histogram["secondaryVertex_multiplicityPerJet"]->Fill(secondaryVertexMultiplicityPerJet, weight);
+        m_histogram.at("secondaryVertex_multiplicityPerJet")->Fill(secondaryVertexMultiplicityPerJet, weight);
         if(secondaryVertexMultiplicityPerJet>0) {
-            m_histogram["sumSecondaryVertex_mass"]->Fill(SumSecondaryVertexMass, weight);
+            m_histogram.at("sumSecondaryVertex_mass")->Fill(SumSecondaryVertexMass, weight);
             SumSecondaryVertexMass_correctedForMC=0.98*SumSecondaryVertexMass;
-            if (isMC)  m_histogram["sumSecondaryVertex_correctedMass"]->Fill(SumSecondaryVertexMass_correctedForMC, weight);
-            else m_histogram["sumSecondaryVertex_correctedMass"]->Fill(SumSecondaryVertexMass, weight);
+            if (isMC)  m_histogram.at("sumSecondaryVertex_correctedMass")->Fill(SumSecondaryVertexMass_correctedForMC, weight);
+            else m_histogram.at("sumSecondaryVertex_correctedMass")->Fill(SumSecondaryVertexMass, weight);
         }        
     }
      
 
     for(size_t iSecondaryVertex=0; iSecondaryVertex<jetSecondaryVertex.size(); iSecondaryVertex++) {
-        m_histogram["secondaryVertex_ptOverJetPt"]->Fill((jetSecondaryVertex.at(iSecondaryVertex).Pt())/(recoJets.at(jetSecondaryVertexJetIndex.at(iSecondaryVertex)).Pt()), weight);
-        m_histogram["secondaryVertex_ptOverJetPt_zoom"]->Fill((jetSecondaryVertex.at(iSecondaryVertex).Pt())/(recoJets.at(jetSecondaryVertexJetIndex.at(iSecondaryVertex)).Pt()), weight);
-        m_histogram["secondaryVertex_flightDistance"]->Fill(jetSecondaryVertexFlightDistanceValue.at(iSecondaryVertex), weight);
-        m_histogram["secondaryVertex_flightDistanceSignificance"]->Fill(jetSecondaryVertexFlightDistanceSignificance.at(iSecondaryVertex), weight);
+        m_histogram.at("secondaryVertex_ptOverJetPt")->Fill((jetSecondaryVertex.at(iSecondaryVertex).Pt())/(recoJets.at(jetSecondaryVertexJetIndex.at(iSecondaryVertex)).Pt()), weight);
+        m_histogram.at("secondaryVertex_ptOverJetPt_zoom")->Fill((jetSecondaryVertex.at(iSecondaryVertex).Pt())/(recoJets.at(jetSecondaryVertexJetIndex.at(iSecondaryVertex)).Pt()), weight);
+        m_histogram.at("secondaryVertex_flightDistance")->Fill(jetSecondaryVertexFlightDistanceValue.at(iSecondaryVertex), weight);
+        m_histogram.at("secondaryVertex_flightDistanceSignificance")->Fill(jetSecondaryVertexFlightDistanceSignificance.at(iSecondaryVertex), weight);
     }
     
     // Calculate the secondaryVertex_trackMultiplicityPerEvent
     unsigned int nSecondaryVertexTrack = jetSecondaryVertexTrackVertexIndex.size();
-    m_histogram["secondaryVertex_trackMultiplicityPerEvent"]->Fill(nSecondaryVertexTrack,weight);
+    m_histogram.at("secondaryVertex_trackMultiplicityPerEvent")->Fill(nSecondaryVertexTrack,weight);
     
     // Calculate the secondaryVertexTrackMultiplicityPerJet and the secondaryVertexTrackMultiplicityPerSecondaryVertex
     for(size_t iJet=0; iJet<jetSecondaryVertexPtCorrectedMass.size(); ++iJet) {
@@ -272,32 +272,32 @@ void AnalyzerControlPlots::fillHistos(const RecoObjects& recoObjects, const Comm
                 }
                 break;
             }
-            m_histogram["secondaryVertex_trackMultiplicityPerSecondaryVertex"]->Fill(secondaryVertexTrackMultiplicityPerSecondaryVertex, weight);
+            m_histogram.at("secondaryVertex_trackMultiplicityPerSecondaryVertex")->Fill(secondaryVertexTrackMultiplicityPerSecondaryVertex, weight);
             secondaryVertexTrackMultiplicityPerJet = secondaryVertexTrackMultiplicityPerJet + secondaryVertexTrackMultiplicityPerSecondaryVertex;
         }
-        m_histogram["secondaryVertex_trackMultiplicityPerJet"]->Fill(secondaryVertexTrackMultiplicityPerJet, weight);
+        m_histogram.at("secondaryVertex_trackMultiplicityPerJet")->Fill(secondaryVertexTrackMultiplicityPerJet, weight);
     }
         
         
     // Leptons
-    m_histogram["lepton_multiplicity"]->Fill(recoObjectIndices.allLeptonIndices_.size(), weight);
+    m_histogram.at("lepton_multiplicity")->Fill(recoObjectIndices.allLeptonIndices_.size(), weight);
     for(const int index : recoObjectIndices.leptonIndices_){
-        m_histogram["lepton_pt"]->Fill(recoObjects.allLeptons_->at(index).Pt(), weight);
-        m_histogram["lepton_eta"]->Fill(recoObjects.allLeptons_->at(index).Eta(), weight);
-        m_histogram["lepton_phi"]->Fill(recoObjects.allLeptons_->at(index).Phi(), weight);
-        m_histogram["lepton_dxy"]->Fill(recoObjects.lepDxyVertex0_->at(index), weight);
-        m_histogram["lepton_dxy_zoom"]->Fill(recoObjects.lepDxyVertex0_->at(index), weight);
-        m_histogram["lepton_dz"]->Fill(recoObjects.lepDzVertex0_->at(index), weight);
-        m_histogram["lepton_dz_zoom"]->Fill(recoObjects.lepDzVertex0_->at(index), weight);
+        m_histogram.at("lepton_pt")->Fill(recoObjects.allLeptons_->at(index).Pt(), weight);
+        m_histogram.at("lepton_eta")->Fill(recoObjects.allLeptons_->at(index).Eta(), weight);
+        m_histogram.at("lepton_phi")->Fill(recoObjects.allLeptons_->at(index).Phi(), weight);
+        m_histogram.at("lepton_dxy")->Fill(recoObjects.lepDxyVertex0_->at(index), weight);
+        m_histogram.at("lepton_dxy_zoom")->Fill(recoObjects.lepDxyVertex0_->at(index), weight);
+        m_histogram.at("lepton_dz")->Fill(recoObjects.lepDzVertex0_->at(index), weight);
+        m_histogram.at("lepton_dz_zoom")->Fill(recoObjects.lepDzVertex0_->at(index), weight);
     }
     for(const int index : recoObjectIndices.antiLeptonIndices_){
-        m_histogram["lepton_pt"]->Fill(recoObjects.allLeptons_->at(index).Pt(), weight);
-        m_histogram["lepton_eta"]->Fill(recoObjects.allLeptons_->at(index).Eta(), weight);
-        m_histogram["lepton_phi"]->Fill(recoObjects.allLeptons_->at(index).Phi(), weight);
-        m_histogram["lepton_dxy"]->Fill(recoObjects.lepDxyVertex0_->at(index), weight);
-        m_histogram["lepton_dxy_zoom"]->Fill(recoObjects.lepDxyVertex0_->at(index), weight);
-        m_histogram["lepton_dz"]->Fill(recoObjects.lepDzVertex0_->at(index), weight);
-        m_histogram["lepton_dz_zoom"]->Fill(recoObjects.lepDzVertex0_->at(index), weight);
+        m_histogram.at("lepton_pt")->Fill(recoObjects.allLeptons_->at(index).Pt(), weight);
+        m_histogram.at("lepton_eta")->Fill(recoObjects.allLeptons_->at(index).Eta(), weight);
+        m_histogram.at("lepton_phi")->Fill(recoObjects.allLeptons_->at(index).Phi(), weight);
+        m_histogram.at("lepton_dxy")->Fill(recoObjects.lepDxyVertex0_->at(index), weight);
+        m_histogram.at("lepton_dxy_zoom")->Fill(recoObjects.lepDxyVertex0_->at(index), weight);
+        m_histogram.at("lepton_dz")->Fill(recoObjects.lepDzVertex0_->at(index), weight);
+        m_histogram.at("lepton_dz_zoom")->Fill(recoObjects.lepDzVertex0_->at(index), weight);
     }
     
     const int leptonIndex = recoObjectIndices.leptonIndices_.size()>0 ? recoObjectIndices.leptonIndices_.at(0) : -1;
@@ -310,13 +310,13 @@ void AnalyzerControlPlots::fillHistos(const RecoObjects& recoObjects, const Comm
     if(hasLeptonPair){
         common::orderIndices(leadingLeptonIndex, nLeadingLeptonIndex, *recoObjects.allLeptons_, common::LVpt);
         
-        m_histogram["lepton1st_pt"]->Fill(recoObjects.allLeptons_->at(leadingLeptonIndex).Pt(), weight);
-        m_histogram["lepton1st_eta"]->Fill(recoObjects.allLeptons_->at(leadingLeptonIndex).Eta(), weight);
-        m_histogram["lepton1st_phi"]->Fill(recoObjects.allLeptons_->at(leadingLeptonIndex).Phi(), weight);
+        m_histogram.at("lepton1st_pt")->Fill(recoObjects.allLeptons_->at(leadingLeptonIndex).Pt(), weight);
+        m_histogram.at("lepton1st_eta")->Fill(recoObjects.allLeptons_->at(leadingLeptonIndex).Eta(), weight);
+        m_histogram.at("lepton1st_phi")->Fill(recoObjects.allLeptons_->at(leadingLeptonIndex).Phi(), weight);
         
-        m_histogram["lepton2nd_pt"]->Fill(recoObjects.allLeptons_->at(nLeadingLeptonIndex).Pt(), weight);
-        m_histogram["lepton2nd_eta"]->Fill(recoObjects.allLeptons_->at(nLeadingLeptonIndex).Eta(), weight);
-        m_histogram["lepton2nd_phi"]->Fill(recoObjects.allLeptons_->at(nLeadingLeptonIndex).Phi(), weight);
+        m_histogram.at("lepton2nd_pt")->Fill(recoObjects.allLeptons_->at(nLeadingLeptonIndex).Pt(), weight);
+        m_histogram.at("lepton2nd_eta")->Fill(recoObjects.allLeptons_->at(nLeadingLeptonIndex).Eta(), weight);
+        m_histogram.at("lepton2nd_phi")->Fill(recoObjects.allLeptons_->at(nLeadingLeptonIndex).Phi(), weight);
     }
     
     
@@ -325,49 +325,49 @@ void AnalyzerControlPlots::fillHistos(const RecoObjects& recoObjects, const Comm
         LV dilepton(0.,0.,0.,0.);
         dilepton = recoObjects.allLeptons_->at(leadingLeptonIndex) + recoObjects.allLeptons_->at(nLeadingLeptonIndex);
         
-        m_histogram["dilepton_mass"]->Fill(dilepton.M(), weight);
-        m_histogram["dilepton_pt"]->Fill(dilepton.Pt(), weight);
-        m_histogram["dilepton_rapidity"]->Fill(dilepton.Rapidity(), weight);
-        m_histogram["dilepton_phi"]->Fill(dilepton.Phi(), weight);
+        m_histogram.at("dilepton_mass")->Fill(dilepton.M(), weight);
+        m_histogram.at("dilepton_pt")->Fill(dilepton.Pt(), weight);
+        m_histogram.at("dilepton_rapidity")->Fill(dilepton.Rapidity(), weight);
+        m_histogram.at("dilepton_phi")->Fill(dilepton.Phi(), weight);
 
-        m_histogram["dilepton_deltaEta"]->Fill(recoObjects.allLeptons_->at(leptonIndex).Eta() - recoObjects.allLeptons_->at(antiLeptonIndex).Eta(), weight);
-        m_histogram["dilepton_deltaPhi"]->Fill(ROOT::Math::VectorUtil::DeltaPhi(recoObjects.allLeptons_->at(antiLeptonIndex), recoObjects.allLeptons_->at(leptonIndex)), weight);
-        m_histogram["dilepton_deltaDxy"]->Fill(recoObjects.lepDxyVertex0_->at(leptonIndex) - recoObjects.lepDxyVertex0_->at(antiLeptonIndex), weight);
-        m_histogram["dilepton_deltaDxy_zoom"]->Fill(recoObjects.lepDxyVertex0_->at(leptonIndex) - recoObjects.lepDxyVertex0_->at(antiLeptonIndex), weight);
-        m_histogram["dilepton_deltaDz"]->Fill(recoObjects.lepDzVertex0_->at(leptonIndex) - recoObjects.lepDzVertex0_->at(antiLeptonIndex), weight);
-        m_histogram["dilepton_deltaDz_zoom"]->Fill(recoObjects.lepDzVertex0_->at(leptonIndex) - recoObjects.lepDzVertex0_->at(antiLeptonIndex), weight);
+        m_histogram.at("dilepton_deltaEta")->Fill(recoObjects.allLeptons_->at(leptonIndex).Eta() - recoObjects.allLeptons_->at(antiLeptonIndex).Eta(), weight);
+        m_histogram.at("dilepton_deltaPhi")->Fill(ROOT::Math::VectorUtil::DeltaPhi(recoObjects.allLeptons_->at(antiLeptonIndex), recoObjects.allLeptons_->at(leptonIndex)), weight);
+        m_histogram.at("dilepton_deltaDxy")->Fill(recoObjects.lepDxyVertex0_->at(leptonIndex) - recoObjects.lepDxyVertex0_->at(antiLeptonIndex), weight);
+        m_histogram.at("dilepton_deltaDxy_zoom")->Fill(recoObjects.lepDxyVertex0_->at(leptonIndex) - recoObjects.lepDxyVertex0_->at(antiLeptonIndex), weight);
+        m_histogram.at("dilepton_deltaDz")->Fill(recoObjects.lepDzVertex0_->at(leptonIndex) - recoObjects.lepDzVertex0_->at(antiLeptonIndex), weight);
+        m_histogram.at("dilepton_deltaDz_zoom")->Fill(recoObjects.lepDzVertex0_->at(leptonIndex) - recoObjects.lepDzVertex0_->at(antiLeptonIndex), weight);
         
-        m_histogram["dilepton_alpha"]->Fill(ROOT::Math::VectorUtil::Angle(recoObjects.allLeptons_->at(antiLeptonIndex), recoObjects.allLeptons_->at(leptonIndex)), weight);
+        m_histogram.at("dilepton_alpha")->Fill(ROOT::Math::VectorUtil::Angle(recoObjects.allLeptons_->at(antiLeptonIndex), recoObjects.allLeptons_->at(leptonIndex)), weight);
     }
 
 
     // Jets
-    m_histogram["jet_multiplicity"]->Fill(recoObjectIndices.jetIndices_.size(), weight);
+    m_histogram.at("jet_multiplicity")->Fill(recoObjectIndices.jetIndices_.size(), weight);
     for(const int index : recoObjectIndices.jetIndices_){
-        m_histogram["jet_pt"]->Fill(recoObjects.jets_->at(index).Pt(), weight);
-        m_histogram["jet_eta"]->Fill(recoObjects.jets_->at(index).Eta(), weight);
-        m_histogram["jet_phi"]->Fill(recoObjects.jets_->at(index).Phi(), weight);
+        m_histogram.at("jet_pt")->Fill(recoObjects.jets_->at(index).Pt(), weight);
+        m_histogram.at("jet_eta")->Fill(recoObjects.jets_->at(index).Eta(), weight);
+        m_histogram.at("jet_phi")->Fill(recoObjects.jets_->at(index).Phi(), weight);
         double btagDiscriminator = recoObjects.jetBTagCSV_->at(index);
         if(btagDiscriminator < -0.1) btagDiscriminator = -0.05;
-        m_histogram["jet_btagDiscriminator"]->Fill(btagDiscriminator, weight);
-        m_histogram["jet_chargeGlobalPtWeighted"]->Fill(recoObjects.jetChargeGlobalPtWeighted_->at(index), weight);
-        m_histogram["jet_chargeRelativePtWeighted"]->Fill(recoObjects.jetChargeRelativePtWeighted_->at(index), weight);
+        m_histogram.at("jet_btagDiscriminator")->Fill(btagDiscriminator, weight);
+        m_histogram.at("jet_chargeGlobalPtWeighted")->Fill(recoObjects.jetChargeGlobalPtWeighted_->at(index), weight);
+        m_histogram.at("jet_chargeRelativePtWeighted")->Fill(recoObjects.jetChargeRelativePtWeighted_->at(index), weight);
     }
     
     
     // Bjets
-     m_histogram["bjet_multiplicity"]->Fill(recoObjectIndices.bjetIndices_.size(), weight);
+     m_histogram.at("bjet_multiplicity")->Fill(recoObjectIndices.bjetIndices_.size(), weight);
     for(const int index : recoObjectIndices.bjetIndices_){
-        m_histogram["bjet_pt"]->Fill(recoObjects.jets_->at(index).Pt(), weight);
-        m_histogram["bjet_eta"]->Fill(recoObjects.jets_->at(index).Eta(), weight);
-        m_histogram["bjet_phi"]->Fill(recoObjects.jets_->at(index).Phi(), weight);
-        m_histogram["bjet_chargeRelativePtWeighted"]->Fill(recoObjects.jetChargeRelativePtWeighted_->at(index), weight);
+        m_histogram.at("bjet_pt")->Fill(recoObjects.jets_->at(index).Pt(), weight);
+        m_histogram.at("bjet_eta")->Fill(recoObjects.jets_->at(index).Eta(), weight);
+        m_histogram.at("bjet_phi")->Fill(recoObjects.jets_->at(index).Phi(), weight);
+        m_histogram.at("bjet_chargeRelativePtWeighted")->Fill(recoObjects.jetChargeRelativePtWeighted_->at(index), weight);
     }
     
     
     // Met
-    m_histogram["met_et"]->Fill(recoObjects.met_->E(), weight);
-    m_histogram["met_phi"]->Fill(recoObjects.met_->Phi(), weight);
+    m_histogram.at("met_et")->Fill(recoObjects.met_->E(), weight);
+    m_histogram.at("met_phi")->Fill(recoObjects.met_->Phi(), weight);
 }
 
 

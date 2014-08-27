@@ -72,7 +72,8 @@ void AnalyzerEventWeight::fillHistos(const RecoObjects&, const CommonGenObjects&
                                      const KinRecoObjects&,
                                      const tth::RecoObjectIndices&, const tth::GenObjectIndices&,
                                      const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
-                                     const double&, const TString&, std::map<TString, TH1*>& m_histogram)
+                                     const double&, const TString&,
+                                     std::map<TString, TH1*>& m_histogram)
 {
     TString name;
     
