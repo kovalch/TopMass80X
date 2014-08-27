@@ -401,7 +401,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     
     // Access kinematic reconstruction info
     //const KinRecoObjects& kinRecoObjects = this->getKinRecoObjects(entry);
-    //const KinRecoObjects& kinRecoObjects = !this->makeBtagEfficiencies() ? this->getKinRecoObjectsOnTheFly(leptonIndex, antiLeptonIndex, jetIndices, allLeptons, jets, jetBTagCSV, met) : kinRecoObjectsDummy;
+    //const KinRecoObjects& kinRecoObjects = !this->makeBtagEfficiencies() ? this->getKinRecoObjectsOnTheFly(leptonIndex, antiLeptonIndex, jetIndices, bjetIndices, allLeptons, jets, jetBTagCSV, met) : kinRecoObjectsDummy;
     const KinRecoObjects& kinRecoObjects = kinRecoObjectsDummy;
     //const bool hasSolution = kinRecoObjects.valuesSet_;
 

@@ -29,6 +29,7 @@
 #include "AnalyzerPlayground.h"
 #include "AnalyzerEventWeight.h"
 #include "AnalyzerGenEvent.h"
+#include "AnalyzerKinematicReconstruction.h"
 #include "../../common/include/sampleHelpers.h"
 #include "../../common/include/utils.h"
 #include "../../common/include/CommandLineParameters.h"
@@ -131,7 +132,7 @@ void load_Analysis(const TString& validFilenamePattern,
     
     // Set up kinematic reconstruction
     KinematicReconstruction* kinematicReconstruction(0);
-    //kinematicReconstruction = new KinematicReconstruction();
+    //kinematicReconstruction = new KinematicReconstruction(1, true);
     
     // Set up kinematic reconstruction scale factors (null-pointer means no application)
     KinematicReconstructionScaleFactors* kinematicReconstructionScaleFactors(0);
@@ -252,6 +253,13 @@ void load_Analysis(const TString& validFilenamePattern,
     if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::genEvent) != v_analysisMode.end()){
         analyzerGenEvent = new AnalyzerGenEvent({"7"}, {"7"}, jetCategories);
         v_analyzer.push_back(analyzerGenEvent);
+    }
+    
+    // Set up kinematic reconstruction analyzer
+    AnalyzerKinematicReconstruction* analyzerKinematicReconstruction(0);
+    if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::kinReco) != v_analysisMode.end()){
+        analyzerKinematicReconstruction = new AnalyzerKinematicReconstruction({"3", "4", "5", "6", "7"});
+        v_analyzer.push_back(analyzerKinematicReconstruction);
     }
     
     // Set up MVA validation for top system jet assignment
@@ -567,6 +575,7 @@ int main(int argc, char** argv)
     CLParameter<std::string> opt_mode("m", "Mode of analysis: control plots (cp), "
                                            "dijet analyser (dijet), jet charge analyser (charge), jet match analyser (match), playground (playg), "
                                            "event weight analyser (weight), gen event analyser(genEvent), "
+                                           "kinematic reconstruction analyser(kinReco), "
                                            "Produce MVA input or Apply MVA weights for top jets (mvaTopP/mvaTopA), "
                                            "Produce MVA input or Apply MVA weights for event classification (mvaEventP/mvaEventA), "
                                            "Produce MVA input or Apply MVA weights for jet charge (mvaChargeP/mvaChargeA). "

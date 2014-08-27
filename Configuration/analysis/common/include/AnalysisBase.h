@@ -3,7 +3,6 @@
 
 #include <string>
 #include <vector>
-#include <utility>
 #include <functional>
 
 #include <TSelector.h>
@@ -166,7 +165,8 @@ protected:
     const KinRecoObjects& getKinRecoObjects(const Long64_t& entry)const;
     
     /// Get a constant reference to on-the-fly kinematic reconstruction results
-    const KinRecoObjects& getKinRecoObjectsOnTheFly(const int leptonIndex, const int antiLeptonIndex, const std::vector<int>& jetIndices,
+    const KinRecoObjects& getKinRecoObjectsOnTheFly(const int leptonIndex, const int antiLeptonIndex,
+                                                    const std::vector<int>& jetIndices, const std::vector<int>& bjetIndices,
                                                     const VLV& allLeptons, const VLV& jets, const std::vector<double>& jetBTagCSV,
                                                     const LV& met);
     
@@ -292,6 +292,7 @@ protected:
      * @param leptonIndex Index of selected lepton in the vector of allLeptons
      * @param antiLeptonIndex Index of selected antilepton in the vector of allLeptons
      * @param jetIndices Indices of selected jets in the vector of jets
+     * @param bjetIndices Indices of selected b-tagged jets in the vector of jets
      * @param allLeptons Vector of Lorentz vectors of all leptons from nTuple
      * @param jets Vector of Lorentz vectors of all jets from nTuple
      * @param jetBTagCSV B-tag discriminator values of all jets from nTuple
@@ -299,7 +300,7 @@ protected:
      *
      * @return true if there is at least one solution
      */
-    bool calculateKinReco(const int leptonIndex, const int antiLeptonIndex, const std::vector<int>& jetIndices,
+    bool calculateKinReco(const int leptonIndex, const int antiLeptonIndex, const std::vector<int>& jetIndices, const std::vector<int>& bjetIndices,
                           const VLV& allLeptons, const VLV& jets, const std::vector<double>& jetBTagCSV, const LV& met);
     
     /// Get H_t of jets

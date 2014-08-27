@@ -7,20 +7,11 @@
 #include <iomanip>
 #include <algorithm>
 
-#include <TROOT.h>
-#include <TMath.h>
-#include <TSystem.h>
-#include <Math/VectorUtil.h>
-#include <TLorentzVector.h>
-#include <TStyle.h>
 #include <TFile.h>
 #include <TTree.h>
 #include <TBranch.h>
 #include <TH1.h>
-#include <TH2.h>
 #include <TString.h>
-#include <TObjArray.h>
-#include <TRandom3.h>
 #include <TIterator.h>
 #include <TObject.h>
 #include <TObjString.h>
@@ -31,6 +22,7 @@
 #include "ScaleFactors.h"
 #include "Correctors.h"
 #include "KinematicReconstruction.h"
+#include "KinematicReconstructionSolution.h"
 #include "analysisObjectStructs.h"
 
 
@@ -1315,11 +1307,12 @@ const KinRecoObjects& AnalysisBase::getKinRecoObjects(const Long64_t& entry)cons
 
 
 
-const KinRecoObjects& AnalysisBase::getKinRecoObjectsOnTheFly(const int leptonIndex, const int antiLeptonIndex, const std::vector<int>& jetIndices,
+const KinRecoObjects& AnalysisBase::getKinRecoObjectsOnTheFly(const int leptonIndex, const int antiLeptonIndex,
+                                                              const std::vector<int>& jetIndices, const std::vector<int>& bjetIndices,
                                                               const VLV& allLeptons, const VLV& jets, const std::vector<double>& jetBTagCSV,
                                                               const LV& met)
 {
-    this->calculateKinReco(leptonIndex, antiLeptonIndex, jetIndices, allLeptons, jets, jetBTagCSV, met);
+    this->calculateKinReco(leptonIndex, antiLeptonIndex, jetIndices, bjetIndices, allLeptons, jets, jetBTagCSV, met);
 
     return *kinRecoObjects_;
 }
@@ -1634,7 +1627,8 @@ double AnalysisBase::getJetHT(const std::vector<int>& jetIndices, const VLV& jet
 
 
 
-bool AnalysisBase::calculateKinReco(const int leptonIndex, const int antiLeptonIndex, const std::vector<int>& jetIndices,
+bool AnalysisBase::calculateKinReco(const int leptonIndex, const int antiLeptonIndex,
+                                    const std::vector<int>& jetIndices, const std::vector<int>& bjetIndices,
                                     const VLV& allLeptons, const VLV& jets,
                                     const std::vector<double>& jetBTagCSV, const LV& met)
 {
@@ -1667,6 +1661,16 @@ bool AnalysisBase::calculateKinReco(const int leptonIndex, const int antiLeptonI
 
     kinRecoObjects_->valuesSet_ = false;
 
+    if(!kinematicReconstruction_){
+        std::cerr<<"Error in AnalysisBase::calculateKinReco()! Kinematic reconstruction is not initialised\n...break\n"<<std::endl;
+        exit(659);
+    }
+    
+    
+    
+    
+    
+    // Old version of interface for solutions
     // The physics objects needed as input
     const LV& leptonMinus(allLeptons.at(leptonIndex));
     const LV& leptonPlus(allLeptons.at(antiLeptonIndex));
@@ -1678,12 +1682,8 @@ bool AnalysisBase::calculateKinReco(const int leptonIndex, const int antiLeptonI
         btagValues.push_back(jetBTagCSV.at(index));
         selectedJetIndices.push_back(index);
     }
-
+    
     // Get solutions of kinematic reconstruction
-    if(!kinematicReconstruction_){
-        std::cerr<<"Error in AnalysisBase::calculateKinReco()! Kinematic reconstruction is not initialised\n...break\n"<<std::endl;
-        exit(659);
-    }
     kinematicReconstruction_->kinReco(leptonMinus, leptonPlus, &selectedJets, &btagValues, &met);
     const auto& sols = kinematicReconstruction_->getSols();
     const int nSolution = sols.size();
@@ -1693,18 +1693,88 @@ bool AnalysisBase::calculateKinReco(const int leptonIndex, const int antiLeptonI
     const auto& sol = sols.at(0);
     
     // Fill the results of the on-the-fly kinematic reconstruction
+    const int bjetIndex(selectedJetIndices.at(sol.jetB_index));
+    const int antiBjetIndex(selectedJetIndices.at(sol.jetBbar_index));
     kinRecoObjects_->HypTop_->push_back(common::TLVtoLV(sol.top));
     kinRecoObjects_->HypAntiTop_->push_back(common::TLVtoLV(sol.topBar));
-    kinRecoObjects_->HypLepton_->push_back(common::TLVtoLV(sol.lm));
-    kinRecoObjects_->HypAntiLepton_->push_back(common::TLVtoLV(sol.lp));
-    kinRecoObjects_->HypBJet_->push_back(common::TLVtoLV(sol.jetB));
-    kinRecoObjects_->HypAntiBJet_->push_back(common::TLVtoLV(sol.jetBbar));
+    kinRecoObjects_->HypLepton_->push_back(allLeptons.at(leptonIndex));
+    kinRecoObjects_->HypAntiLepton_->push_back(allLeptons.at(antiLeptonIndex));
+    kinRecoObjects_->HypBJet_->push_back(jets.at(bjetIndex));
+    kinRecoObjects_->HypAntiBJet_->push_back(jets.at(antiBjetIndex));
     kinRecoObjects_->HypNeutrino_->push_back(common::TLVtoLV(sol.neutrino));
     kinRecoObjects_->HypAntiNeutrino_->push_back(common::TLVtoLV(sol.neutrinoBar));
-    kinRecoObjects_->HypJet0index_->push_back(selectedJetIndices.at(sol.jetB_index));
-    kinRecoObjects_->HypJet1index_->push_back(selectedJetIndices.at(sol.jetBbar_index));
+    kinRecoObjects_->HypJet0index_->push_back(bjetIndex);
+    kinRecoObjects_->HypJet1index_->push_back(antiBjetIndex);
     kinRecoObjects_->valuesSet_ = true;
-
+    
+    // Printout for old version of interface
+//     // FIXME: assigned LV of W is exactly LV of neutrino. Sth went wrong with leptons in W = l + nu
+//     {
+//         std::cout<<"\n\n\nNew event - kinReco(): "<<nSolution<<"\n";
+//         for(int i = 0; i < nSolution; ++i){
+//             const auto& solution = sols.at(i);
+//             const int bjetIndex_ = selectedJetIndices.at(solution.jetB_index);
+//             const int antiBjetIndex_ = selectedJetIndices.at(solution.jetBbar_index);
+//             const LV wPlus_ = common::TLVtoLV(solution.Wplus);
+//             const LV wMinus_ = common::TLVtoLV(solution.Wminus);
+//             const LV top_ = common::TLVtoLV(solution.top);
+//             const LV antiTop_ = common::TLVtoLV(solution.topBar);
+//             const LV ttbar = common::TLVtoLV(solution.ttbar);
+//             const LV neutrino_ = common::TLVtoLV(solution.neutrino);
+//             const LV antiNeutrino_ = common::TLVtoLV(solution.neutrinoBar);
+//             
+//             std::cout<<"Index (lepton, antilepton):         "<<leptonIndex<<" , "<<antiLeptonIndex<<"\n"
+//                      <<"Index (b jet, anti-b jet):          "<<bjetIndex_<<" , "<<antiBjetIndex_<<"\n"
+//                      <<"W+ (pt, eta, phi, mass):            "<<std::fixed<<std::setprecision(3)<<wPlus_.pt()<<" , "<<wPlus_.eta()<<" , "<<wPlus_.phi()<<" , "<<wPlus_.mass()<<"\n"
+//                      <<"W- (pt, eta, phi, mass):            "<<wMinus_.pt()<<" , "<<wMinus_.eta()<<" , "<<wMinus_.phi()<<" , "<<wMinus_.mass()<<"\n"
+//                      <<"Top (pt, eta, phi, mass):           "<<top_.pt()<<" , "<<top_.eta()<<" , "<<top_.phi()<<" , "<<top_.mass()<<"\n"
+//                      <<"Anti-top (pt, eta, phi, mass):      "<<antiTop_.pt()<<" , "<<antiTop_.eta()<<" , "<<antiTop_.phi()<<" , "<<antiTop_.mass()<<"\n"
+//                      <<"tt system(pt, eta, phi, mass):      "<<ttbar.pt()<<" , "<<ttbar.eta()<<" , "<<ttbar.phi()<<" , "<<ttbar.mass()<<"\n"
+//                      <<"Neutrino (pt, eta, phi, mass):      "<<neutrino_.pt()<<" , "<<neutrino_.eta()<<" , "<<neutrino_.phi()<<" , "<<neutrino_.mass()<<"\n"
+//                      <<"Anti-neutrino (pt, eta, phi, mass): "<<antiNeutrino_.pt()<<" , "<<antiNeutrino_.eta()<<" , "<<antiNeutrino_.phi()<<" , "<<antiNeutrino_.mass()<<"\n"
+//                      <<"Reconstructed top mass:             "<<solution.recMtop<<"\n"
+//                      <<"Number of b-tags:                   "<<solution.ntags<<"\n"
+//                      <<"Weight:                             "<<solution.weight<<"\n";
+//             std::cout<<"\n";
+//         }
+//     }
+    
+    
+    
+    
+    
+    // New version of interface for solutions
+//     const KinematicReconstructionSolutions kinematicReconstructionSolutions = kinematicReconstruction_->solutions({leptonIndex}, {antiLeptonIndex},
+//                                                                                                                   jetIndices, bjetIndices,
+//                                                                                                                   allLeptons, jets, jetBTagCSV,
+//                                                                                                                   met);
+//     if(!kinematicReconstructionSolutions.numberOfSolutions()) return false;
+//     const KinematicReconstructionSolution& kinematicReconstructionSolution = kinematicReconstructionSolutions.solution_averaged_sumSmearings_mlbBased();
+//     kinRecoObjects_->HypTop_->push_back(kinematicReconstructionSolution.top_);
+//     kinRecoObjects_->HypAntiTop_->push_back(kinematicReconstructionSolution.antiTop_);
+//     kinRecoObjects_->HypLepton_->push_back(allLeptons.at(kinematicReconstructionSolution.leptonIndex_));
+//     kinRecoObjects_->HypAntiLepton_->push_back(allLeptons.at(kinematicReconstructionSolution.antiLeptonIndex_));
+//     kinRecoObjects_->HypBJet_->push_back(jets.at(kinematicReconstructionSolution.bjetIndex_));
+//     kinRecoObjects_->HypAntiBJet_->push_back(jets.at(kinematicReconstructionSolution.antiBjetIndex_));
+//     kinRecoObjects_->HypNeutrino_->push_back(kinematicReconstructionSolution.neutrino_);
+//     kinRecoObjects_->HypAntiNeutrino_->push_back(kinematicReconstructionSolution.antiNeutrino_);
+//     kinRecoObjects_->HypJet0index_->push_back(kinematicReconstructionSolution.bjetIndex_);
+//     kinRecoObjects_->HypJet1index_->push_back(kinematicReconstructionSolution.antiBjetIndex_);
+//     kinRecoObjects_->valuesSet_ = true;
+    
+    // Printout for new version of interface
+//     std::cout<<"\n\n\nNew event - solutions(): "<<kinematicReconstructionSolutions.numberOfSolutions()<<"\n";
+//     for(size_t i = 0; i < kinematicReconstructionSolutions.numberOfSolutions(); ++i){
+//         kinematicReconstructionSolutions.solutionByWeight_averaged_sumSmearings_mlbBased(i).print();
+//         std::cout<<"\n";
+//     }
+    
+    
+    
+    
+    
+    
+    
     // Check for strange events
     //if(kinRecoObjects_->HypTop_->size()){
     //    double Ecm = (kinRecoObjects_->HypTop_->at(0) + kinRecoObjects_->HypAntiTop_->at(0)

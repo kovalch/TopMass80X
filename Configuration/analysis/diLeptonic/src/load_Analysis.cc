@@ -122,7 +122,7 @@ void load_Analysis(const TString& validFilenamePattern,
     
     // Set up kinematic reconstruction
     KinematicReconstruction* kinematicReconstruction(0);
-    kinematicReconstruction = new KinematicReconstruction();
+    kinematicReconstruction = new KinematicReconstruction(1, true);
     
     // Set up kinematic reconstruction scale factors (null-pointer means no application)
     KinematicReconstructionScaleFactors* kinematicReconstructionScaleFactors(0);

@@ -15,6 +15,7 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   analysisUtils
   analysisObjectStructs
   KinematicReconstruction
+  KinematicReconstructionSolution
   KinematicReconstruction_LSroutines
   KinematicReconstruction_MeanSol
   ScaleFactors

@@ -6,11 +6,15 @@
 
 #include <TLorentzVector.h>
 
-class TH1F;
+class TH1;
 class TRandom3;
 
-#include "classesFwd.h"
+#include "classes.h"
 #include "sampleHelpers.h"
+
+class KinematicReconstructionSolution;
+class KinematicReconstructionSolutions;
+class KinematicReconstruction_MeanSol;
 
 
 
@@ -38,7 +42,7 @@ class KinematicReconstruction{
     
 public:
     
-    KinematicReconstruction();
+    KinematicReconstruction(const int minNumberOfBtags, const bool preferBtags, const bool massLoop =false);
     ~KinematicReconstruction(){}
     
     int getNSol()const;
@@ -47,12 +51,59 @@ public:
     
     void loadData();
     void kinReco(const LV& leptonMinus, const LV& leptonPlus, const VLV* jets, const std::vector<double>* btags, const LV* met);
-    void kinReco(const LV& leptonMinus, const LV& leptonPlus, const VLV* jets, const std::vector<double>* btags, const LV* met, const bool mass_loop_on);
+    void kinRecoMassLoop(const LV& leptonMinus, const LV& leptonPlus, const VLV* jets, const std::vector<double>* btags, const LV* met);
     void doJetsMerging(const VLV* jets, const std::vector<double>* btags);
     
+    /// Retrieve all solutions valid for setup of kinematic reconstruction
+    KinematicReconstructionSolutions solutions(const std::vector<int>& leptonIndices, const std::vector<int>& antiLeptonIndices,
+                                               const std::vector<int>& jetIndices, const std::vector<int>& bjetIndices,
+                                               const VLV& allLeptons,
+                                               const VLV& allJets, const std::vector<double>& btags,
+                                               const LV& met)const;
     
     
 private:
+    
+    /// Calculate solution for specific lepton, antilepton and pair of jets
+    KinematicReconstructionSolution solution(const int leptonIndex, const int antiLeptonIndex,
+                                             const int jetIndex1, const int jetIndex2,
+                                             const VLV& allLeptons,
+                                             const VLV& allJets, const std::vector<double>& btags,
+                                             const LV& met,
+                                             const int numberOfBtags)const;
+    
+    /// Set seeds for random number generators
+    void setRandomNumberSeeds(const LV& antiLepton)const;
+    
+    /// Minimum number of b-tags required for solutions (0, 1, 2)
+    const int minNumberOfBtags_;
+    
+    /// Prefer solutions with b-tags (2 tags if existing, else 1 tag if existing, else 0 tags)
+    const bool preferBtags_;
+    
+    /// Whether to run mass loop for top mass, instead of smearings according to uncertainties
+    const bool massLoop_;
+    
+    
+    
+    // FIXME: temporary helper variables for cleanup
+    void setSolutions();
+    
+    void inputNoJetMerging(std::vector<int>& b1_id, std::vector<int>& b2_id, std::vector<int>& nb_tag,
+                           const std::vector<double>& btags)const;
+    
+    void inputJetMerging(std::vector<int>& b1_id, std::vector<int>& b2_id, std::vector<int>& nb_tag,
+                         VLV& new_jets, std::vector<double>& new_btags)const;
+    
+    /// Calculate solution using smearing
+    bool solutionSmearing(KinematicReconstruction_MeanSol& meanSolution,
+                          const LV& lepton, const LV& antiLepton,
+                          const LV& jet1, const LV& jet2,
+                          const LV& met)const;
+    
+    
+    
+    
     
     void angle_rot(const double& alpha, const double& e, const TLorentzVector& inJet, TLorentzVector& jet_sm)const;
     
@@ -63,41 +114,41 @@ private:
     std::vector<Struct_KinematicReconstruction> sols_;
     
     bool isJetsMerging_;
-    std::vector<TLorentzVector> alljets_;
+    VLV alljets_;
     std::vector<double> allbtags_;
 //     // W mass
-    TH1F* h_wmass_;
+    TH1* h_wmass_;
 // 
     // jet resolution
-    TH1F* h_jetAngleRes_;
-    TH1F* h_jetEres_;
+    TH1* h_jetAngleRes_;
+    TH1* h_jetEres_;
        
     //lepton resolution
-    TH1F* h_lepAngleRes_;
-    TH1F* h_lepEres_;
+    TH1* h_lepAngleRes_;
+    TH1* h_lepEres_;
     
     //MET resolution
     double ptBins[14];
     std::vector<double> ptBins_;
-    TH1F* h_metAngleRes_[13];
-    TH1F* h_metPtres_[13];
+    TH1* h_metAngleRes_[13];
+    TH1* h_metPtres_[13];
     
-    TH1F* h_metPxRes_[13];
-    TH1F* h_metPyRes_[13];
+    TH1* h_metPxRes_[13];
+    TH1* h_metPyRes_[13];
     
     
-    TH1F* h_nwcuts_;
+    TH1* h_nwcuts_;
     
 // //  E 1d bins
-    TH1F* hvE_[6];
+    TH1* hvE_[6];
     
 // // mbl
-    TH1F* h_mbl_w_;
+    TH1* h_mbl_w_;
 // // costheta        
-    TH1F* h_costheta_w_;
+    TH1* h_costheta_w_;
     
 // neuEta 0d weight
-    TH1F* h_neuEta_w_;
+    TH1* h_neuEta_w_;
 };
 
 
@@ -157,5 +208,7 @@ private:
 
 
 
-
 #endif
+
+
+

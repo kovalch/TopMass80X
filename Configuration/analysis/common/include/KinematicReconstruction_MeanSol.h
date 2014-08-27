@@ -6,6 +6,8 @@
 #include <TLorentzVector.h>
 
 
+#include "classesFwd.h"
+
 
 
 
@@ -23,6 +25,11 @@ public:
     double getSumWeight()const;
     int getNsol()const;
     void clear();
+    
+    
+    // FIXME: right now this is only using getMeanSol(), since the whole class is based on TLorentzVector
+    /// Get Lorentz vectors of (anti-)top and (anti-)neutrino for mean solution
+    void meanSolution(LV& top, LV& antiTop, LV& neutrino, LV& antiNeutrino)const;
     
     
     

@@ -3,6 +3,8 @@
 #include <TLorentzVector.h>
 
 #include "KinematicReconstruction_MeanSol.h"
+#include "classes.h"
+#include "analysisUtils.h"
 
 
 
@@ -110,5 +112,27 @@ int KinematicReconstruction_MeanSol::getNsol()const
 {
     return (int)v_top_.size();
 }
+
+
+
+void KinematicReconstruction_MeanSol::meanSolution(LV& top, LV& antiTop, LV& neutrino, LV& antiNeutrino)const
+{
+    TLorentzVector topTemp = common::LVtoTLV(top);
+    TLorentzVector antiTopTemp = common::LVtoTLV(antiTop);
+    TLorentzVector neutrinoTemp = common::LVtoTLV(neutrino);
+    TLorentzVector antiNeutrinoTemp = common::LVtoTLV(antiNeutrino);
+    
+    this->getMeanVect(topTemp, v_top_, mass_top_);
+    this->getMeanVect(antiTopTemp, v_topbar_, mass_top_);
+    this->getMeanVect(neutrinoTemp, v_n_, 0);
+    this->getMeanVect(antiNeutrinoTemp, v_nbar_, 0);
+    
+    top = common::TLVtoLV(topTemp);
+    antiTop = common::TLVtoLV(antiTopTemp);
+    neutrino = common::TLVtoLV(neutrinoTemp);
+    antiNeutrino = common::TLVtoLV(antiNeutrinoTemp);
+}
+
+
 
 
