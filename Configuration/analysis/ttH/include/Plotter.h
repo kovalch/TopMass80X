@@ -9,14 +9,10 @@
 class TLegend;
 class RootFileReader;
 class TH1;
-class TH2;
-class TGraph;
-class TGraphErrors;
 class TPaveText;
 
 #include "plotterHelpers.h"
 #include "SamplesFwd.h"
-#include "Sample.h"
 #include "../../common/include/sampleHelpers.h"
 
 
@@ -28,7 +24,8 @@ class Plotter{
 public:
     
     /// Constructor
-    Plotter(const Samples& samples,
+    Plotter(const char* outputDir,
+            const Samples& samples,
             const DrawMode::DrawMode& drawMode);
     
     /// Destructor
@@ -63,29 +60,23 @@ private:
     
     
     /// Set the style of the plot
-    void setStyle(SampleHistPair& sampleHistPair);
-    
-    /// Set the style of the graph
-    void setGraphStyle( TGraph* graph, Style_t marker = 21, Color_t markerColor = 1, Size_t markerSize = 1, 
-                        Style_t line = 0, Color_t lineColor = 0, Size_t lineWidth = 1)const;
+    void setStyle(SampleHistPair& sampleHistPair, const bool isControlPlot =false);
     
     /// Draw label for decay channel in upper left corner of plot
     void drawDecayChannelLabel(const Channel::Channel& channel, const double& textSize =0.04)const;
-
+    
     /// Draw official labels (CMS [Preliminary], luminosity and CM energy) above plot
     void drawCmsLabels(const int cmsprelim =1, const double& energy =8, const double& textSize =0.04)const;
     
     /// Draw signal significance label over the plot
-    TPaveText* drawSignificance(TH1* signal, TH1* bkg, float Xmin,  float Xmax, float yOffset = 0.f, std::string sLabel ="", const int type=0)const;
-    
-    /// Calculates purity (type=0) and stability (type=1) curves for a 2D distribution
-    TGraphErrors* purityStabilityGraph(TH2* h2d, const int type)const;
-    
-    /// Calculates binomial uncertainty of the subset/set ratio
-    double uncertaintyBinomial(const double pass, const double all)const;
+    TPaveText* drawSignificance(const TH1* const signal, const TH1* const signalPlusBackground,
+                                const float xMin, const float xMax,
+                                const float yOffset = 0.f, const std::string& sLabel ="", const int type =0)const;
     
     
     
+    /// Output folder name
+    const char* outputDir_;
     
     /// Samples to be analysed
     const Samples& samples_;
@@ -110,14 +101,12 @@ private:
     
     /// Name of histogram under consideration
     TString name_;
-    TString drawOpt_;
     
     /// Options for the histogram under consideration
     int bins_, rebin_;
-    bool stackToNEntries_;
     double rangemin_, rangemax_, ymin_, ymax_;
     std::vector<double> XAxisbins_, XAxisbinCenters_;
-    std::vector<Sample::SampleType> sampleTypesToStack2D_;
+    TString YAxis_;
     TString XAxis_;
     bool logX_, logY_; // The variable logX_ is not used at all...
 };

@@ -48,7 +48,7 @@ void Histo(const std::vector<std::string>& v_plot,
     const EventYields eventYields("EventYields", samples);
     
     // Create Plotter
-    Plotter generalPlot(samples, drawMode);
+    Plotter plotter("Plots", samples, drawMode);
     
     // Access the histoList specifying printing parameters of histograms
     const std::string histoListFile(tth::DATA_PATH_TTH() + "/" + "HistoList_control");
@@ -84,13 +84,13 @@ void Histo(const std::vector<std::string>& v_plot,
         }
         
         // Set plot properties
-        generalPlot.setOptions(plotProperties.name, plotProperties.specialComment, plotProperties.ytitle, plotProperties.xtitle, 
+        plotter.setOptions(plotProperties.name, plotProperties.specialComment, plotProperties.ytitle, plotProperties.xtitle, 
                                plotProperties.rebin, plotProperties.do_dyscale, plotProperties.logX, plotProperties.logY, 
                                plotProperties.ymin, plotProperties.ymax, plotProperties.xmin, plotProperties.xmax,
                                plotProperties.bins, plotProperties.xbinbounds, plotProperties.bincenters);
         
         // Loop over all systematics and all channels and write histograms
-        generalPlot.producePlots();
+        plotter.producePlots();
     }
     std::cout<<"\n=== Finishing with the plotting\n\n";
 }
