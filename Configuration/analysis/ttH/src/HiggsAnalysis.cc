@@ -336,7 +336,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     // Get MET, and in case of MVA MET apply recoil correction for Drell-Yan sample
     this->correctMvaMet(dilepton, numberOfJets, entry);
     const LV& met = *recoObjects.met_;
-    const bool hasMetOrEmu = this->channel()==Channel::emu || met.pt()>MetCUT;
+    const bool hasMet = met.pt() > MetCUT;
     
     const tth::RecoObjectIndices recoObjectIndices(allLeptonIndices,
                                                    leptonIndices, antiLeptonIndices,
@@ -399,151 +399,156 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     // ...with at least 20 GeV invariant mass
     if(dilepton.M() < 20.) return kTRUE;
     
-    // Access kinematic reconstruction info
-    //const KinRecoObjects& kinRecoObjects = this->getKinRecoObjects(entry);
-    //const KinRecoObjects& kinRecoObjects = !this->makeBtagEfficiencies() ? this->getKinRecoObjectsOnTheFly(leptonIndex, antiLeptonIndex, jetIndices, bjetIndices, allLeptons, jets, jetBTagCSV, met) : kinRecoObjectsDummy;
-    const KinRecoObjects& kinRecoObjects = kinRecoObjectsDummy;
-    //const bool hasSolution = kinRecoObjects.valuesSet_;
-
-
-
     // ++++ Control Plots ++++
 
     this->fillAll(selectionStep,
                   recoObjects, commonGenObjects,
                   topGenObjectsDummy, higgsGenObjectsDummy,
-                  kinRecoObjects,
+                  kinRecoObjectsDummy,
                   genObjectIndicesDummy, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   weight);
-    
-    
-    
-    // ****************************************
-    // Handle inverted Z cut
-    // Z window plots need to be filled here, in order to rescale the contribution to data
-    const bool isZregion = dilepton.M() > 76. && dilepton.M() < 106.;
-    if(isZregion){
-        selectionStep = "4zWindow";
-        
-        this->fillAll(selectionStep,
-                      recoObjects, commonGenObjects,
-                      topGenObjectsDummy, higgsGenObjectsDummy,
-                      kinRecoObjects,
-                      genObjectIndicesDummy, recoObjectIndices,
-                      genLevelWeights, recoLevelWeights,
-                      weight);
-        
-        if(has2Jets){
-            selectionStep = "5zWindow";
-            
-            this->fillAll(selectionStep,
-                          recoObjects, commonGenObjects,
-                          topGenObjectsDummy, higgsGenObjectsDummy,
-                          kinRecoObjects,
-                          genObjectIndicesDummy, recoObjectIndices,
-                          genLevelWeights, recoLevelWeights,
-                          weight);
-            
-            if(hasMetOrEmu){
-                selectionStep = "6zWindow";
-                
-                this->fillAll(selectionStep,
-                              recoObjects, commonGenObjects,
-                              topGenObjectsDummy, higgsGenObjectsDummy,
-                              kinRecoObjects,
-                              genObjectIndicesDummy, recoObjectIndices,
-                              genLevelWeights, recoLevelWeights,
-                              weight);
-                
-                if(hasBtag){
-                    selectionStep = "7zWindow";
-                    const double fullWeight = weight * weightBtagSF;
-                    
-                    this->fillAll(selectionStep,
-                                  recoObjects, commonGenObjects,
-                                  topGenObjectsDummy, higgsGenObjectsDummy,
-                                  kinRecoObjects,
-                                  genObjectIndicesDummy, recoObjectIndices,
-                                  genLevelWeights, recoLevelWeights,
-                                  fullWeight);
-                }
-            }
-        }
-    }
     
     
     
     //=== CUT ===
     selectionStep = "4";
-
-    //Exclude the Z window
-    if(this->channel()!=Channel::emu && isZregion) return kTRUE;
-
+    
+    // Exclude the Z window in analysis cutflow, but keep these events for Drell-Yan corrections
+    const bool isZregion = dilepton.M() > 76. && dilepton.M() < 106.;
+    const bool isEmu = this->channel() == Channel::emu;
+    
+    // ++++ Z-window plots ++++
+    
+    if(isZregion){
+        this->fillAll("4zWindow",
+                      recoObjects, commonGenObjects,
+                      topGenObjectsDummy, higgsGenObjectsDummy,
+                      kinRecoObjectsDummy,
+                      genObjectIndicesDummy, recoObjectIndices,
+                      genLevelWeights, recoLevelWeights,
+                      weight);
+    }
+    
     // ++++ Control Plots ++++
-
-    this->fillAll(selectionStep,
-                  recoObjects, commonGenObjects,
-                  topGenObjectsDummy, higgsGenObjectsDummy,
-                  kinRecoObjects,
-                  genObjectIndicesDummy, recoObjectIndices,
-                  genLevelWeights, recoLevelWeights,
-                  weight);
-
-
-
+    
+    if(isEmu || !isZregion){
+        this->fillAll(selectionStep,
+                      recoObjects, commonGenObjects,
+                      topGenObjectsDummy, higgsGenObjectsDummy,
+                      kinRecoObjectsDummy,
+                      genObjectIndicesDummy, recoObjectIndices,
+                      genLevelWeights, recoLevelWeights,
+                      weight);
+    }
+    
+    
+    
     //=== CUT ===
     selectionStep = "5";
-
+    
     //Require at least two jets
     if(!has2Jets) return kTRUE;
-
+    
+    // ++++ Z-window plots ++++
+    
+    if(isZregion){
+        this->fillAll("5zWindow",
+                      recoObjects, commonGenObjects,
+                      topGenObjectsDummy, higgsGenObjectsDummy,
+                      kinRecoObjectsDummy,
+                      genObjectIndicesDummy, recoObjectIndices,
+                      genLevelWeights, recoLevelWeights,
+                      weight);
+    }
+    
     // ++++ Control Plots ++++
-
-    this->fillAll(selectionStep,
-                  recoObjects, commonGenObjects,
-                  topGenObjectsDummy, higgsGenObjectsDummy,
-                  kinRecoObjects,
-                  genObjectIndicesDummy, recoObjectIndices,
-                  genLevelWeights, recoLevelWeights,
-                  weight);
-
-
-
+    
+    if(isEmu || !isZregion){
+        this->fillAll(selectionStep,
+                      recoObjects, commonGenObjects,
+                      topGenObjectsDummy, higgsGenObjectsDummy,
+                      kinRecoObjectsDummy,
+                      genObjectIndicesDummy, recoObjectIndices,
+                      genLevelWeights, recoLevelWeights,
+                      weight);
+    }
+    
+    
+    
     //=== CUT ===
     selectionStep = "6";
-
-    //Require MET > 40 GeV in non-emu channels
-    if(!hasMetOrEmu) return kTRUE;
-
-    // ++++ Control Plots ++++
-
-    this->fillAll(selectionStep,
-                  recoObjects, commonGenObjects,
-                  topGenObjectsDummy, higgsGenObjectsDummy,
-                  kinRecoObjects,
-                  genObjectIndicesDummy, recoObjectIndices,
-                  genLevelWeights, recoLevelWeights,
-                  weight);
-
-    // Fill b-tagging efficiencies if required for given correction mode, and in case do not process further steps
-    this->fillBtagEfficiencyHistos(jetIndices, jetBTagCSV, jets, jetPartonFlavour, weight);
-    if(this->makeBtagEfficiencies()) return kTRUE;
-
     
-
+    //Require MET > 40 GeV in non-emu channels
+    if(!(hasMet || isEmu)) return kTRUE;
+    
+    // ++++ Z-window plots ++++
+    
+    if(isZregion){
+        this->fillAll("6zWindow",
+                      recoObjects, commonGenObjects,
+                      topGenObjectsDummy, higgsGenObjectsDummy,
+                      kinRecoObjectsDummy,
+                      genObjectIndicesDummy, recoObjectIndices,
+                      genLevelWeights, recoLevelWeights,
+                      weight);
+    }
+    
+    // ++++ Control Plots ++++
+    
+    if(isEmu || !isZregion){
+        this->fillAll(selectionStep,
+                      recoObjects, commonGenObjects,
+                      topGenObjectsDummy, higgsGenObjectsDummy,
+                      kinRecoObjectsDummy,
+                      genObjectIndicesDummy, recoObjectIndices,
+                      genLevelWeights, recoLevelWeights,
+                      weight);
+        
+        // Fill b-tagging efficiencies if required for given correction mode
+        this->fillBtagEfficiencyHistos(jetIndices, jetBTagCSV, jets, jetPartonFlavour, weight);
+    }
+    
+    // In case of filling b-tagging efficiencies, do not process further steps
+    if(this->makeBtagEfficiencies()) return kTRUE;
+    
+    
+    
     //=== CUT ===
     selectionStep = "7";
-
+    
     //Require at least one b tagged jet
     if(!hasBtag) return kTRUE;
-
+    
     weight *= weightBtagSF;
-
-
-
+    
+    // ++++ Z-window plots ++++
+    
+    if(isZregion){
+        this->fillAll("7zWindow",
+                      recoObjects, commonGenObjects,
+                      topGenObjectsDummy, higgsGenObjectsDummy,
+                      kinRecoObjectsDummy,
+                      genObjectIndicesDummy, recoObjectIndices,
+                      genLevelWeights, recoLevelWeights,
+                      weight);
+    }
+    
+    // Gen-level info and kinematic reconstruction not needed for Z region
+    if(!isEmu && isZregion) return kTRUE;
+    
+    
+    
+    // Access kinematic reconstruction info
+    //const KinRecoObjects& kinRecoObjects = this->getKinRecoObjects(entry);
+    //const KinRecoObjects& kinRecoObjects = !this->makeBtagEfficiencies() ? this->getKinRecoObjectsOnTheFly(leptonIndex, antiLeptonIndex, jetIndices, bjetIndices, allLeptons, jets, jetBTagCSV, met) : kinRecoObjectsDummy;
+    const KinRecoObjects& kinRecoObjects = kinRecoObjectsDummy;
+    //const bool hasSolution = kinRecoObjects.valuesSet_;
+    
+    
+    
     // === FULL GEN OBJECT SELECTION ===
-
+    
     // Access top generator object struct, and higgs generator object struct
     const TopGenObjects& topGenObjects = this->getTopGenObjects(entry);
     const HiggsGenObjects& higgsGenObjects = this->getHiggsGenObjects(entry);
@@ -619,11 +624,11 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
                                                  matchedBjetFromTopIndex, matchedAntiBjetFromTopIndex,
                                                  genBjetFromHiggsIndex, genAntiBjetFromHiggsIndex,
                                                  matchedBjetFromHiggsIndex, matchedAntiBjetFromHiggsIndex);
-
-
-
+    
+    
+    
     // ++++ Control Plots ++++
-
+    
     this->fillAll(selectionStep,
                   recoObjects, commonGenObjects,
                   topGenObjects, higgsGenObjects,
@@ -631,9 +636,9 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
                   genObjectIndices, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   weight);
-
-
-
+    
+    
+    
     return kTRUE;
 }
 

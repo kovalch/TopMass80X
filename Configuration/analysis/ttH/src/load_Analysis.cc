@@ -192,7 +192,7 @@ void load_Analysis(const TString& validFilenamePattern,
     
     // Set up event yield histograms
     AnalyzerEventYields* analyzerEventYields(0);
-    analyzerEventYields = new AnalyzerEventYields({"0a", "0b", "1", "2", "3", "4", "5", "6", "7"}, {"7"}, jetCategories);
+    analyzerEventYields = new AnalyzerEventYields({"0a", "0b", "1", "2", "3", "4", "5", "6", "7", "4zWindow", "5zWindow", "6zWindow", "7zWindow"}, {"7"}, jetCategories);
     v_analyzer.push_back(analyzerEventYields);
     
     // Set up Drell-Yan scaling histograms
@@ -258,7 +258,7 @@ void load_Analysis(const TString& validFilenamePattern,
     // Set up kinematic reconstruction analyzer
     AnalyzerKinematicReconstruction* analyzerKinematicReconstruction(0);
     if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::kinReco) != v_analysisMode.end()){
-        analyzerKinematicReconstruction = new AnalyzerKinematicReconstruction({"3", "4", "5", "6", "7"});
+        analyzerKinematicReconstruction = new AnalyzerKinematicReconstruction({"7"}, {"7"}, jetCategories);
         v_analyzer.push_back(analyzerKinematicReconstruction);
     }
     
