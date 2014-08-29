@@ -704,8 +704,6 @@ mvaMetCollection = correctedMvaMet
 
 genJetCollection = "ak5GenJetsPlusBCHadron"
 
-genMetCollection = "genMetTrue"
-
 genLevelBJetProducerInput = "produceGenLevelBJets"
 
 genBHadronMatcherInput = "matchGenBCHadronB"
@@ -883,7 +881,6 @@ writeNTuple.met = metCollection
 writeNTuple.mvaMet = mvaMetCollection
 
 writeNTuple.genJets = genJetCollection
-writeNTuple.genMet = genMetCollection
 writeNTuple.pdfWeights = "pdfWeights:CT10"
 
 writeNTuple.BHadJetIndex = cms.InputTag(genLevelBJetProducerInput, "BHadJetIndex")
