@@ -141,7 +141,6 @@ private:
     const edm::InputTag pileupInfoTag_;
     const edm::InputTag genParticlesTag_;
     const edm::InputTag genJetsTag_;
-    const edm::InputTag genMetTag_;
     const edm::InputTag pdfWeightTag_;
     const edm::InputTag genEventTtbarTag_;
     const edm::InputTag genEventHiggsTag_;
@@ -382,7 +381,6 @@ triggerResultsTag_(iConfig.getParameter<edm::InputTag>("triggerResults")),
 pileupInfoTag_(iConfig.getParameter<edm::InputTag>("pileupInfo")),
 genParticlesTag_(iConfig.getParameter<edm::InputTag>("genParticles")),
 genJetsTag_(iConfig.getParameter<edm::InputTag>("genJets")),
-genMetTag_(iConfig.getParameter<edm::InputTag>("genMet")),
 pdfWeightTag_(iConfig.getParameter<edm::InputTag>("pdfWeights")),
 genEventTtbarTag_(iConfig.getParameter<edm::InputTag>("genEventTtbar")),
 genEventHiggsTag_(iConfig.getParameter<edm::InputTag>("genEventHiggs")),
@@ -589,11 +587,6 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             genWMinus_ = nullP4_;
             genWPlus_ = nullP4_;
         }
-        
-        // Gen MET --- for CSA14, need to check whether really produced
-        edm::Handle<std::vector<reco::GenMET> > genMet;
-        iEvent.getByLabel(genMetTag_, genMet);
-        if(!genMet.failedToGet()) genMet_ = genMet->at(0).polarP4();
         
         // All gen jets
         edm::Handle<reco::GenJetCollection> genJets;
@@ -1143,10 +1136,11 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         }
     }
     
-    // PF MET
+    // PF MET and genMET
     edm::Handle<edm::View<pat::MET> > met;
     iEvent.getByLabel(metTag_, met);
     met_ = met->at(0).polarP4();
+    if(isTtbarSample_) genMet_ = met->at(0).genMET()->polarP4();
     
     // MVA MET --- for CSA14, need to check whether really produced
     edm::Handle<edm::View<pat::MET> > mvaMet;

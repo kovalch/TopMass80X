@@ -217,52 +217,26 @@ process.TFileService = cms.Service("TFileService",
 
 
 ####################################################################
-## HCAL Noise filter
-
-process.load('CommonTools/RecoAlgos/HBHENoiseFilter_cfi')
-process.HBHENoiseFilter.minIsolatedNoiseSumE = cms.double(999999.)
-process.HBHENoiseFilter.minNumIsolatedNoiseChannels = cms.int32(999999)
-process.HBHENoiseFilter.minIsolatedNoiseSumEt = cms.double(999999.)
-
-
-
-####################################################################
-## Beam scraping filter
-
-process.scrapingFilter = cms.EDFilter("FilterOutScraping",
-    applyfilter = cms.untracked.bool(True),
-    debugOn     = cms.untracked.bool(False),
-    numtrack    = cms.untracked.uint32(10),
-    thresh      = cms.untracked.double(0.25)
-    )
-
-
-
-####################################################################
-## ECAL laser correction filter
-
-process.load("RecoMET.METFilters.ecalLaserCorrFilter_cfi")
-
-
-
-####################################################################
 ## Trigger filtering
 
-# Get the central diLepton trigger lists, and set up filter
-from TopAnalysis.TopFilter.sequences.diLeptonTriggers_cff import *
-process.load("TopAnalysis.TopFilter.filters.TriggerFilter_cfi")
-process.filterTrigger.TriggerResults = cms.InputTag('TriggerResults', '', 'HLT')
-process.filterTrigger.printTriggers = False
-if options.mode == 'mumu':
-    process.filterTrigger.hltPaths  = mumuTriggers
-elif options.mode == 'emu':
-    process.filterTrigger.hltPaths  = emuTriggers
-elif options.mode == 'ee':
-    process.filterTrigger.hltPaths  = eeTriggers
+if signal:
+    process.triggerSequence = cms.Sequence()
 else:
-    process.filterTrigger.hltPaths = eeTriggers + emuTriggers + mumuTriggers
-    
-#print "Printing triggers: ", process.filterTrigger.printTriggers
+    # Get the central diLepton trigger lists, and set up filter
+    from TopAnalysis.TopFilter.sequences.diLeptonTriggers_cff import *
+    process.load("TopAnalysis.TopFilter.filters.TriggerFilter_cfi")
+    process.filterTrigger.TriggerResults = cms.InputTag('TriggerResults', '', 'HLT')
+    process.filterTrigger.printTriggers = False
+    if options.mode == 'mumu':
+        process.filterTrigger.hltPaths  = mumuTriggers
+    elif options.mode == 'emu':
+        process.filterTrigger.hltPaths  = emuTriggers
+    elif options.mode == 'ee':
+        process.filterTrigger.hltPaths  = eeTriggers
+    else:
+        process.filterTrigger.hltPaths = eeTriggers + emuTriggers + mumuTriggers
+    #print "Printing triggers: ", process.filterTrigger.printTriggers
+    process.triggerSequence = cms.Sequence(process.filterTrigger)
 
 
 
@@ -270,14 +244,34 @@ else:
 ## Prefilter sequence
 
 if options.runOnMC:
-    process.prefilterSequence = cms.Sequence(
-        process.filterTrigger)
+    process.prefilterSequence = cms.Sequence()
 else:
+    ## HCAL Noise filter
+    process.load('CommonTools/RecoAlgos/HBHENoiseFilter_cfi')
+    process.HBHENoiseFilter.minIsolatedNoiseSumE = cms.double(999999.)
+    process.HBHENoiseFilter.minNumIsolatedNoiseChannels = cms.int32(999999)
+    process.HBHENoiseFilter.minIsolatedNoiseSumEt = cms.double(999999.)
+    
+    ## Beam scraping filter
+    process.scrapingFilter = cms.EDFilter("FilterOutScraping",
+        applyfilter = cms.untracked.bool(True),
+        debugOn     = cms.untracked.bool(False),
+        numtrack    = cms.untracked.uint32(10),
+        thresh      = cms.untracked.double(0.25)
+    )
+    
+    ## ECAL laser correction filter
+    process.load("RecoMET.METFilters.ecalLaserCorrFilter_cfi")
+    
     process.prefilterSequence = cms.Sequence(
-        process.filterTrigger *
         process.HBHENoiseFilter *
         process.scrapingFilter *
-        process.ecalLaserCorrFilter)
+        process.ecalLaserCorrFilter
+    )
+
+
+
+
 
 
 
@@ -311,9 +305,9 @@ if options.runOnAOD:
     
     
     ## Output module for edm files (needed for PAT sequence, even if not used in EndPath)
-    process.load("Configuration.EventContent.EventContent_cff")
+    from Configuration.EventContent.EventContent_cff import FEVTEventContent
     process.out = cms.OutputModule("PoolOutputModule",
-        process.FEVTEventContent,
+        FEVTEventContent,
         dataset = cms.untracked.PSet(dataTier = cms.untracked.string('RECO')),
         fileName = cms.untracked.string("eh.root"),
     )
@@ -328,8 +322,7 @@ if options.runOnAOD:
     
     ## PF2PAT sequence
     # Parameter checkClosestZVertex = False needs to be set to False when using PF Jets with Charged Hadron Subtraction, see https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookJetEnergyCorrections#JetEnCorPFnoPU2012
-    process.load("PhysicsTools.PatAlgos.patSequences_cff")
-    from PhysicsTools.PatAlgos.tools.pfTools import *
+    from PhysicsTools.PatAlgos.tools.pfTools import usePF2PAT
     usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=options.runOnMC, postfix=pfpostfix, jetCorrections=jetCorr, pvCollection=cms.InputTag(selectedPrimaryVertices), typeIMetCorrections=True)
     getattr(process, 'pfPileUp'+pfpostfix).checkClosestZVertex = False
     
@@ -483,17 +476,19 @@ mvaMetCollection = "patMEtMVA"
 ####################################################################
 ## Event preselection based on final input collections
 
-# Filter on events containing dilepton system of opposite charge and above m(ll) > 12 GeV
-from TopAnalysis.TopFilter.filters.DileptonPreselection_cfi import *
-process.dileptonPreselection = dileptonPreselection.clone(
-    electrons = isolatedElectronCollection,
-    muons = isolatedMuonCollection,
-    filterCharge = -1,
-    filterChannel = options.mode,
-    excludeMasses = (-999., 12.),
-)
-
-process.preselectionSequence = cms.Sequence(process.dileptonPreselection)
+if signal:
+    process.preselectionSequence = cms.Sequence()
+else:
+    # Filter on events containing dilepton system of opposite charge and above m(ll) > 12 GeV
+    from TopAnalysis.TopFilter.filters.DileptonPreselection_cfi import *
+    process.dileptonPreselection = dileptonPreselection.clone(
+        electrons = isolatedElectronCollection,
+        muons = isolatedMuonCollection,
+        filterCharge = -1,
+        filterChannel = options.mode,
+        excludeMasses = (-999., 12.),
+    )
+    process.preselectionSequence = cms.Sequence(process.dileptonPreselection)
 
 
 
@@ -510,8 +505,6 @@ process.jetProperties.src = jetCollection
 ## Final GEN object collections to be used in nTuple
 
 genJetCollection = 'ak5GenJetsPlusBCHadron'
-
-genMetCollection = 'genMetTrue'
 
 genParticleCollection = ''
 if options.runOnAOD:
@@ -570,7 +563,15 @@ if zGenInfo:
     process.genZDecay.src = genParticleCollection
 
 if topSignal:
-    process.load("TopAnalysis.TopUtils.sequences.GenHFHadronMatching_cff")
+    process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi") # Supplies PDG ID to real name resolution of MC particles
+    from TopAnalysis.TopUtils.sequences.GenHFHadronMatching_cff import genParticlesForJetsPlusBCHadron
+    from TopAnalysis.TopUtils.sequences.GenHFHadronMatching_cff import ak5GenJetsPlusBCHadron
+    from TopAnalysis.TopUtils.sequences.GenHFHadronMatching_cff import matchGenBCHadronB
+    from TopAnalysis.TopUtils.sequences.GenHFHadronMatching_cff import matchGenBCHadronC
+    process.genParticlesForJetsPlusBCHadron = genParticlesForJetsPlusBCHadron
+    process.ak5GenJetsPlusBCHadron = ak5GenJetsPlusBCHadron
+    process.matchGenBCHadronB = matchGenBCHadronB
+    process.matchGenBCHadronC = matchGenBCHadronC
     process.genParticlesForJetsPlusBCHadron.src = genParticleCollection
 
     process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi") # Supplies PDG ID to real name resolution of MC particles
@@ -672,7 +673,6 @@ writeNTuple.vertices = selectedPrimaryVertices
 
 writeNTuple.genParticles = genParticleCollection
 writeNTuple.genJets = genJetCollection
-writeNTuple.genMet = genMetCollection
 writeNTuple.pdfWeights = "pdfWeights:CT10"
 
 writeNTuple.BHadJetIndex = cms.InputTag(genLevelBJetProducerInput, "BHadJetIndex")
@@ -711,39 +711,22 @@ if not options.runOnAOD:
 
 process.writeNTuple = writeNTuple.clone()
 
-if signal:
-    process.ntupleInRecoSeq = cms.Sequence()
-else:
-    process.ntupleInRecoSeq = cms.Sequence(process.writeNTuple)
-
 
 
 ####################################################################
-## Paths, one with preselection, one without for signal samples
+## Path
 
-# Path containing selections
-path = cms.Path(
-    process.EventsBeforeSelection *
-    process.topSplittingSequence *
-    process.prefilterSequence *
-    process.preselectionSequence *
-    process.ntupleInRecoSeq
-)
-
-# Path keeping all events and storing generator information
-pathNtuple = cms.Path(
+process.path = cms.Path(
     process.EventsBeforeSelection *
     process.topSplittingSequence *
     process.higgsGenSequence *
+    process.triggerSequence *
+    process.prefilterSequence *
+    process.preselectionSequence *
     process.writeNTuple
 )
 
-if signal:
-    process.pathNtuple = pathNtuple
-else:
-    process.path = path
-
-pathnames = process.paths_().keys()
+#pathnames = process.paths_().keys()
 
 
 
