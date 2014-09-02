@@ -1118,7 +1118,6 @@ void AnalysisBase::GetTopSignalBranchesEntry(const Long64_t& entry)const
     // Check if branches' entry is already read
     if(topGenObjects_->valuesSet_) return;
     topGenObjects_->valuesSet_ = true;
-    topGenObjects_->entry_ = entry;
 
     this->GetGenTopBranchesEntry(entry);
     b_GenLepton->GetEntry(entry);

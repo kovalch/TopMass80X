@@ -693,7 +693,6 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     const ttbar::GenLevelWeights genLevelWeights(weightMadgraphCorrection, weightPU, weightGenerator,
                                                  trueLevelWeightNoPileup, trueLevelWeight);
     
-    const RecoObjects recoObjectsDummy;
     const CommonGenObjects commonGenObjectsDummy;
 
     // Access MC general generator info
@@ -739,8 +738,11 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     const ttbar::RecoObjectIndices recoObjectIndicesDummy({0},{0},{0},0,0,0,0,0,0,{0},{0});
     ttbar::RecoLevelWeights recoLevelWeightsDummy(0,0,0,0,0);
     
+    //FIXME: NOT a proper place for recoObjects, but it's needed to access to eventNumber_ on "0" selectionStep.
+    const RecoObjects& recoObjects = this->getRecoObjects(entry);
+    
     this->fillAll(selectionStep,
-                  recoObjectsDummy, commonGenObjects,
+                  recoObjects, commonGenObjects,
                   topGenObjects,
                   kinRecoObjectsDummy,
                   genObjectIndices, recoObjectIndicesDummy,
@@ -757,7 +759,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     // === FULL RECO OBJECT SELECTION === (can thus be used at each selection step)
     
     // Access objects info
-    const RecoObjects& recoObjects = this->getRecoObjects(entry);
+    //const RecoObjects& recoObjects = this->getRecoObjects(entry);
     
     // Get allLepton indices, apply selection cuts and order them by pt (beginning with the highest value)
     const VLV& allLeptons = *recoObjects.allLeptons_;

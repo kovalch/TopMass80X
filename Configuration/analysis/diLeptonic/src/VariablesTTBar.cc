@@ -133,7 +133,7 @@ trueLevelWeight_(VariableFloat(name_trueLevelWeight_))
    
    if(topGenObjects.valuesSet_){
        
-      entry_.value_ = (Int_t)topGenObjects.entry_;
+      entry_.value_ = (Int_t)recoObjects.eventNumber_;
       isTopGen_.value_ = 1;
       trueLevelWeight_.value_ = genLevelWeights.trueLevelWeight_;
       
