@@ -50,6 +50,7 @@ void TreeHandlerTTBar::createAndFillBranches(TTree* tree, const std::vector<Vari
     this->createBranch(tree, variablesTTBar->eventWeight_);
     
     this->createBranch(tree, variablesTTBar->isTopGen_);
+    this->createBranch(tree, variablesTTBar->entry_);
     this->createBranch(tree, variablesTTBar->isKinReco_);
     this->createBranch(tree, variablesTTBar->trueLevelWeight_);
     
@@ -102,6 +103,7 @@ void TreeHandlerTTBar::importBranches(TTree* tree, std::vector<VariablesBase*>& 
     this->importBranch(tree, variablesTTBar.eventWeight_);
     
     this->importBranch(tree, variablesTTBar.isTopGen_);
+    this->importBranch(tree, variablesTTBar.entry_);
     this->importBranch(tree, variablesTTBar.isKinReco_);
     this->importBranch(tree, variablesTTBar.trueLevelWeight_);
     

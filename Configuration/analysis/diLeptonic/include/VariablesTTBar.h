@@ -77,7 +77,8 @@ public:
     VariableInt   gen_jet_multiplicity_;
     VariableFloat gen_x1_;
     VariableFloat gen_x2_;
-    
+
+    VariableInt entry_;
     VariableInt isTopGen_;
     VariableInt isKinReco_;
     VariableFloat trueLevelWeight_;
@@ -110,7 +111,7 @@ private:
     static constexpr const char* name_gen_x1_ = "gen_x1";
     static constexpr const char* name_gen_x2_ = "gen_x2";
     
-    
+    static constexpr const char* name_entry_ = "entry";
     static constexpr const char* name_isTopGen_ = "isTopGen";
     static constexpr const char* name_isKinReco_ = "isKinReco";
     static constexpr const char* name_trueLevelWeight_ = "trueLevelWeight";

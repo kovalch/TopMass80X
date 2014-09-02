@@ -42,6 +42,7 @@ gen_jet_multiplicity_(VariableInt(name_gen_jet_multiplicity_)),
 gen_x1_(VariableFloat(name_gen_x1_)),
 gen_x2_(VariableFloat(name_gen_x2_)),
 
+entry_(VariableInt(name_entry_)),
 isTopGen_(VariableInt(name_isTopGen_)),
 isKinReco_(VariableInt(name_isKinReco_)),
 trueLevelWeight_(VariableFloat(name_trueLevelWeight_))
@@ -79,6 +80,7 @@ gen_jet_multiplicity_(VariableInt(name_gen_jet_multiplicity_)),
 gen_x1_(VariableFloat(name_gen_x1_)),
 gen_x2_(VariableFloat(name_gen_x2_)),
 
+entry_(VariableInt(name_entry_)),
 isTopGen_(VariableInt(name_isTopGen_)),
 isKinReco_(VariableInt(name_isKinReco_)),
 trueLevelWeight_(VariableFloat(name_trueLevelWeight_))
@@ -86,6 +88,7 @@ trueLevelWeight_(VariableFloat(name_trueLevelWeight_))
     
     isKinReco_.value_ = 0;
     isTopGen_.value_ = 0;
+    entry_.value_ = -999;
     
   if(kinRecoObjects.valuesSet_){
    
@@ -130,6 +133,7 @@ trueLevelWeight_(VariableFloat(name_trueLevelWeight_))
    
    if(topGenObjects.valuesSet_){
        
+      entry_.value_ = (Int_t)topGenObjects.entry_;
       isTopGen_.value_ = 1;
       trueLevelWeight_.value_ = genLevelWeights.trueLevelWeight_;
       
