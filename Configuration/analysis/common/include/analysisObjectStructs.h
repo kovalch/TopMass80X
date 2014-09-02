@@ -99,6 +99,8 @@ struct TopGenObjects{
     
     bool valuesSet_;
     
+    int entry_;
+    
     LV* GenTop_;
     LV* GenAntiTop_;
     LV* GenLepton_;
