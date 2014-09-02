@@ -51,11 +51,11 @@ trueLevelWeight_(VariableFloat(name_trueLevelWeight_))
 
 
 
-VariablesTTBar::VariablesTTBar(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+VariablesTTBar::VariablesTTBar(const RecoObjects& recoObjects, const CommonGenObjects& ,
                                                           const TopGenObjects& topGenObjects,
                                                           const KinRecoObjects& kinRecoObjects,
                                                           const ttbar::RecoObjectIndices& recoObjectIndices, const ttbar::GenObjectIndices& genObjectIndices,
-                                                          const ttbar::GenLevelWeights& genLevelWeights, const ttbar::RecoLevelWeights& recoLevelWeights,
+                                                          const ttbar::GenLevelWeights& genLevelWeights, const ttbar::RecoLevelWeights& ,
                                                           const double& weight):
 VariablesBase(weight),
 top_pt_(VariableFloat(name_top_pt_)),
