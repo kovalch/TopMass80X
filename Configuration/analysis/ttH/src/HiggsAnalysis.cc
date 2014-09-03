@@ -558,6 +558,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     
     
     // Access kinematic reconstruction info
+    const KinematicReconstructionSolutions kinematicReconstructionSolutions = kinematicReconstructionSolutionsDummy;
     //const KinematicReconstructionSolutions kinematicReconstructionSolutions = this->kinematicReconstructionSolutions(leptonIndex, antiLeptonIndex, jetIndices, bjetIndices, allLeptons, jets, jetBTagCSV, met);
     //const bool hasSolution = kinematicReconstructionSolutions.numberOfSolutions();
     //std::cout<<"\n\n\nNew event - solutions(): "<<kinematicReconstructionSolutions.numberOfSolutions()<<"\n";
