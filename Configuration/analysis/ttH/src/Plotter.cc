@@ -274,6 +274,17 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
         significanceLabels.push_back(this->drawSignificance(ttHbbHist, stacksum, 85.f, 140.f, 0.16f, "#frac{S_{ttH}}{B}", 1));
     }
     
+    // Blinding dijet mass plots around the Higgs mass region
+    if((TString(stackHists.at(0).second->GetName())).Contains("dijet_mass") && dataHist.second) {
+        int bin1 = dataHist.second->FindBin(80.);
+        int bin2 = dataHist.second->FindBin(140.);
+        while(bin1 <= bin2) {
+            dataHist.second->SetBinContent(bin1, -1e10);
+            dataHist.second->SetBinError(bin1, 0);
+            bin1++;
+        }
+    }
+    
     
     // If Higgs signal scaled: scale sample and modify legend entry
     if(drawHiggsScaled){
