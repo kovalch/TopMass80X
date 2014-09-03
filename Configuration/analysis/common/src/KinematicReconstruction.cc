@@ -151,12 +151,11 @@ h_neuEta_w_(0)
 
 
 
-void KinematicReconstruction::setRandomNumberSeeds(const LV& antiLepton)const
+void KinematicReconstruction::setRandomNumberSeeds(const LV& antiLepton,const LV& Lepton)const
 {
-    // FIXME: This is a mixture of ints and doubles for some calculation, thus veeery dangerous --> clean up
-    // FIXME: Could also take several parameters from different objects
-    gRandom->SetSeed((int)((antiLepton.pt() - (int)(antiLepton.pt()))*1000000000));
-    r3_->SetSeed((antiLepton.pt() - (int)(antiLepton.pt()))*1000000000);
+    const unsigned int seed =  std::abs((int)( 1.e6*antiLepton.Pt()*sin(Lepton.Phi()*1.e6) ) );
+    gRandom->SetSeed(seed);
+    r3_->SetSeed(seed);
 }
 
 
@@ -175,7 +174,7 @@ KinematicReconstructionSolutions KinematicReconstruction::solutions(const std::v
     if(!leptonIndices.size() || !antiLeptonIndices.size() || numberOfJets<2 || numberOfBtags<minNumberOfBtags_) return result;
     
     // Set random number generator seeds
-    this->setRandomNumberSeeds(allLeptons.at(antiLeptonIndices.at(0)));
+    this->setRandomNumberSeeds(allLeptons.at(antiLeptonIndices.at(0)),allLeptons.at(leptonIndices.at(0)));
     
     // Find solutions with 2 b-tagged jets
     for(std::vector<int>::const_iterator i_index = bjetIndices.begin(); i_index != bjetIndices.end(); ++i_index)
@@ -289,7 +288,7 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
     else this->inputJetMerging(b1_id, b2_id, nb_tag, new_jets, new_btags);
     if(b1_id.size() < 2)return;     
 
-    this->setRandomNumberSeeds(leptonPlus);
+    this->setRandomNumberSeeds(leptonPlus,leptonMinus);
     
     KinematicReconstruction_MeanSol meanSolution(TopMASS);
     for(int ib = 0; ib < (int)b1_id.size(); ++ib){
