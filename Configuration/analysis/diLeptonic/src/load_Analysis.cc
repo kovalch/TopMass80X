@@ -121,7 +121,7 @@ void load_Analysis(const TString& validFilenamePattern,
     else channels = Channel::realChannels;
     
     // Set up kinematic reconstruction
-    KinematicReconstruction* kinematicReconstruction(0);
+    const KinematicReconstruction* kinematicReconstruction(0);
     kinematicReconstruction = new KinematicReconstruction(1, true);
     
     // Set up kinematic reconstruction scale factors (null-pointer means no application)
@@ -318,7 +318,6 @@ void load_Analysis(const TString& validFilenamePattern,
         selector->SetGeneratorBools(samplename->GetString(), selectedSystematic);
         selector->SetSystematic(selectedSystematic);
         selector->SetBtagScaleFactors(btagScaleFactors);
-        selector->SetClosureTest(closure, slope);
         
         // Loop over channels and run selector
         for(const auto& selectedChannel : channels){
@@ -361,6 +360,7 @@ void load_Analysis(const TString& validFilenamePattern,
             // Run the selector
             selector->SetRunViaTau(0);
             selector->SetOutputfilename(outputfilename);
+            selector->SetClosureTest(closure, slope);
             if(isTopSignal) selector->SetSampleForBtagEfficiencies(true);
             chain.Process(selector, "", maxEvents, skipEvents);
             selector->SetSampleForBtagEfficiencies(false);
