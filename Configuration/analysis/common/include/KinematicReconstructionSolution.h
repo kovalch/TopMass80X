@@ -1,6 +1,8 @@
 #ifndef KinematicReconstructionSolution_h
 #define KinematicReconstructionSolution_h
 
+#include <map>
+
 #include "classes.h"
 
 
@@ -11,20 +13,27 @@
 
 
 
-struct KinematicReconstructionSolution{
+class KinematicReconstructionSolution{
+    
+public:
+    
+    /// Enumeration for all defined weights of a kinematic reconstruction solution
+    enum WeightType{averagedSumSmearings_mlb, undefinedWeight};
+    
+    
     
     /// Default constructor
     KinematicReconstructionSolution();
     
     /// Constructor for setting values of the solution
-    KinematicReconstructionSolution(const int leptonIndex, const int antiLeptonIndex,
+    KinematicReconstructionSolution(const VLV* const allLeptons, const VLV* const allJets,
+                                    const int leptonIndex, const int antiLeptonIndex,
                                     const int bjetIndex, const int antiBjetIndex,
-                                    const LV& wPlus, const LV& wMinus,
                                     const LV& top, const LV& antiTop,
                                     const LV& neutrino, const LV& antiNeutrino,
                                     const double& reconstructedTopMass,
                                     const int numberOfBtags,
-                                    const double& weight_averaged_sumSmearings_mlbBased);
+                                    const std::map<WeightType, double>& m_weight);
     
     /// Copy constructor
     KinematicReconstructionSolution(const KinematicReconstructionSolution& kinematicReconstructionSolution);
@@ -32,13 +41,51 @@ struct KinematicReconstructionSolution{
     /// Destructor
     ~KinematicReconstructionSolution(){}
     
+    
+    
     /// Assignment operator (needed to allow std::vector<KinematicReconstructionSolution> with const data members)
     const KinematicReconstructionSolution& operator=(const KinematicReconstructionSolution& rhs){return rhs;}
     
     /// Print all stored quantities
     void print()const;
     
+    /// Check if this is really filled with a solution, or whether it is a dummy
+    bool dummy()const{return !allLeptons_;}
+    
+    
+    
+    const LV& lepton()const{return allLeptons_->at(leptonIndex_);}
+    const LV& antiLepton()const{return allLeptons_->at(antiLeptonIndex_);}
+    const LV& bjet()const{return allJets_->at(bjetIndex_);}
+    const LV& antiBjet()const{return allJets_->at(antiBjetIndex_);}
+    
+    const LV& top()const{return top_;}
+    const LV& antiTop()const{return antiTop_;}
+    const LV& neutrino()const{return neutrino_;}
+    const LV& antiNeutrino()const{return antiNeutrino_;}
+    
     LV ttbar()const{return top_ + antiTop_;}
+    
+    // FIXME: do these two make sense? these are just the sum of reco objects, not kinReco Ws
+    LV wMinus()const{return this->lepton() + antiNeutrino_;}
+    LV wPlus()const{return this->antiLepton() + neutrino_;}
+    
+    int leptonIndex()const{return leptonIndex_;}
+    int antiLeptonIndex()const{return antiLeptonIndex_;}
+    int bjetIndex()const{return bjetIndex_;}
+    int antiBjetIndex()const{return antiBjetIndex_;}
+    const double& reconstructedTopMass()const{return reconstructedTopMass_;}
+    int numberOfBtags()const{return numberOfBtags_;}
+    const double& weight(const WeightType weightType =averagedSumSmearings_mlb)const{return m_weight_.at(weightType);}
+    
+    const std::map<WeightType, double>& weightMap()const{return m_weight_;}
+    
+    
+    
+private:
+    
+    const VLV* const allLeptons_;
+    const VLV* const allJets_;
     
     // Indices of input quantities
     const int leptonIndex_;
@@ -47,8 +94,6 @@ struct KinematicReconstructionSolution{
     const int antiBjetIndex_;
     
     // Reconstructed quantities
-    const LV wPlus_;
-    const LV wMinus_;
     const LV top_;
     const LV antiTop_;
     const LV neutrino_;
@@ -59,10 +104,8 @@ struct KinematicReconstructionSolution{
     // Number of b-tagged jets for solution
     const int numberOfBtags_;
     
-    // FIXME: need to define enums for specific weights and use them consistently throughout the code
-    // FIXME: give useful name to weight, and description
     // Weights
-    const double weight_averaged_sumSmearings_mlbBased_;
+    const std::map<WeightType, double> m_weight_;
 };
 
 
@@ -81,11 +124,8 @@ public:
     
     
     
-    // FIXME: could be made one single function, since numberOfBtags is known for solution
-    void addSolutionTwoBtags(const KinematicReconstructionSolution& solution);
-    void addSolutionOneBtag(const KinematicReconstructionSolution& solution);
-    void addSolutionNoBtags(const KinematicReconstructionSolution& solution);
-    
+    ///  Add a solution
+    void addSolution(const KinematicReconstructionSolution& solution);
     
     
     /// Number of all solutions
@@ -103,56 +143,60 @@ public:
     
     
     /// Access from all solutions the one selected with solutionNumber, ranked by decreasing specific weight
-    const KinematicReconstructionSolution& solution_averaged_sumSmearings_mlbBased(const size_t solutionNumber =0)const;
+    const KinematicReconstructionSolution& solution(const KinematicReconstructionSolution::WeightType weightType =KinematicReconstructionSolution::averagedSumSmearings_mlb,
+                                                    const size_t solutionNumber =0)const;
     
     /// Access from solutions with 2 b-tags the one selected with solutionNumber, ranked by decreasing specific weight
-    const KinematicReconstructionSolution& solutionTwoBtags_averaged_sumSmearings_mlbBased(const size_t solutionNumber =0)const;
+    const KinematicReconstructionSolution& solutionTwoBtags(const KinematicReconstructionSolution::WeightType weightType =KinematicReconstructionSolution::averagedSumSmearings_mlb,
+                                                            const size_t solutionNumber =0)const;
     
     /// Access from solutions with 1 b-tag the one selected with solutionNumber, ranked by decreasing specific weight
-    const KinematicReconstructionSolution& solutionOneBtag_averaged_sumSmearings_mlbBased(const size_t solutionNumber =0)const;
+    const KinematicReconstructionSolution& solutionOneBtag(const KinematicReconstructionSolution::WeightType weightType =KinematicReconstructionSolution::averagedSumSmearings_mlb,
+                                                           const size_t solutionNumber =0)const;
     
     /// Access from solutions with 0 b-tags the one selected with solutionNumber, ranked by decreasing specific weight
-    const KinematicReconstructionSolution& solutionNoBtags_averaged_sumSmearings_mlbBased(const size_t solutionNumber =0)const;
+    const KinematicReconstructionSolution& solutionNoBtags(const KinematicReconstructionSolution::WeightType weightType =KinematicReconstructionSolution::averagedSumSmearings_mlb,
+                                                           const size_t solutionNumber =0)const;
     
     
     
 private:
     
     /// Insert solution index for specific weight in vector for all solutions, ranked by weight
-    void insertIndex(const size_t index, const std::vector<KinematicReconstructionSolution>& v_solution,
-                     const double weight, std::vector<size_t>& v_index);
+    void insertIndex(const size_t solutionIndex,
+                     const double weight, std::vector<size_t>& v_index)const;
     
     /// Insert solution index for specific weight in vector for b-tag categorised solutions, ranked by weight
-    void insertIndex(const size_t index, const std::vector<const KinematicReconstructionSolution*>& v_solution,
-                     const double weight, std::vector<size_t>& v_index);
+    void insertIndexByCategory(const std::vector<size_t>& v_solutionIndex,
+                               const double weight, std::vector<size_t>& v_solutionIndexByCategory)const;
     
     
     
     /// Vector containing all solutions
     std::vector<KinematicReconstructionSolution> v_solution_;
     
-    /// Vector containing pointers to the solutions with 2 b-tags stored in v_solution_
-    std::vector<const KinematicReconstructionSolution*> v_solutionTwoBtags_;
+    /// Vector containing indices of the solutions with 2 b-tags stored in v_solution_
+    std::vector<size_t> v_solutionTwoBtags_;
     
-    /// Vector containing pointers to the solutions with 1 b-tag stored in v_solution_
-    std::vector<const KinematicReconstructionSolution*> v_solutionOneBtag_;
+    /// Vector containing indices of the solutions with 1 b-tag stored in v_solution_
+    std::vector<size_t> v_solutionOneBtag_;
     
-    /// Vector containing pointers to the solutions with 0 b-tags stored in v_solution_
-    std::vector<const KinematicReconstructionSolution*> v_solutionNoBtags_;
+    /// Vector containing indices of the solutions with 0 b-tags stored in v_solution_
+    std::vector<size_t> v_solutionNoBtags_;
     
     
     
-    /// Vector containing indices of all solutions, ordered for the specific weight
-    std::vector<size_t> v_index_weight_averaged_sumSmearings_mlbBased_;
+    /// Map associating specific weight type to vector containing indices of all solutions, ordered for this weight
+    std::map<KinematicReconstructionSolution::WeightType, std::vector<size_t>> m_weightIndex_;
     
-    /// Vector containing indices of 2 b-tag solutions, ordered for the specific weight
-    std::vector<size_t> v_indexTwoBtags_weight_averaged_sumSmearings_mlbBased_;
+    /// Map associating specific weight type to vector containing indices of 2 b-tag solutions, ordered for this weight
+    std::map<KinematicReconstructionSolution::WeightType, std::vector<size_t>> m_weightIndexTwoBtags_;
     
-    /// Vector containing indices of 1 b-tag solutions, ordered for the specific weight
-    std::vector<size_t> v_indexOneBtag_weight_averaged_sumSmearings_mlbBased_;
+    /// Map associating specific weight type to vector containing indices of 1 b-tag solutions, ordered for this weight
+    std::map<KinematicReconstructionSolution::WeightType, std::vector<size_t>> m_weightIndexOneBtag_;
     
-    /// Vector containing indices of 0 b-tag solutions, ordered for the specific weight
-    std::vector<size_t> v_indexNoBtags_weight_averaged_sumSmearings_mlbBased_;
+    /// Map associating specific weight type to vector containing indices of 0 b-tag solutions, ordered for this weight
+    std::map<KinematicReconstructionSolution::WeightType, std::vector<size_t>> m_weightIndexNoBtags_;
 };
 
 

@@ -15,9 +15,7 @@
 #include "../../common/include/analysisObjectStructs.h"
 #include "../../common/include/analysisUtils.h"
 #include "../../common/include/classes.h"
-
-
-
+#include "../../common/include/KinematicReconstructionSolution.h"
 
 
 
@@ -193,9 +191,10 @@ void AnalyzerJetMatch::bookJetHistosInclExcl(const TString& whichSelection, cons
 
 
 
-void AnalyzerJetMatch::fillHistos(const RecoObjects& recoObjects, const CommonGenObjects&,
+void AnalyzerJetMatch::fillHistos(const EventMetadata&,
+                                  const RecoObjects& recoObjects, const CommonGenObjects&,
                                   const TopGenObjects& topGenObjects, const HiggsGenObjects&,
-                                  const KinRecoObjects&,
+                                  const KinematicReconstructionSolutions&,
                                   const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
                                   const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
                                   const double& weight, const TString&,

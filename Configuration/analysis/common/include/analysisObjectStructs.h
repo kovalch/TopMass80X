@@ -10,6 +10,21 @@
 
 
 
+
+/// Struct for holding variables associated to nTuple branches holding event meta data
+struct EventMetadata{
+    EventMetadata();
+    ~EventMetadata(){}
+    void clear();
+    
+    bool valuesSet_;
+    
+    UInt_t runNumber_;
+    UInt_t lumiBlock_;
+    UInt_t eventNumber_;
+};
+
+
     
 /// Struct for holding variables associated to nTuple branches relevant for reconstruction level
 struct RecoObjects{
@@ -19,7 +34,6 @@ struct RecoObjects{
     
     bool valuesSet_;
     
-    // Concerning physics objects
     VLV* allLeptons_;
     std::vector<int>* lepPdgId_;
     //std::vector<double>* lepID_;
@@ -62,11 +76,6 @@ struct RecoObjects{
     std::vector<int>* jetSecondaryVertexTrackMatchToSelectedTrackIndex_;
     LV* met_;
     Int_t vertMulti_;
-    
-    // Concerning event
-    UInt_t runNumber_;
-    UInt_t lumiBlock_;
-    UInt_t eventNumber_;
 };
 
 
@@ -79,7 +88,6 @@ struct CommonGenObjects{
     
     bool valuesSet_;
     
-    // Concerning physics objects
     std::vector<double>* jetJERSF_;
     VLV* jetsForMET_;
     std::vector<double>* jetForMETJERSF_;
@@ -178,30 +186,6 @@ struct ZGenObjects{
     VLV* GenZMeDaughterAntiParticle_;
     VLV* GenZStableLepton_;
     VLV* GenZStableAntiLepton_;
-};
-
-
-
-/// Struct for holding variables associated to nTuple branches of kinematic reconstruction
-struct KinRecoObjects{
-    KinRecoObjects();
-    ~KinRecoObjects(){}
-    void clear();
-    
-    bool valuesSet_;
-    
-    VLV* HypTop_;
-    VLV* HypAntiTop_;
-    VLV* HypLepton_;
-    VLV* HypAntiLepton_;
-    VLV* HypNeutrino_;
-    VLV* HypAntiNeutrino_;
-    VLV* HypBJet_;
-    VLV* HypAntiBJet_;
-    //VLV* HypWPlus_;
-    //VLV* HypWMinus_;
-    std::vector<int>* HypJet0index_;
-    std::vector<int>* HypJet1index_;
 };
 
 

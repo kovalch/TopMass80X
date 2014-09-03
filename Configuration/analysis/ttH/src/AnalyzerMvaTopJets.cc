@@ -22,10 +22,7 @@
 #include "../../common/include/analysisUtils.h"
 #include "../../common/include/classes.h"
 #include "../../common/include/RootFileReader.h"
-
-
-
-
+#include "../../common/include/KinematicReconstructionSolution.h"
 
 
 
@@ -218,9 +215,10 @@ void AnalyzerMvaTopJets::bookMvaSpecificHistos(const TString& step, std::map<TSt
 
 
 
-void AnalyzerMvaTopJets::fillHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+void AnalyzerMvaTopJets::fillHistos(const EventMetadata&,
+                                    const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                                     const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
-                                    const KinRecoObjects& kinRecoObjects,
+                                    const KinematicReconstructionSolutions& kinRecoObjects,
                                     const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
                                     const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
                                     const double& weight, const TString& step,
@@ -240,7 +238,7 @@ void AnalyzerMvaTopJets::fillHistos(const RecoObjects& recoObjects, const Common
 
 void AnalyzerMvaTopJets::fillHistosPerSet(const RecoObjects& recoObjects, const CommonGenObjects&,
                                           const TopGenObjects&, const HiggsGenObjects&,
-                                          const KinRecoObjects&,
+                                          const KinematicReconstructionSolutions&,
                                           const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
                                           const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
                                           const double& weight, const TString&,

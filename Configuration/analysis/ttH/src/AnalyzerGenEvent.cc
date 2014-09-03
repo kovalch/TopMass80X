@@ -16,9 +16,7 @@
 #include "../../common/include/analysisObjectStructs.h"
 #include "../../common/include/analysisUtils.h"
 #include "../../common/include/classes.h"
-
-
-
+#include "../../common/include/KinematicReconstructionSolution.h"
 
 
 
@@ -32,6 +30,7 @@ AnalyzerBase("genEvent_", selectionStepsNoCategories, stepsForCategories, jetCat
     std::cout<<"--- Beginning setting up gen event analyzer\n";
     std::cout<<"=== Finishing setting up gen event analyzer\n\n";
 }
+
 
 
 void AnalyzerGenEvent::bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram)
@@ -224,9 +223,10 @@ void AnalyzerGenEvent::bookTopAndHiggsHistos(const TString& step,
 
 
 
-void AnalyzerGenEvent::fillHistos(const RecoObjects&, const CommonGenObjects&,
+void AnalyzerGenEvent::fillHistos(const EventMetadata&,
+                                  const RecoObjects&, const CommonGenObjects&,
                                   const TopGenObjects& topGenObjects, const HiggsGenObjects&,
-                                  const KinRecoObjects&,
+                                  const KinematicReconstructionSolutions&,
                                   const tth::RecoObjectIndices&, const tth::GenObjectIndices& genObjectIndices,
                                   const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
                                   const double& weight, const TString&,

@@ -21,6 +21,7 @@
 #include "../../common/include/analysisUtils.h"
 #include "../../common/include/analysisObjectStructs.h"
 #include "../../common/include/classes.h"
+#include "../../common/include/KinematicReconstructionSolution.h"
 #include "../../common/include/ScaleFactors.h"
 
 
@@ -172,11 +173,12 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     selectionStep = "0a";
     
     // Create dummies for objects, non-dummies are created only as soon as needed
+    const EventMetadata eventMetadataDummy;
     const RecoObjects recoObjectsDummy;
     const CommonGenObjects commonGenObjectsDummy;
-    const KinRecoObjects kinRecoObjectsDummy;
     const TopGenObjects topGenObjectsDummy;
     const HiggsGenObjects higgsGenObjectsDummy;
+    const KinematicReconstructionSolutions kinematicReconstructionSolutionsDummy;
 
     // Set up dummies for weights and indices, as needed for generic functions
     const tth::GenObjectIndices genObjectIndicesDummy({}, {}, {}, {}, {}, {}, {}, {}, {}, -1, -1, -1, -1, -1, -1, -1, -1);
@@ -184,12 +186,17 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     const tth::GenLevelWeights genLevelWeightsDummy(0., 0., 0., 0., 0., 0.);
     const tth::RecoLevelWeights recoLevelWeightsDummy(0., 0., 0., 0., 0., 0.);
     
+    // Access event meta data
+    const EventMetadata eventMetadata = eventMetadataDummy;
+    //const EventMetadata eventMetadata = this->getEventMetadata(entry);
+    
     // ++++ Control Plots ++++
     
     this->fillAll(selectionStep,
+                  eventMetadata,
                   recoObjectsDummy, commonGenObjectsDummy,
                   topGenObjectsDummy, higgsGenObjectsDummy,
-                  kinRecoObjectsDummy,
+                  kinematicReconstructionSolutionsDummy,
                   genObjectIndicesDummy, recoObjectIndicesDummy,
                   genLevelWeightsDummy, recoLevelWeightsDummy,
                   1.);
@@ -236,9 +243,10 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     // ++++ Control Plots ++++
     
     this->fillAll(selectionStep,
+                  eventMetadata,
                   recoObjectsDummy, commonGenObjectsDummy,
                   topGenObjectsDummy, higgsGenObjectsDummy,
-                  kinRecoObjectsDummy,
+                  kinematicReconstructionSolutionsDummy,
                   genObjectIndicesDummy, recoObjectIndicesDummy,
                   genLevelWeights, recoLevelWeightsDummy,
                   1.);
@@ -366,9 +374,10 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     // ++++ Control Plots ++++
     
     this->fillAll(selectionStep,
+                  eventMetadata,
                   recoObjects, commonGenObjects,
                   topGenObjectsDummy, higgsGenObjectsDummy,
-                  kinRecoObjectsDummy,
+                  kinematicReconstructionSolutionsDummy,
                   genObjectIndicesDummy, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   1.);
@@ -384,9 +393,10 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     // ++++ Control Plots ++++
     
     this->fillAll(selectionStep,
+                  eventMetadata,
                   recoObjects, commonGenObjects,
                   topGenObjectsDummy, higgsGenObjectsDummy,
-                  kinRecoObjectsDummy,
+                  kinematicReconstructionSolutionsDummy,
                   genObjectIndicesDummy, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   weight);
@@ -402,9 +412,10 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     // ++++ Control Plots ++++
 
     this->fillAll(selectionStep,
+                  eventMetadata,
                   recoObjects, commonGenObjects,
                   topGenObjectsDummy, higgsGenObjectsDummy,
-                  kinRecoObjectsDummy,
+                  kinematicReconstructionSolutionsDummy,
                   genObjectIndicesDummy, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   weight);
@@ -422,9 +433,10 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     
     if(isZregion){
         this->fillAll("4zWindow",
+                      eventMetadata,
                       recoObjects, commonGenObjects,
                       topGenObjectsDummy, higgsGenObjectsDummy,
-                      kinRecoObjectsDummy,
+                      kinematicReconstructionSolutionsDummy,
                       genObjectIndicesDummy, recoObjectIndices,
                       genLevelWeights, recoLevelWeights,
                       weight);
@@ -434,9 +446,10 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     
     if(isEmu || !isZregion){
         this->fillAll(selectionStep,
+                      eventMetadata,
                       recoObjects, commonGenObjects,
                       topGenObjectsDummy, higgsGenObjectsDummy,
-                      kinRecoObjectsDummy,
+                      kinematicReconstructionSolutionsDummy,
                       genObjectIndicesDummy, recoObjectIndices,
                       genLevelWeights, recoLevelWeights,
                       weight);
@@ -454,9 +467,10 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     
     if(isZregion){
         this->fillAll("5zWindow",
+                      eventMetadata,
                       recoObjects, commonGenObjects,
                       topGenObjectsDummy, higgsGenObjectsDummy,
-                      kinRecoObjectsDummy,
+                      kinematicReconstructionSolutionsDummy,
                       genObjectIndicesDummy, recoObjectIndices,
                       genLevelWeights, recoLevelWeights,
                       weight);
@@ -466,9 +480,10 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     
     if(isEmu || !isZregion){
         this->fillAll(selectionStep,
+                      eventMetadata,
                       recoObjects, commonGenObjects,
                       topGenObjectsDummy, higgsGenObjectsDummy,
-                      kinRecoObjectsDummy,
+                      kinematicReconstructionSolutionsDummy,
                       genObjectIndicesDummy, recoObjectIndices,
                       genLevelWeights, recoLevelWeights,
                       weight);
@@ -486,9 +501,10 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     
     if(isZregion){
         this->fillAll("6zWindow",
+                      eventMetadata,
                       recoObjects, commonGenObjects,
                       topGenObjectsDummy, higgsGenObjectsDummy,
-                      kinRecoObjectsDummy,
+                      kinematicReconstructionSolutionsDummy,
                       genObjectIndicesDummy, recoObjectIndices,
                       genLevelWeights, recoLevelWeights,
                       weight);
@@ -498,9 +514,10 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     
     if(isEmu || !isZregion){
         this->fillAll(selectionStep,
+                      eventMetadata,
                       recoObjects, commonGenObjects,
                       topGenObjectsDummy, higgsGenObjectsDummy,
-                      kinRecoObjectsDummy,
+                      kinematicReconstructionSolutionsDummy,
                       genObjectIndicesDummy, recoObjectIndices,
                       genLevelWeights, recoLevelWeights,
                       weight);
@@ -526,9 +543,10 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     
     if(isZregion){
         this->fillAll("7zWindow",
+                      eventMetadata,
                       recoObjects, commonGenObjects,
                       topGenObjectsDummy, higgsGenObjectsDummy,
-                      kinRecoObjectsDummy,
+                      kinematicReconstructionSolutionsDummy,
                       genObjectIndicesDummy, recoObjectIndices,
                       genLevelWeights, recoLevelWeights,
                       weight);
@@ -540,10 +558,13 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     
     
     // Access kinematic reconstruction info
-    //const KinRecoObjects& kinRecoObjects = this->getKinRecoObjects(entry);
-    //const KinRecoObjects& kinRecoObjects = !this->makeBtagEfficiencies() ? this->getKinRecoObjectsOnTheFly(leptonIndex, antiLeptonIndex, jetIndices, bjetIndices, allLeptons, jets, jetBTagCSV, met) : kinRecoObjectsDummy;
-    const KinRecoObjects& kinRecoObjects = kinRecoObjectsDummy;
-    //const bool hasSolution = kinRecoObjects.valuesSet_;
+    //const KinematicReconstructionSolutions kinematicReconstructionSolutions = this->kinematicReconstructionSolutions(leptonIndex, antiLeptonIndex, jetIndices, bjetIndices, allLeptons, jets, jetBTagCSV, met);
+    //const bool hasSolution = kinematicReconstructionSolutions.numberOfSolutions();
+    //std::cout<<"\n\n\nNew event - solutions(): "<<kinematicReconstructionSolutions.numberOfSolutions()<<"\n";
+    //for(size_t iSolution = 0; iSolution < kinematicReconstructionSolutions.numberOfSolutions(); ++iSolution){
+    //    kinematicReconstructionSolutions.solution(KinematicReconstructionSolution::averagedSumSmearings_mlb, iSolution).print();
+    //    std::cout<<"\n";
+    //}
     
     
     
@@ -630,9 +651,10 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     // ++++ Control Plots ++++
     
     this->fillAll(selectionStep,
+                  eventMetadata,
                   recoObjects, commonGenObjects,
                   topGenObjects, higgsGenObjects,
-                  kinRecoObjects,
+                  kinematicReconstructionSolutions,
                   genObjectIndices, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   weight);
@@ -726,7 +748,7 @@ std::vector<std::vector<int> > HiggsAnalysis::matchBhadronsToGenJets(const std::
 
 
 
-std::vector<std::vector<int> > HiggsAnalysis::matchChadronsToGenJets(const std::vector<int>& genJetIndices, const VLV& allGenJets, 
+std::vector<std::vector<int> > HiggsAnalysis::matchChadronsToGenJets(const std::vector<int>&, const VLV& allGenJets,
                                                                      const TopGenObjects&)const
 {
     std::vector<std::vector<int> > result = std::vector<std::vector<int> >(allGenJets.size());
@@ -958,9 +980,10 @@ bool HiggsAnalysis::failsAdditionalJetFlavourSelection(const Long64_t& entry)con
 
 
 void HiggsAnalysis::fillAll(const std::string& selectionStep,
+                            const EventMetadata& eventMetadata,
                             const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                             const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
-                            const KinRecoObjects& kinRecoObjects,
+                            const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
                             const tth::GenObjectIndices& genObjectIndices, const tth::RecoObjectIndices& recoObjectIndices,
                             const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
                             const double& defaultWeight)const
@@ -969,18 +992,20 @@ void HiggsAnalysis::fillAll(const std::string& selectionStep,
     if(this->makeBtagEfficiencies()) return;
     
     for(AnalyzerBase* analyzer : v_analyzer_){
-        if(analyzer) analyzer->fill(recoObjects, commonGenObjects,
+        if(analyzer) analyzer->fill(eventMetadata,
+                                    recoObjects, commonGenObjects,
                                     topGenObjects, higgsGenObjects,
-                                    kinRecoObjects,
+                                    kinematicReconstructionSolutions,
                                     recoObjectIndices, genObjectIndices,
                                     genLevelWeights, recoLevelWeights,
                                     defaultWeight, selectionStep);
     }
     
     for(MvaTreeHandlerBase* mvaTreeHandler : v_mvaTreeHandler_){
-        if(mvaTreeHandler) mvaTreeHandler->fill(recoObjects, commonGenObjects,
+        if(mvaTreeHandler) mvaTreeHandler->fill(eventMetadata,
+                                                recoObjects, commonGenObjects,
                                                 topGenObjects, higgsGenObjects,
-                                                kinRecoObjects,
+                                                kinematicReconstructionSolutions,
                                                 recoObjectIndices, genObjectIndices,
                                                 genLevelWeights, recoLevelWeights,
                                                 defaultWeight, selectionStep);

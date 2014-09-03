@@ -131,7 +131,7 @@ void load_Analysis(const TString& validFilenamePattern,
     else channels = Channel::realChannels;
     
     // Set up kinematic reconstruction
-    KinematicReconstruction* kinematicReconstruction(0);
+    const KinematicReconstruction* kinematicReconstruction(0);
     //kinematicReconstruction = new KinematicReconstruction(1, true);
     
     // Set up kinematic reconstruction scale factors (null-pointer means no application)

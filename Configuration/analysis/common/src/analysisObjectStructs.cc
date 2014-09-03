@@ -4,6 +4,22 @@
 
 
 
+EventMetadata::EventMetadata()
+{
+    this->clear();
+}
+
+
+
+void EventMetadata::clear()
+{
+    runNumber_ = 0;
+    lumiBlock_ = 0;
+    eventNumber_ = 0;
+}
+
+
+
 RecoObjects::RecoObjects()
 {
     this->clear();
@@ -15,7 +31,6 @@ void RecoObjects::clear()
 {
     valuesSet_ = false;
     
-    // Concerning physics objects
     allLeptons_ = 0;
     lepPdgId_ = 0;
     //lepID_ = 0;
@@ -59,11 +74,6 @@ void RecoObjects::clear()
     jetSecondaryVertexTrackMatchToSelectedTrackIndex_ = 0;
     met_ = 0;
     vertMulti_ = 0;
-    
-    // Concerning event
-    runNumber_ = 0;
-    lumiBlock_ = 0;
-    eventNumber_ = 0;
 }
 
 
@@ -186,33 +196,6 @@ void ZGenObjects::clear()
     GenZMeDaughterAntiParticle_ = 0;
     GenZStableLepton_ = 0;
     GenZStableAntiLepton_ = 0;
-}
-
-
-
-KinRecoObjects::KinRecoObjects()
-{
-    this->clear();
-}
-
-
-
-void KinRecoObjects::clear()
-{
-    valuesSet_ = false;
-    
-    HypTop_ = 0;
-    HypAntiTop_ = 0;
-    HypLepton_ = 0;
-    HypAntiLepton_ = 0;
-    HypNeutrino_ = 0;
-    HypAntiNeutrino_ = 0;
-    HypBJet_ = 0;
-    HypAntiBJet_ = 0;
-    //HypWPlus_ = 0;
-    //HypWMinus_ = 0;
-    HypJet0index_ = 0;
-    HypJet1index_ = 0;
 }
 
 

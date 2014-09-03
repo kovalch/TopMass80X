@@ -13,6 +13,7 @@
 #include "JetCategories.h"
 #include "analysisStructs.h"
 #include "../../common/include/analysisObjectStructs.h"
+#include "../../common/include/KinematicReconstructionSolution.h"
 
 
 
@@ -30,9 +31,10 @@ MvaTreeHandlerBase("event_", mvaInputDir, selectionStepsNoCategories, stepsForCa
 
 
 
-void MvaTreeHandlerEventClassification::fillVariables(const RecoObjects& recoObjects, const CommonGenObjects&,
+void MvaTreeHandlerEventClassification::fillVariables(const EventMetadata&,
+                                                      const RecoObjects& recoObjects, const CommonGenObjects&,
                                                       const TopGenObjects&, const HiggsGenObjects&,
-                                                      const KinRecoObjects&,
+                                                      const KinematicReconstructionSolutions&,
                                                       const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices&,
                                                       const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
                                                       const double& weight, const TString&,

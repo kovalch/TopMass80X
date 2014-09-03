@@ -12,11 +12,12 @@ class TTree;
 
 class MvaTreeHandlerBase;
 class AnalyzerBase;
+class EventMetadata;
 class RecoObjects;
 class CommonGenObjects;
 class TopGenObjects;
 class HiggsGenObjects;
-class KinRecoObjects;
+class KinematicReconstructionSolutions;
 namespace tth{
     class GenLevelWeights;
     class RecoLevelWeights;
@@ -120,9 +121,10 @@ private:
     
     /// Fill all analysers and histograms in one method
     void fillAll(const std::string& selectionStep,
+                 const EventMetadata& eventMetadata,
                  const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                  const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
-                 const KinRecoObjects& kinRecoObjects,
+                 const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
                  const tth::GenObjectIndices& genObjectIndices, const tth::RecoObjectIndices& recoObjectIndices,
                  const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
                  const double& defaultWeight)const;

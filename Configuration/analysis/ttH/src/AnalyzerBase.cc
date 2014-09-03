@@ -16,6 +16,7 @@
 #include "../../common/include/analysisObjectStructs.h"
 #include "../../common/include/analysisUtils.h"
 #include "../../common/include/classes.h"
+#include "../../common/include/KinematicReconstructionSolution.h"
 
 
 
@@ -123,9 +124,10 @@ void AnalyzerBase::bookHistos(const TString&, std::map<TString, TH1*>&)
 
 
 
-void AnalyzerBase::fill(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+void AnalyzerBase::fill(const EventMetadata& eventMetadata,
+                        const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                         const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
-                        const KinRecoObjects& kinRecoObjects,
+                        const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
                         const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
                         const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
                         const double& weight, const TString& stepShort)
@@ -151,9 +153,10 @@ void AnalyzerBase::fill(const RecoObjects& recoObjects, const CommonGenObjects& 
         
         // Here check the individual jet categories
         const TString fullStepName = tth::stepName(stepShort, categoryId);
-        this->fill(recoObjects, commonGenObjects,
+        this->fill(eventMetadata,
+                   recoObjects, commonGenObjects,
                    topGenObjects, higgsGenObjects,
-                   kinRecoObjects,
+                   kinematicReconstructionSolutions,
                    recoObjectIndices, genObjectIndices,
                    genLevelWeights, recoLevelWeights,
                    weight, fullStepName);
@@ -162,9 +165,10 @@ void AnalyzerBase::fill(const RecoObjects& recoObjects, const CommonGenObjects& 
     
     // Fill the histograms of the specific analyser
     std::map<TString, TH1*>& m_histogram = m_stepHistograms_[step].m_histogram_;
-    this->fillHistos(recoObjects, commonGenObjects,
+    this->fillHistos(eventMetadata,
+                     recoObjects, commonGenObjects,
                      topGenObjects, higgsGenObjects,
-                     kinRecoObjects,
+                     kinematicReconstructionSolutions,
                      recoObjectIndices, genObjectIndices,
                      genLevelWeights, recoLevelWeights,
                      weight, step,
@@ -173,9 +177,10 @@ void AnalyzerBase::fill(const RecoObjects& recoObjects, const CommonGenObjects& 
 
 
 
-void AnalyzerBase::fillHistos(const RecoObjects&, const CommonGenObjects&,
+void AnalyzerBase::fillHistos(const EventMetadata&,
+                              const RecoObjects&, const CommonGenObjects&,
                               const TopGenObjects&, const HiggsGenObjects&,
-                              const KinRecoObjects&,
+                              const KinematicReconstructionSolutions&,
                               const tth::RecoObjectIndices&, const tth::GenObjectIndices&,
                               const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
                               const double&, const TString&,
@@ -231,9 +236,10 @@ void AnalyzerEventYields::bookHistos(const TString& step, std::map<TString, TH1*
 
 
 
-void AnalyzerEventYields::fillHistos(const RecoObjects&, const CommonGenObjects&,
+void AnalyzerEventYields::fillHistos(const EventMetadata&,
+                                     const RecoObjects&, const CommonGenObjects&,
                                      const TopGenObjects&, const HiggsGenObjects&,
-                                     const KinRecoObjects&,
+                                     const KinematicReconstructionSolutions&,
                                      const tth::RecoObjectIndices&, const tth::GenObjectIndices&,
                                      const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
                                      const double& weight, const TString&,
@@ -300,9 +306,10 @@ TH1* AnalyzerDyScaling::bookHisto(TH1* histo, const TString& name)
 
 
 
-void AnalyzerDyScaling::fillHistos(const RecoObjects& recoObjects, const CommonGenObjects&,
+void AnalyzerDyScaling::fillHistos(const EventMetadata&,
+                                   const RecoObjects& recoObjects, const CommonGenObjects&,
                                    const TopGenObjects&, const HiggsGenObjects&,
-                                   const KinRecoObjects&,
+                                   const KinematicReconstructionSolutions&,
                                    const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices&,
                                    const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
                                    const double& weight, const TString& step,
@@ -370,9 +377,10 @@ void AnalyzerHfFracScaling::bookHistos(const TString& step, std::map<TString, TH
 
 
 
-void AnalyzerHfFracScaling::fillHistos(const RecoObjects& recoObjects, const CommonGenObjects&,
+void AnalyzerHfFracScaling::fillHistos(const EventMetadata&,
+                                       const RecoObjects& recoObjects, const CommonGenObjects&,
                                        const TopGenObjects&, const HiggsGenObjects&,
-                                       const KinRecoObjects&,
+                                       const KinematicReconstructionSolutions&,
                                        const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices&,
                                        const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
                                        const double& weight, const TString&,

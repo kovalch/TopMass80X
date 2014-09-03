@@ -38,12 +38,12 @@
 
 AnalysisBase::AnalysisBase(TTree*):
 chain_(0),
+eventMetadata_(0),
 recoObjects_(0),
 commonGenObjects_(0),
 topGenObjects_(0),
 higgsGenObjects_(0),
 zGenObjects_(0),
-kinRecoObjects_(0),
 h_weightedEvents(0),
 samplename_(""),
 channel_(Channel::undefined),
@@ -93,15 +93,15 @@ void AnalysisBase::Begin(TTree*)
 void AnalysisBase::SlaveBegin(TTree*)
 {
     // WARNING! In general do not make changes here, but in your analysis' SlaveBegin function
-
+    
     TSelector::SlaveBegin(0);
-
+    
+    eventMetadata_ = new EventMetadata();
     recoObjects_ = new RecoObjects();
     commonGenObjects_ = new CommonGenObjects();
     topGenObjects_ = new TopGenObjects();
     higgsGenObjects_ = new HiggsGenObjects();
     zGenObjects_ = new ZGenObjects();
-    kinRecoObjects_ = new KinRecoObjects();
 }
 
 
@@ -114,12 +114,12 @@ void AnalysisBase::SlaveTerminate()
     // have been processed. When running with PROOF SlaveTerminate() is called
     // on each slave server.
     
+    if(eventMetadata_) delete eventMetadata_;
     if(recoObjects_) delete recoObjects_;
     if(commonGenObjects_) delete commonGenObjects_;
     if(topGenObjects_) delete topGenObjects_;
     if(higgsGenObjects_) delete higgsGenObjects_;
     if(zGenObjects_) delete zGenObjects_;
-    if(kinRecoObjects_) delete kinRecoObjects_;
 }
 
 
@@ -216,6 +216,7 @@ void AnalysisBase::Init(TTree *tree)
     if(!tree) return;
     chain_ = tree;
     chain_->SetMakeClass(0);
+    this->SetEventMetadataBranchAddresses();
     this->SetRecoBranchAddresses();
     this->SetTriggerBranchAddresses();
     //this->SetKinRecoBranchAddresses();
@@ -340,7 +341,7 @@ void AnalysisBase::SetMetRecoilCorrector(const MetRecoilCorrector* const metReco
 }
 
 
-void AnalysisBase::SetKinematicReconstruction(KinematicReconstruction* kinematicReconstruction,
+void AnalysisBase::SetKinematicReconstruction(const KinematicReconstruction* const kinematicReconstruction,
                                               const KinematicReconstructionScaleFactors* const kinematicReconstructionScaleFactors)
 {
     kinematicReconstruction_ = kinematicReconstruction;
@@ -412,8 +413,13 @@ void AnalysisBase::SetTopPtScaleFactors(const TopPtScaleFactors* topPtScaleFacto
 
 void AnalysisBase::clearBranches()
 {
+    // nTuple branches holding event meta data
+    b_runNumber = 0;
+    b_lumiBlock = 0;
+    b_eventNumber = 0;
+    
+    
     // nTuple branches relevant for reconstruction level
-    // Concerning physics objects
     b_lepton = 0;
     b_lepPdgId = 0;
     b_lepID = 0;
@@ -457,12 +463,6 @@ void AnalysisBase::clearBranches()
     b_met = 0;
     b_vertMulti = 0;
     
-    // nTuple branches relevant for reconstruction level
-    // Concerning event
-    b_runNumber = 0;
-    b_lumiBlock = 0;
-    b_eventNumber = 0;
-    
     
     // nTuple branches holding trigger bits
     b_triggerBits = 0;
@@ -471,7 +471,6 @@ void AnalysisBase::clearBranches()
     
     
     // nTuple branches holding generator information for all MC samples
-    // Concerning physics objects
     b_jetJERSF = 0;
     b_jetForMET = 0;
     b_jetForMETJERSF = 0;
@@ -479,21 +478,6 @@ void AnalysisBase::clearBranches()
     b_associatedGenJetForMET = 0;
     b_jetPartonFlavour = 0;
     b_jetPartonFlavourForMET = 0;
-    
-    
-    // nTuple branches of kinematic reconstruction
-    b_HypTop = 0;
-    b_HypAntiTop = 0;
-    b_HypLepton = 0;
-    b_HypAntiLepton = 0;
-    b_HypNeutrino = 0;
-    b_HypAntiNeutrino = 0;
-    b_HypB = 0;
-    b_HypAntiB = 0;
-    b_HypWPlus = 0;
-    b_HypWMinus = 0;
-    b_HypJet0index = 0;
-    b_HypJet1index = 0;
     
     
     // nTuple branch for true vertex multiplicity
@@ -589,12 +573,12 @@ void AnalysisBase::clearBranches()
 void AnalysisBase::clearBranchVariables()
 {
     // Set values to null for all variables arranged in structs
+    if(eventMetadata_) eventMetadata_->clear();
     if(recoObjects_) recoObjects_->clear();
     if(commonGenObjects_) commonGenObjects_->clear();
     if(topGenObjects_) topGenObjects_->clear();
     if(higgsGenObjects_) higgsGenObjects_->clear();
     if(zGenObjects_) zGenObjects_->clear();
-    if(kinRecoObjects_) kinRecoObjects_->clear();
     
     // Set values to null for trigger bits
     triggerBits_ = 0;
@@ -622,9 +606,17 @@ void AnalysisBase::clearBranchVariables()
 
 
 
+void AnalysisBase::SetEventMetadataBranchAddresses()
+{
+    chain_->SetBranchAddress("runNumber", &eventMetadata_->runNumber_, &b_runNumber);
+    chain_->SetBranchAddress("lumiBlock", &eventMetadata_->lumiBlock_, &b_lumiBlock);
+    chain_->SetBranchAddress("eventNumber", &eventMetadata_->eventNumber_, &b_eventNumber);
+}
+
+
+
 void AnalysisBase::SetRecoBranchAddresses()
 {
-    // Concerning physics objects
     chain_->SetBranchAddress("leptons", &recoObjects_->allLeptons_, &b_lepton);
     chain_->SetBranchAddress("lepPdgId", &recoObjects_->lepPdgId_, &b_lepPdgId);
     //chain_->SetBranchAddress("lepID", &recoObjects_->lepID_, &b_lepID);
@@ -717,11 +709,6 @@ void AnalysisBase::SetRecoBranchAddresses()
         chain_->SetBranchAddress("met", &recoObjects_->met_, &b_met);
     }
     chain_->SetBranchAddress("vertMulti", &recoObjects_->vertMulti_, &b_vertMulti);
-    
-    // Concerning event
-    chain_->SetBranchAddress("runNumber", &recoObjects_->runNumber_, &b_runNumber);
-    chain_->SetBranchAddress("lumiBlock", &recoObjects_->lumiBlock_, &b_lumiBlock);
-    chain_->SetBranchAddress("eventNumber", &recoObjects_->eventNumber_, &b_eventNumber);
 }
 
 
@@ -737,7 +724,6 @@ void AnalysisBase::SetTriggerBranchAddresses()
 
 void AnalysisBase::SetCommonGenBranchAddresses()
 {
-    // Concerning physics objects
     if(jetEnergyResolutionScaleFactors_ || jetEnergyScaleScaleFactors_){
         chain_->SetBranchAddress("jetsForMET", &commonGenObjects_->jetsForMET_, &b_jetForMET);
     }
@@ -751,30 +737,6 @@ void AnalysisBase::SetCommonGenBranchAddresses()
         chain_->SetBranchAddress("associatedGenJetForMET", &commonGenObjects_->associatedGenJetForMET_, &b_associatedGenJetForMET);
         //chain_->SetBranchAddress("jetPartonFlavourForMET", &commonGenObjects_->jetPartonFlavourForMET_, &b_jetPartonFlavourForMET);
     }
-}
-
-
-
-void AnalysisBase::SetKinRecoBranchAddresses()
-{
-    // WARNING: At present, no kinReco solutions are written to ntuple, so this function cannot be used!!!
-    // However, it might be interesting to write the improved kinReco into the ntuple, and re-use this function
-    std::cerr<<"ERROR in AnalysisBase::SetKinRecoBranchAddresses()! Tried to access branches for solutions of kinematic reconstruction from ntuple, "
-             <<"but no solutions stored anymore. Do not use this function!\n...break\n"<<std::endl;
-    exit(834);
-    
-    chain_->SetBranchAddress("HypTop", &kinRecoObjects_->HypTop_, &b_HypTop);
-    chain_->SetBranchAddress("HypAntiTop", &kinRecoObjects_->HypAntiTop_, &b_HypAntiTop);
-    chain_->SetBranchAddress("HypLepton", &kinRecoObjects_->HypLepton_, &b_HypLepton);
-    chain_->SetBranchAddress("HypAntiLepton", &kinRecoObjects_->HypAntiLepton_, &b_HypAntiLepton);
-    chain_->SetBranchAddress("HypNeutrino", &kinRecoObjects_->HypNeutrino_, &b_HypNeutrino);
-    chain_->SetBranchAddress("HypAntiNeutrino", &kinRecoObjects_->HypAntiNeutrino_, &b_HypAntiNeutrino);
-    chain_->SetBranchAddress("HypB", &kinRecoObjects_->HypBJet_, &b_HypB);
-    chain_->SetBranchAddress("HypAntiB", &kinRecoObjects_->HypAntiBJet_, &b_HypAntiB);
-    //chain_->SetBranchAddress("HypWPlus", &kinRecoObjects_->HypWPlus_, &b_HypWPlus_);
-    //chain_->SetBranchAddress("HypWMinus", &kinRecoObjects_->HypWMinus_, &b_HypWMinus_);
-    chain_->SetBranchAddress("HypJet0index", &kinRecoObjects_->HypJet0index_, &b_HypJet0index);
-    chain_->SetBranchAddress("HypJet1index", &kinRecoObjects_->HypJet1index_, &b_HypJet1index);
 }
 
 
@@ -928,6 +890,19 @@ void AnalysisBase::SetZSignalBranchAddresses()
 
 
 
+void AnalysisBase::GetEventMetadataBranchesEntry(const Long64_t& entry)const
+{
+    // Check if branches' entry is already read
+    if(eventMetadata_->valuesSet_) return;
+    eventMetadata_->valuesSet_ = true;
+
+    b_runNumber->GetEntry(entry);
+    b_lumiBlock->GetEntry(entry);
+    b_eventNumber->GetEntry(entry);
+}
+
+
+
 void AnalysisBase::GetRecoBranchesEntry(const Long64_t& entry)const
 {
     // Check if branches' entry is already read
@@ -1009,28 +984,6 @@ void AnalysisBase::GetCommonGenBranchesEntry(const Long64_t& entry)const
     b_jetPartonFlavour->GetEntry(entry);
     if(b_associatedGenJetForMET) b_associatedGenJetForMET->GetEntry(entry);
     //if(b_jetPartonFlavourForMET) b_jetPartonFlavourForMET->GetEntry(entry);
-}
-
-
-
-void AnalysisBase::GetKinRecoBranchesEntry(const Long64_t& entry)const
-{
-    // Check if branches' entry is already read
-    if(kinRecoObjects_->valuesSet_) return;
-    kinRecoObjects_->valuesSet_ = true;
-
-    b_HypTop->GetEntry(entry);
-    b_HypAntiTop->GetEntry(entry);
-    b_HypLepton->GetEntry(entry);
-    b_HypAntiLepton->GetEntry(entry);
-    b_HypNeutrino->GetEntry(entry);
-    b_HypAntiNeutrino->GetEntry(entry);
-    b_HypB->GetEntry(entry);
-    b_HypAntiB->GetEntry(entry);
-    //b_HypWPlus->GetEntry(entry);
-    //b_HypWMinus->GetEntry(entry);
-    b_HypJet0index->GetEntry(entry);
-    b_HypJet1index->GetEntry(entry);
 }
 
 
@@ -1196,6 +1149,16 @@ void AnalysisBase::GetZSignalBranchesEntry(const Long64_t& entry)const
 // ------------------------------------- Methods for accessing the object structs of ntuple branches -------------------------------------
 
 
+const EventMetadata& AnalysisBase::getEventMetadata(const Long64_t& entry)const
+{
+    if(eventMetadata_->valuesSet_) return *eventMetadata_;
+    
+    this->GetEventMetadataBranchesEntry(entry);
+    return *eventMetadata_;
+}
+
+
+
 const RecoObjects& AnalysisBase::getRecoObjects(const Long64_t& entry)const
 {
     if(recoObjects_->valuesSet_) return *recoObjects_;
@@ -1291,42 +1254,14 @@ const ZGenObjects& AnalysisBase::getZGenObjects(const Long64_t& entry)const
 
 
 
-const KinRecoObjects& AnalysisBase::getKinRecoObjects(const Long64_t& entry)const
-{
-    // WARNING: At present, no kinReco solutions are written to ntuple, so this function cannot be used!!!
-    // However, it might be interesting to write the improved kinReco into the ntuple, and re-use this function
-    std::cerr<<"ERROR in AnalysisBase::getKinRecoObjects()! Tried to read solutions of kinematic reconstruction from ntuple, "
-             <<"but no solutions stored anymore. Do not use this function!\n...break\n"<<std::endl;
-    exit(834);
-    
-    if(kinRecoObjects_->valuesSet_) return *kinRecoObjects_;
-    if(kinRecoObjects_->HypTop_->size() > 0) this->GetKinRecoBranchesEntry(entry);
-
-    return *kinRecoObjects_;
-}
-
-
-
-const KinRecoObjects& AnalysisBase::getKinRecoObjectsOnTheFly(const int leptonIndex, const int antiLeptonIndex,
-                                                              const std::vector<int>& jetIndices, const std::vector<int>& bjetIndices,
-                                                              const VLV& allLeptons, const VLV& jets, const std::vector<double>& jetBTagCSV,
-                                                              const LV& met)
-{
-    this->calculateKinReco(leptonIndex, antiLeptonIndex, jetIndices, bjetIndices, allLeptons, jets, jetBTagCSV, met);
-
-    return *kinRecoObjects_;
-}
-
-
-
 void AnalysisBase::resetObjectStructEntry()const
 {
+    eventMetadata_->valuesSet_ = false;
     recoObjects_->valuesSet_ = false;
     commonGenObjects_->valuesSet_ = false;
     topGenObjects_->valuesSet_ = false;
     higgsGenObjects_->valuesSet_ = false;
     zGenObjects_->valuesSet_ = false;
-    kinRecoObjects_->valuesSet_ = false;
 }
 
 
@@ -1627,170 +1562,18 @@ double AnalysisBase::getJetHT(const std::vector<int>& jetIndices, const VLV& jet
 
 
 
-bool AnalysisBase::calculateKinReco(const int leptonIndex, const int antiLeptonIndex,
-                                    const std::vector<int>& jetIndices, const std::vector<int>& bjetIndices,
-                                    const VLV& allLeptons, const VLV& jets,
-                                    const std::vector<double>& jetBTagCSV, const LV& met)
+KinematicReconstructionSolutions AnalysisBase::kinematicReconstructionSolutions(const int leptonIndex, const int antiLeptonIndex,
+                                                                                const std::vector<int>& jetIndices, const std::vector<int>& bjetIndices,
+                                                                                const VLV& allLeptons, const VLV& jets,
+                                                                                const std::vector<double>& jetBTagCSV, const LV& met)const
 {
-    // Check if solutions of kinematic reconstruction are stored in the ntuple, and variables are set to branch addresses
-    // If not, objects need to be created in the first visit of this function
-    if(!kinRecoObjects_->HypTop_){
-        kinRecoObjects_->HypTop_ = new VLV;
-        kinRecoObjects_->HypAntiTop_ = new VLV;
-        kinRecoObjects_->HypLepton_ = new VLV;
-        kinRecoObjects_->HypAntiLepton_ = new VLV;
-        kinRecoObjects_->HypBJet_ = new VLV;
-        kinRecoObjects_->HypAntiBJet_ = new VLV;
-        kinRecoObjects_->HypNeutrino_ = new VLV;
-        kinRecoObjects_->HypAntiNeutrino_ = new VLV;
-        kinRecoObjects_->HypJet0index_ = new std::vector<int>;
-        kinRecoObjects_->HypJet1index_ = new std::vector<int>;
-    }
-    
-    // Clean the results of the kinematic reconstruction as stored in the nTuple
-    kinRecoObjects_->HypTop_->clear();
-    kinRecoObjects_->HypAntiTop_->clear();
-    kinRecoObjects_->HypLepton_->clear();
-    kinRecoObjects_->HypAntiLepton_->clear();
-    kinRecoObjects_->HypBJet_->clear();
-    kinRecoObjects_->HypAntiBJet_->clear();
-    kinRecoObjects_->HypNeutrino_->clear();
-    kinRecoObjects_->HypAntiNeutrino_->clear();
-    kinRecoObjects_->HypJet0index_->clear();
-    kinRecoObjects_->HypJet1index_->clear();
-
-    kinRecoObjects_->valuesSet_ = false;
-
     if(!kinematicReconstruction_){
-        std::cerr<<"Error in AnalysisBase::calculateKinReco()! Kinematic reconstruction is not initialised\n...break\n"<<std::endl;
+        std::cerr<<"Error in AnalysisBase::kinematicReconstructionSolutions()! Kinematic reconstruction is not initialised\n...break\n"<<std::endl;
         exit(659);
     }
     
-    
-    
-    
-    
-    // Old version of interface for solutions
-    // The physics objects needed as input
-    const LV& leptonMinus(allLeptons.at(leptonIndex));
-    const LV& leptonPlus(allLeptons.at(antiLeptonIndex));
-    VLV selectedJets;
-    std::vector<double> btagValues;
-    std::vector<int> selectedJetIndices;
-    for(const int index : jetIndices){
-        selectedJets.push_back(jets.at(index));
-        btagValues.push_back(jetBTagCSV.at(index));
-        selectedJetIndices.push_back(index);
-    }
-    
-    // Get solutions of kinematic reconstruction
-    kinematicReconstruction_->kinReco(leptonMinus, leptonPlus, &selectedJets, &btagValues, &met);
-    const auto& sols = kinematicReconstruction_->getSols();
-    const int nSolution = sols.size();
-    
-    // Check if solution exists, take first one
-    if(nSolution == 0) return false;
-    const auto& sol = sols.at(0);
-    
-    // Fill the results of the on-the-fly kinematic reconstruction
-    const int bjetIndex(selectedJetIndices.at(sol.jetB_index));
-    const int antiBjetIndex(selectedJetIndices.at(sol.jetBbar_index));
-    kinRecoObjects_->HypTop_->push_back(common::TLVtoLV(sol.top));
-    kinRecoObjects_->HypAntiTop_->push_back(common::TLVtoLV(sol.topBar));
-    kinRecoObjects_->HypLepton_->push_back(allLeptons.at(leptonIndex));
-    kinRecoObjects_->HypAntiLepton_->push_back(allLeptons.at(antiLeptonIndex));
-    kinRecoObjects_->HypBJet_->push_back(jets.at(bjetIndex));
-    kinRecoObjects_->HypAntiBJet_->push_back(jets.at(antiBjetIndex));
-    kinRecoObjects_->HypNeutrino_->push_back(common::TLVtoLV(sol.neutrino));
-    kinRecoObjects_->HypAntiNeutrino_->push_back(common::TLVtoLV(sol.neutrinoBar));
-    kinRecoObjects_->HypJet0index_->push_back(bjetIndex);
-    kinRecoObjects_->HypJet1index_->push_back(antiBjetIndex);
-    kinRecoObjects_->valuesSet_ = true;
-    
-    // Printout for old version of interface
-//     // FIXME: assigned LV of W is exactly LV of neutrino. Sth went wrong with leptons in W = l + nu
-//     {
-//         std::cout<<"\n\n\nNew event - kinReco(): "<<nSolution<<"\n";
-//         for(int i = 0; i < nSolution; ++i){
-//             const auto& solution = sols.at(i);
-//             const int bjetIndex_ = selectedJetIndices.at(solution.jetB_index);
-//             const int antiBjetIndex_ = selectedJetIndices.at(solution.jetBbar_index);
-//             const LV wPlus_ = common::TLVtoLV(solution.Wplus);
-//             const LV wMinus_ = common::TLVtoLV(solution.Wminus);
-//             const LV top_ = common::TLVtoLV(solution.top);
-//             const LV antiTop_ = common::TLVtoLV(solution.topBar);
-//             const LV ttbar = common::TLVtoLV(solution.ttbar);
-//             const LV neutrino_ = common::TLVtoLV(solution.neutrino);
-//             const LV antiNeutrino_ = common::TLVtoLV(solution.neutrinoBar);
-//             
-//             std::cout<<"Index (lepton, antilepton):         "<<leptonIndex<<" , "<<antiLeptonIndex<<"\n"
-//                      <<"Index (b jet, anti-b jet):          "<<bjetIndex_<<" , "<<antiBjetIndex_<<"\n"
-//                      <<"W+ (pt, eta, phi, mass):            "<<std::fixed<<std::setprecision(3)<<wPlus_.pt()<<" , "<<wPlus_.eta()<<" , "<<wPlus_.phi()<<" , "<<wPlus_.mass()<<"\n"
-//                      <<"W- (pt, eta, phi, mass):            "<<wMinus_.pt()<<" , "<<wMinus_.eta()<<" , "<<wMinus_.phi()<<" , "<<wMinus_.mass()<<"\n"
-//                      <<"Top (pt, eta, phi, mass):           "<<top_.pt()<<" , "<<top_.eta()<<" , "<<top_.phi()<<" , "<<top_.mass()<<"\n"
-//                      <<"Anti-top (pt, eta, phi, mass):      "<<antiTop_.pt()<<" , "<<antiTop_.eta()<<" , "<<antiTop_.phi()<<" , "<<antiTop_.mass()<<"\n"
-//                      <<"tt system(pt, eta, phi, mass):      "<<ttbar.pt()<<" , "<<ttbar.eta()<<" , "<<ttbar.phi()<<" , "<<ttbar.mass()<<"\n"
-//                      <<"Neutrino (pt, eta, phi, mass):      "<<neutrino_.pt()<<" , "<<neutrino_.eta()<<" , "<<neutrino_.phi()<<" , "<<neutrino_.mass()<<"\n"
-//                      <<"Anti-neutrino (pt, eta, phi, mass): "<<antiNeutrino_.pt()<<" , "<<antiNeutrino_.eta()<<" , "<<antiNeutrino_.phi()<<" , "<<antiNeutrino_.mass()<<"\n"
-//                      <<"Reconstructed top mass:             "<<solution.recMtop<<"\n"
-//                      <<"Number of b-tags:                   "<<solution.ntags<<"\n"
-//                      <<"Weight:                             "<<solution.weight<<"\n";
-//             std::cout<<"\n";
-//         }
-//     }
-    
-    
-    
-    
-    
-    // New version of interface for solutions
-//     const KinematicReconstructionSolutions kinematicReconstructionSolutions = kinematicReconstruction_->solutions({leptonIndex}, {antiLeptonIndex},
-//                                                                                                                   jetIndices, bjetIndices,
-//                                                                                                                   allLeptons, jets, jetBTagCSV,
-//                                                                                                                   met);
-//     if(!kinematicReconstructionSolutions.numberOfSolutions()) return false;
-//     const KinematicReconstructionSolution& kinematicReconstructionSolution = kinematicReconstructionSolutions.solution_averaged_sumSmearings_mlbBased();
-//     kinRecoObjects_->HypTop_->push_back(kinematicReconstructionSolution.top_);
-//     kinRecoObjects_->HypAntiTop_->push_back(kinematicReconstructionSolution.antiTop_);
-//     kinRecoObjects_->HypLepton_->push_back(allLeptons.at(kinematicReconstructionSolution.leptonIndex_));
-//     kinRecoObjects_->HypAntiLepton_->push_back(allLeptons.at(kinematicReconstructionSolution.antiLeptonIndex_));
-//     kinRecoObjects_->HypBJet_->push_back(jets.at(kinematicReconstructionSolution.bjetIndex_));
-//     kinRecoObjects_->HypAntiBJet_->push_back(jets.at(kinematicReconstructionSolution.antiBjetIndex_));
-//     kinRecoObjects_->HypNeutrino_->push_back(kinematicReconstructionSolution.neutrino_);
-//     kinRecoObjects_->HypAntiNeutrino_->push_back(kinematicReconstructionSolution.antiNeutrino_);
-//     kinRecoObjects_->HypJet0index_->push_back(kinematicReconstructionSolution.bjetIndex_);
-//     kinRecoObjects_->HypJet1index_->push_back(kinematicReconstructionSolution.antiBjetIndex_);
-//     kinRecoObjects_->valuesSet_ = true;
-    
-    // Printout for new version of interface
-//     std::cout<<"\n\n\nNew event - solutions(): "<<kinematicReconstructionSolutions.numberOfSolutions()<<"\n";
-//     for(size_t i = 0; i < kinematicReconstructionSolutions.numberOfSolutions(); ++i){
-//         kinematicReconstructionSolutions.solutionByWeight_averaged_sumSmearings_mlbBased(i).print();
-//         std::cout<<"\n";
-//     }
-    
-    
-    
-    
-    
-    
-    
-    // Check for strange events
-    //if(kinRecoObjects_->HypTop_->size()){
-    //    double Ecm = (kinRecoObjects_->HypTop_->at(0) + kinRecoObjects_->HypAntiTop_->at(0)
-    //                    + kinRecoObjects_->HypLepton_->at(0) + kinRecoObjects_->HypAntiLepton_->at(0)
-    //                    + kinRecoObjects_->HypNeutrino_->at(0) + kinRecoObjects_->HypAntiNeutrino_->at(0)).E();
-    //    //does event's CM energy exceed LHC's energy?
-    //    if(Ecm > 8000.){
-    //        static int seCounter = 0;
-    //        std::cout << "\n" << ++seCounter << " - Strange event: " << recoObjects_->runNumber_<<":"<<recoObjects_->lumiBlock_<<":"<<recoObjects_->eventNumber_
-    //        << "\ntop:  " << kinRecoObjects_->HypTop_->at(0) << " tbar: " << kinRecoObjects_->HypAntiTop_->at(0)
-    //        << "\nNeutrino:  " << kinRecoObjects_->HypNeutrino_->at(0) << " NeutrinoBar: " << kinRecoObjects_->HypAntiNeutrino_->at(0)
-    //        <<"\n";
-    //    }
-    //}
-
-    return true;
+    return kinematicReconstruction_->solutions({leptonIndex}, {antiLeptonIndex}, jetIndices, bjetIndices,
+                                               allLeptons, jets, jetBTagCSV, met);
 }
 
 

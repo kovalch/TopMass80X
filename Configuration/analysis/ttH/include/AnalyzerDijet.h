@@ -16,11 +16,12 @@ class TString;
 #include "../../common/include/storeTemplate.h"
 #include "../../common/include/classesFwd.h"
 
+class EventMetadata;
 class RecoObjects;
 class CommonGenObjects;
 class TopGenObjects;
 class HiggsGenObjects;
-class KinRecoObjects;
+class KinematicReconstructionSolutions;
 namespace tth{
     class RecoObjectIndices;
     class GenObjectIndices;
@@ -93,9 +94,10 @@ private:
                                           const TString& label, const bool bookJetwiseHistos = false);
     
     /// Fill all histograms for given selection step
-    virtual void fillHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+    virtual void fillHistos(const EventMetadata& eventMetadata,
+                            const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                             const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
-                            const KinRecoObjects& kinRecoObjects,
+                            const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
                             const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
                             const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
                             const double& weight, const TString& step,
@@ -127,13 +129,16 @@ private:
                                              const VLV& genJets, std::map<TString, TH1*>& m_histogram, const double weight);
     
     /// Analyze jets (b-jets) from tt system and additional jets (b-jets)
-    void fillTopAdditionalJetsHistos(const RecoObjects& recoObjects, const TopGenObjects& topGenObjects,
-                                     const KinRecoObjects& kinRecoObjects, const tth::RecoObjectIndices& recoObjectIndices, 
+    void fillTopAdditionalJetsHistos(const EventMetadata& eventMetadata,
+                                     const RecoObjects& recoObjects, const TopGenObjects& topGenObjects,
+                                     const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
+                                     const tth::RecoObjectIndices& recoObjectIndices, 
                                      const tth::GenObjectIndices& genObjectIndices,
                                      const double& weight, std::map<TString, TH1*>& m_histogram);
     
     /// Filling histograms about leading top/additional jets vs gen
-    void fillLeadingJetsHistosVsGen(const std::string& name, const VLV& allGenJets,
+    void fillLeadingJetsHistosVsGen(const std::string& name,
+                                    const EventMetadata& eventMetadata, const VLV& allGenJets,
                                     const std::vector<int>& genJetsId, const VLV& allJets, 
                                     const std::vector<int>& jetsId, const std::vector<int>& genJetsRecoId,
                                     const std::vector<int>& topJetsId_gen, const std::vector<int>& topJetsId_reco,

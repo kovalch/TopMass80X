@@ -29,6 +29,9 @@
 #include "../../common/include/analysisUtils.h"
 #include "../../common/include/analysisObjectStructs.h"
 #include "../../common/include/classes.h"
+#include "../../common/include/KinematicReconstructionSolution.h"
+
+
 
 
 
@@ -45,9 +48,10 @@ AnalyzerBase ("jetCharge_", selectionStepsNoCategories, stepsForCategories, jetC
                                      
 
 
-void AnalyzerJetCharge::fillHistos(const RecoObjects& recoObjects, const CommonGenObjects&,
+void AnalyzerJetCharge::fillHistos(const EventMetadata&,
+                                   const RecoObjects& recoObjects, const CommonGenObjects&,
                                    const TopGenObjects& topGenObjects, const HiggsGenObjects&,
-                                   const KinRecoObjects&,
+                                   const KinematicReconstructionSolutions&,
                                    const tth::RecoObjectIndices&, const tth::GenObjectIndices&,
                                    const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
                                    const double& weight, const TString&,

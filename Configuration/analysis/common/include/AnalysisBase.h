@@ -20,6 +20,7 @@ class TH1;
 
 class KinematicReconstruction;
 class KinematicReconstructionScaleFactors;
+class KinematicReconstructionSolutions;
 class PileupScaleFactors;
 class TriggerScaleFactors;
 class LeptonScaleFactors;
@@ -27,12 +28,12 @@ class BtagScaleFactors;
 class JetEnergyResolutionScaleFactors;
 class JetEnergyScaleScaleFactors;
 class TopPtScaleFactors;
+class EventMetadata;
 class RecoObjects;
 class CommonGenObjects;
 class TopGenObjects;
 class HiggsGenObjects;
 class ZGenObjects;
-class KinRecoObjects;
 class MetRecoilCorrector;
 
 
@@ -101,7 +102,7 @@ public:
     const bool& useMvaMet()const{return mvaMet_;}
     
     /// Set the kinematic reconstruction
-    void SetKinematicReconstruction(KinematicReconstruction* kinematicReconstruction,
+    void SetKinematicReconstruction(const KinematicReconstruction* const kinematicReconstruction,
                                     const KinematicReconstructionScaleFactors* const kinematicReconstructionScaleFactors);
     
     /// Set the pileup reweighter
@@ -146,6 +147,9 @@ protected:
     
 // ----------------------- Protected methods for accessing the object structs -----------------------
     
+    /// Get a constant reference to nTuple branches holding event meta data
+    const EventMetadata& getEventMetadata(const Long64_t& entry)const;
+    
     /// Get a constant reference to nTuple branches relevant for reconstruction level
     const RecoObjects& getRecoObjects(const Long64_t& entry)const;
     
@@ -160,15 +164,6 @@ protected:
     
     /// Get a constant reference to nTuple branches for Z signal samples on generator level
     const ZGenObjects& getZGenObjects(const Long64_t& entry)const;
-    
-    /// Get a constant reference to nTuple branches for kinematic reconstruction
-    const KinRecoObjects& getKinRecoObjects(const Long64_t& entry)const;
-    
-    /// Get a constant reference to on-the-fly kinematic reconstruction results
-    const KinRecoObjects& getKinRecoObjectsOnTheFly(const int leptonIndex, const int antiLeptonIndex,
-                                                    const std::vector<int>& jetIndices, const std::vector<int>& bjetIndices,
-                                                    const VLV& allLeptons, const VLV& jets, const std::vector<double>& jetBTagCSV,
-                                                    const LV& met);
     
     
     /// Set for all object structs, that the specific nTuple entry is not read
@@ -284,24 +279,11 @@ protected:
      */
     const std::string topDecayModeString()const;
 
-    /** Calculate the kinematic reconstruction and return whether at least one solution exists
-     *
-     * reconstruct the top quarks and store the result in the Hyp* member variables,
-     * but also in the pointer kinRecoObjects
-     *
-     * @param leptonIndex Index of selected lepton in the vector of allLeptons
-     * @param antiLeptonIndex Index of selected antilepton in the vector of allLeptons
-     * @param jetIndices Indices of selected jets in the vector of jets
-     * @param bjetIndices Indices of selected b-tagged jets in the vector of jets
-     * @param allLeptons Vector of Lorentz vectors of all leptons from nTuple
-     * @param jets Vector of Lorentz vectors of all jets from nTuple
-     * @param jetBTagCSV B-tag discriminator values of all jets from nTuple
-     * @param met Lorentz vector of MET
-     *
-     * @return true if there is at least one solution
-     */
-    bool calculateKinReco(const int leptonIndex, const int antiLeptonIndex, const std::vector<int>& jetIndices, const std::vector<int>& bjetIndices,
-                          const VLV& allLeptons, const VLV& jets, const std::vector<double>& jetBTagCSV, const LV& met);
+    /// Get solutions of kinematic reconstruction
+    KinematicReconstructionSolutions kinematicReconstructionSolutions(const int leptonIndex, const int antiLeptonIndex,
+                                                                      const std::vector<int>& jetIndices, const std::vector<int>& bjetIndices,
+                                                                      const VLV& allLeptons, const VLV& jets,
+                                                                      const std::vector<double>& jetBTagCSV, const LV& met)const;
     
     /// Get H_t of jets
     double getJetHT(const std::vector<int>& jetIndices, const VLV& jets)const;
@@ -355,14 +337,14 @@ private:
     
 // ----------------------- Private methods for accessing the values in the nTuple -----------------------
     
+    /// Access event entry for nTuple branches holding event meta data
+    void GetEventMetadataBranchesEntry(const Long64_t& entry)const;
+    
     /// Access event entry for nTuple branches relevant for reconstruction level
     void GetRecoBranchesEntry(const Long64_t& entry)const;
     
     /// Access event entry for nTuple branches holding generator information for all MC samples
     void GetCommonGenBranchesEntry(const Long64_t& entry)const;
-    
-    /// Access event entry for nTuple branches of kinematic reconstruction
-    void GetKinRecoBranchesEntry(const Long64_t& entry)const;
     
     /// Access event entry for nTuple branches for Top signal samples on generator level
     void GetTopSignalBranchesEntry(const Long64_t& entry)const;
@@ -408,6 +390,9 @@ private:
     void clearBranchVariables();
     
     
+    /// Set addresses of nTuple branches holding event meta data
+    void SetEventMetadataBranchAddresses();
+    
     /// Set addresses of nTuple branches relevant for reconstruction level
     void SetRecoBranchAddresses();
     
@@ -416,9 +401,6 @@ private:
     
     /// Set addresses of nTuple branches holding generator information for all MC samples
     void SetCommonGenBranchAddresses();
-    
-    /// Set addresses of nTuple branches of kinematic reconstruction
-    void SetKinRecoBranchAddresses();
     
     /// Set address of nTuple branch of true vertex multiplicity
     void SetVertMultiTrueBranchAddress();
@@ -467,8 +449,13 @@ private:
     TTree* chain_;
     
     
+    /// nTuple branches holding event meta data
+    TBranch* b_runNumber;
+    TBranch* b_lumiBlock;
+    TBranch* b_eventNumber;
+    
+    
     /// nTuple branches relevant for reconstruction level
-    // Concerning physics objects
     TBranch* b_lepton;
     TBranch* b_lepPdgId;
     TBranch* b_lepID;
@@ -512,11 +499,6 @@ private:
     TBranch* b_met;
     TBranch* b_jetForMET;
     
-    // Concerning event
-    TBranch* b_runNumber;
-    TBranch* b_lumiBlock;
-    TBranch* b_eventNumber;
-    
     
     /// nTuple branches holding trigger bits
     TBranch* b_triggerBits;
@@ -525,7 +507,6 @@ private:
     
     
     /// nTuple branches holding generator information for all MC samples
-    // Concerning physics objects
     TBranch* b_jetJERSF;
     TBranch* b_jetForMETJERSF;
     TBranch* b_vertMulti;
@@ -533,21 +514,6 @@ private:
     TBranch* b_associatedGenJetForMET;
     TBranch* b_jetPartonFlavour;
     TBranch* b_jetPartonFlavourForMET;
-    
-    
-    /// nTuple branches of kinematic reconstruction
-    TBranch* b_HypTop;
-    TBranch* b_HypAntiTop;
-    TBranch* b_HypLepton;
-    TBranch* b_HypAntiLepton;
-    TBranch* b_HypNeutrino;
-    TBranch* b_HypAntiNeutrino;
-    TBranch* b_HypB;
-    TBranch* b_HypAntiB;
-    TBranch* b_HypWPlus;
-    TBranch* b_HypWMinus;
-    TBranch* b_HypJet0index;
-    TBranch* b_HypJet1index;
     
     
     /// nTuple branch of true vertex multiplicity
@@ -644,6 +610,9 @@ private:
     
 // ----------------------- Variables associated to the nTuple branches -----------------------
     
+    /// Struct for holding variables associated to nTuple branches holding event meta data
+    EventMetadata* eventMetadata_;
+    
     /// Struct for holding variables associated to nTuple branches relevant for reconstruction level
     RecoObjects* recoObjects_;
     
@@ -658,9 +627,6 @@ private:
     
     /// Struct for holding variables associated to nTuple branches for Z signal samples on generator level
     ZGenObjects* zGenObjects_;
-    
-    /// Struct for holding variables associated to nTuple branches of kinematic reconstruction
-    KinRecoObjects* kinRecoObjects_;
     
     
     /// Variables associated to nTuple branches holding trigger bits
@@ -728,7 +694,7 @@ private:
     
     
     /// Pointer to the kinematic reconstruction instance
-    KinematicReconstruction* kinematicReconstruction_;
+    const KinematicReconstruction* kinematicReconstruction_;
     
     /// Pointer to the kinematic reconstruction scale factors instance
     const KinematicReconstructionScaleFactors* kinematicReconstructionScaleFactors_;

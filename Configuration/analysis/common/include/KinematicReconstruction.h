@@ -73,7 +73,7 @@ private:
                                              const int numberOfBtags)const;
     
     /// Set seeds for random number generators
-    void setRandomNumberSeeds(const LV& antiLepton,const LV& Lepton)const;
+    void setRandomNumberSeeds(const LV& antiLepton, const LV& lepton)const;
     
     /// Minimum number of b-tags required for solutions (0, 1, 2)
     const int minNumberOfBtags_;

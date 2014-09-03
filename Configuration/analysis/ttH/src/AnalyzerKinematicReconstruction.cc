@@ -13,9 +13,7 @@
 #include "../../common/include/analysisObjectStructs.h"
 #include "../../common/include/analysisUtils.h"
 #include "../../common/include/classes.h"
-
-
-
+#include "../../common/include/KinematicReconstructionSolution.h"
 
 
 
@@ -36,16 +34,20 @@ void AnalyzerKinematicReconstruction::bookHistos(const TString& step, std::map<T
 {
     TString name;
     
+    
+    name = "efficiency";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step,";;Events",6,0,6));
+    m_histogram[name]->GetXaxis()->SetBinLabel(1, "events");
+    m_histogram[name]->GetXaxis()->SetBinLabel(2, "solution");
+    m_histogram[name]->GetXaxis()->SetBinLabel(3, "tt in event");
+    m_histogram[name]->GetXaxis()->SetBinLabel(4, "found");
+    m_histogram[name]->GetXaxis()->SetBinLabel(5, "correct");
+    m_histogram[name]->GetXaxis()->SetBinLabel(6, "swapped");
+    
     name = "top_pt";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step,";pt [GeV];Events",50,0,500));
     
     name = "antiTop_pt";
-    m_histogram[name] = this->store(new TH1D(prefix_+name+step,";pt [GeV];Events",50,0,500));
-    
-    name = "lepton_pt";
-    m_histogram[name] = this->store(new TH1D(prefix_+name+step,";pt [GeV];Events",50,0,500));
-    
-    name = "antiLepton_pt";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step,";pt [GeV];Events",50,0,500));
     
     name = "neutrino_pt";
@@ -65,52 +67,65 @@ void AnalyzerKinematicReconstruction::bookHistos(const TString& step, std::map<T
     
     name = "antiBjet_index";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step,";index;Events",20,0,20));
-    
 }
 
 
 
-void AnalyzerKinematicReconstruction::fillHistos(const RecoObjects&, const CommonGenObjects&,
+void AnalyzerKinematicReconstruction::fillHistos(const EventMetadata&,
+                                                 const RecoObjects&, const CommonGenObjects&,
                                                  const TopGenObjects&, const HiggsGenObjects&,
-                                                 const KinRecoObjects& kinRecoObjects,
-                                                 const tth::RecoObjectIndices&, const tth::GenObjectIndices&,
+                                                 const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
+                                                 const tth::RecoObjectIndices&, const tth::GenObjectIndices& genObjectIndices,
                                                  const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
                                                  const double& weight, const TString&,
                                                  std::map<TString, TH1*>& m_histogram)
 {
-    if(!kinRecoObjects.valuesSet_) return;
-    
     TString name;
     
+    name = "efficiency";
+    m_histogram.at(name)->Fill(0., weight);
+    
+    if(!kinematicReconstructionSolutions.numberOfSolutions()) return;
+    const KinematicReconstructionSolution& solution = kinematicReconstructionSolutions.solution();
+    
+    m_histogram.at(name)->Fill(1., weight);
+    if(genObjectIndices.uniqueRecoTopMatching()){
+        m_histogram.at(name)->Fill(2., weight);
+        const int bjetIndex = genObjectIndices.recoBjetFromTopIndex_;
+        const int antiBjetIndex = genObjectIndices.recoAntiBjetFromTopIndex_;
+        if(bjetIndex==solution.bjetIndex() && antiBjetIndex==solution.antiBjetIndex()){
+            m_histogram.at(name)->Fill(3., weight);
+            m_histogram.at(name)->Fill(4., weight);
+        }
+        if(antiBjetIndex==solution.bjetIndex() && bjetIndex==solution.antiBjetIndex()){
+            m_histogram.at(name)->Fill(3., weight);
+            m_histogram.at(name)->Fill(5., weight);
+        }
+    }
+    
     name = "top_pt";
-    m_histogram.at(name)->Fill(kinRecoObjects.HypTop_->at(0).pt(), weight);
+    m_histogram.at(name)->Fill(solution.top().pt(), weight);
     
     name = "antiTop_pt";
-    m_histogram.at(name)->Fill(kinRecoObjects.HypAntiTop_->at(0).pt(), weight);
-    
-    name = "lepton_pt";
-    m_histogram.at(name)->Fill(kinRecoObjects.HypLepton_->at(0).pt(), weight);
-    
-    name = "antiLepton_pt";
-    m_histogram.at(name)->Fill(kinRecoObjects.HypAntiLepton_->at(0).pt(), weight);
+    m_histogram.at(name)->Fill(solution.antiTop().pt(), weight);
     
     name = "neutrino_pt";
-    m_histogram.at(name)->Fill(kinRecoObjects.HypNeutrino_->at(0).pt(), weight);
+    m_histogram.at(name)->Fill(solution.neutrino().pt(), weight);
     
     name = "antiNeutrino_pt";
-    m_histogram.at(name)->Fill(kinRecoObjects.HypAntiNeutrino_->at(0).pt(), weight);
+    m_histogram.at(name)->Fill(solution.antiNeutrino().pt(), weight);
     
     name = "bjet_pt";
-    m_histogram.at(name)->Fill(kinRecoObjects.HypBJet_->at(0).pt(), weight);
+    m_histogram.at(name)->Fill(solution.bjet().pt(), weight);
     
     name = "antiBjet_pt";
-    m_histogram.at(name)->Fill(kinRecoObjects.HypAntiBJet_->at(0).pt(), weight);
+    m_histogram.at(name)->Fill(solution.antiBjet().pt(), weight);
     
     name = "bjet_index";
-    m_histogram.at(name)->Fill(kinRecoObjects.HypJet0index_->at(0), weight);
+    m_histogram.at(name)->Fill(solution.bjetIndex(), weight);
     
     name = "antiBjet_index";
-    m_histogram.at(name)->Fill(kinRecoObjects.HypJet1index_->at(0), weight);
+    m_histogram.at(name)->Fill(solution.antiBjetIndex(), weight);
 }
 
 

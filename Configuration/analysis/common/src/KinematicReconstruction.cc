@@ -151,9 +151,9 @@ h_neuEta_w_(0)
 
 
 
-void KinematicReconstruction::setRandomNumberSeeds(const LV& antiLepton,const LV& Lepton)const
+void KinematicReconstruction::setRandomNumberSeeds(const LV& antiLepton, const LV& lepton)const
 {
-    const unsigned int seed =  std::abs((int)( 1.e6*antiLepton.Pt()*sin(Lepton.Phi()*1.e6) ) );
+    const unsigned int seed =  std::abs(static_cast<int>( 1.e6*antiLepton.Pt()*std::sin(lepton.Phi()*1.e6) ) );
     gRandom->SetSeed(seed);
     r3_->SetSeed(seed);
 }
@@ -174,7 +174,7 @@ KinematicReconstructionSolutions KinematicReconstruction::solutions(const std::v
     if(!leptonIndices.size() || !antiLeptonIndices.size() || numberOfJets<2 || numberOfBtags<minNumberOfBtags_) return result;
     
     // Set random number generator seeds
-    this->setRandomNumberSeeds(allLeptons.at(antiLeptonIndices.at(0)),allLeptons.at(leptonIndices.at(0)));
+    this->setRandomNumberSeeds(allLeptons.at(antiLeptonIndices.at(0)), allLeptons.at(leptonIndices.at(0)));
     
     // Find solutions with 2 b-tagged jets
     for(std::vector<int>::const_iterator i_index = bjetIndices.begin(); i_index != bjetIndices.end(); ++i_index)
@@ -182,9 +182,9 @@ KinematicReconstructionSolutions KinematicReconstruction::solutions(const std::v
             for(const int leptonIndex : leptonIndices)
                 for(const int antiLeptonIndex : antiLeptonIndices){
                     const KinematicReconstructionSolution solution(this->solution(leptonIndex, antiLeptonIndex, *i_index, *j_index, allLeptons, allJets, btags, met, 2));
-                    if(solution.leptonIndex_ != -1) result.addSolutionTwoBtags(solution);
+                    if(!solution.dummy()) result.addSolution(solution);
                     const KinematicReconstructionSolution solutionSwapped(this->solution(leptonIndex, antiLeptonIndex, *j_index, *i_index, allLeptons, allJets, btags, met, 2));
-                    if(solutionSwapped.leptonIndex_ != -1) result.addSolutionTwoBtags(solutionSwapped);
+                    if(!solutionSwapped.dummy()) result.addSolution(solutionSwapped);
                 }
     if(preferBtags_ && result.numberOfSolutionsTwoBtags()) return result;
     if(minNumberOfBtags_ > 1) return result;
@@ -202,9 +202,9 @@ KinematicReconstructionSolutions KinematicReconstruction::solutions(const std::v
             for(const int leptonIndex : leptonIndices)
                 for(const int antiLeptonIndex : antiLeptonIndices){
                     const KinematicReconstructionSolution solution(this->solution(leptonIndex, antiLeptonIndex, bjetIndex, nonBjetIndex, allLeptons, allJets, btags, met, 1));
-                    if(solution.leptonIndex_ != -1) result.addSolutionOneBtag(solution);
+                    if(!solution.dummy()) result.addSolution(solution);
                     const KinematicReconstructionSolution solutionSwapped(this->solution(leptonIndex, antiLeptonIndex, nonBjetIndex, bjetIndex, allLeptons, allJets, btags, met, 1));
-                    if(solutionSwapped.leptonIndex_ != -1) result.addSolutionOneBtag(solutionSwapped);
+                    if(!solutionSwapped.dummy()) result.addSolution(solutionSwapped);
                 }
     if(preferBtags_ && result.numberOfSolutionsOneBtag()) return result;
     if(minNumberOfBtags_ > 0) return result;
@@ -215,9 +215,9 @@ KinematicReconstructionSolutions KinematicReconstruction::solutions(const std::v
             for(const int leptonIndex : leptonIndices)
                 for(const int antiLeptonIndex : antiLeptonIndices){
                     const KinematicReconstructionSolution solution(this->solution(leptonIndex, antiLeptonIndex, *i_index, *j_index, allLeptons, allJets, btags, met, 0));
-                    if(solution.leptonIndex_ != -1) result.addSolutionNoBtags(solution);
+                    if(!solution.dummy()) result.addSolution(solution);
                     const KinematicReconstructionSolution solutionSwapped(this->solution(leptonIndex, antiLeptonIndex, *j_index, *i_index, allLeptons, allJets, btags, met, 0));
-                    if(solutionSwapped.leptonIndex_ != -1) result.addSolutionNoBtags(solutionSwapped);
+                    if(!solutionSwapped.dummy()) result.addSolution(solutionSwapped);
                 }
     
     return result;
@@ -247,11 +247,12 @@ KinematicReconstructionSolution KinematicReconstruction::solution(const int lept
         LV neutrino;
         LV antiNeutrino;
         meanSolution.meanSolution(top, antiTop, neutrino, antiNeutrino);
-        const LV wPlus = antiLepton + neutrino;
-        const LV wMinus = lepton + antiNeutrino;
-        const KinematicReconstructionSolution solution(leptonIndex, antiLeptonIndex, jetIndex1, jetIndex2,
-                                                       wPlus, wMinus, top, antiTop, neutrino, antiNeutrino,
-                                                       TopMASS, numberOfBtags, meanSolution.getSumWeight());
+        std::map<KinematicReconstructionSolution::WeightType, double> m_weight;
+        m_weight[KinematicReconstructionSolution::averagedSumSmearings_mlb] = meanSolution.getSumWeight();
+        const KinematicReconstructionSolution solution(&allLeptons, &allJets,
+                                                       leptonIndex, antiLeptonIndex, jetIndex1, jetIndex2,
+                                                       top, antiTop, neutrino, antiNeutrino,
+                                                       TopMASS, numberOfBtags, m_weight);
         return solution;
     }
     
