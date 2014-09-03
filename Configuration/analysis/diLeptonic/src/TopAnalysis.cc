@@ -20,11 +20,11 @@
 
 #include "TopAnalysis.h"
 #include "HistoListReader.h"
-#include "../../common/include/utils.h"
 #include "../../common/include/analysisUtils.h"
 #include "../../common/include/classes.h"
 #include "../../common/include/ScaleFactors.h"
 #include "../../common/include/analysisObjectStructs.h"
+#include "../../common/include/KinematicReconstructionSolution.h"
 #include "analysisStructs.h"
 #include "AnalyzerBaseClass.h" //FIXME: rename to AnalyzerBase.
 #include "TreeHandlerBase.h"
@@ -693,20 +693,22 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     const ttbar::GenLevelWeights genLevelWeights(weightMadgraphCorrection, weightPU, weightGenerator,
                                                  trueLevelWeightNoPileup, trueLevelWeight);
     
+    const EventMetadata eventMetadataDummy;
     const CommonGenObjects commonGenObjectsDummy;
-
+    const KinematicReconstructionSolutions kinematicReconstructionSolutionsDummy;
+    
     // Access MC general generator info
     const CommonGenObjects& commonGenObjects = this->getCommonGenObjects(entry); 
     
     // Access Top signal generator info
     const TopGenObjects& topGenObjects = this->getTopGenObjects(entry);
-
+    
     // Get indices of B and anti-B hadrons steming from ttbar system
     int BHadronIndex=-1;
     int AntiBHadronIndex=-1;
     this->bHadronIndices(BHadronIndex, AntiBHadronIndex, topGenObjects);
     //std::cout<<"\nINDICES: "<<BHadronIndex<<" , "<<AntiBHadronIndex<<"\n";
-
+    
     // Access ttbar dilepton generator event
     LV LeadGenTop, NLeadGenTop;
     LV LeadGenLepton, NLeadGenLepton;
@@ -733,7 +735,6 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     
     selectionStep = "0";
     
-    const KinRecoObjects kinRecoObjectsDummy;
     const ttbar::GenObjectIndices genObjectIndices(-1, -1, -1, -1, -1, -1, -1, -1,genVisJetIndices);
     const ttbar::RecoObjectIndices recoObjectIndicesDummy({0},{0},{0},0,0,0,0,0,0,{0},{0});
     ttbar::RecoLevelWeights recoLevelWeightsDummy(0,0,0,0,0);
@@ -741,10 +742,15 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     //FIXME: NOT a proper place for recoObjects, but it's needed to access to eventNumber_ on "0" selectionStep.
     const RecoObjects& recoObjects = this->getRecoObjects(entry);
     
+    // Access event meta data
+    const EventMetadata eventMetadata = eventMetadataDummy;
+    //const EventMetadata eventMetadata = this->getEventMetadata(entry);
+    
     this->fillAll(selectionStep,
+                  eventMetadata,
                   recoObjects, commonGenObjects,
                   topGenObjects,
-                  kinRecoObjectsDummy,
+                  kinematicReconstructionSolutionsDummy,
                   genObjectIndices, recoObjectIndicesDummy,
                   genLevelWeights, recoLevelWeightsDummy,
                   1.);
@@ -900,10 +906,8 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     }
 
     // Access kinematic reconstruction info
-    //const KinRecoObjects& kinRecoObjects = this->getKinRecoObjects(entry);
-    const KinRecoObjects& kinRecoObjects = !this->makeBtagEfficiencies() ? this->getKinRecoObjectsOnTheFly(leptonIndex, antiLeptonIndex, jetIndices, bjetIndices, allLeptons, jets, jetBTagCSV, met) : kinRecoObjectsDummy;
-    bool hasSolution = kinRecoObjects.valuesSet_;
-    
+    const KinematicReconstructionSolutions kinematicReconstructionSolutions = !this->makeBtagEfficiencies() ? this->kinematicReconstructionSolutions(leptonIndex, antiLeptonIndex, jetIndices, bjetIndices, allLeptons, jets, jetBTagCSV, met) : kinematicReconstructionSolutionsDummy;
+    const bool hasSolution = kinematicReconstructionSolutions.numberOfSolutions();
     
     this->fillAll(selectionStep,
                   recoObjects, commonGenObjects,
@@ -1124,17 +1128,6 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                   genLevelWeights, recoLevelWeights,
                   weight);
     
-    if(topGenObjects.valuesSet_){//Ievgen
-        h_RMSvsGenToppT->Fill((*topGenObjects.GenTop_).Pt(),(*topGenObjects.GenTop_).Pt()-(*kinRecoObjects.HypTop_).at(0).Pt());
-        h_RMSvsGenToppT->Fill((*topGenObjects.GenAntiTop_).Pt(),(*topGenObjects.GenAntiTop_).Pt()-(*kinRecoObjects.HypAntiTop_).at(0).Pt());
-   
-        h_RMSvsGenTopRapidity->Fill((*topGenObjects.GenTop_).Rapidity(),(*topGenObjects.GenTop_).Rapidity()-((*kinRecoObjects.HypTop_).at(0)).Rapidity());
-        h_RMSvsGenTopRapidity->Fill((*topGenObjects.GenAntiTop_).Rapidity(),(*topGenObjects.GenAntiTop_).Rapidity()-((*kinRecoObjects.HypAntiTop_).at(0)).Rapidity());
-    
-        h_RMSvsGenTTBarMass->Fill(((*topGenObjects.GenTop_)+(*topGenObjects.GenAntiTop_)).M(),((*topGenObjects.GenTop_)+(*topGenObjects.GenAntiTop_)).M()-((*kinRecoObjects.HypTop_).at(0)+(*kinRecoObjects.HypAntiTop_).at(0)).M());
-    }
-    
-    
     h_leptonPtAfterKinReco->Fill((*recoObjects.allLeptons_).at(leptonIndex).Pt(), weight);
     h_leptonPtAfterKinReco->Fill((*recoObjects.allLeptons_).at(antiLeptonIndex).Pt(), weight);
     h_leptonEtaAfterKinReco->Fill((*recoObjects.allLeptons_).at(leptonIndex).Eta(), weight);
@@ -1153,6 +1146,30 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
         
     //create helper variables
     size_t solutionIndex = 0; //always zero!
+    
+    // FIXME Jenya:
+    // Use variables accessed here everywhere in the following
+    const KinematicReconstructionSolution solution = kinematicReconstructionSolutions.solution();
+    const LV& hypTop = solution.top();
+    const LV& hypAntiTop = solution.antiTop();
+    const LV& hypTtbar = solution.ttbar();
+    const LV& hypLepton = solution.lepton();
+    const LV& hypAntiLepton = solution.antiLepton();
+    const LV& hypBjet = solution.bjet();
+    const LV& hypAntiBjet = solution.antiBjet();
+    const LV& hypNeutrino = solution.neutrino();
+    const LV& hypAntiNeutrino = solution.antiNeutrino();
+    
+    if(topGenObjects.valuesSet_){//Ievgen
+        h_RMSvsGenToppT->Fill((*topGenObjects.GenTop_).Pt(),(*topGenObjects.GenTop_).Pt()-(*kinRecoObjects.HypTop_).at(0).Pt());
+        h_RMSvsGenToppT->Fill((*topGenObjects.GenAntiTop_).Pt(),(*topGenObjects.GenAntiTop_).Pt()-(*kinRecoObjects.HypAntiTop_).at(0).Pt());
+   
+        h_RMSvsGenTopRapidity->Fill((*topGenObjects.GenTop_).Rapidity(),(*topGenObjects.GenTop_).Rapidity()-((*kinRecoObjects.HypTop_).at(0)).Rapidity());
+        h_RMSvsGenTopRapidity->Fill((*topGenObjects.GenAntiTop_).Rapidity(),(*topGenObjects.GenAntiTop_).Rapidity()-((*kinRecoObjects.HypAntiTop_).at(0)).Rapidity());
+    
+        h_RMSvsGenTTBarMass->Fill(((*topGenObjects.GenTop_)+(*topGenObjects.GenAntiTop_)).M(),((*topGenObjects.GenTop_)+(*topGenObjects.GenAntiTop_)).M()-((*kinRecoObjects.HypTop_).at(0)+(*kinRecoObjects.HypAntiTop_).at(0)).M());
+    }
+    
     
     // Find 1st (and 2nd) leading pT particles: Top, Lepton, BJetIndex
     LV LeadHypTop, NLeadHypTop;
@@ -2265,20 +2282,21 @@ void TopAnalysis::SetAllTreeHandlers(std::vector<TreeHandlerBase*> v_treeHandler
 }
 
 void TopAnalysis::fillAll(const std::string& selectionStep,
-                            const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
-                            const TopGenObjects& topGenObjects,
-                            const KinRecoObjects& kinRecoObjects,
-                            const ttbar::GenObjectIndices& genObjectIndices, const ttbar::RecoObjectIndices& recoObjectIndices,
-                            const ttbar::GenLevelWeights& genLevelWeights, const ttbar::RecoLevelWeights& recoLevelWeights,
-                            const double& defaultWeight)const
+                          const EventMetadata& eventMetadata,
+                          const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+                          const TopGenObjects& topGenObjects,
+                          const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
+                          const ttbar::GenObjectIndices& genObjectIndices, const ttbar::RecoObjectIndices& recoObjectIndices,
+                          const ttbar::GenLevelWeights& genLevelWeights, const ttbar::RecoLevelWeights& recoLevelWeights,
+                          const double& defaultWeight)const
 {
     // In case b-tag efficiencies are produced, analysis output is not
     if(this->makeBtagEfficiencies()) return;
     
     for(AnalyzerBaseClass* analyzer : v_analyzer_){
-        if(analyzer) analyzer->fill(recoObjects, commonGenObjects,
+        if(analyzer) analyzer->fill(eventMetadata, recoObjects, commonGenObjects,
                                                    topGenObjects,
-                                                   kinRecoObjects,
+                                                   kinematicReconstructionSolutions,
                                                    recoObjectIndices, genObjectIndices,
                                                    genLevelWeights, recoLevelWeights,
                                                    defaultWeight, selectionStep);

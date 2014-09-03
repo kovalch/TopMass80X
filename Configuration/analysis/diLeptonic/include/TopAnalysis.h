@@ -12,10 +12,11 @@ class TH2;
 
 class AnalyzerBaseClass;
 class TreeHandlerBase;
+class EventMetadata;
 class RecoObjects;
 class CommonGenObjects;
 class TopGenObjects;
-class KinRecoObjects;
+class KinematicReconstructionSolutions;
 namespace ttbar{
     class GenLevelWeights;
     class RecoLevelWeights;
@@ -310,9 +311,10 @@ private:
     
     /// Fill all analysers and histograms in one method
     void fillAll(const std::string& selectionStep,
+                 const EventMetadata& eventMetadata,
                  const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                  const TopGenObjects& topGenObjects,
-                 const KinRecoObjects& kinRecoObjects,
+                 const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
                  const ttbar::GenObjectIndices& genObjectIndices, const ttbar::RecoObjectIndices& recoObjectIndices,
                  const ttbar::GenLevelWeights& genLevelWeights, const ttbar::RecoLevelWeights& recoLevelWeights,
                  const double& defaultWeight)const;
