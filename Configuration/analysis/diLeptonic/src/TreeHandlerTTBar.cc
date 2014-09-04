@@ -10,6 +10,7 @@
 #include "VariablesTTBar.h"
 #include "analysisStructs.h"
 #include "../../common/include/analysisObjectStructs.h"
+#include "../../common/include/KinematicReconstructionSolution.h"
 
 
 
@@ -25,9 +26,10 @@ TreeHandlerBase("ttBar_", inputDir, selectionStepsNoCategories)
 
 
 
-void TreeHandlerTTBar::fillVariables(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+void TreeHandlerTTBar::fillVariables(const EventMetadata& eventMetadata,
+                                     const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                                           const TopGenObjects& topGenObjects,
-                                          const KinRecoObjects& kinRecoObjects,
+                                          const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
                                           const ttbar::RecoObjectIndices& recoObjectIndices, const ttbar::GenObjectIndices& genObjectIndices,
                                           const ttbar::GenLevelWeights& genLevelWeights, const ttbar::RecoLevelWeights& recoLevelWeights,
                                           const double& weight, const TString&,
@@ -35,7 +37,7 @@ void TreeHandlerTTBar::fillVariables(const RecoObjects& recoObjects, const Commo
 {
     // Loop over all jet combinations and get MVA input variables
     const std::vector<VariablesBase*> v_variablesTTbar = 
-            VariablesTTBar::fillVariables(recoObjects, commonGenObjects,topGenObjects,kinRecoObjects, recoObjectIndices,  genObjectIndices,genLevelWeights,recoLevelWeights,weight);
+            VariablesTTBar::fillVariables(eventMetadata, recoObjects, commonGenObjects,topGenObjects,kinematicReconstructionSolutions, recoObjectIndices,  genObjectIndices,genLevelWeights,recoLevelWeights,weight);
     
     // Fill the MVA variables
     variables.insert(variables.end(), v_variablesTTbar.begin(), v_variablesTTbar.end());

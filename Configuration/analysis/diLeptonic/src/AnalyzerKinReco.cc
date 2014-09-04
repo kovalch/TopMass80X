@@ -13,7 +13,7 @@
 #include "../../common/include/analysisObjectStructs.h"
 #include "../../common/include/analysisUtils.h"
 #include "../../common/include/classes.h"
-
+#include "../../common/include/KinematicReconstructionSolution.h"
 
 
 
@@ -102,9 +102,10 @@ void AnalyzerKinReco::bookHistos(const TString& step, std::map<TString, TH1*>& m
 
 
 
-void AnalyzerKinReco::fillHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+void AnalyzerKinReco::fillHistos(const EventMetadata& eventMetadata,
+                                 const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                                       const TopGenObjects& topGenObjects,
-                                      const KinRecoObjects& kinRecoObjects,
+                                      const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
                                       const ttbar::RecoObjectIndices& recoObjectIndices, const ttbar::GenObjectIndices&,
                                       const ttbar::GenLevelWeights& genLevelWeights, const ttbar::RecoLevelWeights& recoLevelWeights,
                                       const double& weight, const TString&,
@@ -139,7 +140,7 @@ void AnalyzerKinReco::fillHistos(const RecoObjects& recoObjects, const CommonGen
         
         
         
-    if(topGenObjects.valuesSet_ && kinRecoObjects.valuesSet_){
+    if(topGenObjects.valuesSet_ && kinematicReconstructionSolutions.numberOfSolutions()){
         
         m_histogram["signalTopEvents_vs_JetMult"]->Fill(Njets,weight);
         
@@ -157,8 +158,8 @@ void AnalyzerKinReco::fillHistos(const RecoObjects& recoObjects, const CommonGen
             
             TLorentzVector truejetB = common::LVtoTLV((*topGenObjects.allGenJets_).at(bjet_index));
             TLorentzVector truejetBbar = common::LVtoTLV((*topGenObjects.allGenJets_).at(bbarjet_index));
-            TLorentzVector bjetHyp=common::LVtoTLV((*kinRecoObjects.HypBJet_).at(0));
-            TLorentzVector bBarjetHyp=common::LVtoTLV((*kinRecoObjects.HypAntiBJet_).at(0));
+            TLorentzVector bjetHyp=common::LVtoTLV(kinematicReconstructionSolutions.solution().bjet());
+            TLorentzVector bBarjetHyp=common::LVtoTLV(kinematicReconstructionSolutions.solution().antiBjet());
             
             double dR_b_b=truejetB.DeltaR(bjetHyp);
             double dR_bar_bar=truejetBbar.DeltaR(bBarjetHyp);

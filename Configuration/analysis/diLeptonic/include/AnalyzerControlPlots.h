@@ -9,10 +9,11 @@ class TH1;
 
 #include "AnalyzerBaseClass.h"
 
+class EventMetadata;
 class RecoObjects;
 class CommonGenObjects;
 class TopGenObjects;
-class KinRecoObjects;
+class KinematicReconstructionSolutions;
 namespace ttbar{
     class RecoLevelWeights;
     class GenLevelWeights;
@@ -41,9 +42,9 @@ private:
     virtual void bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram);
 
     /// Fill all histograms for given selection step
-    virtual void fillHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+    virtual void fillHistos(const EventMetadata& eventMetadata, const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                             const TopGenObjects& topGenObjects,
-                            const KinRecoObjects& kinRecoObjects,
+                            const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
                             const ttbar::RecoObjectIndices& recoObjectIndices, const ttbar::GenObjectIndices& genObjectIndices,
                             const ttbar::GenLevelWeights& genLevelWeights, const ttbar::RecoLevelWeights& recoLevelWeights,
                             const double& weight, const TString& step,

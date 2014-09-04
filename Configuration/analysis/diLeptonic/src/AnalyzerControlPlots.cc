@@ -12,7 +12,7 @@
 #include "../../common/include/analysisObjectStructs.h"
 #include "../../common/include/analysisUtils.h"
 #include "../../common/include/classes.h"
-
+#include "../../common/include/KinematicReconstructionSolution.h"
 
 
 
@@ -135,9 +135,10 @@ void AnalyzerControlPlots::bookHistos(const TString& step, std::map<TString, TH1
 
 
 
-void AnalyzerControlPlots::fillHistos(const RecoObjects& recoObjects, const CommonGenObjects&,
+void AnalyzerControlPlots::fillHistos(const EventMetadata& eventMetadata,
+                                      const RecoObjects& recoObjects, const CommonGenObjects&,
                                       const TopGenObjects&,
-                                      const KinRecoObjects&,
+                                      const KinematicReconstructionSolutions&,
                                       const ttbar::RecoObjectIndices& recoObjectIndices, const ttbar::GenObjectIndices&,
                                       const ttbar::GenLevelWeights&, const ttbar::RecoLevelWeights&,
                                       const double& weight, const TString&,

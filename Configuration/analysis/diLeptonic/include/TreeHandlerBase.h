@@ -16,10 +16,11 @@ class TSelectorList;
 class VariableInt;
 class VariableFloat;
 class VariablesBase;
+class EventMetadata;
 class RecoObjects;
 class CommonGenObjects;
 class TopGenObjects;
-class KinRecoObjects;
+class KinematicReconstructionSolutions;
 namespace ttbar{
     class RecoLevelWeights;
     class GenLevelWeights;
@@ -49,9 +50,10 @@ public:
     /// Book the vector of tree variables for each requested selection step
     void book();
     
-    void fill(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+    void fill(const EventMetadata& eventMetadata,
+              const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
               const TopGenObjects& topGenObjects,
-              const KinRecoObjects& kinRecoObjects,
+              const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
               const ttbar::RecoObjectIndices& recoObjectIndices, const ttbar::GenObjectIndices& genObjectIndices,
               const ttbar::GenLevelWeights& genLevelWeights, const ttbar::RecoLevelWeights& recoLevelWeights,
               const double& weight, const TString& stepShort);
@@ -81,9 +83,10 @@ public:
 protected:
     
     /// Fill all variables for given selection step (dummy method, override in inherited MvaTreeHandler)
-    virtual void fillVariables(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+    virtual void fillVariables(const EventMetadata& eventMetadata,
+                               const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                                const TopGenObjects& topGenObjects,
-                               const KinRecoObjects& kinRecoObjects,
+                               const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
                                const ttbar::RecoObjectIndices& recoObjectIndices, const ttbar::GenObjectIndices& genObjectIndices,
                                const ttbar::GenLevelWeights& genLevelWeights, const ttbar::RecoLevelWeights& recoLevelWeights,
                                const double& weight, const TString& step,

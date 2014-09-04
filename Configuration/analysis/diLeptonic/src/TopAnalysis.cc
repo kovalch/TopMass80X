@@ -862,9 +862,10 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                                              weightNoPileup, weight);
     
     this->fillAll(selectionStep,
+                  eventMetadata,
                   recoObjects, commonGenObjects,
                   topGenObjects,
-                  kinRecoObjectsDummy,
+                  kinematicReconstructionSolutionsDummy,
                   genObjectIndices, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   1.);
@@ -876,9 +877,10 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     // we need an OS lepton pair
     if (! hasLeptonPair) return kTRUE;
     this->fillAll(selectionStep,
+                  eventMetadata,
                   recoObjects, commonGenObjects,
                   topGenObjects,
-                  kinRecoObjectsDummy,
+                  kinematicReconstructionSolutionsDummy,
                   genObjectIndices, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   1.);
@@ -910,9 +912,10 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     const bool hasSolution = kinematicReconstructionSolutions.numberOfSolutions();
     
     this->fillAll(selectionStep,
+                  eventMetadata,
                   recoObjects, commonGenObjects,
                   topGenObjects,
-                  kinRecoObjects,
+                  kinematicReconstructionSolutions,
                   genObjectIndices, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   weight);
@@ -926,9 +929,10 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
         double fullWeights = weight;
         selectionStep = "4zWindow";
         this->fillAll(selectionStep,
+                  eventMetadata,
                   recoObjects, commonGenObjects,
                   topGenObjects,
-                  kinRecoObjects,
+                  kinematicReconstructionSolutions,
                   genObjectIndices, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   fullWeights);
@@ -936,9 +940,10 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
         if ( has2Jets ) {
             selectionStep = "5zWindow";
             this->fillAll(selectionStep,
+                  eventMetadata,
                   recoObjects, commonGenObjects,
                   topGenObjects,
-                  kinRecoObjects,
+                  kinematicReconstructionSolutions,
                   genObjectIndices, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   fullWeights);
@@ -946,9 +951,10 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
             if ( hasMetOrEmu ) {
                 selectionStep = "6zWindow";
                 this->fillAll(selectionStep,
+                  eventMetadata,
                   recoObjects, commonGenObjects,
                   topGenObjects,
-                  kinRecoObjects,
+                  kinematicReconstructionSolutions,
                   genObjectIndices, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   fullWeights);
@@ -957,9 +963,10 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                     selectionStep = "7zWindow";
                     fullWeights *= weightBtagSF;
                     this->fillAll(selectionStep,
+                        eventMetadata,
                         recoObjects, commonGenObjects,
                         topGenObjects,
-                        kinRecoObjects,
+                        kinematicReconstructionSolutions,
                         genObjectIndices, recoObjectIndices,
                         genLevelWeights, recoLevelWeights,
                         fullWeights);
@@ -968,9 +975,10 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
                         fullWeights *= weightKinReco;
                         selectionStep = "8zWindow";
                         this->fillAll(selectionStep,
+                            eventMetadata,
                             recoObjects, commonGenObjects,
                             topGenObjects,
-                            kinRecoObjects,
+                            kinematicReconstructionSolutions,
                             genObjectIndices, recoObjectIndices,
                             genLevelWeights, recoLevelWeights,
                             fullWeights);
@@ -986,9 +994,10 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     if (this->channel() != Channel::emu && isZregion) return kTRUE;
     
     this->fillAll(selectionStep,
+                  eventMetadata,
                   recoObjects, commonGenObjects,
                   topGenObjects,
-                  kinRecoObjects,
+                  kinematicReconstructionSolutions,
                   genObjectIndices, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   weight);
@@ -1017,9 +1026,10 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     if(!has2Jets) return kTRUE;
     
     this->fillAll(selectionStep,
+                  eventMetadata,
                   recoObjects, commonGenObjects,
                   topGenObjects,
-                  kinRecoObjects,
+                  kinematicReconstructionSolutions,
                   genObjectIndices, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   weight);
@@ -1031,9 +1041,10 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     if (!hasMetOrEmu) return kTRUE;
     
     this->fillAll(selectionStep,
+                  eventMetadata,
                   recoObjects, commonGenObjects,
                   topGenObjects,
-                  kinRecoObjects,
+                  kinematicReconstructionSolutions,
                   genObjectIndices, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   weight);
@@ -1078,9 +1089,10 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     weight *= weightBtagSF;
     
     this->fillAll(selectionStep,
+                  eventMetadata,
                   recoObjects, commonGenObjects,
                   topGenObjects,
-                  kinRecoObjects,
+                  kinematicReconstructionSolutions,
                   genObjectIndices, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   weight);
@@ -1092,7 +1104,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
         if (fullSelectionCounter == 0)
             std::cout << "Selected#\tRun\tEvent\tlep+\tlep-\tMll\tNJets\tjet0\tjet1\tNTags\tGenJet1\tGenJet2\tMet\tGenMet\tt/tbar_decay\n"
             << std::setprecision(2) << std::fixed;
-            std::cout << "Event#" << ++fullSelectionCounter << ":\t" << recoObjects.runNumber_ << "\t" << recoObjects.eventNumber_ << "\t" << (*recoObjects.allLeptons_).at(antiLeptonIndex) << "\t" << (*recoObjects.allLeptons_).at(leptonIndex) << "\t"
+            std::cout << "Event#" << ++fullSelectionCounter << ":\t" << eventMetadata.runNumber_ << "\t" << eventMetadata.eventNumber_ << "\t" << (*recoObjects.allLeptons_).at(antiLeptonIndex) << "\t" << (*recoObjects.allLeptons_).at(leptonIndex) << "\t"
             << dilepton.M() << "\t" << numberOfJets << "\t"
             << (*recoObjects.jets_).at(jetIndices.at(0)) << "\t" << (*recoObjects.jets_).at(jetIndices.at(1)) << "\t" << numberOfBjets << "\t"
             << (*commonGenObjects.associatedGenJet_).at(jetIndices.at(0)) << "\t" << (*commonGenObjects.associatedGenJet_).at(jetIndices.at(1)) << "\t"
@@ -1121,9 +1133,10 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     weight *= weightKinReco;
     
     this->fillAll(selectionStep,
+                  eventMetadata,
                   recoObjects, commonGenObjects,
                   topGenObjects,
-                  kinRecoObjects,
+                  kinematicReconstructionSolutions,
                   genObjectIndices, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   weight);
@@ -1161,13 +1174,13 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     const LV& hypAntiNeutrino = solution.antiNeutrino();
     
     if(topGenObjects.valuesSet_){//Ievgen
-        h_RMSvsGenToppT->Fill((*topGenObjects.GenTop_).Pt(),(*topGenObjects.GenTop_).Pt()-(*kinRecoObjects.HypTop_).at(0).Pt());
-        h_RMSvsGenToppT->Fill((*topGenObjects.GenAntiTop_).Pt(),(*topGenObjects.GenAntiTop_).Pt()-(*kinRecoObjects.HypAntiTop_).at(0).Pt());
+        h_RMSvsGenToppT->Fill((*topGenObjects.GenTop_).Pt(),(*topGenObjects.GenTop_).Pt()-hypTop.Pt());
+        h_RMSvsGenToppT->Fill((*topGenObjects.GenAntiTop_).Pt(),(*topGenObjects.GenAntiTop_).Pt()-hypAntiTop.Pt());
    
-        h_RMSvsGenTopRapidity->Fill((*topGenObjects.GenTop_).Rapidity(),(*topGenObjects.GenTop_).Rapidity()-((*kinRecoObjects.HypTop_).at(0)).Rapidity());
-        h_RMSvsGenTopRapidity->Fill((*topGenObjects.GenAntiTop_).Rapidity(),(*topGenObjects.GenAntiTop_).Rapidity()-((*kinRecoObjects.HypAntiTop_).at(0)).Rapidity());
+        h_RMSvsGenTopRapidity->Fill((*topGenObjects.GenTop_).Rapidity(),(*topGenObjects.GenTop_).Rapidity()-hypTop.Rapidity());
+        h_RMSvsGenTopRapidity->Fill((*topGenObjects.GenAntiTop_).Rapidity(),(*topGenObjects.GenAntiTop_).Rapidity()-hypAntiTop.Rapidity());
     
-        h_RMSvsGenTTBarMass->Fill(((*topGenObjects.GenTop_)+(*topGenObjects.GenAntiTop_)).M(),((*topGenObjects.GenTop_)+(*topGenObjects.GenAntiTop_)).M()-((*kinRecoObjects.HypTop_).at(0)+(*kinRecoObjects.HypAntiTop_).at(0)).M());
+        h_RMSvsGenTTBarMass->Fill(((*topGenObjects.GenTop_)+(*topGenObjects.GenAntiTop_)).M(),((*topGenObjects.GenTop_)+(*topGenObjects.GenAntiTop_)).M()-(hypTop+hypAntiTop).M());
     }
     
     
@@ -1175,63 +1188,63 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     LV LeadHypTop, NLeadHypTop;
     LV LeadHypLepton, NLeadHypLepton;
     LV LeadHypBJet, NLeadHypBJet;
-    orderLV(LeadHypTop, NLeadHypTop, (*kinRecoObjects.HypTop_).at(solutionIndex), (*kinRecoObjects.HypAntiTop_).at(solutionIndex), LVpt);
-    orderLV(LeadHypLepton, NLeadHypLepton, (*kinRecoObjects.HypLepton_).at(solutionIndex), (*kinRecoObjects.HypAntiLepton_).at(solutionIndex), LVpt);
-    orderLV(LeadHypBJet, NLeadHypBJet, (*kinRecoObjects.HypBJet_).at(solutionIndex), (*kinRecoObjects.HypAntiBJet_).at(solutionIndex), LVpt);
+    orderLV(LeadHypTop, NLeadHypTop, hypTop, hypAntiTop, LVpt);
+    orderLV(LeadHypLepton, NLeadHypLepton, hypLepton, hypAntiLepton, LVpt);
+    orderLV(LeadHypBJet, NLeadHypBJet, hypBjet, hypAntiBjet, LVpt);
 
     //create ll, bb and tt system 
-    LV hypllbar((*kinRecoObjects.HypLepton_).at(solutionIndex) + (*kinRecoObjects.HypAntiLepton_).at(solutionIndex));
-    LV hypbbbar((*kinRecoObjects.HypBJet_).at(solutionIndex) + (*kinRecoObjects.HypAntiBJet_).at(solutionIndex));
-    LV hypttbar((*kinRecoObjects.HypTop_).at(solutionIndex)+(*kinRecoObjects.HypAntiTop_).at(solutionIndex));
+    LV hypllbar(hypLepton + hypAntiLepton);
+    LV hypbbbar(hypBjet + hypAntiBjet);
+    LV hypttbar(hypTop+hypAntiTop);
 
     // create top/antitop quark in the ttbar rest frame
     ROOT::Math::Boost CoMBoostHypTtbar (hypttbar.BoostToCM());
-    LV top = (*kinRecoObjects.HypTop_).at(solutionIndex);
-    LV antitop = (*kinRecoObjects.HypAntiTop_).at(solutionIndex);
+    LV top = hypTop;
+    LV antitop = hypAntiTop;
     top = CoMBoostHypTtbar(top);
     antitop = CoMBoostHypTtbar(antitop);
 
     //First fill the reco histograms (which have no scaling factors applied)
     const double recoWeight = trueLevelWeight;
-    h_RecoTTBarDeltaRapidity->Fill(std::abs((*kinRecoObjects.HypTop_).at(solutionIndex).Rapidity()) - std::abs((*kinRecoObjects.HypAntiTop_).at(solutionIndex).Rapidity()), recoWeight);
-    h_RecoTTBarDeltaPhi->Fill(std::abs(DeltaPhi((*kinRecoObjects.HypTop_).at(solutionIndex), (*kinRecoObjects.HypAntiTop_).at(solutionIndex))), recoWeight);
+    h_RecoTTBarDeltaRapidity->Fill(std::abs(hypTop.Rapidity()) - std::abs(hypAntiTop.Rapidity()), recoWeight);
+    h_RecoTTBarDeltaPhi->Fill(std::abs(DeltaPhi(hypTop, hypAntiTop)), recoWeight);
     h_RecoTTBarMass->Fill(hypttbar.M(), recoWeight);
     h_RecoTTBarRapidity->Fill(hypttbar.Rapidity(), recoWeight);
     h_RecoTTBarpT->Fill(hypttbar.Pt(), recoWeight);
-    h_RecoToppT->Fill((*kinRecoObjects.HypTop_).at(solutionIndex).Pt(), recoWeight);
-    h_RecoAntiToppT->Fill((*kinRecoObjects.HypAntiTop_).at(solutionIndex).Pt(), recoWeight);
-    h_RecoTopRapidity->Fill((*kinRecoObjects.HypTop_).at(solutionIndex).Rapidity(), recoWeight);
-    h_RecoAntiTopRapidity->Fill((*kinRecoObjects.HypAntiTop_).at(solutionIndex).Rapidity(), recoWeight);
+    h_RecoToppT->Fill(hypTop.Pt(), recoWeight);
+    h_RecoAntiToppT->Fill(hypAntiTop.Pt(), recoWeight);
+    h_RecoTopRapidity->Fill(hypTop.Rapidity(), recoWeight);
+    h_RecoAntiTopRapidity->Fill(hypAntiTop.Rapidity(), recoWeight);
 
     h_RecoToppTTTRestFrame->Fill(top.Pt(), recoWeight);
     h_RecoAntiToppTTTRestFrame->Fill(antitop.Pt(), recoWeight);
     
     h_RecoLLBarMass->Fill(hypllbar.M(), recoWeight);
     h_RecoLLBarpT->Fill(hypllbar.Pt(), recoWeight);
-    h_RecoLeptonpT->Fill((*kinRecoObjects.HypLepton_).at(solutionIndex).Pt(), recoWeight);
-    h_RecoAntiLeptonpT->Fill((*kinRecoObjects.HypAntiLepton_).at(solutionIndex).Pt(), recoWeight);
-    h_RecoLeptonEta->Fill((*kinRecoObjects.HypLepton_).at(solutionIndex).Eta(), recoWeight);
-    h_RecoAntiLeptonEta->Fill((*kinRecoObjects.HypAntiLepton_).at(solutionIndex).Eta(), recoWeight);
+    h_RecoLeptonpT->Fill(hypLepton.Pt(), recoWeight);
+    h_RecoAntiLeptonpT->Fill(hypAntiLepton.Pt(), recoWeight);
+    h_RecoLeptonEta->Fill(hypLepton.Eta(), recoWeight);
+    h_RecoAntiLeptonEta->Fill(hypAntiLepton.Eta(), recoWeight);
     
     h_RecoMet->Fill(met.Pt(), recoWeight);
     h_RecoHT->Fill(jetHT, recoWeight);
     
-    h_RecoNeutrinopT->Fill((*kinRecoObjects.HypNeutrino_).at(solutionIndex).Pt(), recoWeight);
-    h_RecoAntiNeutrinopT->Fill((*kinRecoObjects.HypAntiNeutrino_).at(solutionIndex).Pt(), recoWeight);
+    h_RecoNeutrinopT->Fill(hypNeutrino.Pt(), recoWeight);
+    h_RecoAntiNeutrinopT->Fill(hypAntiNeutrino.Pt(), recoWeight);
 
     h_RecoBBBarMass->Fill(hypbbbar.M(), recoWeight);
     h_RecoBBBarpT->Fill(hypbbbar.Pt(), recoWeight);
 
-    h_RecoBJetpT->Fill((*kinRecoObjects.HypBJet_).at(solutionIndex).Pt(), recoWeight);
-    h_RecoAntiBJetpT->Fill((*kinRecoObjects.HypAntiBJet_).at(solutionIndex).Pt(), recoWeight);
-    h_RecoBJetRapidity->Fill((*kinRecoObjects.HypBJet_).at(solutionIndex).Rapidity(), recoWeight);
-    h_RecoAntiBJetRapidity->Fill((*kinRecoObjects.HypAntiBJet_).at(solutionIndex).Rapidity(), recoWeight);
-    h_RecoBJetEta->Fill((*kinRecoObjects.HypBJet_).at(solutionIndex).Eta(), recoWeight);
-    h_RecoAntiBJetEta->Fill((*kinRecoObjects.HypAntiBJet_).at(solutionIndex).Eta(), recoWeight);
+    h_RecoBJetpT->Fill(hypBjet.Pt(), recoWeight);
+    h_RecoAntiBJetpT->Fill(hypAntiBjet.Pt(), recoWeight);
+    h_RecoBJetRapidity->Fill(hypBjet.Rapidity(), recoWeight);
+    h_RecoAntiBJetRapidity->Fill(hypAntiBjet.Rapidity(), recoWeight);
+    h_RecoBJetEta->Fill(hypBjet.Eta(), recoWeight);
+    h_RecoAntiBJetEta->Fill(hypAntiBjet.Eta(), recoWeight);
 
-    h_RecoLLBarDPhi->Fill(std::fabs ( DeltaPhi ( (*kinRecoObjects.HypLepton_).at(solutionIndex), (*kinRecoObjects.HypAntiLepton_).at(solutionIndex) ) ), recoWeight);
-    h_RecoLeptonantiBjetMass->Fill(( (*kinRecoObjects.HypLepton_).at(solutionIndex)+(*kinRecoObjects.HypAntiBJet_).at(solutionIndex) ).M(), recoWeight);
-    h_RecoAntiLeptonBjetMass->Fill(( (*kinRecoObjects.HypAntiLepton_).at(solutionIndex)+(*kinRecoObjects.HypBJet_).at(solutionIndex) ).M(), recoWeight);
+    h_RecoLLBarDPhi->Fill(std::fabs ( DeltaPhi ( hypLepton, hypAntiLepton ) ), recoWeight);
+    h_RecoLeptonantiBjetMass->Fill(( hypLepton+hypAntiBjet ).M(), recoWeight);
+    h_RecoAntiLeptonBjetMass->Fill(( hypAntiLepton+hypBjet ).M(), recoWeight);
 
     h_RecoToppTLead->Fill(LeadHypTop.Pt(), recoWeight);
     h_RecoToppTNLead->Fill(NLeadHypTop.Pt(), recoWeight);
@@ -1254,8 +1267,8 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     h_HypTTBarMass->Fill(hypttbar.M(), weight);
     h_HypTTBarRapidity->Fill(hypttbar.Rapidity(), weight);
     h_HypTTBarpT->Fill(hypttbar.Pt(), weight);
-    h_HypTTBarDeltaPhi->Fill(std::abs(DeltaPhi((*kinRecoObjects.HypTop_).at(solutionIndex), (*kinRecoObjects.HypAntiTop_).at(solutionIndex))), weight);
-    h_HypTTBarDeltaRapidity->Fill(std::abs((*kinRecoObjects.HypTop_).at(solutionIndex).Rapidity()) - std::abs((*kinRecoObjects.HypAntiTop_).at(solutionIndex).Rapidity()), weight);
+    h_HypTTBarDeltaPhi->Fill(std::abs(DeltaPhi(hypTop, hypAntiTop)), weight);
+    h_HypTTBarDeltaRapidity->Fill(std::abs(hypTop.Rapidity()) - std::abs(hypAntiTop.Rapidity()), weight);
 
     h_HypBBBarMass->Fill(hypbbbar.M(), weight);
     h_HypBBBarpT->Fill(hypbbbar.Pt(), weight);
@@ -1269,36 +1282,36 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     h_HypMet->Fill(met.Pt(), weight);
     h_HypHT->Fill(jetHT, weight);
 
-    h_HypTopMass->Fill((*kinRecoObjects.HypTop_).at(solutionIndex).M(), weight);
-    h_HypAntiTopMass->Fill((*kinRecoObjects.HypAntiTop_).at(solutionIndex).M(), weight);
-    h_HypToppT->Fill((*kinRecoObjects.HypTop_).at(solutionIndex).Pt(), weight);
-    h_HypAntiToppT->Fill((*kinRecoObjects.HypAntiTop_).at(solutionIndex).Pt(), weight);
+    h_HypTopMass->Fill(hypTop.M(), weight);
+    h_HypAntiTopMass->Fill(hypAntiTop.M(), weight);
+    h_HypToppT->Fill(hypTop.Pt(), weight);
+    h_HypAntiToppT->Fill(hypAntiTop.Pt(), weight);
         
-    h_HypLeptonpT->Fill((*kinRecoObjects.HypLepton_).at(solutionIndex).Pt(), weight);
-    h_HypAntiLeptonpT->Fill((*kinRecoObjects.HypAntiLepton_).at(solutionIndex).Pt(), weight);
+    h_HypLeptonpT->Fill(hypLepton.Pt(), weight);
+    h_HypAntiLeptonpT->Fill(hypAntiLepton.Pt(), weight);
 
-    h_HypBJetpT->Fill((*kinRecoObjects.HypBJet_).at(solutionIndex).Pt(), weight);
-    h_HypAntiBJetpT->Fill((*kinRecoObjects.HypAntiBJet_).at(solutionIndex).Pt(), weight);
-    h_HypBJetRapidity->Fill((*kinRecoObjects.HypBJet_).at(solutionIndex).Rapidity(), weight);
-    h_HypAntiBJetRapidity->Fill((*kinRecoObjects.HypAntiBJet_).at(solutionIndex).Rapidity(), weight);
+    h_HypBJetpT->Fill(hypBjet.Pt(), weight);
+    h_HypAntiBJetpT->Fill(hypAntiBjet.Pt(), weight);
+    h_HypBJetRapidity->Fill(hypBjet.Rapidity(), weight);
+    h_HypAntiBJetRapidity->Fill(hypAntiBjet.Rapidity(), weight);
 
-    h_HypTopRapidity->Fill((*kinRecoObjects.HypTop_).at(solutionIndex).Rapidity(), weight);
-    h_HypAntiTopRapidity->Fill((*kinRecoObjects.HypAntiTop_).at(solutionIndex).Rapidity(), weight);
+    h_HypTopRapidity->Fill(hypTop.Rapidity(), weight);
+    h_HypAntiTopRapidity->Fill(hypAntiTop.Rapidity(), weight);
     
-    h_HypNeutrinopT->Fill((*kinRecoObjects.HypNeutrino_).at(solutionIndex).Pt(), weight);
-    h_HypAntiNeutrinopT->Fill((*kinRecoObjects.HypAntiNeutrino_).at(solutionIndex).Pt(), weight);
+    h_HypNeutrinopT->Fill(hypNeutrino.Pt(), weight);
+    h_HypAntiNeutrinopT->Fill(hypAntiNeutrino.Pt(), weight);
     
-    h_HypTopEta->Fill((*kinRecoObjects.HypTop_).at(solutionIndex).Eta(), weight);
-    h_HypAntiTopEta->Fill((*kinRecoObjects.HypAntiTop_).at(solutionIndex).Eta(), weight);
-    h_HypBJetEta->Fill((*kinRecoObjects.HypBJet_).at(solutionIndex).Eta(), weight);
-    h_HypAntiBJetEta->Fill((*kinRecoObjects.HypAntiBJet_).at(solutionIndex).Eta(), weight);
-    h_HypLeptonEta->Fill((*kinRecoObjects.HypLepton_).at(solutionIndex).Eta(), weight);
+    h_HypTopEta->Fill(hypTop.Eta(), weight);
+    h_HypAntiTopEta->Fill(hypAntiTop.Eta(), weight);
+    h_HypBJetEta->Fill(hypBjet.Eta(), weight);
+    h_HypAntiBJetEta->Fill(hypAntiBjet.Eta(), weight);
+    h_HypLeptonEta->Fill(hypLepton.Eta(), weight);
 
-    h_HypAntiLeptonEta->Fill((*kinRecoObjects.HypAntiLepton_).at(solutionIndex).Eta(), weight);
+    h_HypAntiLeptonEta->Fill(hypAntiLepton.Eta(), weight);
 
-    h_HypLLBarDPhi->Fill(std::fabs ( DeltaPhi ( (*kinRecoObjects.HypLepton_).at(solutionIndex), (*kinRecoObjects.HypAntiLepton_).at(solutionIndex) ) ), weight);
-    h_HypLeptonantiBjetMass->Fill(( (*kinRecoObjects.HypLepton_).at(solutionIndex) + (*kinRecoObjects.HypAntiBJet_).at(solutionIndex) ).M(), weight);
-    h_HypAntiLeptonBjetMass->Fill(( (*kinRecoObjects.HypAntiLepton_).at(solutionIndex) + (*kinRecoObjects.HypBJet_).at(solutionIndex) ).M(), weight);
+    h_HypLLBarDPhi->Fill(std::fabs ( DeltaPhi ( hypLepton, hypAntiLepton ) ), weight);
+    h_HypLeptonantiBjetMass->Fill(( hypLepton + hypAntiBjet ).M(), weight);
+    h_HypAntiLeptonBjetMass->Fill(( hypAntiLepton + hypBjet ).M(), weight);
 
     h_HypToppTLead->Fill(LeadHypTop.Pt(), weight);
     h_HypToppTNLead->Fill(NLeadHypTop.Pt(), weight);
@@ -1323,8 +1336,8 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     
     // ...
     // Parton momentum fraction
-    double RecoPartonMomFraction = ((*kinRecoObjects.HypTop_).at(solutionIndex).energy() - (*kinRecoObjects.HypTop_).at(solutionIndex).Pz() + (*kinRecoObjects.HypAntiTop_).at(solutionIndex).energy() - (*kinRecoObjects.HypAntiTop_).at(solutionIndex).Pz()) / (2 * 4000);
-    double RecoAntipartonMomFraction = ((*kinRecoObjects.HypTop_).at(solutionIndex).energy() + (*kinRecoObjects.HypTop_).at(solutionIndex).Pz() + (*kinRecoObjects.HypAntiTop_).at(solutionIndex).energy() + (*kinRecoObjects.HypAntiTop_).at(solutionIndex).Pz()) / (2 * 4000);
+    double RecoPartonMomFraction = (hypTop.energy() - hypTop.Pz() + hypAntiTop.energy() - hypAntiTop.Pz()) / (2 * 4000);
+    double RecoAntipartonMomFraction = (hypTop.energy() + hypTop.Pz() + hypAntiTop.energy() + hypAntiTop.Pz()) / (2 * 4000);
     h_HypTopPartonFraction->Fill(RecoPartonMomFraction, weight);
     h_HypAntiTopPartonFraction->Fill(RecoAntipartonMomFraction, weight);
     h_RecoTopPartonFraction->Fill(RecoPartonMomFraction, recoWeight);
@@ -1348,7 +1361,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
         if ((*recoObjects.jets_).at(k).Pt()> JetPtCUT2)
         {
             RecoJets++;
-            if(std::fabs((*kinRecoObjects.HypAntiBJet_).at(solutionIndex).Pt() - (*recoObjects.jets_).at(k).Pt())>0.1 && std::fabs((*kinRecoObjects.HypBJet_).at(solutionIndex).Pt() - (*recoObjects.jets_).at(k).Pt())>0.1 && jetnumReco<3) {
+            if(std::fabs(hypAntiBjet.Pt() - (*recoObjects.jets_).at(k).Pt())>0.1 && std::fabs(hypBjet.Pt() - (*recoObjects.jets_).at(k).Pt())>0.1 && jetnumReco<3) {
 
             jetHTreco+=(*recoObjects.jets_).at(k).Pt();
             jetnumReco++;
@@ -1453,7 +1466,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
 //     //New plots from Carmen: End
 
     //make sure you have called CreateBinnedControlPlots in the SlaveBegin first
-    for (const auto& i : { (*kinRecoObjects.HypTop_).at(solutionIndex), (*kinRecoObjects.HypAntiTop_).at(solutionIndex) } ) {
+    for (const auto& i : { hypTop, hypAntiTop } ) {
         FillBinnedControlPlot(h_HypToppT, i.Pt(), h_LeptonpT, (*recoObjects.allLeptons_).at(leptonIndex).Pt(), weight);
         FillBinnedControlPlot(h_HypToppT, i.Pt(), h_LeptonpT, (*recoObjects.allLeptons_).at(antiLeptonIndex).Pt(), weight);
         FillBinnedControlPlot(h_HypToppT, i.Pt(), h_diLepMassFull, dilepton.M(), weight);
@@ -1474,11 +1487,11 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     if (!topGenObjects.valuesSet_) return kTRUE;
 
     // top quark properties
-    h_GenRecoToppT->Fill((*kinRecoObjects.HypTop_).at(solutionIndex).Pt(), (*topGenObjects.GenTop_).Pt(), weight );
-    h_GenRecoAntiToppT->Fill((*kinRecoObjects.HypAntiTop_).at(solutionIndex).Pt(), (*topGenObjects.GenAntiTop_).Pt(), weight );
+    h_GenRecoToppT->Fill(hypTop.Pt(), (*topGenObjects.GenTop_).Pt(), weight );
+    h_GenRecoAntiToppT->Fill(hypAntiTop.Pt(), (*topGenObjects.GenAntiTop_).Pt(), weight );
     h_GenRecoToppTLead->Fill(LeadHypTop.Pt(), LeadGenTop.Pt(), weight);
-    h_GenRecoTopRapidity->Fill((*kinRecoObjects.HypTop_).at(solutionIndex).Rapidity(), (*topGenObjects.GenTop_).Rapidity(), weight );
-    h_GenRecoAntiTopRapidity->Fill((*kinRecoObjects.HypAntiTop_).at(solutionIndex).Rapidity(), (*topGenObjects.GenAntiTop_).Rapidity(), weight );
+    h_GenRecoTopRapidity->Fill(hypTop.Rapidity(), (*topGenObjects.GenTop_).Rapidity(), weight );
+    h_GenRecoAntiTopRapidity->Fill(hypAntiTop.Rapidity(), (*topGenObjects.GenAntiTop_).Rapidity(), weight );
     h_GenRecoToppTNLead->Fill(NLeadHypTop.Pt(), NLeadGenTop.Pt(), weight);
     h_GenRecoTopRapidityLead->Fill(LeadHypTop.Rapidity(), LeadGenTop.Rapidity(), weight);
     h_GenRecoTopRapidityNLead->Fill(NLeadHypTop.Rapidity(), NLeadGenTop.Rapidity(), weight);
@@ -1490,9 +1503,9 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     h_GenRecoTTBarMass->Fill(hypttbar.M(), genttbar.M(), weight );
     h_GenRecoTTBarpT->Fill(hypttbar.Pt(), genttbar.Pt(), weight );
     h_GenRecoTTBarRapidity->Fill(hypttbar.Rapidity(), genttbar.Rapidity(), weight );
-    h_GenRecoTTBarDeltaPhi->Fill(std::abs(DeltaPhi((*kinRecoObjects.HypTop_).at(solutionIndex), (*kinRecoObjects.HypAntiTop_).at(solutionIndex))),
+    h_GenRecoTTBarDeltaPhi->Fill(std::abs(DeltaPhi(hypTop, hypAntiTop)),
                                  std::abs(DeltaPhi((*topGenObjects.GenTop_), (*topGenObjects.GenAntiTop_))), weight);
-    h_GenRecoTTBarDeltaRapidity->Fill(std::abs((*kinRecoObjects.HypTop_).at(solutionIndex).Rapidity()) - std::abs((*kinRecoObjects.HypAntiTop_).at(solutionIndex).Rapidity()),
+    h_GenRecoTTBarDeltaRapidity->Fill(std::abs(hypTop.Rapidity()) - std::abs(hypAntiTop.Rapidity()),
                                      std::abs((*topGenObjects.GenTop_).Rapidity()) - std::abs((*topGenObjects.GenAntiTop_).Rapidity()),
                                       weight);
 
@@ -1523,14 +1536,14 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
             // extra objects: met, ht, ...
             h_GenRecoMet->Fill(met.Pt(), (*topGenObjects.GenMet_).Pt(), weight);
             h_GenRecoHT->Fill(jetHT, genHT, weight);
-            h_GenRecoNeutrinopT->Fill((*kinRecoObjects.HypNeutrino_).at(solutionIndex).Pt(), (*topGenObjects.GenNeutrino_).Pt(), weight);
-            h_GenRecoAntiNeutrinopT->Fill((*kinRecoObjects.HypAntiNeutrino_).at(solutionIndex).Pt(), (*topGenObjects.GenAntiNeutrino_).Pt(), weight);
+            h_GenRecoNeutrinopT->Fill(hypNeutrino.Pt(), (*topGenObjects.GenNeutrino_).Pt(), weight);
+            h_GenRecoAntiNeutrinopT->Fill(hypAntiNeutrino.Pt(), (*topGenObjects.GenAntiNeutrino_).Pt(), weight);
 
             // lepton distributions
-            h_GenRecoLeptonpT->Fill((*kinRecoObjects.HypLepton_).at(solutionIndex).Pt(), (*topGenObjects.GenLepton_).Pt(), weight );
-            h_GenRecoAntiLeptonpT->Fill((*kinRecoObjects.HypAntiLepton_).at(solutionIndex).Pt(), (*topGenObjects.GenAntiLepton_).Pt(), weight );
-            h_GenRecoLeptonEta->Fill((*kinRecoObjects.HypLepton_).at(solutionIndex).Eta(), (*topGenObjects.GenLepton_).Eta(), weight );
-            h_GenRecoAntiLeptonEta->Fill((*kinRecoObjects.HypAntiLepton_).at(solutionIndex).Eta(), (*topGenObjects.GenAntiLepton_).Eta(), weight );
+            h_GenRecoLeptonpT->Fill(hypLepton.Pt(), (*topGenObjects.GenLepton_).Pt(), weight );
+            h_GenRecoAntiLeptonpT->Fill(hypAntiLepton.Pt(), (*topGenObjects.GenAntiLepton_).Pt(), weight );
+            h_GenRecoLeptonEta->Fill(hypLepton.Eta(), (*topGenObjects.GenLepton_).Eta(), weight );
+            h_GenRecoAntiLeptonEta->Fill(hypAntiLepton.Eta(), (*topGenObjects.GenAntiLepton_).Eta(), weight );
             h_GenRecoLeptonpTLead->Fill(LeadHypLepton.Pt(), LeadGenLepton.Pt(), weight);
             h_GenRecoLeptonpTNLead->Fill(NLeadHypLepton.Pt(), NLeadGenLepton.Pt(), weight);
             h_GenRecoLeptonEtaLead->Fill(LeadHypLepton.Eta(), LeadGenLepton.Eta(), weight);
@@ -1541,13 +1554,13 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
             h_GenRecoLLBarMass->Fill(hypllbar.M(), genllbar.M(), weight );
             h_GenRecoLLBarpT->Fill(hypllbar.Pt(), genllbar.Pt(), weight );
             h_GenRecoLLBarDPhi->Fill(
-                std::fabs( DeltaPhi( (*kinRecoObjects.HypLepton_).at(solutionIndex), (*kinRecoObjects.HypAntiLepton_).at(solutionIndex) ) ),
+                std::fabs( DeltaPhi( hypLepton, hypAntiLepton ) ),
                 std::fabs( DeltaPhi( (*topGenObjects.GenLepton_), (*topGenObjects.GenAntiLepton_) ) ),
                 weight );
 
             // letpon-b-jet mass
-            h_GenRecoLeptonantiBjetMass->Fill(( (*kinRecoObjects.HypLepton_).at(solutionIndex) + (*kinRecoObjects.HypAntiBJet_).at(solutionIndex) ).M(), ( (*topGenObjects.GenLepton_)+(*topGenObjects.allGenJets_).at(AntiBHadronIndex) ).M(), weight );
-            h_GenRecoAntiLeptonBjetMass->Fill(( (*kinRecoObjects.HypAntiLepton_).at(solutionIndex)+(*kinRecoObjects.HypBJet_).at(solutionIndex) ).M(), ( (*topGenObjects.GenAntiLepton_)+(*topGenObjects.allGenJets_).at(BHadronIndex) ).M(), weight );
+            h_GenRecoLeptonantiBjetMass->Fill(( hypLepton + hypAntiBjet ).M(), ( (*topGenObjects.GenLepton_)+(*topGenObjects.allGenJets_).at(AntiBHadronIndex) ).M(), weight );
+            h_GenRecoAntiLeptonBjetMass->Fill(( hypAntiLepton+hypBjet ).M(), ( (*topGenObjects.GenAntiLepton_)+(*topGenObjects.allGenJets_).at(BHadronIndex) ).M(), weight );
 
             // b-jet-pair distributions
             LV genbbbar ((*topGenObjects.allGenJets_).at(BHadronIndex) + (*topGenObjects.allGenJets_).at(AntiBHadronIndex));
@@ -1555,12 +1568,12 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
             h_GenRecoBBBarMass->Fill(hypbbbar.M(), genbbbar.M(), weight);
 
             // bjet distributions
-            h_GenRecoBJetpT->Fill((*kinRecoObjects.HypBJet_).at(solutionIndex).Pt(), (*topGenObjects.allGenJets_).at(BHadronIndex).Pt(), weight );
-            h_GenRecoAntiBJetpT->Fill((*kinRecoObjects.HypAntiBJet_).at(solutionIndex).Pt(), (*topGenObjects.allGenJets_).at(AntiBHadronIndex).Pt(), weight );
-            h_GenRecoBJetEta->Fill((*kinRecoObjects.HypBJet_).at(solutionIndex).Eta(), (*topGenObjects.allGenJets_).at(BHadronIndex).Eta(), weight );
-            h_GenRecoAntiBJetEta->Fill((*kinRecoObjects.HypAntiBJet_).at(solutionIndex).Eta(), (*topGenObjects.allGenJets_).at(AntiBHadronIndex).Eta(), weight );
-            h_GenRecoBJetRapidity->Fill((*kinRecoObjects.HypBJet_).at(solutionIndex).Rapidity(), (*topGenObjects.allGenJets_).at(BHadronIndex).Rapidity(), weight );
-            h_GenRecoAntiBJetRapidity->Fill((*kinRecoObjects.HypAntiBJet_).at(solutionIndex).Rapidity(), (*topGenObjects.allGenJets_).at(AntiBHadronIndex).Rapidity(), weight );
+            h_GenRecoBJetpT->Fill(hypBjet.Pt(), (*topGenObjects.allGenJets_).at(BHadronIndex).Pt(), weight );
+            h_GenRecoAntiBJetpT->Fill(hypAntiBjet.Pt(), (*topGenObjects.allGenJets_).at(AntiBHadronIndex).Pt(), weight );
+            h_GenRecoBJetEta->Fill(hypBjet.Eta(), (*topGenObjects.allGenJets_).at(BHadronIndex).Eta(), weight );
+            h_GenRecoAntiBJetEta->Fill(hypAntiBjet.Eta(), (*topGenObjects.allGenJets_).at(AntiBHadronIndex).Eta(), weight );
+            h_GenRecoBJetRapidity->Fill(hypBjet.Rapidity(), (*topGenObjects.allGenJets_).at(BHadronIndex).Rapidity(), weight );
+            h_GenRecoAntiBJetRapidity->Fill(hypAntiBjet.Rapidity(), (*topGenObjects.allGenJets_).at(AntiBHadronIndex).Rapidity(), weight );
             h_GenRecoBJetpTLead->Fill(LeadHypBJet.Pt(), LeadGenBJet.Pt(), weight);
             h_GenRecoBJetpTNLead->Fill(NLeadHypBJet.Pt(), NLeadGenBJet.Pt(), weight);
             h_GenRecoBJetEtaLead->Fill(LeadHypBJet.Eta(), LeadGenBJet.Eta(), weight);
@@ -1622,14 +1635,14 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
         // extra objects: met, ht, ...
         h_GenRecoMet->Fill(met.Pt(), -1000, weight);
         h_GenRecoHT->Fill(jetHT, -1000, weight);
-        h_GenRecoNeutrinopT->Fill((*kinRecoObjects.HypNeutrino_).at(solutionIndex).Pt(), -1000, weight);
-        h_GenRecoAntiNeutrinopT->Fill((*kinRecoObjects.HypAntiNeutrino_).at(solutionIndex).Pt(), -1000, weight);
+        h_GenRecoNeutrinopT->Fill(hypNeutrino.Pt(), -1000, weight);
+        h_GenRecoAntiNeutrinopT->Fill(hypAntiNeutrino.Pt(), -1000, weight);
 
         // lepton distributions
-        h_GenRecoLeptonpT->Fill((*kinRecoObjects.HypLepton_).at(solutionIndex).Pt(), -1000, weight );
-        h_GenRecoAntiLeptonpT->Fill((*kinRecoObjects.HypAntiLepton_).at(solutionIndex).Pt(), -1000, weight );
-        h_GenRecoLeptonEta->Fill((*kinRecoObjects.HypLepton_).at(solutionIndex).Eta(), -1000, weight );
-        h_GenRecoAntiLeptonEta->Fill((*kinRecoObjects.HypAntiLepton_).at(solutionIndex).Eta(), -1000, weight );
+        h_GenRecoLeptonpT->Fill(hypLepton.Pt(), -1000, weight );
+        h_GenRecoAntiLeptonpT->Fill(hypAntiLepton.Pt(), -1000, weight );
+        h_GenRecoLeptonEta->Fill(hypLepton.Eta(), -1000, weight );
+        h_GenRecoAntiLeptonEta->Fill(hypAntiLepton.Eta(), -1000, weight );
         h_GenRecoLeptonpTLead->Fill(LeadHypLepton.Pt(), -1000, weight);
         h_GenRecoLeptonpTNLead->Fill(NLeadHypLepton.Pt(), -1000, weight);
         h_GenRecoLeptonEtaLead->Fill(LeadHypLepton.Eta(), -1000, weight);
@@ -1639,23 +1652,23 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
         h_GenRecoLLBarMass->Fill(hypllbar.M(), -1000, weight );
         h_GenRecoLLBarpT->Fill(hypllbar.Pt(), -1000, weight );
         h_GenRecoLLBarDPhi->Fill(
-            std::fabs( DeltaPhi( (*kinRecoObjects.HypLepton_).at(solutionIndex), (*kinRecoObjects.HypAntiLepton_).at(solutionIndex) ) ), -1000, weight );
+            std::fabs( DeltaPhi( hypLepton, hypAntiLepton ) ), -1000, weight );
 
         // letpon-b-jet mass
-        h_GenRecoLeptonantiBjetMass->Fill(( (*kinRecoObjects.HypLepton_).at(solutionIndex) + (*kinRecoObjects.HypAntiBJet_).at(solutionIndex) ).M(), -1000, weight );
-        h_GenRecoAntiLeptonBjetMass->Fill(( (*kinRecoObjects.HypAntiLepton_).at(solutionIndex)+(*kinRecoObjects.HypBJet_).at(solutionIndex) ).M(), -1000, weight );
+        h_GenRecoLeptonantiBjetMass->Fill(( hypLepton + hypAntiBjet ).M(), -1000, weight );
+        h_GenRecoAntiLeptonBjetMass->Fill(( hypAntiLepton+hypBjet ).M(), -1000, weight );
 
         // b-jet-pair distributions
         h_GenRecoBBBarpT->Fill(hypbbbar.Pt(), -1000, weight);
         h_GenRecoBBBarMass->Fill(hypbbbar.M(), -1000, weight);
 
         // bjet distributions
-        h_GenRecoBJetpT->Fill((*kinRecoObjects.HypBJet_).at(solutionIndex).Pt(), -1000, weight );
-        h_GenRecoAntiBJetpT->Fill((*kinRecoObjects.HypAntiBJet_).at(solutionIndex).Pt(), -1000, weight );
-        h_GenRecoBJetEta->Fill((*kinRecoObjects.HypBJet_).at(solutionIndex).Eta(), -1000, weight );
-        h_GenRecoAntiBJetEta->Fill((*kinRecoObjects.HypAntiBJet_).at(solutionIndex).Eta(), -1000, weight );
-        h_GenRecoBJetRapidity->Fill((*kinRecoObjects.HypBJet_).at(solutionIndex).Rapidity(), -1000, weight );
-        h_GenRecoAntiBJetRapidity->Fill((*kinRecoObjects.HypAntiBJet_).at(solutionIndex).Rapidity(), -1000, weight );
+        h_GenRecoBJetpT->Fill(hypBjet.Pt(), -1000, weight );
+        h_GenRecoAntiBJetpT->Fill(hypAntiBjet.Pt(), -1000, weight );
+        h_GenRecoBJetEta->Fill(hypBjet.Eta(), -1000, weight );
+        h_GenRecoAntiBJetEta->Fill(hypAntiBjet.Eta(), -1000, weight );
+        h_GenRecoBJetRapidity->Fill(hypBjet.Rapidity(), -1000, weight );
+        h_GenRecoAntiBJetRapidity->Fill(hypAntiBjet.Rapidity(), -1000, weight );
         h_GenRecoBJetpTLead->Fill(LeadHypBJet.Pt(), -1000, weight);
         h_GenRecoBJetpTNLead->Fill(NLeadHypBJet.Pt(), -1000, weight);
         h_GenRecoBJetEtaLead->Fill(LeadHypBJet.Eta(), -1000, weight);
@@ -2294,7 +2307,8 @@ void TopAnalysis::fillAll(const std::string& selectionStep,
     if(this->makeBtagEfficiencies()) return;
     
     for(AnalyzerBaseClass* analyzer : v_analyzer_){
-        if(analyzer) analyzer->fill(eventMetadata, recoObjects, commonGenObjects,
+        if(analyzer) analyzer->fill(eventMetadata, 
+                                    recoObjects, commonGenObjects,
                                                    topGenObjects,
                                                    kinematicReconstructionSolutions,
                                                    recoObjectIndices, genObjectIndices,
@@ -2303,9 +2317,10 @@ void TopAnalysis::fillAll(const std::string& selectionStep,
     }
     
     for(TreeHandlerBase* treeHandler : v_treeHandler_){
-        if(treeHandler) treeHandler->fill(recoObjects, commonGenObjects,
+        if(treeHandler) treeHandler->fill(eventMetadata,
+                                          recoObjects, commonGenObjects,
                                                 topGenObjects,
-                                                kinRecoObjects,
+                                                kinematicReconstructionSolutions,
                                                 recoObjectIndices, genObjectIndices,
                                                 genLevelWeights, recoLevelWeights,
                                                 defaultWeight, selectionStep);

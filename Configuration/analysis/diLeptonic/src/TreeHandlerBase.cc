@@ -20,6 +20,7 @@
 #include "ttbarUtils.h"
 #include "../../common/include/sampleHelpers.h"
 #include "../../common/include/analysisObjectStructs.h"
+#include "../../common/include/KinematicReconstructionSolution.h"
 
 
 
@@ -68,9 +69,10 @@ bool TreeHandlerBase::checkExistence(const TString& step)const
 
 
 
-void TreeHandlerBase::fill(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+void TreeHandlerBase::fill(const EventMetadata& eventMetadata,
+                           const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                               const TopGenObjects& topGenObjects,
-                              const KinRecoObjects& kinRecoObjects,
+                              const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
                               const ttbar::RecoObjectIndices& recoObjectIndices, const ttbar::GenObjectIndices& genObjectIndices,
                               const ttbar::GenLevelWeights& genLevelWeights, const ttbar::RecoLevelWeights& recoLevelWeights,
                               const double& weight, const TString& stepShort)
@@ -82,8 +84,9 @@ void TreeHandlerBase::fill(const RecoObjects& recoObjects, const CommonGenObject
     
     // Fill the variables of the specific treeHandler
     std::vector<VariablesBase*>& variables = m_stepVariables_.at(step);
-    this->fillVariables(recoObjects, commonGenObjects,
-                        topGenObjects, kinRecoObjects,
+    this->fillVariables(eventMetadata,
+                        recoObjects, commonGenObjects,
+                        topGenObjects, kinematicReconstructionSolutions,
                         recoObjectIndices, genObjectIndices,
                         genLevelWeights, recoLevelWeights,
                         weight, step,
@@ -257,9 +260,10 @@ void TreeHandlerBase::clear()
 
 
 
-void TreeHandlerBase::fillVariables(const RecoObjects&, const CommonGenObjects&,
+void TreeHandlerBase::fillVariables(const EventMetadata& ,
+                                    const RecoObjects&, const CommonGenObjects&,
                                        const TopGenObjects&,
-                                       const KinRecoObjects&,
+                                       const KinematicReconstructionSolutions&,
                                        const ttbar::RecoObjectIndices&, const ttbar::GenObjectIndices&,
                                        const ttbar::GenLevelWeights&, const ttbar::RecoLevelWeights&,
                                        const double&, const TString&,

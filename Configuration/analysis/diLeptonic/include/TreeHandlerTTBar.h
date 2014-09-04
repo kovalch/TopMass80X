@@ -9,10 +9,11 @@ class TTree;
 #include "TreeHandlerBase.h"
 
 class VariablesBase;
+class EventMetadata;
 class RecoObjects;
 class CommonGenObjects;
 class TopGenObjects;
-class KinRecoObjects;
+class KinematicReconstructionSolutions;
 namespace ttbar{
     class RecoLevelWeights;
     class GenLevelWeights;
@@ -43,9 +44,10 @@ public:
 private:
     
     /// Fill all variables for given selection step
-    virtual void fillVariables(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+    virtual void fillVariables(const EventMetadata& eventMetadata, 
+                               const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                                const TopGenObjects& topGenObjects,
-                               const KinRecoObjects& kinRecoObjects,
+                               const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
                                const ttbar::RecoObjectIndices& recoObjectIndices, const ttbar::GenObjectIndices& genObjectIndices,
                                const ttbar::GenLevelWeights& genLevelWeights, const ttbar::RecoLevelWeights& recoLevelWeights,
                                const double& weight, const TString& step,

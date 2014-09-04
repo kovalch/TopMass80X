@@ -9,7 +9,7 @@
 #include "../../common/include/classes.h"
 #include "../../common/include/analysisUtils.h"
 #include "../../common/include/analysisObjectStructs.h"
-
+#include "../../common/include/KinematicReconstructionSolution.h"
 
 
 
@@ -51,9 +51,10 @@ trueLevelWeight_(VariableFloat(name_trueLevelWeight_))
 
 
 
-VariablesTTBar::VariablesTTBar(const RecoObjects& recoObjects, const CommonGenObjects& ,
+VariablesTTBar::VariablesTTBar(const EventMetadata& eventMetadata,
+                               const RecoObjects& recoObjects, const CommonGenObjects& ,
                                                           const TopGenObjects& topGenObjects,
-                                                          const KinRecoObjects& kinRecoObjects,
+                                                          const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
                                                           const ttbar::RecoObjectIndices& recoObjectIndices, const ttbar::GenObjectIndices& genObjectIndices,
                                                           const ttbar::GenLevelWeights& genLevelWeights, const ttbar::RecoLevelWeights& ,
                                                           const double& weight):
@@ -90,15 +91,15 @@ trueLevelWeight_(VariableFloat(name_trueLevelWeight_))
     isTopGen_.value_ = 0;
     entry_.value_ = -999;
     
-  if(kinRecoObjects.valuesSet_){
+  if(kinematicReconstructionSolutions.numberOfSolutions()){
    
    isKinReco_.value_ = 1;
 
    
    //proton Energy [GeV]  
    double protonE = 4000;
-   TLorentzVector hyptop(common::LVtoTLV((*kinRecoObjects.HypTop_).at(0)));
-   TLorentzVector hypantitop(common::LVtoTLV((*kinRecoObjects.HypAntiTop_).at(0)));
+   TLorentzVector hyptop(common::LVtoTLV(kinematicReconstructionSolutions.solution().top()));
+   TLorentzVector hypantitop(common::LVtoTLV(kinematicReconstructionSolutions.solution().antiTop()));
    TLorentzVector hypttbar(hyptop+hypantitop);
    
    int nRecoJets=recoObjectIndices.jetIndices_.size();
@@ -117,7 +118,7 @@ trueLevelWeight_(VariableFloat(name_trueLevelWeight_))
    double restEJetsSum=0; 
    for(int i=0;i<nRecoJets;i++)
    {
-       if(i != (*kinRecoObjects.HypJet0index_).at(0) && i != (*kinRecoObjects.HypJet1index_).at(0))
+       if(i != kinematicReconstructionSolutions.solution().bjetIndex() && i != kinematicReconstructionSolutions.solution().bjetIndex())
        {
            restEJetsSum += (*recoObjects.jets_).at(recoObjectIndices.jetIndices_.at(i)).E();
            restPzJetsSum += (*recoObjects.jets_).at(recoObjectIndices.jetIndices_.at(i)).Pz();
@@ -133,7 +134,7 @@ trueLevelWeight_(VariableFloat(name_trueLevelWeight_))
    
    if(topGenObjects.valuesSet_){
        
-      entry_.value_ = (Int_t)recoObjects.eventNumber_;
+      entry_.value_ = (Int_t)eventMetadata.eventNumber_;
       isTopGen_.value_ = 1;
       trueLevelWeight_.value_ = genLevelWeights.trueLevelWeight_;
       
@@ -158,16 +159,17 @@ trueLevelWeight_(VariableFloat(name_trueLevelWeight_))
 
 
 
-std::vector<VariablesBase*> VariablesTTBar::fillVariables(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+std::vector<VariablesBase*> VariablesTTBar::fillVariables(const EventMetadata& eventMetadata, 
+                                                          const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                                                           const TopGenObjects& topGenObjects,
-                                                          const KinRecoObjects& kinRecoObjects,
+                                                          const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
                                                           const ttbar::RecoObjectIndices& recoObjectIndices, const ttbar::GenObjectIndices& genObjectIndices,
                                                           const ttbar::GenLevelWeights& genLevelWeights, const ttbar::RecoLevelWeights& recoLevelWeights,
                                                           const double& weight)
 {
     std::vector<VariablesBase*> result;
 
-        VariablesBase* variables = new VariablesTTBar(recoObjects, commonGenObjects, topGenObjects, kinRecoObjects, recoObjectIndices, genObjectIndices, genLevelWeights, recoLevelWeights,weight);
+        VariablesBase* variables = new VariablesTTBar(eventMetadata, recoObjects, commonGenObjects, topGenObjects, kinematicReconstructionSolutions, recoObjectIndices, genObjectIndices, genLevelWeights, recoLevelWeights,weight);
         result.push_back(variables);
     
     return result;

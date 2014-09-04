@@ -9,10 +9,11 @@
 #include "analysisStructsFwd.h"
 #include "../../common/include/classesFwd.h"
 
+class EventMetadata;
 class RecoObjects;
 class TopGenObjects;
 class CommonGenObjects;
-class KinRecoObjects;
+class KinematicReconstructionSolutions;
 namespace ttbar{
     class RecoObjectIndices;
     class GenObjectIndices;
@@ -38,9 +39,10 @@ public:
     VariablesTTBar();
     
     /// Constructor setting up input variables from physics objects
-    VariablesTTBar(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+    VariablesTTBar(const EventMetadata& eventMetadata, 
+                   const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                                                           const TopGenObjects& topGenObjects,
-                                                          const KinRecoObjects& kinRecoObjects,
+                                                          const KinematicReconstructionSolutions& kinRecoObjects,
                                                           const ttbar::RecoObjectIndices& recoObjectIndices, const ttbar::GenObjectIndices& genObjectIndices,
                                                           const ttbar::GenLevelWeights& genLevelWeights, const ttbar::RecoLevelWeights& recoLevelWeights,
                                                           const double& weight);
@@ -49,9 +51,10 @@ public:
     ~VariablesTTBar(){}
     
     /// Fill the input structs for all jet combinations of one event
-    static std::vector<VariablesBase*> fillVariables(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+    static std::vector<VariablesBase*> fillVariables(const EventMetadata& eventMetadata,
+                                                     const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                                                           const TopGenObjects& topGenObjects,
-                                                          const KinRecoObjects& kinRecoObjects,
+                                                          const KinematicReconstructionSolutions& kinRecoObjects,
                                                           const ttbar::RecoObjectIndices& recoObjectIndices, const ttbar::GenObjectIndices& genObjectIndices,
                                                           const ttbar::GenLevelWeights& genLevelWeights, const ttbar::RecoLevelWeights& recoLevelWeights,
                                                           const double& weight);
