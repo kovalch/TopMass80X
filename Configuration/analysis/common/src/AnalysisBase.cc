@@ -1567,10 +1567,8 @@ KinematicReconstructionSolutions AnalysisBase::kinematicReconstructionSolutions(
                                                                                 const VLV& allLeptons, const VLV& jets,
                                                                                 const std::vector<double>& jetBTagCSV, const LV& met)const
 {
-    if(!kinematicReconstruction_){
-        std::cerr<<"Error in AnalysisBase::kinematicReconstructionSolutions()! Kinematic reconstruction is not initialised\n...break\n"<<std::endl;
-        exit(659);
-    }
+    // If kinematic reconstruction is not initialised, do not run it but return dummy
+    if(!kinematicReconstruction_) return KinematicReconstructionSolutions();
     
     return kinematicReconstruction_->solutions({leptonIndex}, {antiLeptonIndex}, jetIndices, bjetIndices,
                                                allLeptons, jets, jetBTagCSV, met);
