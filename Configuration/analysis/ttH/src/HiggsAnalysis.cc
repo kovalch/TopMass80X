@@ -186,14 +186,10 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     const tth::GenLevelWeights genLevelWeightsDummy(0., 0., 0., 0., 0., 0.);
     const tth::RecoLevelWeights recoLevelWeightsDummy(0., 0., 0., 0., 0., 0.);
     
-    // Access event meta data
-    const EventMetadata eventMetadata = eventMetadataDummy;
-    //const EventMetadata eventMetadata = this->getEventMetadata(entry);
-    
     // ++++ Control Plots ++++
     
     this->fillAll(selectionStep,
-                  eventMetadata,
+                  eventMetadataDummy,
                   recoObjectsDummy, commonGenObjectsDummy,
                   topGenObjectsDummy, higgsGenObjectsDummy,
                   kinematicReconstructionSolutionsDummy,
@@ -243,7 +239,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     // ++++ Control Plots ++++
     
     this->fillAll(selectionStep,
-                  eventMetadata,
+                  eventMetadataDummy,
                   recoObjectsDummy, commonGenObjectsDummy,
                   topGenObjectsDummy, higgsGenObjectsDummy,
                   kinematicReconstructionSolutionsDummy,
@@ -374,7 +370,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     // ++++ Control Plots ++++
     
     this->fillAll(selectionStep,
-                  eventMetadata,
+                  eventMetadataDummy,
                   recoObjects, commonGenObjects,
                   topGenObjectsDummy, higgsGenObjectsDummy,
                   kinematicReconstructionSolutionsDummy,
@@ -393,7 +389,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     // ++++ Control Plots ++++
     
     this->fillAll(selectionStep,
-                  eventMetadata,
+                  eventMetadataDummy,
                   recoObjects, commonGenObjects,
                   topGenObjectsDummy, higgsGenObjectsDummy,
                   kinematicReconstructionSolutionsDummy,
@@ -412,7 +408,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     // ++++ Control Plots ++++
 
     this->fillAll(selectionStep,
-                  eventMetadata,
+                  eventMetadataDummy,
                   recoObjects, commonGenObjects,
                   topGenObjectsDummy, higgsGenObjectsDummy,
                   kinematicReconstructionSolutionsDummy,
@@ -433,7 +429,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     
     if(isZregion){
         this->fillAll("4zWindow",
-                      eventMetadata,
+                      eventMetadataDummy,
                       recoObjects, commonGenObjects,
                       topGenObjectsDummy, higgsGenObjectsDummy,
                       kinematicReconstructionSolutionsDummy,
@@ -446,7 +442,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     
     if(isEmu || !isZregion){
         this->fillAll(selectionStep,
-                      eventMetadata,
+                      eventMetadataDummy,
                       recoObjects, commonGenObjects,
                       topGenObjectsDummy, higgsGenObjectsDummy,
                       kinematicReconstructionSolutionsDummy,
@@ -467,7 +463,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     
     if(isZregion){
         this->fillAll("5zWindow",
-                      eventMetadata,
+                      eventMetadataDummy,
                       recoObjects, commonGenObjects,
                       topGenObjectsDummy, higgsGenObjectsDummy,
                       kinematicReconstructionSolutionsDummy,
@@ -480,7 +476,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     
     if(isEmu || !isZregion){
         this->fillAll(selectionStep,
-                      eventMetadata,
+                      eventMetadataDummy,
                       recoObjects, commonGenObjects,
                       topGenObjectsDummy, higgsGenObjectsDummy,
                       kinematicReconstructionSolutionsDummy,
@@ -501,7 +497,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     
     if(isZregion){
         this->fillAll("6zWindow",
-                      eventMetadata,
+                      eventMetadataDummy,
                       recoObjects, commonGenObjects,
                       topGenObjectsDummy, higgsGenObjectsDummy,
                       kinematicReconstructionSolutionsDummy,
@@ -514,7 +510,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     
     if(isEmu || !isZregion){
         this->fillAll(selectionStep,
-                      eventMetadata,
+                      eventMetadataDummy,
                       recoObjects, commonGenObjects,
                       topGenObjectsDummy, higgsGenObjectsDummy,
                       kinematicReconstructionSolutionsDummy,
@@ -543,7 +539,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     
     if(isZregion){
         this->fillAll("7zWindow",
-                      eventMetadata,
+                      eventMetadataDummy,
                       recoObjects, commonGenObjects,
                       topGenObjectsDummy, higgsGenObjectsDummy,
                       kinematicReconstructionSolutionsDummy,
@@ -556,6 +552,10 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     if(!isEmu && isZregion) return kTRUE;
     
     
+    
+    // Access event meta data
+    //const EventMetadata eventMetadata = eventMetadataDummy;
+    const EventMetadata eventMetadata = this->getEventMetadata(entry);
     
     // Access kinematic reconstruction info
     const KinematicReconstructionSolutions kinematicReconstructionSolutions = kinematicReconstructionSolutionsDummy;
