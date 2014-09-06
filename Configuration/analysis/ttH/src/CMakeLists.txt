@@ -47,12 +47,14 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   HfFracScaleFactors
   EventYields
   Plotter
+  PlotterDiffXS
   )
 
 SET( ${PROJECT_NAME}_EXECUTABLES
   load_Analysis
   train_mvaTopJets
   Histo
+  HistoDiffXS
   histo_analyzerJetMatch
   histo_analyzerGenEvent
   histo_analyzerMvaTopJets
