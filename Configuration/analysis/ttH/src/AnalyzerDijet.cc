@@ -80,7 +80,7 @@ void AnalyzerDijet::fillHistos(const EventMetadata& eventMetadata,
                                std::map<TString, TH1*>& m_histogram)
 {
     // Extracting input data to more comfortable variables
-    const VLV& allJets = *recoObjects.jets_;
+    const VLV& allJets = (recoObjects.valuesSet_) ? *recoObjects.jets_ : VLV();
     const std::vector<int>& jetsId = recoObjectIndices.jetIndices_;           // Selected jets (point to jets from allJets)
     const std::vector<int>& bJetsId = recoObjectIndices.bjetIndices_;         // B-tagged jets (point to jets from allJets)
 //     printf("NJETS: %d  NBJETS: %d ###############################\n", (int)jetsId.size(), (int)bJetsId.size());
@@ -89,7 +89,7 @@ void AnalyzerDijet::fillHistos(const EventMetadata& eventMetadata,
         topJetsId.push_back(kinematicReconstructionSolutions.solution().bjetIndex());
         topJetsId.push_back(kinematicReconstructionSolutions.solution().antiBjetIndex());
     }
-    const std::vector<double>& allJetsBtagDiscriminant = *recoObjects.jetBTagCSV_;
+    const std::vector<double>& allJetsBtagDiscriminant = (recoObjects.valuesSet_) ? *recoObjects.jetBTagCSV_ : std::vector<double>(0);
     
 
     // Setting variables of gen. level if available
@@ -2196,7 +2196,7 @@ void AnalyzerDijet::fillTopAdditionalJetsHistos(const EventMetadata& eventMetada
     // Setting the ordering for gen and reco jet indices
     common::LVParameter ordering = common::LVpt;
     // Extracting input data to more comfortable variables
-    const VLV& allJets = *recoObjects.jets_;
+    const VLV& allJets = (recoObjects.valuesSet_) ? *recoObjects.jets_ : VLV();
     std::vector<int> jetsId = recoObjectIndices.jetIndices_;           // Selected jets (point to jets from allJets)
     std::vector<int> bJetsId = recoObjectIndices.bjetIndices_;         // B-tagged jets (point to jets from allJets)
     std::vector<int> topJetsId_kinReco;                                       // Jets from ttbar by KinReco (Point to jets from allJets)
@@ -2513,7 +2513,7 @@ void AnalyzerDijet::fillTopAdditionalJetsHistos(const EventMetadata& eventMetada
 
 
 void AnalyzerDijet::fillLeadingJetsHistosVsGen(const std::string& name,
-                                               const EventMetadata& eventMetadata, const VLV& allGenJets,
+                                               const EventMetadata&, const VLV& allGenJets,
                                                const std::vector<int>& genJetsId, const VLV& allJets, 
                                                const std::vector<int>& jetsId, const std::vector<int>& genJetsRecoId,
                                                const std::vector<int>& topJetsId_gen, const std::vector<int>& topJetsId_reco,
@@ -2523,9 +2523,8 @@ void AnalyzerDijet::fillLeadingJetsHistosVsGen(const std::string& name,
     
     double no = -100.;
     const int nTopJets_reco = topJetsId_reco.size();
-    const int nTopJets_gen = topJetsId_gen.size();
     
-    const std::vector<double>& bTagDiscriminator = *recoObjects.jetBTagCSV_;
+    const std::vector<double>& bTagDiscriminator = (recoObjects.valuesSet_) ? *recoObjects.jetBTagCSV_ : std::vector<double>(0);
     
     std::vector<std::string> idStr;
     idStr.push_back("1st");
@@ -2622,31 +2621,32 @@ void AnalyzerDijet::fillLeadingJetsHistosVsGen(const std::string& name,
 
     if(genJetsId.size()>1 || fillAllGen) {
 //         if(gen_dR<0.) {
-         if(name=="addB_kinReco") {
-             if(reco_dR > 2.5 && reco_dR < 3. && gen_dR < 1. && gen_dR > 0.)
-             {
-                 std::cout << "              " << name << std::endl;
-                 std::cout << "  Event: " << eventMetadata.eventNumber_ << " Lumi: " << eventMetadata.lumiBlock_ << " weight: " << weight << std::endl;
-                 std::cout << "  reco_dR: " << reco_dR << " gen_dR: " << gen_dR << std::endl;
-                 std::cout << "  nJetsAdd_reco: " << jetsId.size() << " nJetsAdd_gen: " << genJetsId.size() << " nJetsTop_reco: " << nTopJets_reco << " nJetsTop_gen: " << nTopJets_gen << std::endl;
-                 std::cout << std::endl;
-                 std::cout << "Top jets: GEN" << std::endl;
-                 for(int jetId : topJetsId_gen) printf("%d. Pt: %.2f  Eta: %.2f\n", jetId, allGenJets.at(jetId).Pt(), allGenJets.at(jetId).Eta());
-                 std::cout << "Top jets: RECO" << std::endl;
-                 for(int jetId : topJetsId_reco) printf("%d. Pt: %.2f  Eta: %.2f\n", jetId, allJets.at(jetId).Pt(), allJets.at(jetId).Eta());
-                 std::cout << std::endl;
-                 std::cout << "Add jets: GEN" << std::endl;
-                 for(int jetId : genJetsId) printf("%d. Pt: %.2f  Eta: %.2f\n", jetId, allGenJets.at(jetId).Pt(), allGenJets.at(jetId).Eta());
-                 std::cout << "Add jets: RECO" << std::endl;
-                 for(int jetId : jetsId) printf("%d. Pt: %.2f  Eta: %.2f\n", jetId, allJets.at(jetId).Pt(), allJets.at(jetId).Eta());
-                 std::cout << std::endl;
-                 std::cout << "All jets: RECO" << std::endl;
-                 std::vector<int> jetsIndices = common::initialiseIndices(allJets);
-                 for(int jetId : jetsIndices) printf("%d. Pt: %.2f  Eta: %.2f  bTag: %.2f\n", jetId, allJets.at(jetId).Pt(), allJets.at(jetId).Eta(), recoObjects.jetBTagCSV_->at(jetId));
-                 
-                 std::cout << std::endl;
-                 std::cout << std::endl;
-             }
+        if(name=="addB_kinReco") {
+//             if(reco_dR > 2.5 && reco_dR < 3. && gen_dR < 1. && gen_dR > 0.)
+//             {
+//                 const int nTopJets_gen = topJetsId_gen.size();
+//                 std::cout << "              " << name << std::endl;
+//                 std::cout << "  Event: " << eventMetadata.eventNumber_ << " Lumi: " << eventMetadata.lumiBlock_ << " weight: " << weight << std::endl;
+//                 std::cout << "  reco_dR: " << reco_dR << " gen_dR: " << gen_dR << std::endl;
+//                 std::cout << "  nJetsAdd_reco: " << jetsId.size() << " nJetsAdd_gen: " << genJetsId.size() << " nJetsTop_reco: " << nTopJets_reco << " nJetsTop_gen: " << nTopJets_gen << std::endl;
+//                 std::cout << std::endl;
+//                 std::cout << "Top jets: GEN" << std::endl;
+//                 for(int jetId : topJetsId_gen) printf("%d. Pt: %.2f  Eta: %.2f\n", jetId, allGenJets.at(jetId).Pt(), allGenJets.at(jetId).Eta());
+//                 std::cout << "Top jets: RECO" << std::endl;
+//                 for(int jetId : topJetsId_reco) printf("%d. Pt: %.2f  Eta: %.2f\n", jetId, allJets.at(jetId).Pt(), allJets.at(jetId).Eta());
+//                 std::cout << std::endl;
+//                 std::cout << "Add jets: GEN" << std::endl;
+//                 for(int jetId : genJetsId) printf("%d. Pt: %.2f  Eta: %.2f\n", jetId, allGenJets.at(jetId).Pt(), allGenJets.at(jetId).Eta());
+//                 std::cout << "Add jets: RECO" << std::endl;
+//                 for(int jetId : jetsId) printf("%d. Pt: %.2f  Eta: %.2f\n", jetId, allJets.at(jetId).Pt(), allJets.at(jetId).Eta());
+//                 std::cout << std::endl;
+//                 std::cout << "All jets: RECO" << std::endl;
+//                 std::vector<int> jetsIndices = common::initialiseIndices(allJets);
+//                 for(int jetId : jetsIndices) printf("%d. Pt: %.2f  Eta: %.2f  bTag: %.2f\n", jetId, allJets.at(jetId).Pt(), allJets.at(jetId).Eta(), recoObjects.jetBTagCSV_->at(jetId));
+// 
+//                 std::cout << std::endl;
+//                 std::cout << std::endl;
+//             }
          }
         histoName = "leadingJet_dR_"+name+"VsGen";
         if(m_histogram[histoName]) ((TH2*)m_histogram[histoName])->Fill(reco_dR, gen_dR, weight);
