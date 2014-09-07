@@ -1,5 +1,6 @@
 #include <fstream>
 #include <sstream>
+#include <iomanip>
 
 #include <TH1D.h>
 #include <TString.h>
@@ -81,27 +82,35 @@ void EventYields::writeYields(const char* outputDirectory,
             eventFileString.Append("events" + nameStepPair.second + ".txt");
             eventFile.open(eventFileString.Data());
             
+            
+            
             // Make output for tables
             double tmp_num = 0;
+            double tmp_err = 0;
             double bg_num = 0;
+            double bg_err = 0;
             for(auto i_numhist = v_numhist.begin(); i_numhist != v_numhist.end(); ++i_numhist){
                 auto iterator = i_numhist;
                 ++iterator;
-                tmp_num += i_numhist->second->Integral();
+                tmp_num += i_numhist->second->IntegralAndError(0,-1,tmp_err);
                 if(i_numhist == --(v_numhist.end())){
-                    eventFile<<i_numhist->first.legendEntry()<<": "<<tmp_num<<std::endl;
+                    eventFile<<i_numhist->first.legendEntry()<<": "<<std::setprecision(3)<<tmp_num<<"    +- "<<tmp_err<<" ("<<tmp_err/tmp_num*100.<<"%)"<<std::endl;
                     bg_num += tmp_num;
+                    bg_err += tmp_err;
                     tmp_num = 0;
+                    tmp_err = 0;
                 }
                 else if(i_numhist->first.legendEntry() != iterator->first.legendEntry()){
-                    eventFile<<i_numhist->first.legendEntry()<<": "<<tmp_num<<std::endl;
+                    eventFile<<i_numhist->first.legendEntry()<<": "<<std::setprecision(3)<<tmp_num<<"    +- "<<tmp_err<<" ("<<tmp_err/tmp_num*100.<<"%)"<<std::endl;
                     if(i_numhist->first.sampleType() != Sample::data){
-                        bg_num+=tmp_num;
+                        bg_num += tmp_num;
+                        bg_err += tmp_err;
                     }
                     tmp_num = 0;
+                    tmp_err = 0;
                 }
             }
-            eventFile<<"Total background: "<<bg_num<<std::endl;
+            eventFile<<"Total background: "<<std::setprecision(3)<<bg_num<<"    +- "<<bg_err<<" ("<<bg_err/bg_num*100.<<"%)"<<std::endl;
             
             // Close text file
             eventFile.close();
