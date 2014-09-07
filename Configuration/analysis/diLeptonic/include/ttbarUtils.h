@@ -57,6 +57,9 @@ namespace ttbar{
     /// Access an already existing input folder
     TString accessFolder(const char* baseDir, const TString& channel,
                          const TString& systematic, const bool allowNonexisting =false);
+
+    /// Read NameList file  and fill plotNames vector
+    void setPlotNames(const std::string& nameListFile, std::vector<std::vector<TString>>& varNames);
 }
 
 
