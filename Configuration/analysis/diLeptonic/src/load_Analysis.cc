@@ -447,7 +447,8 @@ int main(int argc, char** argv) {
     if(opt_s.isSet()) systematic = Systematic::Systematic(opt_s[0]);
     
     // Set up analysis mode
-    std::vector<AnalysisMode::AnalysisMode> v_analysisMode({AnalysisMode::cp,AnalysisMode::dda,AnalysisMode::kinReco});
+    std::vector<AnalysisMode::AnalysisMode> v_analysisMode({AnalysisMode::cp});
+    
     if(opt_mode.isSet()) v_analysisMode = AnalysisMode::convert(opt_mode.getArguments());
     std::cout<<"\nRunning the following analysis modes:\n";
     for(const auto& analysisMode : v_analysisMode) std::cout<<AnalysisMode::convert(analysisMode)<<" , ";
