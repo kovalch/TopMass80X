@@ -47,7 +47,7 @@ void HistoDiffXS(const std::vector<std::string>& v_plot,
     const EventYields eventYields("EventYields", samples);
     
     // Create Plotter
-    PlotterDiffXS plotter("Plots", samples);
+    PlotterDiffXS plotter("Plots", samples, Luminosity);
     
     // Access the histoList specifying printing parameters of histograms
     const std::string histoListFile(tth::DATA_PATH_TTH() + "/" + "HistoList_DiffXS");

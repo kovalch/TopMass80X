@@ -34,7 +34,8 @@
 
 
 PlotterDiffXS::PlotterDiffXS(const char* outputDir,
-                             const Samples& samples):
+                             const Samples& samples,
+                             const double luminosity):
 outputDir_(outputDir),
 samples_(samples),
 fileReader_(RootFileReader::getInstance()),
@@ -46,11 +47,14 @@ rangemin_(0),
 rangemax_(3),
 ymin_(0),
 ymax_(0),
+sampleTypesData_(std::vector<Sample::SampleType>(0)),
 sampleTypesSignal_(std::vector<Sample::SampleType>(0)),
+sampleTypesBackground_(std::vector<Sample::SampleType>(0)),
 YAxis_(""),
 XAxis_(""),
 logX_(false),
-logY_(false)
+logY_(false),
+luminosity_(luminosity)
 {
     // Suppress default info that canvas is printed
     gErrorIgnoreLevel = 1001;
@@ -78,11 +82,13 @@ void PlotterDiffXS::setOptions(const TString& name, const TString& nameGen,
     rangemax_ = rangemax; //Max. value in X-axis
     mode_ = mode; //Mode for the histogram (0 - 1D cross section, 1 - 2D response matrix)
     
-    // Setting the list of sample types which should be used in stack for 2D histograms
+    // Setting the lists of sample types which should be treated as data, signal or background
     for(int type = Sample::data; type != Sample::dummy; ++type) {
-        if(mode_ == 0 && type!=Sample::ttbb ) continue;
-        if(mode_ == 1 && type!=Sample::ttbb && type!=Sample::ttb && type!=Sample::tt2b && type!=Sample::ttcc && type!=Sample::ttother ) continue;
-        sampleTypesSignal_.push_back(Sample::SampleType(type));
+        if(type==Sample::data) sampleTypesData_.push_back(Sample::SampleType(type));
+        else if(mode_ == 0 && type==Sample::ttbb ) sampleTypesSignal_.push_back(Sample::SampleType(type));
+        else if(mode_ == 1 && (type==Sample::ttbb || type==Sample::ttb || type==Sample::tt2b || type==Sample::ttcc || type==Sample::ttother )) 
+            sampleTypesSignal_.push_back(Sample::SampleType(type));
+        else sampleTypesBackground_.push_back(Sample::SampleType(type));
     }
     
 }
@@ -95,6 +101,8 @@ void PlotterDiffXS::producePlots()
     
     // Access correction factors
     const SystematicChannelFactors globalWeights = this->scaleFactors();
+    const SystematicChannelFactors globalWeights_noScale = this->scaleFactors(false, false);
+    
     
     // Loop over all channels and systematics and produce plots
     const SystematicChannelSamples& m_systematicChannelSample(samples_.getSystematicChannelSamples());
@@ -112,8 +120,10 @@ void PlotterDiffXS::producePlots()
             }
             if(mode_==1) {
                 this->writeResponseMatrix(channel, systematic);
-                return;
+                continue;
             }
+            const std::vector<double>& v_weight_noScale(globalWeights_noScale.at(systematic).at(channel));
+            this->prepareDataset(v_sample, v_weight_noScale, v_sampleHistPair_noWeight_, name_);
             if(nameGen_ == "-") {
                 std::cout<<"WARNING! No name of the generator level histogram provided, for (channel/systematic): "
                          << Channel::convert(channel) << "/" << systematic.name()
@@ -121,22 +131,16 @@ void PlotterDiffXS::producePlots()
                 return;
             }
             // Getting generator level histograms
-            if(!this->prepareDataset(v_sample, v_weight, v_sampleHistPairGen_, nameGen_)) {
+            const std::vector<double>& v_weight_noScale_ee(globalWeights_noScale.at(systematic).at(Channel::ee));
+            const std::vector<Sample>& v_sample_ee = m_systematicChannelSample.at(systematic).at(Channel::ee);
+            if(!this->prepareDataset(v_sample_ee, v_weight_noScale_ee, v_sampleHistPairGen_, nameGen_)) {
                 std::cout<<"WARNING! Cannot find generator level histograms for all datasets, for (channel/systematic): "
                          << Channel::convert(channel) << "/" << systematic.name()
                          <<"\n... skip this plot\n";
                 return;
             }
-            // Getting generator level histograms without weights for theory prediction
-            std::vector<double> v_weightUnity = std::vector<double>(v_weight.size(), 1.0);
-            if(!this->prepareDataset(v_sample, v_weightUnity, v_sampleHistPairTheory_, nameGen_)) {
-                std::cout<<"WARNING! Cannot find theory histograms for all datasets, for (channel/systematic): "
-                         << Channel::convert(channel) << "/" << systematic.name()
-                         <<"\n... skip this plot\n";
-                return;
-            }
             
-            this->writeResponseMatrix(channel, systematic);
+            this->writeDiffXS(channel, systematic);
         }
     }
     
@@ -145,16 +149,11 @@ void PlotterDiffXS::producePlots()
 
 
 
-const SystematicChannelFactors& PlotterDiffXS::scaleFactors()
+const SystematicChannelFactors PlotterDiffXS::scaleFactors(const bool dyScale, const bool hfScale)
 {
     const TString fullStepname = tth::extractSelectionStepAndJetCategory(name_);
     
-    // Check if map contains already scale factors for this step, else access and fill them
-    if(m_stepFactors_.find(fullStepname) == m_stepFactors_.end()){
-        m_stepFactors_[fullStepname] = samples_.globalWeights(fullStepname).first;
-    }
-    
-    return m_stepFactors_.at(fullStepname);
+    return samples_.globalWeights(fullStepname, dyScale, hfScale).first;
 }
 
 
@@ -238,81 +237,34 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
     
     // Loop over all samples and add those with identical legendEntry
     // And sort them into the categories data, signal, background
-    LegendHistPair dataHist;
-    std::vector<LegendHistPair> backgroundHists;
-    std::vector<LegendHistPair> signalHists;
-    TH1* tmpHist(0);
-    for(std::vector<SampleHistPair>::iterator i_sampleHistPair = v_sampleHistPair_.begin();
-        i_sampleHistPair != v_sampleHistPair_.end(); ++i_sampleHistPair)
-    {
-        const Sample::SampleType& sampleType(i_sampleHistPair->first.sampleType());
-        const TString& legendEntry(i_sampleHistPair->first.legendEntry());
-        const TH1* hist = i_sampleHistPair->second;
-
-        std::vector<SampleHistPair>::iterator incrementIterator(i_sampleHistPair);
-        ++incrementIterator;
-        const bool lastHist(incrementIterator == v_sampleHistPair_.end());
-        const bool newHist(!tmpHist);
-
-        if(newHist)tmpHist = (TH1*)hist->Clone();
-
-        if(lastHist || (legendEntry!=incrementIterator->first.legendEntry())){
-            if(!newHist)tmpHist->Add(hist);
-            if(sampleType == Sample::data) dataHist = LegendHistPair(legendEntry, tmpHist);
-            else if(std::find(sampleTypesSignal_.begin(), sampleTypesSignal_.end(), sampleType) != sampleTypesSignal_.end()) 
-            {           // Adding histogram to the signal stack
-                std::cout << "Added " << legendEntry << " N entries: " << tmpHist->GetEntries() << std::endl;
-                signalHists.push_back(LegendHistPair(legendEntry, tmpHist));
-            } else {    // Adding histogram to the background stack
-                backgroundHists.push_back(LegendHistPair(legendEntry, tmpHist));
-            }
-            tmpHist = 0;
-            
-        }
-        else{
-            if(!newHist)tmpHist->Add(hist);
-        }
-    }
     
     // Create histogram corresponding to the sum of all stacked signal histograms
-    TH1* stacksumSignal = sumOfHistos(signalHists);
+    std::vector<LegendHistPair> dataHists = legendHistPairsForSamples(sampleTypesData_, v_sampleHistPair_);
+    TH1* h_data = sumOfHistos(dataHists);
+    
+    // Create histogram corresponding to the sum of all stacked signal histograms
+    std::vector<LegendHistPair> signalHists = legendHistPairsForSamples(sampleTypesSignal_, v_sampleHistPair_);
+    TH1* h_signal = sumOfHistos(signalHists);
     
     // Create histogram corresponding to the sum of all stacked background histograms
-//     TH1* stacksumBackground = sumOfHistos(backgroundHists);
+    std::vector<LegendHistPair> backgroundHists = legendHistPairsForSamples(sampleTypesBackground_, v_sampleHistPair_);
+    TH1* h_background = sumOfHistos(backgroundHists);
+    
+    // Create histogram corresponding to the sum of all stacked signal histograms without sample level weights
+    std::vector<LegendHistPair> signalHists_noWeight = legendHistPairsForSamples(sampleTypesSignal_, v_sampleHistPair_noWeight_);
+    TH1* h_signal_noWeight = sumOfHistos(signalHists_noWeight);
     
         
-    // Get all signal samples
-    std::vector<LegendHistPair> signalHistsGen;
-    for(std::vector<SampleHistPair>::iterator i_sampleHistPair = v_sampleHistPairGen_.begin();
-        i_sampleHistPair != v_sampleHistPairGen_.end(); ++i_sampleHistPair)
-    {
-        const Sample::SampleType& sampleType(i_sampleHistPair->first.sampleType());
-        const TString& legendEntry(i_sampleHistPair->first.legendEntry());
-        const TH1* hist = i_sampleHistPair->second;
-
-        std::vector<SampleHistPair>::iterator incrementIterator(i_sampleHistPair);
-        ++incrementIterator;
-        const bool lastHist(incrementIterator == v_sampleHistPairGen_.end());
-        const bool newHist(!tmpHist);
-
-        if(newHist)tmpHist = (TH1*)hist->Clone();
-
-        if(lastHist || (legendEntry!=incrementIterator->first.legendEntry())){
-            if(!newHist)tmpHist->Add(hist);
-            if(std::find(sampleTypesSignal_.begin(), sampleTypesSignal_.end(), sampleType) != sampleTypesSignal_.end()) 
-            {           // Adding histogram to the signal stack
-                signalHistsGen.push_back(LegendHistPair(legendEntry, tmpHist));
-            }
-            tmpHist = 0;
-            
-        }
-        else{
-            if(!newHist)tmpHist->Add(hist);
-        }
-    }
+    // Get all signal samples at generator level
+    std::vector<LegendHistPair> signalHistsGen = legendHistPairsForSamples(sampleTypesSignal_, v_sampleHistPairGen_);
+    TH1* h_signal_gen = sumOfHistos(signalHistsGen);
     
-    // Create histogram corresponding to the sum of all stacked generator level signal histograms
-//     TH1* stacksumSignalGen = sumOfHistos(signalHistsGen);
+    printf("N histos Gen: %d   N events: %.1f   Integral: %.3f\n", (int)signalHistsGen.size(), h_signal_gen->GetEntries(), h_signal_gen->Integral());
+    
+    // Calculating actual differential cross section and getting corresponding histograms
+    LegendHistPair xsectionSet_data = calculateDiffXS(h_data, h_signal, h_background, h_signal_noWeight, h_signal_gen);
+    
+    return;
 
     
 //     // Add entries to legend
@@ -327,72 +279,72 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
         exit(237);
     }
     
-    // Set x and y axis ranges
-    if(logY_){
-      // Setting minimum to >0 value
-      // FIXME: Should we automatically calculate minimum value instead of the fixed value?
-      firstHistToDraw->SetMinimum(1e-1);
-      if(ymin_>0) firstHistToDraw->SetMinimum(ymin_);
-      canvas->SetLogy();
-    }
-    else firstHistToDraw->SetMinimum(ymin_);
-
-    if(rangemin_!=0. || rangemax_!=0.) {firstHistToDraw->SetAxisRange(rangemin_, rangemax_, "X");}
-    
-    if(ymax_==0.){
-        // Determining the highest Y value that is plotted
-        float yMax = stacksumSignal ? stacksumSignal->GetBinContent(stacksumSignal->GetMaximumBin()) : 0.f;
-        
-        // Scaling the Y axis
-        if(logY_){firstHistToDraw->SetMaximum(18.*yMax);}
-        else{firstHistToDraw->SetMaximum(1.35*yMax);}
-    }
-    else{firstHistToDraw->SetMaximum(ymax_);}
-
-    firstHistToDraw->GetXaxis()->SetNoExponent(kTRUE);
-
-
-    // Draw data histogram and stack and error bars
-    firstHistToDraw->SetLineColor(0);
-    firstHistToDraw->Draw();
-    
-    // Put additional stuff to histogram
-    this->drawCmsLabels(2, 8);
-    this->drawDecayChannelLabel(channel);
-    if(mode_!=1) legend->Draw("SAME");
-    if(mode_==0){
-        common::drawRatio(dataHist.second, stacksumSignal, 0, 0.5, 1.7);
-        firstHistToDraw->GetXaxis()->SetLabelSize(0);
-        firstHistToDraw->GetXaxis()->SetTitleSize(0);
-    }
+//     // Set x and y axis ranges
+//     if(logY_){
+//       // Setting minimum to >0 value
+//       // FIXME: Should we automatically calculate minimum value instead of the fixed value?
+//       firstHistToDraw->SetMinimum(1e-1);
+//       if(ymin_>0) firstHistToDraw->SetMinimum(ymin_);
+//       canvas->SetLogy();
+//     }
+//     else firstHistToDraw->SetMinimum(ymin_);
+// 
+//     if(rangemin_!=0. || rangemax_!=0.) {firstHistToDraw->SetAxisRange(rangemin_, rangemax_, "X");}
+//     
+//     if(ymax_==0.){
+//         // Determining the highest Y value that is plotted
+//         float yMax = stacksumSignal ? stacksumSignal->GetBinContent(stacksumSignal->GetMaximumBin()) : 0.f;
+//         
+//         // Scaling the Y axis
+//         if(logY_){firstHistToDraw->SetMaximum(18.*yMax);}
+//         else{firstHistToDraw->SetMaximum(1.35*yMax);}
+//     }
+//     else{firstHistToDraw->SetMaximum(ymax_);}
+// 
+//     firstHistToDraw->GetXaxis()->SetNoExponent(kTRUE);
+// 
+// 
+//     // Draw data histogram and stack and error bars
+//     firstHistToDraw->SetLineColor(0);
+//     firstHistToDraw->Draw();
+//     
+//     // Put additional stuff to histogram
+//     this->drawCmsLabels(2, 8);
+//     this->drawDecayChannelLabel(channel);
+//     if(mode_!=1) legend->Draw("SAME");
+//     if(mode_==0){
+//         common::drawRatio(dataHist.second, stacksumSignal, 0, 0.5, 1.7);
+//         firstHistToDraw->GetXaxis()->SetLabelSize(0);
+//         firstHistToDraw->GetXaxis()->SetTitleSize(0);
+//     }
 
     // Create Directory for Output Plots and write them
     const TString eventFileString = common::assignFolder(outputDir_, channel, systematic);
     canvas->Print(eventFileString+name_+".eps");
     
-    // Prepare additional histograms for root-file
-    TH1* sumMC(0);
-    TH1* sumSignal(0);
-    for(const auto& sampleHistPair : v_sampleHistPair_){
-        if(sampleHistPair.first.sampleType() == Sample::SampleType::ttHbb || sampleHistPair.first.sampleType() == Sample::SampleType::ttHother){
-            if (sumSignal) sumSignal->Add(sampleHistPair.second);
-            else sumSignal = static_cast<TH1*>(sampleHistPair.second->Clone());
-        }
-        if(sampleHistPair.first.sampleType() != Sample::SampleType::data){
-            if(sumMC) sumMC->Add(sampleHistPair.second);
-            else sumMC = static_cast<TH1*>(sampleHistPair.second->Clone());
-        }
-    }
-    if(sumMC) sumMC->SetName(name_);
-    
-    
-    //save Canvas AND sources in a root file
-    TFile out_root(eventFileString+name_+"_source.root", "RECREATE");
-    if(dataHist.second) dataHist.second->Write(name_+"_data");
-    if(sumSignal) sumSignal->Write(name_+"_signalmc");
-    if(sumMC) sumMC->Write(name_+"_allmc");
-    canvas->Write(name_ + "_canvas");
-    out_root.Close();
+//     // Prepare additional histograms for root-file
+//     TH1* sumMC(0);
+//     TH1* sumSignal(0);
+//     for(const auto& sampleHistPair : v_sampleHistPair_){
+//         if(sampleHistPair.first.sampleType() == Sample::SampleType::ttHbb || sampleHistPair.first.sampleType() == Sample::SampleType::ttHother){
+//             if (sumSignal) sumSignal->Add(sampleHistPair.second);
+//             else sumSignal = static_cast<TH1*>(sampleHistPair.second->Clone());
+//         }
+//         if(sampleHistPair.first.sampleType() != Sample::SampleType::data){
+//             if(sumMC) sumMC->Add(sampleHistPair.second);
+//             else sumMC = static_cast<TH1*>(sampleHistPair.second->Clone());
+//         }
+//     }
+//     if(sumMC) sumMC->SetName(name_);
+//     
+//     
+//     //save Canvas AND sources in a root file
+//     TFile out_root(eventFileString+name_+"_source.root", "RECREATE");
+//     if(dataHist.second) dataHist.second->Write(name_+"_data");
+//     if(sumSignal) sumSignal->Write(name_+"_signalmc");
+//     if(sumMC) sumMC->Write(name_+"_allmc");
+//     canvas->Write(name_ + "_canvas");
+//     out_root.Close();
     
     firstHistToDraw->Delete();
     canvas->Clear();
@@ -661,6 +613,43 @@ TPaveText* PlotterDiffXS::drawSignificance(TH1* signal, TH1* sigBkg, float min, 
 }
 
 
+std::vector<PlotterDiffXS::LegendHistPair> PlotterDiffXS::legendHistPairsForSamples(const std::vector<Sample::SampleType> allowedSampleTypes, 
+                                                                                    const std::vector<SampleHistPair> samples)const
+{
+    std::vector<LegendHistPair> result;
+    TH1* tmpHist(0);
+    
+    for(std::vector<SampleHistPair>::const_iterator i_sampleHistPair = samples.begin();
+    i_sampleHistPair != samples.end(); ++i_sampleHistPair)
+    {
+        const Sample::SampleType& sampleType(i_sampleHistPair->first.sampleType());
+        const TString& legendEntry(i_sampleHistPair->first.legendEntry());
+        const TH1* hist = i_sampleHistPair->second;
+
+        std::vector<SampleHistPair>::const_iterator incrementIterator(i_sampleHistPair);
+        ++incrementIterator;
+        const bool lastHist(incrementIterator == samples.end());
+        const bool newHist(!tmpHist);
+
+        if(newHist)tmpHist = (TH1*)hist->Clone();
+
+        if(lastHist || (legendEntry!=incrementIterator->first.legendEntry())){
+            if(!newHist)tmpHist->Add(hist);
+            if(std::find(allowedSampleTypes.begin(), allowedSampleTypes.end(), sampleType) != allowedSampleTypes.end()) 
+            {           // Adding histogram to the signal stack
+                result.push_back(LegendHistPair(legendEntry, tmpHist));
+            }
+            tmpHist = 0;
+        }
+        else{
+            if(!newHist)tmpHist->Add(hist);
+        }
+    }
+    
+    return result;
+}
+
+
 TH1* PlotterDiffXS::sumOfHistos(const std::vector<LegendHistPair> histos)const
 {
     TH1* sum(0);
@@ -670,6 +659,39 @@ TH1* PlotterDiffXS::sumOfHistos(const std::vector<LegendHistPair> histos)const
     }
     
     return sum;
+}
+
+
+PlotterDiffXS::LegendHistPair PlotterDiffXS::calculateDiffXS(TH1* h_data, TH1* h_signal, TH1* h_bkg, TH1* h_signal_noWeight, TH1* h_signal_gen)const
+{
+    LegendHistPair result;
+    
+    // Initial values for the cross section calculation
+    ValueError luminosity(luminosity_, 0.);
+    ValueError br_dilepton(0.6391, 0.00063);
+    
+    TH1* h_dataMinusBackground = (TH1*)h_data->Clone("h_dataMinusBackground");
+    h_dataMinusBackground->Add(h_bkg, -1);
+    
+    TH1* h_mc = (TH1*)h_signal->Clone("mc");
+    h_mc->Add(h_bkg, 1.0);
+    
+    printf("\n[Full reco selection, generator weights * PU weights * reco weights * sample SFs (DY, tt+HF)]\n");
+    printf("Data:   \t%.3f\n", h_data->Integral());
+    printf("Signal: \t%.3f\t(RECO tt+bb)\n", h_signal->Integral());
+    printf("Background: \t%.3f\t(RECO rest MC)\n", h_bkg->Integral());
+    printf("-------------------------------\n");
+    printf("MC total: \t%.3f\n", h_mc->Integral());
+    printf("\nData-Bkg: \t%.3f\n", h_dataMinusBackground->Integral());
+
+    printf("\n[Full reco selection, generator weights * PU weights * reco weights]\n");
+    printf("Signal[reco]: \t%.3f\n", h_signal_noWeight->Integral());
+    printf("[No reco selection, generator weights * PU weights]\n");
+    printf("Signal[gen]: \t%.3f\n", h_signal_gen->Integral());
+    printf("-----------------------\n");
+    printf("Acceptance: \t%.3f\n", h_signal_noWeight->Integral()/h_signal_gen->Integral());
+    
+    return result;
 }
 
 

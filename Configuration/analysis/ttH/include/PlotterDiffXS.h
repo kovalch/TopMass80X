@@ -29,7 +29,8 @@ public:
     
     /// Constructor
     PlotterDiffXS(const char* outputDir,
-                  const Samples& samples);
+                  const Samples& samples,
+                  const double luminosity);
     
     /// Destructor
     ~PlotterDiffXS(){};
@@ -62,7 +63,7 @@ private:
     void writeDiffXS(const Channel::Channel& channel, const Systematic::Systematic& systematic);
     
     /// Access global scale factors
-    const SystematicChannelFactors& scaleFactors();
+    const SystematicChannelFactors scaleFactors(const bool dyScale = true, const bool hfScale = true);
     
     
     
@@ -93,9 +94,15 @@ private:
     
     /// Calculates binomial uncertainty of the subset/set ratio
     double uncertaintyBinomial(const double pass, const double all)const;
+
+    /// Creates a vector of legend-histo pairs of specific type (0-data, 1-signal, 2-background)
+    std::vector<LegendHistPair> legendHistPairsForSamples(const std::vector<Sample::SampleType> allowedSampleTypes, std::vector<SampleHistPair> samples)const;
     
     /// Sums all histograms in the stack
     TH1* sumOfHistos(const std::vector<LegendHistPair> histos)const;
+    
+    /// Calculate differential cross section
+    LegendHistPair calculateDiffXS(TH1* h_data, TH1* h_signal, TH1* h_bkg, TH1* h_signal_noWeight, TH1* h_signal_gen)const;
     
     
     
@@ -113,13 +120,10 @@ private:
     
     /// Pair of histogram to print and corresponding sample for reco level
     std::vector<SampleHistPair> v_sampleHistPair_;
+    std::vector<SampleHistPair> v_sampleHistPair_noWeight_;
     
     /// Pair of histogram to print and corresponding sample for gen level
     std::vector<SampleHistPair> v_sampleHistPairGen_;
-    
-    /// Pair of histogram to print and corresponding sample for gen level without weights
-    std::vector<SampleHistPair> v_sampleHistPairTheory_;
-    
     
     
     /// Map holding global scale factors for steps they were already accessed, to avoid re-calculating them
@@ -136,9 +140,19 @@ private:
 //     bool stackToNEntries_;
     double rangemin_, rangemax_, ymin_, ymax_;
 //     std::vector<double> XAxisbins_, XAxisbinCenters_;
+    std::vector<Sample::SampleType> sampleTypesData_;
     std::vector<Sample::SampleType> sampleTypesSignal_;
+    std::vector<Sample::SampleType> sampleTypesBackground_;
     TString YAxis_, XAxis_;
     bool logX_, logY_; // The variable logX_ is not used at all...
+    
+    /// Data for cross section calculation
+    double luminosity_;
+    struct ValueError {
+        double v; double e;
+        ValueError(double val, double err):v(val), e(err){}
+        ValueError():v(1.), e(1.){}
+    };
 };
 
 
