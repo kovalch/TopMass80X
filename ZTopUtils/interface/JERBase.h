@@ -23,28 +23,41 @@ namespace ztop {
 
 class JERBase {
 public:
-    JERBase() {
-        setSystematics("def");
-    }
-    ~JERBase() {
-    }
+	JERBase():checksizesonfirstcall_(true) {
+		setSystematics("def");
+	}
+	~JERBase() {
+	}
+	/**
+	 * Provide bin boundaries. That means, this vector's size should
+	 * exceed the factors vector size by exactly one entry
+	 * These will overwrite anything
+	 * automatically set by setSystematics()
+	 */
+	void setResolutionEtaRanges(std::vector<float> ranges) {
+		resranges_ = ranges;
+		checksizesonfirstcall_=true;
+	}
+	/**
+	 * Provide resolution factors. These will overwrite anything
+	 * automatically set by setSystematics()
+	 */
+	void setResolutionFactors(std::vector<float> factors) {
+		resfactors_ = factors;
+		checksizesonfirstcall_=true;
+	}
 
-    void setResolutionEtaRanges(std::vector<float> ranges) {
-        resranges_ = ranges;
-    }
-    void setResolutionFactors(std::vector<float> factors) {
-        resfactors_ = factors;
-    }
+	void setSystematics(std::string type);
 
-    void setSystematics(std::string type);
-
-    void correctP4(float & recopt, float& recoabs_eta, float & recophi, float & recom, //full lorentzvector
-            const float & genpt) const;
+	void correctP4(float & recopt, float& recoabs_eta, float & recophi, float & recom, //full lorentzvector
+			const float & genpt) ;
 
 protected:
 
-    std::vector<float> resranges_;
-    std::vector<float> resfactors_;
+	std::vector<float> resranges_;
+	std::vector<float> resfactors_;
+
+	bool checksizesonfirstcall_;
 
 };
 }

@@ -197,6 +197,16 @@ void JECBase::setSystematics(std::string set) {
 	}
 }
 
+
+std::vector<std::string> JECBase::getSourceNames()const{
+	std::vector<std::string>  out;
+	for(std::map<std::string,unsigned int > :: const_iterator mit=sourcenames_.begin();mit!=sourcenames_.end();++mit){
+		out.push_back(mit->first);
+	}
+	return out;
+}
+
+
 void JECBase::applyJECUncertainties(float & pt, float& eta, float & phi, float& m) {
 
 	if (noupdown_ == 0) // no variation

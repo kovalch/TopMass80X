@@ -53,6 +53,8 @@ public:
 	 */
 	void clearSources(){sources_.clear();}
 
+	std::vector<std::string> getSourceNames()const;
+
 	void applyJECUncertainties(float & pt, float& eta, float & phi, float& m);
 
 protected:
