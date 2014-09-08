@@ -276,8 +276,8 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     
     // Blinding dijet mass plots around the Higgs mass region
     if((TString(stackHists.at(0).second->GetName())).Contains("dijet_mass") && dataHist.second) {
-        int bin1 = dataHist.second->FindBin(80.);
-        int bin2 = dataHist.second->FindBin(140.);
+        int bin1 = dataHist.second->FindBin(80.5);
+        int bin2 = dataHist.second->FindBin(139.5);
         while(bin1 <= bin2) {
             dataHist.second->SetBinContent(bin1, -1e10);
             dataHist.second->SetBinError(bin1, 0);
