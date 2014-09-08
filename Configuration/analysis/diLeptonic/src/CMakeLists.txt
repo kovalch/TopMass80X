@@ -24,6 +24,14 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   UsefulTools
   DilepSVDFunctions
   EffHist
+  plotterHelpers
+  Sample
+  SampleDefinitions
+  Samples
+  GlobalScaleFactors
+  LuminosityScaleFactors
+  DyScaleFactors
+  HfFracScaleFactors
   )
 
 SET( Unfold_LIBSOURCES
