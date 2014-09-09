@@ -143,7 +143,7 @@ private:
                                     const std::vector<int>& jetsId, const std::vector<int>& genJetsRecoId,
                                     const std::vector<int>& topJetsId_gen, const std::vector<int>& topJetsId_reco,
                                     const double& weight, std::map<TString, TH1*>& m_histogram,
-                                    const RecoObjects& recoObjects, const bool fillAllGen = true);
+                                    const RecoObjects& recoObjects, const bool require2TopJets = true);
     
     /// Filling histograms about leading top/additional jets vs true
     void fillLeadingJetsHistosVsTrue(const std::string& name, const std::vector<int>& trueJetsId,
