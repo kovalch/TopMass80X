@@ -40,7 +40,8 @@ outputDir_(outputDir),
 samples_(samples),
 fileReader_(RootFileReader::getInstance()),
 name_("defaultName"),
-nameGen_(""),
+nameGen_("defaultName"),
+nameGenEventBased_("events_weighted_step0b"),
 mode_(0),
 rebin_(1),
 rangemin_(0),
@@ -50,6 +51,7 @@ ymax_(0),
 sampleTypesData_(std::vector<Sample::SampleType>(0)),
 sampleTypesSignal_(std::vector<Sample::SampleType>(0)),
 sampleTypesBackground_(std::vector<Sample::SampleType>(0)),
+sampleTypesTtbar_(std::vector<Sample::SampleType>(0)),
 YAxis_(""),
 XAxis_(""),
 logX_(false),
@@ -85,10 +87,11 @@ void PlotterDiffXS::setOptions(const TString& name, const TString& nameGen,
     // Setting the lists of sample types which should be treated as data, signal or background
     for(int type = Sample::data; type != Sample::dummy; ++type) {
         if(type==Sample::data) sampleTypesData_.push_back(Sample::SampleType(type));
-        else if(mode_ == 0 && type==Sample::ttbb ) sampleTypesSignal_.push_back(Sample::SampleType(type));
-        else if(mode_ == 1 && (type==Sample::ttbb || type==Sample::ttb || type==Sample::tt2b || type==Sample::ttcc || type==Sample::ttother )) 
-            sampleTypesSignal_.push_back(Sample::SampleType(type));
+        else if(type==Sample::ttbb ) sampleTypesSignal_.push_back(Sample::SampleType(type));
         else sampleTypesBackground_.push_back(Sample::SampleType(type));
+        
+        if(type==Sample::ttbb || type==Sample::ttb || type==Sample::tt2b || type==Sample::ttcc || type==Sample::ttother)
+            sampleTypesTtbar_.push_back(Sample::SampleType(type));
     }
     
 }
@@ -110,6 +113,7 @@ void PlotterDiffXS::producePlots()
         const Systematic::Systematic& systematic(systematicChannelSamples.first);
         for(const auto& channelSample : systematicChannelSamples.second){
             const Channel::Channel& channel(channelSample.first);
+            if(channel != Channel::combined) continue;
             const std::vector<Sample>& v_sample(channelSample.second);
             const std::vector<double>& v_weight(globalWeights.at(systematic).at(channel));
             if(!this->prepareDataset(v_sample, v_weight, v_sampleHistPair_, name_)){
@@ -130,11 +134,18 @@ void PlotterDiffXS::producePlots()
                          <<"\n... skip this plot\n";
                 return;
             }
-            // Getting generator level histograms
+            // Getting generator level histograms for the specified quantity
             const std::vector<double>& v_weight_noScale_ee(globalWeights_noScale.at(systematic).at(Channel::ee));
             const std::vector<Sample>& v_sample_ee = m_systematicChannelSample.at(systematic).at(Channel::ee);
             if(!this->prepareDataset(v_sample_ee, v_weight_noScale_ee, v_sampleHistPairGen_, nameGen_)) {
                 std::cout<<"WARNING! Cannot find generator level histograms for all datasets, for (channel/systematic): "
+                         << Channel::convert(channel) << "/" << systematic.name()
+                         <<"\n... skip this plot\n";
+                return;
+            }
+            // Getting generator level histograms based on events (to get ttbb/tt ratio from MC prediction)
+            if(!this->prepareDataset(v_sample_ee, v_weight_noScale_ee, v_sampleHistPairGenEventBased_, nameGenEventBased_)) {
+                std::cout<<"WARNING! Cannot find generator level event based histograms for all datasets, for (channel/systematic): "
                          << Channel::convert(channel) << "/" << systematic.name()
                          <<"\n... skip this plot\n";
                 return;
@@ -240,31 +251,32 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
     
     // Create histogram corresponding to the sum of all stacked signal histograms
     std::vector<LegendHistPair> dataHists = legendHistPairsForSamples(sampleTypesData_, v_sampleHistPair_);
-    TH1* h_data = sumOfHistos(dataHists);
+    TH1* h_data = sumOfHistos(dataHists, "h_data");
     
     // Create histogram corresponding to the sum of all stacked signal histograms
     std::vector<LegendHistPair> signalHists = legendHistPairsForSamples(sampleTypesSignal_, v_sampleHistPair_);
-    TH1* h_signal = sumOfHistos(signalHists);
+    TH1* h_signal = sumOfHistos(signalHists, "h_signal_reco");
     
     // Create histogram corresponding to the sum of all stacked background histograms
     std::vector<LegendHistPair> backgroundHists = legendHistPairsForSamples(sampleTypesBackground_, v_sampleHistPair_);
-    TH1* h_background = sumOfHistos(backgroundHists);
+    TH1* h_background = sumOfHistos(backgroundHists, "h_background_reco");
     
     // Create histogram corresponding to the sum of all stacked signal histograms without sample level weights
     std::vector<LegendHistPair> signalHists_noWeight = legendHistPairsForSamples(sampleTypesSignal_, v_sampleHistPair_noWeight_);
-    TH1* h_signal_noWeight = sumOfHistos(signalHists_noWeight);
+    TH1* h_signal_noWeight = sumOfHistos(signalHists_noWeight, "h_signal_reco_noWeight");
     
         
     // Get all signal samples at generator level
     std::vector<LegendHistPair> signalHistsGen = legendHistPairsForSamples(sampleTypesSignal_, v_sampleHistPairGen_);
-    TH1* h_signal_gen = sumOfHistos(signalHistsGen);
+    TH1* h_signal_gen = sumOfHistos(signalHistsGen, "h_signal_gen");
     
-    printf("N histos Gen: %d   N events: %.1f   Integral: %.3f\n", (int)signalHistsGen.size(), h_signal_gen->GetEntries(), h_signal_gen->Integral());
+    // Get all ttbar dileptonic samples at generator level (to get fraction of ttbb in ttbar from the generator)
+    std::vector<LegendHistPair> ttbarHistsGen = legendHistPairsForSamples(sampleTypesTtbar_, v_sampleHistPairGenEventBased_);
+    TH1* h_ttbar_gen = sumOfHistos(ttbarHistsGen, "h_ttbar_gen");
     
     // Calculating actual differential cross section and getting corresponding histograms
-    LegendHistPair xsectionSet_data = calculateDiffXS(h_data, h_signal, h_background, h_signal_noWeight, h_signal_gen);
+    std::map<TString, TH1*> xsectionSet= calculateDiffXS(h_data, h_signal, h_background, h_signal_noWeight, h_signal_gen, h_ttbar_gen);
     
-    return;
 
     
 //     // Add entries to legend
@@ -272,55 +284,55 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
 
     
     // Obtaining the proper histogram to be plotted
-    TH1* firstHistToDraw(0);
+    TH1* firstHistToDraw = xsectionSet.at("diffXS_data");
     if(!firstHistToDraw)
     {
         std::cerr<<"ERROR in Plotter! Histogram for drawing doesn't exist\n...break\n"<<std::endl;
         exit(237);
     }
     
-//     // Set x and y axis ranges
-//     if(logY_){
-//       // Setting minimum to >0 value
-//       // FIXME: Should we automatically calculate minimum value instead of the fixed value?
-//       firstHistToDraw->SetMinimum(1e-1);
-//       if(ymin_>0) firstHistToDraw->SetMinimum(ymin_);
-//       canvas->SetLogy();
-//     }
-//     else firstHistToDraw->SetMinimum(ymin_);
-// 
-//     if(rangemin_!=0. || rangemax_!=0.) {firstHistToDraw->SetAxisRange(rangemin_, rangemax_, "X");}
-//     
-//     if(ymax_==0.){
-//         // Determining the highest Y value that is plotted
-//         float yMax = stacksumSignal ? stacksumSignal->GetBinContent(stacksumSignal->GetMaximumBin()) : 0.f;
-//         
-//         // Scaling the Y axis
-//         if(logY_){firstHistToDraw->SetMaximum(18.*yMax);}
-//         else{firstHistToDraw->SetMaximum(1.35*yMax);}
-//     }
-//     else{firstHistToDraw->SetMaximum(ymax_);}
-// 
-//     firstHistToDraw->GetXaxis()->SetNoExponent(kTRUE);
-// 
-// 
-//     // Draw data histogram and stack and error bars
-//     firstHistToDraw->SetLineColor(0);
-//     firstHistToDraw->Draw();
-//     
+    // Set x and y axis ranges
+    if(logY_){
+      // Setting minimum to >0 value
+      // FIXME: Should we automatically calculate minimum value instead of the fixed value?
+      firstHistToDraw->SetMinimum(1e-1);
+      if(ymin_>0) firstHistToDraw->SetMinimum(ymin_);
+      canvas->SetLogy();
+    }
+    else firstHistToDraw->SetMinimum(ymin_);
+
+    if(rangemin_!=0. || rangemax_!=0.) {firstHistToDraw->SetAxisRange(rangemin_, rangemax_, "X");}
+    
+    if(ymax_==0.){
+        // Determining the highest Y value that is plotted
+        float yMax = firstHistToDraw ? firstHistToDraw->GetBinContent(firstHistToDraw->GetMaximumBin()) : 0.f;
+        
+        // Scaling the Y axis
+        if(logY_){firstHistToDraw->SetMaximum(18.*yMax);}
+        else{firstHistToDraw->SetMaximum(1.35*yMax);}
+    }
+    else{firstHistToDraw->SetMaximum(ymax_);}
+
+    firstHistToDraw->GetXaxis()->SetNoExponent(kTRUE);
+
+
+    // Draw data histogram and stack and error bars
+    firstHistToDraw->SetLineColor(0);
+    firstHistToDraw->Draw();
+    
 //     // Put additional stuff to histogram
 //     this->drawCmsLabels(2, 8);
 //     this->drawDecayChannelLabel(channel);
-//     if(mode_!=1) legend->Draw("SAME");
-//     if(mode_==0){
-//         common::drawRatio(dataHist.second, stacksumSignal, 0, 0.5, 1.7);
-//         firstHistToDraw->GetXaxis()->SetLabelSize(0);
-//         firstHistToDraw->GetXaxis()->SetTitleSize(0);
-//     }
+//     legend->Draw("SAME");
+//     common::drawRatio(dataHist.second, stacksumSignal, 0, 0.5, 1.7);
+//     firstHistToDraw->GetXaxis()->SetLabelSize(0);
+//     firstHistToDraw->GetXaxis()->SetTitleSize(0);
 
     // Create Directory for Output Plots and write them
     const TString eventFileString = common::assignFolder(outputDir_, channel, systematic);
     canvas->Print(eventFileString+name_+".eps");
+    
+    return;
     
 //     // Prepare additional histograms for root-file
 //     TH1* sumMC(0);
@@ -346,11 +358,112 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
 //     canvas->Write(name_ + "_canvas");
 //     out_root.Close();
     
+    // Removing created objects
+    h_data->Delete();
+    h_background->Delete();
+    h_signal->Delete();
+    h_signal_noWeight->Delete();
+    h_signal_gen->Delete();
+    h_ttbar_gen->Delete();
+    
     firstHistToDraw->Delete();
     canvas->Clear();
     legend->Clear();
-    delete canvas;
-    delete legend;
+    canvas->Delete();
+    legend->Delete();
+}
+
+
+
+
+std::map<TString, TH1*> PlotterDiffXS::calculateDiffXS(const TH1* h_data, const TH1* h_signal, const TH1* h_bkg, const TH1* h_signal_noWeight, 
+                                                             const TH1* h_signal_gen, const TH1* h_ttbar_gen)const
+{
+    std::map<TString, TH1*> result;
+    
+    // Initial values for the cross section calculation
+    const ValueError luminosity(luminosity_, 0.);
+    const ValueError br_dilepton(0.06391, 0.00063);
+    
+    TH1* h_dataMinusBackground = (TH1*)h_data->Clone("h_dataMinusBackground");
+    h_dataMinusBackground->Add(h_bkg, -1);
+    
+    TH1* h_mc = (TH1*)h_signal->Clone("h_signalPlusBackground_reco");
+    h_mc->Add(h_bkg, 1.0);
+    
+    
+    ValueError N_data_reco(1.,1.);
+    N_data_reco.v = h_data->IntegralAndError(0,-1, N_data_reco.e);
+    ValueError N_dataMinusBackground(1.,1.);
+    N_dataMinusBackground.v = h_dataMinusBackground->IntegralAndError(0,-1, N_dataMinusBackground.e);
+    ValueError N_signal_reco(1.,1.);
+    N_signal_reco.v = h_signal->IntegralAndError(0,-1, N_signal_reco.e);
+    ValueError N_background_reco(1.,1.);
+    N_background_reco.v = h_bkg->IntegralAndError(0,-1, N_background_reco.e);
+    ValueError N_mc_reco(1.,1.);
+    N_mc_reco.v = h_mc->IntegralAndError(0,-1, N_mc_reco.e);
+    ValueError N_signal_reco_noWeight(1.,1.);
+    N_signal_reco_noWeight.v = h_signal_noWeight->IntegralAndError(0,-1, N_signal_reco_noWeight.e);
+    ValueError N_signal_gen(1.,1.);
+    N_signal_gen.v = h_signal_gen->IntegralAndError(0,-1, N_signal_gen.e);
+    ValueError N_ttbar_gen_events(1.,1.);
+    N_ttbar_gen_events.v = h_ttbar_gen->IntegralAndError(0,-1, N_ttbar_gen_events.e);
+    
+    printf("\n### [Full reco selection, generator weights * PU weights * reco weights * sample SFs (DY, tt+HF)]\n");
+    printf("Data:   \t%.3f \t+- %.2f\n", N_data_reco.v, N_data_reco.e);
+    printf("Signal: \t%.3f \t+- %.2f\t(RECO tt+bb)\n", N_signal_reco.v, N_signal_reco.e);
+    printf("Background: \t%.3f \t+- %.2f\t(RECO rest MC)\n", N_background_reco.v, N_background_reco.e);
+    printf("-------------------------------\n");
+    printf("MC total: \t%.3f \t+- %.2f\n", N_mc_reco.v, N_mc_reco.e);
+    printf("\nData-Bkg: \t%.3f \t+- %.2f\n\n", N_dataMinusBackground.v, N_dataMinusBackground.e);
+
+    printf("### [Full reco selection, generator weights * PU weights * reco weights]\n");
+    printf("Signal[reco]: \t%.3f \t+- %.2f\n", N_signal_reco_noWeight.v, N_signal_reco_noWeight.e);
+    printf("### [No reco selection, generator weights * PU weights]\n");
+    printf("Signal[gen]: \t%.3f \t+- %.2f\n", N_signal_gen.v, N_signal_gen.e);
+    printf("-----------------------\n");
+    printf("Acceptance: \t%.3f\n\n", N_signal_reco_noWeight.v/N_signal_gen.v);
+    printf("tt+jets[gen]: \t%.3f \t+- %.2f\n", N_ttbar_gen_events.v, N_ttbar_gen_events.e);
+    printf("-----------------------\n");
+    printf("ttbb/tt: \t%.3f\n\n", N_signal_gen.v/N_ttbar_gen_events.v);
+    
+    printf("Luminosity: \t%.3f \t+- %.2f\n", luminosity.v, luminosity.e);
+    printf("BR(tt->ll): \t%.3f \t+- %.2f\n\n", br_dilepton.v, br_dilepton.e);
+    
+    ValueError xsection_inclusive;
+    xsection_inclusive.v = N_dataMinusBackground.v/(br_dilepton.v * luminosity.v * N_signal_reco_noWeight.v / N_signal_gen.v);
+    xsection_inclusive.e = sqrt(pow(N_dataMinusBackground.e, 2)) / (br_dilepton.v * luminosity.v * N_signal_reco_noWeight.v / N_signal_gen.v);
+    
+    printf("###############################\n");
+    printf("Inclusive x-seciton: \t%.3f \t+- %.2f\n", xsection_inclusive.v, xsection_inclusive.e);
+    
+//     printf("Xsection (data): \t");
+    
+    // Calculating the cross section differentially
+    const int nBins = h_data->GetNbinsX();
+    TH1* h_diffXS_data = (TH1*)h_data->Clone("h_diffXS_data");
+    for(int iBin = 1; iBin <= nBins; ++iBin) {
+        const ValueError N_signal_reco( h_dataMinusBackground->GetBinContent(iBin), 
+                                        h_dataMinusBackground->GetBinError(iBin));
+        const ValueError acceptance( h_signal_noWeight->GetBinContent(iBin)/h_signal_gen->GetBinContent(iBin), 
+                                     uncertaintyBinomial(h_signal_noWeight->GetBinContent(iBin), h_signal_gen->GetBinContent(iBin)));
+        ValueError xsection(1.,1.);
+        xsection.v = N_signal_reco.v / (acceptance.v*br_dilepton.v*luminosity.v);
+        xsection.e = sqrt(pow(N_signal_reco.e, 2)) / (acceptance.v*br_dilepton.v*luminosity.v);
+        
+        h_diffXS_data->SetBinContent(iBin, xsection.v);
+        h_diffXS_data->SetBinError(iBin, xsection.e);
+    }
+    result["diffXS_data"] = h_diffXS_data;
+    
+    
+    
+    
+    // Removing created objects
+    h_dataMinusBackground->Delete();
+    h_mc->Delete();
+    
+    return result;
 }
 
 
@@ -366,46 +479,16 @@ void PlotterDiffXS::writeResponseMatrix(const Channel::Channel& channel, const S
     
     // Loop over all samples and add those with identical legendEntry
     // And sort them into the categories data, Higgs, other
-    std::vector<LegendHistPair> signalHists;
-    TH1* tmpHist(0);
-    for(std::vector<SampleHistPair>::iterator i_sampleHistPair = v_sampleHistPair_.begin();
-        i_sampleHistPair != v_sampleHistPair_.end(); ++i_sampleHistPair)
-    {
-        const Sample::SampleType& sampleType(i_sampleHistPair->first.sampleType());
-        const TString& legendEntry(i_sampleHistPair->first.legendEntry());
-        const TH1* hist = i_sampleHistPair->second;
-
-        if(sampleType == Sample::data) continue;
-        
-        std::vector<SampleHistPair>::iterator incrementIterator(i_sampleHistPair);
-        ++incrementIterator;
-        const bool lastHist(incrementIterator == v_sampleHistPair_.end());
-        const bool newHist(!tmpHist);
-
-        if(newHist)tmpHist = (TH1*)hist->Clone();
-
-        if(lastHist || (legendEntry!=incrementIterator->first.legendEntry())){
-            if(!newHist)tmpHist->Add(hist);
-            if(std::find(sampleTypesSignal_.begin(), sampleTypesSignal_.end(), sampleType) != sampleTypesSignal_.end()) 
-            {           // Adding histogram to the signal stack
-                signalHists.push_back(LegendHistPair(legendEntry, tmpHist));
-            }
-            tmpHist = 0;
-            
-        }
-        else{
-            if(!newHist)tmpHist->Add(hist);
-        }
-    }
+    std::vector<LegendHistPair> ttbarHists = legendHistPairsForSamples(sampleTypesTtbar_, v_sampleHistPair_);
     
     // Create histogram corresponding to the sum of all stacked signal histograms
-    TH1* stacksumSignal = sumOfHistos(signalHists);
+    TH1* h_ttbar = sumOfHistos(ttbarHists, "h_ttbar_reco");
 
     
     // Obtaining the proper histogram to be plotted
     TH1* firstHistToDraw(0);
-    if(stacksumSignal){
-        firstHistToDraw = (TH1*)stacksumSignal->Clone();
+    if(h_ttbar){
+        firstHistToDraw = (TH1*)h_ttbar->Clone();
     }
     else{
         std::cerr<<"ERROR in Plotter! No single sample for drawing exists\n...break\n"<<std::endl;
@@ -650,48 +733,15 @@ std::vector<PlotterDiffXS::LegendHistPair> PlotterDiffXS::legendHistPairsForSamp
 }
 
 
-TH1* PlotterDiffXS::sumOfHistos(const std::vector<LegendHistPair> histos)const
+TH1* PlotterDiffXS::sumOfHistos(const std::vector<LegendHistPair> histos, const TString name)const
 {
     TH1* sum(0);
     for(size_t i = 0; i < histos.size(); ++i){
-        if(i==0) sum = (TH1*)histos.at(0).second->Clone();
+        if(i==0) sum = (TH1*)histos.at(0).second->Clone(name);
         else sum->Add((TH1*)histos.at(i).second);
     }
     
     return sum;
-}
-
-
-PlotterDiffXS::LegendHistPair PlotterDiffXS::calculateDiffXS(TH1* h_data, TH1* h_signal, TH1* h_bkg, TH1* h_signal_noWeight, TH1* h_signal_gen)const
-{
-    LegendHistPair result;
-    
-    // Initial values for the cross section calculation
-    ValueError luminosity(luminosity_, 0.);
-    ValueError br_dilepton(0.6391, 0.00063);
-    
-    TH1* h_dataMinusBackground = (TH1*)h_data->Clone("h_dataMinusBackground");
-    h_dataMinusBackground->Add(h_bkg, -1);
-    
-    TH1* h_mc = (TH1*)h_signal->Clone("mc");
-    h_mc->Add(h_bkg, 1.0);
-    
-    printf("\n[Full reco selection, generator weights * PU weights * reco weights * sample SFs (DY, tt+HF)]\n");
-    printf("Data:   \t%.3f\n", h_data->Integral());
-    printf("Signal: \t%.3f\t(RECO tt+bb)\n", h_signal->Integral());
-    printf("Background: \t%.3f\t(RECO rest MC)\n", h_bkg->Integral());
-    printf("-------------------------------\n");
-    printf("MC total: \t%.3f\n", h_mc->Integral());
-    printf("\nData-Bkg: \t%.3f\n", h_dataMinusBackground->Integral());
-
-    printf("\n[Full reco selection, generator weights * PU weights * reco weights]\n");
-    printf("Signal[reco]: \t%.3f\n", h_signal_noWeight->Integral());
-    printf("[No reco selection, generator weights * PU weights]\n");
-    printf("Signal[gen]: \t%.3f\n", h_signal_gen->Integral());
-    printf("-----------------------\n");
-    printf("Acceptance: \t%.3f\n", h_signal_noWeight->Integral()/h_signal_gen->Integral());
-    
-    return result;
 }
 
 

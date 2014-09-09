@@ -99,10 +99,11 @@ private:
     std::vector<LegendHistPair> legendHistPairsForSamples(const std::vector<Sample::SampleType> allowedSampleTypes, std::vector<SampleHistPair> samples)const;
     
     /// Sums all histograms in the stack
-    TH1* sumOfHistos(const std::vector<LegendHistPair> histos)const;
+    TH1* sumOfHistos(const std::vector<LegendHistPair> histos, const TString name = "")const;
     
     /// Calculate differential cross section
-    LegendHistPair calculateDiffXS(TH1* h_data, TH1* h_signal, TH1* h_bkg, TH1* h_signal_noWeight, TH1* h_signal_gen)const;
+    std::map<TString, TH1*> calculateDiffXS(const TH1* h_data, const TH1* h_signal, const TH1* h_bkg, const TH1* h_signal_noWeight, 
+                                            const TH1* h_signal_gen, const TH1* h_ttbar_gen)const;
     
     
     
@@ -118,12 +119,15 @@ private:
     
     
     
-    /// Pair of histogram to print and corresponding sample for reco level
+    /// Sample-Histogram pairs for reco level quantity to plot
     std::vector<SampleHistPair> v_sampleHistPair_;
     std::vector<SampleHistPair> v_sampleHistPair_noWeight_;
     
-    /// Pair of histogram to print and corresponding sample for gen level
+    /// Sample-Histogram pairs for gen level quantity to plot
     std::vector<SampleHistPair> v_sampleHistPairGen_;
+    
+    /// Sample-Histogram pairs for gen level events
+    std::vector<SampleHistPair> v_sampleHistPairGenEventBased_;
     
     
     /// Map holding global scale factors for steps they were already accessed, to avoid re-calculating them
@@ -134,6 +138,7 @@ private:
     /// Name of histogram under consideration
     TString name_;
     TString nameGen_;
+    TString nameGenEventBased_;
     
     /// Options for the histogram under consideration
     int mode_, rebin_;
@@ -143,6 +148,7 @@ private:
     std::vector<Sample::SampleType> sampleTypesData_;
     std::vector<Sample::SampleType> sampleTypesSignal_;
     std::vector<Sample::SampleType> sampleTypesBackground_;
+    std::vector<Sample::SampleType> sampleTypesTtbar_;
     TString YAxis_, XAxis_;
     bool logX_, logY_; // The variable logX_ is not used at all...
     
