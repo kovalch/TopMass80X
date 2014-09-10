@@ -606,46 +606,48 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         
         // Old quark-to-genJet association scheme
         // FIXME: should be removed one day from ntuple
-        
-        // Find b jets corresponding to B hadrons
-        edm::Handle<std::vector<int> > BHadJetIndex;
-        iEvent.getByLabel(bHadJetIndexTag_, BHadJetIndex);
-        for(size_t iJet = 0; iJet < BHadJetIndex->size(); ++iJet)
-            v_bHadJetIndex_.push_back(BHadJetIndex->at(iJet));
-        edm::Handle<std::vector<int> > AntiBHadJetIndex;
-        iEvent.getByLabel(antiBHadJetIndexTag_, AntiBHadJetIndex);
-        for(size_t iJet = 0; iJet < AntiBHadJetIndex->size(); ++iJet)
-            v_antiBHadJetIndex_.push_back(AntiBHadJetIndex->at(iJet));
-        
-        // All B hadrons
-        edm::Handle<std::vector<reco::GenParticle> > BHadrons;
-        iEvent.getByLabel(BHadronsTag_, BHadrons);
-        for(std::vector<reco::GenParticle>::const_iterator i_hadron = BHadrons->begin(); i_hadron != BHadrons->end(); ++i_hadron)
-            v_bHadron_.push_back(i_hadron->polarP4());
-        edm::Handle<std::vector<reco::GenParticle> > AntiBHadrons;
-        iEvent.getByLabel(AntiBHadronsTag_, AntiBHadrons);
-        for(std::vector<reco::GenParticle>::const_iterator i_hadron = AntiBHadrons->begin(); i_hadron != AntiBHadrons->end(); ++i_hadron)
-            v_antiBHadron_.push_back(i_hadron->polarP4());
-        
-        // Which B hadrons stem from ttbar
-        edm::Handle<std::vector<bool> > BHadronFromTopB;
-        iEvent.getByLabel(BHadronFromTopBTag_, BHadronFromTopB);
-        for(size_t iHadron = 0; iHadron < BHadronFromTopB->size(); ++iHadron)
-            v_bHadFromTop_.push_back(BHadronFromTopB->at(iHadron));
-        edm::Handle<std::vector<bool> > AntiBHadronFromTopB;
-        iEvent.getByLabel(AntiBHadronFromTopBTag_, AntiBHadronFromTopB);
-        for(size_t iHadron = 0; iHadron < AntiBHadronFromTopB->size(); ++iHadron)
-            v_antiBHadFromTop_.push_back(AntiBHadronFromTopB->at(iHadron));
-        
-        // Another B hadron to jet association ?
-        edm::Handle<std::vector<int> > BHadronVsJet;
-        iEvent.getByLabel(BHadronVsJetTag_, BHadronVsJet);
-        for(size_t iHadron = 0; iHadron < BHadronVsJet->size(); ++iHadron)
-            v_bHadVsJet_.push_back(BHadronVsJet->at(iHadron));
-        edm::Handle<std::vector<int> > AntiBHadronVsJet;
-        iEvent.getByLabel(AntiBHadronVsJetTag_, AntiBHadronVsJet);
-        for(size_t iHadron = 0; iHadron < AntiBHadronVsJet->size(); ++iHadron)
-            v_antiBHadVsJet_.push_back(AntiBHadronVsJet->at(iHadron));
+        // CSA14: Workaround since this tool cannot work in miniAOD by setting label to "NONE"
+        if(bHadJetIndexTag_.label() != "NONE"){
+            // Find b jets corresponding to B hadrons
+            edm::Handle<std::vector<int> > BHadJetIndex;
+            iEvent.getByLabel(bHadJetIndexTag_, BHadJetIndex);
+            for(size_t iJet = 0; iJet < BHadJetIndex->size(); ++iJet)
+                v_bHadJetIndex_.push_back(BHadJetIndex->at(iJet));
+            edm::Handle<std::vector<int> > AntiBHadJetIndex;
+            iEvent.getByLabel(antiBHadJetIndexTag_, AntiBHadJetIndex);
+            for(size_t iJet = 0; iJet < AntiBHadJetIndex->size(); ++iJet)
+                v_antiBHadJetIndex_.push_back(AntiBHadJetIndex->at(iJet));
+            
+            // All B hadrons
+            edm::Handle<std::vector<reco::GenParticle> > BHadrons;
+            iEvent.getByLabel(BHadronsTag_, BHadrons);
+            for(std::vector<reco::GenParticle>::const_iterator i_hadron = BHadrons->begin(); i_hadron != BHadrons->end(); ++i_hadron)
+                v_bHadron_.push_back(i_hadron->polarP4());
+            edm::Handle<std::vector<reco::GenParticle> > AntiBHadrons;
+            iEvent.getByLabel(AntiBHadronsTag_, AntiBHadrons);
+            for(std::vector<reco::GenParticle>::const_iterator i_hadron = AntiBHadrons->begin(); i_hadron != AntiBHadrons->end(); ++i_hadron)
+                v_antiBHadron_.push_back(i_hadron->polarP4());
+            
+            // Which B hadrons stem from ttbar
+            edm::Handle<std::vector<bool> > BHadronFromTopB;
+            iEvent.getByLabel(BHadronFromTopBTag_, BHadronFromTopB);
+            for(size_t iHadron = 0; iHadron < BHadronFromTopB->size(); ++iHadron)
+                v_bHadFromTop_.push_back(BHadronFromTopB->at(iHadron));
+            edm::Handle<std::vector<bool> > AntiBHadronFromTopB;
+            iEvent.getByLabel(AntiBHadronFromTopBTag_, AntiBHadronFromTopB);
+            for(size_t iHadron = 0; iHadron < AntiBHadronFromTopB->size(); ++iHadron)
+                v_antiBHadFromTop_.push_back(AntiBHadronFromTopB->at(iHadron));
+            
+            // Another B hadron to jet association ?
+            edm::Handle<std::vector<int> > BHadronVsJet;
+            iEvent.getByLabel(BHadronVsJetTag_, BHadronVsJet);
+            for(size_t iHadron = 0; iHadron < BHadronVsJet->size(); ++iHadron)
+                v_bHadVsJet_.push_back(BHadronVsJet->at(iHadron));
+            edm::Handle<std::vector<int> > AntiBHadronVsJet;
+            iEvent.getByLabel(AntiBHadronVsJetTag_, AntiBHadronVsJet);
+            for(size_t iHadron = 0; iHadron < AntiBHadronVsJet->size(); ++iHadron)
+                v_antiBHadVsJet_.push_back(AntiBHadronVsJet->at(iHadron));
+        }
     }
     
     // Generator info for Higgs samples
