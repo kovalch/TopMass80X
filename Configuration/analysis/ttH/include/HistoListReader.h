@@ -61,6 +61,9 @@ public:
     
 private:
     
+    /// Read string and keep blank spaces if string starts with quotes  "... ..."
+    void readString(std::stringstream &input, TString &output)const;
+    
     const char* filename_;
     bool isZombie_;
     std::map<TString, PlotProperties> plots_;
