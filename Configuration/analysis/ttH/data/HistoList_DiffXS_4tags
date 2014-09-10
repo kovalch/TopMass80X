@@ -1,40 +1,36 @@
-# Name, Draw option, axis label Y, axis label X, rebin, mode, logx, logy, ymin, ymax, xmin, xmax, nbins, xbins, bcs
+# Name, Name gen., axis label Y, axis label X, rebin, mode, logx, logy, ymin, ymax, xmin, xmax, nbins, xbins, bcs
 
 
 #
 # Leading jets 2D histograms
 #
-dijet_leadingJet_2nd_Pt_addB_trueVsGen_step7_cate0 - - - 1 1 0 0 0 100 0 0 0 0
-dijet_leadingJet_2nd_Eta_addB_trueVsGen_step7_cate0 - - - 1 1 0 0 0 70 0 0 0 0
-dijet_leadingJet_dR_addB_trueVsGen_step7_cate0 - - - 1 1 0 0 0 50 0 0 0 0
-dijet_leadingJet_Mjj_addB_trueVsGen_step7_cate0 - - - 1 1 0 0 0 50 0 0 0 0
+#dijet_leadingJet_2nd_Pt_addB_trueVsGen_step7_cate0 - - - 1 1 0 0 0 100 0 0 0 0
+#dijet_leadingJet_2nd_Eta_addB_trueVsGen_step7_cate0 - - - 1 1 0 0 0 70 0 0 0 0
+#dijet_leadingJet_dR_addB_trueVsGen_step7_cate0 - - - 1 1 0 0 0 70 0 0 0 0
+#dijet_leadingJet_Mjj_addB_trueVsGen_step7_cate0 - - - 1 1 0 0 0 70 0 0 0 0
 
-dijet_leadingJet_2nd_Pt_addB_kinRecoVsGen_step7_cate0 - - - 1 1 0 0 0 100 0 0 0 0
-dijet_leadingJet_2nd_Eta_addB_kinRecoVsGen_step7_cate0 - - - 1 1 0 0 0 70 0 0 0 0
-dijet_leadingJet_dR_addB_kinRecoVsGen_step7_cate0 - - - 1 1 0 0 0 50 0 0 0 0
-dijet_leadingJet_Mjj_addB_kinRecoVsGen_step7_cate0 - - - 1 1 0 0 0 50 0 0 0 0
+#dijet_leadingJet_2nd_Pt_addB_kinRecoVsGen_step7_cate0 - - - 1 1 0 0 0 100 0 0 0 0
+#dijet_leadingJet_2nd_Eta_addB_kinRecoVsGen_step7_cate0 - - - 1 1 0 0 0 70 0 0 0 0
+#dijet_leadingJet_dR_addB_kinRecoVsGen_step7_cate0 - - - 1 1 0 0 0 70 0 0 0 0
+#dijet_leadingJet_Mjj_addB_kinRecoVsGen_step7_cate0 - - - 1 1 0 0 0 70 0 0 0 0
 
 dijet_leadingJet_2nd_Pt_addB_mvaVsGen_step7_cate0 - - - 1 1 0 0 0 100 0 0 0 0
 dijet_leadingJet_2nd_Eta_addB_mvaVsGen_step7_cate0 - - - 1 1 0 0 0 70 0 0 0 0
-dijet_leadingJet_dR_addB_mvaVsGen_step7_cate0 - - - 1 1 0 0 0 50 0 0 0 0
-dijet_leadingJet_Mjj_addB_mvaVsGen_step7_cate0 - - - 1 1 0 0 0 50 0 0 0 0
+dijet_leadingJet_dR_addB_mvaVsGen_step7_cate0 - - - 1 1 0 0 0 70 0 0 0 0
+dijet_leadingJet_Mjj_addB_mvaVsGen_step7_cate0 - - - 1 1 0 0 0 70 0 0 0 0
 
 
 ##
 ## Leading jets 1D histograms
 ##
-#dijet_leadingJet_1st_Pt_addB_kinReco_step7_cate0 - - - 1 1 0 0 0 0 0 0 0 0
-#dijet_leadingJet_2nd_Pt_addB_kinReco_step7_cate0 - - - 1 1 0 0 0 0 0 0 0 0
-#dijet_leadingJet_1st_Eta_addB_kinReco_step7_cate0 - - - 1 1 0 0 0 0 0 0 0 0
-#dijet_leadingJet_2nd_Eta_addB_kinReco_step7_cate0 - - - 1 1 0 0 0 0 0 0 0 0
-#dijet_leadingJet_dR_addB_kinReco_step7_cate0 - - - 1 1 0 0 0 0 0 0 0 0
-#dijet_leadingJet_Mjj_addB_kinReco_step7_cate0 - - - 1 1 0 0 0 0 80 140 0 0
-#
-#dijet_leadingJet_1st_Pt_addB_mva_step7_cate0 - - - 1 1 0 0 0 0 0 0 0 0
-#dijet_leadingJet_2nd_Pt_addB_mva_step7_cate0 - - - 1 1 0 0 0 0 0 0 0 0
-#dijet_leadingJet_1st_Eta_addB_mva_step7_cate0 - - - 1 1 0 0 0 0 0 0 0 0
-#dijet_leadingJet_2nd_Eta_addB_mva_step7_cate0 - - - 1 1 0 0 0 0 0 0 0 0
-#dijet_leadingJet_dR_addB_mva_step7_cate0 - - - 1 0 0 0 0 0 0 0 0 0
-#dijet_leadingJet_Mjj_addB_mva_step7_cate0 - - - 1 1 0 0 0 0 80 140 0 0
+#dijet_leadingJet_2nd_Pt_addB_kinReco_step7_cate0 dijet_leadingJet_2nd_Pt_addB_gen_step0b "#sigma_{ttbb}, fb" "2-nd b jet p_{T}, GeV" 1 0 0 0 0 0 0 0 0 0
+#dijet_leadingJet_2nd_Eta_addB_kinReco_step7_cate0 dijet_leadingJet_2nd_Eta_addB_gen_step0b "#sigma_{ttbb}, fb" "2-nd b jet #eta" 1 0 0 0 0 0 0 0 0 0
+#dijet_leadingJet_dR_addB_kinReco_step7_cate0 dijet_leadingJet_dR_addB_gen_step0b "#sigma_{ttbb}, fb" "dR_{bb}" 1 0 0 0 0 0 0 0 0 0
+#dijet_leadingJet_Mjj_addB_kinReco_step7_cate0 #dijet_leadingJet_Mjj_addB_gen_step0b "#sigma_{ttbb}, fb" "M_{bb}, GeV" 1 0 0 0 0 0 0 0 0 0
+
+dijet_leadingJet_2nd_Pt_addB_mva_step7_cate0 dijet_leadingJet_2nd_Pt_addB_gen_step0b "#sigma_{ttbb}, fb" "2-nd b jet p_{T}, GeV" 1 0 0 0 0 0 0 0 0 0
+dijet_leadingJet_2nd_Eta_addB_mva_step7_cate0 dijet_leadingJet_2nd_Eta_addB_gen_step0b "#sigma_{ttbb}, fb" "2-nd b jet #eta" 1 0 0 0 0 0 0 0 0 0
+dijet_leadingJet_dR_addB_mva_step7_cate0 dijet_leadingJet_dR_addB_gen_step0b "#sigma_{ttbb}, fb" "dR_{bb}" 1 0 0 0 0 0 0 0 0 0
+dijet_leadingJet_Mjj_addB_mva_step7_cate0 dijet_leadingJet_Mjj_addB_gen_step0b "#sigma_{ttbb}, fb" "M_{bb}, GeV" 1 0 0 0 0 0 0 0 0 0
 
 

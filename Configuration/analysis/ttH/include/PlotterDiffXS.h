@@ -68,11 +68,13 @@ private:
     
     
     /// Set the style of the plot
-    void setStyle(SampleHistPair& sampleHistPair);
+    void setHistoStyle(TH1* hist, Style_t line = 1, Color_t lineColor = 1, Size_t lineWidth = 1, 
+                       Style_t fill = 0, Color_t fillColor = 0, 
+                       Style_t marker = 21, Color_t markerColor = 1, Size_t markerSize = 1)const;
     
     /// Set the style of the graph
     void setGraphStyle( TGraph* graph, Style_t marker = 21, Color_t markerColor = 1, Size_t markerSize = 1, 
-                        Style_t line = 0, Color_t lineColor = 0, Size_t lineWidth = 1)const;
+                        Style_t line = 0, Color_t lineColor = 1, Size_t lineWidth = 1)const;
 
     /// Update histogram axis
     void updateHistoAxis(TH1* histo)const;
@@ -158,6 +160,10 @@ private:
         double v; double e;
         ValueError(double val, double err):v(val), e(err){}
         ValueError():v(1.), e(1.){}
+        double v2()const {return v*v;}
+        double e2()const {return e*e;}
+        double eOv()const {return e/v;}
+        double eOv2()const {return (e*e)/(v*v);}
     };
 };
 

@@ -219,7 +219,7 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
 {
     // Prepare canvas and legend
     TCanvas* canvas = new TCanvas("","");
-    TLegend* legend = new TLegend(0.70,0.55,0.92,0.85);
+    TLegend* legend = new TLegend(0.70,0.7,0.92,0.85);
     legend->SetFillStyle(0);
     legend->SetBorderSize(0);
     legend->SetX1NDC(1.0 - gStyle->GetPadRightMargin() - gStyle->GetTickLength() - 0.25);
@@ -235,10 +235,8 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
     
     
     // Here fill colors and line width are adjusted, and potentially rebinning applied
-    for(auto sampleHistPair : v_sampleHistPair_){
-        TH1* tmp_hist = sampleHistPair.second;
-        if(rebin_>1) tmp_hist->Rebin(rebin_);
-        setStyle(sampleHistPair);
+    if(rebin_>1) {
+        for(auto sampleHistPair : v_sampleHistPair_) sampleHistPair.second->Rebin(rebin_);
     }
     
     
@@ -278,55 +276,42 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
     std::map<TString, TH1*> xsectionSet= calculateDiffXS(h_data, h_signal, h_background, h_signal_noWeight, h_signal_gen, h_ttbar_gen);
     
 
-    
-//     // Add entries to legend
-//     if(dataHist.second) legend->AddEntry(dataHist.second, dataHist.first,"pe");
+    if(!xsectionSet.size()) {
+        std::cerr<<"ERROR in Plotter! Histogram for the cross section not produced\n...break\n"<<std::endl;
+        exit(237);
+    }
 
     
     // Obtaining the proper histogram to be plotted
-    TH1* firstHistToDraw = xsectionSet.at("diffXS_data");
-    if(!firstHistToDraw)
-    {
-        std::cerr<<"ERROR in Plotter! Histogram for drawing doesn't exist\n...break\n"<<std::endl;
-        exit(237);
-    }
+    TH1* h_xs_data = xsectionSet.at("diffXS_data");
+    TH1* h_xs_mc = xsectionSet.at("diffXS_madgraph");
     
-    // Set x and y axis ranges
-    if(logY_){
-      // Setting minimum to >0 value
-      // FIXME: Should we automatically calculate minimum value instead of the fixed value?
-      firstHistToDraw->SetMinimum(1e-1);
-      if(ymin_>0) firstHistToDraw->SetMinimum(ymin_);
-      canvas->SetLogy();
-    }
-    else firstHistToDraw->SetMinimum(ymin_);
-
-    if(rangemin_!=0. || rangemax_!=0.) {firstHistToDraw->SetAxisRange(rangemin_, rangemax_, "X");}
     
-    if(ymax_==0.){
-        // Determining the highest Y value that is plotted
-        float yMax = firstHistToDraw ? firstHistToDraw->GetBinContent(firstHistToDraw->GetMaximumBin()) : 0.f;
-        
-        // Scaling the Y axis
-        if(logY_){firstHistToDraw->SetMaximum(18.*yMax);}
-        else{firstHistToDraw->SetMaximum(1.35*yMax);}
-    }
-    else{firstHistToDraw->SetMaximum(ymax_);}
+    // Add entries to legend
+    legend->AddEntry(xsectionSet.at("diffXS_data"), "Data","pe");
+    legend->AddEntry(xsectionSet.at("diffXS_madgraph"), "MadGraph","l");
 
-    firstHistToDraw->GetXaxis()->SetNoExponent(kTRUE);
-
-
-    // Draw data histogram and stack and error bars
-    firstHistToDraw->SetLineColor(0);
-    firstHistToDraw->Draw();
+    if(logY_) canvas->SetLogy();
+    setHistoStyle(h_xs_data, 1, 1, 1, 0, 0, 20, 1, 1.5);
+    setHistoStyle(h_xs_mc, 1, 2, 1, 0, 0, 0, 2, 1.5);
+    updateHistoAxis(h_xs_data);
+    updateHistoAxis(h_xs_mc);
     
-//     // Put additional stuff to histogram
-//     this->drawCmsLabels(2, 8);
-//     this->drawDecayChannelLabel(channel);
-//     legend->Draw("SAME");
-//     common::drawRatio(dataHist.second, stacksumSignal, 0, 0.5, 1.7);
-//     firstHistToDraw->GetXaxis()->SetLabelSize(0);
-//     firstHistToDraw->GetXaxis()->SetTitleSize(0);
+
+    // Draw cross section histograms
+    h_xs_data->Draw("E1");
+    h_xs_mc->Draw("same");
+    
+    // Draw data to be overlaid
+    h_xs_data->Draw("sameE1");
+    
+    // Put additional stuff to histogram
+    this->drawCmsLabels(2, 8);
+    this->drawDecayChannelLabel(channel);
+    legend->Draw("SAME");
+    common::drawRatio(h_xs_data, h_xs_mc, 0, 0.7, 3.0);
+//     h_xs_data->GetXaxis()->SetLabelSize(0);
+//     h_xs_data->GetXaxis()->SetTitleSize(0);
 
     // Create Directory for Output Plots and write them
     const TString eventFileString = common::assignFolder(outputDir_, channel, systematic);
@@ -366,7 +351,7 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
     h_signal_gen->Delete();
     h_ttbar_gen->Delete();
     
-    firstHistToDraw->Delete();
+    h_xs_data->Delete();
     canvas->Clear();
     legend->Clear();
     canvas->Delete();
@@ -382,8 +367,9 @@ std::map<TString, TH1*> PlotterDiffXS::calculateDiffXS(const TH1* h_data, const 
     std::map<TString, TH1*> result;
     
     // Initial values for the cross section calculation
-    const ValueError luminosity(luminosity_, 0.);
+    const ValueError luminosity(luminosity_/1000., 0.);     // Converted to fb-1
     const ValueError br_dilepton(0.06391, 0.00063);
+    const ValueError xsection_tt_dilepton(245100.0, 14290.0);
     
     TH1* h_dataMinusBackground = (TH1*)h_data->Clone("h_dataMinusBackground");
     h_dataMinusBackground->Add(h_bkg, -1);
@@ -392,6 +378,7 @@ std::map<TString, TH1*> PlotterDiffXS::calculateDiffXS(const TH1* h_data, const 
     h_mc->Add(h_bkg, 1.0);
     
     
+    ////////////////////////////////////////////////////////////////////// CALCULATING THE INCLUSIVE CROSS SECTION: ttbb
     ValueError N_data_reco(1.,1.);
     N_data_reco.v = h_data->IntegralAndError(0,-1, N_data_reco.e);
     ValueError N_dataMinusBackground(1.,1.);
@@ -425,21 +412,34 @@ std::map<TString, TH1*> PlotterDiffXS::calculateDiffXS(const TH1* h_data, const 
     printf("Acceptance: \t%.3f\n\n", N_signal_reco_noWeight.v/N_signal_gen.v);
     printf("tt+jets[gen]: \t%.3f \t+- %.2f\n", N_ttbar_gen_events.v, N_ttbar_gen_events.e);
     printf("-----------------------\n");
-    printf("ttbb/tt: \t%.3f\n\n", N_signal_gen.v/N_ttbar_gen_events.v);
+    
+    ValueError ttbbFraction_Madgraph;
+    ttbbFraction_Madgraph.v = N_signal_gen.v/N_ttbar_gen_events.v;
+    ttbbFraction_Madgraph.e = uncertaintyBinomial(N_signal_gen.v, N_ttbar_gen_events.v);
+    
+    printf("ttbb/tt: \t%.3f \t+- %.2f\n\n", ttbbFraction_Madgraph.v, ttbbFraction_Madgraph.e);
     
     printf("Luminosity: \t%.3f \t+- %.2f\n", luminosity.v, luminosity.e);
     printf("BR(tt->ll): \t%.3f \t+- %.2f\n\n", br_dilepton.v, br_dilepton.e);
     
     ValueError xsection_inclusive;
-    xsection_inclusive.v = N_dataMinusBackground.v/(br_dilepton.v * luminosity.v * N_signal_reco_noWeight.v / N_signal_gen.v);
-    xsection_inclusive.e = sqrt(pow(N_dataMinusBackground.e, 2)) / (br_dilepton.v * luminosity.v * N_signal_reco_noWeight.v / N_signal_gen.v);
+    xsection_inclusive.v = N_dataMinusBackground.v / (br_dilepton.v * luminosity.v * N_signal_reco_noWeight.v / N_signal_gen.v);
+    xsection_inclusive.e = N_dataMinusBackground.e / (br_dilepton.v * luminosity.v * N_signal_reco_noWeight.v / N_signal_gen.v);
+    ValueError xsection_inclusive_mc;
+    xsection_inclusive_mc.v = N_signal_reco.v / (br_dilepton.v * luminosity.v * N_signal_reco_noWeight.v / N_signal_gen.v);
+    xsection_inclusive_mc.e = N_signal_reco.e / (br_dilepton.v * luminosity.v * N_signal_reco_noWeight.v / N_signal_gen.v);
+    ValueError xsection_inclusive_madgraph;
+    xsection_inclusive_madgraph.v = xsection_tt_dilepton.v * N_signal_gen.v / N_ttbar_gen_events.v;
+    xsection_inclusive_madgraph.e = xsection_tt_dilepton.e * N_signal_gen.v / N_ttbar_gen_events.v;
     
     printf("###############################\n");
-    printf("Inclusive x-seciton: \t%.3f \t+- %.2f\n", xsection_inclusive.v, xsection_inclusive.e);
+    printf("Inclusive x-seciton(data):     \t%.3f \t+- %.2f\n", xsection_inclusive.v, xsection_inclusive.e);
+    printf("Inclusive x-seciton(mc):     \t%.3f \t+- %.2f\n", xsection_inclusive_mc.v, xsection_inclusive_mc.e);
+    printf("Inclusive x-seciton(Madgraph): \t%.3f \t+- %.2f\n\n", xsection_inclusive_madgraph.v, xsection_inclusive_madgraph.e);
     
-//     printf("Xsection (data): \t");
     
-    // Calculating the cross section differentially
+    ////////////////////////////////////////////////////////////////////// CALCULATING THE DIFFERENTIAL CROSS SECTION: ttbb
+    // Calculating the cross section from data
     const int nBins = h_data->GetNbinsX();
     TH1* h_diffXS_data = (TH1*)h_data->Clone("h_diffXS_data");
     for(int iBin = 1; iBin <= nBins; ++iBin) {
@@ -449,12 +449,32 @@ std::map<TString, TH1*> PlotterDiffXS::calculateDiffXS(const TH1* h_data, const 
                                      uncertaintyBinomial(h_signal_noWeight->GetBinContent(iBin), h_signal_gen->GetBinContent(iBin)));
         ValueError xsection(1.,1.);
         xsection.v = N_signal_reco.v / (acceptance.v*br_dilepton.v*luminosity.v);
-        xsection.e = sqrt(pow(N_signal_reco.e, 2)) / (acceptance.v*br_dilepton.v*luminosity.v);
+        xsection.e = N_signal_reco.e / (acceptance.v*br_dilepton.v*luminosity.v);
+        if(xsection.v != xsection.v) xsection.v = 0.;
+        if(xsection.e != xsection.e) xsection.e = 0.;
         
         h_diffXS_data->SetBinContent(iBin, xsection.v);
         h_diffXS_data->SetBinError(iBin, xsection.e);
     }
     result["diffXS_data"] = h_diffXS_data;
+    
+    // Calculating the cross section from MC
+    TH1* h_diffXS_madgraph = (TH1*)h_data->Clone("h_diffXS_madgraph");
+    for(int iBin = 1; iBin <= nBins; ++iBin) {
+        ValueError ttbbFraction;
+        ttbbFraction.v = h_signal_gen->GetBinContent(iBin)/N_ttbar_gen_events.v;
+        ttbbFraction.e = uncertaintyBinomial(h_signal_gen->GetBinContent(iBin), N_ttbar_gen_events.v);
+        
+        ValueError xsection(1.,1.);
+        xsection.v = xsection_tt_dilepton.v * ttbbFraction.v;
+        xsection.e = sqrt(xsection_tt_dilepton.eOv2() * ttbbFraction.v2() + ttbbFraction.eOv2());
+        if(xsection.v != xsection.v) xsection.v = 0.;
+        if(xsection.e != xsection.e) xsection.e = 0.;
+        
+        h_diffXS_madgraph->SetBinContent(iBin, xsection.v);
+//         h_diffXS_madgraph->SetBinError(iBin, xsection.e);
+    }
+    result["diffXS_madgraph"] = h_diffXS_madgraph;
     
     
     
@@ -522,6 +542,8 @@ void PlotterDiffXS::writeResponseMatrix(const Channel::Channel& channel, const S
     // Plotting Purity/Stability if this is a response matrix
     drawPurityStability((TH2*)firstHistToDraw, eventFileString+name_+"_PurStab"+".eps");
     
+    return;
+    
     // Prepare additional histograms for root-file
     TH1* sumMC(0);
     TH1* sumSignal(0);
@@ -553,35 +575,31 @@ void PlotterDiffXS::writeResponseMatrix(const Channel::Channel& channel, const S
 
 
 
-void PlotterDiffXS::setStyle(SampleHistPair& sampleHistPair)
+void PlotterDiffXS::setHistoStyle(TH1* hist, Style_t line, Color_t lineColor, Size_t lineWidth, 
+                                  Style_t fill, Color_t fillColor, 
+                                  Style_t marker, Color_t markerColor, Size_t markerSize)const
 {
-    TH1* hist(sampleHistPair.second);
-
-    hist->SetFillColor(sampleHistPair.first.color());
-    hist->SetLineColor(sampleHistPair.first.color());
-    hist->SetLineWidth(1);
+    hist->SetLineStyle(line);
+    hist->SetLineColor(lineColor);
+    hist->SetLineWidth(lineWidth);
     
-    if(XAxis_ == "-") XAxis_ = hist->GetXaxis()->GetTitle();
-    if(YAxis_ == "-") YAxis_ = hist->GetYaxis()->GetTitle();
-
-    if(sampleHistPair.first.sampleType() == Sample::SampleType::data){
-        hist->SetFillColor(0);
-        hist->SetMarkerStyle(20);
-        hist->SetMarkerSize(1.);
-        hist->SetLineWidth(1);
-        hist->GetXaxis()->SetLabelFont(42);
-        hist->GetYaxis()->SetLabelFont(42);
-        hist->GetXaxis()->SetTitleFont(42);
-        hist->GetYaxis()->SetTitleFont(42);
-        hist->GetYaxis()->SetTitleOffset(1.7);
-        hist->GetXaxis()->SetTitleOffset(1.25);
-    }
-    hist->GetYaxis()->SetTitle(YAxis_);
-    hist->GetXaxis()->SetTitle(XAxis_);
+    hist->SetFillStyle(fill);
+    hist->SetFillColor(fillColor);
+    
+    hist->SetMarkerStyle(marker);
+    hist->SetMarkerColor(markerColor);
+    hist->SetMarkerSize(markerSize);
+    
+    hist->GetXaxis()->SetLabelFont(42);
+    hist->GetYaxis()->SetLabelFont(42);
+    hist->GetXaxis()->SetTitleFont(42);
+    hist->GetYaxis()->SetTitleFont(42);
+    hist->GetYaxis()->SetTitleOffset(1.7);
+    hist->GetXaxis()->SetTitleOffset(1.25);
 }
 
 
-void PlotterDiffXS::updateHistoAxis(TH1* histo)const 
+void PlotterDiffXS::updateHistoAxis(TH1* histo)const
 {
     // Set x and y axis ranges
     if(logY_){
@@ -605,6 +623,9 @@ void PlotterDiffXS::updateHistoAxis(TH1* histo)const
     else{histo->SetMaximum(ymax_);}
 
     histo->GetXaxis()->SetNoExponent(kTRUE);
+    // Set axis titles
+    if(XAxis_ != "-") histo->GetYaxis()->SetTitle(YAxis_);
+    if(YAxis_ != "-") histo->GetXaxis()->SetTitle(XAxis_);
 }
 
 
