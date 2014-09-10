@@ -45,7 +45,7 @@ public:
 
 
 	/**
-	 * Adds a source with name to the sources to be varied
+	 * ADDS! a source with name to the sources to be varied
 	 */
 	void setSource(const std::string&);
 	/**
@@ -53,9 +53,30 @@ public:
 	 */
 	void clearSources(){sources_.clear();}
 
+
+	/**
+	 * returns a vector of available source names
+	 */
 	std::vector<std::string> getSourceNames()const;
 
-	void applyJECUncertainties(float & pt, float& eta, float & phi, float& m);
+	/**
+	 * Applies uncertainties only if they match the flavour specified here
+	 * This function ADDS and entry! to clear, use clearRestrictToFlavour()
+	 */
+	void restrictToFlavour(int flav);
+
+	/**
+	 * Clears all flavour restrictions added before
+	 */
+	void clearRestrictToFlavour();
+
+	/**
+	 * applies the uncertainties on jet quantities.
+	 * jetFlavour is the absolute of the one given by PAT! If none specified (<9998), uncertainties will be
+	 * applied to all in the same manner. (default for backward compatibility)
+	 * The same is true if no restriction is specified in restrictToAbsFlavour();
+	 */
+	void applyJECUncertainties(float & pt, float& eta, float & phi, float& m, int jetFlavour=-9999);
 
 protected:
 	std::vector<unsigned int> & sources() {
@@ -68,6 +89,9 @@ protected:
 	std::vector<unsigned int> sources_;
 	std::map<std::string,unsigned int> sourcenames_;
 	bool is2012_;
+
+	std::vector<int> restricttoflav_;
+
 	void copyFrom(const ztop::JECBase &);
 
 };

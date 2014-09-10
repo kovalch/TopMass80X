@@ -12,6 +12,7 @@ void JECBase::copyFrom(const ztop::JECBase & old) {
 	noupdown_ = old.noupdown_;
 	sources_ = old.sources_;
 	sourcenames_=old.sourcenames_;
+	restricttoflav_=old.restricttoflav_;
 }
 
 JECBase::JECBase(const ztop::JECBase & old) {
@@ -207,7 +208,17 @@ std::vector<std::string> JECBase::getSourceNames()const{
 }
 
 
-void JECBase::applyJECUncertainties(float & pt, float& eta, float & phi, float& m) {
+
+void JECBase::restrictToFlavour(int flav){
+	restricttoflav_.push_back(flav);
+}
+
+void JECBase::clearRestrictToFlavour(){
+	restricttoflav_.clear();
+}
+
+
+void JECBase::applyJECUncertainties(float & pt, float& eta, float & phi, float& m, int jetFlavour) {
 
 	if (noupdown_ == 0) // no variation
 		return;
@@ -217,6 +228,10 @@ void JECBase::applyJECUncertainties(float & pt, float& eta, float & phi, float& 
 				<< std::endl;
 		throw std::logic_error(
 				"JECBase::applyJECUncertainties: no inputfile set, exit");
+	}
+	if(restricttoflav_.size()>0){
+		if(std::find(restricttoflav_.begin(),restricttoflav_.end(),jetFlavour) == restricttoflav_.end())
+			return;
 	}
 
 	bool up = false;
