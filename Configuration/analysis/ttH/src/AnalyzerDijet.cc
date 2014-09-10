@@ -1158,18 +1158,18 @@ void AnalyzerDijet::bookHistos(const TString& step, std::map<TString, TH1*>& m_h
 void AnalyzerDijet::bookAddGenJetsCorrelationHistos (std::map<TString, TH1*>& m_histogram, const TString addName, const TString& step, 
                                                      const TString& label, const bool bookJetwiseHistos)
 {
-    const int nBins_Pt_j1 = 5;
-    const double bins_Pt_j1[nBins_Pt_j1+1] = {0., 20., 60., 100., 160., 400.};
-    const int nBins_Pt_j2 = 4;
-    const double bins_Pt_j2[nBins_Pt_j2+1] = {0., 20., 35., 70., 260.};
-    const int nBins_Eta_j1 = 8;
-    const double bins_Eta_j1[nBins_Eta_j1+1] = {-2.5, -1.5, -1., -0.5, 0., 0.5, 1., 1.5, 2.5};
+    const int nBins_Pt_j1 = 3;
+    const double bins_Pt_j1[nBins_Pt_j1+1] = {20., 80., 150., 400.};
+    const int nBins_Pt_j2 = 3;
+    const double bins_Pt_j2[nBins_Pt_j2+1] = {20., 40., 65., 260.};
+    const int nBins_Eta_j1 = 4;
+    const double bins_Eta_j1[nBins_Eta_j1+1] = {-2.5, -1.0, 0.0, 1.0, 2.5};
     const int nBins_Eta_j2 = 4;
-    const double bins_Eta_j2[nBins_Eta_j2+1] = {-2.5, -1., 0., 1., 2.5};
-    const int nBins_Mjj = 5;
-    const double bins_Mjj[nBins_Mjj+1] = {0., 20., 60., 100., 160., 450.};
-    const int nBins_dR = 6;
-    const double bins_dR[nBins_dR+1] = {0., 0.5, 1., 1.5, 2.2, 3., 5.};
+    const double bins_Eta_j2[nBins_Eta_j2+1] = {-2.5, -1.0, 0.0, 1.0, 2.5};
+    const int nBins_Mjj = 3;
+    const double bins_Mjj[nBins_Mjj+1] = {20., 80., 170., 450.};
+    const int nBins_dR = 3;
+    const double bins_dR[nBins_dR+1] = {0.5, 1.2, 2.0, 5.0};
     
     
     TString name;
@@ -1259,18 +1259,18 @@ void AnalyzerDijet::bookLeadingJetsHistos (std::map<TString, TH1*>& m_histogram,
     const int nBins_jet_Pt = 20;
 //     const double bins_Pt[nBins_jet_Pt+1] = {0., 20., 60., 120., 180., 240., 300., 360., 420.};
     
-    const int nBins_Pt_j1 = 5;
-    const double bins_Pt_j1[nBins_Pt_j1+1] = {0., 20., 60., 100., 160., 400.};
-    const int nBins_Pt_j2 = 4;
-    const double bins_Pt_j2[nBins_Pt_j2+1] = {0., 20., 35., 70., 260.};
-    const int nBins_Eta_j1 = 8;
-    const double bins_Eta_j1[nBins_Eta_j1+1] = {-2.5, -1.5, -1., -0.5, 0., 0.5, 1., 1.5, 2.5};
+    const int nBins_Pt_j1 = 3;
+    const double bins_Pt_j1[nBins_Pt_j1+1] = {20., 80., 150., 400.};
+    const int nBins_Pt_j2 = 3;
+    const double bins_Pt_j2[nBins_Pt_j2+1] = {20., 40., 65., 260.};
+    const int nBins_Eta_j1 = 4;
+    const double bins_Eta_j1[nBins_Eta_j1+1] = {-2.5, -1.0, 0.0, 1.0, 2.5};
     const int nBins_Eta_j2 = 4;
-    const double bins_Eta_j2[nBins_Eta_j2+1] = {-2.5, -1., 0., 1., 2.5};
-    const int nBins_Mjj = 5;
-    const double bins_Mjj[nBins_Mjj+1] = {0., 20., 60., 100., 160., 450.};
-    const int nBins_dR = 6;
-    const double bins_dR[nBins_dR+1] = {0., 0.5, 1., 1.5, 2.2, 3., 5.};
+    const double bins_Eta_j2[nBins_Eta_j2+1] = {-2.5, -1.0, 0.0, 1.0, 2.5};
+    const int nBins_Mjj = 3;
+    const double bins_Mjj[nBins_Mjj+1] = {20., 80., 170., 450.};
+    const int nBins_dR = 3;
+    const double bins_dR[nBins_dR+1] = {0.5, 1.2, 2.0, 5.0};
     
     TString name;
     // Top jets
