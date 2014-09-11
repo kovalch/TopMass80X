@@ -36,7 +36,6 @@ void MvaReaderTopJets::bookVariables(TMVA::Reader* const mvaWeightsReader, MvaVa
     this->addVariable(mvaWeightsReader, mvaVariablesTopJets->pt_antiB_lepton_);
     this->addVariable(mvaWeightsReader, mvaVariablesTopJets->deltaR_b_antiLepton_);
     this->addVariable(mvaWeightsReader, mvaVariablesTopJets->deltaR_antiB_lepton_);
-    this->addVariable(mvaWeightsReader, mvaVariablesTopJets->btagDiscriminatorSum_);
     this->addVariable(mvaWeightsReader, mvaVariablesTopJets->deltaPhi_antiBLepton_bAntiLepton_);
     this->addVariable(mvaWeightsReader, mvaVariablesTopJets->massDiff_fullBLepton_bbbar_);
     this->addVariable(mvaWeightsReader, mvaVariablesTopJets->meanMt_b_met_);
@@ -46,6 +45,7 @@ void MvaReaderTopJets::bookVariables(TMVA::Reader* const mvaWeightsReader, MvaVa
     this->addSpectator(mvaWeightsReader, mvaVariablesTopJets->bQuarkRecoJetMatched_);
     this->addSpectator(mvaWeightsReader, mvaVariablesTopJets->correctCombination_);
     this->addSpectator(mvaWeightsReader, mvaVariablesTopJets->swappedCombination_);
+    this->addSpectator(mvaWeightsReader, mvaVariablesTopJets->btagDiscriminatorSum_);
 }
 
 

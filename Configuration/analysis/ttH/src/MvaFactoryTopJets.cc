@@ -63,7 +63,6 @@ void MvaFactoryTopJets::configureFactory(TMVA::Factory* const factory,
     this->addVariable(factory, mvaVariablesTopJets.pt_antiB_lepton_);
     this->addVariable(factory, mvaVariablesTopJets.deltaR_b_antiLepton_);
     this->addVariable(factory, mvaVariablesTopJets.deltaR_antiB_lepton_);
-    this->addVariable(factory, mvaVariablesTopJets.btagDiscriminatorSum_);
     this->addVariable(factory, mvaVariablesTopJets.deltaPhi_antiBLepton_bAntiLepton_);
     this->addVariable(factory, mvaVariablesTopJets.massDiff_fullBLepton_bbbar_);
     this->addVariable(factory, mvaVariablesTopJets.meanMt_b_met_);
@@ -71,10 +70,11 @@ void MvaFactoryTopJets::configureFactory(TMVA::Factory* const factory,
     this->addVariable(factory, mvaVariablesTopJets.massDiff_antiBLepton_bAntiLepton_);
     
     // Set all branches of MVA input which should NOT be used for training,
-    // but are needed otherwise (e.g. for defining separation cuts)
+    // but are needed otherwise (e.g. for defining separation cuts), or are under study
     this->addSpectator(factory, mvaVariablesTopJets.bQuarkRecoJetMatched_);
     this->addSpectator(factory, mvaVariablesTopJets.correctCombination_);
     this->addSpectator(factory, mvaVariablesTopJets.swappedCombination_);
+    this->addSpectator(factory, mvaVariablesTopJets.btagDiscriminatorSum_);
     
     // Set global weights for individual input
     constexpr Double_t signalWeight = 1.;
