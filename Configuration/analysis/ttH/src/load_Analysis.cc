@@ -69,16 +69,16 @@ constexpr const char* TriggerSFInputSUFFIX = "_rereco198fb.root";
 
 
 /// Source for the uncertainties associated to JER
-constexpr const char* JerUncertaintySourceNAME = "jer2011";
-//constexpr const char* JerUncertaintySourceNAME = "jer2012";
+//constexpr const char* JerUncertaintySourceNAME = "jer2011";
+constexpr const char* JerUncertaintySourceNAME = "jer2012";
 
 
 
 /// File containing the uncertainties associated to JES
 //constexpr const char* JesUncertaintySourceFILE = "Fall12_V7_DATA_UncertaintySources_AK5PFchs.txt";
 //constexpr const char* JesUncertaintySourceFILE = "Summer13_V1_DATA_UncertaintySources_AK5PFchs.txt";
-constexpr const char* JesUncertaintySourceFILE = "Summer13_V4_DATA_UncertaintySources_AK5PFchs.txt";
-//constexpr const char* JesUncertaintySourceFILE = "Summer13_V5_DATA_UncertaintySources_AK5PFchs.txt";
+//constexpr const char* JesUncertaintySourceFILE = "Summer13_V4_DATA_UncertaintySources_AK5PFchs.txt";
+constexpr const char* JesUncertaintySourceFILE = "Summer13_V5_DATA_UncertaintySources_AK5PFchs.txt";
 
 
 
