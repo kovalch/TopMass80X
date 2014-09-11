@@ -68,7 +68,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         23,
         234.0,
         {"ttbarbg.root"},
-        Sample::ttbg
+        Sample::ttNoDilepton
     );
     
     result["singletop"] = Sample(
