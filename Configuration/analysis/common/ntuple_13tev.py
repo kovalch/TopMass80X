@@ -504,18 +504,46 @@ process.jetProperties.src = jetCollection
 ####################################################################
 ## Final GEN object collections to be used in nTuple
 
-genJetCollection = 'ak5GenJetsPlusBCHadron'
-
 genParticleCollection = ''
+genJetInputParticleCollection = ''
 if options.runOnAOD:
     genParticleCollection = 'genParticles'
+    genJetInputParticleCollection = 'genParticles'
 else:
     genParticleCollection = 'prunedGenParticles'
+    genJetInputParticleCollection = 'packedGenParticles'
+
+genJetCollection = 'ak5GenJets'
+genJetFlavourInfoCollection = 'ak5GenJetFlavourInfos'
+
 
 genLevelBJetProducerInput = 'produceGenLevelBJets'
 
 genBHadronMatcherInput = 'matchGenBCHadronB'
 genCHadronMatcherInput = 'matchGenBCHadronC'
+
+
+
+####################################################################
+## Form gen jets, and jet flavour info with ghost hadrons and leptons injected
+## Details in: PhysicsTools/JetExamples/test/printJetFlavourInfo.cc, PhysicsTools/JetExamples/test/printJetFlavourInfo.py
+## FIXME: How to remove electrons and muons from resonances for genJet clustering???
+## FIXME: and how to remove neutrinos???
+
+# Supply PDG ID to real name resolution of MC particles
+process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+
+# Gen jets
+from RecoJets.JetProducers.ak5GenJets_cfi import ak5GenJets
+process.ak5GenJets = ak5GenJets.clone(src = genJetInputParticleCollection)
+
+# Ghost particle collection
+from PhysicsTools.JetMCAlgos.HadronAndPartonSelector_cfi import selectedHadronsAndPartons
+process.selectedHadronsAndPartons = selectedHadronsAndPartons.clone(particles = genParticleCollection)
+
+# Flavour info: jet collection with all associated ghosts
+from PhysicsTools.JetMCAlgos.AK5PFJetsMCFlavourInfos_cfi import ak5JetFlavourInfos
+process.ak5GenJetFlavourInfos = ak5JetFlavourInfos.clone(jets = genJetCollection)
 
 
 
@@ -564,21 +592,22 @@ if zGenInfo:
 
 if topSignal:
     process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi") # Supplies PDG ID to real name resolution of MC particles
-    from TopAnalysis.TopUtils.sequences.GenHFHadronMatching_cff import genParticlesForJetsPlusBCHadron
-    from TopAnalysis.TopUtils.sequences.GenHFHadronMatching_cff import ak5GenJetsPlusBCHadron
-    from TopAnalysis.TopUtils.sequences.GenHFHadronMatching_cff import matchGenBCHadronB
-    from TopAnalysis.TopUtils.sequences.GenHFHadronMatching_cff import matchGenBCHadronC
-    process.genParticlesForJetsPlusBCHadron = genParticlesForJetsPlusBCHadron
-    process.ak5GenJetsPlusBCHadron = ak5GenJetsPlusBCHadron
-    process.matchGenBCHadronB = matchGenBCHadronB
-    process.matchGenBCHadronC = matchGenBCHadronC
-    process.genParticlesForJetsPlusBCHadron.src = genParticleCollection
-
+    from TopAnalysis.TopUtils.sequences.GenHFHadronMatching_JetFlavourInput_cff import matchGenBCHadronB
+    from TopAnalysis.TopUtils.sequences.GenHFHadronMatching_JetFlavourInput_cff import matchGenBCHadronC
+    process.matchGenBCHadronB = matchGenBCHadronB.clone(
+        genParticles = genParticleCollection,
+        jetFlavourInfos = genJetFlavourInfoCollection,
+    )
+    process.matchGenBCHadronC = matchGenBCHadronC.clone(
+        genParticles = genParticleCollection,
+        jetFlavourInfos = genJetFlavourInfoCollection,
+    )
+    
     process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi") # Supplies PDG ID to real name resolution of MC particles
     process.load("TopAnalysis.TopUtils.GenLevelBJetProducer_cfi")
     process.produceGenLevelBJets.deltaR = 5.0
     process.produceGenLevelBJets.noBBbarResonances = True
-    process.produceGenLevelBJets.genJets = process.matchGenBCHadronB.genJets
+    process.produceGenLevelBJets.genJets = genJetCollection
 
 if higgsSignal:
     process.load("TopAnalysis.HiggsUtils.sequences.higgsGenEvent_cff")
