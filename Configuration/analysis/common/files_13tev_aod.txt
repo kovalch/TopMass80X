@@ -13,6 +13,9 @@
 # ttbar pythia8
 100   Spring14.AOD.TT_Tune4C_13TeV_pythia8_tauola_Spring14dr_Flat20to50_POSTLS170_V5_v1_cff                           ttbarsignalplustauPythia8.root      ttbarsignalplustau,includePDFWeights=True
 
-# ttH
+# ttH pythia6
 20    Spring14.AOD.TTbarH_HToBB_M_125_13TeV_pythia6_Spring14dr_PU_S14_POSTLS170_V6_v1_cff                             ttbarH125tobbbar.root               ttbarhiggstobbbar
+
+# ttH aMC@NLO
+25    Spring14.AOD.TTbarH_M_125_13TeV_amcatnlo_pythia8_tauola_Spring14dr_PU20bx25_POSTLS170_V5_v1_cff                 ttbarH125inclusive_amcatnlo.root    ttbarhiggsinclusive
 

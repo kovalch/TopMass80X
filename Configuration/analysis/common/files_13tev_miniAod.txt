@@ -8,8 +8,10 @@
 
 
 # ttbar pythia8
-1     Spring14.miniAOD.TT_Tune4C_13TeV_pythia8_tauola_PU_S14_PAT_cff                               ttbarsignalplustauPythia8_miniAod.root      ttbarsignalplustau,runOnAOD=False,includePDFWeights=True
+1     Spring14.miniAOD.TT_Tune4C_13TeV_pythia8_tauola_PU_S14_PAT_cff                                                ttbarsignalplustauPythia8_miniAod.root      ttbarsignalplustau,runOnAOD=False,includePDFWeights=True
 
-# ttH
-1     Spring14.miniAOD.TTbarH_HToBB_M_125_13TeV_pythia6_PU_S14_PAT_cff                             ttbarH125tobbbar_miniAod.root               ttbarhiggstobbbar,runOnAOD=False
+# ttH pythia6
+1     Spring14.miniAOD.TTbarH_HToBB_M_125_13TeV_pythia6_PU_S14_PAT_cff                                              ttbarH125tobbbar_miniAod.root               ttbarhiggstobbbar,runOnAOD=False
 
+# ttH aMC@NLO
+5     Spring14.miniAOD.TTbarH_M_125_13TeV_amcatnlo_pythia8_tauola_Spring14miniaod_PU20bx25_POSTLS170_V5_v1_cff      ttbarH125inclusive_amcatnlo_miniAod.root    ttbarhiggsinclusive,runOnAOD=False
