@@ -274,7 +274,7 @@ sub submitJob {
     my ($dir, $dirBase) = fileparse(File::Spec->canonpath("$current/$dirWithRelPath"));
     if (chdir($dirBase)) {
         $script ||= do { open my $FH, '<', "$dir/exe"; <$FH> };
-        my $line = `qsub -t $from-$to:1 $args{'Q'} $dir/$script`;
+        my $line = `qsub -l distro=sld6 -t $from-$to:1 $args{'Q'} $dir/$script`;
         if ($line =~ /Your job-array (\d+)(?:\.\d+-\d+:1) \(".+"\) has been submitted/) {
             my $success;
             my $ids = ''; $ids .= "$_\t$1\n" for $from..$to;
