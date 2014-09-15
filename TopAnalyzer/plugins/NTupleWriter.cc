@@ -657,7 +657,8 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         edm::Handle<HiggsGenEvent> genEventHiggs;
         iEvent.getByLabel(genEventHiggsTag_, genEventHiggs);
         if(!genEventHiggs.failedToGet()){
-            genH_ = genEventHiggs->higgs()->polarP4();
+            if(genEventHiggs->higgs()) genH_ = genEventHiggs->higgs()->polarP4();
+            else genH_ = nullP4_;
             if(genEventHiggs->b()) genBFromH_ = genEventHiggs->b()->polarP4();
             else genBFromH_ = nullP4_;
             if(genEventHiggs->bBar()) genAntiBFromH_ = genEventHiggs->bBar()->polarP4();

@@ -197,7 +197,7 @@ HiggsDecaySubset::findHiggs(const reco::GenParticleCollection& v_particle)
             v_higgs.push_back( &(*i_particle) );
         }
     }
-    if(v_higgs.size() != 1) edm::LogWarning("decayChain")<<"Not exactly 1 Higgs found in event, but: "<<v_higgs.size();
+    if(v_higgs.size() != 1) edm::LogInfo("decayChain")<<"Not exactly 1 Higgs found in event, but: "<<v_higgs.size();
     return v_higgs;
 }
 
