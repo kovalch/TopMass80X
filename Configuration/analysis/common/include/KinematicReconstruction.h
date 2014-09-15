@@ -65,15 +65,15 @@ public:
 private:
     
     /// Calculate solution for specific lepton, antilepton and pair of jets
-    KinematicReconstructionSolution solution(const int leptonIndex, const int antiLeptonIndex,
-                                             const int jetIndex1, const int jetIndex2,
-                                             const VLV& allLeptons,
-                                             const VLV& allJets, const std::vector<double>& btags,
-                                             const LV& met,
-                                             const int numberOfBtags)const;
+    std::vector<KinematicReconstructionSolution> solutionsPerObjectCombination(const int leptonIndex, const int antiLeptonIndex,
+                                                                               const int jetIndex1, const int jetIndex2,
+                                                                               const VLV& allLeptons,
+                                                                               const VLV& allJets, const std::vector<double>& btags,
+                                                                               const LV& met,
+                                                                               const int numberOfBtags)const;
     
     /// Set seeds for random number generators
-    void setRandomNumberSeeds(const LV& antiLepton, const LV& lepton)const;
+    void setRandomNumberSeeds(const LV& lepton, const LV& antiLepton, const LV& jet1, const LV& jet2)const;
     
     /// Minimum number of b-tags required for solutions (0, 1, 2)
     const int minNumberOfBtags_;

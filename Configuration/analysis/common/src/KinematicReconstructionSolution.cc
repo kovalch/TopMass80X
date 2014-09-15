@@ -129,6 +129,13 @@ KinematicReconstructionSolutions::KinematicReconstructionSolutions()
 
 
 
+void KinematicReconstructionSolutions::addSolutions(const std::vector<KinematicReconstructionSolution>& solutions)
+{
+    for(const auto& solution : solutions) this->addSolution(solution);
+}
+
+
+
 void KinematicReconstructionSolutions::addSolution(const KinematicReconstructionSolution& solution)
 {
     // Initialise all maps of weight-ordered solution indices, in first solution only

@@ -18,7 +18,7 @@ class KinematicReconstructionSolution{
 public:
     
     /// Enumeration for all defined weights of a kinematic reconstruction solution
-    enum WeightType{averagedSumSmearings_mlb, undefinedWeight};
+    enum WeightType{defaultForMethod, neutrinoEnergy, averagedSumSmearings_mlb, undefinedWeight};
     
     
     
@@ -76,7 +76,7 @@ public:
     int antiBjetIndex()const{return antiBjetIndex_;}
     const double& reconstructedTopMass()const{return reconstructedTopMass_;}
     int numberOfBtags()const{return numberOfBtags_;}
-    const double& weight(const WeightType weightType =averagedSumSmearings_mlb)const{return m_weight_.at(weightType);}
+    const double& weight(const WeightType weightType =defaultForMethod)const{return m_weight_.at(weightType);}
     
     const std::map<WeightType, double>& weightMap()const{return m_weight_;}
     
@@ -124,6 +124,9 @@ public:
     
     
     
+    /// Add a vector of solutions
+    void addSolutions(const std::vector<KinematicReconstructionSolution>& solutions);
+    
     ///  Add a solution
     void addSolution(const KinematicReconstructionSolution& solution);
     
@@ -143,19 +146,19 @@ public:
     
     
     /// Access from all solutions the one selected with solutionNumber, ranked by decreasing specific weight
-    const KinematicReconstructionSolution& solution(const KinematicReconstructionSolution::WeightType weightType =KinematicReconstructionSolution::averagedSumSmearings_mlb,
+    const KinematicReconstructionSolution& solution(const KinematicReconstructionSolution::WeightType weightType =KinematicReconstructionSolution::defaultForMethod,
                                                     const size_t solutionNumber =0)const;
     
     /// Access from solutions with 2 b-tags the one selected with solutionNumber, ranked by decreasing specific weight
-    const KinematicReconstructionSolution& solutionTwoBtags(const KinematicReconstructionSolution::WeightType weightType =KinematicReconstructionSolution::averagedSumSmearings_mlb,
+    const KinematicReconstructionSolution& solutionTwoBtags(const KinematicReconstructionSolution::WeightType weightType =KinematicReconstructionSolution::defaultForMethod,
                                                             const size_t solutionNumber =0)const;
     
     /// Access from solutions with 1 b-tag the one selected with solutionNumber, ranked by decreasing specific weight
-    const KinematicReconstructionSolution& solutionOneBtag(const KinematicReconstructionSolution::WeightType weightType =KinematicReconstructionSolution::averagedSumSmearings_mlb,
+    const KinematicReconstructionSolution& solutionOneBtag(const KinematicReconstructionSolution::WeightType weightType =KinematicReconstructionSolution::defaultForMethod,
                                                            const size_t solutionNumber =0)const;
     
     /// Access from solutions with 0 b-tags the one selected with solutionNumber, ranked by decreasing specific weight
-    const KinematicReconstructionSolution& solutionNoBtags(const KinematicReconstructionSolution::WeightType weightType =KinematicReconstructionSolution::averagedSumSmearings_mlb,
+    const KinematicReconstructionSolution& solutionNoBtags(const KinematicReconstructionSolution::WeightType weightType =KinematicReconstructionSolution::defaultForMethod,
                                                            const size_t solutionNumber =0)const;
     
     
