@@ -704,7 +704,7 @@ writeNTuple.genParticles = genParticleCollection
 writeNTuple.genJets = genJetCollection
 writeNTuple.pdfWeights = "pdfWeights:CT10"
 
-writeNTuple.BHadJetIndex = cms.InputTag(genLevelBJetProducerInput, "BHadJetIndex")
+writeNTuple.BHadJetIndex = "NONE"
 writeNTuple.AntiBHadJetIndex = cms.InputTag(genLevelBJetProducerInput, "AntiBHadJetIndex")
 writeNTuple.BHadrons = cms.InputTag(genLevelBJetProducerInput, "BHadrons")
 writeNTuple.AntiBHadrons = cms.InputTag(genLevelBJetProducerInput, "AntiBHadrons")
