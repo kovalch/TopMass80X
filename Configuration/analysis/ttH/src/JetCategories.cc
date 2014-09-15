@@ -91,17 +91,16 @@ JetCategories::JetCategories(const int minNumberOfJets, const int maxNumberOfJet
                  <<minNumberOfJets<<" , "<<minNumberOfBjets<<"...break\n"<<std::endl;
         exit(309);
     }
-    if(maxNumberOfJets < maxNumberOfBjets && !greaterEqualJetNumber){
+    if(maxNumberOfJets < maxNumberOfBjets){
         std::cerr<<"ERROR in JetCategories! Maximum number of jets smaller than maximum number of b-jets (jets, b-jets): "
                  <<maxNumberOfJets<<" , "<<maxNumberOfBjets<<"...break\n"<<std::endl;
         exit(310);
     }
     
     // Add all categories by looping over requested number of jets and number of b-jets
-    for(int nBjets = minNumberOfBjets; nBjets <= maxNumberOfBjets; ++nBjets){
-        const int maxNumberOfJetsForNumberOfBjets = greaterEqualJetNumber ? std::max(maxNumberOfJets, nBjets) : maxNumberOfJets;
-        const int minNumberOfJetsForNumberOfBjets = greaterEqualJetNumber ? std::max(minNumberOfJets, nBjets) : minNumberOfJets;
-        for(int nJets = minNumberOfJetsForNumberOfBjets; nJets <= maxNumberOfJetsForNumberOfBjets; ++nJets){
+    for(int nJets = minNumberOfJets; nJets <= maxNumberOfJets; ++nJets){
+        const int maxNumberOfBjetsForNumberOfJets = std::min(nJets, maxNumberOfBjets);
+        for(int nBjets = minNumberOfBjets; nBjets <= maxNumberOfBjetsForNumberOfJets; ++nBjets){
             if(nJets<maxNumberOfJets && nBjets<maxNumberOfBjets){
                 this->addCategory(nJets, nBjets, false, false);
             }
@@ -109,10 +108,10 @@ JetCategories::JetCategories(const int minNumberOfJets, const int maxNumberOfJet
                 const bool greaterEqual = nJets>maxNumberOfBjets ? greaterEqualBjetNumber : false;
                 this->addCategory(nJets, nBjets, false, greaterEqual);
             }
-            else if(nJets>=maxNumberOfJets && nBjets<maxNumberOfBjets){
+            else if(nJets==maxNumberOfJets && nBjets<maxNumberOfBjets){
                 this->addCategory(nJets, nBjets, greaterEqualJetNumber, false);
             }
-            else if(nJets>=maxNumberOfJets && nBjets>=maxNumberOfBjets){
+            else if(nJets==maxNumberOfJets && nBjets==maxNumberOfBjets){
                 this->addCategory(nJets, nBjets, greaterEqualJetNumber, greaterEqualBjetNumber);
             }
         }
