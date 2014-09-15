@@ -89,6 +89,10 @@ private:
     void bookLeadingJetsHistos (std::map<TString, TH1*>& m_histogram, const TString addName, const TString& step, 
                                 const TString& label);
     
+    /// Book set of histograms for a particular set of histograms regarding top/additional jets/b-jets for control plots
+    void bookLeadingJetsCPHistos (std::map<TString, TH1*>& m_histogram, const TString addName, const TString& step, 
+                                  const TString& label);
+    
     /// Book set of histograms for a particular set of histograms regarding gen-reco jets correlations
     void bookAddGenJetsCorrelationHistos (std::map<TString, TH1*>& m_histogram, const TString addName, const TString& step, 
                                           const TString& label, const bool bookJetwiseHistos = false);
