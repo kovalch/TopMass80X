@@ -179,8 +179,7 @@ void load_Analysis(const TString& validFilenamePattern,
     else if(jetCategoriesId == 1) jetCategories = new JetCategories(2, 5, 0, 5, true, true); // Overview categories
     else if(jetCategoriesId == 2) jetCategories = new JetCategories(4, 4, 1, 3, true, true); // 4-jet categories of default categories
     else if(jetCategoriesId == 3) jetCategories = new JetCategories(4, 4, 2, 4, true, true); // Nazar's categories
-    else if(jetCategoriesId == 4) jetCategories = new JetCategories(4, 4, 4, 4, true, false); // 4 exclusive b-tags for tt+bb diff. xsection (dijet)
-    else if(jetCategoriesId == 5) jetCategories = new JetCategories(3, 3, 3, 3, true, true);  // 3 inclusive b-tags for tt+bb diff. xsection (jet)
+    else if(jetCategoriesId == 4) jetCategories = new JetCategories(3, 3, 3, 4, true, false); // For tt+bb and tt+b diff. xsection
     if(!jetCategories){
         std::cerr<<"Error in load_Analysis! No jet categories defined\n...break\n"<<std::endl;
         exit(832);
