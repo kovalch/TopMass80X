@@ -839,12 +839,12 @@ int HiggsAnalysis::matchRecoToGenJet(const std::vector<int>& jetIndices, const V
     }
     
     // Call a jet matched if it is close enough, and has similar pt
-    if(deltaRJet>0.4) return -2;
+    if(deltaRJet > 0.4) return -2;
     if(result >= 0){
         const double ptRecoJet = jets.at(result).pt();
         const double ptJet = genJet.pt();
         const double deltaPtRel = (ptJet - ptRecoJet)/ptJet;
-        if(deltaPtRel<-0.4 || deltaPtRel>0.6) return -3;
+        if(deltaPtRel<-0.5 || deltaPtRel>0.6) return -3;
     }
     
     return result;

@@ -184,20 +184,6 @@ mvaSetup::SystematicChannelFileNames mvaSetup::mergeTrees(const char* mvaInputDi
 
 
 
-
-
-
-
-// FIXME: for now systematic is not used to study systematic variations which modify Higgs samples,
-// FIXME: but running on all Higgs masses
-namespace Systematic{
-    const std::vector<Type> allowedSystematics = {
-        nominal, mH110, mH115, mH120, mH1225, mH1275, mH130, mH135, mH140
-    };
-}
-
-
-
 mvaSetup::SystematicChannelFileNames mvaSetup::systematicChannelFileNames(const char* filelistDirectory,
                                                                           const std::vector<Channel::Channel>& v_channel,
                                                                           const std::vector<Systematic::Systematic>& v_systematic,
@@ -209,13 +195,10 @@ mvaSetup::SystematicChannelFileNames mvaSetup::systematicChannelFileNames(const 
         std::map<Channel::Channel, std::vector<TString> >& m_channelFileNames = m_systematicChannelFileNames[systematic];
         for(const auto& channel : v_channel){
             std::vector<TString>& v_filename = m_channelFileNames[channel];
-            // FIXME: for now systematic is not used to study systematic variations which modify Higgs samples,
-            // FIXME: but running on all Higgs masses
-            for(const auto& systematicMass : Systematic::allowedSystematicsAnalysis(Systematic::allowedSystematics)){
-                // Read the full input filenames from the FileList
-                if(forTraining) v_filename = common::readFilelist(filelistDirectory, channel, systematicMass, {"ttbarH", "inclusiveBbbar"});
-                else v_filename = common::readFilelist(filelistDirectory, channel, systematicMass, {"ttbarH", "tobbbar"});
-            }
+            
+            // Read the full input filenames from the FileList
+            if(forTraining) v_filename = common::readFilelist(filelistDirectory, channel, systematic, {"ttbarH", "inclusiveBbbar"});
+            else v_filename = common::readFilelist(filelistDirectory, channel, systematic, {"ttbarH", "tobbbar"});
         }
     }
     
