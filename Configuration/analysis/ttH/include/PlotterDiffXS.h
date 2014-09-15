@@ -13,6 +13,7 @@ class TH2;
 class TGraph;
 class TGraphErrors;
 class TPaveText;
+class TPad;
 
 #include "plotterHelpers.h"
 #include "SamplesFwd.h"
@@ -88,6 +89,13 @@ private:
     /// Draw purity/stability plots for the response matrices
     void drawPurityStability(TH2* histo2d, TString name)const;
     
+    /// Add area for the ratio plot
+    TH1* drawRatioPad(TPad* pad, const double yMin, const double yMax, TH1* axisHisto, const double fraction = 0.36, 
+                      const TString title = "#frac{Data}{Theory}")const;
+    
+    /// Get a ratio histogram
+    TH1* ratioHistogram(const TH1* h_nominator, const TH1* h_denominator)const;
+    
     /// Draw signal significance label over the plot
     TPaveText* drawSignificance(TH1* signal, TH1* bkg, float Xmin,  float Xmax, float yOffset = 0.f, std::string sLabel ="", const int type=0)const;
     
@@ -105,7 +113,7 @@ private:
     
     /// Calculate differential cross section
     std::map<TString, TH1*> calculateDiffXS(const TH1* h_data, const TH1* h_signal, const TH1* h_bkg, const TH1* h_signal_noWeight, 
-                                            const TH1* h_signal_gen, const TH1* h_ttbar_gen)const;
+                                            const TH1* h_signal_gen, const TH1* h_response, const TH1* h_ttbar_gen)const;
     
     
     
@@ -130,6 +138,9 @@ private:
     
     /// Sample-Histogram pairs for gen level events
     std::vector<SampleHistPair> v_sampleHistPairGenEventBased_;
+    
+    /// Sample-Histogram pairs for response matrices
+    std::vector<SampleHistPair> v_sampleHistPairResponse_;
     
     
     /// Map holding global scale factors for steps they were already accessed, to avoid re-calculating them

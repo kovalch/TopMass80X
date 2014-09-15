@@ -113,8 +113,8 @@ int main(int argc, char** argv){
     
     // Get and check configuration parameters
     CLParameter<std::string> opt_plot("p", "Name (pattern) of plot; multiple patterns possible; use '+Name' to match name exactly", false, 1, 100);
-    CLParameter<std::string> opt_channel("c", "Specify channel(s), valid: emu, ee, mumu, combined. Default: all channels", false, 1, 4,
-        common::makeStringCheck(Channel::convert(Channel::allowedChannelsPlotting)));
+//     CLParameter<std::string> opt_channel("c", "Specify channel(s), valid: emu, ee, mumu, combined. Default: all channels", false, 1, 4,
+//         common::makeStringCheck(Channel::convert(Channel::allowedChannelsPlotting)));
     CLParameter<std::string> opt_systematic("s", "Systematic variation - default is Nominal, use 'all' for all", false, 1, 100,
         common::makeStringCheckBegin(Systematic::convertType(Systematic::allowedSystematics)));
     CLParameter<std::string> opt_globalCorrection("g", "Specify global correction, valid: empty argument for none, Drell-Yan (dy), tt+HF (ttbb). Default: dy ttbb", false, 0, 2,
@@ -132,7 +132,7 @@ int main(int argc, char** argv){
     
     // Set up channels
     std::vector<Channel::Channel> v_channel(Channel::allowedChannelsPlotting);
-    if(opt_channel.isSet()) v_channel = Channel::convert(opt_channel.getArguments());
+//     if(opt_channel.isSet()) v_channel = Channel::convert(opt_channel.getArguments());
     std::cout << "Processing channels: ";
     for(auto channel : v_channel) std::cout << Channel::convert(channel) << " ";
     std::cout << "\n\n";

@@ -6,6 +6,7 @@
 #include <iomanip>
 
 #include <TCanvas.h>
+#include <TPad.h>
 #include <TLegend.h>
 #include <TExec.h>
 #include <TStyle.h>
@@ -16,6 +17,7 @@
 #include <TString.h>
 #include <TH1.h>
 #include <TH2.h>
+#include <TF1.h>
 #include <TGraphErrors.h>
 #include <TGaxis.h>
 #include <TPaveText.h>
@@ -150,6 +152,15 @@ void PlotterDiffXS::producePlots()
                          <<"\n... skip this plot\n";
                 return;
             }
+            // Getting response 2D histograms for the cross section
+            TString nameResponse(name_);
+            nameResponse.ReplaceAll("_step", "VsGen_step");
+            if(!this->prepareDataset(v_sample, v_weight, v_sampleHistPairResponse_, nameResponse)) {
+                std::cout<<"WARNING! Cannot find response histogram for all datasets, for (channel/systematic): "
+                         << Channel::convert(channel) << "/" << systematic.name()
+                         <<"\n... skip this plot\n";
+                return;
+            }
             
             this->writeDiffXS(channel, systematic);
         }
@@ -272,12 +283,16 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
     std::vector<LegendHistPair> ttbarHistsGen = legendHistPairsForSamples(sampleTypesTtbar_, v_sampleHistPairGenEventBased_);
     TH1* h_ttbar_gen = sumOfHistos(ttbarHistsGen, "h_ttbar_gen");
     
+    // Get response matrix
+    std::vector<LegendHistPair> ttbarHists_response = legendHistPairsForSamples(sampleTypesTtbar_, v_sampleHistPairResponse_);
+    TH1* h_ttbar_response = sumOfHistos(ttbarHists_response, "h_ttbar_response");
+    
     // Calculating actual differential cross section and getting corresponding histograms
-    std::map<TString, TH1*> xsectionSet= calculateDiffXS(h_data, h_signal, h_background, h_signal_noWeight, h_signal_gen, h_ttbar_gen);
+    std::map<TString, TH1*> xsectionSet= calculateDiffXS(h_data, h_signal, h_background, h_signal_noWeight, h_signal_gen, h_ttbar_response, h_ttbar_gen);
     
 
     if(!xsectionSet.size()) {
-        std::cerr<<"ERROR in Plotter! Histogram for the cross section not produced\n...break\n"<<std::endl;
+        std::cerr<<"ERROR in Plotter! Histograms for the cross section not produced\n...break\n"<<std::endl;
         exit(237);
     }
 
@@ -285,33 +300,37 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
     // Obtaining the proper histogram to be plotted
     TH1* h_xs_data = xsectionSet.at("diffXS_data");
     TH1* h_xs_mc = xsectionSet.at("diffXS_madgraph");
+    const double norm_scale_mc = h_xs_mc->GetBinContent(0);
+    char legendEntry[100];
+    sprintf(legendEntry, "Madgraph x%.1f", norm_scale_mc);
     
     
     // Add entries to legend
-    legend->AddEntry(xsectionSet.at("diffXS_data"), "Data","pe");
-    legend->AddEntry(xsectionSet.at("diffXS_madgraph"), "MadGraph","l");
+    legend->AddEntry(h_xs_data, "Data","pe");
+    legend->AddEntry(h_xs_mc, legendEntry,"l");
 
     if(logY_) canvas->SetLogy();
     setHistoStyle(h_xs_data, 1, 1, 1, 0, 0, 20, 1, 1.5);
     setHistoStyle(h_xs_mc, 1, 2, 1, 0, 0, 0, 2, 1.5);
+    
     updateHistoAxis(h_xs_data);
     updateHistoAxis(h_xs_mc);
     
 
     // Draw cross section histograms
     h_xs_data->Draw("E1");
-    h_xs_mc->Draw("same");
-    
-    // Draw data to be overlaid
+    h_xs_mc->Draw("hist same");
     h_xs_data->Draw("sameE1");
+    
     
     // Put additional stuff to histogram
     this->drawCmsLabels(2, 8);
     this->drawDecayChannelLabel(channel);
-    legend->Draw("SAME");
-    common::drawRatio(h_xs_data, h_xs_mc, 0, 0.7, 3.0);
-//     h_xs_data->GetXaxis()->SetLabelSize(0);
-//     h_xs_data->GetXaxis()->SetTitleSize(0);
+    legend->Draw("same");
+    drawRatioPad(canvas, 0.0, 3.0, h_xs_data);
+    
+    TH1* h_ratioDataMadgraph = ratioHistogram(h_xs_data, h_xs_mc);
+    h_ratioDataMadgraph->Draw("sameE1");
 
     // Create Directory for Output Plots and write them
     const TString eventFileString = common::assignFolder(outputDir_, channel, systematic);
@@ -362,7 +381,7 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
 
 
 std::map<TString, TH1*> PlotterDiffXS::calculateDiffXS(const TH1* h_data, const TH1* h_signal, const TH1* h_bkg, const TH1* h_signal_noWeight, 
-                                                             const TH1* h_signal_gen, const TH1* h_ttbar_gen)const
+                                                             const TH1* h_signal_gen, const TH1* , const TH1* h_ttbar_gen)const
 {
     std::map<TString, TH1*> result;
     
@@ -452,6 +471,9 @@ std::map<TString, TH1*> PlotterDiffXS::calculateDiffXS(const TH1* h_data, const 
         xsection.e = N_signal_reco.e / (acceptance.v*br_dilepton.v*luminosity.v);
         if(xsection.v != xsection.v) xsection.v = 0.;
         if(xsection.e != xsection.e) xsection.e = 0.;
+        // Dividing by the bin width
+        xsection.v /= h_diffXS_data->GetBinWidth(iBin);
+        xsection.e /= h_diffXS_data->GetBinWidth(iBin);
         
         h_diffXS_data->SetBinContent(iBin, xsection.v);
         h_diffXS_data->SetBinError(iBin, xsection.e);
@@ -470,13 +492,20 @@ std::map<TString, TH1*> PlotterDiffXS::calculateDiffXS(const TH1* h_data, const 
         xsection.e = sqrt(xsection_tt_dilepton.eOv2() * ttbbFraction.v2() + ttbbFraction.eOv2());
         if(xsection.v != xsection.v) xsection.v = 0.;
         if(xsection.e != xsection.e) xsection.e = 0.;
+        // Dividing by the bin width
+        xsection.v /= h_diffXS_madgraph->GetBinWidth(iBin);
+        xsection.e /= h_diffXS_madgraph->GetBinWidth(iBin);
         
         h_diffXS_madgraph->SetBinContent(iBin, xsection.v);
-//         h_diffXS_madgraph->SetBinError(iBin, xsection.e);
+        h_diffXS_madgraph->SetBinError(iBin, xsection.e);
     }
+    // Scaling to the measured inclusive cross section (for shape comparison)
+    const double normScale = h_diffXS_data->Integral() / h_diffXS_madgraph->Integral();
+    h_diffXS_madgraph->Scale(normScale);
+    // Setting the normalisation scale to the underflow bin
+    h_diffXS_madgraph->SetBinContent(0, normScale);
+    
     result["diffXS_madgraph"] = h_diffXS_madgraph;
-    
-    
     
     
     // Removing created objects
@@ -497,11 +526,10 @@ void PlotterDiffXS::writeResponseMatrix(const Channel::Channel& channel, const S
     canvas->SetTitle("");
     
     
-    // Loop over all samples and add those with identical legendEntry
-    // And sort them into the categories data, Higgs, other
+    // Loop over all specified samples and add those with identical legendEntry
     std::vector<LegendHistPair> ttbarHists = legendHistPairsForSamples(sampleTypesTtbar_, v_sampleHistPair_);
     
-    // Create histogram corresponding to the sum of all stacked signal histograms
+    // Create histogram corresponding to the sum of all specified samples
     TH1* h_ttbar = sumOfHistos(ttbarHists, "h_ttbar_reco");
 
     
@@ -575,145 +603,37 @@ void PlotterDiffXS::writeResponseMatrix(const Channel::Channel& channel, const S
 
 
 
-void PlotterDiffXS::setHistoStyle(TH1* hist, Style_t line, Color_t lineColor, Size_t lineWidth, 
-                                  Style_t fill, Color_t fillColor, 
-                                  Style_t marker, Color_t markerColor, Size_t markerSize)const
+double PlotterDiffXS::uncertaintyBinomial(const double pass, const double all)const 
 {
-    hist->SetLineStyle(line);
-    hist->SetLineColor(lineColor);
-    hist->SetLineWidth(lineWidth);
-    
-    hist->SetFillStyle(fill);
-    hist->SetFillColor(fillColor);
-    
-    hist->SetMarkerStyle(marker);
-    hist->SetMarkerColor(markerColor);
-    hist->SetMarkerSize(markerSize);
-    
-    hist->GetXaxis()->SetLabelFont(42);
-    hist->GetYaxis()->SetLabelFont(42);
-    hist->GetXaxis()->SetTitleFont(42);
-    hist->GetYaxis()->SetTitleFont(42);
-    hist->GetYaxis()->SetTitleOffset(1.7);
-    hist->GetXaxis()->SetTitleOffset(1.25);
+    return (1./all)*sqrt(pass - pass*pass/all);
 }
 
 
-void PlotterDiffXS::updateHistoAxis(TH1* histo)const
+TGraphErrors* PlotterDiffXS::purityStabilityGraph(TH2* h2d, const int type)const
 {
-    // Set x and y axis ranges
-    if(logY_){
-      // Setting minimum to >0 value
-      // FIXME: Should we automatically calculate minimum value instead of the fixed value?
-      histo->SetMinimum(1e-1);
-      if(ymin_>0) histo->SetMinimum(ymin_);
-    }
-    else histo->SetMinimum(ymin_);
 
-    if(rangemin_!=0. || rangemax_!=0.) {histo->SetAxisRange(rangemin_, rangemax_, "X");}
-    
-    if(ymax_==0.){
-        // Determining the highest Y value that is plotted
-        float yMax = histo ? histo->GetBinContent(histo->GetMaximumBin()) : 0.f;
+    const int nBins = h2d->GetNbinsX();
+
+    TGraphErrors* graph = new TGraphErrors(nBins);
+
+    // Calculating each point of graph for each diagonal bin
+    for(int iBin = 1; iBin<=nBins; ++iBin) {
+        const double diag = h2d->GetBinContent(iBin, iBin);
+        const double reco = h2d->Integral(iBin, iBin, 1, -1)+1e-30;
+        const double gen = h2d->Integral(1, -1, iBin, iBin)+1e-30;
         
-        // Scaling the Y axis
-        if(logY_){histo->SetMaximum(18.*yMax);}
-        else{histo->SetMaximum(1.35*yMax);}
-    }
-    else{histo->SetMaximum(ymax_);}
+        const double value = type == 0 ? diag/reco : diag/gen;
+        const double error = type == 0 ? uncertaintyBinomial(diag, reco) : uncertaintyBinomial(diag, gen);
 
-    histo->GetXaxis()->SetNoExponent(kTRUE);
-    // Set axis titles
-    if(XAxis_ != "-") histo->GetYaxis()->SetTitle(YAxis_);
-    if(YAxis_ != "-") histo->GetXaxis()->SetTitle(XAxis_);
-}
-
-
-
-void PlotterDiffXS::drawDecayChannelLabel(const Channel::Channel& channel, const double& textSize)const
-{
-    TPaveText* decayChannel = new TPaveText();
-
-    decayChannel->AddText(Channel::label(channel));
-
-    decayChannel->SetX1NDC(      gStyle->GetPadLeftMargin() + gStyle->GetTickLength()        );
-    decayChannel->SetY1NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength() - 0.05 );
-    decayChannel->SetX2NDC(      gStyle->GetPadLeftMargin() + gStyle->GetTickLength() + 0.15 );
-    decayChannel->SetY2NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength()        );
-
-    decayChannel->SetFillStyle(0);
-    decayChannel->SetBorderSize(0);
-    if (textSize!=0) decayChannel->SetTextSize(textSize);
-    decayChannel->SetTextAlign(12);
-    decayChannel->Draw("same");
-}
-
-
-
-void PlotterDiffXS::drawCmsLabels(const int cmsprelim, const double& energy, const double& textSize)const
-{
-    const char* text;
-    if(cmsprelim == 2) text = "Private Work, %2.1f fb^{-1} at #sqrt{s} = %2.f TeV"; // Private work for PhDs students
-    else if (cmsprelim == 1) text = "CMS Preliminary, %2.1f fb^{-1} at #sqrt{s} = %2.f TeV"; // CMS preliminary label
-    else text = "CMS, %2.1f fb^{-1} at #sqrt{s} = %2.f TeV"; // CMS label
-
-    TPaveText* label = new TPaveText();
-    label->SetX1NDC(gStyle->GetPadLeftMargin());
-    label->SetY1NDC(1.0 - gStyle->GetPadTopMargin());
-    label->SetX2NDC(1.0 - gStyle->GetPadRightMargin());
-    label->SetY2NDC(1.0);
-    label->SetTextFont(42);
-    label->AddText(Form(text, samples_.luminosityInInversePb()/1000., energy));
-    label->SetFillStyle(0);
-    label->SetBorderSize(0);
-    if(textSize != 0) label->SetTextSize(textSize);
-    label->SetTextAlign(32);
-    label->Draw("same");
-}
-
-
-
-TPaveText* PlotterDiffXS::drawSignificance(TH1* signal, TH1* sigBkg, float min, float max, float yOffset, std::string sLabel, const int type)const
-{
-    TPaveText *label = new TPaveText();
-    if(max<=min) {
-        std::cout<<"Wrong range for signal significance in  histogram ("<<name_<<")\n";
-        return label;
-    }
-    
-    if(!signal || !sigBkg) {
-        std::cout<<"Some input histogram for the signal significance calculation not available\n";
-        return label;
+        const double bin = h2d->GetXaxis()->GetBinCenter(iBin);
+        const double binW = h2d->GetXaxis()->GetBinWidth(iBin);
+        
+        graph->SetPoint(iBin-1, bin, value);
+        graph->SetPointError(iBin-1, binW/2., error);
     }
 
-    // Finding the bin range corresponding to [min;max]
-    int bin1 = signal->FindBin(min);
-    int bin2 = signal->FindBin(max);
+    return graph;
 
-    // Calculating integral of the signal and background
-    float sigInt = signal->Integral(bin1,bin2);
-    float sigBkgInt = sigBkg->Integral(bin1,bin2);
-
-    float sigSign = 0.f;
-    if(type == 0) sigSign = sigInt/sqrt(sigBkgInt);
-    else if(type == 1) sigSign = sigInt/(sigBkgInt - sigInt);
-    
-
-    char text[40];
-    sprintf(text,"%s = %.2f", sLabel.c_str(), sigSign);
-    
-    label->SetX1NDC(gStyle->GetPadLeftMargin()+0.4);
-    label->SetX2NDC(label->GetX1NDC()+0.1);
-    label->SetY2NDC(1.0-gStyle->GetPadTopMargin()-0.13 - yOffset);
-    label->SetY1NDC(label->GetY2NDC()-0.05);
-    label->SetTextFont(42);
-    label->AddText(text);
-    label->SetFillStyle(0);
-    label->SetBorderSize(0);
-    label->SetTextSize(0.025);
-    label->SetTextAlign(32);
-
-    return label;
 }
 
 
@@ -766,34 +686,6 @@ TH1* PlotterDiffXS::sumOfHistos(const std::vector<LegendHistPair> histos, const 
 }
 
 
-TGraphErrors* PlotterDiffXS::purityStabilityGraph(TH2* h2d, const int type)const
-{
-
-    const int nBins = h2d->GetNbinsX();
-
-    TGraphErrors* graph = new TGraphErrors(nBins);
-
-    // Calculating each point of graph for each diagonal bin
-    for(int iBin = 1; iBin<=nBins; ++iBin) {
-        const double diag = h2d->GetBinContent(iBin, iBin);
-        const double reco = h2d->Integral(iBin, iBin, 0, -1)+1e-30;
-        const double gen = h2d->Integral(0, -1, iBin, iBin)+1e-30;
-        
-        const double value = type == 0 ? diag/reco : diag/gen;
-        const double error = type == 0 ? uncertaintyBinomial(diag, reco) : uncertaintyBinomial(diag, gen);
-
-        const double bin = h2d->GetXaxis()->GetBinCenter(iBin);
-        const double binW = h2d->GetXaxis()->GetBinWidth(iBin);
-        
-        graph->SetPoint(iBin-1, bin, value);
-        graph->SetPointError(iBin-1, binW/2., error);
-    }
-
-    return graph;
-
-}
-
-
 void PlotterDiffXS::drawPurityStability(TH2* histo2d, TString name)const {
     TGraphErrors* g_purity = purityStabilityGraph(histo2d, 0);
     TGraphErrors* g_stability = purityStabilityGraph(histo2d, 1);
@@ -831,11 +723,143 @@ void PlotterDiffXS::drawPurityStability(TH2* histo2d, TString name)const {
 }
 
 
-double PlotterDiffXS::uncertaintyBinomial(const double pass, const double all)const 
+void PlotterDiffXS::setHistoStyle(TH1* hist, Style_t line, Color_t lineColor, Size_t lineWidth, 
+                                  Style_t fill, Color_t fillColor, 
+                                  Style_t marker, Color_t markerColor, Size_t markerSize)const
 {
-    return (1./all)*sqrt(pass - pass*pass/all);
+    hist->SetLineStyle(line);
+    hist->SetLineColor(lineColor);
+    hist->SetLineWidth(lineWidth);
+    
+    hist->SetFillStyle(fill);
+    hist->SetFillColor(fillColor);
+    
+    hist->SetMarkerStyle(marker);
+    hist->SetMarkerColor(markerColor);
+    hist->SetMarkerSize(markerSize);
+    
+    hist->GetXaxis()->SetLabelFont(42);
+    hist->GetYaxis()->SetLabelFont(42);
+    hist->GetXaxis()->SetTitleFont(42);
+    hist->GetYaxis()->SetTitleFont(42);
+    hist->GetYaxis()->SetTitleOffset(1.7);
+    hist->GetXaxis()->SetTitleOffset(1.25);
 }
 
+
+void PlotterDiffXS::updateHistoAxis(TH1* histo)const
+{
+    // Set x and y axis ranges
+    if(logY_){
+      // Setting minimum to >0 value
+      // FIXME: Should we automatically calculate minimum value instead of the fixed value?
+      histo->SetMinimum(1e-1);
+      if(ymin_>0) histo->SetMinimum(ymin_);
+    }
+    else histo->SetMinimum(ymin_);
+
+    if(rangemin_!=0. || rangemax_!=0.) {histo->SetAxisRange(rangemin_, rangemax_, "X");}
+    
+    if(ymax_==0.){
+        // Determining the highest Y value that is plotted
+        float yMax = histo ? histo->GetBinContent(histo->GetMaximumBin()) + histo->GetBinError(histo->GetMaximumBin()) : ymax_;
+        
+        // Scaling the Y axis
+        if(logY_){histo->SetMaximum(18.*yMax);}
+        else{histo->SetMaximum(1.35*yMax);}
+    }
+    else{histo->SetMaximum(ymax_);}
+
+    histo->GetXaxis()->SetNoExponent(kTRUE);
+    // Set axis titles
+    if(XAxis_ != "-") histo->GetYaxis()->SetTitle(YAxis_);
+    if(YAxis_ != "-") histo->GetXaxis()->SetTitle(XAxis_);
+}
+
+
+void PlotterDiffXS::drawDecayChannelLabel(const Channel::Channel& channel, const double& textSize)const
+{
+    TPaveText* decayChannel = new TPaveText();
+
+    decayChannel->AddText(Channel::label(channel));
+
+    decayChannel->SetX1NDC(      gStyle->GetPadLeftMargin() + gStyle->GetTickLength()        );
+    decayChannel->SetY1NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength() - 0.05 );
+    decayChannel->SetX2NDC(      gStyle->GetPadLeftMargin() + gStyle->GetTickLength() + 0.15 );
+    decayChannel->SetY2NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength()        );
+
+    decayChannel->SetFillStyle(0);
+    decayChannel->SetBorderSize(0);
+    if (textSize!=0) decayChannel->SetTextSize(textSize);
+    decayChannel->SetTextAlign(12);
+    decayChannel->Draw("same");
+}
+
+
+void PlotterDiffXS::drawCmsLabels(const int cmsprelim, const double& energy, const double& textSize)const
+{
+    const char* text;
+    if(cmsprelim == 2) text = "Private Work, %2.1f fb^{-1} at #sqrt{s} = %2.f TeV"; // Private work for PhDs students
+    else if (cmsprelim == 1) text = "CMS Preliminary, %2.1f fb^{-1} at #sqrt{s} = %2.f TeV"; // CMS preliminary label
+    else text = "CMS, %2.1f fb^{-1} at #sqrt{s} = %2.f TeV"; // CMS label
+
+    TPaveText* label = new TPaveText();
+    label->SetX1NDC(gStyle->GetPadLeftMargin());
+    label->SetY1NDC(1.0 - gStyle->GetPadTopMargin());
+    label->SetX2NDC(1.0 - gStyle->GetPadRightMargin());
+    label->SetY2NDC(1.0);
+    label->SetTextFont(42);
+    label->AddText(Form(text, samples_.luminosityInInversePb()/1000., energy));
+    label->SetFillStyle(0);
+    label->SetBorderSize(0);
+    if(textSize != 0) label->SetTextSize(textSize);
+    label->SetTextAlign(32);
+    label->Draw("same");
+}
+
+
+TPaveText* PlotterDiffXS::drawSignificance(TH1* signal, TH1* sigBkg, float min, float max, float yOffset, std::string sLabel, const int type)const
+{
+    TPaveText *label = new TPaveText();
+    if(max<=min) {
+        std::cout<<"Wrong range for signal significance in  histogram ("<<name_<<")\n";
+        return label;
+    }
+    
+    if(!signal || !sigBkg) {
+        std::cout<<"Some input histogram for the signal significance calculation not available\n";
+        return label;
+    }
+
+    // Finding the bin range corresponding to [min;max]
+    int bin1 = signal->FindBin(min);
+    int bin2 = signal->FindBin(max);
+
+    // Calculating integral of the signal and background
+    float sigInt = signal->Integral(bin1,bin2);
+    float sigBkgInt = sigBkg->Integral(bin1,bin2);
+
+    float sigSign = 0.f;
+    if(type == 0) sigSign = sigInt/sqrt(sigBkgInt);
+    else if(type == 1) sigSign = sigInt/(sigBkgInt - sigInt);
+    
+
+    char text[40];
+    sprintf(text,"%s = %.2f", sLabel.c_str(), sigSign);
+    
+    label->SetX1NDC(gStyle->GetPadLeftMargin()+0.4);
+    label->SetX2NDC(label->GetX1NDC()+0.1);
+    label->SetY2NDC(1.0-gStyle->GetPadTopMargin()-0.13 - yOffset);
+    label->SetY1NDC(label->GetY2NDC()-0.05);
+    label->SetTextFont(42);
+    label->AddText(text);
+    label->SetFillStyle(0);
+    label->SetBorderSize(0);
+    label->SetTextSize(0.025);
+    label->SetTextAlign(32);
+
+    return label;
+}
 
 
 void PlotterDiffXS::setGraphStyle( TGraph* graph, Style_t marker, Color_t markerColor, Size_t markerSize, 
@@ -847,4 +871,113 @@ void PlotterDiffXS::setGraphStyle( TGraph* graph, Style_t marker, Color_t marker
     graph->SetLineStyle(line);
     graph->SetLineColor(lineColor);
     graph->SetLineWidth(lineWidth);
+}
+
+
+TH1* PlotterDiffXS::drawRatioPad(TPad* pad, const double yMin, const double yMax, TH1* axisHisto, 
+                                 const double fraction, const TString title)const
+{
+    // y:x size ratio for canvas
+    double canvAsym = (pad->GetY2() - pad->GetY1())/(pad->GetX2()-pad->GetX1());
+    Double_t left  = pad->GetLeftMargin();
+    Double_t right = pad->GetRightMargin();
+    // change old pad
+    pad->SetBottomMargin(fraction);
+    pad->SetRightMargin(right);
+    pad->SetLeftMargin(left);
+    pad->SetBorderMode(0);
+    pad->SetBorderSize(0);
+    pad->SetFillColor(10);
+    // create new pad for ratio plot
+    TPad *rPad;
+    rPad = new TPad("rPad","",0,0,1,fraction+0.001);
+#ifdef DILEPTON_MACRO
+    rPad->SetFillColor(10);
+#else
+    rPad->SetFillStyle(0);
+    rPad->SetFillColor(0);
+#endif
+    rPad->SetBorderSize(0);
+    rPad->SetBorderMode(0);
+    rPad->Draw();
+    rPad->cd();
+    rPad->SetLogy(0);
+    rPad->SetTicky(1);
+    // configure ratio plot
+    double scaleFactor = 1./(canvAsym*fraction);
+    TH1* ratio = (TH1*)axisHisto->Clone("axis_ratio");
+    ratio->SetStats(kFALSE);
+    ratio->SetTitle("");
+    ratio->SetName("axis_ratio");
+    ratio->SetMaximum(yMax);
+    ratio->SetMinimum(yMin);
+    // configure axis of ratio plot
+    ratio->GetXaxis()->SetTitleSize(axisHisto->GetXaxis()->GetTitleSize()*scaleFactor*1.3);
+    ratio->GetXaxis()->SetTitleOffset(axisHisto->GetXaxis()->GetTitleOffset()*0.9);
+    ratio->GetXaxis()->SetLabelSize(axisHisto->GetXaxis()->GetLabelSize()*scaleFactor*1.4);
+    ratio->GetXaxis()->SetTitle(axisHisto->GetXaxis()->GetTitle());
+    ratio->GetXaxis()->SetNdivisions(axisHisto->GetNdivisions());
+    ratio->GetYaxis()->CenterTitle();
+    ratio->GetYaxis()->SetTitle(title);
+    ratio->GetYaxis()->SetTitleSize(axisHisto->GetYaxis()->GetTitleSize()*scaleFactor);
+    ratio->GetYaxis()->SetTitleOffset(axisHisto->GetYaxis()->GetTitleOffset()/scaleFactor);
+    ratio->GetYaxis()->SetLabelSize(axisHisto->GetYaxis()->GetLabelSize()*scaleFactor);
+    ratio->GetYaxis()->SetLabelOffset(axisHisto->GetYaxis()->GetLabelOffset()*3.3);
+    ratio->GetYaxis()->SetTickLength(0.03);
+    ratio->GetYaxis()->SetNdivisions(405);
+    ratio->GetXaxis()->SetRange(axisHisto->GetXaxis()->GetFirst(), axisHisto->GetXaxis()->GetLast());
+    // delete axis of initial plot
+    axisHisto->GetXaxis()->SetLabelSize(0);
+    axisHisto->GetXaxis()->SetTitleSize(0);
+    //This is frustrating and stupid but apparently necessary...
+    TExec *setex1 { new TExec("setex1","gStyle->SetErrorX(0.5)") };
+    setex1->Draw();
+    TExec *setex2 { new TExec("setex2","gStyle->SetErrorX(0.)") };
+    setex2->Draw();
+//     ratio->SetMarkerSize(0.8);
+//     ratio->SetLineWidth(2);
+    ratio->Draw("axis");
+    rPad->SetTopMargin(0.0);
+    rPad->SetBottomMargin(0.15*scaleFactor);
+    rPad->SetRightMargin(right);
+    pad->SetLeftMargin(left);
+    pad->RedrawAxis();
+    // draw grid
+    rPad->SetGrid(0,1);
+    rPad->cd();
+    
+    // draw a horizontal line on the pad
+    Double_t xmin = ratio->GetXaxis()->GetXmin();
+    Double_t xmax = ratio->GetXaxis()->GetXmax();
+    TString height = ""; height += 1;
+    TF1 *f = new TF1("f", height, xmin, xmax);
+    f->SetLineStyle(1);
+    f->SetLineWidth(1);
+    f->SetLineColor(kBlack);
+    f->Draw("L same");
+    
+    axisHisto->GetXaxis()->SetLabelSize(0);
+    axisHisto->GetXaxis()->SetTitleSize(0);
+    
+    
+    return ratio;
+    
+}
+
+
+TH1* PlotterDiffXS::ratioHistogram(const TH1* h_nominator, const TH1* h_denominator)const
+{
+    TH1* h_ratio = (TH1*)h_nominator->Clone();
+    for(int iBin = 1; iBin<=h_ratio->GetNbinsX(); ++iBin) {
+        const ValueError nominator(h_nominator->GetBinContent(iBin), h_nominator->GetBinError(iBin));
+        const ValueError denominator(h_denominator->GetBinContent(iBin), h_denominator->GetBinError(iBin));
+        ValueError ratio;
+        ratio.v = nominator.v / denominator.v;
+        ratio.e = ratio.v * sqrt(nominator.eOv2() + denominator.eOv2());
+        
+        h_ratio->SetBinContent(iBin, ratio.v);
+        h_ratio->SetBinError(iBin, ratio.e);
+    }
+    
+    return h_ratio;
 }
