@@ -592,8 +592,8 @@ if zGenInfo:
 
 if topSignal:
     process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi") # Supplies PDG ID to real name resolution of MC particles
-    from TopAnalysis.TopUtils.sequences.GenHFHadronMatching_JetFlavourInput_cff import matchGenBCHadronB
-    from TopAnalysis.TopUtils.sequences.GenHFHadronMatching_JetFlavourInput_cff import matchGenBCHadronC
+    from TopAnalysis.TopUtils.sequences.GenHFHadronMatching_cff import matchGenBCHadronB
+    from TopAnalysis.TopUtils.sequences.GenHFHadronMatching_cff import matchGenBCHadronC
     process.matchGenBCHadronB = matchGenBCHadronB.clone(
         genParticles = genParticleCollection,
         jetFlavourInfos = genJetFlavourInfoCollection,
