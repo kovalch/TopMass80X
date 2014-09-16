@@ -167,6 +167,19 @@ cp $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/common/hacks/TopAnalysis_T
 ##### Fix to avoid nafJobSplitter crashes due to not propagated environment to batch farm
 cp $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/common/hacks/TopAnalysis_TopUtils_scripts_nafJobSplitter.pl $CMSSW_BASE/src/TopAnalysis/TopUtils/scripts/nafJobSplitter.pl
 
+##### Fix to update the GenHFHadronMatcher tool to the proper CMSSW_7X version
+branchHF="CMSSW_7X_GenHFHadronMatcher"
+cd $CMSSW_BASE/src/TopAnalysis
+### Updating the files to the version in the specific branch
+git checkout origin/$branchHF TopUtils/plugins/BuildFile.xml
+git checkout origin/$branchHF TopUtils/plugins/GenHFHadronMatcher.cc
+git checkout origin/$branchHF TopUtils/python/GenHFHadronMatcher_cfi.py 
+git checkout origin/$branchHF TopUtils/python/sequences/GenHFHadronMatching_cff.py
+### Unstaging the updated files from the commit
+git reset HEAD TopUtils/plugins/BuildFile.xml
+git reset HEAD TopUtils/plugins/GenHFHadronMatcher.cc
+git reset HEAD TopUtils/python/GenHFHadronMatcher_cfi.py
+git reset HEAD TopUtils/python/sequences/GenHFHadronMatching_cff.py
 
 
 ###### Compile everything ######
