@@ -178,34 +178,6 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
     m_histogram["h_trueBJetLeadingElectronTrackCharge"]->SetMinimum(0);
     m_histogram["h_trueBJetMuonTrackCharge"]->SetMinimum(0);
     m_histogram["h_trueBJetElectronTrackCharge"]->SetMinimum(0);
-    m_histogram["h_trueBJetLeadingLeptonScalarChargeMatch_09"]->SetMinimum(0);
-    m_histogram["h_trueBJetLeadingLeptonScalarChargeMatch_08"]->SetMinimum(0);
-    m_histogram["h_trueBJetLeadingLeptonScalarChargeMatch_07"]->SetMinimum(0);
-    m_histogram["h_trueBJetLeadingLeptonScalarChargeMatch_06"]->SetMinimum(0);
-    m_histogram["h_trueBJetLeadingLeptonScalarChargeMatch_05"]->SetMinimum(0);
-    m_histogram["h_trueBJetLeadingLeptonScalarChargeMatch_04"]->SetMinimum(0);
-    m_histogram["h_trueBJetLeadingLeptonScalarChargeMatch_03"]->SetMinimum(0);
-    m_histogram["h_trueBJetLeadingLeptonScalarChargeMatch_02"]->SetMinimum(0);
-    m_histogram["h_trueBJetLeadingLeptonScalarChargeMatch_01"]->SetMinimum(0);
-    m_histogram["h_trueBJetLeadingMuonScalarChargeMatch_09"]->SetMinimum(0);
-    m_histogram["h_trueBJetLeadingMuonScalarChargeMatch_08"]->SetMinimum(0);
-    m_histogram["h_trueBJetLeadingMuonScalarChargeMatch_07"]->SetMinimum(0);
-    m_histogram["h_trueBJetLeadingMuonScalarChargeMatch_06"]->SetMinimum(0);
-    m_histogram["h_trueBJetLeadingMuonScalarChargeMatch_05"]->SetMinimum(0);
-    m_histogram["h_trueBJetLeadingMuonScalarChargeMatch_04"]->SetMinimum(0);
-    m_histogram["h_trueBJetLeadingMuonScalarChargeMatch_03"]->SetMinimum(0);
-    m_histogram["h_trueBJetLeadingMuonScalarChargeMatch_02"]->SetMinimum(0);
-    m_histogram["h_trueBJetLeadingMuonScalarChargeMatch_01"]->SetMinimum(0);
-    m_histogram["h_trueBJetLeadingElectronScalarChargeMatch_09"]->SetMinimum(0);
-    m_histogram["h_trueBJetLeadingElectronScalarChargeMatch_08"]->SetMinimum(0);
-    m_histogram["h_trueBJetLeadingElectronScalarChargeMatch_07"]->SetMinimum(0);
-    m_histogram["h_trueBJetLeadingElectronScalarChargeMatch_06"]->SetMinimum(0);
-    m_histogram["h_trueBJetLeadingElectronScalarChargeMatch_05"]->SetMinimum(0);
-    m_histogram["h_trueBJetLeadingElectronScalarChargeMatch_04"]->SetMinimum(0);
-    m_histogram["h_trueBJetLeadingElectronScalarChargeMatch_03"]->SetMinimum(0);
-    m_histogram["h_trueBJetLeadingElectronScalarChargeMatch_02"]->SetMinimum(0);
-    m_histogram["h_trueBJetLeadingElectronScalarChargeMatch_01"]->SetMinimum(0);
-    
     
     std::vector<int> systemLepton0;
     std::vector<int> systemLepton1;
@@ -366,18 +338,18 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
         double sumTestPowProduct = 0.;
         double sumTestPowProductQ = 0;
         
-        for (size_t iTestCharge=0;iTestCharge!=jetSelectedTrack.size();++iTestCharge)
+        for (size_t iSelTrackCharge=0;iSelTrackCharge!=jetSelectedTrack.size();++iSelTrackCharge)
         {
-            if (jetSelectedTrackIndex.at(iTestCharge)!=jetIdx) continue;
+            if (jetSelectedTrackIndex.at(iSelTrackCharge)!=jetIdx) continue;
             
-            const double product = jetSelectedTrack.at(iTestCharge).px()*jetTrueBPx +jetSelectedTrack.at(iTestCharge).py()*jetTrueBPy + jetSelectedTrack.at(iTestCharge).pz()*jetTrueBPz;
+            const double product = jetSelectedTrack.at(iSelTrackCharge).px()*jetTrueBPx +jetSelectedTrack.at(iSelTrackCharge).py()*jetTrueBPy + jetSelectedTrack.at(iSelTrackCharge).pz()*jetTrueBPz;
             const double powProduct = std::pow (product,0.8);
             sumTestPowProduct += powProduct;
-            sumTestPowProductQ += jetSelectedTrackCharge.at(iTestCharge)*powProduct;
+            sumTestPowProductQ += jetSelectedTrackCharge.at(iSelTrackCharge)*powProduct;
         }
        
-       const double testCharge(sumTestPowProduct>0 ? sumTestPowProductQ/sumTestPowProduct : 0);
-       m_histogram["h_testCharge"]->Fill(testCharge);
+       const double selectedTrackJetCharge(sumTestPowProduct>0 ? sumTestPowProductQ/sumTestPowProduct : 0);
+       m_histogram["h_selectedTrackJetCharge"]->Fill(selectedTrackJetCharge);
         
         // Access secondary vertex information
         unsigned int secondaryVertexMultiplicityPerJet = 0; 
@@ -397,22 +369,6 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
         
         m_histogram["h_trueBJetTrackSecondaryVertexMultiplicity"]->Fill(secondaryVertexMultiplicityPerJet);
         
-        std::vector<int> jetSecondaryVertexTrackMatchToSelectedTrackIdx;
-        std::vector<int> jetSecondaryVertexTrackVertexIdx;
-        
-        for(size_t iSecondaryVertex=0; iSecondaryVertex<jetSecondaryVertex.size(); ++iSecondaryVertex) 
-        {
-            if(jetSecondaryVertexJetIndex.at(iSecondaryVertex)!=static_cast<int>(jetIdx)) continue;
-            
-            for (size_t iVertexTrack=0;iVertexTrack!=jetSecondaryVertexTrackMatchToSelectedTrackIndex.size();++iVertexTrack)
-            {
-                if (jetSelectedTrackIndex.at(iVertexTrack)!=jetIdx) continue;
-                if (jetSecondaryVertexTrackVertexIndex.at(iVertexTrack)!= (int)iSecondaryVertex) continue;
-                jetSecondaryVertexTrackMatchToSelectedTrackIdx.push_back(jetSecondaryVertexTrackMatchToSelectedTrackIndex.at(iVertexTrack));
-                jetSecondaryVertexTrackVertexIdx.push_back(jetSecondaryVertexTrackVertexIndex.at(iVertexTrack));
-            }
-        }
-        
         std::vector<double> chargeOfSecondaryVerticesForSelectedTracks;
         std::vector<double> chargeOfSecondaryVerticesForSelectedTracksPfMatched;
         std::vector<double> chargeOfSecondaryVerticesForSelectedTracksNonPfMatched;
@@ -421,10 +377,11 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
         std::vector<int> multiplicityOfSecondaryVerticesForSelectedTracksNonPfMatched;
         std::vector<int> nonWeightedSvSelTrackChargeVector;
         
-        for(size_t iSecondaryVertex=0; iSecondaryVertex<jetSecondaryVertex.size(); ++iSecondaryVertex) 
+        for(size_t jSecondaryVertex=0; jSecondaryVertex<jetSecondaryVertex.size(); ++jSecondaryVertex) 
         {
+            if(jetSecondaryVertexJetIndex.at(jSecondaryVertex)!=static_cast<int>(jetIdx)) continue;
+            
             // Check that SV belongs to the jet
-            if(jetSecondaryVertexJetIndex.at(iSecondaryVertex)!=static_cast<int>(jetIdx)) continue;
             if (secondaryVertexMultiplicityPerJet==0) continue; 
             
             double sumSVPowProduct = 0.;
@@ -449,13 +406,13 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
                 // Check that track belongs to a SV
                 std::vector<int>::const_iterator isInVector = std::find(jetSecondaryVertexTrackMatchToSelectedTrackIndex.begin(), jetSecondaryVertexTrackMatchToSelectedTrackIndex.end(),iSelectedTrack);
                 if (isInVector ==  jetSecondaryVertexTrackMatchToSelectedTrackIndex.end()) continue;
-                // Check that track belongs to the SV
-                if (jetSecondaryVertexTrackVertexIndex.at(isInVector-jetSecondaryVertexTrackMatchToSelectedTrackIndex.begin()) != (int) iSecondaryVertex) continue;
                 
+                // Check that track belongs to the SV
+                if (jetSecondaryVertexTrackVertexIndex.at(isInVector-jetSecondaryVertexTrackMatchToSelectedTrackIndex.begin()) != (int) jSecondaryVertex) continue;
                 ++secondaryVertexTrackMultiplicity;
                 
                 // Calculate secondary vertex charge
-                const double product = jetSelectedTrack.at(iSelectedTrack).px()*jetSecondaryVertex.at(iSecondaryVertex).px() +jetSelectedTrack.at(iSelectedTrack).py()*jetSecondaryVertex.at(iSecondaryVertex).py() + jetSelectedTrack.at(iSelectedTrack).pz()*jetSecondaryVertex.at(iSecondaryVertex).pz();
+                const double product = jetSelectedTrack.at(iSelectedTrack).px()*jetSecondaryVertex.at(jSecondaryVertex).px() +jetSelectedTrack.at(iSelectedTrack).py()*jetSecondaryVertex.at(jSecondaryVertex).py() + jetSelectedTrack.at(iSelectedTrack).pz()*jetSecondaryVertex.at(jSecondaryVertex).pz();
                 const double powProduct = std::pow (product,0.8);
                 sumSVPowProduct += powProduct;
                 sumSVPowProductQ += jetSelectedTrackCharge.at(iSelectedTrack)*powProduct;
@@ -465,7 +422,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
                 
                 if (jetSelectedTrackMatchToPfCandidateIndex.at(iSelectedTrack)!=-1)
                 {
-                    const double productPfMatched = jetSelectedTrack.at(iSelectedTrack).px()*jetSecondaryVertex.at(iSecondaryVertex).px() +jetSelectedTrack.at(iSelectedTrack).py()*jetSecondaryVertex.at(iSecondaryVertex).py() + jetSelectedTrack.at(iSelectedTrack).pz()*jetSecondaryVertex.at(iSecondaryVertex).pz();
+                    const double productPfMatched = jetSelectedTrack.at(iSelectedTrack).px()*jetSecondaryVertex.at(jSecondaryVertex).px() +jetSelectedTrack.at(iSelectedTrack).py()*jetSecondaryVertex.at(jSecondaryVertex).py() + jetSelectedTrack.at(iSelectedTrack).pz()*jetSecondaryVertex.at(jSecondaryVertex).pz();
                     const double powProductPfMatched = std::pow (productPfMatched,0.8);
                     sumSVPowProductPfMatched += powProductPfMatched;
                     sumSVPowProductQPfMatched += jetSelectedTrackCharge.at(iSelectedTrack)*powProductPfMatched;
@@ -473,7 +430,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
                 }
                 else if (jetSelectedTrackMatchToPfCandidateIndex.at(iSelectedTrack)==-1)
                 {
-                    const double productNonPfMatched = jetSelectedTrack.at(iSelectedTrack).px()*jetSecondaryVertex.at(iSecondaryVertex).px() +jetSelectedTrack.at(iSelectedTrack).py()*jetSecondaryVertex.at(iSecondaryVertex).py() + jetSelectedTrack.at(iSelectedTrack).pz()*jetSecondaryVertex.at(iSecondaryVertex).pz();
+                    const double productNonPfMatched = jetSelectedTrack.at(iSelectedTrack).px()*jetSecondaryVertex.at(jSecondaryVertex).px() +jetSelectedTrack.at(iSelectedTrack).py()*jetSecondaryVertex.at(jSecondaryVertex).py() + jetSelectedTrack.at(iSelectedTrack).pz()*jetSecondaryVertex.at(jSecondaryVertex).pz();
                     const double powProductNonPfMatched = std::pow (productNonPfMatched,0.8);
                     sumSVPowProductNonPfMatched += powProductNonPfMatched;
                     sumSVPowProductQNonPfMatched += jetSelectedTrackCharge.at(iSelectedTrack)*powProductNonPfMatched;
@@ -491,6 +448,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
             multiplicityOfSecondaryVerticesForSelectedTracksNonPfMatched.push_back(secondaryVertexTrackMultiplicityNonPfMatched);
             nonWeightedSvSelTrackChargeVector.push_back(nonWeightedSvSelTrackCharge);
         }
+        
         
         for (size_t iFillMult=0;iFillMult!=chargeOfSecondaryVerticesForSelectedTracks.size();++iFillMult)
         {
@@ -654,38 +612,6 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
             m_histogram["h_trueBJetToTrackPtRatio"]->Fill(ptRatio, weight);
             m_histogram["h_trueBJetLeptonTracks"]->Fill(particleId);
             m_histogram["h_trueBJetPfTrackPt"]->Fill(trueBJetPfTrackPt, weight);
-            
-            // If there's a secondary vertex associated -> check if any of the selected tracks of it is related to a pfCandidate
-            int foundTrackPosition = -1;
-            int foundTrackSecondaryVertexIndex = -1;
-            
-            if (jetSecondaryVertexTrackMatchToSelectedTrackIdx.size()!=0) 
-            {
-                for (size_t iTest1=0; iTest1!=jetSelectedTrackMatchToPfCandidateIndex.size();++iTest1)
-                {
-                    if (jetSelectedTrackIndex.at(iTest1)!=jetIdx) continue;
-                    if (jetSelectedTrackMatchToPfCandidateIndex.at(iTest1)==(int)iPfTrack) 
-                    {
-                        foundTrackPosition = iTest1;
-                        break;
-                    }
-                }
-                
-                for (size_t iTest2=0;iTest2!=jetSecondaryVertexTrackMatchToSelectedTrackIdx.size();++iTest2)
-                {
-                    if (foundTrackPosition==-1) continue;
-                    if (secondaryVertexMultiplicityPerJet==0) continue;
-                    if (foundTrackPosition==jetSecondaryVertexTrackMatchToSelectedTrackIdx.at(iTest2)) 
-                    {
-                        foundTrackSecondaryVertexIndex = jetSecondaryVertexTrackVertexIdx.at(iTest2);
-                        secondaryVertexSelTrackMatchedToPfCandidateIndex.push_back(foundTrackPosition);
-                        secondaryVertexSelTrackMatchedToPfCandidateVertexIndex.push_back(foundTrackSecondaryVertexIndex);
-                        secondaryVertexSelTrackMatchedToPfCandidateLV.push_back(jetPfCandidateTrack.at(iPfTrack));
-                        secondaryVertexSelTrackMatchedToPfCandidateCharge.push_back( jetPfCandidateTrackCharge.at(iPfTrack)); 
-                        secondaryVertexSelTrackMatchedToPfCandidateParticleId.push_back(jetPfCandidateTrackId.at(iPfTrack));
-                    }
-                }
-            }
             
             //calculate the c_{rel} 
             const double constituentTrueBPx = jetPfCandidateTrack.at(iPfTrack).px();
@@ -894,78 +820,19 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
             m_histogram["h_trueBJetTrackMultiplicityIfLepton"]->Fill(trueBJetTrackMultiplicity, weight);
         }
         
-        std::vector<double> chargeOfSecondaryVertices;
-        std::vector<double> chargeOfSecondaryVerticesSvAxis;
-        std::vector<int> multiplicityOfSecondaryVertices;
-        
-        for (size_t iSvSize=0;iSvSize!=jetSecondaryVertex.size();++iSvSize)
-        {
-            if(jetSecondaryVertexJetIndex.at(iSvSize)!=static_cast<int>(jetIdx)) continue;
-            if (secondaryVertexMultiplicityPerJet==0) continue; 
-            
-            double sumSVPowProduct = 0.;
-            double sumSVPowProductQ = 0;
-            double sumSVPowProductSvAxis = 0.;
-            double sumSVPowProductSvAxisQ = 0;
-            int secondaryVertexTrackMultiplicity = 0;
-            
-            for(size_t iVertex=0; iVertex<secondaryVertexSelTrackMatchedToPfCandidateVertexIndex.size(); ++iVertex) 
-            {
-                if (secondaryVertexSelTrackMatchedToPfCandidateVertexIndex.at(iVertex)!=(int)iSvSize) continue;
-                ++secondaryVertexTrackMultiplicity;
-                
-                m_histogram["h_trueBJetTrackSecondaryVertexTrackPt"]->Fill(secondaryVertexSelTrackMatchedToPfCandidateLV.at(iVertex).pt(), weight);
-                m_histogram["h_trueBJetTrackSecondaryVertexTrackId"]->Fill(secondaryVertexSelTrackMatchedToPfCandidateParticleId.at(iVertex));
-                
-                if(secondaryVertexSelTrackMatchedToPfCandidateParticleId.at(iVertex)==2||secondaryVertexSelTrackMatchedToPfCandidateParticleId.at(iVertex)==3) m_histogram["h_trueBJetTrackSecondaryVertexLeptonTrackPt"]->Fill(secondaryVertexSelTrackMatchedToPfCandidateLV.at(iVertex).pt(), weight);
-                if(secondaryVertexSelTrackMatchedToPfCandidateParticleId.at(iVertex)==2) m_histogram["h_trueBJetTrackSecondaryVertexElectronTrackPt"]->Fill(secondaryVertexSelTrackMatchedToPfCandidateLV.at(iVertex).pt(), weight);
-                if(secondaryVertexSelTrackMatchedToPfCandidateParticleId.at(iVertex)==3) m_histogram["h_trueBJetTrackSecondaryVertexMuonTrackPt"]->Fill(secondaryVertexSelTrackMatchedToPfCandidateLV.at(iVertex).pt(), weight);
-                if(secondaryVertexSelTrackMatchedToPfCandidateParticleId.at(iVertex)==1) m_histogram["h_trueBJetTrackSecondaryVertexNonLeptonTrackPt"]->Fill(secondaryVertexSelTrackMatchedToPfCandidateLV.at(iVertex).pt(), weight);
-                
-                // Calculate secondary vertex charge with respect to jet axis
-                const double product = jetTrueBPx*secondaryVertexSelTrackMatchedToPfCandidateLV.at(iVertex).px() + jetTrueBPy*secondaryVertexSelTrackMatchedToPfCandidateLV.at(iVertex).py() + jetTrueBPz*secondaryVertexSelTrackMatchedToPfCandidateLV.at(iVertex).pz(); 
-                const double powProduct = std::pow (product,0.8);
-                sumSVPowProduct += powProduct;
-                sumSVPowProductQ += powProduct*secondaryVertexSelTrackMatchedToPfCandidateCharge.at(iVertex);
-                
-                // Calculate secondary vertex charge with respect to SV axis
-                const double productSvAxis = jetSecondaryVertex.at(iSvSize).px()*secondaryVertexSelTrackMatchedToPfCandidateLV.at(iVertex).px() + jetSecondaryVertex.at(iSvSize).py()*secondaryVertexSelTrackMatchedToPfCandidateLV.at(iVertex).py() + jetSecondaryVertex.at(iSvSize).pz()*secondaryVertexSelTrackMatchedToPfCandidateLV.at(iVertex).pz(); 
-                const double powProductSvAxis = std::pow (productSvAxis,0.8);
-                sumSVPowProductSvAxis += powProductSvAxis;
-                sumSVPowProductSvAxisQ += powProductSvAxis*secondaryVertexSelTrackMatchedToPfCandidateCharge.at(iVertex);
-            }
-            const double secondaryVertexCharge (sumSVPowProduct>0 ? sumSVPowProductQ/sumSVPowProduct : 0); 
-            chargeOfSecondaryVertices.push_back(secondaryVertexCharge);   
-            multiplicityOfSecondaryVertices.push_back(secondaryVertexTrackMultiplicity);
-            
-            const double secondaryVertexChargeSvAxis (sumSVPowProductSvAxis>0 ? sumSVPowProductSvAxisQ/sumSVPowProductSvAxis : 0); 
-            chargeOfSecondaryVerticesSvAxis.push_back(secondaryVertexChargeSvAxis);  
-        }
-        
-        for (size_t iFillMult=0;iFillMult!=multiplicityOfSecondaryVertices.size();++iFillMult)
-        {
-            m_histogram["h_trueBJetTrackSecondaryVertexTrackMultiplicity"]->Fill(multiplicityOfSecondaryVertices.at(iFillMult));
-            m_histogram["h_trueBJetTrackSecondaryVertexCharge"]->Fill(chargeOfSecondaryVertices.at(iFillMult));
-            m_histogram["h_trueBJetTrackSecondaryVertexChargeSvAxis"]->Fill(chargeOfSecondaryVerticesSvAxis.at(iFillMult));
-            if (multiplicityOfSecondaryVertices.at(iFillMult)==0) continue;
-            m_histogram["h_trueBJetTrackSecondaryVertexTrackMultiplicitySelected"]->Fill(multiplicityOfSecondaryVertices.at(iFillMult));
-            m_histogram["h_trueBJetTrackSecondaryVertexChargeSelected"]->Fill(chargeOfSecondaryVertices.at(iFillMult));
-            m_histogram["h_trueBJetTrackSecondaryVertexChargeSelectedSvAxis"]->Fill(chargeOfSecondaryVerticesSvAxis.at(iFillMult));
-        }
-        
-        if (secondaryVertexMultiplicityPerJet==1 && multiplicityOfSecondaryVertices.at(0)>=2)  
+        if (secondaryVertexMultiplicityPerJet==1 && multiplicityOfSecondaryVerticesForSelectedTracks.at(0)>=2)  
         {
             secondaryVertexChargeWasCalculated =true;
             
             if (optionForCalibration==0)
             {
-                if (jetChargeHyerarchicalValueWasCalculated==false&&secondaryVertexChargeWasCalculated==true&&jetHadronFlavour == 6) m_histogram["h_jetChargeHyerarchicalValueBJets"]->Fill(chargeOfSecondaryVertices.at(0));
-                if (jetChargeHyerarchicalValueWasCalculated==false&&secondaryVertexChargeWasCalculated==true&&jetHadronFlavour == -6) m_histogram["h_jetChargeHyerarchicalValueAntiBJets"]->Fill(chargeOfSecondaryVertices.at(0));
+                if (jetChargeHyerarchicalValueWasCalculated==false&&secondaryVertexChargeWasCalculated==true&&jetHadronFlavour == 6) m_histogram["h_jetChargeHyerarchicalValueBJets"]->Fill(chargeOfSecondaryVerticesForSelectedTracks.at(0));
+                if (jetChargeHyerarchicalValueWasCalculated==false&&secondaryVertexChargeWasCalculated==true&&jetHadronFlavour == -6) m_histogram["h_jetChargeHyerarchicalValueAntiBJets"]->Fill(chargeOfSecondaryVerticesForSelectedTracks.at(0));
             }
             
             if (optionForCalibration==1||optionForCalibration==2)
             {
-                if (jetChargeHyerarchicalValueWasCalculated==false&&secondaryVertexChargeWasCalculated==true) m_histogram["h_jetChargeHyerarchicalValue"]->Fill(chargeOfSecondaryVertices.at(0));
+                if (jetChargeHyerarchicalValueWasCalculated==false&&secondaryVertexChargeWasCalculated==true) m_histogram["h_jetChargeHyerarchicalValue"]->Fill(chargeOfSecondaryVerticesForSelectedTracks.at(0));
             }
         }
         
@@ -985,12 +852,10 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
         m_histogram["h_trueBJetTrackMultiplicity"]->Fill(trueBJetTrackMultiplicity,weight);
        
         //charge histograms
-        m_histogram["h_trueBJetScalarChargeValidation"]->Fill(trueBJetScalarCharge, weight);
-         //std::cout<<"test29"<<std::endl;
+        m_histogram["h_trueBJetScalarChargeValidation"]->Fill(trueBJetScalarCharge);
         
         const double trueBJetScalarCharge10(sumTrueBMomentum.at(4)>0 ? sumTrueBMomentumQ.at(4)/sumTrueBMomentum.at(4) : 0);
         ((TH2D*)m_histogram["h_trueBJetScalarChargeVsMultip"])->Fill(trueBJetTrackMultiplicity,trueBJetScalarCharge10,weight);
-        //std::cout<<"test30"<<std::endl;
         
         //check if lepton track and charge of the jet coincide
         if (trueBJetLeptonTracksPt.size()>0) 
@@ -1688,92 +1553,11 @@ void AnalyzerJetCharge::bookHistos(const TString& step, std::map<TString, TH1*>&
     name = "h_trueBJetLeadingLeptonScalarChargeMatch";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Matching between the leading lepton track and jet longitudinal charge; Match of charge for leptons (1=true, 0=false); Tracks",2,0,2));
     
-    name = "h_trueBJetLeadingLeptonScalarChargeMatch_09";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Matching between the leading lepton track and jet longitudinal charge 09 cut; Match of charge for leptons (1=true, 0=false); Tracks",2,0,2));
-    
-    name = "h_trueBJetLeadingLeptonScalarChargeMatch_08";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Matching between the leading lepton track and jet longitudinal charge 08 cut; Match of charge for leptons (1=true, 0=false); Tracks",2,0,2));
-    
-    name = "h_trueBJetLeadingLeptonScalarChargeMatch_07";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Matching between the leading lepton track and jet longitudinal charge 07 cut; Match of charge for leptons (1=true, 0=false); Tracks",2,0,2));
-    
-    name = "h_trueBJetLeadingLeptonScalarChargeMatch_06";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Matching between the leading lepton track and jet longitudinal charge 06 cut; Match of charge for leptons (1=true, 0=false); Tracks",2,0,2));
-    
-    name = "h_trueBJetLeadingLeptonScalarChargeMatch_05";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Matching between the leading lepton track and jet longitudinal charge 05 cut; Match of charge for leptons (1=true, 0=false); Tracks",2,0,2));
-    
-    name = "h_trueBJetLeadingLeptonScalarChargeMatch_04";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Matching between the leading lepton track and jet longitudinal charge 04 cut; Match of charge for leptons (1=true, 0=false); Tracks",2,0,2));
-    
-    name = "h_trueBJetLeadingLeptonScalarChargeMatch_03";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Matching between the leading lepton track and jet longitudinal charge 03 cut; Match of charge for leptons (1=true, 0=false); Tracks",2,0,2));
-    
-    name = "h_trueBJetLeadingLeptonScalarChargeMatch_02";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Matching between the leading lepton track and jet longitudinal charge 02 cut; Match of charge for leptons (1=true, 0=false); Tracks",2,0,2));
-    
-    name = "h_trueBJetLeadingLeptonScalarChargeMatch_01";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Matching between the leading lepton track and jet longitudinal charge 01 cut; Match of charge for leptons (1=true, 0=false); Tracks",2,0,2));
-    
     name = "h_trueBJetLeadingMuonScalarChargeMatch";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Matching between the leading muon track and jet longitudinal charge; Match of charge for muons (1=true, 0=false); Tracks",2,0,2));
     
-    name = "h_trueBJetLeadingMuonScalarChargeMatch_09";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Matching between the leading muon track and jet longitudinal charge 09 cut; Match of charge for muons (1=true, 0=false); Tracks",2,0,2));
-    
-    name = "h_trueBJetLeadingMuonScalarChargeMatch_08";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Matching between the leading muon track and jet longitudinal charge 08 cut; Match of charge for muons (1=true, 0=false); Tracks",2,0,2));
-    
-    name = "h_trueBJetLeadingMuonScalarChargeMatch_07";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Matching between the leading muon track and jet longitudinal charge 07 cut; Match of charge for muons (1=true, 0=false); Tracks",2,0,2));
-    
-    name = "h_trueBJetLeadingMuonScalarChargeMatch_06";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Matching between the leading muon track and jet longitudinal charge 06 cut; Match of charge for muons (1=true, 0=false); Tracks",2,0,2));
-    
-    name = "h_trueBJetLeadingMuonScalarChargeMatch_05";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Matching between the leading muon track and jet longitudinal charge 05 cut; Match of charge for muons (1=true, 0=false); Tracks",2,0,2));
-    
-    name = "h_trueBJetLeadingMuonScalarChargeMatch_04";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Matching between the leading muon track and jet longitudinal charge 04 cut; Match of charge for muons (1=true, 0=false); Tracks",2,0,2));
-    
-    name = "h_trueBJetLeadingMuonScalarChargeMatch_03";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Matching between the leading muon track and jet longitudinal charge 03 cut; Match of charge for muons (1=true, 0=false); Tracks",2,0,2));
-    
-    name = "h_trueBJetLeadingMuonScalarChargeMatch_02";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Matching between the leading muon track and jet longitudinal charge 02 cut; Match of charge for muons (1=true, 0=false); Tracks",2,0,2));
-    
-    name = "h_trueBJetLeadingMuonScalarChargeMatch_01";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Matching between the leading muon track and jet longitudinal charge 01 cut; Match of charge for muons (1=true, 0=false); Tracks",2,0,2));
-    
     name = "h_trueBJetLeadingElectronScalarChargeMatch";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Matching between the leading electron track and jet longitudinal charge; Match of charge for electrons (1=true, 0=false); Tracks",2,0,2));
-    
-    name = "h_trueBJetLeadingElectronScalarChargeMatch_09";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Matching between the leading electron track and jet longitudinal charge 09 cut; Match of charge for electrons (1=true, 0=false); Tracks",2,0,2));
-    
-    name = "h_trueBJetLeadingElectronScalarChargeMatch_08";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Matching between the leading electron track and jet longitudinal charge 08 cut; Match of charge for electrons (1=true, 0=false); Tracks",2,0,2));
-    
-    name = "h_trueBJetLeadingElectronScalarChargeMatch_07";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Matching between the leading electron track and jet longitudinal charge 07 cut; Match of charge for electrons (1=true, 0=false); Tracks",2,0,2));
-    
-    name = "h_trueBJetLeadingElectronScalarChargeMatch_06";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Matching between the leading electron track and jet longitudinal charge 06 cut; Match of charge for electrons (1=true, 0=false); Tracks",2,0,2));
-    
-    name = "h_trueBJetLeadingElectronScalarChargeMatch_05";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Matching between the leading electron track and jet longitudinal charge 05 cut; Match of charge for electrons (1=true, 0=false); Tracks",2,0,2));
-    
-    name = "h_trueBJetLeadingElectronScalarChargeMatch_04";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Matching between the leading electron track and jet longitudinal charge 04 cut; Match of charge for electrons (1=true, 0=false); Tracks",2,0,2));
-    
-    name = "h_trueBJetLeadingElectronScalarChargeMatch_03";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Matching between the leading electron track and jet longitudinal charge 03 cut; Match of charge for electrons (1=true, 0=false); Tracks",2,0,2));
-    
-    name = "h_trueBJetLeadingElectronScalarChargeMatch_02";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Matching between the leading electron track and jet longitudinal charge 02 cut; Match of charge for electrons (1=true, 0=false); Tracks",2,0,2));
-    
-    name = "h_trueBJetLeadingElectronScalarChargeMatch_01";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Matching between the leading electron track and jet longitudinal charge 01 cut; Match of charge for electrons (1=true, 0=false); Tracks",2,0,2));
     
     name = "h_trueBJetLeadingLeptonRelChargeMatch";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Matching between the leading lepton track and jet transverse charge; Match of charge (1=true, 0=false); Tracks",2,0,2));
@@ -2087,23 +1871,8 @@ void AnalyzerJetCharge::bookHistos(const TString& step, std::map<TString, TH1*>&
     
     //Secondary Vertex plots=============================================================================
     
-    name = "h_trueBJetTrackSecondaryVertexTrackPt";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pt of pf tracks from a secondary vertex;pt; # secondary vertex pf tracks",40,0.,40.));
-    
-    name = "h_trueBJetTrackSecondaryVertexSelectedTrackPt";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pt of selected tracks from a secondary vertex;pt;# secondary selected tracks",40,0.,40.));
-    
     name = "h_trueBJetTrackSecondaryVertexMultiplicity";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex multiplicity;sv multiplicity;Jets",8,0.,8.));
-    
-    name = "h_trueBJetTrackSecondaryVertexCharge";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for pf tracks;sv charge;Secondary Vertices",24,-1.2,1.2));
-    
-    name = "h_trueBJetTrackSecondaryVertexChargeSvAxis";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for pf tracks with respect to SV axis;sv charge;Secondary Vertices",24,-1.2,1.2));
-    
-    name = "h_trueBJetTrackSecondaryVertexTrackMultiplicity";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex pf track multiplicity;sv track multiplicity;Secondary Vertices",15,0.,15.));
     
     name = "h_trueBJetTrackSecondaryVertexSelectedTrackCharge";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for selected tracks;sv charge;Secondary Vertices",24,-1.2,1.2));
@@ -2128,30 +1897,6 @@ void AnalyzerJetCharge::bookHistos(const TString& step, std::map<TString, TH1*>&
     
     name = "h_trueBJetSecondaryVertexSelectedTrackNonWeightedCharge";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex non-weighted charge;sv track charge;Secondary Vertices",24,-1.2,1.2));
-    
-    name = "h_trueBJetTrackSecondaryVertexChargeSelected";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge if at least one pf track matched to PfCandidates;sv charge;Secondary Vertices",24,-1.2,1.2));
-    
-    name = "h_trueBJetTrackSecondaryVertexChargeSelectedSvAxis";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge with respect to SV axis if at least one pf track matched to PfCandidates;sv charge;Secondary Vertices",24,-1.2,1.2));
-    
-    name = "h_trueBJetTrackSecondaryVertexTrackMultiplicitySelected";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex track multiplicity  if at least one track matched to PfCandidates;sv track multiplicity;Jets",15,0.,15.));
-    
-    name = "h_trueBJetTrackSecondaryVertexTrackId";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex pf track Id;sv track Id;# pf tracks",10,0.,10.));
-    
-    name = "h_trueBJetTrackSecondaryVertexLeptonTrackPt";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex lepton pf track pt;sv lepton track pt;# pf tracks",40,0.,40.));
-    
-    name = "h_trueBJetTrackSecondaryVertexElectronTrackPt";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex electron pf track pt;sv electron track pt;# pf tracks",40,0.,40.));
-    
-    name = "h_trueBJetTrackSecondaryVertexMuonTrackPt";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex muon pf track pt;sv muon track pt;# pf tracks",40,0.,40.));
-    
-    name = "h_trueBJetTrackSecondaryVertexNonLeptonTrackPt";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex non-lepton pf track pt;sv non-lepton track pt;# pf tracks",40,0.,40.));
     
     name = "h_trueBJetSecondaryVertexSelectedTrackChargeForMultiplicity2";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for selected tracks - multiplicity = 2;sv charge;Secondary Vertices",24,-1.2,1.2));
@@ -2286,7 +2031,7 @@ void AnalyzerJetCharge::bookHistos(const TString& step, std::map<TString, TH1*>&
     name = "h_testMlb";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"mlb of events with two jets;mlb;Jets",20,0.,500.));
     
-    name = "h_testCharge";
+    name = "h_selectedTrackJetCharge";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Charge of the jet using selTracks;charge;Selected Tracks",24,-1.2,1.2));
     
     
