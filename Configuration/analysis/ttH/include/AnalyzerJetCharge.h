@@ -40,6 +40,15 @@ public:
     /// Destructor
     ~AnalyzerJetCharge(){}
 
+    /// Check the decreasing order of a list (vector)
+    bool checkDecreasingOrderOfAList(const VLV& vector);
+    
+    /// Check if the pfCandidate is matched to a selectedTrack and return the index of the selectedTrack
+    int selTrackMatchToPfIndex(const LV& pfCandidate, const std::vector<LV>& selectedTracks, const int pfCharge, const std::vector<int>& selCharge, const int pfTrackJetIndex, const std::vector<int>& selectedTrackIndex, const std::vector <int>& ptOrderedSelTrackIdx);
+    
+    /// Pair jets with leptons in order to calculate the mlb. Returns a vector with three integers: first->sign of lepton (0 if mlb not succesfullly calculated), second->correctly matched jet (-1 if none), third->wrongly matched jet(-1 if none); successfull mlb means: one lepton+jet system under massThreshold, the other system above
+    std::vector<int> leptonToJetMlbCalculator(const double massThreshold, const LV& lepton, const int leptonCharge, const VLV& recoJets, const std::vector<int>& jetIndices);
+    
     /// Find index of genJet corresponding to the specified reco jet. Returns -1 if not found
     int genJetIdOfRecoJet(const LV& recoJet, const VLV& genJets, const float dR_max=999.9);
     
