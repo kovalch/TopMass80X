@@ -275,7 +275,8 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     }
     
     // Blinding dijet mass plots around the Higgs mass region
-    if((TString(stackHists.at(0).second->GetName())).Contains("dijet_mass") && dataHist.second) {
+    if(( (TString(stackHists.at(0).second->GetName())).Contains("dijet_mass") || (TString(stackHists.at(0).second->GetName())).Contains("Mjj") ) 
+        && dataHist.second) {
         int bin1 = dataHist.second->FindBin(80.5);
         int bin2 = dataHist.second->FindBin(139.5);
         while(bin1 <= bin2) {
@@ -420,7 +421,7 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     for(TPaveText* label : significanceLabels) if(label) label->Draw("same");
     legend->Draw("SAME");
     if(dataHist.second && stacksum){
-        common::drawRatio(dataHist.second, stacksum, 0, 0.5, 1.7);
+        common::drawRatio(dataHist.second, stacksum, 0, 0.8, 1.2, false, *gStyle, 0, std::vector<double>(0), true);
         firstHistToDraw->GetXaxis()->SetLabelSize(0);
         firstHistToDraw->GetXaxis()->SetTitleSize(0);
     }
@@ -587,10 +588,5 @@ TPaveText* Plotter::drawSignificance(const TH1* const signal, const TH1* const s
     
     return label;
 }
-
-
-
-
-
 
 
