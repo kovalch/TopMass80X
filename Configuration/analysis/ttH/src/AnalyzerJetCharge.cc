@@ -181,7 +181,8 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
     
     std::vector<int> systemLepton0;
     std::vector<int> systemLepton1;
-    
+   
+    // Mlb related calculations
     if (optionForCalibration==2)
     {
         if (isolatedLeptons.size() == 2&&bJetsId.size()==2)
@@ -194,7 +195,6 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
             }
         }
     }
-    
     
     //for(size_t iJet=0;iJet!=lowerPtCUTJetIdx.size();++iJet)
     for(size_t iJet=0;iJet!=bJetsId.size();++iJet)
@@ -229,14 +229,14 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
         if (indexOfJetAssociatedToProperIsolatedLepton==-1) continue;
         }
         
-        if (optionForCalibration==1)
-        {
+        //if (optionForCalibration==1)
+        //{
             //if (kinRecoAntiBIndex.size()==0) continue;
             //if (jetIdx!=kinRecoAntiBIndex.at(0)) continue;
             
             //if (kinRecoBIndex.size()==0) continue;
             //if (jetIdx!=kinRecoBIndex.at(0)) continue;
-        }
+        //}
         
         bool recoBFromTop = false;
         //bool recoAntiBFromTop = false;
@@ -334,7 +334,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
         bool isSubleadingElectron = false;
         bool isNonLeadingLepton = false;
         
-        //TEST: c_{rel} calculation using selectedTracks
+        // Jet c_{rel} calculation using selectedTracks
         double sumTestPowProduct = 0.;
         double sumTestPowProductQ = 0;
         
@@ -348,8 +348,8 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
             sumTestPowProductQ += jetSelectedTrackCharge.at(iSelTrackCharge)*powProduct;
         }
        
-       const double selectedTrackJetCharge(sumTestPowProduct>0 ? sumTestPowProductQ/sumTestPowProduct : 0);
-       m_histogram["h_selectedTrackJetCharge"]->Fill(selectedTrackJetCharge);
+        const double selectedTrackJetCharge(sumTestPowProduct>0 ? sumTestPowProductQ/sumTestPowProduct : 0);
+        m_histogram["h_selectedTrackJetCharge"]->Fill(selectedTrackJetCharge);
         
         // Access secondary vertex information
         unsigned int secondaryVertexMultiplicityPerJet = 0; 
@@ -379,9 +379,10 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
         
         for(size_t jSecondaryVertex=0; jSecondaryVertex<jetSecondaryVertex.size(); ++jSecondaryVertex) 
         {
+            // Check that SV belongs to the jet
             if(jetSecondaryVertexJetIndex.at(jSecondaryVertex)!=static_cast<int>(jetIdx)) continue;
             
-            // Check that SV belongs to the jet
+            // Ony continue if at least one SV on the jet
             if (secondaryVertexMultiplicityPerJet==0) continue; 
             
             double sumSVPowProduct = 0.;
@@ -403,11 +404,12 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
             {
                 // Check that track belongs to jet
                 if (jetSelectedTrackIndex.at(iSelectedTrack)!=jetIdx) continue;
+                
                 // Check that track belongs to a SV
                 std::vector<int>::const_iterator isInVector = std::find(jetSecondaryVertexTrackMatchToSelectedTrackIndex.begin(), jetSecondaryVertexTrackMatchToSelectedTrackIndex.end(),iSelectedTrack);
                 if (isInVector ==  jetSecondaryVertexTrackMatchToSelectedTrackIndex.end()) continue;
                 
-                // Check that track belongs to the SV
+                // Check that track belongs to the SV - if so, sum up for track multiplicity
                 if (jetSecondaryVertexTrackVertexIndex.at(isInVector-jetSecondaryVertexTrackMatchToSelectedTrackIndex.begin()) != (int) jSecondaryVertex) continue;
                 ++secondaryVertexTrackMultiplicity;
                 
@@ -420,14 +422,28 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
                 // Calculate non-weighted secondary vertex charge
                 nonWeightedSvSelTrackCharge += jetSelectedTrackCharge.at(iSelectedTrack);
                 
+                // Secondary vertex charge for selected tracks matched to a pfCandidate - in other words: for pfCandidates
                 if (jetSelectedTrackMatchToPfCandidateIndex.at(iSelectedTrack)!=-1)
                 {
+                    // Calculate secondary vertex charge
                     const double productPfMatched = jetSelectedTrack.at(iSelectedTrack).px()*jetSecondaryVertex.at(jSecondaryVertex).px() +jetSelectedTrack.at(iSelectedTrack).py()*jetSecondaryVertex.at(jSecondaryVertex).py() + jetSelectedTrack.at(iSelectedTrack).pz()*jetSecondaryVertex.at(jSecondaryVertex).pz();
                     const double powProductPfMatched = std::pow (productPfMatched,0.8);
                     sumSVPowProductPfMatched += powProductPfMatched;
                     sumSVPowProductQPfMatched += jetSelectedTrackCharge.at(iSelectedTrack)*powProductPfMatched;
+                    
+                    // Secondary vertex multiplicity
                     ++secondaryVertexTrackMultiplicityPfMatched;
+                    
+                    //Secondary vertex tracks Id
+                    m_histogram["h_trueBJetTrackSecondaryVertexTrackId"]->Fill(jetPfCandidateTrackId.at(jetSelectedTrackMatchToPfCandidateIndex.at(iSelectedTrack)));
+                    m_histogram["h_trueBJetTrackSecondaryVertexTrackPt"]->Fill(jetPfCandidateTrack.at(jetSelectedTrackMatchToPfCandidateIndex.at(iSelectedTrack)).pt());
+                    if (jetPfCandidateTrackId.at(jetSelectedTrackMatchToPfCandidateIndex.at(iSelectedTrack)) == 3)  m_histogram["h_trueBJetTrackSecondaryVertexMuonTrackPt"]->Fill(jetPfCandidateTrack.at(jetSelectedTrackMatchToPfCandidateIndex.at(iSelectedTrack)).pt());
+                    if (jetPfCandidateTrackId.at(jetSelectedTrackMatchToPfCandidateIndex.at(iSelectedTrack)) == 2)  m_histogram["h_trueBJetTrackSecondaryVertexElectronTrackPt"]->Fill(jetPfCandidateTrack.at(jetSelectedTrackMatchToPfCandidateIndex.at(iSelectedTrack)).pt());
+                    if (jetPfCandidateTrackId.at(jetSelectedTrackMatchToPfCandidateIndex.at(iSelectedTrack)) == 3 || jetPfCandidateTrackId.at(jetSelectedTrackMatchToPfCandidateIndex.at(iSelectedTrack)) == 2) m_histogram["h_trueBJetTrackSecondaryVertexLeptonTrackPt"]->Fill(jetPfCandidateTrack.at(jetSelectedTrackMatchToPfCandidateIndex.at(iSelectedTrack)).pt());
+                    if (jetPfCandidateTrackId.at(jetSelectedTrackMatchToPfCandidateIndex.at(iSelectedTrack)) == 1)  m_histogram["h_trueBJetTrackSecondaryVertexNonLeptonTrackPt"]->Fill(jetPfCandidateTrack.at(jetSelectedTrackMatchToPfCandidateIndex.at(iSelectedTrack)).pt());
                 }
+                
+                // Secondary vertex charge for selected tracks not matched to any pfCandidate - just a test procedure
                 else if (jetSelectedTrackMatchToPfCandidateIndex.at(iSelectedTrack)==-1)
                 {
                     const double productNonPfMatched = jetSelectedTrack.at(iSelectedTrack).px()*jetSecondaryVertex.at(jSecondaryVertex).px() +jetSelectedTrack.at(iSelectedTrack).py()*jetSecondaryVertex.at(jSecondaryVertex).py() + jetSelectedTrack.at(iSelectedTrack).pz()*jetSecondaryVertex.at(jSecondaryVertex).pz();
@@ -449,7 +465,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
             nonWeightedSvSelTrackChargeVector.push_back(nonWeightedSvSelTrackCharge);
         }
         
-        
+        // Fill secondary vertex charge and multiplicity information 
         for (size_t iFillMult=0;iFillMult!=chargeOfSecondaryVerticesForSelectedTracks.size();++iFillMult)
         {
             m_histogram["h_trueBJetTrackSecondaryVertexSelectedTrackCharge"]->Fill(chargeOfSecondaryVerticesForSelectedTracks.at(iFillMult));
@@ -494,7 +510,6 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
             if (multiplicityOfSecondaryVerticesForSelectedTracks.at(svCharge)==14) m_histogram["h_trueBJetSecondaryVertexSelectedTrackNonWeightedChargeForMultiplicity14"]->Fill(nonWeightedSvSelTrackChargeVector.at(svCharge));
             
         }
-        
         
         // Secondary vertex information for pfCandidates
         std::vector<int> secondaryVertexSelTrackMatchedToPfCandidateIndex;
@@ -613,7 +628,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
             m_histogram["h_trueBJetLeptonTracks"]->Fill(particleId);
             m_histogram["h_trueBJetPfTrackPt"]->Fill(trueBJetPfTrackPt, weight);
             
-            //calculate the c_{rel} 
+            // Calculate the jet c_{rel} 
             const double constituentTrueBPx = jetPfCandidateTrack.at(iPfTrack).px();
             const double constituentTrueBPy = jetPfCandidateTrack.at(iPfTrack).py();
             const double constituentTrueBPz = jetPfCandidateTrack.at(iPfTrack).pz();
@@ -648,7 +663,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
             m_histogram["h_trueBJetRelPtTrack"]->Fill(trueMagnitude, weight);
         } //end of pfCandidates track loop
         
-        //check the particles leading the tracks
+        // Check the particles leading the tracks
         if(trackParticleId.size()>=1) m_histogram["h_trueBJetLeadingTrackParticleId"] -> Fill(trackParticleId.at(0));
         if(trackParticleId.size()>=2) m_histogram["h_trueBJetSubLeadingTrackParticleId"] -> Fill(trackParticleId.at(1));
         if(trackParticleId.size()>=3) m_histogram["h_trueBJetThirdLeadingTrackParticleId"] -> Fill(trackParticleId.at(2));
@@ -792,7 +807,8 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
                 }
             }
         }
-        //location of muons in the track rank
+        
+        // Location of muons in the track rank
         if (trackParticleId.size()>0) 
         {
             for (size_t iLep = 0;iLep!=trackParticleId.size();iLep++)
@@ -812,7 +828,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
         if (isSubleadingMuon==true) m_histogram["h_trueBJetToSubleadingMuonTrackPtRatio"]->Fill(ptRatioValuesSubleadingMuon, weight);
         if (isSubleadingElectron==true) m_histogram["h_trueBJetToSubleadingElectronTrackPtRatio"]->Fill(ptRatioValuesSubleadingElectron, weight);
         
-        //lepton histograms
+        // Lepton histograms
         if (trueBJetLeptonTracksPt.size()>0) 
         {
             m_histogram["h_trueBJetLeptonTrackMultiplicity"] -> Fill(trueBJetLeptonTracksPt.size(), weight);
@@ -820,6 +836,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
             m_histogram["h_trueBJetTrackMultiplicityIfLepton"]->Fill(trueBJetTrackMultiplicity, weight);
         }
         
+        // Hierarchical jet charge studies
         if (secondaryVertexMultiplicityPerJet==1 && multiplicityOfSecondaryVerticesForSelectedTracks.at(0)>=2)  
         {
             secondaryVertexChargeWasCalculated =true;
@@ -836,7 +853,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
             }
         }
         
-        //track general histograms
+        // Track general histograms
         m_histogram["h_trueBJetMaxRelPtTrack"]->Fill(maxTrueMagnitude, weight);
         m_histogram["h_trueBJetHighestPtTrack"]->Fill(maxPtTrueTrack, weight);
         
@@ -851,7 +868,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
         if (debug_==2) std::cout<<"The trueBJetTrackMultiplicity is = "<<trueBJetTrackMultiplicity<<std::endl;
         m_histogram["h_trueBJetTrackMultiplicity"]->Fill(trueBJetTrackMultiplicity,weight);
        
-        //charge histograms
+        // Validation charge histograms
         m_histogram["h_trueBJetScalarChargeValidation"]->Fill(trueBJetScalarCharge);
         
         const double trueBJetScalarCharge10(sumTrueBMomentum.at(4)>0 ? sumTrueBMomentumQ.at(4)/sumTrueBMomentum.at(4) : 0);
@@ -917,7 +934,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
             }
         }
         
-        //create a vector of histograms: contains histograms for x=0.2 to x=2.0
+        // Create a vector of histograms: contains histograms for x=0.2 to x=2.0
         std::vector<TString> trueBJetHistogramScalarVector;
         std::vector<TString> trueBJetHistogramRelVector;
        
@@ -937,7 +954,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
           
         }
         
-        //fill the histograms with the corresponding value of the charge (we take values from the sumTrueBMagnitude and sumTrueBMomentum vectors)
+        // Fill the histograms with the corresponding value of the charge (we take values from the sumTrueBMagnitude and sumTrueBMomentum vectors)
         std::vector<double> trueBJetScalarChargeVector;
         std::vector<double> trueBJetRelChargeVector;
         
@@ -1071,7 +1088,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
             if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkRelCharge20"]->Fill(trueBJetRelChargeVector.at(9),weight);
             else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkRelCharge20"]->Fill(trueBJetRelChargeVector.at(9),weight);
             
-            //Only coming from top: for comparison with kinReco results
+            // Only coming from top: for comparison with kinReco results
             if ( jetHadronFlavour==6)  m_histogram["h_trueBJetBQuarkFromTopScalarCharge2"]->Fill(trueBJetScalarChargeVector.at(0),weight);
             else if ( jetHadronFlavour==-6)  m_histogram["h_trueAntiBJetBQuarkFromTopScalarCharge2"]->Fill(trueBJetScalarChargeVector.at(0),weight);
             
@@ -1879,6 +1896,24 @@ void AnalyzerJetCharge::bookHistos(const TString& step, std::map<TString, TH1*>&
     
     name = "h_trueBJetTrackSecondaryVertexSelectedTrackChargePfMatched";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for selected tracks - pfMatched;sv charge;Secondary Vertices",24,-1.2,1.2));
+    
+    name = "h_trueBJetTrackSecondaryVertexTrackId";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex pfCandidate Id;sv track Id; PfCandidates",10,0.,10.));
+    
+    name = "h_trueBJetTrackSecondaryVertexTrackPt";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex pfCandidate pt;sv track pt;# pf tracks",40,0.,40.));
+    
+    name = "h_trueBJetTrackSecondaryVertexLeptonTrackPt";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex pfCandidate pt;sv lepton track pt;# pf tracks",40,0.,40.));
+    
+    name = "h_trueBJetTrackSecondaryVertexMuonTrackPt";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex muon pfCandidate pt;sv muon track pt;# pf tracks",40,0.,40.));
+    
+    name = "h_trueBJetTrackSecondaryVertexElectronTrackPt";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex electron pfCandidate pt;sv electron track pt;# pf tracks",40,0.,40.));
+
+    name = "h_trueBJetTrackSecondaryVertexNonLeptonTrackPt";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex non-lepton pfCandidate pt;sv non-lepton track pt;# pf tracks",40,0.,40.));
     
     name = "h_trueBJetTrackSecondaryVertexSelectedTrackChargeNonPfMatched";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for selected tracks - non pfMatched;sv charge;Secondary Vertices",24,-1.2,1.2));
