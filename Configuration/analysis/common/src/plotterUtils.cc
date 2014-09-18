@@ -236,7 +236,7 @@ void common::drawRatioXSEC(const TH1* histNumerator, const TH1* histDenominator1
 void common::drawRatio(const TH1* histNumerator, const TH1* histDenominator, const TH1* uncband,
                const Double_t& ratioMin, const Double_t& ratioMax, 
                bool addFit,
-               const TStyle& myStyle, const int verbose, const std::vector<double>& err)
+               const TStyle& myStyle, const int verbose, const std::vector<double>& err, const bool useMcStatError)
 {
     // this function draws a pad with the ratio of 'histNumerator' and 'histDenominator'
     // the range of the ratio is 'ratioMin' to 'ratioMax'
@@ -299,7 +299,17 @@ void common::drawRatio(const TH1* histNumerator, const TH1* histDenominator, con
         // b) default: only gaussian error of histNumerator
         if(verbose>0) std::cout << "ratio error from statistical error of " << histNumerator->GetName() << " only" << std::endl;
         for(int bin=1; bin<=histNumerator->GetNbinsX(); bin++){
-            ratio->SetBinError(bin, std::sqrt(histNumerator->GetBinContent(bin))/histDenominator->GetBinContent(bin));
+            double error = 0.;
+            if(!useMcStatError) {
+                error = std::sqrt(histNumerator->GetBinContent(bin))/histDenominator->GetBinContent(bin);
+            } else {
+                double c1 = histNumerator->GetBinContent(bin);
+                double c2 = histDenominator->GetBinContent(bin);
+                double e1 = histNumerator->GetBinError(bin);
+                double e2 = histDenominator->GetBinError(bin);
+                error = c1/c2 * sqrt( (e1*e1)/(c1*c1) + (e2*e2)/(c2*c2) );
+            }
+            ratio->SetBinError(bin, error);
         }
     }
     // get some values from old pad

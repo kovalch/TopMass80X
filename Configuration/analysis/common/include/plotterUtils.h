@@ -23,7 +23,9 @@ namespace common{
                    const bool addFit = 0,
                    const TStyle& myStyle = *gStyle, 
                    const int verbose=0, 
-                   const std::vector<double>& err=std::vector<double>(0));
+                   const std::vector<double>& err=std::vector<double>(0),
+                   const bool useMcStatError = false
+                  );
 
     /// Draw ratio of histograms if not NULL pointers
     void drawRatioXSEC(const TH1* histNumerator, const TH1* histDenominator1, 
