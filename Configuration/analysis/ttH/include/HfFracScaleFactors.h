@@ -54,6 +54,9 @@ private:
     /// Produce the Heavy-Flavour fraction scale factors for each selection step
     void produceScaleFactors(const TString& step, const Samples& samples);
     
+    /// Getting the largest scale factor for the histogram to have poisson errors not larger than true
+    double poissonErrorScale(const TH1* histo)const;
+    
     /// Struct to hold value-error pair
     struct ValErr {
         double val; double err;
@@ -85,6 +88,7 @@ private:
     
     /// Name base of the histogram used for the template fit
     TString histoTemplateName_;
+    
 };
 
 

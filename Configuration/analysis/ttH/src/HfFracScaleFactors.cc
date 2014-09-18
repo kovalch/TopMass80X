@@ -9,6 +9,9 @@
 #include <TObjArray.h>
 #include <TFractionFitter.h>
 #include <TCanvas.h>
+#include <THStack.h>
+#include <TFile.h>
+#include <TError.h>
 
 #include "HfFracScaleFactors.h"
 #include "higgsUtils.h"
@@ -33,12 +36,12 @@ rootFileReader_(rootFileReader)
     sampleTypeIds_[Sample::data] = 0;
     // Combine samples by assigning the same id
     sampleTypeIds_[Sample::ttbb] = 1;
-    sampleTypeIds_[Sample::ttb] = 1;
-    sampleTypeIds_[Sample::tt2b] = 1;
-    sampleTypeIds_[Sample::ttcc] = 2;
-    sampleTypeIds_[Sample::ttother] = 2;
+    sampleTypeIds_[Sample::ttb] = 2;
+    sampleTypeIds_[Sample::tt2b] = 2;
+    sampleTypeIds_[Sample::ttcc] = 3;
+    sampleTypeIds_[Sample::ttother] = 3;
     // Backgrounds MUST go last
-    sampleTypeIds_[Sample::dummy] = 3;
+    sampleTypeIds_[Sample::dummy] = 4;
     
     // FIXME: Check that there are no gaps in the list of ids
     
@@ -102,7 +105,8 @@ void HfFracScaleFactors::produceScaleFactors(const TString& step, const Samples&
         const Systematic::Systematic& systematic(systematicChannelSamples.first);
         const auto& channelSamples(systematicChannelSamples.second);
         
-        const std::vector<Channel::Channel> v_channel = {Channel::ee, Channel::emu, Channel::mumu, Channel::combined};
+//         const std::vector<Channel::Channel> v_channel = {Channel::ee, Channel::emu, Channel::mumu, Channel::combined};
+        const std::vector<Channel::Channel> v_channel = {Channel::combined};
 
         std::vector<TH1*> histos_comb;
         
@@ -115,6 +119,7 @@ void HfFracScaleFactors::produceScaleFactors(const TString& step, const Samples&
                 const Sample::SampleType& sampleType = sample.sampleType();
                 
                 TH1* h = rootFileReader_->GetClone<TH1D>(sample.inputFile(), TString(histoTemplateName_).Append(step));
+                h->Sumw2();
                 
                 if(sampleType != Sample::data){
                     const double& weight = globalWeights.at(systematic).at(channel).at(iSample);
@@ -127,7 +132,7 @@ void HfFracScaleFactors::produceScaleFactors(const TString& step, const Samples&
                 if (sampleTypeIds_.count(sampleType) == 0) sampleId = sampleTypeIds_[Sample::dummy];
                 else sampleId = sampleTypeIds_.at(sampleType);
                 
-                // Adding histogram for the appropriate sample accroding to its id
+                // Adding histogram for the appropriate sample according to its id
                 char tempName[20];
                 if (sampleId < (int)histos.size()) {
                     histos.at(sampleId)->Add(h); 
@@ -189,12 +194,15 @@ const std::vector<HfFracScaleFactors::ValErr> HfFracScaleFactors::getScaleFactor
     // Setting the integrals of the initial histograms
     std::vector<double> hInts;
     for(size_t iH = 0; iH < nSamples; ++iH) {
-        TH1* histo = histos.at(iH);
+        TH1* histo = (TH1*)histos.at(iH)->Clone();
         double hInt = histo->Integral();
         hInts.push_back(hInt);
         histo->SetLineColor(iH);
+        // Scaling to the number of entries to have poisson errors closer to reality
+        double scale = poissonErrorScale(histo);
+        histo->Scale(scale);
+        
         if(iH==0) continue;
-        histo->Scale(histo->GetEntries()/hInt);
         h_mc->Add(histo);
     }
     
@@ -214,14 +222,11 @@ const std::vector<HfFracScaleFactors::ValErr> HfFracScaleFactors::getScaleFactor
     fitter->SetRangeX(2,5);
 
     Int_t status = fitter->Fit();
-    fitter->ErrorAnalysis(1.);
+// //     fitter->ErrorAnalysis(1.);
     if(status != 0) {
         std::cerr << "WARNING!!! Fit failed with status: " << status << " [step: " << step << "; channel: " << channel << "]" << std::endl;
         return result;
     }
-    TH1* h_fit = (TH1*)fitter->GetPlot();
-    h_fit->SetLineColor(6);
-    h_fit->SetLineStyle(7);
     
     // Extracting fit result for each sample
     for(size_t sampleId = 1; sampleId<nSamples; ++sampleId) {
@@ -230,6 +235,52 @@ const std::vector<HfFracScaleFactors::ValErr> HfFracScaleFactors::getScaleFactor
         result.at(sampleId).val = v / (hInts.at(sampleId) / hInts.at(0));
         result.at(sampleId).err = e / (hInts.at(sampleId) / hInts.at(0));
     }
+    
+    return result;
+    
+    // Storing the plot showing the result of the fit
+    
+    // Suppress default info that canvas is printed
+    gErrorIgnoreLevel = 1001;
+    
+    TFile* out_root = new TFile(histoTemplateName_+"_source.root", "RECREATE");
+    TCanvas* canvas = new TCanvas("","");
+    canvas->SetLogy();
+    
+    THStack* stack = new THStack("def", "def");
+    for(size_t iHisto = 1; iHisto < nSamples; ++iHisto) {
+        histos.at(iHisto)->Scale(result.at(iHisto).val);
+        histos.at(iHisto)->SetLineColor(iHisto+1);
+        histos.at(iHisto)->SetFillColor(iHisto+1);
+        stack->Add(histos.at(iHisto));
+    }
+    histos.at(0)->SetMarkerStyle(20);
+    histos.at(0)->SetLineWidth(2);
+    histos.at(0)->Draw();
+    stack->Draw("same HIST");
+    histos.at(0)->Draw("same");
+    canvas->Print(histoTemplateName_+step+"_stack.eps");
+    canvas->Write(step+"_stack");
+    
+    canvas->Clear();
+    canvas->SetLogy(0);
+    
+    for(size_t iHisto = 0; iHisto < nSamples; ++iHisto) {
+        normalize(histos.at(iHisto));
+        histos.at(iHisto)->SetLineWidth(2);
+        histos.at(iHisto)->SetLineColor(iHisto+1);
+        histos.at(iHisto)->SetMarkerStyle(iHisto+19);
+        histos.at(iHisto)->SetMarkerColor(iHisto+1);
+        if(iHisto == 0) histos.at(iHisto)->Draw("LP");
+        else histos.at(iHisto)->Draw("sameLP");
+    }
+    
+    canvas->Write(step+"_shapes");
+    canvas->Print(histoTemplateName_+step+"_shapes.eps");
+    out_root->Close();
+    
+    delete out_root;
+    delete canvas;
     
     return result;
 }
@@ -285,8 +336,26 @@ int HfFracScaleFactors::applyScaleFactor(double& weight,
     return 1;
 }
 
+
 void HfFracScaleFactors::normalize ( TH1* histo )const
 {
     double integral = histo->Integral();
     histo->Scale ( 1.0/integral );
+}
+
+double HfFracScaleFactors::poissonErrorScale(const TH1* histo)const
+{
+    double scale = 0.;
+    const int nBins = histo->GetNbinsX();
+    // Finding the largest scale to have no bins with poisson uncertainty larger than the weighted one
+    for(int iBin = 1; iBin <= nBins; ++iBin) {
+        if(histo->GetBinContent(iBin) == 0) continue;
+        double error_real = histo->GetBinError(iBin);
+        double error_poisson = sqrt(histo->GetBinContent(iBin));
+        double scale_new = error_poisson/error_real;
+        if(scale_new < scale) continue;
+        scale = scale_new;
+    }
+    
+    return scale;
 }
