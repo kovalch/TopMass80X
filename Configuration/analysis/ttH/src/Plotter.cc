@@ -421,7 +421,7 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     for(TPaveText* label : significanceLabels) if(label) label->Draw("same");
     legend->Draw("SAME");
     if(dataHist.second && stacksum){
-        common::drawRatio(dataHist.second, stacksum, 0, 0.8, 1.2, false, *gStyle, 0, std::vector<double>(0), true);
+        common::drawRatio(dataHist.second, stacksum, 0, 0.5, 1.7, false, *gStyle, 0, std::vector<double>(0), true);
         firstHistToDraw->GetXaxis()->SetLabelSize(0);
         firstHistToDraw->GetXaxis()->SetTitleSize(0);
     }
