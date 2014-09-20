@@ -79,6 +79,9 @@ void AnalyzerDijet::fillHistos(const EventMetadata& eventMetadata,
                                const double& weight, const TString&,
                                std::map<TString, TH1*>& m_histogram)
 {
+    // Doing nothing if no generator level information is present
+    if(!recoObjects.valuesSet_ && !topGenObjects.valuesSet_) return;
+    
     // Extracting input data to more comfortable variables
     const VLV& allJets = (recoObjects.valuesSet_) ? *recoObjects.jets_ : VLV();
     const std::vector<int>& jetsId = recoObjectIndices.jetIndices_;           // Selected jets (point to jets from allJets)
@@ -1066,9 +1069,11 @@ void AnalyzerDijet::bookHistos(const TString& step, std::map<TString, TH1*>& m_h
         
         // Histograms with selection at reco level and matching to gen level
         // Generic info about top and additional jets
+        bookLeadingJetsHistos(m_histogram, "vis_gen", step, label);
         bookLeadingJetsHistos(m_histogram, "vis_kinReco", step, label);
         bookLeadingJetsHistos(m_histogram, "vis_mva", step, label);
         // Correlation with gen level jets
+        bookAddGenJetsCorrelationHistos(m_histogram, "vis_gen", step, label);
         bookAddGenJetsCorrelationHistos(m_histogram, "vis_kinReco", step, label);
         bookAddGenJetsCorrelationHistos(m_histogram, "vis_mva", step, label);
 
@@ -1164,16 +1169,16 @@ void AnalyzerDijet::bookAddGenJetsCorrelationHistos (std::map<TString, TH1*>& m_
 {
     const int nBins_Pt_j1 = 5;
     const double bins_Pt_j1[nBins_Pt_j1+1] = {20., 50., 80., 140., 200., 400.};
-    const int nBins_Pt_j2 = 5;
-    const double bins_Pt_j2[nBins_Pt_j2+1] = {20., 50., 80., 140., 200., 400.};
+    const int nBins_Pt_j2 = 3;
+    const double bins_Pt_j2[nBins_Pt_j2+1] = {20., 50., 80., 250.};
     const int nBins_Eta_j1 = 8;
     const double bins_Eta_j1[nBins_Eta_j1+1] = {-2.4, -1.8, -1.2, -0.6, 0., 0.6, 1.2, 1.8, 2.4};
-    const int nBins_Eta_j2 = 8;
-    const double bins_Eta_j2[nBins_Eta_j2+1] = {-2.4, -1.8, -1.2, -0.6, 0., 0.6, 1.2, 1.8, 2.4};
-    const int nBins_Mjj = 4;
-    const double bins_Mjj[nBins_Mjj+1] = {0., 80., 140., 240., 400.};
-    const int nBins_dR = 5;
-    const double bins_dR[nBins_dR+1] = {0., 1., 2., 3., 4., 5.};
+    const int nBins_Eta_j2 = 4;
+    const double bins_Eta_j2[nBins_Eta_j2+1] = {-2.4, -1.2, 0., 1.2, 2.4};
+    const int nBins_Mjj = 3;
+    const double bins_Mjj[nBins_Mjj+1] = {0., 80., 140., 400.};
+    const int nBins_dR = 3;
+    const double bins_dR[nBins_dR+1] = {0., 1., 2., 5.};
     
     
     TString name;
@@ -1271,10 +1276,10 @@ void AnalyzerDijet::bookLeadingJetsHistos (std::map<TString, TH1*>& m_histogram,
     const double bins_Eta_j1[nBins_Eta_j1+1] = {-2.4, -1.8, -1.2, -0.6, 0., 0.6, 1.2, 1.8, 2.4};
     const int nBins_Eta_j2 = 4;
     const double bins_Eta_j2[nBins_Eta_j2+1] = {-2.4, -1.2, 0., 1.2, 2.4};
-    const int nBins_Mjj = 4;
-    const double bins_Mjj[nBins_Mjj+1] = {0., 80., 140., 240., 400.};
-    const int nBins_dR = 4;
-    const double bins_dR[nBins_dR+1] = {0., 1., 2., 3., 5.};
+    const int nBins_Mjj = 3;
+    const double bins_Mjj[nBins_Mjj+1] = {0., 80., 140., 400.};
+    const int nBins_dR = 3;
+    const double bins_dR[nBins_dR+1] = {0., 1., 2., 5.};
     
     TString name;
     // Top jets
@@ -2463,8 +2468,8 @@ void AnalyzerDijet::fillTopAdditionalJetsHistos(const EventMetadata& eventMetada
     
     
     // Filling histograms about leading jets with tt jets identified at generator level (GEN -> RECO)
-//     fillLeadingJetsHistosVsGen("top_gen", eventMetadata, allGenJets, topAllJetsId_gen, allGenJets, topAllJetsId_gen, genJetsRecoId, topAllJetsId_gen, topAllJetsId_gen, weight, m_histogram, recoObjects, false);
-//     fillLeadingJetsHistosVsGen("add_gen", eventMetadata, allGenJets, addJetsId_gen, allGenJets, addJetsId_gen, genJetsRecoId, topAllJetsId_gen, topAllJetsId_gen, weight, m_histogram, recoObjects, false);
+    fillLeadingJetsHistosVsGen("top_gen", eventMetadata, allGenJets, topAllJetsId_gen, allGenJets, topAllJetsId_gen, genJetsRecoId, topAllJetsId_gen, topAllJetsId_gen, weight, m_histogram, recoObjects, false);
+    fillLeadingJetsHistosVsGen("add_gen", eventMetadata, allGenJets, addJetsId_gen, allGenJets, addJetsId_gen, genJetsRecoId, topAllJetsId_gen, topAllJetsId_gen, weight, m_histogram, recoObjects, false);
     fillLeadingJetsHistosVsGen("addB_gen", eventMetadata, allGenJets, addBJetsId_gen, allGenJets, addBJetsId_gen, genJetsRecoId, topAllJetsId_gen, topAllJetsId_gen, weight, m_histogram, recoObjects, false);
     
     // Filling histograms about leading jets with tt jets identified by True
@@ -2494,19 +2499,36 @@ void AnalyzerDijet::fillTopAdditionalJetsHistos(const EventMetadata& eventMetada
     fillLeadingJetsHistosVsGen("add_cp_mva", eventMetadata, allGenJets, addJetsId_gen, allJets, addJetsId_mva, genJetsRecoId, topAllJetsId_gen, topJetsId_mva, weight, m_histogram, recoObjects);
     fillLeadingJetsHistosVsGen("addB_cp_mva", eventMetadata, allGenJets, addBJetsId_gen, allJets, addBJetsId_mva, genJetsRecoId, topAllJetsId_gen, topJetsId_mva, weight, m_histogram, recoObjects);
     
-    // Filling histograms about leading jets with tt jets identified at reconstructed level (RECO -> GEN)
-    // tt jets from the Kinematic Reconstruction
-    if(topJetsId_kinReco.size() == 2) {
-        fillLeadingJetsHistosVsGen("top_vis_kinReco", eventMetadata, allGenJets, topAllJetsId_gen, allJets, topJetsId_kinReco, genJetsRecoId, topAllJetsId_gen, topJetsId_kinReco,  weight, m_histogram, recoObjects);
-        fillLeadingJetsHistosVsGen("add_vis_kinReco", eventMetadata, allGenJets, addJetsId_gen, allJets, addJetsId_kinReco, genJetsRecoId, topAllJetsId_gen, topJetsId_kinReco,  weight, m_histogram, recoObjects);
-        fillLeadingJetsHistosVsGen("addB_vis_kinReco", eventMetadata, allGenJets, addBJetsId_gen, allJets, addBJetsId_kinReco, genJetsRecoId, topAllJetsId_gen, topJetsId_kinReco,  weight, m_histogram, recoObjects);
+    // Visible phase space
+    std::vector<int> addBJetsId_gen_vis(addBJetsId_gen);
+    // Checking whether the visible phase space cuts are satisfied
+    const double leptonPt_min = 20.;
+    const double leptonEta_max = 2.4;
+    const double jetPt_min = 30.;
+    const double jetEta_max = 2.4;
+    bool isVisiblePS = true;
+    // Checking leptons from tt system
+    if(topGenObjects.valuesSet_) {
+        if(topGenObjects.GenLepton_->Pt() < leptonPt_min) isVisiblePS = false;
+        if(topGenObjects.GenAntiLepton_->Pt() < leptonPt_min) isVisiblePS = false;
+        if(std::fabs(topGenObjects.GenLepton_->Eta()) > leptonEta_max) isVisiblePS = false;
+        if(std::fabs(topGenObjects.GenAntiLepton_->Eta()) > leptonEta_max) isVisiblePS = false;
+    } else isVisiblePS = false;
+    // Checking jets from tt system
+    if(!isVisiblePS || topAllJetsId_gen.size() < 2) isVisiblePS = false;
+    if(isVisiblePS) {
+        for(int jetId : topAllJetsId_gen){
+            LV jet = allGenJets.at(jetId);
+            if(jet.Pt() < jetPt_min) { isVisiblePS = false; break; }
+            if(std::fabs(jet.Eta()) > jetEta_max) { isVisiblePS = false; break; }
+        }
     }
-    // tt jets from the MVA
-    if(topJetsId_mva.size() == 2) {
-        fillLeadingJetsHistosVsGen("top_vis_mva", eventMetadata, allGenJets, topAllJetsId_gen, allJets, topJetsId_mva, genJetsRecoId, topAllJetsId_gen, topJetsId_mva,  weight, m_histogram, recoObjects);
-        fillLeadingJetsHistosVsGen("add_vis_mva", eventMetadata, allGenJets, addJetsId_gen, allJets, addJetsId_mva, genJetsRecoId, topAllJetsId_gen, topJetsId_mva,  weight, m_histogram, recoObjects);
-        fillLeadingJetsHistosVsGen("addB_vis_mva", eventMetadata, allGenJets, addBJetsId_gen, allJets, addBJetsId_mva, genJetsRecoId, topAllJetsId_gen, topJetsId_mva,  weight, m_histogram, recoObjects);
-    }
+    if(!isVisiblePS) addBJetsId_gen_vis.clear();
+    
+    fillLeadingJetsHistosVsGen("addB_vis_gen", eventMetadata, allGenJets, addBJetsId_gen_vis, allGenJets, addBJetsId_gen_vis, genJetsRecoId, topAllJetsId_gen, topAllJetsId_gen, weight, m_histogram, recoObjects, false);
+    fillLeadingJetsHistosVsGen("addB_vis_kinReco", eventMetadata, allGenJets, addBJetsId_gen_vis, allJets, addBJetsId_kinReco, genJetsRecoId, topAllJetsId_gen, topJetsId_kinReco, weight, m_histogram, recoObjects);
+    fillLeadingJetsHistosVsGen("addB_vis_mva", eventMetadata, allGenJets, addBJetsId_gen_vis, allJets, addBJetsId_mva, genJetsRecoId, topAllJetsId_gen, topJetsId_mva, weight, m_histogram, recoObjects);
+    
     
     
     // Correlation hitograms for true vs Mva/KinReco jets
