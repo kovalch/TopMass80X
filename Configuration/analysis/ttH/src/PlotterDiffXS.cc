@@ -44,8 +44,8 @@ fileReader_(RootFileReader::getInstance()),
 name_("defaultName"),
 nameGen_("defaultName"),
 nameGenEventBased_("events_weighted_step0b"),
-mode_(0),
-rebin_(1),
+signalType_(0),
+plotResponse_(false),
 rangemin_(0),
 rangemax_(3),
 ymin_(0),
@@ -68,7 +68,7 @@ luminosity_(luminosity)
 
 void PlotterDiffXS::setOptions(const TString& name, const TString& nameGen,
                          const TString& YAxis, const TString& XAxis,
-                         const int rebin, const bool mode,
+                         const int signalType, const bool plotResponse,
                          const bool logX, const bool logY,
                          const double& ymin, const double& ymax,
                          const double& rangemin, const double& rangemax)
@@ -77,19 +77,27 @@ void PlotterDiffXS::setOptions(const TString& name, const TString& nameGen,
     nameGen_ = nameGen; //Variable name for the generator level
     YAxis_ = YAxis; //Y-axis title
     XAxis_ = XAxis; //X-axis title
-    rebin_ = rebin; //Nr. of bins to be merged together
+    signalType_ = signalType; //Type of the signal (0-ttbb, 1-ttb, 2-ttb+tt2b)
+    plotResponse_ = plotResponse; //Whether the response matrix should be plotted instead of the cross section
     logX_ = logX; //Draw X-axis in Log scale
     logY_ = logY; //Draw Y-axis in Log scale
     ymin_ = ymin; //Min. value in Y-axis
     ymax_ = ymax; //Max. value in Y-axis
     rangemin_ = rangemin; //Min. value in X-axis
     rangemax_ = rangemax; //Max. value in X-axis
-    mode_ = mode; //Mode for the histogram (0 - 1D cross section, 1 - 2D response matrix)
+    
+    // Clearing the sample collections from previous run of the plotter
+    sampleTypesData_.clear();
+    sampleTypesSignal_.clear();
+    sampleTypesBackground_.clear();
+    sampleTypesTtbar_.clear();
     
     // Setting the lists of sample types which should be treated as data, signal or background
-    for(int type = Sample::data; type != Sample::dummy; ++type) {
+    for(int type = Sample::data; type <= Sample::dummy; ++type) {
         if(type==Sample::data) sampleTypesData_.push_back(Sample::SampleType(type));
-        else if(type==Sample::ttbb ) sampleTypesSignal_.push_back(Sample::SampleType(type));
+        else if(type==Sample::ttbb && signalType_==0) sampleTypesSignal_.push_back(Sample::SampleType(type));
+        else if(type==Sample::ttb && (signalType_==1 || signalType_==2)) sampleTypesSignal_.push_back(Sample::SampleType(type));
+        else if(type==Sample::tt2b && signalType_==2) sampleTypesSignal_.push_back(Sample::SampleType(type));
         else sampleTypesBackground_.push_back(Sample::SampleType(type));
         
         if(type==Sample::ttbb || type==Sample::ttb || type==Sample::tt2b || type==Sample::ttcc || type==Sample::ttother)
@@ -124,7 +132,7 @@ void PlotterDiffXS::producePlots()
                          <<"\n... skip this plot\n";
                 return;
             }
-            if(mode_==1) {
+            if(plotResponse_) {
                 this->writeResponseMatrix(channel, systematic);
                 continue;
             }
@@ -245,12 +253,6 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
     canvas->SetTitle("");
     
     
-    // Here fill colors and line width are adjusted, and potentially rebinning applied
-    if(rebin_>1) {
-        for(auto sampleHistPair : v_sampleHistPair_) sampleHistPair.second->Rebin(rebin_);
-    }
-    
-    
     // Generic information about the histogram being plotted
     TString histo_name = v_sampleHistPair_.size() > 0 ? TString(v_sampleHistPair_.at(0).second->GetName()) : "";
     
@@ -307,7 +309,7 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
     
     // Add entries to legend
     legend->AddEntry(h_xs_data, "Data","pe");
-    legend->AddEntry(h_xs_mc, legendEntry,"l");
+    legend->AddEntry(h_xs_mc, "Madgraph","l");
 
     if(logY_) canvas->SetLogy();
     setHistoStyle(h_xs_data, 1, 1, 1, 0, 0, 20, 1, 1.5);
@@ -396,28 +398,28 @@ std::map<TString, TH1*> PlotterDiffXS::calculateDiffXS(const TH1* h_data, const 
     TH1* h_mc = (TH1*)h_signal->Clone("h_signalPlusBackground_reco");
     h_mc->Add(h_bkg, 1.0);
     
-    
+    const int nBins = h_data->GetNbinsX();
     ////////////////////////////////////////////////////////////////////// CALCULATING THE INCLUSIVE CROSS SECTION: ttbb
     ValueError N_data_reco(1.,1.);
-    N_data_reco.v = h_data->IntegralAndError(0,-1, N_data_reco.e);
+    N_data_reco.v = h_data->IntegralAndError(0,nBins+1, N_data_reco.e);
     ValueError N_dataMinusBackground(1.,1.);
-    N_dataMinusBackground.v = h_dataMinusBackground->IntegralAndError(0,-1, N_dataMinusBackground.e);
+    N_dataMinusBackground.v = h_dataMinusBackground->IntegralAndError(0,nBins+1, N_dataMinusBackground.e);
     ValueError N_signal_reco(1.,1.);
-    N_signal_reco.v = h_signal->IntegralAndError(0,-1, N_signal_reco.e);
+    N_signal_reco.v = h_signal->IntegralAndError(0,nBins+1, N_signal_reco.e);
     ValueError N_background_reco(1.,1.);
-    N_background_reco.v = h_bkg->IntegralAndError(0,-1, N_background_reco.e);
+    N_background_reco.v = h_bkg->IntegralAndError(0,nBins+1, N_background_reco.e);
     ValueError N_mc_reco(1.,1.);
-    N_mc_reco.v = h_mc->IntegralAndError(0,-1, N_mc_reco.e);
+    N_mc_reco.v = h_mc->IntegralAndError(0,nBins+1, N_mc_reco.e);
     ValueError N_signal_reco_noWeight(1.,1.);
-    N_signal_reco_noWeight.v = h_signal_noWeight->IntegralAndError(0,-1, N_signal_reco_noWeight.e);
+    N_signal_reco_noWeight.v = h_signal_noWeight->IntegralAndError(0,nBins+1, N_signal_reco_noWeight.e);
     ValueError N_signal_gen(1.,1.);
-    N_signal_gen.v = h_signal_gen->IntegralAndError(0,-1, N_signal_gen.e);
+    N_signal_gen.v = h_signal_gen->IntegralAndError(0,nBins+1, N_signal_gen.e);
     ValueError N_ttbar_gen_events(1.,1.);
-    N_ttbar_gen_events.v = h_ttbar_gen->IntegralAndError(0,-1, N_ttbar_gen_events.e);
+    N_ttbar_gen_events.v = h_ttbar_gen->IntegralAndError(0,nBins+1, N_ttbar_gen_events.e);
     
     printf("\n### [Full reco selection, generator weights * PU weights * reco weights * sample SFs (DY, tt+HF)]\n");
     printf("Data:   \t%.3f \t+- %.2f\n", N_data_reco.v, N_data_reco.e);
-    printf("Signal: \t%.3f \t+- %.2f\t(RECO tt+bb)\n", N_signal_reco.v, N_signal_reco.e);
+    printf("Signal: \t%.3f \t+- %.2f\t(RECO signal)\n", N_signal_reco.v, N_signal_reco.e);
     printf("Background: \t%.3f \t+- %.2f\t(RECO rest MC)\n", N_background_reco.v, N_background_reco.e);
     printf("-------------------------------\n");
     printf("MC total: \t%.3f \t+- %.2f\n", N_mc_reco.v, N_mc_reco.e);
@@ -459,7 +461,6 @@ std::map<TString, TH1*> PlotterDiffXS::calculateDiffXS(const TH1* h_data, const 
     
     ////////////////////////////////////////////////////////////////////// CALCULATING THE DIFFERENTIAL CROSS SECTION: ttbb
     // Calculating the cross section from data
-    const int nBins = h_data->GetNbinsX();
     TH1* h_diffXS_data = (TH1*)h_data->Clone("h_diffXS_data");
     for(int iBin = 1; iBin <= nBins; ++iBin) {
         const ValueError N_signal_reco( h_dataMinusBackground->GetBinContent(iBin), 
@@ -471,13 +472,12 @@ std::map<TString, TH1*> PlotterDiffXS::calculateDiffXS(const TH1* h_data, const 
         xsection.e = N_signal_reco.e / (acceptance.v*br_dilepton.v*luminosity.v);
         if(xsection.v != xsection.v) xsection.v = 0.;
         if(xsection.e != xsection.e) xsection.e = 0.;
-        // Dividing by the bin width
-        xsection.v /= h_diffXS_data->GetBinWidth(iBin);
-        xsection.e /= h_diffXS_data->GetBinWidth(iBin);
         
         h_diffXS_data->SetBinContent(iBin, xsection.v);
         h_diffXS_data->SetBinError(iBin, xsection.e);
     }
+    normalizeToBinWidth(h_diffXS_data);
+    normalize(h_diffXS_data);
     result["diffXS_data"] = h_diffXS_data;
     
     // Calculating the cross section from MC
@@ -492,13 +492,13 @@ std::map<TString, TH1*> PlotterDiffXS::calculateDiffXS(const TH1* h_data, const 
         xsection.e = sqrt(xsection_tt_dilepton.eOv2() * ttbbFraction.v2() + ttbbFraction.eOv2());
         if(xsection.v != xsection.v) xsection.v = 0.;
         if(xsection.e != xsection.e) xsection.e = 0.;
-        // Dividing by the bin width
-        xsection.v /= h_diffXS_madgraph->GetBinWidth(iBin);
-        xsection.e /= h_diffXS_madgraph->GetBinWidth(iBin);
         
         h_diffXS_madgraph->SetBinContent(iBin, xsection.v);
         h_diffXS_madgraph->SetBinError(iBin, xsection.e);
     }
+    normalizeToBinWidth(h_diffXS_madgraph);
+    normalize(h_diffXS_madgraph);
+    
     // Scaling to the measured inclusive cross section (for shape comparison)
     const double normScale = h_diffXS_data->Integral() / h_diffXS_madgraph->Integral();
     h_diffXS_madgraph->Scale(normScale);
@@ -527,7 +527,7 @@ void PlotterDiffXS::writeResponseMatrix(const Channel::Channel& channel, const S
     
     
     // Loop over all specified samples and add those with identical legendEntry
-    std::vector<LegendHistPair> ttbarHists = legendHistPairsForSamples(sampleTypesTtbar_, v_sampleHistPair_);
+    std::vector<LegendHistPair> ttbarHists = legendHistPairsForSamples(sampleTypesSignal_, v_sampleHistPair_);
     
     // Create histogram corresponding to the sum of all specified samples
     TH1* h_ttbar = sumOfHistos(ttbarHists, "h_ttbar_reco");
@@ -871,6 +871,22 @@ void PlotterDiffXS::setGraphStyle( TGraph* graph, Style_t marker, Color_t marker
     graph->SetLineStyle(line);
     graph->SetLineColor(lineColor);
     graph->SetLineWidth(lineWidth);
+}
+
+
+void PlotterDiffXS::normalizeToBinWidth(TH1* histo)const
+{
+    for(int iBin = 1; iBin <= histo->GetNbinsX(); ++iBin) {
+        const double width = histo->GetBinWidth(iBin);
+        histo->SetBinContent(iBin, histo->GetBinContent(iBin)/width);
+        histo->SetBinError(iBin, histo->GetBinError(iBin)/width);
+    }
+}
+
+
+void PlotterDiffXS::normalize(TH1* histo)const
+{
+    histo->Scale(1./histo->Integral(1,-1));
 }
 
 

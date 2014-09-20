@@ -89,12 +89,19 @@ private:
     /// Draw purity/stability plots for the response matrices
     void drawPurityStability(TH2* histo2d, TString name)const;
     
+    /// Divide each bin by the bin width
+    void normalizeToBinWidth(TH1* histo)const;
+    
+    /// Normalise histogram to the unit area
+    void normalize(TH1* histo)const;
+    
     /// Add area for the ratio plot
     TH1* drawRatioPad(TPad* pad, const double yMin, const double yMax, TH1* axisHisto, const double fraction = 0.36, 
                       const TString title = "#frac{Data}{Theory}")const;
     
     /// Get a ratio histogram
     TH1* ratioHistogram(const TH1* h_nominator, const TH1* h_denominator)const;
+    
     
     /// Draw signal significance label over the plot
     TPaveText* drawSignificance(TH1* signal, TH1* bkg, float Xmin,  float Xmax, float yOffset = 0.f, std::string sLabel ="", const int type=0)const;
@@ -154,7 +161,8 @@ private:
     TString nameGenEventBased_;
     
     /// Options for the histogram under consideration
-    int mode_, rebin_;
+    int signalType_;
+    bool plotResponse_;
 //     bool stackToNEntries_;
     double rangemin_, rangemax_, ymin_, ymax_;
 //     std::vector<double> XAxisbins_, XAxisbinCenters_;
