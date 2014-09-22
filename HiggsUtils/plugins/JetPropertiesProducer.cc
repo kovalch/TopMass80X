@@ -139,6 +139,10 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     // This variable is used so that we can give the proper value to the jetSecondaryVertexTrackVertexIndex
     int jetSecondaryVertexMultiplicity_total = 0;
     
+    // The sum of the multiplicities of the jetPfCandidateTrack for all the jets before the jet that is currently analysed
+    // This variable is used so that we can give the proper value to the jetPfCandidatePtrToRecoTrackIndex
+    int jetPfCandidateMultiplicity_total = 0;
+    
     for(std::vector<pat::Jet>::const_iterator i_jet = jetHandle->begin(); i_jet != jetHandle->end(); ++i_jet){
         
         // PfCandidateTrack related variables definition
@@ -151,7 +155,6 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         
         // Jet charge as given by PAT (weighted by global pt)
         const double jetChargeGlobalPtWeighted(i_jet->jetCharge());
-        
         
         // Jet charge as weighted sum
         // weight = projection of charged pflow object momentum on jet axis 
@@ -181,7 +184,6 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         
         // Find the Index of the jetSelectedTracks that are matched to the jetSecondaryVertexTracks
         std::vector<int> jetSecondaryVertexTrackMatchToSelectedTrackIndex;
-        
         
         for(std::vector<reco::PFCandidatePtr>::const_iterator i_candidate = pfConstituents.begin(); i_candidate != pfConstituents.end(); ++i_candidate){
             const int charge = (*i_candidate)->charge();
@@ -231,10 +233,9 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
                     
                     // Find among the pfCandidate pointers if there's any matching the studied selectedTrack
                     std::vector< const reco::Track* >::const_iterator foundTrack = std::find(jetPfCandidatePtrToRecoTrack.begin(), jetPfCandidatePtrToRecoTrack.end(), selectedTrackPtr);
-                    int pfCandidateIndex = (foundTrack == jetPfCandidatePtrToRecoTrack.end()) ? -1 : foundTrack - jetPfCandidatePtrToRecoTrack.begin();
+                    int pfCandidateIndex = (foundTrack == jetPfCandidatePtrToRecoTrack.end()) ? -1 : (foundTrack - jetPfCandidatePtrToRecoTrack.begin())+jetPfCandidateMultiplicity_total;
                     
                     jetSelectedTrackMatchToPfCandidateIndex.push_back(pfCandidateIndex);
-                        
                     
                     const double ipValue = trackIPTagInfo->impactParameterData().at(iSelectedTrack).ip3d.value();
                     const double ipSignificance = trackIPTagInfo->impactParameterData().at(iSelectedTrack).ip3d.significance();
@@ -331,6 +332,9 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         
         // Find the total #SecondaryVertices per event for all the jets
         jetSecondaryVertexMultiplicity_total = jetSecondaryVertexMultiplicity_total + jetSecondaryVertex.size();
+        
+        // Find the total #pfCandidates per event for all the jets
+        jetPfCandidateMultiplicity_total = jetPfCandidateMultiplicity_total + jetPfCandidateTrack.size();
         
         // Access Lorentz vector and PDG ID of parton associated to jet by PAT
         // If it does not exist, this can be identified by PDG ID =0
