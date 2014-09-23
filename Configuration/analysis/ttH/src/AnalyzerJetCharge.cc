@@ -76,12 +76,11 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
     //const std::vector<int>& lowerPtCUTJetIdx = recoObjectIndices.jetIndices_;           // Selected jets (point to jets from allJets)
     const std::vector<int>& bJetsId = recoObjectIndices.bjetIndices_;         // B-tagged jets (point to jets from allJets)
     const std::vector<double>& jetChargeRelativePtWeighted = *recoObjects.jetChargeRelativePtWeighted_;
-    
     const int& recoBjetFromTopIndex = genObjectIndices.recoBjetFromTopIndex_;
     //const int& recoAntiBjetFromTopIndex = genObjectIndices.recoAntiBjetFromTopIndex_;
     //const int& recoBjetFromHiggsIndex = genObjectIndices.recoBjetFromHiggsIndex_;
     //const int& recoAntiBjetFromHiggsIndex = genObjectIndices.recoAntiBjetFromHiggsIndex_;
-    
+    const std::vector<double>& jetBTagCSV = *recoObjects.jetBTagCSV_;
     
     // b-hadron + c-hadron information
     //const std::vector<LV>& bHadPlusMothers = *topGenObjects.genBHadPlusMothers_;
@@ -92,8 +91,8 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
 
     // Specific selected tracks information (tracks with quality requirements applied already at ntuple level) 
     const std::vector<LV>& jetSelectedTrack = *recoObjects.jetSelectedTrack_;
-    //const std::vector<double>& jetSelectedTrackIPValue = *recoObjects.jetSelectedTrackIPValue_;
-    //const std::vector<double>& jetSelectedTrackIPSignificance = *recoObjects.jetSelectedTrackIPSignificance_;
+    const std::vector<double>& jetSelectedTrackIPValue = *recoObjects.jetSelectedTrackIPValue_;
+    const std::vector<double>& jetSelectedTrackIPSignificance = *recoObjects.jetSelectedTrackIPSignificance_;
     const std::vector<int>& jetSelectedTrackCharge = *recoObjects.jetSelectedTrackCharge_;
     const std::vector<int>& jetSelectedTrackIndex = *recoObjects.jetSelectedTrackIndex_;
     const std::vector<int>& jetSelectedTrackMatchToPfCandidateIndex  = *recoObjects.jetSelectedTrackMatchToPfCandidateIndex_;
@@ -110,26 +109,29 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
     const std::vector<int>& jetSecondaryVertexTrackVertexIndex = *recoObjects.jetSecondaryVertexTrackVertexIndex_;
     const std::vector<int>& jetSecondaryVertexTrackMatchToSelectedTrackIndex = *recoObjects.jetSecondaryVertexTrackMatchToSelectedTrackIndex_;
     //const std::vector<double>&  jetSecondaryVertexPtCorrectedMass = (recoObjects.valuesSet_) ? *recoObjects.jetSecondaryVertexPtCorrectedMass_ : std::vector<double>(0);
+    const std::vector<double>& jetSecondaryVertexFlightDistanceValue = *recoObjects.jetSecondaryVertexFlightDistanceValue_;
+    const std::vector<double>& jetSecondaryVertexFlightDistanceSignificance = *recoObjects.jetSecondaryVertexFlightDistanceSignificance_;
     
     //kinRecoObjects
     //const std::vector<int>& kinRecoBIndex = *kinRecoObjects. HypJet0index_;
     //const std::vector<int>& kinRecoAntiBIndex = *kinRecoObjects. HypJet1index_;
     
-    //Access the leptons for mlb
+    // Access the leptons for mlb
     const VLV& isolatedLeptons = *recoObjects.allLeptons_;
     const std::vector<int>& isolatedLeptonsPgdId = *recoObjects.lepPdgId_;
-  
+    
+
     // =============================================================Now do calculations and filling of histograms===================================================================
   
     
-    //create new indices for the tracks->cut on different pt values
+    //create new indices for the tracks->cut on different p_{T} values
     constexpr double ptTracksCUT = 0.;
     
     //pt-order the pf tracks (even if they are in principle already ordered)
     std::vector<int> ptOrderedJetTrackIdx = common::initialiseIndices(jetPfCandidateTrack);
     common::orderIndices(ptOrderedJetTrackIdx, jetPfCandidateTrack, common::LVpt);
     
-    //pt-order the selected tracks (they are not pt ordered by default)
+    //pt-order the selected tracks (they are not p_{T} ordered by default)
     std::vector<int> ptOrderedSelTrackIdx = common::initialiseIndices(jetSelectedTrack);
     common::orderIndices(ptOrderedSelTrackIdx, jetSelectedTrack, common::LVpt);
 
@@ -199,7 +201,10 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
     //for(size_t iJet=0;iJet!=lowerPtCUTJetIdx.size();++iJet)
     for(size_t iJet=0;iJet!=bJetsId.size();++iJet)
     {
-        //std::cout<<"Enter jet loop......................................................................................"<<std::endl;
+        //int jetIdx = lowerPtCUTJetIdx.at(iJet);
+        int jetIdx = bJetsId.at(iJet);
+        LV jets = allJets.at(jetIdx);
+        
         if (optionForCalibration==2)
         {
             if (isolatedLeptons.size() != 2||bJetsId.size()!=2) continue;
@@ -212,10 +217,6 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
         bool secondaryVertexChargeWasCalculated = false;
         
         int indexOfJetAssociatedToProperIsolatedLepton = -1;
-        
-        //int jetIdx = lowerPtCUTJetIdx.at(iJet);
-        int jetIdx = bJetsId.at(iJet);
-        LV jets = allJets.at(jetIdx);
         
         if (optionForCalibration==2)
         {
@@ -279,6 +280,10 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
         double jetTrueBPy = jets.py();
         double jetTrueBPz = jets.pz();
         
+        // Add some control plots
+        m_histogram["h_trueBJetPtInitially"]->Fill(trueBJetPt, weight);
+        m_histogram["h_trueBJetCSVvalue"]->Fill(jetBTagCSV.at(jetIdx), weight);
+        
         int trueBJetTrackMultiplicity = 0;
         
         std::vector<double>sumTrueBMomentum;
@@ -334,21 +339,59 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
         bool isSubleadingElectron = false;
         bool isNonLeadingLepton = false;
         
-        // Jet c_{rel} calculation using selectedTracks
-        double sumTestPowProduct = 0.;
-        double sumTestPowProductQ = 0;
+        // Access selected tracks
+        double sumSelectedPwoProduct = 0.;
+        double sumSelectedPwoProductQ = 0;
         
-        for (size_t iSelTrackCharge=0;iSelTrackCharge!=jetSelectedTrack.size();++iSelTrackCharge)
+        std::vector<double> impactParameterValue;
+        std::vector<double> impactParameterSignificance;
+        std::vector<int> impactParameterMatchToPfIndices;
+        double maxImpactParameterValue = -999.;
+        double maxImpactParameterValueForPf = -999.;
+        double maxImpactParameterSignificance = -999999.;
+        double maxImpactParameterSignificanceForPf = -999999.;
+        int maxImpactParameterValueForPfIndex = -1;
+        
+        for (size_t iSelectedTrack=0;iSelectedTrack!=jetSelectedTrack.size();++iSelectedTrack)
         {
-            if (jetSelectedTrackIndex.at(iSelTrackCharge)!=jetIdx) continue;
+            if (jetSelectedTrackIndex.at(iSelectedTrack)!=jetIdx) continue;
             
-            const double product = jetSelectedTrack.at(iSelTrackCharge).px()*jetTrueBPx +jetSelectedTrack.at(iSelTrackCharge).py()*jetTrueBPy + jetSelectedTrack.at(iSelTrackCharge).pz()*jetTrueBPz;
+            // Jet c_{rel} calculation using selectedTracks
+            const double product = jetSelectedTrack.at(iSelectedTrack).px()*jetTrueBPx +jetSelectedTrack.at(iSelectedTrack).py()*jetTrueBPy + jetSelectedTrack.at(iSelectedTrack).pz()*jetTrueBPz;
             const double powProduct = std::pow (product,0.8);
-            sumTestPowProduct += powProduct;
-            sumTestPowProductQ += jetSelectedTrackCharge.at(iSelTrackCharge)*powProduct;
+            sumSelectedPwoProduct += powProduct;
+            sumSelectedPwoProductQ += jetSelectedTrackCharge.at(iSelectedTrack)*powProduct;
+            
+            // Access Impact parameter
+            m_histogram["h_trueBJetTrackIPValueForSelTracks"]->Fill(jetSelectedTrackIPValue.at(iSelectedTrack), weight);
+            m_histogram["h_trueBJetTrackIPSignificanceForSelTracks"]->Fill(jetSelectedTrackIPSignificance.at(iSelectedTrack), weight);
+            
+            if (jetSelectedTrackIPValue.at(iSelectedTrack)>maxImpactParameterValue) maxImpactParameterValue = jetSelectedTrackIPValue.at(iSelectedTrack);
+            if (jetSelectedTrackIPSignificance.at(iSelectedTrack)>maxImpactParameterSignificance) maxImpactParameterSignificance = jetSelectedTrackIPSignificance.at(iSelectedTrack);
+            
+            // Store for pfCandidates
+            if (jetSelectedTrackMatchToPfCandidateIndex.at(iSelectedTrack) != -1) 
+            {
+                impactParameterValue.push_back(jetSelectedTrackIPValue.at(iSelectedTrack));
+                impactParameterSignificance.push_back(jetSelectedTrackIPSignificance.at(iSelectedTrack));
+                impactParameterMatchToPfIndices.push_back(jetSelectedTrackMatchToPfCandidateIndex.at(iSelectedTrack));
+                
+                // Max impact parameter for pfCandidates
+                if (jetSelectedTrackIPValue.at(iSelectedTrack)>maxImpactParameterValueForPf)
+                {
+                    maxImpactParameterValueForPf = jetSelectedTrackIPValue.at(iSelectedTrack);
+                    //maxImpactParameterSignificanceForPf = jetSelectedTrackIPSignificance.at(iSelectedTrack);
+                    maxImpactParameterValueForPfIndex = jetSelectedTrackMatchToPfCandidateIndex.at(iSelectedTrack);
+                }
+            }
         }
-       
-        const double selectedTrackJetCharge(sumTestPowProduct>0 ? sumTestPowProductQ/sumTestPowProduct : 0);
+        
+        m_histogram["h_trueBJetTrackMaxIPValueForSelTracks"]->Fill(maxImpactParameterValue, weight);
+        m_histogram["h_trueBJetTrackMaxIPSignificanceForSelTracks"]->Fill(maxImpactParameterSignificance, weight);
+        if (maxImpactParameterValueForPfIndex!=-1) m_histogram["h_trueBJetTrackMaxIPValueForPfCandidates"]->Fill(maxImpactParameterValueForPf, weight);
+        if(maxImpactParameterValueForPfIndex!=-1) m_histogram["h_trueBJetTrackMaxIPSignificanceForPfCandidates"]->Fill(maxImpactParameterSignificanceForPf, weight);
+        
+        const double selectedTrackJetCharge(sumSelectedPwoProduct>0 ? sumSelectedPwoProductQ/sumSelectedPwoProduct : 0);
         m_histogram["h_selectedTrackJetCharge"]->Fill(selectedTrackJetCharge);
         
         // Access secondary vertex information
@@ -369,6 +412,10 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
         
         m_histogram["h_trueBJetTrackSecondaryVertexMultiplicity"]->Fill(secondaryVertexMultiplicityPerJet);
         
+        std::vector<double> secondaryVertexFlightDistanceValue;
+        std::vector<double> secondaryVertexFlightDistanceSignificance;
+        double minSecondaryVertexFlightDistanceValue = 99999.; 
+        
         std::vector<double> chargeOfSecondaryVerticesForSelectedTracks;
         std::vector<double> chargeOfSecondaryVerticesForSelectedTracksPfMatched;
         std::vector<double> chargeOfSecondaryVerticesForSelectedTracksNonPfMatched;
@@ -384,6 +431,21 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
             
             // Ony continue if at least one SV on the jet
             if (secondaryVertexMultiplicityPerJet==0) continue; 
+            
+            // Access flight distance information
+            secondaryVertexFlightDistanceValue.push_back(jetSecondaryVertexFlightDistanceValue.at(jSecondaryVertex));
+            m_histogram["h_secondaryVertexFlighDistanceValue"]->Fill(jetSecondaryVertexFlightDistanceValue.at(jSecondaryVertex), weight);
+            if (secondaryVertexMultiplicityPerJet == 1) m_histogram["h_secondaryVertexFlighDistanceValueFirstSV"]->Fill(jetSecondaryVertexFlightDistanceValue.at(jSecondaryVertex), weight);
+            else if (secondaryVertexMultiplicityPerJet == 2) m_histogram["h_secondaryVertexFlighDistanceValueSecondSV"]->Fill(jetSecondaryVertexFlightDistanceValue.at(jSecondaryVertex), weight);
+            else if (secondaryVertexMultiplicityPerJet == 3) m_histogram["h_secondaryVertexFlighDistanceValueThirdSV"]->Fill(jetSecondaryVertexFlightDistanceValue.at(jSecondaryVertex), weight);
+            
+            secondaryVertexFlightDistanceSignificance.push_back(jetSecondaryVertexFlightDistanceSignificance.at(jSecondaryVertex));
+            m_histogram["h_secondaryVertexFlighDistanceSignificance"]->Fill(jetSecondaryVertexFlightDistanceSignificance.at(jSecondaryVertex), weight);
+            if (secondaryVertexMultiplicityPerJet == 1) m_histogram["h_secondaryVertexFlighDistanceSignificanceFirstSV"]->Fill(jetSecondaryVertexFlightDistanceSignificance.at(jSecondaryVertex), weight);
+            else if (secondaryVertexMultiplicityPerJet == 2) m_histogram["h_secondaryVertexFlighDistanceSignificanceSecondSV"]->Fill(jetSecondaryVertexFlightDistanceSignificance.at(jSecondaryVertex), weight);
+            else if (secondaryVertexMultiplicityPerJet == 3) m_histogram["h_secondaryVertexFlighDistanceSignificanceThirdSV"]->Fill(jetSecondaryVertexFlightDistanceSignificance.at(jSecondaryVertex), weight);
+            
+            if (jetSecondaryVertexFlightDistanceValue.at(jSecondaryVertex)<minSecondaryVertexFlightDistanceValue) minSecondaryVertexFlightDistanceValue = jetSecondaryVertexFlightDistanceValue.at(jSecondaryVertex);
             
             double sumSVPowProduct = 0.;
             double sumSVPowProductQ = 0;
@@ -478,7 +540,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
             m_histogram["h_trueBJetSecondaryVertexSelectedTrackNonWeightedCharge"]->Fill(nonWeightedSvSelTrackChargeVector.at(iFillMult));
         }
         
-        //create a vector of histograms: contains histograms for the different track multiplicities
+        // Sv charge for different sv track multiplicities
         for (size_t svCharge=0;svCharge!=chargeOfSecondaryVerticesForSelectedTracks.size();++svCharge)
         {
             if (multiplicityOfSecondaryVerticesForSelectedTracks.at(svCharge)==2) m_histogram["h_trueBJetSecondaryVertexSelectedTrackChargeForMultiplicity2"]->Fill(chargeOfSecondaryVerticesForSelectedTracks.at(svCharge));
@@ -511,6 +573,10 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
             
         }
         
+        // Min. flight distance plots
+        if (secondaryVertexMultiplicityPerJet!=0) m_histogram["h_secondaryVertexMinFlighDistanceValue"]->Fill(minSecondaryVertexFlightDistanceValue, weight);
+        ((TH2D*)m_histogram["h_secondaryVertexMinFlightDistanceValueVsCSV"])->Fill(minSecondaryVertexFlightDistanceValue,jetBTagCSV.at(jetIdx),weight);
+        
         // Secondary vertex information for pfCandidates
         std::vector<int> secondaryVertexSelTrackMatchedToPfCandidateIndex;
         std::vector<int> secondaryVertexSelTrackMatchedToPfCandidateVertexIndex;
@@ -539,8 +605,25 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
                 //maxChargeTrueTrack = jetPfCandidateTrackCharge.at(iPfTrack);
                 //maxPtChargeTrueTrack = trueBJetPfTrackPt*jetPfCandidateTrackCharge.at(iPfTrack);
             }
-           
-            //check if the track is a lepton or not:
+            
+            // Access impact parameter
+            double impactParameterValueForPf = 0;
+            double impactParameterSignificanceForPf = 0;
+            bool ipValueWasDefined = false;
+            
+            std::vector<int>::const_iterator pfIsMatchedToSelTrack = std::find(impactParameterMatchToPfIndices.begin(),impactParameterMatchToPfIndices.end(),iPfTrack);
+            if (pfIsMatchedToSelTrack!=impactParameterMatchToPfIndices.end()) 
+            {
+                impactParameterValueForPf = impactParameterValue.at(pfIsMatchedToSelTrack - impactParameterMatchToPfIndices.begin());
+                impactParameterSignificanceForPf = impactParameterSignificance.at(pfIsMatchedToSelTrack - impactParameterMatchToPfIndices.begin());
+                m_histogram["h_trueBJetTrackIPValueForPfCandidates"]->Fill(impactParameterValueForPf, weight);
+                m_histogram["h_trueBJetTrackIPSignificanceForPfCandidates"]->Fill(impactParameterSignificanceForPf, weight);
+                ipValueWasDefined = true;
+            }
+            
+            if (jetIdx==0 && maxImpactParameterValueForPfIndex==(int)iPfTrack) m_histogram["h_trueBJetTrackMaxIPValueForPfCandidatesTEST"]->Fill(maxImpactParameterValueForPf, weight);
+            
+            // Check if the track is a lepton or not:
             int particleId = jetPfCandidateTrackId.at(iPfTrack);
             trackParticleId.push_back(particleId);
             
@@ -555,6 +638,8 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
                 m_histogram["h_trueBJetMuonTrackCharge"]->Fill(jetPfCandidateTrackCharge.at(iPfTrack), weight);
                 ((TH2D*)m_histogram["h_trueBJetMuonChargePt"])->Fill(trueBJetPfTrackPt,jetPfCandidateTrackCharge.at(iPfTrack),weight);
                 m_histogram["h_trueBJetToMuonTrackPtRatio"]->Fill(trueBJetPfTrackPt/trueBJetPt, weight);
+                if (ipValueWasDefined) m_histogram["h_trueBJetTrackIPValueIfMuon"]->Fill(impactParameterValueForPf, weight);
+                if (ipValueWasDefined) m_histogram["h_trueBJetTrackIPSignificanceIfMuon"]->Fill(impactParameterSignificanceForPf, weight);
             }
             
             //if track is an electron (2), fill some electron-specific histograms
@@ -568,6 +653,8 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
                 m_histogram["h_trueBJetElectronTrackCharge"]->Fill(jetPfCandidateTrackCharge.at(iPfTrack), weight);
                 ((TH2D*)m_histogram["h_trueBJetElectronChargePt"])->Fill(trueBJetPfTrackPt,jetPfCandidateTrackCharge.at(iPfTrack),weight);
                 m_histogram["h_trueBJetToElectronTrackPtRatio"]->Fill(trueBJetPfTrackPt/trueBJetPt, weight);
+                if (ipValueWasDefined) m_histogram["h_trueBJetTrackIPValueIfElectron"]->Fill(impactParameterValueForPf, weight);
+                if (ipValueWasDefined) m_histogram["h_trueBJetTrackIPSignificanceIfElectron"]->Fill(impactParameterSignificanceForPf, weight);
             }
             
             if (particleId==2 || particleId==3)
@@ -580,9 +667,11 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata&,
                 m_histogram["h_trueBJetLeptonTrackCharge"]->Fill(jetPfCandidateTrackCharge.at(iPfTrack), weight);
                 ((TH2D*)m_histogram["h_trueBJetLeptonChargePt"])->Fill(trueBJetPfTrackPt,jetPfCandidateTrackCharge.at(iPfTrack),weight);
                 m_histogram["h_trueBJetToLeptonTrackPtRatio"]->Fill(trueBJetPfTrackPt/trueBJetPt, weight);
+                if (ipValueWasDefined) m_histogram["h_trueBJetTrackIPValueIfLepton"]->Fill(impactParameterValueForPf, weight);
+                if (ipValueWasDefined) m_histogram["h_trueBJetTrackIPSignificanceIfLepton"]->Fill(impactParameterSignificanceForPf, weight);
             }
                 
-            // Set some boolean to later on identify if the b-quark has the same charge as the lepton with highest pt in the jet.
+            // Set some boolean to later on identify if the b-quark has the same charge as the lepton with highest p_{T} in the jet.
             if (trueBJetLeptonTracksCharge.size()>0 && trueBJetLeptonTracksCharge.at(0) <0 ) leptonHasNegativeCharge=true;
             if (trueBJetMuonTracksCharge.size()>0 && trueBJetMuonTracksCharge.at(0)<0) muonHasNegativeCharge = true;
             if (trueBJetElectronTracksCharge.size()>0 && trueBJetElectronTracksCharge.at(0)<0) electronHasNegativeCharge = true;
@@ -1225,9 +1314,15 @@ void AnalyzerJetCharge::bookHistos(const TString& step, std::map<TString, TH1*>&
     name = "h_trueBJetScalarChargeVsMultip";
     m_histogram[name] = store(new TH2D(prefix_+name+step,"True b c_{rel} value in function of the jet track multiplicity;track multiplicity;c_{rel}",20,0,40,30, -1.5, 1.5));
     
-    //some control plots
+    // Some control plots
     name = "h_trueBJetPt";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet p_{T};Jet p_{T} ;Jets",40,0,200));
+    
+    name = "h_trueBJetPtInitially";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet p_{T};Jet p_{T} ;Jets",40,0,200));
+    
+    name = "h_trueBJetCSVvalue";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet CSV;Jet CSV ;Jets",40,-2,2));
     
     name = "h_trueBJetPfTrackPt";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet track p_{T};p_{T} track;Tracks",40,0,40));
@@ -1235,25 +1330,25 @@ void AnalyzerJetCharge::bookHistos(const TString& step, std::map<TString, TH1*>&
     name = "h_trueBJetHighestPtTrack";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"p_{T} value of the highest p_{T} track of each true b jet;p_{T} track;Jets",40,0,40));
     
-    //charge validation plots
+    // Charge validation plots
     
     name = "h_trueBJetScalarChargeValidation";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet scalar p_{T}-weighted charge;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetScalarCharge10";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet longitudinal pT weighted charge with x = 1.0;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet longitudinal p_{T} weighted charge with x = 1.0;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetScalarCharge8_IfOneSvInJet";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet scalar p_{T}-weighted charge if ONE secondary vertex in the event;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetScalarCharge8_WithoutZeroValue";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet longitudinal pT weighted charge with x = 0.8;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet longitudinal p_{T} weighted charge with x = 0.8;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetScalarChargeVsSecondaryVertex";
     m_histogram[name] = store(new TH2D(prefix_+name+step, "Comparison of Inclusive jet charge (x=0.8) vs Secondary Vertex Charge (x=0.8);c_{rel}^{jet};c_{rel}^{SV}",24,-1.2,1.2,24,-1.2,1.2));
     
     name = "h_trueBJetLeptonChargeVsSecondaryVertex";
-    m_histogram[name] = store(new TH2D(prefix_+name+step, "Comparison of leading lepton charge vs Secondary Vertex Charge;c^{lepton track};c^{SV}",24,-1.2,1.2,24,-1.2,1.2));
+    m_histogram[name] = store(new TH2D(prefix_+name+step, "Comparison of leading lepton charge vs Secondary Vertex Charge;c^{lepton track};c^{SV}",24,-1.2,1.2,12,-6,6));
     
     //NEW CHARGE DEFINITIONS===============================================================================================
     
@@ -1261,64 +1356,64 @@ void AnalyzerJetCharge::bookHistos(const TString& step, std::map<TString, TH1*>&
     m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet relative p_{T}-weighted charge;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetScalarChargeXWeighted";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet longitudinal pT weighted charge weighted by 0.7 (as in TOP-11-031);c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet longitudinal p_{T} weighted charge weighted by 0.7 (as in TOP-11-031);c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetScalarCharge2";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet longitudinal pT weighted charge with x = 0.2;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet longitudinal p_{T} weighted charge with x = 0.2;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetScalarCharge4";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet longitudinal pT weighted charge with x = 04;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet longitudinal p_{T} weighted charge with x = 04;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetScalarCharge6";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet longitudinal pT weighted charge with x = 0.6;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet longitudinal p_{T} weighted charge with x = 0.6;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetScalarCharge8";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet longitudinal pT weighted charge with x = 0.8;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet longitudinal p_{T} weighted charge with x = 0.8;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetScalarCharge12";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet longitudinal pT weighted charge with x = 1.2;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet longitudinal p_{T} weighted charge with x = 1.2;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetScalarCharge14";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet longitudinal pT weighted charge with x = 1.4;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet longitudinal p_{T} weighted charge with x = 1.4;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetScalarCharge16";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet longitudinal pT weighted charge with x = 1.6;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet longitudinal p_{T} weighted charge with x = 1.6;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetScalarCharge18";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet longitudinal pT weighted charge with x = 1.8;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet longitudinal p_{T} weighted charge with x = 1.8;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetScalarCharge20";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet longitudinal pT weighted charge with x = 2.0;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet longitudinal p_{T} weighted charge with x = 2.0;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetRelPtTrack";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Relative p_{T} of all tracks in b (and anti-b) jets;Relative p_{T};Jets",40,0.,200.));
     
     name = "h_trueBJetRelCharge2";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet transverse pT weighted charge with x = 0.2;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet transverse p_{T} weighted charge with x = 0.2;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetRelCharge4";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet transverse pT weighted charge with x = 04;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet transverse p_{T} weighted charge with x = 04;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetRelCharge6";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet transverse pT weighted charge with x = 0.6;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet transverse p_{T} weighted charge with x = 0.6;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetRelCharge8";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet transverse pT weighted charge with x = 0.8;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet transverse p_{T} weighted charge with x = 0.8;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetRelCharge12";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet transverse pT weighted charge with x = 1.2;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet transverse p_{T} weighted charge with x = 1.2;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetRelCharge14";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet transverse pT weighted charge with x = 1.4;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet transverse p_{T} weighted charge with x = 1.4;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetRelCharge16";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet transverse pT weighted charge with x = 1.6;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet transverse p_{T} weighted charge with x = 1.6;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetRelCharge18";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet transverse pT weighted charge with x = 1.8;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet transverse p_{T} weighted charge with x = 1.8;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetRelCharge20";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet transverse pT weighted charge with x = 2.0;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet transverse p_{T} weighted charge with x = 2.0;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetMaxRelPtTrack";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Relative p_{T} of highest p_{T} track in b (and anti-b) jets;Relative p_{T};Jets",40,0.,200.));
@@ -1327,195 +1422,195 @@ void AnalyzerJetCharge::bookHistos(const TString& step, std::map<TString, TH1*>&
     //EXTRA PLOTS FOR MVA USE================================================================================================================
     
     name = "h_trueBJetBQuarkScalarCharge2";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) longitudinal pT weighted charge with x = 0.2;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) longitudinal p_{T} weighted charge with x = 0.2;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetBQuarkScalarCharge4";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) longitudinal pT weighted charge with x = 04;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) longitudinal p_{T} weighted charge with x = 04;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetBQuarkScalarCharge6";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) longitudinal pT weighted charge with x = 0.6;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) longitudinal p_{T} weighted charge with x = 0.6;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetBQuarkScalarCharge8";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) longitudinal pT weighted charge with x = 0.8;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) longitudinal p_{T} weighted charge with x = 0.8;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetBQuarkScalarCharge10";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"b quark to longitudinal b c_{rel} correlation ;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetBQuarkScalarCharge12";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) longitudinal pT weighted charge with x = 1.2;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) longitudinal p_{T} weighted charge with x = 1.2;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetBQuarkScalarCharge14";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) longitudinal pT weighted charge with x = 1.4;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) longitudinal p_{T} weighted charge with x = 1.4;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetBQuarkScalarCharge16";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) longitudinal pT weighted charge with x = 1.6;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) longitudinal p_{T} weighted charge with x = 1.6;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetBQuarkScalarCharge18";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) longitudinal pT weighted charge with x = 1.8;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) longitudinal p_{T} weighted charge with x = 1.8;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetBQuarkScalarCharge20";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) longitudinal pT weighted charge with x = 2.0;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) longitudinal p_{T} weighted charge with x = 2.0;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueAntiBJetBQuarkScalarCharge2";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) longitudinal pT weighted charge with x = 0.2;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) longitudinal p_{T} weighted charge with x = 0.2;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueAntiBJetBQuarkScalarCharge4";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) longitudinal pT weighted charge with x = 04;;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) longitudinal p_{T} weighted charge with x = 04;;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueAntiBJetBQuarkScalarCharge6";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) longitudinal pT weighted charge with x = 0.6;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) longitudinal p_{T} weighted charge with x = 0.6;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueAntiBJetBQuarkScalarCharge8";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) longitudinal pT weighted charge with x = 0.8;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) longitudinal p_{T} weighted charge with x = 0.8;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetAntiBQuarkScalarCharge10";
     m_histogram[name] = store(new TH1D(prefix_+name+step," Anti-b quark to longitudinal b c_{rel} correlation;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueAntiBJetBQuarkScalarCharge12";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) longitudinal pT weighted charge with x = 1.2;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) longitudinal p_{T} weighted charge with x = 1.2;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueAntiBJetBQuarkScalarCharge14";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) longitudinal pT weighted charge with x = 1.4;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) longitudinal p_{T} weighted charge with x = 1.4;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueAntiBJetBQuarkScalarCharge16";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) longitudinal pT weighted charge with x = 1.6;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) longitudinal p_{T} weighted charge with x = 1.6;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueAntiBJetBQuarkScalarCharge18";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) longitudinal pT weighted charge with x = 1.8;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) longitudinal p_{T} weighted charge with x = 1.8;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueAntiBJetBQuarkScalarCharge20";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) longitudinal pT weighted charge with x = 2.0;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) longitudinal p_{T} weighted charge with x = 2.0;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetBQuarkFromTopScalarCharge2";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from b-quark) longitudinal pT weighted charge with x = 0.2;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from b-quark) longitudinal p_{T} weighted charge with x = 0.2;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetBQuarkFromTopScalarCharge4";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from b-quark) longitudinal pT weighted charge with x = 04;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from b-quark) longitudinal p_{T} weighted charge with x = 04;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetBQuarkFromTopScalarCharge6";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from b-quark) longitudinal pT weighted charge with x = 0.6;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from b-quark) longitudinal p_{T} weighted charge with x = 0.6;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetBQuarkFromTopScalarCharge8";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from b-quark) longitudinal pT weighted charge with x = 0.8;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from b-quark) longitudinal p_{T} weighted charge with x = 0.8;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetBQuarkFromTopScalarCharge10";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"b quark to longitudinal b jet from top charge correlation ;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetBQuarkFromTopScalarCharge12";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from b-quark) longitudinal pT weighted charge with x = 1.2;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from b-quark) longitudinal p_{T} weighted charge with x = 1.2;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetBQuarkFromTopScalarCharge14";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from b-quark) longitudinal pT weighted charge with x = 1.4;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from b-quark) longitudinal p_{T} weighted charge with x = 1.4;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetBQuarkFromTopScalarCharge16";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from b-quark) longitudinal pT weighted charge with x = 1.6;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from b-quark) longitudinal p_{T} weighted charge with x = 1.6;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetBQuarkFromTopScalarCharge18";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from b-quark) longitudinal pT weighted charge with x = 1.8;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from b-quark) longitudinal p_{T} weighted charge with x = 1.8;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetBQuarkFromTopScalarCharge20";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from b-quark) longitudinal pT weighted charge with x = 2.0;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from b-quark) longitudinal p_{T} weighted charge with x = 2.0;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueAntiBJetBQuarkFromTopScalarCharge2";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from anti-b quark) longitudinal pT weighted charge with x = 0.2;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from anti-b quark) longitudinal p_{T} weighted charge with x = 0.2;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueAntiBJetBQuarkFromTopScalarCharge4";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from anti-b quark) longitudinal pT weighted charge with x = 04;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from anti-b quark) longitudinal p_{T} weighted charge with x = 04;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueAntiBJetBQuarkFromTopScalarCharge6";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from anti-b quark) longitudinal pT weighted charge with x = 0.6;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from anti-b quark) longitudinal p_{T} weighted charge with x = 0.6;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueAntiBJetBQuarkFromTopScalarCharge8";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from anti-b quark) longitudinal pT weighted charge with x = 0.8;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from anti-b quark) longitudinal p_{T} weighted charge with x = 0.8;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetAntiBQuarkFromTopScalarCharge10";
     m_histogram[name] = store(new TH1D(prefix_+name+step," Anti-b quark to longitudinal b jet from top charge correlation;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueAntiBJetBQuarkFromTopScalarCharge12";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from anti-b quark) longitudinal pT weighted charge with x = 1.2;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from anti-b quark) longitudinal p_{T} weighted charge with x = 1.2;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueAntiBJetBQuarkFromTopScalarCharge14";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from anti-b quark) longitudinal pT weighted charge with x = 1.4;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from anti-b quark) longitudinal p_{T} weighted charge with x = 1.4;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueAntiBJetBQuarkFromTopScalarCharge16";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from anti-b quark) longitudinal pT weighted charge with x = 1.6;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from anti-b quark) longitudinal p_{T} weighted charge with x = 1.6;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueAntiBJetBQuarkFromTopScalarCharge18";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from anti-b quark) longitudinal pT weighted charge with x = 1.8;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from anti-b quark) longitudinal p_{T} weighted charge with x = 1.8;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueAntiBJetBQuarkFromTopScalarCharge20";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from anti-b quark) longitudinal pT weighted charge with x = 2.0;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet from top (from anti-b quark) longitudinal p_{T} weighted charge with x = 2.0;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetBQuarkRelCharge2";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) transverse pT weighted charge with x = 0.2;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) transverse p_{T} weighted charge with x = 0.2;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetBQuarkRelCharge4";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) transverse pT weighted charge with x = 04;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) transverse p_{T} weighted charge with x = 04;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetBQuarkRelCharge6";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) transverse pT weighted charge with x = 0.6;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) transverse p_{T} weighted charge with x = 0.6;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetBQuarkRelCharge8";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) transverse pT weighted charge with x = 0.8;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) transverse p_{T} weighted charge with x = 0.8;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetBQuarkRelCharge10";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"b quark to true b jet transverse charge correlation;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetBQuarkRelCharge12";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) transverse pT weighted charge with x = 1.2;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) transverse p_{T} weighted charge with x = 1.2;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetBQuarkRelCharge14";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) transverse pT weighted charge with x = 1.4;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) transverse p_{T} weighted charge with x = 1.4;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetBQuarkRelCharge16";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) transverse pT weighted charge with x = 1.6;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) transverse p_{T} weighted charge with x = 1.6;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetBQuarkRelCharge18";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) transverse pT weighted charge with x = 1.8;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) transverse p_{T} weighted charge with x = 1.8;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetBQuarkRelCharge20";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) transverse pT weighted charge with x = 2.0;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from b-quark) transverse p_{T} weighted charge with x = 2.0;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueAntiBJetBQuarkRelCharge2";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) transverse pT weighted charge with x = 0.2;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) transverse p_{T} weighted charge with x = 0.2;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueAntiBJetBQuarkRelCharge4";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) transverse pT weighted charge with x = 04;;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) transverse p_{T} weighted charge with x = 04;;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueAntiBJetBQuarkRelCharge6";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) transverse pT weighted charge with x = 0.6;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) transverse p_{T} weighted charge with x = 0.6;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueAntiBJetBQuarkRelCharge8";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) transverse pT weighted charge with x = 0.8;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) transverse p_{T} weighted charge with x = 0.8;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueBJetAntiBQuarkRelCharge10";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Anti-b quark to true b jet transverse charge correlation;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueAntiBJetBQuarkRelCharge12";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) transverse pT weighted charge with x = 1.2;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) transverse p_{T} weighted charge with x = 1.2;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueAntiBJetBQuarkRelCharge14";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) transverse pT weighted charge with x = 1.4;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) transverse p_{T} weighted charge with x = 1.4;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueAntiBJetBQuarkRelCharge16";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) transverse pT weighted charge with x = 1.6;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) transverse p_{T} weighted charge with x = 1.6;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueAntiBJetBQuarkRelCharge18";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) transverse pT weighted charge with x = 1.8;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) transverse p_{T} weighted charge with x = 1.8;c_{rel};Jets",24,-1.2,1.2));
     
     name = "h_trueAntiBJetBQuarkRelCharge20";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) transverse pT weighted charge with x = 2.0;c_{rel};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet (from anti-b quark) transverse p_{T} weighted charge with x = 2.0;c_{rel};Jets",24,-1.2,1.2));
     
     // JET-TRACK RELATION PLOTS===============================================================================================================================
     
     name = "h_trueBJetPtVsMaxPtTrack";
-    m_histogram[name] = store(new TH2D(prefix_+name+step,"true b jet p_{T} to its maximum pT track relation; max track p_{T};jet p_{T} ",40,0.,40., 40, 0.,300));
+    m_histogram[name] = store(new TH2D(prefix_+name+step,"true b jet p_{T} to its maximum p_{T} track relation; max track p_{T};jet p_{T} ",40,0.,40., 40, 0.,300));
     
     name = "h_trueBJetPtVsMaxRelPtTrack";
-    m_histogram[name] = store(new TH2D(prefix_+name+step,"true b jet p_{T} to its maximum pT-rel track relation; max rel-p_{T} track; jet p_{T}",40,0.,300.,40, 0.,300.));
+    m_histogram[name] = store(new TH2D(prefix_+name+step,"true b jet p_{T} to its maximum p_{T}-rel track relation; max rel-p_{T} track; jet p_{T}",40,0.,300.,40, 0.,300.));
     
     name = "h_trueBJetPtVsMaxScalarPtTrack";
-    m_histogram[name] = store(new TH2D(prefix_+name+step,"true b jet p_{T} to its maximum pT-scalar track scalaration; max scalar-p_{T} track; jet p_{T}",40, 0.,10000.,40,0.,300.));
+    m_histogram[name] = store(new TH2D(prefix_+name+step,"true b jet p_{T} to its maximum p_{T}-scalar track scalaration; max scalar-p_{T} track; jet p_{T}",40, 0.,10000.,40,0.,300.));
     
     name = "h_trueBJetPtVsNumTracks";
     m_histogram[name] = store(new TH2D(prefix_+name+step,"true b jet p_{T} to track multiplicity correlation;track multiplicity;jet p_{T}",30,0,30,40,0,300));
@@ -1532,19 +1627,19 @@ void AnalyzerJetCharge::bookHistos(const TString& step, std::map<TString, TH1*>&
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Multiplicity of leptons in jets with at least one lepton track;Number of leptons; Tracks",10,0,10));
     
     name = "h_trueBJetLeptonTrackPt";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pt of the leptons in jets with at least one lepton track; Pt of the lepton track; Tracks",40,0,40));
+    m_histogram[name] = store(new TH1D(prefix_+name+step," p_{T}  of the leptons in jets with at least one lepton track;  p_{T}  of the lepton track; Tracks",40,0,40));
     
     name = "h_trueBJetLeptonTrackEta";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Eta of the leptons in jets with at least one lepton track; Eta of the lepton track; Tracks",40,-3,3));
     
     name = "h_trueBJetMuonTrackPt";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pt of the muons in jets with at least one lepton track; Pt of the muon track; Tracks",40,0,40));
+    m_histogram[name] = store(new TH1D(prefix_+name+step," p_{T}  of the muons in jets with at least one lepton track;  p_{T}  of the muon track; Tracks",40,0,40));
     
     name = "h_trueBJetMuonTrackEta";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Eta of the muons in jets with at least one lepton track; Eta of the muon track; Tracks",40,-3,3));
     
     name = "h_trueBJetElectronTrackPt";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pt of the electrons in jets with at least one lepton track; Pt of the electron track; Tracks",40,0,40));
+    m_histogram[name] = store(new TH1D(prefix_+name+step," p_{T}  of the electrons in jets with at least one lepton track;  p_{T}  of the electron track; Tracks",40,0,40));
     
     name = "h_trueBJetElectronTrackEta";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Eta of the electrons in jets with at least one lepton track; Eta of the electron track; Tracks",40,-3,3));
@@ -1586,16 +1681,16 @@ void AnalyzerJetCharge::bookHistos(const TString& step, std::map<TString, TH1*>&
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Matching between the non-leading lepton track and jet transverse charge; Match of charge (1=true, 0=false); Tracks",2,0,2));
     
     name = "h_trueBJetLeptonTrackPtMultiplicity";
-    m_histogram[name] = store(new TH2D(prefix_+name+step,"Relation between track multiplicity and jet track pt for lepton-tracked cases;Pt of the jet; Track multiplicity",40,0.,400.,20,0.,20.));
+    m_histogram[name] = store(new TH2D(prefix_+name+step,"Relation between track multiplicity and jet track p_{T} for lepton-tracked cases; p_{T}  of the jet; Track multiplicity",40,0.,400.,20,0.,20.));
     
     name = "h_trueBJetLeptonChargePt";
-    m_histogram[name] = store(new TH2D(prefix_+name+step,"Relation between pt and charge of the lepton tracks;Pt of the lepton track;Charge of the lepton track",40,0.,400.,2,-2.,2.));
+    m_histogram[name] = store(new TH2D(prefix_+name+step,"Relation between p_{T} and charge of the lepton tracks; p_{T}  of the lepton track;Charge of the lepton track",40,0.,400.,2,-2.,2.));
     
     name = "h_trueBJetMuonChargePt";
-    m_histogram[name] = store(new TH2D(prefix_+name+step,"Relation between pt and charge of the muon tracks;Pt of the muon track;Charge of the muon track",40,0.,400.,2,-2.,2.));
+    m_histogram[name] = store(new TH2D(prefix_+name+step,"Relation between p_{T} and charge of the muon tracks; p_{T}  of the muon track;Charge of the muon track",40,0.,400.,2,-2.,2.));
     
     name = "h_trueBJetElectronChargePt";
-    m_histogram[name] = store(new TH2D(prefix_+name+step,"Relation between pt and charge of the electron tracks;Pt of the electron track;Charge of the electron track",40,0.,400.,2,-2.,2.));
+    m_histogram[name] = store(new TH2D(prefix_+name+step,"Relation between p_{T} and charge of the electron tracks; p_{T}  of the electron track;Charge of the electron track",40,0.,400.,2,-2.,2.));
     
     name = "h_trueBJetMuonRankInTrack";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Rank of the lepton track among the tracks; Rank of the track; Tracks",30,0,30));
@@ -1613,46 +1708,46 @@ void AnalyzerJetCharge::bookHistos(const TString& step, std::map<TString, TH1*>&
     m_histogram[name] = store(new TH1D(prefix_+name+step,"PdgId of the fourth-leading track in the jet; PdgId (2=e, 3=mu); Tracks",7,0,7));
     
     name = "h_trueBJetToTrackPtRatio";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Ratio between pt of jet and pt of track for all tracks;ptTrack/ptJet ;Tracks",40,0.,1.));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Ratio between p_{T} of jet and p_{T} of track for all tracks;p_{T}Track/p_{T}Jet ;Tracks",40,0.,1.));
     
     name = "h_trueBJetToLeptonTrackPtRatio";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Ratio between pt of jet and pt of track for lepton tracks;ptTrack/ptJet ;Tracks",40,0.,1.));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Ratio between p_{T} of jet and p_{T} of track for lepton tracks;p_{T}Track/p_{T}Jet ;Tracks",40,0.,1.));
     
     name = "h_trueBJetToMuonTrackPtRatio";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Ratio between pt of jet and pt of track for muon tracks;ptTrack/ptJet ;Tracks",40,0.,1.));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Ratio between p_{T} of jet and p_{T} of track for muon tracks;p_{T}Track/p_{T}Jet ;Tracks",40,0.,1.));
     
     name = "h_trueBJetToElectronTrackPtRatio";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Ratio between pt of jet and pt of track for lepton tracks;ptTrack/ptJet ;Tracks",40,0.,1.));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Ratio between p_{T} of jet and p_{T} of track for lepton tracks;p_{T}Track/p_{T}Jet ;Tracks",40,0.,1.));
     
     name = "h_trueBJetToLeadingTrackPtRatio";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Ratio between pt of jet and pt of track for leading tracks;ptTrack/ptJet ;Tracks",40,0.,1.));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Ratio between p_{T} of jet and p_{T} of track for leading tracks;p_{T}Track/p_{T}Jet ;Tracks",40,0.,1.));
     
     name = "h_trueBJetToLeadingLeptonTrackPtRatio";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Ratio between pt of jet and pt of track for lepton leading tracks;ptTrack/ptJet for leading lepton ;Tracks",40,0.,1.));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Ratio between p_{T} of jet and p_{T} of track for lepton leading tracks;p_{T}Track/p_{T}Jet for leading lepton ;Tracks",40,0.,1.));
     
     name = "h_trueBJetToLeadingMuonTrackPtRatio";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Ratio between pt of jet and pt of track for muon leading tracks;ptTrack/ptJet for leading muon ;Tracks",40,0.,1.));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Ratio between p_{T} of jet and p_{T} of track for muon leading tracks;p_{T}Track/p_{T}Jet for leading muon ;Tracks",40,0.,1.));
     
     name = "h_trueBJetToLeadingElectronTrackPtRatio";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Ratio between pt of jet and pt of track for electron leading tracks;ptTrack/ptJet for leading electron;Tracks",40,0.,1.));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Ratio between p_{T} of jet and p_{T} of track for electron leading tracks;p_{T}Track/p_{T}Jet for leading electron;Tracks",40,0.,1.));
     
     name = "h_trueBJetToSubleadingLeptonTrackPtRatio";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Ratio between pt of jet and pt of track for lepton subleading tracks;ptTrack/ptJet for subleading lepton ;Tracks",40,0.,1.));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Ratio between p_{T} of jet and p_{T} of track for lepton subleading tracks;p_{T}Track/p_{T}Jet for subleading lepton ;Tracks",40,0.,1.));
     
     name = "h_trueBJetToSubleadingMuonTrackPtRatio";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Ratio between pt of jet and pt of track for muon subleading tracks;ptTrack/ptJet for subleading muon ;Tracks",40,0.,1.));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Ratio between p_{T} of jet and p_{T} of track for muon subleading tracks;p_{T}Track/p_{T}Jet for subleading muon ;Tracks",40,0.,1.));
     
     name = "h_trueBJetToSubleadingElectronTrackPtRatio";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Ratio between pt of jet and pt of track for electron subleading tracks;ptTrack/ptJet for subleading electron;Tracks",40,0.,1.));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Ratio between p_{T} of jet and p_{T} of track for electron subleading tracks;p_{T}Track/p_{T}Jet for subleading electron;Tracks",40,0.,1.));
     
     
     //TRUE LEPTONS
     
     name = "h_trueBJetGenLeptonPt";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pt of the gen-leptons associated to a b-hadron;Pt;Leptons",40,0.,400.));
+    m_histogram[name] = store(new TH1D(prefix_+name+step," p_{T}  of the gen-leptons associated to a b-hadron; p_{T} ;Leptons",40,0.,400.));
     
     name = "h_trueBJetGenMuonPt";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pt of the gen-muons associated to a b-hadron;Pt;Leptons",40,0.,400.));
+    m_histogram[name] = store(new TH1D(prefix_+name+step," p_{T}  of the gen-muons associated to a b-hadron; p_{T} ;Leptons",40,0.,400.));
     
     name = "h_trueBJetGenLeptonPdgId";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"PdgId of the gen-leptons associated to a b-hadron;PdgId;Leptons",36,-18,18));
@@ -1682,144 +1777,171 @@ void AnalyzerJetCharge::bookHistos(const TString& step, std::map<TString, TH1*>&
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Agreement between reco and gen electrons charge (for C);Charge (both b, both anti-b, mismatch);Jets",4,0,4));
     
     name = "h_trueBJetGenToRecoPtDifferenceMuons";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Difference between the Pt of all the gen-muons associated to a b-hadron and all the reco muon;Pt difference;# of lepton combinations",10,0.,1.));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Difference between the p_{T} of all the gen-muons associated to a b-hadron and all the reco muon; p_{T} difference; Lepton combinations",10,0.,1.));
     
     name = "h_trueBJetGenToRecoPtDifferenceMuonsExtended";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Difference between the Pt of all the gen-muons associated to a b-hadron and all the reco muon;Pt difference;Pt difference;# of lepton combinations",30,0.,30.));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Difference between the p_{T} of all the gen-muons associated to a b-hadron and all the reco muon; p_{T} difference; p_{T} difference; Lepton combinations",30,0.,30.));
     
     name = "h_trueBJetGenToRecoPhiDifferenceMuons";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Difference between the Phi of all the gen-muons associated to a b-hadron and all the reco muon;Phi difference;# of lepton combinations",40,-6.,2.));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Difference between the Phi of all the gen-muons associated to a b-hadron and all the reco muon;Phi difference; Lepton combinations",40,-6.,2.));
     
     name = "h_trueBJetGenToRecoEtaDifferenceMuons";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Difference between the Eta of all the gen-muons associated to a b-hadron and all the reco muon;Eta difference;# of lepton combinations",40,0.,2.));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Difference between the Eta of all the gen-muons associated to a b-hadron and all the reco muon;Eta difference; Lepton combinations",40,0.,2.));
     
     name = "h_trueBJetGenToRecoDeltaRMuons";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"DeltaR of all the gen-muons associated to a b-hadron and all the reco muon;DeltaR;# of lepton combinations",40,0.,10.));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"DeltaR of all the gen-muons associated to a b-hadron and all the reco muon;DeltaR; Lepton combinations",40,0.,10.));
     
     //leptons
     name = "h_trueBJetBGenLeptonPtIfSameChargeAsJet";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pt of the gen leptons coming from a b in a jet with same charge as b;pt of b;#gen leptons",20,0,60));
+    m_histogram[name] = store(new TH1D(prefix_+name+step," p_{T}  of the gen leptons coming from a b in a jet with same charge as b;p_{T} of b;Gen leptons",20,0,60));
     
     name = "h_trueBJetBGenLeptonPtIfOppositeChargeAsJet";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pt of the gen leptons coming from a b in a jet with opposite charge as b;pt of b;#gen leptons",20,0,60));
+    m_histogram[name] = store(new TH1D(prefix_+name+step," p_{T}  of the gen leptons coming from a b in a jet with opposite charge as b;p_{T} of b;Gen leptons",20,0,60));
     
     name = "h_trueBJetCGenLeptonPtIfSameChargeAsJet";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pt of the gen leptons coming from a c in a jet with same charge as c;pt of c;#gen leptons",20,0,60));
+    m_histogram[name] = store(new TH1D(prefix_+name+step," p_{T}  of the gen leptons coming from a c in a jet with same charge as c;p_{T} of c;Gen leptons",20,0,60));
     
     name = "h_trueBJetCGenLeptonPtIfOppositeChargeAsJet";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pt of the gen leptons coming from a c in a jet with opposite charge as c;pt of c;#gen leptons",20,0,60));
+    m_histogram[name] = store(new TH1D(prefix_+name+step," p_{T}  of the gen leptons coming from a c in a jet with opposite charge as c;p_{T} of c;Gen leptons",20,0,60));
     
     //muons
     name = "h_trueBJetBGenMuonPtIfSameChargeAsJet";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pt of the gen muons coming from a b in a jet with same charge as b;pt of b;#gen muons",20,0,60));
+    m_histogram[name] = store(new TH1D(prefix_+name+step," p_{T}  of the gen muons coming from a b in a jet with same charge as b;p_{T} of b;Gen muons",20,0,60));
     
     name = "h_trueBJetBGenMuonPtIfOppositeChargeAsJet";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pt of the gen muons coming from a b in a jet with opposite charge as b;pt of b;#gen muons",20,0,60));
+    m_histogram[name] = store(new TH1D(prefix_+name+step," p_{T}  of the gen muons coming from a b in a jet with opposite charge as b;p_{T} of b;Gen muons",20,0,60));
     
     name = "h_trueBJetCGenMuonPtIfSameChargeAsJet";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pt of the gen muons coming from a c in a jet with same charge as c;pt of c;#gen muons",20,0,60));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"p_{T}  of the gen muons coming from a c in a jet with same charge as c;p_{T} of c;Gen muons",20,0,60));
     
     name = "h_trueBJetCGenMuonPtIfOppositeChargeAsJet";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pt of the gen muons coming from a c in a jet with opposite charge as c;pt of c;#gen muons",20,0,60));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"p_{T}  of the gen muons coming from a c in a jet with opposite charge as c;p_{T} of c;Gen muons",20,0,60));
     
     //electrons
     name = "h_trueBJetBGenElectronPtIfSameChargeAsJet";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pt of the gen electrons coming from a b in a jet with same charge as b;pt of b;#gen electrons",20,0,60));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"p_{T}  of the gen electrons coming from a b in a jet with same charge as b;p_{T} of b;Gen electrons",20,0,60));
     
     name = "h_trueBJetBGenElectronPtIfOppositeChargeAsJet";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pt of the gen electrons coming from a b in a jet with opposite charge as b;pt of b;#gen electrons",20,0,60));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"p_{T}  of the gen electrons coming from a b in a jet with opposite charge as b;p_{T} of b;Gen electrons",20,0,60));
     
     name = "h_trueBJetCGenElectronPtIfSameChargeAsJet";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pt of the gen electrons coming from a c in a jet with same charge as c;pt of c;#gen electrons",20,0,60));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"p_{T}  of the gen electrons coming from a c in a jet with same charge as c;p_{T} of c;Gen electrons",20,0,60));
     
     name = "h_trueBJetCGenElectronPtIfOppositeChargeAsJet";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pt of the gen electrons coming from a c in a jet with opposite charge as c;pt of c;#gen electrons",20,0,60));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"p_{T}  of the gen electrons coming from a c in a jet with opposite charge as c;p_{T} of c;Gen electrons",20,0,60));
     
     //leptons
     name = "h_trueBJetBLeadingGenLeptonPtIfSameChargeAsJet";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pt of the gen leading leptons coming from a b in a jet with same charge as b;pt of b;#gen leptons",20,0,60));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"p_{T}  of the gen leading leptons coming from a b in a jet with same charge as b;p_{T} of b;Gen leptons",20,0,60));
     
     name = "h_trueBJetBLeadingGenLeptonPtIfOppositeChargeAsJet";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pt of the gen leading leptons coming from a b in a jet with opposite charge as b;pt of b;#gen leptons",20,0,60));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"p_{T}  of the gen leading leptons coming from a b in a jet with opposite charge as b;p_{T} of b;Gen leptons",20,0,60));
     
     name = "h_trueBJetCLeadingGenLeptonPtIfSameChargeAsJet";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pt of the gen leading leptons coming from a c in a jet with same charge as c;pt of c;#gen leptons",20,0,60));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"p_{T}  of the gen leading leptons coming from a c in a jet with same charge as c;p_{T} of c;Gen leptons",20,0,60));
     
     name = "h_trueBJetCLeadingGenLeptonPtIfOppositeChargeAsJet";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pt of the gen leading leptons coming from a c in a jet with opposite charge as c;pt of c;#gen leptons",20,0,60));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"p_{T}  of the gen leading leptons coming from a c in a jet with opposite charge as c;p_{T} of c;Gen leptons",20,0,60));
     
     //muons
     name = "h_trueBJetBLeadingGenMuonPtIfSameChargeAsJet";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pt of the gen leading muons coming from a b in a jet with same charge as b;pt of b;#gen muons",20,0,60));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"p_{T}  of the gen leading muons coming from a b in a jet with same charge as b;p_{T} of b;Gen muons",20,0,60));
     
     name = "h_trueBJetBLeadingGenMuonPtIfOppositeChargeAsJet";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pt of the gen leading muons coming from a b in a jet with opposite charge as b;pt of b;#gen muons",20,0,60));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"p_{T}  of the gen leading muons coming from a b in a jet with opposite charge as b;p_{T} of b;Gen muons",20,0,60));
     
     name = "h_trueBJetCLeadingGenMuonPtIfSameChargeAsJet";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pt of the gen leading muons coming from a c in a jet with same charge as c;pt of c;#gen muons",20,0,60));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"p_{T}  of the gen leading muons coming from a c in a jet with same charge as c;p_{T} of c;Gen muons",20,0,60));
     
     name = "h_trueBJetCLeadingGenMuonPtIfOppositeChargeAsJet";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pt of the gen leading muons coming from a c in a jet with opposite charge as c;pt of c;#gen muons",20,0,60));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"p_{T}  of the gen leading muons coming from a c in a jet with opposite charge as c;p_{T} of c;Gen muons",20,0,60));
     
     //electrons
     name = "h_trueBJetBLeadingGenElectronPtIfSameChargeAsJet";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pt of the gen leading electrons coming from a b in a jet with same charge as b;pt of b;#gen electrons",20,0,60));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"p_{T}  of the gen leading electrons coming from a b in a jet with same charge as b;p_{T} of b;Gen electrons",20,0,60));
     
     name = "h_trueBJetBLeadingGenElectronPtIfOppositeChargeAsJet";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pt of the gen leading electrons coming from a b in a jet with opposite charge as b;pt of b;#gen electrons",20,0,60));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"p_{T}  of the gen leading electrons coming from a b in a jet with opposite charge as b;p_{T} of b;Gen electrons",20,0,60));
     
     name = "h_trueBJetCLeadingGenElectronPtIfSameChargeAsJet";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pt of the gen leading electrons coming from a c in a jet with same charge as c;pt of c;#gen electrons",20,0,60));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"p_{T}  of the gen leading electrons coming from a c in a jet with same charge as c;p_{T} of c;Gen electrons",20,0,60));
     
     name = "h_trueBJetCLeadingGenElectronPtIfOppositeChargeAsJet";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pt of the gen leading electrons coming from a c in a jet with opposite charge as c;pt of c;#gen electrons",20,0,60));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"p_{T}  of the gen leading electrons coming from a c in a jet with opposite charge as c;p_{T} of c;Gen electrons",20,0,60));
     
     
     //Impact parameter====================================================
     
-    name = "h_trueBJetTrackIPValue";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Impact parameter value for all b jet-tracks;Impact parameter value;Tracks",40,-0.4,0.4));
+    name = "h_trueBJetTrackIPValueForPfCandidates";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Impact parameter value from PfCandidates for all b jet pfCandidates;Impact parameter value;PfCandidates",40,-0.4,0.4));
     
-    name = "h_trueBJetTrackIPSignificance";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Impact parameter significance for all b jet-tracks;Impact parameter significance;Tracks",40,-60.,80.));
+    name = "h_trueBJetTrackIPSignificanceForPfCandidates";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Impact parameter significance for all b jet pfCandidates;Impact parameter significance;PfCandidates",40,-60.,80.));
     
-    name = "h_trueBJetTrackMaxIPValue";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Max. impact parameter value for all b jets;Impact parameter value;Jets",40,-0.4,0.4));
+    name = "h_trueBJetTrackMaxIPValueForPfCandidates";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Max. impact parameter value from PfCandidates for all b jets;Impact parameter value;Jets",40,-0.4,0.4));
     
-    name = "h_trueBJetTrackMaxIPSignificance";
+    name = "h_trueBJetTrackMaxIPValueForPfCandidatesTEST";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Max. impact parameter value from PfCandidates for all b jets;Impact parameter value;Jets",40,-0.4,0.4));
+    
+    name = "h_trueBJetTrackMaxIPSignificanceForPfCandidates";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Max. impact parameter significance for all b jets;Impact parameter significance;Jets",40,-60.,80.));
+    
+    name = "h_trueBJetTrackIPValueForSelTracks";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Impact parameter value from selected tracks for all b jet selected tracks;Impact parameter value;Selected Tracks",40,-0.4,0.4));
+    
+    name = "h_trueBJetTrackIPSignificanceForSelTracks";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Impact parameter significance for all b jet selected tracks;Impact parameter significance;Selected Tracks",40,-60.,80.));
+    
+    name = "h_trueBJetTrackMaxIPValueForSelTracks";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Max. impact parameter value from selected tracks for all b jets;Impact parameter value;Jets",40,-0.4,0.4));
+    
+    name = "h_trueBJetTrackMaxIPSignificanceForSelTracks";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Max. impact parameter significance for all b jets;Impact parameter significance;Jets",40,-60.,80.));
     
     name = "h_trueBJetTrackMaxIPValueRank";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Rank of the max. impact parameter value track ;Rank position (pT);Jets",30,0,30));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Rank of the max. impact parameter value track ;Rank position (p_{T});Jets",30,0,30));
     
     name = "h_trueBJetTrackMaxIPSignificanceRank";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Rank of the max. impact parameter significance track ;Rank position (pT);Jets",30,0,30));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Rank of the max. impact parameter significance track ;Rank position (p_{T});Jets",30,0,30));
     
     name = "h_trueBJetTrackIPValueVsSignificance";
     m_histogram[name] = store(new TH2D(prefix_+name+step,"Impact parameter value vs significance for all b jet-tracks;Impact parameter value; Impact parameter significance",40,-0.4,0.4,40,-60.,80.));
     
     name = "h_trueBJetTrackPtVsIPSignificance";
-    m_histogram[name] = store(new TH2D(prefix_+name+step,"track pt vs impact parameter significance for all b jet-tracks;track pt; Impact parameter significance",40,0.,10.,40,-60.,80.));
+    m_histogram[name] = store(new TH2D(prefix_+name+step,"track p_{T} vs impact parameter significance for all b jet-tracks;track p_{T} ; Impact parameter significance",40,0.,10.,40,-60.,80.));
     
     name = "h_trueBJetTrackHighestPtVsIPSignificance";
-    m_histogram[name] = store(new TH2D(prefix_+name+step,"track with highest pt vs impact parameter significance for all b jet-tracks;track pt; Impact parameter significance",40,0.,20.,40,-60.,80.));
+    m_histogram[name] = store(new TH2D(prefix_+name+step,"track with highest p_{T} vs impact parameter significance for all b jet-tracks;track p_{T} ; Impact parameter significance",40,0.,20.,40,-60.,80.));
     
     name = "h_trueBJetTrackPtVsHighestIPSignificance";
-    m_histogram[name] = store(new TH2D(prefix_+name+step,"track pt vs highest impact parameter significance for all b jet-tracks;track pt; Impact parameter significance",40,0.,20.,40,-60.,80.));
+    m_histogram[name] = store(new TH2D(prefix_+name+step,"track p_{T} vs highest impact parameter significance for all b jet-tracks;track p_{T} ; Impact parameter significance",40,0.,20.,40,-60.,80.));
     
     //If leptons-----------------------------------//
     
     name = "h_trueBJetTrackIPValueIfLepton";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Impact parameter value for b jet muon-tracks ;Impact parameter value;Tracks",40,-0.4,0.4));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Impact parameter value for b jet lepton-tracks ;Impact parameter value;Tracks",40,-0.4,0.4));
     
     name = "h_trueBJetTrackIPSignificanceIfLepton";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Impact parameter significance for b jet lepton-tracks ;Impact parameter significance;Tracks",40,-60.,80.));
+    
+    name = "h_trueBJetTrackIPValueIfMuon";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Impact parameter value for b jet muon-tracks ;Impact parameter value;Tracks",40,-0.4,0.4));
+    
+    name = "h_trueBJetTrackIPSignificanceIfMuon";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Impact parameter significance for b jet muon-tracks ;Impact parameter significance;Tracks",40,-60.,80.));
+    
+    name = "h_trueBJetTrackIPValueIfElectron";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Impact parameter value for b jet electron-tracks ;Impact parameter value;Tracks",40,-0.4,0.4));
+    
+    name = "h_trueBJetTrackIPSignificanceIfElectron";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Impact parameter significance for b jet electron-tracks ;Impact parameter significance;Tracks",40,-60.,80.));
     
     name = "h_trueBJetTrackIPValueVsSignificanceIfLepton";
     m_histogram[name] = store(new TH2D(prefix_+name+step,"Impact parameter value vs significance for b jet muon-tracks;Impact parameter value; Impact parameter significance",40,-0.4,0.4,40,-60.,80.));
     
     name = "h_trueBJetTrackPtVsIPSignificanceIfLepton";
-    m_histogram[name] = store(new TH2D(prefix_+name+step,"track pt vs impact parameter significance for all b jet muon-tracks;track pt; Impact parameter significance",40,0.,10.,40,-60.,80.));
+    m_histogram[name] = store(new TH2D(prefix_+name+step,"track p_{T} vs impact parameter significance for all b jet muon-tracks;track p_{T} ; Impact parameter significance",40,0.,10.,40,-60.,80.));
     
     //hyerarchical c_{rel} plots
     
@@ -1901,19 +2023,19 @@ void AnalyzerJetCharge::bookHistos(const TString& step, std::map<TString, TH1*>&
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex pfCandidate Id;sv track Id; PfCandidates",10,0.,10.));
     
     name = "h_trueBJetTrackSecondaryVertexTrackPt";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex pfCandidate pt;sv track pt;# pf tracks",40,0.,40.));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex pfCandidate p_{T} ;sv track p_{T} ;# pf tracks",40,0.,40.));
     
     name = "h_trueBJetTrackSecondaryVertexLeptonTrackPt";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex pfCandidate pt;sv lepton track pt;# pf tracks",40,0.,40.));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex pfCandidate p_{T} ;sv lepton track p_{T} ;# pf tracks",40,0.,40.));
     
     name = "h_trueBJetTrackSecondaryVertexMuonTrackPt";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex muon pfCandidate pt;sv muon track pt;# pf tracks",40,0.,40.));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex muon pfCandidate p_{T} ;sv muon track p_{T} ;# pf tracks",40,0.,40.));
     
     name = "h_trueBJetTrackSecondaryVertexElectronTrackPt";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex electron pfCandidate pt;sv electron track pt;# pf tracks",40,0.,40.));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex electron pfCandidate p_{T} ;sv electron track p_{T} ;# pf tracks",40,0.,40.));
 
     name = "h_trueBJetTrackSecondaryVertexNonLeptonTrackPt";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex non-lepton pfCandidate pt;sv non-lepton track pt;# pf tracks",40,0.,40.));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex non-lepton pfCandidate p_{T} ;sv non-lepton track p_{T};# pf tracks",40,0.,40.));
     
     name = "h_trueBJetTrackSecondaryVertexSelectedTrackChargeNonPfMatched";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for selected tracks - non pfMatched;sv charge;Secondary Vertices",24,-1.2,1.2));
@@ -1931,7 +2053,7 @@ void AnalyzerJetCharge::bookHistos(const TString& step, std::map<TString, TH1*>&
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex selected track multiplicity;sv track multiplicity;Secondary Vertices",15,0.,15.));
     
     name = "h_trueBJetSecondaryVertexSelectedTrackNonWeightedCharge";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex non-weighted charge;sv track charge;Secondary Vertices",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex non-weighted charge;sv track charge;Secondary Vertices",12,-6,6));
     
     name = "h_trueBJetSecondaryVertexSelectedTrackChargeForMultiplicity2";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for selected tracks - multiplicity = 2;sv charge;Secondary Vertices",24,-1.2,1.2));
@@ -1973,59 +2095,92 @@ void AnalyzerJetCharge::bookHistos(const TString& step, std::map<TString, TH1*>&
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for selected tracks - multiplicity = 14;sv charge;Secondary Vertices",24,-1.2,1.2));
   
     name = "h_trueBJetSecondaryVertexSelectedTrackNonWeightedChargeForMultiplicity2";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for selected tracks - multiplicity = 2;sv charge;Secondary Vertices",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for selected tracks - multiplicity = 2;sv charge;Secondary Vertices",12,-6,6));
     
     name = "h_trueBJetSecondaryVertexSelectedTrackNonWeightedChargeForMultiplicity3";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for selected tracks - multiplicity = 3;sv charge;Secondary Vertices",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for selected tracks - multiplicity = 3;sv charge;Secondary Vertices",12,-6,6));
     
     name = "h_trueBJetSecondaryVertexSelectedTrackNonWeightedChargeForMultiplicity4";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for selected tracks - multiplicity = 4;sv charge;Secondary Vertices",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for selected tracks - multiplicity = 4;sv charge;Secondary Vertices",12,-6,6));
     
     name = "h_trueBJetSecondaryVertexSelectedTrackNonWeightedChargeForMultiplicity5";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for selected tracks - multiplicity = 5;sv charge;Secondary Vertices",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for selected tracks - multiplicity = 5;sv charge;Secondary Vertices",12,-6,6));
     
     name = "h_trueBJetSecondaryVertexSelectedTrackNonWeightedChargeForMultiplicity6";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for selected tracks - multiplicity = 6;sv charge;Secondary Vertices",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for selected tracks - multiplicity = 6;sv charge;Secondary Vertices",12,-6,6));
     
     name = "h_trueBJetSecondaryVertexSelectedTrackNonWeightedChargeForMultiplicity7";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for selected tracks - multiplicity = 7;sv charge;Secondary Vertices",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for selected tracks - multiplicity = 7;sv charge;Secondary Vertices",12,-6,6));
     
     name = "h_trueBJetSecondaryVertexSelectedTrackNonWeightedChargeForMultiplicity8";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for selected tracks - multiplicity = 8;sv charge;Secondary Vertices",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for selected tracks - multiplicity = 8;sv charge;Secondary Vertices",12,-6,6));
     
     name = "h_trueBJetSecondaryVertexSelectedTrackNonWeightedChargeForMultiplicity9";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for selected tracks - multiplicity = 9;sv charge;Secondary Vertices",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for selected tracks - multiplicity = 9;sv charge;Secondary Vertices",12,-6,6));
     
     name = "h_trueBJetSecondaryVertexSelectedTrackNonWeightedChargeForMultiplicity10";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for selected tracks - multiplicity = 10;sv charge;Secondary Vertices",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for selected tracks - multiplicity = 10;sv charge;Secondary Vertices",12,-6,6));
     
     name = "h_trueBJetSecondaryVertexSelectedTrackNonWeightedChargeForMultiplicity11";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for selected tracks - multiplicity = 11;sv charge;Secondary Vertices",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for selected tracks - multiplicity = 11;sv charge;Secondary Vertices",12,-6,6));
     
     name = "h_trueBJetSecondaryVertexSelectedTrackNonWeightedChargeForMultiplicity12";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for selected tracks - multiplicity = 12;sv charge;Secondary Vertices",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for selected tracks - multiplicity = 12;sv charge;Secondary Vertices",12,-6,6));
     
     name = "h_trueBJetSecondaryVertexSelectedTrackNonWeightedChargeForMultiplicity13";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for selected tracks - multiplicity = 13;sv charge;Secondary Vertices",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for selected tracks - multiplicity = 13;sv charge;Secondary Vertices",12,-6,6));
     
     name = "h_trueBJetSecondaryVertexSelectedTrackNonWeightedChargeForMultiplicity14";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for selected tracks - multiplicity = 14;sv charge;Secondary Vertices",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex charge for selected tracks - multiplicity = 14;sv charge;Secondary Vertices",12,-6,6));
+    
+    // Flight distance ========================
+    
+    name = "h_secondaryVertexFlighDistanceValue";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex flight distance values;sv flight distance value;Secondary Vertices",45,0.,15.));
+    
+    name = "h_secondaryVertexMinFlighDistanceValue";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex min. flight distance value;sv flight distance value;Secondary Vertices",45,0.,15.));
+    
+    name = "h_secondaryVertexFlighDistanceValueFirstSV";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"First secondary vertex flight distance values;sv flight distance value;Secondary Vertices",45,0.,15.));
+    
+    name = "h_secondaryVertexFlighDistanceValueSecondSV";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Second secondary vertex flight distance values;sv flight distance value;Secondary Vertices",45,0.,15.));
+    
+    name = "h_secondaryVertexFlighDistanceValueThirdSV";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Third secondary vertex flight distance values;sv flight distance value;Secondary Vertices",45,0.,15.));
+    
+    name = "h_secondaryVertexFlighDistanceSignificance";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex flight distance significances;sv flight distance significance;Secondary Vertices",45,0.,150.));
+    
+    name = "h_secondaryVertexFlighDistanceSignificanceFirstSV";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"First secondary vertex flight distance significances;sv flight distance significance;Secondary Vertices",45,0.,150.));
+    
+    name = "h_secondaryVertexFlighDistanceSignificanceSecondSV";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Second secondary vertex flight distance significances;sv flight distance significance;Secondary Vertices",45,0.,150.));
+    
+    name = "h_secondaryVertexFlighDistanceSignificanceThirdSV";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Third secondary vertex flight distance significances;sv flight distance significance;Secondary Vertices",45,0.,150.));
+    
+    name = "h_secondaryVertexMinFlightDistanceValueVsCSV";
+    m_histogram[name] = store(new TH2D(prefix_+name+step, "Secondary vertex min. flight distance value vs jet's csv value; sv flight distance value;Jet csv value",40,0.,15.,40,-1.5,1.5));
+    
     //Test PLOTS==================================================================================================================
     
     name = "h_checkNumHadMatched";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Multiplicity of b-hadrons per jet;# B-hadrons;Jets",40,0.,4.));
     
     name = "checkBHadOthers";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"charge of b jets coming from other B (no Top or Higgs);charge;Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"charge of b jets coming from other B (no Top or Higgs);Charge;Jets",24,-1.2,1.2));
     
     name = "h_GenJetPt";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"p_{T} of GenJets;p_{T};Jets genjets",40,0,200));
     
     name = "h_checkPfSelMatching";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Number of selected tracks - number of matched selected tracks;# selTracks-# matched selTracks;Jets",20,0,20));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Number of selected tracks - number of matched selected tracks; SelTracks-Matched selTracks;Jets",20,0,20));
    
     name = "h_trueBJetSelTrackMultiplicity";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Multiplicity of the selected tracks;# selTrack multiplicity;Jets",30,0,200));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Multiplicity of the selected tracks;SelTrack multiplicity;Jets",30,0,200));
     
     name = "h_pfSizeVsSelSizeNoMatching";
     m_histogram[name] = store(new TH2D(prefix_+name+step,"Size of the pfCandidates vs selectedTracks;pfCandidates;selectedTracks",150,0.,150.,150,0.,150.));
@@ -2034,10 +2189,10 @@ void AnalyzerJetCharge::bookHistos(const TString& step, std::map<TString, TH1*>&
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Size of the pfCandidates;pfCandidates;Tracks",40,0.,100.));
     
     name = "h_test_jetPt";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"pT of Jets;pT;Jets",80,0.,200.));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"p_{T} of Jets;p_{T};Jets",80,0.,200.));
     
     name = "h_test_SV";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"# of SV;SV;# SV",100,0.,100.));
+    m_histogram[name] = store(new TH1D(prefix_+name+step," SV;SV; SV",100,0.,100.));
     
     name = "h_test_foundTrackPosition";
     m_histogram[name] = store(new TH1D(prefix_+name+step," ",100,-10.,90.));
@@ -2055,13 +2210,13 @@ void AnalyzerJetCharge::bookHistos(const TString& step, std::map<TString, TH1*>&
     m_histogram[name] = store(new TH1D(prefix_+name+step," ",31,-1.,30.));
     
     name = "h_test_jetPtSelected";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"pT of selected tracks;pT;Selected Tracks",20,0.,20.));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"p_{T} of selected tracks;p_{T};Selected Tracks",20,0.,20.));
     
     name = "h_test_jetPtPfCandidates";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"pT of pfCandidates tracks;pT;PfCandidates",20,0.,20.));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"p_{T} of pfCandidates tracks;p_{T};PfCandidates",20,0.,20.));
     
     name = "h_test_pfCandidatePtWhenMatched";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"pT of pfCandidates tracks associated to a selTrack;pT;PfCandidates",40,0.,40.));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"p_{T} of pfCandidates tracks associated to a selTrack;p_{T};PfCandidates",40,0.,40.));
     
     name = "h_testMlb";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"mlb of events with two jets;mlb;Jets",20,0.,500.));
@@ -2075,7 +2230,7 @@ void AnalyzerJetCharge::bookHistos(const TString& step, std::map<TString, TH1*>&
     m_histogram[name] = store(new TH1D(prefix_+name+step,"csv;csv;Jets",24,-1.2,1.2));
     
     name = "h_testPf";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"pt;pt;Jets",400,0.,400.));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"p_{T};p_{T};Jets",400,0.,400.));
     
     }
 
