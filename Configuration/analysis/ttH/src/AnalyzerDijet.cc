@@ -2246,7 +2246,7 @@ void AnalyzerDijet::fillTopAdditionalJetsHistos(const EventMetadata& eventMetada
 {
     // Setting the ordering for gen and reco jet indices
     common::LVParameter ordering = common::LVpt;
-    const double topJetPt_min = 30.;
+    const double topJetPt_min = 0.;
     // Extracting input data to more comfortable variables
     const VLV& allJets = (recoObjects.valuesSet_) ? *recoObjects.jets_ : VLV();
     std::vector<int> jetsId = recoObjectIndices.jetIndices_;           // Selected jets (point to jets from allJets)
@@ -2281,8 +2281,8 @@ void AnalyzerDijet::fillTopAdditionalJetsHistos(const EventMetadata& eventMetada
                 const int pairIndex = jetIndexPairsIndices.at(pairId);
                 const int jetId_1 = jetIndexPairs.at(pairIndex).first;
                 const int jetId_2 = jetIndexPairs.at(pairIndex).second;
-//                 if(allJets.at(jetId_1).Pt() < topJetPt_min) continue;
-//                 if(allJets.at(jetId_2).Pt() < topJetPt_min) continue;
+                if(allJets.at(jetId_1).Pt() < topJetPt_min) continue;
+                if(allJets.at(jetId_2).Pt() < topJetPt_min) continue;
                 topJetsId_mva.push_back(jetId_1);
                 topJetsId_mva.push_back(jetId_2);
                 break;
