@@ -370,7 +370,7 @@ AnalyzerBase("hfFracScaling_", selectionSteps)
 void AnalyzerHfFracScaling::bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram)
 {
     TString name = "btag_multiplicity";
-    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "B-tagged jet multiplicity; N b-tags; events",10,0,10));
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "B-tagged jet multiplicity; N b-tags; events",5,0,5));
     name = "btag_discriminatorSum";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Sum of b-tag discriminants; Sum of b-tags; # events",30,0.,15.));
 }
@@ -387,7 +387,8 @@ void AnalyzerHfFracScaling::fillHistos(const EventMetadata&,
                                        std::map<TString, TH1*>& m_histogram)
 {
     const std::vector<int>& jetIndices = recoObjectIndices.jetIndices_;
-    const int nBJets = recoObjectIndices.bjetIndices_.size();
+    // Merging all bins above 4 into a single bin (low statistics)
+    int nBJets = std::min((int)recoObjectIndices.bjetIndices_.size(), 4);
     const std::vector<double>& jetsBtagDiscriminant = *recoObjects.jetBTagCSV_;
     double bTag_sum = 0.;
     for(size_t jetId = 0; jetId < jetIndices.size(); ++jetId) {
