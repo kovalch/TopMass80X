@@ -48,8 +48,8 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     );
 
     result["ttbarsignalPlusCcbar"] = Sample(
-        "t#bar{t}cc",
-        29,
+        "t#bar{t}Other",
+        23,
         234.0,
         {"ttbarsignalPlusCcbar.root"},
         Sample::ttcc
@@ -479,6 +479,7 @@ std::vector<TString> SampleDefinitions::selectAndOrderSamples8TeV()
         "zz",
         "ttbarbkg",
         "ttbarsignalPlusOther",
+        "ttbarsignalPlusCcbar",
         "ttbarsignalPlus2B",
         "ttbarsignalPlusB",
         "ttbarsignalPlusBbbar",
