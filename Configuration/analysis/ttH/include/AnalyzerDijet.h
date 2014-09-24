@@ -9,6 +9,7 @@ class TString;
 class TTree;
 class TSelectorList;
 class TH1;
+class TH2;
 class TString;
 
 #include "JetCategories.h"
@@ -152,6 +153,9 @@ private:
     /// Filling histograms about leading top/additional jets vs true
     void fillLeadingJetsHistosVsTrue(const std::string& name, const std::vector<int>& trueJetsId,
                                      const std::vector<int>& jetsId, const double& weight, std::map<TString, TH1*>& m_histogram);
+    
+    /// Filling a correlation histogram of the b-jet index vs jet index
+    void fillBjetIdVsJetIdHisto(TH2* histo, const std::vector<int>& bJetIndices, const std::vector<int>& jetIndices, const double weight=1.0);
     
     /// Returns list of jets pairs that are not from H according to the MVA
     std::vector<std::pair<int,int> > jetPairsFromMVA(std::map<TString, TH1*>& m_histogram, const tth::RecoObjectIndices& recoObjectIndices,
