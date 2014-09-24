@@ -57,6 +57,15 @@ private:
     /// Getting the largest scale factor for the histogram to have poisson errors not larger than true
     double poissonErrorScale(const TH1* histo)const;
     
+    /// Writes the txt datacard file used to configure the Higgs combine tool
+    void writeDatacardWithHistos(const std::vector<TH1*> histos, const TString fileName, const TString rootFileName)const;
+    
+    /// Check whether two histograms are identical
+    bool histogramsAreIdentical(TH1* histo1, TH1* histo2)const;
+    
+    /// Returns the first sampleType for a given sample id
+    Sample::SampleType sampleTypeForId(const int id)const;
+    
     /// Struct to hold value-error pair
     struct ValErr {
         double val; double err;
@@ -70,7 +79,7 @@ private:
     
     /// Produce map of scale factors for each sample from fitting the histograms
     const std::vector<ValErr> getScaleFactorsFromHistos(const std::vector<TH1*> histos, const TString& step, 
-                                                        const Channel::Channel channel)const;
+                                                        const Channel::Channel channel, const Systematic::Systematic& systematic)const;
     
     
     /// Typedef for the map containing the Heavy-Flavour fraction scale factors
@@ -86,8 +95,17 @@ private:
     /// Map containing the list of sample types with ids: to set specific combinations of samples to be fitted to data
     std::map<Sample::SampleType, int> sampleTypeIds_;
     
+    /// Vector of template names
+    std::vector<TString> templateNames_;
+    
+    /// Vector of template fraction up/down variation limits
+    std::vector<double> templateScaleLimits_;
+    
     /// Name base of the histogram used for the template fit
     TString histoTemplateName_;
+    
+    /// Directory name where input/output for the Higgs combine tool should be stored
+    TString workingDirectory_;
     
 };
 

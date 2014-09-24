@@ -2,6 +2,7 @@
 #include <utility>
 #include <iostream>
 #include <iomanip>
+#include <fstream>
 
 #include <TH1D.h>
 #include <TMath.h>
@@ -24,7 +25,8 @@
 
 
 HfFracScaleFactors::HfFracScaleFactors(const Samples& samples, RootFileReader* const rootFileReader):
-rootFileReader_(rootFileReader)
+rootFileReader_(rootFileReader),
+workingDirectory_("HfFracScaleFactors")
 {
     std::cout<<"--- Beginning production of Heavy-Flavour fraction scale factors\n\n";
     
@@ -36,16 +38,33 @@ rootFileReader_(rootFileReader)
     sampleTypeIds_[Sample::data] = 0;
     // Combine samples by assigning the same id
     sampleTypeIds_[Sample::ttbb] = 1;
-    sampleTypeIds_[Sample::ttb] = 2;
+    sampleTypeIds_[Sample::ttb] = 1;
     sampleTypeIds_[Sample::tt2b] = 2;
     sampleTypeIds_[Sample::ttcc] = 3;
     sampleTypeIds_[Sample::ttother] = 3;
     // Backgrounds MUST go last
     sampleTypeIds_[Sample::dummy] = 4;
     
+    // Setting names to each template
+    templateNames_.push_back("data_obs");
+    templateNames_.push_back("ttbb");
+    templateNames_.push_back("tt2b");
+    templateNames_.push_back("ttOther");
+    templateNames_.push_back("bkg");
+
+    // Setting variation limit of for each template
+    templateScaleLimits_.push_back(1.);	  // Doesn't mean anything
+    templateScaleLimits_.push_back(5.);
+    templateScaleLimits_.push_back(5.);
+    templateScaleLimits_.push_back(5.);
+    templateScaleLimits_.push_back(1.1);
+    
     // FIXME: Check that there are no gaps in the list of ids
     
     this->produceScaleFactors(samples);
+    
+    // Hiding all standard ROOT warnings
+    gErrorIgnoreLevel = kWarning;
     
     std::cout<<"\n=== Finishing production of Heavy-Flavour fraction scale factors\n\n";
 }
@@ -66,28 +85,31 @@ void HfFracScaleFactors::produceScaleFactors(const Samples& samples)
     }
     
     // Print table
-    std::cout<<"Step   \t\tSystematic\tChannel\t\tScale factor (ttbb | ttb | ttother)\n";
-    std::cout<<"-------\t\t----------\t-------\t\t-----------------------------------\n";
+    std::cout<<"Step   \t\tSystematic\tChannel\t\tScale factor | ";
+    for(size_t i = 1; i<templateNames_.size(); ++i) std::cout << templateNames_.at(i) << " | ";
+    std::cout << std::endl;
+    std::cout<<"-------\t\t----------\t-------\t\t-------------------------------------------------------\n";
     for(auto hfFracScaleFactorsPerStep : m_hfFracScaleFactors_){
         const TString& step(hfFracScaleFactorsPerStep.first);
         for(auto hfFracScaleFactorsPerSystematic : hfFracScaleFactorsPerStep.second){
-           const Systematic::Systematic& systematic(hfFracScaleFactorsPerSystematic.first);
-           for(auto hfFracScaleFactorsPerChannel : hfFracScaleFactorsPerSystematic.second){
-               const Channel::Channel& channel(hfFracScaleFactorsPerChannel.first);
-//                if(channel != Channel::emu) continue;
-               std::cout<<step<<"\t\t"<<systematic.name()<<"\t\t"
+            const Systematic::Systematic& systematic(hfFracScaleFactorsPerSystematic.first);
+            for(auto hfFracScaleFactorsPerChannel : hfFracScaleFactorsPerSystematic.second){
+               
+                const Channel::Channel& channel(hfFracScaleFactorsPerChannel.first);
+                std::cout<<step<<"\t\t"<<systematic.name()<<"\t\t"
                         <<Channel::convert(channel)<<"      \t   "
-                        <<std::fixed<<std::setprecision(3)
-                        <<hfFracScaleFactorsPerChannel.second.at(Sample::SampleType::ttbb).val<<" |    "
-                        <<hfFracScaleFactorsPerChannel.second.at(Sample::SampleType::ttb).val<<" |    "
-                        <<hfFracScaleFactorsPerChannel.second.at(Sample::SampleType::ttother).val<<" | \n";
+                        <<std::fixed<<std::setprecision(3);
+                for(int i = 1; i<(int)templateNames_.size(); ++i) {
+                    std::cout << hfFracScaleFactorsPerChannel.second.at(sampleTypeForId(i)).val<<" |    ";
+                }
+                std::cout << std::endl;
                         
-                std::cout<<"\t\t\t\t\t\t+- "
-                        <<std::fixed<<std::setprecision(3)
-                        <<hfFracScaleFactorsPerChannel.second.at(Sample::SampleType::ttbb).err<<" | +- "
-                        <<hfFracScaleFactorsPerChannel.second.at(Sample::SampleType::ttb).err<<" | +- "
-                        <<hfFracScaleFactorsPerChannel.second.at(Sample::SampleType::ttother).err<<" | \n";
-           }
+                std::cout<<"\t\t\t\t\t\t+- " << std::fixed<<std::setprecision(3);
+                for(int i = 1; i<(int)templateNames_.size(); ++i) {
+                    std::cout << hfFracScaleFactorsPerChannel.second.at(sampleTypeForId(i)).err<<" |    ";
+                }
+                std::cout << std::endl;
+            }
         }
     }
 }
@@ -108,11 +130,8 @@ void HfFracScaleFactors::produceScaleFactors(const TString& step, const Samples&
 //         const std::vector<Channel::Channel> v_channel = {Channel::ee, Channel::emu, Channel::mumu, Channel::combined};
         const std::vector<Channel::Channel> v_channel = {Channel::combined};
 
-        std::vector<TH1*> histos_comb;
-        
-        
         for(Channel::Channel channel : v_channel){
-            std::vector<TH1*> histos;
+            std::vector<TH1*> histos(sampleTypeIds_.at(Sample::dummy) + 1);
             const std::vector<Sample>& v_sample(channelSamples.at(channel));
             for(size_t iSample = 0; iSample < v_sample.size(); ++iSample){
                 const Sample& sample = v_sample.at(iSample);
@@ -120,6 +139,7 @@ void HfFracScaleFactors::produceScaleFactors(const TString& step, const Samples&
                 
                 TH1* h = rootFileReader_->GetClone<TH1D>(sample.inputFile(), TString(histoTemplateName_).Append(step));
                 h->Sumw2();
+                
                 
                 if(sampleType != Sample::data){
                     const double& weight = globalWeights.at(systematic).at(channel).at(iSample);
@@ -134,153 +154,117 @@ void HfFracScaleFactors::produceScaleFactors(const TString& step, const Samples&
                 
                 // Adding histogram for the appropriate sample according to its id
                 char tempName[20];
-                if (sampleId < (int)histos.size()) {
+                if (histos.at(sampleId)) {
                     histos.at(sampleId)->Add(h); 
                 } else {
                     sprintf(tempName, "h_%d", sampleId);
-                    histos.push_back((TH1*)h->Clone(tempName));
-                }
-                
-                if (sampleId < (int)histos_comb.size()) {
-                    histos_comb.at(sampleId)->Add(h); 
-                } else {
-                    sprintf(tempName, "h_%d_comb", sampleId);
-                    histos_comb.push_back((TH1*)h->Clone(tempName));
+                    histos.at(sampleId) = (TH1*)h->Clone(tempName);
                 }
                 
             }
             
-            const std::vector<HfFracScaleFactors::ValErr> sampleSFs = getScaleFactorsFromHistos(histos, step, channel);
+            const std::vector<HfFracScaleFactors::ValErr> sampleSFs = getScaleFactorsFromHistos(histos, step, channel, systematic);
             
-            for(auto sampleTypeId : sampleTypeIds_) {
-                if(sampleTypeId.first == Sample::dummy) break;
-                m_hfFracScaleFactors_[step][systematic][channel][sampleTypeId.first] = sampleSFs.at(sampleTypeId.second);
+            for(int type = Sample::data; type <= Sample::dummy; ++type) {
+                Sample::SampleType sampleType = (sampleTypeIds_.count((Sample::SampleType)type) == 0) ? Sample::dummy : (Sample::SampleType)type;
+                m_hfFracScaleFactors_[step][systematic][channel][sampleType] = sampleSFs.at(sampleTypeIds_.at(sampleType));
             }
             
             histos.clear();
             
         }
-        
-        const std::vector<HfFracScaleFactors::ValErr> sampleSFs = getScaleFactorsFromHistos(histos_comb, step, Channel::combined);
-        
-        for(auto sampleTypeId : sampleTypeIds_) {
-            if(sampleTypeId.first == Sample::dummy) break;
-            m_hfFracScaleFactors_[step][systematic][Channel::combined][sampleTypeId.first] = sampleSFs.at(sampleTypeId.second);
-        }
-        
-        histos_comb.clear();
     }
 }
 
 
-const std::vector<HfFracScaleFactors::ValErr> HfFracScaleFactors::getScaleFactorsFromHistos(const std::vector<TH1*> histos, const TString& step, 
-                                                                                           const Channel::Channel channel)const
+const std::vector<HfFracScaleFactors::ValErr> HfFracScaleFactors::getScaleFactorsFromHistos(const std::vector<TH1*> histos, 
+                                                                                            const TString& step, const Channel::Channel channel,
+                                                                                            const Systematic::Systematic& systematic)const
 {
     if(histos.size()<2) {
         std::cerr<<"Error in fitting function getScaleFactorsFromHistos! Too few histograms provided: "<< histos.size() <<"\n...break\n"<<std::endl;
         exit(17);
     }
-    // Initialisation of identity scale factors
-    const size_t nSamples = histos.size()-1;
-    std::vector<HfFracScaleFactors::ValErr> result(nSamples, HfFracScaleFactors::ValErr(1., 1.));
+    if(histos.size() < templateNames_.size()) {
+        std::cerr<<"Not all histograms to be stored for the fit have names specified. Stopping..."<<std::endl;
+        exit(17);
+    }
+    // Initialisation of standard scale factor values
+    std::vector<HfFracScaleFactors::ValErr> result(histos.size(), HfFracScaleFactors::ValErr(1., 1.));
     
-    // Setting sets of histograms for the TFractionFitter
-    TH1* h_data = histos.at(0);
-    TObjArray* h_mc = new TObjArray(nSamples-1);
-    
-    // Subtracting background from data
-    histos.at(0)->Add(histos.at(nSamples), -1);
-    
-    // Setting the integrals of the initial histograms
-    std::vector<double> hInts;
-    for(size_t iH = 0; iH < nSamples; ++iH) {
-        TH1* histo = (TH1*)histos.at(iH)->Clone();
-        double hInt = histo->Integral();
-        hInts.push_back(hInt);
-        histo->SetLineColor(iH);
-        // Scaling to the number of entries to have poisson errors closer to reality
-        double scale = poissonErrorScale(histo);
-        histo->Scale(scale);
+    // Creating the folder structure where templates should be stored/accessed
+    TString rootFileFolder = common::accessFolder(workingDirectory_, channel, systematic, true);
+    if(rootFileFolder == "") rootFileFolder = common::assignFolder(workingDirectory_, channel, systematic);
+    TString rootFileName = histoTemplateName_+step+".root";
+    TString rootFilePath = rootFileFolder+rootFileName;
+    // Checking whether file contains all the proper histograms
+    std::vector<TH1*> histosInFile;
+    bool sameHistogramsInFile = true;
+    for(TString histoName : templateNames_) {
+        TH1* histo = rootFileReader_->GetClone<TH1F>(rootFilePath, histoName, true);
+        if(!histo) break;
+        histosInFile.push_back(histo);
+    }
+    // Checking whether each histogram has the same number of entries/bins and integral
+    if(histosInFile.size() == histos.size()) {
+        for(size_t histoId = 0; histoId < histos.size(); ++histoId) {
+            if(histogramsAreIdentical(histos.at(histoId), histosInFile.at(histoId))) continue;
+            sameHistogramsInFile = false;
+            break;
+        }
+    } else sameHistogramsInFile = false;
+    // If file alredy contains histograms which are different: STOP
+    if(!sameHistogramsInFile && histosInFile.size()>0) {
+        std::cerr << "Templates used for the fit don't match to the templates in the analysis.\n";
+        std::cerr << "Remove the folder: " << workingDirectory_ << " and rerun the tool to create proper templates.\n";
+        exit(20);
+    }
+    // Storing input templates to the root file if not there already and stopping
+    if(!sameHistogramsInFile) {
+        TFile* out_root = new TFile(rootFilePath, "UPDATE");
+        for(size_t iHisto=0; iHisto<histos.size(); ++iHisto) {
+            TH1F* hF = new TH1F();
+            ((TH1D*)histos.at(iHisto))->Copy(*hF);
+            hF->Write(templateNames_.at(iHisto));
+            if(iHisto == 0) hF->Write("dummy");
+        }
+        out_root->Close();
+        delete out_root;
         
-        if(iH==0) continue;
-        h_mc->Add(histo);
+        // Writing the datacard for the specified histograms
+        TString datacardName(rootFilePath);
+        datacardName.ReplaceAll(".root", ".txt");
+        writeDatacardWithHistos(histos, datacardName, rootFileName);
     }
     
-    if(hInts.at(0)<=0) {
-        std::cout << "    WARNING: Background larger than data. Skipping.." << std::endl;
+    // Opening the root file with the fit results
+    TString fitFileName = rootFileFolder+histoTemplateName_+step+"/mlfittest.root";
+    // Reading all fitted templates if available
+    std::vector<TH1*> histosInFit(1, histos.at(0));
+    for(size_t i = 1; i<templateNames_.size(); ++i) {
+        TH1* histo = rootFileReader_->GetClone<TH1F>(fitFileName, "shapes_fit_b/HF/"+templateNames_.at(i), true);
+        if(!histo) break;
+        histosInFit.push_back(histo);
+    }
+    bool fitResultsInFile = histosInFit.size() == histos.size();
+    if(!fitResultsInFile) {
+        std::cout << "\n### Fit results don't exist in file: " << fitFileName << std::endl;
+        std::cout << "### Run the fit first:\n";
+        std::cout << "    source scripts/fitHfFrac.sh\n";
+        std::cout << "### Then run this tool again\n\n";
         return result;
     }
+//     TH1* histoSum = rootFileReader_->GetClone<TH1F>(fitFileName, "shapes_fit_b/HF/total_background", true);
     
-    // Setting up the TFractionFitter
-    TFractionFitter* fitter = new TFractionFitter(h_data, h_mc, "Q");
-    
-    // Constraining the components of the fit
-    for(size_t sampleId = 1; sampleId<nSamples; ++sampleId) {
-       fitter->Constrain(sampleId, 0., 1.);
+    // Extracting fit result for each sampleType
+    for(size_t sampleId = 1; sampleId<templateNames_.size(); ++sampleId) {
+        double v(0.), e(0.);
+        v = histosInFit.at(sampleId)->IntegralAndError(1, -1, e);
+        v /= histos.at(sampleId)->Integral(1, -1);
+        e /= histos.at(sampleId)->Integral(1, -1);
+        result.at(sampleId).val = v;
+        result.at(sampleId).err = e;
     }
-    // Setting the bin range used in the fit
-    fitter->SetRangeX(2,5);
-
-    Int_t status = fitter->Fit();
-// //     fitter->ErrorAnalysis(1.);
-    if(status != 0) {
-        std::cerr << "WARNING!!! Fit failed with status: " << status << " [step: " << step << "; channel: " << channel << "]" << std::endl;
-        return result;
-    }
-    
-    // Extracting fit result for each sample
-    for(size_t sampleId = 1; sampleId<nSamples; ++sampleId) {
-        Double_t v(0.), e(0.);
-        fitter->GetResult(sampleId-1, v, e);
-        result.at(sampleId).val = v / (hInts.at(sampleId) / hInts.at(0));
-        result.at(sampleId).err = e / (hInts.at(sampleId) / hInts.at(0));
-    }
-    
-    return result;
-    
-    // Storing the plot showing the result of the fit
-    
-    // Suppress default info that canvas is printed
-    gErrorIgnoreLevel = 1001;
-    
-    TFile* out_root = new TFile(histoTemplateName_+"_source.root", "RECREATE");
-    TCanvas* canvas = new TCanvas("","");
-    canvas->SetLogy();
-    
-    THStack* stack = new THStack("def", "def");
-    for(size_t iHisto = 1; iHisto < nSamples; ++iHisto) {
-        histos.at(iHisto)->Scale(result.at(iHisto).val);
-        histos.at(iHisto)->SetLineColor(iHisto+1);
-        histos.at(iHisto)->SetFillColor(iHisto+1);
-        stack->Add(histos.at(iHisto));
-    }
-    histos.at(0)->SetMarkerStyle(20);
-    histos.at(0)->SetLineWidth(2);
-    histos.at(0)->Draw();
-    stack->Draw("same HIST");
-    histos.at(0)->Draw("same");
-    canvas->Print(histoTemplateName_+step+"_stack.eps");
-    canvas->Write(step+"_stack");
-    
-    canvas->Clear();
-    canvas->SetLogy(0);
-    
-    for(size_t iHisto = 0; iHisto < nSamples; ++iHisto) {
-        normalize(histos.at(iHisto));
-        histos.at(iHisto)->SetLineWidth(2);
-        histos.at(iHisto)->SetLineColor(iHisto+1);
-        histos.at(iHisto)->SetMarkerStyle(iHisto+19);
-        histos.at(iHisto)->SetMarkerColor(iHisto+1);
-        if(iHisto == 0) histos.at(iHisto)->Draw("LP");
-        else histos.at(iHisto)->Draw("sameLP");
-    }
-    
-    canvas->Write(step+"_shapes");
-    canvas->Print(histoTemplateName_+step+"_shapes.eps");
-    out_root->Close();
-    
-    delete out_root;
-    delete canvas;
     
     return result;
 }
@@ -343,6 +327,7 @@ void HfFracScaleFactors::normalize ( TH1* histo )const
     histo->Scale ( 1.0/integral );
 }
 
+
 double HfFracScaleFactors::poissonErrorScale(const TH1* histo)const
 {
     double scale = 0.;
@@ -358,4 +343,71 @@ double HfFracScaleFactors::poissonErrorScale(const TH1* histo)const
     }
     
     return scale;
+}
+
+
+void HfFracScaleFactors::writeDatacardWithHistos(const std::vector<TH1*> histos, const TString fileName, const TString rootFileName)const
+{
+    if(histos.size() < templateNames_.size()) {
+        std::cerr<<"Not all histograms to be stored for the fit have names specified. Stopping..."<<std::endl;
+        exit(17);
+    }
+    
+    const int nHistos = histos.size();
+    
+    ofstream file (fileName);
+    
+    file << "imax 1   number of channels\n";
+    file << "jmax *   number of backgrounds\n";
+    file << "kmax *   number of nuisance parameters\n";
+    file << "----------------------------------------\n";
+    file << "observation " << histos.at(0)->Integral() << "\n";
+    file << "---------------------------------------------------------------\n";
+    file << "shapes * * " << rootFileName << " $PROCESS    $PROCESS_$SYSTEMATIC\n";
+    file << "---------------------------------------------------------------\n";
+    file << "bin      \tHF";
+    for(int i = 1; i<nHistos; ++i) file << "\tHF";
+    file << "\n";
+    file << "process  \tdummy";
+    for(int i = 1; i<nHistos; ++i) file << "\t" << templateNames_.at(i);
+    file << "\n";
+    file << "process  \t0";
+    for(int i = 1; i<nHistos; ++i) file << "\t" << i;
+    file << "\n";
+    file << "rate     \t" << histos.at(0)->Integral();
+    for(int i = 1; i<nHistos; ++i) file << "\t" << histos.at(i)->Integral();
+    file << "\n";
+    file << "---------------------------------------------------------------\n";
+    // Adding nuiscance parameters (fraction of each temlpate) with variation range
+    for(int i = 1; i<nHistos; ++i) {
+        // Normal distribution for the fixed background. Uniform for fit parameters
+        std::string dependence = i < nHistos - 1 ? "lnU" : "lnN";
+        file << "temp_" << templateNames_.at(i) << "\t" << dependence << " -";
+        // Limits of scale variation of the template
+        for(int j = 1; j < nHistos; ++j) {
+            file << "\t";
+            if(i == j) file << templateScaleLimits_.at(i);
+            else file << "-";
+        }
+        file << "\n";
+    }
+    file << "---------------------------------------------------------------\n";
+}
+
+
+bool HfFracScaleFactors::histogramsAreIdentical(TH1* histo1, TH1* histo2)const
+{
+    if(histo1->GetEntries() != histo2->GetEntries()) return false;
+    if(histo1->GetNbinsX() != histo2->GetNbinsX()) return false;
+    if(std::fabs((histo1->Integral() - histo2->Integral())/histo1->Integral()) > 0.00001) return false;
+    
+    return true;
+}
+
+
+Sample::SampleType HfFracScaleFactors::sampleTypeForId(const int id)const
+{
+    for (std::map<Sample::SampleType, int>::const_iterator it = sampleTypeIds_.begin(); it != sampleTypeIds_.end(); ++it )
+    if (it->second == id) return it->first;
+    return Sample::dummy;
 }
