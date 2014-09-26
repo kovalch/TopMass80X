@@ -10,6 +10,7 @@ class TString;
 
 class RootFileReader;
 class Samples;
+class TH1;
 
 
 
@@ -58,10 +59,13 @@ private:
     double poissonErrorScale(const TH1* histo)const;
     
     /// Writes the txt datacard file used to configure the Higgs combine tool
-    void writeDatacardWithHistos(const std::vector<TH1*> histos, const TString fileName, const TString rootFileName)const;
+    void writeDatacardWithHistos(const std::vector<TH1*> histos, const TString& fileName, const TString& rootFileName)const;
     
     /// Check whether two histograms are identical
     bool histogramsAreIdentical(TH1* histo1, TH1* histo2)const;
+    
+    /// Storing all separate shapes of the histograms with up/down variations of each single bin
+    int storeStatisticalTemplateVariations(const TH1* histo, const TString& name, const int templateId);
     
     /// Returns the first sampleType for a given sample id
     Sample::SampleType sampleTypeForId(const int id)const;
@@ -79,7 +83,7 @@ private:
     
     /// Produce map of scale factors for each sample from fitting the histograms
     const std::vector<ValErr> getScaleFactorsFromHistos(const std::vector<TH1*> histos, const TString& step, 
-                                                        const Channel::Channel channel, const Systematic::Systematic& systematic)const;
+                                                        const Channel::Channel channel, const Systematic::Systematic& systematic);
     
     
     /// Typedef for the map containing the Heavy-Flavour fraction scale factors
@@ -94,6 +98,9 @@ private:
     
     /// Map containing the list of sample types with ids: to set specific combinations of samples to be fitted to data
     std::map<Sample::SampleType, int> sampleTypeIds_;
+    
+    /// Map containing the name and id of each template variation to be stored for the fit (used in datacards)
+    std::map<TString, int> templateVariationNameId_;
     
     /// Vector of template names
     std::vector<TString> templateNames_;

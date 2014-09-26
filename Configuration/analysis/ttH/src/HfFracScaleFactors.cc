@@ -32,6 +32,7 @@ workingDirectory_("HfFracScaleFactors")
     
     // Setting name of the histogram used for template fit
     histoTemplateName_ = "hfFracScaling_btag_multiplicity";
+//     histoTemplateName_ = "basic_bjet_multiplicity";
     
     // Setting id for each sample type as it will appear in the list of histograms for the fit
     // Data MUST go first
@@ -54,10 +55,10 @@ workingDirectory_("HfFracScaleFactors")
 
     // Setting variation limit of for each template
     templateScaleLimits_.push_back(1.);	  // Doesn't mean anything
-    templateScaleLimits_.push_back(5.);
-    templateScaleLimits_.push_back(5.);
-    templateScaleLimits_.push_back(5.);
-    templateScaleLimits_.push_back(1.1);
+    templateScaleLimits_.push_back(3.);
+    templateScaleLimits_.push_back(3.);
+    templateScaleLimits_.push_back(3.);
+    templateScaleLimits_.push_back(1.01);
     
     // FIXME: Check that there are no gaps in the list of ids
     
@@ -139,6 +140,9 @@ void HfFracScaleFactors::produceScaleFactors(const TString& step, const Samples&
                 
                 TH1* h = rootFileReader_->GetClone<TH1D>(sample.inputFile(), TString(histoTemplateName_).Append(step));
                 h->Sumw2();
+                // Removing the bin 6
+                h->SetBinContent(6, 0.0);
+                h->SetBinError(6, 0.0);
                 
                 
                 if(sampleType != Sample::data){
@@ -179,7 +183,7 @@ void HfFracScaleFactors::produceScaleFactors(const TString& step, const Samples&
 
 const std::vector<HfFracScaleFactors::ValErr> HfFracScaleFactors::getScaleFactorsFromHistos(const std::vector<TH1*> histos, 
                                                                                             const TString& step, const Channel::Channel channel,
-                                                                                            const Systematic::Systematic& systematic)const
+                                                                                            const Systematic::Systematic& systematic)
 {
     if(histos.size()<2) {
         std::cerr<<"Error in fitting function getScaleFactorsFromHistos! Too few histograms provided: "<< histos.size() <<"\n...break\n"<<std::endl;
@@ -213,20 +217,28 @@ const std::vector<HfFracScaleFactors::ValErr> HfFracScaleFactors::getScaleFactor
             break;
         }
     } else sameHistogramsInFile = false;
-    // If file alredy contains histograms which are different: STOP
+    // If file already contains histograms which are different: STOP
     if(!sameHistogramsInFile && histosInFile.size()>0) {
         std::cerr << "Templates used for the fit don't match to the templates in the analysis.\n";
         std::cerr << "Remove the folder: " << workingDirectory_ << " and rerun the tool to create proper templates.\n";
         exit(20);
     }
-    // Storing input templates to the root file if not there already and stopping
+    // Storing input templates to the root file if not there already
     if(!sameHistogramsInFile) {
         TFile* out_root = new TFile(rootFilePath, "UPDATE");
         for(size_t iHisto=0; iHisto<histos.size(); ++iHisto) {
             TH1F* hF = new TH1F();
             ((TH1D*)histos.at(iHisto))->Copy(*hF);
-            hF->Write(templateNames_.at(iHisto));
             if(iHisto == 0) hF->Write("dummy");
+            hF->Write(templateNames_.at(iHisto));
+            // Adding names of original templates
+            TString dataCardEntryName("FRAC_");
+            dataCardEntryName+=templateNames_.at(iHisto);
+            if(iHisto == 0) continue;   // Data statistical uncertainties taken directly from the original histogram
+            templateVariationNameId_[dataCardEntryName] = (int)iHisto;
+            if(systematic.type() != Systematic::Type::nominal) continue;
+            // Storing separate versions of the template with statistical variation of each bin (for Nominal only)
+            storeStatisticalTemplateVariations(hF, templateNames_.at(iHisto), iHisto);
         }
         out_root->Close();
         delete out_root;
@@ -235,7 +247,7 @@ const std::vector<HfFracScaleFactors::ValErr> HfFracScaleFactors::getScaleFactor
         TString datacardName(rootFilePath);
         datacardName.ReplaceAll(".root", ".txt");
         writeDatacardWithHistos(histos, datacardName, rootFileName);
-    }
+    } else std::cout << "All templates already exist as input for the fit. Nothing overwritten.\n";
     
     // Opening the root file with the fit results
     TString fitFileName = rootFileFolder+histoTemplateName_+step+"/mlfittest.root";
@@ -259,9 +271,11 @@ const std::vector<HfFracScaleFactors::ValErr> HfFracScaleFactors::getScaleFactor
     // Extracting fit result for each sampleType
     for(size_t sampleId = 1; sampleId<templateNames_.size(); ++sampleId) {
         double v(0.), e(0.);
-        v = histosInFit.at(sampleId)->IntegralAndError(1, -1, e);
-        v /= histos.at(sampleId)->Integral(1, -1);
-        e /= histos.at(sampleId)->Integral(1, -1);
+        const int binId = histosInFit.at(sampleId)->GetMaximumBin();
+        v = histosInFit.at(sampleId)->GetBinContent(binId);
+        e = histosInFit.at(sampleId)->GetBinError(binId);
+        v /= histos.at(sampleId)->GetBinContent(binId);
+        e /= histos.at(sampleId)->GetBinContent(binId);
         result.at(sampleId).val = v;
         result.at(sampleId).err = e;
     }
@@ -346,7 +360,7 @@ double HfFracScaleFactors::poissonErrorScale(const TH1* histo)const
 }
 
 
-void HfFracScaleFactors::writeDatacardWithHistos(const std::vector<TH1*> histos, const TString fileName, const TString rootFileName)const
+void HfFracScaleFactors::writeDatacardWithHistos(const std::vector<TH1*> histos, const TString& fileName, const TString& rootFileName)const
 {
     if(histos.size() < templateNames_.size()) {
         std::cerr<<"Not all histograms to be stored for the fit have names specified. Stopping..."<<std::endl;
@@ -378,15 +392,25 @@ void HfFracScaleFactors::writeDatacardWithHistos(const std::vector<TH1*> histos,
     for(int i = 1; i<nHistos; ++i) file << "\t" << histos.at(i)->Integral();
     file << "\n";
     file << "---------------------------------------------------------------\n";
-    // Adding nuiscance parameters (fraction of each temlpate) with variation range
-    for(int i = 1; i<nHistos; ++i) {
+    // Adding nuisance parameters (fraction of each temlpate) with variation range
+//     for(int i = 1; i<nHistos; ++i) {
+    for(auto nameId : templateVariationNameId_) {
         // Normal distribution for the fixed background. Uniform for fit parameters
-        std::string dependence = i < nHistos - 1 ? "lnU" : "lnN";
-        file << "temp_" << templateNames_.at(i) << "\t" << dependence << " -";
+        std::string dependence;
+        float factor;
+        if(nameId.first.BeginsWith("FRAC_")) {
+            dependence = nameId.second < nHistos - 1 ? "lnU" : "lnN";
+            factor = templateScaleLimits_.at(nameId.second);
+        }
+        else if(nameId.first.BeginsWith("STAT_")) {
+            dependence = "shape";
+            factor = 0.5;
+        }
+        file << nameId.first << "\t" << dependence << " -";
         // Limits of scale variation of the template
         for(int j = 1; j < nHistos; ++j) {
             file << "\t";
-            if(i == j) file << templateScaleLimits_.at(i);
+            if(nameId.second == j || dependence == "shape") file << factor;
             else file << "-";
         }
         file << "\n";
@@ -410,4 +434,30 @@ Sample::SampleType HfFracScaleFactors::sampleTypeForId(const int id)const
     for (std::map<Sample::SampleType, int>::const_iterator it = sampleTypeIds_.begin(); it != sampleTypeIds_.end(); ++it )
     if (it->second == id) return it->first;
     return Sample::dummy;
+}
+
+int HfFracScaleFactors::storeStatisticalTemplateVariations(const TH1* histo, const TString& name, const int templateId)
+{
+    int nHistosStored = 0;
+    const int nBins = histo->GetNbinsX();
+    for(int dirId = 0; dirId < 2; ++dirId) {
+        const TString dirStr = dirId == 0 ? "Up" : "Down";
+        const float dirFactor = dirId == 0 ? 1.0 : -1.0;
+        for(int binId = 1; binId <= nBins; ++binId) {
+            const float content = histo->GetBinContent(binId);
+            const float error = histo->GetBinError(binId);
+            char histoName[150];
+            char dataCardName[150];
+            sprintf(histoName, "%s_STAT_bin%d%s", name.Data(), binId, dirStr.Data());
+            sprintf(dataCardName, "STAT_bin%d", binId);
+            TH1* histoVar = (TH1*)histo->Clone();
+            histoVar->SetBinContent(binId, content + dirFactor*error);
+            histoVar->Write(histoName);
+            nHistosStored++;
+            if(templateVariationNameId_.count(dataCardName) > 0) continue;
+            templateVariationNameId_[dataCardName] = templateId;
+        }
+    }
+    
+    return nHistosStored;
 }
