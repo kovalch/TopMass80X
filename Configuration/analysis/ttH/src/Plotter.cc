@@ -140,6 +140,7 @@ bool Plotter::prepareDataset(const std::vector<Sample>& v_sample,
         const auto& sample(v_sample.at(iSample));
         SampleHistPair p_sampleHist;
         TH1D* hist = fileReader_->GetClone<TH1D>(sample.inputFile(), name_, true, false);
+        hist->Sumw2();
         if(!hist){
             // Print message only for one histogram
             if(allHistosAvailable)
