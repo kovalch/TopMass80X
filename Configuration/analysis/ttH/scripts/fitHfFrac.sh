@@ -45,7 +45,8 @@ for filePath in $(ls -1 --color=never "$workingFolder"/*/*/*.root); do
     if [ ! -d $fileName ]; then
 	mkdir $fileName
     fi
-    combine -M MaxLikelihoodFit --plots --saveNormalizations --saveShapes --saveWithUncertainties --saveNLL --robustFit=1 --rMin=-100 --rMax=100 -m 125 $fileName.txt --out $fileName -n test -v2  > $fileName.log
+    # Performing the fit
+    combine -M MaxLikelihoodFit --plots --saveNormalizations --saveShapes --saveWithUncertainties --saveNLL --robustFit=1 --maxFailedSteps=15 --rMin=-100 --rMax=100 -m 125 $fileName.txt --out $fileName -v1 -n test > $fileName.log
     echo "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
     echo "Fitting done with log file:"
     echo "${filePath%.root}.log"

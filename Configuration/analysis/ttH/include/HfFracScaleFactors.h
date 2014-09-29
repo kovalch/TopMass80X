@@ -59,13 +59,17 @@ private:
     double poissonErrorScale(const TH1* histo)const;
     
     /// Writes the txt datacard file used to configure the Higgs combine tool
-    void writeDatacardWithHistos(const std::vector<TH1*> histos, const TString& fileName, const TString& rootFileName)const;
+    void writeDatacardWithHistos(const std::vector<TH1*> histos, const TString& fileName, const TString& rootFileName, const bool recreate = true)const;
     
     /// Check whether two histograms are identical
     bool histogramsAreIdentical(TH1* histo1, TH1* histo2)const;
     
-    /// Storing all separate shapes of the histograms with up/down variations of each single bin
+    /// Storing all separate shapes of the histogram with up/down variations of each single bin within statistical uncertainty
     int storeStatisticalTemplateVariations(const TH1* histo, const TString& name, const int templateId);
+    
+    /// Storing all separate shapes of the histogram with up/down variations of each single bin within systematic uncertainty
+    int storeSystematicTemplateVariations(const TH1* histo_original, const TH1* histo_systematic, 
+                                          const Systematic::Systematic& systematic, const TString& name, const int templateId);
     
     /// Returns the first sampleType for a given sample id
     Sample::SampleType sampleTypeForId(const int id)const;
@@ -113,6 +117,9 @@ private:
     
     /// Directory name where input/output for the Higgs combine tool should be stored
     TString workingDirectory_;
+    
+    /// Whether all input information has been provided in order to use the ScaleFactors
+    bool scaleFactorsUsable_;
     
 };
 
