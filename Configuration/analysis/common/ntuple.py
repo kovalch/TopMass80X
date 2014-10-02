@@ -162,6 +162,7 @@ elif options.samplename == 'gghiggstozzto4l' or options.samplename == 'vbfhiggst
     zGenInfo = True
     higgsSignal = True
 elif options.samplename == 'ttbarz':
+    zGenInfo = True
     topfilter = True
     topSignal = True
     viaTau = False
