@@ -48,6 +48,7 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   EventYields
   Plotter
   PlotterDiffXS
+  PlotterSystematic
   )
 
 SET( ${PROJECT_NAME}_EXECUTABLES
@@ -55,6 +56,7 @@ SET( ${PROJECT_NAME}_EXECUTABLES
   train_mvaTopJets
   Histo
   HistoDiffXS
+  HistoSystematic
   histo_analyzerJetMatch
   histo_analyzerGenEvent
   histo_analyzerMvaTopJets

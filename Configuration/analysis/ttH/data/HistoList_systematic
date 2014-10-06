@@ -1,0 +1,26 @@
+# Name, Draw option, axis labels (y,x), rebin, -, logx, logy, ymin, ymax, xmin, xmax, nbins, xbins, bcs
+
+
+#
+# Leading jets 1D histograms
+#
+#dijet_leadingJet_1st_Pt_addB_kinReco_step7_cate0 - - - 1 1 0 0 0 0 0 0 0 0
+#dijet_leadingJet_2nd_Pt_addB_kinReco_step7_cate0 - - - 1 1 0 0 0 0 0 0 0 0
+#dijet_leadingJet_1st_Eta_addB_kinReco_step7_cate0 - - - 1 1 0 0 0 0 0 0 0 0
+#dijet_leadingJet_2nd_Eta_addB_kinReco_step7_cate0 - - - 1 1 0 0 0 0 0 0 0 0
+#dijet_leadingJet_dR_addB_kinReco_step7_cate0 - - - 1 1 0 0 0 0 0 0 0 0
+#dijet_leadingJet_Mjj_addB_kinReco_step7_cate0 - - - 1 1 0 0 0 0 80 140 0 0
+
+#dijet_leadingJet_1st_Pt_addB_mva_step7_cate0 - - - 1 1 0 0 0 0 0 0 0 0
+#dijet_leadingJet_2nd_Pt_addB_mva_step7_cate1 - - - 1 1 0 0 0 0 0 0 0 0
+#dijet_leadingJet_1st_Eta_addB_mva_step7_cate0 - - - 1 1 0 0 0 0 0 0 0 0
+#dijet_leadingJet_2nd_Eta_addB_mva_step7_cate1 - - - 1 1 0 0 0 0 0 0 0 0
+#dijet_leadingJet_dR_addB_mva_step7_cate1 - - - 1 1 0 0 0 0 0 0 0 0
+#dijet_leadingJet_Mjj_addB_mva_step7_cate1 - - - 1 1 0 0 0 0 0 0 0 0
+
+
+
+
+hfFracScaling_btag_discriminatorSum_step7 - - - 1 1 0 1 0 0 0 7 0 0
+basic_jet_btagDiscriminator_step7 - - - 1 1 0 1 0 0 0 0 0 0
+basic_bjet_multiplicity_step6 ttbb - - 1 1 0 1 0 0 0 7 0 0
