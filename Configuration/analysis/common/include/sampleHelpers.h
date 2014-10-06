@@ -151,7 +151,7 @@ namespace Systematic{
         btagDiscrCerr1, btagDiscrCerr2,
     };
     
-    /// Define b-tag systematics, valid for b-tag corrections concerning efficiency
+    /// Define b-tag systematics, valid for b-tag corrections concerning discriminator reweighting
     const std::vector<Type> btagDiscriminatorReweightTypes{
         btag, btagLjet,
         btagDiscrBstat1, btagDiscrBstat2,
@@ -159,7 +159,7 @@ namespace Systematic{
         btagDiscrCerr1, btagDiscrCerr2,
     };
     
-    /// Define b-tag systematics, valid for b-tag corrections concerning discriminator reweighting
+    /// Define b-tag systematics, valid for b-tag corrections concerning efficiency
     const std::vector<Type> btagEfficiencyCorrectionTypes{
         btag, btagPt, btagEta,
         btagLjet, btagLjetPt, btagLjetEta,
