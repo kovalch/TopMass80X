@@ -103,8 +103,13 @@ namespace Systematic{
         nominal, all,
         pu, lept, trig,
         jer, jes,
-        btag, btagPt, btagEta,
-        btagLjet, btagLjetPt, btagLjetEta,
+        btag, 
+        btagPt, btagEta,
+        btagLjet, 
+        btagLjetPt, btagLjetEta,
+        btagDiscrBstat1, btagDiscrBstat2,
+        btagDiscrLstat1, btagDiscrLstat2,
+        btagDiscrCerr1, btagDiscrCerr2,
         kin,
     };
 }

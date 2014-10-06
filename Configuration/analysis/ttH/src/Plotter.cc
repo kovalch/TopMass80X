@@ -98,6 +98,7 @@ void Plotter::producePlots()
         for(const auto& channelSample : systematicChannelSamples.second){
             const Channel::Channel& channel(channelSample.first);
             const std::vector<Sample>& v_sample(channelSample.second);
+            if(v_sample.size() < 1) continue;
             const std::vector<double>& v_weight(globalWeights.at(systematic).at(channel));
             if(!this->prepareDataset(v_sample, v_weight)){
                 std::cout<<"WARNING! Cannot find histograms for all datasets, for (channel/systematic): "
@@ -435,17 +436,29 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     // Prepare additional histograms for root-file
     TH1* sumMC(0);
     TH1* sumSignal(0);
+    TH1* sum_ttbb(0);
+    TH1* sum_tt2b(0);
+    TH1* sum_ttOther(0);
+    TH1* sum_bkg(0);
     for(const auto& sampleHistPair : v_sampleHistPair_){
         if(sampleHistPair.first.sampleType() == Sample::SampleType::ttHbb || sampleHistPair.first.sampleType() == Sample::SampleType::ttHother){
-            if(sumSignal) sumSignal->Add(sampleHistPair.second);
-            else sumSignal = static_cast<TH1*>(sampleHistPair.second->Clone());
+            sumSignal = addOrCreateHisto(sumSignal, sampleHistPair.second);
             // Do not add Higgs samples to sumMC (all MC samples) in case of overlaid drawing
             if(drawHiggsOverlaid) continue;
         }
         if(sampleHistPair.first.sampleType() != Sample::SampleType::data){
-            if(sumMC) sumMC->Add(sampleHistPair.second);
-            else sumMC = static_cast<TH1*>(sampleHistPair.second->Clone());
+            sumMC = addOrCreateHisto(sumMC, sampleHistPair.second);
         }
+        if(sampleHistPair.first.sampleType() == Sample::SampleType::ttbb || sampleHistPair.first.sampleType() == Sample::SampleType::ttb) {
+            sum_ttbb = addOrCreateHisto(sum_ttbb, sampleHistPair.second);
+        } else if(sampleHistPair.first.sampleType() == Sample::SampleType::tt2b) {
+            sum_tt2b = addOrCreateHisto(sum_tt2b, sampleHistPair.second);
+        } else if(sampleHistPair.first.sampleType() == Sample::SampleType::ttcc || sampleHistPair.first.sampleType() == Sample::SampleType::ttother) {
+            sum_ttOther = addOrCreateHisto(sum_ttOther, sampleHistPair.second);
+        } else {
+            sum_bkg = addOrCreateHisto(sum_bkg, sampleHistPair.second);
+        }
+            
     }
     if(sumMC) sumMC->SetName(name_);
     
@@ -455,6 +468,10 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     if(dataHist.second) dataHist.second->Write(name_+"_data");
     if(sumSignal) sumSignal->Write(name_+"_signalmc");
     if(sumMC) sumMC->Write(name_+"_allmc");
+    if(sum_ttbb) sum_ttbb->Write(name_+"_ttbb");
+    if(sum_tt2b) sum_tt2b->Write(name_+"_tt2b");
+    if(sum_ttOther) sum_ttOther->Write(name_+"_ttOther");
+    if(sum_bkg) sum_bkg->Write(name_+"_bkg");
     canvas->Write(name_ + "_canvas");
     out_root.Close();
     
@@ -590,4 +607,13 @@ TPaveText* Plotter::drawSignificance(const TH1* const signal, const TH1* const s
     return label;
 }
 
+
+
+TH1* Plotter::addOrCreateHisto(TH1* base, TH1* add_histo) 
+{
+    if(!base) base = static_cast<TH1*>(add_histo->Clone());
+    else base->Add(add_histo);
+    
+    return base;
+}
 

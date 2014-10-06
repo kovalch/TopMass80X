@@ -72,7 +72,9 @@ private:
     TPaveText* drawSignificance(const TH1* const signal, const TH1* const signalPlusBackground,
                                 const float xMin, const float xMax,
                                 const float yOffset = 0.f, const std::string& sLabel ="", const int type =0)const;
-    
+                                
+    /// Adding histograms to the existing one or creating it
+    TH1* addOrCreateHisto(TH1* base, TH1* add_histo);
     
     
     /// Output folder name
