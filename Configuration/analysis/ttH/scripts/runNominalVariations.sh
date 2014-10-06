@@ -38,6 +38,8 @@ for systematic in "${systematics[@]}" ; do
         $LA -f ttbarsignalplustau.root -p 0 -c $channel -s $systematic $@ &
         $LA -f ttbarsignalplustau.root -p 1 -c $channel -s $systematic $@ &
         $LA -f ttbarsignalplustau.root -p 2 -c $channel -s $systematic $@ &
+        $LA -f ttbarsignalplustau.root -p 3 -c $channel -s $systematic $@ &
+        $LA -f ttbarsignalplustau.root -p 4 -c $channel -s $systematic $@ &
         $LA -f ttbarH125tobbbar -c $channel -s $systematic $@ &
         $LA -f ttbarH125incl -p 0 -c $channel -s $systematic $@ &
     done
