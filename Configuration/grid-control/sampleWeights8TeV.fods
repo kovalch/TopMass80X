@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <office:document xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0" xmlns:presentation="urn:oasis:names:tc:opendocument:xmlns:presentation:1.0" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0" xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0" xmlns:math="http://www.w3.org/1998/Math/MathML" xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0" xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0" xmlns:config="urn:oasis:names:tc:opendocument:xmlns:config:1.0" xmlns:ooo="http://openoffice.org/2004/office" xmlns:ooow="http://openoffice.org/2004/writer" xmlns:oooc="http://openoffice.org/2004/calc" xmlns:dom="http://www.w3.org/2001/xml-events" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:rpt="http://openoffice.org/2005/report" xmlns:of="urn:oasis:names:tc:opendocument:xmlns:of:1.2" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:grddl="http://www.w3.org/2003/g/data-view#" xmlns:tableooo="http://openoffice.org/2009/table" xmlns:field="urn:openoffice:names:experimental:ooo-ms-interop:xmlns:field:1.0" xmlns:formx="urn:openoffice:names:experimental:ooxml-odf-interop:xmlns:form:1.0" xmlns:css3t="http://www.w3.org/TR/css3-text/" office:version="1.2" office:mimetype="application/vnd.oasis.opendocument.spreadsheet">
- <office:meta><meta:creation-date>2013-07-15T16:34:22</meta:creation-date><dc:date>2013-08-20T15:33:19</dc:date><meta:editing-duration>PT12M17S</meta:editing-duration><meta:editing-cycles>6</meta:editing-cycles><meta:generator>LibreOffice/3.5$Linux_X86_64 LibreOffice_project/350m1$Build-2</meta:generator><meta:document-statistic meta:table-count="3" meta:cell-count="873" meta:object-count="0"/></office:meta>
+ <office:meta><meta:creation-date>2013-07-15T16:34:22</meta:creation-date><dc:date>2013-08-20T15:33:19</dc:date><meta:editing-duration>PT12M17S</meta:editing-duration><meta:editing-cycles>6</meta:editing-cycles><meta:generator>LibreOffice/3.5$Linux_X86_64 LibreOffice_project/350m1$Build-2</meta:generator><meta:document-statistic meta:table-count="3" meta:cell-count="881" meta:object-count="0"/></office:meta>
  <office:settings>
   <config:config-item-set config:name="ooo:view-settings">
    <config:config-item config:name="VisibleAreaTop" config:type="int">0</config:config-item>
    <config:config-item config:name="VisibleAreaLeft" config:type="int">0</config:config-item>
    <config:config-item config:name="VisibleAreaWidth" config:type="int">36339</config:config-item>
-   <config:config-item config:name="VisibleAreaHeight" config:type="int">83468</config:config-item>
+   <config:config-item config:name="VisibleAreaHeight" config:type="int">83576</config:config-item>
    <config:config-item-map-indexed config:name="Views">
     <config:config-item-map-entry>
      <config:config-item config:name="ViewId" config:type="string">view1</config:config-item>
      <config:config-item-map-named config:name="Tables">
       <config:config-item-map-entry config:name="Sheet1">
-       <config:config-item config:name="CursorPositionX" config:type="int">3</config:config-item>
-       <config:config-item config:name="CursorPositionY" config:type="int">58</config:config-item>
+       <config:config-item config:name="CursorPositionX" config:type="int">7</config:config-item>
+       <config:config-item config:name="CursorPositionY" config:type="int">135</config:config-item>
        <config:config-item config:name="HorizontalSplitMode" config:type="short">2</config:config-item>
        <config:config-item config:name="VerticalSplitMode" config:type="short">2</config:config-item>
        <config:config-item config:name="HorizontalSplitPosition" config:type="int">1</config:config-item>
@@ -23,7 +23,7 @@
        <config:config-item config:name="PositionLeft" config:type="int">0</config:config-item>
        <config:config-item config:name="PositionRight" config:type="int">1</config:config-item>
        <config:config-item config:name="PositionTop" config:type="int">0</config:config-item>
-       <config:config-item config:name="PositionBottom" config:type="int">28</config:config-item>
+       <config:config-item config:name="PositionBottom" config:type="int">31</config:config-item>
        <config:config-item config:name="ZoomType" config:type="short">0</config:config-item>
        <config:config-item config:name="ZoomValue" config:type="int">95</config:config-item>
        <config:config-item config:name="PageViewZoomValue" config:type="int">60</config:config-item>
@@ -132,6 +132,9 @@
   </number:number-style>
   <number:number-style style:name="N122">
    <number:number number:decimal-places="4" number:min-integer-digits="1"/>
+  </number:number-style>
+  <number:number-style style:name="N123">
+   <number:number number:decimal-places="1" number:min-integer-digits="1"/>
   </number:number-style>
   <style:style style:name="Default" style:family="table-cell">
    <style:text-properties style:font-name-asian="AR PL KaitiM GB" style:font-name-complex="Lohit Hindi"/>
@@ -246,8 +249,11 @@
    <style:table-cell-properties fo:background-color="transparent"/>
    <style:text-properties style:use-window-font-color="true" style:font-name="Arial" fo:font-size="10pt" style:font-size-asian="10pt" style:font-size-complex="10pt"/>
   </style:style>
-  <style:style style:name="ce17" style:family="table-cell" style:parent-style-name="Default" style:data-style-name="N60"/>
-  <style:style style:name="ce18" style:family="table-cell" style:parent-style-name="Default">
+  <style:style style:name="ce17" style:family="table-cell" style:parent-style-name="Default" style:data-style-name="N123">
+   <style:text-properties style:font-name="Arial" fo:font-size="10pt" style:font-size-asian="10pt" style:font-size-complex="10pt"/>
+  </style:style>
+  <style:style style:name="ce18" style:family="table-cell" style:parent-style-name="Default" style:data-style-name="N123"/>
+  <style:style style:name="ce19" style:family="table-cell" style:parent-style-name="Default">
    <style:table-cell-properties fo:wrap-option="wrap"/>
    <style:text-properties style:use-window-font-color="true" style:text-outline="false" style:text-line-through-style="none" style:font-name="Cumberland AMT" fo:font-size="10pt" fo:language="en" fo:country="US" fo:font-style="normal" fo:text-shadow="none" style:text-underline-style="none" fo:font-weight="normal" style:text-underline-mode="continuous" style:text-overline-mode="continuous" style:text-line-through-mode="continuous" style:font-size-asian="10pt" style:language-asian="zh" style:country-asian="CN" style:font-style-asian="normal" style:font-weight-asian="normal" style:font-size-complex="10pt" style:language-complex="hi" style:country-complex="IN" style:font-style-complex="normal" style:font-weight-complex="normal" style:text-emphasize="none" style:font-relief="none" style:text-overline-style="none" style:text-overline-color="font-color"/>
   </style:style>
@@ -291,7 +297,7 @@
      <text:p><text:sheet-name>???</text:sheet-name> (<text:title>???</text:title>)</text:p>
     </style:region-left>
     <style:region-right>
-     <text:p><text:date style:data-style-name="N2" text:date-value="2014-05-28">00/00/0000</text:date>, <text:time>00:00:00</text:time></text:p>
+     <text:p><text:date style:data-style-name="N2" text:date-value="2014-07-24">00/00/0000</text:date>, <text:time>00:00:00</text:time></text:p>
     </style:region-right>
    </style:header>
    <style:header-left style:display="false"/>
@@ -468,7 +474,10 @@
      <table:table-cell office:value-type="string">
       <text:p>w for LUMI</text:p>
      </table:table-cell>
-     <table:table-cell table:number-columns-repeated="1018"/>
+     <table:table-cell office:value-type="string">
+      <text:p>tt XS</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="1017"/>
     </table:table-row>
     <table:table-row table:style-name="ro1">
      <table:table-cell office:value-type="string">
@@ -1367,7 +1376,7 @@
     <table:table-row table:style-name="ro1">
      <table:table-cell table:number-columns-repeated="1024"/>
     </table:table-row>
-    <table:table-row table:style-name="ro4">
+    <table:table-row table:style-name="ro1">
      <table:table-cell office:value-type="string">
       <text:p>MadSpin</text:p>
      </table:table-cell>
@@ -1386,19 +1395,21 @@
      <table:table-cell table:style-name="ce11" table:formula="of:=[.$H$2]*[.E57]" office:value-type="float" office:value="0.0733331462223354">
       <text:p>0.0733331462</text:p>
      </table:table-cell>
-     <table:table-cell/>
+     <table:table-cell table:formula="of:=[.C57]/[.D57]/1000" office:value-type="float" office:value="249.102426025151">
+      <text:p>249.1024260252</text:p>
+     </table:table-cell>
      <table:table-cell office:value-type="string">
       <text:p>/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/Summer12_DR53X-PU_S10_START53_V19-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1016"/>
     </table:table-row>
-    <table:table-row table:style-name="ro2">
+    <table:table-row table:style-name="ro1">
      <table:table-cell table:number-columns-repeated="4"/>
      <table:table-cell table:style-name="Default"/>
      <table:table-cell table:style-name="ce11"/>
      <table:table-cell table:number-columns-repeated="1018"/>
     </table:table-row>
-    <table:table-row table:style-name="ro2">
+    <table:table-row table:style-name="ro1">
      <table:table-cell office:value-type="string">
       <text:p>166_5 MadSpin</text:p>
      </table:table-cell>
@@ -1417,13 +1428,15 @@
      <table:table-cell table:style-name="ce11" table:formula="of:=[.$H$2]*[.E59]" office:value-type="float" office:value="0.186512429233516">
       <text:p>0.1865124292</text:p>
      </table:table-cell>
-     <table:table-cell/>
+     <table:table-cell table:formula="of:=[.C59]/[.D59]/1000" office:value-type="float" office:value="276.120959977183">
+      <text:p>276.1209599772</text:p>
+     </table:table-cell>
      <table:table-cell office:value-type="string">
       <text:p>/TTJets_MSDecays_mass166_5_TuneZ2star_8TeV-madgraph-tauola/Summer12_DR53X-PU_S10_START53_V19-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1016"/>
     </table:table-row>
-    <table:table-row table:style-name="ro2">
+    <table:table-row table:style-name="ro1">
      <table:table-cell office:value-type="string">
       <text:p>169_5 MadSpin</text:p>
      </table:table-cell>
@@ -1442,13 +1455,15 @@
      <table:table-cell table:style-name="ce11" table:formula="of:=[.$H$2]*[.E60]" office:value-type="float" office:value="0.12131522707489">
       <text:p>0.1213152271</text:p>
      </table:table-cell>
-     <table:table-cell/>
+     <table:table-cell table:formula="of:=[.C60]/[.D60]/1000" office:value-type="float" office:value="262.105053376449">
+      <text:p>262.1050533764</text:p>
+     </table:table-cell>
      <table:table-cell office:value-type="string">
       <text:p>/TTJets_MSDecays_mass169_5_TuneZ2star_8TeV-madgraph-tauola/Summer12_DR53X-PU_S10_START53_V19-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1016"/>
     </table:table-row>
-    <table:table-row table:style-name="ro2">
+    <table:table-row table:style-name="ro1">
      <table:table-cell office:value-type="string">
       <text:p>171_5 MadSpin</text:p>
      </table:table-cell>
@@ -1467,13 +1482,15 @@
      <table:table-cell table:style-name="ce11" table:formula="of:=[.$H$2]*[.E61]" office:value-type="float" office:value="0.189598396979165">
       <text:p>0.189598397</text:p>
      </table:table-cell>
-     <table:table-cell/>
+     <table:table-cell table:formula="of:=[.C61]/[.D61]/1000" office:value-type="float" office:value="253.330046297478">
+      <text:p>253.3300462975</text:p>
+     </table:table-cell>
      <table:table-cell office:value-type="string">
       <text:p>/TTJets_MSDecays_mass171_5_TuneZ2star_8TeV-madgraph-tauola/Summer12_DR53X-PU_S10_START53_V19-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1016"/>
     </table:table-row>
-    <table:table-row table:style-name="ro2">
+    <table:table-row table:style-name="ro1">
      <table:table-cell office:value-type="string">
       <text:p>173_5 MadSpin</text:p>
      </table:table-cell>
@@ -1492,13 +1509,15 @@
      <table:table-cell table:style-name="ce11" table:formula="of:=[.$H$2]*[.E62]" office:value-type="float" office:value="0.169159623338224">
       <text:p>0.1691596233</text:p>
      </table:table-cell>
-     <table:table-cell/>
+     <table:table-cell table:formula="of:=[.C62]/[.D62]/1000" office:value-type="float" office:value="244.976909179305">
+      <text:p>244.9769091793</text:p>
+     </table:table-cell>
      <table:table-cell office:value-type="string">
       <text:p>/TTJets_MSDecays_mass173_5_TuneZ2star_8TeV-madgraph-tauola/Summer12_DR53X-PU_S10_START53_V19-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1016"/>
     </table:table-row>
-    <table:table-row table:style-name="ro2">
+    <table:table-row table:style-name="ro1">
      <table:table-cell office:value-type="string">
       <text:p>175_5 MadSpin</text:p>
      </table:table-cell>
@@ -1517,13 +1536,15 @@
      <table:table-cell table:style-name="ce11" table:formula="of:=[.$H$2]*[.E63]" office:value-type="float" office:value="0.107725072630444">
       <text:p>0.1077250726</text:p>
      </table:table-cell>
-     <table:table-cell/>
+     <table:table-cell table:formula="of:=[.C63]/[.D63]/1000" office:value-type="float" office:value="237.019471694463">
+      <text:p>237.0194716945</text:p>
+     </table:table-cell>
      <table:table-cell office:value-type="string">
       <text:p>/TTJets_MSDecays_mass175_5_TuneZ2star_8TeV-madgraph-tauola/Summer12_DR53X-PU_S10_START53_V19-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1016"/>
     </table:table-row>
-    <table:table-row table:style-name="ro2">
+    <table:table-row table:style-name="ro1">
      <table:table-cell office:value-type="string">
       <text:p>178_5 MadSpin</text:p>
      </table:table-cell>
@@ -1542,7 +1563,9 @@
      <table:table-cell table:style-name="ce11" table:formula="of:=[.$H$2]*[.E64]" office:value-type="float" office:value="0.16952994270431">
       <text:p>0.1695299427</text:p>
      </table:table-cell>
-     <table:table-cell/>
+     <table:table-cell table:formula="of:=[.C64]/[.D64]/1000" office:value-type="float" office:value="225.77262963507">
+      <text:p>225.7726296351</text:p>
+     </table:table-cell>
      <table:table-cell office:value-type="string">
       <text:p>/TTJets_MSDecays_mass178_5_TuneZ2star_8TeV-madgraph-tauola/Summer12_DR53X-PU_S10_START53_V19-v1/AODSIM</text:p>
      </table:table-cell>
@@ -2599,8 +2622,8 @@
       <text:p>/QCD_Pt_20_MuEnrichedPt_15_TuneZ2star_8TeV_pythia6/Summer12_DR53X-PU_S10_START53_V7A-v3/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell office:value-type="float" office:value="134680">
-      <text:p>134680</text:p>
+     <table:table-cell table:style-name="ce17" office:value-type="float" office:value="134680">
+      <text:p>134680.0</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
     </table:table-row>
@@ -2623,8 +2646,8 @@
       <text:p>/QCD_Pt_20_30_BCtoE_TuneZ2star_8TeV_pythia6/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce14" table:formula="of:=288600000*0.00058" office:value-type="float" office:value="167388">
-      <text:p>1.67E+005</text:p>
+     <table:table-cell table:style-name="ce17" table:formula="of:=288600000*0.00058" office:value-type="float" office:value="167388">
+      <text:p>167388.0</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
     </table:table-row>
@@ -2647,8 +2670,8 @@
       <text:p>/QCD_Pt_30_80_BCtoE_TuneZ2star_8TeV_pythia6/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce14" table:formula="of:=74240000*0.00225" office:value-type="float" office:value="167040">
-      <text:p>1.67E+005</text:p>
+     <table:table-cell table:style-name="ce17" table:formula="of:=74240000*0.00225" office:value-type="float" office:value="167040">
+      <text:p>167040.0</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
     </table:table-row>
@@ -2671,8 +2694,8 @@
       <text:p>/QCD_Pt_80_170_BCtoE_TuneZ2star_8TeV_pythia6/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce14" table:formula="of:=1191000*0.0109" office:value-type="float" office:value="12981.9">
-      <text:p>1.30E+004</text:p>
+     <table:table-cell table:style-name="ce17" table:formula="of:=1191000*0.0109" office:value-type="float" office:value="12981.9">
+      <text:p>12981.9</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
     </table:table-row>
@@ -2697,8 +2720,8 @@
       <text:p>/QCD_Pt_170_250_BCtoE_TuneZ2star_8TeV_pythia6/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell office:value-type="float" office:value="632">
-      <text:p>632</text:p>
+     <table:table-cell table:style-name="ce17" office:value-type="float" office:value="632">
+      <text:p>632.0</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
     </table:table-row>
@@ -2723,8 +2746,8 @@
       <text:p>/QCD_Pt_250_350_BCtoE_TuneZ2star_8TeV_pythia6/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="Default" table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="Default" office:value-type="float" office:value="103">
-      <text:p>103</text:p>
+     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="103">
+      <text:p>103.0</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
     </table:table-row>
@@ -2749,7 +2772,7 @@
       <text:p>/QCD_Pt_350_BCtoE_TuneZ2star_8TeV_pythia6/Summer12_DR53X-PU_S10_START53_V7A-v2/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="Default" table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="Default" office:value-type="float" office:value="23.9">
+     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="23.9">
       <text:p>23.9</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
@@ -2773,8 +2796,8 @@
       <text:p>/QCD_Pt_20_30_EMEnriched_TuneZ2star_8TeV_pythia6/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="Default" table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce17" office:value-type="float" office:value="2910000">
-      <text:p>2.91E+006</text:p>
+     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="2910000">
+      <text:p>2910000.0</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
     </table:table-row>
@@ -2797,8 +2820,8 @@
       <text:p>/QCD_Pt_30_80_EMEnriched_TuneZ2star_8TeV_pythia6/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="Default" table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce17" office:value-type="float" office:value="4600000">
-      <text:p>4.60E+006</text:p>
+     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="4600000">
+      <text:p>4600000.0</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
     </table:table-row>
@@ -2821,8 +2844,8 @@
       <text:p>/QCD_Pt_80_170_EMEnriched_TuneZ2star_8TeV_pythia6/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="Default" table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce17" office:value-type="float" office:value="183000">
-      <text:p>1.83E+005</text:p>
+     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="183000">
+      <text:p>183000.0</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
     </table:table-row>
@@ -2845,8 +2868,8 @@
       <text:p>/QCD_Pt_170_250_EMEnriched_TuneZ2star_8TeV_pythia6/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="Default" table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="Default" office:value-type="float" office:value="4587">
-      <text:p>4587</text:p>
+     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="4587">
+      <text:p>4587.0</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
     </table:table-row>
@@ -2869,8 +2892,8 @@
       <text:p>/QCD_Pt_250_350_EMEnriched_TuneZ2star_8TeV_pythia6/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="Default" table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="Default" office:value-type="float" office:value="557">
-      <text:p>557</text:p>
+     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="557">
+      <text:p>557.0</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
     </table:table-row>
@@ -2893,7 +2916,7 @@
       <text:p>/QCD_Pt_350_EMEnriched_TuneZ2star_8TeV_pythia6/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="Default" table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="Default" office:value-type="float" office:value="89.1">
+     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="89.1">
       <text:p>89.1</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
@@ -3074,7 +3097,7 @@
       <text:p>/TBarToDilepton_tW-channel-DR_8TeV-powheg-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="1.1652336">
+     <table:table-cell table:style-name="ce19" office:value-type="float" office:value="1.1652336">
       <text:p>1.1652336</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
@@ -3100,7 +3123,7 @@
       <text:p>/TBarToLeptons_s-channel_8TeV-powheg-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="0.57024">
+     <table:table-cell table:style-name="ce19" office:value-type="float" office:value="0.57024">
       <text:p>0.57024</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
@@ -3126,7 +3149,7 @@
       <text:p>/TBarToLeptons_t-channel_8TeV-powheg-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="9.9468">
+     <table:table-cell table:style-name="ce19" office:value-type="float" office:value="9.9468">
       <text:p>9.9468</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
@@ -3152,7 +3175,7 @@
       <text:p>/TBarToThadWlep_tW-channel-DR_8TeV-powheg-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="2.4311664">
+     <table:table-cell table:style-name="ce19" office:value-type="float" office:value="2.4311664">
       <text:p>2.4311664</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
@@ -3178,7 +3201,7 @@
       <text:p>/TBarToTlepWhad_tW-channel-DR_8TeV-powheg-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="2.4311664">
+     <table:table-cell table:style-name="ce19" office:value-type="float" office:value="2.4311664">
       <text:p>2.4311664</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
@@ -3204,7 +3227,7 @@
       <text:p>/TToDilepton_tW-channel-DR_8TeV-powheg-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="1.1652336">
+     <table:table-cell table:style-name="ce19" office:value-type="float" office:value="1.1652336">
       <text:p>1.1652336</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
@@ -3230,7 +3253,7 @@
       <text:p>/TToLeptons_s-channel_8TeV-powheg-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="1.22796">
+     <table:table-cell table:style-name="ce19" office:value-type="float" office:value="1.22796">
       <text:p>1.22796</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
@@ -3254,7 +3277,7 @@
       <text:p>/TToLeptons_t-channel_8TeV-powheg-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="17.496">
+     <table:table-cell table:style-name="ce19" office:value-type="float" office:value="17.496">
       <text:p>17.496</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
@@ -3280,7 +3303,7 @@
       <text:p>/TToThadWlep_tW-channel-DR_8TeV-powheg-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="2.4311664">
+     <table:table-cell table:style-name="ce19" office:value-type="float" office:value="2.4311664">
       <text:p>2.4311664</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
@@ -3306,7 +3329,7 @@
       <text:p>/TToTlepWhad_tW-channel-DR_8TeV-powheg-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="2.4311664">
+     <table:table-cell table:style-name="ce19" office:value-type="float" office:value="2.4311664">
       <text:p>2.4311664</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
@@ -3336,7 +3359,7 @@
       <text:p>/TBarToDilepton_tW-channel-DR_scaleup_8TeV-powheg-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="1.1652336">
+     <table:table-cell table:style-name="ce19" office:value-type="float" office:value="1.1652336">
       <text:p>1.1652336</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
@@ -3362,7 +3385,7 @@
       <text:p>/TBarToLeptons_s-channel_scaleup_8TeV-powheg-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="0.57024">
+     <table:table-cell table:style-name="ce19" office:value-type="float" office:value="0.57024">
       <text:p>0.57024</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
@@ -3388,7 +3411,7 @@
       <text:p>/TBarToLeptons_t-channel_scaleup_8TeV-powheg-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="9.9468">
+     <table:table-cell table:style-name="ce19" office:value-type="float" office:value="9.9468">
       <text:p>9.9468</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
@@ -3412,7 +3435,7 @@
       <text:p>/TBarToThadWlep_tW-channel-DR_scaleup_8TeV-powheg-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="2.4311664">
+     <table:table-cell table:style-name="ce19" office:value-type="float" office:value="2.4311664">
       <text:p>2.4311664</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
@@ -3436,7 +3459,7 @@
       <text:p>/TBarToTlepWhad_tW-channel-DR_scaleup_8TeV-powheg-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="2.4311664">
+     <table:table-cell table:style-name="ce19" office:value-type="float" office:value="2.4311664">
       <text:p>2.4311664</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
@@ -3462,7 +3485,7 @@
       <text:p>/TToDilepton_tW-channel-DR_scaleup_8TeV-powheg-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="1.1652336">
+     <table:table-cell table:style-name="ce19" office:value-type="float" office:value="1.1652336">
       <text:p>1.1652336</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
@@ -3488,7 +3511,7 @@
       <text:p>/TToLeptons_s-channel_scaleup_8TeV-powheg-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="1.22796">
+     <table:table-cell table:style-name="ce19" office:value-type="float" office:value="1.22796">
       <text:p>1.22796</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
@@ -3514,7 +3537,7 @@
       <text:p>/TToLeptons_t-channel_scaleup_8TeV-powheg-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="17.496">
+     <table:table-cell table:style-name="ce19" office:value-type="float" office:value="17.496">
       <text:p>17.496</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
@@ -3538,7 +3561,7 @@
       <text:p>/TToThadWlep_tW-channel-DR_scaleup_8TeV-powheg-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="2.4311664">
+     <table:table-cell table:style-name="ce19" office:value-type="float" office:value="2.4311664">
       <text:p>2.4311664</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
@@ -3564,7 +3587,7 @@
       <text:p>/TToTlepWhad_tW-channel-DR_scaleup_8TeV-powheg-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="2.4311664">
+     <table:table-cell table:style-name="ce19" office:value-type="float" office:value="2.4311664">
       <text:p>2.4311664</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
@@ -3596,7 +3619,7 @@
       <text:p>/TBarToDilepton_tW-channel-DR_scaledown_8TeV-powheg-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="1.1652336">
+     <table:table-cell table:style-name="ce19" office:value-type="float" office:value="1.1652336">
       <text:p>1.1652336</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
@@ -3622,7 +3645,7 @@
       <text:p>/TBarToLeptons_s-channel_scaledown_8TeV-powheg-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="0.57024">
+     <table:table-cell table:style-name="ce19" office:value-type="float" office:value="0.57024">
       <text:p>0.57024</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
@@ -3648,7 +3671,7 @@
       <text:p>/TBarToLeptons_t-channel_scaledown_8TeV-powheg-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="9.9468">
+     <table:table-cell table:style-name="ce19" office:value-type="float" office:value="9.9468">
       <text:p>9.9468</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
@@ -3672,7 +3695,7 @@
       <text:p>/TBarToThadWlep_tW-channel-DR_scaledown_8TeV-powheg-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="2.4311664">
+     <table:table-cell table:style-name="ce19" office:value-type="float" office:value="2.4311664">
       <text:p>2.4311664</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
@@ -3696,7 +3719,7 @@
       <text:p>/TBarToTlepWhad_tW-channel-DR_scaledown_8TeV-powheg-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="2.4311664">
+     <table:table-cell table:style-name="ce19" office:value-type="float" office:value="2.4311664">
       <text:p>2.4311664</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
@@ -3720,7 +3743,7 @@
       <text:p>/TToDilepton_tW-channel-DR_scaledown_8TeV-powheg-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="1.1652336">
+     <table:table-cell table:style-name="ce19" office:value-type="float" office:value="1.1652336">
       <text:p>1.1652336</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
@@ -3746,7 +3769,7 @@
       <text:p>/TToLeptons_s-channel_scaledown_8TeV-powheg-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="1.22796">
+     <table:table-cell table:style-name="ce19" office:value-type="float" office:value="1.22796">
       <text:p>1.22796</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
@@ -3772,7 +3795,7 @@
       <text:p>/TToLeptons_t-channel_scaledown_8TeV-powheg-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="17.496">
+     <table:table-cell table:style-name="ce19" office:value-type="float" office:value="17.496">
       <text:p>17.496</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
@@ -3796,7 +3819,7 @@
       <text:p>/TToThadWlep_tW-channel-DR_scaledown_8TeV-powheg-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="2.4311664">
+     <table:table-cell table:style-name="ce19" office:value-type="float" office:value="2.4311664">
       <text:p>2.4311664</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
@@ -3820,7 +3843,7 @@
       <text:p>/TToTlepWhad_tW-channel-DR_scaledown_8TeV-powheg-tauola/Summer12_DR53X-PU_S10_START53_V7A-v1/AODSIM</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="8"/>
-     <table:table-cell table:style-name="ce18" office:value-type="float" office:value="2.4311664">
+     <table:table-cell table:style-name="ce19" office:value-type="float" office:value="2.4311664">
       <text:p>2.4311664</text:p>
      </table:table-cell>
      <table:table-cell table:number-columns-repeated="1007"/>
