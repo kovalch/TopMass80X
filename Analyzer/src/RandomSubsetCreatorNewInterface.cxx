@@ -226,12 +226,12 @@ void RandomSubsetCreatorNewInterface::PrepareEvents(const std::string& file) {
     int filledPermutations = 0;
     for(int j = 0, l = std::min(maxPermutations_, sel->GetNdata()); j < l; ++j){
       if(!sel->EvalInstance(j)) continue;
+      if(!weight->EvalInstance(j)) continue;
       
       int bin = 0;
       for (const auto& boundary : vBinning_) {
         if (binning->EvalInstance(j) > boundary) ++bin;
       }
-      
       sample.Fill(f1->EvalInstance(j), f2->EvalInstance(j), f3->EvalInstance(j), f4->EvalInstance(j), weight->EvalInstance(j), filledPermutations++, bin);
     }
     if(filledPermutations) ++selected;
