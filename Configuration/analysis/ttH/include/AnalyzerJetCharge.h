@@ -63,19 +63,20 @@ public:
     bool isInVector(const std::vector<int>& idVector, const int id);
     
     bool putUniquelyInVector(std::vector<int>& vector, const int id);
+    int jetSelectedTrackMatchToPfCandidateIndex(size_t iSelectedTrack);
     
     struct MvaJetVariable
     {
-        std::vector <float> longChargeJet_;
-        std::vector <float> relChargeJet_;
-        std::vector <int> leadingTrackCharge_;
-        std::vector <float> leadingTrackPt_;
-        std::vector <float> leadingTrackPtCharge_;
-        std::vector <float> trueBJetPt_;
-        std::vector <int> numTracks_;
-        std::vector <int> trueBJetId_;
-        std::vector<float> ptRatioTrackJet_;
-        std::vector<bool> isMuonEvent_;
+        float longChargeJet_;
+        float relChargeJet_;
+        int leadingTrackCharge_;
+        float leadingTrackPt_;
+        float trueBJetPt_;
+        int numTracks_;
+        int trueBJetId_;
+        float ptRatioTrackJet_;
+        float ipValueLeadingTrack_;
+        float secondaryVertexCharge_;
     } mvaStruct;
     
     TTree* mvaChargeTestTree;
