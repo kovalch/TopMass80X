@@ -130,7 +130,7 @@ git cms-addpkg PhysicsTools/PatAlgos
 git cms-merge-topic 4330 # new!!! Not sure if needed  Taken from https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuidePATReleaseNotes70X#Tau_update_for_miniAOD_CMSSW_7_0
 cd -
 
-###### GenJets ######
+###### GenJets (for miniAOD) ######
 cd $CMSSW_BASE/src
 git cms-merge-topic ferencek:MiniAODForInputGenJetsParticleSelector_from-CMSSW_7_0_9
 cd -
