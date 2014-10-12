@@ -552,8 +552,6 @@ std::vector<TString> common::readFilelist(const TString& filelistDirectory,
                                           const Systematic::Systematic& systematic,
                                           const std::vector<TString>& v_pattern)
 {
-    // Read in fileList to a vector
-    std::vector<TString> v_filename;
     
     // Access fileList containing list of input root files
     const TString filelistName(filelistDirectory + "/HistoFileList_" + systematic.name() + "_" + Channel::convert(channel) + ".txt");
@@ -562,9 +560,11 @@ std::vector<TString> common::readFilelist(const TString& filelistDirectory,
     if(fileList.fail()){
         std::cerr<<"Error in common::readFilelist! Cannot find file with name: "
                  <<filelistName<<"\n...break\n"<<std::endl;
-        return v_filename;
+        exit(1);
     }
     
+    // Read in fileList to a vector
+    std::vector<TString> v_filename;
     while(!fileList.eof()){
         TString filename;
         fileList>>filename;
