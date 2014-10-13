@@ -88,6 +88,9 @@ void Plotter::producePlots()
 {
     //std::cout<<"--- Beginning of plot production\n\n";
     
+    // Set style
+    common::setHHStyle(*gStyle, false);
+    
     // Access correction factors
     const SystematicChannelFactors globalWeights = this->scaleFactors();
     
@@ -155,9 +158,6 @@ bool Plotter::prepareDataset(const std::vector<Sample>& v_sample,
                 const double& weight = v_weight.at(iSample);
                 hist->Scale(weight);
             }
-
-            // Set style
-            common::setHHStyle(*gStyle);
 
             // Clone histogram directly here
             TH1D* histClone = (TH1D*) hist->Clone();
@@ -328,17 +328,11 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     }
 
     
-    // FIXME: is this histo for error band on stack? but it is commented out ?!
-    TH1D* syshist(0);
+    // Preparing a statistical uncertainty band for MC stack
+    TH1* stacksum_statBand(0);
     if(stacksum){
-        syshist = (TH1D*)stacksum->Clone();
-        for(Int_t iBin = 0; iBin <= syshist->GetNbinsX(); ++iBin){
-            Double_t binContent = 0;
-            binContent += stacksum->GetBinContent(iBin);
-            syshist->SetBinContent(iBin, binContent);
-        }
-        syshist->SetFillStyle(3004);
-        syshist->SetFillColor(kBlack);
+        stacksum_statBand = (TH1*)stacksum->Clone();
+        common::setHistoStyle(stacksum_statBand, -1,-1,-1, -1,-1,-1, 3013, 1);
     }
     
     
@@ -399,23 +393,21 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     firstHistToDraw->GetYaxis()->SetTitle(ytitle);
     
     
-    // Draw data histogram and stack and error bars
+    // Draw data histogram and stack
     firstHistToDraw->SetLineColor(0);
     firstHistToDraw->Draw();
-    if(dataHist.second) dataHist.second->Draw("same e1");
+    if(dataHist.second) dataHist.second->Draw("same E1 X0");
     if(stack) stack->Draw("same HIST");
     gPad->RedrawAxis();
-    TExec* setex1 = new TExec("setex1", "gStyle->SetErrorX(0.5)");//this is frustrating and stupid but apparently necessary...
-    setex1->Draw();  // error bars for data
-    if(syshist) syshist->SetMarkerStyle(0);
-    //syshist->Draw("same,E2");  // error bars for stack (which, stat or combined with syst ?)
-    TExec* setex2 = new TExec("setex2", "gStyle->SetErrorX(0.)");
-    setex2->Draw();  // remove error bars for data in x-direction
-    if(dataHist.second) dataHist.second->Draw("same,e1");
+//     TExec* setex1 = new TExec("setex1", "gStyle->SetErrorX(0.5)");//this is frustrating and stupid but apparently necessary...
+//     setex1->Draw();  // error bars for data
+    stacksum_statBand->Draw("same E2");  // error bars for stack (which, stat or combined with syst ?)
+//     TExec* setex2 = new TExec("setex2", "gStyle->SetErrorX(0.)");
+//     setex2->Draw();  // remove error bars for data in x-direction
+    if(dataHist.second) dataHist.second->Draw("same E1 X0");
     for(const auto& higgsHist : higgsHists){
         higgsHist.second->Draw("same");
     }
-    
     
     // Put additional stuff to histogram
     this->drawCmsLabels(2, 8);
@@ -423,9 +415,15 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     for(TPaveText* label : significanceLabels) if(label) label->Draw("same");
     legend->Draw("SAME");
     if(dataHist.second && stacksum){
-        common::drawRatio(dataHist.second, stacksum, 0, 0.5, 1.7, false, *gStyle, 0, std::vector<double>(0), true);
-        firstHistToDraw->GetXaxis()->SetLabelSize(0);
-        firstHistToDraw->GetXaxis()->SetTitleSize(0);
+        common::drawRatioPad(canvas, 0.5, 1.7, firstHistToDraw, "#frac{Data}{MC}");
+        
+        TH1* ratio_histo = common::ratioHistogram(dataHist.second, stacksum, 1);
+        common::setHistoStyle(ratio_histo, -1,-1,2);
+        ratio_histo->Draw("same E");
+        
+        TH1* ratio_statBand = common::ratioHistogram(stacksum, stacksum, 1);
+        common::setHistoStyle(ratio_statBand, -1,-1,-1, -1,-1,-1, 3013,1);
+        ratio_statBand->Draw("same E2");
     }
 
     // Create Directory for Output Plots and write them

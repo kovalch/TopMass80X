@@ -143,8 +143,8 @@ void PlotterSystematic::writeVariations(const SystematicHistoMap& histoCollectio
     TH1* h_nominal = histoCollection.at(Systematic::nominal).first;
     if(h_nominal) {
         updateHistoAxis(h_nominal, logY);
-        common::setHistoStyle(h_nominal, 1, 1, 3, 0, 0, 20, 1, 0.75);
-        h_nominal->Draw("HISTE");
+        common::setHistoStyle(h_nominal, 1,1,3, 20,1,0.75, 0,0);
+        h_nominal->Draw("HIST E X0");
     } else {
         printf("No Nominal histogram for sample: ");
     }
@@ -159,36 +159,34 @@ void PlotterSystematic::writeVariations(const SystematicHistoMap& histoCollectio
         const Systematic::Type systematicType(systematicHistos.first);
         if(systematicHistos.first == Systematic::nominal) continue;
         TH1* h_up = systematicHistos.second.first;
-//         std::cout << "UP: " << h_up << std::endl;
         if(h_up) {
             updateHistoAxis(h_up, logY);
-            common::setHistoStyle(h_up, lineStyles_.first, lineColors_.at(orderId), 2);
-            h_up->Draw("sameHIST");
+            common::setHistoStyle(h_up, lineStyles_.first, lineColors_.at(orderId), 2, -1,-1,-1, 0,0);
+            h_up->Draw("same HIST");
         }
         TH1* h_down = systematicHistos.second.second;
-//         std::cout << "DOWN: " << h_down << std::endl;
         if(h_down) {
             updateHistoAxis(h_down, logY);
-            common::setHistoStyle(h_down, lineStyles_.second, lineColors_.at(orderId), 2);
-            h_down->Draw("sameHIST");
+            common::setHistoStyle(h_down, lineStyles_.second, lineColors_.at(orderId), 2, -1,-1,-1, 0,0);
+            h_down->Draw("same HIST");
         }
         
         legend->AddEntry(h_up, Systematic::convertType(systematicType), "l");
         ratioPad->cd();
         TH1* h_ratio_up = common::ratioHistogram(h_up, h_nominal, 0);
-        h_ratio_up->Draw("sameHIST");
+        h_ratio_up->Draw("same HIST");
         TH1* h_ratio_down = common::ratioHistogram(h_down, h_nominal, 0);
-        h_ratio_down->Draw("sameHIST");
+        h_ratio_down->Draw("same HIST");
 
         if(orderId<lineColors_.size()-1) orderId++;
     }
     // Drawing statistical error bars of the nominal histogram
     ratioPad->cd();
     TH1* h_nominal_stat = common::ratioHistogram(h_nominal, h_nominal, 1);
-    common::setHistoStyle(h_nominal_stat, 1, 1, 3, 3004, 1, 20, 1, 0.75);
-    h_nominal_stat->Draw("sameE1");
+    common::setHistoStyle(h_nominal_stat, 1,1,3, 20,1,0.75);
+    h_nominal_stat->Draw("same E1 X0");
     canvas->cd(0);
-    h_nominal->Draw("sameE1");
+    h_nominal->Draw("same E1 X0");
     legend->Draw();
     
     this->drawCmsLabels(2, 8);
@@ -205,7 +203,7 @@ void PlotterSystematic::writeVariations(const SystematicHistoMap& histoCollectio
 void PlotterSystematic::prepareStyle()
 {
     // Set style
-    common::setHHStyle(*gStyle);
+    common::setHHStyle(*gStyle, false);
 
     // Different line styles for up/down variations
     lineStyles_.first = 7;

@@ -43,7 +43,6 @@ void Histo(const std::vector<std::string>& v_plot,
     const GlobalScaleFactors* globalScaleFactors = new GlobalScaleFactors(v_channel, v_systematic, Luminosity, dyCorrection, 
                                                                           ttbbCorrection, ignoreMissingSystematics);
     
-    std::cout << "\n\nIgnore: " << ignoreMissingSystematics << std::endl;
     // Access all samples
     const Samples samples("FileLists_plot", v_channel, v_systematic, globalScaleFactors, ignoreMissingSystematics);
     

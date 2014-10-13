@@ -435,7 +435,7 @@ void common::drawRatio(const TH1* histNumerator, const TH1* histDenominator, con
 
 
 
-void common::setHHStyle(TStyle& HHStyle)
+void common::setHHStyle(TStyle& HHStyle, const bool hideErrorX)
 {
     const int fontstyle=42;
     HHStyle.SetPalette(1);
@@ -479,8 +479,8 @@ void common::setHHStyle(TStyle& HHStyle)
     // ==============
     //  Histo
     // ==============
-
-    HHStyle.SetErrorX(0.0);
+    
+    if(hideErrorX) HHStyle.SetErrorX(0.0);
     HHStyle.SetEndErrorSize(8);
             
     // HHStyle.SetHistFillColor(1);
@@ -638,7 +638,7 @@ TH1* common::summedStackHisto(const THStack *stack)
 
 
 TH1* common::drawRatioPad(TPad* pad, const double yMin, const double yMax, TH1* axisHisto, 
-                                 const double fraction, const TString title)
+                          const TString title, const double fraction)
 {
     // y:x size ratio for canvas
     double canvAsym = (pad->GetY2() - pad->GetY1())/(pad->GetX2()-pad->GetX1());
@@ -717,9 +717,6 @@ TH1* common::drawRatioPad(TPad* pad, const double yMin, const double yMax, TH1* 
     f->SetLineColor(kBlack);
     f->Draw("L same");
     
-    axisHisto->GetXaxis()->SetLabelSize(0);
-    axisHisto->GetXaxis()->SetTitleSize(0);
-    
     
     return h_axis;
     
@@ -734,12 +731,13 @@ TH1* common::ratioHistogram(const TH1* h_nominator, const TH1* h_denominator, co
         const double nominator_e = h_nominator->GetBinError(iBin);
         const double denominator_v = h_denominator->GetBinContent(iBin);
         const double denominator_e = h_denominator->GetBinError(iBin);
-        double ratio_e;
-        const double ratio_v = nominator_v / denominator_v;
-        if(errorType == 0) ratio_e = 0.;
-        else if(errorType == 1) ratio_e = nominator_e;
-        else if(errorType == 2) ratio_e = denominator_e;
-        else if(errorType == 3) ratio_e = ratio_v * std::sqrt( (nominator_e*nominator_e)/(nominator_v*nominator_v) + (denominator_e*denominator_e)/(denominator_v*denominator_v) );
+        double ratio_e = 0.;
+        double ratio_v = denominator_v > 0. ? nominator_v / denominator_v : 0.;
+        if(denominator_v > 0.) {
+            if(errorType == 1) ratio_e = nominator_e/denominator_v;
+            else if(errorType == 2) ratio_e = denominator_e/denominator_v;
+            else if(errorType == 3) ratio_e = ratio_v * std::sqrt( (nominator_e*nominator_e)/(nominator_v*nominator_v) + (denominator_e*denominator_e)/(denominator_v*denominator_v) );
+        }
         
         h_ratio->SetBinContent(iBin, ratio_v);
         h_ratio->SetBinError(iBin, ratio_e);
@@ -789,38 +787,36 @@ void common::normalizeToBinWidth(TH1* histo)
 
 
 void common::setHistoStyle(TH1* hist, Style_t line, Color_t lineColor, Size_t lineWidth, 
-                           Style_t fill, Color_t fillColor, 
-                           Style_t marker, Color_t markerColor, Size_t markerSize)
+                           Style_t marker, Color_t markerColor, Size_t markerSize,
+                           Style_t fill, Color_t fillColor)
 {
-    hist->SetLineStyle(line);
-    hist->SetLineColor(lineColor);
-    hist->SetLineWidth(lineWidth);
+    if(line != -1) hist->SetLineStyle(line);
+    if(lineColor != -1) hist->SetLineColor(lineColor);
+    if(lineWidth != -1) hist->SetLineWidth(lineWidth);
     
-    hist->SetFillStyle(fill);
-    hist->SetFillColor(fillColor);
+    if(fill != -1) hist->SetFillStyle(fill);
+    if(fillColor != -1) hist->SetFillColor(fillColor);
     
-    hist->SetMarkerStyle(marker);
-    hist->SetMarkerColor(markerColor);
-    hist->SetMarkerSize(markerSize);
-    
-    hist->GetXaxis()->SetLabelFont(42);
-    hist->GetYaxis()->SetLabelFont(42);
-    hist->GetXaxis()->SetTitleFont(42);
-    hist->GetYaxis()->SetTitleFont(42);
-    hist->GetYaxis()->SetTitleOffset(1.7);
-    hist->GetXaxis()->SetTitleOffset(1.25);
+    if(marker != -1) hist->SetMarkerStyle(marker);
+    if(markerColor != -1) hist->SetMarkerColor(markerColor);
+    if(markerSize != -1) hist->SetMarkerSize(markerSize);
 }
 
 
-void common::setGraphStyle( TGraph* graph, Style_t marker, Color_t markerColor, Size_t markerSize, 
-                            Style_t line, Color_t lineColor, Size_t lineWidth) 
+void common::setGraphStyle( TGraph* graph, Style_t line, Color_t lineColor, Size_t lineWidth, 
+                            Style_t marker, Color_t markerColor, Size_t markerSize,
+                            Style_t fill, Color_t fillColor) 
 {
-    graph->SetMarkerStyle(marker);
-    graph->SetMarkerColor(markerColor);
-    graph->SetMarkerSize(markerSize);
-    graph->SetLineStyle(line);
-    graph->SetLineColor(lineColor);
-    graph->SetLineWidth(lineWidth);
+    if(line != -1) graph->SetLineStyle(line);
+    if(lineColor != -1) graph->SetLineColor(lineColor);
+    if(lineWidth != -1) graph->SetLineWidth(lineWidth);
+    
+    if(fill != -1) graph->SetFillStyle(fill);
+    if(fillColor != -1) graph->SetFillColor(fillColor);
+    
+    if(marker != -1) graph->SetMarkerStyle(marker);
+    if(markerColor != -1) graph->SetMarkerColor(markerColor);
+    if(markerSize != -1) graph->SetMarkerSize(markerSize);
 }
 
 

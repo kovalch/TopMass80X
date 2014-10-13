@@ -37,7 +37,7 @@ namespace common{
 
 
     /// Set histogram style to HH definition
-    void setHHStyle(TStyle& HHStyle);
+    void setHHStyle(TStyle& HHStyle, const bool hideErrorX = true);
 
 
 
@@ -45,8 +45,8 @@ namespace common{
     TH1* summedStackHisto(const THStack* stack);
     
     /// Add the ratio pad with axis to the specified pad
-    TH1* drawRatioPad(TPad* pad, const double yMin, const double yMax, TH1* axisHisto, const double fraction = 0.36, 
-                      const TString title = "#frac{Data}{MC}");
+    TH1* drawRatioPad(TPad* pad, const double yMin, const double yMax, TH1* axisHisto, 
+                      const TString title = "#frac{Data}{MC}", const double fraction = 0.36);
     
     /// Get a ratio histogram (errorType: 0-none, 1-nominator, 2-denominator, 3-both)
     TH1* ratioHistogram(const TH1* h_nominator, const TH1* h_denominator, const int errorType = 1);
@@ -59,13 +59,14 @@ namespace common{
     void normalizeToBinWidth(TH1* histo);
     
     /// Set the style of the plot
-    void setHistoStyle(TH1* hist, Style_t line = 1, Color_t lineColor = 1, Size_t lineWidth = 1, 
-                       Style_t fill = 0, Color_t fillColor = 0, 
-                       Style_t marker = 0, Color_t markerColor = 1, Size_t markerSize = 1);
+    void setHistoStyle(TH1* hist, Style_t line = -1, Color_t lineColor = -1, Size_t lineWidth = -1, 
+                       Style_t marker = -1, Color_t markerColor = -1, Size_t markerSize = -1, 
+                       Style_t fill = -1, Color_t fillColor = -1);
     
     /// Set the style of the graph
-    void setGraphStyle( TGraph* graph, Style_t marker = 21, Color_t markerColor = 1, Size_t markerSize = 1, 
-                        Style_t line = 0, Color_t lineColor = 1, Size_t lineWidth = 1);
+    void setGraphStyle(TGraph* graph, Style_t line = -1, Color_t lineColor = -1, Size_t lineWidth = -1, 
+                       Style_t marker = -1, Color_t markerColor = -1, Size_t markerSize = -1, 
+                       Style_t fill = -1, Color_t fillColor = -1);
 }
 
 
