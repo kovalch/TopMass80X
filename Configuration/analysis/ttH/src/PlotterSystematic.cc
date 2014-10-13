@@ -143,13 +143,13 @@ void PlotterSystematic::writeVariations(const SystematicHistoMap& histoCollectio
     TH1* h_nominal = histoCollection.at(Systematic::nominal).first;
     if(h_nominal) {
         updateHistoAxis(h_nominal, logY);
-        setHistoStyle(h_nominal, 1, 1, 3, 0, 0, 20, 1, 0.75);
+        common::setHistoStyle(h_nominal, 1, 1, 3, 0, 0, 20, 1, 0.75);
         h_nominal->Draw("HISTE");
     } else {
         printf("No Nominal histogram for sample: ");
     }
     
-    drawRatioPad(canvas, 0.75, 1.25, h_nominal);
+    common::drawRatioPad(canvas, 0.75, 1.25, h_nominal);
     TVirtualPad* ratioPad = gPad;
     
     // Looping over all available systematics
@@ -162,30 +162,30 @@ void PlotterSystematic::writeVariations(const SystematicHistoMap& histoCollectio
 //         std::cout << "UP: " << h_up << std::endl;
         if(h_up) {
             updateHistoAxis(h_up, logY);
-            setHistoStyle(h_up, lineStyles_.first, lineColors_.at(orderId), 2);
+            common::setHistoStyle(h_up, lineStyles_.first, lineColors_.at(orderId), 2);
             h_up->Draw("sameHIST");
         }
         TH1* h_down = systematicHistos.second.second;
 //         std::cout << "DOWN: " << h_down << std::endl;
         if(h_down) {
             updateHistoAxis(h_down, logY);
-            setHistoStyle(h_down, lineStyles_.second, lineColors_.at(orderId), 2);
+            common::setHistoStyle(h_down, lineStyles_.second, lineColors_.at(orderId), 2);
             h_down->Draw("sameHIST");
         }
         
         legend->AddEntry(h_up, Systematic::convertType(systematicType), "l");
         ratioPad->cd();
-        TH1* h_ratio_up = ratioHistogram(h_up, h_nominal, 0);
+        TH1* h_ratio_up = common::ratioHistogram(h_up, h_nominal, 0);
         h_ratio_up->Draw("sameHIST");
-        TH1* h_ratio_down = ratioHistogram(h_down, h_nominal, 0);
+        TH1* h_ratio_down = common::ratioHistogram(h_down, h_nominal, 0);
         h_ratio_down->Draw("sameHIST");
 
         if(orderId<lineColors_.size()-1) orderId++;
     }
     // Drawing statistical error bars of the nominal histogram
     ratioPad->cd();
-    TH1* h_nominal_stat = ratioHistogram(h_nominal, h_nominal, 1);
-    setHistoStyle(h_nominal_stat, 1, 1, 3, 3004, 1, 20, 1, 0.75);
+    TH1* h_nominal_stat = common::ratioHistogram(h_nominal, h_nominal, 1);
+    common::setHistoStyle(h_nominal_stat, 1, 1, 3, 3004, 1, 20, 1, 0.75);
     h_nominal_stat->Draw("sameE1");
     canvas->cd(0);
     h_nominal->Draw("sameE1");
@@ -224,30 +224,6 @@ void PlotterSystematic::prepareStyle()
     lineColors_.push_back(17);
     lineColors_.push_back(29);
     
-}
-
-
-void PlotterSystematic::setHistoStyle(TH1* hist, Style_t line, Color_t lineColor, Size_t lineWidth, 
-                                  Style_t fill, Color_t fillColor, 
-                                  Style_t marker, Color_t markerColor, Size_t markerSize)const
-{
-    hist->SetLineStyle(line);
-    hist->SetLineColor(lineColor);
-    hist->SetLineWidth(lineWidth);
-    
-    hist->SetFillStyle(fill);
-    hist->SetFillColor(fillColor);
-    
-    hist->SetMarkerStyle(marker);
-    hist->SetMarkerColor(markerColor);
-    hist->SetMarkerSize(markerSize);
-    
-    hist->GetXaxis()->SetLabelFont(42);
-    hist->GetYaxis()->SetLabelFont(42);
-    hist->GetXaxis()->SetTitleFont(42);
-    hist->GetYaxis()->SetTitleFont(42);
-    hist->GetYaxis()->SetTitleOffset(1.7);
-    hist->GetXaxis()->SetTitleOffset(1.25);
 }
 
 
@@ -322,137 +298,3 @@ void PlotterSystematic::drawCmsLabels(const int cmsprelim, const double& energy,
     label->Draw("same");
 }
 
-
-void PlotterSystematic::setGraphStyle( TGraph* graph, Style_t marker, Color_t markerColor, Size_t markerSize, 
-                             Style_t line, Color_t lineColor, Size_t lineWidth)const 
-{
-    graph->SetMarkerStyle(marker);
-    graph->SetMarkerColor(markerColor);
-    graph->SetMarkerSize(markerSize);
-    graph->SetLineStyle(line);
-    graph->SetLineColor(lineColor);
-    graph->SetLineWidth(lineWidth);
-}
-
-
-void PlotterSystematic::normalize(TH1* histo)const
-{
-    histo->Scale(1./histo->Integral(1,-1));
-}
-
-
-TH1* PlotterSystematic::drawRatioPad(TPad* pad, const double yMin, const double yMax, TH1* axisHisto, 
-                                 const double fraction, const TString title)const
-{
-    // y:x size ratio for canvas
-    double canvAsym = (pad->GetY2() - pad->GetY1())/(pad->GetX2()-pad->GetX1());
-    Double_t left  = pad->GetLeftMargin();
-    Double_t right = pad->GetRightMargin();
-    // change old pad
-    pad->SetBottomMargin(fraction);
-    pad->SetRightMargin(right);
-    pad->SetLeftMargin(left);
-    pad->SetBorderMode(0);
-    pad->SetBorderSize(0);
-    pad->SetFillColor(10);
-    // create new pad for ratio plot
-    TPad *rPad;
-    rPad = new TPad("rPad","",0,0,1,fraction+0.001);
-#ifdef DILEPTON_MACRO
-    rPad->SetFillColor(10);
-#else
-    rPad->SetFillStyle(0);
-    rPad->SetFillColor(0);
-#endif
-    rPad->SetBorderSize(0);
-    rPad->SetBorderMode(0);
-    rPad->Draw();
-    rPad->cd();
-    rPad->SetLogy(0);
-    rPad->SetTicky(1);
-    // configure ratio plot
-    double scaleFactor = 1./(canvAsym*fraction);
-    TH1* ratio = (TH1*)axisHisto->Clone("axis_ratio");
-    ratio->SetStats(kFALSE);
-    ratio->SetTitle("");
-    ratio->SetName("axis_ratio");
-    ratio->SetMaximum(yMax);
-    ratio->SetMinimum(yMin);
-    // configure axis of ratio plot
-    ratio->GetXaxis()->SetTitleSize(axisHisto->GetXaxis()->GetTitleSize()*scaleFactor*1.3);
-    ratio->GetXaxis()->SetTitleOffset(axisHisto->GetXaxis()->GetTitleOffset()*0.9);
-    ratio->GetXaxis()->SetLabelSize(axisHisto->GetXaxis()->GetLabelSize()*scaleFactor*1.4);
-    ratio->GetXaxis()->SetTitle(axisHisto->GetXaxis()->GetTitle());
-    ratio->GetXaxis()->SetNdivisions(axisHisto->GetNdivisions());
-    ratio->GetYaxis()->CenterTitle();
-    ratio->GetYaxis()->SetTitle(title);
-    ratio->GetYaxis()->SetTitleSize(axisHisto->GetYaxis()->GetTitleSize()*scaleFactor);
-    ratio->GetYaxis()->SetTitleOffset(axisHisto->GetYaxis()->GetTitleOffset()/scaleFactor);
-    ratio->GetYaxis()->SetLabelSize(axisHisto->GetYaxis()->GetLabelSize()*scaleFactor);
-    ratio->GetYaxis()->SetLabelOffset(axisHisto->GetYaxis()->GetLabelOffset()*3.3);
-    ratio->GetYaxis()->SetTickLength(0.03);
-    ratio->GetYaxis()->SetNdivisions(405);
-    ratio->GetXaxis()->SetRange(axisHisto->GetXaxis()->GetFirst(), axisHisto->GetXaxis()->GetLast());
-    // delete axis of initial plot
-    axisHisto->GetXaxis()->SetLabelSize(0);
-    axisHisto->GetXaxis()->SetTitleSize(0);
-    //This is frustrating and stupid but apparently necessary...
-    TExec *setex1 { new TExec("setex1","gStyle->SetErrorX(0.5)") };
-    setex1->Draw();
-    TExec *setex2 { new TExec("setex2","gStyle->SetErrorX(0.)") };
-    setex2->Draw();
-//     ratio->SetMarkerSize(0.8);
-//     ratio->SetLineWidth(2);
-    ratio->Draw("axis");
-    rPad->SetTopMargin(0.0);
-    rPad->SetBottomMargin(0.15*scaleFactor);
-    rPad->SetRightMargin(right);
-    pad->SetLeftMargin(left);
-    pad->RedrawAxis();
-    // draw grid
-    rPad->SetGrid(0,1);
-    rPad->cd();
-    
-    // draw a horizontal line on the pad
-    Double_t xmin = ratio->GetXaxis()->GetXmin();
-    Double_t xmax = ratio->GetXaxis()->GetXmax();
-    TString height = ""; height += 1;
-    TF1 *f = new TF1("f", height, xmin, xmax);
-    f->SetLineStyle(1);
-    f->SetLineWidth(1);
-    f->SetLineColor(kBlack);
-    f->Draw("L same");
-    
-    axisHisto->GetXaxis()->SetLabelSize(0);
-    axisHisto->GetXaxis()->SetTitleSize(0);
-    
-    
-    return ratio;
-    
-}
-
-
-TH1* PlotterSystematic::ratioHistogram(const TH1* h_nominator, const TH1* h_denominator, const int errorId)const
-{
-    TH1* h_ratio = (TH1*)h_nominator->Clone();
-    for(int iBin = 1; iBin<=h_ratio->GetNbinsX(); ++iBin) {
-        const ValueError nominator(h_nominator->GetBinContent(iBin), h_nominator->GetBinError(iBin));
-        const ValueError denominator(h_denominator->GetBinContent(iBin), h_denominator->GetBinError(iBin));
-        ValueError ratio;
-        ratio.v = nominator.v / denominator.v;
-        if(errorId == 0) ratio.e = 0.;
-        else if(errorId == 1) ratio.e = nominator.e/nominator.v;
-        else if(errorId == 2) ratio.e = denominator.e/denominator.v;
-        else if(errorId == 3) ratio.e = ratio.v * sqrt(nominator.eOv2() + denominator.eOv2());
-            
-        
-        
-        if(ratio.v != ratio.v) ratio.v = 1.;
-        if(ratio.e != ratio.e) ratio.e = 0.;
-        
-        h_ratio->SetBinContent(iBin, ratio.v);
-        h_ratio->SetBinError(iBin, ratio.e);
-    }
-    
-    return h_ratio;
-}

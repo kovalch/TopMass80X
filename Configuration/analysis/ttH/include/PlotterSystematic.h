@@ -57,15 +57,6 @@ private:
 
     /// Calculate the differential cross section
     void writeVariations(const SystematicHistoMap& histoCollection, const Channel::Channel channel, const TString processName, const bool logY = false);
-    
-    /// Set the style of the plot
-    void setHistoStyle(TH1* hist, Style_t line = 1, Color_t lineColor = 1, Size_t lineWidth = 1, 
-                       Style_t fill = 0, Color_t fillColor = 0, 
-                       Style_t marker = 0, Color_t markerColor = 1, Size_t markerSize = 1)const;
-    
-    /// Set the style of the graph
-    void setGraphStyle( TGraph* graph, Style_t marker = 21, Color_t markerColor = 1, Size_t markerSize = 1, 
-                        Style_t line = 0, Color_t lineColor = 1, Size_t lineWidth = 1)const;
 
     /// Update histogram axis
     void updateHistoAxis(TH1* histo, const bool logY=false)const;
@@ -75,16 +66,6 @@ private:
 
     /// Draw official labels (CMS [Preliminary], luminosity and CM energy) above plot
     void drawCmsLabels(const int cmsprelim =1, const double& energy =8, const double& textSize =0.04)const;
-    
-    /// Normalise histogram to the unit area
-    void normalize(TH1* histo)const;
-    
-    /// Add area for the ratio plot
-    TH1* drawRatioPad(TPad* pad, const double yMin, const double yMax, TH1* axisHisto, const double fraction = 0.36, 
-                      const TString title = "#frac{Systematic}{Nominal}")const;
-    
-    /// Get a ratio histogram
-    TH1* ratioHistogram(const TH1* h_nominator, const TH1* h_denominator, const int errorId = 0)const;
     
     /// Calculates binomial uncertainty of the subset/set ratio
     double uncertaintyBinomial(const double pass, const double all)const;
