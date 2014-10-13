@@ -34,7 +34,8 @@ void Histo(const std::vector<std::string>& v_plot,
            const std::vector<Channel::Channel>& v_channel,
            const std::vector<Systematic::Systematic>& v_systematic,
            const std::vector<GlobalCorrection::GlobalCorrection> v_globalCorrection,
-           const DrawMode::DrawMode& drawMode)
+           const DrawMode::DrawMode& drawMode,
+           const bool ignoreMissingSystematics = false)
 {
     // Set up scale factors
     const bool dyCorrection = std::find(v_globalCorrection.begin(), v_globalCorrection.end(), GlobalCorrection::dy) != v_globalCorrection.end();
@@ -42,7 +43,7 @@ void Histo(const std::vector<std::string>& v_plot,
     const GlobalScaleFactors* globalScaleFactors = new GlobalScaleFactors(v_channel, v_systematic, Luminosity, dyCorrection, ttbbCorrection);
     
     // Access all samples
-    const Samples samples("FileLists_plot", v_channel, v_systematic, globalScaleFactors);
+    const Samples samples("FileLists_plot", v_channel, v_systematic, globalScaleFactors, ignoreMissingSystematics);
     
     // Produce event yields
     const EventYields eventYields("EventYields", samples);
@@ -110,7 +111,7 @@ namespace Systematic{
         btagDiscrBstat1, btagDiscrBstat2,
         btagDiscrLstat1, btagDiscrLstat2,
         btagDiscrCerr1, btagDiscrCerr2,
-        kin,
+        kin
     };
 }
 
@@ -147,10 +148,12 @@ int main(int argc, char** argv){
     std::cout << "\n\n";
     
     // Set up systematics
+    bool ignoreMissingSystematics = false;
     std::vector<Systematic::Systematic> v_systematic = Systematic::allowedSystematicsAnalysis(Systematic::allowedSystematics);
     if(opt_systematic.isSet() && opt_systematic[0]!=Systematic::convertType(Systematic::all)) v_systematic = Systematic::setSystematics(opt_systematic.getArguments());
     else if(opt_systematic.isSet() && opt_systematic[0]==Systematic::convertType(Systematic::all)); // do nothing
-    else{v_systematic.clear(); v_systematic.push_back(Systematic::nominalSystematic());}
+    else if(opt_systematic.isSet() && opt_systematic[0]=="allAvailable") {ignoreMissingSystematics = true;} // do nothing
+    else {v_systematic.clear(); v_systematic.push_back(Systematic::nominalSystematic());}
     std::cout << "Processing systematics (use >>-s all<< to process all known systematics): "; 
     for(auto systematic : v_systematic) std::cout << systematic.name() << " ";
     std::cout << "\n\n";
@@ -172,7 +175,7 @@ int main(int argc, char** argv){
     std::cout << "\n\n";
     
     // Start analysis
-    Histo(v_plot, v_channel, v_systematic, v_globalCorrection, drawMode);
+    Histo(v_plot, v_channel, v_systematic, v_globalCorrection, drawMode, ignoreMissingSystematics);
 }
 
 

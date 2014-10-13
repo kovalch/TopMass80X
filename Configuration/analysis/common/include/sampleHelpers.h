@@ -300,7 +300,8 @@ namespace common{
     std::vector<TString> readFilelist(const TString& filelistDirectory,
                                       const Channel::Channel& channel,
                                       const Systematic::Systematic& systematic,
-                                      const std::vector<TString>& v_pattern =std::vector<TString>());
+                                      const std::vector<TString>& v_pattern =std::vector<TString>(),
+                                      const bool ignoreMissingSystematics = false);
 }
 
 

@@ -550,7 +550,8 @@ Channel::Channel common::finalState(const TString& filename)
 std::vector<TString> common::readFilelist(const TString& filelistDirectory,
                                           const Channel::Channel& channel,
                                           const Systematic::Systematic& systematic,
-                                          const std::vector<TString>& v_pattern)
+                                          const std::vector<TString>& v_pattern,
+                                          const bool ignoreMissingSystematics)
 {
     
     // Access fileList containing list of input root files
@@ -558,6 +559,9 @@ std::vector<TString> common::readFilelist(const TString& filelistDirectory,
     std::cout<<"Reading file: "<<filelistName<<std::endl;
     ifstream fileList(filelistName);
     if(fileList.fail()){
+        // Returning an empty vector if missing systematics are not critical
+        if(ignoreMissingSystematics) return std::vector<TString>(0);
+        
         std::cerr<<"Error in common::readFilelist! Cannot find file with name: "
                  <<filelistName<<"\n...break\n"<<std::endl;
         exit(1);

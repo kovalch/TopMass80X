@@ -18,7 +18,8 @@
 
 
 Samples::Samples():
-globalScaleFactors_(0)
+globalScaleFactors_(0),
+ignoreMissingSystematics_(false)
 {}
 
 
@@ -26,8 +27,10 @@ globalScaleFactors_(0)
 Samples::Samples(const TString& filelistDirectory,
                  const std::vector<Channel::Channel>& v_channel,
                  const std::vector<Systematic::Systematic>& v_systematic,
-                 const GlobalScaleFactors* globalScaleFactors):
-globalScaleFactors_(globalScaleFactors)
+                 const GlobalScaleFactors* globalScaleFactors,
+                 const bool ignoreMissingSystematics):
+globalScaleFactors_(globalScaleFactors),
+ignoreMissingSystematics_(ignoreMissingSystematics)
 {
     std::cout<<"--- Beginning to set up the samples\n\n";
     
@@ -98,7 +101,7 @@ void Samples::addSamples(const TString& filelistDirectory,
                          const Systematic::Systematic& systematic)
 {
     // Read the full input filenames from the FileList
-    const auto& v_filename = common::readFilelist(filelistDirectory, channel, systematic);
+    const auto& v_filename = common::readFilelist(filelistDirectory, channel, systematic, std::vector<TString>(), ignoreMissingSystematics_);
     
     // Add all samples as they are defined
     std::vector<std::pair<TString, Sample> > v_filenameSamplePair =

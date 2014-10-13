@@ -34,7 +34,8 @@ constexpr double Luminosity = 19712.;
 
 void HistoSystematic(const std::vector<std::string>& v_plot, 
                      const std::vector<Channel::Channel>& v_channel,
-                     const std::vector<Systematic::Systematic>& v_systematic)
+                     const std::vector<Systematic::Systematic>& v_systematic,
+                     const bool ignoreMissingSystematics)
 {
     // Set up systematic variations
     std::vector<Systematic::Variation> v_variation;
@@ -55,8 +56,10 @@ void HistoSystematic(const std::vector<std::string>& v_plot,
                 const TString inputFileListName = fileList_base+"/"+"HistoFileList_"+name_systematic+name_variation+"_"+name_channel+".txt";
                 std::ifstream file(inputFileListName.Data());
                 if(!file) {
-                    std::cerr << "### File list not found: " << inputFileListName << " Skipping...\n\n";
-                    continue;
+                    if(ignoreMissingSystematics) continue;
+                    
+                    std::cerr << "### File list not found: " << inputFileListName << " Breaking...\n\n";
+                    exit(1);
                 }
                 // Reading each line of the file corresponding to a separate histogram
                 std::string line_;
@@ -170,17 +173,19 @@ int main(int argc, char** argv){
     std::cout << "\n\n";
     
     // Set up systematics
+    bool ignoreMissingSystematics = false;
     std::vector<Systematic::Systematic> v_systematic = Systematic::allowedSystematicsAnalysis(Systematic::allowedSystematics);
-    if(opt_systematic.isSet() && opt_systematic[0]!=Systematic::convertType(Systematic::all)) v_systematic = Systematic::setSystematics(opt_systematic.getArguments());
+    if(opt_systematic.isSet() && opt_systematic[0]=="allAvailable") {ignoreMissingSystematics = true;} // do nothing
+    else if(opt_systematic.isSet() && opt_systematic[0]!=Systematic::convertType(Systematic::all)) v_systematic = Systematic::setSystematics(opt_systematic.getArguments());
     else if(opt_systematic.isSet() && opt_systematic[0]==Systematic::convertType(Systematic::all)); // do nothing
-    else{v_systematic.clear(); v_systematic.push_back(Systematic::nominalSystematic());}
+    else {v_systematic.clear(); v_systematic.push_back(Systematic::nominalSystematic());}
     std::cout << "Processing systematics (use >>-s all<< to process all known systematics): "; 
     for(auto systematic : v_systematic) std::cout << systematic.name() << " ";
     std::cout << "\n\n";
     
     
     // Start analysis
-    HistoSystematic(v_plot, v_channel, v_systematic);
+    HistoSystematic(v_plot, v_channel, v_systematic, ignoreMissingSystematics);
 }
 
 
