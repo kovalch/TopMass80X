@@ -40,8 +40,10 @@ void Histo(const std::vector<std::string>& v_plot,
     // Set up scale factors
     const bool dyCorrection = std::find(v_globalCorrection.begin(), v_globalCorrection.end(), GlobalCorrection::dy) != v_globalCorrection.end();
     const bool ttbbCorrection = std::find(v_globalCorrection.begin(), v_globalCorrection.end(), GlobalCorrection::ttbb) != v_globalCorrection.end();
-    const GlobalScaleFactors* globalScaleFactors = new GlobalScaleFactors(v_channel, v_systematic, Luminosity, dyCorrection, ttbbCorrection);
+    const GlobalScaleFactors* globalScaleFactors = new GlobalScaleFactors(v_channel, v_systematic, Luminosity, dyCorrection, 
+                                                                          ttbbCorrection, ignoreMissingSystematics);
     
+    std::cout << "\n\nIgnore: " << ignoreMissingSystematics << std::endl;
     // Access all samples
     const Samples samples("FileLists_plot", v_channel, v_systematic, globalScaleFactors, ignoreMissingSystematics);
     
@@ -150,9 +152,9 @@ int main(int argc, char** argv){
     // Set up systematics
     bool ignoreMissingSystematics = false;
     std::vector<Systematic::Systematic> v_systematic = Systematic::allowedSystematicsAnalysis(Systematic::allowedSystematics);
-    if(opt_systematic.isSet() && opt_systematic[0]!=Systematic::convertType(Systematic::all)) v_systematic = Systematic::setSystematics(opt_systematic.getArguments());
+    if(opt_systematic.isSet() && opt_systematic[0]=="allAvailable") {ignoreMissingSystematics = true;} // do nothing
+    else if(opt_systematic.isSet() && opt_systematic[0]!=Systematic::convertType(Systematic::all)) v_systematic = Systematic::setSystematics(opt_systematic.getArguments());
     else if(opt_systematic.isSet() && opt_systematic[0]==Systematic::convertType(Systematic::all)); // do nothing
-    else if(opt_systematic.isSet() && opt_systematic[0]=="allAvailable") {ignoreMissingSystematics = true;} // do nothing
     else {v_systematic.clear(); v_systematic.push_back(Systematic::nominalSystematic());}
     std::cout << "Processing systematics (use >>-s all<< to process all known systematics): "; 
     for(auto systematic : v_systematic) std::cout << systematic.name() << " ";

@@ -27,7 +27,8 @@ public:
                        const std::vector<Systematic::Systematic>& v_systematic,
                        const double& luminosityInInversePb =1.,
                        const bool dyCorrection =false,
-                       const bool hfFracCorrection =false);
+                       const bool hfFracCorrection =false,
+                       const bool ignoreMissingSystematics =false);
     
     /// Destructor
     ~GlobalScaleFactors(){}

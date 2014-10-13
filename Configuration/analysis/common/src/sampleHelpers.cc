@@ -560,7 +560,10 @@ std::vector<TString> common::readFilelist(const TString& filelistDirectory,
     ifstream fileList(filelistName);
     if(fileList.fail()){
         // Returning an empty vector if missing systematics are not critical
-        if(ignoreMissingSystematics) return std::vector<TString>(0);
+        if(ignoreMissingSystematics) {
+            std::cerr<<"    Filelist not found: " << filelistName<<"  SKIPPING...\n\n";
+            return std::vector<TString>(0);
+        }
         
         std::cerr<<"Error in common::readFilelist! Cannot find file with name: "
                  <<filelistName<<"\n...break\n"<<std::endl;

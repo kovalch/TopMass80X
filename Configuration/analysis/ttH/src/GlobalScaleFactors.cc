@@ -28,7 +28,8 @@ GlobalScaleFactors::GlobalScaleFactors(const std::vector<Channel::Channel>& v_ch
                                        const std::vector<Systematic::Systematic>& v_systematic,
                                        const double& luminosityInInversePb,
                                        const bool dyCorrection,
-                                       const bool hfFracCorrection):
+                                       const bool hfFracCorrection,
+                                       const bool ignoreMissingSystematics):
 luminosityInInversePb_(luminosityInInversePb),
 luminosityScaleFactors_(0),
 dyScaleFactors_(0),
@@ -45,7 +46,7 @@ rootFileReader_(RootFileReader::getInstance())
         if(std::find(v_channel.begin(), v_channel.end(), Channel::emu) == v_channel.end()) v_channelForCorrections.push_back(Channel::emu);
         if(std::find(v_channel.begin(), v_channel.end(), Channel::mumu) == v_channel.end()) v_channelForCorrections.push_back(Channel::mumu);
     }
-    Samples scalingSamples("FileLists_plot", v_channelForCorrections, v_systematic, 0);
+    Samples scalingSamples("FileLists_plot", v_channelForCorrections, v_systematic, 0, ignoreMissingSystematics);
     
     // Produce luminosity scale factors
     luminosityScaleFactors_ = new LuminosityScaleFactors(scalingSamples, luminosityInInversePb_, rootFileReader_);
