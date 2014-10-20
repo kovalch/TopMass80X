@@ -13,8 +13,6 @@
 #include "analysisStructs.h"
 #include "JetCategories.h"
 #include "higgsUtils.h"
-#include "MvaReaderTopJets.h"
-#include "MvaVariablesTopJets.h"
 #include "../../common/include/analysisObjectStructs.h"
 #include "../../common/include/analysisUtils.h"
 #include "../../common/include/classes.h"

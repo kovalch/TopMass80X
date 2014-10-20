@@ -943,11 +943,11 @@ void AnalysisBase::GetRecoBranchesEntry(const Long64_t& entry)const
 //     if(b_jetSelectedTrackIPSignificance) b_jetSelectedTrackIPSignificance->GetEntry(entry);
 //     if(b_jetSelectedTrackCharge) b_jetSelectedTrackCharge->GetEntry(entry);
 //     if(b_jetSelectedTrackIndex) b_jetSelectedTrackIndex->GetEntry(entry);
-    if(b_jetSecondaryVertex) b_jetSecondaryVertex->GetEntry(entry);
+//     if(b_jetSecondaryVertex) b_jetSecondaryVertex->GetEntry(entry);
 //     if(b_jetSecondaryVertexPtCorrectedMass) b_jetSecondaryVertexPtCorrectedMass->GetEntry(entry);
-    if(b_jetSecondaryVertexJetIndex) b_jetSecondaryVertexJetIndex->GetEntry(entry);
-    if(b_jetSecondaryVertexFlightDistanceValue) b_jetSecondaryVertexFlightDistanceValue->GetEntry(entry);
-    if(b_jetSecondaryVertexFlightDistanceSignificance) b_jetSecondaryVertexFlightDistanceSignificance->GetEntry(entry);
+//     if(b_jetSecondaryVertexJetIndex) b_jetSecondaryVertexJetIndex->GetEntry(entry);
+//     if(b_jetSecondaryVertexFlightDistanceValue) b_jetSecondaryVertexFlightDistanceValue->GetEntry(entry);
+//     if(b_jetSecondaryVertexFlightDistanceSignificance) b_jetSecondaryVertexFlightDistanceSignificance->GetEntry(entry);
 //     if(b_jetSecondaryVertexTrackVertexIndex) b_jetSecondaryVertexTrackVertexIndex->GetEntry(entry);
 //     if(b_jetSecondaryVertexTrackMatchToSelectedTrackIndex) b_jetSecondaryVertexTrackMatchToSelectedTrackIndex->GetEntry(entry);
     b_met->GetEntry(entry);

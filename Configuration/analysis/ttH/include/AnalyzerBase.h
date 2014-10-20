@@ -25,9 +25,6 @@ namespace tth{
     class RecoObjectIndices;
 }
 
-class MvaTopJetsVariables;
-class MvaReaderBase;
-
 
 /// Base class for histograms for analysis, useful to handle same set of histograms for different selection steps
 class AnalyzerBase{
