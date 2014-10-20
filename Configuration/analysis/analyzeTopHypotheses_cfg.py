@@ -169,7 +169,7 @@ if not data:
     from TopAnalysis.TopUtils.JetEnergyScale_cff import *
 
     scaledJetEnergy.scaleType    = options.scaleType
-    scaledJetEnergy.JECUncSrcFile= "TopAnalysis/TopUtils/data/Winter14_V7_DATA_UncertaintySources_AK5PFchs.txt"
+    scaledJetEnergy.JECUncSrcFile= "TopAnalysis/TopUtils/data/Winter14_V5_DATA_UncertaintySources_AK5PFchs.txt"
     scaledJetEnergy.sourceName   = options.jessource
     scaledJetEnergy.flavor       = options.flavor
     scaledJetEnergy.scaleFactor  = options.lJesFactor
