@@ -1,6 +1,6 @@
 #!/bin/env python
 
-
+# Problems with edmFileUtil from CMSSW 53X, works with CMSSW_6_2_0_pre2
 
 import fileinput,os,subprocess,sys
 
@@ -9,9 +9,9 @@ import fileinput,os,subprocess,sys
 class config:
   dcache_desy   = "" #"dcap://dcache-cms-dcap.desy.de"
   dcache_prefix = "/pnfs/desy.de/cms/tier2"
-#  dcache_cms    = "/store/user/mseidel"
+  dcache_cms    = "/store/user/mseidel"
 #  dcache_cms    = "/store/user/eschliec/Skim_03_Data01"
-  dcache_cms    = "/store/user/eschliec/Skim_03_MC03"
+#  dcache_cms    = "/store/user/eschliec/Skim_03_MC03"
   L_samples     = [
                    ##'TT_cluster_8TeV-sherpa',
                    ##'TT_lund_8TeV-sherpa'
@@ -21,7 +21,10 @@ class config:
                    #'Skim_MJP12D1_v1_data',
                    #'Skim_MJP12D2_v1_data',
                    #'Skim_MJP12D3_v1_data',
-                   'Skim_Z2_S12_MadSpin_sig',
+                   #'Skim_Z2_S12_MadSpin_sig',
+                   'TTJets_MSDecays_TuneZ2star_parj81_0.145_8TeV-madgraph',
+                   'TTJets_MSDecays_TuneZ2star_parj81_0.290_8TeV-madgraph',
+                   'TTJets_MSDecays_TuneZ2star_parj81_0.580_8TeV-madgraph',
                   ]
   dataset_file  = "datasets.dbs"
   list_file     = "tmp_files.txt"
@@ -107,7 +110,7 @@ def createDatasetFile(sample):
 
 def main():
 
-  initialise() 
+  #initialise() 
   for sample in config.L_samples:
     cleanUp()
     createDatasetFile(sample)

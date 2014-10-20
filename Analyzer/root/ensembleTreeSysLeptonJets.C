@@ -346,7 +346,7 @@ void ensembleTreeSysLeptonJets(TString sPath = globalPath)
       it->second.mass1dShiftUnc  = max(sqrt(pow(nominal.mass1dUnc,2)+pow(up.mass1dUnc,2)),sqrt(pow(nominal.mass1dUnc,2)+pow(down.mass1dUnc,2)));
     }
     
-    printf(" & %.2lf$\\pm$%.2lf & %.3lf$\\pm$%.3lf & %.2lf$\\pm$%.2lf \\tabularnewline\n", it->second.massShift, it->second.massShiftUnc, it->second.jesShift, it->second.jesShiftUnc, it->second.mass1dShift, it->second.mass1dShiftUnc);
+    printf(" & %.3lf$\\pm$%.3lf & %.3lf$\\pm$%.3lf & %.2lf$\\pm$%.2lf \\tabularnewline\n", it->second.massShift, it->second.massShiftUnc, it->second.jesShift, it->second.jesShiftUnc, it->second.mass1dShift, it->second.mass1dShiftUnc);
     
     if (upDown) {
       if (!it->second.active) std::cout << "(cc) ";
@@ -367,7 +367,7 @@ void ensembleTreeSysLeptonJets(TString sPath = globalPath)
   }
   
   std::cout << "\n### Total uncertainties" << std::endl;
-  printf("\t 2D mass = %.2lf GeV, JSF = %.3lf, 1D mass = %.2lf GeV\n", sqrt(totalMassUncertainty2), sqrt(totalJESUncertainty2-pow(0.0138, 2)), sqrt(totalMass1dUncertainty2));
+  printf("\t 2D mass = %.3lf GeV, JSF = %.3lf, 1D mass = %.2lf GeV\n", sqrt(totalMassUncertainty2), sqrt(totalJESUncertainty2-pow(0.0138, 2)), sqrt(totalMass1dUncertainty2));
   
   for(std::map<std::string, mergedcomparison>::iterator it = mergedcomparisons.begin(); it != mergedcomparisons.end(); it++) {
     std::cout << it->first;

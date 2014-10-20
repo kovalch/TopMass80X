@@ -24,6 +24,7 @@ options.register('nbjets', 2, VarParsing.VarParsing.multiplicity.singleton,VarPa
 
 options.register('brCorrection', True, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.bool, "Do BR correction (MadGraph)")
 options.register('bSFNewRecipe', True, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.bool, "Use new b-tag SF recipe")
+options.register('phys', False, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.bool, "Use phys algo for JetFlavourIdentifier")
 
 # define the syntax for parsing
 # you need to enter in the cfg file:
@@ -72,7 +73,17 @@ if (options.mcversion == "Fall11"):
   ] )
 elif (options.mcversion == "Summer12"):
   readFiles.extend( [
-         '/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/20003/0094CB21-174B-E311-B3C8-7845C4FC3A7F.root'
+         '/store/user/mseidel/TTJets_MSDecays_TuneZ2star_parj81_0.145_8TeV-madgraph/job_1275_TTJets_FSIM.root',
+         '/store/user/mseidel/TTJets_MSDecays_TuneZ2star_parj81_0.145_8TeV-madgraph/job_1282_TTJets_FSIM.root',
+         '/store/user/mseidel/TTJets_MSDecays_TuneZ2star_parj81_0.145_8TeV-madgraph/job_1290_TTJets_FSIM.root',
+         '/store/user/mseidel/TTJets_MSDecays_TuneZ2star_parj81_0.145_8TeV-madgraph/job_1005_TTJets_FSIM.root',
+         '/store/user/mseidel/TTJets_MSDecays_TuneZ2star_parj81_0.145_8TeV-madgraph/job_1328_TTJets_FSIM.root',
+         '/store/user/mseidel/TTJets_MSDecays_TuneZ2star_parj81_0.145_8TeV-madgraph/job_1325_TTJets_FSIM.root',
+         '/store/user/mseidel/TTJets_MSDecays_TuneZ2star_parj81_0.145_8TeV-madgraph/job_1316_TTJets_FSIM.root',
+         '/store/user/mseidel/TTJets_MSDecays_TuneZ2star_parj81_0.145_8TeV-madgraph/job_1356_TTJets_FSIM.root',
+         '/store/user/mseidel/TTJets_MSDecays_TuneZ2star_parj81_0.145_8TeV-madgraph/job_1368_TTJets_FSIM.root',
+         '/store/user/mseidel/TTJets_MSDecays_TuneZ2star_parj81_0.145_8TeV-madgraph/job_1322_TTJets_FSIM.root',
+         #'/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/20003/0094CB21-174B-E311-B3C8-7845C4FC3A7F.root'
   ] )
 elif (options.mcversion == "Summer12W0Jets"):
   readFiles.extend( [
@@ -143,6 +154,7 @@ if (options.mcversion == 'Summer12W0Jets'):
 
 ## std sequence for pat
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
+process.patJetFlavourAssociation.physicsDefinition = options.phys
 
 process.load("TopAnalysis.TopFilter.sequences.semiLeptonicSelection_cff")
 
@@ -157,7 +169,7 @@ if not data:
     from TopAnalysis.TopUtils.JetEnergyScale_cff import *
 
     scaledJetEnergy.scaleType    = options.scaleType
-    scaledJetEnergy.JECUncSrcFile= "TopAnalysis/TopUtils/data/Summer13_V5_DATA_UncertaintySources_AK5PFchs.txt"
+    scaledJetEnergy.JECUncSrcFile= "TopAnalysis/TopUtils/data/Winter14_V7_DATA_UncertaintySources_AK5PFchs.txt"
     scaledJetEnergy.sourceName   = options.jessource
     scaledJetEnergy.flavor       = options.flavor
     scaledJetEnergy.scaleFactor  = options.lJesFactor
@@ -549,11 +561,11 @@ PFoptions = {
         'addMETSignificance': False,
         }
 if data:
-    PFoptions['JECEra' ] = 'Winter14_V2_DATA'
-    PFoptions['JECFile'] = '../data/Winter14_DATA_V2PT.db'
+    PFoptions['JECEra' ] = 'Winter14_V3_DATA'
+    PFoptions['JECFile'] = '../data/Winter14_V3_DATA.db'
     if os.getenv('GC_CONF'):
         print "Running with GC, resetting address of JECFile!"
-        PFoptions['JECFile'] = '../src/TopMass/Configuration/data/Winter14_DATA_V2PT.db'
+        PFoptions['JECFile'] = '../src/TopMass/Configuration/data/Winter14_V3_DATA.db'
 
 if options.mcversion == "Summer12RD":
     PFoptions['JECEra' ] = 'Winter14_V1_MC'
