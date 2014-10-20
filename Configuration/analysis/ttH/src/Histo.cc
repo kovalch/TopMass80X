@@ -111,7 +111,7 @@ namespace Systematic{
         btagLjetPt, btagLjetEta,
         btagDiscrBstat1, btagDiscrBstat2,
         btagDiscrLstat1, btagDiscrLstat2,
-        btagDiscrCerr1, btagDiscrCerr2,
+        btagDiscrPurity,
         kin
     };
 }

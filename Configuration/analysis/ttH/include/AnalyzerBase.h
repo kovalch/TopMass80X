@@ -25,6 +25,8 @@ namespace tth{
     class RecoObjectIndices;
 }
 
+class MvaTopJetsVariables;
+class MvaReaderBase;
 
 
 /// Base class for histograms for analysis, useful to handle same set of histograms for different selection steps
@@ -209,7 +211,9 @@ class AnalyzerHfFracScaling : public AnalyzerBase{
 public:
 
     /// Constructor
-    AnalyzerHfFracScaling(const std::vector<TString>& selectionSteps);
+    AnalyzerHfFracScaling(const std::vector<TString>& selectionSteps, 
+                          const std::vector<TString>& stepsForCategories,
+                          const JetCategories* jetCategories);
 
     /// Destructor
     ~AnalyzerHfFracScaling(){}
@@ -230,8 +234,8 @@ private:
                             const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
                             const double& weight, const TString& step,
                             std::map<TString, TH1*>& m_histogram);
-};
 
+};
 
 
 

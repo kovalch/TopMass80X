@@ -42,8 +42,7 @@ Systematic::Type Systematic::convertType(const TString& type)
     if(type.BeginsWith("BTAGDISCR_BSTAT2")) return btagDiscrBstat2;
     if(type.BeginsWith("BTAGDISCR_LSTAT1")) return btagDiscrLstat1;
     if(type.BeginsWith("BTAGDISCR_LSTAT2")) return btagDiscrLstat2;
-    if(type.BeginsWith("BTAGDISCR_CERR1")) return btagDiscrCerr1;
-    if(type.BeginsWith("BTAGDISCR_CERR2")) return btagDiscrCerr2;
+    if(type.BeginsWith("BTAGDISCR_PURITY")) return btagDiscrPurity;
     if(type.BeginsWith("BTAG_LJET_PT")) return btagLjetPt;
     if(type.BeginsWith("BTAG_LJET_ETA")) return btagLjetEta;
     if(type.BeginsWith("BTAG_LJET")) return btagLjet;
@@ -94,8 +93,7 @@ TString Systematic::convertType(const Type& type)
     if(type == btagDiscrBstat2) return "BTAGDISCR_BSTAT2";
     if(type == btagDiscrLstat1) return "BTAGDISCR_LSTAT1";
     if(type == btagDiscrLstat2) return "BTAGDISCR_LSTAT2";
-    if(type == btagDiscrCerr1) return "BTAGDISCR_CERR1";
-    if(type == btagDiscrCerr2) return "BTAGDISCR_CERR2";
+    if(type == btagDiscrPurity) return "BTAGDISCR_PURITY";
     if(type == btagLjetPt) return "BTAG_LJET_PT";
     if(type == btagLjetEta) return "BTAG_LJET_ETA";
     if(type == btagLjet) return "BTAG_LJET";

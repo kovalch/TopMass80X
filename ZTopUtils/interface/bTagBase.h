@@ -80,26 +80,25 @@ public:
      */
     enum systematics {
         nominal,
+        
+        // shape uncertainties for norm. diff measurements
         heavyup, heavydown,
         lightup, lightdown,
-        //shape uncertainties for norm. diff measurements
         heavyuppt, heavydownpt,
         heavyupeta, heavydowneta,
         lightuppt, lightdownpt,
         lightupeta, lightdowneta,
-        //uncertainties on the discriminator shape reweighting
 
+        // uncertainties on the discriminator shape reweighting
+        // https://twiki.cern.ch/twiki/bin/viewauth/CMS/BTagShapeCalibration#Example_code
         jesup,jesdown,  //yes correlated to "standard jes"
-        //   heavyup, heavydown, //these are just the same names
-        //   lightup, lightdown,
+        purityup,puritydown,
         hfstat1up,hfstat1down,
         hfstat2up,hfstat2down,
         lfstat1up,lfstat1down,
         lfstat2up,lfstat2down,
-        cerr1up,cerr1down,
-        cerr2up,cerr2down,
 
-        //leave this as last entry
+        // leave this as last entry
         length_syst
     };
 

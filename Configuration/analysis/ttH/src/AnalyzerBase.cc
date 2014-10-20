@@ -13,6 +13,8 @@
 #include "analysisStructs.h"
 #include "JetCategories.h"
 #include "higgsUtils.h"
+#include "MvaReaderTopJets.h"
+#include "MvaVariablesTopJets.h"
 #include "../../common/include/analysisObjectStructs.h"
 #include "../../common/include/analysisUtils.h"
 #include "../../common/include/classes.h"
@@ -358,10 +360,13 @@ void AnalyzerDyScaling::fillHistos(const EventMetadata&,
 
 
 
-AnalyzerHfFracScaling::AnalyzerHfFracScaling(const std::vector<TString>& selectionSteps):
-AnalyzerBase("hfFracScaling_", selectionSteps)
+AnalyzerHfFracScaling::AnalyzerHfFracScaling(const std::vector<TString>& selectionSteps,
+                                             const std::vector<TString>& stepsForCategories,
+                                             const JetCategories* jetCategories):
+AnalyzerBase("hfFracScaling_", selectionSteps, stepsForCategories, jetCategories)
 {
     std::cout<<"--- Beginning setting up Heavy-Flavour Fraction scaling histograms\n";
+    
     std::cout<<"=== Finishing setting up Heavy-Flavour Fraction scaling histograms\n\n";
 }
 
@@ -370,15 +375,19 @@ AnalyzerBase("hfFracScaling_", selectionSteps)
 void AnalyzerHfFracScaling::bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram)
 {
     TString name = "btag_multiplicity";
-    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "B-tagged jet multiplicity; N b-tags; events",5,0,5));
-    name = "btag_discriminatorSum";
-    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Sum of b-tag discriminants; Sum of b-tags; # events",30,0.,15.));
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "B-tagged jet multiplicity; N b-tags; events",6,0,6));
+    name = "secondaryVertex_multiplicityPerBjet";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "SV multiplicity in each b-tagged jet; N secondary vertices; # b-tagged jets",6,0.,6.));
+    name = "secondaryVertex_massPerBjet";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Sum of SV masses in each b-tagged jet; SV masses sum; # b-tagged jets",20,0.,10.));
+    name = "secondaryVertex_massMcCorrectedPerBjet";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Sum of SV masses in each b-tagged jet; SV masses sum; # b-tagged jets",20,0.,10.));
 }
 
 
 
 void AnalyzerHfFracScaling::fillHistos(const EventMetadata&,
-                                       const RecoObjects& recoObjects, const CommonGenObjects&,
+                                       const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                                        const TopGenObjects&, const HiggsGenObjects&,
                                        const KinematicReconstructionSolutions&,
                                        const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices&,
@@ -386,16 +395,30 @@ void AnalyzerHfFracScaling::fillHistos(const EventMetadata&,
                                        const double& weight, const TString&,
                                        std::map<TString, TH1*>& m_histogram)
 {
-    const std::vector<int>& jetIndices = recoObjectIndices.jetIndices_;
+    const std::vector<int>& bJetIndices = recoObjectIndices.bjetIndices_;
     // Merging all bins above 4 into a single bin (low statistics)
-    int nBJets = std::min((int)recoObjectIndices.bjetIndices_.size(), 4);
-    const std::vector<double>& jetsBtagDiscriminant = *recoObjects.jetBTagCSV_;
-    double bTag_sum = 0.;
-    for(size_t jetId = 0; jetId < jetIndices.size(); ++jetId) {
-        bTag_sum += jetsBtagDiscriminant.at(jetId);
-    }
+    int nBJets = recoObjectIndices.bjetIndices_.size();
     m_histogram.at("btag_multiplicity")->Fill(nBJets, weight);
-    m_histogram.at("btag_discriminatorSum")->Fill(bTag_sum, weight);
+    
+    // Checking whether the sample is data or MC 
+    double svMass_scale = commonGenObjects.valuesSet_ ? 0.98 : 1.0;
+    // Getting info about secondary vertices
+    const std::vector<int>&  jetSecondaryVertexJetIndex = (recoObjects.valuesSet_) ? *recoObjects.jetSecondaryVertexJetIndex_ : std::vector<int>(0);
+    const std::vector<LV>&  jetSecondaryVertex = (recoObjects.valuesSet_) ? *recoObjects.jetSecondaryVertex_ : std::vector<LV>(0);
+
+    // Filling secondary vertex related properties for each b-tagged jet
+    for(int bJetId : bJetIndices) {
+        int nSV_bjet = 0;
+        double massSV_bjet = 0.;
+        for(size_t svId = 0; svId < jetSecondaryVertex.size(); ++svId) {
+            if(jetSecondaryVertexJetIndex.at(svId) != bJetId) continue;
+            massSV_bjet+=jetSecondaryVertex.at(svId).M();
+            nSV_bjet++;
+        }
+        m_histogram.at("secondaryVertex_multiplicityPerBjet")->Fill(nSV_bjet, weight);
+        m_histogram.at("secondaryVertex_massPerBjet")->Fill(massSV_bjet, weight);
+        m_histogram.at("secondaryVertex_massMcCorrectedPerBjet")->Fill(massSV_bjet*svMass_scale, weight);
+    }
 }
 
 

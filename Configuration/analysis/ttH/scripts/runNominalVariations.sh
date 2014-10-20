@@ -13,22 +13,28 @@ source $(dirname `readlink -f $0`)/parallelTools.sh
 
 systematics=(
     Nominal
-    PU_UP PU_DOWN
-    TRIG_UP TRIG_DOWN
-    LEPT_UP LEPT_DOWN
-    JER_UP JER_DOWN
     JES_UP JES_DOWN
-    BTAG_UP BTAG_DOWN
-    BTAG_LJET_UP BTAG_LJET_DOWN
+    BTAGDISCR_PURITY_UP BTAGDISCR_PURITY_DOWN
     BTAGDISCR_BSTAT1_UP BTAGDISCR_BSTAT1_DOWN
     BTAGDISCR_BSTAT2_UP BTAGDISCR_BSTAT2_DOWN
     BTAGDISCR_LSTAT1_UP BTAGDISCR_LSTAT1_DOWN
     BTAGDISCR_LSTAT2_UP BTAGDISCR_LSTAT2_DOWN
-    BTAGDISCR_CERR1_UP BTAGDISCR_CERR1_DOWN
-    BTAGDISCR_CERR2_UP BTAGDISCR_CERR2_DOWN
+    PU_UP PU_DOWN
+    TRIG_UP TRIG_DOWN
+    LEPT_UP LEPT_DOWN
+    JER_UP JER_DOWN
     KIN_UP KIN_DOWN
     TOP_PT_UP TOP_PT_DOWN
 )
+
+for channel in ee emu mumu; do
+    w
+    $LA -f ${c}_run2012A -c $channel $@ &
+    $LA -f ${c}_run2012B -c $channel $@ &
+    $LA -f ${c}_run2012C -c $channel $@ &
+    $LA -f ${c}_run2012D -c $channel $@ &
+done
+
 
 for systematic in "${systematics[@]}" ; do
     printf "\n\n\n\033[1;1mStart running on systematic: ${systematic}\033[1;m\n\n\n"
@@ -58,6 +64,7 @@ for systematic in "${systematics[@]}" ; do
         $LA -f dy1050 -p 2 -c $channel -s $systematic $@ &
     done
 
+
     for channel in ee emu mumu; do
         for pattern in qcd single ttbarbg.root wtol wwtoall wztoall zztoall ttbarW ttbarZ; do
             w
@@ -65,6 +72,7 @@ for systematic in "${systematics[@]}" ; do
         done
     done
 done
+
 
 wait
 

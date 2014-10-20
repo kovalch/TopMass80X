@@ -1054,8 +1054,8 @@ TString bTagBase::assoHFSysHistoName(systematics sys)const {
     switch(sys){
     case systematics::jesup:         return "final_JESUp" ;
     case systematics::jesdown:        return "final_JESDown" ;
-    case systematics::lightup:       return "final_LFUp" ;
-    case systematics::lightdown:     return "final_LFDown" ;
+    case systematics::purityup:       return "final_LFUp" ;
+    case systematics::puritydown:     return "final_LFDown" ;
     case systematics::hfstat1up:   return "final_Stats1Up" ;
     case systematics::hfstat1down: return "final_Stats1Down" ;
     case systematics::hfstat2up:   return "final_Stats2Up" ;
@@ -1068,10 +1068,10 @@ TString bTagBase::assoHFSysHistoName(systematics sys)const {
 }
 TString bTagBase::assoCSysHistoName(systematics sys)const{
     switch(sys){
-    case systematics::cerr1up:   return "final_cErr1Up" ;
-    case systematics::cerr1down: return "final_cErr1Down" ;
-    case systematics::cerr2up:   return "final_cErr2Up" ;
-    case systematics::cerr2down: return "final_cErr2Down" ;
+    case systematics::jesup:   return "final_cErr1Up" ;
+    case systematics::jesdown: return "final_cErr1Down" ;
+    case systematics::purityup:   return "final_cErr2Up" ;
+    case systematics::puritydown: return "final_cErr2Down" ;
 
 
     default :  return "final";
@@ -1082,8 +1082,8 @@ TString bTagBase::assoLFSysHistoName(systematics sys)const{
     switch(sys){
     case systematics::jesup:            return "final_JESUp" ;
     case systematics::jesdown:         return "final_JESDown" ;
-    case systematics::heavyup:         return "final_HFUp" ;
-    case systematics::heavydown:       return "final_HFDown" ;
+    case systematics::purityup:         return "final_HFUp" ;
+    case systematics::puritydown:       return "final_HFDown" ;
     case systematics::lfstat1up:    return "final_Stats1Up" ;
     case systematics::lfstat1down: return "final_Stats1Down" ;
     case systematics::lfstat2up:    return "final_Stats2Up" ;

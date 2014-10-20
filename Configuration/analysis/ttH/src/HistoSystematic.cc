@@ -130,8 +130,8 @@ void HistoSystematic(const std::vector<std::string>& v_plot,
 namespace Systematic{
     const std::vector<Type> allowedSystematics = {
         nominal, all,
-        pu, lept, trig,
-        jer, 
+//         pu, lept, trig,
+//         jer, 
         jes,
         btag, 
         btagPt, btagEta,
@@ -139,7 +139,7 @@ namespace Systematic{
         btagLjetPt, btagLjetEta,
         btagDiscrBstat1, btagDiscrBstat2,
         btagDiscrLstat1, btagDiscrLstat2,
-        btagDiscrCerr1, btagDiscrCerr2,
+        btagDiscrPurity,
         kin,
     };
 }
