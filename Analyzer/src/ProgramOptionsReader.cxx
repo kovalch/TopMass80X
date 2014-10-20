@@ -57,12 +57,18 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
           "  electron: \t\n"
           "  muon: \t\n"
           "  lepton: \telectron+muon\n"
-          "  alljets: \tallhadronic"
+          "  alljets: \talljets"
+          "  hamburg: \telectron+muon+alljets"
         )
         ("topBranchName", boost::program_options::value<std::string>()->default_value("top."),
           "Top branch name in eventTree\n"
           "  top: \t(default value)\n"
           "  bRegTop: \tchoose branch containing fit with b-regression applied\n"
+        )
+        ("topTreeName", boost::program_options::value<std::string>()->default_value("analyzeHitFit/eventTre"),
+          "Top tree name in file\n"
+          "  analyzeHitFit/eventTree: \tused for l+jets (default value)\n"
+          "  analyzeKinFit/eventTree: \tused for all-jets\n"
         )
         ("binning,b", boost::program_options::value<std::string>()->default_value("deltaThetaHadWHadB"),
           "Phasespace binning\n"
@@ -76,7 +82,11 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("jes,J", boost::program_options::value<double>()->default_value(1.0), "Input JES for pseudo-experiments")
         ("bdisc,B", boost::program_options::value<double>()->default_value(0.679), "Threshold for b-jets")
         ("fsig,f", boost::program_options::value<double>()->default_value(0.767995487), "Input signal fraction for pseudo-experiments")
+        ("fsigLept", boost::program_options::value<double>()->default_value(0.), "Input signal fraction for pseudo-experiments for LeptonJets channel")
+        ("fsigJets", boost::program_options::value<double>()->default_value(0.), "Input signal fraction for pseudo-experiments for AllJets channel")
         ("lumi,L", boost::program_options::value<double>()->default_value(0.0), "Luminosity for each pseudo-experiment")
+        ("lumiLept", boost::program_options::value<double>()->default_value(0.0), "Luminosity for each pseudo-experiment in Lepton+Jets")
+        ("lumiJets", boost::program_options::value<double>()->default_value(0.0), "Luminosity for each pseudo-experiment in Alljets")
         ("number,N", boost::program_options::value<int>()->default_value(10000), "Number of pseudo-experiments per job")
         ("walltime,W", boost::program_options::value<double>()->default_value(10), "set walltime limit for pseudo-experiments in minutes")
         ("shape,S", boost::program_options::value<double>()->default_value(0.0), "Background shape scaling factor for top distribution")
@@ -86,12 +96,17 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("preliminary,p", boost::program_options::value<int>()->default_value(1), "use \"Preliminary\" label for plots")
         ("cmsenergy,e", boost::program_options::value<int>()->default_value(7), "cms energy to be used (for example for plots)")
         ("pullWidth", boost::program_options::value<double>()->default_value(1.0), "pull width correction factor")
+        ("muo_pullWidth", boost::program_options::value<double>()->default_value(1.0), "pull width correction factor (mu+jets)")
         ("ele_pullWidth", boost::program_options::value<double>()->default_value(1.0), "pull width correction factor (e+jets)")
         ("analysisConfig.selection", boost::program_options::value<std::string>())
+        ("analysisConfig.selectionLept", boost::program_options::value<std::string>()->default_value(""))
+        ("analysisConfig.selectionJets", boost::program_options::value<std::string>()->default_value(""))
         ("analysisConfig.selectionCP", boost::program_options::value<std::string>())
         ("analysisConfig.selectionWP", boost::program_options::value<std::string>())
         ("analysisConfig.selectionUN", boost::program_options::value<std::string>())
         ("analysisConfig.samplePath", boost::program_options::value<std::string>())
+        ("analysisConfig.samplePathLept", boost::program_options::value<std::string>()->default_value(""))
+        ("analysisConfig.samplePathJets", boost::program_options::value<std::string>()->default_value(""))
         ("analysisConfig.var1", boost::program_options::value<std::string>())
         ("analysisConfig.var2", boost::program_options::value<std::string>())
         ("analysisConfig.var3", boost::program_options::value<std::string>())
@@ -109,6 +124,9 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("templates.fCP", boost::program_options::value<double>()->default_value(0.0))
         ("templates.fWP", boost::program_options::value<double>()->default_value(0.0))
         ("templates.fUN", boost::program_options::value<double>()->default_value(0.0))
+        ("templates.muo_fCP", boost::program_options::value<double>()->default_value(0.0))
+        ("templates.muo_fWP", boost::program_options::value<double>()->default_value(0.0))
+        ("templates.muo_fUN", boost::program_options::value<double>()->default_value(0.0))
         ("templates.ele_fCP", boost::program_options::value<double>()->default_value(0.0))
         ("templates.ele_fWP", boost::program_options::value<double>()->default_value(0.0))
         ("templates.ele_fUN", boost::program_options::value<double>()->default_value(0.0))
@@ -118,6 +136,12 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("templates.parsCPJES", boost::program_options::value<std::string>()->default_value(""))
         ("templates.parsWPJES", boost::program_options::value<std::string>()->default_value(""))
         ("templates.parsUNJES", boost::program_options::value<std::string>()->default_value(""))
+        ("templates.muo_parsCP", boost::program_options::value<std::string>()->default_value(""))
+        ("templates.muo_parsWP", boost::program_options::value<std::string>()->default_value(""))
+        ("templates.muo_parsUN", boost::program_options::value<std::string>()->default_value(""))
+        ("templates.muo_parsCPJES", boost::program_options::value<std::string>()->default_value(""))
+        ("templates.muo_parsWPJES", boost::program_options::value<std::string>()->default_value(""))
+        ("templates.muo_parsUNJES", boost::program_options::value<std::string>()->default_value(""))
         ("templates.ele_parsCP", boost::program_options::value<std::string>()->default_value(""))
         ("templates.ele_parsWP", boost::program_options::value<std::string>()->default_value(""))
         ("templates.ele_parsUN", boost::program_options::value<std::string>()->default_value(""))
@@ -134,6 +158,14 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("calibration.jesSlopeMass", boost::program_options::value<std::string>()->default_value("0.0"))
         ("calibration.jesSlopeJES", boost::program_options::value<std::string>()->default_value("0.0"))
         ("calibration.jesSlopeMassJES", boost::program_options::value<std::string>()->default_value("0.0"))
+        ("calibration.muo_massOffset", boost::program_options::value<std::string>()->default_value("0.0"))
+        ("calibration.muo_massSlopeMass", boost::program_options::value<std::string>()->default_value("0.0"))
+        ("calibration.muo_massSlopeJES", boost::program_options::value<std::string>()->default_value("0.0"))
+        ("calibration.muo_massSlopeMassJES", boost::program_options::value<std::string>()->default_value("0.0"))
+        ("calibration.muo_jesOffset", boost::program_options::value<std::string>()->default_value("0.0"))
+        ("calibration.muo_jesSlopeMass", boost::program_options::value<std::string>()->default_value("0.0"))
+        ("calibration.muo_jesSlopeJES", boost::program_options::value<std::string>()->default_value("0.0"))
+        ("calibration.muo_jesSlopeMassJES", boost::program_options::value<std::string>()->default_value("0.0"))
         ("calibration.ele_massOffset", boost::program_options::value<std::string>()->default_value("0.0"))
         ("calibration.ele_massSlopeMass", boost::program_options::value<std::string>()->default_value("0.0"))
         ("calibration.ele_massSlopeJES", boost::program_options::value<std::string>()->default_value("0.0"))
@@ -158,6 +190,10 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
     }
     else if (((length = 7) && !strncmp(channel.c_str(), "alljets", length))) {
       fileNameSnippet = "AllJets";
+      fileNameSnippet += channel.substr(length);
+    }
+    else if (((length = 7) && !strncmp(channel.c_str(), "hamburg", length))) {
+      fileNameSnippet = "Hamburg";
       fileNameSnippet += channel.substr(length);
     }
     else {
