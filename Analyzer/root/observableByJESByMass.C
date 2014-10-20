@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <math.h>
+#include <iostream>
+#include <fstream>
 
 #include "TFile.h"
 #include "TCanvas.h"
@@ -290,7 +292,7 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
     }
   }
   
-  if (!pas) {
+  if (!pas && !plotByMass) {
     TString pathByMass("../plot/template/"); pathByMass+= sFObs[obs]; pathByMass += "_bymass";
     pathByMass += "_"; pathByMass += sTarget[abs(target%8)];
     pathByMass += "_"; pathByMass += sLepton[lepton]; pathByMass += ".eps";
@@ -310,7 +312,7 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
     mg1->Add(gr1[i]);
   }
   
-  mg1->SetTitle("#mu;JES;#mu");
+  mg1->SetTitle("#mu;JSF;#mu");
   mg1->Draw("A*");
   
   cSetOfCurves->cd(2);
@@ -320,7 +322,7 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
     mg2->Add(gr2[i]);
   }
   
-  mg2->SetTitle("#sigma;JES;#sigma");
+  mg2->SetTitle("#sigma;JSF;#sigma");
   mg2->Draw("A*");
   
   cSetOfCurves->cd(3);
@@ -334,7 +336,7 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
   
   leg1->Draw();
   
-  if (!pas) {
+  if (!pas && !plotByMass) {
     TString pathByJES("../plot/template/"); pathByJES+= sFObs[obs]; pathByJES += "_byjes";
     pathByJES += "_"; pathByJES += sTarget[abs(target%8)];
     pathByJES += "_"; pathByJES += sLepton[lepton]; pathByJES += ".eps";
@@ -342,12 +344,16 @@ void observableByJESByMass(int pTarget = 1, int pObs = 0, int pLepton = 1) {
   }
   
   std::cout << "Parameters for IdeogramCombLikelihood.cxx:" << std::endl;
+  ofstream parFile;
+  parFile.open ("../plot/template/parameters.txt", ios::app);
+  parFile   << sFObs[obs] << " " << sTarget[abs(target%8)] << " " << sLepton[lepton] << "\n";
   for (int i=0; i<12; i++) {
     std::cout << params[i] << "|";
+    parFile   << params[i] << "|";
   }
   std::cout << std::endl;
-  
-  
+  parFile   << "\n";
+  parFile.close();
 }
 
 void FindParametersMass(int iMass)
@@ -374,54 +380,54 @@ void FindParametersMass(int iMass)
   if (!plotByMass) {
     switch(iMass) {
       case 0: {
-        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1665_0.96", 0);
-        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1665_1.00", 1);
-        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1665_1.04", 2);
+        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1665_0.96", 0);
+        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1665_1.00", 1);
+        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1665_1.04", 2);
         break;
       }
       case 1: {
-        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1695_0.96", 0);
-        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1695_1.00", 1);
-        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1695_1.04", 2);
+        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1695_0.96", 0);
+        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1695_1.00", 1);
+        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1695_1.04", 2);
         break;
       }
 		  case 2: {
-        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1715_0.96", 0);
-        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1715_1.00", 1);
-        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1715_1.04", 2);
+        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1715_0.96", 0);
+        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1715_1.00", 1);
+        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1715_1.04", 2);
         break;
       }
 		  case 3: {
-        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1725_0.96", 0);
-        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1725_1.00", 1);
-        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1725_1.04", 2);
+        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1725_0.96", 0);
+        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1725_1.00", 1);
+        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1725_1.04", 2);
         break;
       }
 		  case 4: {
-        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1735_0.96", 0);
-        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1735_1.00", 1);
-        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1735_1.04", 2);
+        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1735_0.96", 0);
+        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1735_1.00", 1);
+        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1735_1.04", 2);
         break;
       }
 		  case 5: {
-        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1755_0.96", 0);
-        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1755_1.00", 1);
-        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1755_1.04", 2);
+        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1755_0.96", 0);
+        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1755_1.00", 1);
+        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1755_1.04", 2);
         break;
       }
 		  case 6: {
-        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1785_0.96", 0);
-        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1785_1.00", 1);
-        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1785_1.04", 2);
+        h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1785_0.96", 0);
+        h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1785_1.00", 1);
+        h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1785_1.04", 2);
         break;
       }
     }
   }
   else if (plotByMass) {
     std::cout << "PLOT BY MASS" << std::endl;
-    h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1665_1.00", 0);
-    h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1725_1.00", 1);
-    h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJetsMS1785_1.00", 2);
+    h096 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1665_1.00", 0);
+    h100 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1725_1.00", 1);
+    h104 = FindParameters("/nfs/dust/cms/user/mseidel/trees_paper/Summer12_TTJetsMS1785_1.00", 2);
   }
   else {
     if (obs==0) h166 = FindParameters("/nfs/dust/cms/user/mseidel/trees/Summer12_TTJets1665_1.00", 3);
@@ -504,7 +510,7 @@ void FindParametersMass(int iMass)
   gr1[iMass]->Draw("A*");
   gr1[iMass]->Fit("linearFit", "EM");
   
-  gr1[iMass]->GetXaxis()->SetTitle("JES");
+  gr1[iMass]->GetXaxis()->SetTitle("JSF");
   gr1[iMass]->GetYaxis()->SetTitle("#mu");
   
   Y10 [iMass] = linearFit->GetParameter(0);
@@ -523,7 +529,7 @@ void FindParametersMass(int iMass)
   linearFit->SetParameters(100, 50);
   gr2[iMass]->Fit("linearFit", "EM");
   
-  gr2[iMass]->GetXaxis()->SetTitle("JES");
+  gr2[iMass]->GetXaxis()->SetTitle("JSF");
   gr2[iMass]->GetYaxis()->SetTitle("#sigma");
   
   Y20 [iMass] = linearFit->GetParameter(0);
@@ -540,7 +546,7 @@ void FindParametersMass(int iMass)
   linearFit->SetParameters(100, 50);
   gr3[iMass]->Fit("linearFit", "EM");
   
-  gr3[iMass]->GetXaxis()->SetTitle("JES");
+  gr3[iMass]->GetXaxis()->SetTitle("JSF");
   if (obs == 0) gr3[iMass]->GetYaxis()->SetTitle("#alpha");
   if (obs == 1) gr3[iMass]->GetYaxis()->SetTitle("#sigma2");
   
@@ -558,7 +564,7 @@ void FindParametersMass(int iMass)
     linearFit->SetParameters(100, 50);
     gr4[iMass]->Fit("linearFit", "EM");
     
-    gr4[iMass]->GetXaxis()->SetTitle("JES");
+    gr4[iMass]->GetXaxis()->SetTitle("JSF");
     gr4[iMass]->GetYaxis()->SetTitle("power");
   }
 }
@@ -718,7 +724,7 @@ TH1F* FindParameters(TString filename, int i)
       break;
     }
   }
-  sCutAndWeight += " & top.fitProb > 0.2)";
+  sCutAndWeight += " & top.fitProb > 0.2 & Min$(sqrt(pow(top.recoW2Prod1[0].Eta()-jet.jet.Eta(),2) + pow(TVector2::Phi_mpi_pi(top.recoW2Prod1[0].Phi()-jet.jet.Phi()),2)))>0.3)";
 
   std::cout << sCutAndWeight << std::endl;
   
@@ -790,7 +796,7 @@ TH1F* FindParameters(TString filename, int i)
 }
 
 void batchObservableByJESByMass() {
-  pas = true;
+  pas = false;
   
   for (int t = 0; t < 3; ++t) { // target
     for (int o = 0; o < 2; ++o) { // obs
