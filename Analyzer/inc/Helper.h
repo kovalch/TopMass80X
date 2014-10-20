@@ -35,7 +35,7 @@ public:
   void DrawCMS(int channelID = -1, int energy = -1);
   void DrawCMSSim(int energy = -1);
 
-  enum channelID {kAllJets, kMuonJets, kElectronJets, kLeptonJets, kMaxChannels};
+  enum ChannelID {kAllJets, kMuonJets, kElectronJets, kLeptonJets, kHamburg, kMaxChannels};
   static int channelID();
   enum methodID {kGenMatch, kMVA, kIdeogram, kIdeogramNew, kIdeogramMin, kRooFit, kMaxMethods};
   static int methodID();

@@ -40,7 +40,7 @@ Skimmer::Skimmer()
   std::string samplePath(po::GetOption<std::string>("analysisConfig.samplePath"));
   //std::string samplePath("/nfs/dust/cms/user/eschliec/TopMass/2012/04/");
   //std::string samplePath("dcap://dcache-cms-dcap.desy.de//pnfs/desy.de/cms/tier2/store/user/eschliec/TopMassTreeWriter_04_DataMix01/");
-  std::string outputPath("/nfs/dust/cms/user/eschliec/TopMass/2012/Skim_04/");
+  std::string outputPath("/nfs/dust/cms/user/eschliec/TopMass/2012/Skim_05/");
 
   if(po::GetOption<std::string>("task") == "local")
     outputPath = "";
@@ -152,6 +152,7 @@ void Skimmer::skim(std::string inputPath, std::string outputPath, std::string sa
   std::cout << "Max Permutations: " << maxPermutations << std::endl;
 
   TChain* fromChain = new TChain("analyzeKinFit/eventTree");
+  //TChain* fromChain = new TChain("analyzeHitFit/eventTree");
   int nFiles = 0;
   std::string fullInPath = inputPath+sample;
   std::cout << "Sample: " << fullInPath << std::endl;

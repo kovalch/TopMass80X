@@ -22,6 +22,7 @@ int Helper::channelIDFromString(const std::string& channel)
   else if (!strncmp(channel.c_str(), "muon"    , 4)) return kMuonJets;
   else if (!strncmp(channel.c_str(), "electron", 8)) return kElectronJets;
   else if (!strncmp(channel.c_str(), "lepton"  , 6)) return kLeptonJets;
+  else if (!strncmp(channel.c_str(), "hamburg" , 7)) return kHamburg;
   else {
     std::cerr << "Channel name *" << channel << "* not know! Aborting program execution!" << std::endl;
     exit(1);
@@ -259,30 +260,35 @@ void Helper::DrawCMS(int channelID, int energy) {
       else if(channelID == kLeptonJets  ) DrawLabel("19.7 fb^{-1},  #sqrt{s} = 8 TeV, l+jets"  , 0.5, 0.93, 0.9);
       else if(channelID == kElectronJets) DrawLabel("19.7 fb^{-1},  #sqrt{s} = 8 TeV, e+jets"  , 0.5, 0.93, 0.9);
       else if(channelID == kMuonJets    ) DrawLabel("19.7 fb^{-1},  #sqrt{s} = 8 TeV, #mu+jets", 0.5, 0.93, 0.9);
+      else if(channelID == kHamburg     ) DrawLabel("19.7 fb^{-1},  #sqrt{s} = 8 TeV"          , 0.5, 0.93, 0.9);
     }
     else if(po::GetOption<int>("preliminary") == 3){
       if     (channelID == kAllJets     ) DrawLabel("Private Work,  #sqrt{s} = 8 TeV"          , 0.2, 0.93, 0.9);
       else if(channelID == kLeptonJets  ) DrawLabel("Private Work,  #sqrt{s} = 8 TeV, l+jets"  , 0.2, 0.93, 0.9);
       else if(channelID == kElectronJets) DrawLabel("Private Work,  #sqrt{s} = 8 TeV, e+jets"  , 0.2, 0.93, 0.9);
       else if(channelID == kMuonJets    ) DrawLabel("Private Work,  #sqrt{s} = 8 TeV, #mu+jets", 0.2, 0.93, 0.9);
+      else if(channelID == kHamburg     ) DrawLabel("Private Work,  #sqrt{s} = 8 TeV"          , 0.2, 0.93, 0.9);
     }
     else if(po::GetOption<int>("preliminary") == 2){
       if     (channelID == kAllJets     ) DrawLabel("Private Work, 18.2 fb^{-1},  #sqrt{s} = 8 TeV"          , 0.2, 0.93, 0.9);
       else if(channelID == kLeptonJets  ) DrawLabel("Private Work, 19.7 fb^{-1},  #sqrt{s} = 8 TeV, l+jets"  , 0.2, 0.93, 0.9);
       else if(channelID == kElectronJets) DrawLabel("Private Work, 19.7 fb^{-1},  #sqrt{s} = 8 TeV, e+jets"  , 0.2, 0.93, 0.9);
       else if(channelID == kMuonJets    ) DrawLabel("Private Work, 19.7 fb^{-1},  #sqrt{s} = 8 TeV, #mu+jets", 0.2, 0.93, 0.9);
+      else if(channelID == kHamburg     ) DrawLabel("Private Work, 19.7 fb^{-1},  #sqrt{s} = 8 TeV"          , 0.2, 0.93, 0.9);
     }
     else if(po::GetOption<int>("preliminary") == 1){
       if     (channelID == kAllJets     ) DrawLabel("CMS Preliminary, 18.2 fb^{-1},  #sqrt{s} = 8 TeV"          , 0.2, 0.93, 0.9);
       else if(channelID == kLeptonJets  ) DrawLabel("CMS Preliminary, 19.7 fb^{-1},  #sqrt{s} = 8 TeV, l+jets"  , 0.2, 0.93, 0.9);
       else if(channelID == kElectronJets) DrawLabel("CMS Preliminary, 19.7 fb^{-1},  #sqrt{s} = 8 TeV, e+jets"  , 0.2, 0.93, 0.9);
       else if(channelID == kMuonJets    ) DrawLabel("CMS Preliminary, 19.7 fb^{-1},  #sqrt{s} = 8 TeV, #mu+jets", 0.2, 0.93, 0.9);
+      else if(channelID == kHamburg     ) DrawLabel("CMS Preliminary, 19.7 fb^{-1},  #sqrt{s} = 8 TeV"          , 0.2, 0.93, 0.9);
     }
     else{
       if     (channelID == kAllJets     ) DrawLabel("CMS, 18.2 fb^{-1},  #sqrt{s} = 8 TeV"          , 0.2, 0.93, 0.9);
       else if(channelID == kLeptonJets  ) DrawLabel("CMS, 19.7 fb^{-1},  #sqrt{s} = 8 TeV, l+jets"  , 0.2, 0.93, 0.9);
       else if(channelID == kElectronJets) DrawLabel("CMS, 19.7 fb^{-1},  #sqrt{s} = 8 TeV, e+jets"  , 0.2, 0.93, 0.9);
       else if(channelID == kMuonJets    ) DrawLabel("CMS, 19.7 fb^{-1},  #sqrt{s} = 8 TeV, #mu+jets", 0.2, 0.93, 0.9);
+      else if(channelID == kHamburg     ) DrawLabel("CMS, 19.7 fb^{-1},  #sqrt{s} = 8 TeV"          , 0.2, 0.93, 0.9);
     }
   }
 }

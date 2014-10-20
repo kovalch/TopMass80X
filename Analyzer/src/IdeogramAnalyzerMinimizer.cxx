@@ -68,7 +68,7 @@ void IdeogramAnalyzerMinimizer::Scan(const std::string& cuts, int iBin, int jBin
       
       std::vector<IdeogramCombLikelihood*> permutationFunctions;
       
-      if (channelID_ == Helper::kAllJets) {
+      if (channelID_ == Helper::kHamburg || channelID_ == Helper::kAllJets) {
         for (int iComb = 0; iComb < maxPermutations_; ++iComb) {
           permutationFunctions.push_back(new IdeogramCombLikelihoodAllJets());
           permutationFunctions.back()->SetActive(false);
@@ -82,22 +82,44 @@ void IdeogramAnalyzerMinimizer::Scan(const std::string& cuts, int iBin, int jBin
       }
 
       eventFunctions_.push_back(permutationFunctions);
+
+      if (channelID_ == Helper::kHamburg) {
+	permutationFunctions.clear();
+        for (int iComb = 0; iComb < 4; ++iComb) {
+          permutationFunctions.push_back(new IdeogramCombLikelihoodLeptonJets());
+          permutationFunctions.back()->SetActive(false);
+        }
+	eventFunctions_.push_back(permutationFunctions);
+      }
     } // end for
   }
   
   {
     // Set Likelihood parameters
     entries_   = 0;
-    int iEvent = 0;
+    int iEvent = 0, iEventLept = 0, iEventJets = 0;
     for (const auto& event : sample_.events) {
-      
+
       //TODO - negative weights
+
+      int leptonFlavour = event.leptonFlavour;
+
+      int counter = iEvent;
+      if(channelID_ == Helper::kHamburg) {
+	if(std::abs(leptonFlavour) == 0){
+	  counter = 2*iEventJets;
+	  ++iEventJets;
+	}
+	else{
+	  counter = 2*iEventLept+1;
+	  ++iEventLept;
+	}
+      }
 
       for (int iComb = 0, maxComb = event.permutations.size(); iComb < maxComb; ++iComb) {
         double topMass = event.permutations.at(iComb).topMass;
         double wMass   = event.permutations.at(iComb).wMass;
         double prob    = event.permutations.at(iComb).prob;
-        int leptonFlavour = event.leptonFlavour;
         double weight  = event.weight/fabs(event.weight);
         int bin        = event.permutations.at(iComb).bin;
         
@@ -106,8 +128,8 @@ void IdeogramAnalyzerMinimizer::Scan(const std::string& cuts, int iBin, int jBin
         entries_ = entries_ + (int) weight;
 
         if (prob != 0) {
-          eventFunctions_[iEvent][iComb]->SetFixedParams(prob, topMass, wMass, abs(leptonFlavour), shapeSystematic_, shapeSystematic2_, permutationFractionSystematic_, isFastSim_, weight);
-          eventFunctions_[iEvent][iComb]->SetActive(true);
+          eventFunctions_[counter][iComb]->SetFixedParams(prob, topMass, wMass, abs(leptonFlavour), shapeSystematic_, shapeSystematic2_, permutationFractionSystematic_, isFastSim_, weight);
+          eventFunctions_[counter][iComb]->SetActive(true);
         }
       }
       ++iEvent;
@@ -150,7 +172,7 @@ void IdeogramAnalyzerMinimizer::NumericalMinimization() {
   min->SetFunction(f);
 
   std::vector<allowedVariables> toFit;
-  if(channelID_ == Helper::kAllJets) toFit = {kMass, kJES, kFSig, kFCP};
+  if(channelID_ == Helper::kAllJets || channelID_ == Helper::kHamburg) toFit = {kMass, kJES, kFSig, kFCP};
   else toFit = {kMass, kJES};
   IterateVariableCombinations(min, toFit);
 

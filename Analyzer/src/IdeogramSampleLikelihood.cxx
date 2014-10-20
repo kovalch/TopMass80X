@@ -8,6 +8,7 @@ typedef ProgramOptionsReader po;
 
 double IdeogramSampleLikelihood::DoEval(const double *x) const {
   double pullWidth(po::GetOption<double>("pullWidth"));
+  double pullWidthMuo(po::GetOption<double>("muo_pullWidth"));
   double pullWidthEle(po::GetOption<double>("ele_pullWidth"));
   
   double sampleResult  = 0;
@@ -35,7 +36,9 @@ double IdeogramSampleLikelihood::DoEval(const double *x) const {
       }
     }
     if (eventIsActive) {
-      double pullWidthFlavour = (flavour == 11) ? pullWidthEle : pullWidth;
+      double pullWidthFlavour = pullWidth;
+      if     (flavour == 13) pullWidthFlavour = pullWidthMuo;
+      else if(flavour == 11) pullWidthFlavour = pullWidthEle;
       sampleResult  += weight * -2.*log(eventResult)*eventSumProb / (pullWidthFlavour*pullWidthFlavour);
       sampleSumProb += weight * eventSumProb;
       sampleNEvent  += weight;

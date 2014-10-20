@@ -201,9 +201,20 @@ void ensembleTree()
   //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140317_1201/");
   //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140401_1201/");
   //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140418_1201/");
-  TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140520_1801/");
-  //sFile += "ensemble_S12_Uncalibrated.root";
-  sFile += "ensemble_S12_Calibrated.root";
+  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140520_1801/");
+  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140911_1200/");
+  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140916_1200/");
+  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140917_1700/");
+  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_141006_1400/");
+  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_141006_1700/");
+  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140918_1600/");
+  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_140918_1400/");
+  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_141006_2000/");
+  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_141007_1300/");
+  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_141007_1500/");
+  TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_141017_1600/");
+  sFile += "ensemble_S12_Uncalibrated.root";
+  //sFile += "ensemble_S12_Calibrated.root";
 
   std::cout << "Doing calibration on: " << sFile << std::endl;
   TFile* fEnsemble = new TFile(sFile);

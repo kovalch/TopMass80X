@@ -31,7 +31,7 @@ double sigmaPDFDownOfMtop(double mTop = 172.5)
 void mcInfos()
 {
   double Lref = 18352.;
-  std::string samplePath = "/scratch/hh/dust/naf/cms/user/eschliec/TopMass/2012/Skim_02/";
+  std::string samplePath = "/nfs/dust/cms/user/eschliec/TopMass/2012/Skim_05/";
   std::vector<std::pair<std::string,double> > samples;
   //samples.push_back(std::make_pair("Z2_S12_ABS_JES_096_161_5_sig.root",sigmaOfMtop(161.5)*Lref));
   //samples.push_back(std::make_pair("Z2_S12_ABS_JES_098_161_5_sig.root",sigmaOfMtop(161.5)*Lref));
@@ -84,8 +84,8 @@ void mcInfos()
   //samples.push_back(std::make_pair("Z2_S12_ABS_JES_102_172_5_sig.root",sigmaOfMtop(172.5)*Lref));
   //samples.push_back(std::make_pair("Z2_S12_ABS_JES_104_172_5_sig.root",sigmaOfMtop(172.5)*Lref));
 
-  samples.push_back(std::make_pair("Z2_S12_ABS_JES_100_172_5_sig.root",sigmaOfMtop(172.5)*Lref));
-  samples.push_back(std::make_pair("Z2_S12_MassiveBinDecay_ABS_JES_100_172_5_sig.root",sigmaOfMtop(172.5)*Lref));
+  //samples.push_back(std::make_pair("Z2_S12_ABS_JES_100_172_5_sig.root",sigmaOfMtop(172.5)*Lref));
+  //samples.push_back(std::make_pair("Z2_S12_MassiveBinDecay_ABS_JES_100_172_5_sig.root",sigmaOfMtop(172.5)*Lref));
   //samples.push_back(std::make_pair("Z2_S12_BJES_Down_sig.root",sigmaOfMtop(172.5)*Lref));
   //samples.push_back(std::make_pair("Z2_S12_BJES_Up_sig.root",sigmaOfMtop(172.5)*Lref));
   //samples.push_back(std::make_pair("Z2_S12_CORFLAVQUARKJES_Down_sig.root",sigmaOfMtop(172.5)*Lref));
@@ -94,17 +94,17 @@ void mcInfos()
   //samples.push_back(std::make_pair("Z2_S12_CORTOTNOFLAVJES_Up_sig.root",sigmaOfMtop(172.5)*Lref));
   //samples.push_back(std::make_pair("Z2_S12_JER_Down_sig.root",sigmaOfMtop(172.5)*Lref));
   //samples.push_back(std::make_pair("Z2_S12_JER_Up_sig.root",sigmaOfMtop(172.5)*Lref));
-  //samples.push_back(std::make_pair("Z2_S12_Matching_Down_sig.root",sigmaOfMtop(172.5)*Lref));
-  //samples.push_back(std::make_pair("Z2_S12_Matching_Up_sig.root",sigmaOfMtop(172.5)*Lref));
-  //samples.push_back(std::make_pair("Z2_S12_Scale_Down_sig.root",sigmaOfMtop(172.5)*Lref));
-  //samples.push_back(std::make_pair("Z2_S12_Scale_Up_sig.root",sigmaOfMtop(172.5)*Lref));
-  //samples.push_back(std::make_pair("Z2_S12_P11_sig.root",sigmaOfMtop(172.5)*Lref));
-  //samples.push_back(std::make_pair("Z2_S12_P11mpiHi_sig.root",sigmaOfMtop(172.5)*Lref));
-  //samples.push_back(std::make_pair("Z2_S12_P11TeV_sig.root",sigmaOfMtop(172.5)*Lref));
-  //samples.push_back(std::make_pair("Z2_S12_P11NoCR_sig.root",sigmaOfMtop(172.5)*Lref));
-  //samples.push_back(std::make_pair("Z2_S12_POWHEG_sig.root",sigmaOfMtop(172.5)*Lref));
-  //samples.push_back(std::make_pair("Z2_S12_POWHER_sig.root",sigmaOfMtop(172.5)*Lref));
-  //samples.push_back(std::make_pair("Z2_S12_MCNLO_sig.root",sigmaOfMtop(172.5)*Lref));
+  samples.push_back(std::make_pair("Z2_S12_Matching_Down_MadSpin_sig.root",sigmaOfMtop(172.5)*Lref));
+  samples.push_back(std::make_pair("Z2_S12_Matching_Up_MadSpin_sig.root",sigmaOfMtop(172.5)*Lref));
+  samples.push_back(std::make_pair("Z2_S12_Scale_Down_MadSpin_sig.root",sigmaOfMtop(172.5)*Lref));
+  samples.push_back(std::make_pair("Z2_S12_Scale_Up_MadSpin_sig.root",sigmaOfMtop(172.5)*Lref));
+  samples.push_back(std::make_pair("Z2_S12_P11_sig.root",sigmaOfMtop(172.5)*Lref));
+  samples.push_back(std::make_pair("Z2_S12_P11mpiHi_sig.root",sigmaOfMtop(172.5)*Lref));
+  samples.push_back(std::make_pair("Z2_S12_P11TeV_sig.root",sigmaOfMtop(172.5)*Lref));
+  samples.push_back(std::make_pair("Z2_S12_P11NoCR_sig.root",sigmaOfMtop(172.5)*Lref));
+  samples.push_back(std::make_pair("Z2_S12_POWHEG_sig.root",sigmaOfMtop(172.5)*Lref));
+  samples.push_back(std::make_pair("Z2_S12_POWHER_sig.root",sigmaOfMtop(172.5)*Lref));
+  samples.push_back(std::make_pair("Z2_S12_MCNLO_sig.root",sigmaOfMtop(172.5)*Lref));
 
   double nData1   = 32072.;
   double nDataAll = 76973.;
