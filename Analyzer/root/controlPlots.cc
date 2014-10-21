@@ -1456,32 +1456,47 @@ void TopMassControlPlots::doPlots()
 
     // Show event yields for first histogram
     int bins = hist.Data1D()->GetNbinsX()+1;
+    double integral;
     double error;
-    double integralD = hist.Data1D()->IntegralAndError(0,bins,error);
-    if (firstHist){
-      std::cout << "Yields" << std::endl;
-      std::cout << "Data:       " << integralD << " +/- " << error << std::endl;
-    }
+    double errorD;
+    double integralD = hist.Data1D()->IntegralAndError(0,bins,errorD);
+    double errorS;
     double integralS = 0;
     for(TH1F* sig : hist.Sig1D()) {
       integralS += sig->IntegralAndError(0,bins,error);
-      if (firstHist) std::cout << "  " << sig->GetTitle() << ": " << sig->Integral(0,bins) << " +/- " << error << std::endl;
+      errorS = sqrt(pow(errorS,2)+pow(error,2));
     }
-    if (firstHist) std::cout << "Signal:     " << integralS << std::endl;
+    double errorB;
     double integralB = 0;
     for(TH1F* bkg : hist.Bkg1D()) {
       integralB += bkg->IntegralAndError(0,bins,error);
-      if (firstHist) std::cout << "  " << bkg->GetTitle() << ": " << bkg->Integral(0,bins) << " +/- " << error << std::endl;
+      errorB = sqrt(pow(errorB,2)+pow(error,2));
     }
+    
+    double integralSB = 0;
+    if (channelID == Helper::kAllJets) integralSB = integralD;
+    else                               integralSB = integralS+integralB;
+    
     if (firstHist){
-      std::cout << "Background: " << integralB << std::endl;
-      std::cout << "MC Total:   " << integralS+integralB << std::endl;
-      if (channelID == Helper::kAllJets) {
-	std::cout << "fSig: " << integralS/integralD << std::endl;
+      std::cout << "======" << std::endl;
+      std::cout << "Yields" << std::endl;
+      std::cout << "======" << std::endl;
+      printf("Data: %10.1lf +/- %-10.1lf \n", integralD, errorD);
+      
+      for(TH1F* sig : hist.Sig1D()) {
+        integral = sig->IntegralAndError(0,bins,error);
+        printf("  %-20s %10.1lf +/- %-10.1lf %5.1lf %5.1lf \n", sig->GetTitle(), integral, error, integral/integralSB*100., integral/integralS*100.);
       }
-      else {
-	std::cout << "fSig: " << integralS/(integralS+integralB) << std::endl;
+      printf("Signal: %10.1lf +/- %-10.1lf %5.1lf \n", integralS, errorS, integralS/integralSB*100);
+      
+      for(TH1F* bkg : hist.Bkg1D()) {
+        integral = bkg->IntegralAndError(0,bins,error);
+        printf("  %-20s %10.1lf +/- %-10.1lf %5.1lf \n", bkg->GetTitle(), integral, error, integral/integralSB*100);
       }
+      printf("Background: %10.1lf +/- %-10.1lf %5.1lf \n", integralB, errorB, integralB/integralSB*100);
+      
+      printf("MC Total: %10.1lf +/- %-10.1lf \n", integralS+integralB, sqrt(pow(errorS,2)+pow(errorB,2)));
+      
       firstHist = false;
     }
     
