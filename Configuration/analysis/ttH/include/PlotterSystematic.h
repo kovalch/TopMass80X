@@ -104,6 +104,7 @@ private:
 //     std::vector<double> XAxisbins_, XAxisbinCenters_;
 
     TString YAxis_, XAxis_;
+    bool normalizeToNominal_; // Whether systematic curves should normalised to Nominal (for shape comparison)
     bool logX_, logY_; // The variable logX_ is not used at all...
     
     /// Data for cross section calculation

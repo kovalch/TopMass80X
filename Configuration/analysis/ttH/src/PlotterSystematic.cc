@@ -47,6 +47,7 @@ ymin_(0),
 ymax_(0),
 YAxis_(""),
 XAxis_(""),
+normalizeToNominal_(false),
 logX_(false),
 logY_(false)
 {
@@ -58,7 +59,7 @@ logY_(false)
 
 void PlotterSystematic::setOptions(const TString& name, const TString&,
                          const TString& YAxis, const TString& XAxis,
-                         const int , const bool ,
+                         const int , const bool normalizeToNominal,
                          const bool logX, const bool logY,
                          const double& ymin, const double& ymax,
                          const double& rangemin, const double& rangemax)
@@ -66,6 +67,7 @@ void PlotterSystematic::setOptions(const TString& name, const TString&,
     name_ = name; //Histogram name to be plotted
     YAxis_ = YAxis; //Y-axis title
     XAxis_ = XAxis; //X-axis title
+    normalizeToNominal_ = normalizeToNominal; //
     logX_ = logX; //Draw X-axis in Log scale
     logY_ = logY; //Draw Y-axis in Log scale
     ymin_ = ymin; //Min. value in Y-axis
@@ -160,12 +162,14 @@ void PlotterSystematic::writeVariations(const SystematicHistoMap& histoCollectio
         if(systematicHistos.first == Systematic::nominal) continue;
         TH1* h_up = systematicHistos.second.first;
         if(h_up) {
+            if(normalizeToNominal_) common::normalize(h_up, h_nominal->Integral());
             updateHistoAxis(h_up, logY);
             common::setHistoStyle(h_up, lineStyles_.first, lineColors_.at(orderId), 2, -1,-1,-1, 0,0);
             h_up->Draw("same HIST");
         }
         TH1* h_down = systematicHistos.second.second;
         if(h_down) {
+            if(normalizeToNominal_) common::normalize(h_down, h_nominal->Integral());
             updateHistoAxis(h_down, logY);
             common::setHistoStyle(h_down, lineStyles_.second, lineColors_.at(orderId), 2, -1,-1,-1, 0,0);
             h_down->Draw("same HIST");
