@@ -171,11 +171,14 @@ int main(int argc, char** argv){
     
     // Set up systematics
     std::vector<Systematic::Systematic> v_systematic = Systematic::allowedSystematicsAnalysis(Systematic::allowedSystematics);
-    if(opt_systematic.isSet() && opt_systematic[0]==Systematic::convertType(Systematic::allAvailable))
-        v_systematic = common::findSystematicsFromFilelists("FileLists_plot", v_channel, v_systematic);
-    else if(opt_systematic.isSet() && opt_systematic[0]!=Systematic::convertType(Systematic::all))
-        v_systematic = Systematic::setSystematics(opt_systematic.getArguments());
-    else if(opt_systematic.isSet() && opt_systematic[0]==Systematic::convertType(Systematic::all)); // do nothing
+    if(opt_systematic.isSet()){
+        if(opt_systematic[0] == Systematic::convertType(Systematic::all))
+            ; // do nothing
+        else if(opt_systematic[0] == Systematic::convertType(Systematic::allAvailable))
+            v_systematic = common::findSystematicsFromFilelists("FileLists_plot_systematic", v_channel, v_systematic);
+        else
+            v_systematic = Systematic::setSystematics(opt_systematic.getArguments());
+    }
     else{
         v_systematic.clear();
         v_systematic.push_back(Systematic::nominalSystematic());
