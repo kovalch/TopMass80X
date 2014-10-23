@@ -40,6 +40,8 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface(const std::vect
     random_(0)
 {
   channelID_ = Helper::channelID();
+  mergedsample_.nEvents = 0;
+  mergedsample_.maxWeight = 0.;
 
   std::cout << "Reading data from disk ..." << std::endl;
   if(channelID_ == Helper::kHamburg) {
@@ -77,7 +79,13 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface(const std::vect
   time_t start, end;
   time(&start);
   time(&end);
+  
+  Helper* helper = new Helper();
+  std::vector<std::string> backgroundSamplesLept = helper->readParametersString("analysisConfig.backgroundSamplesLept");
+  std::vector<double>      backgroundFactorsLept = helper->readParameters("analysisConfig.backgroundFactorsLept");
+  if(backgroundSamplesLept.size()!=backgroundFactorsLept.size()) std::cerr << "Error: Background samples and factors do not match. You have to check this!" << std::endl;
 
+  // TODO: Background samples and normalization from config in kHamburg and kAllJets
   if (channelID_ == Helper::kHamburg) {
     PrepareEvents(samplePathJets_+fIdentifier_+std::string(".root"), Helper::kAllJets);
     PrepareEvents(samplePathLept_+fIdentifier_+std::string("_muon/job_*.root"), Helper::kLeptonJets);
@@ -85,10 +93,10 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface(const std::vect
     if(fLumiLept_>0 || fLumiJets_>0){
       PrepareEvents(samplePathJets_+"QCDMixing_MJPS12_v1_data.root", Helper::kAllJets);
       if(fSigLept_<1.) {
-	PrepareEvents(""+samplePathLept_+"Summer12_WJets_muon/job_*.root", Helper::kLeptonJets);
-	PrepareEvents(""+samplePathLept_+"Summer12_singleTop_muon/job_*.root", Helper::kLeptonJets);
- 	PrepareEvents(""+samplePathLept_+"Summer12_WJets_electron/job_*.root", Helper::kLeptonJets);
-	PrepareEvents(""+samplePathLept_+"Summer12_singleTop_electron/job_*.root", Helper::kLeptonJets);
+        PrepareEvents(""+samplePathLept_+"Summer12_WJets_muon/job_*.root", Helper::kLeptonJets);
+        PrepareEvents(""+samplePathLept_+"Summer12_singleTop_muon/job_*.root", Helper::kLeptonJets);
+        PrepareEvents(""+samplePathLept_+"Summer12_WJets_electron/job_*.root", Helper::kLeptonJets);
+        PrepareEvents(""+samplePathLept_+"Summer12_singleTop_electron/job_*.root", Helper::kLeptonJets);
       }
     }
   }
@@ -96,24 +104,31 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface(const std::vect
     if (channelID_ == Helper::kAllJets) {
       PrepareEvents(samplePath_+fIdentifier_+std::string(".root"));
       if(fLumiJets_>0){
-	if(fIdentifier_.find("BackgroundSystematic")!=std::string::npos)
-	  PrepareEvents(samplePath_+"QCDMixing_Z2_S12_Madspin_sig.root");
-	else
-	  PrepareEvents(samplePath_+"QCDMixing_MJPS12_v1_data.root");
+        if(fIdentifier_.find("BackgroundSystematic")!=std::string::npos)
+          PrepareEvents(samplePath_+"QCDMixing_Z2_S12_Madspin_sig.root");
+        else
+          PrepareEvents(samplePath_+"QCDMixing_MJPS12_v1_data.root");
       }
     }
     if (channelID_ == Helper::kMuonJets || channelID_ == Helper::kLeptonJets) {
-      PrepareEvents(samplePath_+fIdentifier_+std::string("_muon/job_*.root"));
+      PrepareEvents(samplePath_+fIdentifier_+std::string("_muon/job_*.root"), Helper::kLeptonJets, po::GetOption<double>("analysisConfig.signalFactor"));
+      // Get background samples and normalization from config
       if(fLumiLept_>0 && fSigLept_<1.) {
-	PrepareEvents(""+samplePath_+"Summer12_WJets_muon/job_*.root");
-	PrepareEvents(""+samplePath_+"Summer12_singleTop_muon/job_*.root");
+        int iBkg = 0;
+        for (std::string backgroundSampleLept : backgroundSamplesLept) {
+          PrepareEvents(""+samplePath_+backgroundSampleLept+"_muon/job_*.root", Helper::kLeptonJets, backgroundFactorsLept[iBkg]);
+          ++iBkg;
+        }
       }
     }
     if (channelID_ == Helper::kElectronJets || channelID_ == Helper::kLeptonJets) {
-      PrepareEvents(samplePath_+fIdentifier_+std::string("_electron/job_*.root"));
-      if(fLumiLept_>0 && fSigLept_<1.) {
-	PrepareEvents(""+samplePath_+"Summer12_WJets_electron/job_*.root");
-	PrepareEvents(""+samplePath_+"Summer12_singleTop_electron/job_*.root");
+      PrepareEvents(samplePath_+fIdentifier_+std::string("_electron/job_*.root"), Helper::kLeptonJets, po::GetOption<double>("analysisConfig.signalFactor"));
+       if(fLumiLept_>0 && fSigLept_<1.) {
+        int iBkg = 0;
+        for (std::string backgroundSampleLept : backgroundSamplesLept) {
+          PrepareEvents(""+samplePath_+backgroundSampleLept+"_electron/job_*.root", Helper::kLeptonJets, backgroundFactorsLept[iBkg]);
+          ++iBkg;
+        }
       }
     }
   }
@@ -139,6 +154,7 @@ TTree* RandomSubsetCreatorNewInterface::CreateRandomSubset() {
     time(&end);
 
     // DATA
+    // TODO: update event yields with latest JEC
     double nEventsDataAllJets  =  4356.;
     double nEventsDataMuon     = 14965.;
     double nEventsDataElectron = 13789.;
@@ -147,6 +163,7 @@ TTree* RandomSubsetCreatorNewInterface::CreateRandomSubset() {
     int eventsPEMuon     = random_->Poisson(nEventsDataMuon    /19712.000*fLumiLept_);
     int eventsPEElectron = random_->Poisson(nEventsDataElectron/19712.000*fLumiLept_);
 
+    // TODO: Use mergedsample_ in kHamburg and kAllJets
     if (channelID_ == Helper::kHamburg) {
       DrawEvents(events_.at(0), eventsPEAllJets *fSigJets_);
       DrawEvents(events_.at(1), eventsPEMuon    *fSigLept_);
@@ -164,24 +181,14 @@ TTree* RandomSubsetCreatorNewInterface::CreateRandomSubset() {
       DrawEvents(events_.at(0), eventsPEAllJets*    fSigJets_ );
       DrawEvents(events_.at(1), eventsPEAllJets*(1.-fSigJets_));
     }
-    if (channelID_ == Helper::kMuonJets || channelID_ == Helper::kLeptonJets) {
-      DrawEvents(events_.at(0), eventsPEMuon*    fSigLept_       );
-      if (fSigLept_<1.) {
-        DrawEvents(events_.at(1), eventsPEMuon*(1.-fSigLept_)*2./5.);
-        DrawEvents(events_.at(2), eventsPEMuon*(1.-fSigLept_)*3./5.);
-      }
+    if (channelID_ == Helper::kMuonJets) {
+      DrawEvents(mergedsample_, eventsPEMuon);
     }
-    if (channelID_ == Helper::kElectronJets || channelID_ == Helper::kLeptonJets) {
-      short offset = 0;
-      if(channelID_ == Helper::kLeptonJets) offset = 1;
-      if (fSigLept_<1.) {
-        DrawEvents(events_.at(3*offset+0), eventsPEElectron*    fSigLept_       );
-        DrawEvents(events_.at(3*offset+1), eventsPEElectron*(1.-fSigLept_)*1./3.);
-        DrawEvents(events_.at(3*offset+2), eventsPEElectron*(1.-fSigLept_)*2./3.);
-      }
-      else {
-        DrawEvents(events_.at(1), eventsPEElectron);
-      }
+    if (channelID_ == Helper::kElectronJets) {
+      DrawEvents(mergedsample_, eventsPEElectron);
+    }
+    if (channelID_ == Helper::kLeptonJets) {
+      DrawEvents(mergedsample_, eventsPEMuon+eventsPEElectron);
     }
 
     time(&end);
@@ -202,6 +209,7 @@ TTree* RandomSubsetCreatorNewInterface::CreateRandomSubset() {
 
 void RandomSubsetCreatorNewInterface::DrawEvents(const DataSample& sample, double nEventsPE) {
   int perms = sample.nEvents;
+  std::cout << perms << std::endl;
   
   if (perms == 0) return;
 
@@ -214,6 +222,8 @@ void RandomSubsetCreatorNewInterface::DrawEvents(const DataSample& sample, doubl
 
   int eventsDrawn = 0;
   int nAttempts = 0;
+  
+  // TODO: terminate called after throwing an instance of 'std::out_of_range'
 
   while (eventsDrawn < (int)nEventsPE) {
     int drawn = random_->Integer(perms);
@@ -233,7 +243,7 @@ void RandomSubsetCreatorNewInterface::DrawEvents(const DataSample& sample, doubl
   std::cout << eventsDrawn << " events drawn in " << nAttempts << " attempts." << std::endl;
 }
 
-void RandomSubsetCreatorNewInterface::PrepareEvents(const std::string& file, const Helper::ChannelID currentID) {
+void RandomSubsetCreatorNewInterface::PrepareEvents(const std::string& file, const Helper::ChannelID currentID, double sampleFactor) {
 
   TChain* chain;
   if (channelID_ == Helper::kAllJets || currentID == Helper::kAllJets) {
@@ -305,7 +315,7 @@ void RandomSubsetCreatorNewInterface::PrepareEvents(const std::string& file, con
       for (const auto& boundary : vBinning_) {
         if (binning->EvalInstance(j) > boundary) ++bin;
       }
-      sample.Fill(f1->EvalInstance(j), f2->EvalInstance(j), f3->EvalInstance(j), f4->EvalInstance(j), weight->EvalInstance(j), filledPermutations++, bin);
+      sample.Fill(f1->EvalInstance(j), f2->EvalInstance(j), f3->EvalInstance(j), f4->EvalInstance(j), weight->EvalInstance(j)*sampleFactor, filledPermutations++, bin);
     }
     if(filledPermutations) ++selected;
   }
@@ -314,6 +324,7 @@ void RandomSubsetCreatorNewInterface::PrepareEvents(const std::string& file, con
   std::cout << ": " << selected << " events" << std::endl;
 
   events_.push_back(sample);
+  mergedsample_ += sample;
   delete chain;
   delete f1;
   delete f2;
