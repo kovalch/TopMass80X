@@ -11,8 +11,8 @@ fi
 
 source $(dirname `readlink -f $0`)/parallelTools.sh
 
+
 systematics=(
-    Nominal
     JES_UP JES_DOWN
     BTAGDISCR_PURITY_UP BTAGDISCR_PURITY_DOWN
     BTAGDISCR_BSTAT1_UP BTAGDISCR_BSTAT1_DOWN
@@ -26,14 +26,6 @@ systematics=(
     KIN_UP KIN_DOWN
     TOP_PT_UP TOP_PT_DOWN
 )
-
-for channel in ee emu mumu; do
-    w
-    $LA -f ${c}_run2012A -c $channel $@ &
-    $LA -f ${c}_run2012B -c $channel $@ &
-    $LA -f ${c}_run2012C -c $channel $@ &
-    $LA -f ${c}_run2012D -c $channel $@ &
-done
 
 
 for systematic in "${systematics[@]}" ; do
