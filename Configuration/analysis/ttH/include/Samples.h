@@ -29,8 +29,7 @@ public:
     Samples(const TString& filelistDirectory,
             const std::vector<Channel::Channel>& v_channel,
             const std::vector<Systematic::Systematic>& v_systematic,
-            const GlobalScaleFactors* globalScaleFactors =0,
-            const bool ignoreMissingSystematics = false);
+            const GlobalScaleFactors* globalScaleFactors =0);
     
     /// Default destructor
     ~Samples(){};
@@ -97,9 +96,6 @@ private:
     
     /// Pointer to the global scale factors
     const GlobalScaleFactors* globalScaleFactors_;
-    
-    /// Whether missing systematics should ignored instead of breaking
-    const bool ignoreMissingSystematics_;
 };
 
 

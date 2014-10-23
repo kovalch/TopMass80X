@@ -34,8 +34,7 @@ constexpr double Luminosity = 19712.;
 
 void HistoSystematic(const std::vector<std::string>& v_plot, 
                      const std::vector<Channel::Channel>& v_channel,
-                     const std::vector<Systematic::Systematic>& v_systematic,
-                     const bool ignoreMissingSystematics)
+                     const std::vector<Systematic::Systematic>& v_systematic)
 {
     // Set up systematic variations
     std::vector<Systematic::Variation> v_variation;
@@ -56,8 +55,6 @@ void HistoSystematic(const std::vector<std::string>& v_plot,
                 const TString inputFileListName = fileList_base+"/"+"HistoFileList_"+name_systematic+name_variation+"_"+name_channel+".txt";
                 std::ifstream file(inputFileListName.Data());
                 if(!file) {
-                    if(ignoreMissingSystematics) continue;
-                    
                     std::cerr << "### File list not found: " << inputFileListName << " Breaking...\n\n";
                     exit(1);
                 }
@@ -129,7 +126,7 @@ void HistoSystematic(const std::vector<std::string>& v_plot,
 /// All systematics allowed for plotting
 namespace Systematic{
     const std::vector<Type> allowedSystematics = {
-        nominal, all,
+        nominal, all, allAvailable,
 //         pu, lept, trig,
 //         jer, 
         jes,
@@ -152,7 +149,7 @@ int main(int argc, char** argv){
     CLParameter<std::string> opt_plot("p", "Name (pattern) of plot; multiple patterns possible; use '+Name' to match name exactly", false, 1, 100);
     CLParameter<std::string> opt_channel("c", "Specify channel(s), valid: emu, ee, mumu, combined. Default: all channels", false, 1, 4,
         common::makeStringCheck(Channel::convert(Channel::allowedChannelsPlotting)));
-    CLParameter<std::string> opt_systematic("s", "Systematic variation - default is Nominal, use 'all' for all", false, 1, 100,
+    CLParameter<std::string> opt_systematic("s", "Systematic variation - default is Nominal, use 'all' for all, use 'allAvailable' for all available", false, 1, 100,
         common::makeStringCheckBegin(Systematic::convertType(Systematic::allowedSystematics)));
     CLAnalyser::interpretGlobal(argc, argv);
     
@@ -173,19 +170,23 @@ int main(int argc, char** argv){
     std::cout << "\n\n";
     
     // Set up systematics
-    bool ignoreMissingSystematics = false;
     std::vector<Systematic::Systematic> v_systematic = Systematic::allowedSystematicsAnalysis(Systematic::allowedSystematics);
-    if(opt_systematic.isSet() && opt_systematic[0]=="allAvailable") {ignoreMissingSystematics = true;} // do nothing
-    else if(opt_systematic.isSet() && opt_systematic[0]!=Systematic::convertType(Systematic::all)) v_systematic = Systematic::setSystematics(opt_systematic.getArguments());
+    if(opt_systematic.isSet() && opt_systematic[0]==Systematic::convertType(Systematic::allAvailable))
+        v_systematic = common::findSystematicsFromFilelists("FileLists_plot", v_channel, v_systematic);
+    else if(opt_systematic.isSet() && opt_systematic[0]!=Systematic::convertType(Systematic::all))
+        v_systematic = Systematic::setSystematics(opt_systematic.getArguments());
     else if(opt_systematic.isSet() && opt_systematic[0]==Systematic::convertType(Systematic::all)); // do nothing
-    else {v_systematic.clear(); v_systematic.push_back(Systematic::nominalSystematic());}
-    std::cout << "Processing systematics (use >>-s all<< to process all known systematics): "; 
+    else{
+        v_systematic.clear();
+        v_systematic.push_back(Systematic::nominalSystematic());
+    }
+    std::cout << "Processing systematics: "; 
     for(auto systematic : v_systematic) std::cout << systematic.name() << " ";
     std::cout << "\n\n";
     
     
     // Start analysis
-    HistoSystematic(v_plot, v_channel, v_systematic, ignoreMissingSystematics);
+    HistoSystematic(v_plot, v_channel, v_systematic);
 }
 
 

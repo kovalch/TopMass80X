@@ -59,6 +59,7 @@ namespace Systematic{
         perugia11NoCR,      // Perugia11 parton shower tune, no colour-reconnection
         pdf,                // PDF variations
         closure,            // Closure test
+        allAvailable,       // All systematics which are available
         all,                // All allowed systematics
         undefinedType       // No systematic defined (also not nominal)
     };
@@ -294,13 +295,23 @@ namespace common{
     /// Access the real final state from a filename, ie. only "ee", "emu", "mumu", but not "combined"
     Channel::Channel finalState(const TString& filename);
     
+    /// Find file list for a given channel and systematic, and return its name
+    /// In case it does not exist, return empty string
+    TString findFilelist(const TString& filelistDirectory,
+                         const Channel::Channel& channel,
+                         const Systematic::Systematic& systematic);
+    
+    /// Find from vector of given systematics those for which a file list exists for all given channels
+    std::vector<Systematic::Systematic> findSystematicsFromFilelists(const TString& filelistDirectory,
+                                                                     const std::vector<Channel::Channel>& v_channel,
+                                                                     const std::vector<Systematic::Systematic>& v_systematic);
+    
     /// Read the file list for given channel and systematic, and return the input file names
     /// In case a vector of patterns is specified, only files containing this pattern in the full path name will be read
     std::vector<TString> readFilelist(const TString& filelistDirectory,
                                       const Channel::Channel& channel,
                                       const Systematic::Systematic& systematic,
-                                      const std::vector<TString>& v_pattern =std::vector<TString>(),
-                                      const bool ignoreMissingSystematics = false);
+                                      const std::vector<TString>& v_pattern =std::vector<TString>());
 }
 
 
