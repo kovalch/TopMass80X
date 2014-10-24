@@ -135,7 +135,7 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface(const std::vect
   time(&end);
   std::cout << "Read data from disk in " << difftime(end, start) << " seconds." << std::endl;
 
-  random_ = new TRandom3(0);
+  random_ = new TRandom3(po::GetOption<int>("seed")+1);
   std::cout << "Random seed: " << random_->GetSeed() << std::endl;
 }
 
@@ -154,10 +154,10 @@ TTree* RandomSubsetCreatorNewInterface::CreateRandomSubset() {
     time(&end);
 
     // DATA
-    // TODO: update event yields with latest JEC
+    // TODO: update AllJets event yields with latest JEC
     double nEventsDataAllJets  =  4356.;
-    double nEventsDataMuon     = 14965.;
-    double nEventsDataElectron = 13789.;
+    double nEventsDataMuon     = 14685.;
+    double nEventsDataElectron = 13514.;
 
     int eventsPEAllJets  = random_->Poisson(nEventsDataAllJets /18192.000*fLumiJets_);
     int eventsPEMuon     = random_->Poisson(nEventsDataMuon    /19712.000*fLumiLept_);
@@ -222,8 +222,6 @@ void RandomSubsetCreatorNewInterface::DrawEvents(const DataSample& sample, doubl
 
   int eventsDrawn = 0;
   int nAttempts = 0;
-  
-  // TODO: terminate called after throwing an instance of 'std::out_of_range'
 
   while (eventsDrawn < (int)nEventsPE) {
     int drawn = random_->Integer(perms);

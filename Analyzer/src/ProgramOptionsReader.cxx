@@ -30,6 +30,7 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("test", boost::program_options::value<bool>()->default_value(false),
             "Speed-ups for code testing purposes (restricts sample size)\n"
         )
+        ("seed", boost::program_options::value<int>()->default_value(-1), "Random seed for pseudo-experiments")
         ("outPath,o", boost::program_options::value<std::string>()->default_value(""))
         ("method,m", boost::program_options::value<std::string>()->default_value("Ideogram"),
             "Top mass measurement method\n"
