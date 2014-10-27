@@ -169,7 +169,7 @@ if not data:
     from TopAnalysis.TopUtils.JetEnergyScale_cff import *
 
     scaledJetEnergy.scaleType    = options.scaleType
-    scaledJetEnergy.JECUncSrcFile= "TopAnalysis/TopUtils/data/Winter14_V7_DATA_UncertaintySources_AK5PFchs.txt"
+    scaledJetEnergy.JECUncSrcFile= "TopAnalysis/TopUtils/data/Winter14_V5_DATA_UncertaintySources_AK5PFchs.txt"
     scaledJetEnergy.sourceName   = options.jessource
     scaledJetEnergy.flavor       = options.flavor
     scaledJetEnergy.scaleFactor  = options.lJesFactor
@@ -561,18 +561,18 @@ PFoptions = {
         'addMETSignificance': False,
         }
 if data:
-    PFoptions['JECEra' ] = 'Winter14_V3_DATA'
-    PFoptions['JECFile'] = '../data/Winter14_V3_DATA.db'
+    PFoptions['JECEra' ] = 'Winter14_V5_DATA'
+    PFoptions['JECFile'] = '../data/Winter14_V5_DATA.db'
     if os.getenv('GC_CONF'):
         print "Running with GC, resetting address of JECFile!"
-        PFoptions['JECFile'] = '../src/TopMass/Configuration/data/Winter14_V3_DATA.db'
+        PFoptions['JECFile'] = '../src/TopMass/Configuration/data/Winter14_V5_DATA.db'
 
 if options.mcversion == "Summer12RD":
-    PFoptions['JECEra' ] = 'Winter14_V1_MC'
-    PFoptions['JECFile'] = '../data/Winter14_V1_MC.db'
+    PFoptions['JECEra' ] = 'Winter14_V5_MC'
+    PFoptions['JECFile'] = '../data/Winter14_V5_MC.db'
     if os.getenv('GC_CONF'):
         print "Running with GC, resetting address of JECFile!"
-        PFoptions['JECFile'] = '../src/TopMass/Configuration/data/Winter14_V1_MC.db'
+        PFoptions['JECFile'] = '../src/TopMass/Configuration/data/Winter14_V5_MC.db'
 
 prependPF2PATSequence(process, options = PFoptions)
 

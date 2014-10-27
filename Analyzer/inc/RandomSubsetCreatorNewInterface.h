@@ -40,11 +40,12 @@ private:
   TRandom3* random_;
 
   std::vector<DataSample> events_;
+  DataSample mergedsample_;
   DataSample subset_;
 
   TTree* CreateRandomSubset();
   void DrawEvents(const DataSample& sample, double nEventsPE);
-  void PrepareEvents(const std::string& file, const Helper::ChannelID currentID = Helper::kMaxChannels);
+  void PrepareEvents(const std::string& file, const Helper::ChannelID currentID = Helper::kMaxChannels, double sampleFactor = 1.);
 };
 
 #endif /* RANDOMSUBSETCREATORNEWINTERFACE_H_ */
