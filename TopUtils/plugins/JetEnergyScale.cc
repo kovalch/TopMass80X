@@ -196,8 +196,9 @@ JetEnergyScale::produce(edm::Event& event, const edm::EventSetup& setup)
       
       if (
         (flavor_ == "bottom" && abs(scaledJet.partonFlavour()) == 5) ||
-        (flavor_ == "light"  && abs(scaledJet.partonFlavour())  < 5) ||
-        (flavor_ == "gluon"  && abs(scaledJet.partonFlavour())  > 5)
+        (flavor_ == "charm"  && abs(scaledJet.partonFlavour()) == 4) ||
+        (flavor_ == "light"  && abs(scaledJet.partonFlavour())  < 4 && abs(scaledJet.partonFlavour()) > 0) ||
+        (flavor_ == "gluon"  && (abs(scaledJet.partonFlavour()) == 21 || abs(scaledJet.partonFlavour()) == 0))
         ) {
         if(scaleType_.substr(scaleType_.find(':')+1)=="up") {
           float jetMetFlavor = deltaJEC->getUncertainty(true);
