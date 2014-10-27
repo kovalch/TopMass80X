@@ -94,14 +94,14 @@ void EventYields::writeYields(const char* outputDirectory,
                 ++iterator;
                 tmp_num += i_numhist->second->IntegralAndError(0,-1,tmp_err);
                 if(i_numhist == --(v_numhist.end())){
-                    eventFile<<i_numhist->first.legendEntry()<<": "<<std::setprecision(3)<<tmp_num<<"    +- "<<tmp_err<<" ("<<tmp_err/tmp_num*100.<<"%)"<<std::endl;
+                    eventFile<<i_numhist->first.legendEntry()<<": "<<tmp_num<<"     +- "<<tmp_err<<" ("<<tmp_err/tmp_num*100.<<"%)"<<std::endl;
                     bg_num += tmp_num;
                     bg_err += tmp_err;
                     tmp_num = 0;
                     tmp_err = 0;
                 }
                 else if(i_numhist->first.legendEntry() != iterator->first.legendEntry()){
-                    eventFile<<i_numhist->first.legendEntry()<<": "<<std::setprecision(3)<<tmp_num<<"    +- "<<tmp_err<<" ("<<tmp_err/tmp_num*100.<<"%)"<<std::endl;
+                    eventFile<<i_numhist->first.legendEntry()<<": "<<tmp_num<<"     +- "<<tmp_err<<" ("<<tmp_err/tmp_num*100.<<"%)"<<std::endl;
                     if(i_numhist->first.sampleType() != Sample::data){
                         bg_num += tmp_num;
                         bg_err += tmp_err;
@@ -110,7 +110,7 @@ void EventYields::writeYields(const char* outputDirectory,
                     tmp_err = 0;
                 }
             }
-            eventFile<<"Total background: "<<std::setprecision(3)<<bg_num<<"    +- "<<bg_err<<" ("<<bg_err/bg_num*100.<<"%)"<<std::endl;
+            eventFile<<"Total background: "<<std::setprecision(3)<<bg_num<<"     +- "<<bg_err<<" ("<<bg_err/bg_num*100.<<"%)"<<std::endl;
             
             // Close text file
             eventFile.close();
