@@ -42,8 +42,7 @@ Systematic::Type Systematic::convertType(const TString& type)
     if(type.BeginsWith("BTAGDISCR_BSTAT2")) return btagDiscrBstat2;
     if(type.BeginsWith("BTAGDISCR_LSTAT1")) return btagDiscrLstat1;
     if(type.BeginsWith("BTAGDISCR_LSTAT2")) return btagDiscrLstat2;
-    if(type.BeginsWith("BTAGDISCR_CERR1")) return btagDiscrCerr1;
-    if(type.BeginsWith("BTAGDISCR_CERR2")) return btagDiscrCerr2;
+    if(type.BeginsWith("BTAGDISCR_PURITY")) return btagDiscrPurity;
     if(type.BeginsWith("BTAG_LJET_PT")) return btagLjetPt;
     if(type.BeginsWith("BTAG_LJET_ETA")) return btagLjetEta;
     if(type.BeginsWith("BTAG_LJET")) return btagLjet;
@@ -66,6 +65,7 @@ Systematic::Type Systematic::convertType(const TString& type)
     if(type.BeginsWith("PERUGIA11")) return perugia11;
     if(type.BeginsWith("PDF")) return pdf;
     if(type.BeginsWith("closure")) return closure;
+    if(type.BeginsWith("allAvailable")) return allAvailable;
     if(type.BeginsWith("all")) return all;
     std::cout<<"Warning! The following systematic type conversion is not implemented: "<<type<<std::endl<<std::endl;
     return undefinedType;
@@ -94,8 +94,7 @@ TString Systematic::convertType(const Type& type)
     if(type == btagDiscrBstat2) return "BTAGDISCR_BSTAT2";
     if(type == btagDiscrLstat1) return "BTAGDISCR_LSTAT1";
     if(type == btagDiscrLstat2) return "BTAGDISCR_LSTAT2";
-    if(type == btagDiscrCerr1) return "BTAGDISCR_CERR1";
-    if(type == btagDiscrCerr2) return "BTAGDISCR_CERR2";
+    if(type == btagDiscrPurity) return "BTAGDISCR_PURITY";
     if(type == btagLjetPt) return "BTAG_LJET_PT";
     if(type == btagLjetEta) return "BTAG_LJET_ETA";
     if(type == btagLjet) return "BTAG_LJET";
@@ -118,6 +117,7 @@ TString Systematic::convertType(const Type& type)
     if(type == perugia11) return "PERUGIA11";
     if(type == pdf) return "PDF";
     if(type == closure) return "closure";
+    if(type == allAvailable) return "allAvailable";
     if(type == all) return "all";
     if(type == undefinedType) return "";
     std::cerr<<"Error! Type conversion is not implemented,\n...break\n"<<std::endl;
@@ -270,7 +270,7 @@ std::vector<Systematic::Systematic> Systematic::allowedSystematicsAnalysis(const
     
     for(const Type& type : allowedTypes){
         // Exclude non-real types
-        if(type == all) continue;
+        if(type==all || type==allAvailable) continue;
         
         if(std::find(centralTypes.begin(), centralTypes.end(), type) != centralTypes.end()){
             // Central types need specific treatment using variation numbers, e.g. PDF variations
@@ -547,26 +547,67 @@ Channel::Channel common::finalState(const TString& filename)
 
 
 
+TString common::findFilelist(const TString& filelistDirectory,
+                             const Channel::Channel& channel,
+                             const Systematic::Systematic& systematic)
+{
+    TString result("");
+    
+    const TString filelistName(filelistDirectory + "/HistoFileList_" + systematic.name() + "_" + Channel::convert(channel) + ".txt");
+    std::ifstream fileList(filelistName);
+    if(!fileList.fail()){
+        result = filelistName;
+        fileList.close();
+    }
+    
+    return result;
+}
+
+
+
+std::vector<Systematic::Systematic> common::findSystematicsFromFilelists(const TString& filelistDirectory,
+                                                                         const std::vector<Channel::Channel>& v_channel,
+                                                                         const std::vector<Systematic::Systematic>& v_systematic)
+{
+    std::vector<Systematic::Systematic> result;
+    
+    for(const auto& systematic : v_systematic){
+        bool foundSystematic(true);
+        for(const auto& channel : v_channel){
+            const TString filelistName = findFilelist(filelistDirectory, channel, systematic);
+            if(filelistName == ""){
+                foundSystematic = false;
+                break;
+            }
+        }
+        if(foundSystematic) result.push_back(systematic);
+    }
+    
+    return result;
+}
+
+
+
 std::vector<TString> common::readFilelist(const TString& filelistDirectory,
                                           const Channel::Channel& channel,
                                           const Systematic::Systematic& systematic,
                                           const std::vector<TString>& v_pattern)
 {
-    // Access fileList containing list of input root files
-    const TString filelistName(filelistDirectory + "/HistoFileList_" + systematic.name() + "_" + Channel::convert(channel) + ".txt");
-    std::cout<<"Reading file: "<<filelistName<<std::endl;
-    ifstream fileList(filelistName);
-    if(fileList.fail()){
-        std::cerr<<"Error in common::readFilelist! Cannot find file with name: "
-                 <<filelistName<<"\n...break\n"<<std::endl;
+    // Access name of file list containing list of input root files
+    const TString filelistName = findFilelist(filelistDirectory, channel, systematic);
+    if(filelistName == ""){
+        std::cerr<<"Error in common::readFilelist! Cannot find file (folder, channel, systematic): "
+                 <<filelistDirectory<<" , "<<Channel::convert(channel)<<" , "<<systematic.name()<<"\n...break\n"<<std::endl;
         exit(1);
     }
     
-    // Read in fileList to a vector
+    // Read in file list to a vector
     std::vector<TString> v_filename;
-    while(!fileList.eof()){
+    std::cout<<"Reading file: "<<filelistName<<std::endl;
+    std::ifstream filelist(filelistName);
+    while(!filelist.eof()){
         TString filename;
-        fileList>>filename;
+        filelist>>filename;
         // Skip empty lines
         if(filename == "") continue;
         // Comment lines in FileList with '#'
@@ -575,6 +616,8 @@ std::vector<TString> common::readFilelist(const TString& filelistDirectory,
         for(const auto& pattern : v_pattern) if(!filename.Contains(pattern)) continue;
         v_filename.push_back(filename);
     }
+    filelist.close();
+    
     return v_filename;
 }
 

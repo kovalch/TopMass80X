@@ -17,6 +17,8 @@ for channel in ee emu mumu; do
     $LA -f ttbarsignalplustau.root -p 0 -c $channel $@ &
     $LA -f ttbarsignalplustau.root -p 1 -c $channel $@ &
     $LA -f ttbarsignalplustau.root -p 2 -c $channel $@ &
+    $LA -f ttbarsignalplustau.root -p 3 -c $channel $@ &
+    $LA -f ttbarsignalplustau.root -p 4 -c $channel $@ &
     $LA -f ttbarH125tobbbar -c $channel $@ &
     $LA -f ttbarH125incl -p 0 -c $channel $@ &
 done

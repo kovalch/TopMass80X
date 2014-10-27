@@ -15,6 +15,7 @@ AnalysisMode::AnalysisMode AnalysisMode::convert(const TString& analysisMode)
 {
     if(analysisMode == "cp") return cp;
     if(analysisMode == "dda") return dda;
+    if(analysisMode == "ddaTree") return ddaTree;
     if(analysisMode == "kinReco") return kinReco;
     if(analysisMode == "dijet") return dijet;
     if(analysisMode == "charge") return charge;
@@ -38,6 +39,7 @@ TString AnalysisMode::convert(const AnalysisMode& analysisMode)
 {
     if(analysisMode == cp) return "cp";
     if(analysisMode == dda) return "dda";
+    if(analysisMode == ddaTree) return "ddaTree";
     if(analysisMode == kinReco) return "kinReco";
     if(analysisMode == dijet) return "dijet";
     if(analysisMode == charge) return "charge";

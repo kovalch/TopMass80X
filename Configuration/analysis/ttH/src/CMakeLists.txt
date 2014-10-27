@@ -33,6 +33,7 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   AnalyzerGenEvent
   AnalyzerJetCharge
   AnalyzerJetMatch
+  AnalyzerKinematicReconstruction
   AnalyzerMvaTopJets
   AnalyzerPlayground
   JetCategories
@@ -46,12 +47,16 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   HfFracScaleFactors
   EventYields
   Plotter
+  PlotterDiffXS
+  PlotterSystematic
   )
 
 SET( ${PROJECT_NAME}_EXECUTABLES
   load_Analysis
   train_mvaTopJets
   Histo
+  HistoDiffXS
+  HistoSystematic
   histo_analyzerJetMatch
   histo_analyzerGenEvent
   histo_analyzerMvaTopJets

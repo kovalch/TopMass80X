@@ -12,17 +12,28 @@ fi
 source $(dirname `readlink -f $0`)/parallelTools.sh
 
 
-# Run over samples with different Higgs masses (excluding nominal sample with mass 125 GeV)
-for systematic in H110 H115 H120 H1225 H1275 H130 H135 H140; do
-    for channel in ee emu mumu; do
-        $LA -f ttbar${systematic} -c $channel $@ &
-    done
-    w
-done
 
-# Run over sample with Higgs mass 125 GeV
 for channel in ee emu mumu; do
-    $LA -f ttbarH125 -c $channel $@ &
+    $LA -f ttbarH110tobbbar -c $channel $@ &
+    $LA -f ttbarH110incl -c $channel -p 1 $@ &
+    $LA -f ttbarH115tobbbar -c $channel $@ &
+    w
+    $LA -f ttbarH115incl -c $channel -p 1 $@ &
+    $LA -f ttbarH120tobbbar -c $channel $@ &
+    $LA -f ttbarH120incl -c $channel -p 1 $@ &
+    w
+    $LA -f ttbarH1225incl -c $channel -p 1 $@ &
+    $LA -f ttbarH125tobbbar -c $channel $@ &
+    $LA -f ttbarH125incl -c $channel -p 1 $@ &
+    w
+    $LA -f ttbarH1275incl -c $channel -p 1 $@ &
+    $LA -f ttbarH130tobbbar -c $channel $@ &
+    $LA -f ttbarH130incl -c $channel -p 1 $@ &
+    w
+    $LA -f ttbarH135tobbbar -c $channel $@ &
+    $LA -f ttbarH135incl -c $channel -p 1 $@ &
+    $LA -f ttbarH140incl -c $channel -p 1 $@ &
+    w
 done
 
 

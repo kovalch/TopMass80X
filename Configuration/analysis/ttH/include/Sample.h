@@ -18,7 +18,7 @@ class Sample{
 public:
     
     /// Specific type of sample as needed to be known for eg. plotting or Drell-Yan scale factor calculation
-    enum SampleType{data, dyee, dymumu, dytautau, ttHbb, ttHother, ttbb, ttb, ttother, ttZ, dummy};
+    enum SampleType{data, dyee, dymumu, dytautau, ttHbb, ttHother, ttbb, ttb, tt2b, ttcc, ttother, ttNoDilepton, ttZ, dummy};
     
     
     

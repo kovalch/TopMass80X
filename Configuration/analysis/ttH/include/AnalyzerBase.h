@@ -12,18 +12,18 @@ class TSelectorList;
 #include "../../common/include/storeTemplate.h"
 
 class JetCategories;
+class EventMetadata;
 class RecoObjects;
 class CommonGenObjects;
 class TopGenObjects;
 class HiggsGenObjects;
-class KinRecoObjects;
+class KinematicReconstructionSolutions;
 namespace tth{
     class RecoLevelWeights;
     class GenLevelWeights;
     class GenObjectIndices;
     class RecoObjectIndices;
 }
-
 
 
 /// Base class for histograms for analysis, useful to handle same set of histograms for different selection steps
@@ -44,9 +44,10 @@ public:
     void book(TSelectorList* output);
     
     /// Fill all histograms for given selection step, if defined
-    void fill(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+    void fill(const EventMetadata& eventMetadata,
+              const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
               const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
-              const KinRecoObjects& kinRecoObjects,
+              const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
               const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
               const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
               const double& weight, const TString& stepShort);
@@ -77,9 +78,10 @@ protected:
     virtual void bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram);
     
     /// Fill all histograms for given selection step (dummy method, override in inherited AnalysisHistograms)
-    virtual void fillHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+    virtual void fillHistos(const EventMetadata& eventMetadata,
+                            const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                             const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
-                            const KinRecoObjects& kinRecoObjects,
+                            const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
                             const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
                             const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
                             const double& weight, const TString& step,
@@ -147,9 +149,10 @@ private:
     virtual void bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram);
     
     /// Fill all histograms for given selection step
-    virtual void fillHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+    virtual void fillHistos(const EventMetadata& eventMetadata,
+                            const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                             const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
-                            const KinRecoObjects& kinRecoObjects,
+                            const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
                             const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
                             const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
                             const double& weight, const TString& step,
@@ -182,9 +185,10 @@ private:
     TH1* bookHisto(TH1* histo, const TString& name);
     
     /// Fill all histograms for given selection step
-    virtual void fillHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+    virtual void fillHistos(const EventMetadata& eventMetadata,
+                            const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                             const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
-                            const KinRecoObjects& kinRecoObjects,
+                            const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
                             const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
                             const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
                             const double& weight, const TString& step,
@@ -204,7 +208,9 @@ class AnalyzerHfFracScaling : public AnalyzerBase{
 public:
 
     /// Constructor
-    AnalyzerHfFracScaling(const std::vector<TString>& selectionSteps);
+    AnalyzerHfFracScaling(const std::vector<TString>& selectionSteps, 
+                          const std::vector<TString>& stepsForCategories,
+                          const JetCategories* jetCategories);
 
     /// Destructor
     ~AnalyzerHfFracScaling(){}
@@ -217,15 +223,16 @@ private:
     virtual void bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram);
     
     /// Fill all histograms for given selection step
-    virtual void fillHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+    virtual void fillHistos(const EventMetadata& eventMetadata,
+                            const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                             const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
-                            const KinRecoObjects& kinRecoObjects,
+                            const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
                             const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
                             const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
                             const double& weight, const TString& step,
                             std::map<TString, TH1*>& m_histogram);
-};
 
+};
 
 
 

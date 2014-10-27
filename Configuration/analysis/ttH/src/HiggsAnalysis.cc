@@ -21,6 +21,7 @@
 #include "../../common/include/analysisUtils.h"
 #include "../../common/include/analysisObjectStructs.h"
 #include "../../common/include/classes.h"
+#include "../../common/include/KinematicReconstructionSolution.h"
 #include "../../common/include/ScaleFactors.h"
 
 
@@ -46,11 +47,17 @@ constexpr double Lead2JetPtCUT = JetPtCUT;
 constexpr Btag::Algorithm BtagALGO = Btag::csv;
 constexpr Btag::WorkingPoint BtagWP = Btag::M;
 
+/// PF MET or MVA MET
+constexpr bool MvaMET = true;
+
 /// MET selection for same-flavour channels (ee, mumu)
 constexpr double MetCUT = 40.;
 
+/// Generated jet eta selection (absolute value)
+constexpr double GenJetEtaCUT = 2.5;
 
-
+/// Generated jet pt selection in GeV
+constexpr double GenJetPtCUT = JetPtCUT;
 
 
 
@@ -60,8 +67,11 @@ constexpr double MetCUT = 40.;
 
 HiggsAnalysis::HiggsAnalysis(TTree*):
 inclusiveHiggsDecayMode_(-999),
-additionalBjetMode_(-999)
-{}
+additionalBjetMode_(-999),
+toRemoveLeptonGenJets_(false)
+{
+    if(MvaMET) this->mvaMet();
+}
 
 
 
@@ -163,14 +173,15 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     selectionStep = "0a";
     
     // Create dummies for objects, non-dummies are created only as soon as needed
+    const EventMetadata eventMetadataDummy;
     const RecoObjects recoObjectsDummy;
     const CommonGenObjects commonGenObjectsDummy;
-    const KinRecoObjects kinRecoObjectsDummy;
     const TopGenObjects topGenObjectsDummy;
     const HiggsGenObjects higgsGenObjectsDummy;
+    const KinematicReconstructionSolutions kinematicReconstructionSolutionsDummy;
 
     // Set up dummies for weights and indices, as needed for generic functions
-    const tth::GenObjectIndices genObjectIndicesDummy({}, {}, {}, {}, {}, {}, -1, -1, -1, -1, -1, -1, -1, -1);
+    const tth::GenObjectIndices genObjectIndicesDummy({}, {}, {}, {}, {}, {}, {}, {}, {}, -1, -1, -1, -1, -1, -1, -1, -1);
     const tth::RecoObjectIndices recoObjectIndicesDummy({}, {}, {}, -1, -1, -1, -1, -1, -1, {}, {}, {});
     const tth::GenLevelWeights genLevelWeightsDummy(0., 0., 0., 0., 0., 0.);
     const tth::RecoLevelWeights recoLevelWeightsDummy(0., 0., 0., 0., 0., 0.);
@@ -178,9 +189,10 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     // ++++ Control Plots ++++
     
     this->fillAll(selectionStep,
+                  eventMetadataDummy,
                   recoObjectsDummy, commonGenObjectsDummy,
                   topGenObjectsDummy, higgsGenObjectsDummy,
-                  kinRecoObjectsDummy,
+                  kinematicReconstructionSolutionsDummy,
                   genObjectIndicesDummy, recoObjectIndicesDummy,
                   genLevelWeightsDummy, recoLevelWeightsDummy,
                   1.);
@@ -227,9 +239,10 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     // ++++ Control Plots ++++
     
     this->fillAll(selectionStep,
+                  eventMetadataDummy,
                   recoObjectsDummy, commonGenObjectsDummy,
                   topGenObjectsDummy, higgsGenObjectsDummy,
-                  kinRecoObjectsDummy,
+                  kinematicReconstructionSolutionsDummy,
                   genObjectIndicesDummy, recoObjectIndicesDummy,
                   genLevelWeights, recoLevelWeightsDummy,
                   1.);
@@ -324,9 +337,10 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     const int numberOfBjets = bjetIndices.size();
     const bool hasBtag = numberOfBjets > 0;
     
-    // Get MET
+    // Get MET, and in case of MVA MET apply recoil correction for Drell-Yan sample
+    this->correctMvaMet(dilepton, numberOfJets, entry);
     const LV& met = *recoObjects.met_;
-    const bool hasMetOrEmu = this->channel()==Channel::emu || met.pt()>MetCUT;
+    const bool hasMet = met.pt() > MetCUT;
     
     const tth::RecoObjectIndices recoObjectIndices(allLeptonIndices,
                                                    leptonIndices, antiLeptonIndices,
@@ -356,9 +370,10 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     // ++++ Control Plots ++++
     
     this->fillAll(selectionStep,
+                  eventMetadataDummy,
                   recoObjects, commonGenObjects,
                   topGenObjectsDummy, higgsGenObjectsDummy,
-                  kinRecoObjectsDummy,
+                  kinematicReconstructionSolutionsDummy,
                   genObjectIndicesDummy, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   1.);
@@ -374,9 +389,10 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     // ++++ Control Plots ++++
     
     this->fillAll(selectionStep,
+                  eventMetadataDummy,
                   recoObjects, commonGenObjects,
                   topGenObjectsDummy, higgsGenObjectsDummy,
-                  kinRecoObjectsDummy,
+                  kinematicReconstructionSolutionsDummy,
                   genObjectIndicesDummy, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   weight);
@@ -389,175 +405,207 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     // ...with at least 20 GeV invariant mass
     if(dilepton.M() < 20.) return kTRUE;
     
-    // Access kinematic reconstruction info
-    //const KinRecoObjects& kinRecoObjects = this->getKinRecoObjects(entry);
-    //const KinRecoObjects& kinRecoObjects = !this->makeBtagEfficiencies() ? this->getKinRecoObjectsOnTheFly(leptonIndex, antiLeptonIndex, jetIndices, allLeptons, jets, jetBTagCSV, met) : kinRecoObjectsDummy;
-    const KinRecoObjects& kinRecoObjects = kinRecoObjectsDummy;
-    //const bool hasSolution = kinRecoObjects.valuesSet_;
-
-
-
     // ++++ Control Plots ++++
 
     this->fillAll(selectionStep,
+                  eventMetadataDummy,
                   recoObjects, commonGenObjects,
                   topGenObjectsDummy, higgsGenObjectsDummy,
-                  kinRecoObjects,
+                  kinematicReconstructionSolutionsDummy,
                   genObjectIndicesDummy, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   weight);
-    
-    
-    
-    // ****************************************
-    // Handle inverted Z cut
-    // Z window plots need to be filled here, in order to rescale the contribution to data
-    const bool isZregion = dilepton.M() > 76. && dilepton.M() < 106.;
-    if(isZregion){
-        selectionStep = "4zWindow";
-        
-        this->fillAll(selectionStep,
-                      recoObjects, commonGenObjects,
-                      topGenObjectsDummy, higgsGenObjectsDummy,
-                      kinRecoObjects,
-                      genObjectIndicesDummy, recoObjectIndices,
-                      genLevelWeights, recoLevelWeights,
-                      weight);
-        
-        if(has2Jets){
-            selectionStep = "5zWindow";
-            
-            this->fillAll(selectionStep,
-                          recoObjects, commonGenObjects,
-                          topGenObjectsDummy, higgsGenObjectsDummy,
-                          kinRecoObjects,
-                          genObjectIndicesDummy, recoObjectIndices,
-                          genLevelWeights, recoLevelWeights,
-                          weight);
-            
-            if(hasMetOrEmu){
-                selectionStep = "6zWindow";
-                
-                this->fillAll(selectionStep,
-                              recoObjects, commonGenObjects,
-                              topGenObjectsDummy, higgsGenObjectsDummy,
-                              kinRecoObjects,
-                              genObjectIndicesDummy, recoObjectIndices,
-                              genLevelWeights, recoLevelWeights,
-                              weight);
-                
-                if(hasBtag){
-                    selectionStep = "7zWindow";
-                    const double fullWeight = weight * weightBtagSF;
-                    
-                    this->fillAll(selectionStep,
-                                  recoObjects, commonGenObjects,
-                                  topGenObjectsDummy, higgsGenObjectsDummy,
-                                  kinRecoObjects,
-                                  genObjectIndicesDummy, recoObjectIndices,
-                                  genLevelWeights, recoLevelWeights,
-                                  fullWeight);
-                }
-            }
-        }
-    }
     
     
     
     //=== CUT ===
     selectionStep = "4";
-
-    //Exclude the Z window
-    if(this->channel()!=Channel::emu && isZregion) return kTRUE;
-
+    
+    // Exclude the Z window in analysis cutflow, but keep these events for Drell-Yan corrections
+    const bool isZregion = dilepton.M() > 76. && dilepton.M() < 106.;
+    const bool isEmu = this->channel() == Channel::emu;
+    
+    // ++++ Z-window plots ++++
+    
+    if(isZregion){
+        this->fillAll("4zWindow",
+                      eventMetadataDummy,
+                      recoObjects, commonGenObjects,
+                      topGenObjectsDummy, higgsGenObjectsDummy,
+                      kinematicReconstructionSolutionsDummy,
+                      genObjectIndicesDummy, recoObjectIndices,
+                      genLevelWeights, recoLevelWeights,
+                      weight);
+    }
+    
     // ++++ Control Plots ++++
-
-    this->fillAll(selectionStep,
-                  recoObjects, commonGenObjects,
-                  topGenObjectsDummy, higgsGenObjectsDummy,
-                  kinRecoObjects,
-                  genObjectIndicesDummy, recoObjectIndices,
-                  genLevelWeights, recoLevelWeights,
-                  weight);
-
-
-
+    
+    if(isEmu || !isZregion){
+        this->fillAll(selectionStep,
+                      eventMetadataDummy,
+                      recoObjects, commonGenObjects,
+                      topGenObjectsDummy, higgsGenObjectsDummy,
+                      kinematicReconstructionSolutionsDummy,
+                      genObjectIndicesDummy, recoObjectIndices,
+                      genLevelWeights, recoLevelWeights,
+                      weight);
+    }
+    
+    
+    
     //=== CUT ===
     selectionStep = "5";
-
+    
     //Require at least two jets
     if(!has2Jets) return kTRUE;
-
+    
+    // ++++ Z-window plots ++++
+    
+    if(isZregion){
+        this->fillAll("5zWindow",
+                      eventMetadataDummy,
+                      recoObjects, commonGenObjects,
+                      topGenObjectsDummy, higgsGenObjectsDummy,
+                      kinematicReconstructionSolutionsDummy,
+                      genObjectIndicesDummy, recoObjectIndices,
+                      genLevelWeights, recoLevelWeights,
+                      weight);
+    }
+    
     // ++++ Control Plots ++++
-
-    this->fillAll(selectionStep,
-                  recoObjects, commonGenObjects,
-                  topGenObjectsDummy, higgsGenObjectsDummy,
-                  kinRecoObjects,
-                  genObjectIndicesDummy, recoObjectIndices,
-                  genLevelWeights, recoLevelWeights,
-                  weight);
-
-
-
+    
+    if(isEmu || !isZregion){
+        this->fillAll(selectionStep,
+                      eventMetadataDummy,
+                      recoObjects, commonGenObjects,
+                      topGenObjectsDummy, higgsGenObjectsDummy,
+                      kinematicReconstructionSolutionsDummy,
+                      genObjectIndicesDummy, recoObjectIndices,
+                      genLevelWeights, recoLevelWeights,
+                      weight);
+    }
+    
+    
+    
     //=== CUT ===
     selectionStep = "6";
-
-    //Require MET > 40 GeV in non-emu channels
-    if(!hasMetOrEmu) return kTRUE;
-
-    // ++++ Control Plots ++++
-
-    this->fillAll(selectionStep,
-                  recoObjects, commonGenObjects,
-                  topGenObjectsDummy, higgsGenObjectsDummy,
-                  kinRecoObjects,
-                  genObjectIndicesDummy, recoObjectIndices,
-                  genLevelWeights, recoLevelWeights,
-                  weight);
-
-    // Fill b-tagging efficiencies if required for given correction mode, and in case do not process further steps
-    this->fillBtagEfficiencyHistos(jetIndices, jetBTagCSV, jets, jetPartonFlavour, weight);
-    if(this->makeBtagEfficiencies()) return kTRUE;
-
     
-
+    //Require MET > 40 GeV in non-emu channels
+    if(!(hasMet || isEmu)) return kTRUE;
+    
+    // ++++ Z-window plots ++++
+    
+    if(isZregion){
+        this->fillAll("6zWindow",
+                      eventMetadataDummy,
+                      recoObjects, commonGenObjects,
+                      topGenObjectsDummy, higgsGenObjectsDummy,
+                      kinematicReconstructionSolutionsDummy,
+                      genObjectIndicesDummy, recoObjectIndices,
+                      genLevelWeights, recoLevelWeights,
+                      weight);
+    }
+    
+    // ++++ Control Plots ++++
+    
+    if(isEmu || !isZregion){
+        this->fillAll(selectionStep,
+                      eventMetadataDummy,
+                      recoObjects, commonGenObjects,
+                      topGenObjectsDummy, higgsGenObjectsDummy,
+                      kinematicReconstructionSolutionsDummy,
+                      genObjectIndicesDummy, recoObjectIndices,
+                      genLevelWeights, recoLevelWeights,
+                      weight);
+        
+        // Fill b-tagging efficiencies if required for given correction mode
+        this->fillBtagEfficiencyHistos(jetIndices, jetBTagCSV, jets, jetPartonFlavour, weight);
+    }
+    
+    // In case of filling b-tagging efficiencies, do not process further steps
+    if(this->makeBtagEfficiencies()) return kTRUE;
+    
+    
+    
     //=== CUT ===
     selectionStep = "7";
-
+    
     //Require at least one b tagged jet
     if(!hasBtag) return kTRUE;
-
+    
     weight *= weightBtagSF;
-
-
-
+    
+    // ++++ Z-window plots ++++
+    
+    if(isZregion){
+        this->fillAll("7zWindow",
+                      eventMetadataDummy,
+                      recoObjects, commonGenObjects,
+                      topGenObjectsDummy, higgsGenObjectsDummy,
+                      kinematicReconstructionSolutionsDummy,
+                      genObjectIndicesDummy, recoObjectIndices,
+                      genLevelWeights, recoLevelWeights,
+                      weight);
+    }
+    
+    // Gen-level info and kinematic reconstruction not needed for Z region
+    if(!isEmu && isZregion) return kTRUE;
+    
+    
+    
+    // Access event meta data
+    //const EventMetadata eventMetadata = eventMetadataDummy;
+    const EventMetadata eventMetadata = this->getEventMetadata(entry);
+    
+    // Access kinematic reconstruction info
+    //const KinematicReconstructionSolutions kinematicReconstructionSolutions = kinematicReconstructionSolutionsDummy;
+    const KinematicReconstructionSolutions kinematicReconstructionSolutions = this->kinematicReconstructionSolutions(leptonIndex, antiLeptonIndex, jetIndices, bjetIndices, allLeptons, jets, jetBTagCSV, met);
+    //const bool hasSolution = kinematicReconstructionSolutions.numberOfSolutions();
+    //std::cout<<"\n\n\nNew event - solutions(): "<<kinematicReconstructionSolutions.numberOfSolutions()<<"\n";
+    //for(size_t iSolution = 0; iSolution < kinematicReconstructionSolutions.numberOfSolutions(); ++iSolution){
+    //    kinematicReconstructionSolutions.solution(KinematicReconstructionSolution::averagedSumSmearings_mlb, iSolution).print();
+    //    std::cout<<"\n";
+    //}
+    
+    
+    
     // === FULL GEN OBJECT SELECTION ===
-
+    
     // Access top generator object struct, and higgs generator object struct
     const TopGenObjects& topGenObjects = this->getTopGenObjects(entry);
     const HiggsGenObjects& higgsGenObjects = this->getHiggsGenObjects(entry);
     
+    // Generated jets
+    const VLV& allGenJets =  topGenObjects.valuesSet_ ? *topGenObjects.allGenJets_ : VLV();
+    std::vector<int> allGenJetIndices = initialiseIndices(allGenJets);
+    std::vector<int> genJetIndices = this->genJetIndices(allGenJets, topGenObjects);
+    
     // Match for all genJets all B hadrons
+    std::vector<std::vector<int> > allGenJetBhadronIndices;
     std::vector<std::vector<int> > genJetBhadronIndices;
+    std::vector<int> allGenBjetIndices;
     std::vector<int> genBjetIndices;
     std::vector<int> genJetMatchedRecoBjetIndices;
     if(topGenObjects.valuesSet_){
-        const VLV& allGenJets = *commonGenObjects.allGenJets_;
-        genJetBhadronIndices = this->matchBhadronsToGenJets(allGenJets, topGenObjects);
+        allGenJetBhadronIndices = this->matchBhadronsToGenJets(allGenJetIndices, allGenJets, topGenObjects);
+        genJetBhadronIndices = this->matchBhadronsToGenJets(genJetIndices, allGenJets, topGenObjects);
+        allGenBjetIndices = this->genBjetIndices(allGenJetBhadronIndices);
         genBjetIndices = this->genBjetIndices(genJetBhadronIndices);
-        genJetMatchedRecoBjetIndices = this->matchRecoToGenJets(jetIndices, jets, genBjetIndices, allGenJets);
+        genJetMatchedRecoBjetIndices = this->matchRecoToGenJets(jetIndices, jets, allGenBjetIndices, allGenJets);
     }
     
     // Match for all genJets all C hadrons
+    std::vector<std::vector<int> > allGenJetChadronIndices;
     std::vector<std::vector<int> > genJetChadronIndices;
+    std::vector<int> allGenCjetIndices;
     std::vector<int> genCjetIndices;
     std::vector<int> genJetMatchedRecoCjetIndices;
     if(topGenObjects.valuesSet_){
-        const VLV& allGenJets = *commonGenObjects.allGenJets_;
-        genJetChadronIndices = this->matchChadronsToGenJets(allGenJets, topGenObjects);
+        allGenJetChadronIndices = this->matchChadronsToGenJets(allGenJetIndices, allGenJets, topGenObjects);
+        genJetChadronIndices = this->matchChadronsToGenJets(genJetIndices, allGenJets, topGenObjects);
+        allGenCjetIndices = this->genCjetIndices(allGenJetBhadronIndices, allGenJetChadronIndices);
         genCjetIndices = this->genCjetIndices(genJetBhadronIndices, genJetChadronIndices);
-        genJetMatchedRecoCjetIndices = this->matchRecoToGenJets(jetIndices, jets, genCjetIndices, allGenJets);
+        genJetMatchedRecoCjetIndices = this->matchRecoToGenJets(jetIndices, jets, allGenCjetIndices, allGenJets);
     }
     
     // Jet matchings for ttbar system
@@ -585,9 +633,12 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     }
     
     
-    const tth::GenObjectIndices genObjectIndices(genBjetIndices,
+    const tth::GenObjectIndices genObjectIndices(genJetIndices,
+                                                 allGenBjetIndices,
+                                                 genBjetIndices,
                                                  genJetBhadronIndices,
                                                  genJetMatchedRecoBjetIndices,
+                                                 allGenCjetIndices,
                                                  genCjetIndices,
                                                  genJetChadronIndices,
                                                  genJetMatchedRecoCjetIndices,
@@ -595,21 +646,22 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
                                                  matchedBjetFromTopIndex, matchedAntiBjetFromTopIndex,
                                                  genBjetFromHiggsIndex, genAntiBjetFromHiggsIndex,
                                                  matchedBjetFromHiggsIndex, matchedAntiBjetFromHiggsIndex);
-
-
-
+    
+    
+    
     // ++++ Control Plots ++++
-
+    
     this->fillAll(selectionStep,
+                  eventMetadata,
                   recoObjects, commonGenObjects,
                   topGenObjects, higgsGenObjects,
-                  kinRecoObjects,
+                  kinematicReconstructionSolutions,
                   genObjectIndices, recoObjectIndices,
                   genLevelWeights, recoLevelWeights,
                   weight);
-
-
-
+    
+    
+    
     return kTRUE;
 }
 
@@ -640,7 +692,46 @@ tth::IndexPairs HiggsAnalysis::chargeOrderedJetPairIndices(const std::vector<int
 
 
 
-std::vector<std::vector<int> > HiggsAnalysis::matchBhadronsToGenJets(const VLV& allGenJets, const TopGenObjects& topGenObjects)const
+std::vector<int> HiggsAnalysis::genJetIndices(const VLV& allGenJets, const TopGenObjects& topGenObjects)const
+{
+    std::vector<int> jetIds_kin = common::initialiseIndices(allGenJets);
+    selectIndices(jetIds_kin, allGenJets, common::LVeta, GenJetEtaCUT, false);
+    selectIndices(jetIds_kin, allGenJets, common::LVeta, -GenJetEtaCUT);
+    selectIndices(jetIds_kin, allGenJets, common::LVpt, GenJetPtCUT);
+
+    if(!toRemoveLeptonGenJets_) return jetIds_kin;
+
+    std::vector<int> jetIds;
+    const double leptonJet_dR_min = 0.4;
+    
+    // Building the vector of gen leptons which shouldn't be contained in jets
+    std::vector<LV*> genLeptons;
+    if(topGenObjects.valuesSet_) {
+        if(topGenObjects.GenLepton_) genLeptons.push_back(topGenObjects.GenLepton_);
+        if(topGenObjects.GenAntiLepton_) genLeptons.push_back(topGenObjects.GenAntiLepton_);
+    }
+    
+    // Filtering indices of jets that are far enough from leptons
+    for(int jetId : jetIds_kin) {
+        bool hasLeptonNearby = false;
+        LV jet = allGenJets.at(jetId);
+        for(LV* lepton : genLeptons) {
+            double dR = ROOT::Math::VectorUtil::DeltaR(jet, *lepton);
+            if(dR >= leptonJet_dR_min) continue;
+            hasLeptonNearby = true;
+            break;
+        }
+        if(hasLeptonNearby) continue;
+        jetIds.push_back(jetId);
+    }
+
+    return jetIds;
+}
+
+
+
+std::vector<std::vector<int> > HiggsAnalysis::matchBhadronsToGenJets(const std::vector<int>& genJetIndices, const VLV& allGenJets, 
+                                                                     const TopGenObjects& topGenObjects)const
 {
     std::vector<std::vector<int> > result = std::vector<std::vector<int> >(allGenJets.size());
     
@@ -648,7 +739,8 @@ std::vector<std::vector<int> > HiggsAnalysis::matchBhadronsToGenJets(const VLV& 
     for(size_t iHadron = 0; iHadron < genBHadJetIndex.size(); ++iHadron){
         const int& jetIndex = genBHadJetIndex.at(iHadron);
         // Protect against hadrons not clustered to any jet
-        if(jetIndex == -1) continue;
+        if(jetIndex < 0) continue;
+        if(std::find(genJetIndices.begin(), genJetIndices.end(), jetIndex) == genJetIndices.end()) continue;
         result.at(jetIndex).push_back(iHadron);
     }
     
@@ -657,7 +749,8 @@ std::vector<std::vector<int> > HiggsAnalysis::matchBhadronsToGenJets(const VLV& 
 
 
 
-std::vector<std::vector<int> > HiggsAnalysis::matchChadronsToGenJets(const VLV& allGenJets, const TopGenObjects&)const
+std::vector<std::vector<int> > HiggsAnalysis::matchChadronsToGenJets(const std::vector<int>&, const VLV& allGenJets,
+                                                                     const TopGenObjects&)const
 {
     std::vector<std::vector<int> > result = std::vector<std::vector<int> >(allGenJets.size());
     
@@ -746,12 +839,12 @@ int HiggsAnalysis::matchRecoToGenJet(const std::vector<int>& jetIndices, const V
     }
     
     // Call a jet matched if it is close enough, and has similar pt
-    if(deltaRJet>0.4) return -2;
+    if(deltaRJet > 0.4) return -2;
     if(result >= 0){
         const double ptRecoJet = jets.at(result).pt();
         const double ptJet = genJet.pt();
         const double deltaPtRel = (ptJet - ptRecoJet)/ptJet;
-        if(deltaPtRel<-0.4 || deltaPtRel>0.6) return -3;
+        if(deltaPtRel<-0.5 || deltaPtRel>0.6) return -3;
     }
     
     return result;
@@ -822,20 +915,44 @@ bool HiggsAnalysis::failsAdditionalJetFlavourSelection(const Long64_t& entry)con
     // Use the full ttbar sample for creating btag efficiencies
     if(this->makeBtagEfficiencies()) return false;
     
-    // FIXME: this is a workaround as long as there is no specific additional jet flavour info written to nTuple
     const TopGenObjects& topGenObjects = this->getTopGenObjects(entry);
     
     int jetAddId = topGenObjects.genExtraTopJetNumberId_;
     if(jetAddId < 200) {
-        if(additionalBjetMode_==0) return false;
+        if(additionalBjetMode_==0) return false;                                // tt+other (if <2 b-jets from tt)
         else return true;
     }
     jetAddId -= 200;
     
     // Can be used starting from N005 ntuples
-    if(additionalBjetMode_==2 && jetAddId==2) return false;
-    if(additionalBjetMode_==1 && jetAddId==1) return false;
-    if(additionalBjetMode_==0 && jetAddId!=2 && jetAddId!=1) return false;
+    if(additionalBjetMode_==4 && (jetAddId==21 || jetAddId==22)) return false;  // tt+c (tt+cc)
+    if(additionalBjetMode_==3 && jetAddId==2) return false;                     // tt+bb
+    if(additionalBjetMode_==0 && ( jetAddId==0
+                              || (jetAddId>2 && jetAddId<21)
+                              ||  jetAddId>22 ) ) return false;                 // tt+other
+    // Separating 2 cases of tt+b
+    if(jetAddId == 1) {
+        if(topGenObjects.valuesSet_){
+            const VLV& allGenJets = *topGenObjects.allGenJets_;
+            const std::vector<int> allGenJetIndices = common::initialiseIndices(allGenJets);
+            std::vector<std::vector<int> > genJetBhadronIndices = this->matchBhadronsToGenJets(allGenJetIndices, allGenJets, topGenObjects);
+            bool hasOverlappingBJets = false;
+            for(size_t iJet = 0; iJet<genJetBhadronIndices.size(); ++iJet) {
+                std::vector<int> bHadIds = genJetBhadronIndices.at(iJet);
+                int nHads_top = 0;
+                int nHads_add = 0;
+                for(unsigned int hadId : bHadIds) {
+                    if(std::abs(topGenObjects.genBHadFlavour_->at(hadId)) == 6) nHads_top++;
+                    if(std::abs(topGenObjects.genBHadFromTopWeakDecay_->at(hadId)) == 0) nHads_add++;
+                }
+                // If b-jet overlaps only with a b-jet from tt - will be treated as not in acceptance (to represent matrix element additional b)
+                if(nHads_add > 1) hasOverlappingBJets = true;
+            }
+            if(hasOverlappingBJets && additionalBjetMode_==1) return false;      // tt+b (two b-hadrons in 1 jet)
+            if(!hasOverlappingBJets && additionalBjetMode_==2) return false;     // tt+b (other b-jet not in acceptance OR overlaps with top b-jet)
+        }
+    }
+    
     return true;
     
     // Should be used prior to N005 ntuples
@@ -864,9 +981,10 @@ bool HiggsAnalysis::failsAdditionalJetFlavourSelection(const Long64_t& entry)con
 
 
 void HiggsAnalysis::fillAll(const std::string& selectionStep,
+                            const EventMetadata& eventMetadata,
                             const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                             const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
-                            const KinRecoObjects& kinRecoObjects,
+                            const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
                             const tth::GenObjectIndices& genObjectIndices, const tth::RecoObjectIndices& recoObjectIndices,
                             const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
                             const double& defaultWeight)const
@@ -875,18 +993,20 @@ void HiggsAnalysis::fillAll(const std::string& selectionStep,
     if(this->makeBtagEfficiencies()) return;
     
     for(AnalyzerBase* analyzer : v_analyzer_){
-        if(analyzer) analyzer->fill(recoObjects, commonGenObjects,
+        if(analyzer) analyzer->fill(eventMetadata,
+                                    recoObjects, commonGenObjects,
                                     topGenObjects, higgsGenObjects,
-                                    kinRecoObjects,
+                                    kinematicReconstructionSolutions,
                                     recoObjectIndices, genObjectIndices,
                                     genLevelWeights, recoLevelWeights,
                                     defaultWeight, selectionStep);
     }
     
     for(MvaTreeHandlerBase* mvaTreeHandler : v_mvaTreeHandler_){
-        if(mvaTreeHandler) mvaTreeHandler->fill(recoObjects, commonGenObjects,
+        if(mvaTreeHandler) mvaTreeHandler->fill(eventMetadata,
+                                                recoObjects, commonGenObjects,
                                                 topGenObjects, higgsGenObjects,
-                                                kinRecoObjects,
+                                                kinematicReconstructionSolutions,
                                                 recoObjectIndices, genObjectIndices,
                                                 genLevelWeights, recoLevelWeights,
                                                 defaultWeight, selectionStep);

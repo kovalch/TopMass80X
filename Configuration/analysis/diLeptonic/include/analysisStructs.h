@@ -50,7 +50,9 @@ namespace ttbar{
         GenObjectIndices(const int& genBjetFromTopIndex, const int& genAntiBjetFromTopIndex,
                          const int& recoBjetFromTopIndex, const int& recoAntiBjetFromTopIndex,
                          const int& genBjetFromHiggsIndex, const int& genAntiBjetFromHiggsIndex,
-                         const int& recoBjetFromHiggsIndex, const int& recoAntiBjetFromHiggsIndex);
+                         const int& recoBjetFromHiggsIndex, const int& recoAntiBjetFromHiggsIndex,
+                         const std::vector<int>& genVisJetIndices
+                        );
         ~GenObjectIndices(){}
         
         bool uniqueGenTopMatching()const;
@@ -82,6 +84,8 @@ namespace ttbar{
         const int& genAntiBjetFromHiggsIndex_;
         const int& recoBjetFromHiggsIndex_;
         const int& recoAntiBjetFromHiggsIndex_;
+        
+        const std::vector<int>& genVisJetIndices_;
         #endif
     };
     

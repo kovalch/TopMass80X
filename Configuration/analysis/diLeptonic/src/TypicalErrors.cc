@@ -16,47 +16,36 @@
 using namespace std;
 
 
-std::vector<TString> Channels()
-{
-    std::vector<TString> channel {"ee", "emu", "mumu", "combined"};
-    return channel;
-}
+std::vector<TString> Channels {"ee", "emu", "mumu", "combined"};
 
-std::vector<TString> Variables()
-{
-    std::vector<TString> variables {"ToppT", "TopRapidity","ToppTTTRestFrame",
-                                    "TTBarpT", "TTBarRapidity", "TTBarMass", "TTBarDeltaRapidity", "TTBarDeltaPhi",
-                                    "BJetpT","BJetEta","LeptonpT","LeptonEta",
-                                    "LLBarpT", "LLBarMass","LeptonBjetMass", "BBBarMass", "BBBarpT"
-                                    };
+std::vector<TString> Variables_FullPS {"ToppT", "TopRapidity","ToppTTTRestFrame", "ToppTLead", "ToppTNLead",
+                                       "TTBarpT", "TTBarRapidity", "TTBarMass", "TTBarDeltaPhi"
+                                      };
 
-    return variables;
-}
+std::vector<TString> Variables_VisiblePS {"BJetpT","BJetEta","LeptonpT","LeptonEta",
+                                          "LLBarpT", "LLBarMass","LeptonBjetMass", "BBBarMass", "BBBarpT"
+                                          };
 
-std::vector<TString> Systematics()
-{
-    std::vector<TString> systematics {"TRIG_", "LEPT_",
-                                "BG_", "DY_", 
-                                "JES_", "JER_", 
-                                "PU_",
-                                "BTAG_", "BTAG_LJET_", 
-                                "BTAG_PT_", "BTAG_LJET_PT_",
-                                "KIN_",
-                                "HAD_", "MASS_", "SCALE_", "MATCH_"
-                                ,"PDF_"
-                                };
-
-        return systematics;
-}
+std::vector<TString> Systematics {"TRIG_", "LEPT_","BG_", "DY_", "JES_", "JER_", "PU_",
+                                  "BTAG_", "BTAG_LJET_", "BTAG_PT_", "BTAG_LJET_PT_",
+                                  "KIN_",
+                                  "HAD_", "MASS_", "SCALE_", "MATCH_", "PDF_"
+                                  };
 
 
-std::vector<TString> Files(TString channel = "", TString variable = "")
+std::vector<TString> Files(TString channel = "", TString variable = "", TString phaseSpace = "")
 {
     std::vector<TString> WhichVariable;
     std::vector<TString> FileVector;
 
     if (variable!=""){WhichVariable.push_back(variable);}
-    else{WhichVariable = Variables();}
+    else if (phaseSpace == "full")    {WhichVariable = Variables_FullPS;}
+    else if (phaseSpace == "visible") {WhichVariable = Variables_VisiblePS;}
+    else{
+        WhichVariable = Variables_FullPS;
+        WhichVariable.reserve(WhichVariable.size()+Variables_VisiblePS.size());
+        WhichVariable.insert(WhichVariable.end(), Variables_VisiblePS.begin(), Variables_VisiblePS.end());
+    }
 
     for (size_t j=0; j<WhichVariable.size(); j++){
         FileVector.push_back(TString("Plots/FinalResults/").Append(channel).Append("/").Append(WhichVariable.at(j)).Append("_SystematicsLaTeX.txt"));
@@ -125,14 +114,16 @@ std::vector<double> ReadLineFromFile (TString Filename, TString Systematic)
 
 void SanityCheck( TString channel = "", TString systematic = "", TString variable = "")
 {
-    std::vector<TString> ValidChannel = Channels(), ValidSystematic = Systematics(), ValidVariable = Variables();
-
-    if (find(ValidChannel.begin(), ValidChannel.end(), channel) == ValidChannel.end() && channel != ""){
+    std::vector<TString> ValidVariable = Variables_FullPS;
+    ValidVariable.reserve(ValidVariable.size()+Variables_VisiblePS.size());
+    ValidVariable.insert(ValidVariable.end(), Variables_VisiblePS.begin(), Variables_VisiblePS.end());
+    
+    if (find(Channels.begin(), Channels.end(), channel) == Channels.end() && channel != ""){
         std::cout<<"\n\nThe proposed channel '"<<channel<<"' is not valid. Exiting!\n"<<std::endl;
         exit(2);
     }
 
-    if (find(ValidSystematic.begin(), ValidSystematic.end(), systematic) == ValidSystematic.end() && systematic != ""){
+    if (find(Systematics.begin(), Systematics.end(), systematic) == Systematics.end() && systematic != ""){
         std::cout<<"\n\nThe proposed systematic '"<<systematic<<"' is not valid (or is not implemented yet). Exiting!\n"<<std::endl;
         exit(22);
     }
@@ -144,20 +135,20 @@ void SanityCheck( TString channel = "", TString systematic = "", TString variabl
 
 }
 
-void TypicalError( TString channel = "", TString systematic = "", TString variable = "")
+void TypicalError( TString channel = "", TString systematic = "", TString variable = "", TString phaseSpace = "")
 {
     SanityCheck(channel, systematic, variable);
     
     std::vector<TString> Channel, Systematic;
 
     if ( channel != ""){Channel.push_back(channel);}
-    else { Channel = Channels(); }
+    else { Channel = Channels; }
     
     if ( systematic != "") {Systematic.push_back(systematic);}
-    else { Systematic = Systematics();}
+    else { Systematic = Systematics;}
     
     for (size_t l=0; l<Channel.size(); l++){
-        std::vector<TString> FileList = Files(Channel.at(l), variable);
+        std::vector<TString> FileList = Files(Channel.at(l), variable, phaseSpace);
         std::vector<double> error;
         std::cout<<"----------------------------------------"<<std::endl;
 
@@ -171,7 +162,7 @@ void TypicalError( TString channel = "", TString systematic = "", TString variab
 
             int extra = (error.size()%2) ? 0 : 1;
             int meanPoint =error.size()/2;
-            std::cout<<"Total typical error for systematic "<<Systematic.at(j)<<" in channel "<<Channel.at(l)<<" is: "<<0.5*(error.at(meanPoint-extra) + error.at(meanPoint))<<std::endl;
+            printf("Total typical error for systematic %*s in channel %s is: %2.2f %%\n", 15, Systematic.at(j).Data(), Channel.at(l).Data(), 0.5*(error.at(meanPoint-extra) + error.at(meanPoint)));
         }
     }
 }
@@ -182,13 +173,16 @@ int main(int argc, char** argv) {
     CLParameter<std::string> opt_s("s", "Return the typical systematic uncertainty for a certain systematic variation, e.g. 'PU_', 'TRIG_', 'BTAG_LJET_ETA_', 'BTAG_PT_', ...", false, 1, 1);
     CLParameter<std::string> opt_c("c", "Return the typical systematic uncertainty for an specific channel (ee, emu, mumu). No channel specified = run on all channels", false, 1, 1,
             [](const std::string &ch){return ch == "" || ch == "ee" || ch == "emu" || ch == "mumu" || ch == "combined";});
+    CLParameter<std::string> opt_ps("ps", "Specify set of variables according to the phase space in which they are measured. Valid options: visible, full", false, 1, 1,
+            [](const std::string &ps){return ps == "full" || ps == "visible";});
     CLAnalyser::interpretGlobal(argc, argv);
     
     TString ValidSystematics = opt_s.isSet() ? opt_s[0] : "";
     TString ValidVariable    = opt_v.isSet() ? opt_v[0] : "";
     TString ValidChannel     = opt_c.isSet() ? opt_c[0] : "";
+    TString ValidPhaseSpace  = (!opt_v.isSet() && opt_ps.isSet()) ? opt_ps[0] : "";
         
-    TypicalError(ValidChannel, ValidSystematics, ValidVariable);
+    TypicalError(ValidChannel, ValidSystematics, ValidVariable, ValidPhaseSpace);
     
     return 0;
 }

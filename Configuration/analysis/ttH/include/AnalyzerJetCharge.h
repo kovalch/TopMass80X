@@ -12,11 +12,12 @@ class TH1;
 
 
 class JetCategories;
+class EventMetadata;
 class RecoObjects;
 class CommonGenObjects;
 class TopGenObjects;
 class HiggsGenObjects;
-class KinRecoObjects;
+class KinematicReconstructionSolutions;
 namespace tth{
     class RecoLevelWeights;
     class GenLevelWeights;
@@ -39,6 +40,15 @@ public:
     /// Destructor
     ~AnalyzerJetCharge(){}
 
+    /// Check the decreasing order of a list (vector)
+    bool checkDecreasingOrderOfAList(const VLV& vector);
+    
+    /// Check if the pfCandidate is matched to a selectedTrack and return the index of the selectedTrack
+    int selTrackMatchToPfIndex(const LV& pfCandidate, const std::vector<LV>& selectedTracks, const int pfCharge, const std::vector<int>& selCharge, const int pfTrackJetIndex, const std::vector<int>& selectedTrackIndex, const std::vector <int>& ptOrderedSelTrackIdx);
+    
+    /// Pair jets with leptons in order to calculate the mlb. Returns a vector with three integers: first->sign of lepton (0 if mlb not succesfullly calculated), second->correctly matched jet (-1 if none), third->wrongly matched jet(-1 if none); successfull mlb means: one lepton+jet system under massThreshold, the other system above
+    std::vector<int> leptonToJetMlbCalculator(const double massThreshold, const LV& lepton, const int leptonCharge, const VLV& recoJets, const std::vector<int>& jetIndices);
+    
     /// Find index of genJet corresponding to the specified reco jet. Returns -1 if not found
     int genJetIdOfRecoJet(const LV& recoJet, const VLV& genJets, const float dR_max=999.9);
     
@@ -53,19 +63,20 @@ public:
     bool isInVector(const std::vector<int>& idVector, const int id);
     
     bool putUniquelyInVector(std::vector<int>& vector, const int id);
+    int jetSelectedTrackMatchToPfCandidateIndex(size_t iSelectedTrack);
     
     struct MvaJetVariable
     {
-        std::vector <float> longChargeJet_;
-        std::vector <float> relChargeJet_;
-        std::vector <int> leadingTrackCharge_;
-        std::vector <float> leadingTrackPt_;
-        std::vector <float> leadingTrackPtCharge_;
-        std::vector <float> trueBJetPt_;
-        std::vector <int> numTracks_;
-        std::vector <int> trueBJetId_;
-        std::vector<float> ptRatioTrackJet_;
-        std::vector<bool> isMuonEvent_;
+        float longChargeJet_;
+        float relChargeJet_;
+        int leadingTrackCharge_;
+        float leadingTrackPt_;
+        float trueBJetPt_;
+        int numTracks_;
+        int trueBJetId_;
+        float ptRatioTrackJet_;
+        float ipValueLeadingTrack_;
+        float secondaryVertexCharge_;
     } mvaStruct;
     
     TTree* mvaChargeTestTree;
@@ -81,9 +92,10 @@ private:
     virtual void bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram);
 
     /// Fill all histograms for given selection step
-    virtual void fillHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+    virtual void fillHistos(const EventMetadata& eventMetadata,
+                            const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                             const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
-                            const KinRecoObjects& kinRecoObjects,
+                            const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
                             const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
                             const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
                             const double& weight, const TString& step,

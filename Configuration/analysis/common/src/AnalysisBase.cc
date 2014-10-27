@@ -7,31 +7,23 @@
 #include <iomanip>
 #include <algorithm>
 
-#include <TROOT.h>
-#include <TMath.h>
-#include <TSystem.h>
-#include <Math/VectorUtil.h>
-#include <TLorentzVector.h>
-#include <TStyle.h>
 #include <TFile.h>
 #include <TTree.h>
 #include <TBranch.h>
 #include <TH1.h>
-#include <TH2.h>
 #include <TString.h>
-#include <TObjArray.h>
-#include <TRandom3.h>
 #include <TIterator.h>
 #include <TObject.h>
+#include <TObjString.h>
 
 #include "AnalysisBase.h"
-#include "KinReco.h"
 #include "analysisUtils.h"
 #include "classes.h"
 #include "ScaleFactors.h"
+#include "Correctors.h"
 #include "KinematicReconstruction.h"
+#include "KinematicReconstructionSolution.h"
 #include "analysisObjectStructs.h"
-#include "TopAnalysis/ZTopUtils/interface/RecoilCorrector.h"
 
 
 
@@ -46,11 +38,12 @@
 
 AnalysisBase::AnalysisBase(TTree*):
 chain_(0),
+eventMetadata_(0),
 recoObjects_(0),
 commonGenObjects_(0),
 topGenObjects_(0),
 higgsGenObjects_(0),
-kinRecoObjects_(0),
+zGenObjects_(0),
 h_weightedEvents(0),
 samplename_(""),
 channel_(Channel::undefined),
@@ -58,6 +51,7 @@ systematic_(),
 isMC_(false),
 isTopSignal_(false),
 isHiggsSignal_(false),
+isDrellYan_(false),
 isTtbarPlusTauSample_(false),
 correctMadgraphBR_(false),
 channelPdgIdProduct_(0),
@@ -69,14 +63,15 @@ eventCounter_(0),
 analysisOutputBase_(0),
 kinematicReconstruction_(0),
 pileupScaleFactors_(0),
-recoilCorrector_(0),
 leptonScaleFactors_(0),
 triggerScaleFactors_(0),
 jetEnergyResolutionScaleFactors_(0),
 jetEnergyScaleScaleFactors_(0),
 btagScaleFactors_(0),
 topPtScaleFactors_(0),
-isSampleForBtagEfficiencies_(false)
+isSampleForBtagEfficiencies_(false),
+mvaMet_(false),
+metRecoilCorrector_(0)
 {
     this->clearBranches();
     this->clearBranchVariables();
@@ -98,14 +93,15 @@ void AnalysisBase::Begin(TTree*)
 void AnalysisBase::SlaveBegin(TTree*)
 {
     // WARNING! In general do not make changes here, but in your analysis' SlaveBegin function
-
+    
     TSelector::SlaveBegin(0);
-
+    
+    eventMetadata_ = new EventMetadata();
     recoObjects_ = new RecoObjects();
     commonGenObjects_ = new CommonGenObjects();
     topGenObjects_ = new TopGenObjects();
     higgsGenObjects_ = new HiggsGenObjects();
-    kinRecoObjects_ = new KinRecoObjects();
+    zGenObjects_ = new ZGenObjects();
 }
 
 
@@ -118,11 +114,12 @@ void AnalysisBase::SlaveTerminate()
     // have been processed. When running with PROOF SlaveTerminate() is called
     // on each slave server.
     
+    if(eventMetadata_) delete eventMetadata_;
     if(recoObjects_) delete recoObjects_;
     if(commonGenObjects_) delete commonGenObjects_;
     if(topGenObjects_) delete topGenObjects_;
     if(higgsGenObjects_) delete higgsGenObjects_;
-    if(kinRecoObjects_) delete kinRecoObjects_;
+    if(zGenObjects_) delete zGenObjects_;
 }
 
 
@@ -219,19 +216,21 @@ void AnalysisBase::Init(TTree *tree)
     if(!tree) return;
     chain_ = tree;
     chain_->SetMakeClass(0);
+    this->SetEventMetadataBranchAddresses();
     this->SetRecoBranchAddresses();
     this->SetTriggerBranchAddresses();
+    //this->SetKinRecoBranchAddresses();
     if(isMC_) this->SetCommonGenBranchAddresses();
-    this->SetKinRecoBranchAddresses();
     if(isMC_) this->SetVertMultiTrueBranchAddress();
     if(isMC_) this->SetWeightGeneratorBranchAddress();
     this->SetPdfBranchAddress();
-    this->SetDyDecayBranchAddress();
     this->SetTopDecayBranchAddress();
-    if(isHiggsSignal_) this->SetHiggsDecayBranchAddress();
-    if(isTopSignal_ && isTtbarSample_ && topPtScaleFactors_) this->SetGenTopBranchAddresses();
+    if(isTtbarPlusTauSample_ && topPtScaleFactors_) this->SetGenTopBranchAddresses();
     if(isTopSignal_) this->SetTopSignalBranchAddresses();
+    if(isHiggsSignal_) this->SetHiggsDecayBranchAddress();
     if(isHiggsSignal_) this->SetHiggsSignalBranchAddresses();
+    if(isDrellYan_) this->SetZDecayBranchAddress();
+    if(isDrellYan_) this->SetZSignalBranchAddresses();
 }
 
 
@@ -263,6 +262,13 @@ void AnalysisBase::SetTopSignal(const bool isTopSignal)
 void AnalysisBase::SetHiggsSignal(const bool higgsSignal)
 {
     isHiggsSignal_ = higgsSignal;
+}
+
+
+
+void AnalysisBase::SetDrellYan(const bool isDrellYan)
+{
+    isDrellYan_ = isDrellYan;
 }
 
 
@@ -329,13 +335,13 @@ void AnalysisBase::SetAnalysisOutputBase(const char* analysisOutputBase)
 }
 
 
-void AnalysisBase::SetMetRecoilCorrector(ztop::RecoilCorrector* recoilCorrector)
+void AnalysisBase::SetMetRecoilCorrector(const MetRecoilCorrector* const metRecoilCorrector)
 {
-    recoilCorrector_ = recoilCorrector;
+    metRecoilCorrector_ = metRecoilCorrector;
 }
 
 
-void AnalysisBase::SetKinematicReconstruction(KinematicReconstruction* kinematicReconstruction,
+void AnalysisBase::SetKinematicReconstruction(const KinematicReconstruction* const kinematicReconstruction,
                                               const KinematicReconstructionScaleFactors* const kinematicReconstructionScaleFactors)
 {
     kinematicReconstruction_ = kinematicReconstruction;
@@ -407,8 +413,13 @@ void AnalysisBase::SetTopPtScaleFactors(const TopPtScaleFactors* topPtScaleFacto
 
 void AnalysisBase::clearBranches()
 {
+    // nTuple branches holding event meta data
+    b_runNumber = 0;
+    b_lumiBlock = 0;
+    b_eventNumber = 0;
+    
+    
     // nTuple branches relevant for reconstruction level
-    // Concerning physics objects
     b_lepton = 0;
     b_lepPdgId = 0;
     b_lepID = 0;
@@ -445,22 +456,11 @@ void AnalysisBase::clearBranches()
     b_jetSecondaryVertexTrackMatchToSelectedTrackIndex = 0;
     b_jetSecondaryVertexTrackVertexIndex = 0;
     b_jetSecondaryVertex = 0;
+    b_jetSecondaryVertexPtCorrectedMass = 0;
     b_jetSecondaryVertexJetIndex = 0;
     b_jetSecondaryVertexFlightDistanceValue = 0;
     b_jetSecondaryVertexFlightDistanceSignificance = 0;
-    
     b_met = 0;
-    b_mvamet = 0;
-    b_jetJERSF = 0;
-    b_jetForMET = 0;
-    b_jetForMETJERSF = 0;
-    
-    // nTuple branches relevant for reconstruction level
-    // Concerning event
-    b_runNumber = 0;
-    b_lumiBlock = 0;
-    b_eventNumber = 0;
-    b_recoInChannel = 0;
     b_vertMulti = 0;
     
     
@@ -471,28 +471,13 @@ void AnalysisBase::clearBranches()
     
     
     // nTuple branches holding generator information for all MC samples
-    // Concerning physics objects
-    b_allGenJets = 0;
-    b_jetPartonFlavour = 0;
+    b_jetJERSF = 0;
+    b_jetForMET = 0;
+    b_jetForMETJERSF = 0;
     b_associatedGenJet = 0;
     b_associatedGenJetForMET = 0;
-    b_jetAssociatedPartonPdgId = 0;
-    b_jetAssociatedParton = 0;
-    
-    
-    // nTuple branches of kinematic reconstruction
-    b_HypTop = 0;
-    b_HypAntiTop = 0;
-    b_HypLepton = 0;
-    b_HypAntiLepton = 0;
-    b_HypNeutrino = 0;
-    b_HypAntiNeutrino = 0;
-    b_HypB = 0;
-    b_HypAntiB = 0;
-    b_HypWPlus = 0;
-    b_HypWMinus = 0;
-    b_HypJet0index = 0;
-    b_HypJet1index = 0;
+    b_jetPartonFlavour = 0;
+    b_jetPartonFlavourForMET = 0;
     
     
     // nTuple branch for true vertex multiplicity
@@ -507,11 +492,6 @@ void AnalysisBase::clearBranches()
     b_weightPDF = 0;
     
     
-    // nTuple branch for Drell-Yan decay mode
-    b_ZDecayMode = 0;
-    b_genZ = 0;
-    
-    
     // nTuple branch for Top decay mode
     b_TopDecayMode = 0;
     
@@ -520,10 +500,13 @@ void AnalysisBase::clearBranches()
     b_HiggsDecayMode = 0;
     
     
+    // nTuple branch for Drell-Yan decay mode
+    b_GenZDecayMode = 0;
+    
+    
     // nTuple branches for Top signal samples on generator level
     b_GenTop = 0;
     b_GenAntiTop = 0;
-    b_GenMet = 0;
     b_GenLepton = 0;
     b_GenAntiLepton = 0;
     b_GenLeptonPdgId = 0;
@@ -536,6 +519,8 @@ void AnalysisBase::clearBranches()
     b_GenAntiB = 0;
     b_GenWPlus = 0;
     b_GenWMinus = 0;
+    b_GenMet = 0;
+    b_allGenJets = 0;
     b_GenParticleP4 = 0;
     b_GenParticlePdgId = 0;
     b_GenParticleStatus = 0;
@@ -547,6 +532,8 @@ void AnalysisBase::clearBranches()
     b_AntiBHadronFromTopB = 0;
     b_BHadronVsJet = 0;
     b_AntiBHadronVsJet = 0;
+    b_jetAssociatedPartonPdgId = 0;
+    b_jetAssociatedParton = 0;
     
     b_genBHadPlusMothersPdgId = 0;
     b_genBHadPlusMothersStatus = 0;
@@ -559,13 +546,11 @@ void AnalysisBase::clearBranches()
     b_genBHadLeptonHadronIndex = 0;
     b_genBHadLeptonViaTau = 0;
     b_genBHadFromTopWeakDecay = 0;
-    
     b_genCHadJetIndex = 0;
     b_genCHadLeptonIndex = 0;
     b_genCHadLeptonHadronIndex = 0;
     b_genCHadLeptonViaTau = 0;
     b_genCHadFromBHadron = 0;
-    
     b_genExtraTopJetNumberId = 0;
 
 
@@ -573,6 +558,14 @@ void AnalysisBase::clearBranches()
     b_GenH = 0;
     b_GenBFromH = 0;
     b_GenAntiBFromH = 0;
+    
+    
+    // nTuple branches for Z signal samples on generator level
+    b_GenZ = 0;
+    b_GenZMeDaughterParticle = 0;
+    b_GenZMeDaughterAntiParticle = 0;
+    b_GenZStableLepton = 0;
+    b_GenZStableAntiLepton = 0;
 }
 
 
@@ -580,11 +573,12 @@ void AnalysisBase::clearBranches()
 void AnalysisBase::clearBranchVariables()
 {
     // Set values to null for all variables arranged in structs
+    if(eventMetadata_) eventMetadata_->clear();
     if(recoObjects_) recoObjects_->clear();
     if(commonGenObjects_) commonGenObjects_->clear();
     if(topGenObjects_) topGenObjects_->clear();
     if(higgsGenObjects_) higgsGenObjects_->clear();
-    if(kinRecoObjects_) kinRecoObjects_->clear();
+    if(zGenObjects_) zGenObjects_->clear();
     
     // Set values to null for trigger bits
     triggerBits_ = 0;
@@ -600,22 +594,29 @@ void AnalysisBase::clearBranchVariables()
     // Set values to null for PDF weight
     weightPDF_ = 0;
     
-    // Set values to null for Drell-Yan decay branch
-    ZDecayMode_ = 0;
-    genZ_ = 0;
-    
     // Set values to null for Top decay branch
     topDecayMode_ = 0;
     
     // Set values to null for Higgs decay branch
     higgsDecayMode_ = 0;
+    
+    // Set values to null for Z decay branch
+    v_genZDecayMode_ = 0;
+}
+
+
+
+void AnalysisBase::SetEventMetadataBranchAddresses()
+{
+    chain_->SetBranchAddress("runNumber", &eventMetadata_->runNumber_, &b_runNumber);
+    chain_->SetBranchAddress("lumiBlock", &eventMetadata_->lumiBlock_, &b_lumiBlock);
+    chain_->SetBranchAddress("eventNumber", &eventMetadata_->eventNumber_, &b_eventNumber);
 }
 
 
 
 void AnalysisBase::SetRecoBranchAddresses()
 {
-    // Concerning physics objects
     chain_->SetBranchAddress("leptons", &recoObjects_->allLeptons_, &b_lepton);
     chain_->SetBranchAddress("lepPdgId", &recoObjects_->lepPdgId_, &b_lepPdgId);
     //chain_->SetBranchAddress("lepID", &recoObjects_->lepID_, &b_lepID);
@@ -677,7 +678,10 @@ void AnalysisBase::SetRecoBranchAddresses()
     else b_jetSelectedTrackMatchToPfCandidateIndex = 0;
     if(chain_->GetBranch("jetSecondaryVertex")) // new variable, keep check a while for compatibility
        chain_->SetBranchAddress("jetSecondaryVertex", &recoObjects_->jetSecondaryVertex_, &b_jetSecondaryVertex);
-    else b_jetSecondaryVertex = 0;
+    else b_jetSecondaryVertex = 0; 
+    if(chain_->GetBranch("jetSecondaryVertexPtCorrectedMass")) // new variable, keep check a while for compatibility
+       chain_->SetBranchAddress("jetSecondaryVertexPtCorrectedMass", &recoObjects_->jetSecondaryVertexPtCorrectedMass_, &b_jetSecondaryVertexPtCorrectedMass);
+    else b_jetSecondaryVertexPtCorrectedMass = 0;
     if(chain_->GetBranch("jetSecondaryVertexJetIndex")) // new variable, keep check a while for compatibility
      chain_->SetBranchAddress("jetSecondaryVertexJetIndex", &recoObjects_->jetSecondaryVertexJetIndex_, &b_jetSecondaryVertexJetIndex);
     else b_jetSecondaryVertexJetIndex = 0;
@@ -693,25 +697,17 @@ void AnalysisBase::SetRecoBranchAddresses()
     if(chain_->GetBranch("jetSecondaryVertexTrackMatchToSelectedTrackIndex")) // new variable, keep check a while for compatibility
      chain_->SetBranchAddress("jetSecondaryVertexTrackMatchToSelectedTrackIndex", &recoObjects_->jetSecondaryVertexTrackMatchToSelectedTrackIndex_, &b_jetSecondaryVertexTrackMatchToSelectedTrackIndex);
     else b_jetSecondaryVertexTrackMatchToSelectedTrackIndex = 0; 
-    
-    chain_->SetBranchAddress("met", &recoObjects_->met_, &b_met);
-    if(chain_->GetBranch("mvamet")) // new variable, keep check a while for compatibility
-        chain_->SetBranchAddress("mvamet", &recoObjects_->mvamet_, &b_mvamet);
-    else b_mvamet = 0;
-
-    if(jetEnergyResolutionScaleFactors_ || jetEnergyScaleScaleFactors_){
-        chain_->SetBranchAddress("jetsForMET", &recoObjects_->jetsForMET_, &b_jetForMET);
+    if(mvaMet_){
+        if(chain_->GetBranch("mvamet")) // new variable, keep check a while for compatibility
+            chain_->SetBranchAddress("mvamet", &recoObjects_->met_, &b_met);
+        else{
+            std::cerr<<"ERROR in AnalysisBase::SetRecoBranchAddresses()! MVA MET is requested, but not found in nTuple\n...break\n"<<std::endl;
+            exit(237);
+        }
     }
-    if(jetEnergyResolutionScaleFactors_){
-        chain_->SetBranchAddress("jetJERSF", &recoObjects_->jetJERSF_, &b_jetJERSF);
-        chain_->SetBranchAddress("jetForMETJERSF", &recoObjects_->jetForMETJERSF_, &b_jetForMETJERSF);
+    else{
+        chain_->SetBranchAddress("met", &recoObjects_->met_, &b_met);
     }
-    
-    // Concerning event
-    chain_->SetBranchAddress("runNumber", &recoObjects_->runNumber_, &b_runNumber);
-    chain_->SetBranchAddress("lumiBlock", &recoObjects_->lumiBlock_, &b_lumiBlock);
-    chain_->SetBranchAddress("eventNumber", &recoObjects_->eventNumber_, &b_eventNumber);
-    //chain_->SetBranchAddress("recoInChannel", &recoObjects_->recoInChannel_, &b_recoInChannel);
     chain_->SetBranchAddress("vertMulti", &recoObjects_->vertMulti_, &b_vertMulti);
 }
 
@@ -728,33 +724,19 @@ void AnalysisBase::SetTriggerBranchAddresses()
 
 void AnalysisBase::SetCommonGenBranchAddresses()
 {
-    // Concerning physics objects
-    chain_->SetBranchAddress("allGenJets", &commonGenObjects_->allGenJets_, &b_allGenJets);
-    chain_->SetBranchAddress("jetPartonFlavour", &commonGenObjects_->jetPartonFlavour_, &b_jetPartonFlavour);
+    if(jetEnergyResolutionScaleFactors_ || jetEnergyScaleScaleFactors_){
+        chain_->SetBranchAddress("jetsForMET", &commonGenObjects_->jetsForMET_, &b_jetForMET);
+    }
+    if(jetEnergyResolutionScaleFactors_){
+        chain_->SetBranchAddress("jetJERSF", &commonGenObjects_->jetJERSF_, &b_jetJERSF);
+        chain_->SetBranchAddress("jetForMETJERSF", &commonGenObjects_->jetForMETJERSF_, &b_jetForMETJERSF);
+    }
     chain_->SetBranchAddress("associatedGenJet", &commonGenObjects_->associatedGenJet_, &b_associatedGenJet);
+    chain_->SetBranchAddress("jetPartonFlavour", &commonGenObjects_->jetPartonFlavour_, &b_jetPartonFlavour);
     if(jetEnergyResolutionScaleFactors_){
         chain_->SetBranchAddress("associatedGenJetForMET", &commonGenObjects_->associatedGenJetForMET_, &b_associatedGenJetForMET);
+        //chain_->SetBranchAddress("jetPartonFlavourForMET", &commonGenObjects_->jetPartonFlavourForMET_, &b_jetPartonFlavourForMET);
     }
-    //chain_->SetBranchAddress("jetAssociatedPartonPdgId", &commonGenObjects_->jetAssociatedPartonPdgId_, &b_jetAssociatedPartonPdgId);
-    //chain_->SetBranchAddress("jetAssociatedParton", &commonGenObjects_->jetAssociatedParton_, &b_jetAssociatedParton);
-}
-
-
-
-void AnalysisBase::SetKinRecoBranchAddresses()
-{
-    chain_->SetBranchAddress("HypTop", &kinRecoObjects_->HypTop_, &b_HypTop);
-    chain_->SetBranchAddress("HypAntiTop", &kinRecoObjects_->HypAntiTop_, &b_HypAntiTop);
-    chain_->SetBranchAddress("HypLepton", &kinRecoObjects_->HypLepton_, &b_HypLepton);
-    chain_->SetBranchAddress("HypAntiLepton", &kinRecoObjects_->HypAntiLepton_, &b_HypAntiLepton);
-    chain_->SetBranchAddress("HypNeutrino", &kinRecoObjects_->HypNeutrino_, &b_HypNeutrino);
-    chain_->SetBranchAddress("HypAntiNeutrino", &kinRecoObjects_->HypAntiNeutrino_, &b_HypAntiNeutrino);
-    chain_->SetBranchAddress("HypB", &kinRecoObjects_->HypBJet_, &b_HypB);
-    chain_->SetBranchAddress("HypAntiB", &kinRecoObjects_->HypAntiBJet_, &b_HypAntiB);
-    //chain_->SetBranchAddress("HypWPlus", &kinRecoObjects_->HypWPlus_, &b_HypWPlus_);
-    //chain_->SetBranchAddress("HypWMinus", &kinRecoObjects_->HypWMinus_, &b_HypWMinus_);
-    chain_->SetBranchAddress("HypJet0index", &kinRecoObjects_->HypJet0index_, &b_HypJet0index);
-    chain_->SetBranchAddress("HypJet1index", &kinRecoObjects_->HypJet1index_, &b_HypJet1index);
 }
 
 
@@ -780,14 +762,6 @@ void AnalysisBase::SetPdfBranchAddress()
 
 
 
-void AnalysisBase::SetDyDecayBranchAddress()
-{
-    chain_->SetBranchAddress("ZDecayMode", &ZDecayMode_, &b_ZDecayMode);
-    if(chain_->GetBranch("GenZ")) chain_->SetBranchAddress("GenZ", &genZ_, &b_genZ);
-}
-
-
-
 void AnalysisBase::SetTopDecayBranchAddress()
 {
     chain_->SetBranchAddress("TopDecayMode", &topDecayMode_, &b_TopDecayMode);
@@ -798,6 +772,13 @@ void AnalysisBase::SetTopDecayBranchAddress()
 void AnalysisBase::SetHiggsDecayBranchAddress()
 {
     chain_->SetBranchAddress("HiggsDecayMode", &higgsDecayMode_, &b_HiggsDecayMode);
+}
+
+
+
+void AnalysisBase::SetZDecayBranchAddress()
+{
+    chain_->SetBranchAddress("GenZDecayMode", &v_genZDecayMode_, &b_GenZDecayMode);
 }
 
 
@@ -813,7 +794,6 @@ void AnalysisBase::SetGenTopBranchAddresses()
 void AnalysisBase::SetTopSignalBranchAddresses()
 {
     this->SetGenTopBranchAddresses();
-    chain_->SetBranchAddress("GenMET", &topGenObjects_->GenMet_, &b_GenMet);
     chain_->SetBranchAddress("GenLepton", &topGenObjects_->GenLepton_, &b_GenLepton);
     chain_->SetBranchAddress("GenAntiLepton", &topGenObjects_->GenAntiLepton_, &b_GenAntiLepton);
     //chain_->SetBranchAddress("GenLeptonPdgId", &topGenObjects_->GenLeptonPdgId_, &b_GenLeptonPdgId);
@@ -828,6 +808,8 @@ void AnalysisBase::SetTopSignalBranchAddresses()
     //chain_->SetBranchAddress("GenWMinus", &topGenObjects_->GenWMinus_, &b_GenWMinus);
     //chain_->SetBranchAddress("GenWPlus.fCoordinates.fX", &topGenObjects_->GenWPluspX_, &b_GenWPluspX);
     //chain_->SetBranchAddress("GenWMinus.fCoordinates.fX", &topGenObjects_->GenWMinuspX_, &b_GenWMinuspX);
+    chain_->SetBranchAddress("GenMET", &topGenObjects_->GenMet_, &b_GenMet);
+    chain_->SetBranchAddress("allGenJets", &topGenObjects_->allGenJets_, &b_allGenJets);
     //chain_->SetBranchAddress("GenParticleP4", &topGenObjects_->GenParticleP4_, &b_GenParticleP4);
     //chain_->SetBranchAddress("GenParticlePdgId", &topGenObjects_->GenParticlePdgId_, &b_GenParticlePdgId);
     //chain_->SetBranchAddress("GenParticleStatus", &topGenObjects_->GenParticleStatus_, &b_GenParticleStatus);
@@ -839,6 +821,8 @@ void AnalysisBase::SetTopSignalBranchAddresses()
     chain_->SetBranchAddress("AntiBHadronFromTopB", &topGenObjects_->AntiBHadronFromTopB_, &b_AntiBHadronFromTopB);
     chain_->SetBranchAddress("BHadronVsJet", &topGenObjects_->BHadronVsJet_, &b_BHadronVsJet);
     chain_->SetBranchAddress("AntiBHadronVsJet", &topGenObjects_->AntiBHadronVsJet_, &b_AntiBHadronVsJet);
+    //chain_->SetBranchAddress("jetAssociatedPartonPdgId", &topGenObjects_->jetAssociatedPartonPdgId_, &b_jetAssociatedPartonPdgId);
+    //chain_->SetBranchAddress("jetAssociatedParton", &topGenObjects_->jetAssociatedParton_, &b_jetAssociatedParton);
     
     if(chain_->GetBranch("genBHadPlusMothersPdgId")) // need to check whether branch exists
        chain_->SetBranchAddress("genBHadPlusMothersPdgId", &topGenObjects_->genBHadPlusMothersPdgId_, &b_genBHadPlusMothersPdgId);
@@ -895,6 +879,30 @@ void AnalysisBase::SetHiggsSignalBranchAddresses()
 
 
 
+void AnalysisBase::SetZSignalBranchAddresses()
+{
+    chain_->SetBranchAddress("GenZ", &zGenObjects_->GenZ_, &b_GenZ);
+    chain_->SetBranchAddress("GenZMeDaughterParticle", &zGenObjects_->GenZMeDaughterParticle_, &b_GenZMeDaughterParticle);
+    chain_->SetBranchAddress("GenZMeDaughterAntiParticle", &zGenObjects_->GenZMeDaughterAntiParticle_, &b_GenZMeDaughterAntiParticle);
+    chain_->SetBranchAddress("GenZStableLepton", &zGenObjects_->GenZStableLepton_, &b_GenZStableLepton);
+    chain_->SetBranchAddress("GenZStableAntiLepton", &zGenObjects_->GenZStableAntiLepton_, &b_GenZStableAntiLepton);
+}
+
+
+
+void AnalysisBase::GetEventMetadataBranchesEntry(const Long64_t& entry)const
+{
+    // Check if branches' entry is already read
+    if(eventMetadata_->valuesSet_) return;
+    eventMetadata_->valuesSet_ = true;
+
+    b_runNumber->GetEntry(entry);
+    b_lumiBlock->GetEntry(entry);
+    b_eventNumber->GetEntry(entry);
+}
+
+
+
 void AnalysisBase::GetRecoBranchesEntry(const Long64_t& entry)const
 {
     // Check if branches' entry is already read
@@ -936,23 +944,19 @@ void AnalysisBase::GetRecoBranchesEntry(const Long64_t& entry)const
 //     if(b_jetSelectedTrackCharge) b_jetSelectedTrackCharge->GetEntry(entry);
 //     if(b_jetSelectedTrackIndex) b_jetSelectedTrackIndex->GetEntry(entry);
 //     if(b_jetSecondaryVertex) b_jetSecondaryVertex->GetEntry(entry);
+//     if(b_jetSecondaryVertexPtCorrectedMass) b_jetSecondaryVertexPtCorrectedMass->GetEntry(entry);
 //     if(b_jetSecondaryVertexJetIndex) b_jetSecondaryVertexJetIndex->GetEntry(entry);
 //     if(b_jetSecondaryVertexFlightDistanceValue) b_jetSecondaryVertexFlightDistanceValue->GetEntry(entry);
 //     if(b_jetSecondaryVertexFlightDistanceSignificance) b_jetSecondaryVertexFlightDistanceSignificance->GetEntry(entry);
 //     if(b_jetSecondaryVertexTrackVertexIndex) b_jetSecondaryVertexTrackVertexIndex->GetEntry(entry);
 //     if(b_jetSecondaryVertexTrackMatchToSelectedTrackIndex) b_jetSecondaryVertexTrackMatchToSelectedTrackIndex->GetEntry(entry);
     b_met->GetEntry(entry);
-    if(b_mvamet) b_mvamet->GetEntry(entry);
-    if(b_jetForMET) b_jetForMET->GetEntry(entry);
-    if(b_jetJERSF) b_jetJERSF->GetEntry(entry);
-    if(b_jetForMETJERSF) b_jetForMETJERSF->GetEntry(entry);
+    b_vertMulti->GetEntry(entry);
 
     // Concerning event
     b_runNumber->GetEntry(entry);
     b_lumiBlock->GetEntry(entry);
     b_eventNumber->GetEntry(entry);
-    //b_recoInChannel->GetEntry(entry);
-    b_vertMulti->GetEntry(entry);
 }
 
 
@@ -973,34 +977,13 @@ void AnalysisBase::GetCommonGenBranchesEntry(const Long64_t& entry)const
     commonGenObjects_->valuesSet_ = true;
 
     // Concerning physics objects
-    b_allGenJets->GetEntry(entry);
-    b_jetPartonFlavour->GetEntry(entry);
+    if(b_jetForMET) b_jetForMET->GetEntry(entry);
+    if(b_jetJERSF) b_jetJERSF->GetEntry(entry);
+    if(b_jetForMETJERSF) b_jetForMETJERSF->GetEntry(entry);
     b_associatedGenJet->GetEntry(entry);
+    b_jetPartonFlavour->GetEntry(entry);
     if(b_associatedGenJetForMET) b_associatedGenJetForMET->GetEntry(entry);
-    //if(b_jetAssociatedPartonPdgId) b_jetAssociatedPartonPdgId->GetEntry(entry);
-    //if(b_jetAssociatedParton) b_jetAssociatedParton->GetEntry(entry);
-}
-
-
-
-void AnalysisBase::GetKinRecoBranchesEntry(const Long64_t& entry)const
-{
-    // Check if branches' entry is already read
-    if(kinRecoObjects_->valuesSet_) return;
-    kinRecoObjects_->valuesSet_ = true;
-
-    b_HypTop->GetEntry(entry);
-    b_HypAntiTop->GetEntry(entry);
-    b_HypLepton->GetEntry(entry);
-    b_HypAntiLepton->GetEntry(entry);
-    b_HypNeutrino->GetEntry(entry);
-    b_HypAntiNeutrino->GetEntry(entry);
-    b_HypB->GetEntry(entry);
-    b_HypAntiB->GetEntry(entry);
-    //b_HypWPlus->GetEntry(entry);
-    //b_HypWMinus->GetEntry(entry);
-    b_HypJet0index->GetEntry(entry);
-    b_HypJet1index->GetEntry(entry);
+    //if(b_jetPartonFlavourForMET) b_jetPartonFlavourForMET->GetEntry(entry);
 }
 
 
@@ -1029,18 +1012,17 @@ void AnalysisBase::GetPDFEntry(const Long64_t& entry)const
 void AnalysisBase::SetTrueLevelDYChannel(const int dy)
 {
     if(dy){
-        std::cout << "Include true-level filter for Z decay to pdgid " << dy << "\n";
+        std::cout<<"Include true-level filter for Z decay to PDG ID: "<<dy<<"\n";
         
-        //create function to check the DY decay channel
+        // Create function to check the Z decay channel
         checkZDecayMode_ = [&, dy](Long64_t entry) -> bool {
-            b_ZDecayMode->GetEntry(entry);
-            if(b_genZ) b_genZ->GetEntry(entry);
+            this->GetZDecayModeEntry(entry);
             bool pass = false;
-            for (const auto decayMode : *ZDecayMode_) {
-                if ((dy == 15 && decayMode > 15110000) ||
-                    (dy == 13 && decayMode == 1313) ||
-                    (dy == 11 && decayMode == 1111))
-                {
+            // Loop over all Zs
+            for(const auto decayMode : *v_genZDecayMode_){
+                if((dy == 15 && decayMode >= 150000) ||
+                   (dy == 13 && decayMode == 13) ||
+                   (dy == 11 && decayMode == 11)){
                     pass = true;
                     break;
                 }
@@ -1051,7 +1033,6 @@ void AnalysisBase::SetTrueLevelDYChannel(const int dy)
     }
     else{
         checkZDecayMode_ = nullptr;
-        genZ_ = nullptr;
     }
 }
 
@@ -1071,6 +1052,12 @@ void AnalysisBase::GetHiggsDecayModeEntry(const Long64_t& entry)const
 
 
 
+void AnalysisBase::GetZDecayModeEntry(const Long64_t& entry)const
+{
+    b_GenZDecayMode->GetEntry(entry);
+}
+
+
 void AnalysisBase::GetGenTopBranchesEntry(const Long64_t& entry)const
 {
     b_GenTop->GetEntry(entry);
@@ -1086,7 +1073,6 @@ void AnalysisBase::GetTopSignalBranchesEntry(const Long64_t& entry)const
     topGenObjects_->valuesSet_ = true;
 
     this->GetGenTopBranchesEntry(entry);
-    b_GenMet->GetEntry(entry);
     b_GenLepton->GetEntry(entry);
     b_GenAntiLepton->GetEntry(entry);
     //b_GenLeptonPdgId->GetEntry(entry);
@@ -1099,6 +1085,8 @@ void AnalysisBase::GetTopSignalBranchesEntry(const Long64_t& entry)const
     b_GenAntiB->GetEntry(entry);
     //b_GenWPlus->GetEntry(entry);
     //b_GenWMinus->GetEntry(entry);
+    b_GenMet->GetEntry(entry);
+    b_allGenJets->GetEntry(entry);
     //b_GenParticleP4->GetEntry(entry);
     //b_GenParticlePdgId->GetEntry(entry);
     //b_GenParticleStatus->GetEntry(entry);
@@ -1110,6 +1098,8 @@ void AnalysisBase::GetTopSignalBranchesEntry(const Long64_t& entry)const
     b_AntiBHadronFromTopB->GetEntry(entry);
     b_BHadronVsJet->GetEntry(entry);
     b_AntiBHadronVsJet->GetEntry(entry);
+    //if(b_jetAssociatedPartonPdgId) b_jetAssociatedPartonPdgId->GetEntry(entry);
+    //if(b_jetAssociatedParton) b_jetAssociatedParton->GetEntry(entry);
     if(b_genBHadPlusMothersPdgId) b_genBHadPlusMothersPdgId->GetEntry(entry);
     if(b_genBHadPlusMothersStatus) b_genBHadPlusMothersStatus->GetEntry(entry);
     if(b_genBHadPlusMothersIndices) b_genBHadPlusMothersIndices->GetEntry(entry);
@@ -1139,9 +1129,34 @@ void AnalysisBase::GetHiggsSignalBranchesEntry(const Long64_t& entry)const
 
 
 
+void AnalysisBase::GetZSignalBranchesEntry(const Long64_t& entry)const
+{
+    // Check if branches' entry is already read
+    if(zGenObjects_->valuesSet_) return;
+    zGenObjects_->valuesSet_ = true;
+    
+    b_GenZ->GetEntry(entry);
+    b_GenZMeDaughterParticle->GetEntry(entry);
+    b_GenZMeDaughterAntiParticle->GetEntry(entry);
+    b_GenZStableLepton->GetEntry(entry);
+    b_GenZStableAntiLepton->GetEntry(entry);
+}
+
+
+
 
 
 // ------------------------------------- Methods for accessing the object structs of ntuple branches -------------------------------------
+
+
+const EventMetadata& AnalysisBase::getEventMetadata(const Long64_t& entry)const
+{
+    if(eventMetadata_->valuesSet_) return *eventMetadata_;
+    
+    this->GetEventMetadataBranchesEntry(entry);
+    return *eventMetadata_;
+}
+
 
 
 const RecoObjects& AnalysisBase::getRecoObjects(const Long64_t& entry)const
@@ -1154,38 +1169,38 @@ const RecoObjects& AnalysisBase::getRecoObjects(const Long64_t& entry)const
     if(!isMC_) return *recoObjects_;
     
     if(jetEnergyResolutionScaleFactors_){
-        
-        // Get references for all relevant reco objects which are modified by JER systematics
-        VLV* jets = recoObjects_->jets_;
-        VLV* jetsForMET = recoObjects_->jetsForMET_;
-        LV* met = recoObjects_->met_;
-        LV* mvamet = recoObjects_->mvamet_;
-        
-        // Get references for all relevant reco objects which are NOT modified
-        const std::vector<double>* jetJERSF = recoObjects_->jetJERSF_;
-        const std::vector<double>* jetForMETJERSF = recoObjects_->jetForMETJERSF_;
-        
-        // Get references for all relevant gen objects which are NOT modified
+        // Get references for all relevant objects for jet variation
+        VLV* v_jet = recoObjects_->jets_;
         if(!commonGenObjects_->valuesSet_) this->GetCommonGenBranchesEntry(entry);
-        const VLV* associatedGenJet = commonGenObjects_->associatedGenJet_;
-        const VLV* associatedGenJetForMet = commonGenObjects_->associatedGenJetForMET_;
+        const std::vector<double>* v_jetJerSF = commonGenObjects_->jetJERSF_;
+        const VLV* v_associatedGenJet = commonGenObjects_->associatedGenJet_;
+        // Apply systematic variation to jets
+        jetEnergyResolutionScaleFactors_->applyJetSystematic(v_jet, v_jetJerSF, v_associatedGenJet);
         
-        // Apply systematic variation
-        jetEnergyResolutionScaleFactors_->applySystematic(jets, jetsForMET, met,
-                                                          jetJERSF, jetForMETJERSF,
-                                                          associatedGenJet, associatedGenJetForMet);
+        if(!mvaMet_){
+            // Get references for all relevant objects for MET variation
+            LV* met = recoObjects_->met_;
+            VLV* v_jetForMet = commonGenObjects_->jetsForMET_;
+            const std::vector<double>* v_jetForMetJerSF = commonGenObjects_->jetForMETJERSF_;
+            const VLV* v_associatedGenJetForMet = commonGenObjects_->associatedGenJetForMET_;
+            // Apply systematic variation to MET
+            jetEnergyResolutionScaleFactors_->applyMetSystematic(v_jetForMet, met, v_jetForMetJerSF, v_associatedGenJetForMet);
+        }
     }
     
     if(jetEnergyScaleScaleFactors_){
+        // Get references for all relevant objects for jet variation
+        VLV* v_jet = recoObjects_->jets_;
+        // Apply systematic variation to jets
+        jetEnergyScaleScaleFactors_->applyJetSystematic(v_jet);
         
-        // Get references for all relevant reco objects which are modified by JES systematics
-        VLV* jets = recoObjects_->jets_;
-        VLV* jetsForMET = recoObjects_->jetsForMET_;
-        LV* met = recoObjects_->met_;
-        LV* mvamet = recoObjects_->mvamet_;
-        
-        // Apply systematic variation
-        jetEnergyScaleScaleFactors_->applySystematic(jets, jetsForMET, met);
+        if(!mvaMet_){
+            // Get references for all relevant objects for MET variation
+            LV* met = recoObjects_->met_;
+            VLV* v_jetForMet = commonGenObjects_->jetsForMET_;
+            // Apply systematic variation to MET
+            jetEnergyScaleScaleFactors_->applyMetSystematic(v_jetForMet, met);
+        }
     }
     
     return *recoObjects_;
@@ -1228,34 +1243,25 @@ const HiggsGenObjects& AnalysisBase::getHiggsGenObjects(const Long64_t& entry)co
 
 
 
-const KinRecoObjects& AnalysisBase::getKinRecoObjects(const Long64_t& entry)const
+const ZGenObjects& AnalysisBase::getZGenObjects(const Long64_t& entry)const
 {
-    if(kinRecoObjects_->valuesSet_) return *kinRecoObjects_;
-    if(kinRecoObjects_->HypTop_->size() > 0) this->GetKinRecoBranchesEntry(entry);
+    if(!isDrellYan_) return *zGenObjects_;
+    if(zGenObjects_->valuesSet_) return *zGenObjects_;
 
-    return *kinRecoObjects_;
-}
-
-
-
-const KinRecoObjects& AnalysisBase::getKinRecoObjectsOnTheFly(const int leptonIndex, const int antiLeptonIndex, const std::vector<int>& jetIndices,
-                                                              const VLV& allLeptons, const VLV& jets, const std::vector<double>& jetBTagCSV,
-                                                              const LV& met)
-{
-    this->calculateKinReco(leptonIndex, antiLeptonIndex, jetIndices, allLeptons, jets, jetBTagCSV, met);
-
-    return *kinRecoObjects_;
+    this->GetZSignalBranchesEntry(entry);
+    return *zGenObjects_;
 }
 
 
 
 void AnalysisBase::resetObjectStructEntry()const
 {
+    eventMetadata_->valuesSet_ = false;
     recoObjects_->valuesSet_ = false;
     commonGenObjects_->valuesSet_ = false;
     topGenObjects_->valuesSet_ = false;
     higgsGenObjects_->valuesSet_ = false;
-    kinRecoObjects_->valuesSet_ = false;
+    zGenObjects_->valuesSet_ = false;
 }
 
 
@@ -1294,7 +1300,7 @@ bool AnalysisBase::failsDrellYanGeneratorSelection(const Long64_t& entry)const
 bool AnalysisBase::failsTopGeneratorSelection(const Long64_t& entry)const
 {
     if(!isTtbarPlusTauSample_) return false;
-    GetTopDecayModeEntry(entry);
+    this->GetTopDecayModeEntry(entry);
     //decayMode contains the decay of the top (*10) + the decay of the antitop
     //1=hadron, 2=e, 3=mu, 4=tau->hadron, 5=tau->e, 6=tau->mu
     //i.e. 23 == top decays to e, tbar decays to mu
@@ -1353,6 +1359,12 @@ bool AnalysisBase::failsDileptonTrigger(const Long64_t& entry)const
     return true;
 }
 
+
+
+void AnalysisBase::mvaMet()
+{
+    mvaMet_ = true;
+}
 
 
 
@@ -1416,7 +1428,7 @@ double AnalysisBase::weightPdf(const Long64_t& entry, const int pdfNo)const
 double AnalysisBase::weightTopPtReweighting(const Long64_t& entry)const
 {
     // Apply only for ttbar dilepton sample
-    if(!isTopSignal_ && !isTtbarSample_) return 1.;
+    if(!isTtbarPlusTauSample_) return 1.;
     // Do not apply if topPtScaleFactors_ is not set up
     if(!topPtScaleFactors_) return 1.;
     
@@ -1511,14 +1523,23 @@ void AnalysisBase::produceBtagEfficiencies()
 
 
 
-void AnalysisBase::correctMvaMet(LV& met, const LV& dilepton, const int njets)const
+void AnalysisBase::correctMvaMet(const LV& dilepton, const int nJet, const Long64_t& entry)const
 {
-    if(!this->genZ_) return;
+    if(!isDrellYan_ || !mvaMet_) return;
     
-    float metx = met.Px();
-    float mety = met.Py();
-    recoilCorrector_->correctMet(metx, mety, genZ_->at(0).Px(), genZ_->at(0).Py(), dilepton.Px(), dilepton.Py(), (int)njets);
-    met.SetPxPyPzE(metx, mety, met.Pz(), met.E());
+    if(!metRecoilCorrector_) return;
+    
+    const ZGenObjects& zGenObjects = this->getZGenObjects(entry);
+    if(zGenObjects.GenZ_->size() != 1){
+        std::cerr<<"ERROR in AnalysisBase::correctMvaMet()! Not exactly one Z stored, but: "<<zGenObjects.GenZ_->size()
+                 <<"\n...break\n"<<std::endl;
+        exit(292);
+    }
+    const LV& genZ = zGenObjects.GenZ_->at(0);
+    
+    LV& met = *recoObjects_->met_;
+    
+    metRecoilCorrector_->applyCorrection(met, genZ, dilepton, nJet);
 }
 
 
@@ -1541,86 +1562,16 @@ double AnalysisBase::getJetHT(const std::vector<int>& jetIndices, const VLV& jet
 
 
 
-bool AnalysisBase::calculateKinReco(const int leptonIndex, const int antiLeptonIndex, const std::vector<int>& jetIndices,
-                                    const VLV& allLeptons, const VLV& jets,
-                                    const std::vector<double>& jetBTagCSV, const LV& met)
+KinematicReconstructionSolutions AnalysisBase::kinematicReconstructionSolutions(const int leptonIndex, const int antiLeptonIndex,
+                                                                                const std::vector<int>& jetIndices, const std::vector<int>& bjetIndices,
+                                                                                const VLV& allLeptons, const VLV& jets,
+                                                                                const std::vector<double>& jetBTagCSV, const LV& met)const
 {
-    // Clean the results of the kinematic reconstruction as stored in the nTuple
-    kinRecoObjects_->HypTop_->clear();
-    kinRecoObjects_->HypAntiTop_->clear();
-    kinRecoObjects_->HypLepton_->clear();
-    kinRecoObjects_->HypAntiLepton_->clear();
-    kinRecoObjects_->HypBJet_->clear();
-    kinRecoObjects_->HypAntiBJet_->clear();
-    kinRecoObjects_->HypNeutrino_->clear();
-    kinRecoObjects_->HypAntiNeutrino_->clear();
-    kinRecoObjects_->HypJet0index_->clear();
-    kinRecoObjects_->HypJet1index_->clear();
-
-    kinRecoObjects_->valuesSet_ = false;
-
-    // The physics objects needed as input
-    const LV& leptonMinus(allLeptons.at(leptonIndex));
-    const LV& leptonPlus(allLeptons.at(antiLeptonIndex));
-    VLV selectedJets;
-    std::vector<double> btagValues;
-    std::vector<int> selectedJetIndices;
-    for(const int index : jetIndices){
-        selectedJets.push_back(jets.at(index));
-        btagValues.push_back(jetBTagCSV.at(index));
-        selectedJetIndices.push_back(index);
-    }
-
-
-    // 2 lines needed for OLD kinReco
-//     const auto& sols = GetKinSolutions(leptonMinus, leptonPlus, &selectedJets, &btagValues, &met);
-//     const int nSolution = sols.size();
-
-    // 6 lines needed for NEW kinReco
-    if(!kinematicReconstruction_){
-        std::cerr<<"Error in AnalysisBase::calculateKinReco()! Kinematic reconstruction is not initialised\n...break\n"<<std::endl;
-        exit(659);
-    }
-    kinematicReconstruction_->kinReco(leptonMinus, leptonPlus, &selectedJets, &btagValues, &met);
-    const auto& sols = kinematicReconstruction_->getSols();
-    const int nSolution = sols.size();
+    // If kinematic reconstruction is not initialised, do not run it but return dummy
+    if(!kinematicReconstruction_) return KinematicReconstructionSolutions();
     
-    //////////kinematicReconstruction_->doJetsMerging(&jets,&jetBTagCSV);
-    
-    // Check if solution exists, take first one
-    if(nSolution == 0) return false;
-    const auto& sol = sols.at(0);
-    
-    
-    // Fill the results of the on-the-fly kinematic reconstruction
-    kinRecoObjects_->HypTop_->push_back(common::TLVtoLV(sol.top));
-    kinRecoObjects_->HypAntiTop_->push_back(common::TLVtoLV(sol.topBar));
-    kinRecoObjects_->HypLepton_->push_back(common::TLVtoLV(sol.lm));
-    kinRecoObjects_->HypAntiLepton_->push_back(common::TLVtoLV(sol.lp));
-    kinRecoObjects_->HypBJet_->push_back(common::TLVtoLV(sol.jetB));
-    kinRecoObjects_->HypAntiBJet_->push_back(common::TLVtoLV(sol.jetBbar));
-    kinRecoObjects_->HypNeutrino_->push_back(common::TLVtoLV(sol.neutrino));
-    kinRecoObjects_->HypAntiNeutrino_->push_back(common::TLVtoLV(sol.neutrinoBar));
-    kinRecoObjects_->HypJet0index_->push_back(selectedJetIndices.at(sol.jetB_index));
-    kinRecoObjects_->HypJet1index_->push_back(selectedJetIndices.at(sol.jetBbar_index));
-    kinRecoObjects_->valuesSet_ = true;
-
-    // Check for strange events
-    //if(kinRecoObjects_->HypTop_->size()){
-    //    double Ecm = (kinRecoObjects_->HypTop_->at(0) + kinRecoObjects_->HypAntiTop_->at(0)
-    //                    + kinRecoObjects_->HypLepton_->at(0) + kinRecoObjects_->HypAntiLepton_->at(0)
-    //                    + kinRecoObjects_->HypNeutrino_->at(0) + kinRecoObjects_->HypAntiNeutrino_->at(0)).E();
-    //    //does event's CM energy exceed LHC's energy?
-    //    if(Ecm > 8000.){
-    //        static int seCounter = 0;
-    //        std::cout << "\n" << ++seCounter << " - Strange event: " << recoObjects_->runNumber_<<":"<<recoObjects_->lumiBlock_<<":"<<recoObjects_->eventNumber_
-    //        << "\ntop:  " << kinRecoObjects_->HypTop_->at(0) << " tbar: " << kinRecoObjects_->HypAntiTop_->at(0)
-    //        << "\nNeutrino:  " << kinRecoObjects_->HypNeutrino_->at(0) << " NeutrinoBar: " << kinRecoObjects_->HypAntiNeutrino_->at(0)
-    //        <<"\n";
-    //    }
-    //}
-
-    return true;
+    return kinematicReconstruction_->solutions({leptonIndex}, {antiLeptonIndex}, jetIndices, bjetIndices,
+                                               allLeptons, jets, jetBTagCSV, met);
 }
 
 

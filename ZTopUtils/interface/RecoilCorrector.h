@@ -27,16 +27,13 @@ class RecoilCorrector {
 public:
     
     /// Constructor
-    RecoilCorrector();
-    
-    /// Constructor
-    RecoilCorrector(const std::string basedir, const int method = 3, const int dataset = -1, const int debug = 0);
+    RecoilCorrector(const int method =3, const int dataset =-1, const int debug =0);
     
     /// Destructor
     ~RecoilCorrector();
     
     /// Set input data and mc files where the fits are stored
-    void setFiles(std::string fileData, std::string fileMC);
+    void setFiles(const std::string& fileData, const std::string& fileMC);
     
     /**
      *
@@ -50,14 +47,11 @@ public:
      * @param njets Number of jets in the event
      *
      */
-    float correctMet(float& MetPx, float& MetPy, float genZPx, float genZPy, float diLepPx, float diLepPy, int njets);
+    float correctMet(float& MetPx, float& MetPy,
+                     const float genZPx, const float genZPy,
+                     const float diLepPx, const float diLepPy,
+                     int njets)const;
 
-    /// Base directory where the ROOT files with the fit results are stored
-    std::string basedir_;
-    
-    /// Boolean to decide if we can or cannot correct the MET
-    bool cannotCorrectMet_;
-    
     /**
       * Decide how is the MET corrected
       *   method_ == 2 - corrections by width w(MC)=w(Data)/w(MC) * w(Process)
@@ -82,30 +76,30 @@ private:
      *    U1 --> Z-pt parallel component to the MET
      *    U2 --> Z-pt orthogonal component to the MET
     */
-    void CalculateU1U2FromMet(float metPx, float metPy, float genZPx, float genZPy,
-                              float diLepPx, float diLepPy,
-                              float& U1, float& U2, float& metU1, float& metU2);
+    void CalculateU1U2FromMet(const float metPx, const float metPy, const float genZPx, const float genZPy,
+                              const float diLepPx, const float diLepPy,
+                              float& U1, float& U2, float& metU1, float& metU2)const;
 
     /**
      * Calculate the MET from the parallel and transverse component of the Z pt
      *    U1 --> Z-pt parallel component to the MET
      *    U2 --> Z-pt orthogonal component to the MET
     */
-    void CalculateMetFromU1U2(float U1, float U2, float genZPx, float genZPy,
-                              float diLepPx, float diLepPy, float& metPx, float& metPy);
+    void CalculateMetFromU1U2(const float U1, const float U2, const float genZPx, const float genZPy,
+                              const float diLepPx, const float diLepPy, float& metPx, float& metPy)const;
 
     
     /// Correct the MET using the width of the fit
-    void  U1U2CorrectionsByWidth(float& U1, float& U2, int nZptBin, int njets);
+    void  U1U2CorrectionsByWidth(float& U1, float& U2, const int nZptBin, int njets)const;
     
     /// Get position in a vector for a given value, the vector is expected to be ordered
-    size_t getBinFromVector(std::vector<double>& vector_of_boundaries, const float value)const;
+    size_t binFromVector(const std::vector<double>& vector_of_boundaries, const float value)const;
     
     /// Get the bin number to which corresponds the pt value of the Z-boson
-    int getBinNumber(float x, const std::vector<int>& bins)const;
+    int binNumber(const float x, const std::vector<int>& bins)const;
     
     /// Get the fitted function
-    TF1* getFuncRecoil(TF1* initFunc, bool left);
+    TF1* getFuncRecoil(const TF1* const initFunc, const bool left)const;
 
     TFile *data_, *mc_;
 

@@ -1,5 +1,6 @@
 #include <fstream>
 #include <sstream>
+#include <iomanip>
 
 #include <TH1D.h>
 #include <TString.h>
@@ -14,22 +15,15 @@
 
 
 
-/// Folder for event yields output
-constexpr const char* YieldDIR = "EventYields";
-
-
-
-
-
-EventYields::EventYields(const Samples& samples):
+EventYields::EventYields(const char* outputDirectory, const Samples& samples):
 fileReader_(RootFileReader::getInstance())
 {
-    this->produceYields(samples);
+    this->produceYields(outputDirectory, samples);
 }
 
 
 
-void EventYields::produceYields(const Samples& samples)const
+void EventYields::produceYields(const char* outputDirectory, const Samples& samples)const
 {
     std::cout<<"--- Beginning event yield table processing\n\n";
     
@@ -39,8 +33,8 @@ void EventYields::produceYields(const Samples& samples)const
     
     // Loop over steps and write yields
     for(const auto& nameStepPair : v_nameStepPair){
-        this->writeYields(samples, nameStepPair);
-        this->writeYields(samples, nameStepPair, true);
+        this->writeYields(outputDirectory, samples, nameStepPair);
+        this->writeYields(outputDirectory, samples, nameStepPair, true);
     }
     
     std::cout<<"\n=== Finishing event yield table processing\n\n";
@@ -48,7 +42,8 @@ void EventYields::produceYields(const Samples& samples)const
 
 
 
-void EventYields::writeYields(const Samples& samples,
+void EventYields::writeYields(const char* outputDirectory,
+                              const Samples& samples,
                               const std::pair<TString, TString>& nameStepPair,
                               const bool useCorrections)const
 {
@@ -57,10 +52,9 @@ void EventYields::writeYields(const Samples& samples,
     const SystematicChannelFactors& globalWeights = globalWeightsPair.first;
     const bool anyCorrectionApplied = globalWeightsPair.second;
     
-    // Loop over systematics (exclude all but Nominal - so outer loop could be removed) and channels
+    // Loop over systematics and channels
     for(auto systematicChannelSamples : samples.getSystematicChannelSamples()){
         const Systematic::Systematic& systematic(systematicChannelSamples.first);
-        if(systematic.type() != Systematic::nominal) continue;
         const auto& channelSamples(systematicChannelSamples.second);
         for(const auto& channelSample : systematicChannelSamples.second){
             const Channel::Channel& channel(channelSample.first);
@@ -83,32 +77,40 @@ void EventYields::writeYields(const Samples& samples,
             
             // Prepare output folder and text file
             std::ofstream eventFile;
-            TString eventFileString = common::assignFolder(YieldDIR, channel, systematic);
+            TString eventFileString = common::assignFolder(outputDirectory, channel, systematic);
             if(useCorrections) eventFileString.Append("corrected_");
             eventFileString.Append("events" + nameStepPair.second + ".txt");
             eventFile.open(eventFileString.Data());
             
+            
+            
             // Make output for tables
             double tmp_num = 0;
+            double tmp_err = 0;
             double bg_num = 0;
+            double bg_err = 0;
             for(auto i_numhist = v_numhist.begin(); i_numhist != v_numhist.end(); ++i_numhist){
                 auto iterator = i_numhist;
                 ++iterator;
-                tmp_num += i_numhist->second->Integral();
+                tmp_num += i_numhist->second->IntegralAndError(0,-1,tmp_err);
                 if(i_numhist == --(v_numhist.end())){
-                    eventFile<<i_numhist->first.legendEntry()<<": "<<tmp_num<<std::endl;
+                    eventFile<<i_numhist->first.legendEntry()<<": "<<std::setprecision(3)<<tmp_num<<"    +- "<<tmp_err<<" ("<<tmp_err/tmp_num*100.<<"%)"<<std::endl;
                     bg_num += tmp_num;
+                    bg_err += tmp_err;
                     tmp_num = 0;
+                    tmp_err = 0;
                 }
                 else if(i_numhist->first.legendEntry() != iterator->first.legendEntry()){
-                    eventFile<<i_numhist->first.legendEntry()<<": "<<tmp_num<<std::endl;
+                    eventFile<<i_numhist->first.legendEntry()<<": "<<std::setprecision(3)<<tmp_num<<"    +- "<<tmp_err<<" ("<<tmp_err/tmp_num*100.<<"%)"<<std::endl;
                     if(i_numhist->first.sampleType() != Sample::data){
-                        bg_num+=tmp_num;
+                        bg_num += tmp_num;
+                        bg_err += tmp_err;
                     }
                     tmp_num = 0;
+                    tmp_err = 0;
                 }
             }
-            eventFile<<"Total background: "<<bg_num<<std::endl;
+            eventFile<<"Total background: "<<std::setprecision(3)<<bg_num<<"    +- "<<bg_err<<" ("<<bg_err/bg_num*100.<<"%)"<<std::endl;
             
             // Close text file
             eventFile.close();

@@ -4,6 +4,22 @@
 
 
 
+EventMetadata::EventMetadata()
+{
+    this->clear();
+}
+
+
+
+void EventMetadata::clear()
+{
+    runNumber_ = 0;
+    lumiBlock_ = 0;
+    eventNumber_ = 0;
+}
+
+
+
 RecoObjects::RecoObjects()
 {
     this->clear();
@@ -15,7 +31,6 @@ void RecoObjects::clear()
 {
     valuesSet_ = false;
     
-    // Concerning physics objects
     allLeptons_ = 0;
     lepPdgId_ = 0;
     //lepID_ = 0;
@@ -51,22 +66,13 @@ void RecoObjects::clear()
     jetSelectedTrackIndex_ = 0;
     jetSelectedTrackMatchToPfCandidateIndex_ = 0;
     jetSecondaryVertex_ = 0;
+    jetSecondaryVertexPtCorrectedMass_ = 0;
     jetSecondaryVertexJetIndex_ = 0;
     jetSecondaryVertexFlightDistanceValue_ = 0;
     jetSecondaryVertexFlightDistanceSignificance_ = 0;
     jetSecondaryVertexTrackVertexIndex_ = 0;
     jetSecondaryVertexTrackMatchToSelectedTrackIndex_ = 0;
     met_ = 0;
-    mvamet_ = 0;
-    jetJERSF_ = 0;
-    jetsForMET_ = 0;
-    jetForMETJERSF_ = 0;
-    
-    // Concerning event
-    runNumber_ = 0;
-    lumiBlock_ = 0;
-    eventNumber_ = 0;
-    //recoInChannel_ = 0;
     vertMulti_ = 0;
 }
 
@@ -83,12 +89,13 @@ void CommonGenObjects::clear()
 {
     valuesSet_ = false;
     
-    allGenJets_ = 0;
-    jetPartonFlavour_ = 0;
+    jetJERSF_ = 0;
+    jetsForMET_ = 0;
+    jetForMETJERSF_ = 0;
     associatedGenJet_ = 0;
     associatedGenJetForMET_ = 0;
-    //jetAssociatedPartonPdgId_ = 0;
-    //jetAssociatedParton_ = 0;
+    jetPartonFlavour_ = 0;
+    //jetPartonFlavourForMET_ = 0;
 }
 
 
@@ -104,7 +111,6 @@ void TopGenObjects::clear()
 {
     valuesSet_ = false;
     
-    GenMet_ = 0;
     GenTop_ = 0;
     GenAntiTop_ = 0;
     GenLepton_ = 0;
@@ -119,6 +125,8 @@ void TopGenObjects::clear()
     GenAntiB_ = 0;
     //GenWPlus_ = 0;
     //GenWMinus_ = 0;
+    GenMet_ = 0;
+    allGenJets_ = 0;
     //GenParticleP4_= 0;
     //GenParticlePdgId_= 0;
     //GenParticleStatus_= 0;
@@ -130,6 +138,8 @@ void TopGenObjects::clear()
     AntiBHadronFromTopB_ = 0;
     BHadronVsJet_ = 0;
     AntiBHadronVsJet_ = 0;
+    //jetAssociatedPartonPdgId_ = 0;
+    //jetAssociatedParton_ = 0;
     
     genBHadPlusMothersPdgId_ = 0;
     //genBHadPlusMothersStatus_ = 0;
@@ -142,13 +152,11 @@ void TopGenObjects::clear()
     genBHadLeptonHadronIndex_ = 0;
     genBHadLeptonViaTau_ = 0;
     genBHadFromTopWeakDecay_ = 0;
-    
     genCHadJetIndex_ = 0;
     genCHadLeptonIndex_ = 0;
     genCHadLeptonHadronIndex_ = 0;
     genCHadLeptonViaTau_ = 0;
     genCHadFromBHadron_ = 0;
-    
     genExtraTopJetNumberId_ = -2;
 }
 
@@ -172,29 +180,22 @@ void HiggsGenObjects::clear()
 
 
 
-KinRecoObjects::KinRecoObjects()
+ZGenObjects::ZGenObjects()
 {
     this->clear();
 }
 
 
 
-void KinRecoObjects::clear()
+void ZGenObjects::clear()
 {
     valuesSet_ = false;
     
-    HypTop_ = 0;
-    HypAntiTop_ = 0;
-    HypLepton_ = 0;
-    HypAntiLepton_ = 0;
-    HypNeutrino_ = 0;
-    HypAntiNeutrino_ = 0;
-    HypBJet_ = 0;
-    HypAntiBJet_ = 0;
-    //HypWPlus_ = 0;
-    //HypWMinus_ = 0;
-    HypJet0index_ = 0;
-    HypJet1index_ = 0;
+    GenZ_ = 0;
+    GenZMeDaughterParticle_ = 0;
+    GenZMeDaughterAntiParticle_ = 0;
+    GenZStableLepton_ = 0;
+    GenZStableAntiLepton_ = 0;
 }
 
 

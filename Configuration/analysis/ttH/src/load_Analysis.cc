@@ -29,11 +29,13 @@
 #include "AnalyzerPlayground.h"
 #include "AnalyzerEventWeight.h"
 #include "AnalyzerGenEvent.h"
+#include "AnalyzerKinematicReconstruction.h"
 #include "../../common/include/sampleHelpers.h"
 #include "../../common/include/utils.h"
 #include "../../common/include/CommandLineParameters.h"
 #include "../../common/include/KinematicReconstruction.h"
 #include "../../common/include/ScaleFactors.h"
+#include "../../common/include/Correctors.h"
 
 
 
@@ -66,10 +68,17 @@ constexpr const char* TriggerSFInputSUFFIX = "_rereco198fb.root";
 
 
 
+/// Source for the uncertainties associated to JER
+//constexpr const char* JerUncertaintySourceNAME = "jer2011";
+constexpr const char* JerUncertaintySourceNAME = "jer2012";
+
+
+
 /// File containing the uncertainties associated to JES
 //constexpr const char* JesUncertaintySourceFILE = "Fall12_V7_DATA_UncertaintySources_AK5PFchs.txt";
-// constexpr const char* JesUncertaintySourceFILE = "Summer13_V1_DATA_UncertaintySources_AK5PFchs.txt";
-constexpr const char* JesUncertaintySourceFILE = "Summer13_V4_DATA_UncertaintySources_AK5PFchs.txt";
+//constexpr const char* JesUncertaintySourceFILE = "Summer13_V1_DATA_UncertaintySources_AK5PFchs.txt";
+//constexpr const char* JesUncertaintySourceFILE = "Summer13_V4_DATA_UncertaintySources_AK5PFchs.txt";
+constexpr const char* JesUncertaintySourceFILE = "Summer13_V5_DATA_UncertaintySources_AK5PFchs.txt";
 
 
 
@@ -79,10 +88,18 @@ constexpr const char* JesUncertaintySourceFILE = "Summer13_V4_DATA_UncertaintySo
 constexpr BtagScaleFactors::CorrectionMode BtagCorrectionMODE = BtagScaleFactors::discriminatorReweight;
 
 /// File for the official heavy flavour scale factors for b-tag discriminator reweighting
-constexpr const char* BtagHeavyFlavourFILE = "csv_rwt_hf.root";
+constexpr const char* BtagHeavyFlavourFILE = "csv_rwt_hf_20pt_8_20_14.root";
 
 /// File for the official light flavour scale factors for b-tag discriminator reweighting
-constexpr const char* BtagLightFlavourFILE = "csv_rwt_lf.root";
+constexpr const char* BtagLightFlavourFILE = "csv_rwt_lf_20pt_8_20_14.root";
+
+
+
+/// File containing the fits for the MVA MET recoil corrections in data
+constexpr const char* MvaMetRecoilDataFILE = "METrecoil_Fits_DataSummer2013.root";
+
+/// File containing the fits for the MVA MET recoil corrections in MC
+constexpr const char* MvaMetRecoilMcFILE = "METrecoil_Fits_MCSummer2013.root";
 
 
 
@@ -97,14 +114,14 @@ constexpr const char* Mva2dWeightsFILE = "mvaOutput/Nominal/combined/weights/wei
 
 
 
-void load_HiggsAnalysis(const TString& validFilenamePattern,
-                        const int part,
-                        const Channel::Channel& channel,
-                        const Systematic::Systematic& systematic,
-                        const int jetCategoriesId,
-                        const std::vector<AnalysisMode::AnalysisMode>& v_analysisMode,
-                        const Long64_t& maxEvents,
-                        const Long64_t& skipEvents)
+void load_Analysis(const TString& validFilenamePattern,
+                   const int part,
+                   const Channel::Channel& channel,
+                   const Systematic::Systematic& systematic,
+                   const int jetCategoriesId,
+                   const std::vector<AnalysisMode::AnalysisMode>& v_analysisMode,
+                   const Long64_t& maxEvents,
+                   const Long64_t& skipEvents)
 {
     std::cout<<std::endl;
     
@@ -114,8 +131,8 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
     else channels = Channel::realChannels;
     
     // Set up kinematic reconstruction
-    KinematicReconstruction* kinematicReconstruction(0);
-    //kinematicReconstruction = new KinematicReconstruction();
+    const KinematicReconstruction* kinematicReconstruction(0);
+    //kinematicReconstruction = new KinematicReconstruction(1, true);
     
     // Set up kinematic reconstruction scale factors (null-pointer means no application)
     KinematicReconstructionScaleFactors* kinematicReconstructionScaleFactors(0);
@@ -136,21 +153,24 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
     TriggerScaleFactors triggerScaleFactors(TriggerSFInputSUFFIX, channels, systematic);
     
     // Set up JER systematic scale factors (null-pointer means no application)
-    JetEnergyResolutionScaleFactors* jetEnergyResolutionScaleFactors(0);
-    if(systematic.type() == Systematic::jer) jetEnergyResolutionScaleFactors = new JetEnergyResolutionScaleFactors(systematic);
+    const JetEnergyResolutionScaleFactors* jetEnergyResolutionScaleFactors(0);
+    if(systematic.type() == Systematic::jer) jetEnergyResolutionScaleFactors = new JetEnergyResolutionScaleFactors(JerUncertaintySourceNAME, systematic);
     
     // Set up JES systematic scale factors (null-pointer means no application)
-    JetEnergyScaleScaleFactors* jetEnergyScaleScaleFactors(0);
+    const JetEnergyScaleScaleFactors* jetEnergyScaleScaleFactors(0);
     if(systematic.type() == Systematic::jes) jetEnergyScaleScaleFactors = new JetEnergyScaleScaleFactors(JesUncertaintySourceFILE, systematic);
     
     // Set up top-pt reweighting scale factors (null-pointer means no application)
-    TopPtScaleFactors* topPtScaleFactors(0);
+    const TopPtScaleFactors* topPtScaleFactors(0);
     //topPtScaleFactors = new TopPtScaleFactors(systematic);
     if(systematic.type()==Systematic::topPt && !topPtScaleFactors){
         std::cout<<"Systematic for top-pt reweighting requested, but scale factors not applied"
                  <<"\nStop running of analysis --- this is NOT an error, just avoiding double running\n"<<std::endl;
         exit(1);
     }
+    
+    // Set up recoil corrector for MVA MET in Drell-Yan samples (initialised only in first Drell-Yan sample)
+    const MetRecoilCorrector* metRecoilCorrector(0);
     
     
     // Set up jet categories
@@ -159,18 +179,23 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
     else if(jetCategoriesId == 1) jetCategories = new JetCategories(2, 5, 0, 5, true, true); // Overview categories
     else if(jetCategoriesId == 2) jetCategories = new JetCategories(4, 4, 1, 3, true, true); // 4-jet categories of default categories
     else if(jetCategoriesId == 3) jetCategories = new JetCategories(4, 4, 2, 4, true, true); // Nazar's categories
+    else if(jetCategoriesId == 4) {
+        jetCategories = new JetCategories(); // For tt+bb and tt+b diff. xsection
+        // Manually setting each category
+        jetCategories->addCategory(3, 3, true, false);
+        jetCategories->addCategory(4, 4, true, false);
+    }
     if(!jetCategories){
         std::cerr<<"Error in load_Analysis! No jet categories defined\n...break\n"<<std::endl;
         exit(832);
     }
     
-    
-    // Vector for setting up all analysers
+        // Vector for setting up all analysers
     std::vector<AnalyzerBase*> v_analyzer;
     
     // Set up event yield histograms
     AnalyzerEventYields* analyzerEventYields(0);
-    analyzerEventYields = new AnalyzerEventYields({"0a", "0b", "1", "2", "3", "4", "5", "6", "7"}, {"7"}, jetCategories);
+    analyzerEventYields = new AnalyzerEventYields({"0a", "0b", "1", "2", "3", "4", "5", "6", "7", "4zWindow", "5zWindow", "6zWindow", "7zWindow"}, {"7"}, jetCategories);
     v_analyzer.push_back(analyzerEventYields);
     
     // Set up Drell-Yan scaling histograms
@@ -179,8 +204,9 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
     v_analyzer.push_back(analyzerDyScaling);
     
     // Set up Heavy-Flavour fraction scaling histograms
+    JetCategories* jetCategories_hfFracScaling = new JetCategories(2, 5, 1, 4, true, true);
     AnalyzerHfFracScaling* analyzerHfFracScaling(0);
-    analyzerHfFracScaling = new AnalyzerHfFracScaling({"5", "6", "7"});
+    analyzerHfFracScaling = new AnalyzerHfFracScaling({"7"}, {"7"}, jetCategories_hfFracScaling);
     v_analyzer.push_back(analyzerHfFracScaling);
     
     // Set up basic histograms
@@ -215,7 +241,7 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
     // Set up DijetAnalyzer
     AnalyzerDijet* analyzerDijet(0);
     if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::dijet) != v_analysisMode.end()){
-        analyzerDijet = new AnalyzerDijet(Mva2dWeightsFILE, "", "", {}, {"7"}, jetCategories);
+        analyzerDijet = new AnalyzerDijet(Mva2dWeightsFILE, "correct_step7_cate0_cate1_cate2_d144", "", {}, {"7"}, jetCategories, false, true);
         v_analyzer.push_back(analyzerDijet);
     }
     
@@ -231,6 +257,13 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
     if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::genEvent) != v_analysisMode.end()){
         analyzerGenEvent = new AnalyzerGenEvent({"7"}, {"7"}, jetCategories);
         v_analyzer.push_back(analyzerGenEvent);
+    }
+    
+    // Set up kinematic reconstruction analyzer
+    AnalyzerKinematicReconstruction* analyzerKinematicReconstruction(0);
+    if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::kinReco) != v_analysisMode.end()){
+        analyzerKinematicReconstruction = new AnalyzerKinematicReconstruction({"7"}, {"7"}, jetCategories);
+        v_analyzer.push_back(analyzerKinematicReconstruction);
     }
     
     // Set up MVA validation for top system jet assignment
@@ -362,6 +395,7 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
         selector->SetTopSignal(isTopSignal);
         selector->SetHiggsSignal(isHiggsSignal);
         selector->SetMC(isMC);
+        selector->SetDrellYan(isDrellYan);
         selector->SetWeightedEvents(weightedEvents);
         // FIXME: correction for MadGraph W decay branching fractions are not correctly applied
         // Recently it is done for W from ttbar decays, set via SetGeneratorBools
@@ -390,6 +424,11 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
             
             // Split specific samples into subsamples and run the selector
             if(isDrellYan){ // For splitting of Drell-Yan sample in decay modes ee, mumu, tautau
+                if(selector->useMvaMet() && !metRecoilCorrector){
+                    // Initialise recoil corrector for MVA MET in Drell-Yan samples (null-pointer means no application)
+                    metRecoilCorrector = new MetRecoilCorrector(MvaMetRecoilDataFILE, MvaMetRecoilMcFILE);
+                    selector->SetMetRecoilCorrector(metRecoilCorrector);
+                }
                 if(part==0 || part==-1){ // output is DY->ee
                     selector->SetTrueLevelDYChannel(11);
                     const Channel::Channel dyChannel = Channel::ee;
@@ -433,21 +472,35 @@ void load_HiggsAnalysis(const TString& validFilenamePattern,
                     chain.Process(selector, "", maxEvents, skipEvents);
                     selector->SetSampleForBtagEfficiencies(false);
                 }
-                if(part==1 || part==-1){ // output is ttbar+b
+                if(part==1 || part==-1){ // output is ttbar+b with >=2 b-hadrons in a single jet
                     selector->SetAdditionalBjetMode(1);
+                    TString modifiedOutputfilename(outputfilename);
+                    modifiedOutputfilename.ReplaceAll("signalplustau", "signalPlus2B");
+                    selector->SetOutputfilename(modifiedOutputfilename);
+                    chain.Process(selector, "", maxEvents, skipEvents);
+                }
+                if(part==2 || part==-1){ // output is ttbar+b
+                    selector->SetAdditionalBjetMode(2);
                     TString modifiedOutputfilename(outputfilename);
                     modifiedOutputfilename.ReplaceAll("signalplustau", "signalPlusB");
                     selector->SetOutputfilename(modifiedOutputfilename);
                     chain.Process(selector, "", maxEvents, skipEvents);
                 }
-                if(part==2 || part==-1){ // output is ttbar+bbbar
-                    selector->SetAdditionalBjetMode(2);
+                if(part==3 || part==-1){ // output is ttbar+bbbar
+                    selector->SetAdditionalBjetMode(3);
                     TString modifiedOutputfilename(outputfilename);
                     modifiedOutputfilename.ReplaceAll("signalplustau", "signalPlusBbbar");
                     selector->SetOutputfilename(modifiedOutputfilename);
                     chain.Process(selector, "", maxEvents, skipEvents);
                 }
-                if(part >= 3){
+                if(part==4 || part==-1){ // output is ttbar+ccbar
+                    selector->SetAdditionalBjetMode(4);
+                    TString modifiedOutputfilename(outputfilename);
+                    modifiedOutputfilename.ReplaceAll("signalplustau", "signalPlusCcbar");
+                    selector->SetOutputfilename(modifiedOutputfilename);
+                    chain.Process(selector, "", maxEvents, skipEvents);
+                }
+                if(part >= 5){
                     std::cerr<<"ERROR in load_Analysis! Specified part for ttbar+HF separation is not allowed (sample, part): "
                              <<outputfilename<<" , "<<part<<"\n...break\n"<<std::endl;
                     exit(647);
@@ -504,7 +557,7 @@ namespace Systematic{
         btag, btagLjet,
         btagDiscrBstat1, btagDiscrBstat2,
         btagDiscrLstat1, btagDiscrLstat2,
-        btagDiscrCerr1, btagDiscrCerr2,
+        btagDiscrPurity,
         kin,
         topPt,
     };
@@ -516,16 +569,17 @@ int main(int argc, char** argv)
 {
     CLParameter<std::string> opt_filenamePattern("f", "Restrict to filename pattern, e.g. ttbar", false, 1, 1);
     CLParameter<int> opt_partToRun("p", "Specify a part to be run for samples which are split in subsamples (via ID). Default is no splitting", false, 1, 1,
-            [](int part){return part>=0 && part<3;});
+            [](int part){return part>=0 && part<5;});
     CLParameter<std::string> opt_channel("c", "Specify a certain channel (ee, emu, mumu). No channel specified = run on all channels", false, 1, 1,
             common::makeStringCheck(Channel::convert(Channel::allowedChannelsAnalysis)));
     CLParameter<std::string> opt_systematic("s", "Run with a systematic that runs on the nominal ntuples, e.g. 'PU_UP'", false, 1, 1,
             common::makeStringCheckBegin(Systematic::convertType(Systematic::allowedSystematics)));
     CLParameter<int> opt_jetCategoriesId("j", "ID for jet categories (# jets, # b-jets). If not specified, use default categories (=0)", false, 1, 1,
-            [](int id){return id>=0 && id<=3;});
+            [](int id){return id>=0 && id<=5;});
     CLParameter<std::string> opt_mode("m", "Mode of analysis: control plots (cp), "
                                            "dijet analyser (dijet), jet charge analyser (charge), jet match analyser (match), playground (playg), "
                                            "event weight analyser (weight), gen event analyser(genEvent), "
+                                           "kinematic reconstruction analyser(kinReco), "
                                            "Produce MVA input or Apply MVA weights for top jets (mvaTopP/mvaTopA), "
                                            "Produce MVA input or Apply MVA weights for event classification (mvaEventP/mvaEventA), "
                                            "Produce MVA input or Apply MVA weights for jet charge (mvaChargeP/mvaChargeA). "
@@ -570,7 +624,7 @@ int main(int argc, char** argv)
     
     // Start plotting
     //TProof* p = TProof::Open(""); // not before ROOT 5.34
-    load_HiggsAnalysis(validFilenamePattern, part, channel, systematic, jetCategoriesId, v_analysisMode, maxEvents, skipEvents);
+    load_Analysis(validFilenamePattern, part, channel, systematic, jetCategoriesId, v_analysisMode, maxEvents, skipEvents);
     //delete p;
 }
 

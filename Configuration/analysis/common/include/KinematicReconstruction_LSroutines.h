@@ -1,67 +1,60 @@
 #ifndef KinematicReconstruction_LSroutines_h
 #define KinematicReconstruction_LSroutines_h
 
+#include <vector>
 
-
-#include <TH1.h>
 #include <TLorentzVector.h>
-#include <TMath.h>
 
-#include "Rtypes.h"
-#include "Math/LorentzVector.h"
-#include "Math/PtEtaPhiM4D.h"
+class TH1F;
+class TF1;
+class TF2;
+
 #include "classesFwd.h"
 
-//typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > LV;
 
-class KinematicReconstruction_LSroutines {
+
+
+
+class KinematicReconstruction_LSroutines{
 
 public:
-  KinematicReconstruction_LSroutines();
-  KinematicReconstruction_LSroutines(double mass_l, double mass_al);
-  KinematicReconstruction_LSroutines(double mass_l, double mass_al,double mass_Wp, double mass_Wm, TH1F* hvE[]);
-  KinematicReconstruction_LSroutines(double mass_l, double mass_al,double mass_Wp, double mass_Wm, TH1F* hvE[], TH1F hneutrino);
-  KinematicReconstruction_LSroutines(double mass_l, double mass_al,double mass_Wp, double mass_Wm, TH1F hneutrino);
-  KinematicReconstruction_LSroutines(double mass_l, double mass_al,double mass_Wp, double mass_Wm, TH1F hcostheta,int weight_index);
-  KinematicReconstruction_LSroutines(double mass_l, double mass_al,double mass_Wp, double mass_Wm);
-  KinematicReconstruction_LSroutines(double mass_top, double mass_b, double mass_w, double mass_l, double mass_al);
-      ~KinematicReconstruction_LSroutines();
-  
-  void fDelete();    
-      
-      
-  void ini(double mass_l, double mass_al,double mass_Wp, double mass_Wm);
+    KinematicReconstruction_LSroutines();
+    KinematicReconstruction_LSroutines(const double& mass_l, const double& mass_al);
+    KinematicReconstruction_LSroutines(const double& mass_l, const double& mass_al, const double& mass_Wp, const double& mass_Wm, TH1F* hvE[]);
+    KinematicReconstruction_LSroutines(const double& mass_l, const double& mass_al, const double& mass_Wp, const double& mass_Wm, TH1F* hvE[], TH1F hneutrino);
+    KinematicReconstruction_LSroutines(const double& mass_l, const double& mass_al, const double& mass_Wp, const double& mass_Wm, TH1F hneutrino);
+    KinematicReconstruction_LSroutines(const double& mass_l, const double& mass_al, const double& mass_Wp, const double& mass_Wm, TH1F hcostheta, int weight_index);
+    KinematicReconstruction_LSroutines(const double& mass_l, const double& mass_al, const double& mass_Wp, const double& mass_Wm);
+    KinematicReconstruction_LSroutines(const double& mass_top, const double& mass_b, const double& mass_w, const double& mass_l, const double& mass_al);
+    ~KinematicReconstruction_LSroutines();
     
-  void setConstraints(TLorentzVector LV_al, 
-                      TLorentzVector LV_l, 
-                      TLorentzVector LV_b, 
-                      TLorentzVector LV_bbar,
-                      double missPx,
-                      double missPy
-                     );
-  
-  void setConstraints(LV LV_al, 
-                      LV LV_l, 
-                      LV LV_b, 
-                      LV LV_bbar,
-                      double missPx,
-                      double missPy
-                     );
-  
-  int getNsol();
-
-  void setWeightOption(int wo);
-  
-  struct TopSolution {
-        double TopPt;
-        double AntiTopPt;
-        double NeutrinoPx;
-        double AntiNeutrinoPx;
-        double ttPt;
-        double mTop;
-        double mAntiTop;
+    void fDelete()const;
+    
+    
+    void ini(const double& mass_l, const double& mass_al, const double& mass_Wp, const double& mass_Wm);
+    
+    void setConstraints(const TLorentzVector& LV_al, 
+                        const TLorentzVector& LV_l, 
+                        const TLorentzVector& LV_b, 
+                        const TLorentzVector& LV_bbar,
+                        const double& missPx,
+                        const double& missPy
+                       );
+    
+    void setConstraints(const LV& LV_al, 
+                        const LV& LV_l, 
+                        const LV& LV_b, 
+                        const LV& LV_bbar,
+                        const double& missPx,
+                        const double& missPy
+                       );
+    
+    int getNsol()const;
+    
+    void setWeightOption(const int wo);
+    
+    struct TopSolution{
         //double vw;
-        double mttw;
         //double lepEw;
         //double dTS;
         //double dR;
@@ -76,7 +69,6 @@ public:
         //double cos_bbarTR_topbar;
         //double cos1;
         //double cos2;
-        double Mtt;
         //double ttpt_top;
         //double ttpt_topbar;
         double mbl;
@@ -87,35 +79,34 @@ public:
         double dTS;
         
     };
-  std::vector<TopSolution>* getTtSol();
+    const std::vector<TopSolution>* getTtSol()const;
     
-//void setTrueInfo(TLorentzVector LV_Top,TLorentzVector LV_AntiTop,TLorentzVector LV_Neutrino, TLorentzVector LV_AntiNeutrino);
-// void sortBy(std::string ch);
-void print();
-TF1* getNeutrinoPxF();
-
+    //void setTrueInfo(TLorentzVector LV_Top,TLorentzVector LV_AntiTop,TLorentzVector LV_Neutrino, TLorentzVector LV_AntiNeutrino);
+    // void sortBy(std::string ch);
+    void print()const;
+    TF1* getNeutrinoPxF()const;
+    
 private:
 //     void filldTS();
 //     void filldR();
 //     void filldN();
-    void swapTopSol(TopSolution& sol1, TopSolution& sol2);
-    void sortTopSol(std::vector<TopSolution> &v);
-    void doAll(); 
-    void topRec(double sol);
-    void findCoeff(double* koeficienty);
-    void quartic_equation(double h0,double h1,double h2,double h3,double h4,std::vector<double>& v);
-    void cubic_equation(double a,double b,double c,double d,std::vector<double> &v);
-    void quadratic_equation(double a,double b,double c,std::vector<double> &v);
-    void linear_equation(double a,double b,std::vector<double> &v);
-    int sign(long double ld);
-    double landau2D(double x,double y);
+    void swapTopSol(TopSolution& sol1, TopSolution& sol2)const;
+    void sortTopSol(std::vector<TopSolution>& v)const;
+    void doAll();
+    void topRec(const double& sol);
+    void findCoeff(double* const koeficienty);
+    void quartic_equation(const double& h0, const double& h1, const double& h2, const double& h3, const double& h4, std::vector<double>& v)const;
+    void cubic_equation(const double& a, const double& b, const double& c, const double& d, std::vector<double> &v)const;
+    void quadratic_equation(const double& a, const double& b, const double& c, std::vector<double>& v)const;
+    void linear_equation(const double& a, const double& b, std::vector<double>& v)const;
+    int sign(const long double& ld)const;
+    double landau2D(const double& x, const double& y)const;
     
-  
-      //Utility Methods
-    double sqr(double x);
-    void swap(double& realone, double& realtwo);
     
-//private:
+    //Utility Methods
+    double sqr(const double& x)const;
+    void swap(double& realone, double& realtwo)const;
+    
     int weight_option_;   // weight option
     int nSol_;
     double coeffs_[5];
@@ -137,8 +128,8 @@ private:
     //TLorentzVector true_topbar_;
     //TLorentzVector true_neutrino_;
     //TLorentzVector true_neutrinobar_;
-
-    TF1 * pol4_neutrinoPx_; //("pol4_neutrinoPx","pol4",-100,100);
+    
+    TF1* pol4_neutrinoPx_; //("pol4_neutrinoPx","pol4",-100,100);
     
     //TH1F hnw_cuts_;
     
@@ -147,7 +138,7 @@ private:
     
     double px_miss_;
     double py_miss_;
-  
+    
     double mt_;
     double mtbar_;
     double mb_;
@@ -158,17 +149,17 @@ private:
     double mal_;
     double mv_;
     double mav_;
-  
-    //TF2 * NeutrinoEventShape;  // ()  30.641000 57.941000 22.344000 57.533000 22.232000
     
-   double a1_,a2_,a3_,a4_;
-   double b1_,b2_,b3_,b4_;
-   double c22_,c21_,c20_,c11_,c10_,c00_;
-   double d22_,d21_,d20_,d11_,d10_,d00_;
-   double d0_,d1_,d2_;
-   double c0_,c1_,c2_;
+    //TF2* NeutrinoEventShape;  // ()  30.641000 57.941000 22.344000 57.533000 22.232000
     
-  };
+    double a1_,a2_,a3_,a4_;
+    double b1_,b2_,b3_,b4_;
+    double c22_,c21_,c20_,c11_,c10_,c00_;
+    double d22_,d21_,d20_,d11_,d10_,d00_;
+    double d0_,d1_,d2_;
+    double c0_,c1_,c2_;
+    
+};
 
 
 #endif

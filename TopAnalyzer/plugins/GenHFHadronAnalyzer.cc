@@ -34,7 +34,7 @@
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-#include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
@@ -92,7 +92,6 @@ private:
         std::vector<int> &lastQuarkIndices, std::vector<int> &hadronFlavour, std::set<int> &checkedHadronIds, const int lastQuarkIndex);
 
 // ----------member data ---------------------------
-    edm::InputTag ttGenEvent_;
     edm::InputTag genJets_;
     int flavour_;
     bool noBBbarResonances_;
@@ -160,7 +159,6 @@ private:
 GenHFHadronAnalyzer::GenHFHadronAnalyzer ( const edm::ParameterSet& cfg )
 {
 
-    ttGenEvent_        = cfg.getParameter<edm::InputTag> ( "ttGenEvent" );
     genJets_           = cfg.getParameter<edm::InputTag> ( "genJets" );
     flavour_           = cfg.getParameter<int> ( "flavour" );
     onlyJetClusteredHadrons_ = cfg.getParameter<bool> ( "onlyJetClusteredHadrons" );
@@ -263,7 +261,6 @@ GenHFHadronAnalyzer::~GenHFHadronAnalyzer()
 *
 * <TABLE>
 * <TR><TH> name                </TH><TH> description </TH> </TR>
-* <TR><TD> ttGenEvent          </TD><TD> input collection of TtGenEvent, used to identify the b-quark from top </TD></TR>
 * <TR><TD> genJets             </TD><TD> input GenJet collection </TD></TR>
 * <TR><TD> noBBbarResonances   </TD><TD> exclude resonances to be identified as hadrons </TD></TR>
 * <TR><TD> onlyJetClusteredHadrons   </TD><TD> Whether only hadrons, injected to jets, shold be analyzed. Runs x1000 faster in Sherpa. Hadrons not clustered to jets will not be identified.
@@ -276,7 +273,6 @@ GenHFHadronAnalyzer::~GenHFHadronAnalyzer()
 // {
 
 //     edm::ParameterSetDescription desc;
-//     desc.add<edm::InputTag> ( "ttGenEvent",edm::InputTag ( "genEvt" ) )->setComment ( "Input collection of TtGenEvent, used to identify the quark from top" );
 //     desc.add<edm::InputTag> ( "genJets",edm::InputTag ( "ak5GenJets","","HLT" ) )->setComment ( "Input GenJet collection" );
 //     desc.add<bool> ( "noBBbarResonances",true )->setComment ( "Exclude resonances to be identified as hadrons" );
 //     desc.add<bool> ( "onlyJetClusteredHadrons",false )->setComment ( "Whether only hadrons, injected to jets, shold be analyzed. Runs x1000 faster in Sherpa. Hadrons not clustered to jets will not be identified." );
@@ -299,9 +295,6 @@ void GenHFHadronAnalyzer::analyze ( const edm::Event& evt, const edm::EventSetup
     using namespace edm;
 
 //     printf("Run: %d\tLumi: %d\tEvent: %d\n",(int)evt.eventAuxiliary().run(), (int)evt.eventAuxiliary().luminosityBlock(), (int)evt.eventAuxiliary().event());
-
-    edm::Handle<TtGenEvent> genEvt;
-    evt.getByLabel ( ttGenEvent_, genEvt );
 
     edm::Handle<reco::GenJetCollection> genJets;
     evt.getByLabel ( genJets_, genJets );

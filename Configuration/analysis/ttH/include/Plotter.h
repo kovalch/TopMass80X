@@ -24,7 +24,8 @@ class Plotter{
 public:
     
     /// Constructor
-    Plotter(const Samples& samples,
+    Plotter(const char* outputDir,
+            const Samples& samples,
             const DrawMode::DrawMode& drawMode);
     
     /// Destructor
@@ -68,9 +69,16 @@ private:
     void drawCmsLabels(const int cmsprelim =1, const double& energy =8, const double& textSize =0.04)const;
     
     /// Draw signal significance label over the plot
-    TPaveText* drawSignificance(TH1* signal, TH1* bkg, float Xmin,  float Xmax, float yOffset = 0.f, std::string sLabel ="")const;
+    TPaveText* drawSignificance(const TH1* const signal, const TH1* const signalPlusBackground,
+                                const float xMin, const float xMax,
+                                const float yOffset = 0.f, const std::string& sLabel ="", const int type =0)const;
+                                
+    /// Adding histograms to the existing one or creating it
+    TH1* addOrCreateHisto(TH1* base, TH1* add_histo);
     
     
+    /// Output folder name
+    const char* outputDir_;
     
     /// Samples to be analysed
     const Samples& samples_;
@@ -103,10 +111,6 @@ private:
     TString YAxis_;
     TString XAxis_;
     bool logX_, logY_; // The variable logX_ is not used at all...
-    
-    /// Temporary hardcoded options
-    bool scaleMCtoData_;
-    double ttbbScale_;
 };
 
 

@@ -61,20 +61,11 @@ mvaEventP_mass_higgsLikeDijet2_step7 - - - 1 1 0 0 0 0 0 0 0 0
 
 
 ##
-## MVA validation plots (perhaps should have an own HistoList_mvaA)
+## MVA validation plots (perhaps should have an own HistoList_mvaTopA)
 ##
-mvaA_jetCategories_step7 - - - 1 1 0 0 0 0 0 0 0 0
+mvaTopA_jetCategories_step7 - - - 1 1 0 0 0 0 0 0 0 0
 
-mvaA_mvaWeightCorrect_step7 - - - 1 1 0 0 0 0 0 0 0 0
-mvaA_best_mvaWeightCorrect_step7 - - - 1 1 0 0 0 0 0 0 0 0
-mvaA_mvaWeightSwapped_step7 - - - 1 1 0 0 0 0 0 0 0 0
-mvaA_best_mvaWeightSwapped_step7 - - - 1 1 0 0 0 0 0 0 0 0
-
-mvaA_dijet_mass_step7 - - - 1 1 0 0 0 0 0 0 0 0
-mvaA_best_dijet_mass_step7 - - - 1 1 0 0 0 0 0 0 0 0
-
-mvaA_mvaWeightCombined_step7 - - - 1 1 0 0 0 0 0 0 0 0
-mvaA_best_mvaWeightCombined_step7 - - - 1 1 0 0 0 0 0 0 0 0
+mvaTopA_dijet_mass_step7 - - - 1 1 0 0 0 0 0 0 0 0
 
 
 
@@ -291,7 +282,7 @@ basic_met_phi_step7 - - - 1 1 0 0 0 0 0 0 0 0
 
 
 
-# basic_vertex_multiplicity_step1 - - - 1 1 0 0 0 0 0 0 0 0
+#basic_vertex_multiplicity_step1 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_lepton_multiplicity_step1 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_lepton_pt_step1 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_lepton_eta_step1 - - - 1 0 0 0 0 0 0 0 0 0
@@ -323,6 +314,22 @@ basic_met_phi_step7 - - - 1 1 0 0 0 0 0 0 0 0
 #basic_met_et_step1 - - - 1 0 0 0 0 0 0 0 0 0
 #basic_met_phi_step1 - - - 1 0 0 0 0 0 0 0 0 0
 
+
+
+
+##
+## Kinematic reconstruction variables
+##
+kinReco_top_pt_step7 - - - 1 0 0 0 0 0 0 0 0 0
+kinReco_antiTop_pt_step7 - - - 1 0 0 0 0 0 0 0 0 0
+kinReco_lepton_pt_step7 - - - 1 0 0 0 0 0 0 0 0 0
+kinReco_antiLepton_pt_step7 - - - 1 0 0 0 0 0 0 0 0 0
+kinReco_neutrino_pt_step7 - - - 1 0 0 0 0 0 0 0 0 0
+kinReco_antiNeutrino_pt_step7 - - - 1 0 0 0 0 0 0 0 0 0
+kinReco_bjet_pt_step7 - - - 1 0 0 0 0 0 0 0 0 0
+kinReco_antiBjet_pt_step7 - - - 1 0 0 0 0 0 0 0 0 0
+kinReco_bjet_index_step7 - - - 1 0 0 0 0 0 0 0 0 0
+kinReco_antiBjet_index_step7 - - - 1 0 0 0 0 0 0 0 0 0
 
 
 

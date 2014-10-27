@@ -22,6 +22,7 @@
 #include "higgsUtils.h"
 #include "../../common/include/sampleHelpers.h"
 #include "../../common/include/analysisObjectStructs.h"
+#include "../../common/include/KinematicReconstructionSolution.h"
 
 
 
@@ -92,9 +93,10 @@ bool MvaTreeHandlerBase::checkExistence(const TString& step)const
 
 
 
-void MvaTreeHandlerBase::fill(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+void MvaTreeHandlerBase::fill(const EventMetadata& eventMetadata,
+                              const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                               const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
-                              const KinRecoObjects& kinRecoObjects,
+                              const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
                               const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
                               const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
                               const double& weight, const TString& stepShort)
@@ -112,9 +114,10 @@ void MvaTreeHandlerBase::fill(const RecoObjects& recoObjects, const CommonGenObj
         
         // Here check the individual jet categories
         const TString fullStepName = tth::stepName(stepShort, categoryId);
-        this->fill(recoObjects, commonGenObjects,
+        this->fill(eventMetadata,
+                   recoObjects, commonGenObjects,
                    topGenObjects, higgsGenObjects,
-                   kinRecoObjects,
+                   kinematicReconstructionSolutions,
                    recoObjectIndices, genObjectIndices,
                    genLevelWeights, recoLevelWeights,
                    weight, fullStepName);
@@ -123,9 +126,10 @@ void MvaTreeHandlerBase::fill(const RecoObjects& recoObjects, const CommonGenObj
     
     // Fill the MVA variables of the specific treeHandler
     std::vector<MvaVariablesBase*>& mvaVariables = m_stepMvaVariables_.at(step);
-    this->fillVariables(recoObjects, commonGenObjects,
+    this->fillVariables(eventMetadata,
+                        recoObjects, commonGenObjects,
                         topGenObjects, higgsGenObjects,
-                        kinRecoObjects,
+                        kinematicReconstructionSolutions,
                         recoObjectIndices, genObjectIndices,
                         genLevelWeights, recoLevelWeights,
                         weight, step,
@@ -311,9 +315,10 @@ void MvaTreeHandlerBase::clear()
 
 
 
-void MvaTreeHandlerBase::fillVariables(const RecoObjects&, const CommonGenObjects&,
+void MvaTreeHandlerBase::fillVariables(const EventMetadata&,
+                                       const RecoObjects&, const CommonGenObjects&,
                                        const TopGenObjects&, const HiggsGenObjects&,
-                                       const KinRecoObjects&,
+                                       const KinematicReconstructionSolutions&,
                                        const tth::RecoObjectIndices&, const tth::GenObjectIndices&,
                                        const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
                                        const double&, const TString&,

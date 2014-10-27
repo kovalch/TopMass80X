@@ -25,8 +25,8 @@ elif [ $# == 1 ]; then
     installDir=$1
     if [ ! -d "${installDir}" ]; then
         echo "Specified install directory not existing: ${installDir}"
-	echo "Please create directory before installation"
-	exit 2
+        echo "Please create directory before installation"
+        exit 2
     fi
     cd ${installDir}
     commonInstallDir=${PWD}

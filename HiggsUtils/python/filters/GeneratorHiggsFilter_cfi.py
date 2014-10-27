@@ -10,7 +10,7 @@ generatorHiggsFilter = cms.EDFilter('GeneratorHiggsFilter',
     # if not empty all the other boolean parameters
     # will be ignored (except invert selection)
     channels = cms.vstring(),
-    # supported: b, W, tau, none
+    # supported: bb, tautau, WW, ZZ, none
     
     # selection can be inverted
     invert_selection = cms.bool(False),

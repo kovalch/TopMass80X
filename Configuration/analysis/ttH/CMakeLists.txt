@@ -55,8 +55,9 @@ FIND_PACKAGE( ZTopUtils REQUIRED )
 # now you can use ${ZTopUtils_INCLUDE_DIRS} and ${ZTopUtils_LIBRARIES}
 
 FIND_PACKAGE( ntupleCommon PATHS ../common/install REQUIRED )
-MESSAGE( STATUS "ntupleCommon_INCLUDE_DIRS = ${ntupleCommon_INCLUDE_DIRS}")
-MESSAGE( STATUS "ntupleCommon_LIBRARIES    = ${ntupleCommon_LIBRARIES}")
+MESSAGE( STATUS "ntupleCommon_INCLUDE_DIRS    = ${ntupleCommon_INCLUDE_DIRS}")
+MESSAGE( STATUS "ntupleCommon_LIBRARIES       = ${ntupleCommon_LIBRARIES}")
+MESSAGE( STATUS "ntupleCommon_DOC_INSTALL_DIR = ${ntupleCommon_DOC_INSTALL_DIR}")
 
 #######################
 # installation options

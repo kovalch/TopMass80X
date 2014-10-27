@@ -10,6 +10,7 @@ class TString;
 
 class RootFileReader;
 class Samples;
+class TH1;
 
 
 
@@ -54,16 +55,39 @@ private:
     /// Produce the Heavy-Flavour fraction scale factors for each selection step
     void produceScaleFactors(const TString& step, const Samples& samples);
     
+    /// Getting the largest scale factor for the histogram to have poisson errors not larger than true
+    double poissonErrorScale(const TH1* histo)const;
+    
+    /// Writes the txt datacard file used to configure the Higgs combine tool
+    void writeDatacardWithHistos(const std::vector<TH1*> histos, const TString& fileName, const TString& rootFileName, const bool recreate = true)const;
+    
+    /// Check whether two histograms are identical
+    bool histogramsAreIdentical(TH1* histo1, TH1* histo2)const;
+    
+    /// Storing all separate shapes of the histogram with up/down variations of each single bin within statistical uncertainty
+    int storeStatisticalTemplateVariations(const TH1* histo, const TString& name, const int templateId);
+    
+    /// Storing all separate shapes of the histogram with up/down variations of each single bin within systematic uncertainty
+    int storeSystematicTemplateVariations(const TH1* histo_original, const TH1* histo_systematic, 
+                                          const Systematic::Systematic& systematic, const TString& name, const int templateId);
+    
+    /// Returns the first sampleType for a given sample id
+    Sample::SampleType sampleTypeForId(const int id)const;
+    
     /// Struct to hold value-error pair
-    struct ValErr {double val; double err;};
+    struct ValErr {
+        double val; double err;
+        ValErr(double v, double e):val(v), err(e){}
+        ValErr():val(1.), err(1.){}
+            
+    };
     
     /// Typedef for the map of scale factor value to the sample name
     typedef std::map<Sample::SampleType, ValErr> SampleTypeValueMap;
     
     /// Produce map of scale factors for each sample from fitting the histograms
-    const std::map<Sample::SampleType, ValErr> getScaleFactorsFromHistos(TH1* h_data, TH1* h_ttbb, TH1* h_ttb, TH1* h_tto, TH1* h_bkg, 
-                                                                         const TString& step, const Channel::Channel channel)const;
-
+    const std::vector<ValErr> getScaleFactorsFromHistos(const std::vector<TH1*> histos, const TString& step, 
+                                                        const Channel::Channel channel, const Systematic::Systematic& systematic);
     
     
     /// Typedef for the map containing the Heavy-Flavour fraction scale factors
@@ -75,6 +99,28 @@ private:
     
     /// Map containing the Heavy-Flavour fraction scale factors
     HfFracScaleFactorMap m_hfFracScaleFactors_;
+    
+    /// Map containing the list of sample types with ids: to set specific combinations of samples to be fitted to data
+    std::map<Sample::SampleType, int> sampleTypeIds_;
+    
+    /// Map containing the name and id of each template variation to be stored for the fit (used in datacards)
+    std::map<TString, int> templateVariationNameId_;
+    
+    /// Vector of template names
+    std::vector<TString> templateNames_;
+    
+    /// Vector of template fraction up/down variation limits
+    std::vector<double> templateScaleLimits_;
+    
+    /// Name base of the histogram used for the template fit
+    TString histoTemplateName_;
+    
+    /// Directory name where input/output for the Higgs combine tool should be stored
+    TString workingDirectory_;
+    
+    /// Whether all input information has been provided in order to use the ScaleFactors
+    bool scaleFactorsUsable_;
+    
 };
 
 

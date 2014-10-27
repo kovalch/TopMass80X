@@ -14,8 +14,15 @@ if [ `hostname | grep "nafhh"` ]; then
     }
 
     isNAF=1
-    LA="qsub -@ $SCRIPTPATH/qsubParams.txt $BIN/load_Analysis"
-    HISTO="qsub -@ $SCRIPTPATH/qsubParams.txt -l h_vmem=6000M $BIN/Histo"
+
+    if grep -q "slc6" <<< "$SCRAM_ARCH"; then
+	   echo "Running at SL6 scram architecture. Submitting jobs to SL6 nodes."
+	   LA="qsub -l distro=sld6 -@ $SCRIPTPATH/qsubParams.txt $BIN/load_Analysis"
+	   HISTO="qsub -l distro=sld6 -@ $SCRIPTPATH/qsubParams.txt -l h_vmem=6000M $BIN/Histo"
+    else
+           LA="qsub -@ $SCRIPTPATH/qsubParams.txt $BIN/load_Analysis"
+	   HISTO="qsub -@ $SCRIPTPATH/qsubParams.txt -l h_vmem=6000M $BIN/Histo"
+    fi
 else
     w() {
         while [ `ps ax | grep -E 'load_Analysis|Histo' | wc -l` -gt 10 ]; do

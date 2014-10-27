@@ -13,7 +13,7 @@
 #include "../../common/include/analysisObjectStructs.h"
 #include "../../common/include/analysisUtils.h"
 #include "../../common/include/classes.h"
-
+#include "../../common/include/KinematicReconstructionSolution.h"
 
 
 
@@ -82,26 +82,33 @@ void AnalyzerDoubleDiffXS::bookHistos(const TString& step, std::map<TString, TH1
 
 
 
-void AnalyzerDoubleDiffXS::fillHistos(const RecoObjects& , const CommonGenObjects&,
+void AnalyzerDoubleDiffXS::fillHistos(const EventMetadata&,
+                                      const RecoObjects& , const CommonGenObjects&,
                                       const TopGenObjects& topGenObjects,
-                                      const KinRecoObjects& kinRecoObjects,
+                                      const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
                                       const ttbar::RecoObjectIndices& recoObjectIndices, const ttbar::GenObjectIndices&,
                                       const ttbar::GenLevelWeights& genLevelWeights, const ttbar::RecoLevelWeights&,
                                       const double& weight, const TString&,
                                       std::map< TString, TH1* >& m_histogram)
 {
+
     
-   if(kinRecoObjects.valuesSet_){
+   if(kinematicReconstructionSolutions.numberOfSolutions()){
     
-    ((TH2D*)m_histogram["top_rapidity_vs_top_pt"])->Fill((*kinRecoObjects.HypTop_).at(0).Pt(),(*kinRecoObjects.HypTop_).at(0).Rapidity(),weight);
-    ((TH2D*)m_histogram["top_rapidity_vs_top_pt"])->Fill((*kinRecoObjects.HypAntiTop_).at(0).Pt(),(*kinRecoObjects.HypAntiTop_).at(0).Rapidity(),weight);
+        const LV& hypTop = kinematicReconstructionSolutions.solution().top();
+        const LV& hypAntiTop = kinematicReconstructionSolutions.solution().antiTop();
+        const LV& hypTtbar = kinematicReconstructionSolutions.solution().ttbar();
+       
+       
+    ((TH2D*)m_histogram["top_rapidity_vs_top_pt"])->Fill(hypTop.Pt(),hypTop.Rapidity(),weight);
+    ((TH2D*)m_histogram["top_rapidity_vs_top_pt"])->Fill(hypAntiTop.Pt(),hypAntiTop.Rapidity(),weight);
 
    //proton Energy [GeV]  
    double protonE = 4000;
    
    
-   double x1 = ((*kinRecoObjects.HypTop_).at(0).E()+(*kinRecoObjects.HypAntiTop_).at(0).E()+(*kinRecoObjects.HypTop_).at(0).Pz()+(*kinRecoObjects.HypAntiTop_).at(0).Pz())/(2*protonE);
-   double x2 = ((*kinRecoObjects.HypTop_).at(0).E()+(*kinRecoObjects.HypAntiTop_).at(0).E()-(*kinRecoObjects.HypTop_).at(0).Pz()-(*kinRecoObjects.HypAntiTop_).at(0).Pz())/(2*protonE);
+   double x1 = (hypTop.E()+hypAntiTop.E()+hypTop.Pz()+hypAntiTop.Pz())/(2*protonE);
+   double x2 = (hypTop.E()+hypAntiTop.E()-hypTop.Pz()-hypAntiTop.Pz())/(2*protonE);
    ((TH2D*)m_histogram["bjet_multiplicity_vs_x1"])->Fill(x1,recoObjectIndices.bjetIndices_.size(),weight);
    ((TH2D*)m_histogram["bjet_multiplicity_vs_x2"])->Fill(x2,recoObjectIndices.bjetIndices_.size(),weight);
    ((TH2D*)m_histogram["jet_multiplicity_vs_x1"])->Fill(x1,recoObjectIndices.jetIndices_.size(),weight);
@@ -114,18 +121,18 @@ void AnalyzerDoubleDiffXS::fillHistos(const RecoObjects& , const CommonGenObject
    }
    
    
-   ((TH2D*)m_histogram["jet_multiplicity_vs_top_pt"])->Fill((*kinRecoObjects.HypTop_).at(0).Pt(),recoObjectIndices.jetIndices_.size(),weight);
-   ((TH2D*)m_histogram["jet_multiplicity_vs_top_pt"])->Fill((*kinRecoObjects.HypAntiTop_).at(0).Pt(),recoObjectIndices.jetIndices_.size(),weight);
+   ((TH2D*)m_histogram["jet_multiplicity_vs_top_pt"])->Fill(hypTop.Pt(),recoObjectIndices.jetIndices_.size(),weight);
+   ((TH2D*)m_histogram["jet_multiplicity_vs_top_pt"])->Fill(hypAntiTop.Pt(),recoObjectIndices.jetIndices_.size(),weight);
    
-   ((TH2D*)m_histogram["jet_multiplicity_vs_top_y"])->Fill((*kinRecoObjects.HypTop_).at(0).Rapidity(),recoObjectIndices.jetIndices_.size(),weight);
-   ((TH2D*)m_histogram["jet_multiplicity_vs_top_y"])->Fill((*kinRecoObjects.HypAntiTop_).at(0).Rapidity(),recoObjectIndices.jetIndices_.size(),weight);
+   ((TH2D*)m_histogram["jet_multiplicity_vs_top_y"])->Fill(hypTop.Rapidity(),recoObjectIndices.jetIndices_.size(),weight);
+   ((TH2D*)m_histogram["jet_multiplicity_vs_top_y"])->Fill(hypAntiTop.Rapidity(),recoObjectIndices.jetIndices_.size(),weight);
    
-   ((TH2D*)m_histogram["jet_multiplicity_vs_ttbar_pt"])->Fill(((*kinRecoObjects.HypTop_).at(0)+(*kinRecoObjects.HypAntiTop_).at(0)).Pt(),recoObjectIndices.jetIndices_.size(),weight);
-   ((TH2D*)m_histogram["jet_multiplicity_vs_ttbar_y"])->Fill(((*kinRecoObjects.HypTop_).at(0)+(*kinRecoObjects.HypAntiTop_).at(0)).Rapidity(),recoObjectIndices.jetIndices_.size(),weight);
-   ((TH2D*)m_histogram["jet_multiplicity_vs_ttbar_mass"])->Fill(((*kinRecoObjects.HypTop_).at(0)+(*kinRecoObjects.HypAntiTop_).at(0)).M(),recoObjectIndices.jetIndices_.size(),weight);
+   ((TH2D*)m_histogram["jet_multiplicity_vs_ttbar_pt"])->Fill(hypTtbar.Pt(),recoObjectIndices.jetIndices_.size(),weight);
+   ((TH2D*)m_histogram["jet_multiplicity_vs_ttbar_y"])->Fill(hypTtbar.Rapidity(),recoObjectIndices.jetIndices_.size(),weight);
+   ((TH2D*)m_histogram["jet_multiplicity_vs_ttbar_mass"])->Fill(hypTtbar.M(),recoObjectIndices.jetIndices_.size(),weight);
     
-   ((TH2D*)m_histogram["ttbar_mass_vs_top_pt"])->Fill((*kinRecoObjects.HypTop_).at(0).Pt(),((*kinRecoObjects.HypTop_).at(0)+(*kinRecoObjects.HypAntiTop_).at(0)).M(),weight);
-   ((TH2D*)m_histogram["ttbar_mass_vs_top_pt"])->Fill((*kinRecoObjects.HypAntiTop_).at(0).Pt(),((*kinRecoObjects.HypTop_).at(0)+(*kinRecoObjects.HypAntiTop_).at(0)).M(),weight);
+   ((TH2D*)m_histogram["ttbar_mass_vs_top_pt"])->Fill(hypTop.Pt(),hypTtbar.M(),weight);
+   ((TH2D*)m_histogram["ttbar_mass_vs_top_pt"])->Fill(hypAntiTop.Pt(),hypTtbar.M(),weight);
    
    }
    

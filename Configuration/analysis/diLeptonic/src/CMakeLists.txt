@@ -16,11 +16,22 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   AnalyzerControlPlots
   AnalyzerDoubleDiffXS
   AnalyzerKinReco
+  TreeHandlerBase
+  TreeHandlerTTBar
+  VariablesBase
+  VariablesTTBar
   plotterclass
-  homelessFunctions
-#  utils
+  UsefulTools
   DilepSVDFunctions
   EffHist
+  plotterHelpers
+  Sample
+  SampleDefinitions
+  Samples
+  GlobalScaleFactors
+  LuminosityScaleFactors
+  DyScaleFactors
+  HfFracScaleFactors
   )
 
 SET( Unfold_LIBSOURCES
@@ -33,8 +44,6 @@ SET( ${PROJECT_NAME}_EXECUTABLES
   load_Analysis
   Histo
   kinRecoEff
-#  controlPlot2d
-#  compareHisto
   TypicalErrors
   PlotRelDiffs
   kinRecoEfficienciesAndSF

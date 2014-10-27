@@ -24,7 +24,7 @@
 #include <TError.h>
 
 #include "plotterclass.h"
-#include "homelessFunctions.h"
+#include "UsefulTools.h"
 #include "ttbarUtils.h"
 #include "../../common/include/RootFileReader.h"
 #include "../../common/include/plotterUtils.h"
@@ -123,7 +123,7 @@ void Plotter::preunfolding(TString Channel, TString Systematic)
 void Plotter::DYScaleFactor(TString SpecialComment){
 
     DYScale = {1,1,1,1};
-    homelessFunc->DYScaleFactor(SpecialComment,DYScale,name);
+    usefulTools->DYScaleFactor(SpecialComment,DYScale,name);
 }
 
 
@@ -498,9 +498,9 @@ void Plotter::setOptions(TString name_, TString specialComment_, TString YAxis_,
 
     DYScale.insert(DYScale.begin(), 4, 1.);//Initialize the DY scale-factor to (1., 1., 1., 1.)
     
-    homelessFunc = new homelessFunctions(fileReader,doClosureTest,doDYScale);
-    this->lumi = homelessFunc->lumi;
-    this->topxsec = homelessFunc->topxsec;
+    usefulTools = new UsefulTools(fileReader,doClosureTest,doDYScale);
+    this->lumi = usefulTools->lumi;
+    this->topxsec = usefulTools->topxsec;
     
 }
 
@@ -547,6 +547,10 @@ void Plotter::setDataSet(TString mode, TString Systematic)
 
     TString histoListName = "FileLists/HistoFileList_"+Systematic+"_"+mode+".txt";
     std::cout << "reading " << histoListName << std::endl;
+    
+    //FIXME: 
+    /// This block can be deleted if "datafiles" not using
+    // Counting number of data files
     ifstream FileList(histoListName);
     if (FileList.fail()) {
         std::cerr << "Error reading " << histoListName << std::endl;
@@ -555,26 +559,18 @@ void Plotter::setDataSet(TString mode, TString Systematic)
     TString filename;
     datafiles=0;
 
-    dataset.clear();
-    legends.clear();
-    colors.clear();
-
     while(!FileList.eof()){
         FileList>>filename;
         if(filename==""){continue;}//Skip empty lines
-        dataset.push_back(filename);
-        if(filename.Contains("run")){legends.push_back("Data"); colors.push_back(kBlack);datafiles++;}
-        else if(filename.Contains("ttbarsignal")){legends.push_back("t#bar{t} Signal"); colors.push_back(kRed+1);}
-        else if(filename.Contains("ttbarbg")){legends.push_back("t#bar{t} Other"); colors.push_back(kRed-7);}
-        else if(filename.Contains("single")){legends.push_back("Single Top"); colors.push_back(kMagenta);}
-        else if(filename.Contains("ww") ||filename.Contains("wz")||filename.Contains("zz")){legends.push_back("Diboson"); colors.push_back(10);}
-        else if(filename.Contains("dytautau")){legends.push_back("Z / #gamma* #rightarrow #tau#tau"); colors.push_back(kAzure+8);}
-        else if(filename.Contains("dymumu")||filename.Contains("dyee")){legends.push_back("Z / #gamma* #rightarrow ee/#mu#mu"); colors.push_back(kAzure-2);}
-        else if(filename.Contains("wtolnu")){legends.push_back("W+Jets"); colors.push_back(kGreen-3);}
-        else if(filename.Contains("qcd")){legends.push_back("QCD Multijet"); colors.push_back(kYellow);}
-        else if(filename.Contains("ttbarZ") ||filename.Contains("ttbarW") || filename.Contains("ttgjets")){legends.push_back("t#bar{t}+Z/W/#gamma"); colors.push_back(kOrange-2);}
+        if(filename.Contains("run")){datafiles++;}
+
     }
     FileList.close();
+    /// This block can be deleted if "datafiles" not using
+    
+    //Fill 
+    UsefulTools::fillLegendColorDataset(histoListName,legends,colors,dataset);
+    
 }
 
 bool Plotter::fillHisto()
@@ -599,10 +595,10 @@ bool Plotter::fillHisto()
         }
 
         //Rescaling to the data luminosity
-        double LumiWeight = homelessFunc->CalcLumiWeight(dataset.at(i));
+        double LumiWeight = usefulTools->CalcLumiWeight(dataset.at(i));
         //std::cout << "File " << dataset.at(i) << " has weight " << LumiWeight << "\n";
 
-        homelessFunc->ApplyFlatWeights(hist, LumiWeight);
+        usefulTools->ApplyFlatWeights(hist, LumiWeight);
 
         common::setHHStyle(*gStyle);
         hists.push_back(*hist);
@@ -700,7 +696,7 @@ void Plotter::write(TString Channel, TString Systematic) // do scaling, stacking
         //if(XAxisbins.size()>1||1){//only distributions we want to unfold will have a binning vector //to compare
             if(legends.at(i) == "t#bar{t} Signal" && doUnfolding){
                 TString ftemp = dataset.at(i);
-                double LumiWeight = homelessFunc->CalcLumiWeight(dataset.at(i));
+                double LumiWeight = usefulTools->CalcLumiWeight(dataset.at(i));
                 if (!init) {
                     aRespHist = fileReader->GetClone<TH2>(ftemp, "GenReco"+newname);
                     aGenHist = fileReader->GetClone<TH1D>(ftemp, "VisGen"+newname);
@@ -1204,12 +1200,12 @@ void Plotter::MakeTable(TString Channel, TString Systematic){
         TH1D *temp_hist8 = fileReader->GetClone<TH1D>(dataset[i], "events_weighted_step7");//TH1D *temp_hist8 = fileReader->GetClone<TH1D>(dataset[i], "step8");
         TH1D *temp_hist9 = fileReader->GetClone<TH1D>(dataset[i], "events_weighted_step8");//TH1D *temp_hist9 = fileReader->GetClone<TH1D>(dataset[i], "step9");
 
-        double LumiWeight = homelessFunc->CalcLumiWeight(dataset.at(i));
-        homelessFunc->ApplyFlatWeights(temp_hist5, LumiWeight);
-        homelessFunc->ApplyFlatWeights(temp_hist6, LumiWeight);
-        homelessFunc->ApplyFlatWeights(temp_hist7, LumiWeight);
-        homelessFunc->ApplyFlatWeights(temp_hist8, LumiWeight);
-        homelessFunc->ApplyFlatWeights(temp_hist9, LumiWeight);
+        double LumiWeight = usefulTools->CalcLumiWeight(dataset.at(i));
+        usefulTools->ApplyFlatWeights(temp_hist5, LumiWeight);
+        usefulTools->ApplyFlatWeights(temp_hist6, LumiWeight);
+        usefulTools->ApplyFlatWeights(temp_hist7, LumiWeight);
+        usefulTools->ApplyFlatWeights(temp_hist8, LumiWeight);
+        usefulTools->ApplyFlatWeights(temp_hist9, LumiWeight);
 
         numhists5[i]=temp_hist5;
         numhists6[i]=temp_hist6;
@@ -1326,7 +1322,7 @@ double Plotter::CalcXSec(std::vector<TString> datasetVec, double InclusiveXsecti
 
     for(unsigned int i=0; i<datasetVec.size(); i++){
         TH1D *hist = fileReader->GetClone<TH1D>(datasetVec[i], "events_weighted_step8");
-        homelessFunc->ApplyFlatWeights(hist, homelessFunc->CalcLumiWeight(datasetVec.at(i)));
+        usefulTools->ApplyFlatWeights(hist, usefulTools->CalcLumiWeight(datasetVec.at(i)));
         numhists[i]=hist;
     }
 
@@ -1347,14 +1343,14 @@ double Plotter::CalcXSec(std::vector<TString> datasetVec, double InclusiveXsecti
             TH1D *RecoGenPlot_noweight = fileReader->GetClone<TH1D>(datasetVec.at(i), "GenAll_RecoCuts_noweight");
             TH1 *h_NrOfEvts = fileReader->GetClone<TH1>(datasetVec.at(i), "weightedEvents");
 
-            double LumiWeight = homelessFunc->CalcLumiWeight(datasetVec.at(i));
-            homelessFunc->ApplyFlatWeights(GenPlot, LumiWeight);
-            homelessFunc->ApplyFlatWeights(GenPlot_noweight, LumiWeight);
-            homelessFunc->ApplyFlatWeights(VisGenPlot, LumiWeight);
-            homelessFunc->ApplyFlatWeights(VisGenPlot_noweight, LumiWeight);
-            homelessFunc->ApplyFlatWeights(RecoGenPlot, LumiWeight);
-            homelessFunc->ApplyFlatWeights(RecoGenPlot_noweight, LumiWeight);
-            homelessFunc->ApplyFlatWeights(h_NrOfEvts, LumiWeight);
+            double LumiWeight = usefulTools->CalcLumiWeight(datasetVec.at(i));
+            usefulTools->ApplyFlatWeights(GenPlot, LumiWeight);
+            usefulTools->ApplyFlatWeights(GenPlot_noweight, LumiWeight);
+            usefulTools->ApplyFlatWeights(VisGenPlot, LumiWeight);
+            usefulTools->ApplyFlatWeights(VisGenPlot_noweight, LumiWeight);
+            usefulTools->ApplyFlatWeights(RecoGenPlot, LumiWeight);
+            usefulTools->ApplyFlatWeights(RecoGenPlot_noweight, LumiWeight);
+            usefulTools->ApplyFlatWeights(h_NrOfEvts, LumiWeight);
 
             NrOfEvts += h_NrOfEvts->GetBinContent(1);
             NrOfEvts_afterSelection += GenPlot->Integral();
@@ -1921,9 +1917,14 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
     recBinHist->Reset();
     recBinHist->Draw();
     recBinHist->SetMaximum(1.);
-    recBinHist->GetXaxis()->SetTitle(TString("Reconstructed ").Copy().Append(XAxis));
     recBinHist->GetXaxis()->SetNoExponent(kTRUE);
-    grE->GetXaxis()->SetNoExponent(kTRUE);
+    if(name.Contains("pT") ||name.Contains("Mass") ){
+    recBinHist->GetXaxis()->SetTitle(XAxis.Copy().Prepend("Reconstructed ").Append(" #left[GeV#right]"));
+    if(name.Contains("Rapidity")) recBinHist->GetXaxis()->SetTitle(XAxis.Copy().Prepend("Reconstructed "));
+    }
+    else recBinHist->GetXaxis()->SetTitle(XAxis.Copy().Prepend("Reconstructed "));
+    DrawCMSLabels(0, 8);
+    DrawDecayChLabel(channelLabel[channelType]);
     grE->Draw("P,SAME");
     grP->Draw("P,SAME");
     grS->Draw("P,SAME");
@@ -2739,38 +2740,34 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
     delete c;
     gStyle->SetEndErrorSize(0);
 
-    std::cout<<"-------------------------------------------------------------------"<<std::endl;
-    std::cout<<"Starting the calculation of Chi2/ndof\n"<<std::endl;
-    double chi2 = Plotter::GetChi2 (tga_DiffXSecPlotwithSys, madgraphhistBinned);
-    std::cout<<"The CHI2/ndof (vs Madgraph) value for '"<<name<<"' in channel '"<<subfolderChannel.Copy().Remove(0, 1)<<"' is "<<chi2<<std::endl;
-
+    
+    FILE *file;
+    file = fopen(outdir.Copy()+name+"_Chi2Values.txt", "w");
+    fprintf(file, "Variable: %s  Channel: %s \n", name.Data(), subfolderChannel.Copy().Remove(0, 1).Data());
+    fprintf(file, "Theory & $\\chi^{2}/ndof$ \\\\ \n");
+    fprintf(file, "\\hline \n");
+    fprintf(file, "MadGraph+Pythia & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlotwithSys, madgraphhistBinned));
     if(drawNLOCurves && drawPOWHEG && powheghistBinned && powheghistBinned->GetEntries()){
-        double chi2Powheg = Plotter::GetChi2 (tga_DiffXSecPlotwithSys, powheghistBinned);
-        std::cout<<"The CHI2/ndof (vs Powheg+Pythia) value for '"<<name<<"' in channel '"<<subfolderChannel.Copy().Remove(0, 1)<<"' is "<<chi2Powheg<<std::endl;
+        fprintf(file, "PowHeg+Pythia & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlotwithSys, powheghistBinned));
     }
     if(drawNLOCurves && drawPOWHEGHERWIG && powhegHerwighistBinned && powhegHerwighistBinned->GetEntries()){
-        double chi2PowhegHerwig = Plotter::GetChi2 (tga_DiffXSecPlotwithSys, powhegHerwighistBinned);
-        std::cout<<"The CHI2/ndof (vs Powheg+Herwig) value for '"<<name<<"' in channel '"<<subfolderChannel.Copy().Remove(0, 1)<<"' is "<<chi2PowhegHerwig<<std::endl;
+        fprintf(file, "PowHeg+Herwig & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlotwithSys, powhegHerwighistBinned));
     }
     if(drawNLOCurves && drawMCATNLO && mcnlohistBinned && mcnlohistBinned->GetEntries()){
-        double chi2McAtNlo = Plotter::GetChi2 (tga_DiffXSecPlotwithSys, mcnlohistBinned);
-        std::cout<<"The CHI2/ndof (vs MC@NLO+Herwig) value for '"<<name<<"' in channel '"<<subfolderChannel.Copy().Remove(0, 1)<<"' is "<<chi2McAtNlo<<std::endl;
+        fprintf(file, "MC\\@NLO+Herwig & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlotwithSys, mcnlohistBinned));
     }
     if(drawNLOCurves && drawKidonakis && Kidoth1_Binned && (name.Contains("ToppT") || name.Contains("TopRapidity")) && !name.Contains("Lead") && !name.Contains("RestFrame")){
-        double chi2Kidonakis = Plotter::GetChi2 (tga_DiffXSecPlotwithSys, Kidoth1_Binned);
-        std::cout<<"The CHI2/ndof (vs Kidonakis) value for '"<<name<<"' in channel '"<<subfolderChannel.Copy().Remove(0, 1)<<"' is "<<chi2Kidonakis<<std::endl;
+        fprintf(file, "Approx. NNLO & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlotwithSys, Kidoth1_Binned));
+    }
+    if(drawAhrens && Ahrensth1_Binned && (name.Contains("TTBarpT") || name.Contains("TTBarMass"))){
+        fprintf(file, "NLO+NNLL & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlotwithSys, Ahrensth1_Binned));
     }
     if(drawNLOCurves && drawMadScaleMatching){
-        double chi2 = Plotter::GetChi2 (tga_DiffXSecPlotwithSys, madupBinned);
-        std::cout<<"The CHI2/ndof (vs SCALE UP) value for '"<<name<<"' in channel '"<<subfolderChannel.Copy().Remove(0, 1)<<"' is "<<chi2<<endl;
-        chi2 = Plotter::GetChi2 (tga_DiffXSecPlotwithSys, maddownBinned);
-        std::cout<<"The CHI2/ndof (vs SCALE DOWN) value for '"<<name<<"' in channel '"<<subfolderChannel.Copy().Remove(0, 1)<<"' is "<<chi2<<endl;
-        chi2 = Plotter::GetChi2 (tga_DiffXSecPlotwithSys, matchupBinned);
-        std::cout<<"The CHI2/ndof (vs MATCH UP) value for '"<<name<<"' in channel '"<<subfolderChannel.Copy().Remove(0, 1)<<"' is "<<chi2<<endl;
-        chi2 = Plotter::GetChi2 (tga_DiffXSecPlotwithSys, matchdownBinned);
-        std::cout<<"The CHI2/ndof (vs MATCH DOWN) value for '"<<name<<"' in channel '"<<subfolderChannel.Copy().Remove(0, 1)<<"' is "<<chi2<<endl;
+        fprintf(file, "Q^{2} Up & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlotwithSys, madupBinned));
+        fprintf(file, "Q^{2} Down & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlotwithSys, maddownBinned));
+        fprintf(file, "ME/PS Up & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlotwithSys, matchupBinned));
+        fprintf(file, "ME/PS Down & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlotwithSys, matchdownBinned));
     }
-    std::cout<<"-------------------------------------------------------------------"<<std::endl;
 
     PrintResultTotxtFile(Channel, binCenters, tga_DiffXSecPlot, tga_DiffXSecPlotwithSys);
 
@@ -3034,9 +3031,14 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
     recBinHist->Reset();
     recBinHist->Draw();
     recBinHist->SetMaximum(1.);
-    recBinHist->GetXaxis()->SetTitle(TString("Reconstructed ").Copy().Append(XAxis));
     recBinHist->GetXaxis()->SetNoExponent(kTRUE);
-    grE->GetXaxis()->SetNoExponent(kTRUE);
+    if(name.Contains("pT") ||name.Contains("Mass") ){
+    recBinHist->GetXaxis()->SetTitle(XAxis.Copy().Prepend("Reconstructed ").Append(" #left[GeV#right]"));
+    if(name.Contains("Rapidity")) recBinHist->GetXaxis()->SetTitle(XAxis.Copy().Prepend("Reconstructed "));
+    }
+    else recBinHist->GetXaxis()->SetTitle(XAxis.Copy().Prepend("Reconstructed "));
+    DrawCMSLabels(0, 8);
+    DrawDecayChLabel(channelLabel[channelType]);
     grE->Draw("P,SAME");
     grP->Draw("P,SAME");
     grS->Draw("P,SAME");
@@ -3617,32 +3619,33 @@ void Plotter::PlotSingleDiffXSec(TString Channel, TString Systematic){
     gStyle->SetEndErrorSize(0);
 
 //    double result_Integral = Plotter::CalculateIntegral(tga_DiffXSecPlot, Xbins);
-    std::cout<<"-------------------------------------------------------------------"<<std::endl;
-    std::cout<<"Starting the calculation of Chi2/ndof\n"<<std::endl;
-    double chi2 = Plotter::GetChi2 (tga_DiffXSecPlot, madgraphhistBinned);
-    std::cout<<"The CHI2/ndof (vs Madgraph) value for '"<<name<<"' in channel '"<<Channel<<"' is "<<chi2<<std::endl;
-
-    if(drawPOWHEG && powheghistBinned && powheghistBinned->GetEntries()){
-        double chi2Powheg = Plotter::GetChi2 (tga_DiffXSecPlot, powheghistBinned);
-        std::cout<<"The CHI2/ndof (vs Powheg+Pythia) value for '"<<name<<"' in channel '"<<Channel<<"' is "<<chi2Powheg<<std::endl;
+    FILE *file;
+    file = fopen(outdir.Copy()+name+"_Chi2Values.txt", "w");
+    fprintf(file, "Variable: %s  Channel: %s \n", name.Data(), subfolderChannel.Copy().Remove(0, 1).Data());
+    fprintf(file, "Theory & $\\chi^{2}/ndof$ \\\\ \n");
+    fprintf(file, "\\hline \n");
+    fprintf(file, "MadGraph+Pythia & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlot, madgraphhistBinned));
+    if(drawNLOCurves && drawPOWHEG && powheghistBinned && powheghistBinned->GetEntries()){
+        fprintf(file, "PowHeg+Pythia & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlot, powheghistBinned));
     }
-    if(drawPOWHEGHERWIG && powhegHerwighistBinned && powhegHerwighistBinned->GetEntries()){
-        double chi2PowhegHerwig = Plotter::GetChi2 (tga_DiffXSecPlot, powhegHerwighistBinned);
-        std::cout<<"The CHI2/ndof (vs Powheg+Herwig) value for '"<<name<<"' in channel '"<<Channel<<"' is "<<chi2PowhegHerwig<<std::endl;
+    if(drawNLOCurves && drawPOWHEGHERWIG && powhegHerwighistBinned && powhegHerwighistBinned->GetEntries()){
+        fprintf(file, "PowHeg+Herwig & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlot, powhegHerwighistBinned));
     }
-    if(drawMCATNLO && mcnlohistBinned && mcnlohistBinned->GetEntries()){
-        double chi2McAtNlo = Plotter::GetChi2 (tga_DiffXSecPlot, mcnlohistBinned);
-        std::cout<<"The CHI2/ndof (vs MC@NLO+Herwig) value for '"<<name<<"' in channel '"<<Channel<<"' is "<<chi2McAtNlo<<std::endl;
+    if(drawNLOCurves && drawMCATNLO && mcnlohistBinned && mcnlohistBinned->GetEntries()){
+        fprintf(file, "MC\\@NLO+Herwig & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlot, mcnlohistBinned));
     }
-    if(drawPERUGIA11 && perugia11histBinned && perugia11histBinned->GetEntries()){
-        double chi2perugia11 = Plotter::GetChi2 (tga_DiffXSecPlot, perugia11histBinned);
-        std::cout<<"The CHI2/ndof (vs MadGraph+Pythia (Perugia11 tune)) value for '"<<name<<"' in channel '"<<Channel<<"' is "<<chi2perugia11<<std::endl;
+    if(drawNLOCurves && drawKidonakis && Kidoth1_Binned && (name.Contains("ToppT") || name.Contains("TopRapidity")) && !name.Contains("Lead") && !name.Contains("RestFrame")){
+        fprintf(file, "Approx. NNLO & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlot, Kidoth1_Binned));
     }
-    if(drawKidonakis && Kidoth1_Binned && (name.Contains("ToppT") || name.Contains("TopRapidity")) && !name.Contains("Lead") && !name.Contains("RestFrame")){
-        double chi2Kidonakis = Plotter::GetChi2 (tga_DiffXSecPlot, Kidoth1_Binned);
-        std::cout<<"The CHI2/ndof (vs Kidonakis) value for '"<<name<<"' in channel '"<<Channel<<"' is "<<chi2Kidonakis<<std::endl;
+    if(drawAhrens && Ahrensth1_Binned && (name.Contains("TTBarpT") || name.Contains("TTBarMass"))){
+        fprintf(file, "NLO+NNLL & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlot, Ahrensth1_Binned));
     }
-    std::cout<<"-------------------------------------------------------------------"<<std::endl;
+    if(drawNLOCurves && drawMadScaleMatching){
+        fprintf(file, "Q^{2} Up & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlot, madupBinned));
+        fprintf(file, "Q^{2} Down & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlot, maddownBinned));
+        fprintf(file, "ME/PS Up & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlot, matchupBinned));
+        fprintf(file, "ME/PS Down & %3.2f \\\\ \n", Plotter::GetChi2 (tga_DiffXSecPlot, matchdownBinned));
+    }
 
     TCanvas * c1 = new TCanvas("DiffXS","DiffXS");
     TH1* stacksum = common::summedStackHisto(stack);
@@ -3915,7 +3918,7 @@ double Plotter::GetChi2 (TGraphAsymmErrors *data, TH1 *mc){
         double dataError   = (data->GetErrorYhigh(i) + data->GetErrorYlow(i))/2;
         chi2 += dataMinusMC * dataMinusMC / (dataError * dataError);
     }
-    return chi2/data->GetN();
+    return chi2/(data->GetN()-1);
 }
 
 
@@ -4035,7 +4038,7 @@ void Plotter::setControlPlotLegendStyle(std::vector< TH1* > drawhists, std::vect
     OrderedLegends.push_back("Z / #gamma* #rightarrow #tau#tau");
     OrderedLegends.push_back("t#bar{t}+Z/W/#gamma");
     OrderedLegends.push_back("Diboson");
-    OrderedLegends.push_back("QCD Multijet");
+    if (this->addQCDToControlPlot()) OrderedLegends.push_back("QCD Multijet");
 
     leg->Clear();
     if(leg1) leg1->Clear();
@@ -4166,15 +4169,13 @@ void Plotter::DrawCMSLabels(int cmsprelim, double energy, double textSize) {
 }
 
 
-void Plotter::PrintResultTotxtFile (TString channel, double binCenters[], TGraphAsymmErrors *tga_DiffXSecPlot, TGraphAsymmErrors *tga_DiffXSecPlotwithSys){
-    
-    ofstream SavingFile;
-    string filename = string("Plots/FinalResults/"+channel+"/"+name+"LaTeX.txt");
-    SavingFile.open(filename.c_str(), ios_base::out);
-    
-    SavingFile<<"Variable: "<<name<<"   Channel: "<<channelLabel.at(channelType)<<std::endl;
-    SavingFile<<"BinCenter & LowXbinEdge  &  HighXbinEdge  &   DiffXSec  &  StatError(\\%)  & SystError(\\%)  & TotalError(\\%) \\\\"<<std::endl;
-    SavingFile<<"\\hline"<<std::endl;
+void Plotter::PrintResultTotxtFile (TString channel, double binCenters[], TGraphAsymmErrors *tga_DiffXSecPlot, TGraphAsymmErrors *tga_DiffXSecPlotwithSys)
+{
+    FILE *file;
+    file = fopen("Plots/FinalResults/"+channel+"/"+name+"LaTeX.txt", "w");
+    fprintf(file, "Variable: %s Channel: %s \n", name.Data(), channelLabel.at(channelType).Data());
+    fprintf(file, "BinCenter & LowXbinEdge  &  HighXbinEdge  &   DiffXSec  &  StatError(\\%%)  & SystError(\\%%)  & TotalError(\\%%) \\\\ \n");
+    fprintf(file, "\\hline \n");
     for(int i=0; i<(int)tga_DiffXSecPlot->GetN(); i++){
         double DiffXSec=tga_DiffXSecPlot->GetY()[i];
         double RelStatErr=0, RelSysErr=0, RelTotErr=0;
@@ -4183,11 +4184,9 @@ void Plotter::PrintResultTotxtFile (TString channel, double binCenters[], TGraph
             RelTotErr  = 100*(tga_DiffXSecPlotwithSys->GetErrorY(i))/DiffXSec;
             if(RelTotErr>=RelStatErr) RelSysErr = TMath::Sqrt(RelTotErr*RelTotErr - RelStatErr*RelStatErr);
         }
-        SavingFile<<"$"<<setprecision(3)<<binCenters[i]<<"$ & $"<<XAxisbins.at(i)<<"$ to $"<<setprecision(3)<<XAxisbins.at(i+1)<<"$   &  ";
-        SavingFile<<setprecision(5)<<DiffXSec<<"  &   "<<setprecision(3)<<RelStatErr<<" &    "<<setprecision(3)<<RelSysErr<<" &    ";
-        SavingFile<<setprecision(3)<<RelTotErr<<" \\\\"<<std::endl;
+        fprintf(file, "$%5.2f$ & $%5.2f$ to $%5.2f$ & %5.2e & %2.1f & %2.1f & %2.1f \\\\ \n", binCenters[i], XAxisbins.at(i), XAxisbins.at(i+1),DiffXSec, RelStatErr, RelSysErr, RelTotErr);
     }
-    SavingFile.close();
+    fclose(file);
 }
 
 
@@ -4236,8 +4235,13 @@ void Plotter::CalcUpDownDifference( TString Channel, TString Syst_Up, TString Sy
         if(CentralValue_Nom != 0){
             double up = std::fabs(CentralValue_Up - CentralValue_Nom);
             double down = std::fabs(CentralValue_Down - CentralValue_Nom);
+            
+            if(Syst_Up.Contains("POWHEG") || Syst_Down.Contains("POWHEG"))
+            {
+                up = std::fabs(CentralValue_Up - CentralValue_Down);
+                down = up;
+            }
             double rel_err = 0.5*(up + down)/CentralValue_Nom;
-
             RelativeError.push_back(rel_err);
         }
     }

@@ -15,7 +15,7 @@
 #include "../../common/include/analysisObjectStructs.h"
 #include "../../common/include/analysisUtils.h"
 #include "../../common/include/classes.h"
-
+#include "../../common/include/KinematicReconstructionSolution.h"
 
 
 
@@ -84,9 +84,10 @@ void AnalyzerBaseClass::bookHistos(const TString&, std::map<TString, TH1*>&)
 
 
 
-void AnalyzerBaseClass::fill(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+void AnalyzerBaseClass::fill(const EventMetadata& eventMetadata,
+                             const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                                   const TopGenObjects& topGenObjects,
-                                  const KinRecoObjects& kinRecoObjects,
+                                  const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
                                   const ttbar::RecoObjectIndices& recoObjectIndices, const ttbar::GenObjectIndices& genObjectIndices,
                                   const ttbar::GenLevelWeights& genLevelWeights, const ttbar::RecoLevelWeights& recoLevelWeights,
                                   const double& weight, const TString& stepShort)
@@ -98,9 +99,9 @@ void AnalyzerBaseClass::fill(const RecoObjects& recoObjects, const CommonGenObje
     
     // Fill the histograms of the specific analyser
     std::map<TString, TH1*>& m_histogram = m_stepHistograms_[step].m_histogram_;
-    this->fillHistos(recoObjects, commonGenObjects,
+    this->fillHistos(eventMetadata, recoObjects, commonGenObjects,
                      topGenObjects,
-                     kinRecoObjects,
+                     kinematicReconstructionSolutions,
                      recoObjectIndices, genObjectIndices,
                      genLevelWeights, recoLevelWeights,
                      weight, step,
@@ -109,9 +110,10 @@ void AnalyzerBaseClass::fill(const RecoObjects& recoObjects, const CommonGenObje
 
 
 
-void AnalyzerBaseClass::fillHistos(const RecoObjects&, const CommonGenObjects&,
+void AnalyzerBaseClass::fillHistos(const EventMetadata&, 
+                                   const RecoObjects&, const CommonGenObjects&,
                                         const TopGenObjects&,
-                                        const KinRecoObjects&,
+                                        const KinematicReconstructionSolutions&,
                                         const ttbar::RecoObjectIndices&, const ttbar::GenObjectIndices&,
                                         const ttbar::GenLevelWeights&, const ttbar::RecoLevelWeights&,
                                         const double&, const TString&,
@@ -164,9 +166,10 @@ void AnalyzerEventYields::bookHistos(const TString& step, std::map<TString, TH1*
 
 
 
-void AnalyzerEventYields::fillHistos(const RecoObjects&, const CommonGenObjects&,
+void AnalyzerEventYields::fillHistos(const EventMetadata&,
+                                     const RecoObjects&, const CommonGenObjects&,
                                       const TopGenObjects&,
-                                      const KinRecoObjects&,
+                                      const KinematicReconstructionSolutions&,
                                       const ttbar::RecoObjectIndices&, const ttbar::GenObjectIndices&,
                                       const ttbar::GenLevelWeights&, const ttbar::RecoLevelWeights&,
                                       const double& weight, const TString&,
@@ -233,9 +236,10 @@ TH1* AnalyzerDyScaling::bookHisto(TH1* histo, const TString& name)
 
 
 
-void AnalyzerDyScaling::fillHistos(const RecoObjects& recoObjects, const CommonGenObjects&,
+void AnalyzerDyScaling::fillHistos(const EventMetadata&,
+                                   const RecoObjects& recoObjects, const CommonGenObjects&,
                                      const TopGenObjects&,
-                                     const KinRecoObjects&,
+                                     const KinematicReconstructionSolutions&,
                                      const ttbar::RecoObjectIndices& recoObjectIndices, const ttbar::GenObjectIndices&,
                                      const ttbar::GenLevelWeights&, const ttbar::RecoLevelWeights&,
                                      const double& weight, const TString& step,

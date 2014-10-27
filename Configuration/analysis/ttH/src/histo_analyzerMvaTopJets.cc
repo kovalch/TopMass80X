@@ -99,7 +99,7 @@ void plotWeight2dHistos(const std::vector<std::pair<TString, TString> >& v_nameS
             const TString& name = nameStepPair.first;
             
             TString histName = name;
-            histName.ReplaceAll("mvaA_", "");
+            histName.ReplaceAll("mvaTopA_", "");
             
             // Set up canvas
             canvas = new TCanvas("canvas1");
@@ -180,7 +180,7 @@ void plotWeightHistos(const std::vector<std::pair<TString, TString> >& v_nameSte
             
             TString histName = nameCorrect;
             histName.ReplaceAll("_correct_", "_");
-            histName.ReplaceAll("mvaA_", "");
+            histName.ReplaceAll("mvaTopA_", "");
             
             // Set up canvas
             canvas = new TCanvas("canvas1");
@@ -436,7 +436,7 @@ void plotBestWeightHistos(std::map<TString, std::vector<TString> >& m_mvaConfigC
             legend->SetFillStyle(1001);
             
             TString histName = histNameBase;
-            histName.ReplaceAll("mvaA_", "");
+            histName.ReplaceAll("mvaTopA_", "");
             histName.Append("_correct");
             histName.Append(step);
             
@@ -450,7 +450,7 @@ void plotBestWeightHistos(std::map<TString, std::vector<TString> >& m_mvaConfigC
                 ++counter;
             }
             
-            if(histNameBase == "mvaA_jetsFromTop"){
+            if(histNameBase == "mvaTopA_jetsFromTop"){
                 std::ofstream outfile;
                 TString fileString = outputFolder + fileShort + "/result_jetsFromTop";
                 fileString.Append("_correct");
@@ -473,7 +473,7 @@ void plotBestWeightHistos(std::map<TString, std::vector<TString> >& m_mvaConfigC
                 }
                 outfile.close();
             }
-            else if(histNameBase == "mvaA_jetsFromHiggs"){
+            else if(histNameBase == "mvaTopA_jetsFromHiggs"){
                 std::ofstream outfile;
                 TString fileString = outputFolder + fileShort + "/result_jetsFromHiggs";
                 fileString.Append("_correct");
@@ -496,7 +496,7 @@ void plotBestWeightHistos(std::map<TString, std::vector<TString> >& m_mvaConfigC
                 }
                 outfile.close();
             }
-            else if(histNameBase == "mvaA_jetsFromBoth"){
+            else if(histNameBase == "mvaTopA_jetsFromBoth"){
                 std::ofstream outfile;
                 TString fileString = outputFolder + fileShort + "/result_jetsFromBoth";
                 fileString.Append("_correct");
@@ -596,7 +596,7 @@ void plotBestWeightHistos(std::map<TString, std::vector<TString> >& m_mvaConfigC
             legend->SetFillStyle(1001);
             
             TString histName = histNameBase;
-            histName.ReplaceAll("mvaA_", "");
+            histName.ReplaceAll("mvaTopA_", "");
             histName.Append("_swapped");
             histName.Append(step);
             
@@ -610,7 +610,7 @@ void plotBestWeightHistos(std::map<TString, std::vector<TString> >& m_mvaConfigC
                 ++counter;
             }
             
-            if(histNameBase == "mvaA_jetsFromTop"){
+            if(histNameBase == "mvaTopA_jetsFromTop"){
                 std::ofstream outfile;
                 TString fileString = outputFolder + fileShort + "/result_jetsFromTop";
                 fileString.Append("_swapped");
@@ -633,7 +633,7 @@ void plotBestWeightHistos(std::map<TString, std::vector<TString> >& m_mvaConfigC
                 }
                 outfile.close();
             }
-            else if(histNameBase == "mvaA_jetsFromHiggs"){
+            else if(histNameBase == "mvaTopA_jetsFromHiggs"){
                 std::ofstream outfile;
                 TString fileString = outputFolder + fileShort + "/result_jetsFromHiggs";
                 fileString.Append("_swapped");
@@ -656,7 +656,7 @@ void plotBestWeightHistos(std::map<TString, std::vector<TString> >& m_mvaConfigC
                 }
                 outfile.close();
             }
-            else if(histNameBase == "mvaA_jetsFromBoth"){
+            else if(histNameBase == "mvaTopA_jetsFromBoth"){
                 std::ofstream outfile;
                 TString fileString = outputFolder + fileShort + "/result_jetsFromBoth";
                 fileString.Append("_swapped");
@@ -760,7 +760,7 @@ void plotBestWeightHistos(std::map<TString, std::vector<TString> >& m_mvaConfigC
             legend->SetFillStyle(1001);
             
             TString histName = histNameBase;
-            histName.ReplaceAll("mvaA_", "");
+            histName.ReplaceAll("mvaTopA_", "");
             histName.Append("_combined");
             histName.Append(step);
             
@@ -777,7 +777,7 @@ void plotBestWeightHistos(std::map<TString, std::vector<TString> >& m_mvaConfigC
                 }
             }
             
-            if(histNameBase == "mvaA_jetsFromTop"){
+            if(histNameBase == "mvaTopA_jetsFromTop"){
                 std::ofstream outfile;
                 TString fileString = outputFolder + fileShort + "/result_jetsFromTop";
                 fileString.Append("_combined");
@@ -802,7 +802,7 @@ void plotBestWeightHistos(std::map<TString, std::vector<TString> >& m_mvaConfigC
                 }
                 outfile.close();
             }
-            else if(histNameBase == "mvaA_jetsFromHiggs"){
+            else if(histNameBase == "mvaTopA_jetsFromHiggs"){
                 std::ofstream outfile;
                 TString fileString = outputFolder + fileShort + "/result_jetsFromHiggs";
                 fileString.Append("_combined");
@@ -827,7 +827,7 @@ void plotBestWeightHistos(std::map<TString, std::vector<TString> >& m_mvaConfigC
                 }
                 outfile.close();
             }
-            else if(histNameBase == "mvaA_jetsFromBoth"){
+            else if(histNameBase == "mvaTopA_jetsFromBoth"){
                 std::ofstream outfile;
                 TString fileString = outputFolder + fileShort + "/result_jetsFromBoth";
                 fileString.Append("_combined");
@@ -928,7 +928,7 @@ void plotBestWeightHistos(std::map<TString, std::vector<TString> >& m_mvaConfigC
                     legend->SetFillStyle(1001);
                     
                     TString histName = histNameBase;
-                    histName.ReplaceAll("mvaA_", "");
+                    histName.ReplaceAll("mvaTopA_", "");
                     histName.Append(configName);
                     histName.Append(step);
                     
@@ -1057,7 +1057,7 @@ void histoAnalyzerMvaTopJets(const std::vector<Channel::Channel>& v_channel,
             if(std::find(v_mode.begin(), v_mode.end(), "weight") != v_mode.end()){
                 // Find all histograms containing specific MVA weight from first file
                 const std::vector<std::pair<TString, TString> > v_nameStepPair = 
-                    tth::nameStepPairs(v_input.at(0).second.at(0), "mvaA_mvaWeight");
+                    tth::nameStepPairs(v_input.at(0).second.at(0), "mvaTopA_mvaWeight");
                 
                 // Access all histograms for all types of combinations
                 std::vector<std::pair<TString, TString> > v_nameStepPairCorrect;
@@ -1079,7 +1079,7 @@ void histoAnalyzerMvaTopJets(const std::vector<Channel::Channel>& v_channel,
             if(std::find(v_mode.begin(), v_mode.end(), "weight2d") != v_mode.end()){
                 // Find all histograms containing specific MVA weight from first file
                 const std::vector<std::pair<TString, TString> > v_nameStepPair = 
-                    tth::nameStepPairs(v_input.at(0).second.at(0), "mvaA_mvaWeightCorrectVsSwapped");
+                    tth::nameStepPairs(v_input.at(0).second.at(0), "mvaTopA_mvaWeightCorrectVsSwapped");
                 
                 // Plot the histograms
                 plotWeight2dHistos(v_nameStepPair, v_input, outputFolder);
@@ -1090,7 +1090,7 @@ void histoAnalyzerMvaTopJets(const std::vector<Channel::Channel>& v_channel,
                 
                 // Find all correct and swapped trainings from histograms containing dijet mass with best MVA weight from first file
                 const std::vector<std::pair<TString, TString> > v_nameStepPair1 =
-                    tth::nameStepPairs(v_input.at(0).second.at(0), "mvaA_dijet_mass_best");
+                    tth::nameStepPairs(v_input.at(0).second.at(0), "mvaTopA_dijet_mass_best");
                 std::map<TString, std::vector<TString> > m_mvaConfigCorrect;
                 std::map<TString, std::vector<TString> > m_mvaConfigSwapped;
                 for(const auto& nameStepPair : v_nameStepPair1){
@@ -1099,7 +1099,7 @@ void histoAnalyzerMvaTopJets(const std::vector<Channel::Channel>& v_channel,
                     //std::cout<<"Name, step: "<<nameStepPair.first<<" , "<<nameStepPair.second<<"\n";
                     if(name.Contains("_bestCorrect_")){
                         TString mvaConfigName = name;
-                        mvaConfigName.ReplaceAll("mvaA_dijet_mass_bestCorrect", "");
+                        mvaConfigName.ReplaceAll("mvaTopA_dijet_mass_bestCorrect", "");
                         mvaConfigName.ReplaceAll(nameStepPair.second, "");
                         if(m_mvaConfigCorrect.find(step) != m_mvaConfigCorrect.end()){
                             m_mvaConfigCorrect.at(step).push_back(mvaConfigName);
@@ -1111,7 +1111,7 @@ void histoAnalyzerMvaTopJets(const std::vector<Channel::Channel>& v_channel,
                     }
                     else if(name.Contains("_bestSwapped_")){
                         TString mvaConfigName = name;
-                        mvaConfigName.ReplaceAll("mvaA_dijet_mass_bestSwapped", "");
+                        mvaConfigName.ReplaceAll("mvaTopA_dijet_mass_bestSwapped", "");
                         mvaConfigName.ReplaceAll(nameStepPair.second, "");
                         if(m_mvaConfigSwapped.find(step) != m_mvaConfigSwapped.end()){
                             m_mvaConfigSwapped.at(step).push_back(mvaConfigName);
@@ -1124,10 +1124,10 @@ void histoAnalyzerMvaTopJets(const std::vector<Channel::Channel>& v_channel,
                 }
                 
                 // Plot the histograms
-                plotBestWeightHistos(m_mvaConfigCorrect, m_mvaConfigSwapped, v_input, outputFolder, "mvaA_dijet_mass");
-                plotBestWeightHistos(m_mvaConfigCorrect, m_mvaConfigSwapped, v_input, outputFolder, "mvaA_jetsFromTop");
-                plotBestWeightHistos(m_mvaConfigCorrect, m_mvaConfigSwapped, v_input, outputFolder, "mvaA_jetsFromHiggs");
-                plotBestWeightHistos(m_mvaConfigCorrect, m_mvaConfigSwapped, v_input, outputFolder, "mvaA_jetsFromBoth");
+                plotBestWeightHistos(m_mvaConfigCorrect, m_mvaConfigSwapped, v_input, outputFolder, "mvaTopA_dijet_mass");
+                plotBestWeightHistos(m_mvaConfigCorrect, m_mvaConfigSwapped, v_input, outputFolder, "mvaTopA_jetsFromTop");
+                plotBestWeightHistos(m_mvaConfigCorrect, m_mvaConfigSwapped, v_input, outputFolder, "mvaTopA_jetsFromHiggs");
+                plotBestWeightHistos(m_mvaConfigCorrect, m_mvaConfigSwapped, v_input, outputFolder, "mvaTopA_jetsFromBoth");
             }
         }
     }

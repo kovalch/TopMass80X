@@ -20,11 +20,14 @@
 #include "AnalyzerControlPlots.h"
 #include "AnalyzerDoubleDiffXS.h"
 #include "AnalyzerKinReco.h"
-#include "../../common/include/CommandLineParameters.h"
-#include "../../common/include/utils.h"
-#include "../../common/include/ScaleFactors.h"
+#include "TreeHandlerBase.h"
+#include "TreeHandlerTTBar.h"
 #include "../../common/include/sampleHelpers.h"
+#include "../../common/include/utils.h"
+#include "../../common/include/CommandLineParameters.h"
 #include "../../common/include/KinematicReconstruction.h"
+#include "../../common/include/ScaleFactors.h"
+#include "../../common/include/Correctors.h"
 
 
 
@@ -57,10 +60,17 @@ constexpr const char* TriggerSFInputSUFFIX = "_rereco198fb.root";
 
 
 
+/// Source for the uncertainties associated to JER
+constexpr const char* JerUncertaintySourceNAME = "jer2011";
+//constexpr const char* JerUncertaintySourceNAME = "jer2012";
+
+
+
 /// File containing the uncertainties associated to JES
 //constexpr const char* JesUncertaintySourceFILE = "Fall12_V7_DATA_UncertaintySources_AK5PFchs.txt";
-// constexpr const char* JesUncertaintySourceFILE = "Summer13_V1_DATA_UncertaintySources_AK5PFchs.txt";
+//constexpr const char* JesUncertaintySourceFILE = "Summer13_V1_DATA_UncertaintySources_AK5PFchs.txt";
 constexpr const char* JesUncertaintySourceFILE = "Summer13_V4_DATA_UncertaintySources_AK5PFchs.txt";
+//constexpr const char* JesUncertaintySourceFILE = "Summer13_V5_DATA_UncertaintySources_AK5PFchs.txt";
 
 
 
@@ -71,10 +81,18 @@ constexpr BtagScaleFactors::CorrectionMode BtagCorrectionMODE = BtagScaleFactors
 //constexpr BtagScaleFactors::CorrectionMode BtagCorrectionMODE = BtagScaleFactors::discriminatorReweight;
 
 /// File for the official heavy flavour scale factors for b-tag discriminator reweighting
-constexpr const char* BtagHeavyFlavourFILE = "csv_rwt_hf.root";
+constexpr const char* BtagHeavyFlavourFILE = "csv_rwt_hf_20pt_7_2_14.root";
 
 /// File for the official light flavour scale factors for b-tag discriminator reweighting
-constexpr const char* BtagLightFlavourFILE = "csv_rwt_lf.root";
+constexpr const char* BtagLightFlavourFILE = "csv_rwt_lf_20pt_7_2_14.root";
+
+
+
+/// File containing the fits for the MVA MET recoil corrections in data
+constexpr const char* MvaMetRecoilDataFILE = "METrecoil_Fits_DataSummer2013.root";
+
+/// File containing the fits for the MVA MET recoil corrections in MC
+constexpr const char* MvaMetRecoilMcFILE = "METrecoil_Fits_MCSummer2013.root";
 
 
 
@@ -103,8 +121,8 @@ void load_Analysis(const TString& validFilenamePattern,
     else channels = Channel::realChannels;
     
     // Set up kinematic reconstruction
-    KinematicReconstruction* kinematicReconstruction(0);
-    kinematicReconstruction = new KinematicReconstruction();
+    const KinematicReconstruction* kinematicReconstruction(0);
+    kinematicReconstruction = new KinematicReconstruction(1, true);
     
     // Set up kinematic reconstruction scale factors (null-pointer means no application)
     KinematicReconstructionScaleFactors* kinematicReconstructionScaleFactors(0);
@@ -125,21 +143,24 @@ void load_Analysis(const TString& validFilenamePattern,
     TriggerScaleFactors triggerScaleFactors(TriggerSFInputSUFFIX, channels, systematic);
     
     // Set up JER systematic scale factors (null-pointer means no application)
-    JetEnergyResolutionScaleFactors* jetEnergyResolutionScaleFactors(0);
-    if(systematic.type() == Systematic::jer) jetEnergyResolutionScaleFactors = new JetEnergyResolutionScaleFactors(systematic);
+    const JetEnergyResolutionScaleFactors* jetEnergyResolutionScaleFactors(0);
+    if(systematic.type() == Systematic::jer) jetEnergyResolutionScaleFactors = new JetEnergyResolutionScaleFactors(JerUncertaintySourceNAME, systematic);
     
     // Set up JES systematic scale factors (null-pointer means no application)
-    JetEnergyScaleScaleFactors* jetEnergyScaleScaleFactors(0);
+    const JetEnergyScaleScaleFactors* jetEnergyScaleScaleFactors(0);
     if(systematic.type() == Systematic::jes) jetEnergyScaleScaleFactors = new JetEnergyScaleScaleFactors(JesUncertaintySourceFILE, systematic);
     
     // Set up top-pt reweighting scale factors (null-pointer means no application)
-    TopPtScaleFactors* topPtScaleFactors(0);
+    const TopPtScaleFactors* topPtScaleFactors(0);
     //topPtScaleFactors = new TopPtScaleFactors(systematic);
     if(systematic.type()==Systematic::topPt && !topPtScaleFactors){
         std::cout<<"Systematic for top-pt reweighting requested, but scale factors not applied"
                  <<"\nStop running of analysis --- this is NOT an error, just avoiding double running\n"<<std::endl;
         exit(1);
     }
+    
+    // Set up recoil corrector for MVA MET in Drell-Yan samples (initialised only in first Drell-Yan sample)
+    const MetRecoilCorrector* metRecoilCorrector(0);
     
     
     // Vector for setting up all analysers
@@ -175,6 +196,19 @@ void load_Analysis(const TString& validFilenamePattern,
         v_analyzer.push_back(analyzerKinReco);
     }
     
+    
+    // Vector setting up all tree handlers for MVA input variables
+    std::vector<TreeHandlerBase*> v_treeHandler;
+    
+    // Set up production of TTree for ttbar analysis
+    TreeHandlerTTBar* treeHandlerTTBar(0);
+    if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::ddaTree) != v_analysisMode.end()){
+        treeHandlerTTBar = new TreeHandlerTTBar("ddaInput", {"0","8"});
+        v_treeHandler.push_back(treeHandlerTTBar);
+    }
+    
+    
+    
     // Set up the analysis
     TopAnalysis* selector = new TopAnalysis();
     selector->SetAnalysisOutputBase("selectionRoot");
@@ -186,6 +220,7 @@ void load_Analysis(const TString& validFilenamePattern,
     selector->SetJetEnergyScaleScaleFactors(jetEnergyScaleScaleFactors);
     selector->SetTopPtScaleFactors(topPtScaleFactors);
     selector->SetAllAnalyzers(v_analyzer);
+    selector->SetAllTreeHandlers(v_treeHandler);
     
     // Access selectionList containing all input sample nTuples
     ifstream infile("selectionList.txt");
@@ -283,7 +318,6 @@ void load_Analysis(const TString& validFilenamePattern,
         selector->SetGeneratorBools(samplename->GetString(), selectedSystematic);
         selector->SetSystematic(selectedSystematic);
         selector->SetBtagScaleFactors(btagScaleFactors);
-        selector->SetClosureTest(closure, slope);
         
         // Loop over channels and run selector
         for(const auto& selectedChannel : channels){
@@ -309,13 +343,24 @@ void load_Analysis(const TString& validFilenamePattern,
                     std::cerr << outputfilename << " must start with 'channel_dy'\n";
                     exit(1);
                 }
+                
+                if(selector->useMvaMet() && !metRecoilCorrector){
+                    // Initialise recoil corrector for MVA MET in Drell-Yan samples (null-pointer means no application)
+                    metRecoilCorrector = new MetRecoilCorrector(MvaMetRecoilDataFILE, MvaMetRecoilMcFILE);
+                    selector->SetMetRecoilCorrector(metRecoilCorrector);
+                }
+                selector->SetDrellYan(true);
                 const Channel::Channel dyChannel = dy == 11 ? Channel::ee : dy == 13 ? Channel::mumu : Channel::tautau;
                 outputfilename.ReplaceAll("_dy", TString("_dy").Append(Channel::convert(dyChannel)));
+            }
+            else{
+                selector->SetDrellYan(false);
             }
             
             // Run the selector
             selector->SetRunViaTau(0);
             selector->SetOutputfilename(outputfilename);
+            selector->SetClosureTest(closure, slope);
             if(isTopSignal) selector->SetSampleForBtagEfficiencies(true);
             chain.Process(selector, "", maxEvents, skipEvents);
             selector->SetSampleForBtagEfficiencies(false);
@@ -375,7 +420,7 @@ int main(int argc, char** argv) {
     CLParameter<std::string> opt_s("s", "Run with a systematic that runs on the nominal ntuples, e.g. 'PDF', 'PU_UP' or 'TRIG_DOWN'", false, 1, 1,
             common::makeStringCheckBegin(Systematic::convertType(Systematic::allowedSystematics)));
     CLParameter<std::string> opt_mode("m", "Mode of analysis: control plots (cp), "
-                                           "double differential analysis (dda), kin. reco. efficiency plots (kinReco), "
+                                           "double differential analysis (dda), kin. reco. efficiency plots (kinReco), tree for 2d unfolding (ddaTree), "
                                            "Default is cp, dda, kinReco", false, 1, 100,
             common::makeStringCheck(AnalysisMode::convert(AnalysisMode::allowedAnalysisModes)));
     CLParameter<int> opt_pdfno("pdf", "Run a certain PDF systematic only, sets -s PDF. Use e.g. --pdf n, where n=0 is central, 1=variation 1 up, 2=1down, 3=2up, 4=2down, ...", false, 1, 1);
@@ -402,7 +447,8 @@ int main(int argc, char** argv) {
     if(opt_s.isSet()) systematic = Systematic::Systematic(opt_s[0]);
     
     // Set up analysis mode
-    std::vector<AnalysisMode::AnalysisMode> v_analysisMode({AnalysisMode::cp,AnalysisMode::dda,AnalysisMode::kinReco});
+    std::vector<AnalysisMode::AnalysisMode> v_analysisMode({AnalysisMode::cp});
+    
     if(opt_mode.isSet()) v_analysisMode = AnalysisMode::convert(opt_mode.getArguments());
     std::cout<<"\nRunning the following analysis modes:\n";
     for(const auto& analysisMode : v_analysisMode) std::cout<<AnalysisMode::convert(analysisMode)<<" , ";

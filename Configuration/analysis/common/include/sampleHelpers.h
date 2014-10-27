@@ -41,12 +41,11 @@ namespace Systematic{
         btagBeff,           // scale the b-tagging efficiencies as estimated from MC for b-jets for stat. uncertainty (not applied anywhere, should it be removed?)
         btagCeff,           // scale the b-tagging efficiencies as estimated from MC for c-jets for stat. uncertainty (not applied anywhere, should it be removed?)
         btagLeff,           // scale the b-tagging efficiencies as estimated from MC for l-jets for stat. uncertainty (not applied anywhere, should it be removed?)
+        btagDiscrPurity,    // for b-tag discriminator reweighting: purity of the opposite flavour sample that is subtracted
         btagDiscrBstat1,    // for b-tag discriminator reweighting: scale part 1 of the statistical uncertainty for b-jets
         btagDiscrBstat2,    // for b-tag discriminator reweighting: scale part 2 of the statistical uncertainty for b-jets
         btagDiscrLstat1,    // for b-tag discriminator reweighting: scale part 1 of the statistical uncertainty for l-jets
         btagDiscrLstat2,    // for b-tag discriminator reweighting: scale part 2 of the statistical uncertainty for l-jets
-        btagDiscrCerr1,    // for b-tag discriminator reweighting: scale part 1 of the uncertainty for c-jets
-        btagDiscrCerr2,    // for b-tag discriminator reweighting: scale part 2 of the uncertainty for c-jets
         jer,                // scale jet energy resolution scale factors
         jes,                // scale jet energy scale scale factors
         topPt,              // scale top pt as estimated in ttbar differential cross-section measurements
@@ -60,6 +59,7 @@ namespace Systematic{
         perugia11NoCR,      // Perugia11 parton shower tune, no colour-reconnection
         pdf,                // PDF variations
         closure,            // Closure test
+        allAvailable,       // All systematics which are available
         all,                // All allowed systematics
         undefinedType       // No systematic defined (also not nominal)
     };
@@ -119,7 +119,7 @@ namespace Systematic{
         btagBeff, btagCeff, btagLeff,
         btagDiscrBstat1, btagDiscrBstat2,
         btagDiscrLstat1, btagDiscrLstat2,
-        btagDiscrCerr1, btagDiscrCerr2,
+        btagDiscrPurity,
         jer, jes,
         topPt,
         mass, match, scale,
@@ -148,18 +148,18 @@ namespace Systematic{
         btagBeff, btagCeff, btagLeff,
         btagDiscrBstat1, btagDiscrBstat2,
         btagDiscrLstat1, btagDiscrLstat2,
-        btagDiscrCerr1, btagDiscrCerr2,
+        btagDiscrPurity,
     };
     
-    /// Define b-tag systematics, valid for b-tag corrections concerning efficiency
+    /// Define b-tag systematics, valid for b-tag corrections concerning discriminator reweighting
     const std::vector<Type> btagDiscriminatorReweightTypes{
         btag, btagLjet,
         btagDiscrBstat1, btagDiscrBstat2,
         btagDiscrLstat1, btagDiscrLstat2,
-        btagDiscrCerr1, btagDiscrCerr2,
+        btagDiscrPurity,
     };
     
-    /// Define b-tag systematics, valid for b-tag corrections concerning discriminator reweighting
+    /// Define b-tag systematics, valid for b-tag corrections concerning efficiency
     const std::vector<Type> btagEfficiencyCorrectionTypes{
         btag, btagPt, btagEta,
         btagLjet, btagLjetPt, btagLjetEta,
@@ -294,6 +294,17 @@ namespace common{
     
     /// Access the real final state from a filename, ie. only "ee", "emu", "mumu", but not "combined"
     Channel::Channel finalState(const TString& filename);
+    
+    /// Find file list for a given channel and systematic, and return its name
+    /// In case it does not exist, return empty string
+    TString findFilelist(const TString& filelistDirectory,
+                         const Channel::Channel& channel,
+                         const Systematic::Systematic& systematic);
+    
+    /// Find from vector of given systematics those for which a file list exists for all given channels
+    std::vector<Systematic::Systematic> findSystematicsFromFilelists(const TString& filelistDirectory,
+                                                                     const std::vector<Channel::Channel>& v_channel,
+                                                                     const std::vector<Systematic::Systematic>& v_systematic);
     
     /// Read the file list for given channel and systematic, and return the input file names
     /// In case a vector of patterns is specified, only files containing this pattern in the full path name will be read

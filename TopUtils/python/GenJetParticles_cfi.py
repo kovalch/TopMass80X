@@ -1,12 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
+# Exact copy of GenJetInputParticleSelector extended to configure heavy flavour hadrons that should be added to input particles
 #
 # $Id: GenJetParticles_cfi.py,v 1.1 2013/03/14 16:29:00 nbartosi Exp $
 #
 # ShR 27 Mar 07: move modules producing candidates for Jets from RecoGenJets.cff
 # 
 #
-genParticlesForJetsPlusHadron = cms.EDProducer("myInputGenJetsParticleSelector",
+genParticlesForJetsPlusNoHadron = cms.EDProducer("myInputGenJetsParticleSelector",
     src = cms.InputTag("genParticles"),
     ignoreParticleIDs = cms.vuint32(
          1000022,
@@ -18,7 +19,7 @@ genParticlesForJetsPlusHadron = cms.EDProducer("myInputGenJetsParticleSelector",
          39),
     partonicFinalState = cms.bool(False),
     excludeResonances = cms.bool(True),
-    excludeFromResonancePids = cms.vuint32(12, 13, 14, 16),
+    excludeFromResonancePids = cms.vuint32(11, 12, 13, 14, 16),
     tausAsJets = cms.bool(False),
-    injectHadronFlavours = cms.vint32(5, 4)
+    injectHadronFlavours = cms.vint32()
 )

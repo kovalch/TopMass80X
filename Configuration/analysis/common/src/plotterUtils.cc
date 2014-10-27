@@ -236,7 +236,7 @@ void common::drawRatioXSEC(const TH1* histNumerator, const TH1* histDenominator1
 void common::drawRatio(const TH1* histNumerator, const TH1* histDenominator, const TH1* uncband,
                const Double_t& ratioMin, const Double_t& ratioMax, 
                bool addFit,
-               const TStyle& myStyle, const int verbose, const std::vector<double>& err)
+               const TStyle& myStyle, const int verbose, const std::vector<double>& err, const bool useMcStatError)
 {
     // this function draws a pad with the ratio of 'histNumerator' and 'histDenominator'
     // the range of the ratio is 'ratioMin' to 'ratioMax'
@@ -299,7 +299,17 @@ void common::drawRatio(const TH1* histNumerator, const TH1* histDenominator, con
         // b) default: only gaussian error of histNumerator
         if(verbose>0) std::cout << "ratio error from statistical error of " << histNumerator->GetName() << " only" << std::endl;
         for(int bin=1; bin<=histNumerator->GetNbinsX(); bin++){
-            ratio->SetBinError(bin, std::sqrt(histNumerator->GetBinContent(bin))/histDenominator->GetBinContent(bin));
+            double error = 0.;
+            if(!useMcStatError) {
+                error = std::sqrt(histNumerator->GetBinContent(bin))/histDenominator->GetBinContent(bin);
+            } else {
+                double c1 = histNumerator->GetBinContent(bin);
+                double c2 = histDenominator->GetBinContent(bin);
+                double e1 = histNumerator->GetBinError(bin);
+                double e2 = histDenominator->GetBinError(bin);
+                error = c1/c2 * sqrt( (e1*e1)/(c1*c1) + (e2*e2)/(c2*c2) );
+            }
+            ratio->SetBinError(bin, error);
         }
     }
     // get some values from old pad
@@ -425,7 +435,7 @@ void common::drawRatio(const TH1* histNumerator, const TH1* histDenominator, con
 
 
 
-void common::setHHStyle(TStyle& HHStyle)
+void common::setHHStyle(TStyle& HHStyle, const bool hideErrorX)
 {
     const int fontstyle=42;
     HHStyle.SetPalette(1);
@@ -469,8 +479,8 @@ void common::setHHStyle(TStyle& HHStyle)
     // ==============
     //  Histo
     // ==============
-
-    HHStyle.SetErrorX(0.0);
+    
+    if(hideErrorX) HHStyle.SetErrorX(0.0);
     HHStyle.SetEndErrorSize(8);
             
     // HHStyle.SetHistFillColor(1);
@@ -627,7 +637,186 @@ TH1* common::summedStackHisto(const THStack *stack)
 }
 
 
+TH1* common::drawRatioPad(TPad* pad, const double yMin, const double yMax, TH1* axisHisto, 
+                          const TString title, const double fraction)
+{
+    // y:x size ratio for canvas
+    double canvAsym = (pad->GetY2() - pad->GetY1())/(pad->GetX2()-pad->GetX1());
+    Double_t left  = pad->GetLeftMargin();
+    Double_t right = pad->GetRightMargin();
+    // change old pad
+    pad->SetBottomMargin(fraction);
+    pad->SetRightMargin(right);
+    pad->SetLeftMargin(left);
+    pad->SetBorderMode(0);
+    pad->SetBorderSize(0);
+    pad->SetFillColor(10);
+    // create new pad for ratio plot
+    TPad *rPad;
+    rPad = new TPad("rPad","",0,0,1,fraction+0.001);
+#ifdef DILEPTON_MACRO
+    rPad->SetFillColor(10);
+#else
+    rPad->SetFillStyle(0);
+    rPad->SetFillColor(0);
+#endif
+    rPad->SetBorderSize(0);
+    rPad->SetBorderMode(0);
+    rPad->Draw();
+    rPad->cd();
+    rPad->SetLogy(0);
+    rPad->SetTicky(1);
+    // configure ratio plot
+    double scaleFactor = 1./(canvAsym*fraction);
+    TH1* h_axis = (TH1*)axisHisto->Clone("h_axis");
+    h_axis->SetStats(kFALSE);
+    h_axis->SetTitle("");
+    h_axis->SetName("h_axis");
+    h_axis->SetMaximum(yMax);
+    h_axis->SetMinimum(yMin);
+    // configure axis of the pad
+    h_axis->GetXaxis()->SetTitleSize(axisHisto->GetXaxis()->GetTitleSize()*scaleFactor*1.3);
+    h_axis->GetXaxis()->SetTitleOffset(axisHisto->GetXaxis()->GetTitleOffset()*0.9);
+    h_axis->GetXaxis()->SetLabelSize(axisHisto->GetXaxis()->GetLabelSize()*scaleFactor*1.4);
+    h_axis->GetXaxis()->SetTitle(axisHisto->GetXaxis()->GetTitle());
+    h_axis->GetXaxis()->SetNdivisions(axisHisto->GetNdivisions());
+    h_axis->GetYaxis()->CenterTitle();
+    h_axis->GetYaxis()->SetTitle(title);
+    h_axis->GetYaxis()->SetTitleSize(axisHisto->GetYaxis()->GetTitleSize()*scaleFactor);
+    h_axis->GetYaxis()->SetTitleOffset(axisHisto->GetYaxis()->GetTitleOffset()/scaleFactor);
+    h_axis->GetYaxis()->SetLabelSize(axisHisto->GetYaxis()->GetLabelSize()*scaleFactor);
+    h_axis->GetYaxis()->SetLabelOffset(axisHisto->GetYaxis()->GetLabelOffset()*3.3);
+    h_axis->GetYaxis()->SetTickLength(0.03);
+    h_axis->GetYaxis()->SetNdivisions(405);
+    h_axis->GetXaxis()->SetRange(axisHisto->GetXaxis()->GetFirst(), axisHisto->GetXaxis()->GetLast());
+    // delete axis of initial plot
+    axisHisto->GetXaxis()->SetLabelSize(0);
+    axisHisto->GetXaxis()->SetTitleSize(0);
+    //This is frustrating and stupid but apparently necessary...
+    TExec *setex1 { new TExec("setex1","gStyle->SetErrorX(0.5)") };
+    setex1->Draw();
+    TExec *setex2 { new TExec("setex2","gStyle->SetErrorX(0.)") };
+    setex2->Draw();
+    h_axis->Draw("axis");
+    rPad->SetTopMargin(0.0);
+    rPad->SetBottomMargin(0.15*scaleFactor);
+    rPad->SetRightMargin(right);
+    pad->SetLeftMargin(left);
+    pad->RedrawAxis();
+    // draw grid
+    rPad->SetGrid(0,1);
+    rPad->cd();
+    
+    // draw a horizontal line on the pad
+    Double_t xmin = h_axis->GetXaxis()->GetXmin();
+    Double_t xmax = h_axis->GetXaxis()->GetXmax();
+    TString height = ""; height += 1;
+    TF1 *f = new TF1("f", height, xmin, xmax);
+    f->SetLineStyle(1);
+    f->SetLineWidth(1);
+    f->SetLineColor(kBlack);
+    f->Draw("L same");
+    
+    
+    return h_axis;
+    
+}
 
 
+TH1* common::ratioHistogram(const TH1* h_nominator, const TH1* h_denominator, const int errorType)
+{
+    TH1* h_ratio = (TH1*)h_nominator->Clone();
+    for(int iBin = 1; iBin<=h_ratio->GetNbinsX(); ++iBin) {
+        const double nominator_v = h_nominator->GetBinContent(iBin);
+        const double nominator_e = h_nominator->GetBinError(iBin);
+        const double denominator_v = h_denominator->GetBinContent(iBin);
+        const double denominator_e = h_denominator->GetBinError(iBin);
+        double ratio_e = 0.;
+        double ratio_v = denominator_v > 0. ? nominator_v / denominator_v : 0.;
+        if(denominator_v > 0.) {
+            if(errorType == 1) ratio_e = nominator_e/denominator_v;
+            else if(errorType == 2) ratio_e = denominator_e/denominator_v;
+            else if(errorType == 3) ratio_e = ratio_v * std::sqrt( (nominator_e*nominator_e)/(nominator_v*nominator_v) + (denominator_e*denominator_e)/(denominator_v*denominator_v) );
+        }
+        
+        h_ratio->SetBinContent(iBin, ratio_v);
+        h_ratio->SetBinError(iBin, ratio_e);
+    }
+    
+    return h_ratio;
+}
+
+
+double common::normalize(TH1* histo, const double normalization, const bool includeOutsideBins)
+{
+    const double integral = includeOutsideBins ? histo->Integral(0, -1) : histo->Integral();
+    const double normalizationFactor = normalization / integral;
+    histo->Scale(normalizationFactor);
+    
+    return normalizationFactor;
+}
+
+
+double common::normalize ( TGraph* graph, const double normalization)
+{
+    const int nBins = graph->GetN();
+    
+    double integral = 0;
+    for(int iBin = 0; iBin < nBins; ++iBin) integral+=graph->GetY()[iBin];
+    
+    const double normalizationFactor = normalization / integral;
+    
+    for(int iBin = 0; iBin < nBins; ++iBin) {
+        graph->GetY()[iBin] *= normalizationFactor;
+        graph->GetEYhigh()[iBin] *= normalizationFactor;
+        graph->GetEYlow()[iBin] *= normalizationFactor;
+    }
+    
+    return normalizationFactor;
+}
+
+
+void common::normalizeToBinWidth(TH1* histo)
+{
+    for(int iBin = 1; iBin <= histo->GetNbinsX(); ++iBin) {
+        const double width = histo->GetBinWidth(iBin);
+        histo->SetBinContent(iBin, histo->GetBinContent(iBin)/width);
+        histo->SetBinError(iBin, histo->GetBinError(iBin)/width);
+    }
+}
+
+
+void common::setHistoStyle(TH1* hist, Style_t line, Color_t lineColor, Size_t lineWidth, 
+                           Style_t marker, Color_t markerColor, Size_t markerSize,
+                           Style_t fill, Color_t fillColor)
+{
+    if(line != -1) hist->SetLineStyle(line);
+    if(lineColor != -1) hist->SetLineColor(lineColor);
+    if(lineWidth != -1) hist->SetLineWidth(lineWidth);
+    
+    if(fill != -1) hist->SetFillStyle(fill);
+    if(fillColor != -1) hist->SetFillColor(fillColor);
+    
+    if(marker != -1) hist->SetMarkerStyle(marker);
+    if(markerColor != -1) hist->SetMarkerColor(markerColor);
+    if(markerSize != -1) hist->SetMarkerSize(markerSize);
+}
+
+
+void common::setGraphStyle( TGraph* graph, Style_t line, Color_t lineColor, Size_t lineWidth, 
+                            Style_t marker, Color_t markerColor, Size_t markerSize,
+                            Style_t fill, Color_t fillColor) 
+{
+    if(line != -1) graph->SetLineStyle(line);
+    if(lineColor != -1) graph->SetLineColor(lineColor);
+    if(lineWidth != -1) graph->SetLineWidth(lineWidth);
+    
+    if(fill != -1) graph->SetFillStyle(fill);
+    if(fillColor != -1) graph->SetFillColor(fillColor);
+    
+    if(marker != -1) graph->SetMarkerStyle(marker);
+    if(markerColor != -1) graph->SetMarkerColor(markerColor);
+    if(markerSize != -1) graph->SetMarkerSize(markerSize);
+}
 
 

@@ -30,9 +30,12 @@ weight_(weight)
 
 
 
-tth::GenObjectIndices::GenObjectIndices(const std::vector<int>& genBjetIndices,
+tth::GenObjectIndices::GenObjectIndices(const std::vector<int>& genJetIndices,
+                                        const std::vector<int>& allGenBjetIndices,
+                                        const std::vector<int>& genBjetIndices,
                                         const std::vector<std::vector<int> >& genJetBhadronIndices,
                                         const std::vector<int>& genJetMatchedRecoBjetIndices,
+                                        const std::vector<int>& allGenCjetIndices,
                                         const std::vector<int>& genCjetIndices,
                                         const std::vector<std::vector<int> >& genJetChadronIndices,
                                         const std::vector<int>& genJetMatchedRecoCjetIndices,
@@ -40,9 +43,12 @@ tth::GenObjectIndices::GenObjectIndices(const std::vector<int>& genBjetIndices,
                                         const int& recoBjetFromTopIndex, const int& recoAntiBjetFromTopIndex,
                                         const int& genBjetFromHiggsIndex, const int& genAntiBjetFromHiggsIndex,
                                         const int& recoBjetFromHiggsIndex, const int& recoAntiBjetFromHiggsIndex):
+genJetIndices_(genJetIndices),
+allGenBjetIndices_(allGenBjetIndices),
 genBjetIndices_(genBjetIndices),
 genJetBhadronIndices_(genJetBhadronIndices),
 genJetMatchedRecoBjetIndices_(genJetMatchedRecoBjetIndices),
+allGenCjetIndices_(allGenCjetIndices),
 genCjetIndices_(genCjetIndices),
 genJetChadronIndices_(genJetChadronIndices),
 genJetMatchedRecoCjetIndices_(genJetMatchedRecoCjetIndices),

@@ -509,9 +509,6 @@ float bTagBase::getEventSF() {
 float bTagBase::getJetDiscrShapeWeight(const float & pt, const float& abs_eta,
         const int & genPartonFlavor, const float& jetdiscr)const{
 
-    if(genPartonFlavor==0) //covers data
-        return 1;
-
     if(!hf_rewfile_ || !lf_rewfile_){
         throw std::logic_error("bTagBase::getJetDiscrShapeWeight: first read in weight files!");
     }
@@ -1057,8 +1054,8 @@ TString bTagBase::assoHFSysHistoName(systematics sys)const {
     switch(sys){
     case systematics::jesup:         return "final_JESUp" ;
     case systematics::jesdown:        return "final_JESDown" ;
-    case systematics::lightup:       return "final_LFUp" ;
-    case systematics::lightdown:     return "final_LFDown" ;
+    case systematics::purityup:       return "final_LFUp" ;
+    case systematics::puritydown:     return "final_LFDown" ;
     case systematics::hfstat1up:   return "final_Stats1Up" ;
     case systematics::hfstat1down: return "final_Stats1Down" ;
     case systematics::hfstat2up:   return "final_Stats2Up" ;
@@ -1071,10 +1068,10 @@ TString bTagBase::assoHFSysHistoName(systematics sys)const {
 }
 TString bTagBase::assoCSysHistoName(systematics sys)const{
     switch(sys){
-    case systematics::cerr1up:   return "final_cErr1Up" ;
-    case systematics::cerr1down: return "final_cErr1Down" ;
-    case systematics::cerr2up:   return "final_cErr2Up" ;
-    case systematics::cerr2down: return "final_cErr2Down" ;
+    case systematics::jesup:   return "final_cErr1Up" ;
+    case systematics::jesdown: return "final_cErr1Down" ;
+    case systematics::purityup:   return "final_cErr2Up" ;
+    case systematics::puritydown: return "final_cErr2Down" ;
 
 
     default :  return "final";
@@ -1085,8 +1082,8 @@ TString bTagBase::assoLFSysHistoName(systematics sys)const{
     switch(sys){
     case systematics::jesup:            return "final_JESUp" ;
     case systematics::jesdown:         return "final_JESDown" ;
-    case systematics::heavyup:         return "final_HFUp" ;
-    case systematics::heavydown:       return "final_HFDown" ;
+    case systematics::purityup:         return "final_HFUp" ;
+    case systematics::puritydown:       return "final_HFDown" ;
     case systematics::lfstat1up:    return "final_Stats1Up" ;
     case systematics::lfstat1down: return "final_Stats1Down" ;
     case systematics::lfstat2up:    return "final_Stats2Up" ;
@@ -1101,13 +1098,13 @@ TString bTagBase::assoLFSysHistoName(systematics sys)const{
 
 
 void bTagBase::setupShapeReweightingBins(){
-    shapeRWPtBinsHF_  << 30 << 40 << 60 << 100 << 160 << 140000;
+    shapeRWPtBinsHF_  << 20 << 30 << 40 << 60 << 100 << 160 << 140000;
 
-    shapeRWPtBinsLF_  << 30 << 40 << 60 << 140000;
+    shapeRWPtBinsLF_  << 20 << 30 << 40 << 60 << 140000;
     shapeRWEtaBinsLF_ << 0 << 0.8 << 1.6 << 6; //<< 2.4;
 
 
-    ////the following works automativally
+    ////the following works automatically
     TH1::AddDirectory(false);
 
     h_csv_wgt_hf_.resize(shapeRWPtBinsHF_.size()-1);

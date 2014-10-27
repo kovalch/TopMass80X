@@ -10,6 +10,21 @@
 
 
 
+
+/// Struct for holding variables associated to nTuple branches holding event meta data
+struct EventMetadata{
+    EventMetadata();
+    ~EventMetadata(){}
+    void clear();
+    
+    bool valuesSet_;
+    
+    UInt_t runNumber_;
+    UInt_t lumiBlock_;
+    UInt_t eventNumber_;
+};
+
+
     
 /// Struct for holding variables associated to nTuple branches relevant for reconstruction level
 struct RecoObjects{
@@ -19,7 +34,6 @@ struct RecoObjects{
     
     bool valuesSet_;
     
-    // Concerning physics objects
     VLV* allLeptons_;
     std::vector<int>* lepPdgId_;
     //std::vector<double>* lepID_;
@@ -54,23 +68,13 @@ struct RecoObjects{
     std::vector<int>* jetSelectedTrackIndex_;
     std::vector<int>* jetSelectedTrackMatchToPfCandidateIndex_;
     std::vector<LV>* jetSecondaryVertex_;
+    std::vector<double>* jetSecondaryVertexPtCorrectedMass_;
     std::vector<int>* jetSecondaryVertexJetIndex_;
     std::vector<double>* jetSecondaryVertexFlightDistanceValue_;
     std::vector<double>* jetSecondaryVertexFlightDistanceSignificance_;
     std::vector<int>* jetSecondaryVertexTrackVertexIndex_;
     std::vector<int>* jetSecondaryVertexTrackMatchToSelectedTrackIndex_;
-    
     LV* met_;
-    LV* mvamet_;
-    std::vector<double>* jetJERSF_;
-    VLV* jetsForMET_;
-    std::vector<double>* jetForMETJERSF_;
-    
-    // Concerning event
-    UInt_t runNumber_;
-    UInt_t lumiBlock_;
-    UInt_t eventNumber_;
-    //int recoInChannel_;
     Int_t vertMulti_;
 };
 
@@ -84,13 +88,13 @@ struct CommonGenObjects{
     
     bool valuesSet_;
     
-    // Concerning physics objects
-    VLV* allGenJets_;
-    std::vector<int>* jetPartonFlavour_;
+    std::vector<double>* jetJERSF_;
+    VLV* jetsForMET_;
+    std::vector<double>* jetForMETJERSF_;
     VLV* associatedGenJet_;
     VLV* associatedGenJetForMET_;
-    //std::vector<int>* jetAssociatedPartonPdgId_;
-    //std::vector<LV>* jetAssociatedParton_;
+    std::vector<int>* jetPartonFlavour_;
+    //std::vector<int>* jetPartonFlavourForMET_;
 };
 
 
@@ -103,7 +107,6 @@ struct TopGenObjects{
     
     bool valuesSet_;
     
-    LV* GenMet_;
     LV* GenTop_;
     LV* GenAntiTop_;
     LV* GenLepton_;
@@ -118,6 +121,8 @@ struct TopGenObjects{
     LV* GenAntiB_;
     LV* GenWPlus_;
     LV* GenWMinus_;
+    LV* GenMet_;
+    VLV* allGenJets_;
     //std::vector<LV>* GenParticleP4_;
     //std::vector<int>* GenParticlePdgId_;
     //std::vector<int>* GenParticleStatus_;
@@ -129,6 +134,9 @@ struct TopGenObjects{
     std::vector<bool>* AntiBHadronFromTopB_;
     std::vector<int>* BHadronVsJet_;
     std::vector<int>* AntiBHadronVsJet_;
+    //std::vector<int>* jetAssociatedPartonPdgId_;
+    //std::vector<LV>* jetAssociatedParton_;
+    
     std::vector<int>* genBHadPlusMothersPdgId_;
     //std::vector<int>* genBHadPlusMothersStatus_;
     //std::vector<std::vector<int> >* genBHadPlusMothersIndices_;
@@ -140,13 +148,11 @@ struct TopGenObjects{
     std::vector<int>* genBHadLeptonHadronIndex_;
     std::vector<int>* genBHadLeptonViaTau_;
     std::vector<int>* genBHadFromTopWeakDecay_;
-    
     std::vector<int>* genCHadJetIndex_;
     std::vector<int>* genCHadLeptonIndex_;
     std::vector<int>* genCHadLeptonHadronIndex_;
     std::vector<int>* genCHadLeptonViaTau_;
     std::vector<int>* genCHadFromBHadron_;
-    
     int genExtraTopJetNumberId_;
 };
 
@@ -167,26 +173,19 @@ struct HiggsGenObjects{
 
 
 
-/// Struct for holding variables associated to nTuple branches of kinematic reconstruction
-struct KinRecoObjects{
-    KinRecoObjects();
-    ~KinRecoObjects(){}
+/// Struct for holding variables associated to nTuple branches for Z signal samples on generator level
+struct ZGenObjects{
+    ZGenObjects();
+    ~ZGenObjects(){}
     void clear();
     
     bool valuesSet_;
     
-    VLV* HypTop_;
-    VLV* HypAntiTop_;
-    VLV* HypLepton_;
-    VLV* HypAntiLepton_;
-    VLV* HypNeutrino_;
-    VLV* HypAntiNeutrino_;
-    VLV* HypBJet_;
-    VLV* HypAntiBJet_;
-    //VLV* HypWPlus_;
-    //VLV* HypWMinus_;
-    std::vector<int>* HypJet0index_;
-    std::vector<int>* HypJet1index_;
+    VLV* GenZ_;
+    VLV* GenZMeDaughterParticle_;
+    VLV* GenZMeDaughterAntiParticle_;
+    VLV* GenZStableLepton_;
+    VLV* GenZStableAntiLepton_;
 };
 
 

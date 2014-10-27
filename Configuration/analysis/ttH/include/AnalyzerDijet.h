@@ -9,6 +9,7 @@ class TString;
 class TTree;
 class TSelectorList;
 class TH1;
+class TH2;
 class TString;
 
 #include "JetCategories.h"
@@ -16,11 +17,12 @@ class TString;
 #include "../../common/include/storeTemplate.h"
 #include "../../common/include/classesFwd.h"
 
+class EventMetadata;
 class RecoObjects;
 class CommonGenObjects;
 class TopGenObjects;
 class HiggsGenObjects;
-class KinRecoObjects;
+class KinematicReconstructionSolutions;
 namespace tth{
     class RecoObjectIndices;
     class GenObjectIndices;
@@ -88,22 +90,27 @@ private:
     void bookLeadingJetsHistos (std::map<TString, TH1*>& m_histogram, const TString addName, const TString& step, 
                                 const TString& label);
     
+    /// Book set of histograms for a particular set of histograms regarding top/additional jets/b-jets for control plots
+    void bookLeadingJetsCPHistos (std::map<TString, TH1*>& m_histogram, const TString addName, const TString& step, 
+                                  const TString& label);
+    
     /// Book set of histograms for a particular set of histograms regarding gen-reco jets correlations
     void bookAddGenJetsCorrelationHistos (std::map<TString, TH1*>& m_histogram, const TString addName, const TString& step, 
                                           const TString& label, const bool bookJetwiseHistos = false);
-
+    
     /// Fill all histograms for given selection step
-    virtual void fillHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+    virtual void fillHistos(const EventMetadata& eventMetadata,
+                            const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                             const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
-                            const KinRecoObjects& kinRecoObjects,
+                            const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
                             const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
                             const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
                             const double& weight, const TString& step,
                             std::map<TString, TH1*>& m_histogram);
     
     /// Check how we additional b-jets in tt+bb events
-    void checkAdditionalGenBJetAcceptance(const TopGenObjects& topGenObjects, const CommonGenObjects& commonGenObjects, 
-                                          std::map<TString, TH1*>& m_histogram, const float jetPt_min, const float jetEta_max, const double weight);
+    void checkAdditionalGenBJetAcceptance(const TopGenObjects& topGenObjects, const tth::GenObjectIndices& genObjectIndices, 
+                                          std::map<TString, TH1*>& m_histogram, const double weight);
 
     /// Analyze jet pairs of given jets for the given b-jets from top. Returns ration of correct pairs to wrong pairs
     float correctPairFraction(const VLV& allJets, const std::vector<int>& jetsId,
@@ -127,21 +134,28 @@ private:
                                              const VLV& genJets, std::map<TString, TH1*>& m_histogram, const double weight);
     
     /// Analyze jets (b-jets) from tt system and additional jets (b-jets)
-    void fillTopAdditionalJetsHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
-                                     const KinRecoObjects& kinRecoObjects, const tth::RecoObjectIndices& recoObjectIndices, 
+    void fillTopAdditionalJetsHistos(const EventMetadata& eventMetadata,
+                                     const RecoObjects& recoObjects, const TopGenObjects& topGenObjects,
+                                     const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
+                                     const tth::RecoObjectIndices& recoObjectIndices, 
                                      const tth::GenObjectIndices& genObjectIndices,
                                      const double& weight, std::map<TString, TH1*>& m_histogram);
     
     /// Filling histograms about leading top/additional jets vs gen
-    void fillLeadingJetsHistosVsGen(const std::string& name, const VLV& allGenJets,
+    void fillLeadingJetsHistosVsGen(const std::string& name,
+                                    const EventMetadata& eventMetadata, const VLV& allGenJets,
                                     const std::vector<int>& genJetsId, const VLV& allJets, 
                                     const std::vector<int>& jetsId, const std::vector<int>& genJetsRecoId,
                                     const std::vector<int>& topJetsId_gen, const std::vector<int>& topJetsId_reco,
-                                    const double& weight, std::map<TString, TH1*>& m_histogram);
+                                    const double& weight, std::map<TString, TH1*>& m_histogram,
+                                    const RecoObjects& recoObjects, const bool require2TopJets = true);
     
     /// Filling histograms about leading top/additional jets vs true
     void fillLeadingJetsHistosVsTrue(const std::string& name, const std::vector<int>& trueJetsId,
                                      const std::vector<int>& jetsId, const double& weight, std::map<TString, TH1*>& m_histogram);
+    
+    /// Filling a correlation histogram of the b-jet index vs jet index
+    void fillBjetIdVsJetIdHisto(TH2* histo, const std::vector<int>& bJetIndices, const std::vector<int>& jetIndices, const double weight=1.0);
     
     /// Returns list of jets pairs that are not from H according to the MVA
     std::vector<std::pair<int,int> > jetPairsFromMVA(std::map<TString, TH1*>& m_histogram, const tth::RecoObjectIndices& recoObjectIndices,
@@ -180,9 +194,6 @@ private:
     /// Whether to analyse leading additional-top jets
     bool doLeadingJetsAnalysis_;
     
-    double sigJetPt_min_;
-    double sigJetEta_max_;
-
 };
 
 

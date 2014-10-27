@@ -16,6 +16,7 @@
 #include "../../common/include/analysisUtils.h"
 #include "../../common/include/analysisObjectStructs.h"
 #include "../../common/include/classes.h"
+#include "../../common/include/KinematicReconstructionSolution.h"
 
 
 
@@ -67,12 +68,14 @@ void AnalyzerEventWeight::bookHistos(const TString& step, std::map<TString, TH1*
 
 
 
-void AnalyzerEventWeight::fillHistos(const RecoObjects&, const CommonGenObjects&,
+void AnalyzerEventWeight::fillHistos(const EventMetadata&,
+                                     const RecoObjects&, const CommonGenObjects&,
                                      const TopGenObjects&, const HiggsGenObjects&,
-                                     const KinRecoObjects&,
+                                     const KinematicReconstructionSolutions&,
                                      const tth::RecoObjectIndices&, const tth::GenObjectIndices&,
                                      const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
-                                     const double&, const TString&, std::map<TString, TH1*>& m_histogram)
+                                     const double&, const TString&,
+                                     std::map<TString, TH1*>& m_histogram)
 {
     TString name;
     

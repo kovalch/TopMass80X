@@ -11,10 +11,12 @@ class TH2;
 #include "analysisStructsFwd.h"
 
 class AnalyzerBaseClass;
+class TreeHandlerBase;
+class EventMetadata;
 class RecoObjects;
 class CommonGenObjects;
 class TopGenObjects;
-class KinRecoObjects;
+class KinematicReconstructionSolutions;
 namespace ttbar{
     class GenLevelWeights;
     class RecoLevelWeights;
@@ -190,16 +192,9 @@ class TopAnalysis : public AnalysisBase
        TH1 *h_RMSvsGenTopRapidity;
        TH1 *h_RMSvsGenTTBarMass; 
        
-       TH2 *h_HypTopRapidityvsToppT;
-       TH2 *h_HypAntiTopRapidityvsAntiToppT;
-       
-       TH2 *h_VisGenTopRapidityvsToppT;
-       TH2 *h_VisGenAntiTopRapidityvsAntiToppT;
-       
        TH2 *h_HypTTBarRapidityvsTTBarpT;
        
        TH2 *h_VisGenTTBarRapidityvsTTBarpT;
-       
     /// ... 
     
     /// Do kinematic reconstruction on nTuple level
@@ -230,13 +225,7 @@ class TopAnalysis : public AnalysisBase
 public:
     
     /// Constructor
-    TopAnalysis():
-        kinRecoOnTheFly_(false),
-        doClosureTest_(false),
-        pdf_no_(-1),
-        closureFunction_(nullptr),
-        binnedControlPlots_(0)
-        {}
+    TopAnalysis();
     
     /// Inherited from AnalysisBase and overwritten for needs of TopAnalysis
     virtual void Begin(TTree*);
@@ -256,6 +245,9 @@ public:
     
     /// Set up all analysers of type AnalyzerBaseClass
     void SetAllAnalyzers(std::vector<AnalyzerBaseClass*> v_analyzer);
+    
+    /// Set up all tree handlers of type TreeHandlerBase
+    void SetAllTreeHandlers(std::vector<TreeHandlerBase*> v_treeHandler);
     
 private:
     
@@ -288,7 +280,7 @@ private:
     double calculateClosureTestWeight(const Long64_t& entry);
     
     /// Get indices of B hadron and anti-B hadron
-    void bHadronIndices(int& bHadronIndex, int& antiBHadronIndex,const CommonGenObjects& commonGenObjects,const TopGenObjects& topGenObjects);
+    void bHadronIndices(int& bHadronIndex, int& antiBHadronIndex, const TopGenObjects& topGenObjects);
     
     void generatorTopEvent(LV& leadGenTop, LV& nLeadGenTop,
                            LV& leadGenLepton, LV& nLeadGenLepton,
@@ -296,7 +288,6 @@ private:
                            double& genHT,
                            const int bHadronIndex, const int antiBHadronIndex,
                            const double trueLevelWeightNoPileup, const double trueLevelWeight,
-                           const CommonGenObjects& commonGenObjects,
                            const TopGenObjects& topGenObjects);
 
     void generatorTTbarjetsEvent(double& jetHTGen,
@@ -304,8 +295,11 @@ private:
                                  const double trueLevelWeight,
                                  int& GenJets_cut, int& GenJets_cut40, int& GenJets_cut60, int& GenJets_cut100, int& jetnum,
                                  double extragenjet[4],
-                                 const CommonGenObjects& commonGenObjects,
                                  const TopGenObjects& topGenObjects);
+    
+    void generatorVisJets(const TopGenObjects& topGenObjects,std::vector<int>& genVisJetIndices);
+    
+
     
     
     /// Map holding binned control plots
@@ -317,9 +311,10 @@ private:
     
     /// Fill all analysers and histograms in one method
     void fillAll(const std::string& selectionStep,
+                 const EventMetadata& eventMetadata,
                  const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                  const TopGenObjects& topGenObjects,
-                 const KinRecoObjects& kinRecoObjects,
+                 const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
                  const ttbar::GenObjectIndices& genObjectIndices, const ttbar::RecoObjectIndices& recoObjectIndices,
                  const ttbar::GenLevelWeights& genLevelWeights, const ttbar::RecoLevelWeights& recoLevelWeights,
                  const double& defaultWeight)const;
@@ -332,6 +327,9 @@ private:
     
     /// All analysers of type AnalyzerBaseClass
     std::vector<AnalyzerBaseClass*> v_analyzer_;
+    
+        /// All tree handlers of type TreeHandlerBase
+    std::vector<TreeHandlerBase*> v_treeHandler_;
     
 };
 

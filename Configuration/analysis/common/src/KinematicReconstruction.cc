@@ -1,32 +1,38 @@
-#include <cmath>
-#include <cassert>
-#include <algorithm>
-#include <utility>
+#include <vector>
+#include <map>
+#include <iostream>
 #include <cmath>
 
-//#include <TH1.h>
+#include <TLorentzVector.h>
+#include <TH1F.h>
+#include <TRandom3.h>
 #include <TFile.h>
 #include <TString.h>
-#include <TLorentzVector.h>
-// #include <TAttLine.h>
 #include <TMath.h>
 #include <TVector3.h>
-#include <TRandom3.h>
+#include <Math/VectorUtil.h>
 
 #include "classes.h"
 #include "utils.h"
 #include "analysisUtils.h"
-// #include "KinReco.h"
 #include "KinematicReconstruction.h"
 #include "KinematicReconstruction_LSroutines.h"
 #include "KinematicReconstruction_MeanSol.h"
+#include "KinematicReconstructionSolution.h"
 
-#define printout 0
 
-#define topmass (172.5)
 
+
+
+constexpr double TopMASS = 172.5;
+
+
+
+
+
+// FIXME: This should not be declared in whole file, if at all only in individual functions
+// FIXME: Removal needs to be done with care, since esp. "abs" needs the std::abs for working properly
 using namespace std;
-
 
 
 
@@ -37,78 +43,76 @@ using namespace std;
 
 // -------------------------------------- Methods for KinematicReconstruction --------------------------------------
 
-
-
-void KinematicReconstruction::angle_rot(double alpha, double e, TLorentzVector jet, TLorentzVector & jet_sm)
+void KinematicReconstruction::angle_rot(const double& alpha, const double& e, const TLorentzVector& inJet, TLorentzVector& jet_sm)const
 {
-    /*Ganna Dolinska*/
-  double px_1, py_1, pz_1; // sistema koordinat, gde impul's vdol' Oz
-  
-  /// Transition matrix detector -> syst1 ///
-  double x1, y1, z1;
-  double x2, y2, z2;
-  double x3, y3, z3;
-  ///
-  
-  if(fabs(jet.Px())<=e){jet.SetPx(0);}
-  if(fabs(jet.Py())<=e){jet.SetPy(0);}
-  if(fabs(jet.Pz())<=e){jet.SetPz(0);}
-  
-  /// Rotation in syst 1 ///
-//  int seed_random = (int)(( jet.Pt() - (int)(jet.Pt()) )*1000000000);
-//  
-//   TRandom3 r(seed_random);  ///random seed
-  
-  double phi = 2*TMath::Pi()*r3_->Rndm();
-  pz_1 = jet.Vect().Mag()*cos(alpha);
-  px_1 = - jet.Vect().Mag()*sin(alpha)*sin(phi);
-  py_1 = jet.Vect().Mag()*sin(alpha)*cos(phi);  
-  ///
-  
-  /// Transition detector <- syst1 ///
-  if (jet.Py()!=0||jet.Pz()!=0)
-  {
-    double d = sqrt(jet.Pz()*jet.Pz() + jet.Py()*jet.Py());
-    double p = jet.Vect().Mag();
+    double px_1, py_1, pz_1; // Coordinate system where momentum is along Z-axis
     
-    x1 = d/p;
-    y1 = 0;
-    z1 = jet.Px()/p;
+    //Transition matrix detector -> syst1 ...
+    double x1, y1, z1;
+    double x2, y2, z2;
+    double x3, y3, z3;
+    // ...
     
-    x2 = - jet.Px()*jet.Py()/d/p;
-    y2 = jet.Pz()/d;
-    z2 = jet.Py()/p;
+    TLorentzVector jet = inJet;
+    if(fabs(jet.Px())<=e){jet.SetPx(0);}
+    if(fabs(jet.Py())<=e){jet.SetPy(0);}
+    if(fabs(jet.Pz())<=e){jet.SetPz(0);}
     
-    x3 = - jet.Px()*jet.Pz()/d/p;
-    y3 = - jet.Py()/d;
-    z3 = jet.Pz()/p;
+    //Rotation in syst 1 ...
+    double phi = 2*TMath::Pi()*r3_->Rndm();
+    pz_1 = jet.Vect().Mag()*cos(alpha);
+    px_1 = - jet.Vect().Mag()*sin(alpha)*sin(phi);
+    py_1 = jet.Vect().Mag()*sin(alpha)*cos(phi);  
+    // ...
     
-    jet_sm.SetPx(x1*px_1+y1*py_1+z1*pz_1);
-    jet_sm.SetPy(x2*px_1+y2*py_1+z2*pz_1);
-    jet_sm.SetPz(x3*px_1+y3*py_1+z3*pz_1);
-    jet_sm.SetE(jet.E());
-  }
-  
-  if (jet.Px()==0&&jet.Py()==0&&jet.Pz()==0)
-  {
-    jet_sm.SetPx(jet.Px());
-    jet_sm.SetPy(jet.Py());
-    jet_sm.SetPz(jet.Pz());
-    jet_sm.SetE(jet.E());
-  }
-
-  if (jet.Px()!=0&&jet.Py()==0&&jet.Pz()==0)
-  {
-    jet_sm.SetPx(pz_1);
-    jet_sm.SetPy(px_1);
-    jet_sm.SetPz(py_1);
-    jet_sm.SetE(jet.E());
-  }
-  ///
+    //Transition detector <- syst1 ...
+    if (jet.Py()!=0||jet.Pz()!=0)
+    {
+        double d = sqrt(jet.Pz()*jet.Pz() + jet.Py()*jet.Py());
+        double p = jet.Vect().Mag();
+        
+        x1 = d/p;
+        y1 = 0;
+        z1 = jet.Px()/p;
+        
+        x2 = - jet.Px()*jet.Py()/d/p;
+        y2 = jet.Pz()/d;
+        z2 = jet.Py()/p;
+        
+        x3 = - jet.Px()*jet.Pz()/d/p;
+        y3 = - jet.Py()/d;
+        z3 = jet.Pz()/p;
+        
+        jet_sm.SetPx(x1*px_1+y1*py_1+z1*pz_1);
+        jet_sm.SetPy(x2*px_1+y2*py_1+z2*pz_1);
+        jet_sm.SetPz(x3*px_1+y3*py_1+z3*pz_1);
+        jet_sm.SetE(jet.E());
+    }
+    
+    if (jet.Px()==0&&jet.Py()==0&&jet.Pz()==0)
+    {
+        jet_sm.SetPx(jet.Px());
+        jet_sm.SetPy(jet.Py());
+        jet_sm.SetPz(jet.Pz());
+        jet_sm.SetE(jet.E());
+    }
+    
+    if (jet.Px()!=0&&jet.Py()==0&&jet.Pz()==0)
+    {
+        jet_sm.SetPx(pz_1);
+        jet_sm.SetPy(px_1);
+        jet_sm.SetPz(py_1);
+        jet_sm.SetE(jet.E());
+    }
+    // ...
 }
 
 
-KinematicReconstruction::KinematicReconstruction():
+
+KinematicReconstruction::KinematicReconstruction(const int minNumberOfBtags, const bool preferBtags, const bool massLoop):
+minNumberOfBtags_(minNumberOfBtags),
+preferBtags_(preferBtags),
+massLoop_(massLoop),
 nSol_(0),
 isJetsMerging_(false),
 h_wmass_(0),
@@ -127,283 +131,252 @@ h_costheta_w_(0),
 h_neuEta_w_(0)
 {
     std::cout<<"--- Beginning preparation of kinematic reconstruction\n";
-    this->loadData();
+    
+    // Sanity check
+    if(minNumberOfBtags_<0 || minNumberOfBtags_>2){
+        std::cerr<<"ERROR in constructor of KinematicReconstruction! Minimum number of b-tags needs to be within [0, 2]. Value is: "
+                 <<minNumberOfBtags_<<"\n...break\n"<<std::endl;
+        exit(96);
+    }
+    
+    std::cout<<"Require minimum number of b-tags per solution: "<<minNumberOfBtags_<<"\n";
+    std::cout<<"Prefer solutions with more b-tags: "<<(preferBtags_ ? "yes" : "no")<<"\n";
+    std::cout<<"Uncertainty treatment: "<<(massLoop_ ? "top mass scan" : "random-number based smearing")<<"\n";
+    
+    // Read all histograms for smearings from file
+    if(!massLoop_) this->loadData();
+    
     std::cout<<"=== Finishing preparation of kinematic reconstruction\n\n";
 }
 
-void KinematicReconstruction::doJetsMerging(const VLV* jets,const std::vector<double> *btags)
+
+
+void KinematicReconstruction::setRandomNumberSeeds(const LV& lepton, const LV& antiLepton, const LV& jet1, const LV& jet2)const
 {
-    isJetsMerging_=true;   
+    // Asymmetric treatment of both jets and also both leptons, to ensure different seed for each combination
+    const unsigned int seed =  std::abs(static_cast<int>( 1.e6*(jet1.pt()/jet2.pt()) * std::sin((lepton.Pt() + 2.*antiLepton.pt())*1.e6) ) );
+    gRandom->SetSeed(seed);
+    r3_->SetSeed(seed);
+}
+
+
+
+KinematicReconstructionSolutions KinematicReconstruction::solutions(const std::vector<int>& leptonIndices, const std::vector<int>& antiLeptonIndices,
+                                                                    const std::vector<int>& jetIndices, const std::vector<int>& bjetIndices,
+                                                                    const VLV& allLeptons,
+                                                                    const VLV& allJets, const std::vector<double>& btags,
+                                                                    const LV& met)const
+{
+    KinematicReconstructionSolutions result;
+    
+    // Check if minimum number of objects for any solution is present
+    const int numberOfJets(jetIndices.size());
+    const int numberOfBtags(bjetIndices.size());
+    if(!leptonIndices.size() || !antiLeptonIndices.size() || numberOfJets<2 || numberOfBtags<minNumberOfBtags_) return result;
+    
+    // Find solutions with 2 b-tagged jets
+    for(std::vector<int>::const_iterator i_index = bjetIndices.begin(); i_index != bjetIndices.end(); ++i_index)
+        for(std::vector<int>::const_iterator j_index = i_index+1; j_index != bjetIndices.end(); ++j_index)
+            for(const int leptonIndex : leptonIndices)
+                for(const int antiLeptonIndex : antiLeptonIndices){
+                    const std::vector<KinematicReconstructionSolution> solutions(this->solutionsPerObjectCombination(leptonIndex, antiLeptonIndex, *i_index, *j_index, allLeptons, allJets, btags, met, 2));
+                    result.addSolutions(solutions);
+                    const std::vector<KinematicReconstructionSolution> solutionsSwapped(this->solutionsPerObjectCombination(leptonIndex, antiLeptonIndex, *j_index, *i_index, allLeptons, allJets, btags, met, 2));
+                    result.addSolutions(solutionsSwapped);
+                }
+    if(preferBtags_ && result.numberOfSolutionsTwoBtags()) return result;
+    if(minNumberOfBtags_ > 1) return result;
+    
+    // Indices of non b-tagged jets
+    const int numberOfNonBtags(numberOfJets - numberOfBtags);
+    if(numberOfNonBtags < 1) return result;
+    std::vector<int> nonBjetIndices;
+    for(const int index : jetIndices)
+        if(std::find(bjetIndices.begin(), bjetIndices.end(), index) == bjetIndices.end()) nonBjetIndices.push_back(index);
+    
+    // Find solutions with 1 b-tagged jet
+    for(const int bjetIndex : bjetIndices)
+        for(const int nonBjetIndex : nonBjetIndices)
+            for(const int leptonIndex : leptonIndices)
+                for(const int antiLeptonIndex : antiLeptonIndices){
+                    const std::vector<KinematicReconstructionSolution> solutions(this->solutionsPerObjectCombination(leptonIndex, antiLeptonIndex, bjetIndex, nonBjetIndex, allLeptons, allJets, btags, met, 1));
+                    result.addSolutions(solutions);
+                    const std::vector<KinematicReconstructionSolution> solutionsSwapped(this->solutionsPerObjectCombination(leptonIndex, antiLeptonIndex, nonBjetIndex, bjetIndex, allLeptons, allJets, btags, met, 1));
+                    result.addSolutions(solutionsSwapped);
+                }
+    if(preferBtags_ && result.numberOfSolutionsOneBtag()) return result;
+    if(minNumberOfBtags_ > 0) return result;
+    
+    // Find solutions with 0 b-tagged jets
+    for(std::vector<int>::const_iterator i_index = nonBjetIndices.begin(); i_index != nonBjetIndices.end(); ++i_index)
+        for(std::vector<int>::const_iterator j_index = i_index+1; j_index != nonBjetIndices.end(); ++j_index)
+            for(const int leptonIndex : leptonIndices)
+                for(const int antiLeptonIndex : antiLeptonIndices){
+                    const std::vector<KinematicReconstructionSolution> solutions(this->solutionsPerObjectCombination(leptonIndex, antiLeptonIndex, *i_index, *j_index, allLeptons, allJets, btags, met, 0));
+                    result.addSolutions(solutions);
+                    const std::vector<KinematicReconstructionSolution> solutionsSwapped(this->solutionsPerObjectCombination(leptonIndex, antiLeptonIndex, *j_index, *i_index, allLeptons, allJets, btags, met, 0));
+                    result.addSolutions(solutionsSwapped);
+                }
+    
+    return result;
+}
+
+
+
+std::vector<KinematicReconstructionSolution> KinematicReconstruction::solutionsPerObjectCombination(const int leptonIndex, const int antiLeptonIndex,
+                                                                                                    const int jetIndex1, const int jetIndex2,
+                                                                                                    const VLV& allLeptons,
+                                                                                                    const VLV& allJets, const std::vector<double>&,// btags,
+                                                                                                    const LV& met,
+                                                                                                    const int numberOfBtags)const
+{
+    std::vector<KinematicReconstructionSolution> result;
+    
+    const LV& lepton = allLeptons.at(leptonIndex);
+    const LV& antiLepton = allLeptons.at(antiLeptonIndex);
+    const LV& jet1 = allJets.at(jetIndex1);
+    const LV& jet2 = allJets.at(jetIndex2);
+    //const double& btag1 = btags.at(jetIndex1);
+    //const double& btag2 = btags.at(jetIndex2);
+    
+    if(massLoop_){
+        double neutrinoWeightMax = 0.;
+        for(double iTopMass = 100.; iTopMass < 300.5; iTopMass += 1.){
+            KinematicReconstruction_LSroutines tp_m(iTopMass, 4.8, 80.4, 0.0, 0.0);
+            tp_m.setConstraints(antiLepton, lepton, jet1, jet2, met.px(), met.py());
+            if(tp_m.getNsol() < 1) continue;
+            if(!(tp_m.getTtSol()->at(0).weight > neutrinoWeightMax)) continue;
+            
+            neutrinoWeightMax = tp_m.getTtSol()->at(0).weight;
+            const LV neutrino = common::TLVtoLV(tp_m.getTtSol()->at(0).neutrino);
+            const LV antiNeutrino = common::TLVtoLV(tp_m.getTtSol()->at(0).neutrinobar);
+            const LV top = antiLepton + neutrino + jet1;
+            const LV antiTop = lepton + antiNeutrino + jet2;
+            const double& weight = tp_m.getTtSol()->at(0).weight;
+            std::map<KinematicReconstructionSolution::WeightType, double> m_weight;
+            m_weight[KinematicReconstructionSolution::defaultForMethod] = weight;
+            m_weight[KinematicReconstructionSolution::neutrinoEnergy] = weight;
+            const KinematicReconstructionSolution solution(&allLeptons, &allJets,
+                                                           leptonIndex, antiLeptonIndex, jetIndex1, jetIndex2,
+                                                           top, antiTop, neutrino, antiNeutrino,
+                                                           iTopMass, numberOfBtags,
+                                                           m_weight);
+            result.push_back(solution);
+        }
+    }
+    else{
+        KinematicReconstruction_MeanSol meanSolution(TopMASS);
+        const bool hasSolution(this->solutionSmearing(meanSolution, lepton, antiLepton, jet1, jet2, met));
+        if(hasSolution){
+            LV top;
+            LV antiTop;
+            LV neutrino;
+            LV antiNeutrino;
+            meanSolution.meanSolution(top, antiTop, neutrino, antiNeutrino);
+            const double& weight = meanSolution.getSumWeight();
+            std::map<KinematicReconstructionSolution::WeightType, double> m_weight;
+            m_weight[KinematicReconstructionSolution::defaultForMethod] = weight;
+            m_weight[KinematicReconstructionSolution::averagedSumSmearings_mlb] = weight;
+            const KinematicReconstructionSolution solution(&allLeptons, &allJets,
+                                                           leptonIndex, antiLeptonIndex, jetIndex1, jetIndex2,
+                                                           top, antiTop, neutrino, antiNeutrino,
+                                                           TopMASS, numberOfBtags, m_weight);
+            result.push_back(solution);
+        }
+    }
+    
+    return result;
+}
+
+
+
+void KinematicReconstruction::doJetsMerging(const VLV* jets, const std::vector<double>* btags)
+{
+    isJetsMerging_ = true;   
     
     alljets_.clear();
     allbtags_.clear();
-        for (const auto& jet : *jets) {
-        alljets_.push_back(common::LVtoTLV(jet));
-    }
-    for(int i=0; i<(int)btags->size(); i++) {
-        allbtags_.push_back(btags->at(i));
-    }
-    
+    alljets_ = *jets;
+    allbtags_ = *btags;
 }
 
-void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlus, const VLV *jets, const std::vector<double> *btags, const LV* met)
+
+
+void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlus, const VLV* jets, const std::vector<double>* btags, const LV* met)
 {
     
     sols_.clear();
 
-    TLorentzVector leptonPlus_tlv = common::LVtoTLV(leptonPlus);
-    TLorentzVector leptonMinus_tlv = common::LVtoTLV(leptonMinus);
-    TLorentzVector met_tlv = common::LVtoTLV(*met);
-
-        gRandom->SetSeed((int)(( leptonPlus_tlv.Pt() - (int)(leptonPlus_tlv.Pt()) )*1000000000));
-    r3_->SetSeed(( leptonPlus_tlv.Pt() - (int)(leptonPlus_tlv.Pt()) )*1000000000);
-    
     //jets selection
+    std::vector<int> b1_id;
+    std::vector<int> b2_id;
+    std::vector<int> nb_tag;
+    VLV new_jets(*jets);
+    std::vector<double> new_btags(*btags);
+    if(!isJetsMerging_) this->inputNoJetMerging(b1_id, b2_id, nb_tag, *btags);
+    else this->inputJetMerging(b1_id, b2_id, nb_tag, new_jets, new_btags);
+    if(b1_id.size() < 2)return;     
 
-    vector<int> b1_id;
-    vector<int> b2_id;
-    vector<int> nb_tag;
-    std::vector<TLorentzVector> jets_tlv;
-    std::vector<double> new_btags;
-    
-    double btag_wp=0.244;
-    
-if(!isJetsMerging_)
-{
-            
-    for (const auto& jet : *jets) {
-        jets_tlv.push_back(common::LVtoTLV(jet));
-    }
-    
-    for(int i=0; i<(int)btags->size(); i++) {
-//         new_btags.push_back(btags->at(i));
+    KinematicReconstruction_MeanSol meanSolution(TopMASS);
+    for(int ib = 0; ib < (int)b1_id.size(); ++ib){
+        const int bjetIndex = b1_id.at(ib);
+        const int antiBjetIndex = b2_id.at(ib);
+        const int numberOfBtags = nb_tag.at(ib);
         
-        for(int j=0; j<(int)btags->size(); j++) {
-            double wi = btags->at(i);
-            double wj = btags->at(j);
-//                  if(i==j || (wi<0.244 && wj<0.244) || (wi<0 || wj<0))continue;
-            if(i==j || (wi<btag_wp && wj<btag_wp))continue;
-
-            if(wi>btag_wp && wj>btag_wp){nb_tag.push_back(2); }
-            else{nb_tag.push_back(1); }
-
-            b1_id.push_back(i);
-            b2_id.push_back(j);
+        const LV& jet1 = new_jets.at(bjetIndex);
+        const LV& jet2 = new_jets.at(antiBjetIndex);
+        
+        const bool hasSolution(this->solutionSmearing(meanSolution, leptonMinus, leptonPlus, jet1, jet2, *met));
+        
+        if(hasSolution){
+            meanSolution.getMeanSol(sol_.top, sol_.topBar, sol_.neutrino, sol_.neutrinoBar);
+            sol_.weight = meanSolution.getSumWeight();
+            sol_.Wplus = sol_.lp + sol_.neutrino;
+            sol_.Wminus = sol_.lm + sol_.neutrinoBar;
+            sol_.ttbar = sol_.top + sol_.topBar;
+            sol_.jetB_index = bjetIndex;
+            sol_.jetBbar_index = antiBjetIndex;
+            sol_.ntags = numberOfBtags;
+            sols_.push_back(sol_);
         }
+        meanSolution.clear();
     }
+
+    this->setSolutions();
 }
-else
+
+
+
+bool KinematicReconstruction::solutionSmearing(KinematicReconstruction_MeanSol& meanSolution,
+                                               const LV& lepton, const LV& antiLepton,
+                                               const LV& jet1, const LV& jet2,
+                                               const LV& met)const
 {
+    // Set random number generator seeds
+    this->setRandomNumberSeeds(lepton, antiLepton, jet1, jet2);
     
-    //fill new jets:  logik I.
-//     std::vector<TLorentzVector> new_jets_tlv;
-//     std::vector<double> new_btag;
-//     std::vector<int> veto_i;
-//     std::vector<int> veto_j;
-//         for(int i=0; i<(int)alljets_.size(); i++)
-//         {
-//             if(allbtags_.at(i)<btag_wp)continue;
-//             TLorentzVector ijet=alljets_.at(i);
-//             
-//             for(int j=0; j<(int)alljets_.size(); j++)
-//             {
-//                  if(i==j)continue;
-//                  if(allbtags_.at(j)>=btag_wp)continue; 
-//                 TLorentzVector jjet=alljets_.at(j);
-//                 double dRij=ijet.DeltaR(jjet);
-//                  if(dRij>1)continue;
-//                 TLorentzVector new_jet=ijet+jjet;
-//                     if(new_jet.Pt()<30)continue;
-//                     if(fabs(new_jet.Eta())>2.4)continue;
-//                 new_jets_tlv.push_back(new_jet);
-//                 new_btag.push_back(allbtags_.at(i));
-//                 veto_i.push_back(i);
-//                 veto_j.push_back(j);
-//             }   
-//         }
-//  
-//      std::vector<int> index_i;
-//      std::vector<int> index_j;
-//      for(int i=0; i<(int)alljets_.size(); i++)
-//         {
-//                 if(alljets_.at(i).Pt()<30)continue;
-//                 if(fabs(alljets_.at(i).Eta())>2.4)continue;
-//                 jets_tlv.push_back(alljets_.at(i));
-//                 new_btags.push_back(allbtags_.at(i));
-//                 index_i.push_back(i);
-//                 index_j.push_back(i);
-//         }
-//     
-//     
-//     for(int i=0; i<(int)new_jets_tlv.size(); i++)
-//     {
-//         jets_tlv.push_back(new_jets_tlv.at(i));
-//         new_btags.push_back(new_btag.at(i));
-//         index_i.push_back(veto_i.at(i));
-//         index_j.push_back(veto_j.at(i));
-//     }
-//     
-//         for(int i=0; i<(int)jets_tlv.size(); i++) 
-//         {
-//                 for(int j=0; j<(int)jets_tlv.size(); j++) 
-//                 {
-//                                 if(index_i[i]==index_i[j] || index_i[i]==index_j[j] || index_j[i]==index_i[j] || index_j[i]==index_j[j])continue;                   
-//                                double wi = new_btags.at(i);
-//                                double wj = new_btags.at(j);
-// //                                 //if(i==j || (wi<0.244 && wj<0.244) || (wi<0 || wj<0))continue;
-//                                 if(i==j || (wi<btag_wp && wj<btag_wp))continue;
-//                                 if(wi>btag_wp && wj>btag_wp){nb_tag.push_back(2); }
-//                                 else{nb_tag.push_back(1); }
-//                                 b1_id.push_back(i);
-//                                 b2_id.push_back(j);
-//                 }
-//         }
-
-
-//fill new jets:  logik II.
-
-    std::vector<TLorentzVector> new_jets_tlv;
-    std::vector<double> new_btag;
-    std::vector<int> index_dR;
-    int index_i;
-    int index_j;
+    const TLorentzVector l_temp = common::LVtoTLV(lepton);
+    const TLorentzVector al_temp = common::LVtoTLV(antiLepton);
+    const TLorentzVector b_temp = common::LVtoTLV(jet1);
+    const TLorentzVector bbar_temp = common::LVtoTLV(jet2);
+    const TLorentzVector met_temp = common::LVtoTLV(met);
     
-    for(int i=0; i<(int)alljets_.size(); i++)
-    {
-            index_dR.push_back(-1);
-
-    }
+    if((al_temp+b_temp).M()>180. || (l_temp+bbar_temp).M()>180.) return false;
     
-   double min_dR=1;
-   do{
-       min_dR=1;
-       index_i=-1;
-       index_j=-1;
-        for(int i=0; i<(int)alljets_.size(); i++)
-        {
-            if(alljets_.at(i).Pt()<10)continue;
-            if(index_dR[i]>-1)continue;
-            TLorentzVector ijet=alljets_.at(i);
-             
-            for(int j=0; j<(int)alljets_.size(); j++)
-            {
-                if(i==j)continue;
-                if(alljets_.at(j).Pt()<10)continue;
-                if(index_dR[j]>-1)continue;
-                TLorentzVector jjet=alljets_.at(j);
-                
-                double dRij=ijet.DeltaR(jjet);
-                
-                if(dRij>=1)continue;
-                
-                if(dRij<min_dR)
-                {
-                    min_dR=dRij;
-                    index_i=i;
-                    index_j=j;
-                    
-                } 
-            }
-        }
-        if(index_i>=0)
-        {
-            index_dR[index_i]=index_j;
-            index_dR[index_j]=index_i;
-            index_i=-1;
-            index_j=-1;
-        }
-        
-      }   
-     while(min_dR<1);
+    bool isHaveSol(false);
     
-     
-     vector<int> used_index;
-     
-     for(int i=0; i<(int)alljets_.size(); i++)
-     {
-         bool flag=false;
-         for(int k=0; k<(int)used_index.size(); k++)
-         {
-             if(used_index[k]==i)flag=true;
-        }
-        if(flag)continue;
-         
-        if(index_dR[i]<0)
-        {
-                if(alljets_.at(i).Pt()<30)continue;
-                if(fabs(alljets_.at(i).Eta())>2.4)continue;
-                jets_tlv.push_back(alljets_.at(i));
-                new_btags.push_back(allbtags_.at(i));
-                
-        }
-        else
-        {
-            if(index_dR[i]>-1)
-            {
-                TLorentzVector temp = alljets_.at(i) + alljets_.at((index_dR[i]));
-                used_index.push_back(index_dR[i]);
-                if(temp.Pt()<30)continue;
-                if(fabs(temp.Eta())>2.4)continue;
-                jets_tlv.push_back(temp);
-                new_btags.push_back(allbtags_.at(i)*(allbtags_.at(i)>allbtags_.at(index_dR[i])) + allbtags_.at(index_dR[i])*(allbtags_.at(index_dR[i])>allbtags_.at(i)));
-            }
-        }
-        
-        
-     }
-     
-        for(int i=0; i<(int)jets_tlv.size(); i++) 
-        {
-                for(int j=0; j<(int)jets_tlv.size(); j++) 
-                {
-                               double wi = new_btags.at(i);
-                               double wj = new_btags.at(j);
-//                                 //if(i==j || (wi<0.244 && wj<0.244) || (wi<0 || wj<0))continue;
-                                if(i==j || (wi<btag_wp && wj<btag_wp))continue;
-                                if(wi>btag_wp && wj>btag_wp){nb_tag.push_back(2); }
-                                else{nb_tag.push_back(1); }
-                                b1_id.push_back(i);
-                                b2_id.push_back(j);
-                }
-        }
-     
-    
-} //else !isJetsMerging_
-
-
-if(b1_id.size()<2)return;     
-
-    KinematicReconstruction_MeanSol meanSol(topmass);
-    //double max_sum_weight=0;
-    int /*nbtag=0,*/ isHaveSol=0;
-
-    for(int ib=0; ib<(int)b1_id.size(); ib++) {
-        isHaveSol=0;
-        int j1=b1_id[ib];
-        int j2=b2_id[ib];
-//         if((*jets)[j1].Pt()<30 || (*jets)[j2].Pt()<30)continue;
-//         if(fabs((*jets)[j1].Eta())>2.4 || fabs((*jets)[j2].Eta())>2.4)continue;
-        TLorentzVector l_temp, al_temp, b_temp, bbar_temp, met_temp;
-        l_temp=leptonMinus_tlv;
-        al_temp=leptonPlus_tlv;
-        b_temp=jets_tlv.at(j1);
-        bbar_temp=jets_tlv.at(j2);
-        met_temp.SetXYZM(met->Px(), met->Py(), 0, 0);
-
-        if((al_temp + b_temp).M()>180 || (l_temp + bbar_temp).M()>180)continue;
-
-//           double b_w=new_btags.at(j1)/(1-new_btags.at(j1));
-//           double bbar_w=new_btags.at(j2)/(1-new_btags.at(j2));
-//             double b_w=1;
+//          double b_w=new_btags.at(j1)/(1-new_btags.at(j1));
+//          double bbar_w=new_btags.at(j2)/(1-new_btags.at(j2));
+//          double b_w=1;
 //          double bbar_w=1;
-
-
-        TVector3 vX_reco =  - b_temp.Vect() - bbar_temp.Vect() - l_temp.Vect() - al_temp.Vect() - met_temp.Vect();       
-
-        for(int sm=0; sm<100; sm++) {
+        
+        TVector3 vX_reco =  - b_temp.Vect() - bbar_temp.Vect() - l_temp.Vect() - al_temp.Vect() - met_temp.Vect();
+        
+        // Loop over all smearings
+        for(int sm=0; sm<100; ++sm){
             TLorentzVector b_sm=b_temp;
             TLorentzVector bbar_sm=bbar_temp;
-            TLorentzVector met_sm;//=met_temp;
+            TLorentzVector met_sm;
             TLorentzVector l_sm=l_temp;
             TLorentzVector al_sm=al_temp;
             TLorentzVector vX_sm;
@@ -412,36 +385,33 @@ if(b1_id.size()<2)return;
             double xB=sqrt((fB*fB*b_sm.E()*b_sm.E()-b_sm.M2())/(b_sm.P()*b_sm.P()));
             double fBbar=h_jetEres_->GetRandom();//fBbar=1; //sm off
             double xBbar=sqrt((fBbar*fBbar*bbar_sm.E()*bbar_sm.E()-bbar_sm.M2())/(bbar_sm.P()*bbar_sm.P()));
-                           
+            
             double fL=h_lepEres_->GetRandom();//fL=1; //sm off
             double xL=sqrt((fL*fL*l_sm.E()*l_sm.E()-l_sm.M2())/(l_sm.P()*l_sm.P()));
             double faL=h_lepEres_->GetRandom();//faL=1;  //sm off
             double xaL=sqrt((faL*faL*al_sm.E()*al_sm.E()-al_sm.M2())/(al_sm.P()*al_sm.P()));
-                           
+            
             b_sm.SetXYZT(b_sm.Px()*xB,b_sm.Py()*xB,b_sm.Pz()*xB,b_sm.E()*fB);
             angle_rot(h_jetAngleRes_->GetRandom(),0.001,b_sm,b_sm);
-                           
+            
             bbar_sm.SetXYZT(bbar_sm.Px()*xBbar,bbar_sm.Py()*xBbar,bbar_sm.Pz()*xBbar,bbar_sm.E()*fBbar);    
             angle_rot(h_jetAngleRes_->GetRandom(),0.001,bbar_sm,bbar_sm);
-                                
+            
             l_sm.SetXYZT(l_sm.Px()*xL,l_sm.Py()*xL,l_sm.Pz()*xL,l_sm.E()*fL);
             angle_rot(h_lepAngleRes_->GetRandom(),0.001,l_sm,l_sm);
-                           
+            
             al_sm.SetXYZT(al_sm.Px()*xaL,al_sm.Py()*xaL,al_sm.Pz()*xaL,al_sm.E()*faL);
             angle_rot(h_lepAngleRes_->GetRandom(),0.001,al_sm,al_sm);
-                           
+            
 // met Pt+angle smearing
 //             double fX=1;
 //             double dAX=0;
-//             for(int i=0;i<((int)(ptBins_.size()));i++)
+//             for(int i=0;i<((int)(ptBins_.size()));++i)
 //             {
 //                   if(vX_reco.Pt()>ptBins_[i]&&vX_reco.Pt()<=ptBins_[i+1])
 //                   {
 //                        //fX=h_metPtres_[i]->GetRandom();
 //                        //dAX=h_metAngleRes_[i]->GetRandom();
-//                        
-//                        fX=1;
-//                         dAX=0;
 //                   }
 //             }
 //             double tempX= vX_reco.Px()*fX;
@@ -451,27 +421,24 @@ if(b1_id.size()<2)return;
 //                            
 // ...
 
-//met Pt+angle smearing
+//X Pt+angle smearing
             double fPx=1;
-            double fPy=0;
-            for(int i=0;i<((int)(ptBins_.size()));i++)
-            {
-                  if(vX_reco.Pt()>ptBins_[i]&&vX_reco.Pt()<=ptBins_[i+1])
-                  {
-                       //fPx=h_metPxRes_[i]->GetRandom();
-                       //fPy=h_metPyRes_[i]->GetRandom();
-                       fPx=1;
-                       fPy=1;
-                  }
-            }
+            double fPy=1;
+//             for(int i=0;i<((int)(ptBins_.size()));++i)
+//             {
+//                   if(vX_reco.Pt()>ptBins_[i]&&vX_reco.Pt()<=ptBins_[i+1])
+//                   {
+//                        fPx=h_metPxRes_[i]->GetRandom();
+//                        fPy=h_metPyRes_[i]->GetRandom();
+//                   }
+//             }
             double tempX= vX_reco.Px()*fPx;
             double tempY= vX_reco.Py()*fPy;
             vX_sm.SetXYZM(tempX,tempY,0,0);
-       
 //...
+            
             TVector3 metV3_sm= -b_sm.Vect()-bbar_sm.Vect()-l_sm.Vect()-al_sm.Vect()-vX_sm.Vect();
             met_sm.SetXYZM(metV3_sm.Px(),metV3_sm.Py(),0,0);
-            
             
             KinematicReconstruction_LSroutines tp_sm(0.0,0.0,h_wmass_->GetRandom(),h_wmass_->GetRandom());
 //            KinematicReconstruction_LSroutines tp_sm(0.0,0.0,h_wmass_->GetRandom(),h_wmass_->GetRandom(),(*h_nwcuts_));
@@ -482,23 +449,19 @@ if(b1_id.size()<2)return;
             
             tp_sm.setConstraints(al_sm, l_sm, b_sm, bbar_sm, met_sm.Px(), met_sm.Py());
 
-
             if(tp_sm.getNsol()>0)
             {
-                isHaveSol=1;
-                for(int i=0; i<=tp_sm.getNsol()*0; i++) 
-                {
-                   // meanSol.add(tp_sm.GetTtSol()->at(i).top,tp_sm.GetTtSol()->at(i).topbar,tp_sm.GetTtSol()->at(i).neutrino,tp_sm.GetTtSol()->at(i).neutrinobar,1);
-                  //meanSol.add(tp_sm.GetTtSol()->at(i).top,tp_sm.GetTtSol()->at(i).topbar,tp_sm.GetTtSol()->at(i).neutrino,tp_sm.GetTtSol()->at(i).neutrinobar,(tp_sm.GetTtSol()->at(i).lepEw));//*b_w*bbar_w
-                  double mbl_weight=h_mbl_w_->GetBinContent(h_mbl_w_->FindBin((al_sm+b_sm).M()))*h_mbl_w_->GetBinContent(h_mbl_w_->FindBin((l_sm+bbar_sm).M()))/100000000;
-                  meanSol.add(tp_sm.getTtSol()->at(i).top,tp_sm.getTtSol()->at(i).topbar,tp_sm.getTtSol()->at(i).neutrino,tp_sm.getTtSol()->at(i).neutrinobar,mbl_weight);//
-                  //meanSol.add(tp_sm.GetTtSol()->at(i).top,tp_sm.GetTtSol()->at(i).topbar,tp_sm.GetTtSol()->at(i).neutrino,tp_sm.GetTtSol()->at(i).neutrinobar,(tp_sm.GetTtSol()->at(i).vw));//
-
-                   
+                isHaveSol = true;
+                // FIXME: this loop is processed only once by definition, what is it needed for?
+                for(int i=0; i<=tp_sm.getNsol()*0; ++i){
+                    //meanSolution.add(tp_sm.GetTtSol()->at(i).top,tp_sm.GetTtSol()->at(i).topbar,tp_sm.GetTtSol()->at(i).neutrino,tp_sm.GetTtSol()->at(i).neutrinobar,1);
+                    //meanSolution.add(tp_sm.GetTtSol()->at(i).top,tp_sm.GetTtSol()->at(i).topbar,tp_sm.GetTtSol()->at(i).neutrino,tp_sm.GetTtSol()->at(i).neutrinobar,(tp_sm.GetTtSol()->at(i).lepEw));//*b_w*bbar_w
+                    const double mbl_weight = h_mbl_w_->GetBinContent(h_mbl_w_->FindBin((al_sm+b_sm).M()))*h_mbl_w_->GetBinContent(h_mbl_w_->FindBin((l_sm+bbar_sm).M()))/100000000;
+                    meanSolution.add(tp_sm.getTtSol()->at(i).top,tp_sm.getTtSol()->at(i).topbar,tp_sm.getTtSol()->at(i).neutrino,tp_sm.getTtSol()->at(i).neutrinobar,mbl_weight);//
+                    //meanSolution.add(tp_sm.GetTtSol()->at(i).top,tp_sm.GetTtSol()->at(i).topbar,tp_sm.GetTtSol()->at(i).neutrino,tp_sm.GetTtSol()->at(i).neutrinobar,(tp_sm.GetTtSol()->at(i).vw));//
                 }
             }
-            
-			} // for sm=100 end
+        }
 
 //         if(isHaveSol) {
 //             
@@ -508,8 +471,8 @@ if(b1_id.size()<2)return;
 //                         meanSol.getMeanSol(sol_.top, sol_.topBar, sol_.neutrino, sol_.neutrinoBar);
 //                         sol_.jetB = b_temp;
 //                         sol_.jetBbar = bbar_temp;
-//                         sol_.lm = leptonMinus_tlv;
-//                         sol_.lp = leptonPlus_tlv;
+//                         sol_.lm = l_temp;
+//                         sol_.lp = al_temp;
 //                         sol_.met = met_temp;
 //                         sol_.weight = max_sum_weight;
 //                         sol_.Wplus = sol_.lp + sol_.neutrino;
@@ -526,8 +489,8 @@ if(b1_id.size()<2)return;
 //                 meanSol.getMeanSol(sol_.top, sol_.topBar, sol_.neutrino, sol_.neutrinoBar);
 //                 sol_.jetB = b_temp;
 //                 sol_.jetBbar = bbar_temp;
-//                 sol_.lm = leptonMinus_tlv;
-//                 sol_.lp = leptonPlus_tlv;
+//                 sol_.lm = l_temp;
+//                 sol_.lp = al_temp;
 //                 sol_.met = met_temp;
 //                 sol_.weight = max_sum_weight;
 //                 sol_.Wplus = sol_.lp + sol_.neutrino;
@@ -539,40 +502,191 @@ if(b1_id.size()<2)return;
 //             }
 //         }
 
-        if(isHaveSol) 
-            {
-                        meanSol.getMeanSol(sol_.top, sol_.topBar, sol_.neutrino, sol_.neutrinoBar);
-                        sol_.jetB = b_temp;
-                        sol_.jetBbar = bbar_temp;
-                        sol_.lm = leptonMinus_tlv;
-                        sol_.lp = leptonPlus_tlv;
-                        sol_.met = met_temp;
-                        sol_.weight = meanSol.getSumWeight();
-                        sol_.Wplus = sol_.lp + sol_.neutrino;
-                        sol_.Wminus = sol_.lm + sol_.neutrinoBar;
-                        sol_.ttbar = sol_.top + sol_.topBar;
-                        sol_.jetB_index = b1_id[ib];
-                        sol_.jetBbar_index = b2_id[ib];
-                        sol_.ntags = nb_tag[ib];
-                sols_.push_back(sol_);
-            }
+    return isHaveSol;
+}
 
 
-        meanSol.clear();
 
-    } ///end jets loop
-
-    nSol_=(int)(sols_.size());
+void KinematicReconstruction::inputNoJetMerging(std::vector<int>& b1_id, std::vector<int>& b2_id, std::vector<int>& nb_tag,
+                                                const std::vector<double>& btags)const
+{
+    constexpr double btag_wp = 0.244;
     
-     if(nSol_>0){
+    for(int i = 0; i < (int)btags.size(); ++i){
+        for(int j = 0; j < (int)btags.size(); ++j){
+            double wi = btags.at(i);
+            double wj = btags.at(j);
+            //if(i==j || (wi<0.244 && wj<0.244) || (wi<0 || wj<0)) continue;
+            if(i==j || (wi<btag_wp && wj<btag_wp)) continue;
+
+            if(wi>btag_wp && wj>btag_wp) nb_tag.push_back(2);
+            else nb_tag.push_back(1);
+
+            b1_id.push_back(i);
+            b2_id.push_back(j);
+        }
+    }
+}
+
+
+
+void KinematicReconstruction::inputJetMerging(std::vector<int>& b1_id, std::vector<int>& b2_id, std::vector<int>& nb_tag,
+                                              VLV& new_jets, std::vector<double>& new_btags)const
+{
+    constexpr double btag_wp = 0.244;
+    
+    // Fill new jets: logik I.
+    //std::vector<TLorentzVector> new_jets_tlv;
+    //std::vector<double> new_btag;
+    //std::vector<int> veto_i;
+    //std::vector<int> veto_j;
+    //for(int i=0; i<(int)alljets_.size(); ++i){
+    //    if(allbtags_.at(i)<btag_wp)continue;
+    //    TLorentzVector ijet=alljets_.at(i);
+    //    
+    //    for(int j=0; j<(int)alljets_.size(); ++j){
+    //        if(i==j)continue;
+    //        if(allbtags_.at(j)>=btag_wp)continue; 
+    //        TLorentzVector jjet=alljets_.at(j);
+    //        double dRij=ijet.DeltaR(jjet);
+    //        if(dRij>1)continue;
+    //        TLorentzVector new_jet=ijet+jjet;
+    //        if(new_jet.Pt()<30)continue;
+    //        if(fabs(new_jet.Eta())>2.4)continue;
+    //        new_jets_tlv.push_back(new_jet);
+    //        new_btag.push_back(allbtags_.at(i));
+    //        veto_i.push_back(i);
+    //        veto_j.push_back(j);
+    //    }   
+    //}
+    //
+    //std::vector<int> index_i;
+    //std::vector<int> index_j;
+    //for(int i=0; i<(int)alljets_.size(); ++i){
+    //    if(alljets_.at(i).Pt()<30)continue;
+    //    if(fabs(alljets_.at(i).Eta())>2.4)continue;
+    //    jets_tlv.push_back(alljets_.at(i));
+    //    new_btags.push_back(allbtags_.at(i));
+    //    index_i.push_back(i);
+    //    index_j.push_back(i);
+    //}
+    //
+    //for(int i=0; i<(int)new_jets_tlv.size(); ++i){
+    //    jets_tlv.push_back(new_jets_tlv.at(i));
+    //    new_btags.push_back(new_btag.at(i));
+    //    index_i.push_back(veto_i.at(i));
+    //    index_j.push_back(veto_j.at(i));
+    //}
+    //
+    //for(int i=0; i<(int)jets_tlv.size(); ++i){
+    //    for(int j=0; j<(int)jets_tlv.size(); ++j){
+    //        if(index_i[i]==index_i[j] || index_i[i]==index_j[j] || index_j[i]==index_i[j] || index_j[i]==index_j[j])continue;                   
+    //        double wi = new_btags.at(i);
+    //        double wj = new_btags.at(j);
+    //        //if(i==j || (wi<0.244 && wj<0.244) || (wi<0 || wj<0))continue;
+    //        if(i==j || (wi<btag_wp && wj<btag_wp))continue;
+    //        if(wi>btag_wp && wj>btag_wp){nb_tag.push_back(2); }
+    //        else{nb_tag.push_back(1); }
+    //        b1_id.push_back(i);
+    //        b2_id.push_back(j);
+    //    }
+    //}
+
+
+    // Fill new jets: logik II.
+    new_jets.clear();
+    new_btags.clear();
+    std::vector<int> index_dR;
+    int index_i;
+    int index_j;
+    
+    for(int i = 0; i < (int)alljets_.size(); ++i) index_dR.push_back(-1);
+    
+    double min_dR(1.);
+    do{
+        min_dR = 1.;
+        index_i = -1;
+        index_j = -1;
+        for(int i = 0; i < (int)alljets_.size(); ++i){
+            if(alljets_.at(i).Pt() < 10) continue;
+            if(index_dR.at(i) > -1) continue;
+            const LV& ijet = alljets_.at(i);
+            
+            for(int j = 0; j < (int)alljets_.size(); ++j){
+                if(i == j) continue;
+                if(alljets_.at(j).Pt() < 10) continue;
+                if(index_dR[j]>-1) continue;
+                const LV& jjet = alljets_.at(j);
+                
+                const double dRij = ROOT::Math::VectorUtil::DeltaR(ijet, jjet);
+                if(dRij >= 1.) continue;
+                if(dRij < min_dR){
+                    min_dR = dRij;
+                    index_i = i;
+                    index_j = j;
+                }
+            }
+        }
+        if(index_i >= 0){
+            index_dR.at(index_i) = index_j;
+            index_dR.at(index_j) = index_i;
+            index_i = -1;
+            index_j = -1;
+        }
+    }
+    while(min_dR < 1.);
+    
+    
+    std::vector<int> used_index;
+    for(int i = 0; i < (int)alljets_.size(); ++i){
+        bool flag(false);
+        for(int k = 0; k < (int)used_index.size(); ++k) if(used_index.at(k) == i) flag = true;
+        if(flag) continue;
+        
+        if(index_dR[i] < 0){
+            if(alljets_.at(i).Pt() < 30.)continue;
+            if(fabs(alljets_.at(i).Eta()) > 2.4)continue;
+            new_jets.push_back(alljets_.at(i));
+            new_btags.push_back(allbtags_.at(i));
+        }
+        else if(index_dR[i] > -1){
+            const LV temp = alljets_.at(i) + alljets_.at((index_dR.at(i)));
+            used_index.push_back(index_dR.at(i));
+            if(temp.Pt() < 30.) continue;
+            if(fabs(temp.Eta()) > 2.4) continue;
+            new_jets.push_back(temp);
+            new_btags.push_back(allbtags_.at(i)*(allbtags_.at(i)>allbtags_.at(index_dR[i])) + allbtags_.at(index_dR[i])*(allbtags_.at(index_dR[i])>allbtags_.at(i)));
+        }
+    }
+    
+    for(int i = 0; i < (int)new_jets.size(); ++i){
+        for(int j = 0; j < (int)new_jets.size(); ++j){
+            const double wi = new_btags.at(i);
+            const double wj = new_btags.at(j);
+            //if(i==j || (wi<0.244 && wj<0.244) || (wi<0 || wj<0)) continue;
+            if(i==j || (wi<btag_wp && wj<btag_wp)) continue;
+            if(wi>btag_wp && wj>btag_wp) nb_tag.push_back(2);
+            else nb_tag.push_back(1);
+            b1_id.push_back(i);
+            b2_id.push_back(j);
+        }
+    }
+}
+
+
+
+void KinematicReconstruction::setSolutions()
+{
+    nSol_ = (int)(sols_.size());
+    
+    if(nSol_ > 0){
         std::nth_element(begin(sols_), begin(sols_), end(sols_),
                          [](const Struct_KinematicReconstruction& a, const Struct_KinematicReconstruction& b){
                              return  b.ntags < a.ntags || (b.ntags == a.ntags && b.weight < a.weight);
                          });
-
-        sol_=sols_[0];
+        
+        sol_ = sols_[0];
     }
-
 }
 
 
@@ -589,19 +703,22 @@ Struct_KinematicReconstruction KinematicReconstruction::getSol()const
     return sol_;
 }
 
+
+
 vector< Struct_KinematicReconstruction > KinematicReconstruction::getSols() const
 {
     return sols_;
 }
 
 
+
 void KinematicReconstruction::loadData()
 {
+    std::cout<<"Smearing requires input distributions from files\n";
     
     r3_ = new TRandom3();
     
-//     // W mass
-
+    // W mass
     TString data_path = common::DATA_PATH_COMMON();
     data_path.Append("/KinReco_wmass.root");
     TFile wmassfile(data_path);
@@ -609,35 +726,26 @@ void KinematicReconstruction::loadData()
     h_wmass_->SetDirectory(0);
     wmassfile.Close();
     
-    // jet resolution
+    // jet and lepton resolution
     TString data_path1 = common::DATA_PATH_COMMON();
-    data_path1.Append("/KinReco_d_angle_jet.root");
-    TFile danglejetfile(data_path1);
-    h_jetAngleRes_ = (TH1F*)danglejetfile.Get("d_angle_jet");
-    h_jetEres_ = (TH1F*)danglejetfile.Get("fE");
-    h_jetAngleRes_->SetDirectory(0);
-    h_jetEres_->SetDirectory(0);
-    danglejetfile.Close();
-    //
-    
-    //lepton resolution
-    TString data_path2 = common::DATA_PATH_COMMON();
-    data_path2.Append("/KinReco_d_angle_lep.root");
-    TFile lepangleresfile(data_path2);
-    h_lepAngleRes_ = (TH1F*)lepangleresfile.Get("d_angle_jet");
-    h_lepEres_ = (TH1F*)lepangleresfile.Get("fE");
+    data_path1.Append("/KinReco_d_angle_fE.root");
+    TFile tempTFile(data_path1);
+    h_jetAngleRes_ = (TH1F*)tempTFile.Get("KinReco_d_angle_lep_step7");
+    h_jetEres_ = (TH1F*)tempTFile.Get("KinReco_fE_jet_step7");
+    h_lepAngleRes_ = (TH1F*)tempTFile.Get("KinReco_d_angle_lep_step7");
+    h_lepEres_ = (TH1F*)tempTFile.Get("KinReco_fE_lep_step7");
     h_lepAngleRes_->SetDirectory(0);
     h_lepEres_->SetDirectory(0);
-    lepangleresfile.Close();
-    //
-// 
-//     //MET resolution
+    h_jetAngleRes_->SetDirectory(0);
+    h_jetEres_->SetDirectory(0);
+    tempTFile.Close();
     
+    //MET resolution
     ptBins_ =  {0,7,13,18,27,37,48,59,70,100,200,500,1000,1500};
-    TString data_path3 = common::DATA_PATH_COMMON();
-    data_path3.Append("/KinReco_rmshistA_dAngle_vs_Pt.root");
-    TFile metangleresfile(data_path3);
-    for(int i=0;i<13;i++)
+    TString data_path2 = common::DATA_PATH_COMMON();
+    data_path2.Append("/KinReco_rmshistA_dAngle_vs_Pt.root");
+    TFile metangleresfile(data_path2);
+    for(int i=0;i<13;++i)
     {
         char temp_name[100];
         sprintf(temp_name,"bin_%.0f_%.0f",ptBins_[i],ptBins_[i+1]);
@@ -651,7 +759,7 @@ void KinematicReconstruction::loadData()
     TString data_path4 = common::DATA_PATH_COMMON();
     data_path4.Append("/KinReco_rmshistA_fPt_vs_Pt.root");
     TFile metptresfile(data_path4);
-    for(int i=0;i<13;i++)
+    for(int i=0;i<13;++i)
     {
         char temp_name[100];
         sprintf(temp_name,"bin_%.0f_%.0f",ptBins_[i],ptBins_[i+1]);
@@ -666,7 +774,7 @@ void KinematicReconstruction::loadData()
     TString data_path41 = common::DATA_PATH_COMMON(); 
     data_path41.Append("/KinReco_rmshist_fPx_vs_Pt.root");
     TFile metpxresfile(data_path41);
-    for(int i=0;i<13;i++)
+    for(int i=0;i<13;++i)
     {
         char temp_name[100];
         sprintf(temp_name,"bin_%.0f_%.0f",ptBins_[i],ptBins_[i+1]);
@@ -682,7 +790,7 @@ void KinematicReconstruction::loadData()
     TString data_path42 = common::DATA_PATH_COMMON(); 
     data_path42.Append("/KinReco_rmshist_fPy_vs_Pt.root");
     TFile metpyresfile(data_path42);
-    for(int i=0;i<13;i++)
+    for(int i=0;i<13;++i)
     {
         char temp_name[100];
         sprintf(temp_name,"bin_%.0f_%.0f",ptBins_[i],ptBins_[i+1]);
@@ -702,23 +810,23 @@ void KinematicReconstruction::loadData()
     h_nwcuts_->SetDirectory(0);
     fnw.Close();
     
-///  E 1d bins
+//  E 1d bins
         TString data_path6 = common::DATA_PATH_COMMON();
         data_path6.Append("/KinReco_wneutrino_E.root"); // no norm
 //         data_path6.Append("/KinReco_wneutrino_E_normilyze.root"); // norm
         TFile frootNeut(data_path6);
         char hvE_name[20];
         
-                        for(int i=0;i<6;i++)
+                        for(int i=0;i<6;++i)
                         {
                             sprintf(hvE_name,"Eneu_true%d",i+1);
                                     hvE_[i] = (TH1F*)frootNeut.Get(hvE_name);
                                     hvE_[i]->SetDirectory(0);
                         }
     frootNeut.Close();
-///...
+//...
 
-/// mbl
+// mbl
 
         TString data_path7 = common::DATA_PATH_COMMON();
         data_path7.Append("/KinReco_mbl.root");
@@ -734,9 +842,9 @@ void KinematicReconstruction::loadData()
 //         h_mbl_w_->SetDirectory(0);
         fmbl_wrong.Close();
         
-/// ...        
+// ...        
         
-/// cos_theta*
+// cos_theta*
 
         TString data_path8 = common::DATA_PATH_COMMON();
         data_path8.Append("/KinReco_costheta_true.root");
@@ -744,29 +852,31 @@ void KinematicReconstruction::loadData()
         h_costheta_w_ = (TH1F*)fcostheta.Get("cos_theta_true");
         h_costheta_w_->SetDirectory(0);
         fcostheta.Close();
-/// ...
+// ...
         
-/// neuEta
+// neuEta
         TString data_path9 = common::DATA_PATH_COMMON();
         data_path9.Append("/KinReco_wneutrinoEta.root");
         TFile fneuEta(data_path9);
         h_neuEta_w_ = (TH1F*)fneuEta.Get("Etaneu_true");
         h_neuEta_w_->SetDirectory(0);
         fneuEta.Close();
-/// ...        
-        
-        
+// ...        
+    
+    std::cout<<"Found all histograms needed for smearing\n";
 }
 
-void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlus, const VLV *jets, const std::vector<double> *btags, const LV* met, bool mass_loop_on)
+
+
+void KinematicReconstruction::kinRecoMassLoop(const LV& leptonMinus, const LV& leptonPlus, const VLV* jets, const std::vector<double>* btags, const LV* met)
 {
 
     std::vector<Struct_KinematicReconstruction> vect_sol;
 
 
-    TLorentzVector leptonPlus_tlv = common::LVtoTLV(leptonPlus);
-    TLorentzVector leptonMinus_tlv = common::LVtoTLV(leptonMinus);
-    TLorentzVector met_tlv = common::LVtoTLV(*met);
+    const TLorentzVector leptonPlus_tlv = common::LVtoTLV(leptonPlus);
+    const TLorentzVector leptonMinus_tlv = common::LVtoTLV(leptonMinus);
+    const TLorentzVector met_tlv = common::LVtoTLV(*met);
 
     std::vector<TLorentzVector> jets_tlv;
     for (const auto& jet : *jets) {
@@ -778,8 +888,8 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
     vector<double> btag_ww;
     vector<int> nb_tag;
 
-    for(int i=0; i<(int)btags->size(); i++) {
-        for(int j=0; j<(int)btags->size(); j++) {
+    for(int i=0; i<(int)btags->size(); ++i) {
+        for(int j=0; j<(int)btags->size(); ++j) {
             double wi = btags->at(i);
             double wj = btags->at(j);
 //             if(i==j || (wi<0.244 && wj<0.244) || (wi<0 || wj<0))continue;
@@ -799,7 +909,7 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
         return;
     }
 
-    for(int i=0; i<(int)btag_ww.size() - 1; i++) {
+    for(int i=0; i<(int)btag_ww.size() - 1; ++i) {
         if(btag_ww[i]>=btag_ww[i+1]) continue;
 
         double aux = btag_ww[i];
@@ -820,117 +930,30 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
     }
 
 
-    ///jets loop
+    //jets loop
 
     nSol_=0;
-    for(int ib=0; ib<(int)b1_id.size(); ib++) {
+    for(int ib=0; ib<(int)b1_id.size(); ++ib) {
         int j1=b1_id[ib];
         int j2=b2_id[ib];
 //         if((*jets)[j1].Pt()<30 || (*jets)[j2].Pt()<30)continue;
 //         if(fabs((*jets)[j1].Eta())>2.4 || fabs((*jets)[j2].Eta())>2.4)continue;
-        TLorentzVector l_temp, al_temp, b_temp, bbar_temp, met_temp;
-        l_temp=leptonMinus_tlv;
-        al_temp=leptonPlus_tlv;
-        b_temp=jets_tlv.at(j1);
-        bbar_temp=jets_tlv.at(j2);
-        met_temp.SetXYZM(met->Px(), met->Py(), 0, 0);
+        const TLorentzVector l_temp=leptonMinus_tlv;
+        const TLorentzVector al_temp=leptonPlus_tlv;
+        const TLorentzVector b_temp=jets_tlv.at(j1);
+        const TLorentzVector bbar_temp=jets_tlv.at(j2);
+        const TLorentzVector met_temp=common::LVtoTLV(*met);
 //         if((al_temp + b_temp).M()>180 || (l_temp + bbar_temp).M()>180)continue;
 
-        /*smearing*/
-        double vw_max=0;
-        if(!mass_loop_on){
-
-//             TF1 fJet("fJet", "[0]*pow((x - 0), 0.5) + [1]");
-//             fJet.SetParameters(4.18432, - 24.8944);
-//
-//             TF1 fLep("fLep", "[0]*pow((x - 0), 0.5) + [1]");
-//             fLep.SetParameters(0.575716, - 3.11214);
 
 
-            TRandom3 r(0); ///random seed
-
-//             TF1 f1("f1", "[0] + [1]*x + [2]*x*x + [3]*x*x*x + [4]*x*x*x*x", 30, 580);
-//             f1.SetParameters(1.06517e + 01, 3.58131e - 02, 7.44249e - 04, - 1.70968e - 06, 1.21316e - 09);
-
-            double bRMS=(4.13*pow((b_temp.E() - 0), 0.5) - 27.32)/b_temp.E(); //fJet.Eval(b_temp.E())/b_temp.E(); //%
-            double bbarRMS=(4.13*pow((bbar_temp.E() - 0), 0.5) - 27.32)/bbar_temp.E(); //fJet.Eval(bbar_temp.E())/bbar_temp.E(); //%
-            double lRMS=(0.575716*pow((l_temp.E() - 0), 0.5) - 3.11214)/l_temp.E(); //fLep.Eval(l_temp.E())/l_temp.E(); //%
-            double alRMS=(0.575716*pow((al_temp.E() - 0), 0.5) - 3.11214)/al_temp.E(); //fLep.Eval(al_temp.E())/al_temp.E(); //%
-
-
-            TVector3 vX_reco =  - b_temp.Vect() - bbar_temp.Vect() - l_temp.Vect() - al_temp.Vect() - met_temp.Vect();
-
-            double xRMS=20/vX_reco.Pt(); //%
-            for(int sm=0; sm<100; sm++) {
-                TLorentzVector b_sm=b_temp;
-                TLorentzVector bbar_sm=bbar_temp;
-                TLorentzVector met_sm=met_temp;
-                TLorentzVector l_sm=l_temp;
-                TLorentzVector al_sm=al_temp;
-
-
-                double fB=r.Gaus(1, bRMS);
-                double xB=sqrt((fB*fB*b_sm.E()*b_sm.E() - b_sm.M2())/(b_sm.P()*b_sm.P()));
-                double fBbar=r.Gaus(1, bbarRMS);
-                double xBbar=sqrt((fBbar*fBbar*bbar_sm.E()*bbar_sm.E() - bbar_sm.M2())/(bbar_sm.P()*bbar_sm.P()));
-
-                double fL=r.Gaus(1, lRMS);
-                double xL=sqrt((fL*fL*l_sm.E()*l_sm.E() - l_sm.M2())/(l_sm.P()*l_sm.P()));
-                double faL=r.Gaus(1, alRMS);
-                double xaL=sqrt((faL*faL*al_sm.E()*al_sm.E() - al_sm.M2())/(al_sm.P()*al_sm.P()));
-
-                double xX=r.Gaus(1, xRMS);
-
-//                 met_sm.SetXYZM(((b_sm.Px()*(1 - xB) + bbar_sm.Px()*(1 - xBbar))/(met_sm.Px()) + 1)*met_sm.Px(), ((b_sm.Py()*(1 - xB) + bbar_sm.Py()*(1 - xBbar))/(met_sm.Py()) + 1)*met_sm.Py(), 0, 0); // tollko b - jet
-//                 met_sm.SetXYZM(((b_sm.Px()*(1 - xB) + bbar_sm.Px()*(1 - xBbar) + l_sm.Px()*(1 - xL) + al_sm.Px()*(1 - xaL))/(met_sm.Px()) + 1)*met_sm.Px(), ((b_sm.Py()*(1 - xB) + bbar_sm.Py()*(1 - xBbar) + l_sm.Py()*(1 - xL) + al_sm.Py()*(1 - xaL))/(met_sm.Py()) + 1)*met_sm.Py(), 0, 0); //only b - jet and lep
-
-                met_sm.SetXYZM(((b_sm.Px()*(1 - xB) + bbar_sm.Px()*(1 - xBbar) + l_sm.Px()*(1 - xL) + al_sm.Px()*(1 - xaL) + vX_reco.Px()*(1 - xX))/(met_sm.Px()) + 1)*met_sm.Px(), ((b_sm.Py()*(1 - xB) + bbar_sm.Py()*(1 - xBbar) + l_sm.Py()*(1 - xL) + al_sm.Py()*(1 - xaL) + vX_reco.Py()*(1 - xX))/(met_sm.Py()) + 1)*met_sm.Py(), 0, 0); //all
-
-                b_sm.SetXYZT(b_sm.Px()*xB, b_sm.Py()*xB, b_sm.Pz()*xB, b_sm.E()*fB);
-                bbar_sm.SetXYZT(bbar_sm.Px()*xBbar, bbar_sm.Py()*xBbar, bbar_sm.Pz()*xBbar, bbar_sm.E()*fBbar);
-
-                l_sm.SetXYZT(l_sm.Px()*xL, l_sm.Py()*xL, l_sm.Pz()*xL, l_sm.E()*fL);
-                al_sm.SetXYZT(al_sm.Px()*xaL, al_sm.Py()*xaL, al_sm.Pz()*xaL, al_sm.E()*faL);
-
-                KinematicReconstruction_LSroutines tp_sm(topmass, 4.8, 80.4, 0.0, 0.0);
-                tp_sm.setConstraints(al_sm, l_sm, b_sm, bbar_sm, met_sm.Px(), met_sm.Py());
-
-                if(!(tp_sm.getNsol()<1 || tp_sm.getNsol()==1 || tp_sm.getNsol()==3)) {
-                    if(tp_sm.getTtSol()->at(0).weight>vw_max) {
-                        nSol_++;
-
-                        vw_max=tp_sm.getTtSol()->at(0).weight;
-                        sol_.jetB = b_temp;
-                        sol_.jetBbar = bbar_temp;
-                        sol_.lm = leptonMinus_tlv;
-                        sol_.lp = leptonPlus_tlv;
-                        sol_.met = met_temp;
-                        sol_.neutrino = tp_sm.getTtSol()->at(0).neutrino;
-                        sol_.neutrinoBar = tp_sm.getTtSol()->at(0).neutrinobar;
-                        sol_.weight = tp_sm.getTtSol()->at(0).weight;
-                        sol_.Wplus = sol_.lp + sol_.neutrino;
-                        sol_.Wminus = sol_.lm + sol_.neutrinoBar;
-                        sol_.top = sol_.Wplus + sol_.jetB;
-                        sol_.topBar = sol_.Wminus + sol_.jetBbar;
-                        sol_.ttbar = sol_.top + sol_.topBar;
-                        sol_.jetB_index = j1;
-                        sol_.jetBbar_index = j2;
-                        sol_.ntags = nb_tag[ib];
-                    }
-
-                }
-            }
-        }
-
-
-        /*smearing*/
-        /*mass scan*/
-
-        if(mass_loop_on){
-           for(double im=100; im<300.5; im+=1){
+        // mass scan
+        double vw_max = 0.;
+        if(massLoop_){
+           for(double iTopMass = 100.; iTopMass < 300.5; iTopMass += 1.){
 //                 if(1) {double im=172.5;
 
-                KinematicReconstruction_LSroutines tp_m(im, 4.8, 80.4, 0.0, 0.0);
+                KinematicReconstruction_LSroutines tp_m(iTopMass, 4.8, 80.4, 0.0, 0.0);
 
                 tp_m.setConstraints(al_temp, l_temp, b_temp, bbar_temp, met_temp.Px(), met_temp.Py());
 
@@ -960,14 +983,12 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
                 sol_.ntags = nb_tag[ib];
             }
         }
-
-        /*mass scan*/
-
+        
         if(vw_max>0){
             vect_sol.push_back(sol_);
         }
 
-    } ///end jets loop
+    }
 
     if(nSol_>0){
         std::nth_element(begin(vect_sol), begin(vect_sol), end(vect_sol),
@@ -985,14 +1006,7 @@ void KinematicReconstruction::kinReco(const LV& leptonMinus, const LV& leptonPlu
 
 
 
-
-
-
 // -------------------------------------- Methods for KinematicReconstructionScaleFactors --------------------------------------
-
-
-
-
 
 KinematicReconstructionScaleFactors::KinematicReconstructionScaleFactors(const std::vector<Channel::Channel>& channels,
                                                                          const Systematic::Systematic& systematic):
@@ -1037,9 +1051,13 @@ void KinematicReconstructionScaleFactors::prepareSF(const SystematicInternal& sy
     //const std::map<Channel::Channel, double> m_sfNominal { {Channel::ee, 0.9779}, {Channel::emu, 0.9871}, {Channel::mumu, 0.9879} };
     //const std::map<Channel::Channel, double> m_sfUnc { {Channel::ee, 0.0066}, {Channel::emu, 0.0032}, {Channel::mumu, 0.0056} };
     
-    // SF for newKinReco flat
-    const std::map<Channel::Channel, double> m_sfNominal { {Channel::ee, 0.9876}, {Channel::emu, 0.9921}, {Channel::mumu, 0.9949} };
-    const std::map<Channel::Channel, double> m_sfUnc { {Channel::ee, 0.0043}, {Channel::emu, 0.0019}, {Channel::mumu, 0.0037} };
+    // SF for newKinReco flat Old
+    //const std::map<Channel::Channel, double> m_sfNominal { {Channel::ee, 0.9876}, {Channel::emu, 0.9921}, {Channel::mumu, 0.9949} };
+    //const std::map<Channel::Channel, double> m_sfUnc { {Channel::ee, 0.0043}, {Channel::emu, 0.0019}, {Channel::mumu, 0.0037} };
+    
+    // SF for newKinReco flat N007mvamet
+    const std::map<Channel::Channel, double> m_sfNominal { {Channel::ee, 0.9854}, {Channel::emu, 0.9934}, {Channel::mumu, 0.9934} };
+    const std::map<Channel::Channel, double> m_sfUnc { {Channel::ee, 0.0041}, {Channel::emu, 0.0018}, {Channel::mumu, 0.0036} };
     
     // SF for mass(top) = 173 GeV
     //const std::map<Channel::Channel, double> m_sfNominal { {Channel::ee, 0.9696}, {Channel::emu, 0.9732}, {Channel::mumu, 0.9930} };

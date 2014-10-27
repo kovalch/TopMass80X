@@ -527,13 +527,9 @@ void BtagScaleFactors::btagSystematic(const Systematic::Systematic& systematic)
         if(systematic.variation() == Systematic::up) systematicInternal = lfstat2up;
         else if(systematic.variation() == Systematic::down) systematicInternal = lfstat2down;
     }
-    else if(systematic.type() == Systematic::btagDiscrCerr1){
-        if(systematic.variation() == Systematic::up) systematicInternal = cerr1up;
-        else if(systematic.variation() == Systematic::down) systematicInternal = cerr1down;
-    }
-    else if(systematic.type() == Systematic::btagDiscrCerr2){
-        if(systematic.variation() == Systematic::up) systematicInternal = cerr2up;
-        else if(systematic.variation() == Systematic::down) systematicInternal = cerr2down;
+    else if(systematic.type() == Systematic::btagDiscrPurity){
+        if(systematic.variation() == Systematic::up) systematicInternal = purityup;
+        else if(systematic.variation() == Systematic::down) systematicInternal = puritydown;
     }
     else if(systematic.type() == Systematic::jes){
         // This variation covers the with JES correlated uncertainty, only needed for discriminator reweighting
@@ -866,10 +862,12 @@ void BtagScaleFactors::prepareDiscriminatorReweighting(const char* inputFileHeav
 
 
 
-JetEnergyResolutionScaleFactors::JetEnergyResolutionScaleFactors(const Systematic::Systematic& systematic)
+JetEnergyResolutionScaleFactors::JetEnergyResolutionScaleFactors(const char* scaleFactorSource,
+                                                                 const Systematic::Systematic& systematic)
 {
     std::cout<<"--- Beginning preparation of JER scale factors\n";
     
+    // Set internal systematic
     SystematicInternal systematicInternal(undefined);
     if(systematic.type() == Systematic::jer){
         if(systematic.variation() == Systematic::up) systematicInternal = vary_up;
@@ -881,22 +879,22 @@ JetEnergyResolutionScaleFactors::JetEnergyResolutionScaleFactors(const Systemati
         exit(98);
     }
     
-    // Hardcoded eta ranges
-    v_etaRange_ = {0.5, 1.1, 1.7, 2.3, 10.};
-    
-    // Hardcoded scale factors for eta ranges, nominal is = {1.052, 1.057, 1.096, 1.134, 1.288};
+    // Sanity check
+    std::cout<<"Using scale factor source: "<<scaleFactorSource<<"\n";
     if(systematicInternal == vary_up){
-        v_etaScaleFactor_ = {1.115, 1.114, 1.161, 1.228, 1.488};
         std::cout<<"Apply systematic variation: up\n";
     }
     else if(systematicInternal == vary_down){
-        v_etaScaleFactor_ = {0.990, 1.001, 1.032, 1.042, 1.089};
         std::cout<<"Apply systematic variation: down\n";
     }
     else{
         std::cerr<<"Error in constructor of JetEnergyResolutionScaleFactors! Systematic variation not allowed\n...break\n"<<std::endl;
         exit(621);
     }
+    
+    // Set scale factors corresponding to specified source
+    this->scaleFactors(scaleFactorSource, systematicInternal);
+    
     
     // Check correct size
     if(v_etaRange_.size() != v_etaScaleFactor_.size()){
@@ -911,69 +909,116 @@ JetEnergyResolutionScaleFactors::JetEnergyResolutionScaleFactors(const Systemati
 
 
 
-void JetEnergyResolutionScaleFactors::applySystematic(VLV* jets, VLV* jetsForMET, LV* met,
-                                                      const std::vector<double>* jetJERSF, const std::vector<double>* jetForMETJERSF,
-                                                      const VLV* associatedGenJet, const VLV* associatedGenJetForMET)const
+void JetEnergyResolutionScaleFactors::scaleFactors(const std::string& scaleFactorSource,
+                                                   const SystematicInternal& systematicInternal)
 {
-    // This first loop will correct the jet collection that is used for jet selections
-    for(size_t iJet = 0; iJet < jets->size(); ++iJet){
-        size_t jetEtaBin = 0;
-
-        for(size_t iBin = 0; iBin < v_etaRange_.size(); ++iBin){
-            if(std::fabs(jets->at(iJet).eta()) < v_etaRange_.at(iBin)){
-                jetEtaBin = iBin;
-                break;
-            }
-        }
-
-        if(jetJERSF->at(iJet) != 0.){
-            jets->at(iJet) *= 1./jetJERSF->at(iJet);
-
-            // FIXME: should this factor really be =0. in case no associatedGenJet is found ?
-            double factor = 0.;
-
-            if(associatedGenJet->at(iJet).pt() != 0.) factor = 1. + (v_etaScaleFactor_.at(jetEtaBin) - 1.)*(1. - (associatedGenJet->at(iJet).pt()/jets->at(iJet).pt()));
-            if(jetJERSF->at(iJet) == 1.) factor = 1.;
-
-            jets->at(iJet) *= factor;
-        }
+    // Scale factor values for all sources
+    if(scaleFactorSource == "jer2011"){
+        // Eta ranges
+        v_etaRange_ = {0.5, 1.1, 1.7, 2.3, 10.};
+        // Scale factors for eta ranges, nominal is = {1.052, 1.057, 1.096, 1.134, 1.288};
+        if(systematicInternal == vary_up)
+            v_etaScaleFactor_ = {1.115, 1.114, 1.161, 1.228, 1.488};
+        else if(systematicInternal == vary_down)
+            v_etaScaleFactor_ = {0.990, 1.001, 1.032, 1.042, 1.089};
     }
-
-    // This second loop will correct the jet collection that is used to modify the MET
-    double JEC_dpX =0.;
-    double JEC_dpY =0.;
-    for(size_t iJet = 0; iJet < jetsForMET->size(); ++iJet){
-        size_t jetEtaBin = 0;
-        for(size_t iBin = 0; iBin < v_etaRange_.size(); ++iBin){
-            if(std::fabs(jetsForMET->at(iJet).eta()) < v_etaRange_.at(iBin)){
-                jetEtaBin = iBin;
-                break;
-            }
-        }
-
-        if(jetForMETJERSF->at(iJet) != 0.){
-            const double dpX = jetsForMET->at(iJet).px();
-            const double dpY = jetsForMET->at(iJet).py();
-            jetsForMET->at(iJet) *= 1./jetForMETJERSF->at(iJet);
-
-            // FIXME: should this factor really be =0. in case no associatedGenJet is found ?
-            double factor = 0.;
-            if(associatedGenJetForMET->at(iJet).pt() != 0.) factor = 1. + (v_etaScaleFactor_.at(jetEtaBin) - 1.)*(1. - (associatedGenJetForMET->at(iJet).pt()/jetsForMET->at(iJet).pt()));
-            if(jetForMETJERSF->at(iJet) == 1.) factor = 1.;
-
-            jetsForMET->at(iJet) *= factor;
-            JEC_dpX += jetsForMET->at(iJet).px() - dpX;
-            JEC_dpY += jetsForMET->at(iJet).py() - dpY;
-        }
+    else if(scaleFactorSource == "jer2012"){
+        // Eta ranges
+        v_etaRange_ = {0.5, 1.1, 1.7, 2.3, 2.8, 3.2, 5.0};
+        // Scale factors for eta ranges, nominal is = {1.079, 1.099, 1.121, 1.208, 1.254, 1.395, 1.056};
+        if(systematicInternal == vary_up)
+            v_etaScaleFactor_ = {1.105, 1.127, 1.150, 1.254, 1.316, 1.458, 1.247};
+        else if(systematicInternal == vary_down)
+            v_etaScaleFactor_ = {1.053, 1.071, 1.092, 1.162, 1.192, 1.332, 0.865};
     }
-
-    // Adjust the MET
-    const double scaledMETPx = met->px() - JEC_dpX;
-    const double scaledMETPy = met->py() - JEC_dpY;
-    met->SetPt(std::sqrt(scaledMETPx*scaledMETPx + scaledMETPy*scaledMETPy));
+    else{
+        std::cerr<<"ERROR in JetEnergyResolutionScaleFactors::scaleFactors()! Name of scale factor source not defined: "
+                 <<scaleFactorSource<<"\n...break\n"<<std::endl;
+        exit(883);
+    }
 }
 
 
+
+void JetEnergyResolutionScaleFactors::applyJetSystematic(VLV* const v_jet,
+                                                         const std::vector<double>* const v_jetJerSF,
+                                                         const VLV* const v_associatedGenJet)const
+{
+    // This loop corrects the jet collection used for jet selections
+    for(size_t iJet = 0; iJet < v_jet->size(); ++iJet){
+        LV& jet = v_jet->at(iJet);
+        const double& jetJerSF = v_jetJerSF->at(iJet);
+        const LV& associatedGenJet = v_associatedGenJet->at(iJet);
+        
+        this->scaleJet(jet, jetJerSF, associatedGenJet);
+    }
+}
+
+
+
+void JetEnergyResolutionScaleFactors::applyMetSystematic(VLV* const v_jetForMet, LV* const met,
+                                                         const std::vector<double>* const v_jetForMetJerSF,
+                                                         const VLV* const v_associatedGenJetForMet)const
+{
+    // This loop corrects the jet collection used to modify the MET
+    double deltaPx = 0.;
+    double deltaPy = 0.;
+    for(size_t iJet = 0; iJet < v_jetForMet->size(); ++iJet){
+        LV& jet = v_jetForMet->at(iJet);
+        const double& jetJerSF = v_jetForMetJerSF->at(iJet);
+        const LV& associatedGenJet = v_associatedGenJetForMet->at(iJet);
+        
+        const double storedPx = jet.px();
+        const double storedPy = jet.py();
+        if(this->scaleJet(jet, jetJerSF, associatedGenJet)){
+            deltaPx += jet.px() - storedPx;
+            deltaPy += jet.py() - storedPy;
+        }
+    }
+    
+    // Adjust the MET
+    const double scaledMetPx = met->px() - deltaPx;
+    const double scaledMetPy = met->py() - deltaPy;
+    met->SetPt(std::sqrt(scaledMetPx*scaledMetPx + scaledMetPy*scaledMetPy));
+}
+
+
+
+bool JetEnergyResolutionScaleFactors::scaleJet(LV& jet, const double& jetJerSF, const LV& associatedGenJet)const
+{
+    // Avoid division by 0, and do not scale if original scale factor is 1.
+    if(jetJerSF==0. || jetJerSF==1.) return false;
+    
+    // Do not scale if no associated genJet is found
+    if(associatedGenJet.pt() == 0.) return false;
+    
+    // Do not scale if jet is outside range defined for scale factors (i.e. in a range where no scale factors are derived)
+    const int jetEtaBin = this->jetEtaBin(jet);
+    if(jetEtaBin == -1) return false;
+    
+    // Scale the jet
+    jet *= 1./jetJerSF;
+    const double factor = 1. + (v_etaScaleFactor_.at(jetEtaBin) - 1.)*(1. - (associatedGenJet.pt()/jet.pt()));
+    jet *= factor;
+    return true;
+}
+
+
+
+int JetEnergyResolutionScaleFactors::jetEtaBin(const LV& jet)const
+{
+    int result = -1;
+    
+    const double eta = jet.eta();
+    for(size_t iBin = 0; iBin < v_etaRange_.size(); ++iBin){
+        if(std::fabs(eta) < v_etaRange_.at(iBin)){
+            result = iBin;
+            break;
+        }
+    }
+    
+    return result;
+}
 
 
 
@@ -1033,43 +1078,50 @@ JetEnergyScaleScaleFactors::~JetEnergyScaleScaleFactors()
 
 
 
-void JetEnergyScaleScaleFactors::applySystematic(VLV* jets, VLV* jetsForMET, LV* met)const
+void JetEnergyScaleScaleFactors::applyJetSystematic(VLV* v_jet)const
 {
-    // This first loop will correct the jet collection that is used for jet selections
-    for(size_t iJet = 0; iJet < jets->size(); ++iJet){
-        jetCorrectionUncertainty_->setJetPt(jets->at(iJet).pt());
-        jetCorrectionUncertainty_->setJetEta(jets->at(iJet).eta());
-        const double dunc = jetCorrectionUncertainty_->getUncertainty(true);
-
-        if(varyUp_) jets->at(iJet) *= 1. + dunc;
-        else jets->at(iJet) *= 1. - dunc;
+    // This loop corrects the jet collection used for jet selections
+    for(size_t iJet = 0; iJet < v_jet->size(); ++iJet){
+        LV& jet = v_jet->at(iJet);
+        
+        this->scaleJet(jet);
     }
-
-    // This second loop will correct the jet collection that is used for modifying MET
-    double JEC_dpX =0.;
-    double JEC_dpY =0.;
-    for(size_t iJet = 0; iJet < jetsForMET->size(); ++iJet){
-
-        const double dpX = jetsForMET->at(iJet).px();
-        const double dpY = jetsForMET->at(iJet).py();
-
-        jetCorrectionUncertainty_->setJetPt(jetsForMET->at(iJet).pt());
-        jetCorrectionUncertainty_->setJetEta(jetsForMET->at(iJet).eta());
-        const double dunc = jetCorrectionUncertainty_->getUncertainty(true);
-
-        if(varyUp_) jetsForMET->at(iJet) *= 1. + dunc;
-        else jetsForMET->at(iJet) *= 1. - dunc;
-
-        JEC_dpX += jetsForMET->at(iJet).px() - dpX;
-        JEC_dpY += jetsForMET->at(iJet).py() - dpY;
-    }
-
-    // Adjust the MET
-    const double scaledMETPx = met->px() - JEC_dpX;
-    const double scaledMETPy = met->py() - JEC_dpY;
-    met->SetPt(std::sqrt(scaledMETPx*scaledMETPx + scaledMETPy*scaledMETPy));
 }
 
+
+
+void JetEnergyScaleScaleFactors::applyMetSystematic(VLV* v_jetForMet, LV* met)const
+{
+    // This loop corrects the jet collection used to modify the MET
+    double deltaPx = 0.;
+    double deltaPy = 0.;
+    for(size_t iJet = 0; iJet < v_jetForMet->size(); ++iJet){
+        LV& jet = v_jetForMet->at(iJet);
+        
+        const double storedPx = jet.px();
+        const double storedPy = jet.py();
+        this->scaleJet(jet);
+        deltaPx += jet.px() - storedPx;
+        deltaPy += jet.py() - storedPy;
+    }
+    
+    // Adjust the MET
+    const double scaledMetPx = met->px() - deltaPx;
+    const double scaledMetPy = met->py() - deltaPy;
+    met->SetPt(std::sqrt(scaledMetPx*scaledMetPx + scaledMetPy*scaledMetPy));
+}
+
+
+
+void JetEnergyScaleScaleFactors::scaleJet(LV& jet)const
+{
+    jetCorrectionUncertainty_->setJetPt(jet.pt());
+    jetCorrectionUncertainty_->setJetEta(jet.eta());
+    const double uncertainty = jetCorrectionUncertainty_->getUncertainty(true);
+
+    if(varyUp_) jet *= 1. + uncertainty;
+    else jet *= 1. - uncertainty;
+}
 
 
 

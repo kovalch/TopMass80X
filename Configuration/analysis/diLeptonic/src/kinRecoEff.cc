@@ -13,7 +13,7 @@
 #include "../../common/include/RootFileReader.h"
 #include "../../common/include/utils.h"
 #include "EffHist.h"
-#include "homelessFunctions.h"
+#include "UsefulTools.h"
 
 using namespace std;
 
@@ -22,7 +22,8 @@ double sqr(double value) { return value*value; }
 
 
 
-int main(int argc, char *argv[])
+// int main(int argc, char *argv[])
+int main()
 {
   
   gSystem->Exec("mkdir Plots");
@@ -52,8 +53,8 @@ int main(int argc, char *argv[])
   char allmcEffString[100];
   char sfString[100];
   
-  //homelessFunctions* homelessFunc = new homelessFunctions(fileReader_,doClosureTest,doDYScale);
-  homelessFunctions* homelessFunc = new homelessFunctions(fileReader_,0,1);
+  //UsefulTools* usefulTools = new UsefulTools(fileReader_,doClosureTest,doDYScale);
+  UsefulTools* usefulTools = new UsefulTools(fileReader_,0,1);
   
   for ( auto systematic : systematics ){
               gSystem->Exec("mkdir Plots/"+systematic);
@@ -70,12 +71,12 @@ int main(int argc, char *argv[])
         if(channel.Contains("combined")){channelLabel="Dilepton Combined";channelType=3;}
         
         std::vector<double> DYScale={1,1,1,1};
-        homelessFunc->DYScaleFactor("Standard",DYScale,"");
+        usefulTools->DYScaleFactor("Standard",DYScale,"");
         
         
         for(Size_t i=0;i<DYScale.size();++i) std::cout << "DYScale " << i << " " << DYScale.at(i) << std::endl;
         
-        TString fileListName("/data/user/korol/CMSSW_5_3_11/src/TopAnalysis/Configuration/analysis/diLeptonic/FileLists/HistoFileList_");
+        TString fileListName(common::CMSSW_BASE()+"/src/TopAnalysis/Configuration/analysis/diLeptonic/FileLists/HistoFileList_");
         fileListName.Append(systematic+"_"+channel+".txt");
         ifstream FileList(fileListName);
         if (FileList.fail()) std::cerr << "Error reading " << fileListName << std::endl;
@@ -119,9 +120,9 @@ int main(int argc, char *argv[])
             if (!histDeNum) std::cout<< "Error: Can not read histo: "<< h_DeNumName << " from file: " << dataset.at(i) << "\n";
             
             //Rescaling to the data luminosity
-            double LumiWeight = homelessFunc->CalcLumiWeight(dataset.at(i));
-            homelessFunc->ApplyFlatWeights(histNum, LumiWeight);
-            homelessFunc->ApplyFlatWeights(histDeNum, LumiWeight);
+            double LumiWeight = usefulTools->CalcLumiWeight(dataset.at(i));
+            usefulTools->ApplyFlatWeights(histNum, LumiWeight);
+            usefulTools->ApplyFlatWeights(histDeNum, LumiWeight);
             
             if((legends.at(i) == DYEntry)&&(channelType!=2)){
                 histNum->Scale(DYScale[channelType]);
@@ -170,6 +171,7 @@ int main(int argc, char *argv[])
 
           TString savepath;
           savepath.Append(+"./Plots/"+systematic+"/"+channel+"/"+"KinRecoEff_"+effHistNames.at(j)+".root");
+//           savepath.Append(+"./Plots/"+systematic+"/"+channel+"/"+"KinRecoEff_"+effHistNames.at(j)+".pdf");
           savepath.ReplaceAll("_vs_",4,"",0);
 
             //TString title(channel);
@@ -189,7 +191,7 @@ int main(int argc, char *argv[])
             if(effHistNames.at(j)=="_vs_AntiLeptonEta")title.Append("  Anti-LeptonEta - Kin. Reco. behaviour; #eta(antiLepton); eff.");
             if(effHistNames.at(j)=="_vs_MET")title.Append("  MET - Kin. Reco. behaviour; MET; eff.");
             effHist.setTitle(title);
-            std::cout << title << std::endl;
+//             std::cout << title << std::endl;
             
             
             if(j==2){

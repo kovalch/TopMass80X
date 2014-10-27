@@ -14,11 +14,12 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   AnalysisBase
   analysisUtils
   analysisObjectStructs
-  KinReco
   KinematicReconstruction
+  KinematicReconstructionSolution
   KinematicReconstruction_LSroutines
   KinematicReconstruction_MeanSol
   ScaleFactors
+  Correctors
   plotterUtils
   RootFileReader
   )

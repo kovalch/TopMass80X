@@ -33,7 +33,7 @@ constexpr const char* MvaWeightFileDIR = "weights";
 
 
 /// Input base for the file lists containing the samples to be processed
-constexpr const char* FileListBASE = "FileLists_mva/HistoFileList_";
+constexpr const char* FileListBASE = "FileLists_mva";
 
 
 
@@ -66,10 +66,10 @@ void trainMvaTopJets(const std::vector<Channel::Channel>& v_channel,
     std::vector<TString> v_nCuts = {"100", "1000", "5000"};
     std::vector<mvaSetup::MvaConfig> v_config;
     int counter(1);
-    for(const auto& NTrees : v_NTrees){
-        for(const auto& MaxDepth : v_MaxDepth){
-            for(const auto& BoostType : v_BoostType){
-                for(const auto& UseNVars : v_UseNVars){
+    for(const auto& NTrees : v_NTrees)
+        for(const auto& MaxDepth : v_MaxDepth)
+            for(const auto& BoostType : v_BoostType)
+                for(const auto& UseNVars : v_UseNVars)
                     for(const auto& nCuts : v_nCuts){
                         std::stringstream ss_counter;
                         ss_counter<<counter;
@@ -80,15 +80,13 @@ void trainMvaTopJets(const std::vector<Channel::Channel>& v_channel,
                         v_config.push_back(config);
                         ++counter;
                     }
-                }
-            }
-        }
-    }
     
     // Define MVA sets, i.e. for which merged categories of which step to apply MVA (also separated by channels)
     // First set is for correct combinations, second for swapped combinations
     const std::vector<Channel::Channel> allChannels = {Channel::ee, Channel::emu, Channel::mumu, Channel::combined};
     std::vector<mvaSetup::MvaSet> mvaSets;
+    
+    // MVA sets: test setup
     mvaSets.push_back(mvaSetup::MvaSet(
         allChannels,
         "7",
@@ -101,6 +99,14 @@ void trainMvaTopJets(const std::vector<Channel::Channel>& v_channel,
 //         {2,3,4},
 //         {mvaSetup::c1, mvaSetup::c2, mvaSetup::c3},
 //         {mvaSetup::c1, mvaSetup::c2, mvaSetup::c3}));
+    
+    // MVA sets: for Nazar
+//     mvaSets.push_back(mvaSetup::MvaSet(
+//         allChannels,
+//         "7",
+//         {0,1,2},
+//         v_config,
+//         {}));
     
     // Loop over all channels and systematics and merge trees
     mvaSetup::SystematicChannelFileNames m_systematicChannelMergedFiles = 

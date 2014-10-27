@@ -98,7 +98,7 @@ void Samples::addSamples(const TString& filelistDirectory,
                          const Systematic::Systematic& systematic)
 {
     // Read the full input filenames from the FileList
-    const auto& v_filename = common::readFilelist(filelistDirectory, channel, systematic);
+    const auto& v_filename = common::readFilelist(filelistDirectory, channel, systematic, std::vector<TString>());
     
     // Add all samples as they are defined
     std::vector<std::pair<TString, Sample> > v_filenameSamplePair =

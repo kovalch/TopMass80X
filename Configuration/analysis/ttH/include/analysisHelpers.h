@@ -20,6 +20,7 @@ namespace AnalysisMode{
         playg,      // Playground analyser
         weight,     // Event weight analyser
         genEvent,   // Generator event analyser
+        kinReco,    // Kinematic reconstruction analyser
         mvaTopP,    // Produce MVA input for top system jet assignment
         mvaTopA,    // Apply MVA weights for top system jet assignment
         mvaEventP,  // Produce MVA input for event classification
@@ -33,7 +34,7 @@ namespace AnalysisMode{
     
     /// All analysis modes allowed for analysis
     const std::vector<AnalysisMode> allowedAnalysisModes
-        {cp, dijet, charge, match, playg, weight, genEvent, mvaTopP, mvaTopA, mvaEventP, mvaEventA, mvaChargeP, mvaChargeA};
+        {cp, dijet, charge, match, playg, weight, genEvent, kinReco, mvaTopP, mvaTopA, mvaEventP, mvaEventA, mvaChargeP, mvaChargeA};
     
     
     

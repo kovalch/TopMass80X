@@ -22,15 +22,15 @@ process.load("TopAnalysis.HiggsUtils.sequences.higgsGenEvent_cff")
 #process.decaySubsetHiggs.addRadiation = False
 
 process.load("TopAnalysis.HiggsUtils.filters.GeneratorHiggsFilter_cfi")
-process.generatorHiggsFilter.channels = ["b"]
-#process.generatorHiggsFilter.channels = ["W", "tau"]
+process.generatorHiggsFilter.channels = ["bb"]
+#process.generatorHiggsFilter.channels = ["WW", "tautau"]
 #process.generatorHiggsFilter.channels = ["none"]
 #process.generatorHiggsFilter.channels = []
 #process.generatorHiggsFilter.invert_selection = True
 
 
 
-process.p = cms.Path(process.makeGenEvtHiggs*process.generatorHiggsFilter)
+process.p = cms.Path(process.makeGenEvtHiggs * process.generatorHiggsFilter)
 
 
 
@@ -40,9 +40,7 @@ process.out = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring(
         'drop *',
         'keep recoGenParticles_*_*_SIM',
-        #'keep recoGenParticles_*_*_HiggsGenTest',
-	#'keep HiggsGenEvent_*_*_HiggsGenTest',
-	'keep *_*_*_GeneratorHiggsFilterTest',
+        'keep *_*_*_GeneratorHiggsFilterTest',
     ),
 
 )

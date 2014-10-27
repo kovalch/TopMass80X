@@ -16,6 +16,7 @@
 #include "../../common/include/analysisUtils.h"
 #include "../../common/include/analysisObjectStructs.h"
 #include "../../common/include/classes.h"
+#include "../../common/include/KinematicReconstructionSolution.h"
 
 
 
@@ -47,9 +48,10 @@ void AnalyzerPlayground::bookHistos(const TString& step, std::map<TString, TH1*>
 
 
 
-void AnalyzerPlayground::fillHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+void AnalyzerPlayground::fillHistos(const EventMetadata&,
+                                    const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                                     const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
-                                    const KinRecoObjects& kinRecoObjects,
+                                    const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
                                     const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
                                     const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
                                     const double& weight, const TString& step, std::map<TString, TH1*>& m_histogram)
@@ -59,7 +61,7 @@ void AnalyzerPlayground::fillHistos(const RecoObjects& recoObjects, const Common
     
     // Do calculations and filling of histograms
     const bool nonsenseBool = recoObjects.valuesSet_ && commonGenObjects.valuesSet_ && topGenObjects.valuesSet_ &&
-                              higgsGenObjects.valuesSet_ && kinRecoObjects.valuesSet_;
+                              higgsGenObjects.valuesSet_ && kinematicReconstructionSolutions.numberOfSolutions();
     
     const int nonsenseInt = recoObjectIndices.antiLeptonIndex_ + genObjectIndices.genAntiBjetFromHiggsIndex_;
     

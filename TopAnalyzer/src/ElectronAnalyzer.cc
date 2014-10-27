@@ -66,20 +66,20 @@ ElectronAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
     //if(electron->isEE()){
     if( fabs(electron->superCluster()->eta()) > 1.479 ){
       iso_combEE_->Fill(
-                        ((electron->dr03TkSumPt()+electron->dr03EcalRecHitSumEt()+electron->dr03HcalTowerSumEt())/TMath::Max(20.,electron->pt())),
+                        ((electron->dr03TkSumPt()+electron->dr03EcalRecHitSumEt()+electron->dr03HcalTowerSumEt())/std::max<double>(20.,electron->pt())),
                         weight);
      iso_combEE2_->Fill(
-                        ((electron->dr03TkSumPt()+electron->dr03EcalRecHitSumEt()+electron->dr03HcalTowerSumEt())/TMath::Max(20.,electron->pt())),
+                        ((electron->dr03TkSumPt()+electron->dr03EcalRecHitSumEt()+electron->dr03HcalTowerSumEt())/std::max<double>(20.,electron->pt())),
                         weight);
     }
 
     //if(electron->isEB()){
     if( fabs(electron->superCluster()->eta()) < 1.479 ){
       iso_combEB_->Fill(
-                        ((electron->dr03TkSumPt()+TMath::Max(0.,electron->dr03EcalRecHitSumEt()-1.)+electron->dr03HcalTowerSumEt())/TMath::Max(20.,electron->pt())),
+                        ((electron->dr03TkSumPt()+std::max(0.,electron->dr03EcalRecHitSumEt()-1.)+electron->dr03HcalTowerSumEt())/std::max<double>(20.,electron->pt())),
                         weight);
       iso_combEB2_->Fill(
-                        ((electron->dr03TkSumPt()+TMath::Max(0.,electron->dr03EcalRecHitSumEt()-1.)+electron->dr03HcalTowerSumEt())/TMath::Max(20.,electron->pt())),
+                        ((electron->dr03TkSumPt()+std::max(0.,electron->dr03EcalRecHitSumEt()-1.)+electron->dr03HcalTowerSumEt())/std::max<double>(20.,electron->pt())),
                         weight);
     }
     pfIso_->Fill((electron->chargedHadronIso()+electron->neutralHadronIso()+electron->photonIso()) / electron->pt());

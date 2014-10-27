@@ -199,12 +199,12 @@ void printHistogram(const TString& inputFile,
 
 
 
-void histoMvaTopJetsinputVariables(const std::vector<Channel::Channel>& v_channel,
+void histoMvaTopJetsInputVariables(const std::vector<Channel::Channel>& v_channel,
                                    const std::vector<Systematic::Systematic>& v_systematic,
                                    const std::vector<std::string>& v_drawMode)
 {
     
-    constexpr const char* prefix = "mvaP_";
+    constexpr const char* prefix = "mvaTopP_";
     
     // Histograms to be printed
     const std::vector<TString> v_histonameBase = {
@@ -277,7 +277,7 @@ int main(int argc, char** argv)
         common::makeStringCheck(Channel::convert(Channel::allowedChannelsPlotting)));
     CLParameter<std::string> opt_systematic("s", "Systematic variation - default is Nominal", false, 1, 100,
         common::makeStringCheckBegin(Systematic::convertType(Systematic::allowedSystematics)));
-    CLParameter<std::string> opt_drawMode("d", "Draw modes - whether to draw curve for swapped combinations (swap)", false, 1, 1,
+    CLParameter<std::string> opt_drawMode("d", "Draw modes: whether to draw curve for swapped combinations (swap) - default is none", false, 1, 1,
         common::makeStringCheck({"swap", ""}));
     CLAnalyser::interpretGlobal(argc, argv);
     
@@ -302,7 +302,7 @@ int main(int argc, char** argv)
     for (auto mode : v_drawMode) std::cout << mode << " ";
     std::cout << "\n\n";
     
-    histoMvaTopJetsinputVariables(v_channel, v_systematic, v_drawMode);
+    histoMvaTopJetsInputVariables(v_channel, v_systematic, v_drawMode);
 }
 
 

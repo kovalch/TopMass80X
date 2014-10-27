@@ -6,6 +6,7 @@
 #include <vector>
 #include <utility>
 #include <algorithm>
+#include <fstream>
 
 #include <TObjArray.h>
 #include <TString.h>
@@ -203,6 +204,37 @@ TString ttbar::accessFolder(const char* baseDir, const TString& channel,
     return path;
 }
 
+
+
+void ttbar::setPlotNames(const std::string& nameListFile, std::vector<std::vector<TString>>& varNames)
+{
+       std::ifstream nameListStream(nameListFile.data(), std::ifstream::in);
+       if (!nameListStream.good()) {
+        std::cerr<<"Error in ttbar::setVarNames! Cannot find NameList with name: "<<nameListFile<<"\n...break\n"<<std::endl;
+        exit(12);
+       }
+
+    // Loop over all variables in NameList
+    while(nameListStream.good()){
+        // Read NameList-File
+        std::string line;
+        getline(nameListStream, line);
+        //remove leading whitespace
+        line.erase(0, line.find_first_not_of(" \t"));
+
+        //skip empty lines and/or comments
+        if (line.size() == 0 || line[0] == '#') continue;
+
+        // Loop over words in NameList-File line
+        std::vector<TString> vect;
+        std::string word;
+        for (std::stringstream ss(line); ss >> word; ){
+            vect.push_back(word);
+        }
+	varNames.push_back(vect);
+    }
+
+}
 
 
 

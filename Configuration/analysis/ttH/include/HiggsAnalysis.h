@@ -12,11 +12,12 @@ class TTree;
 
 class MvaTreeHandlerBase;
 class AnalyzerBase;
+class EventMetadata;
 class RecoObjects;
 class CommonGenObjects;
 class TopGenObjects;
 class HiggsGenObjects;
-class KinRecoObjects;
+class KinematicReconstructionSolutions;
 namespace tth{
     class GenLevelWeights;
     class RecoLevelWeights;
@@ -29,22 +30,22 @@ namespace tth{
 
 /// Class for the analysis step of the Higgs analysis, reading the nTuples
 class HiggsAnalysis : public AnalysisBase{
-
+    
 public:
-
+    
     /// Constructor
     HiggsAnalysis(TTree* =0);
-
+    
     /// Destructor
     virtual ~HiggsAnalysis();
-
+    
     /// Methods inherited from AnalysisBase
     virtual void Begin(TTree*);
     virtual void SlaveBegin(TTree*);
     virtual Bool_t Process(Long64_t entry);
     virtual void SlaveTerminate();
     virtual void Terminate();
-
+    
     /// Class definition
     ClassDef(HiggsAnalysis, 0);
     
@@ -77,11 +78,16 @@ private:
     
     
     
+    /// Returns a vector of indices of gen jets which are in acceptance
+    std::vector<int> genJetIndices(const VLV& allGenJets, const TopGenObjects& topGenObjects)const;
+    
     /// Create vector of size of gen jets, and assign for each element a vector of indices of associated B hadrons
-    std::vector<std::vector<int> > matchBhadronsToGenJets(const VLV& allGenJets, const TopGenObjects& topGenObjects)const;
+    std::vector<std::vector<int> > matchBhadronsToGenJets(const std::vector<int>& genJetIndices, const VLV& allGenJets, 
+                                                          const TopGenObjects& topGenObjects)const;
     
     /// Create vector of size of gen jets, and assign for each element a vector of indices of associated C hadrons
-    std::vector<std::vector<int> > matchChadronsToGenJets(const VLV& allGenJets, const TopGenObjects& topGenObjects)const;
+    std::vector<std::vector<int> > matchChadronsToGenJets(const std::vector<int>& genJetIndices, const VLV& allGenJets, 
+                                                          const TopGenObjects& topGenObjects)const;
     
     /// Returns vector of indices of gen jets containing B hadrons
     std::vector<int> genBjetIndices(const std::vector<std::vector<int> >& genJetBhadronIndices)const;
@@ -115,9 +121,10 @@ private:
     
     /// Fill all analysers and histograms in one method
     void fillAll(const std::string& selectionStep,
+                 const EventMetadata& eventMetadata,
                  const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                  const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
-                 const KinRecoObjects& kinRecoObjects,
+                 const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
                  const tth::GenObjectIndices& genObjectIndices, const tth::RecoObjectIndices& recoObjectIndices,
                  const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
                  const double& defaultWeight)const;
@@ -135,6 +142,9 @@ private:
     
     /// For a ttbar sample, select tt+bb, tt+b, or tt+other events (no separation for default value -999)
     int additionalBjetMode_;
+
+    /// Whether gen. jets that are close to leptons from tt decays should be removed
+    bool toRemoveLeptonGenJets_;
     
     
     

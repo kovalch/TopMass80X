@@ -11,11 +11,12 @@ class TH1;
 #include "../../common/include/classesFwd.h"
 
 class JetCategories;
+class EventMetadata;
 class RecoObjects;
 class CommonGenObjects;
 class TopGenObjects;
 class HiggsGenObjects;
-class KinRecoObjects;
+class KinematicReconstructionSolutions;
 namespace tth{
     class RecoLevelWeights;
     class GenLevelWeights;
@@ -46,9 +47,10 @@ private:
     virtual void bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram);
     
     /// Fill all histograms for given selection step
-    virtual void fillHistos(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+    virtual void fillHistos(const EventMetadata& eventMetadata,
+                            const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                             const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
-                            const KinRecoObjects& kinRecoObjects,
+                            const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
                             const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
                             const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
                             const double& weight, const TString& step,
@@ -67,7 +69,7 @@ private:
     
     /// Fill jet specific histos
     void fillJetHistos(const TString& whichSelection,
-                       const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+                       const RecoObjects& recoObjects, const TopGenObjects& topGenObjects,
                        const int genIndex, const int recoIndex,
                        const tth::GenObjectIndices& genObjectIndices,
                        const double& weight,

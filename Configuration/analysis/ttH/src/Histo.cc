@@ -45,10 +45,10 @@ void Histo(const std::vector<std::string>& v_plot,
     const Samples samples("FileLists_plot", v_channel, v_systematic, globalScaleFactors);
     
     // Produce event yields
-    const EventYields eventYields(samples);
+    const EventYields eventYields("EventYields", samples);
     
     // Create Plotter
-    Plotter generalPlot(samples, drawMode);
+    Plotter plotter("Plots", samples, drawMode);
     
     // Access the histoList specifying printing parameters of histograms
     const std::string histoListFile(tth::DATA_PATH_TTH() + "/" + "HistoList_control");
@@ -84,13 +84,13 @@ void Histo(const std::vector<std::string>& v_plot,
         }
         
         // Set plot properties
-        generalPlot.setOptions(plotProperties.name, plotProperties.specialComment, plotProperties.ytitle, plotProperties.xtitle, 
+        plotter.setOptions(plotProperties.name, plotProperties.specialComment, plotProperties.ytitle, plotProperties.xtitle, 
                                plotProperties.rebin, plotProperties.do_dyscale, plotProperties.logX, plotProperties.logY, 
                                plotProperties.ymin, plotProperties.ymax, plotProperties.xmin, plotProperties.xmax,
                                plotProperties.bins, plotProperties.xbinbounds, plotProperties.bincenters);
         
         // Loop over all systematics and all channels and write histograms
-        generalPlot.producePlots();
+        plotter.producePlots();
     }
     std::cout<<"\n=== Finishing with the plotting\n\n";
 }
@@ -100,11 +100,16 @@ void Histo(const std::vector<std::string>& v_plot,
 /// All systematics allowed for plotting
 namespace Systematic{
     const std::vector<Type> allowedSystematics = {
-        nominal, all,
+        nominal, all, allAvailable,
         pu, lept, trig,
         jer, jes,
-        btag, btagPt, btagEta,
-        btagLjet, btagLjetPt, btagLjetEta,
+        btag, 
+        btagPt, btagEta,
+        btagLjet, 
+        btagLjetPt, btagLjetEta,
+        btagDiscrBstat1, btagDiscrBstat2,
+        btagDiscrLstat1, btagDiscrLstat2,
+        btagDiscrPurity,
         kin,
     };
 }
@@ -117,9 +122,9 @@ int main(int argc, char** argv){
     CLParameter<std::string> opt_plot("p", "Name (pattern) of plot; multiple patterns possible; use '+Name' to match name exactly", false, 1, 100);
     CLParameter<std::string> opt_channel("c", "Specify channel(s), valid: emu, ee, mumu, combined. Default: all channels", false, 1, 4,
         common::makeStringCheck(Channel::convert(Channel::allowedChannelsPlotting)));
-    CLParameter<std::string> opt_systematic("s", "Systematic variation - default is Nominal, use 'all' for all", false, 1, 100,
+    CLParameter<std::string> opt_systematic("s", "Systematic variation - default is Nominal, use 'all' for all, use 'allAvailable' for all available", false, 1, 100,
         common::makeStringCheckBegin(Systematic::convertType(Systematic::allowedSystematics)));
-    CLParameter<std::string> opt_globalCorrection("g", "Specify global correction, valid: empty argument for none, Drell-Yan (dy), tt+HF (ttbb). Default: all", false, 0, 2,
+    CLParameter<std::string> opt_globalCorrection("g", "Specify global correction, valid: empty argument for none, Drell-Yan (dy), tt+HF (ttbb). Default: dy", false, 0, 2,
         common::makeStringCheck(GlobalCorrection::convert(GlobalCorrection::allowedGlobalCorrections)));
     CLParameter<std::string> opt_drawMode("d", "Specify draw mode of Higgs sample, valid: stacked, overlaid, scaledoverlaid. Default: scaledoverlaid", false, 1, 1,
         common::makeStringCheck(DrawMode::convert(DrawMode::allowedDrawModes)));
@@ -143,15 +148,24 @@ int main(int argc, char** argv){
     
     // Set up systematics
     std::vector<Systematic::Systematic> v_systematic = Systematic::allowedSystematicsAnalysis(Systematic::allowedSystematics);
-    if(opt_systematic.isSet() && opt_systematic[0]!=Systematic::convertType(Systematic::all)) v_systematic = Systematic::setSystematics(opt_systematic.getArguments());
-    else if(opt_systematic.isSet() && opt_systematic[0]==Systematic::convertType(Systematic::all)); // do nothing
-    else{v_systematic.clear(); v_systematic.push_back(Systematic::nominalSystematic());}
-    std::cout << "Processing systematics (use >>-s all<< to process all known systematics): "; 
+    if(opt_systematic.isSet()){
+        if(opt_systematic[0] == Systematic::convertType(Systematic::all))
+            ; // do nothing
+        else if(opt_systematic[0] == Systematic::convertType(Systematic::allAvailable))
+            v_systematic = common::findSystematicsFromFilelists("FileLists_plot", v_channel, v_systematic);
+        else
+            v_systematic = Systematic::setSystematics(opt_systematic.getArguments());
+    }
+    else{
+        v_systematic.clear();
+        v_systematic.push_back(Systematic::nominalSystematic());
+    }
+    std::cout << "Processing systematics: "; 
     for(auto systematic : v_systematic) std::cout << systematic.name() << " ";
     std::cout << "\n\n";
     
     // Set up global corrections
-    std::vector<GlobalCorrection::GlobalCorrection> v_globalCorrection({GlobalCorrection::dy, GlobalCorrection::ttbb});
+    std::vector<GlobalCorrection::GlobalCorrection> v_globalCorrection({GlobalCorrection::dy});
     if(opt_globalCorrection.isSet()) v_globalCorrection = GlobalCorrection::convert(opt_globalCorrection.getArguments());
     std::cout << "\n";
     std::cout << "Using global corrections: ";

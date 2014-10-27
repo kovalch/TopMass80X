@@ -16,6 +16,7 @@
 #include "../../common/include/analysisObjectStructs.h"
 #include "../../common/include/analysisUtils.h"
 #include "../../common/include/classes.h"
+#include "../../common/include/KinematicReconstructionSolution.h"
 
 
 
@@ -123,9 +124,10 @@ void AnalyzerBase::bookHistos(const TString&, std::map<TString, TH1*>&)
 
 
 
-void AnalyzerBase::fill(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+void AnalyzerBase::fill(const EventMetadata& eventMetadata,
+                        const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                         const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
-                        const KinRecoObjects& kinRecoObjects,
+                        const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
                         const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
                         const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
                         const double& weight, const TString& stepShort)
@@ -146,14 +148,15 @@ void AnalyzerBase::fill(const RecoObjects& recoObjects, const CommonGenObjects& 
         if(this->checkExistence(stepForJetCategories)){
             std::map<TString, TH1*>& m_histogram = m_stepHistograms_[stepForJetCategories].m_histogram_;
             TString name = "jetCategories";
-            m_histogram[name]->Fill(categoryId, weight);
+            m_histogram.at(name)->Fill(categoryId, weight);
         }
         
         // Here check the individual jet categories
         const TString fullStepName = tth::stepName(stepShort, categoryId);
-        this->fill(recoObjects, commonGenObjects,
+        this->fill(eventMetadata,
+                   recoObjects, commonGenObjects,
                    topGenObjects, higgsGenObjects,
-                   kinRecoObjects,
+                   kinematicReconstructionSolutions,
                    recoObjectIndices, genObjectIndices,
                    genLevelWeights, recoLevelWeights,
                    weight, fullStepName);
@@ -162,9 +165,10 @@ void AnalyzerBase::fill(const RecoObjects& recoObjects, const CommonGenObjects& 
     
     // Fill the histograms of the specific analyser
     std::map<TString, TH1*>& m_histogram = m_stepHistograms_[step].m_histogram_;
-    this->fillHistos(recoObjects, commonGenObjects,
+    this->fillHistos(eventMetadata,
+                     recoObjects, commonGenObjects,
                      topGenObjects, higgsGenObjects,
-                     kinRecoObjects,
+                     kinematicReconstructionSolutions,
                      recoObjectIndices, genObjectIndices,
                      genLevelWeights, recoLevelWeights,
                      weight, step,
@@ -173,9 +177,10 @@ void AnalyzerBase::fill(const RecoObjects& recoObjects, const CommonGenObjects& 
 
 
 
-void AnalyzerBase::fillHistos(const RecoObjects&, const CommonGenObjects&,
+void AnalyzerBase::fillHistos(const EventMetadata&,
+                              const RecoObjects&, const CommonGenObjects&,
                               const TopGenObjects&, const HiggsGenObjects&,
-                              const KinRecoObjects&,
+                              const KinematicReconstructionSolutions&,
                               const tth::RecoObjectIndices&, const tth::GenObjectIndices&,
                               const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
                               const double&, const TString&,
@@ -231,9 +236,10 @@ void AnalyzerEventYields::bookHistos(const TString& step, std::map<TString, TH1*
 
 
 
-void AnalyzerEventYields::fillHistos(const RecoObjects&, const CommonGenObjects&,
+void AnalyzerEventYields::fillHistos(const EventMetadata&,
+                                     const RecoObjects&, const CommonGenObjects&,
                                      const TopGenObjects&, const HiggsGenObjects&,
-                                     const KinRecoObjects&,
+                                     const KinematicReconstructionSolutions&,
                                      const tth::RecoObjectIndices&, const tth::GenObjectIndices&,
                                      const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
                                      const double& weight, const TString&,
@@ -242,7 +248,7 @@ void AnalyzerEventYields::fillHistos(const RecoObjects&, const CommonGenObjects&
     TString name;
     
     name = "weighted";
-    m_histogram[name]->Fill(1., weight);
+    m_histogram.at(name)->Fill(1., weight);
 }
 
 
@@ -300,9 +306,10 @@ TH1* AnalyzerDyScaling::bookHisto(TH1* histo, const TString& name)
 
 
 
-void AnalyzerDyScaling::fillHistos(const RecoObjects& recoObjects, const CommonGenObjects&,
+void AnalyzerDyScaling::fillHistos(const EventMetadata&,
+                                   const RecoObjects& recoObjects, const CommonGenObjects&,
                                    const TopGenObjects&, const HiggsGenObjects&,
-                                   const KinRecoObjects&,
+                                   const KinematicReconstructionSolutions&,
                                    const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices&,
                                    const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
                                    const double& weight, const TString& step,
@@ -325,17 +332,17 @@ void AnalyzerDyScaling::fillHistos(const RecoObjects& recoObjects, const CommonG
     
     // Fill histograms
     const TString looseStep = tth::stepName(looseStep_) + "zWindow";
-    if(step == looseStep) m_stepHistograms_[looseStep].m_histogram_["h_loose"]->Fill(dileptonMass, weight);
+    if(step == looseStep) m_stepHistograms_[looseStep].m_histogram_.at("h_loose")->Fill(dileptonMass, weight);
     
     if(step.Contains("zWindow")){
-        m_histogram["h_zWindow"]->Fill(dileptonMass, weight);
+        m_histogram.at("h_zWindow")->Fill(dileptonMass, weight);
         TString stepNoZ(step);
         stepNoZ.ReplaceAll("zWindow", "");
-        m_stepHistograms_[stepNoZ].m_histogram_["h_all"]->Fill(dileptonMass, weight);
+        m_stepHistograms_[stepNoZ].m_histogram_.at("h_all")->Fill(dileptonMass, weight);
     }
     else if(!isZregion){
-        m_histogram["h_zVeto"]->Fill(dileptonMass, weight);
-        m_histogram["h_all"]->Fill(dileptonMass, weight);
+        m_histogram.at("h_zVeto")->Fill(dileptonMass, weight);
+        m_histogram.at("h_all")->Fill(dileptonMass, weight);
     }
 }
 
@@ -351,10 +358,13 @@ void AnalyzerDyScaling::fillHistos(const RecoObjects& recoObjects, const CommonG
 
 
 
-AnalyzerHfFracScaling::AnalyzerHfFracScaling(const std::vector<TString>& selectionSteps):
-AnalyzerBase("hfFracScaling_", selectionSteps)
+AnalyzerHfFracScaling::AnalyzerHfFracScaling(const std::vector<TString>& selectionSteps,
+                                             const std::vector<TString>& stepsForCategories,
+                                             const JetCategories* jetCategories):
+AnalyzerBase("hfFracScaling_", selectionSteps, stepsForCategories, jetCategories)
 {
     std::cout<<"--- Beginning setting up Heavy-Flavour Fraction scaling histograms\n";
+    
     std::cout<<"=== Finishing setting up Heavy-Flavour Fraction scaling histograms\n\n";
 }
 
@@ -362,22 +372,51 @@ AnalyzerBase("hfFracScaling_", selectionSteps)
 
 void AnalyzerHfFracScaling::bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram)
 {
-    TString name = "bTag_mult";
-    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "B-tagged jet multiplicity; N b-tags; events",10,0,10));
+    TString name = "btag_multiplicity";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "B-tagged jet multiplicity; N b-tags; events",6,0,6));
+    name = "secondaryVertex_multiplicityPerBjet";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "SV multiplicity in each b-tagged jet; N secondary vertices; # b-tagged jets",6,0.,6.));
+    name = "secondaryVertex_massPerBjet";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Sum of SV masses in each b-tagged jet; SV masses sum; # b-tagged jets",20,0.,10.));
+    name = "secondaryVertex_massMcCorrectedPerBjet";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Sum of SV masses in each b-tagged jet; SV masses sum; # b-tagged jets",20,0.,10.));
 }
 
 
 
-void AnalyzerHfFracScaling::fillHistos(const RecoObjects&, const CommonGenObjects&,
-                                   const TopGenObjects&, const HiggsGenObjects&,
-                                   const KinRecoObjects&,
-                                   const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices&,
-                                   const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
-                                   const double& weight, const TString&,
-                                   std::map<TString, TH1*>& m_histogram)
+void AnalyzerHfFracScaling::fillHistos(const EventMetadata&,
+                                       const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+                                       const TopGenObjects&, const HiggsGenObjects&,
+                                       const KinematicReconstructionSolutions&,
+                                       const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices&,
+                                       const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
+                                       const double& weight, const TString&,
+                                       std::map<TString, TH1*>& m_histogram)
 {
-    const int nBJets = recoObjectIndices.bjetIndices_.size();
-    m_histogram["bTag_mult"]->Fill(nBJets, weight);
+    const std::vector<int>& bJetIndices = recoObjectIndices.bjetIndices_;
+    // Merging all bins above 4 into a single bin (low statistics)
+    int nBJets = recoObjectIndices.bjetIndices_.size();
+    m_histogram.at("btag_multiplicity")->Fill(nBJets, weight);
+    
+    // Checking whether the sample is data or MC 
+    double svMass_scale = commonGenObjects.valuesSet_ ? 0.98 : 1.0;
+    // Getting info about secondary vertices
+    const std::vector<int>&  jetSecondaryVertexJetIndex = (recoObjects.valuesSet_) ? *recoObjects.jetSecondaryVertexJetIndex_ : std::vector<int>(0);
+    const std::vector<LV>&  jetSecondaryVertex = (recoObjects.valuesSet_) ? *recoObjects.jetSecondaryVertex_ : std::vector<LV>(0);
+
+    // Filling secondary vertex related properties for each b-tagged jet
+    for(int bJetId : bJetIndices) {
+        int nSV_bjet = 0;
+        double massSV_bjet = 0.;
+        for(size_t svId = 0; svId < jetSecondaryVertex.size(); ++svId) {
+            if(jetSecondaryVertexJetIndex.at(svId) != bJetId) continue;
+            massSV_bjet+=jetSecondaryVertex.at(svId).M();
+            nSV_bjet++;
+        }
+        m_histogram.at("secondaryVertex_multiplicityPerBjet")->Fill(nSV_bjet, weight);
+        m_histogram.at("secondaryVertex_massPerBjet")->Fill(massSV_bjet, weight);
+        m_histogram.at("secondaryVertex_massMcCorrectedPerBjet")->Fill(massSV_bjet*svMass_scale, weight);
+    }
 }
 
 
