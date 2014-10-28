@@ -1064,7 +1064,7 @@ void TopMassControlPlots::doPlots()
   // Lepton+jets channel
   else {
     // DATA
-    samples.push_back(MySample("Data", "Run2012_JEC_Winter14_V2", kData, kBlack));
+    samples.push_back(MySample("Data", "Run2012", kData, kBlack));
     
     // SIGNAL
     if(plotSelectedForPlotting.find("NobPlots")!=plotSelectedForPlotting.end()){
@@ -1082,8 +1082,8 @@ void TopMassControlPlots::doPlots()
     
     // JER
     if(plotSelectedForPlotting.find("JERUncVariationPlots")!=plotSelectedForPlotting.end()){
-      samples.push_back(MySample("t#bar{t}, JER down", "Summer12_TTJetsMS1725_jer:down", kSigVar, kRed+1, 1, lumi_/1000.));
-      samples.push_back(MySample("t#bar{t}, JER up", "Summer12_TTJetsMS1725_jer:up", kSigVar, kGreen+1, 1, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t}, JER down", "Summer12_TTJetsMS1725_jer:-1", kSigVar, kRed+1, 1, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t}, JER up", "Summer12_TTJetsMS1725_jer:1", kSigVar, kGreen+1, 1, lumi_/1000.));
     }    
     
     // PU
@@ -1403,6 +1403,22 @@ void TopMassControlPlots::doPlots()
       }
     }
     
+    // Add normalization uncertainties to histos
+    // TODO: double-counting of norm uncertainties, normalizeToData impossible
+    //int bkgCounter = -1;
+    //for(MySample& sample : samples){
+    //  if(sample.type == kBkg) {
+    //    ++bkgCounter;
+    //    TH1F* bkg = hist.Bkg1D()[bkgCounter];
+    //    for(int i = 0; i < bkg->GetNbinsX()+2; ++i) bkg->SetBinError(i, sqrt(pow(bkg->GetBinError(i),2) + pow(bkg->GetBinContent(i)*sample.scaleunc,2)));
+    //  }
+    //  
+    //  if(sample.type == kSig) {
+    //    for(TH1F* sig : hist.Sig1D()) {
+    //      for(int i = 0; i < sig->GetNbinsX()+2; ++i) sig->SetBinError(i, sqrt(pow(sig->GetBinError(i),2) + pow(sig->GetBinContent(i)*sample.scaleunc,2)));
+    //    }
+    //  }
+    //}
 
     // Loop over all samples to add background norm variations
     int bkgCounter = -1;
@@ -1441,9 +1457,7 @@ void TopMassControlPlots::doPlots()
     }
   }
   
-  // TODO
-  // NORMALIZATION
-  //
+  // YIELDS and NORMALIZATION
   
   bool firstHist = true;
   for(MyHistogram& hist : hists) {
@@ -1455,22 +1469,30 @@ void TopMassControlPlots::doPlots()
     }
 
     // Show event yields for first histogram
-    int bins = hist.Data1D()->GetNbinsX()+1;
+    
+    int bins = hist.Data1D()->GetNbinsX()+2;
     double integral;
-    double error;
-    double errorD;
-    double integralD = hist.Data1D()->IntegralAndError(0,bins,errorD);
-    double errorS;
+    double error = 0;
+    double errorD = 0;
+    double integralD = hist.Data1D()->Integral(0,bins);
+    for(int i = 0; i < bins; ++i) errorD += hist.Data1D()->GetBinError(i);
+    double errorS = 0;
     double integralS = 0;
-    for(TH1F* sig : hist.Sig1D()) {
-      integralS += sig->IntegralAndError(0,bins,error);
-      errorS = sqrt(pow(errorS,2)+pow(error,2));
-    }
-    double errorB;
+    double errorB = 0;
     double integralB = 0;
+    
+    for(TH1F* sig : hist.Sig1D()) {
+      integralS += sig->Integral(0,bins);
+      //error = 0;
+      //for(int i = 0; i < bins; ++i) error += sig->GetBinError(i);
+      //errorS = sqrt(pow(errorS,2)+pow(error,2));
+    }
+    
     for(TH1F* bkg : hist.Bkg1D()) {
-      integralB += bkg->IntegralAndError(0,bins,error);
-      errorB = sqrt(pow(errorB,2)+pow(error,2));
+      integralB += bkg->Integral(0,bins);
+      //error = 0;
+      //for(int i = 0; i < bins; ++i) error += bkg->GetBinError(i);
+      //errorB = sqrt(pow(errorB,2)+pow(error,2));
     }
     
     double integralSB = 0;
@@ -1483,18 +1505,31 @@ void TopMassControlPlots::doPlots()
       std::cout << "======" << std::endl;
       printf("Data: %10.1lf +/- %-10.1lf \n", integralD, errorD);
       
-      for(TH1F* sig : hist.Sig1D()) {
-        integral = sig->IntegralAndError(0,bins,error);
-        printf("  %-20s %10.1lf +/- %-10.1lf %5.1lf %5.1lf \n", sig->GetTitle(), integral, error, integral/integralSB*100., integral/integralS*100.);
-      }
-      printf("Signal: %10.1lf +/- %-10.1lf %5.1lf \n", integralS, errorS, integralS/integralSB*100);
-      
-      for(TH1F* bkg : hist.Bkg1D()) {
-        integral = bkg->IntegralAndError(0,bins,error);
-        printf("  %-20s %10.1lf +/- %-10.1lf %5.1lf \n", bkg->GetTitle(), integral, error, integral/integralSB*100);
+      // TODO: use sample scaleUnc here
+      int bkgCounter = -1;
+      for(MySample& sample : samples){
+        if(sample.type == kSig) {
+          for(TH1F* sig : hist.Sig1D()) {
+            integral = sig->Integral(0,bins);
+            error = 0;
+            for(int i = 0; i < bins; ++i) error += sqrt(pow(sig->GetBinError(i),2) + pow(sig->GetBinContent(i)*sample.scaleunc,2));
+            errorS = sqrt(pow(errorS,2)+pow(error,2));
+            printf("  %-20s %10.1lf +/- %-10.1lf %5.1lf %5.1lf \n", sig->GetTitle(), integral, error, integral/integralSB*100., integral/integralS*100.);
+          }
+          printf("Signal: %10.1lf +/- %-10.1lf %5.1lf \n", integralS, errorS, integralS/integralSB*100);
+        }
+        
+        if(sample.type == kBkg) {
+          ++bkgCounter;
+          TH1F* bkg = hist.Bkg1D()[bkgCounter];
+          integral = bkg->Integral(0,bins);
+          error = 0;
+          for(int i = 0; i < bins; ++i) error += sqrt(pow(bkg->GetBinError(i),2) + pow(bkg->GetBinContent(i)*sample.scaleunc,2));
+          errorB = sqrt(pow(errorB,2)+pow(error,2));
+          printf("  %-20s %10.1lf +/- %-10.1lf %5.1lf \n", bkg->GetTitle(), integral, error, integral/integralSB*100);
+        }
       }
       printf("Background: %10.1lf +/- %-10.1lf %5.1lf \n", integralB, errorB, integralB/integralSB*100);
-      
       printf("MC Total: %10.1lf +/- %-10.1lf \n", integralS+integralB, sqrt(pow(errorS,2)+pow(errorB,2)));
       
       firstHist = false;
@@ -1547,22 +1582,22 @@ void TopMassControlPlots::doPlots()
     // Add all stacked histos to uncertainty histogram, reset their uncertainty
     for(TH1F* sig : hist.Sig1D()) {
       hist.Unc1D()->Add(sig);
-      for(int i = 0; i < sig->GetNbinsX()+1; ++i) sig->SetBinError(i, 0);
+      for(int i = 0; i < sig->GetNbinsX()+2; ++i) sig->SetBinError(i, 0);
     }
     for(TH1F* bkg : hist.Bkg1D()) {
       hist.Unc1D()->Add(bkg);
-      for(int i = 0; i < bkg->GetNbinsX()+1; ++i) bkg->SetBinError(i, 0);
+      for(int i = 0; i < bkg->GetNbinsX()+2; ++i) bkg->SetBinError(i, 0);
     }
     
     // Init uncertainty vectors
     std::vector<double> up, down;
-    for(int i = 0; i < hist.Unc1D()->GetNbinsX()+1; ++i) {
+    for(int i = 0; i < hist.Unc1D()->GetNbinsX()+2; ++i) {
       up.push_back(0); down.push_back(0);
     }
     
     // Fill uncertainty vectors
     for(TH1F* sigvar : hist.Sigvar1D()) {
-      for(int i = 0; i < hist.Unc1D()->GetNbinsX()+1; ++i) {
+      for(int i = 0; i < hist.Unc1D()->GetNbinsX()+2; ++i) {
         if (sigvar->GetBinContent(i) > hist.Unc1D()->GetBinContent(i)) {
           up[i] = sqrt(pow(up[i], 2) + pow(sigvar->GetBinContent(i) - hist.Unc1D()->GetBinContent(i), 2));
         }
@@ -1573,7 +1608,7 @@ void TopMassControlPlots::doPlots()
     }
     
     // Set bin center and error for uncertainty band
-    for(int i = 0; i < hist.Unc1D()->GetNbinsX()+1; ++i) {
+    for(int i = 0; i < hist.Unc1D()->GetNbinsX()+2; ++i) {
       hist.Unc1D()->SetBinContent(i, hist.Unc1D()->GetBinContent(i) + (up[i]-down[i])/2.);
       hist.Unc1D()->SetBinError(i, sqrt(pow(hist.Unc1D()->GetBinError(i), 2) + pow((up[i]+down[i])/2., 2)));
     }
@@ -2012,9 +2047,9 @@ void TopMassControlPlots::doPlots()
 
         double sigIntegral = 0;
         for(TH1F* sig : hist.Sig1D()){
-          sigIntegral += sig->Integral(0,sig->GetNbinsX()+1);
+          sigIntegral += sig->Integral(0,sig->GetNbinsX()+2);
         }
-        double fSig = sigIntegral/hist1DData->Integral(0,hist1DData->GetNbinsX()+1);
+        double fSig = sigIntegral/hist1DData->Integral(0,hist1DData->GetNbinsX()+2);
 
         double maxForPlot = hist1DData->GetMaximum();
           for(TH1F* sigvar : hist.Sigvar1D()){
@@ -2032,11 +2067,11 @@ void TopMassControlPlots::doPlots()
 
         if(channelID == Helper::kAllJets){
           for(TH1F* sigvar : hist1DSigVars){
-            double varIntegral = sigvar->Integral(0,sigvar->GetNbinsX()+1);
+            double varIntegral = sigvar->Integral(0,sigvar->GetNbinsX()+2);
             double fSigVar = varIntegral/sigIntegral;
             fSigVars.push_back(fSigVar);
-            sigvar->Add(hist.Bkg1D().at(0),(hist1DData->Integral(0,hist1DData->GetNbinsX()+1)-varIntegral)/hist.Bkg1D().at(0)->Integral(0,hist.Bkg1D().at(0)->GetNbinsX()+1));
-            //std::cout << "data: "<< hist1DData->Integral(0,hist1DData->GetNbinsX()+1) << ", sigvar: " << varIntegral << ", bkg: " << hist.Bkg1D().at(0)->Integral(0,hist.Bkg1D().at(0)->GetNbinsX()+1) << ", fsig: " << fSig << ", fsigvar: " << fSigVar << ", sigInt: " << sigIntegral << ", after: " << sigvar->Integral(0,sigvar->GetNbinsX()+1) << std::endl;
+            sigvar->Add(hist.Bkg1D().at(0),(hist1DData->Integral(0,hist1DData->GetNbinsX()+2)-varIntegral)/hist.Bkg1D().at(0)->Integral(0,hist.Bkg1D().at(0)->GetNbinsX()+2));
+            //std::cout << "data: "<< hist1DData->Integral(0,hist1DData->GetNbinsX()+2) << ", sigvar: " << varIntegral << ", bkg: " << hist.Bkg1D().at(0)->Integral(0,hist.Bkg1D().at(0)->GetNbinsX()+2) << ", fsig: " << fSig << ", fsigvar: " << fSigVar << ", sigInt: " << sigIntegral << ", after: " << sigvar->Integral(0,sigvar->GetNbinsX()+2) << std::endl;
           }
         }
 
