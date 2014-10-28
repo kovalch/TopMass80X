@@ -31,7 +31,7 @@ double IdeogramCombLikelihoodAllJets::fCP_(-1);
 double IdeogramCombLikelihoodAllJets::fWP_(-1);
 double IdeogramCombLikelihoodAllJets::fUN_(-1);
 
-double IdeogramCombLikelihoodAllJets::IntegrationRangeMax_(550.);
+double IdeogramCombLikelihoodAllJets::IntegrationRangeMax_(215.);
 double IdeogramCombLikelihoodAllJets::PBKGintegral_(-1);
 IdeogramCombLikelihoodAllJets::ScanPointMap IdeogramCombLikelihoodAllJets::PWPnormalizations_;
 IdeogramCombLikelihoodAllJets::ScanPointMap IdeogramCombLikelihoodAllJets::PUNnormalizations_;
