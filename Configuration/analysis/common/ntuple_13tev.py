@@ -388,13 +388,16 @@ else:
     preselectedJetCollection = 'preselectedJets'
     preselectedMetCollection = 'slimmedMETs'
     
+    
     process.preselectedElectrons = selectedPatElectrons.clone(
         src = 'slimmedElectrons',
-        cut = 'pt>5 && electronID("eidLoose")>0.5 && passConversionVeto'
+        #cut = 'pt>5 && electronID("eidLoose")>0.5 && passConversionVeto'
+        cut = 'pt>5 && electronID("eidLoose")>0.5 && passConversionVeto && gsfTrack.isAvailable() && gsfTrack.trackerExpectedHitsInner.numberOfLostHits<2 && (pfIsolationVariables().sumChargedHadronPt+max(0.,pfIsolationVariables().sumNeutralHadronEt+pfIsolationVariables().sumPhotonEt-0.5*pfIsolationVariables().sumPUPt))/pt < 0.15'
     )
     process.preselectedMuons = selectedPatMuons.clone(
         src = 'slimmedMuons',
-        cut = 'isPFMuon && pt>20 && abs(eta)<2.4'
+        #cut = 'isPFMuon && pt>20 && abs(eta)<2.4'
+        cut = 'isPFMuon && pt>20 && abs(eta)<2.4 && (pfIsolationR04().sumChargedHadronPt+max(0.,pfIsolationR04().sumNeutralHadronEt+pfIsolationR04().sumPhotonEt-0.50*pfIsolationR04().sumPUPt))/pt < 0.20 && (isPFMuon && (isGlobalMuon || isTrackerMuon) )'
     )
     process.preselectedJets = selectedPatJets.clone(
         src = 'slimmedJets',
@@ -508,12 +511,13 @@ genParticleCollection = ''
 genJetInputParticleCollection = ''
 if options.runOnAOD:
     genParticleCollection = 'genParticles'
-    genJetInputParticleCollection = 'genParticles'
+    genJetInputParticleCollection = 'genParticlesForJets'
 else:
     genParticleCollection = 'prunedGenParticles'
     genJetInputParticleCollection = 'packedGenParticles'
 
-genJetCollection = 'ak5GenJets'
+genJetCollection = 'ak5GenJetsNoNuNoLepton'
+
 genJetFlavourInfoCollection = 'ak5GenJetFlavourInfos'
 
 
@@ -527,15 +531,33 @@ genCHadronMatcherInput = 'matchGenBCHadronC'
 ####################################################################
 ## Form gen jets, and jet flavour info with ghost hadrons and leptons injected
 ## Details in: PhysicsTools/JetExamples/test/printJetFlavourInfo.cc, PhysicsTools/JetExamples/test/printJetFlavourInfo.py
-## FIXME: How to remove electrons and muons from resonances for genJet clustering???
-## FIXME: and how to remove neutrinos???
 
 # Supply PDG ID to real name resolution of MC particles
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 # Gen jets
+from RecoJets.Configuration.GenJetParticles_cff import genParticlesForJets
+from RecoJets.Configuration.RecoGenJets_cff import ak5GenJets
 from RecoJets.JetProducers.ak5GenJets_cfi import ak5GenJets
-process.ak5GenJets = ak5GenJets.clone(src = genJetInputParticleCollection)
+
+if options.runOnAOD:
+    process.genParticlesForJetsNoNuNoLepton = genParticlesForJets.clone(
+        excludeResonances = cms.bool(True),
+        excludeFromResonancePids = cms.vuint32(11, 12, 13, 14, 16),
+        injectHadronFlavours = cms.vint32(5, 4)
+    )
+
+else:
+    process.genParticlesForJetsNoNuNoLepton = genParticlesForJets.clone(
+        src = genJetInputParticleCollection,
+        excludeResonances = cms.bool(True),
+        excludeFromResonancePids = cms.vuint32(11, 12, 13, 14, 16),
+        injectHadronFlavours = cms.vint32(5, 4)
+    )
+
+process.ak5GenJetsNoNuNoLepton = ak5GenJets.clone(
+   src = "genParticlesForJetsNoNuNoLepton"
+)
 
 # Ghost particle collection
 from PhysicsTools.JetMCAlgos.HadronAndPartonSelector_cfi import selectedHadronsAndPartons
