@@ -337,7 +337,7 @@ std::vector<double> Helper::readParameters(const char *whichParameter){
 std::vector<std::string> Helper::readParametersString(const char *whichParameter){
   std::vector<std::string> vsPars;
   std::string sPars = po::GetOption<std::string>(whichParameter);
-  boost::split(vsPars, sPars, boost::is_any_of("|"));
+  boost::split(vsPars, sPars, boost::is_any_of("|/"));
   return vsPars;
 }
 
