@@ -1,19 +1,22 @@
 // -*- C++ -*-
 //
-// Package:    GenHFHadronMatcher
-// Class:      GenHFHadronMatcher
+// Package:    GenHFHadronMatcherLocal
+// Class:      GenHFHadronMatcherLocal
 //
 
-/**\class GenHFHadronMatcher GenHFHadronMatcher.cc
+/**\class GenHFHadronMatcherLocal GenHFHadronMatcherLocal.cc
 * @brief Finds the origin of each heavy flavour hadron and associated jets to it
-*
+* 
+* WARNING: This is the local version as used in CMSSW_5_X, since in CMSSW_7_X it can be taken from the official CMSSW implementation
+* WARNING: However, this requires distinct names for the plugin, achieved with the suffix ...Local
+* 
 * Starting from each consituent of each jet, tracks back in chain to find heavy flavour hadrons.
 * From each hadron traces back until finds the b quark and its mother.
 * For each hadron identifies the jet to which it was injected as a ghost hadron.
 *
 * The description of the run-time parameters can be found at fillDescriptions()
 *
-* The description of the products can be found at GenHFHadronMatcher()
+* The description of the products can be found at GenHFHadronMatcherLocal()
 */
 
 // Original Author:  Nazar Bartosik,DESY
@@ -51,11 +54,11 @@
 // class declaration
 //
 
-class GenHFHadronMatcher : public edm::EDProducer
+class GenHFHadronMatcherLocal : public edm::EDProducer
 {
 public:
-    explicit GenHFHadronMatcher ( const edm::ParameterSet& );
-    ~GenHFHadronMatcher();
+    explicit GenHFHadronMatcherLocal ( const edm::ParameterSet& );
+    ~GenHFHadronMatcherLocal();
 
     static void fillDescriptions ( edm::ConfigurationDescriptions& descriptions );
 
@@ -143,7 +146,7 @@ private:
 * For mesons this means an inversion with respect to the PDG definition, as mesons actually contain anti-b-quarks and anti-mesons contain b-quarks.
 *
 */
-GenHFHadronMatcher::GenHFHadronMatcher ( const edm::ParameterSet& cfg )
+GenHFHadronMatcherLocal::GenHFHadronMatcherLocal ( const edm::ParameterSet& cfg )
 {
 
     genJets_           = cfg.getParameter<edm::InputTag> ( "genJets" );
@@ -157,7 +160,7 @@ GenHFHadronMatcher::GenHFHadronMatcher ( const edm::ParameterSet& cfg )
     } else if ( flavour_==4 ) {
         flavourStr_="C";
     } else {
-        edm::LogError ( "GenHFHadronMatcher" ) << "Flavour option must be 4 (c-jet) or 5 (b-jet), but is: " << flavour_ << ". Correct this!";
+        edm::LogError ( "GenHFHadronMatcherLocal" ) << "Flavour option must be 4 (c-jet) or 5 (b-jet), but is: " << flavour_ << ". Correct this!";
     }
 
     // Hadron matching products
@@ -173,7 +176,7 @@ GenHFHadronMatcher::GenHFHadronMatcher ( const edm::ParameterSet& cfg )
 
 }
 
-GenHFHadronMatcher::~GenHFHadronMatcher()
+GenHFHadronMatcherLocal::~GenHFHadronMatcherLocal()
 {
 }
 
@@ -192,7 +195,7 @@ GenHFHadronMatcher::~GenHFHadronMatcher()
 * </TABLE>
 *
 */
-void GenHFHadronMatcher::fillDescriptions ( edm::ConfigurationDescriptions& descriptions )
+void GenHFHadronMatcherLocal::fillDescriptions ( edm::ConfigurationDescriptions& descriptions )
 {
 
     edm::ParameterSetDescription desc;
@@ -210,7 +213,7 @@ void GenHFHadronMatcher::fillDescriptions ( edm::ConfigurationDescriptions& desc
 //
 
 // ------------ method called to produce the data  ------------
-void GenHFHadronMatcher::produce ( edm::Event& evt, const edm::EventSetup& setup )
+void GenHFHadronMatcherLocal::produce ( edm::Event& evt, const edm::EventSetup& setup )
 {
 
     setup.getData ( pdt_ );
@@ -249,33 +252,33 @@ void GenHFHadronMatcher::produce ( edm::Event& evt, const edm::EventSetup& setup
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void GenHFHadronMatcher::beginJob()
+void GenHFHadronMatcherLocal::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void GenHFHadronMatcher::endJob()
+void GenHFHadronMatcherLocal::endJob()
 {
 }
 
 // ------------ method called when starting to processes a run  ------------
-void GenHFHadronMatcher::beginRun ( edm::Run&, edm::EventSetup const& )
+void GenHFHadronMatcherLocal::beginRun ( edm::Run&, edm::EventSetup const& )
 {
 }
 
 // ------------ method called when ending the processing of a run  ------------
 void
-GenHFHadronMatcher::endRun ( edm::Run&, edm::EventSetup const& )
+GenHFHadronMatcherLocal::endRun ( edm::Run&, edm::EventSetup const& )
 {
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------
-void GenHFHadronMatcher::beginLuminosityBlock ( edm::LuminosityBlock&, edm::EventSetup const& )
+void GenHFHadronMatcherLocal::beginLuminosityBlock ( edm::LuminosityBlock&, edm::EventSetup const& )
 {
 }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
-void GenHFHadronMatcher::endLuminosityBlock ( edm::LuminosityBlock&, edm::EventSetup const& )
+void GenHFHadronMatcherLocal::endLuminosityBlock ( edm::LuminosityBlock&, edm::EventSetup const& )
 {
 }
 
@@ -306,7 +309,7 @@ void GenHFHadronMatcher::endLuminosityBlock ( edm::LuminosityBlock&, edm::EventS
 * 
 * @returns vector of jet indices that were matched to each hadron [by the jet clustering algorithm]
 */
-std::vector<int> GenHFHadronMatcher::findHadronJets ( const reco::GenJetCollection& genJets, std::vector<int> &hadIndex, 
+std::vector<int> GenHFHadronMatcherLocal::findHadronJets ( const reco::GenJetCollection& genJets, std::vector<int> &hadIndex, 
                                                       std::vector<reco::GenParticle> &hadMothers, std::vector<std::vector<int> > &hadMothersIndices, 
                                                       std::vector<int> &hadLeptonIndex, std::vector<int> &hadLeptonHadIndex, std::vector<int> &hadFlavour, 
                                                       std::vector<int> &hadFromTopWeakDecay, std::vector<int> &hadBHadronId )
@@ -529,7 +532,7 @@ std::vector<int> GenHFHadronMatcher::findHadronJets ( const reco::GenJetCollecti
 *
 * @returns the index of the particle in the list [-1 if particle not found]
 */
-int GenHFHadronMatcher::isInList ( std::vector<const reco::Candidate*> particleList, const reco::Candidate* particle )
+int GenHFHadronMatcherLocal::isInList ( std::vector<const reco::Candidate*> particleList, const reco::Candidate* particle )
 {
     for ( unsigned int i = 0; i<particleList.size(); i++ )
         if ( particleList.at(i)==particle ) {
@@ -539,7 +542,7 @@ int GenHFHadronMatcher::isInList ( std::vector<const reco::Candidate*> particleL
     return -1;
 }
 
-int GenHFHadronMatcher::isInList ( std::vector<int> list, const int value )
+int GenHFHadronMatcherLocal::isInList ( std::vector<int> list, const int value )
 {
     for ( unsigned int i = 0; i<list.size(); i++ )
         if ( list.at(i)==value ) {
@@ -558,7 +561,7 @@ int GenHFHadronMatcher::isInList ( std::vector<int> list, const int value )
 *
 * @returns whether the particle is a hadron of specified flavour
 */
-bool GenHFHadronMatcher::isHadron ( const int flavour, const reco::Candidate* thisParticle )
+bool GenHFHadronMatcherLocal::isHadron ( const int flavour, const reco::Candidate* thisParticle )
 {
     return isHadronPdgId(flavour, thisParticle->pdgId());
 }
@@ -572,7 +575,7 @@ bool GenHFHadronMatcher::isHadron ( const int flavour, const reco::Candidate* th
 *
 * @returns if the pdgId represents a hadron of specified flavour
 */
-bool GenHFHadronMatcher::isHadronPdgId ( const int flavour, const int pdgId )
+bool GenHFHadronMatcherLocal::isHadronPdgId ( const int flavour, const int pdgId )
 {
     int flavour_abs = std::abs(flavour);
     if(flavour_abs > 5 || flavour_abs < 1) return false;
@@ -598,7 +601,7 @@ bool GenHFHadronMatcher::isHadronPdgId ( const int flavour, const int pdgId )
 *
 * @returns whether the particle has a hadron among its daughters
 */
-bool GenHFHadronMatcher::hasHadronDaughter ( const int flavour, const reco::Candidate* thisParticle )
+bool GenHFHadronMatcherLocal::hasHadronDaughter ( const int flavour, const reco::Candidate* thisParticle )
 {
 // Looping through daughters of the particle
     bool hasDaughter = false;
@@ -630,7 +633,7 @@ bool GenHFHadronMatcher::hasHadronDaughter ( const int flavour, const reco::Cand
 *
 * @returns index of hadron in the hadMothers list [-1 if no hadron found]
 */
-int GenHFHadronMatcher::analyzeMothers ( const reco::Candidate* thisParticle, pCRC *hadron, pCRC *lepton, int& topDaughterQId, int& topBarDaughterQId, std::vector<const reco::Candidate*> &hadMothers, std::vector<std::vector<int> > &hadMothersIndices, std::set<const reco::Candidate*> *analyzedParticles, const int prevPartIndex )
+int GenHFHadronMatcherLocal::analyzeMothers ( const reco::Candidate* thisParticle, pCRC *hadron, pCRC *lepton, int& topDaughterQId, int& topBarDaughterQId, std::vector<const reco::Candidate*> &hadMothers, std::vector<std::vector<int> > &hadMothersIndices, std::set<const reco::Candidate*> *analyzedParticles, const int prevPartIndex )
 {
 
     int hadronIndex=-1;	// Index of the hadron that is returned by this function
@@ -761,7 +764,7 @@ int GenHFHadronMatcher::analyzeMothers ( const reco::Candidate* thisParticle, pC
 * 
 * @returns whether the particle index was alreade in the list
 */
-bool GenHFHadronMatcher::putMotherIndex ( std::vector<std::vector<int> > &hadMothersIndices, int partIndex, int mothIndex )
+bool GenHFHadronMatcherLocal::putMotherIndex ( std::vector<std::vector<int> > &hadMothersIndices, int partIndex, int mothIndex )
 {
     // Putting vector of mothers indices for the given particle
     bool inList=false;
@@ -814,7 +817,7 @@ bool GenHFHadronMatcher::putMotherIndex ( std::vector<std::vector<int> > &hadMot
 * @returns index of the found particle in the hadMothers array [-1 if the specified particle not found]
 */
 
-int GenHFHadronMatcher::findInMothers ( int idx, std::vector<int> &mothChains, std::vector<std::vector<int> > &hadMothersIndices, std::vector<reco::GenParticle> &hadMothers, int status, int pdgId, bool pdgAbs=false, int stopId=-1, int firstLast=0, bool verbose=false	)
+int GenHFHadronMatcherLocal::findInMothers ( int idx, std::vector<int> &mothChains, std::vector<std::vector<int> > &hadMothersIndices, std::vector<reco::GenParticle> &hadMothers, int status, int pdgId, bool pdgAbs=false, int stopId=-1, int firstLast=0, bool verbose=false	)
 {
     int foundStopId = -1;
     int pdg_1 = hadMothers.at ( idx ).pdgId();
@@ -934,7 +937,7 @@ int GenHFHadronMatcher::findInMothers ( int idx, std::vector<int> &mothChains, s
 *
 * @returns if the particle has a hadron among its daughters
 */
-bool GenHFHadronMatcher::isNeutralPdg ( int pdgId )
+bool GenHFHadronMatcherLocal::isNeutralPdg ( int pdgId )
 {
     const int max = 5;
     int neutralPdgs[max]= {9,21,22,23,25};
@@ -959,7 +962,7 @@ bool GenHFHadronMatcher::isNeutralPdg ( int pdgId )
  * @param  lastQuarkIndex       Index from the LastQuarkIds and LastQuarkMotherIds for this particular hadron with index hadId
  * @return Whether other mother with unique association has been found for the hadrons
  */
-bool GenHFHadronMatcher::fixExtraSameFlavours(
+bool GenHFHadronMatcherLocal::fixExtraSameFlavours(
     const unsigned int hadId, const std::vector<int> &hadIndices, const std::vector<reco::GenParticle> &hadMothers, 
     const std::vector<std::vector<int> > &hadMothersIndices, const std::vector<int> &isFromTopWeakDecay, 
     const std::vector<std::vector<int> > &LastQuarkIds, const std::vector<std::vector<int> > &LastQuarkMotherIds, 
@@ -1028,4 +1031,4 @@ bool GenHFHadronMatcher::fixExtraSameFlavours(
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE ( GenHFHadronMatcher );
+DEFINE_FWK_MODULE ( GenHFHadronMatcherLocal );

@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoJets.JetProducers.ak5GenJets_cfi import ak5GenJets
 from TopAnalysis.TopUtils.GenJetParticles_cfi import genParticlesForJetsPlusNoHadron
 from TopAnalysis.TopUtils.GenJetParticles_cff import genParticlesForJetsNoNuPlusNoHadron
-from TopAnalysis.TopUtils.GenHFHadronMatcher_cfi import matchGenHFHadron
+from TopAnalysis.TopUtils.GenHFHadronMatcherLocal_cfi import matchGenHFHadronLocal
 
 
 # Supplies PDG ID to real name resolution of MC particles
@@ -18,10 +18,10 @@ genParticlesForJetsPlusBHadron = genParticlesForJetsPlusNoHadron.clone()
 genParticlesForJetsPlusBHadron.injectHadronFlavours = [5]
 ak5GenJetsPlusBHadron = ak5GenJets.clone()
 ak5GenJetsPlusBHadron.src = "genParticlesForJetsPlusBHadron"
-matchGenBHadron = matchGenHFHadron.clone()
-matchGenBHadron.flavour = 5
-matchGenBHadron.genJets = cms.InputTag("ak5GenJetsPlusBHadron", "", "")
-genBHadronMatchingSequence = cms.Sequence( genParticlesForJetsPlusBHadron * ak5GenJetsPlusBHadron * matchGenBHadron )
+matchGenBHadronLocal = matchGenHFHadronLocal.clone()
+matchGenBHadronLocal.flavour = 5
+matchGenBHadronLocal.genJets = cms.InputTag("ak5GenJetsPlusBHadron", "", "")
+genBHadronMatchingSequence = cms.Sequence( genParticlesForJetsPlusBHadron * ak5GenJetsPlusBHadron * matchGenBHadronLocal )
 
 
 # Configuration for matching C-hadrons =================================================================
@@ -29,10 +29,10 @@ genParticlesForJetsPlusCHadron = genParticlesForJetsPlusNoHadron.clone()
 genParticlesForJetsPlusCHadron.injectHadronFlavours = [4]
 ak5GenJetsPlusCHadron = ak5GenJets.clone()
 ak5GenJetsPlusCHadron.src = "genParticlesForJetsPlusCHadron"
-matchGenCHadron = matchGenHFHadron.clone()
-matchGenCHadron.flavour = 4
-matchGenCHadron.genJets = cms.InputTag("ak5GenJetsPlusCHadron", "", "")
-genCHadronMatchingSequence = cms.Sequence( genParticlesForJetsPlusCHadron * ak5GenJetsPlusCHadron * matchGenCHadron )
+matchGenCHadronLocal = matchGenHFHadronLocal.clone()
+matchGenCHadronLocal.flavour = 4
+matchGenCHadronLocal.genJets = cms.InputTag("ak5GenJetsPlusCHadron", "", "")
+genCHadronMatchingSequence = cms.Sequence( genParticlesForJetsPlusCHadron * ak5GenJetsPlusCHadron * matchGenCHadronLocal )
 
 
 # Configuration for matching B- and C-hadrons ==========================================================
@@ -40,11 +40,11 @@ genParticlesForJetsPlusBCHadron = genParticlesForJetsPlusNoHadron.clone()
 genParticlesForJetsPlusBCHadron.injectHadronFlavours = [5, 4]
 ak5GenJetsPlusBCHadron = ak5GenJets.clone()
 ak5GenJetsPlusBCHadron.src = "genParticlesForJetsPlusBCHadron"
-matchGenBCHadronB = matchGenBHadron.clone()
-matchGenBCHadronB.genJets = cms.InputTag("ak5GenJetsPlusBCHadron", "", "")
-matchGenBCHadronC = matchGenCHadron.clone()
-matchGenBCHadronC.genJets = cms.InputTag("ak5GenJetsPlusBCHadron", "", "")
-genBCHadronMatchingSequence = cms.Sequence( genParticlesForJetsPlusBCHadron * ak5GenJetsPlusBCHadron * matchGenBCHadronB * matchGenBCHadronC )
+matchGenBCHadronBLocal = matchGenBHadronLocal.clone()
+matchGenBCHadronBLocal.genJets = cms.InputTag("ak5GenJetsPlusBCHadron", "", "")
+matchGenBCHadronCLocal = matchGenCHadronLocal.clone()
+matchGenBCHadronCLocal.genJets = cms.InputTag("ak5GenJetsPlusBCHadron", "", "")
+genBCHadronMatchingSequence = cms.Sequence( genParticlesForJetsPlusBCHadron * ak5GenJetsPlusBCHadron * matchGenBCHadronBLocal * matchGenBCHadronCLocal )
 
 
 # Configuration for matching B-hadrons (jets without neutrinos) ========================================
@@ -52,9 +52,9 @@ genParticlesForJetsNoNuPlusBHadron = genParticlesForJetsNoNuPlusNoHadron.clone()
 genParticlesForJetsNoNuPlusBHadron.injectHadronFlavours = [5]
 ak5GenJetsNoNuPlusBHadron = ak5GenJets.clone()
 ak5GenJetsNoNuPlusBHadron.src = "genParticlesForJetsNoNuPlusBHadron"
-matchGenBHadronNoNu = matchGenBHadron.clone()
-matchGenBHadronNoNu.genJets = cms.InputTag("ak5GenJetsNoNuPlusBHadron", "", "")
-genBHadronMatchingNoNuSequence = cms.Sequence( genParticlesForJetsNoNuPlusBHadron * ak5GenJetsNoNuPlusBHadron * matchGenBHadronNoNu )
+matchGenBHadronNoNuLocal = matchGenBHadronLocal.clone()
+matchGenBHadronNoNuLocal.genJets = cms.InputTag("ak5GenJetsNoNuPlusBHadron", "", "")
+genBHadronMatchingNoNuSequence = cms.Sequence( genParticlesForJetsNoNuPlusBHadron * ak5GenJetsNoNuPlusBHadron * matchGenBHadronNoNuLocal )
 
 
 # Configuration for matching C-hadrons (jets without neutrinos) ========================================
@@ -62,9 +62,9 @@ genParticlesForJetsNoNuPlusCHadron = genParticlesForJetsNoNuPlusNoHadron.clone()
 genParticlesForJetsNoNuPlusCHadron.injectHadronFlavours = [4]
 ak5GenJetsNoNuPlusCHadron = ak5GenJets.clone()
 ak5GenJetsNoNuPlusCHadron.src = "genParticlesForJetsNoNuPlusCHadron"
-matchGenCHadronNoNu = matchGenCHadron.clone()
-matchGenCHadronNoNu.genJets = cms.InputTag("ak5GenJetsNoNuPlusCHadron", "", "")
-genCHadronMatchingNoNuSequence = cms.Sequence( genParticlesForJetsNoNuPlusCHadron * ak5GenJetsNoNuPlusCHadron * matchGenCHadronNoNu )
+matchGenCHadronNoNuLocal = matchGenCHadronLocal.clone()
+matchGenCHadronNoNuLocal.genJets = cms.InputTag("ak5GenJetsNoNuPlusCHadron", "", "")
+genCHadronMatchingNoNuSequence = cms.Sequence( genParticlesForJetsNoNuPlusCHadron * ak5GenJetsNoNuPlusCHadron * matchGenCHadronNoNuLocal )
 
 
 # Configuration for matching B- and C-hadrons (jets without neutrinos) =================================
@@ -72,10 +72,10 @@ genParticlesForJetsNoNuPlusBCHadron = genParticlesForJetsNoNuPlusNoHadron.clone(
 genParticlesForJetsNoNuPlusBCHadron.injectHadronFlavours = [5, 4]
 ak5GenJetsNoNuPlusBCHadron = ak5GenJets.clone()
 ak5GenJetsNoNuPlusBCHadron.src = "genParticlesForJetsNoNuPlusBCHadron"
-matchGenBCHadronBNoNu = matchGenBHadron.clone()
-matchGenBCHadronBNoNu.genJets = cms.InputTag("ak5GenJetsNoNuPlusBCHadron", "", "")
-matchGenBCHadronCNoNu = matchGenCHadron.clone()
-matchGenBCHadronCNoNu.genJets = cms.InputTag("ak5GenJetsNoNuPlusBCHadron", "", "")
-genBCHadronMatchingNoNuSequence = cms.Sequence( genParticlesForJetsNoNuPlusBCHadron * ak5GenJetsNoNuPlusBCHadron * matchGenBCHadronBNoNu * matchGenBCHadronCNoNu )
+matchGenBCHadronBNoNuLocal = matchGenBHadronLocal.clone()
+matchGenBCHadronBNoNuLocal.genJets = cms.InputTag("ak5GenJetsNoNuPlusBCHadron", "", "")
+matchGenBCHadronCNoNuLocal = matchGenCHadronLocal.clone()
+matchGenBCHadronCNoNuLocal.genJets = cms.InputTag("ak5GenJetsNoNuPlusBCHadron", "", "")
+genBCHadronMatchingNoNuSequence = cms.Sequence( genParticlesForJetsNoNuPlusBCHadron * ak5GenJetsNoNuPlusBCHadron * matchGenBCHadronBNoNuLocal * matchGenBCHadronCNoNuLocal )
 
 

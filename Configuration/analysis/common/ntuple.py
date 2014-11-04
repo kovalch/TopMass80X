@@ -707,8 +707,8 @@ genJetCollection = "ak5GenJetsPlusBCHadron"
 
 genLevelBJetProducerInput = "produceGenLevelBJets"
 
-genBHadronMatcherInput = "matchGenBCHadronB"
-genCHadronMatcherInput = "matchGenBCHadronC"
+genBHadronMatcherInput = "matchGenBCHadronBLocal"
+genCHadronMatcherInput = "matchGenBCHadronCLocal"
 
 
 
@@ -782,13 +782,13 @@ else:
     process.zGenSequence = cms.Sequence()
 
 if topSignal:
-    process.load("TopAnalysis.TopUtils.sequences.GenHFHadronMatching_cff")
+    process.load("TopAnalysis.TopUtils.sequences.GenHFHadronMatchingLocal_cff")
     
     process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi") # Supplies PDG ID to real name resolution of MC particles
     process.load("TopAnalysis.TopUtils.GenLevelBJetProducer_cfi")
     process.produceGenLevelBJets.deltaR = 5.0
     process.produceGenLevelBJets.noBBbarResonances = True
-    process.produceGenLevelBJets.genJets = process.matchGenBCHadronB.genJets
+    process.produceGenLevelBJets.genJets = process.matchGenBCHadronBLocal.genJets
 
     process.genMatchSequence = cms.Sequence(
         process.genBCHadronMatchingSequence *

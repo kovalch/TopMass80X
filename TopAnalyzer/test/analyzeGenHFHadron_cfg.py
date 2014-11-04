@@ -44,7 +44,7 @@ process.TFileService = cms.Service("TFileService",
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 # get sequence for B-hadron matching
-process.load("TopAnalysis.TopUtils.sequences.GenHFHadronMatching_cff")
+process.load("TopAnalysis.TopUtils.sequences.GenHFHadronMatchingLocal_cff")
 
 ## get particle content of sample with IDs
 from TopAnalysis.TopAnalyzer.GenHFHadronAnalyzer_cfi import analyzeGenHFHadron
