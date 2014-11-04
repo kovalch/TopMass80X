@@ -124,20 +124,14 @@ fi
 
 ###### PAT ######
 ### From: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuidePATReleaseNotes52X (revision 179), for CMSSW_5_3_14_patch1
-
 cd $CMSSW_BASE/src
 git cms-addpkg PhysicsTools/PatAlgos
 git cms-merge-topic 4330 # new!!! Not sure if needed  Taken from https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuidePATReleaseNotes70X#Tau_update_for_miniAOD_CMSSW_7_0
 cd -
 
-###### Selection of genParticles as input for genJets (for miniAOD) ######
-cd $CMSSW_BASE/src
-git cms-merge-topic ferencek:MiniAODForInputGenJetsParticleSelector_from-CMSSW_7_0_9
-cd -
 
 ###### TQAF ######
 ### From: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideTQAFRecipes (revision 229), for CMSSW_5_3_13
-
 cd $CMSSW_BASE/src
 git cms-addpkg TopQuarkAnalysis/TopEventProducers
 git cms-addpkg AnalysisDataFormats/TopObjects
@@ -150,6 +144,7 @@ git cms-addpkg TopQuarkAnalysis/TopKinFitter
 git cms-addpkg TopQuarkAnalysis/TopObjectResolutions
 cd -
 
+
 ###### For full memory option of LHAPDF, we NEED to compile ElectroWeakAnalysis/Utilities after scram setup lhapdffull for speeding it up.
 ### For more information check the ElectroWeakAnalysis/Utilities/README file
 cd $CMSSW_BASE/src
@@ -158,11 +153,27 @@ git cms-addpkg ElectroWeakAnalysis/Utilities
 cd -
 
 
+###### Selection of genParticles as input for genJets (for miniAOD) ######
+cd $CMSSW_BASE/src
+git cms-merge-topic ferencek:MiniAODForInputGenJetsParticleSelector_from-CMSSW_7_0_9
+cd -
+
+
+##### GenHFHadronMatcher from CMSSW #####
+cd $CMSSW_BASE/src
+git cms-addpkg PhysicsTools/JetMCAlgos
+git checkout tags/CMSSW_7_3_X_2014-10-31-1000 PhysicsTools/JetMCAlgos
+git reset HEAD PhysicsTools/JetMCAlgos
+cd -
+
 
 
 
 ###### Install our TopAnalysis ######
 topAnalysis $1
+
+
+
 
 
 ##### Fix to avoid compilation errors from TopAnalysis/TopUtils/plugins/CandidateCleaner.h
@@ -172,19 +183,8 @@ cp $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/common/hacks/TopAnalysis_T
 ##### Fix to avoid nafJobSplitter crashes due to not propagated environment to batch farm
 cp $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/common/hacks/TopAnalysis_TopUtils_scripts_nafJobSplitter.pl $CMSSW_BASE/src/TopAnalysis/TopUtils/scripts/nafJobSplitter.pl
 
-##### Fix to update the GenHFHadronMatcher tool to the proper CMSSW_7X version
-branchHF="CMSSW_7X_GenHFHadronMatcher"
-cd $CMSSW_BASE/src/TopAnalysis
-### Updating the files to the version in the specific branch
-git checkout origin/$branchHF TopUtils/plugins/BuildFile.xml
-git checkout origin/$branchHF TopUtils/plugins/GenHFHadronMatcher.cc
-git checkout origin/$branchHF TopUtils/python/GenHFHadronMatcher_cfi.py 
-git checkout origin/$branchHF TopUtils/python/sequences/GenHFHadronMatching_cff.py
-### Unstaging the updated files from the commit
-git reset HEAD TopUtils/plugins/BuildFile.xml
-git reset HEAD TopUtils/plugins/GenHFHadronMatcher.cc
-git reset HEAD TopUtils/python/GenHFHadronMatcher_cfi.py
-git reset HEAD TopUtils/python/sequences/GenHFHadronMatching_cff.py
+
+
 
 
 ###### Compile everything ######
