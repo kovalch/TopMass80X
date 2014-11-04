@@ -917,65 +917,16 @@ bool HiggsAnalysis::failsAdditionalJetFlavourSelection(const Long64_t& entry)con
     
     const TopGenObjects& topGenObjects = this->getTopGenObjects(entry);
     
-    int jetAddId = topGenObjects.genExtraTopJetNumberId_;
-    if(jetAddId < 200) {
-        if(additionalBjetMode_==0) return false;                                // tt+other (if <2 b-jets from tt)
-        else return true;
-    }
-    jetAddId -= 200;
+    int jetAddId = topGenObjects.genExtraTopJetNumberId_%100;
     
     // Can be used starting from N005 ntuples
-    if(additionalBjetMode_==4 && (jetAddId==21 || jetAddId==22)) return false;  // tt+c (tt+cc)
-    if(additionalBjetMode_==3 && jetAddId==2) return false;                     // tt+bb
-    if(additionalBjetMode_==0 && ( jetAddId==0
-                              || (jetAddId>2 && jetAddId<21)
-                              ||  jetAddId>22 ) ) return false;                 // tt+other
-    // Separating 2 cases of tt+b
-    if(jetAddId == 1) {
-        if(topGenObjects.valuesSet_){
-            const VLV& allGenJets = *topGenObjects.allGenJets_;
-            const std::vector<int> allGenJetIndices = common::initialiseIndices(allGenJets);
-            std::vector<std::vector<int> > genJetBhadronIndices = this->matchBhadronsToGenJets(allGenJetIndices, allGenJets, topGenObjects);
-            bool hasOverlappingBJets = false;
-            for(size_t iJet = 0; iJet<genJetBhadronIndices.size(); ++iJet) {
-                std::vector<int> bHadIds = genJetBhadronIndices.at(iJet);
-                int nHads_top = 0;
-                int nHads_add = 0;
-                for(unsigned int hadId : bHadIds) {
-                    if(std::abs(topGenObjects.genBHadFlavour_->at(hadId)) == 6) nHads_top++;
-                    if(std::abs(topGenObjects.genBHadFromTopWeakDecay_->at(hadId)) == 0) nHads_add++;
-                }
-                // If b-jet overlaps only with a b-jet from tt - will be treated as not in acceptance (to represent matrix element additional b)
-                if(nHads_add > 1) hasOverlappingBJets = true;
-            }
-            if(hasOverlappingBJets && additionalBjetMode_==1) return false;      // tt+b (two b-hadrons in 1 jet)
-            if(!hasOverlappingBJets && additionalBjetMode_==2) return false;     // tt+b (other b-jet not in acceptance OR overlaps with top b-jet)
-        }
-    }
+    if(additionalBjetMode_==4 && (jetAddId>20 && jetAddId<30)) return false;  // tt+c (tt+cc)
+    if(additionalBjetMode_==3 && (jetAddId==3 || jetAddId==4)) return false;  // tt+bb
+    if(additionalBjetMode_==2 && jetAddId==2) return false;  // tt+2b
+    if(additionalBjetMode_==1 && jetAddId==1) return false;  // tt+b
+    if(additionalBjetMode_==0 && (jetAddId==0 || (jetAddId>4 && jetAddId<=20) ||  jetAddId>=30 ) ) return false;     // tt+other
     
     return true;
-    
-    // Should be used prior to N005 ntuples
-//     // Identifying additional b-jets not from top
-//     std::vector<int> genAddBJetIdNotFromTop;
-//     for(size_t iHad=0; iHad<topGenObjects.genBHadJetIndex_->size(); iHad++) {
-//         if(topGenObjects.genBHadFromTopWeakDecay_->at(iHad)!=0) continue;
-//         int genJetId = topGenObjects.genBHadJetIndex_->at(iHad);
-//         if(genJetId<0) continue;
-//         if(std::find(genBJetIdFromTop.begin(), genBJetIdFromTop.end(), genJetId) != genBJetIdFromTop.end()) continue;
-//         if(commonGenObjects.allGenJets_->at(genJetId).Pt()<signalJetPt_min || std::fabs(commonGenObjects.allGenJets_->at(genJetId).Eta())>signalJetEta_max) continue;
-//         if(std::find(genAddBJetIdNotFromTop.begin(), genAddBJetIdNotFromTop.end(), genJetId) != genAddBJetIdNotFromTop.end()) continue;
-//         
-//         genAddBJetIdNotFromTop.push_back(genJetId);
-//     }   // End of loop over all b-hadrons
-// 
-//     const unsigned int nExtraBjets = genAddBJetIdNotFromTop.size();
-// 
-//     if(additionalBjetMode_==2 && nExtraBjets>=2) return false;
-//     if(additionalBjetMode_==1 && nExtraBjets==1) return false;
-//     if(additionalBjetMode_==0 && nExtraBjets==0) return false;
-// 
-//     return true;
 }
 
 

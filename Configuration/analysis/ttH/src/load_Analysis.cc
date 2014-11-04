@@ -472,17 +472,17 @@ void load_Analysis(const TString& validFilenamePattern,
                     chain.Process(selector, "", maxEvents, skipEvents);
                     selector->SetSampleForBtagEfficiencies(false);
                 }
-                if(part==1 || part==-1){ // output is ttbar+b with >=2 b-hadrons in a single jet
+                if(part==1 || part==-1){ // output is ttbar+b
                     selector->SetAdditionalBjetMode(1);
                     TString modifiedOutputfilename(outputfilename);
-                    modifiedOutputfilename.ReplaceAll("signalplustau", "signalPlus2B");
+                    modifiedOutputfilename.ReplaceAll("signalplustau", "signalPlusB");
                     selector->SetOutputfilename(modifiedOutputfilename);
                     chain.Process(selector, "", maxEvents, skipEvents);
                 }
-                if(part==2 || part==-1){ // output is ttbar+b
+                if(part==2 || part==-1){ // output is ttbar+b with >=2 b-hadrons in a single jet
                     selector->SetAdditionalBjetMode(2);
                     TString modifiedOutputfilename(outputfilename);
-                    modifiedOutputfilename.ReplaceAll("signalplustau", "signalPlusB");
+                    modifiedOutputfilename.ReplaceAll("signalplustau", "signalPlus2B");
                     selector->SetOutputfilename(modifiedOutputfilename);
                     chain.Process(selector, "", maxEvents, skipEvents);
                 }
