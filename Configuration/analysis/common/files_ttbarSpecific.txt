@@ -60,18 +60,18 @@
 ##########################################################
 
 # POWHEG + PYTHIA sample
-250  Summer12.TT_CT10_TuneZ2star_8TeV_powheg_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_and_v2_cff       ttbarsignalplustau_powheg.root         ttbarsignalplustau,systematicsName=POWHEG
+500  Summer12.TT_CT10_TuneZ2star_8TeV_powheg_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_and_v2_cff       ttbarsignalplustau_powheg.root         ttbarsignalplustau,systematicsName=POWHEG
 250  Summer12.TT_CT10_TuneZ2star_8TeV_powheg_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_and_v2_cff       ttbarbg_powheg.root                    ttbarbg,systematicsName=POWHEG
 
 # MCATNLO+Herwig sample
-250  Summer12.TT_8TeV_mcatnlo_Summer12_DR53X_PU_S10_START53_V7A_v1_cff                                       ttbarsignalplustau_mcatnlo.root        ttbarsignalplustau,systematicsName=MCATNLO
+500  Summer12.TT_8TeV_mcatnlo_Summer12_DR53X_PU_S10_START53_V7A_v1_cff                                       ttbarsignalplustau_mcatnlo.root        ttbarsignalplustau,systematicsName=MCATNLO
 250  Summer12.TT_8TeV_mcatnlo_Summer12_DR53X_PU_S10_START53_V7A_v1_cff                                       ttbarbg_mcatnlo.root                   ttbarbg,systematicsName=MCATNLO
 
 # POWHEG+Herwig sample
-200  Summer12.TT_CT10_AUET2_8TeV_powheg_herwig_Summer12_DR53X-PU_S10_START53_V19_v1_cff                   ttbarsignalplustau_powhegHerwig.root      ttbarsignalplustau,systematicsName=POWHEGHERWIG
+500  Summer12.TT_CT10_AUET2_8TeV_powheg_herwig_Summer12_DR53X-PU_S10_START53_V19_v1_cff                   ttbarsignalplustau_powhegHerwig.root      ttbarsignalplustau,systematicsName=POWHEGHERWIG
 200  Summer12.TT_CT10_AUET2_8TeV_powheg_herwig_Summer12_DR53X-PU_S10_START53_V19_v1_cff                   ttbarbg_powhegHerwig.root                 ttbarbg,systematicsName=POWHEGHERWIG
 
 
 #   MadGraph+Pythia with Perugia11 Tune
-500   Summer12.TTJets_FullLeptMGDecays_TuneP11_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff       ttbarsignalplustau_Perugia11.root       ttbarsignalplustau,systematicsName=PERUGIA11
-500   Summer12.TTJets_FullLeptMGDecays_TuneP11noCR_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff   ttbarsignalplustau_Perugia11NoCR.root   ttbarsignalplustau,systematicsName=PERUGIA11NoCR
+600   Summer12.TTJets_FullLeptMGDecays_TuneP11_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff       ttbarsignalplustau_Perugia11.root       ttbarsignalplustau,systematicsName=PERUGIA11
+600   Summer12.TTJets_FullLeptMGDecays_TuneP11noCR_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff   ttbarsignalplustau_Perugia11NoCR.root   ttbarsignalplustau,systematicsName=PERUGIA11NoCR
