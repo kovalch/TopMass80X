@@ -161,6 +161,7 @@ private:
     const edm::InputTag genBHadJetIndexTag_;
     const edm::InputTag genBHadLeptonIndexTag_;
     const edm::InputTag genBHadLeptonHadronIndexTag_;
+    const edm::InputTag genBHadLeptonViaTauTag_;
     const edm::InputTag genBHadFromTopWeakDecayTag_;
     const edm::InputTag genCHadPlusMothersTag_;
     const edm::InputTag genCHadPlusMothersIndicesTag_;
@@ -168,6 +169,7 @@ private:
     const edm::InputTag genCHadJetIndexTag_;
     const edm::InputTag genCHadLeptonIndexTag_;
     const edm::InputTag genCHadLeptonHadronIndexTag_;
+    const edm::InputTag genCHadLeptonViaTauTag_;
     const edm::InputTag genCHadFromTopWeakDecayTag_;
     const edm::InputTag genCHadBHadronIdTag_;
     const edm::InputTag ttbarDecayModeTag_;
@@ -401,6 +403,7 @@ genBHadFlavourTag_(iConfig.getParameter<edm::InputTag>("genBHadFlavour")),
 genBHadJetIndexTag_(iConfig.getParameter<edm::InputTag>("genBHadJetIndex")),
 genBHadLeptonIndexTag_(iConfig.getParameter<edm::InputTag>("genBHadLeptonIndex")),
 genBHadLeptonHadronIndexTag_(iConfig.getParameter<edm::InputTag>("genBHadLeptonHadronIndex")),
+genBHadLeptonViaTauTag_(iConfig.getParameter<edm::InputTag>("genBHadLeptonViaTau")),
 genBHadFromTopWeakDecayTag_(iConfig.getParameter<edm::InputTag>("genBHadFromTopWeakDecay")),
 genCHadPlusMothersTag_(iConfig.getParameter<edm::InputTag>("genCHadPlusMothers")),
 genCHadPlusMothersIndicesTag_(iConfig.getParameter<edm::InputTag>("genCHadPlusMothersIndices")),
@@ -408,6 +411,7 @@ genCHadIndexTag_(iConfig.getParameter<edm::InputTag>("genCHadIndex")),
 genCHadJetIndexTag_(iConfig.getParameter<edm::InputTag>("genCHadJetIndex")),
 genCHadLeptonIndexTag_(iConfig.getParameter<edm::InputTag>("genCHadLeptonIndex")),
 genCHadLeptonHadronIndexTag_(iConfig.getParameter<edm::InputTag>("genCHadLeptonHadronIndex")),
+genCHadLeptonViaTauTag_(iConfig.getParameter<edm::InputTag>("genCHadLeptonViaTau")),
 genCHadFromTopWeakDecayTag_(iConfig.getParameter<edm::InputTag>("genCHadFromTopWeakDecay")),
 genCHadBHadronIdTag_(iConfig.getParameter<edm::InputTag>("genCHadBHadronId")),
 ttbarDecayModeTag_(iConfig.getParameter<edm::InputTag>("ttbarDecayMode")),
@@ -755,17 +759,16 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                     v_genBHadPlusMothers_.push_back(genBHadPlusMothers->at(genBHadLeptonIndex->at(iParticle)).polarP4());
                     v_genBHadPlusMothersPdgId_.push_back(genBHadPlusMothers->at(genBHadLeptonIndex->at(iParticle)).pdgId());
                     v_genBHadLeptonIndex_.at(iParticle) = v_genBHadPlusMothers_.size() - 1;
-                    int viaTau = -1;
-                    const int leptonMotherIndex = genBHadPlusMothersIndices->at(genBHadLeptonIndex->at(iParticle)).at(0);
-                    if(leptonMotherIndex >= 0)
-                        viaTau = std::abs(genBHadPlusMothers->at(leptonMotherIndex).pdgId())==15 ? 1 : 0;
-                    v_genBHadLeptonViaTau_.push_back(viaTau);
                 }
             }
             
             edm::Handle<std::vector<int> > genBHadLeptonHadronIndex;
             iEvent.getByLabel(genBHadLeptonHadronIndexTag_, genBHadLeptonHadronIndex);
             v_genBHadLeptonHadronIndex_ = *(genBHadLeptonHadronIndex.product());
+            
+            edm::Handle<std::vector<int> > genBHadLeptonViaTau;
+            iEvent.getByLabel(genBHadLeptonViaTauTag_, genBHadLeptonViaTau);
+            v_genBHadLeptonViaTau_ = *(genBHadLeptonViaTau.product());
             
             edm::Handle<std::vector<int> > genBHadFlavour;
             iEvent.getByLabel(genBHadFlavourTag_, genBHadFlavour);
@@ -847,17 +850,16 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                     v_genCHadPlusMothers_.push_back(genCHadPlusMothers->at(genCHadLeptonIndex->at(iParticle)).polarP4());
                     v_genCHadPlusMothersPdgId_.push_back(genCHadPlusMothers->at(genCHadLeptonIndex->at(iParticle)).pdgId());
                     v_genCHadLeptonIndex_.at(iParticle) = v_genCHadPlusMothers_.size() - 1;
-                    int viaTau = -1;
-                    const int leptonMotherIndex = genCHadPlusMothersIndices->at(genCHadLeptonIndex->at(iParticle)).at(0);
-                    if(leptonMotherIndex >= 0)
-                        viaTau = std::abs(genCHadPlusMothers->at(leptonMotherIndex).pdgId())==15 ? 1 : 0;
-                    v_genCHadLeptonViaTau_.push_back(viaTau);
                 }
             }
             
             edm::Handle<std::vector<int> > genCHadLeptonHadronIndex;
             iEvent.getByLabel(genCHadLeptonHadronIndexTag_, genCHadLeptonHadronIndex);
             v_genCHadLeptonHadronIndex_ = *(genCHadLeptonHadronIndex.product());
+            
+            edm::Handle<std::vector<int> > genCHadLeptonViaTau;
+            iEvent.getByLabel(genCHadLeptonViaTauTag_, genCHadLeptonViaTau);
+            v_genCHadLeptonViaTau_ = *(genCHadLeptonViaTau.product());
             
             edm::Handle<std::vector<int> > genCHadJetIndex;
             iEvent.getByLabel(genCHadJetIndexTag_, genCHadJetIndex);
