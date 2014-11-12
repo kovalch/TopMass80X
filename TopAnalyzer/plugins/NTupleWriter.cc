@@ -766,9 +766,20 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             iEvent.getByLabel(genBHadLeptonHadronIndexTag_, genBHadLeptonHadronIndex);
             v_genBHadLeptonHadronIndex_ = *(genBHadLeptonHadronIndex.product());
             
+            // Detecting whether leptons come via hadron->tau->lepton
             edm::Handle<std::vector<int> > genBHadLeptonViaTau;
             iEvent.getByLabel(genBHadLeptonViaTauTag_, genBHadLeptonViaTau);
-            v_genBHadLeptonViaTau_ = *(genBHadLeptonViaTau.product());
+            if(!genBHadLeptonViaTau.failedToGet()) {
+                v_genBHadLeptonViaTau_ = *(genBHadLeptonViaTau.product());
+            } else {
+                for(size_t iParticle = 0; iParticle < genBHadLeptonIndex->size(); ++iParticle){
+                    int viaTau = -1;
+                    const int leptonMotherIndex = genBHadPlusMothersIndices->at(genBHadLeptonIndex->at(iParticle)).at(0);
+                    if(leptonMotherIndex >= 0) 
+                        viaTau = std::abs(genBHadPlusMothers->at(leptonMotherIndex).pdgId())==15 ? 1 : 0;
+                    v_genBHadLeptonViaTau_.push_back(viaTau);
+                }
+            }
             
             edm::Handle<std::vector<int> > genBHadFlavour;
             iEvent.getByLabel(genBHadFlavourTag_, genBHadFlavour);
@@ -857,9 +868,20 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             iEvent.getByLabel(genCHadLeptonHadronIndexTag_, genCHadLeptonHadronIndex);
             v_genCHadLeptonHadronIndex_ = *(genCHadLeptonHadronIndex.product());
             
+            // Detecting whether leptons come via hadron->tau->lepton
             edm::Handle<std::vector<int> > genCHadLeptonViaTau;
             iEvent.getByLabel(genCHadLeptonViaTauTag_, genCHadLeptonViaTau);
-            v_genCHadLeptonViaTau_ = *(genCHadLeptonViaTau.product());
+            if(!genCHadLeptonViaTau.failedToGet()) {
+                v_genCHadLeptonViaTau_ = *(genCHadLeptonViaTau.product());
+            } else {
+                for(size_t iParticle = 0; iParticle < genCHadLeptonIndex->size(); ++iParticle){
+                    int viaTau = -1;
+                    const int leptonMotherIndex = genCHadPlusMothersIndices->at(genCHadLeptonIndex->at(iParticle)).at(0);
+                    if(leptonMotherIndex >= 0) 
+                        viaTau = std::abs(genCHadPlusMothers->at(leptonMotherIndex).pdgId())==15 ? 1 : 0;
+                    v_genCHadLeptonViaTau_.push_back(viaTau);
+                }
+            }
             
             edm::Handle<std::vector<int> > genCHadJetIndex;
             iEvent.getByLabel(genCHadJetIndexTag_, genCHadJetIndex);
