@@ -382,14 +382,8 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     firstHistToDraw->GetXaxis()->SetNoExponent(kTRUE);
 
     
-    // Add binwidth to the y-axis in yield plots (FIXME: works only correctly for equidistant bins)
-    TString ytitle = TString(firstHistToDraw->GetYaxis()->GetTitle()).Copy();
-    const double binWidth = firstHistToDraw->GetXaxis()->GetBinWidth(1);
-    std::ostringstream width;
-    width<<binWidth;
-    if(name_.Contains("Rapidity") || name_.Contains("Eta")){ytitle.Append(" / ").Append(width.str());}
-    else if(name_.Contains("pT") || name_.Contains("Mass") || name_.Contains("mass") || name_.Contains("MET") || name_.Contains("HT")){ytitle.Append(" / ").Append(width.str()).Append(" GeV");};
-    firstHistToDraw->GetYaxis()->SetTitle(ytitle);
+    // Add binwidth including unit to y-axis
+    common::addBinDivisionToYaxis(firstHistToDraw);
     
     
     // Draw data histogram and stack

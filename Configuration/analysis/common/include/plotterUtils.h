@@ -10,6 +10,9 @@ class THStack;
 class TStyle;
 class TGraphAsymmErrors;
 class TGraph;
+class TAxis;
+
+
 
 
 
@@ -27,20 +30,29 @@ namespace common{
                    const std::vector<double>& err=std::vector<double>(0),
                    const bool useMcStatError = false
                   );
-
+    
     /// Draw ratio of histograms if not NULL pointers
     void drawRatioXSEC(const TH1* histNumerator, const TH1* histDenominator1, 
                        TGraphAsymmErrors *data_stat = 0, TGraphAsymmErrors *data_syst = 0, 
                        const TH1* histDenominator2 = 0, const TH1* histDenominator3 = 0, const TH1* histDenominator4 = 0, const TH1* histDenominator5 = 0, const TH1* histDenominator6 = 0, const TH1* histDenominator7 = 0,
                        const Double_t& ratioMin = 0.5, const Double_t& ratioMax = 1.5, 
                        TStyle myStyle = *gStyle);//, int verbose = , const std::vector<double>& err=std::vector<double>(0));
-
-
+    
+    
     /// Set histogram style to HH definition
     void setHHStyle(TStyle& HHStyle, const bool hideErrorX = true);
-
-
-
+    
+    
+    
+    /// Check if axis has equidistant binning
+    /// If no bin exists, return 0.
+    /// If yes, return the bin size
+    /// If no, return -999.
+    Double_t xBinSize(const TAxis* const axis);
+    
+    /// Adjust y-axis title, to show division with bin width, taking the unit from x-axis
+    void addBinDivisionToYaxis(TH1* const hist);
+    
     /// Sum the histograms in a stack and return the sum in a new TH1
     TH1* summedStackHisto(const THStack* stack);
     

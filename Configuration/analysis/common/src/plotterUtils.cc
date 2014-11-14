@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include <cmath>
 
 #include <TH1.h>
@@ -6,14 +7,20 @@
 #include <THStack.h>
 #include <TList.h>
 #include <TPad.h>
+#include <TVirtualPad.h>
 #include <TF1.h>
 #include <TStyle.h>
 #include <TText.h>
 #include <TGraphAsymmErrors.h>
 #include <TExec.h>
 #include <TLegend.h>
+#include <TAxis.h>
+#include <TMath.h>
 
 #include "plotterUtils.h"
+
+
+
 
 
 void common::drawRatioXSEC(const TH1* histNumerator, const TH1* histDenominator1, 
@@ -621,6 +628,51 @@ void common::setHHStyle(TStyle& HHStyle, const bool hideErrorX)
     // HHStyle.SetPalette(Int_t ncolors = 0, Int_t* colors = 0);
     // HHStyle.SetTimeOffset(Double_t toffset);
     // HHStyle.SetHistMinimumZero(kTRUE);
+}
+
+
+
+Double_t common::xBinSize(const TAxis* const axis)
+{
+    // Function taken from http://root.cern.ch/root/html/src/TH1.cxx.html#VwhIWD,
+    // but unfortunately not available in ROOT except of in this specific file
+    if(!axis->GetNbins()) return 0.;
+    bool isEquidistant = true;
+    const Double_t firstBinWidth = axis->GetBinWidth(1);
+    for(int iBin = 1; iBin < axis->GetNbins()+1; ++iBin){
+        const Double_t binWidth = axis->GetBinWidth(iBin);
+        const bool match = TMath::AreEqualRel(firstBinWidth, binWidth, TMath::Limits<Double_t>::Epsilon());
+        isEquidistant &= match;
+        if(!match) break;
+    }
+    if(isEquidistant) return firstBinWidth;
+    else return -999.;
+}
+
+
+
+void common::addBinDivisionToYaxis(TH1* const hist)
+{
+    const TAxis* const xAxis = hist->GetXaxis();
+    const Double_t binSize = xBinSize(xAxis);
+    TString binDivision(" /");
+    if(binSize < -990.) binDivision.Append(" #Delta_{bin}");
+    else{
+        std::ostringstream width;
+        width<<" "<<binSize;
+        binDivision.Append(width.str());
+        TString xTitle = hist->GetXaxis()->GetTitle();
+        if(xTitle.EndsWith("]") && xTitle.Contains("[")){
+            Ssiz_t last = xTitle.Last('[');
+            xTitle = xTitle.Data() + last + 1;
+            xTitle.Remove(TString::kTrailing, ']');
+            binDivision.Append(" ").Append(xTitle);
+        }
+        
+    }
+    TString yTitle = TString(hist->GetYaxis()->GetTitle()).Copy();
+    yTitle.Append(binDivision);
+    hist->GetYaxis()->SetTitle(yTitle);
 }
 
 
