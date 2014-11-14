@@ -68,7 +68,9 @@ constexpr double GenJetPtCUT = JetPtCUT;
 HiggsAnalysis::HiggsAnalysis(TTree*):
 inclusiveHiggsDecayMode_(-999),
 additionalBjetMode_(-999),
-toRemoveLeptonGenJets_(false)
+toRemoveLeptonGenJets_(false),
+reweightingName_(""),
+reweightingSlope_(0.0)
 {
     if(MvaMET) this->mvaMet();
 }
@@ -647,6 +649,9 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
                                                  genBjetFromHiggsIndex, genAntiBjetFromHiggsIndex,
                                                  matchedBjetFromHiggsIndex, matchedAntiBjetFromHiggsIndex);
     
+        
+    // Applying the reweighting
+    weight *= reweightingWeight(topGenObjects, genObjectIndices);
     
     
     // ++++ Control Plots ++++
@@ -881,6 +886,19 @@ void HiggsAnalysis::SetAdditionalBjetMode(const int additionalBjetMode)
 
 
 
+void HiggsAnalysis::SetReweightingName(const TString reweightingName)
+{
+    reweightingName_ = reweightingName;
+}
+
+
+
+void HiggsAnalysis::SetReweightingSlope(const double reweightingSlope)
+{
+    reweightingSlope_ = reweightingSlope;
+}
+
+
 
 void HiggsAnalysis::SetAllAnalyzers(std::vector<AnalyzerBase*> v_analyzer)
 {
@@ -924,9 +942,91 @@ bool HiggsAnalysis::failsAdditionalJetFlavourSelection(const Long64_t& entry)con
     if(additionalBjetMode_==3 && (jetAddId==3 || jetAddId==4)) return false;  // tt+bb
     if(additionalBjetMode_==2 && jetAddId==2) return false;  // tt+2b
     if(additionalBjetMode_==1 && jetAddId==1) return false;  // tt+b
-    if(additionalBjetMode_==0 && (jetAddId==0 || (jetAddId>4 && jetAddId<=20) ||  jetAddId>=30 ) ) return false;     // tt+other
+    if(additionalBjetMode_==0 && (jetAddId==0 || (jetAddId>4 && jetAddId<20) ||  jetAddId>30 ) ) return false;     // tt+other
     
     return true;
+    
+}
+
+
+
+double HiggsAnalysis::reweightingWeight(const TopGenObjects& topGenObjects, const tth::GenObjectIndices& genObjectIndices)const
+{
+    if(reweightingName_ == "") return 1.0;
+    if(reweightingSlope_ == 0.0) return 1.0;
+    
+    // Getting generator level information
+    const VLV& allGenJets = (topGenObjects.valuesSet_) ? *topGenObjects.allGenJets_ : VLV(0);
+    std::vector<int> genJetsId = genObjectIndices.genJetIndices_;
+    std::vector<int> genBJetsId = genObjectIndices.genBjetIndices_;
+    std::vector<int> topBJetsId_gen;
+    std::vector<int> addBJetsId_gen;
+    
+    if(genJetsId.size() > allGenJets.size() || genJetsId.size() < 1) {
+        std::cerr << "ERROR! LorentzVectors of genJets not available for reweighting. Stopping..." << std::endl;
+        exit(1);
+    }
+    
+    // Sorting bjets by Pt
+    common::orderIndices(addBJetsId_gen, allGenJets, common::LVpt);
+    
+    // Selecting additional b jets
+    for(int jetId : genBJetsId) {
+        if(jetId == genObjectIndices.genBjetFromTopIndex_) {
+            topBJetsId_gen.push_back(jetId);
+            continue;
+        }
+        if(jetId == genObjectIndices.genAntiBjetFromTopIndex_) {
+            topBJetsId_gen.push_back(jetId);
+            continue;
+        }
+        addBJetsId_gen.push_back(jetId);
+    }
+    
+    
+    if(reweightingName_ == "1st_add_bjet_pt") {
+        if(addBJetsId_gen.size() < 1) return 1.0;
+        const int jetId = addBJetsId_gen.at(0);
+        return 1 + (allGenJets.at(jetId).Pt() - 100.)*reweightingSlope_;
+    }
+    
+    if(reweightingName_ == "1st_add_bjet_eta") {
+        if(addBJetsId_gen.size() < 1) return 1.0;
+        const int jetId = addBJetsId_gen.at(0);
+        return 1 + (std::fabs(allGenJets.at(jetId).Eta()) - 1.)*reweightingSlope_;
+    }
+    
+    if(reweightingName_ == "2nd_add_bjet_pt") {
+        if(addBJetsId_gen.size() < 2) return 1.0;
+        const int jetId = addBJetsId_gen.at(1);
+        return 1 + (allGenJets.at(jetId).Pt() - 60.)*reweightingSlope_;
+    }
+    
+    if(reweightingName_ == "2nd_add_bjet_eta") {
+        if(addBJetsId_gen.size() < 2) return 1.0;
+        const int jetId = addBJetsId_gen.at(1);
+        return 1 + (std::fabs(allGenJets.at(jetId).Eta()) - 1.)*reweightingSlope_;
+    }
+    
+    if(reweightingName_ == "add_bjet_dR") {
+        if(addBJetsId_gen.size() < 2) return 1.0;
+        const int jetId_1 = addBJetsId_gen.at(0);
+        const int jetId_2 = addBJetsId_gen.at(1);
+        return 1 + (ROOT::Math::VectorUtil::DeltaR(allGenJets.at(jetId_1), allGenJets.at(jetId_2)) - 2.)*reweightingSlope_;
+    }
+    
+    if(reweightingName_ == "add_bjet_Mjj") {
+        if(addBJetsId_gen.size() < 2) return 1.0;
+        const int jetId_1 = addBJetsId_gen.at(0);
+        const int jetId_2 = addBJetsId_gen.at(1);
+        return 1 + ((allGenJets.at(jetId_1) + allGenJets.at(jetId_2)).M() - 100.)*reweightingSlope_;
+    }
+    
+    std::cerr << "ERROR! Provided reweighting name is not supported. Stopping..." << std::endl;
+    exit(1);
+
+    
+    return 1.0;
 }
 
 

@@ -57,6 +57,12 @@ public:
     /// ID for separating ttbar samples via flavour of additional jets
     void SetAdditionalBjetMode(const int additionalBjetMode);
     
+    /// Name of the reweighting
+    void SetReweightingName(const TString reweightingName);
+    
+    /// Slope of the reweighting
+    void SetReweightingSlope(const double reweightingSlope);
+    
     
     
     /// Set up all analysers of type AnalyzerBase
@@ -118,6 +124,10 @@ private:
                                                 const std::vector<double>& jetCharges);
     
     
+    /// Additional weight to be applied for the reweighting
+    double reweightingWeight(const TopGenObjects& topGenObjects, const tth::GenObjectIndices& genObjectIndices)const;
+    
+    
     
     /// Fill all analysers and histograms in one method
     void fillAll(const std::string& selectionStep,
@@ -145,6 +155,13 @@ private:
 
     /// Whether gen. jets that are close to leptons from tt decays should be removed
     bool toRemoveLeptonGenJets_;
+    
+    
+    /// Name of the reweighting function
+    TString reweightingName_;
+    
+    /// Slope of the reweighted shape
+    double reweightingSlope_;
     
     
     
