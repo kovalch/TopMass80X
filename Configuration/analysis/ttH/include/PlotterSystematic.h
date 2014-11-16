@@ -55,11 +55,15 @@ private:
     /// Prepare styling parameters
     void prepareStyle();
 
-    /// Calculate the differential cross section
-    void writeVariations(const SystematicHistoMap& histoCollection, const Channel::Channel channel, const TString processName, const bool logY = false);
+    /// Plot different systematic shapes for each process
+    void writeVariations(const SystematicHistoMap& histoCollection, const Channel::Channel channel, const TString processName, 
+                         const bool logY = false, TPad* pad = 0, const double widthFactor = 1.);
+    
+    /// Plot nominal shapes of different processes
+    void writeNominalShapes(const std::map<TString, TH1*>& processHistograms, const Channel::Channel channel, const bool logY = false);
 
     /// Update histogram axis
-    void updateHistoAxis(TH1* histo, const bool logY=false)const;
+    void updateHistoAxis(TPad* pad)const;
     
     /// Draw label for decay channel in upper left corner of plot
     void drawDecayChannelLabel(const Channel::Channel& channel, const double& textSize =0.04)const;

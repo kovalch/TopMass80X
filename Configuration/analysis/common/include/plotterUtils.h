@@ -57,8 +57,7 @@ namespace common{
     TH1* summedStackHisto(const THStack* stack);
     
     /// Add the ratio pad with axis to the specified pad
-    TH1* drawRatioPad(TPad* pad, const double yMin, const double yMax, TH1* axisHisto, 
-                      const TString title = "#frac{Data}{MC}", const double fraction = 0.36);
+    TPad* drawRatioPad(TPad* pad, const double yMin, const double yMax, const TString title = "#frac{Data}{MC}", const double fraction = 0.36);
     
     /// Get a ratio histogram (errorType: 0-none, 1-nominator, 2-denominator, 3-both)
     TH1* ratioHistogram(const TH1* h_nominator, const TH1* h_denominator, const int errorType = 1);
@@ -79,6 +78,14 @@ namespace common{
     void setGraphStyle(TGraph* graph, Style_t line = -1, Color_t lineColor = -1, Size_t lineWidth = -1, 
                        Style_t marker = -1, Color_t markerColor = -1, Size_t markerSize = -1, 
                        Style_t fill = -1, Color_t fillColor = -1);
+    
+    /// Update Y axis of the pad to fit all histograms and graphs plotted on it
+    TH1* updatePadYAxisRange(TPad* pad, const double yMarginUp = 0.1, double yMarginDown = 0.);
+
+    /// Get the histogram representing the axis 
+    TH1* getPadAxisHisto(const TPad* pad);
+
+    
 }
 
 

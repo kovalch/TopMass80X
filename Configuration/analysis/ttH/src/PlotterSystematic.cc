@@ -77,9 +77,15 @@ void PlotterSystematic::setOptions(const TString& name, const TString&,
     
     printf("Running plot for: %s\n", name.Data());
     
-    processNames_.push_back("ttbb");
+    processNames_.clear();
+//     processNames_.push_back("ttbb");
+    processNames_.push_back("ttb");
     processNames_.push_back("tt2b");
+    processNames_.push_back("ttcc");
     processNames_.push_back("ttOther");
+    processNames_.push_back("ttHbb");
+//     processNames_.push_back("ttZ");
+    processNames_.push_back("bkg");
 }
 
 
@@ -90,10 +96,22 @@ void PlotterSystematic::producePlots()
     
     prepareStyle();
     
-    for(TString processName : processNames_) {
-        for(auto channelCollection : inputFileLists_) {
-            Channel::Channel channel = channelCollection.first;
-            SystematicHistoMap systematicHistos;
+    
+    for(auto channelCollection : inputFileLists_) {
+        // Map of nominal histograms for different processes
+        std::map<TString, TH1*> m_processHistograms;
+            
+        Channel::Channel channel = channelCollection.first;
+        SystematicHistoMap systematicHistos;
+        
+        // Creating an A4 canvas for plotting all processes on it
+        TCanvas* canvas = new TCanvas("c_a4", "", 707, 1000);
+        canvas->Divide(2, 3);
+        TString eventFileString = common::assignFolder(outputDir_, channel, Systematic::Systematic("Nominal"))+name_+"_systematics";
+        size_t nPadsPerPage = 6;
+        size_t padId = 1;
+        
+        for(TString processName : processNames_) {
             // Getting up/down variation histograms for each systematic
             for(auto systematicCollection : channelCollection.second) {
                 Systematic::Systematic systematic = systematicCollection.first;
@@ -112,17 +130,129 @@ void PlotterSystematic::producePlots()
                 }
                 HistoPair pair(histoUp, histoDown);
                 systematicHistos[systematic.type()] = pair;
+                
+                // Storing the nominal shape of the process to compare processes
+                if(systematic.type() != Systematic::nominal) continue;
+                m_processHistograms[processName] = (TH1*)histoUp->Clone();
             }
+            // Plotting different systematic shapes of each process
             writeVariations(systematicHistos, channel, processName);
             if(logY_) writeVariations(systematicHistos, channel, processName, true);
+            
+            // Plotting once again in a pad of the A4 canvas
+            if(padId > nPadsPerPage) continue;      // Skipping if max number of plots/page exceeded
+            TPad* pad = (TPad*)canvas->GetPad(padId);
+            writeVariations(systematicHistos, channel, processName, false, pad, 0.5);
+            padId++;
         }
+        // Exporting the last page of the PDF
+        canvas->Print(eventFileString+".pdf");
+        delete canvas;
+        // Plotting nominal shapes of different processes
+        writeNominalShapes(m_processHistograms, channel);
+        if(logY_) writeNominalShapes(m_processHistograms, channel, true);
     }
+    
     
     //std::cout<<"\n=== Finishing of plot production\n\n";
 }
 
 
-void PlotterSystematic::writeVariations(const SystematicHistoMap& histoCollection, const Channel::Channel channel, const TString processName, const bool logY)
+void PlotterSystematic::writeVariations(const SystematicHistoMap& histoCollection, const Channel::Channel channel, const TString processName, 
+                                        const bool logY, TPad* pad, const double widthFactor)
+{
+    bool ownCanvas = pad == 0;
+    int styleSubtract = ownCanvas ? 0 : 5;
+    // Prepare canvas and legend
+    TCanvas* canvas(0);
+    if(!pad) {
+        canvas = new TCanvas("","");
+        canvas->SetName("");
+        canvas->SetTitle("");
+        pad = canvas;
+    }
+    TLegend* legend = new TLegend(0.67,0.55,0.92,0.85);
+    legend->SetFillStyle(0);
+    legend->SetBorderSize(0);
+    legend->SetX1NDC(1.0 - gStyle->GetPadRightMargin() - gStyle->GetTickLength() - 0.25);
+    legend->SetY1NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength() - 0.05 - legend->GetNRows()*0.05);
+    legend->SetX2NDC(1.0 - gStyle->GetPadRightMargin() - gStyle->GetTickLength());
+    legend->SetY2NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength());
+    legend->Clear();
+    legend->SetFillStyle(0);
+    legend->SetBorderSize(0);
+    pad->cd(0);
+    pad->Clear();
+    if(logY) pad->SetLogy();
+    
+    // Getting nominal histogram
+    TH1* h_nominal = (TH1*)histoCollection.at(Systematic::nominal).first->Clone();
+    if(h_nominal) {
+        common::setHistoStyle(h_nominal, 1,1,3*widthFactor, 20,1,0.75*widthFactor, 0,0);
+        h_nominal->Draw("HIST E X0");
+        legend->AddEntry(h_nominal, processName, "l");
+    } else {
+        printf("No Nominal histogram for sample: ");
+    }
+    
+    // Updating axis
+    updateHistoAxis(pad);
+    
+    TPad* ratioPad = common::drawRatioPad(pad, 0.75, 1.25);
+    
+    // Looping over all available systematics
+    size_t orderId = 0;
+    for(auto systematicHistos : histoCollection) {
+        pad->cd(0);
+        const Systematic::Type systematicType(systematicHistos.first);
+        if(systematicHistos.first == Systematic::nominal) continue;
+        TH1* h_up = (TH1*)systematicHistos.second.first->Clone();
+        if(h_up) {
+            if(normalizeToNominal_) common::normalize(h_up, h_nominal->Integral());
+            common::setHistoStyle(h_up, lineStyles_.first, lineColors_.at(orderId), 2*widthFactor, -1,-1,-1, 0,0);
+            h_up->Draw("same HIST");
+        }
+        TH1* h_down = (TH1*)systematicHistos.second.second->Clone();
+        if(h_down) {
+            if(normalizeToNominal_) common::normalize(h_down, h_nominal->Integral());
+            common::setHistoStyle(h_down, lineStyles_.second-styleSubtract, lineColors_.at(orderId), 2*widthFactor, -1,-1,-1, 0,0);
+            h_down->Draw("same HIST");
+        }
+        
+        legend->AddEntry(h_up, Systematic::convertType(systematicType), "l");
+        ratioPad->cd();
+        TH1* h_ratio_up = common::ratioHistogram(h_up, h_nominal, 0);
+        h_ratio_up->Draw("same HIST");
+        TH1* h_ratio_down = common::ratioHistogram(h_down, h_nominal, 0);
+        h_ratio_down->Draw("same HIST");
+
+        if(orderId<lineColors_.size()-1) orderId++;
+    }
+    // Drawing statistical error bars of the nominal histogram
+    ratioPad->cd();
+    TH1* h_nominal_stat = common::ratioHistogram(h_nominal, h_nominal, 1);
+    common::setHistoStyle(h_nominal_stat, 1,1,3*widthFactor, 20,1,0.75*widthFactor);
+    h_nominal_stat->Draw("same E1 X0");
+    pad->cd(0);
+    h_nominal->Draw("same E1 X0");
+    legend->Draw();
+
+    
+    this->drawCmsLabels(2, 8);
+    this->drawDecayChannelLabel(channel);
+    
+    TString eventFileString = common::assignFolder(outputDir_, channel, Systematic::Systematic("Nominal"))+name_+"_"+processName+"_systematics";
+    if(logY) eventFileString.Append("_logY");
+    if(ownCanvas) {
+        pad->Print(eventFileString+".eps");
+    }
+    
+    if(canvas) delete canvas;
+    if(ownCanvas) delete legend;
+}
+
+
+void PlotterSystematic::writeNominalShapes(const std::map<TString, TH1*>& processHistograms, const Channel::Channel channel, const bool logY)
 {
     // Prepare canvas and legend
     TCanvas* canvas = new TCanvas("","");
@@ -141,66 +271,42 @@ void PlotterSystematic::writeVariations(const SystematicHistoMap& histoCollectio
     canvas->SetTitle("");
     if(logY) canvas->SetLogy();
     
-    // Getting nominal histogram
-    TH1* h_nominal = histoCollection.at(Systematic::nominal).first;
-    if(h_nominal) {
-        updateHistoAxis(h_nominal, logY);
-        common::setHistoStyle(h_nominal, 1,1,3, 20,1,0.75, 0,0);
-        h_nominal->Draw("HIST E X0");
-    } else {
-        printf("No Nominal histogram for sample: ");
-    }
+    char tempChar[100];
     
-    common::drawRatioPad(canvas, 0.75, 1.25, h_nominal);
-    TVirtualPad* ratioPad = gPad;
-    
-    // Looping over all available systematics
-    size_t orderId = 0;
-    for(auto systematicHistos : histoCollection) {
-        canvas->cd(0);
-        const Systematic::Type systematicType(systematicHistos.first);
-        if(systematicHistos.first == Systematic::nominal) continue;
-        TH1* h_up = systematicHistos.second.first;
-        if(h_up) {
-            if(normalizeToNominal_) common::normalize(h_up, h_nominal->Integral());
-            updateHistoAxis(h_up, logY);
-            common::setHistoStyle(h_up, lineStyles_.first, lineColors_.at(orderId), 2, -1,-1,-1, 0,0);
-            h_up->Draw("same HIST");
-        }
-        TH1* h_down = systematicHistos.second.second;
-        if(h_down) {
-            if(normalizeToNominal_) common::normalize(h_down, h_nominal->Integral());
-            updateHistoAxis(h_down, logY);
-            common::setHistoStyle(h_down, lineStyles_.second, lineColors_.at(orderId), 2, -1,-1,-1, 0,0);
-            h_down->Draw("same HIST");
-        }
+    int histoId = 0;
+    // Calculating the total integral of all histograms combined
+    double integralTotal = 0.;
+    for(TString processName : processNames_) integralTotal += processHistograms.at(processName)->Integral();
+    // Plotting histogram for each process
+    for(TString processName : processNames_) {
+        TH1* histo = (TH1*)processHistograms.at(processName)->Clone();
+        double integral = histo->Integral();
+        common::normalize(histo);
+        common::setHistoStyle(histo, -1, lineColors_.at(histoId), 2, 20,lineColors_.at(histoId),0.5, 0,0);
         
-        legend->AddEntry(h_up, Systematic::convertType(systematicType), "l");
-        ratioPad->cd();
-        TH1* h_ratio_up = common::ratioHistogram(h_up, h_nominal, 0);
-        h_ratio_up->Draw("same HIST");
-        TH1* h_ratio_down = common::ratioHistogram(h_down, h_nominal, 0);
-        h_ratio_down->Draw("same HIST");
-
-        if(orderId<lineColors_.size()-1) orderId++;
+        sprintf(tempChar, "%s [%.1f%%]", processName.Data(), integral/integralTotal*100.);
+        legend->AddEntry(histo, tempChar, "l");
+        
+        if(histoId == 0) histo->Draw("E");
+        else histo->Draw("same E");
+//         histo->Draw("same E1 X0");
+        
+        histoId++;
     }
-    // Drawing statistical error bars of the nominal histogram
-    ratioPad->cd();
-    TH1* h_nominal_stat = common::ratioHistogram(h_nominal, h_nominal, 1);
-    common::setHistoStyle(h_nominal_stat, 1,1,3, 20,1,0.75);
-    h_nominal_stat->Draw("same E1 X0");
-    canvas->cd(0);
-    h_nominal->Draw("same E1 X0");
     legend->Draw();
+    
+    updateHistoAxis(canvas);
     
     this->drawCmsLabels(2, 8);
     this->drawDecayChannelLabel(channel);
     
-    TString eventFileString = common::assignFolder(outputDir_, channel, Systematic::Systematic("Nominal"))+name_+"_"+processName+"_systematics";
+    // Saving the plot
+    TString eventFileString = common::assignFolder(outputDir_, channel, Systematic::Systematic("Nominal"))+name_+"_nominalShapes";
     if(logY) eventFileString.Append("_logY");
     canvas->Print(eventFileString+".eps");
     
     delete canvas;
+    delete legend;
 }
 
 
@@ -210,8 +316,8 @@ void PlotterSystematic::prepareStyle()
     common::setHHStyle(*gStyle, false);
 
     // Different line styles for up/down variations
-    lineStyles_.first = 7;
-    lineStyles_.second = 4;
+    lineStyles_.first = 1;
+    lineStyles_.second = 7;
     
     // Different colors for up to 11 systematics
     lineColors_.push_back(2);
@@ -229,33 +335,25 @@ void PlotterSystematic::prepareStyle()
 }
 
 
-void PlotterSystematic::updateHistoAxis(TH1* histo, const bool logY)const
+void PlotterSystematic::updateHistoAxis(TPad* pad)const
 {
-    // Set x and y axis ranges
-    if(logY){
-      // Setting minimum to >0 value
-      // FIXME: Should we automatically calculate minimum value instead of the fixed value?
-      histo->SetMinimum(1e-1);
-      if(ymin_>0) histo->SetMinimum(ymin_);
-    }
-    else histo->SetMinimum(ymin_);
 
+    TH1* histo = common::updatePadYAxisRange(pad, 0.35);
+
+    // Applying the configured X axis range
     if(rangemin_!=0. || rangemax_!=0.) {histo->SetAxisRange(rangemin_, rangemax_, "X");}
-    
-    if(ymax_==0.){
-        // Determining the highest Y value that is plotted
-        float yMax = histo ? histo->GetBinContent(histo->GetMaximumBin()) + histo->GetBinError(histo->GetMaximumBin()) : ymax_;
-        
-        // Scaling the Y axis
-        if(logY){histo->SetMaximum(18.*yMax);}
-        else{histo->SetMaximum(1.35*yMax);}
-    }
-    else{histo->SetMaximum(ymax_);}
-
     histo->GetXaxis()->SetNoExponent(kTRUE);
-    // Set axis titles
+    
+    // Applying the configured Y axis range
+    if(ymax_ != 0.) histo->SetMaximum(ymax_);
+    if(ymin_ != 0.) histo->SetMinimum(ymin_);
+
+    // Applying the configured axis titles
     if(XAxis_ != "-") histo->GetYaxis()->SetTitle(YAxis_);
     if(YAxis_ != "-") histo->GetXaxis()->SetTitle(XAxis_);
+    
+    // Redrawing the axis
+    pad->RedrawAxis();
 }
 
 

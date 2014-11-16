@@ -151,7 +151,7 @@ bool Plotter::prepareDataset(const std::vector<Sample>& v_sample,
             p_sampleHist = SampleHistPair(sample, 0);
             allHistosAvailable = false;
         } else {
-            hist->Sumw2();
+            if(hist->GetSumw2N()<1) hist->Sumw2();
             // Apply weights
             if(sample.sampleType() != Sample::data){
                 const double& weight = v_weight.at(iSample);
@@ -408,7 +408,7 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     for(TPaveText* label : significanceLabels) if(label) label->Draw("same");
     legend->Draw("SAME");
     if(dataHist.second && stacksum){
-        common::drawRatioPad(canvas, 0.5, 1.7, firstHistToDraw, "#frac{Data}{MC}");
+        common::drawRatioPad(canvas, 0.5, 1.7, "#frac{Data}{MC}");
         
         TH1* ratio_histo = common::ratioHistogram(dataHist.second, stacksum, 1);
         common::setHistoStyle(ratio_histo, -1,-1,2);
