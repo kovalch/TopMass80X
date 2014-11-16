@@ -11,7 +11,7 @@ class TString;
 class RootFileReader;
 class Samples;
 class TH1;
-
+class TGraph;
 
 
 
@@ -37,8 +37,6 @@ public:
                          const Sample& sample,
                          const Systematic::Systematic& systematic)const;
     
-    /// Normalising histogram
-    void normalize ( TH1* histo )const;
     
 private:
     
@@ -59,7 +57,8 @@ private:
     double poissonErrorScale(const TH1* histo)const;
     
     /// Writes the txt datacard file used to configure the Higgs combine tool
-    void writeDatacardWithHistos(const std::vector<TH1*> histos, const TString& fileName, const TString& rootFileName, const bool recreate = true)const;
+    void writeDatacardWithHistos(const std::vector<TH1*> histos, const TString& fileName, 
+                                 const TString& rootFileName, const Systematic::Type systematicType)const;
     
     /// Check whether two histograms are identical
     bool histogramsAreIdentical(TH1* histo1, TH1* histo2)const;
@@ -68,8 +67,14 @@ private:
     int storeStatisticalTemplateVariations(const TH1* histo, const TString& name, const int templateId);
     
     /// Storing all separate shapes of the histogram with up/down variations of each single bin within systematic uncertainty
-    int storeSystematicTemplateVariations(const TH1* histo_original, const TH1* histo_systematic, 
-                                          const Systematic::Systematic& systematic, const TString& name, const int templateId);
+    int storeSystematicTemplateVariations(const TH1* histo_systematic, const Systematic::Systematic& systematic, 
+                                          const TString& name, const int templateId);
+    
+    /// Whether the combination of sample name and systematic type should be included in the fit
+    bool templateNameHasSystematic(const TString& templateName, const Systematic::Type systematicType)const;
+    
+    /// Plotting input templates to see separation power
+    void plotInputTemplates(const TString rootFileName)const;
     
     /// Returns the first sampleType for a given sample id
     Sample::SampleType sampleTypeForId(const int id)const;
@@ -86,7 +91,7 @@ private:
     typedef std::map<Sample::SampleType, ValErr> SampleTypeValueMap;
     
     /// Produce map of scale factors for each sample from fitting the histograms
-    const std::vector<ValErr> getScaleFactorsFromHistos(const std::vector<TH1*> histos, const TString& step, 
+    const std::vector<ValErr> getScaleFactorsFromHistos(std::vector<TH1*> histos, const TString& step, 
                                                         const Channel::Channel channel, const Systematic::Systematic& systematic);
     
     
@@ -103,14 +108,23 @@ private:
     /// Map containing the list of sample types with ids: to set specific combinations of samples to be fitted to data
     std::map<Sample::SampleType, int> sampleTypeIds_;
     
+    /// Map containing the prescale of specific sample type (for systematic variation of the fit)
+    std::map<Sample::SampleType, double> sampleTypePrescale_;
+    
     /// Map containing the name and id of each template variation to be stored for the fit (used in datacards)
     std::map<TString, int> templateVariationNameId_;
     
     /// Vector of template names
     std::vector<TString> templateNames_;
     
+    /// Vector of initial scale factors for each template
+    std::vector<double> templateInitialScaleFactors_;
+    
     /// Vector of template fraction up/down variation limits
     std::vector<double> templateScaleLimits_;
+    
+    /// List of systematic variations to be considered for each template
+    std::map<TString, std::vector<Systematic::Type> > templateSystematics_;
     
     /// Name base of the histogram used for the template fit
     TString histoTemplateName_;
