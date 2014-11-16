@@ -23,6 +23,16 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         Sample::data
     );
     
+    result["pseudodata"] = Sample(
+        "pseudodata",
+        kBlack,
+        234.0,
+        {   // Place for specific reweighted ROOT files to be used instead of standard MC files defined below
+            "ttbarsignalPlusBbbar_reweighted_nominal.root"
+        },
+        Sample::pseudodata
+    );
+    
     result["ttbarsignalPlusBbbar"] = Sample(
         "t#bar{t}b#bar{b}",
         18,

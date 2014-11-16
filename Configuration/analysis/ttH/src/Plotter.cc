@@ -214,15 +214,24 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     // Loop over all samples and add those with identical legendEntry
     // And sort them into the categories data, Higgs, other
     LegendHistPair dataHist;
+    Sample dataSample;
+    bool isPseudodata = false;
+    
     std::vector<LegendHistPair> higgsHists;
     std::vector<LegendHistPair> stackHists;
     TH1D* tmpHist(0);
     for(std::vector<SampleHistPair>::iterator i_sampleHistPair = v_sampleHistPair_.begin();
         i_sampleHistPair != v_sampleHistPair_.end(); ++i_sampleHistPair)
     {
-        const Sample::SampleType& sampleType(i_sampleHistPair->first.sampleType());
-        const TString& legendEntry(i_sampleHistPair->first.legendEntry());
+        const Sample& sample = i_sampleHistPair->first;
+        const Sample::SampleType& sampleType(sample.sampleType());
+        const TString& legendEntry(sample.legendEntry());
         const TH1* hist = i_sampleHistPair->second;
+        // Detecting whether pseudodata is used instead of data
+        if(sampleType == Sample::pseudodata) {
+            dataSample = sample;
+            isPseudodata = true;
+        }
         
         std::vector<SampleHistPair>::iterator incrementIterator(i_sampleHistPair);
         ++incrementIterator;
@@ -233,12 +242,19 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
         
         if(lastHist || (legendEntry!=incrementIterator->first.legendEntry())){
             if(!newHist) tmpHist->Add(hist);
-            if(sampleType == Sample::data) dataHist = LegendHistPair(legendEntry, tmpHist);
+            if(sampleType == Sample::data || sampleType == Sample::pseudodata) dataHist = LegendHistPair(legendEntry, tmpHist);
             else if(sampleType == Sample::ttHbb) higgsHists.push_back(LegendHistPair(legendEntry, tmpHist));
             else if(sampleType == Sample::ttHother) higgsHists.push_back(LegendHistPair(legendEntry, tmpHist));
             else stackHists.push_back(LegendHistPair(legendEntry, tmpHist));
             if(sampleType == Sample::ttHbb) ttHbbHist = tmpHist;
             else if(sampleType == Sample::ttbb) ttbbHist = tmpHist;
+            // Adding MC to data if pseudodata should be used
+            if(isPseudodata && dataHist.second && sampleType != Sample::pseudodata) {
+                // Adding only if this file or its reweighted version is not defined already for pseudodata
+                if(!dataSample.containsFilenamesOfSample(sample, true)) {
+                    dataHist.second->Add(tmpHist);
+                }
+            }
             tmpHist = 0;
         }
         else{
@@ -479,15 +495,16 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
 void Plotter::setStyle(SampleHistPair& sampleHistPair, const bool isControlPlot)
 {
     TH1* hist(sampleHistPair.second);
+    const Sample& sample = sampleHistPair.first;
 
-    hist->SetFillColor(sampleHistPair.first.color());
-    hist->SetLineColor(sampleHistPair.first.color());
+    hist->SetFillColor(sample.color());
+    hist->SetLineColor(sample.color());
     hist->SetLineWidth(1);
 
     if(XAxis_ == "-") XAxis_ = hist->GetXaxis()->GetTitle();
     if(YAxis_ == "-") YAxis_ = hist->GetYaxis()->GetTitle();
 
-    if(sampleHistPair.first.sampleType() == Sample::SampleType::data){
+    if(sample.sampleType() == Sample::data || sample.sampleType() == Sample::pseudodata){
         hist->SetFillColor(0);
         hist->SetMarkerStyle(20);
         hist->SetMarkerSize(1.);

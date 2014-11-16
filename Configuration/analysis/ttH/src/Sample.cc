@@ -105,7 +105,33 @@ void Sample::setInputFile(const TString& inputFileName)
         std::cerr<<"Cannot find requested file: "<<inputFileName<<"\n...breaking\n";
         exit(17);
     }
-    inputFileName_ = inputFileName;
+        inputFileName_ = inputFileName;
+}
+
+bool Sample::containsFilenamesOfSample(Sample sample, const bool checkReweightedFiles)const
+{
+    const std::vector<TString>& filenamesToCheck = sample.getFileNames();
+    
+    for(TString filename : filenamesToCheck) {
+        if(!checkReweightedFiles && std::find(v_filename_.begin(), v_filename_.end(), filename) != v_filename_.end()) return true;
+
+        // Contrsucting a filename template representing reweighted sample (should match the naming scheme in load_Analysis.C)
+        TString reweightedTemplate(filename);
+        reweightedTemplate.ReplaceAll(".root", "_reweighted");
+        // Checking whether the sample has any file matching the reweighted and original versions of the filename
+        for(TString theFilename : v_filename_) {
+            if(theFilename == filename) return true;
+            if(theFilename.BeginsWith(reweightedTemplate)) return true;
+        }
+    }
+    
+    return false;
+}
+
+
+const std::vector<TString>& Sample::getFileNames()const
+{
+    return v_filename_;
 }
 
 

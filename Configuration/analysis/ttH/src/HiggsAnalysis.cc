@@ -954,6 +954,7 @@ double HiggsAnalysis::reweightingWeight(const TopGenObjects& topGenObjects, cons
 {
     if(reweightingName_ == "") return 1.0;
     if(reweightingSlope_ == 0.0) return 1.0;
+    if(reweightingName_ == "nominal") return 1.0;
     
     // Getting generator level information
     const VLV& allGenJets = (topGenObjects.valuesSet_) ? *topGenObjects.allGenJets_ : VLV(0);

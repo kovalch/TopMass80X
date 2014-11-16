@@ -18,7 +18,7 @@ class Sample{
 public:
     
     /// Specific type of sample as needed to be known for eg. plotting or Drell-Yan scale factor calculation
-    enum SampleType{data, dyee, dymumu, dytautau, ttHbb, ttHother, ttbb, ttb, tt2b, ttcc, ttother, ttNoDilepton, ttZ, dummy};
+    enum SampleType{data, pseudodata, dyee, dymumu, dytautau, ttHbb, ttHother, ttbb, ttb, tt2b, ttcc, ttother, ttNoDilepton, ttZ, dummy};
     
     
     
@@ -68,6 +68,12 @@ public:
     
     /// Set the path of the input root file
     void setInputFile(const TString& inputFileName);
+    
+    /// Check whether sample contains the given root file
+    bool containsFilenamesOfSample(Sample sample, const bool checkReweightedFiles=false)const;
+    
+    /// Get list of file names
+    const std::vector<TString>& getFileNames()const;
     
     /// Return the path of the input root file
     TString inputFile()const;

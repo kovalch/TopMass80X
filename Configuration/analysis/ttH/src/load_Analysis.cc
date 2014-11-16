@@ -412,7 +412,8 @@ void load_Analysis(const TString& validFilenamePattern,
         selector->SetReweightingSlope(reweightingSlope);
         
         char tempChar[100];
-        sprintf(tempChar, "_reweighted_%s_%g.root", reweightingName.c_str(), reweightingSlope);
+        if(reweightingName == "nominal") sprintf(tempChar, "_reweighted_%s.root", reweightingName.c_str());
+        else sprintf(tempChar, "_reweighted_%s_%g.root", reweightingName.c_str(), reweightingSlope);
         if(reweightingName != "") filenameBase.ReplaceAll(".root", tempChar);
         
         // Loop over channels and run selector
@@ -598,8 +599,8 @@ int main(int argc, char** argv)
             [](const Long64_t mE){return mE > 0;});
     CLParameter<Long64_t> opt_skipEvents("skipEvents", "Number of events to be skipped", false, 1, 1,
             [](const Long64_t sE){return sE > 0;});
-    CLParameter<std::string> opt_reweightName("reweightName", "Name of the event reweighting to be applied (1st_add_bjet_pt, 1st_add_bjet_eta, 2nd_add_bjet_pt, 2nd_add_bjet_eta, add_bjet_dR, add_bjet_Mjj). Default: none", false, 1, 1);
-    CLParameter<double> opt_reweightSlope("reweightSlope", "Slope of the event reweighting to be applied. Default: 0.0", false, 1, 1);
+    CLParameter<std::string> opt_reweightName("reweightName", "Name of the event reweighting to be applied (nominal, 1st_add_bjet_pt, 1st_add_bjet_eta, 2nd_add_bjet_pt, 2nd_add_bjet_eta, add_bjet_dR, add_bjet_Mjj). Default: none", false, 1, 1);
+    CLParameter<double> opt_reweightSlope("reweightSlope", "Slope of the event reweighting to be applied. Default: 0.0 Has no effect with nominal reweighting", false, 1, 1);
     CLAnalyser::interpretGlobal(argc, argv);
     
     // Set up a pattern for selecting only files from selectionList containing that pattern in filename
