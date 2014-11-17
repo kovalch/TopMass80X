@@ -75,7 +75,7 @@ float getTtbarXsec(float topmass, float energy=8, float* scaleerr=0, float * pdf
  * slope from Hathor, central value form Kidonakis as
  * https://twiki.cern.ch/twiki/bin/viewauth/CMS/StandardModelCrossSectionsat8TeV
  */
-float getTWXsec(float topmass);
+float getTWXsec(float topmass, double energy=8);
 
 template<class t>
 bool isApprox(t a, t b, double eps = 0.01) {

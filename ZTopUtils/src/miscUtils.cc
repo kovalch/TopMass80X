@@ -185,9 +185,13 @@ float getTtbarXsec(float topmass, float energy, float* scaleerr, float * pdferr)
 	return out;
 }
 
-float getTWXsec(float topmass){
-
-	return 11.1 * (78.031 -1.18762*topmass + 0.00617683*topmass*topmass -1.09003e-05*topmass*topmass*topmass);
+float getTWXsec(float topmass,double energy){
+	if(isApprox(energy,8.,0.1))
+		return 11.1 * (78.031 -1.18762*topmass + 0.00617683*topmass*topmass -1.09003e-05*topmass*topmass*topmass);
+	else if(isApprox(energy,7.,0.1)) //just a guess
+		return 5.3 * (78.031 -1.18762*topmass + 0.00617683*topmass*topmass -1.09003e-05*topmass*topmass*topmass);
+	else
+		return 0;
 
 }
 
