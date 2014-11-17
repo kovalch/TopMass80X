@@ -988,39 +988,39 @@ double HiggsAnalysis::reweightingWeight(const TopGenObjects& topGenObjects, cons
     if(reweightingName_ == "1st_add_bjet_pt") {
         if(addBJetsId_gen.size() < 1) return 1.0;
         const int jetId = addBJetsId_gen.at(0);
-        return 1 + (allGenJets.at(jetId).Pt() - 100.)*reweightingSlope_;
+        return 1 + reweightingSlope_*(allGenJets.at(jetId).Pt() - 100.)/100.;
     }
     
     if(reweightingName_ == "1st_add_bjet_eta") {
         if(addBJetsId_gen.size() < 1) return 1.0;
         const int jetId = addBJetsId_gen.at(0);
-        return 1 + (std::fabs(allGenJets.at(jetId).Eta()) - 1.)*reweightingSlope_;
+        return 1 + reweightingSlope_*(std::fabs(allGenJets.at(jetId).Eta()) - 1.);
     }
     
     if(reweightingName_ == "2nd_add_bjet_pt") {
         if(addBJetsId_gen.size() < 2) return 1.0;
         const int jetId = addBJetsId_gen.at(1);
-        return 1 + (allGenJets.at(jetId).Pt() - 60.)*reweightingSlope_;
+        return 1 + reweightingSlope_*(allGenJets.at(jetId).Pt() - 60.)/60.;
     }
     
     if(reweightingName_ == "2nd_add_bjet_eta") {
         if(addBJetsId_gen.size() < 2) return 1.0;
         const int jetId = addBJetsId_gen.at(1);
-        return 1 + (std::fabs(allGenJets.at(jetId).Eta()) - 1.)*reweightingSlope_;
+        return 1 + reweightingSlope_*(std::fabs(allGenJets.at(jetId).Eta()) - 1.);
     }
     
     if(reweightingName_ == "add_bjet_dR") {
         if(addBJetsId_gen.size() < 2) return 1.0;
         const int jetId_1 = addBJetsId_gen.at(0);
         const int jetId_2 = addBJetsId_gen.at(1);
-        return 1 + (ROOT::Math::VectorUtil::DeltaR(allGenJets.at(jetId_1), allGenJets.at(jetId_2)) - 2.)*reweightingSlope_;
+        return 1 + reweightingSlope_*(ROOT::Math::VectorUtil::DeltaR(allGenJets.at(jetId_1), allGenJets.at(jetId_2)) - 1.5)/1.5;
     }
     
     if(reweightingName_ == "add_bjet_Mjj") {
         if(addBJetsId_gen.size() < 2) return 1.0;
         const int jetId_1 = addBJetsId_gen.at(0);
         const int jetId_2 = addBJetsId_gen.at(1);
-        return 1 + ((allGenJets.at(jetId_1) + allGenJets.at(jetId_2)).M() - 100.)*reweightingSlope_;
+        return 1 + reweightingSlope_*((allGenJets.at(jetId_1) + allGenJets.at(jetId_2)).M() - 100.)/100.;
     }
     
     std::cerr << "ERROR! Provided reweighting name is not supported. Stopping..." << std::endl;
