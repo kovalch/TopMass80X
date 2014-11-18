@@ -5,6 +5,7 @@ import sys
 options = VarParsing.VarParsing ('standard')
 
 options.register('mcversion', 'Summer12', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "MC campaign or data")
+options.register('generator', 'pythia6', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "MC generator")
 options.register('mcWeight', 1.0 , VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.float, "MC sample event weight")
 options.register('lepton', 'muon', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "Lepton+jets channel")
 options.register('metcl', 1, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.int, "MET correction level")
@@ -64,33 +65,23 @@ process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNa
                               dropDescendantsOfDroppedBranches=cms.untracked.bool(False),
                               inputCommands=cms.untracked.vstring(
                                       'keep *',
-                                      'drop LHERunInfoProduct_*_*_*'
+                                      'drop LHERunInfoProduct_*_*_*',
+                                      'drop GenLumiInfoProduct_*_*_*'
                               )
 )
-if (options.mcversion == "Fall11"):
-  readFiles.extend( [
-         '/store/mc/Fall11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S6_START42_V14B-v1/0000/00CAD0AC-17FA-E011-A4F4-00304867905A.root'
-  ] )
-elif (options.mcversion == "Summer12"):
-  readFiles.extend( [
-         '/store/user/mseidel/TTJets_MSDecays_TuneZ2star_parj81_0.145_8TeV-madgraph/job_1275_TTJets_FSIM.root',
-         '/store/user/mseidel/TTJets_MSDecays_TuneZ2star_parj81_0.145_8TeV-madgraph/job_1282_TTJets_FSIM.root',
-         '/store/user/mseidel/TTJets_MSDecays_TuneZ2star_parj81_0.145_8TeV-madgraph/job_1290_TTJets_FSIM.root',
-         '/store/user/mseidel/TTJets_MSDecays_TuneZ2star_parj81_0.145_8TeV-madgraph/job_1005_TTJets_FSIM.root',
-         '/store/user/mseidel/TTJets_MSDecays_TuneZ2star_parj81_0.145_8TeV-madgraph/job_1328_TTJets_FSIM.root',
-         '/store/user/mseidel/TTJets_MSDecays_TuneZ2star_parj81_0.145_8TeV-madgraph/job_1325_TTJets_FSIM.root',
-         '/store/user/mseidel/TTJets_MSDecays_TuneZ2star_parj81_0.145_8TeV-madgraph/job_1316_TTJets_FSIM.root',
-         '/store/user/mseidel/TTJets_MSDecays_TuneZ2star_parj81_0.145_8TeV-madgraph/job_1356_TTJets_FSIM.root',
-         '/store/user/mseidel/TTJets_MSDecays_TuneZ2star_parj81_0.145_8TeV-madgraph/job_1368_TTJets_FSIM.root',
-         '/store/user/mseidel/TTJets_MSDecays_TuneZ2star_parj81_0.145_8TeV-madgraph/job_1322_TTJets_FSIM.root',
-         #'/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/20003/0094CB21-174B-E311-B3C8-7845C4FC3A7F.root'
-  ] )
-elif (options.mcversion == "Summer12W0Jets"):
-  readFiles.extend( [
-         '/store/mc/Summer12_DR53X/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball/AODSIM/PU_S10_START53_V7A-v2/0004/FE9FA8F7-2BF3-E111-A34E-001E672CC1E7.root',
-         '/store/mc/Summer12_DR53X/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball/AODSIM/PU_S10_START53_V7A-v2/0004/FE7A6C35-FAF2-E111-97BC-D8D385FF4ABA.root',
-         '/store/mc/Summer12_DR53X/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball/AODSIM/PU_S10_START53_V7A-v2/0004/FE777AEF-CBF2-E111-AD95-001E67398223.root',
-  ] )
+if (options.mcversion == "Summer12"):
+  if (options.generator == "pythia8"):
+    readFiles.extend( ['/store/user/mseidel/TT_8TeV-amcatnlo-pythia8/job_350_TT_FSIM.root'] )
+  elif (options.generator == "sherpa"):
+    readFiles.extend( ['/store/user/mseidel/TT_Cluster_8TeV-sherpa2/job_0_fastreco_FASTSIM_HLT_PU.root'] )
+  elif (options.generator == "herwigpp"):
+    readFiles.extend( ['/store/user/mseidel/TT_8TeV-amcatnlo-herwigpp/job_35_TT_FSIM.root'] )
+  elif (options.generator == "w0jets"):
+    readFiles.extend( ['/store/mc/Summer12_DR53X/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball/AODSIM/PU_S10_START53_V7A-v2/0004/FE9FA8F7-2BF3-E111-A34E-001E672CC1E7.root'] )
+  else:
+    readFiles.extend( ['/store/mc/Summer12_DR53X/TTJets_MSDecays_central_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V19-v1/20003/0094CB21-174B-E311-B3C8-7845C4FC3A7F.root'] )
+  
+
 elif (data and options.lepton == "muon"):
   readFiles.extend( [
          '/store/data/Run2012A/SingleMu/AOD/22Jan2013-v1/30000/FEDCB8E2-5270-E211-8FD6-00266CFFBC38.root'
@@ -98,26 +89,6 @@ elif (data and options.lepton == "muon"):
 elif (data and options.lepton == "electron"):
   readFiles.extend( [
          '/store/data/Run2012A/SingleElectron/AOD/22Jan2013-v1/30002/72352080-9372-E211-B431-00266CFFA1AC.root'
-  ] )
-  process.source.skipEvents=cms.untracked.uint32(1800)
-elif (options.mcversion == "Sherpa12"):
-  readFiles.extend( [
-         '/store/user/mseidel/TT_cluster_8TeV-sherpa/job_0_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_cluster_8TeV-sherpa/job_2_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_cluster_8TeV-sherpa/job_4_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_cluster_8TeV-sherpa/job_6_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_cluster_8TeV-sherpa/job_8_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_lund_8TeV-sherpa/job_1_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_lund_8TeV-sherpa/job_3_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_lund_8TeV-sherpa/job_5_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_lund_8TeV-sherpa/job_7_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_lund_8TeV-sherpa/job_9_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_lund_8TeV-sherpa/job_13_fastreco_FASTSIM_HLT_PU.root',
-         
-  ] )
-else:
-  readFiles.extend( [
-          '/store/mc/Summer12_DR53X/TTJets_SemiLeptMGDecays_8TeV-madgraph/AODSIM/PU_S10_START53_V7A-v1/00001/FC5CECAE-8B14-E211-8578-0025B3E0652A.root',
   ] )
 
 secFiles.extend( [
@@ -148,7 +119,7 @@ if data:
   process.GlobalTag.globaltag = cms.string('FT_53_V21_AN5::All')
 
 ## generator filters
-if (options.mcversion == 'Summer12W0Jets'):
+if (options.generator == 'w0jets'):
     process.load("TopAnalysis.TopFilter.filters.GeneratorWNJetsFilter_cfi")
     process.filterWNJets.NJet = 0
 
@@ -279,7 +250,7 @@ process.hitFitTtSemiLepEventHypothesis.useBTagging       = True
 addTtSemiLepHypotheses(process,
                        ["kHitFit", "kMVADisc"]
                        )
-if data: removeTtSemiLepHypGenMatch(process)
+if (data or options.generator == "sherpa" or options.generator == "herwigpp"): removeTtSemiLepHypGenMatch(process)
 
 ## load HypothesisAnalyzer
 from TopMass.TopEventTree.EventHypothesisAnalyzer_cfi import analyzeHypothesis
@@ -326,6 +297,10 @@ if not data:
         process.eventWeightPU.DataHistoName            = "pileup"
 
         process.eventWeightPU.MCSampleFile             = "TopAnalysis/TopUtils/data/MC_PUDist_Summer12_S10.root"
+        
+    if (options.generator == "rd"):
+        process.eventWeightPU.MCSampleHistoName        = ""
+        process.eventWeightPU.DataHistoName            = ""
 
     process.eventWeightPUsysNo   = process.eventWeightPU.clone()
     process.eventWeightPUsysUp   = process.eventWeightPU.clone()
@@ -500,8 +475,6 @@ process.path.remove(process.tightBottomJets)
 #process.path.remove(process.looseElectronsEJ)
 #process.path.remove(process.tightElectronsEJ)
 
-if (options.mcversion == "Sherpa12"): process.path.remove(process.eventWeightMC)
-
 
 ## switch to from muon to electron collections
 if (options.lepton=="electron"):
@@ -567,7 +540,7 @@ if data:
         print "Running with GC, resetting address of JECFile!"
         PFoptions['JECFile'] = '../src/TopMass/Configuration/data/Winter14_V5_DATA.db'
 
-if options.mcversion == "Summer12RD":
+if (options.generator == "rd"):
     PFoptions['JECEra' ] = 'Winter14_V5_MC'
     PFoptions['JECFile'] = '../data/Winter14_V5_MC.db'
     if os.getenv('GC_CONF'):
@@ -587,7 +560,13 @@ for pathname in pathnames:
         getattr(process, pathname).insert(0,process.decaySubset)
         getattr(process, pathname).remove(process.initSubset)
         getattr(process, pathname).insert(0,process.initSubset)
-    if (options.mcversion == 'Summer12W0Jets'):
+    if (options.generator == "sherpa" or options.generator == "herwigpp"):
+        getattr(process, pathname).remove(process.genEvt)
+        getattr(process, pathname).remove(process.decaySubset)
+        getattr(process, pathname).remove(process.initSubset)
+        getattr(process, pathname).remove(process.makeGenEvt)
+        getattr(process, pathname).remove(process.eventWeightMC)
+    if (options.generator == 'w0jets'):
         getattr(process, pathname).insert(0,process.filterWNJets)
     ## move the trigger to the beginning of the sequence
     getattr(process, pathname).remove(process.hltFilter)

@@ -25,12 +25,16 @@ class config:
                    #'TTJets_MSDecays_TuneZ2star_parj81_0.145_8TeV-madgraph',
                    #'TTJets_MSDecays_TuneZ2star_parj81_0.290_8TeV-madgraph',
                    #'TTJets_MSDecays_TuneZ2star_parj81_0.580_8TeV-madgraph',
-                   'TT_Tune4C_topwidth_0_8TeV-pythia8-fix1',
-                   'TT_Tune4C_topwidth_0.5_8TeV-pythia8-fix1',
-                   'TT_Tune4C_topwidth_1.5_8TeV-pythia8-fix1',
-                   'TT_Tune4C_topwidth_3_8TeV-pythia8-fix1',
-                   'TT_Tune4C_topwidth_5_8TeV-pythia8-fix1',
-                   'TT_Tune4C_topwidth_7.5_8TeV-pythia8-fix1',
+                   #'TT_Tune4C_topwidth_0_8TeV-pythia8-fix1',
+                   #'TT_Tune4C_topwidth_0.5_8TeV-pythia8-fix1',
+                   #'TT_Tune4C_topwidth_1.5_8TeV-pythia8-fix1',
+                   #'TT_Tune4C_topwidth_3_8TeV-pythia8-fix1',
+                   #'TT_Tune4C_topwidth_5_8TeV-pythia8-fix1',
+                   #'TT_Tune4C_topwidth_7.5_8TeV-pythia8-fix1',
+                   #'TT_Cluster_8TeV-sherpa2',
+                   #'TT_Lund_8TeV-sherpa2',
+                   'TT_8TeV-amcatnlo-herwigpp',
+                   'TT_8TeV-amcatnlo-pythia8',
                   ]
   dataset_file  = "datasets.dbs"
   list_file     = "tmp_files.txt"

@@ -16,6 +16,7 @@
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtFullHadronicEvent.h"
@@ -51,6 +52,7 @@ muWeightSrc_ (cfg.getParameter<edm::InputTag>("muWeightSrc")),
 elWeightSrc_ (cfg.getParameter<edm::InputTag>("elWeightSrc")),
 
 genEventSrc_   (cfg.getParameter<edm::InputTag>("genEventSrc")),
+lheEventSrc_   (cfg.getParameter<edm::InputTag>("lheEventSrc")),
 ttEvent_       (cfg.getParameter<edm::InputTag>("ttEvent")),
 savePDFWeights_(cfg.getParameter<bool>("savePDFWeights")),
 brCorrection_  (cfg.getParameter<bool>("brCorrection")),
@@ -72,16 +74,17 @@ WeightEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
   // MC & PDF weights
   ////////////////////////////////////////////////////////////////////////
 
+  bool negWeight = false;
+  weight->mcWeight = mcWeight_;
+  weight->combinedWeight *= weight->mcWeight;
+  
   edm::Handle<GenEventInfoProduct> genEventInfo_h;
   if(!genEventSrc_.label().empty()) evt.getByLabel(genEventSrc_, genEventInfo_h);
 
-  weight->mcWeight = mcWeight_;
-  weight->combinedWeight *= weight->mcWeight;
   if(genEventInfo_h.isValid()){
     //weight->mcWeight = genEventInfo_h->weight();
     if(genEventInfo_h->weight() < 0.) {
-      weight->mcWeight       *= -1.;
-      weight->combinedWeight *= -1.;
+      negWeight = true;
     }
 
     if(savePDFWeights_){
@@ -91,19 +94,23 @@ WeightEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
       weight->Q   = genEventInfo_h->pdf()->scalePDF;
       weight->id1 = genEventInfo_h->pdf()->id.first;
       weight->id2 = genEventInfo_h->pdf()->id.second;
-/*
-      double w0 = 0.;
-      for(unsigned i=0; i <=44; ++i) {
-        LHAPDF::usePDFMember(1,i);
-        double xpdf1 = LHAPDF::xfx(1, weight->x1, weight->Q, weight->id1);
-        double xpdf2 = LHAPDF::xfx(1, weight->x2, weight->Q, weight->id2);
-        if(i<1)
-          w0 = xpdf1 * xpdf2;
-        else
-          weight->pdfWeight.push_back(xpdf1 * xpdf2 / w0);
-      }
-*/
     }
+  }
+  
+  edm::Handle<LHEEventProduct> lheEvent_h;
+  if(!lheEventSrc_.label().empty()) evt.getByLabel(lheEventSrc_, lheEvent_h);
+
+  // aMCatNLO+Herwig++ sample has no genEventInfo
+  // TODO: Get generator variations from LHEEventProduct::weights() (CMSSW >= 5_3_15)
+  if(lheEvent_h.isValid()){
+    if(lheEvent_h->hepeup().XWGTUP < 0.) {
+      negWeight = true;
+    }
+  }
+  
+  if(negWeight) {
+    weight->mcWeight       *= -1.;
+    weight->combinedWeight *= -1.;
   }
   
   //////////////////////////////////////////////////////////////////////////
