@@ -29,7 +29,7 @@ public:
                        const bool separationPowerPlots =false);
     
     /// Destructor
-    ~MvaTreePlotterBase(){}
+    virtual ~MvaTreePlotterBase(){}
     
     
     
