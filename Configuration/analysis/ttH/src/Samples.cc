@@ -35,6 +35,7 @@ globalScaleFactors_(globalScaleFactors)
     std::vector<Systematic::Systematic> v_systematicForSamples(v_systematic);
     
     // Check if systematic only modifies ttbar sample, if yes ensure that nominal samples are also set up
+    // This is needed since only samples which occur in the corresponding fileFist will be set up
     for(const auto& systematic : v_systematic){
         if(std::find(Systematic::ttbarTypes.begin(), Systematic::ttbarTypes.end(), systematic.type()) != Systematic::ttbarTypes.end()){
             bool containsNominal(false);
