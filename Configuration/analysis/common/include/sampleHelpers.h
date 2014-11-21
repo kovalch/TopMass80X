@@ -166,6 +166,15 @@ namespace Systematic{
         btagBeff, btagCeff, btagLeff,
     };
     
+    /// Define ttbar systematics, i.e. variations of the ttbar sample (e.g. mass or scale variations)
+    const std::vector<Type> ttbarTypes{
+        topPt,
+        mass, match, scale,
+        powheg, powhegHerwig, mcatnlo, perugia11, perugia11NoCR,
+        pdf,
+        closure
+    };
+    
     
     
     
