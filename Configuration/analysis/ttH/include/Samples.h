@@ -76,18 +76,14 @@ private:
     
     
     /// Assign options to each sample via its filename
-    std::vector<Sample> setSampleOptions(const Systematic::Systematic& systematic, const std::vector<std::pair<TString, Sample> >& v_filenameSamplePair);
+    /// For systematic variations of specific samples, set all other samples to nominal ones
+    std::vector<Sample> setSampleOptions(const Systematic::Systematic& systematic,
+                                         const std::vector<std::pair<TString, Sample> >& v_filenameSamplePair,
+                                         const std::vector<std::pair<TString, Sample> >& v_filenameSamplePairNominal);
     
     /// Order samples by their legend
     /// when a legend already exists, the sample is moved directly behind it
     void orderByLegend(std::vector<Sample>& v_sample);
-    
-    /// Assign the real final state to each sample, ie. only "ee", "emu", "mumu", but not "combined"
-    Channel::Channel assignFinalState(const TString& filename)const;
-    
-    /// Assign the real systematic to each sample, i.e. what should be used for given systematic (nominal or specific systematic)
-    /// and modify filename accordingly
-    Systematic::Systematic assignSystematic(const Sample& sample, TString& filename, const Systematic::Systematic& systematic);
     
     
     

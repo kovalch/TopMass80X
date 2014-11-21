@@ -113,18 +113,6 @@ private:
 
 
 
-/// Define all samples which are ttbar samples, in order to set systematic variations porperly
-const std::vector<Sample::SampleType> ttbarSampleTypes{
-    Sample::ttbb, Sample::ttb, Sample::tt2b,
-    Sample::ttcc,
-    Sample::ttother, Sample::ttNoDilepton
-};
-    
-    
-    
-
-
-
 
 
 #endif
