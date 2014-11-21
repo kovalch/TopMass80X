@@ -87,7 +87,7 @@ private:
     
     /// Assign the real systematic to each sample, i.e. what should be used for given systematic (nominal or specific systematic)
     /// and modify filename accordingly
-    Systematic::Systematic assignSystematic(TString& filename, const Systematic::Systematic& systematic);
+    Systematic::Systematic assignSystematic(const Sample& sample, TString& filename, const Systematic::Systematic& systematic);
     
     
     

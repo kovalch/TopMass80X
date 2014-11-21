@@ -105,7 +105,8 @@ void Sample::setInputFile(const TString& inputFileName)
         std::cerr<<"Cannot find requested file: "<<inputFileName<<"\n...breaking\n";
         exit(17);
     }
-        inputFileName_ = inputFileName;
+    ifile.close();
+    inputFileName_ = inputFileName;
 }
 
 bool Sample::containsFilenamesOfSample(Sample sample, const bool checkReweightedFiles)const

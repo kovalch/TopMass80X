@@ -111,6 +111,10 @@ namespace Systematic{
         btagDiscrLstat1, btagDiscrLstat2,
         btagDiscrPurity,
         kin,
+        topPt,
+        mass, match, scale,
+        powheg, powhegHerwig, mcatnlo, perugia11, perugia11NoCR,
+        pdf
     };
 }
 

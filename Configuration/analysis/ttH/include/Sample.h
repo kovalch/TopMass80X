@@ -18,6 +18,7 @@ class Sample{
 public:
     
     /// Specific type of sample as needed to be known for eg. plotting or Drell-Yan scale factor calculation
+    /// Need to be also set for specific sample types after class definition
     enum SampleType{data, pseudodata, dyee, dymumu, dytautau, ttHbb, ttHother, ttbb, ttb, tt2b, ttcc, ttother, ttNoDilepton, ttZ, dummy};
     
     
@@ -108,6 +109,19 @@ private:
     std::vector<TString> v_filename_;
 };
 
+
+
+
+
+/// Define all samples which are ttbar samples, in order to set systematic variations porperly
+const std::vector<Sample::SampleType> ttbarSampleTypes{
+    Sample::ttbb, Sample::ttb, Sample::tt2b,
+    Sample::ttcc,
+    Sample::ttother, Sample::ttNoDilepton
+};
+    
+    
+    
 
 
 

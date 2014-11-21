@@ -31,7 +31,26 @@ globalScaleFactors_(globalScaleFactors)
 {
     std::cout<<"--- Beginning to set up the samples\n\n";
     
+    // Set up all systematics which need to be defined
+    std::vector<Systematic::Systematic> v_systematicForSamples(v_systematic);
+    
+    // Check if systematic only modifies ttbar sample, if yes ensure that nominal samples are also set up
     for(const auto& systematic : v_systematic){
+        if(std::find(Systematic::ttbarTypes.begin(), Systematic::ttbarTypes.end(), systematic.type()) != Systematic::ttbarTypes.end()){
+            bool containsNominal(false);
+            for(const auto& systematic : v_systematic){
+                if(systematic.type() == Systematic::nominal){
+                    containsNominal = true;
+                    break;
+                }
+            }
+            if(!containsNominal) v_systematicForSamples.push_back(Systematic::nominalSystematic());
+            break;
+        }
+    }
+    
+    // Loop over all systematics and channels and add the samples
+    for(const auto& systematic : v_systematicForSamples){
         for(const auto& channel : v_channel){
             this->addSamples(filelistDirectory, channel, systematic);
         }
@@ -140,7 +159,7 @@ std::vector<Sample> Samples::setSampleOptions(const Systematic::Systematic& syst
         sample.setFinalState(this->assignFinalState(filename));
         
         // Assign specific systematic to each sample and adjust filename accordingly
-        sample.setSystematic(this->assignSystematic(filename, systematic));
+        sample.setSystematic(this->assignSystematic(sample, filename, systematic));
         
         // Check if input file really exists and set it
         sample.setInputFile(filename);
@@ -198,12 +217,17 @@ Channel::Channel Samples::assignFinalState(const TString& filename)const
 
 
 
-Systematic::Systematic Samples::assignSystematic(TString&, const Systematic::Systematic& systematic)
-//Systematic::Systematic Samples::assignSystematic(TString& filename, const Systematic::Systematic& systematic)
+Systematic::Systematic Samples::assignSystematic(const Sample& sample, TString& filename, const Systematic::Systematic& systematic)
 {
     Systematic::Systematic result = systematic;
     
-    // FIXME: adjust filename corresponding to specific systematic
+    // If systematic is valid for ttbar samples only, but is not a ttbar sample, set to nominal
+    if(std::find(Systematic::ttbarTypes.begin(), Systematic::ttbarTypes.end(), systematic.type()) != Systematic::ttbarTypes.end()){
+        if(std::find(ttbarSampleTypes.begin(), ttbarSampleTypes.end(), sample.sampleType()) == ttbarSampleTypes.end()){
+            result = Systematic::nominalSystematic();
+            filename.ReplaceAll(systematic.name(), result.name());
+        }
+    }
     
     return result;
 }
