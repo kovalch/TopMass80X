@@ -10,6 +10,9 @@ class TH1;
 #include "AnalyzerBase.h"
 #include "../../common/include/classesFwd.h"
 
+#include "TMVA/Tools.h"
+#include "TMVA/Reader.h"
+
 
 class JetCategories;
 class EventMetadata;
@@ -65,23 +68,29 @@ public:
     bool putUniquelyInVector(std::vector<int>& vector, const int id);
     int jetSelectedTrackMatchToPfCandidateIndex(size_t iSelectedTrack);
     
+    
     struct MvaJetVariable
     {
-        float longChargeJet_;
-        float relChargeJet_;
-        int leadingTrackCharge_;
-        float leadingTrackPt_;
-        float trueBJetPt_;
-        int numTracks_;
-        int trueBJetId_;
-        float ptRatioTrackJet_;
-        float ipValueLeadingTrack_;
-        float secondaryVertexCharge_;
-    } mvaStruct;
+        Float_t longChargeJet_;
+        Float_t relChargeJet_;
+        Float_t leadingTrackPtWeightedCharge_;
+        Float_t leadingMuonPtWeightedCharge_;
+        Float_t trackNumberWeightedJetPt_;
+        Float_t chargeWeightedTrackId_;
+        Float_t svChargeWeightedFlightDistance_;
+        Float_t secondaryVertexCharge_;
+        Float_t ipSignificanceLeadingTrack_;
+        Float_t trueBJetId_;
+        Float_t thereIsALeadingLepton_;
+        Float_t thereIsALeadingMuon_;
+        Float_t thereIsASecondaryVertex_;
+    } mvaStruct_;
     
-    TTree* mvaChargeTestTree;
-    TTree* mvaChargeTrainTree;
+    TTree* mvaChargeTestTree_;
+    TTree* mvaChargeTrainTree_;
 
+    TMVA::Reader* reader_;
+    TString case1_;
 
 private:
     
