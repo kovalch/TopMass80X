@@ -48,7 +48,8 @@ ymax_(0),
 YAxis_(""),
 XAxis_(""),
 logX_(false),
-logY_(false)
+logY_(false),
+normalizeToData_(false)
 {
     // Suppress default info that canvas is printed
     gErrorIgnoreLevel = 1001;
@@ -58,7 +59,7 @@ logY_(false)
 
 void Plotter::setOptions(const TString& name, const TString&,
                          const TString& YAxis, const TString& XAxis,
-                         const int rebin, const bool,
+                         const int rebin, const bool normalizeToData,
                          const bool logX, const bool logY,
                          const double& ymin, const double& ymax,
                          const double& rangemin, const double& rangemax,
@@ -80,6 +81,7 @@ void Plotter::setOptions(const TString& name, const TString&,
     XAxisbins_ = XAxisbins; // Bins edges=bins+1
     XAxisbinCenters_.clear();
     XAxisbinCenters_ = XAxisbinCenters; //Central point for BinCenterCorrection=bins
+    normalizeToData_ = normalizeToData;	// Whether stacksum should be normalized to data
 }
 
 
@@ -280,6 +282,15 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
                 stacksum->Add((TH1D*)higgsHist.second);
             }
         }
+    }
+
+    // Normalizing MC to data if required
+    if(normalizeToData_) {
+        const double normScale = common::normalize(stacksum, dataHist.second->Integral());
+        for(auto stackHisto : stackHists) stackHisto.second->Scale(normScale);
+        if(drawHiggsOverlaid) for(auto higgsHisto : higgsHists) higgsHisto.second->Scale(normScale);
+        ttbbHist->Scale(normScale);
+        ttHbbHist->Scale(normScale);
     }
     
     

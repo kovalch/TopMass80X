@@ -111,6 +111,7 @@ private:
     TString YAxis_;
     TString XAxis_;
     bool logX_, logY_; // The variable logX_ is not used at all...
+    bool normalizeToData_;
 };
 
 
