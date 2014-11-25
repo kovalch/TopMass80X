@@ -1,5 +1,6 @@
 #include <vector>
 #include <map>
+#include <set>
 #include <iostream>
 #include <algorithm>
 #include <cstdlib>
@@ -115,22 +116,22 @@ void Samples::addSamples(const TString& filelistDirectory,
     // Set sample options via filename
     std::vector<Sample> v_sample(this->setSampleOptions(systematic, v_filenameSamplePair, v_filenameSamplePairNominal));
     
-    // Order files by legendEntry
-    this->orderByLegend(v_sample);
+    // If nominal samples will be merged: reordering samples based on legends
+    if(v_filenameSamplePairNominal.size()>0) {
+        // Building a list of legends in a proper order
+        std::vector<TString> v_legend;
+        for(auto filenameSample : v_filenameSamplePairNominal) {
+            TString legend = filenameSample.second.legendEntry();
+            if(std::find(v_legend.begin(), v_legend.end(), legend) != v_legend.end()) continue;
+            v_legend.push_back(legend);
+        }
+        
+        // Order files by legendEntry
+        this->orderByLegend(v_sample, v_legend);
+    }
     
     // Create map of maps, containing Sample per channel per systematic
     m_systematicChannelSample_[systematic][channel] = v_sample;
-    
-    //for(auto systematicChannelSample : m_systematicChannelSample_){
-    //    for(auto channelSample : systematicChannelSample.second){
-    //        for(auto sample : channelSample.second){
-    //            std::cout<<"We have samples: "<<Systematic::convertSystematic(systematic)
-    //                <<" , "<<Channel::convertChannel(channel)
-    //                <<" , "<<sample.inputFile()
-    //                <<" , "<<Channel::convertChannel(sample.finalState())<<"\n";
-    //        }
-    //    }
-    //}
 }
 
 
@@ -165,11 +166,10 @@ std::vector<Sample> Samples::setSampleOptions(const Systematic::Systematic& syst
         
         // Check if sample is already contained in systematic-specific samples
         bool inSystematicSamples(false);
-        for(const auto& systematicSample : v_sample){
-            if(sample.sampleType() == systematicSample.sampleType()){
-                inSystematicSamples = true;
-                break;
-            }
+        for(const auto& filenameSamplePairSystematic : v_filenameSamplePair){
+            if(sample.sampleType() != filenameSamplePairSystematic.second.sampleType()) continue;
+            inSystematicSamples = true;
+            break;
         }
         if(inSystematicSamples) continue;
         
@@ -186,32 +186,24 @@ std::vector<Sample> Samples::setSampleOptions(const Systematic::Systematic& syst
 
 
 
-void Samples::orderByLegend(std::vector<Sample>& v_sample)
+void Samples::orderByLegend(std::vector<Sample>& v_sample, const std::vector<TString>& v_legend)const
 {
     // Associate vector constituents to legend entry
     // and store all unequal legend entries
-    std::vector<std::pair<TString, Sample> > v_legendSamplePair;
-    std::vector<TString> v_legendEntry;
-    for(auto sample : v_sample){
-        const TString& legendEntry(sample.legendEntry());
-        //std::cout<<"Legends before: "<<legendEntry<<std::endl;
-        v_legendSamplePair.push_back(std::pair<TString, Sample>(legendEntry, sample));
-        if(std::find(v_legendEntry.begin(), v_legendEntry.end(), legendEntry) != v_legendEntry.end()) continue;
-        else v_legendEntry.push_back(legendEntry);
-    }
+    std::vector<Sample> v_sample_unordered;
+    for(auto sample : v_sample) v_sample_unordered.push_back(sample);
 
     // Clear vector and fill it again in correct order
     v_sample.clear();
-    for(auto legendEntry : v_legendEntry){
+    for(auto legendEntry : v_legend){
         int testColor(-999);
-        for(auto legendSamplePair : v_legendSamplePair){
-             if(legendSamplePair.first != legendEntry) continue;
+        for(auto sample : v_sample_unordered){
+             if(sample.legendEntry() != legendEntry) continue;
 
-             //std::cout<<"Legends after: "<<legendEntry<<std::endl;
-             v_sample.push_back(legendSamplePair.second);
+             v_sample.push_back(sample);
 
              // Check if all with same legend do have same colour
-             int color = legendSamplePair.second.color();
+             int color = sample.color();
              if(testColor == -999) testColor = color;
              else if(testColor != color){
                  std::cerr<<"ERROR! Samples have different colors but same legends: "<<legendEntry

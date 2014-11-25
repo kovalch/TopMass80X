@@ -83,7 +83,7 @@ private:
     
     /// Order samples by their legend
     /// when a legend already exists, the sample is moved directly behind it
-    void orderByLegend(std::vector<Sample>& v_sample);
+    void orderByLegend(std::vector<Sample>& v_sample, const std::vector<TString>& v_legend)const;
     
     
     
