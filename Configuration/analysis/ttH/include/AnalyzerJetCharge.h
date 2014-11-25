@@ -9,6 +9,7 @@ class TH1;
 
 #include "AnalyzerBase.h"
 #include "../../common/include/classesFwd.h"
+#include "../../common/include/storeTemplate.h"
 
 #include "TMVA/Tools.h"
 #include "TMVA/Reader.h"
@@ -97,8 +98,23 @@ private:
     ///Debug boolean
     bool debug_;
 
-    /// Book all histograms for given selection step
+    /// Book histograms for one categoryId with given id and label
     virtual void bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram);
+    
+    /// Book jet related (filled once per jet) histograms for given selection step
+    void bookJetHistos(const TString& step, std::map<TString, TH1*>& m_histogram);
+    
+    /// Book pfCandidate related (filled once per pfCandidate) histograms for given selection step
+    void bookPfCandidateHistos(const TString& step, std::map<TString, TH1*>& m_histogram);
+    
+    /// Book selected track related (filled once per selected track) histograms for given selection step
+    void bookSelectedTrackHistos(const TString& step, std::map<TString, TH1*>& m_histogram);
+    
+    /// Book mva related (filled once per jet) histograms for given selection step
+    void bookMvaHistos(const TString& step, std::map<TString, TH1*>& m_histogram);
+    
+    /// Book test and "other" related histograms for given selection step
+    void bookOtherHistos(const TString& step, std::map<TString, TH1*>& m_histogram);
 
     /// Fill all histograms for given selection step
     virtual void fillHistos(const EventMetadata& eventMetadata,
