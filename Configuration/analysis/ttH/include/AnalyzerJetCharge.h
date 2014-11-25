@@ -98,7 +98,7 @@ private:
     ///Debug boolean
     bool debug_;
 
-    /// Book histograms for one categoryId with given id and label
+    /// Book all histograms for given selection step
     virtual void bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram);
     
     /// Book jet related (filled once per jet) histograms for given selection step
