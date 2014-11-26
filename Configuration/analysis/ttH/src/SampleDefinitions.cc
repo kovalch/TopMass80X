@@ -24,11 +24,11 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     );
     
     result["pseudodata"] = Sample(
-        "pseudodata",
+        "pseudoData [nominal]",
         kBlack,
         234.0,
         {   // Place for specific reweighted ROOT files to be used instead of standard MC files defined below
-            "ttbarsignalPlusBbbar_reweighted_nominal.root"
+            "ttbarsignalPlusBbbar_nominal.root"
         },
         Sample::pseudodata
     );
@@ -37,7 +37,20 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "t#bar{t}b#bar{b}",
         18,
         234.0,
-        {"ttbarsignalPlusBbbar.root"},
+        {
+            "ttbarsignalPlusBbbar.root",
+            "ttbarsignalPlusBbbar_massup.root",
+            "ttbarsignalPlusBbbar_massdown.root",
+            "ttbarsignalPlusBbbar_matchingup.root",
+            "ttbarsignalPlusBbbar_matchingdown.root",
+            "ttbarsignalPlusBbbar_scaleup.root",
+            "ttbarsignalPlusBbbar_scaledown.root",
+            "ttbarsignalPlusBbbar_powheg.root",
+            "ttbarsignalPlusBbbar_powhegHerwig.root",
+            "ttbarsignalPlusBbbar_mcatnlo.root",
+            "ttbarsignalPlusBbbar_Perugia11.root",
+            "ttbarsignalPlusBbbar_Perugia11NoCR.root",
+        },
         Sample::ttbb
     );
 
@@ -45,7 +58,20 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "t#bar{t}b",
         12,
         234.0,
-        {"ttbarsignalPlusB.root"},
+        {
+            "ttbarsignalPlusB.root",
+            "ttbarsignalPlusB_massup.root",
+            "ttbarsignalPlusB_massdown.root",
+            "ttbarsignalPlusB_matchingup.root",
+            "ttbarsignalPlusB_matchingdown.root",
+            "ttbarsignalPlusB_scaleup.root",
+            "ttbarsignalPlusB_scaledown.root",
+            "ttbarsignalPlusB_powheg.root",
+            "ttbarsignalPlusB_powhegHerwig.root",
+            "ttbarsignalPlusB_mcatnlo.root",
+            "ttbarsignalPlusB_Perugia11.root",
+            "ttbarsignalPlusB_Perugia11NoCR.root",
+        },
         Sample::ttb
     );
 
@@ -53,7 +79,20 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "t#bar{t}2b",
         28,
         234.0,
-        {"ttbarsignalPlus2B.root"},
+        {
+            "ttbarsignalPlus2B.root",
+            "ttbarsignalPlus2B_massup.root",
+            "ttbarsignalPlus2B_massdown.root",
+            "ttbarsignalPlus2B_matchingup.root",
+            "ttbarsignalPlus2B_matchingdown.root",
+            "ttbarsignalPlus2B_scaleup.root",
+            "ttbarsignalPlus2B_scaledown.root",
+            "ttbarsignalPlus2B_powheg.root",
+            "ttbarsignalPlus2B_powhegHerwig.root",
+            "ttbarsignalPlus2B_mcatnlo.root",
+            "ttbarsignalPlus2B_Perugia11.root",
+            "ttbarsignalPlus2B_Perugia11NoCR.root",
+        },
         Sample::tt2b
     );
 
@@ -61,7 +100,20 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "t#bar{t}Other",
         23,
         234.0,
-        {"ttbarsignalPlusCcbar.root"},
+        {
+            "ttbarsignalPlusCcbar.root",
+            "ttbarsignalPlusCcbar_massup.root",
+            "ttbarsignalPlusCcbar_massdown.root",
+            "ttbarsignalPlusCcbar_matchingup.root",
+            "ttbarsignalPlusCcbar_matchingdown.root",
+            "ttbarsignalPlusCcbar_scaleup.root",
+            "ttbarsignalPlusCcbar_scaledown.root",
+            "ttbarsignalPlusCcbar_powheg.root",
+            "ttbarsignalPlusCcbar_powhegHerwig.root",
+            "ttbarsignalPlusCcbar_mcatnlo.root",
+            "ttbarsignalPlusCcbar_Perugia11.root",
+            "ttbarsignalPlusCcbar_Perugia11NoCR.root",
+        },
         Sample::ttcc
     );
 
@@ -69,7 +121,20 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "t#bar{t}Other",
         23,
         234.0,
-        {"ttbarsignalPlusOther.root"},
+        {
+            "ttbarsignalPlusOther.root",
+            "ttbarsignalPlusOther_massup.root",
+            "ttbarsignalPlusOther_massdown.root",
+            "ttbarsignalPlusOther_matchingup.root",
+            "ttbarsignalPlusOther_matchingdown.root",
+            "ttbarsignalPlusOther_scaleup.root",
+            "ttbarsignalPlusOther_scaledown.root",
+            "ttbarsignalPlusOther_powheg.root",
+            "ttbarsignalPlusOther_powhegHerwig.root",
+            "ttbarsignalPlusOther_mcatnlo.root",
+            "ttbarsignalPlusOther_Perugia11.root",
+            "ttbarsignalPlusOther_Perugia11NoCR.root",
+        },
         Sample::ttother
     );
     
@@ -77,7 +142,18 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "t#bar{t}Other",
         23,
         234.0,
-        {"ttbarbg.root"},
+        {
+            "ttbarbg.root",
+            "ttbarbg_massup.root",
+            "ttbarbg_massdown.root",
+            "ttbarbg_matchingup.root",
+            "ttbarbg_matchingdown.root",
+            "ttbarbg_scaleup.root",
+            "ttbarbg_scaledown.root",
+            "ttbarbg_powheg.root",
+            "ttbarbg_powhegHerwig.root",
+            "ttbarbg_mcatnlo.root",
+        },
         Sample::ttNoDilepton
     );
     
