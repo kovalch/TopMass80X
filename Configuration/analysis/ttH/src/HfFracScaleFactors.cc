@@ -184,6 +184,11 @@ void HfFracScaleFactors::produceScaleFactors(const TString& step, const Samples&
 
         for(Channel::Channel channel : v_channel){
             std::vector<TH1*> histos(sampleTypeIds_.at(Sample::dummy) + 1);
+            if(channelSamples.count(channel) < 1) {
+                std::cerr << "\nERROR! tt+HF scale factors have to be determined at all channels combined.\n"; 
+                std::cerr << "PLEASE, include COMBINED channel in the list of processed channels.\n";
+                exit(3);
+            }
             const std::vector<Sample>& v_sample(channelSamples.at(channel));
             for(size_t iSample = 0; iSample < v_sample.size(); ++iSample){
                 const Sample& sample = v_sample.at(iSample);
@@ -223,9 +228,6 @@ void HfFracScaleFactors::produceScaleFactors(const TString& step, const Samples&
             }
             
             const std::vector<HfFracScaleFactors::ValErr> sampleSFs = getScaleFactorsFromHistos(histos, step, channel, systematic);
-            TString stepStore(step);
-            stepStore.ReplaceAll("_cate0", "");
-            
             for(int type = Sample::data; type <= Sample::dummy; ++type) {
                 Sample::SampleType sampleType = (sampleTypeIds_.count((Sample::SampleType)type) == 0) ? Sample::dummy : (Sample::SampleType)type;
                 m_hfFracScaleFactors_[step][systematic][channel][sampleType] = sampleSFs.at(sampleTypeIds_.at(sampleType));
@@ -351,11 +353,13 @@ const std::vector<HfFracScaleFactors::ValErr> HfFracScaleFactors::getScaleFactor
     // Extracting fit result for each sampleType
     for(size_t sampleId = 1; sampleId<templateNames_.size(); ++sampleId) {
         double v(0.), e(0.);
-        const int binId = histosInFit.at(sampleId)->GetMaximumBin();
-        v = histosInFit.at(sampleId)->GetBinContent(binId);
-        e = histosInFit.at(sampleId)->GetBinError(binId);
-        v /= histos.at(sampleId)->GetBinContent(binId)/templateInitialScaleFactors_.at(sampleId);
-        e /= histos.at(sampleId)->GetBinContent(binId)/templateInitialScaleFactors_.at(sampleId);
+        TH1* histoInFit = histosInFit.at(sampleId);
+        const int binId = histoInFit->GetMaximumBin();
+        v = histoInFit->Integral();
+        // Error is a linear sum of errors in each bin (as fully correlated)
+        for(int iBin = 1; iBin <= histoInFit->GetNbinsX(); ++iBin) e+=histoInFit->GetBinError(iBin);
+        v /= histos.at(sampleId)->Integral()/templateInitialScaleFactors_.at(sampleId);
+        e /= histos.at(sampleId)->Integral()/templateInitialScaleFactors_.at(sampleId);
         result.at(sampleId).val = v;
         result.at(sampleId).err = e;
     }
