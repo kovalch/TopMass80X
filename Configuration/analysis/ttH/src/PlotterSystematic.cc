@@ -75,25 +75,17 @@ void PlotterSystematic::setOptions(const TString& name, const TString&,
     rangemin_ = rangemin; //Min. value in X-axis
     rangemax_ = rangemax; //Max. value in X-axis
     
-    printf("Running plot for: %s\n", name.Data());
-    
     processNames_.clear();
-//     processNames_.push_back("ttbb");
+    processNames_.push_back("ttbb");
     processNames_.push_back("ttb");
     processNames_.push_back("tt2b");
-    processNames_.push_back("ttcc");
     processNames_.push_back("ttOther");
-    processNames_.push_back("ttHbb");
-//     processNames_.push_back("ttZ");
-    processNames_.push_back("bkg");
 }
 
 
 
 void PlotterSystematic::producePlots()
 {
-    //std::cout<<"--- Beginning of plot production\n\n";
-    
     prepareStyle();
     
     
@@ -161,6 +153,12 @@ void PlotterSystematic::producePlots()
 void PlotterSystematic::writeVariations(const SystematicHistoMap& histoCollection, const Channel::Channel channel, const TString processName, 
                                         const bool logY, TPad* pad, const double widthFactor)
 {
+    // Getting nominal histogram
+    if(histoCollection.count(Systematic::nominal) < 1) {
+        std::cout << "No nominal histogram for process: " << processName << " in " << name_ << std::endl;
+        return;
+    }
+    
     bool ownCanvas = pad == 0;
     int styleSubtract = ownCanvas ? 0 : 5;
     // Prepare canvas and legend
@@ -185,20 +183,17 @@ void PlotterSystematic::writeVariations(const SystematicHistoMap& histoCollectio
     pad->Clear();
     if(logY) pad->SetLogy();
     
-    // Getting nominal histogram
     TH1* h_nominal = (TH1*)histoCollection.at(Systematic::nominal).first->Clone();
     if(h_nominal) {
         common::setHistoStyle(h_nominal, 1,1,3*widthFactor, 20,1,0.75*widthFactor, 0,0);
         h_nominal->Draw("HIST E X0");
         legend->AddEntry(h_nominal, processName, "l");
-    } else {
-        printf("No Nominal histogram for sample: ");
     }
     
     // Updating axis
     updateHistoAxis(pad);
     
-    TPad* ratioPad = common::drawRatioPad(pad, 0.75, 1.25);
+    TPad* ratioPad = common::drawRatioPad(pad, 0.5, 2.0);
     
     // Looping over all available systematics
     size_t orderId = 0;
@@ -254,6 +249,11 @@ void PlotterSystematic::writeVariations(const SystematicHistoMap& histoCollectio
 
 void PlotterSystematic::writeNominalShapes(const std::map<TString, TH1*>& processHistograms, const Channel::Channel channel, const bool logY)
 {
+    if(processHistograms.size() < processNames_.size()) {
+        std::cout << "Nominal histograms (" << processHistograms.size() << ") not available for all processes (" << processNames_.size() << ")\n";
+        return;
+    }
+    
     // Prepare canvas and legend
     TCanvas* canvas = new TCanvas("","");
     TLegend* legend = new TLegend(0.67,0.55,0.92,0.85);
@@ -272,7 +272,6 @@ void PlotterSystematic::writeNominalShapes(const std::map<TString, TH1*>& proces
     if(logY) canvas->SetLogy();
     
     char tempChar[100];
-    
     int histoId = 0;
     // Calculating the total integral of all histograms combined
     double integralTotal = 0.;

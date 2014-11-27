@@ -51,7 +51,10 @@ void HistoSystematic(const std::vector<std::string>& v_plot,
             const TString name_systematic = Systematic::convertType(systematic.type());
             for(Systematic::Variation variation : v_variation) {
                 TString name_variation = Systematic::convertVariation(variation);
-                if(systematic.type() == Systematic::nominal) name_variation = "";
+                // Changing the name for systematics that don't have variations
+                if(std::find(Systematic::upDownTypes.begin(), Systematic::upDownTypes.end(), systematic.type()) == Systematic::upDownTypes.end()) {
+                    name_variation = "";
+                }
                 const TString inputFileListName = fileList_base+"/"+"HistoFileList_"+name_systematic+name_variation+"_"+name_channel+".txt";
                 std::ifstream file(inputFileListName.Data());
                 if(!file) {
@@ -66,6 +69,7 @@ void HistoSystematic(const std::vector<std::string>& v_plot,
                     TString histoName(fileName);
                     histoName.Replace(0, histoName.Last('/')+1, "");
                     histoName.Resize(histoName.Last('_'));
+                    
                     
                     if(variation == Systematic::Variation::up) m_inputRootFileNames[channel][systematic][histoName].first = fileName;
                     else if(variation == Systematic::Variation::down) m_inputRootFileNames[channel][systematic][histoName].second = fileName;
@@ -127,17 +131,24 @@ void HistoSystematic(const std::vector<std::string>& v_plot,
 namespace Systematic{
     const std::vector<Type> allowedSystematics = {
         nominal, all, allAvailable,
-//         pu, lept, trig,
-//         jer, 
-        jes,
+        lept, trig,
         btag, 
         btagPt, btagEta,
         btagLjet, 
         btagLjetPt, btagLjetEta,
         btagDiscrBstat1, btagDiscrBstat2,
         btagDiscrLstat1, btagDiscrLstat2,
-        btagDiscrPurity,
         kin,
+
+        pu, jer, 
+        jes,
+        btagDiscrPurity,
+
+        mass, match, scale,
+        powheg, powhegHerwig,
+        mcatnlo, 
+        perugia11, perugia11NoCR,
+        pdf
     };
 }
 
