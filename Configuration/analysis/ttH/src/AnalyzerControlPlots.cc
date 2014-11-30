@@ -1,6 +1,7 @@
 #include <map>
 #include <vector>
 #include <iostream>
+#include <algorithm>
 
 #include <TH1.h>
 #include <TH1D.h>
@@ -131,30 +132,45 @@ void AnalyzerControlPlots::bookHistos(const TString& step, std::map<TString, TH1
     // Jets
     name = "jet_multiplicity";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Jet Multiplicity;N jets;Events",20,0,20));
+    m_histogram[name]->Sumw2();
     name = "jet_pt";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Jet p_{t};p_{t}^{jet} [GeV];Jets",50,0,300));
+    m_histogram[name]->Sumw2();
     name = "jet_eta";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Jet #eta;#eta^{jet};Jets",50,-2.6,2.6));
+    m_histogram[name]->Sumw2();
     name = "jet_phi";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Jet #phi;#phi^{jet};Jets",50,-3.2,3.2));
+    m_histogram[name]->Sumw2();
     name = "jet_btagDiscriminator";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "b-tag Discriminator d;d;Jets",60,-0.1,1.1));
+    m_histogram[name]->Sumw2();
+    name = "jet_btagDiscriminator_min";
+    m_histogram[name] = store(new TH1D(prefix_+name+step, "b-tag Discriminator d;d;Lowest d jet",60,-1.1,1.1));
+    m_histogram[name]->Sumw2();
     name = "jet_chargeGlobalPtWeighted";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "jetChargeGlobalPtWeighted c_{glob}^{jet}; c_{glob}^{jet};# jets", 110, -1.1, 1.1));
+    m_histogram[name]->Sumw2();
     name = "jet_chargeRelativePtWeighted";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "jetChargeRelativePtWeighted c_{rel}^{jet}; c_{rel}^{jet};# jets", 110, -1.1, 1.1));
+    m_histogram[name]->Sumw2();
     
     // Bjets
     name = "bjet_multiplicity";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "B-Jet Multiplicity;N b-jets;Events",20,0,20));
+    m_histogram[name]->Sumw2();
     name = "bjet_pt";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "B-Jet p_{t};p_{t}^{b-jet} [GeV];B-Jets",50,0,300));
+    m_histogram[name]->Sumw2();
     name = "bjet_eta";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "B-Jet #eta;#eta^{b-jet};B-Jets",50,-2.6,2.6));
+    m_histogram[name]->Sumw2();
     name = "bjet_phi";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "B-Jet #phi;#phi^{b-jet};B-Jets",50,-3.2,3.2));
+    m_histogram[name]->Sumw2();
     name = "bjet_chargeRelativePtWeighted";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "B-JetChargeRelativePtWeighted c_{rel}^{jet}; c_{rel}^{jet};# B-Jets", 110, -1.1, 1.1));
+    m_histogram[name]->Sumw2();
 
     // Met
     name = "met_et";
@@ -242,7 +258,6 @@ void AnalyzerControlPlots::fillHistos(const EventMetadata&,
             else m_histogram.at("sumSecondaryVertex_correctedMass")->Fill(SumSecondaryVertexMass, weight);
         }        
     }
-     
 
     for(size_t iSecondaryVertex=0; iSecondaryVertex<jetSecondaryVertex.size(); iSecondaryVertex++) {
         m_histogram.at("secondaryVertex_ptOverJetPt")->Fill((jetSecondaryVertex.at(iSecondaryVertex).Pt())/(recoJets.at(jetSecondaryVertexJetIndex.at(iSecondaryVertex)).Pt()), weight);
@@ -342,6 +357,7 @@ void AnalyzerControlPlots::fillHistos(const EventMetadata&,
 
     // Jets
     m_histogram.at("jet_multiplicity")->Fill(recoObjectIndices.jetIndices_.size(), weight);
+    double btagDiscriminator_min = 1.1;
     for(const int index : recoObjectIndices.jetIndices_){
         m_histogram.at("jet_pt")->Fill(recoObjects.jets_->at(index).Pt(), weight);
         m_histogram.at("jet_eta")->Fill(recoObjects.jets_->at(index).Eta(), weight);
@@ -351,7 +367,9 @@ void AnalyzerControlPlots::fillHistos(const EventMetadata&,
         m_histogram.at("jet_btagDiscriminator")->Fill(btagDiscriminator, weight);
         m_histogram.at("jet_chargeGlobalPtWeighted")->Fill(recoObjects.jetChargeGlobalPtWeighted_->at(index), weight);
         m_histogram.at("jet_chargeRelativePtWeighted")->Fill(recoObjects.jetChargeRelativePtWeighted_->at(index), weight);
+        if(btagDiscriminator < btagDiscriminator_min) btagDiscriminator_min = btagDiscriminator;
     }
+    m_histogram.at("jet_btagDiscriminator_min")->Fill(btagDiscriminator_min, weight);
     
     
     // Bjets

@@ -76,6 +76,7 @@ void AnalyzerBase::book(TSelectorList* output)
         const int numberOfCategories(jetCategories_->numberOfCategories());
         TString name = "jetCategories";
         m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Jet categories;# jets/b-jets; # events", numberOfCategories, 0, numberOfCategories));
+        m_histogram[name]->Sumw2();
         const std::vector<TString> v_binLabel(jetCategories_->binLabels());
         for(std::vector<TString>::const_iterator i_binLabel = v_binLabel.begin(); i_binLabel != v_binLabel.end(); ++i_binLabel){
             const TString binLabel(*i_binLabel);
@@ -374,12 +375,16 @@ void AnalyzerHfFracScaling::bookHistos(const TString& step, std::map<TString, TH
 {
     TString name = "btag_multiplicity";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "B-tagged jet multiplicity; N b-tags; events",6,0,6));
+    m_histogram[name]->Sumw2();
     name = "secondaryVertex_multiplicityPerBjet";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "SV multiplicity in each b-tagged jet; N secondary vertices; # b-tagged jets",6,0.,6.));
+    m_histogram[name]->Sumw2();
     name = "secondaryVertex_massPerBjet";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Sum of SV masses in each b-tagged jet; SV masses sum; # b-tagged jets",20,0.,10.));
+    m_histogram[name]->Sumw2();
     name = "secondaryVertex_massMcCorrectedPerBjet";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Sum of SV masses in each b-tagged jet; SV masses sum; # b-tagged jets",20,0.,10.));
+    m_histogram[name]->Sumw2();
 }
 
 

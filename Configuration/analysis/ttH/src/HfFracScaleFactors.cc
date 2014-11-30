@@ -77,8 +77,9 @@ scaleFactorsUsable_(true)
     templateInitialScaleFactors_.push_back(1.);
     templateInitialScaleFactors_.push_back(1.);
     
-    // Prescale of the tt2b template to be varied as a systematic
+    // Prescale of the tt2b and ttcc templates to be varied as a systematic
     sampleTypePrescale_[Sample::tt2b] = 1.;
+    sampleTypePrescale_[Sample::ttcc] = 1.;
     
     // Setting up systematics to be used for each template
     templateSystematics_["tthf"] = std::vector<Systematic::Type>(0);
@@ -86,14 +87,6 @@ scaleFactorsUsable_(true)
     templateSystematics_.at("tthf").push_back(Systematic::btagDiscrPurity);
     templateSystematics_.at("tthf").push_back(Systematic::btagDiscrBstat1);
     templateSystematics_.at("tthf").push_back(Systematic::btagDiscrBstat2);
-    
-    templateSystematics_["ttcc"] = std::vector<Systematic::Type>(0);
-    templateSystematics_.at("ttcc").push_back(Systematic::jes);
-    templateSystematics_.at("ttcc").push_back(Systematic::btagDiscrPurity);
-    templateSystematics_.at("ttcc").push_back(Systematic::btagDiscrBstat1);
-    templateSystematics_.at("ttcc").push_back(Systematic::btagDiscrBstat2);
-    templateSystematics_.at("ttcc").push_back(Systematic::btagDiscrLstat1);
-    templateSystematics_.at("ttcc").push_back(Systematic::btagDiscrLstat2);
     
     templateSystematics_["ttOther"] = std::vector<Systematic::Type>(0);
     templateSystematics_.at("ttOther").push_back(Systematic::jes);
@@ -354,7 +347,6 @@ const std::vector<HfFracScaleFactors::ValErr> HfFracScaleFactors::getScaleFactor
     for(size_t sampleId = 1; sampleId<templateNames_.size(); ++sampleId) {
         double v(0.), e(0.);
         TH1* histoInFit = histosInFit.at(sampleId);
-        const int binId = histoInFit->GetMaximumBin();
         v = histoInFit->Integral();
         // Error is a linear sum of errors in each bin (as fully correlated)
         for(int iBin = 1; iBin <= histoInFit->GetNbinsX(); ++iBin) e+=histoInFit->GetBinError(iBin);
