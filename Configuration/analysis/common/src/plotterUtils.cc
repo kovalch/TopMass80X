@@ -936,3 +936,48 @@ TH1* common::getPadAxisHisto(const TPad* pad)
 }
 
 
+TH1* common::rebinnedHistoInRange(TH1* histo, const int& ngroup, const double& xmin, const double& xmax)
+{
+    // Protection from wrong input
+    if(!histo) return histo;
+    if(xmax==xmin && ngroup < 2) return histo;
+    if(xmax < xmin) {
+        printf("ERROR: right boundary (%.2f) lower than left boundary (%.2f)\n", xmax, xmin);
+        exit(1);
+    }
+    // Reading the original bin boundaries
+    const int nBins_original = histo->GetNbinsX();
+    std::vector<double> bins_original;
+    TAxis* xAxis = histo->GetXaxis();
+    for(int binId=1; binId<=nBins_original; ++binId) bins_original.push_back(xAxis->GetBinLowEdge(binId));
+    // Adding an upper boundary of the last bin
+    bins_original.push_back(xAxis->GetBinUpEdge(nBins_original));
+    // Identify ids of boundary bins
+    const int binId_min = xmin == xmax ? 1 : xAxis->FindBin(xmin);
+    const int binId_max = xmin == xmax ? nBins_original : xAxis->FindBin(xmax);
+    const int nBinsToRebin = binId_max - binId_min + 1;
+    if((nBinsToRebin)%ngroup != 0) {
+        printf("WARNING: Trying to combine every %d out of %d bins which will leave non-merged bins\n", ngroup, nBinsToRebin);
+    }
+    // Creating a list of new bin boundaries
+    std::vector<double> bins_new;
+    for(int binId=binId_min; binId<=binId_max; ++binId) {
+        if((binId-binId_min)%ngroup != 0) continue;
+        bins_new.push_back(bins_original.at(binId-1));
+    }
+    // Adding an upper boundary of the last bin
+    bins_new.push_back(bins_original.at(binId_max));
+    
+    // Applying new binning to the histogram
+    const int nBins_new = bins_new.size()-1;
+    const TString name_new = TString(histo->GetName())+"_rebinned";
+    // Copying a vector into an array to use in the Rebin function
+    double bins_rebinned[nBins_new+1];
+    std::copy(bins_new.begin(), bins_new.end(), bins_rebinned);
+    
+    TH1* histoRebinned = histo->Rebin(nBins_new, name_new, bins_rebinned);
+    
+    return histoRebinned;
+}
+
+

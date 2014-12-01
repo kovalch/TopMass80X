@@ -84,6 +84,9 @@ namespace common{
 
     /// Get the histogram representing the axis 
     TH1* getPadAxisHisto(const TPad* pad);
+    
+    /// Rebin histogram within the specified X axis range
+    TH1* rebinnedHistoInRange(TH1* histo, const int& ngroup, const double& xmin = 0., const double& xmax = 0.);
 
     
 }
