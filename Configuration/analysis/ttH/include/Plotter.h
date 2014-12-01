@@ -62,8 +62,8 @@ private:
     /// Set the style of the plot
     void setStyle(SampleHistPair& sampleHistPair, const bool isControlPlot =false);
     
-    /// Draw label for decay channel in upper left corner of plot
-    void drawDecayChannelLabel(const Channel::Channel& channel, const double& textSize =0.04)const;
+    /// Draw a label in the top left corner depending on the topLeftLabelId_ parameter
+    void drawTopLeftLabel(const TString& text, const double& textSize =0.04)const;
     
     /// Draw official labels (CMS [Preliminary], luminosity and CM energy) above plot
     void drawCmsLabels(const int cmsprelim =1, const double& energy =8, const double& textSize =0.04)const;
@@ -79,6 +79,9 @@ private:
     
     /// Output folder name
     const char* outputDir_;
+    
+    /// Id of the label to be plotted in the top left corner [0-none, 1-channel, 2-systematic]
+    const int topLeftLabelId_;
     
     /// Samples to be analysed
     const Samples& samples_;

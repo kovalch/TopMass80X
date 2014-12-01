@@ -35,6 +35,7 @@ Plotter::Plotter(const char* outputDir,
                  const Samples& samples,
                  const DrawMode::DrawMode& drawMode):
 outputDir_(outputDir),
+topLeftLabelId_(1),
 samples_(samples),
 drawMode_(drawMode),
 fileReader_(RootFileReader::getInstance()),
@@ -194,14 +195,13 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     
     
     // Here fill colors and line width are adjusted, and potentially rebinning applied
-    for(auto sampleHistPair : v_sampleHistPair_){
-        TH1* tmp_hist = sampleHistPair.second;
-        if(rebin_ > 1) tmp_hist->Rebin(rebin_);
+    for(auto& sampleHistPair : v_sampleHistPair_){
+        sampleHistPair.second = common::rebinnedHistoInRange(sampleHistPair.second, rebin_, rangemin_, rangemax_);
         this->setStyle(sampleHistPair, true);
     }
     
     
-    // Check whether Higgs sample should be drawn overlaid and/or scaled
+    // Check whetherHiggs sample should be drawn overlaid and/or scaled
     bool drawHiggsOverlaid(false);
     bool drawHiggsScaled(false);
     if(drawMode_ == DrawMode::overlaid){drawHiggsOverlaid = true;}
@@ -385,8 +385,6 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     }
     else firstHistToDraw->SetMinimum(ymin_);
 
-    if(rangemin_!=0. || rangemax_!=0.) firstHistToDraw->SetAxisRange(rangemin_, rangemax_, "X");
-
     if(ymax_ == 0.){
         // Determine the highest Y value that is plotted
         float yMax = dataHist.second ? dataHist.second->GetBinContent(dataHist.second->GetMaximumBin()) : 0.f;
@@ -431,7 +429,8 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     
     // Put additional stuff to histogram
     this->drawCmsLabels(2, 8);
-    this->drawDecayChannelLabel(channel);
+    if(topLeftLabelId_==1) this->drawTopLeftLabel(Channel::label(channel));
+    else if(topLeftLabelId_==2) this->drawTopLeftLabel(Systematic::convertType(systematic.type())+=Systematic::convertVariation(systematic.variation()));
     for(TPaveText* label : significanceLabels) if(label) label->Draw("same");
     legend->Draw("SAME");
     if(dataHist.second && stacksum){
@@ -455,6 +454,7 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     TH1* sumMC(0);
     TH1* sumSignal(0);
     TH1* sum_ttbb(0);
+    TH1* sum_ttb(0);
     TH1* sum_tt2b(0);
     TH1* sum_ttOther(0);
     TH1* sum_bkg(0);
@@ -467,8 +467,10 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
         if(sampleHistPair.first.sampleType() != Sample::SampleType::data){
             sumMC = addOrCreateHisto(sumMC, sampleHistPair.second);
         }
-        if(sampleHistPair.first.sampleType() == Sample::SampleType::ttbb || sampleHistPair.first.sampleType() == Sample::SampleType::ttb) {
+        if(sampleHistPair.first.sampleType() == Sample::SampleType::ttbb) {
             sum_ttbb = addOrCreateHisto(sum_ttbb, sampleHistPair.second);
+        } else if(sampleHistPair.first.sampleType() == Sample::SampleType::ttb) {
+            sum_ttb = addOrCreateHisto(sum_ttb, sampleHistPair.second);
         } else if(sampleHistPair.first.sampleType() == Sample::SampleType::tt2b) {
             sum_tt2b = addOrCreateHisto(sum_tt2b, sampleHistPair.second);
         } else if(sampleHistPair.first.sampleType() == Sample::SampleType::ttcc || sampleHistPair.first.sampleType() == Sample::SampleType::ttother) {
@@ -487,6 +489,7 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     if(sumSignal) sumSignal->Write(name_+"_signalmc");
     if(sumMC) sumMC->Write(name_+"_allmc");
     if(sum_ttbb) sum_ttbb->Write(name_+"_ttbb");
+    if(sum_ttb) sum_ttb->Write(name_+"_ttb");
     if(sum_tt2b) sum_tt2b->Write(name_+"_tt2b");
     if(sum_ttOther) sum_ttOther->Write(name_+"_ttOther");
     if(sum_bkg) sum_bkg->Write(name_+"_bkg");
@@ -539,11 +542,11 @@ void Plotter::setStyle(SampleHistPair& sampleHistPair, const bool isControlPlot)
 
 
 
-void Plotter::drawDecayChannelLabel(const Channel::Channel& channel, const double& textSize)const
+void Plotter::drawTopLeftLabel(const TString& text, const double& textSize)const
 {
     TPaveText* decayChannel = new TPaveText();
 
-    decayChannel->AddText(Channel::label(channel));
+    decayChannel->AddText(text);
 
     decayChannel->SetX1NDC(      gStyle->GetPadLeftMargin() + gStyle->GetTickLength()        );
     decayChannel->SetY1NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength() - 0.05 );
