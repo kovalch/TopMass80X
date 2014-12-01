@@ -952,13 +952,10 @@ TH1* common::rebinnedHistoInRange(TH1* histo, const int& ngroup, const double& x
     for(int binId=1; binId<=nBins_original; ++binId) bins_original.push_back(xAxis->GetBinLowEdge(binId));
     // Adding an upper boundary of the last bin
     bins_original.push_back(xAxis->GetBinUpEdge(nBins_original));
+    
     // Identify ids of boundary bins
-    const int binId_min = xmin == xmax ? 1 : xAxis->FindBin(xmin);
-    const int binId_max = xmin == xmax ? nBins_original : xAxis->FindBin(xmax);
-    const int nBinsToRebin = binId_max - binId_min + 1;
-    if((nBinsToRebin)%ngroup != 0) {
-        printf("WARNING: Trying to combine every %d out of %d bins which will leave non-merged bins\n", ngroup, nBinsToRebin);
-    }
+    const int binId_min = xmin == xmax ? 1 : std::max(xAxis->FindBin(xmin), 1);
+    const int binId_max = xmin == xmax ? nBins_original : std::min(xAxis->FindBin(xmax), nBins_original);
     // Creating a list of new bin boundaries
     std::vector<double> bins_new;
     for(int binId=binId_min; binId<=binId_max; ++binId) {
