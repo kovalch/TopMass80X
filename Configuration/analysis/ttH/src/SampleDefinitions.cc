@@ -26,7 +26,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     result["pseudodata"] = Sample(
         "pseudoData [nominal]",
         kBlack,
-        234.0,
+        241.5,
         {   // Place for specific reweighted ROOT files to be used instead of standard MC files defined below
             "ttbarsignalPlusBbbar_nominal.root"
         },
@@ -36,7 +36,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     result["ttbarsignalPlusBbbar"] = Sample(
         "t#bar{t}b#bar{b}",
         18,
-        234.0,
+        241.5,
         {
             "ttbarsignalPlusBbbar.root",
             "ttbarsignalPlusBbbar_massup.root",
@@ -57,7 +57,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     result["ttbarsignalPlusB"] = Sample(
         "t#bar{t}b",
         12,
-        234.0,
+        241.5,
         {
             "ttbarsignalPlusB.root",
             "ttbarsignalPlusB_massup.root",
@@ -78,7 +78,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     result["ttbarsignalPlus2B"] = Sample(
         "t#bar{t}2b",
         28,
-        234.0,
+        241.5,
         {
             "ttbarsignalPlus2B.root",
             "ttbarsignalPlus2B_massup.root",
@@ -99,7 +99,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     result["ttbarsignalPlusCcbar"] = Sample(
         "t#bar{t}Other",
         23,
-        234.0,
+        241.5,
         {
             "ttbarsignalPlusCcbar.root",
             "ttbarsignalPlusCcbar_massup.root",
@@ -120,7 +120,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     result["ttbarsignalPlusOther"] = Sample(
         "t#bar{t}Other",
         23,
-        234.0,
+        241.5,
         {
             "ttbarsignalPlusOther.root",
             "ttbarsignalPlusOther_massup.root",
@@ -141,7 +141,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     result["ttbarbkg"] = Sample(
         "t#bar{t}Other",
         23,
-        234.0,
+        241.5,
         {
             "ttbarbg.root",
             "ttbarbg_massup.root",
