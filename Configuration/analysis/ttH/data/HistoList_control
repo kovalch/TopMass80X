@@ -1,4 +1,4 @@
-# Name, Extra, axis labels (y,x), rebin, do_dyscale, logx, logy, ymin, ymax, xmin, xmax, nbins, xbins, bcs
+# Name, Extra, axis labels (y,x), rebin, normalize MC to Data, logx, logy, ymin, ymax, xmin, xmax, nbins, xbins, bcs
 
 
 
@@ -334,6 +334,6 @@ kinReco_antiBjet_index_step7 - - - 1 0 0 0 0 0 0 0 0 0
 
 
 
-# Name, Extra, axis labels (y,x), rebin, do_dyscale, logx, logy, ymin, ymax, xmin, xmax, nbins, xbins, bcs
+# Name, Extra, axis labels (y,x), rebin, normalize MC to Data, logx, logy, ymin, ymax, xmin, xmax, nbins, xbins, bcs
 
 
