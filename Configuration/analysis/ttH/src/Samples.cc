@@ -107,11 +107,9 @@ void Samples::addSamples(const TString& filelistDirectory,
     
     // For systematics of ttbar samples, use nominal for others
     std::vector<std::pair<TString, Sample> > v_filenameSamplePairNominal;
-    if(std::find(Systematic::ttbarTypes.begin(), Systematic::ttbarTypes.end(), systematic.type()) != Systematic::ttbarTypes.end()){
-        const auto& v_filenameNominal = common::readFilelist(filelistDirectory, channel, Systematic::nominalSystematic());
-        v_filenameSamplePairNominal =
-            this->setSamples(v_filenameNominal, SampleDefinitions::samples8TeV(), SampleDefinitions::selectAndOrderSamples8TeV());
-    }
+    const auto& v_filenameNominal = common::readFilelist(filelistDirectory, channel, Systematic::nominalSystematic());
+    v_filenameSamplePairNominal =
+        this->setSamples(v_filenameNominal, SampleDefinitions::samples8TeV(), SampleDefinitions::selectAndOrderSamples8TeV());
     
     // Set sample options via filename
     std::vector<Sample> v_sample(this->setSampleOptions(systematic, v_filenameSamplePair, v_filenameSamplePairNominal));
