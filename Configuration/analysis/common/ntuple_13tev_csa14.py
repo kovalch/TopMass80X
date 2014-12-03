@@ -194,8 +194,7 @@ if options.globalTag != '':
 else:
     print "Determine global tag automatically"
     if options.runOnMC:
-        process.GlobalTag.globaltag = cms.string('PHYS14_25_V1::All')
-        #process.GlobalTag.globaltag = cms.string('PHYS14_50_V1::All')
+        process.GlobalTag.globaltag = cms.string('POSTLS170_V6::All')
     else:
         process.GlobalTag.globaltag = cms.string('FT53_V21A_AN6::All')
 
@@ -317,15 +316,15 @@ if options.runOnAOD:
     
     ## Jet corrections
     if options.runOnMC:
-        jetCorr = ('AK4PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'])
+        jetCorr = ('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'])
     else:
-        jetCorr = ('AK4PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])
+        jetCorr = ('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])
     
     
     ## PF2PAT sequence
     # Parameter checkClosestZVertex = False needs to be set to False when using PF Jets with Charged Hadron Subtraction, see https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookJetEnergyCorrections#JetEnCorPFnoPU2012
     from PhysicsTools.PatAlgos.tools.pfTools import usePF2PAT
-    usePF2PAT(process, runPF2PAT=True, jetAlgo='AK4', runOnMC=options.runOnMC, postfix=pfpostfix, jetCorrections=jetCorr, pvCollection=cms.InputTag(selectedPrimaryVertices), typeIMetCorrections=True)
+    usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=options.runOnMC, postfix=pfpostfix, jetCorrections=jetCorr, pvCollection=cms.InputTag(selectedPrimaryVertices), typeIMetCorrections=True)
     getattr(process, 'pfPileUp'+pfpostfix).checkClosestZVertex = False
     
     
@@ -394,9 +393,7 @@ else:
     process.preselectedElectrons = selectedPatElectrons.clone(
         src = 'slimmedElectrons',
         #cut = 'pt>5 && electronID("eidLoose")>0.5 && passConversionVeto'
-        #cut = 'pt>5 && electronID("eidLoose")>0.5 && passConversionVeto && gsfTrack.isAvailable() && gsfTrack.trackerExpectedHitsInner.numberOfLostHits<2 && (pfIsolationVariables().sumChargedHadronPt+max(0.,pfIsolationVariables().sumNeutralHadronEt+pfIsolationVariables().sumPhotonEt-0.5*pfIsolationVariables().sumPUPt))/pt < 0.15'
-        # In CMSSW_7_2_X, gsfTracks do not have anymore method trackerExpectedHitsInner()
-        cut = 'pt>5 && electronID("eidLoose")>0.5 && passConversionVeto && gsfTrack.isAvailable() && (pfIsolationVariables().sumChargedHadronPt+max(0.,pfIsolationVariables().sumNeutralHadronEt+pfIsolationVariables().sumPhotonEt-0.5*pfIsolationVariables().sumPUPt))/pt < 0.15'
+        cut = 'pt>5 && electronID("eidLoose")>0.5 && passConversionVeto && gsfTrack.isAvailable() && gsfTrack.trackerExpectedHitsInner.numberOfLostHits<2 && (pfIsolationVariables().sumChargedHadronPt+max(0.,pfIsolationVariables().sumNeutralHadronEt+pfIsolationVariables().sumPhotonEt-0.5*pfIsolationVariables().sumPUPt))/pt < 0.15'
     )
     process.preselectedMuons = selectedPatMuons.clone(
         src = 'slimmedMuons',
