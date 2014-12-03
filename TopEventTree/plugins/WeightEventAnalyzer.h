@@ -48,6 +48,7 @@ class WeightEventAnalyzer : public edm::EDAnalyzer {
   edm::InputTag elWeightSrc_;
 
   edm::InputTag genEventSrc_;
+  edm::InputTag lheEventSrc_;
   edm::InputTag ttEvent_;
   bool savePDFWeights_;
   bool brCorrection_;

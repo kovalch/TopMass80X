@@ -32,6 +32,7 @@ analyzeWeights = cms.EDAnalyzer("WeightEventAnalyzer",
     elWeightSrc  = cms.InputTag("effSFElectronEventWeight"),
     
     genEventSrc    = cms.InputTag("generator"),
+    lheEventSrc    = cms.InputTag("externalLHEProducer"),
     ttEvent        = cms.InputTag("ttSemiLepEvent"),
     savePDFWeights = cms.bool(False),
     brCorrection   = cms.bool(False),

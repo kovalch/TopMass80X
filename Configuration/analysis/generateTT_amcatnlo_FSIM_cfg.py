@@ -2,11 +2,22 @@ import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 import os
 import sys
+import glob
+
+#inputfiles = []
+#hepmcfiles = glob.glob('*.lhe')
+#for hepmcfile in hepmcfiles:
+#  inputfiles.append('file:' + hepmcfile)
+#hepmcfiles = glob.glob('../../prolog/*.lhe')
+#for hepmcfile in hepmcfiles:
+#  inputfiles.append('file:' + hepmcfile)
+#print inputfiles
+
 options = VarParsing.VarParsing ('standard')
 
-options.register('width', 1.5, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.float, "top-quark decay width")
+options.register('frag', 'pythia8', VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.string, "parton shower and hadronization (pythia8|herwigpp)")
 options.register('myjobid', 0, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.int, "job id")
-options.register('maxevents', 0, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.int, "events per job")
+options.register('maxevents', 10000, VarParsing.VarParsing.multiplicity.singleton,VarParsing.VarParsing.varType.int, "events per job")
 
 
 # define the syntax for parsing
@@ -44,13 +55,17 @@ process.load('HLTrigger.Configuration.HLT_7E33v2_Famos_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10000)
+    input = cms.untracked.int32(options.maxevents)
 )
 from IOMC.RandomEngine.RandomServiceHelper import RandomNumberServiceHelper
 randSvc = RandomNumberServiceHelper(process.RandomNumberGeneratorService)
 randSvc.populate()
 
 # Input source
+#process.source = cms.Source("LHESource",
+#    secondaryFileNames = cms.untracked.vstring(),
+#    fileNames = cms.untracked.vstring(inputfiles)
+#)
 process.source = cms.Source("EmptySource")
 
 process.options = cms.untracked.PSet(
@@ -72,56 +87,115 @@ process.famosPileUp.VertexGenerator = process.Realistic8TeVCollisionVtxSmearingP
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'START53_V7C::All', '')
 
-process.generator = cms.EDFilter("Pythia8GeneratorFilter",
-     comEnergy = cms.double(8000.0),
-     crossSection = cms.untracked.double(246.),
-     filterEfficiency = cms.untracked.double(1),
-     maxEventsToPrint = cms.untracked.int32(1),
-     pythiaHepMCVerbosity = cms.untracked.bool(False),
-     pythiaPylistVerbosity = cms.untracked.int32(1),
-     #ExternalDecays = cms.PSet(
-     #    Tauola = cms.untracked.PSet(
-     #         UseTauolaPolarization = cms.bool(True),
-     #         InputCards = cms.PSet
-     #         (
-     #            pjak1 = cms.int32(0),
-     #            pjak2 = cms.int32(0),
-     #            mdtau = cms.int32(0)
-     #         )
-     #    ),
-     #    parameterSets = cms.vstring('Tauola')
-     #),
-     PythiaParameters = cms.PSet(
-         processParameters = cms.vstring(
-             'Main:timesAllowErrors = 10000',
-             'ParticleDecays:limitTau0 = on',
-             'ParticleDecays:tauMax = 10',
-             'Tune:ee 3',
-             'Tune:pp 5',       # Tune 4C
-             'Top:gg2ttbar    = on',
-             'Top:qqbar2ttbar = on',
-             '6:m0 = 172.5',    # top mass'
-             '6:mWidth = ' + str(options.width), # top width
-             '6:doForceWidth  = on',
-         ),
-         parameterSets = cms.vstring('processParameters')
-     )
+process.externalLHEProducer = cms.EDProducer("ExternalLHEProducer",
+    nEvents = cms.uint32(options.maxevents),
+    args = cms.vstring('slc6_amd64_gcc472/8TeV/madgraph/V5_2.2.1/tt_5f_NLO_'+options.frag+'/v1/', 
+        'tt_5f_NLO_'+options.frag),
+    scriptName = cms.FileInPath('GeneratorInterface/LHEInterface/data/run_generic_tarball.sh'),
+    numberOfParameters = cms.uint32(2),
+    outputFile = cms.string('tt_5f_NLO_'+options.frag+'_final.lhe')
 )
 
-#process.requireLeptonFilter = cms.EDFilter("MCSingleParticleFilter",
-#    ParticleID = cms.untracked.vint32(11,13,15,-11,-13,-15),
-#    MinPt = cms.untracked.vdouble(6*[15]),
-#    Status = cms.untracked.vint32(6*[3])
-#)
-#
-#process.dileptonFilter = cms.EDFilter("MCParticlePairFilter",
-#    ParticleID1 = cms.untracked.vint32(11,13,15,-11,-13,-15),
-#    ParticleID2 = cms.untracked.vint32(11,13,15,-11,-13,-15),
-#    MinPt = cms.untracked.vdouble(2*[15]),
-#    Status = cms.untracked.vint32(2*[3])
-#)
-#
-#process.ProductionFilterSequence = cms.Sequence(process.generator + process.requireLeptonFilter + ~process.dileptonFilter )
+
+if (options.frag == 'pythia8'):
+    process.generator = cms.EDFilter("Pythia8HadronizerFilter",
+        maxEventsToPrint = cms.untracked.int32(1),
+        pythiaPylistVerbosity = cms.untracked.int32(1),
+        filterEfficiency = cms.untracked.double(1.0),
+        pythiaHepMCVerbosity = cms.untracked.bool(False),
+        comEnergy = cms.double(8000.),
+        PythiaParameters = cms.PSet(
+        processParameters = cms.vstring(
+            'Main:timesAllowErrors = 10000',
+            'ParticleDecays:limitTau0 = on',
+            'ParticleDecays:tau0Max = 10',
+            'Tune:ee 3',
+            'Tune:pp 5',
+            'SpaceShower:pTmaxMatch = 1',
+            'SpaceShower:pTmaxFudge = 1',
+            'SpaceShower:MEcorrections = off',
+            'TimeShower:pTmaxMatch = 1',
+            'TimeShower:pTmaxFudge = 1',
+            'TimeShower:MEcorrections = off',
+            'TimeShower:globalRecoil = on',
+            'TimeShower:limitPTmaxGlobal = on',
+            'TimeShower:nMaxGlobalRecoil = 1',
+            'TimeShower:globalRecoilMode = 2',
+            'TimeShower:nMaxGlobalBranch = 1',
+            'SLHA:keepSM = on',
+            'SLHA:minMassSM = 1000.',
+            'Check:epTolErr = 0.01',
+            '6:m0 = 172.5',    # top mass'
+            ),
+            parameterSets = cms.vstring('processParameters')
+        )
+    )
+elif (options.frag == 'herwigpp'):
+    from Configuration.Generator.HerwigppDefaults_cfi import *
+    from Configuration.Generator.HerwigppUE_EE_3C_cfi import *
+    process.generator = cms.EDFilter("LHEProducer",
+        eventsToPrint = cms.untracked.uint32(1),
+
+        hadronisation = cms.PSet(
+            herwigDefaultsBlock,
+            herwigppUESettingsBlock,
+            #herwigValidationBlock,
+
+            generator = cms.string('ThePEG'),
+
+            configFiles = cms.vstring(),
+
+            parameterSets = cms.vstring(
+                'basicSetup',
+                'herwigppUE_EE_3C_8000GeV',
+                
+                #'setParticlesStableForDetector',
+                'lheDefaults', 
+                'productionParameters',
+                #'lheDefaultPDFs'
+                #'powhegDefaults',
+            ),
+            productionParameters = cms.vstring(
+                # 1.) NECESSARY SETTINGS FOR RUNNING WITH MC@NLO EVENTS (DO NOT MODIFY)
+                'set /Herwig/Shower/Evolver:HardVetoMode 1',
+                'set /Herwig/Shower/Evolver:HardVetoScaleSource 1',
+                'set /Herwig/Shower/Evolver:MECorrMode 0',
+                
+                #Boost and reconstruction stuff
+                'set /Herwig/Shower/KinematicsReconstructor:ReconstructionOption General',
+                'set /Herwig/Shower/KinematicsReconstructor:InitialInitialBoostOption LongTransBoost',
+
+                # create the Handler & Reader
+                'set /Herwig/EventHandlers/LHEReader:AllowedToReOpen 0',
+                'set /Herwig/EventHandlers/LHEReader:MomentumTreatment RescaleEnergy',
+                'set /Herwig/EventHandlers/LHEReader:WeightWarnings 0',
+
+                'set /Herwig/EventHandlers/LHEHandler:WeightOption VarNegWeight',
+                'set /Herwig/EventHandlers/LHEHandler:PartonExtractor /Herwig/Partons/QCDExtractor',
+                'set /Herwig/EventHandlers/LHEHandler:CascadeHandler /Herwig/Shower/ShowerHandler ',
+                'set /Herwig/EventHandlers/LHEHandler:HadronizationHandler /Herwig/Hadronization/ClusterHadHandler',
+                'set /Herwig/EventHandlers/LHEHandler:DecayHandler /Herwig/Decays/DecayHandler',
+                'insert /Herwig/EventHandlers/LHEHandler:PreCascadeHandlers 0 /Herwig/NewPhysics/DecayHandler',
+
+                'set /Herwig/Generators/LHCGenerator:PrintEvent 1',
+                'set /Herwig/Generators/LHCGenerator:DebugLevel 1',
+                
+                # Use internal HW++ defualt PDF sets
+                'set /Herwig/EventHandlers/LHEReader:PDFA /Herwig/Partons/MRST-NLO',
+                'set /Herwig/EventHandlers/LHEReader:PDFB /Herwig/Partons/MRST-NLO',
+                'set /Herwig/Particles/p+:PDF /Herwig/Partons/MRST-NLO',
+                'set /Herwig/Particles/pbar-:PDF /Herwig/Partons/MRST-NLO',
+                'set /Herwig/Shower/ShowerHandler:PDFA /Herwig/Partons/MRST-NLO',
+                'set /Herwig/Shower/ShowerHandler:PDFB /Herwig/Partons/MRST-NLO',
+                
+                # top mass
+                'set /Herwig/Particles/t:NominalMass 172.5*GeV',
+                'set /Herwig/Particles/tbar:NominalMass 172.5*GeV',
+                
+                'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 2.2*GeV',
+            ),
+        )
+    )
 
 # Output definition
 commands = process.AODSIMEventContent.outputCommands
@@ -430,18 +504,20 @@ process.AODSIMoutput = cms.OutputModule("PoolOutputModule",
 )
 
 # Path and EndPath definitions
+process.lhe_step = cms.Path(process.externalLHEProducer)
 process.generation_step = cms.Path(process.pgen_genonly)
 process.reconstruction = cms.Path(process.reconstructionWithFamos)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.AODSIMoutput_step = cms.EndPath(process.AODSIMoutput)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step)
+process.schedule = cms.Schedule(process.lhe_step,process.generation_step,process.genfiltersummary_step)
 process.schedule.extend(process.HLTSchedule)
 process.schedule.extend([process.reconstruction,process.AODSIMoutput_step])
 # filter all path with the production filter sequence
 for path in process.paths:
-	getattr(process,path)._seq = process.generator * getattr(process,path)._seq
+        if path in ['lhe_step']: continue
+        getattr(process,path)._seq = process.generator * getattr(process,path)._seq
 
 # customisation of the process.
 

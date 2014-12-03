@@ -25,15 +25,20 @@ class config:
                    #'TTJets_MSDecays_TuneZ2star_parj81_0.145_8TeV-madgraph',
                    #'TTJets_MSDecays_TuneZ2star_parj81_0.290_8TeV-madgraph',
                    #'TTJets_MSDecays_TuneZ2star_parj81_0.580_8TeV-madgraph',
-                   'TT_Tune4C_topwidth_0_8TeV-pythia8-ext1',
-                   'TT_Tune4C_topwidth_0.5_8TeV-pythia8-ext1',
-                   'TT_Tune4C_topwidth_1.5_8TeV-pythia8-ext1',
-                   'TT_Tune4C_topwidth_3_8TeV-pythia8-ext1',
-                   'TT_Tune4C_topwidth_5_8TeV-pythia8-ext1',
-                   'TT_Tune4C_topwidth_7.5_8TeV-pythia8-ext1',
+                   #'TT_Tune4C_topwidth_0_8TeV-pythia8-fix1',
+                   #'TT_Tune4C_topwidth_0.5_8TeV-pythia8-fix1',
+                   #'TT_Tune4C_topwidth_1.5_8TeV-pythia8-fix1',
+                   #'TT_Tune4C_topwidth_3_8TeV-pythia8-fix1',
+                   #'TT_Tune4C_topwidth_5_8TeV-pythia8-fix1',
+                   #'TT_Tune4C_topwidth_7.5_8TeV-pythia8-fix1',
+                   #'TT_Cluster_8TeV-sherpa2',
+                   #'TT_Lund_8TeV-sherpa2',
+                   'TT_8TeV-amcatnlo-herwigpp',
+                   'TT_8TeV-amcatnlo-pythia8',
                   ]
   dataset_file  = "datasets.dbs"
   list_file     = "tmp_files.txt"
+  nevents_in_file = 10000 # set negative value for determination with edmFileUtil
 
 
 
@@ -99,16 +104,24 @@ def createDatasetFile(sample):
   dataset_file = open(config.dataset_file,'a') 
   dataset_file.writelines(("[%s]\n" % sample))
 
-  check_cmd = 'edmFileUtil -F ' + config.list_file
-  output = subprocess.Popen(check_cmd, stdout=subprocess.PIPE, bufsize=1, shell=True).stdout
-  for line in output:
-    info = line.split()
-    if (len(info)==9):
-      print line
-      filename    = info[0]
-      nevts       = info[5]
-      dataset_file.writelines('%s = %s\n' % (filename, nevts))
-
+  if config.nevents_in_file < 0:
+    check_cmd = 'edmFileUtil -F ' + config.list_file
+    output = subprocess.Popen(check_cmd, stdout=subprocess.PIPE, bufsize=1, shell=True).stdout
+    for line in output:
+      info = line.split()
+      if (len(info)==9):
+        print line
+        filename    = info[0]
+        nevts       = info[5]
+        dataset_file.writelines('%s = %s\n' % (filename, nevts))
+  
+  list_file = open(config.list_file,'r')
+  filecount = 0
+  for line in list_file:
+    if config.nevents_in_file > 0: dataset_file.writelines('%s = %s\n' % (line[:-1], config.nevents_in_file))
+    filecount += 1
+  
+  dataset_file.writelines(("; %s files\n" % filecount))
   dataset_file.writelines("\n")
   dataset_file.close()
 

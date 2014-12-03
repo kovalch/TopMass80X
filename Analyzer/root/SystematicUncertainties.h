@@ -33,6 +33,8 @@ private:
     std::string up;
     std::string down;
     std::map<std::string, double> shifts;
+    std::map<std::string, double> shiftsUp;
+    std::map<std::string, double> shiftsDown;
     std::map<std::string, double> shiftUncs;
     bool correlated;
     bool active;
@@ -42,10 +44,11 @@ private:
 
   struct mergedcomparison {
     std::vector<std::string> comparisons;
+    bool linear;
     mergedcomparison()
     : comparisons(0) {}
-    mergedcomparison(std::vector<std::string> c)
-    : comparisons(c) {}
+    mergedcomparison(std::vector<std::string> c, bool l = false)
+    : comparisons(c), linear(l) {}
   };
 
   struct dataSample {
