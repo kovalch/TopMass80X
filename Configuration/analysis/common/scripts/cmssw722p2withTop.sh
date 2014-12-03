@@ -184,13 +184,12 @@ rm $CMSSW_BASE/src/TopAnalysis/TopAnalyzer/interface/ElectronAnalyzer.cc
 #rm $CMSSW_BASE/src/TopAnalysis/TopAnalyzer/interface/ElectronQuality.cc
 cp $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/common/hacks/TopAnalysis_TopAnalyzer_plugins_SealModule.cc $CMSSW_BASE/src/TopAnalysis/TopAnalyzer/plugins/SealModule.cc
 
-
-
 ##### Fix to avoid nafJobSplitter crashes due to not propagated environment to batch farm
 cp $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/common/hacks/TopAnalysis_TopUtils_scripts_nafJobSplitter.pl $CMSSW_BASE/src/TopAnalysis/TopUtils/scripts/nafJobSplitter.pl
 
 ##### Fix to avoid compilation errors from JetPropertiesProducer
 ## This is due to the removal of method GenericMVAJetTagComputer::passEventSetup()
+cp $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/common/hacks/TopAnalysis_HiggsUtils_plugins_JetPropertiesProducer.cc $CMSSW_BASE/src/TopAnalysis/HiggsUtils/plugins/JetPropertiesProducer.cc
 
 
 
