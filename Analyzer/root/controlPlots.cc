@@ -105,9 +105,9 @@ void TopMassControlPlots::doPlots()
     hists.back().SetFitGaussToCore();
     hists.push_back(MyHistogram("fitTop1MassBest", "top.fitTop1[0].M()", "", ";m_{t}^{fit} [GeV]; Events / 5 GeV"      , 70, 50, 400));
     //hists.back().SetFitGaussToCore();
-    hists.push_back(MyHistogram("fitTop1MassPeak"    , "top.fitTop1.M()"   , "", ";m_{t}^{fit} [GeV]; Permutations / 2 GeV", 50, 120, 220));
+    hists.push_back(MyHistogram("fitTop1MassPeak"    , "top.fitTop1.M()"   , "", ";m_{t}^{fit} [GeV]; Permutations / 2 GeV", 45, 125, 215));
     hists.back().SetFitGaussToCore();
-    hists.push_back(MyHistogram("fitTop1MassPeakBest", "top.fitTop1[0].M()", "", ";m_{t}^{fit} [GeV]; Events / 2 GeV"      , 50, 120, 220));
+    hists.push_back(MyHistogram("fitTop1MassPeakBest", "top.fitTop1[0].M()", "", ";m_{t}^{fit} [GeV]; Events / 2 GeV"      , 45, 125, 215));
     hists.back().SetFitGaussToCore();
     hists.push_back(MyHistogram("recoTop1Mass"    , "top.recoTop1.M()"   , "", ";m_{t}^{reco} [GeV]; Permutations / 5 GeV", 70, 50, 400));
     hists.push_back(MyHistogram("recoTop1MassBest", "top.recoTop1[0].M()", "", ";m_{t}^{reco} [GeV]; Events / 5 GeV"      , 70, 50, 400));
@@ -125,8 +125,8 @@ void TopMassControlPlots::doPlots()
 
     hists.push_back(MyHistogram("recoTopMass"        , std::vector<std::string>({"top.recoTop1.M()"   , "top.recoTop2.M()"   }), "", ";m_{t}^{reco} [GeV]; Top Quarks / 5 GeV", 70, 50, 400));
     hists.push_back(MyHistogram("recoTopMassBest"    , std::vector<std::string>({"top.recoTop1[0].M()", "top.recoTop2[0].M()"}), "", ";m_{t}^{reco} [GeV]; Top Quarks / 5 GeV", 70, 50, 400));
-    hists.push_back(MyHistogram("recoTopMassPeak"    , std::vector<std::string>({"top.recoTop1.M()"   , "top.recoTop2.M()"   }), "", ";m_{t}^{reco} [GeV]; Top Quarks / 2 GeV", 50, 120, 220));
-    hists.push_back(MyHistogram("recoTopMassPeakBest", std::vector<std::string>({"top.recoTop1[0].M()", "top.recoTop2[0].M()"}), "", ";m_{t}^{reco} [GeV]; Top Quarks / 2 GeV", 50, 120, 220));
+    hists.push_back(MyHistogram("recoTopMassPeak"    , std::vector<std::string>({"top.recoTop1.M()"   , "top.recoTop2.M()"   }), "", ";m_{t}^{reco} [GeV]; Top Quarks / 2 GeV", 45, 125, 215));
+    hists.push_back(MyHistogram("recoTopMassPeakBest", std::vector<std::string>({"top.recoTop1[0].M()", "top.recoTop2[0].M()"}), "", ";m_{t}^{reco} [GeV]; Top Quarks / 2 GeV", 45, 125, 215));
 
     hists.push_back(MyHistogram("fitTop1Mass_vs_nVertex", "weight.nVertex", "top.fitTop1.M()", "", ";N_{Vertex}; m_{t}^{fit} [GeV]" , 8, 0, 40, 70, 50, 400));
     hists.push_back(MyHistogram("fitTop1Mass_vs_fitProb", "top.fitProb"   , "top.fitTop1.M()", "", ";P_{gof}; m_{t}^{fit} [GeV]"    , 10, 0,  1, 70, 50, 400));
@@ -778,17 +778,23 @@ void TopMassControlPlots::doPlots()
   std::cout << "define datasets" << std::endl;
   // Alljets channel
   if (channelID == Helper::kAllJets) {
+    //if(plotSelectedForPlotting.find("StandardPlots")!=plotSelectedForPlotting.end()){
+    //  //samples.push_back(MySample("Data", "MJP12*_v1_data", kData, kBlack));
+    //  samples.push_back(MySample("Data", "MJP12*_PTRESI_v1_data", kData, kBlack));
+    //  samples.push_back(MySample("t#bar{t}", "Z2_S12_ABS_JES_100_172_5_MadSpin_sig_*", kSig, kRed+1, 1));
+    //  samples.push_back(MySample("Background", "QCDMixing_MJPS12_v1_data", kBkg, kYellow, 1));
+    //  //samples.push_back(MySample("Background B", "dcap://dcache-cms-dcap.desy.de//pnfs/desy.de/cms/tier2/store/user/eschliec/TopMassTreeWriter_04_DataMix03/QCDMixing_MJPS12B_v1_data/*", kBkg, kYellow, 1));
+    //  //samples.push_back(MySample("Background C1", "dcap://dcache-cms-dcap.desy.de//pnfs/desy.de/cms/tier2/store/user/eschliec/TopMassTreeWriter_04_DataMix03/QCDMixing_MJPS12C1_v1_data/*", kBkg, kYellow, 1));
+    //  //samples.push_back(MySample("Background C2", "dcap://dcache-cms-dcap.desy.de//pnfs/desy.de/cms/tier2/store/user/eschliec/TopMassTreeWriter_04_DataMix03/QCDMixing_MJPS12C2_v1_data/*", kBkg, kYellow, 1));
+    //  //samples.push_back(MySample("Background D1", "dcap://dcache-cms-dcap.desy.de//pnfs/desy.de/cms/tier2/store/user/eschliec/TopMassTreeWriter_04_DataMix03/QCDMixing_MJPS12D1_v1_data/*", kBkg, kYellow, 1));
+    //  //samples.push_back(MySample("Background D2", "dcap://dcache-cms-dcap.desy.de//pnfs/desy.de/cms/tier2/store/user/eschliec/TopMassTreeWriter_04_DataMix03/QCDMixing_MJPS12D2_v1_data/*", kBkg, kYellow, 1));
+    //  //samples.push_back(MySample("Background D3", "dcap://dcache-cms-dcap.desy.de//pnfs/desy.de/cms/tier2/store/user/eschliec/TopMassTreeWriter_04_DataMix03/QCDMixing_MJPS12D3_v1_data/*", kBkg, kYellow, 1));
+    //}
+
     if(plotSelectedForPlotting.find("StandardPlots")!=plotSelectedForPlotting.end()){
-      //samples.push_back(MySample("Data", "MJP12*_v1_data", kData, kBlack));
-      samples.push_back(MySample("Data", "MJP12*_PTRESI_v1_data", kData, kBlack));
-      samples.push_back(MySample("t#bar{t}", "Z2_S12_ABS_JES_100_172_5_MadSpin_sig_*", kSig, kRed+1, 1));
-      samples.push_back(MySample("Background", "QCDMixing_MJPS12_v1_data", kBkg, kYellow, 1));
-      //samples.push_back(MySample("Background B", "dcap://dcache-cms-dcap.desy.de//pnfs/desy.de/cms/tier2/store/user/eschliec/TopMassTreeWriter_04_DataMix03/QCDMixing_MJPS12B_v1_data/*", kBkg, kYellow, 1));
-      //samples.push_back(MySample("Background C1", "dcap://dcache-cms-dcap.desy.de//pnfs/desy.de/cms/tier2/store/user/eschliec/TopMassTreeWriter_04_DataMix03/QCDMixing_MJPS12C1_v1_data/*", kBkg, kYellow, 1));
-      //samples.push_back(MySample("Background C2", "dcap://dcache-cms-dcap.desy.de//pnfs/desy.de/cms/tier2/store/user/eschliec/TopMassTreeWriter_04_DataMix03/QCDMixing_MJPS12C2_v1_data/*", kBkg, kYellow, 1));
-      //samples.push_back(MySample("Background D1", "dcap://dcache-cms-dcap.desy.de//pnfs/desy.de/cms/tier2/store/user/eschliec/TopMassTreeWriter_04_DataMix03/QCDMixing_MJPS12D1_v1_data/*", kBkg, kYellow, 1));
-      //samples.push_back(MySample("Background D2", "dcap://dcache-cms-dcap.desy.de//pnfs/desy.de/cms/tier2/store/user/eschliec/TopMassTreeWriter_04_DataMix03/QCDMixing_MJPS12D2_v1_data/*", kBkg, kYellow, 1));
-      //samples.push_back(MySample("Background D3", "dcap://dcache-cms-dcap.desy.de//pnfs/desy.de/cms/tier2/store/user/eschliec/TopMassTreeWriter_04_DataMix03/QCDMixing_MJPS12D3_v1_data/*", kBkg, kYellow, 1));
+      samples.push_back(MySample("Data", "Run2012_alljets/*", kData, kBlack));
+      samples.push_back(MySample("t#bar{t}", "Summer12_TTJetsMS1725_1.00_alljets/*", kSig, kRed+1, 1));
+      samples.push_back(MySample("Background", "Run2012_Background_alljets/*", kBkg, kYellow, 1));
     }
 
     // Signal variations (PU)
