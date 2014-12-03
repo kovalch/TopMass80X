@@ -179,9 +179,9 @@ cp $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/common/hacks/TopAnalysis_T
 ##### Fix to avoid compilation errors from different plugins in TopAnalysis/TopAnalyzer/
 ## This is due to the removal of method pat::Electron::gsfTrack()->trackerExpectedHitsInner()
 rm $CMSSW_BASE/src/TopAnalysis/TopAnalyzer/interface/ElectronAnalyzer.h
-rm $CMSSW_BASE/src/TopAnalysis/TopAnalyzer/interface/ElectronAnalyzer.cc
+rm $CMSSW_BASE/src/TopAnalysis/TopAnalyzer/src/ElectronAnalyzer.cc
 #rm $CMSSW_BASE/src/TopAnalysis/TopAnalyzer/interface/ElectronQuality.h
-#rm $CMSSW_BASE/src/TopAnalysis/TopAnalyzer/interface/ElectronQuality.cc
+#rm $CMSSW_BASE/src/TopAnalysis/TopAnalyzer/src/ElectronQuality.cc
 cp $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/common/hacks/TopAnalysis_TopAnalyzer_plugins_SealModule.cc $CMSSW_BASE/src/TopAnalysis/TopAnalyzer/plugins/SealModule.cc
 
 ##### Fix to avoid nafJobSplitter crashes due to not propagated environment to batch farm
