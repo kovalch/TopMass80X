@@ -146,7 +146,7 @@ void AnalyzerControlPlots::bookHistos(const TString& step, std::map<TString, TH1
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "b-tag Discriminator d;d;Jets",60,-0.1,1.1));
     m_histogram[name]->Sumw2();
     name = "jet_btagDiscriminator_min";
-    m_histogram[name] = store(new TH1D(prefix_+name+step, "b-tag Discriminator d;d;Lowest d jet",60,-1.1,1.1));
+    m_histogram[name] = store(new TH1D(prefix_+name+step, "b-tag Discriminator d;d;Lowest d jet",60,-0.1,1.1));
     m_histogram[name]->Sumw2();
     name = "jet_chargeGlobalPtWeighted";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "jetChargeGlobalPtWeighted c_{glob}^{jet}; c_{glob}^{jet};# jets", 110, -1.1, 1.1));
