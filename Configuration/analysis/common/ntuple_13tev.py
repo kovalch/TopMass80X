@@ -298,13 +298,50 @@ else:
 
 
 ####################################################################
+
+## b-tag infos
+bTagInfos = ['impactParameterTagInfos','secondaryVertexTagInfos']
+
+## b-tag discriminators
+bTagDiscriminators = ['jetBProbabilityBJetTags','jetProbabilityBJetTags','trackCountingHighPurBJetTags','trackCountingHighEffBJetTags',
+    'simpleSecondaryVertexHighEffBJetTags','simpleSecondaryVertexHighPurBJetTags',
+    'combinedSecondaryVertexBJetTags'
+]
+
+## Jet energy corrections
+jetCorrectionsAK4 = ('AK4PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'None')
+
+
+## Postfix
+pfpostfix = "PFlow"
+
+## Various collection names
+genParticles = 'genParticles'
+jetSource = 'pfJets'+pfpostfix
+genJetCollection = 'ak4GenJetsNoNu'+pfpostfix
+trackSource = 'generalTracks'
+pvSource = 'offlinePrimaryVertices'
+svSource = cms.InputTag('inclusiveSecondaryVertices')
+#muons = 'muons'
+#selectedPatMuons = 'selectedPatMuons'
+
+## If running on miniAOD
+if not options.runOnAOD:
+    genParticles = 'prunedGenParticles'
+    jetSource = 'ak4PFJets'
+    genJetCollection = 'ak4GenJetsNoNu'
+    trackSource = 'unpackedTracksAndVertices'
+    pvSource = 'unpackedTracksAndVertices'
+    svSource = cms.InputTag('unpackedTracksAndVertices','secondary')
+    #muons = 'slimmedMuons'
+    #selectedPatMuons = muons
+
+####################################################################
+
 ## Full configuration for PF2PAT
 
 
 if options.runOnAOD:
-    ## Postfix
-    pfpostfix = "PFlow"
-    
     
     ## Output module for edm files (needed for PAT sequence, even if not used in EndPath)
     from Configuration.EventContent.EventContent_cff import FEVTEventContent
@@ -361,7 +398,36 @@ if options.runOnAOD:
     # Set to true to access b-tagging information in PAT jets
     #applyPostfix(process, "patJets", pfpostfix).addTagInfos = True
 
+else:
+    ## Recreate tracks and PVs for b tagging
+    process.load('PhysicsTools.PatAlgos.slimming.unpackedTracksAndVertices_cfi')
+    from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
+    from RecoJets.JetProducers.ak4GenJets_cfi import ak4GenJets
 
+    # Still needs modifications for the case of miniAOD in order to rerun the b tagging
+
+from PhysicsTools.PatAlgos.tools.jetTools import *
+## Switch the default jet collection (done in order to use the above specified b-tag infos and discriminators)
+switchJetCollection(
+    process,
+    jetSource = cms.InputTag(jetSource),
+    trackSource = cms.InputTag(trackSource),
+    pvSource = cms.InputTag(pvSource),
+    svSource = svSource,
+    btagInfos = bTagInfos,
+    btagDiscriminators = bTagDiscriminators,
+    jetCorrections = jetCorrectionsAK4,
+    genJetCollection = cms.InputTag(genJetCollection),
+    postfix = pfpostfix
+)
+
+## Add TagInfos to PAT jets
+patJets = ['patJets'+pfpostfix]
+
+for m in patJets:
+    if hasattr(process,m):
+        print "Switching 'addTagInfos' for " + m + " to 'True'"
+        setattr( getattr(process,m), 'addTagInfos', cms.bool(True) )
 
 ####################################################################
 ## Object preselection for any correction based on final PAT objects
