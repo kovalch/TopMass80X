@@ -48,7 +48,8 @@ debug_(0)
     TMVA::Tools::Instance(); 
     
     TString case1_ = "testingTheReader";
-    TString weight1 = "/data/user/jgaray/cmsswFullSetup_14Patch1/CMSSW_5_3_14_patch1/src/TopAnalysis/Configuration/analysis/ttH/factoryOutput/101114/noBool/weights/MVA_BDTAdaBoost.weights.xml";
+    TString weight1 = "/data/user/jgaray/cmsswFullSetup_14Patch1/CMSSW_5_3_14_patch1/src/TopAnalysis/Configuration/analysis/ttH/factoryOutput/261114/invertSignalAndBkg/weights/MVA_BDTAdaBoost.weights.xml";
+    
     
     reader_->AddVariable("longChargeJet", &(mvaStruct_.longChargeJet_));
     reader_->AddVariable("relChargeJet",&(mvaStruct_.relChargeJet_));
@@ -85,7 +86,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
     TString name;
 
     // Stearing options for: true (0), kinReco (1), mlb (2)
-    int optionForCalibration = 0; 
+    int optionForCalibration = -1; 
     
     // Extracting input data to more comfortable variables
     
@@ -271,6 +272,9 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
            //if (jetHadronFlavour<0) continue;
            //if (jetHadronFlavour>0) continue;
         }
+        
+        //FIXME weightReweighted is reweighted by the number of tracks
+        double weightReweighted = weight*trackMultiplicityWeight (-0.0285, 1.4596, jetIdx, jetPfCandidateTrackIndex);
         
         double trueBJetScalarCharge = jetChargeRelativePtWeighted.at(jetIdx);
         double trueBJetPt = jets.pt();
@@ -648,7 +652,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         
         // Min. flight distance plots
         if (secondaryVertexMultiplicityPerJet!=0) m_histogram["h_secondaryVertexMinFlighDistanceValue"]->Fill(minSecondaryVertexFlightDistanceValue, weight);
-        ((TH2D*)m_histogram["h_secondaryVertexMinFlightDistanceValueVsCSV"])->Fill(minSecondaryVertexFlightDistanceValue,jetBTagCSV.at(jetIdx),weight);
+        ((TH2D*)m_histogram["h_secondaryVertexMinFlightDistanceValueVsCSV"])->Fill(minSecondaryVertexFlightDistanceValue,jetBTagCSV.at(jetIdx), weight);
         
         // Secondary vertex information for pfCandidates
         std::vector<int> secondaryVertexSelTrackMatchedToPfCandidateIndex;
@@ -708,7 +712,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
                 m_histogram["h_trueBJetMuonTrackPt"]->Fill(trueBJetPfTrackPt, weight);
                 m_histogram["h_trueBJetMuonTrackEta"]->Fill(jetPfCandidateTrack.at(iPfTrack).Eta(), weight);
                 m_histogram["h_trueBJetMuonTrackCharge"]->Fill(jetPfCandidateTrackCharge.at(iPfTrack), weight);
-                ((TH2D*)m_histogram["h_trueBJetMuonChargePt"])->Fill(trueBJetPfTrackPt,jetPfCandidateTrackCharge.at(iPfTrack),weight);
+                ((TH2D*)m_histogram["h_trueBJetMuonChargePt"])->Fill(trueBJetPfTrackPt,jetPfCandidateTrackCharge.at(iPfTrack), weight);
                 m_histogram["h_trueBJetToMuonTrackPtRatio"]->Fill(trueBJetPfTrackPt/trueBJetPt, weight);
                 if (ipValueWasDefined) m_histogram["h_trueBJetTrackIPValueIfMuon"]->Fill(impactParameterValueForPf, weight);
                 if (ipValueWasDefined) m_histogram["h_trueBJetTrackIPSignificanceIfMuon"]->Fill(impactParameterSignificanceForPf, weight);
@@ -723,7 +727,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
                 m_histogram["h_trueBJetElectronTrackPt"]->Fill(trueBJetPfTrackPt, weight);
                 m_histogram["h_trueBJetElectronTrackEta"]->Fill(jetPfCandidateTrack.at(iPfTrack).Eta(), weight);
                 m_histogram["h_trueBJetElectronTrackCharge"]->Fill(jetPfCandidateTrackCharge.at(iPfTrack), weight);
-                ((TH2D*)m_histogram["h_trueBJetElectronChargePt"])->Fill(trueBJetPfTrackPt,jetPfCandidateTrackCharge.at(iPfTrack),weight);
+                ((TH2D*)m_histogram["h_trueBJetElectronChargePt"])->Fill(trueBJetPfTrackPt,jetPfCandidateTrackCharge.at(iPfTrack), weight);
                 m_histogram["h_trueBJetToElectronTrackPtRatio"]->Fill(trueBJetPfTrackPt/trueBJetPt, weight);
                 if (ipValueWasDefined) m_histogram["h_trueBJetTrackIPValueIfElectron"]->Fill(impactParameterValueForPf, weight);
                 if (ipValueWasDefined) m_histogram["h_trueBJetTrackIPSignificanceIfElectron"]->Fill(impactParameterSignificanceForPf, weight);
@@ -737,7 +741,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
                 m_histogram["h_trueBJetLeptonTrackPt"]->Fill(trueBJetPfTrackPt, weight);
                 m_histogram["h_trueBJetLeptonTrackEta"]->Fill(jetPfCandidateTrack.at(iPfTrack).Eta(), weight);
                 m_histogram["h_trueBJetLeptonTrackCharge"]->Fill(jetPfCandidateTrackCharge.at(iPfTrack), weight);
-                ((TH2D*)m_histogram["h_trueBJetLeptonChargePt"])->Fill(trueBJetPfTrackPt,jetPfCandidateTrackCharge.at(iPfTrack),weight);
+                ((TH2D*)m_histogram["h_trueBJetLeptonChargePt"])->Fill(trueBJetPfTrackPt,jetPfCandidateTrackCharge.at(iPfTrack), weight);
                 m_histogram["h_trueBJetToLeptonTrackPtRatio"]->Fill(trueBJetPfTrackPt/trueBJetPt, weight);
                 if (ipValueWasDefined) m_histogram["h_trueBJetTrackIPValueIfLepton"]->Fill(impactParameterValueForPf, weight);
                 if (ipValueWasDefined) m_histogram["h_trueBJetTrackIPSignificanceIfLepton"]->Fill(impactParameterSignificanceForPf, weight);
@@ -992,7 +996,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
             }
         }
         
-        if (ptRatioValues.size()!=0) m_histogram["h_trueBJetToLeadingTrackPtRatio"]->Fill(ptRatioValues.at(0),weight);
+        if (ptRatioValues.size()!=0) m_histogram["h_trueBJetToLeadingTrackPtRatio"]->Fill(ptRatioValues.at(0), weight);
         if (isLeadingLepton==true) m_histogram["h_trueBJetToLeadingLeptonTrackPtRatio"]->Fill(ptRatioValuesLepton, weight);
         if (isLeadingMuon==true) m_histogram["h_trueBJetToLeadingMuonTrackPtRatio"]->Fill(ptRatioValuesMuon, weight);
         if (isLeadingElectron==true) m_histogram["h_trueBJetToLeadingElectronTrackPtRatio"]->Fill(ptRatioValuesElectron, weight);
@@ -1004,7 +1008,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         if (trueBJetLeptonTracksPt.size()>0) 
         {
             m_histogram["h_trueBJetLeptonTrackMultiplicity"] -> Fill(trueBJetLeptonTracksPt.size(), weight);
-            ((TH2D*) m_histogram["h_trueBJetLeptonTrackPtMultiplicity"])->Fill(trueBJetPt,trueBJetTrackMultiplicity,weight);
+            ((TH2D*) m_histogram["h_trueBJetLeptonTrackPtMultiplicity"])->Fill(trueBJetPt,trueBJetTrackMultiplicity, weight);
             m_histogram["h_trueBJetTrackMultiplicityIfLepton"]->Fill(trueBJetTrackMultiplicity, weight);
         }
         
@@ -1029,23 +1033,21 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         m_histogram["h_trueBJetMaxRelPtTrack"]->Fill(maxTrueMagnitude, weight);
         m_histogram["h_trueBJetHighestPtTrack"]->Fill(maxPtTrueTrack, weight);
         
-        ((TH2D*)m_histogram["h_trueBJetPtVsMaxPtTrack"])->Fill(maxPtTrueTrack,trueBJetPt,weight);
-        ((TH2D*)m_histogram["h_trueBJetPtVsMaxRelPtTrack"])->Fill(maxTrueMagnitude,trueBJetPt,weight);
-        ((TH2D*)m_histogram["h_trueBJetPtVsMaxScalarPtTrack"])->Fill(maxTrueProduct,trueBJetPt,weight);
-        ((TH2D*)m_histogram["h_trueBJetPtVsNumTracks"])-> Fill(trueBJetTrackMultiplicity,trueBJetPt,weight);
-        ((TH2D*)m_histogram["h_trueBJetMaxPtTrackVsNumTracks"])-> Fill(trueBJetTrackMultiplicity,maxPtTrueTrack,weight);
-        ((TH2D*)m_histogram["h_trueBJetEtaVsTrackMultiplicity"])-> Fill(trueBJetTrackMultiplicity,etaTrueBJets,weight);
+        ((TH2D*)m_histogram["h_trueBJetPtVsMaxPtTrack"])->Fill(maxPtTrueTrack,trueBJetPt, weight);
+        ((TH2D*)m_histogram["h_trueBJetPtVsMaxRelPtTrack"])->Fill(maxTrueMagnitude,trueBJetPt, weight);
+        ((TH2D*)m_histogram["h_trueBJetPtVsMaxScalarPtTrack"])->Fill(maxTrueProduct,trueBJetPt, weight);
+        ((TH2D*)m_histogram["h_trueBJetPtVsNumTracks"])-> Fill(trueBJetTrackMultiplicity,trueBJetPt, weight);
+        ((TH2D*)m_histogram["h_trueBJetMaxPtTrackVsNumTracks"])-> Fill(trueBJetTrackMultiplicity,maxPtTrueTrack, weight);
+        ((TH2D*)m_histogram["h_trueBJetEtaVsTrackMultiplicity"])-> Fill(trueBJetTrackMultiplicity,etaTrueBJets, weight);
         m_histogram["h_trueBJetPt"]->Fill(trueBJetPt, weight);
         
-        //FIXME weightReweighted is reweighted by the number of tracks
-        //double weightReweighted = weight/(1.4351-0.0268*trueBJetTrackMultiplicity);
-        m_histogram["h_trueBJetTrackMultiplicity"]->Fill(trueBJetTrackMultiplicity,weight);
+        m_histogram["h_trueBJetTrackMultiplicity"]->Fill(trueBJetTrackMultiplicity, weight);
        
         // Validation charge histograms
         m_histogram["h_trueBJetScalarChargeValidation"]->Fill(trueBJetScalarCharge, weight);
         
         const double trueBJetScalarCharge10(sumTrueBMomentum.at(4)>0 ? sumTrueBMomentumQ.at(4)/sumTrueBMomentum.at(4) : 0);
-        ((TH2D*)m_histogram["h_trueBJetScalarChargeVsMultip"])->Fill(trueBJetTrackMultiplicity,trueBJetScalarCharge10,weight);
+        ((TH2D*)m_histogram["h_trueBJetScalarChargeVsMultip"])->Fill(trueBJetTrackMultiplicity,trueBJetScalarCharge10, weight);
         
         //check if lepton track and charge of the jet coincide
         if (trueBJetLeptonTracksPt.size()>0) 
@@ -1201,96 +1203,96 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         {
             if (numHadMatched<1) continue;
             
-            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkScalarCharge2"]->Fill(trueBJetScalarChargeVector.at(0),weight);
-            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkScalarCharge2"]->Fill(trueBJetScalarChargeVector.at(0),weight);
+            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkScalarCharge2"]->Fill(trueBJetScalarChargeVector.at(0), weight);
+            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkScalarCharge2"]->Fill(trueBJetScalarChargeVector.at(0), weight);
             
-            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkScalarCharge4"]->Fill(trueBJetScalarChargeVector.at(1),weight);
-            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkScalarCharge4"]->Fill(trueBJetScalarChargeVector.at(1),weight);
+            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkScalarCharge4"]->Fill(trueBJetScalarChargeVector.at(1), weight);
+            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkScalarCharge4"]->Fill(trueBJetScalarChargeVector.at(1), weight);
             
-            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkScalarCharge6"]->Fill(trueBJetScalarChargeVector.at(2),weight);
-            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkScalarCharge6"]->Fill(trueBJetScalarChargeVector.at(2),weight);
+            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkScalarCharge6"]->Fill(trueBJetScalarChargeVector.at(2), weight);
+            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkScalarCharge6"]->Fill(trueBJetScalarChargeVector.at(2), weight);
             
-            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkScalarCharge8"]->Fill(trueBJetScalarChargeVector.at(3),weight);
-            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkScalarCharge8"]->Fill(trueBJetScalarChargeVector.at(3),weight);
+            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkScalarCharge8"]->Fill(trueBJetScalarChargeVector.at(3), weight);
+            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkScalarCharge8"]->Fill(trueBJetScalarChargeVector.at(3), weight);
             
-            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkScalarCharge10"]->Fill(trueBJetScalarChargeVector.at(4),weight);
+            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkScalarCharge10"]->Fill(trueBJetScalarChargeVector.at(4), weight);
             else if ( jetHadronFlavour<0)  m_histogram["h_trueBJetAntiBQuarkScalarCharge10"]->Fill(trueBJetScalarChargeVector.at(4), weight);
             
-            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkScalarCharge12"]->Fill(trueBJetScalarChargeVector.at(5),weight);
-            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkScalarCharge12"]->Fill(trueBJetScalarChargeVector.at(5),weight);
+            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkScalarCharge12"]->Fill(trueBJetScalarChargeVector.at(5), weight);
+            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkScalarCharge12"]->Fill(trueBJetScalarChargeVector.at(5), weight);
             
-            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkScalarCharge14"]->Fill(trueBJetScalarChargeVector.at(6),weight);
-            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkScalarCharge14"]->Fill(trueBJetScalarChargeVector.at(6),weight);
+            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkScalarCharge14"]->Fill(trueBJetScalarChargeVector.at(6), weight);
+            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkScalarCharge14"]->Fill(trueBJetScalarChargeVector.at(6), weight);
             
-            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkScalarCharge16"]->Fill(trueBJetScalarChargeVector.at(7),weight);
-            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkScalarCharge16"]->Fill(trueBJetScalarChargeVector.at(7),weight);
+            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkScalarCharge16"]->Fill(trueBJetScalarChargeVector.at(7), weight);
+            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkScalarCharge16"]->Fill(trueBJetScalarChargeVector.at(7), weight);
             
-            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkScalarCharge18"]->Fill(trueBJetScalarChargeVector.at(8),weight);
-            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkScalarCharge18"]->Fill(trueBJetScalarChargeVector.at(8),weight);
+            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkScalarCharge18"]->Fill(trueBJetScalarChargeVector.at(8), weight);
+            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkScalarCharge18"]->Fill(trueBJetScalarChargeVector.at(8), weight);
             
-            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkScalarCharge20"]->Fill(trueBJetScalarChargeVector.at(9),weight);
-            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkScalarCharge20"]->Fill(trueBJetScalarChargeVector.at(9),weight);
+            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkScalarCharge20"]->Fill(trueBJetScalarChargeVector.at(9), weight);
+            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkScalarCharge20"]->Fill(trueBJetScalarChargeVector.at(9), weight);
             
-            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkRelCharge2"]->Fill(trueBJetRelChargeVector.at(0),weight);
-            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkRelCharge2"]->Fill(trueBJetRelChargeVector.at(0),weight);
+            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkRelCharge2"]->Fill(trueBJetRelChargeVector.at(0), weight);
+            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkRelCharge2"]->Fill(trueBJetRelChargeVector.at(0), weight);
             
-            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkRelCharge4"]->Fill(trueBJetRelChargeVector.at(1),weight);
-            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkRelCharge4"]->Fill(trueBJetRelChargeVector.at(1),weight);
+            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkRelCharge4"]->Fill(trueBJetRelChargeVector.at(1), weight);
+            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkRelCharge4"]->Fill(trueBJetRelChargeVector.at(1), weight);
             
-            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkRelCharge6"]->Fill(trueBJetRelChargeVector.at(2),weight);
-            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkRelCharge6"]->Fill(trueBJetRelChargeVector.at(2),weight);
+            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkRelCharge6"]->Fill(trueBJetRelChargeVector.at(2), weight);
+            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkRelCharge6"]->Fill(trueBJetRelChargeVector.at(2), weight);
             
-            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkRelCharge8"]->Fill(trueBJetRelChargeVector.at(3),weight);
-            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkRelCharge8"]->Fill(trueBJetRelChargeVector.at(3),weight);
+            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkRelCharge8"]->Fill(trueBJetRelChargeVector.at(3), weight);
+            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkRelCharge8"]->Fill(trueBJetRelChargeVector.at(3), weight);
             
-            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkRelCharge10"]->Fill(trueBJetRelChargeVector.at(4),weight);
-            else if ( jetHadronFlavour<0)  m_histogram["h_trueBJetAntiBQuarkRelCharge10"]->Fill(trueBJetRelChargeVector.at(4),weight);
+            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkRelCharge10"]->Fill(trueBJetRelChargeVector.at(4), weight);
+            else if ( jetHadronFlavour<0)  m_histogram["h_trueBJetAntiBQuarkRelCharge10"]->Fill(trueBJetRelChargeVector.at(4), weight);
             
-            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkRelCharge12"]->Fill(trueBJetRelChargeVector.at(5),weight);
-            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkRelCharge12"]->Fill(trueBJetRelChargeVector.at(5),weight);
+            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkRelCharge12"]->Fill(trueBJetRelChargeVector.at(5), weight);
+            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkRelCharge12"]->Fill(trueBJetRelChargeVector.at(5), weight);
             
-            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkRelCharge14"]->Fill(trueBJetRelChargeVector.at(6),weight);
-            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkRelCharge14"]->Fill(trueBJetRelChargeVector.at(6),weight);
+            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkRelCharge14"]->Fill(trueBJetRelChargeVector.at(6), weight);
+            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkRelCharge14"]->Fill(trueBJetRelChargeVector.at(6), weight);
             
-            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkRelCharge16"]->Fill(trueBJetRelChargeVector.at(7),weight);
-            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkRelCharge16"]->Fill(trueBJetRelChargeVector.at(7),weight);
+            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkRelCharge16"]->Fill(trueBJetRelChargeVector.at(7), weight);
+            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkRelCharge16"]->Fill(trueBJetRelChargeVector.at(7), weight);
             
-            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkRelCharge18"]->Fill(trueBJetRelChargeVector.at(8),weight);
-            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkRelCharge18"]->Fill(trueBJetRelChargeVector.at(8),weight);
+            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkRelCharge18"]->Fill(trueBJetRelChargeVector.at(8), weight);
+            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkRelCharge18"]->Fill(trueBJetRelChargeVector.at(8), weight);
             
-            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkRelCharge20"]->Fill(trueBJetRelChargeVector.at(9),weight);
-            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkRelCharge20"]->Fill(trueBJetRelChargeVector.at(9),weight);
+            if ( jetHadronFlavour>0)  m_histogram["h_trueBJetBQuarkRelCharge20"]->Fill(trueBJetRelChargeVector.at(9), weight);
+            else if ( jetHadronFlavour<0)  m_histogram["h_trueAntiBJetBQuarkRelCharge20"]->Fill(trueBJetRelChargeVector.at(9), weight);
             
             // Only coming from top: for comparison with kinReco results
-            if ( jetHadronFlavour==6)  m_histogram["h_trueBJetBQuarkFromTopScalarCharge2"]->Fill(trueBJetScalarChargeVector.at(0),weight);
-            else if ( jetHadronFlavour==-6)  m_histogram["h_trueAntiBJetBQuarkFromTopScalarCharge2"]->Fill(trueBJetScalarChargeVector.at(0),weight);
+            if ( jetHadronFlavour==6)  m_histogram["h_trueBJetBQuarkFromTopScalarCharge2"]->Fill(trueBJetScalarChargeVector.at(0), weight);
+            else if ( jetHadronFlavour==-6)  m_histogram["h_trueAntiBJetBQuarkFromTopScalarCharge2"]->Fill(trueBJetScalarChargeVector.at(0), weight);
             
-            if ( jetHadronFlavour==6)  m_histogram["h_trueBJetBQuarkFromTopScalarCharge4"]->Fill(trueBJetScalarChargeVector.at(1),weight);
-            else if ( jetHadronFlavour==-6)  m_histogram["h_trueAntiBJetBQuarkFromTopScalarCharge4"]->Fill(trueBJetScalarChargeVector.at(1),weight);
+            if ( jetHadronFlavour==6)  m_histogram["h_trueBJetBQuarkFromTopScalarCharge4"]->Fill(trueBJetScalarChargeVector.at(1), weight);
+            else if ( jetHadronFlavour==-6)  m_histogram["h_trueAntiBJetBQuarkFromTopScalarCharge4"]->Fill(trueBJetScalarChargeVector.at(1), weight);
             
-            if ( jetHadronFlavour==6)  m_histogram["h_trueBJetBQuarkFromTopScalarCharge6"]->Fill(trueBJetScalarChargeVector.at(2),weight);
-            else if ( jetHadronFlavour==-6)  m_histogram["h_trueAntiBJetBQuarkFromTopScalarCharge6"]->Fill(trueBJetScalarChargeVector.at(2),weight);
+            if ( jetHadronFlavour==6)  m_histogram["h_trueBJetBQuarkFromTopScalarCharge6"]->Fill(trueBJetScalarChargeVector.at(2), weight);
+            else if ( jetHadronFlavour==-6)  m_histogram["h_trueAntiBJetBQuarkFromTopScalarCharge6"]->Fill(trueBJetScalarChargeVector.at(2), weight);
             
-            if ( jetHadronFlavour==6)  m_histogram["h_trueBJetBQuarkFromTopScalarCharge8"]->Fill(trueBJetScalarChargeVector.at(3),weight);
-            else if ( jetHadronFlavour==-6)  m_histogram["h_trueAntiBJetBQuarkFromTopScalarCharge8"]->Fill(trueBJetScalarChargeVector.at(3),weight);
+            if ( jetHadronFlavour==6)  m_histogram["h_trueBJetBQuarkFromTopScalarCharge8"]->Fill(trueBJetScalarChargeVector.at(3), weight);
+            else if ( jetHadronFlavour==-6)  m_histogram["h_trueAntiBJetBQuarkFromTopScalarCharge8"]->Fill(trueBJetScalarChargeVector.at(3), weight);
             
-            if ( jetHadronFlavour==6)  m_histogram["h_trueBJetBQuarkFromTopScalarCharge10"]->Fill(trueBJetScalarChargeVector.at(4),weight);
+            if ( jetHadronFlavour==6)  m_histogram["h_trueBJetBQuarkFromTopScalarCharge10"]->Fill(trueBJetScalarChargeVector.at(4), weight);
             else if ( jetHadronFlavour==-6)  m_histogram["h_trueBJetAntiBQuarkFromTopScalarCharge10"]->Fill(trueBJetScalarChargeVector.at(4), weight);
             
-            if ( jetHadronFlavour==6)  m_histogram["h_trueBJetBQuarkFromTopScalarCharge12"]->Fill(trueBJetScalarChargeVector.at(5),weight);
-            else if ( jetHadronFlavour==-6)  m_histogram["h_trueAntiBJetBQuarkFromTopScalarCharge12"]->Fill(trueBJetScalarChargeVector.at(5),weight);
+            if ( jetHadronFlavour==6)  m_histogram["h_trueBJetBQuarkFromTopScalarCharge12"]->Fill(trueBJetScalarChargeVector.at(5), weight);
+            else if ( jetHadronFlavour==-6)  m_histogram["h_trueAntiBJetBQuarkFromTopScalarCharge12"]->Fill(trueBJetScalarChargeVector.at(5), weight);
             
-            if ( jetHadronFlavour==6)  m_histogram["h_trueBJetBQuarkFromTopScalarCharge14"]->Fill(trueBJetScalarChargeVector.at(6),weight);
-            else if ( jetHadronFlavour==-6)  m_histogram["h_trueAntiBJetBQuarkFromTopScalarCharge14"]->Fill(trueBJetScalarChargeVector.at(6),weight);
+            if ( jetHadronFlavour==6)  m_histogram["h_trueBJetBQuarkFromTopScalarCharge14"]->Fill(trueBJetScalarChargeVector.at(6), weight);
+            else if ( jetHadronFlavour==-6)  m_histogram["h_trueAntiBJetBQuarkFromTopScalarCharge14"]->Fill(trueBJetScalarChargeVector.at(6), weight);
             
-            if ( jetHadronFlavour==6)  m_histogram["h_trueBJetBQuarkFromTopScalarCharge16"]->Fill(trueBJetScalarChargeVector.at(7),weight);
-            else if ( jetHadronFlavour==-6)  m_histogram["h_trueAntiBJetBQuarkFromTopScalarCharge16"]->Fill(trueBJetScalarChargeVector.at(7),weight);
+            if ( jetHadronFlavour==6)  m_histogram["h_trueBJetBQuarkFromTopScalarCharge16"]->Fill(trueBJetScalarChargeVector.at(7), weight);
+            else if ( jetHadronFlavour==-6)  m_histogram["h_trueAntiBJetBQuarkFromTopScalarCharge16"]->Fill(trueBJetScalarChargeVector.at(7), weight);
             
-            if ( jetHadronFlavour==6)  m_histogram["h_trueBJetBQuarkFromTopScalarCharge18"]->Fill(trueBJetScalarChargeVector.at(8),weight);
-            else if ( jetHadronFlavour==-6)  m_histogram["h_trueAntiBJetBQuarkFromTopScalarCharge18"]->Fill(trueBJetScalarChargeVector.at(8),weight);
+            if ( jetHadronFlavour==6)  m_histogram["h_trueBJetBQuarkFromTopScalarCharge18"]->Fill(trueBJetScalarChargeVector.at(8), weight);
+            else if ( jetHadronFlavour==-6)  m_histogram["h_trueAntiBJetBQuarkFromTopScalarCharge18"]->Fill(trueBJetScalarChargeVector.at(8), weight);
             
-            if ( jetHadronFlavour==6)  m_histogram["h_trueBJetBQuarkFromTopScalarCharge20"]->Fill(trueBJetScalarChargeVector.at(9),weight);
-            else if ( jetHadronFlavour==-6)  m_histogram["h_trueAntiBJetBQuarkFromTopScalarCharge20"]->Fill(trueBJetScalarChargeVector.at(9),weight);
+            if ( jetHadronFlavour==6)  m_histogram["h_trueBJetBQuarkFromTopScalarCharge20"]->Fill(trueBJetScalarChargeVector.at(9), weight);
+            else if ( jetHadronFlavour==-6)  m_histogram["h_trueAntiBJetBQuarkFromTopScalarCharge20"]->Fill(trueBJetScalarChargeVector.at(9), weight);
         }
         
         // Testing mva variable separation
@@ -1310,8 +1312,13 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         m_histogram["h_mva_trackNumberWeightedJetPt"]->Fill(trackNumberWeightedJetPt, weight);
         m_histogram["h_mva_chargeWeightedTrackId"]->Fill(chargeWeightedTrackId, weight);
         m_histogram["h_mva_svChargeWeightedFlightDistance"]->Fill(svChargeWeightedFlightDistance, weight);
-        if (thereIsASecondaryVertex) m_histogram["h_mva_secondaryVertexWeightedCharge"]->Fill(chargeOfSecondaryVerticesForSelectedTracks.at(0), weight);
+        if (thereIsASecondaryVertex)
+        {
+            m_histogram["h_mva_secondaryVertexWeightedCharge_ifSV"]->Fill(chargeOfSecondaryVerticesForSelectedTracks.at(0), weight);
+            m_histogram["h_mva_secondaryVertexWeightedCharge"]->Fill(chargeOfSecondaryVerticesForSelectedTracks.at(0), weight);
+        }
         else m_histogram["h_mva_secondaryVertexWeightedCharge"]->Fill(0., weight);
+        m_histogram["h_mva_jetCharge_x08"]->Fill(trueBJetScalarChargeVector.at(3), weight);
         //if (thereIsALeadingLepton) fillTree = true;
         //if (thereIsALeadingMuon) fillTree = true;
         //if (thereIsASecondaryVertex) fillTree = true;
@@ -1320,8 +1327,8 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         fillTree = true;
         
         // MVA specific variable filling
-        if (jetHadronFlavour<0) mvaStruct_.trueBJetId_ = -1;
-        else if (jetHadronFlavour>0) mvaStruct_.trueBJetId_ = 0;
+        if (jetHadronFlavour>0) mvaStruct_.trueBJetId_ = -1;
+        else if (jetHadronFlavour<0) mvaStruct_.trueBJetId_ = 0;
         mvaStruct_.relChargeJet_ = trueBJetRelChargeVector.at(3);
         mvaStruct_.longChargeJet_ = trueBJetScalarChargeVector.at(3);
         mvaStruct_.leadingTrackPtWeightedCharge_ = leadingTrackPtWeightedCharge;
@@ -1349,15 +1356,22 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         
         if (recoBjetFromTopIndex==jetIdx) m_histogram["h_testB"]->Fill(val1);
         if (recoAntiBjetFromTopIndex==jetIdx) m_histogram["h_testAntiB"]->Fill(val1);
+        m_histogram["h_weights"]->Fill(val1);
        
-       if (jetHadronFlavour<0) m_histogram["h_testB_fromAll"]->Fill(val1);
-       if (jetHadronFlavour>0) m_histogram["h_testAntiB_fromAll"]->Fill(val1);
+       if (jetHadronFlavour>0) m_histogram["h_testB_fromAll"]->Fill(val1);
+       if (jetHadronFlavour<0) m_histogram["h_testAntiB_fromAll"]->Fill(val1);
        
-       if (jetHadronFlavour<0 && val1<0) m_histogram["h_coincidenceTest_flavourB"]->Fill(1);
-       else if (jetHadronFlavour<0&&val1>0) m_histogram["h_coincidenceTest_flavourB"]->Fill(0);
+       if (val1<0) m_histogram["h_testB_fromAll_charge"]->Fill(trueBJetScalarChargeVector.at(3));
+       if (val1>0) m_histogram["h_testAntiB_fromAll_charge"]->Fill(trueBJetScalarChargeVector.at(3));
        
-       if (jetHadronFlavour>0 && val1>0) m_histogram["h_coincidenceTest_flavourAntiB"]->Fill(1);
-       else if (jetHadronFlavour>0 && val1<0) m_histogram["h_coincidenceTest_flavourAntiB"]->Fill(0);
+       if (jetHadronFlavour>0) m_histogram["h_trueB_fromAll_charge"]->Fill(trueBJetScalarChargeVector.at(3));
+       if (jetHadronFlavour<0) m_histogram["h_trueAntiB_fromAll_charge"]->Fill(trueBJetScalarChargeVector.at(3));
+       
+       if (jetHadronFlavour>0 && val1<0) m_histogram["h_coincidenceTest_flavourB"]->Fill(trueBJetScalarChargeVector.at(3));
+       else if (jetHadronFlavour>0&&val1>0) m_histogram["h_coincidenceTest_flavourB_fail"]->Fill(trueBJetScalarChargeVector.at(3));
+       
+       if (jetHadronFlavour<0 && val1>0) m_histogram["h_coincidenceTest_flavourAntiB"]->Fill(trueBJetScalarChargeVector.at(3));
+       else if (jetHadronFlavour<0 && val1<0) m_histogram["h_coincidenceTest_flavourAntiB_fail"]->Fill(trueBJetScalarChargeVector.at(3));
        
        if (recoBjetFromTopIndex==jetIdx && val1<0) m_histogram["h_coincidenceTest_topB"]->Fill(1);
        else if (recoBjetFromTopIndex==jetIdx&&val1>0) m_histogram["h_coincidenceTest_topB"]->Fill(0);
@@ -1365,17 +1379,17 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
        if (recoAntiBjetFromTopIndex==jetIdx && val1>0) m_histogram["h_coincidenceTest_topAntiB"]->Fill(1);
        else if (recoAntiBjetFromTopIndex==jetIdx && val1<0) m_histogram["h_coincidenceTest_topAntiB"]->Fill(0);
        
-       if (jetHadronFlavour<0 && trueBJetScalarCharge<0) m_histogram["h_coincidenceTest_flavourB_oldDefinition"]->Fill(0);
-       else if (jetHadronFlavour<0 && trueBJetScalarCharge>0) m_histogram["h_coincidenceTest_flavourB_oldDefinition"]->Fill(1);
+       if (jetHadronFlavour>0 && trueBJetScalarCharge<0) m_histogram["h_coincidenceTest_flavourB_oldDefinition"]->Fill(1);
+       else if (jetHadronFlavour>0 && trueBJetScalarCharge>0) m_histogram["h_coincidenceTest_flavourB_oldDefinition"]->Fill(0);
        
-       if (jetHadronFlavour>0 && trueBJetScalarCharge>0) m_histogram["h_coincidenceTest_flavourAntiB_oldDefinition"]->Fill(0);
-       else if (jetHadronFlavour>0 && trueBJetScalarCharge<0) m_histogram["h_coincidenceTest_flavourAntiB_oldDefinition"]->Fill(1);
+       if (jetHadronFlavour<0 && trueBJetScalarCharge>0) m_histogram["h_coincidenceTest_flavourAntiB_oldDefinition"]->Fill(1);
+       else if (jetHadronFlavour<0 && trueBJetScalarCharge<0) m_histogram["h_coincidenceTest_flavourAntiB_oldDefinition"]->Fill(0);
        
-       if (recoBjetFromTopIndex==jetIdx&& trueBJetScalarCharge<0) m_histogram["h_coincidenceTest_topB_oldDefinition"]->Fill(0);
-       else if (recoBjetFromTopIndex==jetIdx && trueBJetScalarCharge>0) m_histogram["h_coincidenceTest_topB_oldDefinition"]->Fill(1);
+       if (recoBjetFromTopIndex==jetIdx&& trueBJetScalarCharge<0) m_histogram["h_coincidenceTest_topB_oldDefinition"]->Fill(1);
+       else if (recoBjetFromTopIndex==jetIdx && trueBJetScalarCharge>0) m_histogram["h_coincidenceTest_topB_oldDefinition"]->Fill(0);
        
-       if (recoAntiBjetFromTopIndex==jetIdx&& trueBJetScalarCharge>0) m_histogram["h_coincidenceTest_topAntiB_oldDefinition"]->Fill(0);
-       else if (recoAntiBjetFromTopIndex==jetIdx && trueBJetScalarCharge<0) m_histogram["h_coincidenceTest_topAntiB_oldDefinition"]->Fill(1);
+       if (recoAntiBjetFromTopIndex==jetIdx&& trueBJetScalarCharge>0) m_histogram["h_coincidenceTest_topAntiB_oldDefinition"]->Fill(1);
+       else if (recoAntiBjetFromTopIndex==jetIdx && trueBJetScalarCharge<0) m_histogram["h_coincidenceTest_topAntiB_oldDefinition"]->Fill(0);
        
     } //end loop over reco jets
     
@@ -1454,7 +1468,7 @@ void AnalyzerJetCharge::bookMvaHistos(const TString& step, std::map<TString, TH1
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex weighted charge with respect to the jet axis (if there's a SV);c_{rel}^{SV};Jets",24,-1.2,1.2));
     
     name = "h_mva_svChargeWeightedFlightDistance";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex flight distance times secondary vertex weighted charge;c_{rel}^{SV}*(flight distance significance);Jets",90,-150.,150.));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Secondary vertex flight distance times secondary vertex weighted charge;c_{rel}^{SV}*(flight distance significance);Jets",90,-50.,50.));
     
     name = "h_mva_jetCharge_x08";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet longitudinal p_{T} weighted charge with x = 1.0;c_{rel}^{jet};Jets",24,-1.2,1.2));
@@ -1465,17 +1479,38 @@ void AnalyzerJetCharge::bookMvaHistos(const TString& step, std::map<TString, TH1
     name = "h_testAntiB";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Weight of anti-b jets from top system;weight;Jets",100,-1.,1.));
     
+    name = "h_weights";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Weights coming out from the mva;weight;Jets",100,-1.,1.));
+    
     name = "h_testB_fromAll";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Weight of b jets from all;weight;Jets",100,-1.,1.));
     
     name = "h_testAntiB_fromAll";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Weight of anti-b jets from all;weight;Jets",100,-1.,1.));
     
+    name = "h_trueB_fromAll_charge";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Charge of true b jets from all;c^{jet}_{rel};Jets",24,-1.2,1.2));
+    
+    name = "h_trueAntiB_fromAll_charge";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Charge of anti-b jets from all;c^{jet}_{rel};Jets",24,-1.2,1.2));
+    
+    name = "h_testB_fromAll_charge";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Charge of b jets from all if mva weight<0;c^{jet}_{rel};Jets",24,-1.2,1.2));
+    
+    name = "h_testAntiB_fromAll_charge";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Charge of anti-b jets from all if mva weight>0;c^{jet}_{rel};Jets",24,-1.2,1.2));
+    
     name = "h_coincidenceTest_flavourB";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Coincidence between B hadron flavour and weight output from MVA;coincidence: 1 agree, 0 fail;Jets",4,0.,3.));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Charge for B hadron flavour when truth and weight output from MVA coincide;c^{jet}_{rel};Jets",24,-1.2,1.2));
     
     name = "h_coincidenceTest_flavourAntiB";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Coincidence between anti-B hadron flavour and weight output from MVA;coincidence: 1 agree, 0 fail;Jets",4,0.,3.));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Charge for anti-B hadron flavour when truth and weight output from MVA coincide;c^{jet}_{rel};Jets",24,-1.2,1.2));
+    
+    name = "h_coincidenceTest_flavourB_fail";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Charge for B hadron flavour when truth and weight output from MVA DON'T coincide;c^{jet}_{rel};Jets",24,-1.2,1.2));
+    
+    name = "h_coincidenceTest_flavourAntiB_fail";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Charge for anti-B hadron flavour when truth and weight output from MVA DON'T coincide;c^{jet}_{rel};Jets",24,-1.2,1.2));
     
     name = "h_coincidenceTest_topB";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Coincidence between b from top and weight output from MVA;coincidence: 1 agree, 0 fail;Jets",4,0.,3.));
@@ -2726,6 +2761,22 @@ bool AnalyzerJetCharge::putUniquelyInVector(std::vector<int>& vector, const int 
     
     vector.push_back(id);
     return true;
+}
+
+double AnalyzerJetCharge::trackMultiplicityWeight(const double m, const double n, int jetIndex, std::vector<int> jetPfCandidateTrackIndex)
+{
+    int multiplicity = 0;
+    for (size_t i=0;i!=jetPfCandidateTrackIndex.size();i++)
+    {
+        //check if the track is matched to a selected jet and in case it is, add one to the multiplicity.
+        int trueMatched = 0;
+        if (jetIndex!=jetPfCandidateTrackIndex.at(i)) trueMatched = -1;
+        if (trueMatched == -1) continue;
+        ++multiplicity;
+    }
+    
+    double y = m*multiplicity+n;
+    return y;
 }
 
 

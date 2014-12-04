@@ -66,9 +66,11 @@ public:
     /// Whether index is in the vector of indices
     bool isInVector(const std::vector<int>& idVector, const int id);
     
+    /// Check that an entry is only put once in the vector
     bool putUniquelyInVector(std::vector<int>& vector, const int id);
-    int jetSelectedTrackMatchToPfCandidateIndex(size_t iSelectedTrack);
     
+    /// Calculate the weight applying the track multiplicity in linear functional form (y = mx+n)
+    double trackMultiplicityWeight(const double m, const double n, int jetIndex, std::vector<int> jetPfCandidateTrackIndex);
     
     struct MvaJetVariable
     {
