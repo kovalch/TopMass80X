@@ -381,8 +381,8 @@ if options.runOnAOD:
     preselectedJetCollection = 'selectedPatJets'+pfpostfix
     preselectedMetCollection = 'patMETs'+pfpostfix
     
-    getattr(process, preselectedElectronCollection).cut = 'electronID("eidLoose")>0.5 && passConversionVeto'
-    getattr(process, preselectedMuonCollection).cut = 'isPFMuon && pt>20 && abs(eta)<2.4'
+    getattr(process, preselectedElectronCollection).cut = 'pt>5 && electronID("eidLoose")>0.5 && passConversionVeto && gsfTrack.isAvailable() && gsfTrack.hitPattern().numberOfLostHits("MISSING_INNER_HITS")<2 && (pfIsolationVariables().sumChargedHadronPt+max(0.,pfIsolationVariables().sumNeutralHadronEt+pfIsolationVariables().sumPhotonEt-0.5*pfIsolationVariables().sumPUPt))/pt < 0.15'
+    getattr(process, preselectedMuonCollection).cut = 'isPFMuon && pt>20 && abs(eta)<2.4 && (pfIsolationR04().sumChargedHadronPt+max(0.,pfIsolationR04().sumNeutralHadronEt+pfIsolationR04().sumPhotonEt-0.50*pfIsolationR04().sumPUPt))/pt < 0.20 && (isPFMuon && (isGlobalMuon || isTrackerMuon) )'
     getattr(process, preselectedJetCollection).cut = 'abs(eta)<5.4'
 else:
     preselectedElectronCollection = 'preselectedElectrons'
@@ -390,17 +390,12 @@ else:
     preselectedJetCollection = 'preselectedJets'
     preselectedMetCollection = 'slimmedMETs'
     
-    
     process.preselectedElectrons = selectedPatElectrons.clone(
         src = 'slimmedElectrons',
-        #cut = 'pt>5 && electronID("eidLoose")>0.5 && passConversionVeto'
-        #cut = 'pt>5 && electronID("eidLoose")>0.5 && passConversionVeto && gsfTrack.isAvailable() && gsfTrack.trackerExpectedHitsInner.numberOfLostHits<2 && (pfIsolationVariables().sumChargedHadronPt+max(0.,pfIsolationVariables().sumNeutralHadronEt+pfIsolationVariables().sumPhotonEt-0.5*pfIsolationVariables().sumPUPt))/pt < 0.15'
-        # In CMSSW_7_2_X, gsfTracks do not have anymore method trackerExpectedHitsInner()
-        cut = 'pt>5 && electronID("eidLoose")>0.5 && passConversionVeto && gsfTrack.isAvailable() && (pfIsolationVariables().sumChargedHadronPt+max(0.,pfIsolationVariables().sumNeutralHadronEt+pfIsolationVariables().sumPhotonEt-0.5*pfIsolationVariables().sumPUPt))/pt < 0.15'
+        cut = 'pt>5 && electronID("eidLoose")>0.5 && passConversionVeto && gsfTrack.isAvailable() && gsfTrack.hitPattern().numberOfLostHits("MISSING_INNER_HITS")<2 && (pfIsolationVariables().sumChargedHadronPt+max(0.,pfIsolationVariables().sumNeutralHadronEt+pfIsolationVariables().sumPhotonEt-0.5*pfIsolationVariables().sumPUPt))/pt < 0.15'
     )
     process.preselectedMuons = selectedPatMuons.clone(
         src = 'slimmedMuons',
-        #cut = 'isPFMuon && pt>20 && abs(eta)<2.4'
         cut = 'isPFMuon && pt>20 && abs(eta)<2.4 && (pfIsolationR04().sumChargedHadronPt+max(0.,pfIsolationR04().sumNeutralHadronEt+pfIsolationR04().sumPhotonEt-0.50*pfIsolationR04().sumPUPt))/pt < 0.20 && (isPFMuon && (isGlobalMuon || isTrackerMuon) )'
     )
     process.preselectedJets = selectedPatJets.clone(
