@@ -520,9 +520,9 @@ else:
     genParticleCollection = 'prunedGenParticles'
     genJetInputParticleCollection = 'packedGenParticles'
 
-genJetCollection = 'ak5GenJetsNoNuNoLepton'
+genJetCollection = 'ak4GenJetsNoNuNoLepton'
 
-genJetFlavourInfoCollection = 'ak5GenJetFlavourPlusLeptonInfos'
+genJetFlavourInfoCollection = 'ak4GenJetFlavourPlusLeptonInfos'
 
 
 genLevelBJetProducerInput = 'produceGenLevelBJets'
@@ -549,8 +549,8 @@ process.genParticlesForJetsNoNuNoLepton = genParticlesForJets.clone(
 )
 
 # Gen jets
-from RecoJets.JetProducers.ak5GenJets_cfi import ak5GenJets
-process.ak5GenJetsNoNuNoLepton = ak5GenJets.clone(src = "genParticlesForJetsNoNuNoLepton")
+from RecoJets.JetProducers.ak4GenJets_cfi import ak4GenJets
+process.ak4GenJetsNoNuNoLepton = ak4GenJets.clone(src = "genParticlesForJetsNoNuNoLepton")
 
 # Ghost particle collection for matching to gen jets (b/c hadrons + leptons)
 from PhysicsTools.JetMCAlgos.HadronAndPartonSelector_cfi import selectedHadronsAndPartons
@@ -560,8 +560,8 @@ process.selectedHadronsAndPartons = selectedHadronsAndPartons.clone(particles = 
 # For the moment leptons need to be specified explicitely here, until lepton access can be made more generic in miniAOD
 # This is only needed as long as the jetConstituents are not accessible directly in miniAOD, then it should be fixed
 # by using the leptons from the constituents, instead of feeding them as ghosts into the jets
-from PhysicsTools.JetMCAlgos.AK5PFJetsMCFlavourInfos_cfi import ak5JetFlavourInfos
-process.ak5GenJetFlavourPlusLeptonInfos = ak5JetFlavourInfos.clone(
+from PhysicsTools.JetMCAlgos.AK4PFJetsMCFlavourInfos_cfi import ak4JetFlavourInfos
+process.ak4GenJetFlavourPlusLeptonInfos = ak4JetFlavourInfos.clone(
     jets = genJetCollection,
     leptons = cms.InputTag("selectedHadronsAndPartons", "leptons")
 )
