@@ -15,7 +15,7 @@
 
 # QCD - Electron enriched
 380	Phys14.AOD.QCD_Pt_30to80_EMEnriched_Tune4C_13TeV_pythia8_Phys14DR_PU20bx25_castor_PHYS14_25_V1_v1_cff		qcdem3080.root			qcdem3080
-410	Phys14.AOD.QCD_Pt_80to170_EMEnriched_Tune4C_13TeV_pythia8_Phys14DR_PU20bx25_castor_PHYS14_25_V1_v1_cff		qcdbcem80170.root		qcdbcem80170
+410	Phys14.AOD.QCD_Pt_80to170_EMEnriched_Tune4C_13TeV_pythia8_Phys14DR_PU20bx25_castor_PHYS14_25_V1_v1_cff		qcdem80170.root			qcdem80170
 310	Phys14.AOD.QCD_Pt_30to80_bcToE_Tune4C_13TeV_pythia8_Phys14DR_PU20bx25_PHYS14_25_V1_v1_cff			qcdbcem3080.root		qcdbcem3080
 230	Phys14.AOD.QCD_Pt_170toInf_bcToE_Tune4C_13TeV_pythia8_Phys14DR_PU20bx25_PHYS14_25_V1_v1_cff			qcdbcem170inf.root		qcdbcem170inf
 
