@@ -6,8 +6,45 @@
 # (3) Output ROOTFile
 # (4) Options for nafJobSplitter, including JSON file (first argument is sampleName)
 
+#===========
+#PU20bx25
+#===========
+# Drell Yan
+50	Phys14.miniAOD.DYJetsToLL_M_50_13TeV_madgraph_pythia8_Phys14DR_PU20bx25_PHYS14_25_V1_v1_cff			dy50inf.root     		dy50inf,runOnAOD=False
 
-# ttZ
-10    Phys14.miniAOD.TTZJets_Tune4C_13TeV_madgraph_tauola_Phys14DR_PU20bx25_PHYS14_25_V1_v1_cff                              ttbarZ_miniAod.root      ttbarz,runOnAOD=False
+# QCD - Electron enriched
+40	Phys14.miniAOD.QCD_Pt_30to80_EMEnriched_Tune4C_13TeV_pythia8_Phys14DR_PU20bx25_castor_PHYS14_25_V1_v1_cff	qcdem3080.root			qcdem3080,runOnAOD=False
+40	Phys14.miniAOD.QCD_Pt_80to170_EMEnriched_Tune4C_13TeV_pythia8_Phys14DR_PU20bx25_castor_PHYS14_25_V1_v1_cff	qcdbcem80170.root		qcdbcem80170,runOnAOD=False
+35	Phys14.miniAOD.QCD_Pt_30to80_bcToE_Tune4C_13TeV_pythia8_Phys14DR_PU20bx25_PHYS14_25_V1_v1_cff			qcdbcem3080.root		qcdbcem3080,runOnAOD=False
+20	Phys14.miniAOD.QCD_Pt_170toInf_bcToE_Tune4C_13TeV_pythia8_Phys14DR_PU20bx25_PHYS14_25_V1_v1_cff			qcdbcem170inf.root		qcdbcem170inf,runOnAOD=False
+
+# ttV (V = W,Z)
+8	Phys14.miniAOD.TTWJets_Tune4C_13TeV_madgraph_tauola_Phys14DR_PU20bx25_PHYS14_25_V1_v1_cff			ttbarW.root			ttbarw,runOnAOD=False
+10	Phys14.miniAOD.TTZJets_Tune4C_13TeV_madgraph_tauola_Phys14DR_PU20bx25_PHYS14_25_V1_v1_cff			ttbarZ_miniAod.root		ttbarz,runOnAOD=False
+
+# ttbar pythia8
+60	Phys14.miniAOD.TT_Tune4C_13TeV_pythia8_tauola_Phys14DR_PU40bx25_tsg_PHYS14_25_V1_v1_cff				ttbarsignalplustauPythia8.root	ttbarsignalplustau,runOnAOD=False
+8	#Phys14.miniAOD.TT_scaleup_Tune4C_13TeV_pythia8_tauola_Phys14DR_PU20bx25_PHYS14_25_V1_v1_cff			
+
+# Single Top
+20	Phys14.miniAOD.Tbar_tW_channel_DR_Tune4C_13TeV_CSA14_powheg_tauola_Phys14DR_PU20bx25_PHYS14_25_V1_v1_cff	singleantitop_tw.root		singleantitop,runOnAOD=False
+#===========
 
 
+#===========
+#PU4bx50
+#===========
+
+# Drell Yan
+	#DYJetsToLL_M_50_13TeV_madgraph_pythia8_Phys14DR_PU4bx50_PHYS14_25_V1_v1_cff
+
+# QCD - Electron enriched
+	#Phys14.miniAOD.QCD_Pt_20to30_EMEnriched_Tune4C_13TeV_pythia8_Phys14DR_PU4bx50_castor_PHYS14_25_V1_v1_cff
+	#Phys14.miniAOD.QCD_Pt_30to80_EMEnriched_Tune4C_13TeV_pythia8_Phys14DR_PU4bx50_castor_PHYS14_25_V1_v1_cff
+	#Phys14.miniAOD.QCD_Pt_80to170_EMEnriched_Tune4C_13TeV_pythia8_Phys14DR_PU4bx50_castor_PHYS14_25_V1_v1_cff
+	#Phys14.miniAOD.QCD_Pt_30to80_bcToE_Tune4C_13TeV_pythia8_Phys14DR_PU4bx50_PHYS14_25_V1_v1_cff
+	#Phys14.miniAOD.QCD_Pt_80to170_bcToE_Tune4C_13TeV_pythia8_Phys14DR_PU4bx50_PHYS14_25_V1_v1_cff
+	#Phys14.miniAOD.QCD_Pt_170toInf_bcToE_Tune4C_13TeV_pythia8_Phys14DR_PU4bx50_PHYS14_25_V1_v1_cff
+
+
+	#Phys14.miniAOD.WJetsToLNu_13TeV_madgraph_pythia8_tauola_Phys14DR_PU4bx50_PHYS14_25_V1_v1_cff
