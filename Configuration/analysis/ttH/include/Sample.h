@@ -30,6 +30,8 @@ public:
     Sample(const TString& legendEntry,
            const int color,
            const double& crossSection,
+           const double& crossSectionRelativeUp,
+           const double& crossSectionRelativeDown,
            const std::vector<TString>& v_filename,
            const SampleType& sampleType =dummy);
     
@@ -90,8 +92,10 @@ private:
     /// Sample colour for drawing (needs to be identical for samples same legendEntry)
     int color_;
     
-    /// Cross section corresponding to the sample
+    /// Cross section corresponding to the sample with up/down uncertainty
     double crossSection_;
+    double crossSectionRelativeUp_;
+    double crossSectionRelativeDown_;
     
     /// Specific type of sample as needed to be known for eg. plotting or Drell-Yan scale factor calculation
     SampleType sampleType_;

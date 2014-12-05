@@ -13,12 +13,14 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     // Define all samples as differential as they are needed
     // Samples with same legend will appear as one single sample (requires also same colour)
     // They are written to a map to enable sorting and including/excluding of these samples independent of the definitions here
+    // Cross sections from https://twiki.cern.ch/twiki/bin/viewauth/CMS/StandardModelCrossSectionsat8TeV with exceptions defined inline
     std::map<TString, Sample> result;
     
     result["data"] = Sample(
         "Data",
         kBlack,
         1.,
+        0., -1.,
         {"run2012A.root", "run2012B.root", "run2012C.root", "run2012D.root"},
         Sample::data
     );
@@ -27,6 +29,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "pseudoData [nominal]",
         kBlack,
         241.5,
+        8.5/241.5, -1.,
         {   // Place for specific reweighted ROOT files to be used instead of standard MC files defined below
             "ttbarsignalPlusBbbar_nominal.root"
         },
@@ -36,7 +39,9 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     result["ttbarsignalPlusBbbar"] = Sample(
         "t#bar{t}b#bar{b}",
         18,
+        // TOP-14-016 (ATLAS+CMS combination)
         241.5,
+        8.5/241.5, -1.,
         {
             "ttbarsignalPlusBbbar.root",
             "ttbarsignalPlusBbbar_massup.root",
@@ -48,8 +53,8 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
             "ttbarsignalPlusBbbar_powheg.root",
             "ttbarsignalPlusBbbar_powhegHerwig.root",
             "ttbarsignalPlusBbbar_mcatnlo.root",
-            "ttbarsignalPlusBbbar_Perugia11.root",
-            "ttbarsignalPlusBbbar_Perugia11NoCR.root",
+            // "ttbarsignalPlusBbbar_Perugia11.root",
+            // "ttbarsignalPlusBbbar_Perugia11NoCR.root",
         },
         Sample::ttbb
     );
@@ -57,7 +62,9 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     result["ttbarsignalPlusB"] = Sample(
         "t#bar{t}b",
         12,
+        // TOP-14-016 (ATLAS+CMS combination)
         241.5,
+        8.5/241.5, -1.,
         {
             "ttbarsignalPlusB.root",
             "ttbarsignalPlusB_massup.root",
@@ -69,8 +76,8 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
             "ttbarsignalPlusB_powheg.root",
             "ttbarsignalPlusB_powhegHerwig.root",
             "ttbarsignalPlusB_mcatnlo.root",
-            "ttbarsignalPlusB_Perugia11.root",
-            "ttbarsignalPlusB_Perugia11NoCR.root",
+            // "ttbarsignalPlusB_Perugia11.root",
+            // "ttbarsignalPlusB_Perugia11NoCR.root",
         },
         Sample::ttb
     );
@@ -78,7 +85,9 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     result["ttbarsignalPlus2B"] = Sample(
         "t#bar{t}2b",
         28,
+        // TOP-14-016 (ATLAS+CMS combination)
         241.5,
+        8.5/241.5, -1.,
         {
             "ttbarsignalPlus2B.root",
             "ttbarsignalPlus2B_massup.root",
@@ -90,8 +99,8 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
             "ttbarsignalPlus2B_powheg.root",
             "ttbarsignalPlus2B_powhegHerwig.root",
             "ttbarsignalPlus2B_mcatnlo.root",
-            "ttbarsignalPlus2B_Perugia11.root",
-            "ttbarsignalPlus2B_Perugia11NoCR.root",
+            // "ttbarsignalPlus2B_Perugia11.root",
+            // "ttbarsignalPlus2B_Perugia11NoCR.root",
         },
         Sample::tt2b
     );
@@ -99,7 +108,9 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     result["ttbarsignalPlusCcbar"] = Sample(
         "t#bar{t}Other",
         23,
+        // TOP-14-016 (ATLAS+CMS combination)
         241.5,
+        8.5/241.5, -1.,
         {
             "ttbarsignalPlusCcbar.root",
             "ttbarsignalPlusCcbar_massup.root",
@@ -111,8 +122,8 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
             "ttbarsignalPlusCcbar_powheg.root",
             "ttbarsignalPlusCcbar_powhegHerwig.root",
             "ttbarsignalPlusCcbar_mcatnlo.root",
-            "ttbarsignalPlusCcbar_Perugia11.root",
-            "ttbarsignalPlusCcbar_Perugia11NoCR.root",
+            // "ttbarsignalPlusCcbar_Perugia11.root",
+            // "ttbarsignalPlusCcbar_Perugia11NoCR.root",
         },
         Sample::ttcc
     );
@@ -120,7 +131,9 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     result["ttbarsignalPlusOther"] = Sample(
         "t#bar{t}Other",
         23,
+        // TOP-14-016 (ATLAS+CMS combination)
         241.5,
+        8.5/241.5, -1.,
         {
             "ttbarsignalPlusOther.root",
             "ttbarsignalPlusOther_massup.root",
@@ -132,8 +145,8 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
             "ttbarsignalPlusOther_powheg.root",
             "ttbarsignalPlusOther_powhegHerwig.root",
             "ttbarsignalPlusOther_mcatnlo.root",
-            "ttbarsignalPlusOther_Perugia11.root",
-            "ttbarsignalPlusOther_Perugia11NoCR.root",
+            // "ttbarsignalPlusOther_Perugia11.root",
+            // "ttbarsignalPlusOther_Perugia11NoCR.root",
         },
         Sample::ttother
     );
@@ -141,7 +154,9 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     result["ttbarbkg"] = Sample(
         "t#bar{t}Other",
         23,
+        // TOP-14-016 (ATLAS+CMS combination)
         241.5,
+        8.5/241.5, -1.,
         {
             "ttbarbg.root",
             "ttbarbg_massup.root",
@@ -161,6 +176,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "Single Top",
         kViolet-3,
         11.1,
+        0.76/11.1, -1.,
         {"singletop_tw.root", "singleantitop_tw.root"}
     );
     
@@ -168,6 +184,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "Diboson",
         10,
         54.838,
+	3.05/54.838, -1.,
         {"wwtoall.root"}
     );
     
@@ -175,6 +192,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "Diboson",
         10,
         33.21,
+	1.84/33.21, -1.,
         {"wztoall.root"}
     );
     
@@ -182,6 +200,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "Diboson",
         10,
         17.654,
+	0.7/17.654, -1.,
         {"zztoall.root"}
     );
     
@@ -189,6 +208,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "Z / #gamma* #rightarrow ee/#mu#mu",
         kAzure+2,
         860.5,
+	0./860.5, -1.,
         {"dyee1050.root"},
         Sample::dyee
     );
@@ -197,6 +217,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "Z / #gamma* #rightarrow ee/#mu#mu",
         kAzure+2,
         3532.8,
+	0./3532.8, -1.,
         {"dyee50inf.root"},
         Sample::dyee
     );
@@ -205,6 +226,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "Z / #gamma* #rightarrow ee/#mu#mu",
         kAzure+2,
         860.5,
+	0./860.5, -1.,
         {"dymumu1050.root"},
         Sample::dymumu
     );
@@ -213,6 +235,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "Z / #gamma* #rightarrow ee/#mu#mu",
         kAzure+2,
         3532.8,
+	0./3532.8, -1.,
         {"dymumu50inf.root"},
         Sample::dymumu
     );
@@ -221,6 +244,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "Z / #gamma* #rightarrow #tau#tau",
         kAzure+10,
         860.5,
+	0./860.5, -1.,
         {"dytautau1050.root"},
         Sample::dytautau
     );
@@ -229,6 +253,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "Z / #gamma* #rightarrow #tau#tau",
         kAzure+10,
         3532.8,
+	0./3532.8, -1.,
         {"dytautau50inf.root"},
         Sample::dytautau
     );
@@ -237,6 +262,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "W+Jets",
         kSpring+2,
         36257.2,
+	422.3/36257.2, 416.6/36257.2,
         {"wtolnu.root"}
     );
     
@@ -244,6 +270,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "QCD Multijet",
         kOrange-2,
         3.640E8*3.7E-4,
+	0.5, -1.,
         {"qcdmu15.root"}
     );
     
@@ -251,6 +278,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "QCD Multijet",
         kOrange-2,
         2.870E8*6.500E-3,
+	0.5, -1.,
         {}
     );
     
@@ -258,6 +286,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "QCD Multijet",
         kOrange-2,
         6.609E7*12.20E-3,
+	0.5, -1.,
         {}
     );
     
@@ -265,6 +294,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "QCD Multijet",
         kOrange-2,
         8.802E6*21.80E-3,
+	0.5, -1.,
         {}
     );
     
@@ -272,6 +302,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "QCD Multijet",
         kOrange-2,
         1.024E6*39.50E-3,
+	0.5, -1.,
         {}
     );
     
@@ -279,6 +310,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "QCD Multijet",
         kOrange-2,
         1.578E5*47.30E-3,
+	0.5, -1.,
         {}
     );
     
@@ -286,6 +318,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "QCD Multijet",
         kOrange-2,
         2.886E8*10.10E-3,
+	0.5, -1.,
         {"qcdem2030.root"}
     );
     
@@ -293,6 +326,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "QCD Multijet",
         kOrange-2,
         7.433E7*62.10E-3,
+	0.5, -1.,
         {"qcdem3080.root"}
     );
     
@@ -300,6 +334,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "QCD Multijet",
         kOrange-2,
         1.191E6*153.9E-3,
+	0.5, -1.,
         {"qcdem80170.root"}
     );
     
@@ -307,6 +342,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "QCD Multijet",
         kOrange-2,
         2.886E8*5.800E-4,
+	0.5, -1.,
         {"qcdbcem2030.root"}
     );
     
@@ -314,6 +350,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "QCD Multijet",
         kOrange-2,
         7.424E7*2.250E-3,
+	0.5, -1.,
         {"qcdbcem3080.root"}
     );
     
@@ -321,6 +358,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "QCD Multijet",
         kOrange-2,
         1.191E6*10.90E-3,
+	0.5, -1.,
         {"qcdbcem80170.root"}
     );
     
@@ -328,6 +366,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "t#bar{t}W",
         kViolet-4,
         0.232,
+	0.073/0.232, -1.,
         {"ttbarW.root"}
     );
     
@@ -335,6 +374,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "t#bar{t}Z",
         kTeal+1,
         0.2057,
+	0.031/0.2057, -1.,
         {"ttbarZ.root"},
         Sample::ttZ
     );
@@ -342,7 +382,9 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     result["ttbarH125inclusiveOther"] = Sample(
         "t#bar{t}H Other",
         kTeal+3,
+	// ttH XS at https://twiki.cern.ch/twiki/bin/view/LHCPhysics/CERNYellowReportPageAt8TeV#ttH_Process
         0.1293,
+	0.09, 0.12, 
         {"ttbarH125inclusiveOther.root"},
         Sample::ttHother
     );
@@ -351,6 +393,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "t#bar{t}H (b#bar{b} via incl.)",
         kSpring+9,
         0.1293,
+	0.09, 0.12, 
         {"ttbarH125inclusiveBbbar.root"},
         Sample::ttHbb
     );
@@ -359,6 +402,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "t#bar{t}H (b#bar{b})",
         2,
         0.1293*0.577,
+	0.09*0.577, 0.12*0.577,
         {"ttbarH125tobbbar.root"},
         Sample::ttHbb
     );
@@ -367,6 +411,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "t#bar{t}H110 Other",
         kTeal+4,
         0.1871,
+	0.09, 0.12,
         {"ttbarH110inclusiveOther.root"},
         Sample::ttHother
     );
@@ -375,6 +420,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "t#bar{t}H110 (b#bar{b} via incl.)",
         kSpring+10,
         0.1871,
+	0.09, 0.12,
         {"ttbarH110inclusiveBbbar.root"},
         Sample::ttHbb
     );
@@ -383,6 +429,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "t#bar{t}H110 (b#bar{b})",
         3,
         0.1871*0.744,
+	0.09*0.744, 0.12*0.744,
         {"ttbarH110tobbbar.root"},
         Sample::ttHbb
     );
@@ -391,6 +438,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "t#bar{t}H115 Other",
         kTeal+5,
         0.1651,
+	0.09, 0.12,
         {"ttbarH115inclusiveOther.root"},
         Sample::ttHother
     );
@@ -399,6 +447,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "t#bar{t}H115 (b#bar{b} via incl.)",
         kSpring+11,
         0.1651,
+	0.09, 0.12,
         {"ttbarH115inclusiveBbbar.root"},
         Sample::ttHbb
     );
@@ -407,6 +456,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "t#bar{t}H115 (b#bar{b})",
         4,
         0.1651*0.703,
+	0.09*0.703, 0.12*0.703,
         {"ttbarH115tobbbar.root"},
         Sample::ttHbb
     );
@@ -415,6 +465,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "t#bar{t}H120 Other",
         kTeal+6,
         0.1459,
+	0.09, 0.12,
         {"ttbarH120inclusiveOther.root"},
         Sample::ttHother
     );
@@ -423,6 +474,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "t#bar{t}H120 (b#bar{b} via incl.)",
         kSpring+12,
         0.1459,
+	0.09, 0.12,
         {"ttbarH120inclusiveBbbar.root"},
         Sample::ttHbb
     );
@@ -431,6 +483,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "t#bar{t}H120 (b#bar{b})",
         5,
         0.1459*0.648,
+	0.09*0.648, 0.12*0.648,
         {"ttbarH120tobbbar.root"},
         Sample::ttHbb
     );
@@ -439,6 +492,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "t#bar{t}H122.5 Other",
         kTeal+7,
         0.1373,
+	0.09, 0.12,
         {"ttbarH1225inclusiveOther.root"},
         Sample::ttHother
     );
@@ -447,6 +501,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "t#bar{t}H122.5 (b#bar{b} via incl.)",
         kSpring+13,
         0.1373,
+	0.09, 0.12,
         {"ttbarH1225inclusiveBbbar.root"},
         Sample::ttHbb
     );
@@ -455,6 +510,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "t#bar{t}H127.5 Other",
         kTeal+8,
         0.1218,
+	0.09, 0.12,
         {"ttbarH1275inclusiveOther.root"},
         Sample::ttHother
     );
@@ -463,6 +519,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "t#bar{t}H127.5 (b#bar{b} via incl.)",
         kSpring+14,
         0.1218,
+	0.09, 0.12,
         {"ttbarH1275inclusiveBbbar.root"},
         Sample::ttHbb
     );
@@ -471,6 +528,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "t#bar{t}H130 Other",
         kTeal+9,
         0.1149,
+	0.09, 0.12,
         {"ttbarH130inclusiveOther.root"},
         Sample::ttHother
     );
@@ -479,6 +537,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "t#bar{t}H130 (b#bar{b} via incl.)",
         kSpring+15,
         0.1149,
+	0.09, 0.12,
         {"ttbarH130inclusiveBbbar.root"},
         Sample::ttHbb
     );
@@ -487,6 +546,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "t#bar{t}H130 (b#bar{b})",
         6,
         0.1149*0.494,
+	0.09*0.494, 0.12*0.494,
         {"ttbarH130tobbbar.root"},
         Sample::ttHbb
     );
@@ -495,6 +555,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "t#bar{t}H135 Other",
         kTeal+10,
         0.1024,
+	0.09, 0.12,
         {"ttbarH135inclusiveOther.root"},
         Sample::ttHother
     );
@@ -503,6 +564,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "t#bar{t}H135 (b#bar{b} via incl.)",
         kSpring+16,
         0.1024,
+	0.09, 0.12,
         {"ttbarH135inclusiveBbbar.root"},
         Sample::ttHbb
     );
@@ -511,6 +573,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "t#bar{t}H135 (b#bar{b})",
         7,
         0.1024*0.404,
+	0.09*0.404, 0.12*0.404,
         {"ttbarH135tobbbar.root"},
         Sample::ttHbb
     );
@@ -519,6 +582,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "t#bar{t}H140 Other",
         kTeal+11,
         0.09150,
+	0.09, 0.12,
         {"ttbarH140inclusiveOther.root"},
         Sample::ttHother
     );
@@ -527,6 +591,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "t#bar{t}H140 (b#bar{b} via incl.)",
         kSpring+17,
         0.09150,
+	0.09, 0.12,
         {"ttbarH140inclusiveBbbar.root"},
         Sample::ttHbb
     );

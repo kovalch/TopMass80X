@@ -18,6 +18,8 @@ Sample::Sample():
 legendEntry_(""),
 color_(0),
 crossSection_(0),
+crossSectionRelativeUp_(0),
+crossSectionRelativeDown_(0),
 sampleType_(dummy),
 finalState_(Channel::undefined),
 systematic_(),
@@ -29,17 +31,23 @@ inputFileName_("")
 Sample::Sample(const TString& legendEntry,
                const int color,
                const double& crossSection,
+               const double& crossSectionRelativeUp,
+               const double& crossSectionRelativeDown,
                const std::vector<TString>& v_filename,
                const SampleType& sampleType):
 legendEntry_(legendEntry),
 color_(color),
 crossSection_(crossSection),
+crossSectionRelativeUp_(crossSectionRelativeUp),
+crossSectionRelativeDown_(crossSectionRelativeDown),
 sampleType_(sampleType),
 finalState_(Channel::undefined),
 systematic_(),
 inputFileName_(""),
 v_filename_(v_filename)
-{}
+{
+    if(crossSectionRelativeDown == -1.) crossSectionRelativeDown_ = crossSectionRelativeUp;
+}
 
 
 
