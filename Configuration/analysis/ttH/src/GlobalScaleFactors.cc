@@ -27,9 +27,11 @@
 GlobalScaleFactors::GlobalScaleFactors(const std::vector<Channel::Channel>& v_channel,
                                        const std::vector<Systematic::Systematic>& v_systematic,
                                        const double& luminosityInInversePb,
+                                       const double& luminosityUncertaintyRelative,
                                        const bool dyCorrection,
                                        const bool hfFracCorrection):
 luminosityInInversePb_(luminosityInInversePb),
+luminosityUncertaintyRelative_(luminosityUncertaintyRelative),
 luminosityScaleFactors_(0),
 dyScaleFactors_(0),
 hfFracScaleFactors_(0),
@@ -48,7 +50,8 @@ rootFileReader_(RootFileReader::getInstance())
     Samples scalingSamples("FileLists_plot", v_channelForCorrections, v_systematic, 0);
     
     // Produce luminosity scale factors
-    luminosityScaleFactors_ = new LuminosityScaleFactors(scalingSamples, luminosityInInversePb_, rootFileReader_);
+    luminosityScaleFactors_ = new LuminosityScaleFactors(scalingSamples, luminosityInInversePb_,
+                                                         luminosityUncertaintyRelative_, rootFileReader_);
     scalingSamples.setGlobalWeights(this);
     
     // Produce Drell-Yan scale factors
@@ -115,6 +118,13 @@ std::pair<SystematicChannelFactors, bool> GlobalScaleFactors::scaleFactors(const
 double GlobalScaleFactors::luminosityInInversePb()const
 {
     return luminosityInInversePb_;
+}
+
+
+
+double GlobalScaleFactors::luminosityUncertaintyRelative()const
+{
+    return luminosityUncertaintyRelative_;
 }
 
 

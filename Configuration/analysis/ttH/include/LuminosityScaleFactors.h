@@ -14,7 +14,8 @@ class LuminosityScaleFactors{
 public:
     
     /// Constructor setting up the luminosity scale factors for all samples
-    LuminosityScaleFactors(const Samples& samples, const double& luminosityInInversePb, RootFileReader* const rootFileReader);
+    LuminosityScaleFactors(const Samples& samples, const double& luminosityInInversePb,
+                           const double& luminosityUncertaintyRelative, RootFileReader* const rootFileReader);
     
     /// Destructor
     ~LuminosityScaleFactors(){}
@@ -27,13 +28,14 @@ public:
 private:
     
     /// Produce the luminosity scale factors
-    void produceScaleFactors(const Samples& samples, const double& luminosityInInversePb);
+    void produceScaleFactors(const Samples& samples, const double& luminosityInInversePb,
+                             const double& luminosityUncertaintyRelative);
     
     /// Get the luminosity weight, for a luminosity in inverse pb
-    double luminosityWeight(const Sample& sample, const double& luminosityInInversePb)const;
+    double luminosityWeight(const Sample& sample, const Systematic::Systematic& systematic, const double& luminosityInInversePb)const;
     
     /// Calculate the luminosity weight
-    double luminosityWeightPerInversePb(const Sample& sample)const;
+    double luminosityWeightPerInversePb(const Sample& sample, const Systematic::Systematic& systematic)const;
     
     
     
