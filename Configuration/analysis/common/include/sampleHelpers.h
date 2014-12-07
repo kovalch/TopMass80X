@@ -48,6 +48,9 @@ namespace Systematic{
         btagDiscrLstat2,    // for b-tag discriminator reweighting: scale part 2 of the statistical uncertainty for l-jets
         jer,                // scale jet energy resolution scale factors
         jes,                // scale jet energy scale scale factors
+        lumi,               // luminosity uncertainty
+        xsec_tt2b,          // cross-section uncertainty of tt2b process
+        xsec_ttcc,          // cross-section uncertainty of ttcc process
         topPt,              // scale top pt as estimated in ttbar differential cross-section measurements
         mass,               // variations of masses used in process generation (here top quark mass)
         match,              // matching uncertainty in process generation
@@ -121,6 +124,8 @@ namespace Systematic{
         btagDiscrLstat1, btagDiscrLstat2,
         btagDiscrPurity,
         jer, jes,
+        lumi,
+        xsec_tt2b, xsec_ttcc,
         topPt,
         mass, match, scale,
         pdf
@@ -172,7 +177,12 @@ namespace Systematic{
         mass, match, scale,
         powheg, powhegHerwig, mcatnlo, perugia11, perugia11NoCR,
         pdf,
-        closure
+        closure,
+    };
+    
+    /// Define  cross-section uncertainty systematics, which use nominal samples, and change only the scaling
+    const std::vector<Type> crossSectionTypes{
+        xsec_tt2b, xsec_ttcc,
     };
     
     
