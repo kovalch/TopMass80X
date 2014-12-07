@@ -47,15 +47,13 @@ public:
     int color()const;
     
     /// Return cross section corresponding to the sample
-    double crossSection()const;
+    double crossSection(const Systematic::Systematic& systematic)const;
     
     /// Return the specific type of sample
     SampleType sampleType()const;
     
     /// Check if a specific filename is defined for this sample
     bool checkFilename(const TString& filename)const;
-    
-    
     
     /// Set real final state of sample, ie. only "ee", "emu", "mumu", but not "combined"
     void setFinalState(const Channel::Channel& channel);
@@ -72,14 +70,14 @@ public:
     /// Set the path of the input root file
     void setInputFile(const TString& inputFileName);
     
+    /// Return the path of the input root file
+    TString inputFile()const;
+    
     /// Check whether sample contains the given root file
-    bool containsFilenamesOfSample(Sample sample, const bool checkReweightedFiles=false)const;
+    bool containsFilenamesOfSample(const Sample& sample, const bool checkReweightedFiles =false)const;
     
     /// Get list of file names
     const std::vector<TString>& getFileNames()const;
-    
-    /// Return the path of the input root file
-    TString inputFile()const;
     
     
     
@@ -92,9 +90,13 @@ private:
     /// Sample colour for drawing (needs to be identical for samples same legendEntry)
     int color_;
     
-    /// Cross section corresponding to the sample with up/down uncertainty
+    /// Cross section corresponding to the sample
     double crossSection_;
+    
+    /// Cross section uncertainty up
     double crossSectionRelativeUp_;
+    
+    /// Cross section uncertainty down
     double crossSectionRelativeDown_;
     
     /// Specific type of sample as needed to be known for eg. plotting or Drell-Yan scale factor calculation
