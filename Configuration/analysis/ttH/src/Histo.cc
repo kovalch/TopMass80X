@@ -26,6 +26,9 @@
 //constexpr double Luminosity = 19789.;
 constexpr double Luminosity = 19712.;
 
+/// Set relative luminosity uncertainty
+constexpr double LuminosityUNCERTAINTY = 0.026;
+
 
 
 
@@ -39,7 +42,7 @@ void Histo(const std::vector<std::string>& v_plot,
     // Set up scale factors
     const bool dyCorrection = std::find(v_globalCorrection.begin(), v_globalCorrection.end(), GlobalCorrection::dy) != v_globalCorrection.end();
     const bool ttbbCorrection = std::find(v_globalCorrection.begin(), v_globalCorrection.end(), GlobalCorrection::ttbb) != v_globalCorrection.end();
-    const GlobalScaleFactors* globalScaleFactors = new GlobalScaleFactors(v_channel, v_systematic, Luminosity, dyCorrection, ttbbCorrection);
+    const GlobalScaleFactors* globalScaleFactors = new GlobalScaleFactors(v_channel, v_systematic, Luminosity, LuminosityUNCERTAINTY, dyCorrection, ttbbCorrection);
     
     // Access all samples
     const Samples samples("FileLists_plot", v_channel, v_systematic, globalScaleFactors);
@@ -111,6 +114,8 @@ namespace Systematic{
         btagDiscrLstat1, btagDiscrLstat2,
         btagDiscrPurity,
         kin,
+        lumi,
+        xsec_tt2b, xsec_ttcc,
         topPt,
         mass, match, scale,
         powheg, powhegHerwig, mcatnlo, perugia11, perugia11NoCR,

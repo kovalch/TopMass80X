@@ -26,6 +26,7 @@ public:
     GlobalScaleFactors(const std::vector<Channel::Channel>& v_channel,
                        const std::vector<Systematic::Systematic>& v_systematic,
                        const double& luminosityInInversePb =1.,
+                       const double& luminosityUncertaintyRelative =1.,
                        const bool dyCorrection =false,
                        const bool hfFracCorrection =false);
     
@@ -42,12 +43,17 @@ public:
     /// Return the used luminosity value in inverse pb
     double luminosityInInversePb()const;
     
+    /// Return the relative uncertainty of the luminosity
+    double luminosityUncertaintyRelative()const;
     
     
 private:
     
     /// The luminosity in inverse pb
     const double luminosityInInversePb_;
+    
+    /// The relative luminosity uncertainty
+    const double luminosityUncertaintyRelative_;
     
     /// Pointer to the luminosity scale factors
     LuminosityScaleFactors* luminosityScaleFactors_;

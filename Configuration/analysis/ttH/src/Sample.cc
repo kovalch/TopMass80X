@@ -17,9 +17,9 @@
 Sample::Sample():
 legendEntry_(""),
 color_(0),
-crossSection_(0),
-crossSectionRelativeUp_(0),
-crossSectionRelativeDown_(0),
+crossSection_(0.),
+crossSectionRelativeUp_(0.),
+crossSectionRelativeDown_(0.),
 sampleType_(dummy),
 finalState_(Channel::undefined),
 systematic_(),
@@ -46,7 +46,7 @@ systematic_(),
 inputFileName_(""),
 v_filename_(v_filename)
 {
-    if(crossSectionRelativeDown == -1.) crossSectionRelativeDown_ = crossSectionRelativeUp;
+    if(crossSectionRelativeDown < -0.9) crossSectionRelativeDown_ = crossSectionRelativeUp;
 }
 
 
@@ -59,7 +59,24 @@ int Sample::color()const{return color_;}
 
 
 
-double Sample::crossSection()const{return crossSection_;}
+double Sample::crossSection(const Systematic::Systematic& systematic)const{
+    // Check if it is cross section systematic
+    const Systematic::Type type = systematic.type();
+    if(std::find(Systematic::crossSectionTypes.begin(), Systematic::crossSectionTypes.end(), type) == Systematic::crossSectionTypes.end()) return crossSection_;
+    
+    // Apply systematic variation for specific samples
+    double factor(1.);
+    if((type==Systematic::xsec_tt2b && sampleType_==tt2b) ||
+       (type==Systematic::xsec_ttcc && sampleType_==ttcc)){
+        if(systematic.variation() == Systematic::up) factor += crossSectionRelativeUp_;
+        else if(systematic.variation() == Systematic::down) factor -= crossSectionRelativeDown_;
+        else{
+            std::cerr<<"ERROR in Sample::crossSection()! Systematic is cross section type, but variation is neither up nor down\n...break\n"<<std::endl;
+            exit(813);
+        }
+    }
+    return crossSection_*factor;
+}
 
 
 
@@ -110,14 +127,20 @@ void Sample::setInputFile(const TString& inputFileName)
     // Check if input file really exists
     ifstream ifile(inputFileName);
     if(ifile.fail()){
-        std::cerr<<"Cannot find requested file: "<<inputFileName<<"\n...breaking\n";
+        std::cerr<<"ERROR in Sample::setInputFile()! Cannot find requested file: "<<inputFileName<<"\n...break\n"<<std::endl;
         exit(17);
     }
     ifile.close();
     inputFileName_ = inputFileName;
 }
 
-bool Sample::containsFilenamesOfSample(Sample sample, const bool checkReweightedFiles)const
+
+
+TString Sample::inputFile()const{return inputFileName_;}
+
+
+
+bool Sample::containsFilenamesOfSample(const Sample& sample, const bool checkReweightedFiles)const
 {
     const std::vector<TString>& filenamesToCheck = sample.getFileNames();
     
@@ -138,14 +161,11 @@ bool Sample::containsFilenamesOfSample(Sample sample, const bool checkReweighted
 }
 
 
+
 const std::vector<TString>& Sample::getFileNames()const
 {
     return v_filename_;
 }
-
-
-
-TString Sample::inputFile()const{return inputFileName_;}
 
 
 

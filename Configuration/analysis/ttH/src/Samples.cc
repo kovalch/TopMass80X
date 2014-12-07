@@ -98,18 +98,24 @@ void Samples::addSamples(const TString& filelistDirectory,
                          const Channel::Channel& channel,
                          const Systematic::Systematic& systematic)
 {
-    // Read the full input filenames from the FileList
-    const auto& v_filename = common::readFilelist(filelistDirectory, channel, systematic);
-    
-    // Add all samples as they are defined
-    const std::vector<std::pair<TString, Sample> > v_filenameSamplePair =
-        this->setSamples(v_filename, SampleDefinitions::samples8TeV(), SampleDefinitions::selectAndOrderSamples8TeV());
-    
-    // For systematics of ttbar samples, use nominal for others
+    // Full input filenames from the systematic and the nominal FileList
+    std::vector<std::pair<TString, Sample> > v_filenameSamplePair;
     std::vector<std::pair<TString, Sample> > v_filenameSamplePairNominal;
-    const auto& v_filenameNominal = common::readFilelist(filelistDirectory, channel, Systematic::nominalSystematic());
-    v_filenameSamplePairNominal =
-        this->setSamples(v_filenameNominal, SampleDefinitions::samples8TeV(), SampleDefinitions::selectAndOrderSamples8TeV());
+    
+    // Add all samples as they are defined for given systematic (except of systematics which only scale nominal samples)
+    if(systematic.type() != Systematic::lumi &&
+       std::find(Systematic::crossSectionTypes.begin(), Systematic::crossSectionTypes.end(), systematic.type()) == Systematic::crossSectionTypes.end()){
+        const auto& v_filename = common::readFilelist(filelistDirectory, channel, systematic);
+        v_filenameSamplePair =
+            this->setSamples(v_filename, SampleDefinitions::samples8TeV(), SampleDefinitions::selectAndOrderSamples8TeV());
+    }
+    
+    // Add nominal samples for those not varied (i.e. not found in systematic FileList)
+    if(systematic.type() != Systematic::nominal){
+        const auto& v_filenameNominal = common::readFilelist(filelistDirectory, channel, Systematic::nominalSystematic());
+        v_filenameSamplePairNominal =
+            this->setSamples(v_filenameNominal, SampleDefinitions::samples8TeV(), SampleDefinitions::selectAndOrderSamples8TeV());
+    }
     
     // Set sample options via filename
     std::vector<Sample> v_sample(this->setSampleOptions(systematic, v_filenameSamplePair, v_filenameSamplePairNominal));
