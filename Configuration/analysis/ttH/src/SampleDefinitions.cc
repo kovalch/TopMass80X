@@ -86,8 +86,10 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "t#bar{t}2b",
         28,
         // TOP-14-016 (ATLAS+CMS combination)
-        241.5,
-        8.5/241.5, -1.,
+        // Corrected by Data/Madgraph from JHEP12(2013)039: Z+bb vs dRbb at 7 TeV
+        241.5*1.74,
+        // Uncertainty from envelope of uncertainties in JHEP12(2013)039: Z+bb vs dRbb at 7 TeV
+        (2.43-1.74)/1.74, (1.74-1.23)/1.74,
         {
             "ttbarsignalPlus2B.root",
             "ttbarsignalPlus2B_massup.root",
@@ -110,7 +112,8 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         23,
         // TOP-14-016 (ATLAS+CMS combination)
         241.5,
-        8.5/241.5, -1.,
+        // Plus 50% up/down uncertainty
+        0.5, -1.,
         {
             "ttbarsignalPlusCcbar.root",
             "ttbarsignalPlusCcbar_massup.root",
@@ -208,8 +211,8 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "Z / #gamma* #rightarrow ee/#mu#mu",
         kAzure+2,
         860.5,
-        // FIXME: Uncertainty is just scaled down 50-inf uncertainty. To be corrected...
-        9.57/860.5, 9.5/860.5,
+        // Relative uncertainty as for Mll>20 GeV in the TWiki + 50%
+        39.34/860.5, 38.84/860.5,
         {"dyee1050.root"},
         Sample::dyee
     );
@@ -227,8 +230,8 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "Z / #gamma* #rightarrow ee/#mu#mu",
         kAzure+2,
         860.5,
-        // FIXME: Uncertainty is just scaled down 50-inf uncertainty. To be corrected...
-        9.57/860.5, 9.5/860.5,
+        // Relative uncertainty as for Mll>20 GeV in the TWiki + 50%
+        39.34/860.5, 38.84/860.5,
         {"dymumu1050.root"},
         Sample::dymumu
     );
@@ -246,8 +249,8 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         "Z / #gamma* #rightarrow #tau#tau",
         kAzure+10,
         860.5,
-        // FIXME: Uncertainty is just scaled down 50-inf uncertainty. To be corrected...
-        9.57/860.5, 9.5/860.5,
+        // Relative uncertainty as for Mll>20 GeV in the TWiki + 50%
+        39.34/860.5, 38.84/860.5,
         {"dytautau1050.root"},
         Sample::dytautau
     );
