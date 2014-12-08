@@ -274,7 +274,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         }
         
         //FIXME weightReweighted is reweighted by the number of tracks
-        double weightReweighted = weight*trackMultiplicityWeight (-0.0285, 1.4596, jetIdx, jetPfCandidateTrackIndex);
+        //double weightReweighted = weight*trackMultiplicityWeight (-0.0285, 1.4596, jetIdx, jetPfCandidateTrackIndex);
         
         double trueBJetScalarCharge = jetChargeRelativePtWeighted.at(jetIdx);
         double trueBJetPt = jets.pt();
