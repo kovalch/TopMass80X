@@ -115,6 +115,7 @@ namespace Systematic{
         btagDiscrPurity,
         kin,
         lumi,
+        frac_tthf, frac_ttother,
         xsec_tt2b, xsec_ttcc,
         topPt,
         mass, match, scale,

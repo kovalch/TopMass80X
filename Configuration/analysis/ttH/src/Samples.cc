@@ -103,8 +103,10 @@ void Samples::addSamples(const TString& filelistDirectory,
     std::vector<std::pair<TString, Sample> > v_filenameSamplePairNominal;
     
     // Add all samples as they are defined for given systematic (except of systematics which only scale nominal samples)
-    if(systematic.type() != Systematic::lumi &&
-       std::find(Systematic::crossSectionTypes.begin(), Systematic::crossSectionTypes.end(), systematic.type()) == Systematic::crossSectionTypes.end()){
+    if(systematic.type() != Systematic::lumi && 
+        std::find(Systematic::crossSectionTypes.begin(), Systematic::crossSectionTypes.end(), systematic.type()) == Systematic::crossSectionTypes.end() &&
+        std::find(Systematic::tthfFractionTypes.begin(), Systematic::tthfFractionTypes.end(), systematic.type()) == Systematic::tthfFractionTypes.end()
+    ) {
         const auto& v_filename = common::readFilelist(filelistDirectory, channel, systematic);
         v_filenameSamplePair =
             this->setSamples(v_filename, SampleDefinitions::samples8TeV(), SampleDefinitions::selectAndOrderSamples8TeV());

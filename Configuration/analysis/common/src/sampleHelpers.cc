@@ -54,6 +54,8 @@ Systematic::Type Systematic::convertType(const TString& type)
     if(type.BeginsWith("BTAG")) return btag;
     if(type.BeginsWith("JER")) return jer;
     if(type.BeginsWith("JES")) return jes;
+    if(type.BeginsWith("FRAC_TTHF")) return frac_tthf;
+    if(type.BeginsWith("FRAC_TTOTHER")) return frac_ttother;
     if(type.BeginsWith("LUMI")) return lumi;
     if(type.BeginsWith("XSEC_TT2B")) return xsec_tt2b;
     if(type.BeginsWith("XSEC_TTCC")) return xsec_ttcc;
@@ -109,6 +111,8 @@ TString Systematic::convertType(const Type& type)
     if(type == btag) return "BTAG";
     if(type == jer) return "JER";
     if(type == jes) return "JES";
+    if(type == frac_tthf) return "FRAC_TTHF";
+    if(type == frac_ttother) return "FRAC_TTOTHER";
     if(type == lumi) return "LUMI";
     if(type == xsec_tt2b) return "XSEC_TT2B";
     if(type == xsec_ttcc) return "XSEC_TTCC";

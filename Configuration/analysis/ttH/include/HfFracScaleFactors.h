@@ -40,8 +40,16 @@ public:
     
 private:
     
+    /// Struct to hold value-error pair
+    struct ValErr {
+        double val; double err;
+        ValErr(double v, double e):val(v), err(e){}
+        ValErr():val(1.), err(1.){}
+            
+    };
+    
     /// Get Heavy-Flavour fraction scale factor for given selection step, systematic and channel
-    const double& hfFracScaleFactor(const TString& step,
+    const ValErr& hfFracScaleFactor(const TString& step,
                                     const Systematic::Systematic& systematic,
                                     const Channel::Channel& channel,
                                     const Sample::SampleType& sampleType)const;
@@ -78,14 +86,6 @@ private:
     
     /// Returns the first sampleType for a given sample id
     Sample::SampleType sampleTypeForId(const int id)const;
-    
-    /// Struct to hold value-error pair
-    struct ValErr {
-        double val; double err;
-        ValErr(double v, double e):val(v), err(e){}
-        ValErr():val(1.), err(1.){}
-            
-    };
     
     /// Typedef for the map of scale factor value to the sample name
     typedef std::map<Sample::SampleType, ValErr> SampleTypeValueMap;

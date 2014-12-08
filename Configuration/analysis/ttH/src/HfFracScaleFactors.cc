@@ -361,7 +361,7 @@ const std::vector<HfFracScaleFactors::ValErr> HfFracScaleFactors::getScaleFactor
 
 
 
-const double& HfFracScaleFactors::hfFracScaleFactor(const TString& step,
+const HfFracScaleFactors::ValErr& HfFracScaleFactors::hfFracScaleFactor(const TString& step,
                                                     const Systematic::Systematic& systematic,
                                                     const Channel::Channel& channel,
                                                     const Sample::SampleType& sampleType)const
@@ -377,7 +377,7 @@ const double& HfFracScaleFactors::hfFracScaleFactor(const TString& step,
         exit(16);
     }
     
-    return m_hfFracScaleFactors_.at(step).at(systematic).at(channel).at(sampleType).val;
+    return m_hfFracScaleFactors_.at(step).at(systematic).at(channel).at(sampleType);
 }
 
 
@@ -403,9 +403,19 @@ int HfFracScaleFactors::applyScaleFactor(double& weight,
     
     if(m_hfFracScaleFactors_.find(step) == m_hfFracScaleFactors_.end()) return -1;
     
-    // Access the Heavy-Flavour fraction scale factor
-//     weight *= this->hfFracScaleFactor(step, systematic, sample.finalState(), sample.sampleType());
-    weight *= this->hfFracScaleFactor(step, systematic, Channel::combined, sampleType);
+    // Determining whether uncertainty on the scale factor should be included for the current systematic
+    double uncertaintyFactor = 0.;
+    if( (systematic.type() == Systematic::frac_tthf && templateNames_.at(sampleTypeIds_.at(sampleType)) == "tthf") || 
+        (systematic.type() == Systematic::frac_ttother && templateNames_.at(sampleTypeIds_.at(sampleType)) == "ttOther")
+    ) uncertaintyFactor = 1.;
+    // Determining in which direction central value should be varied
+    if(systematic.variation() == Systematic::up) uncertaintyFactor *= 1.;
+    else if(systematic.variation() == Systematic::down) uncertaintyFactor *= -1.;
+    else uncertaintyFactor *= 0.;
+    
+    // Applying the Heavy-Flavour fraction scale factor from the combined channel
+    HfFracScaleFactors::ValErr scaleFactor = this->hfFracScaleFactor(step, systematic, Channel::combined, sampleType);
+    weight *= scaleFactor.val + scaleFactor.err * uncertaintyFactor;
     return 1;
 }
 

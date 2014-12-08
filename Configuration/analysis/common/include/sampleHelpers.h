@@ -48,6 +48,8 @@ namespace Systematic{
         btagDiscrLstat2,    // for b-tag discriminator reweighting: scale part 2 of the statistical uncertainty for l-jets
         jer,                // scale jet energy resolution scale factors
         jes,                // scale jet energy scale scale factors
+        frac_tthf,          // correction factor for the fraction of tt+HF events from the template fit
+        frac_ttother,       // correction factor for the fraction of tt+Other events from the template fit
         lumi,               // luminosity uncertainty
         xsec_tt2b,          // cross-section uncertainty of tt2b process
         xsec_ttcc,          // cross-section uncertainty of ttcc process
@@ -124,6 +126,7 @@ namespace Systematic{
         btagDiscrLstat1, btagDiscrLstat2,
         btagDiscrPurity,
         jer, jes,
+        frac_tthf, frac_ttother,
         lumi,
         xsec_tt2b, xsec_ttcc,
         topPt,
@@ -180,9 +183,14 @@ namespace Systematic{
         closure,
     };
     
-    /// Define  cross-section uncertainty systematics, which use nominal samples, and change only the scaling
+    /// Define cross-section uncertainty systematics, which use nominal samples, and change only the scaling
     const std::vector<Type> crossSectionTypes{
         xsec_tt2b, xsec_ttcc,
+    };
+    
+    /// Define uncertainties due to tt+HF fraction scale factor from the fit, which use nominal samples, and change only the scaling
+    const std::vector<Type> tthfFractionTypes{
+        frac_tthf, frac_ttother,
     };
     
     
