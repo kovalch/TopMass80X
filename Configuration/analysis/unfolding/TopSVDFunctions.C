@@ -8209,7 +8209,8 @@ double TopSVDFunctions::SVD_Unfold(
     
             
         // Delete Canvas
-        canvas->Clear();  
+        canvas->Clear();
+        delete canvas;
         
     
     }
