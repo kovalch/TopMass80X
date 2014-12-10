@@ -15,6 +15,7 @@
 #include <TIterator.h>
 #include <TObject.h>
 #include <TObjString.h>
+#include <Math/VectorUtil.h>
 
 #include "AnalysisBase.h"
 #include "analysisUtils.h"
@@ -33,7 +34,6 @@
 
 
 // ------------------------------------- Basic TSelector methods for the processing of a sample -------------------------------------
-
 
 
 AnalysisBase::AnalysisBase(TTree*):
@@ -240,7 +240,6 @@ void AnalysisBase::Init(TTree *tree)
 // ------------------------------------- Public methods for steering the class from outside -------------------------------------
 
 
-
 void AnalysisBase::SetChannel(const Channel::Channel& channel)
 {
     channel_ = channel;
@@ -411,6 +410,7 @@ void AnalysisBase::SetTopPtScaleFactors(const TopPtScaleFactors* topPtScaleFacto
 
 // ------------------------------------- Methods for handling of ntuple branches -------------------------------------
 
+
 void AnalysisBase::clearBranches()
 {
     // nTuple branches holding event meta data
@@ -453,13 +453,13 @@ void AnalysisBase::clearBranches()
     b_jetSelectedTrackCharge = 0;
     b_jetSelectedTrackIndex = 0;
     b_jetSelectedTrackMatchToPfCandidateIndex = 0;
-    b_jetSecondaryVertexTrackMatchToSelectedTrackIndex = 0;
-    b_jetSecondaryVertexTrackVertexIndex = 0;
     b_jetSecondaryVertex = 0;
     b_jetSecondaryVertexPtCorrectedMass = 0;
     b_jetSecondaryVertexJetIndex = 0;
     b_jetSecondaryVertexFlightDistanceValue = 0;
     b_jetSecondaryVertexFlightDistanceSignificance = 0;
+    b_jetSecondaryVertexTrackVertexIndex = 0;
+    b_jetSecondaryVertexTrackMatchToSelectedTrackIndex = 0;
     b_met = 0;
     b_vertMulti = 0;
     
@@ -534,7 +534,6 @@ void AnalysisBase::clearBranches()
     b_AntiBHadronVsJet = 0;
     b_jetAssociatedPartonPdgId = 0;
     b_jetAssociatedParton = 0;
-    
     b_genBHadPlusMothersPdgId = 0;
     b_genBHadPlusMothersStatus = 0;
     b_genBHadPlusMothersIndices = 0;
@@ -546,11 +545,12 @@ void AnalysisBase::clearBranches()
     b_genBHadLeptonHadronIndex = 0;
     b_genBHadLeptonViaTau = 0;
     b_genBHadFromTopWeakDecay = 0;
+    b_genCHadPlusMothersPdgId = 0;
+    b_genCHadPlusMothers = 0;
     b_genCHadJetIndex = 0;
     b_genCHadLeptonIndex = 0;
     b_genCHadLeptonHadronIndex = 0;
     b_genCHadLeptonViaTau = 0;
-    b_genCHadFromBHadron = 0;
     b_genExtraTopJetNumberId = 0;
 
 
@@ -628,8 +628,7 @@ void AnalysisBase::SetRecoBranchAddresses()
     chain_->SetBranchAddress("lepCombIso", &recoObjects_->lepCombIso_, &b_lepCombIso);
     chain_->SetBranchAddress("lepDxyVertex0", &recoObjects_->lepDxyVertex0_, &b_lepDxyVertex0);
     if(chain_->GetBranch("lepDzVertex0")) // new variable, keep check a while for compatibility
-       chain_->SetBranchAddress("lepDzVertex0", &recoObjects_->lepDzVertex0_, &b_lepDzVertex0);
-    else b_lepDzVertex0 = 0;
+        chain_->SetBranchAddress("lepDzVertex0", &recoObjects_->lepDzVertex0_, &b_lepDzVertex0);
     //chain_->SetBranchAddress("lepTrigger", &recoObjects_->lepTrigger_, &b_lepTrigger);
     chain_->SetBranchAddress("jets", &recoObjects_->jets_, &b_jet);
     chain_->SetBranchAddress("jetBTagTCHE", &recoObjects_->jetBTagTCHE_, &b_jetBTagTCHE);
@@ -642,61 +641,42 @@ void AnalysisBase::SetRecoBranchAddresses()
     //chain_->SetBranchAddress("jetBTagCSVMVA", &recoObjects_->jetBTagCSVMVA_, &b_jetBTagCSVMVA);
     if(chain_->GetBranch("jetChargeGlobalPtWeighted")) // new variable, keep check a while for compatibility
         chain_->SetBranchAddress("jetChargeGlobalPtWeighted", &recoObjects_->jetChargeGlobalPtWeighted_, &b_jetChargeGlobalPtWeighted);
-    else b_jetChargeGlobalPtWeighted = 0;
     if(chain_->GetBranch("jetChargeRelativePtWeighted")) // new variable, keep check a while for compatibility
         chain_->SetBranchAddress("jetChargeRelativePtWeighted", &recoObjects_->jetChargeRelativePtWeighted_, &b_jetChargeRelativePtWeighted);
-    else b_jetChargeRelativePtWeighted = 0;
     if(chain_->GetBranch("jetPfCandidateTrack")) // new variable, keep check a while for compatibility
-      chain_->SetBranchAddress("jetPfCandidateTrack", &recoObjects_->jetPfCandidateTrack_, &b_jetPfCandidateTrack);
-    else b_jetPfCandidateTrack = 0;
+        chain_->SetBranchAddress("jetPfCandidateTrack", &recoObjects_->jetPfCandidateTrack_, &b_jetPfCandidateTrack);
     if(chain_->GetBranch("jetPfCandidateTrackCharge")) // new variable, keep check a while for compatibility
-      chain_->SetBranchAddress("jetPfCandidateTrackCharge", &recoObjects_->jetPfCandidateTrackCharge_, &b_jetPfCandidateTrackCharge);
-    else b_jetPfCandidateTrackCharge = 0;
+        chain_->SetBranchAddress("jetPfCandidateTrackCharge", &recoObjects_->jetPfCandidateTrackCharge_, &b_jetPfCandidateTrackCharge);
     if(chain_->GetBranch("jetPfCandidateTrackId")) // new variable, keep check a while for compatibility
-      chain_->SetBranchAddress("jetPfCandidateTrackId", &recoObjects_->jetPfCandidateTrackId_, &b_jetPfCandidateTrackId);
-    else b_jetPfCandidateTrackId = 0;
+        chain_->SetBranchAddress("jetPfCandidateTrackId", &recoObjects_->jetPfCandidateTrackId_, &b_jetPfCandidateTrackId);
     if(chain_->GetBranch("jetPfCandidateTrackIndex")) // new variable, keep check a while for compatibility
-      chain_->SetBranchAddress("jetPfCandidateTrackIndex", &recoObjects_->jetPfCandidateTrackIndex_, &b_jetPfCandidateTrackIndex);
-    else b_jetPfCandidateTrackIndex = 0;
+        chain_->SetBranchAddress("jetPfCandidateTrackIndex", &recoObjects_->jetPfCandidateTrackIndex_, &b_jetPfCandidateTrackIndex);
     if(chain_->GetBranch("jetSelectedTrack")) // new variable, keep check a while for compatibility
-      chain_->SetBranchAddress("jetSelectedTrack", &recoObjects_->jetSelectedTrack_, &b_jetSelectedTrack);
-    else b_jetSelectedTrack = 0;
+        chain_->SetBranchAddress("jetSelectedTrack", &recoObjects_->jetSelectedTrack_, &b_jetSelectedTrack);
     if(chain_->GetBranch("jetSelectedTrackIPValue")) // new variable, keep check a while for compatibility
-      chain_->SetBranchAddress("jetSelectedTrackIPValue", &recoObjects_->jetSelectedTrackIPValue_, &b_jetSelectedTrackIPValue);
-    else b_jetSelectedTrackIPValue = 0;
+        chain_->SetBranchAddress("jetSelectedTrackIPValue", &recoObjects_->jetSelectedTrackIPValue_, &b_jetSelectedTrackIPValue);
     if(chain_->GetBranch("jetSelectedTrackIPSignificance")) // new variable, keep check a while for compatibility
-      chain_->SetBranchAddress("jetSelectedTrackIPSignificance", &recoObjects_->jetSelectedTrackIPSignificance_, &b_jetSelectedTrackIPSignificance);
-    else b_jetSelectedTrackIPSignificance = 0;
+        chain_->SetBranchAddress("jetSelectedTrackIPSignificance", &recoObjects_->jetSelectedTrackIPSignificance_, &b_jetSelectedTrackIPSignificance);
     if(chain_->GetBranch("jetSelectedTrackCharge")) // new variable, keep check a while for compatibility
-      chain_->SetBranchAddress("jetSelectedTrackCharge", &recoObjects_->jetSelectedTrackCharge_, &b_jetSelectedTrackCharge);
-    else b_jetSelectedTrackCharge = 0;
+        chain_->SetBranchAddress("jetSelectedTrackCharge", &recoObjects_->jetSelectedTrackCharge_, &b_jetSelectedTrackCharge);
     if(chain_->GetBranch("jetSelectedTrackIndex")) // new variable, keep check a while for compatibility
-      chain_->SetBranchAddress("jetSelectedTrackIndex", &recoObjects_->jetSelectedTrackIndex_, &b_jetSelectedTrackIndex);
-    else b_jetSelectedTrackIndex = 0;
+        chain_->SetBranchAddress("jetSelectedTrackIndex", &recoObjects_->jetSelectedTrackIndex_, &b_jetSelectedTrackIndex);
     if(chain_->GetBranch("jetSelectedTrackMatchToPfCandidateIndex")) // new variable, keep check a while for compatibility
-      chain_->SetBranchAddress("jetSelectedTrackMatchToPfCandidateIndex", &recoObjects_->jetSelectedTrackMatchToPfCandidateIndex_, &b_jetSelectedTrackMatchToPfCandidateIndex);
-    else b_jetSelectedTrackMatchToPfCandidateIndex = 0;
+        chain_->SetBranchAddress("jetSelectedTrackMatchToPfCandidateIndex", &recoObjects_->jetSelectedTrackMatchToPfCandidateIndex_, &b_jetSelectedTrackMatchToPfCandidateIndex);
     if(chain_->GetBranch("jetSecondaryVertex")) // new variable, keep check a while for compatibility
-       chain_->SetBranchAddress("jetSecondaryVertex", &recoObjects_->jetSecondaryVertex_, &b_jetSecondaryVertex);
-    else b_jetSecondaryVertex = 0; 
+        chain_->SetBranchAddress("jetSecondaryVertex", &recoObjects_->jetSecondaryVertex_, &b_jetSecondaryVertex);
     if(chain_->GetBranch("jetSecondaryVertexPtCorrectedMass")) // new variable, keep check a while for compatibility
-       chain_->SetBranchAddress("jetSecondaryVertexPtCorrectedMass", &recoObjects_->jetSecondaryVertexPtCorrectedMass_, &b_jetSecondaryVertexPtCorrectedMass);
-    else b_jetSecondaryVertexPtCorrectedMass = 0;
+        chain_->SetBranchAddress("jetSecondaryVertexPtCorrectedMass", &recoObjects_->jetSecondaryVertexPtCorrectedMass_, &b_jetSecondaryVertexPtCorrectedMass);
     if(chain_->GetBranch("jetSecondaryVertexJetIndex")) // new variable, keep check a while for compatibility
-     chain_->SetBranchAddress("jetSecondaryVertexJetIndex", &recoObjects_->jetSecondaryVertexJetIndex_, &b_jetSecondaryVertexJetIndex);
-    else b_jetSecondaryVertexJetIndex = 0;
+        chain_->SetBranchAddress("jetSecondaryVertexJetIndex", &recoObjects_->jetSecondaryVertexJetIndex_, &b_jetSecondaryVertexJetIndex);
     if(chain_->GetBranch("jetSecondaryVertexFlightDistanceValue")) // new variable, keep check a while for compatibility
-       chain_->SetBranchAddress("jetSecondaryVertexFlightDistanceValue", &recoObjects_->jetSecondaryVertexFlightDistanceValue_, &b_jetSecondaryVertexFlightDistanceValue);
-    else b_jetSecondaryVertexFlightDistanceValue = 0;
+        chain_->SetBranchAddress("jetSecondaryVertexFlightDistanceValue", &recoObjects_->jetSecondaryVertexFlightDistanceValue_, &b_jetSecondaryVertexFlightDistanceValue);
     if(chain_->GetBranch("jetSecondaryVertexFlightDistanceSignificance")) // new variable, keep check a while for compatibility
-       chain_->SetBranchAddress("jetSecondaryVertexFlightDistanceSignificance", &recoObjects_->jetSecondaryVertexFlightDistanceSignificance_, &b_jetSecondaryVertexFlightDistanceSignificance);
-    else b_jetSecondaryVertexFlightDistanceSignificance = 0;
+        chain_->SetBranchAddress("jetSecondaryVertexFlightDistanceSignificance", &recoObjects_->jetSecondaryVertexFlightDistanceSignificance_, &b_jetSecondaryVertexFlightDistanceSignificance);
     if(chain_->GetBranch("jetSecondaryVertexTrackVertexIndex")) // new variable, keep check a while for compatibility
-     chain_->SetBranchAddress("jetSecondaryVertexTrackVertexIndex", &recoObjects_->jetSecondaryVertexTrackVertexIndex_, &b_jetSecondaryVertexTrackVertexIndex);
-    else b_jetSecondaryVertexTrackVertexIndex = 0;
+        chain_->SetBranchAddress("jetSecondaryVertexTrackVertexIndex", &recoObjects_->jetSecondaryVertexTrackVertexIndex_, &b_jetSecondaryVertexTrackVertexIndex);
     if(chain_->GetBranch("jetSecondaryVertexTrackMatchToSelectedTrackIndex")) // new variable, keep check a while for compatibility
-     chain_->SetBranchAddress("jetSecondaryVertexTrackMatchToSelectedTrackIndex", &recoObjects_->jetSecondaryVertexTrackMatchToSelectedTrackIndex_, &b_jetSecondaryVertexTrackMatchToSelectedTrackIndex);
-    else b_jetSecondaryVertexTrackMatchToSelectedTrackIndex = 0; 
+        chain_->SetBranchAddress("jetSecondaryVertexTrackMatchToSelectedTrackIndex", &recoObjects_->jetSecondaryVertexTrackMatchToSelectedTrackIndex_, &b_jetSecondaryVertexTrackMatchToSelectedTrackIndex);
     if(mvaMet_){
         if(chain_->GetBranch("mvamet")) // new variable, keep check a while for compatibility
             chain_->SetBranchAddress("mvamet", &recoObjects_->met_, &b_met);
@@ -825,7 +805,7 @@ void AnalysisBase::SetTopSignalBranchAddresses()
     //chain_->SetBranchAddress("jetAssociatedParton", &topGenObjects_->jetAssociatedParton_, &b_jetAssociatedParton);
     
     if(chain_->GetBranch("genBHadPlusMothersPdgId")) // need to check whether branch exists
-       chain_->SetBranchAddress("genBHadPlusMothersPdgId", &topGenObjects_->genBHadPlusMothersPdgId_, &b_genBHadPlusMothersPdgId);
+        chain_->SetBranchAddress("genBHadPlusMothersPdgId", &topGenObjects_->genBHadPlusMothersPdgId_, &b_genBHadPlusMothersPdgId);
     //if(chain_->GetBranch("genBHadPlusMothersStatus")) // need to check whether branch exists
     //    chain_->SetBranchAddress("genBHadPlusMothersStatus", &topGenObjects_->genBHadPlusMothersStatus_, &b_genBHadPlusMothersStatus);
     //if(chain_->GetBranch("genBHadPlusMothersIndices")) // need to check whether branch exists
@@ -839,30 +819,26 @@ void AnalysisBase::SetTopSignalBranchAddresses()
     if(chain_->GetBranch("genBHadJetIndex")) // need to check whether branch exists
         chain_->SetBranchAddress("genBHadJetIndex", &topGenObjects_->genBHadJetIndex_, &b_genBHadJetIndex);
     if(chain_->GetBranch("genBHadLeptonIndex")) // new variable, keep check a while for compatibility
-     chain_->SetBranchAddress("genBHadLeptonIndex", &topGenObjects_->genBHadLeptonIndex_, &b_genBHadLeptonIndex);
-    else b_genBHadLeptonIndex = 0;
+        chain_->SetBranchAddress("genBHadLeptonIndex", &topGenObjects_->genBHadLeptonIndex_, &b_genBHadLeptonIndex);
     if(chain_->GetBranch("genBHadLeptonHadronIndex")) // new variable, keep check a while for compatibility
-     chain_->SetBranchAddress("genBHadLeptonHadronIndex", &topGenObjects_->genBHadLeptonHadronIndex_, &b_genBHadLeptonHadronIndex);
-    else b_genBHadLeptonHadronIndex = 0;
+        chain_->SetBranchAddress("genBHadLeptonHadronIndex", &topGenObjects_->genBHadLeptonHadronIndex_, &b_genBHadLeptonHadronIndex);
     if(chain_->GetBranch("genBHadLeptonViaTau")) // new variable, keep check a while for compatibility
-     chain_->SetBranchAddress("genBHadLeptonViaTau", &topGenObjects_->genBHadLeptonViaTau_, &b_genBHadLeptonViaTau);
-    else b_genBHadLeptonViaTau = 0;
+        chain_->SetBranchAddress("genBHadLeptonViaTau", &topGenObjects_->genBHadLeptonViaTau_, &b_genBHadLeptonViaTau);
     if(chain_->GetBranch("genBHadFromTopWeakDecay")) // need to check whether branch exists
         chain_->SetBranchAddress("genBHadFromTopWeakDecay", &topGenObjects_->genBHadFromTopWeakDecay_, &b_genBHadFromTopWeakDecay);
     
+    //if(chain_->GetBranch("genCHadPlusMothersPdgId")) // need to check whether branch exists
+    //   chain_->SetBranchAddress("genCHadPlusMothersPdgId", &topGenObjects_->genCHadPlusMothersPdgId_, &b_genCHadPlusMothersPdgId);
+    //if(chain_->GetBranch("genCHadPlusMothers")) // need to check whether branch exists
+    //    chain_->SetBranchAddress("genCHadPlusMothers", &topGenObjects_->genCHadPlusMothers_, &b_genCHadPlusMothers);
     if(chain_->GetBranch("genCHadJetIndex")) // need to check whether branch exists
         chain_->SetBranchAddress("genCHadJetIndex", &topGenObjects_->genCHadJetIndex_, &b_genCHadJetIndex);
-    if(chain_->GetBranch("genCHadLeptonIndex")) // new variable, keep check a while for compatibility
-     chain_->SetBranchAddress("genCHadLeptonIndex", &topGenObjects_->genCHadLeptonIndex_, &b_genCHadLeptonIndex);
-    else b_genCHadLeptonIndex = 0;
-    if(chain_->GetBranch("genCHadLeptonHadronIndex")) // new variable, keep check a while for compatibility
-     chain_->SetBranchAddress("genCHadLeptonHadronIndex", &topGenObjects_->genCHadLeptonHadronIndex_, &b_genCHadLeptonHadronIndex);
-    else b_genCHadLeptonHadronIndex = 0;
-    if(chain_->GetBranch("genCHadLeptonViaTau")) // new variable, keep check a while for compatibility
-     chain_->SetBranchAddress("genCHadLeptonViaTau", &topGenObjects_->genCHadLeptonViaTau_, &b_genCHadLeptonViaTau);
-    else b_genCHadLeptonViaTau = 0;
-    if(chain_->GetBranch("genCHadFromBHadron")) // need to check whether branch exists
-        chain_->SetBranchAddress("genCHadFromBHadron", &topGenObjects_->genCHadFromBHadron_, &b_genCHadFromBHadron);
+    //if(chain_->GetBranch("genCHadLeptonIndex")) // new variable, keep check a while for compatibility
+    //    chain_->SetBranchAddress("genCHadLeptonIndex", &topGenObjects_->genCHadLeptonIndex_, &b_genCHadLeptonIndex);
+    //if(chain_->GetBranch("genCHadLeptonHadronIndex")) // new variable, keep check a while for compatibility
+    //    chain_->SetBranchAddress("genCHadLeptonHadronIndex", &topGenObjects_->genCHadLeptonHadronIndex_, &b_genCHadLeptonHadronIndex);
+    //if(chain_->GetBranch("genCHadLeptonViaTau")) // new variable, keep check a while for compatibility
+    //    chain_->SetBranchAddress("genCHadLeptonViaTau", &topGenObjects_->genCHadLeptonViaTau_, &b_genCHadLeptonViaTau);
     
     if(chain_->GetBranch("genExtraTopJetNumberId")) // need to check whether branch exists
         chain_->SetBranchAddress("genExtraTopJetNumberId", &topGenObjects_->genExtraTopJetNumberId_, &b_genExtraTopJetNumberId);
@@ -1101,8 +1077,8 @@ void AnalysisBase::GetTopSignalBranchesEntry(const Long64_t& entry)const
     //if(b_jetAssociatedPartonPdgId) b_jetAssociatedPartonPdgId->GetEntry(entry);
     //if(b_jetAssociatedParton) b_jetAssociatedParton->GetEntry(entry);
     if(b_genBHadPlusMothersPdgId) b_genBHadPlusMothersPdgId->GetEntry(entry);
-    if(b_genBHadPlusMothersStatus) b_genBHadPlusMothersStatus->GetEntry(entry);
-    if(b_genBHadPlusMothersIndices) b_genBHadPlusMothersIndices->GetEntry(entry);
+    //if(b_genBHadPlusMothersStatus) b_genBHadPlusMothersStatus->GetEntry(entry);
+    //if(b_genBHadPlusMothersIndices) b_genBHadPlusMothersIndices->GetEntry(entry);
     if(b_genBHadPlusMothers) b_genBHadPlusMothers->GetEntry(entry);
     if(b_genBHadIndex) b_genBHadIndex->GetEntry(entry);
     if(b_genBHadFlavour) b_genBHadFlavour->GetEntry(entry);
@@ -1111,6 +1087,12 @@ void AnalysisBase::GetTopSignalBranchesEntry(const Long64_t& entry)const
     if(b_genBHadLeptonHadronIndex) b_genBHadLeptonHadronIndex->GetEntry(entry);
     if(b_genBHadLeptonViaTau) b_genBHadLeptonViaTau->GetEntry(entry);
     if(b_genBHadFromTopWeakDecay) b_genBHadFromTopWeakDecay->GetEntry(entry);
+    //if(b_genCHadPlusMothersPdgId) b_genCHadPlusMothersPdgId->GetEntry(entry);
+    //if(b_genCHadPlusMothers) b_genCHadPlusMothers->GetEntry(entry);
+    if(b_genCHadJetIndex) b_genCHadJetIndex->GetEntry(entry);
+    //if(b_genCHadLeptonIndex) b_genCHadLeptonIndex->GetEntry(entry);
+    //if(b_genCHadLeptonHadronIndex) b_genCHadLeptonHadronIndex->GetEntry(entry);
+    //if(b_genCHadLeptonViaTau) b_genCHadLeptonViaTau->GetEntry(entry);
     if(b_genExtraTopJetNumberId) b_genExtraTopJetNumberId->GetEntry(entry);
 }
 
@@ -1208,8 +1190,6 @@ const RecoObjects& AnalysisBase::getRecoObjects(const Long64_t& entry)const
 
 
 
-
-
 const CommonGenObjects& AnalysisBase::getCommonGenObjects(const Long64_t& entry)const
 {
     if(!isMC_) return *commonGenObjects_;
@@ -1269,9 +1249,6 @@ void AnalysisBase::resetObjectStructEntry()const
 
 
 // ------------------------------------- Methods for event and object selection -------------------------------------
-
-
-
 
 
 void AnalysisBase::setBtagAlgorithmAndWorkingPoint(const Btag::Algorithm& algorithm,
@@ -1365,6 +1342,162 @@ void AnalysisBase::mvaMet()
 {
     mvaMet_ = true;
 }
+
+
+
+
+
+// ----------------------- Methods for genJet selection, gen b/c jet identification and gen-reco jet matching -----------------------
+
+
+void AnalysisBase::leptonCleanedJetIndices(std::vector<int>& jetIndices, const VLV& allJets, 
+                                           const VLV& allLeptons, const double& minDeltaR)const
+{
+    // Not apply any cleaning if no leptons are given or minDeltaR set to negative value
+    if(minDeltaR < 0.) return;
+    if(!allLeptons.size()) return;
+    
+    std::vector<int> selectedIndices;
+    for(int index : jetIndices){
+        bool leptonNearby = false;
+        const LV& jet = allJets.at(index);
+        for(const LV& lepton : allLeptons){
+            const double deltaR = ROOT::Math::VectorUtil::DeltaR(jet, lepton);
+            if(deltaR >= minDeltaR) continue;
+            leptonNearby = true;
+            break;
+        }
+        if(leptonNearby) continue;
+        selectedIndices.push_back(index);
+    }
+    
+    jetIndices.clear();
+    jetIndices = selectedIndices;
+}
+
+
+
+std::vector<std::vector<int> > AnalysisBase::matchHadronsToGenJets(const std::vector<int>& genJetIndices, const VLV& allGenJets, 
+                                                                   const std::vector<int>& genHadJetIndices)const
+{
+    std::vector<std::vector<int> > result = std::vector<std::vector<int> >(allGenJets.size());
+    
+    for(size_t iHadron = 0; iHadron < genHadJetIndices.size(); ++iHadron){
+        const int& jetIndex = genHadJetIndices.at(iHadron);
+        // Protect against hadrons not clustered to any jet
+        if(jetIndex < 0) continue;
+        if(std::find(genJetIndices.begin(), genJetIndices.end(), jetIndex) == genJetIndices.end()) continue;
+        result.at(jetIndex).push_back(iHadron);
+    }
+    
+    return result;
+}
+
+
+
+std::vector<int> AnalysisBase::genBjetIndices(const std::vector<std::vector<int> >& genJetBhadronIndices)const
+{
+    std::vector<int> result;
+    
+    for(size_t iJet = 0; iJet < genJetBhadronIndices.size(); ++iJet){
+        if(genJetBhadronIndices.at(iJet).size()) result.push_back(iJet);
+    }
+    
+    return result;
+}
+
+
+
+std::vector<int> AnalysisBase::genCjetIndices(const std::vector<std::vector<int> >& genJetBhadronIndices,
+                                              const std::vector<std::vector<int> >& genJetChadronIndices)const
+{
+    if(genJetBhadronIndices.size() != genJetChadronIndices.size()){
+        std::cerr<<"ERROR in AnalysisBase::genCjetIndices()! Input vectors are of different size: "
+                 <<genJetBhadronIndices.size()<<" , "<<genJetChadronIndices.size()
+                 <<"\n...break\n"<<std::endl;
+        exit(489);
+    }
+    
+    std::vector<int> result;
+    
+    for(size_t iJet = 0; iJet < genJetChadronIndices.size(); ++iJet){
+        // First exclude b jets, for remaining ones assign c jets
+        if(genJetBhadronIndices.at(iJet).size()) continue;
+        if(genJetChadronIndices.at(iJet).size()) result.push_back(iJet);
+    }
+    
+    return result;
+}
+
+
+
+int AnalysisBase::genBjetIndex(const TopGenObjects& topGenObjects, const int pdgId)const
+{
+    int result(-1);
+    
+    const std::vector<int>& genBHadFlavour(*topGenObjects.genBHadFlavour_);
+    const std::vector<int>& genBHadJetIndex(*topGenObjects.genBHadJetIndex_);
+    
+    bool alreadyFound(false);
+    for(size_t iBHadron = 0; iBHadron < genBHadFlavour.size(); ++iBHadron){
+        const int flavour = genBHadFlavour.at(iBHadron);
+        if(flavour != pdgId) continue;
+        
+        // Assign jet index of corresponding hadron. Set to -2 if >1 hadrons found for the same flavour
+        if(alreadyFound) return -2;
+        result = genBHadJetIndex.at(iBHadron);
+        alreadyFound = true;
+    }
+    
+    return result;
+}
+
+
+
+int AnalysisBase::matchRecoToGenJet(const std::vector<int>& jetIndices, const VLV& jets,
+                                    const int genJetIndex, const VLV& genJets)const
+{
+    if(genJetIndex < 0) return -1;
+    const LV& genJet = genJets.at(genJetIndex);
+    
+    int result(-999);
+    
+    // Find closest jet and its distance in deltaR
+    double deltaRJet(999.);
+    for(const auto& index : jetIndices){
+        double deltaR = ROOT::Math::VectorUtil::DeltaR(genJet, jets.at(index));
+        if(deltaR < deltaRJet){
+            deltaRJet = deltaR;
+            result = index;
+        }
+    }
+    
+    // Call a jet matched if it is close enough, and has similar pt
+    if(deltaRJet > 0.4) return -2;
+    if(result >= 0){
+        const double ptRecoJet = jets.at(result).pt();
+        const double ptJet = genJet.pt();
+        const double deltaPtRel = (ptJet - ptRecoJet)/ptJet;
+        if(deltaPtRel<-0.5 || deltaPtRel>0.6) return -3;
+    }
+    
+    return result;
+}
+
+
+
+std::vector<int> AnalysisBase::matchRecoToGenJets(const std::vector<int>& jetIndices, const VLV& jets,
+                                                  const std::vector<int>& genJetIndices, const VLV& allGenJets)const
+{
+    // Set all values to -1
+    std::vector<int> result = std::vector<int>(allGenJets.size(), -1);
+    
+    for(const int index : genJetIndices)
+        result.at(index) = this->matchRecoToGenJet(jetIndices, jets, index, allGenJets);
+    
+    return result;
+}
+
 
 
 
@@ -1549,6 +1682,7 @@ void AnalysisBase::correctMvaMet(const LV& dilepton, const int nJet, const Long6
 
 
 // ------------------------------------- Various helper methods -------------------------------------
+
 
 double AnalysisBase::getJetHT(const std::vector<int>& jetIndices, const VLV& jets)const
 {

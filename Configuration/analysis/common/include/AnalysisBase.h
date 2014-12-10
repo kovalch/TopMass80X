@@ -199,9 +199,43 @@ protected:
     
     
     
+// ----------------------- Protected methods for genJet selection, gen b/c jet identification and gen-reco jet matching -----------------------
+    
+    /// Cleans vector of indices of jets by requiring separation in deltaR from given leptons by given value
+    void leptonCleanedJetIndices(std::vector<int>& jetIndices, const VLV& allJets,
+                                 const VLV& allLeptons, const double& minDeltaR)const;
+    
+    /// Create vector of size of gen jets, and assign for each element a vector of indices of associated B or C hadrons
+    std::vector<std::vector<int> > matchHadronsToGenJets(const std::vector<int>& genJetIndices, const VLV& allGenJets, 
+                                                         const std::vector<int>& genHadJetIndices)const;
+    
+    /// Returns vector of indices of gen jets containing B hadrons
+    std::vector<int> genBjetIndices(const std::vector<std::vector<int> >& genJetBhadronIndices)const;
+    
+    /// Returns vector of indices of gen jets containing C hadrons, but no B hadrons
+    std::vector<int> genCjetIndices(const std::vector<std::vector<int> >& genJetBhadronIndices,
+                                    const std::vector<std::vector<int> >& genJetChadronIndices)const;
+    
+    /// Get indices of generated (anti-)b jet by its mother particle ID ("signed" mother PDG ID, "+" is b, "-" is anti-b)
+    /// Requires that exactly one (anti-)b quark is found for the given ID
+    /// Returns index of corresponding gen jet, or negative value for indicating cases no jet could be identified
+    int genBjetIndex(const TopGenObjects& topGenObjects, const int pdgId)const;
     
     
-// ----------------------- Protected methods for application of corrections (e.g. scale factors) stored in the ntuple -----------------------
+    /// Match generated jet with given index to reco jets
+    /// Returns the index of the matched reco jet, or negative value for indicating cases no jet could be identified
+    int matchRecoToGenJet(const std::vector<int>& jetIndices, const VLV& jets,
+                          const int genJetIndex, const VLV& genJets)const;
+    
+    /// Create vector of size of gen jets,
+    /// and assign for each element the index of the matched reco jet,
+    /// or negative value for indicating cases no jet could be identified
+    std::vector<int> matchRecoToGenJets(const std::vector<int>& jetIndices, const VLV& jets,
+                                        const std::vector<int>& genJetIndices, const VLV& allGenJets)const;
+    
+    
+    
+// ----------------------- Protected methods for application of corrections (e.g. scale factors) stored in ntuple -----------------------
     
     /// Correct branching ratios of W decays in MadGraph samples
     double madgraphWDecayCorrection(const Long64_t& entry)const;
@@ -583,11 +617,12 @@ private:
     TBranch* b_genBHadLeptonViaTau;
     TBranch* b_genBHadFromTopWeakDecay;
     
+    TBranch* b_genCHadPlusMothersPdgId;
+    TBranch* b_genCHadPlusMothers;
     TBranch* b_genCHadJetIndex;
     TBranch* b_genCHadLeptonIndex;
     TBranch* b_genCHadLeptonHadronIndex;
     TBranch* b_genCHadLeptonViaTau;
-    TBranch* b_genCHadFromBHadron;
     
     TBranch* b_genExtraTopJetNumberId;
     
