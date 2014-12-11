@@ -831,7 +831,7 @@ writeNTuple.genCHadLeptonViaTau = cms.InputTag(genCHadronMatcherInput, "genCHadL
 
 # Workaround to avoid crash on miniAOD: Running the jetProperties not yet possible
 if not options.runOnAOD:
-    writeNTupl:.jetProperties = "NONE"
+    writeNTuple.jetProperties = "NONE"
 
 process.writeNTuple = writeNTuple.clone()
 
