@@ -117,7 +117,8 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     edm::Handle<pat::JetCollection> jetHandle;
     //edm::Handle<edm::View< pat::Jet > > jetHandle;
     iEvent.getByLabel(jets, jetHandle);
-    
+
+    edm::InputTag pfs(parameterSet_.getParameter<edm::InputTag>("pfCands"));    
     // This does not work anymore in CMSSW_7_2_X, since method GenericMVAJetTagComputer::passEventSetup() does not exist anymore
 //     // Get a JetTagComputer in order to retrieve the pT-corrected secondary vertex mass used by the CSV algorithm
 //     // Check that the ES record really exists
@@ -433,6 +434,7 @@ JetPropertiesProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
     // An exception is thrown when the parameter is not defined in the config files, instead of silently using the default given here
     edm::ParameterSetDescription desc;
     desc.add<edm::InputTag>("src");
+    desc.add<edm::InputTag>("pfCands");
     desc.add<edm::InputTag>("svComputer");
     descriptions.add("jetProperties", desc);
 }
