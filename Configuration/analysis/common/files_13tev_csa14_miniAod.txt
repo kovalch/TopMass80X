@@ -8,16 +8,16 @@
 
 
 # ttbar pythia8
-1     Spring14.miniAOD.TT_Tune4C_13TeV_pythia8_tauola_PU_S14_PAT_cff                                                ttbarsignalplustauPythia8_miniAod.root      ttbarsignalplustau,runOnAOD=False,includePDFWeights=True
+1     Spring14.miniAOD.TT_Tune4C_13TeV_pythia8_tauola_PU_S14_PAT_cff                                                ttbarsignalplustauPythia8.root      ttbarsignalplustau,runOnAOD=False,includePDFWeights=True
 
 # ttbar MadSpin
-517   Spring14.miniAOD.TTJets_MSDecaysCKM_central_Tune4C_13TeV_madgraph_tauola_Spring14miniaod_PU_S14_POSTLS170_V6_v1_cff    ttbarsignalplustauMSDecays_miniAod.root   ttbarsignalplustau,runOnAOD=False,includePDFWeights=True 
+517   Spring14.miniAOD.TTJets_MSDecaysCKM_central_Tune4C_13TeV_madgraph_tauola_Spring14miniaod_PU_S14_POSTLS170_V6_v1_cff    ttbarsignalplustauMSDecays.root   ttbarsignalplustau,runOnAOD=False,includePDFWeights=True 
 
 # ttH pythia6
-1     Spring14.miniAOD.TTbarH_HToBB_M_125_13TeV_pythia6_PU_S14_PAT_cff                                              ttbarH125tobbbar_miniAod.root               ttbarhiggstobbbar,runOnAOD=False
+1     Spring14.miniAOD.TTbarH_HToBB_M_125_13TeV_pythia6_PU_S14_PAT_cff                                              ttbarH125tobbbar.root               ttbarhiggstobbbar,runOnAOD=False
 
 # ttH pythia6 (PU20bx25)
-2     Spring14.miniAOD.TTbarH_HToBB_M_125_13TeV_pythia6_Spring14miniaod_PU20bx25_POSTLS170_V5_v1_cff                ttbarH125tobbbar_PU20bx25_miniAod.root     ttbarhiggstobbbar,runOnAOD=False
+2     Spring14.miniAOD.TTbarH_HToBB_M_125_13TeV_pythia6_Spring14miniaod_PU20bx25_POSTLS170_V5_v1_cff                ttbarH125tobbbar_PU20bx25.root     ttbarhiggstobbbar,runOnAOD=False
 
 # ttH aMC@NLO
-5     Spring14.miniAOD.TTbarH_M_125_13TeV_amcatnlo_pythia8_tauola_Spring14miniaod_PU20bx25_POSTLS170_V5_v1_cff      ttbarH125inclusive_amcatnlo_miniAod.root    ttbarhiggsinclusive,runOnAOD=False
+5     Spring14.miniAOD.TTbarH_M_125_13TeV_amcatnlo_pythia8_tauola_Spring14miniaod_PU20bx25_POSTLS170_V5_v1_cff      ttbarH125inclusive_amcatnlo.root    ttbarhiggsinclusive,runOnAOD=False
