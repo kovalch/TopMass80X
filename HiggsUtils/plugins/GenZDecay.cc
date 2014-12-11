@@ -190,7 +190,7 @@ std::vector<const reco::GenParticle*> GenZDecay::findZs(const reco::GenParticleC
     std::vector<const reco::GenParticle*> v_target;
     
     for(reco::GenParticleCollection::const_iterator i_particle=v_particle.begin(); i_particle!=v_particle.end(); ++i_particle){
-        if(i_particle->pdgId()==23 && i_particle->status()==3){
+        if(i_particle->pdgId()==23 && (i_particle->status()==3 || i_particle->status()==62)){
             //std::cout<<"\t"<<i_particle->pdgId()<<" "<<i_particle->status()<<" "<<i_particle->numberOfMothers()<<" "<<i_particle->numberOfDaughters()<<std::endl;
             v_target.push_back(&(*i_particle));
         }

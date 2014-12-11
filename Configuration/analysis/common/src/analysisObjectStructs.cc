@@ -152,11 +152,12 @@ void TopGenObjects::clear()
     genBHadLeptonHadronIndex_ = 0;
     genBHadLeptonViaTau_ = 0;
     genBHadFromTopWeakDecay_ = 0;
+    genCHadPlusMothersPdgId_ = 0;
+    genCHadPlusMothers_ = 0;
     genCHadJetIndex_ = 0;
     genCHadLeptonIndex_ = 0;
     genCHadLeptonHadronIndex_ = 0;
     genCHadLeptonViaTau_ = 0;
-    genCHadFromBHadron_ = 0;
     genExtraTopJetNumberId_ = -2;
 }
 

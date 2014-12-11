@@ -59,6 +59,8 @@ constexpr double GenJetEtaCUT = 2.5;
 /// Generated jet pt selection in GeV
 constexpr double GenJetPtCUT = JetPtCUT;
 
+/// Minimal deltaR for removal of generated jets that are close to leptons (if negative, no cut applied)
+constexpr double GenDeltaRLeptonJetCUT = -1.;
 
 
 
@@ -68,7 +70,6 @@ constexpr double GenJetPtCUT = JetPtCUT;
 HiggsAnalysis::HiggsAnalysis(TTree*):
 inclusiveHiggsDecayMode_(-999),
 additionalBjetMode_(-999),
-toRemoveLeptonGenJets_(false),
 reweightingName_(""),
 reweightingSlope_(0.0)
 {
@@ -580,7 +581,19 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     // Generated jets
     const VLV& allGenJets =  topGenObjects.valuesSet_ ? *topGenObjects.allGenJets_ : VLV();
     std::vector<int> allGenJetIndices = initialiseIndices(allGenJets);
-    std::vector<int> genJetIndices = this->genJetIndices(allGenJets, topGenObjects);
+    std::vector<int> genJetIndices = allGenJetIndices;
+    selectIndices(genJetIndices, allGenJets, LVeta, GenJetEtaCUT, false);
+    selectIndices(genJetIndices, allGenJets, LVeta, -GenJetEtaCUT);
+    selectIndices(genJetIndices, allGenJets, LVpt, GenJetPtCUT);
+    if(GenDeltaRLeptonJetCUT > 0.){
+        // Vector of genLeptons from which genJets need to be separated in deltaR
+        VLV allGenLeptons;
+        if(topGenObjects.valuesSet_){
+            if(topGenObjects.GenLepton_) allGenLeptons.push_back(*topGenObjects.GenLepton_);
+            if(topGenObjects.GenAntiLepton_) allGenLeptons.push_back(*topGenObjects.GenAntiLepton_);
+        }
+        this->leptonCleanedJetIndices(genJetIndices, allGenJets, allGenLeptons, GenDeltaRLeptonJetCUT);
+    }
     
     // Match for all genJets all B hadrons
     std::vector<std::vector<int> > allGenJetBhadronIndices;
@@ -589,8 +602,8 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     std::vector<int> genBjetIndices;
     std::vector<int> genJetMatchedRecoBjetIndices;
     if(topGenObjects.valuesSet_){
-        allGenJetBhadronIndices = this->matchBhadronsToGenJets(allGenJetIndices, allGenJets, topGenObjects);
-        genJetBhadronIndices = this->matchBhadronsToGenJets(genJetIndices, allGenJets, topGenObjects);
+        allGenJetBhadronIndices = this->matchHadronsToGenJets(allGenJetIndices, allGenJets, *topGenObjects.genBHadJetIndex_);
+        genJetBhadronIndices = this->matchHadronsToGenJets(genJetIndices, allGenJets, *topGenObjects.genBHadJetIndex_);
         allGenBjetIndices = this->genBjetIndices(allGenJetBhadronIndices);
         genBjetIndices = this->genBjetIndices(genJetBhadronIndices);
         genJetMatchedRecoBjetIndices = this->matchRecoToGenJets(jetIndices, jets, allGenBjetIndices, allGenJets);
@@ -603,8 +616,8 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     std::vector<int> genCjetIndices;
     std::vector<int> genJetMatchedRecoCjetIndices;
     if(topGenObjects.valuesSet_){
-        allGenJetChadronIndices = this->matchChadronsToGenJets(allGenJetIndices, allGenJets, topGenObjects);
-        genJetChadronIndices = this->matchChadronsToGenJets(genJetIndices, allGenJets, topGenObjects);
+        allGenJetChadronIndices = this->matchHadronsToGenJets(allGenJetIndices, allGenJets, *topGenObjects.genCHadJetIndex_);
+        genJetChadronIndices = this->matchHadronsToGenJets(genJetIndices, allGenJets, *topGenObjects.genCHadJetIndex_);
         allGenCjetIndices = this->genCjetIndices(allGenJetBhadronIndices, allGenJetChadronIndices);
         genCjetIndices = this->genCjetIndices(genJetBhadronIndices, genJetChadronIndices);
         genJetMatchedRecoCjetIndices = this->matchRecoToGenJets(jetIndices, jets, allGenCjetIndices, allGenJets);
@@ -651,7 +664,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     
         
     // Applying the reweighting
-    weight *= reweightingWeight(topGenObjects, genObjectIndices);
+    weight *= this->reweightingWeight(topGenObjects, genObjectIndices);
     
     
     // ++++ Control Plots ++++
@@ -692,181 +705,6 @@ tth::IndexPairs HiggsAnalysis::chargeOrderedJetPairIndices(const std::vector<int
         }
     }
 
-    return result;
-}
-
-
-
-std::vector<int> HiggsAnalysis::genJetIndices(const VLV& allGenJets, const TopGenObjects& topGenObjects)const
-{
-    std::vector<int> jetIds_kin = common::initialiseIndices(allGenJets);
-    selectIndices(jetIds_kin, allGenJets, common::LVeta, GenJetEtaCUT, false);
-    selectIndices(jetIds_kin, allGenJets, common::LVeta, -GenJetEtaCUT);
-    selectIndices(jetIds_kin, allGenJets, common::LVpt, GenJetPtCUT);
-
-    if(!toRemoveLeptonGenJets_) return jetIds_kin;
-
-    std::vector<int> jetIds;
-    const double leptonJet_dR_min = 0.4;
-    
-    // Building the vector of gen leptons which shouldn't be contained in jets
-    std::vector<LV*> genLeptons;
-    if(topGenObjects.valuesSet_) {
-        if(topGenObjects.GenLepton_) genLeptons.push_back(topGenObjects.GenLepton_);
-        if(topGenObjects.GenAntiLepton_) genLeptons.push_back(topGenObjects.GenAntiLepton_);
-    }
-    
-    // Filtering indices of jets that are far enough from leptons
-    for(int jetId : jetIds_kin) {
-        bool hasLeptonNearby = false;
-        LV jet = allGenJets.at(jetId);
-        for(LV* lepton : genLeptons) {
-            double dR = ROOT::Math::VectorUtil::DeltaR(jet, *lepton);
-            if(dR >= leptonJet_dR_min) continue;
-            hasLeptonNearby = true;
-            break;
-        }
-        if(hasLeptonNearby) continue;
-        jetIds.push_back(jetId);
-    }
-
-    return jetIds;
-}
-
-
-
-std::vector<std::vector<int> > HiggsAnalysis::matchBhadronsToGenJets(const std::vector<int>& genJetIndices, const VLV& allGenJets, 
-                                                                     const TopGenObjects& topGenObjects)const
-{
-    std::vector<std::vector<int> > result = std::vector<std::vector<int> >(allGenJets.size());
-    
-    const std::vector<int>& genBHadJetIndex(*topGenObjects.genBHadJetIndex_);
-    for(size_t iHadron = 0; iHadron < genBHadJetIndex.size(); ++iHadron){
-        const int& jetIndex = genBHadJetIndex.at(iHadron);
-        // Protect against hadrons not clustered to any jet
-        if(jetIndex < 0) continue;
-        if(std::find(genJetIndices.begin(), genJetIndices.end(), jetIndex) == genJetIndices.end()) continue;
-        result.at(jetIndex).push_back(iHadron);
-    }
-    
-    return result;
-}
-
-
-
-std::vector<std::vector<int> > HiggsAnalysis::matchChadronsToGenJets(const std::vector<int>&, const VLV& allGenJets,
-                                                                     const TopGenObjects&)const
-{
-    std::vector<std::vector<int> > result = std::vector<std::vector<int> >(allGenJets.size());
-    
-    // FIXME: Loop over all c hadrons and assign them to the jet where they are clustered to
-    // FIXME: requires future ntuple branches for c hadrons
-    
-    return result;
-}
-
-
-
-std::vector<int> HiggsAnalysis::genBjetIndices(const std::vector<std::vector<int> >& genJetBhadronIndices)const
-{
-    std::vector<int> result;
-    
-    for(size_t iJet = 0; iJet < genJetBhadronIndices.size(); ++iJet){
-        if(genJetBhadronIndices.at(iJet).size()) result.push_back(iJet);
-    }
-    
-    return result;
-}
-
-
-
-std::vector<int> HiggsAnalysis::genCjetIndices(const std::vector<std::vector<int> >& genJetBhadronIndices,
-                                               const std::vector<std::vector<int> >& genJetChadronIndices)const
-{
-    if(genJetBhadronIndices.size() != genJetChadronIndices.size()){
-        std::cerr<<"ERROR in HiggsAnalysis::genCjetIndices! Input vectors are of different size: "
-                 <<genJetBhadronIndices.size()<<" , "<<genJetChadronIndices.size()
-                 <<"\n...break\n"<<std::endl;
-        exit(489);
-    }
-    
-    std::vector<int> result;
-    
-    for(size_t iJet = 0; iJet < genJetChadronIndices.size(); ++iJet){
-        // First exclude b jets, for remaining ones assign c jets
-        if(genJetBhadronIndices.at(iJet).size()) continue;
-        if(genJetChadronIndices.at(iJet).size()) result.push_back(iJet);
-    }
-    
-    return result;
-}
-
-
-
-int HiggsAnalysis::genBjetIndex(const TopGenObjects& topGenObjects, const int pdgId)const
-{
-    int result(-1);
-    
-    const std::vector<int>& genBHadFlavour(*topGenObjects.genBHadFlavour_);
-    const std::vector<int>& genBHadJetIndex(*topGenObjects.genBHadJetIndex_);
-    
-    bool alreadyFound(false);
-    for(size_t iBHadron=0; iBHadron<genBHadFlavour.size(); ++iBHadron){
-        const int flavour = genBHadFlavour.at(iBHadron);
-        if(flavour != pdgId) continue;
-        
-        // Assigning jet index of corresponding hadron. Set to -2 if >1 hadrons found for the same flavour
-        if(alreadyFound) return -2;
-        result = genBHadJetIndex.at(iBHadron);
-        alreadyFound = true;
-    }
-    
-    return result;
-}
-
-
-
-int HiggsAnalysis::matchRecoToGenJet(const std::vector<int>& jetIndices, const VLV& jets, const int genJetIndex, const VLV& genJets)const{
-    
-    if(genJetIndex < 0) return -1;
-    const LV& genJet = genJets.at(genJetIndex);
-    
-    int result(-999);
-    
-    // Find closest jet and its distance in deltaR
-    double deltaRJet(999.);
-    for(const auto& index : jetIndices){
-        double deltaR = ROOT::Math::VectorUtil::DeltaR(genJet, jets.at(index));
-        if(deltaR < deltaRJet){
-            deltaRJet = deltaR;
-            result = index;
-        }
-    }
-    
-    // Call a jet matched if it is close enough, and has similar pt
-    if(deltaRJet > 0.4) return -2;
-    if(result >= 0){
-        const double ptRecoJet = jets.at(result).pt();
-        const double ptJet = genJet.pt();
-        const double deltaPtRel = (ptJet - ptRecoJet)/ptJet;
-        if(deltaPtRel<-0.5 || deltaPtRel>0.6) return -3;
-    }
-    
-    return result;
-}
-
-
-
-std::vector<int> HiggsAnalysis::matchRecoToGenJets(const std::vector<int>& jetIndices, const VLV& jets,
-                                                   const std::vector<int>& genJetIndices, const VLV& allGenJets)const
-{
-    // Set all values to -1
-    std::vector<int> result = std::vector<int>(allGenJets.size(), -1);
-    
-    for(const int index : genJetIndices){
-        result.at(index) = this->matchRecoToGenJet(jetIndices, jets, index, allGenJets);
-    }
-    
     return result;
 }
 
@@ -994,39 +832,38 @@ double HiggsAnalysis::reweightingWeight(const TopGenObjects& topGenObjects, cons
     if(reweightingName_ == "1st_add_bjet_eta") {
         if(addBJetsId_gen.size() < 1) return 1.0;
         const int jetId = addBJetsId_gen.at(0);
-        return 1 + reweightingSlope_*(std::fabs(allGenJets.at(jetId).Eta()) - 1.);
+        return 1. + reweightingSlope_*(std::fabs(allGenJets.at(jetId).Eta()) - 1.);
     }
     
     if(reweightingName_ == "2nd_add_bjet_pt") {
         if(addBJetsId_gen.size() < 2) return 1.0;
         const int jetId = addBJetsId_gen.at(1);
-        return 1 + reweightingSlope_*(allGenJets.at(jetId).Pt() - 60.)/60.;
+        return 1. + reweightingSlope_*(allGenJets.at(jetId).Pt() - 60.)/60.;
     }
     
     if(reweightingName_ == "2nd_add_bjet_eta") {
         if(addBJetsId_gen.size() < 2) return 1.0;
         const int jetId = addBJetsId_gen.at(1);
-        return 1 + reweightingSlope_*(std::fabs(allGenJets.at(jetId).Eta()) - 1.);
+        return 1. + reweightingSlope_*(std::fabs(allGenJets.at(jetId).Eta()) - 1.);
     }
     
     if(reweightingName_ == "add_bjet_dR") {
         if(addBJetsId_gen.size() < 2) return 1.0;
         const int jetId_1 = addBJetsId_gen.at(0);
         const int jetId_2 = addBJetsId_gen.at(1);
-        return 1 + reweightingSlope_*(ROOT::Math::VectorUtil::DeltaR(allGenJets.at(jetId_1), allGenJets.at(jetId_2)) - 1.5)/1.5;
+        return 1. + reweightingSlope_*(ROOT::Math::VectorUtil::DeltaR(allGenJets.at(jetId_1), allGenJets.at(jetId_2)) - 1.5)/1.5;
     }
     
     if(reweightingName_ == "add_bjet_Mjj") {
         if(addBJetsId_gen.size() < 2) return 1.0;
         const int jetId_1 = addBJetsId_gen.at(0);
         const int jetId_2 = addBJetsId_gen.at(1);
-        return 1 + reweightingSlope_*((allGenJets.at(jetId_1) + allGenJets.at(jetId_2)).M() - 100.)/100.;
+        return 1. + reweightingSlope_*((allGenJets.at(jetId_1) + allGenJets.at(jetId_2)).M() - 100.)/100.;
     }
     
-    std::cerr << "ERROR! Provided reweighting name is not supported. Stopping..." << std::endl;
+    std::cerr<<"ERROR in HiggsAnalysis::reweightingWeight()! Provided reweighting name is not supported: "<<reweightingName_<<"\n...break\n"<<std::endl;
     exit(1);
 
-    
     return 1.0;
 }
 
