@@ -225,7 +225,7 @@ if signal:
     process.triggerSequence = cms.Sequence()
 else:
     # Get the central diLepton trigger lists, and set up filter
-    from TopAnalysis.TopFilter.sequences.diLeptonTriggers_cff import *
+    from TopAnalysis.TopFilter.sequences.diLeptonTriggers13tev_cff import *
     process.load("TopAnalysis.TopFilter.filters.TriggerFilter_cfi")
     process.filterTrigger.TriggerResults = cms.InputTag('TriggerResults', '', 'HLT')
     process.filterTrigger.printTriggers = False
@@ -305,36 +305,19 @@ bTagInfos = ['impactParameterTagInfos','secondaryVertexTagInfos']
 ## b-tag discriminators
 bTagDiscriminators = ['jetBProbabilityBJetTags','jetProbabilityBJetTags','trackCountingHighPurBJetTags','trackCountingHighEffBJetTags',
     'simpleSecondaryVertexHighEffBJetTags','simpleSecondaryVertexHighPurBJetTags',
-    'combinedSecondaryVertexBJetTags'
+    'combinedSecondaryVertexBJetTags', 'combinedInclusiveSecondaryVertexV2BJetTags'
 ]
 
 ## Jet energy corrections
-jetCorrectionsAK4 = ('AK4PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'None')
+if options.runOnMC:
+    jetCorrections = ('AK4PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'], 'None')
+else:
+    jetCorrections = ('AK4PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])
 
 
 ## Postfix
 pfpostfix = "PFlow"
 
-## Various collection names
-genParticles = 'genParticles'
-jetSource = 'pfJets'+pfpostfix
-genJetCollection = 'ak4GenJetsNoNu'+pfpostfix
-trackSource = 'generalTracks'
-pvSource = 'offlinePrimaryVertices'
-svSource = cms.InputTag('inclusiveSecondaryVertices')
-#muons = 'muons'
-#selectedPatMuons = 'selectedPatMuons'
-
-## If running on miniAOD
-if not options.runOnAOD:
-    genParticles = 'prunedGenParticles'
-    jetSource = 'ak4PFJets'
-    genJetCollection = 'ak4GenJetsNoNu'
-    trackSource = 'unpackedTracksAndVertices'
-    pvSource = 'unpackedTracksAndVertices'
-    svSource = cms.InputTag('unpackedTracksAndVertices','secondary')
-    #muons = 'slimmedMuons'
-    #selectedPatMuons = muons
 
 ####################################################################
 
@@ -350,19 +333,12 @@ if options.runOnAOD:
         dataset = cms.untracked.PSet(dataTier = cms.untracked.string('RECO')),
         fileName = cms.untracked.string("eh.root"),
     )
-    
-    
-    ## Jet corrections
-    if options.runOnMC:
-        jetCorr = ('AK4PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'])
-    else:
-        jetCorr = ('AK4PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])
-    
+        
     
     ## PF2PAT sequence
     # Parameter checkClosestZVertex = False needs to be set to False when using PF Jets with Charged Hadron Subtraction, see https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookJetEnergyCorrections#JetEnCorPFnoPU2012
     from PhysicsTools.PatAlgos.tools.pfTools import usePF2PAT
-    usePF2PAT(process, runPF2PAT=True, jetAlgo='AK4', runOnMC=options.runOnMC, postfix=pfpostfix, jetCorrections=jetCorr, pvCollection=cms.InputTag(selectedPrimaryVertices), typeIMetCorrections=True)
+    usePF2PAT(process, runPF2PAT=True, jetAlgo='AK4', runOnMC=options.runOnMC, postfix=pfpostfix, jetCorrections=jetCorrections, pvCollection=cms.InputTag(selectedPrimaryVertices), typeIMetCorrections=True)
     getattr(process, 'pfPileUp'+pfpostfix).checkClosestZVertex = False
     
     
@@ -406,28 +382,6 @@ else:
 
     # Still needs modifications for the case of miniAOD in order to rerun the b tagging
 
-from PhysicsTools.PatAlgos.tools.jetTools import *
-## Switch the default jet collection (done in order to use the above specified b-tag infos and discriminators)
-switchJetCollection(
-    process,
-    jetSource = cms.InputTag(jetSource),
-    trackSource = cms.InputTag(trackSource),
-    pvSource = cms.InputTag(pvSource),
-    svSource = svSource,
-    btagInfos = bTagInfos,
-    btagDiscriminators = bTagDiscriminators,
-    jetCorrections = jetCorrectionsAK4,
-    genJetCollection = cms.InputTag(genJetCollection),
-    postfix = pfpostfix
-)
-
-## Add TagInfos to PAT jets
-patJets = ['patJets'+pfpostfix]
-
-for m in patJets:
-    if hasattr(process,m):
-        print "Switching 'addTagInfos' for " + m + " to 'True'"
-        setattr( getattr(process,m), 'addTagInfos', cms.bool(True) )
 
 ####################################################################
 ## Object preselection for any correction based on final PAT objects
@@ -531,6 +485,8 @@ isolatedElectronCollection = "leptonVertexSelector"
 isolatedMuonCollection = "leptonVertexSelector"
 
 jetCollection = "selectedJets"
+if not options.runOnAOD:
+    jetCollection = "preselectedJets"
 
 jetForMetUncorrectedCollection = preselectedJetCollection
 jetForMetCollection = "scaledJetEnergy:"+jetForMetUncorrectedCollection
@@ -756,6 +712,45 @@ if options.includePDFWeights:
     )
 
 
+####################################################################
+## Use SwitchJetCollection in order to rerun the btagging
+
+## Various collection names
+jetSource = 'pfJets'+pfpostfix
+trackSource = 'generalTracks'
+pvSource = 'offlinePrimaryVertices'
+svSource = cms.InputTag('inclusiveSecondaryVertices')
+
+
+## If running on miniAOD
+if not options.runOnAOD:
+    jetSource = 'ak4PFJets'
+    trackSource = 'unpackedTracksAndVertices'
+    pvSource = 'unpackedTracksAndVertices'
+    svSource = cms.InputTag('unpackedTracksAndVertices','secondary')
+
+from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
+## Switch the default jet collection (done in order to use the above specified b-tag infos and discriminators)
+switchJetCollection(
+    process,
+    jetSource = cms.InputTag(jetSource),
+    trackSource = cms.InputTag(trackSource),
+    pvSource = cms.InputTag(pvSource),
+    svSource = svSource,
+    btagInfos = bTagInfos,
+    btagDiscriminators = bTagDiscriminators,
+    jetCorrections = jetCorrections,
+    genJetCollection = cms.InputTag(genJetCollection),
+    postfix = pfpostfix
+)
+
+## Add TagInfos to PAT jets
+patJets = ['patJets'+pfpostfix]
+
+for m in patJets:
+    if hasattr(process,m):
+        print "Switching 'addTagInfos' for " + m + " to 'True'"
+        setattr( getattr(process,m), 'addTagInfos', cms.bool(True) )
 
 ####################################################################
 ## Event counter for events before any selection, including generator weights
