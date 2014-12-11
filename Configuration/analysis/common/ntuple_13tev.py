@@ -651,7 +651,7 @@ if topfilter:
 	process.generatorTopFilter.src = genParticleCollection
     process.generatorTopFilter.rejectNonBottomDecaysOfTops = False
     # FIXME: ttGenEvent is not working in several samples, so not possible to filter dileptonic ttbar decays...
-    # FIXME: As workaround, the " or topSignal" is placed here, switching off the filtering
+    # FIXME: As workaround, the above switch for Pythia8 is introduced, but it only fixes the top Decaymodes
     if higgsSignal or ttbarZ:
         process.generatorTopFilter.invert_selection = True
         process.generatorTopFilter.channels = ["none"] # Empty array would use some defaults
@@ -831,7 +831,7 @@ writeNTuple.genCHadLeptonViaTau = cms.InputTag(genCHadronMatcherInput, "genCHadL
 
 # Workaround to avoid crash on miniAOD: Running the jetProperties not yet possible
 if not options.runOnAOD:
-    writeNTuple.jetProperties = "NONE"
+    writeNTupl:.jetProperties = "NONE"
 
 process.writeNTuple = writeNTuple.clone()
 
