@@ -601,10 +601,10 @@ if topfilter:
     process.decaySubset.src = genParticleCollection
     process.decaySubset.fillMode = "kME" # Status3, use kStable for Status2
     if not pythia8Sample:
-    	process.load("TopAnalysis.TopFilter.filters.GeneratorTopFilter_cfi")
+        process.load("TopAnalysis.TopFilter.filters.GeneratorTopFilter_cfi")
     else: 
-	process.load("TopAnalysis.TopFilter.filters.GeneratorTopFilter_Pythia8_cfi")
-	process.generatorTopFilter.src = genParticleCollection
+        process.load("TopAnalysis.TopFilter.filters.GeneratorTopFilter_Pythia8_cfi")
+        process.generatorTopFilter.src = genParticleCollection
     process.generatorTopFilter.rejectNonBottomDecaysOfTops = False
     # FIXME: ttGenEvent is not working in several samples, so not possible to filter dileptonic ttbar decays...
     # FIXME: As workaround, the above switch for Pythia8 is introduced, but it only fixes the top Decaymodes
