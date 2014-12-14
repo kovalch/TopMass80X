@@ -39,15 +39,23 @@ public:
     ~Sample(){};
     
     
+    /// Set sample legend entry for drawing
+    void setLegendEntry(const TString& legendEntry);
     
     /// Return sample legend entry for drawing
     TString legendEntry()const;
+    
+    /// Set color of the sample
+    void setColor(const int color);
     
     /// Return sample colour for drawing (needs to be identical for samples same legendEntry)
     int color()const;
     
     /// Return cross section corresponding to the sample
     double crossSection(const Systematic::Systematic& systematic)const;
+    
+    /// Set specific sample type
+    void setSampleType(SampleType sampleType);
     
     /// Return the specific type of sample
     SampleType sampleType()const;

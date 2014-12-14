@@ -50,10 +50,13 @@ v_filename_(v_filename)
 }
 
 
+void Sample::setLegendEntry(const TString& legendEntry) {legendEntry_ = legendEntry;}
 
 TString Sample::legendEntry()const{return legendEntry_;}
 
 
+
+void Sample::setColor(const int color) {color_ = color;}
 
 int Sample::color()const{return color_;}
 
@@ -79,6 +82,8 @@ double Sample::crossSection(const Systematic::Systematic& systematic)const{
 }
 
 
+
+void Sample::setSampleType(SampleType sampleType) {sampleType_ = sampleType;}
 
 Sample::SampleType Sample::sampleType()const{return sampleType_;}
 

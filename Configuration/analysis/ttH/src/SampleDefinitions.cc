@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <TString.h>
 #include <TColorWheel.h>
 
@@ -25,16 +26,19 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         Sample::data
     );
     
+    // Several pseudodata samples with different normalisations can be specified
+    // Are meant to be modified (reweighted) versions of original samples
+    // Should have different names, same legend entry and all added to the selectAndOrderSamples8TeV()
     result["pseudodata"] = Sample(
-        "pseudoData [nominal]",
+        "Pseudodata",
         kBlack,
         241.5,
         8.5/241.5, -1.,
         {   // Place for specific reweighted ROOT files to be used instead of standard MC files defined below
-            "ttbarsignalPlusBbbar_nominal.root"
         },
         Sample::pseudodata
     );
+
     
     result["ttbarsignalPlusBbbar"] = Sample(
         "t#bar{t}b#bar{b}",
@@ -672,9 +676,28 @@ std::vector<TString> SampleDefinitions::selectAndOrderSamples8TeV()
 }
 
 
+std::vector<TString> SampleDefinitions::legendList(const std::map<TString, Sample>& samples, const std::vector<TString>& sampleIdentifiers)
+{
+    std::vector<TString> v_legend;
+    
+    for(TString sampleIdentifier : sampleIdentifiers) {
+        TString legend = samples.at(sampleIdentifier).legendEntry();
+        if(std::find(v_legend.begin(), v_legend.end(), legend) != v_legend.end()) continue;
+        v_legend.push_back(legend);
+    }
+    
+    return v_legend;
+}
 
 
-
-
+bool SampleDefinitions::usingPseudodata(const std::map<TString, Sample>& samples, const std::vector<TString>& sampleIdentifiers)
+{
+    for(auto nameSamplePair : samples) {
+        if(nameSamplePair.second.sampleType() != Sample::pseudodata) continue;
+        if(std::find(sampleIdentifiers.begin(), sampleIdentifiers.end(), nameSamplePair.first) != sampleIdentifiers.end()) return true;
+    }
+    
+    return false;
+}
 
 
