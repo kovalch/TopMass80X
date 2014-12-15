@@ -102,7 +102,8 @@ void EventYields::writeYields(const char* outputDirectory,
                 }
                 else if(i_numhist->first.legendEntry() != iterator->first.legendEntry()){
                     eventFile<<i_numhist->first.legendEntry()<<": "<<tmp_num<<"     +- "<<tmp_err<<" ("<<tmp_err/tmp_num*100.<<"%)"<<std::endl;
-                    if(i_numhist->first.sampleType() != Sample::data){
+                    Sample::SampleType sampleType = i_numhist->first.sampleType();
+                    if(sampleType != Sample::data && sampleType != Sample::pseudodata){
                         bg_num += tmp_num;
                         bg_err += tmp_err;
                     }
