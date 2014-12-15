@@ -2,6 +2,7 @@
 #include <fstream>
 #include <cstdlib>
 #include <vector>
+#include <set>
 #include <string>
 
 #include <TString.h>
@@ -473,46 +474,60 @@ void load_Analysis(const TString& validFilenamePattern,
             }
             else if(isTopSignal && !isHiggsSignal && !isTtbarV){ // For splitting of ttbar in production modes associated with heavy flavours
                 //selector->SetRunViaTau(0); // This could be used for splitting of dileptonic ttbar in component with intermediate taus and without
-                if(part==0 || part==-1){ // output is ttbar+other
+                // Defining the base of the ttbar sample names
+                TString ttbarNameBase(outputfilename);
+                ttbarNameBase.Remove(ttbarNameBase.Index("signal"), 1000).Append("Dilepton");
+
+                const std::set<int> allowedPartIds({0, 101, 201, 102, 202, 103, 203, 4, -1});
+                if(part==0 || part==-1){ // output is ttbar+other: both leptons from W->e/mu or W->tau->e/mu
                     selector->SetAdditionalBjetMode(0);
-                    TString modifiedOutputfilename(outputfilename);
-                    modifiedOutputfilename.ReplaceAll("signalplustau", "signalPlusOther");
-                    selector->SetOutputfilename(modifiedOutputfilename);
+                    selector->SetOutputfilename(ttbarNameBase+"PlustauOther.root");
                     selector->SetSampleForBtagEfficiencies(true);
                     chain.Process(selector, "", maxEvents, skipEvents);
                     selector->SetSampleForBtagEfficiencies(false);
                 }
-                if(part==1 || part==-1){ // output is ttbar+b
-                    selector->SetAdditionalBjetMode(1);
-                    TString modifiedOutputfilename(outputfilename);
-                    modifiedOutputfilename.ReplaceAll("signalplustau", "signalPlusB");
-                    selector->SetOutputfilename(modifiedOutputfilename);
+                if(part==101 || part==-1){ // output is ttbar+b: both leptons from W->e/mu
+                    selector->SetAdditionalBjetMode(101);
+                    selector->SetOutputfilename(ttbarNameBase+"NotauB.root");
                     chain.Process(selector, "", maxEvents, skipEvents);
                 }
-                if(part==2 || part==-1){ // output is ttbar+b with >=2 b-hadrons in a single jet
-                    selector->SetAdditionalBjetMode(2);
-                    TString modifiedOutputfilename(outputfilename);
-                    modifiedOutputfilename.ReplaceAll("signalplustau", "signalPlus2B");
-                    selector->SetOutputfilename(modifiedOutputfilename);
+                if(part==201 || part==-1){ // output is ttbar+b: 1+ lepton from W->tau->e/mu
+                    selector->SetAdditionalBjetMode(201);
+                    selector->SetOutputfilename(ttbarNameBase+"OnlytauB.root");
                     chain.Process(selector, "", maxEvents, skipEvents);
                 }
-                if(part==3 || part==-1){ // output is ttbar+bbbar
-                    selector->SetAdditionalBjetMode(3);
-                    TString modifiedOutputfilename(outputfilename);
-                    modifiedOutputfilename.ReplaceAll("signalplustau", "signalPlusBbbar");
-                    selector->SetOutputfilename(modifiedOutputfilename);
+                if(part==102 || part==-1){ // output is ttbar+b with 2+ b-hadrons/jet: both leptons from W->e/mu
+                    selector->SetAdditionalBjetMode(102);
+                    selector->SetOutputfilename(ttbarNameBase+"Notau2b.root");
                     chain.Process(selector, "", maxEvents, skipEvents);
                 }
-                if(part==4 || part==-1){ // output is ttbar+ccbar
+                if(part==202 || part==-1){ // output is ttbar+b with 2+ b-hadrons/jet: 1+ lepton from W->tau->e/mu
+                    selector->SetAdditionalBjetMode(202);
+                    selector->SetOutputfilename(ttbarNameBase+"Onlytau2b.root");
+                    chain.Process(selector, "", maxEvents, skipEvents);
+                }
+                if(part==103 || part==-1){ // output is ttbar+bbbar: both leptons from W->e/mu
+                    selector->SetAdditionalBjetMode(103);
+                    selector->SetOutputfilename(ttbarNameBase+"NotauBbbar.root");
+                    chain.Process(selector, "", maxEvents, skipEvents);
+                }
+                if(part==203 || part==-1){ // output is ttbar+bbbar: 1+ lepton from W->tau->e/mu
+                    selector->SetAdditionalBjetMode(203);
+                    selector->SetOutputfilename(ttbarNameBase+"OnlytauBbbar.root");
+                    chain.Process(selector, "", maxEvents, skipEvents);
+                }
+                if(part==4 || part==-1){ // output is ttbar+ccbar: both leptons from W->e/mu or W->tau->e/mu
                     selector->SetAdditionalBjetMode(4);
-                    TString modifiedOutputfilename(outputfilename);
-                    modifiedOutputfilename.ReplaceAll("signalplustau", "signalPlusCcbar");
-                    selector->SetOutputfilename(modifiedOutputfilename);
+                    selector->SetOutputfilename(ttbarNameBase+"PlustauCcbar.root");
                     chain.Process(selector, "", maxEvents, skipEvents);
                 }
-                if(part >= 5){
+                if(allowedPartIds.count(part) < 1){
                     std::cerr<<"ERROR in load_Analysis! Specified part for ttbar+HF separation is not allowed (sample, part): "
                              <<outputfilename<<" , "<<part<<"\n...break\n"<<std::endl;
+                    std::cerr << "Allowed parts: ";
+                    for(int partId : allowedPartIds) std::cerr << " " << partId;
+                    std::cerr << std::endl;
+                    
                     exit(647);
                 }
                 // Reset the selection
@@ -582,7 +597,7 @@ int main(int argc, char** argv)
 {
     CLParameter<std::string> opt_filenamePattern("f", "Restrict to filename pattern, e.g. ttbar", false, 1, 1);
     CLParameter<int> opt_partToRun("p", "Specify a part to be run for samples which are split in subsamples (via ID). Default is no splitting", false, 1, 1,
-            [](int part){return part>=0 && part<5;});
+            [](int part){return part%100>=0 && part%100<5;});
     CLParameter<std::string> opt_channel("c", "Specify a certain channel (ee, emu, mumu). No channel specified = run on all channels", false, 1, 1,
             common::makeStringCheck(Channel::convert(Channel::allowedChannelsAnalysis)));
     CLParameter<std::string> opt_systematic("s", "Run with a systematic that runs on the nominal ntuples, e.g. 'PU_UP'", false, 1, 1,

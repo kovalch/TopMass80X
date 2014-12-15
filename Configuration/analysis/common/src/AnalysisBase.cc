@@ -1343,6 +1343,13 @@ void AnalysisBase::mvaMet()
     mvaMet_ = true;
 }
 
+int AnalysisBase::topDecayMode(const Long64_t& entry)const
+{
+    this->GetTopDecayModeEntry(entry);
+    
+    return topDecayMode_;
+}
+
 
 
 

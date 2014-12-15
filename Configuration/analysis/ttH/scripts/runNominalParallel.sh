@@ -15,11 +15,16 @@ source $(dirname `readlink -f $0`)/parallelTools.sh
 for channel in ee emu mumu; do
     w
     $LA -f ttbarsignalplustau.root -p 0 -c $channel $@ &
-    $LA -f ttbarsignalplustau.root -p 1 -c $channel $@ &
-    $LA -f ttbarsignalplustau.root -p 2 -c $channel $@ &
+    $LA -f ttbarsignalplustau.root -p 101 -c $channel $@ &
+    $LA -f ttbarsignalplustau.root -p 201 -c $channel $@ &
     w
-    $LA -f ttbarsignalplustau.root -p 3 -c $channel $@ &
+    $LA -f ttbarsignalplustau.root -p 102 -c $channel $@ &
+    $LA -f ttbarsignalplustau.root -p 202 -c $channel $@ &
+    w
+    $LA -f ttbarsignalplustau.root -p 103 -c $channel $@ &
+    $LA -f ttbarsignalplustau.root -p 203 -c $channel $@ &
     $LA -f ttbarsignalplustau.root -p 4 -c $channel $@ &
+    w
     $LA -f ttbarH125tobbbar -c $channel $@ &
     $LA -f ttbarH125incl -p 0 -c $channel $@ &
 done

@@ -766,21 +766,41 @@ bool HiggsAnalysis::failsHiggsGeneratorSelection(const int higgsDecayMode)const
 
 bool HiggsAnalysis::failsAdditionalJetFlavourSelection(const Long64_t& entry)const
 {
-    if(additionalBjetMode_ == -999) return false;
+    int additionalBjetMode(additionalBjetMode_);
+    if(additionalBjetMode == -999) return false;
     
     // Use the full ttbar sample for creating btag efficiencies
     if(this->makeBtagEfficiencies()) return false;
+    
+    //decayMode contains the decay of the top (*10) + the decay of the antitop
+    //1=hadron, 2=e, 3=mu, 4=tau->hadron, 5=tau->e, 6=tau->mu
+    //i.e. 23 == top decays to e, tbar decays to mu
+    const int topDecayMode = this->topDecayMode(entry);
+    // Extracting part telling how tau decays should be treated
+    const int viaTauMode = additionalBjetMode/100;
+    if(viaTauMode == 0) {
+        // any dileptonic final state allowed
+    } else if(viaTauMode == 1) {
+        // both leptons from W->e/mu
+        if(topDecayMode/10 < 4 && topDecayMode%10 < 4) return true;
+    } else if(viaTauMode == 2) {
+        // at least 1 lepton from W->tau->e/mu
+        if(topDecayMode/10 > 4 || topDecayMode%10 > 4) return true;
+    }
+    
+    // Leaving only part telling which additional jets should be present
+    additionalBjetMode %= 100;
     
     const TopGenObjects& topGenObjects = this->getTopGenObjects(entry);
     
     int jetAddId = topGenObjects.genExtraTopJetNumberId_%100;
     
     // Can be used starting from N005 ntuples
-    if(additionalBjetMode_==4 && (jetAddId>20 && jetAddId<30)) return false;  // tt+c (tt+cc)
-    if(additionalBjetMode_==3 && (jetAddId==3 || jetAddId==4)) return false;  // tt+bb
-    if(additionalBjetMode_==2 && jetAddId==2) return false;  // tt+2b
-    if(additionalBjetMode_==1 && jetAddId==1) return false;  // tt+b
-    if(additionalBjetMode_==0 && (jetAddId==0 || (jetAddId>4 && jetAddId<20) ||  jetAddId>30 ) ) return false;     // tt+other
+    if(additionalBjetMode==4 && (jetAddId>20 && jetAddId<30)) return false;  // tt+c (tt+cc)
+    if(additionalBjetMode==3 && (jetAddId==3 || jetAddId==4)) return false;  // tt+bb
+    if(additionalBjetMode==2 && jetAddId==2) return false;  // tt+2b
+    if(additionalBjetMode==1 && jetAddId==1) return false;  // tt+b
+    if(additionalBjetMode==0 && (jetAddId==0 || (jetAddId>4 && jetAddId<20) ||  jetAddId>30 ) ) return false;     // tt+other
     
     return true;
     
