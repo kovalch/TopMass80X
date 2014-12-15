@@ -30,9 +30,6 @@ constexpr double TopMASS = 172.5;
 
 
 
-// FIXME: This should not be declared in whole file, if at all only in individual functions
-// FIXME: Removal needs to be done with care, since esp. "abs" needs the std::abs for working properly
-using namespace std;
 
 
 
@@ -705,7 +702,7 @@ Struct_KinematicReconstruction KinematicReconstruction::getSol()const
 
 
 
-vector< Struct_KinematicReconstruction > KinematicReconstruction::getSols() const
+std::vector< Struct_KinematicReconstruction > KinematicReconstruction::getSols() const
 {
     return sols_;
 }
@@ -883,10 +880,10 @@ void KinematicReconstruction::kinRecoMassLoop(const LV& leptonMinus, const LV& l
         jets_tlv.push_back(common::LVtoTLV(jet));
     }
 
-    vector<int> b1_id;
-    vector<int> b2_id;
-    vector<double> btag_ww;
-    vector<int> nb_tag;
+    std::vector<int> b1_id;
+    std::vector<int> b2_id;
+    std::vector<double> btag_ww;
+    std::vector<int> nb_tag;
 
     for(int i=0; i<(int)btags->size(); ++i) {
         for(int j=0; j<(int)btags->size(); ++j) {
