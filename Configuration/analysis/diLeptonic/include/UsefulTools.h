@@ -32,7 +32,8 @@ public:
     void DYScaleFactor(TString SpetialComment,std::vector<double>& DYScale,TString name);
     
     // Draw official labels (CMS Preliminary, luminosity and CM energy) above plot
-    void DrawCMSLabels(int cmsprelim, double energy =8 , double textSize = 0.04);
+    static void DrawDecayChLabel(TString decaychannel="", double textSize=0.04);
+    static void DrawCMSLabels(double lumi,int cmsprelim, double energy =8 , double textSize = 0.04);
     void setStyle(TH1 *hist, TString Axis);
     
    static void fillSetListOfSystematics(std::set<TString>& SetOfValidSystematics);

@@ -49,7 +49,8 @@ ENDIF(NOT CMAKE_BUILD_TYPE)
 FIND_PACKAGE( ROOT REQUIRED )
 ## The next line gave a strange runtime error due to std::future. So it is replaced by the following one, and changes are made to the FindROOT.cmake
 #SET( ROOT_EXTRA_LIBS -lGenVector -lHistPainter)
-SET( ROOT_LIBRARIES ${ROOT_LIBRARIES} -lGenVector -lHistPainter )
+#SET( ROOT_LIBRARIES ${ROOT_LIBRARIES} -lGenVector -lHistPainter -lXMLParser -lunfold)
+SET( ROOT_LIBRARIES ${ROOT_LIBRARIES} -lGenVector -lHistPainter -lXMLParser)
 
 FIND_PACKAGE( ZTopUtils REQUIRED )
 # now you can use ${ZTopUtils_INCLUDE_DIRS} and ${ZTopUtils_LIBRARIES}
