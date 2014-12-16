@@ -782,10 +782,10 @@ bool HiggsAnalysis::failsAdditionalJetFlavourSelection(const Long64_t& entry)con
         // any dileptonic final state allowed
     } else if(viaTauMode == 1) {
         // both leptons from W->e/mu
-        if(topDecayMode/10 < 4 && topDecayMode%10 < 4) return true;
+        if(!(topDecayMode/10 < 4 && topDecayMode%10 < 4)) return true;
     } else if(viaTauMode == 2) {
         // at least 1 lepton from W->tau->e/mu
-        if(topDecayMode/10 > 4 || topDecayMode%10 > 4) return true;
+        if(!(topDecayMode/10 > 4 || topDecayMode%10 > 4)) return true;
     }
     
     // Leaving only part telling which additional jets should be present
