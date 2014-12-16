@@ -633,16 +633,28 @@ process.ak4GenJetFlavourPlusLeptonInfos = ak4JetFlavourInfos.clone(
 ####################################################################
 ## Separation of ttbar samples in dileptonic and other decays
 
+pythia8Sample = False
+if options.inputScript.find("_pythia8_") == -1:
+    pass
+else:
+    pythia8Sample = True
+
+
 if topfilter:
     process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
     process.initSubset.src = genParticleCollection
     process.decaySubset.src = genParticleCollection
-    process.decaySubset.fillMode = "kME" # Status3, use kStable for Status2
-    process.load("TopAnalysis.TopFilter.filters.GeneratorTopFilter_cfi")
+    if not pythia8Sample:
+        process.load("TopAnalysis.TopFilter.filters.GeneratorTopFilter_cfi")
+        process.decaySubset.fillMode = "kME"
+    else:
+        process.load("TopAnalysis.TopFilter.filters.GeneratorTopFilter_Pythia8_cfi")
+        process.generatorTopFilter.src = genParticleCollection
+        process.decaySubset.fillMode = "kStable" # Top before Decay, after Radiation
     process.generatorTopFilter.rejectNonBottomDecaysOfTops = False
-    # FIXME: ttGenEvent is not working in several samples, so not possible to filter dileptonic ttbar decays...
-    # FIXME: As workaround, the " or topSignal" is placed here, switching off the filtering
-    if higgsSignal or ttbarZ or topSignal:
+    # FIXME: ttGenEvent is now fixed, but the fix has to be downloaded seperately
+    # FIXME: The switch for pythia 8 is important because of status codes
+    if higgsSignal or ttbarZ :
         process.generatorTopFilter.invert_selection = True
         process.generatorTopFilter.channels = ["none"] # Empty array would use some defaults
     else:
