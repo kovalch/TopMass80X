@@ -1,0 +1,20 @@
+
+
+cpnbins 40 350 2000
+title M(t#bar{t})
+units [GeV]
+
+1d
+coarse 0 65 125 200 290 400
+uoTrue 0 1
+fine 0 30 65 95 125 160 200 245 290 355 400 500
+uoReco 0 1
+1d
+
+2d
+uoTrue 0 0
+coarse 340 450 700 1000
+
+uoReco 0 1
+fine 340 380 420 450 500 600 700 760 860 1000 1200
+2d
