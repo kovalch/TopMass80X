@@ -2682,6 +2682,7 @@ void AnalyzerDijet::fillLeadingJetsHistosVsGen(const std::string& name,
         reco_Mjj = dijet.M();
     }
 
+
     m_histogram["leadingJet_1st_Pt_"+name]->Fill(reco_Pt1, weight);
     m_histogram["leadingJet_1st_Eta_"+name]->Fill(reco_Eta1, weight);
     m_histogram["leadingJet_2nd_Pt_"+name]->Fill(reco_Pt2, weight);
@@ -2717,40 +2718,14 @@ void AnalyzerDijet::fillLeadingJetsHistosVsGen(const std::string& name,
         LV dijet = *genJet_1 + *genJet_2;
         gen_Mjj = dijet.M();
     }
-    
-//     if(name=="addB_gen" && m_histogram["leadingJet_2nd_Pt_"+name]->GetBinContent(0) > 0.) {
-//         printf("reco:  N jets: %d   Pt1: %.3f   Pt2: %.3f\n", (int)jetsId.size(), reco_Pt1, reco_Pt2);
-//         printf("gen:  N jets: %d   Pt1: %.3f   Pt2: %.3f\n", (int)genJetsId.size(), gen_Pt1, gen_Pt2);
-//     }
-    
 
-//     if(name=="addB_kinReco") {
-//             if(reco_dR > 2.5 && reco_dR < 3. && gen_dR < 1. && gen_dR > 0.)
-//             {
-//                 const int nTopJets_gen = topJetsId_gen.size();
-//                 std::cout << "              " << name << std::endl;
-//                 std::cout << "  Event: " << eventMetadata.eventNumber_ << " Lumi: " << eventMetadata.lumiBlock_ << " weight: " << weight << std::endl;
-//                 std::cout << "  reco_dR: " << reco_dR << " gen_dR: " << gen_dR << std::endl;
-//                 std::cout << "  nJetsAdd_reco: " << jetsId.size() << " nJetsAdd_gen: " << genJetsId.size() << " nJetsTop_reco: " << nTopJets_reco << " nJetsTop_gen: " << nTopJets_gen << std::endl;
-//                 std::cout << std::endl;
-//                 std::cout << "Top jets: GEN" << std::endl;
-//                 for(int jetId : topJetsId_gen) printf("%d. Pt: %.2f  Eta: %.2f\n", jetId, allGenJets.at(jetId).Pt(), allGenJets.at(jetId).Eta());
-//                 std::cout << "Top jets: RECO" << std::endl;
-//                 for(int jetId : topJetsId_reco) printf("%d. Pt: %.2f  Eta: %.2f\n", jetId, allJets.at(jetId).Pt(), allJets.at(jetId).Eta());
-//                 std::cout << std::endl;
-//                 std::cout << "Add jets: GEN" << std::endl;
-//                 for(int jetId : genJetsId) printf("%d. Pt: %.2f  Eta: %.2f\n", jetId, allGenJets.at(jetId).Pt(), allGenJets.at(jetId).Eta());
-//                 std::cout << "Add jets: RECO" << std::endl;
-//                 for(int jetId : jetsId) printf("%d. Pt: %.2f  Eta: %.2f\n", jetId, allJets.at(jetId).Pt(), allJets.at(jetId).Eta());
-//                 std::cout << std::endl;
-//                 std::cout << "All jets: RECO" << std::endl;
-//                 std::vector<int> jetsIndices = common::initialiseIndices(allJets);
-//                 for(int jetId : jetsIndices) printf("%d. Pt: %.2f  Eta: %.2f  bTag: %.2f\n", jetId, allJets.at(jetId).Pt(), allJets.at(jetId).Eta(), recoObjects.jetBTagCSV_->at(jetId));
-// 
-//                 std::cout << std::endl;
-//                 std::cout << std::endl;
-//             }
-//     }
+    // Cleaning up
+    delete jet_1;
+    delete jet_2;
+    delete genJet_1;
+    delete genJet_2;
+    
+    // Filling histograms with determined values
     histoName = "leadingJet_dR_"+name+"VsGen";
     if(m_histogram[histoName]) ((TH2*)m_histogram[histoName])->Fill(reco_dR, gen_dR, weight);
     histoName = "leadingJet_dPhi_"+name+"VsGen";
