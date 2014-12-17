@@ -34,10 +34,16 @@ for systematic in "${systematics[@]}" ; do
     for channel in ee emu mumu; do
         w
         $LA -f ttbarsignalplustau.root -p 0 -c $channel -s $systematic $@ &
-        $LA -f ttbarsignalplustau.root -p 1 -c $channel -s $systematic $@ &
-        $LA -f ttbarsignalplustau.root -p 2 -c $channel -s $systematic $@ &
-        $LA -f ttbarsignalplustau.root -p 3 -c $channel -s $systematic $@ &
+        $LA -f ttbarsignalplustau.root -p 101 -c $channel -s $systematic $@ &
+        $LA -f ttbarsignalplustau.root -p 201 -c $channel -s $systematic $@ &
+        w
+        $LA -f ttbarsignalplustau.root -p 102 -c $channel -s $systematic $@ &
+        $LA -f ttbarsignalplustau.root -p 202 -c $channel -s $systematic $@ &
+        w
+        $LA -f ttbarsignalplustau.root -p 103 -c $channel -s $systematic $@ &
+        $LA -f ttbarsignalplustau.root -p 203 -c $channel -s $systematic $@ &
         $LA -f ttbarsignalplustau.root -p 4 -c $channel -s $systematic $@ &
+        w
         $LA -f ttbarH125tobbbar -c $channel -s $systematic $@ &
         $LA -f ttbarH125incl -p 0 -c $channel -s $systematic $@ &
     done

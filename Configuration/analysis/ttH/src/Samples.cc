@@ -52,7 +52,8 @@ void Samples::setGlobalWeights(const GlobalScaleFactors* globalScaleFactors)
 
 std::vector<std::pair<TString, Sample> > Samples::setSamples(const std::vector<TString>& v_filename,
                                                              const std::map<TString, Sample>& m_samples,
-                                                             const std::vector<TString>& v_sampleIdentifier)const
+                                                             const std::vector<TString>& v_sampleIdentifier,
+                                                             const bool hasPseudodata)const
 {
     std::vector<std::pair<TString, Sample> > result;
     
@@ -70,6 +71,7 @@ std::vector<std::pair<TString, Sample> > Samples::setSamples(const std::vector<T
         for(size_t iFile = 0; iFile < v_filename.size(); ++iFile){
             const TString& filename = v_filename.at(iFile);
             
+            // Adding the filename if it suits the current sample
             if(sample.checkFilename(filename)){
                 // Check that no file is associated to two different samples
                 if(std::find(v_selectedFileIndex.begin(), v_selectedFileIndex.end(), iFile) != v_selectedFileIndex.end()){
@@ -80,11 +82,35 @@ std::vector<std::pair<TString, Sample> > Samples::setSamples(const std::vector<T
                 v_selectedFileIndex.push_back(iFile);
                 
                 result.push_back(std::make_pair(filename, sample));
+            } else continue;
+            
+            // Adding the file to pseudodata sample if it exists
+            if(hasPseudodata) {
+                bool hasSampleInPseudodata = false;
+                Sample samplePseudodata_reference;
+                // Checking whether this file is already included in any of modified pseudodata files
+                for(auto nameSamplePair : m_samples) {
+                    Sample& theSample = nameSamplePair.second;
+                    if(theSample.sampleType() != Sample::pseudodata) continue;
+                    else samplePseudodata_reference = theSample;
+                    if(theSample.containsFilenamesOfSample(sample, true)) {
+                        hasSampleInPseudodata = true;
+                        break;
+                    }
+                }
+                if(!hasSampleInPseudodata) {
+                    // Making a copy of the sample with visual properties and type of the pseudodata sample
+                    Sample samplePseudodata(sample);
+                    samplePseudodata.setSampleType(samplePseudodata_reference.sampleType());
+                    samplePseudodata.setLegendEntry(samplePseudodata_reference.legendEntry());
+                    samplePseudodata.setColor(samplePseudodata_reference.color());
+                    result.push_back(std::make_pair(filename, samplePseudodata));
+                }
             }
         }
     }
     
-    if(result.size() != v_filename.size()){
+    if(result.size() < v_filename.size()){
         std::cout<<"WARNING: Not all samples of input file list will be used (# input, # usage): "
                  <<v_filename.size()<<" , "<<result.size()<<"\n";
     }
@@ -101,6 +127,7 @@ void Samples::addSamples(const TString& filelistDirectory,
     // Full input filenames from the systematic and the nominal FileList
     std::vector<std::pair<TString, Sample> > v_filenameSamplePair;
     std::vector<std::pair<TString, Sample> > v_filenameSamplePairNominal;
+    const bool hasPseudodata = SampleDefinitions::usingPseudodata(SampleDefinitions::samples8TeV(), SampleDefinitions::selectAndOrderSamples8TeV());
     
     // Add all samples as they are defined for given systematic (except of systematics which only scale nominal samples)
     if(systematic.type() != Systematic::lumi && 
@@ -109,29 +136,23 @@ void Samples::addSamples(const TString& filelistDirectory,
     ) {
         const auto& v_filename = common::readFilelist(filelistDirectory, channel, systematic);
         v_filenameSamplePair =
-            this->setSamples(v_filename, SampleDefinitions::samples8TeV(), SampleDefinitions::selectAndOrderSamples8TeV());
+            this->setSamples(v_filename, SampleDefinitions::samples8TeV(), SampleDefinitions::selectAndOrderSamples8TeV(), hasPseudodata);
     }
     
     // Add nominal samples for those not varied (i.e. not found in systematic FileList)
     if(systematic.type() != Systematic::nominal){
         const auto& v_filenameNominal = common::readFilelist(filelistDirectory, channel, Systematic::nominalSystematic());
         v_filenameSamplePairNominal =
-            this->setSamples(v_filenameNominal, SampleDefinitions::samples8TeV(), SampleDefinitions::selectAndOrderSamples8TeV());
+            this->setSamples(v_filenameNominal, SampleDefinitions::samples8TeV(), SampleDefinitions::selectAndOrderSamples8TeV(), hasPseudodata);
     }
     
     // Set sample options via filename
     std::vector<Sample> v_sample(this->setSampleOptions(systematic, v_filenameSamplePair, v_filenameSamplePairNominal));
     
     // If nominal samples will be merged: reordering samples based on legends
-    if(v_filenameSamplePairNominal.size()>0) {
-        // Building a list of legends in a proper order
-        std::vector<TString> v_legend;
-        for(auto filenameSample : v_filenameSamplePairNominal) {
-            TString legend = filenameSample.second.legendEntry();
-            if(std::find(v_legend.begin(), v_legend.end(), legend) != v_legend.end()) continue;
-            v_legend.push_back(legend);
-        }
-        
+    if(v_filenameSamplePairNominal.size()>0 || hasPseudodata) {
+        // Getting a list of legends in a proper order
+        std::vector<TString> v_legend = SampleDefinitions::legendList(SampleDefinitions::samples8TeV(), SampleDefinitions::selectAndOrderSamples8TeV());
         // Order files by legendEntry
         this->orderByLegend(v_sample, v_legend);
     }

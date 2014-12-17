@@ -197,6 +197,9 @@ protected:
     /// Set usage of MVA MET instead of PF MET
     void mvaMet();
     
+    /// Decay mode of the ttbar system
+    int topDecayMode(const Long64_t& entry)const;
+    
     
     
 // ----------------------- Protected methods for genJet selection, gen b/c jet identification and gen-reco jet matching -----------------------

@@ -61,7 +61,7 @@ scaleFactorsUsable_(true)
     templateNames_.push_back("ttOther");
     templateNames_.push_back("bkg");
 
-    // Setting variation limit of for each template
+    // Setting variation limit for each template
     templateScaleLimits_.push_back(1.);	  // Doesn't mean anything
     templateScaleLimits_.push_back(100.);
 //     templateScaleLimits_.push_back(100.);
@@ -87,6 +87,7 @@ scaleFactorsUsable_(true)
     templateSystematics_.at("tthf").push_back(Systematic::btagDiscrPurity);
     templateSystematics_.at("tthf").push_back(Systematic::btagDiscrBstat1);
     templateSystematics_.at("tthf").push_back(Systematic::btagDiscrBstat2);
+    templateSystematics_.at("tthf").push_back(Systematic::xsec_tt2b);
     
     templateSystematics_["ttOther"] = std::vector<Systematic::Type>(0);
     templateSystematics_.at("ttOther").push_back(Systematic::jes);
@@ -95,6 +96,7 @@ scaleFactorsUsable_(true)
     templateSystematics_.at("ttOther").push_back(Systematic::btagDiscrBstat2);
     templateSystematics_.at("ttOther").push_back(Systematic::btagDiscrLstat1);
     templateSystematics_.at("ttOther").push_back(Systematic::btagDiscrLstat2);
+    templateSystematics_.at("ttOther").push_back(Systematic::xsec_ttcc);
     
     // FIXME: Check that there are no gaps in the list of ids
     
@@ -634,17 +636,11 @@ void HfFracScaleFactors::plotInputTemplates(const TString rootFileName)const
     std::map<TString, TH1*> m_nameHisto;
     std::map<TString, TGraphAsymmErrors*> m_nameGraph_stat;
     std::map<TString, TGraphAsymmErrors*> m_nameGraph_statSyst;
-    THStack* stack = new THStack("def", "def");
-    TH1* stacksum(0);
     
     TFile* rootFile = new TFile(rootFileName, "READONLY");
     // Getting all objects from the ROOT file
     TList* list = rootFile->GetListOfKeys();
-//     TKey* key;
-//     TIter nextKey(rootFile->GetListOfKeys());
-//     int histoId = 0;
     for(int keyId = 0; keyId < list->GetEntries(); ++keyId) {
-//     while(key = (TKey*)nextKey()) {
         TKey* key = (TKey*)list->At(keyId);
         TString name(key->GetName());
         // Skipping histogram for binwise statistical variations (statistical errors taken direclty from histograms)
@@ -652,14 +648,6 @@ void HfFracScaleFactors::plotInputTemplates(const TString rootFileName)const
         if(name.Contains("dummy")) continue;
         TH1* histo = (TH1*)key->ReadObj();
         m_nameHisto[name] = histo;
-        if(name==templateNames_.at(0)) {
-        } else if(std::find(templateNames_.begin(), templateNames_.end(), name) != templateNames_.end()) {
-            stack->Add(histo);
-            if(stacksum) stacksum->Add(histo);
-            else stacksum = (TH1*)histo->Clone("stacksum");
-        }
-        
-//         histoId++;
     }
     
     float yMin = 1e10;
@@ -762,6 +750,5 @@ void HfFracScaleFactors::plotInputTemplates(const TString rootFileName)const
     canvas->Clear();
     
     delete canvas;
-    delete stack;
     
 }

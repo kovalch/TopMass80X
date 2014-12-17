@@ -71,7 +71,8 @@ private:
     /// Set samples to be used at 8 TeV, and order them in the given order
     std::vector<std::pair<TString, Sample> > setSamples(const std::vector<TString>& v_filename,
                                                         const std::map<TString, Sample>& m_samples,
-                                                        const std::vector<TString>& v_sampleIdentifier)const;
+                                                        const std::vector<TString>& v_sampleIdentifier,
+                                                        const bool hasPseudodata=false)const;
     
     
     
@@ -91,7 +92,7 @@ private:
     SystematicChannelSamples m_systematicChannelSample_;
     
     /// Pointer to the global scale factors
-    const GlobalScaleFactors* globalScaleFactors_;
+    const GlobalScaleFactors* globalScaleFactors_;    
 };
 
 

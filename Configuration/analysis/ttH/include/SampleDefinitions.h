@@ -22,6 +22,12 @@ namespace SampleDefinitions{
     
     /// Select which samples for 8 TeV to use and in which order they should appear
     std::vector<TString> selectAndOrderSamples8TeV();
+    
+    /// Vector of legend names (used to properly order samples)
+    std::vector<TString> legendList(const std::map<TString, Sample>& samples, const std::vector<TString>& sampleIdentifiers);
+    
+    /// Whether pseudodata is used in the sample definitions
+    bool usingPseudodata(const std::map<TString, Sample>& samples, const std::vector<TString>& sampleIdentifiers);
 }
 
 

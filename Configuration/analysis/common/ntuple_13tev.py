@@ -664,7 +664,12 @@ if higgsSignal:
     process.load("TopAnalysis.HiggsUtils.sequences.higgsGenEvent_cff")
     process.decaySubsetHiggs.src = genParticleCollection
     process.decaySubsetHiggs.fillMode = "kME" # Status3, use kStable for Status2
-    process.load("TopAnalysis.HiggsUtils.filters.GeneratorHiggsFilter_cfi")
+    ## FIXME: Workaround for Pythia8, 
+    if not pythia8Sample:
+        process.load("TopAnalysis.HiggsUtils.filters.GeneratorHiggsFilter_cfi")
+    else:
+        process.load("TopAnalysis.HiggsUtils.filters.GeneratorHiggsFilter_Pythia8_cfi")
+        process.generatorHiggsFilter.src = genParticleCollection 
     process.generatorHiggsFilter.channels = ["none"]
     process.generatorHiggsFilter.invert_selection = True
     process.higgsGenSequence = cms.Sequence(process.generatorHiggsFilter)

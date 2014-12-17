@@ -217,7 +217,6 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     // And sort them into the categories data, Higgs, other
     LegendHistPair dataHist;
     Sample dataSample;
-    bool isPseudodata = false;
     
     std::vector<LegendHistPair> higgsHists;
     std::vector<LegendHistPair> stackHists;
@@ -229,11 +228,6 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
         const Sample::SampleType& sampleType(sample.sampleType());
         const TString& legendEntry(sample.legendEntry());
         const TH1* hist = i_sampleHistPair->second;
-        // Detecting whether pseudodata is used instead of data
-        if(sampleType == Sample::pseudodata) {
-            dataSample = sample;
-            isPseudodata = true;
-        }
         
         std::vector<SampleHistPair>::iterator incrementIterator(i_sampleHistPair);
         ++incrementIterator;
@@ -250,13 +244,6 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
             else stackHists.push_back(LegendHistPair(legendEntry, tmpHist));
             if(sampleType == Sample::ttHbb) ttHbbHist = tmpHist;
             else if(sampleType == Sample::ttbb) ttbbHist = tmpHist;
-            // Adding MC to data if pseudodata should be used
-            if(isPseudodata && dataHist.second && sampleType != Sample::pseudodata) {
-                // Adding only if this file or its reweighted version is not defined already for pseudodata
-                if(!dataSample.containsFilenamesOfSample(sample, true)) {
-                    dataHist.second->Add(tmpHist);
-                }
-            }
             tmpHist = 0;
         }
         else{
@@ -308,7 +295,7 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
         int bin1 = dataHist.second->FindBin(100.5);
         int bin2 = dataHist.second->FindBin(139.5);
         while(bin1 <= bin2) {
-            dataHist.second->SetBinContent(bin1, -1e10);
+            dataHist.second->SetBinContent(bin1, 1e-10);
             dataHist.second->SetBinError(bin1, 0);
             bin1++;
         }
@@ -426,6 +413,17 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     for(const auto& higgsHist : higgsHists){
         higgsHist.second->Draw("same");
     }
+    
+    // Updating the histo axis
+    TH1* axisHisto = common::updatePadYAxisRange(canvas, 0.35);
+    
+    // Applying the configured Y axis range
+    if(ymax_ != 0.) axisHisto->SetMaximum(ymax_);
+    if(ymin_ != 0.) axisHisto->SetMinimum(ymin_);
+    axisHisto->GetXaxis()->SetNoExponent(kTRUE);
+
+    // Redrawing the axis
+    canvas->RedrawAxis();
     
     // Put additional stuff to histogram
     this->drawCmsLabels(2, 8);

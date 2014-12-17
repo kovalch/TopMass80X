@@ -21,6 +21,15 @@ foreach channel (ee emu mumu)
             ln -s ../../Nominal/$channel/*.root .
             cd $BASEDIR
         fi
+	if [ -d ddaInput/$syst/$channel ] ; then
+            cd ddaInput/$syst/$channel/
+            echo
+            echo "Creating Links in ... "
+            pwd
+            echo 
+            ln -s ../../Nominal/$channel/*.root .
+            cd $BASEDIR
+        fi
    end
 
 end

@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-class TString;
+#include <TString.h>
 
 
 
@@ -314,6 +314,7 @@ namespace common{
     
     /// Create and assign an output folder depending on the channel and systematic
     TString assignFolder(const char* baseDir, const Channel::Channel& channel, const Systematic::Systematic& systematic);
+    TString assignFolder(const char* baseDir, const Channel::Channel& channel, const Systematic::Systematic& systematic, const char* plotName);
     
     /// Access an already existing input folder
     TString accessFolder(const char* baseDir, const Channel::Channel& channel,

@@ -21,10 +21,17 @@ for systematic in "${systematics[@]}"; do
     printf "\n\n\n\033[1;1mStart running on systematic: ${systematic}\033[1;m\n\n\n"
     
     for channel in ee emu mumu; do
-        for part in $(seq 0 4); do
-            w
-            $LA -f ttbarsignalplustau_${systematic} -p ${part} -c ${channel} $@ &
-        done
+        w
+        $LA -f ttbarsignalplustau_${systematic}.root -p 0 -c $channel $@ &
+        $LA -f ttbarsignalplustau_${systematic}.root -p 101 -c $channel $@ &
+        $LA -f ttbarsignalplustau_${systematic}.root -p 201 -c $channel $@ &
+        w
+        $LA -f ttbarsignalplustau_${systematic}.root -p 102 -c $channel $@ &
+        $LA -f ttbarsignalplustau_${systematic}.root -p 202 -c $channel $@ &
+        w
+        $LA -f ttbarsignalplustau_${systematic}.root -p 103 -c $channel $@ &
+        $LA -f ttbarsignalplustau_${systematic}.root -p 203 -c $channel $@ &
+        $LA -f ttbarsignalplustau_${systematic}.root -p 4 -c $channel $@ &
     done
 done
 

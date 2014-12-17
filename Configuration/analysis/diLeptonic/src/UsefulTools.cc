@@ -439,7 +439,7 @@ void UsefulTools::DYScaleFactor(TString SpecialComment,std::vector<double>& DYSc
 }
 
 // Draw official labels (CMS Preliminary, luminosity and CM energy) above plot
-void UsefulTools::DrawCMSLabels(int cmsprelim, double energy, double textSize) {
+void UsefulTools::DrawCMSLabels(double lumi,int cmsprelim, double energy, double textSize) {
 
     const char *text;
     if(cmsprelim ==2 ) {//Private work for PhDs students
@@ -467,6 +467,24 @@ void UsefulTools::DrawCMSLabels(int cmsprelim, double energy, double textSize) {
     label->Draw("same");
 }
 
+// Draw label for Decay Channel in upper left corner of plot
+void UsefulTools::DrawDecayChLabel(TString decaychannel, double textSize) {
+
+    TPaveText *decch = new TPaveText();
+
+    decch->AddText(decaychannel);
+
+    decch->SetX1NDC(      gStyle->GetPadLeftMargin() + gStyle->GetTickLength()        );
+    decch->SetY1NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength() - 0.05 );
+    decch->SetX2NDC(      gStyle->GetPadLeftMargin() + gStyle->GetTickLength() + 0.15 );
+    decch->SetY2NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength()        );
+
+    decch->SetFillStyle(0);
+    decch->SetBorderSize(0);
+    if (textSize!=0) decch->SetTextSize(textSize);
+    decch->SetTextAlign(12);
+    decch->Draw("same");
+}
 
 void UsefulTools::setStyle(TH1 *hist, TString Axis)
 {
@@ -497,5 +515,4 @@ void UsefulTools::setStyle(TH1 *hist, TString Axis)
         }
 
 }
-
 

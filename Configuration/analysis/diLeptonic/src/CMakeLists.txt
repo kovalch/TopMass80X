@@ -32,6 +32,10 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   LuminosityScaleFactors
   DyScaleFactors
   HfFracScaleFactors
+  #Plotter
+  FinalPlot
+  Output
+  utils
   )
 
 SET( Unfold_LIBSOURCES
@@ -43,6 +47,7 @@ SET( Unfold_LIBSOURCES
 SET( ${PROJECT_NAME}_EXECUTABLES
   load_Analysis
   Histo
+  #Histo2
   kinRecoEff
   TypicalErrors
   PlotRelDiffs
