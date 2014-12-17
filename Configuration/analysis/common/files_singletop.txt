@@ -1,0 +1,8 @@
+# Single Top
+30   Summer12.TBarToDilepton_tW_channel_DR_mass166_5_8TeV_powheg_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff  singleantitop_tw_169_massdown.root    singleantitop
+30   Summer12.TToDilepton_tW_channel_DR_mass166_5_8TeV_powheg_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff     singletop_tw_169_massdown.root        singletop
+
+# Single Top
+30   Summer12.TBarToDilepton_tW_channel_DR_mass178_5_8TeV_powheg_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff  singleantitop_tw_178_massup.root    singleantitop
+30   Summer12.TToDilepton_tW_channel_DR_mass178_5_8TeV_powheg_tauola_Summer12_DR53X_PU_S10_START53_V7A_v1_cff     singletop_tw_178_massup.root        singletop
+
