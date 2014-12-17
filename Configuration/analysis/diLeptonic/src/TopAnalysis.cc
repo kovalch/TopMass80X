@@ -81,7 +81,6 @@ constexpr bool isttdiffXS = true;
 
 
 
-
 TopAnalysis::TopAnalysis():
 kinRecoOnTheFly_(false),
 doClosureTest_(false),
@@ -702,13 +701,63 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     
     // Access Top signal generator info
     const TopGenObjects& topGenObjects = this->getTopGenObjects(entry);
-    
+
+    // Generated jets
+    const VLV& allGenJets =  topGenObjects.valuesSet_ ? *topGenObjects.allGenJets_ : VLV();
+    std::vector<int> allGenJetIndices = initialiseIndices(allGenJets);
+    std::vector<int> genJetIndices = allGenJetIndices; // decided to not use any cuts on GenJets here, these are implemented in generatorTopEvent()
+    orderIndices(genJetIndices, allGenJets, LVpt);
+
+    // Indices for Jet pT related studies
+    std::vector<int> genJet40Indices = genJetIndices;
+    selectIndices(genJet40Indices, allGenJets, LVpt, 40.0);
+    std::vector<int> genJet60Indices = genJet40Indices;
+    selectIndices(genJet60Indices, allGenJets, LVpt, 60.0);
+    std::vector<int> genJet100Indices = genJet60Indices;
+    selectIndices(genJet100Indices, allGenJets, LVpt, 100.0);
+
+    // Match for all genJets all B hadrons
+    std::vector<std::vector<int> > allGenJetBhadronIndices;
+    std::vector<std::vector<int> > genJetBhadronIndices;
+    std::vector<int> allGenBjetIndices;
+    std::vector<int> genBjetIndices;
+    if(topGenObjects.valuesSet_){
+        allGenJetBhadronIndices = this->matchHadronsToGenJets(allGenJetIndices, allGenJets, *topGenObjects.genBHadJetIndex_);
+        genJetBhadronIndices = this->matchHadronsToGenJets(genJetIndices, allGenJets, *topGenObjects.genBHadJetIndex_);
+        allGenBjetIndices = this->genBjetIndices(allGenJetBhadronIndices);
+        genBjetIndices = this->genBjetIndices(genJetBhadronIndices);
+    }
+
+    // Jet matchings for ttbar system
+    int genBjetFromTopIndex(-1);
+    int genAntiBjetFromTopIndex(-1);
+    if(topGenObjects.valuesSet_){
+        genBjetFromTopIndex = this->genBjetIndex(topGenObjects, 6);
+        genAntiBjetFromTopIndex = this->genBjetIndex(topGenObjects, -6);
+    }
+
+    if (genBjetFromTopIndex == -2) genBjetFromTopIndex = -1;// FIXME: generatorTopEvent() and generatorTTbarjetsEvent() can't handle "-2"
+    if (genAntiBjetFromTopIndex == -2) genAntiBjetFromTopIndex = -1;// -1 - no b-jet found, -2 - two b-jets from one t-quark in generator
+
+    const int numberOfGenBjets = genBjetIndices.size();
+    int leadingGenBjetIndex = numberOfGenBjets>0 ? genBjetIndices.at(0) : -1;
+    int nLeadingGenBjetIndex = numberOfGenBjets>1 ? genBjetIndices.at(1) : -1;
+
+    int leadingGenBjetFromTopIndex = genBjetFromTopIndex;
+    int nLeadingGenBjetFromTopIndex = genAntiBjetFromTopIndex;
+
+    if(leadingGenBjetFromTopIndex <= -1 && nLeadingGenBjetFromTopIndex > -1) {// can be -1 or -2
+        leadingGenBjetFromTopIndex = nLeadingGenBjetFromTopIndex;
+        nLeadingGenBjetFromTopIndex = -1;
+    } else if (leadingGenBjetFromTopIndex > -1 && nLeadingGenBjetFromTopIndex > -1) {// can be -1 or -2
+        orderIndices(leadingGenBjetFromTopIndex, nLeadingGenBjetFromTopIndex, allGenJets, LVpt);
+    }
+
     // Get indices of B and anti-B hadrons steming from ttbar system
-    int BHadronIndex=-1;
-    int AntiBHadronIndex=-1;
-    this->bHadronIndices(BHadronIndex, AntiBHadronIndex, topGenObjects);
-    //std::cout<<"\nINDICES: "<<BHadronIndex<<" , "<<AntiBHadronIndex<<"\n";
-    
+    int BHadronIndex=-1; BHadronIndex = genBjetFromTopIndex;//FIXME: switch everywhere to proper namings
+    int AntiBHadronIndex=-1; AntiBHadronIndex = genAntiBjetFromTopIndex;//FIXME: here too
+    //this->bHadronIndices(BHadronIndex, AntiBHadronIndex, topGenObjects); // obsolete function must be deleted
+
     // Access ttbar dilepton generator event
     LV LeadGenTop, NLeadGenTop;
     LV LeadGenLepton, NLeadGenLepton;
