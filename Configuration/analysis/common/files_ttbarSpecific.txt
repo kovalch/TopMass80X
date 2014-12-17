@@ -74,4 +74,14 @@
 
 #   MadGraph+Pythia with Perugia11 Tune
 600   Summer12.TTJets_FullLeptMGDecays_TuneP11_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff       ttbarsignalplustau_Perugia11.root       ttbarsignalplustau,systematicsName=PERUGIA11
+200   Summer12.TTJets_FullLeptMGDecays_TuneP11_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff       ttbarbg_Perugia11.root                  ttbarbg,systematicsName=PERUGIA11
+
 600   Summer12.TTJets_FullLeptMGDecays_TuneP11noCR_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff   ttbarsignalplustau_Perugia11NoCR.root   ttbarsignalplustau,systematicsName=PERUGIA11NoCR
+200   Summer12.TTJets_FullLeptMGDecays_TuneP11noCR_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff   ttbarbg_Perugia11NoCR.root    ttbarbg,systematicsName=PERUGIA11NoCR
+
+400   Summer12.TTJets_FullLeptMGDecays_TuneP11mpiHi_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff   ttbarsignalplustau_Perugia11mpiHi.root   ttbarsignalplustau,systematicsName=PERUGIA11mpiHi
+200   Summer12.TTJets_FullLeptMGDecays_TuneP11mpiHi_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff   ttbarbg_Perugia11mpiHi.root    ttbarbg,systematicsName=PERUGIA11mpiHi
+
+400   Summer12.TTJets_FullLeptMGDecays_TuneP11TeV_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff      ttbarsignalplustau_Perugia11TeV.root    ttbarsignalplustau,systematicsName=PERUGIA11TeV
+200   Summer12.TTJets_FullLeptMGDecays_TuneP11TeV_8TeV_madgraph_tauola_Summer12_DR53X_PU_S10_START53_V19_v1_cff      ttbarbg_Perugia11TeV.root    ttbarbg,systematicsName=PERUGIA11TeV
+
