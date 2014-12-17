@@ -76,6 +76,14 @@ constexpr double rho0 = 340.0;
 /// DeltaR(l,jet) cut for tt+jets
 constexpr bool isttdiffXS = true;
 
+/// Generated jet eta selection (absolute value)
+constexpr double GenJetEtaCUT = JetEtaCUT;
+
+/// Generated jet pt selection in GeV
+constexpr double GenJetPtCUT = JetPtCUT;
+
+/// Minimal deltaR for removal of generated jets that are close to leptons (if negative, no cut applied)
+constexpr double GenDeltaRLeptonJetCUT = -1.;
 
 
 
@@ -705,7 +713,19 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     // Generated jets
     const VLV& allGenJets =  topGenObjects.valuesSet_ ? *topGenObjects.allGenJets_ : VLV();
     std::vector<int> allGenJetIndices = initialiseIndices(allGenJets);
-    std::vector<int> genJetIndices = allGenJetIndices; // decided to not use any cuts on GenJets here, these are implemented in generatorTopEvent()
+    std::vector<int> genJetIndices = allGenJetIndices;
+    selectIndices(genJetIndices, allGenJets, LVeta, GenJetEtaCUT, false);
+    selectIndices(genJetIndices, allGenJets, LVeta, -GenJetEtaCUT);
+    selectIndices(genJetIndices, allGenJets, LVpt, GenJetPtCUT);
+    if(GenDeltaRLeptonJetCUT > 0.){
+        // Vector of genLeptons from which genJets need to be separated in deltaR
+        VLV allGenLeptons;
+        if(topGenObjects.valuesSet_){
+            if(topGenObjects.GenLepton_) allGenLeptons.push_back(*topGenObjects.GenLepton_);
+            if(topGenObjects.GenAntiLepton_) allGenLeptons.push_back(*topGenObjects.GenAntiLepton_);
+        }
+        this->leptonCleanedJetIndices(genJetIndices, allGenJets, allGenLeptons, GenDeltaRLeptonJetCUT);
+    }
     orderIndices(genJetIndices, allGenJets, LVpt);
 
     // Indices for Jet pT related studies
@@ -754,9 +774,9 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     }
 
     // Get indices of B and anti-B hadrons steming from ttbar system
-    int BHadronIndex=-1; BHadronIndex = genBjetFromTopIndex;//FIXME: switch everywhere to proper namings
-    int AntiBHadronIndex=-1; AntiBHadronIndex = genAntiBjetFromTopIndex;//FIXME: here too
-    //this->bHadronIndices(BHadronIndex, AntiBHadronIndex, topGenObjects); // obsolete function must be deleted
+    int BHadronIndex = genBjetFromTopIndex;//FIXME: switch everywhere to proper namings
+    int AntiBHadronIndex = genAntiBjetFromTopIndex;//FIXME: here too
+    //this->bHadronIndices(BHadronIndex, AntiBHadronIndex, topGenObjects);
 
     // Access ttbar dilepton generator event
     LV LeadGenTop, NLeadGenTop;
