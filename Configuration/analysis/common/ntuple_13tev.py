@@ -194,8 +194,10 @@ if options.globalTag != '':
 else:
     print "Determine global tag automatically"
     if options.runOnMC:
-        process.GlobalTag.globaltag = cms.string('PHYS14_25_V1::All')
+        #process.GlobalTag.globaltag = cms.string('PHYS14_25_V1::All')
         #process.GlobalTag.globaltag = cms.string('PHYS14_50_V1::All')
+        process.GlobalTag.globaltag = cms.string('PHYS14_25_V2::All')
+        #process.GlobalTag.globaltag = cms.string('PHYS14_50_V2::All')
     else:
         process.GlobalTag.globaltag = cms.string('FT53_V21A_AN6::All')
 
