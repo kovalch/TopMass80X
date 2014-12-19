@@ -810,16 +810,14 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     const ttbar::RecoObjectIndices recoObjectIndicesDummy({0},{0},{0},0,0,0,0,0,0,{0},{0});
     ttbar::RecoLevelWeights recoLevelWeightsDummy(0,0,0,0,0);
     
-    //FIXME: NOT a proper place for recoObjects, but it's needed to access to eventNumber_ on "0" selectionStep.
-    const RecoObjects& recoObjects = this->getRecoObjects(entry);
+    const RecoObjects recoObjectsDummy;
     
     // Access event meta data
-    const EventMetadata eventMetadata = eventMetadataDummy;
-    //const EventMetadata eventMetadata = this->getEventMetadata(entry);
+    const EventMetadata eventMetadata = this->getEventMetadata(entry);
     
     this->fillAll(selectionStep,
                   eventMetadata,
-                  recoObjects, commonGenObjects,
+                  recoObjectsDummy, commonGenObjects,
                   topGenObjects,
                   kinematicReconstructionSolutionsDummy,
                   genObjectIndices, recoObjectIndicesDummy,
@@ -836,7 +834,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     // === FULL RECO OBJECT SELECTION === (can thus be used at each selection step)
     
     // Access objects info
-    //const RecoObjects& recoObjects = this->getRecoObjects(entry);
+    const RecoObjects& recoObjects = this->getRecoObjects(entry);
     
     // Get allLepton indices, apply selection cuts and order them by pt (beginning with the highest value)
     const VLV& allLeptons = *recoObjects.allLeptons_;
@@ -1228,15 +1226,13 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     h_jetMultiNoPU->Fill(numberOfJets, weight / weightPU );
     h_diLepMassFull_fullSel->Fill(dilepton.M(), weight);
         
-    //create helper variables
-    size_t solutionIndex = 0; //always zero!
     
     // FIXME Jenya:
     // Use variables accessed here everywhere in the following
     const KinematicReconstructionSolution solution = kinematicReconstructionSolutions.solution();
     const LV& hypTop = solution.top();
     const LV& hypAntiTop = solution.antiTop();
-    const LV& hypTtbar = solution.ttbar();
+    //const LV& hypTtbar = solution.ttbar();
     const LV& hypLepton = solution.lepton();
     const LV& hypAntiLepton = solution.antiLepton();
     const LV& hypBjet = solution.bjet();
