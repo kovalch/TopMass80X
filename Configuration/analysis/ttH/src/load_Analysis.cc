@@ -472,9 +472,7 @@ void load_Analysis(const TString& validFilenamePattern,
                 // Reset the selection
                 selector->SetTrueLevelDYChannel(0);
             }
-            else if(isTopSignal && !isHiggsSignal && !isTtbarV){ // For splitting of ttbar in production modes associated with heavy flavours
-                //selector->SetRunViaTau(0); // This could be used for splitting of dileptonic ttbar in component with intermediate taus and without
-                // Defining the base of the ttbar sample names
+            else if(isTopSignal && !isHiggsSignal && !isTtbarV){ // For splitting of ttbar in production modes associated with heavy flavours, and decays via taus
                 TString ttbarNameBase(outputfilename);
                 ttbarNameBase.Remove(ttbarNameBase.Index("signal"), 1000).Append("Dilepton");
 
