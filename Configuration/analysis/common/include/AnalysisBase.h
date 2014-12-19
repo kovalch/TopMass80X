@@ -89,9 +89,6 @@ public:
     /// Set name of output file
     void SetOutputfilename(const TString& outputfilename);
     
-    /// Bool for separating direct dileptonic ttbar decays and decays via intermediate taus
-    void SetRunViaTau(const bool runViaTau);
-    
     /// Set folder for basic analysis output
     void SetAnalysisOutputBase(const char* analysisOutputBase);
     
@@ -191,14 +188,8 @@ protected:
     /// Select events from Drell-Yan samples which need to be removed due to generator selection
     bool failsDrellYanGeneratorSelection(const Long64_t& entry)const;
 
-    /// Select events from Top signal samples which need to be removed due to generator selection
-    bool failsTopGeneratorSelection(const Long64_t& entry)const;
-    
     /// Set usage of MVA MET instead of PF MET
     void mvaMet();
-    
-    /// Decay mode of the ttbar system
-    int topDecayMode(const Long64_t& entry)const;
     
     
     
@@ -324,6 +315,9 @@ protected:
     
     /// Get H_t of jets
     double getJetHT(const std::vector<int>& jetIndices, const VLV& jets)const;
+    
+    /// Access identifier key of ttbar decay mode
+    int topDecayMode(const Long64_t& entry)const;
     
     /// Access identifier key of Higgs decay mode
     int higgsDecayMode(const Long64_t& entry)const;
@@ -718,7 +712,6 @@ private:
     std::function<bool(Long64_t)> checkZDecayMode_;
     #endif
     TString outputfilename_;
-    bool runViaTau_;
     
     /// Whether it is a ttbar sample (and not ttbarH, ttbarW, ttbarZ, or any other thing)
     bool isTtbarSample_;

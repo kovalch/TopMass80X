@@ -57,7 +57,6 @@ correctMadgraphBR_(false),
 channelPdgIdProduct_(0),
 checkZDecayMode_(0),
 outputfilename_(""),
-runViaTau_(false),
 isTtbarSample_(false),
 eventCounter_(0),
 analysisOutputBase_(0),
@@ -219,7 +218,6 @@ void AnalysisBase::Init(TTree *tree)
     this->SetEventMetadataBranchAddresses();
     this->SetRecoBranchAddresses();
     this->SetTriggerBranchAddresses();
-    //this->SetKinRecoBranchAddresses();
     if(isMC_) this->SetCommonGenBranchAddresses();
     if(isMC_) this->SetVertMultiTrueBranchAddress();
     if(isMC_) this->SetWeightGeneratorBranchAddress();
@@ -316,14 +314,6 @@ void AnalysisBase::SetOutputfilename(const TString& outputfilename)
 void AnalysisBase::SetWeightedEvents(TH1* weightedEvents)
 {
     h_weightedEvents = weightedEvents;
-}
-
-
-
-void AnalysisBase::SetRunViaTau(const bool runViaTau)
-{
-    runViaTau_ = runViaTau;
-    if (runViaTau) isTopSignal_ = false;
 }
 
 
@@ -1274,36 +1264,6 @@ bool AnalysisBase::failsDrellYanGeneratorSelection(const Long64_t& entry)const
 
 
 
-bool AnalysisBase::failsTopGeneratorSelection(const Long64_t& entry)const
-{
-    if(!isTtbarPlusTauSample_) return false;
-    this->GetTopDecayModeEntry(entry);
-    //decayMode contains the decay of the top (*10) + the decay of the antitop
-    //1=hadron, 2=e, 3=mu, 4=tau->hadron, 5=tau->e, 6=tau->mu
-    //i.e. 23 == top decays to e, tbar decays to mu
-    bool isViaTau = topDecayMode_ > 40 || (topDecayMode_ % 10 > 4);
-    bool isCorrectChannel = false;
-    switch (channelPdgIdProduct_) {
-        case -11*13: isCorrectChannel = topDecayMode_ == 23 || topDecayMode_ == 32 //emu prompt
-                        || topDecayMode_ == 53 || topDecayMode_ == 35 //e via tau, mu prompt
-                        || topDecayMode_ == 26 || topDecayMode_ == 62 //e prompt, mu via tau
-                        || topDecayMode_ == 56 || topDecayMode_ == 65; //both via tau
-                        break;
-        case -11*11: isCorrectChannel = topDecayMode_ == 22  //ee prompt
-                        || topDecayMode_ == 52 || topDecayMode_ == 25 //e prompt, e via tau
-                        || topDecayMode_ == 55; break; //both via tau
-        case -13*13: isCorrectChannel = topDecayMode_ == 33  //mumu prompt
-                        || topDecayMode_ == 36 || topDecayMode_ == 63 //mu prompt, mu via tau
-                        || topDecayMode_ == 66; break; //both via tau
-        default: std::cerr << "Invalid channel! Product = " << channelPdgIdProduct_ << "\n";
-    };
-    bool isBackgroundInSignalSample = !isCorrectChannel || isViaTau;
-    if(runViaTau_ != isBackgroundInSignalSample) return true;
-    return false;
-}
-
-
-
 bool AnalysisBase::hasLeptonPair(const int leadingLeptonIndex, const int nLeadingLeptonIndex,
                                  const std::vector<int>& lepPdgId)const
 {
@@ -1341,13 +1301,6 @@ bool AnalysisBase::failsDileptonTrigger(const Long64_t& entry)const
 void AnalysisBase::mvaMet()
 {
     mvaMet_ = true;
-}
-
-int AnalysisBase::topDecayMode(const Long64_t& entry)const
-{
-    this->GetTopDecayModeEntry(entry);
-    
-    return topDecayMode_;
 }
 
 
@@ -1737,6 +1690,14 @@ int AnalysisBase::higgsDecayMode(const Long64_t& entry)const
 }
 
 
+
+int AnalysisBase::topDecayMode(const Long64_t& entry)const
+{
+    if(!(isTtbarPlusTauSample_ || isTopSignal_)) return -1;
+    this->GetTopDecayModeEntry(entry);
+    
+    return topDecayMode_;
+}
 
 
 

@@ -94,6 +94,8 @@ kinRecoOnTheFly_(false),
 doClosureTest_(false),
 pdf_no_(-1),
 closureFunction_(nullptr),
+closureMaxEvents_(0),
+runViaTau_(false),
 binnedControlPlots_(0)
 {
     if(MvaMET) this->mvaMet();
@@ -1782,6 +1784,14 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
 
 
 
+void TopAnalysis::SetRunViaTau(const bool runViaTau)
+{
+    runViaTau_ = runViaTau;
+    if(runViaTau) this->SetTopSignal(false);
+}
+
+
+
 void TopAnalysis::SetPDF(int pdf_no)
 {
     this->pdf_no_ = pdf_no;
@@ -1888,6 +1898,44 @@ double TopAnalysis::overallGlobalNormalisationFactor()
     globalNormalisationFactor *= globalNormalisationFactorClosureTest();
     globalNormalisationFactor *= globalNormalisationFactorPDF();
     return globalNormalisationFactor;
+}
+
+
+
+bool TopAnalysis::failsTopGeneratorSelection(const Long64_t& entry)const
+{
+    if(!this->isTtbarPlusTauSample()) return false;
+    // topDecayMode contains the decay of the top (*10) + the decay of the antitop (plus 100 or 200 for non-b decays of tops)
+    // 1=hadron, 2=e, 3=mu, 4=tau->hadron, 5=tau->e, 6=tau->mu
+    // i.e. 23 == top decays to e, tbar decays to mu
+    const int topDecayMode = this->topDecayMode(entry) % 100;
+    const bool isViaTau = topDecayMode > 40 || (topDecayMode % 10 > 4);
+    bool isCorrectChannel(false);
+    switch(this->channelPdgIdProduct()){
+        case -11*13:
+            isCorrectChannel = topDecayMode == 23 || topDecayMode == 32 //emu prompt
+                            || topDecayMode == 53 || topDecayMode == 35 //e via tau, mu prompt
+                            || topDecayMode == 26 || topDecayMode == 62 //e prompt, mu via tau
+                            || topDecayMode == 56 || topDecayMode == 65; //both via tau
+            break;
+        case -11*11:
+            isCorrectChannel = topDecayMode == 22  //ee prompt
+                            || topDecayMode == 52 || topDecayMode == 25 //e prompt, e via tau
+                            || topDecayMode == 55; //both via tau
+            break;
+        case -13*13:
+            isCorrectChannel = topDecayMode == 33  //mumu prompt
+                            || topDecayMode == 36 || topDecayMode == 63 //mu prompt, mu via tau
+                            || topDecayMode == 66; //both via tau
+            break;
+        default:
+            std::cerr<<"Invalid channel in failsTopGeneratorSelection()! Product = "<<this->channelPdgIdProduct()
+                     <<"\n...break\n"<<std::endl;
+            exit(213);
+    };
+    const bool isBackgroundInSignalSample = !isCorrectChannel || isViaTau;
+    if(runViaTau_ != isBackgroundInSignalSample) return true;
+    return false;
 }
 
 
@@ -2053,6 +2101,8 @@ void TopAnalysis::bHadronIndices(int& bHadronIndex, int& antiBHadronIndex, const
     //    BHadronIndex = idx_leadbHadJet[3];
     //AntiBHadronIndex = idx_nleadbHadJet[3];
 }
+
+
 
 void TopAnalysis::generatorTopEvent(LV& leadGenTop, LV& nLeadGenTop,
                                     LV& leadGenLepton, LV& nLeadGenLepton,
@@ -2353,15 +2403,21 @@ void TopAnalysis::FillBinnedControlPlot(TH1* h_differential, double binvalue,
     h->Fill(value, weight);
 }
 
+
+
 void TopAnalysis::SetAllAnalyzers(std::vector<AnalyzerBaseClass*> v_analyzer)
 {
     v_analyzer_ = v_analyzer;
 }
 
+
+
 void TopAnalysis::SetAllTreeHandlers(std::vector<TreeHandlerBase*> v_treeHandler)
 {
     v_treeHandler_ = v_treeHandler;
 }
+
+
 
 void TopAnalysis::fillAll(const std::string& selectionStep,
                           const EventMetadata& eventMetadata,
@@ -2397,12 +2453,16 @@ void TopAnalysis::fillAll(const std::string& selectionStep,
     
 }
 
+
+
 void TopAnalysis::bookAll()
 {
     for(AnalyzerBaseClass* analyzer : v_analyzer_){
         if(analyzer) analyzer->book(fOutput);
     }
 }
+
+
 
 void TopAnalysis::clearAll()
 {

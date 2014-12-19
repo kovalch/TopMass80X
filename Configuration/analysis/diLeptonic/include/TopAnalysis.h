@@ -220,6 +220,9 @@ class TopAnalysis : public AnalysisBase
 #endif
     int closureMaxEvents_;
     
+    /// Whether it is leptonic decays via tau in ttbar dilepton samples
+    bool runViaTau_;
+    
     
     
 public:
@@ -233,6 +236,9 @@ public:
     virtual void SlaveTerminate();
     virtual void Terminate();
     virtual Bool_t Process(Long64_t entry);
+    
+    /// Bool for separating direct dileptonic ttbar decays and decays via intermediate taus
+    void SetRunViaTau(const bool runViaTau);
     
     /// Set up closure test
     void SetClosureTest(TString closure, double slope);
@@ -281,6 +287,9 @@ private:
     
     /// Get indices of B hadron and anti-B hadron
     void bHadronIndices(int& bHadronIndex, int& antiBHadronIndex, const TopGenObjects& topGenObjects);
+    
+    /// Select events from Top signal samples which need to be removed due to generator selection
+    bool failsTopGeneratorSelection(const Long64_t& entry)const;
     
     void generatorTopEvent(LV& leadGenTop, LV& nLeadGenTop,
                            LV& leadGenLepton, LV& nLeadGenLepton,
