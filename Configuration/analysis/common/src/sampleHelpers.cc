@@ -483,15 +483,15 @@ std::vector<TString> Channel::convert(const std::vector<Channel>& channels)
 
 
 
-TString common::assignFolder(const char* baseDir, const Channel::Channel& channel, const Systematic::Systematic& systematic)
+TString common::assignFolder(const char* baseDir, const Channel::Channel& channel, const Systematic::Systematic& systematic, const char* subDir)
 {
     TString path("");
     
     // Create all subdirectories contained in baseDir
-    TObjArray* a_subDir = TString(baseDir).Tokenize("/");
-    for(Int_t iSubDir = 0; iSubDir < a_subDir->GetEntriesFast(); ++iSubDir){
-        const TString& subDir = a_subDir->At(iSubDir)->GetName();
-        path.Append(subDir);
+    TObjArray* a_currentDir = TString(baseDir).Tokenize("/");
+    for(Int_t iCurrentDir = 0; iCurrentDir < a_currentDir->GetEntriesFast(); ++iCurrentDir){
+        const TString& currentDir = a_currentDir->At(iCurrentDir)->GetName();
+        path.Append(currentDir);
         path.Append("/");
         gSystem->MakeDirectory(path);
     }
@@ -503,42 +503,15 @@ TString common::assignFolder(const char* baseDir, const Channel::Channel& channe
     path.Append(Channel::convert(channel));
     path.Append("/");
     gSystem->MakeDirectory(path);
-    
-    // FIXME: why not using directly gSystem->mkdir("...", true);   ???
-    // Should recursively create all needed directories
+    if(TString(subDir) != ""){
+        path.Append(subDir);
+        path.Append("/");
+    }
+    gSystem->MakeDirectory(path);
     
     return path;
 }
 
-TString common::assignFolder(const char* baseDir, const Channel::Channel& channel, const Systematic::Systematic& systematic,const char* plotName)
-{
-    TString path("");
-    
-    // Create all subdirectories contained in baseDir
-    TObjArray* a_subDir = TString(baseDir).Tokenize("/");
-    for(Int_t iSubDir = 0; iSubDir < a_subDir->GetEntriesFast(); ++iSubDir){
-        const TString& subDir = a_subDir->At(iSubDir)->GetName();
-        path.Append(subDir);
-        path.Append("/");
-        gSystem->MakeDirectory(path);
-    }
-    
-    // Create subdirectories for systematic and channel
-    path.Append(systematic.name());
-    path.Append("/");
-    gSystem->MakeDirectory(path);
-    path.Append(Channel::convert(channel));
-    path.Append("/");
-    gSystem->MakeDirectory(path);
-    path.Append(plotName);
-    path.Append("/");
-    gSystem->MakeDirectory(path);
-    
-    // FIXME: why not using directly gSystem->mkdir("...", true);   ???
-    // Should recursively create all needed directories
-    
-    return path;
-}
 
 
 TString common::accessFolder(const char* baseDir, const Channel::Channel& channel,
