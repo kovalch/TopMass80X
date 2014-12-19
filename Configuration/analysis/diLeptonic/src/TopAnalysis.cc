@@ -761,9 +761,9 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     if (genBjetFromTopIndex == -2) genBjetFromTopIndex = -1;// FIXME: generatorTopEvent() and generatorTTbarjetsEvent() can't handle "-2"
     if (genAntiBjetFromTopIndex == -2) genAntiBjetFromTopIndex = -1;// -1 - no b-jet found, -2 - two b-jets from one t-quark in generator
 
-    const int numberOfGenBjets = genBjetIndices.size();
-    int leadingGenBjetIndex = numberOfGenBjets>0 ? genBjetIndices.at(0) : -1;
-    int nLeadingGenBjetIndex = numberOfGenBjets>1 ? genBjetIndices.at(1) : -1;
+    //const int numberOfGenBjets = genBjetIndices.size();
+    //int leadingGenBjetIndex = numberOfGenBjets>0 ? genBjetIndices.at(0) : -1;
+    //int nLeadingGenBjetIndex = numberOfGenBjets>1 ? genBjetIndices.at(1) : -1;
 
     int leadingGenBjetFromTopIndex = genBjetFromTopIndex;
     int nLeadingGenBjetFromTopIndex = genAntiBjetFromTopIndex;
