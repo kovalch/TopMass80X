@@ -641,6 +641,7 @@ int main(int argc, char** argv)
     if(opt_mode.isSet()) v_analysisMode = AnalysisMode::convert(opt_mode.getArguments());
     std::cout<<"\nRunning the following analysis modes:\n";
     for(const auto& analysisMode : v_analysisMode) std::cout<<AnalysisMode::convert(analysisMode)<<" , ";
+    std::cout <<"\n\nUsing file pattern: <" << validFilenamePattern << ">  Part: " << part << std::endl;
     std::cout<<"\n\n";
     
     // Set up maximum number of events to process
