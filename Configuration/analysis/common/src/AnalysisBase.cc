@@ -1467,19 +1467,43 @@ std::vector<int> AnalysisBase::matchRecoToGenJets(const std::vector<int>& jetInd
 
 double AnalysisBase::madgraphWDecayCorrection(const Long64_t& entry)const
 {
+    // Correct the Madgraph branching fraction 1/9 for each dilepton channel by an additional weight
     if(!correctMadgraphBR_) return 1.;
     this->GetTopDecayModeEntry(entry);
+    
+    // Extracting decay mode of each W boson
+    const int Wmode_1 = topDecayMode_%100/10;
+    const int Wmode_2 = topDecayMode_%10;
+    
+    // No correction if decay mode not defined for any of the W bosons
+    if(Wmode_1 < 1 || Wmode_2 < 1) return 1.;
+    
+    // Setting branching ratios for single W boson
+    // Values from PDG 2014: http://pdg8.lbl.gov/rpp2014v1/pdgLive/Particle.action?node=S043
+    const double We = 0.1071;  // +- 0.0016
+    const double Wmu = 0.1063;  // +- 0.0015
+    const double Wtau = 0.1138;  // +- 0.0021
+    const double Whad = 1-(We + Wmu + Wtau);
 
-    // We must correct for the madGraph branching fraction being 1/9 for dileptons (PDG average is .108)
-    if(topDecayMode_ == 11){ //all hadronic decay
-        return (0.676*1.5) * (0.676*1.5);
-    }
-    else if(topDecayMode_< 20 || ( topDecayMode_ % 10 == 1)){ //semileptonic Decay
-        return (0.108*9.) * (0.676*1.5);
-    }
-    else{ //dileptonic decay (including taus!)
-        return (0.108*9.) * (0.108*9.);
-    }
+    // Vector of branching rations for each encoded decay mode as index
+    std::vector<double> br;
+    br.push_back(0.);     // 0: not used
+    br.push_back(Whad);   // 1: W->hadron
+    br.push_back(We);     // 2: W->e
+    br.push_back(Wmu);    // 3: W->mu
+    br.push_back(Wtau);   // 4: W->tau->hadron
+    br.push_back(Wtau);   // 5: W->tau->e
+    br.push_back(Wtau);   // 6: W->tau->mu
+
+    // Defining denominator originally used in Madgraph for each W boson decay
+    // hadronic: 1/1.5    leptonic: 1/9
+    const double denominator_1 = Wmode_1 == 1 ? 1.5 : 9.;
+    const double denominator_2 = Wmode_2 == 1 ? 1.5 : 9.;
+    
+    double weight = (br.at(Wmode_1)*denominator_1) * (br.at(Wmode_2)*denominator_2);
+
+    // Calculating the final weight as a product of 2 W boson decay mode corrections
+    return weight;
 }
 
 
