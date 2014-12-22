@@ -1483,7 +1483,7 @@ double AnalysisBase::madgraphWDecayCorrection(const Long64_t& entry)const
     const double We = 0.1071;  // +- 0.0016
     const double Wmu = 0.1063;  // +- 0.0015
     const double Wtau = 0.1138;  // +- 0.0021
-    const double Whad = 1-(We + Wmu + Wtau);
+    const double Whad = 1.0 - (We + Wmu + Wtau);
 
     // Vector of branching rations for each encoded decay mode as index
     std::vector<double> br;
