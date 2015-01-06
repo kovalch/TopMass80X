@@ -520,10 +520,13 @@ void plotBestWeightHistos(std::map<TString, std::vector<TString> >& m_mvaConfigC
                 outfile.close();
             }
             
-            std::cout<<"\nExtreme results for correct trainings:\n"<<fileShort<<"\n"<<outputFolder<<" , "<<step<<" , "<<histNameBase<<"\n";
-            std::cout<<"Fraction 1 (min, max): "<<minFraction1<<" , "<<maxFraction1<<"\n";
-            std::cout<<"Fraction 2 (min, max): "<<minFraction2<<" , "<<maxFraction2<<"\n";
-            std::cout<<"Fraction 3 (min, max): "<<minFraction3<<" , "<<maxFraction3<<"\n\n";
+            if (histNameBase == "mvaTopA_jetsFromTop" || histNameBase == "mvaTopA_jetsFromHiggs" || histNameBase == "mvaTopA_jetsFromBoth")
+            {
+                std::cout<<"\nExtreme results for correct trainings:\n"<<fileShort<<"\n"<<outputFolder<<" , "<<step<<" , "<<histNameBase<<"\n";
+                std::cout<<"Fraction 1 (min, max): "<<minFraction1<<" , "<<maxFraction1<<"\n";
+                std::cout<<"Fraction 2 (min, max): "<<minFraction2<<" , "<<maxFraction2<<"\n";
+                std::cout<<"Fraction 3 (min, max): "<<minFraction3<<" , "<<maxFraction3<<"\n\n";
+            }
             
             // Scale histograms and get minimum and maximum value
             Double_t yMin(99999.);
@@ -680,10 +683,13 @@ void plotBestWeightHistos(std::map<TString, std::vector<TString> >& m_mvaConfigC
                 outfile.close();
             }
             
-            std::cout<<"\nExtreme results for swapped trainings:\n"<<fileShort<<"\n"<<outputFolder<<" , "<<step<<" , "<<histNameBase<<"\n";
-            std::cout<<"Fraction 1 (min, max): "<<minFraction1<<" , "<<maxFraction1<<"\n";
-            std::cout<<"Fraction 2 (min, max): "<<minFraction2<<" , "<<maxFraction2<<"\n";
-            std::cout<<"Fraction 3 (min, max): "<<minFraction3<<" , "<<maxFraction3<<"\n\n";
+            if (histNameBase == "mvaTopA_jetsFromTop" || histNameBase == "mvaTopA_jetsFromHiggs" || histNameBase == "mvaTopA_jetsFromBoth")
+            {
+                std::cout<<"\nExtreme results for swapped trainings:\n"<<fileShort<<"\n"<<outputFolder<<" , "<<step<<" , "<<histNameBase<<"\n";
+                std::cout<<"Fraction 1 (min, max): "<<minFraction1<<" , "<<maxFraction1<<"\n";
+                std::cout<<"Fraction 2 (min, max): "<<minFraction2<<" , "<<maxFraction2<<"\n";
+                std::cout<<"Fraction 3 (min, max): "<<minFraction3<<" , "<<maxFraction3<<"\n\n";
+            }
             
             // Scale histograms and get minimum and maximum value
             Double_t yMin(99999.);
@@ -853,10 +859,13 @@ void plotBestWeightHistos(std::map<TString, std::vector<TString> >& m_mvaConfigC
                 outfile.close();
             }
             
-            std::cout<<"\nExtreme results for combined trainings:\n"<<fileShort<<"\n"<<outputFolder<<" , "<<step<<" , "<<histNameBase<<"\n";
-            std::cout<<"Fraction 1 (min, max): "<<minFraction1<<" , "<<maxFraction1<<"\n";
-            std::cout<<"Fraction 2 (min, max): "<<minFraction2<<" , "<<maxFraction2<<"\n";
-            std::cout<<"Fraction 3 (min, max): "<<minFraction3<<" , "<<maxFraction3<<"\n\n";
+            if (histNameBase == "mvaTopA_jetsFromTop" || histNameBase == "mvaTopA_jetsFromHiggs" || histNameBase == "mvaTopA_jetsFromBoth")
+            {
+                std::cout<<"\nExtreme results for combined trainings:\n"<<fileShort<<"\n"<<outputFolder<<" , "<<step<<" , "<<histNameBase<<"\n";
+                std::cout<<"Fraction 1 (min, max): "<<minFraction1<<" , "<<maxFraction1<<"\n";
+                std::cout<<"Fraction 2 (min, max): "<<minFraction2<<" , "<<maxFraction2<<"\n";
+                std::cout<<"Fraction 3 (min, max): "<<minFraction3<<" , "<<maxFraction3<<"\n\n";
+            }
             
             // Scale histograms and get minimum and maximum value
             Double_t yMin(99999.);
