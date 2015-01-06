@@ -26,6 +26,9 @@ namespace utils{
     TString numToString(double val);
     TString makeBinTitle(TString axisName,double x1,double x2);
     TString makeTitleBins(TString plotNameUnits,std::vector<double>& v_bin,int underflow, int overflow);
+    
+    ///Read line of numbers from txt file and write them to the vector
+    void readLineToVector(const TString& file, const TString& keyWord,std::vector<double>& outVector);
 }
 
 

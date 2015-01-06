@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <sstream>
 
 #include <TString.h>
@@ -157,7 +158,7 @@ void utils::drawRatio(TH1* histNumerator, TH1* histDenominator, const TH1* uncba
 //     f2->Draw("L same");
 }
 
-void utils::rebin2d(TH2D*& histOut,TH2D* histIn,TString name,TString xAxisName_,TString yAxisName_,const int rebinX_,const int rebinY_, const int nbinX_, const double* x_binsArr_, const int nbinY_, const double* y_binsArr_)
+void utils::rebin2d(TH2D*& histOut,TH2D* histIn,TString /*name*/,TString xAxisName_,TString yAxisName_,const int rebinX_,const int rebinY_, const int nbinX_, const double* x_binsArr_, const int nbinY_, const double* y_binsArr_)
 {
         if(rebinX_||rebinY_){
             histOut = (TH2D* )histIn->Rebin2D(rebinX_,rebinY_,histIn->GetName());
@@ -224,7 +225,34 @@ TString utils::makeTitleBins(TString plotNameUnits,std::vector<double>& v_bin,in
 
 
 
-void styleUtils::setResultLegendStyle(TLegend* leg, const bool result)
+void utils::readLineToVector(const TString& file, const TString& keyWord,std::vector<double>& outVector)
+{
+    std::ifstream tempStream(file.Data(), std::ifstream::in);
+    if (!tempStream.good()) {
+        std::cerr<<"Error in utils::readLineToVector! Cannot find file with name: "<< file <<"\n...break\n"<<std::endl;
+        exit(12);
+    }
+    while(tempStream.good()){
+        std::string line;
+        getline(tempStream, line);
+        line.erase(0, line.find_first_not_of(" \t"));
+        if (line.size() == 0 || line[0] == '#') continue;
+        std::vector<TString> vWord;
+        std::string word;
+        for (std::stringstream ss(line); ss >> word; ){
+            vWord.push_back(word);
+        }
+        if(vWord.at(0) == keyWord.Data())
+        {
+            vWord.erase(vWord.begin());
+            for(auto word: vWord)outVector.push_back(word.Atof());
+        }
+    }
+}
+
+
+
+void styleUtils::setResultLegendStyle(TLegend* leg, const bool /*result*/)
 {
     double x1 = 0.7, y1 = 0.5;
     double height = 0.2+0.155, width = 0.2;
@@ -244,7 +272,7 @@ void styleUtils::setResultLegendStyle(TLegend* leg, const bool result)
 
 void styleUtils::setHHStyle(TStyle& HHStyle)
 {
-    const int fontstyle=42;
+    //const int fontstyle=42;
     HHStyle.SetPalette(1);
         
     // ==============
