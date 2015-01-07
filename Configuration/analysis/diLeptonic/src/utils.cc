@@ -252,6 +252,22 @@ void utils::readLineToVector(const TString& file, const TString& keyWord,std::ve
 
 
 
+void utils::cat(const TString& file)
+{
+    std::ifstream tempStream(file.Data(), std::ifstream::in);
+    if (!tempStream.good()) {
+        std::cerr<<"Error in utils::readLineToVector! Cannot find file with name: "<< file <<"\n...break\n"<<std::endl;
+        exit(12);
+    }
+    while(tempStream.good()){
+        std::string line;
+        getline(tempStream, line);
+        std::cout << line << std::endl;
+    }
+}
+
+
+
 void styleUtils::setResultLegendStyle(TLegend* leg, const bool /*result*/)
 {
     double x1 = 0.7, y1 = 0.5;

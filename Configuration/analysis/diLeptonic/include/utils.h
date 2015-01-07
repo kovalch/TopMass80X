@@ -29,6 +29,9 @@ namespace utils{
     
     ///Read line of numbers from txt file and write them to the vector
     void readLineToVector(const TString& file, const TString& keyWord,std::vector<double>& outVector);
+    
+    ///Printing out whole file
+    void cat(const TString& file);
 }
 
 
