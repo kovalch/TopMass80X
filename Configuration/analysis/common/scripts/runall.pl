@@ -129,7 +129,7 @@ sub prepare {
         "-m $self->{maxEventsPerJob} ".
         "-v $self->{verbosityLevel} ".
         "-d $outputFileWithoutRoot ".
-        "-M ".($cmsRunCmdLine =~ /PDFWeight/i ? 8000 : 3700)." ".
+        "-M ".($cmsRunCmdLine =~ /PDFWeight/i ? 8000 : ($cmsRunCmdLine =~ /runOnAOD/i ? 7500 : 3700))." ".
         "-c '$cmsRunCmdLine' ".
         "$NJobs $self->{configFile}_for_$outputFileWithoutRoot.py"];
 }
