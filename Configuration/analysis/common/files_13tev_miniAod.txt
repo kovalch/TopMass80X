@@ -26,10 +26,12 @@
 
 # ttbar pythia8
 60	Phys14.miniAOD.TT_Tune4C_13TeV_pythia8_tauola_Phys14DR_PU40bx25_tsg_PHYS14_25_V1_v1_cff				ttbarsignalplustau_pythia8.root	        ttbarsignalplustau,runOnAOD=False
+60	Phys14.miniAOD.TT_Tune4C_13TeV_pythia8_tauola_Phys14DR_PU40bx25_tsg_PHYS14_25_V1_v1_cff				ttbarbg_pythia8.root	        ttbarbg,runOnAOD=False
 #8	Phys14.miniAOD.TT_scaleup_Tune4C_13TeV_pythia8_tauola_Phys14DR_PU20bx25_PHYS14_25_V1_v1_cff			
 
 # TTMadSpin
 200     Phys14.miniAOD.TTJets_MSDecaysCKM_central_Tune4C_13TeV_madgraph_tauola_pythia8_Phys14DR_PU20bx25_PHYS14_25_V1_v1_cff		ttbarsignalplustau.root	        ttbarsignalplustau,runOnAOD=False				
+200     Phys14.miniAOD.TTJets_MSDecaysCKM_central_Tune4C_13TeV_madgraph_tauola_pythia8_Phys14DR_PU20bx25_PHYS14_25_V1_v1_cff		ttbarbg.root	        ttbarbg,runOnAOD=False				
  
 # Single Top
 20	Phys14.miniAOD.Tbar_tW_channel_DR_Tune4C_13TeV_CSA14_powheg_tauola_Phys14DR_PU20bx25_PHYS14_25_V1_v1_cff	singleantitop_tw.root		singleantitop,runOnAOD=False
