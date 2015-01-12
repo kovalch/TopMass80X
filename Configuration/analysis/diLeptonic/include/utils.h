@@ -32,10 +32,19 @@ namespace utils{
     
     ///Printing out whole file
     void cat(const TString& file);
+    
+    ///Sum of two vectors
+    std::vector<double> addVect(const std::vector<double>& a,const std::vector<double>& b, const double scale=1);
+    
+    ///Difference of two vectors
+    std::vector<double> diffVect(const std::vector<double>& a,const std::vector<double>& b, const double scale=1);
+    
+    ///Divide vectors
+    std::vector<double> divideVect(const std::vector<double>& a,const std::vector<double>& b, const double scale=1);
+    
+    ///Relative difference of two vectors 
+    std::vector<double> relativeDiff(const std::vector<double>& a,const std::vector<double>& b, const double scale=1);
 }
-
-
-
 
 #endif
 

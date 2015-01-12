@@ -268,6 +268,42 @@ void utils::cat(const TString& file)
 
 
 
+std::vector<double> utils::addVect(const std::vector<double>& a,const std::vector<double>& b, const double scale)
+{
+    std::vector<double> result;
+    for(size_t i=0;i<a.size();i++)result.push_back(scale*(a.at(i)+b.at(i)));
+    return result;
+}
+
+
+
+std::vector<double> utils::diffVect(const std::vector<double>& a,const std::vector<double>& b, const double scale)
+{
+    std::vector<double> result;
+    for(size_t i=0;i<a.size();i++)result.push_back(scale*(a.at(i)-b.at(i)));
+    return result;
+}
+
+
+
+std::vector<double> utils::divideVect(const std::vector<double>& a,const std::vector<double>& b, const double scale)
+{
+    std::vector<double> result;
+    for(size_t i=0;i<a.size();i++)result.push_back(scale*(a.at(i)/b.at(i)));
+    return result;
+}
+
+
+
+std::vector<double> utils::relativeDiff(const std::vector<double>& a,const std::vector<double>& b, const double scale)
+{ 
+    std::vector<double> result;
+    for(size_t i=0;i<a.size();i++)result.push_back(scale*((a.at(i)-b.at(i))/b.at(i)));
+    return result;
+}
+
+
+
 void styleUtils::setResultLegendStyle(TLegend* leg, const bool /*result*/)
 {
     double x1 = 0.7, y1 = 0.5;
