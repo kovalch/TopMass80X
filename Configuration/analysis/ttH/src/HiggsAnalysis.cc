@@ -43,6 +43,9 @@ constexpr double JetPtCUT = 30.;
 /// Leading 2 jet pt selection in GeV (For cut based approach)
 constexpr double Lead2JetPtCUT = JetPtCUT;
 
+/// Minimal deltaR for removal of jets that are close to leptons (if negative, no cut applied)
+constexpr double DeltaRLeptonJetCUT = -1.;
+
 /// B-tag algorithm and working point
 constexpr Btag::Algorithm BtagALGO = Btag::csv;
 constexpr Btag::WorkingPoint BtagWP = Btag::M;
@@ -318,6 +321,12 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     selectIndices(jetIndices, jets, LVeta, JetEtaCUT, false);
     selectIndices(jetIndices, jets, LVeta, -JetEtaCUT);
     selectIndices(jetIndices, jets, LVpt, JetPtCUT);
+    if(DeltaRLeptonJetCUT > 0.){
+        // Vector of leptons from which jets need to be separated in deltaR
+        VLV leptonsForJetCleaning;
+        for(const int index : allLeptonIndices) leptonsForJetCleaning.push_back(allLeptons.at(index));
+        this->leptonCleanedJetIndices(jetIndices, jets, leptonsForJetCleaning, DeltaRLeptonJetCUT);
+    }
     orderIndices(jetIndices, jets, LVpt);
     const int numberOfJets = jetIndices.size();
     const bool has2Jets = numberOfJets > 1 && jets.at(jetIndices.at(1)).pt() >= Lead2JetPtCUT;
