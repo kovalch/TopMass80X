@@ -74,6 +74,11 @@ struct RecoObjects{
     std::vector<double>* jetSecondaryVertexFlightDistanceSignificance_;
     std::vector<int>* jetSecondaryVertexTrackVertexIndex_;
     std::vector<int>* jetSecondaryVertexTrackMatchToSelectedTrackIndex_;
+    std::vector<int>* eventVerticesIndices_;
+    std::vector<float>* eventVerticesWeights_;
+    std::vector<double>* jetPfCandidateZDistanceToVertices_;
+    std::vector<int>* jetPfCandidateMatchToVerticesIndex_;
+    std::vector<int>* jetPfCandidateVerticesJetIndex_;
     LV* met_;
     Int_t vertMulti_;
 };
