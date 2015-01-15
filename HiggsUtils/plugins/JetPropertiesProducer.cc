@@ -45,7 +45,9 @@
 
 #include "TopAnalysis/HiggsUtils/interface/JetProperties.h"
 
-
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/Math/interface/Point3D.h"
 
 
 
@@ -131,6 +133,12 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         computer->passEventSetup(iSetup);
     }
     
+    // Get the interaction vertices
+    edm::InputTag vertices(parameterSet_.getParameter<edm::InputTag>("primaryVertexInputTag"));
+    edm::Handle<reco::VertexCollection> vertexHandle;
+    
+   iEvent.getByLabel(vertices, vertexHandle);
+   const reco::VertexCollection *vertexCollection = vertexHandle.product();
     
     // The sum of the multiplicities of the jetSelectedTracks for all the jets before the jet that is currently analysed
     // This variable is used so that we can give the proper value to the jetSecondaryVertexTrackMatchToSelectedTrackIndex
@@ -180,6 +188,12 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         std::vector<double> jetSecondaryVertexFlightDistanceValue;
         std::vector<double> jetSecondaryVertexFlightDistanceSignificance;
         
+        // Access vertex information
+        std::vector<int> eventVerticesIndices;
+        std::vector<float> eventVerticesWeights;
+        std::vector<double> jetPfCandidateZDistanceToVertices;
+        std::vector<int> jetPfCandidateMatchToVerticesIndex;
+        
         // pT-corrected secondary vertex mass used by the CSV algorithm (if there's no secondary vertex in the jet then it is set to -8888.)
         double jetSecondaryVertexPtCorrectedMass = -8888.;
         
@@ -211,6 +225,22 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
             // Store pfCandidate pointers for further matching to selectedTracks
             jetPfCandidatePtrToRecoTrack.push_back(&*pfCandPtr);
             jetPfCandidatePtrToRecoTrackIndex.push_back(i_candidate-pfConstituents.begin());
+            
+            // Access information about the vertex for the pfCandidate
+            for (reco::VertexCollection::const_iterator vtx = vertexCollection->begin();vtx != vertexCollection->end(); ++vtx)
+            {
+                eventVerticesWeights.push_back(vtx->trackWeight(refToPfTrack));
+                double ztrack = (*i_candidate)->vertex().z();
+                if (ztrack>vtx->z()) jetPfCandidateZDistanceToVertices.push_back(ztrack - vtx->z());
+                else jetPfCandidateZDistanceToVertices.push_back(vtx->z()-ztrack);
+                eventVerticesIndices.push_back(vtx-vertexCollection->begin());
+                int position = -1;
+                for (size_t iPfIndex = 0; iPfIndex!=jetPfCandidatePtrToRecoTrackIndex.size();++iPfIndex)
+                {
+                    if (jetPfCandidatePtrToRecoTrackIndex.at(iPfIndex) == i_candidate-pfConstituents.begin()) position = iPfIndex + jetPfCandidateMultiplicity_total;
+                }
+                if (position!=-1) jetPfCandidateMatchToVerticesIndex.push_back(position);
+            } 
         }
         
         const double jetChargeRelativePtWeighted(sumMomentum>0 ? sumMomentumQ/sumMomentum : 0);
@@ -347,7 +377,7 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
             jetAssociatedParton = genParton->polarP4();
         }
         
-        JetProperties jetProperties(jetChargeGlobalPtWeighted, jetChargeRelativePtWeighted, jetAssociatedPartonPdgId, jetAssociatedParton, jetPfCandidateTrack, jetPfCandidateTrackCharge,jetPfCandidateTrackId, jetSelectedTrackMatchToPfCandidateIndex, jetSelectedTrack, jetSelectedTrackIPValue, jetSelectedTrackIPSignificance, jetSelectedTrackCharge, jetSecondaryVertexTrackMatchToSelectedTrackIndex, jetSecondaryVertexTrackVertexIndex, jetSecondaryVertex, jetSecondaryVertexFlightDistanceValue, jetSecondaryVertexFlightDistanceSignificance, jetSecondaryVertexPtCorrectedMass);
+        JetProperties jetProperties(jetChargeGlobalPtWeighted, jetChargeRelativePtWeighted, jetAssociatedPartonPdgId, jetAssociatedParton, jetPfCandidateTrack, jetPfCandidateTrackCharge,jetPfCandidateTrackId, jetSelectedTrackMatchToPfCandidateIndex, jetSelectedTrack, jetSelectedTrackIPValue, jetSelectedTrackIPSignificance, jetSelectedTrackCharge, jetSecondaryVertexTrackMatchToSelectedTrackIndex, jetSecondaryVertexTrackVertexIndex, jetSecondaryVertex, jetSecondaryVertexFlightDistanceValue, jetSecondaryVertexFlightDistanceSignificance, jetSecondaryVertexPtCorrectedMass, eventVerticesIndices, eventVerticesWeights, jetPfCandidateZDistanceToVertices,jetPfCandidateMatchToVerticesIndex);
         v_jetProperties->push_back(jetProperties);
         
         edm::LogVerbatim log("JetPropertiesProducer");
@@ -374,7 +404,10 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         jetSecondaryVertexFlightDistanceSignificance.clear();
         jetSecondaryVertexTrackVertexIndex.clear();
         jetSecondaryVertexTrackMatchToSelectedTrackIndex.clear();
-        
+        eventVerticesIndices.clear();
+        eventVerticesWeights.clear();
+        jetPfCandidateZDistanceToVertices.clear();
+        jetPfCandidateMatchToVerticesIndex.clear();
     }
     
     iEvent.put(v_jetProperties);
@@ -434,6 +467,7 @@ JetPropertiesProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
     desc.add<edm::InputTag>("src");
     desc.add<edm::InputTag>("pfCands");
     desc.add<edm::InputTag>("svComputer");
+    desc.add<edm::InputTag>("primaryVertexInputTag");
     descriptions.add("jetProperties", desc);
 }
 
