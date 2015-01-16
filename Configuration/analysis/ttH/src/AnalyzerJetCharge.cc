@@ -88,32 +88,19 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
     // Extracting input data to more comfortable variables
     
     // Gen jets
-    //const VLV& genJets = (topGenObjects.valuesSet_) ? *topGenObjects.allGenJets_ : VLV();
-    //const std::vector<int>& allGenBjetIndices = genObjectIndices.allGenBjetIndices_;
     const std::vector<std::vector<int> >& genJetBhadronIndices = genObjectIndices.genJetBhadronIndices_; 
     const std::vector<int>& genJetMatchedRecoBjetIndices = genObjectIndices.genJetMatchedRecoBjetIndices_;
-    //const int& genBjetFromTopIndex = genObjectIndices.genBjetFromTopIndex_;
-    //const int& genAntiBjetFromTopIndex = genObjectIndices.genAntiBjetFromTopIndex_;
-    //const int& genBjetFromHiggsIndex = genObjectIndices.genBjetFromHiggsIndex_;
-    //const int& genAntiBjetFromHiggsIndex = genObjectIndices.genAntiBjetFromHiggsIndex_;
     
     // Reco jets
     const VLV& allJets = *recoObjects.jets_; 
     const std::vector<int>& lowerPtCUTJetIdx = recoObjectIndices.jetIndices_;           // Selected jets (point to jets from allJets)
-    //const std::vector<int>& bJetsId = recoObjectIndices.bjetIndices_;         // B-tagged jets (point to jets from allJets)
     const std::vector<double>& jetChargeRelativePtWeighted = *recoObjects.jetChargeRelativePtWeighted_;
     const int& recoBjetFromTopIndex = genObjectIndices.recoBjetFromTopIndex_;
     const int& recoAntiBjetFromTopIndex = genObjectIndices.recoAntiBjetFromTopIndex_;
-    //const int& recoBjetFromHiggsIndex = genObjectIndices.recoBjetFromHiggsIndex_;
-    //const int& recoAntiBjetFromHiggsIndex = genObjectIndices.recoAntiBjetFromHiggsIndex_;
     const std::vector<double>& jetBTagCSV = *recoObjects.jetBTagCSV_;
     
     // b-hadron + c-hadron information
-    //const std::vector<LV>& bHadPlusMothers = *topGenObjects.genBHadPlusMothers_;
-    //const std::vector<int>& bHadIndex = (topGenObjects.valuesSet_) ? *topGenObjects.genBHadIndex_ : std::vector<int>(0);
-    //const std::vector<int>& bHadJetIndex = (topGenObjects.valuesSet_) ? *topGenObjects.genBHadJetIndex_ : std::vector<int>(0);
     const std::vector<int>& bHadFlavour = (topGenObjects.valuesSet_) ? *topGenObjects.genBHadFlavour_ : std::vector<int>(0);
-    //const std::vector<int>& bHadPlusMothersPdgId = (topGenObjects.valuesSet_) ? *topGenObjects.genBHadPlusMothersPdgId_ : std::vector<int>(0);
 
     // Specific selected tracks information (tracks with quality requirements applied already at ntuple level) 
     const std::vector<LV>& jetSelectedTrack = *recoObjects.jetSelectedTrack_;
@@ -134,7 +121,6 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
     const std::vector<int>& jetSecondaryVertexJetIndex = *recoObjects.jetSecondaryVertexJetIndex_;
     const std::vector<int>& jetSecondaryVertexTrackVertexIndex = *recoObjects.jetSecondaryVertexTrackVertexIndex_;
     const std::vector<int>& jetSecondaryVertexTrackMatchToSelectedTrackIndex = *recoObjects.jetSecondaryVertexTrackMatchToSelectedTrackIndex_;
-    //const std::vector<double>&  jetSecondaryVertexPtCorrectedMass = (recoObjects.valuesSet_) ? *recoObjects.jetSecondaryVertexPtCorrectedMass_ : std::vector<double>(0);
     const std::vector<double>& jetSecondaryVertexFlightDistanceValue = *recoObjects.jetSecondaryVertexFlightDistanceValue_;
     const std::vector<double>& jetSecondaryVertexFlightDistanceSignificance = *recoObjects.jetSecondaryVertexFlightDistanceSignificance_;
     
@@ -144,10 +130,6 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
     const std::vector<double>& jetPfCandidateZDistanceToVertices = *recoObjects.jetPfCandidateZDistanceToVertices_;
     const std::vector<int>& jetPfCandidateMatchToVerticesIndex = *recoObjects.jetPfCandidateMatchToVerticesIndex_;
     const std::vector<int>& jetPfCandidateVerticesJetIndex = *recoObjects.jetPfCandidateVerticesJetIndex_;
-    
-    //kinRecoObjects
-    //const std::vector<int>& kinRecoBIndex = *kinRecoObjects. HypJet0index_;
-    //const std::vector<int>& kinRecoAntiBIndex = *kinRecoObjects. HypJet1index_;
     
     // Access the leptons for mlb
     const VLV& isolatedLeptons = *recoObjects.allLeptons_;
@@ -194,8 +176,6 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
     for(size_t iJet=0;iJet!=lowerPtCUTJetIdx.size();++iJet)
     //for(size_t iJet=0;iJet!=bJetsId.size();++iJet)
     {
-        //std::cout<<"-----------------------------------"<<std::endl;
-        //std::cout<<"iJet is = "<<iJet<<std::endl;
         int jetIdx = lowerPtCUTJetIdx.at(iJet);
         //int jetIdx = bJetsId.at(iJet);
         LV jets = allJets.at(jetIdx);
@@ -213,8 +193,6 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         
         // Mva specific tree and booleans to specify event type
         bool fillTree = false;
-        //bool thereIsALeadingLepton = false;
-        //bool thereIsALeadingMuon = false;
         bool thereIsASecondaryVertex = false;
         
         //Hyerarchical values for the c_{rel}
@@ -280,9 +258,6 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
            //if (jetHadronFlavour>0) continue;
         }
         
-        //FIXME weightReweighted is reweighted by the number of tracks
-        //double weightReweighted = weight*trackMultiplicityWeight (-0.0285, 1.4596, jetIdx, jetPfCandidateTrackIndex);
-        
         double trueBJetScalarCharge = jetChargeRelativePtWeighted.at(jetIdx);
         double trueBJetPt = jets.pt();
         double etaTrueBJets = jets.eta();
@@ -310,7 +285,6 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         }
         
         double maxPtTrueTrack  = -999.;
-        //double maxPtChargeTrueTrack = -999.;
         double maxTrueMagnitude = -999.;
         double maxTrueProduct = -999.;
         double leadingTrackPt = -999.;
@@ -696,9 +670,6 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
             int vertexIndex = -1;
             int vertexWeight = -1.;
             
-            //std::cout<<"================================"<<std::endl;
-            //std::cout<<"PfCandidate is = "<<iPfTrack<<std::endl;
-            
             // Check if PfCandidate belongs to primary vertex
             int  vertex = -1;
             unsigned int nFoundVertex = 0;
@@ -712,7 +683,6 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
                 if (jetPfCandidateVerticesJetIndex.at(iVtx)!=jetIdx) continue;
                 if (jetPfCandidateMatchToVerticesIndex.at(iVtx)!=iPfTrack) continue;
                 float w = eventVerticesWeights.at(iVtx);
-                //std::cout<<"The vertex index is = "<<eventVerticesIndices.at(iVtx)<<", the corresponding weight is = "<<eventVerticesWeights.at(iVtx)<<" and the z distance is = "<<jetPfCandidateZDistanceToVertices.at(iVtx)<<std::endl;
                 if (w!=0) m_histogram["h_pfCandidateNonZeroWeights"]->Fill(w, weight);
                 if (w!=0 && eventVerticesIndices.at(iVtx)!=0) m_histogram["h_pfCandidateNonZeroWeightsIndexNonZero"]->Fill(w, weight);
                 else if (w!=0 && eventVerticesIndices.at(iVtx)==0) m_histogram["h_pfCandidateNonZeroWeightsIndexZero"]->Fill(w, weight);
@@ -727,8 +697,6 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
                     zValue = jetPfCandidateZDistanceToVertices.at(iVtx);
                 }
             }
-            //if (bestweight!=0) std::cout<<"The maximum weight is = "<<bestweight<<" and corresponds to vertex = "<<vertex<< " with Z value = "<<zValue<<std::endl;
-            //if (bestweight!=0&&vertex!=0) std::cout<<"============================non zero vertex case========================"<<std::endl;
             
             if (nFoundVertex>1) 
             {
@@ -770,7 +738,6 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
                 if (vertex!=0) m_histogram["h_pfCandidateZVertexNonZero"]->Fill(1., weight);
             }
             m_histogram["h_pfCandidateMinZ"]->Fill(dzmin, weight);
-            //if (validPfCandidate==false) std::cout<<"The closest z vertex is = "<<dzmin<<" for the vertex "<<vertex<<std::endl;
             
             if (foundVertex && vertex == 0) validPfCandidate = true;
             
@@ -1527,9 +1494,6 @@ void AnalyzerJetCharge::bookMvaHistos(const TString& step, std::map<TString, TH1
     mvaChargeTestTree_->Branch("svChargeWeightedFlightDistance",&(mvaStruct_.svChargeWeightedFlightDistance_));
     mvaChargeTestTree_->Branch("secondaryVertexCharge",&(mvaStruct_.secondaryVertexCharge_));
     mvaChargeTestTree_->Branch("ipSignificanceLeadingTrack",&(mvaStruct_.ipSignificanceLeadingTrack_));
-    //mvaChargeTestTree_->Branch("thereIsALeadingLepton",&(mvaStruct_.thereIsALeadingLepton_));
-    //mvaChargeTestTree_->Branch("thereIsALeadingMuon",&(mvaStruct_.thereIsALeadingMuon_));
-    //mvaChargeTestTree_->Branch("thereIsASecondaryVertex",&(mvaStruct_.thereIsASecondaryVertex_));
     
     mvaChargeTrainTree_ = store (new TTree("mvaChargeTrainTree_","mvaChargeTrainTree_"));
     
@@ -1543,9 +1507,6 @@ void AnalyzerJetCharge::bookMvaHistos(const TString& step, std::map<TString, TH1
     mvaChargeTrainTree_->Branch("svChargeWeightedFlightDistance",&(mvaStruct_.svChargeWeightedFlightDistance_));
     mvaChargeTrainTree_->Branch("secondaryVertexCharge",&(mvaStruct_.secondaryVertexCharge_));
     mvaChargeTrainTree_->Branch("ipSignificanceLeadingTrack",&(mvaStruct_.ipSignificanceLeadingTrack_));
-    //mvaChargeTrainTree_->Branch("thereIsALeadingLepton",&(mvaStruct_.thereIsALeadingLepton_));
-    //mvaChargeTrainTree_->Branch("thereIsALeadingMuon",&(mvaStruct_.thereIsALeadingMuon_));
-    //mvaChargeTrainTree_->Branch("thereIsASecondaryVertex",&(mvaStruct_.thereIsASecondaryVertex_));
     
   
     // MVA variable separation testing
@@ -2671,27 +2632,6 @@ void AnalyzerJetCharge::bookMvaHistos(const TString& step, std::map<TString, TH1
     name = "h_trueBJet_bbarToAntiBsZero";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Number of bbar going into AntiBsZero",3,0.,2.));
     
-    name = "h_checkNumHadMatched";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Multiplicity of b-hadrons per jet;# B-hadrons;Jets",40,0.,4.));
-    
-    name = "checkBHadOthers";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"charge of b jets coming from other B (no Top or Higgs);Charge;Jets",24,-1.2,1.2));
-    
-    name = "h_GenJetPt";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"p_{T} of GenJets;p_{T};Jets genjets",40,0,200));
-    
-    name = "h_checkPfSelMatching";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Number of selected tracks - number of matched selected tracks; SelTracks-Matched selTracks;Jets",20,0,20));
-    
-    name = "h_trueBJetSelTrackMultiplicity";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Multiplicity of the selected tracks;SelTrack multiplicity;Jets",30,0,200));
-    
-    name = "h_pfSizeVsSelSizeNoMatching";
-    m_histogram[name] = store(new TH2D(prefix_+name+step,"Size of the pfCandidates vs selectedTracks;pfCandidates;selectedTracks",150,0.,150.,150,0.,150.));
-    
-    name = "h_checkHowManyTracks";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Size of the pfCandidates;pfCandidates;Tracks",40,0.,100.));
-    
     name = "h_test_jetPfCandidateChargeForB";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Charge of pfCandidates from B;charge;pfCandidates",24,-1.2,1.2));
     
@@ -2701,52 +2641,10 @@ void AnalyzerJetCharge::bookMvaHistos(const TString& step, std::map<TString, TH1
     name = "h_test_jetPfCandidateCharge";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Charge of pfCandidates;charge;pfCandidates",24,-1.2,1.2));
     
-    name = "h_test_jetPt";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"p_{T} of Jets;p_{T};Jets",80,0.,200.));
-    
-    name = "h_test_SV";
-    m_histogram[name] = store(new TH1D(prefix_+name+step," SV;SV; SV",100,0.,100.));
-    
-    name = "h_test_foundTrackPosition";
-    m_histogram[name] = store(new TH1D(prefix_+name+step," ",100,-10.,90.));
-    
-    name = "h_test_associatedSV";
-    m_histogram[name] = store(new TH1D(prefix_+name+step," ",5,-2.,2.));
-    
-    name = "h_test_secondaryVertexIndex";
-    m_histogram[name] = store(new TH1D(prefix_+name+step," ",10,-1.,9.));
-    
-    name = "h_test_foundIndices";
-    m_histogram[name] = store(new TH1D(prefix_+name+step," ",100,-10.,90.));
-    
-    name = "h_test_sizeOfTracks";
-    m_histogram[name] = store(new TH1D(prefix_+name+step," ",31,-1.,30.));
-    
-    name = "h_test_jetPtSelected";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"p_{T} of selected tracks;p_{T};Selected Tracks",20,0.,20.));
-    
-    name = "h_test_jetPtPfCandidates";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"p_{T} of pfCandidates tracks;p_{T};PfCandidates",20,0.,20.));
-    
-    name = "h_test_pfCandidatePtWhenMatched";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"p_{T} of pfCandidates tracks associated to a selTrack;p_{T};PfCandidates",40,0.,40.));
-    
-    name = "h_testMlb";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"mlb of events with two jets;mlb;Jets",20,0.,500.));
-    
     name = "h_selectedTrackJetCharge";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Charge of the jet using selTracks;charge;Selected Tracks",24,-1.2,1.2));
     
     // tests for closest z vertex
-    name = "h_pfCandidateMinZDistanceValue";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Minimum z distance value for pfCandidates;z value;pfCandidates",200,0.,20.));
-    
-    name = "h_pfCandidateMinZDistanceVertexIndex";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Vertex index to which pfCandidate minimum z value corresponds;vertex index;pfCandidates",22,-2.,20.));
-    
-    name = "h_pfCandidateMinZDistanceVertexWeight";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Vertex weight to which pfCandidate minimum z value corresponds;vertex weight;pfCandidates",10,0.,0.1));
-    
     name = "h_pfCandidateNonZeroWeights";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Vertex weight if different from zero;vertex weight;pfCandidates",10,0.,1.));
     
@@ -2767,27 +2665,6 @@ void AnalyzerJetCharge::bookMvaHistos(const TString& step, std::map<TString, TH1
     
     name = "h_pfCandidateMaxWeightsVsIndex";
     m_histogram[name] = store(new TH2D(prefix_+name+step,"Vertex index to which max. weight corresponds;weight;vertex index",10,0.,1.,22,-2.,20.));
-    
-    name = "h_pfCandidateMinZDistanceToVertexRelation";
-    m_histogram[name] = store(new TH2D(prefix_+name+step,"relation between minZ value and the vertex it corresponds to ;z distance;vertex index (0 is primary vertex - higher is pileup)",200,0.,20.,22,-2.,20.));
-    
-    name = "h_pfCandidateZeroVertexCharge";
-    m_histogram[name] = store(new TH1D(prefix_+name+step," pfCandidate  charge if they are matched to zero vertex by z;weight;pfCandidates",24,-1.2,1.2));
-    
-    name = "h_pfCandidateNonZeroVertexCharge";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"pfCandidate  charge if they are matched to non-zero vertex by z;weight;pfCandidates",24,-1.2,1.2));
-    
-    name = "h_pfCandidateZDistanceIfPositiveCharge";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Z value if the PfCandidate charge is +1 ;z distance; pfCandidate",200,0.,20.));
-    
-    name = "h_pfCandidateZDistanceIfNegativeCharge";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Z value if the PfCandidate charge is -1 ;z distance; pfCandidate",200,0.,20.));
-    
-    name = "h_pfCandidateVertexIndexForMinZIfPositiveCharge";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Vertex index if the PfCandidate charge is +1 ;vertex index; pfCandidate",22,-2.,20.));
-    
-    name = "h_pfCandidateVertexIndexForMinZIfNegativeCharge";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Vertex index if the PfCandidate charge is -1 ;vertex index; pfCandidate",22,-2.,20.));
     
     name = "h_pfCandidateInitialAmount";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Number of PfCandidates before weight check cut ;# pfCandidates; pfCandidate",2,0.,2.));
@@ -2814,7 +2691,6 @@ void AnalyzerJetCharge::bookMvaHistos(const TString& step, std::map<TString, TH1
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Pf candidate weights if only one found;# pfCandidates; pfCandidate",10,0.,1.));
     
     name = "h_pfCandidateMaxWeightIfOnlyOneFoundForAntiB";
-    
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Pf candidate weights if only one found;# pfCandidates; pfCandidate",10,0.,1.));
     
     name = "h_pfCandidateMaxWeightIfOnlyNoneFound";
