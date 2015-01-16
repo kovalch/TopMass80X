@@ -1038,8 +1038,14 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             v_leptonPdgId_.push_back(i_electron->pdgId());
             
             const reco::GsfTrack& track = *(i_electron->gsfTrack());
-            v_leptonDxyVertex0_.push_back(track.dxy(vertices->at(0).position()));
-            v_leptonDzVertex0_.push_back(track.dz(vertices->at(0).position()));
+            if(vertexMultiplicity_){
+                v_leptonDxyVertex0_.push_back(track.dxy(vertices->at(0).position()));
+                v_leptonDzVertex0_.push_back(track.dz(vertices->at(0).position()));
+            }
+            else{
+                v_leptonDxyVertex0_.push_back(-999.);
+                v_leptonDzVertex0_.push_back(-999.);
+            }
             
             // Electron MVA ID values
             double idTemp = -9999.;
@@ -1087,7 +1093,7 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             
             // Following https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideMuonId, these functions should be used for dxy and dz
             v_leptonDxyVertex0_.push_back(-i_muon->dB());
-            if(i_muon->muonBestTrack().isAvailable()) v_leptonDzVertex0_.push_back(i_muon->muonBestTrack()->dz(vertices->at(0).position()));
+            if(i_muon->muonBestTrack().isAvailable() && vertexMultiplicity_) v_leptonDzVertex0_.push_back(i_muon->muonBestTrack()->dz(vertices->at(0).position()));
             else v_leptonDzVertex0_.push_back(-999.);
             
             // Isolation
