@@ -95,8 +95,8 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
     const VLV& allJets = *recoObjects.jets_; 
     const std::vector<int>& lowerPtCUTJetIdx = recoObjectIndices.jetIndices_;           // Selected jets (point to jets from allJets)
     const std::vector<double>& jetChargeRelativePtWeighted = *recoObjects.jetChargeRelativePtWeighted_;
-    const int& recoBjetFromTopIndex = genObjectIndices.recoBjetFromTopIndex_;
-    const int& recoAntiBjetFromTopIndex = genObjectIndices.recoAntiBjetFromTopIndex_;
+    //const int& recoBjetFromTopIndex = genObjectIndices.recoBjetFromTopIndex_;
+    //const int& recoAntiBjetFromTopIndex = genObjectIndices.recoAntiBjetFromTopIndex_;
     const std::vector<double>& jetBTagCSV = *recoObjects.jetBTagCSV_;
     
     // b-hadron + c-hadron information
@@ -181,7 +181,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         LV jets = allJets.at(jetIdx);
         
         //FIXME weightReweighted is reweighted by the number of tracks
-        double weightReweighted = weight*trackMultiplicityWeight (-0.0268, 1.4351,jetIdx,jetPfCandidateTrackIndex);
+        //double weightReweighted = weight*trackMultiplicityWeight (-0.0268, 1.4351,jetIdx,jetPfCandidateTrackIndex);
         
         if (optionForCalibration==2)
         {
@@ -665,23 +665,18 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
             else if (jetHadronFlavour<0) m_histogram["h_pfCandidateInitialAmountForAntiB"]->Fill(0., weight);
             
             // TEST zvertex studies
-            double dzmin = 10000;
-            double weightMax = -100.;
-            int vertexIndex = -1;
-            int vertexWeight = -1.;
-            
             // Check if PfCandidate belongs to primary vertex
             int  vertex = -1;
             unsigned int nFoundVertex = 0;
             float bestweight=0;
             bool foundVertex = false;
             bool validPfCandidate = false;
-            double zValue = -1;
+            double dzmin = 10000;
             
             for(size_t iVtx = 0; iVtx!=jetPfCandidateMatchToVerticesIndex.size();++iVtx) 
             {
                 if (jetPfCandidateVerticesJetIndex.at(iVtx)!=jetIdx) continue;
-                if (jetPfCandidateMatchToVerticesIndex.at(iVtx)!=iPfTrack) continue;
+                if (jetPfCandidateMatchToVerticesIndex.at(iVtx)!=static_cast<int>(iPfTrack)) continue;
                 float w = eventVerticesWeights.at(iVtx);
                 if (w!=0) m_histogram["h_pfCandidateNonZeroWeights"]->Fill(w, weight);
                 if (w!=0 && eventVerticesIndices.at(iVtx)!=0) m_histogram["h_pfCandidateNonZeroWeightsIndexNonZero"]->Fill(w, weight);
@@ -694,7 +689,6 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
                     bestweight=w;
                     vertex=eventVerticesIndices.at(iVtx);
                     nFoundVertex++;
-                    zValue = jetPfCandidateZDistanceToVertices.at(iVtx);
                 }
             }
             
@@ -727,7 +721,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
                 for(size_t iVtx2=0; iVtx2!=eventVerticesIndices.size(); ++iVtx2) 
                 {
                     if (jetPfCandidateVerticesJetIndex.at(iVtx2)!=jetIdx) continue;
-                    if (jetPfCandidateMatchToVerticesIndex.at(iVtx2)!=iPfTrack) continue;
+                    if (jetPfCandidateMatchToVerticesIndex.at(iVtx2)!=static_cast<int>(iPfTrack)) continue;
                     if(jetPfCandidateZDistanceToVertices.at(iVtx2)<dzmin) 
                     {
                         dzmin = jetPfCandidateZDistanceToVertices.at(iVtx2); 
