@@ -44,29 +44,26 @@ debug_(0)
     debug_ = debug;
     std::cout<<"--- Beginning setting up jetChargeAnalyzer\n";
     
-//     reader_ = new TMVA::Reader();
-//     TMVA::Tools::Instance(); 
-//     
-//     TString case1_ = "testingTheReader";
-//     TString weight1 = "/data/user/jgaray/cmsswFullSetup_14Patch1/CMSSW_5_3_14_patch1/src/TopAnalysis/Configuration/analysis/ttH/factoryOutput/261114/invertSignalAndBkg/weights/MVA_BDTAdaBoost.weights.xml";
-//     
-//     
-//     reader_->AddVariable("longChargeJet", &(mvaStruct_.longChargeJet_));
-//     reader_->AddVariable("relChargeJet",&(mvaStruct_.relChargeJet_));
-//     reader_->AddVariable("leadingTrackPtWeightedCharge",&(mvaStruct_.leadingTrackPtWeightedCharge_));
-//     reader_->AddVariable("leadingMuonPtWeightedCharge",&(mvaStruct_.leadingMuonPtWeightedCharge_));
-//     reader_->AddVariable("trackNumberWeightedJetPt",&(mvaStruct_.trackNumberWeightedJetPt_));
-//     reader_->AddVariable("chargeWeightedTrackId",&(mvaStruct_.chargeWeightedTrackId_));
-//     reader_->AddVariable("svChargeWeightedFlightDistance",&(mvaStruct_.svChargeWeightedFlightDistance_));
-//     reader_->AddVariable("secondaryVertexCharge",&(mvaStruct_.secondaryVertexCharge_));
-//     reader_->AddVariable("ipSignificanceLeadingTrack",&(mvaStruct_.ipSignificanceLeadingTrack_));
-//     //reader_->AddVariable("thereIsALeadingLepton",&(mvaStruct_.thereIsALeadingLepton_));
-//     //reader_->AddVariable("thereIsALeadingMuon",&(mvaStruct_.thereIsALeadingMuon_));
-//     //reader_->AddVariable("thereIsASecondaryVertex",&(mvaStruct_.thereIsASecondaryVertex_));
-//     
-//     reader_->AddSpectator("trueBJetId",&(mvaStruct_.trueBJetId_));
-//     
-//     reader_->BookMVA(case1_, weight1); 
+    //reader_ = new TMVA::Reader();
+    //TMVA::Tools::Instance(); 
+    
+    //TString case1_ = "testingTheReader";
+    //TString weight1 = "/data/user/jgaray/cmsswFullSetup_14Patch1/CMSSW_5_3_14_patch1/src/TopAnalysis/Configuration/analysis/ttH/factoryOutput/261114/invertSignalAndBkg/weights/MVA_BDTAdaBoost.weights.xml";
+    
+    
+    //reader_->AddVariable("longChargeJet", &(mvaStruct_.longChargeJet_));
+    //reader_->AddVariable("relChargeJet",&(mvaStruct_.relChargeJet_));
+    //reader_->AddVariable("leadingTrackPtWeightedCharge",&(mvaStruct_.leadingTrackPtWeightedCharge_));
+    //reader_->AddVariable("leadingMuonPtWeightedCharge",&(mvaStruct_.leadingMuonPtWeightedCharge_));
+    //reader_->AddVariable("trackNumberWeightedJetPt",&(mvaStruct_.trackNumberWeightedJetPt_));
+    //reader_->AddVariable("chargeWeightedTrackId",&(mvaStruct_.chargeWeightedTrackId_));
+    //reader_->AddVariable("svChargeWeightedFlightDistance",&(mvaStruct_.svChargeWeightedFlightDistance_));
+    //reader_->AddVariable("secondaryVertexCharge",&(mvaStruct_.secondaryVertexCharge_));
+    //reader_->AddVariable("ipSignificanceLeadingTrack",&(mvaStruct_.ipSignificanceLeadingTrack_));
+    
+    //reader_->AddSpectator("trueBJetId",&(mvaStruct_.trueBJetId_));
+    
+    //reader_->BookMVA(case1_, weight1); 
     
     std::cout<<"=== Finishing setting up jetChargeAnalyzer\n\n";
 }
@@ -1433,11 +1430,6 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         if (thereIsASecondaryVertex) m_histogram["h_mva_secondaryVertexWeightedCharge"]->Fill(chargeOfSecondaryVerticesForSelectedTracks.at(0), weight);
         else m_histogram["h_mva_secondaryVertexWeightedCharge"]->Fill(0., weight);
         m_histogram["h_mva_jetCharge_x08"]->Fill(trueBJetScalarChargeVector.at(3), weight);
-        //if (thereIsALeadingLepton) fillTree = true;
-        //if (thereIsALeadingMuon) fillTree = true;
-        //if (thereIsASecondaryVertex) fillTree = true;
-        //if (thereIsALeadingLepton&&thereIsASecondaryVertex) fillTree = true;
-        //if (thereIsALeadingMuon&&thereIsASecondaryVertex) fillTree = true;
         fillTree = true;
         
         // MVA specific variable filling
@@ -1454,9 +1446,6 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         else mvaStruct_.secondaryVertexCharge_ = 0.; 
         if (impactParameterValuesForPf.size()!=0) mvaStruct_.ipSignificanceLeadingTrack_ = impactParameterSignificanceOfLeadingTrack;
         else (mvaStruct_.ipSignificanceLeadingTrack_ = 0.);
-        //mvaStruct_.thereIsALeadingLepton_ = thereIsALeadingLepton;
-        //mvaStruct_.thereIsALeadingMuon_ = thereIsALeadingMuon;
-        //mvaStruct_.thereIsASecondaryVertex_ = thereIsASecondaryVertex;
         
         //Fill the mva trees
         if (fillTree) 
@@ -1465,45 +1454,45 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
             else mvaChargeTrainTree_->Fill();
         }
         
-//         // MVA reader variable
-//         double val1 = reader_->EvaluateMVA ("testingTheReader");
-//         
-//         if (recoBjetFromTopIndex==jetIdx) m_histogram["h_testB"]->Fill(val1);
-//         if (recoAntiBjetFromTopIndex==jetIdx) m_histogram["h_testAntiB"]->Fill(val1);
-//         m_histogram["h_weights"]->Fill(val1);
-//        
-//        if (jetHadronFlavour>0) m_histogram["h_testB_fromAll"]->Fill(val1);
-//        if (jetHadronFlavour<0) m_histogram["h_testAntiB_fromAll"]->Fill(val1);
-//        
-//        if (val1<0) m_histogram["h_testB_fromAll_charge"]->Fill(trueBJetScalarChargeVector.at(3));
-//        if (val1>0) m_histogram["h_testAntiB_fromAll_charge"]->Fill(trueBJetScalarChargeVector.at(3));
-//        
-//        if (jetHadronFlavour>0) m_histogram["h_trueB_fromAll_charge"]->Fill(trueBJetScalarChargeVector.at(3));
-//        if (jetHadronFlavour<0) m_histogram["h_trueAntiB_fromAll_charge"]->Fill(trueBJetScalarChargeVector.at(3));
-//        
-//        if (jetHadronFlavour>0 && val1<0) m_histogram["h_coincidenceTest_flavourB"]->Fill(trueBJetScalarChargeVector.at(3));
-//        else if (jetHadronFlavour>0&&val1>0) m_histogram["h_coincidenceTest_flavourB_fail"]->Fill(trueBJetScalarChargeVector.at(3));
-//        
-//        if (jetHadronFlavour<0 && val1>0) m_histogram["h_coincidenceTest_flavourAntiB"]->Fill(trueBJetScalarChargeVector.at(3));
-//        else if (jetHadronFlavour<0 && val1<0) m_histogram["h_coincidenceTest_flavourAntiB_fail"]->Fill(trueBJetScalarChargeVector.at(3));
-//        
-//        if (recoBjetFromTopIndex==jetIdx && val1<0) m_histogram["h_coincidenceTest_topB"]->Fill(1);
-//        else if (recoBjetFromTopIndex==jetIdx&&val1>0) m_histogram["h_coincidenceTest_topB"]->Fill(0);
-//        
-//        if (recoAntiBjetFromTopIndex==jetIdx && val1>0) m_histogram["h_coincidenceTest_topAntiB"]->Fill(1);
-//        else if (recoAntiBjetFromTopIndex==jetIdx && val1<0) m_histogram["h_coincidenceTest_topAntiB"]->Fill(0);
-//        
-//        if (jetHadronFlavour>0 && trueBJetScalarCharge<0) m_histogram["h_coincidenceTest_flavourB_oldDefinition"]->Fill(1);
-//        else if (jetHadronFlavour>0 && trueBJetScalarCharge>0) m_histogram["h_coincidenceTest_flavourB_oldDefinition"]->Fill(0);
-//        
-//        if (jetHadronFlavour<0 && trueBJetScalarCharge>0) m_histogram["h_coincidenceTest_flavourAntiB_oldDefinition"]->Fill(1);
-//        else if (jetHadronFlavour<0 && trueBJetScalarCharge<0) m_histogram["h_coincidenceTest_flavourAntiB_oldDefinition"]->Fill(0);
-//        
-//        if (recoBjetFromTopIndex==jetIdx&& trueBJetScalarCharge<0) m_histogram["h_coincidenceTest_topB_oldDefinition"]->Fill(1);
-//        else if (recoBjetFromTopIndex==jetIdx && trueBJetScalarCharge>0) m_histogram["h_coincidenceTest_topB_oldDefinition"]->Fill(0);
-//        
-//        if (recoAntiBjetFromTopIndex==jetIdx&& trueBJetScalarCharge>0) m_histogram["h_coincidenceTest_topAntiB_oldDefinition"]->Fill(1);
-//        else if (recoAntiBjetFromTopIndex==jetIdx && trueBJetScalarCharge<0) m_histogram["h_coincidenceTest_topAntiB_oldDefinition"]->Fill(0);
+        //// MVA reader variable
+        //double val1 = reader_->EvaluateMVA ("testingTheReader");
+        
+        //if (recoBjetFromTopIndex==jetIdx) m_histogram["h_testB"]->Fill(val1);
+        //if (recoAntiBjetFromTopIndex==jetIdx) m_histogram["h_testAntiB"]->Fill(val1);
+        //m_histogram["h_weights"]->Fill(val1);
+       
+       //if (jetHadronFlavour>0) m_histogram["h_testB_fromAll"]->Fill(val1);
+       //if (jetHadronFlavour<0) m_histogram["h_testAntiB_fromAll"]->Fill(val1);
+       
+       //if (val1<0) m_histogram["h_testB_fromAll_charge"]->Fill(trueBJetScalarChargeVector.at(3));
+       //if (val1>0) m_histogram["h_testAntiB_fromAll_charge"]->Fill(trueBJetScalarChargeVector.at(3));
+       
+       //if (jetHadronFlavour>0) m_histogram["h_trueB_fromAll_charge"]->Fill(trueBJetScalarChargeVector.at(3));
+       //if (jetHadronFlavour<0) m_histogram["h_trueAntiB_fromAll_charge"]->Fill(trueBJetScalarChargeVector.at(3));
+       
+       //if (jetHadronFlavour>0 && val1<0) m_histogram["h_coincidenceTest_flavourB"]->Fill(trueBJetScalarChargeVector.at(3));
+       //else if (jetHadronFlavour>0&&val1>0) m_histogram["h_coincidenceTest_flavourB_fail"]->Fill(trueBJetScalarChargeVector.at(3));
+       
+       //if (jetHadronFlavour<0 && val1>0) m_histogram["h_coincidenceTest_flavourAntiB"]->Fill(trueBJetScalarChargeVector.at(3));
+       //else if (jetHadronFlavour<0 && val1<0) m_histogram["h_coincidenceTest_flavourAntiB_fail"]->Fill(trueBJetScalarChargeVector.at(3));
+       
+       //if (recoBjetFromTopIndex==jetIdx && val1<0) m_histogram["h_coincidenceTest_topB"]->Fill(1);
+       //else if (recoBjetFromTopIndex==jetIdx&&val1>0) m_histogram["h_coincidenceTest_topB"]->Fill(0);
+       
+       //if (recoAntiBjetFromTopIndex==jetIdx && val1>0) m_histogram["h_coincidenceTest_topAntiB"]->Fill(1);
+       //else if (recoAntiBjetFromTopIndex==jetIdx && val1<0) m_histogram["h_coincidenceTest_topAntiB"]->Fill(0);
+       
+       //if (jetHadronFlavour>0 && trueBJetScalarCharge<0) m_histogram["h_coincidenceTest_flavourB_oldDefinition"]->Fill(1);
+       //else if (jetHadronFlavour>0 && trueBJetScalarCharge>0) m_histogram["h_coincidenceTest_flavourB_oldDefinition"]->Fill(0);
+       
+       //if (jetHadronFlavour<0 && trueBJetScalarCharge>0) m_histogram["h_coincidenceTest_flavourAntiB_oldDefinition"]->Fill(1);
+       //else if (jetHadronFlavour<0 && trueBJetScalarCharge<0) m_histogram["h_coincidenceTest_flavourAntiB_oldDefinition"]->Fill(0);
+       
+       //if (recoBjetFromTopIndex==jetIdx&& trueBJetScalarCharge<0) m_histogram["h_coincidenceTest_topB_oldDefinition"]->Fill(1);
+       //else if (recoBjetFromTopIndex==jetIdx && trueBJetScalarCharge>0) m_histogram["h_coincidenceTest_topB_oldDefinition"]->Fill(0);
+       
+       //if (recoAntiBjetFromTopIndex==jetIdx&& trueBJetScalarCharge>0) m_histogram["h_coincidenceTest_topAntiB_oldDefinition"]->Fill(1);
+       //else if (recoAntiBjetFromTopIndex==jetIdx && trueBJetScalarCharge<0) m_histogram["h_coincidenceTest_topAntiB_oldDefinition"]->Fill(0);
        
     } //end loop over reco jets
     
