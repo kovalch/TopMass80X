@@ -8,7 +8,7 @@ import os
 ## Global job options
 
 REPORTEVERY = 100
-WANTSUMMARY = True
+WANTSUMMARY = False
 
 
 

@@ -689,6 +689,10 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
             if (jetIdx!=jetPfCandidateTrackIndex.at(iPfTrack)) trueMatched = -1;
             if (trueMatched == -1) continue;
             
+            m_histogram["h_pfCandidateInitialAmount"]->Fill(0., weight);
+            if (jetHadronFlavour>0) m_histogram["h_pfCandidateInitialAmountForB"]->Fill(0., weight);
+            else if (jetHadronFlavour<0) m_histogram["h_pfCandidateInitialAmountForAntiB"]->Fill(0., weight);
+            
             // TEST zvertex studies
             double dzmin = 10000;
             double weightMax = -100.;
@@ -699,7 +703,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
             //std::cout<<"PfCandidate is = "<<iPfTrack<<std::endl;
             
             // Check if PfCandidate belongs to primary vertex
-            size_t  vertex = -1;
+            int  vertex = -1;
             unsigned int nFoundVertex = 0;
             float bestweight=0;
             bool foundVertex = false;
@@ -711,6 +715,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
                 if (jetPfCandidateVerticesJetIndex.at(iVtx)!=jetIdx) continue;
                 if (jetPfCandidateMatchToVerticesIndex.at(iVtx)!=iPfTrack) continue;
                 float w = eventVerticesWeights.at(iVtx);
+                //std::cout<<"The vertex index is = "<<eventVerticesIndices.at(iVtx)<<", the corresponding weight is = "<<eventVerticesWeights.at(iVtx)<<" and the z distance is = "<<jetPfCandidateZDistanceToVertices.at(iVtx)<<std::endl;
                 if (w!=0) m_histogram["h_pfCandidateNonZeroWeights"]->Fill(w, weight);
                 if (w!=0 && eventVerticesIndices.at(iVtx)!=0) m_histogram["h_pfCandidateNonZeroWeightsIndexNonZero"]->Fill(w, weight);
                 else if (w!=0 && eventVerticesIndices.at(iVtx)==0) m_histogram["h_pfCandidateNonZeroWeightsIndexZero"]->Fill(w, weight);
@@ -725,12 +730,34 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
                     zValue = jetPfCandidateZDistanceToVertices.at(iVtx);
                 }
             }
+            //if (bestweight!=0) std::cout<<"The maximum weight is = "<<bestweight<<" and corresponds to vertex = "<<vertex<< " with Z value = "<<zValue<<std::endl;
+            //if (bestweight!=0&&vertex!=0) std::cout<<"============================non zero vertex case========================"<<std::endl;
+            
+            if (nFoundVertex>1) 
+            {
+                std::cout<<"TOO MANY HIGH WEIGHTS!!"<<std::endl;
+                m_histogram["h_pfCandidateMaxWeightIfSeveralFound"]->Fill(1., weight);
+                if (jetHadronFlavour>0) m_histogram["h_pfCandidateMaxWeightIfSeveralFoundForB"]->Fill(0., weight);
+                else if (jetHadronFlavour<0) m_histogram["h_pfCandidateMaxWeightIfSeveralFoundForAntiB"]->Fill(0., weight);
+            }
+            else if (nFoundVertex==1) 
+            {
+                m_histogram["h_pfCandidateMaxWeightIfOnlyOneFound"]->Fill(1., weight);
+                if (jetHadronFlavour>0) m_histogram["h_pfCandidateMaxWeightIfOnlyOneFoundForB"]->Fill(0., weight);
+                else if (jetHadronFlavour<0) m_histogram["h_pfCandidateMaxWeightIfOnlyOneFoundForAntiB"]->Fill(0., weight);
+            }
+            else if (nFoundVertex<1) 
+            {
+                m_histogram["h_pfCandidateMaxWeightIfOnlyNoneFound"]->Fill(1., weight);
+                if (jetHadronFlavour>0) m_histogram["h_pfCandidateMaxWeightIfOnlyNoneFoundForB"]->Fill(0., weight);
+                else if (jetHadronFlavour<0) m_histogram["h_pfCandidateMaxWeightIfOnlyNoneFoundForAntiB"]->Fill(0., weight);
+            }
             
             if (nFoundVertex >= 1 && vertex==0) validPfCandidate = true;
-            if (validPfCandidate) ((TH2D*)m_histogram["h_pfCandidateMaxWeightsVsIndex"])->Fill(bestweight,vertex, weight);
+            if (nFoundVertex>=1) ((TH2D*)m_histogram["h_pfCandidateMaxWeightsVsIndex"])->Fill(bestweight,vertex, weight);
             
             // If pfCandiate associated to no vertex -> CheckClosesZVertex
-            else
+            if (validPfCandidate==false)
             {
                 for(size_t iVtx2=0; iVtx2!=eventVerticesIndices.size(); ++iVtx2) 
                 {
@@ -743,7 +770,11 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
                         foundVertex = true;
                     }
                 }
+                if (vertex!=0) m_histogram["h_pfCandidateZVertexNonZero"]->Fill(1., weight);
             }
+            m_histogram["h_pfCandidateMinZ"]->Fill(dzmin, weight);
+            //if (validPfCandidate==false) std::cout<<"The closest z vertex is = "<<dzmin<<" for the vertex "<<vertex<<std::endl;
+            
             if (foundVertex && vertex == 0) validPfCandidate = true;
             
             // Remove tracks not associated to primary vertex 0
@@ -918,7 +949,6 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
             
             m_histogram["h_trueBJetRelPtTrack"]->Fill(trueMagnitude, weight);
             
-           
             
         } //end of pfCandidates track loop
         
@@ -2769,6 +2799,49 @@ void AnalyzerJetCharge::bookMvaHistos(const TString& step, std::map<TString, TH1
     
     name = "h_pfCandidateVertexIndexForMinZIfNegativeCharge";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Vertex index if the PfCandidate charge is -1 ;vertex index; pfCandidate",22,-2.,20.));
+    
+    name = "h_pfCandidateInitialAmount";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Number of PfCandidates before weight check cut ;# pfCandidates; pfCandidate",2,0.,2.));
+    
+    name = "h_pfCandidateInitialAmountForAntiB";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Number of PfCandidates from antiB before weight check cut ;# pfCandidates; pfCandidate",2,0.,2.));
+    
+    name = "h_pfCandidateInitialAmountForB";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Number of PfCandidates from B before weight check cut ;# pfCandidates; pfCandidate",2,0.,2.));
+    
+    name = "h_pfCandidateMaxWeightIfSeveralFound";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pf candidate weights if several found ;pfCandidate weight; pfCandidate",10,0.,1.));
+    
+    name = "h_pfCandidateMaxWeightIfSeveralFoundForB";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pf candidate weights if several found ;pfCandidate weight; pfCandidate",10,0.,1.));
+    
+    name = "h_pfCandidateMaxWeightIfSeveralFoundForAntiB";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pf candidate weights if several found ;pfCandidate weight; pfCandidate",10,0.,1.));
+    
+    name = "h_pfCandidateMaxWeightIfOnlyOneFound";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pf candidate weights if only one found;# pfCandidates; pfCandidate",10,0.,1.));
+    
+    name = "h_pfCandidateMaxWeightIfOnlyOneFoundForB";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pf candidate weights if only one found;# pfCandidates; pfCandidate",10,0.,1.));
+    
+    name = "h_pfCandidateMaxWeightIfOnlyOneFoundForAntiB";
+    
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pf candidate weights if only one found;# pfCandidates; pfCandidate",10,0.,1.));
+    
+    name = "h_pfCandidateMaxWeightIfOnlyNoneFound";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pf candidate weights if none found;# pfCandidates; pfCandidate",10,0.,1.));
+    
+    name = "h_pfCandidateMaxWeightIfOnlyNoneFoundForB";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pf candidate weights if none found;# pfCandidates; pfCandidate",10,0.,1.));
+    
+    name = "h_pfCandidateMaxWeightIfOnlyNoneFoundForAntiB";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pf candidate weights if none found;# pfCandidates; pfCandidate",10,0.,1.));
+    
+    name = "h_pfCandidateMinZ";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Closest vertex z distance;z; pfCandidate",200,0.,20.));
+    
+    name = "h_pfCandidateZVertexNonZero";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Closest vertex z distance;z; pfCandidate",2,0.,2.));
     
  }
 
