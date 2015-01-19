@@ -188,9 +188,9 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         std::vector<double> jetSecondaryVertexFlightDistanceSignificance;
         
         // Access vertex information
-        // The jetPfCandidateRelationToInteractionVertex variable is filled as follows: -1 -> more than one vertex associated to the same pfCandidate, 0 -> vertex zero associated through weight value, 
+        // The jetPfCandidateTrackRelationToInteractionVertex variable is filled as follows: -1 -> more than one vertex associated to the same pfCandidate, 0 -> vertex zero associated through weight value, 
         // 1 -> vertex zero associated through min z distance, 2 -> vertex different from zero associated through min z distance, 3 -> vertex different from zero associated through weight value.
-        std::vector<int> jetPfCandidateRelationToInteractionVertex;
+        std::vector<int> jetPfCandidateTrackRelationToInteractionVertex;
         
         // pT-corrected secondary vertex mass used by the CSV algorithm (if there's no secondary vertex in the jet then it is set to -8888.)
         double jetSecondaryVertexPtCorrectedMass = -8888.;
@@ -241,11 +241,11 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
                     nFoundVertex++;
                 }
             } 
-            if (nFoundVertex==1 && vertexIndex==0) jetPfCandidateRelationToInteractionVertex.push_back(0);
+            if (nFoundVertex==1 && vertexIndex==0) jetPfCandidateTrackRelationToInteractionVertex.push_back(0);
                 
-            else if (nFoundVertex==1&& vertexIndex!=0) jetPfCandidateRelationToInteractionVertex.push_back(3);
+            else if (nFoundVertex==1&& vertexIndex!=0) jetPfCandidateTrackRelationToInteractionVertex.push_back(3);
                 
-            else if (nFoundVertex>1) jetPfCandidateRelationToInteractionVertex.push_back(-1);
+            else if (nFoundVertex>1) jetPfCandidateTrackRelationToInteractionVertex.push_back(-1);
                
             // If no maximum weight is found, look for the vertex closest in z
             else if (nFoundVertex<1)
@@ -259,8 +259,8 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
                         vertexIndex = vtx2 - vertexCollection->begin();
                     }
                 }
-                if (vertexIndex!=0) jetPfCandidateRelationToInteractionVertex.push_back(2);
-                else if (vertexIndex==0) jetPfCandidateRelationToInteractionVertex.push_back(1);
+                if (vertexIndex!=0) jetPfCandidateTrackRelationToInteractionVertex.push_back(2);
+                else if (vertexIndex==0) jetPfCandidateTrackRelationToInteractionVertex.push_back(1);
             }
         }
         
@@ -398,7 +398,7 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
             jetAssociatedParton = genParton->polarP4();
         }
         
-        JetProperties jetProperties(jetChargeGlobalPtWeighted, jetChargeRelativePtWeighted, jetAssociatedPartonPdgId, jetAssociatedParton, jetPfCandidateTrack, jetPfCandidateTrackCharge,jetPfCandidateTrackId, jetPfCandidateRelationToInteractionVertex, jetSelectedTrackMatchToPfCandidateIndex, jetSelectedTrack, jetSelectedTrackIPValue, jetSelectedTrackIPSignificance, jetSelectedTrackCharge, jetSecondaryVertexTrackMatchToSelectedTrackIndex, jetSecondaryVertexTrackVertexIndex, jetSecondaryVertex, jetSecondaryVertexFlightDistanceValue, jetSecondaryVertexFlightDistanceSignificance, jetSecondaryVertexPtCorrectedMass);
+        JetProperties jetProperties(jetChargeGlobalPtWeighted, jetChargeRelativePtWeighted, jetAssociatedPartonPdgId, jetAssociatedParton, jetPfCandidateTrack, jetPfCandidateTrackCharge,jetPfCandidateTrackId, jetPfCandidateTrackRelationToInteractionVertex, jetSelectedTrackMatchToPfCandidateIndex, jetSelectedTrack, jetSelectedTrackIPValue, jetSelectedTrackIPSignificance, jetSelectedTrackCharge, jetSecondaryVertexTrackMatchToSelectedTrackIndex, jetSecondaryVertexTrackVertexIndex, jetSecondaryVertex, jetSecondaryVertexFlightDistanceValue, jetSecondaryVertexFlightDistanceSignificance, jetSecondaryVertexPtCorrectedMass);
         v_jetProperties->push_back(jetProperties);
         
         edm::LogVerbatim log("JetPropertiesProducer");
@@ -425,7 +425,7 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         jetSecondaryVertexFlightDistanceSignificance.clear();
         jetSecondaryVertexTrackVertexIndex.clear();
         jetSecondaryVertexTrackMatchToSelectedTrackIndex.clear();
-        jetPfCandidateRelationToInteractionVertex.clear();
+        jetPfCandidateTrackRelationToInteractionVertex.clear();
     }
     
     iEvent.put(v_jetProperties);
