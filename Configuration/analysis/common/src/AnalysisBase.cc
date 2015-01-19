@@ -450,7 +450,7 @@ void AnalysisBase::clearBranches()
     b_jetSecondaryVertexFlightDistanceSignificance = 0;
     b_jetSecondaryVertexTrackVertexIndex = 0;
     b_jetSecondaryVertexTrackMatchToSelectedTrackIndex = 0;
-    b_jetPfCandidateTrackRelationToInteractionVertex = 0;
+    b_jetPfCandidatePrimaryVertexId = 0;
     b_met = 0;
     b_vertMulti = 0;
     
@@ -668,8 +668,8 @@ void AnalysisBase::SetRecoBranchAddresses()
         chain_->SetBranchAddress("jetSecondaryVertexTrackVertexIndex", &recoObjects_->jetSecondaryVertexTrackVertexIndex_, &b_jetSecondaryVertexTrackVertexIndex);
     if(chain_->GetBranch("jetSecondaryVertexTrackMatchToSelectedTrackIndex")) // new variable, keep check a while for compatibility
         chain_->SetBranchAddress("jetSecondaryVertexTrackMatchToSelectedTrackIndex", &recoObjects_->jetSecondaryVertexTrackMatchToSelectedTrackIndex_, &b_jetSecondaryVertexTrackMatchToSelectedTrackIndex);
-    if(chain_->GetBranch("jetPfCandidateTrackRelationToInteractionVertex")) // new variable, keep check a while for compatibility
-        chain_->SetBranchAddress("jetPfCandidateTrackRelationToInteractionVertex", &recoObjects_->jetPfCandidateTrackRelationToInteractionVertex_, &b_jetPfCandidateTrackRelationToInteractionVertex);
+    if(chain_->GetBranch("jetPfCandidatePrimaryVertexId")) // new variable, keep check a while for compatibility
+        chain_->SetBranchAddress("jetPfCandidatePrimaryVertexId", &recoObjects_->jetPfCandidatePrimaryVertexId_, &b_jetPfCandidatePrimaryVertexId);
     if(mvaMet_){
         if(chain_->GetBranch("mvamet")) // new variable, keep check a while for compatibility
             chain_->SetBranchAddress("mvamet", &recoObjects_->met_, &b_met);
@@ -919,7 +919,7 @@ void AnalysisBase::GetRecoBranchesEntry(const Long64_t& entry)const
     if(b_jetSecondaryVertexFlightDistanceSignificance) b_jetSecondaryVertexFlightDistanceSignificance->GetEntry(entry);
     if(b_jetSecondaryVertexTrackVertexIndex) b_jetSecondaryVertexTrackVertexIndex->GetEntry(entry);
     if(b_jetSecondaryVertexTrackMatchToSelectedTrackIndex) b_jetSecondaryVertexTrackMatchToSelectedTrackIndex->GetEntry(entry);
-    if(b_jetPfCandidateTrackRelationToInteractionVertex) b_jetPfCandidateTrackRelationToInteractionVertex->GetEntry(entry);
+    if(b_jetPfCandidatePrimaryVertexId) b_jetPfCandidatePrimaryVertexId->GetEntry(entry);
     b_met->GetEntry(entry);
     b_vertMulti->GetEntry(entry);
 

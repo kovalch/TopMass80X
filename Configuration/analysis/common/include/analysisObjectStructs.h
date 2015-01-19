@@ -60,7 +60,7 @@ struct RecoObjects{
     std::vector<LV>* jetPfCandidateTrack_;
     std::vector<int>* jetPfCandidateTrackCharge_;
     std::vector<int>* jetPfCandidateTrackId_;
-    std::vector<int>* jetPfCandidateTrackRelationToInteractionVertex_;
+    std::vector<int>* jetPfCandidatePrimaryVertexId_;
     std::vector<int>* jetPfCandidateTrackIndex_;
     std::vector<LV>* jetSelectedTrack_;
     std::vector<double>* jetSelectedTrackIPValue_;
