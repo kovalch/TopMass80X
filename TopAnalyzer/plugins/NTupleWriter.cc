@@ -225,6 +225,7 @@ private:
     std::vector<LV> v_jetPfCandidateTrack_;
     std::vector<int> v_jetPfCandidateTrackCharge_;
     std::vector<int> v_jetPfCandidateTrackId_;
+    std::vector<int> v_jetPfCandidateRelationToInteractionVertex_;
     std::vector<int> v_jetPfCandidateTrackIndex_;
     std::vector<int> v_jetSelectedTrackMatchToPfCandidateIndex_;
     std::vector<LV> v_jetSelectedTrack_;
@@ -239,9 +240,6 @@ private:
     std::vector<double> v_jetSecondaryVertexFlightDistanceSignificance_;
     std::vector<int> v_jetSecondaryVertexTrackMatchToSelectedTrackIndex_;
     std::vector<int> v_jetSecondaryVertexTrackVertexIndex_;
-    std::vector<int> v_jetPfCandidateRelationToInteractionVertex_;
-    std::vector<int> v_jetPfCandidateMatchToVerticesIndex_;
-    std::vector<int> v_jetPfCandidateVerticesJetIndex_;
     
     // ... for MET
     LV met_;
@@ -1180,6 +1178,7 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             v_jetPfCandidateTrack_.insert(v_jetPfCandidateTrack_.end(), i_jetProperties->jetPfCandidateTrack().begin(), i_jetProperties->jetPfCandidateTrack().end());
             v_jetPfCandidateTrackCharge_.insert(v_jetPfCandidateTrackCharge_.end(), i_jetProperties->jetPfCandidateTrackCharge().begin(), i_jetProperties->jetPfCandidateTrackCharge().end());
             v_jetPfCandidateTrackId_.insert(v_jetPfCandidateTrackId_.end(), i_jetProperties->jetPfCandidateTrackId().begin(), i_jetProperties->jetPfCandidateTrackId().end());
+            v_jetPfCandidateRelationToInteractionVertex_.insert(v_jetPfCandidateRelationToInteractionVertex_.end(),i_jetProperties->jetPfCandidateRelationToInteractionVertex().begin(), i_jetProperties->jetPfCandidateRelationToInteractionVertex().end());
             v_jetPfCandidateTrackIndex_.insert(v_jetPfCandidateTrackIndex_.end(), i_jetProperties->jetPfCandidateTrack().size(), jetIndex);
             
             v_jetSelectedTrack_.insert(v_jetSelectedTrack_.end(), i_jetProperties->jetSelectedTrack().begin(), i_jetProperties->jetSelectedTrack().end());
@@ -1196,10 +1195,6 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             v_jetSecondaryVertexFlightDistanceValue_.insert(v_jetSecondaryVertexFlightDistanceValue_.end(), i_jetProperties->jetSecondaryVertexFlightDistanceValue().begin(), i_jetProperties->jetSecondaryVertexFlightDistanceValue().end());
             v_jetSecondaryVertexFlightDistanceSignificance_.insert(v_jetSecondaryVertexFlightDistanceSignificance_.end(), i_jetProperties->jetSecondaryVertexFlightDistanceSignificance().begin(), i_jetProperties->jetSecondaryVertexFlightDistanceSignificance().end());
             v_jetSecondaryVertexJetIndex_.insert(v_jetSecondaryVertexJetIndex_.end(), i_jetProperties->jetSecondaryVertex().size(), jetIndex);
-            
-            v_jetPfCandidateRelationToInteractionVertex_.insert(v_jetPfCandidateRelationToInteractionVertex_.end(),i_jetProperties->jetPfCandidateRelationToInteractionVertex().begin(), i_jetProperties->jetPfCandidateRelationToInteractionVertex().end());
-            v_jetPfCandidateMatchToVerticesIndex_.insert(v_jetPfCandidateMatchToVerticesIndex_.end(), i_jetProperties->jetPfCandidateMatchToVerticesIndex().begin(), i_jetProperties->jetPfCandidateMatchToVerticesIndex().end());
-            v_jetPfCandidateVerticesJetIndex_.insert(v_jetPfCandidateVerticesJetIndex_.end(), i_jetProperties->jetPfCandidateRelationToInteractionVertex().size(), jetIndex);
         }
     }
     
@@ -1394,6 +1389,7 @@ NTupleWriter::beginJob()
     ntuple_->Branch("jetPfCandidateTrack", &v_jetPfCandidateTrack_);
     ntuple_->Branch("jetPfCandidateTrackCharge", &v_jetPfCandidateTrackCharge_);
     ntuple_->Branch("jetPfCandidateTrackId", &v_jetPfCandidateTrackId_);
+    ntuple_->Branch("jetPfCandidateRelationToInteractionVertex", &v_jetPfCandidateRelationToInteractionVertex_);
     ntuple_->Branch("jetPfCandidateTrackIndex", &v_jetPfCandidateTrackIndex_);
     ntuple_->Branch("jetSelectedTrackMatchToPfCandidateIndex",&v_jetSelectedTrackMatchToPfCandidateIndex_);
     ntuple_->Branch("jetSelectedTrack", &v_jetSelectedTrack_);
@@ -1408,9 +1404,6 @@ NTupleWriter::beginJob()
     ntuple_->Branch("jetSecondaryVertexFlightDistanceSignificance", &v_jetSecondaryVertexFlightDistanceSignificance_);
     ntuple_->Branch("jetSecondaryVertexTrackMatchToSelectedTrackIndex", &v_jetSecondaryVertexTrackMatchToSelectedTrackIndex_);
     ntuple_->Branch("jetSecondaryVertexTrackVertexIndex", &v_jetSecondaryVertexTrackVertexIndex_);
-    ntuple_->Branch("jetPfCandidateRelationToInteractionVertex", &v_jetPfCandidateRelationToInteractionVertex_);
-    ntuple_->Branch("jetPfCandidateMatchToVerticesIndex", &v_jetPfCandidateMatchToVerticesIndex_);
-    ntuple_->Branch("jetPfCandidateVerticesJetIndex",&v_jetPfCandidateVerticesJetIndex_);
     
     // Jets, but used only for MC corrections (not needed in data)
     if(isMC_){
@@ -1572,6 +1565,7 @@ void NTupleWriter::clearVariables()
     v_jetPfCandidateTrack_.clear();
     v_jetPfCandidateTrackCharge_.clear();
     v_jetPfCandidateTrackId_.clear();
+    v_jetPfCandidateRelationToInteractionVertex_.clear();
     v_jetPfCandidateTrackIndex_.clear();
     v_jetSelectedTrackMatchToPfCandidateIndex_.clear();
     v_jetSelectedTrack_.clear();
@@ -1586,9 +1580,6 @@ void NTupleWriter::clearVariables()
     v_jetSecondaryVertexFlightDistanceSignificance_.clear();
     v_jetSecondaryVertexTrackMatchToSelectedTrackIndex_.clear();
     v_jetSecondaryVertexTrackVertexIndex_.clear();
-    v_jetPfCandidateRelationToInteractionVertex_.clear();
-    v_jetPfCandidateMatchToVerticesIndex_.clear();
-    v_jetPfCandidateVerticesJetIndex_.clear();
     
     // MET
     met_ = nullP4_;

@@ -19,13 +19,13 @@ public:
     JetProperties(const double& jetChargeGlobalPtWeighted, const double& jetChargeRelativePtWeighted,
                   const int& jetAssociatedPartonPdgId, const math::PtEtaPhiMLorentzVectorD& jetAssociatedParton,
                   const std::vector<math::PtEtaPhiMLorentzVectorD>& jetPfCandidateTrack, const std::vector<int>& jetPfCandidateTrackCharge,
-                  const std::vector<int>& jetPfCandidateTrackId, const std::vector<int>& jetSelectedTrackMatchToPfCandidateIndex,
-                  const std::vector<math::PtEtaPhiMLorentzVectorD>& jetSelectedTrack, 
+                  const std::vector<int>& jetPfCandidateTrackId, const std::vector<int>& jetPfCandidateRelationToInteractionVertex, 
+                  const std::vector<int>& jetSelectedTrackMatchToPfCandidateIndex, const std::vector<math::PtEtaPhiMLorentzVectorD>& jetSelectedTrack, 
                   const std::vector<double>& jetSelectedTrackIPValue, const std::vector<double>& jetSelectedTrackIPSignificance,
                   const std::vector<int>& jetSelectedTrackCharge, const std::vector<int>& jetSecondaryVertexTrackMatchToSelectedTrackIndex,
                   const std::vector<int>& jetSecondaryVertexTrackVertexIndex, const std::vector<math::PtEtaPhiMLorentzVectorD>& jetSecondaryVertex,
                   const std::vector<double>& jetSecondaryVertexFlightDistanceValue, const std::vector<double>& jetSecondaryVertexFlightDistanceSignificance,
-                  const double& jetSecondaryVertexPtCorrectedMass, const std::vector<int>& jetPfCandidateRelationToInteractionVertex, const std::vector<int>& jetPfCandidateMatchToVerticesIndex);
+                  const double& jetSecondaryVertexPtCorrectedMass);
     
     JetProperties(const JetProperties& jetProperties);
     
@@ -38,6 +38,7 @@ public:
     const std::vector<math::PtEtaPhiMLorentzVectorD>& jetPfCandidateTrack()const;
     const std::vector<int>& jetPfCandidateTrackCharge()const;
     const std::vector<int>& jetPfCandidateTrackId()const;
+    const std::vector<int>& jetPfCandidateRelationToInteractionVertex()const;
     const std::vector<int>& jetSelectedTrackMatchToPfCandidateIndex()const;
     const std::vector<math::PtEtaPhiMLorentzVectorD>& jetSelectedTrack()const;
     const std::vector<double>& jetSelectedTrackIPValue()const;
@@ -49,8 +50,6 @@ public:
     const std::vector<double>& jetSecondaryVertexFlightDistanceValue()const;
     const std::vector<double>& jetSecondaryVertexFlightDistanceSignificance()const;
     const double& jetSecondaryVertexPtCorrectedMass()const;
-    const std::vector<int>& jetPfCandidateRelationToInteractionVertex()const;
-    const std::vector<int>& jetPfCandidateMatchToVerticesIndex()const;
     
     
     
@@ -63,6 +62,7 @@ private:
     std::vector<math::PtEtaPhiMLorentzVectorD> jetPfCandidateTrack_;
     std::vector<int> jetPfCandidateTrackCharge_;
     std::vector<int> jetPfCandidateTrackId_;
+    std::vector<int> jetPfCandidateRelationToInteractionVertex_;
     std::vector<int> jetSelectedTrackMatchToPfCandidateIndex_;
     std::vector<math::PtEtaPhiMLorentzVectorD> jetSelectedTrack_;
     std::vector<double> jetSelectedTrackIPValue_;
@@ -74,8 +74,6 @@ private:
     std::vector<double> jetSecondaryVertexFlightDistanceValue_;
     std::vector<double> jetSecondaryVertexFlightDistanceSignificance_;
     double jetSecondaryVertexPtCorrectedMass_;
-    std::vector<int> jetPfCandidateRelationToInteractionVertex_;
-    std::vector<int> jetPfCandidateMatchToVerticesIndex_;
 };
 
 
