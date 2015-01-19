@@ -38,7 +38,7 @@ constexpr double LeptonPtCut = 20.;
 constexpr double JetEtaCUT = 2.4;
 
 /// Jet pt selection in GeV
-constexpr double JetPtCUT = 20.;
+constexpr double JetPtCUT = 30.;
 
 /// Leading 2 jet pt selection in GeV (For cut based approach)
 constexpr double Lead2JetPtCUT = JetPtCUT;
