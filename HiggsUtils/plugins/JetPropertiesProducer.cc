@@ -153,7 +153,6 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     int jetPfCandidateMultiplicity_total = 0;
     
     for(std::vector<pat::Jet>::const_iterator i_jet = jetHandle->begin(); i_jet != jetHandle->end(); ++i_jet){
-        
         // PfCandidateTrack related variables definition
         std::vector<math::PtEtaPhiMLorentzVectorD> jetPfCandidateTrack;
         std::vector<int> jetPfCandidateTrackCharge;
@@ -193,6 +192,7 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         std::vector<float> eventVerticesWeights;
         std::vector<double> jetPfCandidateZDistanceToVertices;
         std::vector<int> jetPfCandidateMatchToVerticesIndex;
+        std::vector<int> jetPfCandidateRelationToInteractionVertex;
         
         // pT-corrected secondary vertex mass used by the CSV algorithm (if there's no secondary vertex in the jet then it is set to -8888.)
         double jetSecondaryVertexPtCorrectedMass = -8888.;
@@ -227,20 +227,51 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
             jetPfCandidatePtrToRecoTrackIndex.push_back(i_candidate-pfConstituents.begin());
             
             // Access information about the vertex for the pfCandidate
+            int vertexIndex = -1;
+            unsigned int nFoundVertex = 0;
+            float bestweight=0;
+            double dzmin = 10000;
+            
             for (reco::VertexCollection::const_iterator vtx = vertexCollection->begin();vtx != vertexCollection->end(); ++vtx)
             {
-                eventVerticesWeights.push_back(vtx->trackWeight(refToPfTrack));
-                double ztrack = (*i_candidate)->vertex().z();
-                if (ztrack>vtx->z()) jetPfCandidateZDistanceToVertices.push_back(ztrack - vtx->z());
-                else jetPfCandidateZDistanceToVertices.push_back(vtx->z()-ztrack);
-                eventVerticesIndices.push_back(vtx-vertexCollection->begin());
+                // Save the index of the pfCandidate
                 int position = -1;
                 for (size_t iPfIndex = 0; iPfIndex!=jetPfCandidatePtrToRecoTrackIndex.size();++iPfIndex)
                 {
                     if (jetPfCandidatePtrToRecoTrackIndex.at(iPfIndex) == i_candidate-pfConstituents.begin()) position = iPfIndex + jetPfCandidateMultiplicity_total;
                 }
                 if (position!=-1) jetPfCandidateMatchToVerticesIndex.push_back(position);
+                
+                // Look for the vertex with the maximum weight
+                float w = vtx->trackWeight(refToPfTrack);
+                if (w > bestweight)
+                {
+                    bestweight=w;
+                    vertexIndex = vtx-vertexCollection->begin();
+                    nFoundVertex++;
+                }
             } 
+            if (nFoundVertex==1 && vertexIndex==0) jetPfCandidateRelationToInteractionVertex.push_back(0);
+                
+            else if (nFoundVertex==1&& vertexIndex!=0) jetPfCandidateRelationToInteractionVertex.push_back(3);
+                
+            else if (nFoundVertex>1) jetPfCandidateRelationToInteractionVertex.push_back(-1);
+               
+            // If no maximum weight is found, look for the vertex closest in z
+            else if (nFoundVertex<1)
+            {
+                double ztrack = (*i_candidate)->vertex().z();
+                for(reco::VertexCollection::const_iterator vtx2 = vertexCollection->begin();vtx2 != vertexCollection->end(); ++vtx2)
+                {
+                    if(std::abs(ztrack - vtx2->z())<dzmin)
+                    {
+                        dzmin = std::abs(ztrack - vtx2->z());
+                        vertexIndex = vtx2 - vertexCollection->begin();
+                    }
+                }
+                if (vertexIndex!=0) jetPfCandidateRelationToInteractionVertex.push_back(2);
+                else if (vertexIndex==0) jetPfCandidateRelationToInteractionVertex.push_back(1);
+            }
         }
         
         const double jetChargeRelativePtWeighted(sumMomentum>0 ? sumMomentumQ/sumMomentum : 0);
