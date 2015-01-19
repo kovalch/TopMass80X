@@ -18,8 +18,10 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   AnalyzerKinReco
   TreeHandlerBase
   TreeHandlerTTBar
+  TreeHandlerBoostedTop
   VariablesBase
   VariablesTTBar
+  VariablesBoostedTop
   plotterclass
   UsefulTools
   DilepSVDFunctions

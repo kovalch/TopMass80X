@@ -22,6 +22,7 @@
 #include "AnalyzerKinReco.h"
 #include "TreeHandlerBase.h"
 #include "TreeHandlerTTBar.h"
+#include "TreeHandlerBoostedTop.h"
 #include "../../common/include/sampleHelpers.h"
 #include "../../common/include/utils.h"
 #include "../../common/include/CommandLineParameters.h"
@@ -207,7 +208,12 @@ void load_Analysis(const TString& validFilenamePattern,
         v_treeHandler.push_back(treeHandlerTTBar);
     }
     
-    
+    // Set up production of TTree for Boosted Top analysis
+    TreeHandlerBoostedTop* treeHandlerBoostedTop(0);
+    if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::btopTree) != v_analysisMode.end()){
+        treeHandlerBoostedTop = new TreeHandlerBoostedTop("btopInput", {"0","8"});
+        v_treeHandler.push_back(treeHandlerBoostedTop);
+    }
     
     // Set up the analysis
     TopAnalysis* selector = new TopAnalysis();
