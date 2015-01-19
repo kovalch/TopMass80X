@@ -74,9 +74,6 @@ private:
     std::vector<double> jetSecondaryVertexFlightDistanceValue_;
     std::vector<double> jetSecondaryVertexFlightDistanceSignificance_;
     double jetSecondaryVertexPtCorrectedMass_;
-    std::vector<int> eventVerticesIndices_;
-    std::vector<float> eventVerticesWeights_;
-    std::vector<double> jetPfCandidateZDistanceToVertices_;
     std::vector<int> jetPfCandidateRelationToInteractionVertex_;
     std::vector<int> jetPfCandidateMatchToVerticesIndex_;
 };
