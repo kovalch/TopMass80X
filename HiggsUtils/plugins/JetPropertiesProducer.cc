@@ -187,9 +187,13 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         std::vector<double> jetSecondaryVertexFlightDistanceValue;
         std::vector<double> jetSecondaryVertexFlightDistanceSignificance;
         
-        // Access vertex information
-        // The jetPfCandidatePrimaryVertexId variable is filled as follows: -1 -> more than one vertex associated to the same pfCandidate, 0 -> vertex zero associated through weight value, 
-        // 1 -> vertex zero associated through min z distance, 2 -> vertex different from zero associated through min z distance, 3 -> vertex different from zero associated through weight value.
+        // Access vertex information: some pfCandidates are associated to certain primary vertices in event reconstruction through a weight (>0). If no weight>0 found, a check via closest z distance is performed to match the pfCandidate to a vertex
+        // The jetPfCandidatePrimaryVertexId variable is filled as follows: 
+        // -1 -> more than one vertex associated to the same pfCandidate, 
+        // 0 -> vertex zero associated through weight value, 
+        // 1 -> vertex zero associated through min z distance, 
+        // 2 -> vertex different from zero associated through min z distance, 
+        // 3 -> vertex different from zero associated through weight value.
         std::vector<int> jetPfCandidatePrimaryVertexId;
         
         // pT-corrected secondary vertex mass used by the CSV algorithm (if there's no secondary vertex in the jet then it is set to -8888.)
