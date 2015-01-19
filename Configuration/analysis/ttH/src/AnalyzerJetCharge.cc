@@ -125,11 +125,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
     const std::vector<double>& jetSecondaryVertexFlightDistanceSignificance = *recoObjects.jetSecondaryVertexFlightDistanceSignificance_;
     
     // Vertex information for closesZVertex studies
-    const std::vector<int>& eventVerticesIndices = *recoObjects.eventVerticesIndices_;
-    const std::vector<float>& eventVerticesWeights = *recoObjects.eventVerticesWeights_;
-    const std::vector<double>& jetPfCandidateZDistanceToVertices = *recoObjects.jetPfCandidateZDistanceToVertices_;
-    const std::vector<int>& jetPfCandidateMatchToVerticesIndex = *recoObjects.jetPfCandidateMatchToVerticesIndex_;
-    const std::vector<int>& jetPfCandidateVerticesJetIndex = *recoObjects.jetPfCandidateVerticesJetIndex_;
+    const std::vector<int>& jetPfCandidateTrackRelationToInteractionVertex = *recoObjects.jetPfCandidateTrackRelationToInteractionVertex_;
     
     // Access the leptons for mlb
     const VLV& isolatedLeptons = *recoObjects.allLeptons_;
@@ -666,77 +662,15 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
             
             // TEST zvertex studies
             // Check if PfCandidate belongs to primary vertex
-            int  vertex = -1;
-            unsigned int nFoundVertex = 0;
-            float bestweight=0;
-            bool foundVertex = false;
-            bool validPfCandidate = false;
-            double dzmin = 10000;
-            
-            for(size_t iVtx = 0; iVtx!=jetPfCandidateMatchToVerticesIndex.size();++iVtx) 
-            {
-                if (jetPfCandidateVerticesJetIndex.at(iVtx)!=jetIdx) continue;
-                if (jetPfCandidateMatchToVerticesIndex.at(iVtx)!=static_cast<int>(iPfTrack)) continue;
-                float w = eventVerticesWeights.at(iVtx);
-                if (w!=0) m_histogram["h_pfCandidateNonZeroWeights"]->Fill(w, weight);
-                if (w!=0 && eventVerticesIndices.at(iVtx)!=0) m_histogram["h_pfCandidateNonZeroWeightsIndexNonZero"]->Fill(w, weight);
-                else if (w!=0 && eventVerticesIndices.at(iVtx)==0) m_histogram["h_pfCandidateNonZeroWeightsIndexZero"]->Fill(w, weight);
-                else if (w==0 && eventVerticesIndices.at(iVtx)!=0) m_histogram["h_pfCandidateZeroWeightsIndexNonZero"]->Fill(w, weight);
-                else if (w==0 && eventVerticesIndices.at(iVtx)==0) m_histogram["h_pfCandidateZeroWeightsIndexZero"]->Fill(w, weight);
-                //select the vertex for which the track has the highest weight
-                if (w > bestweight)
-                {
-                    bestweight=w;
-                    vertex=eventVerticesIndices.at(iVtx);
-                    nFoundVertex++;
-                }
-            }
-            
-            if (nFoundVertex>1) 
-            {
-                std::cout<<"TOO MANY HIGH WEIGHTS!!"<<std::endl;
-                m_histogram["h_pfCandidateMaxWeightIfSeveralFound"]->Fill(1., weight);
-                if (jetHadronFlavour>0) m_histogram["h_pfCandidateMaxWeightIfSeveralFoundForB"]->Fill(0., weight);
-                else if (jetHadronFlavour<0) m_histogram["h_pfCandidateMaxWeightIfSeveralFoundForAntiB"]->Fill(0., weight);
-            }
-            else if (nFoundVertex==1) 
-            {
-                m_histogram["h_pfCandidateMaxWeightIfOnlyOneFound"]->Fill(1., weight);
-                if (jetHadronFlavour>0) m_histogram["h_pfCandidateMaxWeightIfOnlyOneFoundForB"]->Fill(0., weight);
-                else if (jetHadronFlavour<0) m_histogram["h_pfCandidateMaxWeightIfOnlyOneFoundForAntiB"]->Fill(0., weight);
-            }
-            else if (nFoundVertex<1) 
-            {
-                m_histogram["h_pfCandidateMaxWeightIfOnlyNoneFound"]->Fill(1., weight);
-                if (jetHadronFlavour>0) m_histogram["h_pfCandidateMaxWeightIfOnlyNoneFoundForB"]->Fill(0., weight);
-                else if (jetHadronFlavour<0) m_histogram["h_pfCandidateMaxWeightIfOnlyNoneFoundForAntiB"]->Fill(0., weight);
-            }
-            
-            if (nFoundVertex >= 1 && vertex==0) validPfCandidate = true;
-            if (nFoundVertex>=1) ((TH2D*)m_histogram["h_pfCandidateMaxWeightsVsIndex"])->Fill(bestweight,vertex, weight);
-            
-            // If pfCandiate associated to no vertex -> CheckClosesZVertex
-            if (validPfCandidate==false)
-            {
-                for(size_t iVtx2=0; iVtx2!=eventVerticesIndices.size(); ++iVtx2) 
-                {
-                    if (jetPfCandidateVerticesJetIndex.at(iVtx2)!=jetIdx) continue;
-                    if (jetPfCandidateMatchToVerticesIndex.at(iVtx2)!=static_cast<int>(iPfTrack)) continue;
-                    if(jetPfCandidateZDistanceToVertices.at(iVtx2)<dzmin) 
-                    {
-                        dzmin = jetPfCandidateZDistanceToVertices.at(iVtx2); 
-                        vertex = eventVerticesIndices.at(iVtx2);
-                        foundVertex = true;
-                    }
-                }
-                if (vertex!=0) m_histogram["h_pfCandidateZVertexNonZero"]->Fill(1., weight);
-            }
-            m_histogram["h_pfCandidateMinZ"]->Fill(dzmin, weight);
-            
-            if (foundVertex && vertex == 0) validPfCandidate = true;
+            if (jetPfCandidateTrackRelationToInteractionVertex.at(iPfTrack)==0&&jetPfCandidateTrackRelationToInteractionVertex.at(iPfTrack)==3) m_histogram["h_pfCandidateNonZeroWeights"]->Fill(0., weight);
+            if (jetPfCandidateTrackRelationToInteractionVertex.at(iPfTrack)==3) m_histogram["h_pfCandidateNonZeroWeightsIndexNonZero"]->Fill(0., weight);
+            if (jetPfCandidateTrackRelationToInteractionVertex.at(iPfTrack)==0) m_histogram["h_pfCandidateNonZeroWeightsIndexZero"]->Fill(0., weight);
+            if (jetPfCandidateTrackRelationToInteractionVertex.at(iPfTrack)==2) m_histogram["h_pfCandidateZeroWeightsIndexNonZero"]->Fill(0., weight);
+            if (jetPfCandidateTrackRelationToInteractionVertex.at(iPfTrack)==1) m_histogram["h_pfCandidateZeroWeightsIndexZero"]->Fill(0., weight);
+            if (jetPfCandidateTrackRelationToInteractionVertex.at(iPfTrack)==-1) std::cout<<"TOO MANY HIGH WEIGHTS!!"<<std::endl;
             
             // Remove tracks not associated to primary vertex 0
-            if (validPfCandidate == false) continue;
+            if (jetPfCandidateTrackRelationToInteractionVertex.at(iPfTrack)==-1|| jetPfCandidateTrackRelationToInteractionVertex.at(iPfTrack)==2 || jetPfCandidateTrackRelationToInteractionVertex.at(iPfTrack)==3) continue;
             
             if (jetHadronFlavour>0) m_histogram["h_test_jetPfCandidateChargeForB"]->Fill(jetPfCandidateTrackCharge.at(iPfTrack), weight);
             else if (jetHadronFlavour<0) m_histogram["h_test_jetPfCandidateChargeForAntiB"]->Fill(jetPfCandidateTrackCharge.at(iPfTrack), weight);

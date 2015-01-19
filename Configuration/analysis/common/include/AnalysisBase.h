@@ -527,11 +527,7 @@ private:
     TBranch* b_jetSecondaryVertexFlightDistanceSignificance;
     TBranch* b_jetSecondaryVertexTrackVertexIndex;
     TBranch* b_jetSecondaryVertexTrackMatchToSelectedTrackIndex;
-    TBranch* b_eventVerticesIndices;
-    TBranch* b_eventVerticesWeights;
-    TBranch* b_jetPfCandidateZDistanceToVertices;
-    TBranch* b_jetPfCandidateMatchToVerticesIndex;
-    TBranch* b_jetPfCandidateVerticesJetIndex;
+    TBranch* b_jetPfCandidateTrackRelationToInteractionVertex;
     TBranch* b_met;
     TBranch* b_jetForMET;
     

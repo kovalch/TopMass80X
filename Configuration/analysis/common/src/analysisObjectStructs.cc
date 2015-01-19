@@ -72,11 +72,7 @@ void RecoObjects::clear()
     jetSecondaryVertexFlightDistanceSignificance_ = 0;
     jetSecondaryVertexTrackVertexIndex_ = 0;
     jetSecondaryVertexTrackMatchToSelectedTrackIndex_ = 0;
-    eventVerticesIndices_ = 0;
-    eventVerticesWeights_ = 0;
-    jetPfCandidateZDistanceToVertices_ = 0;
-    jetPfCandidateMatchToVerticesIndex_ = 0;
-    jetPfCandidateVerticesJetIndex_ = 0;
+    jetPfCandidateTrackRelationToInteractionVertex_ = 0;
     met_ = 0;
     vertMulti_ = 0;
 }
