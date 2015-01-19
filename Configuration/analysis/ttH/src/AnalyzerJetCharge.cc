@@ -380,20 +380,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         m_histogram["h_selectedTrackJetCharge"]->Fill(selectedTrackJetCharge, weight);
         
         // Access secondary vertex information
-        unsigned int secondaryVertexMultiplicityPerJet = 0; 
-        
-        // Secondary vertex multiplicity
-        for(size_t iSecondaryVertex=0; iSecondaryVertex<jetSecondaryVertex.size(); ++iSecondaryVertex) 
-        {
-            if(jetSecondaryVertexJetIndex.at(iSecondaryVertex)!=static_cast<int>(jetIdx)) continue;
-            
-            for(size_t iSecondaryVertex2=iSecondaryVertex; iSecondaryVertex2<jetSecondaryVertex.size(); ++iSecondaryVertex2)
-            {
-                if(jetSecondaryVertexJetIndex.at(iSecondaryVertex2)!=jetSecondaryVertexJetIndex.at(iSecondaryVertex)) continue;
-                ++secondaryVertexMultiplicityPerJet;
-            }
-            break; 
-        }
+        unsigned int secondaryVertexMultiplicityPerJet = calculateMultiplicity(jetSecondaryVertexJetIndex, jetIdx);
         
         m_histogram["h_trueBJetTrackSecondaryVertexMultiplicity"]->Fill(secondaryVertexMultiplicityPerJet, weight);
         
@@ -2791,6 +2778,26 @@ double AnalyzerJetCharge::trackMultiplicityWeight(const double m, const double n
     
     double y = m*multiplicity+n;
     return y;
+}
+
+unsigned int AnalyzerJetCharge::calculateMultiplicity(const std::vector<int>& collection, int jetIndex)
+{
+    unsigned int multiplicity = 0; 
+    
+    for(size_t i=0; i<collection.size(); ++i) 
+    {
+        if(collection.at(i)!=static_cast<int>(jetIndex)) continue;
+        
+        for(size_t j=i; j<collection.size(); ++j)
+        {
+            if(collection.at(j)!=collection.at(i)) continue;
+            ++multiplicity;
+        }
+        break; 
+    }
+    
+    return multiplicity;
+    
 }
 
 

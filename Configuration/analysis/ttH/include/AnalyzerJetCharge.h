@@ -72,6 +72,9 @@ public:
     /// Calculate the weight applying the track multiplicity in linear functional form (y = mx+n)
     double trackMultiplicityWeight(const double m, const double n, int jetIndex, std::vector<int> jetPfCandidateTrackIndex);
     
+    /// Calculate the multiplicity per jet of a given collection
+    unsigned int calculateMultiplicity(const std::vector<int>& collection, int jetIndex);
+    
     struct MvaJetVariable
     {
         Float_t longChargeJet_;
