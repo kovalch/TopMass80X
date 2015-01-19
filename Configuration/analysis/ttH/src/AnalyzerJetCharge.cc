@@ -124,6 +124,9 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
     const std::vector<double>& jetSecondaryVertexFlightDistanceValue = *recoObjects.jetSecondaryVertexFlightDistanceValue_;
     const std::vector<double>& jetSecondaryVertexFlightDistanceSignificance = *recoObjects.jetSecondaryVertexFlightDistanceSignificance_;
     
+    // Vertex information for closesZVertex studies
+    const std::vector<int>& jetPfCandidatePrimaryVertexId = *recoObjects.jetPfCandidatePrimaryVertexId_;
+    
     // Access the leptons for mlb
     const VLV& isolatedLeptons = *recoObjects.allLeptons_;
     const std::vector<int>& isolatedLeptonsPgdId = *recoObjects.lepPdgId_;
@@ -229,7 +232,6 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
             //GEN TO RECO matching
             //recoBorAntiBFromAny = std::find(genJetMatchedRecoBjetIndices.begin(),genJetMatchedRecoBjetIndices.end(), jetIdx) != genJetMatchedRecoBjetIndices.end();
             
-            
             //if (recoBjetFromTopIndex==jetIdx) recoBFromTop = true;
             //if (recoAntiBjetFromTopIndex == jetIdx) recoAntiBFromTop = true;
             
@@ -251,9 +253,6 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
            //if (jetHadronFlavour<0) continue;
            //if (jetHadronFlavour>0) continue;
         }
-        
-        //FIXME weightReweighted is reweighted by the number of tracks
-        //double weightReweighted = weight*trackMultiplicityWeight (-0.0285, 1.4596, jetIdx, jetPfCandidateTrackIndex);
         
         double trueBJetScalarCharge = jetChargeRelativePtWeighted.at(jetIdx);
         double trueBJetPt = jets.pt();
@@ -282,7 +281,6 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         }
         
         double maxPtTrueTrack  = -999.;
-        //double maxPtChargeTrueTrack = -999.;
         double maxTrueMagnitude = -999.;
         double maxTrueProduct = -999.;
         double leadingTrackPt = -999.;
@@ -657,12 +655,31 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
             int trueMatched = 0;
             if (jetIdx!=jetPfCandidateTrackIndex.at(iPfTrack)) trueMatched = -1;
             if (trueMatched == -1) continue;
+            
+            m_histogram["h_pfCandidateInitialAmount"]->Fill(0., weight);
+            if (jetHadronFlavour>0) m_histogram["h_pfCandidateInitialAmountForB"]->Fill(0., weight);
+            else if (jetHadronFlavour<0) m_histogram["h_pfCandidateInitialAmountForAntiB"]->Fill(0., weight);
+            
+            // TEST zvertex studies
+            // Check if PfCandidate belongs to primary vertex
+            if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==0&&jetPfCandidatePrimaryVertexId.at(iPfTrack)==3) m_histogram["h_pfCandidateNonZeroWeights"]->Fill(0., weight);
+            if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==3) m_histogram["h_pfCandidateNonZeroWeightsIndexNonZero"]->Fill(0., weight);
+            if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==0) m_histogram["h_pfCandidateNonZeroWeightsIndexZero"]->Fill(0., weight);
+            if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==2) m_histogram["h_pfCandidateZeroWeightsIndexNonZero"]->Fill(0., weight);
+            if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==1) m_histogram["h_pfCandidateZeroWeightsIndexZero"]->Fill(0., weight);
+            if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==-1) std::cout<<"TOO MANY HIGH WEIGHTS!!"<<std::endl;
+            
+            // Remove tracks not associated to primary vertex 0
+            if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==-1|| jetPfCandidatePrimaryVertexId.at(iPfTrack)==2 || jetPfCandidatePrimaryVertexId.at(iPfTrack)==3) continue;
+            
+            if (jetHadronFlavour>0) m_histogram["h_test_jetPfCandidateChargeForB"]->Fill(jetPfCandidateTrackCharge.at(iPfTrack), weight);
+            else if (jetHadronFlavour<0) m_histogram["h_test_jetPfCandidateChargeForAntiB"]->Fill(jetPfCandidateTrackCharge.at(iPfTrack), weight);
+            
             ++trueBJetTrackMultiplicity;
             
             if(trueBJetPfTrackPt>maxPtTrueTrack) 
             {
                 maxPtTrueTrack = trueBJetPfTrackPt;
-                //maxPtChargeTrueTrack = trueBJetPfTrackPt*jetPfCandidateTrackCharge.at(iPfTrack);
             }
             
             // Access impact parameter
@@ -823,6 +840,8 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
             if (trueMagnitude>maxTrueMagnitude) maxTrueMagnitude = trueMagnitude;
             
             m_histogram["h_trueBJetRelPtTrack"]->Fill(trueMagnitude, weight);
+            
+            
         } //end of pfCandidates track loop
         
         // Check the particles leading the tracks
@@ -1336,39 +1355,39 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         //if (recoBjetFromTopIndex==jetIdx) m_histogram["h_testB"]->Fill(val1);
         //if (recoAntiBjetFromTopIndex==jetIdx) m_histogram["h_testAntiB"]->Fill(val1);
         //m_histogram["h_weights"]->Fill(val1);
-        
-        //if (jetHadronFlavour>0) m_histogram["h_testB_fromAll"]->Fill(val1);
-        //if (jetHadronFlavour<0) m_histogram["h_testAntiB_fromAll"]->Fill(val1);
-        
-        //if (val1<0) m_histogram["h_testB_fromAll_charge"]->Fill(trueBJetScalarChargeVector.at(3));
-        //if (val1>0) m_histogram["h_testAntiB_fromAll_charge"]->Fill(trueBJetScalarChargeVector.at(3));
-        
-        //if (jetHadronFlavour>0) m_histogram["h_trueB_fromAll_charge"]->Fill(trueBJetScalarChargeVector.at(3));
-        //if (jetHadronFlavour<0) m_histogram["h_trueAntiB_fromAll_charge"]->Fill(trueBJetScalarChargeVector.at(3));
-        
-        //if (jetHadronFlavour>0 && val1<0) m_histogram["h_coincidenceTest_flavourB"]->Fill(trueBJetScalarChargeVector.at(3));
-        //else if (jetHadronFlavour>0&&val1>0) m_histogram["h_coincidenceTest_flavourB_fail"]->Fill(trueBJetScalarChargeVector.at(3));
-        
-        //if (jetHadronFlavour<0 && val1>0) m_histogram["h_coincidenceTest_flavourAntiB"]->Fill(trueBJetScalarChargeVector.at(3));
-        //else if (jetHadronFlavour<0 && val1<0) m_histogram["h_coincidenceTest_flavourAntiB_fail"]->Fill(trueBJetScalarChargeVector.at(3));
-        
-        //if (recoBjetFromTopIndex==jetIdx && val1<0) m_histogram["h_coincidenceTest_topB"]->Fill(1);
-        //else if (recoBjetFromTopIndex==jetIdx&&val1>0) m_histogram["h_coincidenceTest_topB"]->Fill(0);
-        
-        //if (recoAntiBjetFromTopIndex==jetIdx && val1>0) m_histogram["h_coincidenceTest_topAntiB"]->Fill(1);
-        //else if (recoAntiBjetFromTopIndex==jetIdx && val1<0) m_histogram["h_coincidenceTest_topAntiB"]->Fill(0);
-        
-        //if (jetHadronFlavour>0 && trueBJetScalarCharge<0) m_histogram["h_coincidenceTest_flavourB_oldDefinition"]->Fill(1);
-        //else if (jetHadronFlavour>0 && trueBJetScalarCharge>0) m_histogram["h_coincidenceTest_flavourB_oldDefinition"]->Fill(0);
-        
-        //if (jetHadronFlavour<0 && trueBJetScalarCharge>0) m_histogram["h_coincidenceTest_flavourAntiB_oldDefinition"]->Fill(1);
-        //else if (jetHadronFlavour<0 && trueBJetScalarCharge<0) m_histogram["h_coincidenceTest_flavourAntiB_oldDefinition"]->Fill(0);
-        
-        //if (recoBjetFromTopIndex==jetIdx&& trueBJetScalarCharge<0) m_histogram["h_coincidenceTest_topB_oldDefinition"]->Fill(1);
-        //else if (recoBjetFromTopIndex==jetIdx && trueBJetScalarCharge>0) m_histogram["h_coincidenceTest_topB_oldDefinition"]->Fill(0);
-        
-        //if (recoAntiBjetFromTopIndex==jetIdx&& trueBJetScalarCharge>0) m_histogram["h_coincidenceTest_topAntiB_oldDefinition"]->Fill(1);
-        //else if (recoAntiBjetFromTopIndex==jetIdx && trueBJetScalarCharge<0) m_histogram["h_coincidenceTest_topAntiB_oldDefinition"]->Fill(0);
+       
+       //if (jetHadronFlavour>0) m_histogram["h_testB_fromAll"]->Fill(val1);
+       //if (jetHadronFlavour<0) m_histogram["h_testAntiB_fromAll"]->Fill(val1);
+       
+       //if (val1<0) m_histogram["h_testB_fromAll_charge"]->Fill(trueBJetScalarChargeVector.at(3));
+       //if (val1>0) m_histogram["h_testAntiB_fromAll_charge"]->Fill(trueBJetScalarChargeVector.at(3));
+       
+       //if (jetHadronFlavour>0) m_histogram["h_trueB_fromAll_charge"]->Fill(trueBJetScalarChargeVector.at(3));
+       //if (jetHadronFlavour<0) m_histogram["h_trueAntiB_fromAll_charge"]->Fill(trueBJetScalarChargeVector.at(3));
+       
+       //if (jetHadronFlavour>0 && val1<0) m_histogram["h_coincidenceTest_flavourB"]->Fill(trueBJetScalarChargeVector.at(3));
+       //else if (jetHadronFlavour>0&&val1>0) m_histogram["h_coincidenceTest_flavourB_fail"]->Fill(trueBJetScalarChargeVector.at(3));
+       
+       //if (jetHadronFlavour<0 && val1>0) m_histogram["h_coincidenceTest_flavourAntiB"]->Fill(trueBJetScalarChargeVector.at(3));
+       //else if (jetHadronFlavour<0 && val1<0) m_histogram["h_coincidenceTest_flavourAntiB_fail"]->Fill(trueBJetScalarChargeVector.at(3));
+       
+       //if (recoBjetFromTopIndex==jetIdx && val1<0) m_histogram["h_coincidenceTest_topB"]->Fill(1);
+       //else if (recoBjetFromTopIndex==jetIdx&&val1>0) m_histogram["h_coincidenceTest_topB"]->Fill(0);
+       
+       //if (recoAntiBjetFromTopIndex==jetIdx && val1>0) m_histogram["h_coincidenceTest_topAntiB"]->Fill(1);
+       //else if (recoAntiBjetFromTopIndex==jetIdx && val1<0) m_histogram["h_coincidenceTest_topAntiB"]->Fill(0);
+       
+       //if (jetHadronFlavour>0 && trueBJetScalarCharge<0) m_histogram["h_coincidenceTest_flavourB_oldDefinition"]->Fill(1);
+       //else if (jetHadronFlavour>0 && trueBJetScalarCharge>0) m_histogram["h_coincidenceTest_flavourB_oldDefinition"]->Fill(0);
+       
+       //if (jetHadronFlavour<0 && trueBJetScalarCharge>0) m_histogram["h_coincidenceTest_flavourAntiB_oldDefinition"]->Fill(1);
+       //else if (jetHadronFlavour<0 && trueBJetScalarCharge<0) m_histogram["h_coincidenceTest_flavourAntiB_oldDefinition"]->Fill(0);
+       
+       //if (recoBjetFromTopIndex==jetIdx&& trueBJetScalarCharge<0) m_histogram["h_coincidenceTest_topB_oldDefinition"]->Fill(1);
+       //else if (recoBjetFromTopIndex==jetIdx && trueBJetScalarCharge>0) m_histogram["h_coincidenceTest_topB_oldDefinition"]->Fill(0);
+       
+       //if (recoAntiBjetFromTopIndex==jetIdx&& trueBJetScalarCharge>0) m_histogram["h_coincidenceTest_topAntiB_oldDefinition"]->Fill(1);
+       //else if (recoAntiBjetFromTopIndex==jetIdx && trueBJetScalarCharge<0) m_histogram["h_coincidenceTest_topAntiB_oldDefinition"]->Fill(0);
        
     } //end loop over reco jets
     
@@ -2541,20 +2560,81 @@ void AnalyzerJetCharge::bookMvaHistos(const TString& step, std::map<TString, TH1
     name = "h_trueBJet_bbarToAntiBsZero";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Number of bbar going into AntiBsZero",3,0.,2.));
     
-    name = "checkBHadOthers";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"charge of b jets coming from other B (no Top or Higgs);Charge;Jets",24,-1.2,1.2));
+    name = "h_test_jetPfCandidateChargeForB";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Charge of pfCandidates from B;charge;pfCandidates",24,-1.2,1.2));
     
-    name = "h_trueBJetSelTrackMultiplicity";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"Multiplicity of the selected tracks;SelTrack multiplicity;Jets",30,0,200));
-    
-    name = "h_pfSizeVsSelSizeNoMatching";
-    m_histogram[name] = store(new TH2D(prefix_+name+step,"Size of the pfCandidates vs selectedTracks;pfCandidates;selectedTracks",150,0.,150.,150,0.,150.));
+    name = "h_test_jetPfCandidateChargeForAntiB";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Charge of pfCandidates from anti B;charge;pfCandidates",24,-1.2,1.2));
     
     name = "h_test_jetPfCandidateCharge";
-    m_histogram[name] = store(new TH1D(prefix_+name+step,"p_{T} of Jets;p_{T};Jets",24,-1.2,1.2));
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Charge of pfCandidates;charge;pfCandidates",24,-1.2,1.2));
     
     name = "h_selectedTrackJetCharge";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Charge of the jet using selTracks;charge;Selected Tracks",24,-1.2,1.2));
+    
+    // tests for closest z vertex
+    name = "h_pfCandidateNonZeroWeights";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Vertex weight if different from zero;vertex weight;pfCandidates",10,0.,1.));
+    
+    name = "h_pfCandidateNonZeroWeightsIndexZero";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"# of non zero weight vertices = 0;vertex weight;pfCandidates",10,0.,1.));
+    
+    name = "h_pfCandidateNonZeroWeightsIndexNonZero";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"# of non zero weight vertices != 0;vertex weight;pfCandidates",10,0.,1.));
+    
+    name = "h_pfCandidateZeroWeightsIndexZero";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"# of zero weight vertices = 0;vertex weight;pfCandidates",10,0.,1.));
+    
+    name = "h_pfCandidateZeroWeightsIndexNonZero";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"# of zero weight vertices != 0;vertex weight;pfCandidates",10,0.,1.));
+    
+    name = "h_pfCandidateMaxWeights";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Vertex max. weight;vertex weight;pfCandidates",10,0.,1.));
+    
+    name = "h_pfCandidateMaxWeightsVsIndex";
+    m_histogram[name] = store(new TH2D(prefix_+name+step,"Vertex index to which max. weight corresponds;weight;vertex index",10,0.,1.,22,-2.,20.));
+    
+    name = "h_pfCandidateInitialAmount";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Number of PfCandidates before weight check cut ;# pfCandidates; pfCandidate",2,0.,2.));
+    
+    name = "h_pfCandidateInitialAmountForAntiB";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Number of PfCandidates from antiB before weight check cut ;# pfCandidates; pfCandidate",2,0.,2.));
+    
+    name = "h_pfCandidateInitialAmountForB";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Number of PfCandidates from B before weight check cut ;# pfCandidates; pfCandidate",2,0.,2.));
+    
+    name = "h_pfCandidateMaxWeightIfSeveralFound";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pf candidate weights if several found ;pfCandidate weight; pfCandidate",10,0.,1.));
+    
+    name = "h_pfCandidateMaxWeightIfSeveralFoundForB";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pf candidate weights if several found ;pfCandidate weight; pfCandidate",10,0.,1.));
+    
+    name = "h_pfCandidateMaxWeightIfSeveralFoundForAntiB";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pf candidate weights if several found ;pfCandidate weight; pfCandidate",10,0.,1.));
+    
+    name = "h_pfCandidateMaxWeightIfOnlyOneFound";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pf candidate weights if only one found;# pfCandidates; pfCandidate",10,0.,1.));
+    
+    name = "h_pfCandidateMaxWeightIfOnlyOneFoundForB";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pf candidate weights if only one found;# pfCandidates; pfCandidate",10,0.,1.));
+    
+    name = "h_pfCandidateMaxWeightIfOnlyOneFoundForAntiB";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pf candidate weights if only one found;# pfCandidates; pfCandidate",10,0.,1.));
+    
+    name = "h_pfCandidateMaxWeightIfOnlyNoneFound";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pf candidate weights if none found;# pfCandidates; pfCandidate",10,0.,1.));
+    
+    name = "h_pfCandidateMaxWeightIfOnlyNoneFoundForB";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pf candidate weights if none found;# pfCandidates; pfCandidate",10,0.,1.));
+    
+    name = "h_pfCandidateMaxWeightIfOnlyNoneFoundForAntiB";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Pf candidate weights if none found;# pfCandidates; pfCandidate",10,0.,1.));
+    
+    name = "h_pfCandidateMinZ";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Closest vertex z distance;z; pfCandidate",200,0.,20.));
+    
+    name = "h_pfCandidateZVertexNonZero";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Closest vertex z distance;z; pfCandidate",2,0.,2.));
     
  }
 

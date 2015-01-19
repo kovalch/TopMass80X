@@ -45,7 +45,9 @@
 
 #include "TopAnalysis/HiggsUtils/interface/JetProperties.h"
 
-
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/Math/interface/Point3D.h"
 
 
 
@@ -131,6 +133,12 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         computer->passEventSetup(iSetup);
     }
     
+    // Get the interaction vertices
+    edm::InputTag vertices(parameterSet_.getParameter<edm::InputTag>("primaryVertexInputTag"));
+    edm::Handle<reco::VertexCollection> vertexHandle;
+    
+   iEvent.getByLabel(vertices, vertexHandle);
+   const reco::VertexCollection *vertexCollection = vertexHandle.product();
     
     // The sum of the multiplicities of the jetSelectedTracks for all the jets before the jet that is currently analysed
     // This variable is used so that we can give the proper value to the jetSecondaryVertexTrackMatchToSelectedTrackIndex
@@ -145,7 +153,6 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     int jetPfCandidateMultiplicity_total = 0;
     
     for(std::vector<pat::Jet>::const_iterator i_jet = jetHandle->begin(); i_jet != jetHandle->end(); ++i_jet){
-        
         // PfCandidateTrack related variables definition
         std::vector<math::PtEtaPhiMLorentzVectorD> jetPfCandidateTrack;
         std::vector<int> jetPfCandidateTrackCharge;
@@ -180,6 +187,15 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         std::vector<double> jetSecondaryVertexFlightDistanceValue;
         std::vector<double> jetSecondaryVertexFlightDistanceSignificance;
         
+        // Access vertex information: some pfCandidates are associated to certain primary vertices in event reconstruction through a weight (>0). If no weight>0 found, a check via closest z distance is performed to match the pfCandidate to a vertex
+        // The jetPfCandidatePrimaryVertexId variable is filled as follows: 
+        // -1 -> more than one vertex associated to the same pfCandidate, 
+        // 0 -> vertex zero associated through weight value, 
+        // 1 -> vertex zero associated through min z distance, 
+        // 2 -> vertex different from zero associated through min z distance, 
+        // 3 -> vertex different from zero associated through weight value.
+        std::vector<int> jetPfCandidatePrimaryVertexId;
+        
         // pT-corrected secondary vertex mass used by the CSV algorithm (if there's no secondary vertex in the jet then it is set to -8888.)
         double jetSecondaryVertexPtCorrectedMass = -8888.;
         
@@ -211,6 +227,45 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
             // Store pfCandidate pointers for further matching to selectedTracks
             jetPfCandidatePtrToRecoTrack.push_back(&*pfCandPtr);
             jetPfCandidatePtrToRecoTrackIndex.push_back(i_candidate-pfConstituents.begin());
+            
+            // Access information about the vertex for the pfCandidate
+            int vertexIndex = -1;
+            unsigned int nFoundVertex = 0;
+            float bestweight=0;
+            double dzmin = 10000;
+            
+            for (reco::VertexCollection::const_iterator vtx = vertexCollection->begin();vtx != vertexCollection->end(); ++vtx)
+            {
+                // Look for the vertex with the maximum weight
+                float w = vtx->trackWeight(refToPfTrack);
+                if (w > bestweight)
+                {
+                    bestweight=w;
+                    vertexIndex = vtx-vertexCollection->begin();
+                    nFoundVertex++;
+                }
+            } 
+            if (nFoundVertex==1 && vertexIndex==0) jetPfCandidatePrimaryVertexId.push_back(0);
+                
+            else if (nFoundVertex==1&& vertexIndex!=0) jetPfCandidatePrimaryVertexId.push_back(3);
+                
+            else if (nFoundVertex>1) jetPfCandidatePrimaryVertexId.push_back(-1);
+               
+            // If no maximum weight is found, look for the vertex closest in z
+            else if (nFoundVertex<1)
+            {
+                double ztrack = (*i_candidate)->vertex().z();
+                for(reco::VertexCollection::const_iterator vtx2 = vertexCollection->begin();vtx2 != vertexCollection->end(); ++vtx2)
+                {
+                    if(std::abs(ztrack - vtx2->z())<dzmin)
+                    {
+                        dzmin = std::abs(ztrack - vtx2->z());
+                        vertexIndex = vtx2 - vertexCollection->begin();
+                    }
+                }
+                if (vertexIndex!=0) jetPfCandidatePrimaryVertexId.push_back(2);
+                else if (vertexIndex==0) jetPfCandidatePrimaryVertexId.push_back(1);
+            }
         }
         
         const double jetChargeRelativePtWeighted(sumMomentum>0 ? sumMomentumQ/sumMomentum : 0);
@@ -347,7 +402,7 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
             jetAssociatedParton = genParton->polarP4();
         }
         
-        JetProperties jetProperties(jetChargeGlobalPtWeighted, jetChargeRelativePtWeighted, jetAssociatedPartonPdgId, jetAssociatedParton, jetPfCandidateTrack, jetPfCandidateTrackCharge,jetPfCandidateTrackId, jetSelectedTrackMatchToPfCandidateIndex, jetSelectedTrack, jetSelectedTrackIPValue, jetSelectedTrackIPSignificance, jetSelectedTrackCharge, jetSecondaryVertexTrackMatchToSelectedTrackIndex, jetSecondaryVertexTrackVertexIndex, jetSecondaryVertex, jetSecondaryVertexFlightDistanceValue, jetSecondaryVertexFlightDistanceSignificance, jetSecondaryVertexPtCorrectedMass);
+        JetProperties jetProperties(jetChargeGlobalPtWeighted, jetChargeRelativePtWeighted, jetAssociatedPartonPdgId, jetAssociatedParton, jetPfCandidateTrack, jetPfCandidateTrackCharge,jetPfCandidateTrackId, jetPfCandidatePrimaryVertexId, jetSelectedTrackMatchToPfCandidateIndex, jetSelectedTrack, jetSelectedTrackIPValue, jetSelectedTrackIPSignificance, jetSelectedTrackCharge, jetSecondaryVertexTrackMatchToSelectedTrackIndex, jetSecondaryVertexTrackVertexIndex, jetSecondaryVertex, jetSecondaryVertexFlightDistanceValue, jetSecondaryVertexFlightDistanceSignificance, jetSecondaryVertexPtCorrectedMass);
         v_jetProperties->push_back(jetProperties);
         
         edm::LogVerbatim log("JetPropertiesProducer");
@@ -374,7 +429,7 @@ JetPropertiesProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         jetSecondaryVertexFlightDistanceSignificance.clear();
         jetSecondaryVertexTrackVertexIndex.clear();
         jetSecondaryVertexTrackMatchToSelectedTrackIndex.clear();
-        
+        jetPfCandidatePrimaryVertexId.clear();
     }
     
     iEvent.put(v_jetProperties);
@@ -434,6 +489,7 @@ JetPropertiesProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
     desc.add<edm::InputTag>("src");
     desc.add<edm::InputTag>("pfCands");
     desc.add<edm::InputTag>("svComputer");
+    desc.add<edm::InputTag>("primaryVertexInputTag");
     descriptions.add("jetProperties", desc);
 }
 

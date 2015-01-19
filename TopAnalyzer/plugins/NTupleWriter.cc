@@ -225,6 +225,7 @@ private:
     std::vector<LV> v_jetPfCandidateTrack_;
     std::vector<int> v_jetPfCandidateTrackCharge_;
     std::vector<int> v_jetPfCandidateTrackId_;
+    std::vector<int> v_jetPfCandidatePrimaryVertexId_;
     std::vector<int> v_jetPfCandidateTrackIndex_;
     std::vector<int> v_jetSelectedTrackMatchToPfCandidateIndex_;
     std::vector<LV> v_jetSelectedTrack_;
@@ -1177,6 +1178,7 @@ NTupleWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             v_jetPfCandidateTrack_.insert(v_jetPfCandidateTrack_.end(), i_jetProperties->jetPfCandidateTrack().begin(), i_jetProperties->jetPfCandidateTrack().end());
             v_jetPfCandidateTrackCharge_.insert(v_jetPfCandidateTrackCharge_.end(), i_jetProperties->jetPfCandidateTrackCharge().begin(), i_jetProperties->jetPfCandidateTrackCharge().end());
             v_jetPfCandidateTrackId_.insert(v_jetPfCandidateTrackId_.end(), i_jetProperties->jetPfCandidateTrackId().begin(), i_jetProperties->jetPfCandidateTrackId().end());
+            v_jetPfCandidatePrimaryVertexId_.insert(v_jetPfCandidatePrimaryVertexId_.end(),i_jetProperties->jetPfCandidatePrimaryVertexId().begin(), i_jetProperties->jetPfCandidatePrimaryVertexId().end());
             v_jetPfCandidateTrackIndex_.insert(v_jetPfCandidateTrackIndex_.end(), i_jetProperties->jetPfCandidateTrack().size(), jetIndex);
             
             v_jetSelectedTrack_.insert(v_jetSelectedTrack_.end(), i_jetProperties->jetSelectedTrack().begin(), i_jetProperties->jetSelectedTrack().end());
@@ -1387,6 +1389,7 @@ NTupleWriter::beginJob()
     ntuple_->Branch("jetPfCandidateTrack", &v_jetPfCandidateTrack_);
     ntuple_->Branch("jetPfCandidateTrackCharge", &v_jetPfCandidateTrackCharge_);
     ntuple_->Branch("jetPfCandidateTrackId", &v_jetPfCandidateTrackId_);
+    ntuple_->Branch("jetPfCandidatePrimaryVertexId", &v_jetPfCandidatePrimaryVertexId_);
     ntuple_->Branch("jetPfCandidateTrackIndex", &v_jetPfCandidateTrackIndex_);
     ntuple_->Branch("jetSelectedTrackMatchToPfCandidateIndex",&v_jetSelectedTrackMatchToPfCandidateIndex_);
     ntuple_->Branch("jetSelectedTrack", &v_jetSelectedTrack_);
@@ -1562,6 +1565,7 @@ void NTupleWriter::clearVariables()
     v_jetPfCandidateTrack_.clear();
     v_jetPfCandidateTrackCharge_.clear();
     v_jetPfCandidateTrackId_.clear();
+    v_jetPfCandidatePrimaryVertexId_.clear();
     v_jetPfCandidateTrackIndex_.clear();
     v_jetSelectedTrackMatchToPfCandidateIndex_.clear();
     v_jetSelectedTrack_.clear();

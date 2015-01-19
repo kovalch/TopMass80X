@@ -527,6 +527,7 @@ private:
     TBranch* b_jetSecondaryVertexFlightDistanceSignificance;
     TBranch* b_jetSecondaryVertexTrackVertexIndex;
     TBranch* b_jetSecondaryVertexTrackMatchToSelectedTrackIndex;
+    TBranch* b_jetPfCandidatePrimaryVertexId;
     TBranch* b_met;
     TBranch* b_jetForMET;
     
