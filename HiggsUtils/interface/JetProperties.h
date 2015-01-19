@@ -25,8 +25,7 @@ public:
                   const std::vector<int>& jetSelectedTrackCharge, const std::vector<int>& jetSecondaryVertexTrackMatchToSelectedTrackIndex,
                   const std::vector<int>& jetSecondaryVertexTrackVertexIndex, const std::vector<math::PtEtaPhiMLorentzVectorD>& jetSecondaryVertex,
                   const std::vector<double>& jetSecondaryVertexFlightDistanceValue, const std::vector<double>& jetSecondaryVertexFlightDistanceSignificance,
-                  const double& jetSecondaryVertexPtCorrectedMass, const std::vector<int>& eventVerticesIndices, const std::vector<float>& eventVerticesWeights,
-                  const std::vector<double>& jetPfCandidateZDistanceToVertices, const std::vector<int>& jetPfCandidateMatchToVerticesIndex);
+                  const double& jetSecondaryVertexPtCorrectedMass, const std::vector<int>& jetPfCandidateRelationToInteractionVertex, const std::vector<int>& jetPfCandidateMatchToVerticesIndex);
     
     JetProperties(const JetProperties& jetProperties);
     
@@ -50,9 +49,7 @@ public:
     const std::vector<double>& jetSecondaryVertexFlightDistanceValue()const;
     const std::vector<double>& jetSecondaryVertexFlightDistanceSignificance()const;
     const double& jetSecondaryVertexPtCorrectedMass()const;
-    const std::vector<int>& eventVerticesIndices()const;
-    const std::vector<float>& eventVerticesWeights()const;
-    const std::vector<double>& jetPfCandidateZDistanceToVertices()const;
+    const std::vector<int>& jetPfCandidateRelationToInteractionVertex()const;
     const std::vector<int>& jetPfCandidateMatchToVerticesIndex()const;
     
     
@@ -80,6 +77,7 @@ private:
     std::vector<int> eventVerticesIndices_;
     std::vector<float> eventVerticesWeights_;
     std::vector<double> jetPfCandidateZDistanceToVertices_;
+    std::vector<int> jetPfCandidateRelationToInteractionVertex_;
     std::vector<int> jetPfCandidateMatchToVerticesIndex_;
 };
 
