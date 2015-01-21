@@ -26,6 +26,8 @@ constexpr double Luminosity = 19712.;
 ///Inclusive top xsec in 
 constexpr double topxsec = 245.102;
 
+std::vector<std::vector<TString>> vv_plotName;
+
 
 
 void Histo2(const std::vector<Channel::Channel>& v_channel,
@@ -40,28 +42,13 @@ void Histo2(const std::vector<Channel::Channel>& v_channel,
     // Access all samples   
     const Samples samples("FileLists", v_channel, v_systematic, globalScaleFactors); // "FileLists" is a folder in diLeptonic, to create this folder : 
     
-    styleUtils::setHHStyle(*gStyle);
-    
-    // Create Plotter and FinalPlot
-    Plotter generalPlot(samples,Luminosity,topxsec);
-    FinalPlot finalPlot(samples,Luminosity,topxsec);
-
-    // Access the nameList
-    const std::string nameListFile(common::CMSSW_BASE() + "/src/TopAnalysis/Configuration/analysis/diLeptonic/" + "NameList");
-
-    std::vector<std::vector<TString>> vv_plotName;
-    ttbar::setPlotNames(nameListFile,vv_plotName);
-
-    // Loop over all plots in NameList
+   // Create Plotter and FinalPlot
+   Plotter generalPlot(samples,Luminosity,topxsec);
+   // Loop over all plots in NameList
    std::cout<<"--- Beginning with the plotting\n\n";
    for(auto v_plotName : vv_plotName){
-       
-        generalPlot.setOptions(v_plotName);
-        finalPlot.setOptions(v_plotName);
-
-       // Loop over all systematics and all channels and write histograms
+       generalPlot.setOptions(v_plotName);
        generalPlot.producePlots();
-       finalPlot.producePlots();
    }
    std::cout<<"\n=== Finishing with the plotting\n\n";
     
@@ -119,7 +106,24 @@ int main(int argc, char** argv){
     for(auto globalCorrection : v_globalCorrection) std::cout << GlobalCorrection::convert(globalCorrection) << " ";
     std::cout << "\n\n";
     
+    styleUtils::setHHStyle(*gStyle);
+    
+    // Access the nameList
+    const std::string nameListFile(common::CMSSW_BASE() + "/src/TopAnalysis/Configuration/analysis/diLeptonic/" + "NameList");
+    ttbar::setPlotNames(nameListFile,vv_plotName);
+    
     // Start analysis
     Histo2(v_channel, v_systematic, v_globalCorrection);
+    
+    FinalPlot finalPlot(v_channel,v_systematic,Luminosity,topxsec);
+    std::cout<<"--- Beginning with the FinalPlot plotting\n\n";
+       for(auto v_plotName : vv_plotName){
+        finalPlot.setOptions(v_plotName);
+        finalPlot.producePlots(".png");
+        
+    }
+    std::cout<<"\n=== Finishing with the FinalPlot plotting\n\n";
+    
+           
     
 }
