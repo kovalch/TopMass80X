@@ -411,7 +411,7 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
 //     setex2->Draw();  // remove error bars for data in x-direction
     if(dataHist.second) dataHist.second->Draw("same E1 X0");
     for(const auto& higgsHist : higgsHists){
-        higgsHist.second->Draw("same");
+        higgsHist.second->Draw("same HIST");
     }
     
     // Updating the histo axis
