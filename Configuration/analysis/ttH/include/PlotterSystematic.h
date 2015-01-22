@@ -57,7 +57,7 @@ private:
 
     /// Plot different systematic shapes for each process
     void writeVariations(const SystematicHistoMap& histoCollection, const Channel::Channel channel, const TString processName, 
-                         const bool logY = false, TPad* pad = 0, const double widthFactor = 1.);
+                         const bool logY = false);
     
     /// Plot nominal shapes of different processes
     void writeNominalShapes(const std::map<TString, TH1*>& processHistograms, const Channel::Channel channel, const bool logY = false);
@@ -73,6 +73,9 @@ private:
     
     /// Calculates binomial uncertainty of the subset/set ratio
     double uncertaintyBinomial(const double pass, const double all)const;
+    
+    /// Calculate deviation from up/down systematic variations
+    void systematicDeviation(const TH1* h_nominal, const TH1* h_up, const TH1* h_down)const;
     
     
 

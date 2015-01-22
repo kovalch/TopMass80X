@@ -21,17 +21,6 @@
 
 
 
-
-
-/// Set data luminosity in pb-1
-//constexpr double Luminosity = 19624.8;
-//constexpr double Luminosity = 19789.;
-constexpr double Luminosity = 19712.;
-
-
-
-
-
 void HistoSystematic(const std::vector<std::string>& v_plot, 
                      const std::vector<Channel::Channel>& v_channel,
                      const std::vector<Systematic::Systematic>& v_systematic)
@@ -116,8 +105,8 @@ void HistoSystematic(const std::vector<std::string>& v_plot,
         
         // Set plot properties
         plotter.setOptions(plotProperties.name, plotProperties.specialComment, plotProperties.ytitle, plotProperties.xtitle, 
-                               plotProperties.rebin, plotProperties.do_dyscale, plotProperties.logX, plotProperties.logY, 
-                               plotProperties.ymin, plotProperties.ymax, plotProperties.xmin, plotProperties.xmax);
+                           plotProperties.rebin, plotProperties.do_dyscale, plotProperties.logX, plotProperties.logY, 
+                           plotProperties.ymin, plotProperties.ymax, plotProperties.xmin, plotProperties.xmax);
         
         // Loop over all systematics and all channels and write histograms
         plotter.producePlots();
