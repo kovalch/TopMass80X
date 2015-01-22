@@ -105,7 +105,7 @@ void PlotterDiffXS::setOptions(const TString& name, const TString& nameGen,
 //         else if(type==Sample::ttbb || type==Sample::ttb || type==Sample::tt2b || type==Sample::ttcc || type==Sample::ttother) sampleTypesSignal_.push_back(Sample::SampleType(type));
         else sampleTypesBackground_.push_back(Sample::SampleType(type));
         
-        if(type==Sample::ttbb || type==Sample::ttb || type==Sample::tt2b || type==Sample::ttcc || type==Sample::tthf || type==Sample::ttother)
+        if(type==Sample::ttbb || type==Sample::ttb || type==Sample::tt2b || type==Sample::ttcc || type==Sample::ttother)
             sampleTypesTtbar_.push_back(Sample::SampleType(type));
     }
     
