@@ -65,17 +65,6 @@ private:
     
     /// Access global scale factors
     const SystematicChannelFactors scaleFactors(const bool dyScale = true, const bool hfScale = true);
-    
-    
-    
-    /// Set the style of the plot
-    void setHistoStyle(TH1* hist, Style_t line = 1, Color_t lineColor = 1, Size_t lineWidth = 1, 
-                       Style_t fill = 0, Color_t fillColor = 0, 
-                       Style_t marker = 21, Color_t markerColor = 1, Size_t markerSize = 1)const;
-    
-    /// Set the style of the graph
-    void setGraphStyle( TGraph* graph, Style_t marker = 21, Color_t markerColor = 1, Size_t markerSize = 1, 
-                        Style_t line = 0, Color_t lineColor = 1, Size_t lineWidth = 1)const;
 
     /// Update histogram axis
     void updateHistoAxis(TH1* histo)const;
@@ -89,23 +78,6 @@ private:
     /// Draw purity/stability plots for the response matrices
     void drawPurityStability(TH2* histo2d, TString name)const;
     
-    /// Divide each bin by the bin width
-    void normalizeToBinWidth(TH1* histo)const;
-    
-    /// Normalise histogram to the unit area
-    void normalize(TH1* histo)const;
-    
-    /// Add area for the ratio plot
-    TH1* drawRatioPad(TPad* pad, const double yMin, const double yMax, TH1* axisHisto, const double fraction = 0.36, 
-                      const TString title = "#frac{Data}{Theory}")const;
-    
-    /// Get a ratio histogram
-    TH1* ratioHistogram(const TH1* h_nominator, const TH1* h_denominator)const;
-    
-    
-    /// Draw signal significance label over the plot
-    TPaveText* drawSignificance(TH1* signal, TH1* bkg, float Xmin,  float Xmax, float yOffset = 0.f, std::string sLabel ="", const int type=0)const;
-    
     /// Calculates purity (type=0) and stability (type=1) curves for a 2D distribution
     TGraphErrors* purityStabilityGraph(TH2* h2d, const int type)const;
     
@@ -113,14 +85,17 @@ private:
     double uncertaintyBinomial(const double pass, const double all)const;
 
     /// Creates a vector of legend-histo pairs of specific type (0-data, 1-signal, 2-background)
-    std::vector<LegendHistPair> legendHistPairsForSamples(const std::vector<Sample::SampleType> allowedSampleTypes, std::vector<SampleHistPair> samples)const;
+    std::vector<LegendHistPair> legendHistPairsForSamples(const std::vector<Sample::SampleType> allowedSampleTypes, 
+                                                          std::vector<SampleHistPair> samples, const bool addMCtoPseudodata = false)const;
     
     /// Sums all histograms in the stack
     TH1* sumOfHistos(const std::vector<LegendHistPair> histos, const TString name = "")const;
     
     /// Calculate differential cross section
-    std::map<TString, TH1*> calculateDiffXS(const TH1* h_data, const TH1* h_signal, const TH1* h_bkg, const TH1* h_signal_noWeight, 
-                                            const TH1* h_signal_gen, const TH1* h_response, const TH1* h_ttbar_gen)const;
+    std::map<TString, TH1*> calculateDiffXS(const std::map<TString, TH1*> m_inputHistos, const bool normalizeMcToData = false)const;
+    
+    /// Unfold the histogram to true level
+    TH1* unfoldedHistogram(const std::map<TString, TH1*> m_inputHistos, const int unfoldingType=0)const;
     
     
     
@@ -142,6 +117,7 @@ private:
     
     /// Sample-Histogram pairs for gen level quantity to plot
     std::vector<SampleHistPair> v_sampleHistPairGen_;
+    std::vector<SampleHistPair> v_sampleHistPairGen_noWeight_;
     
     /// Sample-Histogram pairs for gen level events
     std::vector<SampleHistPair> v_sampleHistPairGenEventBased_;
@@ -154,7 +130,8 @@ private:
     std::map<TString, SystematicChannelFactors> m_stepFactors_;
     
     
-    
+    /// Whether pseudodata is used instead data (reweighted MC is added to XS plots)
+    bool hasPseudodata_;
     /// Name of histogram under consideration
     TString name_;
     TString nameGen_;
@@ -163,7 +140,7 @@ private:
     /// Options for the histogram under consideration
     int signalType_;
     bool plotResponse_;
-//     bool stackToNEntries_;
+    bool normalizeXS_;
     double rangemin_, rangemax_, ymin_, ymax_;
 //     std::vector<double> XAxisbins_, XAxisbinCenters_;
     std::vector<Sample::SampleType> sampleTypesData_;

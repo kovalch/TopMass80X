@@ -1,5 +1,6 @@
 SET( ${PROJECT_NAME}_ROOTDICT_DIR ${CMAKE_BINARY_DIR}/ROOTdicts )
 SET( DICT_NAME ${${PROJECT_NAME}_ROOTDICT_DIR}/${PROJECT_NAME}_dict.cc )
+SET(Unfold_DIR "${${PROJECT_NAME}_SOURCE_DIR}/../unfolding")
 
 SET( ${PROJECT_NAME}_HEADERS_THAT_NEED_ROOTDICT
   HiggsAnalysis
@@ -38,6 +39,7 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   AnalyzerPlayground
   JetCategories
   plotterHelpers
+  DilepSVDFunctions
   Sample
   SampleDefinitions
   Samples
@@ -49,6 +51,12 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   Plotter
   PlotterDiffXS
   PlotterSystematic
+  )
+
+SET( Unfold_LIBSOURCES
+  TopSVDFunctions
+  TopSVDUnfold
+  BaseSVDUnfold
   )
 
 SET( ${PROJECT_NAME}_EXECUTABLES
@@ -74,6 +82,7 @@ ADD_DEFINITIONS(-Wall -Wextra -pedantic -Wno-vla -O2 -g -std=c++0x -DSTANDALONE_
 INCLUDE_DIRECTORIES( ${ROOT_INCLUDE_DIR} )
 INCLUDE_DIRECTORIES( ${ZTopUtils_INCLUDE_DIRS} )
 INCLUDE_DIRECTORIES( ${ntupleCommon_INCLUDE_DIRS} )
+INCLUDE_DIRECTORIES( "${Unfold_DIR}" )
 INCLUDE_DIRECTORIES( BEFORE "${${PROJECT_NAME}_SOURCE_DIR}/include" ${${PROJECT_NAME}_ROOTDICT_DIR} )
 
 
@@ -100,7 +109,20 @@ ADD_CUSTOM_COMMAND( OUTPUT ${DICT_NAME}
                     COMMENT "generating dictionary ${DICT_NAME} from" ${ROOT_DICT_HEADERS})
 
 
-ADD_LIBRARY( ${PROJECT_NAME} SHARED ${${PROJECT_NAME}_LIBSOURCES} ${DICT_NAME} )
+## Unfortunately this explicit search for .C files is needed due to missing directory structure for code in unfolding/
+MESSAGE (STATUS "starting search for Unfolding source files")
+FOREACH( filename ${Unfold_LIBSOURCES} )
+  FIND_FILE( ${filename}_cfilePath NAMES "${filename}.C"
+    PATHS  ${Unfold_DIR}  NO_DEFAULT_PATH )
+  MESSAGE (STATUS "  ${filename} found at: ${${filename}_cfilePath}")
+  SET(Unfold_LIBSOURCES_full ${Unfold_LIBSOURCES_full}
+${${filename}_cfilePath} )
+  UNSET(${filename}_cfilePath CACHE)
+ENDFOREACH( filename ${${PROJECT_NAME}_LIBSOURCES} )
+
+
+ADD_LIBRARY( ${PROJECT_NAME} SHARED ${${PROJECT_NAME}_LIBSOURCES}
+${Unfold_LIBSOURCES_full} ${DICT_NAME} )
 TARGET_LINK_LIBRARIES( ${PROJECT_NAME} ${ROOT_LIBRARIES} ${ZTopUtils_LIBRARIES} ${ntupleCommon_LIBRARIES})
 
 INSTALL(TARGETS ${PROJECT_NAME}

@@ -27,6 +27,10 @@
 constexpr double Luminosity = 19712.;
 
 
+/// Set relative luminosity uncertainty
+constexpr double LuminosityUNCERTAINTY = 0.026;
+
+
 
 
 
@@ -38,7 +42,7 @@ void HistoDiffXS(const std::vector<std::string>& v_plot,
     // Set up scale factors
     const bool dyCorrection = std::find(v_globalCorrection.begin(), v_globalCorrection.end(), GlobalCorrection::dy) != v_globalCorrection.end();
     const bool ttbbCorrection = std::find(v_globalCorrection.begin(), v_globalCorrection.end(), GlobalCorrection::ttbb) != v_globalCorrection.end();
-    const GlobalScaleFactors* globalScaleFactors = new GlobalScaleFactors(v_channel, v_systematic, Luminosity, dyCorrection, ttbbCorrection);
+    const GlobalScaleFactors* globalScaleFactors = new GlobalScaleFactors(v_channel, v_systematic, Luminosity, LuminosityUNCERTAINTY, dyCorrection, ttbbCorrection);
     
     // Access all samples
     const Samples samples("FileLists_plot", v_channel, v_systematic, globalScaleFactors);
@@ -98,12 +102,24 @@ void HistoDiffXS(const std::vector<std::string>& v_plot,
 /// All systematics allowed for plotting
 namespace Systematic{
     const std::vector<Type> allowedSystematics = {
-        nominal, all,
+        nominal, all, allAvailable,
         pu, lept, trig,
         jer, jes,
-        btag, btagPt, btagEta,
-        btagLjet, btagLjetPt, btagLjetEta,
+        btag, 
+        btagPt, btagEta,
+        btagLjet, 
+        btagLjetPt, btagLjetEta,
+        btagDiscrBstat1, btagDiscrBstat2,
+        btagDiscrLstat1, btagDiscrLstat2,
+        btagDiscrPurity,
         kin,
+        lumi,
+        frac_tthf, frac_ttother,
+        xsec_tt2b, xsec_ttcc,
+        topPt,
+        mass, match, scale,
+        powheg, powhegHerwig, mcatnlo, perugia11, perugia11NoCR,
+        pdf
     };
 }
 
@@ -115,7 +131,7 @@ int main(int argc, char** argv){
     CLParameter<std::string> opt_plot("p", "Name (pattern) of plot; multiple patterns possible; use '+Name' to match name exactly", false, 1, 100);
 //     CLParameter<std::string> opt_channel("c", "Specify channel(s), valid: emu, ee, mumu, combined. Default: all channels", false, 1, 4,
 //         common::makeStringCheck(Channel::convert(Channel::allowedChannelsPlotting)));
-    CLParameter<std::string> opt_systematic("s", "Systematic variation - default is Nominal, use 'all' for all", false, 1, 100,
+    CLParameter<std::string> opt_systematic("s", "Systematic variation - default is Nominal, use 'all' for all, use 'allAvailable' for all available", false, 1, 100,
         common::makeStringCheckBegin(Systematic::convertType(Systematic::allowedSystematics)));
     CLParameter<std::string> opt_globalCorrection("g", "Specify global correction, valid: empty argument for none, Drell-Yan (dy), tt+HF (ttbb). Default: dy ttbb", false, 0, 2,
         common::makeStringCheck(GlobalCorrection::convert(GlobalCorrection::allowedGlobalCorrections)));
@@ -139,10 +155,19 @@ int main(int argc, char** argv){
     
     // Set up systematics
     std::vector<Systematic::Systematic> v_systematic = Systematic::allowedSystematicsAnalysis(Systematic::allowedSystematics);
-    if(opt_systematic.isSet() && opt_systematic[0]!=Systematic::convertType(Systematic::all)) v_systematic = Systematic::setSystematics(opt_systematic.getArguments());
-    else if(opt_systematic.isSet() && opt_systematic[0]==Systematic::convertType(Systematic::all)); // do nothing
-    else{v_systematic.clear(); v_systematic.push_back(Systematic::nominalSystematic());}
-    std::cout << "Processing systematics (use >>-s all<< to process all known systematics): "; 
+    if(opt_systematic.isSet()){
+        if(opt_systematic[0] == Systematic::convertType(Systematic::all))
+            ; // do nothing
+        else if(opt_systematic[0] == Systematic::convertType(Systematic::allAvailable))
+            v_systematic = common::findSystematicsFromFilelists("FileLists_plot", v_channel, v_systematic);
+        else
+            v_systematic = Systematic::setSystematics(opt_systematic.getArguments());
+    }
+    else{
+        v_systematic.clear();
+        v_systematic.push_back(Systematic::nominalSystematic());
+    }
+    std::cout << "Processing systematics: "; 
     for(auto systematic : v_systematic) std::cout << systematic.name() << " ";
     std::cout << "\n\n";
     
