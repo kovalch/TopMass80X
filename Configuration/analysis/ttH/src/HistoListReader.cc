@@ -38,8 +38,8 @@ isZombie_(false)
         std::stringstream linestream(line);
         // # Name, Extra, axis labels (y,x), rebin, do_dyscale, logx, logy, ymin, ymax, xmin, xmax, nbins, xbins, bcs
         linestream 
-            >> m.name
-            >> m.specialComment;
+            >> m.name;
+            readString(linestream, m.specialComment);
             readString(linestream, m.ytitle);
             readString(linestream, m.xtitle);
             linestream >> m.rebin
