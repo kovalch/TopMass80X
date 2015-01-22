@@ -112,7 +112,7 @@ trueLevelWeight_(VariableFloat(name_trueLevelWeight_))
    ttbar_mass_.value_ = hypttbar.M();
    
    ttbar_delta_eta_.value_ = fabs(hyptop.Eta()-hypantitop.Eta());
-   ttbar_delta_phi_.value_ = fabs(hyptop.Eta()-hypantitop.Eta());
+   ttbar_delta_phi_.value_ = fabs(hyptop.DeltaPhi(hypantitop));
    
    double restPzJetsSum=0; // rest means jets not from top or anti-top
    double restEJetsSum=0; 
