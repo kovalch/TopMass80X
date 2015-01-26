@@ -30,7 +30,7 @@ topAnalysis () {
         echo "  To use specific tag, 'export TOP_TAG=<TAG_NAME>' BEFORE DOWNLOADING AND RUNNING the install script (such that TAG is used for both)."
         echo "  To see available tags, execute: 'git tag'"
         cd ${CMSSW_BASE}/src
-        git clone https://$1@git.cern.ch/reps/TopAnalysis
+        git clone -b Phys14 https://$1@git.cern.ch/reps/TopAnalysis
         if [ $? -eq 0 ]; then
             echo "Successful download from GIT"
             echo
