@@ -30,32 +30,6 @@ std::vector<std::vector<TString>> vv_plotName;
 
 
 
-void Histo2(const std::vector<Channel::Channel>& v_channel,
-           const std::vector<Systematic::Systematic>& v_systematic,
-           const std::vector<GlobalCorrection::GlobalCorrection> v_globalCorrection)
-{
-    // Set up scale factors
-    const bool dyCorrection = std::find(v_globalCorrection.begin(), v_globalCorrection.end(), GlobalCorrection::dy) != v_globalCorrection.end();
-    const bool ttbbCorrection = std::find(v_globalCorrection.begin(), v_globalCorrection.end(), GlobalCorrection::ttbb) != v_globalCorrection.end();
-    const GlobalScaleFactors* globalScaleFactors = new GlobalScaleFactors(v_channel, v_systematic, Luminosity, dyCorrection, ttbbCorrection);
-    
-    // Access all samples   
-    const Samples samples("FileLists", v_channel, v_systematic, globalScaleFactors); // "FileLists" is a folder in diLeptonic, to create this folder : 
-    
-   // Create Plotter and FinalPlot
-   Plotter generalPlot(samples,Luminosity,topxsec);
-   // Loop over all plots in NameList
-   std::cout<<"--- Beginning with the plotting\n\n";
-   for(auto v_plotName : vv_plotName){
-       generalPlot.setOptions(v_plotName);
-       generalPlot.producePlots();
-   }
-   std::cout<<"\n=== Finishing with the plotting\n\n";
-    
-}
-
-
-
 /// All systematics allowed for plotting
 namespace Systematic{
     const std::vector<Type> allowedSystematics = {
@@ -73,14 +47,28 @@ namespace Systematic{
 int main(int argc, char** argv){
     
     // Get and check configuration parameters
-    CLParameter<std::string> opt_channel("c", "Specify channel(s), valid: emu, ee, mumu, combined. Default: all channels", false, 1, 4,
-        common::makeStringCheck(Channel::convert(Channel::realChannels)));
+     CLParameter<std::string> opt_analysis("a", "Specify analysis, valid: 2d - for double differential , btop - for boosted top.",true, 1,1,
+                                          common::makeStringCheck( {"2d","btop"} ));
+     CLParameter<std::string> opt_plotter("p", "Specify plotting stage, valid: p - for Plotter , fp - for FinalPlot, without option - for both.",false, 0,1,
+                                          common::makeStringCheck( {"p","fp"} ));
+     CLParameter<std::string> opt_channel("c", "Specify channel(s), valid: emu, ee, mumu, combined. Default: all channels", false, 1, 4,
+                                          common::makeStringCheck(Channel::convert(Channel::realChannels)));
      CLParameter<std::string> opt_systematic("s", "Systematic variation - default is Nominal, use 'all' for all", false, 1, 100,
-         common::makeStringCheckBegin(Systematic::convertType(Systematic::allowedSystematics)));
-   CLParameter<std::string> opt_globalCorrection("g", "Specify global correction, valid: empty argument for none, Drell-Yan (dy), tt+HF (ttbb). Default: dy", false, 0, 2,
-        common::makeStringCheck(GlobalCorrection::convert(GlobalCorrection::allowedGlobalCorrections)));
-    CLAnalyser::interpretGlobal(argc, argv);
+                                             common::makeStringCheckBegin(Systematic::convertType(Systematic::allowedSystematics)));
+     CLParameter<std::string> opt_globalCorrection("g", "Specify global correction, valid: empty argument for none, Drell-Yan (dy), tt+HF (ttbb). Default: dy", false, 0, 2,
+                                                   common::makeStringCheck(GlobalCorrection::convert(GlobalCorrection::allowedGlobalCorrections)));
+     
+     CLAnalyser::interpretGlobal(argc, argv);
     
+     
+     //Set up plotter
+     bool runPlotter=true;
+     bool runFinalPlot=true;
+     if(opt_plotter.isSet()){
+         if(opt_plotter.getArguments().at(0)=="p")runFinalPlot=false;
+         if(opt_plotter.getArguments().at(0)=="fp")runPlotter=false;
+     }
+     
     // Set up channels
     //std::vector<Channel::Channel> v_channel(Channel::realChannels);
     std::vector<Channel::Channel> v_channel(1,Channel::emu);//emu
@@ -98,32 +86,78 @@ int main(int argc, char** argv){
     for(auto systematic : v_systematic) std::cout << systematic.name() << " ";
     std::cout << "\n\n";
     
-    // Set up global corrections
-    std::vector<GlobalCorrection::GlobalCorrection> v_globalCorrection({GlobalCorrection::dy});
-    if(opt_globalCorrection.isSet()) v_globalCorrection = GlobalCorrection::convert(opt_globalCorrection.getArguments());
-    std::cout << "\n";
-    std::cout << "Using global corrections: ";
-    for(auto globalCorrection : v_globalCorrection) std::cout << GlobalCorrection::convert(globalCorrection) << " ";
-    std::cout << "\n\n";
+    if(runPlotter){
+        
+        // Set up global corrections
+        std::vector<GlobalCorrection::GlobalCorrection> v_globalCorrection({GlobalCorrection::dy});
+        if(opt_globalCorrection.isSet()) v_globalCorrection = GlobalCorrection::convert(opt_globalCorrection.getArguments());
+        std::cout << "\n";
+        std::cout << "Using global corrections: ";
+        for(auto globalCorrection : v_globalCorrection) std::cout << GlobalCorrection::convert(globalCorrection) << " ";
+        std::cout << "\n\n";
+        
+        // Set up scale factors
+        const bool dyCorrection = std::find(v_globalCorrection.begin(), v_globalCorrection.end(), GlobalCorrection::dy) != v_globalCorrection.end();
+        const bool ttbbCorrection = std::find(v_globalCorrection.begin(), v_globalCorrection.end(), GlobalCorrection::ttbb) != v_globalCorrection.end();
+        const GlobalScaleFactors* globalScaleFactors = new GlobalScaleFactors(v_channel, v_systematic, Luminosity, dyCorrection, ttbbCorrection);
     
-    styleUtils::setHHStyle(*gStyle);
+        // Access all samples   
+        const Samples samples("FileLists", v_channel, v_systematic, globalScaleFactors); // "FileLists" is a folder in diLeptonic, to create this folder : 
+    }
     
-    // Access the nameList
-    const std::string nameListFile(common::CMSSW_BASE() + "/src/TopAnalysis/Configuration/analysis/diLeptonic/" + "NameList");
-    ttbar::setPlotNames(nameListFile,vv_plotName);
+    if(opt_analysis.getArguments().at(0)=="2d")
+    {
+        std::cout << "Running 2d analysis ..."<<  std::endl;
+        
+        styleUtils::setHHStyle(*gStyle);
     
-    // Start analysis
-    Histo2(v_channel, v_systematic, v_globalCorrection);
+        // Access the nameList
+        const std::string nameListFile(common::CMSSW_BASE() + "/src/TopAnalysis/Configuration/analysis/diLeptonic/" + "NameList");
+        ttbar::setPlotNames(nameListFile,vv_plotName);
     
-    FinalPlot finalPlot(v_channel,v_systematic,Luminosity,topxsec);
-    std::cout<<"--- Beginning with the FinalPlot plotting\n\n";
-       for(auto v_plotName : vv_plotName){
-        finalPlot.setOptions(v_plotName);
-        finalPlot.producePlots(".png");
+        if(runPlotter){
+            std::cout<<"--- Beginning with the Plotter\n\n";
+            Plotter generalPlot(samples,Luminosity,topxsec);
+            // Loop over all plots in NameList
+            for(auto v_plotName : vv_plotName){
+                generalPlot.setOptions(v_plotName);
+                generalPlot.producePlots();
+            }
+            std::cout<<"\n=== Finishing with the plotting\n\n";
+        }
+        if(runFinalPlot){
+            std::cout<<"--- Beginning with the FinalPlot plotting\n\n";
+            FinalPlot finalPlot(v_channel,v_systematic,Luminosity,topxsec);
+            for(auto v_plotName : vv_plotName){
+                finalPlot.setOptions(v_plotName);
+                finalPlot.producePlots(".pdf");
+            }
+            std::cout<<"\n=== Finishing with the FinalPlot plotting\n\n";
+        }
         
     }
-    std::cout<<"\n=== Finishing with the FinalPlot plotting\n\n";
+    else if(opt_analysis.getArguments().at(0)=="btop"){
+        std::cout << "Running btop analysis ..."<<  std::endl;
+        if(runPlotter){
+            std::cout<<"--- Beginning with the Plotter\n\n";
+            
+            std::cout<<"\n=== Finishing with the plotting\n\n";
+        }
+        if(runFinalPlot){
+            std::cout<<"--- Beginning with the FinalPlot plotting\n\n";
+            
+            std::cout<<"\n=== Finishing with the FinalPlot plotting\n\n";
+        }
+    }
     
-           
     
+    
+    
+    
+
 }
+
+
+
+
+
