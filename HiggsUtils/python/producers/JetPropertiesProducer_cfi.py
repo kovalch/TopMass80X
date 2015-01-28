@@ -5,5 +5,5 @@ jetProperties = cms.EDProducer('JetPropertiesProducer',
     src = cms.InputTag("selectedPatJets"),
     pfCands = cms.InputTag("packedPFCandidates"),
     svComputer = cms.InputTag("combinedSecondaryVertex"),
-    primaryVertexInputTag = cms.InputTag("offlinePrimaryVertices"),
+    primaryVertexInputTag = cms.InputTag("goodOfflinePrimaryVertices"),
 )
