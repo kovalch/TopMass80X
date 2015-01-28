@@ -257,31 +257,11 @@ void Plotter::clearMemory()
     v_cpNBins_.clear();
     v_R1_.clear();
     v_R2_.clear();
-    v_histRecoAllBins_.clear();
-    
     
     if(detectorDistribution_)detectorDistribution_->Delete();
     if(detectorBinning_)detectorBinning_->Delete();
     if(generatorDistribution_)generatorDistribution_->Delete();
     if(generatorBinning_)generatorBinning_->Delete();
-    
-
-    
-    if(histMCReco_)histMCReco_->Delete();
-    
-    
-    if(histEff_)histEff_->Delete();
-    if(histGen_)histGen_->Delete();
-    if(histPurity_)histPurity_->Delete();
-    if(histStability_)histStability_->Delete();
-    if(histRecoGen_)histRecoGen_->Delete();
-    
-    
-    if(histEffAllBins_)histEffAllBins_->Delete();
-    if(histGenAllBins_)histGenAllBins_->Delete();
-    if(histPurityAllBins_)histPurityAllBins_->Delete();
-    if(histStabilityAllBins_)histStabilityAllBins_->Delete();
-    if(histRecoGenAllBins_)histRecoGenAllBins_->Delete();
     
 }
 
@@ -320,6 +300,25 @@ void Plotter::clearMemoryPerSystematicChannel()
     if(histSG_)histSG_->Delete();
     if(histRWSG_)histRWSG_->Delete();
     
+    for(auto p : v_histRecoAllBins_)
+        delete p;
+    v_histRecoAllBins_.clear();
+    
+    if(histMCReco_)histMCReco_->Delete();
+    
+    
+    if(histEff_)histEff_->Delete();
+    if(histGen_)histGen_->Delete();
+    if(histPurity_)histPurity_->Delete();
+    if(histStability_)histStability_->Delete();
+    if(histRecoGen_)histRecoGen_->Delete();
+    
+    
+    if(histEffAllBins_)histEffAllBins_->Delete();
+    if(histGenAllBins_)histGenAllBins_->Delete();
+    if(histPurityAllBins_)histPurityAllBins_->Delete();
+    if(histStabilityAllBins_)histStabilityAllBins_->Delete();
+    if(histRecoGenAllBins_)histRecoGenAllBins_->Delete();
     
 }
 
