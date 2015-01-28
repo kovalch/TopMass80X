@@ -1496,12 +1496,15 @@ void Plotter::writePlotXSec(const TH1* hData,const TH1* hMC)
                     xsecInfo.add("bins",v_coarseBins_.at(0));
                     std::vector<double> v_xsec;
                     std::vector<double> v_stat;
+                    std::vector<double> v_xsec_mc;
                     for(int i=1;i<=h_temp->GetNbinsX();i++){
                         v_xsec.push_back(h_temp->GetBinContent(i));
                         v_stat.push_back(h_temp->GetBinError(i));
+                        v_xsec_mc.push_back(h_temp_mc->GetBinContent(i));
                     }
                     xsecInfo.add("stat",v_stat);
                     xsecInfo.add("xsec",v_xsec);
+                    xsecInfo.add("mc",v_xsec_mc);
                     xsecInfo.save(plotsFolder_+ "xSec_" + v_plotName_.at(0) + "_IN_"+ v_plotName_.at(1)+ "_" + std::to_string(iy) + ".txt");
                     
                     canvas->Print(plotsFolder_+ "xSec_" + v_plotName_.at(0) + "_IN_"+ v_plotName_.at(1)+ "_" + std::to_string(iy) + ".pdf");
@@ -1556,12 +1559,15 @@ void Plotter::writePlotXSec(const TH1* hData,const TH1* hMC)
                     xsecInfo.add("bins",v_coarseBins_.at(1));
                     std::vector<double> v_xsec;
                     std::vector<double> v_stat;
+                    std::vector<double> v_xsec_mc;
                     for(int i=1;i<=h_temp->GetNbinsX();i++){
                         v_xsec.push_back(h_temp->GetBinContent(i));
                         v_stat.push_back(h_temp->GetBinError(i));
+                        v_xsec_mc.push_back(h_temp_mc->GetBinContent(i));
                     }
                     xsecInfo.add("stat",v_stat);
                     xsecInfo.add("xsec",v_xsec);
+                    xsecInfo.add("mc",v_xsec_mc);
                     xsecInfo.save(plotsFolder_+ "xSec_" + v_plotName_.at(1) + "_IN_"+ v_plotName_.at(0)+ "_" + std::to_string(ix) + ".txt");
                     
                     canvas->Print(plotsFolder_+ "xSec_" + v_plotName_.at(1) + "_IN_"+ v_plotName_.at(0)+ "_" + std::to_string(ix) + ".pdf");
