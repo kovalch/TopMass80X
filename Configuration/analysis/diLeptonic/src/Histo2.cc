@@ -9,6 +9,8 @@
 #include "GlobalScaleFactors.h"
 #include "Plotter.h"
 #include "FinalPlot.h"
+#include "PlotterBoostedTop.h"
+// #include "FinalPlotBoostedTop.h"
 #include <ttbarUtils.h>
 #include "../../common/include/utils.h"
 #include "../../common/include/sampleHelpers.h"
@@ -86,6 +88,8 @@ int main(int argc, char** argv){
     for(auto systematic : v_systematic) std::cout << systematic.name() << " ";
     std::cout << "\n\n";
     
+    Samples SAMPLES;
+    
     if(runPlotter){
         
         // Set up global corrections
@@ -103,6 +107,7 @@ int main(int argc, char** argv){
     
         // Access all samples   
         const Samples samples("FileLists", v_channel, v_systematic, globalScaleFactors); // "FileLists" is a folder in diLeptonic, to create this folder : 
+        SAMPLES = samples;
     }
     
     if(opt_analysis.getArguments().at(0)=="2d")
@@ -117,7 +122,7 @@ int main(int argc, char** argv){
     
         if(runPlotter){
             std::cout<<"--- Beginning with the Plotter\n\n";
-            Plotter generalPlot(samples,Luminosity,topxsec);
+            Plotter generalPlot(SAMPLES,Luminosity,topxsec);
             // Loop over all plots in NameList
             for(auto v_plotName : vv_plotName){
                 generalPlot.setOptions(v_plotName);
@@ -140,6 +145,8 @@ int main(int argc, char** argv){
         std::cout << "Running btop analysis ..."<<  std::endl;
         if(runPlotter){
             std::cout<<"--- Beginning with the Plotter\n\n";
+            PlotterBoostedTop generalPlot(SAMPLES,Luminosity,topxsec);
+            
             
             std::cout<<"\n=== Finishing with the plotting\n\n";
         }
