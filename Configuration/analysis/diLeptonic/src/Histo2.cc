@@ -9,8 +9,6 @@
 #include "GlobalScaleFactors.h"
 #include "Plotter.h"
 #include "FinalPlot.h"
-#include "PlotterBoostedTop.h"
-// #include "FinalPlotBoostedTop.h"
 #include <ttbarUtils.h>
 #include "../../common/include/utils.h"
 #include "../../common/include/sampleHelpers.h"
@@ -115,15 +113,13 @@ int main(int argc, char** argv){
         std::cout << "Running 2d analysis ..."<<  std::endl;
         
         styleUtils::setHHStyle(*gStyle);
-    
-        // Access the nameList
+        
         const std::string nameListFile(common::CMSSW_BASE() + "/src/TopAnalysis/Configuration/analysis/diLeptonic/" + "NameList");
         ttbar::setPlotNames(nameListFile,vv_plotName);
-    
+
         if(runPlotter){
             std::cout<<"--- Beginning with the Plotter\n\n";
             Plotter generalPlot(SAMPLES,Luminosity,topxsec);
-            // Loop over all plots in NameList
             for(auto v_plotName : vv_plotName){
                 generalPlot.setOptions(v_plotName);
                 generalPlot.producePlots();
@@ -143,11 +139,18 @@ int main(int argc, char** argv){
     }
     else if(opt_analysis.getArguments().at(0)=="btop"){
         std::cout << "Running btop analysis ..."<<  std::endl;
+        
+        const std::string nameListFile(common::CMSSW_BASE() + "/src/TopAnalysis/Configuration/analysis/diLeptonic/" + "NameListBTop");
+        ttbar::setPlotNames(nameListFile,vv_plotName);
+        
         if(runPlotter){
             std::cout<<"--- Beginning with the Plotter\n\n";
-            PlotterBoostedTop generalPlot(SAMPLES,Luminosity,topxsec);
-            
-            
+            //PlotterBTop generalPlot(SAMPLES,Luminosity,topxsec);
+            for(auto v_plotName : vv_plotName){
+                std::cout << v_plotName.at(0) << std::endl;
+//                 generalPlot.setOptions(v_plotName);
+//                 generalPlot.producePlots();
+            }
             std::cout<<"\n=== Finishing with the plotting\n\n";
         }
         if(runFinalPlot){
