@@ -24,6 +24,10 @@ type(outputType)
     {
         
     }
+    else if(outputType == "syst")
+    {
+        
+    }
     else
     {
         std::cout << "[Output]:  ERROR: \"outputType\" does not match to any existing types.";
@@ -44,7 +48,8 @@ void Output::add(const TString& name, TString value)
 
 void Output::add(const TString& name, std::vector<double> vect)
 {
-    mainBodyD_[name] = vect;
+    auto tempPair = std::make_pair(name, vect);
+    mainBodyD_.push_back(tempPair);
     nLines++;
 }
 
@@ -68,7 +73,7 @@ void Output::save(const TString& saveFile)
         }
     }
     
-    if(type == "xsec"){
+    if(type == "xsec" || type == "syst"){
         for (mapDouble::iterator i = mainBodyD_.begin(); i != mainBodyD_.end(); ++i) {
             file_out << i->first << " ";
             for(const auto& s :  i->second )

@@ -7,8 +7,9 @@
 
 #include <TString.h>
 
-typedef std::map <TString, std::vector<double> > mapDouble;
-typedef std::map <TString, std::vector<TString> > mapString;
+typedef std::vector<std::pair<TString, std::vector<double> > > mapDouble;
+// typedef std::map<TString, std::vector<double> >  mapDouble;
+typedef  std::map<TString, std::vector<TString> >  mapString;
 
 class Output{
     
