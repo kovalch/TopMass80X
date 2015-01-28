@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <cmath>
 
 #include <TString.h>
 #include <TH1.h>
@@ -268,40 +269,66 @@ void utils::cat(const TString& file)
 
 
 
-std::vector<double> utils::addVect(const std::vector<double>& a,const std::vector<double>& b, const double scale)
+std::vector<double> utils::addVect(const std::vector<double>& a,const std::vector<double>& b, 
+                                   const double scale, const int precision)
 {
     std::vector<double> result;
     for(size_t i=0;i<a.size();i++)result.push_back(scale*(a.at(i)+b.at(i)));
+    if(precision>0)utils::setPrecision(result,precision);
     return result;
 }
 
 
 
-std::vector<double> utils::diffVect(const std::vector<double>& a,const std::vector<double>& b, const double scale)
+std::vector<double> utils::diffVect(const std::vector<double>& a,const std::vector<double>& b, 
+                                    const double scale, const int precision)
 {
     std::vector<double> result;
     for(size_t i=0;i<a.size();i++)result.push_back(scale*(a.at(i)-b.at(i)));
+    if(precision>0)utils::setPrecision(result,precision);
     return result;
 }
 
 
 
-std::vector<double> utils::divideVect(const std::vector<double>& a,const std::vector<double>& b, const double scale)
+std::vector<double> utils::divideVect(const std::vector<double>& a,const std::vector<double>& b, 
+                                      const double scale, const int precision)
 {
     std::vector<double> result;
     for(size_t i=0;i<a.size();i++)result.push_back(scale*(a.at(i)/b.at(i)));
+    if(precision>0)utils::setPrecision(result,precision);
     return result;
 }
 
 
 
-std::vector<double> utils::relativeDiff(const std::vector<double>& a,const std::vector<double>& b, const double scale)
+std::vector<double> utils::relativeDiff(const std::vector<double>& a,const std::vector<double>& b, 
+                                        const double scale, const int precision)
 { 
     std::vector<double> result;
     for(size_t i=0;i<a.size();i++)result.push_back(scale*((a.at(i)-b.at(i))/b.at(i)));
+    if(precision>0)utils::setPrecision(result,precision);
     return result;
 }
 
+
+
+void utils::setPrecision(std::vector<double>& a,int precision)
+{
+    for(size_t i=0;i<a.size();i++){
+       a.at(i) = round(a.at(i) * pow10(precision))/pow10(precision);
+    }
+}
+
+
+TCanvas* utils::setCanvas()
+{
+    TCanvas* canvas = new TCanvas("","",600,600);
+    canvas->Clear();
+    canvas->SetName("");
+    canvas->SetTitle("");
+    return canvas;
+}
 
 
 void styleUtils::setResultLegendStyle(TLegend* leg, const bool /*result*/)
@@ -368,7 +395,7 @@ void styleUtils::setHHStyle(TStyle& HHStyle)
     // ==============
 
     HHStyle.SetErrorX(0.0);
-    HHStyle.SetEndErrorSize(0);
+    //HHStyle.SetEndErrorSize(0);
             
     // HHStyle.SetHistFillColor(1);
     // HHStyle.SetHistFillStyle(0);
@@ -379,7 +406,6 @@ void styleUtils::setHHStyle(TStyle& HHStyle)
     // HHStyle.SetNumberContours(Int_t number = 20);
 
     // HHStyle.SetErrorMarker(20);
-            
     HHStyle.SetMarkerStyle(20);
             
     // ==============

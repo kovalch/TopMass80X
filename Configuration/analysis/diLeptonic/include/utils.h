@@ -9,7 +9,7 @@
 #include <TH2.h>
 #include <TStyle.h>
 #include <TLegend.h>
-
+#include <TCanvas.h>
 
 namespace styleUtils{
     
@@ -34,16 +34,27 @@ namespace utils{
     void cat(const TString& file);
     
     ///Sum of two vectors
-    std::vector<double> addVect(const std::vector<double>& a,const std::vector<double>& b, const double scale=1);
+    std::vector<double> addVect(const std::vector<double>& a,const std::vector<double>& b, 
+                                const double scale=1, const int precision=-999);
     
     ///Difference of two vectors
-    std::vector<double> diffVect(const std::vector<double>& a,const std::vector<double>& b, const double scale=1);
+    std::vector<double> diffVect(const std::vector<double>& a,const std::vector<double>& b, 
+                                 const double scale=1, const int precision=-999);
     
     ///Divide vectors
-    std::vector<double> divideVect(const std::vector<double>& a,const std::vector<double>& b, const double scale=1);
+    std::vector<double> divideVect(const std::vector<double>& a,const std::vector<double>& b, 
+                                   const double scale=1, const int precision=-999);
     
     ///Relative difference of two vectors 
-    std::vector<double> relativeDiff(const std::vector<double>& a,const std::vector<double>& b, const double scale=1);
+    std::vector<double> relativeDiff(const std::vector<double>& a,const std::vector<double>& b, 
+                                     const double scale=1, const int precision=-999);
+    
+    ///Set precision for all vector elements
+    void setPrecision(std::vector<double>& a,int precision);
+    
+    /// Prepare canvas and legend
+    TCanvas* setCanvas();
+    
 }
 
 #endif
