@@ -120,9 +120,6 @@ histMCReco_(0)
      
      // switch on histogram errors
     TH1::SetDefaultSumw2();
-    ///gStyle->SetMarkerStyle(10);
-     
-     
      
 }
 
@@ -155,7 +152,7 @@ void Plotter::setOptions(const std::vector<TString> v_plotName)
         const std::string ccFileName(common::CMSSW_BASE() + "/src/TopAnalysis/Configuration/analysis/diLeptonic/ControlCards/" + plotName + ".txt");
         std::ifstream ccFileStream(ccFileName.data(), std::ifstream::in);
         if (!ccFileStream.good()) {
-          std::cerr<<"Error in Plotter! Cannot find control card file with name: "<< ccFileName <<"\n...break\n"<<std::endl;
+          std::cerr<<"Error in Plotter! Cannot find file with name: "<< ccFileName <<"\n...break\n"<<std::endl;
           exit(12);
         }
 
@@ -499,7 +496,6 @@ void Plotter::producePlots()
 
                     v_histRecoAllBins_.at(iSample)->Fill(genBin_(branchVals_),eventWeight_*v_weight.at(iSample));
                     
-                    
                     // ... //
                     
                     if(isTopGen_){
@@ -684,7 +680,7 @@ int Plotter::recoBin_(const std::vector<float>& val)
 void Plotter::writePlotCT(TH1* histSG,TH1* histRW,TH1* histUf)
 {
     // Prepare canvas and legend
-    TCanvas* canvas = this->setCanvas();
+    TCanvas* canvas = utils::setCanvas();
     TLegend* legend = this->setLegend();
     canvas->cd();
     
@@ -867,7 +863,7 @@ void Plotter::runUnfolding(const TH2* histMigration,const TH1* histInput,
       <<" / "<<unfold.GetNdf()<<"\n";
     
     
-    TCanvas* canvas = this->setCanvas();
+    TCanvas* canvas = utils::setCanvas();
     TLegend* legend = this->setLegend();
     
     
@@ -1076,7 +1072,7 @@ void Plotter::writePlotCP(const std::vector<Sample>& v_sample ,const std::vector
 {
     int jnd = int((ind==0)?1:0);
     
-    TCanvas* canvas = this->setCanvas();
+    TCanvas* canvas = utils::setCanvas();
     TLegend* legend = this->setLegend();
     canvas->cd();
     
@@ -1136,7 +1132,7 @@ void Plotter::writePlotCP(const std::vector<Sample>& v_sample ,const std::vector
 void Plotter::writePlotCPAllBins(const std::vector<Sample>& v_sample ,const std::vector<TH1* >& v_SampleHist)
 {
     // Prepare canvas and legend
-    TCanvas* canvas = this->setCanvas();
+    TCanvas* canvas = utils::setCanvas();
     TLegend* legend = this->setLegend();
     canvas->cd();
     
@@ -1208,7 +1204,7 @@ void Plotter::writePlotCPAllBins(const std::vector<Sample>& v_sample ,const std:
 void Plotter::writePlotEPSAllBins()
 {
     // Prepare canvas and legend
-    TCanvas* canvas = this->setCanvas();
+    TCanvas* canvas = utils::setCanvas();
     TLegend* legend = this->setLegend();
     legend->SetX1(0.1);
     legend->SetX2(0.4);
@@ -1304,7 +1300,7 @@ void Plotter::writePlotEPSAllBins()
 void Plotter::writePlotEPS()
 {
     // Prepare canvas and legend
-    TCanvas* canvas = this->setCanvas();
+    TCanvas* canvas = utils::setCanvas();
     TLegend* legend = this->setLegend();
     canvas->cd();
     
@@ -1428,7 +1424,7 @@ void Plotter::writePlotEPS()
 void Plotter::writePlotXSec(const TH1* hData,const TH1* hMC)
 {
     // Prepare canvas and legend
-    TCanvas* canvas = this->setCanvas();
+    TCanvas* canvas = utils::setCanvas();
     TLegend* legend = this->setLegend();
     canvas->cd();
     
@@ -1586,18 +1582,6 @@ void Plotter::writePlotXSec(const TH1* hData,const TH1* hMC)
     //Delete objects
     delete canvas;
     delete legend;
-}
-
-
-
-
-TCanvas* Plotter::setCanvas()
-{
-    TCanvas* canvas = new TCanvas("","",600,600);
-    canvas->Clear();
-    canvas->SetName("");
-    canvas->SetTitle("");
-    return canvas;
 }
 
 

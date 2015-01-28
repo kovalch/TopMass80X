@@ -29,6 +29,9 @@ public:
     /// Produce the plots for histogram under consideration from all samples
     void producePlots();
     
+     /// Prepare canvas and legend
+     TLegend* setLegend();
+    
 private:
     
     void clearMemory();
@@ -36,10 +39,6 @@ private:
     
     ///Prepare Histograms
      void prepareHistograms(const std::vector<Sample>& v_sample);
-     
-     /// Prepare canvas and legend
-     TCanvas* setCanvas();
-     TLegend* setLegend();
      
      /// Write canvas
      void writeCanvas(TCanvas* cnavas, const TString name);
