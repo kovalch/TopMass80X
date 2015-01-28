@@ -1,0 +1,14 @@
+
+
+cpnbins 40 300 1200
+title p_{T}^{t}
+units [GeV]
+
+1d
+coarse 300 600 1000 1200
+uoTrue 1 0
+fine 300 400 500 600 750 1000 1050 1200
+uoReco 1 1
+1d
+
+
