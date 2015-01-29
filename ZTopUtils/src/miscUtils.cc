@@ -204,15 +204,12 @@ double shiftedLnPoissonMCStat(const float & centre, const float & stat, const fl
 }
 
 float getTtbarXsec(float topmass, float energy, float* scaleerr, float * pdferr){
-	/*
-	 * all numbers following arxiv 1303.6254
-	 *
-	 */
-	float mref=173.3;
+	
+	 // all numbers following arxiv 1303.6254
+        float mref=173.3;
 	float referencexsec=0;
 	float deltam=topmass-mref;
-
-
+	
 	float a1=0,a2=0;
 
 	if(isApprox(energy,8.f,0.01)){
@@ -233,22 +230,36 @@ float getTtbarXsec(float topmass, float energy, float* scaleerr, float * pdferr)
 		if(pdferr)
 			*pdferr=0.028;
 	}
-
+	else if(isApprox(energy,13.f,0.01)){
+	    //FIXME
+	    std::cout<<"FIXME: No mass dependency implemented. Returned value is ttbar @NNLO+NNLL,mtop=172.5 GeV,ebeam=6.5TeV!"<<std::endl;
+	    referencexsec=831.76; 
+	    deltam=0.0;
+	    a1=0.;
+	    a2=0.;
+	}
+	else{
+	    throw std::runtime_error("No cross section info for this energy available! Exit!");
+	}
+	
 	float reldm=mref/(mref+deltam);
-
+	
 	float out= referencexsec* (reldm*reldm*reldm*reldm) * (1+ a1*(deltam)/mref + a2*(deltam/mref)*(deltam/mref));
-
+	
 	return out;
 }
-
+    
 float getTWXsec(float topmass,double energy){
 	if(isApprox(energy,8.,0.1))
-		return 11.1 * (78.031 -1.18762*topmass + 0.00617683*topmass*topmass -1.09003e-05*topmass*topmass*topmass);
+	    return 11.1 * (78.031 -1.18762*topmass + 0.00617683*topmass*topmass -1.09003e-05*topmass*topmass*topmass);
 	else if(isApprox(energy,7.,0.1)) //just a guess
-		return 5.3 * (78.031 -1.18762*topmass + 0.00617683*topmass*topmass -1.09003e-05*topmass*topmass*topmass);
+	    return 5.3 * (78.031 -1.18762*topmass + 0.00617683*topmass*topmass -1.09003e-05*topmass*topmass*topmass);
+	else if(isApprox(energy,13.,0.1)){
+	    std::cout<<"FIXME: No mass dependency implemented for tW @ 13 TeV"<<std::endl;
+	    return 35.6;
+	}
 	else
-		return 0;
-
+	    throw std::runtime_error("No cross section info for this energy available! Exit!");
 }
 
 void addRelError(TH2D &h, double err) {
