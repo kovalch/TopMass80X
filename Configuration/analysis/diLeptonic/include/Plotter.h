@@ -123,14 +123,6 @@ private:
     /// Map holding global scale factors for steps they were already accessed, to avoid re-calculating them
     std::map<TString, SystematicChannelFactors> m_stepFactors_;
 
-    /// Tree branches
-    Float_t eventWeight_, trueLevelWeight_, trueLevelWeight0_;
-    Int_t entry_,entry0_;
-    Int_t isTopGen_, isKinReco_;
-    std::vector<float> branchVals_;
-    std::vector<float> branchValsGen_;
-    std::vector<float> branchValsGen0_;
-    
     
     std::vector<std::vector<Double_t> >  v_coarseBins_;
     std::vector<std::vector<Double_t> >  v_fineBins_;
@@ -139,12 +131,18 @@ private:
     std::vector<int> v_uTrue_;
     std::vector<int> v_oTrue_;
     
+    /// Tree branches
+    Int_t entry_,entry0_;
+    Float_t eventWeight_, trueLevelWeight_, trueLevelWeight0_;
+    Int_t isTopGen_, isKinReco_;
+    std::vector<float> branchVals_;
+    std::vector<float> branchValsGen_;
+    std::vector<float> branchValsGen0_;
+    
     /// Histograms for Unfolding
     
     TH1* histMCReco_;
-    
-   TH2* histMCGenRec_;
-    
+    TH2* histMCGenRec_;
     
     
     

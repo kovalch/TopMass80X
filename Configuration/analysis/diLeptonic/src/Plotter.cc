@@ -91,9 +91,6 @@ histStabilityAllBins_(0),
 histRecoGenAllBins_(0),
 histEffAllBins_(0),
 histGenAllBins_(0),
-branchVals_(std::vector<Float_t>(0)),
-branchValsGen_(std::vector<Float_t>(0)),
-branchValsGen0_(std::vector<Float_t>(0)),
 
 v_coarseBins_(std::vector<std::vector<Double_t> >(0)),
 v_fineBins_(std::vector<std::vector<Double_t> >(0)),
@@ -101,11 +98,16 @@ v_uReco_(std::vector<int >(0)),
 v_oReco_(std::vector<int >(0)),
 v_uTrue_(std::vector<int >(0)),
 v_oTrue_(std::vector<int >(0)),
-eventWeight_(-999), 
+
+// Tree branches //
 entry_(-999),
 entry0_(-999),
+eventWeight_(-999), 
 trueLevelWeight_(-999),
 trueLevelWeight0_(-999),
+branchVals_(std::vector<Float_t>(0)),
+branchValsGen_(std::vector<Float_t>(0)),
+branchValsGen0_(std::vector<Float_t>(0)),
 
 histMCReco_(0)
 
@@ -328,19 +330,17 @@ void Plotter::prepareHistograms(const std::vector<Sample>& v_sample)
 {
     for(int ind=0;ind<nD_;++ind){
         std::vector<TH1D* > v_SampleHist;
-        std::vector<TH1* >  v_histRecoAllBins;
         std::vector<TH1D* > v_UnderflowSampleHist;
         std::vector<TH1D* > v_OverflowSampleHist;
         
         for(size_t iSample = 0; iSample < v_sample.size(); ++iSample){
             const auto& sample(v_sample.at(iSample));
-            TH1D* sampleHist = new TH1D(v_plotName_.at(ind)+"_cp" + std::to_string(ind) + std::to_string((int)iSample)  ,v_plotTitle_.at(ind),v_cpNBins_.at(ind),v_R1_.at(ind),v_R2_.at(ind));//FIXME: remuve this: + std::to_string(ind) + std::to_string((int)iSample)
+            TH1D* sampleHist = new TH1D(v_plotName_.at(ind)+"_cp" + std::to_string(ind) + std::to_string((int)iSample)  ,v_plotTitle_.at(ind),v_cpNBins_.at(ind),v_R1_.at(ind),v_R2_.at(ind));//FIXME: remove this: + std::to_string(ind) + std::to_string((int)iSample)
             sampleHist->SetFillColor(sample.color());
             sampleHist->SetLineColor(sample.color());
             v_SampleHist.push_back(sampleHist);
             v_UnderflowSampleHist.push_back((TH1D*)(sampleHist->Clone(sampleHist->GetName() + TString("u"))));
             v_OverflowSampleHist.push_back((TH1D*)(sampleHist->Clone(sampleHist->GetName() + TString("o"))));
-            //sampleHist->Delete();
         }
         vv_SampleHist_.push_back(v_SampleHist);
         vv_UnderflowSampleHist_.push_back(v_UnderflowSampleHist);
@@ -353,7 +353,6 @@ void Plotter::prepareHistograms(const std::vector<Sample>& v_sample)
         sampleHist->SetFillColor(sample.color());
         sampleHist->SetLineColor(sample.color());
         v_histRecoAllBins_.push_back((TH1*)sampleHist->Clone());
-        //sampleHist->Delete();
     }
     
     //setinng vvv_SampleHist_
@@ -450,7 +449,7 @@ void Plotter::producePlots()
                 if(!dataTree0 || !dataTree8) {
                      std::cout<<"could not read 'ttBar_treeVariables_step' tree from " << dataFile->GetName() << "\n";
                  }
-		//std::cout << "File " << dataFile->GetName() << " under process" << std::endl;
+                 
                 // set branches
                 dataTree0->ResetBranchAddresses();
                 dataTree0->SetBranchAddress("entry",&entry0_);
@@ -539,7 +538,7 @@ void Plotter::producePlots()
                        histMigration_->Fill(genBin_(branchValsGen_),0.,trueLevelWeight_*v_weight.at(iSample)-eventWeight_*v_weight.at(iSample));
                        histSR_->Fill(recoBin_(branchVals_),eventWeight_*v_weight.at(iSample));
                        
-                       double weightCT = 1.;
+                       //double weightCT = 1.;
                        //Closure test
                        //weightCT = (rewTopPtUp(branchValsGen_.at(1)));//pt up
                        //weightCT = (rewTopPtDown(branchValsGen_.at(1)));//pt down
@@ -1053,9 +1052,6 @@ void Plotter::runUnfolding(const TH2* histMigration,const TH1* histInput,
     
     
 }
-
-
-
 
 
 
