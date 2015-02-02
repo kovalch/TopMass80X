@@ -58,9 +58,10 @@ int main(int argc, char** argv){
                                              common::makeStringCheckBegin(Systematic::convertType(Systematic::allowedSystematics)));
      CLParameter<std::string> opt_globalCorrection("g", "Specify global correction, valid: empty argument for none, Drell-Yan (dy), tt+HF (ttbb). Default: dy", false, 0, 2,
                                                    common::makeStringCheck(GlobalCorrection::convert(GlobalCorrection::allowedGlobalCorrections)));
-     
      CLAnalyser::interpretGlobal(argc, argv);
     
+     styleUtils::setHHStyle(*gStyle);
+
      
      //Set up plotter
      bool runPlotter=true;
@@ -112,8 +113,6 @@ int main(int argc, char** argv){
     if(opt_analysis.getArguments().at(0)=="2d")
     {
         std::cout << "Running 2d analysis ..."<<  std::endl;
-        
-        styleUtils::setHHStyle(*gStyle);
         
         const std::string nameListFile(common::CMSSW_BASE() + "/src/TopAnalysis/Configuration/analysis/diLeptonic/" + "NameList");
         ttbar::setPlotNames(nameListFile,vv_plotName);
