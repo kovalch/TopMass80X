@@ -201,7 +201,7 @@
 +        const tth::RecoLevelWeights recoLevelWeightsDummy(0., 0., 0., 0., 0., 0.);
 +        
 +        // Applying the reweighting
-+        trueLevelWeight *= reweightingWeight(topGenObjects, genObjectIndices);
++        const double trueLevelWeight_reweighted = trueLevelWeight*reweightingWeight(topGenObjects, genObjectIndices);
 +        
 +        // ++++ Control Plots ++++
 +        
@@ -212,7 +212,7 @@
 +                      kinematicReconstructionSolutionsDummy,
 +                      genObjectIndices, recoObjectIndicesDummy,
 +                      genLevelWeights, recoLevelWeightsDummy,
-+                      trueLevelWeight);
++                      trueLevelWeight_reweighted);
 +    } else
 +    
      // ++++ Control Plots ++++

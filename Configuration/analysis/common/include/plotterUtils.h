@@ -67,7 +67,7 @@ namespace common{
     double normalize ( TGraph* graph, const double normalization = 1.0);
     
     /// Divide each bin by the its width
-    void normalizeToBinWidth(TH1* histo);
+    void normalizeToBinWidth(TH1* histo, const bool invert=false);
     
     /// Set the style of the plot
     void setHistoStyle(TH1* hist, Style_t line = -1, Color_t lineColor = -1, Size_t lineWidth = -1, 
@@ -87,6 +87,9 @@ namespace common{
     
     /// Rebin histogram within the specified X axis range
     TH1* rebinnedHistoInRange(TH1* histo, const int& ngroup, const double& xmin = 0., const double& xmax = 0.);
+    
+    /// Rebin histogram to the binning of another histogram
+    TH1* rebinHistoToHisto(TH1* h_from, TH1* h_to);
 
     
 }
