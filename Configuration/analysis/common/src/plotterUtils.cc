@@ -829,12 +829,17 @@ double common::normalize ( TGraph* graph, const double normalization)
 }
 
 
-void common::normalizeToBinWidth(TH1* histo)
+void common::normalizeToBinWidth(TH1* histo, const bool invert)
 {
     for(int iBin = 1; iBin <= histo->GetNbinsX(); ++iBin) {
         const double width = histo->GetBinWidth(iBin);
-        histo->SetBinContent(iBin, histo->GetBinContent(iBin)/width);
-        histo->SetBinError(iBin, histo->GetBinError(iBin)/width);
+        if(!invert) {
+            histo->SetBinContent(iBin, histo->GetBinContent(iBin)/width);
+            histo->SetBinError(iBin, histo->GetBinError(iBin)/width);
+        } else {
+            histo->SetBinContent(iBin, histo->GetBinContent(iBin)*width);
+            histo->SetBinError(iBin, histo->GetBinError(iBin)*width);
+        }
     }
 }
 
@@ -980,6 +985,25 @@ TH1* common::rebinnedHistoInRange(TH1* histo, const int& ngroup, const double& x
     TH1* histoRebinned = histo->Rebin(nBins_new, name_new, bins_rebinned);
     
     return histoRebinned;
+}
+
+
+TH1* common::rebinHistoToHisto(TH1* h_from, TH1* h_to)
+{
+    const int nBins_from = h_from->GetNbinsX();
+    const int nBins_to = h_to->GetNbinsX();
+    
+    if(nBins_from < nBins_to) return h_from;
+    
+    // Getting the list of visible bin boundaries
+    double binsX[nBins_to];
+    for(int binId = 0; binId <= nBins_to; ++binId) {
+        binsX[binId] = h_to->GetBinLowEdge(binId+1);
+    }
+    // Rebinning the input histogram to the determined bins
+    TH1* histo = h_from->Rebin(nBins_to, TString(h_from->GetName())+"_rebinned", binsX);
+    
+    return histo;
 }
 
 
