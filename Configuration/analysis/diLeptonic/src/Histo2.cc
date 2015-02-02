@@ -9,6 +9,7 @@
 #include "GlobalScaleFactors.h"
 #include "Plotter.h"
 #include "FinalPlot.h"
+#include "PlotterBTop.h"
 #include <ttbarUtils.h>
 #include "../../common/include/utils.h"
 #include "../../common/include/sampleHelpers.h"
@@ -145,11 +146,11 @@ int main(int argc, char** argv){
         
         if(runPlotter){
             std::cout<<"--- Beginning with the Plotter\n\n";
-            //PlotterBTop generalPlot(SAMPLES,Luminosity,topxsec);
+            PlotterBTop generalPlot(SAMPLES,Luminosity,topxsec);
             for(auto v_plotName : vv_plotName){
                 std::cout << v_plotName.at(0) << std::endl;
-//                 generalPlot.setOptions(v_plotName);
-//                 generalPlot.producePlots();
+                generalPlot.setOptions(v_plotName);
+                generalPlot.producePlots();
             }
             std::cout<<"\n=== Finishing with the plotting\n\n";
         }
