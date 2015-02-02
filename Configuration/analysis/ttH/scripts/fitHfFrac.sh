@@ -7,7 +7,17 @@
 
 location=$PWD
 cmssw_original=$CMSSW_BASE/src/
-cmssw_combine="/data/group/top/HiggsCombineTool/CMSSW_6_1_1/src/"
+arch_original=$SCRAM_ARCH
+
+
+# Configuring the release that contains the combine tool
+if [[ $HOST = *desy-cms* ]]; then
+  cmssw_combine="/data/group/top/HiggsCombineTool/CMSSW_6_1_2/src/"
+  arch_combine="slc5_amd64_gcc472"
+elif [[ $HOST = *naf* ]]; then
+  cmssw_combine="/nfs/dust/cms/group/topcmsdesy/HiggsCombineTool/CMSSW_7_1_13/src/"
+  arch_combine="slc6_amd64_gcc481"
+fi
 
 if [ ! -d $cmssw_combine ]; then
     echo "### ERROR! No installed release with Higgs combine tool found at:"
@@ -26,6 +36,7 @@ fi
 
 # Setting environment to the CMSSW_6_X release where combine tool is installed
 cd $cmssw_combine
+export SCRAM_ARCH="$arch_combine"
 cmsenv
 
 # Returning to the original location
@@ -56,6 +67,7 @@ done
 
 # Returning to the original location and release
 cd $cmssw_original
+export SCRAM_ARCH="$arch_original"
 cmsenv
 cd $location
 
