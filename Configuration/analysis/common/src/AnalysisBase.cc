@@ -224,6 +224,7 @@ void AnalysisBase::Init(TTree *tree)
     this->SetPdfBranchAddress();
     this->SetTopDecayBranchAddress();
     if(isTtbarPlusTauSample_ && topPtScaleFactors_) this->SetGenTopBranchAddresses();
+    if(isTtbarPlusTauSample_) this->SetGenExtraTopJetBranchAddress();
     if(isTopSignal_) this->SetTopSignalBranchAddresses();
     if(isHiggsSignal_) this->SetHiggsDecayBranchAddress();
     if(isHiggsSignal_) this->SetHiggsSignalBranchAddresses();
@@ -495,6 +496,10 @@ void AnalysisBase::clearBranches()
     b_GenZDecayMode = 0;
     
     
+    // nTuple branch for additional jet flavour mode in ttjets events
+    b_genExtraTopJetNumberId = 0;
+    
+    
     // nTuple branches for Top signal samples on generator level
     b_GenTop = 0;
     b_GenAntiTop = 0;
@@ -542,7 +547,6 @@ void AnalysisBase::clearBranches()
     b_genCHadLeptonIndex = 0;
     b_genCHadLeptonHadronIndex = 0;
     b_genCHadLeptonViaTau = 0;
-    b_genExtraTopJetNumberId = 0;
 
 
     // nTuple branches for Higgs signal samples on generator level
@@ -756,6 +760,13 @@ void AnalysisBase::SetZDecayBranchAddress()
 
 
 
+void AnalysisBase::SetGenExtraTopJetBranchAddress()
+{
+    chain_->SetBranchAddress("genExtraTopJetNumberId", &topGenObjects_->genExtraTopJetNumberId_, &b_genExtraTopJetNumberId);
+}
+
+
+
 void AnalysisBase::SetGenTopBranchAddresses()
 {
     chain_->SetBranchAddress("GenTop", &topGenObjects_->GenTop_, &b_GenTop);
@@ -833,8 +844,7 @@ void AnalysisBase::SetTopSignalBranchAddresses()
     //if(chain_->GetBranch("genCHadLeptonViaTau")) // new variable, keep check a while for compatibility
     //    chain_->SetBranchAddress("genCHadLeptonViaTau", &topGenObjects_->genCHadLeptonViaTau_, &b_genCHadLeptonViaTau);
     
-    if(chain_->GetBranch("genExtraTopJetNumberId")) // need to check whether branch exists
-        chain_->SetBranchAddress("genExtraTopJetNumberId", &topGenObjects_->genExtraTopJetNumberId_, &b_genExtraTopJetNumberId);
+    this->SetGenExtraTopJetBranchAddress();
 }
 
 
@@ -1028,6 +1038,14 @@ void AnalysisBase::GetZDecayModeEntry(const Long64_t& entry)const
 }
 
 
+
+void AnalysisBase::GetGenExtraTopJetNumberIdEntry(const Long64_t& entry)const
+{
+    b_genExtraTopJetNumberId->GetEntry(entry);
+}
+
+
+
 void AnalysisBase::GetGenTopBranchesEntry(const Long64_t& entry)const
 {
     b_GenTop->GetEntry(entry);
@@ -1087,7 +1105,7 @@ void AnalysisBase::GetTopSignalBranchesEntry(const Long64_t& entry)const
     //if(b_genCHadLeptonIndex) b_genCHadLeptonIndex->GetEntry(entry);
     //if(b_genCHadLeptonHadronIndex) b_genCHadLeptonHadronIndex->GetEntry(entry);
     //if(b_genCHadLeptonViaTau) b_genCHadLeptonViaTau->GetEntry(entry);
-    if(b_genExtraTopJetNumberId) b_genExtraTopJetNumberId->GetEntry(entry);
+    this->GetGenExtraTopJetNumberIdEntry(entry);
 }
 
 
@@ -1709,6 +1727,16 @@ const std::string AnalysisBase::topDecayModeString()const
 
 
 
+int AnalysisBase::topDecayMode(const Long64_t& entry)const
+{
+    if(!(isTtbarPlusTauSample_ || isTopSignal_)) return -1;
+    this->GetTopDecayModeEntry(entry);
+    
+    return topDecayMode_;
+}
+
+
+
 int AnalysisBase::higgsDecayMode(const Long64_t& entry)const
 {
     if(!isHiggsSignal_) return -1;
@@ -1719,12 +1747,13 @@ int AnalysisBase::higgsDecayMode(const Long64_t& entry)const
 
 
 
-int AnalysisBase::topDecayMode(const Long64_t& entry)const
+int AnalysisBase::additionalJetFlavourId(const Long64_t& entry)const
 {
-    if(!(isTtbarPlusTauSample_ || isTopSignal_)) return -1;
-    this->GetTopDecayModeEntry(entry);
+    if(!isTtbarPlusTauSample_) return -1;
+    this->GetGenExtraTopJetNumberIdEntry(entry);
     
-    return topDecayMode_;
+    return topGenObjects_->genExtraTopJetNumberId_;
+    
 }
 
 

@@ -81,7 +81,7 @@ private:
     bool failsHiggsGeneratorSelection(const int higgsDecayMode)const;
     
     /// Select events from Top signal that satisfy flavour of the additional jets
-    bool failsAdditionalJetFlavourSelection(const Long64_t& entry)const;
+    bool failsAdditionalJetFlavourSelection(const int topDecayMode, const int additionalJetFlavourId)const;
     
     
     

@@ -322,6 +322,9 @@ protected:
     /// Access identifier key of Higgs decay mode
     int higgsDecayMode(const Long64_t& entry)const;
     
+    /// Access identifier key of additional jet flavours for ttjets events
+    int additionalJetFlavourId(const Long64_t& entry)const;
+    
     /// Store the object in the output list and return it
     template<class T> T* store(T* obj){return common::store(obj, fOutput);}
     
@@ -407,6 +410,9 @@ private:
     /// Access event entry for nTuple branch for Z decay mode
     void GetZDecayModeEntry(const Long64_t& entry)const;
     
+    /// Access event entry for nTuple branch for additional jet flavour mode in ttjets events
+    void GetGenExtraTopJetNumberIdEntry(const Long64_t& entry)const;
+    
     /// Access event entry for nTuple branches of generated top and anti-top quark, used for reweighting
     void GetGenTopBranchesEntry(const Long64_t& entry)const;
     
@@ -450,6 +456,9 @@ private:
     
     /// Set address of nTuple branch for Z decay mode
     void SetZDecayBranchAddress();
+    
+    /// Set address of nTuple branch for 
+    void SetGenExtraTopJetBranchAddress();
     
     /// Set addresses of nTuple branches for generated top and anti-top quark, used for reweighting
     void SetGenTopBranchAddresses();
@@ -568,8 +577,12 @@ private:
     TBranch* b_HiggsDecayMode;
     
     
-    /// nTuple branch for Z decay mode
+    /// nTuple branch for Drell-Yan decay mode
     TBranch* b_GenZDecayMode;
+    
+    
+    /// nTuple branch for additional jet flavour mode in ttjets events
+    TBranch* b_genExtraTopJetNumberId;
     
     
     /// nTuple branches for Top signal samples on generator level
@@ -602,7 +615,6 @@ private:
     TBranch* b_AntiBHadronVsJet;
     TBranch* b_jetAssociatedPartonPdgId;
     TBranch* b_jetAssociatedParton;
-    
     TBranch* b_genBHadPlusMothersPdgId;
     TBranch* b_genBHadPlusMothersStatus;
     TBranch* b_genBHadPlusMothersIndices;
@@ -614,15 +626,12 @@ private:
     TBranch* b_genBHadLeptonHadronIndex;
     TBranch* b_genBHadLeptonViaTau;
     TBranch* b_genBHadFromTopWeakDecay;
-    
     TBranch* b_genCHadPlusMothersPdgId;
     TBranch* b_genCHadPlusMothers;
     TBranch* b_genCHadJetIndex;
     TBranch* b_genCHadLeptonIndex;
     TBranch* b_genCHadLeptonHadronIndex;
     TBranch* b_genCHadLeptonViaTau;
-    
-    TBranch* b_genExtraTopJetNumberId;
     
     
     /// nTuple branches for Higgs signal samples on generator level
