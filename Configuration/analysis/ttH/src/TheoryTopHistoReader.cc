@@ -56,16 +56,13 @@ TH1* TheoryTopHistoReader::getHisto1D(const char* fileName, const char* histoNam
         if(binLines.size() > 2 && !binLine.hasBinInfo) break;
         
         binLines.push_back(binLine);
-        printf("  x: %.2f  \tval: %.3e  \terr: %.3e\n", binLine.x, binLine.val, binLine.err);
     }
     
-    printf("\n\nCleaned bins:\n");
     // Cleaning up the list of bin lines: in case bin centers and bin boundaries are printed separately
     std::vector<BinLine> binLines_clean = cleanedBinList(binLines);
     // Extracting the list of bins for the histogram
     std::vector<double> xBins;
     for(BinLine binLine : binLines_clean) {
-        printf("  x: %.2f  \tval: %.3e  \terr: %.3e\n", binLine.x, binLine.val, binLine.err);
         xBins.push_back(binLine.x);
     }
     histo = new TH1D(TString(histoName).ReplaceAll(" ","_"), histoName, xBins.size()-1,&xBins[0]);
