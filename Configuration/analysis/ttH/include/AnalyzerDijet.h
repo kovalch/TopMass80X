@@ -44,7 +44,8 @@ public:
     AnalyzerDijet(const char* mva2dWeightsFile, const std::string& corName, const std::string& swpName,
                   const std::vector<TString>& selectionStepsNoCategories,
                   const std::vector<TString>& stepsForCategories =std::vector<TString>(),
-                  const JetCategories* jetCategories =0, bool doHadronMatchingComparison = false, bool doLeadingJetsAnalysis_ = false);
+                  const JetCategories* jetCategories =0, bool doHadronMatchingComparison =false, bool doLeadingJetsAnalysis =false,
+                  bool doJetHadronFlavours =false, bool doTTHbbStudies =false);
 
     /// Empty destructor
     ~AnalyzerDijet(){};
@@ -83,6 +84,12 @@ private:
     /// Book histograms for one categoryId with given id and label
     virtual void bookHistos(const TString& step, std::map<TString, TH1*>& m_histogram);
     
+    /// Book a set of histograms for hadron/jet flavours and minimum dR
+    void bookJetHadronFlavourHistos(const TString& step, const TString label, std::map<TString, TH1*>& m_histogram);
+    
+    /// Book a set of histograms for ttH(bb) analysis
+    void bookTTHbbHistos(const TString& step, const TString label, std::map<TString, TH1*>& m_histogram);
+    
     /// Book set of histograms for dijet mass
     void bookPairHistos(TH1* histo, std::map<TString, TH1*>& m_histogram, const TString& name);
     
@@ -108,9 +115,21 @@ private:
                             const double& weight, const TString& step,
                             std::map<TString, TH1*>& m_histogram);
     
-    /// Check how we additional b-jets in tt+bb events
+    /// Check acceptance of additional b-jets in tt+bb events
     void checkAdditionalGenBJetAcceptance(const TopGenObjects& topGenObjects, const tth::GenObjectIndices& genObjectIndices, 
                                           std::map<TString, TH1*>& m_histogram, const double weight);
+    
+    /// Check number of hadrons/jets of different flavours and their minimum dR
+    void fillJetHadronFlavours(const RecoObjects& recoObjects, const TopGenObjects& topGenObjects, 
+                               const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
+                               const double& weight, std::map<TString, TH1*>& m_histogram);
+    
+    /// Fill histograms regarding the dijet mass of the Higgs in ttH(bb)
+    void fillTTHbbHistograms(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+                             const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
+                             const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
+                             const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
+                             const double& weight, std::map<TString, TH1*>& m_histogram);
 
     /// Analyze jet pairs of given jets for the given b-jets from top. Returns ration of correct pairs to wrong pairs
     float correctPairFraction(const VLV& allJets, const std::vector<int>& jetsId,
@@ -130,7 +149,7 @@ private:
 
     /// Fill histograms about Gen/Reco matching: comparison of dR to true matching
     void fillGenRecoMatchingComparisonHistos(const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
-                                             const VLV& bHadLVs, const std::vector<int>& bHadFlavour, const std::vector<int>& bHadJetIndex,
+                                             const std::vector<int>& bHadFlavour, const std::vector<int>& bHadJetIndex,
                                              const VLV& genJets, std::map<TString, TH1*>& m_histogram, const double weight);
     
     /// Analyze jets (b-jets) from tt system and additional jets (b-jets)
@@ -193,6 +212,12 @@ private:
     
     /// Whether to analyse leading additional-top jets
     bool doLeadingJetsAnalysis_;
+    
+    /// Whether to analyse flavours and minimal distance between hadrons/jets
+    bool doJetHadronFlavours_;
+    
+    /// Whether to analyse ttH specific properties, plot dijet mass
+    bool doTTHbbStudies_;
     
 };
 
