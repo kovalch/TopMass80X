@@ -86,7 +86,7 @@ void AnalyzerDijet::fillHistos(const EventMetadata& eventMetadata,
     const VLV& allJets = (recoObjects.valuesSet_) ? *recoObjects.jets_ : VLV();
     const std::vector<int>& jetsId = recoObjectIndices.jetIndices_;           // Selected jets (point to jets from allJets)
     const std::vector<int>& bJetsId = recoObjectIndices.bjetIndices_;         // B-tagged jets (point to jets from allJets)
-//     printf("NJETS: %d  NBJETS: %d ###############################\n", (int)jetsId.size(), (int)bJetsId.size());
+    
     std::vector<int> topJetsId;                                               // Jets from ttbar by KinReco (Point to jets from allJets)
     if(kinematicReconstructionSolutions.numberOfSolutions()) {
         topJetsId.push_back(kinematicReconstructionSolutions.solution().bjetIndex());
@@ -159,12 +159,6 @@ void AnalyzerDijet::fillHistos(const EventMetadata& eventMetadata,
         if(isInVector(jetsId, trueTopAntiBJetId)) trueTopJetsId.push_back(trueTopAntiBJetId);
         if(isInVector(bJetsId, trueTopAntiBJetId)) trueTopBJetsId.push_back(trueTopAntiBJetId);
     }
-    
-//     printf("trueTopJetId: %d | %d  jets: ", trueTopBJetId, trueTopAntiBJetId, (int)jetsId.at(jetsId.size()-1), (int)bJetsId.at(bJetsId.size()-1));
-//     for(int i: jetsId) printf("%d ", i);
-//     printf(" bjets: ");
-//     for(int i: bJetsId) printf("%d ", i);
-//     printf("\n");
 
     // Filling vectors of true reco Higgs jets
     const int trueHiggsBJetId = genObjectIndices.recoBjetFromHiggsIndex_;
@@ -179,9 +173,6 @@ void AnalyzerDijet::fillHistos(const EventMetadata& eventMetadata,
         if(isInVector(jetsId, trueHiggsAntiBJetId)) trueHiggsJetsId.push_back(trueHiggsAntiBJetId);
         if(isInVector(bJetsId, trueHiggsAntiBJetId)) trueHiggsBJetsId.push_back(trueHiggsAntiBJetId);
     }
-    // Getting indices of true gen Higgs jets
-//     const int trueHiggsGenBJetId = genObjectIndices.genBjetFromHiggsIndex_;
-//     const int trueHiggsGenAntiBJetId = genObjectIndices.genAntiBjetFromHiggsIndex_;
 
     // Filling the dijet mass of true reco jets from Higgs
     if(trueHiggsBJetId >= 0 && trueHiggsAntiBJetId >= 0) {
@@ -1052,33 +1043,33 @@ void AnalyzerDijet::bookHistos(const TString& step, std::map<TString, TH1*>& m_h
         const int nBins_Pt = 20;
 //         const double bins_Pt[nBins_Pt+1] = {0., 20., 40., 60., 80., 100., 120., 140., 160., 180., 200., 220., 240., 260., 280., 300., 320., 360., 420.};
         
-        // Histograms with selection at gen level and matching to reco level
+        // Histograms for the full phase space
         // Generic info about top and additional jets
         bookLeadingJetsHistos(m_histogram, "gen", step, label);
         bookLeadingJetsHistos(m_histogram, "true", step, label);
-        bookLeadingJetsHistos(m_histogram, "kinReco", step, label);
+//         bookLeadingJetsHistos(m_histogram, "kinReco", step, label);
         bookLeadingJetsHistos(m_histogram, "mva", step, label);
         // Control plots
         bookLeadingJetsCPHistos(m_histogram, "true", step, label);
-        bookLeadingJetsCPHistos(m_histogram, "kinReco", step, label);
+//         bookLeadingJetsCPHistos(m_histogram, "kinReco", step, label);
         bookLeadingJetsCPHistos(m_histogram, "mva", step, label);
         // Correlation with gen level jets
         bookAddGenJetsCorrelationHistos(m_histogram, "true", step, label, true);
         bookAddGenJetsCorrelationHistos(m_histogram, "kinReco", step, label);
         bookAddGenJetsCorrelationHistos(m_histogram, "mva", step, label);
         
-        // Histograms with selection at reco level and matching to gen level
+        // Histograms for the visible phase space
         // Generic info about top and additional jets (visible phase space)
         bookLeadingJetsHistos(m_histogram, "vis_gen", step, label);
-        bookLeadingJetsHistos(m_histogram, "vis_kinReco", step, label);
+//         bookLeadingJetsHistos(m_histogram, "vis_kinReco", step, label);
         bookLeadingJetsHistos(m_histogram, "vis_mva", step, label);
         // Generic info about top and additional jets (not in visible phase space)
         bookLeadingJetsHistos(m_histogram, "visNot_gen", step, label);
-        bookLeadingJetsHistos(m_histogram, "visNot_kinReco", step, label);
+//         bookLeadingJetsHistos(m_histogram, "visNot_kinReco", step, label);
         bookLeadingJetsHistos(m_histogram, "visNot_mva", step, label);
         // Correlation with gen level jets
         bookAddGenJetsCorrelationHistos(m_histogram, "vis_gen", step, label);
-        bookAddGenJetsCorrelationHistos(m_histogram, "vis_kinReco", step, label);
+//         bookAddGenJetsCorrelationHistos(m_histogram, "vis_kinReco", step, label);
         bookAddGenJetsCorrelationHistos(m_histogram, "vis_mva", step, label);
 
         // True-KinReco-MVA comparison of top jets
@@ -2279,9 +2270,60 @@ void AnalyzerDijet::fillTopAdditionalJetsHistos(const EventMetadata& eventMetada
     std::vector<int> topJetsId_mva;                                           // Jets from ttbar by MVA (Point to jets from allJets)
     std::vector<int> addJetsId_mva;                                           // Jets not from ttbar by MVA (Point to jets from allJets)
     std::vector<int> addBJetsId_mva;                                          // B-ets not from ttbar by MVA (Point to jets from allJets)
+    // Setting variables of gen. level if available
+    const VLV& allGenJets = (topGenObjects.valuesSet_) ? *topGenObjects.allGenJets_ : VLV(0);
+    std::vector<int> genJetsId = genObjectIndices.genJetIndices_;
+    std::vector<int> genBJetsId = genObjectIndices.genBjetIndices_;
+    std::vector<int> genJetsRecoId;
+    std::vector<int> topJetsId_true;          // Reco jets coming from top (Point to jets from allJets) [Can be only selected jet]
+    std::vector<int> addJetsId_true;          // Reco additional jets (Point to jets from allJets) [Can be only selected jet]
+    std::vector<int> addBJetsId_true;         // Reco additional b-jets (Point to jets from allJets) [Can be only selected jet]
+    std::vector<int> topAllJetsId_gen;        // Gen jets coming from top (Point to jets from allJets)
+    std::vector<int> topJetsId_gen;           // Gen jets coming from top (Point to jets from allGenJets) [Can be only selected jet]
+    std::vector<int> addJetsId_gen;           // Gen additional jets (Point to jets from allGenJets) [Can be only selected jet]
+    std::vector<int> addBJetsId_gen;          // Gen additional b-jets (Point to jets from allGenJets) [Can be only selected jet]
+    
+    // Selecting gen jets/b-jets in acceptance
+    for(int jetId = 0; jetId<(int)allGenJets.size(); ++jetId) {
+        if(jetId==genObjectIndices.genBjetFromTopIndex_) topAllJetsId_gen.push_back(jetId);
+        if(jetId==genObjectIndices.genAntiBjetFromTopIndex_) topAllJetsId_gen.push_back(jetId);
+        if(!isInVector(genJetsId, jetId)) continue;
+        // Jets from top
+        if(jetId==genObjectIndices.genBjetFromTopIndex_) {
+            topJetsId_gen.push_back(jetId);
+            continue;
+        }
+        if(jetId==genObjectIndices.genAntiBjetFromTopIndex_) {
+            topJetsId_gen.push_back(jetId);
+            continue;
+        }
+        // Additional jets/b-jets
+        addJetsId_gen.push_back(jetId);
+        if(!isInVector(genBJetsId, jetId)) continue;
+        addBJetsId_gen.push_back(jetId);
+    }
+    m_histogram["jet_top_mult_genAll"]->Fill(topAllJetsId_gen.size(), weight);
+    m_histogram["jet_top_mult_gen"]->Fill(topJetsId_gen.size(), weight);
+    
+    // Stopping if no additional b jets are found
+    if(addBJetsId_gen.size() < 1) return;
+    
+    // Ordering gen jet indices
+    common::orderIndices(genJetsId, allGenJets, ordering);
+    common::orderIndices(genBJetsId, allGenJets, ordering);
+    common::orderIndices(topJetsId_gen, allGenJets, ordering);
+    common::orderIndices(topAllJetsId_gen, allGenJets, ordering);
+    common::orderIndices(addJetsId_gen, allGenJets, ordering);
+    common::orderIndices(addBJetsId_gen, allGenJets, ordering);
+    
     // Ordering reco jet indices
     common::orderIndices(jetsId, allJets, ordering);
     common::orderIndices(bJetsId, allJets, ordering);
+    
+    // Selecting true reco jets from top
+    if(genObjectIndices.recoBjetFromTopIndex_>=0) putUniquelyInVector(topJetsId_true ,genObjectIndices.recoBjetFromTopIndex_);
+    if(genObjectIndices.recoAntiBjetFromTopIndex_>=0) putUniquelyInVector(topJetsId_true, genObjectIndices.recoAntiBjetFromTopIndex_);
+    
     // Identifying reco jets from tt by KinReco
     if(kinematicReconstructionSolutions.numberOfSolutions()) {
         topJetsId_kinReco.push_back(kinematicReconstructionSolutions.solution().bjetIndex());
@@ -2310,22 +2352,6 @@ void AnalyzerDijet::fillTopAdditionalJetsHistos(const EventMetadata& eventMetada
             }
         }
     }
-    // Setting variables of gen. level if available
-    const VLV& allGenJets = (topGenObjects.valuesSet_) ? *topGenObjects.allGenJets_ : VLV(0);
-    std::vector<int> genJetsId = genObjectIndices.genJetIndices_;
-    std::vector<int> genBJetsId = genObjectIndices.genBjetIndices_;
-    std::vector<int> genJetsRecoId;
-    std::vector<int> topJetsId_true;          // Reco jets coming from top (Point to jets from allJets) [Can be only selected jet]
-    std::vector<int> addJetsId_true;          // Reco additional jets (Point to jets from allJets) [Can be only selected jet]
-    std::vector<int> addBJetsId_true;         // Reco additional b-jets (Point to jets from allJets) [Can be only selected jet]
-    std::vector<int> topAllJetsId_gen;        // Gen jets coming from top (Point to jets from allJets)
-    std::vector<int> topJetsId_gen;           // Gen jets coming from top (Point to jets from allGenJets) [Can be only selected jet]
-    std::vector<int> addJetsId_gen;           // Gen additional jets (Point to jets from allGenJets) [Can be only selected jet]
-    std::vector<int> addBJetsId_gen;          // Gen additional b-jets (Point to jets from allGenJets) [Can be only selected jet]
-    
-    // Selecting true reco jets from top
-    if(genObjectIndices.recoBjetFromTopIndex_>=0) putUniquelyInVector(topJetsId_true ,genObjectIndices.recoBjetFromTopIndex_);
-    if(genObjectIndices.recoAntiBjetFromTopIndex_>=0) putUniquelyInVector(topJetsId_true, genObjectIndices.recoAntiBjetFromTopIndex_);
     
     // Reordering all jet indices by the appropriate variable
     common::orderIndices(topJetsId_true, allJets, ordering);
@@ -2333,58 +2359,11 @@ void AnalyzerDijet::fillTopAdditionalJetsHistos(const EventMetadata& eventMetada
     common::orderIndices(topJetsId_mva, allJets, ordering);
     
     
-    // Selecting gen jets/b-jets in acceptance
-    for(int jetId = 0; jetId<(int)allGenJets.size(); ++jetId) {
-//         printf("jet %d.  Pt: %.3f  Eta: %.3f\n", jetId, allGenJets.at(jetId).Pt(), allGenJets.at(jetId).Eta());
-        if(jetId==genObjectIndices.genBjetFromTopIndex_) topAllJetsId_gen.push_back(jetId);
-        if(jetId==genObjectIndices.genAntiBjetFromTopIndex_) topAllJetsId_gen.push_back(jetId);
-        if(!isInVector(genJetsId, jetId)) continue;
-//         printf(" in genJets\n");
-        // Jets from top
-        if(jetId==genObjectIndices.genBjetFromTopIndex_) {
-            topJetsId_gen.push_back(jetId);
-            continue;
-        }
-//         printf(" not b from top\n");
-        if(jetId==genObjectIndices.genAntiBjetFromTopIndex_) {
-            topJetsId_gen.push_back(jetId);
-            continue;
-        }
-//         printf(" not bbar from antitop\n");
-        // Additional jets/b-jets
-        addJetsId_gen.push_back(jetId);
-        if(!isInVector(genBJetsId, jetId)) continue;
-//         printf(" not a b jet\n");
-        addBJetsId_gen.push_back(jetId);
-    }
-    m_histogram["jet_top_mult_genAll"]->Fill(topAllJetsId_gen.size(), weight);
-    m_histogram["jet_top_mult_gen"]->Fill(topJetsId_gen.size(), weight);
-    
-    // Ordering reco jet indices
-    common::orderIndices(genJetsId, allGenJets, ordering);
-    common::orderIndices(genBJetsId, allGenJets, ordering);
-    common::orderIndices(topJetsId_gen, allGenJets, ordering);
-    common::orderIndices(topAllJetsId_gen, allGenJets, ordering);
-    common::orderIndices(addJetsId_gen, allGenJets, ordering);
-    common::orderIndices(addBJetsId_gen, allGenJets, ordering);
-    
-//    printf("\nAll gen b-jets:  %d\n", (int)genBJetsId.size());
-//    for(int jetId : genBJetsId) printf("%d. \tPt: %.3f \tEta: %.3f\n", jetId, allGenJets.at(jetId).Pt(), allGenJets.at(jetId).Eta());
-//    printf("All gen jets: %d\n", (int)genJetsId.size());
-//    for(int jetId : genJetsId) printf("%d. \tPt: %.3f \tEta: %.3f\n", jetId, allGenJets.at(jetId).Pt(), allGenJets.at(jetId).Eta());
-    
     // Matching each reco jet to the gen jet
     genJetsRecoId = std::vector<int>(allGenJets.size(), -1);
     for(size_t index= 0; index<allGenJets.size(); ++index){
         genJetsRecoId.at(index) = matchRecoToGenJet(jetsId, allJets, index, allGenJets);
     }
-    
-//     for(int id : genJetsId) {
-//         printf("Gen: Pt: %.2f Eta: %.2f Phi: %.2f\n", allGenJets.at(id).Pt(), allGenJets.at(id).Eta(), allGenJets.at(id).Phi());
-//         int recoId = genJetsRecoId.at(id);
-//         if(recoId<0) printf("  -1\n");
-//         else printf("  Reco: Pt: %.2f Eta: %.2f Phi: %.2f\n", allJets.at(recoId).Pt(), allJets.at(recoId).Eta(), allJets.at(recoId).Phi());
-//     }
     
     // Selecting additional jets/b-jets
     for(int jetId : jetsId) { 
@@ -2396,32 +2375,6 @@ void AnalyzerDijet::fillTopAdditionalJetsHistos(const EventMetadata& eventMetada
         if(!isInVector(topJetsId_mva, jetId)) addBJetsId_mva.push_back(jetId);
         if(!isInVector(topJetsId_true, jetId)) addBJetsId_true.push_back(jetId);
     }
-    
-//     printf("\nReco jets:\n");
-//     for(int jetId : jetsId) {
-//         LV jet = allJets.at(jetId);
-//         printf("%d. pT: %.2f eta: %.2f\n", jetId, jet.Pt(), jet.Eta());
-//     }
-//     printf("Reco add jets true:\n");
-//     for(int jetId : addJetsId_true) {
-//         LV jet = allJets.at(jetId);
-//         printf("%d. pT: %.2f eta: %.2f\n", jetId, jet.Pt(), jet.Eta());
-//     }
-//     printf("Reco add jets kinReco:\n");
-//     for(int jetId : addJetsId_kinReco) {
-//         LV jet = allJets.at(jetId);
-//         printf("%d. pT: %.2f eta: %.2f\n", jetId, jet.Pt(), jet.Eta());
-//     }
-//     printf("Gen jets:\n");
-//     for(int jetId : genJetsId) {
-//         LV jet = allGenJets.at(jetId);
-//         printf("%d. pT: %.2f eta: %.2f\n", jetId, jet.Pt(), jet.Eta());
-//     }
-//     printf("Gen add jets:\n");
-//     for(int jetId : addJetsId_gen) {
-//         LV jet = allGenJets.at(jetId);
-//         printf("%d. pT: %.2f eta: %.2f\n", jetId, jet.Pt(), jet.Eta());
-//     }
     
     int nJets_top_true = 0;
     int nBJets_top_true = 0;
@@ -2489,15 +2442,15 @@ void AnalyzerDijet::fillTopAdditionalJetsHistos(const EventMetadata& eventMetada
     fillLeadingJetsHistosVsGen("add_cp_true", eventMetadata, allGenJets, addJetsId_gen, allJets, addJetsId_true, genJetsRecoId, topAllJetsId_gen, topJetsId_true, weight, m_histogram, recoObjects, false);
     fillLeadingJetsHistosVsGen("addB_cp_true", eventMetadata, allGenJets, addBJetsId_gen, allJets, addBJetsId_true, genJetsRecoId, topAllJetsId_gen, topJetsId_true, weight, m_histogram, recoObjects, false);
     
-    // Filling histograms about leading jets with tt jets identified by KinReco
-    fillLeadingJetsHistosVsGen("top_kinReco", eventMetadata, allGenJets, topAllJetsId_gen, allJets, topJetsId_kinReco, genJetsRecoId, topAllJetsId_gen, topJetsId_kinReco, weight, m_histogram, recoObjects);
-    fillLeadingJetsHistosVsGen("add_kinReco", eventMetadata, allGenJets, addJetsId_gen, allJets, addJetsId_kinReco, genJetsRecoId, topAllJetsId_gen, topJetsId_kinReco, weight, m_histogram, recoObjects);
-    fillLeadingJetsHistosVsGen("addB_kinReco", eventMetadata, allGenJets, addBJetsId_gen, allJets, addBJetsId_kinReco, genJetsRecoId, topAllJetsId_gen, topJetsId_kinReco, weight, m_histogram, recoObjects);
-    fillBjetIdVsJetIdHisto((TH2*)m_histogram.at("leadingJet_addJetId_addB_kinReco"), addBJetsId_kinReco, addJetsId_kinReco, weight);
-    // Control plots
-    fillLeadingJetsHistosVsGen("top_cp_kinReco", eventMetadata, allGenJets, topAllJetsId_gen, allJets, topJetsId_kinReco, genJetsRecoId, topAllJetsId_gen, topJetsId_kinReco, weight, m_histogram, recoObjects);
-    fillLeadingJetsHistosVsGen("add_cp_kinReco", eventMetadata, allGenJets, addJetsId_gen, allJets, addJetsId_kinReco, genJetsRecoId, topAllJetsId_gen, topJetsId_kinReco, weight, m_histogram, recoObjects);
-    fillLeadingJetsHistosVsGen("addB_cp_kinReco", eventMetadata, allGenJets, addBJetsId_gen, allJets, addBJetsId_kinReco, genJetsRecoId, topAllJetsId_gen, topJetsId_kinReco, weight, m_histogram, recoObjects);
+//     // Filling histograms about leading jets with tt jets identified by KinReco
+//     fillLeadingJetsHistosVsGen("top_kinReco", eventMetadata, allGenJets, topAllJetsId_gen, allJets, topJetsId_kinReco, genJetsRecoId, topAllJetsId_gen, topJetsId_kinReco, weight, m_histogram, recoObjects);
+//     fillLeadingJetsHistosVsGen("add_kinReco", eventMetadata, allGenJets, addJetsId_gen, allJets, addJetsId_kinReco, genJetsRecoId, topAllJetsId_gen, topJetsId_kinReco, weight, m_histogram, recoObjects);
+//     fillLeadingJetsHistosVsGen("addB_kinReco", eventMetadata, allGenJets, addBJetsId_gen, allJets, addBJetsId_kinReco, genJetsRecoId, topAllJetsId_gen, topJetsId_kinReco, weight, m_histogram, recoObjects);
+//     fillBjetIdVsJetIdHisto((TH2*)m_histogram.at("leadingJet_addJetId_addB_kinReco"), addBJetsId_kinReco, addJetsId_kinReco, weight);
+//     // Control plots
+//     fillLeadingJetsHistosVsGen("top_cp_kinReco", eventMetadata, allGenJets, topAllJetsId_gen, allJets, topJetsId_kinReco, genJetsRecoId, topAllJetsId_gen, topJetsId_kinReco, weight, m_histogram, recoObjects);
+//     fillLeadingJetsHistosVsGen("add_cp_kinReco", eventMetadata, allGenJets, addJetsId_gen, allJets, addJetsId_kinReco, genJetsRecoId, topAllJetsId_gen, topJetsId_kinReco, weight, m_histogram, recoObjects);
+//     fillLeadingJetsHistosVsGen("addB_cp_kinReco", eventMetadata, allGenJets, addBJetsId_gen, allJets, addBJetsId_kinReco, genJetsRecoId, topAllJetsId_gen, topJetsId_kinReco, weight, m_histogram, recoObjects);
     
     // Filling histograms about leading jets with tt jets identified by MVA
     fillLeadingJetsHistosVsGen("top_mva", eventMetadata, allGenJets, topAllJetsId_gen, allJets, topJetsId_mva, genJetsRecoId, topAllJetsId_gen, topJetsId_mva, weight, m_histogram, recoObjects);
@@ -2539,11 +2492,11 @@ void AnalyzerDijet::fillTopAdditionalJetsHistos(const EventMetadata& eventMetada
     
     // Filling histograms for visible phase space
     fillLeadingJetsHistosVsGen("addB_vis_gen", eventMetadata, allGenJets, addBJetsId_gen_vis, allGenJets, addBJetsId_gen_vis, genJetsRecoId, topAllJetsId_gen, topAllJetsId_gen, weight, m_histogram, recoObjects, false);
-    fillLeadingJetsHistosVsGen("addB_vis_kinReco", eventMetadata, allGenJets, addBJetsId_gen_vis, allJets, addBJetsId_kinReco, genJetsRecoId, topAllJetsId_gen, topJetsId_kinReco, weight, m_histogram, recoObjects);
+//     fillLeadingJetsHistosVsGen("addB_vis_kinReco", eventMetadata, allGenJets, addBJetsId_gen_vis, allJets, addBJetsId_kinReco, genJetsRecoId, topAllJetsId_gen, topJetsId_kinReco, weight, m_histogram, recoObjects);
     fillLeadingJetsHistosVsGen("addB_vis_mva", eventMetadata, allGenJets, addBJetsId_gen_vis, allJets, addBJetsId_mva, genJetsRecoId, topAllJetsId_gen, topJetsId_mva, weight, m_histogram, recoObjects);
     // Filling histograms foroutside visible phase space
     fillLeadingJetsHistosVsGen("addB_visNot_gen", eventMetadata, allGenJets, addBJetsId_gen_visNot, allGenJets, addBJetsId_gen_visNot, genJetsRecoId, topAllJetsId_gen, topAllJetsId_gen, weight, m_histogram, recoObjects, false);
-    fillLeadingJetsHistosVsGen("addB_visNot_kinReco", eventMetadata, allGenJets, addBJetsId_gen_visNot, allJets, addBJetsId_kinReco, genJetsRecoId, topAllJetsId_gen, topJetsId_kinReco, weight, m_histogram, recoObjects);
+//     fillLeadingJetsHistosVsGen("addB_visNot_kinReco", eventMetadata, allGenJets, addBJetsId_gen_visNot, allJets, addBJetsId_kinReco, genJetsRecoId, topAllJetsId_gen, topJetsId_kinReco, weight, m_histogram, recoObjects);
     fillLeadingJetsHistosVsGen("addB_visNot_mva", eventMetadata, allGenJets, addBJetsId_gen_visNot, allJets, addBJetsId_mva, genJetsRecoId, topAllJetsId_gen, topJetsId_mva, weight, m_histogram, recoObjects);
     
     
@@ -2800,7 +2753,6 @@ void AnalyzerDijet::fillLeadingJetsHistosVsTrue(const std::string& name, const s
     
     m_histogram[histoName]->Fill(nJets_same, weight);
     if(nJets_sameOrder == jetsId.size() || nJets_sameOrder==2) m_histogram[histoName]->Fill(3, weight);
-//     printf("Same: %d  Matched: %d  All: %d\n", nJets_same, nJets_sameOrder, (int)jetsId.size());
 }
 
 
