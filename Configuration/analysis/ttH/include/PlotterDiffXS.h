@@ -109,6 +109,9 @@ private:
     /// File reader for accessing specific histogram from given file
     RootFileReader* fileReader_;
     
+    /// Folder containing theory prediction curves in *.top format
+    std::string inputDirTheoryTop_;
+    
     
     
     /// Sample-Histogram pairs for reco level quantity to plot
@@ -136,6 +139,7 @@ private:
     TString name_;
     TString nameGen_;
     TString nameGenEventBased_;
+    std::vector<TString> namesTheory_;
     
     /// Options for the histogram under consideration
     int signalType_;

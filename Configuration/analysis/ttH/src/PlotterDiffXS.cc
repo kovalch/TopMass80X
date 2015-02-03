@@ -28,6 +28,7 @@
 #include "higgsUtils.h"
 #include "Samples.h"
 #include "DilepSVDFunctions.h"
+#include "TheoryTopHistoReader.h"
 #include "../../common/include/sampleHelpers.h"
 #include "../../common/include/RootFileReader.h"
 #include "../../common/include/plotterUtils.h"
@@ -42,6 +43,7 @@ PlotterDiffXS::PlotterDiffXS(const char* outputDir,
 outputDir_(outputDir),
 samples_(samples),
 fileReader_(RootFileReader::getInstance()),
+inputDirTheoryTop_(tth::DATA_PATH_TTH() + "/" + "theoryPredictions"),
 hasPseudodata_(false),
 name_("defaultName"),
 nameGen_("defaultName"),
@@ -69,7 +71,7 @@ luminosity_(luminosity)
 
 
 
-void PlotterDiffXS::setOptions(const TString& name, const TString& nameGen,
+void PlotterDiffXS::setOptions(const TString& name, const TString& namesGen,
                          const TString& YAxis, const TString& XAxis,
                          const int signalType, const bool plotResponse,
                          const bool normalizeXS, const bool logY,
@@ -77,7 +79,6 @@ void PlotterDiffXS::setOptions(const TString& name, const TString& nameGen,
                          const double& rangemin, const double& rangemax)
 {
     name_ = name; //Variable name for the reconstructed level
-    nameGen_ = nameGen; //Variable name for the generator level
     YAxis_ = YAxis; //Y-axis title
     XAxis_ = XAxis; //X-axis title
     signalType_ = signalType; //Type of the signal (0-ttbb, 1-ttbb+ttb+tt2b)
@@ -89,6 +90,16 @@ void PlotterDiffXS::setOptions(const TString& name, const TString& nameGen,
     ymax_ = ymax; //Max. value in Y-axis
     rangemin_ = rangemin; //Min. value in X-axis
     rangemax_ = rangemax; //Max. value in X-axis
+    
+    // Extracting all generator level histogram names to be used
+    namesTheory_.clear();
+    TObjArray* genNames = namesGen.Tokenize("|");
+    for(int nameId = 0; nameId < genNames->GetEntries(); ++nameId) {
+        // The first name is for the generator level histogram used for XS calculation
+        if(nameId == 0) nameGen_ = ((TObjString*)genNames->At(nameId))->GetString();
+        // Other names are for theory predictions in *.top format
+        else namesTheory_.push_back(((TObjString*)genNames->At(nameId))->GetString());
+    }
     
     // Clearing the sample collections from previous run of the plotter
     sampleTypesData_.clear();
@@ -153,7 +164,7 @@ void PlotterDiffXS::producePlots()
                          <<"\n... skip this plot\n";
                 return;
             }
-            // Getting generator level histograms for the specified quantity
+            // Getting generator level histograms for the specified quantity (single channel to avoid double-counting)
             const std::vector<double>& v_weight_noScale_ee(globalWeights_noScale.at(systematic).at(Channel::ee));
             const std::vector<double>& v_weight_ee(globalWeights.at(systematic).at(Channel::ee));
             const std::vector<Sample>& v_sample_ee = m_systematicChannelSample.at(systematic).at(Channel::ee);
@@ -321,6 +332,27 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
     }
     
     
+    // Obtaining the theory curve
+    std::vector<TString> theoryLegends({"PowHel"});
+    std::map<TString, TH1*> m_theoryHisto;
+    TheoryTopHistoReader theoryReader;
+    for(size_t nameId = 0; nameId < namesTheory_.size(); ++nameId) {
+        TString fileHistoName = namesTheory_.at(nameId);
+        TString fileName = fileHistoName(0, fileHistoName.First(':'));
+        TString histoName = fileHistoName(fileHistoName.First(':')+1, fileHistoName.Length());
+        TString histoLegend = theoryLegends.at(nameId);
+        
+        TH1* histo = theoryReader.getHisto1D(inputDirTheoryTop_+"/"+fileName, histoName);
+        // Matching the histogram's binning and normalization
+        histo = common::rebinHistoToHisto(histo, m_xs.at("data"));
+        common::normalizeToBinWidth(histo, true);
+        double norm_scale = common::normalize(histo, m_xs.at("inclusive_data")->Integral(), false);
+        common::normalizeToBinWidth(histo, false);
+        histo->SetBinContent(0, norm_scale);
+        m_theoryHisto[histoLegend] = histo;
+    }
+    
+    
 
     if(!m_xs.size()) {
         std::cerr<<"ERROR in Plotter! Histograms for the cross section not produced\n...break\n"<<std::endl;
@@ -328,29 +360,37 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
     }
 
     
-    // Obtaining the proper histogram to be plotted
-    const double norm_scale_mc = m_xs.at("madgraph")->GetBinContent(0);
     char legendEntry[100];
-    sprintf(legendEntry, "Madgraph x%.2f", norm_scale_mc);
-    
     // Add entries to legend
     legend->AddEntry(m_xs.at("data"), "Data","pe");
+    
+    const double norm_scale_mc = m_xs.at("madgraph")->GetBinContent(0);
+    sprintf(legendEntry, "Madgraph x%.2f", norm_scale_mc);
     legend->AddEntry(m_xs.at("madgraph"), legendEntry,"l");
+    
+    // Adding entries for the theory curves
+    for(auto nameHisto : m_theoryHisto) {
+        const double norm_scale = nameHisto.second->GetBinContent(0);
+        sprintf(legendEntry, nameHisto.first+" x%.2f", norm_scale);
+        legend->AddEntry(nameHisto.second, legendEntry,"l");
+    }
 
     if(logY_) canvas->SetLogy();
     common::setHistoStyle(m_xs.at("data"), 1,1,1, 20,1,1.5, 0,0);
     common::setHistoStyle(m_xs.at("madgraph"), 1,2,1, 0,2,1.5, 0,0);
+    for(auto nameHisto : m_theoryHisto) {
+        common::setHistoStyle(nameHisto.second, 1,kAzure+2,1, 0,kAzure+2,1.5, 0,0);
+    }
     
     updateHistoAxis(m_xs.at("data"));
-    updateHistoAxis(m_xs.at("madgraph"));
-    
 
     // Draw cross section histograms
     canvas->cd();
-    // Canceling 0 X error globally set in the common::setHistoStyle
+    // Canceling 0 X error, that is globally set in the common::setHistoStyle
     gStyle->SetErrorX();
     m_xs.at("data")->Draw("E1 X0");
     m_xs.at("madgraph")->Draw("hist same");
+    for(auto nameHisto : m_theoryHisto) nameHisto.second->Draw("hist same");
     if(hasPseudodata_) {
         sprintf(legendEntry, "Madgraph_{reweighted} x%.2f", norm_scale_mc);
         legend->AddEntry(m_xs_reweighted.at("madgraph"), legendEntry,"l");
@@ -369,7 +409,8 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
     
     // Plotting the statistics band of the Madgraph prediction
     TH1* h_ratioMadgraph_statBand = common::ratioHistogram(m_xs.at("madgraph"), m_xs.at("madgraph"), 1);
-    h_ratioMadgraph_statBand->Draw("same E0");
+    // common::setHistoStyle(h_ratioMadgraph_statBand, 0,0,0, 0,0,0, 3013,14);
+    h_ratioMadgraph_statBand->Draw("same hist");
     
     TH1* h_ratioDataMadgraph = common::ratioHistogram(m_xs.at("data"), m_xs.at("madgraph"));
     if(hasPseudodata_) {
@@ -381,7 +422,13 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
         common::setHistoStyle(h_ratioDataMadgraph_reweighted, 7,kAzure+2,1, 0,2,1.5, 0,0);
         h_ratioDataMadgraph->Draw("hist same");
         h_ratioDataMadgraph_reweighted->Draw("hist same");
-    } else h_ratioDataMadgraph->Draw("E1 same");
+    } else {
+        h_ratioDataMadgraph->Draw("E1 X0 same");
+    }
+    for(auto nameHisto : m_theoryHisto) {
+        TH1* h_ratioDataTheory = common::ratioHistogram(nameHisto.second, m_xs.at("madgraph"));
+        h_ratioDataTheory->Draw("hist E0 same");
+    }
 
     // Create Directory for Output Plots and write them
     const TString eventFileString = common::assignFolder(outputDir_, channel, systematic)+name_+"_diffXS";
@@ -394,11 +441,17 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
         if(!nameHisto.second) continue;
         nameHisto.second->Write(name_+"_diffXS_"+"input_"+nameHisto.first);
     }
-    // Storing XS histograms
+    // Storing measured XS histograms
     for(auto nameHisto : m_xs) {
         if(!nameHisto.second) continue;
         nameHisto.second->Write(name_+"_diffXS_"+"xs_"+nameHisto.first);
     }
+    // Storing XS histograms from theory predictions
+    for(auto nameHisto : m_theoryHisto) {
+        if(!nameHisto.second) continue;
+        nameHisto.second->Write(name_+"_diffXS_"+"xsTheory_"+nameHisto.first);
+    }
+    
     out_root.Close();
     
     // Removing created objects
@@ -428,9 +481,9 @@ std::map<TString, TH1*> PlotterDiffXS::calculateDiffXS(const std::map<TString, T
     TH1* h_ttbar_gen = m_inputHistos.at("ttbar_gen");
     
     // Initial values for the cross section calculation
-    const ValueError luminosity(luminosity_/1000., 0.);     // Converted to fb-1
+    const ValueError luminosity(luminosity_, 0.);
     const ValueError br_dilepton(0.06391, 0.00063);
-    const ValueError xsection_tt_dilepton(241500.0*br_dilepton.v, 8500.0*br_dilepton.v);
+    const ValueError xsection_tt_dilepton(241.5*br_dilepton.v, 8.5*br_dilepton.v);
 //     const ValueError xsection_tt_dilepton(234000.0*br_dilepton.v, 14290.0*br_dilepton.v);
     
     TH1* h_dataMinusBackground = (TH1*)h_data->Clone("h_dataMinusBackground");
