@@ -268,7 +268,7 @@ int getClosestInDR(T& element, std::vector<U>& coll, double & dRmax = 999,
  * vector.at(unsrotedindex) == sortedindex
  * switched off in ROOT!!!
  */
-#ifndef __MAKECINT__
+#ifndef __CINT__
 template<typename _RandomAccessIterator, typename _Compare>
 inline std::vector<size_t>
 retsort(_RandomAccessIterator __first, _RandomAccessIterator __last,
@@ -283,7 +283,7 @@ retsort(_RandomAccessIterator __first, _RandomAccessIterator __last);
 #endif
 }
 
-#ifndef __MAKECINT__
+#ifndef __CINT__
 #include <algorithm>
 #include <iterator>
 
