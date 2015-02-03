@@ -38,10 +38,10 @@ constexpr double LeptonPtCut = 20.;
 constexpr double JetEtaCUT = 2.4;
 
 /// Jet pt selection in GeV
-constexpr double JetPtCUT = 30.;
+constexpr double JetPtCUT = 20.;
 
-/// Leading 2 jet pt selection in GeV (For cut based approach)
-constexpr double Lead2JetPtCUT = JetPtCUT;
+/// Leading 2 jet pt selection in GeV
+constexpr double Lead2JetPtCUT = 30.;
 
 /// Minimal deltaR for removal of jets that are close to leptons (if negative, no cut applied)
 constexpr double DeltaRLeptonJetCUT = -1.;
@@ -57,7 +57,7 @@ constexpr bool MvaMET = true;
 constexpr double MetCUT = 40.;
 
 /// Generated jet eta selection (absolute value)
-constexpr double GenJetEtaCUT = 2.5;
+constexpr double GenJetEtaCUT = 2.4;
 
 /// Generated jet pt selection in GeV
 constexpr double GenJetPtCUT = JetPtCUT;
@@ -220,7 +220,9 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     if(this->failsHiggsGeneratorSelection(higgsDecayMode)) return kTRUE;
     
     // Separate tt+bb from tt+other
-    if(this->failsAdditionalJetFlavourSelection(entry)) return kTRUE;
+    const int topDecayMode = this->topDecayMode(entry);
+    const int additionalJetFlavourId = this->additionalJetFlavourId(entry);
+    if(this->failsAdditionalJetFlavourSelection(topDecayMode, additionalJetFlavourId)) return kTRUE;
     
     // Correct for the MadGraph branching fraction being 1/9 for dileptons (PDG average is .108)
     const double weightMadgraphCorrection = this->madgraphWDecayCorrection(entry);
@@ -773,45 +775,73 @@ bool HiggsAnalysis::failsHiggsGeneratorSelection(const int higgsDecayMode)const
 
 
 
-bool HiggsAnalysis::failsAdditionalJetFlavourSelection(const Long64_t& entry)const
+bool HiggsAnalysis::failsAdditionalJetFlavourSelection(const int topDecayMode, const int additionalJetFlavourId)const
 {
+    // Use the full ttbar dilepton sample for creating btag efficiencies
+    if(this->makeBtagEfficiencies()) return false;
+    
+    // Check steering parameter if any separation is requested
     int additionalBjetMode(additionalBjetMode_);
     if(additionalBjetMode == -999) return false;
-    
-    // Use the full ttbar sample for creating btag efficiencies
-    if(this->makeBtagEfficiencies()) return false;
     
     // topDecayMode contains the decay of the top (*10) + the decay of the antitop (plus 100 or 200 for non-b decays of tops)
     // 1=hadron, 2=e, 3=mu, 4=tau->hadron, 5=tau->e, 6=tau->mu
     // i.e. 23 == top decays to e, tbar decays to mu
-    const int topDecayMode = this->topDecayMode(entry) % 100;
-    // Extracting part telling how tau decays should be treated
-    const int viaTauMode = additionalBjetMode/100;
-    if(viaTauMode == 0) {
+    const int decay = topDecayMode % 100;
+    
+    // Extract part telling how leptonic tau decays should be treated
+    const int viaTauMode = additionalBjetMode / 100;
+    if(viaTauMode == 0){
         // any dileptonic final state allowed
-    } else if(viaTauMode == 1) {
+    }
+    else if(viaTauMode == 1){
         // both leptons from W->e/mu
-        if(!(topDecayMode/10 < 4 && topDecayMode%10 < 4)) return true;
-    } else if(viaTauMode == 2) {
+        if(!(decay/10 < 4 && decay%10 < 4)) return true;
+    }
+    else if(viaTauMode == 2){
         // at least 1 lepton from W->tau->e/mu
-        if(!(topDecayMode/10 > 4 || topDecayMode%10 > 4)) return true;
+        if(!(decay/10 > 4 || decay%10 > 4)) return true;
+    }
+    else{
+        std::cerr<<"ERROR in HiggsAnalysis::failsAdditionalJetFlavourSelection()! Undefined tau mode requested: "
+                 <<viaTauMode<<"\n...break\n"<<std::endl;
+        exit(421);
     }
     
-    // Leaving only part telling which additional jets should be present
+    // additionalJetFlavourId contains number of jets from top (*100)
+    // + the second digit encodes the flavour of the additional jets and whether they stem from before or after the top weak decay
+    // + the last digit encodes the number of jets of this flavour, and the number of hadrons contained in them
+    const int jetId = additionalJetFlavourId % 100;
+    
+    // Leave only part telling which additional jets should be present
     additionalBjetMode %= 100;
-    
-    const TopGenObjects& topGenObjects = this->getTopGenObjects(entry);
-    
-    int jetAddId = topGenObjects.genExtraTopJetNumberId_%100;
-    
-    if(additionalBjetMode==4 && (jetAddId>20 && jetAddId<30)) return false;  // tt+c (tt+cc)
-    if(additionalBjetMode==3 && (jetAddId==3 || jetAddId==4)) return false;  // tt+bb
-    if(additionalBjetMode==2 && jetAddId==2) return false;  // tt+2b
-    if(additionalBjetMode==1 && jetAddId==1) return false;  // tt+b
-    if(additionalBjetMode==0 && (jetAddId==0 || (jetAddId>4 && jetAddId<20) ||  jetAddId>30 ) ) return false;  // tt+other
+    if(additionalBjetMode == 4){
+        // tt+c (tt+cc)
+        if(jetId>20 && jetId<30) return false;
+    }
+    else if(additionalBjetMode == 3){
+        // tt+bb
+        if(jetId==3 || jetId==4) return false;
+    }
+    else if(additionalBjetMode == 2){
+        // tt+2b
+        if(jetId==2) return false;
+    }
+    else if(additionalBjetMode == 1){
+        // tt+b
+        if(jetId==1) return false;
+    }
+    else if(additionalBjetMode == 0){
+        // tt+other
+        if(jetId==0 || (jetId>4 && jetId<20) ||  jetId>30 ) return false;
+    }
+    else{
+        std::cerr<<"ERROR in HiggsAnalysis::failsAdditionalJetFlavourSelection()! Undefined additional jet mode requested: "
+                 <<additionalBjetMode<<"\n...break\n"<<std::endl;
+        exit(422);
+    }
     
     return true;
-    
 }
 
 
