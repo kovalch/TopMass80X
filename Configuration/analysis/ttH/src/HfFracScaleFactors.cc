@@ -44,6 +44,7 @@ scaleFactorsUsable_(true)
     // Setting id for each sample type as it will appear in the list of histograms for the fit
     // Data MUST go first
     sampleTypeIds_[Sample::data] = 0;
+    sampleTypeIds_[Sample::pseudodata] = 0;
     // Combine samples by assigning the same id
     sampleTypeIds_[Sample::ttbb] = 1;
     sampleTypeIds_[Sample::ttb] = 1;
@@ -133,8 +134,8 @@ void HfFracScaleFactors::produceScaleFactors(const Samples& samples)
     }
     
     // Print table
-    std::cout<<"Step   \t\tSystematic\tChannel\t\tScale factor | ";
-    for(size_t i = 1; i<templateNames_.size(); ++i) std::cout << templateNames_.at(i) << " | ";
+    std::cout<<"Step   \t\tSystematic\tChannel\t\tScale factor \t | ";
+    for(size_t i = 1; i<templateNames_.size(); ++i) std::cout << templateNames_.at(i) << "\t | ";
     std::cout << std::endl;
     std::cout<<"-------\t\t----------\t-------\t\t-------------------------------------------------------\n";
     for(auto hfFracScaleFactorsPerStep : m_hfFracScaleFactors_){
@@ -145,14 +146,14 @@ void HfFracScaleFactors::produceScaleFactors(const Samples& samples)
                
                 const Channel::Channel& channel(hfFracScaleFactorsPerChannel.first);
                 std::cout<<step<<"\t\t"<<systematic.name()<<"\t\t"
-                        <<Channel::convert(channel)<<"      \t   "
+                        <<Channel::convert(channel)<<"      \t\t\t   "
                         <<std::fixed<<std::setprecision(3);
                 for(int i = 1; i<(int)templateNames_.size(); ++i) {
                     std::cout << hfFracScaleFactorsPerChannel.second.at(sampleTypeForId(i)).val<<" |    ";
                 }
                 std::cout << std::endl;
                         
-                std::cout<<"\t\t\t\t\t\t+- " << std::fixed<<std::setprecision(3);
+                std::cout<<"\t\t\t\t\t\t\t\t+- " << std::fixed<<std::setprecision(3);
                 for(int i = 1; i<(int)templateNames_.size(); ++i) {
                     std::cout << hfFracScaleFactorsPerChannel.second.at(sampleTypeForId(i)).err<<" |    ";
                 }
@@ -188,11 +189,6 @@ void HfFracScaleFactors::produceScaleFactors(const TString& step, const Samples&
             for(size_t iSample = 0; iSample < v_sample.size(); ++iSample){
                 const Sample& sample = v_sample.at(iSample);
                 const Sample::SampleType& sampleType = sample.sampleType();
-                
-                if(sampleType == Sample::pseudodata) {
-                    std::cerr << "\nERROR! Currently pseudodata can't be used to determine tt+HF scale factor. Stopping...\n";
-                    exit(3);
-                }
                 
                 TH1* h = rootFileReader_->GetClone<TH1D>(sample.inputFile(), TString(histoTemplateName_).Append(step));
                 if(h->GetSumw2N() < 1) h->Sumw2();
@@ -525,8 +521,9 @@ bool HfFracScaleFactors::histogramsAreIdentical(TH1* histo1, TH1* histo2)const
 
 Sample::SampleType HfFracScaleFactors::sampleTypeForId(const int id)const
 {
-    for (std::map<Sample::SampleType, int>::const_iterator it = sampleTypeIds_.begin(); it != sampleTypeIds_.end(); ++it )
-    if (it->second == id) return it->first;
+    for (std::map<Sample::SampleType, int>::const_iterator it = sampleTypeIds_.begin(); it != sampleTypeIds_.end(); ++it ) {
+        if (it->second == id) return it->first;
+    }
     return Sample::dummy;
 }
 
