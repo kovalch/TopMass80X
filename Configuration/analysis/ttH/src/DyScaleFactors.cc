@@ -93,7 +93,7 @@ void DyScaleFactors::produceScaleFactors(const TString& step, const Samples& sam
                 TH1D* h_zVeto = rootFileReader_->GetClone<TH1D>(sample.inputFile(), TString("dyScaling_TTh1").Append(step));
                 TH1D* h_all = rootFileReader_->GetClone<TH1D>(sample.inputFile(), TString("dyScaling_Allh1").Append(step));
                 
-                if(sample.sampleType() != Sample::data){
+                if(sample.sampleType() != Sample::data && sample.sampleType() != Sample::pseudodata){
                     const double& weight = globalWeights.at(systematic).at(channel).at(iSample);
                     h_loose->Scale(weight);
                     h_zWindow->Scale(weight);
@@ -102,7 +102,7 @@ void DyScaleFactors::produceScaleFactors(const TString& step, const Samples& sam
                 }
                 
                 // FIXME: here Integral() is used, but this does not account for the overflow, so it is wrong !?
-                if(sample.sampleType() == Sample::data){
+                if(sample.sampleType() == Sample::data || sample.sampleType() == Sample::pseudodata){
                     if(channel == Channel::ee){
                         nIn_ee_data += h_zWindow->Integral();
                         nIn_ee_data_loose += h_loose->Integral();
