@@ -156,10 +156,10 @@ void DyScaleFactors::produceScaleFactors(const TString& step, const Samples& sam
         const double dyScaleFactor_ee = nOut_ee_mc/nOut_ee_dy;
         const double dyScaleFactor_mumu = nOut_mumu_mc/nOut_mumu_dy;
         
-        this->printFullInformation(dyScaleFactor_ee, dyScaleFactor_mumu, k_ee, k_mumu, rOutIn_ee, rOutIn_mumu,
-                                  nIn_ee_data_loose, nIn_mumu_data_loose, nIn_ee_data, nIn_mumu_data, nIn_emu_data,
-                                  nIn_ee_mc, nIn_mumu_mc, nIn_ee_dy, nIn_mumu_dy,
-                                  nOut_ee_mc, nOut_mumu_mc, nOut_ee_dy, nOut_mumu_dy, step);
+//         this->printFullInformation(dyScaleFactor_ee, dyScaleFactor_mumu, k_ee, k_mumu, rOutIn_ee, rOutIn_mumu,
+//                                   nIn_ee_data_loose, nIn_mumu_data_loose, nIn_ee_data, nIn_mumu_data, nIn_emu_data,
+//                                   nIn_ee_mc, nIn_mumu_mc, nIn_ee_dy, nIn_mumu_dy,
+//                                   nOut_ee_mc, nOut_mumu_mc, nOut_ee_dy, nOut_mumu_dy, step);
         
         m_dyScaleFactors_[step][systematic][Channel::ee] = dyScaleFactor_ee;
         m_dyScaleFactors_[step][systematic][Channel::mumu] = dyScaleFactor_mumu;
