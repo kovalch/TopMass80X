@@ -93,7 +93,7 @@ void DyScaleFactors::produceScaleFactors(const TString& step, const Samples& sam
                 TH1D* h_zVeto = rootFileReader_->GetClone<TH1D>(sample.inputFile(), TString("dyScaling_TTh1").Append(step));
                 TH1D* h_all = rootFileReader_->GetClone<TH1D>(sample.inputFile(), TString("dyScaling_Allh1").Append(step));
                 
-                if(sample.sampleType() != Sample::data && sample.sampleType() != Sample::pseudodata){
+                if(sample.sampleType() != Sample::data){
                     const double& weight = globalWeights.at(systematic).at(channel).at(iSample);
                     h_loose->Scale(weight);
                     h_zWindow->Scale(weight);
@@ -156,10 +156,10 @@ void DyScaleFactors::produceScaleFactors(const TString& step, const Samples& sam
         const double dyScaleFactor_ee = nOut_ee_mc/nOut_ee_dy;
         const double dyScaleFactor_mumu = nOut_mumu_mc/nOut_mumu_dy;
         
-//         this->printFullInformation(dyScaleFactor_ee, dyScaleFactor_mumu, k_ee, k_mumu, rOutIn_ee, rOutIn_mumu,
-//                                   nIn_ee_data_loose, nIn_mumu_data_loose, nIn_ee_data, nIn_mumu_data, nIn_emu_data,
-//                                   nIn_ee_mc, nIn_mumu_mc, nIn_ee_dy, nIn_mumu_dy,
-//                                   nOut_ee_mc, nOut_mumu_mc, nOut_ee_dy, nOut_mumu_dy, step);
+        //this->printFullInformation(dyScaleFactor_ee, dyScaleFactor_mumu, k_ee, k_mumu, rOutIn_ee, rOutIn_mumu,
+        //                           nIn_ee_data_loose, nIn_mumu_data_loose, nIn_ee_data, nIn_mumu_data, nIn_emu_data,
+        //                           nIn_ee_mc, nIn_mumu_mc, nIn_ee_dy, nIn_mumu_dy,
+        //                           nOut_ee_mc, nOut_mumu_mc, nOut_ee_dy, nOut_mumu_dy, step);
         
         m_dyScaleFactors_[step][systematic][Channel::ee] = dyScaleFactor_ee;
         m_dyScaleFactors_[step][systematic][Channel::mumu] = dyScaleFactor_mumu;
