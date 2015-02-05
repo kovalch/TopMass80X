@@ -28,13 +28,27 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     
     // Several pseudodata samples with different normalisations can be specified
     // Are meant to be modified (reweighted) versions of original samples
-    // Should have different names, same legend entry and all added to the selectAndOrderSamples8TeV()
+    // Should have different names, same legend entry and added to the selectAndOrderSamples8TeV()
     result["pseudodata"] = Sample(
         "Pseudodata",
         kBlack,
         241.5,
         8.5/241.5, -1.,
-        {   // Place for specific reweighted ROOT files to be used instead of standard MC files defined below
+        {   // Place for specific reweighted ROOT files to be used instead of standard MC files defined below (one per sample)
+        },
+        Sample::pseudodata
+    );
+    
+    // The ttbb sample with 2X larger normalisation in pseudodata than in MC stack
+    result["pseudo_ttbarsignalPlusBbbar"] = Sample(
+        "Pseudodata",
+        kBlack,
+        // 2 x TOP-14-016 (ATLAS+CMS combination)
+        2.*241.5,
+        8.5/241.5, -1.,
+        {
+            "ttbarDileptonNotauBbbar.root",
+            "ttbarDileptonOnlytauBbbar.root",
         },
         Sample::pseudodata
     );
