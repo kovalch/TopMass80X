@@ -274,7 +274,7 @@ sub submitJob {
     my ($dir, $dirBase) = fileparse(File::Spec->canonpath("$current/$dirWithRelPath"));
     if (chdir($dirBase)) {
         $script ||= do { open my $FH, '<', "$dir/exe"; <$FH> };
-        my $line = `qsub -t $from-$to:1 $args{'Q'} $dir/$script`;
+        my $line = `qsub -l distro=sld6 -t $from-$to:1 $args{'Q'} $dir/$script`;
         if ($line =~ /Your job-array (\d+)(?:\.\d+-\d+:1) \(".+"\) has been submitted/) {
             my $success;
             my $ids = ''; $ids .= "$_\t$1\n" for $from..$to;
@@ -631,6 +631,12 @@ fi
 tail -f $tmp/stdout.txt > $current/naf_DIRECTORY/stdout_running/stdout$SGE_TASK_ID.txt&
 tailjobid=$!
 
+# Set CMSSW environment by hand
+cd __CMSSWBASE__/src
+module use -a /afs/desy.de/group/cms/modulefiles
+module load cmssw
+cmsenv
+cd -
 
 echo "Running on host"
 hostname
@@ -749,6 +755,7 @@ END_OF_BATCH_TEMPLATE
     my $afgid = getGroupID();
     my $dlimit = getDiskLimit();
     my $verbosity = getVerbosity();
+    my $cmsswBase = getCmsswBase();
     $templ =~ s/__HCPU__/$hcpu/g;
     $templ =~ s/__SCPU__/$scpu/g;
     $templ =~ s/__HVMEM__/$hvmem/g;
@@ -756,6 +763,7 @@ END_OF_BATCH_TEMPLATE
     $templ =~ s/__GPID__/$afgid/g;
     $templ =~ s/__FSIZE__/$dlimit/g;
     $templ =~ s/__VERBOSITY__/$verbosity/g;
+    $templ =~ s/__CMSSWBASE__/$cmsswBase/g;
     if ($args{'C'}) {
        $templ =~ s/__COMMA__/ /g;
     } else{
@@ -806,6 +814,12 @@ sub getVerbosity {
     else {
         return 0;
     }
+}
+
+sub getCmsswBase {
+    my $cmsswBase = $ENV{CMSSW_BASE} || "ERROR: CMSSW_BASE not found";
+    print "CMSSW_BASE: $cmsswBase\n";
+    return $cmsswBase;
 }
 
 ################################################################################################
