@@ -205,8 +205,9 @@ sub getDatasetPythonFile {
     }
     #make sure the file can be found even without running scram (dirty hack)
     $ENV{PYTHONPATH} = "$datasetPythonPath:$ENV{PYTHONPATH}";
-    return qq{\ncopyjson=False\nif(hasattr(process.source,'lumisToProcess')):\n\tlumisToProcess=process.source.lumisToProcess\n\tcopyjson=True\nprocess.load("$localFileName")\nif copyjson:\n\tprocess.source.lumisToProcess=lumisToProcess};
+   #old impl return qq{\ncopyjson=False\nif(hasattr(process.source,'lumisToProcess')):\n\tlumisToProcess=process.source.lumisToProcess\n\tcopyjson=True\nprocess.load("$localFileName")\nif copyjson:\n\tprocess.source.lumisToProcess=lumisToProcess};
 #     return qq{process.load("TopAnalysis.Configuration.$localFileName")};
+    return qq{from $localFileName import readFiles as ext_readFiles\nfrom $localFileName import secFiles as ext_secFiles\nprocess.source.fileNames=ext_readFiles\nprocess.source.secondaryFileNames=ext_secFiles}
 }
 
 sub submitNewJob {
