@@ -79,7 +79,9 @@ std::vector<std::pair<TString, Sample> > Samples::setSamples(const std::vector<T
                              <<filename<<"\n...break\n"<<std::endl;
                     exit(513);
                 }
-                v_selectedFileIndex.push_back(iFile);
+                // Adding the file index to check for double-counting
+                // Ignoring files for pseudodata: to allow the same file with different normalisation in pseudodata
+                if(sample.sampleType() != Sample::pseudodata) v_selectedFileIndex.push_back(iFile);
                 
                 result.push_back(std::make_pair(filename, sample));
             } else continue;
@@ -92,14 +94,15 @@ std::vector<std::pair<TString, Sample> > Samples::setSamples(const std::vector<T
                 for(auto nameSamplePair : m_samples) {
                     Sample& theSample = nameSamplePair.second;
                     if(theSample.sampleType() != Sample::pseudodata) continue;
-                    else samplePseudodata_reference = theSample;
+                    if(std::find(v_sampleIdentifier.begin(), v_sampleIdentifier.end(), nameSamplePair.first) == v_sampleIdentifier.end()) continue;
+                    samplePseudodata_reference = theSample;
                     if(theSample.containsFilenamesOfSample(sample, true)) {
                         hasSampleInPseudodata = true;
                         break;
                     }
                 }
                 if(!hasSampleInPseudodata) {
-                    // Making a copy of the sample with visual properties and type of the pseudodata sample
+                    // Making a copy of the sample with visual properties and type of 0.the pseudodata sample
                     Sample samplePseudodata(sample);
                     samplePseudodata.setSampleType(samplePseudodata_reference.sampleType());
                     samplePseudodata.setLegendEntry(samplePseudodata_reference.legendEntry());
