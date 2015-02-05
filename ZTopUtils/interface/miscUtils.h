@@ -22,6 +22,8 @@
 
 namespace ztop {
 
+double getMaxVar(bool up, const double & upvar, const double & downvar, bool& anticorr);
+
 template<class T>
 long double gammaFunc(T in, float eps=0.00001){
 	if(eps && rint(in)>1 &&fabs(rint(in) - in) < eps){

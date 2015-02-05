@@ -4,6 +4,57 @@
 
 namespace ztop {
 
+
+double getMaxVar(bool up, const double & upvar, const double & downvar, bool& anticorr){
+	if(upvar>0 && downvar<0){
+		anticorr=false;
+		if(up)
+			return upvar;
+		else
+			return downvar;
+	}
+	else if(upvar>0 && downvar>0){
+		if(upvar>downvar){
+			anticorr=false;
+			if(up)
+				return upvar;
+			else
+				return 0;
+		}
+		else{
+			anticorr=true;
+			if(up)
+				return downvar;
+			else
+				return 0;
+		}
+	}
+	else if(upvar<0&&downvar<0){
+		if(upvar>downvar){
+			anticorr=false;
+			if(up)
+				return 0;
+			else
+				return downvar;
+		}
+		else{
+			anticorr=true;
+			if(up)
+				return 0;
+			else
+				return upvar;
+		}
+	}
+	else{ // fully anti
+		anticorr=true;
+		if(up)
+			return downvar;
+		else
+			return upvar;
+	}
+
+}
+
 double logPoisson(const double & k, const double& lambda){
 	//changes to int!
 
@@ -95,7 +146,7 @@ double shiftedLnPoissonMCStat(const float & centre, const float & stat, const fl
 	if(n){
 		n=(floor(n*(1.0f/1) + 0.5)/(1.0f/1));//better treatment if weights have been applied
 	}
-		//n=static_cast<long>(n);
+	//n=static_cast<long>(n);
 	if(o)
 		o=static_cast<long>(o);
 
@@ -251,7 +302,7 @@ TH2D divideTH2DBinomial(TH2D &h1, TH2D &h2) { //! out = h1 / h2
 			double err = 1;
 			if (h2.GetBinContent(binx, biny) != 0) {
 				cont = h1.GetBinContent(binx, biny)
-                                                                                                                        								/ h2.GetBinContent(binx, biny);
+                                                                                                                        																/ h2.GetBinContent(binx, biny);
 				err = sqrt(cont * (1 - cont) / h1.GetBinContent(binx, biny));
 			}
 			out.SetBinContent(binx, biny, cont);
@@ -275,7 +326,7 @@ TH2D divideTH2D(TH2D &h1, TH2D &h2) {
 			double err = 1;
 			if (h2.GetBinContent(binx, biny) != 0) {
 				cont = h1.GetBinContent(binx, biny)
-                                                                                                                        								/ h2.GetBinContent(binx, biny);
+                                                                                                                        																/ h2.GetBinContent(binx, biny);
 				err = sqrt(
 						pow(
 								h1.GetBinError(binx, biny)
