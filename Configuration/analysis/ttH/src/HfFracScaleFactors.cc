@@ -51,6 +51,7 @@ scaleFactorsUsable_(true)
     sampleTypeIds_[Sample::tt2b] = 1;
     sampleTypeIds_[Sample::ttcc] = 2;
     sampleTypeIds_[Sample::ttother] = 2;
+    sampleTypeIds_[Sample::ttNoDilepton] = 2;
     // Backgrounds MUST go last
     sampleTypeIds_[Sample::dummy] = 3;
     
