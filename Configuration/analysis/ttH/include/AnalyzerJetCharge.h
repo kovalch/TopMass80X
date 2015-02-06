@@ -75,6 +75,9 @@ public:
     /// Calculate the multiplicity per jet of a given collection
     unsigned int calculateMultiplicity(const std::vector<int>& collection, int jetIndex);
     
+    /// p_{T} weighted jet charge calculation for a given squeezing parameter x (optimal value x = 0.8)
+    double ptWeightedJetChargeX (const int jetId, const LV& recoJet, const double x, const std::vector<int> pfCandidateJetIndex, const VLV& pfCandidates, const std::vector<int> pfCandidateCharge);
+    
     struct MvaJetVariable
     {
         Float_t longChargeJet_;

@@ -125,7 +125,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
     const std::vector<double>& jetSecondaryVertexFlightDistanceSignificance = *recoObjects.jetSecondaryVertexFlightDistanceSignificance_;
     
     // Vertex information for closesZVertex studies
-    const std::vector<int>& jetPfCandidatePrimaryVertexId = *recoObjects.jetPfCandidatePrimaryVertexId_;
+    //const std::vector<int>& jetPfCandidatePrimaryVertexId = *recoObjects.jetPfCandidatePrimaryVertexId_;
     
     // Access the leptons for mlb
     const VLV& isolatedLeptons = *recoObjects.allLeptons_;
@@ -649,18 +649,18 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
             
             // TEST zvertex studies
             // Check if PfCandidate belongs to primary vertex
-            if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==0&&jetPfCandidatePrimaryVertexId.at(iPfTrack)==3) m_histogram["h_pfCandidateNonZeroWeights"]->Fill(0., weight);
-            if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==3) m_histogram["h_pfCandidateNonZeroWeightsIndexNonZero"]->Fill(0., weight);
-            if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==0) m_histogram["h_pfCandidateNonZeroWeightsIndexZero"]->Fill(0., weight);
-            if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==2) m_histogram["h_pfCandidateZeroWeightsIndexNonZero"]->Fill(0., weight);
-            if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==1) m_histogram["h_pfCandidateZeroWeightsIndexZero"]->Fill(0., weight);
-            if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==-1) std::cout<<"TOO MANY HIGH WEIGHTS!!"<<std::endl;
+            //if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==0&&jetPfCandidatePrimaryVertexId.at(iPfTrack)==3) m_histogram["h_pfCandidateNonZeroWeights"]->Fill(0., weight);
+            //if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==3) m_histogram["h_pfCandidateNonZeroWeightsIndexNonZero"]->Fill(0., weight);
+            //if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==0) m_histogram["h_pfCandidateNonZeroWeightsIndexZero"]->Fill(0., weight);
+            //if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==2) m_histogram["h_pfCandidateZeroWeightsIndexNonZero"]->Fill(0., weight);
+            //if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==1) m_histogram["h_pfCandidateZeroWeightsIndexZero"]->Fill(0., weight);
+            //if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==-1) std::cout<<"TOO MANY HIGH WEIGHTS!!"<<std::endl;
             
             // Remove tracks not associated to primary vertex 0
-            if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==-1|| jetPfCandidatePrimaryVertexId.at(iPfTrack)==2 || jetPfCandidatePrimaryVertexId.at(iPfTrack)==3) continue;
+            //if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==-1|| jetPfCandidatePrimaryVertexId.at(iPfTrack)==2 || jetPfCandidatePrimaryVertexId.at(iPfTrack)==3) continue;
             
-            if (jetHadronFlavour>0) m_histogram["h_test_jetPfCandidateChargeForB"]->Fill(jetPfCandidateTrackCharge.at(iPfTrack), weight);
-            else if (jetHadronFlavour<0) m_histogram["h_test_jetPfCandidateChargeForAntiB"]->Fill(jetPfCandidateTrackCharge.at(iPfTrack), weight);
+            //if (jetHadronFlavour>0) m_histogram["h_test_jetPfCandidateChargeForB"]->Fill(jetPfCandidateTrackCharge.at(iPfTrack), weight);
+            //else if (jetHadronFlavour<0) m_histogram["h_test_jetPfCandidateChargeForAntiB"]->Fill(jetPfCandidateTrackCharge.at(iPfTrack), weight);
             
             ++trueBJetTrackMultiplicity;
             
@@ -1139,12 +1139,16 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
             trueBJetRelChargeVector.push_back(trueBJetRelCharge);
         }
         
-            // Only fill charge if there's ONE secondary vertex in the event
-            if(secondaryVertexMultiplicityPerJet==1) m_histogram["h_trueBJetScalarCharge8_IfOneSvInJet"]->Fill(trueBJetScalarChargeVector.at(3), weight);
-            if(sumTrueBMomentum.at(3)>0) m_histogram["h_trueBJetScalarCharge8_WithoutZeroValue"]->Fill(trueBJetScalarChargeVector.at(3), weight);
-            
-            if(secondaryVertexMultiplicityPerJet==1) ((TH2D*)m_histogram["h_trueBJetScalarChargeVsSecondaryVertex"])->Fill(trueBJetScalarChargeVector.at(3),chargeOfSecondaryVerticesForSelectedTracks.at(0), weight);
-            
+        // TEST new function added for jet charge calculation, for a given x "squeezing"-parameter
+        double jetChargeFromFunction = ptWeightedJetChargeX(jetIdx, jets, 0.8, jetPfCandidateTrackIndex, jetPfCandidateTrack, jetPfCandidateTrackCharge);
+        m_histogram["h_jetChargeFromFunction"]->Fill(jetChargeFromFunction, weight);
+        
+        // Only fill charge if there's ONE secondary vertex in the event
+        if(secondaryVertexMultiplicityPerJet==1) m_histogram["h_trueBJetScalarCharge8_IfOneSvInJet"]->Fill(trueBJetScalarChargeVector.at(3), weight);
+        if(sumTrueBMomentum.at(3)>0) m_histogram["h_trueBJetScalarCharge8_WithoutZeroValue"]->Fill(trueBJetScalarChargeVector.at(3), weight);
+        
+        if(secondaryVertexMultiplicityPerJet==1) ((TH2D*)m_histogram["h_trueBJetScalarChargeVsSecondaryVertex"])->Fill(trueBJetScalarChargeVector.at(3),chargeOfSecondaryVerticesForSelectedTracks.at(0), weight);
+        
         
         if (optionForCalibration==1 || optionForCalibration==2)
         {
@@ -2623,6 +2627,11 @@ void AnalyzerJetCharge::bookMvaHistos(const TString& step, std::map<TString, TH1
     name = "h_pfCandidateZVertexNonZero";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Closest vertex z distance;z; pfCandidate",2,0.,2.));
     
+    // TEST jet charge from function
+    name = "h_jetChargeFromFunction";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"True b jet longitudinal p_{T} weighted charge with x = 0.8;c_{rel};Jets",24,-1.2,1.2));
+    
+    
  }
 
 //==========================================OTHER FUNTIONS===============================================
@@ -2800,5 +2809,39 @@ unsigned int AnalyzerJetCharge::calculateMultiplicity(const std::vector<int>& co
     
 }
 
+double AnalyzerJetCharge::ptWeightedJetChargeX (const int jetId, const LV& recoJet, const double x, const std::vector<int> pfCandidateJetIndex, const VLV& pfCandidates, const std::vector<int> pfCandidateCharge)
+{
+    // Access jet momentum information
+    double jetTrueBPx = recoJet.px();
+    double jetTrueBPy = recoJet.py();
+    double jetTrueBPz = recoJet.pz();
+    
+    // Define relevant variables for c_{rel} calculation
+    double sumMomentum = 0.;
+    double sumMomentumQ = 0.;
+    
+    for (size_t iCandidate=0;iCandidate!=pfCandidates.size();iCandidate++)
+    {
+        // Check that the pfCandidate corresponds to the jet
+        if (jetId!=pfCandidateJetIndex.at(iCandidate)) continue;
+        
+        // Access pfCandidate mometum and charge information
+        const double constituentTrueBPx = pfCandidates.at(iCandidate).px();
+        const double constituentTrueBPy = pfCandidates.at(iCandidate).py();
+        const double constituentTrueBPz = pfCandidates.at(iCandidate).pz();
+        const double product = constituentTrueBPx*jetTrueBPx + constituentTrueBPy*jetTrueBPy + constituentTrueBPz*jetTrueBPz;
+        
+        int charge = pfCandidateCharge.at(iCandidate);
+        
+        // Sum over all the pfCandidates
+        const double productPow = std::pow(product, x);
+        sumMomentum += productPow;
+        sumMomentumQ += static_cast<double>(charge)*productPow;
+    }
+    
+    // Obtain the jet c_{rel}
+    const double ptWeightedJetChargeXValue(sumMomentum>0 ? sumMomentumQ/sumMomentum : 0);
+    return ptWeightedJetChargeXValue;
+}
 
 
