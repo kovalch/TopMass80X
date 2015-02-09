@@ -30,6 +30,7 @@
 //     "BTAG_BEFF_UP", "BTAG_BEFF_DOWN", "BTAG_CEFF_UP", "BTAG_CEFF_DOWN", "BTAG_LEFF_UP", "BTAG_LEFF_DOWN",
     "MASS_UP", "MASS_DOWN", "MATCH_UP", "MATCH_DOWN", "SCALE_UP", "SCALE_DOWN", 
     "POWHEG", "POWHEGHERWIG", "MCATNLO",// "PERUGIA11", // "SPINCORR", 
+//    "PDF_UP", "PDF_DOWN",
     "all"};
 
 UsefulTools::UsefulTools( RootFileReader* rootFileReader,bool isClosureTest,bool isDYScale):
