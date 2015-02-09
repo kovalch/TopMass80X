@@ -74,7 +74,7 @@ doTTHbbStudies_(doTTHbbStudies)
 
 
 void AnalyzerDijet::fillHistos(const EventMetadata& eventMetadata,
-                               const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+                               const RecoObjects& recoObjects, const CommonGenObjects&,
                                const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
                                const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
                                const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
@@ -94,7 +94,6 @@ void AnalyzerDijet::fillHistos(const EventMetadata& eventMetadata,
 
     // Setting variables of gen. level if available
     const VLV& genAllJets = (topGenObjects.valuesSet_) ? *topGenObjects.allGenJets_ : VLV();
-    const std::vector<int>& jetPartonFlavour = (commonGenObjects.valuesSet_) ? *commonGenObjects.jetPartonFlavour_ : std::vector<int>(0);
     std::vector<int> genBJetsId = genObjectIndices.genBjetIndices_;
     const std::vector<int>& bHadJetIndex = (topGenObjects.valuesSet_) ? *topGenObjects.genBHadJetIndex_ : std::vector<int>(0);
     const std::vector<int>& bHadFlavour = (topGenObjects.valuesSet_) ? *topGenObjects.genBHadFlavour_ : std::vector<int>(0);
@@ -156,14 +155,12 @@ void AnalyzerDijet::fillHistos(const EventMetadata& eventMetadata,
         m_histogram["jet_pt"]->Fill(jet.Pt(), weight);
         m_histogram["jet_eta"]->Fill(jet.Eta(), weight);
         m_histogram["jet_btagDiscriminator"]->Fill(allJetsBtagDiscriminant.at(iAllJet), weight);
-        if(jetPartonFlavour.size()>0) m_histogram["jet_partonFlavour"]->Fill(jetPartonFlavour.at(iAllJet), weight);
 
         // Filling information about b-tagged jets
         if(isInVector(bJetsId, iAllJet)) {
             m_histogram["bJet_pt"]->Fill(jet.Pt(), weight);
             m_histogram["bJet_eta"]->Fill(jet.Eta(), weight);
             m_histogram["bJet_btagDiscriminator"]->Fill(allJetsBtagDiscriminant.at(iAllJet), weight);
-            if(jetPartonFlavour.size()>0) m_histogram["bJet_partonFlavour"]->Fill(jetPartonFlavour.at(iAllJet), weight);
 
             // Checking dR between closest pair of reco b-jets
             for(size_t iJet2 = 0; iJet2<iJet; iJet2++) {
@@ -232,8 +229,8 @@ void AnalyzerDijet::fillHistos(const EventMetadata& eventMetadata,
     
     
     ///////////////////////////////////////////////////////////////////////////////////////////////// Filling histogram for ttH(bb) search
-    if(doTTHbbStudies_) {
-        fillTTHbbHistograms(recoObjects, commonGenObjects, topGenObjects, higgsGenObjects, kinematicReconstructionSolutions,
+    if(doTTHbbStudies_ && higgsGenObjects.valuesSet_) {
+        fillTTHbbHistograms(recoObjects, topGenObjects, higgsGenObjects, kinematicReconstructionSolutions,
                             recoObjectIndices, genObjectIndices, weight, m_histogram);
     }
 
@@ -243,7 +240,7 @@ void AnalyzerDijet::fillHistos(const EventMetadata& eventMetadata,
     }
 
     ///////////////////////////////////////////////////////////////////////// COMPARISON OF GEN MATCHING AND dR MATCHING
-    if(doHadronMatchingComparison_) {
+    if(doHadronMatchingComparison_ && higgsGenObjects.valuesSet_) {
         fillGenRecoMatchingComparisonHistos(topGenObjects, higgsGenObjects, bHadFlavour, bHadJetIndex, genAllJets, m_histogram, weight);
     }
 
@@ -460,8 +457,6 @@ void AnalyzerDijet::bookHistos(const TString& step, std::map<TString, TH1*>& m_h
     m_histogram[name] = store(new TH1D(prefix_+name+step, "Jet Eta;jet #eta{reco}"+label+";Jets",30,-2.6,2.6));
     name = "jet_btagDiscriminator";
     m_histogram[name] = store(new TH1D(prefix_+name+step, "Jet btagDiscriminator d;jet d{reco}"+label+";Jets",36,-0.1,1.1));
-    name = "jet_partonFlavour";
-    m_histogram[name] = store(new TH1D(prefix_+name+step, "Jet partonFlavour;jet flavour_{reco}^{parton}"+label+";Jets",20,-10,10));
 
     name = "bJet_multiplicity";
     m_histogram[name] = store(new TH1D(prefix_+name+step, "B-jet multiplicity;N b-jets_{reco}"+label+";Events",20,0,20));
@@ -472,8 +467,6 @@ void AnalyzerDijet::bookHistos(const TString& step, std::map<TString, TH1*>& m_h
     m_histogram[name] = store(new TH1D(prefix_+name+step, "B-jet Eta;bJet #eta{reco}"+label+";Jets",30,-2.6,2.6));
     name = "bJet_btagDiscriminator";
     m_histogram[name] = store(new TH1D(prefix_+name+step, "B-jet btagDiscriminator d;bJet d{reco}"+label+";Jets",36,-0.1,1.1));
-    name = "bJet_partonFlavour";
-    m_histogram[name] = store(new TH1D(prefix_+name+step, "B-jet partonFlavour;bJet flavour_{reco}^{parton}"+label+";Jets",20,-10,10));
     name = "bJet_dRmin";
     m_histogram[name] = store(new TH1D(prefix_+name+step, "B-jet dRmin;bJet dR_min{reco}"+label+";Events",50,0,3.5));
 
@@ -1062,11 +1055,10 @@ void AnalyzerDijet::fillPairHistos(std::map<TString, TH1*>& m_histogram, const T
 }
 
 
-void AnalyzerDijet::fillTTHbbHistograms(const RecoObjects& recoObjects, const CommonGenObjects&,
-                         const TopGenObjects& topGenObjects, const HiggsGenObjects&,
-                         const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
-                         const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
-                         const double& weight, std::map<TString, TH1*>& m_histogram)
+void AnalyzerDijet::fillTTHbbHistograms(const RecoObjects& recoObjects, const TopGenObjects& topGenObjects, const HiggsGenObjects&,
+                                        const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
+                                        const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
+                                        const double& weight, std::map<TString, TH1*>& m_histogram)
 {
     // Extracting input data to more comfortable variables
     const VLV& allJets = (recoObjects.valuesSet_) ? *recoObjects.jets_ : VLV();

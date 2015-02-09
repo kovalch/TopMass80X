@@ -80,7 +80,7 @@ namespace common{
                        Style_t fill = -1, Color_t fillColor = -1);
     
     /// Update Y axis of the pad to fit all histograms and graphs plotted on it
-    TH1* updatePadYAxisRange(TPad* pad, const double yMarginUp = 0.1, double yMarginDown = 0.);
+    TH1* updatePadYAxisRange(TPad* pad, double logY =false, const double yMarginUp =0.15, double yMarginDown =0.);
 
     /// Get the histogram representing the axis 
     TH1* getPadAxisHisto(const TPad* pad);
