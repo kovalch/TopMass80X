@@ -12,6 +12,10 @@
 #include "iostream"
 #include "iomanip"
 
+#include "../common/include/CommandLineParameters.h"
+#include "../common/include/plotterUtils.h"
+#include "../include/UsefulTools.h"
+
 const TString basedir = TString("Plots/");
 const TString baseOutDir = TString("correlationMatrix/");
 
@@ -76,7 +80,7 @@ TGraphAsymmErrors* getGraphFromFile(TString filename, TString variable)
 TH1* convertGraphToHisto(TH1 *histo , TGraphAsymmErrors* graph)
 {
     TH1 *htmp = dynamic_cast<TH1*>(histo->Clone("htmp"));
-    for (Int_t iter=0; iter<(Int_t)graph->GetN(); iter++)
+    for (Int_t iter=0; iter<(Int_t)histo->GetNbinsX(); iter++)
     {
         int bin = histo->FindBin(graph->GetX()[iter]);
         htmp->SetBinContent(bin, graph->GetY()[iter]);
@@ -165,6 +169,8 @@ const TH2D statCovValues(TString variable, TString channel)
     else if (variable.Contains("Mass"))     { variable_ = "Mass";}
     else if (variable.Contains("pT"))       { variable_ = "Pt";}
     else if (variable.Contains("Mult"))     { variable_ = "Mult";}
+    else if (variable.Contains("DPhi"))     { variable_ = "DPhi";}
+    else if (variable.Contains("DeltaPhi")) { variable_ = "Pt";}
 
     if (variable.Contains("HypLepton"))         { particle_ = "Leptons";}
     else if (variable.Contains("HypLeptonBjet")){ particle_ = "Leptons";}
@@ -222,6 +228,94 @@ const TH2D statCovValues(TString variable, TString channel)
     return newStatCov;
 }
 
+TH2D *matrixWithStyle(TH2D *matrix, TString variable = "" )
+{
+    
+    const int nbins = matrix->GetNbinsX();
+    TH2D *finalResult = new TH2D("matrix", "matrix", nbins, 0, nbins, nbins, 0, nbins);
+    for (int iterX = 1; iterX<nbins+1; iterX++)
+    {
+        for (int iterY = 1; iterY<nbins+1; iterY++)
+        {
+            finalResult->SetBinContent(iterX, iterY, matrix->GetBinContent(iterX, iterY));
+        }
+        double low = matrix->GetBinLowEdge(iterX);
+        double high = matrix->GetBinLowEdge(iterX+1);
+
+        char resultX[20] = "";
+        if(variable.Contains("DeltaPhi")){
+            std::sprintf(resultX, "#splitline{%.2f}{#splitline{...}{%.2f}}", low, high);
+        }
+        else if(variable.Contains("DPhi")){
+            std::sprintf(resultX, "#splitline{%.0f}{#splitline{...}{%.0f}}", 100.*low, 100.*high);
+        }
+        else if(variable.Contains("DeltaRapidity")){
+            std::sprintf(resultX, "#splitline{%.1f}{#splitline{...}{%.1f}}", low, high);
+        }
+        else if(variable.Contains("pT") || variable.Contains("Mass"))
+        {
+            std::sprintf(resultX, "#splitline{%.0f}{#splitline{...}{%.0f}}", low, high);
+        }
+        else{
+            std::sprintf(resultX, "#splitline{%.1f}{#splitline{...}{%.1f}}", low, high);
+        }
+        finalResult->GetXaxis()->SetBinLabel(iterX, resultX);
+
+        char resultY[20] = "";
+        if(variable.Contains("DeltaPhi"))
+        {
+            std::sprintf(resultY, "#splitline{%.2f}{#splitline{...}{%.2f}}", low, high);
+        }
+        else if (variable.Contains("Phi"))
+        {
+            std::sprintf(resultY, "%.2f ... %.2f", low, high);
+        }
+        else if (variable.Contains("DeltaRapidity"))
+        {
+            std::sprintf(resultY, "%.1f ... %.1f", low, high);
+        }
+        else if(variable.Contains("pT") || variable.Contains("Mass"))
+        {
+            std::sprintf(resultY, "%.0f ... %.0f", low, high);
+        }
+        else
+        {
+            std::sprintf(resultY, "%.1f ... %.1f", low, high);
+        }
+        finalResult->GetYaxis()->SetBinLabel(iterX, resultY);
+//         finalResult->GetXaxis()->SetBinLabel(iterX, resultY);
+    }
+    
+    finalResult->GetXaxis()->SetTitle(TString(matrix->GetXaxis()->GetTitle()).Append(variable.Contains("DPhi") ? " [%]" : ""));
+    finalResult->GetYaxis()->SetTitle(matrix->GetYaxis()->GetTitle());
+    
+    
+    return finalResult;
+}
+
+TString variableName (TString variable)
+{
+    TString variablename = "";
+    
+    if(variable.Contains("BJet"))             variablename += "b-Jet ";
+    else if(variable.Contains("BBBar"))       variablename += "b-Jet-pair ";
+    else if(variable.Contains("LeptonBjet"))  variablename += "Lepton-b-jet ";
+    else if(variable.Contains("Lepton"))      variablename += "Lepton ";
+    else if(variable.Contains("LLBar"))       variablename += "Lepton-pair ";
+    else if(variable.Contains("Top"))         variablename += "Top-quark ";
+    else if(variable.Contains("TTBar"))       variablename += "Top-quark-pair ";
+    
+    if(variable.Contains("DeltaRapidity"))    variablename = "Top-quark |y^{t}| - |y^{#bar{t}}|";
+    else if(variable.Contains("DPhi"))        variablename = "Lepton #Delta#phi";
+    else if(variable.Contains("Phi"))         variablename = "Top-quark #Delta#phi";
+    else if(variable.Contains("pT"))          variablename += "p_{T}";
+    else if(variable.Contains("Mass"))        variablename += "Mass";
+    else if(variable.Contains("Eta"))         variablename += "#eta";
+    else if(variable.Contains("Rapidity"))    variablename += "y";
+    
+    return variablename;
+}
+
 void fillMatrix(TString channel, TString variable, std::vector<TString> files, const TString outDir, const TH2D statCovariance)
 {
     std::vector<TH1*> vec_histos;
@@ -259,7 +353,7 @@ void fillMatrix(TString channel, TString variable, std::vector<TString> files, c
     for (Int_t iter=0; iter<=nbins; iter++){binRanges[iter] = vec_histos.at(0)->GetXaxis()->GetBinLowEdge(iter+1);};
     TH2D* correlationMatrix = new TH2D("matrix", "Correlation Matrix", nbins, binRanges, nbins, binRanges);
     correlationMatrix->SetDirectory(0);
-    correlationMatrix->SetTitle("Total (Stat.+Syst.) Correlation Matrix [%]");
+    correlationMatrix->SetTitle(variableName(variable)+TString("  Total Correlation Matrix [%]"));
     correlationMatrix->GetXaxis()->SetTitle(vec_histos.at(0)->GetXaxis()->GetTitle());
     correlationMatrix->GetYaxis()->SetTitle(vec_histos.at(0)->GetXaxis()->GetTitle());
     
@@ -287,43 +381,68 @@ void fillMatrix(TString channel, TString variable, std::vector<TString> files, c
         }
     }
     TH2D *finalMatrix = (TH2D*)correlationMatrix->Clone("finalMatrix");
-    TH2D *fakeMatrix = (TH2D*)correlationMatrix->Clone("fakeMatrix");
     // Normalize the covariance matrix
     for (Int_t iterx = 1; iterx<=1+correlationMatrix->GetNbinsX(); iterx++){
-        for (Int_t itery = 1; itery<=1+correlationMatrix->GetNbinsY(); itery++){
+        for (Int_t itery = iterx; itery<=1+correlationMatrix->GetNbinsY(); itery++){
             double value = correlationMatrix->GetBinContent(iterx, itery);
             double norm = std::sqrt(correlationMatrix->GetBinContent(iterx, iterx) * correlationMatrix->GetBinContent(itery, itery));
             if (norm==0) norm = 1;
-            fakeMatrix->SetBinContent(iterx, itery, 100);
             finalMatrix->SetBinContent(iterx, itery, 100*value/norm);
+            // The matrix is symmetric by construction therefore fill the symmetric elements
+            finalMatrix->SetBinContent(itery, iterx, 100*value/norm);
+
         }
     }
     vec_histos.clear();
 
+    common::setHHStyle(*gStyle);
+    gStyle->SetOptTitle(1);
+    
+    
+    TH2D *finalResult = matrixWithStyle(finalMatrix, variable);
+    finalResult->SetTitle(correlationMatrix->GetTitle());
+    finalResult->GetXaxis()->SetTitleOffset(correlationMatrix->GetXaxis()->GetTitleOffset());
+    finalResult->GetYaxis()->SetTitleOffset(correlationMatrix->GetYaxis()->GetTitleOffset());
+    finalResult->SetName("finalResult");
+    finalResult->GetXaxis()->LabelsOption("h");
+    finalResult->GetYaxis()->LabelsOption("h");
+    finalResult->GetXaxis()->SetTitleOffset(1.4);
+    finalResult->GetYaxis()->SetTitleOffset(2.0);
+    if(variable == "HypLLBarDPhi" || variable == "HypLeptonEta"){
+        finalResult->SetMarkerSize(0.75*finalResult->GetMarkerSize());
+    }
+
+    
     TCanvas *c = new TCanvas();
+    UsefulTools::DrawCMSLabels(1, 8);
     gStyle->SetPaintTextFormat("3.1f");
     gStyle->SetOptStat(0);
-    fakeMatrix->Draw("box");
-    finalMatrix->Draw("text,same");
+    finalResult->Draw("text");
+    c->SetGridx();
+    c->SetGridy();
     c->Print(outDir+variable+".eps");
-    c->Print(outDir+variable+".C");
+    c->Print(outDir+variable+".png");
 
     TFile out_root(outDir+variable+"_source.root", "RECREATE");
-    finalMatrix->Write("correlationMatrix_"+variable);
+    finalResult->Write("correlationMatrix_"+variable);
     c->Write("correlationMatrix_"+variable+ "_canvas");
     out_root.Close();
-
+    
     c->Clear();
 
-    delete c;
-    delete correlationMatrix;
-    delete finalMatrix;
+    if (c) delete c;
+    if (correlationMatrix) delete correlationMatrix;
+    if (finalMatrix) delete finalMatrix;
+    if (finalResult) delete finalResult;
 }
 
 
 
-int main()
-{
+int main(int argc, char** argv) {
+    CLParameter<std::string> opt_v("v", "Return the typical error for certain variable, e.g. 'HypToppTLead', 'HypLLBarMass', ...", false, 1, 1);
+    CLParameter<std::string> opt_c("c", "Return the typical systematic uncertainty for an specific channel (ee, emu, mumu, combined). No channel specified = run on all channels", false, 1, 1,
+            [](const std::string &ch){return ch == "" || ch == "ee" || ch == "emu" || ch == "mumu" || ch == "combined";});
+    CLAnalyser::interpretGlobal(argc, argv);
     
     // Details about how to estimate the full correlatio matrices are provided in:
     // https://indico.desy.de/getFile.py/access?contribId=0&resId=0&materialId=slides&confId=8972   (passw: bottom)
@@ -341,22 +460,36 @@ int main()
 
     const std::vector<TString> variables = {"HypLeptonpT", //"HypLeptonpTLead","HypLeptonpTNLead",
                                             "HypLeptonEta",//"HypLeptonEtaLead","HypLeptonEtaNLead",
-                                            "HypLLBarpT","HypLLBarMass",//"HypLLBarDPhi",
+                                            "HypLLBarpT", "HypLLBarMass",//"HypLLBarDPhi",
                                             "HypBJetpT",//"HypBJetpTLead","HypBJetpTNLead",
                                             "HypBJetEta",//"HypBJetEtaLead","HypBJetEtaNLead",
-                                            "HypTopRapidity","HypTopRapidityLead","HypTopRapidityNLead",
-                                            "HypToppT","HypToppTLead","HypToppTNLead",
-                                            "HypTTBarRapidity","HypTTBarpT","HypTTBarMass","HypTTBarDeltaPhi","HypTTBarDeltaRapidity",
-                                            "HypToppTTTRestFrame",
+                                            "HypBBBarpT","HypBBBarMass",
+                                            "HypTopRapidity", "HypTopRapidityLead", "HypTopRapidityNLead",
+                                            "HypToppT", "HypToppTLead", "HypToppTNLead", "HypToppTTTRestFrame",
+                                            "HypTTBarDeltaPhi", "HypTTBarDeltaRapidity",
+                                            "HypTTBarRapidity", "HypTTBarpT", "HypTTBarMass",
                                             "HypLeptonBjetMass",
-                                            "HypBBBarpT","HypBBBarMass"};
+                                            //"HypLLBarDPhi",
+                                            };
     
-    for(auto chan: channels){
+    std::vector<TString> ValidVariable, ValidChannel;
+    if ( opt_v.isSet() ) {
+        ValidVariable.push_back(opt_v[0]);
+    } else {
+        ValidVariable = variables;
+    };
+    if ( opt_c.isSet() ) {
+        ValidChannel.push_back(opt_c[0]);
+    } else {
+        ValidChannel = channels;
+    }
+    
+    for(auto chan : ValidChannel){
         std::vector<TString> files = createVecFiles(chan, systematics);
         TString outdir = baseOutDir.Copy().Append(chan+"/");
         gSystem->mkdir(outdir, kTRUE);
-        for(auto variable: variables){
-            fillMatrix(chan, variable, files, outdir, statCovValues(variable, chan));
+        for(auto variable : ValidVariable){
+             fillMatrix(chan, variable, files, outdir, statCovValues(variable, chan));
         };
     };
 
