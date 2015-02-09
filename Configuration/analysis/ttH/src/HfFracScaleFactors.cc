@@ -48,7 +48,6 @@ scaleFactorsUsable_(true)
     // Combine samples by assigning the same id
     sampleTypeIds_[Sample::ttbb] = 1;
     sampleTypeIds_[Sample::ttb] = 1;
-    sampleTypeIds_[Sample::tt2b] = 1;
     sampleTypeIds_[Sample::ttcc] = 2;
     sampleTypeIds_[Sample::ttother] = 2;
     sampleTypeIds_[Sample::ttNoDilepton] = 2;
@@ -57,25 +56,19 @@ scaleFactorsUsable_(true)
     
     // Setting names to each template
     templateNames_.push_back("data_obs");
-    templateNames_.push_back("tthf");
-//     templateNames_.push_back("tt2b");
-//     templateNames_.push_back("ttcc");
+    templateNames_.push_back("ttHF");
     templateNames_.push_back("ttOther");
-    templateNames_.push_back("bkg");
+    templateNames_.push_back("bkg_fixed");
 
     // Setting variation limit for each template
     templateScaleLimits_.push_back(1.);	  // Doesn't mean anything
     templateScaleLimits_.push_back(100.);
-//     templateScaleLimits_.push_back(100.);
-//     templateScaleLimits_.push_back(100.);
     templateScaleLimits_.push_back(100.);
-    templateScaleLimits_.push_back(1.1);
+    templateScaleLimits_.push_back(1.);
     
     // Initial scale factors for each template (to check dependence on starting parameters)
     templateInitialScaleFactors_.push_back(1.);
     templateInitialScaleFactors_.push_back(1.);
-//     templateInitialScaleFactors_.push_back(1.);
-//     templateInitialScaleFactors_.push_back(1.);
     templateInitialScaleFactors_.push_back(1.);
     templateInitialScaleFactors_.push_back(1.);
     
@@ -84,12 +77,11 @@ scaleFactorsUsable_(true)
     sampleTypePrescale_[Sample::ttcc] = 1.;
     
     // Setting up systematics to be used for each template
-    templateSystematics_["tthf"] = std::vector<Systematic::Type>(0);
-    templateSystematics_.at("tthf").push_back(Systematic::jes);
-    templateSystematics_.at("tthf").push_back(Systematic::btagDiscrPurity);
-    templateSystematics_.at("tthf").push_back(Systematic::btagDiscrBstat1);
-    templateSystematics_.at("tthf").push_back(Systematic::btagDiscrBstat2);
-    templateSystematics_.at("tthf").push_back(Systematic::xsec_tt2b);
+    templateSystematics_["ttHF"] = std::vector<Systematic::Type>(0);
+    templateSystematics_.at("ttHF").push_back(Systematic::jes);
+    templateSystematics_.at("ttHF").push_back(Systematic::btagDiscrPurity);
+    templateSystematics_.at("ttHF").push_back(Systematic::btagDiscrBstat1);
+    templateSystematics_.at("ttHF").push_back(Systematic::btagDiscrBstat2);
     
     templateSystematics_["ttOther"] = std::vector<Systematic::Type>(0);
     templateSystematics_.at("ttOther").push_back(Systematic::jes);
@@ -99,6 +91,9 @@ scaleFactorsUsable_(true)
     templateSystematics_.at("ttOther").push_back(Systematic::btagDiscrLstat1);
     templateSystematics_.at("ttOther").push_back(Systematic::btagDiscrLstat2);
     templateSystematics_.at("ttOther").push_back(Systematic::xsec_ttcc);
+    
+    templateSystematics_["bkg_fixed"] = std::vector<Systematic::Type>(0);
+    templateSystematics_.at("bkg_fixed").push_back(Systematic::xsec_tt2b);
     
     // FIXME: Check that there are no gaps in the list of ids
     
@@ -404,7 +399,7 @@ int HfFracScaleFactors::applyScaleFactor(double& weight,
     
     // Determining whether uncertainty on the scale factor should be included for the current systematic
     double uncertaintyFactor = 0.;
-    if( (systematic.type() == Systematic::frac_tthf && templateNames_.at(sampleTypeIds_.at(sampleType)) == "tthf") || 
+    if( (systematic.type() == Systematic::frac_tthf && templateNames_.at(sampleTypeIds_.at(sampleType)) == "ttHF") || 
         (systematic.type() == Systematic::frac_ttother && templateNames_.at(sampleTypeIds_.at(sampleType)) == "ttOther")
     ) uncertaintyFactor = 1.;
     // Determining in which direction central value should be varied
@@ -596,23 +591,6 @@ int HfFracScaleFactors::storeSystematicTemplateVariations(const TH1* histo_syste
         templateVariationNameId_[dataCardName] = templateId;
     }
     
-//     const int nBins = histo_original->GetNbinsX();
-//     for(int binId = 1; binId <= nBins; ++binId) {
-//         const float contentSystematic = std::max(histo_systematic->GetBinContent(binId), 1e-30);
-//         char histoName[150];
-//         char dataCardName[150];
-//         sprintf(histoName, "%s_%s_bin%d%s", name.Data(), systematicName.Data(), binId, dirStr.Data());
-//         sprintf(dataCardName, "%s_bin%d", systematicName.Data(), binId);
-//         TH1* histoVar = (TH1*)histo_original->Clone();
-//         histoVar->SetBinContent(binId, contentSystematic);
-//         histoVar->Write(histoName, TObject::kOverwrite);
-//         nHistosStored++;
-//         if(templateVariationNameId_.count(dataCardName) > 0) continue;
-//         // Adding to the datacard only once (for UP variations)
-//         if(systematic.variation() != Systematic::Variation::up) continue;
-//         templateVariationNameId_[dataCardName] = templateId;
-//     }
-    
     return nHistosStored;
 }
 
@@ -648,8 +626,6 @@ void HfFracScaleFactors::plotInputTemplates(const TString rootFileName)const
         m_nameHisto[name] = histo;
     }
     
-    float yMin = 1e10;
-    float yMax = 1e-10;
     // Creating the graph with asymmetric errors for each sample
     int templateId = 0;
     for(TString name : templateNames_) {
@@ -676,7 +652,6 @@ void HfFracScaleFactors::plotInputTemplates(const TString rootFileName)const
         }
         // Updating errors of the graph with systematic uncertainties
         for(int iBin = 0; iBin<nBins; ++iBin) {
-            float value = histoOriginal->GetBinContent(iBin+1);
             float e_stat = histoOriginal->GetBinError(iBin+1);
             float e_systSq_up = deviationsSquaredUp.at(iBin);
             float e_systSq_down = deviationsSquaredDown.at(iBin);
@@ -684,20 +659,11 @@ void HfFracScaleFactors::plotInputTemplates(const TString rootFileName)const
             float e_total_down = sqrt(e_stat*e_stat + e_systSq_down);
             graph_statSyst->SetPointEYhigh(iBin, e_total_up);
             graph_statSyst->SetPointEYlow(iBin, e_total_down);
-            // Updating Y axis limits
-            if(value+e_total_up > yMax) yMax = value+e_total_up;
-            if(value-e_total_down < yMin) yMin = value-e_total_down;
         }
-        graph_stat->SetLineColor(colors.at(templateId));
-        graph_stat->SetLineStyle(1);
-        graph_stat->SetMarkerColor(colors.at(templateId));
-        graph_stat->SetMarkerStyle(20+templateId);
+        common::setGraphStyle(graph_stat, 1, colors.at(templateId), -1, 20+templateId, colors.at(templateId), 1.5);
         m_nameGraph_stat[name] = graph_stat;
         
-        graph_statSyst->SetLineColor(colors.at(templateId));
-        graph_statSyst->SetLineStyle(2);
-        graph_statSyst->SetMarkerColor(colors.at(templateId));
-        graph_statSyst->SetMarkerStyle(20+templateId);
+        common::setGraphStyle(graph_statSyst, 2, colors.at(templateId), -1, 20+templateId, colors.at(templateId), 1.5);
         m_nameGraph_statSyst[name] = graph_statSyst;
         
         templateId++;
@@ -724,25 +690,26 @@ void HfFracScaleFactors::plotInputTemplates(const TString rootFileName)const
     common::normalize(g_data);
     g_data->Draw("AP");
     legend->AddEntry(g_data, templateNames_.at(0), "pl");
-    double normScale_min = 1e30;
     for(TString name : templateNames_) {
         if(name == templateNames_.at(0)) continue;
         TGraph* graph_stat = m_nameGraph_stat.at(name);
         TGraph* graph_statSyst = m_nameGraph_statSyst.at(name);
         common::normalize(graph_statSyst);
-        double normScale = common::normalize(graph_stat);
-        if(normScale < normScale_min) normScale_min = normScale;
+        common::normalize(graph_stat);
         graph_statSyst->Draw("P");
         graph_stat->Draw("P");
         legend->AddEntry(graph_stat, name, "pl");
     }
     legend->Draw();
     
-    yMax *= normScale_min;
-    yMin *= normScale_min;
+    g_data->GetXaxis()->SetTitle("# b-tagged jets");
+    g_data->GetYaxis()->SetTitle("Normalised events");
+    g_data->GetXaxis()->SetTitleOffset(1.2);
+    g_data->GetYaxis()->SetTitleOffset(1.2);
     
+    common::updatePadYAxisRange(canvas);
     canvas->Print(outputFileName+"_templates.eps");
-    canvas->SetLogy();
+    common::updatePadYAxisRange(canvas, true);
     canvas->Print(outputFileName+"_templates_log.eps");
     
     canvas->Clear();
