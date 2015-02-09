@@ -125,8 +125,7 @@ private:
                                const double& weight, std::map<TString, TH1*>& m_histogram);
     
     /// Fill histograms regarding the dijet mass of the Higgs in ttH(bb)
-    void fillTTHbbHistograms(const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
-                             const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
+    void fillTTHbbHistograms(const RecoObjects& recoObjects, const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
                              const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
                              const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
                              const double& weight, std::map<TString, TH1*>& m_histogram);
