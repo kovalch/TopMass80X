@@ -385,6 +385,9 @@ void AnalyzerHfFracScaling::bookHistos(const TString& step, std::map<TString, TH
     name = "secondaryVertex_massMcCorrectedPerBjet";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Sum of SV masses in each b-tagged jet; SV masses sum; # b-tagged jets",20,0.,10.));
     m_histogram[name]->Sumw2();
+    name = "probeJet_btagDiscriminator";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "b-tag discriminant of the probe jet; d (probe jet); events",60,-0.1,1.1));
+    m_histogram[name]->Sumw2();
 }
 
 
@@ -399,9 +402,9 @@ void AnalyzerHfFracScaling::fillHistos(const EventMetadata&,
                                        std::map<TString, TH1*>& m_histogram)
 {
     const std::vector<int>& bJetIndices = recoObjectIndices.bjetIndices_;
-    // Merging all bins above 4 into a single bin (low statistics)
+    // Filling the number of b-tagged jets
     int nBJets = recoObjectIndices.bjetIndices_.size();
-    m_histogram.at("btag_multiplicity")->Fill(nBJets, weight);
+    m_histogram.at("btag_multiplicity")->Fill(nBJets, weight);    
     
     // Checking whether the sample is data or MC 
     double svMass_scale = commonGenObjects.valuesSet_ ? 0.98 : 1.0;
@@ -422,6 +425,16 @@ void AnalyzerHfFracScaling::fillHistos(const EventMetadata&,
         m_histogram.at("secondaryVertex_massPerBjet")->Fill(massSV_bjet, weight);
         m_histogram.at("secondaryVertex_massMcCorrectedPerBjet")->Fill(massSV_bjet*svMass_scale, weight);
     }
+    
+    // Plotting the discriminant value for the probe jet (cross-check by the tag-and-probe method)
+    std::vector<int> jetIndices(recoObjectIndices.jetIndices_);
+    if(jetIndices.size()==4 && bJetIndices.size()>=3) {
+        const std::vector<double>& allJetsBtagDiscriminant = (recoObjects.valuesSet_) ? *recoObjects.jetBTagCSV_ : std::vector<double>(0);
+        common::orderIndices(jetIndices, allJetsBtagDiscriminant);
+        // The last jet (smallest discriminant value) is the probe jet
+        m_histogram.at("probeJet_btagDiscriminator")->Fill(allJetsBtagDiscriminant.at(jetIndices.at(3)), weight);
+    }
+
 }
 
 
