@@ -878,17 +878,17 @@ void common::setGraphStyle( TGraph* graph, Style_t line, Color_t lineColor, Size
 }
 
 
-TH1* common::updatePadYAxisRange(TPad* pad, const double yMarginUp, double yMarginDown)
+TH1* common::updatePadYAxisRange(TPad* pad, double logY, const double yMarginUp, double yMarginDown)
 {   
     TH1* axisHisto = getPadAxisHisto(pad);
-    double yMax_global = -1e30;
-    double yMin_global = 1e30;
+    double yMax_global = -1e10;
+    double yMin_global = 1e10;
     
     // Checking all histograms/graphs plotted on the pad
     TList* padList = pad->GetListOfPrimitives();
     for(int objId = 0; objId < padList->GetEntries(); ++objId) {
-        double yMax = 0.;
-        double yMin = 0.;
+        double yMax = -1e30;
+        double yMin = 1e30;
         TObject* obj = padList->At(objId);
         // Getting maximum bin content of the histogram
         if(obj->InheritsFrom("TH1")) {
@@ -896,33 +896,40 @@ TH1* common::updatePadYAxisRange(TPad* pad, const double yMarginUp, double yMarg
             for(int bin=1; bin<=hobj->GetNbinsX(); ++bin) {
                 yMax = std::max(hobj->GetBinContent(bin) + hobj->GetBinError(bin), yMax);
                 yMin = std::min(hobj->GetBinContent(bin) - hobj->GetBinError(bin), yMin);
+                
+                if(yMax >= 0. && yMax > yMax_global) yMax_global = yMax;
+                if(yMin > 0. && yMin < yMin_global) yMin_global = yMin;
             }
         }
         // Getting maximum point content of the graph
         if(obj->InheritsFrom("TGraph")) {
-            yMax = ((TGraph*)obj)->GetMaximum();
-            yMin = ((TGraph*)obj)->GetMinimum();
+            TGraph* gobj = (TGraph*)obj;
+            for(int bin=0; bin<gobj->GetN(); ++bin) {
+                double x,y;
+                gobj->GetPoint(bin, x,y);
+                yMax = std::max(y, yMax);
+                yMin = std::min(y, yMin);
+                
+                if(yMax >= 0. && yMax > yMax_global) yMax_global = yMax;
+                if(yMin > 0. && yMin < yMin_global) yMin_global = yMin;
+            }
         }
-        if(yMax > 0. && yMax > yMax_global) yMax_global = yMax;
-        if(yMin > 0. && yMin < yMin_global) yMin_global = yMin;
     }
-
-    // Determining whether the pad has logarithmic scale to adjust margins
-    const int isLog(pad->GetLogy());
 
     // Updating the Y axis range
-    if(yMax_global != -1e30) {
-        if(isLog) yMax_global *= yMarginUp*30.;
+    if(yMax_global != -1e10) {
+        if(logY) yMax_global *= (1+yMarginUp)*2e1;
         else yMax_global *= yMarginUp + 1.;
-        axisHisto->SetMaximum(yMax_global);
     }
-    if(yMin_global != 1e30 && (yMarginDown != 0. || isLog)) {
-        if(!yMarginDown) yMarginDown = 0.1;
-        if(isLog) yMin_global /= yMarginDown*30.;
-        else yMin_global *= 0.;
-        axisHisto->SetMinimum(yMin_global);
-    }
-    // Setting minimum value to zero
+    if(yMarginDown != 0. || logY) {
+        if(yMarginDown != 0.) yMin_global /= yMarginDown;
+        if(logY) yMin_global /= 2e1;
+    } else yMin_global = 0.;
+    // Aplying the defined range to the Y axis
+    axisHisto->GetYaxis()->SetRangeUser(yMin_global, yMax_global);
+
+    // Setting logarithmic scale if needed
+    if(logY) pad->SetLogy(true);
     
     // Redrawing the axis of the pad
     pad->RedrawAxis();
@@ -939,6 +946,7 @@ TH1* common::getPadAxisHisto(const TPad* pad)
         TObject* obj = padList->At(objId);
         // Returning the first histogram plotted to the pad
         if(obj->InheritsFrom("TH1")) return (TH1*)obj;
+        if(obj->InheritsFrom("TGraph")) return ((TGraph*)obj)->GetHistogram();
     }
 
     std::cerr << "ERROR: Couldn't get a histogram representing axis. Stopping..." << std::endl;
