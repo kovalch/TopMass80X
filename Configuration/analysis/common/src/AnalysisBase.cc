@@ -913,33 +913,36 @@ void AnalysisBase::GetRecoBranchesEntry(const Long64_t& entry)const
     //b_jetBTagJetBProbability->GetEntry(entry);
     b_jetBTagCSV->GetEntry(entry);
     //b_jetBTagCSVMVA->GetEntry(entry);
-    if(b_jetChargeGlobalPtWeighted) b_jetChargeGlobalPtWeighted->GetEntry(entry);
-    if(b_jetChargeRelativePtWeighted) b_jetChargeRelativePtWeighted->GetEntry(entry);
-//     if(b_jetPfCandidateTrack) b_jetPfCandidateTrack->GetEntry(entry);
-//     if(b_jetPfCandidateTrackCharge) b_jetPfCandidateTrackCharge->GetEntry(entry);
-//     if(b_jetPfCandidateTrackId) b_jetPfCandidateTrackId->GetEntry(entry);
-//     if(b_jetPfCandidateTrackIndex) b_jetPfCandidateTrackIndex->GetEntry(entry);
-//     if(b_jetSelectedTrack) b_jetSelectedTrack->GetEntry(entry);
-//     if(b_jetSelectedTrackMatchToPfCandidateIndex) b_jetSelectedTrackMatchToPfCandidateIndex->GetEntry(entry);
-//     if(b_jetSelectedTrackIPValue) b_jetSelectedTrackIPValue->GetEntry(entry);
-//     if(b_jetSelectedTrackIPSignificance) b_jetSelectedTrackIPSignificance->GetEntry(entry);
-//     if(b_jetSelectedTrackCharge) b_jetSelectedTrackCharge->GetEntry(entry);
-//     if(b_jetSelectedTrackIndex) b_jetSelectedTrackIndex->GetEntry(entry);
-//     if(b_jetSecondaryVertex) b_jetSecondaryVertex->GetEntry(entry);
-//     if(b_jetSecondaryVertexPtCorrectedMass) b_jetSecondaryVertexPtCorrectedMass->GetEntry(entry);
-//     if(b_jetSecondaryVertexJetIndex) b_jetSecondaryVertexJetIndex->GetEntry(entry);
-//     if(b_jetSecondaryVertexFlightDistanceValue) b_jetSecondaryVertexFlightDistanceValue->GetEntry(entry);
-//     if(b_jetSecondaryVertexFlightDistanceSignificance) b_jetSecondaryVertexFlightDistanceSignificance->GetEntry(entry);
-//     if(b_jetSecondaryVertexTrackVertexIndex) b_jetSecondaryVertexTrackVertexIndex->GetEntry(entry);
-//     if(b_jetSecondaryVertexTrackMatchToSelectedTrackIndex) b_jetSecondaryVertexTrackMatchToSelectedTrackIndex->GetEntry(entry);
-//     if(b_jetPfCandidatePrimaryVertexId) b_jetPfCandidatePrimaryVertexId->GetEntry(entry);
     b_met->GetEntry(entry);
     b_vertMulti->GetEntry(entry);
+    // Reading of jetProperty branches can be switched off(on) by (un)commenting this line, but jetChargeRelativePtWeighted needs to exist always for ttH workflow
+    this->GetJetPropertiesBranchesEntry(entry);
+    if(b_jetChargeRelativePtWeighted) b_jetChargeRelativePtWeighted->GetEntry(entry);
+}
 
-    // Concerning event
-    b_runNumber->GetEntry(entry);
-    b_lumiBlock->GetEntry(entry);
-    b_eventNumber->GetEntry(entry);
+
+
+void AnalysisBase::GetJetPropertiesBranchesEntry(const Long64_t& entry)const
+{
+    if(b_jetChargeGlobalPtWeighted) b_jetChargeGlobalPtWeighted->GetEntry(entry);
+    if(b_jetPfCandidateTrack) b_jetPfCandidateTrack->GetEntry(entry);
+    if(b_jetPfCandidateTrackCharge) b_jetPfCandidateTrackCharge->GetEntry(entry);
+    if(b_jetPfCandidateTrackId) b_jetPfCandidateTrackId->GetEntry(entry);
+    if(b_jetPfCandidateTrackIndex) b_jetPfCandidateTrackIndex->GetEntry(entry);
+    if(b_jetSelectedTrack) b_jetSelectedTrack->GetEntry(entry);
+    if(b_jetSelectedTrackMatchToPfCandidateIndex) b_jetSelectedTrackMatchToPfCandidateIndex->GetEntry(entry);
+    if(b_jetSelectedTrackIPValue) b_jetSelectedTrackIPValue->GetEntry(entry);
+    if(b_jetSelectedTrackIPSignificance) b_jetSelectedTrackIPSignificance->GetEntry(entry);
+    if(b_jetSelectedTrackCharge) b_jetSelectedTrackCharge->GetEntry(entry);
+    if(b_jetSelectedTrackIndex) b_jetSelectedTrackIndex->GetEntry(entry);
+    if(b_jetSecondaryVertex) b_jetSecondaryVertex->GetEntry(entry);
+    if(b_jetSecondaryVertexPtCorrectedMass) b_jetSecondaryVertexPtCorrectedMass->GetEntry(entry);
+    if(b_jetSecondaryVertexJetIndex) b_jetSecondaryVertexJetIndex->GetEntry(entry);
+    if(b_jetSecondaryVertexFlightDistanceValue) b_jetSecondaryVertexFlightDistanceValue->GetEntry(entry);
+    if(b_jetSecondaryVertexFlightDistanceSignificance) b_jetSecondaryVertexFlightDistanceSignificance->GetEntry(entry);
+    if(b_jetSecondaryVertexTrackVertexIndex) b_jetSecondaryVertexTrackVertexIndex->GetEntry(entry);
+    if(b_jetSecondaryVertexTrackMatchToSelectedTrackIndex) b_jetSecondaryVertexTrackMatchToSelectedTrackIndex->GetEntry(entry);
+    if(b_jetPfCandidatePrimaryVertexId) b_jetPfCandidatePrimaryVertexId->GetEntry(entry);
 }
 
 

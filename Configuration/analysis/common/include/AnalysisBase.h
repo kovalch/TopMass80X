@@ -384,6 +384,9 @@ private:
     /// Access event entry for nTuple branches relevant for reconstruction level
     void GetRecoBranchesEntry(const Long64_t& entry)const;
     
+    /// Access event entry for nTuple branches holding jet properties (for simple in-/ex-clusion in GetRecoBranchesEntry)
+    void GetJetPropertiesBranchesEntry(const Long64_t& entry)const;
+    
     /// Access event entry for nTuple branches holding generator information for all MC samples
     void GetCommonGenBranchesEntry(const Long64_t& entry)const;
     
