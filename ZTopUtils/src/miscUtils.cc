@@ -265,26 +265,26 @@ void addRelError(TH1D &h, double err) {
 }
 
 void displayStatusBar(Long64_t event, Long64_t nEvents, int ndiv) {
-
-	if ((event + 1) * ndiv % nEvents < ndiv) {
+	if (event == 0) {
+		std::cout << "[                                                  ] "
+				<< "0% \n";
+		flush(std::cout);
+	}
+	else if ((event + 1) * ndiv % nEvents < ndiv) {
 		int statusbar = (event + 1) * ndiv / nEvents;
 
-		std::cout << "[";
+		std::cout << "\x1b[A\r[";
 		for (int i = 0; i < statusbar * 50 / ndiv; i++) {
 			std::cout << "=";
 		}
 		for (int i = statusbar * 50 / ndiv; i < 50; i++) {
 			std::cout << " ";
 		}
-		std::cout << "] " << statusbar * 100 / ndiv << "%   \r";
+		std::cout << "] " << statusbar * 100 / ndiv << "% \n";
 		flush(std::cout);
 		statusbar++;
 	}
-	if (event == 0) {
-		std::cout << "[                                                  ] "
-				<< "0%   \r";
-		flush(std::cout);
-	}
+
 
 }
 
@@ -302,7 +302,7 @@ TH2D divideTH2DBinomial(TH2D &h1, TH2D &h2) { //! out = h1 / h2
 			double err = 1;
 			if (h2.GetBinContent(binx, biny) != 0) {
 				cont = h1.GetBinContent(binx, biny)
-                                                                                                                        																/ h2.GetBinContent(binx, biny);
+                                                                                                                        																		/ h2.GetBinContent(binx, biny);
 				err = sqrt(cont * (1 - cont) / h1.GetBinContent(binx, biny));
 			}
 			out.SetBinContent(binx, biny, cont);
@@ -326,7 +326,7 @@ TH2D divideTH2D(TH2D &h1, TH2D &h2) {
 			double err = 1;
 			if (h2.GetBinContent(binx, biny) != 0) {
 				cont = h1.GetBinContent(binx, biny)
-                                                                                                                        																/ h2.GetBinContent(binx, biny);
+                                                                                                                        																		/ h2.GetBinContent(binx, biny);
 				err = sqrt(
 						pow(
 								h1.GetBinError(binx, biny)
