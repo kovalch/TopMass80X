@@ -27,6 +27,7 @@
 #include "AnalyzerControlPlots.h"
 #include "AnalyzerJetMatch.h"
 #include "AnalyzerJetCharge.h"
+#include "AnalyzerJetProperties.h"
 #include "AnalyzerPlayground.h"
 #include "AnalyzerEventWeight.h"
 #include "AnalyzerGenEvent.h"
@@ -230,6 +231,13 @@ void load_Analysis(const TString& validFilenamePattern,
     if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::charge) != v_analysisMode.end()){
         analyzerJetCharge = new AnalyzerJetCharge({"7"});
         v_analyzer.push_back(analyzerJetCharge);
+    }
+    
+    // Set up jet properties analyzer
+    AnalyzerJetProperties* analyzerJetProperties(0);
+    if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::jetProp) != v_analysisMode.end()){
+        analyzerJetProperties = new AnalyzerJetProperties({"3", "4", "5", "6", "7"}, {"7"}, jetCategories);
+        v_analyzer.push_back(analyzerJetProperties);
     }
     
     // Set up jet match analyzer
@@ -611,7 +619,8 @@ int main(int argc, char** argv)
     CLParameter<int> opt_jetCategoriesId("j", "ID for jet categories (# jets, # b-jets). If not specified, use default categories (=0)", false, 1, 1,
             [](int id){return id>=0 && id<=5;});
     CLParameter<std::string> opt_mode("m", "Mode of analysis: control plots (cp), "
-                                           "dijet analyser (dijet), jet charge analyser (charge), jet match analyser (match), playground (playg), "
+                                           "dijet analyser (dijet), jet charge analyser (charge), jet match analyser (match), jet proerties analyser (jetProp), "
+                                           "playground (playg), "
                                            "event weight analyser (weight), gen event analyser(genEvent), "
                                            "kinematic reconstruction analyser(kinReco), "
                                            "Produce MVA input or Apply MVA weights for top jets (mvaTopP/mvaTopA), "

@@ -35,6 +35,7 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   AnalyzerGenEvent
   AnalyzerJetCharge
   AnalyzerJetMatch
+  AnalyzerJetProperties
   AnalyzerKinematicReconstruction
   AnalyzerMvaTopJets
   AnalyzerPlayground
