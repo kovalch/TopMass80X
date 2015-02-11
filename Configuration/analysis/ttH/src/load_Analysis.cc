@@ -193,7 +193,13 @@ void load_Analysis(const TString& validFilenamePattern,
         exit(832);
     }
     
-        // Vector for setting up all analysers
+    
+    // Bools to define for which analysers and tree handlers genObjects are needed in first step
+    bool genStudiesTtbb(false);
+    bool genStudiesTth(false);
+    
+    
+    // Vector for setting up all analysers
     std::vector<AnalyzerBase*> v_analyzer;
     
     // Set up event yield histograms
@@ -244,8 +250,9 @@ void load_Analysis(const TString& validFilenamePattern,
     // Set up DijetAnalyzer
     AnalyzerDijet* analyzerDijet(0);
     if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::dijet) != v_analysisMode.end()){
-        analyzerDijet = new AnalyzerDijet(Mva2dWeightsFILE, "correct_step7_cate0_cate1_cate2_d144", "", {}, {"7"}, jetCategories, false, true);
+        analyzerDijet = new AnalyzerDijet(Mva2dWeightsFILE, "correct_step7_cate0_cate1_cate2_d144", "", {"0b"}, {"7"}, jetCategories, false, true);
         v_analyzer.push_back(analyzerDijet);
+        genStudiesTtbb = true;
     }
     
     // Set up event weight analyzer
@@ -305,6 +312,7 @@ void load_Analysis(const TString& validFilenamePattern,
     selector->SetJetEnergyResolutionScaleFactors(jetEnergyResolutionScaleFactors);
     selector->SetJetEnergyScaleScaleFactors(jetEnergyScaleScaleFactors);
     selector->SetTopPtScaleFactors(topPtScaleFactors);
+    selector->SetGenStudies(genStudiesTtbb, genStudiesTth);
     selector->SetAllAnalyzers(v_analyzer);
     selector->SetAllTreeHandlers(v_mvaTreeHandler);
     

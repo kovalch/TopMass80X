@@ -667,7 +667,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     // select events on generator level and access true level weights
 
     // Separate DY dilepton decays in lepton flavours
-    if(this->failsDrellYanGeneratorSelection(entry)) return kTRUE;
+    if(this->failsDrellYanGeneratorSelection(this->zDecayModes(entry))) return kTRUE;
 
     // Separate dileptonic ttbar decays via tau
     if(this->failsTopGeneratorSelection(entry)) return kTRUE;
@@ -906,7 +906,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     const bool hasBtag = numberOfBjets > 0;
     
     // Get MET, and in case of MVA MET apply recoil correction for Drell-Yan sample
-    this->correctMvaMet(dilepton, numberOfJets, entry);
+    this->correctMvaMet(leptonIndex, antiLeptonIndex, allLeptons, numberOfJets, entry);
     const LV& met = *recoObjects.met_;
     const bool hasMetOrEmu = this->channel()==Channel::emu || met.Pt()>MetCUT;
     

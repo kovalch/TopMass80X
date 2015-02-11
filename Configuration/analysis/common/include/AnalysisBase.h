@@ -186,7 +186,7 @@ protected:
     double btagCutValue()const;
     
     /// Select events from Drell-Yan samples which need to be removed due to generator selection
-    bool failsDrellYanGeneratorSelection(const Long64_t& entry)const;
+    bool failsDrellYanGeneratorSelection(const std::vector<int>& v_zDecayMode)const;
 
     /// Set usage of MVA MET instead of PF MET
     void mvaMet();
@@ -248,7 +248,8 @@ protected:
 // ----------------------- Protected methods for application of corrections (e.g. scale factors) NOT stored in the ntuple -----------------------
     
     ///  Recoil Correction of the MVA MET
-    void correctMvaMet(const LV& dilepton, const int nJet, const Long64_t& entry)const;
+    void correctMvaMet(const int leptonIndex, const int antiLeptonIndex, const VLV& allLeptons,
+                       const int nJet, const Long64_t& entry)const;
 
     /// Get weight due to top-pt reweighting
     double weightTopPtReweighting(const Long64_t& entry)const;
@@ -322,6 +323,9 @@ protected:
     /// Access identifier key of Higgs decay mode
     int higgsDecayMode(const Long64_t& entry)const;
     
+    /// Access identifier key of Higgs decay mode
+    std::vector<int> zDecayModes(const Long64_t& entry)const;
+    
     /// Access identifier key of additional jet flavours for ttjets events
     int additionalJetFlavourId(const Long64_t& entry)const;
     
@@ -360,6 +364,9 @@ protected:
     
     /// Whether it is the ttbarsignalplustau sample (the part of ttbar which contains generator information about the ttbar system)
     const bool& isTtbarPlusTauSample()const{return isTtbarPlusTauSample_;}
+    
+    /// Whether it is a ttbarZ sample
+    const bool& isTtbarZSample()const{return isTtbarZSample_;}
     
     
     
@@ -719,12 +726,15 @@ private:
     bool correctMadgraphBR_;
     int channelPdgIdProduct_;
     #ifndef __CINT__
-    std::function<bool(Long64_t)> checkZDecayMode_;
+    std::function<bool(const std::vector<int>&)> checkZDecayMode_;
     #endif
     TString outputfilename_;
     
     /// Whether it is a ttbar sample (and not ttbarH, ttbarW, ttbarZ, or any other thing)
     bool isTtbarSample_;
+    
+    /// Whether it is a ttbarZ sample
+    bool isTtbarZSample_;
     
     /// Event counter
     Int_t eventCounter_;
