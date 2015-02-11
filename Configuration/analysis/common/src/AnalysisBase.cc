@@ -916,7 +916,7 @@ void AnalysisBase::GetRecoBranchesEntry(const Long64_t& entry)const
     b_met->GetEntry(entry);
     b_vertMulti->GetEntry(entry);
     // Reading of jetProperty branches can be switched off(on) by (un)commenting this line, but jetChargeRelativePtWeighted needs to exist always for ttH workflow
-    this->GetJetPropertiesBranchesEntry(entry);
+    //this->GetJetPropertiesBranchesEntry(entry);
     if(b_jetChargeRelativePtWeighted) b_jetChargeRelativePtWeighted->GetEntry(entry);
 }
 
