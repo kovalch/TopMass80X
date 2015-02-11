@@ -2461,12 +2461,49 @@ void AnalyzerDijet::fillTopAdditionalJetsHistos(const EventMetadata& eventMetada
     for(int jetId : addJetsId_mva) m_histogram.at("leadingJets_btagDiscriminator_add_mva")->Fill(allJetsBtagDiscriminant.at(jetId), weight);
     for(int jetId : addBJetsId_mva) m_histogram.at("leadingJets_btagDiscriminator_addB_mva")->Fill(allJetsBtagDiscriminant.at(jetId), weight);
     
+        
+    // Visible phase space
+    std::vector<int> addBJetsId_gen_vis(addBJetsId_gen);
+    std::vector<int> addBJetsId_gen_visNot(addBJetsId_gen);
+    // Checking whether the visible phase space cuts are satisfied
+    const double leptonPt_min = 20.;
+    const double leptonEta_max = 2.4;
+    const double jetPt_min = 30.;
+    const double jetEta_max = 2.4;
+    bool isVisiblePS = true;
+    // Checking leptons from tt system
+    if(topGenObjects.valuesSet_) {
+        if(topGenObjects.GenLepton_->Pt() < leptonPt_min) isVisiblePS = false;
+        if(topGenObjects.GenAntiLepton_->Pt() < leptonPt_min) isVisiblePS = false;
+        if(std::fabs(topGenObjects.GenLepton_->Eta()) > leptonEta_max) isVisiblePS = false;
+        if(std::fabs(topGenObjects.GenAntiLepton_->Eta()) > leptonEta_max) isVisiblePS = false;
+    } else isVisiblePS = false;
+    // Checking jets from tt system
+    if(!isVisiblePS || topAllJetsId_gen.size() < 2) isVisiblePS = false;
+    if(isVisiblePS) {
+        for(int jetId : topAllJetsId_gen){
+            LV jet = allGenJets.at(jetId);
+            if(jet.Pt() < jetPt_min) { isVisiblePS = false; break; }
+            if(std::fabs(jet.Eta()) > jetEta_max) { isVisiblePS = false; break; }
+        }
+    }
+    if(!isVisiblePS) addBJetsId_gen_vis.clear();
+    else addBJetsId_gen_visNot.clear();
+    
     
     // Filling histograms about leading jets with tt jets identified at generator level (GEN -> RECO)
     fillLeadingJetsHistosVsGen("top_gen", eventMetadata, allGenJets, topAllJetsId_gen, allGenJets, topAllJetsId_gen, genJetsRecoId, topAllJetsId_gen, topAllJetsId_gen, weight, m_histogram, recoObjects, false);
     fillLeadingJetsHistosVsGen("add_gen", eventMetadata, allGenJets, addJetsId_gen, allGenJets, addJetsId_gen, genJetsRecoId, topAllJetsId_gen, topAllJetsId_gen, weight, m_histogram, recoObjects, false);
     fillLeadingJetsHistosVsGen("addB_gen", eventMetadata, allGenJets, addBJetsId_gen, allGenJets, addBJetsId_gen, genJetsRecoId, topAllJetsId_gen, topAllJetsId_gen, weight, m_histogram, recoObjects, false);
     fillBjetIdVsJetIdHisto((TH2*)m_histogram.at("leadingJet_addJetId_addB_gen"), addBJetsId_gen, addJetsId_gen, weight);
+    // Visible phase space
+    fillLeadingJetsHistosVsGen("addB_vis_gen", eventMetadata, allGenJets, addBJetsId_gen_vis, allGenJets, addBJetsId_gen_vis, genJetsRecoId, topAllJetsId_gen, topAllJetsId_gen, weight, m_histogram, recoObjects, false);
+    // Outside visible phase space
+    fillLeadingJetsHistosVsGen("addB_visNot_gen", eventMetadata, allGenJets, addBJetsId_gen_visNot, allGenJets, addBJetsId_gen_visNot, genJetsRecoId, topAllJetsId_gen, topAllJetsId_gen, weight, m_histogram, recoObjects, false);
+    
+    
+    // ################################################################################### ONLY RECO LEVEL INFORMATION FILLED NEXT
+    if(!recoObjects.valuesSet_) return;
     
     // Filling histograms about leading jets with tt jets identified by True
     fillLeadingJetsHistosVsGen("top_true", eventMetadata, allGenJets, topAllJetsId_gen, allJets, topJetsId_true, genJetsRecoId, topAllJetsId_gen, topJetsId_true, weight, m_histogram, recoObjects, false);
@@ -2497,41 +2534,12 @@ void AnalyzerDijet::fillTopAdditionalJetsHistos(const EventMetadata& eventMetada
     fillLeadingJetsHistosVsGen("top_cp_mva", eventMetadata, allGenJets, topAllJetsId_gen, allJets, topJetsId_mva, genJetsRecoId, topAllJetsId_gen, topJetsId_mva, weight, m_histogram, recoObjects);
     fillLeadingJetsHistosVsGen("add_cp_mva", eventMetadata, allGenJets, addJetsId_gen, allJets, addJetsId_mva, genJetsRecoId, topAllJetsId_gen, topJetsId_mva, weight, m_histogram, recoObjects);
     fillLeadingJetsHistosVsGen("addB_cp_mva", eventMetadata, allGenJets, addBJetsId_gen, allJets, addBJetsId_mva, genJetsRecoId, topAllJetsId_gen, topJetsId_mva, weight, m_histogram, recoObjects);
+
     
     // Visible phase space
-    std::vector<int> addBJetsId_gen_vis(addBJetsId_gen);
-    std::vector<int> addBJetsId_gen_visNot(addBJetsId_gen);
-    // Checking whether the visible phase space cuts are satisfied
-    const double leptonPt_min = 20.;
-    const double leptonEta_max = 2.4;
-    const double jetPt_min = 30.;
-    const double jetEta_max = 2.4;
-    bool isVisiblePS = true;
-    // Checking leptons from tt system
-    if(topGenObjects.valuesSet_) {
-        if(topGenObjects.GenLepton_->Pt() < leptonPt_min) isVisiblePS = false;
-        if(topGenObjects.GenAntiLepton_->Pt() < leptonPt_min) isVisiblePS = false;
-        if(std::fabs(topGenObjects.GenLepton_->Eta()) > leptonEta_max) isVisiblePS = false;
-        if(std::fabs(topGenObjects.GenAntiLepton_->Eta()) > leptonEta_max) isVisiblePS = false;
-    } else isVisiblePS = false;
-    // Checking jets from tt system
-    if(!isVisiblePS || topAllJetsId_gen.size() < 2) isVisiblePS = false;
-    if(isVisiblePS) {
-        for(int jetId : topAllJetsId_gen){
-            LV jet = allGenJets.at(jetId);
-            if(jet.Pt() < jetPt_min) { isVisiblePS = false; break; }
-            if(std::fabs(jet.Eta()) > jetEta_max) { isVisiblePS = false; break; }
-        }
-    }
-    if(!isVisiblePS) addBJetsId_gen_vis.clear();
-    else addBJetsId_gen_visNot.clear();
-    
-    // Filling histograms for visible phase space
-    fillLeadingJetsHistosVsGen("addB_vis_gen", eventMetadata, allGenJets, addBJetsId_gen_vis, allGenJets, addBJetsId_gen_vis, genJetsRecoId, topAllJetsId_gen, topAllJetsId_gen, weight, m_histogram, recoObjects, false);
 //     fillLeadingJetsHistosVsGen("addB_vis_kinReco", eventMetadata, allGenJets, addBJetsId_gen_vis, allJets, addBJetsId_kinReco, genJetsRecoId, topAllJetsId_gen, topJetsId_kinReco, weight, m_histogram, recoObjects);
     fillLeadingJetsHistosVsGen("addB_vis_mva", eventMetadata, allGenJets, addBJetsId_gen_vis, allJets, addBJetsId_mva, genJetsRecoId, topAllJetsId_gen, topJetsId_mva, weight, m_histogram, recoObjects);
-    // Filling histograms foroutside visible phase space
-    fillLeadingJetsHistosVsGen("addB_visNot_gen", eventMetadata, allGenJets, addBJetsId_gen_visNot, allGenJets, addBJetsId_gen_visNot, genJetsRecoId, topAllJetsId_gen, topAllJetsId_gen, weight, m_histogram, recoObjects, false);
+    // Outside visible phase space
 //     fillLeadingJetsHistosVsGen("addB_visNot_kinReco", eventMetadata, allGenJets, addBJetsId_gen_visNot, allJets, addBJetsId_kinReco, genJetsRecoId, topAllJetsId_gen, topJetsId_kinReco, weight, m_histogram, recoObjects);
     fillLeadingJetsHistosVsGen("addB_visNot_mva", eventMetadata, allGenJets, addBJetsId_gen_visNot, allJets, addBJetsId_mva, genJetsRecoId, topAllJetsId_gen, topJetsId_mva, weight, m_histogram, recoObjects);
     
