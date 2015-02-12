@@ -12,8 +12,8 @@ systematics=(
     massup massdown
     matchingup matchingdown
     scaleup scaledown
-    powhegHerwig powheg.root mcatnlo
-    Perugia11.root Perugia11NoCR
+    powhegHerwig powheg mcatnlo
+    Perugia11NoCR Perugia11
 )
 
 
