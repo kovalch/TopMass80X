@@ -894,11 +894,12 @@ TH1* common::updatePadYAxisRange(TPad* pad, double logY, const double yMarginUp,
         if(obj->InheritsFrom("TH1")) {
             TH1* hobj = (TH1*)obj;
             for(int bin=1; bin<=hobj->GetNbinsX(); ++bin) {
+                if(logY && hobj->GetBinContent(bin) - hobj->GetBinError(bin) <= 0.) continue;
                 yMax = std::max(hobj->GetBinContent(bin) + hobj->GetBinError(bin), yMax);
                 yMin = std::min(hobj->GetBinContent(bin) - hobj->GetBinError(bin), yMin);
                 
-                if(yMax >= 0. && yMax > yMax_global) yMax_global = yMax;
-                if(yMin > 0. && yMin < yMin_global) yMin_global = yMin;
+                if(yMax > yMax_global) yMax_global = yMax;
+                if(yMin < yMin_global) yMin_global = yMin;
             }
         }
         // Getting maximum point content of the graph
@@ -907,24 +908,26 @@ TH1* common::updatePadYAxisRange(TPad* pad, double logY, const double yMarginUp,
             for(int bin=0; bin<gobj->GetN(); ++bin) {
                 double x,y;
                 gobj->GetPoint(bin, x,y);
+                if(logY && y <= 0.) continue;
                 yMax = std::max(y, yMax);
                 yMin = std::min(y, yMin);
                 
-                if(yMax >= 0. && yMax > yMax_global) yMax_global = yMax;
-                if(yMin > 0. && yMin < yMin_global) yMin_global = yMin;
+                if(yMax > yMax_global) yMax_global = yMax;
+                if(yMin < yMin_global) yMin_global = yMin;
             }
         }
     }
 
     // Updating the Y axis range
     if(yMax_global != -1e10) {
-        if(logY) yMax_global *= (1+yMarginUp)*2e1;
+        if(logY) yMax_global *= (1+yMarginUp)*5e1;
         else yMax_global *= yMarginUp + 1.;
     }
     if(yMarginDown != 0. || logY) {
         if(yMarginDown != 0.) yMin_global /= yMarginDown;
         if(logY) yMin_global /= 2e1;
     } else yMin_global = 0.;
+    
     // Aplying the defined range to the Y axis
     axisHisto->GetYaxis()->SetRangeUser(yMin_global, yMax_global);
 
