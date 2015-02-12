@@ -164,7 +164,7 @@ int main(int argc, char** argv){
     if(opt_systematic.isSet()){
         if(opt_systematic[0] == Systematic::convertType(Systematic::all))
             ; // do nothing
-        else if(opt_systematic[0] == Systematic::convertType(Systematic::allAvailable))
+        else if(opt_systematic[0] == Systematic::convertType(Systematic::allAvailable)) {
             v_systematic = common::findSystematicsFromFilelists("FileLists_plot", v_channel, v_systematic);
             // Adding systematics that do not require specific root files
             for(Systematic::Type type : Systematic::crossSectionTypes) {
@@ -175,6 +175,7 @@ int main(int argc, char** argv){
                 v_systematic.push_back(Systematic::Systematic(type, Systematic::up));
                 v_systematic.push_back(Systematic::Systematic(type, Systematic::down));
             }
+        }
         else
             v_systematic = Systematic::setSystematics(opt_systematic.getArguments());
     }
