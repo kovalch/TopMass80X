@@ -415,7 +415,7 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     }
     
     // Updating the histo axis
-    TH1* axisHisto = common::updatePadYAxisRange(canvas, 0.35);
+    TH1* axisHisto = common::updatePadYAxisRange(canvas, logY_, 0.35);
     
     // Applying the configured Y axis range
     if(ymax_ != 0.) axisHisto->SetMaximum(ymax_);

@@ -405,28 +405,29 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
     this->drawCmsLabels(2, 8);
     this->drawDecayChannelLabel(channel);
     legend->Draw("same");
-    common::drawRatioPad(canvas, 0.0, 3.0);
+    common::drawRatioPad(canvas, 0.0, 3.0, "#frac{MC}{Data}");
     
-    // Plotting the statistics band of the Madgraph prediction
-    TH1* h_ratioMadgraph_statBand = common::ratioHistogram(m_xs.at("madgraph"), m_xs.at("madgraph"), 1);
-    // common::setHistoStyle(h_ratioMadgraph_statBand, 0,0,0, 0,0,0, 3013,14);
-    h_ratioMadgraph_statBand->Draw("same hist");
+    // Plotting the statistics band of the Data
+    TH1* h_ratioData_statBand = common::ratioHistogram(m_xs.at("data"), m_xs.at("data"), 1);
+    common::setHistoStyle(h_ratioData_statBand, 1,1,1, 0,0,0, 1001,18);
+    h_ratioData_statBand->Draw("same E2");
+    h_ratioData_statBand->Draw("L same");
     
-    TH1* h_ratioDataMadgraph = common::ratioHistogram(m_xs.at("data"), m_xs.at("madgraph"));
+    TH1* h_ratioMadgraphData = common::ratioHistogram(m_xs.at("madgraph"), m_xs.at("data"));
     if(hasPseudodata_) {
         TH1* h_ratioData_error = common::ratioHistogram(m_xs.at("data"), m_xs.at("data"));
         common::setHistoStyle(h_ratioData_error, 0,0,0, 0,0,0, 3013,14);
         h_ratioData_error->Draw("same E2");
-        common::setHistoStyle(h_ratioDataMadgraph, 1,2,1, 0,2,1.5, 0,0);
-        TH1* h_ratioDataMadgraph_reweighted = common::ratioHistogram(m_xs.at("data"), m_xs_reweighted.at("madgraph"));
-        common::setHistoStyle(h_ratioDataMadgraph_reweighted, 7,kAzure+2,1, 0,2,1.5, 0,0);
-        h_ratioDataMadgraph->Draw("hist same");
-        h_ratioDataMadgraph_reweighted->Draw("hist same");
+        common::setHistoStyle(h_ratioMadgraphData, 1,2,1, 0,2,1.5, 0,0);
+        TH1* h_ratioMadgraphData_reweighted = common::ratioHistogram(m_xs.at("madgraph"), m_xs_reweighted.at("data"));
+        common::setHistoStyle(h_ratioMadgraphData_reweighted, 7,kAzure+2,1, 0,2,1.5, 0,0);
+        h_ratioMadgraphData->Draw("hist same");
+        h_ratioMadgraphData_reweighted->Draw("hist same");
     } else {
-        h_ratioDataMadgraph->Draw("E1 X0 same");
+        h_ratioMadgraphData->Draw("hist same");
     }
     for(auto nameHisto : m_theoryHisto) {
-        TH1* h_ratioDataTheory = common::ratioHistogram(nameHisto.second, m_xs.at("madgraph"));
+        TH1* h_ratioDataTheory = common::ratioHistogram(nameHisto.second, m_xs.at("data"));
         h_ratioDataTheory->Draw("hist E0 same");
     }
 
