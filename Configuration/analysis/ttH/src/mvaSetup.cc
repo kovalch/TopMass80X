@@ -80,6 +80,8 @@ mvaSetup::SystematicChannelFileNames mvaSetup::mergeTrees(const char* mvaInputDi
 //         tth::nameStepPairs(m_systematicChannelFileNamesTraining.begin()->second.begin()->second.at(0),
 //                            "mvaInputTopJets_step");
     
+    // FIXME: base this method on categoryMerger, so that only trees from different files need to be merged here
+    
     // Loop over all channels and systematics
     for(const auto& systematicChannelFileNamesTraining : m_systematicChannelFileNamesTraining){
         const Systematic::Systematic& systematic = systematicChannelFileNamesTraining.first;
