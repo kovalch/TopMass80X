@@ -103,7 +103,7 @@ private:
                              int& leptonIndex, int& antiLeptonIndex,
                              int& leadingLeptonIndex, int& nLeadingLeptonIndex,
                              int& leptonXIndex, int& leptonYIndex,
-                             std::vector<int>& jetIndices, tth::IndexPairs jetIndexPairs,
+                             std::vector<int>& jetIndices, tth::IndexPairs& jetIndexPairs,
                              std::vector<int>& bjetIndices,
                              const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
                              const Long64_t& entry)const;
