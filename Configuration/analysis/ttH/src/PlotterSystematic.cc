@@ -162,7 +162,6 @@ void PlotterSystematic::writeVariations(const SystematicHistoMap& histoCollectio
     legend->SetBorderSize(0);
     canvas->cd(0);
     canvas->Clear();
-    if(logY) canvas->SetLogy();
     
     TH1* h_nominal = (TH1*)histoCollection.at(Systematic::nominal).first->Clone();
     if(h_nominal) {
@@ -215,6 +214,7 @@ void PlotterSystematic::writeVariations(const SystematicHistoMap& histoCollectio
     legend->Draw();
 
     // Updating axis
+    common::updatePadYAxisRange(canvas, logY, 0.35);
     updateHistoAxis(canvas);
     
     this->drawCmsLabels(2, 8);
@@ -287,6 +287,7 @@ void PlotterSystematic::writeNominalShapes(const std::map<TString, TH1*>& proces
     }
     legend->Draw();
     
+    common::updatePadYAxisRange(canvas, logY, 0.35);
     updateHistoAxis(canvas);
     
     this->drawCmsLabels(2, 8);
@@ -330,7 +331,7 @@ void PlotterSystematic::prepareStyle()
 void PlotterSystematic::updateHistoAxis(TPad* pad)const
 {
 
-    TH1* histo = common::updatePadYAxisRange(pad, 0.35);
+    TH1* histo = common::getPadAxisHisto(pad);
 
     // Applying the configured X axis range
     if(rangemin_!=0. || rangemax_!=0.) {histo->SetAxisRange(rangemin_, rangemax_, "X");}
