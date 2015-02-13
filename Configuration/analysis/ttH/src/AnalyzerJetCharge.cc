@@ -83,7 +83,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
     TString name;
 
     // Stearing options for: true (0), kinReco (1), mlb (2)
-    int optionForCalibration = 0; 
+    int optionForCalibration = -1; 
     
     // Extracting input data to more comfortable variables
     
@@ -169,6 +169,8 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         }
     }
     
+    std::vector<double> jetWeights;
+    
     for(size_t iJet=0;iJet!=lowerPtCUTJetIdx.size();++iJet)
     //for(size_t iJet=0;iJet!=bJetsId.size();++iJet)
     {
@@ -177,7 +179,8 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         LV jets = allJets.at(jetIdx);
         
         //FIXME weightReweighted is reweighted by the number of tracks
-        //double weightReweighted = weight*trackMultiplicityWeight (-0.0268, 1.4351,jetIdx,jetPfCandidateTrackIndex);
+        double weightReweighted = weight*trackMultiplicityWeight (-0.0244, 1.3687,jetIdx,jetPfCandidateTrackIndex)*0.95693324054694854379;
+        jetWeights.push_back(weightReweighted);
         
         if (optionForCalibration==2)
         {
@@ -227,7 +230,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         
         int jetHadronFlavour = -999;
         
-        if (optionForCalibration==0 || optionForCalibration==-1)
+        if (optionForCalibration==0)
         {
             //GEN TO RECO matching
             //recoBorAntiBFromAny = std::find(genJetMatchedRecoBjetIndices.begin(),genJetMatchedRecoBjetIndices.end(), jetIdx) != genJetMatchedRecoBjetIndices.end();
@@ -1380,8 +1383,10 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
        //if (recoAntiBjetFromTopIndex==jetIdx&& trueBJetScalarCharge>0) m_histogram["h_coincidenceTest_topAntiB_oldDefinition"]->Fill(1);
        //else if (recoAntiBjetFromTopIndex==jetIdx && trueBJetScalarCharge<0) m_histogram["h_coincidenceTest_topAntiB_oldDefinition"]->Fill(0);
        
+        
     } //end loop over reco jets
     
+    double eventWeight = trackMultiplicityWeightPerEvent(jetWeights);
    
 } //END OF JET CHARGE ANALYZER FUNCTION
 
@@ -2773,7 +2778,7 @@ bool AnalyzerJetCharge::putUniquelyInVector(std::vector<int>& vector, const int 
     return true;
 }
 
-double AnalyzerJetCharge::trackMultiplicityWeight(const double m, const double n, int jetIndex, std::vector<int> jetPfCandidateTrackIndex)
+double AnalyzerJetCharge::trackMultiplicityWeight(const double& m, const double& n, int jetIndex, const std::vector<int>& jetPfCandidateTrackIndex)
 {
     int multiplicity = 0;
     for (size_t i=0;i!=jetPfCandidateTrackIndex.size();i++)
@@ -2809,7 +2814,7 @@ unsigned int AnalyzerJetCharge::calculateMultiplicity(const std::vector<int>& co
     
 }
 
-double AnalyzerJetCharge::ptWeightedJetChargeX (const int jetId, const LV& recoJet, const double x, const std::vector<int> pfCandidateJetIndex, const VLV& pfCandidates, const std::vector<int> pfCandidateCharge)
+double AnalyzerJetCharge::ptWeightedJetChargeX (const int jetId, const LV& recoJet, const double& x, const std::vector<int>& pfCandidateJetIndex, const VLV& pfCandidates, const std::vector<int>& pfCandidateCharge)
 {
     // Access jet momentum information
     double jetTrueBPx = recoJet.px();
@@ -2842,6 +2847,16 @@ double AnalyzerJetCharge::ptWeightedJetChargeX (const int jetId, const LV& recoJ
     // Obtain the jet c_{rel}
     const double ptWeightedJetChargeXValue(sumMomentum>0 ? sumMomentumQ/sumMomentum : 0);
     return ptWeightedJetChargeXValue;
+}
+
+double AnalyzerJetCharge::trackMultiplicityWeightPerEvent (const std::vector<double>& jetWeight)
+{
+    double eventMultiplicity = 1;
+    for (size_t iWeight=0;iWeight!=jetWeight.size();++iWeight)
+    {
+        eventMultiplicity *= jetWeight.at(iWeight);
+    }
+    return eventMultiplicity;
 }
 
 

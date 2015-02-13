@@ -70,13 +70,16 @@ public:
     bool putUniquelyInVector(std::vector<int>& vector, const int id);
     
     /// Calculate the weight applying the track multiplicity in linear functional form (y = mx+n)
-    double trackMultiplicityWeight(const double m, const double n, int jetIndex, std::vector<int> jetPfCandidateTrackIndex);
+    double trackMultiplicityWeight(const double& m, const double& n, int jetIndex, const std::vector<int>& jetPfCandidateTrackIndex);
     
     /// Calculate the multiplicity per jet of a given collection
     unsigned int calculateMultiplicity(const std::vector<int>& collection, int jetIndex);
     
     /// p_{T} weighted jet charge calculation for a given squeezing parameter x (optimal value x = 0.8)
-    double ptWeightedJetChargeX (const int jetId, const LV& recoJet, const double x, const std::vector<int> pfCandidateJetIndex, const VLV& pfCandidates, const std::vector<int> pfCandidateCharge);
+    double ptWeightedJetChargeX (const int jetId, const LV& recoJet, const double& x, const std::vector<int>& pfCandidateJetIndex, const VLV& pfCandidates, const std::vector<int>& pfCandidateCharge);
+    
+    /// Calculate product of all jet track multiplicity weights
+    double trackMultiplicityWeightPerEvent (const std::vector<double>& jetWeight);
     
     struct MvaJetVariable
     {
