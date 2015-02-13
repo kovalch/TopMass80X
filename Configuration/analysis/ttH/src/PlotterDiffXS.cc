@@ -382,8 +382,6 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
         common::setHistoStyle(nameHisto.second, 1,kAzure+2,1, 0,kAzure+2,1.5, 0,0);
     }
     
-    updateHistoAxis(m_xs.at("data"));
-
     // Draw cross section histograms
     canvas->cd();
     // Canceling 0 X error, that is globally set in the common::setHistoStyle
@@ -400,6 +398,9 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
         m_xs_reweighted.at("madgraph")->Draw("hist same");
     }
     m_xs.at("data")->Draw("same E1 X0");
+    
+    TH1* axisHisto = common::updatePadYAxisRange(canvas, logY_);
+    updateHistoAxis(axisHisto);
     
     // Put additional stuff to histogram
     this->drawCmsLabels(2, 8);
@@ -711,13 +712,13 @@ TH1* PlotterDiffXS::unfoldedHistogram(const std::map<TString, TH1*> m_inputHisto
         DilepSVDFunctions mySVDFunctions;
         mySVDFunctions.SetOutputPath(outputDir_);
         
-        printf("Bins of the response matrix:\n");
-        TH2* h_response = (TH2*)m_inputHistos.at("signal_response");
-        for(int bin1 = 0; bin1 <= 1+h_response->GetNbinsX(); ++bin1) {
-            for(int bin2 = 0; bin2 <= 1+h_response->GetNbinsY(); ++bin2) {
-                printf("  (%d,%d):  %.3f \t+/-  %.4f\n", bin1, bin2, h_response->GetBinContent(bin1, bin2), h_response->GetBinError(bin1, bin2));
-            }
-        }
+//         printf("Bins of the response matrix:\n");
+//         TH2* h_response = (TH2*)m_inputHistos.at("signal_response");
+//         for(int bin1 = 0; bin1 <= 1+h_response->GetNbinsX(); ++bin1) {
+//             for(int bin2 = 0; bin2 <= 1+h_response->GetNbinsY(); ++bin2) {
+//                 printf("  (%d,%d):  %.3f \t+/-  %.4f\n", bin1, bin2, h_response->GetBinContent(bin1, bin2), h_response->GetBinError(bin1, bin2));
+//             }
+//         }
         
         mySVDFunctions.SVD_DoUnfold(
             (TH1D*)m_inputHistos.at("data"),
@@ -951,25 +952,10 @@ void PlotterDiffXS::drawPurityStability(TH2* histo2d, TString name)const
 void PlotterDiffXS::updateHistoAxis(TH1* histo)const
 {
     // Set x and y axis ranges
-    if(logY_){
-      // Setting minimum to >0 value
-      // FIXME: Should we automatically calculate minimum value instead of the fixed value?
-      histo->SetMinimum(1e-1);
-      if(ymin_>0) histo->SetMinimum(ymin_);
-    }
-    else histo->SetMinimum(ymin_);
-
     if(rangemin_!=0. || rangemax_!=0.) {histo->SetAxisRange(rangemin_, rangemax_, "X");}
     
-    if(ymax_==0.){
-        // Determining the highest Y value that is plotted
-        float yMax = histo ? histo->GetBinContent(histo->GetMaximumBin()) + histo->GetBinError(histo->GetMaximumBin()) : ymax_;
-        
-        // Scaling the Y axis
-        if(logY_){histo->SetMaximum(18.*yMax);}
-        else{histo->SetMaximum(1.35*yMax);}
-    }
-    else{histo->SetMaximum(ymax_);}
+    if(ymin_!=0) histo->SetMinimum(ymin_);
+    if(ymax_!=0.) histo->SetMaximum(ymax_);
 
     histo->GetXaxis()->SetNoExponent(kTRUE);
     // Set axis titles
