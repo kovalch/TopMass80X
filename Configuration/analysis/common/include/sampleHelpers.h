@@ -193,6 +193,13 @@ namespace Systematic{
         frac_tthf, frac_ttother,
     };
     
+    /// Define systematics that do not require dedicated root files
+    const std::vector<Type> fileIndependentTypes{
+        xsec_tt2b, xsec_ttcc,
+        frac_tthf, frac_ttother,
+        lumi
+    };
+    
     
     
     
