@@ -1386,7 +1386,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         
     } //end loop over reco jets
     
-    double eventWeight = trackMultiplicityWeightPerEvent(jetWeights);
+    //double eventWeight = trackMultiplicityWeightPerEvent(jetWeights);
    
 } //END OF JET CHARGE ANALYZER FUNCTION
 
