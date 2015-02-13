@@ -59,10 +59,13 @@ public:
     void SetAdditionalBjetMode(const int additionalBjetMode);
     
     /// Name of the reweighting
-    void SetReweightingName(const TString reweightingName);
+    void SetReweightingName(const TString& reweightingName);
     
     /// Slope of the reweighting
-    void SetReweightingSlope(const double reweightingSlope);
+    void SetReweightingSlope(const double& reweightingSlope);
+    
+    /// Define for which processes to access genObjects already at beginning
+    void SetGenStudies(const bool ttbb, const bool tth);
     
     
     
@@ -87,12 +90,43 @@ private:
     
     /// Return vector of pair of indices for dijet combinations, each pair ordered by jet charge
     tth::IndexPairs chargeOrderedJetPairIndices(const std::vector<int>& jetIndices,
-                                                const std::vector<double>& jetCharges);
+                                                const std::vector<double>& jetCharges)const;
     
     
-    /// Additional weight to be applied for the reweighting
+    /// Additional artifical weight to be applied for reweighting
     double reweightingWeight(const TopGenObjects& topGenObjects, const tth::GenObjectIndices& genObjectIndices)const;
     
+    
+    /// Select all reco object indices fulfilling selections
+    void recoObjectSelection(std::vector<int>& allLeptonIndices,
+                             std::vector<int>& leptonIndices, std::vector<int>& antiLeptonIndices,
+                             int& leptonIndex, int& antiLeptonIndex,
+                             int& leadingLeptonIndex, int& nLeadingLeptonIndex,
+                             int& leptonXIndex, int& leptonYIndex,
+                             std::vector<int>& jetIndices, tth::IndexPairs& jetIndexPairs,
+                             std::vector<int>& bjetIndices,
+                             const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+                             const Long64_t& entry)const;
+    
+    /// Select all gen object indices fulfilling selections
+    void genObjectSelection(std::vector<int>& genJetIndices,
+                            std::vector<std::vector<int> >& genJetBhadronIndices,
+                            std::vector<int>& allGenBjetIndices, std::vector<int>& genBjetIndices,
+                            std::vector<std::vector<int> >& genJetChadronIndices,
+                            std::vector<int>& allGenCjetIndices, std::vector<int>& genCjetIndices,
+                            int& genBjetFromTopIndex, int& genAntiBjetFromTopIndex,
+                            int& genBjetFromHiggsIndex, int& genAntiBjetFromHiggsIndex,
+                            const int higgsDecayMode, const int additionalJetFlavourId, const std::vector<int>& v_zDecayMode,
+                            const TopGenObjects& topGenObjects)const;
+    
+    /// Match reco object indices to gen objects
+    void matchRecoToGenObjects(std::vector<int>& genJetMatchedRecoBjetIndices,
+                               std::vector<int>& genJetMatchedRecoCjetIndices,
+                               int& matchedBjetFromTopIndex, int& matchedAntiBjetFromTopIndex,
+                               int& matchedBjetFromHiggsIndex, int& matchedAntiBjetFromHiggsIndex,
+                               const tth::GenObjectIndices& noRecoMatchGenObjectIndices,
+                               const std::vector<int>& jetIndices, const VLV& jets,
+                               const TopGenObjects& topGenObjects)const;
     
     
     /// Fill all analysers and histograms in one method
@@ -124,6 +158,12 @@ private:
     
     /// Slope of the reweighted shape
     double reweightingSlope_;
+    
+    /// Whether to access genObjects at first step for tt+bb
+    bool genStudiesTtbb_;
+    
+    /// Whether to access genObjects at first step for ttH
+    bool genStudiesTth_;
     
     
     

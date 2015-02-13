@@ -39,8 +39,8 @@ std::vector<std::pair<TString, TString> > tth::nameStepPairs(const char* filenam
     
     // Search for all steps
     RootFileReader* fileReader(RootFileReader::getInstance());
-    const std::vector<TString>& v_treeName = fileReader->findObjects(filename, objectNameFragment, false);
-    for(std::vector<TString>::const_iterator i_objectName = v_treeName.begin(); i_objectName != v_treeName.end(); ++i_objectName){
+    const std::vector<TString>& v_objectName = fileReader->findObjects(filename, objectNameFragment, false);
+    for(std::vector<TString>::const_iterator i_objectName = v_objectName.begin(); i_objectName != v_objectName.end(); ++i_objectName){
         const TString& step = tth::extractSelectionStepAndJetCategory(*i_objectName);
         
         // Reject steps in case only selected steps should be chosen
@@ -67,13 +67,46 @@ std::vector<std::pair<TString, TString> > tth::nameStepPairs(const char* filenam
 
 
 
+TString tth::categoryName(const int& category)
+{
+    std::ostringstream result;
+    if(category >= 0){
+        result<<"_cate"<<category;
+    }
+    return result.str().c_str();
+}
+
+
+
+TString tth::categoryName(const std::vector<int>& v_category)
+{
+    std::ostringstream result;
+    std::vector<int> v_clone = v_category;
+    std::sort(v_clone.begin(), v_clone.end());
+    for(std::vector<int>::iterator i_category = v_clone.begin(); i_category != v_clone.end(); ++i_category){
+        const int category = *i_category;
+        if(std::find(i_category+1, v_clone.end(), category) != v_clone.end()){
+            std::cerr<<"Error in tth::categoryName()! The following category exists twice: "
+                     <<category<<"\n...break\n"<<std::endl;
+            exit(841);
+        }
+        if(category < 0){
+            std::cerr<<"Error in tth::categoryName()! Category needs to be >= 0, but is: "
+                     <<category<<"\n...break\n"<<std::endl;
+            exit(841);
+        }
+        result<<categoryName(category);
+    }
+    return result.str().c_str();
+}
+
+
+
 TString tth::stepName(const TString& stepShort, const int& category)
 {
     std::ostringstream result;
     result<<"_step"<<stepShort;
-    if(category>=0){
-        result<<"_cate"<<category;
-    }
+    result<<categoryName(category);
     return result.str().c_str();
 }
 
@@ -83,11 +116,7 @@ TString tth::stepName(const TString& stepShort, const std::vector<int>& v_catego
 {
     std::ostringstream result;
     result<<"_step"<<stepShort;
-    std::vector<int> v_clone = v_category;
-    std::sort(v_clone.begin(), v_clone.end());
-    for(const auto& category : v_clone){
-        result<<"_cate"<<category;
-    }
+    result<<categoryName(v_category);
     return result.str().c_str();
 }
 
@@ -129,7 +158,19 @@ TString tth::extractSelectionStepAndJetCategory(const TString& name)
 
 
 
-TString tth::helper::searchFragmentByToken(const TString& name, const TString& searchPattern, const TString& token, const bool allowMultiple)
+int tth::numberOfCategories(const TString& name)
+{
+    TString category = extractJetCategory(name);
+    TObjArray* a_nameFragment = TString(category).Tokenize("_");
+    int result = a_nameFragment->GetEntriesFast();
+    a_nameFragment->Delete();
+    return result;
+}
+
+
+
+TString tth::helper::searchFragmentByToken(const TString& name, const TString& searchPattern,
+                                           const TString& token, const bool allowMultiple)
 {
     TString result;
     TObjArray* a_nameFragment = TString(name).Tokenize(token);
@@ -138,15 +179,15 @@ TString tth::helper::searchFragmentByToken(const TString& name, const TString& s
         const TString& fragment = a_nameFragment->At(iFragment)->GetName();
         if(fragment.Contains(searchPattern)){
             if(!allowMultiple && alreadyFound){
-                std::cerr<<"ERROR in searchFragmentByToken()! Ambiguous string, name contains search pattern \""<<searchPattern
-                         <<"\" in more than one fragment: "<<name
-                         <<"\n...cannot extract fragment, so break\n";
+                std::cerr<<"ERROR in searchFragmentByToken()! Ambiguous string, name contains search pattern \""
+                         <<searchPattern<<"\" in more than one fragment: "<<name<<"\n...break\n"<<std::endl;
                 exit(33);
             }
             alreadyFound = true;
             result.Append("_").Append(fragment);
         }
     }
+    a_nameFragment->Delete();
     return result;
 }
 

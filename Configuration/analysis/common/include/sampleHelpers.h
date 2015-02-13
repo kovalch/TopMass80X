@@ -339,6 +339,11 @@ namespace common{
                                       const Channel::Channel& channel,
                                       const Systematic::Systematic& systematic,
                                       const std::vector<TString>& v_pattern =std::vector<TString>());
+    
+    /// Read a file for given file name, and return the lines each as element in vector
+    /// In case a vector of patterns is specified, only lines containing this pattern will be read
+    std::vector<TString> readFile(const TString& filename,
+                                  const std::vector<TString>& v_pattern =std::vector<TString>());
 }
 
 

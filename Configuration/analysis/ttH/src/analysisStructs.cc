@@ -31,33 +31,55 @@ weight_(weight)
 
 
 tth::GenObjectIndices::GenObjectIndices(const std::vector<int>& genJetIndices,
+                                        const std::vector<std::vector<int> >& genJetBhadronIndices,
                                         const std::vector<int>& allGenBjetIndices,
                                         const std::vector<int>& genBjetIndices,
-                                        const std::vector<std::vector<int> >& genJetBhadronIndices,
-                                        const std::vector<int>& genJetMatchedRecoBjetIndices,
+                                        const std::vector<std::vector<int> >& genJetChadronIndices,
                                         const std::vector<int>& allGenCjetIndices,
                                         const std::vector<int>& genCjetIndices,
-                                        const std::vector<std::vector<int> >& genJetChadronIndices,
-                                        const std::vector<int>& genJetMatchedRecoCjetIndices,
                                         const int& genBjetFromTopIndex, const int& genAntiBjetFromTopIndex,
-                                        const int& recoBjetFromTopIndex, const int& recoAntiBjetFromTopIndex,
-                                        const int& genBjetFromHiggsIndex, const int& genAntiBjetFromHiggsIndex,
-                                        const int& recoBjetFromHiggsIndex, const int& recoAntiBjetFromHiggsIndex):
+                                        const int& genBjetFromHiggsIndex, const int& genAntiBjetFromHiggsIndex):
 genJetIndices_(genJetIndices),
+genJetBhadronIndices_(genJetBhadronIndices),
 allGenBjetIndices_(allGenBjetIndices),
 genBjetIndices_(genBjetIndices),
-genJetBhadronIndices_(genJetBhadronIndices),
-genJetMatchedRecoBjetIndices_(genJetMatchedRecoBjetIndices),
+genJetMatchedRecoBjetIndices_(std::vector<int>()),
+genJetChadronIndices_(genJetChadronIndices),
 allGenCjetIndices_(allGenCjetIndices),
 genCjetIndices_(genCjetIndices),
-genJetChadronIndices_(genJetChadronIndices),
-genJetMatchedRecoCjetIndices_(genJetMatchedRecoCjetIndices),
+genJetMatchedRecoCjetIndices_(std::vector<int>()),
 genBjetFromTopIndex_(genBjetFromTopIndex),
 genAntiBjetFromTopIndex_(genAntiBjetFromTopIndex),
-recoBjetFromTopIndex_(recoBjetFromTopIndex),
-recoAntiBjetFromTopIndex_(recoAntiBjetFromTopIndex),
+recoBjetFromTopIndex_(-1),
+recoAntiBjetFromTopIndex_(-1),
 genBjetFromHiggsIndex_(genBjetFromHiggsIndex),
 genAntiBjetFromHiggsIndex_(genAntiBjetFromHiggsIndex),
+recoBjetFromHiggsIndex_(-1),
+recoAntiBjetFromHiggsIndex_(-1)
+{}
+
+
+
+tth::GenObjectIndices::GenObjectIndices(const GenObjectIndices& genObjectNoRecoMatchIndices,
+                                        const std::vector<int>& genJetMatchedRecoBjetIndices,
+                                        const std::vector<int>& genJetMatchedRecoCjetIndices,
+                                        const int& recoBjetFromTopIndex, const int& recoAntiBjetFromTopIndex,
+                                        const int& recoBjetFromHiggsIndex, const int& recoAntiBjetFromHiggsIndex):
+genJetIndices_(genObjectNoRecoMatchIndices.genJetIndices_),
+genJetBhadronIndices_(genObjectNoRecoMatchIndices.genJetBhadronIndices_),
+allGenBjetIndices_(genObjectNoRecoMatchIndices.allGenBjetIndices_),
+genBjetIndices_(genObjectNoRecoMatchIndices.genBjetIndices_),
+genJetMatchedRecoBjetIndices_(genJetMatchedRecoBjetIndices),
+genJetChadronIndices_(genObjectNoRecoMatchIndices.genJetChadronIndices_),
+allGenCjetIndices_(genObjectNoRecoMatchIndices.allGenCjetIndices_),
+genCjetIndices_(genObjectNoRecoMatchIndices.genCjetIndices_),
+genJetMatchedRecoCjetIndices_(genJetMatchedRecoCjetIndices),
+genBjetFromTopIndex_(genObjectNoRecoMatchIndices.genBjetFromTopIndex_),
+genAntiBjetFromTopIndex_(genObjectNoRecoMatchIndices.genAntiBjetFromTopIndex_),
+recoBjetFromTopIndex_(recoBjetFromTopIndex),
+recoAntiBjetFromTopIndex_(recoAntiBjetFromTopIndex),
+genBjetFromHiggsIndex_(genObjectNoRecoMatchIndices.genBjetFromHiggsIndex_),
+genAntiBjetFromHiggsIndex_(genObjectNoRecoMatchIndices.genAntiBjetFromHiggsIndex_),
 recoBjetFromHiggsIndex_(recoBjetFromHiggsIndex),
 recoAntiBjetFromHiggsIndex_(recoAntiBjetFromHiggsIndex)
 {}

@@ -35,6 +35,7 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   AnalyzerGenEvent
   AnalyzerJetCharge
   AnalyzerJetMatch
+  AnalyzerJetProperties
   AnalyzerKinematicReconstruction
   AnalyzerMvaTopJets
   AnalyzerPlayground
@@ -62,6 +63,7 @@ SET( Unfold_LIBSOURCES
 
 SET( ${PROJECT_NAME}_EXECUTABLES
   load_Analysis
+  categoryMerger
   train_mvaTopJets
   Histo
   HistoDiffXS

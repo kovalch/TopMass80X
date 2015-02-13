@@ -16,6 +16,7 @@ AnalysisMode::AnalysisMode AnalysisMode::convert(const TString& analysisMode)
     if(analysisMode == "cp") return cp;
     if(analysisMode == "dijet") return dijet;
     if(analysisMode == "charge") return charge;
+    if(analysisMode == "jetProp") return jetProp;
     if(analysisMode == "match") return match;
     if(analysisMode == "playg") return playg;
     if(analysisMode == "weight") return weight;
@@ -38,6 +39,7 @@ TString AnalysisMode::convert(const AnalysisMode& analysisMode)
     if(analysisMode == cp) return "cp";
     if(analysisMode == dijet) return "dijet";
     if(analysisMode == charge) return "charge";
+    if(analysisMode == jetProp) return "jetProp";
     if(analysisMode == match) return "match";
     if(analysisMode == playg) return "playg";
     if(analysisMode == weight) return "weight";

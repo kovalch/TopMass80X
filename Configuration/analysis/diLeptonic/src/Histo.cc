@@ -10,8 +10,6 @@
 #include <iostream>
 #include <set>
 
-#include <future>
-
 #include "plotterclass.h"
 #include "HistoListReader.h"
 #include "UsefulTools.h"
@@ -76,22 +74,8 @@ void Histo(bool doControlPlots, bool doUnfold, bool doDiffXSPlotOnly,
         }
         if (doUnfold) {
             for (auto systematic:systematics){
-                //unfold all channels except combined in parallel
-                std::vector<std::future<void>> unfoldJobs;
                 for (auto channel:channels) {
-                        TString ch(channel.c_str());
-                        TString sys(systematic.c_str());
-                        unfoldJobs.push_back(std::async(std::launch::async, [ch, sys](Plotter p) -> void { 
-                            p.unfolding(ch,sys);
-                        }, h_generalPlot));
-                        //FIXME:
-                        //it seems unfolding is not thread safe! 
-                        //fix that and remove the next line
-                        unfoldJobs.at(unfoldJobs.size()-1).wait();
-                }
-                //wait for the 3 channels to finish
-                for (auto &i : unfoldJobs) {
-                    i.get();
+                    h_generalPlot.unfolding(channel, systematic);
                 }
             }
         std::cout << "Done with the unfolding\n";

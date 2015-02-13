@@ -16,6 +16,7 @@ namespace AnalysisMode{
         cp,         // Basic control plots analyser
         dijet,      // Dijet analyser
         charge,     // Jet charge analyser
+        jetProp,    // Jet properties analyser
         match,      // Jet matching analyser
         playg,      // Playground analyser
         weight,     // Event weight analyser
@@ -34,7 +35,7 @@ namespace AnalysisMode{
     
     /// All analysis modes allowed for analysis
     const std::vector<AnalysisMode> allowedAnalysisModes
-        {cp, dijet, charge, match, playg, weight, genEvent, kinReco, mvaTopP, mvaTopA, mvaEventP, mvaEventA, mvaChargeP, mvaChargeA};
+        {cp, dijet, charge, jetProp, match, playg, weight, genEvent, kinReco, mvaTopP, mvaTopA, mvaEventP, mvaEventA, mvaChargeP, mvaChargeA};
     
     
     

@@ -51,19 +51,24 @@ namespace tth{
     
     
     struct GenObjectIndices{
+        /// Constructor for filling all indices which are purely generator based
         GenObjectIndices(const std::vector<int>& genJetIndices,
+                         const std::vector<std::vector<int> >& genJetBhadronIndices,
                          const std::vector<int>& allGenBjetIndices,
                          const std::vector<int>& genBjetIndices,
-                         const std::vector<std::vector<int> >& genJetBhadronIndices,
-                         const std::vector<int>& genJetMatchedRecoBjetIndices,
+                         const std::vector<std::vector<int> >& genJetChadronIndices,
                          const std::vector<int>& allGenCjetIndices,
                          const std::vector<int>& genCjetIndices,
-                         const std::vector<std::vector<int> >& genJetChadronIndices,
-                         const std::vector<int>& genJetMatchedRecoCjetIndices,
                          const int& genBjetFromTopIndex, const int& genAntiBjetFromTopIndex,
+                         const int& genBjetFromHiggsIndex, const int& genAntiBjetFromHiggsIndex);
+        
+        /// Constructor for filling gen-reco matching indices for given GenObjectIndices
+        GenObjectIndices(const GenObjectIndices& genObjectNoRecoMatchIndices,
+                         const std::vector<int>& genJetMatchedRecoBjetIndices,
+                         const std::vector<int>& genJetMatchedRecoCjetIndices,
                          const int& recoBjetFromTopIndex, const int& recoAntiBjetFromTopIndex,
-                         const int& genBjetFromHiggsIndex, const int& genAntiBjetFromHiggsIndex,
                          const int& recoBjetFromHiggsIndex, const int& recoAntiBjetFromHiggsIndex);
+        
         ~GenObjectIndices(){}
         
         bool uniqueGenTopMatching()const;
@@ -86,14 +91,15 @@ namespace tth{
         
         #ifndef __CINT__
         const std::vector<int>& genJetIndices_;
+        
+        const std::vector<std::vector<int> >& genJetBhadronIndices_;
         const std::vector<int>& allGenBjetIndices_;
         const std::vector<int>& genBjetIndices_;
-        const std::vector<std::vector<int> >& genJetBhadronIndices_;
         const std::vector<int>& genJetMatchedRecoBjetIndices_;
         
+        const std::vector<std::vector<int> >& genJetChadronIndices_;
         const std::vector<int>& allGenCjetIndices_;
         const std::vector<int>& genCjetIndices_;
-        const std::vector<std::vector<int> >& genJetChadronIndices_;
         const std::vector<int>& genJetMatchedRecoCjetIndices_;
         
         const int& genBjetFromTopIndex_;

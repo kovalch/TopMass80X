@@ -105,6 +105,7 @@ namespace Systematic{
     const std::vector<Type> allowedSystematics = {
         nominal, all, allAvailable,
         pu, lept, trig,
+        
         jer, jes,
         btag, 
         btagPt, btagEta,
@@ -114,9 +115,11 @@ namespace Systematic{
         btagDiscrLstat1, btagDiscrLstat2,
         btagDiscrPurity,
         kin,
+        
         lumi,
         frac_tthf, frac_ttother,
         xsec_tt2b, xsec_ttcc,
+        
         topPt,
         mass, match, scale,
         powheg, powhegHerwig, mcatnlo, perugia11, perugia11NoCR,
@@ -161,8 +164,18 @@ int main(int argc, char** argv){
     if(opt_systematic.isSet()){
         if(opt_systematic[0] == Systematic::convertType(Systematic::all))
             ; // do nothing
-        else if(opt_systematic[0] == Systematic::convertType(Systematic::allAvailable))
+        else if(opt_systematic[0] == Systematic::convertType(Systematic::allAvailable)) {
             v_systematic = common::findSystematicsFromFilelists("FileLists_plot", v_channel, v_systematic);
+            // Adding systematics that do not require specific root files
+            for(Systematic::Type type : Systematic::crossSectionTypes) {
+                v_systematic.push_back(Systematic::Systematic(type, Systematic::up));
+                v_systematic.push_back(Systematic::Systematic(type, Systematic::down));
+            }
+            for(Systematic::Type type : Systematic::tthfFractionTypes) {
+                v_systematic.push_back(Systematic::Systematic(type, Systematic::up));
+                v_systematic.push_back(Systematic::Systematic(type, Systematic::down));
+            }
+        }
         else
             v_systematic = Systematic::setSystematics(opt_systematic.getArguments());
     }

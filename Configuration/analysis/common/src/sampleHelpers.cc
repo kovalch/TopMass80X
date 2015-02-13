@@ -608,34 +608,47 @@ std::vector<TString> common::readFilelist(const TString& filelistDirectory,
     // Access name of file list containing list of input root files
     const TString filelistName = findFilelist(filelistDirectory, channel, systematic);
     if(filelistName == ""){
-        std::cerr<<"Error in common::readFilelist! Cannot find file (folder, channel, systematic): "
+        std::cerr<<"Error in common::readFilelist()! Cannot find file (folder, channel, systematic): "
                  <<filelistDirectory<<" , "<<Channel::convert(channel)<<" , "<<systematic.name()<<"\n...break\n"<<std::endl;
         exit(1);
     }
     
-    // Read in file list to a vector
-    std::vector<TString> v_filename;
-    std::cout<<"Reading file: "<<filelistName<<std::endl;
-    std::ifstream filelist(filelistName);
-    while(!filelist.eof()){
-        TString filename;
-        filelist>>filename;
-        // Skip empty lines
-        if(filename == "") continue;
-        // Comment lines in FileList with '#'
-        if(filename.BeginsWith("#")) continue;
-        // Check that all patterns are contained in the filename
-        for(const auto& pattern : v_pattern) if(!filename.Contains(pattern)) continue;
-        v_filename.push_back(filename);
-    }
-    filelist.close();
-    
-    return v_filename;
+    // Read in file list to a vector and return it
+    return readFile(filelistName, v_pattern);
 }
 
 
 
-
+std::vector<TString> common::readFile(const TString& filename, const std::vector<TString>& v_pattern)
+{
+    std::vector<TString> v_line;
+    
+    std::cout<<"Reading file: "<<filename<<std::endl;
+    std::ifstream file(filename);
+    if(!file.is_open()){
+        std::cerr<<"Error in common::readFile()! Cannot find file: "<<filename<<"\n...break\n"<<std::endl;
+        exit(1);
+    }
+    while(!file.eof()){
+        TString line;
+        file>>line;
+        // Skip empty lines
+        if(line == "") continue;
+        // Comment lines with '#'
+        if(line.BeginsWith("#")) continue;
+        // Check that all patterns are contained in the line
+        bool notAllPatternsContained(false);
+        for(const auto& pattern : v_pattern)
+            if(!line.Contains(pattern)){
+                notAllPatternsContained = true;
+                break;
+            }
+        if(!notAllPatternsContained) v_line.push_back(line);
+    }
+    file.close();
+    
+    return v_line;
+}
 
 
 

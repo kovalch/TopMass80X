@@ -58,6 +58,7 @@ channelPdgIdProduct_(0),
 checkZDecayMode_(0),
 outputfilename_(""),
 isTtbarSample_(false),
+isTtbarZSample_(false),
 eventCounter_(0),
 analysisOutputBase_(0),
 kinematicReconstruction_(0),
@@ -228,7 +229,7 @@ void AnalysisBase::Init(TTree *tree)
     if(isTopSignal_) this->SetTopSignalBranchAddresses();
     if(isHiggsSignal_) this->SetHiggsDecayBranchAddress();
     if(isHiggsSignal_) this->SetHiggsSignalBranchAddresses();
-    if(isDrellYan_) this->SetZDecayBranchAddress();
+    if(isDrellYan_ || isTtbarZSample_) this->SetZDecayBranchAddress();
     if(isDrellYan_) this->SetZSignalBranchAddresses();
 }
 
@@ -283,6 +284,8 @@ void AnalysisBase::SetGeneratorBools(const TString& samplename, const Systematic
     isTtbarSample_ = samplename.BeginsWith("ttbar") && !samplename.BeginsWith("ttbarhiggs") &&
                         !(samplename=="ttbarw") && !(samplename=="ttbarz");
     isTtbarPlusTauSample_ = isTtbarSample_ && !samplename.BeginsWith("ttbarbg");
+    
+    isTtbarZSample_ = samplename=="ttbarz";
     
     const TString systematicName = systematic.name();
     correctMadgraphBR_ = samplename.BeginsWith("ttbar") && !samplename.BeginsWith("ttbarhiggs") && !systematicName.Contains("SPIN") &&
@@ -910,33 +913,36 @@ void AnalysisBase::GetRecoBranchesEntry(const Long64_t& entry)const
     //b_jetBTagJetBProbability->GetEntry(entry);
     b_jetBTagCSV->GetEntry(entry);
     //b_jetBTagCSVMVA->GetEntry(entry);
-    if(b_jetChargeGlobalPtWeighted) b_jetChargeGlobalPtWeighted->GetEntry(entry);
-    if(b_jetChargeRelativePtWeighted) b_jetChargeRelativePtWeighted->GetEntry(entry);
-//     if(b_jetPfCandidateTrack) b_jetPfCandidateTrack->GetEntry(entry);
-//     if(b_jetPfCandidateTrackCharge) b_jetPfCandidateTrackCharge->GetEntry(entry);
-//     if(b_jetPfCandidateTrackId) b_jetPfCandidateTrackId->GetEntry(entry);
-//     if(b_jetPfCandidateTrackIndex) b_jetPfCandidateTrackIndex->GetEntry(entry);
-//     if(b_jetSelectedTrack) b_jetSelectedTrack->GetEntry(entry);
-//     if(b_jetSelectedTrackMatchToPfCandidateIndex) b_jetSelectedTrackMatchToPfCandidateIndex->GetEntry(entry);
-//     if(b_jetSelectedTrackIPValue) b_jetSelectedTrackIPValue->GetEntry(entry);
-//     if(b_jetSelectedTrackIPSignificance) b_jetSelectedTrackIPSignificance->GetEntry(entry);
-//     if(b_jetSelectedTrackCharge) b_jetSelectedTrackCharge->GetEntry(entry);
-//     if(b_jetSelectedTrackIndex) b_jetSelectedTrackIndex->GetEntry(entry);
-//     if(b_jetSecondaryVertex) b_jetSecondaryVertex->GetEntry(entry);
-//     if(b_jetSecondaryVertexPtCorrectedMass) b_jetSecondaryVertexPtCorrectedMass->GetEntry(entry);
-//     if(b_jetSecondaryVertexJetIndex) b_jetSecondaryVertexJetIndex->GetEntry(entry);
-//     if(b_jetSecondaryVertexFlightDistanceValue) b_jetSecondaryVertexFlightDistanceValue->GetEntry(entry);
-//     if(b_jetSecondaryVertexFlightDistanceSignificance) b_jetSecondaryVertexFlightDistanceSignificance->GetEntry(entry);
-//     if(b_jetSecondaryVertexTrackVertexIndex) b_jetSecondaryVertexTrackVertexIndex->GetEntry(entry);
-//     if(b_jetSecondaryVertexTrackMatchToSelectedTrackIndex) b_jetSecondaryVertexTrackMatchToSelectedTrackIndex->GetEntry(entry);
-//     if(b_jetPfCandidatePrimaryVertexId) b_jetPfCandidatePrimaryVertexId->GetEntry(entry);
     b_met->GetEntry(entry);
     b_vertMulti->GetEntry(entry);
+    // Reading of jetProperty branches can be switched off(on) by (un)commenting this line, but jetChargeRelativePtWeighted needs to exist always for ttH workflow
+    //this->GetJetPropertiesBranchesEntry(entry);
+    if(b_jetChargeRelativePtWeighted) b_jetChargeRelativePtWeighted->GetEntry(entry);
+}
 
-    // Concerning event
-    b_runNumber->GetEntry(entry);
-    b_lumiBlock->GetEntry(entry);
-    b_eventNumber->GetEntry(entry);
+
+
+void AnalysisBase::GetJetPropertiesBranchesEntry(const Long64_t& entry)const
+{
+    if(b_jetChargeGlobalPtWeighted) b_jetChargeGlobalPtWeighted->GetEntry(entry);
+    if(b_jetPfCandidateTrack) b_jetPfCandidateTrack->GetEntry(entry);
+    if(b_jetPfCandidateTrackCharge) b_jetPfCandidateTrackCharge->GetEntry(entry);
+    if(b_jetPfCandidateTrackId) b_jetPfCandidateTrackId->GetEntry(entry);
+    if(b_jetPfCandidateTrackIndex) b_jetPfCandidateTrackIndex->GetEntry(entry);
+    if(b_jetSelectedTrack) b_jetSelectedTrack->GetEntry(entry);
+    if(b_jetSelectedTrackMatchToPfCandidateIndex) b_jetSelectedTrackMatchToPfCandidateIndex->GetEntry(entry);
+    if(b_jetSelectedTrackIPValue) b_jetSelectedTrackIPValue->GetEntry(entry);
+    if(b_jetSelectedTrackIPSignificance) b_jetSelectedTrackIPSignificance->GetEntry(entry);
+    if(b_jetSelectedTrackCharge) b_jetSelectedTrackCharge->GetEntry(entry);
+    if(b_jetSelectedTrackIndex) b_jetSelectedTrackIndex->GetEntry(entry);
+    if(b_jetSecondaryVertex) b_jetSecondaryVertex->GetEntry(entry);
+    if(b_jetSecondaryVertexPtCorrectedMass) b_jetSecondaryVertexPtCorrectedMass->GetEntry(entry);
+    if(b_jetSecondaryVertexJetIndex) b_jetSecondaryVertexJetIndex->GetEntry(entry);
+    if(b_jetSecondaryVertexFlightDistanceValue) b_jetSecondaryVertexFlightDistanceValue->GetEntry(entry);
+    if(b_jetSecondaryVertexFlightDistanceSignificance) b_jetSecondaryVertexFlightDistanceSignificance->GetEntry(entry);
+    if(b_jetSecondaryVertexTrackVertexIndex) b_jetSecondaryVertexTrackVertexIndex->GetEntry(entry);
+    if(b_jetSecondaryVertexTrackMatchToSelectedTrackIndex) b_jetSecondaryVertexTrackMatchToSelectedTrackIndex->GetEntry(entry);
+    if(b_jetPfCandidatePrimaryVertexId) b_jetPfCandidatePrimaryVertexId->GetEntry(entry);
 }
 
 
@@ -995,21 +1001,21 @@ void AnalysisBase::SetTrueLevelDYChannel(const int dy)
         std::cout<<"Include true-level filter for Z decay to PDG ID: "<<dy<<"\n";
         
         // Create function to check the Z decay channel
-        checkZDecayMode_ = [&, dy](Long64_t entry) -> bool {
-            this->GetZDecayModeEntry(entry);
+        checkZDecayMode_ = [&, dy](const std::vector<int>& v_zDecayMode) -> bool {
+            if(v_zDecayMode.size() != 1){
+                std::cerr<<"ERROR in AnalysisBase::checkZDecayMode_()! Not exactly one genZ found but: "
+                         <<v_zDecayMode.size()<<"\n...break\n"<<std::endl;
+                exit(429);
+            }
             bool pass = false;
-            // Loop over all Zs
-            for(const auto decayMode : *v_genZDecayMode_){
-                if((dy == 15 && decayMode >= 150000) ||
-                   (dy == 13 && decayMode == 13) ||
-                   (dy == 11 && decayMode == 11)){
-                    pass = true;
-                    break;
-                }
+            const int decayMode = v_zDecayMode.at(0);
+            if((dy==15 && decayMode>=150000) ||
+               (dy==13 && decayMode==13) ||
+               (dy==11 && decayMode==11)){
+                pass = true;
             }
             return pass;
         };
-
     }
     else{
         checkZDecayMode_ = nullptr;
@@ -1278,9 +1284,9 @@ double AnalysisBase::btagCutValue()const
 
 
 
-bool AnalysisBase::failsDrellYanGeneratorSelection(const Long64_t& entry)const
+bool AnalysisBase::failsDrellYanGeneratorSelection(const std::vector<int>& v_zDecayMode)const
 {
-    if(checkZDecayMode_ && !checkZDecayMode_(entry)) return true;
+    if(checkZDecayMode_ && !checkZDecayMode_(v_zDecayMode)) return true;
     return false;
 }
 
@@ -1662,11 +1668,16 @@ void AnalysisBase::produceBtagEfficiencies()
 
 
 
-void AnalysisBase::correctMvaMet(const LV& dilepton, const int nJet, const Long64_t& entry)const
+void AnalysisBase::correctMvaMet(const int leptonIndex, const int antiLeptonIndex, const VLV& allLeptons,
+                                 const int nJet, const Long64_t& entry)const
 {
     if(!isDrellYan_ || !mvaMet_) return;
     
     if(!metRecoilCorrector_) return;
+    
+    if(leptonIndex<0 || antiLeptonIndex<0) return;
+    
+    const LV dilepton = allLeptons.at(leptonIndex) + allLeptons.at(antiLeptonIndex);
     
     const ZGenObjects& zGenObjects = this->getZGenObjects(entry);
     if(zGenObjects.GenZ_->size() != 1){
@@ -1743,6 +1754,16 @@ int AnalysisBase::higgsDecayMode(const Long64_t& entry)const
     this->GetHiggsDecayModeEntry(entry);
     
     return higgsDecayMode_;
+}
+
+
+
+std::vector<int> AnalysisBase::zDecayModes(const Long64_t& entry)const
+{
+    if(!isDrellYan_ && !isTtbarZSample_) return std::vector<int>();
+    this->GetZDecayModeEntry(entry);
+    
+    return *v_genZDecayMode_;
 }
 
 
