@@ -507,6 +507,7 @@ void HfFracScaleFactors::writeDatacardWithHistos(const std::vector<TH1*> histos,
 
 bool HfFracScaleFactors::histogramsAreIdentical(TH1* histo1, TH1* histo2)const
 {
+    if(!histo1 || !histo2) return false;
     if(histo1->GetEntries() != histo2->GetEntries()) return false;
     if(histo1->GetNbinsX() != histo2->GetNbinsX()) return false;
     if(std::fabs((histo1->Integral() - histo2->Integral())/histo1->Integral()) > 0.00001) return false;
