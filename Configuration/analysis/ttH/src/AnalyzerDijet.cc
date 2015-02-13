@@ -2352,6 +2352,51 @@ void AnalyzerDijet::fillTopAdditionalJetsHistos(const EventMetadata& eventMetada
     common::orderIndices(addJetsId_gen, allGenJets, ordering);
     common::orderIndices(addBJetsId_gen, allGenJets, ordering);
     
+        
+    // Visible phase space
+    std::vector<int> addBJetsId_gen_vis(addBJetsId_gen);
+    std::vector<int> addBJetsId_gen_visNot(addBJetsId_gen);
+    // Checking whether the visible phase space cuts are satisfied
+    const double leptonPt_min = 20.;
+    const double leptonEta_max = 2.4;
+    const double jetPt_min = 30.;
+    const double jetEta_max = 2.4;
+    bool isVisiblePS = true;
+    // Checking leptons from tt system
+    if(topGenObjects.valuesSet_) {
+        if(topGenObjects.GenLepton_->Pt() < leptonPt_min) isVisiblePS = false;
+        if(topGenObjects.GenAntiLepton_->Pt() < leptonPt_min) isVisiblePS = false;
+        if(std::fabs(topGenObjects.GenLepton_->Eta()) > leptonEta_max) isVisiblePS = false;
+        if(std::fabs(topGenObjects.GenAntiLepton_->Eta()) > leptonEta_max) isVisiblePS = false;
+    } else isVisiblePS = false;
+    // Checking jets from tt system
+    if(!isVisiblePS || topAllJetsId_gen.size() < 2) isVisiblePS = false;
+    if(isVisiblePS) {
+        for(int jetId : topAllJetsId_gen){
+            LV jet = allGenJets.at(jetId);
+            if(jet.Pt() < jetPt_min) { isVisiblePS = false; break; }
+            if(std::fabs(jet.Eta()) > jetEta_max) { isVisiblePS = false; break; }
+        }
+    }
+    if(!isVisiblePS) addBJetsId_gen_vis.clear();
+    else addBJetsId_gen_visNot.clear();
+    
+    
+    // Filling histograms about leading jets with tt jets identified at generator level (GEN -> RECO)
+    fillLeadingJetsHistosVsGen("top_gen", eventMetadata, allGenJets, topAllJetsId_gen, allGenJets, topAllJetsId_gen, genJetsRecoId, topAllJetsId_gen, topAllJetsId_gen, weight, m_histogram, recoObjects, false);
+    fillLeadingJetsHistosVsGen("add_gen", eventMetadata, allGenJets, addJetsId_gen, allGenJets, addJetsId_gen, genJetsRecoId, topAllJetsId_gen, topAllJetsId_gen, weight, m_histogram, recoObjects, false);
+    fillLeadingJetsHistosVsGen("addB_gen", eventMetadata, allGenJets, addBJetsId_gen, allGenJets, addBJetsId_gen, genJetsRecoId, topAllJetsId_gen, topAllJetsId_gen, weight, m_histogram, recoObjects, false);
+    fillBjetIdVsJetIdHisto((TH2*)m_histogram.at("leadingJet_addJetId_addB_gen"), addBJetsId_gen, addJetsId_gen, weight);
+    // Visible phase space
+    fillLeadingJetsHistosVsGen("addB_vis_gen", eventMetadata, allGenJets, addBJetsId_gen_vis, allGenJets, addBJetsId_gen_vis, genJetsRecoId, topAllJetsId_gen, topAllJetsId_gen, weight, m_histogram, recoObjects, false);
+    // Outside visible phase space
+    fillLeadingJetsHistosVsGen("addB_visNot_gen", eventMetadata, allGenJets, addBJetsId_gen_visNot, allGenJets, addBJetsId_gen_visNot, genJetsRecoId, topAllJetsId_gen, topAllJetsId_gen, weight, m_histogram, recoObjects, false);
+    
+
+    
+    // ################################################################################### ONLY RECO LEVEL INFORMATION FILLED NEXT
+    if(!recoObjects.valuesSet_) return;
+    
     // Ordering reco jet indices
     common::orderIndices(jetsId, allJets, ordering);
     common::orderIndices(bJetsId, allJets, ordering);
@@ -2369,7 +2414,7 @@ void AnalyzerDijet::fillTopAdditionalJetsHistos(const EventMetadata& eventMetada
     // Identifying reco jets from tt by MVA
     std::vector<float> v_mvaWeights;
     if(recoObjectIndices.jetIndexPairs_.size()>0) {
-	std::vector<MvaVariablesBase*> v_mvaVariables = MvaVariablesTopJets::fillVariables(recoObjectIndices, genObjectIndices, recoObjects, weight);
+    std::vector<MvaVariablesBase*> v_mvaVariables = MvaVariablesTopJets::fillVariables(recoObjectIndices, genObjectIndices, recoObjects, weight);
         if(weightsCorrect_) {
             v_mvaWeights = weightsCorrect_->mvaWeights(v_mvaVariables);
             const tth::IndexPairs& jetIndexPairs = recoObjectIndices.jetIndexPairs_;
@@ -2460,50 +2505,6 @@ void AnalyzerDijet::fillTopAdditionalJetsHistos(const EventMetadata& eventMetada
     for(int jetId : topJetsId_mva) m_histogram.at("leadingJets_btagDiscriminator_top_mva")->Fill(allJetsBtagDiscriminant.at(jetId), weight);
     for(int jetId : addJetsId_mva) m_histogram.at("leadingJets_btagDiscriminator_add_mva")->Fill(allJetsBtagDiscriminant.at(jetId), weight);
     for(int jetId : addBJetsId_mva) m_histogram.at("leadingJets_btagDiscriminator_addB_mva")->Fill(allJetsBtagDiscriminant.at(jetId), weight);
-    
-        
-    // Visible phase space
-    std::vector<int> addBJetsId_gen_vis(addBJetsId_gen);
-    std::vector<int> addBJetsId_gen_visNot(addBJetsId_gen);
-    // Checking whether the visible phase space cuts are satisfied
-    const double leptonPt_min = 20.;
-    const double leptonEta_max = 2.4;
-    const double jetPt_min = 30.;
-    const double jetEta_max = 2.4;
-    bool isVisiblePS = true;
-    // Checking leptons from tt system
-    if(topGenObjects.valuesSet_) {
-        if(topGenObjects.GenLepton_->Pt() < leptonPt_min) isVisiblePS = false;
-        if(topGenObjects.GenAntiLepton_->Pt() < leptonPt_min) isVisiblePS = false;
-        if(std::fabs(topGenObjects.GenLepton_->Eta()) > leptonEta_max) isVisiblePS = false;
-        if(std::fabs(topGenObjects.GenAntiLepton_->Eta()) > leptonEta_max) isVisiblePS = false;
-    } else isVisiblePS = false;
-    // Checking jets from tt system
-    if(!isVisiblePS || topAllJetsId_gen.size() < 2) isVisiblePS = false;
-    if(isVisiblePS) {
-        for(int jetId : topAllJetsId_gen){
-            LV jet = allGenJets.at(jetId);
-            if(jet.Pt() < jetPt_min) { isVisiblePS = false; break; }
-            if(std::fabs(jet.Eta()) > jetEta_max) { isVisiblePS = false; break; }
-        }
-    }
-    if(!isVisiblePS) addBJetsId_gen_vis.clear();
-    else addBJetsId_gen_visNot.clear();
-    
-    
-    // Filling histograms about leading jets with tt jets identified at generator level (GEN -> RECO)
-    fillLeadingJetsHistosVsGen("top_gen", eventMetadata, allGenJets, topAllJetsId_gen, allGenJets, topAllJetsId_gen, genJetsRecoId, topAllJetsId_gen, topAllJetsId_gen, weight, m_histogram, recoObjects, false);
-    fillLeadingJetsHistosVsGen("add_gen", eventMetadata, allGenJets, addJetsId_gen, allGenJets, addJetsId_gen, genJetsRecoId, topAllJetsId_gen, topAllJetsId_gen, weight, m_histogram, recoObjects, false);
-    fillLeadingJetsHistosVsGen("addB_gen", eventMetadata, allGenJets, addBJetsId_gen, allGenJets, addBJetsId_gen, genJetsRecoId, topAllJetsId_gen, topAllJetsId_gen, weight, m_histogram, recoObjects, false);
-    fillBjetIdVsJetIdHisto((TH2*)m_histogram.at("leadingJet_addJetId_addB_gen"), addBJetsId_gen, addJetsId_gen, weight);
-    // Visible phase space
-    fillLeadingJetsHistosVsGen("addB_vis_gen", eventMetadata, allGenJets, addBJetsId_gen_vis, allGenJets, addBJetsId_gen_vis, genJetsRecoId, topAllJetsId_gen, topAllJetsId_gen, weight, m_histogram, recoObjects, false);
-    // Outside visible phase space
-    fillLeadingJetsHistosVsGen("addB_visNot_gen", eventMetadata, allGenJets, addBJetsId_gen_visNot, allGenJets, addBJetsId_gen_visNot, genJetsRecoId, topAllJetsId_gen, topAllJetsId_gen, weight, m_histogram, recoObjects, false);
-    
-    
-    // ################################################################################### ONLY RECO LEVEL INFORMATION FILLED NEXT
-    if(!recoObjects.valuesSet_) return;
     
     // Filling histograms about leading jets with tt jets identified by True
     fillLeadingJetsHistosVsGen("top_true", eventMetadata, allGenJets, topAllJetsId_gen, allJets, topJetsId_true, genJetsRecoId, topAllJetsId_gen, topJetsId_true, weight, m_histogram, recoObjects, false);
@@ -2738,6 +2739,9 @@ void AnalyzerDijet::fillLeadingJetsHistosVsGen(const std::string& name,
     if(m_histogram[histoName]) ((TH2*)m_histogram[histoName])->Fill(reco_Pt2, gen_Pt2, weight);
     histoName = "leadingJet_2nd_Eta_"+name+"VsGen";
     if(m_histogram[histoName]) ((TH2*)m_histogram[histoName])->Fill(reco_Eta2, gen_Eta2, weight);
+    
+    // Filling nothing if no reco jet indices are provided
+    if(genJetsRecoId.size() < genJetsId.size()) return;
     
     for(size_t iJet_gen = 0; iJet_gen<genJetsId.size(); ++iJet_gen) {
         int genJetId = genJetsId.at(iJet_gen);
