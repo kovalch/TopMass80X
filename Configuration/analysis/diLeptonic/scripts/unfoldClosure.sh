@@ -20,15 +20,15 @@ for ch in ee emu mumu; do
 
     ### Make unfolding
     w
-    $HISTO -t unfold -p +hyptoppt -c ${ch}
+    install/bin/Histo -t unfold -p +hyptoppt -c ${ch}
     grep -v Bin < UnfoldingResults/Nominal/${ch}/HypToppTResults.txt | awk '{print $2"  "$8"  "$10"  "$10}' >> ${basedir}closure_result_pt_${ch}.txt
 
-    $HISTO -t unfold -p +hyptoprapidity -c ${ch}
+    install/bin/Histo -t unfold -p +hyptoprapidity -c ${ch}
     grep -v Bin < UnfoldingResults/Nominal/${ch}/HypTopRapidityResults.txt | awk '{print $2"  "$8"  "$10"  "$10}' >> ${basedir}closure_result_y_${ch}.txt
 
     ### Make control plot
-    $HISTO -t cp -p +hyptoppt -c ${ch}
-    $HISTO -t cp -p +hyptoprapidity -c ${ch}
+    install/bin/Histo -t cp -p +hyptoppt -c ${ch}
+    install/bin/Histo -t cp -p +hyptoprapidity -c ${ch}
 done
 
 mv Plots ${basedir}PlotsNominal
@@ -49,11 +49,11 @@ for slope in 0.002 0.004 0.006 0.008 -0.002 -0.004 -0.006 -0.008; do
 
         ### Make unfolding
         w
-        $HISTO -t unfold -p +hyptoppt -c ${ch}
+        install/bin/Histo -t unfold -p +hyptoppt -c ${ch}
         grep -v Bin < UnfoldingResults/Nominal/${ch}/HypToppTResults.txt | awk '{print $2"  "$8"  "$10"  "$10}' >> ${basedir}closure_result_pt_${ch}_${slope}.txt
 
         ### Make control plot
-        $HISTO -t cp -p +hyptoppt -c ${ch}
+        install/bin/Histo -t cp -p +hyptoppt -c ${ch}
    done
 
    mv Plots ${basedir}PlotsPt$slope
@@ -86,11 +86,11 @@ for slope in 0.080 0.160 0.240 0.320 -0.080 -0.160 -0.240 -0.320; do
 
         ### Make unfolding
         w
-        $HISTO -t unfold -p +hyptoprapidity -c ${ch}
+        install/bin/Histo -t unfold -p +hyptoprapidity -c ${ch}
         grep -v Bin < UnfoldingResults/Nominal/${ch}/HypTopRapidityResults.txt | awk '{print $2"  "$8"  "$10"  "$10}' >> ${basedir}closure_result_y_${ch}_${slope}.txt
 
         ### Make control plots
-        $HISTO -t cp -p +hyptoprapidity -c ${ch}
+        install/bin/Histo -t cp -p +hyptoprapidity -c ${ch}
     done
 
     mv Plots ${basedir}PlotsY$slope
@@ -139,11 +139,11 @@ echo " Now you can run 'root -l -b -q macros/compareClosure.C++' to plot all the
 # 
 #         ### Make unfolding
 #         w
-#         $HISTO -t unfold -p +hyptoppt -c ${ch}
+#         install/bin/Histo -t unfold -p +hyptoppt -c ${ch}
 #         grep -v Bin < UnfoldingResults/Nominal/${ch}/HypToppTResults.txt | awk '{print $2"  "$8"  "$10"  "$10}' >> ${basedir}closure_result_${ch}_${slope}.txt
 # 
 #         ### Make control plot
-#         $HISTO -t cp -p +hyptoppt -c ${ch}
+#         install/bin/Histo -t cp -p +hyptoppt -c ${ch}
 #    done
 # 
 #    mv Plots ${basedir}Plots$slope
