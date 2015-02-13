@@ -214,9 +214,8 @@ void load_Analysis(const TString& validFilenamePattern,
     v_analyzer.push_back(analyzerDyScaling);
     
     // Set up Heavy-Flavour fraction scaling histograms
-    JetCategories* jetCategories_hfFracScaling = new JetCategories(2, 5, 1, 4, true, true);
     AnalyzerHfFracScaling* analyzerHfFracScaling(0);
-    analyzerHfFracScaling = new AnalyzerHfFracScaling({"7"}, {"7"}, jetCategories_hfFracScaling);
+    analyzerHfFracScaling = new AnalyzerHfFracScaling({"7"}, {"7"}, jetCategories);
     v_analyzer.push_back(analyzerHfFracScaling);
     
     // Set up basic histograms
