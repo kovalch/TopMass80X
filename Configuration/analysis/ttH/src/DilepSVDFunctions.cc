@@ -36,7 +36,7 @@ TString DilepSVDFunctions::SVD_GetSteering(TString channel, TString particle, TS
     int flag_ps = 4;                 // Write everything to PS (4)
     int flag_root = 2;               // Do not make a ROOT file (1)
     int flag_text = 2;               // Do write Text file with optimal tau (2)
-    int flag_verbose = 2;            // Medium Verbosity (2)
+    int flag_verbose = 1;            // Medium Verbosity (2)
     int flag_scanpoints = 3;         // Use 125 Scan Points (3)
     int flag_scanrange = 2;          // Use Factor 100 for Scan Range (2)
     int flag_lowersidebin = 3;       // Cut out side bin on rec, not on gen level (3)
