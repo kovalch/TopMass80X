@@ -80,8 +80,8 @@ TopMassCalibration::TopMassCalibration() :
     activeBranches_(po::GetOption<std::string>("analysisConfig.activeBranches")),
     maxPermutations_(po::GetOption<int>("analysisConfig.maxPermutations")),
     //maxMtop_        (po::GetOption<double>("templates.maxTopMass")),
-    doCalibration_(false),
-    fitBackground_(true)
+    doCalibration_(true),
+    fitBackground_(false)
     //doMeasurement_(false)
 {
   if      (!strncmp(fChannel_, "alljets" , 7)) channelID_ = kAllJets;

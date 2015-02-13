@@ -857,7 +857,7 @@ void TopMassControlPlots::doPlots()
     */
     //samples.push_back(MySample("Background", "Run2012_Background_alljets*", kBkg, kYellow, 1));
     //samples.push_back(MySample("Background", "Run2012_Mixing8_alljets*", kBkg, kYellow, 1)); 
-    samples.push_back(MySample("Background", "Run2012B_Mixing8_fix_alljets*", kBkg, kYellow, 1)); 
+    samples.push_back(MySample("Background", "Run2012_Mixing8_fix_alljets*", kBkg, kYellow, 1)); 
   }
   
 

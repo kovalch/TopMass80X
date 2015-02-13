@@ -221,9 +221,10 @@ void ensembleTree()
   //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_150121_1700/"); // newer
   //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_150122_1600/"); // oldTEST
   //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_150202_1400/"); // older
-  TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_150211_1800/"); // older fixed Mixing
-  sFile += "ensemble_S12_Uncalibrated.root";
-  //sFile += "ensemble_S12_Calibrated.root";
+  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_150211_1800/"); // older fixed Mixing
+  TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_150211_1801/"); // older fixed Mixing
+  //sFile += "ensemble_S12_Uncalibrated.root";
+  sFile += "ensemble_S12_Calibrated.root";
 
   std::cout << "Doing calibration on: " << sFile << std::endl;
   TFile* fEnsemble = new TFile(sFile);
@@ -618,8 +619,8 @@ void ensembleTree()
     gMass[1]    ->Fit("constFit", "EM");
     gMassPull[1]->Fit("constFit", "EM");
   }
-  std::cout << "topmass 1D calibration uncertainty: " << std::sqrt(     pow(topMass1DUncertaintyFit->GetParError(0),2) +      pow((172.59-172.50)*topMass1DUncertaintyFit->GetParError(1),2)) << std::endl;
-  std::cout << "topmass 2D calibration uncertainty: " << std::sqrt(nJES*pow(topMass2DUncertaintyFit->GetParError(0),2) + nJES*pow((172.08-172.50)*topMass2DUncertaintyFit->GetParError(1),2)) << std::endl;
-  std::cout << "JES        calibration uncertainty: " << std::sqrt(nJES*pow(      jesUncertaintyFit->GetParError(0),2) + nJES*pow((172.08-172.50)*      jesUncertaintyFit->GetParError(1),2)) << std::endl;
+  std::cout << "topmass 1D calibration uncertainty: " << std::sqrt(     pow(topMass1DUncertaintyFit->GetParError(0),2) +      pow((172.30-172.50)*topMass1DUncertaintyFit->GetParError(1),2)) << std::endl;
+  std::cout << "topmass 2D calibration uncertainty: " << std::sqrt(nJES*pow(topMass2DUncertaintyFit->GetParError(0),2) + nJES*pow((171.88-172.50)*topMass2DUncertaintyFit->GetParError(1),2)) << std::endl;
+  std::cout << "JES        calibration uncertainty: " << std::sqrt(nJES*pow(      jesUncertaintyFit->GetParError(0),2) + nJES*pow((171.88-172.50)*      jesUncertaintyFit->GetParError(1),2)) << std::endl;
 }
 

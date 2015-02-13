@@ -393,6 +393,7 @@ void SystematicUncertainties::fillAllJets()
   //sample.path = "/nfs/dust/cms/user/eschliec/TopMass/topmass_150121_1701/"; // newer
   //sample.path = "/nfs/dust/cms/user/eschliec/TopMass/topmass_150202_1401/"; // olderTEST
   sample.path = "/nfs/dust/cms/user/eschliec/TopMass/topmass_150211_1801/"; // older DEFAULT WITHOUT JSF-CONSTRAINT FOR PAPER
+  //sample.path = "/nfs/dust/cms/user/eschliec/TopMass/topmass_150211_1802/"; // older DEFAULT WITH JSF-CONSTRAINT FOR PAPER
   sample.crossSection = 245.794;
   sample.peLumi = 18192.;
 
@@ -409,6 +410,7 @@ void SystematicUncertainties::fillAllJets()
   //sample.variables = {"fSig_mTop_JES_fSig_fCP", "fSig_mTop_JES_fSig", "fSig_mTop_fSig"};
   //sample.variables = {"fCP_mTop_JES_fSig_fCP", "JES_mTop_JES_fSig_fCP", "fCP_mTop_fSig_fCP"};
   //sample.variables = {"fSig_mTop_JES_fSig_fCP", "JES_mTop_JES_fSig_fCP", "fSig_mTop_fSig_fCP"};
+  //sample.variables = {"fSig_mTop_JES_fSig", "JES_mTop_JES_fSig", "fSig_mTop_fSig"};
 
   sample.ensembles["calibration"] = ensemble("", 0, {std::make_pair(sample.variables[0],std::make_pair(172.5,0.0544808)), std::make_pair(sample.variables[1],std::make_pair(1.0,0.00046571)), std::make_pair(sample.variables[2],std::make_pair(172.5,0.0542347))});
   sample.ensembles["calibrationDummy"] = ensemble("", 0, {std::make_pair(sample.variables[0],std::make_pair(172.5,0.)), std::make_pair(sample.variables[1],std::make_pair(1.0,0.)), std::make_pair(sample.variables[2],std::make_pair(172.5,0.))});
@@ -512,15 +514,15 @@ void SystematicUncertainties::fillAllJets()
   sample.ensembles["powheg"      ] = ensemble("Z2_S12_POWHEG/job_*_ensemble.root", 21675970./strafFaktor);
   sample.ensembles["powhegHerwig"] = ensemble("Z2_S12_POWHER/job_*_ensemble.root", 27684235./strafFaktor);
 
-  sample.ensembles["amcatnloPy8FAST"] = ensemble("Z2_S12_aMCNLO_Py8/job_*_ensemble.root" , 18280992./strafFaktor);
-  sample.ensembles["amcatnloHerFAST"] = ensemble("Z2_S12_aMCNLO_Her/job_*_ensemble.root" , 22734440./strafFaktor);
+  //sample.ensembles["amcatnloPy8FAST"] = ensemble("Z2_S12_aMCNLO_Py8/job_*_ensemble.root" , 18280992./strafFaktor);
+  //sample.ensembles["amcatnloHerFAST"] = ensemble("Z2_S12_aMCNLO_Her/job_*_ensemble.root" , 22734440./strafFaktor);
   //sample.ensembles["Pythia8FAST"    ] = ensemble("Z2_S12_FSIM_Py8/job_*_ensemble.root"   ,  8660000./strafFaktor);
 
   //sample.ensembles["parj81CenFAST" ] = ensemble("Z2_S12_FSIM_parj81_Cen/job_*_ensemble.root"  , 60507383./strafFaktor);
   //sample.ensembles["parj81UpFAST"  ] = ensemble("Z2_S12_FSIM_parj81_Down/job_*_ensemble.root" , 63957354./strafFaktor);
   //sample.ensembles["parj81DownFAST"] = ensemble("Z2_S12_FSIM_parj81_Up/job_*_ensemble.root"   , 64220697./strafFaktor);
 
-  sample.ensembles["defaultSC"] = ensemble("Z2_S12_Z2/job_*_ensemble.root"      , 41761265./6./6.*9.*9./strafFaktor);
+  //sample.ensembles["defaultSC"] = ensemble("Z2_S12_Z2/job_*_ensemble.root"      , 41761265./6./6.*9.*9./strafFaktor);
   sample.ensembles["P11"      ] = ensemble("Z2_S12_P11/job_*_ensemble.root"     , 11651739./6./6.*9.*9./strafFaktor);
   sample.ensembles["P11noCR"  ] = ensemble("Z2_S12_P11NoCR/job_*_ensemble.root" , 11919063./6./6.*9.*9./strafFaktor);
   sample.ensembles["P11mpiHi" ] = ensemble("Z2_S12_P11mpiHi/job_*_ensemble.root",  7953758./6./6.*9.*9./strafFaktor);
@@ -565,12 +567,13 @@ void SystematicUncertainties::fillAllJets()
   sample.comparisons["JES AbsoluteMPFBias              "] = comparison("default", "jesAbsoluteMPFBiasUp", "jesAbsoluteMPFBiasDown", true);
   sample.comparisons["JES AbsoluteScale                "] = comparison("default", "jesAbsoluteScaleUp", "jesAbsoluteScaleDown", true);
   sample.comparisons["JES AbsoluteStat                 "] = comparison("default", "jesAbsoluteStatUp", "jesAbsoluteStatDown", true);
-  sample.comparisons["JES HighPtExtra                  "] = comparison("default", "jesHighPtExtraUp", "jesHighPtExtraDown", true);
+  sample.comparisons["JES Fragmentation                "] = comparison("default", "jesFragmentationUp", "jesFragmentationDown", true);
   sample.comparisons["JES PileUpDataMC                 "] = comparison("default", "jesPileUpDataMCUp", "jesPileUpDataMCDown", true);
   sample.comparisons["JES PileUpPtBB                   "] = comparison("default", "jesPileUpPtBBUp", "jesPileUpPtBBDown", true);
   sample.comparisons["JES PileUpPtEC1                  "] = comparison("default", "jesPileUpPtEC1Up", "jesPileUpPtEC1Down", true);
   sample.comparisons["JES PileUpPtRef                  "] = comparison("default", "jesPileUpPtRefUp", "jesPileUpPtRefDown", true);
   sample.comparisons["JES RelativeFSR                  "] = comparison("default", "jesRelativeFSRUp", "jesRelativeFSRDown", true);
+  sample.comparisons["JES RelativeStatFSR              "] = comparison("default", "jesRelativeStatFSRUp", "jesRelativeStatFSRDown", true);
   sample.comparisons["JES RelativeJEREC1               "] = comparison("default", "jesRelativeJEREC1Up", "jesRelativeJEREC1Down", true);
   sample.comparisons["JES RelativePtBB                 "] = comparison("default", "jesRelativePtBBUp", "jesRelativePtBBDown", true);
   sample.comparisons["JES RelativePtEC1                "] = comparison("default", "jesRelativePtEC1Up", "jesRelativePtEC1Down", true);
@@ -584,23 +587,23 @@ void SystematicUncertainties::fillAllJets()
   sample.comparisons["Powheg+Pythia6 vs. Powheg+Herwig6"] = comparison("powheg", "powhegHerwig", "", false, false);
   sample.comparisons["MC@NLO+Herwig6 vs. Powheg+Herwig6"] = comparison("mcatnlo", "powhegHerwig", "", false, false);
   sample.comparisons["ME generator                     "] = comparison("default", "powheg", "", false);
-  sample.comparisons["Spin correlations                "] = comparison("default", "defaultSC", "", false, false);
-  sample.comparisons["Pythia Z2* vs. P11               "] = comparison("defaultSC", "P11", "", false, false);
+  //sample.comparisons["Spin correlations                "] = comparison("default", "defaultSC", "", false, false);
+  //sample.comparisons["Pythia Z2* vs. P11               "] = comparison("defaultSC", "P11", "", false, false);
   sample.comparisons["Color reconnection               "] = comparison("P11", "P11noCR", "", false);
   sample.comparisons["Underlying event                 "] = comparison("P11", "P11mpiHi", "P11TeV", false);
   sample.comparisons["Non-\\ttbar background \\fsig    "] = comparison("default", "fSigUp", "fSigDown", true);
   sample.comparisons["Non-\\ttbar background shape mW  "] = comparison("bkgMwDef", "bkgMwUp", "bkgMwDown", true);
   sample.comparisons["Non-\\ttbar background shape mT  "] = comparison("bkgMtDef", "bkgMtUp", "bkgMtDown", true);
-  sample.comparisons["Run dependent                    "] = comparison("defaultSC", "RD", "", false, false);
+  sample.comparisons["Run dependent                    "] = comparison("default", "RD", "", false, false);
   //sample.comparisons["PDF                              "] = comparison("default", "PDFDown", "PDFUp", true, true);
   //sample.comparisons["FSR                              "] = comparison("parj81CenFAST", "parj81UpFAST", "parj81DownFAST", true, true);
-  sample.comparisons["aMCNLO+Pythia8 vs. aMCNLO+Herwig+"] = comparison("amcatnloPy8FAST", "amcatnloHerFAST", "", false, false);
+  //sample.comparisons["aMCNLO+Pythia8 vs. aMCNLO+Herwig+"] = comparison("amcatnloPy8FAST", "amcatnloHerFAST", "", false, false);
 
   sample.mergedcomparisons["JEC pt/eta                      "] = mergedcomparison({
       "JES AbsoluteMPFBias              ",
       "JES AbsoluteScale                ",
       "JES AbsoluteStat                 ",
-      "JES HighPtExtra                  ",
+      "JES Fragmentation                ",
       "JES PileUpDataMC                 ",
       "JES PileUpPtBB                   ",
       "JES PileUpPtEC1                  ",
@@ -630,7 +633,7 @@ void SystematicUncertainties::fillAllJets()
   sample.mergedcomparisons["CorrelationGroupUncorrelated    "] = mergedcomparison({
       "JES AbsoluteScale                ",
       "JES AbsoluteStat                 ",
-      "JES HighPtExtra                  ",
+      "JES Fragmentation                ",
       "JES PileUpDataMC                 ",
       "JES PileUpPtBB                   ",
       "JES PileUpPtEC1                  ",
@@ -639,19 +642,19 @@ void SystematicUncertainties::fillAllJets()
       "JES RelativePtBB                 ",
       "JES RelativePtEC1                ",
       "JES SinglePionECAL               ",
-      "JES SinglePionHCAL               "
+      "JES SinglePionHCAL               ",
       "JES RelativeStatFSR              ",
     });
     
   sample.mergedcomparisons["CorrelationGroupUncorrelatedwoPU"] = mergedcomparison({
       "JES AbsoluteScale                ",
       "JES AbsoluteStat                 ",
-      "JES HighPtExtra                  ",
+      "JES Fragmentation                ",
       "JES RelativeJEREC1               ",
       "JES RelativePtBB                 ",
       "JES RelativePtEC1                ",
       "JES SinglePionECAL               ",
-      "JES SinglePionHCAL               "
+      "JES SinglePionHCAL               ",
       "JES RelativeStatFSR              ",
     });
     

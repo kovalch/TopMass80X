@@ -71,11 +71,11 @@ void plotter(std::string prefix, std::vector<std::string> samples, std::vector<s
   for(unsigned int j = 0; j < samples.size(); ++j){
     RooPlot* frame = 0;
     if(prefix.substr(0,4) == "mTop"){
-      RooRealVar topMass = RooRealVar("topMass","m_{t}^{fit}",100.,215.,"GeV");
+      RooRealVar topMass = RooRealVar("topMass","m_{t}^{fit}",100.,550.,"GeV");
       if(isBKG) frame = topMass.frame(RooFit::Range(100., 250.));
       else{
         if     (j == 0) frame = topMass.frame(RooFit::Range(100., 250.));
-        else if(j == 1) frame = topMass.frame(RooFit::Range(100., 250.));
+        else if(j == 1) frame = topMass.frame(RooFit::Range(100., 550.));
       }
     }
     else if(prefix.substr(0,2) == "mW"){
