@@ -26,6 +26,7 @@ class IdeogramAnalyzerMinimizer : public MassAnalyzer {
   enum allowedVariables{kMass, kJES, kFSig, kFCP};
   void IterateVariableCombinations(ROOT::Math::Minimizer* min, std::vector<allowedVariables> toFit, unsigned int start = 0);
   void PlotResult(ROOT::Math::Minimizer* min, allowedVariables x = kMass, allowedVariables y = kJES);
+  void PlotResult2(ROOT::Math::Minimizer* min, allowedVariables x = kMass, allowedVariables y = kJES);
 
   void CleanUp();
   
@@ -37,6 +38,8 @@ class IdeogramAnalyzerMinimizer : public MassAnalyzer {
   double shapeSystematic_, shapeSystematic2_;
   double permutationFractionSystematic_;
   //std::string topBranchName_;
+
+  static double evalAllJets(double *x, double *p);
   
   std::vector<std::vector<IdeogramCombLikelihood*>> eventFunctions_;
 

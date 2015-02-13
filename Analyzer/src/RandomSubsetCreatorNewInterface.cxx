@@ -87,11 +87,13 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface(const std::vect
 
   // TODO: Background samples and normalization from config in kHamburg and kAllJets
   if (channelID_ == Helper::kHamburg) {
-    PrepareEvents(samplePathJets_+fIdentifier_+std::string(".root"), Helper::kAllJets);
+    PrepareEvents(samplePathJets_+fIdentifier_+std::string("_alljets.root"), Helper::kAllJets);
     PrepareEvents(samplePathLept_+fIdentifier_+std::string("_muon/job_*.root"), Helper::kLeptonJets);
     PrepareEvents(samplePathLept_+fIdentifier_+std::string("_electron/job_*.root"), Helper::kLeptonJets);
     if(fLumiLept_>0 || fLumiJets_>0){
-      PrepareEvents(samplePathJets_+"QCDMixing_MJPS12_v1_data.root", Helper::kAllJets);
+      //PrepareEvents(samplePathJets_+"QCDMixing_MJPS12_v1_data.root", Helper::kAllJets);
+      //PrepareEvents(samplePathJets_+"Run2012_Background_alljets.root", Helper::kAllJets);
+      PrepareEvents(samplePathJets_+"Run2012_Mixing8_fix_alljets.root", Helper::kAllJets);
       if(fSigLept_<1.) {
         PrepareEvents(""+samplePathLept_+"Summer12_WJets_muon/job_*.root", Helper::kLeptonJets);
         PrepareEvents(""+samplePathLept_+"Summer12_singleTop_muon/job_*.root", Helper::kLeptonJets);
@@ -107,7 +109,10 @@ RandomSubsetCreatorNewInterface::RandomSubsetCreatorNewInterface(const std::vect
         if(fIdentifier_.find("BackgroundSystematic")!=std::string::npos)
           PrepareEvents(samplePath_+"QCDMixing_Z2_S12_Madspin_sig.root");
         else
-          PrepareEvents(samplePath_+"QCDMixing_MJPS12_v1_data.root");
+          //PrepareEvents(samplePath_+"QCDMixing_MJPS12_v1_data.root");
+          //PrepareEvents(samplePath_+"Run2012_Background_alljets.root");
+          //PrepareEvents(samplePath_+"Run2012_Mixing8_alljets.root");
+          PrepareEvents(samplePath_+"Run2012_Mixing8_fix_alljets.root");
       }
     }
     if (channelID_ == Helper::kMuonJets || channelID_ == Helper::kLeptonJets) {
@@ -155,7 +160,7 @@ TTree* RandomSubsetCreatorNewInterface::CreateRandomSubset() {
 
     // DATA
     // TODO: update AllJets event yields with latest JEC
-    double nEventsDataAllJets  =  4356.;
+    double nEventsDataAllJets  =  7049.;
     double nEventsDataMuon     = 14685.;
     double nEventsDataElectron = 13514.;
 
@@ -209,7 +214,7 @@ TTree* RandomSubsetCreatorNewInterface::CreateRandomSubset() {
 
 void RandomSubsetCreatorNewInterface::DrawEvents(const DataSample& sample, double nEventsPE) {
   int perms = sample.nEvents;
-  std::cout << perms << std::endl;
+  std::cout << "Total number of permuations: " << perms << std::endl;
   
   if (perms == 0) return;
 

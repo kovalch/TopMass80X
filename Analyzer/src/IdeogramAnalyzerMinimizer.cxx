@@ -17,6 +17,11 @@
 #include "TGraph.h"
 #include "TLegend.h"
 
+#include "TFile.h"
+#include "TH2D.h"
+#include "TH1D.h"
+#include "TF2.h"
+
 #include "Math/Minimizer.h"
 #include "Math/Factory.h"
 #include "Math/Functor.h"
@@ -133,7 +138,7 @@ void IdeogramAnalyzerMinimizer::Scan(const std::string& cuts, int iBin, int jBin
         }
       }
       ++iEvent;
-    } // end for
+    } // end for event
   }
 }
 
@@ -231,9 +236,22 @@ void IdeogramAnalyzerMinimizer::IterateVariableCombinations(ROOT::Math::Minimize
   }
   */
   // DRAW
+  if (po::GetOption<bool>("temPlot")) {
+    if(channelID_ == Helper::kAllJets){
+      if(nameFreeVariables == "_mTop_JES_fSig"){
+	PlotResult2(min);
+      }
+    }
+    else{
+      if(nameFreeVariables == "_mTop_JES"){
+        PlotResult2(min);
+      }
+    }
+  }
   if (po::GetOption<bool>("minPlot")) {
     if(channelID_ == Helper::kAllJets){
       if(nameFreeVariables == "_mTop_JES_fSig_fCP"){
+      //if(nameFreeVariables == "_mTop_JES_fSig"){
         PlotResult(min, kMass, kJES );
         PlotResult(min, kMass, kFSig);
         PlotResult(min, kMass, kFCP );
@@ -365,6 +383,42 @@ void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min, IdeogramA
 
   delete[] contourxs;
   delete[] contourys;
+}
+
+double IdeogramAnalyzerMinimizer::evalAllJets(double *x, double *p)
+{
+  IdeogramCombLikelihoodAllJets like;
+  like.SetFixedParams(1, x[0], x[1], 0, 0, 0, 0, 0, 1);
+  like.SetActive(true);
+  double pNew[] = {p[0],p[1],p[2],p[3]};
+  double val = like.Evaluate(pNew,0);
+  return val;
+}
+
+void IdeogramAnalyzerMinimizer::PlotResult2(ROOT::Math::Minimizer* min, IdeogramAnalyzerMinimizer::allowedVariables x, IdeogramAnalyzerMinimizer::allowedVariables y){
+  TFile* histFile = TFile::Open("tmpTESThistos.root","RECREATE");
+  TH1D* histT = new TH1D("histT","",po::GetOption<double>("templates.maxTopMass")-100,100,po::GetOption<double>("templates.maxTopMass"));
+  TH1D* histW = new TH1D("histW","",110,65,120);
+  TH2D* hist = new TH2D("hist","",po::GetOption<double>("templates.maxTopMass")-100,100,po::GetOption<double>("templates.maxTopMass"),110,65,120);
+  
+  TF2* func = new TF2("func",evalAllJets,100,po::GetOption<double>("templates.maxTopMass"),65,120,4);
+  func->SetParameters(min->X()[x],min->X()[y], min->X()[kFSig], po::GetOption<double>("templates.fCP"));
+  for(int i=1; i<histT->GetNbinsX(); ++i){
+    double x = histT->GetBinCenter(i);
+    for(int j=1; j<histW->GetNbinsX(); ++j){
+      double y = histW->GetBinCenter(j);
+      double val = func->Eval(x,y);
+      histT->Fill(x,val);
+      histW->Fill(y,val);
+      hist->Fill(x,y,val);
+    } // end for j
+  } // end for i
+  histFile->cd();
+  histT->Write();
+  histW->Write();
+  hist->Write();
+  func->Write();
+  histFile->Close();
 }
 
 // cleanup needed to run pseudo-experiments

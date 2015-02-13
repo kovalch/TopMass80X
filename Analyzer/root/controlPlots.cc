@@ -778,32 +778,56 @@ void TopMassControlPlots::doPlots()
   std::cout << "define datasets" << std::endl;
   // Alljets channel
   if (channelID == Helper::kAllJets) {
-    //if(plotSelectedForPlotting.find("StandardPlots")!=plotSelectedForPlotting.end()){
-    //  //samples.push_back(MySample("Data", "MJP12*_v1_data", kData, kBlack));
-    //  samples.push_back(MySample("Data", "MJP12*_PTRESI_v1_data", kData, kBlack));
-    //  samples.push_back(MySample("t#bar{t}", "Z2_S12_ABS_JES_100_172_5_MadSpin_sig_*", kSig, kRed+1, 1));
-    //  samples.push_back(MySample("Background", "QCDMixing_MJPS12_v1_data", kBkg, kYellow, 1));
-    //  //samples.push_back(MySample("Background B", "dcap://dcache-cms-dcap.desy.de//pnfs/desy.de/cms/tier2/store/user/eschliec/TopMassTreeWriter_04_DataMix03/QCDMixing_MJPS12B_v1_data/*", kBkg, kYellow, 1));
-    //  //samples.push_back(MySample("Background C1", "dcap://dcache-cms-dcap.desy.de//pnfs/desy.de/cms/tier2/store/user/eschliec/TopMassTreeWriter_04_DataMix03/QCDMixing_MJPS12C1_v1_data/*", kBkg, kYellow, 1));
-    //  //samples.push_back(MySample("Background C2", "dcap://dcache-cms-dcap.desy.de//pnfs/desy.de/cms/tier2/store/user/eschliec/TopMassTreeWriter_04_DataMix03/QCDMixing_MJPS12C2_v1_data/*", kBkg, kYellow, 1));
-    //  //samples.push_back(MySample("Background D1", "dcap://dcache-cms-dcap.desy.de//pnfs/desy.de/cms/tier2/store/user/eschliec/TopMassTreeWriter_04_DataMix03/QCDMixing_MJPS12D1_v1_data/*", kBkg, kYellow, 1));
-    //  //samples.push_back(MySample("Background D2", "dcap://dcache-cms-dcap.desy.de//pnfs/desy.de/cms/tier2/store/user/eschliec/TopMassTreeWriter_04_DataMix03/QCDMixing_MJPS12D2_v1_data/*", kBkg, kYellow, 1));
-    //  //samples.push_back(MySample("Background D3", "dcap://dcache-cms-dcap.desy.de//pnfs/desy.de/cms/tier2/store/user/eschliec/TopMassTreeWriter_04_DataMix03/QCDMixing_MJPS12D3_v1_data/*", kBkg, kYellow, 1));
-    //}
+    samples.push_back(MySample("Data", "Run2012_alljets*", kData, kBlack));
+    samples.push_back(MySample("t#bar{t}", "Summer12_TTJetsMS1725_1.00_alljets*", kSig, kRed+1, 1, 1., "", 0.04/po::GetOption<double>("templates.fSig")));
 
-    if(plotSelectedForPlotting.find("StandardPlots")!=plotSelectedForPlotting.end()){
-      samples.push_back(MySample("Data", "Run2012_alljets/*", kData, kBlack));
-      samples.push_back(MySample("t#bar{t}", "Summer12_TTJetsMS1725_1.00_alljets/*", kSig, kRed+1, 1));
-      samples.push_back(MySample("Background", "Run2012_Background_alljets/*", kBkg, kYellow, 1));
+    if(plotSelectedForPlotting.find("MassVariationPlots")!=plotSelectedForPlotting.end()){
+      samples.push_back(MySample("m_{t} = 169.5 GeV", "Summer12_TTJetsMS1695_1.00_alljets*", kSigVar, kBlue+1 , 3, 1.6543027719));
+      samples.push_back(MySample("m_{t} = 175.5 GeV", "Summer12_TTJetsMS1755_1.00_alljets*", kSigVar, kGreen+1, 2, 1.4689820107)); 
     }
 
-    // Signal variations (PU)
+    // JES
+    if(plotSelectedForPlotting.find("JESUncVariationPlots")!=plotSelectedForPlotting.end()){
+      samples.push_back(MySample("t#bar{t}, JES down", "Summer12_TTJetsMS1725_source:down_Total_alljets*", kSigVar, kRed+1, 1));
+      samples.push_back(MySample("t#bar{t}, JES up", "Summer12_TTJetsMS1725_source:up_Total_alljets*", kSigVar, kGreen+1, 1));
+    }
+    
+    // JER
+    if(plotSelectedForPlotting.find("JERUncVariationPlots")!=plotSelectedForPlotting.end()){
+      samples.push_back(MySample("t#bar{t}, JER down", "Summer12_TTJetsMS1725_jer:-1_alljets*", kSigVar, kRed+1, 1));
+      samples.push_back(MySample("t#bar{t}, JER up", "Summer12_TTJetsMS1725_jer:1_alljets*", kSigVar, kGreen+1, 1));
+    }    
+    
+    // PU
     if(plotSelectedForPlotting.find("PUPlots")!=plotSelectedForPlotting.end()){
-      samples.push_back(MySample("t#bar{t}, N_{PU} -5%"      , "Z2_S12_ABS_JES_100_172_5_MadSpin_sig_*", kSigVar, kBlue+1 , 3, 1./0.777065, "weight.combinedWeight|weight.combinedWeight/weight.puWeight*weight.puWeightDown"));
-      samples.push_back(MySample("t#bar{t} #color[0]{N_{PU}}", "Z2_S12_ABS_JES_100_172_5_MadSpin_sig_*", kSigVar, kGreen+4, 1, 1./0.777065));
-      samples.push_back(MySample("t#bar{t}, N_{PU} +5%"      , "Z2_S12_ABS_JES_100_172_5_MadSpin_sig_*", kSigVar, kRed+1  , 2, 1./0.777065, "weight.combinedWeight|weight.combinedWeight/weight.puWeight*weight.puWeightUp"));
+      samples.push_back(MySample("t#bar{t}, PU up", "Summer12_TTJetsMS1725_1.00_alljets*", kSigVar, kRed+1, 1, 1., "weight.combinedWeight|weight.combinedWeight/weight.puWeight*weight.puWeightUp"));
+      samples.push_back(MySample("t#bar{t}, PU down", "Summer12_TTJetsMS1725_1.00_alljets*", kSigVar, kRed+1, 1, 1., "weight.combinedWeight|weight.combinedWeight/weight.puWeight*weight.puWeightDown"));
+    }
+    
+    // MCGeneratorPlots
+    if(plotSelectedForPlotting.find("MCGeneratorPlots")!=plotSelectedForPlotting.end()){
+      samples.push_back(MySample("t#bar{t}, Powheg+Pythia6 Z2*", "Summer12_TTJets1725_powheg_alljets*", kSigVar, kGreen+1, 9, 2.866398366));
+      samples.push_back(MySample("t#bar{t} scaleup", "Summer12_TTJetsMS1725_scaleup_alljets*", kSigVar, kRed+1, 1, 1.4825704688));
+      samples.push_back(MySample("t#bar{t} scaledown", "Summer12_TTJetsMS1725_scaledown_alljets*", kSigVar, kRed+1, 1, 1.5815027348));
+      samples.push_back(MySample("t#bar{t} matchingup", "Summer12_TTJetsMS1725_matchingup_alljets*", kSigVar, kRed+1, 1, 1.675483644));
+      samples.push_back(MySample("t#bar{t} matchingdown", "Summer12_TTJetsMS1725_matchingdown_alljets*", kSigVar, kRed+1, 1, 1.8245605031));
+      samples.push_back(MySample("t#bar{t}, top pt reweighting", "Summer12_TTJetsMS1725_1.00_alljets*", kSigVar, kBlack, 1, 1., "weight.combinedWeight|weight.combinedWeight*sqrt(exp(0.156-0.00137*top.genpartonTop1.Pt())*exp(0.156-0.00137*top.genpartonTop2.Pt()))"));
     }
 
+    // TriggerPlots
+    if(plotSelectedForPlotting.find("TriggerPlots")!=plotSelectedForPlotting.end()){
+      samples.push_back(MySample("t#bar{t}, triggerup", "Summer12_TTJetsMS1725_1.00_alljets*", kSigVar, kBlack, 1, 1.  , "(0.5*TMath::Erf((jet.jet[3].Pt()-45.8627)/18.2471)+0.5)|(0.25*TMath::Erf((jet.jet[3].Pt()-45.8627)/18.2471)+0.75)"));
+      samples.push_back(MySample("t#bar{t}, triggerdown", "Summer12_TTJetsMS1725_1.00_alljets*", kSigVar, kBlack, 1, 1., "(0.5*TMath::Erf((jet.jet[3].Pt()-45.8627)/18.2471)+0.5)|(0.75*TMath::Erf((jet.jet[3].Pt()-45.8627)/18.2471)+0.25)"));
+    }
+
+    // bJES
+    if(plotSelectedForPlotting.find("BJESPlots")!=plotSelectedForPlotting.end()){
+      samples.push_back(MySample("t#bar{t}, frag", "Summer12_TTJetsMS1725_1.00_alljets*", kSigVar, kRed+1, 1, 1., "weight.combinedWeight|weight.combinedWeight*(weight.bJESWeight_frag==-1?1:weight.bJESWeight_frag)"));
+      samples.push_back(MySample("t#bar{t}, #nu up", "Summer12_TTJetsMS1725_1.00_alljets*", kSigVar, kRed+1, 1, 1., "weight.combinedWeight|weight.combinedWeight*(weight.bJESWeight_frag==-1?1:weight.bJESWeight_fNuUp)"));
+      samples.push_back(MySample("t#bar{t}, #nu down", "Summer12_TTJetsMS1725_1.00_alljets*", kSigVar, kRed+1, 1, 1., "weight.combinedWeight|weight.combinedWeight*(weight.bJESWeight_frag==-1?1:weight.bJESWeight_fNuDown)"));
+    }
+    
+    /*
     // Signal variations (UE Tune)
     if(plotSelectedForPlotting.find("UETunePlots")!=plotSelectedForPlotting.end()){
       samples.push_back(MySample("t#bar{t}, Z2*"     , "Z2_S12_ABS_JES_100_172_5_sig", kSigVar, kRed+1    , 1));
@@ -830,31 +854,10 @@ void TopMassControlPlots::doPlots()
       samples.push_back(MySample("t#bar{t}, JES = 1.02", "Z2_S12_ABS_JES_102_172_5_MadSpin_sig", kSigVar, kCyan+1   , 1));
       samples.push_back(MySample("t#bar{t}, JES = 1.04", "Z2_S12_ABS_JES_104_172_5_MadSpin_sig", kSigVar, kGreen+1  , 1));
     }
-
-    // Signal variations (MC Modelling)
-    if(plotSelectedForPlotting.find("SignalModellingPlots")!=plotSelectedForPlotting.end()){
-      samples.push_back(MySample("t#bar{t}, Z2*"          , "Z2_S12_ABS_JES_100_172_5_MadSpin_sig", kSigVar, kRed+1    , 1));
-      samples.push_back(MySample("t#bar{t}, Q^{2} up"     , "Z2_S12_Scale_Up_MadSpin_sig"         , kSigVar, kMagenta+1, 9));
-      samples.push_back(MySample("t#bar{t}, Q^{2} down"   , "Z2_S12_Scale_Down_MadSpin_sig"       , kSigVar, kBlue+1   , 7));
-      samples.push_back(MySample("t#bar{t}, matching up"  , "Z2_S12_Matching_Up_MadSpin_sig"      , kSigVar, kCyan+1   , 2));
-      samples.push_back(MySample("t#bar{t}, matching down", "Z2_S12_Matching_Down_MadSpin_sig"    , kSigVar, kGreen+1  , 3));
-    }
-
-    // Signal variations (trigger JES)
-    if(plotSelectedForPlotting.find("TriggerPlots")!=plotSelectedForPlotting.end()){
-      samples.push_back(MySample("t#bar{t}, Trigger Up", "Z2_S12_TRIGGERJES_Up_sig"            , kSigVar, kRed+1    , 1,1));
-      //samples.push_back(MySample("t#bar{t}, trigger 1.05", "Z2_S12_TRIGGERJES2_Up_sig"           , kSigVar, kMagenta+1, 1));
-      samples.push_back(MySample("t#bar{t}"              , "Z2_S12_ABS_JES_100_172_5_MadSpin_sig", kSigVar, kBlue+1   , 1));
-      //samples.push_back(MySample("t#bar{t}, trigger 0.95", "Z2_S12_TRIGGERJES2_Down_sig"         , kSigVar, kGreen+1  , 1));
-      samples.push_back(MySample("t#bar{t}, Trigger Down", "Z2_S12_TRIGGERJES_Down_sig"          , kSigVar, kCyan+1   , 1,1));
-    }
-
-    // Signal variations (JER)
-    if(plotSelectedForPlotting.find("JERPlots")!=plotSelectedForPlotting.end()){
-      samples.push_back(MySample("t#bar{t}, JER Up"  , "Z2_S12_JER_Up_sig"                   , kSigVar, kRed+1    , 1,1));
-      samples.push_back(MySample("t#bar{t}"          , "Z2_S12_ABS_JES_100_172_5_MadSpin_sig", kSigVar, kBlue+1   , 1));
-      samples.push_back(MySample("t#bar{t}, JER Down", "Z2_S12_JER_Down_sig"                 , kSigVar, kCyan+1   , 1,1));
-    }
+    */
+    //samples.push_back(MySample("Background", "Run2012_Background_alljets*", kBkg, kYellow, 1));
+    //samples.push_back(MySample("Background", "Run2012_Mixing8_alljets*", kBkg, kYellow, 1)); 
+    samples.push_back(MySample("Background", "Run2012B_Mixing8_fix_alljets*", kBkg, kYellow, 1)); 
   }
   
 
@@ -1395,74 +1398,6 @@ void TopMassControlPlots::doPlots()
   
   std::cout << "ended filling histograms" << std::endl;
   
-  // 
-  // ADD BACKGROUND TO VARIATIONS
-  //
-  
-  
-  for(MyHistogram& hist : hists) {
-    if(hist.Dimension() != 1) continue;
-    
-    for(TH1F* sigvar : hist.Sigvar1D()) {
-      for(TH1F* bkg : hist.Bkg1D()) {
-        sigvar->Add(bkg);
-      }
-    }
-    
-    // Add normalization uncertainties to histos
-    // TODO: double-counting of norm uncertainties, normalizeToData impossible
-    //int bkgCounter = -1;
-    //for(MySample& sample : samples){
-    //  if(sample.type == kBkg) {
-    //    ++bkgCounter;
-    //    TH1F* bkg = hist.Bkg1D()[bkgCounter];
-    //    for(int i = 0; i < bkg->GetNbinsX()+2; ++i) bkg->SetBinError(i, sqrt(pow(bkg->GetBinError(i),2) + pow(bkg->GetBinContent(i)*sample.scaleunc,2)));
-    //  }
-    //  
-    //  if(sample.type == kSig) {
-    //    for(TH1F* sig : hist.Sig1D()) {
-    //      for(int i = 0; i < sig->GetNbinsX()+2; ++i) sig->SetBinError(i, sqrt(pow(sig->GetBinError(i),2) + pow(sig->GetBinContent(i)*sample.scaleunc,2)));
-    //    }
-    //  }
-    //}
-
-    // Loop over all samples to add background norm variations
-    int bkgCounter = -1;
-    for(MySample& sample : samples){
-      if(sample.type == kBkg) ++bkgCounter;
-      
-      if(sample.type == kSig) {
-        hist.AddNormVariation(&sample, "nominal");
-        for(TH1F* sig : hist.Sig1D()) hist.Sigvar1D().back()->Add(sig);
-        for(TH1F* bkg : hist.Bkg1D()) hist.Sigvar1D().back()->Add(bkg);
-      }
-      
-      if(sample.scaleunc == 0) continue;
-      
-      hist.AddNormVariation(&sample, "up");
-      for(TH1F* sig : hist.Sig1D()) hist.Sigvar1D().back()->Add(sig);
-      for(TH1F* bkg : hist.Bkg1D()) hist.Sigvar1D().back()->Add(bkg);
-      
-      if(sample.type == kSig) {
-        for(TH1F* sig : hist.Sig1D()) hist.Sigvar1D().back()->Add(sig, sample.scaleunc);
-      }
-      if(sample.type == kBkg) {
-        hist.Sigvar1D().back()->Add(hist.Bkg1D()[bkgCounter], sample.scaleunc);
-      }
-      
-      hist.AddNormVariation(&sample, "down");
-      for(TH1F* sig : hist.Sig1D()) hist.Sigvar1D().back()->Add(sig);
-      for(TH1F* bkg : hist.Bkg1D()) hist.Sigvar1D().back()->Add(bkg);
-      
-      if(sample.type == kSig) {
-        for(TH1F* sig : hist.Sig1D()) hist.Sigvar1D().back()->Add(sig, -sample.scaleunc);
-      }
-      if(sample.type == kBkg) {
-        hist.Sigvar1D().back()->Add(hist.Bkg1D()[bkgCounter], -sample.scaleunc);
-      }
-    }
-  }
-  
   // YIELDS and NORMALIZATION
   
   bool firstHist = true;
@@ -1578,6 +1513,73 @@ void TopMassControlPlots::doPlots()
     }
   }
   
+  // 
+  // ADD BACKGROUND TO VARIATIONS
+  //
+  
+  for(MyHistogram& hist : hists) {
+    if(hist.Dimension() != 1) continue;
+    
+    for(TH1F* sigvar : hist.Sigvar1D()) {
+      for(TH1F* bkg : hist.Bkg1D()) {
+        sigvar->Add(bkg);
+      }
+    }
+    
+    // Add normalization uncertainties to histos
+    // TODO: double-counting of norm uncertainties, normalizeToData impossible
+    //int bkgCounter = -1;
+    //for(MySample& sample : samples){
+    //  if(sample.type == kBkg) {
+    //    ++bkgCounter;
+    //    TH1F* bkg = hist.Bkg1D()[bkgCounter];
+    //    for(int i = 0; i < bkg->GetNbinsX()+2; ++i) bkg->SetBinError(i, sqrt(pow(bkg->GetBinError(i),2) + pow(bkg->GetBinContent(i)*sample.scaleunc,2)));
+    //  }
+    //  
+    //  if(sample.type == kSig) {
+    //    for(TH1F* sig : hist.Sig1D()) {
+    //      for(int i = 0; i < sig->GetNbinsX()+2; ++i) sig->SetBinError(i, sqrt(pow(sig->GetBinError(i),2) + pow(sig->GetBinContent(i)*sample.scaleunc,2)));
+    //    }
+    //  }
+    //}
+
+    // Loop over all samples to add background norm variations
+    int bkgCounter = -1;
+    for(MySample& sample : samples){
+      if(sample.type == kBkg) ++bkgCounter;
+      
+      if(sample.type == kSig) {
+        hist.AddNormVariation(&sample, "nominal");
+        for(TH1F* sig : hist.Sig1D()) hist.Sigvar1D().back()->Add(sig);
+        for(TH1F* bkg : hist.Bkg1D()) hist.Sigvar1D().back()->Add(bkg);
+      }
+      
+      if(sample.scaleunc == 0) continue;
+      
+      hist.AddNormVariation(&sample, "up");
+      for(TH1F* sig : hist.Sig1D()) hist.Sigvar1D().back()->Add(sig);
+      for(TH1F* bkg : hist.Bkg1D()) hist.Sigvar1D().back()->Add(bkg);
+      
+      if(sample.type == kSig) {
+        for(TH1F* sig : hist.Sig1D()) hist.Sigvar1D().back()->Add(sig, sample.scaleunc);
+      }
+      if(sample.type == kBkg) {
+        hist.Sigvar1D().back()->Add(hist.Bkg1D()[bkgCounter], sample.scaleunc);
+      }
+      
+      hist.AddNormVariation(&sample, "down");
+      for(TH1F* sig : hist.Sig1D()) hist.Sigvar1D().back()->Add(sig);
+      for(TH1F* bkg : hist.Bkg1D()) hist.Sigvar1D().back()->Add(bkg);
+      
+      if(sample.type == kSig) {
+        for(TH1F* sig : hist.Sig1D()) hist.Sigvar1D().back()->Add(sig, -sample.scaleunc);
+      }
+      if(sample.type == kBkg) {
+        hist.Sigvar1D().back()->Add(hist.Bkg1D()[bkgCounter], -sample.scaleunc);
+      }
+    }
+  }
+  
   //
   // CACLCULATE UNCERTAINTIES
   //
@@ -1596,11 +1598,8 @@ void TopMassControlPlots::doPlots()
     }
     
     // Init uncertainty vectors
-    std::vector<double> up, down;
-    for(int i = 0; i < hist.Unc1D()->GetNbinsX()+2; ++i) {
-      up.push_back(0); down.push_back(0);
-    }
-    
+    std::vector<double> up(hist.Unc1D()->GetNbinsX()+2,0), down(hist.Unc1D()->GetNbinsX()+2,0);
+
     // Fill uncertainty vectors
     for(TH1F* sigvar : hist.Sigvar1D()) {
       for(int i = 0; i < hist.Unc1D()->GetNbinsX()+2; ++i) {
@@ -1615,8 +1614,9 @@ void TopMassControlPlots::doPlots()
     
     // Set bin center and error for uncertainty band
     for(int i = 0; i < hist.Unc1D()->GetNbinsX()+2; ++i) {
-      hist.Unc1D()->SetBinContent(i, hist.Unc1D()->GetBinContent(i) + (up[i]-down[i])/2.);
-      hist.Unc1D()->SetBinError(i, sqrt(pow(hist.Unc1D()->GetBinError(i), 2) + pow((up[i]+down[i])/2., 2)));
+      //hist.Unc1D()->SetBinContent(i, hist.Unc1D()->GetBinContent(i) + (up[i]-down[i])/2.);
+      //hist.Unc1D()->SetBinError(i, sqrt(pow(hist.Unc1D()->GetBinError(i), 2) + pow((up[i]+down[i])/2., 2)));
+      hist.Unc1D()->SetBinError(i, std::max(std::abs(up[i]),std::abs(down[i])));
     }
   }
 

@@ -43,6 +43,9 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("minPlot", boost::program_options::value<bool>()->default_value(false),
             "Plot IdeogramMin result\n"
         )
+        ("temPlot", boost::program_options::value<bool>()->default_value(false),
+            "Plot IdeogramMin templates\n"
+        )
         ("task,t", boost::program_options::value<std::string>()->default_value("sm"),
             "Task to be done\n"
             "  sm: \tSingle measurement based on input parameters\n"
@@ -99,6 +102,8 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("pullWidth", boost::program_options::value<double>()->default_value(1.0), "pull width correction factor")
         ("muo_pullWidth", boost::program_options::value<double>()->default_value(1.0), "pull width correction factor (mu+jets)")
         ("ele_pullWidth", boost::program_options::value<double>()->default_value(1.0), "pull width correction factor (e+jets)")
+        ("constrainJSF",boost::program_options::value<bool>()->default_value(false),"Add Gaussian constraint to JSF\n")
+        ("constrainJSFsigma",boost::program_options::value<double>()->default_value(0.0018),"Sigma value of Gaussian constraint to JSF\n")
         ("analysisConfig.selection", boost::program_options::value<std::string>())
         ("analysisConfig.selectionLept", boost::program_options::value<std::string>()->default_value(""))
         ("analysisConfig.selectionJets", boost::program_options::value<std::string>()->default_value(""))
@@ -154,6 +159,7 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("templates.ele_parsUNJES", boost::program_options::value<std::string>()->default_value(""))
         ("templates.parsBKG", boost::program_options::value<std::string>()->default_value(""))
         ("templates.parsBKGJES", boost::program_options::value<std::string>()->default_value(""))
+        ("templates.maxTopMass", boost::program_options::value<double>()->default_value(215.))
         ("calibration.massOffset", boost::program_options::value<std::string>()->default_value("0.0"))
         ("calibration.massSlopeMass", boost::program_options::value<std::string>()->default_value("0.0"))
         ("calibration.massSlopeJES", boost::program_options::value<std::string>()->default_value("0.0"))

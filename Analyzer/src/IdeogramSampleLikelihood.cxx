@@ -44,5 +44,9 @@ double IdeogramSampleLikelihood::DoEval(const double *x) const {
       sampleNEvent  += weight;
     }
   }
-  return sampleResult * sampleNEvent / sampleSumProb;
+  double constraint = 0;
+  if (po::GetOption<bool>("constrainJSF")) {
+    constraint = pow((x[1]-1.)/po::GetOption<double>("constrainJSFsigma"), 2);
+  }
+  return sampleResult * sampleNEvent / sampleSumProb + constraint;
 }

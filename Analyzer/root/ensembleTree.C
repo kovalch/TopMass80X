@@ -37,28 +37,28 @@
 //double crossSection   = 247.0;
 //double peLumi         = 18352.0;
 
-//const int nJES = 5;
-//const int nMasses = 7;
-//enum styles          { kDown1, kDown2, kNominal, kUp1, kUp2 };
-//int color_ [] = { kRed+1, kMagenta, kBlue+1, kCyan, kGreen+1 };
-//int marker_[] = { 23, 23, 20, 22, 22 };
-//double genJES[]       = {0.96, 0.98, 1.00, 1.02, 1.04};
-////double genJESError[]  = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
-//double genMass[]      = {166.5, 169.5, 171.5, 172.5, 173.5, 175.5, 178.5};
-//double genMassError[] = { 1e-6,  1e-6,  1e-6,  1e-6,  1e-6,  1e-6,  1e-6};
-//double genMassN[]     = {27078777, 39518234, 24439341, 62131965, 26489020, 40244328, 24359161};
-//double maxMCWeight[]  = {1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8};
-
-const int nJES = 3;
+const int nJES = 5;
 const int nMasses = 7;
-int color_ [] = { kRed+1, kBlue+1, kGreen+1 };
-int marker_[] = { 23, 20, 22 };
-double genJES[]       = {0.98, 1.00, 1.02};
+enum styles          { kDown1, kDown2, kNominal, kUp1, kUp2 };
+int color_ [] = { kRed+1, kMagenta, kBlue+1, kCyan, kGreen+1 };
+int marker_[] = { 23, 23, 20, 22, 22 };
+double genJES[]       = {0.96, 0.98, 1.00, 1.02, 1.04};
 //double genJESError[]  = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
 double genMass[]      = {166.5, 169.5, 171.5, 172.5, 173.5, 175.5, 178.5};
 double genMassError[] = { 1e-6,  1e-6,  1e-6,  1e-6,  1e-6,  1e-6,  1e-6};
 double genMassN[]     = {27078777, 39518234, 24439341, 62131965, 26489020, 40244328, 24359161};
 double maxMCWeight[]  = {1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8};
+
+//const int nJES = 3;
+//const int nMasses = 7;
+//int color_ [] = { kRed+1, kBlue+1, kGreen+1 };
+//int marker_[] = { 23, 20, 22 };
+//double genJES[]       = {0.98, 1.00, 1.02};
+////double genJESError[]  = {1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
+//double genMass[]      = {166.5, 169.5, 171.5, 172.5, 173.5, 175.5, 178.5};
+//double genMassError[] = { 1e-6,  1e-6,  1e-6,  1e-6,  1e-6,  1e-6,  1e-6};
+//double genMassN[]     = {27078777, 39518234, 24439341, 62131965, 26489020, 40244328, 24359161};
+//double maxMCWeight[]  = {1.8, 1.8, 1.8, 1.8, 1.8, 1.8, 1.8};
 
 double crossSection   = 245.794;
 double peLumi         = 18191.6;
@@ -212,7 +212,16 @@ void ensembleTree()
   //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_141006_2000/");
   //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_141007_1300/");
   //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_141007_1500/");
-  TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_141017_1600/");
+  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_141216_2000/");
+  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_141217_1600/");
+  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_150112_1600/");
+  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_150114_1701/"); // old
+  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_150120_1400/");
+  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_150121_1300/");
+  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_150121_1700/"); // newer
+  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_150122_1600/"); // oldTEST
+  //TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_150202_1400/"); // older
+  TString sFile("/nfs/dust/cms/user/eschliec/TopMass/topmass_150211_1800/"); // older fixed Mixing
   sFile += "ensemble_S12_Uncalibrated.root";
   //sFile += "ensemble_S12_Calibrated.root";
 
@@ -272,7 +281,7 @@ void ensembleTree()
       TF1* gausMassPull = new TF1("gausMassPull", "gaus");
       tree->Fit("gausMassPull", "mass_mTop_JES_fSig_fCP_Pull", sel, "Q0");
       
-      double eff = 1.00185146244771e-3;
+      double eff = 0.000838398;
       massPull[iJES][iMass]      = gausMassPull->GetParameter(2);
       massPullError[iJES][iMass] = sqrt(1./2. * (maxMCWeight[iMass]/(genMassN[iMass]*eff) + 1./(entries-1.)));
       
