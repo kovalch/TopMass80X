@@ -779,6 +779,7 @@ TPad* common::drawRatioPad(TPad* pad, const double yMin, const double yMax, cons
 TH1* common::ratioHistogram(const TH1* h_nominator, const TH1* h_denominator, const int errorType)
 {
     TH1* h_ratio = (TH1*)h_nominator->Clone();
+    h_ratio->Reset("M");
     for(int iBin = 1; iBin<=h_ratio->GetNbinsX(); ++iBin) {
         const double nominator_v = h_nominator->GetBinContent(iBin);
         const double nominator_e = h_nominator->GetBinError(iBin);
@@ -797,6 +798,45 @@ TH1* common::ratioHistogram(const TH1* h_nominator, const TH1* h_denominator, co
     }
     
     return h_ratio;
+}
+
+
+TGraphAsymmErrors* common::ratioGraph(const TGraphAsymmErrors* g_nominator, const TGraphAsymmErrors* g_denominator, const int errorType)
+{
+    TGraphAsymmErrors* g_ratio = (TGraphAsymmErrors*)g_nominator->Clone();
+    for(int iBin = 0; iBin < g_ratio->GetN(); ++iBin) {
+        double nominator_v, denominator_v, x;
+        g_nominator->GetPoint(iBin, x, nominator_v);
+        g_denominator->GetPoint(iBin, x, denominator_v);
+        const double ratio_v = denominator_v > 0. ? nominator_v / denominator_v : 0.;
+        
+        const double nominator_eU = g_nominator->GetErrorYhigh(iBin);
+        const double nominator_eD = g_nominator->GetErrorYlow(iBin);
+        const double denominator_eU = g_denominator->GetErrorYhigh(iBin);
+        const double denominator_eD = g_denominator->GetErrorYlow(iBin);
+        
+        double ratio_eU(0.), ratio_eD(0.);
+        if(denominator_v > 0.) {
+            if(errorType == 1) {
+                ratio_eU = nominator_eU/denominator_v;
+                ratio_eD = nominator_eD/denominator_v;
+            }
+            else if(errorType == 2) {
+                ratio_eU = denominator_eU/denominator_v;
+                ratio_eD = denominator_eD/denominator_v;
+            }
+            else if(errorType == 3) {
+                ratio_eU = ratio_v * std::sqrt( (nominator_eU*nominator_eU)/(nominator_v*nominator_v) + (denominator_eU*denominator_eU)/(denominator_v*denominator_v) );
+                ratio_eD = ratio_v * std::sqrt( (nominator_eD*nominator_eD)/(nominator_v*nominator_v) + (denominator_eD*denominator_eD)/(denominator_v*denominator_v) );
+            }
+        } 
+        
+        g_ratio->SetPoint(iBin, x, ratio_v);
+        g_ratio->SetPointEYhigh(iBin, ratio_eU);
+        g_ratio->SetPointEYlow(iBin, ratio_eD);
+    }
+    
+    return g_ratio;
 }
 
 
@@ -878,7 +918,7 @@ void common::setGraphStyle( TGraph* graph, Style_t line, Color_t lineColor, Size
 }
 
 
-TH1* common::updatePadYAxisRange(TPad* pad, double logY, const double yMarginUp, double yMarginDown)
+TH1* common::updatePadYAxisRange(TPad* pad, bool logY, const double yMarginUp, double yMarginDown)
 {   
     TH1* axisHisto = getPadAxisHisto(pad);
     double yMax_global = -1e10;
@@ -920,7 +960,7 @@ TH1* common::updatePadYAxisRange(TPad* pad, double logY, const double yMarginUp,
 
     // Updating the Y axis range
     if(yMax_global != -1e10) {
-        if(logY) yMax_global *= (1+yMarginUp)*5e1;
+        if(logY) yMax_global *= (1.+yMarginUp)*5e1;
         else yMax_global *= yMarginUp + 1.;
     }
     if(yMarginDown != 0. || logY) {

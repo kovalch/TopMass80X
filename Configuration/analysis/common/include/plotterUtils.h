@@ -62,6 +62,9 @@ namespace common{
     /// Get a ratio histogram (errorType: 0-none, 1-nominator, 2-denominator, 3-both)
     TH1* ratioHistogram(const TH1* h_nominator, const TH1* h_denominator, const int errorType = 1);
     
+    /// Get a ratio histogram (errorType: 0-none, 1-nominator, 2-denominator, 3-both)
+    TGraphAsymmErrors* ratioGraph(const TGraphAsymmErrors* g_nominator, const TGraphAsymmErrors* g_denominator, const int errorType = 1);
+    
     /// Normalising histogram/graph
     double normalize ( TH1* histo, const double normalization = 1.0, const bool includeOutsideBins = false);
     double normalize ( TGraph* graph, const double normalization = 1.0);
@@ -80,7 +83,7 @@ namespace common{
                        Style_t fill = -1, Color_t fillColor = -1);
     
     /// Update Y axis of the pad to fit all histograms and graphs plotted on it
-    TH1* updatePadYAxisRange(TPad* pad, double logY =false, const double yMarginUp =0.15, double yMarginDown =0.);
+    TH1* updatePadYAxisRange(TPad* pad, bool logY =false, const double yMarginUp =0.15, double yMarginDown =0.);
 
     /// Get the histogram representing the axis 
     TH1* getPadAxisHisto(const TPad* pad);
