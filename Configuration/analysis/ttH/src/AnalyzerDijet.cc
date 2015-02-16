@@ -2348,9 +2348,6 @@ void AnalyzerDijet::fillTopAdditionalJetsHistos(const EventMetadata& eventMetada
     m_histogram["jet_top_mult_genAll"]->Fill(topAllJetsId_gen.size(), weight);
     m_histogram["jet_top_mult_gen"]->Fill(topJetsId_gen.size(), weight);
     
-    // Stopping if no additional b jets are found
-    if(addBJetsId_gen.size() < 1) return;
-    
     // Ordering gen jet indices
     common::orderIndices(genJetsId, allGenJets, ordering);
     common::orderIndices(genBJetsId, allGenJets, ordering);
@@ -2409,8 +2406,10 @@ void AnalyzerDijet::fillTopAdditionalJetsHistos(const EventMetadata& eventMetada
     common::orderIndices(bJetsId, allJets, ordering);
     
     // Selecting true reco jets from top
-    if(genObjectIndices.recoBjetFromTopIndex_>=0) putUniquelyInVector(topJetsId_true ,genObjectIndices.recoBjetFromTopIndex_);
-    if(genObjectIndices.recoAntiBjetFromTopIndex_>=0) putUniquelyInVector(topJetsId_true, genObjectIndices.recoAntiBjetFromTopIndex_);
+    if(topGenObjects.valuesSet_) {
+        if(genObjectIndices.recoBjetFromTopIndex_>=0) putUniquelyInVector(topJetsId_true ,genObjectIndices.recoBjetFromTopIndex_);
+        if(genObjectIndices.recoAntiBjetFromTopIndex_>=0) putUniquelyInVector(topJetsId_true, genObjectIndices.recoAntiBjetFromTopIndex_);
+    }
     
     // Identifying reco jets from tt by KinReco
     if(kinematicReconstructionSolutions.numberOfSolutions()) {
