@@ -385,8 +385,11 @@ void AnalyzerHfFracScaling::bookHistos(const TString& step, std::map<TString, TH
     name = "secondaryVertex_massMcCorrectedPerBjet";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Sum of SV masses in each b-tagged jet; SV masses sum; # b-tagged jets",20,0.,10.));
     m_histogram[name]->Sumw2();
-    name = "probeJet_btagDiscriminator";
-    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "b-tag discriminant of the probe jet; d (probe jet); events",60,-0.1,1.1));
+    name = "probeJet_btagDiscriminator_3or4btags";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "b-tag discriminant of the probe jet; d (3-rd jet); events",60,-0.1,1.1));
+    m_histogram[name]->Sumw2();
+    name = "probeJet_btagDiscriminator_2or3btags";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "b-tag discriminant of the probe jet; d (4-th jet); events",60,-0.1,1.1));
     m_histogram[name]->Sumw2();
 }
 
@@ -428,11 +431,16 @@ void AnalyzerHfFracScaling::fillHistos(const EventMetadata&,
     
     // Plotting the discriminant value for the probe jet (cross-check by the tag-and-probe method)
     std::vector<int> jetIndices(recoObjectIndices.jetIndices_);
-    if(jetIndices.size()==4 && bJetIndices.size()>=3) {
+    if(jetIndices.size()>=3 && bJetIndices.size()>=2) {
         const std::vector<double>& allJetsBtagDiscriminant = (recoObjects.valuesSet_) ? *recoObjects.jetBTagCSV_ : std::vector<double>(0);
         common::orderIndices(jetIndices, allJetsBtagDiscriminant);
         // The last jet (smallest discriminant value) is the probe jet
-        m_histogram.at("probeJet_btagDiscriminator")->Fill(allJetsBtagDiscriminant.at(jetIndices.at(3)), weight);
+        if(jetIndices.size()>=3 && bJetIndices.size()>=2 && bJetIndices.size()<=3) {
+            m_histogram.at("probeJet_btagDiscriminator_2or3btags")->Fill(allJetsBtagDiscriminant.at(jetIndices.at(2)), weight);
+        }
+        if(jetIndices.size()>=4 && bJetIndices.size()>=3 && bJetIndices.size()<=4) {
+            m_histogram.at("probeJet_btagDiscriminator_3or4btags")->Fill(allJetsBtagDiscriminant.at(jetIndices.at(3)), weight);
+        }
     }
 
 }
