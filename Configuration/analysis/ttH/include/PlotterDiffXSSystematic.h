@@ -82,10 +82,10 @@ private:
     void prepareStyle();
     
     /// Read hisotgrams with a particular name from all systematic source files
-    SystematicHistoMap readSystematicHistograms(TString histoName, const Channel::Channel& channel);
+    SystematicHistoMap readSystematicHistograms(TString histoName, const Channel::Channel& channel)const;
 
     /// Plot different systematic shapes for each process
-    std::vector<ErrorMap> extractVariations(const SystematicHistoMap& m_systematicHistos);
+    std::vector<ErrorMap> extractVariations(const SystematicHistoMap& m_systematicHistos)const;
     
     /// Plot the final cross section with uncertainties
     void plotXSection(const Channel::Channel& channel);
@@ -104,6 +104,9 @@ private:
     
     /// Calculates uncertainty of particular type for a single bin
     UpDown binUncertaintyOfType(const ErrorMap& m_errors, const ErrorType type = ErrorType::total)const;
+    
+    /// Print individual uncertainties for each bin and mean uncertainty across all bins
+    void printAllUncertainties(const std::vector<ErrorMap>& errorMaps)const;
     
     /// Calculates binomial uncertainty of the subset/set ratio
     double uncertaintyBinomial(const double pass, const double all)const;

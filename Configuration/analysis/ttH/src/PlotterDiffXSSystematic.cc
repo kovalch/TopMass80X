@@ -95,7 +95,8 @@ void PlotterDiffXSSystematic::producePlots()
 }
 
 
-PlotterDiffXSSystematic::SystematicHistoMap PlotterDiffXSSystematic::readSystematicHistograms(TString histoName, const Channel::Channel& channel)
+PlotterDiffXSSystematic::SystematicHistoMap PlotterDiffXSSystematic::readSystematicHistograms(TString histoName, 
+                                                                                              const Channel::Channel& channel)const
 {
     SystematicHistoMap m_systematicHistos;
     if(inputFileLists_.count(channel) < 1) {
@@ -126,7 +127,7 @@ PlotterDiffXSSystematic::SystematicHistoMap PlotterDiffXSSystematic::readSystema
 }
 
 
-std::vector<PlotterDiffXSSystematic::ErrorMap> PlotterDiffXSSystematic::extractVariations(const SystematicHistoMap& m_systematicHistos)
+std::vector<PlotterDiffXSSystematic::ErrorMap> PlotterDiffXSSystematic::extractVariations(const SystematicHistoMap& m_systematicHistos)const
 {
     std::vector<ErrorMap> errors;
     
@@ -201,6 +202,9 @@ void PlotterDiffXSSystematic::plotXSection(const Channel::Channel& channel)
         e_measured_stat.push_back(e_stat);
         e_measured_total.push_back(e_total);
     }
+    
+    // Printing the list of uncertainties in each bin and the median
+    printAllUncertainties(e_measured);
     
     TGraphAsymmErrors* g_measured_stat = errorGraphFromHisto(h_nominal, e_measured_stat);
     TGraphAsymmErrors* g_measured_total = errorGraphFromHisto(h_nominal, e_measured_total);
@@ -294,14 +298,43 @@ PlotterDiffXSSystematic::UpDown PlotterDiffXSSystematic::binUncertaintyOfType(co
     if(type == ErrorType::syst || type == ErrorType::total) {
         for(auto systematicValuePair : m_errors) {
             Systematic::Type systematicType = systematicValuePair.first;
+            UpDown errorPair = systematicValuePair.second;
             if(systematicType == Systematic::nominal && type == ErrorType::syst) continue;
-            error.addInQuadrature(systematicValuePair.second);
+            error.addInQuadrature(errorPair);
         }
         error.sqrt();
         return error;
     }
     
+    
     return error;
+}
+
+
+void PlotterDiffXSSystematic::printAllUncertainties(const std::vector<ErrorMap>& errorMaps)const
+{
+    if(errorMaps.size()<1) return;
+    const ErrorMap& systematicsMap = errorMaps.at(0);
+    // Looping over available systematics
+    for(auto systematics : systematicsMap) {
+        const Systematic::Type systematicType = systematics.first;
+        TString systematicName = systematicType == Systematic::nominal ? "STATISTICAL" : Systematic::convertType(systematicType);
+        std::vector<double> ups, downs;
+        printf("%s \t", systematicName.Data());
+        // Looping over all bins
+        for(auto errorMap : errorMaps) {
+            printf("%.3f (%.3f)\t", errorMap.at(systematicType).u, errorMap.at(systematicType).d);
+            ups.push_back(errorMap.at(systematicType).u);
+            downs.push_back(errorMap.at(systematicType).d);
+        }
+        printf("\t | ");
+        // Sorting the up/down variations to take the median
+        std::sort(ups.begin(), ups.end());
+        std::sort(downs.begin(), downs.end());
+        const int nBins = errorMaps.size();
+        const int binMedian = nBins/2;
+        printf("Median: %.3f (%.3f)\n", ups.at(binMedian), downs.at(binMedian));
+    }
 }
 
 
