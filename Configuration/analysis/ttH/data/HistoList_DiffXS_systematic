@@ -27,9 +27,9 @@ dijet_leadingJet_Mjj_addB_vis_mva_step7_cate1_diffXS - "#frac{d#sigma}{dM_{bb}} 
 # Leading jets 1D histograms
 #
 
-dijet_leadingJet_1st_Pt_addB_vis_mva_step7_cate0_diffXS - "#frac{d#sigma}{dp_{T}} [pb/GeV]" "1-st b jet p_{T} [GeV]" 0 0 0 1 1e-5 3e-2 0 0 0 0
-dijet_leadingJet_1st_Eta_addB_vis_mva_step7_cate0_diffXS - "#frac{d#sigma}{d|#eta|} [pb]" "1-st b jet |#eta|" 0 0 0 0 0 0.18 0 0 0 0
 
-dijet_leadingJet_1st_Pt_addB_mva_step7_cate0_diffXS - "#frac{d#sigma}{dp_{T}} [pb/GeV]" "1-st b jet p_{T} [GeV]" 0 0 0 1 1e-5 7e-2 0 0 0 0
-dijet_leadingJet_1st_Eta_addB_mva_step7_cate0_diffXS - "#frac{d#sigma}{d|#eta|} [pb]" "1-st b jet |#eta|" 0 0 0 0 0 45e-2 0 0 0 0
+dijet_leadingJet_1st_Pt_addB_vis_mva_step7_cate0_cate1_diffXS - "#frac{d#sigma}{dp_{T}} [pb/GeV]" "1-st b jet p_{T} [GeV]" 0 0 0 1 1e-5 3e-2 0 0 0 0
+dijet_leadingJet_1st_Eta_addB_vis_mva_step7_cate0_cate1_diffXS - "#frac{d#sigma}{d|#eta|} [pb]" "1-st b jet |#eta|" 0 0 0 0 0 0.18 0 0 0 0
 
+dijet_leadingJet_1st_Pt_addB_mva_step7_cate0_cate1_diffXS - "#frac{d#sigma}{dp_{T}} [pb/GeV]" "1-st b jet p_{T} [GeV]" 0 0 0 1 1e-5 7e-2 0 0 0 0
+dijet_leadingJet_1st_Eta_addB_mva_step7_cate0_cate1_diffXS - "#frac{d#sigma}{d|#eta|} [pb]" "1-st b jet |#eta|" 0 0 0 0 0 45e-2 0 0 0 0
