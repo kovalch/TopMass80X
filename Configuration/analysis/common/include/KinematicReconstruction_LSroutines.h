@@ -75,6 +75,7 @@ public:
         double mblbar;
         double x1;
         double x2;
+        double mtt;
         //double costheta;
         //double costhetabar;
         double weight;

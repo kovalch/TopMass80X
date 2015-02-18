@@ -599,6 +599,7 @@ void KinematicReconstruction_LSroutines::doAll()
                 double protonE = 4000; //FIXME:  set as global variable
                 TS_temp.x1 = (top_.E()+topbar_.E()+top_.Pz()+topbar_.Pz())/(2*protonE);
                 TS_temp.x2 = (top_.E()+topbar_.E()-top_.Pz()-topbar_.Pz())/(2*protonE);
+                TS_temp.mtt = tt_.M();
                 
                 TS_temp.weight = 1.0/tt_.M();
 
