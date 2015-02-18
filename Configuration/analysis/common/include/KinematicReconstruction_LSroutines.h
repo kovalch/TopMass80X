@@ -73,6 +73,8 @@ public:
         //double ttpt_topbar;
         double mbl;
         double mblbar;
+        double x1;
+        double x2;
         //double costheta;
         //double costhetabar;
         double weight;
