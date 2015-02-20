@@ -23,7 +23,6 @@
 
 
 
-
 constexpr double TopMASS = 172.5;
 
 
@@ -453,8 +452,31 @@ bool KinematicReconstruction::solutionSmearing(KinematicReconstruction_MeanSol& 
                 for(int i=0; i<=tp_sm.getNsol()*0; ++i){
                     //meanSolution.add(tp_sm.GetTtSol()->at(i).top,tp_sm.GetTtSol()->at(i).topbar,tp_sm.GetTtSol()->at(i).neutrino,tp_sm.GetTtSol()->at(i).neutrinobar,1);
                     //meanSolution.add(tp_sm.GetTtSol()->at(i).top,tp_sm.GetTtSol()->at(i).topbar,tp_sm.GetTtSol()->at(i).neutrino,tp_sm.GetTtSol()->at(i).neutrinobar,(tp_sm.GetTtSol()->at(i).lepEw));//*b_w*bbar_w
-                    const double mbl_weight = h_mbl_w_->GetBinContent(h_mbl_w_->FindBin((al_sm+b_sm).M()))*h_mbl_w_->GetBinContent(h_mbl_w_->FindBin((l_sm+bbar_sm).M()))/100000000;
-                    meanSolution.add(tp_sm.getTtSol()->at(i).top,tp_sm.getTtSol()->at(i).topbar,tp_sm.getTtSol()->at(i).neutrino,tp_sm.getTtSol()->at(i).neutrinobar,mbl_weight);//
+                    
+                    double mbl_weight = h_mbl_w_->GetBinContent(h_mbl_w_->FindBin((al_sm+b_sm).M()))*h_mbl_w_->GetBinContent(h_mbl_w_->FindBin((l_sm+bbar_sm).M()))/100000000;
+                    double pdf_weight = 1;
+		   if(0){ // 0 -default , 1 - boosted top
+		      double mtt = tp_sm.getTtSol()->at(i).mtt;
+		      double x1 = tp_sm.getTtSol()->at(i).x1;
+		      double x2 = tp_sm.getTtSol()->at(i).x2;
+		      int nMttBins = (int)mttBinsForX_.size()-1;
+		      for(int j=0;j<nMttBins;++j)
+		      {  
+			  if(mtt<mttBinsForX_.at(j)&&j==0){
+			      pdf_weight = pdf_weight*h_pdf_w_[0]->GetBinContent(h_pdf_w_[0]->FindBin(x1))*h_pdf_w_[0]->GetBinContent(h_pdf_w_[0]->FindBin(x2));
+			  }
+			  else if(mtt<mttBinsForX_.at(j+1)&&mtt>mttBinsForX_.at(j))
+			  {
+			      pdf_weight = pdf_weight*h_pdf_w_[j]->GetBinContent(h_pdf_w_[j]->FindBin(x1))*h_pdf_w_[j]->GetBinContent(h_pdf_w_[j]->FindBin(x2));
+			  }
+			  else if(mtt>mttBinsForX_.at(j)&&j==nMttBins){
+			      pdf_weight = pdf_weight*h_pdf_w_[nMttBins-1]->GetBinContent(h_pdf_w_[nMttBins-1]->FindBin(x1))*h_pdf_w_[nMttBins-1]->GetBinContent(h_pdf_w_[nMttBins-1]->FindBin(x2));
+			  } 
+		      }
+		   }
+                    // ...
+                    
+                    meanSolution.add(tp_sm.getTtSol()->at(i).top,tp_sm.getTtSol()->at(i).topbar,tp_sm.getTtSol()->at(i).neutrino,tp_sm.getTtSol()->at(i).neutrinobar,mbl_weight*pdf_weight);
                     //meanSolution.add(tp_sm.GetTtSol()->at(i).top,tp_sm.GetTtSol()->at(i).topbar,tp_sm.GetTtSol()->at(i).neutrino,tp_sm.GetTtSol()->at(i).neutrinobar,(tp_sm.GetTtSol()->at(i).vw));//
                 }
             }
@@ -839,7 +861,7 @@ void KinematicReconstruction::loadData()
 //         h_mbl_w_->SetDirectory(0);
         fmbl_wrong.Close();
         
-// ...        
+// ...
         
 // cos_theta*
 
@@ -859,7 +881,23 @@ void KinematicReconstruction::loadData()
         h_neuEta_w_->SetDirectory(0);
         fneuEta.Close();
 // ...        
-    
+        
+// pdf
+
+        mttBinsForX_ = {340,400,470,550,650,750,850,950,1050,1150,1250,1550,1850,2150};
+        TString data_path10 = common::DATA_PATH_COMMON();
+        data_path10.Append("/KinReco_HERAPDF.root");
+        TFile fpdf(data_path10);
+        for(int i=0;i<(int)mttBinsForX_.size()-1;++i)
+        {
+            char name[20];
+            sprintf(name,"h%d",(int)(mttBinsForX_.at(i+1)+mttBinsForX_.at(i))/2);
+            h_pdf_w_[i] = (TH1F*)fpdf.Get(name);
+            h_pdf_w_[i]->SetDirectory(0);
+        }
+        fpdf.Close();
+             
+// ...
     std::cout<<"Found all histograms needed for smearing\n";
 }
 

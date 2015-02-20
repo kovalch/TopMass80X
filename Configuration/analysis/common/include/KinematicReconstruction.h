@@ -144,6 +144,11 @@ private:
     
 // // mbl
     TH1* h_mbl_w_;
+// pdf
+    TH1* h_pdf_w_[13];
+    std::vector<double> mttBinsForX_;
+    
+    
 // // costheta        
     TH1* h_costheta_w_;
     
