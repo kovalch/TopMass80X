@@ -4,6 +4,7 @@
 
 #include <TH1.h>
 #include <TH1D.h>
+#include <TH2D.h>
 #include <TLorentzVector.h>
 #include <TString.h>
 #include <Math/VectorUtil.h>
@@ -98,6 +99,13 @@ void AnalyzerKinReco::bookHistos(const TString& step, std::map<TString, TH1*>& m
         name = "fE_lep";
         m_histogram[name] = store(new TH1D ( prefix_+name+step, "fE_lep", 200, 0.5, 2.5 ));
         
+        //boosted top analysis
+        name = "mtt_true_vs_reco_pTt300";
+        m_histogram[name] = this->store(new TH2D (prefix_+name+step,"mtt true vs reco (pTt>300); Mtt(reco) [GeV];Mtt(true), [GeV]",2000,0,2000,2000,0,2000));
+        name = "pTt_true_vs_reco";
+        m_histogram[name] = this->store(new TH2D (prefix_+name+step,"pTt true vs reco ; pTt(reco), [GeV];pTt(true), [GeV]",1500,0,1500,1500,0,1500));
+	name = "pTt_true_vs_reco_pTt300";
+        m_histogram[name] = this->store(new TH2D (prefix_+name+step,"pTt true vs reco (pTt>300); pTt(reco), [GeV];pTt(true), [GeV]",1500,0,1500,1500,0,1500));
 }
 
 
@@ -111,6 +119,24 @@ void AnalyzerKinReco::fillHistos(const EventMetadata& eventMetadata,
                                       const double& weight, const TString&,
                                       std::map< TString, TH1* >& m_histogram)
 {
+    
+    //boosted top analysis
+    if(topGenObjects.valuesSet_ && kinematicReconstructionSolutions.numberOfSolutions()){
+        TLorentzVector gentop = common::LVtoTLV((*topGenObjects.GenTop_));
+        TLorentzVector gentopbar = common::LVtoTLV((*topGenObjects.GenAntiTop_));
+        TLorentzVector recotop = common::LVtoTLV(kinematicReconstructionSolutions.solution().top());
+        TLorentzVector recotopbar = common::LVtoTLV(kinematicReconstructionSolutions.solution().antiTop());
+        
+        TLorentzVector genttbar = gentop + gentopbar;
+        TLorentzVector recottbar = recotop + recotopbar;
+        //if((gentop.Pt()>300 && recotop.Pt()>300) || (gentopbar.Pt()>300 && recotopbar.Pt()>300)){
+	if( recotop.Pt()>300 || recotopbar.Pt()>300 ){
+            ((TH2D*)m_histogram["mtt_true_vs_reco_pTt300"])->Fill(recottbar.M(),genttbar.M(),weight);
+	    ((TH2D*)m_histogram["pTt_true_vs_reco_pTt300"])->Fill(recotop.Pt(),gentop.Pt(),weight);
+        }
+        ((TH2D*)m_histogram["pTt_true_vs_reco"])->Fill(recotop.Pt(),gentop.Pt(),weight);
+    }
+    // ...
     
     double weight7 = (recoLevelWeights.weightNoPileup_)*(genLevelWeights.weightPileup_);
         weight7 *= recoLevelWeights.weightBtagSF_;
