@@ -27,7 +27,7 @@ top_rapidity_(VariableFloat(name_top_rapidity_)),
 ttbar_delta_eta_(VariableFloat(name_ttbar_delta_eta_)),
 ttbar_rapidity_(VariableFloat(name_ttbar_rapidity_)),
 ttbar_mass_(VariableFloat(name_ttbar_mass_)),
-jet_multiplicity_(VariableInt(name_jet_multiplicity_)),
+jet_multiplicity_(VariableFloat(name_jet_multiplicity_)),
 x1_(VariableFloat(name_x1_)),
 x2_(VariableFloat(name_x2_)),
 
@@ -38,7 +38,7 @@ gen_top_rapidity_(VariableFloat(name_gen_top_rapidity_)),
 gen_ttbar_delta_eta_(VariableFloat(name_gen_ttbar_delta_eta_)),
 gen_ttbar_rapidity_(VariableFloat(name_gen_ttbar_rapidity_)),
 gen_ttbar_mass_(VariableFloat(name_gen_ttbar_mass_)),
-gen_jet_multiplicity_(VariableInt(name_gen_jet_multiplicity_)),
+gen_jet_multiplicity_(VariableFloat(name_gen_jet_multiplicity_)),
 gen_x1_(VariableFloat(name_gen_x1_)),
 gen_x2_(VariableFloat(name_gen_x2_)),
 
@@ -66,7 +66,7 @@ top_rapidity_(VariableFloat(name_top_rapidity_)),
 ttbar_delta_eta_(VariableFloat(name_ttbar_delta_eta_)),
 ttbar_rapidity_(VariableFloat(name_ttbar_rapidity_)),
 ttbar_mass_(VariableFloat(name_ttbar_mass_)),
-jet_multiplicity_(VariableInt(name_jet_multiplicity_)),
+jet_multiplicity_(VariableFloat(name_jet_multiplicity_)),
 x1_(VariableFloat(name_x1_)),
 x2_(VariableFloat(name_x2_)),
 
@@ -77,7 +77,7 @@ gen_top_rapidity_(VariableFloat(name_gen_top_rapidity_)),
 gen_ttbar_delta_eta_(VariableFloat(name_gen_ttbar_delta_eta_)),
 gen_ttbar_rapidity_(VariableFloat(name_gen_ttbar_rapidity_)),
 gen_ttbar_mass_(VariableFloat(name_gen_ttbar_mass_)),
-gen_jet_multiplicity_(VariableInt(name_gen_jet_multiplicity_)),
+gen_jet_multiplicity_(VariableFloat(name_gen_jet_multiplicity_)),
 gen_x1_(VariableFloat(name_gen_x1_)),
 gen_x2_(VariableFloat(name_gen_x2_)),
 
@@ -91,13 +91,13 @@ trueLevelWeight_(VariableFloat(name_trueLevelWeight_))
     isTopGen_.value_ = 0;
     entry_.value_ = -999;
     
+   //proton Energy [GeV]  
+   double protonE = 4000;
+    
   if(kinematicReconstructionSolutions.numberOfSolutions()){
    
    isKinReco_.value_ = 1;
 
-   
-   //proton Energy [GeV]  
-   double protonE = 4000;
    TLorentzVector hyptop(common::LVtoTLV(kinematicReconstructionSolutions.solution().top()));
    TLorentzVector hypantitop(common::LVtoTLV(kinematicReconstructionSolutions.solution().antiTop()));
    TLorentzVector hypttbar(hyptop+hypantitop);
@@ -125,8 +125,10 @@ trueLevelWeight_(VariableFloat(name_trueLevelWeight_))
        }
    }
    
-   double x1 = (hyptop.E()+hypantitop.E()+restEJetsSum+hyptop.Pz()+hypantitop.Pz()+restPzJetsSum)/(2*protonE);
-   double x2 = (hyptop.E()+hypantitop.E()+restEJetsSum-hyptop.Pz()-hypantitop.Pz()-restPzJetsSum)/(2*protonE);
+   //double x1 = (hyptop.E()+hypantitop.E()+restEJetsSum+hyptop.Pz()+hypantitop.Pz()+restPzJetsSum)/(2*protonE);
+   //double x2 = (hyptop.E()+hypantitop.E()+restEJetsSum-hyptop.Pz()-hypantitop.Pz()-restPzJetsSum)/(2*protonE);
+   double x1 = (hyptop.E()+hypantitop.E()+hyptop.Pz()+hypantitop.Pz())/(2*protonE);
+   double x2 = (hyptop.E()+hypantitop.E()-hyptop.Pz()-hypantitop.Pz())/(2*protonE);
    x1_.value_ = x1;
    x2_.value_ = x2;
    
@@ -152,6 +154,11 @@ trueLevelWeight_(VariableFloat(name_trueLevelWeight_))
     
       gen_ttbar_delta_eta_.value_ =fabs(gentop.Eta()-genantitop.Eta());
       gen_ttbar_delta_phi_.value_ =fabs(gentop.DeltaPhi(genantitop));
+      
+      double gen_x1 = (gentop.E()+genantitop.E()+gentop.Pz()+genantitop.Pz())/(2*protonE);
+      double gen_x2 = (gentop.E()+genantitop.E()-gentop.Pz()-genantitop.Pz())/(2*protonE);
+      gen_x1_.value_ = gen_x1;
+      gen_x2_.value_ = gen_x2;
     
    }
     

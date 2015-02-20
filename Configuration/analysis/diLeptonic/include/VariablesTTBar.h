@@ -66,7 +66,7 @@ public:
     VariableFloat ttbar_delta_eta_;
     VariableFloat ttbar_rapidity_;
     VariableFloat ttbar_mass_;
-    VariableInt jet_multiplicity_;
+    VariableFloat jet_multiplicity_;
     VariableFloat x1_;
     VariableFloat x2_;
     
@@ -77,7 +77,7 @@ public:
     VariableFloat gen_ttbar_delta_eta_;
     VariableFloat gen_ttbar_rapidity_;
     VariableFloat gen_ttbar_mass_;
-    VariableInt   gen_jet_multiplicity_;
+    VariableFloat   gen_jet_multiplicity_;
     VariableFloat gen_x1_;
     VariableFloat gen_x2_;
 
