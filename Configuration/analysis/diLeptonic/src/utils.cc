@@ -25,7 +25,7 @@ void utils::addAndDelete_or_Assign(TH1*& addToThis, TH1* addThis)
 }
 
 void utils::drawRatio(TH1* histNumerator, TH1* histDenominator, const TH1* uncband,
-               const Double_t& ratioMin, const Double_t& ratioMax,TH1D* hist)
+               const Double_t& ratioMin, const Double_t& ratioMax,TH1D* hist, TGraphAsymmErrors* graph)
 {
     // check that histos have the same binning
     if(histNumerator->GetNbinsX()!=histDenominator->GetNbinsX()){
@@ -48,13 +48,33 @@ void utils::drawRatio(TH1* histNumerator, TH1* histDenominator, const TH1* uncba
     ratio->Divide(histDenominator);
     ratio->SetLineColor(1);
     ratio->SetLineStyle(histNumerator->GetLineStyle());
-    ratio->SetMarkerColor(kBlack);
-    ratio->SetMarkerStyle(20);
-    ratio->SetMarkerSize(1);
+    ratio->SetMarkerColor(histNumerator->GetMarkerColor());
+    ratio->SetMarkerStyle(histNumerator->GetMarkerStyle());
+    ratio->SetMarkerSize(histNumerator->GetMarkerSize());
     // calculate error for ratio
-//         for(int bin=1; bin<=histNumerator->GetNbinsX(); bin++){
-//             ratio->SetBinError(bin, std::sqrt(histNumerator->GetBinContent(bin))/histDenominator->GetBinContent(bin));
-//         }
+        for(int bin=1; bin<=histNumerator->GetNbinsX(); bin++){
+            ratio->SetBinError(bin, histNumerator->GetBinError(bin)/histDenominator->GetBinContent(bin) );
+        }
+    // create graph ratio
+    TGraphAsymmErrors* ratioGR = 0;
+    if(graph)
+    {
+        ratioGR = (TGraphAsymmErrors*)graph->Clone();
+        double *y = ratioGR->GetY();
+        double *yUP = ratioGR->GetEYhigh();
+        double *yDOWN = ratioGR->GetEYlow();
+        int n = ratioGR->GetN();
+        if(n!=histDenominator->GetNbinsX())printf("Error in utils::drawRatio: number of graph points are not equal to number of bins in histo.");
+        for (int i=0;i<n;i++) {
+            double content = histDenominator->GetBinContent(i+1);
+            y[i] = y[i]/content;
+            yUP[i] = yUP[i]/content;
+            yDOWN[i] = yDOWN[i]/content;
+        }
+        
+    }
+    
+    
     // get some values from old pad
     Int_t    logx = gPad->GetLogx();
     Double_t left = gPad->GetLeftMargin();
@@ -114,8 +134,9 @@ void utils::drawRatio(TH1* histNumerator, TH1* histDenominator, const TH1* uncba
     // delete axis of initial plot
     histNumerator->GetXaxis()->SetLabelSize(0);
     histNumerator->GetXaxis()->SetTitleSize(0);
+    histDenominator->GetXaxis()->SetLabelSize(0);
+    histDenominator->GetXaxis()->SetTitleSize(0);
     // draw ratio plot
-    ratio->SetMarkerSize(1.0);
     if(hist){
         hist->SetMaximum(ratioMax); 
         hist->SetMinimum(ratioMin); 
@@ -129,9 +150,14 @@ void utils::drawRatio(TH1* histNumerator, TH1* histDenominator, const TH1* uncba
             TLine ln(xLine,ratioMin,xLine,ratioMax);
             ln.DrawClone("same");
         }
-        ratio->DrawClone("p e X0 same");
+        ratio->DrawClone("p e1 X0 same");
+        if(graph)ratioGR->Draw("P,SAME");
     }
-    else ratio->DrawClone("p e X0");
+    else 
+    {
+        ratio->DrawClone("p e1 X0");
+        if(graph)ratioGR->Draw("P,SAME");
+    }
     rPad->SetTopMargin(0.0);
     rPad->SetBottomMargin(0.15*scaleFactor);
     rPad->SetRightMargin(right);
