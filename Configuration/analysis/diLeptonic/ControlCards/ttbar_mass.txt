@@ -1,7 +1,7 @@
 
 
 cpnbins 40 350 2000
-title M(t#bar{t})
+title Mtt
 units [GeV]
 
 1d

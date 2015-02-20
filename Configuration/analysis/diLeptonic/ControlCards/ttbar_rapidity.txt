@@ -1,7 +1,7 @@
 
 
 cpnbins 40 -2.5 2.5
-title y(t#bar{t})
+title y(tt)
 units 
 
 1d

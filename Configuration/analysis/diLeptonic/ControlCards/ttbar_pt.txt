@@ -1,7 +1,7 @@
 
 
 cpnbins 40 0 400
-title p_{T}^{t#bar{t}}
+title p_{T}^{tt}
 units [GeV]
 
 1d
