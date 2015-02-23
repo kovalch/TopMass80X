@@ -76,7 +76,8 @@ public:
     unsigned int calculateMultiplicity(const std::vector<int>& collection, int jetIndex);
     
     /// p_{T} weighted jet charge calculation for a given squeezing parameter x (optimal value x = 0.8)
-    double ptWeightedJetChargeX (const int jetId, const LV& recoJet, const double& x, const std::vector<int>& pfCandidateJetIndex, const VLV& pfCandidates, const std::vector<int>& pfCandidateCharge);
+    double ptWeightedJetChargeX (const int jetId, const LV& recoJet, const double& x, const std::vector<int>& pfCandidateJetIndex, const VLV& pfCandidates, const std::vector<int>& pfCandidateCharge, const std::vector<int>& pfCandidateVertexId);
+    
     
     /// Calculate product of all jet track multiplicity weights
     double trackMultiplicityWeightPerEvent (const std::vector<double>& jetWeight);

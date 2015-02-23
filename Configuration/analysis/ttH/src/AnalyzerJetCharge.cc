@@ -125,7 +125,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
     const std::vector<double>& jetSecondaryVertexFlightDistanceSignificance = *recoObjects.jetSecondaryVertexFlightDistanceSignificance_;
     
     // Vertex information for closesZVertex studies
-    //const std::vector<int>& jetPfCandidatePrimaryVertexId = *recoObjects.jetPfCandidatePrimaryVertexId_;
+    const std::vector<int>& jetPfCandidatePrimaryVertexId = *recoObjects.jetPfCandidatePrimaryVertexId_;
     
     // Access the leptons for mlb
     const VLV& isolatedLeptons = *recoObjects.allLeptons_;
@@ -660,7 +660,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
             //if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==-1) std::cout<<"TOO MANY HIGH WEIGHTS!!"<<std::endl;
             
             // Remove tracks not associated to primary vertex 0
-            //if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==-1|| jetPfCandidatePrimaryVertexId.at(iPfTrack)==2 || jetPfCandidatePrimaryVertexId.at(iPfTrack)==3) continue;
+            if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==-1|| jetPfCandidatePrimaryVertexId.at(iPfTrack)==2 || jetPfCandidatePrimaryVertexId.at(iPfTrack)==3) continue;
             
             //if (jetHadronFlavour>0) m_histogram["h_test_jetPfCandidateChargeForB"]->Fill(jetPfCandidateTrackCharge.at(iPfTrack), weight);
             //else if (jetHadronFlavour<0) m_histogram["h_test_jetPfCandidateChargeForAntiB"]->Fill(jetPfCandidateTrackCharge.at(iPfTrack), weight);
@@ -1143,7 +1143,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         }
         
         // TEST new function added for jet charge calculation, for a given x "squeezing"-parameter
-        double jetChargeFromFunction = ptWeightedJetChargeX(jetIdx, jets, 0.8, jetPfCandidateTrackIndex, jetPfCandidateTrack, jetPfCandidateTrackCharge);
+        double jetChargeFromFunction = ptWeightedJetChargeX(jetIdx, jets, 0.8, jetPfCandidateTrackIndex, jetPfCandidateTrack, jetPfCandidateTrackCharge, jetPfCandidatePrimaryVertexId);
         m_histogram["h_jetChargeFromFunction"]->Fill(jetChargeFromFunction, weight);
         
         // Only fill charge if there's ONE secondary vertex in the event
@@ -2814,7 +2814,7 @@ unsigned int AnalyzerJetCharge::calculateMultiplicity(const std::vector<int>& co
     
 }
 
-double AnalyzerJetCharge::ptWeightedJetChargeX (const int jetId, const LV& recoJet, const double& x, const std::vector<int>& pfCandidateJetIndex, const VLV& pfCandidates, const std::vector<int>& pfCandidateCharge)
+double AnalyzerJetCharge::ptWeightedJetChargeX (const int jetId, const LV& recoJet, const double& x, const std::vector<int>& pfCandidateJetIndex, const VLV& pfCandidates, const std::vector<int>& pfCandidateCharge, const std::vector<int>& pfCandidateVertexId)
 {
     // Access jet momentum information
     double jetTrueBPx = recoJet.px();
@@ -2829,6 +2829,8 @@ double AnalyzerJetCharge::ptWeightedJetChargeX (const int jetId, const LV& recoJ
     {
         // Check that the pfCandidate corresponds to the jet
         if (jetId!=pfCandidateJetIndex.at(iCandidate)) continue;
+        // Remove tracks not corresponding to primary vertex
+        if (pfCandidateVertexId.at(iCandidate) == -1 || pfCandidateVertexId.at(iCandidate) == 2 || pfCandidateVertexId.at(iCandidate) == 3) continue;
         
         // Access pfCandidate mometum and charge information
         const double constituentTrueBPx = pfCandidates.at(iCandidate).px();
@@ -2858,5 +2860,7 @@ double AnalyzerJetCharge::trackMultiplicityWeightPerEvent (const std::vector<dou
     }
     return eventMultiplicity;
 }
+
+
 
 
