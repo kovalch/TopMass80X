@@ -179,7 +179,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         LV jets = allJets.at(jetIdx);
         
         //FIXME weightReweighted is reweighted by the number of tracks
-        double weightReweighted = weight*trackMultiplicityWeight (-0.0244, 1.3687,jetIdx,jetPfCandidateTrackIndex)*0.95693324054694854379;
+        double weightReweighted = weight*trackMultiplicityWeight (-0.0244, 1.3687, jetIdx, jetPfCandidateTrackIndex, jetPfCandidatePrimaryVertexId);
         jetWeights.push_back(weightReweighted);
         
         if (optionForCalibration==2)
@@ -2778,7 +2778,7 @@ bool AnalyzerJetCharge::putUniquelyInVector(std::vector<int>& vector, const int 
     return true;
 }
 
-double AnalyzerJetCharge::trackMultiplicityWeight(const double& m, const double& n, int jetIndex, const std::vector<int>& jetPfCandidateTrackIndex)
+double AnalyzerJetCharge::trackMultiplicityWeight(const double& m, const double& n, int jetIndex, const std::vector<int>& jetPfCandidateTrackIndex, const std::vector<int>& pfCandidateVertexId)
 {
     int multiplicity = 0;
     for (size_t i=0;i!=jetPfCandidateTrackIndex.size();i++)
@@ -2787,6 +2787,8 @@ double AnalyzerJetCharge::trackMultiplicityWeight(const double& m, const double&
         int trueMatched = 0;
         if (jetIndex!=jetPfCandidateTrackIndex.at(i)) trueMatched = -1;
         if (trueMatched == -1) continue;
+        // Remove tracks not corresponding to primary vertex
+        if (pfCandidateVertexId.at(i) == -1 || pfCandidateVertexId.at(i) == 2 || pfCandidateVertexId.at(i) == 3) continue;
         ++multiplicity;
     }
     

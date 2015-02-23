@@ -70,7 +70,7 @@ public:
     bool putUniquelyInVector(std::vector<int>& vector, const int id);
     
     /// Calculate the weight applying the track multiplicity in linear functional form (y = mx+n)
-    double trackMultiplicityWeight(const double& m, const double& n, int jetIndex, const std::vector<int>& jetPfCandidateTrackIndex);
+    double trackMultiplicityWeight(const double& m, const double& n, int jetIndex, const std::vector<int>& jetPfCandidateTrackIndex, const std::vector<int>& pfCandidateVertexId);
     
     /// Calculate the multiplicity per jet of a given collection
     unsigned int calculateMultiplicity(const std::vector<int>& collection, int jetIndex);
