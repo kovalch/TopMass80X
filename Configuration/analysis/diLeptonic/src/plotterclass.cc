@@ -2059,6 +2059,21 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
         double TotalSyst=0.0, TotalSqSyst=0.0;
         double AvgSyst= 0.0, SqAvgSys=0.0;
 
+        // Fill header of txt file, fill only for the first iteration systematic
+        if(systs<1){
+            fprintf(systfile, "Source ");
+            for (Int_t bin=0; bin<bins; bin++){//condense matrices to arrays for plotting
+                if(name.Contains("Rapidity") || name.Contains("Eta") || name.Contains("Phi") || name.Contains("DeltaR")){
+                    fprintf(systfile, "&  [%1.2f, %1.2f]", Xbins[bin], Xbins[bin+1]);
+                }
+                else if(name.Contains("JetMultp")) {
+                    fprintf(systfile, "&  %1.0f", Xbins[bin]+0.5);
+                }
+                else {fprintf(systfile, "&  [%.0f, %.0f]", Xbins[bin], Xbins[bin+1]);}
+            }
+            fprintf(systfile, "\\\\ \\hline \n");
+        }
+        
         for (Int_t bin=0; bin<bins; bin++){//condense matrices to arrays for plotting
             if(vec_systematic.at(systs) == "BTAG_PT_" || vec_systematic.at(systs) == "BTAG_LJET_PT_"){
                 DiffXSecSysErrorbySysPlot[bin][systs]= TMath::Sqrt(
@@ -2069,9 +2084,9 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
 
             systtemp->SetBinContent(bin+1,(DiffXSecSysErrorbySysPlot[bin][systs]*DiffXSecSysErrorbySysPlot[bin][systs]));
             if(bin==0){
-                fprintf(systfile, "%s", (vec_systematic.at(systs)+" ").Data());
+                fprintf(systfile, "%s   ", vec_systematic.at(systs).Remove(vec_systematic.at(systs).Length()-1, 1).Data());
             }
-            fprintf(systfile, "%2.5f ", TMath::Sqrt(systtemp->GetBinContent(bin+1))*100);
+            fprintf(systfile, " &  %2.2f  ", TMath::Sqrt(systtemp->GetBinContent(bin+1))*100);
             if(bin>0 && bin<bins-1){//Exclude the 2 side bins
                 TotalSyst=TotalSyst+TMath::Sqrt(systtemp->GetBinContent(bin+1));
                 TotalSqSyst=TotalSqSyst+systtemp->GetBinContent(bin+1);
@@ -2079,7 +2094,8 @@ void Plotter::PlotDiffXSec(TString Channel, std::vector<TString>vec_systematic){
         }
         AvgSyst=TotalSyst/(bins-2);
         SqAvgSys=TMath::Sqrt(TotalSqSyst/(bins-2));
-        fprintf(systfile, "Lin.Avg.(%%)= %.5f  Quad.Avg.(%%)=%.5f\n", 100*AvgSyst, 100*SqAvgSys);
+        fprintf(systfile, "\\\\ \n");
+//         fprintf(systfile, "\\\\ Lin.Avg.(%%)= %.5f  Quad.Avg.(%%)=%.5f\n", 100*AvgSyst, 100*SqAvgSys);
         systtemp->SetFillColor((int)vec_systematic.size()-systs);
         SystHists->Add(systtemp);
         leg10->AddEntry(systtemp, vec_systematic.at(systs), "f");
