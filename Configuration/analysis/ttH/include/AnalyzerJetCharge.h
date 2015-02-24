@@ -80,7 +80,7 @@ public:
     
     
     /// Calculate product of all jet track multiplicity weights
-    double trackMultiplicityWeightPerEvent (const std::vector<double>& jetWeight);
+    double trackMultiplicityWeightPerEvent (const std::vector<int>& jetIndices, const double& m, const double& n, const std::vector<int>& jetPfCandidateTrackIndex, const std::vector<int>& pfCandidateVertexId);
     
     struct MvaJetVariable
     {
