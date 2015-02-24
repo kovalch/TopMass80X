@@ -1841,6 +1841,8 @@ double AnalysisBase::ptWeightedJetChargeX(const int jetId, const LV& recoJet, co
 
 double AnalysisBase::weightJetCharge(const std::vector<int>& jetIndices, const std::vector<int>& jetPfCandidateTrackIndex, const std::vector<int>& pfCandidateVertexId)
 {
+    if(!isMC_) return 1.;
+    
     return this->trackMultiplicityWeightPerEvent(jetIndices, -0.039234, 1.41540, jetPfCandidateTrackIndex, pfCandidateVertexId);
 }
 
