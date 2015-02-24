@@ -348,6 +348,10 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     const double weightKinReco = this->weightKinReco();
     double weightNoPileup = trueLevelWeightNoPileup*weightTriggerSF*weightLeptonSF;
     double weight = weightNoPileup*weightPU;
+    // FIXME: for the moment access the weight due to jet charge mismodelling here, and multiply directly the overall weight with it
+    //const double weightJetCharge = this->weightJetCharge(jetIndices, *recoObjects.jetPfCandidateTrackIndex_, *recoObjects.jetPfCandidatePrimaryVertexId_);
+    //weightNoPileup *= weightJetCharge;
+    //weight *= weightJetCharge;
     tth::RecoLevelWeights recoLevelWeights(weightLeptonSF, weightTriggerSF,
                                            weightBtagSF, weightKinReco,
                                            weightNoPileup, weight);
@@ -686,7 +690,8 @@ void HiggsAnalysis::recoObjectSelection(std::vector<int>& allLeptonIndices,
     
     // Fill a vector with all jet pair indices, while sorting each pair by the jet charge:
     // first entry is antiBIndex i.e. with higher jet charge, second entry is bIndex
-    // The jet charge itself first needs to be calculated, as the value in the ntuple is not optimal
+    // FIXME: The jet charge itself first needs to be calculated, as the value in the ntuple is not optimal
+    // FIXME: for the moment the following line serves it
     //this->calculateJetCharge();
     const std::vector<double>& jetChargeRelativePtWeighted = *recoObjects.jetChargeRelativePtWeighted_;
     jetIndexPairs = this->chargeOrderedJetPairIndices(jetIndices, jetChargeRelativePtWeighted);

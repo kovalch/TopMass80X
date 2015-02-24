@@ -1839,5 +1839,49 @@ double AnalysisBase::ptWeightedJetChargeX(const int jetId, const LV& recoJet, co
 }
 
 
+double AnalysisBase::weightJetCharge(const std::vector<int>& jetIndices, const std::vector<int>& jetPfCandidateTrackIndex, const std::vector<int>& pfCandidateVertexId)
+{
+    return this->trackMultiplicityWeightPerEvent(jetIndices, -0.039234, 1.41540, jetPfCandidateTrackIndex, pfCandidateVertexId);
+}
+
+
+
+double AnalysisBase::trackMultiplicityWeightPerEvent(const std::vector<int>& jetIndices, const double& m, const double& n, const std::vector<int>& jetPfCandidateTrackIndex, const std::vector<int>& pfCandidateVertexId)
+{
+    double eventMultiplicity = 1.;
+    for (size_t iJet=0; iJet!=jetIndices.size(); ++iJet)
+    {
+        int jetIndex = jetIndices.at(iJet);
+        double jetWeight = this->trackMultiplicityWeight(m, n, jetIndex, jetPfCandidateTrackIndex, pfCandidateVertexId);
+        eventMultiplicity *= jetWeight;
+    }
+    
+    return eventMultiplicity;
+}
+
+
+
+double AnalysisBase::trackMultiplicityWeight(const double& m, const double& n, int jetIndex, const std::vector<int>& jetPfCandidateTrackIndex, const std::vector<int>& pfCandidateVertexId)
+{
+    int multiplicity = 0;
+    for (size_t i=0;i!=jetPfCandidateTrackIndex.size();++i)
+    {
+        //check if the track is matched to a selected jet and in case it is, add one to the multiplicity.
+        int trueMatched = 0;
+        if (jetIndex!=jetPfCandidateTrackIndex.at(i)) trueMatched = -1;
+        if (trueMatched == -1) continue;
+        // Remove tracks not corresponding to primary vertex
+        if (pfCandidateVertexId.at(i) == -1 || pfCandidateVertexId.at(i) == 2 || pfCandidateVertexId.at(i) == 3) continue;
+        ++multiplicity;
+    }
+    
+    double y = m*multiplicity+n;
+    return y;
+}
+
+
+
+
+
 
 
