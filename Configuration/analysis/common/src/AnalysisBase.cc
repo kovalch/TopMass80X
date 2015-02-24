@@ -1774,12 +1774,69 @@ int AnalysisBase::additionalJetFlavourId(const Long64_t& entry)const
     this->GetGenExtraTopJetNumberIdEntry(entry);
     
     return topGenObjects_->genExtraTopJetNumberId_;
-    
 }
 
 
 
 
+void AnalysisBase::calculateJetCharge()const
+{
+    if(!recoObjects_->valuesSet_){
+        std::cerr<<"Error in AnalysisBase::calculateJetCharge()! Current implementation for jet charge requires recoObjects to be already read.\n...break\n"<<std::endl;
+        exit(812);
+    }
+    
+    const VLV& jets = *recoObjects_->jets_;
+    
+    std::vector<double> v_jetCharge;
+    for(size_t index = 0; index < jets.size(); ++index){
+        const double jetCharge = ptWeightedJetChargeX(static_cast<int>(index), jets.at(index), 0.8,
+                                                      *recoObjects_->jetPfCandidateTrackIndex_, *recoObjects_->jetPfCandidateTrack_,
+                                                      *recoObjects_->jetPfCandidateTrackCharge_, *recoObjects_->jetPfCandidatePrimaryVertexId_);
+        recoObjects_->jetChargeRelativePtWeighted_->at(index) = jetCharge;
+    }
+}
+
+
+
+double AnalysisBase::ptWeightedJetChargeX(const int jetId, const LV& recoJet, const double& x,
+                                          const std::vector<int>& pfCandidateJetIndex, const VLV& pfCandidates,
+                                          const std::vector<int>& pfCandidateCharge, const std::vector<int>& pfCandidateVertexId)const
+{
+    // Access jet momentum information
+    double jetTrueBPx = recoJet.px();
+    double jetTrueBPy = recoJet.py();
+    double jetTrueBPz = recoJet.pz();
+    
+    // Define relevant variables for c_{rel} calculation
+    double sumMomentum = 0.;
+    double sumMomentumQ = 0.;
+    
+    for (size_t iCandidate=0;iCandidate!=pfCandidates.size();++iCandidate)
+    {
+        // Check that the pfCandidate corresponds to the jet
+        if (jetId!=pfCandidateJetIndex.at(iCandidate)) continue;
+        // Remove tracks not corresponding to primary vertex
+        if (pfCandidateVertexId.at(iCandidate) == -1 || pfCandidateVertexId.at(iCandidate) == 2 || pfCandidateVertexId.at(iCandidate) == 3) continue;
+        
+        // Access pfCandidate mometum and charge information
+        const double constituentTrueBPx = pfCandidates.at(iCandidate).px();
+        const double constituentTrueBPy = pfCandidates.at(iCandidate).py();
+        const double constituentTrueBPz = pfCandidates.at(iCandidate).pz();
+        const double product = constituentTrueBPx*jetTrueBPx + constituentTrueBPy*jetTrueBPy + constituentTrueBPz*jetTrueBPz;
+        
+        int charge = pfCandidateCharge.at(iCandidate);
+        
+        // Sum over all the pfCandidates
+        const double productPow = std::pow(product, x);
+        sumMomentum += productPow;
+        sumMomentumQ += static_cast<double>(charge)*productPow;
+    }
+    
+    // Obtain the jet c_{rel}
+    const double ptWeightedJetChargeXValue(sumMomentum>0. ? sumMomentumQ/sumMomentum : 0.);
+    return ptWeightedJetChargeXValue;
+}
 
 
 

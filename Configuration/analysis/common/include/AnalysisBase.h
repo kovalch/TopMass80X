@@ -368,7 +368,11 @@ protected:
     /// Whether it is a ttbarZ sample
     const bool& isTtbarZSample()const{return isTtbarZSample_;}
     
-    
+    /// FIXME: Functionality for jet charge calculation, will be sourced out to own file as much as possible
+    void calculateJetCharge()const;
+    double ptWeightedJetChargeX(const int jetId, const LV& recoJet, const double& x,
+                                const std::vector<int>& pfCandidateJetIndex, const VLV& pfCandidates,
+                                const std::vector<int>& pfCandidateCharge, const std::vector<int>& pfCandidateVertexId)const;
     
     
     

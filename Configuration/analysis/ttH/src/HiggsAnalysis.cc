@@ -686,6 +686,8 @@ void HiggsAnalysis::recoObjectSelection(std::vector<int>& allLeptonIndices,
     
     // Fill a vector with all jet pair indices, while sorting each pair by the jet charge:
     // first entry is antiBIndex i.e. with higher jet charge, second entry is bIndex
+    // The jet charge itself first needs to be calculated, as the value in the ntuple is not optimal
+    //this->calculateJetCharge();
     const std::vector<double>& jetChargeRelativePtWeighted = *recoObjects.jetChargeRelativePtWeighted_;
     jetIndexPairs = this->chargeOrderedJetPairIndices(jetIndices, jetChargeRelativePtWeighted);
     
