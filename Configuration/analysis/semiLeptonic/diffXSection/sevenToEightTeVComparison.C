@@ -1,3 +1,41 @@
+/**
+*
+*   Exectue this macro from the 
+*       $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/semiLeptonic/diffXSection
+*   via:
+*       root -l -b -q sevenToEightTeVComparison.C++g
+*
+*   Needed input:
+*       Dilepton DiffXS 8TeV results in TGraphAssymErrors in a root file:
+*           TString line= readLineFromFile(p+4, "/nfs/dust/cms/user/asincruz/CMSSW5314p1_Development/CMSSW_5_3_14_patch1/src/TopAnalysis/Configuration/analysis/diLeptonic/analysis_postCWR/Plots/FinalResults/combined/Hyp"+DilepFileName(name)+"LaTeX.txt");
+*       l+jets 8TeV DiffXS results stored on the NAF:
+*           TString line= readLineFromFile(p+1, groupSpace+"CommonFiles/topPtInputForReweighting/diffXSecTopSemiLepParton"+name+".txt");
+*
+*       The 7TeV l+jets results are hardcoded in the function 'seven'
+*       The dilepton 7TeV results, theory and BCC are also hardcoded in the function 'dilepton7TeVCurves'
+*       The dilepton 8TeV Madgraph+Pythia values are hardcoded in the function 'DilepMCMadGraph'
+*       The BCCs for 8TeV for dilepton and l+jets are hardcoded in the function 'BCCvalues'
+*
+*   If wanted ratio: theory/MadGraph+Pythia.
+*       Uncomment the L.535.
+*   the function 'drawTheoryLines' will draw the theory/MG+PY ratio curves in all 8TeV ratio plots.
+*
+*   Needed input: the theory curves as TH1D in single ROOT (per variable)
+*       TString filename =  "/nfs/dust/cms/user/asincruz/CMSSW5314p1_Development/CMSSW_5_3_14_patch1/src/TopAnalysis/Configuration/analysis/diLeptonic/theoryHistograms/combined/VisGen"+variable+".root";
+*   the theory curves should be stored in the ROOT file using the following naming convention
+*       Madgrpah+Pythia:    Madgraph
+*       Powheg+Pythia:      Powheg
+*       Powheg+Herwig:      PowhegHerwig
+*       MC@NLO+Herwig:      Mcatnlo
+*   the ROOT file can be obtained by running
+*       cd $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/diLeptonic
+*       root -l -b -q macros/obtainTheoryCurves.C++g
+*/
+
+
+
+
+
 #include "basicFunctions.h"
 #include "TSystem.h"
 
@@ -11,22 +49,268 @@ std::vector<double> DilepMCMadGraph(TString name);
 
 void sevenToEightTeVComparison(){
 
+    std::cout<<"\n\n\n\033[1;31m******************************************************************\n"
+             <<"******************************************************************\033[1;m\n\n"
+             <<"\033[1;34m Macro to obtain the dilepton vs l+jets differential cross section result comparison"
+             <<"  if wanted 7TeV vs 8TeV results are also obtained\n"
+             <<"      processQuantity(xSecVariables_[i], 'exp', false);\n\n"
+             <<"  If wanted also the theory-to-Magraphd+Pythia ratio can be obtained\033[1;m\n\n\n" 
+             <<" Exectue this macro from\n" 
+             <<"     $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/semiLeptonic/diffXSection\n"
+             <<" via:\n"
+             <<"     root -l -b -q sevenToEightTeVComparison.C++g\n\n"
+             <<"\033[1;34m Output stored in\n"
+             <<"      $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/semiLeptonic/diffXSection/diffXSecFromSignal/plots/combined/2012/xSec/\n"
+             <<"  which MUST exist a priori\033[1;m\n\n"
+             <<"\033[1;34m Needed input:\033[1;m\n"
+             <<"     Dilepton DiffXS 8TeV results in TGraphAssymErrors in a root file:\n"
+             <<"         TString line= readLineFromFile(p+4,'/nfs/dust/cms/user/asincruz/CMSSW5314p1_Development/CMSSW_5_3_14_patch1/src/TopAnalysis/Configuration/analysis/diLeptonic/analysis_postCWR/Plots/FinalResults/combined/Hyp'+DilepFileName(name)+'LaTeX.txt)';\n"
+             <<"     l+jets 8TeV DiffXS results stored on the NAF:\n"
+             <<"         TString line= readLineFromFile(p+1,groupSpace+'CommonFiles/topPtInputForReweighting/diffXSecTopSemiLepParton'+name+'.txt');\n"
+             <<"     The 7TeV l+jets results are hardcoded in the function 'seven'\n"
+             <<"     The dilepton 7TeV results, theory and BCC are also hardcoded in the function 'dilepton7TeVCurves'\n"
+             <<"     The dilepton 8TeV Madgraph+Pythia values are hardcoded in the function 'DilepMCMadGraph'\n"
+             <<"     The BCCs for 8TeV for dilepton and l+jets are hardcoded in the function 'BCCvalues'\n"
+             <<"\n If wanted ratio: theory/MadGraph+Pythia.\n"
+             <<"     Uncomment the L.535.\n"
+             <<" the function 'drawTheoryLines' will draw the theory/MG+PY ratio curves in all 8TeV ratio plots.\n"
+             <<"   Needed input: the theory curves as TH1D in single ROOT (per variable)\n"
+             <<"       TString filename = '/nfs/dust/cms/user/asincruz/CMSSW5314p1_Development/CMSSW_5_3_14_patch1/src/TopAnalysis/Configuration/analysis/diLeptonic/theoryHistograms/combined/VisGen'+variable+'.root';\n"
+             <<"   the theory curves should be stored in the ROOT file using the following naming convention\n"
+             <<"       Madgrpah+Pythia:    Madgraph\n"
+             <<"       Powheg+Pythia:      Powheg\n"
+             <<"       Powheg+Herwig:      PowhegHerwig\n"
+             <<"       MC@NLO+Herwig:      Mcatnlo\n"
+             <<"   the ROOT file can be obtained by running\n"
+             <<"       cd $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/diLeptonic\n"
+             <<"       root -l -b -q macros/obtainTheoryCurves.C++g\n"
+             <<"\033[1;31m******************************************************************\n"
+             <<"******************************************************************\033[1;m\n\n\n\n\n"<<std::endl;
+
+
+
+
   // test quatity "" means none
-  TString TESTME="topPtTtbarSys";
+  //TString TESTME="topPtTtbarSys";
+  TString TESTME="";
   // collect full PS quantities
   std::vector<TString> xSecVariables_;
-  xSecVariables_.insert(xSecVariables_.end(), xSecVariablesKinFit, xSecVariablesKinFit + sizeof(xSecVariablesKinFit)/sizeof(TString));  
+  xSecVariables_.insert(xSecVariables_.end(), xSecVariablesKinFit, xSecVariablesKinFit + sizeof(xSecVariablesKinFit)/sizeof(TString));
   // process all variations
   for(unsigned i=0; i<xSecVariables_.size(); ++i){
     if((TESTME==""||xSecVariables_[i]==TESTME)&&xSecVariables_[i]!="ttbarPhiStar"){
       if(xSecVariables_[i]!="ttbarPhiStar"){
 	// decay channel
-	processQuantity(xSecVariables_[i], "exp", true);
+	processQuantity(xSecVariables_[i], "exp", true);   // dilepton vs ljets only at 8TeV
+    processQuantity(xSecVariables_[i], "exp", false);  // dilepton vs ljets and 7TeV vs 8TeV 
 	// sqrt(s)
 	//if(xSecVariables_[i]=="topPt"||xSecVariables_[i]=="topY"||xSecVariables_[i]=="ttbarPt"||xSecVariables_[i]=="ttbarY"||xSecVariables_[i]=="ttbarMass") processQuantity(xSecVariables_[i], "exp", false);
       }
     }
   }
+}
+
+
+TGraphAsymmErrors* dilepton7TeVCurves(TString name)
+{
+    if (name == ""){
+        std::cout <<" seventToEightTeVComparison::dilepton7TeVCurves: you didn't provide a variable name.\nCannot continue" << std::endl;
+        exit(11);
+    }
+    std::cout << __LINE__<< " Variable name = " << name << std::endl;
+        
+    int nbins = 5;
+    if(      name=="ttbarMass") nbins = 7;
+    else if (name=="ttbarPt"  ) nbins = 4;
+    else if (name=="ttbarY"   ) nbins = 6;
+    else if (name=="topPt"    ) nbins = 5;
+    else if (name=="topY"     ) nbins = 8;
+
+    // create asymmerrors
+    TGraphAsymmErrors* out = new TGraphAsymmErrors(nbins);
+    
+    std::vector<double> v_data, v_binCenter, v_theory, v_error;
+    
+    if (name == "topPt")
+    {
+        double data[] = {0.00509572, 0.00626002, 0.00296467, .000701592, 0.00012036};
+        double error[] = {0.0601381, 0.0469906, 0.0555114, 0.071274, 0.0924826};
+        double theory[] = {0.00453114, 0.00600115, 0.00321705, 0.000931674, 0.000191065};
+        double binCenter[] = {34.7, 107., 162., 242., 343.};
+        v_data.assign(data, data+nbins);
+        v_error.assign(error, error+nbins);
+        v_theory.assign(theory, theory+nbins);
+        v_binCenter.assign(binCenter, binCenter+nbins);
+    }
+    if (name == "topY")
+    {
+        double data[] = {0.091, 0.255, 0.302, 0.351, 0.371, 0.306, 0.241, 0.090};
+        double error[] = {0.080, 0.058, 0.052, 0.050, 0.049, 0.053, 0.059, 0.079};
+        double theory[] = {0.08688615, 0.2418012, 0.3199502, 0.3587744, 0.3588348, 0.3205259, 0.2424955, 0.08722365};
+        double binCenter[] = {-1.85, -1.05, -0.61, -0.23, 0.23, 0.61, 1.05, 1.85};
+        v_data.assign(data, data+nbins);
+        v_error.assign(error, error+nbins);
+        v_theory.assign(theory, theory+nbins);
+        v_binCenter.assign(binCenter, binCenter+nbins);
+    }
+    if (name == "ttbarPt")
+    {
+        double data[] = {0.0160, 0.0097, 0.0032, 0.0005};
+        double error[] = {0.250, 0.109, 0.135, 0.079};
+        double theory[] = {0.01516833, 0.009621917, 0.003224087, 0.0005992394};
+        double binCenter[] = {5., 39., 86., 231.};
+        v_data.assign(data, data+nbins);
+        v_error.assign(error, error+nbins);
+        v_theory.assign(theory, theory+nbins);
+        v_binCenter.assign(binCenter, binCenter+nbins);
+    }
+    if (name == "ttbarY")
+    {
+        double data[] = {0.030, 0.219, 0.418, 0.393, 0.218, 0.040};
+        double error[] = {0.201, 0.054, 0.043, 0.044, 0.055, 0.180};
+        double theory[] = {0.04102893, 0.2246687, 0.3976315, 0.3982489, 0.2258003, 0.04113086};
+        double binCenter[] = {-1.95, -1.1, -0.4, 0.4, 1.1, 1.95};
+        v_data.assign(data, data+nbins);
+        v_error.assign(error, error+nbins);
+        v_theory.assign(theory, theory+nbins);
+        v_binCenter.assign(binCenter, binCenter+nbins);
+    }
+    if (name == "ttbarMass")
+    {
+        double data[] = {0.00526, 0.00458, 0.00246, 0.00107, 0.00039, 0.00008, 0.00001};
+        double error[] = {0.117, 0.056, 0.090, 0.072, 0.134, 0.301, 0.490};
+        double theory[] = {0.004905427, 0.004427047, 0.002457022, 0.0012, 0.00042, 0.000091, 0.0000088};
+        double binCenter[] = {364., 439., 515., 616., 660., 857., 1275.0};
+        v_data.assign(data, data+nbins);
+        v_error.assign(error, error+nbins);
+        v_theory.assign(theory, theory+nbins);
+        v_binCenter.assign(binCenter, binCenter+nbins);
+    }
+    
+    for (int iter = 0; iter < nbins; iter++)
+    {
+        double ratio = v_data.at(iter) / v_theory.at(iter);
+        double rel_error  = 1. * v_error.at(iter) * ratio;
+        out->SetPoint( iter, v_binCenter.at(iter),  ratio );
+        out->SetPointError( iter, 0., 0., rel_error, rel_error);
+    }
+    return out;
+
+}
+
+/// Check existence file. Return 1 is exists, 0 if not. 
+bool checkFileExistence(TString file)
+{
+    std::ifstream f(file);
+    if (f.good())
+    {
+        f.close();
+        return true;
+    } else {
+        std::cout<<"File '"<<file<<"'\nDoes not exist.\nEXIT!"<<std::endl;
+        f.close();
+        return false;
+    }
+}
+
+
+
+void setStyle(TH1* histo, TString theoryName, TLegend *leg = 0)
+{
+    if(!histo) return;
+    histo->SetLineWidth(3);
+    histo->Scale(1./histo->Integral("width"));
+    if(theoryName == "madgraph"){
+        histo->SetLineColor(kRed+1);
+        histo->SetLineStyle(1);
+//         if(leg) leg->AddEntry(histo, "MadGraph+Pythia",  "l");
+    }
+    if(theoryName == "powheg"){
+        histo->SetLineColor(kGreen+1);
+        histo->SetLineStyle(7);
+        if(leg) leg->AddEntry(histo, "Powheg+Pythia",  "l");
+    }
+    if(theoryName == "powhegherwig"){
+        histo->SetLineColor(kGreen+3);
+        histo->SetLineStyle(9);
+        if(leg) leg->AddEntry(histo, "Powheg+Herwig",  "l");
+    }
+    if(theoryName == "mcatnlo"){
+        histo->SetLineColor(kBlue);
+        histo->SetLineStyle(5);
+        if(leg) leg->AddEntry(histo, "MC@NLO+Herwig",  "l");
+    }
+}
+
+
+void drawTheoryLines(TString name, float xmin=-1000, float xmax = -1000, int nrebin = 1)
+{
+    TString variable = "";
+
+    if (name.Contains("topPtSubLead")) variable = TString("VisGenToppTNLead");
+    if (name.Contains("topPtLead"))    variable = TString("VisGenToppTLead");
+    if (name.Contains("topPtTtbarSys"))variable = TString("VisGenToppTTTRestFrame");
+    if (name.Contains("topPt"))        variable = TString("VisGenToppT");
+    if (name.Contains("topY"))         variable = TString("VisGenTopRapidity");
+    if (name.Contains("ttbarDelPhi"))  variable = TString("VisGenTTBarDeltaPhi");
+    if (name.Contains("ttbarMass"))    variable = TString("VisGenTTBarMass");
+    if (name.Contains("ttbarPt"))      variable = TString("VisGenTTBarpT");
+    if (name.Contains("ttbarY"))       variable = TString("VisGenTTBarRapidity");
+
+
+    TString filename =  "/nfs/dust/cms/user/asincruz/CMSSW5314p1_Development/CMSSW_5_3_14_patch1/src/TopAnalysis/Configuration/analysis/diLeptonic/theoryHistograms/combined/"+variable+".root";
+    if(!checkFileExistence(filename))
+    {
+        std::cout<<"*-*-*-*-*-*-File '"<<filename<<"'\nDoes not exist.\nEXIT"<<std::endl;
+        exit(23);
+    }
+    TFile *curves_file = new TFile(filename);
+    
+    TH1D *madgraph     = (TH1D *)curves_file->Get("Madgraph")->Clone("madgraph");
+    TH1D *powheg       = (TH1D *)curves_file->Get("Powheg")->Clone("powheg");
+    TH1D *powhegherwig = (TH1D *)curves_file->Get("PowhegHerwig")->Clone("powhegherwig");
+    TH1D *mcatnlo      = (TH1D *)curves_file->Get("Mcatnlo")->Clone("mcatnlo");
+
+    if(!madgraph)
+    {
+        std::cout<<"Madrgraph theory curve not available\nEXIT"<<std::endl;
+        exit(22); 
+    }
+
+    madgraph->Rebin(nrebin);
+    powheg->Rebin(nrebin);
+    powhegherwig->Rebin(nrebin);
+    mcatnlo->Rebin(nrebin);
+
+    if(xmin != -1000 && xmax != -1000)
+    {
+        madgraph->GetXaxis()->SetRangeUser(xmin, xmax);
+        powheg->GetXaxis()->SetRangeUser(xmin, xmax);
+        powhegherwig->GetXaxis()->SetRangeUser(xmin, xmax);
+        mcatnlo->GetXaxis()->SetRangeUser(xmin, xmax);
+    }
+    
+    TLegend *leg = new TLegend();
+    setStyle(madgraph, "madgraph", leg);
+    setStyle(powheg, "powheg", leg);
+    setStyle(powhegherwig, "powhegherwig", leg);
+    setStyle(mcatnlo, "mcatnlo", leg);
+
+    leg->SetX1NDC(0.225);    leg->SetX2NDC(0.45);
+    leg->SetY1NDC(0.17);    leg->SetY2NDC(0.30);
+    leg->SetTextFont(42);   leg->SetTextAlign(12);
+    leg->SetTextSize(0.04);
+    leg->SetFillStyle(0);   leg->SetBorderSize(0);
+
+
+    powheg->Divide(madgraph);
+    powhegherwig->Divide(madgraph);
+    mcatnlo->Divide(madgraph);
+    
+    powheg->Draw("same");
+    powhegherwig->Draw("same");
+    mcatnlo->Draw("same");
+    leg->Draw("same");
 }
 
 void processQuantity(TString name, TString func, bool channel){
@@ -38,20 +322,24 @@ void processQuantity(TString name, TString func, bool channel){
   bool plotsepfit   =true;
   bool plotfiterrors=false;
   TString optD= plotsepfit ? "" : "0";
-  double ratmax=channel ? 1.8 : (name=="ttbarMass"  ? 2.0 : 1.5);
-  double ratmin=channel ? 0.5 : (name.Contains("Y") ? 0.7 : 0.6);
+  double ratmax=channel ? 1.8 : (name=="ttbarMass"  ? 2.75 : 1.5);
+  double ratmin=channel ? 0.5 : (name.Contains("Y") ? 0.7 : (name == "ttbarMass" ? 0.375 : 0.6));
+
+  bool isAvailableAt7TeV = 0;
+  if(!channel && (name == "topPt" || name == "topY" || name == "ttbarPt" || name == "ttbarMass" || name == "ttbarY")) isAvailableAt7TeV = 1;
+
 
   // colors
-  int color7     =kRed-4;
-  int color8     =kBlue+2;
-  int ljets7color=color7;
-  int dilep7color=color7;
-  int ljets8color=color8;
-  int dilep8color=color7;
-  int fit7color  =color7;
-  int fit8color  =color8;
-  int colorband  =kCyan-7;
-  
+  int color7     = kRed+1; //kRed-4
+  int color8     = kGreen; //kBlue+2 
+  int ljets7color= color7;
+  int dilep7color= color7;
+  int ljets8color= channel ? kBlue+2 : color8;
+  int dilep8color= channel ? kRed-4 : color8;
+  int fit7color  = color7;
+  int fit8color  = color8;
+  int colorband  = kCyan-7;
+  int nrebinTheoryCurves = 1;
   // ---
   //    canvas style 
   // ---
@@ -62,7 +350,7 @@ void processQuantity(TString name, TString func, bool channel){
   gROOT->SetStyle("HHStyle");
   gStyle->SetEndErrorSize(10);
   gStyle->SetOptFit(0);
-
+  
   // ---
   //    collect all curves
   // ---
@@ -71,7 +359,7 @@ void processQuantity(TString name, TString func, bool channel){
   //TGraphAsymmErrors* SFljets = new TGraphAsymmErrors(NbinsLjets7);
   TGraphAsymmErrors* SFljets =seven(name,BCC);
   int NbinsDilep7=5;
-  TGraphAsymmErrors* SFdilep = new TGraphAsymmErrors(NbinsDilep7);
+  TGraphAsymmErrors* SFdilep = isAvailableAt7TeV ? dilepton7TeVCurves(name) : new TGraphAsymmErrors(NbinsDilep7);
   //int Nbins7=NbinsLjets7+NbinsDilep7;
   TGraphAsymmErrors* SF7 = new TGraphAsymmErrors(0);
   // 8 TeV
@@ -99,7 +387,7 @@ void processQuantity(TString name, TString func, bool channel){
   SFljets->SetMarkerColor(ljets7color);
   SFljets->SetLineColor(ljets7color);
 
-  // b) dilepton 7TeV data points
+/*  // b) dilepton 7TeV data points
   //           bin x(BCC)    data  / Madgraph               // BCCNNLO // BCC MG
   SFdilep->SetPoint( 0, 33.7,  (0.00509572 / 0.00453114 )  );// 33.7    // 34 
   SFdilep->SetPoint( 1, 107 ,  (0.00626002 / 0.00600115 )  );// 106     // 107
@@ -111,11 +399,12 @@ void processQuantity(TString name, TString func, bool channel){
   SFdilep->SetPointError( 1, 0., 0., 0.0469906*(0.00626002 / 0.00600115 ), 0.0469906*(0.00626002 / 0.00600115 ) );
   SFdilep->SetPointError( 2, 0., 0., 0.0555114*(0.00296467 / 0.00321705 ), 0.0555114*(0.00296467 / 0.00321705 ) );
   SFdilep->SetPointError( 3, 0., 0., 0.071274* (0.000701592/ 0.000931674), 0.071274* (0.000701592/ 0.000931674) );
-  SFdilep->SetPointError( 4, 0., 0., 0.0924826*(0.00012036 / 0.000191065), 0.0924826*(0.00012036 / 0.000191065) );
+  SFdilep->SetPointError( 4, 0., 0., 0.0924826*(0.00012036 / 0.000191065), 0.0924826*(0.00012036 / 0.000191065) );*/
   //style of ratio
   SFdilep->SetLineWidth(3.);
   SFdilep->SetMarkerSize(1.5);
-  SFdilep->SetMarkerStyle(22);
+//   SFdilep->SetMarkerStyle(22);
+  SFdilep->SetMarkerStyle(26);
   SFdilep->SetMarkerColor(dilep7color);
   SFdilep->SetLineColor(dilep7color);
 
@@ -156,7 +445,8 @@ void processQuantity(TString name, TString func, bool channel){
   //style of ratio
   SFljets8->SetLineWidth(3.);
   SFljets8->SetMarkerSize(1.5);
-  SFljets8->SetMarkerStyle(24);
+//   SFljets8->SetMarkerStyle(24);
+  SFljets8->SetMarkerStyle(channel ? 24 : 20);
   //SFljets8->SetLineStyle(2);
   SFljets8->SetMarkerColor(ljets8color);
   SFljets8->SetLineColor(ljets8color);
@@ -164,11 +454,13 @@ void processQuantity(TString name, TString func, bool channel){
   // d) dilepton 8TeV data points
   // MC prediction point (as not in provided table)
   std::vector<double> MCdilep_=DilepMCMadGraph(name);
-  if(channel){
+  if(channel || 1){
     for(int p=0; p<NbinsDilep8; ++p){
       // get line with all informations
-      if(p==0) std::cout << groupSpace+"CommonFiles/topPtInputForReweighting/Hyp"+DilepFileName(name)+"LaTeX.txt" << std::endl;
-      TString line= readLineFromFile(p+4, groupSpace+"CommonFiles/topPtInputForReweighting/Hyp"+DilepFileName(name)+"LaTeX.txt");
+//       if(p==0) std::cout << groupSpace+"CommonFiles/topPtInputForReweighting/Hyp"+DilepFileName(name)+"LaTeX.txt" << std::endl;
+//       TString line= readLineFromFile(p+4, groupSpace+"CommonFiles/topPtInputForReweighting/Hyp"+DilepFileName(name)+"LaTeX.txt");
+      if(p==0) std::cout << "/nfs/dust/cms/user/asincruz/CMSSW5314p1_Development/CMSSW_5_3_14_patch1/src/TopAnalysis/Configuration/analysis/diLeptonic/analysis_postCWR/Plots/FinalResults/combined/Hyp"+DilepFileName(name)+"LaTeX.txt" << std::endl;
+      TString line= readLineFromFile(p+4, "/nfs/dust/cms/user/asincruz/CMSSW5314p1_Development/CMSSW_5_3_14_patch1/src/TopAnalysis/Configuration/analysis/diLeptonic/analysis_postCWR/Plots/FinalResults/combined/Hyp"+DilepFileName(name)+"LaTeX.txt");
       //std::cout << line << std::endl;
       // data value
       TString datatemp= getStringEntry(line, 3, "&");
@@ -196,7 +488,8 @@ void processQuantity(TString name, TString func, bool channel){
   //style of ratio
   SFdilep8->SetLineWidth(3.);
   SFdilep8->SetMarkerSize(1.5);
-  SFdilep8->SetMarkerStyle(22);
+//   SFdilep8->SetMarkerStyle(22);
+  SFdilep8->SetMarkerStyle(channel ? 22 : 24);
   SFdilep8->SetMarkerColor(dilep8color);
   SFdilep8->SetLineColor(dilep8color);
 
@@ -243,7 +536,7 @@ void processQuantity(TString name, TString func, bool channel){
   }
   //std::cout << "TEST: " << xlabel << std::endl;
   dummy->GetXaxis()->SetTitle(getStringEntry(xlabel, 1, "/")+" "+getStringEntry(xlabel, 2, "/"));
-  dummy->GetYaxis()->SetTitle("#frac{1}{#sigma} #frac{d#sigma}{"+getStringEntry(xlabel, 1, "/")+"} Ratio: (Data / Simulation)");
+  dummy->GetYaxis()->SetTitle("#frac{1}{#sigma} #frac{d#sigma}{d"+getStringEntry(xlabel, 1, "/")+"} Ratio: (Data / Simulation)");
   dummy->GetYaxis()->SetTitleOffset(0.9*dummy->GetYaxis()->GetTitleOffset());
   dummy->SetMaximum(ratmax);
   dummy->SetMinimum(ratmin);
@@ -258,7 +551,8 @@ void processQuantity(TString name, TString func, bool channel){
   leg0->SetFillStyle(0);
   leg0->SetTextSize(0.035);
   leg0->SetBorderSize(0);
-  leg0->SetHeader("#font[22]{Data / MadGraph+Pythia(CTEQ6L1)}");
+//   leg0->SetHeader("#font[22]{Data / MadGraph+Pythia(CTEQ6L1)}");
+  leg0->SetHeader("#font[22]{Data / MadGraph+Pythia}");
 
   TLegend *leg1 = new TLegend(x1, 0.57, x2, 0.69);
   leg1->SetFillStyle(0);
@@ -279,9 +573,11 @@ void processQuantity(TString name, TString func, bool channel){
   //SF->Draw("p e1 same");
   //SF7->Draw("p e1 same");
   //SF8->Draw("p e1 same");
-  if(!channel) SFljets->Draw("p e1 same");
-  //SFdilep->Draw("p e1 same");
-  if( channel) SFdilep8->Draw("p e1 same");
+//   if(channel) drawTheoryLines(name, xmin, xmax, nrebinTheoryCurves);
+  if(isAvailableAt7TeV) SFljets->Draw("p e1 same");
+  if(isAvailableAt7TeV) SFdilep->Draw("p e1 same");
+//   if( channel) SFdilep8->Draw("p e1 same");
+  SFdilep8->Draw("p e1 same");
   SFljets8->Draw("p e1 same");
   // fit polynomial or exponential function
   TString def = "";
@@ -446,11 +742,15 @@ void processQuantity(TString name, TString func, bool channel){
   }
 
   // Draw legend
-  leg0->AddEntry(SFljets8,"8 TeV, e/#mu+jets "+TString(PHD ? "(this thesis)" : "(CMS-PAPER-TOP-12-028)"), "P");
-  if(!channel) leg0->AddEntry(SFljets, "#splitline{7 TeV, e/#mu+jets}{(Eur. Phys. J. C73 (2013) 2339)}" , "P");
-  //leg0->AddEntry(SFdilep, "7 TeV ee/e#mu/#mu#mu (TOP-11-013)", "P");
-  if(channel) leg0->AddEntry(SFdilep8,"#splitline{8 TeV, ee/e#mu/#mu#mu}{(CMS-PAPER-TOP-12-028)}", "P");
-  leg0->Draw("same");
+  //leg0->AddEntry(SFljets8,"8 TeV, e/#mu+jets "+TString(PHD ? "(this thesis)" : "(CMS-PAPER-TOP-12-028)"), "P");
+  leg0->AddEntry(SFljets8,"e/#mu + Jets Combined"+TString(PHD ? "(this thesis)" : "") + TString(!channel ? " (8 TeV)" : ""), "P");
+//   if(!channel) leg0->AddEntry(SFljets, "#splitline{7 TeV, e/#mu+jets}{(Eur. Phys. J. C73 (2013) 2339)}" , "P");
+  if(!channel && isAvailableAt7TeV) leg0->AddEntry(SFljets, "e/#mu + Jets Combined (7 TeV)" , "P");
+//   //leg0->AddEntry(SFdilep, "7 TeV ee/e#mu/#mu#mu (TOP-11-013)", "P");
+  leg0->AddEntry(SFdilep8,"Dilepton Combined" + TString(!channel ? " (8 TeV)" : ""), "P");
+  if(!channel && isAvailableAt7TeV) leg0->AddEntry(SFdilep, "Dilepton Combined (7 TeV)", "P");
+  //if(channel) leg0->AddEntry(SFdilep8,"#splitline{8 TeV, ee/e#mu/#mu#mu}{(CMS-PAPER-TOP-12-028)}", "P");
+    leg0->Draw("same");
   //leg1->AddEntry( function7, fitEntry7, "L");
   //if(plotsepfit) leg1->AddEntry( functiondilep7, fitEntrydilep7, "L");
   //if(plotsepfit) leg1->AddEntry( functionljets7, fitEntryljets7, "L");
@@ -466,9 +766,10 @@ void processQuantity(TString name, TString func, bool channel){
   label -> SetY2NDC(1.0);
   label -> SetTextFont(42);
   TString CMSlab="";
-  if(!PHD) CMSlab+="CMS Preliminary, ";  
-  if(channel) CMSlab+="19.7 fb^{-1} at #sqrt{s} = 8 TeV";
-  else CMSlab+="5.0/19.7 fb^{-1} at #sqrt{s} = 7/8 TeV";
+  //if(!PHD) CMSlab+="CMS Preliminary, ";  
+  if(!PHD) CMSlab+="CMS, ";  
+  if(channel || !isAvailableAt7TeV) CMSlab+="19.7 fb^{-1} at #sqrt{s} = 8 TeV";
+  else if (isAvailableAt7TeV) CMSlab+="5.0/19.7 fb^{-1} at #sqrt{s} = 7/8 TeV";
   label -> AddText(CMSlab);
   label->SetFillStyle(0);
   label->SetBorderSize(0);
@@ -796,7 +1097,8 @@ TString DilepFileName(TString name){
 
 int NbinsLL(TString name){
   // get number of bins from number of lines in dilepton .tex files
-  TString temp= getStringEntry(gSystem->GetFromPipe("wc -l "+groupSpace+"CommonFiles/topPtInputForReweighting/Hyp"+DilepFileName(name)+"LaTeX.txt"), 1, " ");
+//   TString temp= getStringEntry(gSystem->GetFromPipe("wc -l "+groupSpace+"CommonFiles/topPtInputForReweighting/Hyp"+DilepFileName(name)+"LaTeX.txt"), 1, " ");
+  TString temp= getStringEntry(gSystem->GetFromPipe("wc -l /nfs/dust/cms/user/asincruz/CMSSW5314p1_Development/CMSSW_5_3_14_patch1/src/TopAnalysis/Configuration/analysis/diLeptonic/analysis_postCWR/Plots/FinalResults/combined/Hyp"+DilepFileName(name)+"LaTeX.txt"), 1, " ");
   int out=atof(temp.Data())-3;
   return out;
 }
