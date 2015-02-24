@@ -169,8 +169,6 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         }
     }
     
-    std::vector<double> jetWeights;
-    
     for(size_t iJet=0;iJet!=lowerPtCUTJetIdx.size();++iJet)
     //for(size_t iJet=0;iJet!=bJetsId.size();++iJet)
     {
@@ -179,8 +177,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         LV jets = allJets.at(jetIdx);
         
         //FIXME weightReweighted is reweighted by the number of tracks
-        double weightReweighted = weight*trackMultiplicityWeight (-0.0244, 1.3687, jetIdx, jetPfCandidateTrackIndex, jetPfCandidatePrimaryVertexId);
-        jetWeights.push_back(weightReweighted);
+        //double weightReweighted = weight*trackMultiplicityWeight (-0.039234, 1.41540, jetIdx, jetPfCandidateTrackIndex, jetPfCandidatePrimaryVertexId);
         
         if (optionForCalibration==2)
         {
@@ -1386,8 +1383,6 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         
     } //end loop over reco jets
     
-    //double eventWeight = trackMultiplicityWeightPerEvent(jetWeights);
-   
 } //END OF JET CHARGE ANALYZER FUNCTION
 
 
@@ -2781,7 +2776,7 @@ bool AnalyzerJetCharge::putUniquelyInVector(std::vector<int>& vector, const int 
 double AnalyzerJetCharge::trackMultiplicityWeight(const double& m, const double& n, int jetIndex, const std::vector<int>& jetPfCandidateTrackIndex, const std::vector<int>& pfCandidateVertexId)
 {
     int multiplicity = 0;
-    for (size_t i=0;i!=jetPfCandidateTrackIndex.size();i++)
+    for (size_t i=0;i!=jetPfCandidateTrackIndex.size();++i)
     {
         //check if the track is matched to a selected jet and in case it is, add one to the multiplicity.
         int trueMatched = 0;
@@ -2827,7 +2822,7 @@ double AnalyzerJetCharge::ptWeightedJetChargeX (const int jetId, const LV& recoJ
     double sumMomentum = 0.;
     double sumMomentumQ = 0.;
     
-    for (size_t iCandidate=0;iCandidate!=pfCandidates.size();iCandidate++)
+    for (size_t iCandidate=0;iCandidate!=pfCandidates.size();++iCandidate)
     {
         // Check that the pfCandidate corresponds to the jet
         if (jetId!=pfCandidateJetIndex.at(iCandidate)) continue;
@@ -2853,13 +2848,16 @@ double AnalyzerJetCharge::ptWeightedJetChargeX (const int jetId, const LV& recoJ
     return ptWeightedJetChargeXValue;
 }
 
-double AnalyzerJetCharge::trackMultiplicityWeightPerEvent (const std::vector<double>& jetWeight)
+double AnalyzerJetCharge::trackMultiplicityWeightPerEvent (const std::vector<int>& jetIndices, const double& m, const double& n, const std::vector<int>& jetPfCandidateTrackIndex, const std::vector<int>& pfCandidateVertexId)
 {
-    double eventMultiplicity = 1;
-    for (size_t iWeight=0;iWeight!=jetWeight.size();++iWeight)
+    double eventMultiplicity = 1.;
+    for (size_t iJet=0; iJet!=jetIndices.size(); ++iJet)
     {
-        eventMultiplicity *= jetWeight.at(iWeight);
+        int jetIndex = jetIndices.at(iJet);
+        double jetWeight = trackMultiplicityWeight(m, n, jetIndex, jetPfCandidateTrackIndex, pfCandidateVertexId);
+        eventMultiplicity *= jetWeight;
     }
+    
     return eventMultiplicity;
 }
 
