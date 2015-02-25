@@ -288,7 +288,10 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         double leadingTrackPx = -999.;
         double leadingTrackPy = -999.;
         double leadingTrackPz = -999.;
-        
+        double subleadingTrackPt = -999.;
+        double subleadingTrackCharge = -999.;
+        double thirdleadingTrackPt = -999.;
+        double thirdleadingTrackCharge = -999.;
         
         //lepton-tracks variables
         std::vector<double> trueBJetLeptonTracksPt;
@@ -322,6 +325,9 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         bool isSubleadingLepton = false;
         bool isSubleadingMuon = false;
         bool isSubleadingElectron = false;
+        bool isThirdleadingLepton = false;
+        bool isThirdleadingElectron = false;
+        bool isThirdleadingMuon = false;
         bool isNonLeadingLepton = false;
         
         // Access selected tracks
@@ -649,12 +655,12 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
             
             // TEST zvertex studies
             // Check if PfCandidate belongs to primary vertex
-            //if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==0&&jetPfCandidatePrimaryVertexId.at(iPfTrack)==3) m_histogram["h_pfCandidateNonZeroWeights"]->Fill(0., weight);
-            //if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==3) m_histogram["h_pfCandidateNonZeroWeightsIndexNonZero"]->Fill(0., weight);
-            //if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==0) m_histogram["h_pfCandidateNonZeroWeightsIndexZero"]->Fill(0., weight);
-            //if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==2) m_histogram["h_pfCandidateZeroWeightsIndexNonZero"]->Fill(0., weight);
-            //if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==1) m_histogram["h_pfCandidateZeroWeightsIndexZero"]->Fill(0., weight);
-            //if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==-1) std::cout<<"TOO MANY HIGH WEIGHTS!!"<<std::endl;
+            if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==0&&jetPfCandidatePrimaryVertexId.at(iPfTrack)==3) m_histogram["h_pfCandidateNonZeroWeights"]->Fill(0., weight);
+            if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==3) m_histogram["h_pfCandidateNonZeroWeightsIndexNonZero"]->Fill(0., weight);
+            if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==0) m_histogram["h_pfCandidateNonZeroWeightsIndexZero"]->Fill(0., weight);
+            if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==2) m_histogram["h_pfCandidateZeroWeightsIndexNonZero"]->Fill(0., weight);
+            if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==1) m_histogram["h_pfCandidateZeroWeightsIndexZero"]->Fill(0., weight);
+            if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==-1) std::cout<<"TOO MANY HIGH WEIGHTS!!"<<std::endl;
             
             // Remove tracks not associated to primary vertex 0
             if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==-1|| jetPfCandidatePrimaryVertexId.at(iPfTrack)==2 || jetPfCandidatePrimaryVertexId.at(iPfTrack)==3) continue;
@@ -774,16 +780,29 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
             {
                 ptRatioValuesSubleadingElectron = ptRatio;
                 ptRatioValuesSubleadingLepton = ptRatio;
+                subleadingTrackPt = jetPfCandidateTrack.at(iPfTrack).pt();
+                subleadingTrackCharge = jetPfCandidateTrackCharge.at(iPfTrack);
                 isSubleadingElectron = true;
                 isSubleadingLepton = true;
             }
             
             if (ptRatioValues.size()==2&&particleId==3) 
             {
-                ptRatioValuesSubleadingMuon = ptRatio;
-                ptRatioValuesSubleadingLepton = ptRatio;
+                ptRatioValuesSubleadingMuon = ptRatioValues.at(1);
+                ptRatioValuesSubleadingLepton = ptRatioValues.at(1);
+                subleadingTrackPt = jetPfCandidateTrack.at(iPfTrack).pt();
+                subleadingTrackCharge = jetPfCandidateTrackCharge.at(iPfTrack);
                 isSubleadingMuon = true;
                 isSubleadingLepton = true;
+            }
+            
+            if (ptRatioValues.size()==3) 
+            {
+                thirdleadingTrackPt = jetPfCandidateTrack.at(iPfTrack).pt();
+                thirdleadingTrackCharge = jetPfCandidateTrackCharge.at(iPfTrack);
+                if (particleId==2) isSubleadingElectron = true;
+                if (particleId==3) isSubleadingMuon = true;
+                if (particleId==2 || particleId==3) isSubleadingLepton = true;
             }
             
             if (ptRatioValues.size()>1&&particleId==3&&isLeadingMuon==false)  isNonLeadingLepton = true;
@@ -1293,8 +1312,12 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         
         // Testing mva variable separation
         double leadingTrackPtWeightedCharge = leadingTrackCharge*leadingTrackPt/trueBJetPt;
+        double subleadingTrackPtWeightedCharge = subleadingTrackCharge*subleadingTrackPt/trueBJetPt;
+        double thirdleadingTrackPtWeightedCharge = thirdleadingTrackCharge*thirdleadingTrackPt/trueBJetPt;
         double leadingMuonPtWeightedCharge = 0;
-        if (isLeadingMuon) leadingMuonPtWeightedCharge = trueBJetMuonTracksCharge.at(0)*trueBJetLeptonTracksPt.at(0)/trueBJetPt;
+        if (isLeadingMuon) leadingMuonPtWeightedCharge = trueBJetMuonTracksCharge.at(0)*trueBJetMuonTracksPt.at(0)/trueBJetPt;
+        double leadingElectronPtWeightedCharge = 0;
+        if (isLeadingElectron)leadingElectronPtWeightedCharge = trueBJetElectronTracksCharge.at(0)*trueBJetElectronTracksPt.at(0)/trueBJetPt;
         double leadingTrackPtWeightedCharge1 = leadingTrackCharge*(leadingTrackPx*jetTrueBPx + leadingTrackPy*jetTrueBPy + leadingTrackPz*jetTrueBPz);
         double leadingTrackPtWeightedCharge2 = leadingTrackCharge*(std::sqrt(std::pow(jetTrueBPy*leadingTrackPz-jetTrueBPz*leadingTrackPy,2) + std::pow(jetTrueBPx*leadingTrackPz-jetTrueBPz*leadingTrackPx,2) + std::pow(jetTrueBPy*leadingTrackPx-jetTrueBPx*leadingTrackPy,2)));
         double trackNumberWeightedJetPt = leadingTrackCharge*trueBJetPt/trueBJetTrackMultiplicity;
@@ -1306,7 +1329,10 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         
         
         m_histogram["h_mva_leadingTrackPtWeightedCharge"]->Fill(leadingTrackPtWeightedCharge, weight);
+        m_histogram["h_mva_subleadingTrackPtWeightedCharge"]->Fill(subleadingTrackPtWeightedCharge, weight);
+        m_histogram["h_mva_thirdleadingTrackPtWeightedCharge"]->Fill(thirdleadingTrackPtWeightedCharge, weight);
         if (isLeadingMuon) m_histogram["h_mva_leadingMuonPtWeightedCharge"]->Fill(leadingMuonPtWeightedCharge, weight);
+        if (isLeadingElectron) m_histogram["h_mva_leadingElectronPtWeightedCharge"]->Fill(leadingElectronPtWeightedCharge, weight);
         m_histogram["h_mva_leadingTrackPtWeightedChargeScalar"]->Fill(leadingTrackPtWeightedCharge1, weight);
         m_histogram["h_mva_leadingTrackPtWeightedChargeVectorial"]->Fill(leadingTrackPtWeightedCharge2, weight);
         m_histogram["h_mva_leadingMuonPtWeightedChargeForAllJets"]->Fill(leadingMuonPtWeightedCharge, weight);
@@ -1324,7 +1350,10 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         mvaStruct_.relChargeJet_ = trueBJetRelChargeVector.at(3);
         mvaStruct_.longChargeJet_ = trueBJetScalarChargeVector.at(3);
         mvaStruct_.leadingTrackPtWeightedCharge_ = leadingTrackPtWeightedCharge;
+        mvaStruct_.subleadingTrackPtWeightedCharge_ = subleadingTrackPtWeightedCharge;
+        mvaStruct_.thirdleadingTrackPtWeightedCharge_ = thirdleadingTrackPtWeightedCharge;
         mvaStruct_.leadingMuonPtWeightedCharge_ = leadingMuonPtWeightedCharge;
+        mvaStruct_.leadingElectronPtWeightedCharge_ = leadingElectronPtWeightedCharge;
         mvaStruct_.trackNumberWeightedJetPt_ = trackNumberWeightedJetPt;
         mvaStruct_.chargeWeightedTrackId_ = chargeWeightedTrackId;
         mvaStruct_.svChargeWeightedFlightDistance_ = svChargeWeightedFlightDistance;
@@ -1407,7 +1436,10 @@ void AnalyzerJetCharge::bookMvaHistos(const TString& step, std::map<TString, TH1
     mvaChargeTestTree_->Branch("longChargeJet", &(mvaStruct_.longChargeJet_));
     mvaChargeTestTree_->Branch("relChargeJet", &(mvaStruct_.relChargeJet_));
     mvaChargeTestTree_->Branch("leadingTrackPtWeightedCharge", &(mvaStruct_.leadingTrackPtWeightedCharge_));
+    mvaChargeTestTree_->Branch("subleadingTrackPtWeightedCharge", &(mvaStruct_.subleadingTrackPtWeightedCharge_));
+    mvaChargeTestTree_->Branch("thirdleadingTrackPtWeightedCharge", &(mvaStruct_.thirdleadingTrackPtWeightedCharge_));
     mvaChargeTestTree_->Branch("leadingMuonPtWeightedCharge", &(mvaStruct_.leadingMuonPtWeightedCharge_));
+    mvaChargeTestTree_->Branch("leadingElectronPtWeightedCharge", &(mvaStruct_.leadingElectronPtWeightedCharge_));
     mvaChargeTestTree_->Branch("trackNumberWeightedJetPt", &(mvaStruct_.trackNumberWeightedJetPt_));
     mvaChargeTestTree_->Branch("chargeWeightedTrackId",&(mvaStruct_.chargeWeightedTrackId_));
     mvaChargeTestTree_->Branch("svChargeWeightedFlightDistance",&(mvaStruct_.svChargeWeightedFlightDistance_));
@@ -1420,7 +1452,10 @@ void AnalyzerJetCharge::bookMvaHistos(const TString& step, std::map<TString, TH1
     mvaChargeTrainTree_->Branch("longChargeJet", &(mvaStruct_.longChargeJet_));
     mvaChargeTrainTree_->Branch("relChargeJet", &(mvaStruct_.relChargeJet_));
     mvaChargeTrainTree_->Branch("leadingTrackPtWeightedCharge", &(mvaStruct_.leadingTrackPtWeightedCharge_));
+    mvaChargeTrainTree_->Branch("subleadingTrackPtWeightedCharge", &(mvaStruct_.subleadingTrackPtWeightedCharge_));
+    mvaChargeTrainTree_->Branch("thirdleadingTrackPtWeightedCharge", &(mvaStruct_.thirdleadingTrackPtWeightedCharge_));
     mvaChargeTrainTree_->Branch("leadingMuonPtWeightedCharge", &(mvaStruct_.leadingMuonPtWeightedCharge_));
+    mvaChargeTrainTree_->Branch("leadingElectronPtWeightedCharge", &(mvaStruct_.leadingElectronPtWeightedCharge_));
     mvaChargeTrainTree_->Branch("trackNumberWeightedJetPt", &(mvaStruct_.trackNumberWeightedJetPt_));
     mvaChargeTrainTree_->Branch("chargeWeightedTrackId",&(mvaStruct_.chargeWeightedTrackId_));
     mvaChargeTrainTree_->Branch("svChargeWeightedFlightDistance",&(mvaStruct_.svChargeWeightedFlightDistance_));
@@ -1438,8 +1473,17 @@ void AnalyzerJetCharge::bookMvaHistos(const TString& step, std::map<TString, TH1
     name = "h_mva_leadingTrackPtWeightedChargeVectorial";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Charge of the leading track weighted by the p_{T} ratio with respect to the jet p_{T};c^{track}*p_{T}^{track}*p_{T}^{jet};Jets",80,-1000.,1000.));
     
+    name = "h_mva_subleadingTrackPtWeightedCharge";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Charge of the subleading track weighted by the p_{T} ratio with respect to the jet p_{T};c^{track}*p_{T}^{track}/p_{T}^{jet};Jets",80,-1.,1.));
+    
+    name = "h_mva_thirdleadingTrackPtWeightedCharge";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Charge of the thirdleading track weighted by the p_{T} ratio with respect to the jet p_{T};c^{track}*p_{T}^{track}/p_{T}^{jet};Jets",80,-1.,1.));
+    
     name = "h_mva_leadingMuonPtWeightedCharge";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Charge of the leading muon weighted by the p_{T} ratio with respect to the jet p_{T};c^{track}*p_{T}^{track}/p_{T}^{jet} for leading muon;Jets",80,-1.,1.));
+    
+    name = "h_mva_leadingElectronPtWeightedCharge";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Charge of the leading electron weighted by the p_{T} ratio with respect to the jet p_{T};c^{track}*p_{T}^{track}/p_{T}^{jet} for leading electron;Jets",80,-1.,1.));
     
     name = "h_mva_leadingMuonPtWeightedChargeForAllJets";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Charge of the leading muon weighted by the p_{T} ratio with respect to the jet p_{T} - all jets;c^{track}*p_{T}^{track}/p_{T}^{jet};Jets",80,-1.,1.));

@@ -87,7 +87,10 @@ public:
         Float_t longChargeJet_;
         Float_t relChargeJet_;
         Float_t leadingTrackPtWeightedCharge_;
+        Float_t subleadingTrackPtWeightedCharge_;
+        Float_t thirdleadingTrackPtWeightedCharge_;
         Float_t leadingMuonPtWeightedCharge_;
+        Float_t leadingElectronPtWeightedCharge_;
         Float_t trackNumberWeightedJetPt_;
         Float_t chargeWeightedTrackId_;
         Float_t svChargeWeightedFlightDistance_;
