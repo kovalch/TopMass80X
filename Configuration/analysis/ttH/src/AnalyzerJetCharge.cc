@@ -638,7 +638,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         std::vector<double> impactParameterValuesForPf;
         double impactParameterSignificanceOfLeadingTrack = -999.;
         
-        for (size_t iPfTrack=0;iPfTrack!=jetPfCandidateTrack.size();iPfTrack++)
+        for (size_t iPfTrack=0;iPfTrack!=jetPfCandidateTrack.size();++iPfTrack)
         {
             //require only tracks above a certain threshold of pt
             double trueBJetPfTrackPt = jetPfCandidateTrack.at(iPfTrack).pt();
