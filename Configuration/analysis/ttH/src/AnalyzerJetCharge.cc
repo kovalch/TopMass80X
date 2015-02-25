@@ -325,9 +325,9 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         bool isSubleadingLepton = false;
         bool isSubleadingMuon = false;
         bool isSubleadingElectron = false;
-        bool isThirdleadingLepton = false;
-        bool isThirdleadingElectron = false;
-        bool isThirdleadingMuon = false;
+        //bool isThirdleadingLepton = false;
+        //bool isThirdleadingElectron = false;
+        //bool isThirdleadingMuon = false;
         bool isNonLeadingLepton = false;
         
         // Access selected tracks
