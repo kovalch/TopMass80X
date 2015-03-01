@@ -1059,7 +1059,7 @@ TH1* common::rebinHistoToHisto(TH1* h_from, TH1* h_to)
 }
 
 
-void common::drawCmsLabels(const int cmsprelim, const double& energy, const double luminosityInInverseFb, const double textSize)
+void common::drawCmsLabels(const int cmsprelim, const double& energy, const double& luminosityInInverseFb, const double& textSize)
 {
 
     const char *text = "%2.1f fb^{-1} (%2.f TeV)";
@@ -1073,24 +1073,26 @@ void common::drawCmsLabels(const int cmsprelim, const double& energy, const doub
     label->AddText(Form(text, luminosityInInverseFb, energy));
     label->SetFillStyle(0);
     label->SetBorderSize(0);
-    if (textSize!=0.) label->SetTextSize(textSize);
+    if (textSize!=0) label->SetTextSize(textSize);
     label->SetTextAlign(32);
     label->Draw("same");
 
-    TPaveText *cms = new TPaveText();
-    cms->AddText("CMS");
+    if(cmsprelim > -1) {
+        TPaveText *cms = new TPaveText();
+        cms->AddText("CMS");
 
-    cms->SetX1NDC(      gStyle->GetPadLeftMargin() + gStyle->GetTickLength()        );
-    cms->SetY1NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength() - 0.05 );
-    cms->SetX2NDC(      gStyle->GetPadLeftMargin() + gStyle->GetTickLength() + 0.15 );
-    cms->SetY2NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength()        );
+        cms->SetX1NDC(      gStyle->GetPadLeftMargin() + gStyle->GetTickLength()        );
+        cms->SetY1NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength() - 0.05 );
+        cms->SetX2NDC(      gStyle->GetPadLeftMargin() + gStyle->GetTickLength() + 0.15 );
+        cms->SetY2NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength()        );
 
-    cms->SetFillStyle(0);
-    cms->SetBorderSize(0);
-    if (textSize!=0.) cms->SetTextSize(textSize*1.1);
-    cms->SetTextAlign(12);
-    cms->SetTextFont(61);
-    cms->Draw("same");
+        cms->SetFillStyle(0);
+        cms->SetBorderSize(0);
+        if (textSize!=0) cms->SetTextSize(textSize*1.1);
+        cms->SetTextAlign(12);
+        cms->SetTextFont(61);
+        cms->Draw("same");
+    }
 
     if(cmsprelim > 0) {
       TPaveText *extra = new TPaveText();
@@ -1104,7 +1106,7 @@ void common::drawCmsLabels(const int cmsprelim, const double& energy, const doub
 
       extra->SetFillStyle(0);
       extra->SetBorderSize(0);
-      if (textSize!=0.) extra->SetTextSize(textSize);
+      if (textSize!=0) extra->SetTextSize(textSize);
       extra->SetTextAlign(12);
       extra->SetTextFont(52);
       extra->Draw("same");
