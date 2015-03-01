@@ -79,11 +79,12 @@ void PlotterDiffXS::setOptions(const TString& name, const TString& namesGen,
                          const double& rangemin, const double& rangemax)
 {
     name_ = name; //Variable name for the reconstructed level
+    if(name_.Contains("#")) name_.Remove(name_.Last('#')); //Remove possible #TEXT in the end (to allow multiple entries of the same histogram)
     YAxis_ = YAxis; //Y-axis title
     XAxis_ = XAxis; //X-axis title
     signalType_ = signalType; //Type of the signal (0-ttbb, 1-ttbb+ttb+tt2b)
     plotResponse_ = plotResponse; //Whether the response matrix should be plotted instead of the cross section
-    normalizeXS_ = normalizeXS; // Whether normalized cross sections should plotted (for shape comparison)
+    normalizeXS_ = normalizeXS; // Whether normalized cross sections should be plotted (for shape comparison)
 //     logX_ = logX; //Draw X-axis in Log scale
     logY_ = logY; //Draw Y-axis in Log scale
     ymin_ = ymin; //Min. value in Y-axis
@@ -433,7 +434,9 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
     }
 
     // Create Directory for Output Plots and write them
-    const TString eventFileString = common::assignFolder(outputDir_, channel, systematic)+name_+"_diffXS";
+    TString xsAddName = "_diffXS";
+    if(normalizeXS_) xsAddName.Append("_norm");
+    TString eventFileString = common::assignFolder(outputDir_, channel, systematic)+name_+xsAddName;
     canvas->Print(eventFileString+".eps");
     
     //Save input and cross section histograms to the root file
@@ -441,17 +444,17 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
     // Storing input histograms
     for(auto nameHisto : m_inputHistos) {
         if(!nameHisto.second) continue;
-        nameHisto.second->Write(name_+"_diffXS_"+"input_"+nameHisto.first);
+        nameHisto.second->Write(name_+xsAddName+"_input_"+nameHisto.first);
     }
     // Storing measured XS histograms
     for(auto nameHisto : m_xs) {
         if(!nameHisto.second) continue;
-        nameHisto.second->Write(name_+"_diffXS_"+"xs_"+nameHisto.first);
+        nameHisto.second->Write(name_+xsAddName+"_xs_"+nameHisto.first);
     }
     // Storing XS histograms from theory predictions
     for(auto nameHisto : m_theoryHisto) {
         if(!nameHisto.second) continue;
-        nameHisto.second->Write(name_+"_diffXS_"+"xsTheory_"+nameHisto.first);
+        nameHisto.second->Write(name_+xsAddName+"_xsTheory_"+nameHisto.first);
     }
     
     out_root.Close();
@@ -624,12 +627,15 @@ std::map<TString, TH1*> PlotterDiffXS::calculateDiffXS(const std::map<TString, T
     printf("----------------------------------\n");
     printf("data/madgraph: %.3f\n\n", h_diffXS_data->Integral()/h_diffXS_madgraph->Integral());
     
-    // Performing normalisation to bin width/unity
-    common::normalizeToBinWidth(h_diffXS_data);
-    if(normalizeXS_) common::normalize(h_diffXS_data);
+    // Normalising to unity
+    if(normalizeXS_) {
+        common::normalize(h_diffXS_data);
+        common::normalize(h_diffXS_madgraph);
+    }
     
+    // Normalising to bin width
+    common::normalizeToBinWidth(h_diffXS_data);
     common::normalizeToBinWidth(h_diffXS_madgraph);
-    if(normalizeXS_) common::normalize(h_diffXS_madgraph);
     
     
     // Setting the normalisation scale to the underflow bin
