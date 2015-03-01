@@ -68,9 +68,6 @@ private:
     /// Draw label for decay channel in upper left corner of plot
     void drawDecayChannelLabel(const Channel::Channel& channel, const double& textSize =0.04)const;
 
-    /// Draw official labels (CMS [Preliminary], luminosity and CM energy) above plot
-    void drawCmsLabels(const int cmsprelim =1, const double& energy =8, const double& textSize =0.04)const;
-    
     /// Calculates binomial uncertainty of the subset/set ratio
     double uncertaintyBinomial(const double pass, const double all)const;
     

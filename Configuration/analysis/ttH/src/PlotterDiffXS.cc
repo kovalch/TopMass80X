@@ -404,8 +404,7 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
     updateHistoAxis(axisHisto);
     
     // Put additional stuff to histogram
-    this->drawCmsLabels(2, 8);
-    this->drawDecayChannelLabel(channel);
+    common::drawCmsLabels(2, 8, samples_.luminosityInInversePb()/1000.);
     legend->Draw("same");
     common::drawRatioPad(canvas, 0.0, 3.0, "#frac{MC}{Data}");
     
@@ -790,8 +789,7 @@ void PlotterDiffXS::writeResponseMatrix(const Channel::Channel& channel, const S
     gPad->SetRightMargin(0.15);
     
     // Put additional stuff to histogram
-    this->drawCmsLabels(2, 8);
-    this->drawDecayChannelLabel(channel);
+    common::drawCmsLabels(2, 8, samples_.luminosityInInversePb()/1000.);
 
     // Create Directory for Output Plots and write them
     const TString eventFileString = common::assignFolder(outputDir_, channel, systematic);
@@ -967,46 +965,5 @@ void PlotterDiffXS::updateHistoAxis(TH1* histo)const
     // Set axis titles
     if(XAxis_ != "-") histo->GetYaxis()->SetTitle(YAxis_);
     if(YAxis_ != "-") histo->GetXaxis()->SetTitle(XAxis_);
-}
-
-
-void PlotterDiffXS::drawDecayChannelLabel(const Channel::Channel& channel, const double& textSize)const
-{
-    TPaveText* decayChannel = new TPaveText();
-
-    decayChannel->AddText(Channel::label(channel));
-
-    decayChannel->SetX1NDC(      gStyle->GetPadLeftMargin() + gStyle->GetTickLength()        );
-    decayChannel->SetY1NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength() - 0.05 );
-    decayChannel->SetX2NDC(      gStyle->GetPadLeftMargin() + gStyle->GetTickLength() + 0.15 );
-    decayChannel->SetY2NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength()        );
-
-    decayChannel->SetFillStyle(0);
-    decayChannel->SetBorderSize(0);
-    if (textSize!=0) decayChannel->SetTextSize(textSize);
-    decayChannel->SetTextAlign(12);
-    decayChannel->Draw("same");
-}
-
-
-void PlotterDiffXS::drawCmsLabels(const int cmsprelim, const double& energy, const double& textSize)const
-{
-    const char* text;
-    if(cmsprelim == 2) text = "Private Work, %2.1f fb^{-1} at #sqrt{s} = %2.f TeV"; // Private work for PhDs students
-    else if (cmsprelim == 1) text = "CMS Preliminary, %2.1f fb^{-1} at #sqrt{s} = %2.f TeV"; // CMS preliminary label
-    else text = "CMS, %2.1f fb^{-1} at #sqrt{s} = %2.f TeV"; // CMS label
-
-    TPaveText* label = new TPaveText();
-    label->SetX1NDC(gStyle->GetPadLeftMargin());
-    label->SetY1NDC(1.0 - gStyle->GetPadTopMargin());
-    label->SetX2NDC(1.0 - gStyle->GetPadRightMargin());
-    label->SetY2NDC(1.0);
-    label->SetTextFont(42);
-    label->AddText(Form(text, samples_.luminosityInInversePb()/1000., energy));
-    label->SetFillStyle(0);
-    label->SetBorderSize(0);
-    if(textSize != 0) label->SetTextSize(textSize);
-    label->SetTextAlign(32);
-    label->Draw("same");
 }
 

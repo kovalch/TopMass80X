@@ -65,9 +65,6 @@ private:
     /// Draw a label in the top left corner depending on the topLeftLabelId_ parameter
     void drawTopLeftLabel(const TString& text, const double& textSize =0.04)const;
     
-    /// Draw official labels (CMS [Preliminary], luminosity and CM energy) above plot
-    void drawCmsLabels(const int cmsprelim =1, const double& energy =8, const double& textSize =0.04)const;
-    
     /// Draw signal significance label over the plot
     TPaveText* drawSignificance(const TH1* const signal, const TH1* const signalPlusBackground,
                                 const float xMin, const float xMax,

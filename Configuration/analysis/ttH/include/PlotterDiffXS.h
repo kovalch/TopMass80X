@@ -68,13 +68,7 @@ private:
 
     /// Update histogram axis
     void updateHistoAxis(TH1* histo)const;
-    
-    /// Draw label for decay channel in upper left corner of plot
-    void drawDecayChannelLabel(const Channel::Channel& channel, const double& textSize =0.04)const;
 
-    /// Draw official labels (CMS [Preliminary], luminosity and CM energy) above plot
-    void drawCmsLabels(const int cmsprelim =1, const double& energy =8, const double& textSize =0.04)const;
-    
     /// Draw purity/stability plots for the response matrices
     void drawPurityStability(TH2* histo2d, TString name)const;
     
