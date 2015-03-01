@@ -93,6 +93,9 @@ namespace common{
     
     /// Rebin histogram to the binning of another histogram
     TH1* rebinHistoToHisto(TH1* h_from, TH1* h_to);
+    
+    /// Draw typical CMS labels: none/preliminary/private, energy, luminosity
+    void drawCmsLabels(const int cmsprelim, const double& energy, const double luminosityInInverseFb, const double textSize =0.);
 
     
 }

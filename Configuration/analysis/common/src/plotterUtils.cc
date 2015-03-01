@@ -14,6 +14,7 @@
 #include <TGraphAsymmErrors.h>
 #include <TExec.h>
 #include <TLegend.h>
+#include <TPaveText.h>
 #include <TAxis.h>
 #include <TMath.h>
 
@@ -1057,4 +1058,56 @@ TH1* common::rebinHistoToHisto(TH1* h_from, TH1* h_to)
     return histo;
 }
 
+
+void common::drawCmsLabels(const int cmsprelim, const double& energy, const double luminosityInInverseFb, const double textSize)
+{
+
+    const char *text = "%2.1f fb^{-1} (%2.f TeV)";
+
+    TPaveText *label = new TPaveText();
+    label->SetX1NDC(gStyle->GetPadLeftMargin());
+    label->SetY1NDC(1.0-gStyle->GetPadTopMargin());
+    label->SetX2NDC(1.0-gStyle->GetPadRightMargin());
+    label->SetY2NDC(1.0);
+    label->SetTextFont(42);
+    label->AddText(Form(text, luminosityInInverseFb, energy));
+    label->SetFillStyle(0);
+    label->SetBorderSize(0);
+    if (textSize!=0.) label->SetTextSize(textSize);
+    label->SetTextAlign(32);
+    label->Draw("same");
+
+    TPaveText *cms = new TPaveText();
+    cms->AddText("CMS");
+
+    cms->SetX1NDC(      gStyle->GetPadLeftMargin() + gStyle->GetTickLength()        );
+    cms->SetY1NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength() - 0.05 );
+    cms->SetX2NDC(      gStyle->GetPadLeftMargin() + gStyle->GetTickLength() + 0.15 );
+    cms->SetY2NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength()        );
+
+    cms->SetFillStyle(0);
+    cms->SetBorderSize(0);
+    if (textSize!=0.) cms->SetTextSize(textSize*1.1);
+    cms->SetTextAlign(12);
+    cms->SetTextFont(61);
+    cms->Draw("same");
+
+    if(cmsprelim > 0) {
+      TPaveText *extra = new TPaveText();
+      if(cmsprelim == 2) { extra->AddText("Private Work"); }
+      else { extra->AddText("Preliminary"); }
+
+      extra->SetX1NDC(      gStyle->GetPadLeftMargin() + gStyle->GetTickLength()        );
+      extra->SetY1NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength() - 0.10 );
+      extra->SetX2NDC(      gStyle->GetPadLeftMargin() + gStyle->GetTickLength() + 0.15 );
+      extra->SetY2NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength() - 0.05 );
+
+      extra->SetFillStyle(0);
+      extra->SetBorderSize(0);
+      if (textSize!=0.) extra->SetTextSize(textSize);
+      extra->SetTextAlign(12);
+      extra->SetTextFont(52);
+      extra->Draw("same");
+    }
+}
 
