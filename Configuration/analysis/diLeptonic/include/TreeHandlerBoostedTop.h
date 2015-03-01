@@ -52,8 +52,11 @@ private:
                                const double& weight, const TString& step,
                                std::vector<VariablesBase*>& variables)const;
     
-    /// Create and fill branches for TTree holding the input variables for MVA
-    virtual void createAndFillBranches(TTree* tree, const std::vector<VariablesBase*>& v_variables)const;
+    /// Book branches for TTree variables (dummy method, override in inherited TreeHandler)
+    virtual void bookBranches(TTree* tree, VariablesBase* const variables_)const;
+    
+    /// Fill branches for TTree variables
+    virtual void fillBranches(TTree* tree, const std::vector<VariablesBase*>& v_variables);
     
     /// Import all branches from TTree
     virtual void importBranches(TTree* tree, std::vector<VariablesBase*>& variables)const;

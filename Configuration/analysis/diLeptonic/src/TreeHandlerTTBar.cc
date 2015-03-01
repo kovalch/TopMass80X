@@ -18,7 +18,7 @@
 
 TreeHandlerTTBar::TreeHandlerTTBar(const char* inputDir,
                                              const std::vector<TString>& selectionStepsNoCategories):
-TreeHandlerBase("ttBar_", inputDir, selectionStepsNoCategories)
+TreeHandlerBase("ttBar_", inputDir, selectionStepsNoCategories, new VariablesTTBar())
 {
     std::cout<<"--- Beginning setting up MVA tree handler for top jets assignment\n";
     std::cout<<"=== Finishing setting up MVA tree handler for top jets assignment\n\n";
@@ -45,9 +45,9 @@ void TreeHandlerTTBar::fillVariables(const EventMetadata& eventMetadata,
 
 
 
-void TreeHandlerTTBar::createAndFillBranches(TTree* tree, const std::vector<VariablesBase*>& v_variables)const
+void TreeHandlerTTBar::bookBranches(TTree* tree, VariablesBase* const variables_)const
 {
-    VariablesTTBar* const variablesTTBar = new VariablesTTBar();
+    VariablesTTBar* const variablesTTBar = dynamic_cast<VariablesTTBar*>(variables_);
     
     this->createBranch(tree, variablesTTBar->eventWeight_);
     
@@ -78,20 +78,25 @@ void TreeHandlerTTBar::createAndFillBranches(TTree* tree, const std::vector<Vari
     this->createBranch(tree, variablesTTBar->gen_x1_);
     this->createBranch(tree, variablesTTBar->gen_x2_);
 
+}
+
+
+
+void TreeHandlerTTBar::fillBranches(TTree* tree, const std::vector<VariablesBase*>& v_variables)
+{
     
     for(const VariablesBase* variablesTmp : v_variables){
         const VariablesTTBar* variablesTTBarTmp = dynamic_cast<const VariablesTTBar*>(variablesTmp);
         if(!variablesTTBarTmp){
-            std::cerr<<"ERROR in MvaTreeHandlerTopJets::createAndFillBranches()! variables are of wrong type, cannot typecast\n"
+            std::cerr<<"ERROR in TreeHandlerTTBar::fillBranches()! variables are of wrong type, cannot typecast\n"
                      <<"...break\n"<<std::endl;
             exit(395);
         }
         
-        *variablesTTBar = *variablesTTBarTmp;
+        *(dynamic_cast<VariablesTTBar*>(variables_)) = *variablesTTBarTmp;
+        
         tree->Fill();
     }
-    
-    delete variablesTTBar;
 }
 
 

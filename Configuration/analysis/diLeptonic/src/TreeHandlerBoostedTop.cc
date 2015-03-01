@@ -18,7 +18,7 @@
 
 TreeHandlerBoostedTop::TreeHandlerBoostedTop(const char* inputDir,
                                              const std::vector<TString>& selectionStepsNoCategories):
-TreeHandlerBase("bTop_", inputDir, selectionStepsNoCategories)
+TreeHandlerBase("bTop_", inputDir, selectionStepsNoCategories, new VariablesBoostedTop())
 {
     std::cout<<"--- Beginning setting up MVA tree handler for top jets assignment\n";
     std::cout<<"=== Finishing setting up MVA tree handler for top jets assignment\n\n";
@@ -45,9 +45,11 @@ void TreeHandlerBoostedTop::fillVariables(const EventMetadata& eventMetadata,
 
 
 
-void TreeHandlerBoostedTop::createAndFillBranches(TTree* tree, const std::vector<VariablesBase*>& v_variables)const
+void TreeHandlerBoostedTop::bookBranches(TTree* tree, VariablesBase* const variables_)const
 {
-    VariablesBoostedTop* const variablesBoostedTop = new VariablesBoostedTop();
+    
+    VariablesBoostedTop* const variablesBoostedTop = dynamic_cast<VariablesBoostedTop*>(variables_);
+
     
     this->createBranch(tree, variablesBoostedTop->eventWeight_);
     
@@ -80,21 +82,27 @@ void TreeHandlerBoostedTop::createAndFillBranches(TTree* tree, const std::vector
     this->createBranch(tree, variablesBoostedTop->gen_jet_multiplicity_);
     this->createBranch(tree, variablesBoostedTop->gen_x1_);
     this->createBranch(tree, variablesBoostedTop->gen_x2_);
+}
+
+
+
+void TreeHandlerBoostedTop::fillBranches(TTree* tree, const std::vector<VariablesBase*>& v_variables)
+{
 
     
     for(const VariablesBase* variablesTmp : v_variables){
         const VariablesBoostedTop* variablesBoostedTopTmp = dynamic_cast<const VariablesBoostedTop*>(variablesTmp);
         if(!variablesBoostedTopTmp){
-            std::cerr<<"ERROR in MvaTreeHandlerTopJets::createAndFillBranches()! variables are of wrong type, cannot typecast\n"
+            std::cerr<<"ERROR in TreeHandlerBoostedTop::fillBranches()! variables are of wrong type, cannot typecast\n"
                      <<"...break\n"<<std::endl;
             exit(395);
         }
         
-        *variablesBoostedTop = *variablesBoostedTopTmp;
+        *(dynamic_cast<VariablesBoostedTop*>(variables_)) = *variablesBoostedTopTmp;
+        
         tree->Fill();
     }
     
-    delete variablesBoostedTop;
 }
 
 

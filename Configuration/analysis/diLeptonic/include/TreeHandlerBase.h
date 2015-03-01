@@ -40,7 +40,8 @@ public:
     /// Constructor for selection steps
     TreeHandlerBase(const TString& prefix,
                        const char* inputDir,
-                       const std::vector<TString>& selectionStepsNoCategories);
+                       const std::vector<TString>& selectionStepsNoCategories,
+                       VariablesBase* const variables);
     
     /// Destructor
     ~TreeHandlerBase(){}
@@ -95,10 +96,11 @@ protected:
     /// Import all branches from TTree (dummy method, override in inherited MvaTreeHandler)
     virtual void importBranches(TTree* tree, std::vector<VariablesBase*>& Variables)const;
     
-    /// Create and fill branches for TTree holding the input variables for MVA (dummy method, override in inherited MvaTreeHandler)
-    virtual void createAndFillBranches(TTree* tree, const std::vector<VariablesBase*>& v_Variables)const;
+    /// Book branches for TTree variables (dummy method, override in inherited TreeHandler)
+    virtual void bookBranches(TTree* tree, VariablesBase* const variables_)const;
     
-    
+    /// Fill branches for TTree variables (dummy method, override in inherited TreeHandler)
+    virtual void fillBranches(TTree* tree, const std::vector<VariablesBase*>& v_Variables);
     
     /// Create single branch for TTree based on MvaInputVariables of type Int_t
     void createBranch(TTree* tree, const VariableInt& variable)const;
@@ -112,7 +114,7 @@ protected:
     /// Import branch of type Float_t
     void importBranch(TTree* tree, VariableFloat& variable)const;
     
-    
+    VariablesBase* const variables_ ;
     
 private:
     
@@ -135,8 +137,11 @@ private:
     /// Pointer for bookkeeping of histograms, trees, etc.
     TSelectorList* selectorList_;
     
-    /// The map containing all the vectors of MVA variables for all selection steps
+    /// The map containing all the vectors of variables for all selection steps
     std::map<TString, std::vector<VariablesBase*> > m_stepVariables_;
+    
+    /// The map containing all trees for all selection steps
+    std::map<TString, TTree* > m_stepTree_;
     
     /// Selection steps for which to run the MVA tool
     const std::vector<TString> selectionSteps_;
