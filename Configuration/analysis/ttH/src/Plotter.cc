@@ -418,8 +418,8 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     
     // Put additional stuff to histogram
     common::drawCmsLabels(2, 8, samples_.luminosityInInversePb()/1000.);
-    if(topLeftLabelId_==1) this->drawTopLeftLabel(Channel::label(channel));
-    else if(topLeftLabelId_==2) this->drawTopLeftLabel(Systematic::convertType(systematic.type())+=Systematic::convertVariation(systematic.variation()));
+//     if(topLeftLabelId_==1) this->drawTopLeftLabel(Channel::label(channel));
+//     else if(topLeftLabelId_==2) this->drawTopLeftLabel(Systematic::convertType(systematic.type())+=Systematic::convertVariation(systematic.variation()));
     for(TPaveText* label : significanceLabels) if(label) label->Draw("same");
     legend->Draw("SAME");
     if(dataHist.second && stacksum){
