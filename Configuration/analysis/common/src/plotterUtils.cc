@@ -959,15 +959,21 @@ TH1* common::updatePadYAxisRange(TPad* pad, bool logY, const double yMarginUp, d
         }
     }
 
-    // Updating the Y axis range
-    if(yMax_global != -1e10) {
-        if(logY) yMax_global *= (1.+yMarginUp)*5e1;
-        else yMax_global *= yMarginUp + 1.;
-    }
+    // Adjust minimum of Y axis range, for logY always automatically, else starting at 0. if not specified otherwise by yMarginDown
     if(yMarginDown != 0. || logY) {
         if(yMarginDown != 0.) yMin_global /= yMarginDown;
-        if(logY) yMin_global /= 2e1;
-    } else yMin_global = 0.;
+        if(logY){
+            if(yMin_global > 0.1) yMin_global *= 0.5;
+            else yMin_global = 0.05;
+        }
+    }
+    else yMin_global = 0.;
+    
+    // Adjust maximum of Y axis range to have it with factor (1.+yMarginUp) above highest object of drawing
+    if(yMax_global != -1e10) {
+        if(logY) yMax_global = std::pow(yMax_global, 1.+yMarginUp) / std::pow(yMin_global, yMarginUp);
+        else yMax_global *= yMarginUp + 1.;
+    }
     
     // Aplying the defined range to the Y axis
     axisHisto->GetYaxis()->SetRangeUser(yMin_global, yMax_global);

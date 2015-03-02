@@ -12,6 +12,7 @@ class TGraphAsymmErrors;
 class TGraph;
 class TAxis;
 class TLegend;
+class TPad;
 
 
 
