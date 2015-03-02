@@ -1120,18 +1120,22 @@ void common::drawCmsLabels(const int cmsprelim, const double& energy, const doub
 }
 
 
-TLegend* common::createLegend(const double& x1, const double& y1_min, const int nColumns, const int nRows, const double& rowHeight) 
+TLegend* common::createLegend(const double& x1, const double& y1_min, const int nColumns, const int nEntries, const double& rowHeight) 
 {
     // Defining the position of the upper right corner
     const double x2 = 1.0 - gStyle->GetPadRightMargin() - gStyle->GetTickLength();
     const double y2 = 1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength();
     
-    // Raising the lower boundary if the number of entries is small enough
+    // Raising the bottom border if the number of entries is small enough
     double y1(y1_min);
-    if(nRows > 0 && rowHeight > 0.) y1 = std::max(y2 - nRows*rowHeight, y1_min);
+    if(nEntries > 0) {
+      const int nRows = nEntries%nColumns > 0 ? nEntries/nColumns + 1 : nEntries/nColumns;
+      y1 = std::max(y2 - nRows*rowHeight, y1_min);
+    }
     
     TLegend* legend = new TLegend(x1,y1,x2,y2);
     legend->SetNColumns(nColumns);
+    legend->SetColumnSeparation(0.1/double(nColumns));
     legend->SetFillStyle(0);
     legend->SetBorderSize(0);
     legend->Clear();

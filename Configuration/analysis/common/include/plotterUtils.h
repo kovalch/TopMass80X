@@ -100,7 +100,7 @@ namespace common{
     void drawCmsLabels(const int cmsprelim, const double& energy, const double& luminosityInInverseFb, const double& textSize =0.045);
     
     /// Draw a legend with predefined parameters
-    TLegend* createLegend(const double& x1, const double& y1, const int nColumns = 1, const int nRows = 0, const double& rowHeight = 0.025);
+    TLegend* createLegend(const double& x1, const double& y1, const int nColumns = 1, const int nEntries = 0, const double& rowHeight = 0.025);
 
     
 }
