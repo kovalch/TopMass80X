@@ -100,36 +100,26 @@ void AnalyzerControlPlots::bookHistos(const TString& step, std::map<TString, TH1
     // Jets
     name = "jet_multiplicity";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Jet Multiplicity;N jets;Events",20,0,20));
-    m_histogram[name]->Sumw2();
     name = "jet_pt";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Jet p_{t};p_{t}^{jet} [GeV];Jets",50,0,300));
-    m_histogram[name]->Sumw2();
     name = "jet_eta";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Jet #eta;#eta^{jet};Jets",50,-2.6,2.6));
-    m_histogram[name]->Sumw2();
     name = "jet_phi";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Jet #phi;#phi^{jet};Jets",50,-3.2,3.2));
-    m_histogram[name]->Sumw2();
     name = "jet_btagDiscriminator";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "b-tag Discriminator d;d;Jets",60,-0.1,1.1));
-    m_histogram[name]->Sumw2();
     name = "jet_btagDiscriminator_min";
     m_histogram[name] = store(new TH1D(prefix_+name+step, "b-tag Discriminator d;d;Lowest d jet",60,-0.1,1.1));
-    m_histogram[name]->Sumw2();
     
     // Bjets
     name = "bjet_multiplicity";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "B-Jet Multiplicity;N b-jets;Events",20,0,20));
-    m_histogram[name]->Sumw2();
     name = "bjet_pt";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "B-Jet p_{t};p_{t}^{b-jet} [GeV];B-Jets",50,0,300));
-    m_histogram[name]->Sumw2();
     name = "bjet_eta";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "B-Jet #eta;#eta^{b-jet};B-Jets",50,-2.6,2.6));
-    m_histogram[name]->Sumw2();
     name = "bjet_phi";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "B-Jet #phi;#phi^{b-jet};B-Jets",50,-3.2,3.2));
-    m_histogram[name]->Sumw2();
 
     // Met
     name = "met_et";

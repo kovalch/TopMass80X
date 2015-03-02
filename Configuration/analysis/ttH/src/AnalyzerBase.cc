@@ -36,6 +36,7 @@ stepsForCategories_(stepsForCategories),
 jetCategories_(jetCategories),
 selectorList_(0)
 {
+    // Sanity checks for correct initialisation of jetCategories and selectionSteps
     if(!jetCategories_ && stepsForCategories_.size()>0){
         std::cerr<<"ERROR in constructor for AnalysisHistogramsBase! "
                  <<"No jet categories passed, but request for category-wise selection steps\n...break\n"<<std::endl;
@@ -46,6 +47,9 @@ selectorList_(0)
                  <<"Jet categories passed, but no category-wise selection steps defined\n...break\n"<<std::endl;
         exit(235);
     }
+    
+    // Force all histograms to use option Sumw2()
+    TH1::SetDefaultSumw2();
 }
 
 
@@ -76,7 +80,6 @@ void AnalyzerBase::book(TSelectorList* output)
         const int numberOfCategories(jetCategories_->numberOfCategories());
         TString name = "jetCategories";
         m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Jet categories;# jets/b-jets; # events", numberOfCategories, 0, numberOfCategories));
-        m_histogram[name]->Sumw2();
         const std::vector<TString> v_binLabel(jetCategories_->binLabels());
         for(std::vector<TString>::const_iterator i_binLabel = v_binLabel.begin(); i_binLabel != v_binLabel.end(); ++i_binLabel){
             const TString binLabel(*i_binLabel);
@@ -232,7 +235,6 @@ void AnalyzerEventYields::bookHistos(const TString& step, std::map<TString, TH1*
     
     name = "weighted";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step,"event yield;;# events",8,0,8));
-    m_histogram[name]->Sumw2();
 }
 
 
@@ -375,22 +377,16 @@ void AnalyzerHfFracScaling::bookHistos(const TString& step, std::map<TString, TH
 {
     TString name = "btag_multiplicity";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "B-tagged jet multiplicity; N b-tags; events",6,0,6));
-    m_histogram[name]->Sumw2();
     name = "secondaryVertex_multiplicityPerBjet";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "SV multiplicity in each b-tagged jet; N secondary vertices; # b-tagged jets",6,0.,6.));
-    m_histogram[name]->Sumw2();
     name = "secondaryVertex_massPerBjet";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Sum of SV masses in each b-tagged jet; SV masses sum; # b-tagged jets",20,0.,10.));
-    m_histogram[name]->Sumw2();
     name = "secondaryVertex_massMcCorrectedPerBjet";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Sum of SV masses in each b-tagged jet; SV masses sum; # b-tagged jets",20,0.,10.));
-    m_histogram[name]->Sumw2();
     name = "probeJet_btagDiscriminator_3or4btags";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "b-tag discriminant of the probe jet; d (4-th jet); events",60,-0.1,1.1));
-    m_histogram[name]->Sumw2();
     name = "probeJet_btagDiscriminator_2or3btags";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "b-tag discriminant of the probe jet; d (3-rd jet); events",60,-0.1,1.1));
-    m_histogram[name]->Sumw2();
 }
 
 
