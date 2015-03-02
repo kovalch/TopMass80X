@@ -353,34 +353,6 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
         std::cerr<<"ERROR in Plotter::write()! No single sample for drawing exists\n...break\n"<<std::endl;
         exit(237);
     }
-    
-    if(logY_){
-      // Set minimum to >0 value
-      // FIXME: Should we automatically calculate minimum value instead of the fixed value?
-      firstHistToDraw->SetMinimum(1e-1);
-      if(ymin_ > 0) firstHistToDraw->SetMinimum(ymin_);
-      canvas->SetLogy();
-    }
-    else firstHistToDraw->SetMinimum(ymin_);
-
-    if(ymax_ == 0.){
-        // Determine the highest Y value that is plotted
-        float yMax = dataHist.second ? dataHist.second->GetBinContent(dataHist.second->GetMaximumBin()) : 0.f;
-        if(stacksum){
-            const float maxTmp = stacksum->GetBinContent(stacksum->GetMaximumBin());
-            if(maxTmp > yMax) yMax = maxTmp;
-        }
-        for(const auto& legendHistPair : higgsHists){
-            const TH1* hist = legendHistPair.second;
-            const float maxTmp = hist->GetBinContent(hist->GetMaximumBin());
-            if(maxTmp > yMax) yMax = maxTmp;
-        }
-        
-        // Scale Y axis
-        if(logY_) firstHistToDraw->SetMaximum(18.*yMax);
-        else firstHistToDraw->SetMaximum(1.35*yMax);
-    }
-    else firstHistToDraw->SetMaximum(ymax_);
 
     firstHistToDraw->GetXaxis()->SetNoExponent(kTRUE);
 
