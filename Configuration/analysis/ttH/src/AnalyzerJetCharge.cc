@@ -256,7 +256,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         
         double trueBJetScalarCharge = jetChargeRelativePtWeighted.at(jetIdx);
         double trueBJetPt = jets.pt();
-        double etaTrueBJets = jets.eta();
+        double trueBJetEta = jets.eta();
         double jetTrueBPx = jets.px();
         double jetTrueBPy = jets.py();
         double jetTrueBPz = jets.pz();
@@ -632,7 +632,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         std::vector<double> impactParameterValuesForPf;
         double impactParameterSignificanceOfLeadingTrack = -999.;
         
-        for (size_t iPfTrack=0;iPfTrack!=jetPfCandidateTrack.size();iPfTrack++)
+        for (size_t iPfTrack=0;iPfTrack!=jetPfCandidateTrack.size();++iPfTrack)
         {
             //require only tracks above a certain threshold of pt
             double trueBJetPfTrackPt = jetPfCandidateTrack.at(iPfTrack).pt();
@@ -649,12 +649,12 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
             
             // TEST zvertex studies
             // Check if PfCandidate belongs to primary vertex
-            //if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==0&&jetPfCandidatePrimaryVertexId.at(iPfTrack)==3) m_histogram["h_pfCandidateNonZeroWeights"]->Fill(0., weight);
-            //if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==3) m_histogram["h_pfCandidateNonZeroWeightsIndexNonZero"]->Fill(0., weight);
-            //if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==0) m_histogram["h_pfCandidateNonZeroWeightsIndexZero"]->Fill(0., weight);
-            //if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==2) m_histogram["h_pfCandidateZeroWeightsIndexNonZero"]->Fill(0., weight);
-            //if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==1) m_histogram["h_pfCandidateZeroWeightsIndexZero"]->Fill(0., weight);
-            //if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==-1) std::cout<<"TOO MANY HIGH WEIGHTS!!"<<std::endl;
+            if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==0&&jetPfCandidatePrimaryVertexId.at(iPfTrack)==3) m_histogram["h_pfCandidateNonZeroWeights"]->Fill(0., weight);
+            if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==3) m_histogram["h_pfCandidateNonZeroWeightsIndexNonZero"]->Fill(0., weight);
+            if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==0) m_histogram["h_pfCandidateNonZeroWeightsIndexZero"]->Fill(0., weight);
+            if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==2) m_histogram["h_pfCandidateZeroWeightsIndexNonZero"]->Fill(0., weight);
+            if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==1) m_histogram["h_pfCandidateZeroWeightsIndexZero"]->Fill(0., weight);
+            if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==-1) std::cout<<"TOO MANY HIGH WEIGHTS!!"<<std::endl;
             
             // Remove tracks not associated to primary vertex 0
             if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==-1|| jetPfCandidatePrimaryVertexId.at(iPfTrack)==2 || jetPfCandidatePrimaryVertexId.at(iPfTrack)==3) continue;
@@ -1030,10 +1030,26 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         ((TH2D*)m_histogram["h_trueBJetPtVsMaxScalarPtTrack"])->Fill(maxTrueProduct,trueBJetPt, weight);
         ((TH2D*)m_histogram["h_trueBJetPtVsNumTracks"])-> Fill(trueBJetTrackMultiplicity,trueBJetPt, weight);
         ((TH2D*)m_histogram["h_trueBJetMaxPtTrackVsNumTracks"])-> Fill(trueBJetTrackMultiplicity,maxPtTrueTrack, weight);
-        ((TH2D*)m_histogram["h_trueBJetEtaVsTrackMultiplicity"])-> Fill(trueBJetTrackMultiplicity,etaTrueBJets, weight);
+        ((TH2D*)m_histogram["h_trueBJetEtaVsTrackMultiplicity"])-> Fill(trueBJetTrackMultiplicity,trueBJetEta, weight);
         m_histogram["h_trueBJetPt"]->Fill(trueBJetPt, weight);
         
+        // Track multiplicity plots: eta and pt slices
         m_histogram["h_trueBJetTrackMultiplicity"]->Fill(trueBJetTrackMultiplicity, weight);
+        
+        if (std::abs(trueBJetEta)<=0.2) m_histogram["h_trueBJetTrackMultiplicity_eta_0_02"]->Fill(trueBJetTrackMultiplicity, weight);
+        else if (std::abs(trueBJetEta)>0.2 && std::abs(trueBJetEta)<=0.8) m_histogram["h_trueBJetTrackMultiplicity_eta_02_08"]->Fill(trueBJetTrackMultiplicity, weight);
+        else if (std::abs(trueBJetEta)>0.8 && std::abs(trueBJetEta)<=1.0) m_histogram["h_trueBJetTrackMultiplicity_eta_08_10"]->Fill(trueBJetTrackMultiplicity, weight);
+        else if (std::abs(trueBJetEta)>1.0 && std::abs(trueBJetEta)<=1.6) m_histogram["h_trueBJetTrackMultiplicity_eta_10_16"]->Fill(trueBJetTrackMultiplicity, weight);
+        else if (std::abs(trueBJetEta)>1.6 && std::abs(trueBJetEta)<=2.0) m_histogram["h_trueBJetTrackMultiplicity_eta_16_20"]->Fill(trueBJetTrackMultiplicity, weight);
+        else m_histogram["h_trueBJetTrackMultiplicity_eta_20"]->Fill(trueBJetTrackMultiplicity, weight);
+        
+        if (trueBJetPt>20.&&trueBJetPt<=30.) m_histogram["h_trueBJetTrackMultiplicity_pt_20_30"]->Fill(trueBJetTrackMultiplicity, weight);
+        else if (trueBJetPt>30.&&trueBJetPt<=40.) m_histogram["h_trueBJetTrackMultiplicity_pt_30_40"]->Fill(trueBJetTrackMultiplicity, weight);
+        else if (trueBJetPt>40.&&trueBJetPt<=70.) m_histogram["h_trueBJetTrackMultiplicity_pt_40_70"]->Fill(trueBJetTrackMultiplicity, weight);
+        else if (trueBJetPt>70.&&trueBJetPt<=100.) m_histogram["h_trueBJetTrackMultiplicity_pt_70_100"]->Fill(trueBJetTrackMultiplicity, weight);
+        else if (trueBJetPt>100.&&trueBJetPt<=150.) m_histogram["h_trueBJetTrackMultiplicity_pt_100_150"]->Fill(trueBJetTrackMultiplicity, weight);
+        else m_histogram["h_trueBJetTrackMultiplicity_pt_150"]->Fill(trueBJetTrackMultiplicity, weight);
+        
        
         // Validation charge histograms
         m_histogram["h_trueBJetScalarChargeValidation"]->Fill(trueBJetScalarCharge, weight);
@@ -1529,6 +1545,42 @@ void AnalyzerJetCharge::bookMvaHistos(const TString& step, std::map<TString, TH1
 
     name = "h_trueBJetTrackMultiplicity";
     m_histogram[name] = store(new TH1D(prefix_+name+step,"Multiplicity of the tracks in the true b jets;multiplicity;Events",30,0,30));
+    
+    name = "h_trueBJetTrackMultiplicity_eta_0_02";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Multiplicity of the tracks in the true b jets for eta [0-0.2];multiplicity;Events",30,0,30));
+    
+    name = "h_trueBJetTrackMultiplicity_eta_02_08";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Multiplicity of the tracks in the true b jets for eta (0.2-0.8];multiplicity;Events",30,0,30));
+    
+    name = "h_trueBJetTrackMultiplicity_eta_08_10";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Multiplicity of the tracks in the true b jets for eta (0.8-1.0];multiplicity;Events",30,0,30));
+    
+    name = "h_trueBJetTrackMultiplicity_eta_10_16";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Multiplicity of the tracks in the true b jets for eta (1.0-1.6];multiplicity;Events",30,0,30));
+    
+    name = "h_trueBJetTrackMultiplicity_eta_16_20";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Multiplicity of the tracks in the true b jets for eta (1.6-2.0];multiplicity;Events",30,0,30));
+    
+    name = "h_trueBJetTrackMultiplicity_eta_20";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Multiplicity of the tracks in the true b jets for eta >2.0;multiplicity;Events",30,0,30));
+    
+    name = "h_trueBJetTrackMultiplicity_pt_20_30";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Multiplicity of the tracks in the true b jets for pt [20 - 30];multiplicity;Events",30,0,30));
+    
+    name = "h_trueBJetTrackMultiplicity_pt_30_40";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Multiplicity of the tracks in the true b jets for pt (30 - 40];multiplicity;Events",30,0,30));
+    
+    name = "h_trueBJetTrackMultiplicity_pt_40_70";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Multiplicity of the tracks in the true b jets for pt (40 - 70];multiplicity;Events",30,0,30));
+    
+    name = "h_trueBJetTrackMultiplicity_pt_70_100";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Multiplicity of the tracks in the true b jets for pt (70 - 100];multiplicity;Events",30,0,30));
+    
+    name = "h_trueBJetTrackMultiplicity_pt_100_150";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Multiplicity of the tracks in the true b jets for pt (100 - 150];multiplicity;Events",30,0,30));
+    
+    name = "h_trueBJetTrackMultiplicity_pt_150";
+    m_histogram[name] = store(new TH1D(prefix_+name+step,"Multiplicity of the tracks in the true b jets for pt>150;multiplicity;Events",30,0,30));
     
     name = "h_trueBJetEtaVsTrackMultiplicity";
     m_histogram[name] = store(new TH2D(prefix_+name+step,"True b jet eta to track multiplicity correlation;track multiplicity;jet eta",30,0,30,40,-3.0,3.0));
