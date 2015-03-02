@@ -1118,7 +1118,7 @@ TLegend* common::createLegend(const double& x1, const double& y1_min, const int 
 {
     // Defining the position of the upper right corner
     const double x2 = 1.0 - gStyle->GetPadRightMargin() - gStyle->GetTickLength();
-    const double y2 = 1.0 - gStyle->GetPadTopMargin()  - 0.9*gStyle->GetTickLength();
+    const double y2 = 1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength();
     
     // Raising the lower boundary if the number of entries is small enough
     double y1(y1_min);
