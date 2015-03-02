@@ -255,19 +255,7 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
 {
     // Prepare canvas and legend
     TCanvas* canvas = new TCanvas("canvas_diffXS","");
-    TLegend* legend = new TLegend(0.70,0.7,0.92,0.85);
-    legend->SetFillStyle(0);
-    legend->SetBorderSize(0);
-    legend->SetX1NDC(1.0 - gStyle->GetPadRightMargin() - gStyle->GetTickLength() - 0.25);
-    legend->SetY1NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength() - 0.05 - legend->GetNRows()*0.04);
-    legend->SetX2NDC(1.0 - gStyle->GetPadRightMargin() - gStyle->GetTickLength());
-    legend->SetY2NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength());
-    legend->Clear();
     canvas->Clear();
-    legend->SetFillStyle(0);
-    legend->SetBorderSize(0);
-    canvas->SetName("");
-    canvas->SetTitle("");
     
     
     // Generic information about the histogram being plotted
@@ -360,7 +348,7 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
         exit(237);
     }
 
-    
+    TLegend* legend = common::createLegend(0.7, 0.6, 1, 2+m_theoryHisto.size(), 0.03);
     char legendEntry[100];
     // Add entries to legend
     legend->AddEntry(m_xs.at("data"), "Data","pe");
@@ -936,12 +924,12 @@ void PlotterDiffXS::drawPurityStability(TH2* histo2d, TString name)const
     
     
     // Adding a legend
-    TLegend *leg;
-    leg = new TLegend ( 0.7,0.84,0.98,0.95,NULL,"brNDC" );
-    leg->SetFillColor ( 0 );
+    TLegend* leg = common::createLegend(0.7, 0.7, 1, 2, 0.05);
     leg->AddEntry(g_purity, "Purity", "p");
     leg->AddEntry(g_stability, "Stability", "p");
     leg->Draw();
+    
+    common::drawCmsLabels(2, 8, samples_.luminosityInInversePb()/1000.);
     
     // Storing the same canvas with a different name
     gPad->Print(name);
