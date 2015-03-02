@@ -426,7 +426,7 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     canvas->RedrawAxis();
     
     // Put additional stuff to histogram
-    this->drawCmsLabels(2, 8);
+    common::drawCmsLabels(2, 8, samples_.luminosityInInversePb()/1000.);
     if(topLeftLabelId_==1) this->drawTopLeftLabel(Channel::label(channel));
     else if(topLeftLabelId_==2) this->drawTopLeftLabel(Systematic::convertType(systematic.type())+=Systematic::convertVariation(systematic.variation()));
     for(TPaveText* label : significanceLabels) if(label) label->Draw("same");
@@ -546,39 +546,16 @@ void Plotter::drawTopLeftLabel(const TString& text, const double& textSize)const
 
     decayChannel->AddText(text);
 
-    decayChannel->SetX1NDC(      gStyle->GetPadLeftMargin() + gStyle->GetTickLength()        );
-    decayChannel->SetY1NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength() - 0.05 );
-    decayChannel->SetX2NDC(      gStyle->GetPadLeftMargin() + gStyle->GetTickLength() + 0.15 );
-    decayChannel->SetY2NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength()        );
+    decayChannel->SetX1NDC(      gStyle->GetPadLeftMargin());
+    decayChannel->SetY1NDC(1.0 - gStyle->GetPadTopMargin() );
+    decayChannel->SetX2NDC(      gStyle->GetPadLeftMargin() + 0.15 );
+    decayChannel->SetY2NDC(1.0 );
 
     decayChannel->SetFillStyle(0);
     decayChannel->SetBorderSize(0);
     if (textSize!=0) decayChannel->SetTextSize(textSize);
     decayChannel->SetTextAlign(12);
     decayChannel->Draw("same");
-}
-
-
-
-void Plotter::drawCmsLabels(const int cmsprelim, const double& energy, const double& textSize)const
-{
-    const char* text;
-    if(cmsprelim == 2) text = "Private Work, %2.1f fb^{-1} at #sqrt{s} = %2.f TeV"; // Private work for PhDs students
-    else if (cmsprelim == 1) text = "CMS Preliminary, %2.1f fb^{-1} at #sqrt{s} = %2.f TeV"; // CMS preliminary label
-    else text = "CMS, %2.1f fb^{-1} at #sqrt{s} = %2.f TeV"; // CMS label
-
-    TPaveText* label = new TPaveText();
-    label->SetX1NDC(gStyle->GetPadLeftMargin());
-    label->SetY1NDC(1.0 - gStyle->GetPadTopMargin());
-    label->SetX2NDC(1.0 - gStyle->GetPadRightMargin());
-    label->SetY2NDC(1.0);
-    label->SetTextFont(42);
-    label->AddText(Form(text, samples_.luminosityInInversePb()/1000., energy));
-    label->SetFillStyle(0);
-    label->SetBorderSize(0);
-    if(textSize != 0) label->SetTextSize(textSize);
-    label->SetTextAlign(32);
-    label->Draw("same");
 }
 
 

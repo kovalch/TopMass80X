@@ -1,4 +1,4 @@
-# Name, Names gen., axis label Y, axis label X, rebin, mode, logx, logy, ymin, ymax, xmin, xmax, nbins, xbins, bcs
+# Name, Names gen., axis label Y, axis label X, rebin, mode, normalize xsection, logy, ymin, ymax, xmin, xmax, nbins, xbins, bcs
 
 # An example of adding more theory curves from the TOP files  |<file name>:<histogram name>
 #dijet_leadingJet_2nd_Pt_addB_vis_mva_step7_cate1 "dijet_leadingJet_2nd_Pt_addB_vis_gen_step0b|ttbbpernazar.top:ptjet2 bottom exp" "#frac{d#sigma}{dp_{T}} [pb]" "2-nd b jet p_{T} [GeV]" 0 0 0 1 1e-6 8e-3 0 0 0 0
@@ -11,16 +11,15 @@
 # Leading jets 2D histograms
 #
 
-dijet_leadingJet_2nd_Pt_addB_vis_mvaVsGen_step7_cate1 - "2-nd b jet p_{T}^{gen} [GeV]" "2-nd b jet p_{T}^{reco} [GeV]" 0 1 0 0 0 140 0 0 0 0
-dijet_leadingJet_2nd_Eta_addB_vis_mvaVsGen_step7_cate1 - "2-nd b jet |#eta|^{gen}" "2-nd b jet |#eta|^{reco}" 0 1 0 0 0 60 0 0 0 0
-dijet_leadingJet_dR_addB_vis_mvaVsGen_step7_cate1 - "dR_{bb}^{gen}" "dR_{bb}^{reco}" 0 1 0 0 0 65 0 0 0 0
-dijet_leadingJet_Mjj_addB_vis_mvaVsGen_step7_cate1 - "M_{bb}^{gen} [GeV]" "M_{bb}^{reco} [GeV]" 0 1 0 0 0 40 0 0 0 0
-
-dijet_leadingJet_2nd_Pt_addB_mvaVsGen_step7_cate1 - "2-nd b jet p_{T}^{gen} [GeV]" "2-nd b jet p_{T}^{reco} [GeV]" 0 1 0 0 0 160 0 0 0 0
-dijet_leadingJet_2nd_Eta_addB_mvaVsGen_step7_cate1 - "2-nd b jet |#eta|^{gen}" "2-nd b jet |#eta|^{reco}" 0 1 0 0 0 80 0 0 0 0
-dijet_leadingJet_dR_addB_mvaVsGen_step7_cate1 - "dR_{bb}^{gen}" "dR_{bb}^{reco}" 0 1 0 0 0 80 0 0 0 0
-dijet_leadingJet_Mjj_addB_mvaVsGen_step7_cate1 - "M_{bb}^{gen} [GeV]" "M_{bb}^{reco} [GeV]" 0 1 0 0 0 45 0 0 0 0
-
+# dijet_leadingJet_2nd_Pt_addB_vis_mvaVsGen_step7_cate1 - "2-nd b jet p_{T}^{gen} [GeV]" "2-nd b jet p_{T}^{reco} [GeV]" 0 1 0 0 0 140 0 0 0 0
+# dijet_leadingJet_2nd_Eta_addB_vis_mvaVsGen_step7_cate1 - "2-nd b jet |#eta|^{gen}" "2-nd b jet |#eta|^{reco}" 0 1 0 0 0 60 0 0 0 0
+# dijet_leadingJet_dR_addB_vis_mvaVsGen_step7_cate1 - "#DeltaR_{bb}^{gen}" "#DeltaR_{bb}^{reco}" 0 1 0 0 0 65 0 0 0 0
+# dijet_leadingJet_Mjj_addB_vis_mvaVsGen_step7_cate1 - "M_{bb}^{gen} [GeV]" "M_{bb}^{reco} [GeV]" 0 1 0 0 0 40 0 0 0 0
+# 
+# dijet_leadingJet_2nd_Pt_addB_mvaVsGen_step7_cate1 - "2-nd b jet p_{T}^{gen} [GeV]" "2-nd b jet p_{T}^{reco} [GeV]" 0 1 0 0 0 160 0 0 0 0
+# dijet_leadingJet_2nd_Eta_addB_mvaVsGen_step7_cate1 - "2-nd b jet |#eta|^{gen}" "2-nd b jet |#eta|^{reco}" 0 1 0 0 0 80 0 0 0 0
+# dijet_leadingJet_dR_addB_mvaVsGen_step7_cate1 - "#DeltaR_{bb}^{gen}" "#DeltaR_{bb}^{reco}" 0 1 0 0 0 80 0 0 0 0
+# dijet_leadingJet_Mjj_addB_mvaVsGen_step7_cate1 - "M_{bb}^{gen} [GeV]" "M_{bb}^{reco} [GeV]" 0 1 0 0 0 45 0 0 0 0
 
 #
 # Leading jets 1D histograms
@@ -28,13 +27,22 @@ dijet_leadingJet_Mjj_addB_mvaVsGen_step7_cate1 - "M_{bb}^{gen} [GeV]" "M_{bb}^{r
 
 dijet_leadingJet_2nd_Pt_addB_mva_step7_cate1 "dijet_leadingJet_2nd_Pt_addB_gen_step0b" "#frac{d#sigma}{dp_{T}} [pb/GeV]" "2-nd b jet p_{T} [GeV]" 0 0 0 1 1e-6 4e-2 0 0 0 0
 dijet_leadingJet_2nd_Eta_addB_mva_step7_cate1 "dijet_leadingJet_2nd_Eta_addB_gen_step0b" "#frac{d#sigma}{d|#eta|} [pb]" "2-nd b jet |#eta|" 0 0 0 0 0 1e-1 0 0 0 0
-dijet_leadingJet_dR_addB_mva_step7_cate1 dijet_leadingJet_dR_addB_gen_step0b "#frac{d#sigma}{d#DeltaR_{bb}} [pb]" "#DeltaR_{bb}" 0 0 0 0 0 6e-2 0 0 0 0
-dijet_leadingJet_Mjj_addB_mva_step7_cate1 dijet_leadingJet_Mjj_addB_gen_step0b "#frac{d#sigma}{dM_{bb}} [pb/GeV]" "M_{bb} [GeV]" 0 0 0 1 1e-2 8 0 0 0 0
+dijet_leadingJet_dR_addB_mva_step7_cate1 "dijet_leadingJet_dR_addB_gen_step0b" "#frac{d#sigma}{d#DeltaR_{bb}} [pb]" "#DeltaR_{bb}" 0 0 0 0 0 6e-2 0 0 0 0
+dijet_leadingJet_Mjj_addB_mva_step7_cate1 "dijet_leadingJet_Mjj_addB_gen_step0b" "#frac{d#sigma}{dM_{bb}} [pb/GeV]" "M_{bb} [GeV]" 0 0 0 1 1e-2 8 0 0 0 0
 
 dijet_leadingJet_2nd_Pt_addB_vis_mva_step7_cate1 "dijet_leadingJet_2nd_Pt_addB_vis_gen_step0b" "#frac{d#sigma}{dp_{T}} [pb/GeV]" "2-nd b jet p_{T} [GeV]" 0 0 0 1 1e-6 8e-3 0 0 0 0
 dijet_leadingJet_2nd_Eta_addB_vis_mva_step7_cate1 "dijet_leadingJet_2nd_Eta_addB_vis_gen_step0b" "#frac{d#sigma}{d|#eta|} [pb]" "2-nd b jet |#eta|" 0 0 0 0 0 0 0 0 0 0
 dijet_leadingJet_dR_addB_vis_mva_step7_cate1 "dijet_leadingJet_dR_addB_vis_gen_step0b" "#frac{d#sigma}{d#DeltaR_{bb}} [pb]" "#DeltaR_{bb}" 0 0 0 0 0 24e-3 0 0 0 0
-dijet_leadingJet_Mjj_addB_vis_mva_step7_cate1 dijet_leadingJet_Mjj_addB_vis_gen_step0b "#frac{d#sigma}{dM_{bb}} [pb/GeV]" "M_{bb} [GeV]" 0 0 0 0 0 4e-2 0 0 0 0
+dijet_leadingJet_Mjj_addB_vis_mva_step7_cate1 "dijet_leadingJet_Mjj_addB_vis_gen_step0b" "#frac{d#sigma}{dM_{bb}} [pb/GeV]" "M_{bb} [GeV]" 0 0 0 0 0 4e-2 0 0 0 0
+
+# Normalised versions
+dijet_leadingJet_2nd_Pt_addB_mva_step7_cate1#1 "dijet_leadingJet_2nd_Pt_addB_gen_step0b" "#frac{1}{#sigma}#frc{1}{#sigma}ac{d#sigma}{dp_{T}} [/GeV]" "2-nd b jet p_{T} [GeV]" 0 0 1 1 1e-4 1 0 0 0 0
+dijet_leadingJet_2nd_Eta_addB_mva_step7_cate1#1 "dijet_leadingJet_2nd_Eta_addB_gen_step0b" "#frac{d#sigma}{d|#eta|}" "2-nd b jet |#eta|" 0 0 1 0 0 1 0 0 0 0
+dijet_leadingJet_dR_addB_mva_step7_cate1#1 "dijet_leadingJet_dR_addB_gen_step0b" "#frac{1}{#sigma}#frac{d#sigma}{d#DeltaR_{bb}}" "#DeltaR_{bb}" 0 0 1 0 0 7e-1 0 0 0 0
+
+dijet_leadingJet_2nd_Pt_addB_vis_mva_step7_cate1#1 "dijet_leadingJet_2nd_Pt_addB_vis_gen_step0b" "#frac{1}{#sigma}#frac{d#sigma}{dp_{T}} [/GeV]" "2-nd b jet p_{T} [GeV]" 0 0 1 1 1e-4 4e-1 0 0 0 0
+dijet_leadingJet_2nd_Eta_addB_vis_mva_step7_cate1#1 "dijet_leadingJet_2nd_Eta_addB_vis_gen_step0b" "#frac{1}{#sigma}#frac{d#sigma}{d|#eta|}" "2-nd b jet |#eta|" 0 0 1 0 0 1 0 0 0 0
+dijet_leadingJet_dR_addB_vis_mva_step7_cate1#1 "dijet_leadingJet_dR_addB_vis_gen_step0b" "#frac{1}{#sigma}#frac{d#sigma}{d#DeltaR_{bb}}" "#DeltaR_{bb}" 0 0 1 0 0 7e-1 0 0 0 0
 
 
 ######################################
@@ -45,19 +53,26 @@ dijet_leadingJet_Mjj_addB_vis_mva_step7_cate1 dijet_leadingJet_Mjj_addB_vis_gen_
 # Leading jets 2D histograms
 #
 
-dijet_leadingJet_1st_Pt_addB_vis_mvaVsGen_step7_cate0_cate1 - "1-st b jet p_{T}^{gen} [GeV]" "1-st b jet p_{T}^{reco} [GeV]" 1 1 0 0 0 700 0 0 0 0
-dijet_leadingJet_1st_Eta_addB_vis_mvaVsGen_step7_cate0_cate1 - "1-st b jet |#eta|^{gen}" "1-st b jet |#eta|^{reco}" 1 1 0 0 0 900 0 0 0 0
-
-dijet_leadingJet_1st_Pt_addB_mvaVsGen_step7_cate0_cate1 - "1-st b jet p_{T}^{gen} [GeV]" "1-st b jet p_{T}^{reco} [GeV]" 1 1 0 0 0 900 0 0 0 0
-dijet_leadingJet_1st_Eta_addB_mvaVsGen_step7_cate0_cate1 - "1-st b jet |#eta|^{gen}" "1-st b jet |#eta|^{reco}" 1 1 0 0 0 1000 0 0 0 0
+# dijet_leadingJet_1st_Pt_addB_vis_mvaVsGen_step7_cate0_cate1 - "1-st b jet p_{T}^{gen} [GeV]" "1-st b jet p_{T}^{reco} [GeV]" 1 1 0 0 0 700 0 0 0 0
+# dijet_leadingJet_1st_Eta_addB_vis_mvaVsGen_step7_cate0_cate1 - "1-st b jet |#eta|^{gen}" "1-st b jet |#eta|^{reco}" 1 1 0 0 0 900 0 0 0 0
+# 
+# dijet_leadingJet_1st_Pt_addB_mvaVsGen_step7_cate0_cate1 - "1-st b jet p_{T}^{gen} [GeV]" "1-st b jet p_{T}^{reco} [GeV]" 1 1 0 0 0 900 0 0 0 0
+# dijet_leadingJet_1st_Eta_addB_mvaVsGen_step7_cate0_cate1 - "1-st b jet |#eta|^{gen}" "1-st b jet |#eta|^{reco}" 1 1 0 0 0 1000 0 0 0 0
 
 
 #
 # Leading jets 1D histograms
 #
 
-dijet_leadingJet_1st_Pt_addB_vis_mva_step7_cate0_cate1 dijet_leadingJet_1st_Pt_addB_vis_gen_step0b "#frac{d#sigma}{dp_{T}} [pb/GeV]" "1-st b jet p_{T} [GeV]" 1 0 0 1 1e-5 3e-2 0 0 0 0
-dijet_leadingJet_1st_Eta_addB_vis_mva_step7_cate0_cate1 dijet_leadingJet_1st_Eta_addB_vis_gen_step0b "#frac{d#sigma}{d|#eta|} [pb]" "1-st b jet |#eta|" 1 0 0 0 0 0 0 0 0 0
+dijet_leadingJet_1st_Pt_addB_vis_mva_step7_cate0_cate1 "dijet_leadingJet_1st_Pt_addB_vis_gen_step0b" "#frac{d#sigma}{dp_{T}} [pb/GeV]" "1-st b jet p_{T} [GeV]" 1 0 0 1 1e-5 3e-2 0 0 0 0
+dijet_leadingJet_1st_Eta_addB_vis_mva_step7_cate0_cate1 "dijet_leadingJet_1st_Eta_addB_vis_gen_step0b" "#frac{d#sigma}{d|#eta|} [pb]" "1-st b jet |#eta|" 1 0 0 0 0 0 0 0 0 0
 
-dijet_leadingJet_1st_Pt_addB_mva_step7_cate0_cate1 dijet_leadingJet_1st_Pt_addB_gen_step0b "#frac{d#sigma}{dp_{T}} [pb/GeV]" "1-st b jet p_{T} [GeV]" 1 0 0 1 1e-5 7e-2 0 0 0 0
-dijet_leadingJet_1st_Eta_addB_mva_step7_cate0_cate1 dijet_leadingJet_1st_Eta_addB_gen_step0b "#frac{d#sigma}{d|#eta|} [pb]" "1-st b jet |#eta|" 1 0 0 0 0 4e-1 0 0 0 0
+dijet_leadingJet_1st_Pt_addB_mva_step7_cate0_cate1 "dijet_leadingJet_1st_Pt_addB_gen_step0b" "#frac{d#sigma}{dp_{T}} [pb/GeV]" "1-st b jet p_{T} [GeV]" 1 0 0 1 1e-5 7e-2 0 0 0 0
+dijet_leadingJet_1st_Eta_addB_mva_step7_cate0_cate1 "dijet_leadingJet_1st_Eta_addB_gen_step0b" "#frac{d#sigma}{d|#eta|} [pb]" "1-st b jet |#eta|" 1 0 0 0 0 4e-1 0 0 0 0
+
+# Normalised versions
+dijet_leadingJet_1st_Pt_addB_vis_mva_step7_cate0_cate1#1 "dijet_leadingJet_1st_Pt_addB_vis_gen_step0b" "#frac{1}{#sigma}#frac{d#sigma}{dp_{T}} [/GeV]" "1-st b jet p_{T} [GeV]" 1 0 1 1 2e-5 2e-1 0 0 0 0
+dijet_leadingJet_1st_Eta_addB_vis_mva_step7_cate0_cate1#1 "dijet_leadingJet_1st_Eta_addB_vis_gen_step0b" "#frac{1}{#sigma}#frac{d#sigma}{d|#eta|}" "1-st b jet |#eta|" 1 0 1 0 0 1 0 0 0 0
+
+dijet_leadingJet_1st_Pt_addB_mva_step7_cate0_cate1#1 "dijet_leadingJet_1st_Pt_addB_gen_step0b" "#frac{1}{#sigma}#frac{d#sigma}{dp_{T}} [/GeV]" "1-st b jet p_{T} [GeV]" 1 0 1 1 2e-5 2e-1 0 0 0 0
+dijet_leadingJet_1st_Eta_addB_mva_step7_cate0_cate1#1 "dijet_leadingJet_1st_Eta_addB_gen_step0b" "#frac{1}{#sigma}#frac{d#sigma}{d|#eta|}" "1-st b jet |#eta|" 1 0 1 0 0 1 0 0 0 0

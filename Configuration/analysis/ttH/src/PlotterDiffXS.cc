@@ -79,11 +79,12 @@ void PlotterDiffXS::setOptions(const TString& name, const TString& namesGen,
                          const double& rangemin, const double& rangemax)
 {
     name_ = name; //Variable name for the reconstructed level
+    if(name_.Contains("#")) name_.Remove(name_.Last('#')); //Remove possible #TEXT in the end (to allow multiple entries of the same histogram)
     YAxis_ = YAxis; //Y-axis title
     XAxis_ = XAxis; //X-axis title
     signalType_ = signalType; //Type of the signal (0-ttbb, 1-ttbb+ttb+tt2b)
     plotResponse_ = plotResponse; //Whether the response matrix should be plotted instead of the cross section
-    normalizeXS_ = normalizeXS; // Whether normalized cross sections should plotted (for shape comparison)
+    normalizeXS_ = normalizeXS; // Whether normalized cross sections should be plotted (for shape comparison)
 //     logX_ = logX; //Draw X-axis in Log scale
     logY_ = logY; //Draw Y-axis in Log scale
     ymin_ = ymin; //Min. value in Y-axis
@@ -403,8 +404,7 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
     updateHistoAxis(axisHisto);
     
     // Put additional stuff to histogram
-    this->drawCmsLabels(2, 8);
-    this->drawDecayChannelLabel(channel);
+    common::drawCmsLabels(2, 8, samples_.luminosityInInversePb()/1000.);
     legend->Draw("same");
     common::drawRatioPad(canvas, 0.0, 3.0, "#frac{MC}{Data}");
     
@@ -433,7 +433,9 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
     }
 
     // Create Directory for Output Plots and write them
-    const TString eventFileString = common::assignFolder(outputDir_, channel, systematic)+name_+"_diffXS";
+    TString xsAddName = "_diffXS";
+    if(normalizeXS_) xsAddName.Append("_norm");
+    TString eventFileString = common::assignFolder(outputDir_, channel, systematic)+name_+xsAddName;
     canvas->Print(eventFileString+".eps");
     
     //Save input and cross section histograms to the root file
@@ -441,17 +443,17 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
     // Storing input histograms
     for(auto nameHisto : m_inputHistos) {
         if(!nameHisto.second) continue;
-        nameHisto.second->Write(name_+"_diffXS_"+"input_"+nameHisto.first);
+        nameHisto.second->Write(name_+xsAddName+"_input_"+nameHisto.first);
     }
     // Storing measured XS histograms
     for(auto nameHisto : m_xs) {
         if(!nameHisto.second) continue;
-        nameHisto.second->Write(name_+"_diffXS_"+"xs_"+nameHisto.first);
+        nameHisto.second->Write(name_+xsAddName+"_xs_"+nameHisto.first);
     }
     // Storing XS histograms from theory predictions
     for(auto nameHisto : m_theoryHisto) {
         if(!nameHisto.second) continue;
-        nameHisto.second->Write(name_+"_diffXS_"+"xsTheory_"+nameHisto.first);
+        nameHisto.second->Write(name_+xsAddName+"_xsTheory_"+nameHisto.first);
     }
     
     out_root.Close();
@@ -624,12 +626,15 @@ std::map<TString, TH1*> PlotterDiffXS::calculateDiffXS(const std::map<TString, T
     printf("----------------------------------\n");
     printf("data/madgraph: %.3f\n\n", h_diffXS_data->Integral()/h_diffXS_madgraph->Integral());
     
-    // Performing normalisation to bin width/unity
-    common::normalizeToBinWidth(h_diffXS_data);
-    if(normalizeXS_) common::normalize(h_diffXS_data);
+    // Normalising to unity
+    if(normalizeXS_) {
+        common::normalize(h_diffXS_data);
+        common::normalize(h_diffXS_madgraph);
+    }
     
+    // Normalising to bin width
+    common::normalizeToBinWidth(h_diffXS_data);
     common::normalizeToBinWidth(h_diffXS_madgraph);
-    if(normalizeXS_) common::normalize(h_diffXS_madgraph);
     
     
     // Setting the normalisation scale to the underflow bin
@@ -784,8 +789,7 @@ void PlotterDiffXS::writeResponseMatrix(const Channel::Channel& channel, const S
     gPad->SetRightMargin(0.15);
     
     // Put additional stuff to histogram
-    this->drawCmsLabels(2, 8);
-    this->drawDecayChannelLabel(channel);
+    common::drawCmsLabels(2, 8, samples_.luminosityInInversePb()/1000.);
 
     // Create Directory for Output Plots and write them
     const TString eventFileString = common::assignFolder(outputDir_, channel, systematic);
@@ -961,46 +965,5 @@ void PlotterDiffXS::updateHistoAxis(TH1* histo)const
     // Set axis titles
     if(XAxis_ != "-") histo->GetYaxis()->SetTitle(YAxis_);
     if(YAxis_ != "-") histo->GetXaxis()->SetTitle(XAxis_);
-}
-
-
-void PlotterDiffXS::drawDecayChannelLabel(const Channel::Channel& channel, const double& textSize)const
-{
-    TPaveText* decayChannel = new TPaveText();
-
-    decayChannel->AddText(Channel::label(channel));
-
-    decayChannel->SetX1NDC(      gStyle->GetPadLeftMargin() + gStyle->GetTickLength()        );
-    decayChannel->SetY1NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength() - 0.05 );
-    decayChannel->SetX2NDC(      gStyle->GetPadLeftMargin() + gStyle->GetTickLength() + 0.15 );
-    decayChannel->SetY2NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength()        );
-
-    decayChannel->SetFillStyle(0);
-    decayChannel->SetBorderSize(0);
-    if (textSize!=0) decayChannel->SetTextSize(textSize);
-    decayChannel->SetTextAlign(12);
-    decayChannel->Draw("same");
-}
-
-
-void PlotterDiffXS::drawCmsLabels(const int cmsprelim, const double& energy, const double& textSize)const
-{
-    const char* text;
-    if(cmsprelim == 2) text = "Private Work, %2.1f fb^{-1} at #sqrt{s} = %2.f TeV"; // Private work for PhDs students
-    else if (cmsprelim == 1) text = "CMS Preliminary, %2.1f fb^{-1} at #sqrt{s} = %2.f TeV"; // CMS preliminary label
-    else text = "CMS, %2.1f fb^{-1} at #sqrt{s} = %2.f TeV"; // CMS label
-
-    TPaveText* label = new TPaveText();
-    label->SetX1NDC(gStyle->GetPadLeftMargin());
-    label->SetY1NDC(1.0 - gStyle->GetPadTopMargin());
-    label->SetX2NDC(1.0 - gStyle->GetPadRightMargin());
-    label->SetY2NDC(1.0);
-    label->SetTextFont(42);
-    label->AddText(Form(text, samples_.luminosityInInversePb()/1000., energy));
-    label->SetFillStyle(0);
-    label->SetBorderSize(0);
-    if(textSize != 0) label->SetTextSize(textSize);
-    label->SetTextAlign(32);
-    label->Draw("same");
 }
 

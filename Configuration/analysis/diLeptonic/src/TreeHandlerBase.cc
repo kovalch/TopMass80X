@@ -28,7 +28,9 @@
 
 TreeHandlerBase::TreeHandlerBase(const TString& prefix,
                                        const char* inputDir,
-                                       const std::vector<TString>& selectionStepsNoCategories):
+                                       const std::vector<TString>& selectionStepsNoCategories,
+                                       VariablesBase* const variables):
+variables_(variables),
 prefix_(prefix),
 selectorList_(0),
 selectionSteps_(selectionStepsNoCategories),
@@ -58,6 +60,8 @@ void TreeHandlerBase::addStep(const TString& step)
 
     // Book the step
     m_stepVariables_[step] = std::vector<VariablesBase*>();
+    m_stepTree_[step] = new TTree(prefix_+"treeVariables"+step, prefix_+"treeVariables");
+    this->bookBranches(m_stepTree_[step],variables_);
 }
 
 
@@ -83,7 +87,7 @@ void TreeHandlerBase::fill(const EventMetadata& eventMetadata,
     if(!stepExists) return;
     
     // Fill the variables of the specific treeHandler
-    std::vector<VariablesBase*>& variables = m_stepVariables_.at(step);
+    std::vector<VariablesBase*> variables;
     this->fillVariables(eventMetadata,
                         recoObjects, commonGenObjects,
                         topGenObjects, kinematicReconstructionSolutions,
@@ -91,6 +95,9 @@ void TreeHandlerBase::fill(const EventMetadata& eventMetadata,
                         genLevelWeights, recoLevelWeights,
                         weight, step,
                         variables);
+    this->fillBranches(m_stepTree_.at(step),variables);
+    VariablesBase::clearVariables(variables);
+    variables.clear();
 }
 
 
@@ -127,18 +134,9 @@ void TreeHandlerBase::writeTrees(TSelectorList* output)
     // Set pointer to output, so that TTrees are owned by it
     selectorList_ = output;
     
-    std::map<TString, TTree*> m_stepTree;
-    for(const auto& stepVariables : m_stepVariables_){
-        const TString& step = stepVariables.first;
-        const std::vector<VariablesBase*>& v_variables = stepVariables.second;
-        TTree* tree = m_stepTree[step];
-        tree = this->store(new TTree(prefix_+"treeVariables"+step, prefix_+"treeVariables"));
-        this->createAndFillBranches(tree, v_variables);
-    }
-    
     std::cout<<"tree variables multiplicity per step (step, no. of entries):\n";
-    for(auto vars : m_stepVariables_){
-        std::cout<<"\t"<<vars.first<<" , "<<vars.second.size()<<"\n";
+    for(auto stepTree : m_stepTree_){
+        std::cout<<"\t"<<stepTree.first<<" , "<< (this->store(stepTree.second))->GetEntries() <<"\n";
     }
     
     std::cout<<"=== Finishing production of input trees\n\n";
@@ -146,11 +144,22 @@ void TreeHandlerBase::writeTrees(TSelectorList* output)
 
 
 
-void TreeHandlerBase::createAndFillBranches(TTree*, const std::vector<VariablesBase*>&)const
+void TreeHandlerBase::bookBranches(TTree*, VariablesBase* const )const
 {
     // WARNING: this is empty template method, overwrite for inherited class
     
-    std::cerr<<"ERROR! Dummy method createAndFillBranches() in TreeHandlerBase is called, but overridden one should be used\n"
+    std::cerr<<"ERROR! Dummy method bookBranches() in TreeHandlerBase is called, but overridden one should be used\n"
+             <<"...break\n"<<std::endl;
+    exit(568);
+}
+
+
+
+void TreeHandlerBase::fillBranches(TTree*, const std::vector<VariablesBase*>&)
+{
+    // WARNING: this is empty template method, overwrite for inherited class
+    
+    std::cerr<<"ERROR! Dummy method fillBranches() in TreeHandlerBase is called, but overridden one should be used\n"
              <<"...break\n"<<std::endl;
     exit(568);
 }
@@ -256,6 +265,11 @@ void TreeHandlerBase::clear()
         VariablesBase::clearVariables(stepVariables.second);
     }
     m_stepVariables_.clear();
+    
+    for(auto& stepTree : m_stepTree_){
+        if(0/*somesing exists in stepTree.second*/)stepTree.second->Delete();//FIXME
+    }
+    m_stepTree_.clear();
 }
 
 

@@ -56,7 +56,6 @@ for systematic in "${systematics[@]}"; do
     for channel in ee emu mumu; do
         #echo "$BIN/categoryMerger -c $channel -s $systematic ${@:1}"
         $BIN/categoryMerger -c $channel -s $systematic ${@:1} &
-        echo
         # FIXME: wait function needed?
     done
 done

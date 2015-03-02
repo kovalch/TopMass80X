@@ -96,12 +96,6 @@ private:
     /// Update histogram axis
     void updateHistoAxis(TPad* pad)const;
     
-    /// Draw label for decay channel in upper left corner of plot
-    void drawDecayChannelLabel(const Channel::Channel& channel, const double& textSize =0.04)const;
-
-    /// Draw official labels (CMS [Preliminary], luminosity and CM energy) above plot
-    void drawCmsLabels(const int cmsprelim =1, const double& energy =8, const double& textSize =0.04)const;
-    
     /// Calculates uncertainty of particular type for a single bin
     UpDown binUncertaintyOfType(const ErrorMap& m_errors, const ErrorType type = ErrorType::total)const;
     
