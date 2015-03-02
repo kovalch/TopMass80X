@@ -218,7 +218,7 @@ void PlotterDiffXSSystematic::plotXSection(const Channel::Channel& channel)
     // Prepare canvas and legend
     TCanvas* canvas = new TCanvas("","");
     canvas->Clear();
-    TLegend* legend = common::createLegend(0.65, 0.7, 1, 2, 0.05);
+    TLegend* legend = common::createLegend(0.6, 0.6, 1, 2, 0.05);
     
     // Drawing axis and xsections
     h_madgraph->Draw("hist");

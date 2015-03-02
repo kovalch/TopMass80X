@@ -392,7 +392,7 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
     updateHistoAxis(axisHisto);
     
     // Put additional stuff to histogram
-    common::drawCmsLabels(2, 8, samples_.luminosityInInversePb()/1000.);
+    common::drawCmsLabels(0, 8, samples_.luminosityInInversePb()/1000.);
     legend->Draw("same");
     common::drawRatioPad(canvas, 0.0, 3.0, "#frac{MC}{Data}");
     
@@ -777,7 +777,7 @@ void PlotterDiffXS::writeResponseMatrix(const Channel::Channel& channel, const S
     gPad->SetRightMargin(0.15);
     
     // Put additional stuff to histogram
-    common::drawCmsLabels(2, 8, samples_.luminosityInInversePb()/1000.);
+    common::drawCmsLabels(0, 8, samples_.luminosityInInversePb()/1000.);
 
     // Create Directory for Output Plots and write them
     const TString eventFileString = common::assignFolder(outputDir_, channel, systematic);
@@ -924,12 +924,12 @@ void PlotterDiffXS::drawPurityStability(TH2* histo2d, TString name)const
     
     
     // Adding a legend
-    TLegend* leg = common::createLegend(0.7, 0.7, 1, 2, 0.05);
+    TLegend* leg = common::createLegend(0.6, 0.6, 1, 2, 0.05);
     leg->AddEntry(g_purity, "Purity", "p");
     leg->AddEntry(g_stability, "Stability", "p");
     leg->Draw();
     
-    common::drawCmsLabels(2, 8, samples_.luminosityInInversePb()/1000.);
+    common::drawCmsLabels(0, 8, samples_.luminosityInInversePb()/1000.);
     
     // Storing the same canvas with a different name
     gPad->Print(name);
