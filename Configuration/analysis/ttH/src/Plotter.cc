@@ -179,19 +179,7 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
 {
     // Prepare canvas and legend
     TCanvas* canvas = new TCanvas("","");
-    TLegend* legend = new TLegend(0.70,0.55,0.92,0.85);
-    legend->SetFillStyle(0);
-    legend->SetBorderSize(0);
-    legend->SetX1NDC(1.0 - gStyle->GetPadRightMargin() - gStyle->GetTickLength() - 0.25);
-    legend->SetY1NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength() - 0.05 - legend->GetNRows()*0.04);
-    legend->SetX2NDC(1.0 - gStyle->GetPadRightMargin() - gStyle->GetTickLength());
-    legend->SetY2NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength());
-    legend->Clear();
     canvas->Clear();
-    legend->SetFillStyle(0);
-    legend->SetBorderSize(0);
-    canvas->SetName("");
-    canvas->SetTitle("");
     
     
     // Here fill colors and line width are adjusted, and potentially rebinning applied
@@ -322,6 +310,9 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
         higgsHists.clear();
     }
     
+    // Creating a legend
+    const int nLegendRows = stackHists.size() + higgsHists.size();
+    TLegend* legend = common::createLegend(0.62, 0.55, 2, nLegendRows);
     
     // Create the stack and add entries to legend
     THStack* stack(0);
@@ -345,7 +336,7 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     TH1* stacksum_statBand(0);
     if(stacksum){
         stacksum_statBand = (TH1*)stacksum->Clone();
-        common::setHistoStyle(stacksum_statBand, -1,-1,-1, -1,-1,-1, 3013, 1);
+        common::setHistoStyle(stacksum_statBand, -1,-1,-1, -1,-1,-1, 3354, 1);
     }
     
     
@@ -362,34 +353,6 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
         std::cerr<<"ERROR in Plotter::write()! No single sample for drawing exists\n...break\n"<<std::endl;
         exit(237);
     }
-    
-    if(logY_){
-      // Set minimum to >0 value
-      // FIXME: Should we automatically calculate minimum value instead of the fixed value?
-      firstHistToDraw->SetMinimum(1e-1);
-      if(ymin_ > 0) firstHistToDraw->SetMinimum(ymin_);
-      canvas->SetLogy();
-    }
-    else firstHistToDraw->SetMinimum(ymin_);
-
-    if(ymax_ == 0.){
-        // Determine the highest Y value that is plotted
-        float yMax = dataHist.second ? dataHist.second->GetBinContent(dataHist.second->GetMaximumBin()) : 0.f;
-        if(stacksum){
-            const float maxTmp = stacksum->GetBinContent(stacksum->GetMaximumBin());
-            if(maxTmp > yMax) yMax = maxTmp;
-        }
-        for(const auto& legendHistPair : higgsHists){
-            const TH1* hist = legendHistPair.second;
-            const float maxTmp = hist->GetBinContent(hist->GetMaximumBin());
-            if(maxTmp > yMax) yMax = maxTmp;
-        }
-        
-        // Scale Y axis
-        if(logY_) firstHistToDraw->SetMaximum(18.*yMax);
-        else firstHistToDraw->SetMaximum(1.35*yMax);
-    }
-    else firstHistToDraw->SetMaximum(ymax_);
 
     firstHistToDraw->GetXaxis()->SetNoExponent(kTRUE);
 
@@ -427,8 +390,8 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     
     // Put additional stuff to histogram
     common::drawCmsLabels(2, 8, samples_.luminosityInInversePb()/1000.);
-    if(topLeftLabelId_==1) this->drawTopLeftLabel(Channel::label(channel));
-    else if(topLeftLabelId_==2) this->drawTopLeftLabel(Systematic::convertType(systematic.type())+=Systematic::convertVariation(systematic.variation()));
+//     if(topLeftLabelId_==1) this->drawTopLeftLabel(Channel::label(channel));
+//     else if(topLeftLabelId_==2) this->drawTopLeftLabel(Systematic::convertType(systematic.type())+=Systematic::convertVariation(systematic.variation()));
     for(TPaveText* label : significanceLabels) if(label) label->Draw("same");
     legend->Draw("SAME");
     if(dataHist.second && stacksum){
@@ -439,7 +402,7 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
         ratio_histo->Draw("same E");
         
         TH1* ratio_statBand = common::ratioHistogram(stacksum, stacksum, 1);
-        common::setHistoStyle(ratio_statBand, -1,-1,-1, -1,-1,-1, 3013,1);
+        common::setHistoStyle(ratio_statBand, -1,-1,-1, -1,-1,-1, 3354,1);
         ratio_statBand->Draw("same E2");
     }
 

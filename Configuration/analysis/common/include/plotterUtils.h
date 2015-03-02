@@ -11,6 +11,7 @@ class TStyle;
 class TGraphAsymmErrors;
 class TGraph;
 class TAxis;
+class TLegend;
 
 
 
@@ -96,6 +97,9 @@ namespace common{
     
     /// Draw typical CMS labels: -1/0/1/2 none/CMS/preliminary/private, energy, luminosity
     void drawCmsLabels(const int cmsprelim, const double& energy, const double& luminosityInInverseFb, const double& textSize =0.045);
+    
+    /// Draw a legend with predefined parameters
+    TLegend* createLegend(const double& x1, const double& y1, const int nColumns = 1, const int nRows = 0, const double& rowHeight = 0.025);
 
     
 }

@@ -217,19 +217,8 @@ void PlotterDiffXSSystematic::plotXSection(const Channel::Channel& channel)
     
     // Prepare canvas and legend
     TCanvas* canvas = new TCanvas("","");
-    TLegend* legend = new TLegend(0.67,0.7,0.92,0.85);
-    legend->SetFillStyle(0);
-    legend->SetBorderSize(0);
-    legend->SetX1NDC(1.0 - gStyle->GetPadRightMargin() - gStyle->GetTickLength() - 0.25);
-    legend->SetY1NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength() - 0.05 - legend->GetNRows()*0.05);
-    legend->SetX2NDC(1.0 - gStyle->GetPadRightMargin() - gStyle->GetTickLength());
-    legend->SetY2NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength());
-    legend->Clear();
     canvas->Clear();
-    legend->SetFillStyle(0);
-    legend->SetBorderSize(0);
-    canvas->SetName("");
-    canvas->SetTitle("");
+    TLegend* legend = common::createLegend(0.65, 0.7, 1, 2, 0.05);
     
     // Drawing axis and xsections
     h_madgraph->Draw("hist");
@@ -243,7 +232,7 @@ void PlotterDiffXSSystematic::plotXSection(const Channel::Channel& channel)
     
     updateHistoAxis(canvas);
     
-    common::drawCmsLabels(2, 8, 19.7);
+    common::drawCmsLabels(0, 8, 19.7);
     
     // Drawing ratios
     common::drawRatioPad(canvas, 0., double(nRatio_max_), "#frac{MC}{Data}");

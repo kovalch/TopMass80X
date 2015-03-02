@@ -386,10 +386,10 @@ void AnalyzerHfFracScaling::bookHistos(const TString& step, std::map<TString, TH
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Sum of SV masses in each b-tagged jet; SV masses sum; # b-tagged jets",20,0.,10.));
     m_histogram[name]->Sumw2();
     name = "probeJet_btagDiscriminator_3or4btags";
-    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "b-tag discriminant of the probe jet; d (3-rd jet); events",60,-0.1,1.1));
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "b-tag discriminant of the probe jet; d (4-th jet); events",60,-0.1,1.1));
     m_histogram[name]->Sumw2();
     name = "probeJet_btagDiscriminator_2or3btags";
-    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "b-tag discriminant of the probe jet; d (4-th jet); events",60,-0.1,1.1));
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "b-tag discriminant of the probe jet; d (3-rd jet); events",60,-0.1,1.1));
     m_histogram[name]->Sumw2();
 }
 

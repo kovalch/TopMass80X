@@ -250,20 +250,9 @@ void PlotterSystematic::writeNominalShapes(const std::map<TString, TH1*>& proces
     
     // Prepare canvas and legend
     TCanvas* canvas = new TCanvas("","");
-    TLegend* legend = new TLegend(0.67,0.55,0.92,0.85);
-    legend->SetFillStyle(0);
-    legend->SetBorderSize(0);
-    legend->SetX1NDC(1.0 - gStyle->GetPadRightMargin() - gStyle->GetTickLength() - 0.25);
-    legend->SetY1NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength() - 0.05 - legend->GetNRows()*0.05);
-    legend->SetX2NDC(1.0 - gStyle->GetPadRightMargin() - gStyle->GetTickLength());
-    legend->SetY2NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength());
-    legend->Clear();
     canvas->Clear();
-    legend->SetFillStyle(0);
-    legend->SetBorderSize(0);
-    canvas->SetName("");
-    canvas->SetTitle("");
     if(logY) canvas->SetLogy();
+    TLegend* legend = common::createLegend(0.67, 0.55, 1, processNames_.size());
     
     char tempChar[100];
     int histoId = 0;
