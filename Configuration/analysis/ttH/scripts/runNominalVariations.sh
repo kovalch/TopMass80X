@@ -64,7 +64,7 @@ for systematic in "${systematics[@]}" ; do
 
 
     for channel in ee emu mumu; do
-        for pattern in qcd single ttbarbg.root wtol wwtoall wztoall zztoall ttbarW ttbarZ; do
+        for pattern in qcd single ttbarbg.root wtol wwtoall wztoall zztoall ttbarW ttbarZ ttgamma www wwz zzz; do
             w
             $LA -f $pattern -c $channel -s $systematic $@ &
         done
