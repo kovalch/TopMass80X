@@ -16,6 +16,7 @@
 #include <TLegend.h>
 #include <TPaveText.h>
 #include <TAxis.h>
+#include <TGaxis.h>
 #include <TMath.h>
 
 #include "plotterUtils.h"
@@ -597,6 +598,8 @@ void common::setHHStyle(TStyle& HHStyle, const bool hideErrorX)
     HHStyle.SetNdivisions(510, "XYZ");
     HHStyle.SetPadTickX(1);  // To get tick marks on the opposite side of the frame
     HHStyle.SetPadTickY(1);
+    // Limit the maximum number of digits on Axis
+    TGaxis::SetMaxDigits(4);
             
     // Change for log plots:
     HHStyle.SetOptLogx(0);
