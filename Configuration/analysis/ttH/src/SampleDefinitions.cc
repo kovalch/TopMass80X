@@ -167,6 +167,30 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         {"zztoall.root"}
     );
     
+    result["www"] = Sample(
+        "Triboson",
+        kYellow-7,
+        8.058E-2,
+        0.047, 0.039,
+        {"www.root"}
+    );
+
+    result["wwz"] = Sample(
+        "Triboson",
+        kYellow-7,
+        5.795E-2,
+        0.056, 0.046,
+        {"wwz.root"}
+    );
+    
+    result["zzz"] = Sample(
+        "Triboson",
+        kYellow-7,
+        5.527E-3,
+        0.027, 0.024,
+        {"zzz.root"}
+    );
+    
     result["dyee1050"] = Sample(
         "Z / #gamma* #rightarrow ee/#mu#mu",
         kPink+8,
@@ -345,9 +369,19 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         Sample::ttZ
     );
     
+    // Taken from ../../diLeptonic/src/UsefulTools.cc::SampleXSection()
+    // FIXME: Update the uncertainty: 25% from the 7 TeV ATLAS measurement: http://dx.doi.org/10.3204/DESY-PROC-2014-02/24
+    result["ttbargjets"] = Sample(
+        "t#bar{t}#gamma",
+        kTeal+3,
+        1.8,
+        0.25, -1.,
+        {"ttgjets.root"}
+    );
+    
     result["ttbarH125inclusiveOther"] = Sample(
         "t#bar{t}H Other",
-        kPink-1,
+        kPink-6,
         // ttH XS at https://twiki.cern.ch/twiki/bin/view/LHCPhysics/CERNYellowReportPageAt8TeV#ttH_Process
         0.1293,
         0.09, 0.12, 
@@ -599,12 +633,16 @@ std::vector<TString> SampleDefinitions::selectAndOrderSamples8TeV()
         "ww",
         "wz",
         "zz",
+        "www",
+        "wwz",
+        "zzz",
         "ttbarbkg",
         "ttbarsignalPlusOther",
         "ttbarsignalPlusCcbar",
         "ttbarsignalPlus2B",
         "ttbarsignalPlusB",
         "ttbarsignalPlusBbbar",
+        "ttbargjets",
         "ttbarW",
         "ttbarZ",
         "ttbarH125inclusiveOther",
@@ -672,7 +710,11 @@ std::map<TString, SampleDefinitions::ColorLegends> SampleDefinitions::mergedLege
     if(mergeLevel >= 1) {
         // Merging Electroweak processes
         m_legends["Electroweak"] = ColorLegends(kPink+6, std::set<TString>({
-            "Diboson", "Z / #gamma* #rightarrow ee/#mu#mu", "Z / #gamma* #rightarrow #tau#tau", "W+Jets"
+            "Diboson", "Triboson", "Z / #gamma* #rightarrow ee/#mu#mu", "Z / #gamma* #rightarrow #tau#tau", "W+Jets"
+        }));
+        // Merging ttW and ttgamma
+        m_legends["t#bar{t}W/#gamma"] = ColorLegends(kTeal+4, std::set<TString>({
+            "t#bar{t}W", "t#bar{t}#gamma"
         }));
     }
     if(mergeLevel == 1) return m_legends;
@@ -684,6 +726,11 @@ std::map<TString, SampleDefinitions::ColorLegends> SampleDefinitions::mergedLege
         m_legends_2["Minor bkg."] = ColorLegends(kOrange-4, m_legends.at("Electroweak").second);
         m_legends_2.at("Minor bkg.").second.insert({
             "QCD Multijet"
+        });
+        // Merging ttW, ttZ and ttgamma
+        m_legends["t#bar{t}Z/W/#gamma"] = ColorLegends(kTeal+2, m_legends["t#bar{t}W/#gamma"].second);
+        m_legends.at("t#bar{t}Z/W/#gamma").second.insert({
+            "t#bar{t}Z"
         });
     }
     if(mergeLevel == 2) return m_legends_2;
