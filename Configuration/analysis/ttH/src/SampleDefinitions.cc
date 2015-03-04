@@ -137,7 +137,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     
     result["singletop"] = Sample(
         "Single Top",
-        kViolet-3,
+        kAzure-9,
         11.1,
         0.76/11.1, -1.,
         {"singletop_tw.root", "singleantitop_tw.root"}
@@ -169,7 +169,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     
     result["dyee1050"] = Sample(
         "Z / #gamma* #rightarrow ee/#mu#mu",
-        kAzure+2,
+        kPink+8,
         860.5,
         // Relative uncertainty as for Mll>20 GeV in the TWiki + 50%
         39.34/860.5, 38.84/860.5,
@@ -179,7 +179,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     
     result["dyee50inf"] = Sample(
         "Z / #gamma* #rightarrow ee/#mu#mu",
-        kAzure+2,
+        kPink+8,
         3532.8,
         39.25/3532.8, 38.97/3532.8,
         {"dyee50inf.root"},
@@ -188,7 +188,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     
     result["dymumu1050"] = Sample(
         "Z / #gamma* #rightarrow ee/#mu#mu",
-        kAzure+2,
+        kPink+8,
         860.5,
         // Relative uncertainty as for Mll>20 GeV in the TWiki + 50%
         39.34/860.5, 38.84/860.5,
@@ -198,7 +198,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     
     result["dymumu50inf"] = Sample(
         "Z / #gamma* #rightarrow ee/#mu#mu",
-        kAzure+2,
+        kPink+8,
         3532.8,
         39.25/3532.8, 38.97/3532.8,
         {"dymumu50inf.root"},
@@ -207,7 +207,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     
     result["dytautau1050"] = Sample(
         "Z / #gamma* #rightarrow #tau#tau",
-        kAzure+10,
+        kPink+1,
         860.5,
         // Relative uncertainty as for Mll>20 GeV in the TWiki + 50%
         39.34/860.5, 38.84/860.5,
@@ -217,7 +217,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     
     result["dytautau50inf"] = Sample(
         "Z / #gamma* #rightarrow #tau#tau",
-        kAzure+10,
+        kPink+1,
         3532.8,
         39.25/3532.8, 38.97/3532.8,
         {"dytautau50inf.root"},
@@ -330,7 +330,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     
     result["ttbarW"] = Sample(
         "t#bar{t}W",
-        kViolet-4,
+        kTeal+4,
         0.232,
         0.073/0.232, -1.,
         {"ttbarW.root"}
@@ -347,7 +347,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     
     result["ttbarH125inclusiveOther"] = Sample(
         "t#bar{t}H Other",
-        kTeal+3,
+        kPink-1,
         // ttH XS at https://twiki.cern.ch/twiki/bin/view/LHCPhysics/CERNYellowReportPageAt8TeV#ttH_Process
         0.1293,
         0.09, 0.12, 
