@@ -336,7 +336,7 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     TH1* stacksum_statBand(0);
     if(stacksum){
         stacksum_statBand = (TH1*)stacksum->Clone();
-        common::setHistoStyle(stacksum_statBand, -1,-1,-1, -1,-1,-1, 3354, 1);
+        common::setHistoStyle(stacksum_statBand, 1,1,1, -1,-1,-1, 3354, 1);
     }
     
     
@@ -367,15 +367,18 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     if(dataHist.second) dataHist.second->Draw("same E1 X0");
     if(stack) stack->Draw("same HIST");
     gPad->RedrawAxis();
-//     TExec* setex1 = new TExec("setex1", "gStyle->SetErrorX(0.5)");//this is frustrating and stupid but apparently necessary...
-//     setex1->Draw();  // error bars for data
     stacksum_statBand->Draw("same E2");  // error bars for stack (which, stat or combined with syst ?)
-//     TExec* setex2 = new TExec("setex2", "gStyle->SetErrorX(0.)");
-//     setex2->Draw();  // remove error bars for data in x-direction
     if(dataHist.second) dataHist.second->Draw("same E1 X0");
     for(const auto& higgsHist : higgsHists){
         higgsHist.second->Draw("same HIST");
     }
+    // Adding the uncertainty band to the legend
+    const int nColumns = legend->GetNColumns();
+    const int nEntries = legend->GetListOfPrimitives()->GetEntries();
+    const int nEntriesToInsert = nColumns - nEntries%nColumns - 1;
+    // Adding empty entries to ensure that the uncertainty is in the rightmost column
+    for(int iEn = 0; iEn < nEntriesToInsert; ++iEn) legend->AddEntry((TObject*)0, "", "");
+    legend->AddEntry(stacksum_statBand, "Uncertainty", "F");
     
     // Updating the histo axis
     TH1* axisHisto = common::updatePadYAxisRange(canvas, logY_, 0.35);
