@@ -11,6 +11,9 @@
 
 std::map<TString, Sample> SampleDefinitions::samples8TeV()
 {
+    // 0: as defined below; 1,2,.. see mergedLegendEntries()
+    const int legendsMergeLevel = 1;
+    
     // Define all samples as differential as they are needed
     // Samples with same legend will appear as one single sample (requires also same colour)
     // They are written to a map to enable sorting and including/excluding of these samples independent of the definitions here
@@ -559,6 +562,11 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         Sample::ttHbb
     );
     
+    
+    // Updating legends of samples that should be merged
+    updateMergedLegendEntries(result, mergedLegendEntries(legendsMergeLevel));
+
+    
     return result;
 }
 
@@ -654,3 +662,51 @@ bool SampleDefinitions::usingPseudodata(const std::map<TString, Sample>& samples
 }
 
 
+std::map<TString, SampleDefinitions::ColorLegends> SampleDefinitions::mergedLegendEntries(const int mergeLevel)
+{
+    std::map<TString, ColorLegends> m_legends;
+    
+    if(mergeLevel < 1) return m_legends;
+    
+    // ############################################ Meging level: 1
+    if(mergeLevel >= 1) {
+        // Merging Electroweak processes
+        m_legends["Electroweak"] = ColorLegends(kPink+6, std::set<TString>({
+            "Diboson", "Z / #gamma* #rightarrow ee/#mu#mu", "Z / #gamma* #rightarrow #tau#tau", "W+Jets"
+        }));
+    }
+    if(mergeLevel == 1) return m_legends;
+    
+    // ############################################ Merging level: 2
+    std::map<TString, ColorLegends > m_legends_2;
+    if(mergeLevel >= 2) {
+        // Merging Electroweak and QCD
+        m_legends_2["Minor bkg."] = ColorLegends(kOrange-4, m_legends.at("Electroweak").second);
+        m_legends_2.at("Minor bkg.").second.insert({
+            "QCD Multijet"
+        });
+    }
+    if(mergeLevel == 2) return m_legends_2;
+    
+    return m_legends;
+}
+
+
+void SampleDefinitions::updateMergedLegendEntries(std::map<TString, Sample>& m_nameSample, 
+                                                  const std::map<TString, ColorLegends>& m_mergedLegends)
+{
+    // Looping over the list of merged legend entries
+    for(const auto& legendLegends : m_mergedLegends) {
+        const TString& legend_merged = legendLegends.first;
+        const ColorLegends& colorLegends = legendLegends.second;
+        // Looping over all samples to update their legends appropriately
+        int groupColor = colorLegends.first;
+        for(auto& nameSample : m_nameSample) {
+            Sample& sample = nameSample.second;
+            if(colorLegends.second.count(sample.legendEntry()) < 1) continue;
+            // Setting the color of the group to all merged samples
+            sample.setColor(groupColor);
+            sample.setLegendEntry(legend_merged);
+        }
+    }
+}
