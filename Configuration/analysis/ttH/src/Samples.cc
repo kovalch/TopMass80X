@@ -152,13 +152,11 @@ void Samples::addSamples(const TString& filelistDirectory,
     // Set sample options via filename
     std::vector<Sample> v_sample(this->setSampleOptions(systematic, v_filenameSamplePair, v_filenameSamplePairNominal));
     
-    // If nominal samples will be merged: reordering samples based on legends
-    if(v_filenameSamplePairNominal.size()>0 || hasPseudodata) {
-        // Getting a list of legends in a proper order
-        std::vector<TString> v_legend = SampleDefinitions::legendList(SampleDefinitions::samples8TeV(), SampleDefinitions::selectAndOrderSamples8TeV());
-        // Order files by legendEntry
-        this->orderByLegend(v_sample, v_legend);
-    }
+    // Reordering samples based on legends (in case some are merged)
+    // Getting a list of legends in a proper order
+    std::vector<TString> v_legend = SampleDefinitions::legendList(SampleDefinitions::samples8TeV(), SampleDefinitions::selectAndOrderSamples8TeV());
+    // Order files by legendEntry
+    this->orderByLegend(v_sample, v_legend);
     
     // Create map of maps, containing Sample per channel per systematic
     m_systematicChannelSample_[systematic][channel] = v_sample;
