@@ -54,6 +54,7 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   PlotterDiffXS
   PlotterDiffXSSystematic
   PlotterSystematic
+  JetCharge
   )
 
 SET( Unfold_LIBSOURCES
