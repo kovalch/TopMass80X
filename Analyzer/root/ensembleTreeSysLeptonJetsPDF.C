@@ -35,6 +35,7 @@ struct ensemble {
 };
 
 std::string path("/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_paper/lepton");
+//std::string path("/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_paper_jsfconstraint/lepton");
 //std::string path("/nfs/dust/cms/user/eschliec/TopMass/topmass_140401_1201c/Z2_S12_ABS_JES_100_172_5");
 
 std::string itos(int number)

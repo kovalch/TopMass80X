@@ -51,7 +51,7 @@ void drawArrow(double cutval, double maximum)
   arrow->DrawArrow(cutval, 0., cutval, maximum, 0.05, "<");
 }
 
-void ensemble()
+void ensemblePullJSF()
 {
   setTDRStyle();
   tdrStyle->SetNdivisions(505, "X");
@@ -61,13 +61,16 @@ void ensemble()
   //// Get histos
   
   TChain* tree = new TChain("tree");
-  tree->Add("/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_paper/lepton/Summer12_TTJetsMS1725_1.00/job_*_ensemble.root");
+  tree->Add("/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_paper_calibrated/muon/Summer12_TTJetsMS1725_1.00/job_*_ensemble.root");
   
   hError = new TH1D("hError", "hError", 5000, 0, 1);
   hPull  = new TH1D("hPull", "hPull", 100, -5, 5);
   
+  double mass;
+  tree->SetBranchAddress("JES_mTop_JES", &mass);
+  
   double massError;
-  tree->SetBranchAddress("mass_mTop_JES_Error", &massError);
+  tree->SetBranchAddress("JES_mTop_JES_Error", &massError);
   
   double genMass;
   tree->SetBranchAddress("genMass", &genMass);
@@ -77,36 +80,29 @@ void ensemble()
   
   for (int i = 0; i < tree->GetEntries(); i++) {
     tree->GetEntry(i);
-    if (massError>0 && genMass==172.5 && genJES==1.) hError->Fill(massError);
+    if (massError>0 && genMass==172.5 && genJES==1.) {
+      hError->Fill(massError);
+      hPull->Fill((mass-genJES)/massError);
+    }
   }
   
   hError->GetYaxis()->SetTitle("Pseudo-experiments / 2 MeV");
   hError->GetYaxis()->SetTitleSize(0.05);
   hError->GetXaxis()->SetTitle("#sigma_{stat}(m_{t}) [GeV]");
   hPull->GetYaxis()->SetTitle("Pseudo-experiments");
-  hPull->GetXaxis()->SetTitle("Mass pull");
+  hPull->GetXaxis()->SetTitle("JSF pull");
   
   //// Do something :)
   
-  TCanvas* cError = new TCanvas("cError", "cError", 600, 600);
-  
-  //hError->Rebin(4);
-  hError->GetXaxis()->SetRangeUser(0.19, 0.20);
-  hError->GetYaxis()->SetRangeUser(0, 1150);
-  hError->SetFillColor(kRed+1);
-  hError->Draw();
-  drawArrow(0.194498, 1020);
-  DrawLabel("This measurement", 0.40, 0.85, 0.9);
-  
-  Draw8LeptonJets();
-  
-  /*
-  TCanvas* cPull = new TCanvas("cPull", "cPull", 600, 600);
+  //*
+  TCanvas* cPull = new TCanvas("cPullJSF", "cPullJSF", 600, 600);
   
   //hPull->Rebin(4);
   //hPull->GetXaxis()->SetRangeUser(1., 1.7);
   //hPull->GetYaxis()->SetRangeUser(0, 400);
   hPull->Fit("gaus");
+  
+  Draw8MuonJets();
   //*/
   
 }

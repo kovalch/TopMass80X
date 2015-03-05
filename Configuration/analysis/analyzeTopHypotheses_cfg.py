@@ -69,6 +69,7 @@ process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNa
                                       'drop GenLumiInfoProduct_*_*_*'
                               )
 )
+process.source.duplicateCheckMode = cms.untracked.string("noDuplicateCheck")
 if (options.mcversion == "Summer12"):
   if (options.generator == "pythia8"):
     readFiles.extend( ['/store/user/mseidel/TT_8TeV-amcatnlo-pythia8/job_350_TT_FSIM.root'] )
@@ -140,7 +141,7 @@ if not data:
     from TopAnalysis.TopUtils.JetEnergyScale_cff import *
 
     scaledJetEnergy.scaleType    = options.scaleType
-    scaledJetEnergy.JECUncSrcFile= "TopAnalysis/TopUtils/data/Winter14_V5_DATA_UncertaintySources_AK5PFchs.txt"
+    scaledJetEnergy.JECUncSrcFile= "TopAnalysis/TopUtils/data/Winter14_V8_DATA_UncertaintySources_AK5PFchs.txt"
     scaledJetEnergy.sourceName   = options.jessource
     scaledJetEnergy.flavor       = options.flavor
     scaledJetEnergy.scaleFactor  = options.lJesFactor
@@ -534,11 +535,16 @@ PFoptions = {
         'addMETSignificance': False,
         }
 if data:
-    PFoptions['JECEra' ] = 'Winter14_V5_DATA'
-    PFoptions['JECFile'] = '../data/Winter14_V5_DATA.db'
+    #PFoptions['JECEra' ] = 'Winter14_V5_DATA'
+    #PFoptions['JECFile'] = '../data/Winter14_V5_DATA.db'
+    #if os.getenv('GC_CONF'):
+    #    print "Running with GC, resetting address of JECFile!"
+    #    PFoptions['JECFile'] = '../src/TopMass/Configuration/data/Winter14_V5_DATA.db'
+    PFoptions['JECEra' ] = 'Winter14_V8_DATA'
+    PFoptions['JECFile'] = '../data/Winter14_DATA_V8HS.db'
     if os.getenv('GC_CONF'):
         print "Running with GC, resetting address of JECFile!"
-        PFoptions['JECFile'] = '../src/TopMass/Configuration/data/Winter14_V5_DATA.db'
+        PFoptions['JECFile'] = '../src/TopMass/Configuration/data/Winter14_DATA_V8HS.db'
 
 if (options.generator == "rd"):
     PFoptions['JECEra' ] = 'Winter14_V5_MC'

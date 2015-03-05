@@ -150,7 +150,11 @@ void Analysis::Analyze() {
   GetH1("mass_mTop")->SetAxisRange(GetH1("mass_mTop")->GetMinimum(0.05)-1., GetH1("mass_mTop")->GetMaximum()+1, "Z");
   GetH1("mass_mTop")->Fit("pol0");
 
-  std::string path("plot/"); path += fMethod_; path += "_"; path += HelperFunctions::cleanedName(fIdentifier_); path += "_"; path += HelperFunctions::cleanedName(fBinning_); path += ".eps";
+  std::string path("plot/"); path += fMethod_; path += "_"; path += HelperFunctions::cleanedName(fIdentifier_); path += "_"; path += HelperFunctions::cleanedName(fBinning_);
+  if (po::GetOption<bool>("constrainJSF")) {
+    path += "_jsfconstraint";
+  }
+  path += ".eps";
   canvas->Print(path.c_str());
   boost::replace_all(path,".eps",".root");
   canvas->Print(path.c_str());

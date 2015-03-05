@@ -60,22 +60,26 @@ secFiles = cms.untracked.vstring()
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles,
                               dropDescendantsOfDroppedBranches=cms.untracked.bool(False),
 )
+process.source.duplicateCheckMode = cms.untracked.string("noDuplicateCheck")
 
 if (options.mcversion == "Summer12GEN"):
   readFiles.extend( [ 'file:TOP-Summer12-00190_step1.root' ] )
-elif (options.mcversion == "Sherpa12"):
+elif (options.mcversion == "Sherpa12Cluster"):
   readFiles.extend( [
-         '/store/user/mseidel/TT_cluster_8TeV-sherpa/job_0_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_cluster_8TeV-sherpa/job_2_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_cluster_8TeV-sherpa/job_4_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_cluster_8TeV-sherpa/job_6_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_cluster_8TeV-sherpa/job_8_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_lund_8TeV-sherpa/job_1_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_lund_8TeV-sherpa/job_3_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_lund_8TeV-sherpa/job_5_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_lund_8TeV-sherpa/job_7_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_lund_8TeV-sherpa/job_9_fastreco_FASTSIM_HLT_PU.root',
-         '/store/user/mseidel/TT_lund_8TeV-sherpa/job_13_fastreco_FASTSIM_HLT_PU.root',
+         '/store/user/mseidel/TT_Cluster_8TeV-sherpa2/job_0_fastreco_FASTSIM_HLT_PU.root',
+         '/store/user/mseidel/TT_Cluster_8TeV-sherpa2/job_2_fastreco_FASTSIM_HLT_PU.root',
+         '/store/user/mseidel/TT_Cluster_8TeV-sherpa2/job_4_fastreco_FASTSIM_HLT_PU.root',
+         '/store/user/mseidel/TT_Cluster_8TeV-sherpa2/job_6_fastreco_FASTSIM_HLT_PU.root',
+         '/store/user/mseidel/TT_Cluster_8TeV-sherpa2/job_8_fastreco_FASTSIM_HLT_PU.root',
+  ] )
+elif (options.mcversion == "Sherpa12Lund"):
+  readFiles.extend( [
+         '/store/user/mseidel/TT_Lund_8TeV-sherpa2/job_1_fastreco_FASTSIM_HLT_PU.root',
+         '/store/user/mseidel/TT_Lund_8TeV-sherpa2/job_3_fastreco_FASTSIM_HLT_PU.root',
+         '/store/user/mseidel/TT_Lund_8TeV-sherpa2/job_5_fastreco_FASTSIM_HLT_PU.root',
+         '/store/user/mseidel/TT_Lund_8TeV-sherpa2/job_7_fastreco_FASTSIM_HLT_PU.root',
+         '/store/user/mseidel/TT_Lund_8TeV-sherpa2/job_9_fastreco_FASTSIM_HLT_PU.root',
+         '/store/user/mseidel/TT_Lund_8TeV-sherpa2/job_13_fastreco_FASTSIM_HLT_PU.root',
          
   ] )
 elif (options.mcversion == "Summer12"):

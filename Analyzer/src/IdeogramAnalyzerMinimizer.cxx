@@ -342,20 +342,22 @@ void IdeogramAnalyzerMinimizer::PlotResult(ROOT::Math::Minimizer* min, IdeogramA
   leg0.Draw();
 
   // draw tangents to -2#Delta log(L) = 1 ellipse
-  double minX = min->X()[x]-min->Errors()[x];
-  double maxX = min->X()[x]+min->Errors()[x];
-  double minY = min->X()[y]-min->Correlation(x,y)*min->Errors()[y];
-  double maxY = min->X()[y]+min->Correlation(x,y)*min->Errors()[y];
-  double yAtXaxis = gr3.GetYaxis()->GetXmin();
-  TArrow line1(minX,minY,minX,yAtXaxis,0.04,"-------|>");
-  TArrow line2(maxX,maxY,maxX,yAtXaxis,0.04,"-------|>");
-  line1.SetAngle(45);
-  line2.SetAngle(45);
-  line1.SetLineColor(1);
-  line2.SetLineColor(1);
+  if (channelID_ == Helper::kAllJets) {
+    double minX = min->X()[x]-min->Errors()[x];
+    double maxX = min->X()[x]+min->Errors()[x];
+    double minY = min->X()[y]-min->Correlation(x,y)*min->Errors()[y];
+    double maxY = min->X()[y]+min->Correlation(x,y)*min->Errors()[y];
+    double yAtXaxis = gr3.GetYaxis()->GetXmin();
+    TArrow line1(minX,minY,minX,yAtXaxis,0.04,"-------|>");
+    TArrow line2(maxX,maxY,maxX,yAtXaxis,0.04,"-------|>");
+    line1.SetAngle(45);
+    line2.SetAngle(45);
+    line1.SetLineColor(1);
+    line2.SetLineColor(1);
 
-  line1.Draw();
-  line2.Draw();
+    line1.Draw();
+    line2.Draw();
+  }
   
   helper.DrawCMS();
 

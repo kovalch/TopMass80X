@@ -264,6 +264,16 @@ double IdeogramCombLikelihoodLeptonJets::Evaluate(double *x, double *p) {
   double JESSlopeMass     = muo_jesSlopeMass_     .at(0);
   double JESSlopeJES      = muo_jesSlopeJES_      .at(0);
   double JESSlopeMassJES  = muo_jesSlopeMassJES_  .at(0);
+  
+  double fastMassOffset       = muo_massOffset_       .at(1);
+  double fastMassSlopeMass    = muo_massSlopeMass_    .at(1);
+  double fastMassSlopeJES     = muo_massSlopeJES_     .at(1);
+  double fastMassSlopeMassJES = muo_massSlopeMassJES_ .at(1);
+
+  double fastJESOffset        = muo_jesOffset_        .at(1);
+  double fastJESSlopeMass     = muo_jesSlopeMass_     .at(1);
+  double fastJESSlopeJES      = muo_jesSlopeJES_      .at(1);
+  double fastJESSlopeMassJES  = muo_jesSlopeMassJES_  .at(1);
 
   if (p[3] == 11) {
     MassOffset       = ele_massOffset_       .at(0);
@@ -275,6 +285,16 @@ double IdeogramCombLikelihoodLeptonJets::Evaluate(double *x, double *p) {
     JESSlopeMass     = ele_jesSlopeMass_     .at(0);
     JESSlopeJES      = ele_jesSlopeJES_      .at(0);
     JESSlopeMassJES  = ele_jesSlopeMassJES_  .at(0);
+    
+    fastMassOffset       = ele_massOffset_       .at(1);
+    fastMassSlopeMass    = ele_massSlopeMass_    .at(1);
+    fastMassSlopeJES     = ele_massSlopeJES_     .at(1);
+    fastMassSlopeMassJES = ele_massSlopeMassJES_ .at(1);
+
+    fastJESOffset        = ele_jesOffset_        .at(1);
+    fastJESSlopeMass     = ele_jesSlopeMass_     .at(1);
+    fastJESSlopeJES      = ele_jesSlopeJES_      .at(1);
+    fastJESSlopeMassJES  = ele_jesSlopeMassJES_  .at(1);
   }
   
   double m = x[0];
@@ -283,6 +303,11 @@ double IdeogramCombLikelihoodLeptonJets::Evaluate(double *x, double *p) {
   if (useCalib) {
     x[1] = j + JESOffset + JESSlopeMass*(m-172.5) + JESSlopeJES*(j-1.) + JESSlopeMassJES*(m-172.5)*(j-1.);
     x[0] = m + MassOffset + MassSlopeMass*(m-172.5) + MassSlopeJES*(j-1.) + MassSlopeMassJES*(m-172.5)*(j-1.);
+  }
+  
+  if (p[7] == 1) {
+    x[1] = j + fastJESOffset + fastJESSlopeMass*(m-172.5) + fastJESSlopeJES*(j-1.) + fastJESSlopeMassJES*(m-172.5)*(j-1.);
+    x[0] = m + fastMassOffset + fastMassSlopeMass*(m-172.5) + fastMassSlopeJES*(j-1.) + fastMassSlopeMassJES*(m-172.5)*(j-1.);
   }
   
   //return p[0] * (fCP * PCP(x, p) + fWP * PWP(x, p) + fUN * PUN(x, p));

@@ -26,7 +26,7 @@ void SystematicUncertainties::fillLeptonJets()
   std::string path;
   if(channel==3)path = "/nfs/dust/test/cms/user/kirschen/BRegression_PE_NewCalibrationJan2014Applied_MCS3250MinEvtsBReg/";
   //else path = "/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/pseudoexperiments/topmass_141020/";
-  else path = "/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_paper/";
+  else path = "/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_paper_jsfconstraint/";
 
   path += lepton_[channel]; path += "/";
 
@@ -40,8 +40,16 @@ void SystematicUncertainties::fillLeptonJets()
   sample.ensembles["calibration"] = ensemble("", 0, {std::make_pair("mass_mTop_JES",std::make_pair(172.5,0.04)), std::make_pair("JES_mTop_JES",std::make_pair(1.0,0.0005)), std::make_pair("mass_mTop",std::make_pair(172.5,0.04))});
   sample.ensembles["stat"] = ensemble("", 0, {std::make_pair("mass_mTop_JES",std::make_pair(172.5,0.194498)), std::make_pair("JES_mTop_JES",std::make_pair(1.0,0.00180928)), std::make_pair("mass_mTop",std::make_pair(172.5,0.118054))});
   
+  // PDF default
+  /*
   sample.ensembles["nobkg_pdfup"] = ensemble("", 0, {std::make_pair("mass_mTop_JES",std::make_pair(172.613,0.)), std::make_pair("JES_mTop_JES",std::make_pair(1.0007,0.)), std::make_pair("mass_mTop",std::make_pair(172.589,0.))});
   sample.ensembles["nobkg_pdfdown"] = ensemble("", 0, {std::make_pair("mass_mTop_JES",std::make_pair(172.486,0.)), std::make_pair("JES_mTop_JES",std::make_pair(0.9992,0.)), std::make_pair("mass_mTop",std::make_pair(172.501,0.))});
+  //*/
+  // PDF JSF constraint
+  //*
+  sample.ensembles["nobkg_pdfup"] = ensemble("", 0, {std::make_pair("mass_mTop_JES",std::make_pair(172.574,0.)), std::make_pair("JES_mTop_JES",std::make_pair(1.0004,0.)), std::make_pair("mass_mTop",std::make_pair(172.574,0.))});
+  sample.ensembles["nobkg_pdfdown"] = ensemble("", 0, {std::make_pair("mass_mTop_JES",std::make_pair(172.512,0.)), std::make_pair("JES_mTop_JES",std::make_pair(0.9996,0.)), std::make_pair("mass_mTop",std::make_pair(172.561,0.))});
+  //*/
   
   sample.ensembles["default"] = ensemble("Summer12_TTJetsMS1725_1.00/job_*_ensemble.root", 62131965./1.2);
 
@@ -71,11 +79,12 @@ void SystematicUncertainties::fillLeptonJets()
   sample.ensembles["bTagSFDown"] = ensemble("weight_bTagSFDown/job_*_ensemble.root", 62131965./1.2);
   sample.ensembles["misTagSFUp"] = ensemble("weight_misTagSFUp/job_*_ensemble.root", 62131965./1.2);
   sample.ensembles["misTagSFDown"] = ensemble("weight_misTagSFDown/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["bTagCSVUp"] = ensemble("Summer12_TTJetsMS1725_csvm_0.73/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["bTagCSVDown"] = ensemble("Summer12_TTJetsMS1725_csvm_0.63/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["bTagCSVUp"] = ensemble("Summer12_TTJetsMS1725_csvm_0.71/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["bTagCSVDown"] = ensemble("Summer12_TTJetsMS1725_csvm_0.655/job_*_ensemble.root", 62131965./1.2);
 
   sample.ensembles["nobkg"] = ensemble("nobkg/job_*_ensemble.root", 62131965./1.2);
   sample.ensembles["nobkg_topPt"] = ensemble("nobkg_weight_topPt/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["topPt"] = ensemble("weight_topPt_fix/job_*_ensemble.root", 62131965./1.2);
 
   sample.ensembles["DibosonDown"] = ensemble("DibosonDown/job_*_ensemble.root", 62131965./1.2);
   sample.ensembles["DibosonUp"] = ensemble("DibosonUp/job_*_ensemble.root", 62131965./1.2);
@@ -83,6 +92,10 @@ void SystematicUncertainties::fillLeptonJets()
   sample.ensembles["QCDUp"] = ensemble("QCDUp/job_*_ensemble.root", 62131965./1.2);
   sample.ensembles["WJetsDown"] = ensemble("WJetsDown/job_*_ensemble.root", 62131965./1.2);
   sample.ensembles["WJetsUp"] = ensemble("WJetsUp/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["WJetsScaleDown"] = ensemble("WJetsScaleDown/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["WJetsScaleUp"] = ensemble("WJetsScaleUp/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["WJetsMatchingDown"] = ensemble("WJetsMatchingDown/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["WJetsMatchingUp"] = ensemble("WJetsMatchingUp/job_*_ensemble.root", 62131965./1.2);
   sample.ensembles["ZJetsDown"] = ensemble("ZJetsDown/job_*_ensemble.root", 62131965./1.2);
   sample.ensembles["ZJetsUp"] = ensemble("ZJetsUp/job_*_ensemble.root", 62131965./1.2);
   sample.ensembles["singleTopDown"] = ensemble("singleTopDown/job_*_ensemble.root", 62131965./1.2);
@@ -121,9 +134,16 @@ void SystematicUncertainties::fillLeptonJets()
   sample.ensembles["metUp"] = ensemble("Summer12_TTJetsMS1725_uncFactor_1.1/job_*_ensemble.root", 62131965./1.2);
   sample.ensembles["metDown"] = ensemble("Summer12_TTJetsMS1725_uncFactor_0.9/job_*_ensemble.root", 62131965./1.2);
   /////////////////////////////////////
-  sample.ensembles["parj81Up"] = ensemble("Summer12_TTJets1725_FSIM_parj81_up/job_*_ensemble.root", 64000000./1.2);
-  sample.ensembles["parj81Nominal"] = ensemble("Summer12_TTJets1725_FSIM_parj81_nominal/job_*_ensemble.root", 64000000./1.2);
-  sample.ensembles["parj81Down"] = ensemble("Summer12_TTJets1725_FSIM_parj81_down/job_*_ensemble.root", 64000000./1.2);
+  sample.ensembles["fastparj81Up"] = ensemble("Summer12_TTJets1725_FSIM_parj81_up/job_*_ensemble.root", 64000000./1.2);
+  sample.ensembles["fastNominal"] = ensemble("Summer12_TTJets1725_FSIM_parj81_nominal/job_*_ensemble.root", 64000000./1.2);
+  sample.ensembles["fastparj81Down"] = ensemble("Summer12_TTJets1725_FSIM_parj81_down/job_*_ensemble.root", 64000000./1.2);
+  
+  sample.ensembles["fastPythia8"] = ensemble("Summer12_TT1725_FSIM_pythia8/job_*_ensemble.root", 64000000./1.2);
+  sample.ensembles["fastamcHerwigppCorr"] = ensemble("Summer12_TT1725_amcatnlo_herwigpp:pythia8/job_*_ensemble.root", 64000000./1.2);
+  sample.ensembles["fastamcHerwigpp"] = ensemble("Summer12_TT1725_amcatnlo_herwigpp/job_*_ensemble.root", 64000000./1.2);
+  sample.ensembles["fastamcPythia8"] = ensemble("Summer12_TT1725_amcatnlo_pythia8/job_*_ensemble.root", 64000000./1.2);
+  sample.ensembles["fastSherpaCluster"] = ensemble("Summer12_TT1725_sherpa2_cluster/job_*_ensemble.root", 64000000./1.2);
+  sample.ensembles["fastSherpaLund"] = ensemble("Summer12_TT1725_sherpa2_lund/job_*_ensemble.root", 64000000./1.2);
 
   sample.ensembles["sherpa"] = ensemble("Summer12_TTJets1725_sherpa/job_*_ensemble.root", 19514018./2.*9./1.2);
 
@@ -189,6 +209,8 @@ void SystematicUncertainties::fillLeptonJets()
       sample.comparisons["Background: Diboson              "] = comparison("default", "DibosonUp", "DibosonDown");
       sample.comparisons["Background: QCD                  "] = comparison("default", "QCDUp", "QCDDown");
       sample.comparisons["Background: WJets                "] = comparison("default", "WJetsUp", "WJetsDown");
+      sample.comparisons["Background: WJets scale          "] = comparison("default", "WJetsScaleUp", "WJetsScaleDown");
+      sample.comparisons["Background: WJets matching       "] = comparison("default", "WJetsMatchingUp", "WJetsMatchingDown");
       sample.comparisons["Background: ZJets                "] = comparison("default", "ZJetsUp", "ZJetsDown");
       sample.comparisons["Background: singleTop            "] = comparison("default", "singleTopUp", "singleTopDown");
       sample.comparisons["Background: singleTop scale      "] = comparison("default", "singleTopScaleUp", "singleTopScaleDown");
@@ -206,10 +228,11 @@ void SystematicUncertainties::fillLeptonJets()
       sample.comparisons["Jet energy response (gluon)      "] = comparison("default", "flavorGUp", "flavorGDown", true);
       sample.comparisons["b fragmentation                  "] = comparison("default", "bFragLEP");
       sample.comparisons["Semi-leptonic B hadron decays    "] = comparison("default", "bFNuUp", "bFNuDown");
-      sample.comparisons["b-tag rate                       "] = comparison("default", "bTagSFUp", "bTagSFDown");
-      sample.comparisons["b-tag (mistag rate)              "] = comparison("default", "misTagSFUp", "misTagSFDown");
-      sample.comparisons["b-tag disc                       "] = comparison("default", "bTagCSVUp", "bTagCSVDown", true, false);
-      sample.comparisons["Top-pt reweighting               "] = comparison("nobkg", "nobkg_topPt", "");
+      sample.comparisons["b-tag rate                       "] = comparison("default", "bTagSFUp", "bTagSFDown", true, false);
+      sample.comparisons["b-tag (mistag rate)              "] = comparison("default", "misTagSFUp", "misTagSFDown", true, false);
+      sample.comparisons["b-tag disc                       "] = comparison("default", "bTagCSVUp", "bTagCSVDown");
+      //sample.comparisons["Top-pt reweighting (nobkg)       "] = comparison("nobkg", "nobkg_topPt", "", true, false);
+      sample.comparisons["Top-pt reweighting               "] = comparison("default", "topPt", "");
       sample.comparisons["PDF                              "] = comparison("nobkg", "nobkg_pdfup", "nobkg_pdfdown");
       sample.comparisons["ME-PS matching threshold         "] = comparison("calibration", "matchingUp", "matchingDown", false);
       sample.comparisons["$Q^{2}$ scale                    "] = comparison("calibration", "scaleUp", "scaleDown", false);
@@ -224,7 +247,7 @@ void SystematicUncertainties::fillLeptonJets()
 
       ///////
       sample.comparisons["Run dependency                   "] = comparison("defaultSC", "defaultSC_Z2_RD", "", true, false);
-      sample.comparisons["FSR scale                        "] = comparison("parj81Nominal", "parj81Up", "parj81Down", false);
+      //sample.comparisons["FSR scale                        "] = comparison("fastNominal", "fastparj81Up", "fastparj81Down", false);
       sample.comparisons["sherpa                           "] = comparison("calibration", "sherpa", "", false, false);
       sample.comparisons["AbsoluteFlavMap                  "] = comparison("default", "AbsoluteFlavMapUp", "AbsoluteFlavMapDown");
       sample.comparisons["AbsoluteMPFBias                  "] = comparison("default", "AbsoluteMPFBiasUp", "AbsoluteMPFBiasDown");
@@ -361,6 +384,8 @@ void SystematicUncertainties::fillLeptonJets()
       "Background: Diboson              ",
       "Background: QCD                  ",
       "Background: WJets                ",
+      "Background: WJets scale          ",
+      "Background: WJets matching       ",
       "Background: ZJets                ",
       "Background: singleTop            ",
       "Background: singleTop scale      "
@@ -569,7 +594,7 @@ void SystematicUncertainties::fillAllJets()
   sample.comparisons["Non-\\ttbar background shape3    "] = comparison("shape0", "shape5", "shape6", true, true);
   sample.comparisons["Non-\\ttbar background shape4    "] = comparison("shape0", "shape7", "shape8", true, true);
   sample.comparisons["Run dependent                    "] = comparison("defaultSC", "RD", "", false, false);
-  //sample.comparisons["PDF                              "] = comparison("default", "PDFDown", "PDFUp", true, true);
+  sample.comparisons["PDF                              "] = comparison("default", "PDFDown", "PDFUp", true, true);
 
   sample.mergedcomparisons["JEC"] = mergedcomparison(
       {"JES Flavor                       ",
