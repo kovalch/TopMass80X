@@ -11,12 +11,14 @@
 #include <Math/VectorUtil.h>
 #include <TProfile.h>
 #include <TObjString.h>
+#include "TMVA/Tools.h"
+#include "TMVA/Reader.h"
 
-#include "JetCharge.h"
-#include "analysisStructs.h"
-#include "JetCategories.h"
-#include "higgsUtils.h"
-#include "HiggsAnalysis.h"
+#include "../include/JetCharge.h"
+#include "../include/analysisStructs.h"
+#include "../include/JetCategories.h"
+#include "../include/higgsUtils.h"
+#include "../include/HiggsAnalysis.h"
 #include "../../common/include/AnalysisBase.h"
 #include "../../common/include/analysisUtils.h"
 #include "../../common/include/analysisObjectStructs.h"
@@ -25,7 +27,31 @@
 #include "../../common/include/classesFwd.h"
 
 
-JetCharge::JetCharge() {}
+JetCharge::JetCharge() {
+    
+    //Book the reader
+    jetChargeReader_ = new TMVA::Reader();
+    TMVA::Tools::Instance(); 
+    
+    TString case1_ = "testingTheReader";
+    TString weight1 = "/nfs/dust/cms/user/jgaray/releaseForPseudodata/CMSSW_5_3_18/src/TopAnalysis/Configuration/analysis/ttH/MVA_BDTAdaBoost_1500_beta05.weights.xml";
+    
+    jetChargeReader_->AddVariable("longChargeJet", &(jetChargeMvaStruct_.longChargeJet_));
+    jetChargeReader_->AddVariable("relChargeJet",&(jetChargeMvaStruct_.relChargeJet_));
+    jetChargeReader_->AddVariable("leadingTrackPtWeightedCharge",&(jetChargeMvaStruct_.leadingTrackPtWeightedCharge_));
+    jetChargeReader_->AddVariable("subleadingTrackPtWeightedCharge",&(jetChargeMvaStruct_.subleadingTrackPtWeightedCharge_));
+    jetChargeReader_->AddVariable("thirdleadingTrackPtWeightedCharge",&(jetChargeMvaStruct_.thirdleadingTrackPtWeightedCharge_));
+    jetChargeReader_->AddVariable("leadingMuonPtWeightedCharge",&(jetChargeMvaStruct_.leadingMuonPtWeightedCharge_));
+    jetChargeReader_->AddVariable("leadingElectronPtWeightedCharge",&(jetChargeMvaStruct_.leadingElectronPtWeightedCharge_));
+    jetChargeReader_->AddVariable("chargeWeightedTrackId",&(jetChargeMvaStruct_.chargeWeightedTrackId_));
+    jetChargeReader_->AddVariable("secondaryVertexCharge",&(jetChargeMvaStruct_.secondaryVertexCharge_));
+    jetChargeReader_->AddVariable("ipSignificanceLeadingTrack",&(jetChargeMvaStruct_.ipSignificanceLeadingTrack_));
+    
+    jetChargeReader_->AddSpectator("trueBJetId",&(jetChargeMvaStruct_.trueBJetId_));
+    
+    jetChargeReader_->BookMVA(case1_,weight1);  
+    
+}
 
 
 double JetCharge::ptWeightedJetChargeX (const int jetId, const LV& recoJet, const double x, const std::vector<int> pfCandidateJetIndex, const VLV& pfCandidates, const std::vector<int> pfCandidateCharge)
@@ -63,3 +89,333 @@ double JetCharge::ptWeightedJetChargeX (const int jetId, const LV& recoJet, cons
     return ptWeightedJetChargeXValue;
 }
     
+    
+    double JetCharge::mvaJetChargeWeight(const int jetIndex, const LV& jet, const RecoObjects& recoObjects)
+{
+    // Specific selected tracks information (tracks with quality requirements applied already at ntuple level) 
+    const std::vector<LV>& jetSelectedTrack = *recoObjects.jetSelectedTrack_;
+    const std::vector<double>& jetSelectedTrackIPValue = *recoObjects.jetSelectedTrackIPValue_;
+    const std::vector<double>& jetSelectedTrackIPSignificance = *recoObjects.jetSelectedTrackIPSignificance_;
+    const std::vector<int>& jetSelectedTrackCharge = *recoObjects.jetSelectedTrackCharge_;
+    const std::vector<int>& jetSelectedTrackIndex = *recoObjects.jetSelectedTrackIndex_;
+    const std::vector<int>& jetSelectedTrackMatchToPfCandidateIndex  = *recoObjects.jetSelectedTrackMatchToPfCandidateIndex_;
+    
+    // Specific secondary vertex information
+    const std::vector<LV>& jetSecondaryVertex = *recoObjects.jetSecondaryVertex_;
+    const std::vector<int>& jetSecondaryVertexJetIndex = *recoObjects.jetSecondaryVertexJetIndex_;
+    const std::vector<int>& jetSecondaryVertexTrackVertexIndex = *recoObjects.jetSecondaryVertexTrackVertexIndex_;
+    const std::vector<int>& jetSecondaryVertexTrackMatchToSelectedTrackIndex = *recoObjects.jetSecondaryVertexTrackMatchToSelectedTrackIndex_;
+    const std::vector<double>& jetSecondaryVertexFlightDistanceSignificance = *recoObjects.jetSecondaryVertexFlightDistanceSignificance_;
+    
+    // Specific track information (from pfcandidates - no quality cuts required at ntuple level)
+    const std::vector<int>& jetPfCandidateTrackCharge = *recoObjects.jetPfCandidateTrackCharge_;
+    const std::vector<int>& jetPfCandidateTrackId = *recoObjects.jetPfCandidateTrackId_;
+    const std::vector<LV>& jetPfCandidateTrack = *recoObjects.jetPfCandidateTrack_;
+    const std::vector<int>& jetPfCandidateTrackIndex = *recoObjects.jetPfCandidateTrackIndex_;
+    
+    double val1 = 0;
+    bool thereIsASecondaryVertex = false;
+    
+    int jetHadronFlavour = -999;
+    
+    double trueBJetPt = jet.pt();
+    double jetTrueBPx = jet.px();
+    double jetTrueBPy = jet.py();
+    double jetTrueBPz = jet.pz();
+    
+    std::vector<double>sumTrueBMomentum;
+    std::vector<double>sumTrueBMomentumQ;
+    std::vector<double>sumTrueBMagnitude;
+    std::vector<double>sumTrueBMagnitudeQ;
+    
+    int trueBJetTrackMultiplicity = 0;
+    
+    for (size_t iSumIni = 0;iSumIni!=10;iSumIni++)
+    {
+        sumTrueBMomentum.push_back(0);
+        sumTrueBMomentumQ.push_back(0);
+        sumTrueBMagnitude.push_back(0);
+        sumTrueBMagnitudeQ.push_back(0);
+    }
+    
+    double maxPtTrueTrack  = -999.;
+    double leadingTrackPt = -999.;
+    //double leadingTrackPx = -999.;
+    //double leadingTrackPy = -999.;
+    //double leadingTrackPz = -999.;
+    double leadingTrackCharge = -999.;
+    double subleadingTrackPt = -999.;
+    double subleadingTrackCharge = -999.;
+    double thirdleadingTrackPt = -999.;
+    double thirdleadingTrackCharge = -999.;
+    
+    std::vector<double> trueBJetMuonTracksPt;
+    std::vector<LV> trueBJetMuonTracksLV;
+    std::vector<double> trueBJetMuonTracksCharge;
+    double trueBJetLeadingElectronCharge = 0.;
+    
+    std::vector<int> trackParticleId;
+    std::vector<double> ptRatioValues;
+    bool isLeadingMuon = false;
+    bool isLeadingElectron = false;
+    double ptRatioValuesElectron = -999.;
+    
+    std::vector<double> impactParameterValue;
+    std::vector<double> impactParameterSignificance;
+    std::vector<int> impactParameterMatchToPfIndices;
+    
+    std::vector<double> sumSVPowProduct;
+    std::vector<double> sumSVPowProductQ;
+    
+    for (size_t iSumIni = 0;iSumIni!=10;iSumIni++)
+    {
+        sumSVPowProduct.push_back(0);
+        sumSVPowProductQ.push_back(0);
+    }
+    
+    for (size_t iSelectedTrack=0;iSelectedTrack!=jetSelectedTrack.size();++iSelectedTrack)
+    {
+        if (jetSelectedTrackIndex.at(iSelectedTrack)!=jetIndex) continue;
+        
+        // Store for pfCandidates
+        if (jetSelectedTrackMatchToPfCandidateIndex.at(iSelectedTrack) != -1) 
+        {
+            impactParameterValue.push_back(jetSelectedTrackIPValue.at(iSelectedTrack));
+            impactParameterSignificance.push_back(jetSelectedTrackIPSignificance.at(iSelectedTrack));
+            impactParameterMatchToPfIndices.push_back(jetSelectedTrackMatchToPfCandidateIndex.at(iSelectedTrack));
+        }
+    }
+    
+    std::vector<double> secondaryVertexFlightDistanceSignificance;
+    unsigned int secondaryVertexMultiplicityPerJet = 0; 
+    
+    // Secondary vertex multiplicity
+    for(size_t iSecondaryVertex=0; iSecondaryVertex<jetSecondaryVertex.size(); ++iSecondaryVertex) 
+    {
+        if(jetSecondaryVertexJetIndex.at(iSecondaryVertex)!=static_cast<int>(jetIndex)) continue;
+        
+        for(size_t iSecondaryVertex2=iSecondaryVertex; iSecondaryVertex2<jetSecondaryVertex.size(); ++iSecondaryVertex2)
+        {
+            if(jetSecondaryVertexJetIndex.at(iSecondaryVertex2)!=jetSecondaryVertexJetIndex.at(iSecondaryVertex)) continue;
+            ++secondaryVertexMultiplicityPerJet;
+        }
+        break; 
+    }
+    
+    std::vector<double> chargeOfSecondaryVerticesForSelectedTracks;
+    
+    for(size_t jSecondaryVertex=0; jSecondaryVertex<jetSecondaryVertex.size(); ++jSecondaryVertex) 
+    {
+        // Check that SV belongs to the jet
+        if(jetSecondaryVertexJetIndex.at(jSecondaryVertex)!=static_cast<int>(jetIndex)) continue;
+        // Ony continue if at least one SV on the jet
+        if (secondaryVertexMultiplicityPerJet==0) continue; 
+        // Access flight distance information
+        secondaryVertexFlightDistanceSignificance.push_back(jetSecondaryVertexFlightDistanceSignificance.at(jSecondaryVertex));
+        for (size_t iSelectedTrack=0;iSelectedTrack!=jetSelectedTrack.size();++iSelectedTrack)
+        {
+            // Check that track belongs to jet
+            if (jetSelectedTrackIndex.at(iSelectedTrack)!=jetIndex) continue;
+            
+            // Check that track belongs to a SV
+            std::vector<int>::const_iterator isInVector = std::find(jetSecondaryVertexTrackMatchToSelectedTrackIndex.begin(), jetSecondaryVertexTrackMatchToSelectedTrackIndex.end(),iSelectedTrack);
+            if (isInVector ==  jetSecondaryVertexTrackMatchToSelectedTrackIndex.end()) continue;
+            
+            // Check that track belongs to the SV - if so, sum up for track multiplicity
+            if (jetSecondaryVertexTrackVertexIndex.at(isInVector-jetSecondaryVertexTrackMatchToSelectedTrackIndex.begin()) != (int) jSecondaryVertex) continue;
+            
+            // Calculate secondary vertex charge
+            const double svProduct = jetSelectedTrack.at(iSelectedTrack).px()*jetSecondaryVertex.at(jSecondaryVertex).px() +jetSelectedTrack.at(iSelectedTrack).py()*jetSecondaryVertex.at(jSecondaryVertex).py() + jetSelectedTrack.at(iSelectedTrack).pz()*jetSecondaryVertex.at(jSecondaryVertex).pz();
+            
+            std::vector<double> svProductPow;
+            for (double iPow=0.2;iPow<=2.;iPow+=0.2)
+            {
+                svProductPow.push_back(std::pow(svProduct,iPow));
+            }
+            
+            for (size_t i_sum=0;i_sum!=sumSVPowProduct.size();i_sum++)
+            {
+                sumSVPowProduct.at(i_sum) += svProductPow.at(i_sum);
+                sumSVPowProductQ.at(i_sum) += (svProductPow.at(i_sum))*jetSelectedTrackCharge.at(iSelectedTrack);
+            }
+            
+        }
+        const double secondaryVertexChargeTest(sumSVPowProduct.at(4)>0 ? sumSVPowProductQ.at(4)/sumSVPowProduct.at(4) : 0);
+        chargeOfSecondaryVerticesForSelectedTracks.push_back(secondaryVertexChargeTest);  
+    }
+    
+    if (secondaryVertexMultiplicityPerJet==1) thereIsASecondaryVertex = true;
+    
+    std::vector<double> impactParameterValuesForPf;
+    double impactParameterSignificanceOfLeadingTrack = -999.;
+    
+    for (size_t iPfTrack=0;iPfTrack!=jetPfCandidateTrack.size();iPfTrack++)
+    {
+        double trueBJetPfTrackPt = jetPfCandidateTrack.at(iPfTrack).pt();
+        int trueMatched = 0;
+        if (jetIndex!=jetPfCandidateTrackIndex.at(iPfTrack)) trueMatched = -1;
+        if (trueMatched == -1) continue;
+        ++trueBJetTrackMultiplicity;
+        
+        if(trueBJetPfTrackPt>maxPtTrueTrack) maxPtTrueTrack = trueBJetPfTrackPt;
+        
+        // Access impact parameter
+        double impactParameterValueForPf = 0;
+        double impactParameterSignificanceForPf = 0;
+        
+        std::vector<int>::const_iterator pfIsMatchedToSelTrack = std::find(impactParameterMatchToPfIndices.begin(),impactParameterMatchToPfIndices.end(),iPfTrack);
+        if (pfIsMatchedToSelTrack!=impactParameterMatchToPfIndices.end()) 
+        {
+            impactParameterSignificanceForPf = impactParameterSignificance.at(pfIsMatchedToSelTrack - impactParameterMatchToPfIndices.begin());
+            impactParameterValuesForPf.push_back(impactParameterValueForPf);
+            if (iPfTrack==0) impactParameterSignificanceOfLeadingTrack = impactParameterSignificanceForPf;
+        }
+        
+        // Check if the track is a lepton or not:
+        int particleId = jetPfCandidateTrackId.at(iPfTrack);
+        trackParticleId.push_back(particleId);
+        
+        if (particleId==3) 
+        {
+            trueBJetMuonTracksPt.push_back(trueBJetPfTrackPt);
+            trueBJetMuonTracksCharge.push_back(jetPfCandidateTrackCharge.at(iPfTrack));
+        }
+        
+        double ptRatio = trueBJetPfTrackPt/trueBJetPt;
+        ptRatioValues.push_back(ptRatio);
+        
+        if (ptRatioValues.size()==1)
+        {
+            leadingTrackPt = jetPfCandidateTrack.at(iPfTrack).pt();
+            leadingTrackCharge = jetPfCandidateTrackCharge.at(iPfTrack);
+        }
+        
+        if (ptRatioValues.size()==1&&particleId==2) 
+        {
+            ptRatioValuesElectron = ptRatio;
+            trueBJetLeadingElectronCharge = jetPfCandidateTrackCharge.at(iPfTrack);
+            isLeadingElectron = true;
+        }
+        
+        if (ptRatioValues.size()==1&&particleId==3) 
+        {
+            isLeadingMuon = true;
+        }
+        
+        if (ptRatioValues.size()==2&&particleId==2) 
+        {
+            subleadingTrackPt = jetPfCandidateTrack.at(iPfTrack).pt();
+            subleadingTrackCharge = jetPfCandidateTrackCharge.at(iPfTrack);
+        }
+        
+        if (ptRatioValues.size()==2&&particleId==3) 
+        {
+            subleadingTrackPt = jetPfCandidateTrack.at(iPfTrack).pt();
+            subleadingTrackCharge = jetPfCandidateTrackCharge.at(iPfTrack);
+        }
+        
+        // Calculate the jet c_{rel} 
+        const double constituentTrueBPx = jetPfCandidateTrack.at(iPfTrack).px();
+        const double constituentTrueBPy = jetPfCandidateTrack.at(iPfTrack).py();
+        const double constituentTrueBPz = jetPfCandidateTrack.at(iPfTrack).pz();
+        const double trueProduct = constituentTrueBPx*jetTrueBPx + constituentTrueBPy*jetTrueBPy + constituentTrueBPz*jetTrueBPz;
+        
+        std::vector<double> vectProductMomentumQ;
+        double xTrueComponent = (jetTrueBPy*constituentTrueBPz-jetTrueBPz*constituentTrueBPy);
+        double yTrueComponent = (jetTrueBPx*constituentTrueBPz-jetTrueBPz*constituentTrueBPx);
+        double zTrueComponent = (jetTrueBPx*constituentTrueBPy-jetTrueBPy*constituentTrueBPx); 
+        const double trueMagnitude = std::sqrt(xTrueComponent*xTrueComponent+yTrueComponent*yTrueComponent+zTrueComponent*zTrueComponent);
+        
+        std::vector<double> trueProductPow;
+        std::vector<double> trueMagnitudePow;
+        
+        for (double iPow=0.2;iPow<=2.;iPow+=0.2)
+        {
+            trueProductPow.push_back(std::pow(trueProduct,iPow));
+            trueMagnitudePow.push_back(std::pow(trueMagnitude,iPow));
+        }
+        
+        for (size_t i_sum=0;i_sum!=sumTrueBMomentum.size();i_sum++)
+        {
+            sumTrueBMomentum.at(i_sum) += trueProductPow.at(i_sum);
+            sumTrueBMagnitude.at(i_sum) += trueMagnitudePow.at(i_sum);
+            sumTrueBMomentumQ.at(i_sum) += (trueProductPow.at(i_sum))*jetPfCandidateTrackCharge.at(iPfTrack);
+            sumTrueBMagnitudeQ.at(i_sum) += (trueMagnitudePow.at(i_sum))*jetPfCandidateTrackCharge.at(iPfTrack);
+        }
+    }
+    
+    std::vector<double> trueBJetScalarChargeVector;
+    std::vector<double> trueBJetRelChargeVector;
+    
+    for (size_t iSumHis=0;iSumHis!=sumTrueBMomentum.size();iSumHis++)
+    {
+        const double trueBJetScalarChargeForX(sumTrueBMomentum.at(iSumHis)>0 ? sumTrueBMomentumQ.at(iSumHis)/sumTrueBMomentum.at(iSumHis) : 0);
+        const double trueBJetRelCharge(sumTrueBMagnitude.at(iSumHis)>0 ? sumTrueBMagnitudeQ.at(iSumHis)/sumTrueBMagnitude.at(iSumHis) : 0);
+        trueBJetScalarChargeVector.push_back(trueBJetScalarChargeForX);
+        trueBJetRelChargeVector.push_back(trueBJetRelCharge);
+    }
+    
+    // Testing mva variable separation
+    double leadingTrackPtWeightedCharge = leadingTrackCharge*leadingTrackPt/trueBJetPt;
+    double subleadingTrackPtWeightedCharge = subleadingTrackCharge*subleadingTrackPt/trueBJetPt;
+    double thirdleadingTrackPtWeightedCharge = thirdleadingTrackCharge*thirdleadingTrackPt/trueBJetPt;
+    double leadingMuonPtWeightedCharge = 0.;
+    if (isLeadingMuon) leadingMuonPtWeightedCharge = trueBJetMuonTracksCharge.at(0)*trueBJetMuonTracksPt.at(0)/trueBJetPt;
+    double leadingElectronPtWeightedCharge = 0.;
+    if (isLeadingElectron) leadingElectronPtWeightedCharge = trueBJetLeadingElectronCharge*ptRatioValuesElectron/trueBJetPt;
+    double trackNumberWeightedJetPt = leadingTrackCharge*trueBJetPt/trueBJetTrackMultiplicity;
+    double chargeWeightedTrackId = leadingTrackCharge;
+    if (isLeadingMuon) chargeWeightedTrackId = leadingTrackCharge*3;
+    double svChargeWeightedFlightDistance = 0.;
+    if (thereIsASecondaryVertex) svChargeWeightedFlightDistance = chargeOfSecondaryVerticesForSelectedTracks.at(0) * jetSecondaryVertexFlightDistanceSignificance.at(0); 
+    
+    // MVA specific variable filling
+    if (jetHadronFlavour>0) jetChargeMvaStruct_.trueBJetId_ = -1;
+    else if (jetHadronFlavour<0) jetChargeMvaStruct_.trueBJetId_ = 0;
+    jetChargeMvaStruct_.relChargeJet_ = trueBJetRelChargeVector.at(3);
+    jetChargeMvaStruct_.longChargeJet_ = trueBJetScalarChargeVector.at(3);
+    jetChargeMvaStruct_.leadingTrackPtWeightedCharge_ = leadingTrackPtWeightedCharge;
+    jetChargeMvaStruct_.subleadingTrackPtWeightedCharge_ = subleadingTrackPtWeightedCharge;
+    jetChargeMvaStruct_.thirdleadingTrackPtWeightedCharge_ = thirdleadingTrackPtWeightedCharge;
+    jetChargeMvaStruct_.leadingMuonPtWeightedCharge_ = leadingMuonPtWeightedCharge;
+    jetChargeMvaStruct_.leadingElectronPtWeightedCharge_ = leadingElectronPtWeightedCharge;
+    jetChargeMvaStruct_.trackNumberWeightedJetPt_ = trackNumberWeightedJetPt;
+    jetChargeMvaStruct_.chargeWeightedTrackId_ = chargeWeightedTrackId;
+    jetChargeMvaStruct_.svChargeWeightedFlightDistance_ = svChargeWeightedFlightDistance;
+    if (thereIsASecondaryVertex) jetChargeMvaStruct_.secondaryVertexCharge_ = chargeOfSecondaryVerticesForSelectedTracks.at(0);
+    else jetChargeMvaStruct_.secondaryVertexCharge_ = 0.; 
+    if (impactParameterValuesForPf.size()!=0) jetChargeMvaStruct_.ipSignificanceLeadingTrack_ = impactParameterSignificanceOfLeadingTrack;
+    else (jetChargeMvaStruct_.ipSignificanceLeadingTrack_ = 0.);
+    
+    // MVA reader variable
+    val1  = jetChargeReader_->EvaluateMVA ("testingTheReader");
+    return val1;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
