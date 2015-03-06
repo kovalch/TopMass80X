@@ -7,6 +7,7 @@ class TCanvas;
 class TLegend;
 class TH1;
 class TH2;
+class TH2D;
 class Output;
 class TDirectory;
 
@@ -17,7 +18,7 @@ class PlotterBTop{
     
 public:
     /// Constructor
-    PlotterBTop(const Samples& samples, const double lumi, const double topxsec);
+    PlotterBTop(const Samples& samples, const double lumi, const double topxsec, const TString& specname);
     
     /// Destructor
     ~PlotterBTop(){};
@@ -44,7 +45,8 @@ private:
      const Samples& samples_;
      const double lumi_;
      const double topxsec_;
-
+     const TString& specname_;
+     
      TString plotName_;
      TString plotTitle_;
      TString plotUnits_;
@@ -58,6 +60,8 @@ private:
     std::vector<TH1D* > v_UnderflowSampleHist_; // v-sample , Hist 
     std::vector<TH1D* > v_OverflowSampleHist_;
     void writePlotCP(const std::vector<Sample>& v_sample,const std::vector<TH1D* >& v_SampleHist);
+    TH2D* hRecoGen_;
+    std::vector<Double_t> recogenBins_;
     
     ///Unfolding
     TUnfoldBinning* detectorBinning_;
@@ -124,6 +128,7 @@ private:
     Int_t entry_,entry0_;
     Float_t eventWeight_, trueLevelWeight_, trueLevelWeight0_;
     Int_t isTopGen_, isKinReco_;
+    Float_t top_pt_;
     float branchVal_;
     float branchValGen_;
     float branchValGen0_;
