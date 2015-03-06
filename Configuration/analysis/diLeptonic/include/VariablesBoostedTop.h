@@ -71,6 +71,7 @@ public:
     VariableInt jet_multiplicity_;
     VariableFloat x1_;
     VariableFloat x2_;
+    VariableFloat mlblbmet_;
     
     VariableFloat gen_top_pt_;
     VariableFloat gen_ttbar_delta_phi_;
@@ -107,6 +108,7 @@ private:
     static constexpr const char* name_jet_multiplicity_ = "jet_multiplicity";
     static constexpr const char* name_x1_ = "x1";
     static constexpr const char* name_x2_ = "x2";
+    static constexpr const char* name_mlblbmet_ = "mlblbmet";
     
     static constexpr const char* name_gen_top_pt_ = "gen_top_pt";
     static constexpr const char* name_gen_ttbar_delta_phi_ = "gen_ttbar_delta_phi";

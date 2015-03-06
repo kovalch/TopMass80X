@@ -33,6 +33,7 @@ ttbar_mass_(VariableFloat(name_ttbar_mass_)),
 jet_multiplicity_(VariableInt(name_jet_multiplicity_)),
 x1_(VariableFloat(name_x1_)),
 x2_(VariableFloat(name_x2_)),
+mlblbmet_(VariableFloat(name_mlblbmet_)),
 
 gen_top_pt_(VariableFloat(name_gen_top_pt_)),
 gen_ttbar_delta_phi_(VariableFloat(name_gen_ttbar_delta_phi_)),
@@ -75,6 +76,7 @@ ttbar_mass_(VariableFloat(name_ttbar_mass_)),
 jet_multiplicity_(VariableInt(name_jet_multiplicity_)),
 x1_(VariableFloat(name_x1_)),
 x2_(VariableFloat(name_x2_)),
+mlblbmet_(VariableFloat(name_mlblbmet_)),
 
 gen_top_pt_(VariableFloat(name_gen_top_pt_)),
 gen_ttbar_delta_phi_(VariableFloat(name_gen_ttbar_delta_phi_)),
@@ -97,22 +99,27 @@ trueLevelWeight_(VariableFloat(name_trueLevelWeight_))
     isTopGen_.value_ = 0;
     entry_.value_ = -999;
     
+    TLorentzVector met(common::LVtoTLV(*recoObjects.met_));
+    
   if(kinematicReconstructionSolutions.numberOfSolutions()){
    
    isKinReco_.value_ = 1;
-
-   
-   lep_pt_.value_      = kinematicReconstructionSolutions.solution().lepton().Pt();
-   anti_lep_pt_.value_ = kinematicReconstructionSolutions.solution().antiLepton().Pt();
    
    //proton Energy [GeV]  
    double protonE = 4000;
    TLorentzVector hyptop(common::LVtoTLV(kinematicReconstructionSolutions.solution().top()));
    TLorentzVector hypantitop(common::LVtoTLV(kinematicReconstructionSolutions.solution().antiTop()));
+   TLorentzVector hypbjet(common::LVtoTLV(kinematicReconstructionSolutions.solution().bjet()));
+   TLorentzVector hypantibjet(common::LVtoTLV(kinematicReconstructionSolutions.solution().antiBjet()));
+   TLorentzVector hyplep(common::LVtoTLV(kinematicReconstructionSolutions.solution().lepton()));
+   TLorentzVector hypantilep(common::LVtoTLV(kinematicReconstructionSolutions.solution().antiLepton()));
    TLorentzVector hypttbar(hyptop+hypantitop);
    
    int nRecoJets=recoObjectIndices.jetIndices_.size();
    jet_multiplicity_.value_ = nRecoJets;
+   
+   lep_pt_.value_      = hyplep.Pt();
+   anti_lep_pt_.value_ = hypantilep.Pt();
    
    top_pt_.value_ = hyptop.Pt();
    top_rapidity_.value_ = hyptop.Rapidity();
@@ -122,6 +129,8 @@ trueLevelWeight_(VariableFloat(name_trueLevelWeight_))
    
    ttbar_delta_eta_.value_ = fabs(hyptop.Eta()-hypantitop.Eta());
    ttbar_delta_phi_.value_ = fabs(hyptop.Eta()-hypantitop.Eta());
+   
+   mlblbmet_.value_ = (met+hyplep+hypantilep+hypbjet+hypantibjet).M()/hypttbar.M();
    
    double restPzJetsSum=0; // rest means jets not from top or anti-top
    double restEJetsSum=0; 
