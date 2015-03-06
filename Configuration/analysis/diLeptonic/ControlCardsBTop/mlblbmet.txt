@@ -1,10 +1,10 @@
 
 
-cpnbins 40 0 1200
-title p_{T}^{t}
-units [GeV]
+cpnbins 40 0 2
+title mlblbmet
+units 
 
-recogen 150 300 1500 150 300 1500
+recogen 150 0 10 150 0 150
 
 
 1d
