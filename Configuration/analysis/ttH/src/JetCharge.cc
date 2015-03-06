@@ -90,7 +90,7 @@ double JetCharge::ptWeightedJetChargeX (const int jetId, const LV& recoJet, cons
 }
     
     
-    double JetCharge::mvaJetChargeWeight(const int jetIndex, const LV& jet, const RecoObjects& recoObjects)
+double JetCharge::mvaJetChargeWeight(const int jetIndex, const LV& jet, const RecoObjects& recoObjects)
 {
     // Specific selected tracks information (tracks with quality requirements applied already at ntuple level) 
     const std::vector<LV>& jetSelectedTrack = *recoObjects.jetSelectedTrack_;
@@ -140,9 +140,6 @@ double JetCharge::ptWeightedJetChargeX (const int jetId, const LV& recoJet, cons
     
     double maxPtTrueTrack  = -999.;
     double leadingTrackPt = -999.;
-    //double leadingTrackPx = -999.;
-    //double leadingTrackPy = -999.;
-    //double leadingTrackPz = -999.;
     double leadingTrackCharge = -999.;
     double subleadingTrackPt = -999.;
     double subleadingTrackCharge = -999.;
