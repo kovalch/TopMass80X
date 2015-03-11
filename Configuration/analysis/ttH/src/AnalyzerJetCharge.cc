@@ -225,7 +225,7 @@ void AnalyzerJetCharge::fillHistos(const EventMetadata& eventMetadata,
         int numHadMatched = -1;
         //bool recoBorAntiBFromAny =  false;
         
-        int jetHadronFlavour = -999;
+        int jetHadronFlavour = 0;
         
         if (optionForCalibration==0)
         {
