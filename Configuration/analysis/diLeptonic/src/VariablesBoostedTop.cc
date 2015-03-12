@@ -24,6 +24,7 @@ lep_pt_(VariableFloat(name_lep_pt_)),
 anti_lep_pt_(VariableFloat(name_anti_lep_pt_)),
 
 top_pt_(VariableFloat(name_top_pt_)),
+topbar_pt_(VariableFloat(name_topbar_pt_)),
 ttbar_delta_phi_(VariableFloat(name_ttbar_delta_phi_)),
 ttbar_pt_(VariableFloat(name_ttbar_pt_)),
 top_rapidity_(VariableFloat(name_top_rapidity_)),
@@ -36,6 +37,7 @@ x2_(VariableFloat(name_x2_)),
 mlblbmet_(VariableFloat(name_mlblbmet_)),
 
 gen_top_pt_(VariableFloat(name_gen_top_pt_)),
+gen_topbar_pt_(VariableFloat(name_gen_topbar_pt_)),
 gen_ttbar_delta_phi_(VariableFloat(name_gen_ttbar_delta_phi_)),
 gen_ttbar_pt_(VariableFloat(name_gen_ttbar_pt_)),
 gen_top_rapidity_(VariableFloat(name_gen_top_rapidity_)),
@@ -67,6 +69,7 @@ lep_pt_(VariableFloat(name_lep_pt_)),
 anti_lep_pt_(VariableFloat(name_anti_lep_pt_)),
 
 top_pt_(VariableFloat(name_top_pt_)),
+topbar_pt_(VariableFloat(name_topbar_pt_)),
 ttbar_delta_phi_(VariableFloat(name_ttbar_delta_phi_)),
 ttbar_pt_(VariableFloat(name_ttbar_pt_)),
 top_rapidity_(VariableFloat(name_top_rapidity_)),
@@ -79,6 +82,7 @@ x2_(VariableFloat(name_x2_)),
 mlblbmet_(VariableFloat(name_mlblbmet_)),
 
 gen_top_pt_(VariableFloat(name_gen_top_pt_)),
+gen_topbar_pt_(VariableFloat(name_gen_topbar_pt_)),
 gen_ttbar_delta_phi_(VariableFloat(name_gen_ttbar_delta_phi_)),
 gen_ttbar_pt_(VariableFloat(name_gen_ttbar_pt_)),
 gen_top_rapidity_(VariableFloat(name_gen_top_rapidity_)),
@@ -99,12 +103,12 @@ trueLevelWeight_(VariableFloat(name_trueLevelWeight_))
     isTopGen_.value_ = 0;
     entry_.value_ = -999;
     
-    TLorentzVector met(common::LVtoTLV(*recoObjects.met_));
+
     
   if(kinematicReconstructionSolutions.numberOfSolutions()){
    
    isKinReco_.value_ = 1;
-   
+    
    //proton Energy [GeV]  
    double protonE = 4000;
    TLorentzVector hyptop(common::LVtoTLV(kinematicReconstructionSolutions.solution().top()));
@@ -114,6 +118,7 @@ trueLevelWeight_(VariableFloat(name_trueLevelWeight_))
    TLorentzVector hyplep(common::LVtoTLV(kinematicReconstructionSolutions.solution().lepton()));
    TLorentzVector hypantilep(common::LVtoTLV(kinematicReconstructionSolutions.solution().antiLepton()));
    TLorentzVector hypttbar(hyptop+hypantitop);
+   TLorentzVector met(common::LVtoTLV(*recoObjects.met_));
    
    int nRecoJets=recoObjectIndices.jetIndices_.size();
    jet_multiplicity_.value_ = nRecoJets;
@@ -122,6 +127,7 @@ trueLevelWeight_(VariableFloat(name_trueLevelWeight_))
    anti_lep_pt_.value_ = hypantilep.Pt();
    
    top_pt_.value_ = hyptop.Pt();
+   topbar_pt_.value_ = hypantitop.Pt();
    top_rapidity_.value_ = hyptop.Rapidity();
    ttbar_pt_.value_ = hypttbar.Pt();
    ttbar_rapidity_.value_ = hypttbar.Rapidity();
@@ -163,6 +169,7 @@ trueLevelWeight_(VariableFloat(name_trueLevelWeight_))
       TLorentzVector genttbar(gentop+genantitop);
     
       gen_top_pt_.value_ = gentop.Pt();
+      gen_topbar_pt_.value_ = genantitop.Pt();
       gen_top_rapidity_.value_ = gentop.Rapidity();
       gen_ttbar_pt_.value_ = genttbar.Pt();
       gen_ttbar_rapidity_.value_ = genttbar.Rapidity();

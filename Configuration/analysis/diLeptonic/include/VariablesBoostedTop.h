@@ -62,6 +62,7 @@ public:
     VariableFloat anti_lep_pt_;
     
     VariableFloat top_pt_;
+    VariableFloat topbar_pt_;
     VariableFloat ttbar_delta_phi_;
     VariableFloat ttbar_pt_;
     VariableFloat top_rapidity_;
@@ -74,6 +75,7 @@ public:
     VariableFloat mlblbmet_;
     
     VariableFloat gen_top_pt_;
+    VariableFloat gen_topbar_pt_;
     VariableFloat gen_ttbar_delta_phi_;
     VariableFloat gen_ttbar_pt_;
     VariableFloat gen_top_rapidity_;
@@ -99,6 +101,7 @@ private:
     static constexpr const char* name_anti_lep_pt_ = "anti_lep_pt";
     
     static constexpr const char* name_top_pt_ = "top_pt";
+    static constexpr const char* name_topbar_pt_ = "topbar_pt";
     static constexpr const char* name_ttbar_delta_phi_ = "ttbar_delta_phi";
     static constexpr const char* name_ttbar_pt_ = "ttbar_pt";
     static constexpr const char* name_top_rapidity_ = "top_rapidity";
@@ -111,6 +114,7 @@ private:
     static constexpr const char* name_mlblbmet_ = "mlblbmet";
     
     static constexpr const char* name_gen_top_pt_ = "gen_top_pt";
+    static constexpr const char* name_gen_topbar_pt_ = "gen_topbar_pt";
     static constexpr const char* name_gen_ttbar_delta_phi_ = "gen_ttbar_delta_phi";
     static constexpr const char* name_gen_ttbar_pt_ = "gen_ttbar_pt";
     static constexpr const char* name_gen_top_rapidity_ = "gen_top_rapidity";

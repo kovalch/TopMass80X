@@ -62,6 +62,7 @@ void TreeHandlerBoostedTop::bookBranches(TTree* tree, VariablesBase* const varia
     this->createBranch(tree, variablesBoostedTop->anti_lep_pt_);
     
     this->createBranch(tree, variablesBoostedTop->top_pt_);
+    this->createBranch(tree, variablesBoostedTop->topbar_pt_);
     this->createBranch(tree, variablesBoostedTop->ttbar_delta_phi_);
     this->createBranch(tree, variablesBoostedTop->ttbar_pt_);
     this->createBranch(tree, variablesBoostedTop->top_rapidity_);
@@ -74,6 +75,7 @@ void TreeHandlerBoostedTop::bookBranches(TTree* tree, VariablesBase* const varia
     this->createBranch(tree, variablesBoostedTop->mlblbmet_);
     
     this->createBranch(tree, variablesBoostedTop->gen_top_pt_);
+    this->createBranch(tree, variablesBoostedTop->gen_topbar_pt_);
     this->createBranch(tree, variablesBoostedTop->gen_ttbar_delta_phi_);
     this->createBranch(tree, variablesBoostedTop->gen_ttbar_pt_);
     this->createBranch(tree, variablesBoostedTop->gen_top_rapidity_);
@@ -125,6 +127,7 @@ void TreeHandlerBoostedTop::importBranches(TTree* tree, std::vector<VariablesBas
     this->importBranch(tree, variablesBoostedTop.anti_lep_pt_);
     
     this->importBranch(tree, variablesBoostedTop.top_pt_);
+    this->importBranch(tree, variablesBoostedTop.topbar_pt_);
     this->importBranch(tree, variablesBoostedTop.ttbar_delta_phi_);
     this->importBranch(tree, variablesBoostedTop.ttbar_pt_);
     this->importBranch(tree, variablesBoostedTop.top_rapidity_);
@@ -137,6 +140,7 @@ void TreeHandlerBoostedTop::importBranches(TTree* tree, std::vector<VariablesBas
     this->createBranch(tree, variablesBoostedTop.mlblbmet_);
     
     this->importBranch(tree, variablesBoostedTop.gen_top_pt_);
+    this->importBranch(tree, variablesBoostedTop.gen_topbar_pt_);
     this->importBranch(tree, variablesBoostedTop.gen_ttbar_delta_phi_);
     this->importBranch(tree, variablesBoostedTop.gen_ttbar_pt_);
     this->importBranch(tree, variablesBoostedTop.gen_top_rapidity_);
