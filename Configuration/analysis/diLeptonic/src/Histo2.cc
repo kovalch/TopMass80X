@@ -58,6 +58,8 @@ int main(int argc, char** argv){
                                              common::makeStringCheckBegin(Systematic::convertType(Systematic::allowedSystematics)));
      CLParameter<std::string> opt_globalCorrection("g", "Specify global correction, valid: empty argument for none, Drell-Yan (dy), tt+HF (ttbb). Default: dy", false, 0, 2,
                                                    common::makeStringCheck(GlobalCorrection::convert(GlobalCorrection::allowedGlobalCorrections)));
+     CLParameter<std::string> opt_specname("n", "Set specific name, valid: any name you want without spaces", false, 1, 1);
+     
      CLAnalyser::interpretGlobal(argc, argv);
     
      styleUtils::setHHStyle(*gStyle);
@@ -145,7 +147,11 @@ int main(int argc, char** argv){
         
         if(runPlotter){
             std::cout<<"--- Beginning with the Plotter\n\n";
-            PlotterBTop generalPlot(SAMPLES,Luminosity,topxsec);
+            
+            TString specname="";
+            if(opt_specname.isSet())specname=opt_specname.getArguments().at(0);
+            
+            PlotterBTop generalPlot(SAMPLES,Luminosity,topxsec,specname);
             for(auto v_plotName : vv_plotName){
                 std::cout << v_plotName.at(0) << std::endl;
                 generalPlot.setOptions(v_plotName);
