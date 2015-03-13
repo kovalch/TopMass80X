@@ -45,6 +45,11 @@ public:
     /// MVA charge weight -> This weight should be understood as a charge by the top-system identification mva
     double mvaJetChargeWeight(const int jetIndex, const LV& jet, const RecoObjects& recoObjects);
     
+    /// Function to return the quantile value (x') of h2 given a value x of h1
+    /// In case the function is used to correct MC to data: x is the value to be corrected, h1 is the sum of mc histogram, and h2 the data histogram
+    /// Since quantiles are probabilities, the histograms need to be normalised: integral_h1 and integral_h2 are the corresponding integrals between bins -1 and nbins+1.
+    double quantile(double& x, TH1& h1, TH1& h2, double& integral_h1, double& integral_h2);
+    
     TMVA::Reader* jetChargeReader_;
     TString case1_;
     

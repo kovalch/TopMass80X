@@ -7,10 +7,11 @@
 #include <map>
 #include <vector>
 
-#include <TString.h>
-#include <Math/VectorUtil.h>
-#include <TProfile.h>
-#include <TObjString.h>
+#include "TString.h"
+#include "Math/VectorUtil.h"
+#include "TProfile.h"
+#include "TH1.h"
+#include "TObjString.h"
 #include "TMVA/Tools.h"
 #include "TMVA/Reader.h"
 
@@ -389,6 +390,23 @@ double JetCharge::mvaJetChargeWeight(const int jetIndex, const LV& jet, const Re
     return val1;
 }
 
+double quantile(double& x, TH1& h1, TH1& h2, double& integral_h1, double& integral_h2)
+{
+    double binOfX = h1.FindBin(x);
+    h1.Scale(1./integral_h1);
+    double integralAtCharge = h1.TH1::Integral(-1., binOfX);
+    if (integralAtCharge>1.||integralAtCharge<0.) std::cout<<"\n\tNormalization didn't work! Please check x!!\n";
+    
+    Int_t nq = 1;
+    Double_t yq [1];
+    Double_t xq [1];
+    xq[0] = integralAtCharge;
+    
+    h2.Scale(1./integral_h2);
+    h2.TH1::GetQuantiles(nq, yq, xq);
+    
+    return yq[0];
+}
 
 
 
