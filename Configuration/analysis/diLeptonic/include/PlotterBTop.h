@@ -129,6 +129,8 @@ private:
     Float_t eventWeight_, trueLevelWeight_, trueLevelWeight0_;
     Int_t isTopGen_, isKinReco_;
     Float_t top_pt_;
+    Float_t topbar_pt_;
+    
     float branchVal_;
     float branchValGen_;
     float branchValGen0_;

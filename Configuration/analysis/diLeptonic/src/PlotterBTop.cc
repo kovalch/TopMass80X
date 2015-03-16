@@ -99,6 +99,7 @@ eventWeight_(-999),
 trueLevelWeight_(-999),
 trueLevelWeight0_(-999),
 top_pt_(-999),
+topbar_pt_(-999),
 branchVal_(-999),
 branchValGen_(-999),
 branchValGen0_(-999)/*,
@@ -399,6 +400,7 @@ void PlotterBTop::producePlots()
                 dataTree8->SetBranchAddress(plotName_,&branchVal_);
                 dataTree8->SetBranchAddress("gen_"+plotName_,&branchValGen_);
                 dataTree8->SetBranchAddress("top_pt",&top_pt_);
+                dataTree8->SetBranchAddress("topbar_pt",&topbar_pt_);
                 
                 sampleInfo.add("entries", utils::numToString(dataTree8->GetEntriesFast()));
                 sampleInfo.add("weight",utils::numToString(v_weight.at(iSample)));
@@ -411,7 +413,7 @@ void PlotterBTop::producePlots()
                     if(dataTree8->GetEntry(ievent)<=0) break;
 
                     if(plotName_=="top_pt")branchVal_=top_pt_;
-                    //if(top_pt_<300)continue;
+                    if(top_pt_ < 300 || topbar_pt_ < 300)continue;
                     //Control plots//
                         v_SampleHist_.at(iSample)->Fill(branchVal_,eventWeight_*v_weight.at(iSample));
                         v_UnderflowSampleHist_.at(iSample)->Fill(branchVal_,eventWeight_*v_weight.at(iSample));
@@ -419,7 +421,7 @@ void PlotterBTop::producePlots()
                         if(isTopGen_&&plotName_!="mlblbmet")hRecoGen_->Fill(branchVal_,branchValGen_,eventWeight_*v_weight.at(iSample));
                     // ... //
                     
-//                     if(isTopGen_){
+                    if(isTopGen_){
 //                         for(Int_t ievent0=lastEvent;ievent0<dataTree0->GetEntriesFast();ievent0++) {
 //                             if(dataTree0->GetEntry(ievent0)<=0) break;
 //                                 
@@ -447,7 +449,7 @@ void PlotterBTop::producePlots()
 //                                     break;
 //                                 }
 //                         }
-//                     }
+                    }
 //                     
 //                     if(v_sample.at(iSample).sampleType() == Sample::data){
 //                         histData_->Fill(recoBin_(branchVal_),eventWeight_*v_weight.at(iSample)); 
