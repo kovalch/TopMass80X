@@ -55,7 +55,7 @@ JetCharge::JetCharge() {
 }
 
 
-double JetCharge::ptWeightedJetChargeX (const int jetId, const LV& recoJet, const double x, const std::vector<int> pfCandidateJetIndex, const VLV& pfCandidates, const std::vector<int> pfCandidateCharge)
+double JetCharge::pWeightedJetChargeX (const int jetId, const LV& recoJet, const double x, const std::vector<int> pfCandidateJetIndex, const VLV& pfCandidates, const std::vector<int> pfCandidateCharge)
 {
     // Access jet momentum information
     double jetPx = recoJet.px();
@@ -91,7 +91,7 @@ double JetCharge::ptWeightedJetChargeX (const int jetId, const LV& recoJet, cons
 }
     
     
-double JetCharge::mvaJetChargeWeight(const int jetIndex, const LV& jet, const RecoObjects& recoObjects)
+double JetCharge::mvaJetCharge(const int jetIndex, const LV& jet, const RecoObjects& recoObjects)
 {
     // Specific selected tracks information (tracks with quality requirements applied already at ntuple level) 
     const std::vector<LV>& jetSelectedTrack = *recoObjects.jetSelectedTrack_;
@@ -390,7 +390,7 @@ double JetCharge::mvaJetChargeWeight(const int jetIndex, const LV& jet, const Re
     return val1;
 }
 
-double quantile(double& x, TH1& h1, TH1& h2, double& integral_h1, double& integral_h2)
+double quantileMappingCorrection(const double& x, TH1& h1, TH1& h2, const double& integral_h1, const double& integral_h2)
 {
     double binOfX = h1.FindBin(x);
     h1.Scale(1./integral_h1);
