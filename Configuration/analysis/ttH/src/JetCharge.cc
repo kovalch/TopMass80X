@@ -392,7 +392,7 @@ double JetCharge::mvaJetCharge(const int jetIndex, const LV& jet, const RecoObje
 
 double quantileMappingCorrection(const double& x, TH1& h1, TH1& h2, const double& integral_h1, const double& integral_h2)
 {
-    double binOfX = h1.FindBin(x);
+    Int_t binOfX = h1.FindFixBin(x);
     h1.Scale(1./integral_h1);
     double integralAtCharge = h1.TH1::Integral(-1., binOfX);
     if (integralAtCharge>1.||integralAtCharge<0.) std::cout<<"\n\tNormalization didn't work! Please check x!!\n";
