@@ -18,6 +18,7 @@
 #include "HiggsAnalysis.h"
 #include "analysisHelpers.h"
 #include "JetCategories.h"
+#include "JetCharge.h"
 #include "MvaTreeHandlerBase.h"
 #include "MvaTreeHandlerTopJets.h"
 #include "MvaTreeHandlerEventClassification.h"
@@ -176,6 +177,9 @@ void load_Analysis(const TString& validFilenamePattern,
     // Set up recoil corrector for MVA MET in Drell-Yan samples (initialised only in first Drell-Yan sample)
     const MetRecoilCorrector* metRecoilCorrector(0);
     
+    // Set up jet charge
+    JetCharge* jetCharge(0);
+    jetCharge = new JetCharge(false, false);
     
     // Set up jet categories
     JetCategories* jetCategories(0);
@@ -313,6 +317,7 @@ void load_Analysis(const TString& validFilenamePattern,
     HiggsAnalysis* selector = new HiggsAnalysis();
     selector->SetAnalysisOutputBase("selectionRoot");
     selector->SetKinematicReconstruction(kinematicReconstruction, kinematicReconstructionScaleFactors);
+    selector->SetJetCharge(jetCharge);
     selector->SetPileupScaleFactors(pileupScaleFactors);
     selector->SetLeptonScaleFactors(leptonScaleFactors);
     selector->SetTriggerScaleFactors(triggerScaleFactors);
