@@ -13,6 +13,7 @@
 #include <Math/VectorUtil.h>
 
 #include "HiggsAnalysis.h"
+#include "JetCharge.h"
 #include "higgsUtils.h"
 #include "analysisStructs.h"
 #include "AnalyzerBase.h"
@@ -76,7 +77,8 @@ additionalBjetMode_(-999),
 reweightingName_(""),
 reweightingSlope_(0.0),
 genStudiesTtbb_(false),
-genStudiesTth_(false)
+genStudiesTth_(false),
+jetCharge_(0)
 {
     if(MvaMET) this->mvaMet();
 }
@@ -348,10 +350,6 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     const double weightKinReco = this->weightKinReco();
     double weightNoPileup = trueLevelWeightNoPileup*weightTriggerSF*weightLeptonSF;
     double weight = weightNoPileup*weightPU;
-    // FIXME: for the moment access the weight due to jet charge mismodelling here, and multiply directly the overall weight with it
-    //const double weightJetCharge = this->weightJetCharge(jetIndices, *recoObjects.jetPfCandidateTrackIndex_, *recoObjects.jetPfCandidatePrimaryVertexId_);
-    //weightNoPileup *= weightJetCharge;
-    //weight *= weightJetCharge;
     tth::RecoLevelWeights recoLevelWeights(weightLeptonSF, weightTriggerSF,
                                            weightBtagSF, weightKinReco,
                                            weightNoPileup, weight);
@@ -692,7 +690,7 @@ void HiggsAnalysis::recoObjectSelection(std::vector<int>& allLeptonIndices,
     // first entry is antiBIndex i.e. with higher jet charge, second entry is bIndex
     // FIXME: The jet charge itself first needs to be calculated, as the value in the ntuple is not optimal
     // FIXME: for the moment the following line serves it
-    //this->calculateJetCharge();
+    //this->updateJetCharge(this->jetCharges(jetIndices, recoObjects));
     const std::vector<double>& jetChargeRelativePtWeighted = *recoObjects.jetChargeRelativePtWeighted_;
     jetIndexPairs = this->chargeOrderedJetPairIndices(jetIndices, jetChargeRelativePtWeighted);
     
@@ -832,6 +830,34 @@ void HiggsAnalysis::matchRecoToGenObjects(std::vector<int>& genJetMatchedRecoBje
 
 
 
+std::vector<double> HiggsAnalysis::jetCharges(const std::vector<int>&, const RecoObjects& recoObjects)const
+{
+    if(!recoObjects.valuesSet_){
+        std::cerr<<"Error in HiggsAnalysis::jetCharges()! Current implementation for jet charge requires recoObjects to be already read\n...break\n"<<std::endl;
+        exit(812);
+    }
+    
+    const VLV& jets = *recoObjects.jets_;
+    
+    std::vector<double> v_jetCharge(jets.size());
+    
+    // Do nothing if no jet charge instance is set up
+    if(!jetCharge_) return v_jetCharge;
+    
+    // FIXME: Calculate only for selected jets
+    for(size_t index = 0; index < jets.size(); ++index){
+        double jetCharge = jetCharge_->pWeightedCharge(static_cast<int>(index), jets.at(index),
+                                                             *recoObjects.jetPfCandidateTrackIndex_, *recoObjects.jetPfCandidateTrack_,
+                                                             *recoObjects.jetPfCandidateTrackCharge_, *recoObjects.jetPfCandidatePrimaryVertexId_, 0.8);
+        if(this->isMC()) jetCharge_->quantileMappingCorrection(jetCharge);
+        v_jetCharge.at(index) = jetCharge;
+    }
+    
+    return v_jetCharge;
+}
+
+
+
 tth::IndexPairs HiggsAnalysis::chargeOrderedJetPairIndices(const std::vector<int>& jetIndices,
                                                            const std::vector<double>& jetCharges)const
 {
@@ -889,6 +915,13 @@ void HiggsAnalysis::SetGenStudies(const bool ttbb, const bool tth)
 {
     genStudiesTtbb_ = ttbb;
     genStudiesTth_ = tth;
+}
+
+
+
+void HiggsAnalysis::SetJetCharge(const JetCharge* jetCharge)
+{
+    jetCharge_ = jetCharge;
 }
 
 

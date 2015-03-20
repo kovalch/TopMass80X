@@ -19,6 +19,7 @@ class CommonGenObjects;
 class TopGenObjects;
 class HiggsGenObjects;
 class KinematicReconstructionSolutions;
+class JetCharge;
 namespace tth{
     class GenLevelWeights;
     class RecoLevelWeights;
@@ -67,6 +68,9 @@ public:
     /// Define for which processes to access genObjects already at beginning
     void SetGenStudies(const bool ttbb, const bool tth);
     
+    /// Set up jet charge
+    void SetJetCharge(const JetCharge* jetCharge);
+    
     
     
     /// Set up all analysers of type AnalyzerBase
@@ -87,6 +91,9 @@ private:
     bool failsAdditionalJetFlavourSelection(const int topDecayMode, const int additionalJetFlavourId)const;
     
     
+    
+    /// Calculate jet charges for all jets in event
+    std::vector<double> jetCharges(const std::vector<int>& jetIndices, const RecoObjects& recoObjects)const;
     
     /// Return vector of pair of indices for dijet combinations, each pair ordered by jet charge
     tth::IndexPairs chargeOrderedJetPairIndices(const std::vector<int>& jetIndices,
@@ -164,6 +171,9 @@ private:
     
     /// Whether to access genObjects at first step for ttH
     bool genStudiesTth_;
+    
+    /// Pointer to the jet charge instance
+    const JetCharge* jetCharge_;
     
     
     
