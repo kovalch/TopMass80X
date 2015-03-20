@@ -11,6 +11,8 @@
 #include "Math/VectorUtil.h"
 #include "TProfile.h"
 #include "TH1.h"
+#include "TFile.h"
+#include "TObject.h"
 #include "TObjString.h"
 #include "TMVA/Tools.h"
 #include "TMVA/Reader.h"
@@ -42,6 +44,8 @@ mvaReader2_(0)
     std::cout<<"--- Beginning setting up jet charge\n";
     
     if(mvaCharge_){
+        std::cout<<"Using MVA jet charge\n";
+        
         const TString weightFilename = "/nfs/dust/cms/user/jgaray/releaseForPseudodata/CMSSW_5_3_18/src/TopAnalysis/Configuration/analysis/ttH/MVA_BDTAdaBoost_1500_beta05.weights.xml";
         
         mvaReader_ = new MvaReaderJetCharge("BDT method");
@@ -65,19 +69,72 @@ mvaReader2_(0)
         TString case1 = "testingTheReader";
         mvaReader2_->BookMVA(case1, weightFilename);  
     }
+    else{
+        std::cout<<"Using inclusive jet charge\n";
+    }
     
     if(correction_){
-        // FIXME: Read histograms in here, use a clone to modify it, and load it to the memory
-        // FIXME: Add protections to check if file exists, and if histos exist
-        histData_ = 0;
-        histMc_ = 0;
+        std::cout<<"Applying quantile mapping correction\n";
+        
+        // Check if file exists and open it
+        const std::string inputFilename(tth::DATA_PATH_TTH() + "/" + "jetCharge_quantileHistos.root");
+        ifstream inputFilestream(inputFilename);
+        if(!inputFilestream.is_open()){
+            std::cerr<<"Error in constructor of JetCharge()! Input file for quantile correction not found: "
+                     <<inputFilename<<"\n...break\n"<<std::endl;
+            exit(281);
+        }
+        else inputFilestream.close();
+        TFile* file = TFile::Open(inputFilename.data());
+        
+        // Check if histograms exist and access clones in memory
+        histData_ = this->readHist(file, "test_h_charge_step7_data");
+        histMc_ = this->readHist(file, "test_h_charge_step7_allmc");
+        
+        // Normalise histograms to area=1
         const double integralData = histData_->Integral(0, histData_->GetNbinsX()+1);
+        if(integralData > 0.) histData_->Scale(1./integralData);
+        else{
+            std::cerr<<"Error in constructor of JetCharge()! Integral of data histogram non-positive: "
+                     <<integralData<<"\n...break\n"<<std::endl;
+            exit(282);
+        }
         const double integralMc = histMc_->Integral(0, histMc_->GetNbinsX()+1);
-        histData_->Scale(1./integralData);
-        histMc_->Scale(1./integralMc);
+        if(integralMc > 0.) histMc_->Scale(1./integralMc);
+        else{
+            std::cerr<<"Error in constructor of JetCharge()! Integral of MC histogram non-positive: "
+                     <<integralMc<<"\n...break\n"<<std::endl;
+            exit(282);
+        }
+        
+        // Cleanup
+        file->Close();
+    }
+    else{
+        std::cout<<"No corrections applied\n";
     }
     
     std::cout<<"=== Finishing setting up jet charge\n\n";
+}
+
+
+
+TH1* JetCharge::readHist(TFile* file, const TString& histname)const
+{
+    TObject* object = file->Get(histname);
+    if(!object){
+        std::cerr<<"Error in JetCharge::readHist()! Input histogram for quantile correction not found: "
+                 <<histname<<"\n...break\n"<<std::endl;
+        exit(281);
+    }
+    TH1* hist = dynamic_cast<TH1*>(object->Clone());
+    if(!hist){
+        std::cerr<<"Error in JetCharge::readHist()! Object found in file, but not of histogram type"
+                 <<"\n...break\n"<<std::endl;
+        exit(281);
+    }
+    hist->SetDirectory(0);
+    return hist;
 }
 
 

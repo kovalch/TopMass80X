@@ -8,6 +8,7 @@
 #include "TMVA/Reader.h"
 
 class TString;
+class TFile;
 
 #include "AnalyzerBase.h"
 #include "../../common/include/classesFwd.h"
@@ -68,6 +69,8 @@ public:
     
     
 private:
+    
+    TH1* readHist(TFile* file, const TString& histname)const;
     
     MvaReaderBase* mvaReader_;
     
