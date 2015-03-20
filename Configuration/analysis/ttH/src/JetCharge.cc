@@ -436,8 +436,8 @@ void JetCharge::quantileMappingCorrection(double& jetCharge)const
 {
     if(!correction_) return;
     
-    Int_t bin = histData_->FindFixBin(jetCharge);
-    double integralAtCharge = histData_->Integral(0, bin);
+    Int_t bin = histMc_->FindFixBin(jetCharge);
+    double integralAtCharge = histMc_->Integral(0, bin);
     // FIXME: put protections against problematic cases, e.g. integral=0 or =1
     if(integralAtCharge>1. || integralAtCharge<0.) std::cout<<"\n\tNormalization didn't work! Please check x!!\n";
     
@@ -446,7 +446,7 @@ void JetCharge::quantileMappingCorrection(double& jetCharge)const
     Double_t xq [1];
     xq[0] = integralAtCharge;
     
-    histMc_->GetQuantiles(nq, yq, xq);
+    histData_->GetQuantiles(nq, yq, xq);
     
     jetCharge = yq[0];
 }
