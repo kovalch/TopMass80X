@@ -847,8 +847,8 @@ std::vector<double> HiggsAnalysis::jetCharges(const std::vector<int>&, const Rec
     // FIXME: Calculate only for selected jets
     for(size_t index = 0; index < jets.size(); ++index){
         double jetCharge = jetCharge_->pWeightedCharge(static_cast<int>(index), jets.at(index),
-                                                             *recoObjects.jetPfCandidateTrackIndex_, *recoObjects.jetPfCandidateTrack_,
-                                                             *recoObjects.jetPfCandidateTrackCharge_, *recoObjects.jetPfCandidatePrimaryVertexId_, 0.8);
+                                                       *recoObjects.jetPfCandidateTrackIndex_, *recoObjects.jetPfCandidateTrack_,
+                                                       *recoObjects.jetPfCandidateTrackCharge_, *recoObjects.jetPfCandidatePrimaryVertexId_, 0.8);
         if(this->isMC()) jetCharge_->quantileMappingCorrection(jetCharge);
         v_jetCharge.at(index) = jetCharge;
     }
