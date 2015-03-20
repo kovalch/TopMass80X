@@ -22,10 +22,12 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   MvaWeights2d
   MvaReaderBase
   MvaReaderTopJets
+  MvaReaderJetCharge
   MvaFactoryBase
   MvaFactoryTopJets
   mvaSetup
   MvaVariablesBase
+  MvaVariablesJetCharge
   MvaVariablesTopJets
   MvaVariablesEventClassification
   AnalyzerBase
