@@ -33,15 +33,7 @@ public:
     MvaVariablesJetCharge();
     
     /// Constructor setting up input variables from physics objects
-    MvaVariablesJetCharge(const LV& lepton, const LV& antiLepton,
-                        const LV& bJet, const LV& antiBJet,
-                        const double& bJetBtagDiscriminator, const double& antiBJetBtagDiscriminator,
-                        const double& jetChargeDiff,
-                        const LV& jetRecoil, const LV& met,
-                        const bool bQuarkRecoJetMatched,
-                        const bool correctCombination, const bool swappedCombination,
-                        const bool lastInEvent,
-                        const double& eventWeight);
+    MvaVariablesJetCharge(const int jetIndex, const RecoObjects& recoObjects, const double& eventWeight);
     
     /// Destructor
     ~MvaVariablesJetCharge(){}
@@ -60,10 +52,10 @@ public:
     // FIXME: Review the names
     /// Variables for MVA
     // FIXME: Why are these floats?
-    MvaVariableFloat trueBJetId_;
-    MvaVariableFloat thereIsALeadingLepton_;
-    MvaVariableFloat thereIsALeadingMuon_;
-    MvaVariableFloat thereIsASecondaryVertex_;
+    MvaVariableInt trueBJetId_;
+    MvaVariableInt thereIsALeadingLepton_;
+    MvaVariableInt thereIsALeadingMuon_;
+    MvaVariableInt thereIsASecondaryVertex_;
 
     MvaVariableFloat longChargeJet_;
     MvaVariableFloat relChargeJet_;
@@ -73,7 +65,7 @@ public:
     MvaVariableFloat leadingMuonPtWeightedCharge_;
     MvaVariableFloat leadingElectronPtWeightedCharge_;
     MvaVariableFloat trackNumberWeightedJetPt_;
-    MvaVariableFloat chargeWeightedTrackId_;
+    MvaVariableInt chargeWeightedTrackId_;
     MvaVariableFloat svChargeWeightedFlightDistance_;
     MvaVariableFloat secondaryVertexCharge_;
     MvaVariableFloat ipSignificanceLeadingTrack_;
