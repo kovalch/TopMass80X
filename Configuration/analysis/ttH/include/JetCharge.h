@@ -9,6 +9,7 @@
 
 class TString;
 class TFile;
+class TH1;
 
 #include "AnalyzerBase.h"
 #include "../../common/include/classesFwd.h"
@@ -44,12 +45,11 @@ public:
     ~JetCharge(){}
     
     // FIXME: description
-    // FIXME: Put references
-    /// Momentum weighted jet charge calculation for a given squeezing parameter x (optimal value x = 0.8)
+    /// Momentum weighted jet charge calculation for a given squeezing parameter x
     double pWeightedCharge(const int jetIndex, const LV& recoJet,
-                           const std::vector<int> pfCandidateTrackIndex, const VLV& pfCandidates,
-                           const std::vector<int> pfCandidateCharge, const std::vector<int>& pfCandidateVertexId,
-                           const double x)const;
+                           const std::vector<int>& pfCandidateTrackIndex, const VLV& pfCandidates,
+                           const std::vector<int>& pfCandidateCharge, const std::vector<int>& pfCandidateVertexId,
+                           const double& x)const;
    
     /// MVA jet charge 
     double mvaCharge(const int jetIndex, const LV& jet, const RecoObjects& recoObjects);
@@ -70,7 +70,10 @@ public:
     
 private:
     
+    /// Check if histogram with given name exists in file, and access clone in memory
     TH1* readHist(TFile* file, const TString& histname)const;
+    
+    // FIXME: Doxygen description of all variables
     
     MvaReaderBase* mvaReader_;
     

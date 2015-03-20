@@ -87,7 +87,7 @@ mvaReader2_(0)
         else inputFilestream.close();
         TFile* file = TFile::Open(inputFilename.data());
         
-        // Check if histograms exist and access clones in memory
+        // Read histograms from file
         histData_ = this->readHist(file, "test_h_charge_step7_data");
         histMc_ = this->readHist(file, "test_h_charge_step7_allmc");
         
@@ -140,25 +140,26 @@ TH1* JetCharge::readHist(TFile* file, const TString& histname)const
 
 
 double JetCharge::pWeightedCharge(const int jetIndex, const LV& recoJet,
-                                  const std::vector<int> pfCandidateTrackIndex, const VLV& pfCandidates,
-                                  const std::vector<int> pfCandidateCharge, const std::vector<int>& pfCandidateVertexId,
-                                  const double x)const
+                                  const std::vector<int>& pfCandidateTrackIndex, const VLV& pfCandidates,
+                                  const std::vector<int>& pfCandidateCharge, const std::vector<int>& pfCandidateVertexId,
+                                  const double& x)const
 {
-    // FIXME: where is the goodPV selection for tracks??
-    
     // Access jet momentum information
-    double jetPx = recoJet.px();
-    double jetPy = recoJet.py();
-    double jetPz = recoJet.pz();
+    const double jetPx = recoJet.px();
+    const double jetPy = recoJet.py();
+    const double jetPz = recoJet.pz();
     
     // Define relevant variables for c_{rel} calculation
     double sumMomentum = 0.;
     double sumMomentumQ = 0.;
     
-    for (size_t iCandidate=0;iCandidate!=pfCandidates.size();++iCandidate)
-    {
+    for(size_t iCandidate = 0; iCandidate != pfCandidates.size(); ++iCandidate){
         // Check that the pfCandidate corresponds to the jet
         if (jetIndex != pfCandidateTrackIndex.at(iCandidate)) continue;
+        
+        // Remove tracks not corresponding to primary vertex
+        const int vertexId = pfCandidateVertexId.at(iCandidate);
+        if (vertexId==-1 || vertexId==2 || vertexId==3) continue;
         
         // Access pfCandidate mometum and charge information
         const double constituentPx = pfCandidates.at(iCandidate).px();
@@ -166,7 +167,7 @@ double JetCharge::pWeightedCharge(const int jetIndex, const LV& recoJet,
         const double constituentPz = pfCandidates.at(iCandidate).pz();
         const double product = constituentPx*jetPx + constituentPy*jetPy + constituentPz*jetPz;
         
-        int charge = pfCandidateCharge.at(iCandidate);
+        const int charge = pfCandidateCharge.at(iCandidate);
         
         // Sum over all the pfCandidates
         const double productPow = std::pow(product, x);
@@ -175,7 +176,7 @@ double JetCharge::pWeightedCharge(const int jetIndex, const LV& recoJet,
     }
     
     // Obtain the jet c_{rel}
-    const double ptWeightedJetChargeXValue(sumMomentum>0 ? sumMomentumQ/sumMomentum : 0);
+    const double ptWeightedJetChargeXValue(sumMomentum>0. ? sumMomentumQ/sumMomentum : 0.);
     return ptWeightedJetChargeXValue;
 }
 
