@@ -16,6 +16,8 @@
 #include "TMVA/Reader.h"
 
 #include "JetCharge.h"
+#include "MvaVariablesJetCharge.h"
+#include "MvaReaderJetCharge.h"
 #include "analysisStructs.h"
 #include "JetCategories.h"
 #include "higgsUtils.h"
@@ -28,35 +30,65 @@
 #include "../../common/include/classesFwd.h"
 
 
-JetCharge::JetCharge() {
+
+JetCharge::JetCharge(const bool mvaCharge, const bool correction):
+mvaReader_(0),
+mvaCharge_(mvaCharge),
+correction_(correction),
+histData_(0),
+histMc_(0),
+mvaReader2_(0)
+{
+    std::cout<<"--- Beginning setting up jet charge\n";
     
-    //Book the reader
-    jetChargeReader_ = new TMVA::Reader();
-    TMVA::Tools::Instance(); 
+    if(mvaCharge_){
+        const TString weightFilename = "/nfs/dust/cms/user/jgaray/releaseForPseudodata/CMSSW_5_3_18/src/TopAnalysis/Configuration/analysis/ttH/MVA_BDTAdaBoost_1500_beta05.weights.xml";
+        
+        mvaReader_ = new MvaReaderJetCharge("BDT method");
+        mvaReader_->book(weightFilename);
+        
+        // FIXME: Replace and remove
+        //Book the reader
+        mvaReader2_ = new TMVA::Reader();
+        TMVA::Tools::Instance(); 
+        mvaReader2_->AddVariable("longChargeJet", &(jetChargeMvaStruct_.longChargeJet_));
+        mvaReader2_->AddVariable("relChargeJet",&(jetChargeMvaStruct_.relChargeJet_));
+        mvaReader2_->AddVariable("leadingTrackPtWeightedCharge",&(jetChargeMvaStruct_.leadingTrackPtWeightedCharge_));
+        mvaReader2_->AddVariable("subleadingTrackPtWeightedCharge",&(jetChargeMvaStruct_.subleadingTrackPtWeightedCharge_));
+        mvaReader2_->AddVariable("thirdleadingTrackPtWeightedCharge",&(jetChargeMvaStruct_.thirdleadingTrackPtWeightedCharge_));
+        mvaReader2_->AddVariable("leadingMuonPtWeightedCharge",&(jetChargeMvaStruct_.leadingMuonPtWeightedCharge_));
+        mvaReader2_->AddVariable("leadingElectronPtWeightedCharge",&(jetChargeMvaStruct_.leadingElectronPtWeightedCharge_));
+        mvaReader2_->AddVariable("chargeWeightedTrackId",&(jetChargeMvaStruct_.chargeWeightedTrackId_));
+        mvaReader2_->AddVariable("secondaryVertexCharge",&(jetChargeMvaStruct_.secondaryVertexCharge_));
+        mvaReader2_->AddVariable("ipSignificanceLeadingTrack",&(jetChargeMvaStruct_.ipSignificanceLeadingTrack_));
+        mvaReader2_->AddSpectator("trueBJetId",&(jetChargeMvaStruct_.trueBJetId_));
+        TString case1 = "testingTheReader";
+        mvaReader2_->BookMVA(case1, weightFilename);  
+    }
     
-    TString case1_ = "testingTheReader";
-    TString weight1 = "/nfs/dust/cms/user/jgaray/releaseForPseudodata/CMSSW_5_3_18/src/TopAnalysis/Configuration/analysis/ttH/MVA_BDTAdaBoost_1500_beta05.weights.xml";
+    if(correction_){
+        // FIXME: Read histograms in here, use a clone to modify it, and load it to the memory
+        // FIXME: Add protections to check if file exists, and if histos exist
+        histData_ = 0;
+        histMc_ = 0;
+        const double integralData = histData_->Integral(0, histData_->GetNbinsX()+1);
+        const double integralMc = histMc_->Integral(0, histMc_->GetNbinsX()+1);
+        histData_->Scale(1./integralData);
+        histMc_->Scale(1./integralMc);
+    }
     
-    jetChargeReader_->AddVariable("longChargeJet", &(jetChargeMvaStruct_.longChargeJet_));
-    jetChargeReader_->AddVariable("relChargeJet",&(jetChargeMvaStruct_.relChargeJet_));
-    jetChargeReader_->AddVariable("leadingTrackPtWeightedCharge",&(jetChargeMvaStruct_.leadingTrackPtWeightedCharge_));
-    jetChargeReader_->AddVariable("subleadingTrackPtWeightedCharge",&(jetChargeMvaStruct_.subleadingTrackPtWeightedCharge_));
-    jetChargeReader_->AddVariable("thirdleadingTrackPtWeightedCharge",&(jetChargeMvaStruct_.thirdleadingTrackPtWeightedCharge_));
-    jetChargeReader_->AddVariable("leadingMuonPtWeightedCharge",&(jetChargeMvaStruct_.leadingMuonPtWeightedCharge_));
-    jetChargeReader_->AddVariable("leadingElectronPtWeightedCharge",&(jetChargeMvaStruct_.leadingElectronPtWeightedCharge_));
-    jetChargeReader_->AddVariable("chargeWeightedTrackId",&(jetChargeMvaStruct_.chargeWeightedTrackId_));
-    jetChargeReader_->AddVariable("secondaryVertexCharge",&(jetChargeMvaStruct_.secondaryVertexCharge_));
-    jetChargeReader_->AddVariable("ipSignificanceLeadingTrack",&(jetChargeMvaStruct_.ipSignificanceLeadingTrack_));
-    
-    jetChargeReader_->AddSpectator("trueBJetId",&(jetChargeMvaStruct_.trueBJetId_));
-    
-    jetChargeReader_->BookMVA(case1_,weight1);  
-    
+    std::cout<<"=== Finishing setting up jet charge\n\n";
 }
 
 
-double JetCharge::pWeightedJetChargeX (const int jetId, const LV& recoJet, const double x, const std::vector<int> pfCandidateJetIndex, const VLV& pfCandidates, const std::vector<int> pfCandidateCharge)
+
+double JetCharge::pWeightedCharge(const int jetIndex, const LV& recoJet,
+                                  const std::vector<int> pfCandidateTrackIndex, const VLV& pfCandidates,
+                                  const std::vector<int> pfCandidateCharge, const std::vector<int>& pfCandidateVertexId,
+                                  const double x)const
 {
+    // FIXME: where is the goodPV selection for tracks??
+    
     // Access jet momentum information
     double jetPx = recoJet.px();
     double jetPy = recoJet.py();
@@ -69,7 +101,7 @@ double JetCharge::pWeightedJetChargeX (const int jetId, const LV& recoJet, const
     for (size_t iCandidate=0;iCandidate!=pfCandidates.size();++iCandidate)
     {
         // Check that the pfCandidate corresponds to the jet
-        if (jetId!=pfCandidateJetIndex.at(iCandidate)) continue;
+        if (jetIndex != pfCandidateTrackIndex.at(iCandidate)) continue;
         
         // Access pfCandidate mometum and charge information
         const double constituentPx = pfCandidates.at(iCandidate).px();
@@ -89,9 +121,10 @@ double JetCharge::pWeightedJetChargeX (const int jetId, const LV& recoJet, const
     const double ptWeightedJetChargeXValue(sumMomentum>0 ? sumMomentumQ/sumMomentum : 0);
     return ptWeightedJetChargeXValue;
 }
-    
-    
-double JetCharge::mvaJetCharge(const int jetIndex, const LV& jet, const RecoObjects& recoObjects)
+
+
+
+double JetCharge::mvaCharge(const int jetIndex, const LV& jet, const RecoObjects& recoObjects)
 {
     // Specific selected tracks information (tracks with quality requirements applied already at ntuple level) 
     const std::vector<LV>& jetSelectedTrack = *recoObjects.jetSelectedTrack_;
@@ -367,6 +400,13 @@ double JetCharge::mvaJetCharge(const int jetIndex, const LV& jet, const RecoObje
     double svChargeWeightedFlightDistance = 0.;
     if (thereIsASecondaryVertex) svChargeWeightedFlightDistance = chargeOfSecondaryVerticesForSelectedTracks.at(0) * jetSecondaryVertexFlightDistanceSignificance.at(0); 
     
+    
+    
+    
+    
+    
+    // FIXME: Replace by external variables using function mvaCharges, then remove
+    
     // MVA specific variable filling
     if (jetHadronFlavour>0) jetChargeMvaStruct_.trueBJetId_ = -1;
     else if (jetHadronFlavour<0) jetChargeMvaStruct_.trueBJetId_ = 0;
@@ -386,32 +426,49 @@ double JetCharge::mvaJetCharge(const int jetIndex, const LV& jet, const RecoObje
     else (jetChargeMvaStruct_.ipSignificanceLeadingTrack_ = 0.);
     
     // MVA reader variable
-    val1  = jetChargeReader_->EvaluateMVA ("testingTheReader");
+    val1  = mvaReader2_->EvaluateMVA ("testingTheReader");
     return val1;
 }
 
-double quantileMappingCorrection(const double& x, TH1& h1, TH1& h2, const double& integral_h1, const double& integral_h2)
+
+
+void JetCharge::quantileMappingCorrection(double& jetCharge)const
 {
-    Int_t binOfX = h1.FindFixBin(x);
-    h1.Scale(1./integral_h1);
-    double integralAtCharge = h1.TH1::Integral(-1., binOfX);
-    if (integralAtCharge>1.||integralAtCharge<0.) std::cout<<"\n\tNormalization didn't work! Please check x!!\n";
+    if(!correction_) return;
+    
+    Int_t bin = histData_->FindFixBin(jetCharge);
+    double integralAtCharge = histData_->Integral(0, bin);
+    // FIXME: put protections against problematic cases, e.g. integral=0 or =1
+    if(integralAtCharge>1. || integralAtCharge<0.) std::cout<<"\n\tNormalization didn't work! Please check x!!\n";
     
     Int_t nq = 1;
     Double_t yq [1];
     Double_t xq [1];
     xq[0] = integralAtCharge;
     
-    h2.Scale(1./integral_h2);
-    h2.TH1::GetQuantiles(nq, yq, xq);
+    histMc_->GetQuantiles(nq, yq, xq);
     
-    return yq[0];
+    jetCharge = yq[0];
 }
 
 
 
-
-
+std::vector<float> JetCharge::mvaCharges(const EventMetadata&,
+                                         const RecoObjects& recoObjects, const CommonGenObjects&,
+                                         const TopGenObjects&, const HiggsGenObjects&,
+                                         const KinematicReconstructionSolutions&,
+                                         const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
+                                         const tth::GenLevelWeights&, const tth::RecoLevelWeights&,
+                                         const double& weight)
+{
+    if(!mvaCharge_){
+        std::cerr<<"Error in JetCharge::mvaCharges()! Function called, but MVA charge not set up\n...break\n"<<std::endl;
+        exit(102);
+    }
+    
+    std::vector<MvaVariablesBase*> v_mvaVariables = MvaVariablesJetCharge::fillVariables(recoObjectIndices, genObjectIndices, recoObjects, weight);
+    return mvaReader_->mvaWeights(v_mvaVariables);
+}
 
 
 

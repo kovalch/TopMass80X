@@ -14,6 +14,8 @@ class TString;
 #include "../../common/include/storeTemplate.h"
 
 class JetCategories;
+class MvaVariablesJetCharge;
+class MvaReaderBase;
 class EventMetadata;
 class RecoObjects;
 class CommonGenObjects;
@@ -28,29 +30,57 @@ namespace tth{
 }
 
 
+//FIXME: description
 /// jet track reweighting class, test here whatever you want to test
-class JetCharge {
+class JetCharge{
     
 public:
     
     /// Constructor
-    JetCharge();
+    JetCharge(const bool mvaCharge, const bool correction);
     
     /// Destructor
     ~JetCharge(){}
     
-    /// p weighted jet charge calculation for a given squeezing parameter x (optimal value x = 0.8)
-    double pWeightedJetChargeX (const int jetId, const LV& recoJet, const double x, const std::vector<int> pfCandidateJetIndex, const VLV& pfCandidates, const std::vector<int> pfCandidateCharge);
+    // FIXME: description
+    // FIXME: Put references
+    /// Momentum weighted jet charge calculation for a given squeezing parameter x (optimal value x = 0.8)
+    double pWeightedCharge(const int jetIndex, const LV& recoJet,
+                           const std::vector<int> pfCandidateTrackIndex, const VLV& pfCandidates,
+                           const std::vector<int> pfCandidateCharge, const std::vector<int>& pfCandidateVertexId,
+                           const double x)const;
    
     /// MVA jet charge 
-    double mvaJetCharge(const int jetIndex, const LV& jet, const RecoObjects& recoObjects);
+    double mvaCharge(const int jetIndex, const LV& jet, const RecoObjects& recoObjects);
     
-    /// Return corrected value of x after applying a quantile mapping
-    double quantileMappingCorrection(const double& x, TH1& h1, TH1& h2, const double& integral_h1, const double& integral_h2);
+    /// Vector of MVA jet charges for all jets
+    std::vector<float> mvaCharges(const EventMetadata& eventMetadata,
+                                  const RecoObjects& recoObjects, const CommonGenObjects& commonGenObjects,
+                                  const TopGenObjects& topGenObjects, const HiggsGenObjects& higgsGenObjects,
+                                  const KinematicReconstructionSolutions& kinematicReconstructionSolutions,
+                                  const tth::RecoObjectIndices& recoObjectIndices, const tth::GenObjectIndices& genObjectIndices,
+                                  const tth::GenLevelWeights& genLevelWeights, const tth::RecoLevelWeights& recoLevelWeights,
+                                  const double& weight);
     
-    TMVA::Reader* jetChargeReader_;
-    TString case1_;
+    /// Correct value of jet charge by applying a quantile mapping
+    void quantileMappingCorrection(double& jetCharge)const;
     
+    
+    
+private:
+    
+    MvaReaderBase* mvaReader_;
+    
+    const bool mvaCharge_;
+    const bool correction_;
+    
+    TH1* histData_;
+    TH1* histMc_;
+    
+    
+    
+    // FIXME: Remove and use generic ones
+    TMVA::Reader* mvaReader2_;
     struct MvaJetChargeVariables
     {
         Float_t longChargeJet_;
