@@ -153,6 +153,7 @@ double JetCharge::pWeightedCharge(const int jetIndex, const LV& recoJet,
     double sumMomentum = 0.;
     double sumMomentumQ = 0.;
     
+    // Sum over all pfCandidates
     for(size_t iCandidate = 0; iCandidate != pfCandidates.size(); ++iCandidate){
         // Check that the pfCandidate corresponds to the jet
         if (jetIndex != pfCandidateTrackIndex.at(iCandidate)) continue;
@@ -166,11 +167,10 @@ double JetCharge::pWeightedCharge(const int jetIndex, const LV& recoJet,
         const double constituentPy = pfCandidates.at(iCandidate).py();
         const double constituentPz = pfCandidates.at(iCandidate).pz();
         const double product = constituentPx*jetPx + constituentPy*jetPy + constituentPz*jetPz;
-        
+        const double productPow = std::pow(product, x);
         const int charge = pfCandidateCharge.at(iCandidate);
         
-        // Sum over all the pfCandidates
-        const double productPow = std::pow(product, x);
+        // Calculate Numerator and denominator
         sumMomentum += productPow;
         sumMomentumQ += charge*productPow;
     }
