@@ -1779,106 +1779,14 @@ int AnalysisBase::additionalJetFlavourId(const Long64_t& entry)const
 
 
 
-void AnalysisBase::calculateJetCharge()const
+void AnalysisBase::updateJetCharge(const std::vector<double>& v_jetCharge)const
 {
     if(!recoObjects_->valuesSet_){
-        std::cerr<<"Error in AnalysisBase::calculateJetCharge()! Current implementation for jet charge requires recoObjects to be already read.\n...break\n"<<std::endl;
+        std::cerr<<"Error in AnalysisBase::updateJetCharge()! Current implementation for jet charge requires recoObjects to be already read.\n...break\n"<<std::endl;
         exit(812);
     }
     
-    const VLV& jets = *recoObjects_->jets_;
-    
-    std::vector<double> v_jetCharge;
-    for(size_t index = 0; index < jets.size(); ++index){
-        const double jetCharge = ptWeightedJetChargeX(static_cast<int>(index), jets.at(index), 0.8,
-                                                      *recoObjects_->jetPfCandidateTrackIndex_, *recoObjects_->jetPfCandidateTrack_,
-                                                      *recoObjects_->jetPfCandidateTrackCharge_, *recoObjects_->jetPfCandidatePrimaryVertexId_);
-        recoObjects_->jetChargeRelativePtWeighted_->at(index) = jetCharge;
-    }
-}
-
-
-
-double AnalysisBase::ptWeightedJetChargeX(const int jetId, const LV& recoJet, const double& x,
-                                          const std::vector<int>& pfCandidateJetIndex, const VLV& pfCandidates,
-                                          const std::vector<int>& pfCandidateCharge, const std::vector<int>& pfCandidateVertexId)const
-{
-    // Access jet momentum information
-    double jetTrueBPx = recoJet.px();
-    double jetTrueBPy = recoJet.py();
-    double jetTrueBPz = recoJet.pz();
-    
-    // Define relevant variables for c_{rel} calculation
-    double sumMomentum = 0.;
-    double sumMomentumQ = 0.;
-    
-    for (size_t iCandidate=0;iCandidate!=pfCandidates.size();++iCandidate)
-    {
-        // Check that the pfCandidate corresponds to the jet
-        if (jetId!=pfCandidateJetIndex.at(iCandidate)) continue;
-        // Remove tracks not corresponding to primary vertex
-        if (pfCandidateVertexId.at(iCandidate) == -1 || pfCandidateVertexId.at(iCandidate) == 2 || pfCandidateVertexId.at(iCandidate) == 3) continue;
-        
-        // Access pfCandidate mometum and charge information
-        const double constituentTrueBPx = pfCandidates.at(iCandidate).px();
-        const double constituentTrueBPy = pfCandidates.at(iCandidate).py();
-        const double constituentTrueBPz = pfCandidates.at(iCandidate).pz();
-        const double product = constituentTrueBPx*jetTrueBPx + constituentTrueBPy*jetTrueBPy + constituentTrueBPz*jetTrueBPz;
-        
-        int charge = pfCandidateCharge.at(iCandidate);
-        
-        // Sum over all the pfCandidates
-        const double productPow = std::pow(product, x);
-        sumMomentum += productPow;
-        sumMomentumQ += static_cast<double>(charge)*productPow;
-    }
-    
-    // Obtain the jet c_{rel}
-    const double ptWeightedJetChargeXValue(sumMomentum>0. ? sumMomentumQ/sumMomentum : 0.);
-    return ptWeightedJetChargeXValue;
-}
-
-
-double AnalysisBase::weightJetCharge(const std::vector<int>& jetIndices, const std::vector<int>& jetPfCandidateTrackIndex, const std::vector<int>& pfCandidateVertexId)
-{
-    if(!isMC_) return 1.;
-    
-    return this->trackMultiplicityWeightPerEvent(jetIndices, -0.039234, 1.41540, jetPfCandidateTrackIndex, pfCandidateVertexId);
-}
-
-
-
-double AnalysisBase::trackMultiplicityWeightPerEvent(const std::vector<int>& jetIndices, const double& m, const double& n, const std::vector<int>& jetPfCandidateTrackIndex, const std::vector<int>& pfCandidateVertexId)
-{
-    double eventMultiplicity = 1.;
-    for (size_t iJet=0; iJet!=jetIndices.size(); ++iJet)
-    {
-        int jetIndex = jetIndices.at(iJet);
-        double jetWeight = this->trackMultiplicityWeight(m, n, jetIndex, jetPfCandidateTrackIndex, pfCandidateVertexId);
-        eventMultiplicity *= jetWeight;
-    }
-    
-    return eventMultiplicity;
-}
-
-
-
-double AnalysisBase::trackMultiplicityWeight(const double& m, const double& n, int jetIndex, const std::vector<int>& jetPfCandidateTrackIndex, const std::vector<int>& pfCandidateVertexId)
-{
-    int multiplicity = 0;
-    for (size_t i=0;i!=jetPfCandidateTrackIndex.size();++i)
-    {
-        //check if the track is matched to a selected jet and in case it is, add one to the multiplicity.
-        int trueMatched = 0;
-        if (jetIndex!=jetPfCandidateTrackIndex.at(i)) trueMatched = -1;
-        if (trueMatched == -1) continue;
-        // Remove tracks not corresponding to primary vertex
-        if (pfCandidateVertexId.at(i) == -1 || pfCandidateVertexId.at(i) == 2 || pfCandidateVertexId.at(i) == 3) continue;
-        ++multiplicity;
-    }
-    
-    double y = m*multiplicity+n;
-    return y;
+    *recoObjects_->jetChargeRelativePtWeighted_ = v_jetCharge;
 }
 
 

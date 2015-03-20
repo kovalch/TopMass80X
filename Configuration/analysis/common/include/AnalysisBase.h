@@ -314,6 +314,10 @@ protected:
                                                                       const VLV& allLeptons, const VLV& jets,
                                                                       const std::vector<double>& jetBTagCSV, const LV& met)const;
     
+    /// Replace jet charge branch in ntuple with given values
+    // FIXME: make generic user variables instead of replacement of branch variable
+    void updateJetCharge(const std::vector<double>& v_jetCharge)const;
+    
     /// Get H_t of jets
     double getJetHT(const std::vector<int>& jetIndices, const VLV& jets)const;
     
@@ -367,15 +371,6 @@ protected:
     
     /// Whether it is a ttbarZ sample
     const bool& isTtbarZSample()const{return isTtbarZSample_;}
-    
-    /// FIXME: Functionality for jet charge calculation, will be sourced out to own file as much as possible
-    void calculateJetCharge()const;
-    double ptWeightedJetChargeX(const int jetId, const LV& recoJet, const double& x,
-                                const std::vector<int>& pfCandidateJetIndex, const VLV& pfCandidates,
-                                const std::vector<int>& pfCandidateCharge, const std::vector<int>& pfCandidateVertexId)const;
-    double weightJetCharge(const std::vector<int>& jetIndices, const std::vector<int>& jetPfCandidateTrackIndex, const std::vector<int>& pfCandidateVertexId);
-    double trackMultiplicityWeight(const double& m, const double& n, int jetIndex, const std::vector<int>& jetPfCandidateTrackIndex, const std::vector<int>& pfCandidateVertexId);
-    double trackMultiplicityWeightPerEvent(const std::vector<int>& jetIndices, const double& m, const double& n, const std::vector<int>& jetPfCandidateTrackIndex, const std::vector<int>& pfCandidateVertexId);
     
     
     
