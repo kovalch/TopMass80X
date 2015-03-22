@@ -75,7 +75,7 @@ void AnalyzerControlPlots::bookHistos(const TString& step, std::map<TString, TH1
 
     // Dilepton
     name = "dilepton_mass";
-    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Dilepton mass;m^{l^{+}l^{-}} [GeV];Events",50,0,350));
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Dilepton mass;m^{l^{+}l^{-}} [GeV];Events",70,0,350));
     name = "dilepton_pt";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Dilepton p_{t};p_{t}^{l^{+}l^{-}} [GeV];Events",60,0,300));
     name = "dilepton_rapidity";
