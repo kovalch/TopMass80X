@@ -267,7 +267,8 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     const double weightGenerator = this->weightGenerator(entry);
     const double weightTopPt = this->weightTopPtReweighting(entry);
     const double weightPU = this->weightPileup(entry);
-    const double trueLevelWeightNoPileup = weightTopPt*weightGenerator*weightMadgraphCorrection;
+    const double weightReweighting = this->reweightingWeight(topGenObjectsForGenLevel, genObjectIndicesForGenLevel);
+    const double trueLevelWeightNoPileup = weightTopPt*weightGenerator*weightMadgraphCorrection*weightReweighting;
     const double trueLevelWeight = trueLevelWeightNoPileup*weightPU;
     const tth::GenLevelWeights genLevelWeights(weightMadgraphCorrection, weightPU,
                                                weightGenerator, weightTopPt,
@@ -598,11 +599,6 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
                                                    genJetMatchedRecoCjetIndices,
                                                    matchedBjetFromTopIndex, matchedAntiBjetFromTopIndex,
                                                    matchedBjetFromHiggsIndex, matchedAntiBjetFromHiggsIndex);
-    
-    // Apply artifical reweighting
-    const double reweightingWeight = this->reweightingWeight(topGenObjects, genObjectIndices);
-    weightNoPileup *= reweightingWeight;
-    weight *= reweightingWeight;
     
     // ++++ Control Plots ++++
     
