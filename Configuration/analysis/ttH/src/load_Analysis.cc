@@ -432,10 +432,12 @@ void load_Analysis(const TString& validFilenamePattern,
         selector->SetReweightingName(reweightingName);
         selector->SetReweightingSlope(reweightingSlope);
         
-        char tempChar[100];
-        if(reweightingName == "nominal") sprintf(tempChar, "_reweighted_%s.root", reweightingName.c_str());
-        else sprintf(tempChar, "_reweighted_%s_%g.root", reweightingName.c_str(), reweightingSlope);
-        if(reweightingName != "") filenameBase.ReplaceAll(".root", tempChar);
+        char reweightingChar[100];
+        if(reweightingName == "nominal") sprintf(reweightingChar, "_reweighted_%s", reweightingName.c_str());
+        else sprintf(reweightingChar, "_reweighted_%s_%g", reweightingName.c_str(), reweightingSlope);
+        if(reweightingName != "") filenameBase.Insert(filenameBase.Index(".root"), reweightingChar);
+        
+        std::cout << "Name:" << reweightingName << "  Slope: " << reweightingSlope << "  File: " << filenameBase << std::endl;
         
         // Loop over channels and run selector
         for(const auto& selectedChannel : channels){
@@ -499,44 +501,44 @@ void load_Analysis(const TString& validFilenamePattern,
                 const std::set<int> allowedPartIds({0, 101, 201, 102, 202, 103, 203, 4, -1});
                 if(part==0 || part==-1){ // output is ttbar+other: both leptons from W->e/mu or W->tau->e/mu
                     selector->SetAdditionalBjetMode(0);
-                    selector->SetOutputfilename(ttbarNameBase+"PlustauOther.root");
+                    selector->SetOutputfilename(ttbarNameBase+"PlustauOther"+reweightingChar+".root");
                     selector->SetSampleForBtagEfficiencies(true);
                     chain.Process(selector, "", maxEvents, skipEvents);
                     selector->SetSampleForBtagEfficiencies(false);
                 }
                 if(part==101 || part==-1){ // output is ttbar+b: both leptons from W->e/mu
                     selector->SetAdditionalBjetMode(101);
-                    selector->SetOutputfilename(ttbarNameBase+"NotauB.root");
+                    selector->SetOutputfilename(ttbarNameBase+"NotauB"+reweightingChar+".root");
                     chain.Process(selector, "", maxEvents, skipEvents);
                 }
                 if(part==201 || part==-1){ // output is ttbar+b: 1+ lepton from W->tau->e/mu
                     selector->SetAdditionalBjetMode(201);
-                    selector->SetOutputfilename(ttbarNameBase+"OnlytauB.root");
+                    selector->SetOutputfilename(ttbarNameBase+"OnlytauB"+reweightingChar+".root");
                     chain.Process(selector, "", maxEvents, skipEvents);
                 }
                 if(part==102 || part==-1){ // output is ttbar+b with 2+ b-hadrons/jet: both leptons from W->e/mu
                     selector->SetAdditionalBjetMode(102);
-                    selector->SetOutputfilename(ttbarNameBase+"Notau2b.root");
+                    selector->SetOutputfilename(ttbarNameBase+"Notau2b"+reweightingChar+".root");
                     chain.Process(selector, "", maxEvents, skipEvents);
                 }
                 if(part==202 || part==-1){ // output is ttbar+b with 2+ b-hadrons/jet: 1+ lepton from W->tau->e/mu
                     selector->SetAdditionalBjetMode(202);
-                    selector->SetOutputfilename(ttbarNameBase+"Onlytau2b.root");
+                    selector->SetOutputfilename(ttbarNameBase+"Onlytau2b"+reweightingChar+".root");
                     chain.Process(selector, "", maxEvents, skipEvents);
                 }
                 if(part==103 || part==-1){ // output is ttbar+bbbar: both leptons from W->e/mu
                     selector->SetAdditionalBjetMode(103);
-                    selector->SetOutputfilename(ttbarNameBase+"NotauBbbar.root");
+                    selector->SetOutputfilename(ttbarNameBase+"NotauBbbar"+reweightingChar+".root");
                     chain.Process(selector, "", maxEvents, skipEvents);
                 }
                 if(part==203 || part==-1){ // output is ttbar+bbbar: 1+ lepton from W->tau->e/mu
                     selector->SetAdditionalBjetMode(203);
-                    selector->SetOutputfilename(ttbarNameBase+"OnlytauBbbar.root");
+                    selector->SetOutputfilename(ttbarNameBase+"OnlytauBbbar"+reweightingChar+".root");
                     chain.Process(selector, "", maxEvents, skipEvents);
                 }
                 if(part==4 || part==-1){ // output is ttbar+ccbar: both leptons from W->e/mu or W->tau->e/mu
                     selector->SetAdditionalBjetMode(4);
-                    selector->SetOutputfilename(ttbarNameBase+"PlustauCcbar.root");
+                    selector->SetOutputfilename(ttbarNameBase+"PlustauCcbar"+reweightingChar+".root");
                     chain.Process(selector, "", maxEvents, skipEvents);
                 }
                 if(allowedPartIds.count(part) < 1){
