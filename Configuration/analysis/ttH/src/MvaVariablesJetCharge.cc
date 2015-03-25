@@ -83,9 +83,11 @@ ipSignificanceLeadingTrack_(MvaVariableFloat(name_ipSignificanceLeadingTrack_))
     const std::vector<LV>& jetPfCandidateTrack = *recoObjects.jetPfCandidateTrack_;
     const std::vector<int>& jetPfCandidateTrackIndex = *recoObjects.jetPfCandidateTrackIndex_;
     
-    bool thereIsASecondaryVertex = false;
     
     LV jet = allJets.at(jetIndex);
+    
+    int jetHadronFlavour = -999;
+    bool thereIsASecondaryVertex = false;
     
     double trueBJetPt = jet.pt();
     double jetTrueBPx = jet.px();
@@ -334,6 +336,15 @@ ipSignificanceLeadingTrack_(MvaVariableFloat(name_ipSignificanceLeadingTrack_))
     double svChargeWeightedFlightDistance = 0.;
     if (thereIsASecondaryVertex) svChargeWeightedFlightDistance = chargeOfSecondaryVerticesForSelectedTracks.at(0) * jetSecondaryVertexFlightDistanceSignificance.at(0); 
     
+    if (jetHadronFlavour>0) trueBJetId_.value_ = 1;
+    else if (jetHadronFlavour<0) trueBJetId_.value_ = 0;
+    if (isLeadingMuon||isLeadingElectron) thereIsALeadingLepton_.value_ = 1;
+    else thereIsALeadingLepton_.value_ = 0;
+    if (isLeadingMuon) thereIsALeadingMuon_.value_ = 1;
+    else thereIsALeadingMuon_ = 0;
+    if (thereIsASecondaryVertex) thereIsASecondaryVertex_.value_ = 1;
+    else thereIsASecondaryVertex_.value_ = 0;
+    
     longChargeJet_.value_ = trueBJetScalarChargeVector.at(3);
     relChargeJet_.value_ = trueBJetRelChargeVector.at(3);
     leadingTrackPtWeightedCharge_.value_ = leadingTrackPtWeightedCharge;
@@ -348,12 +359,6 @@ ipSignificanceLeadingTrack_(MvaVariableFloat(name_ipSignificanceLeadingTrack_))
     else ipSignificanceLeadingTrack_.value_ = 0.;
     if (thereIsASecondaryVertex) secondaryVertexCharge_.value_ = chargeOfSecondaryVerticesForSelectedTracks.at(0);
     else secondaryVertexCharge_.value_ = 0;
-    if (isLeadingMuon||isLeadingElectron) thereIsALeadingLepton_.value_ = 1;
-    else thereIsALeadingLepton_.value_ = 0;
-    if (isLeadingMuon) thereIsALeadingMuon_.value_ = 1;
-    else thereIsALeadingMuon_ = 0;
-    if (thereIsASecondaryVertex) thereIsASecondaryVertex_.value_ = 1;
-    else thereIsASecondaryVertex_.value_ = 0;
 }
 
 
@@ -371,10 +376,9 @@ std::vector<MvaVariablesBase*> MvaVariablesJetCharge::fillVariables(const tth::R
     // Loop over all jet pairs
     for(int index : jetIndices){
         // Is it the last entry of an event
-        const bool lastInEvent = index == static_cast<int>(jetIndices.size()-1);
-        double jetIndex = jetIndices.at(index);
+        //const bool lastInEvent = index == static_cast<int>(jetIndices.size()-1);
         
-        MvaVariablesBase* mvaVariables = new MvaVariablesJetCharge(jetIndex, recoObjects, eventWeight);
+        MvaVariablesBase* mvaVariables = new MvaVariablesJetCharge(index, recoObjects, eventWeight);
         
         result.push_back(mvaVariables);
     }

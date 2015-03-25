@@ -41,17 +41,15 @@ public:
     /// Fill the MVA input structs for all jet combinations of one event
     static std::vector<MvaVariablesBase*> fillVariables(const tth::RecoObjectIndices& recoObjectIndices,
                                                         const tth::GenObjectIndices& genObjectIndices,
-                                                        const RecoObjects& recoObjects,
+                                                        const RecoObjects& recoObjects, 
                                                         const double& eventWeight);
     
     
     
     // The variables needed for MVA
-    
     // FIXME: Describe each variable in doxygen
     // FIXME: Review the names
     /// Variables for MVA
-    // FIXME: Why are these floats?
     MvaVariableInt trueBJetId_;
     MvaVariableInt thereIsALeadingLepton_;
     MvaVariableInt thereIsALeadingMuon_;
