@@ -168,6 +168,16 @@ protected:
     
     
     
+// ----------------------- Protected methods for adding user variables to object structs -----------------------
+    
+    /// Add vector of int with given name to map in reco objects
+    void addRecoInts(const std::string& name, const std::vector<int>& v_value)const;
+    
+    /// Add vector of double with given name to map in reco objects
+    void addRecoDoubles(const std::string& name, const std::vector<double>& v_value)const;
+    
+    
+    
 // ----------------------- Protected methods for event and object selection -----------------------
     
     /// Check if opposite-charge dilepton combination exists,
@@ -313,10 +323,6 @@ protected:
                                                                       const std::vector<int>& jetIndices, const std::vector<int>& bjetIndices,
                                                                       const VLV& allLeptons, const VLV& jets,
                                                                       const std::vector<double>& jetBTagCSV, const LV& met)const;
-    
-    /// Replace jet charge branch in ntuple with given values
-    // FIXME: make generic user variables instead of replacement of branch variable
-    void updateJetCharge(const std::vector<double>& v_jetCharge)const;
     
     /// Get H_t of jets
     double getJetHT(const std::vector<int>& jetIndices, const VLV& jets)const;

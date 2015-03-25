@@ -2,6 +2,8 @@
 #define analysisObjectStructs_h
 
 #include <vector>
+#include <map>
+#include <string>
 
 #include <Rtypes.h>
 
@@ -77,6 +79,9 @@ struct RecoObjects{
     std::vector<int>* jetSecondaryVertexTrackMatchToSelectedTrackIndex_;
     LV* met_;
     Int_t vertMulti_;
+    
+    std::map<std::string, std::vector<int> > m_userInts_;
+    std::map<std::string, std::vector<double> > m_userDoubles_;
 };
 
 

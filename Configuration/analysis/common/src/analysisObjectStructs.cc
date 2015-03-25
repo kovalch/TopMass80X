@@ -54,7 +54,6 @@ void RecoObjects::clear()
     //jetBTagCSVMVA_ = 0;
     jetChargeGlobalPtWeighted_ = 0;
     jetChargeRelativePtWeighted_ = 0;
-    jetChargeRelativePtWeighted_ = 0;
     jetPfCandidateTrack_ = 0;
     jetPfCandidateTrackCharge_ = 0;
     jetPfCandidateTrackId_ = 0;
@@ -75,6 +74,9 @@ void RecoObjects::clear()
     jetPfCandidatePrimaryVertexId_ = 0;
     met_ = 0;
     vertMulti_ = 0;
+    
+    m_userInts_.clear();
+    m_userDoubles_.clear();
 }
 
 

@@ -1260,6 +1260,44 @@ void AnalysisBase::resetObjectStructEntry()const
     topGenObjects_->valuesSet_ = false;
     higgsGenObjects_->valuesSet_ = false;
     zGenObjects_->valuesSet_ = false;
+    
+    recoObjects_->m_userInts_.clear();
+    recoObjects_->m_userDoubles_.clear();
+}
+
+
+
+
+
+// ------------------------------------- Methods for adding user variables to object structs -------------------------------------
+
+
+void AnalysisBase::addRecoInts(const std::string& name, const std::vector<int>& v_value)const
+{
+    std::map<std::string, std::vector<int> >& m_userVariables = recoObjects_->m_userInts_;
+    
+    if(m_userVariables.find(name) != m_userVariables.end()){
+        std::cerr<<"Error in AnalysisBase::addRecoInts()! Variable with given name already exists: "<<name
+                 <<"\n...break\n"<<std::endl;
+        exit(192);
+    }
+    
+    m_userVariables[name] = v_value;
+}
+
+
+
+void AnalysisBase::addRecoDoubles(const std::string& name, const std::vector<double>& v_value)const
+{
+    std::map<std::string, std::vector<double> >& m_userVariables = recoObjects_->m_userDoubles_;
+    
+    if(m_userVariables.find(name) != m_userVariables.end()){
+        std::cerr<<"Error in AnalysisBase::addRecoDoubles()! Variable with given name already exists: "<<name
+                 <<"\n...break\n"<<std::endl;
+        exit(192);
+    }
+    
+    m_userVariables[name] = v_value;
 }
 
 
@@ -1778,16 +1816,6 @@ int AnalysisBase::additionalJetFlavourId(const Long64_t& entry)const
 
 
 
-
-void AnalysisBase::updateJetCharge(const std::vector<double>& v_jetCharge)const
-{
-    if(!recoObjects_->valuesSet_){
-        std::cerr<<"Error in AnalysisBase::updateJetCharge()! Current implementation for jet charge requires recoObjects to be already read.\n...break\n"<<std::endl;
-        exit(812);
-    }
-    
-    *recoObjects_->jetChargeRelativePtWeighted_ = v_jetCharge;
-}
 
 
 
