@@ -161,7 +161,7 @@ void trainMvaTopJets(const std::vector<Channel::Channel>& v_channel,
         }
     }
     
-    std::cout<<"MVA program successfully finished";
+    std::cout<<"MVA program successfully finished\n";
 }
 
 

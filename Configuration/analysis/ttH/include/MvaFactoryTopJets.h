@@ -30,7 +30,8 @@ public:
     
     /// Constructor
     MvaFactoryTopJets(const TString& mvaOutputDir, const TString& weightFileDir,
-                      const TString& mergedTreesFileName);
+                      const TString& mergedTreesFileName,
+                      const bool inOneFactory =true);
     
     /// Destructor
     ~MvaFactoryTopJets(){};

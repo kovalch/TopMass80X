@@ -9,6 +9,7 @@
 #include <TMVA/Tools.h>
 #include <TMVA/Config.h>
 #include <TMVA/Factory.h>
+#include <TMVA/MethodBase.h>
 
 #include "MvaFactoryBase.h"
 #include "MvaVariablesBase.h"
@@ -20,10 +21,12 @@
 
 
 MvaFactoryBase::MvaFactoryBase(const TString& mvaOutputDir, const TString& weightFileDir,
-                               const TString& treeFileName):
+                               const TString& treeFileName,
+                               const bool inOneFactory):
 mvaOutputDir_(mvaOutputDir),
 weightFileDir_(weightFileDir),
-treeFileName_(treeFileName)
+treeFileName_(treeFileName),
+inOneFactory_(inOneFactory)
 {
     // Check if input file exists
     std::ifstream inputFileStream(treeFileName);
@@ -33,6 +36,9 @@ treeFileName_(treeFileName)
         exit(1);
     }
     inputFileStream.close();
+    
+    if(inOneFactory_) std::cout<<"Running all training configurations in one single factory\n";
+    else std::cout<<"Running each training configuration in own factory\n";
 }
 
 
@@ -74,47 +80,85 @@ void MvaFactoryBase::runMva(const char* const methodPrefix, const TCut& cutSigna
                             const std::vector<mvaSetup::MvaConfig>& v_mvaConfig,
                             const TString& stepName)const
 {
+    // Output directory for the weights
+    TString mvaOutputWeightsDirectory(mvaOutputDir_);
+    mvaOutputWeightsDirectory.Append(weightFileDir_);
     
-    // Get a TMVA instance
-    TMVA::Tools::Instance();
+    // Output filename bases for root files and weight files
+    const TString filenameBase = ((TString)methodPrefix).Append(stepName);
+    const TString mvaOutputFilenameBase = ((TString)mvaOutputDir_).Append(filenameBase);
     
-    // Create a ROOT output file for TMVA
-    TString mvaOutputFilename(mvaOutputDir_);
-    mvaOutputFilename.Append(methodPrefix);
-    mvaOutputFilename.Append(stepName);
-    mvaOutputFilename.Append(".root");
-    TFile* outputFile = TFile::Open(mvaOutputFilename, "RECREATE");
-    
-    // Set the output directory for the weights (if not specified, default is "weights")
-    TString mvaOutputWeightsFilename(mvaOutputDir_);
-    mvaOutputWeightsFilename.Append(weightFileDir_);
-    (TMVA::gConfig().GetIONames()).fWeightFileDir = mvaOutputWeightsFilename;
-    
-    // Create the factory
-    TMVA::Factory* factory(0);
-    TString factoryName(methodPrefix);
-    factoryName.Append(stepName);
-    factory = new TMVA::Factory(factoryName, outputFile, "!V:!Silent");
-    
-    // Configure the factory
-    this->configureFactory(factory, cutSignal, cutBackground, treeTraining, treeTesting);
-    
-    // Book the MVA methods (e.g. boosted decision tree with specific setup)
-    for(const auto& mvaConfig : v_mvaConfig){
-        const TString methodTitle(mvaConfig.methodAppendix_);
-        factory->BookMethod(mvaConfig.mvaType_,
-                            methodTitle,
-                            mvaConfig.options_);
+    // Train all configs in one factory, or each in individual factory
+    if(inOneFactory_){
+        // Get a TMVA instance
+        TMVA::Tools::Instance();
+        
+        // Set the output directory for the weights (if not specified, default is "weights")
+        (TMVA::gConfig().GetIONames()).fWeightFileDir = mvaOutputWeightsDirectory;
+        
+        // Create ROOT output file for TMVA
+        TString mvaOutputFilename(mvaOutputFilenameBase);
+        mvaOutputFilename.Append(".root");
+        TFile* outputFile = TFile::Open(mvaOutputFilename, "RECREATE");
+        
+        // Create and configure factory
+        TMVA::Factory* factory = new TMVA::Factory(filenameBase, outputFile, "!V:!Silent");
+        this->configureFactory(factory, cutSignal, cutBackground, treeTraining, treeTesting);
+        
+        // Book the MVA methods (e.g. boosted decision tree with specific setup)
+        for(const mvaSetup::MvaConfig& mvaConfig : v_mvaConfig)
+            factory->BookMethod(mvaConfig.mvaType_, mvaConfig.methodAppendix_, mvaConfig.options_);
+        
+        // Run factory
+        factory->TrainAllMethods();
+        factory->TestAllMethods();
+        factory->EvaluateAllMethods();
+        
+        // Cleanup
+        outputFile->Close();
+        delete factory;
     }
-    
-    // Run factory
-    factory->TrainAllMethods();
-    factory->TestAllMethods();
-    factory->EvaluateAllMethods();
-    
-    // Cleanup
-    outputFile->Close();
-    delete factory;
+    else{
+        for(const mvaSetup::MvaConfig& mvaConfig : v_mvaConfig){
+            TMVA::Tools::Instance();
+            
+            // Set the output directory for the weights (if not specified, default is "weights")
+            (TMVA::gConfig().GetIONames()).fWeightFileDir = mvaOutputWeightsDirectory;
+            
+            // Create ROOT output file for TMVA
+            TDirectory* oldDir = gDirectory;
+            TString mvaOutputFilename(mvaOutputFilenameBase);
+            mvaOutputFilename.Append("_").Append(mvaConfig.methodAppendix_).Append(".root");
+            TFile* outputFile = TFile::Open(mvaOutputFilename, "RECREATE");
+            oldDir->cd();
+            
+            // Create and configure factory
+            TMVA::Factory* factory = new TMVA::Factory(filenameBase, outputFile, "!V:!Silent");
+            this->configureFactory(factory, cutSignal, cutBackground, treeTraining, treeTesting);
+            
+            // Book the MVA method (e.g. boosted decision tree with specific setup)
+            //TMVA::MethodBase* method = factory->BookMethod(mvaConfig.mvaType_, mvaConfig.methodAppendix_, mvaConfig.options_);
+            factory->BookMethod(mvaConfig.mvaType_, mvaConfig.methodAppendix_, mvaConfig.options_);
+            
+            // Run factory
+            factory->TrainAllMethods();
+            factory->TestAllMethods();
+            factory->EvaluateAllMethods();
+            
+            // Trials of cleanup to avoid memory leak in TMVA (not successful)
+            //for(int i = 0; i < 1000000; ++i) if(!(i%5)) std::cout<<"Something to show for testing: "<<mvaConfig.methodAppendix_<<"\n";
+            //method->Clear();
+            //method->Delete();
+            //factory->DeleteAllMethods();
+            //factory->Clear();
+            //factory->Delete();
+            //TMVA::Tools::DestroyInstance();
+            
+            // Cleanup
+            outputFile->Close();
+            delete factory;
+        }
+    }
 }
 
 

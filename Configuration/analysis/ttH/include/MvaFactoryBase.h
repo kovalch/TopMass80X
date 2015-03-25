@@ -29,8 +29,11 @@ class MvaFactoryBase{
 public:
     
     /// Constructor
+    /// If inOneFactory true: run all defined training configurations in one factory (all correlations between trainings available)
+    /// If inOneFactory false: run each training in own factory
     MvaFactoryBase(const TString& mvaOutputDir, const TString& weightFileDir,
-                   const TString& treeFileName);
+                   const TString& treeFileName,
+                   const bool inOneFactory =true);
     
     /// Destructor
     ~MvaFactoryBase(){};
@@ -84,6 +87,10 @@ private:
     
     /// The file containing the input trees for MVA training
     const TString treeFileName_;
+    
+    /// Boolean whether defined training configurations are run in one factory (all correlations between trainings available),
+    /// or to run each training in own factory (however memory leak in TMVA leads to huge memory consumtion also in this mode)
+    const bool inOneFactory_;
 };
 
 

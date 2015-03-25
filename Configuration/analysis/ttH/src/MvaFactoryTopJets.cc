@@ -17,8 +17,9 @@
 
 
 MvaFactoryTopJets::MvaFactoryTopJets(const TString& mvaOutputDir, const TString& weightFileDir,
-                                     const TString& mergedTreesFileName):
-MvaFactoryBase(mvaOutputDir, weightFileDir, mergedTreesFileName)
+                                     const TString& mergedTreesFileName,
+                                     const bool inOneFactory):
+MvaFactoryBase(mvaOutputDir, weightFileDir, mergedTreesFileName, inOneFactory)
 {
     std::cout<<"--- Beginning setting up MVA factory for training\n";
     std::cout<<"=== Finishing setting up MVA factory for training\n\n";
