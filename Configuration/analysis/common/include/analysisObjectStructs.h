@@ -80,6 +80,7 @@ struct RecoObjects{
     LV* met_;
     Int_t vertMulti_;
     
+    // FIXME: Should probably be private, and access steered via functions which give errors with clear messages in case of mis-use
     std::map<std::string, std::vector<int> > m_userInts_;
     std::map<std::string, std::vector<double> > m_userDoubles_;
 };
