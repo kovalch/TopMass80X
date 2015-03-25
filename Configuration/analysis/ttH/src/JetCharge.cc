@@ -72,7 +72,7 @@ mvaReader2_(0)
     else{
         std::cout<<"Using inclusive jet charge\n";
     }
-    
+
     if(correction_){
         std::cout<<"Applying quantile mapping correction\n";
         
@@ -137,9 +137,21 @@ TH1* JetCharge::readHist(TFile* file, const TString& histname)const
     return hist;
 }
 
+double JetCharge::jetChargeValue(const int jetIndex, const LV& recoJet,
+                                 const std::vector<int>& pfCandidateTrackIndex, const VLV& pfCandidates,
+                                 const std::vector<int>& pfCandidateCharge, const std::vector<int>& pfCandidateVertexId,
+                                 const double& x, const bool& isMc)const
+{
+    std::pair<double,int> xJetCharge = JetCharge::pWeightedCharge(jetIndex, recoJet, pfCandidateTrackIndex, pfCandidates, pfCandidateCharge, pfCandidateVertexId, x);
+    double jetCharge;
+    if (xJetCharge.second ==2 && isMc) jetCharge = JetCharge::quantileMappingCorrection(xJetCharge.first);
+    else jetCharge = xJetCharge.first;
+    return jetCharge;
+}
 
 
-double JetCharge::pWeightedCharge(const int jetIndex, const LV& recoJet,
+
+std::pair <double, int> JetCharge::pWeightedCharge(const int jetIndex, const LV& recoJet,
                                   const std::vector<int>& pfCandidateTrackIndex, const VLV& pfCandidates,
                                   const std::vector<int>& pfCandidateCharge, const std::vector<int>& pfCandidateVertexId,
                                   const double& x)const
@@ -153,7 +165,9 @@ double JetCharge::pWeightedCharge(const int jetIndex, const LV& recoJet,
     double sumMomentum = 0.;
     double sumMomentumQ = 0.;
     
-    // Sum over all pfCandidates
+    int status = -999;
+
+    int pfMultiplicity = 0;
     for(size_t iCandidate = 0; iCandidate != pfCandidates.size(); ++iCandidate){
         // Check that the pfCandidate corresponds to the jet
         if (jetIndex != pfCandidateTrackIndex.at(iCandidate)) continue;
@@ -162,22 +176,33 @@ double JetCharge::pWeightedCharge(const int jetIndex, const LV& recoJet,
         const int vertexId = pfCandidateVertexId.at(iCandidate);
         if (vertexId==-1 || vertexId==2 || vertexId==3) continue;
         
+        // Track multiplicity
+        ++ pfMultiplicity;
+        
+        // Check nature of the track: all tracks same charge - different charges among tracks
+        if (pfMultiplicity==1) status = pfCandidateCharge.at(iCandidate);
+        if (pfMultiplicity>1 && pfCandidateCharge.at(iCandidate) != status && status!=2) status = 2; 
+        
         // Access pfCandidate mometum and charge information
         const double constituentPx = pfCandidates.at(iCandidate).px();
         const double constituentPy = pfCandidates.at(iCandidate).py();
         const double constituentPz = pfCandidates.at(iCandidate).pz();
         const double product = constituentPx*jetPx + constituentPy*jetPy + constituentPz*jetPz;
-        const double productPow = std::pow(product, x);
-        const int charge = pfCandidateCharge.at(iCandidate);
         
-        // Calculate Numerator and denominator
+        const int pfCandCharge = pfCandidateCharge.at(iCandidate);
+        
+        // Sum over all the pfCandidates
+        const double productPow = std::pow(product, x);
         sumMomentum += productPow;
-        sumMomentumQ += charge*productPow;
+        sumMomentumQ += pfCandCharge*productPow;
     }
     
     // Obtain the jet c_{rel}
     const double ptWeightedJetChargeXValue(sumMomentum>0. ? sumMomentumQ/sumMomentum : 0.);
-    return ptWeightedJetChargeXValue;
+    
+    if (status == -999) status = 0;
+    std::pair <double, int> charge(ptWeightedJetChargeXValue, status);
+    return charge;
 }
 
 
@@ -490,10 +515,8 @@ double JetCharge::mvaCharge(const int jetIndex, const LV& jet, const RecoObjects
 
 
 
-void JetCharge::quantileMappingCorrection(double& jetCharge)const
+double JetCharge::quantileMappingCorrection(double& jetCharge)const
 {
-    if(!correction_) return;
-    
     Int_t bin = histMc_->FindFixBin(jetCharge);
     double integralAtCharge = histMc_->Integral(0, bin);
     // FIXME: put protections against problematic cases, e.g. integral=0 or =1
@@ -506,7 +529,7 @@ void JetCharge::quantileMappingCorrection(double& jetCharge)const
     
     histData_->GetQuantiles(nq, yq, xq);
     
-    jetCharge = yq[0];
+    return yq[0];
 }
 
 

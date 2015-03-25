@@ -46,7 +46,7 @@ public:
     
     // FIXME: description
     /// Momentum weighted jet charge calculation for a given squeezing parameter x
-    double pWeightedCharge(const int jetIndex, const LV& recoJet,
+    std::pair <double, int> pWeightedCharge(const int jetIndex, const LV& recoJet,
                            const std::vector<int>& pfCandidateTrackIndex, const VLV& pfCandidates,
                            const std::vector<int>& pfCandidateCharge, const std::vector<int>& pfCandidateVertexId,
                            const double& x)const;
@@ -64,9 +64,13 @@ public:
                                   const double& weight);
     
     /// Correct value of jet charge by applying a quantile mapping
-    void quantileMappingCorrection(double& jetCharge)const;
+    double quantileMappingCorrection(double& jetCharge)const;
     
-    
+    /// Return the correct charge value
+    double jetChargeValue(const int jetIndex, const LV& recoJet,
+                          const std::vector<int>& pfCandidateTrackIndex, const VLV& pfCandidates,
+                          const std::vector<int>& pfCandidateCharge, const std::vector<int>& pfCandidateVertexId,
+                          const double& x, const bool& isMc)const;
     
 private:
     

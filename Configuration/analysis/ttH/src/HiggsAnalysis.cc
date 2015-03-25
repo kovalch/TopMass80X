@@ -842,10 +842,11 @@ std::vector<double> HiggsAnalysis::jetCharges(const std::vector<int>&, const Rec
     
     // FIXME: Calculate only for selected jets
     for(size_t index = 0; index < jets.size(); ++index){
-        double jetCharge = jetCharge_->pWeightedCharge(static_cast<int>(index), jets.at(index),
-                                                       *recoObjects.jetPfCandidateTrackIndex_, *recoObjects.jetPfCandidateTrack_,
-                                                       *recoObjects.jetPfCandidateTrackCharge_, *recoObjects.jetPfCandidatePrimaryVertexId_, 0.8);
-        if(this->isMC()) jetCharge_->quantileMappingCorrection(jetCharge);
+        const bool isMc = this->isMC();
+        double jetCharge = jetCharge_->jetChargeValue(static_cast<int>(index), jets.at(index),
+                                                      *recoObjects.jetPfCandidateTrackIndex_, *recoObjects.jetPfCandidateTrack_,
+                                                      *recoObjects.jetPfCandidateTrackCharge_, *recoObjects.jetPfCandidatePrimaryVertexId_, 0.8, isMc);
+        
         v_jetCharge.at(index) = jetCharge;
     }
     
