@@ -684,11 +684,11 @@ void HiggsAnalysis::recoObjectSelection(std::vector<int>& allLeptonIndices,
     
     // Fill a vector with all jet pair indices, while sorting each pair by the jet charge:
     // first entry is antiBIndex i.e. with higher jet charge, second entry is bIndex
-    // FIXME: The jet charge itself first needs to be calculated, as the value in the ntuple is not optimal
-    // FIXME: for the moment the following line serves it
-    //this->updateJetCharge(this->jetCharges(jetIndices, recoObjects));
-    const std::vector<double>& jetChargeRelativePtWeighted = *recoObjects.jetChargeRelativePtWeighted_;
-    jetIndexPairs = this->chargeOrderedJetPairIndices(jetIndices, jetChargeRelativePtWeighted);
+    // The jet charge itself first needs to be calculated, as the value in the ntuple is not optimal
+    //this->addRecoDoubles("jetCharges", this->jetCharges(jetIndices, recoObjects));
+    this->addRecoDoubles("jetCharges", *recoObjects.jetChargeRelativePtWeighted_);
+    const std::vector<double>& v_jetCharge = recoObjects.m_userDoubles_.at("jetCharges");
+    jetIndexPairs = this->chargeOrderedJetPairIndices(jetIndices, v_jetCharge);
     
     // Get b-jet indices, apply selection cuts
     // and apply b-tag efficiency MC correction using random number based tag flipping (if requested correction mode is applied)

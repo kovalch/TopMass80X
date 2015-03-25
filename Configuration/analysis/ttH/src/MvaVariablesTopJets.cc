@@ -117,7 +117,7 @@ std::vector<MvaVariablesBase*> MvaVariablesTopJets::fillVariables(const tth::Rec
     const VLV& jets(*recoObjects.jets_);
     const LV& met(*recoObjects.met_);
     const std::vector<double>& jetBtag(*recoObjects.jetBTagCSV_);
-    const std::vector<double>& jetCharge(*recoObjects.jetChargeRelativePtWeighted_);
+    const std::vector<double>& jetCharge(recoObjects.m_userDoubles_.at("jetCharges"));
     
     const LV& lepton(allLeptons.at(recoObjectIndices.leptonIndex_));
     const LV& antiLepton(allLeptons.at(recoObjectIndices.antiLeptonIndex_));
