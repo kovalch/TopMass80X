@@ -339,13 +339,18 @@ const std::vector<HfFracScaleFactors::ValErr> HfFracScaleFactors::getScaleFactor
     
     // Extracting fit result for each sampleType
     for(size_t sampleId = 1; sampleId<templateNames_.size(); ++sampleId) {
-        double v(0.), e(0.);
+        double v(1.), e(0.);
         TH1* histoInFit = histosInFit.at(sampleId);
         v = histoInFit->Integral();
         // Error is a linear sum of errors in each bin (as fully correlated)
         for(int iBin = 1; iBin <= histoInFit->GetNbinsX(); ++iBin) e+=histoInFit->GetBinError(iBin);
         v /= histos.at(sampleId)->Integral()/templateInitialScaleFactors_.at(sampleId);
         e /= histos.at(sampleId)->Integral()/templateInitialScaleFactors_.at(sampleId);
+        // Setting the scale factors for the non-fitted samples to 1 (in the bkg_fixed)
+        if(sampleId == templateNames_.size() - 1) {
+            v = 1.0;
+            e = 0.0;
+        }
         result.at(sampleId).val = v;
         result.at(sampleId).err = e;
     }
