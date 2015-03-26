@@ -434,10 +434,9 @@ void load_Analysis(const TString& validFilenamePattern,
         
         char reweightingChar[100];
         if(reweightingName == "nominal") sprintf(reweightingChar, "_reweighted_%s", reweightingName.c_str());
-        else sprintf(reweightingChar, "_reweighted_%s_%g", reweightingName.c_str(), reweightingSlope);
-        if(reweightingName != "") filenameBase.Insert(filenameBase.Index(".root"), reweightingChar);
-        
-        std::cout << "Name:" << reweightingName << "  Slope: " << reweightingSlope << "  File: " << filenameBase << std::endl;
+        else if(reweightingName != "") sprintf(reweightingChar, "_reweighted_%s_%g", reweightingName.c_str(), reweightingSlope);
+        else sprintf(reweightingChar, "");
+        filenameBase.Insert(filenameBase.Index(".root"), reweightingChar);
         
         // Loop over channels and run selector
         for(const auto& selectedChannel : channels){
