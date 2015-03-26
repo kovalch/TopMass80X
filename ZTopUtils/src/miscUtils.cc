@@ -1,9 +1,14 @@
 #include "../interface/miscUtils.h"
 #include <cmath>
 #include <stdexcept>
-
+#include <iostream>
+#include <ctime>
 namespace ztop {
 
+void coutDateTime(){
+	time_t now = time(0);
+	std::cout  << ctime(&now) ;
+}
 
 double getMaxVar(bool up, const double & upvar, const double & downvar, bool& anticorr){
 	if(upvar>0 && downvar<0){

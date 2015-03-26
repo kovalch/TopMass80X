@@ -19,8 +19,20 @@
  - return something (-1 or another int for dubugging)
 
  */
+#ifndef ZTOP_COUTVAR_DEF
+#define ZTOP_COUTVAR_DEF
+#include <iostream>
+#define ZTOP_COUTVAR(x) std::cout << #x << ": " <<x << std::endl;
+#endif
 
 namespace ztop {
+
+void coutDateTime();
+
+inline double square(const double & in){
+	return in*in;
+}
+
 
 double getMaxVar(bool up, const double & upvar, const double & downvar, bool& anticorr);
 
