@@ -40,12 +40,16 @@ void AnalyzerEventWeight::bookHistos(const TString& step, std::map<TString, TH1*
     // Generator level weights
     name = "madgraphCorrection";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step,"MadGraph W decay BR;weight;# events",100,0.5,2.));
-    name = "pileup";
-    m_histogram[name] = this->store(new TH1D(prefix_+name+step,"Pileup;weight;# events",100,0,10));
+    name = "pdf";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step,"PDF;weight;# events",100,0,10));
     name = "generator";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step,"Generator;weight;# events",100,0,10));
     name = "topPt";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step,"Top pt;weight;# events",100,0.5,2.));
+    name = "reweighting";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step,"Reweighting;weight;# events",100,0,10));
+    name = "pileup";
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step,"Pileup;weight;# events",100,0,10));
     name = "trueLevel_noPileup";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step,"True level (no pileup);weight;# events",100,0,10));
     name = "trueLevel";
@@ -82,12 +86,16 @@ void AnalyzerEventWeight::fillHistos(const EventMetadata&,
     // Generator level weights
     name = "madgraphCorrection";
     m_histogram.at(name)->Fill(genLevelWeights.weightMadgraphCorrection_);
-    name = "pileup";
-    m_histogram.at(name)->Fill(genLevelWeights.weightPileup_);
+    name = "pdf";
+    m_histogram.at(name)->Fill(genLevelWeights.weightPdf_);
     name = "generator";
     m_histogram.at(name)->Fill(genLevelWeights.weightGenerator_);
     name = "topPt";
     m_histogram.at(name)->Fill(genLevelWeights.weightTopPt_);
+    name = "reweighting";
+    m_histogram.at(name)->Fill(genLevelWeights.weightReweighting_);
+    name = "pileup";
+    m_histogram.at(name)->Fill(genLevelWeights.weightPileup_);
     name = "trueLevel_noPileup";
     m_histogram.at(name)->Fill(genLevelWeights.trueLevelWeightNoPileup_);
     name = "trueLevel";
