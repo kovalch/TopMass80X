@@ -4,13 +4,16 @@
 
 
 
-tth::GenLevelWeights::GenLevelWeights(const double& weightMadgraphCorrection, const double& weightPileup,
+tth::GenLevelWeights::GenLevelWeights(const double& weightMadgraphCorrection, const double& weightPdf,
                                       const double& weightGenerator, const double& weightTopPt,
+                                      const double& weightReweighting, const double& weightPileup,
                                       const double& trueLevelWeightNoPileup, const double& trueLevelWeight):
 weightMadgraphCorrection_(weightMadgraphCorrection),
-weightPileup_(weightPileup),
+weightPdf_(weightPdf),
 weightGenerator_(weightGenerator),
 weightTopPt_(weightTopPt),
+weightReweighting_(weightReweighting),
+weightPileup_(weightPileup),
 trueLevelWeightNoPileup_(trueLevelWeightNoPileup),
 trueLevelWeight_(trueLevelWeight)
 {}

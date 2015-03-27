@@ -286,13 +286,14 @@ void load_Analysis(const TString& validFilenamePattern,
         const bool isTopSignal = o_isSignal->GetString() == "1";
         const bool isMC = o_isMC->GetString() == "1";
         const bool isHiggsSignal(o_isHiggsSignal && o_isHiggsSignal->GetString()=="1");
+        const bool isTtbarV(samplename->GetString()=="ttbarw" || samplename->GetString()=="ttbarz");
         
         // Checks avoiding running on ill-defined configurations
         if(!isMC && systematic.type()!=Systematic::undefinedType){
             std::cout<<"Sample is DATA, so not running again for systematic variation\n";
             continue;
         }
-        if (systematic.type()==Systematic::pdf && (!isTopSignal || !(systematicFromFile.type()==Systematic::nominal))) {
+        if (systematic.type()==Systematic::pdf && (!isTopSignal || isTtbarV || !(systematicFromFile.type()==Systematic::nominal))) {
             std::cout << "Skipping file: is not signal or not nominal -- and running PDFs\n";
             continue;
         }
@@ -367,7 +368,7 @@ void load_Analysis(const TString& validFilenamePattern,
             selector->SetRunViaTau(0);
             selector->SetOutputfilename(outputfilename);
             selector->SetClosureTest(closure, slope);
-            if(isTopSignal) selector->SetSampleForBtagEfficiencies(true);
+            if(isTopSignal && !isTtbarV) selector->SetSampleForBtagEfficiencies(true);
             chain.Process(selector, "", maxEvents, skipEvents);
             selector->SetSampleForBtagEfficiencies(false);
             
@@ -382,14 +383,14 @@ void load_Analysis(const TString& validFilenamePattern,
                     if(specific_PDF >=0 && pdf_no != specific_PDF) continue;
                     //weightedEvents->SetBinContent(1, pdfWeights->GetBinContent(pdf_no+1));
                     selector->SetWeightedEvents(weightedEvents);
-                    selector->SetPDF(pdf_no);
+                    selector->SetPdfVariation(pdf_no);
                     chain.Process(selector, "", maxEvents, skipEvents);
                 }
                 continue;
             }
             
             // For splitting of dileptonic ttbar in component with intermediate taus and without
-            if(isTopSignal && closure == ""){
+            if(isTopSignal && !isTtbarV && closure == ""){
                 selector->SetRunViaTau(1);
                 outputfilename.ReplaceAll("signalplustau", "bgviatau");
                 selector->SetOutputfilename(outputfilename);

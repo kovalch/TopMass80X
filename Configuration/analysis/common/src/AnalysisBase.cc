@@ -57,6 +57,7 @@ correctMadgraphBR_(false),
 channelPdgIdProduct_(0),
 checkZDecayMode_(0),
 outputfilename_(""),
+pdfVariation_(-1),
 isTtbarSample_(false),
 isTtbarZSample_(false),
 eventCounter_(0),
@@ -275,6 +276,13 @@ void AnalysisBase::SetDrellYan(const bool isDrellYan)
 void AnalysisBase::SetSystematic(const Systematic::Systematic& systematic)
 {
     systematic_ = systematic;
+}
+
+
+
+void AnalysisBase::SetPdfVariation(const int pdfVariation)
+{
+    pdfVariation_ = pdfVariation;
 }
 
 
@@ -1592,11 +1600,11 @@ double AnalysisBase::weightGenerator(const Long64_t& entry)const
 
 
 
-double AnalysisBase::weightPdf(const Long64_t& entry, const int pdfNo)const
+double AnalysisBase::weightPdf(const Long64_t& entry)const
 {
-    if(pdfNo < 0) return 1.;
+    if(pdfVariation_ < 0) return 1.;
     this->GetPDFEntry(entry);
-    const double pdfWeight = weightPDF_->at(pdfNo);
+    const double pdfWeight = weightPDF_->at(pdfVariation_);
     return pdfWeight;
 }
 

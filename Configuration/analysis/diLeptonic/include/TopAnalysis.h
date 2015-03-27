@@ -210,10 +210,6 @@ class TopAnalysis : public AnalysisBase
     /// Whether to apply closure test
     bool doClosureTest_;
     
-    /// Variables added from the outside
-    int pdf_no_;
-    
-    
     /// Data for closure test
 #ifndef __CINT__
     std::function<double(Long64_t)> closureFunction_;
@@ -242,9 +238,6 @@ public:
     
     /// Set up closure test
     void SetClosureTest(TString closure, double slope);
-    
-    /// Set PDF variation for PDF systematics
-    void SetPDF(int pdf_no);
     
     /// Class definition
     ClassDef(TopAnalysis, 0);    

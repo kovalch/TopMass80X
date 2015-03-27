@@ -92,7 +92,6 @@ constexpr double GenDeltaRLeptonJetCUT = -1.;
 TopAnalysis::TopAnalysis():
 kinRecoOnTheFly_(false),
 doClosureTest_(false),
-pdf_no_(-1),
 closureFunction_(nullptr),
 closureMaxEvents_(0),
 runViaTau_(false),
@@ -682,7 +681,7 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
     const double weightMadgraphCorrection = this->madgraphWDecayCorrection(entry);
 
     // Weight due to PDF variation systematics
-    const double pdfWeight = this->weightPdf(entry, pdf_no_);
+    const double pdfWeight = this->weightPdf(entry);
     h_PDFTotalWeight->Fill(1, pdfWeight);
     
     // Get weight due to pileup reweighting
@@ -1788,13 +1787,6 @@ void TopAnalysis::SetRunViaTau(const bool runViaTau)
 
 
 
-void TopAnalysis::SetPDF(int pdf_no)
-{
-    this->pdf_no_ = pdf_no;
-}
-
-
-
 void TopAnalysis::SetClosureTest(TString closure, double slope)
 {
     if (closure == "") {
@@ -1874,8 +1866,8 @@ double TopAnalysis::globalNormalisationFactorClosureTest()
 
 double TopAnalysis::globalNormalisationFactorPDF()
 {
-    double globalNormalisationFactor(1);
-    if (pdf_no_ >= 0) {
+    double globalNormalisationFactor(1.);
+    if (this->pdfVariation() >= 0) {
         TH1 *total = dynamic_cast<TH1*>(fOutput->FindObject("PDFTotalWeight"));
         if (!total) {
             std::cerr << "PDFTotalWeight histogram is missing!\n"; exit(1);

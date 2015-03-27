@@ -71,6 +71,9 @@ public:
     /// Set systematic
     void SetSystematic(const Systematic::Systematic& systematic);
     
+    /// Set number of PDF variation for PDF systematics
+    void SetPdfVariation(const int pdfVariation);
+    
     /// Set whether it is MC sample
     void SetMC(const bool isMC);
     
@@ -251,7 +254,7 @@ protected:
     double weightGenerator(const Long64_t& entry)const;
     
     /// Get weight of PDF variation
-    double weightPdf(const Long64_t& entry, const int pdfNo)const;
+    double weightPdf(const Long64_t& entry)const;
     
     
     
@@ -378,6 +381,8 @@ protected:
     /// Whether it is a ttbarZ sample
     const bool& isTtbarZSample()const{return isTtbarZSample_;}
     
+    // FIXME: make generic implemenation for global weights and remove function
+    int pdfVariation()const{return pdfVariation_;}
     
     
     
@@ -743,6 +748,7 @@ private:
     std::function<bool(const std::vector<int>&)> checkZDecayMode_;
     #endif
     TString outputfilename_;
+    int pdfVariation_;
     
     /// Whether it is a ttbar sample (and not ttbarH, ttbarW, ttbarZ, or any other thing)
     bool isTtbarSample_;
