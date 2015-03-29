@@ -271,6 +271,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     const double weightPU = this->weightPileup(entry);
     const double trueLevelWeightNoPileup = weightTopPt*weightPdf*weightGenerator*weightMadgraphCorrection*weightReweighting;
     const double trueLevelWeight = trueLevelWeightNoPileup*weightPU;
+    this->renormalisationWeights(trueLevelWeight, weightGenerator*weightMadgraphCorrection*weightPU);
     const tth::GenLevelWeights genLevelWeights(weightMadgraphCorrection, weightPdf,
                                                weightGenerator, weightTopPt,
                                                weightReweighting, weightPU,
@@ -1096,8 +1097,6 @@ double HiggsAnalysis::reweightingWeight(const TopGenObjects& topGenObjects, cons
     
     std::cerr<<"ERROR in HiggsAnalysis::reweightingWeight()! Provided reweighting name is not supported: "<<reweightingName_<<"\n...break\n"<<std::endl;
     exit(1);
-
-    return 1.0;
 }
 
 

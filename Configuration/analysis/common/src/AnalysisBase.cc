@@ -72,7 +72,9 @@ btagScaleFactors_(0),
 topPtScaleFactors_(0),
 isSampleForBtagEfficiencies_(false),
 mvaMet_(false),
-metRecoilCorrector_(0)
+metRecoilCorrector_(0),
+trueLevelWeightSum_(0.),
+trueLevelNoRenormalisationWeightSum_(0.)
 {
     this->clearBranches();
     this->clearBranchVariables();
@@ -178,8 +180,14 @@ void AnalysisBase::writeOutput()
     }
     
     // Write everything held by fOutput
-    TIterator* iterator = fOutput->MakeIterator();
-    while(TObject* obj = iterator->Next()) obj->Write();
+    // For histograms, apply global re-normalisation for weights which change normalisation, but should not
+    const double globalNormalisationFactor = trueLevelWeightSum_>0. ? trueLevelNoRenormalisationWeightSum_/trueLevelWeightSum_ : -999.;
+    TIterator* i_object = fOutput->MakeIterator();
+    while(TObject* object = i_object->Next()){
+        TH1* hist = dynamic_cast<TH1*>(object);
+        if(hist && globalNormalisationFactor>0.) hist->Scale(globalNormalisationFactor); 
+        object->Write();
+    }
     
     // Write additional information into file
     h_weightedEvents->Write();
@@ -1824,6 +1832,13 @@ int AnalysisBase::additionalJetFlavourId(const Long64_t& entry)const
 
 
 
+
+
+void AnalysisBase::renormalisationWeights(const double& trueLevelWeight, const double& trueLevelNoRenormalisationWeight)
+{
+    trueLevelWeightSum_ += trueLevelWeight;
+    trueLevelNoRenormalisationWeightSum_ += trueLevelNoRenormalisationWeight;
+}
 
 
 

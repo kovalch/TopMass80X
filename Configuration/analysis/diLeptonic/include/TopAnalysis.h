@@ -266,15 +266,6 @@ private:
     
     
     
-    /// Set global normalisation factors
-    double overallGlobalNormalisationFactor();
-    
-    /// Set global normalisation factor due to closure test
-    double globalNormalisationFactorClosureTest();
-    
-    /// Set global normalisation factor due to PDF systematics
-    double globalNormalisationFactorPDF();
-
     /// Get weight of closure test
     double calculateClosureTestWeight(const Long64_t& entry);
     

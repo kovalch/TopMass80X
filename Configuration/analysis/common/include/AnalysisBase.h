@@ -305,6 +305,9 @@ protected:
     /// Produce b-tag efficiencies, in case the specified b-tag correction mode requires it
     void produceBtagEfficiencies();
     
+    /// Increase sum of event weights by the values given in each event
+    void renormalisationWeights(const double& trueLevelWeight, const double& trueLevelNoRenormalisationWeight);
+    
     
     
     
@@ -380,9 +383,6 @@ protected:
     
     /// Whether it is a ttbarZ sample
     const bool& isTtbarZSample()const{return isTtbarZSample_;}
-    
-    // FIXME: make generic implemenation for global weights and remove function
-    int pdfVariation()const{return pdfVariation_;}
     
     
     
@@ -799,6 +799,15 @@ private:
     
     /// Pointer to the Met Recoil correction tools
     const MetRecoilCorrector* metRecoilCorrector_;
+    
+    
+    
+    /// Sum of all true level weights of gen-level selected sample, needed for global normalisation
+    double trueLevelWeightSum_;
+    
+    /// Sum of all true level weights which do NOT need re-normalisation, needed for global normalisation
+    /// Shape weights which should not change global normalisation but change it need to be excluded, e.g. PDF or closure test weights
+    double trueLevelNoRenormalisationWeightSum_;
 };
 
 

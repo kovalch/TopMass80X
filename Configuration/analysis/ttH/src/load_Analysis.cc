@@ -355,6 +355,7 @@ void load_Analysis(const TString& validFilenamePattern,
         
         // In case of reweighting, modify basic filename to contain reweighting name and slope
         if(reweightingName != ""){
+            genStudiesTtbb = true;
             std::stringstream sstream;
             if(reweightingName == "nominal") sstream<<"_reweighted_"<<reweightingName<<".root";
             else sstream<<"_reweighted_"<<reweightingName<<"_"<<reweightingSlope<<".root";
@@ -439,7 +440,7 @@ void load_Analysis(const TString& validFilenamePattern,
         const Systematic::Systematic selectedSystematic = systematic.type()==Systematic::undefinedType ? systematicFromFile : systematic;
         
         // If for specific systematic variations the nominal btagging efficiencies should be used
-        const Systematic::Systematic systematicForBtagEfficiencies = selectedSystematic.type()==Systematic::pdf ? Systematic::nominalSystematic() : selectedSystematic;
+        const Systematic::Systematic systematicForBtagEfficiencies = (selectedSystematic.type()==Systematic::pdf || reweightingName!="") ? Systematic::nominalSystematic() : selectedSystematic;
         
         // Set up btag efficiency scale factors
         // This has to be done only after potentially setting systematic from file, since it is varied with signal systematics
@@ -727,7 +728,10 @@ int main(int argc, char** argv)
         std::cout<<"Systematic variation constructed from ID (ID, name): "<<systematicId<<" , "<<systematic.name()<<"\n";
     }
     else{
-        // FIXME: if systematic requires ID, produce error here
+        if(systematic.type() == Systematic::pdf){
+            std::cerr<<"ERROR in load_Analysis executable! Systematic requires systematic ID, but none specified\n...break\n"<<std::endl;
+            exit(1);
+        }
     }
     
     // Set up jet categories
@@ -785,7 +789,8 @@ int main(int argc, char** argv)
     
     // Start analysis
     //TProof* p = TProof::Open(""); // not before ROOT 5.34
-    load_Analysis(validFilenamePattern, part, channel, systematic, systematicId, jetCategoriesId, v_analysisMode, reweightingName, reweightingSlope, maxEvents, skipEvents);
+    load_Analysis(validFilenamePattern, part, channel, systematic, systematicId, jetCategoriesId,
+                  v_analysisMode, reweightingName, reweightingSlope, maxEvents, skipEvents);
     //delete p;
 }
 

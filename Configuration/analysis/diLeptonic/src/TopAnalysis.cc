@@ -137,15 +137,6 @@ void TopAnalysis::Terminate()
         }
     }
     
-    
-    // Calculate an overall weight due to the shape reweighting, and apply it
-    const double globalNormalisationFactor = this->overallGlobalNormalisationFactor();
-    TIterator* it = fOutput->MakeIterator();
-    while (TObject* obj = it->Next()) {
-        TH1 *hist = dynamic_cast<TH1*>(obj);
-        if (hist) hist->Scale(globalNormalisationFactor); 
-    }
-    
     // Defaults from AnalysisBase
     AnalysisBase::Terminate();
 }
@@ -677,29 +668,21 @@ Bool_t TopAnalysis::Process ( Long64_t entry )
         if (++closureTestEventCounter > closureMaxEvents_) return kTRUE;
     }
     
-    // Correct for the MadGraph branching fraction being 1/9 for dileptons (PDG average is .108)
+    
+    // Determine all true level weights
     const double weightMadgraphCorrection = this->madgraphWDecayCorrection(entry);
-
-    // Weight due to PDF variation systematics
     const double pdfWeight = this->weightPdf(entry);
-    h_PDFTotalWeight->Fill(1, pdfWeight);
-    
-    // Get weight due to pileup reweighting
-    const double weightPU = this->weightPileup(entry);
-    
-    // Get weight due to generator weights
     const double weightGenerator = this->weightGenerator(entry);
-
-    // Get weight due to top-pt reweighting
     const double weightTopPt = this->weightTopPtReweighting(entry);
-    
-    // Get true level weights
+    const double weightPU = this->weightPileup(entry);
     const double trueLevelWeightNoPileupNoClosure = weightGenerator*weightMadgraphCorrection*pdfWeight*weightTopPt;
     const double trueLevelWeightNoPileup = doClosureTest_ ? this->calculateClosureTestWeight(entry) : trueLevelWeightNoPileupNoClosure;
     const double trueLevelWeight = trueLevelWeightNoPileup*weightPU;
-    
+    this->renormalisationWeights(trueLevelWeight, weightGenerator*weightMadgraphCorrection*weightPU);
     const ttbar::GenLevelWeights genLevelWeights(weightMadgraphCorrection, weightPU, weightGenerator,
                                                  trueLevelWeightNoPileup, trueLevelWeight);
+    
+    h_PDFTotalWeight->Fill(1, pdfWeight);
     
     const EventMetadata eventMetadataDummy;
     const CommonGenObjects commonGenObjectsDummy;
@@ -1844,48 +1827,6 @@ double TopAnalysis::calculateClosureTestWeight(const Long64_t& entry)
     const double weight = closureFunction_(entry);
     h_ClosureTotalWeight->Fill(1, weight);
     return weight;
-}
-
-
-
-double TopAnalysis::globalNormalisationFactorClosureTest()
-{
-    double globalNormalisationFactor(1);
-    if (doClosureTest_) {
-        TH1 *total = dynamic_cast<TH1*>(fOutput->FindObject("ClosureTotalWeight"));
-        if (!total) {
-            std::cerr << "ClosureTotalWeight histogram is missing!\n"; exit(1);
-        }
-        globalNormalisationFactor *= total->GetEntries() / total->GetBinContent(1);
-        std::cout << "Global normalisation factor of closure test: " << globalNormalisationFactor << "\n";
-    }
-    return globalNormalisationFactor;
-}
-
-
-
-double TopAnalysis::globalNormalisationFactorPDF()
-{
-    double globalNormalisationFactor(1.);
-    if (this->pdfVariation() >= 0) {
-        TH1 *total = dynamic_cast<TH1*>(fOutput->FindObject("PDFTotalWeight"));
-        if (!total) {
-            std::cerr << "PDFTotalWeight histogram is missing!\n"; exit(1);
-        }
-        globalNormalisationFactor *= total->GetEntries() / total->GetBinContent(1);
-        std::cout << "PDF Weight Normalisation = " << globalNormalisationFactor << "\n";
-    }
-    return globalNormalisationFactor;
-}
-
-
-
-double TopAnalysis::overallGlobalNormalisationFactor()
-{
-    double globalNormalisationFactor(1);
-    globalNormalisationFactor *= globalNormalisationFactorClosureTest();
-    globalNormalisationFactor *= globalNormalisationFactorPDF();
-    return globalNormalisationFactor;
 }
 
 
