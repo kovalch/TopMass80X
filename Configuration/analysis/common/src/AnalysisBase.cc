@@ -185,7 +185,7 @@ void AnalysisBase::writeOutput()
     TIterator* i_object = fOutput->MakeIterator();
     while(TObject* object = i_object->Next()){
         TH1* hist = dynamic_cast<TH1*>(object);
-        if(hist && globalNormalisationFactor>0.) hist->Scale(globalNormalisationFactor); 
+        if(hist && globalNormalisationFactor>0. && globalNormalisationFactor!=1.) hist->Scale(globalNormalisationFactor); 
         object->Write();
     }
     
