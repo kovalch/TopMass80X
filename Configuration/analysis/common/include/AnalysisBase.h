@@ -808,6 +808,13 @@ private:
     /// Sum of all true level weights which do NOT need re-normalisation, needed for global normalisation
     /// Shape weights which should not change global normalisation but change it need to be excluded, e.g. PDF or closure test weights
     double trueLevelNoRenormalisationWeightSum_;
+    
+    
+    // FIXME: method for testing self-derived MET phi corrections, clean implementation needs to be done
+protected:
+    void correctMetPhi(const int nVertex,
+                       const double& x0Data, const double& xSData, const double& y0Data, const double& ySData,
+                       const double& x0Mc, const double& xSMc, const double& y0Mc, const double& ySMc)const;
 };
 
 

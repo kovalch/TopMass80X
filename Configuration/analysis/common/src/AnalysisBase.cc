@@ -1846,3 +1846,34 @@ void AnalysisBase::renormalisationWeights(const double& trueLevelWeight, const d
 
 
 
+
+
+void AnalysisBase::correctMetPhi(const int nVertex,
+                   const double& x0Data, const double& xSData, const double& y0Data, const double& ySData,
+                   const double& x0Mc, const double& xSMc, const double& y0Mc, const double& ySMc)const
+{
+    LV& met = *recoObjects_->met_;
+    double metX = met.px();
+    double metY = met.py();
+    
+    if(isMC_){
+        if(x0Mc > -900.) metX -= x0Mc + xSMc*nVertex;
+        if(y0Mc > -900.) metY -= y0Mc + ySMc*nVertex;
+    }
+    else{
+        if(x0Data > -900.) metX -= x0Data + xSData*nVertex;
+        if(xSData > -900.) metY -= y0Data + ySData*nVertex;
+    }
+    
+    met.SetPxPyPzE(metX, metY, met.pz(), met.E());
+}
+
+
+
+
+
+
+
+
+
+
