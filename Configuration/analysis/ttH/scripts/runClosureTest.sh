@@ -28,6 +28,8 @@ done
 
 wait
 
-echo
-echo "Done running samples for closure test!"
-
+if [ "$isNAF" = 1 ]; then
+    echo "Please check your jobs with qstat -u $USER | grep load_Analy"
+else
+    echo "Done running samples for closure test!"
+fi

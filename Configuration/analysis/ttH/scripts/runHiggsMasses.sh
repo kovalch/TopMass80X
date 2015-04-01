@@ -36,11 +36,10 @@ for channel in ee emu mumu; do
     w
 done
 
-
 wait
 
 if [ "$isNAF" = 1 ]; then
-    echo "Please check your jobs with qstat -u $USER | grep load_Analysis"
+    echo "Please check your jobs with qstat -u $USER | grep load_Analy"
 else
     echo "Processing all Higgs mass variation samples finished!"
 fi
