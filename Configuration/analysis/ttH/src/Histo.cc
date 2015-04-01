@@ -167,6 +167,7 @@ int main(int argc, char** argv){
         else if(opt_systematic[0] == Systematic::convertType(Systematic::allAvailable)) {
             v_systematic = common::findSystematicsFromFilelists("FileLists_plot", v_channel, v_systematic);
             // Adding systematics that do not require specific root files
+            // FIXME: Shouldn't this especially be also done for "all" systematics?
             for(Systematic::Type type : Systematic::fileIndependentTypes) {
                 if(std::find(Systematic::upDownTypes.begin(), Systematic::upDownTypes.end(), type) != Systematic::upDownTypes.end()) {
                     v_systematic.push_back(Systematic::Systematic(type, Systematic::up));
