@@ -705,6 +705,10 @@ void HiggsAnalysis::recoObjectSelection(std::vector<int>& allLeptonIndices,
     
     // In case of MVA MET apply recoil correction for Drell-Yan sample
     this->correctMvaMet(leptonIndex, antiLeptonIndex, allLeptons, numberOfJets, entry);
+    
+    // FIXME: This is a test implementation, needs cleanup
+    // Correct phi of MET
+    //this->correctMetPhi(recoObjects.vertMulti_, 0.03, 0.006, -0.01, 0.056, -999., -999., -999., -999.);
 }
 
 
