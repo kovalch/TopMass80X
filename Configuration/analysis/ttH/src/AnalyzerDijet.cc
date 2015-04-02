@@ -288,6 +288,13 @@ void AnalyzerDijet::bookJetHadronFlavourHistos(const TString& step, const TStrin
     name = "bHadVsBHadNoT_multiplicity";
     m_histogram[name] = store(new TH2D(prefix_+name+step, "Gen. b-had/b-had^{not t#bar{t}} multiplicity;N(b-had)_{all}"+label+";N(b-had)_{not t#bar{t}}",15,0,15,15,0,15));
     
+    name = "jet_pt_recoOverGen_B";
+    m_histogram[name] = store(new TH1D(prefix_+name+step, ";b jet p_{T}^{reco}/p_{T}^{gen}"+label+";Jets",40,0,2));
+    name = "jet_pt_recoOverGen_nonB";
+    m_histogram[name] = store(new TH1D(prefix_+name+step, ";non-b jet p_{T}^{reco}/p_{T}^{gen}"+label+";Jets",40,0,2));
+    name = "jet_pt_recoOverGen";
+    m_histogram[name] = store(new TH1D(prefix_+name+step, ";jet p_{T}^{reco}/p_{T}^{gen}"+label+";Jets",40,0,2));
+    
     name = "nHadAddFromTopWeakDecay";
     m_histogram[name] = store(new TH1D(prefix_+name+step, "N b-hadrons not from top but from top weak decay;N b-hadrons_{extra}^{from top}"+label+";Events",10,0,10));
     name = "nHadAddNotFromTopWeakDecay";
@@ -497,23 +504,18 @@ void AnalyzerDijet::bookHistos(const TString& step, std::map<TString, TH1*>& m_h
     name = "jetBtagDiscriminantVsHadronNotGMultiplicity";
     m_histogram[name] = store(new TH2D(prefix_+name+step, "Jet_{d}^{reco} vs Hadron_{not g} multiplicity;jet_{reco} d"+label+";N(b-had)_{not g}",21,-0.05,1,7,0,7));
 
-    name = "mvaWeight_correctTop_correct";
-    m_histogram[name] = store(new TH1D(prefix_+name+step, "MVA^{correct} weight for correct tt combinations;weight_{MVA}^{correct}"+label+";Correct jet pairs",20,-1.2,0.2));
-    name = "mvaWeight_correctTop_swapped";
-    m_histogram[name] = store(new TH1D(prefix_+name+step, "MVA^{swapped} weight for correct tt combinations;weight_{MVA}^{swapped}"+label+";Correct jet pairs",20,-1.2,0.2));
-    
-    name = "mvaWeight_wrongTop_correct";
-    m_histogram[name] = store(new TH1D(prefix_+name+step, "MVA^{correct} weight for wrong tt combinations;weight_{MVA}^{correct}"+label+";Wrong jet pairs",20,-1.2,0.2));
+    name = "mvaWeight_correctTop";
+    m_histogram[name] = store(new TH1D(prefix_+name+step, "MVA^{correct} weight for correct tt combinations;weight_{MVA}^{correct}"+label+";Correct jet pairs",80,-1.5,0.5));
+    name = "mvaWeight_wrongTop";
+    m_histogram[name] = store(new TH1D(prefix_+name+step, "MVA^{correct} weight for wrong tt combinations;weight_{MVA}^{correct}"+label+";Wrong jet pairs",80,-1.5,0.5));
 
-    name = "mvaWeight_correctHiggs_correct";
-    m_histogram[name] = store(new TH1D(prefix_+name+step, "MVA^{correct} weight for correct H combinations;weight_{MVA}^{correct}"+label+";Correct jet pairs",20,-1.2,0.2));
-    name = "mvaWeight_correctHiggs_swapped";
-    m_histogram[name] = store(new TH1D(prefix_+name+step, "MVA^{swapped} weight for correct H combinations;weight_{MVA}^{swapped}"+label+";Correct jet pairs",20,-1.2,0.2));
+    name = "mvaWeight_correctHiggs";
+    m_histogram[name] = store(new TH1D(prefix_+name+step, "MVA^{correct} weight for correct H combinations;weight_{MVA}^{correct}"+label+";Correct jet pairs",80,-1.5,0.5));
     
     name="mvaWeight_correctTop_correctHiggs";
-    m_histogram[name] = store(new TH2D(prefix_+name+step, "MVA_{top}^{higgs} weight for correct combinations;MVA weight_{correct}^{top}"+label+";MVA weight_{correct}^{higgs}",20,-1.2,0.2,20,-1.2,0.2));
-    name = "mvaWeight_wrongTopAndHiggs_correct";
-    m_histogram[name] = store(new TH1D(prefix_+name+step, "MVA^{correct} weight for combinations not from Top, Higgs;weight_{MVA}^{correct}"+label+";Wrong jet pairs",20,-1.2,0.2));
+    m_histogram[name] = store(new TH2D(prefix_+name+step, "MVA_{top}^{higgs} weight for correct combinations;MVA weight_{correct}^{top}"+label+";MVA weight_{correct}^{higgs}",80,-1.5,0.5,80,-1.5,0.5));
+    name = "mvaWeight_wrongTopAndHiggs";
+    m_histogram[name] = store(new TH1D(prefix_+name+step, "MVA^{correct} weight for combinations not from Top, Higgs;weight_{MVA}^{correct}"+label+";Wrong jet pairs",80,-1.5,0.5));
 
     name = "weight";
     m_histogram[name] = store(new TH1D(prefix_+name+step, "Weight of the event;weight"+label+";Events",30,0,3));
@@ -1327,18 +1329,18 @@ std::vector<std::pair<int,int> > AnalyzerDijet::jetPairsFromMVA(std::map<TString
 //         printf("Dijet pair: %d  <%d,%d>  weight: %.3f  ", (int)i, pair.first, pair.second, v_mvaWeightsCorrect.at(i));
         if(isInVector(trueTopJetsId, pair.first) && isInVector(trueTopJetsId, pair.second)) {
             topPairId = i;
-            m_histogram["mvaWeight_correctTop_correct"]->Fill(v_mvaWeightsCorrect.at(i), weight);
+            m_histogram["mvaWeight_correctTop"]->Fill(v_mvaWeightsCorrect.at(i), weight);
 //             printf("top\n");
         }
         else if (isInVector(trueHiggsJetsId, pair.first) && isInVector(trueHiggsJetsId, pair.second)) {
             higgsPairId = i;
-            m_histogram["mvaWeight_correctHiggs_correct"]->Fill(v_mvaWeightsCorrect.at(i), weight);
+            m_histogram["mvaWeight_correctHiggs"]->Fill(v_mvaWeightsCorrect.at(i), weight);
             m_histogram["mvaWeight_wrongTop_correct"]->Fill(v_mvaWeightsCorrect.at(i), weight);
 //             printf("higgs\n");
         }
         else {
-            m_histogram["mvaWeight_wrongTopAndHiggs_correct"]->Fill(v_mvaWeightsCorrect.at(i), weight);
-            m_histogram["mvaWeight_wrongTop_correct"]->Fill(v_mvaWeightsCorrect.at(i), weight);
+            m_histogram["mvaWeight_wrongTopAndHiggs"]->Fill(v_mvaWeightsCorrect.at(i), weight);
+            m_histogram["mvaWeight_wrongTop"]->Fill(v_mvaWeightsCorrect.at(i), weight);
 //             printf("wrong\n");
         }
     }
@@ -1508,12 +1510,22 @@ void AnalyzerDijet::fillJetHadronFlavours(const RecoObjects& recoObjects, const 
     ((TH2*)m_histogram["bHadVsBJet_multiplicity"])->Fill(nGenBhads, nBJets, weight);
     ((TH2*)m_histogram["bHadVsBHadNoT_multiplicity"])->Fill(nGenBhads, nGenBhadsNoT, weight);
 
-    m_histogram["nHadAddFromTopWeakDecay"]->Fill(nGenAddBhadsFromTop);
-    m_histogram["nHadAddNotFromTopWeakDecay"]->Fill(nGenAddBhadsNotFromTop);
-    m_histogram["nGenJetAddFromTopWeakDecay"]->Fill( (int)genAddBJetIdFromTop.size() );
-    m_histogram["nGenJetAddFromTopWeakDecay_signal"]->Fill( (int)genAddBJetIdFromTop_signal.size() );
-    m_histogram["nGenJetAddNotFromTopWeakDecay"]->Fill( (int)genAddBJetIdNotFromTop.size() );
-    m_histogram["nGenJetAddNotFromTopWeakDecay_signal"]->Fill( (int)genAddBJetIdNotFromTop_signal.size() );
+    m_histogram["nHadAddFromTopWeakDecay"]->Fill(nGenAddBhadsFromTop, weight);
+    m_histogram["nHadAddNotFromTopWeakDecay"]->Fill(nGenAddBhadsNotFromTop, weight);
+    m_histogram["nGenJetAddFromTopWeakDecay"]->Fill( (int)genAddBJetIdFromTop.size(), weight);
+    m_histogram["nGenJetAddFromTopWeakDecay_signal"]->Fill( (int)genAddBJetIdFromTop_signal.size(), weight);
+    m_histogram["nGenJetAddNotFromTopWeakDecay"]->Fill( (int)genAddBJetIdNotFromTop.size(), weight);
+    m_histogram["nGenJetAddNotFromTopWeakDecay_signal"]->Fill( (int)genAddBJetIdNotFromTop_signal.size(), weight);
+    
+    // Checking the difference between the reco and gen Pt for jets of different flavours
+    for(const int& genJetId : genJetsId) {
+        const int recoJetId = matchRecoToGenJet(jetsId, allJets, genJetId, genAllJets);
+        if(recoJetId < 0) continue;
+        const double ptRatio = allJets.at(recoJetId).Pt() / genAllJets.at(genJetId).Pt();
+        m_histogram.at("jet_pt_recoOverGen")->Fill(ptRatio, weight);
+        if(isInVector(genBJetsId, genJetId)) m_histogram.at("jet_pt_recoOverGen_B")->Fill(ptRatio, weight);
+        else m_histogram.at("jet_pt_recoOverGen_nonB")->Fill(ptRatio, weight);
+    }
     
 }
 
