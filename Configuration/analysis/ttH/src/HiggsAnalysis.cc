@@ -708,7 +708,7 @@ void HiggsAnalysis::recoObjectSelection(std::vector<int>& allLeptonIndices,
     
     // FIXME: This is a test implementation, needs cleanup
     // Correct phi of MET
-    //this->correctMetPhi(recoObjects.vertMulti_, 0.03, 0.006, -0.01, 0.056, -999., -999., -999., -999.);
+    //this->correctMetPhi(recoObjects.vertMulti_, 0.0289, 0.00600, -0.0150, 0.0563, -999., -999., -999., -999.);
 }
 
 
