@@ -2,6 +2,8 @@
 
 source $(dirname `readlink -f $0`)/parallelTools.sh
 
+# FIXME: Need to check which steering parameters are not allowed, to avoid mis-use
+
 for slope in 0.3 -0.3 0.6 -0.6 0.8 -0.8; do
     echo "Running samples reweighted with slope: $slope"
     echo
@@ -26,6 +28,8 @@ done
 
 wait
 
-echo
-echo "Done running samples for closure test!"
-
+if [ "$isNAF" = 1 ]; then
+    echo "Please check your jobs with qstat -u $USER | grep load_Analy"
+else
+    echo "Done running samples for closure test!"
+fi

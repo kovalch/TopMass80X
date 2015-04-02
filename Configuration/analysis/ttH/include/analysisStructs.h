@@ -13,16 +13,19 @@
 namespace tth{
     
     struct GenLevelWeights{
-        GenLevelWeights(const double& weightMadgraphCorrection, const double& weightPileup,
+        GenLevelWeights(const double& weightMadgraphCorrection, const double& weightPdf,
                         const double& weightGenerator, const double& weightTopPt,
+                        const double& weightReweighting, const double& weightPileup,
                         const double& trueLevelWeightNoPileup, const double& trueLevelWeight);
         ~GenLevelWeights(){}
         
         #ifndef __CINT__
         const double& weightMadgraphCorrection_;
-        const double& weightPileup_;
+        const double& weightPdf_;
         const double& weightGenerator_;
         const double& weightTopPt_;
+        const double& weightReweighting_;
+        const double& weightPileup_;
         
         const double& trueLevelWeightNoPileup_;
         const double& trueLevelWeight_;

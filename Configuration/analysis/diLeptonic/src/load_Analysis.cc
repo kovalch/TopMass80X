@@ -286,15 +286,27 @@ void load_Analysis(const TString& validFilenamePattern,
         const bool isTopSignal = o_isSignal->GetString() == "1";
         const bool isMC = o_isMC->GetString() == "1";
         const bool isHiggsSignal(o_isHiggsSignal && o_isHiggsSignal->GetString()=="1");
+        const bool isTtbarV(samplename->GetString()=="ttbarw" || samplename->GetString()=="ttbarz");
         
         // Checks avoiding running on ill-defined configurations
         if(!isMC && systematic.type()!=Systematic::undefinedType){
             std::cout<<"Sample is DATA, so not running again for systematic variation\n";
             continue;
         }
-        if (systematic.type()==Systematic::pdf && (!isTopSignal || !(systematicFromFile.type()==Systematic::nominal))) {
-            std::cout << "Skipping file: is not signal or not nominal -- and running PDFs\n";
-            continue;
+        if(systematic.type() == Systematic::pdf){
+            if(!isTopSignal || isHiggsSignal || isTtbarV || systematicFromFile.type() != Systematic::nominal){
+                std::cout<<"Sample is not ttbar dilepton or not nominal, so not running PDF variation\n";
+                continue;
+            }
+            TH1* pdfWeights = dynamic_cast<TH1*>(file.Get("EventsBeforeSelection/pdfEventWeights"));
+            if(!pdfWeights){
+                std::cerr<<"ERROR in load_Analysis()! Cannot find histogram pdfEventWeights\n...break\n"<<std::endl;
+                exit(831);
+            }
+            if(specific_PDF>=pdfWeights->GetNbinsX() || pdfWeights->GetBinContent(specific_PDF+1)<=0.){
+                std::cout<<"ID specified for PDF variation is above number of variations stored in sample, so not running\n";
+                continue;
+            }
         }
         
         // Is the channel given in the file? This is true only for data which is preselected due to trigger,
@@ -367,29 +379,20 @@ void load_Analysis(const TString& validFilenamePattern,
             selector->SetRunViaTau(0);
             selector->SetOutputfilename(outputfilename);
             selector->SetClosureTest(closure, slope);
-            if(isTopSignal) selector->SetSampleForBtagEfficiencies(true);
+            if(isTopSignal && !isTtbarV) selector->SetSampleForBtagEfficiencies(true);
             chain.Process(selector, "", maxEvents, skipEvents);
             selector->SetSampleForBtagEfficiencies(false);
             
             // For running on PDF systematics
             if(selectedSystematic.type() == Systematic::pdf){
-                TH1* pdfWeights = dynamic_cast<TH1*>(file.Get("EventsBeforeSelection/pdfEventWeights"));
-                if(!pdfWeights){
-                    std::cerr << "Error: pdfEventWeights histo missing!\n";
-                    exit(831);
-                }
-                for(int pdf_no = 0; pdfWeights->GetBinContent(pdf_no+1) > 0; ++pdf_no){
-                    if(specific_PDF >=0 && pdf_no != specific_PDF) continue;
-                    //weightedEvents->SetBinContent(1, pdfWeights->GetBinContent(pdf_no+1));
-                    selector->SetWeightedEvents(weightedEvents);
-                    selector->SetPDF(pdf_no);
-                    chain.Process(selector, "", maxEvents, skipEvents);
-                }
+                selector->SetPdfVariation(specific_PDF);
+                chain.Process(selector, "", maxEvents, skipEvents);
+                selector->SetPdfVariation(-1);
                 continue;
             }
             
             // For splitting of dileptonic ttbar in component with intermediate taus and without
-            if(isTopSignal && closure == ""){
+            if(isTopSignal && !isTtbarV && closure == ""){
                 selector->SetRunViaTau(1);
                 outputfilename.ReplaceAll("signalplustau", "bgviatau");
                 selector->SetOutputfilename(outputfilename);
@@ -429,7 +432,8 @@ int main(int argc, char** argv) {
                                            "double differential analysis (dda), kin. reco. efficiency plots (kinReco), tree for 2d unfolding (ddaTree), "
                                            "Default is cp, dda, kinReco", false, 1, 100,
             common::makeStringCheck(AnalysisMode::convert(AnalysisMode::allowedAnalysisModes)));
-    CLParameter<int> opt_pdfno("pdf", "Run a certain PDF systematic only, sets -s PDF. Use e.g. --pdf n, where n=0 is central, 1=variation 1 up, 2=1down, 3=2up, 4=2down, ...", false, 1, 1);
+    CLParameter<int> opt_pdfno("pdf", "Run a certain PDF systematic only, sets -s PDF. Use e.g. --pdf n, where n=0 is central, 1=variation 1 up, 2=1down, 3=2up, 4=2down, ...", false, 1, 1,
+            [](int id){return id>=0;});
     CLParameter<int> opt_dy("d", "Drell-Yan mode (11 for ee, 13 for mumu, 15 for tautau)", false, 1, 1,
             [](int dy){return dy == 11 || dy == 13 || dy == 15;});
     CLParameter<std::string> opt_closure("closure", "Enable the closure test. Valid: pttop|ytop|nominal", false, 1, 1,
@@ -473,10 +477,6 @@ int main(int argc, char** argv) {
     int pdf_no = -1;
     if (opt_pdfno.isSet()) {
         pdf_no = opt_pdfno[0];
-        if(pdf_no < 0){
-            std::cerr<<"ERROR! PDF number is negative: "<<pdf_no<<"\n...break\n"<<std::endl;
-            std::exit(1);
-        }
         if (!(systematic.type() == Systematic::undefinedType || systematic.type() == Systematic::pdf)) {
             std::cerr << "Insonsistent systematic parameter: " << systematic.name() << " cannot be used with PDF systematic!\n";
             std::exit(1);

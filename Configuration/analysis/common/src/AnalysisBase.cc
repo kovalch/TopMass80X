@@ -57,6 +57,7 @@ correctMadgraphBR_(false),
 channelPdgIdProduct_(0),
 checkZDecayMode_(0),
 outputfilename_(""),
+pdfVariation_(-1),
 isTtbarSample_(false),
 isTtbarZSample_(false),
 eventCounter_(0),
@@ -71,7 +72,9 @@ btagScaleFactors_(0),
 topPtScaleFactors_(0),
 isSampleForBtagEfficiencies_(false),
 mvaMet_(false),
-metRecoilCorrector_(0)
+metRecoilCorrector_(0),
+trueLevelWeightSum_(0.),
+trueLevelNoRenormalisationWeightSum_(0.)
 {
     this->clearBranches();
     this->clearBranchVariables();
@@ -177,8 +180,14 @@ void AnalysisBase::writeOutput()
     }
     
     // Write everything held by fOutput
-    TIterator* iterator = fOutput->MakeIterator();
-    while(TObject* obj = iterator->Next()) obj->Write();
+    // For histograms, apply global re-normalisation for weights which change normalisation, but should not
+    const double globalNormalisationFactor = trueLevelWeightSum_>0. ? trueLevelNoRenormalisationWeightSum_/trueLevelWeightSum_ : -999.;
+    TIterator* i_object = fOutput->MakeIterator();
+    while(TObject* object = i_object->Next()){
+        TH1* hist = dynamic_cast<TH1*>(object);
+        if(hist && globalNormalisationFactor>0. && globalNormalisationFactor!=1.) hist->Scale(globalNormalisationFactor); 
+        object->Write();
+    }
     
     // Write additional information into file
     h_weightedEvents->Write();
@@ -275,6 +284,13 @@ void AnalysisBase::SetDrellYan(const bool isDrellYan)
 void AnalysisBase::SetSystematic(const Systematic::Systematic& systematic)
 {
     systematic_ = systematic;
+}
+
+
+
+void AnalysisBase::SetPdfVariation(const int pdfVariation)
+{
+    pdfVariation_ = pdfVariation;
 }
 
 
@@ -1592,11 +1608,11 @@ double AnalysisBase::weightGenerator(const Long64_t& entry)const
 
 
 
-double AnalysisBase::weightPdf(const Long64_t& entry, const int pdfNo)const
+double AnalysisBase::weightPdf(const Long64_t& entry)const
 {
-    if(pdfNo < 0) return 1.;
+    if(pdfVariation_ < 0) return 1.;
     this->GetPDFEntry(entry);
-    const double pdfWeight = weightPDF_->at(pdfNo);
+    const double pdfWeight = weightPDF_->at(pdfVariation_);
     return pdfWeight;
 }
 
@@ -1812,6 +1828,44 @@ int AnalysisBase::additionalJetFlavourId(const Long64_t& entry)const
     this->GetGenExtraTopJetNumberIdEntry(entry);
     
     return topGenObjects_->genExtraTopJetNumberId_;
+}
+
+
+
+
+
+void AnalysisBase::renormalisationWeights(const double& trueLevelWeight, const double& trueLevelNoRenormalisationWeight)
+{
+    trueLevelWeightSum_ += trueLevelWeight;
+    trueLevelNoRenormalisationWeightSum_ += trueLevelNoRenormalisationWeight;
+}
+
+
+
+
+
+
+
+
+
+void AnalysisBase::correctMetPhi(const int nVertex,
+                   const double& x0Data, const double& xSData, const double& y0Data, const double& ySData,
+                   const double& x0Mc, const double& xSMc, const double& y0Mc, const double& ySMc)const
+{
+    LV& met = *recoObjects_->met_;
+    double metX = met.px();
+    double metY = met.py();
+    
+    if(isMC_){
+        if(x0Mc > -900.) metX -= x0Mc + xSMc*nVertex;
+        if(y0Mc > -900.) metY -= y0Mc + ySMc*nVertex;
+    }
+    else{
+        if(x0Data > -900.) metX -= x0Data + xSData*nVertex;
+        if(xSData > -900.) metY -= y0Data + ySData*nVertex;
+    }
+    
+    met.SetPxPyPzE(metX, metY, met.pz(), met.E());
 }
 
 

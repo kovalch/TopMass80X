@@ -189,7 +189,7 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     // Set up dummies for weights and indices, as needed for generic functions
     const tth::GenObjectIndices genObjectIndicesDummy({}, {}, {}, {}, {}, {}, {}, -1, -1, -1, -1);
     const tth::RecoObjectIndices recoObjectIndicesDummy({}, {}, {}, -1, -1, -1, -1, -1, -1, {}, {}, {});
-    const tth::GenLevelWeights genLevelWeightsDummy(0., 0., 0., 0., 0., 0.);
+    const tth::GenLevelWeights genLevelWeightsDummy(0., 0., 0., 0., 0., 0., 0., 0.);
     const tth::RecoLevelWeights recoLevelWeightsDummy(0., 0., 0., 0., 0., 0.);
     
     // ++++ Control Plots ++++
@@ -264,14 +264,17 @@ Bool_t HiggsAnalysis::Process(Long64_t entry)
     
     // Determine all true level weights
     const double weightMadgraphCorrection = this->madgraphWDecayCorrection(entry);
+    const double weightPdf = this->weightPdf(entry);
     const double weightGenerator = this->weightGenerator(entry);
     const double weightTopPt = this->weightTopPtReweighting(entry);
-    const double weightPU = this->weightPileup(entry);
     const double weightReweighting = this->reweightingWeight(topGenObjectsForGenLevel, genObjectIndicesForGenLevel);
-    const double trueLevelWeightNoPileup = weightTopPt*weightGenerator*weightMadgraphCorrection*weightReweighting;
+    const double weightPU = this->weightPileup(entry);
+    const double trueLevelWeightNoPileup = weightTopPt*weightPdf*weightGenerator*weightMadgraphCorrection*weightReweighting;
     const double trueLevelWeight = trueLevelWeightNoPileup*weightPU;
-    const tth::GenLevelWeights genLevelWeights(weightMadgraphCorrection, weightPU,
+    this->renormalisationWeights(trueLevelWeight, weightGenerator*weightMadgraphCorrection*weightPU);
+    const tth::GenLevelWeights genLevelWeights(weightMadgraphCorrection, weightPdf,
                                                weightGenerator, weightTopPt,
+                                               weightReweighting, weightPU,
                                                trueLevelWeightNoPileup, trueLevelWeight);
     
     // ++++ Control Plots ++++
@@ -702,6 +705,10 @@ void HiggsAnalysis::recoObjectSelection(std::vector<int>& allLeptonIndices,
     
     // In case of MVA MET apply recoil correction for Drell-Yan sample
     this->correctMvaMet(leptonIndex, antiLeptonIndex, allLeptons, numberOfJets, entry);
+    
+    // FIXME: This is a test implementation, needs cleanup
+    // Correct phi of MET
+    //this->correctMetPhi(recoObjects.vertMulti_, 0.0289, 0.00600, -0.0150, 0.0563, -999., -999., -999., -999.);
 }
 
 
@@ -840,13 +847,12 @@ std::vector<double> HiggsAnalysis::jetCharges(const std::vector<int>&, const Rec
     // Do nothing if no jet charge instance is set up
     if(!jetCharge_) return v_jetCharge;
     
-    // FIXME: Calculate only for selected jets
+    // FIXME: Calculate only for selected jets?
     for(size_t index = 0; index < jets.size(); ++index){
-        const bool isMc = this->isMC();
-        double jetCharge = jetCharge_->jetChargeValue(static_cast<int>(index), jets.at(index),
-                                                      *recoObjects.jetPfCandidateTrackIndex_, *recoObjects.jetPfCandidateTrack_,
-                                                      *recoObjects.jetPfCandidateTrackCharge_, *recoObjects.jetPfCandidatePrimaryVertexId_, 0.8, isMc);
-        
+        const double jetCharge = jetCharge_->jetChargeValue(static_cast<int>(index), jets.at(index),
+                                                            *recoObjects.jetPfCandidateTrackIndex_, *recoObjects.jetPfCandidateTrack_,
+                                                            *recoObjects.jetPfCandidateTrackCharge_, *recoObjects.jetPfCandidatePrimaryVertexId_,
+                                                            0.8, this->isMC());
         v_jetCharge.at(index) = jetCharge;
     }
     
@@ -1095,8 +1101,6 @@ double HiggsAnalysis::reweightingWeight(const TopGenObjects& topGenObjects, cons
     
     std::cerr<<"ERROR in HiggsAnalysis::reweightingWeight()! Provided reweighting name is not supported: "<<reweightingName_<<"\n...break\n"<<std::endl;
     exit(1);
-
-    return 1.0;
 }
 
 

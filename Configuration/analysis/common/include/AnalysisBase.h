@@ -71,6 +71,9 @@ public:
     /// Set systematic
     void SetSystematic(const Systematic::Systematic& systematic);
     
+    /// Set number of PDF variation for PDF systematics
+    void SetPdfVariation(const int pdfVariation);
+    
     /// Set whether it is MC sample
     void SetMC(const bool isMC);
     
@@ -251,7 +254,7 @@ protected:
     double weightGenerator(const Long64_t& entry)const;
     
     /// Get weight of PDF variation
-    double weightPdf(const Long64_t& entry, const int pdfNo)const;
+    double weightPdf(const Long64_t& entry)const;
     
     
     
@@ -301,6 +304,9 @@ protected:
     
     /// Produce b-tag efficiencies, in case the specified b-tag correction mode requires it
     void produceBtagEfficiencies();
+    
+    /// Increase sum of event weights by the values given in each event
+    void renormalisationWeights(const double& trueLevelWeight, const double& trueLevelNoRenormalisationWeight);
     
     
     
@@ -377,7 +383,6 @@ protected:
     
     /// Whether it is a ttbarZ sample
     const bool& isTtbarZSample()const{return isTtbarZSample_;}
-    
     
     
     
@@ -743,6 +748,7 @@ private:
     std::function<bool(const std::vector<int>&)> checkZDecayMode_;
     #endif
     TString outputfilename_;
+    int pdfVariation_;
     
     /// Whether it is a ttbar sample (and not ttbarH, ttbarW, ttbarZ, or any other thing)
     bool isTtbarSample_;
@@ -793,6 +799,22 @@ private:
     
     /// Pointer to the Met Recoil correction tools
     const MetRecoilCorrector* metRecoilCorrector_;
+    
+    
+    
+    /// Sum of all true level weights of gen-level selected sample, needed for global normalisation
+    double trueLevelWeightSum_;
+    
+    /// Sum of all true level weights which do NOT need re-normalisation, needed for global normalisation
+    /// Shape weights which should not change global normalisation but change it need to be excluded, e.g. PDF or closure test weights
+    double trueLevelNoRenormalisationWeightSum_;
+    
+    
+    // FIXME: method for testing self-derived MET phi corrections, clean implementation needs to be done
+protected:
+    void correctMetPhi(const int nVertex,
+                       const double& x0Data, const double& xSData, const double& y0Data, const double& ySData,
+                       const double& x0Mc, const double& xSMc, const double& y0Mc, const double& ySMc)const;
 };
 
 
