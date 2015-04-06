@@ -347,7 +347,7 @@ void AnalyzerDijet::bookTTHbbHistos(const TString& step, const TString label, st
     name = "dijet_mass_allNormWeight";
     m_histogram[name] = store(new TH1D(prefix_+name+step, "Dijet mass;M(dijet) (all)"+label+";Jet pairs",nBinsX_dijetM,binsX_dijetM));
     
-    name = "dijet_mass_allM";
+    name = "dijet_mass_allB";
     bookPairHistos(new TH1D(prefix_+name+step, "Dijet mass;M(dijet) (all M)"+label+";Jet pairs",nBinsX_dijetM,binsX_dijetM), m_histogram, name);
     name = "dijet_mass_trueTopJets";
     bookPairHistos(new TH1D(prefix_+name+step, "Dijet mass;M(dijet) (trueTopJets)"+label+";Jet pairs",nBinsX_dijetM,binsX_dijetM), m_histogram, name);
@@ -415,18 +415,14 @@ void AnalyzerDijet::bookTTHbbHistos(const TString& step, const TString label, st
     name = "higgsBJet_Btag_true";
     m_histogram[name] = store(new TH1D(prefix_+name+step, "Higgs b-jet_{reco} bTag disriminant;bTag_{jet}^{reco}"+label+";Higgs Jets",20,0,1));
     
-    name = "dijet_correctJet_multiplicity_all";
-    m_histogram[name] = store(new TH1D(prefix_+name+step, "Number of correct jets;N jets^{correct} (all)"+label+";Jet pairs",4,0,4));
-    name = "dijet_correctJet_multiplicity_allM";
+    name = "dijet_correctJet_multiplicity_allB";
     m_histogram[name] = store(new TH1D(prefix_+name+step, "Number of correct jets;N jets^{correct} (all M)"+label+";Jet pairs",4,0,4));
     name = "dijet_correctJet_multiplicity_trueTopJets";
     m_histogram[name] = store(new TH1D(prefix_+name+step, "Number of correct jets;N jets^{correct} (trueTopJets)"+label+";Jet pairs",4,0,4));
     name = "dijet_correctJet_multiplicity_recoTopJets";
     m_histogram[name] = store(new TH1D(prefix_+name+step, "Number of correct jets;N jets^{correct} (recoTopJets)"+label+";Jet pairs",4,0,4));
 
-    name = "dijet_correctPairFraction_all";
-    m_histogram[name] = store(new TH1D(prefix_+name+step, "Correct pair fraction;correct/all (all)"+label+";Events",15,-0.3,1.2));
-    name = "dijet_correctPairFraction_allM";
+    name = "dijet_correctPairFraction_allB";
     m_histogram[name] = store(new TH1D(prefix_+name+step, "Correct pair fraction;correct/all (all M)"+label+";Events",15,-0.3,1.2));
     name = "dijet_correctPairFraction_trueTopJets";
     m_histogram[name] = store(new TH1D(prefix_+name+step, "Correct pair fraction;correct/all (trueTopJets)"+label+";Events",15,-0.3,1.2));
@@ -1210,15 +1206,11 @@ void AnalyzerDijet::fillTTHbbHistograms(const RecoObjects& recoObjects, const To
     /////////////////////////////////////////////////////////////////// FILLING DIJET MASS FOR DIFFERENT JET SELECTIONS
     const bool fillAllCombinations = true;
     ///////////////////////////////////////////////////////////////////////////////////////////////// ALL SELECTED JETS
-    // Analyzing jet pairs for all jet combinations
-    float correctPairFraction_all = correctPairFraction(allJets, jetsId, bJetsId, allJetsBtagDiscriminant, emptyVector, trueHiggsJetsId, weight, m_histogram, "all", fillAllCombinations);
-    m_histogram["dijet_correctPairFraction_all"]->Fill(correctPairFraction_all, weight);
-
     // Analyzing jet pairs for all combinations of jets tagged with CSVM
     std::vector<int> bMJetsId;
     for(size_t jetId : bJetsId) { if(allJetsBtagDiscriminant.at(jetId)>=0.679) bMJetsId.push_back(jetId); };
-    float correctPairFraction_allM = correctPairFraction(allJets, jetsId, bMJetsId, allJetsBtagDiscriminant, emptyVector, trueHiggsJetsId, weight, m_histogram, "allM", fillAllCombinations);
-    m_histogram["dijet_correctPairFraction_allM"]->Fill(correctPairFraction_allM, weight);
+    float correctPairFraction_allB = correctPairFraction(allJets, jetsId, bMJetsId, allJetsBtagDiscriminant, emptyVector, trueHiggsJetsId, weight, m_histogram, "allB", fillAllCombinations);
+    m_histogram["dijet_correctPairFraction_allB"]->Fill(correctPairFraction_allB, weight);
 
     // Analyzing jet pairs for all jet combinations except true b-jets from top
     float correctPairFraction_trueTopJets = correctPairFraction(allJets, jetsId, bJetsId, allJetsBtagDiscriminant, trueTopJetsId, trueHiggsJetsId, weight, m_histogram, "trueTopJets", fillAllCombinations);
