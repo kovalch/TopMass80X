@@ -42,6 +42,22 @@ void LuminosityScaleFactors::produceScaleFactors(const Samples& samples, const d
                 double weight(-999.);
                 if(sample.sampleType() != Sample::data) weight = this->luminosityWeight(sample, luminosityInInversePb);
                 //std::cout<<"\n\nLuminosity weight: "<<weight<<"\n\n";
+                
+                //systematic, bg
+                    if(systematic.type() == Systematic::bg && sample.sampleType() != Sample::data && sample.sampleType() != Sample::ttother && 
+                        sample.sampleType() != Sample::dyee && sample.sampleType() != Sample::dymumu && sample.sampleType() != Sample::dytautau )
+                    {
+                            if(systematic.variation() == Systematic::up)weight = weight*1.3;
+                            if(systematic.variation() == Systematic::down)weight = weight*0.7;
+                    }
+                // systematic, dy
+                    if(sample.sampleType() == Sample::dyee || sample.sampleType() == Sample::dymumu || sample.sampleType() == Sample::dytautau )
+                    {
+                            if(systematic.variation() == Systematic::up)weight = weight*1.3;
+                            if(systematic.variation() == Systematic::down)weight = weight*0.7;
+                    }
+                // ...
+                    
                 m_weight_[systematic][channel].push_back(weight);
             }
         }
