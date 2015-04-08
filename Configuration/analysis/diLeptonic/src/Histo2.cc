@@ -1,4 +1,4 @@
-#include <vector>
+ #include <vector>
 #include <algorithm> 
 #include <fstream>
 
@@ -39,7 +39,11 @@ namespace Systematic{
         jer, jes,
         btag, btagPt, btagEta,
         btagLjet, btagLjetPt, btagLjetEta,
-        kin,
+        kin, bg, dy, 
+        mass, match, scale,
+        
+        
+        powheg, powhegHerwig, mcatnlo, 
     };
 }
 
@@ -87,7 +91,7 @@ int main(int argc, char** argv){
     else if(opt_systematic.isSet() && opt_systematic[0]==Systematic::convertType(Systematic::all)); // do nothing
     else{v_systematic.clear(); v_systematic.push_back(Systematic::nominalSystematic());}
     std::cout << "Processing systematics (use >>-s all<< to process all known systematics): "; 
-    for(auto systematic : v_systematic) std::cout << systematic.name() << " ";
+    for(auto systematic : v_systematic) std::cout << systematic.name() << "\n ";
     std::cout << "\n\n";
     
     Samples SAMPLES;
@@ -123,6 +127,8 @@ int main(int argc, char** argv){
             std::cout<<"--- Beginning with the Plotter\n\n";
             Plotter generalPlot(SAMPLES,Luminosity,topxsec);
             for(auto v_plotName : vv_plotName){
+                std::cout<< std::endl   ;
+                std::cout << v_plotName.at(0) << " " <<v_plotName.at(1) << std::endl;
                 generalPlot.setOptions(v_plotName);
                 generalPlot.producePlots();
             }
@@ -134,6 +140,7 @@ int main(int argc, char** argv){
             for(auto v_plotName : vv_plotName){
                 finalPlot.setOptions(v_plotName);
                 finalPlot.producePlots(".pdf");
+                finalPlot.producePlots(".png");
             }
             std::cout<<"\n=== Finishing with the FinalPlot plotting\n\n";
         }
