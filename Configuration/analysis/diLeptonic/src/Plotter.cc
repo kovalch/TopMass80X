@@ -353,6 +353,7 @@ void Plotter::prepareHistograms(const std::vector<Sample>& v_sample)
         sampleHist->SetFillColor(sample.color());
         sampleHist->SetLineColor(sample.color());
         v_histRecoAllBins_.push_back((TH1*)sampleHist->Clone());
+        sampleHist->Delete();
     }
     
     //setinng vvv_SampleHist_
@@ -436,8 +437,7 @@ void Plotter::producePlots()
             
             double nData=0,nBg=0,nRecoSig=0,nGenSig=0;
             
-            
-            
+            std::cout << systematic.name() << std::endl;
             for(size_t iSample = 0; iSample < v_sample.size(); ++iSample){                  //sample loop
                 const auto& sample(v_sample.at(iSample));
                 
@@ -613,6 +613,7 @@ void Plotter::producePlots()
             
                 dataTree0->Delete();
                 dataTree8->Delete();
+                dataFile->Close();
                 dataFile->Delete();
             
                 
@@ -644,7 +645,6 @@ void Plotter::producePlots()
             
             //Unfolding//
             if(nD_==2)runUnfolding(histMigration_,histData_,histBgr_,histBgrUo_,histUf_);
-            std::cout << "N entries in histBgrUo_ and histData_: " << histBgrUo_->Integral() << " " << histData_->Integral() << std::endl;
             //runUnfolding(histMigration_,histSR_,0,histBgrUo_,histUf_);
             //writePlotCT(histSG_,histRWSG_,histUf_);
             // ... //
@@ -912,7 +912,7 @@ void Plotter::runUnfolding(const TH2* histMigration,const TH1* histInput,
     
     histUf = unfold.GetOutput("histUf","unfolding result",distributionName,projectionMode,kFALSE);
     
-    unfoldedData_ = unfold.GetOutput("unfoldedData","unfolding result",distributionName,projectionMode,useAxisBinning);
+    unfoldedData_ = unfold.GetOutput("unfoldedData_","unfolding result",distributionName,projectionMode,useAxisBinning);
     //unfoldedData_ = (TH1D*)unfold.GetOutput("unfoldedData","unfolding result",distributionName,"*[UO]",useAxisBinning);
     //unfoldedData_ = (TH1D*)unfold.GetOutput("unfoldedData","unfolding result",distributionName,"*",useAxisBinning);
     //unfoldedData_->GetYaxis()->SetRangeUser(0,11500);
@@ -1596,21 +1596,6 @@ void Plotter::writePlotXSec(const TH1* hData,const TH1* hMC)
     //Delete objects
     delete canvas;
     delete legend;
-}
-
-
-
-TLegend* Plotter::setLegend()
-{
-    TLegend* legend = new TLegend(0.73,0.60,0.90,0.85);
-    legend->SetFillStyle(0);
-    legend->SetBorderSize(0);
-    legend->SetX1NDC(1.0 - gStyle->GetPadRightMargin() - gStyle->GetTickLength() - 0.25);
-    legend->SetY1NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength() - 0.05 - legend->GetBorderSize()*0.04);
-    legend->SetX2NDC(1.0 - gStyle->GetPadRightMargin() - gStyle->GetTickLength());
-    legend->SetY2NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength());
-    legend->Clear();
-    return legend;
 }
 
 

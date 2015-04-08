@@ -29,9 +29,6 @@ public:
     /// Produce the plots for histogram under consideration from all samples
     void producePlots();
     
-     /// Prepare canvas and legend
-     TLegend* setLegend();
-    
 private:
     
     void clearMemory();
