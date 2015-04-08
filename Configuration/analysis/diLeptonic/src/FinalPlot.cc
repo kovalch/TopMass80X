@@ -392,6 +392,7 @@ void FinalPlot::printSystTableCore(const TString& name1, const TString& name2,co
     file_out << "\\usepackage{multirow}\n";
     file_out << "\\usepackage{rotating}\n";
     file_out << "\\usepackage{booktabs}\n";
+    file_out << "\\usepackage{verbatim}\n";
     //\usepackage{graphicx}
     file_out << "\\begin{document}\n";
     file_out << "\\begin{table}[h]\n";
@@ -409,9 +410,9 @@ void FinalPlot::printSystTableCore(const TString& name1, const TString& name2,co
             file_out << "\\hline\n";
             file_out << "\\multirow{" << nBins << "}{*}{" << v.at(0) << " " << v.at(1) << "}&"  << v.at(2) << " " << v.at(3)
                      << "&" << v.at(4) << "& -" << v.at(5) << "&" << v.at(6) << "&" << v.at(7) 
-                     << "&" << "\\multirow{" << nBins << "}{*}{" <<"\\hyperlink{page." << pageCounter << "}{xsec}, \\hyperlink{page." << pageCounter+1 << "}{cp} " 
+                     << "&" << "\\multirow{" << nBins << "}{*}{" <<"\\hyperlink{page." << pageCounter << "}{xsec}, \\hyperlink{page." << pageCounter+1 << "}{cp}, \\hyperlink{page." << pageCounter+2 << "}{err} " 
                      << "}\\\\\n";
-            pageCounter+=2;
+            pageCounter+=3;
         }
         else file_out  << "&"  << v.at(2) << " " << v.at(3)
                        << "&" << v.at(4) << "& -" << v.at(5) << "&" << v.at(6) << "&" << v.at(7) 
@@ -430,6 +431,10 @@ void FinalPlot::printSystTableCore(const TString& name1, const TString& name2,co
     file_out << "\\includegraphics[width=1.0\\textwidth]{" << vvLinks.at(i).at(1) << "}\\\\\n";
     file_out << "\\hyperlink{page.1}{go back}\n";
     
+    file_out << "\\newpage\n";
+    file_out << "\\hyperlink{page.1}{go back}\n";
+    file_out << "\\verbatiminput{" << vvLinks.at(i).at(2) << "}\n";
+    file_out << "\\hyperlink{page.1}{go back}\n";
     
     }
     
