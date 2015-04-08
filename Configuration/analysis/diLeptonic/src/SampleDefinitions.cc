@@ -11,10 +11,8 @@
 std::map<TString, Sample> SampleDefinitions::samples8TeV()
 {
     
-     //MC cross sections taken from:
-    //  UsefulTools::SampleXSection in diLeptonic/src
-    //  AN-12/194    AN-12/228
-    double topxsec = 245.102;
+    // TOP-14-016 (ATLAS+CMS combination)
+     double topxsec =   241.5;
     
     // Define all samples as differential as they are needed
     // Samples with same legend will appear as one single sample (requires also same colour)
