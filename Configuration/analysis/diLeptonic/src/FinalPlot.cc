@@ -33,11 +33,11 @@
 //#include "Sample.h"
 #include "../../common/include/utils.h"
 //#include "../../common/include/plotterUtils.h"
-//#include "UsefulTools.h"
+#include "UsefulTools.h"
 
 
 //#include "TUnfold.h"
-//#include <TLine.h>
+#include <TLine.h>
 //#include <TMath.h>
 //#include "TUnfoldBinning.h"
 //#include "TUnfoldDensity.h"
@@ -148,6 +148,7 @@ void FinalPlot::clearMemory()
 void FinalPlot::producePlots(const TString& fileType)
 {
     
+    bool allSyst = ((int)v_systematic_.size() > 1);
         //std::cout<<"[FinalPlot]:--- Beginning of plot production\n\n";
     
     // Loop over all channels , bins and systematics
@@ -177,6 +178,9 @@ void FinalPlot::producePlots(const TString& fileType)
                     utils::readLineToVector(file,"bin" ,vBin);
                 std::vector<double> vXsec;
                 std::vector<double> vMC;
+                std::vector<double> vMCpowheg;
+                std::vector<double> vMCpowhegherwig;
+                std::vector<double> vMCmcatnlo;
                 std::vector<double> vStatErr;
                     utils::readLineToVector(file,"xsec",vXsec);
                     utils::readLineToVector(file,"stat" ,vStatErr);
@@ -201,11 +205,16 @@ void FinalPlot::producePlots(const TString& fileType)
                 // ...
                 
                 for(const auto& systematic : v_systematic_){//systematics loop
-                        std::cout << "channel: " << Channel::convert(channel) << " " << systematic.name() << std::endl;
-                        std::vector<double> vSyst;
-                        std::vector<double> vDiff;
+                            std::cout << "channel: " << Channel::convert(channel) << " " << systematic.name() << std::endl;
                         TString tempFile = file;
                             tempFile.ReplaceAll("Nominal",systematic.name());
+                            
+                        if(systematic.name() == "MCATNLO"){ utils::readLineToVector(tempFile,"mc",vMCmcatnlo); continue;}
+                        if(systematic.name() == "POWHEG") {utils::readLineToVector(tempFile,"mc",vMCpowheg); continue;}
+                        if(systematic.name() == "POWHEGHERWIG") {utils::readLineToVector(tempFile,"mc",vMCpowhegherwig); continue;}
+                        
+                        std::vector<double> vSyst;
+                        std::vector<double> vDiff;
                             utils::readLineToVector(tempFile,"xsec",vSyst);
                             vDiff = utils::diffVect(vSyst,vXsec);
                         for(size_t i=0;i<vXsec.size();i++){
@@ -236,7 +245,11 @@ void FinalPlot::producePlots(const TString& fileType)
                                fileLink.ReplaceAll(".txt",".pdf");
                           vLinksXsecCp.push_back(fileLink);
                                fileLink.ReplaceAll("FinalPlot","Nominal");
-                               fileLink.ReplaceAll("xSec","CP");
+                               fileLink.ReplaceAll("xSec_","CP_");
+                           vLinksXsecCp.push_back(fileLink);
+                               fileLink.ReplaceAll("Nominal","FinalPlot");
+                               fileLink.ReplaceAll(".pdf",".txt");
+                               fileLink.ReplaceAll("CP_","systErr_");
                            vLinksXsecCp.push_back(fileLink);
                            vvLinksXsecCp.push_back(vLinksXsecCp);
                 }
@@ -245,8 +258,11 @@ void FinalPlot::producePlots(const TString& fileType)
                     
                 std::vector<double> vBinCentr;
                 std::vector<double> xErr;
-                TH1D histStat("hist","",(int)vXsec.size(),vBins.data());
-                TH1D histMC("histMC","",(int)vXsec.size(),vBins.data());
+                TH1D histStat("histStat","Data",(int)vXsec.size(),vBins.data());
+                TH1D histMC("histMC","MadGraph + Pythia",(int)vXsec.size(),vBins.data());
+                TH1D histMCmcatnlo("histMCmcatnlo","MC@NLO + Herwig",(int)vXsec.size(),vBins.data());
+                TH1D histMCpowheg("histMCpowheg","Powheg + Pythia",(int)vXsec.size(),vBins.data());
+                TH1D histMCpowhegherwig("histMCpowhegherwig","Powheg + Herwig",(int)vXsec.size(),vBins.data());
                     
                     
                 for(size_t i=0;i<vBins.size()-1;i++){
@@ -258,6 +274,13 @@ void FinalPlot::producePlots(const TString& fileType)
                     histStat.SetBinContent(i+1,vXsec.at(i));
                     histStat.SetBinError(i+1,vStatErr.at(i));
                     histMC.SetBinContent(i+1,vMC.at(i));
+                    if (allSyst)
+                    {
+                        histMCmcatnlo.SetBinContent(i+1,vMCmcatnlo.at(i));
+                        histMCpowheg.SetBinContent(i+1,vMCpowheg.at(i));
+                        histMCpowhegherwig.SetBinContent(i+1,vMCpowhegherwig.at(i));
+                    }
+                    
                 }
                 std::cout << std::endl;
                 
@@ -272,14 +295,38 @@ void FinalPlot::producePlots(const TString& fileType)
                     
                 
                 TCanvas* canvas = utils::setCanvas();
+                double legX1=0.1,legY1=0.1,legDX=0.35,legDY=0.27;
+                if(firstPartName == "top_pt"){
+                    legX1=0.55;
+                    legY1=0.55;
+                }
+                TLegend* legend = utils::setLegend(legX1,legY1,legX1+legDX,legY1+legDY);
+                
                     histMC.SetLineColor(2);
                     histMC.SetTitle(plotTitle);
                     histMC.SetAxisRange(0,( histStat.GetMaximum() > histMC.GetMaximum() ? histStat.GetMaximum()*1.15 : histMC.GetMaximum()*1.15 ),"Y");
                     
-                    histMC.Draw("HIST");
+                    histMCmcatnlo.SetLineColor(4);
+                    histMCmcatnlo.SetLineStyle(4);
+                    histMCmcatnlo.SetLineWidth(2);
+                    histMCpowheg.SetLineColor(3);
+                    histMCpowheg.SetLineStyle(2);
+                    histMCpowheg.SetLineWidth(2);
+                    histMCpowhegherwig.SetLineColor(1);
+                    histMCpowhegherwig.SetLineStyle(4);
+                    histMCpowhegherwig.SetLineWidth(2);
+                    
                     histMC.SetStats(0);
+                    histMC.Draw("HIST");
+                    
+                    if(allSyst){
+                        histMCmcatnlo.DrawClone("HIST,SAME");
+                        histMCpowheg.DrawClone("HIST,SAME");
+                        histMCpowhegherwig.DrawClone("HIST,SAME");
+                    }
                     
                     histStat.SetMarkerSize(histStat.GetMarkerSize()*0.5);
+                    histStat.SetTitle(plotTitle);
                     histStat.Draw("e1, same");
                     
                     double endErrorSize =  gStyle->GetEndErrorSize();
@@ -287,6 +334,33 @@ void FinalPlot::producePlots(const TString& fileType)
                     graphTotal.SetMarkerSize(0);
                     graphTotal.Draw("P,SAME");
                     gStyle->SetEndErrorSize(endErrorSize);
+                    
+                    
+                    UsefulTools::DrawCMSLabels(lumi_,2);
+                    
+                    legend->AddEntry(&histStat,"Data","p");
+                    legend->AddEntry(&histMC,"MadGraph + Pythia","l");
+                    if(allSyst)
+                    {
+                        legend->AddEntry(&histMCmcatnlo,histMCmcatnlo.GetTitle(),"l");
+                        legend->AddEntry(&histMCpowheg,histMCpowheg.GetTitle(),"l");
+                        legend->AddEntry(&histMCpowhegherwig,histMCpowhegherwig.GetTitle(),"l");
+                    }
+                    legend->Draw("same");
+                    
+                    utils::drawRatio(&histStat, &histMC, NULL,0.5,1.6,NULL,&graphTotal);
+                    
+                    if(allSyst){
+                        histMCmcatnlo.Divide(&histMC);
+                        histMCpowheg.Divide(&histMC);
+                        histMCpowhegherwig.Divide(&histMC);
+                        histMCmcatnlo.DrawClone("HIST,SAME");
+                        histMCpowheg.DrawClone("HIST,SAME");
+                        histMCpowhegherwig.DrawClone("HIST,SAME");
+                    }
+                    TLine line(histMC.GetXaxis()->GetXmin(),1,histMC.GetXaxis()->GetXmax(),1);
+                    line.SetLineColor(kRed);
+                    line.Draw("SAME");
                     
                     canvas->Print(outPlotsFolder+"xSec_"+firstPartName+"_IN_"+secondPartName+"_" + utils::numToString(ibin) + fileType);
                     canvas->Delete();
