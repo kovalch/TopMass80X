@@ -18,7 +18,7 @@ class Plotter{
 public:
     
     /// Constructor
-    Plotter(const Samples& samples, const double lumi, const double topxsec);
+    Plotter(const Samples& samples, const double lumi, double topxsec);
     
     /// Destructor
     ~Plotter(){};
@@ -45,7 +45,7 @@ private:
      
      const Samples& samples_;
      const double lumi_;
-     const double topxsec_;
+     double topxsec_;
      int nD_;
      
      std::vector<TString> v_plotName_;

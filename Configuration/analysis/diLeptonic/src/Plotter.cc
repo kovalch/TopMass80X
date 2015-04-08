@@ -42,7 +42,7 @@
 
 
 
-Plotter::Plotter(const Samples& samples, const double lumi, const double topxsec):
+Plotter::Plotter(const Samples& samples, const double lumi, double topxsec):
 
 samples_(samples),
 lumi_(lumi),
@@ -434,6 +434,7 @@ void Plotter::producePlots()
             Output sampleInfo("sample");
             
             
+            double nData=0,nBg=0,nRecoSig=0,nGenSig=0;
             
             
             
@@ -518,6 +519,7 @@ void Plotter::producePlots()
                                 {
                                     histMigration_->Fill(genBin_(branchValsGen0_),0.,trueLevelWeight0_*v_weight.at(iSample));
                                     //histMigration_->Fill(genBin_(branchValsGen0_),0.,1*v_weight.at(iSample));
+                                    nGenSig=nGenSig+trueLevelWeight0_*v_weight.at(iSample);
                                 }
                                 else if(entry0_ == entry_)
                                 {
@@ -529,13 +531,17 @@ void Plotter::producePlots()
                     
                     if(v_sample.at(iSample).sampleType() == Sample::data){
                         histData_->Fill(recoBin_(branchVals_),eventWeight_*v_weight.at(iSample)); 
+                        nData=nData+eventWeight_*v_weight.at(iSample);
                     }
                     if(v_sample.at(iSample).sampleType() != Sample::data && isKinReco_ && !isTopGen_){
-                        histBgr_->Fill(recoBin_(branchVals_),eventWeight_*v_weight.at(iSample)); 
+                        histBgr_->Fill(recoBin_(branchVals_),eventWeight_*v_weight.at(iSample));
+                        nBg=nBg+eventWeight_*v_weight.at(iSample);
                     }
                     if(isKinReco_&&isTopGen_){
                        histMigration_->Fill(genBin_(branchValsGen_),recoBin_(branchVals_),eventWeight_*v_weight.at(iSample));
                        histMigration_->Fill(genBin_(branchValsGen_),0.,trueLevelWeight_*v_weight.at(iSample)-eventWeight_*v_weight.at(iSample));
+                       nRecoSig=nRecoSig+eventWeight_*v_weight.at(iSample);
+                       nGenSig=nGenSig+trueLevelWeight_*v_weight.at(iSample);
                        histSR_->Fill(recoBin_(branchVals_),eventWeight_*v_weight.at(iSample));
                        
                        //double weightCT = 1.;
@@ -613,7 +619,10 @@ void Plotter::producePlots()
                 
             }//samples loop
             
-            
+            //Cross sections//
+            // Full 
+                topxsec_ = (nData - nBg)/(nRecoSig/nGenSig)/lumi_/v_BR_.at(channel);
+                sampleInfo.addLine("fullTopXSec = "+utils::numToString(topxsec_));
             sampleInfo.save(sampleInfoFolder);
             
             //Control plots//
@@ -641,11 +650,11 @@ void Plotter::producePlots()
             // ... //
             
             //Cross sections//
-            
-           if(nD_==2)writePlotXSec(unfoldedData_,histGen_);
+            // Diff
+                if(nD_==2)writePlotXSec(unfoldedData_,histGen_);
             //writePlotEPS();
-            if(nD_==2)writePlotEPSAllBins();
-            
+                if(nD_==2)writePlotEPSAllBins();
+            // ...
             
         }//channel loop
         
@@ -679,7 +688,7 @@ void Plotter::writePlotCT(TH1* histSG,TH1* histRW,TH1* histUf)
 {
     // Prepare canvas and legend
     TCanvas* canvas = utils::setCanvas();
-    TLegend* legend = this->setLegend();
+    TLegend* legend = utils::setLegend();
     canvas->cd();
     
     histSG->SetLineColor(2);
@@ -862,7 +871,7 @@ void Plotter::runUnfolding(const TH2* histMigration,const TH1* histInput,
     
     
     TCanvas* canvas = utils::setCanvas();
-    TLegend* legend = this->setLegend();
+    TLegend* legend = utils::setLegend();
     
     
     //Tau parameter
@@ -1068,7 +1077,7 @@ void Plotter::writePlotCP(const std::vector<Sample>& v_sample ,const std::vector
     int jnd = int((ind==0)?1:0);
     
     TCanvas* canvas = utils::setCanvas();
-    TLegend* legend = this->setLegend();
+    TLegend* legend = utils::setLegend();
     canvas->cd();
     
     THStack* stack = new THStack();
@@ -1128,7 +1137,7 @@ void Plotter::writePlotCPAllBins(const std::vector<Sample>& v_sample ,const std:
 {
     // Prepare canvas and legend
     TCanvas* canvas = utils::setCanvas();
-    TLegend* legend = this->setLegend();
+    TLegend* legend = utils::setLegend();
     canvas->cd();
     
     THStack* stack = new THStack();
@@ -1200,7 +1209,7 @@ void Plotter::writePlotEPSAllBins()
 {
     // Prepare canvas and legend
     TCanvas* canvas = utils::setCanvas();
-    TLegend* legend = this->setLegend();
+    TLegend* legend = utils::setLegend();
     legend->SetX1(0.1);
     legend->SetX2(0.4);
     legend->SetY1(0.7);
@@ -1296,7 +1305,7 @@ void Plotter::writePlotEPS()
 {
     // Prepare canvas and legend
     TCanvas* canvas = utils::setCanvas();
-    TLegend* legend = this->setLegend();
+    TLegend* legend = utils::setLegend();
     canvas->cd();
     
     histPurity_->Divide(histRecoGen_,histPurity_,1,1,"B");
@@ -1420,7 +1429,7 @@ void Plotter::writePlotXSec(const TH1* hData,const TH1* hMC)
 {
     // Prepare canvas and legend
     TCanvas* canvas = utils::setCanvas();
-    TLegend* legend = this->setLegend();
+    TLegend* legend = utils::setLegend();
     canvas->cd();
     
          TH1* histData = (TH1*)hData->Clone("data");
@@ -1488,8 +1497,10 @@ void Plotter::writePlotXSec(const TH1* hData,const TH1* hMC)
                     
                     Output xsecInfo("xsec");
                     std::vector<double> v_bin = {v_coarseBins_.at(1).at(iy),v_coarseBins_.at(1).at(iy+1)};
-                    xsecInfo.add("bin",v_bin);
-                    xsecInfo.add("bins",v_coarseBins_.at(0));
+                        xsecInfo.add("bin",v_bin);
+                        xsecInfo.add("bins",v_coarseBins_.at(0));
+                    std::vector<double> v_topxsec = {topxsec_};
+                        xsecInfo.add("inc.xsec",v_topxsec);
                     std::vector<double> v_xsec;
                     std::vector<double> v_stat;
                     std::vector<double> v_xsec_mc;
@@ -1551,8 +1562,10 @@ void Plotter::writePlotXSec(const TH1* hData,const TH1* hMC)
                     
                     Output xsecInfo("xsec");
                     std::vector<double> v_bin = {v_coarseBins_.at(0).at(ix),v_coarseBins_.at(0).at(ix+1)};
-                    xsecInfo.add("bin",v_bin);
-                    xsecInfo.add("bins",v_coarseBins_.at(1));
+                        xsecInfo.add("bin",v_bin);
+                        xsecInfo.add("bins",v_coarseBins_.at(1));
+                    std::vector<double> v_topxsec = {topxsec_};
+                        xsecInfo.add("inc.xsec",v_topxsec);
                     std::vector<double> v_xsec;
                     std::vector<double> v_stat;
                     std::vector<double> v_xsec_mc;
