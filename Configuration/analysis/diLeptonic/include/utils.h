@@ -55,6 +55,7 @@ namespace utils{
     
     /// Prepare canvas and legend
     TCanvas* setCanvas();
+    TLegend* setLegend(const double x1 = 0.53,const double y1 =0.60,const double x2 =0.90,const double y2 =0.85);
     
 }
 

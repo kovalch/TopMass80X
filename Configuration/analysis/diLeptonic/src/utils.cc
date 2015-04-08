@@ -104,7 +104,7 @@ void utils::drawRatio(TH1* histNumerator, TH1* histDenominator, const TH1* uncba
     rPad->SetBorderMode(0);
     rPad->Draw();
     rPad->cd();
-    rPad->SetLogy(1);
+    rPad->SetLogy(0);//log
     rPad->SetLogx(logx);
     rPad->SetTicky(1);
     // configure ratio plot
@@ -164,7 +164,7 @@ void utils::drawRatio(TH1* histNumerator, TH1* histDenominator, const TH1* uncba
     gPad->SetLeftMargin(left);
     gPad->RedrawAxis();
     //draw grid
-    rPad->SetGrid(0,1);
+    //rPad->SetGrid(0,1);
 
     // draw a horizontal lines on a given histogram
     // a) at 1
@@ -354,6 +354,20 @@ TCanvas* utils::setCanvas()
     canvas->SetName("");
     canvas->SetTitle("");
     return canvas;
+}
+
+
+TLegend* utils::setLegend(const double x1,const double y1,const double x2,const double y2)
+{
+    TLegend* legend = new TLegend(x1,y1,x2,y2);
+    legend->SetFillStyle(0);
+    legend->SetBorderSize(0);
+    legend->SetX1NDC(1.0 - gStyle->GetPadRightMargin() - gStyle->GetTickLength() - 0.25);
+    legend->SetY1NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength() - 0.05 - legend->GetBorderSize()*0.04);
+    legend->SetX2NDC(1.0 - gStyle->GetPadRightMargin() - gStyle->GetTickLength());
+    legend->SetY2NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength());
+    legend->Clear();
+    return legend;
 }
 
 
