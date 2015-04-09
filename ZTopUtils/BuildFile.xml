@@ -8,6 +8,7 @@
 <use   name="DataFormats/FWLite"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/Math"/>
+<use   name="CondFormats/JetMETObjects"/>
 <export>
   <lib   name="1"/>
 </export>
