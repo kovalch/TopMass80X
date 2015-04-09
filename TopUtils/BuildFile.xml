@@ -1,14 +1,19 @@
 <use name="root"/>
 <use name="rootgpad"/>
 <use name="FWCore/MessageLogger"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/Utilities"/>
+<use name="FWCore/ParameterSet"/>
 <use name="PhysicsTools/CandUtils"/>
 <use name="PhysicsTools/PatAlgos"/>
 <use name="DataFormats/PatCandidates"/>
+<use name="DataFormats/HepMCCandidate"/>
+<use name="SimDataFormats/GeneratorProducts"/>
 <use name="CondFormats/JetMETObjects"/>
 <use name="SimGeneral/HepPDTRecord"/>
 <use name="RecoBTag/PerformanceDB"/>
 <use name="RecoBTag/Records"/>
-<use   name="AnalysisDataFormats/TopObjects"/>
+<use name="AnalysisDataFormats/TopObjects"/>
 
 <export>
    <lib name="TopAnalysisTopUtils"/>
