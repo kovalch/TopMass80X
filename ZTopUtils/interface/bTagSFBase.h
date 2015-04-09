@@ -16,6 +16,8 @@ namespace ztop{
 
 
 /**
+ * Warning: if jets are out of range (20 < pt < ~500) (|eta|< 2.4), the SF will be 0!
+ *
  * Class to apply b-tag SF
  * The most important function to set up the scale factors is
  * loadSF(..)
