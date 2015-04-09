@@ -127,6 +127,9 @@ void Samples::addSamples(const TString& filelistDirectory,
                          const Channel::Channel& channel,
                          const Systematic::Systematic& systematic)
 {
+    // FIXME: This method is not fully safe: for certain systematics (e.g. ttbar theory variations), in case the input file does not exist,
+    // FIXME: the nominal one is taken silently, not even any warning is produced
+    
     // Full input filenames from the systematic and the nominal FileList
     std::vector<std::pair<TString, Sample> > v_filenameSamplePair;
     std::vector<std::pair<TString, Sample> > v_filenameSamplePairNominal;
