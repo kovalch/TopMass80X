@@ -36,7 +36,7 @@ options.register('json', '', VarParsing.VarParsing.multiplicity.singleton, VarPa
 options.register('skipEvents', 0, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "skip N events")
 options.register('includePDFWeights', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "include the PDF weights *slow!!!*")
 
-## Get and parse the command line arguments
+# Get and parse the command line arguments
 if( hasattr(sys, "argv") ):
     for args in sys.argv :
         arg = args.split(',')
@@ -83,6 +83,9 @@ if options.json != '':
     myLumis = LumiList.LumiList(filename = options.json).getCMSSWString().split(',')
     process.source.lumisToProcess = CfgTypes.untracked(CfgTypes.VLuminosityBlockRange())
     process.source.lumisToProcess.extend(myLumis)
+
+# Needed to protect from crashes when running with CMSSW < 5_3_24 on samples produced with >= 5_3_24
+process.source.inputCommands = cms.untracked.vstring('keep *', 'drop GenLumiInfoProduct_*_*_*')
 
 
 
