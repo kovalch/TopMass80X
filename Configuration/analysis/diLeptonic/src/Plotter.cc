@@ -81,9 +81,6 @@ histSG_(0),
 histRWSG_(0),
 
 histGen_(0),
-histPurity_(0),
-histStability_(0),
-histRecoGen_(0),
 histPurityAllBins_(0),
 histStabilityAllBins_(0),
 histRecoGenAllBins_(0),
@@ -298,9 +295,6 @@ void Plotter::clearMemoryPerSystematicChannel()
     if(histMCReco_)histMCReco_->Delete();
     
     if(histGen_)histGen_->Delete();
-    if(histPurity_)histPurity_->Delete();
-    if(histStability_)histStability_->Delete();
-    if(histRecoGen_)histRecoGen_->Delete();
     
     
     if(histEffAllBins_)histEffAllBins_->Delete();
@@ -377,9 +371,6 @@ void Plotter::prepareHistograms(const std::vector<Sample>& v_sample)
     
     
         histGen_ = generatorBinning_->CreateHistogram("histGen",kTRUE);
-        histPurity_ = generatorBinning_->CreateHistogram("histPurity",kTRUE);
-        histStability_ = generatorBinning_->CreateHistogram("histStability",kTRUE);
-        histRecoGen_ = generatorBinning_->CreateHistogram("histRecoGen",kTRUE);
         
         histEffAllBins_ = generatorBinning_->CreateHistogram("histEffAllBins");
         histGenAllBins_ = generatorBinning_->CreateHistogram("histGenAllBins");
@@ -553,15 +544,12 @@ void Plotter::producePlots()
                        
                        recBin_temp = generatorDistribution_->GetGlobalBinNumber(branchVals_.at(0),branchVals_.at(1));
                        genBin_temp = generatorDistribution_->GetGlobalBinNumber(branchValsGen_.at(0),branchValsGen_.at(1));
-                       ((TH2*)histPurity_)->Fill(branchVals_.at(0),branchVals_.at(1),eventWeight_*v_weight.at(iSample));
-                       ((TH2*)histStability_)->Fill(branchValsGen_.at(0),branchValsGen_.at(1),eventWeight_*v_weight.at(iSample));
 
                        histEffAllBins_->Fill(recBin_temp,eventWeight_*v_weight.at(iSample));
                        histPurityAllBins_->Fill(recBin_temp,eventWeight_*v_weight.at(iSample));
                        histStabilityAllBins_->Fill(genBin_temp,eventWeight_*v_weight.at(iSample));
                        
                        if(recBin_temp==genBin_temp){
-                           ((TH2*)histRecoGen_)->Fill(branchVals_.at(0),branchVals_.at(1),eventWeight_*v_weight.at(iSample));
                            histRecoGenAllBins_->Fill(recBin_temp,eventWeight_*v_weight.at(iSample));
                        }
                        
@@ -1250,118 +1238,6 @@ void Plotter::writePlotEPSAllBins()
     legend->Draw("same");
     canvas->Print(plotsFolder_+ "EPS_AllBins_" + v_plotName_.at(0) + "_vs_"+ v_plotName_.at(1) + ".pdf");
     
-    //Delete objects
-    delete canvas;
-    delete legend;
-    
-}
-
-
-
-void Plotter::writePlotEPS()
-{
-    // Prepare canvas and legend
-    TCanvas* canvas = utils::setCanvas();
-    TLegend* legend = utils::setLegend();
-    canvas->cd();
-    
-    histPurity_->Divide(histRecoGen_,histPurity_,1,1,"B");
-    histPurity_->SetMarkerStyle(23);
-    histPurity_->SetMarkerColor(4);
-    
-    histStability_->Divide(histRecoGen_,histStability_,1,1,"B");
-    histStability_->SetMarkerStyle(22);
-    histStability_->SetMarkerColor(2);
-    
-    legend->AddEntry(histPurity_,"Purity","pe");
-    legend->AddEntry(histStability_,"Stability","pe");
-    
-    
-        TH2* h2dPurity = (TH2*)histPurity_->Clone();
-        TH2* h2dStability = (TH2*)histStability_->Clone();
-        
-        for(int iy=-1;iy<=(int)v_coarseBins_.at(1).size()-1;iy++)
-        {
-            TString plotTitle = "";
-            
-            if(iy==-1)
-            {
-                if(v_uTrue_.at(1))plotTitle = v_plotTitle_.at(1) + " underflow bin";
-                if(!v_uTrue_.at(1))continue;
-            }
-            else if(iy == (int)v_coarseBins_.at(1).size()-1)
-            {
-                if(v_oTrue_.at(1))plotTitle = v_plotTitle_.at(1) + " overflow bin";
-                if(!v_oTrue_.at(1))continue;
-            }
-            else plotTitle = utils::makeBinTitle(v_plotTitle_.at(1),v_coarseBins_.at(1).at(iy),v_coarseBins_.at(1).at(iy+1));
-            plotTitle = plotTitle + ";" + v_plotTitle_.at(0) + ", " + v_plotUnits_.at(0);
-            
-            TH1* h_tempP = (TH1*)(h2dPurity->ProjectionX("tempP_iy",iy+1,iy+1,"e"));
-            h_tempP->SetStats(0);
-            h_tempP->SetTitle(plotTitle);
-            
-            TH1* h_tempS = (TH1*)(h2dStability->ProjectionX("tempS_iy",iy+1,iy+1,"e"));
-            h_tempS->SetTitle(plotTitle);
-            
-            h_tempP->SetAxisRange(0,h_tempP->GetMaximum() > h_tempS->GetMaximum() ? h_tempP->GetMaximum()*1.15 : h_tempS->GetMaximum()*1.15 ,"Y");
-            h_tempP->Draw("e");
-            h_tempS->Draw("e same");
-            //legend->Draw("same");
-            
-            if(iy==-1)canvas->Print(plotsFolder_+ "EPS_" + v_plotName_.at(0) + "_IN_"+ v_plotName_.at(1)+ "_" + "u" + ".pdf");
-            else if(iy == (int)v_coarseBins_.at(1).size()-1)canvas->Print(plotsFolder_+ "EPS_" + v_plotName_.at(0) + "_IN_"+ v_plotName_.at(1)+ "_" + "o" + ".pdf");
-            else canvas->Print(plotsFolder_+ "EPS_" + v_plotName_.at(0) + "_IN_"+ v_plotName_.at(1)+ "_" + std::to_string(iy) + ".pdf");
-            canvas->Clear();
-            
-            h_tempP->Delete();
-            h_tempS->Delete();
-        }
-        
-
-        for(int ix=-1;ix<=(int)v_coarseBins_.at(0).size()-1;ix++)
-        {
-            TString plotTitle = "";
-            
-            if(ix==-1)
-            {
-                if(v_uTrue_.at(0))plotTitle = v_plotTitle_.at(0) + " underflow bin";
-                if(!v_uTrue_.at(0))continue;
-            }
-            else if(ix == (int)v_coarseBins_.at(0).size()-1)
-            {
-                if(v_oTrue_.at(0))plotTitle = v_plotTitle_.at(0) + " overflow bin";
-                if(!v_oTrue_.at(0))continue;
-            }
-            else plotTitle = utils::makeBinTitle(v_plotTitle_.at(0),v_coarseBins_.at(0).at(ix),v_coarseBins_.at(0).at(ix+1));
-            plotTitle = plotTitle + ";" + v_plotTitle_.at(1) + ", " + v_plotUnits_.at(1);
-            
-            TH1* h_tempP = (TH1*)(h2dPurity->ProjectionY("tempP_ix",ix+1,ix+1,"e"));
-            h_tempP->SetStats(0);
-            h_tempP->SetTitle(plotTitle);
-            
-            TH1* h_tempS = (TH1*)(h2dStability->ProjectionY("tempS_ix",ix+1,ix+1,"e"));
-            h_tempS->SetTitle(plotTitle);
-            
-            h_tempP->SetAxisRange(0,h_tempP->GetMaximum() > h_tempS->GetMaximum() ? h_tempP->GetMaximum()*1.15 : h_tempS->GetMaximum()*1.15 ,"Y");
-            h_tempP->Draw("e");
-            h_tempS->Draw("e same");
-            //legend->Draw("same");
-            
-           if(ix==-1)canvas->Print(plotsFolder_+ "EPS_" + v_plotName_.at(1) + "_IN_"+ v_plotName_.at(0)+ "_" + "u" + ".pdf");
-           else if(ix == (int)v_coarseBins_.at(0).size()-1)canvas->Print(plotsFolder_+ "EPS_" + v_plotName_.at(1) + "_IN_"+ v_plotName_.at(0)+ "_" + "o" + ".pdf");
-           else canvas->Print(plotsFolder_+ "EPS_" + v_plotName_.at(1) + "_IN_"+ v_plotName_.at(0)+ "_" + std::to_string(ix) + ".pdf");
-           canvas->Clear();
-                
-            h_tempP->Delete();
-            h_tempS->Delete();
-            
-        }
-
-        h2dPurity->Delete();
-        h2dStability->Delete();
-
-
     //Delete objects
     delete canvas;
     delete legend;

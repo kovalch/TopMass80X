@@ -92,13 +92,7 @@ private:
     double rewTopRapidityDown(double y);
     void writePlotCT(TH1* histSG,TH1* histRW,TH1* histUf);
     
-    /// Write EPS plots
-    void writePlotEPS();
     TH1* histGen_;
-    TH1* histPurity_;
-    TH1* histStability_;
-    TH1* histRecoGen_;
-    
     
     void writePlotEPSAllBins();
     TH1* histPurityAllBins_;
