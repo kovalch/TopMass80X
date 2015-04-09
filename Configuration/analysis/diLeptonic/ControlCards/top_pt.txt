@@ -3,13 +3,8 @@
 cpnbins 20 0 600
 title p_{T}^{t}
 units [GeV]
+yunits #frac{1}{#sigma}#frac{d#sigma}{dp^{t}_{T}}[GeV]^{-1}
 
-1d
-coarse 0 65 125 200 290 400
-uoTrue 0 1
-fine 0 30 65 95 125 160 200 245 290 355 400 500
-uoReco 0 1
-1d
 
 2d
 uoTrue 0 1
