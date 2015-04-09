@@ -47,7 +47,6 @@ Plotter::Plotter(const Samples& samples, const double lumi, double topxsec):
 samples_(samples),
 lumi_(lumi),
 topxsec_(topxsec),
-nD_(-999),
 v_plotName_(std::vector<TString>(0)),
 v_plotTitle_(std::vector<TString>(0)),
 v_plotUnits_(std::vector<TString>(0)),
@@ -81,7 +80,6 @@ histUf_(0),
 histSG_(0),
 histRWSG_(0),
 
-histEff_(0),
 histGen_(0),
 histPurity_(0),
 histStability_(0),
@@ -136,18 +134,10 @@ void Plotter::setOptions(const std::vector<TString> v_plotName)
     this->clearMemory();
     
     v_plotName_ = v_plotName;
-    nD_ = (int)v_plotName_.size();
-    TString nDflag;
-    if(nD_==1) nDflag="1d";
-    else if(nD_==2) nDflag="2d";
-    else{
-         std::cerr<<"ERROR in Plotter! nD_ is not equal to 1 or 2.\n...break\n"<<std::endl;
-         exit(237);
-     }
-
-    branchVals_ = std::vector<Float_t>(nD_,-999);
-    branchValsGen_ = std::vector<Float_t>(nD_,-999);
-    branchValsGen0_ = std::vector<Float_t>(nD_,-999);
+    
+    branchVals_ = std::vector<Float_t>(2,-999);
+    branchValsGen_ = std::vector<Float_t>(2,-999);
+    branchValsGen0_ = std::vector<Float_t>(2,-999);
     
     // reading Control Cards
     for(auto plotName : v_plotName_){
@@ -189,7 +179,7 @@ void Plotter::setOptions(const std::vector<TString> v_plotName)
              
              
              //Pass to dimensional block
-             if( (int)vWord.size()==1 && vWord.at(0) == nDflag ){
+             if( (int)vWord.size()==1 && vWord.at(0) == "2d" ){
                  if(isInBlock) isInBlock = false;
                  if(!isInBlock) isInBlock = true;
             }
@@ -230,11 +220,11 @@ void Plotter::setOptions(const std::vector<TString> v_plotName)
     //Definition of TUnfoldBinning no detector and generator level
     detectorBinning_ = new TUnfoldBinning("detector");
     detectorDistribution_ = detectorBinning_->AddBinning("detectordistribution");
-    for(int i=0;i<nD_;++i)detectorDistribution_->AddAxis(v_plotName_.at(i),(int)v_fineBins_.at(i).size()-1,v_fineBins_.at(i).data(),v_uReco_.at(i), v_oReco_.at(i));
+    for(int i=0;i<2;++i)detectorDistribution_->AddAxis(v_plotName_.at(i),(int)v_fineBins_.at(i).size()-1,v_fineBins_.at(i).data(),v_uReco_.at(i), v_oReco_.at(i));
     
     generatorBinning_ = new TUnfoldBinning("generator");
     generatorDistribution_ = generatorBinning_->AddBinning("signal");
-    for(int i=0;i<nD_;++i)generatorDistribution_->AddAxis("gen_"+v_plotName_.at(i),(int)v_coarseBins_.at(i).size()-1, v_coarseBins_.at(i).data() , v_uTrue_.at(i), v_oTrue_.at(i));
+    for(int i=0;i<2;++i)generatorDistribution_->AddAxis("gen_"+v_plotName_.at(i),(int)v_coarseBins_.at(i).size()-1, v_coarseBins_.at(i).data() , v_uTrue_.at(i), v_oTrue_.at(i));
     
     //std::cout<<"[Plotter]:--- Finishing of plot options settings\n\n";
 }
@@ -246,7 +236,6 @@ void Plotter::clearMemory()
     v_plotName_.clear();
     v_plotTitle_.clear();
     v_plotUnits_.clear();
-    nD_ = -999;
     branchVals_.clear();
     branchValsGen_.clear();
     branchValsGen0_.clear();
@@ -308,8 +297,6 @@ void Plotter::clearMemoryPerSystematicChannel()
     
     if(histMCReco_)histMCReco_->Delete();
     
-    
-    if(histEff_)histEff_->Delete();
     if(histGen_)histGen_->Delete();
     if(histPurity_)histPurity_->Delete();
     if(histStability_)histStability_->Delete();
@@ -328,7 +315,7 @@ void Plotter::clearMemoryPerSystematicChannel()
 
 void Plotter::prepareHistograms(const std::vector<Sample>& v_sample)
 {
-    for(int ind=0;ind<nD_;++ind){
+    for(int ind=0;ind<2;++ind){
         std::vector<TH1D* > v_SampleHist;
         std::vector<TH1D* > v_UnderflowSampleHist;
         std::vector<TH1D* > v_OverflowSampleHist;
@@ -357,9 +344,9 @@ void Plotter::prepareHistograms(const std::vector<Sample>& v_sample)
     }
     
     //setinng vvv_SampleHist_
-    for(int ind=0;ind<nD_;++ind){
+    for(int ind=0;ind<2;++ind){
         std::vector<std::vector<TH1D* > > vv_SampleHist;
-        for(int jnd=0;jnd<nD_;++jnd){
+        for(int jnd=0;jnd<2;++jnd){
             if(ind==jnd)continue;
             const auto& v_bins = v_coarseBins_.at(jnd);
             for(int ibin=0;ibin<(int)v_bins.size()-1;++ibin){
@@ -389,7 +376,6 @@ void Plotter::prepareHistograms(const std::vector<Sample>& v_sample)
     histMCReco_ = detectorBinning_->CreateHistogram("histDataReco");
     
     
-        histEff_ = generatorBinning_->CreateHistogram("histEff",kTRUE);
         histGen_ = generatorBinning_->CreateHistogram("histGen",kTRUE);
         histPurity_ = generatorBinning_->CreateHistogram("histPurity",kTRUE);
         histStability_ = generatorBinning_->CreateHistogram("histStability",kTRUE);
@@ -455,7 +441,7 @@ void Plotter::producePlots()
                 dataTree0->ResetBranchAddresses();
                 dataTree0->SetBranchAddress("entry",&entry0_);
                 dataTree0->SetBranchAddress("trueLevelWeight",&trueLevelWeight0_);
-                for(int i=0;i<nD_;++i)dataTree0->SetBranchAddress("gen_"+v_plotName_.at(i),&(branchValsGen0_.at(i)));
+                for(int i=0;i<2;++i)dataTree0->SetBranchAddress("gen_"+v_plotName_.at(i),&(branchValsGen0_.at(i)));
                 
                 dataTree8->ResetBranchAddresses();
                 dataTree8->SetBranchAddress("entry",&entry_);
@@ -463,8 +449,8 @@ void Plotter::producePlots()
                 dataTree8->SetBranchAddress("trueLevelWeight",&trueLevelWeight_);
                 dataTree8->SetBranchAddress("isTopGen",&isTopGen_);
                 dataTree8->SetBranchAddress("isKinReco",&isKinReco_);
-                for(int i=0;i<nD_;++i)dataTree8->SetBranchAddress(v_plotName_.at(i),&(branchVals_.at(i)));
-                for(int i=0;i<nD_;++i)dataTree8->SetBranchAddress("gen_"+v_plotName_.at(i),&(branchValsGen_.at(i)));
+                for(int i=0;i<2;++i)dataTree8->SetBranchAddress(v_plotName_.at(i),&(branchVals_.at(i)));
+                for(int i=0;i<2;++i)dataTree8->SetBranchAddress("gen_"+v_plotName_.at(i),&(branchValsGen_.at(i)));
                 
                 sampleInfo.add("entries", utils::numToString(dataTree8->GetEntriesFast()));
                 sampleInfo.add("weight",utils::numToString(v_weight.at(iSample)));
@@ -478,9 +464,9 @@ void Plotter::producePlots()
                     if(dataTree8->GetEntry(ievent)<=0) break;
 
                     //Control plots//
-                    for(int ind=0;ind<nD_;++ind){
+                    for(int ind=0;ind<2;++ind){
                         vv_SampleHist_.at(ind).at(iSample)->Fill(branchVals_.at(ind),eventWeight_*v_weight.at(iSample));
-                        for(int jnd=0;jnd<nD_;++jnd){
+                        for(int jnd=0;jnd<2;++jnd){
                             if(ind==jnd)continue;
                             const auto& v_bins = v_coarseBins_.at(jnd);
                             if(branchVals_.at(jnd)<v_bins.at(0))vv_UnderflowSampleHist_.at(ind).at(iSample)->Fill(branchVals_.at(ind),eventWeight_*v_weight.at(iSample));
@@ -501,8 +487,7 @@ void Plotter::producePlots()
                         for(Int_t ievent0=lastEvent;ievent0<dataTree0->GetEntriesFast();ievent0++) {
                             if(dataTree0->GetEntry(ievent0)<=0) break;
                                 
-                                if(nD_==1)histGen_->Fill(branchValsGen0_.at(0),trueLevelWeight0_*v_weight.at(iSample));
-                                if(nD_==2)((TH2*)histGen_)->Fill(branchValsGen0_.at(0),branchValsGen0_.at(1),trueLevelWeight0_*v_weight.at(iSample));
+                                ((TH2*)histGen_)->Fill(branchValsGen0_.at(0),branchValsGen0_.at(1),trueLevelWeight0_*v_weight.at(iSample));
                                 
                                 histSG_->Fill(genBin_(branchValsGen0_),trueLevelWeight0_*v_weight.at(iSample));
                                 //histSG_->Fill(genBin_(branchValsGen0_),1*v_weight.at(iSample));
@@ -554,51 +539,29 @@ void Plotter::producePlots()
                        //histMigration_->Fill(genBin_(branchValsGen_),recoBin_(branchVals_),1*v_weight.at(iSample));
                        //histSR_->Fill(recoBin_(branchVals_),weightCT*v_weight.at(iSample));
                        
-                        if(nD_ == 1)
+                        if( (branchValsGen_.at(0) <v_coarseBins_.at(0).at(0) && v_uTrue_.at(0)==0) 
+                            || (branchValsGen_.at(0)>v_coarseBins_.at(0).back() && v_oTrue_.at(0)==0)
+                            || (branchValsGen_.at(1) <v_coarseBins_.at(1).at(0) && v_uTrue_.at(1)==0) 
+                            || (branchValsGen_.at(1)>v_coarseBins_.at(1).back() && v_oTrue_.at(1)==0) )
                         {
-                            if((branchValsGen_.at(0) <v_coarseBins_.at(0).at(0) && v_uTrue_.at(0)==0) 
-                                || (branchValsGen_.at(0)>v_coarseBins_.at(0).back() && v_oTrue_.at(0)==0) )
-                            {
-                                histBgrUo_->Fill(recoBin_(branchVals_),eventWeight_*v_weight.at(iSample));
-                                //histBgrUo_->Fill(recoBin_(branchVals_),weightCT*v_weight.at(iSample));
-                            }
-                        }
-                        else if(nD_ == 2)
-                        {
-                            if( (branchValsGen_.at(0) <v_coarseBins_.at(0).at(0) && v_uTrue_.at(0)==0) 
-                                || (branchValsGen_.at(0)>v_coarseBins_.at(0).back() && v_oTrue_.at(0)==0)
-                                || (branchValsGen_.at(1) <v_coarseBins_.at(1).at(0) && v_uTrue_.at(1)==0) 
-                                || (branchValsGen_.at(1)>v_coarseBins_.at(1).back() && v_oTrue_.at(1)==0) )
-                            {
-                                histBgrUo_->Fill(recoBin_(branchVals_),eventWeight_*v_weight.at(iSample));
-                                //histBgrUo_->Fill(recoBin_(branchVals_),weightCT*v_weight.at(iSample));
-                            }
+                            histBgrUo_->Fill(recoBin_(branchVals_),eventWeight_*v_weight.at(iSample));
+                            //histBgrUo_->Fill(recoBin_(branchVals_),weightCT*v_weight.at(iSample));
                         }
                         
                        Int_t recBin_temp = -999;
                        Int_t genBin_temp = -999;
                        
-                       if(nD_ == 1){
-                            recBin_temp = generatorDistribution_->GetGlobalBinNumber(branchVals_.at(0));
-                            genBin_temp = generatorDistribution_->GetGlobalBinNumber(branchValsGen_.at(0));
-                            histEff_->Fill(branchVals_.at(0),eventWeight_*v_weight.at(iSample));
-                            histPurity_->Fill(branchVals_.at(0),eventWeight_*v_weight.at(iSample));
-                            histStability_->Fill(branchValsGen_.at(0),eventWeight_*v_weight.at(iSample));
-                       }
-                       else if(nD_ == 2){
-                            recBin_temp = generatorDistribution_->GetGlobalBinNumber(branchVals_.at(0),branchVals_.at(1));
-                            genBin_temp = generatorDistribution_->GetGlobalBinNumber(branchValsGen_.at(0),branchValsGen_.at(1));
-                            ((TH2*)histEff_)->Fill(branchVals_.at(0),branchVals_.at(1),eventWeight_*v_weight.at(iSample));
-                            ((TH2*)histPurity_)->Fill(branchVals_.at(0),branchVals_.at(1),eventWeight_*v_weight.at(iSample));
-                            ((TH2*)histStability_)->Fill(branchValsGen_.at(0),branchValsGen_.at(1),eventWeight_*v_weight.at(iSample));
-                       }
+                       recBin_temp = generatorDistribution_->GetGlobalBinNumber(branchVals_.at(0),branchVals_.at(1));
+                       genBin_temp = generatorDistribution_->GetGlobalBinNumber(branchValsGen_.at(0),branchValsGen_.at(1));
+                       ((TH2*)histPurity_)->Fill(branchVals_.at(0),branchVals_.at(1),eventWeight_*v_weight.at(iSample));
+                       ((TH2*)histStability_)->Fill(branchValsGen_.at(0),branchValsGen_.at(1),eventWeight_*v_weight.at(iSample));
+
                        histEffAllBins_->Fill(recBin_temp,eventWeight_*v_weight.at(iSample));
                        histPurityAllBins_->Fill(recBin_temp,eventWeight_*v_weight.at(iSample));
                        histStabilityAllBins_->Fill(genBin_temp,eventWeight_*v_weight.at(iSample));
                        
                        if(recBin_temp==genBin_temp){
-                           if(nD_ == 1)histRecoGen_->Fill(branchVals_.at(0),eventWeight_*v_weight.at(iSample));
-                           if(nD_ == 2)((TH2*)histRecoGen_)->Fill(branchVals_.at(0),branchVals_.at(1),eventWeight_*v_weight.at(iSample));
+                           ((TH2*)histRecoGen_)->Fill(branchVals_.at(0),branchVals_.at(1),eventWeight_*v_weight.at(iSample));
                            histRecoGenAllBins_->Fill(recBin_temp,eventWeight_*v_weight.at(iSample));
                        }
                        
@@ -627,11 +590,11 @@ void Plotter::producePlots()
             sampleInfo.save(sampleInfoFolder);
             
             //Control plots//
-            for(int ind=0;ind<nD_;++ind){
+            for(int ind=0;ind<2;++ind){
                writePlotCP( v_sample ,vv_SampleHist_.at(ind),ind);
-                    if(v_uTrue_.at(!ind)&&nD_==2)writePlotCP( v_sample ,vv_UnderflowSampleHist_.at(ind),ind,-1);
-                    if(v_oTrue_.at(!ind)&&nD_==2)writePlotCP( v_sample ,vv_OverflowSampleHist_.at(ind),ind,-2);
-                for(int jnd=0;jnd<nD_;++jnd){
+                    if(v_uTrue_.at(!ind))writePlotCP( v_sample ,vv_UnderflowSampleHist_.at(ind),ind,-1);
+                    if(v_oTrue_.at(!ind))writePlotCP( v_sample ,vv_OverflowSampleHist_.at(ind),ind,-2);
+                for(int jnd=0;jnd<2;++jnd){
                   if(ind==jnd)continue;
                    const auto& v_bins = v_coarseBins_.at(jnd);
                    for(int ibin=0;ibin<(int)v_bins.size()-1;++ibin){
@@ -639,21 +602,21 @@ void Plotter::producePlots()
                  }
                 }
             }
-            if(nD_==2)writePlotCPAllBins(v_sample,v_histRecoAllBins_);
+            writePlotCPAllBins(v_sample,v_histRecoAllBins_);
             // ... //
             
             
             //Unfolding//
-            if(nD_==2)runUnfolding(histMigration_,histData_,histBgr_,histBgrUo_,histUf_);
+            runUnfolding(histMigration_,histData_,histBgr_,histBgrUo_,histUf_);
             //runUnfolding(histMigration_,histSR_,0,histBgrUo_,histUf_);
             //writePlotCT(histSG_,histRWSG_,histUf_);
             // ... //
             
             //Cross sections//
             // Diff
-                if(nD_==2)writePlotXSec(unfoldedData_,histGen_);
+                writePlotXSec(unfoldedData_,histGen_);
             //writePlotEPS();
-                if(nD_==2)writePlotEPSAllBins();
+                writePlotEPSAllBins();
             // ...
             
         }//channel loop
@@ -667,8 +630,7 @@ void Plotter::producePlots()
 int Plotter::genBin_(const std::vector<float>& val)
 {
     int bin = -999;
-    if(nD_ == 1) bin = generatorDistribution_->GetGlobalBinNumber(val.at(0));
-    if(nD_ == 2) bin = generatorDistribution_->GetGlobalBinNumber(val.at(0),val.at(1));
+        bin = generatorDistribution_->GetGlobalBinNumber(val.at(0),val.at(1));
     return bin;
 }
 
@@ -677,8 +639,7 @@ int Plotter::genBin_(const std::vector<float>& val)
 int Plotter::recoBin_(const std::vector<float>& val)
 {
     int bin = -999;
-    if(nD_ == 1) bin = detectorDistribution_->GetGlobalBinNumber(val.at(0));
-    if(nD_ == 2) bin = detectorDistribution_->GetGlobalBinNumber(val.at(0),val.at(1));
+        bin = detectorDistribution_->GetGlobalBinNumber(val.at(0),val.at(1));
     return bin;
 }
 
@@ -1066,8 +1027,7 @@ void Plotter::runUnfolding(const TH2* histMigration,const TH1* histInput,
 
 void Plotter::writeCanvas( TCanvas* canvas, const TString name )
 {
-        if(nD_ == 2)canvas->Print(plotsFolder_+ name + "_" + v_plotName_.at(0) + "_vs_" + v_plotName_.at(1)  + ".pdf");
-        if(nD_ == 1)canvas->Print(plotsFolder_+ name + "_" + v_plotName_.at(0) + ".pdf");
+    canvas->Print(plotsFolder_+ name + "_" + v_plotName_.at(0) + "_vs_" + v_plotName_.at(1)  + ".pdf");
     canvas->Clear();
 }
 
@@ -1117,12 +1077,12 @@ void Plotter::writePlotCP(const std::vector<Sample>& v_sample ,const std::vector
     utils::drawRatio(histData, stacksum, NULL,0.5,2);
     
     //Print
-    if(nD_==2&&binNum!=-999){
+    if(binNum!=-999){
         if(binNum>=0)canvas->Print(plotsFolder_+ "CP_" + v_plotName_.at(ind) + "_IN_" + v_plotName_.at(jnd)  + "_" + std::to_string(binNum) + ".pdf");
         if(binNum==-1)canvas->Print(plotsFolder_+ "CP_" + v_plotName_.at(ind) + "_IN_" + v_plotName_.at(jnd)  + "_" + "u" + ".pdf");
         if(binNum==-2)canvas->Print(plotsFolder_+ "CP_" + v_plotName_.at(ind) + "_IN_" + v_plotName_.at(jnd)  + "_" + "o" + ".pdf");
     }
-    if(nD_==1||binNum==-999)canvas->Print(plotsFolder_+ "CP_" + v_plotName_.at(ind) + ".pdf");
+    if(binNum==-999)canvas->Print(plotsFolder_+ "CP_" + v_plotName_.at(ind) + ".pdf");
     
     //Delete
     stack->Delete();
@@ -1253,7 +1213,6 @@ void Plotter::writePlotEPSAllBins()
     hist.SetAxisRange(0,1 ,"Y");
     
     
-    if(nD_ == 2){
         for(int i=1;i<=Nbins1;++i)
         {
             TString binName = "";
@@ -1283,15 +1242,13 @@ void Plotter::writePlotEPSAllBins()
             ln.DrawClone("same");
 
         }
-    }
     
     
     histPurityAllBins_->Draw("e same");
     histStabilityAllBins_->Draw("e same");
     histEffAllBins_->Draw("e same");
     legend->Draw("same");
-    if(nD_ == 1)canvas->Print(plotsFolder_+ "EPS_AllBins_" + v_plotName_.at(0) + ".pdf");
-    if(nD_ == 2)canvas->Print(plotsFolder_+ "EPS_AllBins_" + v_plotName_.at(0) + "_vs_"+ v_plotName_.at(1) + ".pdf");
+    canvas->Print(plotsFolder_+ "EPS_AllBins_" + v_plotName_.at(0) + "_vs_"+ v_plotName_.at(1) + ".pdf");
     
     //Delete objects
     delete canvas;
@@ -1320,16 +1277,6 @@ void Plotter::writePlotEPS()
     legend->AddEntry(histStability_,"Stability","pe");
     
     
-    if(nD_==1){
-          
-          histPurity_->SetAxisRange(0,histPurity_->GetMaximum() > histStability_->GetMaximum() ? histPurity_->GetMaximum()*1.15 : histStability_->GetMaximum()*1.15 ,"Y");
-          histPurity_->Draw("e");
-          histStability_->Draw("e same");
-          //legend->Draw("same");
-          canvas->Print(plotsFolder_+ "EPS_" + v_plotName_.at(0) + ".pdf");
-    }
-    
-        if(nD_==2){
         TH2* h2dPurity = (TH2*)histPurity_->Clone();
         TH2* h2dStability = (TH2*)histStability_->Clone();
         
@@ -1413,8 +1360,6 @@ void Plotter::writePlotEPS()
 
         h2dPurity->Delete();
         h2dStability->Delete();
-      
-     }
 
 
     //Delete objects
@@ -1444,20 +1389,6 @@ void Plotter::writePlotXSec(const TH1* hData,const TH1* hMC)
          histMC->Scale(1.0/v_BR_.at(Channel::emu));//FIXME: for different channels
          histMC->SetLineColor(2);
          
-
-    if(nD_==1){
-          histData->Scale(1.,"width");
-          histMC->Scale(1.,"width");
-          
-          histData->SetAxisRange(0,( histData->GetMaximum() > histMC->GetMaximum() ? histData->GetMaximum()*1.15 : histMC->GetMaximum()*1.15 ),"Y");
-          histData->Draw("e");
-          histMC->Draw("hist same");
-          histData->Draw("e,same");
-          utils::drawRatio(histData, histMC, NULL,0.5,2);
-          canvas->Print(plotsFolder_+ "xSec_" + v_plotName_.at(0) + ".pdf");
-    }
-    
-    if(nD_==2){
         TH2* h2dData = (TH2*)histData->Clone();
         TH2* h2dMC = (TH2*)histMC->Clone();
         for(int iy=-1;iy<=(int)v_coarseBins_.at(1).size()-1;iy++)
@@ -1588,7 +1519,6 @@ void Plotter::writePlotXSec(const TH1* hData,const TH1* hMC)
 
       h2dData->Delete();
       h2dMC->Delete();
-     }
 
           histMC->Delete();
           histData->Delete();

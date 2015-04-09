@@ -43,7 +43,6 @@ private:
      const Samples& samples_;
      const double lumi_;
      double topxsec_;
-     int nD_;
      
      std::vector<TString> v_plotName_;
      std::vector<TString> v_plotTitle_;
@@ -95,7 +94,6 @@ private:
     
     /// Write EPS plots
     void writePlotEPS();
-    TH1* histEff_;
     TH1* histGen_;
     TH1* histPurity_;
     TH1* histStability_;
