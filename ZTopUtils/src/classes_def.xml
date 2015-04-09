@@ -19,6 +19,9 @@
   <class name="std::vector<ztop::JECBase>"/>
   <class name="ztop::RecoilCorrector"/>
   <class name="std::vector<ztop::RecoilCorrector>"/>
+  
+  <class name="ztop::bTagSFBase"/>
+  <class name="ztop::bTagEfficiency"/>
 
 <selection>
   <!---class name="ztop::FactorizedJetCorrector"/-->

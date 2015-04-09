@@ -2,6 +2,8 @@
 #include "../interface/JERBase.h"
 #include "../interface/JECBase.h"
 #include "../interface/bTagBase.h"
+#include "../interface/bTagSFBase.h"
+#include "../interface/bTagEfficiency.h"
 #include "../interface/RecoilCorrector.h"
 
 #include "../ext/interface/JetCorrectorParameters.h"
@@ -49,6 +51,9 @@ struct dict {
     ztop::JetCorrectorParametersCollection::pair_type pair_type;
     ztop::JetCorrectorParametersCollection::collection_type colltype;
     std::vector<ztop::JetCorrectorParametersCollection> collv;
+
+    ztop::bTagSFBase sdfsdfdfewsf;
+    ztop::bTagEfficiency foiwejfoiejf;
 
 };
 }
