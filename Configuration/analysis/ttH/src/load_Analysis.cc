@@ -362,8 +362,12 @@ void load_Analysis(const TString& validFilenamePattern,
             filenameBase.ReplaceAll(".root", sstream.str());
         }
         
-        // For ttbar dilepton sample, adjust basic filename to represent physics process
-        filenameBase.ReplaceAll("signal", "Dilepton");
+        // For ttbar dilepton sample, adjust basic filename to represent physics process (signal --> Dilepton)
+        // In case of systematic ttbar dilepton sample, remove from filename part identifying the systematic (will be identified by output folder)
+        if(filenameBase.BeginsWith("ttbarsignal")){
+            if(filenameBase.BeginsWith("ttbarsignalplustau")) filenameBase = "ttbarsignalplustau.root";
+            filenameBase.ReplaceAll("signal", "Dilepton");
+        }
         
         // Open nTuple file
         TFile file(filename);
