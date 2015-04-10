@@ -34,7 +34,7 @@ public:
     void setMakeEff(bool makee) {makeeffs_ = makee; }
     const bool& getMakeEff()const { return makeeffs_;}
 
-	void fillEff(const float& pt, const float&abs_eta,
+	void fillEff(const float& pt, const float&eta,
 			const int& genpartflav, const bool &tagged,
 			const float &puweight);
 

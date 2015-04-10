@@ -44,13 +44,14 @@ bTagEfficiency::~bTagEfficiency(){
 
 }
 
-void bTagEfficiency::fillEff(const float& pt, const float&abs_eta,
+void bTagEfficiency::fillEff(const float& pt, const float&eta,
 		const int& genpartflav, const bool &tagged,
 		const float &puweight){
 	if(!makeeffs_)
 		return;
 	if(!init_)
 		initHistos();
+	float abs_eta=fabs(eta);
 	BTagEntry::JetFlavor jetflav=jetFlavor(genpartflav);
 	histos_.at(assoFlavorToHist(jetflav,false)).Fill(pt,abs_eta,puweight);
 	if(tagged){
@@ -152,7 +153,7 @@ void  bTagEfficiency::readFromTFile(TFile * f){
 }
 
 
-
+///CHECK!!!!!!seems to not work
 float bTagEfficiency::produceMedian(TH1 * h1)const{
 	int nBin = h1->GetXaxis()->GetNbins();
 	std::vector<double> x(nBin);
@@ -163,7 +164,9 @@ float bTagEfficiency::produceMedian(TH1 * h1)const{
 	}
 	const double* y = h1D->GetArray();
 	// exclude underflow/overflows from bin content array y
-	return TMath::Median(nBin, &x[0], &y[1]);
+	float median=TMath::Median(nBin, &x[0], &y[1]);
+	std::cout << median << std::endl;
+	return median;
 }
 
 

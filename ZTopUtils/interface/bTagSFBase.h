@@ -115,21 +115,38 @@ public:
 	~bTagSFBase();
 
 private: //dont allow constructors
-	bTagSFBase(const bTagSFBase&rhs):bTagEfficiency(),calib_(0),currentcalibration_(0),syst_(nominal),wpval_(0){}
+	bTagSFBase(const bTagSFBase&rhs):bTagEfficiency(),calib_(0),fullcalibration_(0),bccalibration_(0), udsgcalibration_(0),syst_(nominal),wpval_(0){}
 	bTagSFBase& operator = (const bTagSFBase&rhs){return *this;}
 
 public:
 
-	void fillEff(const float& pt, const float&abs_eta,
-				const int& genpartflav, const float &disc,
-				const float &puweight){
-		bTagEfficiency::fillEff(pt,abs_eta,genpartflav,isAboveWorkingPoint(disc),puweight);
+	void fillEff(const float& pt, const float&eta,
+			const int& genpartflav, const float &disc,
+			const float &puweight){
+		bTagEfficiency::fillEff(pt,eta,genpartflav,isAboveWorkingPoint(disc),puweight);
 	}
 
-
+	/**
+	 * loads full calibration with all SF for all flavours
+	 * default choice!
+	 */
 	void loadSF(const std::string& filename, BTagEntry::OperatingPoint op,
 			const std::string& tagger, const std::string measurementType="",
 			const std::string systsourceup="", const std::string  systsourcedown="");
+
+	/**
+	 * loads flavour specific calibration. Overwrites default calibration only for specified flavour
+	 */
+	void loadBCSF(const std::string& filename, BTagEntry::OperatingPoint op,
+			const std::string& tagger, const std::string measurementType="",
+			const std::string systsourceup="", const std::string  systsourcedown="");
+
+
+	void loadUDSGSF(const std::string& filename, BTagEntry::OperatingPoint op,
+			const std::string& tagger, const std::string measurementType="",
+			const std::string systsourceup="", const std::string  systsourcedown="");
+
+
 
 	void setSystematics(systematics sys);
 
@@ -152,8 +169,10 @@ public:
 
 	float getJetDiscrShapeWeight(const float & pt, const float& eta,
 			const int & genPartonFlavor, const float& jetdiscr)const;
-
-
+	/**
+	 * resets everything
+	 */
+	void clear();
 
 private:
 	BTagCalibration * calib_;
@@ -163,25 +182,29 @@ private:
 		calibrations(BTagCalibration *,BTagEntry::OperatingPoint,std::string,std::string , std::string );
 		~calibrations();
 
-		const BTagCalibrationReader* up(){return up_;}
-		const BTagCalibrationReader* down(){return down_;}
-		const BTagCalibrationReader* central(){return central_;}
+		const BTagCalibrationReader* up()const{return up_;}
+		const BTagCalibrationReader* down()const{return down_;}
+		const BTagCalibrationReader* central()const{return central_;}
 	private:
 		BTagCalibrationReader *up_,*down_,*central_;
 		calibrations(const calibrations&):up_(0),down_(0),central_(0){}
 		calibrations& operator = (const calibrations&){return *this;}
 
 	};
-	calibrations * currentcalibration_;
+	calibrations * fullcalibration_, *bccalibration_, *udsgcalibration_;
 	systematics syst_;
 
 	std::string wpstring_;
 	float wpval_;
+	std::string filename_;
 
-//public: // debug
+	//public: // debug
 	//returns scale factor/shape weight depending on the systematics set
 	float jetSF(const BTagEntry::JetFlavor& jetflav, const float& pt, const float& eta, const float& discr)const;
 
+	void loadSFToCalib(calibrations** cal, const std::string& filename, BTagEntry::OperatingPoint op,
+			const std::string& tagger, const std::string measurementType,
+			const std::string systsourceup, const std::string  systsourcedown);
 
 	//per sample efficiencies are only loaded
 
