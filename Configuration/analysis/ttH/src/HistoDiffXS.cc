@@ -120,7 +120,9 @@ namespace Systematic{
         xsec_tt2b, xsec_ttcc,
         
         topPt,
-        pdf
+        pdf,
+        mass, match, scale,
+        powheg, powhegHerwig, mcatnlo
     };
 }
 
