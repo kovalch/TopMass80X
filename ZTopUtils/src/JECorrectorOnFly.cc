@@ -29,6 +29,10 @@ double JECorrectorOnFly::getJetEnergyCorrectionValue(const double& jetInitialAre
         jetCorrector->setRho(rho);
             
         correction_ = jetCorrector->getCorrection();
+        delete jetParL1;
+        delete jetParL2;
+        delete jetParL3;
+        delete jetCorrector;
         
         return correction_;
 }
