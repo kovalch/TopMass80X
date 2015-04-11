@@ -16,7 +16,6 @@
 #include <TString.h>
 #include <TH1.h>
 #include <TH1D.h>
-#include <TGaxis.h>
 #include <TPaveText.h>
 #include <TError.h>
 
@@ -271,17 +270,18 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     
     // Draw signal significance for dijet_mass H->bb
     std::vector<TPaveText*> significanceLabels;
-    if(!drawHiggsOverlaid && stackHists.size() && (TString(stackHists.at(0).second->GetName())).Contains("dijet_dijet_mass")){
-        significanceLabels.push_back(this->drawSignificance(ttbbHist, stacksum, 85.f, 140.f, 0.f, "#frac{S_{ttbb}}{#sqrt{S_{ttbb}+B}}", 0));
-        significanceLabels.push_back(this->drawSignificance(ttHbbHist, stacksum, 85.f, 140.f, 0.08f, "#frac{S_{ttH}}{#sqrt{S_{ttH}+B}}", 0));
-        significanceLabels.push_back(this->drawSignificance(ttHbbHist, stacksum, 85.f, 140.f, 0.16f, "#frac{S_{ttH}}{B}", 1));
+    const TString histoName(stackHists.at(0).second->GetName());
+    if(!drawHiggsOverlaid && stackHists.size() && histoName.Contains("dijet_dijet_mass")){
+//         significanceLabels.push_back(this->drawSignificance(ttbbHist, stacksum, 100.1, 139.9, 0.f, "#frac{S_{ttbb}}{#sqrt{S_{ttbb}+B}}", 0));
+        significanceLabels.push_back(this->drawSignificance(ttHbbHist, stacksum, 100.1, 139.9, 0.1f, "#frac{N_{t#bar{t}H}}{#sqrt{N_{t#bar{t}H}+N_{bkg}}}", 0));
+        significanceLabels.push_back(this->drawSignificance(ttHbbHist, stacksum, 100.1, 139.9, 0.2f, "#frac{N_{t#bar{t}H}}{N_{bkg}}", 1));
     }
     
     // Blinding dijet mass plots around the Higgs mass region
     if(( (TString(stackHists.at(0).second->GetName())).Contains("dijet_mass") || (TString(stackHists.at(0).second->GetName())).Contains("Mjj") ) 
         && dataHist.second) {
-        int bin1 = dataHist.second->FindBin(100.5);
-        int bin2 = dataHist.second->FindBin(139.5);
+        int bin1 = dataHist.second->FindBin(100.1);
+        int bin2 = dataHist.second->FindBin(139.9);
         while(bin1 <= bin2) {
             dataHist.second->SetBinContent(bin1, 1e-10);
             dataHist.second->SetBinError(bin1, 0);
@@ -546,7 +546,10 @@ TPaveText* Plotter::drawSignificance(const TH1* const signal, const TH1* const s
     
     // Calculating integral of the signal and background
     const float sigInt = signal->Integral(bin1, bin2);
-    const float sigBkgInt = signalPlusBackground->Integral(bin1, bin2);
+    Double_t sigBkgIntErr(0.0);
+    float sigBkgInt = signalPlusBackground->IntegralAndError(bin1, bin2, sigBkgIntErr);
+    // Varying the background maximally up to have the lower limit on the ratio
+    sigBkgInt += sigBkgIntErr;
     
     float sigSign = 0.f;
     if(type == 0) sigSign = sigInt/sqrt(sigBkgInt);
@@ -556,7 +559,7 @@ TPaveText* Plotter::drawSignificance(const TH1* const signal, const TH1* const s
     sprintf(text,"%s = %.2f", sLabel.c_str(), sigSign);
     
     TPaveText* label = new TPaveText();
-    label->SetX1NDC(gStyle->GetPadLeftMargin()+0.4);
+    label->SetX1NDC(gStyle->GetPadLeftMargin()+0.55);
     label->SetX2NDC(label->GetX1NDC()+0.1);
     label->SetY2NDC(1.0-gStyle->GetPadTopMargin()-0.13 - yOffset);
     label->SetY1NDC(label->GetY2NDC()-0.05);
