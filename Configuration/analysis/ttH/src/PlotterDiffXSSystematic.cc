@@ -51,7 +51,7 @@ logY_(false)
     // Suppress default info that canvas is printed
     gErrorIgnoreLevel = 1001;
     
-    // Setting the list of systematics that are included in the tt+HF template fit (only shape variations should be taken into account)
+    // Setting the list of systematics that are included in the tt+HF template fit (only their shape variations are taken into account)
     normalisedSystematicTypes_.push_back(Systematic::jes);
     normalisedSystematicTypes_.push_back(Systematic::btagDiscrPurity);
     normalisedSystematicTypes_.push_back(Systematic::btagDiscrBstat1);
@@ -187,9 +187,9 @@ void PlotterDiffXSSystematic::plotXSection(const Channel::Channel& channel)
     SystematicHistoMap m_systematicHistos_measured = readSystematicHistograms(name_+"_xs_data", channel);
     
     // Extracting up/down systematic/statistical errors for each bin of the distribution
-    std::vector<ErrorMap> e_measured = extractVariations(m_systematicHistos_measured);
+    const std::vector<ErrorMap> e_measured = extractVariations(m_systematicHistos_measured);
     
-    TH1* h_nominal= m_systematicHistos_measured.at(Systematic::nominal).first;
+    TH1* h_nominal = m_systematicHistos_measured.at(Systematic::nominal).first;
     const size_t nBins = h_nominal->GetNbinsX();
     
     // Calculating final uncertainties in each bin
@@ -203,8 +203,12 @@ void PlotterDiffXSSystematic::plotXSection(const Channel::Channel& channel)
         e_measured_total.push_back(e_total);
     }
     
+    // Getting systematic and statistical variations of the inclusive cross section
+    SystematicHistoMap m_systematicHistos_measured_inclusive = readSystematicHistograms(name_+"_xs_inclusive_data", channel);
+    const std::vector<ErrorMap> e_measured_inclusive = extractVariations(m_systematicHistos_measured_inclusive);
+    
     // Printing the list of uncertainties in each bin and the median
-    printAllUncertainties(e_measured);
+    printAllUncertainties(e_measured, e_measured_inclusive.at(0));
     
     TGraphAsymmErrors* g_measured_stat = errorGraphFromHisto(h_nominal, e_measured_stat);
     TGraphAsymmErrors* g_measured_total = errorGraphFromHisto(h_nominal, e_measured_total);
@@ -299,7 +303,7 @@ PlotterDiffXSSystematic::UpDown PlotterDiffXSSystematic::binUncertaintyOfType(co
 }
 
 
-void PlotterDiffXSSystematic::printAllUncertainties(const std::vector<ErrorMap>& errorMaps)const
+void PlotterDiffXSSystematic::printAllUncertainties(const std::vector<ErrorMap>& errorMaps, const ErrorMap& errorMap_inclusive)const
 {
     if(errorMaps.size()<1) return;
     const ErrorMap& systematicsMap = errorMaps.at(0);
@@ -316,9 +320,13 @@ void PlotterDiffXSSystematic::printAllUncertainties(const std::vector<ErrorMap>&
             downs.push_back(errorMap.at(systematicType).d);
         }
         printf("\t | ");
+        
+        printf("Incl: %.3f (%.3f)", errorMap_inclusive.at(systematicType).u, errorMap_inclusive.at(systematicType).d);
+        printf("\t | ");
+        
         // Sorting the up/down variations to take the median
-        std::sort(ups.begin(), ups.end());
-        std::sort(downs.begin(), downs.end());
+        std::sort(ups.begin(), ups.end(), PlotterDiffXSSystematic::uncertaintySortingFunction);
+        std::sort(downs.begin(), downs.end(), PlotterDiffXSSystematic::uncertaintySortingFunction);
         const int nBins = errorMaps.size();
         const int binMedian = nBins/2;
         printf("Median: %.3f (%.3f)\n", ups.at(binMedian), downs.at(binMedian));
@@ -367,5 +375,9 @@ void PlotterDiffXSSystematic::updateHistoAxis(TPad* pad)const
     
     // Redrawing the axis
     pad->RedrawAxis();
+}
+
+bool PlotterDiffXSSystematic::uncertaintySortingFunction(const double a, const double b) {
+    return (std::fabs(a) < std::fabs(b));
 }
 
