@@ -661,7 +661,17 @@ TH1* PlotterDiffXS::unfoldedHistogram(const std::map<TString, TH1*> m_inputHisto
         // Getting the binning
         const int nBins = m_inputHistos.at("data")->GetNbinsX();
         double bins[nBins+1];
-        for(int iBin=0; iBin<nBins; ++iBin) bins[iBin] = m_inputHistos.at("data")->GetBinLowEdge(iBin+1);
+        for(int iBin=0; iBin<nBins; ++iBin) {
+            bins[iBin] = m_inputHistos.at("data")->GetBinLowEdge(iBin+1);
+            // Ensuring that data always has more entries than background
+            if(m_inputHistos.at("data")->GetBinContent(iBin+1) < m_inputHistos.at("background")->GetBinContent(iBin+1)) {
+                printf("####################### WARNING! More background than data in bin starting from %.2f\n", bins[iBin]);
+                printf("####################### Differential cross-section histogram is reset\n\n");
+                TH1* histo = (TH1*)m_inputHistos.at("data")->Clone("h_data_unfolded");
+                histo->Reset("ICESM");
+                return histo;
+            }
+        }
         bins[nBins] = bins[nBins-1] + m_inputHistos.at("data")->GetBinWidth(nBins);
         double* bins_ptr = bins;
         
@@ -689,6 +699,7 @@ TH1* PlotterDiffXS::unfoldedHistogram(const std::map<TString, TH1*> m_inputHisto
 //                 printf("  (%d,%d):  %.3f \t+/-  %.4f\n", bin1, bin2, h_response->GetBinContent(bin1, bin2), h_response->GetBinError(bin1, bin2));
 //             }
 //         }
+        
         
         mySVDFunctions.SVD_DoUnfold(
             (TH1D*)m_inputHistos.at("data"),
