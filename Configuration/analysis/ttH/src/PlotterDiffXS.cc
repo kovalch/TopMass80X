@@ -586,7 +586,10 @@ std::map<TString, TH1*> PlotterDiffXS::calculateDiffXS(const std::map<TString, T
     }
     // Scaling to the measured inclusive cross section (for shape comparison)
     double normScale = 1.0;
-    if(normalizeMcToData) normScale = common::normalize(h_diffXS_madgraph, xsection_inclusive.v, false);
+    if(normalizeMcToData) {
+        normScale = xsection_inclusive.v/xsection_inclusive_madgraph.v;
+        h_diffXS_madgraph->Scale(normScale);
+    }
     
     // Normalising to unity
     if(normalizeXS_) {
