@@ -59,6 +59,16 @@ logY_(false)
     normalisedSystematicTypes_.push_back(Systematic::btagDiscrLstat1);
     normalisedSystematicTypes_.push_back(Systematic::btagDiscrLstat2);
     normalisedSystematicTypes_.push_back(Systematic::xsec_ttcc);
+    
+    // Setting the list of systematics that should be combined 
+    // Combination types: 0 - in quadrature; 1 - maximum variation;
+    combinedSystematicTypes_[Systematic::btag] = SystematicCombination(0);
+    combinedSystematicTypes_.at(Systematic::btag).addSystematic(Systematic::btagDiscrPurity);
+    combinedSystematicTypes_.at(Systematic::btag).addSystematic(Systematic::btagDiscrBstat1);
+    combinedSystematicTypes_.at(Systematic::btag).addSystematic(Systematic::btagDiscrBstat2);
+    combinedSystematicTypes_.at(Systematic::btag).addSystematic(Systematic::btagDiscrLstat1);
+    combinedSystematicTypes_.at(Systematic::btag).addSystematic(Systematic::btagDiscrLstat2);
+    
 }
 
 
@@ -206,6 +216,13 @@ void PlotterDiffXSSystematic::plotXSection(const Channel::Channel& channel)
     // Getting systematic and statistical variations of the inclusive cross section
     SystematicHistoMap m_systematicHistos_measured_inclusive = readSystematicHistograms(name_+"_xs_inclusive_data", channel);
     const std::vector<ErrorMap> e_measured_inclusive = extractVariations(m_systematicHistos_measured_inclusive);
+    const double xsec_inclusive = m_systematicHistos_measured_inclusive.at(Systematic::nominal).first->GetBinContent(1);
+    const UpDown e_measured_stat_inclusive = binUncertaintyOfType(e_measured_inclusive.at(0), ErrorType::stat);
+    const UpDown e_measured_syst_inclusive = binUncertaintyOfType(e_measured_inclusive.at(0), ErrorType::syst);
+    const UpDown e_measured_total_inclusive = binUncertaintyOfType(e_measured_inclusive.at(0), ErrorType::total);
+    printf("-----------------------------------------------------------------\n");
+    printf("Inclusive xsection: %.3f  +- %.3f (stat)  + %.3f /- %.3f (syst)   [ + %.3f /- %.3f (total)]\n", xsec_inclusive, e_measured_stat_inclusive.u,  e_measured_syst_inclusive.u, e_measured_syst_inclusive.d, e_measured_total_inclusive.u, e_measured_total_inclusive.d);
+    printf("-----------------------------------------------------------------\n");
     
     // Printing the list of uncertainties in each bin and the median
     printAllUncertainties(e_measured, e_measured_inclusive.at(0));
@@ -303,33 +320,92 @@ PlotterDiffXSSystematic::UpDown PlotterDiffXSSystematic::binUncertaintyOfType(co
 }
 
 
+PlotterDiffXSSystematic::ErrorMap PlotterDiffXSSystematic::binUncertaintiesOfType(const ErrorMap& m_errors, const ErrorType type)const
+{
+    ErrorMap errors;
+    // Looping over all available systematics which should not be merged
+    for(auto systematicValuePair : m_errors) {
+        Systematic::Type systematicType = systematicValuePair.first;
+        // Skipping irrelevant variations
+        if(type == ErrorType::stat && systematicType != Systematic::nominal) continue;
+        if(type == ErrorType::syst && systematicType == Systematic::nominal) continue;
+        // Skipping this systematic if it should be combined
+        bool toBeCombined = false;
+        for(auto combinedSystematics : combinedSystematicTypes_) {
+            if(!combinedSystematics.second.hasSystematic(systematicType)) continue;
+            toBeCombined = true;
+            break;
+        }
+        if(toBeCombined) continue;
+        
+        errors[systematicType] = systematicValuePair.second;
+    }
+    // Combining systematics if necessary
+    if(type == ErrorType::syst || type == ErrorType::total) {
+        for(auto systematicCombinationPair : combinedSystematicTypes_) {
+            Systematic::Type combinedSystematic = systematicCombinationPair.first;
+            SystematicCombination systematicsCombination= systematicCombinationPair.second;
+            UpDown combinedError(0., 0.);
+            if(systematicsCombination.type == 0) {
+                // Adding in quadrature
+                for(Systematic::Type systematicType : systematicsCombination.systematics) {
+                    if(m_errors.count(systematicType) < 1) continue;
+                    combinedError.addInQuadrature(m_errors.at(systematicType));
+                }
+                combinedError.sqrt();
+            } else if(systematicsCombination.type == 1) {
+                // Taking the envelope of absolute variations
+                std::vector<double> ups, downs;
+                for(Systematic::Type systematicType : systematicsCombination.systematics) {
+                    if(m_errors.count(systematicType) < 1) continue;
+                    ups.push_back(m_errors.at(systematicType).u);
+                    downs.push_back(m_errors.at(systematicType).d);
+                }
+                // Sorting to have the largest absolute values first
+                std::sort(ups.begin(), ups.end(), uncertaintySortingFunction);
+                std::sort(downs.begin(), downs.end(), uncertaintySortingFunction);
+                if(ups.size() > 0 && downs.size() > 0) combinedError = UpDown(ups.at(0), downs.at(0));
+            }
+            errors[combinedSystematic] = combinedError;
+        }
+    }
+    
+    return errors;
+}
+
+
 void PlotterDiffXSSystematic::printAllUncertainties(const std::vector<ErrorMap>& errorMaps, const ErrorMap& errorMap_inclusive)const
 {
     if(errorMaps.size()<1) return;
     const ErrorMap& systematicsMap = errorMaps.at(0);
+    const int numbersIndentation = 20;
     // Looping over available systematics
     for(auto systematics : systematicsMap) {
         const Systematic::Type systematicType = systematics.first;
         TString systematicName = systematicType == Systematic::nominal ? "STATISTICAL" : Systematic::convertType(systematicType);
+        const int systematicLength = systematicName.Length();
         std::vector<double> ups, downs;
-        printf("%s \t", systematicName.Data());
+        printf("%s", systematicName.Data());
+        for(int iSpace = 0; iSpace < numbersIndentation - systematicLength; ++iSpace) printf(" ");
+        printf("| ");
         // Looping over all bins
         for(auto errorMap : errorMaps) {
-            printf("%.3f (%.3f)\t", errorMap.at(systematicType).u, errorMap.at(systematicType).d);
+            printf("%.3f  ", errorMap.at(systematicType).maxAbsVariation());
             ups.push_back(errorMap.at(systematicType).u);
             downs.push_back(errorMap.at(systematicType).d);
         }
-        printf("\t | ");
-        
-        printf("Incl: %.3f (%.3f)", errorMap_inclusive.at(systematicType).u, errorMap_inclusive.at(systematicType).d);
-        printf("\t | ");
-        
-        // Sorting the up/down variations to take the median
-        std::sort(ups.begin(), ups.end(), PlotterDiffXSSystematic::uncertaintySortingFunction);
-        std::sort(downs.begin(), downs.end(), PlotterDiffXSSystematic::uncertaintySortingFunction);
+        printf(" | ");
+        // Sorting the up/down variations to have the largest absolute values first
+        std::sort(ups.begin(), ups.end(), uncertaintySortingFunction);
+        std::sort(downs.begin(), downs.end(), uncertaintySortingFunction);
         const int nBins = errorMaps.size();
         const int binMedian = nBins/2;
-        printf("Median: %.3f (%.3f)\n", ups.at(binMedian), downs.at(binMedian));
+        printf("Median: %.3f ", std::max(std::fabs(ups.at(binMedian)), std::fabs(downs.at(binMedian))) );
+        printf(" | ");
+        printf("Incl: %.3f\n", errorMap_inclusive.at(systematicType).maxAbsVariation());
+        
+//         printf("-----------------------------------------------------------------\n");
+//         printf("Total: %.3f\t");
     }
 }
 
