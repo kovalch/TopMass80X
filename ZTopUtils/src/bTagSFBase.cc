@@ -170,7 +170,7 @@ float bTagSFBase::getJetDiscrShapeWeight(const float & pt, const float& eta,
 	if (genPartonFlavor == 0)
 		return 1;
 
-	return jetSF(jetFlavor(genPartonFlavor),pt,abs_eta,jetdiscr);
+	return jetSF(jetFlavor(genPartonFlavor),pt,eta,jetdiscr);
 
 }
 
