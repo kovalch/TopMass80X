@@ -51,6 +51,8 @@ void bTagEfficiency::fillEff(const float& pt, const float&eta,
 		return;
 	if(!init_)
 		initHistos();
+	if(genpartflav==0)//protect against data
+		return ;
 	float abs_eta=fabs(eta);
 	BTagEntry::JetFlavor jetflav=jetFlavor(genpartflav);
 	histos_.at(assoFlavorToHist(jetflav,false)).Fill(pt,abs_eta,puweight);
@@ -124,10 +126,8 @@ void  bTagEfficiency::writeToTFile(TFile *f){
 	if(!makeeffs_)
 		return;
 	if(!init_)
-		throw std::logic_error("bTagEfficiency::writeToTFile: trying to write empty efficiencies");
+		initHistos();
 	makeEff();
-
-
 	for(size_t i=0;i<effhistos_.size();i++)
 		f->WriteTObject(&effhistos_.at(i));
 	for(size_t i=0;i<histos_.size();i++)
@@ -137,7 +137,6 @@ void  bTagEfficiency::writeToTFile(TFile *f){
 	for(size_t i=0;i<medians_.size();i++)
 		tmp.SetBinContent(i+1,medians_.at(i));
 	f->WriteTObject(&tmp);
-
 }
 void  bTagEfficiency::readFromTFile(TFile * f){
 	initHistos();
@@ -165,7 +164,6 @@ float bTagEfficiency::produceMedian(TH1 * h1)const{
 	const double* y = h1D->GetArray();
 	// exclude underflow/overflows from bin content array y
 	float median=TMath::Median(nBin, &x[0], &y[1]);
-	std::cout << median << std::endl;
 	return median;
 }
 
@@ -179,6 +177,8 @@ BTagEntry::JetFlavor bTagEfficiency::jetFlavor(const int & partonflavor)const{
 
 
 void bTagEfficiency::initHistos(){
+
+	TH1::AddDirectory(false);
 
 	float effptbins[] = { 20., 50., 70., 100., 160., 210., 800. };
 	unsigned int npt = 7;
