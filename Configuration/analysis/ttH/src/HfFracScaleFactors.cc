@@ -261,7 +261,7 @@ const std::vector<HfFracScaleFactors::ValErr> HfFracScaleFactors::getScaleFactor
     std::vector<TH1*> histosInFile;
     bool sameHistogramsInFile = true;
     for(TString histoName : templateNames_) {
-        TH1* histo = rootFileReader_->GetClone<TH1F>(rootFilePath, histoName, true);
+        TH1* histo = rootFileReader_->GetClone<TH1F>(rootFilePath, histoName, true, false);
         if(!histo) break;
         histosInFile.push_back(histo);
     }
@@ -281,14 +281,20 @@ const std::vector<HfFracScaleFactors::ValErr> HfFracScaleFactors::getScaleFactor
         std::cerr << "Remove the folder: " << workingDirectory_ << " and rerun the tool to create proper templates.\n";
         exit(20);
     }
+    // Checking whether the root-file with fit results exist
+    TString fitFileName = rootFileFolder+histoTemplateName_+step+"/mlfittest.root";
+    bool fitResultsFileExists = rootFileReader_->GetClone<TH1F>(fitFileName, "shapes_fit_b/HF/"+templateNames_.at(0), true, false);
+    
     // Storing input templates to the root file if not there already
-    if(!sameHistogramsInFile || systematic.type() != Systematic::Type::nominal) {
+    if((!sameHistogramsInFile || systematic.type() != Systematic::Type::nominal) && !fitResultsFileExists) {
         TFile* out_root = new TFile(rootFilePath, "UPDATE");
+        bool systematicIsRelevant = false;
         for(size_t iHisto=0; iHisto<histos.size(); ++iHisto) {
             // Converting histogram to TH1F
             TH1F* hF = new TH1F();
             if(histos.at(iHisto)) ((TH1D*)histos.at(iHisto))->Copy(*hF);
             if(systematic.type() == Systematic::Type::nominal) {
+                systematicIsRelevant = true;
                 // Storing Nominal templates with corresponding fit parameters
                 if(iHisto == histos.size()-1) hF->Write("dummy");
                 hF->Write(templateNames_.at(iHisto));
@@ -303,6 +309,7 @@ const std::vector<HfFracScaleFactors::ValErr> HfFracScaleFactors::getScaleFactor
                 // Skipping sample if the current systematic is not enabled for it
                 if(!templateNameHasSystematic(templateNames_.at(iHisto), systematic.type())) continue;
                 // Storing systematic templates for each bin variation and adding as shape nuisance parameters
+                systematicIsRelevant = true;
                 storeSystematicTemplateVariations(hF, systematic, templateNames_.at(iHisto), iHisto);
             }
             delete hF;
@@ -310,19 +317,19 @@ const std::vector<HfFracScaleFactors::ValErr> HfFracScaleFactors::getScaleFactor
         out_root->Close();
         delete out_root;
         
-        // Writing the datacard for the specified histograms
-        TString datacardName(rootFilePath);
-        datacardName.ReplaceAll(".root", ".txt");
-        writeDatacardWithHistos(histos, datacardName, rootFileName, systematic.type());
-        plotInputTemplates(rootFilePath);
+        if(systematicIsRelevant) {
+            // Writing the datacard for the specified histograms
+            TString datacardName(rootFilePath);
+            datacardName.ReplaceAll(".root", ".txt");
+            writeDatacardWithHistos(histos, datacardName, rootFileName, systematic.type());
+            plotInputTemplates(rootFilePath);
+        }
     } else std::cout << "All templates already exist as input for the fit. Nothing overwritten.\n";
     
-    // Opening the root file with the fit results
-    TString fitFileName = rootFileFolder+histoTemplateName_+step+"/mlfittest.root";
     // Reading all fitted templates if available
     std::vector<TH1*> histosInFit(1, histos.at(0));
     for(size_t i = 1; i<templateNames_.size(); ++i) {
-        TH1* histo = rootFileReader_->GetClone<TH1F>(fitFileName, "shapes_fit_b/HF/"+templateNames_.at(i), true);
+        TH1* histo = rootFileReader_->GetClone<TH1F>(fitFileName, "shapes_fit_b/HF/"+templateNames_.at(i), true, false);
         if(!histo) break;
         histosInFit.push_back(histo);
     }

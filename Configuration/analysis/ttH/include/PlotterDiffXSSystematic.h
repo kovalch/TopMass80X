@@ -67,6 +67,29 @@ private:
             u += err.u*err.u;
             d += err.d*err.d;
         }
+        
+        double maxAbsVariation()const {
+            return std::max(std::fabs(u), std::fabs(d));
+        }
+    };
+    
+    // A list of systematic types that should be combined into a single systematic
+    // Combination types: 0 - added in quadrature; 1 - largest absolute variation in each direction;
+    struct SystematicCombination {
+        int type; std::vector<Systematic::Type> systematics;
+        SystematicCombination():type(1.), systematics(0){};
+        SystematicCombination(int combinationType):type(combinationType), systematics(0){};
+        SystematicCombination(int combinationType, Systematic::Type systematicTypes[]):type(combinationType){
+            systematics = std::vector<Systematic::Type>( systematicTypes, systematicTypes + sizeof(systematicTypes) / sizeof(systematicTypes[0]) );
+        };
+        
+        void addSystematic(Systematic::Type systematicType) {
+            systematics.push_back(systematicType);
+        }
+        
+        bool hasSystematic(Systematic::Type systematicType) {
+            return std::find(systematics.begin(), systematics.end(), systematicType) != systematics.end();
+        }
     };
     
     /// List of up/down errors for each uncertainty type
@@ -78,11 +101,17 @@ private:
     /// List of histograms for each systematic
     typedef std::map<Systematic::Type, HistoPair> SystematicHistoMap;
     
+//     /// Pair of systematic type and systematics-combination type
+//     typedef std::pair<Systematic::Type, int> SystematicCombination;
+    
     /// Prepare styling parameters
     void prepareStyle();
     
     /// Read hisotgrams with a particular name from all systematic source files
     SystematicHistoMap readSystematicHistograms(TString histoName, const Channel::Channel& channel)const;
+    
+    /// Get single up/down (1/-1) histogram out of many different PDF variations
+    TH1* getPdfHisto(TString histoName, const Channel::Channel& channel, const int variation)const;
 
     /// Plot different systematic shapes for each process
     std::vector<ErrorMap> extractVariations(const SystematicHistoMap& m_systematicHistos)const;
@@ -99,11 +128,17 @@ private:
     /// Calculates uncertainty of particular type for a single bin
     UpDown binUncertaintyOfType(const ErrorMap& m_errors, const ErrorType type = ErrorType::total)const;
     
+    /// Calculated uncertainties from each type of variation for a single bin
+    ErrorMap binUncertaintiesOfType(const ErrorMap& m_errors, const ErrorType type = ErrorType::total)const;
+    
     /// Print individual uncertainties for each bin and mean uncertainty across all bins
-    void printAllUncertainties(const std::vector<ErrorMap>& errorMaps)const;
+    void printAllUncertainties(const std::vector<ErrorMap>& errorMaps, const ErrorMap& errorMap_inclusive)const;
     
     /// Calculates binomial uncertainty of the subset/set ratio
     double uncertaintyBinomial(const double pass, const double all)const;
+    
+    /// Function for sorting uncertainties that are used to calculate a median: largest absolute values first
+    static bool uncertaintySortingFunction(const double a, const double b);
     
     
 
@@ -127,6 +162,9 @@ private:
     
     /// Vector of process names that should be plotted
     std::vector<Systematic::Type> normalisedSystematicTypes_;
+    
+    /// A pair of [new systematic, combination type] for each systematic that sould be merged with others
+    std::map<Systematic::Type, SystematicCombination> combinedSystematicTypes_;
     
     
     /// Options for the histogram under consideration

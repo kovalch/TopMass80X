@@ -285,6 +285,13 @@ std::vector<Systematic::Systematic> Systematic::allowedSystematicsAnalysis(const
         if(std::find(centralTypes.begin(), centralTypes.end(), type) != centralTypes.end()){
             // Central types need specific treatment using variation numbers, e.g. PDF variations
             // They require detailed specifications at the place where they are used
+            if(type == pdf) {
+                result.push_back(Systematic(type, central, 0));
+                for(int id = 1; id <= 26; ++id) {
+                    result.push_back(Systematic(type, up, id));
+                    result.push_back(Systematic(type, down, id));
+                }
+            } else
             result.push_back(Systematic(type, undefinedVariation));
         }
         else if(std::find(upDownTypes.begin(), upDownTypes.end(), type) != upDownTypes.end()){

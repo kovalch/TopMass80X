@@ -269,7 +269,7 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
     std::map<TString, TH1*> m_inputHistos;
     
     // Create histogram corresponding to the sum of all stacked data histograms
-    std::vector<LegendHistPair> dataHists = legendHistPairsForSamples(sampleTypesData_, v_sampleHistPair_, true);
+    std::vector<LegendHistPair> dataHists = legendHistPairsForSamples(sampleTypesData_, v_sampleHistPair_);
     m_inputHistos["data"] = sumOfHistos(dataHists, "h_data");
     
     // Create histogram corresponding to the sum of all stacked signal histograms
@@ -292,7 +292,6 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
     // Get all signal samples at generator level without sample level weights
     std::vector<LegendHistPair> signalHistsGen_noWeight = legendHistPairsForSamples(sampleTypesSignal_, v_sampleHistPairGen_noWeight_);
     m_inputHistos["signal_gen_noWeight"] = sumOfHistos(signalHistsGen_noWeight, "h_signal_gen_noWeight");
-    printf("Integral gen: %.4f\n", m_inputHistos.at("signal_gen_noWeight")->Integral());
     
     // Get all ttbar dileptonic samples at generator level (to get fraction of ttbb in ttbar from the generator)
     std::vector<LegendHistPair> ttbarHistsGen = legendHistPairsForSamples(sampleTypesTtbar_, v_sampleHistPairGenEventBased_);
@@ -304,9 +303,6 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
     
     // Calculating actual differential cross section and getting corresponding histograms
     std::map<TString, TH1*> m_xs = calculateDiffXS(m_inputHistos, true);
-    
-
-    printf("\n\nXS Data: %.3f    Madgraph: %.3f\n\n", m_xs.at("data")->Integral(), m_xs.at("madgraph")->Integral());
     std::map<TString, TH1*> m_xs_reweighted;
     // Calculating differential cross section again using the reweighted generator MC
     if(hasPseudodata_) {
@@ -315,9 +311,6 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
         m_inputHistos["signal_gen_noWeight"] = sumOfHistos(signalHistsGenReweighted_noWeight, "h_signal_gen_reweighted_noWeight");
         printf("Integral gen reweighted: %.4f\n", m_inputHistos.at("signal_gen_noWeight")->Integral());
         m_xs_reweighted = calculateDiffXS(m_inputHistos, true);
-        // Restoring original names of the histograms
-//         m_inputHistos["signal_gen_reweighted"] = m_inputHistos.at("signal_gen");
-//         m_inputHistos["signal_gen"] = tempHisto;
     }
     
     
@@ -348,7 +341,7 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
         exit(237);
     }
 
-    TLegend* legend = common::createLegend(0.7, 0.6, 1, 2+m_theoryHisto.size(), 0.03);
+    TLegend* legend = common::createLegend(0.7, 0.6, 1, 2+(int)hasPseudodata_+m_theoryHisto.size(), 0.035);
     char legendEntry[100];
     // Add entries to legend
     legend->AddEntry(m_xs.at("data"), "Data","pe");
@@ -379,7 +372,7 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
     m_xs.at("madgraph")->Draw("hist same");
     for(auto nameHisto : m_theoryHisto) nameHisto.second->Draw("hist same");
     if(hasPseudodata_) {
-        sprintf(legendEntry, "Madgraph_{reweighted} x%.2f", norm_scale_mc);
+        sprintf(legendEntry, "Madgraph (reweighted) x%.2f", norm_scale_mc);
         legend->AddEntry(m_xs_reweighted.at("madgraph"), legendEntry,"l");
         // Applying the same scale for reweighted MC shape
         m_xs_reweighted.at("madgraph")->Scale(norm_scale_mc);
@@ -394,21 +387,18 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
     // Put additional stuff to histogram
     common::drawCmsLabels(0, 8, samples_.luminosityInInversePb()/1000.);
     legend->Draw("same");
-    common::drawRatioPad(canvas, 0.0, 3.0, "#frac{MC}{Data}");
+    common::drawRatioPad(canvas, 0., 2.4, "#frac{MC}{Data}");
     
     // Plotting the statistics band of the Data
     TH1* h_ratioData_statBand = common::ratioHistogram(m_xs.at("data"), m_xs.at("data"), 1);
-    common::setHistoStyle(h_ratioData_statBand, 1,1,1, 0,0,0, 1001,18);
+    common::setHistoStyle(h_ratioData_statBand, 1,1,1, 0,0,0, 3354,13);
     h_ratioData_statBand->Draw("same E2");
-    h_ratioData_statBand->Draw("L same");
+//     h_ratioData_statBand->Draw("L same");
     
     TH1* h_ratioMadgraphData = common::ratioHistogram(m_xs.at("madgraph"), m_xs.at("data"));
     if(hasPseudodata_) {
-        TH1* h_ratioData_error = common::ratioHistogram(m_xs.at("data"), m_xs.at("data"));
-        common::setHistoStyle(h_ratioData_error, 0,0,0, 0,0,0, 3013,14);
-        h_ratioData_error->Draw("same E2");
         common::setHistoStyle(h_ratioMadgraphData, 1,2,1, 0,2,1.5, 0,0);
-        TH1* h_ratioMadgraphData_reweighted = common::ratioHistogram(m_xs.at("madgraph"), m_xs_reweighted.at("data"));
+        TH1* h_ratioMadgraphData_reweighted = common::ratioHistogram(m_xs_reweighted.at("madgraph"), m_xs.at("data"));
         common::setHistoStyle(h_ratioMadgraphData_reweighted, 7,kAzure+2,1, 0,2,1.5, 0,0);
         h_ratioMadgraphData->Draw("hist same");
         h_ratioMadgraphData_reweighted->Draw("hist same");
@@ -532,7 +522,7 @@ std::map<TString, TH1*> PlotterDiffXS::calculateDiffXS(const std::map<TString, T
     printf("ttbb/tt: \t%.3f \t+- %.2f\n\n", ttbbFraction_Madgraph.v, ttbbFraction_Madgraph.e);
     
     printf("Luminosity: \t%.3f \t+- %.2f\n", luminosity.v, luminosity.e);
-    printf("BR(tt->ll): \t%.3f \t+- %.2f\n\n", br_dilepton.v, br_dilepton.e);
+//     printf("BR(tt->ll): \t%.3f \t+- %.2f\n\n", br_dilepton.v, br_dilepton.e);
     
     ValueError xsection_inclusive;
     xsection_inclusive.v = N_dataMinusBackground.v / (luminosity.v * N_signal_reco.v / N_signal_gen.v);
@@ -545,9 +535,9 @@ std::map<TString, TH1*> PlotterDiffXS::calculateDiffXS(const std::map<TString, T
     xsection_inclusive_madgraph.e = xsection_tt_dilepton.e * N_signal_gen_noWeight.v / N_ttbar_gen_events.v;
     
     printf("###############################\n");
-    printf("Inclusive x-section(data):     \t%.3f \t+- %.2f\n", xsection_inclusive.v, xsection_inclusive.e);
-    printf("Inclusive x-section(mc):     \t%.3f \t+- %.2f\n", xsection_inclusive_mc.v, xsection_inclusive_mc.e);
-    printf("Inclusive x-section(Madgraph): \t%.3f \t+- %.2f\n\n", xsection_inclusive_madgraph.v, xsection_inclusive_madgraph.e);
+    printf("Inclusive x-section (Data):   \t%.3f \t+- %.3f\n", xsection_inclusive.v, xsection_inclusive.e);
+    printf("Inclusive x-section (MC reco):\t%.3f \t+- %.3f\n", xsection_inclusive_mc.v, xsection_inclusive_mc.e);
+    printf("Inclusive x-section (MC gen): \t%.3f \t+- %.3f\n\n", xsection_inclusive_madgraph.v, xsection_inclusive_madgraph.e);
     
     // Creating histograms with a single bin for inclusive cross sections
     TH1* h_incXS_data = new TH1D("h_incXS_data", ";Data;#sigma_{inclusive}", 1, 0, 1);
@@ -578,12 +568,6 @@ std::map<TString, TH1*> PlotterDiffXS::calculateDiffXS(const std::map<TString, T
         h_diffXS_data->SetBinError(iBin, xsection.e);
     }
     
-    printf("\nBins of the unfolded cross section histogram (before Norm to bin width):\n");
-    for(int iBin = 0; iBin <= h_diffXS_data->GetNbinsX()+1; ++iBin) {
-        printf("  %d. %.2f  \t+-  %.3f\n", iBin, h_diffXS_data->GetBinContent(iBin), h_diffXS_data->GetBinError(iBin));
-    }
-    printf("Integral: %.3f\n", h_diffXS_data->Integral());
-    
     // Calculating the cross section from MC
     TH1* h_diffXS_madgraph = (TH1*)h_data->Clone("h_diffXS_madgraph");
     for(int iBin = 0; iBin <= nBins+1; ++iBin) {
@@ -600,19 +584,12 @@ std::map<TString, TH1*> PlotterDiffXS::calculateDiffXS(const std::map<TString, T
         h_diffXS_madgraph->SetBinContent(iBin, xsection.v);
         h_diffXS_madgraph->SetBinError(iBin, xsection.e);
     }
-    printf("\n\nNormalizing integral %.3f  to inclusive XS: %.3f\n\n", h_diffXS_madgraph->Integral(), xsection_inclusive.v);
-    for(int iBin=0; iBin<=h_diffXS_madgraph->GetNbinsX()+1; ++iBin) printf("  %d. %.3f\n", iBin, h_diffXS_madgraph->GetBinContent(iBin));
     // Scaling to the measured inclusive cross section (for shape comparison)
     double normScale = 1.0;
-    if(normalizeMcToData) normScale = common::normalize(h_diffXS_madgraph, xsection_inclusive.v, false);
-    
-    printf("\nBins of the Madgraph cross section histogram normalised to inclusive XS (before Norm to bin width):\n");
-    for(int iBin = 0; iBin <= h_diffXS_madgraph->GetNbinsX()+1; ++iBin) {
-        printf("  %d. %.2f  \t+-  %.3f\n", iBin, h_diffXS_madgraph->GetBinContent(iBin), h_diffXS_madgraph->GetBinError(iBin));
+    if(normalizeMcToData) {
+        normScale = xsection_inclusive.v/xsection_inclusive_madgraph.v;
+        h_diffXS_madgraph->Scale(normScale);
     }
-    printf("Integral: %.3f\n", h_diffXS_madgraph->Integral());
-    printf("----------------------------------\n");
-    printf("data/madgraph: %.3f\n\n", h_diffXS_data->Integral()/h_diffXS_madgraph->Integral());
     
     // Normalising to unity
     if(normalizeXS_) {
@@ -629,7 +606,7 @@ std::map<TString, TH1*> PlotterDiffXS::calculateDiffXS(const std::map<TString, T
     h_diffXS_madgraph->SetBinContent(0, normScale);
     
     // Blinding the Mjj data histogram
-    if(name_.Contains("Mjj")) {
+    if(name_.Contains("Mjj") && !hasPseudodata_) {
         h_diffXS_data->SetBinContent(3, 1e-10);
         h_diffXS_data->SetBinError(3, 0);
     }
@@ -684,7 +661,17 @@ TH1* PlotterDiffXS::unfoldedHistogram(const std::map<TString, TH1*> m_inputHisto
         // Getting the binning
         const int nBins = m_inputHistos.at("data")->GetNbinsX();
         double bins[nBins+1];
-        for(int iBin=0; iBin<nBins; ++iBin) bins[iBin] = m_inputHistos.at("data")->GetBinLowEdge(iBin+1);
+        for(int iBin=0; iBin<nBins; ++iBin) {
+            bins[iBin] = m_inputHistos.at("data")->GetBinLowEdge(iBin+1);
+            // Ensuring that data always has more entries than background
+            if(m_inputHistos.at("data")->GetBinContent(iBin+1) < m_inputHistos.at("background")->GetBinContent(iBin+1)) {
+                printf("####################### WARNING! More background than data in bin starting from %.2f\n", bins[iBin]);
+                printf("####################### Differential cross-section histogram is reset\n\n");
+                TH1* histo = (TH1*)m_inputHistos.at("data")->Clone("h_data_unfolded");
+                histo->Reset("ICESM");
+                return histo;
+            }
+        }
         bins[nBins] = bins[nBins-1] + m_inputHistos.at("data")->GetBinWidth(nBins);
         double* bins_ptr = bins;
         
@@ -712,6 +699,7 @@ TH1* PlotterDiffXS::unfoldedHistogram(const std::map<TString, TH1*> m_inputHisto
 //                 printf("  (%d,%d):  %.3f \t+/-  %.4f\n", bin1, bin2, h_response->GetBinContent(bin1, bin2), h_response->GetBinError(bin1, bin2));
 //             }
 //         }
+        
         
         mySVDFunctions.SVD_DoUnfold(
             (TH1D*)m_inputHistos.at("data"),

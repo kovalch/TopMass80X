@@ -37,30 +37,29 @@ void HistoSystematic(const std::vector<std::string>& v_plot,
     for(Channel::Channel channel : v_channel) {
         const TString name_channel = Channel::convert(channel);
         for(Systematic::Systematic systematic : v_systematic) {
-            const TString name_systematic = Systematic::convertType(systematic.type());
-            for(Systematic::Variation variation : v_variation) {
-                TString name_variation = Systematic::convertVariation(variation);
-                // Changing the name for systematics that don't have variations
-                if(std::find(Systematic::upDownTypes.begin(), Systematic::upDownTypes.end(), systematic.type()) == Systematic::upDownTypes.end()) {
-                    name_variation = "";
-                }
-                const TString inputFileListName = fileList_base+"/"+"HistoFileList_"+name_systematic+name_variation+"_"+name_channel+".txt";
-                std::ifstream file(inputFileListName.Data());
-                if(!file) {
-                    std::cerr << "### File list not found: " << inputFileListName << " Breaking...\n\n";
-                    exit(1);
-                }
-                // Reading each line of the file corresponding to a separate histogram
-                std::string line_;
-                while(std::getline(file, line_)) {
-                    TString fileName(line_);
-                    // Extracting the histogram name
-                    TString histoName(fileName);
-                    histoName.Replace(0, histoName.Last('/')+1, "");
-                    histoName.Resize(histoName.Last('_'));
-                    
-                    if(variation == Systematic::Variation::up) m_inputRootFileNames[channel][systematic][histoName].first = fileName;
-                    else if(variation == Systematic::Variation::down) m_inputRootFileNames[channel][systematic][histoName].second = fileName;
+            Systematic::Variation variation = systematic.variation();
+            // Constructing a neutral systematic for which two variations wil be stored
+            Systematic::Systematic systematicToStore = Systematic::Systematic(systematic.type(), Systematic::undefinedVariation, systematic.variationNumber());
+            const TString inputFileListName = fileList_base+"/"+"HistoFileList_"+systematic.name()+"_"+name_channel+".txt";
+            std::ifstream file(inputFileListName.Data());
+            if(!file) {
+                std::cerr << "### File list not found: " << inputFileListName << " Breaking...\n\n";
+                exit(1);
+            }
+            // Reading each line of the file corresponding to a separate histogram
+            std::string line_;
+            while(std::getline(file, line_)) {
+                TString fileName(line_);
+                // Extracting the histogram name
+                TString histoName(fileName);
+                histoName.Replace(0, histoName.Last('/')+1, "");
+                histoName.Resize(histoName.Last('_'));
+                
+                if(variation == Systematic::Variation::up) m_inputRootFileNames[channel][systematicToStore][histoName].first = fileName;
+                else if(variation == Systematic::Variation::down) m_inputRootFileNames[channel][systematicToStore][histoName].second = fileName;
+                else {
+                    m_inputRootFileNames[channel][systematicToStore][histoName].first = fileName;
+                    m_inputRootFileNames[channel][systematicToStore][histoName].second = fileName;
                 }
             }
         }
@@ -135,7 +134,11 @@ namespace Systematic{
         xsec_tt2b, xsec_ttcc,
         
         topPt,
-        pdf
+        pdf,
+        mass, match, 
+//         scale,
+        powheg, 
+//         powhegHerwig, mcatnlo
     };
 }
 
