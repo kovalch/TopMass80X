@@ -844,9 +844,9 @@ TGraphAsymmErrors* common::ratioGraph(const TGraphAsymmErrors* g_nominator, cons
 }
 
 
-double common::normalize(TH1* histo, const double normalization, const bool includeOutsideBins)
+double common::normalize(TH1* histo, const double normalization, const bool includeOutsideBins, const TString& option)
 {
-    const double integral = includeOutsideBins ? histo->Integral(0, -1) : histo->Integral();
+    const double integral = includeOutsideBins ? histo->Integral(0, -1, option) : histo->Integral(option);
     const double normalizationFactor = normalization / integral;
     histo->Scale(normalizationFactor);
     

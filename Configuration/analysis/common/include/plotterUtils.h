@@ -68,7 +68,7 @@ namespace common{
     TGraphAsymmErrors* ratioGraph(const TGraphAsymmErrors* g_nominator, const TGraphAsymmErrors* g_denominator, const int errorType = 1);
     
     /// Normalising histogram/graph
-    double normalize ( TH1* histo, const double normalization = 1.0, const bool includeOutsideBins = false);
+    double normalize ( TH1* histo, const double normalization = 1.0, const bool includeOutsideBins = false, const TString& option = "");
     double normalize ( TGraph* graph, const double normalization = 1.0);
     
     /// Divide each bin by the its width
