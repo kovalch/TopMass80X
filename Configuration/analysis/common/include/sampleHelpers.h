@@ -41,11 +41,14 @@ namespace Systematic{
         btagBeff,           // scale the b-tagging efficiencies as estimated from MC for b-jets for stat. uncertainty (not applied anywhere, should it be removed?)
         btagCeff,           // scale the b-tagging efficiencies as estimated from MC for c-jets for stat. uncertainty (not applied anywhere, should it be removed?)
         btagLeff,           // scale the b-tagging efficiencies as estimated from MC for l-jets for stat. uncertainty (not applied anywhere, should it be removed?)
-        btagDiscrPurity,    // for b-tag discriminator reweighting: purity of the opposite flavour sample that is subtracted
+        btagDiscrBpurity,   // for b-tag discriminator reweighting: purity of the HF sample used for the LF SF determination
+        btagDiscrLpurity,   // for b-tag discriminator reweighting: purity of the LF sample used for the HF SF determination
         btagDiscrBstat1,    // for b-tag discriminator reweighting: scale part 1 of the statistical uncertainty for b-jets
         btagDiscrBstat2,    // for b-tag discriminator reweighting: scale part 2 of the statistical uncertainty for b-jets
         btagDiscrLstat1,    // for b-tag discriminator reweighting: scale part 1 of the statistical uncertainty for l-jets
         btagDiscrLstat2,    // for b-tag discriminator reweighting: scale part 2 of the statistical uncertainty for l-jets
+        btagDiscrCerr1,     // for b-tag discriminator reweighting: scale part 1 of the total uncertainty for c-jets
+        btagDiscrCerr2,     // for b-tag discriminator reweighting: scale part 2 of the total uncertainty for c-jets
         jer,                // scale jet energy resolution scale factors
         jes,                // scale jet energy scale scale factors
         frac_tthf,          // correction factor for the fraction of tt+HF events from the template fit
@@ -124,7 +127,8 @@ namespace Systematic{
         btagBeff, btagCeff, btagLeff,
         btagDiscrBstat1, btagDiscrBstat2,
         btagDiscrLstat1, btagDiscrLstat2,
-        btagDiscrPurity,
+        btagDiscrBpurity, btagDiscrLpurity,
+        btagDiscrCerr1, btagDiscrCerr2,
         jer, jes,
         frac_tthf, frac_ttother,
         lumi,
@@ -156,7 +160,8 @@ namespace Systematic{
         btagBeff, btagCeff, btagLeff,
         btagDiscrBstat1, btagDiscrBstat2,
         btagDiscrLstat1, btagDiscrLstat2,
-        btagDiscrPurity,
+        btagDiscrBpurity, btagDiscrLpurity,
+        btagDiscrCerr1, btagDiscrCerr2,
     };
     
     /// Define b-tag systematics, valid for b-tag corrections concerning discriminator reweighting
@@ -164,7 +169,8 @@ namespace Systematic{
         btag, btagLjet,
         btagDiscrBstat1, btagDiscrBstat2,
         btagDiscrLstat1, btagDiscrLstat2,
-        btagDiscrPurity,
+        btagDiscrBpurity, btagDiscrLpurity,
+        btagDiscrCerr1, btagDiscrCerr2,
     };
     
     /// Define b-tag systematics, valid for b-tag corrections concerning efficiency

@@ -92,11 +92,14 @@ public:
         // uncertainties on the discriminator shape reweighting
         // https://twiki.cern.ch/twiki/bin/viewauth/CMS/BTagShapeCalibration#Example_code
         jesup,jesdown,  //yes correlated to "standard jes"
-        purityup,puritydown,
+        hfpurityup,hfpuritydown,
+        lfpurityup,lfpuritydown,
         hfstat1up,hfstat1down,
         hfstat2up,hfstat2down,
         lfstat1up,lfstat1down,
         lfstat2up,lfstat2down,
+        cerr1up, cerr1down,
+        cerr2up, cerr2down,
 
         // leave this as last entry
         length_syst

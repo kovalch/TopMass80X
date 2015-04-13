@@ -527,9 +527,21 @@ void BtagScaleFactors::btagSystematic(const Systematic::Systematic& systematic)
         if(systematic.variation() == Systematic::up) systematicInternal = lfstat2up;
         else if(systematic.variation() == Systematic::down) systematicInternal = lfstat2down;
     }
-    else if(systematic.type() == Systematic::btagDiscrPurity){
-        if(systematic.variation() == Systematic::up) systematicInternal = purityup;
-        else if(systematic.variation() == Systematic::down) systematicInternal = puritydown;
+    else if(systematic.type() == Systematic::btagDiscrCerr1){
+        if(systematic.variation() == Systematic::up) systematicInternal = cerr1up;
+        else if(systematic.variation() == Systematic::down) systematicInternal = cerr1down;
+    }
+    else if(systematic.type() == Systematic::btagDiscrCerr2){
+        if(systematic.variation() == Systematic::up) systematicInternal = cerr2up;
+        else if(systematic.variation() == Systematic::down) systematicInternal = cerr2down;
+    }
+    else if(systematic.type() == Systematic::btagDiscrBpurity){
+        if(systematic.variation() == Systematic::up) systematicInternal = hfpurityup;
+        else if(systematic.variation() == Systematic::down) systematicInternal = hfpuritydown;
+    }
+    else if(systematic.type() == Systematic::btagDiscrLpurity){
+        if(systematic.variation() == Systematic::up) systematicInternal = lfpurityup;
+        else if(systematic.variation() == Systematic::down) systematicInternal = lfpuritydown;
     }
     else if(systematic.type() == Systematic::jes){
         // This variation covers the with JES correlated uncertainty, only needed for discriminator reweighting

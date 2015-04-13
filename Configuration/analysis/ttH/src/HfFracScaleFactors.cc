@@ -79,17 +79,23 @@ scaleFactorsUsable_(true)
     // Setting up systematics to be used for each template
     templateSystematics_["ttHF"] = std::vector<Systematic::Type>(0);
     templateSystematics_.at("ttHF").push_back(Systematic::jes);
-    templateSystematics_.at("ttHF").push_back(Systematic::btagDiscrPurity);
+    templateSystematics_.at("ttHF").push_back(Systematic::btagDiscrBpurity);
+    templateSystematics_.at("ttHF").push_back(Systematic::btagDiscrLpurity);
     templateSystematics_.at("ttHF").push_back(Systematic::btagDiscrBstat1);
     templateSystematics_.at("ttHF").push_back(Systematic::btagDiscrBstat2);
+    templateSystematics_.at("ttHF").push_back(Systematic::btagDiscrCerr1);
+    templateSystematics_.at("ttHF").push_back(Systematic::btagDiscrCerr2);
     
     templateSystematics_["ttOther"] = std::vector<Systematic::Type>(0);
     templateSystematics_.at("ttOther").push_back(Systematic::jes);
-    templateSystematics_.at("ttOther").push_back(Systematic::btagDiscrPurity);
+    templateSystematics_.at("ttOther").push_back(Systematic::btagDiscrBpurity);
+    templateSystematics_.at("ttOther").push_back(Systematic::btagDiscrLpurity);
     templateSystematics_.at("ttOther").push_back(Systematic::btagDiscrBstat1);
     templateSystematics_.at("ttOther").push_back(Systematic::btagDiscrBstat2);
     templateSystematics_.at("ttOther").push_back(Systematic::btagDiscrLstat1);
     templateSystematics_.at("ttOther").push_back(Systematic::btagDiscrLstat2);
+    templateSystematics_.at("ttOther").push_back(Systematic::btagDiscrCerr1);
+    templateSystematics_.at("ttOther").push_back(Systematic::btagDiscrCerr2);
     templateSystematics_.at("ttOther").push_back(Systematic::xsec_ttcc);
     
     templateSystematics_["bkg_fixed"] = std::vector<Systematic::Type>(0);
@@ -240,7 +246,12 @@ const std::vector<HfFracScaleFactors::ValErr> HfFracScaleFactors::getScaleFactor
         exit(17);
     }
     // Initialisation of standard scale factor values
-    std::vector<HfFracScaleFactors::ValErr> result(histos.size(), HfFracScaleFactors::ValErr(1., 1.));
+    std::vector<HfFracScaleFactors::ValErr> result(histos.size(), HfFracScaleFactors::ValErr(1., 0.));
+    
+    // No scale factor for ttbar theory systematics
+    if(std::find(Systematic::ttbarTypes.begin(), Systematic::ttbarTypes.end(), systematic.type()) != Systematic::ttbarTypes.end()) {
+        return result;
+    }
     
     // Rebinning the histograms to have no empty bins
     Double_t bins[6] = {1.0, 2.0, 3.0, 4., 5., 6.};      // btag multiplicity
@@ -582,25 +593,29 @@ int HfFracScaleFactors::storeSystematicTemplateVariations(const TH1* histo_syste
     
     TString systematicName = Systematic::convertType(systematic.type());
     // Determining the proper histogram name for the shape nuisance parameter in the datacard
-    TString dirStr;
+    std::vector<TString> dirStrings;
     if(systematic.variation() == Systematic::Variation::up) {
-        dirStr = "Up";
+        dirStrings.push_back("Up");
     } else if(systematic.variation() == Systematic::Variation::down) {
-        dirStr = "Down";
+        dirStrings.push_back("Down");
     } else {
-        std::cout << "Specified systematic variation is neither UP nor DOWN: " << systematicName << std::endl;
-        exit(12);
+        // Central type systematics are stored twice as up and down variations
+        dirStrings.push_back("Up");
+        dirStrings.push_back("Down");
     }
     // Removing UP/DOWN parts of the name
     systematicName.ReplaceAll(Systematic::convertVariation(systematic.variation()), "");
-    char histoName[150];
     char dataCardName[150];
-    sprintf(histoName, "%s_%s%s", name.Data(), systematicName.Data(), dirStr.Data());
     sprintf(dataCardName, "%s", systematicName.Data());
-    histo_systematic->Write(histoName, TObject::kOverwrite);
-    nHistosStored++;
+    // Writing the variation to the root file
+    for(TString dirStr : dirStrings) {
+        char histoName[150];
+        sprintf(histoName, "%s_%s%s", name.Data(), systematicName.Data(), dirStr.Data());
+        histo_systematic->Write(histoName, TObject::kOverwrite);
+        nHistosStored++;
+    }
     // Adding the proper name to the datacard
-    if(templateVariationNameId_.count(dataCardName) < 1 && systematic.variation() == Systematic::Variation::up) {
+    if(templateVariationNameId_.count(dataCardName) < 1 && systematic.variation() != Systematic::Variation::down) {
         templateVariationNameId_[dataCardName] = templateId;
     }
     
