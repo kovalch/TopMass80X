@@ -111,7 +111,8 @@ private:
     SystematicHistoMap readSystematicHistograms(TString histoName, const Channel::Channel& channel)const;
     
     /// Get single up/down (1/-1) histogram out of many different PDF variations
-    TH1* getPdfHisto(TString histoName, const Channel::Channel& channel, const int variation)const;
+    /// Combination type: 0 - largest variation of inclusive xsection; 1 - independent largest variation in each bin;
+    TH1* getPdfHisto(TString histoName, const Channel::Channel& channel, const int variation, const int combinationType = 0)const;
 
     /// Plot different systematic shapes for each process
     std::vector<ErrorMap> extractVariations(const SystematicHistoMap& m_systematicHistos)const;

@@ -50,10 +50,10 @@ logY_(false)
 {
     // Suppress default info that canvas is printed
     gErrorIgnoreLevel = 1001;
+    TH1::AddDirectory(false);
     
     // Setting the list of systematics that are included in the tt+HF template fit (only their shape variations are taken into account)
     normalisedSystematicTypes_.push_back(Systematic::jes);
-    normalisedSystematicTypes_.push_back(Systematic::btagDiscrPurity);
     normalisedSystematicTypes_.push_back(Systematic::btagDiscrBstat1);
     normalisedSystematicTypes_.push_back(Systematic::btagDiscrBstat2);
     normalisedSystematicTypes_.push_back(Systematic::btagDiscrLstat1);
@@ -63,7 +63,6 @@ logY_(false)
     // Setting the list of systematics that should be combined 
     // Combination types: 0 - in quadrature; 1 - maximum variation;
     combinedSystematicTypes_[Systematic::btag] = SystematicCombination(0);
-    combinedSystematicTypes_.at(Systematic::btag).addSystematic(Systematic::btagDiscrPurity);
     combinedSystematicTypes_.at(Systematic::btag).addSystematic(Systematic::btagDiscrBstat1);
     combinedSystematicTypes_.at(Systematic::btag).addSystematic(Systematic::btagDiscrBstat2);
     combinedSystematicTypes_.at(Systematic::btag).addSystematic(Systematic::btagDiscrLstat1);
@@ -137,8 +136,8 @@ PlotterDiffXSSystematic::SystematicHistoMap PlotterDiffXSSystematic::readSystema
     }
     
     // Getting two up/down histograms out of 53 PDF variations
-    TH1* histoUp_pdf = getPdfHisto(histoName, channel, 1);
-    TH1* histoDown_pdf = getPdfHisto(histoName, channel, -1);
+    TH1* histoUp_pdf = getPdfHisto(histoName, channel, 1, 0);
+    TH1* histoDown_pdf = getPdfHisto(histoName, channel, -1, 0);
     if(histoUp_pdf && histoDown_pdf) m_systematicHistos[Systematic::pdf] = HistoPair(histoUp_pdf, histoDown_pdf);
     
     
@@ -146,7 +145,7 @@ PlotterDiffXSSystematic::SystematicHistoMap PlotterDiffXSSystematic::readSystema
 }
 
 
-TH1* PlotterDiffXSSystematic::getPdfHisto(TString histoName, const Channel::Channel& channel, const int variation)const
+TH1* PlotterDiffXSSystematic::getPdfHisto(TString histoName, const Channel::Channel& channel, const int variation, const int combinationType)const
 {
     TH1* h_nominal(0);
     TH1* h_central(0);
@@ -159,8 +158,9 @@ TH1* PlotterDiffXSSystematic::getPdfHisto(TString histoName, const Channel::Chan
         // Skipping non-PDF variations
         if(systematic.type() != Systematic::pdf) continue;
         // Getting central PDF variation
-        if(systematic.variation() != Systematic::Variation::central) continue;
+        if(systematic.variationNumber() != 0) continue;
         h_central = fileReader_->GetClone<TH1>(upDownFile.first, histoName, true, false);
+        break;
     }
     if(!h_nominal || !h_central) return 0;
     
@@ -174,18 +174,33 @@ TH1* PlotterDiffXSSystematic::getPdfHisto(TString histoName, const Channel::Chan
        // Skipping non-PDF variations
         if(systematic.type() != Systematic::pdf) continue;
         // Skipping central PDF variation
-        if(systematic.variation() == Systematic::Variation::central) continue;
+        if(systematic.variationNumber() == 0) continue;
         TH1* h_up = fileReader_->GetClone<TH1>(upDownFile.first, histoName, true, false);
         TH1* h_down = fileReader_->GetClone<TH1>(upDownFile.second, histoName, true, false);
-        // Updating every bin of the corresponding histogram if it goes in the proper direction 
-        for(int iBin = 1; iBin <= nBins; ++iBin) {
-            const double up = h_up->GetBinContent(iBin);
-            const double down = h_down->GetBinContent(iBin);
-            const double mostVaried = variation > 0 ? std::max(up, down) : std::min(up, down);
-            const double lastVaried = h_varied->GetBinContent(iBin);
-            const double newContent = variation > 0 ? std::max(lastVaried, mostVaried) : std::min(lastVaried, mostVaried);
-            
-            h_varied->SetBinContent(iBin, newContent);
+        
+        if(combinationType == 1) {
+            // Updating every bin of the corresponding histogram if it goes in the proper direction 
+            for(int iBin = 1; iBin <= nBins; ++iBin) {
+                const double up = h_up->GetBinContent(iBin);
+                const double down = h_down->GetBinContent(iBin);
+                const double mostVaried = variation > 0 ? std::max(up, down) : std::min(up, down);
+                const double lastVaried = h_varied->GetBinContent(iBin);
+                const double newContent = variation > 0 ? std::max(lastVaried, mostVaried) : std::min(lastVaried, mostVaried);
+                
+                h_varied->SetBinContent(iBin, newContent);
+            }
+        } else if(combinationType == 0) {
+            const double upIntegral = h_up->Integral("width");
+            const double downIntegral = h_down->Integral("width");
+            TH1* h_mostVaried(0);
+            if(variation > 0) {
+                h_mostVaried = upIntegral > downIntegral ? h_up : h_down;
+            } else {
+                h_mostVaried = upIntegral < downIntegral ? h_up : h_down;
+            }
+            printf("Variation: %d \tup: %.4f  down: %.4f  last: %.4f  most: %.4f  num: %d\n", variation, upIntegral, downIntegral, h_varied->Integral("width"), h_mostVaried->Integral("width"), systematic.variationNumber());
+            if(variation > 0 && h_mostVaried->Integral("width") > h_varied->Integral("width")) h_varied = h_mostVaried;
+            else if(variation < 0 && h_mostVaried->Integral("width") < h_varied->Integral("width")) h_varied = h_mostVaried;
         }
     }
     // Applying the difference from Central to the Nominal
@@ -193,8 +208,9 @@ TH1* PlotterDiffXSSystematic::getPdfHisto(TString histoName, const Channel::Chan
 	const double factor = h_varied->GetBinContent(iBin)/h_central->GetBinContent(iBin);
 	h_nominal->SetBinContent(iBin, factor*h_nominal->GetBinContent(iBin));
     }
-
     
+    delete h_varied;
+    delete h_central;
     return h_nominal;
 }
 
@@ -254,6 +270,10 @@ std::vector<PlotterDiffXSSystematic::ErrorMap> PlotterDiffXSSystematic::extractV
 
 void PlotterDiffXSSystematic::plotXSection(const Channel::Channel& channel)
 {
+    if(inputFileLists_.at(channel).at(Systematic::nominalSystematic()).count(name_) < 1) {
+        std::cerr << "  ERROR!!! No nominal histogram for " << name_ << std::endl;
+        return;
+    }
     TString fileName_nominal = inputFileLists_.at(channel).at(Systematic::nominalSystematic()).at(name_).first;
     // Getting histograms of the measured cross section for all systematic variations
     SystematicHistoMap m_systematicHistos_measured = readSystematicHistograms(name_+"_xs_data", channel);
