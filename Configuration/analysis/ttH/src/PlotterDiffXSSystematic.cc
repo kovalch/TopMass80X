@@ -114,8 +114,11 @@ PlotterDiffXSSystematic::SystematicHistoMap PlotterDiffXSSystematic::readSystema
         return m_systematicHistos;
     }
     
+    // Getting up/down histograms for each systematic
     for(auto systematicCollection : inputFileLists_.at(channel)) {
         Systematic::Systematic systematic = systematicCollection.first;
+        // Skipping PDF variations (need special treatment: later in the code)
+        if(systematic.type() == Systematic::pdf) continue;
         if(systematicCollection.second.count(name_) < 1) {
             printf("### Warning! No file (%s) for %s : %s\n\n", name_.Data(), Systematic::convertType(systematic.type()).Data(), Channel::convert(channel).Data());
             continue;
@@ -133,7 +136,66 @@ PlotterDiffXSSystematic::SystematicHistoMap PlotterDiffXSSystematic::readSystema
         m_systematicHistos[systematic.type()] = pair;
     }
     
+    // Getting two up/down histograms out of 53 PDF variations
+    TH1* histoUp_pdf = getPdfHisto(histoName, channel, 1);
+    TH1* histoDown_pdf = getPdfHisto(histoName, channel, -1);
+    if(histoUp_pdf && histoDown_pdf) m_systematicHistos[Systematic::pdf] = HistoPair(histoUp_pdf, histoDown_pdf);
+    
+    
     return m_systematicHistos;
+}
+
+
+TH1* PlotterDiffXSSystematic::getPdfHisto(TString histoName, const Channel::Channel& channel, const int variation)const
+{
+    TH1* h_nominal(0);
+    TH1* h_central(0);
+    // Getting the Nominal and Central PDF histograms
+    for(auto systematicCollection : inputFileLists_.at(channel)) {
+        Systematic::Systematic systematic = systematicCollection.first;
+        std::pair<TString, TString> upDownFile = systematicCollection.second.at(name_);
+        // Getting true nominal
+        if(systematic.type() == Systematic::nominal) h_nominal = fileReader_->GetClone<TH1>(upDownFile.first, histoName, true, false);
+        // Skipping non-PDF variations
+        if(systematic.type() != Systematic::pdf) continue;
+        // Getting central PDF variation
+        if(systematic.variation() != Systematic::Variation::central) continue;
+        h_central = fileReader_->GetClone<TH1>(upDownFile.first, histoName, true, false);
+    }
+    if(!h_nominal || !h_central) return 0;
+    
+    const int nBins = h_nominal->GetNbinsX();
+    TH1* h_varied = (TH1*)h_central->Clone("h_pdf_varied");
+    
+    // Reading every PDF variation and comparing to the Central
+    for(auto systematicCollection : inputFileLists_.at(channel)) {
+        Systematic::Systematic systematic = systematicCollection.first;
+        std::pair<TString, TString> upDownFile = systematicCollection.second.at(name_);
+       // Skipping non-PDF variations
+        if(systematic.type() != Systematic::pdf) continue;
+        // Skipping central PDF variation
+        if(systematic.variation() == Systematic::Variation::central) continue;
+        TH1* h_up = fileReader_->GetClone<TH1>(upDownFile.first, histoName, true, false);
+        TH1* h_down = fileReader_->GetClone<TH1>(upDownFile.second, histoName, true, false);
+        // Updating every bin of the corresponding histogram if it goes in the proper direction 
+        for(int iBin = 1; iBin <= nBins; ++iBin) {
+            const double up = h_up->GetBinContent(iBin);
+            const double down = h_down->GetBinContent(iBin);
+            const double mostVaried = variation > 0 ? std::max(up, down) : std::min(up, down);
+            const double lastVaried = h_varied->GetBinContent(iBin);
+            const double newContent = variation > 0 ? std::max(lastVaried, mostVaried) : std::min(lastVaried, mostVaried);
+            
+            h_varied->SetBinContent(iBin, newContent);
+        }
+    }
+    // Applying the difference from Central to the Nominal
+    for(int iBin = 1; iBin <= nBins; ++iBin) {
+	const double factor = h_varied->GetBinContent(iBin)/h_central->GetBinContent(iBin);
+	h_nominal->SetBinContent(iBin, factor*h_nominal->GetBinContent(iBin));
+    }
+
+    
+    return h_nominal;
 }
 
 
@@ -298,24 +360,15 @@ PlotterDiffXSSystematic::UpDown PlotterDiffXSSystematic::binUncertaintyOfType(co
 {
     UpDown error(0.,0.);
     
-    // Statistical uncertainty is stored under Nominal systematic
-    if(type == ErrorType::stat) {
-        if(m_errors.count(Systematic::nominal) < 1) return error;
-        else return m_errors.at(Systematic::nominal);
-    } else 
-    // All or only systematic uncertainties added in quadrature
-    if(type == ErrorType::syst || type == ErrorType::total) {
-        for(auto systematicValuePair : m_errors) {
-            Systematic::Type systematicType = systematicValuePair.first;
-            UpDown errorPair = systematicValuePair.second;
-            if(systematicType == Systematic::nominal && type == ErrorType::syst) continue;
-            error.addInQuadrature(errorPair);
-        }
-        error.sqrt();
-        return error;
+    // Getting the list of relevant uncertainties
+    const ErrorMap uncertainties = binUncertaintiesOfType(m_errors, type);
+    // Adding all uncertainties in quadrature
+    for(auto systematicValuePair : uncertainties) {
+        UpDown errorPair = systematicValuePair.second;
+        error.addInQuadrature(errorPair);
     }
-    
-    
+    error.sqrt();
+
     return error;
 }
 
