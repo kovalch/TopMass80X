@@ -570,6 +570,7 @@ std::map<TString, TH1*> PlotterDiffXS::calculateDiffXS(const std::map<TString, T
     
     // Calculating the cross section from MC
     TH1* h_diffXS_madgraph = (TH1*)h_data->Clone("h_diffXS_madgraph");
+    h_diffXS_madgraph->Reset("ICESM");
     for(int iBin = 0; iBin <= nBins+1; ++iBin) {
         ValueError signalFraction;
         signalFraction.v = h_signal_gen_noWeight->GetBinContent(iBin)/N_ttbar_gen_events.v;
@@ -577,7 +578,7 @@ std::map<TString, TH1*> PlotterDiffXS::calculateDiffXS(const std::map<TString, T
         
         ValueError xsection(0., 0.);
         xsection.v = xsection_tt_dilepton.v * signalFraction.v;
-        xsection.e = sqrt(xsection_tt_dilepton.eOv2() * signalFraction.v2() + signalFraction.eOv2());
+        xsection.e = sqrt(xsection_tt_dilepton.eOv2() * signalFraction.v2() + signalFraction.eOv2())*xsection.v;
         if(xsection.v != xsection.v) xsection.v = 0.;
         if(xsection.e != xsection.e) xsection.e = 0.;
         
