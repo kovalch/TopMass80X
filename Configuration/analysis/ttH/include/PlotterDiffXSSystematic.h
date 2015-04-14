@@ -77,7 +77,7 @@ private:
     // Combination types: 0 - added in quadrature; 1 - largest absolute variation in each direction;
     struct SystematicCombination {
         int type; std::vector<Systematic::Type> systematics;
-        SystematicCombination():type(1.), systematics(0){};
+        SystematicCombination():type(0.), systematics(0){};
         SystematicCombination(int combinationType):type(combinationType), systematics(0){};
         SystematicCombination(int combinationType, Systematic::Type systematicTypes[]):type(combinationType){
             systematics = std::vector<Systematic::Type>( systematicTypes, systematicTypes + sizeof(systematicTypes) / sizeof(systematicTypes[0]) );
@@ -130,7 +130,10 @@ private:
     UpDown binUncertaintyOfType(const ErrorMap& m_errors, const ErrorType type = ErrorType::total)const;
     
     /// Calculated uncertainties from each type of variation for a single bin
-    ErrorMap binUncertaintiesOfType(const ErrorMap& m_errors, const ErrorType type = ErrorType::total)const;
+    ErrorMap binUncertainties(const ErrorMap& m_errors)const;
+    
+    /// Calculated uncertainties for a single bin including defined grouping of systematics
+    ErrorMap binUncertaintiesRecoAndGen(const ErrorMap& m_errors, const ErrorMap& m_errors_gen)const;
     
     /// Print individual uncertainties for each bin and mean uncertainty across all bins
     void printAllUncertainties(const std::vector<ErrorMap>& errorMaps, const ErrorMap& errorMap_inclusive)const;
@@ -161,8 +164,11 @@ private:
     /// Name of histogram under consideration
     TString name_;
     
-    /// Vector of process names that should be plotted
+    /// Vector of systematics for which only shape differences should be taken into account
     std::vector<Systematic::Type> normalisedSystematicTypes_;
+    
+    /// Vector of systematics that should be compared at the generator level before reco selection and without sample weights
+    std::vector<Systematic::Type> generatorUnweightedSystematicTypes_;
     
     /// A pair of [new systematic, combination type] for each systematic that sould be merged with others
     std::map<Systematic::Type, SystematicCombination> combinedSystematicTypes_;
