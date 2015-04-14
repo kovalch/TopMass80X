@@ -1014,14 +1014,10 @@ void histoAnalyzerMvaTopJets(const std::vector<Channel::Channel>& v_channel,
     // Hardcoded input files, since detailed validation makes sense only on samples containing ttbar system, and some only on real ttH events
     const std::vector<TString> v_inputFileTtbar =
         {
-//            "ttbarW",
-//            "ttbarZ",
-//            "ttbarH125inclusiveBbbar",
-//            "ttbarH125inclusiveOther",
             "ttbarH125tobbbar",
-            "ttbarsignalPlusBbbar",
-            "ttbarsignalPlusB",
-            "ttbarsignalPlusOther"
+            "ttbarDileptonPlustauOther", 
+            "ttbarDileptonNotauBbbar", 
+            "ttbarDileptonNotauB"
         };
     
     // Loop over all systematics and channels
