@@ -34,24 +34,25 @@ void categoryMerger(const std::vector<Channel::Channel>& v_channel,
             for(const TString& filename : v_filename){
                 
                 // Check if file exists
-                std::ifstream filestream;
-                filestream.open(filename);
-                if(filestream.is_open()) filestream.close();
-                else{
+                std::ifstream filestream(filename.Data());
+                if(!filestream.good()) {
                     std::cerr<<"Error in categoryMerger()! Root file not found: "<<filename<<"\n...break\n"<<std::endl;
                     exit(28);
                 }
                 
                 // Create step name with merged categories, and check if merged categories already exist
+                bool fileIsMerged = false;
                 const TString mergedCategoriesName = tth::categoryName(v_jetCategory);
                 const std::vector<std::pair<TString, TString> > v_nameStepPairMerged = tth::nameStepPairs(filename, mergedCategoriesName);
                 for(const auto& nameStepPair : v_nameStepPairMerged){
                     if(static_cast<int>(v_jetCategory.size()) == tth::numberOfCategories(nameStepPair.second)){
                         std::cout<<"Merged categories already exist in file: "<<filename
-                                 <<"\n...not merging again, but stopping\n"<<std::endl;
-                        exit(0);
+                                 <<"\n...not merging again, but skipping\n"<<std::endl;
+                        fileIsMerged = true;
+                        break;
                     }
                 }
+                if(fileIsMerged) continue;
                 
                 // Check if all requested categories exist
                 std::map<int, std::vector<std::pair<TString, TString> > > m_categoryNameStepPair;
@@ -183,10 +184,10 @@ int main(int argc, char** argv){
     std::cout<<"\n\n";
     
     // Set up systematics
-    std::vector<Systematic::Systematic> v_systematic;
+    std::vector<Systematic::Systematic> v_systematic = Systematic::allowedSystematicsAnalysis(Systematic::allowedSystematics);
     if(opt_systematic.isSet()){
-        if(opt_systematic[0] == Systematic::convertType(Systematic::all))
-            v_systematic = Systematic::allowedSystematicsAnalysis(Systematic::allowedSystematics);
+        if(opt_systematic[0] == Systematic::convertType(Systematic::all)) 
+            ; // doing nothing
         else if(opt_systematic[0] == Systematic::convertType(Systematic::allAvailable))
             v_systematic = common::findSystematicsFromFilelists(filelistDir, v_channel, v_systematic);
         else
