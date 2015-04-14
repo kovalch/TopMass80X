@@ -197,6 +197,10 @@ cp $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/common/hacks/RecoMET_METAn
 
 
 
+##### Fix to enable exclusion of particles from resonances for genJet input in Pythia8 (~backport from CMSSW_7 implementation)
+cp $CMSSW_BASE/src/TopAnalysis/Configuration/analysis/common/hacks/RecoJets_JetProducers_plugins_InputGenJetsParticleSelector.cc $CMSSW_BASE/src/RecoJets/JetProducers/plugins/InputGenJetsParticleSelector.cc
+
+
 
 
 ###### Compile everything ######
