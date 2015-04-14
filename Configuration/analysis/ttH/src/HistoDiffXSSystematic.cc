@@ -172,7 +172,6 @@ int main(int argc, char** argv){
     // Set up systematics
     std::vector<Systematic::Systematic> v_systematic = Systematic::allowedSystematicsAnalysis(Systematic::allowedSystematics);
     if(!opt_systematic.isSet() || opt_systematic[0] == Systematic::convertType(Systematic::allAvailable)){
-        v_systematic = common::findSystematicsFromFilelists("FileLists_plot_systematic", v_channel, v_systematic);
         // Adding systematics that do not require specific root files
         for(Systematic::Type type : Systematic::fileIndependentTypes) {
             if(std::find(Systematic::upDownTypes.begin(), Systematic::upDownTypes.end(), type) != Systematic::upDownTypes.end()) {
@@ -182,6 +181,7 @@ int main(int argc, char** argv){
                 v_systematic.push_back(Systematic::Systematic(type, Systematic::central));
             }
         }
+        v_systematic = common::findSystematicsFromFilelists("FileLists_plot_systematic", v_channel, v_systematic);
     } else{
         if(opt_systematic[0] == Systematic::convertType(Systematic::all)) ; // do nothing
         else v_systematic = Systematic::setSystematics(opt_systematic.getArguments());
