@@ -37,31 +37,29 @@ void HistoSystematic(const std::vector<std::string>& v_plot,
     for(Channel::Channel channel : v_channel) {
         const TString name_channel = Channel::convert(channel);
         for(Systematic::Systematic systematic : v_systematic) {
-            const TString name_systematic = Systematic::convertType(systematic.type());
-            for(Systematic::Variation variation : v_variation) {
-                TString name_variation = Systematic::convertVariation(variation);
-                // Changing the name for systematics that don't have variations
-                if(std::find(Systematic::upDownTypes.begin(), Systematic::upDownTypes.end(), systematic.type()) == Systematic::upDownTypes.end()) {
-                    name_variation = "";
-                }
-                const TString inputFileListName = fileList_base+"/"+"HistoFileList_"+name_systematic+name_variation+"_"+name_channel+".txt";
-                std::ifstream file(inputFileListName.Data());
-                if(!file) {
-                    std::cerr << "### File list not found: " << inputFileListName << " Breaking...\n\n";
-                    exit(1);
-                }
-                // Reading each line of the file corresponding to a separate histogram
-                std::string line_;
-                while(std::getline(file, line_)) {
-                    TString fileName(line_);
-                    // Extracting the histogram name
-                    TString histoName(fileName);
-                    histoName.Replace(0, histoName.Last('/')+1, "");
-                    histoName.Resize(histoName.Last('_'));
-                    
-                    
-                    if(variation == Systematic::Variation::up) m_inputRootFileNames[channel][systematic][histoName].first = fileName;
-                    else if(variation == Systematic::Variation::down) m_inputRootFileNames[channel][systematic][histoName].second = fileName;
+            Systematic::Variation variation = systematic.variation();
+            // Constructing a neutral systematic for which two variations wil be stored
+            Systematic::Systematic systematicToStore = Systematic::Systematic(systematic.type(), Systematic::undefinedVariation, systematic.variationNumber());
+            const TString inputFileListName = fileList_base+"/"+"HistoFileList_"+systematic.name()+"_"+name_channel+".txt";
+            std::ifstream file(inputFileListName.Data());
+            if(!file) {
+                std::cerr << "### File list not found: " << inputFileListName << " Breaking...\n\n";
+                exit(1);
+            }
+            // Reading each line of the file corresponding to a separate histogram
+            std::string line_;
+            while(std::getline(file, line_)) {
+                TString fileName(line_);
+                // Extracting the histogram name
+                TString histoName(fileName);
+                histoName.Replace(0, histoName.Last('/')+1, "");
+                histoName.Resize(histoName.Last('_'));
+                
+                if(variation == Systematic::Variation::up) m_inputRootFileNames[channel][systematicToStore][histoName].first = fileName;
+                else if(variation == Systematic::Variation::down) m_inputRootFileNames[channel][systematicToStore][histoName].second = fileName;
+                else {
+                    m_inputRootFileNames[channel][systematicToStore][histoName].first = fileName;
+                    m_inputRootFileNames[channel][systematicToStore][histoName].second = fileName;
                 }
             }
         }
@@ -178,7 +176,6 @@ int main(int argc, char** argv){
         if(opt_systematic[0] == Systematic::convertType(Systematic::all))
             ; // do nothing
         else if(opt_systematic[0] == Systematic::convertType(Systematic::allAvailable)) {
-            v_systematic = common::findSystematicsFromFilelists("FileLists_plot_systematic", v_channel, v_systematic);
             // Adding systematics that do not require specific root files
             for(Systematic::Type type : Systematic::fileIndependentTypes) {
                 if(std::find(Systematic::upDownTypes.begin(), Systematic::upDownTypes.end(), type) != Systematic::upDownTypes.end()) {
@@ -188,6 +185,7 @@ int main(int argc, char** argv){
                     v_systematic.push_back(Systematic::Systematic(type, Systematic::central));
                 }
             }
+            v_systematic = common::findSystematicsFromFilelists("FileLists_plot_systematic", v_channel, v_systematic);
         }
         else
             v_systematic = Systematic::setSystematics(opt_systematic.getArguments());
