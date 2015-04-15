@@ -85,6 +85,7 @@ public:
     VariableInt   gen_jet_multiplicity_;
     VariableFloat gen_x1_;
     VariableFloat gen_x2_;
+    VariableFloat gen_mlblbmet_;
 
     VariableInt entry_;
     VariableInt isTopGen_;
@@ -124,6 +125,7 @@ private:
     static constexpr const char* name_gen_jet_multiplicity_ = "gen_jet_multiplicity";
     static constexpr const char* name_gen_x1_ = "gen_x1";
     static constexpr const char* name_gen_x2_ = "gen_x2";
+    static constexpr const char* name_gen_mlblbmet_ = "gen_mlblbmet";
     
     static constexpr const char* name_entry_ = "entry";
     static constexpr const char* name_isTopGen_ = "isTopGen";

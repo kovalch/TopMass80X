@@ -63,6 +63,9 @@ logY_(false)
     normalisedSystematicTypes_.push_back(Systematic::btagDiscrCerr1);
     normalisedSystematicTypes_.push_back(Systematic::btagDiscrCerr2);
     normalisedSystematicTypes_.push_back(Systematic::xsec_ttcc);
+    normalisedSystematicTypes_.push_back(Systematic::xsec_ttother);
+    normalisedSystematicTypes_.push_back(Systematic::xsec_ttH);
+    normalisedSystematicTypes_.push_back(Systematic::xsec_ttZ);
     normalisedSystematicTypes_.push_back(Systematic::powheg);
     normalisedSystematicTypes_.push_back(Systematic::mass);
     normalisedSystematicTypes_.push_back(Systematic::match);
@@ -189,11 +192,11 @@ TH1* PlotterDiffXSSystematic::getPdfHisto(TString histoName, const Channel::Chan
     // Reading every PDF variation and comparing to the Central
     for(auto systematicCollection : inputFileLists_.at(channel)) {
         Systematic::Systematic systematic = systematicCollection.first;
-        std::pair<TString, TString> upDownFile = systematicCollection.second.at(name_);
        // Skipping non-PDF variations
         if(systematic.type() != Systematic::pdf) continue;
         // Skipping central PDF variation
         if(systematic.variationNumber() == 0) continue;
+        std::pair<TString, TString> upDownFile = systematicCollection.second.at(name_);
         TH1* h_up = fileReader_->GetClone<TH1>(upDownFile.first, histoName, true, false);
         TH1* h_down = fileReader_->GetClone<TH1>(upDownFile.second, histoName, true, false);
         
@@ -364,7 +367,7 @@ void PlotterDiffXSSystematic::plotXSection(const Channel::Channel& channel)
     
     updateHistoAxis(canvas);
     
-    common::drawCmsLabels(0, 8, 19.7);
+    common::drawCmsLabels(-1, 8, 19.7);
     
     // Drawing ratios
     common::drawRatioPad(canvas, 0., double(nRatio_max_), "#frac{MC}{Data}");

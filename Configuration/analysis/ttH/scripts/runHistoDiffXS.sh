@@ -30,6 +30,9 @@ systematics=(
     BTAGDISCR_CERR2_UP BTAGDISCR_CERR2_DOWN
     XSEC_TT2B_UP XSEC_TT2B_DOWN
     XSEC_TTCC_UP XSEC_TTCC_DOWN
+    XSEC_TTOTHER_UP XSEC_TTOTHER_DOWN
+    XSEC_TTH_UP XSEC_TTH_DOWN
+    XSEC_TTZ_UP XSEC_TTZ_DOWN
     FRAC_TTHF_UP FRAC_TTHF_DOWN
     FRAC_TTOTHER_UP FRAC_TTOTHER_DOWN
 #   KIN_UP KIN_DOWN
@@ -51,6 +54,7 @@ for systematic in "${systematics[@]}" ; do
 done
 
 # PDF systematics
+# FIXME: Currently hardcoded. Should be automatised if possible
 printf "\n\033[1;1mStart running on systematic: PDF_0_CENTRAL\033[1;m\n"
 $HISTODIFFXS -s PDF_0_CENTRAL $@ &
 for id in $(seq 1 26) ; do

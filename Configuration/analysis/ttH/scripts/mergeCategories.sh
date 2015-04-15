@@ -19,12 +19,12 @@ if [ $# -le 4 ] || [[ "$1" != "-d" ]] || ! [ -d "$2" ] || [[ "$3" != "-j" ]] ; t
     exit 1
 fi
 for i in ${@:4}; do
-    if ! [[ $i =~ "^[0-9]+$" ]]; then
-        echo "Usage: $0 <folderWithFilelists> -j 3 4 6"
+    case $i in
+        ''|*[!0-9]*) echo "Usage: $0 <folderWithFilelists> -j 3 4 6"
         echo "always specify with -d folder where filelists are"
         echo "always specify with -j which categories to merge (at least two): e.g. for  3, 4, and 6"
-        exit 1
-    fi
+        exit 1 ;;
+    esac
 done
 
 

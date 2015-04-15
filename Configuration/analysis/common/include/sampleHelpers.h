@@ -56,6 +56,9 @@ namespace Systematic{
         lumi,               // luminosity uncertainty
         xsec_tt2b,          // cross-section uncertainty of tt2b process
         xsec_ttcc,          // cross-section uncertainty of ttcc process
+        xsec_ttother,       // cross-section uncertainty of tt+light jets process
+        xsec_ttZ,           // cross-section uncertainty of ttZ process
+        xsec_ttH,           // cross-section uncertainty of ttH process
         topPt,              // scale top pt as estimated in ttbar differential cross-section measurements
         mass,               // variations of masses used in process generation (here top quark mass)
         match,              // matching uncertainty in process generation
@@ -132,7 +135,8 @@ namespace Systematic{
         jer, jes,
         frac_tthf, frac_ttother,
         lumi,
-        xsec_tt2b, xsec_ttcc,
+        xsec_tt2b, xsec_ttcc, xsec_ttother, 
+        xsec_ttH, xsec_ttZ,
         topPt,
         mass, match, scale,
         pdf
@@ -191,7 +195,8 @@ namespace Systematic{
     
     /// Define cross-section uncertainty systematics, which use nominal samples, and change only the scaling
     const std::vector<Type> crossSectionTypes{
-        xsec_tt2b, xsec_ttcc,
+        xsec_tt2b, xsec_ttcc, xsec_ttother, 
+        xsec_ttH, xsec_ttZ,
     };
     
     /// Define uncertainties due to tt+HF fraction scale factor from the fit, which use nominal samples, and change only the scaling
@@ -201,7 +206,8 @@ namespace Systematic{
     
     /// Define systematics that do not require dedicated root files
     const std::vector<Type> fileIndependentTypes{
-        xsec_tt2b, xsec_ttcc,
+        xsec_tt2b, xsec_ttcc, xsec_ttother, 
+        xsec_ttH, xsec_ttZ,
         frac_tthf, frac_ttother,
         lumi
     };
