@@ -51,7 +51,7 @@ void LuminosityScaleFactors::produceScaleFactors(const Samples& samples, const d
                             if(systematic.variation() == Systematic::down)weight = weight*0.7;
                     }
                 // systematic, dy
-                    if(sample.sampleType() == Sample::dyee || sample.sampleType() == Sample::dymumu || sample.sampleType() == Sample::dytautau )
+                    if(systematic.type() == Systematic::dy && (sample.sampleType() == Sample::dyee || sample.sampleType() == Sample::dymumu || sample.sampleType() == Sample::dytautau) )
                     {
                             if(systematic.variation() == Systematic::up)weight = weight*1.3;
                             if(systematic.variation() == Systematic::down)weight = weight*0.7;
