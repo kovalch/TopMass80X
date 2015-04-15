@@ -129,21 +129,11 @@ private:
     
     TH1* h_nwcuts_;
     
-// //  E 1d bins
-    TH1* hvE_[6];
-    
 // // mbl
     TH1* h_mbl_w_;
 // pdf
     TH1* h_pdf_w_[13];
     std::vector<double> mttBinsForX_;
-    
-    
-// // costheta        
-    TH1* h_costheta_w_;
-    
-// neuEta 0d weight
-    TH1* h_neuEta_w_;
 };
 
 

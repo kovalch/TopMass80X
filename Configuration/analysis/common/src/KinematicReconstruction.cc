@@ -117,10 +117,7 @@ h_jetEres_(0),
 h_lepAngleRes_(0),
 h_lepEres_(0),
 h_nwcuts_(0),
-//hvE_(0),
-h_mbl_w_(0),
-h_costheta_w_(0),
-h_neuEta_w_(0)
+h_mbl_w_(0)
 {
     std::cout<<"--- Beginning preparation of kinematic reconstruction\n";
     
@@ -408,10 +405,6 @@ bool KinematicReconstruction::solutionSmearing(KinematicReconstruction_MeanSol& 
             
             KinematicReconstruction_LSroutines tp_sm(0.0,0.0,h_wmass_->GetRandom(),h_wmass_->GetRandom());
 //            KinematicReconstruction_LSroutines tp_sm(0.0,0.0,h_wmass_->GetRandom(),h_wmass_->GetRandom(),(*h_nwcuts_));
-            //KinematicReconstruction_LSroutines tp_sm(0.0,0.0,h_wmass_->GetRandom(),h_wmass_->GetRandom(),(*h_neuEta_w_));
-//              KinematicReconstruction_LSroutines tp_sm(0.0,0.0,h_wmass_->GetRandom(),h_wmass_->GetRandom(),hvE_);
-//             KinematicReconstruction_LSroutines tp_sm(0.0,0.0,h_wmass_->GetRandom(),h_wmass_->GetRandom(),hvE_,(*h_neuEta_w_));
-//              KinematicReconstruction_LSroutines tp_sm(0.0,0.0,h_wmass_->GetRandom(),h_wmass_->GetRandom(),(*h_costheta_w_),1);
             
             tp_sm.setConstraints(al_sm, l_sm, b_sm, bbar_sm, met_sm.Px(), met_sm.Py());
 
@@ -730,28 +723,12 @@ void KinematicReconstruction::loadData()
     tempTFile.Close();
      
 
-    TString data_path5 = common::DATA_PATH_COMMON();
-    data_path5.Append("/KinReco_wneutrinocuts.root");
-    TFile fnw(data_path5);
+    TString data_path2 = common::DATA_PATH_COMMON();
+    data_path2.Append("/KinReco_wneutrinocuts.root");
+    TFile fnw(data_path2);
     h_nwcuts_ = (TH1F*)fnw.Get("Eneu_true");
     h_nwcuts_->SetDirectory(0);
     fnw.Close();
-    
-//  E 1d bins
-        TString data_path6 = common::DATA_PATH_COMMON();
-        data_path6.Append("/KinReco_wneutrino_E.root"); // no norm
-//         data_path6.Append("/KinReco_wneutrino_E_normilyze.root"); // norm
-        TFile frootNeut(data_path6);
-        char hvE_name[20];
-        
-                        for(int i=0;i<6;++i)
-                        {
-                            sprintf(hvE_name,"Eneu_true%d",i+1);
-                                    hvE_[i] = (TH1F*)frootNeut.Get(hvE_name);
-                                    hvE_[i]->SetDirectory(0);
-                        }
-    frootNeut.Close();
-//...
 
 // mbl
 
@@ -768,28 +745,8 @@ void KinematicReconstruction::loadData()
 //         h_mbl_w_ = (TH1F*)fmbl_wrong.Get("mbl_true_wrong");
 //         h_mbl_w_->SetDirectory(0);
         fmbl_wrong.Close();
-        
 // ...
-        
-// cos_theta*
-
-        TString data_path8 = common::DATA_PATH_COMMON();
-        data_path8.Append("/KinReco_costheta_true.root");
-        TFile fcostheta(data_path8);
-        h_costheta_w_ = (TH1F*)fcostheta.Get("cos_theta_true");
-        h_costheta_w_->SetDirectory(0);
-        fcostheta.Close();
-// ...
-        
-// neuEta
-        TString data_path9 = common::DATA_PATH_COMMON();
-        data_path9.Append("/KinReco_wneutrinoEta.root");
-        TFile fneuEta(data_path9);
-        h_neuEta_w_ = (TH1F*)fneuEta.Get("Etaneu_true");
-        h_neuEta_w_->SetDirectory(0);
-        fneuEta.Close();
-// ...        
-        
+      
 // pdf
 
         mttBinsForX_ = {340,400,470,550,650,750,850,950,1050,1150,1250,1550,1850,2150};
