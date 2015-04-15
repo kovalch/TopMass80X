@@ -45,29 +45,24 @@ systematics=(
     
 )
 
-
+# Running on all channels at once since combined is required by the tt+HF scale factors
+channel="ee emu mumu combined"
 for systematic in "${systematics[@]}" ; do
     printf "\n\033[1;1mStart running on systematic: ${systematic}\033[1;m\n"
     w
-    for channel in ee emu mumu combined; do
-    	$HISTO -s $systematic -c $channel $@ &
-    done
+    $HISTO -s $systematic -c $channel $@ &
 done
 
 # PDF systematics
 # FIXME: Currently hardcoded. Should be automatised if possible
 printf "\n\033[1;1mStart running on systematic: PDF_0_CENTRAL\033[1;m\n"
 w
-for channel in ee emu mumu combined; do
-    $HISTO -s PDF_0_CENTRAL -c $channel $@ &
-done
+$HISTO -s PDF_0_CENTRAL -c $channel $@ &
 for id in $(seq 1 26) ; do
     printf "\n\033[1;1mStart running on systematic: PDF_$id UP/DOWN\033[1;m\n"
-    for channel in ee emu mumu combined; do
 	w
-    	$HISTO -s PDF_$id"_UP" -c $channel $@ &
-    	$HISTO -s PDF_$id"_DOWN" -c $channel $@ &
-    done
+    $HISTO -s PDF_$id"_UP" -c $channel $@ &
+    $HISTO -s PDF_$id"_DOWN" -c $channel $@ &
 done
 
 
