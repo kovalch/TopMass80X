@@ -6,6 +6,10 @@ units [GeV]
 
 recogen 250 0 2500 250 0 2500
 
+cut 300
+cutcoarse 0 300 1500
+cutfine 0 50 100 200 300 400 600 800 1000 1500
+
 1d
 coarse 0 65 125 200 290 400
 uoTrue 0 1
