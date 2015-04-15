@@ -70,7 +70,10 @@ double Sample::crossSection(const Systematic::Systematic& systematic)const{
     // Apply systematic variation for specific samples
     double factor(1.);
     if((type==Systematic::xsec_tt2b && sampleType_==tt2b) ||
-       (type==Systematic::xsec_ttcc && sampleType_==ttcc)){
+       (type==Systematic::xsec_ttcc && sampleType_==ttcc) ||
+       (type==Systematic::xsec_ttother && sampleType_==ttother) ||
+       (type==Systematic::xsec_ttH && (sampleType_==ttHbb || sampleType_==ttHother) ) ||
+       (type==Systematic::xsec_ttZ && sampleType_==ttZ) ){
         if(systematic.variation() == Systematic::up) factor += crossSectionRelativeUp_;
         else if(systematic.variation() == Systematic::down) factor -= crossSectionRelativeDown_;
         else{
