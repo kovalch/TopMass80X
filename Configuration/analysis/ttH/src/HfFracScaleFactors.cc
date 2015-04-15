@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <fstream>
 #include <sstream>
+#include <sys/stat.h>
 
 #include <TString.h>
 #include <TH1D.h>
@@ -327,7 +328,8 @@ const std::vector<HfFracScaleFactors::ValErr> HfFracScaleFactors::getScaleFactor
     }
     // Checking whether the root-file with fit results exist
     TString fitFileName = rootFileFolder+histoTemplateName_+step+"/mlfittest.root";
-    bool fitResultsFileExists = rootFileReader_->GetClone<TH1F>(fitFileName, "shapes_fit_b/HF/"+templateNames_.at(0), true, false);
+    struct stat buffer;
+    bool fitResultsFileExists = stat(fitFileName.Data(), &buffer) == 0;
     
     // Storing input templates to the root file if not there already
     if((!sameHistogramsInFile || systematic.type() != Systematic::Type::nominal) && !fitResultsFileExists) {
