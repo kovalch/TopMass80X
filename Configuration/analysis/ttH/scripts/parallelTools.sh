@@ -19,9 +19,11 @@ if [ `hostname | grep "nafhh"` ]; then
            echo "Running at SL6 scram architecture. Submitting jobs to SL6 nodes."
            LA="qsub -l distro=sld6 -@ $SCRIPTPATH/qsubParams.txt $BIN/load_Analysis"
            HISTO="qsub -l distro=sld6 -@ $SCRIPTPATH/qsubParams.txt -l h_vmem=6000M $BIN/Histo"
+           HISTODIFFXS="qsub -l distro=sld6 -@ $SCRIPTPATH/qsubParams.txt -l h_vmem=6000M $BIN/HistoDiffXS"
     else
            LA="qsub -@ $SCRIPTPATH/qsubParams.txt $BIN/load_Analysis"
            HISTO="qsub -@ $SCRIPTPATH/qsubParams.txt -l h_vmem=6000M $BIN/Histo"
+           HISTODIFFXS="qsub -@ $SCRIPTPATH/qsubParams.txt -l h_vmem=6000M $BIN/HistoDiffXS"
     fi
 else
     w() {
@@ -33,4 +35,5 @@ else
     isNAF=0
     LA=$BIN/load_Analysis
     HISTO=$BIN/Histo
+    HISTODIFFXS=$BIN/HistoDiffXS
 fi
