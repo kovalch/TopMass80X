@@ -116,10 +116,6 @@ h_jetAngleRes_(0),
 h_jetEres_(0),
 h_lepAngleRes_(0),
 h_lepEres_(0),
-//h_metAngleRes_(0),
-//h_metPtres_(0),
-//h_metPxRes_(0),
-//h_metPyRes_(0),
 h_nwcuts_(0),
 //hvE_(0),
 h_mbl_w_(0),
@@ -376,58 +372,32 @@ bool KinematicReconstruction::solutionSmearing(KinematicReconstruction_MeanSol& 
             TLorentzVector l_sm=l_temp;
             TLorentzVector al_sm=al_temp;
             TLorentzVector vX_sm;
-
+            //jets energy smearing
             double fB=h_jetEres_->GetRandom();//fB=1;  //sm off
             double xB=sqrt((fB*fB*b_sm.E()*b_sm.E()-b_sm.M2())/(b_sm.P()*b_sm.P()));
             double fBbar=h_jetEres_->GetRandom();//fBbar=1; //sm off
             double xBbar=sqrt((fBbar*fBbar*bbar_sm.E()*bbar_sm.E()-bbar_sm.M2())/(bbar_sm.P()*bbar_sm.P()));
-            
+            //leptons energy smearing
             double fL=h_lepEres_->GetRandom();//fL=1; //sm off
             double xL=sqrt((fL*fL*l_sm.E()*l_sm.E()-l_sm.M2())/(l_sm.P()*l_sm.P()));
             double faL=h_lepEres_->GetRandom();//faL=1;  //sm off
             double xaL=sqrt((faL*faL*al_sm.E()*al_sm.E()-al_sm.M2())/(al_sm.P()*al_sm.P()));
-            
+            //b-jet angle smearing
             b_sm.SetXYZT(b_sm.Px()*xB,b_sm.Py()*xB,b_sm.Pz()*xB,b_sm.E()*fB);
             angle_rot(h_jetAngleRes_->GetRandom(),0.001,b_sm,b_sm);
-            
+            //bbar jet angel smearing
             bbar_sm.SetXYZT(bbar_sm.Px()*xBbar,bbar_sm.Py()*xBbar,bbar_sm.Pz()*xBbar,bbar_sm.E()*fBbar);    
             angle_rot(h_jetAngleRes_->GetRandom(),0.001,bbar_sm,bbar_sm);
-            
+            //lepton angle smearing
             l_sm.SetXYZT(l_sm.Px()*xL,l_sm.Py()*xL,l_sm.Pz()*xL,l_sm.E()*fL);
             angle_rot(h_lepAngleRes_->GetRandom(),0.001,l_sm,l_sm);
-            
+            // anti lepton angle smearing
             al_sm.SetXYZT(al_sm.Px()*xaL,al_sm.Py()*xaL,al_sm.Pz()*xaL,al_sm.E()*faL);
             angle_rot(h_lepAngleRes_->GetRandom(),0.001,al_sm,al_sm);
-            
-// met Pt+angle smearing
-//             double fX=1;
-//             double dAX=0;
-//             for(int i=0;i<((int)(ptBins_.size()));++i)
-//             {
-//                   if(vX_reco.Pt()>ptBins_[i]&&vX_reco.Pt()<=ptBins_[i+1])
-//                   {
-//                        //fX=h_metPtres_[i]->GetRandom();
-//                        //dAX=h_metAngleRes_[i]->GetRandom();
-//                   }
-//             }
-//             double tempX= vX_reco.Px()*fX;
-//             double tempY= vX_reco.Py()*fX;
-//             if(r.Rndm()>0.5)dAX=-dAX;
-//             vX_sm.SetXYZM(tempX*cos(dAX)-tempY*sin(dAX),tempX*sin(dAX)+tempY*cos(dAX),0,0);
-//                            
-// ...
 
 //X Pt+angle smearing
             double fPx=1;
             double fPy=1;
-//             for(int i=0;i<((int)(ptBins_.size()));++i)
-//             {
-//                   if(vX_reco.Pt()>ptBins_[i]&&vX_reco.Pt()<=ptBins_[i+1])
-//                   {
-//                        fPx=h_metPxRes_[i]->GetRandom();
-//                        fPy=h_metPyRes_[i]->GetRandom();
-//                   }
-//             }
             double tempX= vX_reco.Px()*fPx;
             double tempY= vX_reco.Py()*fPy;
             vX_sm.SetXYZM(tempX,tempY,0,0);
@@ -758,69 +728,7 @@ void KinematicReconstruction::loadData()
     h_jetAngleRes_->SetDirectory(0);
     h_jetEres_->SetDirectory(0);
     tempTFile.Close();
-    
-    //MET resolution
-    ptBins_ =  {0,7,13,18,27,37,48,59,70,100,200,500,1000,1500};
-    TString data_path2 = common::DATA_PATH_COMMON();
-    data_path2.Append("/KinReco_rmshistA_dAngle_vs_Pt.root");
-    TFile metangleresfile(data_path2);
-    for(int i=0;i<13;++i)
-    {
-        char temp_name[100];
-        sprintf(temp_name,"bin_%.0f_%.0f",ptBins_[i],ptBins_[i+1]);
-        h_metAngleRes_[i]=(TH1F*)metangleresfile.Get(temp_name);
-        sprintf(temp_name,"metAng_bin_%.0f_%.0f",ptBins_[i],ptBins_[i+1]);
-        h_metAngleRes_[i]->SetName(temp_name);
-        h_metAngleRes_[i]->SetDirectory(0);
-    }
-    metangleresfile.Close();
-    
-    TString data_path4 = common::DATA_PATH_COMMON();
-    data_path4.Append("/KinReco_rmshistA_fPt_vs_Pt.root");
-    TFile metptresfile(data_path4);
-    for(int i=0;i<13;++i)
-    {
-        char temp_name[100];
-        sprintf(temp_name,"bin_%.0f_%.0f",ptBins_[i],ptBins_[i+1]);
-        h_metPtres_[i]=(TH1F*)metptresfile.Get(temp_name);
-        sprintf(temp_name,"metPt_bin_%.0f_%.0f",ptBins_[i],ptBins_[i+1]);
-        h_metPtres_[i]->SetName(temp_name);
-        h_metPtres_[i]->SetDirectory(0);
-    }
-    metptresfile.Close();
-    
-   //met px res
-    TString data_path41 = common::DATA_PATH_COMMON(); 
-    data_path41.Append("/KinReco_rmshist_fPx_vs_Pt.root");
-    TFile metpxresfile(data_path41);
-    for(int i=0;i<13;++i)
-    {
-        char temp_name[100];
-        sprintf(temp_name,"bin_%.0f_%.0f",ptBins_[i],ptBins_[i+1]);
-        h_metPxRes_[i]=(TH1F*)metpxresfile.Get(temp_name);
-        sprintf(temp_name,"metPx_bin_%.0f_%.0f",ptBins_[i],ptBins_[i+1]);
-        h_metPxRes_[i]->SetName(temp_name);
-        h_metPxRes_[i]->SetDirectory(0);
-    }
-    metpxresfile.Close();
-  //...   
-    
-  //met py res
-    TString data_path42 = common::DATA_PATH_COMMON(); 
-    data_path42.Append("/KinReco_rmshist_fPy_vs_Pt.root");
-    TFile metpyresfile(data_path42);
-    for(int i=0;i<13;++i)
-    {
-        char temp_name[100];
-        sprintf(temp_name,"bin_%.0f_%.0f",ptBins_[i],ptBins_[i+1]);
-        h_metPyRes_[i]=(TH1F*)metpyresfile.Get(temp_name);
-        sprintf(temp_name,"metPy_bin_%.0f_%.0f",ptBins_[i],ptBins_[i+1]);
-        h_metPyRes_[i]->SetName(temp_name);
-        h_metPyRes_[i]->SetDirectory(0);
-    }
-    metpyresfile.Close();
-  //...   
-
+     
 
     TString data_path5 = common::DATA_PATH_COMMON();
     data_path5.Append("/KinReco_wneutrinocuts.root");

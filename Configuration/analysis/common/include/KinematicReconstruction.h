@@ -127,16 +127,6 @@ private:
     TH1* h_lepAngleRes_;
     TH1* h_lepEres_;
     
-    //MET resolution
-    double ptBins[14];
-    std::vector<double> ptBins_;
-    TH1* h_metAngleRes_[13];
-    TH1* h_metPtres_[13];
-    
-    TH1* h_metPxRes_[13];
-    TH1* h_metPyRes_[13];
-    
-    
     TH1* h_nwcuts_;
     
 // //  E 1d bins
