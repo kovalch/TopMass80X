@@ -2,6 +2,8 @@
 #include <utility>
 #include <iostream>
 #include <iomanip>
+#include <sstream>
+#include <fstream>
 
 #include <TH1D.h>
 #include <TMath.h>
@@ -39,26 +41,43 @@ void DyScaleFactors::produceScaleFactors(const Samples& samples)
     // Produce scale factors
     for(const auto& nameStepPair : v_nameStepPair) this->produceScaleFactors(nameStepPair.second, samples);
     
-    // Print table
-    std::cout<<"Step\t\tSystematic\tScale factors (ee, mumu)\n";
-    std::cout<<"--------\t----------\t------------------------\n";
+    // Prepare scale factor table
+    const std::string caption = "Step\t\tSystematic\tScale factors (ee, mumu)\n--------\t----------\t------------------------\n";
+    std::map<Systematic::Systematic, std::string> m_sfTable;
     for(auto dyScaleFactorsPerStep : m_dyScaleFactors_){
-       const TString& step(dyScaleFactorsPerStep.first);
-       for(auto dyScaleFactorsPerSystematic : dyScaleFactorsPerStep.second){
-           const Systematic::Systematic& systematic(dyScaleFactorsPerSystematic.first);
-           double eeScaleFactor(0.);
-           double mumuScaleFactor(0.);
-           for(auto dyScaleFactorsPerChannel : dyScaleFactorsPerSystematic.second){
-               const Channel::Channel& channel(dyScaleFactorsPerChannel.first);
-               const double& scaleFactor(dyScaleFactorsPerChannel.second);
-               if(channel == Channel::ee) eeScaleFactor = scaleFactor;
-               else if(channel == Channel::mumu) mumuScaleFactor = scaleFactor;
-               //std::cout<<"DY scale factors: "<<step<<" , "<<Systematic::convertSystematic(systematic)<<" , "
-               //         <<Channel::convertChannel(channel)<<" , "<<scaleFactor<<"\n";
-           }
-           std::cout<<step<<"\t\t"<<systematic.name()<<"\t\t"
-                    <<std::fixed<<std::setprecision(3)<<eeScaleFactor<<" , "<<mumuScaleFactor<<"\n";
-       }
+        const TString& step(dyScaleFactorsPerStep.first);
+        for(auto dyScaleFactorsPerSystematic : dyScaleFactorsPerStep.second){
+            const Systematic::Systematic& systematic(dyScaleFactorsPerSystematic.first);
+            double eeScaleFactor(0.);
+            double mumuScaleFactor(0.);
+            for(auto dyScaleFactorsPerChannel : dyScaleFactorsPerSystematic.second){
+                const Channel::Channel& channel(dyScaleFactorsPerChannel.first);
+                const double& scaleFactor(dyScaleFactorsPerChannel.second);
+                if(channel == Channel::ee) eeScaleFactor = scaleFactor;
+                else if(channel == Channel::mumu) mumuScaleFactor = scaleFactor;
+            }
+            if(m_sfTable.find(systematic) == m_sfTable.end()){
+                m_sfTable[systematic] = "";
+            }
+            std::stringstream ssTable;
+            ssTable<<step<<"\t\t"<<systematic.name()<<"\t\t"
+                   <<std::fixed<<std::setprecision(3)<<eeScaleFactor<<" , "<<mumuScaleFactor<<"\n";
+            m_sfTable.at(systematic) += ssTable.str();
+        }
+    }
+    
+    // Printout on screen
+    std::cout<<caption;
+    for(auto sfTable : m_sfTable) std::cout<<sfTable.second;
+    
+    // Detailed printout in file
+    for(auto printout : m_printout_){
+        TString outputFileString = common::assignFolder("GlobalScaleFactors/drellYan", Channel::undefined, printout.first);
+        outputFileString.Append("drellYanWeight.txt");
+        std::ofstream outputFile;
+        outputFile.open(outputFileString);
+        outputFile<<caption<<m_sfTable.at(printout.first)<<"\n\n\n"<<printout.second;
+        outputFile.close();
     }
 }
 
@@ -76,10 +95,10 @@ void DyScaleFactors::produceScaleFactors(const TString& step, const Samples& sam
         const std::vector<Channel::Channel> v_channel {Channel::ee, Channel::emu, Channel::mumu};
         
         
-        double nOut_ee_dy=0, nIn_ee_dy=0, nOut_mumu_dy=0, nIn_mumu_dy=0;//Number of events in/out of z-veto region for the DY MC
-        double nIn_ee_data=0, nIn_mumu_data=0, nIn_emu_data=0;//Number of events in z-veto region for data
-        double nIn_ee_data_loose=0, nIn_mumu_data_loose=0;//Number of data events in Z-Veto region with MET cut
-        double nIn_ee_mc=0, nIn_mumu_mc=0;//All other MC events
+        double nOut_ee_dy=0, nIn_ee_dy=0, nOut_mumu_dy=0, nIn_mumu_dy=0; // Number of events in/out of z-veto region for the DY MC
+        double nIn_ee_data=0, nIn_mumu_data=0, nIn_emu_data=0; // Number of events in z-veto region for data
+        double nIn_ee_data_loose=0, nIn_mumu_data_loose=0; // Number of data events in Z-Veto region with MET cut
+        double nIn_ee_mc=0, nIn_mumu_mc=0; // All other MC events
         
         
         for(Channel::Channel channel : v_channel){
@@ -144,8 +163,8 @@ void DyScaleFactors::produceScaleFactors(const TString& step, const Samples& sam
             }
         }
         
-        const double k_ee = sqrt(nIn_ee_data_loose/nIn_mumu_data_loose);
-        const double k_mumu = sqrt(nIn_mumu_data_loose/nIn_ee_data_loose);
+        const double k_ee = TMath::Sqrt(nIn_ee_data_loose/nIn_mumu_data_loose);
+        const double k_mumu = TMath::Sqrt(nIn_mumu_data_loose/nIn_ee_data_loose);
         
         const double rOutIn_ee = nOut_ee_dy/nIn_ee_dy;
         const double rOutIn_mumu = nOut_mumu_dy/nIn_mumu_dy;
@@ -156,10 +175,11 @@ void DyScaleFactors::produceScaleFactors(const TString& step, const Samples& sam
         const double dyScaleFactor_ee = nOut_ee_mc/nOut_ee_dy;
         const double dyScaleFactor_mumu = nOut_mumu_mc/nOut_mumu_dy;
         
-        //this->printFullInformation(dyScaleFactor_ee, dyScaleFactor_mumu, k_ee, k_mumu, rOutIn_ee, rOutIn_mumu,
-        //                           nIn_ee_data_loose, nIn_mumu_data_loose, nIn_ee_data, nIn_mumu_data, nIn_emu_data,
-        //                           nIn_ee_mc, nIn_mumu_mc, nIn_ee_dy, nIn_mumu_dy,
-        //                           nOut_ee_mc, nOut_mumu_mc, nOut_ee_dy, nOut_mumu_dy, step);
+        m_printout_[systematic] += 
+            this->fullInformation(dyScaleFactor_ee, dyScaleFactor_mumu, k_ee, k_mumu, rOutIn_ee, rOutIn_mumu,
+                                  nIn_ee_data_loose, nIn_mumu_data_loose, nIn_ee_data, nIn_mumu_data, nIn_emu_data,
+                                  nIn_ee_mc, nIn_mumu_mc, nIn_ee_dy, nIn_mumu_dy,
+                                  nOut_ee_mc, nOut_mumu_mc, nOut_ee_dy, nOut_mumu_dy, systematic, step);
         
         m_dyScaleFactors_[step][systematic][Channel::ee] = dyScaleFactor_ee;
         m_dyScaleFactors_[step][systematic][Channel::mumu] = dyScaleFactor_mumu;
@@ -168,36 +188,40 @@ void DyScaleFactors::produceScaleFactors(const TString& step, const Samples& sam
 
 
 
-void DyScaleFactors::printFullInformation(const double dyScaleFactor_ee, const double dyScaleFactor_mumu, 
-                                          const double k_ee, const double k_mumu,
-                                          const double rOutIn_ee, const double rOutIn_mumu,
-                                          const double nIn_ee_data_loose, const double nIn_mumu_data_loose,
-                                          const double nIn_ee_data, const double nIn_mumu_data, const double nIn_emu_data,
-                                          const double nIn_ee_mc, const double nIn_mumu_mc,
-                                          const double nIn_ee_dy, const double nIn_mumu_dy,
-                                          const double nOut_ee_mc, const double nOut_mumu_mc,
-                                          const double nOut_ee_dy, const double nOut_mumu_dy,
-                                          const TString& step)const
+std::string DyScaleFactors::fullInformation(const double dyScaleFactor_ee, const double dyScaleFactor_mumu, 
+                                            const double k_ee, const double k_mumu,
+                                            const double rOutIn_ee, const double rOutIn_mumu,
+                                            const double nIn_ee_data_loose, const double nIn_mumu_data_loose,
+                                            const double nIn_ee_data, const double nIn_mumu_data, const double nIn_emu_data,
+                                            const double nIn_ee_mc, const double nIn_mumu_mc,
+                                            const double nIn_ee_dy, const double nIn_mumu_dy,
+                                            const double nOut_ee_mc, const double nOut_mumu_mc,
+                                            const double nOut_ee_dy, const double nOut_mumu_dy,
+                                            const Systematic::Systematic& systematic, const TString& step)const
 {
-    std::cout<<"Numbers (out/in) or (ee/mumu/emu) for selection step: "<<step<<"\n\t"
+    std::stringstream ssDetails;
+    
+    ssDetails<<"Details for selection (step, systematic): "<<step<<" , "<<systematic.name()<<"\n";
+    ssDetails<<"<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"<<std::endl;
+    ssDetails<<"Input numbers (out/in) or (ee/mumu/emu)\n\t"
              <<"DY ee (out/in):          "<<std::setw(10)<<nOut_ee_dy<<" "<<std::setw(10)<<nIn_ee_dy<<"\n\t"
              <<"DY mumu (out/in):        "<<std::setw(10)<<nOut_mumu_dy<<" "<<std::setw(10)<<nIn_mumu_dy<<"\n\t"
              <<"Data in (ee/mumu/emu):   "<<std::setw(10)<<nIn_ee_data<<" "<<std::setw(10)<<nIn_mumu_data<<" "<<std::setw(10)<<nIn_emu_data<<"\n\t"
              <<"Data in loose (ee/mumu): "<<std::setw(10)<<nIn_ee_data_loose<<" "<<std::setw(10)<<nIn_mumu_data_loose<<"\n\t"
-             <<"Background in (ee/mumu): "<<std::setw(10)<<nIn_ee_mc<<" "<<std::setw(10)<<nIn_mumu_mc<<"\n\n";
+             <<"Background in (ee/mumu): "<<std::setw(10)<<nIn_ee_mc<<" "<<std::setw(10)<<nIn_mumu_mc<<"\n";
+    ssDetails<<"<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"<<std::endl;
+    ssDetails<<"Calculation of DY Scale Factors"<<"\n\t";
+    ssDetails<<"DY scale factor (ee):           "<<dyScaleFactor_ee<<"\n\t";
+    ssDetails<<"DY scale factor (mumu):         "<<dyScaleFactor_mumu<<"\n\t";
+    ssDetails<<"Efficiency correction k (ee):   "<<k_ee<<" +- "<<0.5*TMath::Sqrt(1./nIn_mumu_data_loose + 1./nIn_ee_data_loose)<<"\n\t";
+    ssDetails<<"Efficiency correction k (mumu): "<<k_mumu<<" +- "<<0.5*TMath::Sqrt(1./nIn_mumu_data_loose + 1./nIn_ee_data_loose)<<"\n\t";
+    ssDetails<<"Ratio out/in (ee):              "<<rOutIn_ee<<"\n\t";
+    ssDetails<<"Ratio out/in (mumu):            "<<rOutIn_mumu<<"\n\t";
+    ssDetails<<"DY estimate from Data (ee):     "<<nOut_ee_mc<<"\n\t";
+    ssDetails<<"DY estimate from Data (mumu):   "<<nOut_mumu_mc<<"\n";
+    ssDetails<<"<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>"<<"\n\n\n\n";
     
-    std::cout << "<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>" << std::endl;
-    std::cout << "Calculation of DY Scale Factors at selection step: " << step << std::endl;
-    std::cout<<"DY scale factor (ee):           "<<dyScaleFactor_ee<<std::endl;
-    std::cout<<"DY scale factor (mumu):         "<<dyScaleFactor_mumu<<std::endl;
-    std::cout<<"Efficiency correction k (ee):   "<<k_ee<<" +- "<<0.5*TMath::Sqrt(1./nIn_mumu_data_loose + 1./nIn_ee_data_loose)<<std::endl;
-    std::cout<<"Efficiency correction k (mumu): "<<k_mumu<<" +- "<<0.5*TMath::Sqrt(1./nIn_mumu_data_loose + 1./nIn_ee_data_loose)<<std::endl;
-    std::cout<<"Ratio out/in (ee):              "<<rOutIn_ee<<std::endl;
-    std::cout<<"Ratio out/in (mumu):            "<<rOutIn_mumu<<std::endl;
-    std::cout<<"DY estimate from Data (ee):     "<<nOut_ee_mc<<std::endl;
-    std::cout<<"DY estimate from Data (mumu):   "<<nOut_mumu_mc<<std::endl;
-    std::cout << "<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>" << std::endl;
-    std::cout << std::endl;
+    return ssDetails.str();
 }
 
 

@@ -3,7 +3,9 @@
 #include <iostream>
 #include <iomanip>
 #include <fstream>
+#include <sstream>
 
+#include <TString.h>
 #include <TH1D.h>
 #include <TMath.h>
 #include <TString.h>
@@ -17,7 +19,6 @@
 #include <TStyle.h>
 #include <TLegend.h>
 #include <TGraphAsymmErrors.h>
-
 
 #include "HfFracScaleFactors.h"
 #include "higgsUtils.h"
@@ -135,32 +136,53 @@ void HfFracScaleFactors::produceScaleFactors(const Samples& samples)
         this->produceScaleFactors(nameStepPair.second, samples);
     }
     
-    // Print table
-    std::cout<<"Step   \t\tSystematic\tChannel\t\tScale factor \t | ";
-    for(size_t i = 1; i<templateNames_.size(); ++i) std::cout << templateNames_.at(i) << "\t | ";
-    std::cout << std::endl;
-    std::cout<<"-------\t\t----------\t-------\t\t-------------------------------------------------------\n";
+    // Prepare scale factor table
+    std::string caption = "Step   \t\tSystematic\tChannel\t\tScale factor \t | ";
+    for(size_t i = 1; i<templateNames_.size(); ++i) caption += templateNames_.at(i) + "\t | ";
+    caption += "\n-------\t\t----------\t-------\t\t-------------------------------------------------------\n";
+    std::map<Systematic::Systematic, std::map<Channel::Channel, std::string> > m_sfTable;
     for(auto hfFracScaleFactorsPerStep : m_hfFracScaleFactors_){
         const TString& step(hfFracScaleFactorsPerStep.first);
         for(auto hfFracScaleFactorsPerSystematic : hfFracScaleFactorsPerStep.second){
             const Systematic::Systematic& systematic(hfFracScaleFactorsPerSystematic.first);
             for(auto hfFracScaleFactorsPerChannel : hfFracScaleFactorsPerSystematic.second){
-               
                 const Channel::Channel& channel(hfFracScaleFactorsPerChannel.first);
-                std::cout<<step<<"\t\t"<<systematic.name()<<"\t\t"
+                std::stringstream ssTable;
+                ssTable<<step<<"\t\t"<<systematic.name()<<"\t\t"
                         <<Channel::convert(channel)<<"      \t\t\t   "
                         <<std::fixed<<std::setprecision(3);
                 for(int i = 1; i<(int)templateNames_.size(); ++i) {
-                    std::cout << hfFracScaleFactorsPerChannel.second.at(sampleTypeForId(i)).val<<" |    ";
+                    ssTable << hfFracScaleFactorsPerChannel.second.at(sampleTypeForId(i)).val<<" |    ";
                 }
-                std::cout << std::endl;
+                ssTable << std::endl;
                         
-                std::cout<<"\t\t\t\t\t\t\t\t+- " << std::fixed<<std::setprecision(3);
+                ssTable<<"\t\t\t\t\t\t\t\t+- " << std::fixed<<std::setprecision(3);
                 for(int i = 1; i<(int)templateNames_.size(); ++i) {
-                    std::cout << hfFracScaleFactorsPerChannel.second.at(sampleTypeForId(i)).err<<" |    ";
+                    ssTable << hfFracScaleFactorsPerChannel.second.at(sampleTypeForId(i)).err<<" |    ";
                 }
-                std::cout << std::endl;
+                ssTable << std::endl;
+                m_sfTable[systematic][channel].append(ssTable.str());
             }
+        }
+    }
+    
+    
+    
+    // Printout to screen
+    std::cout<<caption;
+    for(auto sfTableChannel : m_sfTable){
+        for(auto sfTable : sfTableChannel.second) std::cout<<sfTable.second;
+    }
+    
+    // Printout in file
+    for(auto sfTableChannel : m_sfTable){
+        for(auto sfTable : sfTableChannel.second){
+            TString outputFileString = common::assignFolder("GlobalScaleFactors/ttbb", sfTable.first, sfTableChannel.first);
+            outputFileString.Append("ttbbWeight.txt");
+            std::ofstream outputFile;
+            outputFile.open(outputFileString);
+            outputFile<<caption<<sfTable.second;
+            outputFile.close();
         }
     }
 }
@@ -171,6 +193,7 @@ void HfFracScaleFactors::produceScaleFactors(const TString& step, const Samples&
 {
     TH1::AddDirectory(false);
     // Get the scale factors from the samples
+    // FIXME: Should use Drell-Yan scale factors here, but requires to fix their calculation
     const SystematicChannelFactors globalWeights = samples.globalWeights(step, false, false).first;
     
     for(auto systematicChannelSamples : samples.getSystematicChannelSamples()){

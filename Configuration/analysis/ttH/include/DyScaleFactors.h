@@ -2,6 +2,7 @@
 #define dyScaleFactors_h
 
 #include <map>
+#include <string>
 
 class TString;
 
@@ -54,16 +55,16 @@ private:
     void produceScaleFactors(const TString& step, const Samples& samples);
     
     /// Print full information about all ingoing numbers (deactivated by default)
-    void printFullInformation(const double dyScaleFactor_ee, const double dyScaleFactor_mumu, 
-                              const double k_ee, const double k_mumu,
-                              const double rOutIn_ee, const double rOutIn_mumu,
-                              const double nIn_ee_data_loose, const double nIn_mumu_data_loose,
-                              const double nIn_ee_data, const double nIn_mumu_data, const double nIn_emu_data,
-                              const double nIn_ee_mc, const double nIn_mumu_mc,
-                              const double nIn_ee_dy, const double nIn_mumu_dy,
-                              const double nOut_ee_mc, const double nOut_mumu_mc,
-                              const double nOut_ee_dy, const double nOut_mumu_dy,
-                              const TString& step)const;
+    std::string fullInformation(const double dyScaleFactor_ee, const double dyScaleFactor_mumu, 
+                                const double k_ee, const double k_mumu,
+                                const double rOutIn_ee, const double rOutIn_mumu,
+                                const double nIn_ee_data_loose, const double nIn_mumu_data_loose,
+                                const double nIn_ee_data, const double nIn_mumu_data, const double nIn_emu_data,
+                                const double nIn_ee_mc, const double nIn_mumu_mc,
+                                const double nIn_ee_dy, const double nIn_mumu_dy,
+                                const double nOut_ee_mc, const double nOut_mumu_mc,
+                                const double nOut_ee_dy, const double nOut_mumu_dy,
+                                const Systematic::Systematic& systematic, const TString& step)const;
     
     
     
@@ -77,6 +78,9 @@ private:
     
     /// Map containing the Drell-Yan scale factors
     DyScaleFactorMap m_dyScaleFactors_;
+    
+    /// Map for printout of information per systematic, to write to onw file
+    std::map<Systematic::Systematic, std::string> m_printout_;
 };
 
 

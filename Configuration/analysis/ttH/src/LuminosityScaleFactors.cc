@@ -4,6 +4,7 @@
 #include <cstdlib>
 
 #include <TH1.h>
+#include <TString.h>
 
 #include "LuminosityScaleFactors.h"
 #include "Samples.h"
@@ -50,12 +51,18 @@ void LuminosityScaleFactors::produceScaleFactors(const Samples& samples, const d
         for(const auto& channelSamples : systematicChannelSamples.second){
             const Channel::Channel& channel(channelSamples.first);
             const std::vector<Sample>& samples(channelSamples.second);
+            TString outputFileString = common::assignFolder("GlobalScaleFactors/luminosity", channel, systematic);
+            outputFileString.Append("luminosityWeight.txt");
+            std::ofstream outputFile;
+            outputFile.open(outputFileString);
             for(const Sample& sample : samples){
                 double weight(-999.);
                 if(sample.sampleType() != Sample::data) weight = this->luminosityWeight(sample, systematic, luminosityInInversePb*factor);
+                outputFile<<sample.legendEntry()<<"\n"<<sample.inputFile()<<"\n"<<weight<<"\n\n";
                 //std::cout<<"\n\nLuminosity weight: "<<weight<<"\n\n";
                 m_weight_[systematic][channel].push_back(weight);
             }
+            outputFile.close();
         }
     }
 }
