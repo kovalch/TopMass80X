@@ -47,6 +47,7 @@ gen_ttbar_mass_(VariableFloat(name_gen_ttbar_mass_)),
 gen_jet_multiplicity_(VariableInt(name_gen_jet_multiplicity_)),
 gen_x1_(VariableFloat(name_gen_x1_)),
 gen_x2_(VariableFloat(name_gen_x2_)),
+gen_mlblbmet_(VariableFloat(name_gen_mlblbmet_)),
 
 entry_(VariableInt(name_entry_)),
 isTopGen_(VariableInt(name_isTopGen_)),
@@ -92,6 +93,7 @@ gen_ttbar_mass_(VariableFloat(name_gen_ttbar_mass_)),
 gen_jet_multiplicity_(VariableInt(name_gen_jet_multiplicity_)),
 gen_x1_(VariableFloat(name_gen_x1_)),
 gen_x2_(VariableFloat(name_gen_x2_)),
+gen_mlblbmet_(VariableFloat(name_gen_mlblbmet_)),
 
 entry_(VariableInt(name_entry_)),
 isTopGen_(VariableInt(name_isTopGen_)),
@@ -117,8 +119,10 @@ trueLevelWeight_(VariableFloat(name_trueLevelWeight_))
    TLorentzVector hypantibjet(common::LVtoTLV(kinematicReconstructionSolutions.solution().antiBjet()));
    TLorentzVector hyplep(common::LVtoTLV(kinematicReconstructionSolutions.solution().lepton()));
    TLorentzVector hypantilep(common::LVtoTLV(kinematicReconstructionSolutions.solution().antiLepton()));
+   TLorentzVector hypn(common::LVtoTLV(kinematicReconstructionSolutions.solution().neutrino()));
+   TLorentzVector hypantin(common::LVtoTLV(kinematicReconstructionSolutions.solution().antiNeutrino()));
    TLorentzVector hypttbar(hyptop+hypantitop);
-   TLorentzVector met(common::LVtoTLV(*recoObjects.met_));
+   TLorentzVector hypmet((hypn+hypantin).X(),(hypn+hypantin).Y(),0,0);
    
    int nRecoJets=recoObjectIndices.jetIndices_.size();
    jet_multiplicity_.value_ = nRecoJets;
@@ -136,7 +140,7 @@ trueLevelWeight_(VariableFloat(name_trueLevelWeight_))
    ttbar_delta_eta_.value_ = fabs(hyptop.Eta()-hypantitop.Eta());
    ttbar_delta_phi_.value_ = fabs(hyptop.Eta()-hypantitop.Eta());
    
-   mlblbmet_.value_ = (met+hyplep+hypantilep+hypbjet+hypantibjet).M()/hypttbar.M();
+   mlblbmet_.value_ = (hypmet+hyplep+hypantilep+hypbjet+hypantibjet).M()/hypttbar.M();
    
    double restPzJetsSum=0; // rest means jets not from top or anti-top
    double restEJetsSum=0; 
@@ -166,7 +170,14 @@ trueLevelWeight_(VariableFloat(name_trueLevelWeight_))
     
       TLorentzVector gentop(common::LVtoTLV((*topGenObjects.GenTop_)));
       TLorentzVector genantitop(common::LVtoTLV((*topGenObjects.GenAntiTop_)));
+      TLorentzVector genbjet(common::LVtoTLV((*topGenObjects.GenB_)));
+      TLorentzVector genantibjet(common::LVtoTLV((*topGenObjects.GenAntiB_)));
+      TLorentzVector genlep(common::LVtoTLV((*topGenObjects.GenLepton_)));
+      TLorentzVector genantilep(common::LVtoTLV((*topGenObjects.GenAntiLepton_)));
+      TLorentzVector genn(common::LVtoTLV((*topGenObjects.GenNeutrino_)));
+      TLorentzVector genantin(common::LVtoTLV((*topGenObjects.GenAntiNeutrino_)));
       TLorentzVector genttbar(gentop+genantitop);
+      TLorentzVector genmet((genn+genantin).X(),(genn+genantin).Y(),0,0);
     
       gen_top_pt_.value_ = gentop.Pt();
       gen_topbar_pt_.value_ = genantitop.Pt();
@@ -178,6 +189,8 @@ trueLevelWeight_(VariableFloat(name_trueLevelWeight_))
       gen_ttbar_delta_eta_.value_ =fabs(gentop.Eta()-genantitop.Eta());
       gen_ttbar_delta_phi_.value_ =fabs(gentop.DeltaPhi(genantitop));
     
+      gen_mlblbmet_.value_ = (genmet+genlep+genantilep+genbjet+genantibjet).M()/genttbar.M();
+      
    }
     
 }

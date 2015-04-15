@@ -52,8 +52,6 @@ cpNBins_(-999),
 R1_(-999),
 R2_(-999),
 v_SampleHist_(std::vector<TH1D* >(0)),
-v_UnderflowSampleHist_(std::vector<TH1D* >(0)),
-v_OverflowSampleHist_(std::vector<TH1D* >(0)),
 hRecoGen_(0),
 recogenBins_(std::vector<Double_t>(0)),
 
@@ -87,6 +85,9 @@ histGenAllBins_(0),
 
 coarseBins_(std::vector<Double_t>(0)),
 fineBins_(std::vector<Double_t>(0)),
+cut_(-999),
+cutCoarseBins_(std::vector<Double_t>(0)),
+cutFineBins_(std::vector<Double_t>(0)),
 uReco_(-999),
 oReco_(-999),
 uTrue_(-999),
@@ -100,6 +101,7 @@ trueLevelWeight_(-999),
 trueLevelWeight0_(-999),
 top_pt_(-999),
 topbar_pt_(-999),
+mlblbmet_(-999),
 branchVal_(-999),
 branchValGen_(-999),
 branchValGen0_(-999)/*,
@@ -181,6 +183,18 @@ void PlotterBTop::setOptions(const std::vector<TString> v_plotName)
                 recogenBins_.erase(recogenBins_.begin(),recogenBins_.begin()+1);
              }
              
+             if(vWord.at(0) == "cut") cut_ = (vWord.at(1)).Atof();
+             
+             if(vWord.at(0) == "cutcoarse"){
+                for(auto word : vWord)cutCoarseBins_.push_back(word.Atof());
+                cutCoarseBins_.erase(cutCoarseBins_.begin(),cutCoarseBins_.begin()+1);
+             }
+             
+             if(vWord.at(0) == "cutfine"){
+                for(auto word : vWord)cutFineBins_.push_back(word.Atof());
+                cutFineBins_.erase(cutFineBins_.begin(),cutFineBins_.begin()+1);
+             }
+             
              //Pass to dimensional block
              if( (int)vWord.size()==1 && vWord.at(0) == nDflag ){
                  if(isInBlock) isInBlock = false;
@@ -218,12 +232,19 @@ void PlotterBTop::setOptions(const std::vector<TString> v_plotName)
     //Definition of TUnfoldBinning no detector and generator level
     detectorBinning_ = new TUnfoldBinning("detector");
     detectorDistribution_ = detectorBinning_->AddBinning("detectordistribution");
-    detectorDistribution_->AddAxis(plotName_,(int)fineBins_.size()-1,fineBins_.data(),uReco_, oReco_);
-    
+    detectorDistribution_->AddAxis(plotName_,(int)fineBins_.size()-1,fineBins_.data(),uReco_,oReco_);
+    detectorDistribution_->AddAxis("mlblbmet",(int)cutFineBins_.size()-1,cutFineBins_.data(),0, 0);
+    //detectorDistribution_->AddAxis("topbar_pt",(int)cutFineBins_.size()-1,cutFineBins_.data(),0, 0);
+    //if(plotName_ != "top_pt")detectorDistribution_->AddAxis("top_pt",(int)cutFineBins_.size()-1,cutFineBins_.data(),0, 0); 
+    detectorDistribution_->PrintStream(std::cout);
     
     generatorBinning_ = new TUnfoldBinning("generator");
     generatorDistribution_ = generatorBinning_->AddBinning("signal");
     generatorDistribution_->AddAxis("gen_"+plotName_,(int)coarseBins_.size()-1, coarseBins_.data() , uTrue_, oTrue_);
+    generatorDistribution_->AddAxis("gen_mlblbmet",(int)cutCoarseBins_.size()-1, cutCoarseBins_.data() , 0, 0);
+    //generatorDistribution_->AddAxis("gen_topbar_pt",(int)cutCoarseBins_.size()-1, cutCoarseBins_.data() , 0, 0);
+   // if(plotName_ != "top_pt")generatorDistribution_->AddAxis("gen_top_pt",(int)cutCoarseBins_.size()-1, cutCoarseBins_.data() , 0, 0);
+    generatorDistribution_->PrintStream(std::cout);
     
     //std::cout<<"[PlotterBTop]:--- Finishing of plot options settings\n\n";
 }
@@ -240,6 +261,8 @@ void PlotterBTop::clearMemory()
     branchValGen0_ = -999;
     coarseBins_.clear();
     fineBins_.clear();
+    cutCoarseBins_.clear();
+    cutFineBins_.clear();
     recogenBins_.clear();
     uReco_ = -999;
     oReco_ = -999;
@@ -261,14 +284,6 @@ void PlotterBTop::clearMemoryPerSystematicChannel()
      for(auto p : v_SampleHist_)
          delete p;
     v_SampleHist_.clear();
-    
-    for(auto p : v_UnderflowSampleHist_)
-         delete p;
-    v_UnderflowSampleHist_.clear();
-    
-    for(auto p : v_OverflowSampleHist_)
-         delete p;
-    v_OverflowSampleHist_.clear();
     
     if(hRecoGen_)hRecoGen_->Delete();
     
@@ -308,12 +323,10 @@ void PlotterBTop::prepareHistograms(const std::vector<Sample>& v_sample)
         
         for(size_t iSample = 0; iSample < v_sample.size(); ++iSample){
             const auto& sample(v_sample.at(iSample));
-            TH1D* sampleHist = new TH1D(plotName_+"_cp" + std::to_string((int)iSample)  ,plotTitle_,cpNBins_,R1_,R2_);//FIXME: remuve this: + std::to_string(ind) + std::to_string((int)iSample)
+            TH1D* sampleHist = new TH1D(plotName_+"_cp" + std::to_string((int)iSample)  ,plotTitle_,cpNBins_,R1_,R2_);//FIXME: remove this: + std::to_string(ind) + std::to_string((int)iSample)
             sampleHist->SetFillColor(sample.color());
             sampleHist->SetLineColor(sample.color());
             v_SampleHist_.push_back(sampleHist);
-            v_UnderflowSampleHist_.push_back((TH1D*)(sampleHist->Clone(sampleHist->GetName() + TString("u"))));
-            v_OverflowSampleHist_.push_back((TH1D*)(sampleHist->Clone(sampleHist->GetName() + TString("o"))));
         }
         
         hRecoGen_ = new TH2D(plotName_+"_recogen",specname_+";reco "+plotTitle_+plotUnits_+";gen "+plotTitle_+plotUnits_,
@@ -328,10 +341,11 @@ void PlotterBTop::prepareHistograms(const std::vector<Sample>& v_sample)
 //     histMCReco_ = detectorBinning_->CreateHistogram("histDataReco");
 //     
 //     
-        histGen_ = generatorBinning_->CreateHistogram("histGen",kTRUE);
-        histPurity_ = generatorBinning_->CreateHistogram("histPurity",kTRUE);
-        histStability_ = generatorBinning_->CreateHistogram("histStability",kTRUE);
-        histRecoGen_ = generatorBinning_->CreateHistogram("histRecoGen",kTRUE);
+        histGen_ = new TH1D("histGen","histGen",(int)coarseBins_.size()-1, coarseBins_.data());
+        
+        histPurity_ = new TH1D("histPurity","histPurity",(int)coarseBins_.size()-1, coarseBins_.data());
+        histStability_ = new TH1D("histStability","histStability",(int)coarseBins_.size()-1, coarseBins_.data());
+        histRecoGen_ = new TH1D("histRecoGen","histRecoGen",(int)coarseBins_.size()-1, coarseBins_.data());
         
         histEffAllBins_ = generatorBinning_->CreateHistogram("histEffAllBins");
         histGenAllBins_ = generatorBinning_->CreateHistogram("histGenAllBins");
@@ -379,17 +393,22 @@ void PlotterBTop::producePlots()
                 if(sample.legendEntry() == "W+Jets") continue;
                 
                 TFile* dataFile=new TFile(sample.inputFile().ReplaceAll("selectionRoot","btopInput"));
-                //TTree *dataTree0=(TTree *) dataFile->Get("bTop_treeVariables_step0"); 
+                TTree *dataTree0;
+                if(sample.legendEntry() == "t#bar{t} Signal")dataTree0 = (TTree *) dataFile->Get("bTop_treeVariables_step0");
+                else dataTree0 = (TTree *) dataFile->Get("bTop_treeVariables_step8");
                 TTree *dataTree8=(TTree *) dataFile->Get("bTop_treeVariables_step8");
-                if(/*!dataTree0 ||*/ !dataTree8) {
+                if(!dataTree0 || !dataTree8) {
                      std::cout<<"could not read 'bTop_treeVariables_step' tree from " << dataFile->GetName() << "\n";
                  }
                  
                 // set branches
-//                 dataTree0->ResetBranchAddresses();
-//                 dataTree0->SetBranchAddress("entry",&entry0_);
-//                 dataTree0->SetBranchAddress("trueLevelWeight",&trueLevelWeight0_);
-//                 dataTree0->SetBranchAddress("gen_"+plotName_,&branchValGen0_);
+                dataTree0->ResetBranchAddresses();
+                dataTree0->SetBranchAddress("entry",&entry0_);
+                dataTree0->SetBranchAddress("trueLevelWeight",&trueLevelWeight0_);
+                dataTree0->SetBranchAddress("gen_"+plotName_,&branchValGen0_);
+                dataTree0->SetBranchAddress("gen_top_pt",&gen0_top_pt_);
+                dataTree0->SetBranchAddress("gen_topbar_pt",&gen0_topbar_pt_);
+                dataTree0->SetBranchAddress("gen_mlblbmet",&gen0_mlblbmet_);
                 
                 dataTree8->ResetBranchAddresses();
                 dataTree8->SetBranchAddress("entry",&entry_);
@@ -399,8 +418,14 @@ void PlotterBTop::producePlots()
                 dataTree8->SetBranchAddress("isKinReco",&isKinReco_);
                 dataTree8->SetBranchAddress(plotName_,&branchVal_);
                 dataTree8->SetBranchAddress("gen_"+plotName_,&branchValGen_);
+                
                 dataTree8->SetBranchAddress("top_pt",&top_pt_);
                 dataTree8->SetBranchAddress("topbar_pt",&topbar_pt_);
+                dataTree8->SetBranchAddress("mlblbmet",&mlblbmet_);
+                
+                dataTree8->SetBranchAddress("gen_top_pt",&gen_top_pt_);
+                dataTree8->SetBranchAddress("gen_topbar_pt",&gen_topbar_pt_);
+                dataTree8->SetBranchAddress("gen_mlblbmet",&gen_mlblbmet_);
                 
                 sampleInfo.add("entries", utils::numToString(dataTree8->GetEntriesFast()));
                 sampleInfo.add("weight",utils::numToString(v_weight.at(iSample)));
@@ -411,22 +436,30 @@ void PlotterBTop::producePlots()
                 Int_t lastEvent=0;
                 for(Int_t ievent=0;ievent<dataTree8->GetEntriesFast();ievent++){
                     if(dataTree8->GetEntry(ievent)<=0) break;
-
-                    if(plotName_=="top_pt")branchVal_=top_pt_;
-                    if(top_pt_ < 300 || topbar_pt_ < 300)continue;
+                    if(plotName_=="top_pt"){
+                        branchVal_=top_pt_;
+                        branchValGen_=gen_top_pt_;
+                    }
+                    if(plotName_=="mlblbmet"){
+                        branchVal_=mlblbmet_;
+                        branchValGen_=gen_mlblbmet_;
+                    }
+                    
                     //Control plots//
+                    if(mlblbmet_ > cut_){
                         v_SampleHist_.at(iSample)->Fill(branchVal_,eventWeight_*v_weight.at(iSample));
-                        v_UnderflowSampleHist_.at(iSample)->Fill(branchVal_,eventWeight_*v_weight.at(iSample));
-                        v_OverflowSampleHist_.at(iSample)->Fill(branchVal_,eventWeight_*v_weight.at(iSample));
-                        if(isTopGen_&&plotName_!="mlblbmet")hRecoGen_->Fill(branchVal_,branchValGen_,eventWeight_*v_weight.at(iSample));
+                        if(isTopGen_)hRecoGen_->Fill(branchVal_,branchValGen_,eventWeight_*v_weight.at(iSample));
+                    }
                     // ... //
                     
                     if(isTopGen_){
-//                         for(Int_t ievent0=lastEvent;ievent0<dataTree0->GetEntriesFast();ievent0++) {
-//                             if(dataTree0->GetEntry(ievent0)<=0) break;
-//                                 
-//                                 histGen_->Fill(branchValGen0_,trueLevelWeight0_*v_weight.at(iSample));
-//                                 
+                        for(Int_t ievent0=lastEvent;ievent0<dataTree0->GetEntriesFast();ievent0++) {
+                            if(dataTree0->GetEntry(ievent0)<=0) break;
+                            if(plotName_=="top_pt")branchValGen0_=gen0_top_pt_;
+                            if(plotName_=="mlblbmet")branchValGen0_=gen0_mlblbmet_;
+                            
+                            if(gen0_mlblbmet_ > cut_)histGen_->Fill(branchValGen0_,trueLevelWeight0_*v_weight.at(iSample));
+                            
 //                                 histSG_->Fill(genBin_(branchValGen0_),trueLevelWeight0_*v_weight.at(iSample));
 //                                 //histSG_->Fill(genBin_(branchValGen0_),1*v_weight.at(iSample));
 //                                 //Closure test
@@ -436,30 +469,30 @@ void PlotterBTop::producePlots()
 //                                 //histRWSG_->Fill(genBin_(branchValsGen0_),(rewTopRapidityDown(branchValsGen0_.at(0)))*v_weight.at(iSample));//y down
 //                                 //histRWSG_->Fill(genBin_(branchValsGen0_),1*v_weight.at(iSample));//1
 //                                 
-//                                 histGenAllBins_->Fill(genBin_(branchValGen0_),trueLevelWeight0_*v_weight.at(iSample));
+                                histGenAllBins_->Fill(genBin_(branchValGen0_,gen0_mlblbmet_),trueLevelWeight0_*v_weight.at(iSample));
 //                                 
-//                                 if(entry0_ != entry_)
-//                                 {
-//                                     histMigration_->Fill(genBin_(branchValGen0_),0.,trueLevelWeight0_*v_weight.at(iSample));
-//                                     //histMigration_->Fill(genBin_(branchValsGen0_),0.,1*v_weight.at(iSample));
-//                                 }
-//                                 else if(entry0_ == entry_)
-//                                 {
-//                                     lastEvent = ievent0+1;
-//                                     break;
-//                                 }
-//                         }
+                                if(entry0_ != entry_)
+                                {
+                                    histMigration_->Fill(genBin_(branchValGen0_,gen0_mlblbmet_),0.,trueLevelWeight0_*v_weight.at(iSample));
+                                    //histMigration_->Fill(genBin_(branchValGen0_,gen0_mlblbmet_),0.,1*v_weight.at(iSample));
+                                }
+                                else if(entry0_ == entry_)
+                                {
+                                    lastEvent = ievent0+1;
+                                    break;
+                                }
+                        }
                     }
-//                     
-//                     if(v_sample.at(iSample).sampleType() == Sample::data){
-//                         histData_->Fill(recoBin_(branchVal_),eventWeight_*v_weight.at(iSample)); 
-//                     }
-//                     if(v_sample.at(iSample).sampleType() != Sample::data && isKinReco_ && !isTopGen_){
-//                         histBgr_->Fill(recoBin_(branchVal_),eventWeight_*v_weight.at(iSample)); 
-//                     }
-//                     if(isKinReco_&&isTopGen_){
-//                        histMigration_->Fill(genBin_(branchValGen_),recoBin_(branchVal_),eventWeight_*v_weight.at(iSample));
-//                        histMigration_->Fill(genBin_(branchValGen_),0.,trueLevelWeight_*v_weight.at(iSample)-eventWeight_*v_weight.at(iSample));
+                    
+                    if(v_sample.at(iSample).sampleType() == Sample::data){
+                        histData_->Fill(recoBin_(branchVal_,mlblbmet_),eventWeight_*v_weight.at(iSample)); 
+                    }
+                    if(v_sample.at(iSample).sampleType() != Sample::data && isKinReco_ && !isTopGen_){
+                        histBgr_->Fill(recoBin_(branchVal_,mlblbmet_),eventWeight_*v_weight.at(iSample)); 
+                    }
+                    if(isKinReco_&&isTopGen_){
+                       histMigration_->Fill(genBin_(branchValGen_,gen_mlblbmet_),recoBin_(branchVal_,mlblbmet_),eventWeight_*v_weight.at(iSample));
+                       histMigration_->Fill(genBin_(branchValGen_,gen_mlblbmet_),0.,trueLevelWeight_*v_weight.at(iSample)-eventWeight_*v_weight.at(iSample));
 //                        histSR_->Fill(recoBin_(branchVal_),eventWeight_*v_weight.at(iSample));
 //                        
 //                        //double weightCT = 1.;
@@ -471,31 +504,34 @@ void PlotterBTop::producePlots()
 //                        
 //                        //histMigration_->Fill(genBin_(branchValGen_),recoBin_(branchVals_),1*v_weight.at(iSample));
 //                        //histSR_->Fill(recoBin_(branchVals_),weightCT*v_weight.at(iSample));
-//                        
-//                             if((branchValGen_ <coarseBins_.at(0) && uTrue_==0)  || (branchValGen_>coarseBins_.back() && oTrue_==0) )
-//                             {
-//                                 histBgrUo_->Fill(recoBin_(branchVal_),eventWeight_*v_weight.at(iSample));
-//                                 //histBgrUo_->Fill(recoBin_(branchVal_),weightCT*v_weight.at(iSample));
-//                             }
-//                         
-//                        Int_t recBin_temp = -999;
-//                        Int_t genBin_temp = -999;
-//                        
-//                        recBin_temp = generatorDistribution_->GetGlobalBinNumber(branchVal_);
-//                        genBin_temp = generatorDistribution_->GetGlobalBinNumber(branchValGen_);
-//                        histPurity_->Fill(branchVal_,eventWeight_*v_weight.at(iSample));
-//                        histStability_->Fill(branchValGen_,eventWeight_*v_weight.at(iSample));
-// 
-//                        histEffAllBins_->Fill(recBin_temp,eventWeight_*v_weight.at(iSample));
-//                        histPurityAllBins_->Fill(recBin_temp,eventWeight_*v_weight.at(iSample));
-//                        histStabilityAllBins_->Fill(genBin_temp,eventWeight_*v_weight.at(iSample));
-//                        
-//                        if(recBin_temp==genBin_temp){
-//                            histRecoGen_->Fill(branchVal_,eventWeight_*v_weight.at(iSample));
-//                            histRecoGenAllBins_->Fill(recBin_temp,eventWeight_*v_weight.at(iSample));
-//                        }
-//                        
-//                     }
+                       
+                            if((branchValGen_ <coarseBins_.at(0) && uTrue_==0)  || (branchValGen_>coarseBins_.back() && oTrue_==0) )
+                            {
+                                histBgrUo_->Fill(recoBin_(branchVal_,mlblbmet_),eventWeight_*v_weight.at(iSample));
+                                //histBgrUo_->Fill(recoBin_(branchVal_,mlblbmet_),weightCT*v_weight.at(iSample));
+                            }
+                        
+                       Int_t recBin_temp = -999;
+                       Int_t genBin_temp = -999;
+                       
+                            recBin_temp = generatorDistribution_->GetGlobalBinNumber(branchVal_,mlblbmet_);
+                            genBin_temp = generatorDistribution_->GetGlobalBinNumber(branchValGen_,gen_mlblbmet_);
+                       
+                       if(gen_mlblbmet_ > cut_){
+                            histPurity_->Fill(branchVal_,eventWeight_*v_weight.at(iSample));
+                            histStability_->Fill(branchValGen_,eventWeight_*v_weight.at(iSample));
+                       }
+                       
+                       histEffAllBins_->Fill(recBin_temp,eventWeight_*v_weight.at(iSample));
+                       histPurityAllBins_->Fill(recBin_temp,eventWeight_*v_weight.at(iSample));
+                       histStabilityAllBins_->Fill(genBin_temp,eventWeight_*v_weight.at(iSample));
+                       
+                       if(recBin_temp==genBin_temp){
+                           if(gen_mlblbmet_ > cut_)histRecoGen_->Fill(branchVal_,eventWeight_*v_weight.at(iSample));
+                           histRecoGenAllBins_->Fill(recBin_temp,eventWeight_*v_weight.at(iSample));
+                       }
+                       
+                    }
 //                     if(v_sample.at(iSample).sampleType() != Sample::data && isKinReco_ ){
 //                         //histMCReco_->Fill(recoBin_(branchVals_),eventWeight_*v_weight.at(iSample)); 
 //                     }
@@ -507,31 +543,27 @@ void PlotterBTop::producePlots()
 //                 dataTree0->Delete();
                 dataTree8->Delete();
                 dataFile->Delete();
-            
-                
                 
             }//samples loop
-            
             
             sampleInfo.save(sampleInfoFolder);
             
             //Control plots//
                writePlotCP(v_sample ,v_SampleHist_);
-               
             // ... //
             
             
             //Unfolding//
-            //runUnfolding(histMigration_,histData_,histBgr_,histBgrUo_,histUf_);
+            runUnfolding(histMigration_,histData_,histBgr_,histBgrUo_,histUf_);
             //std::cout << "N entries in histBgrUo_ and histData_: " << histBgrUo_->Integral() << " " << histData_->Integral() << std::endl;
             //runUnfolding(histMigration_,histSR_,0,histBgrUo_,histUf_);
             //writePlotCT(histSG_,histRWSG_,histUf_);
             // ... //
             
             //Cross sections//
-            //writePlotXSec(unfoldedData_,histGen_);
+            writePlotXSec(unfoldedData_,histGen_);
             //writePlotEPS();
-            //writePlotEPSAllBins();
+            writePlotEPSAllBins();
             
         }//channel loop
         
@@ -541,19 +573,29 @@ void PlotterBTop::producePlots()
 }
 
 
-int PlotterBTop::genBin_(const float& val)
+int PlotterBTop::genBin_(const float& val1,const float& val2)
 {
     int bin = -999;
-    bin = generatorDistribution_->GetGlobalBinNumber(val);
+    if(plotName_ != "mlblbmet"){
+        bin = generatorDistribution_->GetGlobalBinNumber(val1,val2);
+    }
+    else{
+        bin = generatorDistribution_->GetGlobalBinNumber(val1);
+    }
     return bin;
 }
 
 
 
-int PlotterBTop::recoBin_(const float& val)
+int PlotterBTop::recoBin_(const float& val1,const float& val2)
 {
     int bin = -999;
-    bin = detectorDistribution_->GetGlobalBinNumber(val);
+    if(plotName_ != "mlblbmet"){
+        bin = detectorDistribution_->GetGlobalBinNumber(val1,val2);
+    }
+    else{
+        bin = detectorDistribution_->GetGlobalBinNumber(val1);
+    }
     return bin;
 }
 
@@ -787,12 +829,16 @@ void PlotterBTop::runUnfolding(const TH2* histMigration,const TH1* histInput,
     
     histUf = unfold.GetOutput("histUf","unfolding result",distributionName,projectionMode,kFALSE);
     
-    unfoldedData_ = unfold.GetOutput("unfoldedData","unfolding result",distributionName,projectionMode,useAxisBinning);
+                        //see TUnfoldBinningV17::FillBinMapSingleNode
+    ///unfoldedData_ = unfold.GetOutput("unfoldedData","unfolding result",distributionName,projectionMode,useAxisBinning);
+    unfoldedData_ = (TH1D*)unfold.GetOutput("unfoldedData","unfolding result","signal","gen_mlblbmet[C0]",kTRUE);
+    //else unfoldedData_ = (TH1D*)unfold.GetOutput("unfoldedData","unfolding result","signal","gen_topbar_pt[C1];gen_top_pt[C1]",kTRUE);
+    
     //unfoldedData_ = (TH1D*)unfold.GetOutput("unfoldedData","unfolding result",distributionName,"*[UO]",useAxisBinning);
     //unfoldedData_ = (TH1D*)unfold.GetOutput("unfoldedData","unfolding result",distributionName,"*",useAxisBinning);
     //unfoldedData_->GetYaxis()->SetRangeUser(0,11500);
     unfoldedData_->SetStats(0);
-    unfoldedData_->Draw("colz");
+    unfoldedData_->Draw("");
     writeCanvas(canvas,unfoldedData_->GetName());
     
     
@@ -1042,7 +1088,8 @@ void PlotterBTop::writePlotEPSAllBins()
     double yMax = histPurityAllBins_->GetMaximum() > histStabilityAllBins_->GetMaximum() ? histPurityAllBins_->GetMaximum()*1.15 : histStabilityAllBins_->GetMaximum()*1.15;
     histPurityAllBins_->SetAxisRange(0,yMax ,"Y");
     
-    histPurityAllBins_->Draw("e same");
+    histPurityAllBins_->Paint();
+    histPurityAllBins_->Draw("e ");
     histStabilityAllBins_->Draw("e same");
     histEffAllBins_->Draw("e same");
     legend->Draw("same");
@@ -1116,6 +1163,7 @@ void PlotterBTop::writePlotXSec(const TH1* hData,const TH1* hMC)
         histData->Draw("e,same");
         utils::drawRatio(histData, histMC, NULL,0.5,2);
         canvas->Print(plotsFolder_+ "xSec_" + plotName_ + ".pdf");
+        canvas->Print(plotsFolder_+ "xSec_" + plotName_ + ".root");
         
         histMC->Delete();
         histData->Delete();

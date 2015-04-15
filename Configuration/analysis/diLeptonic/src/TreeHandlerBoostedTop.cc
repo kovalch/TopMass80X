@@ -85,6 +85,7 @@ void TreeHandlerBoostedTop::bookBranches(TTree* tree, VariablesBase* const varia
     this->createBranch(tree, variablesBoostedTop->gen_jet_multiplicity_);
     this->createBranch(tree, variablesBoostedTop->gen_x1_);
     this->createBranch(tree, variablesBoostedTop->gen_x2_);
+    this->createBranch(tree, variablesBoostedTop->gen_mlblbmet_);
 }
 
 
@@ -150,6 +151,7 @@ void TreeHandlerBoostedTop::importBranches(TTree* tree, std::vector<VariablesBas
     this->importBranch(tree, variablesBoostedTop.gen_jet_multiplicity_);
     this->importBranch(tree, variablesBoostedTop.gen_x1_);
     this->importBranch(tree, variablesBoostedTop.gen_x2_);
+    this->createBranch(tree, variablesBoostedTop.gen_mlblbmet_);
     
     // Loop over all tree entries and fill vector of structs
     for(Long64_t iEntry = 0; iEntry < tree->GetEntries(); ++iEntry){

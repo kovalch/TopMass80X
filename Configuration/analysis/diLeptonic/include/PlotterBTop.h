@@ -57,8 +57,6 @@ private:
     Double_t R1_;
     Double_t R2_;
     std::vector<TH1D* > v_SampleHist_; // v-sample , Hist 
-    std::vector<TH1D* > v_UnderflowSampleHist_; // v-sample , Hist 
-    std::vector<TH1D* > v_OverflowSampleHist_;
     void writePlotCP(const std::vector<Sample>& v_sample,const std::vector<TH1D* >& v_SampleHist);
     TH2D* hRecoGen_;
     std::vector<Double_t> recogenBins_;
@@ -74,8 +72,8 @@ private:
     TH1* histData_;
     TH1* unfoldedData_;
 //     
-    int genBin_(const float& val);
-    int recoBin_(const float& val);
+    int genBin_(const float& val1,const float& val2);
+    int recoBin_(const float& val1,const float& val2);
     void runUnfolding(const TH2* histMigration,const TH1* histInput,
                       const TH1* histBgr,const TH1* histBgrUo,
                       TH1*& histUf);
@@ -123,6 +121,9 @@ private:
     int uTrue_;
     int oTrue_;
     
+    Double_t cut_;
+    std::vector<Double_t>  cutCoarseBins_;
+    std::vector<Double_t>  cutFineBins_;
   
     /// Tree branches
     Int_t entry_,entry0_;
@@ -130,10 +131,20 @@ private:
     Int_t isTopGen_, isKinReco_;
     Float_t top_pt_;
     Float_t topbar_pt_;
+    Float_t mlblbmet_;
     
-    float branchVal_;
-    float branchValGen_;
-    float branchValGen0_;
+    Float_t gen_top_pt_;
+    Float_t gen_topbar_pt_;
+    Float_t gen_mlblbmet_;
+    
+    Float_t gen0_top_pt_;
+    Float_t gen0_topbar_pt_;
+    Float_t gen0_mlblbmet_;
+    
+    Float_t branchVal_;
+    Float_t branchValGen_;
+    Float_t branchValGen0_;
+
     
     
     /// Histograms for Unfolding
