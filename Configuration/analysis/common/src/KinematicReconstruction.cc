@@ -116,7 +116,6 @@ h_jetAngleRes_(0),
 h_jetEres_(0),
 h_lepAngleRes_(0),
 h_lepEres_(0),
-h_nwcuts_(0),
 h_mbl_w_(0)
 {
     std::cout<<"--- Beginning preparation of kinematic reconstruction\n";
@@ -215,7 +214,7 @@ KinematicReconstructionSolutions KinematicReconstruction::solutions(const std::v
 std::vector<KinematicReconstructionSolution> KinematicReconstruction::solutionsPerObjectCombination(const int leptonIndex, const int antiLeptonIndex,
                                                                                                     const int jetIndex1, const int jetIndex2,
                                                                                                     const VLV& allLeptons,
-                                                                                                    const VLV& allJets, const std::vector<double>&,// btags,
+                                                                                                    const VLV& allJets, const std::vector<double>& /*btag values*/ ,
                                                                                                     const LV& met,
                                                                                                     const int numberOfBtags)const
 {
@@ -225,8 +224,6 @@ std::vector<KinematicReconstructionSolution> KinematicReconstruction::solutionsP
     const LV& antiLepton = allLeptons.at(antiLeptonIndex);
     const LV& jet1 = allJets.at(jetIndex1);
     const LV& jet2 = allJets.at(jetIndex2);
-    //const double& btag1 = btags.at(jetIndex1);
-    //const double& btag2 = btags.at(jetIndex2);
     
     if(massLoop_){
         double neutrinoWeightMax = 0.;
@@ -401,12 +398,10 @@ bool KinematicReconstruction::solutionSmearing(KinematicReconstruction_MeanSol& 
 //...
             
             TVector3 metV3_sm= -b_sm.Vect()-bbar_sm.Vect()-l_sm.Vect()-al_sm.Vect()-vX_sm.Vect();
-            met_sm.SetXYZM(metV3_sm.Px(),metV3_sm.Py(),0,0);
+                met_sm.SetXYZM(metV3_sm.Px(),metV3_sm.Py(),0,0);
             
             KinematicReconstruction_LSroutines tp_sm(0.0,0.0,h_wmass_->GetRandom(),h_wmass_->GetRandom());
-//            KinematicReconstruction_LSroutines tp_sm(0.0,0.0,h_wmass_->GetRandom(),h_wmass_->GetRandom(),(*h_nwcuts_));
-            
-            tp_sm.setConstraints(al_sm, l_sm, b_sm, bbar_sm, met_sm.Px(), met_sm.Py());
+                tp_sm.setConstraints(al_sm, l_sm, b_sm, bbar_sm, met_sm.Px(), met_sm.Py());
 
             if(tp_sm.getNsol()>0)
             {
@@ -722,33 +717,23 @@ void KinematicReconstruction::loadData()
     h_jetEres_->SetDirectory(0);
     tempTFile.Close();
      
-
-    TString data_path2 = common::DATA_PATH_COMMON();
-    data_path2.Append("/KinReco_wneutrinocuts.root");
-    TFile fnw(data_path2);
-    h_nwcuts_ = (TH1F*)fnw.Get("Eneu_true");
-    h_nwcuts_->SetDirectory(0);
-    fnw.Close();
-
 // mbl
-
-        TString data_path7 = common::DATA_PATH_COMMON();
-        data_path7.Append("/KinReco_mbl.root");
-        TFile fmbl(data_path7);
+    TString data_path2 = common::DATA_PATH_COMMON();
+        data_path2.Append("/KinReco_mbl.root");
+    TFile fmbl(data_path2);
         h_mbl_w_ = (TH1F*)fmbl.Get("mbl_true");
         h_mbl_w_->SetDirectory(0);
         fmbl.Close();
         
-        TString data_path71 = common::DATA_PATH_COMMON();
-        data_path71.Append("/KinReco_mbl_wrong.root");
-        TFile fmbl_wrong(data_path71);
-//         h_mbl_w_ = (TH1F*)fmbl_wrong.Get("mbl_true_wrong");
-//         h_mbl_w_->SetDirectory(0);
+    TString data_path21 = common::DATA_PATH_COMMON();
+        data_path21.Append("/KinReco_mbl_wrong.root");
+    TFile fmbl_wrong(data_path21);
+        //h_mbl_w_ = (TH1F*)fmbl_wrong.Get("mbl_true_wrong");
+        //h_mbl_w_->SetDirectory(0);
         fmbl_wrong.Close();
 // ...
-      
+    
 // pdf
-
         mttBinsForX_ = {340,400,470,550,650,750,850,950,1050,1150,1250,1550,1850,2150};
         TString data_path10 = common::DATA_PATH_COMMON();
         data_path10.Append("/KinReco_HERAPDF.root");
@@ -761,7 +746,6 @@ void KinematicReconstruction::loadData()
             h_pdf_w_[i]->SetDirectory(0);
         }
         fpdf.Close();
-             
 // ...
     std::cout<<"Found all histograms needed for smearing\n";
 }

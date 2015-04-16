@@ -127,8 +127,6 @@ private:
     TH1* h_lepAngleRes_;
     TH1* h_lepEres_;
     
-    TH1* h_nwcuts_;
-    
 // // mbl
     TH1* h_mbl_w_;
 // pdf
