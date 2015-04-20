@@ -28,7 +28,7 @@ NameScheme::removeAll(TString& str, const char c)
 }
 
 TString
-NameScheme::name(ofstream& file, const char* name)
+NameScheme::name(std::ofstream& file, const char* name)
 {
   TString namestr( name_ );
   namestr += link_;
@@ -39,7 +39,7 @@ NameScheme::name(ofstream& file, const char* name)
 }
 
 TString
-NameScheme::name(ofstream& file, const char* name, const int i)
+NameScheme::name(std::ofstream& file, const char* name, const int i)
 {
   TString namestr( name_ );
   namestr += link_;
@@ -52,7 +52,7 @@ NameScheme::name(ofstream& file, const char* name, const int i)
 }
 
 TString
-NameScheme::name(ofstream& file, const char* name, const int i, const int j)
+NameScheme::name(std::ofstream& file, const char* name, const int i, const int j)
 {
   TString namestr( name_ );
   namestr += link_;
@@ -67,7 +67,7 @@ NameScheme::name(ofstream& file, const char* name, const int i, const int j)
 }
 
 TString
-NameScheme::name(ofstream& file, const char* name, const double i, const double j)
+NameScheme::name(std::ofstream& file, const char* name, const double i, const double j)
 {
   TString namestr( name_ );
   namestr += link_;

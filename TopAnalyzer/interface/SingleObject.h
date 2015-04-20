@@ -68,16 +68,16 @@ class SingleObject{
   /// book histograms or tree variables
   void bookVariable(edm::Service<TFileService>& fs, const char * variable,
 		    unsigned int binsX, float lowX, float upX, unsigned int binsY, float lowY, float upY,
-		    bool useTree);
-  void bookVariable(edm::Service<TFileService>& fs, const char * variable, unsigned int binsX, float lowX, float upX, bool useTree);
+		    bool useTree=false);
+  void bookVariable(edm::Service<TFileService>& fs, const char * variable, unsigned int binsX, float lowX, float upX, bool useTree=false);
   void bookVariable(edm::Service<TFileService>& fs, const char * variable);
   /// fill values into map for histograms or tree
-  void fillValue(std::string variable, float  value1, float value2, const double& weight);
-  void fillValue(std::string variable, float  value1, const double& weight);
-  void fillValue(std::string variable, int    value1, const double& weight);
-  void fillValue(std::string variable, unsigned int    value1, const double& weight);
-  void fillValue(std::string variable, double value1, const double& weight);
-  void initializeTrees(float value, const double& weight);
+  void fillValue(std::string variable, float  value1, float value2, const double& weight=1.);
+  void fillValue(std::string variable, float  value1, const double& weight=1.);
+  void fillValue(std::string variable, int    value1, const double& weight=1.);
+  void fillValue(std::string variable, unsigned int    value1, const double& weight=1.);
+  void fillValue(std::string variable, double value1, const double& weight=1.);
+  void initializeTrees(float value, const double& weight=1.);
 
   /**
      The following functions have to be implemented for any class
@@ -131,7 +131,7 @@ template <typename Collection>
 template <typename Collection>
   void SingleObject<Collection>::bookVariable(edm::Service<TFileService>& fs, const char * variable,
 					      unsigned int binsX, float lowX, float upX, unsigned int binsY, float lowY, float upY,
-					      bool useTree=false)
+					      bool useTree)
 {
   if(useTree && !binsY){
     //std::cout << "Adding *" << variable << "* to TTree" << std::endl;
@@ -176,7 +176,7 @@ template <typename Collection>
 
 template <typename Collection>
   void SingleObject<Collection>::bookVariable(edm::Service<TFileService>& fs, const char * variable,
-					      unsigned int binsX, float lowX, float upX, bool useTree=false)
+					      unsigned int binsX, float lowX, float upX, bool useTree)
 {
   bookVariable( fs, variable, binsX, lowX, upX, 0, 0, 0, useTree);
 }
@@ -189,13 +189,13 @@ template <typename Collection>
 
 /// fill values into map for histograms or tree
 template <typename Collection>
-  void SingleObject<Collection>::fillValue(std::string variable, float value1, float value2, const double& weight=1.)
+  void SingleObject<Collection>::fillValue(std::string variable, float value1, float value2, const double& weight)
 {
   if(hists2D_.find(variable) != hists2D_.end()) hists2D_.find(variable)->second->Fill(value1, value2, weight);
 }
 
 template <typename Collection>
-  void SingleObject<Collection>::fillValue(std::string variable, int value, const double& weight=1.)
+  void SingleObject<Collection>::fillValue(std::string variable, int value, const double& weight)
 {
   if(treeVarsI_.find(variable) != treeVarsI_.end()){
     treeVarsI_.find(variable)->second = value;
@@ -211,7 +211,7 @@ template <typename Collection>
 }
 
 template <typename Collection>
-  void SingleObject<Collection>::fillValue(std::string variable, unsigned int value, const double& weight=1.)
+  void SingleObject<Collection>::fillValue(std::string variable, unsigned int value, const double& weight)
 {
   if(treeVarsUI_.find(variable) != treeVarsUI_.end()){
     treeVarsUI_.find(variable)->second = value;
@@ -227,7 +227,7 @@ template <typename Collection>
 }
 
 template <typename Collection>
-  void SingleObject<Collection>::fillValue(std::string variable, float value, const double& weight=1.)
+  void SingleObject<Collection>::fillValue(std::string variable, float value, const double& weight)
 {
   if(treeVars_.find(variable) != treeVars_.end()){
     treeVars_.find(variable)->second = value;
@@ -243,7 +243,7 @@ template <typename Collection>
 }
 
 template <typename Collection>
-  void SingleObject<Collection>::fillValue(std::string variable, double value, const double& weight=1.)
+  void SingleObject<Collection>::fillValue(std::string variable, double value, const double& weight)
 {
   if(treeVarsD_.find(variable) != treeVarsD_.end()){
     treeVarsD_.find(variable)->second = value;
@@ -273,7 +273,7 @@ void SingleObject<Collection>::write(TFile& file, const char* directory)
 
 /// initialize all branches with default value (can be called in all events)
 template <typename Collection>
-void SingleObject<Collection>::initializeTrees(float value, const double& weight=1.)
+void SingleObject<Collection>::initializeTrees(float value, const double& weight)
 {
   // loop all branches in the tree
   for(std::map<std::string, float>::iterator treeEntry=treeVars_.begin(); treeEntry!=treeVars_.end(); ++treeEntry){

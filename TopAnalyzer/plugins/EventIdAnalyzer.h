@@ -40,7 +40,7 @@ class EventIdAnalyzer : public edm::EDAnalyzer {
 
 
   
-  ofstream myfile;
+  std::ofstream myfile;
   
   TTree * tree;
   unsigned int run;

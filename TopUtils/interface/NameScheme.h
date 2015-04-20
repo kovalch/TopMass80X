@@ -100,10 +100,10 @@ class NameScheme {
     return namestr;
   }
   TString name(){TString namestr( name_ ); return namestr;};  
-  TString name(ofstream&, const char*);
-  TString name(ofstream&, const char*, const int);
-  TString name(ofstream&, const char*, const int, const int);
-  TString name(ofstream&, const char*, const double, const double);
+  TString name(std::ofstream&, const char*);
+  TString name(std::ofstream&, const char*, const int);
+  TString name(std::ofstream&, const char*, const int, const int);
+  TString name(std::ofstream&, const char*, const double, const double);
 
 
  private:

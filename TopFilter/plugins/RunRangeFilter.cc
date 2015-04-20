@@ -19,6 +19,7 @@ Both limits are included in the valid range. If a limit is 0 it is not tested.*/
 
 // system include files
 #include <memory>
+#include <iostream>
 
 // user include files
 //#include "FWCore/Framework/interface/Frameworkfwd.h"

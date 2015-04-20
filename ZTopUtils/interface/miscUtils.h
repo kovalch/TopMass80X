@@ -244,7 +244,7 @@ bool fileExists(const char * filename);
  * the input elements are NOT changed but passing by const& leads to errors in some cases
  */
 template<class T, class U>
-int getClosestInDR(T* element, std::vector<U*>& coll, double & dRmax = 999,
+int getClosestInDR(T* element, std::vector<U*>& coll, double & dRmax,
 		const double & dptrel = 200) {
 	double dRmin = 9999;
 	if (dRmax)
@@ -266,7 +266,13 @@ int getClosestInDR(T* element, std::vector<U*>& coll, double & dRmax = 999,
 }
 
 template<class T, class U>
-int getClosestInDR(T& element, std::vector<U>& coll, double & dRmax = 999,
+int getClosestInDR(T* element, std::vector<U*>& coll){
+        return  getClosestInDR(element, coll, 999,200);
+}
+
+
+template<class T, class U>
+int getClosestInDR(T& element, std::vector<U>& coll,double & dRmax,
 		const double & dptrel = 200) {
 	double dRmin = 9999;
 	if (dRmax)
@@ -285,6 +291,13 @@ int getClosestInDR(T& element, std::vector<U>& coll, double & dRmax = 999,
 		dRmax = dRmin;
 	return idx;
 }
+
+template<class T, class U>
+int getClosestInDR(T& element, std::vector<U>& coll){
+        return  getClosestInDR(element, coll, 999,200);
+}
+
+
 /**
  * works like std::sort but returns a vector of indecies that has the following form:
  * vector.at(unsrotedindex) == sortedindex
