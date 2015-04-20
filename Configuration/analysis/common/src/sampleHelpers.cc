@@ -62,6 +62,9 @@ Systematic::Type Systematic::convertType(const TString& type)
     if(type.BeginsWith("LUMI")) return lumi;
     if(type.BeginsWith("XSEC_TT2B")) return xsec_tt2b;
     if(type.BeginsWith("XSEC_TTCC")) return xsec_ttcc;
+    if(type.BeginsWith("XSEC_TTOTHER")) return xsec_ttother;
+    if(type.BeginsWith("XSEC_TTZ")) return xsec_ttZ;
+    if(type.BeginsWith("XSEC_TTH")) return xsec_ttH;
     if(type.BeginsWith("TOP_PT")) return topPt;
     if(type.BeginsWith("MASS")) return mass;
     if(type.BeginsWith("MATCH")) return match;
@@ -122,6 +125,9 @@ TString Systematic::convertType(const Type& type)
     if(type == lumi) return "LUMI";
     if(type == xsec_tt2b) return "XSEC_TT2B";
     if(type == xsec_ttcc) return "XSEC_TTCC";
+    if(type == xsec_ttother) return "XSEC_TTOTHER";
+    if(type == xsec_ttZ) return "XSEC_TTZ";
+    if(type == xsec_ttH) return "XSEC_TTH";
     if(type == topPt) return "TOP_PT";
     if(type == mass) return "MASS";
     if(type == match) return "MATCH";

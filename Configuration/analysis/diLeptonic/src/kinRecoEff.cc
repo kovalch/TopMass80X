@@ -26,6 +26,9 @@ double sqr(double value) { return value*value; }
 int main()
 {
   
+    TString kinRecoSF("const std::map<Channel::Channel, double> m_sfNominal { ");
+    TString kinRecoSFerr("const std::map<Channel::Channel, double> m_sfUnc { ");
+    
   gSystem->Exec("mkdir Plots");
     
   RootFileReader *fileReader_ = RootFileReader::getInstance();
@@ -170,8 +173,9 @@ int main()
           EffHist effHist(effHistNames.at(j));
 
           TString savepath;
-          savepath.Append(+"./Plots/"+systematic+"/"+channel+"/"+"KinRecoEff_"+effHistNames.at(j)+".root");
-//           savepath.Append(+"./Plots/"+systematic+"/"+channel+"/"+"KinRecoEff_"+effHistNames.at(j)+".pdf");
+          //savepath.Append(+"./Plots/"+systematic+"/"+channel+"/"+"KinRecoEff_"+effHistNames.at(j)+".root");
+          //savepath.Append(+"./Plots/"+systematic+"/"+channel+"/"+"KinRecoEff_"+effHistNames.at(j)+".pdf");
+          savepath.Append(+"./Plots/"+systematic+"/"+channel+"/"+"KinRecoEff_"+effHistNames.at(j)+".png");
           savepath.ReplaceAll("_vs_",4,"",0);
 
             //TString title(channel);
@@ -199,20 +203,26 @@ int main()
                 NdataBefore=dataDeNumHist->GetBinContent(1);
                 NmcAfter=mcNumHist->GetBinContent(1);
                 NmcBefore=mcDeNumHist->GetBinContent(1);
-            }
-            
-            if(j>2){
                 dataEff = NdataAfter / NdataBefore;
                 dataEffUnc = sqrt(dataEff * (1-dataEff) / NdataBefore);
-                
                 allmcEff =  NmcAfter / NmcBefore;
                 allmcEffUnc = sqrt(allmcEff * (1-allmcEff) / NmcBefore);
-                
                 sfUnc = sqrt(sqr(dataEffUnc/dataEff) + sqr(allmcEffUnc/allmcEff));
                 
                 sprintf(dataEffString, "%.2f%%", 100*dataEff);
                 sprintf(allmcEffString, "%.2f%%", 100*allmcEff);
                 sprintf(sfString, "%.4f +- %.4f", dataEff/allmcEff, sfUnc);
+                
+                char tempCharVal[100];
+                char tempCharErr[100];
+                sprintf(tempCharVal,"{Channel::%s, %.4f},",channel.Data(),dataEff/allmcEff);
+                sprintf(tempCharErr,"{Channel::%s, %.4f},",channel.Data(),sfUnc);
+                printf("{Channel::%s, %s},\n",channel.Data(),sfString);
+                kinRecoSF.Append(tempCharVal);
+                kinRecoSFerr.Append(tempCharErr);
+            }
+            
+            if(j>2){
                 effHist.addData((TH1D*)dataNumHist,(TH1D*)dataDeNumHist);
                 effHist.addMc((TH1D*)mcNumHist,(TH1D*)mcDeNumHist);
                 
@@ -224,6 +234,13 @@ int main()
     }
   }
 
+  
+  
+  printf("INFO: The next two lines must be copied into KinematicReconstruction.cc :\n");
+  kinRecoSF.Append("};");
+  kinRecoSFerr.Append("};");
+  Printf("%s\n%s\n",kinRecoSF.Data(),kinRecoSFerr.Data());
+  
 
   return 0;
 }

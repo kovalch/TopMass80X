@@ -132,7 +132,8 @@ namespace Systematic{
         
         lumi,
         frac_tthf, frac_ttother,
-        xsec_tt2b, xsec_ttcc,
+        xsec_tt2b, xsec_ttcc, xsec_ttother, 
+        xsec_ttZ, xsec_ttH,
         
         topPt,
         pdf,
