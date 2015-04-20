@@ -35,8 +35,6 @@
 
 UsefulTools::UsefulTools( RootFileReader* rootFileReader,bool isClosureTest,bool isDYScale):
 
-lumi(19712), // data luminosity in pb-1
-
 //topxsec(244.849), //again changes with normalization, must be set outside of the class
 //topxsec(244.794), //Mitov, arXiv:1303.6254
 //topxsec(247.998), //Measured XSection after normalization to Mitov, and statistical combination of channels
@@ -61,6 +59,8 @@ void UsefulTools::fillVectorOfValidSystematics(std::vector<const char*>& vect)
 
     for (auto s: VectorOfValidSystematics) vect.push_back(s);
 }
+
+
 
 double UsefulTools::SampleXSection(const TString& filename){
     
@@ -150,7 +150,7 @@ double UsefulTools::CalcLumiWeight(const TString& WhichSample){
 		//From 'filename' get the number of weighted (MC weights) event processed.
 		const TH1 *h_NrOfEvts = fileReader->Get<TH1>(WhichSample, "weightedEvents");
 		double NrOfEvts = h_NrOfEvts->GetBinContent(1);
-		lumiWeight = lumi*XSection/NrOfEvts;
+		lumiWeight = lumi_*XSection/NrOfEvts;
 	}
 
 	if (lumiWeight == 0) {

@@ -46,7 +46,7 @@ void Plotter::setDrawUncBand(bool drawUncBand)
 void Plotter::UnfoldingOptions(bool doSVD)
 {
   doUnfolding = doSVD;
-  drawNLOCurves = true; // boolean to draw/not-draw extra theory curves in the Diff.XSection plots
+  drawNLOCurves = false; // boolean to draw/not-draw extra theory curves in the Diff.XSection plots
 
 
   drawPlotRatio    = true;
@@ -499,7 +499,7 @@ void Plotter::setOptions(TString name_, TString specialComment_, TString YAxis_,
     DYScale.insert(DYScale.begin(), 4, 1.);//Initialize the DY scale-factor to (1., 1., 1., 1.)
     
     usefulTools = new UsefulTools(fileReader,doClosureTest,doDYScale);
-    this->lumi = usefulTools->lumi;
+    this->lumi = usefulTools->lumi_;
     this->topxsec = usefulTools->topxsec;
     
 }

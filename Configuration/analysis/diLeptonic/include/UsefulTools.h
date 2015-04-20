@@ -14,13 +14,13 @@ class UsefulTools{
 
 public:
     
+    static constexpr double lumi_ = 19712.; // data luminosity in pb-1
+    
     /// Constructor for producing Drell-Yan scale factors
     UsefulTools(RootFileReader*  rootFileReader,bool doClosureTest,bool doDYScale);
     
     /// Default destructor
-    ~UsefulTools(){}
-    
-    void setLumi(double newLumi, double xSec);
+    ~UsefulTools(){} 
     
     //IVAN's Scaling Code
     double SampleXSection(const TString& filename);
@@ -41,7 +41,7 @@ public:
    static void fillLegendColorDataset(const TString& fileListName, std::vector<TString>& legends, std::vector<int>& colors, std::vector<TString>& dataset);
     
     std::set<TString> ListOfSyst;
-    double lumi, topxsec;
+    double topxsec;
     
 private:
     
