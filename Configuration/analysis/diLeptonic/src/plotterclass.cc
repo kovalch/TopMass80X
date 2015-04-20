@@ -46,7 +46,7 @@ void Plotter::setDrawUncBand(bool drawUncBand)
 void Plotter::UnfoldingOptions(bool doSVD)
 {
   doUnfolding = doSVD;
-  drawNLOCurves = false; // boolean to draw/not-draw extra theory curves in the Diff.XSection plots
+  drawNLOCurves = true; // boolean to draw/not-draw extra theory curves in the Diff.XSection plots
 
 
   drawPlotRatio    = true;
