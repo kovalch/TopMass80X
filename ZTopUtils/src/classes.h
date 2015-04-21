@@ -35,10 +35,12 @@ struct dict {
     ztop::bTagBase ked;
     ztop::JECBase kkss;
     ztop::JERBase ksdsk;
+    ztop::JESBase ksvm;
     std::vector<ztop::RecoilCorrector> correctorV;
     std::vector<ztop::bTagBase> kedV;
     std::vector<ztop::JECBase> kkssV;
     std::vector<ztop::JERBase> ksdskV;
+    std::vector<ztop::JESBase> ksvmV;
 
     ///external
 

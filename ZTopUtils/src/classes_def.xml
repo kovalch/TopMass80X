@@ -17,6 +17,8 @@
   <class name="std::vector<ztop::JERBase>"/>
   <class name="ztop::JECBase"/>
   <class name="std::vector<ztop::JECBase>"/>
+  <class name="ztop::JESBase"/>
+  <class name="std::vector<ztop::JESBase>"/>
   <class name="ztop::RecoilCorrector"/>
   <class name="std::vector<ztop::RecoilCorrector>"/>
   
