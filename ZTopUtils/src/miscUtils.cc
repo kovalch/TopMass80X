@@ -271,21 +271,23 @@ void addRelError(TH1D &h, double err) {
 
 void displayStatusBar(Long64_t event, Long64_t nEvents, int ndiv) {
 	if (event == 0) {
-		std::cout << "[                                                  ] "
+		for(size_t i=0;i<50;i++)
+		std::cout << "\u25FD";
+		std::cout << " "
 				<< "0% \n";
 		flush(std::cout);
 	}
 	else if ((event + 1) * ndiv % nEvents < ndiv) {
 		int statusbar = (event + 1) * ndiv / nEvents;
 
-		std::cout << "\x1b[A\r[";
+		std::cout << "\x1b[A\r";
 		for (int i = 0; i < statusbar * 50 / ndiv; i++) {
-			std::cout << "=";
+			std::cout << "\u25FE";
 		}
 		for (int i = statusbar * 50 / ndiv; i < 50; i++) {
-			std::cout << " ";
+			std::cout << "\u25FD";
 		}
-		std::cout << "] " << statusbar * 100 / ndiv << "% \n";
+		std::cout << " " << statusbar * 100 / ndiv << "% \n";
 		flush(std::cout);
 		statusbar++;
 	}

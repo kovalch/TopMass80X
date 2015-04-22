@@ -208,7 +208,7 @@ std::vector<T>& operator<<(std::vector<T>& vec, const std::vector<U> & x) {
 	return vec;
 }
 
-void displayStatusBar(Long64_t event, Long64_t nEvents, int ndiv = 50);
+void displayStatusBar(Long64_t event, Long64_t nEvents, int ndiv = 100);
 
 template<class T>
 bool allEqual(std::vector<T> vec, T val) {
