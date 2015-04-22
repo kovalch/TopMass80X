@@ -275,7 +275,7 @@ void JESBase::applyUncertainties(float & pt, float& eta, float & phi, float& m, 
 	}
 }
 
-double JESBase::getCorrectionValueForUncorrectedJet(const double& jetInitialArea, const double& jetInitialEta, const double& jetInitialPt, const double& rho) {
+double JESBase::correctionForUncorrectedJet(const double& jetInitialArea, const double& jetInitialEta, const double& jetInitialPt, const double& rho) {
 
         jetCorrector_->setJetA(jetInitialArea);
         jetCorrector_->setJetEta(jetInitialEta);
@@ -287,7 +287,7 @@ double JESBase::getCorrectionValueForUncorrectedJet(const double& jetInitialArea
         return correction_;
 }
 
-void JESBase::setFilesForCorrection(const TString* filePathL1, const TString* filePathL2, const TString* filePathL3, const TString* filePathL2L3, const bool& isMC) {
+void JESBase::configureFactorizedJetCorrector(const TString* filePathL1, const TString* filePathL2, const TString* filePathL3, const TString* filePathL2L3, const bool& isMC) {
             
         std::vector<JetCorrectorParameters> vJetPar;
         JetCorrectorParameters *jetParL1, *jetParL2, *jetParL3, *jetParL2L3;

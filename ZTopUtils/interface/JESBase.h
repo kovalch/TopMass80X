@@ -85,13 +85,13 @@ public:
          * provides correction value due to JES, which should be used for pt, et correction of the particular uncorrected jet used
          * as the input for this function
          */
-        double getCorrectionValueForUncorrectedJet(const double& jetInitialArea, const double& jetInitialEta, const double& jetInitialPt, const double& rho);
+        double correctionForUncorrectedJet(const double& jetInitialArea, const double& jetInitialEta, const double& jetInitialPt, const double& rho);
         
         /**
          * sets files which will be used in getCorrectionValueForUncorrectedJet() for getting correction values due to JES,
          * boolean "isMC" triggers usage of "L2L3Residual" JES corrections for Data
          */
-        void setFilesForCorrection(const TString* filePathL1, const TString* filePathL2, const TString* filePathL3, const TString* filePathL2L3, const bool& isMC);
+        void configureFactorizedJetCorrector(const TString* filePathL1, const TString* filePathL2, const TString* filePathL3, const TString* filePathL2L3, const bool& isMC);
 
 protected:
 	std::vector<unsigned int> & sources() {
