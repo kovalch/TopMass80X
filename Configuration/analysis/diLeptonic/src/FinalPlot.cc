@@ -57,7 +57,8 @@ topxsec_(topxsec),
 nD_(-999),
 v_plotName_(std::vector<TString>(0)),
 v_plotTitle_(std::vector<TString>(0)),
-v_plotUnits_(std::vector<TString>(0))
+v_plotUnits_(std::vector<TString>(0)),
+v_plotYunits_(std::vector<TString>(0))
 {
     
 }
@@ -113,6 +114,11 @@ void FinalPlot::setOptions(const std::vector<TString> v_plotName)
                 if(vWord.size()>1) v_plotUnits_.push_back(vWord.at(1)); 
                 if(vWord.size()<2) v_plotUnits_.push_back("");
              }
+             if(vWord.at(0) == "yunits" ){
+                if(vWord.size()>1) v_plotYunits_.push_back(vWord.at(1)); 
+                if(vWord.size()<2) v_plotYunits_.push_back("");
+             }
+             
              
              //Pass to dimensional block
              if( (int)vWord.size()==1 && vWord.at(0) == nDflag ){
@@ -142,6 +148,7 @@ void FinalPlot::clearMemory()
     v_plotName_.clear();
     v_plotTitle_.clear();
     v_plotUnits_.clear();
+    v_plotYunits_.clear();
 }
 
 
@@ -286,7 +293,7 @@ void FinalPlot::producePlots(const TString& fileType)
                 
                 
                 TString plotTitle = utils::makeBinTitle(v_plotTitle_.at(nD_-1-nD),vBin.at(0),vBin.at(1));
-                        plotTitle = plotTitle + ";" + v_plotTitle_.at(nD) + ", " + v_plotUnits_.at(nD);
+                        plotTitle = plotTitle + ";" + v_plotTitle_.at(nD) + ", " + v_plotUnits_.at(nD)+ ";" + v_plotYunits_.at(nD);
                         //plotTitle = "";
                 
                 TGraphAsymmErrors graphTotal((int)vXsec.size(), vBinCentr.data(), vXsec.data(), xErr.data(), xErr.data(),vTotalErrDown.data(), vTotalErrUp.data());
@@ -295,16 +302,20 @@ void FinalPlot::producePlots(const TString& fileType)
                     
                 
                 TCanvas* canvas = utils::setCanvas();
+                    canvas->SetLeftMargin(0.2);
+                    canvas->SetBottomMargin(0.18);
+                    
                 double legX1=0.1,legY1=0.1,legDX=0.35,legDY=0.27;
-                if(firstPartName == "top_pt"){
-                    legX1=0.55;
-                    legY1=0.55;
-                }
+                if(firstPartName == "top_pt"){legX1=0.55;legY1=0.55;}
+                if(firstPartName == "ttbar_pt"){legX1=0.55;legY1=0.55;}
+                if(firstPartName == "x1"){legX1=0.55;legY1=0.55;}
+                if(firstPartName == "top_rapidity"){legX1=0.39;legY1=0.44;}
+                if(firstPartName == "ttbar_rapidity"){legX1=0.39;legY1=0.44;}
+                if(firstPartName == "ttbar_mass"){legX1=0.55;legY1=0.55;}
                 TLegend* legend = utils::setLegend(legX1,legY1,legX1+legDX,legY1+legDY);
                 
                     histMC.SetLineColor(2);
                     histMC.SetTitle(plotTitle);
-                    histMC.SetAxisRange(0,( histStat.GetMaximum() > histMC.GetMaximum() ? histStat.GetMaximum()*1.15 : histMC.GetMaximum()*1.15 ),"Y");
                     
                     histMCmcatnlo.SetLineColor(4);
                     histMCmcatnlo.SetLineStyle(4);
@@ -316,18 +327,21 @@ void FinalPlot::producePlots(const TString& fileType)
                     histMCpowhegherwig.SetLineStyle(4);
                     histMCpowhegherwig.SetLineWidth(2);
                     
-                    histMC.SetStats(0);
-                    histMC.Draw("HIST");
+                    histStat.SetTitleOffset(2.7,"Y");
+                    histStat.SetStats(0);
+                    histStat.SetMarkerSize(histStat.GetMarkerSize()*0.5);
+                    histStat.SetTitle(plotTitle);
+                    histStat.SetAxisRange(0,( histStat.GetMaximum() > histMC.GetMaximum() ? histStat.GetMaximum()*1.15 : histMC.GetMaximum()*1.15 ),"Y");
+                    histStat.Draw("e1");
                     
+                    
+                    histMC.DrawClone("HIST,same");
                     if(allSyst){
                         histMCmcatnlo.DrawClone("HIST,SAME");
                         histMCpowheg.DrawClone("HIST,SAME");
                         histMCpowhegherwig.DrawClone("HIST,SAME");
                     }
                     
-                    histStat.SetMarkerSize(histStat.GetMarkerSize()*0.5);
-                    histStat.SetTitle(plotTitle);
-                    histStat.Draw("e1, same");
                     
                     double endErrorSize =  gStyle->GetEndErrorSize();
                     gStyle->SetEndErrorSize(0);
@@ -335,8 +349,8 @@ void FinalPlot::producePlots(const TString& fileType)
                     graphTotal.Draw("P,SAME");
                     gStyle->SetEndErrorSize(endErrorSize);
                     
-                    
                     UsefulTools::DrawCMSLabels(lumi_,2);
+                    UsefulTools::DrawDecayChLabel("e#mu");
                     
                     legend->AddEntry(&histStat,"Data","p");
                     legend->AddEntry(&histMC,"MadGraph + Pythia","l");
