@@ -193,7 +193,7 @@ void load_Analysis(const TString& validFilenamePattern,
     // Set up KinReco histograms
     AnalyzerKinReco* analyzerKinReco(0);
     if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::kinReco) != v_analysisMode.end()){
-        analyzerKinReco = new AnalyzerKinReco({"7","8"});
+        analyzerKinReco = new AnalyzerKinReco({"0","7","8"});
         v_analyzer.push_back(analyzerKinReco);
     }
     

@@ -695,34 +695,30 @@ void KinematicReconstruction::loadData()
     h_wmass_->SetDirectory(0);
     wmassfile.Close();
     
-    // jet and lepton resolution
+    
+// jet,lepton resolutions; mbl mass; 
     TString data_path1 = common::DATA_PATH_COMMON();
-    data_path1.Append("/KinReco_d_angle_fE.root");
-    TFile tempTFile(data_path1);
-    h_jetAngleRes_ = (TH1F*)tempTFile.Get("KinReco_d_angle_lep_step7");
-    h_jetEres_ = (TH1F*)tempTFile.Get("KinReco_fE_jet_step7");
-    h_lepAngleRes_ = (TH1F*)tempTFile.Get("KinReco_d_angle_lep_step7");
-    h_lepEres_ = (TH1F*)tempTFile.Get("KinReco_fE_lep_step7");
-    h_lepAngleRes_->SetDirectory(0);
-    h_lepEres_->SetDirectory(0);
-    h_jetAngleRes_->SetDirectory(0);
-    h_jetEres_->SetDirectory(0);
-    tempTFile.Close();
-     
-// mbl
-    TString data_path2 = common::DATA_PATH_COMMON();
-        data_path2.Append("/KinReco_mbl.root");
-    TFile fmbl(data_path2);
-        h_mbl_w_ = (TH1F*)fmbl.Get("mbl_true");
+    data_path1.Append("/KinReco_input.root");
+    
+    TFile dataFile(data_path1);
+    //jet angle resolution
+        h_jetAngleRes_ = (TH1F*)dataFile.Get("KinReco_d_angle_jet_step7");
+        h_jetAngleRes_->SetDirectory(0);
+    //jet energy resolution
+        h_jetEres_ = (TH1F*)dataFile.Get("KinReco_fE_jet_step7");
+        h_jetEres_->SetDirectory(0);
+    //lep angle resolution
+        h_lepAngleRes_ = (TH1F*)dataFile.Get("KinReco_d_angle_lep_step7");
+        h_lepAngleRes_->SetDirectory(0);
+    //lep energy resolution
+        h_lepEres_ = (TH1F*)dataFile.Get("KinReco_fE_lep_step7");
+        h_lepEres_->SetDirectory(0);
+    //mbl mass
+        h_mbl_w_ = (TH1F*)dataFile.Get("KinReco_mbl_true_step0");
         h_mbl_w_->SetDirectory(0);
-        fmbl.Close();
-        
-    TString data_path21 = common::DATA_PATH_COMMON();
-        data_path21.Append("/KinReco_mbl_wrong.root");
-    TFile fmbl_wrong(data_path21);
-        //h_mbl_w_ = (TH1F*)fmbl_wrong.Get("mbl_true_wrong");
+        //h_mbl_w_ = (TH1F*)dataFile.Get("KinReco_mbl_true_wrong_step0");
         //h_mbl_w_->SetDirectory(0);
-        fmbl_wrong.Close();
+    dataFile.Close();
 // ...
     
 // pdf
@@ -928,8 +924,12 @@ void KinematicReconstructionScaleFactors::prepareSF(const SystematicInternal& sy
     //const std::map<Channel::Channel, double> m_sfUnc { {Channel::ee, 0.0043}, {Channel::emu, 0.0019}, {Channel::mumu, 0.0037} };
     
     // SF for newKinReco flat N007mvamet
-    const std::map<Channel::Channel, double> m_sfNominal { {Channel::ee, 0.9854}, {Channel::emu, 0.9934}, {Channel::mumu, 0.9934} };
-    const std::map<Channel::Channel, double> m_sfUnc { {Channel::ee, 0.0041}, {Channel::emu, 0.0018}, {Channel::mumu, 0.0036} };
+    //const std::map<Channel::Channel, double> m_sfNominal { {Channel::ee, 0.9854}, {Channel::emu, 0.9934}, {Channel::mumu, 0.9934} };
+    //const std::map<Channel::Channel, double> m_sfUnc { {Channel::ee, 0.0041}, {Channel::emu, 0.0018}, {Channel::mumu, 0.0036} };
+    
+    // SF for newKinReco flat N013
+    const std::map<Channel::Channel, double> m_sfNominal { {Channel::ee, 0.9864},{Channel::emu, 0.9910},{Channel::mumu, 0.9945}};
+    const std::map<Channel::Channel, double> m_sfUnc { {Channel::ee, 0.0042},{Channel::emu, 0.0018},{Channel::mumu, 0.0035}};
     
     // SF for mass(top) = 173 GeV
     //const std::map<Channel::Channel, double> m_sfNominal { {Channel::ee, 0.9696}, {Channel::emu, 0.9732}, {Channel::mumu, 0.9930} };
