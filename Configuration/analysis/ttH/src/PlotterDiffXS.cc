@@ -302,7 +302,7 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
     m_inputHistos["signal_response"] = (TH2*)sumOfHistos(signalHists_response, "h_signal_response");
     
     // Calculating actual differential cross section and getting corresponding histograms
-    std::map<TString, TH1*> m_xs = calculateDiffXS(m_inputHistos, true);
+    std::map<TString, TH1*> m_xs = calculateDiffXS(m_inputHistos, false);
     std::map<TString, TH1*> m_xs_reweighted;
     // Calculating differential cross section again using the reweighted generator MC
     if(hasPseudodata_) {
@@ -310,7 +310,7 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
         std::vector<LegendHistPair> signalHistsGenReweighted_noWeight = legendHistPairsForSamples(sampleTypesData_, v_sampleHistPairGen_noWeight_);
         m_inputHistos["signal_gen_noWeight"] = sumOfHistos(signalHistsGenReweighted_noWeight, "h_signal_gen_reweighted_noWeight");
         printf("Integral gen reweighted: %.4f\n", m_inputHistos.at("signal_gen_noWeight")->Integral());
-        m_xs_reweighted = calculateDiffXS(m_inputHistos, true);
+        m_xs_reweighted = calculateDiffXS(m_inputHistos, false);
     }
     
     
