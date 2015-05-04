@@ -269,7 +269,7 @@ void addRelError(TH1D &h, double err) {
 	}
 }
 
-void displayStatusBar(Long64_t event, Long64_t nEvents, int ndiv) {
+void displayStatusBar(Long64_t event, Long64_t nEvents, int ndiv, bool force) {
 	if (event == 0) {
 		for(size_t i=0;i<50;i++)
 		std::cout << "\u25FD";
@@ -277,7 +277,7 @@ void displayStatusBar(Long64_t event, Long64_t nEvents, int ndiv) {
 				<< "0% \n";
 		flush(std::cout);
 	}
-	else if ((event + 1) * ndiv % nEvents < ndiv) {
+	else if ((event + 1) * ndiv % nEvents < ndiv || force) {
 		int statusbar = (event + 1) * ndiv / nEvents;
 
 		std::cout << "\x1b[A\r";
