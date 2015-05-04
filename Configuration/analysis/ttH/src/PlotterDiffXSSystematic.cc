@@ -54,6 +54,8 @@ logY_(false)
     
     // Setting the list of systematics that are included in the tt+HF template fit (only their shape variations are taken into account)
     normalisedSystematicTypes_.push_back(Systematic::jes);
+    normalisedSystematicTypes_.push_back(Systematic::pu);
+    normalisedSystematicTypes_.push_back(Systematic::lept);
     normalisedSystematicTypes_.push_back(Systematic::btagDiscrBpurity);
     normalisedSystematicTypes_.push_back(Systematic::btagDiscrLpurity);
     normalisedSystematicTypes_.push_back(Systematic::btagDiscrBstat1);
@@ -76,19 +78,40 @@ logY_(false)
     generatorUnweightedSystematicTypes_.push_back(Systematic::mass);
     generatorUnweightedSystematicTypes_.push_back(Systematic::match);
     
+    // Setting the list of systematics that should not be included in the total systematic uncertainty
+    ignoredSystematicTypes_.push_back(Systematic::powhegHerwig);
+    ignoredSystematicTypes_.push_back(Systematic::mcatnlo);
+    ignoredSystematicTypes_.push_back(Systematic::perugia11);
+    ignoredSystematicTypes_.push_back(Systematic::perugia11NoCR);
+    
     // Setting the list of systematics that should be combined 
     // Combination types: 0 - in quadrature; 1 - maximum absolute variation;
     combinedSystematicTypes_[Systematic::btagBeff] = SystematicCombination(0);
     combinedSystematicTypes_.at(Systematic::btagBeff).addSystematic(Systematic::btagDiscrBpurity);
     combinedSystematicTypes_.at(Systematic::btagBeff).addSystematic(Systematic::btagDiscrBstat1);
     combinedSystematicTypes_.at(Systematic::btagBeff).addSystematic(Systematic::btagDiscrBstat2);
-    combinedSystematicTypes_[Systematic::btagLeff] = SystematicCombination(0);
-    combinedSystematicTypes_.at(Systematic::btagLeff).addSystematic(Systematic::btagDiscrLpurity);
-    combinedSystematicTypes_.at(Systematic::btagLeff).addSystematic(Systematic::btagDiscrLstat1);
-    combinedSystematicTypes_.at(Systematic::btagLeff).addSystematic(Systematic::btagDiscrLstat2);
-    combinedSystematicTypes_[Systematic::btagCeff] = SystematicCombination(0);
-    combinedSystematicTypes_.at(Systematic::btagCeff).addSystematic(Systematic::btagDiscrCerr1);
-    combinedSystematicTypes_.at(Systematic::btagCeff).addSystematic(Systematic::btagDiscrCerr2);
+    combinedSystematicTypes_.at(Systematic::btagBeff).addSystematic(Systematic::btagDiscrLpurity);
+    combinedSystematicTypes_.at(Systematic::btagBeff).addSystematic(Systematic::btagDiscrLstat1);
+    combinedSystematicTypes_.at(Systematic::btagBeff).addSystematic(Systematic::btagDiscrLstat2);
+    combinedSystematicTypes_.at(Systematic::btagBeff).addSystematic(Systematic::btagDiscrCerr1);
+    combinedSystematicTypes_.at(Systematic::btagBeff).addSystematic(Systematic::btagDiscrCerr2);
+    combinedSystematicTypes_[Systematic::xsec_ttother] = SystematicCombination(0);
+    combinedSystematicTypes_.at(Systematic::xsec_ttother).addSystematic(Systematic::xsec_ttother);
+    combinedSystematicTypes_.at(Systematic::xsec_ttother).addSystematic(Systematic::xsec_tt2b);
+    combinedSystematicTypes_.at(Systematic::xsec_ttother).addSystematic(Systematic::xsec_ttcc);
+    combinedSystematicTypes_.at(Systematic::xsec_ttother).addSystematic(Systematic::xsec_ttH);
+    combinedSystematicTypes_.at(Systematic::xsec_ttother).addSystematic(Systematic::xsec_ttZ);
+    combinedSystematicTypes_.at(Systematic::xsec_ttother).addSystematic(Systematic::frac_tthf);
+    combinedSystematicTypes_.at(Systematic::xsec_ttother).addSystematic(Systematic::frac_ttother);
+    
+    // Setting the uncertainties that should be forced to particular values
+    overridenSystematics_[Systematic::scale] = UpDown(0.08, 0.08);
+    
+    // Setting the list of systematics that should be used to obtain MC predictions that should be plotted
+    predictionSystematicLegends_[Systematic::nominal] = PredictionEntry("Madgraph+Pythia", 2, 1);
+    predictionSystematicLegends_[Systematic::powheg] = PredictionEntry("Powheg+Pythia", kAzure+2, 1);
+    predictionSystematicLegends_[Systematic::powhegHerwig] = PredictionEntry("Powheg+Herwig", kTeal+4, 7);
+    predictionSystematicLegends_[Systematic::mcatnlo] = PredictionEntry("MC@NLO+Herwig", kOrange+7, 7);
     
 }
 
@@ -343,26 +366,49 @@ void PlotterDiffXSSystematic::plotXSection(const Channel::Channel& channel)
     
     TGraphAsymmErrors* g_measured_stat = errorGraphFromHisto(h_nominal, e_measured_stat);
     TGraphAsymmErrors* g_measured_total = errorGraphFromHisto(h_nominal, e_measured_total);
-    common::setGraphStyle(g_measured_stat, 1,1,1, 20,1,1);
-    common::setGraphStyle(g_measured_total, 1,1,1, 20,1,1);
+    common::setGraphStyle(g_measured_stat, 1,1,2, 20,1,1);
+    common::setGraphStyle(g_measured_total, 1,1,2, 20,1,1);
     
-    TH1* h_madgraph = fileReader_->GetClone<TH1>(fileName_nominal, name_+"_xs_madgraph", true, false);
-    common::setHistoStyle(h_madgraph, 1,2,1);
+    std::vector<TH1*> prediction_histograms;
+    std::vector<TH1*> prediction_ratioHistograms;
+    std::vector<TString> prediction_legends;
+    for(auto systematicLegend : predictionSystematicLegends_) {
+        const Systematic::Type& systematicType = systematicLegend.first;
+        const PredictionEntry legendColorStyle = systematicLegend.second;
+        const TString fileName = inputFileLists_.at(channel).at(Systematic::Systematic(systematicType, Systematic::undefinedVariation, -1)).at(name_).first;
+        // Getting the histogram of prediction
+        TH1* histo = fileReader_->GetClone<TH1>(fileName, name_+"_xs_madgraph", true, false);
+        // Normalising histogram
+        common::normalize(histo, h_nominal->Integral("width"), false, "width");
+        common::setHistoStyle(histo, legendColorStyle.style, legendColorStyle.color, 2);
+        prediction_histograms.push_back(histo);
+        prediction_legends.push_back(legendColorStyle.legend);
+        // Adding ratio histogram
+        TH1* ratioHisto = common::ratioHistogram(histo, h_nominal);
+        if(name_.Contains("Mjj")) ratioHisto->SetBinContent(3, 1.);
+        common::setHistoStyle(ratioHisto, legendColorStyle.style, legendColorStyle.color, 2);
+        prediction_ratioHistograms.push_back(ratioHisto);
+    }
 
     
     // Prepare canvas and legend
     TCanvas* canvas = new TCanvas("","");
     canvas->Clear();
-    TLegend* legend = common::createLegend(0.6, 0.6, 1, 2, 0.05);
+    TLegend* legend = common::createLegend(0.6, 0.7, 1, 1+prediction_histograms.size(), 0.05);
     
     // Drawing axis and xsections
-    h_madgraph->Draw("hist");
+    for(size_t iHisto = 0; iHisto < prediction_histograms.size(); ++iHisto) {
+        if(iHisto == 0) prediction_histograms.at(iHisto)->Draw("hist");
+        else prediction_histograms.at(iHisto)->Draw("hist same");
+    }
     g_measured_total->Draw("same PZ");
     g_measured_stat->Draw("same ||");
     
     // Drawing legend
     legend->AddEntry(g_measured_total, "Data", "LPE");
-    legend->AddEntry(h_madgraph, "Madgraph+Pythia", "L");
+    for(size_t iLegend = 0; iLegend < prediction_legends.size(); ++iLegend) {
+        legend->AddEntry(prediction_histograms.at(iLegend), prediction_legends.at(iLegend), "L");
+    }
     legend->Draw("same");
     
     updateHistoAxis(canvas);
@@ -370,19 +416,16 @@ void PlotterDiffXSSystematic::plotXSection(const Channel::Channel& channel)
     common::drawCmsLabels(-1, 8, 19.7);
     
     // Drawing ratios
-    common::drawRatioPad(canvas, 0., double(nRatio_max_), "#frac{MC}{Data}");
+    common::drawRatioPad(canvas, 0., double(nRatio_max_), "#frac{Theory}{Data}");
     
     // Plotting the statistics band of the Data
     TGraph* g_ratioData_stat = common::ratioGraph(g_measured_stat, g_measured_stat, 1);
     common::setGraphStyle(g_ratioData_stat, 1,1,1, -1,-1,-1, 1001,18);
     TGraph* g_ratioData_total = common::ratioGraph(g_measured_total, g_measured_total, 1);
     common::setGraphStyle(g_ratioData_total, 1,1,1, -1,-1,-1, 1001,16);
-    TH1* h_ratioMadgraphData = common::ratioHistogram(h_madgraph, h_nominal);
-    common::setHistoStyle(h_ratioMadgraphData, 1,2,1);
     
     // Performing hardcoded blinding of Mjj
     if(name_.Contains("Mjj")) {
-        h_ratioMadgraphData->SetBinContent(3, 1.);
         double x, y;
         g_measured_total->GetPoint(2, x, y);
         g_measured_total->SetPoint(2, x, 1e-10);
@@ -394,7 +437,7 @@ void PlotterDiffXSSystematic::plotXSection(const Channel::Channel& channel)
         g_ratioData_total->SetPoint(2, x, -1e10);
     }
 
-    h_ratioMadgraphData->Draw("same hist");
+    for(TH1* ratioHisto : prediction_ratioHistograms) ratioHisto->Draw("same hist");
     g_ratioData_total->Draw("same PZ");
     g_ratioData_stat->Draw("same ||");
     gPad->RedrawAxis();
@@ -458,6 +501,8 @@ PlotterDiffXSSystematic::ErrorMap PlotterDiffXSSystematic::binUncertainties(cons
     // Looping over all available systematics which should not be merged
     for(auto systematicValuePair : m_errors) {
         Systematic::Type systematicType = systematicValuePair.first;
+        // Skipping variation if it should be ignored in systematic uncertainties
+        if(std::find(ignoredSystematicTypes_.begin(), ignoredSystematicTypes_.end(), systematicType) != ignoredSystematicTypes_.end()) continue;
         // Skipping this systematic if it should be combined
         bool toBeCombined = false;
         for(auto combinedSystematics : combinedSystematicTypes_) {
@@ -468,6 +513,10 @@ PlotterDiffXSSystematic::ErrorMap PlotterDiffXSSystematic::binUncertainties(cons
         if(toBeCombined) continue;
         
         errors[systematicType] = systematicValuePair.second;
+        
+        // Overriding value for the systematic if needed
+        if(overridenSystematics_.count(systematicType) < 1) continue;
+        errors[systematicType] = overridenSystematics_.at(systematicType);
     }
     // Combining systematics
     for(auto systematicCombinationPair : combinedSystematicTypes_) {
@@ -478,6 +527,8 @@ PlotterDiffXSSystematic::ErrorMap PlotterDiffXSSystematic::binUncertainties(cons
             // Adding in quadrature
             for(Systematic::Type systematicType : systematicsCombination.systematics) {
                 if(m_errors.count(systematicType) < 1) continue;
+                // Skipping variation if it should be ignored in systematic uncertainties
+                if(std::find(ignoredSystematicTypes_.begin(), ignoredSystematicTypes_.end(), systematicType) != ignoredSystematicTypes_.end()) continue;
                 combinedError.addInQuadrature(m_errors.at(systematicType));
             }
             combinedError.sqrt();
@@ -486,6 +537,8 @@ PlotterDiffXSSystematic::ErrorMap PlotterDiffXSSystematic::binUncertainties(cons
             std::vector<double> ups, downs;
             for(Systematic::Type systematicType : systematicsCombination.systematics) {
                 if(m_errors.count(systematicType) < 1) continue;
+                // Skipping variation if it should be ignored in systematic uncertainties
+                if(std::find(ignoredSystematicTypes_.begin(), ignoredSystematicTypes_.end(), systematicType) != ignoredSystematicTypes_.end()) continue;
                 ups.push_back(m_errors.at(systematicType).u);
                 downs.push_back(m_errors.at(systematicType).d);
             }
@@ -512,24 +565,22 @@ void PlotterDiffXSSystematic::printAllUncertainties(const std::vector<ErrorMap>&
         const Systematic::Type systematicType = systematics.first;
         TString systematicName = systematicType == Systematic::nominal ? "STATISTICAL" : Systematic::convertType(systematicType);
         const int systematicLength = systematicName.Length();
-        std::vector<double> ups, downs;
+        std::vector<double> maximums(0);
         printf("%s", systematicName.Data());
         for(int iSpace = 0; iSpace < numbersIndentation - systematicLength; ++iSpace) printf(" ");
         printf("| ");
         // Looping over all bins
         for(auto errorMap : errorMaps) {
             printf("%.2f  ", errorMap.at(systematicType).maxAbsVariation());
-            ups.push_back(errorMap.at(systematicType).u);
-            downs.push_back(errorMap.at(systematicType).d);
+            maximums.push_back(errorMap.at(systematicType).maxAbsVariation());
         }
         printf(" | ");
         // Sorting the up/down variations to have the largest absolute values first
-        std::sort(ups.begin(), ups.end(), uncertaintySortingFunction);
-        std::sort(downs.begin(), downs.end(), uncertaintySortingFunction);
-        const int binMedian = nBins/2;
-        printf("Median: %.2f ", std::max(std::fabs(ups.at(binMedian)), std::fabs(downs.at(binMedian))) );
+        std::sort(maximums.begin(), maximums.end(), uncertaintySortingFunction);
+        const int binMedian = nBins%2 == 0 ? nBins/2 - 1 : nBins/2;
+        printf("Median: %.2f ", maximums.at(binMedian) );
         printf(" | ");
-        printf("Max: %.2f ", std::max(std::fabs(ups.at(0)), std::fabs(downs.at(0))) );
+        printf("Max: %.2f ", maximums.at(0) );
         printf(" | ");
         printf("Incl: %.2f\n", errorMap_inclusive.at(systematicType).maxAbsVariation());
         if(systematicType == Systematic::nominal) printf("-----------------------------------------------------------------------------------\n");
@@ -539,21 +590,19 @@ void PlotterDiffXSSystematic::printAllUncertainties(const std::vector<ErrorMap>&
     printf("Total:");
     for(int iSpace = 0; iSpace < numbersIndentation - 6; ++iSpace) printf(" ");
     printf("| ");
-    std::vector<double> ups, downs;
+    std::vector<double> maximums(0);
     for(auto errorMap : errorMaps) {
         const UpDown& e_total = binUncertaintyOfType(errorMap, ErrorType::total);
         printf("%.2f  ", e_total.maxAbsVariation());
-        ups.push_back(e_total.u);
-        downs.push_back(e_total.d);
+        maximums.push_back(e_total.maxAbsVariation());
     }
     printf(" | ");
     // Sorting the up/down variations to have the largest absolute values first
-    std::sort(ups.begin(), ups.end(), uncertaintySortingFunction);
-    std::sort(downs.begin(), downs.end(), uncertaintySortingFunction);
-    const int binMedian = nBins/2;
-    printf("Median: %.2f ", std::max(std::fabs(ups.at(binMedian)), std::fabs(downs.at(binMedian))) );
+    std::sort(maximums.begin(), maximums.end(), uncertaintySortingFunction);
+    const int binMedian = nBins%2 == 0 ? nBins/2 - 1 : nBins/2;
+    printf("Median: %.2f ", maximums.at(binMedian) );
     printf(" | ");
-    printf("Max: %.2f ", std::max(std::fabs(ups.at(0)), std::fabs(downs.at(0))) );
+    printf("Max: %.2f ", maximums.at(0) );
     printf(" | ");
     const UpDown& e_total_inclusive = binUncertaintyOfType(errorMap_inclusive, ErrorType::total);
     printf("Incl: %.2f\n", e_total_inclusive.maxAbsVariation());
@@ -586,6 +635,8 @@ void PlotterDiffXSSystematic::updateHistoAxis(TPad* pad)const
 {
 
     TH1* histo = common::updatePadYAxisRange(pad, logY_, 0.35);
+    histo->GetXaxis()->SetLabelSize(histo->GetXaxis()->GetLabelSize()*0.7);;
+    histo->GetXaxis()->SetTitleSize(histo->GetXaxis()->GetTitleSize()*0.8);;
 
     // Applying the configured X axis range
     if(rangemin_!=0. || rangemax_!=0.) {histo->SetAxisRange(rangemin_, rangemax_, "X");}

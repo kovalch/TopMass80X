@@ -140,7 +140,8 @@ namespace Systematic{
         mass, match, 
 //         scale,
         powheg, 
-//         powhegHerwig, mcatnlo
+        powhegHerwig, mcatnlo,
+//         perugia11, perugia11NoCR
     };
 }
 
