@@ -21,6 +21,7 @@ public:
     /// Destructor
     //~Output(){};
     
+    void addLine(TString);
     void add(const TString&, TString);
     void add(const TString&, std::vector<double>);
     void save(const TString&);

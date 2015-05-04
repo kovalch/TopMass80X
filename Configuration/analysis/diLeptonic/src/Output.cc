@@ -37,6 +37,17 @@ type(outputType)
 
 
 
+void Output::addLine(TString value)
+{
+    for(const auto& name : headerLine_) {
+        if(name!=headerLine_.at(0))value= " ";
+        this->add(name,value);
+    }
+    
+}
+
+
+
 void Output::add(const TString& name, TString value)
 {
     if(value=="")value="...";

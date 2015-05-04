@@ -1075,26 +1075,33 @@ void AnalyzerDijet::fillTTHbbHistograms(const RecoObjects& recoObjects, const To
     
     for(size_t hadId =0; hadId<bHadFlavour.size(); ++hadId) {
         int flavour = std::abs(bHadFlavour.at(hadId));
-        if(flavour!=6 && flavour!=25) continue;
+        if(flavour!=6) continue;
         int jetId = bHadJetIndex.at(hadId);
         if(jetId<0) continue;
         if(flavour==6) putUniquelyInVector(genTopAllJetsId, jetId);
         else if(flavour==25) putUniquelyInVector(genHiggsAllJetsId, jetId);
-        if(!isInVector(genBJetsId, jetId)) continue;
-        if(flavour==6) putUniquelyInVector(genTopJetsId, jetId);
-        else if(flavour==25) putUniquelyInVector(genHiggsJetsId, jetId);
     }
+    
+    // Gen Top jets
+    if(genObjectIndices.genBjetFromTopIndex_ >= 0) putUniquelyInVector(genTopJetsId, genObjectIndices.genBjetFromTopIndex_);
+    if(genObjectIndices.genAntiBjetFromTopIndex_ >= 0) putUniquelyInVector(genTopJetsId, genObjectIndices.genAntiBjetFromTopIndex_);
+    
+    // Gen Higgs jets
+    if(genObjectIndices.genBjetFromHiggsIndex_ >= 0) putUniquelyInVector(genHiggsJetsId, genObjectIndices.genBjetFromHiggsIndex_);
+    if(genObjectIndices.genAntiBjetFromHiggsIndex_ >= 0) putUniquelyInVector(genHiggsJetsId, genObjectIndices.genAntiBjetFromHiggsIndex_);
     
     m_histogram["topJet_multiplicity_allGen"]->Fill(genTopAllJetsId.size(), weight);
     m_histogram["higgsJet_multiplicity_allGen"]->Fill(genHiggsAllJetsId.size(), weight);
     m_histogram["topJet_multiplicity_gen"]->Fill(genTopJetsId.size(), weight);
     m_histogram["higgsJet_multiplicity_gen"]->Fill(genHiggsJetsId.size(), weight);
     
+    // Skipping events that don't have all 4 distinct b jets from tt and Higgs
+    // if(!genObjectIndices.uniqueRecoMatching()) return;
     
     // Filling the dijet mass of true gen jets from top
     if(genTopJetsId.size()==2) {
-        LV dijet_genH = genAllJets.at(genTopJetsId.at(0)) + genAllJets.at(genTopJetsId.at(0));
-        m_histogram["dijet_mass_genTopJets"]->Fill(dijet_genH.M(), weight);
+        LV dijet_genTop = genAllJets.at(genTopJetsId.at(0)) + genAllJets.at(genTopJetsId.at(1));
+        m_histogram["dijet_mass_genTopJets"]->Fill(dijet_genTop.M(), weight);
     }
     // Filling the dijet mass of true gen jets from Higgs
     if(genHiggsJetsId.size() == 2) {
@@ -1225,7 +1232,6 @@ void AnalyzerDijet::fillTTHbbHistograms(const RecoObjects& recoObjects, const To
     LV* dijet_trueHiggs = 0;
     if(trueHiggsJetsId.size()==2) dijet_trueHiggs = new LV(allJets.at(trueHiggsAllJetsId.at(0)) + allJets.at(trueHiggsAllJetsId.at(1)));
     
-//     if(trueTopJetsId.size()>1 && trueHiggsJetsId.size()>1) {
     std::vector<std::pair<int, int> > allJetPairs = recoObjectIndices.jetIndexPairs_;
     std::vector<std::pair<int, int> > allBJetPairs;
     for(std::pair<int, int> pair : allJetPairs) {
@@ -1317,7 +1323,7 @@ std::vector<std::pair<int,int> > AnalyzerDijet::jetPairsFromMVA(std::map<TString
     for(size_t i=0; i<jetIndexPairs.size(); ++i) {
         std::pair<int,int> pair = jetIndexPairs.at(i);
         if(isInVector(recoObjectIndices.bjetIndices_, pair.first) && isInVector(recoObjectIndices.bjetIndices_, pair.second)) bJetPairIndices.push_back(i);
-        if(requireBJetPairsForTop && !isInVector(bJetPairIndices, i)) continue;
+        else if(requireBJetPairsForTop) continue;
         if(isInVector(trueTopJetsId, pair.first) && isInVector(trueTopJetsId, pair.second)) {
             topPairId = i;
         }
@@ -1329,12 +1335,12 @@ std::vector<std::pair<int,int> > AnalyzerDijet::jetPairsFromMVA(std::map<TString
             m_histogram["mvaWeight_wrongTopAndHiggs"]->Fill(v_mvaWeightsCorrect.at(i), weight);
             m_histogram["mvaWeight_wrongTop"]->Fill(v_mvaWeightsCorrect.at(i), weight);
         }
-        // Plotting the MVA output for correct Top and Higgs pairs only if both exist
-        if(topPairId >= 0 && higgsPairId >= 0) {
-            m_histogram["mvaWeight_correctTop"]->Fill(v_mvaWeightsCorrect.at(topPairId), weight);
-            m_histogram["mvaWeight_correctHiggs"]->Fill(v_mvaWeightsCorrect.at(higgsPairId), weight);
-            ((TH2D*)m_histogram["mvaWeight_correctTop_correctHiggs"])->Fill(v_mvaWeightsCorrect.at(topPairId), v_mvaWeightsCorrect.at(higgsPairId), weight);
-        }
+    }
+    // Plotting the MVA output for correct Top and Higgs pairs only if both exist
+    if(topPairId >= 0 && higgsPairId >= 0) {
+        m_histogram["mvaWeight_correctTop"]->Fill(v_mvaWeightsCorrect.at(topPairId), weight);
+        m_histogram["mvaWeight_correctHiggs"]->Fill(v_mvaWeightsCorrect.at(higgsPairId), weight);
+        ((TH2D*)m_histogram["mvaWeight_correctTop_correctHiggs"])->Fill(v_mvaWeightsCorrect.at(topPairId), v_mvaWeightsCorrect.at(higgsPairId), weight);
     }
     
     double bottomWeight = -0.3;

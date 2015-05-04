@@ -365,7 +365,6 @@ bool KinematicReconstruction::solutionSmearing(KinematicReconstruction_MeanSol& 
             TLorentzVector met_sm;
             TLorentzVector l_sm=l_temp;
             TLorentzVector al_sm=al_temp;
-            TLorentzVector vX_sm;
             //jets energy smearing
             double fB=h_jetEres_->GetRandom();//fB=1;  //sm off
             double xB=sqrt((fB*fB*b_sm.E()*b_sm.E()-b_sm.M2())/(b_sm.P()*b_sm.P()));
@@ -388,16 +387,9 @@ bool KinematicReconstruction::solutionSmearing(KinematicReconstruction_MeanSol& 
             // anti lepton angle smearing
             al_sm.SetXYZT(al_sm.Px()*xaL,al_sm.Py()*xaL,al_sm.Pz()*xaL,al_sm.E()*faL);
             angle_rot(h_lepAngleRes_->GetRandom(),0.001,al_sm,al_sm);
-
-//X Pt+angle smearing
-            double fPx=1;
-            double fPy=1;
-            double tempX= vX_reco.Px()*fPx;
-            double tempY= vX_reco.Py()*fPy;
-            vX_sm.SetXYZM(tempX,tempY,0,0);
-//...
             
-            TVector3 metV3_sm= -b_sm.Vect()-bbar_sm.Vect()-l_sm.Vect()-al_sm.Vect()-vX_sm.Vect();
+            
+            TVector3 metV3_sm= -b_sm.Vect()-bbar_sm.Vect()-l_sm.Vect()-al_sm.Vect()-vX_reco;
                 met_sm.SetXYZM(metV3_sm.Px(),metV3_sm.Py(),0,0);
             
             KinematicReconstruction_LSroutines tp_sm(0.0,0.0,h_wmass_->GetRandom(),h_wmass_->GetRandom());
@@ -487,13 +479,13 @@ bool KinematicReconstruction::solutionSmearing(KinematicReconstruction_MeanSol& 
 void KinematicReconstruction::inputNoJetMerging(std::vector<int>& b1_id, std::vector<int>& b2_id, std::vector<int>& nb_tag,
                                                 const std::vector<double>& btags)const
 {
+    //FIXME:Warning , hardcoded value of b-tag working point. 
     constexpr double btag_wp = 0.244;
     
     for(int i = 0; i < (int)btags.size(); ++i){
         for(int j = 0; j < (int)btags.size(); ++j){
             double wi = btags.at(i);
             double wj = btags.at(j);
-            //if(i==j || (wi<0.244 && wj<0.244) || (wi<0 || wj<0)) continue;
             if(i==j || (wi<btag_wp && wj<btag_wp)) continue;
 
             if(wi>btag_wp && wj>btag_wp) nb_tag.push_back(2);
@@ -510,6 +502,7 @@ void KinematicReconstruction::inputNoJetMerging(std::vector<int>& b1_id, std::ve
 void KinematicReconstruction::inputJetMerging(std::vector<int>& b1_id, std::vector<int>& b2_id, std::vector<int>& nb_tag,
                                               VLV& new_jets, std::vector<double>& new_btags)const
 {
+    //FIXME:Warning , hardcoded value of b-tag working point. 
     constexpr double btag_wp = 0.244;
     
     // Fill new jets: logik I.
@@ -640,7 +633,6 @@ void KinematicReconstruction::inputJetMerging(std::vector<int>& b1_id, std::vect
         for(int j = 0; j < (int)new_jets.size(); ++j){
             const double wi = new_btags.at(i);
             const double wj = new_btags.at(j);
-            //if(i==j || (wi<0.244 && wj<0.244) || (wi<0 || wj<0)) continue;
             if(i==j || (wi<btag_wp && wj<btag_wp)) continue;
             if(wi>btag_wp && wj>btag_wp) nb_tag.push_back(2);
             else nb_tag.push_back(1);
@@ -754,6 +746,8 @@ void KinematicReconstruction::loadData()
 
 void KinematicReconstruction::kinRecoMassLoop(const LV& leptonMinus, const LV& leptonPlus, const VLV* jets, const std::vector<double>* btags, const LV* met)
 {
+    //FIXME:Warning , hardcoded value of b-tag working point. 
+    constexpr double btag_wp = 0.244;
 
     std::vector<Struct_KinematicReconstruction> vect_sol;
 
@@ -776,11 +770,11 @@ void KinematicReconstruction::kinRecoMassLoop(const LV& leptonMinus, const LV& l
         for(int j=0; j<(int)btags->size(); ++j) {
             double wi = btags->at(i);
             double wj = btags->at(j);
-//             if(i==j || (wi<0.244 && wj<0.244) || (wi<0 || wj<0))continue;
-            if(i==j || (wi<0.244 && wj<0.244))continue;
+//             if(i==j || (wi<btag_wp && wj<btag_wp) || (wi<0 || wj<0))continue;
+            if(i==j || (wi<btag_wp && wj<btag_wp))continue;
             btag_ww.push_back(wi + wj);
 
-            if(wi>0.244 && wj>0.244){nb_tag.push_back(2); }
+            if(wi>btag_wp && wj>btag_wp){nb_tag.push_back(2); }
             else{nb_tag.push_back(1); }
 
             b1_id.push_back(i);
@@ -820,8 +814,6 @@ void KinematicReconstruction::kinRecoMassLoop(const LV& leptonMinus, const LV& l
     for(int ib=0; ib<(int)b1_id.size(); ++ib) {
         int j1=b1_id[ib];
         int j2=b2_id[ib];
-//         if((*jets)[j1].Pt()<30 || (*jets)[j2].Pt()<30)continue;
-//         if(fabs((*jets)[j1].Eta())>2.4 || fabs((*jets)[j2].Eta())>2.4)continue;
         const TLorentzVector l_temp=leptonMinus_tlv;
         const TLorentzVector al_temp=leptonPlus_tlv;
         const TLorentzVector b_temp=jets_tlv.at(j1);
@@ -835,15 +827,11 @@ void KinematicReconstruction::kinRecoMassLoop(const LV& leptonMinus, const LV& l
         double vw_max = 0.;
         if(massLoop_){
            for(double iTopMass = 100.; iTopMass < 300.5; iTopMass += 1.){
-//                 if(1) {double im=172.5;
 
                 KinematicReconstruction_LSroutines tp_m(iTopMass, 4.8, 80.4, 0.0, 0.0);
-
                 tp_m.setConstraints(al_temp, l_temp, b_temp, bbar_temp, met_temp.Px(), met_temp.Py());
 
-//                 if(tp_m.GetNsol()<1 || tp_m.GetNsol()==1 || tp_m.GetNsol()==3) continue;
                 if(tp_m.getNsol()<1) continue;
-                
                 if(!(tp_m.getTtSol()->at(0).weight>vw_max)) continue;
                 
                 nSol_++;

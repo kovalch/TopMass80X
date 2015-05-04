@@ -475,9 +475,9 @@ void UsefulTools::DrawDecayChLabel(TString decaychannel, double textSize) {
 
     decch->AddText(decaychannel);
 
-    decch->SetX1NDC(      gStyle->GetPadLeftMargin() + gStyle->GetTickLength()        );
+    decch->SetX1NDC(      2*gStyle->GetPadLeftMargin() + gStyle->GetTickLength()        );
     decch->SetY1NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength() - 0.05 );
-    decch->SetX2NDC(      gStyle->GetPadLeftMargin() + gStyle->GetTickLength() + 0.15 );
+    decch->SetX2NDC(      2*gStyle->GetPadLeftMargin() + gStyle->GetTickLength() + 0.15 );
     decch->SetY2NDC(1.0 - gStyle->GetPadTopMargin()  - gStyle->GetTickLength()        );
 
     decch->SetFillStyle(0);

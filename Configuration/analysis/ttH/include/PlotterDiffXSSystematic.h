@@ -46,6 +46,13 @@ public:
 private:
     
     enum ErrorType{stat, syst, total, shape, rate};
+    
+    /// A set of properties for a prediction histogram
+    struct PredictionEntry {
+        TString legend; Color_t color; Style_t style;
+        PredictionEntry():legend(""), color(1), style(1){}
+        PredictionEntry(TString legend_, Color_t color_, Style_t style_):legend(legend_), color(color_), style(style_){}
+    };
         
     /// A pair of up/down variations (relative)
     struct UpDown {
@@ -170,8 +177,17 @@ private:
     /// Vector of systematics that should be compared at the generator level before reco selection and without sample weights
     std::vector<Systematic::Type> generatorUnweightedSystematicTypes_;
     
+    /// Vector of systematics that should be ignored (can be used as alternative theory predictions)
+    std::vector<Systematic::Type> ignoredSystematicTypes_;
+    
+    /// Vector of systematics that should be ignored (can be used as alternative theory predictions)
+    std::map<Systematic::Type, UpDown> overridenSystematics_;
+    
     /// A pair of [new systematic, combination type] for each systematic that sould be merged with others
     std::map<Systematic::Type, SystematicCombination> combinedSystematicTypes_;
+    
+    /// A pair of [systematic, legend name] for each prediction that should be plotted in addition to the measured xsection
+    std::map<Systematic::Type, PredictionEntry> predictionSystematicLegends_;
     
     
     /// Options for the histogram under consideration

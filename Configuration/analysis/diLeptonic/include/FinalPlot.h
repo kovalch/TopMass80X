@@ -48,6 +48,7 @@ private:
     std::vector<TString> v_plotName_;
     std::vector<TString> v_plotTitle_;
     std::vector<TString> v_plotUnits_;
+    std::vector<TString> v_plotYunits_;
     int nBinsVar2_;
     
     void clearMemory();
