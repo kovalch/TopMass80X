@@ -99,6 +99,18 @@ void AnalyzerKinReco::bookHistos(const TString& step, std::map<TString, TH1*>& m
         name = "fE_lep";
         m_histogram[name] = store(new TH1D ( prefix_+name+step, "fE_lep", 200, 0.5, 2.5 ));
         
+        //Histograms for kinReco input, step0 needed
+        name = "mbl_true";
+        m_histogram[name] = store(new TH1D ( prefix_+name+step, "mbl_true", 100, 0, 180 ));
+        name = "mbl_true_wrong";
+        m_histogram[name] = store(new TH1D ( prefix_+name+step, "mbl_true_wrong", 100, 0, 180 ));
+        
+        //KinReco input W mass
+        name="W_mass";
+        m_histogram[name] = store(new TH1D ( prefix_+name+step, "W mass", 250, 30, 130 ));
+        name="W_mass_weight";
+        m_histogram[name] = store(new TH1D ( prefix_+name+step, "W mass weight", 250, 30, 130 ));
+        
         //boosted top analysis
         name = "mtt_true_vs_reco_pTt300";
         m_histogram[name] = this->store(new TH2D (prefix_+name+step,"mtt true vs reco (pTt>300); Mtt(reco) [GeV];Mtt(true), [GeV]",2000,0,2000,2000,0,2000));
@@ -138,10 +150,11 @@ void AnalyzerKinReco::fillHistos(const EventMetadata& eventMetadata,
     }
     // ...
     
-    double weight7 = (recoLevelWeights.weightNoPileup_)*(genLevelWeights.weightPileup_);
+    if(recoObjects.valuesSet_){
+        double weight7 = (recoLevelWeights.weightNoPileup_)*(genLevelWeights.weightPileup_);
         weight7 *= recoLevelWeights.weightBtagSF_;
     
-    int Njets = recoObjectIndices.jetIndices_.size();
+        int Njets = recoObjectIndices.jetIndices_.size();
     
         m_histogram["nRecoEvt_vs_JetMult"]->Fill(Njets,weight7);
         
@@ -163,11 +176,13 @@ void AnalyzerKinReco::fillHistos(const EventMetadata& eventMetadata,
         m_histogram["nRecoEvt_vs_JetpT2"]->Fill((*recoObjects.jets_).at(1).Pt(),weight7);
         
         m_histogram["nRecoEvt_Eff"]->Fill(1,weight7);
-        
+    }
         
         
     if(topGenObjects.valuesSet_ && kinematicReconstructionSolutions.numberOfSolutions()){
         
+        
+        int Njets = recoObjectIndices.jetIndices_.size();
         m_histogram["signalTopEvents_vs_JetMult"]->Fill(Njets,weight);
         
      
@@ -218,6 +233,7 @@ void AnalyzerKinReco::fillHistos(const EventMetadata& eventMetadata,
         }
     }
     
+    //fill histograms which are using in KinematicReconstruction.cc, loadData() function
     if(topGenObjects.valuesSet_ ){
         
         TLorentzVector b_true,bbar_true,l_true,al_true;
@@ -226,6 +242,20 @@ void AnalyzerKinReco::fillHistos(const EventMetadata& eventMetadata,
         l_true.SetXYZM((*topGenObjects.GenLepton_).Px(),(*topGenObjects.GenLepton_).Py(),(*topGenObjects.GenLepton_).Pz(),(*topGenObjects.GenLepton_).M());
         al_true.SetXYZM((*topGenObjects.GenAntiLepton_).Px(),(*topGenObjects.GenAntiLepton_).Py(),(*topGenObjects.GenAntiLepton_).Pz(),(*topGenObjects.GenAntiLepton_).M());
         
+        //mbl_true, mbl_true_wrong
+        m_histogram["mbl_true"]->Fill((b_true+al_true).M(),(genLevelWeights.trueLevelWeight_));
+        m_histogram["mbl_true"]->Fill((bbar_true+l_true).M(),(genLevelWeights.trueLevelWeight_));
+        m_histogram["mbl_true_wrong"]->Fill((b_true+l_true).M(),(genLevelWeights.trueLevelWeight_));
+        m_histogram["mbl_true_wrong"]->Fill((bbar_true+al_true).M(),(genLevelWeights.trueLevelWeight_));
+        
+        //w mass
+        //m_histogram["W_mass"]->Fill(topGenObjects.GenWPlus_->M());
+        //m_histogram["W_mass"]->Fill((*topGenObjects.GenWMinus_).M());
+        //m_histogram["W_mass_weight"]->Fill((*topGenObjects.GenWPlus_).M(),(genLevelWeights.trueLevelWeight_));
+        //m_histogram["W_mass_weight"]->Fill((*topGenObjects.GenWMinus_).M(),(genLevelWeights.trueLevelWeight_));
+        
+        
+    if(recoObjects.valuesSet_){
         //jet
         for(const int reco_j : (recoObjectIndices.bjetIndices_))
         { 
@@ -282,14 +312,15 @@ void AnalyzerKinReco::fillHistos(const EventMetadata& eventMetadata,
                                if(dR_l<0.3&&dR_al<0.3)
                                {
                                    m_histogram["fE_lep"]->Fill(l_true.E()/l_temp.E());
-                                   m_histogram["d_angle_lep"]->Fill(al_true.E()/al_temp.E());
+                                   m_histogram["d_angle_lep"]->Fill(l_true.Angle(l_temp.Vect()));
                                    
-                                   m_histogram["fE_lep"]->Fill(l_true.Angle(l_temp.Vect()));
+                                   m_histogram["fE_lep"]->Fill(al_true.E()/al_temp.E());
                                    m_histogram["d_angle_lep"]->Fill(al_true.Angle(al_temp.Vect()));
                                }
                            }
                 }
         //...
+        }
         
     }
 
