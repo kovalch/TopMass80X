@@ -82,6 +82,7 @@ scaleFactorsUsable_(true)
     templateSystematics_["ttHF"] = std::vector<Systematic::Type>(0);
     templateSystematics_.at("ttHF").push_back(Systematic::jes);
     templateSystematics_.at("ttHF").push_back(Systematic::btagDiscrBpurity);
+    templateSystematics_.at("ttHF").push_back(Systematic::btagDiscrLpurity);
     templateSystematics_.at("ttHF").push_back(Systematic::btagDiscrBstat1);
     templateSystematics_.at("ttHF").push_back(Systematic::btagDiscrBstat2);
     templateSystematics_.at("ttHF").push_back(Systematic::btagDiscrCerr1);
@@ -89,6 +90,7 @@ scaleFactorsUsable_(true)
     
     templateSystematics_["ttOther"] = std::vector<Systematic::Type>(0);
     templateSystematics_.at("ttOther").push_back(Systematic::jes);
+    templateSystematics_.at("ttOther").push_back(Systematic::btagDiscrBpurity);
     templateSystematics_.at("ttOther").push_back(Systematic::btagDiscrLpurity);
     templateSystematics_.at("ttOther").push_back(Systematic::btagDiscrBstat1);
     templateSystematics_.at("ttOther").push_back(Systematic::btagDiscrBstat2);
