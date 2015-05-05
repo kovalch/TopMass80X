@@ -51,7 +51,7 @@ void HistoDiffXS(const std::vector<std::string>& v_plot,
 //     const EventYields eventYields("EventYields", samples);
     
     // Create Plotter
-    PlotterDiffXS plotter("Plots", samples, Luminosity);
+    PlotterDiffXS plotter("Plots_diffXS_systematic_input", samples, Luminosity);
     
     // Access the histoList specifying printing parameters of histograms
     const std::string histoListFile(tth::DATA_PATH_TTH() + "/" + "HistoList_DiffXS");
@@ -106,10 +106,6 @@ namespace Systematic{
         pu, lept, trig,
         
         jer, jes,
-        btag, 
-        btagPt, btagEta,
-        btagLjet, 
-        btagLjetPt, btagLjetEta,
         btagDiscrBstat1, btagDiscrBstat2,
         btagDiscrLstat1, btagDiscrLstat2,
         btagDiscrBpurity, btagDiscrLpurity,
