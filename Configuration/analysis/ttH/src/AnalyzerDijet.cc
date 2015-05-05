@@ -956,17 +956,17 @@ void AnalyzerDijet::bookLeadingJetsHistos (std::map<TString, TH1*>& m_histogram,
 void AnalyzerDijet::bookLeadingJetsCPHistos (std::map<TString, TH1*>& m_histogram, const TString addName, const TString& step, 
                                            const TString& label)
 {
-    const int nBins_jet_Pt = 24;
+    const int nBins_jet_Pt = 25;
     const int nBins_jet_Eta = 13;
-    const int nBins_jet_Mjj = 20;
+    const int nBins_jet_Mjj = 25;
 
     
     TString name;
     // Top jets
     name = "leadingJet_1st_Pt_top_cp_";
-    m_histogram[name+addName] = store(new TH1D(prefix_+name+addName+step, "; 1st jet^{top}_{"+addName+"} p_{T}"+label+"; Events", nBins_jet_Pt, 20., 500.));
+    m_histogram[name+addName] = store(new TH1D(prefix_+name+addName+step, "; 1st jet^{top}_{"+addName+"} p_{T}"+label+"; Events", nBins_jet_Pt, 0., 500.));
     name = "leadingJet_2nd_Pt_top_cp_";
-    m_histogram[name+addName] = store(new TH1D(prefix_+name+addName+step, "; 2nd jet^{top}_{"+addName+"} p_{T}"+label+"; Events", nBins_jet_Pt, 20., 500.));
+    m_histogram[name+addName] = store(new TH1D(prefix_+name+addName+step, "; 2nd jet^{top}_{"+addName+"} p_{T}"+label+"; Events", nBins_jet_Pt, 0., 500.));
     name = "leadingJet_1st_Eta_top_cp_";
     m_histogram[name+addName] = store(new TH1D(prefix_+name+addName+step, "; 1st jet^{top}_{"+addName+"} |#eta|"+label+"; Events",nBins_jet_Eta,0.,2.6));
     name = "leadingJet_2nd_Eta_top_cp_";
@@ -980,9 +980,9 @@ void AnalyzerDijet::bookLeadingJetsCPHistos (std::map<TString, TH1*>& m_histogra
 
     // Additional jets
     name = "leadingJet_1st_Pt_add_cp_";
-    m_histogram[name+addName] = store(new TH1D(prefix_+name+addName+step, "; 1st jet^{add}_{"+addName+"} p_{T}"+label+"; Events", nBins_jet_Pt, 20., 500.));
+    m_histogram[name+addName] = store(new TH1D(prefix_+name+addName+step, "; 1st jet^{add}_{"+addName+"} p_{T}"+label+"; Events", nBins_jet_Pt, 0., 500.));
     name = "leadingJet_2nd_Pt_add_cp_";
-    m_histogram[name+addName] = store(new TH1D(prefix_+name+addName+step, "; 2nd jet^{add}_{"+addName+"} p_{T}"+label+"; Events", nBins_jet_Pt, 20., 500.));
+    m_histogram[name+addName] = store(new TH1D(prefix_+name+addName+step, "; 2nd jet^{add}_{"+addName+"} p_{T}"+label+"; Events", nBins_jet_Pt, 0., 500.));
     name = "leadingJet_1st_Eta_add_cp_";
     m_histogram[name+addName] = store(new TH1D(prefix_+name+addName+step, "; 1st jet^{add}_{"+addName+"} |#eta|"+label+"; Events",nBins_jet_Eta,0.,2.6));
     name = "leadingJet_2nd_Eta_add_cp_";
@@ -996,9 +996,9 @@ void AnalyzerDijet::bookLeadingJetsCPHistos (std::map<TString, TH1*>& m_histogra
 
     // Additional b-jets
     name = "leadingJet_1st_Pt_addB_cp_";
-    m_histogram[name+addName] = store(new TH1D(prefix_+name+addName+step, "; 1st b-jet^{add}_{"+addName+"} p_{T}"+label+"; Events", nBins_jet_Pt, 20., 500.));
+    m_histogram[name+addName] = store(new TH1D(prefix_+name+addName+step, "; 1st b-jet^{add}_{"+addName+"} p_{T}"+label+"; Events", nBins_jet_Pt, 0., 500.));
     name = "leadingJet_2nd_Pt_addB_cp_";
-    m_histogram[name+addName] = store(new TH1D(prefix_+name+addName+step, "; 2nd b-jet^{add}_{"+addName+"} p_{T}"+label+"; Events", nBins_jet_Pt, 20., 500.));
+    m_histogram[name+addName] = store(new TH1D(prefix_+name+addName+step, "; 2nd b-jet^{add}_{"+addName+"} p_{T}"+label+"; Events", nBins_jet_Pt, 0., 500.));
     name = "leadingJet_1st_Eta_addB_cp_";
     m_histogram[name+addName] = store(new TH1D(prefix_+name+addName+step, "; 1st b-jet^{add}_{"+addName+"} |#eta|"+label+"; Events", nBins_jet_Eta,0.,2.6));
     name = "leadingJet_2nd_Eta_addB_cp_";
