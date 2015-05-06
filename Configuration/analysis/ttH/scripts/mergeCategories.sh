@@ -65,15 +65,14 @@ for systematic in "${systematics[@]}"; do
 done
 
 
-
 # Loop over all PDF systematics and channels and merge jet categories
 for channel in ee emu mumu; do
     # FIXME: Should be determined in a more intelligent way? 
     for pdfId in $(seq 1 26); do
-        echo $BIN/categoryMerger -c $channel -s PDF_$pdfId"_UP" ${@:1} &
-        echo $BIN/categoryMerger -c $channel -s PDF_$pdfId"_DOWN" ${@:1} &
+        $BIN/categoryMerger -c $channel -s PDF_${pdfId}_UP ${@:1} &
+        $BIN/categoryMerger -c $channel -s PDF_${pdfId}_DOWN ${@:1} &
         # FIXME: wait function needed?
     done
-    echo $BIN/categoryMerger -c $channel -s PDF_0_CENTRAL ${@:1} &
+    $BIN/categoryMerger -c $channel -s PDF_0_CENTRAL ${@:1} &
 done
 
