@@ -1,3 +1,17 @@
+///////////////////////////////////////////////////////////////////////////////
+//
+// 
+// 15/05/06                   Alexander Grohsjean <alexander.grohsjean@desy.de>
+// 
+//
+// currently assuming that meaning of weight IDs is known to user
+// not enough info in ntuple to read it of
+// if weight ID is not found, default MC weight is returned
+// code requires LHEEventProduct("externalLHEProducer") and 
+// GenEventInfoProduct("generator") 
+//
+//
+///////////////////////////////////////////////////////////////////////////////
 #ifndef EventWeightMCSystematic_h
 #define EventWeightMCSystematic_h
 
@@ -24,7 +38,6 @@ private:
     
     // ----------member data ---------------------------                                                 |
     const edm::ParameterSet parameterSet_;
-    double weight_ ;  
 
 };
 
