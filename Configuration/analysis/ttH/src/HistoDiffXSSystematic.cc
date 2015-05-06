@@ -66,7 +66,7 @@ void HistoSystematic(const std::vector<std::string>& v_plot,
     }
     
     // Create Plotter
-    PlotterDiffXSSystematic plotter("Plots", m_inputRootFileNames);
+    PlotterDiffXSSystematic plotter("Plots_diffXS_systematic", m_inputRootFileNames);
     
     // Access the histoList specifying printing parameters of histograms
     const std::string histoListFile(tth::DATA_PATH_TTH() + "/" + "HistoList_DiffXS_systematic");
@@ -120,10 +120,6 @@ namespace Systematic{
         nominal, all, allAvailable,
         pu, lept, trig,
         jer, jes,
-        btag, 
-        btagPt, btagEta,
-        btagLjet, 
-        btagLjetPt, btagLjetEta,
         btagDiscrBstat1, btagDiscrBstat2,
         btagDiscrLstat1, btagDiscrLstat2,
         btagDiscrBpurity, btagDiscrLpurity,

@@ -29,6 +29,7 @@ done
 
 
 # All systematics except PDF variations
+# FIXME: Should better be run on the content of a folder rather than on the predefined list of systematics
 systematics=(
     Nominal
     PU_UP PU_DOWN
@@ -63,4 +64,15 @@ for systematic in "${systematics[@]}"; do
     done
 done
 
+
+# Loop over all PDF systematics and channels and merge jet categories
+for channel in ee emu mumu; do
+    # FIXME: Should be determined in a more intelligent way? 
+    for pdfId in $(seq 1 26); do
+        $BIN/categoryMerger -c $channel -s PDF_${pdfId}_UP ${@:1} &
+        $BIN/categoryMerger -c $channel -s PDF_${pdfId}_DOWN ${@:1} &
+        # FIXME: wait function needed?
+    done
+    $BIN/categoryMerger -c $channel -s PDF_0_CENTRAL ${@:1} &
+done
 
