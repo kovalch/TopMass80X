@@ -1,6 +1,7 @@
 #include <vector>
 #include "../interface/JERBase.h"
 #include "../interface/JECBase.h"
+#include "../interface/JESBase.h"
 #include "../interface/bTagBase.h"
 #include "../interface/bTagSFBase.h"
 #include "../interface/bTagEfficiency.h"
