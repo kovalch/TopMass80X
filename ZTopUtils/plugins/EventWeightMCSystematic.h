@@ -4,11 +4,8 @@
 // 15/05/06                   Alexander Grohsjean <alexander.grohsjean@desy.de>
 // 
 //
-// currently assuming that meaning of weight IDs is known to user
-// not enough info in ntuple to read it of
-// if weight ID is not found, default MC weight is returned
-// code requires LHEEventProduct("externalLHEProducer") and 
-// GenEventInfoProduct("generator") 
+//                     print out to connect weight ID and systematic variation
+//                                          filling of systematic event weight
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -31,11 +28,10 @@ class EventWeightMCSystematic : public edm::EDProducer {
 public:
     explicit EventWeightMCSystematic(const edm::ParameterSet&);
     ~EventWeightMCSystematic();
-    //    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions); 
     
 private:
     virtual void produce(edm::Event&, const edm::EventSetup&);
-    
+    virtual void endRun(edm::Run const&, edm::EventSetup const&) override;    
     // ----------member data ---------------------------                                                 |
     const edm::ParameterSet parameterSet_;
 
