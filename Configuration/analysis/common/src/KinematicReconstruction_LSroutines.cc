@@ -13,9 +13,6 @@
 #include "classes.h"
 
 
-// FIXME: what is this used for?
-#define printout 0
-
 
 
 constexpr double TopMASS = 172.5;
@@ -23,9 +20,7 @@ constexpr double TopMASS = 172.5;
 
 
 
-// FIXME: This should not be declared in whole file, if at all only in individual functions
-// FIXME: Removal needs to be done with care, since esp. "abs" needs the std::abs for working properly
-using namespace std;
+
 
 
 
@@ -37,35 +32,15 @@ KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines()
     mbbar_ = 4.8;
     mw_    = 80.4;
     mwbar_ = 80.4; 
-    ml_    = 0.000511;
-    mal_    = 0.000511; 
+    ml_    = 0.;
+    mal_    = 0.; 
     mv_=0;
     mav_=0;
-    weight_option_=0;
-    
 }
 
 
 
-KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(const double& mass_l, const double& mass_al)
-{
-    mt_    = TopMASS;
-    mtbar_ = TopMASS;
-    mb_    = 4.8;
-    mbbar_ = 4.8;
-    mw_    = 80.4;//mw_    = 76.671425; for event  799
-    mwbar_ = 80.4; //mwbar_ = 80.177391; for event  799 
-    ml_    = mass_l;
-    mal_    = mass_al;
-    mv_=0;
-    mav_=0;
-    weight_option_=0;
-
-}
-
-
-
-KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(const double& mass_l, const double& mass_al, const double& mass_Wp, const double& mass_Wm)
+KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(const double& mass_Wp, const double& mass_Wm)
 {
     mt_    = TopMASS;
     mtbar_ = TopMASS;
@@ -73,128 +48,36 @@ KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(const dou
     mbbar_ = 4.8;
     mw_    = mass_Wp;
     mwbar_ = mass_Wm; 
-    ml_    = mass_l;
-    mal_    = mass_al;
+    ml_    = 0.;
+    mal_    = 0.;
     mv_=0;
     mav_=0;
-   // NeutrinoEventShape = new TF2("landau2D","[0]*TMath::Landau(x,[1],[2],0)*TMath::Landau(y,[3],[4],0)",0,500,0,500);
-   // NeutrinoEventShape->SetParameters(30.641,57.941,22.344,57.533,22.232);
-   weight_option_=0;
-
 }
 
 
 
-// KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(const double& mass_l, const double& mass_al,const double& mass_Wp, const double& mass_Wm, TH1F* hvE[])
-// {
-//     mt_    = TopMASS;
-//     mtbar_ = TopMASS;
-//     mb_    = 4.8;
-//     mbbar_ = 4.8;
-//     mw_    = mass_Wp;
-//     mwbar_ = mass_Wm; 
-//     ml_    = mass_l;
-//     mal_    = mass_al;
-//     mv_=0;
-//     mav_=0;
-// 
-//         for(int i=0;i<6;++i)hneutrino_E_[i]= hvE[i];
-// 
-//     weight_option_=0;
-// }
-
-
-
-// KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(const double& mass_l, const double& mass_al, const double& mass_Wp, const double& mass_Wm, TH1F* hvE[], TH1F hneutrino)
-// {
-//     mt_    = TopMASS;
-//     mtbar_ = TopMASS;
-//     mb_    = 4.8;
-//     mbbar_ = 4.8;
-//     mw_    = mass_Wp;
-//     mwbar_ = mass_Wm; 
-//     ml_    = mass_l;
-//     mal_    = mass_al;
-//     mv_=0;
-//     mav_=0;
-// 
-//         for(int i=0;i<6;++i)hneutrino_E_[i]= hvE[i];
-//         hnw_cuts_= hneutrino;
-//         
-//     weight_option_=0;
-// 
-// }
-
-
-
-// KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(const double& mass_l, const double& mass_al,const double& mass_Wp, const double& mass_Wm, TH1F hneutrino)
-// {
-//     mt_    = TopMASS;
-//     mtbar_ = TopMASS;
-//     mb_    = 4.8;
-//     mbbar_ = 4.8;
-//     mw_    = mass_Wp;
-//     mwbar_ = mass_Wm; 
-//     ml_    = mass_l;
-//     mal_    = mass_al;
-//     mv_=0;
-//     mav_=0;
-//     
-//     hnw_cuts_= hneutrino;
-//     
-//     //pol4_neutrinoPx_ = new TF1("pol4_neutrinoPx","pol4",-100,100);
-//     //((TAttLine*)pol4_neutrinoPx_->GetParent())->SetLineWidth(1);
-//     weight_option_=0;
-// }
-
-
-
-// KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(const double& mass_l, const double& mass_al,const double& mass_Wp, const double& mass_Wm, TH1F hcostheta, int index)
-// {
-//     mt_=index;
-//     
-//     mt_    = TopMASS;
-//     mtbar_ = TopMASS;
-//     mb_    = 4.8;
-//     mbbar_ = 4.8;
-//     mw_    = mass_Wp;
-//     mwbar_ = mass_Wm; 
-//     ml_    = mass_l;
-//     mal_    = mass_al;
-//     mv_=0;
-//     mav_=0;
-//     
-//     hcosw_= hcostheta;
-//     
-//     //pol4_neutrinoPx_ = new TF1("pol4_neutrinoPx","pol4",-100,100);
-//     //((TAttLine*)pol4_neutrinoPx_->GetParent())->SetLineWidth(1);
-//     weight_option_=0;
-// }
-
-
-
-KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(const double& mass_top, const double& mass_b, const double& mass_w, const double& mass_l, const double& mass_al)
+KinematicReconstruction_LSroutines::KinematicReconstruction_LSroutines(const double& mass_top, const double& mass_topbar, 
+                                                                       const double& mass_b, const double& mass_bbar, 
+                                                                       const double& mass_Wp, const double& mass_Wm, 
+                                                                       const double& mass_al, const double& mass_l)
 {
     mt_    = mass_top;
-    mtbar_ = mass_top;
+    mtbar_ = mass_topbar;
     mb_    = mass_b;
-    mbbar_ = mass_b;
-    mw_    = mass_w;
-    mwbar_ = mass_w;
-    ml_=mass_l;
+    mbbar_ = mass_bbar;
+    mw_    = mass_Wp;
+    mwbar_ = mass_Wm;
     mal_=mass_al;
+    ml_=mass_l;
     mv_=0;
     mav_=0;
-   // NeutrinoEventShape = new TF2("landau2D","[0]*TMath::Landau(x,[1],[2],0)*TMath::Landau(y,[3],[4],0)",0,500,0,500);
-   // NeutrinoEventShape->SetParameters(30.641,57.941,22.344,57.533,22.232);
-    weight_option_=0;
 }
 
 
 
 KinematicReconstruction_LSroutines::~KinematicReconstruction_LSroutines()
 {
-    //delete NeutrinoEventShape;
+    
 }
 
 
@@ -206,7 +89,7 @@ void KinematicReconstruction_LSroutines::fDelete()const
 
 
 
-void KinematicReconstruction_LSroutines::ini(const double& mass_l, const double& mass_al, const double& mass_Wp, const double& mass_Wm)
+void KinematicReconstruction_LSroutines::ini(const double& mass_Wp, const double& mass_Wm)
 {
     mt_    = TopMASS;
     mtbar_ = TopMASS;
@@ -214,12 +97,10 @@ void KinematicReconstruction_LSroutines::ini(const double& mass_l, const double&
     mbbar_ = 4.8;
     mw_    = mass_Wp;
     mwbar_ = mass_Wm; 
-    ml_    = mass_l;
-    mal_    = mass_al;
+    ml_    = 0.;
+    mal_    = 0.;
     mv_=0;
     mav_=0;
-    
-    weight_option_=0;
 }
 
 
@@ -260,12 +141,6 @@ int KinematicReconstruction_LSroutines::getNsol()const
     return nSol_;
 }
 
-
-
-void KinematicReconstruction_LSroutines::setWeightOption(const int wo)
-{
-    weight_option_=wo;
-}
 
 
 
@@ -411,34 +286,6 @@ void KinematicReconstruction_LSroutines::doAll()
 //                             }
 //                         }
        
-// E 1d loaded outside
-       
-//                         for(int i=0;i<5;++i)
-//                         {
-//                             if(top_.E()>pt_bins[i]&&top_.E()<=pt_bins[i+1])
-//                                 {
-//                                     hvw = hneutrino_E_[i];
-//                                     vw1=hvw->GetBinContent(hvw->FindBin(neutrino_.E()));
-//                             }
-//                             else if(top_.E()>pt_bins[5])
-//                             {
-//                                 hvw = hneutrino_E_[5];
-//                                 vw1=hvw->GetBinContent(hvw->FindBin(neutrino_.E()));
-//                             }
-//                             
-//                             
-//                             if(topbar_.E()>pt_bins[i]&&topbar_.E()<=pt_bins[i+1])
-//                             {
-//                                     hvw = hneutrino_E_[i];
-//                                     vw2=hvw->GetBinContent(hvw->FindBin(neutrinobar_.E()));
-//                             }
-//                             else if(topbar_.E()>pt_bins[5])
-//                             {
-//                                 hvw = hneutrino_E_[5];
-//                                 vw2=hvw->GetBinContent(hvw->FindBin(neutrinobar_.E()));
-//                             }
-//                         }
-       
        
  //pt,eta 2d
 //                         int Nptbins=(int)(sizeof(pt_top_bins_2d)/sizeof(pt_top_bins_2d[0]));
@@ -487,50 +334,12 @@ void KinematicReconstruction_LSroutines::doAll()
                     // TS_temp.weight=vw1*vw2;
                   //...
                        
-                       
-  //neutrino 1d weight
-//                     double vw1=1,vw2=1;
-//                             vw1=hnw_cuts_.GetBinContent(hnw_cuts_.FindBin(neutrino_.E()));
-//                             vw2=hnw_cuts_.GetBinContent(hnw_cuts_.FindBin(neutrinobar_.E()));
-//                 TS_temp.weight=vw1*vw2;
-  // ...                   
-   
-   
-  //neutrino 1d Eta weight
-//                             vw1=vw1*hnw_cuts_.GetBinContent(hnw_cuts_.FindBin(neutrino_.Eta()));
-//                             vw2=vw2*hnw_cuts_.GetBinContent(hnw_cuts_.FindBin(neutrinobar_.Eta()));
-//                 TS_temp.weight=vw1*vw2;
-  // ...                   
-     
-   
-  //mbl 1d weight
-//                     double vw1=1,vw2=1;
-//                             vw1=hnw_cuts_.GetBinContent(hnw_cuts_.FindBin((b_+neutrinobar_).M()));
-//                             vw2=hnw_cuts_.GetBinContent(hnw_cuts_.FindBin((bbar_+neutrino_).M()));
-//                 TS_temp.weight=vw1*vw2;
-  // ...
                     
                     
                     
                     
 //              TS_temp.weight=Landau2D(neutrino_.E(),neutrinobar_.E());
                 
-//                     if(weight_option_==1)
-//                     {
-// //                         TF1 f_nm("f_nm","pol2");f_nm.SetParameters(52.8498,-0.010801,0.000480966);
-// //                         TF1 f_ns("f_ns","pol2");f_ns.SetParameters(15.8754,0.0274776 ,0.000146676);
-// //                         TF1 landau_n_temp("landau_n","[0]*TMath::Landau(x,[1],[2])");landau_n_temp.SetParameters(1.0/f_ns.Eval(top_.Pt()),f_nm.Eval(top_.Pt()),f_ns.Eval(top_.Pt()));
-// //                         TF1 landau_an_temp("landau_an","[0]*TMath::Landau(x,[1],[2])");landau_an_temp.SetParameters(1.0/f_ns.Eval(topbar_.Pt()),f_nm.Eval(topbar_.Pt()),f_ns.Eval(topbar_.Pt()));
-//                         TF1 landau_n_temp("landau_n","[0]*TMath::Landau(x,[1],[2])");landau_n_temp.SetParameters(1.0/20.3864,59.91,20.3864);
-//                         TF1 landau_an_temp("landau_an","[0]*TMath::Landau(x,[1],[2])");landau_an_temp.SetParameters(1.0/20.3864,59.91,20.3864);
-//                         
-//                         
-//                         TS_temp.weight=landau_n_temp.Eval(neutrino_.E())*landau_an_temp.Eval(neutrinobar_.E()); 
-//                         
-//                         //TF1 f_mbl("f_mbl","[0]*exp(-(x-[1])*(x-[1])/[2])*([3]+[4]*x)");
-//                         //f_mbl.SetParameters(-0.000110874,1.90958e+02,7.14791e+03,-9.70099e+02,6.31507e+00);
-//                         //TS_temp.weight=10000000*NeutrinoEventShape->Eval(neutrino_.E(),neutrinobar_.E())*f_mbl.Eval((b_+al_).M())*f_mbl.Eval((bbar_+l_).M())*landau_n_temp.Eval(neutrino_.E())*landau_an_temp.Eval(neutrinobar_.E());
-//                     }
                     
                 TS_temp.top = top_;
                 TS_temp.topbar = topbar_;
@@ -550,46 +359,28 @@ void KinematicReconstruction_LSroutines::doAll()
                     //al_boost_top.Boost(-top_.BoostVector());
                     //l_boost_topbar.Boost(-topbar_.BoostVector());
                 
-                //TS_temp.cos_bTR_top = cos(top_.Vect().Angle(b_boost_top.Vect()));
-                //TS_temp.cos_bbarTR_topbar = cos(topbar_.Vect().Angle(bbar_boost_topbar.Vect()));
                 
                 //TLorentzVector top_boost=top_,topbar_boost=topbar_,b_boost=b_,bbar_boost=bbar_;
                 
                 
-                //TS_temp.ttpt_top=top_boost.Pt();
-                //TS_temp.ttpt_topbar=topbar_boost.Pt();
-                
                 //b_boost.Boost(-tt_.BoostVector());
                 //bbar_boost.Boost(-tt_.BoostVector());
-             
-                //TS_temp.costheta=cos(topbar_boost_top.Vect().Angle(b_boost_top.Vect()));
-                //TS_temp.costhetabar=cos(top_boost_topbar.Vect().Angle(bbar_boost_topbar.Vect()));
-                
-            //          costheta 1d weight
-//                             vw1=hcosw_.GetBinContent(hcosw_.FindBin(TS_temp.costheta));
-//                             vw2=hcosw_.GetBinContent(hcosw_.FindBin(TS_temp.costhetabar));
-//                             TS_temp.weight=vw1*vw2;
-              //          ...                         
+                        
            
                 
                 
                 //b_boost.Boost(-top_boost.BoostVector());
-                //TS_temp.cos1 = cos(top_boost.Vect().Angle(b_boost.Vect()));
                 
                 //TLorentzVector wb = w_+b_,w_boost=w_,al_boost=al_;
                 //w_boost.Boost(-wb.BoostVector());
                 //al_boost.Boost(-w_.BoostVector());
                 //al_boost.Boost(-w_boost.BoostVector());
                 
-                //TS_temp.cos2 = cos(w_boost.Vect().Angle(al_boost.Vect()));
-                
                 
                 //TS_temp.weight = 1.0/(neutrino_.Pt()+neutrinobar_.Pt());
                 
                 //vw1=4*mt_*al_boost_top.E()*(mt_*mt_-mb_*mb_-2*mt_*al_boost_top.E())/(pow((mt_*mt_-mb_*mb_),2)+mw_*mw_*(mt_*mt_-mb_*mb_)-2*pow(mw_,4));
                 //vw2=4*mt_*l_boost_topbar.E()*(mt_*mt_-mb_*mb_-2*mt_*l_boost_topbar.E())/(pow((mt_*mt_-mb_*mb_),2)+mwbar_*mwbar_*(mt_*mt_-mb_*mb_)-2*pow(mwbar_,4));
-                
-                //TS_temp.lepEw=vw1*vw2;
                 
                 //TS_temp.mbl    = (b_+al_).M();
                 //TS_temp.mblbar = (bbar_+l_).M();
@@ -689,7 +480,7 @@ void KinematicReconstruction_LSroutines::swapTopSol(KinematicReconstruction_LSro
 
 
 
-void KinematicReconstruction_LSroutines::sortTopSol(vector<KinematicReconstruction_LSroutines::TopSolution>& v)const
+void KinematicReconstruction_LSroutines::sortTopSol(std::vector<KinematicReconstruction_LSroutines::TopSolution>& v)const
 {
     //std::vector< KinematicReconstruction_LSroutines::TopSolution > result;
     for(uint i=0;i<v.size()-1;++i)

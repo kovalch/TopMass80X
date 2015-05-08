@@ -228,7 +228,7 @@ std::vector<KinematicReconstructionSolution> KinematicReconstruction::solutionsP
     if(massLoop_){
         double neutrinoWeightMax = 0.;
         for(double iTopMass = 100.; iTopMass < 300.5; iTopMass += 1.){
-            KinematicReconstruction_LSroutines tp_m(iTopMass, 4.8, 80.4, 0.0, 0.0);
+            KinematicReconstruction_LSroutines tp_m(iTopMass, iTopMass, 4.8, 4.8, 80.4, 80.4, 0.0, 0.0);
             tp_m.setConstraints(antiLepton, lepton, jet1, jet2, met.px(), met.py());
             if(tp_m.getNsol() < 1) continue;
             if(!(tp_m.getTtSol()->at(0).weight > neutrinoWeightMax)) continue;
@@ -392,7 +392,7 @@ bool KinematicReconstruction::solutionSmearing(KinematicReconstruction_MeanSol& 
             TVector3 metV3_sm= -b_sm.Vect()-bbar_sm.Vect()-l_sm.Vect()-al_sm.Vect()-vX_reco;
                 met_sm.SetXYZM(metV3_sm.Px(),metV3_sm.Py(),0,0);
             
-            KinematicReconstruction_LSroutines tp_sm(0.0,0.0,h_wmass_->GetRandom(),h_wmass_->GetRandom());
+            KinematicReconstruction_LSroutines tp_sm(h_wmass_->GetRandom(),h_wmass_->GetRandom());
                 tp_sm.setConstraints(al_sm, l_sm, b_sm, bbar_sm, met_sm.Px(), met_sm.Py());
 
             if(tp_sm.getNsol()>0)
@@ -824,7 +824,7 @@ void KinematicReconstruction::kinRecoMassLoop(const LV& leptonMinus, const LV& l
         if(massLoop_){
            for(double iTopMass = 100.; iTopMass < 300.5; iTopMass += 1.){
 
-                KinematicReconstruction_LSroutines tp_m(iTopMass, 4.8, 80.4, 0.0, 0.0);
+                KinematicReconstruction_LSroutines tp_m(iTopMass, iTopMass, 4.8, 4.8, 80.4, 80.4, 0.0, 0.0);
                 tp_m.setConstraints(al_temp, l_temp, b_temp, bbar_temp, met_temp.Px(), met_temp.Py());
 
                 if(tp_m.getNsol()<1) continue;

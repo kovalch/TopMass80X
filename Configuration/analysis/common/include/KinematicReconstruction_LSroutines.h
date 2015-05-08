@@ -19,19 +19,17 @@ class KinematicReconstruction_LSroutines{
 
 public:
     KinematicReconstruction_LSroutines();
-    KinematicReconstruction_LSroutines(const double& mass_l, const double& mass_al);
-    KinematicReconstruction_LSroutines(const double& mass_l, const double& mass_al, const double& mass_Wp, const double& mass_Wm, TH1F* hvE[]);
-    KinematicReconstruction_LSroutines(const double& mass_l, const double& mass_al, const double& mass_Wp, const double& mass_Wm, TH1F* hvE[], TH1F hneutrino);
-    KinematicReconstruction_LSroutines(const double& mass_l, const double& mass_al, const double& mass_Wp, const double& mass_Wm, TH1F hneutrino);
-    KinematicReconstruction_LSroutines(const double& mass_l, const double& mass_al, const double& mass_Wp, const double& mass_Wm, TH1F hcostheta, int weight_index);
-    KinematicReconstruction_LSroutines(const double& mass_l, const double& mass_al, const double& mass_Wp, const double& mass_Wm);
-    KinematicReconstruction_LSroutines(const double& mass_top, const double& mass_b, const double& mass_w, const double& mass_l, const double& mass_al);
+    KinematicReconstruction_LSroutines(const double& mass_Wp, const double& mass_Wm);
+    KinematicReconstruction_LSroutines(const double& mass_top, const double& mass_topbar, 
+                                       const double& mass_b, const double& mass_bbar, 
+                                       const double& mass_w, const double& mass_wbar, 
+                                       const double& mass_al, const double& mass_l);
     ~KinematicReconstruction_LSroutines();
     
     void fDelete()const;
     
     
-    void ini(const double& mass_l, const double& mass_al, const double& mass_Wp, const double& mass_Wm);
+    void ini(const double& mass_Wp, const double& mass_Wm);
     
     void setConstraints(const TLorentzVector& LV_al, 
                         const TLorentzVector& LV_l, 
@@ -51,11 +49,7 @@ public:
     
     int getNsol()const;
     
-    void setWeightOption(const int wo);
-    
     struct TopSolution{
-        //double vw;
-        //double lepEw;
         //double dTS;
         //double dR;
         //double dN;
@@ -65,19 +59,11 @@ public:
         TLorentzVector neutrinobar;
         TLorentzVector wp;
         TLorentzVector wm;
-        //double cos_bTR_top;
-        //double cos_bbarTR_topbar;
-        //double cos1;
-        //double cos2;
-        //double ttpt_top;
-        //double ttpt_topbar;
         double mbl;
         double mblbar;
         double x1;
         double x2;
         double mtt;
-        //double costheta;
-        //double costhetabar;
         double weight;
         double dTS;
         
@@ -110,7 +96,6 @@ private:
     double sqr(const double& x)const;
     void swap(double& realone, double& realtwo)const;
     
-    int weight_option_;   // weight option
     int nSol_;
     double coeffs_[5];
     std::vector<double> vect_pxv_;
@@ -134,11 +119,6 @@ private:
     
     TF1* pol4_neutrinoPx_; //("pol4_neutrinoPx","pol4",-100,100);
     
-    //TH1F hnw_cuts_;
-    
-    //TH1F* hneutrino_E_[6];
-    //TH1F hcosw_;
-    
     double px_miss_;
     double py_miss_;
     
@@ -152,8 +132,6 @@ private:
     double mal_;
     double mv_;
     double mav_;
-    
-    //TF2* NeutrinoEventShape;  // ()  30.641000 57.941000 22.344000 57.533000 22.232000
     
     double a1_,a2_,a3_,a4_;
     double b1_,b2_,b3_,b4_;
