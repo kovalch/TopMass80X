@@ -9,8 +9,12 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 EventWeightMCSystematic::EventWeightMCSystematic(const edm::ParameterSet& cfg):
-    parameterSet_(cfg) 
+genEventInfoTag_(cfg.getParameter<edm::InputTag>("genEventInfoTag")), //generator
+lheEventInfoTag_(cfg.getParameter<edm::InputTag>("lheEventInfoTag")), //externalLHEProducer
+weightID_(cfg.getParameter<std::string>("weightID")), 
+printLHE_(cfg.getParameter<bool>("printLHE"))
 {  
+
     produces<double>();
 }
 
@@ -22,34 +26,32 @@ EventWeightMCSystematic::~EventWeightMCSystematic(){}
 
 void EventWeightMCSystematic::produce(edm::Event& evt, const edm::EventSetup& setup)
 {
+    if(evt.isRealData()) return;
     // get final event weight
-    std::string weightId(parameterSet_.getParameter<std::string>("weightId"));
-    edm::InputTag genEventInfoTag("generator");
     edm::Handle<GenEventInfoProduct> evt_info;
-    try {evt.getByLabel(genEventInfoTag, evt_info);}
+    try {evt.getByLabel(genEventInfoTag_, evt_info);}
     catch (...) {;}
     // get systematic variation at LHE level  
-    edm::InputTag lheEventInfoTag("externalLHEProducer");
     edm::Handle<LHEEventProduct> lhe_info;
-    try {evt.getByLabel(lheEventInfoTag, lhe_info);} 
+    try {evt.getByLabel(lheEventInfoTag_, lhe_info);} 
     catch (...) {;}
-    double weight(1.0);        
+    double weight=(evt_info.isValid()) ? evt_info->weight() : 1.;	          
     // calculate new weight 
-    if ( evt_info.isValid() && lhe_info.isValid() ) { 
+    if(evt_info.isValid() && lhe_info.isValid()){ 
 	weight = evt_info->weight();
 	bool foundid(false);	
-	for (size_t iwgt=0; iwgt<lhe_info->weights().size(); ++iwgt) {
+	for(size_t iwgt=0; iwgt<lhe_info->weights().size(); ++iwgt){
 	    const LHEEventProduct::WGT& wgt = lhe_info->weights().at(iwgt);
-	    if(wgt.id==weightId){
+	    if(wgt.id==weightID_){
 		weight=evt_info->weight()*wgt.wgt/lhe_info->originalXWGTUP(); 
 		foundid=true;
 		break;
 	    }	
 	}
-	if (!foundid)
-	    edm::LogWarning ("EventWeightMCSystematic") << "Specified weight ID not available! Take default MC weight!" ;
+	if(!foundid)
+	    edm::LogWarning("EventWeightMCSystematic")<<"Specified weight ID not available! Take "<<weight<<" as weight!";
     }else{
-	edm::LogWarning ("EventWeightMCSystematic") << "Can't get weight information! Take 1 as weight!" ;
+	edm::LogWarning("EventWeightMCSystematic")<<"Can't get weight information! Take "<<weight<<" as weight!";
     }
     std::auto_ptr<double> eventWeight(new double);
     *eventWeight = weight ;
@@ -60,15 +62,14 @@ void EventWeightMCSystematic::produce(edm::Event& evt, const edm::EventSetup& se
 
 void EventWeightMCSystematic::endRun(edm::Run const& run, const edm::EventSetup& setup)
 {
-    bool printLHE(parameterSet_.getParameter<bool>("printLHE"));
-    if(!printLHE) return;
-    edm::Handle<LHERunInfoProduct> lheRunInfoTag;
+    if(!printLHE_) return;
+    edm::Handle<LHERunInfoProduct> lheRunInfo;
     typedef std::vector<LHERunInfoProduct::Header>::const_iterator headers_const_iterator;
-    try {run.getByLabel("externalLHEProducer", lheRunInfoTag);}
+    try {run.getByLabel(lheEventInfoTag_, lheRunInfo);}
     catch (...) {;}
-    if(lheRunInfoTag.isValid()){
-	LHERunInfoProduct lheRunInfo = *(lheRunInfoTag.product());
-	for (headers_const_iterator iter=lheRunInfo.headers_begin(); iter!=lheRunInfo.headers_end(); iter++){
+    if(lheRunInfo.isValid()){
+	LHERunInfoProduct lheRunInfoProd = *(lheRunInfo.product());
+	for (headers_const_iterator iter=lheRunInfoProd.headers_begin(); iter!=lheRunInfoProd.headers_end(); iter++){
 	    std::cout << iter->tag() << std::endl;
 	    std::vector<std::string> lines = iter->lines();
 	    for (unsigned int iLine = 0; iLine<lines.size(); iLine++) {

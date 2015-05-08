@@ -1,16 +1,5 @@
-///////////////////////////////////////////////////////////////////////////////
-//
-// 
-// 15/05/06                   Alexander Grohsjean <alexander.grohsjean@desy.de>
-// 
-//
-//                     print out to connect weight ID and systematic variation
-//                                          filling of systematic event weight
-//
-//
-///////////////////////////////////////////////////////////////////////////////
-#ifndef EventWeightMCSystematic_h
-#define EventWeightMCSystematic_h
+#ifndef EventWeightPDF_h
+#define EventWeightPDF_h
 
 #include <memory>
 #include <string>
@@ -23,11 +12,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-class EventWeightMCSystematic : public edm::EDProducer {
+class EventWeightPDF : public edm::EDProducer {
     
 public:
-    explicit EventWeightMCSystematic(const edm::ParameterSet&);
-    ~EventWeightMCSystematic();
+    explicit EventWeightPDF(const edm::ParameterSet&);
+    ~EventWeightPDF();
     
 private:
     virtual void produce(edm::Event&, const edm::EventSetup&);
@@ -35,7 +24,9 @@ private:
     // ----------member data ---------------------------                                                 |
     edm::InputTag genEventInfoTag_;
     edm::InputTag lheEventInfoTag_;
-    std::string weightID_;
+    std::vector<std::string> pdfSetNames_;
+    std::vector<std::string> pdfShortNames_;
+    std::vector<std::string> beginWeightID_;
     bool printLHE_;
 };
 
