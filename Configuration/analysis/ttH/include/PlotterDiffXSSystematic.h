@@ -56,9 +56,10 @@ private:
         
     /// A pair of up/down variations (relative)
     struct UpDown {
-        double u; double d;
+        double u; double d; double c;
         UpDown(double up, double down):u(up), d(down){}
-        UpDown():u(0.), d(0.){}
+        UpDown(double up, double down, double central):u(up), d(down), c(central){}
+        UpDown():u(0.), d(0.), c(0.){}
         
         void square() {
             u = u*u;
@@ -143,7 +144,7 @@ private:
     ErrorMap binUncertaintiesRecoAndGen(const ErrorMap& m_errors, const ErrorMap& m_errors_gen)const;
     
     /// Print individual uncertainties for each bin and mean uncertainty across all bins
-    void printAllUncertainties(const std::vector<ErrorMap>& errorMaps, const ErrorMap& errorMap_inclusive)const;
+    void printAllUncertainties(const std::vector<ErrorMap>& errorMaps, const ErrorMap& errorMap_inclusive, const bool listSystematics =false)const;
     
     /// Calculates binomial uncertainty of the subset/set ratio
     double uncertaintyBinomial(const double pass, const double all)const;

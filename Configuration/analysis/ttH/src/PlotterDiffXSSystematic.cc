@@ -294,6 +294,7 @@ std::vector<PlotterDiffXSSystematic::ErrorMap> PlotterDiffXSSystematic::extractV
         for(size_t iBin = 0; iBin < nBins; ++iBin) {
             UpDown errorPair;
             const double nominal = h_nominal->GetBinContent(iBin+1);
+            errorPair.c = nominal;
             if(h_up) errorPair.u = (h_up->GetBinContent(iBin+1) - nominal)/nominal;
             if(h_down) errorPair.d = (h_down->GetBinContent(iBin+1) - h_nominal->GetBinContent(iBin+1))/nominal;
             errors.at(iBin)[systematicType] = errorPair;
@@ -304,6 +305,7 @@ std::vector<PlotterDiffXSSystematic::ErrorMap> PlotterDiffXSSystematic::extractV
         UpDown errorPair;
         const double nominal = h_nominal->GetBinContent(iBin+1);
         const double error = h_nominal->GetBinError(iBin+1) / nominal;
+        errorPair.c = nominal;
         errorPair.u = error;
         errorPair.d = error;
         errors.at(iBin)[Systematic::nominal] = errorPair;
@@ -353,16 +355,10 @@ void PlotterDiffXSSystematic::plotXSection(const Channel::Channel& channel)
     const std::vector<ErrorMap> em_measured_inclusive = extractVariations(m_systematicHistos_measured_inclusive);
     const std::vector<ErrorMap> em_generated_inclusive = extractVariations(m_systematicHistos_generated_inclusive);
     const ErrorMap m_combined_inclusive = binUncertaintiesRecoAndGen(em_measured_inclusive.at(0), em_generated_inclusive.at(0));
-    const double xsec_inclusive = m_systematicHistos_measured_inclusive.at(Systematic::nominal).first->GetBinContent(1);
-    const UpDown e_measured_stat_inclusive = binUncertaintyOfType(m_combined_inclusive, ErrorType::stat);
-    const UpDown e_measured_syst_inclusive = binUncertaintyOfType(m_combined_inclusive, ErrorType::syst);
-    const UpDown e_measured_total_inclusive = binUncertaintyOfType(m_combined_inclusive, ErrorType::total);
-    printf("-----------------------------------------------------------------------------------\n");
-    printf("Inclusive xsection: %.2f  +- %.2f (stat)  + %.2f /- %.2f (syst)   [ + %.2f /- %.2f (total)]\n", xsec_inclusive, e_measured_stat_inclusive.u,  e_measured_syst_inclusive.u, e_measured_syst_inclusive.d, e_measured_total_inclusive.u, e_measured_total_inclusive.d);
-    printf("-----------------------------------------------------------------------------------\n");
     
     // Printing the list of uncertainties in each bin and the median
-    printAllUncertainties(em_combined, m_combined_inclusive);
+    // FIXME: Make the BOOL parameter steerable in the HistoDiffXSSystematic (-l to list all systematics)
+    printAllUncertainties(em_combined, m_combined_inclusive, true);
     
     TGraphAsymmErrors* g_measured_stat = errorGraphFromHisto(h_nominal, e_measured_stat);
     TGraphAsymmErrors* g_measured_total = errorGraphFromHisto(h_nominal, e_measured_total);
@@ -462,6 +458,8 @@ PlotterDiffXSSystematic::UpDown PlotterDiffXSSystematic::binUncertaintyOfType(co
         if(systematic != Systematic::nominal && type == ErrorType::stat) continue;
         const UpDown& errorPair = systematicValuePair.second;
         error.addInQuadrature(errorPair);
+        // Setting the central value as well
+        if(type == ErrorType::stat) error.c = errorPair.c;
     }
     error.sqrt();
 
@@ -554,9 +552,32 @@ PlotterDiffXSSystematic::ErrorMap PlotterDiffXSSystematic::binUncertainties(cons
 }
 
 
-void PlotterDiffXSSystematic::printAllUncertainties(const std::vector<ErrorMap>& errorMaps, const ErrorMap& errorMap_inclusive)const
+void PlotterDiffXSSystematic::printAllUncertainties(const std::vector<ErrorMap>& errorMaps, const ErrorMap& errorMap_inclusive, const bool listSystematics)const
 {
+    printf("Bin Id \t& cent \t& stat \t& syst \t& total  // highest asymetric uncertainty [ %%x100 ]\n");
+    printf("-----------------------------------------------------------------------------------\n");
+    // Printing inclusive cross-section results
+    const UpDown e_stat_inclusive = binUncertaintyOfType(errorMap_inclusive, ErrorType::stat);
+    const UpDown e_syst_inclusive = binUncertaintyOfType(errorMap_inclusive, ErrorType::syst);
+    const UpDown e_total_inclusive = binUncertaintyOfType(errorMap_inclusive, ErrorType::total);
+    const double xsec_inclusive = e_stat_inclusive.c;
+    printf("Incl. \t& %.2f \t& %.2f \t& %.2f \t& %.2f\n", xsec_inclusive, e_stat_inclusive.maxAbsVariation(),  e_syst_inclusive.maxAbsVariation(), e_total_inclusive.maxAbsVariation());
+    printf("-----------------------------------------------------------------------------------\n");
+
     if(errorMaps.size()<1) return;
+    // Printing differential cross-section results for each bin
+    int binId = 0;
+    for(auto errorMap : errorMaps) {
+	binId++;
+	const UpDown e_stat = binUncertaintyOfType(errorMap, ErrorType::stat);
+    	const UpDown e_syst = binUncertaintyOfType(errorMap, ErrorType::syst);
+    	const UpDown e_total = binUncertaintyOfType(errorMap, ErrorType::total);
+	printf("Bin %d \t& %.2f \t& %.2f \t& %.2f \t& %.2f\n", binId, e_stat.c, e_stat.maxAbsVariation(),  e_syst.maxAbsVariation(), e_total.maxAbsVariation());
+    }
+    printf("-----------------------------------------------------------------------------------\n");
+    
+    // Printing the list of systematic uncertainties if required
+    if(!listSystematics) return;
     const ErrorMap& systematicsMap = errorMaps.at(0);
     const int numbersIndentation = 20;
     const int nBins = errorMaps.size();
@@ -604,7 +625,6 @@ void PlotterDiffXSSystematic::printAllUncertainties(const std::vector<ErrorMap>&
     printf(" | ");
     printf("Max: %.2f ", maximums.at(0) );
     printf(" | ");
-    const UpDown& e_total_inclusive = binUncertaintyOfType(errorMap_inclusive, ErrorType::total);
     printf("Incl: %.2f\n", e_total_inclusive.maxAbsVariation());
 }
 
