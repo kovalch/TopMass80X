@@ -371,7 +371,9 @@ void PlotterDiffXSSystematic::plotXSection(const Channel::Channel& channel)
     for(auto systematicLegend : predictionSystematicLegends_) {
         const Systematic::Type& systematicType = systematicLegend.first;
         const PredictionEntry legendColorStyle = systematicLegend.second;
-        const TString fileName = inputFileLists_.at(channel).at(Systematic::Systematic(systematicType, Systematic::undefinedVariation, -1)).at(name_).first;
+	const Systematic::Systematic systematic(systematicType, Systematic::undefinedVariation, -1);
+	if(inputFileLists_.at(channel).count(systematic) < 1) continue;
+        const TString fileName = inputFileLists_.at(channel).at(systematic).at(name_).first;
         // Getting the histogram of prediction
         TH1* histo = fileReader_->GetClone<TH1>(fileName, name_+"_xs_madgraph", true, false);
         // Normalising histogram
@@ -521,6 +523,7 @@ PlotterDiffXSSystematic::ErrorMap PlotterDiffXSSystematic::binUncertainties(cons
         Systematic::Type combinedSystematic = systematicCombinationPair.first;
         const SystematicCombination& systematicsCombination = systematicCombinationPair.second;
         UpDown combinedError(0., 0.);
+	int nCombinedSystematics(0);
         if(systematicsCombination.type == 0) {
             // Adding in quadrature
             for(Systematic::Type systematicType : systematicsCombination.systematics) {
@@ -528,7 +531,9 @@ PlotterDiffXSSystematic::ErrorMap PlotterDiffXSSystematic::binUncertainties(cons
                 // Skipping variation if it should be ignored in systematic uncertainties
                 if(std::find(ignoredSystematicTypes_.begin(), ignoredSystematicTypes_.end(), systematicType) != ignoredSystematicTypes_.end()) continue;
                 combinedError.addInQuadrature(m_errors.at(systematicType));
+		nCombinedSystematics++;
             }
+	    if(nCombinedSystematics < 1) continue;
             combinedError.sqrt();
         } else if(systematicsCombination.type == 1) {
             // Taking the envelope of absolute variations
@@ -539,7 +544,9 @@ PlotterDiffXSSystematic::ErrorMap PlotterDiffXSSystematic::binUncertainties(cons
                 if(std::find(ignoredSystematicTypes_.begin(), ignoredSystematicTypes_.end(), systematicType) != ignoredSystematicTypes_.end()) continue;
                 ups.push_back(m_errors.at(systematicType).u);
                 downs.push_back(m_errors.at(systematicType).d);
+		nCombinedSystematics++;
             }
+	    if(nCombinedSystematics < 1) continue;
             // Sorting to have the largest absolute values first
             std::sort(ups.begin(), ups.end(), uncertaintySortingFunction);
             std::sort(downs.begin(), downs.end(), uncertaintySortingFunction);
