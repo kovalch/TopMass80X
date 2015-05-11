@@ -108,8 +108,6 @@ void AnalyzerKinReco::bookHistos(const TString& step, std::map<TString, TH1*>& m
         //KinReco input W mass
         name="W_mass";
         m_histogram[name] = store(new TH1D ( prefix_+name+step, "W mass", 250, 30, 130 ));
-        name="W_mass_weight";
-        m_histogram[name] = store(new TH1D ( prefix_+name+step, "W mass weight", 250, 30, 130 ));
         
         //boosted top analysis
         name = "mtt_true_vs_reco_pTt300";
@@ -249,10 +247,8 @@ void AnalyzerKinReco::fillHistos(const EventMetadata& eventMetadata,
         m_histogram["mbl_true_wrong"]->Fill((bbar_true+al_true).M(),(genLevelWeights.trueLevelWeight_));
         
         //w mass
-        //m_histogram["W_mass"]->Fill(topGenObjects.GenWPlus_->M());
-        //m_histogram["W_mass"]->Fill((*topGenObjects.GenWMinus_).M());
-        //m_histogram["W_mass_weight"]->Fill((*topGenObjects.GenWPlus_).M(),(genLevelWeights.trueLevelWeight_));
-        //m_histogram["W_mass_weight"]->Fill((*topGenObjects.GenWMinus_).M(),(genLevelWeights.trueLevelWeight_));
+        m_histogram["W_mass"]->Fill((*topGenObjects.GenWPlus_).M(),(genLevelWeights.trueLevelWeight_));
+        m_histogram["W_mass"]->Fill((*topGenObjects.GenWMinus_).M(),(genLevelWeights.trueLevelWeight_));
         
         
     if(recoObjects.valuesSet_){
@@ -324,6 +320,12 @@ void AnalyzerKinReco::fillHistos(const EventMetadata& eventMetadata,
         
     }
 
+    
+    
+    
+    
+    
+    
 }
 
 

@@ -687,16 +687,7 @@ void KinematicReconstruction::loadData()
     
     r3_ = new TRandom3();
     
-    // W mass
-    TString data_path = common::DATA_PATH_COMMON();
-    data_path.Append("/KinReco_wmass.root");
-    TFile wmassfile(data_path);
-    h_wmass_ = (TH1F*)wmassfile.Get("W_mass");
-    h_wmass_->SetDirectory(0);
-    wmassfile.Close();
-    
-    
-// jet,lepton resolutions; mbl mass; 
+// jet,lepton resolutions; mbl mass; W mass;
     TString data_path1 = common::DATA_PATH_COMMON();
     data_path1.Append("/KinReco_input.root");
     
@@ -718,6 +709,9 @@ void KinematicReconstruction::loadData()
         h_mbl_w_->SetDirectory(0);
         //h_mbl_w_ = (TH1F*)dataFile.Get("KinReco_mbl_true_wrong_step0");
         //h_mbl_w_->SetDirectory(0);
+    // W mass
+        h_wmass_ = (TH1F*)dataFile.Get("KinReco_W_mass_step0");
+        h_wmass_->SetDirectory(0);
     dataFile.Close();
 // ...
     
