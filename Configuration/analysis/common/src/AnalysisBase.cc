@@ -807,8 +807,8 @@ void AnalysisBase::SetTopSignalBranchAddresses()
     chain_->SetBranchAddress("GenAntiNeutrino", &topGenObjects_->GenAntiNeutrino_, &b_GenAntiNeutrino);
     chain_->SetBranchAddress("GenB", &topGenObjects_->GenB_, &b_GenB);
     chain_->SetBranchAddress("GenAntiB", &topGenObjects_->GenAntiB_, &b_GenAntiB);
-    chain_->SetBranchAddress("GenWPlus", &topGenObjects_->GenWPlus_, &b_GenWPlus);
-    chain_->SetBranchAddress("GenWMinus", &topGenObjects_->GenWMinus_, &b_GenWMinus);
+    //chain_->SetBranchAddress("GenWPlus", &topGenObjects_->GenWPlus_, &b_GenWPlus);
+    //chain_->SetBranchAddress("GenWMinus", &topGenObjects_->GenWMinus_, &b_GenWMinus);
     //chain_->SetBranchAddress("GenWPlus.fCoordinates.fX", &topGenObjects_->GenWPluspX_, &b_GenWPluspX);
     //chain_->SetBranchAddress("GenWMinus.fCoordinates.fX", &topGenObjects_->GenWMinuspX_, &b_GenWMinuspX);
     chain_->SetBranchAddress("GenMET", &topGenObjects_->GenMet_, &b_GenMet);
@@ -1093,8 +1093,8 @@ void AnalysisBase::GetTopSignalBranchesEntry(const Long64_t& entry)const
     b_GenAntiNeutrino->GetEntry(entry);
     b_GenB->GetEntry(entry);
     b_GenAntiB->GetEntry(entry);
-    b_GenWPlus->GetEntry(entry);
-    b_GenWMinus->GetEntry(entry);
+    //b_GenWPlus->GetEntry(entry);
+    //b_GenWMinus->GetEntry(entry);
     b_GenMet->GetEntry(entry);
     b_allGenJets->GetEntry(entry);
     //b_GenParticleP4->GetEntry(entry);
