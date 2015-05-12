@@ -411,7 +411,7 @@ void PlotterDiffXSSystematic::plotXSection(const Channel::Channel& channel)
     
     updateHistoAxis(canvas);
     
-    common::drawCmsLabels(-1, 8, 19.7);
+    common::drawCmsLabels(0, 8, 19.7);
     
     // Drawing ratios
     common::drawRatioPad(canvas, 0., double(nRatio_max_), "#frac{Theory}{Data}");

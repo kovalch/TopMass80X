@@ -87,8 +87,10 @@ void PlotterSystematic::setOptions(const TString& name, const TString& processNa
 
 void PlotterSystematic::producePlots()
 {
+    // Setup the common CMS style to histograms
     prepareStyle();
-    
+    // Force histograms read from a file to use the defined global style
+    gROOT->ForceStyle();
     
     for(auto channelCollection : inputFileLists_) {
         // Map of nominal histograms for different processes
@@ -150,7 +152,7 @@ void PlotterSystematic::writeVariations(const SystematicHistoMap& histoCollectio
     canvas = new TCanvas("","");
     canvas->SetName("");
     canvas->SetTitle("");
-    TLegend* legend = new TLegend(0.67,0.55,0.92,0.85);
+    TLegend* legend = new TLegend(0.67,0.7,0.92,0.85);
     legend->SetFillStyle(0);
     legend->SetBorderSize(0);
     legend->SetX1NDC(1.0 - gStyle->GetPadRightMargin() - gStyle->GetTickLength() - 0.25);
@@ -166,11 +168,16 @@ void PlotterSystematic::writeVariations(const SystematicHistoMap& histoCollectio
     TH1* h_nominal = (TH1*)histoCollection.at(Systematic::nominal).first->Clone();
     if(h_nominal) {
         common::setHistoStyle(h_nominal, 1,1,3, 20,1,0.75, 0,0);
-        h_nominal->Draw("HIST E X0");
-        legend->AddEntry(h_nominal, processName, "l");
+        h_nominal->Draw("AXIS");
+        h_nominal->Draw("HIST E X0 same");
+        legend->AddEntry(h_nominal, "Nominal", "l");
     }
     
-    TPad* ratioPad = common::drawRatioPad(canvas, 0.5, 2.0);
+    // Updating axis
+    common::updatePadYAxisRange(canvas, logY, 0.35);
+    updateHistoAxis(canvas);
+    
+    TPad* ratioPad = common::drawRatioPad(canvas, 0.5, 1.5, "#frac{Varied}{Nominal}");
     
     // Looping over all available systematics
     size_t orderId = 0;
@@ -180,18 +187,19 @@ void PlotterSystematic::writeVariations(const SystematicHistoMap& histoCollectio
         if(systematicHistos.first == Systematic::nominal) continue;
         TH1* h_up = (TH1*)systematicHistos.second.first->Clone();
         if(h_up) {
-            if(normalizeToNominal_) common::normalize(h_up, h_nominal->Integral());
+            if(normalizeToNominal_) common::normalize(h_up, h_nominal->Integral("width"), false, "width");
             common::setHistoStyle(h_up, lineStyles_.first, lineColors_.at(orderId), 2, 0,-1,-1, 0,0);
             h_up->Draw("same HIST");
         }
         TH1* h_down = (TH1*)systematicHistos.second.second->Clone();
         if(h_down) {
-            if(normalizeToNominal_) common::normalize(h_down, h_nominal->Integral());
+            if(normalizeToNominal_) common::normalize(h_down, h_nominal->Integral("width"), false, "width");
             common::setHistoStyle(h_down, lineStyles_.second, lineColors_.at(orderId), 2, 0,-1,-1, 0,0);
             h_down->Draw("same HIST");
         }
         
         legend->AddEntry(h_up, Systematic::convertType(systematicType), "l");
+        
         ratioPad->cd();
         TH1* h_ratio_up = common::ratioHistogram(h_up, h_nominal, 0);
         h_ratio_up->Draw("same HIST");
@@ -212,13 +220,9 @@ void PlotterSystematic::writeVariations(const SystematicHistoMap& histoCollectio
     canvas->cd(0);
     h_nominal->Draw("same E1 X0");
     legend->Draw();
-
-    // Updating axis
-    common::updatePadYAxisRange(canvas, logY, 0.35);
-    updateHistoAxis(canvas);
     
-    common::drawCmsLabels(2, 8, 19.7);
-    this->drawDecayChannelLabel(channel);
+    common::drawCmsLabels(0, 8, 19.7);
+//     this->drawDecayChannelLabel(channel);
     
     TString eventFileString = common::assignFolder(outputDir_, channel, Systematic::Systematic("Nominal"))+name_+"_"+processName+"_systematics";
     if(logY) eventFileString.Append("_logY");
@@ -252,7 +256,7 @@ void PlotterSystematic::writeNominalShapes(const std::map<TString, TH1*>& proces
     TCanvas* canvas = new TCanvas("","");
     canvas->Clear();
     if(logY) canvas->SetLogy();
-    TLegend* legend = common::createLegend(0.67, 0.55, 1, processNames_.size());
+    TLegend* legend = common::createLegend(0.67, 0.7, 1, processNames_.size());
     
     char tempChar[100];
     int histoId = 0;
@@ -276,10 +280,11 @@ void PlotterSystematic::writeNominalShapes(const std::map<TString, TH1*>& proces
     }
     legend->Draw();
     
+    // Updating axis
     common::updatePadYAxisRange(canvas, logY, 0.35);
     updateHistoAxis(canvas);
     
-    common::drawCmsLabels(2, 8, 19.7);
+    common::drawCmsLabels(0, 8, 19.7);
     this->drawDecayChannelLabel(channel);
     
     // Saving the plot
@@ -331,8 +336,8 @@ void PlotterSystematic::updateHistoAxis(TPad* pad)const
     if(ymin_ != 0.) histo->SetMinimum(ymin_);
 
     // Applying the configured axis titles
-    if(XAxis_ != "-") histo->GetYaxis()->SetTitle(YAxis_);
-    if(YAxis_ != "-") histo->GetXaxis()->SetTitle(XAxis_);
+    if(YAxis_ != "-") histo->GetYaxis()->SetTitle(YAxis_);
+    if(XAxis_ != "-") histo->GetXaxis()->SetTitle(XAxis_);
     
     // Redrawing the axis
     pad->RedrawAxis();
