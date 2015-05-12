@@ -398,7 +398,7 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     for(TPaveText* label : significanceLabels) if(label) label->Draw("same");
     legend->Draw("SAME");
     if(dataHist.second && stacksum){
-        common::drawRatioPad(canvas, 0., 2.4, "#frac{Data}{MC}");
+        common::drawRatioPad(canvas, 0.5, 1.7, "#frac{Data}{MC}");
         
         TH1* ratio_histo = common::ratioHistogram(dataHist.second, stacksum, 1);
         common::setHistoStyle(ratio_histo, -1,-1,2);
