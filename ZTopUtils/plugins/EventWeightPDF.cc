@@ -11,28 +11,28 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 EventWeightPDF::EventWeightPDF(const edm::ParameterSet& cfg):
-genEventInfoTag_(cfg.getParameter<edm::InputTag>("genEventInfoTag")), //generator
 lheEventInfoTag_(cfg.getParameter<edm::InputTag>("lheEventInfoTag")), //externalLHEProducer
-pdfSetNames_(cfg.getParameter<std::vector<std::string> >("PDFSetNames")), 
+PDFName_(cfg.getParameter<std::vector<std::string> >("PDFName")), 
+nominalWeightID_(cfg.getParameter<std::vector<std::string> >("nominalWeightID")), 
 beginWeightID_(cfg.getParameter<std::vector<std::string> >("beginWeightID")), 
+endWeightID_(cfg.getParameter<std::vector<std::string> >("endWeightID")), 
 printLHE_(cfg.getParameter<bool>("printLHE"))
 {  
-    if(pdfSetNames_.size()!=beginWeightID_.size()){
-	throw cms::Exception("EventWeightPDF")<<"PDF and WeightID vectors different in size!";
+    if(PDFName_.size()!=nominalWeightID_.size() ||
+       PDFName_.size()!=beginWeightID_.size() ||
+       PDFName_.size()!=endWeightID_.size()){
+	throw cms::Exception("EventWeightPDF")<<"PDFName, nominalWeightID, beginWeightID, endWeightID vectors different in size!";
     }
-    for(size_t k=0; k<pdfSetNames_.size(); ++k){     
-	if(atoi(beginWeightID_.at(k).c_str())%1000!=1) 
-	    throw cms::Exception("EventWeightPDF")<<"The array should start at x001, no?";
-    }
-    for(unsigned int k=0; k<pdfSetNames_.size(); ++k){
-	size_t dot = pdfSetNames_.at(k).find_first_of('.');
-	size_t underscore = pdfSetNames_.at(k).find_first_of('_');
+
+    for(unsigned int k=0; k<PDFName_.size(); ++k){
+	size_t dot = PDFName_.at(k).find_first_of('.');
+	size_t underscore = PDFName_.at(k).find_first_of('_');
 	if(underscore<dot){
-	    pdfShortNames_.push_back(pdfSetNames_.at(k).substr(0,underscore));
+	    shortPDFName_.push_back(PDFName_.at(k).substr(0,underscore));
 	}else{
-	    pdfShortNames_.push_back(pdfSetNames_.at(k).substr(0,dot));
+	    shortPDFName_.push_back(PDFName_.at(k).substr(0,dot));
 	}
-	produces<std::vector<double> >(pdfShortNames_.at(k).data());
+	produces<std::vector<double> >(shortPDFName_.at(k).data());
     }
 }
 
@@ -46,43 +46,48 @@ void EventWeightPDF::produce(edm::Event& evt, const edm::EventSetup& setup)
 {
 
     if (evt.isRealData()) return;
-    // get final event weight
-    edm::Handle<GenEventInfoProduct> evt_info;
-    try {evt.getByLabel(genEventInfoTag_, evt_info);}
-    catch (...) {;}
     // get systematic variation at LHE level  
     edm::Handle<LHEEventProduct> lhe_info;
     try {evt.getByLabel(lheEventInfoTag_, lhe_info);} 
     catch (...) {;}
     // put PDF weights in the event
-    for (size_t k=0; k<pdfSetNames_.size(); ++k) {    
+    for (size_t k=0; k<PDFName_.size(); ++k) {    
 	std::auto_ptr<std::vector<double> > weights (new std::vector<double>);
+	int nominal(-1);
 	int begin(-1);
 	int end(-1);
-	if (evt_info.isValid()&&lhe_info.isValid()){ 
+	if(lhe_info.isValid()){ 
 	    for(size_t iwgt=0; iwgt<lhe_info->weights().size(); ++iwgt){
-		if(lhe_info->weights().at(iwgt).id==beginWeightID_.at(k)) 
+		if(lhe_info->weights().at(iwgt).id==nominalWeightID_.at(k)) 
+		    nominal=iwgt;
+		if(lhe_info->weights().at(iwgt).id==beginWeightID_.at(k))
 		    begin=iwgt;
-		if(atoi(lhe_info->weights().at(iwgt).id.c_str())-atoi(beginWeightID_.at(k).c_str())<999) 
+		if(lhe_info->weights().at(iwgt).id==endWeightID_.at(k))
 		    end=iwgt;
+		if(nominal>-1 && begin>-1 && end>-1) break;
 	    }
 	}
-	if(begin>-1 && end>-1 && end>begin){
+	//atoi(lhe_info->weights().at(iwgt).id.c_str())-atoi(beginWeightID_.at(k).c_str())<999) 
+	if(nominal>-1 && begin>-1 && end>-1 && end>begin){
 	    unsigned nPDFvars=end-begin+1;
-	    weights->reserve(nPDFvars);
+	    weights->reserve(nPDFvars+1);
+	    weights->push_back(lhe_info->weights().at(nominal).wgt/lhe_info->originalXWGTUP()); 	
+	    //std::cout<<"Fill in weight at point "<< nominal << " with id " << lhe_info->weights().at(nominal).id << " "<< 
+	    //lhe_info->weights().at(nominal).wgt/lhe_info->originalXWGTUP()<< std::endl;
 	    for (unsigned i=0; i<nPDFvars; ++i) {	    
-		//std::cout<<"Fill in weight at point "<< begin+i << " with id " << lhe_info->weights().at(begin+i).id << std::endl;
 		const LHEEventProduct::WGT& wgt = lhe_info->weights().at(begin+i);
-		weights->push_back(evt_info->weight()*wgt.wgt/lhe_info->originalXWGTUP()); 	
+		weights->push_back(wgt.wgt/lhe_info->originalXWGTUP()); 	
+		//std::cout<<"Fill in weight at point "<< begin+i << " with id " << lhe_info->weights().at(begin+i).id << " "<< 
+		//wgt.wgt/lhe_info->originalXWGTUP()<<std::endl;
+		
 	    }
 	}
 	else{
-	    double defweight=(evt_info.isValid()) ? evt_info->weight() : 1.;	  
-	    edm::LogWarning("EventWeightPDF")<<"Specified weight ID for PDF("<<k<<")not available or screwed up! Use "<<defweight<<" as weight!";
+	    edm::LogWarning("EventWeightPDF")<<"Specified weight ID for PDF("<<k<<")not available or screwed up! Use 1.0 as weight!";
 	    weights->reserve(1);
-	    weights->push_back(defweight);
+	    weights->push_back(1.0);
 	}
-	evt.put(weights,pdfShortNames_[k]);
+	evt.put(weights,shortPDFName_[k]);
     }
 }
 

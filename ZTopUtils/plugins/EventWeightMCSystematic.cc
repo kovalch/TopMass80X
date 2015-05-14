@@ -27,7 +27,7 @@ EventWeightMCSystematic::~EventWeightMCSystematic(){}
 void EventWeightMCSystematic::produce(edm::Event& evt, const edm::EventSetup& setup)
 {
     if(evt.isRealData()) return;
-    // get final event weight
+    // get nominal event weight
     edm::Handle<GenEventInfoProduct> evt_info;
     try {evt.getByLabel(genEventInfoTag_, evt_info);}
     catch (...) {;}
@@ -35,24 +35,36 @@ void EventWeightMCSystematic::produce(edm::Event& evt, const edm::EventSetup& se
     edm::Handle<LHEEventProduct> lhe_info;
     try {evt.getByLabel(lheEventInfoTag_, lhe_info);} 
     catch (...) {;}
-    double weight=(evt_info.isValid()) ? evt_info->weight() : 1.;	          
-    // calculate new weight 
-    if(evt_info.isValid() && lhe_info.isValid()){ 
-	weight = evt_info->weight();
-	bool foundid(false);	
-	for(size_t iwgt=0; iwgt<lhe_info->weights().size(); ++iwgt){
-	    const LHEEventProduct::WGT& wgt = lhe_info->weights().at(iwgt);
-	    if(wgt.id==weightID_){
-		weight=evt_info->weight()*wgt.wgt/lhe_info->originalXWGTUP(); 
-		foundid=true;
-		break;
-	    }	
+    double weight(1.0);
+    bool allinfo(false);
+    bool foundid(false);	
+    if(weightID_=="0000"){
+	if(evt_info.isValid()){
+	    weight=evt_info->weight(); 
+	    allinfo=true;
+	    //std::cout<<" fill in nominal weight " << weight << std::endl; 
 	}
-	if(!foundid)
-	    edm::LogWarning("EventWeightMCSystematic")<<"Specified weight ID not available! Take "<<weight<<" as weight!";
-    }else{
-	edm::LogWarning("EventWeightMCSystematic")<<"Can't get weight information! Take "<<weight<<" as weight!";
+    }else{ 
+	if(lhe_info.isValid()){ 
+	    allinfo=true;
+	    for(size_t iwgt=0; iwgt<lhe_info->weights().size(); ++iwgt){
+		const LHEEventProduct::WGT& wgt = lhe_info->weights().at(iwgt);
+		if(wgt.id==weightID_){
+		    weight=wgt.wgt/lhe_info->originalXWGTUP(); 
+		    //std::cout<<" fill in weight with ID=="<< weightID_ <<" : " << weight << std::endl; 
+		    foundid=true;
+		    break;
+		}	
+	    }
+	}
     }
+    
+    if(!allinfo)
+	edm::LogWarning("EventWeightMCSystematic")<<"Can't get weight information! Take "<<weight<<" as weight!";
+    
+    if(weightID_!="0000"&&!foundid)
+	edm::LogWarning("EventWeightMCSystematic")<<"Specified weight ID not available! Take "<<weight<<" as weight!";
+    
     std::auto_ptr<double> eventWeight(new double);
     *eventWeight = weight ;
     evt.put(eventWeight);

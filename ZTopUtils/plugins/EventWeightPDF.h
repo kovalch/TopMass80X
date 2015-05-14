@@ -22,11 +22,12 @@ private:
     virtual void produce(edm::Event&, const edm::EventSetup&);
     virtual void endRun(edm::Run const&, edm::EventSetup const&) override;    
     // ----------member data ---------------------------                                                 |
-    edm::InputTag genEventInfoTag_;
     edm::InputTag lheEventInfoTag_;
-    std::vector<std::string> pdfSetNames_;
-    std::vector<std::string> pdfShortNames_;
+    std::vector<std::string> PDFName_;
+    std::vector<std::string> shortPDFName_;
+    std::vector<std::string> nominalWeightID_;
     std::vector<std::string> beginWeightID_;
+    std::vector<std::string> endWeightID_;
     bool printLHE_;
 };
 
