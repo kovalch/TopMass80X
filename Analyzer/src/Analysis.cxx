@@ -130,7 +130,7 @@ void Analysis::Analyze() {
   }
 
   canvas->Clear();
-  canvas->Divide(2,2);
+  canvas->Divide(2,3);
 
   canvas->cd(1);
   GetH1("Entries")->Draw("E1");
@@ -149,11 +149,20 @@ void Analysis::Analyze() {
   GetH1("mass_mTop")->Draw("E1");
   GetH1("mass_mTop")->SetAxisRange(GetH1("mass_mTop")->GetMinimum(0.05)-1., GetH1("mass_mTop")->GetMaximum()+1, "Z");
   GetH1("mass_mTop")->Fit("pol0");
+  
+  if (po::GetOption<bool>("constrainJSF")) {
+    canvas->cd(5);
+    GetH1("JES_mTop_JES_jsfc")->Draw("E1");
+    GetH1("JES_mTop_JES_jsfc")->SetAxisRange(GetH1("JES_mTop_JES_jsfc")->GetMinimum(0.05)-0.01, GetH1("JES_mTop_JES_jsfc")->GetMaximum()+0.01, "Z");
+    GetH1("JES_mTop_JES_jsfc")->Fit("pol0");
+    
+    canvas->cd(6);
+    GetH1("mass_mTop_JES_jsfc")->Draw("E1");
+    GetH1("mass_mTop_JES_jsfc")->SetAxisRange(GetH1("mass_mTop_JES_jsfc")->GetMinimum(0.05)-1., GetH1("mass_mTop_JES_jsfc")->GetMaximum()+1, "Z");
+    GetH1("mass_mTop_JES_jsfc")->Fit("pol0");
+  }
 
   std::string path("plot/"); path += fMethod_; path += "_"; path += HelperFunctions::cleanedName(fIdentifier_); path += "_"; path += HelperFunctions::cleanedName(fBinning_);
-  if (po::GetOption<bool>("constrainJSF")) {
-    path += "_jsfconstraint";
-  }
   path += ".eps";
   canvas->Print(path.c_str());
   boost::replace_all(path,".eps",".root");

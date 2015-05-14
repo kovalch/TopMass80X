@@ -435,6 +435,10 @@ void TopMassControlPlots::doPlots()
     //	  hists.back().SetFitGaussToCore();
     hists.push_back(MyHistogram("recoW2Mass"    , "top.recoW2.M()"   , "", ";m_{W,lep}^{reco} [GeV]; Permutations / 5 GeV", 60, 0, 300));
   }
+  
+  if(plotSelectedForPlotting.find("ChargedHiggs")!=plotSelectedForPlotting.end()){
+    hists.push_back(MyHistogram("recoW1MassTopCut"    , "top.recoW1.M()"   , "abs(top.recoTop1.M()-172.5) < 10.", ";m_{W}^{reco} [GeV]; Permutations / 2 GeV", 100, 0, 200));
+  }
 
   // jet details
   if(plotSelectedForPlotting.find("JetDetails")!=plotSelectedForPlotting.end()){
@@ -1084,7 +1088,7 @@ void TopMassControlPlots::doPlots()
   // Lepton+jets channel
   else {
     // DATA
-    samples.push_back(MySample("Data", "Run2012", kData, kBlack));
+    samples.push_back(MySample("Data", "Run2012_JEC_Winter14_V8", kData, kBlack));
     
     // SIGNAL
     double signalNormUnc = 0.0;
@@ -1123,6 +1127,12 @@ void TopMassControlPlots::doPlots()
       samples.push_back(MySample("t#bar{t} matchingup", "Summer12_TTJetsMS1725_matchingup", kSigVar, kRed+1, 1, lumi_/1000.));
       samples.push_back(MySample("t#bar{t} matchingdown", "Summer12_TTJetsMS1725_matchingdown", kSigVar, kRed+1, 1, lumi_/1000.));
       samples.push_back(MySample("t#bar{t}, top pt reweighting", "Summer12_TTJetsMS1725_1.00", kSigVar, kBlack, 1, lumi_/1000., "weight.combinedWeight|weight.combinedWeight*sqrt(exp(0.156-0.00137*top.genpartonTop1.Pt())*exp(0.156-0.00137*top.genpartonTop2.Pt()))"));
+    }
+    
+    // MassPlots
+    if(plotSelectedForPlotting.find("MassPlots")!=plotSelectedForPlotting.end()){
+      samples.push_back(MySample("t#bar{t} 1715", "Summer12_TTJetsMS1715_1.00", kSigVar, kRed+1, 1, lumi_/1000.));
+      samples.push_back(MySample("t#bar{t} 1735", "Summer12_TTJetsMS1735_1.00", kSigVar, kRed+1, 1, lumi_/1000.));
     }
     
     // ShowerHadronizationPlots

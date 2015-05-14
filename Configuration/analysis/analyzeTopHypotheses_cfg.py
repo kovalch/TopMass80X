@@ -253,11 +253,15 @@ addTtSemiLepHypotheses(process,
                        )
 if (data or options.generator == "sherpa" or options.generator == "herwigpp"): removeTtSemiLepHypGenMatch(process)
 
+process.looseJetsPF = process.goodJetsPF.clone(cut = cms.string('chargedHadronEnergyFraction > 0.0 & neutralHadronEnergyFraction < 0.99 & electronEnergyFraction < 0.99 &photonEnergyFraction < 0.99  & (chargedHadronMultiplicity + electronMultiplicity + muonMultiplicity) > 0 & numberOfDaughters > 1'))
+
 ## load HypothesisAnalyzer
 from TopMass.TopEventTree.EventHypothesisAnalyzer_cfi import analyzeHypothesis
 process.analyzeHitFit = analyzeHypothesis.clone(hypoClassKey = "ttSemiLepHypHitFit:Key")
 from TopMass.TopEventTree.JetEventAnalyzer_cfi import analyzeJets
-process.analyzeJets = analyzeJets.clone(jets = "goodJetsPF20")
+process.analyzeJets = analyzeJets.clone(jets = "goodJetsPF20",
+                                        alternativeJets = "looseJetsPF")
+
 from TopMass.TopEventTree.WeightEventAnalyzer_cfi import analyzeWeights
 process.analyzeWeights = analyzeWeights.clone(
                                               mcWeight        = options.mcWeight,
@@ -427,6 +431,7 @@ if data:
                             process.semiLeptonicSelection *
                             process.tightBottomSSVPFJets *
                             process.tightBottomCSVPFJets *
+                            process.looseJetsPF *
                             process.semiLeptonicEvents *
                             process.makeTtSemiLepEvent *
                             process.analyzeHitFit *
@@ -443,6 +448,7 @@ else:
                             process.semiLeptonicSelection *
                             process.tightBottomSSVPFJets *
                             process.tightBottomCSVPFJets *
+                            process.looseJetsPF *
                             process.semiLeptonicEvents *
                             process.eventWeightMC *
                             process.makeEventWeightsPU *

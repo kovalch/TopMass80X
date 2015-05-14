@@ -89,7 +89,7 @@ std::string itos(int number)
    return ss.str();
 }
 
-void differentialMass(int iBinning = 0, bool batch = false)
+void differentialMass(int iBinning = 6, bool batch = false)
 {
   bool fixme = false;
   
@@ -578,7 +578,7 @@ void differentialMass(int iBinning = 0, bool batch = false)
         ++legEntry;
         leg0->AddEntry(it->results[iObs].profileDiff, it->label, "P");
       }
-      else if (!it->systematic && !doCalibration
+      else if (!it->systematic //&& !doCalibration
           && ( (binCat[iBinning] == kCR && it->cr)
               || (binCat[iBinning] == kRad && it->rad)
               || binCat[iBinning] == kBoth ) ) {

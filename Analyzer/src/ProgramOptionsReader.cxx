@@ -43,10 +43,13 @@ ProgramOptionsReader::ReadProgramOptions(int ac, char** av) {
         ("minPlot", boost::program_options::value<bool>()->default_value(false),
             "Plot IdeogramMin result\n"
         )
-        ("constrainJSF", boost::program_options::value<bool>()->default_value(false),
+        ("constrainJSF", boost::program_options::value<bool>()->default_value(true),
             "Add Gaussian constraint to JSF\n"
         )
-        ("constrainJSFsigma", boost::program_options::value<double>()->default_value(0.0018),
+        ("constrainJSFweight", boost::program_options::value<double>()->default_value(0.5),
+            "Weight of Gaussian constraint to JSF\n"
+        )
+        ("constrainJSFsigma", boost::program_options::value<double>()->default_value(-1),
             "Sigma value of Gaussian constraint to JSF\n"
         )
         ("task,t", boost::program_options::value<std::string>()->default_value("sm"),

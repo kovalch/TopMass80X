@@ -190,6 +190,7 @@ void IdeogramAnalyzerMinimizer::IterateVariableCombinations(ROOT::Math::Minimize
   min->SetFixedVariable(1, "jes" , variable[1]);
   min->SetFixedVariable(2, "fSig", variable[2]);
   min->SetFixedVariable(3, "fCP" , variable[3]);
+  min->SetFixedVariable(4, "jsfc", 0.);
 
   std::string nameFreeVariables;
   for(unsigned int i = 0; i < toFit.size(); ++i){
@@ -247,6 +248,26 @@ void IdeogramAnalyzerMinimizer::IterateVariableCombinations(ROOT::Math::Minimize
         PlotResult(min);
       }
     }
+  }
+  
+  // do the minimization with JSF constraint
+  if (po::GetOption<bool>("constrainJSF")) {
+    double s2 = min->Errors()[1] * min->Errors()[1];
+    if (po::GetOption<double>("constrainJSFsigma") > -1.) {
+      min->SetFixedVariable(4, "jsfc", po::GetOption<double>("constrainJSFsigma"));
+    }
+    else { // calculate constraint from weight
+      min->SetFixedVariable(4, "jsfc", sqrt(s2/po::GetOption<double>("constrainJSFweight") - s2));
+    }
+    min->Minimize();
+    for(unsigned int i = 0; i < toFit.size(); ++i){
+      // Set the free variables to be minimized!
+      if     (toFit[i] == kMass) { SetValue("mass"+nameFreeVariables+"_jsfc", min->X()[0], min->Errors()[0]); }
+      else if(toFit[i] == kJES ) { SetValue("JES" +nameFreeVariables+"_jsfc", min->X()[1], min->Errors()[1]); }
+      else if(toFit[i] == kFSig) { SetValue("fSig"+nameFreeVariables+"_jsfc", min->X()[2], min->Errors()[2]); }
+      else if(toFit[i] == kFCP ) { SetValue("fCP" +nameFreeVariables+"_jsfc", min->X()[3], min->Errors()[3]); }
+    }
+    SetValue("Entries", entries_, sqrt(entries_));
   }
 
   // do the next combination of variables

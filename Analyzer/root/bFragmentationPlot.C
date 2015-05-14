@@ -35,6 +35,7 @@ void bFragmentationPlot() {
   samples.push_back(sample("MC_BJES_TuneZ2star_rbLEP.root", "Pythia6, Z2*rbLEP", kBlue+1));
   samples.push_back(sample("MC_BJES_TuneZ2star_rbLEPhard.root", "Pythia6, Z2*rbLEP hard", kGreen+1, 7));
   samples.push_back(sample("MC_BJES_TuneZ2star_rbLEPsoft.root", "Pythia6, Z2*rbLEP soft", kMagenta+1, 7));
+  samples.push_back(sample("MC_BJES_TuneP12.root", "Pythia6, P12", kBlack));
   
   TLegend *leg = new TLegend(0.25, 0.7, 0.55, 0.9);
   leg->SetTextSize(0.03);

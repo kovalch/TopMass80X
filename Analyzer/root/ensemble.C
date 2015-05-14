@@ -77,7 +77,7 @@ void ensemble()
   
   for (int i = 0; i < tree->GetEntries(); i++) {
     tree->GetEntry(i);
-    if (massError>0 && genMass==172.5 && genJES==1.) hError->Fill(massError);
+    if (massError>0 && genMass==172.5 && genJES==1.) hError->Fill(massError * sqrt(28199./28295.));
   }
   
   hError->GetYaxis()->SetTitle("Pseudo-experiments / 2 MeV");
@@ -95,7 +95,7 @@ void ensemble()
   hError->GetYaxis()->SetRangeUser(0, 1150);
   hError->SetFillColor(kRed+1);
   hError->Draw();
-  drawArrow(0.194498, 1020);
+  drawArrow(0.194221, 1020);
   DrawLabel("This measurement", 0.40, 0.85, 0.9);
   
   Draw8LeptonJets();

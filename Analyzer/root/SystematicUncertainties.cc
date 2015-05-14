@@ -26,6 +26,7 @@ void SystematicUncertainties::fillLeptonJets()
   std::string path;
   if(channel==3)path = "/nfs/dust/test/cms/user/kirschen/BRegression_PE_NewCalibrationJan2014Applied_MCS3250MinEvtsBReg/";
   //else path = "/nfs/dust/cms/user/kovalch/GRID-CONTROL_JOBS/pseudoexperiments/topmass_141020/";
+  //else path = "/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_paper/";
   else path = "/nfs/dust/cms/user/mseidel/pseudoexperiments/topmass_paper_jsfconstraint/";
 
   path += lepton_[channel]; path += "/";
@@ -149,52 +150,54 @@ void SystematicUncertainties::fillLeptonJets()
 
   sample.ensembles["defaultSC_Z2_RD"] = ensemble("Summer12_TTJets1725_MGDecays_Z2_RD/job_*_ensemble.root", 24949110./2.*9./1.2);
 
-  sample.ensembles["AbsoluteFlavMapUp"] = ensemble("Summer12_TTJetsMS1725_source:up_AbsoluteFlavMap/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["AbsoluteFlavMapDown"] = ensemble("Summer12_TTJetsMS1725_source:down_AbsoluteFlavMap/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["AbsoluteMPFBiasUp"] = ensemble("Summer12_TTJetsMS1725_source:up_AbsoluteMPFBias/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["AbsoluteMPFBiasDown"] = ensemble("Summer12_TTJetsMS1725_source:down_AbsoluteMPFBias/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["AbsoluteScaleUp"] = ensemble("Summer12_TTJetsMS1725_source:up_AbsoluteScale/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["AbsoluteScaleDown"] = ensemble("Summer12_TTJetsMS1725_source:down_AbsoluteScale/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["AbsoluteStatUp"] = ensemble("Summer12_TTJetsMS1725_source:up_AbsoluteStat/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["AbsoluteStatDown"] = ensemble("Summer12_TTJetsMS1725_source:down_AbsoluteStat/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["HighPtExtraUp"] = ensemble("Summer12_TTJetsMS1725_source:up_HighPtExtra/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["HighPtExtraDown"] = ensemble("Summer12_TTJetsMS1725_source:down_HighPtExtra/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["PileUpDataMCUp"] = ensemble("Summer12_TTJetsMS1725_source:up_PileUpDataMC/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["PileUpDataMCDown"] = ensemble("Summer12_TTJetsMS1725_source:down_PileUpDataMC/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["PileUpPtBBUp"] = ensemble("Summer12_TTJetsMS1725_source:up_PileUpPtBB/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["PileUpPtBBDown"] = ensemble("Summer12_TTJetsMS1725_source:down_PileUpPtBB/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["PileUpPtEC1Up"] = ensemble("Summer12_TTJetsMS1725_source:up_PileUpPtEC1/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["PileUpPtEC1Down"] = ensemble("Summer12_TTJetsMS1725_source:down_PileUpPtEC1/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["PileUpPtEC2Up"] = ensemble("Summer12_TTJetsMS1725_source:up_PileUpPtEC2/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["PileUpPtEC2Down"] = ensemble("Summer12_TTJetsMS1725_source:down_PileUpPtEC2/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["PileUpPtHFUp"] = ensemble("Summer12_TTJetsMS1725_source:up_PileUpPtHF/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["PileUpPtHFDown"] = ensemble("Summer12_TTJetsMS1725_source:down_PileUpPtHF/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["PileUpPtRefUp"] = ensemble("Summer12_TTJetsMS1725_source:up_PileUpPtRef/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["PileUpPtRefDown"] = ensemble("Summer12_TTJetsMS1725_source:down_PileUpPtRef/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["RelativeFSRUp"] = ensemble("Summer12_TTJetsMS1725_source:up_RelativeFSR/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["RelativeFSRDown"] = ensemble("Summer12_TTJetsMS1725_source:down_RelativeFSR/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["RelativeJEREC1Up"] = ensemble("Summer12_TTJetsMS1725_source:up_RelativeJEREC1/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["RelativeJEREC1Down"] = ensemble("Summer12_TTJetsMS1725_source:down_RelativeJEREC1/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["RelativeJEREC2Up"] = ensemble("Summer12_TTJetsMS1725_source:up_RelativeJEREC2/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["RelativeJEREC2Down"] = ensemble("Summer12_TTJetsMS1725_source:down_RelativeJEREC2/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["RelativeJERHFUp"] = ensemble("Summer12_TTJetsMS1725_source:up_RelativeJERHF/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["RelativeJERHFDown"] = ensemble("Summer12_TTJetsMS1725_source:down_RelativeJERHF/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["RelativePtBBUp"] = ensemble("Summer12_TTJetsMS1725_source:up_RelativePtBB/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["RelativePtBBDown"] = ensemble("Summer12_TTJetsMS1725_source:down_RelativePtBB/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["RelativePtEC1Up"] = ensemble("Summer12_TTJetsMS1725_source:up_RelativePtEC1/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["RelativePtEC1Down"] = ensemble("Summer12_TTJetsMS1725_source:down_RelativePtEC1/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["RelativePtEC2Up"] = ensemble("Summer12_TTJetsMS1725_source:up_RelativePtEC2/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["RelativePtEC2Down"] = ensemble("Summer12_TTJetsMS1725_source:down_RelativePtEC2/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["RelativePtHFUp"] = ensemble("Summer12_TTJetsMS1725_source:up_RelativePtHF/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["RelativePtHFDown"] = ensemble("Summer12_TTJetsMS1725_source:down_RelativePtHF/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["RelativeStatEC2Up"] = ensemble("Summer12_TTJetsMS1725_source:up_RelativeStatEC2/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["RelativeStatEC2Down"] = ensemble("Summer12_TTJetsMS1725_source:down_RelativeStatEC2/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["RelativeStatHFUp"] = ensemble("Summer12_TTJetsMS1725_source:up_RelativeStatHF/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["RelativeStatHFDown"] = ensemble("Summer12_TTJetsMS1725_source:down_RelativeStatHF/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["SinglePionECALUp"] = ensemble("Summer12_TTJetsMS1725_source:up_SinglePionECAL/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["SinglePionECALDown"] = ensemble("Summer12_TTJetsMS1725_source:down_SinglePionECAL/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["SinglePionHCALUp"] = ensemble("Summer12_TTJetsMS1725_source:up_SinglePionHCAL/job_*_ensemble.root", 62131965./1.2);
-  sample.ensembles["SinglePionHCALDown"] = ensemble("Summer12_TTJetsMS1725_source:down_SinglePionHCAL/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["AbsoluteFlavMapUp"] = ensemble("Summer12_TTJetsMS1725_source:up_AbsoluteFlavMap_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["AbsoluteFlavMapDown"] = ensemble("Summer12_TTJetsMS1725_source:down_AbsoluteFlavMap_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["AbsoluteMPFBiasUp"] = ensemble("Summer12_TTJetsMS1725_source:up_AbsoluteMPFBias_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["AbsoluteMPFBiasDown"] = ensemble("Summer12_TTJetsMS1725_source:down_AbsoluteMPFBias_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["AbsoluteScaleUp"] = ensemble("Summer12_TTJetsMS1725_source:up_AbsoluteScale_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["AbsoluteScaleDown"] = ensemble("Summer12_TTJetsMS1725_source:down_AbsoluteScale_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["AbsoluteStatUp"] = ensemble("Summer12_TTJetsMS1725_source:up_AbsoluteStat_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["AbsoluteStatDown"] = ensemble("Summer12_TTJetsMS1725_source:down_AbsoluteStat_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["FragmentationUp"] = ensemble("Summer12_TTJetsMS1725_source:up_Fragmentation_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["FragmentationDown"] = ensemble("Summer12_TTJetsMS1725_source:down_Fragmentation_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["PileUpDataMCUp"] = ensemble("Summer12_TTJetsMS1725_source:up_PileUpDataMC_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["PileUpDataMCDown"] = ensemble("Summer12_TTJetsMS1725_source:down_PileUpDataMC_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["PileUpPtBBUp"] = ensemble("Summer12_TTJetsMS1725_source:up_PileUpPtBB_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["PileUpPtBBDown"] = ensemble("Summer12_TTJetsMS1725_source:down_PileUpPtBB_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["PileUpPtEC1Up"] = ensemble("Summer12_TTJetsMS1725_source:up_PileUpPtEC1_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["PileUpPtEC1Down"] = ensemble("Summer12_TTJetsMS1725_source:down_PileUpPtEC1_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["PileUpPtEC2Up"] = ensemble("Summer12_TTJetsMS1725_source:up_PileUpPtEC2_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["PileUpPtEC2Down"] = ensemble("Summer12_TTJetsMS1725_source:down_PileUpPtEC2_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["PileUpPtHFUp"] = ensemble("Summer12_TTJetsMS1725_source:up_PileUpPtHF_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["PileUpPtHFDown"] = ensemble("Summer12_TTJetsMS1725_source:down_PileUpPtHF_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["PileUpPtRefUp"] = ensemble("Summer12_TTJetsMS1725_source:up_PileUpPtRef_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["PileUpPtRefDown"] = ensemble("Summer12_TTJetsMS1725_source:down_PileUpPtRef_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["RelativeFSRUp"] = ensemble("Summer12_TTJetsMS1725_source:up_RelativeFSR_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["RelativeFSRDown"] = ensemble("Summer12_TTJetsMS1725_source:down_RelativeFSR_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["RelativeJEREC1Up"] = ensemble("Summer12_TTJetsMS1725_source:up_RelativeJEREC1_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["RelativeJEREC1Down"] = ensemble("Summer12_TTJetsMS1725_source:down_RelativeJEREC1_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["RelativeJEREC2Up"] = ensemble("Summer12_TTJetsMS1725_source:up_RelativeJEREC2_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["RelativeJEREC2Down"] = ensemble("Summer12_TTJetsMS1725_source:down_RelativeJEREC2_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["RelativeJERHFUp"] = ensemble("Summer12_TTJetsMS1725_source:up_RelativeJERHF_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["RelativeJERHFDown"] = ensemble("Summer12_TTJetsMS1725_source:down_RelativeJERHF_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["RelativePtBBUp"] = ensemble("Summer12_TTJetsMS1725_source:up_RelativePtBB_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["RelativePtBBDown"] = ensemble("Summer12_TTJetsMS1725_source:down_RelativePtBB_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["RelativePtEC1Up"] = ensemble("Summer12_TTJetsMS1725_source:up_RelativePtEC1_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["RelativePtEC1Down"] = ensemble("Summer12_TTJetsMS1725_source:down_RelativePtEC1_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["RelativePtEC2Up"] = ensemble("Summer12_TTJetsMS1725_source:up_RelativePtEC2_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["RelativePtEC2Down"] = ensemble("Summer12_TTJetsMS1725_source:down_RelativePtEC2_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["RelativePtHFUp"] = ensemble("Summer12_TTJetsMS1725_source:up_RelativePtHF_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["RelativePtHFDown"] = ensemble("Summer12_TTJetsMS1725_source:down_RelativePtHF_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["RelativeStatFSRUp"] = ensemble("Summer12_TTJetsMS1725_source:up_RelativeStatFSR_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["RelativeStatFSRDown"] = ensemble("Summer12_TTJetsMS1725_source:down_RelativeStatFSR_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["RelativeStatEC2Up"] = ensemble("Summer12_TTJetsMS1725_source:up_RelativeStatEC2_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["RelativeStatEC2Down"] = ensemble("Summer12_TTJetsMS1725_source:down_RelativeStatEC2_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["RelativeStatHFUp"] = ensemble("Summer12_TTJetsMS1725_source:up_RelativeStatHF_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["RelativeStatHFDown"] = ensemble("Summer12_TTJetsMS1725_source:down_RelativeStatHF_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["SinglePionECALUp"] = ensemble("Summer12_TTJetsMS1725_source:up_SinglePionECAL_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["SinglePionECALDown"] = ensemble("Summer12_TTJetsMS1725_source:down_SinglePionECAL_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["SinglePionHCALUp"] = ensemble("Summer12_TTJetsMS1725_source:up_SinglePionHCAL_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
+  sample.ensembles["SinglePionHCALDown"] = ensemble("Summer12_TTJetsMS1725_source:down_SinglePionHCAL_Winter14_V8/job_*_ensemble.root", 62131965./1.2);
 
   ///////////////////////////////////
 
@@ -253,7 +256,7 @@ void SystematicUncertainties::fillLeptonJets()
       sample.comparisons["AbsoluteMPFBias                  "] = comparison("default", "AbsoluteMPFBiasUp", "AbsoluteMPFBiasDown");
       sample.comparisons["AbsoluteScale                    "] = comparison("default", "AbsoluteScaleUp", "AbsoluteScaleDown");
       sample.comparisons["AbsoluteStat                     "] = comparison("default", "AbsoluteStatUp", "AbsoluteStatDown");
-      sample.comparisons["HighPtExtra                      "] = comparison("default", "HighPtExtraUp", "HighPtExtraDown");
+      sample.comparisons["Fragmentation                    "] = comparison("default", "FragmentationUp", "FragmentationDown");
       sample.comparisons["PileUpDataMC                     "] = comparison("default", "PileUpDataMCUp", "PileUpDataMCDown");
       sample.comparisons["PileUpPtBB                       "] = comparison("default", "PileUpPtBBUp", "PileUpPtBBDown");
       sample.comparisons["PileUpPtEC1                      "] = comparison("default", "PileUpPtEC1Up", "PileUpPtEC1Down");
@@ -268,6 +271,7 @@ void SystematicUncertainties::fillLeptonJets()
       sample.comparisons["RelativePtEC1                    "] = comparison("default", "RelativePtEC1Up", "RelativePtEC1Down");
       sample.comparisons["RelativePtEC2                    "] = comparison("default", "RelativePtEC2Up", "RelativePtEC2Down");
       sample.comparisons["RelativePtHF                     "] = comparison("default", "RelativePtHFUp", "RelativePtHFDown");
+      sample.comparisons["RelativeStatFSR                  "] = comparison("default", "RelativeStatFSRUp", "RelativeStatFSRDown");
       sample.comparisons["RelativeStatEC2                  "] = comparison("default", "RelativeStatEC2Up", "RelativeStatEC2Down");
       sample.comparisons["RelativeStatHF                   "] = comparison("default", "RelativeStatHFUp", "RelativeStatHFDown");
       sample.comparisons["SinglePionECAL                   "] = comparison("default", "SinglePionECALUp", "SinglePionECALDown");
@@ -288,7 +292,7 @@ void SystematicUncertainties::fillLeptonJets()
       "AbsoluteMPFBias                  ",
       "AbsoluteScale                    ",
       "AbsoluteStat                     ",
-      "HighPtExtra                      ",
+      "Fragmentation                    ",
       "PileUpDataMC                     ",
       "PileUpPtBB                       ",
       "PileUpPtEC1                      ",
@@ -321,7 +325,7 @@ void SystematicUncertainties::fillLeptonJets()
       "AbsoluteFlavMap                  ",
       "AbsoluteScale                    ",
       "AbsoluteStat                     ",
-      "HighPtExtra                      ",
+      "Fragmentation                    ",
       "PileUpDataMC                     ",
       "PileUpPtBB                       ",
       "PileUpPtEC1                      ",
@@ -335,6 +339,7 @@ void SystematicUncertainties::fillLeptonJets()
       "RelativePtEC1                    ",
       "RelativePtEC2                    ",
       "RelativePtHF                     ",
+      "RelativeStatFSR                  ",
       "RelativeStatEC2                  ",
       "RelativeStatHF                   ",
       "SinglePionECAL                   ",
@@ -345,7 +350,7 @@ void SystematicUncertainties::fillLeptonJets()
       "AbsoluteFlavMap                  ",
       "AbsoluteScale                    ",
       "AbsoluteStat                     ",
-      "HighPtExtra                      ",
+      "Fragmentation                    ",
       "RelativeJEREC1                   ",
       "RelativeJEREC2                   ",
       "RelativeJERHF                    ",
@@ -353,6 +358,7 @@ void SystematicUncertainties::fillLeptonJets()
       "RelativePtEC1                    ",
       "RelativePtEC2                    ",
       "RelativePtHF                     ",
+      "RelativeStatFSR                  ",
       "RelativeStatEC2                  ",
       "RelativeStatHF                   ",
       "SinglePionECAL                   ",
