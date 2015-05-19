@@ -87,6 +87,35 @@ double PUReweighter::getPUweight(size_t trueBX) {
 
 ////////hardcoded stuff. Not elegant, but unlikely to change that often
 
+void PUReweighter::setMCDistrSum15(TString scenario) {
+	// Distribution used for Summer2015 MC.
+	std::vector<double> V;
+	if (scenario == "flat") {
+	    Double_t Summer2015_flat[51] = { 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+					     0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+					     0.032258065, 0.032258065, 0.032258065, 0.032258065, 0.032258065,
+					     0.032258065, 0.032258065, 0.032258065, 0.032258065, 0.032258065,
+					     0.032258065, 0.032258065, 0.032258065, 0.032258065, 0.032258065,
+					     0.032258065, 0.032258065, 0.032258065, 0.032258065, 0.032258065,
+					     0.032258065, 0.032258065, 0.032258065, 0.032258065, 0.032258065,
+					     0.032258065, 0.032258065, 0.032258065, 0.032258065, 0.032258065,
+					     0.032258065 };
+	    V = std::vector<double>(Summer2015_flat,
+				    Summer2015_flat
+				    + sizeof(Summer2015_flat) / sizeof(Summer2015_flat[0]));
+	}
+	////////for other PU scenarios!!!
+	
+	std::cout << "setting MC pileup distribution to summer15_" + scenario
+			<< std::endl;
+	// V.insert(V.begin(),1); //fill zero bin
+	mcpu_ = V;
+	mcint_ = 0;
+	for (unsigned int i = 1; i < mcpu_.size(); i++)
+		mcint_ += mcpu_[i];
+
+}
+
 void PUReweighter::setMCDistrSum12(TString scenario) {
 	// Distribution used for Summer2012 MC.
 	std::vector<double> V;
