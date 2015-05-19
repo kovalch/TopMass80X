@@ -561,15 +561,15 @@ PlotterDiffXSSystematic::ErrorMap PlotterDiffXSSystematic::binUncertainties(cons
 
 void PlotterDiffXSSystematic::printAllUncertainties(const std::vector<ErrorMap>& errorMaps, const ErrorMap& errorMap_inclusive, const bool listSystematics)const
 {
-    printf("Bin Id \t& cent \t& stat \t& syst \t& total  // highest asymetric uncertainty [ %%x100 ]\n");
-    printf("-----------------------------------------------------------------------------------\n");
+    printf("Bin Id \t&    central \t& stat \t& syst \t& total   // highest asymetric uncertainty [%%]\n");
+    printf("--------------------------------------------------------------------------------------\n");
     // Printing inclusive cross-section results
     const UpDown e_stat_inclusive = binUncertaintyOfType(errorMap_inclusive, ErrorType::stat);
     const UpDown e_syst_inclusive = binUncertaintyOfType(errorMap_inclusive, ErrorType::syst);
     const UpDown e_total_inclusive = binUncertaintyOfType(errorMap_inclusive, ErrorType::total);
     const double xsec_inclusive = e_stat_inclusive.c;
-    printf("Incl. \t& %.2f \t& %.2f \t& %.2f \t& %.2f\n", xsec_inclusive, e_stat_inclusive.maxAbsVariation(),  e_syst_inclusive.maxAbsVariation(), e_total_inclusive.maxAbsVariation());
-    printf("-----------------------------------------------------------------------------------\n");
+    printf("Incl. \t&   %.2e \t& %4.0f \t& %4.0f \t&  %4.0f \\\\\n", xsec_inclusive, e_stat_inclusive.maxAbsVariation()*100.,  e_syst_inclusive.maxAbsVariation()*100., e_total_inclusive.maxAbsVariation()*100.);
+    printf("--------------------------------------------------------------------------------------\n");
 
     if(errorMaps.size()<1) return;
     // Printing differential cross-section results for each bin
@@ -579,9 +579,9 @@ void PlotterDiffXSSystematic::printAllUncertainties(const std::vector<ErrorMap>&
 	const UpDown e_stat = binUncertaintyOfType(errorMap, ErrorType::stat);
     	const UpDown e_syst = binUncertaintyOfType(errorMap, ErrorType::syst);
     	const UpDown e_total = binUncertaintyOfType(errorMap, ErrorType::total);
-	printf("Bin %d \t& %.2f \t& %.2f \t& %.2f \t& %.2f\n", binId, e_stat.c, e_stat.maxAbsVariation(),  e_syst.maxAbsVariation(), e_total.maxAbsVariation());
+	printf("Bin %d \t&   %.2e \t& %4.0f \t& %4.0f \t&  %4.0f \\\\\n", binId, e_stat.c, e_stat.maxAbsVariation()*100.,  e_syst.maxAbsVariation()*100., e_total.maxAbsVariation()*100.);
     }
-    printf("-----------------------------------------------------------------------------------\n");
+    printf("--------------------------------------------------------------------------------------\n");
     
     // Printing the list of systematic uncertainties if required
     if(!listSystematics) return;
@@ -599,40 +599,40 @@ void PlotterDiffXSSystematic::printAllUncertainties(const std::vector<ErrorMap>&
         printf("| ");
         // Looping over all bins
         for(auto errorMap : errorMaps) {
-            printf("%.2f  ", errorMap.at(systematicType).maxAbsVariation());
+            printf("%4.0f  ", errorMap.at(systematicType).maxAbsVariation()*100.);
             maximums.push_back(errorMap.at(systematicType).maxAbsVariation());
         }
         printf(" | ");
         // Sorting the up/down variations to have the largest absolute values first
         std::sort(maximums.begin(), maximums.end(), uncertaintySortingFunction);
         const int binMedian = nBins%2 == 0 ? nBins/2 - 1 : nBins/2;
-        printf("Median: %.2f ", maximums.at(binMedian) );
+        printf("Median: %4.0f ", maximums.at(binMedian)*100. );
         printf(" | ");
-        printf("Max: %.2f ", maximums.at(0) );
+        printf("Max: %4.0f ", maximums.at(0)*100. );
         printf(" | ");
-        printf("Incl: %.2f\n", errorMap_inclusive.at(systematicType).maxAbsVariation());
-        if(systematicType == Systematic::nominal) printf("-----------------------------------------------------------------------------------\n");
+        printf("Incl: %4.0f\n", errorMap_inclusive.at(systematicType).maxAbsVariation()*100.);
+        if(systematicType == Systematic::nominal) printf("--------------------------------------------------------------------------------------\n");
     }
     // Calculating total uncertainties
-    printf("-----------------------------------------------------------------------------------\n");
+    printf("--------------------------------------------------------------------------------------\n");
     printf("Total:");
     for(int iSpace = 0; iSpace < numbersIndentation - 6; ++iSpace) printf(" ");
     printf("| ");
     std::vector<double> maximums(0);
     for(auto errorMap : errorMaps) {
         const UpDown& e_total = binUncertaintyOfType(errorMap, ErrorType::total);
-        printf("%.2f  ", e_total.maxAbsVariation());
+        printf("%4.0f  ", e_total.maxAbsVariation()*100.);
         maximums.push_back(e_total.maxAbsVariation());
     }
     printf(" | ");
     // Sorting the up/down variations to have the largest absolute values first
     std::sort(maximums.begin(), maximums.end(), uncertaintySortingFunction);
     const int binMedian = nBins%2 == 0 ? nBins/2 - 1 : nBins/2;
-    printf("Median: %.2f ", maximums.at(binMedian) );
+    printf("Median: %4.0f ", maximums.at(binMedian)*100. );
     printf(" | ");
-    printf("Max: %.2f ", maximums.at(0) );
+    printf("Max: %4.0f ", maximums.at(0)*100. );
     printf(" | ");
-    printf("Incl: %.2f\n", e_total_inclusive.maxAbsVariation());
+    printf("Incl: %4.0f\n", e_total_inclusive.maxAbsVariation()*100.);
 }
 
 
