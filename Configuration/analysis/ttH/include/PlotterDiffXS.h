@@ -89,7 +89,7 @@ private:
     std::map<TString, TH1*> calculateDiffXS(const std::map<TString, TH1*> m_inputHistos, const bool normalizeMcToData = false)const;
     
     /// Unfold the histogram to true level
-    TH1* unfoldedHistogram(const std::map<TString, TH1*> m_inputHistos, const int unfoldingType=0)const;
+    TH1* unfoldedHistogram(const std::map<TString, TH1*> m_inputHistos, const int unfoldingType=0, const bool normalised=false)const;
     
     
     
