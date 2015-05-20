@@ -38,6 +38,7 @@ topLeftLabelId_(1),
 samples_(samples),
 drawMode_(drawMode),
 fileReader_(RootFileReader::getInstance()),
+hasPseudodata_(false),
 name_("defaultName"),
 bins_(0),
 rebin_(1),
@@ -164,6 +165,7 @@ bool Plotter::prepareDataset(const std::vector<Sample>& v_sample,
             TH1D* histClone = (TH1D*) hist->Clone();
             p_sampleHist = SampleHistPair(sample, histClone);
         }
+        if(sample.sampleType() == Sample::pseudodata) hasPseudodata_ = true;
         v_sampleHistPair_.push_back(p_sampleHist);
     }
     //std::cout<<"Number of samples used for histogram ("<<name_<<"): "<<v_sampleHistPair_.size()<<"\n";
@@ -279,7 +281,7 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     
     // Blinding dijet mass plots around the Higgs mass region
     if(( (TString(stackHists.at(0).second->GetName())).Contains("dijet_mass") || (TString(stackHists.at(0).second->GetName())).Contains("Mjj") ) 
-        && dataHist.second) {
+        && dataHist.second && !hasPseudodata_) {
         int bin1 = dataHist.second->FindBin(100.1);
         int bin2 = dataHist.second->FindBin(139.9);
         while(bin1 <= bin2) {

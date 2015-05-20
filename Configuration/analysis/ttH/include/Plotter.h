@@ -100,7 +100,8 @@ private:
     std::map<TString, SystematicChannelFactors> m_stepFactors_;
     
     
-    
+    /// Whether pseudodata is used instead of data
+    bool hasPseudodata_;
     /// Name of histogram under consideration
     TString name_;
     
