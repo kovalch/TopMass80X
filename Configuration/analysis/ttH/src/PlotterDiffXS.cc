@@ -553,19 +553,23 @@ std::map<TString, TH1*> PlotterDiffXS::calculateDiffXS(const std::map<TString, T
     
     ////////////////////////////////////////////////////////////////////// CALCULATING THE DIFFERENTIAL CROSS SECTION
     // Calculating the cross section from data
-    TH1* h_diffXS_data = unfoldedHistogram(m_inputHistos, 1);
+    TH1* h_diffXS_data = unfoldedHistogram(m_inputHistos, 1, normalizeXS_);
     
-    for(int iBin = 1; iBin <= nBins; ++iBin) {
-        const ValueError N_signal_reco( h_diffXS_data->GetBinContent(iBin), 
-                                        h_diffXS_data->GetBinError(iBin));
-        ValueError xsection(1.,1.);
-        xsection.v = N_signal_reco.v / (luminosity.v);
-        xsection.e = N_signal_reco.e / (luminosity.v);
-        if(xsection.v != xsection.v) xsection.v = 0.;
-        if(xsection.e != xsection.e) xsection.e = 0.;
-        
-        h_diffXS_data->SetBinContent(iBin, xsection.v);
-        h_diffXS_data->SetBinError(iBin, xsection.e);
+    // Dividing by luminosity for an absolute cross section
+    if(!normalizeXS_) {
+        for(int iBin = 1; iBin <= nBins; ++iBin) {
+            const ValueError N_signal_reco( h_diffXS_data->GetBinContent(iBin), 
+                                            h_diffXS_data->GetBinError(iBin));
+            ValueError xsection(1.,1.);
+            xsection.v = N_signal_reco.v / (luminosity.v);
+            xsection.e = N_signal_reco.e / (luminosity.v);
+            // Fixing possible NaN values
+            if(xsection.v != xsection.v) xsection.v = 0.;
+            if(xsection.e != xsection.e) xsection.e = 0.;
+            
+            h_diffXS_data->SetBinContent(iBin, xsection.v);
+            h_diffXS_data->SetBinError(iBin, xsection.e);
+        }
     }
     
     // Calculating the cross section from MC
@@ -594,7 +598,6 @@ std::map<TString, TH1*> PlotterDiffXS::calculateDiffXS(const std::map<TString, T
     
     // Normalising to unity
     if(normalizeXS_) {
-        common::normalize(h_diffXS_data);
         common::normalize(h_diffXS_madgraph);
     }
     
@@ -625,7 +628,7 @@ std::map<TString, TH1*> PlotterDiffXS::calculateDiffXS(const std::map<TString, T
 
 
 
-TH1* PlotterDiffXS::unfoldedHistogram(const std::map<TString, TH1*> m_inputHistos, const int unfoldingType)const
+TH1* PlotterDiffXS::unfoldedHistogram(const std::map<TString, TH1*> m_inputHistos, const int unfoldingType, const bool normalised)const
 {
     TH1* histo_unfolded(0);
     
@@ -651,6 +654,8 @@ TH1* PlotterDiffXS::unfoldedHistogram(const std::map<TString, TH1*> m_inputHisto
             histo->SetBinContent(iBin, content.v);
             histo->SetBinError(iBin, content.e);
         }
+        
+        if(normalised) common::normalize(histo);
         
         return histo;
     }
@@ -718,9 +723,10 @@ TH1* PlotterDiffXS::unfoldedHistogram(const std::map<TString, TH1*> m_inputHisto
         // Updating bin contents since unfolded histogram has outside bins shifted into visible area
         TH1* histo = (TH1*)m_inputHistos.at("data")->Clone("h_data_unfolded");
         histo->Reset("ICESM");
+        histo_unfolded = normalised ? histogram_norm : histogram;
         for(int iBin = 1; iBin <= histo->GetNbinsX(); ++iBin) {
-            histo->SetBinContent(iBin, histogram->GetBinContent(iBin+1));
-            histo->SetBinError(iBin, histogram->GetBinError(iBin+1));
+            histo->SetBinContent(iBin, histo_unfolded->GetBinContent(iBin+1));
+            histo->SetBinError(iBin, histo_unfolded->GetBinError(iBin+1));
         }
         
         delete h_backgroundSignal;
