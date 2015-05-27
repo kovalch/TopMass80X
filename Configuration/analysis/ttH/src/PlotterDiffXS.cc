@@ -691,10 +691,6 @@ TH1* PlotterDiffXS::unfoldedHistogram(const std::map<TString, TH1*> m_inputHisto
         else if(quantityName.Contains("M")) quantityName = "M";
         else if(quantityName.Contains("dR")) quantityName = "dR";
         
-        
-        TH1D* h_backgroundSignal = new TH1D("h_backgroundSignal", "", nBins, bins);
-        h_backgroundSignal->Reset();
-        
         DilepSVDFunctions mySVDFunctions;
         mySVDFunctions.SetOutputPath(outputDir_);
         
@@ -706,11 +702,14 @@ TH1* PlotterDiffXS::unfoldedHistogram(const std::map<TString, TH1*> m_inputHisto
 //             }
 //         }
         
+        // Removing the underflow bin in the generator level distribution
+        m_inputHistos.at("signal_gen")->SetBinContent(0, 0.0);
+        
         
         mySVDFunctions.SVD_DoUnfold(
             (TH1D*)m_inputHistos.at("data"),
             (TH1D*)m_inputHistos.at("background"),
-            (TH1D*)h_backgroundSignal,
+            NULL,
             (TH1D*)m_inputHistos.at("signal_gen"),
             (TH1D*)m_inputHistos.at("signal"),
             (TH2D*)m_inputHistos.at("signal_response"),
@@ -729,7 +728,6 @@ TH1* PlotterDiffXS::unfoldedHistogram(const std::map<TString, TH1*> m_inputHisto
             histo->SetBinError(iBin, histo_unfolded->GetBinError(iBin+1));
         }
         
-        delete h_backgroundSignal;
         
         return histo;
     }
