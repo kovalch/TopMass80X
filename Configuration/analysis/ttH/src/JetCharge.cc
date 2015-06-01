@@ -46,7 +46,14 @@ mvaReader2_(0)
     if(mvaCharge_){
         std::cout<<"Using MVA jet charge\n";
         
-        const TString weightFilename = "/data/user/jgaray/releaseForMvaJetCharge/CMSSW_5_3_18/src/TopAnalysis/Configuration/analysis/ttH/jetChargeWeight/MVA_BDTAdaBoost_1500_beta05.weights.xml";
+        const std::string weightFilename(tth::DATA_PATH_TTH() + "/" + "jetCharge.weights.xml");
+        ifstream inputFilestream(weightFilename);
+        if(!inputFilestream.is_open()){
+            std::cerr<<"Error in constructor of JetCharge()! Input weight file for mva charge not found: "
+            <<weightFilename<<"\n...break\n"<<std::endl;
+            exit(281);
+        }
+        else inputFilestream.close();
         
         //FIXME: Activate again as soon as JetCharge::mvaCharges properly working. Needed to comment it for preliminary mva charge usage
         //mvaReader_ = new MvaReaderJetCharge("BDT method");
