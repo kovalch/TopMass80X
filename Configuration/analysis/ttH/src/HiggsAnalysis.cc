@@ -852,7 +852,7 @@ std::vector<double> HiggsAnalysis::jetCharges(const std::vector<int>&, const Rec
         const double jetCharge = jetCharge_->jetChargeValue(static_cast<int>(index), jets.at(index),
                                                             *recoObjects.jetPfCandidateTrackIndex_, *recoObjects.jetPfCandidateTrack_,
                                                             *recoObjects.jetPfCandidateTrackCharge_, *recoObjects.jetPfCandidatePrimaryVertexId_,
-                                                            0.8, this->isMC());
+                                                            0.8, this->isMC(), recoObjects);
         v_jetCharge.at(index) = jetCharge;
     }
     

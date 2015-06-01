@@ -52,7 +52,7 @@ public:
                            const double& x)const;
    
     /// MVA jet charge 
-    double mvaCharge(const int jetIndex, const LV& jet, const RecoObjects& recoObjects);
+    double mvaCharge(const int jetIndex, const LV& recoJet, const RecoObjects& recoObjects)const;
     
     /// Vector of MVA jet charges for all jets
     std::vector<float> mvaCharges(const EventMetadata& eventMetadata,
@@ -70,7 +70,7 @@ public:
     double jetChargeValue(const int jetIndex, const LV& recoJet,
                           const std::vector<int>& pfCandidateTrackIndex, const VLV& pfCandidates,
                           const std::vector<int>& pfCandidateCharge, const std::vector<int>& pfCandidateVertexId,
-                          const double& x, const bool& isMc)const;
+                          const double& x, const bool& isMc, const RecoObjects& recoObjects)const;
     
 private:
     
@@ -93,22 +93,22 @@ private:
     TMVA::Reader* mvaReader2_;
     struct MvaJetChargeVariables
     {
-        Float_t longChargeJet_;
-        Float_t relChargeJet_;
-        Float_t leadingTrackPtWeightedCharge_;
-        Float_t subleadingTrackPtWeightedCharge_;
-        Float_t thirdleadingTrackPtWeightedCharge_;
-        Float_t leadingMuonPtWeightedCharge_;
-        Float_t leadingElectronPtWeightedCharge_;
-        Float_t trackNumberWeightedJetPt_;
-        Float_t chargeWeightedTrackId_;
-        Float_t svChargeWeightedFlightDistance_;
-        Float_t secondaryVertexCharge_;
-        Float_t ipSignificanceLeadingTrack_;
-        Float_t trueBJetId_;
-        Float_t thereIsALeadingLepton_;
-        Float_t thereIsALeadingMuon_;
-        Float_t thereIsASecondaryVertex_;
+        mutable Float_t longChargeJet_;
+        mutable Float_t relChargeJet_;
+        mutable Float_t leadingTrackPtWeightedCharge_;
+        mutable Float_t subleadingTrackPtWeightedCharge_;
+        mutable Float_t thirdleadingTrackPtWeightedCharge_;
+        mutable Float_t leadingMuonPtWeightedCharge_;
+        mutable Float_t leadingElectronPtWeightedCharge_;
+        mutable Float_t trackNumberWeightedJetPt_;
+        mutable Float_t chargeWeightedTrackId_;
+        mutable Float_t svChargeWeightedFlightDistance_;
+        mutable Float_t secondaryVertexCharge_;
+        mutable Float_t ipSignificanceLeadingTrack_;
+        mutable Float_t trueBJetId_;
+        mutable Float_t thereIsALeadingLepton_;
+        mutable Float_t thereIsALeadingMuon_;
+        mutable Float_t thereIsASecondaryVertex_;
     } jetChargeMvaStruct_;
     
 };

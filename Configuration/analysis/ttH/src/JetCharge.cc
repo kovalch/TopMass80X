@@ -46,10 +46,11 @@ mvaReader2_(0)
     if(mvaCharge_){
         std::cout<<"Using MVA jet charge\n";
         
-        const TString weightFilename = "/nfs/dust/cms/user/jgaray/releaseForPseudodata/CMSSW_5_3_18/src/TopAnalysis/Configuration/analysis/ttH/MVA_BDTAdaBoost_1500_beta05.weights.xml";
+        const TString weightFilename = "/data/user/jgaray/releaseForMvaJetCharge/CMSSW_5_3_18/src/TopAnalysis/Configuration/analysis/ttH/jetChargeWeight/MVA_BDTAdaBoost_1500_beta05.weights.xml";
         
-        mvaReader_ = new MvaReaderJetCharge("BDT method");
-        mvaReader_->book(weightFilename);
+        //FIXME: Activate again as soon as JetCharge::mvaCharges properly working. Needed to comment it for preliminary mva charge usage
+        //mvaReader_ = new MvaReaderJetCharge("BDT method");
+        //mvaReader_->book(weightFilename);
         
         // FIXME: Replace and remove
         //Book the reader
@@ -140,12 +141,20 @@ TH1* JetCharge::readHist(TFile* file, const TString& histname)const
 double JetCharge::jetChargeValue(const int jetIndex, const LV& recoJet,
                                  const std::vector<int>& pfCandidateTrackIndex, const VLV& pfCandidates,
                                  const std::vector<int>& pfCandidateCharge, const std::vector<int>& pfCandidateVertexId,
-                                 const double& x, const bool& isMc)const
+                                 const double& x, const bool& isMc, const RecoObjects& recoObjects)const
 {
     std::pair<double,int> xJetCharge = JetCharge::pWeightedCharge(jetIndex, recoJet, pfCandidateTrackIndex, pfCandidates, pfCandidateCharge, pfCandidateVertexId, x);
-    double jetCharge;
-    if (xJetCharge.second ==2 && isMc) jetCharge = JetCharge::quantileMappingCorrection(xJetCharge.first);
-    else jetCharge = xJetCharge.first;
+    
+    double jetCharge = xJetCharge.first;;
+    
+    // Use quantile correction
+    if (correction_){
+        if (xJetCharge.second ==2 && isMc) jetCharge = JetCharge::quantileMappingCorrection(xJetCharge.first);
+    }
+    
+    // FIXME: Add quantile correction when using mva charge
+    if (mvaCharge_) jetCharge = JetCharge::mvaCharge(jetIndex, recoJet, recoObjects);
+
     return jetCharge;
 }
 
@@ -207,7 +216,7 @@ std::pair <double, int> JetCharge::pWeightedCharge(const int jetIndex, const LV&
 
 
 
-double JetCharge::mvaCharge(const int jetIndex, const LV& jet, const RecoObjects& recoObjects)
+double JetCharge::mvaCharge(const int jetIndex, const LV& jet, const RecoObjects& recoObjects)const
 {
     // Specific selected tracks information (tracks with quality requirements applied already at ntuple level) 
     const std::vector<LV>& jetSelectedTrack = *recoObjects.jetSelectedTrack_;
@@ -482,11 +491,7 @@ double JetCharge::mvaCharge(const int jetIndex, const LV& jet, const RecoObjects
     if (isLeadingMuon) chargeWeightedTrackId = leadingTrackCharge*3;
     double svChargeWeightedFlightDistance = 0.;
     if (thereIsASecondaryVertex) svChargeWeightedFlightDistance = chargeOfSecondaryVerticesForSelectedTracks.at(0) * jetSecondaryVertexFlightDistanceSignificance.at(0); 
-    
-    
-    
-    
-    
+
     
     // FIXME: Replace by external variables using function mvaCharges, then remove
     
