@@ -26,7 +26,7 @@ public:
     void setMCTruePUInput(TH1* MCPUdist);
     void setMCTruePUInput(const char * rootfile);
     double getPUweight(size_t trueBX);
-    void setMCDistrSum15(TString scenario = "flat");
+    void setMCDistrSum15(TString scenario = "50ns_poisson");
     void setMCDistrSum12(TString scenario = "S10");
     void setMCDistrFall11(TString scenario = "S06");
     void setMCDistrSummer11Leg(TString scenario = "S06?");
