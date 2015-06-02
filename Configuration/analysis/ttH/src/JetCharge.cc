@@ -145,12 +145,12 @@ TH1* JetCharge::readHist(TFile* file, const TString& histname)const
     return hist;
 }
 
-double JetCharge::jetChargeValue(const int jetIndex, const LV& recoJet,
+double JetCharge::jetChargeValue(const int jetIndex, const LV& jet,
                                  const std::vector<int>& pfCandidateTrackIndex, const VLV& pfCandidates,
                                  const std::vector<int>& pfCandidateCharge, const std::vector<int>& pfCandidateVertexId,
                                  const double& x, const bool& isMc, const RecoObjects& recoObjects)const
 {
-    std::pair<double,int> xJetCharge = JetCharge::pWeightedCharge(jetIndex, recoJet, pfCandidateTrackIndex, pfCandidates, pfCandidateCharge, pfCandidateVertexId, x);
+    std::pair<double,int> xJetCharge = JetCharge::pWeightedCharge(jetIndex, jet, pfCandidateTrackIndex, pfCandidates, pfCandidateCharge, pfCandidateVertexId, x);
     
     double jetCharge = xJetCharge.first;;
     
@@ -160,22 +160,22 @@ double JetCharge::jetChargeValue(const int jetIndex, const LV& recoJet,
     }
     
     // FIXME: Add quantile correction when using mva charge
-    if (mvaCharge_) jetCharge = JetCharge::mvaCharge(jetIndex, recoJet, recoObjects);
+    if (mvaCharge_) jetCharge = JetCharge::mvaCharge(jetIndex, jet, recoObjects, jetCharge);
 
     return jetCharge;
 }
 
 
 
-std::pair <double, int> JetCharge::pWeightedCharge(const int jetIndex, const LV& recoJet,
+std::pair <double, int> JetCharge::pWeightedCharge(const int jetIndex, const LV& jet,
                                   const std::vector<int>& pfCandidateTrackIndex, const VLV& pfCandidates,
                                   const std::vector<int>& pfCandidateCharge, const std::vector<int>& pfCandidateVertexId,
                                   const double& x)const
 {
     // Access jet momentum information
-    const double jetPx = recoJet.px();
-    const double jetPy = recoJet.py();
-    const double jetPz = recoJet.pz();
+    const double jetPx = jet.px();
+    const double jetPy = jet.py();
+    const double jetPz = jet.pz();
     
     // Define relevant variables for c_{rel} calculation
     double sumMomentum = 0.;
@@ -223,7 +223,7 @@ std::pair <double, int> JetCharge::pWeightedCharge(const int jetIndex, const LV&
 
 
 
-double JetCharge::mvaCharge(const int jetIndex, const LV& jet, const RecoObjects& recoObjects)const
+double JetCharge::mvaCharge(const int jetIndex, const LV& jet, const RecoObjects& recoObjects, const double& jetCharge)const
 {
     // Specific selected tracks information (tracks with quality requirements applied already at ntuple level) 
     const std::vector<LV>& jetSelectedTrack = *recoObjects.jetSelectedTrack_;
@@ -245,6 +245,10 @@ double JetCharge::mvaCharge(const int jetIndex, const LV& jet, const RecoObjects
     const std::vector<int>& jetPfCandidateTrackId = *recoObjects.jetPfCandidateTrackId_;
     const std::vector<LV>& jetPfCandidateTrack = *recoObjects.jetPfCandidateTrack_;
     const std::vector<int>& jetPfCandidateTrackIndex = *recoObjects.jetPfCandidateTrackIndex_;
+    
+    // Vertex information for closesZVertex studies
+    const std::vector<int>& jetPfCandidatePrimaryVertexId = *recoObjects.jetPfCandidatePrimaryVertexId_;
+    
     
     double val1 = 0;
     bool thereIsASecondaryVertex = false;
@@ -382,9 +386,12 @@ double JetCharge::mvaCharge(const int jetIndex, const LV& jet, const RecoObjects
     for (size_t iPfTrack=0;iPfTrack!=jetPfCandidateTrack.size();iPfTrack++)
     {
         double trueBJetPfTrackPt = jetPfCandidateTrack.at(iPfTrack).pt();
-        int trueMatched = 0;
-        if (jetIndex!=jetPfCandidateTrackIndex.at(iPfTrack)) trueMatched = -1;
-        if (trueMatched == -1) continue;
+        // Check that the pfCandidate corresponds to the jet
+        if (jetIndex != jetPfCandidateTrackIndex.at(iPfTrack)) continue;
+        
+        // Remove tracks not associated to primary vertex 0
+        if (jetPfCandidatePrimaryVertexId.at(iPfTrack)==-1|| jetPfCandidatePrimaryVertexId.at(iPfTrack)==2 || jetPfCandidatePrimaryVertexId.at(iPfTrack)==3) continue;
+        
         ++trueBJetTrackMultiplicity;
         
         if(trueBJetPfTrackPt>maxPtTrueTrack) maxPtTrueTrack = trueBJetPfTrackPt;
@@ -448,7 +455,6 @@ double JetCharge::mvaCharge(const int jetIndex, const LV& jet, const RecoObjects
         const double constituentTrueBPx = jetPfCandidateTrack.at(iPfTrack).px();
         const double constituentTrueBPy = jetPfCandidateTrack.at(iPfTrack).py();
         const double constituentTrueBPz = jetPfCandidateTrack.at(iPfTrack).pz();
-        const double trueProduct = constituentTrueBPx*jetTrueBPx + constituentTrueBPy*jetTrueBPy + constituentTrueBPz*jetTrueBPz;
         
         std::vector<double> vectProductMomentumQ;
         double xTrueComponent = (jetTrueBPy*constituentTrueBPz-jetTrueBPz*constituentTrueBPy);
@@ -456,32 +462,25 @@ double JetCharge::mvaCharge(const int jetIndex, const LV& jet, const RecoObjects
         double zTrueComponent = (jetTrueBPx*constituentTrueBPy-jetTrueBPy*constituentTrueBPx); 
         const double trueMagnitude = std::sqrt(xTrueComponent*xTrueComponent+yTrueComponent*yTrueComponent+zTrueComponent*zTrueComponent);
         
-        std::vector<double> trueProductPow;
         std::vector<double> trueMagnitudePow;
         
         for (double iPow=0.2;iPow<=2.;iPow+=0.2)
         {
-            trueProductPow.push_back(std::pow(trueProduct,iPow));
             trueMagnitudePow.push_back(std::pow(trueMagnitude,iPow));
         }
         
         for (size_t i_sum=0;i_sum!=sumTrueBMomentum.size();i_sum++)
         {
-            sumTrueBMomentum.at(i_sum) += trueProductPow.at(i_sum);
             sumTrueBMagnitude.at(i_sum) += trueMagnitudePow.at(i_sum);
-            sumTrueBMomentumQ.at(i_sum) += (trueProductPow.at(i_sum))*jetPfCandidateTrackCharge.at(iPfTrack);
             sumTrueBMagnitudeQ.at(i_sum) += (trueMagnitudePow.at(i_sum))*jetPfCandidateTrackCharge.at(iPfTrack);
         }
     }
     
-    std::vector<double> trueBJetScalarChargeVector;
     std::vector<double> trueBJetRelChargeVector;
     
     for (size_t iSumHis=0;iSumHis!=sumTrueBMomentum.size();iSumHis++)
     {
-        const double trueBJetScalarChargeForX(sumTrueBMomentum.at(iSumHis)>0 ? sumTrueBMomentumQ.at(iSumHis)/sumTrueBMomentum.at(iSumHis) : 0);
         const double trueBJetRelCharge(sumTrueBMagnitude.at(iSumHis)>0 ? sumTrueBMagnitudeQ.at(iSumHis)/sumTrueBMagnitude.at(iSumHis) : 0);
-        trueBJetScalarChargeVector.push_back(trueBJetScalarChargeForX);
         trueBJetRelChargeVector.push_back(trueBJetRelCharge);
     }
     
@@ -506,7 +505,7 @@ double JetCharge::mvaCharge(const int jetIndex, const LV& jet, const RecoObjects
     if (jetHadronFlavour>0) jetChargeMvaStruct_.trueBJetId_ = -1;
     else if (jetHadronFlavour<0) jetChargeMvaStruct_.trueBJetId_ = 0;
     jetChargeMvaStruct_.relChargeJet_ = trueBJetRelChargeVector.at(3);
-    jetChargeMvaStruct_.longChargeJet_ = trueBJetScalarChargeVector.at(3);
+    jetChargeMvaStruct_.longChargeJet_ = jetCharge;
     jetChargeMvaStruct_.leadingTrackPtWeightedCharge_ = leadingTrackPtWeightedCharge;
     jetChargeMvaStruct_.subleadingTrackPtWeightedCharge_ = subleadingTrackPtWeightedCharge;
     jetChargeMvaStruct_.thirdleadingTrackPtWeightedCharge_ = thirdleadingTrackPtWeightedCharge;

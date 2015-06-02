@@ -46,13 +46,13 @@ public:
     
     // FIXME: description
     /// Momentum weighted jet charge calculation for a given squeezing parameter x
-    std::pair <double, int> pWeightedCharge(const int jetIndex, const LV& recoJet,
+    std::pair <double, int> pWeightedCharge(const int jetIndex, const LV& jet,
                            const std::vector<int>& pfCandidateTrackIndex, const VLV& pfCandidates,
                            const std::vector<int>& pfCandidateCharge, const std::vector<int>& pfCandidateVertexId,
                            const double& x)const;
    
     /// MVA jet charge 
-    double mvaCharge(const int jetIndex, const LV& recoJet, const RecoObjects& recoObjects)const;
+    double mvaCharge(const int jetIndex, const LV& jet, const RecoObjects& recoObjects, const double& jetCharge)const;
     
     /// Vector of MVA jet charges for all jets
     std::vector<float> mvaCharges(const EventMetadata& eventMetadata,
@@ -67,7 +67,7 @@ public:
     double quantileMappingCorrection(double& jetCharge)const;
     
     /// Return the correct charge value
-    double jetChargeValue(const int jetIndex, const LV& recoJet,
+    double jetChargeValue(const int jetIndex, const LV& jet,
                           const std::vector<int>& pfCandidateTrackIndex, const VLV& pfCandidates,
                           const std::vector<int>& pfCandidateCharge, const std::vector<int>& pfCandidateVertexId,
                           const double& x, const bool& isMc, const RecoObjects& recoObjects)const;
