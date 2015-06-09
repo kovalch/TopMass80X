@@ -187,11 +187,16 @@ void load_Analysis(const TString& validFilenamePattern,
     else if(jetCategoriesId == 1) jetCategories = new JetCategories(2, 5, 0, 5, true, true); // Overview categories
     else if(jetCategoriesId == 2) jetCategories = new JetCategories(4, 4, 1, 3, true, true); // 4-jet categories of default categories
     else if(jetCategoriesId == 3) jetCategories = new JetCategories(4, 4, 2, 4, true, true); // Nazar's categories
-    else if(jetCategoriesId == 4) {
-        jetCategories = new JetCategories(); // For tt+bb and tt+b diff. xsection
-        // Manually setting each category
+    else if(jetCategoriesId == 4){ // For tt+bb and tt+b diff. xsection
+        jetCategories = new JetCategories();
         jetCategories->addCategory(3, 3, true, false);
         jetCategories->addCategory(4, 4, true, false);
+    }
+    else if(jetCategoriesId == 5){ // For ttH baseline analysis
+        jetCategories = new JetCategories();
+        jetCategories->addCategory(3, 2, false, false);
+        jetCategories->addCategory(4, 2, true, false);
+        jetCategories->addCategory(3, 3, true, true);
     }
     if(!jetCategories){
         std::cerr<<"ERROR in load_Analysis()! No jet categories defined\n...break\n"<<std::endl;
