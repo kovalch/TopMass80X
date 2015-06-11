@@ -15,9 +15,10 @@ outputDir="FileLists_plot"
 
 if [[ "x$1" != "x" ]] ; then
     inputDir="$1"
+    outputDir="FileLists_$1"
 fi
 
-
+# FIXME: should be removed after using unique name for mvaTopJets
 if [[ "$1" == mva ]] ; then
     inputDir="mvaInput"
     outputDir="FileLists_mva"
