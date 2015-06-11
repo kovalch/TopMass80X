@@ -36,7 +36,7 @@ namespace mvaSetup{
                const TString& step,
                const std::vector<int>& v_category,
                const std::vector<MvaConfig>& v_mvaConfigCorrect,
-               const std::vector<MvaConfig>& v_mvaConfigSwapped);
+               const std::vector<MvaConfig>& v_mvaConfigSwapped ={});
         ~MvaSet(){}
         
         std::vector<Channel::Channel> v_channel_;
