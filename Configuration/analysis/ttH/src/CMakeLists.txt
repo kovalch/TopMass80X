@@ -25,6 +25,7 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   MvaReaderJetCharge
   MvaFactoryBase
   MvaFactoryTopJets
+  MvaFactoryEventClassification
   mvaSetup
   MvaVariablesBase
   MvaVariablesJetCharge
@@ -69,6 +70,7 @@ SET( ${PROJECT_NAME}_EXECUTABLES
   load_Analysis
   categoryMerger
   train_mvaTopJets
+  train_mvaEventClassification
   Histo
   HistoDiffXS
   HistoDiffXSSystematic
