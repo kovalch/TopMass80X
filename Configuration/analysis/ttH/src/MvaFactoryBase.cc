@@ -31,9 +31,7 @@ weightFileDir_(weightFileDir),
 samples_(samples),
 inOneFactory_(inOneFactory),
 fileReader_(RootFileReader::getInstance())
-{
-    
-}
+{}
 
 
 
@@ -280,7 +278,7 @@ void MvaFactoryBase::runMva2(const std::vector<mvaSetup::MvaConfig>& v_mvaConfig
             
             // Write training names to text file
             TString trainingName(mvaOutputWeightsDirectory);
-            trainingName.Append(filenameBase).Append("_").Append(mvaConfig.methodAppendix_).Append(".weights.xml");
+            trainingName.Append("/").Append(filenameBase).Append("_").Append(mvaConfig.methodAppendix_).Append(".weights.xml");
             trainingNameFile<<trainingName<<std::endl;
         }
         
