@@ -46,17 +46,25 @@ AnalyzerBase("mvaEventA_", selectionStepsNoCategories, stepsForCategories, jetCa
     // Access training names from text file
     TString filename = common::accessFolder("mvaOutput_mvaEvent", Channel::combined, Systematic::nominalSystematic());
     filename.Append("trainingNames.txt");
-    const std::vector<TString> v_trainingName = common::readFile(filename);
+    const std::vector<TString> v_trainingFilename = common::readFile(filename);
     
     // Loop over steps, and if training is valid for this step, set up reader
     for(const auto& stepShort : stepsForCategories){
         for(int category = 0; category<jetCategories->numberOfCategories(); ++category){
             const TString step = tth::stepName(stepShort, category);
-            for(const TString& training : v_trainingName){
-                if(!training.Contains(step)) continue;
-                std::cout<<"\n\ntraining: "<<step<<" , "<<training<<"\n\n";
+            for(const TString& filename : v_trainingFilename){
+                // Skip if training not valid for step
+                if(!filename.Contains(step)) continue;
+                
+                // Extract training name from filename of training
+                TString training(filename);
+                Ssiz_t last = training.Last('_');
+                training = training.Data() + last + 1;
+                training.ReplaceAll(".weights.xml", "");
+                
+                std::cout<<"\n\ntraining: "<<step<<" , "<<filename<<" , "<<training<<"\n\n";
                 m_m_mvaWeight_[step][training] = new MvaReaderEventClassification("BDT method");
-                m_m_mvaWeight_.at(step).at(training)->book(training);
+                m_m_mvaWeight_.at(step).at(training)->book(filename);
             }
         }
     }
@@ -79,7 +87,7 @@ void AnalyzerMvaEventClassification::bookHistos(const TString& step, std::map<TS
         const TString& trainingName = mvaWeight.first;
         
         name = "mvaWeight_"+trainingName;
-        m_histogram[name] = this->store(new TH1D(prefix_+name+step, "mvaWeight;w_{MVA};# events", 80, -1.2, 0.2));
+        m_histogram[name] = this->store(new TH1D(prefix_+name+step, "mvaWeight;w_{MVA};# events", 80, -1.2, 0.4));
     }
 }
 
