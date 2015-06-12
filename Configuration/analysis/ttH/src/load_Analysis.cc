@@ -25,6 +25,7 @@
 #include "MvaTreeHandlerEventClassification.h"
 #include "AnalyzerBase.h"
 #include "AnalyzerMvaTopJets.h"
+#include "AnalyzerMvaEventClassification.h"
 #include "AnalyzerDijet.h"
 #include "AnalyzerControlPlots.h"
 #include "AnalyzerJetMatch.h"
@@ -196,7 +197,8 @@ void load_Analysis(const TString& validFilenamePattern,
         jetCategories = new JetCategories();
         jetCategories->addCategory(3, 2, false, false);
         jetCategories->addCategory(4, 2, true, false);
-        jetCategories->addCategory(3, 3, true, true);
+        jetCategories->addCategory(3, 3, true, false);
+        jetCategories->addCategory(4, 4, true, true);
     }
     if(!jetCategories){
         std::cerr<<"ERROR in load_Analysis()! No jet categories defined\n...break\n"<<std::endl;
@@ -299,6 +301,13 @@ void load_Analysis(const TString& validFilenamePattern,
         v_analyzer.push_back(analyzerMvaTopJets);
     }
     
+    // Set up MVA validation for event classification
+    AnalyzerMvaEventClassification* analyzerMvaEventClassification(0);
+    if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::mvaEventA) != v_analysisMode.end()){
+        analyzerMvaEventClassification = new AnalyzerMvaEventClassification({"7"}, {"7"}, jetCategories);
+        v_analyzer.push_back(analyzerMvaEventClassification);
+    }
+    
     
     // Vector setting up all tree handlers for MVA input variables
     std::vector<MvaTreeHandlerBase*> v_mvaTreeHandler;
@@ -313,7 +322,7 @@ void load_Analysis(const TString& validFilenamePattern,
     // Set up production of MVA input tree for event classification
     MvaTreeHandlerEventClassification* mvaTreeHandlerEventClassification(0);
     if(std::find(v_analysisMode.begin(), v_analysisMode.end(), AnalysisMode::mvaEventP) != v_analysisMode.end()){
-        mvaTreeHandlerEventClassification = new MvaTreeHandlerEventClassification("mvaInput", {"7"}, {"7"}, jetCategories);
+        mvaTreeHandlerEventClassification = new MvaTreeHandlerEventClassification("mvaInput_mvaEvent", {"7"}, {"7"}, jetCategories);
         v_mvaTreeHandler.push_back(mvaTreeHandlerEventClassification);
     }
     
