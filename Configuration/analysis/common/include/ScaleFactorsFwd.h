@@ -11,6 +11,7 @@ namespace Btag{
     /// Enum for the implemented b-tagging algorithms
     enum Algorithm{
         csv,
+        csvv2,
         undefinedAlgorithm
     };
     
