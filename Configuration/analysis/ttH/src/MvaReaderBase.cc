@@ -53,7 +53,7 @@ void MvaReaderBase::bookVariables(TMVA::Reader* const, MvaVariablesBase*&)const
 
 void MvaReaderBase::addVariable(TMVA::Reader* const mvaWeightsReader, MvaVariableInt& variable)const
 {
-    mvaWeightsReader->AddVariable(variable.name().data(), &variable.value_);
+    mvaWeightsReader->AddVariable(variable.name().data(), &variable.valueFloat_);
 }
 
 
@@ -67,7 +67,7 @@ void MvaReaderBase::addVariable(TMVA::Reader* const mvaWeightsReader, MvaVariabl
 
 void MvaReaderBase::addSpectator(TMVA::Reader* const mvaWeightsReader, MvaVariableInt& variable)const
 {
-    mvaWeightsReader->AddSpectator(variable.name().data(), &variable.value_);
+    mvaWeightsReader->AddSpectator(variable.name().data(), &variable.valueFloat_);
 }
 
 
