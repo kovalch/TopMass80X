@@ -133,7 +133,7 @@ void plot_TH1(RootFileReader* rootFileReader,
     // Draw the histograms
     hist->SetLineWidth(2);
     hist->SetTitle("");
-    hist->Draw();
+    hist->Draw("HIST");
             
     canvas->Modified();
     canvas->Update();
@@ -227,13 +227,13 @@ void plot_2TH1(RootFileReader* rootFileReader,
             }
             
             hist->SetTitle("");
-            hist->Draw();
+            hist->Draw("HIST");
             
             canvas->Modified();
             canvas->Update();
         }
         else{
-            hist->Draw("sameS");
+            hist->Draw("HIST sameS");
                     
             canvas->Modified();
             canvas->Update();
@@ -343,13 +343,13 @@ void plot_4TH1(RootFileReader* rootFileReader,
             }
             
             hist->SetTitle("");
-            hist->Draw();
+            hist->Draw("HIST");
    
             canvas->Modified();
             canvas->Update();
         }
         else{
-            hist->Draw("sameS");
+            hist->Draw("HIST sameS");
             
             canvas->Modified();
             canvas->Update();
@@ -550,17 +550,22 @@ int main(int argc, char** argv){
     const std::vector<TString> v_inputFileTtbar = {
         //"ttbarsignalPlusBbbar",
         //"ttbarsignalPlusOther",
-        "ttbarH125tobbbar"
+        //"ttbarH125tobbbar"
+        "ttbarH125inclusive"
     };
     
     const std::vector<TString> v_inputLegTtbar = {
         //"t#bar{t}signal+b#bar{b}",
         //"t#bar{t}signal+Other",
-        "t#bar{t}H_{125}->b#bar{b}"
+        //"t#bar{t}H_{125}->b#bar{b}"
+	"t#bar{t}H_{125}inclusive"
     };
     
     const std::vector<TString> v_step = {
-        "_step7"
+        "_step7",
+        //"_step7_cate0",
+        //"_step7_cate1",
+        "_step7_cate2"
     };  
     
     // Set up channels
