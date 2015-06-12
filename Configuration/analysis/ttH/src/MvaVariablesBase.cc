@@ -14,7 +14,7 @@ MvaVariablesBase::MvaVariablesBase(const double& eventWeight):
 eventWeight_(MvaVariableFloat(name_eventWeight_))
 {
     // Event weight
-    eventWeight_.value_ = eventWeight;
+    eventWeight_.setValue(eventWeight);
 }
 
 

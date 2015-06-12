@@ -42,14 +42,14 @@ mass_higgsLikeDijet_(MvaVariableFloat(name_mass_higgsLikeDijet_)),
 mass_higgsLikeDijet2_(MvaVariableFloat(name_mass_higgsLikeDijet2_))
 {
     // Fill the variables for MVA TTree
-    multiplicity_jets_.value_ = multiplicity_jets;
-    btagDiscriminatorAverage_tagged_.value_ = btagDiscriminatorAverage_tagged;
-    btagDiscriminatorAverage_untagged_.value_ = btagDiscriminatorAverage_untagged;
-    minDeltaR_jet_jet_.value_ = minDeltaR_jet_jet;
-    ptSum_jets_leptons_.value_ = ptSum_jets_leptons;
-    multiplicity_higgsLikeDijet15_.value_ = multiplicity_higgsLikeDijet15;
-    mass_higgsLikeDijet_.value_ = mass_higgsLikeDijet;
-    mass_higgsLikeDijet2_.value_ = mass_higgsLikeDijet2;
+    multiplicity_jets_.setValue(multiplicity_jets);
+    btagDiscriminatorAverage_tagged_.setValue(btagDiscriminatorAverage_tagged);
+    btagDiscriminatorAverage_untagged_.setValue(btagDiscriminatorAverage_untagged);
+    minDeltaR_jet_jet_.setValue(minDeltaR_jet_jet);
+    ptSum_jets_leptons_.setValue(ptSum_jets_leptons);
+    multiplicity_higgsLikeDijet15_.setValue(multiplicity_higgsLikeDijet15);
+    mass_higgsLikeDijet_.setValue(mass_higgsLikeDijet);
+    mass_higgsLikeDijet2_.setValue(mass_higgsLikeDijet2);
 }
 
 

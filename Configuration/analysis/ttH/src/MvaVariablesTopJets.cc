@@ -82,25 +82,25 @@ massDiff_antiBLepton_bAntiLepton_(MvaVariableFloat(name_massDiff_antiBLepton_bAn
     const double antiBjetBtagDiscriminatorPositive = antiBjetBtagDiscriminator<0. ? 0. : antiBjetBtagDiscriminator;
     
     // Needed booleans
-    lastInEvent_.value_ = lastInEvent;
-    bQuarkRecoJetMatched_.value_ = bQuarkRecoJetMatched;
-    correctCombination_.value_ = correctCombination;
-    swappedCombination_.value_ = swappedCombination;
+    lastInEvent_.setValue(lastInEvent);
+    bQuarkRecoJetMatched_.setValue(bQuarkRecoJetMatched);
+    correctCombination_.setValue(correctCombination);
+    swappedCombination_.setValue(swappedCombination);
     
     // Fill the variables for MVA TTree
-    jetChargeDiff_.value_ = jetChargeDiff;
-    meanDeltaPhi_b_met_.value_ = 0.5*(std::abs(DeltaPhi(bJet, met)) + std::abs(DeltaPhi(antiBJet, met)));
-    massDiff_recoil_bbbar_.value_ = jetRecoil.M() - bAntiBSystem.M();
-    pt_b_antiLepton_.value_ = bAntiLeptonSystem.pt();
-    pt_antiB_lepton_.value_ = antiBLeptonSystem.pt();
-    deltaR_b_antiLepton_.value_ = DeltaR(bJet, antiLepton);
-    deltaR_antiB_lepton_.value_ = DeltaR(antiBJet, lepton);
-    btagDiscriminatorSum_.value_ = bjetBtagDiscriminatorPositive + antiBjetBtagDiscriminatorPositive;
-    deltaPhi_antiBLepton_bAntiLepton_.value_ = std::abs(DeltaPhi(antiBLeptonSystem, bAntiLeptonSystem));
-    massDiff_fullBLepton_bbbar_.value_ = fullBLeptonSystem.M() - bAntiBSystem.M();
-    meanMt_b_met_.value_ = 0.5*((bJet + met).Mt() + (antiBJet + met).Mt());
-    massSum_antiBLepton_bAntiLepton_.value_ = antiBLeptonSystem.M() + bAntiLeptonSystem.M();
-    massDiff_antiBLepton_bAntiLepton_.value_ = antiBLeptonSystem.M() - bAntiLeptonSystem.M();
+    jetChargeDiff_.setValue(jetChargeDiff);
+    meanDeltaPhi_b_met_.setValue(0.5*(std::abs(DeltaPhi(bJet, met)) + std::abs(DeltaPhi(antiBJet, met))));
+    massDiff_recoil_bbbar_.setValue(jetRecoil.M() - bAntiBSystem.M());
+    pt_b_antiLepton_.setValue(bAntiLeptonSystem.pt());
+    pt_antiB_lepton_.setValue(antiBLeptonSystem.pt());
+    deltaR_b_antiLepton_.setValue(DeltaR(bJet, antiLepton));
+    deltaR_antiB_lepton_.setValue(DeltaR(antiBJet, lepton));
+    btagDiscriminatorSum_.setValue(bjetBtagDiscriminatorPositive + antiBjetBtagDiscriminatorPositive);
+    deltaPhi_antiBLepton_bAntiLepton_.setValue(std::abs(DeltaPhi(antiBLeptonSystem, bAntiLeptonSystem)));
+    massDiff_fullBLepton_bbbar_.setValue(fullBLeptonSystem.M() - bAntiBSystem.M());
+    meanMt_b_met_.setValue(0.5*((bJet + met).Mt() + (antiBJet + met).Mt()));
+    massSum_antiBLepton_bAntiLepton_.setValue(antiBLeptonSystem.M() + bAntiLeptonSystem.M());
+    massDiff_antiBLepton_bAntiLepton_.setValue(antiBLeptonSystem.M() - bAntiLeptonSystem.M());
 }
 
 

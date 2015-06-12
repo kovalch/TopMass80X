@@ -336,29 +336,29 @@ ipSignificanceLeadingTrack_(MvaVariableFloat(name_ipSignificanceLeadingTrack_))
     double svChargeWeightedFlightDistance = 0.;
     if (thereIsASecondaryVertex) svChargeWeightedFlightDistance = chargeOfSecondaryVerticesForSelectedTracks.at(0) * jetSecondaryVertexFlightDistanceSignificance.at(0); 
     
-    if (jetHadronFlavour>0) trueBJetId_.value_ = 1;
-    else if (jetHadronFlavour<0) trueBJetId_.value_ = 0;
-    if (isLeadingMuon||isLeadingElectron) thereIsALeadingLepton_.value_ = 1;
-    else thereIsALeadingLepton_.value_ = 0;
-    if (isLeadingMuon) thereIsALeadingMuon_.value_ = 1;
-    else thereIsALeadingMuon_ = 0;
-    if (thereIsASecondaryVertex) thereIsASecondaryVertex_.value_ = 1;
-    else thereIsASecondaryVertex_.value_ = 0;
+    if (jetHadronFlavour>0) trueBJetId_.setValue(1);
+    else if (jetHadronFlavour<0) trueBJetId_.setValue(0);
+    if (isLeadingMuon || isLeadingElectron) thereIsALeadingLepton_.setValue(1);
+    else thereIsALeadingLepton_.setValue(0);
+    if (isLeadingMuon) thereIsALeadingMuon_.setValue(1);
+    else thereIsALeadingMuon_.setValue(0);
+    if (thereIsASecondaryVertex) thereIsASecondaryVertex_.setValue(1);
+    else thereIsASecondaryVertex_.setValue(0);
     
-    longChargeJet_.value_ = trueBJetScalarChargeVector.at(3);
-    relChargeJet_.value_ = trueBJetRelChargeVector.at(3);
-    leadingTrackPtWeightedCharge_.value_ = leadingTrackPtWeightedCharge;
-    subleadingTrackPtWeightedCharge_.value_ = subleadingTrackPtWeightedCharge;
-    thirdleadingTrackPtWeightedCharge_.value_ = thirdleadingTrackPtWeightedCharge;
-    leadingMuonPtWeightedCharge_.value_ = leadingMuonPtWeightedCharge;
-    leadingElectronPtWeightedCharge_.value_ = leadingElectronPtWeightedCharge;
-    trackNumberWeightedJetPt_.value_ = trackNumberWeightedJetPt;
-    chargeWeightedTrackId_.value_ = chargeWeightedTrackId;
-    svChargeWeightedFlightDistance_.value_ = svChargeWeightedFlightDistance;
-    if (impactParameterValuesForPf.size()!=0) ipSignificanceLeadingTrack_.value_ = impactParameterSignificanceOfLeadingTrack;
-    else ipSignificanceLeadingTrack_.value_ = 0.;
-    if (thereIsASecondaryVertex) secondaryVertexCharge_.value_ = chargeOfSecondaryVerticesForSelectedTracks.at(0);
-    else secondaryVertexCharge_.value_ = 0;
+    longChargeJet_.setValue(trueBJetScalarChargeVector.at(3));
+    relChargeJet_.setValue(trueBJetRelChargeVector.at(3));
+    leadingTrackPtWeightedCharge_.setValue(leadingTrackPtWeightedCharge);
+    subleadingTrackPtWeightedCharge_.setValue(subleadingTrackPtWeightedCharge);
+    thirdleadingTrackPtWeightedCharge_.setValue(thirdleadingTrackPtWeightedCharge);
+    leadingMuonPtWeightedCharge_.setValue(leadingMuonPtWeightedCharge);
+    leadingElectronPtWeightedCharge_.setValue(leadingElectronPtWeightedCharge);
+    trackNumberWeightedJetPt_.setValue(trackNumberWeightedJetPt);
+    chargeWeightedTrackId_.setValue(chargeWeightedTrackId);
+    svChargeWeightedFlightDistance_.setValue(svChargeWeightedFlightDistance);
+    if (impactParameterValuesForPf.size()) ipSignificanceLeadingTrack_.setValue(impactParameterSignificanceOfLeadingTrack);
+    else ipSignificanceLeadingTrack_.setValue(0.);
+    if (thereIsASecondaryVertex) secondaryVertexCharge_.setValue(chargeOfSecondaryVerticesForSelectedTracks.at(0));
+    else secondaryVertexCharge_.setValue(0);
 }
 
 

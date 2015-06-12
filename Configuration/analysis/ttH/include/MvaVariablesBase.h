@@ -33,10 +33,13 @@ class TBranch;
 /// Struct which defines all relevant parameters for MVA input variables of type int
 struct MvaVariableInt{
     MvaVariableInt(const char* name):
-        value_(-999), branch_(0), name_(name){}
+        value_(-999), valueFloat_(-999.F), branch_(0), name_(name){}
     
 public:
+    void setValue(const int value){value_ = value; valueFloat_ = static_cast<float>(value);}
+    
     Int_t value_;
+    Float_t valueFloat_; // Needed as newer root versions do not allow Int in TMVA reader anymore !?!
     TBranch* branch_;
     
     std::string name()const{return name_;}
@@ -55,6 +58,8 @@ struct MvaVariableFloat{
         value_(-999.F), branch_(0), name_(name){}
     
 public:
+    void setValue(const float value){value_ = value;}
+    
     Float_t value_;
     TBranch* branch_;
     
