@@ -56,6 +56,7 @@ struct RecoObjects{
     //std::vector<double>* jetBTagJetProbability_;
     //std::vector<double>* jetBTagJetBProbability_;
     std::vector<double>* jetBTagCSV_;
+    std::vector<double>* jetBTagCSVv2_;
     //std::vector<double>* jetBTagCSVMVA_;
     std::vector<double>* jetChargeGlobalPtWeighted_;
     std::vector<double>* jetChargeRelativePtWeighted_;
@@ -79,6 +80,7 @@ struct RecoObjects{
     std::vector<int>* jetSecondaryVertexTrackMatchToSelectedTrackIndex_;
     LV* met_;
     Int_t vertMulti_;
+    Int_t firstVertMulti_;
     
     // FIXME: Should probably be private, and access steered via functions which give errors with clear messages in case of mis-use
     std::map<std::string, std::vector<int> > m_userInts_;

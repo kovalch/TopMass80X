@@ -51,6 +51,7 @@ void RecoObjects::clear()
     //jetBTagJetProbability_ = 0;
     //jetBTagJetBProbability_ = 0;
     jetBTagCSV_ = 0;
+    jetBTagCSVv2_ = 0;
     //jetBTagCSVMVA_ = 0;
     jetChargeGlobalPtWeighted_ = 0;
     jetChargeRelativePtWeighted_ = 0;
@@ -74,6 +75,7 @@ void RecoObjects::clear()
     jetPfCandidatePrimaryVertexId_ = 0;
     met_ = 0;
     vertMulti_ = 0;
+    firstVertMulti_ = 0;
     
     m_userInts_.clear();
     m_userDoubles_.clear();
