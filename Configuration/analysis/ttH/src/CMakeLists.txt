@@ -23,6 +23,7 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   MvaReaderBase
   MvaReaderTopJets
   MvaReaderJetCharge
+  MvaReaderEventClassification
   MvaFactoryBase
   MvaFactoryTopJets
   MvaFactoryEventClassification
