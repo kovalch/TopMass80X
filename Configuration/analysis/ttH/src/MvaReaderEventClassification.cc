@@ -14,8 +14,8 @@
 MvaReaderEventClassification::MvaReaderEventClassification(const TString& mvaMethod):
 MvaReaderBase(mvaMethod)
 {
-    std::cout<<"--- Beginning setting up MVA reader for top jets\n";
-    std::cout<<"=== Finishing setting up MVA reader for top jets\n\n";
+    std::cout<<"--- Beginning setting up MVA reader for event classification\n";
+    std::cout<<"=== Finishing setting up MVA reader for event classification\n\n";
 }
 
 
