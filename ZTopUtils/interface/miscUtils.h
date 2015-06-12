@@ -148,17 +148,25 @@ std::vector<unsigned int> getOrderAscending(typename std::vector<t> vec) {
 	return out;
 }
 
+
+/**
+ *  *Proper Delta Phi implementation instead for Delta R calculation.
+ *   *Takes smallest possible Delta Phi
+ *    */
+double deltaPhi(const double & a, const double & b);
+
+
 template<class t, class u>
 double dR(t &first, u &sec) {
 	return sqrt(
 			(first.eta() - sec.eta()) * (first.eta() - sec.eta())
-			+ (first.phi() - sec.phi()) * (first.phi() - sec.phi()));
+			+ deltaPhi(first.phi(),sec.phi()) * deltaPhi(first.phi(),sec.phi()));
 }
 template<class t, class u>
 double dR(t *first, u *sec) {
 	return sqrt(
 			(first->eta() - sec->eta()) * (first->eta() - sec->eta())
-			+ (first->phi() - sec->phi()) * (first->phi() - sec->phi()));
+			+ deltaPhi(first->phi(),sec->phi()) * deltaPhi(first->phi(),sec->phi()));
 }
 
 template<class t, class u>
@@ -166,7 +174,7 @@ bool noOverlap(t *first, u *sec, double deltaR) {
 	bool nooverlap = true;
 	if ((deltaR * deltaR)
 			> square(first->eta() - sec->eta())
-			+ square(first->phi() - sec->phi())) {
+			+ square(deltaPhi(first->phi(), sec->phi()))) {
 		nooverlap = false;
 	}
 	return nooverlap;

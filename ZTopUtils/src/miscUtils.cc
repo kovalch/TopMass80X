@@ -378,4 +378,12 @@ bool fileExists(const char * filename) {
 	return exists;
 }
 
+double deltaPhi(const double & a, const double & b){
+        const double pi = 3.14159265358979323846;
+        double delta = std::abs(a -b);
+        if (delta > pi) return (-2* pi + delta);
+        else return delta;
+}
+
+
 }
