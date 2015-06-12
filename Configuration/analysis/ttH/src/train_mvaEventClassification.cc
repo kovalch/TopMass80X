@@ -120,6 +120,11 @@ void trainMvaEventClassification(const std::vector<Channel::Channel>& v_channel,
         "7",
         {2},
         {mvaSetup::c1, mvaSetup::c2, mvaSetup::c3}));
+    mvaSets.push_back(mvaSetup::MvaSet(
+        allChannels,
+        "7",
+        {3},
+        {mvaSetup::c1, mvaSetup::c2, mvaSetup::c3}));
     
     const MvaFactoryEventClassification mvaFactory(MvaOutputDIR, MvaWeightFileDIR, samples);
     mvaFactory.train2(mvaSets);
