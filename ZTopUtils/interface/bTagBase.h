@@ -69,6 +69,9 @@ public:
         csvt_wp,
         csvm_wp,
         csvl_wp,
+        csvv2t_wp,
+        csvv2m_wp,
+        csvv2l_wp,
         /* some other WP/taggers ..*/
         //
         /*don't touch this: needs to be last entry*/

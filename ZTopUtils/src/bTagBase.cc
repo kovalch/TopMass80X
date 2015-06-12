@@ -685,6 +685,24 @@ void bTagBase::initWorkingpoints() {
     minpt_.at(csvt_wp) = 20;
     maxpt_.at(csvt_wp) = 800;
 
+        
+    // -------
+    // WP from:
+    // https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideBTagging      Navigate to: Preliminary working (or operating) points for CSVv2+IVF 
+    //  CSVv2
+    // -------
+    wpvals_.at(csvv2l_wp) = 0.423;
+    minpt_.at(csvv2l_wp) = 20;
+    maxpt_.at(csvv2l_wp) = 800;
+
+    wpvals_.at(csvv2m_wp) = 0.814;
+    minpt_.at(csvv2m_wp) = 20;
+    maxpt_.at(csvv2m_wp) = 800;
+ 
+    wpvals_.at(csvv2t_wp) = 0.941;
+    minpt_.at(csvv2t_wp) = 20;
+    maxpt_.at(csvv2t_wp) = 800;
+
 
 }
 
@@ -692,6 +710,9 @@ std::string bTagBase::getWorkingPointString()const{
     if     (wp_ == csvl_wp) return "csvl";
     else if (wp_ == csvm_wp) return "csvm";
     else if (wp_ == csvt_wp) return "csvt";
+    else if (wp_ == csvv2l_wp) return "csvv2l";
+    else if (wp_ == csvv2m_wp) return "csvv2m";
+    else if (wp_ == csvv2t_wp) return "csvv2t";
     else return "notDef";
 }
 
@@ -842,6 +863,15 @@ float bTagBase::BJetSF(const float & pt, const float& abs_eta,
             //don't change:
             //takes care of systematic variations (if any)
             return calcHeavySF(ptbins, SFb_error, ptbinsSize, x, abs_eta,  SF, multiplier);
+        } else if (wp_ == csvv2l_wp) {
+            //std::cout<<"*** Working at 13 TeV: CSVv2 tagger is used. BJetSFs for all WPs are not available yet. The default output is '1'. ***"<<std::endl;
+            return 1; 
+        } else if (wp_ == csvv2m_wp) {
+            //std::cout<<"*** Working at 13 TeV: CSVv2 tagger is used. BJetSFs for all WPs are not available yet. The default output is '1'. ***"<<std::endl;
+            return 1; 
+        } else if (wp_ == csvv2t_wp) {
+            //std::cout<<"*** Working at 13 TeV: CSVv2 tagger is used. BJetSFs for all WPs are not available yet. The default output is '1'. ***"<<std::endl;
+            return 1; 
         }
 
         //----------------END OF WORKING POINTS-----------------//
@@ -884,6 +914,15 @@ float bTagBase::CJetSF(const float &pt, const float &abs_eta, float multiplier) 
         //
         // the same scale factor is supposed to be used with twice the uncertainty (multiplier*=2)
         return BJetSF(pt, abs_eta, multiplier * 2.);
+    } else if (wp_ == csvv2l_wp) {
+        //std::cout<<"*** Working at 13 TeV: CSVv2 tagger is used. CJetSFs for all WPs are not available yet. The default output is '1'. ***"<<std::endl;
+        return 1; 
+    } else if (wp_ == csvv2m_wp) {
+        //std::cout<<"*** Working at 13 TeV: CSVv2 tagger is used. CJetSFs for all WPs are not available yet. The default output is '1'. ***"<<std::endl;
+        return 1; 
+    } else if (wp_ == csvv2t_wp) {
+        //std::cout<<"*** Working at 13 TeV: CSVv2 tagger is used. CJetSFs for all WPs are not available yet. The default output is '1'. ***"<<std::endl;
+        return 1;	
     }
 
     //----------------END OF WORKING POINTS-----------------//
@@ -1029,6 +1068,15 @@ float bTagBase::LJetSF(const float& pt, const float& abs_eta, float multiplier) 
             } else if (tempsyst == lightup) { //don't change
                 return ((1.16361+(0.00464695*x))+(-1.09467e-05*(x*x)))+(7.21896e-09*(x*(x*x)));
             }
+        } else if (wp_ == csvv2l_wp) {
+            //std::cout<<"*** Working at 13 TeV: CSVv2 tagger is used. LJetSFs for all WPs are not available yet. The default output is '1'. ***"<<std::endl;
+            return 1; 
+        } else if (wp_ == csvv2m_wp) {
+            //std::cout<<"*** Working at 13 TeV: CSVv2 tagger is used. LJetSFs for all WPs are not available yet. The default output is '1'. ***"<<std::endl;
+            return 1; 
+        } else if (wp_ == csvv2t_wp) {
+            //std::cout<<"*** Working at 13 TeV: CSVv2 tagger is used. LJetSFs for all WPs are not available yet. The default output is '1'. ***"<<std::endl;
+            return 1;    
         }
 
         //----------------END OF WORKING POINTS-----------------//
