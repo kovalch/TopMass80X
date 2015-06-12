@@ -42,6 +42,7 @@ SET( ${PROJECT_NAME}_LIBSOURCES
   AnalyzerJetProperties
   AnalyzerKinematicReconstruction
   AnalyzerMvaTopJets
+  AnalyzerMvaEventClassification
   AnalyzerPlayground
   JetCategories
   plotterHelpers
