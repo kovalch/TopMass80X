@@ -31,6 +31,9 @@ public:
     
 private:
     
+    /// Enum for weighting events
+    enum WeightType{plain, lumiCorrected, fullyCorrected};
+    
     /// Produce the yields
     void produceYields(const char* outputDirectory, const Samples& samples)const;
     
@@ -38,7 +41,7 @@ private:
     void writeYields(const char* outputDirectory,
                      const Samples& samples,
                      const std::pair<TString, TString>& nameStepPair,
-                     const bool useCorrections =false)const;
+                     const WeightType weightType)const;
     
     
     
