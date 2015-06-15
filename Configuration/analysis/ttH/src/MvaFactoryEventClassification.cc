@@ -13,6 +13,7 @@
 #include "Sample.h"
 #include "Samples.h"
 #include "mvaSetup.h"
+#include "higgsUtils.h"
 
 
 
@@ -53,33 +54,67 @@ void MvaFactoryEventClassification::configureFactory2(TMVA::Factory* const facto
 {
     MvaVariablesEventClassification mvaVariablesEventClassification;
     
-    // Set all branches of MVA input which should be used for training
-//    this->addVariable(factory, mvaVariablesEventClassification.multiplicity_jets_);
-    this->addVariable(factory, mvaVariablesEventClassification.btagDiscriminatorAverage_tagged_);
-    this->addVariable(factory, mvaVariablesEventClassification.btagDiscriminatorAverage_untagged_);
-    this->addVariable(factory, mvaVariablesEventClassification.minDeltaR_jet_jet_);
-    this->addVariable(factory, mvaVariablesEventClassification.ptSum_jets_leptons_);
-    this->addVariable(factory, mvaVariablesEventClassification.multiplicity_higgsLikeDijet15_);
-    this->addVariable(factory, mvaVariablesEventClassification.mass_higgsLikeDijet_);
-    this->addVariable(factory, mvaVariablesEventClassification.mass_higgsLikeDijet2_);
+    const TString category = tth::extractJetCategory(stepName);
     
-    // Set all branches of MVA input which should NOT be used for training,
+    // Set all branches of MVA input which should be used for training (as variable)
+    // Set all branches of MVA input which should NOT be used for training (as spectator),
     // but are needed otherwise (e.g. for defining separation cuts)
+    if(category == tth::categoryName(0)){
+        this->addVariable(factory, mvaVariablesEventClassification.btagDiscriminatorAverage_tagged_);
+        this->addVariable(factory, mvaVariablesEventClassification.btagDiscriminatorAverage_untagged_);
+        this->addVariable(factory, mvaVariablesEventClassification.ptSum_jets_leptons_);
+        this->addVariable(factory, mvaVariablesEventClassification.minDeltaR_jet_jet_);
+    }
+    else if(category == tth::categoryName(1)){
+        this->addVariable(factory, mvaVariablesEventClassification.btagDiscriminatorAverage_tagged_);
+        this->addVariable(factory, mvaVariablesEventClassification.minDeltaR_jet_jet_);
+        this->addVariable(factory, mvaVariablesEventClassification.ptSum_jets_leptons_);
+        this->addVariable(factory, mvaVariablesEventClassification.multiplicity_higgsLikeDijet15_);
+        this->addVariable(factory, mvaVariablesEventClassification.mass_higgsLikeDijet_);
+    }
+    else if(category == tth::categoryName(2)){
+        this->addVariable(factory, mvaVariablesEventClassification.btagDiscriminatorAverage_untagged_);
+        this->addVariable(factory, mvaVariablesEventClassification.minDeltaR_jet_jet_);
+        this->addVariable(factory, mvaVariablesEventClassification.ptSum_jets_leptons_);
+        this->addVariable(factory, mvaVariablesEventClassification.multiplicity_jets_);
+        this->addVariable(factory, mvaVariablesEventClassification.mass_higgsLikeDijet_);
+        this->addVariable(factory, mvaVariablesEventClassification.mass_higgsLikeDijet2_);
+    }
+    else if(category == tth::categoryName(3)){
+        this->addVariable(factory, mvaVariablesEventClassification.multiplicity_jets_);
+        this->addVariable(factory, mvaVariablesEventClassification.btagDiscriminatorAverage_tagged_);
+        this->addVariable(factory, mvaVariablesEventClassification.btagDiscriminatorAverage_untagged_);
+        this->addVariable(factory, mvaVariablesEventClassification.minDeltaR_jet_jet_);
+        this->addVariable(factory, mvaVariablesEventClassification.ptSum_jets_leptons_);
+        this->addVariable(factory, mvaVariablesEventClassification.multiplicity_higgsLikeDijet15_);
+        this->addVariable(factory, mvaVariablesEventClassification.mass_higgsLikeDijet_);
+        this->addVariable(factory, mvaVariablesEventClassification.mass_higgsLikeDijet2_);
+    }
+    else{
+        std::cerr<<"Error in MvaFactoryEventClassification::configureFactory2()! No input variables defined for category: "
+                 <<category<<"\n...break\n"<<std::endl;
+        exit(281);
+    }
     
+    // Add samples to factory
     for(size_t iSample = 0; iSample < v_sample.size(); ++iSample){
         const Sample& sample = v_sample.at(iSample);
         if(sample.sampleType() == Sample::data) continue;
         const double& weight = v_weight.at(iSample);
         TString treename("event_mvaVariables");
         treename.Append(stepName);
+        // FIXME: Need to check if file exists, or already done when setting up samples?
         TFile* treeFile = TFile::Open(sample.inputFile());
         TTree* const tree = (TTree*)treeFile->Get(treename);
-        if(!tree){std::cerr<<"ERROR. Tree not found\n"<<std::endl; exit(12);}
-        std::cout<<"\nsize: "<<tree->GetEntriesFast()<<"\n\n";
+        if(!tree){
+            std::cerr<<"ERROR. Tree not found\n"<<std::endl;
+            exit(12);
+        }
+        //std::cout<<"\nsize: "<<tree->GetEntriesFast()<<"\n\n";
         if(!tree->GetEntriesFast()) continue;
         if(sample.sampleType() == Sample::ttHbb) factory->AddSignalTree(tree, weight);
         else factory->AddBackgroundTree(tree, weight);
-        std::cout<<"\n\nweight: "<<weight<<" , "<<sample.legendEntry()<<"\n\n";
+        //std::cout<<"\n\nweight: "<<weight<<" , "<<sample.legendEntry()<<"\n\n";
     }
     
     // Set the branch from which the event weight is taken
@@ -89,27 +124,7 @@ void MvaFactoryEventClassification::configureFactory2(TMVA::Factory* const facto
     // Prepare the training and test trees
     factory->PrepareTrainingAndTestTree(cutSignal, cutBackground,
                                         "SplitMode=Block:SplitSeed=0:NormMode=NumEvents:!V" );
-/*    
-    // Set global weights for individual input
-    constexpr Double_t signalWeight = 1.;
-    constexpr Double_t backgroundWeight = 1.;
-    
-    // Register the training trees
-    factory->AddSignalTree(treeTraining, signalWeight, TMVA::Types::kTraining);
-    factory->AddBackgroundTree(treeTraining, backgroundWeight, TMVA::Types::kTraining);
-    
-    // Register the testing trees
-    factory->AddSignalTree(treeTesting, signalWeight, TMVA::Types::kTesting);
-    factory->AddBackgroundTree(treeTesting, backgroundWeight, TMVA::Types::kTesting);
-    
-    // Set the branch from which the event weight is taken
-    factory->SetSignalWeightExpression(mvaVariablesEventClassification.eventWeight_.name());
-    factory->SetBackgroundWeightExpression(mvaVariablesEventClassification.eventWeight_.name());
-    
-    // Prepare the training and test trees
-    factory->PrepareTrainingAndTestTree(cutSignal, cutBackground,
-                                        "SplitMode=Block:SplitSeed=0:NormMode=NumEvents:!V" );
-*/}
+}
 
 
 
