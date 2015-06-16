@@ -1,0 +1,32 @@
+imax *   number of channels
+jmax *   number of backgrounds
+kmax *   number of nuisance parameters
+-----------------
+observation 11933.96
+-----------------
+shapes * * mvaEventA_mvaWeight_c1_cate0.root   $PROCESS    $PROCESS_$SYSTEMATIC 
+-----------------
+bin          1      1     
+process      sig    bkgd  
+process       0        1  
+rate       6.480787 23861.445351
+-----------------
+
+BTAGDISCR_BPURITY_ shape - 1.0
+BTAGDISCR_BSTAT1_ shape - 1.0
+BTAGDISCR_BSTAT2_ shape - 1.0
+BTAGDISCR_CERR1_ shape - 1.0
+BTAGDISCR_CERR2_ shape - 1.0
+BTAGDISCR_LPURITY_ shape - 1.0
+BTAGDISCR_LSTAT1_ shape - 1.0
+BTAGDISCR_LSTAT2_ shape - 1.0
+JES_ shape - 1.0
+BTAGDISCR_BPURITY_ shape 1.0 -
+BTAGDISCR_BSTAT1_ shape 1.0 -
+BTAGDISCR_BSTAT2_ shape 1.0 -
+BTAGDISCR_CERR1_ shape 1.0 -
+BTAGDISCR_CERR2_ shape 1.0 -
+BTAGDISCR_LPURITY_ shape 1.0 -
+BTAGDISCR_LSTAT1_ shape 1.0 -
+BTAGDISCR_LSTAT2_ shape 1.0 -
+JES_ shape 1.0 -
