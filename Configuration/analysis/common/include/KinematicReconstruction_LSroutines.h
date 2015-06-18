@@ -50,7 +50,6 @@ public:
     int getNsol()const;
     
     struct TopSolution{
-        //double dTS;
         //double dR;
         //double dN;
         TLorentzVector top;
@@ -65,24 +64,22 @@ public:
         double x2;
         double mtt;
         double weight;
-        double dTS;
         
     };
     const std::vector<TopSolution>* getTtSol()const;
     
-    //void setTrueInfo(TLorentzVector LV_Top,TLorentzVector LV_AntiTop,TLorentzVector LV_Neutrino, TLorentzVector LV_AntiNeutrino);
+    //void setTrueInfo(const LV& LV_Top,const LV& LV_AntiTop,const LV& LV_Neutrino, const LV& LV_AntiNeutrino);
     // void sortBy(std::string ch);
     void print()const;
     TF1* getNeutrinoPxF()const;
     
 private:
-//     void filldTS();
 //     void filldR();
 //     void filldN();
     void swapTopSol(TopSolution& sol1, TopSolution& sol2)const;
     void sortTopSol(std::vector<TopSolution>& v)const;
     void doAll();
-    void topRec(const double& sol);
+    void topRec(const double& px_neutrino);
     void findCoeff(double* const koeficienty);
     void quartic_equation(const double& h0, const double& h1, const double& h2, const double& h3, const double& h4, std::vector<double>& v)const;
     void cubic_equation(const double& a, const double& b, const double& c, const double& d, std::vector<double> &v)const;
