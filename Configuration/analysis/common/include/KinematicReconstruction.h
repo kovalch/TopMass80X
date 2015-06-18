@@ -103,8 +103,6 @@ private:
     
     
     
-    
-    
     void angle_rot(const double& alpha, const double& e, const TLorentzVector& inJet, TLorentzVector& jet_sm)const;
     
     TRandom3* r3_;
@@ -129,9 +127,6 @@ private:
     
 // // mbl
     TH1* h_mbl_w_;
-// pdf
-    TH1* h_pdf_w_[13];
-    std::vector<double> mttBinsForX_;
 };
 
 
