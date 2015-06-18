@@ -22,6 +22,7 @@
 #include <TPaveText.h>
 #include <TClass.h>
 #include <TError.h>
+#include <TF1.h>
 
 #include "PlotterDiffXSSystematic.h"
 #include "../../common/include/sampleHelpers.h"
@@ -108,10 +109,10 @@ logY_(false)
     overridenSystematics_[Systematic::scale] = UpDown(0.08, 0.08);
     
     // Setting the list of systematics that should be used to obtain MC predictions that should be plotted
-    predictionSystematicLegends_[Systematic::nominal] = PredictionEntry("Madgraph+Pythia", 2, 1);
-    predictionSystematicLegends_[Systematic::powheg] = PredictionEntry("Powheg+Pythia", kAzure+2, 1);
-    predictionSystematicLegends_[Systematic::powhegHerwig] = PredictionEntry("Powheg+Herwig", kTeal+4, 7);
-    predictionSystematicLegends_[Systematic::mcatnlo] = PredictionEntry("MC@NLO+Herwig", kOrange+7, 7);
+    predictionSystematicLegends_[Systematic::nominal] = PredictionEntry("Madgraph+Pythia", kRed+1, 1);
+    predictionSystematicLegends_[Systematic::powheg] = PredictionEntry("Powheg+Pythia", kGreen+1, 7);
+    predictionSystematicLegends_[Systematic::powhegHerwig] = PredictionEntry("Powheg+Herwig", kGreen+3, 4);
+    predictionSystematicLegends_[Systematic::mcatnlo] = PredictionEntry("MC@NLO+Herwig", kBlue, 5);
     
 }
 
@@ -250,8 +251,8 @@ TH1* PlotterDiffXSSystematic::getPdfHisto(TString histoName, const Channel::Chan
     }
     // Applying the difference from Central to the Nominal
     for(int iBin = 1; iBin <= nBins; ++iBin) {
-	const double factor = h_varied->GetBinContent(iBin)/h_central->GetBinContent(iBin);
-	h_nominal->SetBinContent(iBin, factor*h_nominal->GetBinContent(iBin));
+        const double factor = h_varied->GetBinContent(iBin)/h_central->GetBinContent(iBin);
+        h_nominal->SetBinContent(iBin, factor*h_nominal->GetBinContent(iBin));
     }
     
     delete h_varied;
@@ -371,8 +372,8 @@ void PlotterDiffXSSystematic::plotXSection(const Channel::Channel& channel)
     for(auto systematicLegend : predictionSystematicLegends_) {
         const Systematic::Type& systematicType = systematicLegend.first;
         const PredictionEntry legendColorStyle = systematicLegend.second;
-	const Systematic::Systematic systematic(systematicType, Systematic::undefinedVariation, -1);
-	if(inputFileLists_.at(channel).count(systematic) < 1) continue;
+        const Systematic::Systematic systematic(systematicType, Systematic::undefinedVariation, -1);
+        if(inputFileLists_.at(channel).count(systematic) < 1) continue;
         const TString fileName = inputFileLists_.at(channel).at(systematic).at(name_).first;
         // Getting the histogram of prediction
         TH1* histo = fileReader_->GetClone<TH1>(fileName, name_+"_xs_madgraph", true, false);
@@ -416,14 +417,16 @@ void PlotterDiffXSSystematic::plotXSection(const Channel::Channel& channel)
     // Drawing ratios
     common::drawRatioPad(canvas, 0., double(nRatio_max_), "#frac{Theory}{Data}");
     
-    // Plotting the statistics band of the Data
+    // Plotting the uncertainty band of the Data in ratio
     TGraph* g_ratioData_stat = common::ratioGraph(g_measured_stat, g_measured_stat, 1);
-    common::setGraphStyle(g_ratioData_stat, 1,1,1, -1,-1,-1, 1001,18);
+    //common::setGraphStyle(g_ratioData_stat, 1,1,1, -1,-1,-1, 1001,18);
+    common::setGraphStyle(g_ratioData_stat, -1, 0, -1, -1, -1, -1, 1001, kGray+1);
     TGraph* g_ratioData_total = common::ratioGraph(g_measured_total, g_measured_total, 1);
-    common::setGraphStyle(g_ratioData_total, 1,1,1, -1,-1,-1, 1001,16);
+    //common::setGraphStyle(g_ratioData_total, 1,1,1, -1,-1,-1, 1001,16);
+    common::setGraphStyle(g_ratioData_total, -1, 0, -1, -1, -1, -1, 1001, kOrange-4);
     
     // Performing hardcoded blinding of Mjj
-    if(name_.Contains("Mjj")) {
+    if(name_.Contains("Mjj")){
         double x, y;
         g_measured_total->GetPoint(2, x, y);
         g_measured_total->SetPoint(2, x, 1e-10);
@@ -434,11 +437,61 @@ void PlotterDiffXSSystematic::plotXSection(const Channel::Channel& channel)
         g_measured_stat->SetPointEYlow(2, 0.);
         g_ratioData_total->SetPoint(2, x, -1e10);
     }
-
-    for(TH1* ratioHisto : prediction_ratioHistograms) ratioHisto->Draw("same hist");
-    g_ratioData_total->Draw("same PZ");
-    g_ratioData_stat->Draw("same ||");
+    
+    // Draw uncertainty for ratio
+    if(g_ratioData_stat){
+        // Draw legend
+        TLegend* leg_band = new TLegend();
+        if(g_ratioData_total) leg_band->AddEntry(g_ratioData_total, "Stat. #oplus Syst.", "f");
+        leg_band->AddEntry(g_ratioData_stat, "Stat.", "f");
+        leg_band->SetX1NDC(0.22);
+        leg_band->SetY1NDC(0.97);
+        leg_band->SetX2NDC(0.46);
+        leg_band->SetY2NDC(0.77);
+        leg_band->SetFillStyle(1001);
+        leg_band->SetFillColor(10);
+        leg_band->SetBorderSize(0);
+        leg_band->SetTextSize(0.1);
+        leg_band->SetTextAlign(12);
+        leg_band->Draw("same");
+        // Draw uncertainty bands
+        if(g_ratioData_total) g_ratioData_total->Draw("same,e2");
+        g_ratioData_stat->Draw("same,e2");
+    }
     gPad->RedrawAxis();
+    gPad->Update();
+    gPad->Modified();
+    
+    // Draw horizontal lines
+    const TH1* const axisHisto = common::getPadAxisHisto(canvas);
+    const Double_t xmin = axisHisto->GetXaxis()->GetXmin();
+    const Double_t xmax = axisHisto->GetXaxis()->GetXmax();
+    TString height("");
+    height += 1;
+    TF1* line1 = new TF1("line1", height, xmin, xmax);
+    line1->SetLineStyle(1);
+    line1->SetLineWidth(1);
+    line1->SetLineColor(kBlack);
+    line1->Draw("l,same");
+    for(int iLine = 2; iLine < nRatio_max_; ++iLine){
+        TString linename("line");
+        linename += iLine;
+        TString height("");
+        height += iLine;
+        TF1* line = new TF1(linename, height, xmin, xmax);
+        line->SetLineStyle(7);
+        line->SetLineWidth(1);
+        line->SetLineColor(kGray);
+        line->Draw("l,same");
+    }
+    
+    // Draw theory curves for ratio
+    for(TH1* ratioHisto : prediction_ratioHistograms) ratioHisto->Draw("same hist");
+    //g_ratioData_total->Draw("same PZ");
+    //g_ratioData_stat->Draw("same ||");
+    gPad->RedrawAxis();
+    gPad->Update();
+    gPad->Modified();
     
     // Saving the plot
     TString eventFileString = common::assignFolder(outputDir_, channel, Systematic::Systematic("Nominal"))+name_+"_systematic";
