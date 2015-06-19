@@ -110,10 +110,9 @@ logY_(false)
     
     // Setting the list of systematics that should be used to obtain MC predictions that should be plotted
     predictionSystematicLegends_[Systematic::nominal] = PredictionEntry("Madgraph+Pythia", kRed+1, 1);
+    predictionSystematicLegends_[Systematic::mcatnlo] = PredictionEntry("MC@NLO+Herwig", kBlue, 5);
     predictionSystematicLegends_[Systematic::powheg] = PredictionEntry("Powheg+Pythia", kGreen+1, 7);
     predictionSystematicLegends_[Systematic::powhegHerwig] = PredictionEntry("Powheg+Herwig", kGreen+3, 4);
-    predictionSystematicLegends_[Systematic::mcatnlo] = PredictionEntry("MC@NLO+Herwig", kBlue, 5);
-    
 }
 
 
@@ -366,16 +365,17 @@ void PlotterDiffXSSystematic::plotXSection(const Channel::Channel& channel)
     
     TGraphAsymmErrors* g_measured_stat = errorGraphFromHisto(h_nominal, e_measured_stat);
     TGraphAsymmErrors* g_measured_total = errorGraphFromHisto(h_nominal, e_measured_total);
-    common::setGraphStyle(g_measured_stat, 1,1,2, 20,1,1);
-    common::setGraphStyle(g_measured_total, 1,1,2, 20,1,1);
+    //common::setGraphStyle(g_measured_stat, 1,1,2, 20,1,1);
+    common::setGraphStyle(g_measured_stat, -1, kBlack, 2, 1, kBlack, 0.8);
+    //common::setGraphStyle(g_measured_total, 1,1,2, 20,1,1);
+    common::setGraphStyle(g_measured_total, -1, kBlack, 2, 20, kBlack, 0.8);
     
     std::vector<TH1*> prediction_histograms;
     std::vector<TH1*> prediction_ratioHistograms;
     std::vector<TString> prediction_legends;
-    for(auto systematicLegend : predictionSystematicLegends_) {
-        const Systematic::Type& systematicType = systematicLegend.first;
-        const PredictionEntry legendColorStyle = systematicLegend.second;
-        const Systematic::Systematic systematic(systematicType, Systematic::undefinedVariation, -1);
+    for(const Systematic::Type systematicType : {Systematic::nominal, Systematic::mcatnlo, Systematic::powheg, Systematic::powhegHerwig}){
+        const PredictionEntry& legendColorStyle = predictionSystematicLegends_.at(systematicType);
+        const Systematic::Systematic systematic(systematicType, Systematic::undefinedVariation);
         if(inputFileLists_.at(channel).count(systematic) < 1) continue;
         const TString fileName = inputFileLists_.at(channel).at(systematic).at(name_).first;
         // Getting the histogram of prediction
@@ -398,13 +398,15 @@ void PlotterDiffXSSystematic::plotXSection(const Channel::Channel& channel)
     canvas->Clear();
     TLegend* legend = common::createLegend(0.6, 0.7, 1, 1+prediction_histograms.size(), 0.05);
     
-    // Drawing axis and xsections
+    // Draw axis and preditions
     for(size_t iHisto = 0; iHisto < prediction_histograms.size(); ++iHisto) {
         if(iHisto == 0) prediction_histograms.at(iHisto)->Draw("hist");
         else prediction_histograms.at(iHisto)->Draw("hist same");
     }
+    
+    // Draw measurement and uncertainties
     g_measured_total->Draw("same PZ");
-    g_measured_stat->Draw("same ||");
+    g_measured_stat->Draw("same P");
     
     // Drawing legend
     legend->AddEntry(g_measured_total, "Data", "LPE");
@@ -418,13 +420,19 @@ void PlotterDiffXSSystematic::plotXSection(const Channel::Channel& channel)
     common::drawCmsLabels(0, 8, 19.7);
     
     // Drawing ratios
-    common::drawRatioPad(canvas, 0., double(nRatio_max_), "#frac{Theory}{Data}");
+    common::drawRatioPad(canvas, 0., double(nRatio_max_)-0.01, "#frac{Theory}{Data}");
+    
+    // Draw grid
+    gPad->SetGrid(0, 1);
+    gPad->RedrawAxis("g");
     
     // Plotting the uncertainty band of the Data in ratio
-    TGraph* g_ratioData_stat = common::ratioGraph(g_measured_stat, g_measured_stat, 1);
+    TGraphAsymmErrors* g_measured_statRatio = errorGraphFromHisto(h_nominal, e_measured_stat, true);
+    TGraphAsymmErrors* g_measured_totalRatio = errorGraphFromHisto(h_nominal, e_measured_total, true);
+    TGraph* g_ratioData_stat = common::ratioGraph(g_measured_statRatio, g_measured_statRatio, 1);
     //common::setGraphStyle(g_ratioData_stat, 1,1,1, -1,-1,-1, 1001,18);
-    common::setGraphStyle(g_ratioData_stat, -1, 0, -1, -1, -1, -1, 1001, kGray+1);
-    TGraph* g_ratioData_total = common::ratioGraph(g_measured_total, g_measured_total, 1);
+    common::setGraphStyle(g_ratioData_stat, -1, 0, -1, -1, -1, -1, 1001, kGray);
+    TGraph* g_ratioData_total = common::ratioGraph(g_measured_totalRatio, g_measured_totalRatio, 1);
     //common::setGraphStyle(g_ratioData_total, 1,1,1, -1,-1,-1, 1001,16);
     common::setGraphStyle(g_ratioData_total, -1, 0, -1, -1, -1, -1, 1001, kOrange-4);
     
@@ -444,12 +452,13 @@ void PlotterDiffXSSystematic::plotXSection(const Channel::Channel& channel)
     // Draw uncertainty for ratio
     if(g_ratioData_stat){
         // Draw legend
+        const double xLeft = name_.Contains("_dR_") ? 0.69 : 0.22;
         TLegend* leg_band = new TLegend();
         if(g_ratioData_total) leg_band->AddEntry(g_ratioData_total, "Stat. #oplus Syst.", "f");
         leg_band->AddEntry(g_ratioData_stat, "Stat.", "f");
-        leg_band->SetX1NDC(0.22);
+        leg_band->SetX1NDC(xLeft);
         leg_band->SetY1NDC(0.97);
-        leg_band->SetX2NDC(0.46);
+        leg_band->SetX2NDC(xLeft+0.24);
         leg_band->SetY2NDC(0.77);
         leg_band->SetFillStyle(1001);
         leg_band->SetFillColor(10);
@@ -465,7 +474,7 @@ void PlotterDiffXSSystematic::plotXSection(const Channel::Channel& channel)
     gPad->Update();
     gPad->Modified();
     
-    // Draw horizontal lines
+    // Draw horizontal line at y=1
     const TH1* const axisHisto = common::getPadAxisHisto(canvas);
     const Double_t xmin = axisHisto->GetXaxis()->GetXmin();
     const Double_t xmax = axisHisto->GetXaxis()->GetXmax();
@@ -476,19 +485,8 @@ void PlotterDiffXSSystematic::plotXSection(const Channel::Channel& channel)
     line1->SetLineWidth(1);
     line1->SetLineColor(kBlack);
     line1->Draw("l,same");
-    for(int iLine = 2; iLine < nRatio_max_; ++iLine){
-        TString linename("line");
-        linename += iLine;
-        TString height("");
-        height += iLine;
-        TF1* line = new TF1(linename, height, xmin, xmax);
-        line->SetLineStyle(7);
-        line->SetLineWidth(1);
-        line->SetLineColor(kGray);
-        line->Draw("l,same");
-    }
     
-    // Draw theory curves for ratio
+    // Draw theory curves for ratio, and grid
     for(TH1* ratioHisto : prediction_ratioHistograms) ratioHisto->Draw("same hist");
     //g_ratioData_total->Draw("same PZ");
     //g_ratioData_stat->Draw("same ||");
@@ -692,7 +690,7 @@ void PlotterDiffXSSystematic::printAllUncertainties(const std::vector<ErrorMap>&
 }
 
 
-TGraphAsymmErrors* PlotterDiffXSSystematic::errorGraphFromHisto(const TH1* histo, const std::vector<UpDown>& errors)const
+TGraphAsymmErrors* PlotterDiffXSSystematic::errorGraphFromHisto(const TH1* histo, const std::vector<UpDown>& errors, const bool xError)const
 {
     const int nBins = errors.size();
     if(nBins != histo->GetNbinsX()) {
@@ -708,6 +706,10 @@ TGraphAsymmErrors* PlotterDiffXSSystematic::errorGraphFromHisto(const TH1* histo
         // Multiplying error by bin content (errors are relative)
         graph->SetPointEYhigh(iBin, errors.at(iBin).u*value);
         graph->SetPointEYlow(iBin, errors.at(iBin).d*value);
+        if(!xError){
+            graph->SetPointEXhigh(iBin, 0.);
+            graph->SetPointEXlow(iBin, 0.);
+        }
     }
     
     return graph;

@@ -135,7 +135,7 @@ private:
     void plotXSection(const Channel::Channel& channel);
     
     /// Set errors to each of the histogram
-    TGraphAsymmErrors* errorGraphFromHisto(const TH1* histo, const std::vector<UpDown>& errors)const;
+    TGraphAsymmErrors* errorGraphFromHisto(const TH1* histo, const std::vector<UpDown>& errors, const bool xError =false)const;
 
     /// Update histogram axis
     void updateHistoAxis(TPad* pad)const;
