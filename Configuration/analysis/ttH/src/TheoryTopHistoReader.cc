@@ -18,7 +18,7 @@ TH1* TheoryTopHistoReader::getHisto1D(const char* fileName, const char* histoNam
     
     std::ifstream controlHistStream(fileName, std::ifstream::in);
     if (!controlHistStream.good()) {
-        std::cerr << "TheoryTopHistoReader: cannot read " << fileName << std::endl;
+        std::cerr << "\nERROR! TheoryTopHistoReader: Cannot read file:\n  " << fileName << "\n\n";
         return histo;
     }
     
@@ -56,6 +56,10 @@ TH1* TheoryTopHistoReader::getHisto1D(const char* fileName, const char* histoNam
         if(binLines.size() > 2 && !binLine.hasBinInfo) break;
         
         binLines.push_back(binLine);
+    }
+    if (binLines.size() < 1) {
+        std::cerr << "\nERROR! TheoryTopHistoReader: No bin information found for histogram: " << histoName << "\n\n";
+        return histo;
     }
     
     // Cleaning up the list of bin lines: in case bin centers and bin boundaries are printed separately
