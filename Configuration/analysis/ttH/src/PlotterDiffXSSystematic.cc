@@ -261,7 +261,8 @@ TH1* PlotterDiffXSSystematic::getPdfHisto(TString histoName, const Channel::Chan
 }
 
 
-std::vector<PlotterDiffXSSystematic::ErrorMap> PlotterDiffXSSystematic::extractVariations(const SystematicHistoMap& m_systematicHistos)const
+std::vector<PlotterDiffXSSystematic::ErrorMap> PlotterDiffXSSystematic::extractVariations(const SystematicHistoMap& m_systematicHistos, 
+                                                                                          const bool symmetrize)const
 {
     std::vector<ErrorMap> errors;
     
@@ -298,6 +299,7 @@ std::vector<PlotterDiffXSSystematic::ErrorMap> PlotterDiffXSSystematic::extractV
             errorPair.c = nominal;
             if(h_up) errorPair.u = (h_up->GetBinContent(iBin+1) - nominal)/nominal;
             if(h_down) errorPair.d = (h_down->GetBinContent(iBin+1) - h_nominal->GetBinContent(iBin+1))/nominal;
+            if(symmetrize) errorPair.symmetrize();
             errors.at(iBin)[systematicType] = errorPair;
         }
     }
@@ -309,6 +311,7 @@ std::vector<PlotterDiffXSSystematic::ErrorMap> PlotterDiffXSSystematic::extractV
         errorPair.c = nominal;
         errorPair.u = error;
         errorPair.d = error;
+        if(symmetrize) errorPair.symmetrize();
         errors.at(iBin)[Systematic::nominal] = errorPair;
     }
     
@@ -328,8 +331,8 @@ void PlotterDiffXSSystematic::plotXSection(const Channel::Channel& channel)
     SystematicHistoMap m_systematicHistos_generated = readSystematicHistograms(name_+"_xs_madgraph", channel);
     
     // Extracting up/down systematic/statistical errors for each bin of the distribution
-    const std::vector<ErrorMap> em_measured = extractVariations(m_systematicHistos_measured);
-    const std::vector<ErrorMap> em_generated = extractVariations(m_systematicHistos_generated);
+    const std::vector<ErrorMap> em_measured = extractVariations(m_systematicHistos_measured, true);
+    const std::vector<ErrorMap> em_generated = extractVariations(m_systematicHistos_generated, true);
     // The list of uncertainties for each including proper treatment of uncertainties estimated on reco- and gen-level
     std::vector<ErrorMap> em_combined;
     
@@ -353,8 +356,8 @@ void PlotterDiffXSSystematic::plotXSection(const Channel::Channel& channel)
     // Getting systematic and statistical variations of the inclusive cross section
     SystematicHistoMap m_systematicHistos_measured_inclusive = readSystematicHistograms(name_+"_xs_inclusive_data", channel);
     SystematicHistoMap m_systematicHistos_generated_inclusive = readSystematicHistograms(name_+"_xs_inclusive_madgraph", channel);
-    const std::vector<ErrorMap> em_measured_inclusive = extractVariations(m_systematicHistos_measured_inclusive);
-    const std::vector<ErrorMap> em_generated_inclusive = extractVariations(m_systematicHistos_generated_inclusive);
+    const std::vector<ErrorMap> em_measured_inclusive = extractVariations(m_systematicHistos_measured_inclusive, true);
+    const std::vector<ErrorMap> em_generated_inclusive = extractVariations(m_systematicHistos_generated_inclusive, true);
     const ErrorMap m_combined_inclusive = binUncertaintiesRecoAndGen(em_measured_inclusive.at(0), em_generated_inclusive.at(0));
     
     // Printing the list of uncertainties in each bin and the median

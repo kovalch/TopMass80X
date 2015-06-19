@@ -79,6 +79,12 @@ private:
         double maxAbsVariation()const {
             return std::max(std::fabs(u), std::fabs(d));
         }
+        
+        void symmetrize() {
+            const double ud = 0.5 * (std::fabs(u) + std::fabs(d));
+            u = ud;
+            d = -ud;
+        }
     };
     
     // A list of systematic types that should be combined into a single systematic
@@ -123,7 +129,7 @@ private:
     TH1* getPdfHisto(TString histoName, const Channel::Channel& channel, const int variation, const int combinationType = 0)const;
 
     /// Plot different systematic shapes for each process
-    std::vector<ErrorMap> extractVariations(const SystematicHistoMap& m_systematicHistos)const;
+    std::vector<ErrorMap> extractVariations(const SystematicHistoMap& m_systematicHistos, const bool symmetrize =false)const;
     
     /// Plot the final cross section with uncertainties
     void plotXSection(const Channel::Channel& channel);
