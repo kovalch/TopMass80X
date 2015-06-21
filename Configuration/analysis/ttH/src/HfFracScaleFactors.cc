@@ -32,7 +32,7 @@
 
 
 
-HfFracScaleFactors::HfFracScaleFactors(const Samples& samples, RootFileReader* const rootFileReader):
+HfFracScaleFactors::HfFracScaleFactors(const Samples& samples, RootFileReader* const rootFileReader, const bool writeToFile):
 rootFileReader_(rootFileReader),
 workingDirectory_("HfFracScaleFactors"),
 scaleFactorsUsable_(true)
@@ -117,7 +117,7 @@ scaleFactorsUsable_(true)
     
     // FIXME: Check that there are no gaps in the list of ids
     
-    this->produceScaleFactors(samples);
+    this->produceScaleFactors(samples, writeToFile);
     
     if(!scaleFactorsUsable_) {
         std::cerr << "\n### Not all input has been provided to produce usable scale factors. Stopping..." << std::endl;
@@ -135,7 +135,7 @@ scaleFactorsUsable_(true)
 
 
 
-void HfFracScaleFactors::produceScaleFactors(const Samples& samples)
+void HfFracScaleFactors::produceScaleFactors(const Samples& samples, const bool writeToFile)
 {
     // Extract steps for Heavy-Flavour fraction scaling from first file in map
     const SystematicChannelSamples& m_systematicChannelSamples = samples.getSystematicChannelSamples();
@@ -179,8 +179,6 @@ void HfFracScaleFactors::produceScaleFactors(const Samples& samples)
         }
     }
     
-    
-    
     // Printout to screen
     std::cout<<caption;
     for(auto sfTableChannel : m_sfTable){
@@ -188,14 +186,16 @@ void HfFracScaleFactors::produceScaleFactors(const Samples& samples)
     }
     
     // Printout in file
-    for(auto sfTableChannel : m_sfTable){
-        for(auto sfTable : sfTableChannel.second){
-            TString outputFileString = common::assignFolder("GlobalScaleFactors/ttbb", sfTable.first, sfTableChannel.first);
-            outputFileString.Append("ttbbWeight.txt");
-            std::ofstream outputFile;
-            outputFile.open(outputFileString);
-            outputFile<<caption<<sfTable.second;
-            outputFile.close();
+    if(writeToFile){
+        for(auto sfTableChannel : m_sfTable){
+            for(auto sfTable : sfTableChannel.second){
+                TString outputFileString = common::assignFolder("GlobalScaleFactors/ttbb", sfTable.first, sfTableChannel.first);
+                outputFileString.Append("ttbbWeight.txt");
+                std::ofstream outputFile;
+                outputFile.open(outputFileString);
+                outputFile<<caption<<sfTable.second;
+                outputFile.close();
+            }
         }
     }
 }

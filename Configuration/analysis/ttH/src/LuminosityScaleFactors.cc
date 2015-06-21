@@ -17,14 +17,15 @@
 
 
 LuminosityScaleFactors::LuminosityScaleFactors(const Samples& samples,
+                                               RootFileReader* const rootFileReader,
                                                const double& luminosityInInversePb,
                                                const double& luminosityUncertaintyRelative,
-                                               RootFileReader* const rootFileReader):
+                                               const bool writeToFile):
 rootFileReader_(rootFileReader)
 {
     std::cout<<"--- Beginning production of luminosity scale factors\n\n";
     
-    this->produceScaleFactors(samples, luminosityInInversePb, luminosityUncertaintyRelative);
+    this->produceScaleFactors(samples, luminosityInInversePb, luminosityUncertaintyRelative, writeToFile);
     
     std::cout<<"\n=== Finishing production of luminosity scale factors\n\n";
 }
@@ -32,8 +33,10 @@ rootFileReader_(rootFileReader)
 
 
 
-void LuminosityScaleFactors::produceScaleFactors(const Samples& samples, const double& luminosityInInversePb,
-                                                 const double& luminosityUncertaintyRelative)
+void LuminosityScaleFactors::produceScaleFactors(const Samples& samples,
+                                                 const double& luminosityInInversePb,
+                                                 const double& luminosityUncertaintyRelative,
+                                                 const bool writeToFile)
 {
     // Produce map for luminosity weights
     for(const auto& systematicChannelSamples : samples.getSystematicChannelSamples()){
@@ -51,18 +54,23 @@ void LuminosityScaleFactors::produceScaleFactors(const Samples& samples, const d
         for(const auto& channelSamples : systematicChannelSamples.second){
             const Channel::Channel& channel(channelSamples.first);
             const std::vector<Sample>& samples(channelSamples.second);
-            TString outputFileString = common::assignFolder("GlobalScaleFactors/luminosity", channel, systematic);
-            outputFileString.Append("luminosityWeight.txt");
-            std::ofstream outputFile;
-            outputFile.open(outputFileString);
             for(const Sample& sample : samples){
                 double weight(-999.);
                 if(sample.sampleType() != Sample::data) weight = this->luminosityWeight(sample, systematic, luminosityInInversePb*factor);
-                outputFile<<sample.legendEntry()<<"\n"<<sample.inputFile()<<"\n"<<weight<<"\n\n";
-                //std::cout<<"\n\nLuminosity weight: "<<weight<<"\n\n";
                 m_weight_[systematic][channel].push_back(weight);
+                //std::cout<<"\n\nLuminosity weight: "<<weight<<"\n\n";
             }
-            outputFile.close();
+            if(writeToFile){
+                TString outputFileString = common::assignFolder("GlobalScaleFactors/luminosity", channel, systematic);
+                outputFileString.Append("luminosityWeight.txt");
+                std::ofstream outputFile;
+                outputFile.open(outputFileString);
+                for(size_t iSample = 0; iSample < samples.size(); ++iSample){
+                    const Sample& sample = samples.at(iSample);
+                    outputFile<<sample.legendEntry()<<"\n"<<sample.inputFile()<<"\n"<<m_weight_.at(systematic).at(channel).at(iSample)<<"\n\n";
+                }
+                outputFile.close();
+            }
         }
     }
 }

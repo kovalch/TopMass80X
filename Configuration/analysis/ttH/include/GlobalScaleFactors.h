@@ -28,7 +28,8 @@ public:
                        const double& luminosityInInversePb =1.,
                        const double& luminosityUncertaintyRelative =1.,
                        const bool dyCorrection =false,
-                       const bool hfFracCorrection =false);
+                       const bool hfFracCorrection =false,
+                       const bool writeToFile =false);
     
     /// Destructor
     ~GlobalScaleFactors(){}

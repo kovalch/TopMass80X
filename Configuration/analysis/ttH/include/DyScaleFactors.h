@@ -21,7 +21,7 @@ class DyScaleFactors{
 public:
     
     /// Constructor for producing Drell-Yan scale factors
-    DyScaleFactors(const Samples& samples, RootFileReader* const rootFileReader);
+    DyScaleFactors(const Samples& samples, RootFileReader* const rootFileReader, const bool writeToFile);
     
     /// Default destructor
     ~DyScaleFactors(){}
@@ -78,6 +78,9 @@ private:
     
     /// Map containing the Drell-Yan scale factors
     DyScaleFactorMap m_dyScaleFactors_;
+    
+    /// Whether to write scale factors to file
+    const bool writeToFile_;
     
     /// Map for printout of information per systematic, to write to onw file
     std::map<Systematic::Systematic, std::string> m_printout_;

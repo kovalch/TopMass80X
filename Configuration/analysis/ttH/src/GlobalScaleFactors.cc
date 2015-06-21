@@ -29,7 +29,8 @@ GlobalScaleFactors::GlobalScaleFactors(const std::vector<Channel::Channel>& v_ch
                                        const double& luminosityInInversePb,
                                        const double& luminosityUncertaintyRelative,
                                        const bool dyCorrection,
-                                       const bool hfFracCorrection):
+                                       const bool hfFracCorrection,
+                                       const bool writeToFile):
 luminosityInInversePb_(luminosityInInversePb),
 luminosityUncertaintyRelative_(luminosityUncertaintyRelative),
 luminosityScaleFactors_(0),
@@ -50,20 +51,20 @@ rootFileReader_(RootFileReader::getInstance())
     Samples scalingSamples("FileLists_plot", v_channelForCorrections, v_systematic, 0);
     
     // Produce luminosity scale factors
-    luminosityScaleFactors_ = new LuminosityScaleFactors(scalingSamples, luminosityInInversePb_,
-                                                         luminosityUncertaintyRelative_, rootFileReader_);
+    luminosityScaleFactors_ = new LuminosityScaleFactors(scalingSamples, rootFileReader_,
+                                                         luminosityInInversePb_, luminosityUncertaintyRelative_, writeToFile);
     scalingSamples.setGlobalWeights(this);
     
     // Produce Drell-Yan scale factors
     if(dyCorrection){
-        dyScaleFactors_ = new DyScaleFactors(scalingSamples, rootFileReader_);
+        dyScaleFactors_ = new DyScaleFactors(scalingSamples, rootFileReader_, writeToFile);
         scalingSamples.setGlobalWeights(this);
     }
     
     // Produce ttbb scale factors
     if(hfFracCorrection){
         // FIXME: implement scaling here
-        hfFracScaleFactors_ = new HfFracScaleFactors(scalingSamples, rootFileReader_);
+        hfFracScaleFactors_ = new HfFracScaleFactors(scalingSamples, rootFileReader_, writeToFile);
         scalingSamples.setGlobalWeights(this);
     }
     

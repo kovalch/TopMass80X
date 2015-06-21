@@ -21,7 +21,7 @@ class HfFracScaleFactors{
 public:
     
     /// Constructor for producing Heavy-Flavour fraction scale factors
-    HfFracScaleFactors(const Samples& samples, RootFileReader* const rootFileReader);
+    HfFracScaleFactors(const Samples& samples, RootFileReader* const rootFileReader, const bool writeToFile);
     
     /// Default destructor
     ~HfFracScaleFactors(){}
@@ -56,7 +56,7 @@ private:
     
     
     /// Produce the Heavy-Flavour fraction scale factors
-    void produceScaleFactors(const Samples& samples);
+    void produceScaleFactors(const Samples& samples, const bool writeToFile);
     
     /// Produce the Heavy-Flavour fraction scale factors for each selection step
     void produceScaleFactors(const TString& step, const Samples& samples);
