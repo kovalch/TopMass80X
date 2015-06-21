@@ -42,7 +42,7 @@ void Histo(const std::vector<std::string>& v_plot,
     // Set up scale factors
     const bool dyCorrection = std::find(v_globalCorrection.begin(), v_globalCorrection.end(), GlobalCorrection::dy) != v_globalCorrection.end();
     const bool ttbbCorrection = std::find(v_globalCorrection.begin(), v_globalCorrection.end(), GlobalCorrection::ttbb) != v_globalCorrection.end();
-    const GlobalScaleFactors* globalScaleFactors = new GlobalScaleFactors(v_channel, v_systematic, Luminosity, LuminosityUNCERTAINTY, dyCorrection, ttbbCorrection);
+    const GlobalScaleFactors* globalScaleFactors = new GlobalScaleFactors(v_channel, v_systematic, Luminosity, LuminosityUNCERTAINTY, dyCorrection, ttbbCorrection, true);
     
     // Access all samples
     const Samples samples("FileLists_plot", v_channel, v_systematic, globalScaleFactors);
