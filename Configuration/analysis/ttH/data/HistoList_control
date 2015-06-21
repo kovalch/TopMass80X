@@ -375,12 +375,19 @@ kinReco_antiBjet_index_step7 - - - 1 0 0 0 0 0 0 0 0 0
 ##
 ## Additional b-jet properties
 ##
-dijet_leadingJet_1st_Pt_addB_mva_step7_cate0_cate1 - - "1-st b jet p_{T} [GeV]" 1 0 0 1 0 0 0 0 0 0
-dijet_leadingJet_1st_Eta_addB_mva_step7_cate0_cate1 - - "1-st b jet |#eta|" 1 0 0 0 0 600 0 0 0 0
-dijet_leadingJet_2nd_Pt_addB_mva_step7_cate1 - - "2-nd b jet p_{T} [GeV]" 1 0 0 1 0 0 0 0 0 0
-dijet_leadingJet_2nd_Eta_addB_mva_step7_cate1 - - "2-nd b jet |#eta|" 1 0 0 0 0 55 0 0 0 0
+dijet_leadingJet_1st_Pt_addB_mva_step7_cate0_cate1 - - "Leading add. b jet p_{T} [GeV]" 1 0 0 1 0 0 0 0 0 0
+dijet_leadingJet_1st_Eta_addB_mva_step7_cate0_cate1 - - "Leading add. b jet |#eta|" 1 0 0 0 0 600 0 0 0 0
+dijet_leadingJet_2nd_Pt_addB_mva_step7_cate1 - - "Subleading add. b jet p_{T} [GeV]" 1 0 0 1 0 0 0 0 0 0
+dijet_leadingJet_2nd_Eta_addB_mva_step7_cate1 - - "Subleading add. b jet |#eta|" 1 0 0 0 0 55 0 0 0 0
 dijet_leadingJet_dR_addB_mva_step7_cate1 - - "#DeltaR_{bb}" 1 0 0 0 0 70 0 0 0 0
-dijet_leadingJet_Mjj_addB_mva_step7_cate1 - - "M_{bb} [GeV]" 1 0 0 0 1e-2 45 0 0 0 0
+dijet_leadingJet_Mjj_addB_mva_step7_cate1 - - "m_{bb} [GeV]" 1 0 0 0 1e-2 45 0 0 0 0
+
+dijet_leadingJet_1st_Pt_addB_cp_mva_step7_cate0_cate1 - - "Leading add. b jet p_{T} [GeV]" 1 0 0 1 0 0 0 0 0 0
+dijet_leadingJet_1st_Eta_addB_cp_mva_step7_cate0_cate1 - - "Leading add. b jet |#eta|" 1 0 0 0 0 600 0 0 0 0
+dijet_leadingJet_2nd_Pt_addB_cp_mva_step7_cate1 - - "Subleading add. b jet p_{T} [GeV]" 1 0 0 1 0 0 0 0 0 0
+dijet_leadingJet_2nd_Eta_addB_cp_mva_step7_cate1 - - "Subleading add. b jet |#eta|" 1 0 0 0 0 55 0 0 0 0
+dijet_leadingJet_dR_addB_cp_mva_step7_cate1 - - "#DeltaR_{bb}" 1 0 0 0 0 70 0 0 0 0
+dijet_leadingJet_Mjj_addB_cp_mva_step7_cate1 - - "m_{bb} [GeV]" 1 0 0 0 1e-2 45 0 0 0 0
 
 
 
