@@ -51,6 +51,8 @@ FIND_PACKAGE( ROOT REQUIRED )
 #SET( ROOT_EXTRA_LIBS -lGenVector -lTMVA -lHistPainter)
 SET( ROOT_LIBRARIES ${ROOT_LIBRARIES} -lGenVector -lHistPainter -lTMVA )
 
+FIND_PACKAGE ( ROOFIT REQUIRED )
+
 FIND_PACKAGE( ZTopUtils REQUIRED )
 # now you can use ${ZTopUtils_INCLUDE_DIRS} and ${ZTopUtils_LIBRARIES}
 
