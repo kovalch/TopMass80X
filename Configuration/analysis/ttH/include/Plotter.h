@@ -60,7 +60,7 @@ private:
     
     
     /// Set the style of the plot
-    void setStyle(SampleHistPair& sampleHistPair, const bool isControlPlot =false);
+    void setStyle(SampleHistPair& sampleHistPair);
     
     /// Draw a label in the top left corner depending on the topLeftLabelId_ parameter
     void drawTopLeftLabel(const TString& text, const double& textSize =0.04)const;

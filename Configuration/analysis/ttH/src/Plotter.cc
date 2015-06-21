@@ -186,7 +186,7 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     // Here fill colors and line width are adjusted, and potentially rebinning applied
     for(auto& sampleHistPair : v_sampleHistPair_){
         sampleHistPair.second = common::rebinnedHistoInRange(sampleHistPair.second, rebin_, rangemin_, rangemax_);
-        this->setStyle(sampleHistPair, true);
+        this->setStyle(sampleHistPair);
     }
     
     
@@ -312,9 +312,17 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
         higgsHists.clear();
     }
     
-    // Creating a legend
-    const int nLegendEntries = stackHists.size() + higgsHists.size();
-    TLegend* legend = common::createLegend(0.62, 0.55, 2, nLegendEntries, 0.03);
+    // Prepare statistical uncertainty band for MC stack
+    TH1* stacksum_statBand(0);
+    if(stacksum){
+        stacksum_statBand = (TH1*)stacksum->Clone();
+        common::setHistoStyle(stacksum_statBand, 1,1,1, -1,-1,-1, 3354, 1);
+    }
+    
+    
+    // Create legend
+    const int nLegendEntries = stacksum_statBand ? stackHists.size()+higgsHists.size()+1 : stackHists.size()+higgsHists.size();
+    TLegend* legend = common::createLegend(0.61, 0.55, 2, nLegendEntries, 0.03);
     
     // Create the stack and add entries to legend
     THStack* stack(0);
@@ -333,14 +341,6 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
         stack->Add(stackHist->second);
     }
 
-    
-    // Preparing a statistical uncertainty band for MC stack
-    TH1* stacksum_statBand(0);
-    if(stacksum){
-        stacksum_statBand = (TH1*)stacksum->Clone();
-        common::setHistoStyle(stacksum_statBand, 1,1,1, -1,-1,-1, 3354, 1);
-    }
-    
     
     // Set x and y axis
     TH1* firstHistToDraw(0);
@@ -374,11 +374,12 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
     for(const auto& higgsHist : higgsHists){
         higgsHist.second->Draw("same HIST");
     }
-    // Adding the uncertainty band to the legend
+    
+    // Add uncertainty band to the legend
+    // Add empty entries to ensure that uncertainty band is in the rightmost column
     const int nColumns = legend->GetNColumns();
     const int nEntries = legend->GetListOfPrimitives()->GetEntries();
     const int nEntriesToInsert = nColumns - nEntries%nColumns - 1;
-    // Adding empty entries to ensure that the uncertainty is in the rightmost column
     for(int iEn = 0; iEn < nEntriesToInsert; ++iEn) legend->AddEntry((TObject*)0, "", "");
     legend->AddEntry(stacksum_statBand, "Uncertainty", "F");
     
@@ -472,37 +473,30 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
 
 
 
-void Plotter::setStyle(SampleHistPair& sampleHistPair, const bool isControlPlot)
+void Plotter::setStyle(SampleHistPair& sampleHistPair)
 {
-    TH1* hist(sampleHistPair.second);
     const Sample& sample = sampleHistPair.first;
-
+    TH1* hist(sampleHistPair.second);
+    
+    // Adjust axes
+    if(XAxis_ == "-") XAxis_ = hist->GetXaxis()->GetTitle();
+    if(YAxis_ == "-") YAxis_ = hist->GetYaxis()->GetTitle();
+    hist->GetXaxis()->SetTitle(XAxis_);
+    hist->GetYaxis()->SetTitle(YAxis_);
+    hist->GetXaxis()->SetLabelFont(42);
+    hist->GetYaxis()->SetLabelFont(42);
+    hist->GetXaxis()->SetTitleFont(42);
+    hist->GetYaxis()->SetTitleFont(42);
+    hist->GetYaxis()->SetTitleOffset(1.7);
+    hist->GetXaxis()->SetTitleOffset(1.25);
+    
+    // Set styles for sample
     hist->SetFillColor(sample.color());
     hist->SetLineColor(sample.color());
     hist->SetLineWidth(1);
-
-    if(XAxis_ == "-") XAxis_ = hist->GetXaxis()->GetTitle();
-    if(YAxis_ == "-") YAxis_ = hist->GetYaxis()->GetTitle();
-
-    if(sample.sampleType() == Sample::data || sample.sampleType() == Sample::pseudodata){
-        hist->SetFillColor(0);
+    if(sample.sampleType()==Sample::data || sample.sampleType()==Sample::pseudodata){
         hist->SetMarkerStyle(20);
         hist->SetMarkerSize(1.);
-        hist->SetLineWidth(1);
-        hist->GetXaxis()->SetLabelFont(42);
-        hist->GetYaxis()->SetLabelFont(42);
-        hist->GetXaxis()->SetTitleFont(42);
-        hist->GetYaxis()->SetTitleFont(42);
-        hist->GetYaxis()->SetTitleOffset(1.7);
-        hist->GetXaxis()->SetTitleOffset(1.25);
-        if ((name_.Contains("pT") || name_.Contains("Mass")) && !name_.Contains("Rapidity")) {
-            hist->GetXaxis()->SetTitle(XAxis_+" #left[GeV#right]");
-            hist->GetYaxis()->SetTitle("#frac{1}{#sigma} #frac{d#sigma}{d"+XAxis_+"}"+" #left[GeV^{-1}#right]");
-        } else {
-            hist->GetXaxis()->SetTitle(XAxis_);
-            hist->GetYaxis()->SetTitle("#frac{1}{#sigma} #frac{d#sigma}{d"+XAxis_+"}");
-        }
-        if (isControlPlot) hist->GetYaxis()->SetTitle(YAxis_);
     }
 }
 
