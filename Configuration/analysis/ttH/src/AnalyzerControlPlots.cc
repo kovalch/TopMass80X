@@ -37,13 +37,13 @@ void AnalyzerControlPlots::bookHistos(const TString& step, std::map<TString, TH1
     
     // Primary vertices
     name = "vertex_multiplicity";
-    m_histogram[name] = this->store(new TH1D(prefix_+name+step,"Primary Vertex Multiplicity;N Vertex;Events",50,0,50));
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step,"Primary vertex multiplicity;Vertices;Events",50,0,50));
     name = "vertex_multiplicity_unweighted";
-    m_histogram[name] = this->store(new TH1D(prefix_+name+step,"Unweighted Primary Vertex Multiplicity;N Vertex;Events",50,0,50));
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step,"Unweighted primary vertex multiplicity;Vertices;Events",50,0,50));
     
     // Leptons
     name = "lepton_multiplicity";
-    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Lepton multiplicity;N leptons;Events",10,0,10));
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Lepton multiplicity;Leptons;Events",10,0,10));
     name = "lepton_pt";
     m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Lepton p_{t};p_{t}^{l} [GeV];Leptons",50,0,250));
     name = "lepton_eta";
@@ -99,33 +99,33 @@ void AnalyzerControlPlots::bookHistos(const TString& step, std::map<TString, TH1
     
     // Jets
     name = "jet_multiplicity";
-    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Jet Multiplicity;N jets;Events",20,0,20));
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Jet multiplicity;Jets;Events",20,0,20));
     name = "jet_pt";
-    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Jet p_{t};p_{t}^{jet} [GeV];Jets",60,0,300));
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Jet p_{t};p_{t}^{j} [GeV];Jets",60,0,300));
     name = "jet_eta";
-    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Jet #eta;#eta^{jet};Jets",52,-2.6,2.6));
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Jet #eta;#eta^{j};Jets",52,-2.6,2.6));
     name = "jet_phi";
-    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Jet #phi;#phi^{jet};Jets",64,-3.2,3.2));
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Jet #phi;#phi^{j};Jets",64,-3.2,3.2));
     name = "jet_btagDiscriminator";
-    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "b-tag Discriminator d;d;Jets",60,-0.1,1.1));
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "b-tag discriminator d;d^{j};Jets",60,-0.1,1.1));
     name = "jet_btagDiscriminator_min";
-    m_histogram[name] = store(new TH1D(prefix_+name+step, "b-tag Discriminator d;d;Lowest d jet",60,-0.1,1.1));
+    m_histogram[name] = store(new TH1D(prefix_+name+step, "b-tag discriminator d;Lowest d^{j};Events",60,-0.1,1.1));
     
     // Bjets
     name = "bjet_multiplicity";
-    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "B-Jet Multiplicity;N b-jets;Events",20,0,20));
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "b jet multiplicity;b jets;Events",20,0,20));
     name = "bjet_pt";
-    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "B-Jet p_{t};p_{t}^{b-jet} [GeV];B-Jets",60,0,300));
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "b jet p_{t};p_{t}^{b} [GeV];b jets",60,0,300));
     name = "bjet_eta";
-    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "B-Jet #eta;#eta^{b-jet};B-Jets",52,-2.6,2.6));
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "b jet #eta;#eta^{b};b jets",52,-2.6,2.6));
     name = "bjet_phi";
-    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "B-Jet #phi;#phi^{b-jet};B-Jets",64,-3.2,3.2));
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "b jet #phi;#phi^{b};b jets",64,-3.2,3.2));
 
     // Met
     name = "met_et";
-    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Met E_{t};E_{t}^{met};Events",60,0,300));
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Met E_{t};E_{t}^{MET} [GeV];Events",60,0,300));
     name = "met_phi";
-    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Met #phi;#phi^{met};Events",64,-3.2,3.2));
+    m_histogram[name] = this->store(new TH1D(prefix_+name+step, "Met #phi;#phi^{MET};Events",64,-3.2,3.2));
 }
 
 
