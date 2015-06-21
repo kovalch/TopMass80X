@@ -655,17 +655,25 @@ Double_t common::xBinSize(const TAxis* const axis)
 
 
 
-void common::addBinDivisionToYaxis(TH1* const hist)
+void common::addBinDivisionToYaxis(TH1* const hist, const std::vector<TString>& v_multiplicityName)
 {
+    // Access bin width of x axis
     const TAxis* const xAxis = hist->GetXaxis();
     const Double_t binSize = xBinSize(xAxis);
+    
+    // Do not add bin width for multiplicities if width =1
+    const TString histName = hist->GetName();
+    for(const TString& multiplicityName : v_multiplicityName)
+        if(histName.Contains(multiplicityName) && TMath::AreEqualRel(1., binSize, TMath::Limits<Double_t>::Epsilon())) return;
+    
+    // Add bin division to y axis
     TString binDivision(" /");
     if(binSize < -990.) binDivision.Append(" #Delta_{bin}");
     else{
         std::ostringstream width;
         width<<" "<<binSize;
         binDivision.Append(width.str());
-        TString xTitle = hist->GetXaxis()->GetTitle();
+        TString xTitle = xAxis->GetTitle();
         if(xTitle.EndsWith("]") && xTitle.Contains("[")){
             Ssiz_t last = xTitle.Last('[');
             xTitle = xTitle.Data() + last + 1;

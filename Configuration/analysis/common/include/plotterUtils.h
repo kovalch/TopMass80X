@@ -53,7 +53,8 @@ namespace common{
     Double_t xBinSize(const TAxis* const axis);
     
     /// Adjust y-axis title, to show division with bin width, taking the unit from x-axis
-    void addBinDivisionToYaxis(TH1* const hist);
+    /// To avoid showing /1 for multiplicity plots with binning of 1, a vector of histo names can be specified
+    void addBinDivisionToYaxis(TH1* const hist, const std::vector<TString>& v_multiplicityName ={});
     
     /// Sum the histograms in a stack and return the sum in a new TH1
     TH1* summedStackHisto(const THStack* stack);

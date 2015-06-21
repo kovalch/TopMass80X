@@ -360,7 +360,7 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
 
     
     // Add binwidth including unit to y-axis
-    common::addBinDivisionToYaxis(firstHistToDraw);
+    common::addBinDivisionToYaxis(firstHistToDraw, {"_multiplicity_", "jetCategories"});
     
     
     // Draw data histogram and stack
