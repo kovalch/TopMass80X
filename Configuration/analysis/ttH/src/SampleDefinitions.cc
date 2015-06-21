@@ -11,7 +11,7 @@
 
 std::map<TString, Sample> SampleDefinitions::samples8TeV()
 {
-    // 0: as defined below; 1,2,.. see mergedLegendEntries()
+    // 0: as defined here; 1,2,.. see mergedLegendEntries()
     const int legendsMergeLevel = 1;
     
     // Define all samples as differential as they are needed
@@ -136,7 +136,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     );
     
     result["singletop"] = Sample(
-        "Single Top",
+        "Single t",
         kAzure-9,
         11.1,
         0.76/11.1, -1.,
@@ -722,15 +722,10 @@ std::map<TString, SampleDefinitions::ColorLegends> SampleDefinitions::mergedLege
     // ############################################ Merging level: 2
     std::map<TString, ColorLegends > m_legends_2;
     if(mergeLevel >= 2) {
-        // Merging Electroweak and QCD
+        // Merging Electroweak, QCD, Single t, ttW and ttgamma
         m_legends_2["Minor bkg."] = ColorLegends(kOrange-4, m_legends.at("Electroweak").second);
         m_legends_2.at("Minor bkg.").second.insert({
-            "QCD Multijet"
-        });
-        // Merging ttW, ttZ and ttgamma
-        m_legends["t#bar{t}Z/W/#gamma"] = ColorLegends(kTeal+2, m_legends["t#bar{t}W/#gamma"].second);
-        m_legends.at("t#bar{t}Z/W/#gamma").second.insert({
-            "t#bar{t}Z"
+            "QCD Multijet", "t#bar{t}W", "t#bar{t}#gamma", "Single t"
         });
     }
     if(mergeLevel == 2) return m_legends_2;
