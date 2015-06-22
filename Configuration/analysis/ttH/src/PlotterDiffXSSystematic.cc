@@ -25,6 +25,8 @@
 #include <TF1.h>
 
 #include "PlotterDiffXSSystematic.h"
+#include "higgsUtils.h"
+#include "TheoryTopHistoReader.h"
 #include "../../common/include/sampleHelpers.h"
 #include "../../common/include/RootFileReader.h"
 #include "../../common/include/plotterUtils.h"
@@ -38,7 +40,10 @@ PlotterDiffXSSystematic::PlotterDiffXSSystematic(const char* outputDir,
 outputDir_(outputDir),
 inputFileLists_(inputFileLists),
 fileReader_(RootFileReader::getInstance()),
+inputDirTheoryTop_(tth::DATA_PATH_TTH() + "/" + "theoryPredictions"),
 name_("defaultName"),
+namePostfix_(""),
+nameTop_("defaultName"),
 rangemin_(0),
 rangemax_(3),
 ymin_(0),
@@ -47,7 +52,8 @@ nRatio_max_(3.),
 YAxis_(""),
 XAxis_(""),
 logX_(false),
-logY_(false)
+logY_(false),
+normaliseTheoryToData_(false)
 {
     // Suppress default info that canvas is printed
     gErrorIgnoreLevel = 1001;
@@ -113,18 +119,29 @@ logY_(false)
     predictionSystematicLegends_[Systematic::mcatnlo] = PredictionEntry("MC@NLO+Herwig", kBlue, 5);
     predictionSystematicLegends_[Systematic::powheg] = PredictionEntry("Powheg+Pythia", kGreen+1, 7);
     predictionSystematicLegends_[Systematic::powhegHerwig] = PredictionEntry("Powheg+Herwig", kGreen+3, 4);
+
+    // Setting the list of folders that should be used to obtain
+    predictionTopLegends_["2015_05_18_garzelli"] = PredictionEntry("PowHel+Pythia", kViolet-3, 1);
 }
 
 
 
-void PlotterDiffXSSystematic::setOptions(const TString& name, const TString&,
+void PlotterDiffXSSystematic::setOptions(const TString& name, const TString& nameTop,
                          const TString& YAxis, const TString& XAxis,
-                         const int nRatio_max, const bool,
+                         const int nRatio_max, const bool normaliseTheoryToData,
                          const bool logX, const bool logY,
                          const double& ymin, const double& ymax,
                          const double& rangemin, const double& rangemax)
 {
     name_ = name; //Histogram name to be plotted
+    // Using potential postfix to later use for file names (allows plotting one histogram multiple times)
+    if(name_.Contains("#")) {
+        namePostfix_ = name_(name_.Last('#')+1, name_.Length());
+        if(namePostfix_.Length() > 0) namePostfix_.Prepend("_");
+        name_.Remove(name_.Last('#')); 
+    } else namePostfix_ = "";
+    nameTop_ = nameTop; //Histogram theory name to be plotted (in *.top files)
+    normaliseTheoryToData_ = normaliseTheoryToData; //Theory predictions should be normalised to the measured cross section
     YAxis_ = YAxis; //Y-axis title
     XAxis_ = XAxis; //X-axis title
     nRatio_max_ = nRatio_max == 0. ? nRatio_max_ : nRatio_max; //Upper bound of the Y axis in the ratio plot
@@ -185,7 +202,6 @@ PlotterDiffXSSystematic::SystematicHistoMap PlotterDiffXSSystematic::readSystema
     TH1* histoDown_pdf = getPdfHisto(histoName, channel, -1, 0);
     if(histoUp_pdf && histoDown_pdf) m_systematicHistos[Systematic::pdf] = HistoPair(histoUp_pdf, histoDown_pdf);
     
-    
     return m_systematicHistos;
 }
 
@@ -197,6 +213,7 @@ TH1* PlotterDiffXSSystematic::getPdfHisto(TString histoName, const Channel::Chan
     // Getting the Nominal and Central PDF histograms
     for(auto systematicCollection : inputFileLists_.at(channel)) {
         Systematic::Systematic systematic = systematicCollection.first;
+        if(systematicCollection.second.count(name_) < 1) continue;
         std::pair<TString, TString> upDownFile = systematicCollection.second.at(name_);
         // Getting true nominal
         if(systematic.type() == Systematic::nominal) h_nominal = fileReader_->GetClone<TH1>(upDownFile.first, histoName, true, false);
@@ -370,35 +387,25 @@ void PlotterDiffXSSystematic::plotXSection(const Channel::Channel& channel)
     //common::setGraphStyle(g_measured_total, 1,1,2, 20,1,1);
     common::setGraphStyle(g_measured_total, -1, kBlack, 2, 20, kBlack, 0.8);
     
+    // Getting prediction histograms
     std::vector<TH1*> prediction_histograms;
     std::vector<TH1*> prediction_ratioHistograms;
     std::vector<TString> prediction_legends;
-    for(const Systematic::Type systematicType : {Systematic::nominal, Systematic::mcatnlo, Systematic::powheg, Systematic::powhegHerwig}){
-        const PredictionEntry& legendColorStyle = predictionSystematicLegends_.at(systematicType);
-        const Systematic::Systematic systematic(systematicType, Systematic::undefinedVariation);
-        if(inputFileLists_.at(channel).count(systematic) < 1) continue;
-        const TString fileName = inputFileLists_.at(channel).at(systematic).at(name_).first;
-        // Getting the histogram of prediction
-        TH1* histo = fileReader_->GetClone<TH1>(fileName, name_+"_xs_madgraph", true, false);
-        // Normalising histogram
-        common::normalize(histo, h_nominal->Integral("width"), false, "width");
-        common::setHistoStyle(histo, legendColorStyle.style, legendColorStyle.color, 2);
-        prediction_histograms.push_back(histo);
-        prediction_legends.push_back(legendColorStyle.legend);
-        // Adding ratio histogram
-        TH1* ratioHisto = common::ratioHistogram(histo, h_nominal);
-        if(name_.Contains("Mjj")) ratioHisto->SetBinContent(3, 1.);
-        common::setHistoStyle(ratioHisto, legendColorStyle.style, legendColorStyle.color, 2);
-        prediction_ratioHistograms.push_back(ratioHisto);
+    // Reading theory predictions from MC only if no external theory predictions are plotted
+    if(nameTop_ == "-") {
+        getTheoryHistogramsFromMC(prediction_histograms, prediction_ratioHistograms, prediction_legends, h_nominal, channel, normaliseTheoryToData_);
     }
-
+    // Reading external *.top theory predictions if requested
+    if(nameTop_ != "-") {
+        getTheoryHistogramsFromTop(prediction_histograms, prediction_ratioHistograms, prediction_legends, h_nominal, normaliseTheoryToData_);
+    }
     
     // Prepare canvas and legend
     TCanvas* canvas = new TCanvas("","");
     canvas->Clear();
     TLegend* legend = common::createLegend(0.6, 0.7, 1, 1+prediction_histograms.size(), 0.05);
     
-    // Draw axis and preditions
+    // Draw axis and predictions
     for(size_t iHisto = 0; iHisto < prediction_histograms.size(); ++iHisto) {
         if(iHisto == 0) prediction_histograms.at(iHisto)->Draw("hist");
         else prediction_histograms.at(iHisto)->Draw("hist same");
@@ -495,7 +502,7 @@ void PlotterDiffXSSystematic::plotXSection(const Channel::Channel& channel)
     gPad->Modified();
     
     // Saving the plot
-    TString eventFileString = common::assignFolder(outputDir_, channel, Systematic::Systematic("Nominal"))+name_+"_systematic";
+    TString eventFileString = common::assignFolder(outputDir_, channel, Systematic::Systematic("Nominal"))+name_+namePostfix_+"_systematic";
     canvas->Print(eventFileString+".eps");
     
     delete canvas;
@@ -613,7 +620,8 @@ PlotterDiffXSSystematic::ErrorMap PlotterDiffXSSystematic::binUncertainties(cons
 }
 
 
-void PlotterDiffXSSystematic::printAllUncertainties(const std::vector<ErrorMap>& errorMaps, const ErrorMap& errorMap_inclusive, const bool listSystematics)const
+void PlotterDiffXSSystematic::printAllUncertainties(const std::vector<ErrorMap>& errorMaps, const ErrorMap& errorMap_inclusive, 
+                                                    const bool listSystematics)const
 {
     printf("Bin Id \t&    central \t& stat \t& syst \t& total   // highest asymetric uncertainty [%%]\n");
     printf("--------------------------------------------------------------------------------------\n");
@@ -687,6 +695,72 @@ void PlotterDiffXSSystematic::printAllUncertainties(const std::vector<ErrorMap>&
     printf("Max: %4.0f ", maximums.at(0)*100. );
     printf(" | ");
     printf("Incl: %4.0f\n", e_total_inclusive.maxAbsVariation()*100.);
+}
+
+
+void PlotterDiffXSSystematic::getTheoryHistogramsFromMC(std::vector<TH1*>& prediction_histograms, std::vector<TH1*>& prediction_ratioHistograms, 
+                                                        std::vector<TString>& prediction_legends, const TH1* h_nominal, 
+                                                        const Channel::Channel& channel, const bool normaliseToNominal)const
+{
+    for(auto systematicLegend : predictionSystematicLegends_) {
+        const Systematic::Type& systematicType = systematicLegend.first;
+        const PredictionEntry legendColorStyle = systematicLegend.second;
+        const Systematic::Systematic systematic(systematicType, Systematic::undefinedVariation, -1);
+        if(inputFileLists_.at(channel).count(systematic) < 1) continue;
+        if(inputFileLists_.at(channel).at(systematic).count(name_) < 1) continue;
+        const TString fileName = inputFileLists_.at(channel).at(systematic).at(name_).first;
+        // Getting the histogram of the prediction
+        TH1* histo = fileReader_->GetClone<TH1>(fileName, name_+"_xs_madgraph", true, false);
+        // Normalising to Nominal if necessary
+        if(normaliseToNominal) {
+            double norm_scale = common::normalize(histo, h_nominal->Integral("width"), false, "width");
+            histo->SetBinContent(0, norm_scale);
+        }
+        common::setHistoStyle(histo, legendColorStyle.style, legendColorStyle.color, 2);
+        prediction_histograms.push_back(histo);
+        prediction_legends.push_back(legendColorStyle.legend);
+        // Adding ratio histogram
+        TH1* ratioHisto = common::ratioHistogram(histo, h_nominal);
+        if(name_.Contains("Mjj")) ratioHisto->SetBinContent(3, 1.);
+        common::setHistoStyle(ratioHisto, legendColorStyle.style, legendColorStyle.color, 2);
+        prediction_ratioHistograms.push_back(ratioHisto);
+    }
+}
+
+
+void PlotterDiffXSSystematic::getTheoryHistogramsFromTop(std::vector<TH1*>& prediction_histograms, std::vector<TH1*>& prediction_ratioHistograms, 
+                                                         std::vector<TString>& prediction_legends, const TH1* h_nominal, 
+                                                         const bool normaliseToNominal)const
+{
+    // Reading theory predictions from files in the *.top format
+    TheoryTopHistoReader theoryReader;
+    for(auto folderLegend : predictionTopLegends_) {
+        TString folderName = folderLegend.first;
+        TString fileName = nameTop_(0, nameTop_.First(':'));
+        TString histoName = nameTop_(nameTop_.First(':')+1, nameTop_.Length());
+        const PredictionEntry legendColorStyle = folderLegend.second;
+        
+        TH1* histo = theoryReader.getHisto1D(inputDirTheoryTop_+"/"+folderName+"/"+fileName, histoName);
+        if(!histo) continue;
+        // Matching the histogram's binning
+        common::normalizeToBinWidth(histo, true);
+        if(name_.Contains("Eta")) histo = common::absoluteHistogram(histo);
+        histo = common::rebinHistoToHisto(histo, h_nominal);
+        common::normalizeToBinWidth(histo);
+        // Normalising to Nominal if necessary
+        if(normaliseToNominal) {
+            double norm_scale = common::normalize(histo, h_nominal->Integral("width"), false, "width");
+            histo->SetBinContent(0, norm_scale);
+        }
+        common::setHistoStyle(histo, legendColorStyle.style, legendColorStyle.color, 2);
+        prediction_histograms.push_back(histo);
+        prediction_legends.push_back(legendColorStyle.legend);
+        // Adding ratio histogram
+        TH1* ratioHisto = common::ratioHistogram(histo, h_nominal);
+        if(name_.Contains("Mjj")) ratioHisto->SetBinContent(3, 1.);
+        common::setHistoStyle(ratioHisto, legendColorStyle.style, legendColorStyle.color, 2);
+        prediction_ratioHistograms.push_back(ratioHisto);
+    }
 }
 
 

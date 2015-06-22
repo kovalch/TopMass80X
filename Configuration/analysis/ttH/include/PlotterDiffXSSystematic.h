@@ -131,6 +131,15 @@ private:
     /// Plot different systematic shapes for each process
     std::vector<ErrorMap> extractVariations(const SystematicHistoMap& m_systematicHistos, const bool symmetrize =false)const;
     
+    /// Obtain histograms of theory predictions from the predefined list of systematic MC samples
+    void getTheoryHistogramsFromMC(std::vector<TH1*>& prediction_histograms, std::vector<TH1*>& prediction_ratioHistograms,
+                                   std::vector<TString>& prediction_legends, const TH1* h_nominal, 
+                                   const Channel::Channel& channel, const bool normaliseToNominal =false)const;
+    
+    /// Obtain histograms of theory predictions from *.top files (listed in predictionTopLegends_)
+    void getTheoryHistogramsFromTop(std::vector<TH1*>& prediction_histograms, std::vector<TH1*>& prediction_ratioHistograms,
+                                    std::vector<TString>& prediction_legends, const TH1* h_nominal, const bool normaliseToNominal =false)const;
+    
     /// Plot the final cross section with uncertainties
     void plotXSection(const Channel::Channel& channel);
     
@@ -169,6 +178,9 @@ private:
     /// File reader for accessing specific histogram from given file
     RootFileReader* fileReader_;
     
+    /// Folder containing theory prediction curves in *.top format
+    std::string inputDirTheoryTop_;
+    
     /// Styles of lines for UP/DOWN systematic variations
     std::pair<Style_t, Style_t> lineStyles_;
     
@@ -177,6 +189,10 @@ private:
     
     /// Name of histogram under consideration
     TString name_;
+    TString namePostfix_;
+    
+    /// Name of theory histogram under consideration (used in *.top prediction files)
+    TString nameTop_;
     
     /// Vector of systematics for which only shape differences should be taken into account
     std::vector<Systematic::Type> normalisedSystematicTypes_;
@@ -196,6 +212,9 @@ private:
     /// A pair of [systematic, legend name] for each prediction that should be plotted in addition to the measured xsection
     std::map<Systematic::Type, PredictionEntry> predictionSystematicLegends_;
     
+    /// A pair of [file, legend name] for each *.top prediction that should be plotted in addition to the measured xsection
+    std::map<TString, PredictionEntry> predictionTopLegends_;
+    
     
     /// Options for the histogram under consideration
     double rangemin_, rangemax_, ymin_, ymax_;
@@ -204,6 +223,7 @@ private:
 
     TString YAxis_, XAxis_;
     bool logX_, logY_; // The variable logX_ is not used at all...
+    bool normaliseTheoryToData_;
 };
 
 
