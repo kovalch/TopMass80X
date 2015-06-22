@@ -94,7 +94,7 @@ namespace common{
     TH1* rebinnedHistoInRange(TH1* histo, const int& ngroup, const double& xmin = 0., const double& xmax = 0.);
     
     /// Rebin histogram to the binning of another histogram 
-    TH1* rebinHistoToHisto(TH1* h_from, TH1* h_to);
+    TH1* rebinHistoToHisto(TH1* h_from, const TH1* h_to);
     
     /// Symmetrize a histogram to different sides: -1 (all negative), 0 (two symmetric sides), +1 (all positive)
     TH1* absoluteHistogram(TH1* histo);

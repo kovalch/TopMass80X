@@ -1049,7 +1049,7 @@ TH1* common::rebinnedHistoInRange(TH1* histo, const int& ngroup, const double& x
 }
 
 
-TH1* common::rebinHistoToHisto(TH1* h_from, TH1* h_to)
+TH1* common::rebinHistoToHisto(TH1* h_from, const TH1* h_to)
 {
     const int nBins_from = h_from->GetNbinsX();
     const int nBins_to = h_to->GetNbinsX();
