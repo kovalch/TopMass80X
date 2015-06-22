@@ -1073,42 +1073,52 @@ TH1* common::absoluteHistogram(TH1* histo)
     const int nBins = histo->GetNbinsX();
     if(nBins < 2) return histo;
     
+    // Identifying the central bin
     const int binZero = histo->FindBin(0.0);
     if(binZero < 0) {
         printf("WARNING: Requested absolute version of histogram with no negative values: >%.2e\n", histo->GetBinLowEdge(1));
         printf("         Histogram left unchanged\n");
         return histo;
     }
+
     const double binZero_lowEdge = histo->GetBinLowEdge(binZero);
     const double binZero_highEdge = binZero + 1 <= nBins ? histo->GetBinLowEdge(binZero+1) : 0.0;
+    // Treating the bin separately if 0.0 is in the middle
     const bool binZeroToReflect = binZero_lowEdge < 0.0 ? true : false;
     if(binZero_lowEdge != 0.0 && binZero_highEdge != -1.0 * binZero_lowEdge) {
         printf("ERROR: Can't make absolute histogram with 0.0 in the middle of non-symmetric bin (%.2e / %.2e)\n", binZero_lowEdge, binZero_highEdge);
         exit(3);
     }
+    
     // Building new bin boundaries
     const int nBins_plus = binZeroToReflect ? nBins/2 + 1 : nBins/2;
     double binsX[nBins_plus+1];
     binsX[0] = binZeroToReflect ? 0. : histo->GetBinLowEdge(binZero);
-    printf(" bin0: %d\n", binZero);
     for(int iBin = binZero+1; iBin <= nBins+1; ++iBin) {
         binsX[iBin-binZero] = histo->GetBinLowEdge(iBin);
     }
+    
     // Creating two histograms with the same binning for positive and negative sides
     TH1* histo_plus = histo->Rebin(nBins_plus, TString(histo->GetName())+"_plus", binsX);
+    
     TH1* histo_minus = (TH1*)histo_plus->Clone(TString(histo->GetName())+"_minus");
     histo_minus->Reset("ICESM");
+    
+    // Migrating each negative-side bin to the corersponding positive-side bin
     for(int bin_to = 1; bin_to <= nBins_plus; ++bin_to) {
         const int bin_from = binZero - bin_to;
         const int bin_to_real = binZeroToReflect ? bin_to + 1 : bin_to;
         if(binZeroToReflect && bin_to == nBins_plus) continue;
+        
         if((histo->GetBinWidth(bin_from) - histo->GetBinWidth(bin_to_real))/histo->GetBinWidth(bin_from) > 0.001) {
             printf("ERROR: Two opposite bins have different widths. Can't make absolute histogram...\n");
             exit(4);
         }
+        
         histo_minus->SetBinContent(bin_to_real, histo->GetBinContent(bin_from));
         histo_minus->SetBinError(bin_to_real, histo->GetBinError(bin_from));
     }
+    // Adding the positive and negative parts
     histo_plus->Add(histo_minus);
     
     return histo_plus;
