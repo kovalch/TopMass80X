@@ -719,7 +719,7 @@ void PlotterDiffXSSystematic::getTheoryHistogramsFromMC(std::vector<TH1*>& predi
         prediction_legends.push_back(legendColorStyle.legend);
         // Adding ratio histogram
         TH1* ratioHisto = common::ratioHistogram(histo, h_nominal);
-//        if(name_.Contains("Mjj")) ratioHisto->SetBinContent(3, 1.);
+        if(name_.Contains("Mjj")) ratioHisto->SetBinContent(3, 1.);
         common::setHistoStyle(ratioHisto, legendColorStyle.style, legendColorStyle.color, 2);
         prediction_ratioHistograms.push_back(ratioHisto);
     }
@@ -755,7 +755,7 @@ void PlotterDiffXSSystematic::getTheoryHistogramsFromTop(std::vector<TH1*>& pred
         prediction_legends.push_back(legendColorStyle.legend);
         // Adding ratio histogram
         TH1* ratioHisto = common::ratioHistogram(histo, h_nominal);
-//        if(name_.Contains("Mjj")) ratioHisto->SetBinContent(3, 1.);
+        if(name_.Contains("Mjj")) ratioHisto->SetBinContent(3, 1.);
         common::setHistoStyle(ratioHisto, legendColorStyle.style, legendColorStyle.color, 2);
         prediction_ratioHistograms.push_back(ratioHisto);
     }
