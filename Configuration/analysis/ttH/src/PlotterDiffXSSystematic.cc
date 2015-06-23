@@ -702,7 +702,9 @@ void PlotterDiffXSSystematic::getTheoryHistogramsFromMC(std::vector<TH1*>& predi
                                                         std::vector<TString>& prediction_legends, const TH1* h_nominal, 
                                                         const Channel::Channel& channel, const bool normaliseToNominal)const
 {
+    // Set order of theories by hand to ensure proper ordering in plots and legends
     for(const Systematic::Type systematicType : {Systematic::nominal, Systematic::mcatnlo, Systematic::powheg, Systematic::powhegHerwig}){
+        if(predictionSystematicLegends_.find(systematicType) == predictionSystematicLegends_.end()) continue;
         const PredictionEntry& legendColorStyle = predictionSystematicLegends_.at(systematicType);
         const Systematic::Systematic systematic(systematicType, Systematic::undefinedVariation);
         if(inputFileLists_.at(channel).count(systematic) < 1) continue;
