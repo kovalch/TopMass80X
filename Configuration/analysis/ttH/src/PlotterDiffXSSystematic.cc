@@ -702,18 +702,16 @@ void PlotterDiffXSSystematic::getTheoryHistogramsFromMC(std::vector<TH1*>& predi
                                                         std::vector<TString>& prediction_legends, const TH1* h_nominal, 
                                                         const Channel::Channel& channel, const bool normaliseToNominal)const
 {
-    for(auto systematicLegend : predictionSystematicLegends_) {
-        const Systematic::Type& systematicType = systematicLegend.first;
-        const PredictionEntry legendColorStyle = systematicLegend.second;
-        const Systematic::Systematic systematic(systematicType, Systematic::undefinedVariation, -1);
+    for(const Systematic::Type systematicType : {Systematic::nominal, Systematic::mcatnlo, Systematic::powheg, Systematic::powhegHerwig}){
+        const PredictionEntry& legendColorStyle = predictionSystematicLegends_.at(systematicType);
+        const Systematic::Systematic systematic(systematicType, Systematic::undefinedVariation);
         if(inputFileLists_.at(channel).count(systematic) < 1) continue;
-        if(inputFileLists_.at(channel).at(systematic).count(name_) < 1) continue;
         const TString fileName = inputFileLists_.at(channel).at(systematic).at(name_).first;
-        // Getting the histogram of the prediction
+        // Getting the histogram of prediction
         TH1* histo = fileReader_->GetClone<TH1>(fileName, name_+"_xs_madgraph", true, false);
-        // Normalising to Nominal if necessary
+        // Normalising to Nominal if requested
         if(normaliseToNominal) {
-            double norm_scale = common::normalize(histo, h_nominal->Integral("width"), false, "width");
+            const double norm_scale = common::normalize(histo, h_nominal->Integral("width"), false, "width");
             histo->SetBinContent(0, norm_scale);
         }
         common::setHistoStyle(histo, legendColorStyle.style, legendColorStyle.color, 2);
@@ -721,7 +719,7 @@ void PlotterDiffXSSystematic::getTheoryHistogramsFromMC(std::vector<TH1*>& predi
         prediction_legends.push_back(legendColorStyle.legend);
         // Adding ratio histogram
         TH1* ratioHisto = common::ratioHistogram(histo, h_nominal);
-        if(name_.Contains("Mjj")) ratioHisto->SetBinContent(3, 1.);
+//        if(name_.Contains("Mjj")) ratioHisto->SetBinContent(3, 1.);
         common::setHistoStyle(ratioHisto, legendColorStyle.style, legendColorStyle.color, 2);
         prediction_ratioHistograms.push_back(ratioHisto);
     }
@@ -747,7 +745,7 @@ void PlotterDiffXSSystematic::getTheoryHistogramsFromTop(std::vector<TH1*>& pred
         if(name_.Contains("Eta")) histo = common::absoluteHistogram(histo);
         histo = common::rebinHistoToHisto(histo, h_nominal);
         common::normalizeToBinWidth(histo);
-        // Normalising to Nominal if necessary
+        // Normalising to Nominal if requested
         if(normaliseToNominal) {
             double norm_scale = common::normalize(histo, h_nominal->Integral("width"), false, "width");
             histo->SetBinContent(0, norm_scale);
@@ -757,7 +755,7 @@ void PlotterDiffXSSystematic::getTheoryHistogramsFromTop(std::vector<TH1*>& pred
         prediction_legends.push_back(legendColorStyle.legend);
         // Adding ratio histogram
         TH1* ratioHisto = common::ratioHistogram(histo, h_nominal);
-        if(name_.Contains("Mjj")) ratioHisto->SetBinContent(3, 1.);
+//        if(name_.Contains("Mjj")) ratioHisto->SetBinContent(3, 1.);
         common::setHistoStyle(ratioHisto, legendColorStyle.style, legendColorStyle.color, 2);
         prediction_ratioHistograms.push_back(ratioHisto);
     }
