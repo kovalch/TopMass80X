@@ -1,0 +1,15 @@
+18.05.2015 Maria Garzelli
+
+Updated results of the analysis (with higher statistics, after running the whole week), for the two system of cuts (2.1) and (1.1) and the various distributions.
+The scale is chosen as mur=muf=Ht/4
+
+The distributions and total sigma after cuts change a little bit with respect to the past. The cross-sections are now (the error is just statistical error):
+  cuts 2.1:  2.08e-2 ± 0.06e-2 pb
+  cuts 1.1:  6.17e-2 ± 0.13e-2 pb
+
+On top of these cross-sections, one has to add error due to scale variation: my (not so high statistics) runs give something like +38% - 28%  when considering the range [Ht/8 - Ht/2].
+
+
+Definition of the cuts:
+1.1 tt+bb - full phase space
+2.1 tt+bb - visible phase space
