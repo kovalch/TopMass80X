@@ -126,7 +126,6 @@ void categoryMerger(const std::vector<Channel::Channel>& v_channel,
 
 
 
-/// All systematics allowed for merging, i.e. all which come out of load_Analysis
 namespace Systematic{
     const std::vector<Type> allowedSystematics = {
         nominal, all, allAvailable,
@@ -154,7 +153,7 @@ int main(int argc, char** argv){
     
     // Get and check configuration parameters
     CLParameter<std::string> opt_fileDir("d", "Directory where filelist to be processed is contained", true, 1, 1);
-    CLParameter<std::string> opt_channel("c", "Specify channel(s), valid: emu, ee, mumu. Default: all", false, 1, 3,
+    CLParameter<std::string> opt_channel("c", "Specify channel(s), valid: emu, ee, mumu, combined. Default: all", false, 1, 3,
         common::makeStringCheck(Channel::convert(Channel::allowedChannelsAnalysis)));
     CLParameter<std::string> opt_systematic("s", "Systematic variation. Default: Nominal", false, 1, 100,
         common::makeStringCheckBegin(Systematic::convertType(Systematic::allowedSystematics)));
@@ -208,3 +207,6 @@ int main(int argc, char** argv){
     
     categoryMerger(v_channel, v_systematic, filelistDir, v_jetCategory, v_pattern);
 }
+
+
+
