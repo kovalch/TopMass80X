@@ -90,6 +90,16 @@ void MvaFactoryEventClassification::configureFactory2(TMVA::Factory* const facto
         this->addVariable(factory, mvaVariablesEventClassification.mass_higgsLikeDijet2_);
         //this->addVariable(factory, mvaVariablesEventClassification.ptSum_jets_leptons_);
     }
+    else if(category == tth::categoryName({0, 1, 2, 3})){
+        this->addVariable(factory, mvaVariablesEventClassification.multiplicity_jets_);
+        //this->addVariable(factory, mvaVariablesEventClassification.btagDiscriminatorAverage_tagged_);
+        //this->addVariable(factory, mvaVariablesEventClassification.btagDiscriminatorAverage_untagged_);
+        this->addVariable(factory, mvaVariablesEventClassification.minDeltaR_jet_jet_);
+        this->addVariable(factory, mvaVariablesEventClassification.ptSum_jets_leptons_);
+        this->addVariable(factory, mvaVariablesEventClassification.multiplicity_higgsLikeDijet15_);
+        this->addVariable(factory, mvaVariablesEventClassification.mass_higgsLikeDijet_);
+        this->addVariable(factory, mvaVariablesEventClassification.mass_higgsLikeDijet2_);
+    }
     else{
         std::cerr<<"Error in MvaFactoryEventClassification::configureFactory2()! No input variables defined for category: "
                  <<category<<"\n...break\n"<<std::endl;
