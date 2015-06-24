@@ -356,7 +356,17 @@ void PlotterDiffXS::writeDiffXS(const Channel::Channel& channel, const Systemati
         sprintf(legendEntry, nameHisto.first+" x%.2f", norm_scale);
         legend->AddEntry(nameHisto.second, legendEntry,"l");
     }
-
+    
+    // Cross-check the final cross section by printout of integral
+    const Int_t nBins = m_xs.at("data")->GetNbinsX();
+    const double integralInside = m_xs.at("data")->Integral(1, nBins, "width");
+    const double integral1 = m_xs.at("data")->Integral(1, 1, "width");
+    const double integral2 = m_xs.at("data")->Integral(2, 2, "width");
+    const double integral3 = m_xs.at("data")->Integral(3, 3, "width");
+    
+    std::cout<<"Integral of data cross section from distribution: "<<integralInside<<" , "<<m_xs.at("data")->Integral(0, nBins+1, "width")<<"\n";
+    std::cout<<"Cross section fractions in bins (1,2,3): "<<integral1/integralInside<<" , "<<integral2/integralInside<<" , "<<integral3/integralInside<<"\n\n\n";
+    
     if(logY_) canvas->SetLogy();
     common::setHistoStyle(m_xs.at("data"), 1,1,1, 20,1,1.5, 0,0);
     common::setHistoStyle(m_xs.at("madgraph"), 1,2,1, 0,2,1.5, 0,0);
