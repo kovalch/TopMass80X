@@ -42,11 +42,12 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
         Sample::pseudodata
     );
     
-    // The ttbb sample with 2X larger normalisation in pseudodata than in MC stack
+    // EXAMPLE CONFIGURATION: activated by adding to the list in selectAndOrderSamples8TeV()
+    // ttbb sample with 2X larger normalisation in pseudodata than in MC stack
     result["pseudo_ttbarsignalPlusBbbar"] = Sample(
         "Pseudodata",
         kBlack,
-        // EXAMPLE: 2 x TOP-14-016 (ATLAS+CMS combination) - Not implemented
+        // 2 x TOP-14-016 (ATLAS+CMS combination)
         2.*241.5,
         8.5/241.5, -1.,
         {
