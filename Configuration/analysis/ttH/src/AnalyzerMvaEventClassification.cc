@@ -51,10 +51,12 @@ AnalyzerBase("mvaEventA_", selectionStepsNoCategories, stepsForCategories, jetCa
     // Loop over steps, and if training is valid for this step, set up reader
     for(const auto& stepShort : stepsForCategories){
         for(int category = 0; category<jetCategories->numberOfCategories(); ++category){
+            const TString stepNoCategory = tth::stepName(stepShort);
+            const TString categoryName = tth::categoryName(category);
             const TString step = tth::stepName(stepShort, category);
             for(const TString& filename : v_trainingFilename){
-                // Skip if training not valid for step
-                if(!filename.Contains(step)) continue;
+                // Skip if training not valid for step or category
+                if(!filename.Contains(stepNoCategory) || !filename.Contains(categoryName)) continue;
                 
                 // Extract training name from filename of training
                 TString training(filename);
@@ -62,8 +64,8 @@ AnalyzerBase("mvaEventA_", selectionStepsNoCategories, stepsForCategories, jetCa
                 training = training.Data() + last + 1;
                 training.ReplaceAll(".weights.xml", "");
                 
-                std::cout<<"\n\ntraining: "<<step<<" , "<<filename<<" , "<<training<<"\n\n";
-                m_m_mvaWeight_[step][training] = new MvaReaderEventClassification("BDT method");
+                const TString stepInTraining = tth::extractSelectionStepAndJetCategory(filename);
+                m_m_mvaWeight_[step][training] = new MvaReaderEventClassification("BDT method", stepInTraining);
                 m_m_mvaWeight_.at(step).at(training)->book(filename);
             }
         }
@@ -120,31 +122,6 @@ void AnalyzerMvaEventClassification::fillHistos(const EventMetadata&,
         m_histogram.at(name)->Fill(trainingWeight, weight);
     }
 }
-
-
-
-/*
-AnalyzerMvaEventClassification::MvaWeightsStruct::MvaWeightsStruct(const std::string& stepName,
-                                                                   const std::vector<std::string>& v_nameCorrect,
-                                                                   const std::vector<std::string>& v_nameSwapped,
-                                                                   const char* mva2dWeightsFile):
-stepName_(stepName)
-{
-    // Extract the path to the folder containing the root file and xml files with weights
-    TString mva2dWeightsFolder(mva2dWeightsFile);
-    mva2dWeightsFolder.Remove(mva2dWeightsFolder.Last('/')+1);
-    
-    // Access correct weights
-    for(const auto& nameCorrect : v_nameCorrect){
-        TString weightsCorrectFilename(mva2dWeightsFolder);
-        weightsCorrectFilename.Append("correct_").Append(stepName).Append("_").Append(nameCorrect).Append(".weights.xml");
-        
-        m_correct_[nameCorrect] = new MvaReaderTopJets("BDT method");
-        m_correct_.at(nameCorrect)->book(weightsCorrectFilename);
-        
-    }
-}
-*/
 
 
 

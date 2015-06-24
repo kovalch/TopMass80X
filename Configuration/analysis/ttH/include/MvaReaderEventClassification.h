@@ -21,7 +21,7 @@ class MvaReaderEventClassification : public MvaReaderBase{
 public:
     
     /// Constructor which sets MVA weights and creating TMVA Reader
-    MvaReaderEventClassification(const TString& mvaMethod);
+    MvaReaderEventClassification(const TString& mvaMethod, const TString& stepInTraining);
     
     /// Destructor
     ~MvaReaderEventClassification(){};
@@ -35,6 +35,11 @@ private:
     
     /// Read the MVA input variables into the pointer associated to the MVA reader
     virtual void readVariables(MvaVariablesBase* const mvaVariables, const MvaVariablesBase* const mvaVariablesTmp)const;
+    
+    
+    
+    /// For which step this reader is set up, needed to define different variables for different categories
+    const TString& stepInTraining_;
 };
 
 

@@ -6,13 +6,15 @@
 #include "MvaReaderEventClassification.h"
 #include "MvaVariablesBase.h"
 #include "MvaVariablesEventClassification.h"
+#include "higgsUtils.h"
 
 
 
 
 
-MvaReaderEventClassification::MvaReaderEventClassification(const TString& mvaMethod):
-MvaReaderBase(mvaMethod)
+MvaReaderEventClassification::MvaReaderEventClassification(const TString& mvaMethod, const TString& stepInTraining):
+MvaReaderBase(mvaMethod),
+stepInTraining_(stepInTraining)
 {
     std::cout<<"--- Beginning setting up MVA reader for event classification\n";
     std::cout<<"=== Finishing setting up MVA reader for event classification\n\n";
@@ -29,14 +31,54 @@ void MvaReaderEventClassification::bookVariables(TMVA::Reader* const mvaWeightsR
         exit(395);
     }
     
-//    this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->multiplicity_jets_);
-    this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->btagDiscriminatorAverage_tagged_);
-    this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->btagDiscriminatorAverage_untagged_);
-    this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->minDeltaR_jet_jet_);
-    this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->ptSum_jets_leptons_);
-    this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->multiplicity_higgsLikeDijet15_);
-    this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->mass_higgsLikeDijet_);
-    this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->mass_higgsLikeDijet2_);
+    const TString category = tth::extractJetCategory(stepInTraining_);
+    
+    if(category == tth::categoryName(0)){
+        //this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->btagDiscriminatorAverage_tagged_); // Used in Run1, but not good here
+        this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->btagDiscriminatorAverage_untagged_);
+        this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->ptSum_jets_leptons_);
+        this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->minDeltaR_jet_jet_);
+        //this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->multiplicity_higgsLikeDijet15_); // Might be included
+    }
+    else if(category == tth::categoryName(1)){
+        //this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->mass_higgsLikeDijet2_);
+        //this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->minDeltaR_jet_jet_);
+        //this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->ptSum_jets_leptons_);
+        this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->btagDiscriminatorAverage_tagged_);
+        this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->multiplicity_higgsLikeDijet15_);
+        this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->mass_higgsLikeDijet_);
+        this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->multiplicity_jets_);
+    }
+    else if(category == tth::categoryName(2)){
+        this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->btagDiscriminatorAverage_untagged_);
+        this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->minDeltaR_jet_jet_);
+        this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->ptSum_jets_leptons_);
+        this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->multiplicity_jets_);
+        this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->mass_higgsLikeDijet_);
+        this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->mass_higgsLikeDijet2_);
+    }
+    else if(category == tth::categoryName(3)){
+        this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->multiplicity_jets_);
+        this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->btagDiscriminatorAverage_tagged_);
+        this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->multiplicity_higgsLikeDijet15_);
+        this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->mass_higgsLikeDijet2_);
+        //this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->ptSum_jets_leptons_);
+    }
+    else if(category == tth::categoryName({0, 1, 2, 3})){
+        this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->multiplicity_jets_);
+        //this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->btagDiscriminatorAverage_tagged_);
+        //this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->btagDiscriminatorAverage_untagged_);
+        this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->minDeltaR_jet_jet_);
+        this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->ptSum_jets_leptons_);
+        this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->multiplicity_higgsLikeDijet15_);
+        this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->mass_higgsLikeDijet_);
+        this->addVariable(mvaWeightsReader, mvaVariablesEventClassification->mass_higgsLikeDijet2_);
+    }
+    else{
+        std::cerr<<"Error in MvaFactoryEventClassification::configureFactory2()! No input variables defined for category: "
+                 <<category<<"\n...break\n"<<std::endl;
+        exit(281);
+    }
 }
 
 
