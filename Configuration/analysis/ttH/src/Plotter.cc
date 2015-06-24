@@ -431,7 +431,7 @@ void Plotter::write(const Channel::Channel& channel, const Systematic::Systemati
             // Do not add Higgs samples to sumMC (all MC samples) in case of overlaid drawing
             if(drawHiggsOverlaid) continue;
         }
-        if(sampleHistPair.first.sampleType() != Sample::SampleType::data){
+        if(sampleHistPair.first.sampleType() != Sample::SampleType::data && sampleHistPair.first.sampleType() != Sample::SampleType::pseudodata){
             sumMC = addOrCreateHisto(sumMC, sampleHistPair.second);
         }
         if(sampleHistPair.first.sampleType() == Sample::SampleType::ttbb) {

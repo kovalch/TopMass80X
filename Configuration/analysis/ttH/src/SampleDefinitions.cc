@@ -46,7 +46,7 @@ std::map<TString, Sample> SampleDefinitions::samples8TeV()
     result["pseudo_ttbarsignalPlusBbbar"] = Sample(
         "Pseudodata",
         kBlack,
-        // 2 x TOP-14-016 (ATLAS+CMS combination)
+        // EXAMPLE: 2 x TOP-14-016 (ATLAS+CMS combination) - Not implemented
         2.*241.5,
         8.5/241.5, -1.,
         {
