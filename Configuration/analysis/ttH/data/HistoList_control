@@ -93,14 +93,31 @@ mvaEventP_multiplicity_higgsLikeDijet15_step7_cate3 - - - 1 0 0 0 0 0 0 0 0 0
 mvaEventP_mass_higgsLikeDijet_step7_cate3 - - - 1 0 0 0 0 0 0 0 0 0
 mvaEventP_mass_higgsLikeDijet2_step7_cate3 - - - 1 0 0 0 0 0 0 0 0 0
 
+mvaEventP_multiplicity_jets_step7_cate0_cate1_cate2_cate3 - - - 1 0 0 0 0 0 0 0 0 0
+mvaEventP_btagDiscriminatorAverage_tagged_step7_cate0_cate1_cate2_cate3 - - - 1 0 0 0 0 0 0 0 0 0
+mvaEventP_btagDiscriminatorAverage_untagged_step7_cate0_cate1_cate2_cate3 - - - 1 0 0 0 0 0 0 0 0 0
+mvaEventP_minDeltaR_jet_jet_step7_cate0_cate1_cate2_cate3 - - - 1 0 0 0 0 0 0 0 0 0
+mvaEventP_ptSum_jets_leptons_step7_cate0_cate1_cate2_cate3 - - - 1 0 0 0 0 0 0 0 0 0
+mvaEventP_multiplicity_higgsLikeDijet15_step7_cate0_cate1_cate2_cate3 - - - 1 0 0 0 0 0 0 0 0 0
+mvaEventP_mass_higgsLikeDijet_step7_cate0_cate1_cate2_cate3 - - - 1 0 0 0 0 0 0 0 0 0
+mvaEventP_mass_higgsLikeDijet2_step7_cate0_cate1_cate2_cate3 - - - 1 0 0 0 0 0 0 0 0 0
+
 
 
 ##
-## MVA validation plots (perhaps should have an own HistoList_mvaTopA)
+## MVA Top Jets validation plots (perhaps should have an own HistoList_mvaTopA)
 ##
 mvaTopA_jetCategories_step7 - - - 1 0 0 0 0 0 0 0 0 0
 
 mvaTopA_dijet_mass_step7 - - - 1 0 0 0 0 0 0 0 0 0
+
+
+
+##
+## MVA Event Categorisation validation plots (perhaps should have an own HistoList_mvaEventA)
+##
+mvaEventA_jetCategories_step7 - - - 1 0 0 0 0 0 0 0 0 0
+
 
 
 ##
@@ -108,6 +125,8 @@ mvaTopA_dijet_mass_step7 - - - 1 0 0 0 0 0 0 0 0 0
 ##
 hfFracScaling_probeJet_btagDiscriminator_3or4btags_step7 - - "CSV discriminant (probe jet)" 5 0 0 0 0 0 1e-5 1e0 0 0
 hfFracScaling_probeJet_btagDiscriminator_2or3btags_step7 - - "CSV discriminant (probe jet)" 5 0 0 0 0 0 1e-5 1e0 0 0
+
+
 
 ##
 ## Basic control plots
@@ -148,6 +167,18 @@ basic_bjet_phi_step7 - - - 1 0 0 0 0 0 0 0 0 0
 basic_bjet_chargeRelativePtWeighted_step7 - - - 1 0 0 0 0 0 0 0 0 0
 basic_met_et_step7 - - - 1 0 0 0 0 0 0 0 0 0
 basic_met_phi_step7 - - - 1 0 0 0 0 0 0 0 0 0
+
+basic_jet1st_pt_step7 - - - 1 0 0 0 0 0 0 0 0 0
+basic_jet1st_btagDiscriminator_step7 - - - 1 0 0 0 0 0 0 0 0 0
+basic_jet1st_pt_step7_cate0 - - - 1 0 0 0 0 0 0 0 0 0
+basic_jet1st_btagDiscriminator_step7_cate0 - - - 1 0 0 0 0 0 0 0 0 0
+basic_jet1st_pt_step7_cate1 - - - 1 0 0 0 0 0 0 0 0 0
+basic_jet1st_btagDiscriminator_step7_cate1 - - - 1 0 0 0 0 0 0 0 0 0
+basic_jet1st_pt_step7_cate2 - - - 1 0 0 0 0 0 0 0 0 0
+basic_jet1st_btagDiscriminator_step7_cate2 - - - 1 0 0 0 0 0 0 0 0 0
+basic_jet1st_pt_step7_cate3 - - - 1 0 0 0 0 0 0 0 0 0
+basic_jet1st_btagDiscriminator_step7_cate3 - - - 1 0 0 0 0 0 0 0 0 0
+
 
 
 
